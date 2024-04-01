@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { memo, FC, useMemo } from 'react';
 
 import classNames from 'clsx';
 import InfiniteScroll from 'react-infinite-scroll-component';
@@ -9,8 +9,9 @@ import { useLoadPartnersPromo } from 'app/hooks/use-load-partners-promo';
 import { ReactComponent as LayersIcon } from 'app/icons/layers.svg';
 import { PartnersPromotion, PartnersPromotionVariant } from 'app/templates/partners-promotion';
 import { T } from 'lib/i18n/react';
-import useActivities from 'lib/temple/activity-new/hook';
-import { useAccount } from 'lib/temple/front';
+import useTezosActivities from 'lib/temple/activity-new/hook';
+import { UNDER_DEVELOPMENT_MSG } from 'temple/evm/under_dev_msg';
+import { useAccountAddressForTezos } from 'temple/front';
 
 import { ActivityItem } from './ActivityItem';
 
@@ -21,12 +22,29 @@ interface Props {
   assetSlug?: string;
 }
 
-export const ActivityComponent: React.FC<Props> = ({ assetSlug }) => {
-  const { loading, reachedTheEnd, list: activities, loadMore } = useActivities(INITIAL_NUMBER, assetSlug);
+export const ActivityTab = memo<Props>(({ assetSlug }) => {
+  const accountAddress = useAccountAddressForTezos();
+
+  return accountAddress ? (
+    <ActivityComponent accountAddress={accountAddress} assetSlug={assetSlug} />
+  ) : (
+    <div className="w-full max-w-sm mx-auto py-3 text-center">{UNDER_DEVELOPMENT_MSG}</div>
+  );
+});
+
+interface ActivityComponentProps extends Props {
+  accountAddress: string;
+}
+
+const ActivityComponent: FC<ActivityComponentProps> = ({ accountAddress, assetSlug }) => {
+  const {
+    loading,
+    reachedTheEnd,
+    list: activities,
+    loadMore
+  } = useTezosActivities(accountAddress, INITIAL_NUMBER, assetSlug);
 
   const { popup } = useAppEnv();
-
-  const { publicKeyHash: accountAddress } = useAccount();
 
   useLoadPartnersPromo();
 

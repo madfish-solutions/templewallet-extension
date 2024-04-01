@@ -1,4 +1,4 @@
-import React, { FC, ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { FC, ReactNode, useCallback, useMemo, useState } from 'react';
 
 import { DerivationType } from '@taquito/ledger-signer';
 import classNames from 'clsx';
@@ -7,25 +7,25 @@ import { Controller, useForm } from 'react-hook-form';
 import { Alert, FormField, FormSubmitButton } from 'app/atoms';
 import ConfirmLedgerOverlay from 'app/atoms/ConfirmLedgerOverlay';
 import { DEFAULT_DERIVATION_PATH } from 'app/defaults';
+import { useAllAccountsReactiveOnAddition } from 'app/hooks/use-all-accounts-reactive';
 import { ReactComponent as LinkIcon } from 'app/icons/link.svg';
 import { ReactComponent as OkIcon } from 'app/icons/ok.svg';
 import PageLayout from 'app/layouts/PageLayout';
 import { useFormAnalytics } from 'lib/analytics';
 import { T, t } from 'lib/i18n';
 import { getLedgerTransportType } from 'lib/ledger/helpers';
-import { useAllAccounts, useSetAccountPkh, useTempleClient, validateDerivationPath } from 'lib/temple/front';
+import { useTempleClient, validateDerivationPath } from 'lib/temple/front';
 import { TempleAccountType } from 'lib/temple/types';
 import { delay } from 'lib/utils';
-import { navigate } from 'lib/woozie';
 
 import { ConnectLedgerSelectors } from './ConnectLedger.selectors';
 
-type FormData = {
+interface FormData {
   name: string;
   customDerivationPath: string;
   derivationType?: DerivationType;
   accountNumber?: number;
-};
+}
 
 const DERIVATION_PATHS = [
   {
@@ -61,23 +61,13 @@ const LEDGER_USB_VENDOR_ID = '0x2c97';
 
 const ConnectLedger: FC = () => {
   const { createLedgerAccount } = useTempleClient();
-  const allAccounts = useAllAccounts();
-  const setAccountPkh = useSetAccountPkh();
   const formAnalytics = useFormAnalytics('ConnectLedger');
+
+  const allAccounts = useAllAccountsReactiveOnAddition();
 
   const allLedgers = useMemo(() => allAccounts.filter(acc => acc.type === TempleAccountType.Ledger), [allAccounts]);
 
   const defaultName = useMemo(() => t('defaultLedgerName', String(allLedgers.length + 1)), [allLedgers.length]);
-
-  const prevAccLengthRef = useRef(allAccounts.length);
-  useEffect(() => {
-    const accLength = allAccounts.length;
-    if (prevAccLengthRef.current < accLength) {
-      setAccountPkh(allAccounts[accLength - 1].publicKeyHash);
-      navigate('/');
-    }
-    prevAccLengthRef.current = accLength;
-  }, [allAccounts, setAccountPkh]);
 
   const { control, register, handleSubmit, errors, formState } = useForm<FormData>({
     defaultValues: {

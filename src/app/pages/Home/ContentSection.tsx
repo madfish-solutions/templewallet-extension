@@ -7,7 +7,7 @@ import { useTabSlug } from 'app/atoms/useTabSlug';
 import { useAppEnv } from 'app/env';
 import ErrorBoundary from 'app/ErrorBoundary';
 import { ToolbarElement } from 'app/layouts/PageLayout';
-import { ActivityComponent } from 'app/templates/activity/Activity';
+import { ActivityTab } from 'app/templates/activity/Activity';
 import AssetInfo from 'app/templates/AssetInfo';
 import { TabsBar } from 'app/templates/TabBar';
 import { isTezAsset } from 'lib/assets';
@@ -19,10 +19,10 @@ import { HomeSelectors } from './Home.selectors';
 import BakingSection from './OtherComponents/BakingSection';
 import { TokensTab } from './OtherComponents/Tokens/Tokens';
 
-type Props = {
+interface Props {
   assetSlug?: string | null;
   className?: string;
-};
+}
 
 type TabName = 'tokens' | 'collectibles' | 'activity' | 'delegation' | 'info';
 
@@ -69,7 +69,7 @@ export const ContentSection = memo<Props>(({ assetSlug, className }) => {
         {
           name: 'activity',
           titleI18nKey: 'activity',
-          Component: ActivityComponent,
+          Component: ActivityTab,
           testID: HomeSelectors.activityTab,
           whileMessageI18nKey: 'operationHistoryWhileMessage'
         }
@@ -79,7 +79,7 @@ export const ContentSection = memo<Props>(({ assetSlug, className }) => {
     const activity: TabData = {
       name: 'activity',
       titleI18nKey: 'activity',
-      Component: () => <ActivityComponent assetSlug={assetSlug} />,
+      Component: () => <ActivityTab assetSlug={assetSlug} />,
       testID: HomeSelectors.activityTab
     };
 

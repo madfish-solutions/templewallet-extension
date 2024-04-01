@@ -2,8 +2,8 @@ import { useMemo } from 'react';
 
 import { useAccountCollectiblesSelector } from 'app/store/assets/selectors';
 import { useAllAccountBalancesSelector } from 'app/store/balances/selectors';
-import { useAccount, useChainId } from 'lib/temple/front';
 import { useMemoWithCompare } from 'lib/ui/hooks';
+import { useTezosNetwork } from 'temple/front';
 
 import type { AccountAsset } from '../types';
 
@@ -36,9 +36,8 @@ export const useAccountCollectibles = (account: string, chainId: string) => {
   );
 };
 
-export const useEnabledAccountCollectiblesSlugs = () => {
-  const chainId = useChainId(true)!;
-  const { publicKeyHash } = useAccount();
+export const useEnabledAccountCollectiblesSlugs = (publicKeyHash: string) => {
+  const { chainId } = useTezosNetwork();
 
   const collectibles = useAccountCollectibles(publicKeyHash, chainId);
 

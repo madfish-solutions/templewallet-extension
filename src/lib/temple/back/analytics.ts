@@ -2,7 +2,7 @@ import { jitsuClient } from '@jitsu/sdk-js/packages/javascript-sdk';
 
 import { EnvVars } from 'lib/env';
 import { TempleSendPageEventRequest, TempleSendTrackEventRequest } from 'lib/temple/analytics-types';
-import { loadChainId } from 'lib/temple/helpers';
+import { loadTezosChainId } from 'temple/tezos';
 
 const { TEMPLE_WALLET_JITSU_WRITE_KEY: WRITE_KEY, TEMPLE_WALLET_JITSU_TRACKING_HOST: TRACKING_HOST } = EnvVars;
 
@@ -18,7 +18,7 @@ export const trackEvent = async ({
   category,
   properties
 }: Omit<TempleSendTrackEventRequest, 'type'>) => {
-  const chainId = rpc && (await loadChainId(rpc));
+  const chainId = rpc && (await loadTezosChainId(rpc));
 
   client.track(`${category} ${event}`, {
     userId,
@@ -41,7 +41,7 @@ export const pageEvent = async ({
   additionalProperties
 }: Omit<TempleSendPageEventRequest, 'type'>) => {
   const url = `${path}${search}`;
-  const chainId = rpc && (await loadChainId(rpc));
+  const chainId = rpc && (await loadTezosChainId(rpc));
 
   client.track('AnalyticsEventCategory.PageOpened', {
     userId,

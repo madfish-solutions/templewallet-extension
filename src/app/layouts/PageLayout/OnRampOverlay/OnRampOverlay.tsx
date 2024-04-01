@@ -1,7 +1,6 @@
 import React, { FC, useMemo } from 'react';
 
 import classNames from 'clsx';
-import { useDispatch } from 'react-redux';
 
 import { Anchor, Button } from 'app/atoms';
 import { useAppEnv } from 'app/env';
@@ -12,10 +11,11 @@ import { ReactComponent as SmileWithGlassesIcon } from 'app/icons/smile-with-gla
 import { ReactComponent as SmileIcon } from 'app/icons/smile.svg';
 import ContentContainer from 'app/layouts/ContentContainer';
 import { useOnboardingProgress } from 'app/pages/Onboarding/hooks/useOnboardingProgress.hook';
+import { dispatch } from 'app/store';
 import { setOnRampPossibilityAction } from 'app/store/settings/actions';
 import { useOnRampPossibilitySelector } from 'app/store/settings/selectors';
 import { T } from 'lib/i18n/react';
-import { useAccount } from 'lib/temple/front';
+import { useAccountAddressForTezos } from 'temple/front';
 
 import OnRampOverlayBgPopupImg from './assets/on-ramp-overlay-bg-popup.png';
 import OnRampOverlayBgImg from './assets/on-ramp-overlay-bg.png';
@@ -24,8 +24,7 @@ import { OnRampSmileButton } from './OnRampSmileButton/OnRampSmileButton';
 import { getWertLink } from './utils/getWertLink.util';
 
 export const OnRampOverlay: FC = () => {
-  const dispatch = useDispatch();
-  const { publicKeyHash } = useAccount();
+  const publicKeyHash = useAccountAddressForTezos();
   const { popup } = useAppEnv();
   const isOnRampPossibility = useOnRampPossibilitySelector();
   const { onboardingCompleted } = useOnboardingProgress();
@@ -36,7 +35,7 @@ export const OnRampOverlay: FC = () => {
   );
   const close = () => void dispatch(setOnRampPossibilityAction(false));
 
-  if (!isOnRampPossibility || !onboardingCompleted) return null;
+  if (!isOnRampPossibility || !onboardingCompleted || !publicKeyHash) return null;
 
   return (
     <>

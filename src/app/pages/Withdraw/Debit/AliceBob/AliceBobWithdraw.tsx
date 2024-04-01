@@ -1,15 +1,18 @@
-import React, { FC, useState } from 'react';
+import React, { memo, useMemo, useState } from 'react';
 
 import { Stepper } from 'app/atoms';
 import { Anchor } from 'app/atoms/Anchor';
+import { DeadEndBoundaryError } from 'app/ErrorBoundary';
 import { ReactComponent as AttentionRedIcon } from 'app/icons/attentionRed.svg';
 import PageLayout from 'app/layouts/PageLayout';
 import styles from 'app/pages/Buy/Crypto/Exolix/Exolix.module.css';
 import { AliceBobOrderInfo, AliceBobOrderStatus } from 'lib/apis/temple';
 import { t, T } from 'lib/i18n/react';
-import { useAccount, useNetwork, useStorage } from 'lib/temple/front';
+import { useStorage } from 'lib/temple/front';
 import { TempleAccountType } from 'lib/temple/types';
 import { Redirect } from 'lib/woozie';
+import { getAccountForTezos } from 'temple/accounts';
+import { useAccount, useTezosNetwork } from 'temple/front';
 
 import { WithdrawSelectors } from '../../Withdraw.selectors';
 
@@ -23,10 +26,14 @@ const ALICE_BOB_TERMS_LINK =
   'https://oval-rhodium-33f.notion.site/End-User-License-Agreement-Abex-Eng-6124123e256d456a83cffc3b2977c4dc';
 const ALICE_BOB_CONTACT_LINK = 'https://t.me/alicebobhelp';
 
-export const AliceBobWithdraw: FC = () => {
-  const network = useNetwork();
-  const account = useAccount();
-  const { publicKeyHash } = account;
+export const AliceBobWithdraw = memo(() => {
+  const { isMainnet } = useTezosNetwork();
+  const currentAccount = useAccount();
+
+  const account = useMemo(() => getAccountForTezos(currentAccount), [currentAccount]);
+  if (!account) throw new DeadEndBoundaryError();
+
+  const publicKeyHash = account.address;
 
   const [step, setStep] = useStorage<number>(`alice_bob_withdraw_step_state_${publicKeyHash}`, 0);
   const [isApiError, setIsApiError] = useState(false);
@@ -35,7 +42,7 @@ export const AliceBobWithdraw: FC = () => {
     null
   );
 
-  if (network.type !== 'main' || account.type === TempleAccountType.WatchOnly) {
+  if (!isMainnet || account.type === TempleAccountType.WatchOnly) {
     return <Redirect to={'/'} />;
   }
 
@@ -68,6 +75,7 @@ export const AliceBobWithdraw: FC = () => {
 
         {step === 0 && (
           <InitialStep
+            publicKeyHash={publicKeyHash}
             isApiError={isApiError}
             setStep={setStep}
             setOrderInfo={setOrderInfo}
@@ -77,6 +85,8 @@ export const AliceBobWithdraw: FC = () => {
 
         {orderInfo && step === 1 && (
           <SellStep
+            publicKeyHash={publicKeyHash}
+            ownerAddress={currentAccount.type === TempleAccountType.ManagedKT ? currentAccount.owner : undefined}
             orderInfo={orderInfo}
             isApiError={isApiError}
             setStep={setStep}
@@ -130,4 +140,4 @@ export const AliceBobWithdraw: FC = () => {
       </div>
     </PageLayout>
   );
-};
+});

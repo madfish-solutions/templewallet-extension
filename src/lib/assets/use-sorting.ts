@@ -5,11 +5,11 @@ import { BigNumber } from 'bignumber.js';
 import { useAllAccountBalancesSelector } from 'app/store/balances/selectors';
 import { useGetCurrentAccountTokenOrGasBalanceWithDecimals } from 'lib/balances/hooks';
 import { useUsdToTokenRates } from 'lib/fiat-currency/core';
-import { useAccount, useChainId } from 'lib/temple/front';
 import { ZERO } from 'lib/utils/numbers';
+import { useTezosNetwork } from 'temple/front';
 
-export const useTokensSortPredicate = () => {
-  const getBalance = useGetCurrentAccountTokenOrGasBalanceWithDecimals();
+export const useTokensSortPredicate = (publicKeyHash: string) => {
+  const getBalance = useGetCurrentAccountTokenOrGasBalanceWithDecimals(publicKeyHash);
   const usdToTokenRates = useUsdToTokenRates();
 
   return useCallback(
@@ -29,9 +29,8 @@ export const useTokensSortPredicate = () => {
   );
 };
 
-export const useCollectiblesSortPredicate = () => {
-  const { publicKeyHash } = useAccount();
-  const chainId = useChainId(true)!;
+export const useCollectiblesSortPredicate = (publicKeyHash: string) => {
+  const { chainId } = useTezosNetwork();
 
   const balancesRaw = useAllAccountBalancesSelector(publicKeyHash, chainId);
 

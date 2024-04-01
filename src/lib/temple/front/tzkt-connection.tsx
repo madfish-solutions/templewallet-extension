@@ -13,9 +13,9 @@ import React, {
 import { noop } from 'lodash';
 
 import { createWsConnection, TzktHubConnection } from 'lib/apis/tzkt';
+import { useTezosNetwork } from 'temple/front';
 
 import { useTempleClient } from './client';
-import { useChainId } from './ready';
 
 interface TzktConnectionContextValue {
   connection: TzktHubConnection | undefined;
@@ -36,7 +36,7 @@ const NotReadyClientTzktConnectionProvider: FC<PropsWithChildren> = ({ children 
 );
 
 const ReadyClientTzktConnectionProvider: FC<PropsWithChildren> = ({ children }) => {
-  const chainId = useChainId();
+  const { chainId } = useTezosNetwork();
   const [connectionReady, setConnectionReadyState] = useState(false);
   const connectionReadyRef = useRef(connectionReady);
   const shouldShutdownConnection = useRef(false);

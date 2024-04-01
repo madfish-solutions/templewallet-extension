@@ -8,7 +8,6 @@ import { useMainnetTokensScamlistSelector } from 'app/store/assets/selectors';
 import { setAnotherSelector, setTestID } from 'lib/analytics';
 import { TEZ_TOKEN_SLUG } from 'lib/assets';
 import { useAssetMetadata, getAssetSymbol } from 'lib/metadata';
-import { useAccount } from 'lib/temple/front';
 import { HistoryAction, navigate, useLocation } from 'lib/woozie';
 
 import { useOnboardingProgress } from '../Onboarding/hooks/useOnboardingProgress.hook';
@@ -21,14 +20,13 @@ import MainBanner from './OtherComponents/MainBanner';
 import { ScamTokenAlert } from './OtherComponents/ScamTokenAlert';
 import { TokenPageSelectors } from './OtherComponents/TokenPage.selectors';
 
-type Props = {
+interface Props {
   assetSlug?: string | null;
-};
+}
 
 const Home = memo<Props>(({ assetSlug }) => {
   const { fullPage, registerBackHandler } = useAppEnv();
   const { onboardingCompleted } = useOnboardingProgress();
-  const { publicKeyHash } = useAccount();
   const { search } = useLocation();
 
   const mainnetTokensScamSlugsRecord = useMainnetTokensScamlistSelector();
@@ -73,7 +71,7 @@ const Home = memo<Props>(({ assetSlug }) => {
       {showScamTokenAlert && <ScamTokenAlert />}
 
       <div className="flex flex-col items-center mb-6">
-        <MainBanner accountPkh={publicKeyHash} assetSlug={assetSlug} />
+        <MainBanner assetSlug={assetSlug} />
 
         <ActionButtonsBar assetSlug={assetSlug} />
       </div>

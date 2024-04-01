@@ -1,15 +1,14 @@
 import { useEffect, useMemo } from 'react';
 
-import { useDispatch } from 'react-redux';
-
+import { dispatch } from 'app/store';
 import { refreshTokensMetadataAction } from 'app/store/tokens-metadata/actions';
 import { useAllTokensMetadataSelector } from 'app/store/tokens-metadata/selectors';
 import { fetchTokensMetadata } from 'lib/apis/temple';
 import { ALL_PREDEFINED_METADATAS_RECORD } from 'lib/assets/known-tokens';
 import { reduceToMetadataRecord } from 'lib/metadata/fetch';
-import { useChainId } from 'lib/temple/front';
-import { TempleChainId } from 'lib/temple/types';
+import { TempleTezosChainId } from 'lib/temple/types';
 import { useLocalStorage } from 'lib/ui/local-storage';
+import { useTezosNetwork } from 'temple/front';
 
 const STORAGE_KEY = 'METADATA_REFRESH';
 
@@ -18,8 +17,7 @@ type RefreshRecords = Record<string, number>;
 const REFRESH_VERSION = 1;
 
 export const useMetadataRefresh = () => {
-  const chainId = useChainId()!;
-  const dispatch = useDispatch();
+  const { chainId } = useTezosNetwork();
 
   const [records, setRecords] = useLocalStorage<RefreshRecords>(STORAGE_KEY, {});
 
@@ -41,7 +39,7 @@ export const useMetadataRefresh = () => {
       return;
     }
 
-    if (!needToSetVersion || chainId !== TempleChainId.Mainnet) return;
+    if (!needToSetVersion || chainId !== TempleTezosChainId.Mainnet) return;
 
     fetchTokensMetadata(chainId, slugsOnAppLoad).then(
       data => {

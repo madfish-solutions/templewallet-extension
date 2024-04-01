@@ -20,29 +20,21 @@ import { useFormAnalytics } from 'lib/analytics';
 import { submitDelegation } from 'lib/apis/everstake';
 import { ABTestGroup } from 'lib/apis/temple';
 import { useGasToken } from 'lib/assets/hooks';
-import { BLOCK_DURATION } from 'lib/fixed-times';
+import { TEZOS_BLOCK_DURATION } from 'lib/fixed-times';
 import { TID, T, t } from 'lib/i18n';
 import { HELP_UKRAINE_BAKER_ADDRESS, RECOMMENDED_BAKER_ADDRESS } from 'lib/known-bakers';
 import { setDelegate } from 'lib/michelson';
 import { useTypedSWR } from 'lib/swr';
 import { loadContract } from 'lib/temple/contract';
-import {
-  Baker,
-  isDomainNameValid,
-  useAccount,
-  useKnownBaker,
-  useKnownBakers,
-  useNetwork,
-  useTezos,
-  useTezosDomainsClient,
-  validateDelegate
-} from 'lib/temple/front';
-import { useTezosAddressByDomainName } from 'lib/temple/front/tzdns';
-import { hasManager, isAddressValid, isKTAddress, mutezToTz, tzToMutez } from 'lib/temple/helpers';
-import { TempleAccountType } from 'lib/temple/types';
+import { Baker, useKnownBaker, useKnownBakers, validateDelegate } from 'lib/temple/front';
+import { mutezToTz, tzToMutez } from 'lib/temple/helpers';
+import { isValidTezosAddress, isTezosContractAddress, tezosManagerKeyHasManager } from 'lib/tezos';
 import { useSafeState } from 'lib/ui/hooks';
 import { delay, fifoResolve } from 'lib/utils';
 import { Link, useLocation } from 'lib/woozie';
+import { AccountForTezos } from 'temple/accounts';
+import { useTezosNetwork, useTezosWithSigner } from 'temple/front';
+import { isTezosDomainsNameValid, useTezosAddressByDomainName, useTezosDomainsClient } from 'temple/front/tezos';
 
 import { DelegateFormSelectors } from './DelegateForm.selectors';
 
@@ -56,18 +48,20 @@ interface FormData {
 }
 
 interface Props {
+  account: AccountForTezos;
   balance: BigNumber;
+  /** Present for `account.type === TempleAccountType.ManagedKT` */
+  ownerAddress?: string;
 }
 
-const DelegateForm = memo<Props>(({ balance }) => {
+const DelegateForm = memo<Props>(({ account, balance, ownerAddress }) => {
   const { registerBackHandler } = useAppEnv();
   const formAnalytics = useFormAnalytics('DelegateForm');
   const { symbol, isDcpNetwork, logo } = useGasToken();
 
-  const acc = useAccount();
-  const tezos = useTezos();
+  const tezos = useTezosWithSigner(ownerAddress || account.address);
 
-  const accountPkh = acc.publicKeyHash;
+  const address = account.address;
 
   const balanceNum = balance.toNumber();
   const domainsClient = useTezosDomainsClient();
@@ -86,9 +80,9 @@ const DelegateForm = memo<Props>(({ balance }) => {
 
   const toValue = watch('to');
 
-  const toFilledWithAddress = useMemo(() => Boolean(toValue && isAddressValid(toValue)), [toValue]);
+  const toFilledWithAddress = useMemo(() => Boolean(toValue && isValidTezosAddress(toValue)), [toValue]);
   const toFilledWithDomain = useMemo(
-    () => toValue && isDomainNameValid(toValue, domainsClient),
+    () => toValue && isTezosDomainsNameValid(toValue, domainsClient),
     [toValue, domainsClient]
   );
   const { data: resolvedAddress } = useTezosAddressByDomainName(toValue);
@@ -103,17 +97,17 @@ const DelegateForm = memo<Props>(({ balance }) => {
   const toResolved = useMemo(() => resolvedAddress || toValue, [resolvedAddress, toValue]);
 
   const getEstimation = useCallback(async () => {
-    if (acc.type === TempleAccountType.ManagedKT) {
-      const contract = await loadContract(tezos, accountPkh);
+    if (ownerAddress) {
+      const contract = await loadContract(tezos, address);
       const transferParams = contract.methods.do(setDelegate(toResolved)).toTransferParams();
       return tezos.estimate.transfer(transferParams);
     } else {
       return tezos.estimate.setDelegate({
-        source: accountPkh,
+        source: address,
         delegate: toResolved
       } as DelegateParams);
     }
-  }, [tezos, accountPkh, acc.type, toResolved]);
+  }, [tezos, address, ownerAddress, toResolved]);
 
   const cleanToField = useCallback(() => {
     setValue('to', '');
@@ -135,12 +129,10 @@ const DelegateForm = memo<Props>(({ balance }) => {
       if (balance.isZero()) throw new ZeroBalanceError();
 
       const estmtn = await getEstimation();
-      const manager = await tezos.rpc.getManagerKey(
-        acc.type === TempleAccountType.ManagedKT ? acc.owner : acc.publicKeyHash
-      );
+      const manager = await tezos.rpc.getManagerKey(ownerAddress || address);
 
       let baseFee = mutezToTz(estmtn.burnFeeMutez + estmtn.suggestedFeeMutez);
-      if (!hasManager(manager) && acc.type !== TempleAccountType.ManagedKT) {
+      if (!tezosManagerKeyHasManager(manager) && !ownerAddress) {
         baseFee = baseFee.plus(mutezToTz(DEFAULT_FEE.REVEAL));
       }
 
@@ -170,19 +162,19 @@ const DelegateForm = memo<Props>(({ balance }) => {
           throw err;
       }
     }
-  }, [balance, tezos, getEstimation, acc]);
+  }, [balance, tezos, getEstimation, address, ownerAddress]);
 
   const {
     data: baseFee,
     error: estimateBaseFeeError,
     isValidating: estimating
   } = useTypedSWR(
-    () => (toFilled ? ['delegate-base-fee', tezos.checksum, accountPkh, toResolved] : null),
+    () => (toFilled ? ['delegate-base-fee', tezos.clientId, address, toResolved] : null),
     estimateBaseFee,
     {
       shouldRetryOnError: false,
       focusThrottleInterval: 10_000,
-      dedupingInterval: BLOCK_DURATION
+      dedupingInterval: TEZOS_BLOCK_DURATION
     }
   );
   const baseFeeError = baseFee instanceof Error ? baseFee : estimateBaseFeeError;
@@ -207,8 +199,8 @@ const DelegateForm = memo<Props>(({ balance }) => {
     [maxAddFee]
   );
 
-  const [submitError, setSubmitError] = useSafeState<ReactNode>(null, `${tezos.checksum}_${toResolved}`);
-  const [operation, setOperation] = useSafeState<any>(null, tezos.checksum);
+  const [submitError, setSubmitError] = useSafeState<ReactNode>(null, `${tezos.clientId}_${toResolved}`);
+  const [operation, setOperation] = useSafeState<any>(null, tezos.clientId);
 
   const onSubmit = useCallback(
     async ({ fee: feeVal }: FormData) => {
@@ -226,13 +218,13 @@ const DelegateForm = memo<Props>(({ balance }) => {
         const fee = addFee.plus(estmtn.suggestedFeeMutez).toNumber();
         let op: WalletOperation | TransactionOperation;
         let opHash = '';
-        if (acc.type === TempleAccountType.ManagedKT) {
-          const contract = await loadContract(tezos, acc.publicKeyHash);
+        if (ownerAddress) {
+          const contract = await loadContract(tezos, address);
           op = await contract.methods.do(setDelegate(to)).send({ amount: 0 });
         } else {
           op = await tezos.wallet
             .setDelegate({
-              source: accountPkh,
+              source: address,
               delegate: to,
               fee
             } as any)
@@ -264,10 +256,10 @@ const DelegateForm = memo<Props>(({ balance }) => {
       }
     },
     [
-      acc,
+      address,
+      ownerAddress,
       formState.isSubmitting,
       tezos,
-      accountPkh,
       setSubmitError,
       setOperation,
       reset,
@@ -350,6 +342,7 @@ const DelegateForm = memo<Props>(({ balance }) => {
         )}
 
         <BakerForm
+          accountPkh={address}
           baker={baker}
           balance={balance}
           submitError={submitError}
@@ -373,6 +366,7 @@ const DelegateForm = memo<Props>(({ balance }) => {
 export default DelegateForm;
 
 interface BakerFormProps {
+  accountPkh: string;
   baker: Baker | null | undefined;
   toFilled: boolean | '';
   balance: BigNumber;
@@ -390,6 +384,7 @@ interface BakerFormProps {
 }
 
 const BakerForm: React.FC<BakerFormProps> = ({
+  accountPkh,
   baker,
   balance,
   submitError,
@@ -443,7 +438,7 @@ const BakerForm: React.FC<BakerFormProps> = ({
         />
       )}
 
-      <BakerBannerComponent balanceNum={balance.toNumber()} baker={baker} tzError={tzError} />
+      <BakerBannerComponent accountPkh={accountPkh} balanceNum={balance.toNumber()} baker={baker} tzError={tzError} />
 
       {tzError && <DelegateErrorAlert type={submitError ? 'submit' : 'estimation'} error={tzError} />}
 
@@ -469,24 +464,25 @@ const BakerForm: React.FC<BakerFormProps> = ({
       </FormSubmitButton>
     </>
   ) : (
-    <KnownDelegatorsList setValue={setValue} triggerValidation={triggerValidation} />
+    <KnownDelegatorsList accountPkh={accountPkh} setValue={setValue} triggerValidation={triggerValidation} />
   );
 };
 
 interface BakerBannerComponentProps {
+  accountPkh: string;
   balanceNum: number;
   baker: Baker | null | undefined;
   tzError: any;
 }
 
-const BakerBannerComponent = React.memo<BakerBannerComponentProps>(({ balanceNum, tzError, baker }) => {
-  const net = useNetwork();
+const BakerBannerComponent = React.memo<BakerBannerComponentProps>(({ accountPkh, balanceNum, tzError, baker }) => {
+  const { isMainnet } = useTezosNetwork();
   const { symbol } = useGasToken();
 
   return baker ? (
     <>
       <div className="-mt-2 mb-6 flex flex-col items-center">
-        <BakerBanner bakerPkh={baker.address} style={{ width: undefined }} />
+        <BakerBanner accountPkh={accountPkh} bakerPkh={baker.address} style={{ width: undefined }} />
       </div>
 
       {!tzError && baker.minDelegation > balanceNum && (
@@ -507,12 +503,18 @@ const BakerBannerComponent = React.memo<BakerBannerComponentProps>(({ balanceNum
         />
       )}
     </>
-  ) : !tzError && net.type === 'main' ? (
+  ) : !tzError && isMainnet ? (
     <Alert type="warning" title={t('unknownBakerTitle')} description={t('unknownBakerDescription')} className="mb-6" />
   ) : null;
 });
 
-const KnownDelegatorsList: React.FC<{ setValue: any; triggerValidation: any }> = ({ setValue, triggerValidation }) => {
+interface KnownDelegatorsListProps {
+  accountPkh: string;
+  setValue: any;
+  triggerValidation: any;
+}
+
+const KnownDelegatorsList = memo<KnownDelegatorsListProps>(({ accountPkh, setValue, triggerValidation }) => {
   const knownBakers = useKnownBakers();
   const { search } = useLocation();
   const testGroupName = useUserTestingGroupNameSelector();
@@ -676,6 +678,7 @@ const KnownDelegatorsList: React.FC<{ setValue: any; triggerValidation: any }> =
               testIDProperties={{ bakerAddress: baker.address, abTestingCategory: testGroupName }}
             >
               <BakerBanner
+                accountPkh={accountPkh}
                 bakerPkh={baker.address}
                 link
                 style={{ width: undefined }}
@@ -687,7 +690,7 @@ const KnownDelegatorsList: React.FC<{ setValue: any; triggerValidation: any }> =
       </div>
     </div>
   );
-};
+});
 
 type DelegateErrorAlertProps = {
   type: 'submit' | 'estimation';
@@ -766,10 +769,10 @@ function validateAddress(value: string) {
     case value?.length > 0:
       return true;
 
-    case isAddressValid(value):
+    case isValidTezosAddress(value):
       return 'invalidAddress';
 
-    case !isKTAddress(value):
+    case !isTezosContractAddress(value):
       return 'unableToDelegateToKTAddress';
 
     default:

@@ -7,6 +7,7 @@ import { Button } from 'app/atoms/Button';
 import Spinner from 'app/atoms/Spinner/Spinner';
 import { useAppEnv } from 'app/env';
 // SVG
+import { DeadEndBoundaryError } from 'app/ErrorBoundary';
 import { ReactComponent as DelegateIcon } from 'app/icons/delegate.svg';
 import { ReactComponent as DiscordIcon } from 'app/icons/delegationDis.svg';
 import { ReactComponent as RedditIcon } from 'app/icons/delegationRed.svg';
@@ -25,10 +26,11 @@ import { getDelegatorRewards, isKnownChainId } from 'lib/apis/tzkt';
 import { useGasToken } from 'lib/assets/hooks';
 import { T, t } from 'lib/i18n';
 import { useRetryableSWR } from 'lib/swr';
-import { useAccount, useChainId, useDelegate } from 'lib/temple/front';
+import { useDelegate } from 'lib/temple/front';
 import { TempleAccountType } from 'lib/temple/types';
 import useTippy from 'lib/ui/useTippy';
 import { Link } from 'lib/woozie';
+import { useAccountForTezos, useTezosNetwork } from 'temple/front';
 
 import styles from './BakingSection.module.css';
 import { BakingSectionSelectors } from './BakingSection.selectors';
@@ -70,10 +72,12 @@ const links = [
 ];
 
 const BakingSection = memo(() => {
-  const acc = useAccount();
-  const { data: myBakerPkh } = useDelegate(acc.publicKeyHash, true, false);
-  const canDelegate = acc.type !== TempleAccountType.WatchOnly;
-  const chainId = useChainId(true);
+  const account = useAccountForTezos();
+  if (!account) throw new DeadEndBoundaryError();
+
+  const { data: myBakerPkh } = useDelegate(account.address, true, false);
+  const canDelegate = account.type !== TempleAccountType.WatchOnly;
+  const { chainId } = useTezosNetwork();
   const { isDcpNetwork } = useGasToken();
   const testGroupName = useUserTestingGroupNameSelector();
 
@@ -88,7 +92,7 @@ const BakingSection = memo(() => {
 
   const getBakingHistory = useCallback(
     async ([, accountPkh, , chainId]: [string, string, string | nullish, string | nullish]) => {
-      if (!isKnownChainId(chainId!)) {
+      if (!isKnownChainId(chainId)) {
         return [];
       }
       return (
@@ -101,7 +105,7 @@ const BakingSection = memo(() => {
     []
   );
   const { data: bakingHistory, isValidating: loadingBakingHistory } = useRetryableSWR(
-    ['baking-history', acc.publicKeyHash, myBakerPkh, chainId],
+    ['baking-history', account.address, myBakerPkh, chainId],
     getBakingHistory,
     { suspense: true, revalidateOnFocus: false, revalidateOnReconnect: false }
   );
@@ -226,7 +230,7 @@ const BakingSection = memo(() => {
                   delegateButtonProps={commonSmallDelegateButtonProps}
                 />
               </div>
-              <BakerBanner displayAddress bakerPkh={myBakerPkh} />
+              <BakerBanner accountPkh={account.address} displayAddress bakerPkh={myBakerPkh} />
             </>
           ) : (
             <div className="flex flex-col items-center text-black">

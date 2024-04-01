@@ -16,7 +16,8 @@ import {
   TransferParams,
   Estimate,
   TransactionWalletOperation,
-  TransactionOperation
+  TransactionOperation,
+  TezosToolkit
 } from '@taquito/taquito';
 import BigNumber from 'bignumber.js';
 import classNames from 'clsx';
@@ -37,28 +38,22 @@ import { isTezAsset, TEZ_TOKEN_SLUG, toPenny } from 'lib/assets';
 import { toTransferParams } from 'lib/assets/contract.utils';
 import { useBalance } from 'lib/balances';
 import { useAssetFiatCurrencyPrice, useFiatCurrency } from 'lib/fiat-currency';
-import { BLOCK_DURATION } from 'lib/fixed-times';
+import { TEZOS_BLOCK_DURATION } from 'lib/fixed-times';
 import { toLocalFixed, T, t } from 'lib/i18n';
 import { AssetMetadataBase, useAssetMetadata, getAssetSymbol } from 'lib/metadata';
 import { transferImplicit, transferToContract } from 'lib/michelson';
 import { useTypedSWR } from 'lib/swr';
 import { loadContract } from 'lib/temple/contract';
-import {
-  ReactiveTezosToolkit,
-  isDomainNameValid,
-  useAccount,
-  useNetwork,
-  useTezos,
-  useTezosDomainsClient,
-  useFilteredContacts,
-  validateRecipient
-} from 'lib/temple/front';
-import { useTezosAddressByDomainName } from 'lib/temple/front/tzdns';
-import { hasManager, isAddressValid, isKTAddress, mutezToTz, tzToMutez } from 'lib/temple/helpers';
-import { TempleAccountType, TempleAccount, TempleNetworkType } from 'lib/temple/types';
+import { useFilteredContacts, validateRecipient } from 'lib/temple/front';
+import { mutezToTz, tzToMutez } from 'lib/temple/helpers';
+import { TempleAccountType } from 'lib/temple/types';
+import { isValidTezosAddress, isTezosContractAddress, tezosManagerKeyHasManager } from 'lib/tezos';
 import { useSafeState } from 'lib/ui/hooks';
 import { useScrollIntoView } from 'lib/ui/use-scroll-into-view';
 import { ZERO } from 'lib/utils/numbers';
+import { AccountForTezos } from 'temple/accounts';
+import { useTezosNetwork, useTezosWithSigner } from 'temple/front';
+import { isTezosDomainsNameValid, useTezosAddressByDomainName, useTezosDomainsClient } from 'temple/front/tezos';
 
 import ContactsDropdown, { ContactsDropdownProps } from './ContactsDropdown';
 import { FeeSection } from './FeeSection';
@@ -75,13 +70,16 @@ interface FormData {
 const PENNY = 0.000001;
 const RECOMMENDED_ADD_FEE = 0.0001;
 
-type FormProps = {
+interface Props {
+  account: AccountForTezos;
+  /** Present for `account.type === TempleAccountType.ManagedKT` */
+  ownerAddress?: string;
   assetSlug: string;
   setOperation: Dispatch<any>;
   onAddContactRequested: (address: string) => void;
-};
+}
 
-export const Form: FC<FormProps> = ({ assetSlug, setOperation, onAddContactRequested }) => {
+export const Form: FC<Props> = ({ account, ownerAddress, assetSlug, setOperation, onAddContactRequested }) => {
   const { registerBackHandler } = useAppEnv();
 
   const assetMetadata = useAssetMetadata(assetSlug);
@@ -90,22 +88,22 @@ export const Form: FC<FormProps> = ({ assetSlug, setOperation, onAddContactReque
   const assetSymbol = useMemo(() => getAssetSymbol(assetMetadata), [assetMetadata]);
 
   const { allContacts } = useFilteredContacts();
-  const network = useNetwork();
-  const acc = useAccount();
-  const tezos = useTezos();
+  const { isMainnet } = useTezosNetwork();
+
+  const tezos = useTezosWithSigner(ownerAddress || account.address);
   const domainsClient = useTezosDomainsClient();
 
   const formAnalytics = useFormAnalytics('SendForm');
 
   const canUseDomainNames = domainsClient.isSupported;
-  const accountPkh = acc.publicKeyHash;
+  const accountPkh = account.address;
 
   const { value: balance = ZERO } = useBalance(assetSlug, accountPkh);
   const { value: tezBalance = ZERO } = useBalance(TEZ_TOKEN_SLUG, accountPkh);
 
   const [shoudUseFiat, setShouldUseFiat] = useSafeState(false);
 
-  const canToggleFiat = getAssetPriceByNetwork(network.type, assetPrice.toNumber());
+  const canToggleFiat = isMainnet;
   const prevCanToggleFiat = useRef(canToggleFiat);
 
   /**
@@ -160,10 +158,10 @@ export const Form: FC<FormProps> = ({ assetSlug, setOperation, onAddContactReque
 
   const { onBlur } = useAddressFieldAnalytics(toValue, 'RECIPIENT_NETWORK');
 
-  const toFilledWithAddress = useMemo(() => Boolean(toValue && isAddressValid(toValue)), [toValue]);
+  const toFilledWithAddress = useMemo(() => Boolean(toValue && isValidTezosAddress(toValue)), [toValue]);
 
   const toFilledWithDomain = useMemo(
-    () => toValue && isDomainNameValid(toValue, domainsClient),
+    () => toValue && isTezosDomainsNameValid(toValue, domainsClient),
     [toValue, domainsClient]
   );
 
@@ -176,7 +174,10 @@ export const Form: FC<FormProps> = ({ assetSlug, setOperation, onAddContactReque
 
   const toResolved = useMemo(() => resolvedAddress || toValue, [resolvedAddress, toValue]);
 
-  const toFilledWithKTAddress = useMemo(() => isAddressValid(toResolved) && isKTAddress(toResolved), [toResolved]);
+  const toFilledWithKTAddress = useMemo(
+    () => isValidTezosAddress(toResolved) && isTezosContractAddress(toResolved),
+    [toResolved]
+  );
 
   const filledContact = useMemo(
     () => (toResolved && allContacts.find(c => c.address === toResolved)) || null,
@@ -219,13 +220,13 @@ export const Form: FC<FormProps> = ({ assetSlug, setOperation, onAddContactReque
 
       const [transferParams, manager] = await Promise.all([
         toTransferParams(tezos, assetSlug, assetMetadata, accountPkh, to, toPenny(assetMetadata)),
-        tezos.rpc.getManagerKey(acc.type === TempleAccountType.ManagedKT ? acc.owner : accountPkh)
+        tezos.rpc.getManagerKey(ownerAddress || accountPkh)
       ]);
 
-      const estmtnMax = await estimateMaxFee(acc, tez, tezos, to, balance, transferParams, manager);
+      const estmtnMax = await estimateMaxFee(account, tez, tezos, to, balance, transferParams, manager);
 
       let estimatedBaseFee = mutezToTz(estmtnMax.burnFeeMutez + estmtnMax.suggestedFeeMutez);
-      if (!hasManager(manager)) {
+      if (!tezosManagerKeyHasManager(manager)) {
         estimatedBaseFee = estimatedBaseFee.plus(mutezToTz(DEFAULT_FEE.REVEAL));
       }
 
@@ -243,19 +244,19 @@ export const Form: FC<FormProps> = ({ assetSlug, setOperation, onAddContactReque
 
       throw err;
     }
-  }, [tezBalance, balance, assetMetadata, toResolved, assetSlug, tezos, accountPkh, acc]);
+  }, [tezBalance, balance, assetMetadata, toResolved, assetSlug, tezos, accountPkh, account, ownerAddress]);
 
   const {
     data: baseFee,
     error: estimateBaseFeeError,
     isValidating: estimating
   } = useTypedSWR(
-    () => (toFilled ? ['transfer-base-fee', tezos.checksum, assetSlug, accountPkh, toResolved] : null),
+    () => (toFilled ? ['transfer-base-fee', tezos.clientId, assetSlug, accountPkh, toResolved] : null),
     estimateBaseFee,
     {
       shouldRetryOnError: false,
       focusThrottleInterval: 10_000,
-      dedupingInterval: BLOCK_DURATION
+      dedupingInterval: TEZOS_BLOCK_DURATION
     }
   );
   const feeError = getBaseFeeError(baseFee, estimateBaseFeeError);
@@ -273,15 +274,17 @@ export const Form: FC<FormProps> = ({ assetSlug, setOperation, onAddContactReque
   const maxAmount = useMemo(() => {
     if (!(baseFee instanceof BigNumber)) return null;
 
-    const maxAmountAsset = isTezAsset(assetSlug) ? getMaxAmountToken(acc, balance, baseFee, safeFeeValue) : balance;
+    const maxAmountAsset = isTezAsset(assetSlug)
+      ? getMaxAmountToken(account.type, balance, baseFee, safeFeeValue)
+      : balance;
 
     return shoudUseFiat ? getMaxAmountFiat(assetPrice.toNumber(), maxAmountAsset) : maxAmountAsset;
-  }, [acc, assetSlug, balance, baseFee, safeFeeValue, shoudUseFiat, assetPrice]);
+  }, [account, assetSlug, balance, baseFee, safeFeeValue, shoudUseFiat, assetPrice]);
 
   const validateAmount = useCallback(
     (v?: number) => {
       if (v === undefined) return t('required');
-      if (!isKTAddress(toValue) && v === 0) {
+      if (!isTezosContractAddress(toValue) && v === 0) {
         return t('amountMustBePositive');
       }
       if (!maxAmount) return true;
@@ -315,7 +318,7 @@ export const Form: FC<FormProps> = ({ assetSlug, setOperation, onAddContactReque
     amountFieldRef.current?.focus({ preventScroll: true });
   }, []);
 
-  const [submitError, setSubmitError] = useSafeState<any>(null, `${tezos.checksum}_${toResolved}`);
+  const [submitError, setSubmitError] = useSafeState<any>(null, `${tezos.clientId}_${toResolved}`);
 
   const toAssetAmount = useCallback(
     (fiatAmount: BigNumber.Value) =>
@@ -339,10 +342,10 @@ export const Form: FC<FormProps> = ({ assetSlug, setOperation, onAddContactReque
         if (!assetMetadata) throw new Error('Metadata not found');
 
         let op: TransactionWalletOperation | TransactionOperation;
-        if (isKTAddress(acc.publicKeyHash)) {
-          const michelsonLambda = isKTAddress(toResolved) ? transferToContract : transferImplicit;
+        if (isTezosContractAddress(accountPkh)) {
+          const michelsonLambda = isTezosContractAddress(toResolved) ? transferToContract : transferImplicit;
 
-          const contract = await loadContract(tezos, acc.publicKeyHash);
+          const contract = await loadContract(tezos, accountPkh);
           op = await contract.methods.do(michelsonLambda(toResolved, tzToMutez(amount))).send({ amount: 0 });
         } else {
           const actualAmount = shoudUseFiat ? toAssetAmount(amount) : amount;
@@ -376,7 +379,7 @@ export const Form: FC<FormProps> = ({ assetSlug, setOperation, onAddContactReque
       }
     },
     [
-      acc,
+      accountPkh,
       formState.isSubmitting,
       tezos,
       assetSlug,
@@ -384,7 +387,6 @@ export const Form: FC<FormProps> = ({ assetSlug, setOperation, onAddContactReque
       setSubmitError,
       setOperation,
       reset,
-      accountPkh,
       toResolved,
       shoudUseFiat,
       toAssetAmount,
@@ -576,6 +578,7 @@ export const Form: FC<FormProps> = ({ assetSlug, setOperation, onAddContactReque
         <SpinnerSection />
       ) : (
         <FeeSection
+          accountPkh={accountPkh}
           restFormDisplayed={restFormDisplayed}
           submitError={submitError}
           estimationError={estimationError}
@@ -652,9 +655,14 @@ interface FeeComponentProps {
 const getMaxAmountFiat = (assetPrice: number | null, maxAmountAsset: BigNumber) =>
   assetPrice ? maxAmountAsset.times(assetPrice).decimalPlaces(2, BigNumber.ROUND_FLOOR) : new BigNumber(0);
 
-const getMaxAmountToken = (acc: TempleAccount, balance: BigNumber, baseFee: BigNumber, safeFeeValue: number) =>
+const getMaxAmountToken = (
+  accountType: TempleAccountType,
+  balance: BigNumber,
+  baseFee: BigNumber,
+  safeFeeValue: number
+) =>
   BigNumber.max(
-    acc.type === TempleAccountType.ManagedKT
+    accountType === TempleAccountType.ManagedKT
       ? balance
       : balance
           .minus(baseFee)
@@ -671,9 +679,9 @@ type TransferParamsInvariant =
     };
 
 const estimateMaxFee = async (
-  acc: TempleAccount,
+  acc: AccountForTezos,
   tez: boolean,
-  tezos: ReactiveTezosToolkit,
+  tezos: TezosToolkit,
   to: string,
   balanceBN: BigNumber,
   transferParams: TransferParamsInvariant,
@@ -681,15 +689,15 @@ const estimateMaxFee = async (
 ) => {
   let estmtnMax: Estimate;
   if (acc.type === TempleAccountType.ManagedKT) {
-    const michelsonLambda = isKTAddress(to) ? transferToContract : transferImplicit;
+    const michelsonLambda = isTezosContractAddress(to) ? transferToContract : transferImplicit;
 
-    const contract = await loadContract(tezos, acc.publicKeyHash);
+    const contract = await loadContract(tezos, acc.address);
     const transferParamsWrapper = contract.methods.do(michelsonLambda(to, tzToMutez(balanceBN))).toTransferParams();
     estmtnMax = await tezos.estimate.transfer(transferParamsWrapper);
   } else if (tez) {
     const estmtn = await tezos.estimate.transfer(transferParams);
     let amountMax = balanceBN.minus(mutezToTz(estmtn.totalCost));
-    if (!hasManager(manager)) {
+    if (!tezosManagerKeyHasManager(manager)) {
       amountMax = amountMax.minus(mutezToTz(DEFAULT_FEE.REVEAL));
     }
     estmtnMax = await tezos.estimate.transfer({
@@ -701,9 +709,6 @@ const estimateMaxFee = async (
   }
   return estmtnMax;
 };
-
-const getAssetPriceByNetwork = (network: TempleNetworkType, assetPrice: number | null) =>
-  network === 'main' && assetPrice !== null;
 
 const getBaseFeeError = (baseFee: BigNumber | ArtificialError | undefined, estimateBaseFeeError: any) =>
   baseFee instanceof Error ? baseFee : estimateBaseFeeError;

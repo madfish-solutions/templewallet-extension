@@ -1,24 +1,4 @@
-import { ManagerKeyResponse } from '@taquito/rpc';
-import { MichelCodecPacker } from '@taquito/taquito';
-import { validateAddress, ValidationResult } from '@taquito/utils';
 import BigNumber from 'bignumber.js';
-import memoizee from 'memoizee';
-
-import { FastRpcClient } from 'lib/taquito-fast-rpc';
-
-export const loadFastRpcClient = memoizee((rpc: string) => new FastRpcClient(rpc), { max: 5 });
-
-export const michelEncoder = new MichelCodecPacker();
-
-export function loadChainId(rpcUrl: string) {
-  const rpc = loadFastRpcClient(rpcUrl);
-
-  return rpc.getChainId();
-}
-
-export function hasManager(manager: ManagerKeyResponse) {
-  return manager && typeof manager === 'object' ? !!manager.key : !!manager;
-}
 
 export function usdToAssetAmount(
   usd?: BigNumber,
@@ -50,16 +30,6 @@ export function atomsToTokens(x: BigNumber.Value, decimals: number) {
 export function tokensToAtoms(x: BigNumber.Value, decimals: number) {
   return new BigNumber(x).times(10 ** decimals).integerValue();
 }
-
-export function isAddressValid(address: string) {
-  return validateAddress(address) === ValidationResult.VALID;
-}
-
-export function isKTAddress(address: string) {
-  return address?.startsWith('KT');
-}
-
-export const isValidContractAddress = (address: string) => isAddressValid(address) && isKTAddress(address);
 
 export function formatOpParamsBeforeSend(params: any) {
   if (params.kind === 'origination' && params.script) {

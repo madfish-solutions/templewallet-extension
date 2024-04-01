@@ -5,21 +5,37 @@ import { useForm } from 'react-hook-form';
 import { Alert, FormField, FormSubmitButton } from 'app/atoms';
 import AccountBanner from 'app/templates/AccountBanner';
 import { T, t } from 'lib/i18n';
-import { useTezos, useAccount, activateAccount } from 'lib/temple/front';
-import { confirmOperation } from 'lib/temple/operation';
 import { useSafeState } from 'lib/ui/hooks';
+import { AccountForTezos } from 'temple/accounts';
+import { UNDER_DEVELOPMENT_MSG } from 'temple/evm/under_dev_msg';
+import { useAccountForTezos, useTezosNetworkRpcUrl } from 'temple/front';
+import { getReadOnlyTezos, confirmTezosOperation } from 'temple/tezos';
+import { activateTezosAccount } from 'temple/tezos/activate-account';
 
 import { ActivateAccountSelectors } from './ActivateAccount.selectors';
 
-type FormData = {
+interface FormData {
   secret: string;
-};
+}
 
 const SUBMIT_ERROR_TYPE = 'submit-error';
 
 const ActivateAccount = memo(() => {
-  const tezos = useTezos();
-  const account = useAccount();
+  const account = useAccountForTezos();
+
+  return account ? (
+    <ActivateTezosAccount account={account} />
+  ) : (
+    <div className="w-full max-w-sm p-2 mx-auto">{UNDER_DEVELOPMENT_MSG}</div>
+  );
+});
+
+interface Props {
+  account: AccountForTezos;
+}
+
+const ActivateTezosAccount = memo<Props>(({ account }) => {
+  const rpcUrl = useTezosNetworkRpcUrl();
 
   const [success, setSuccess] = useSafeState<ReactNode>(null);
 
@@ -34,7 +50,9 @@ const ActivateAccount = memo(() => {
       setSuccess(null);
 
       try {
-        const activation = await activateAccount(account.publicKeyHash, data.secret.replace(/\s/g, ''), tezos);
+        const tezos = getReadOnlyTezos(rpcUrl);
+
+        const activation = await activateTezosAccount(account.address, data.secret.replace(/\s/g, ''), tezos);
         switch (activation.status) {
           case 'ALREADY_ACTIVATED':
             setSuccess(`🏁 ${t('accountAlreadyActivated')}`);
@@ -42,7 +60,7 @@ const ActivateAccount = memo(() => {
 
           case 'SENT':
             setSuccess(`🛫 ${t('requestSent', t('activationOperationType'))}`);
-            confirmOperation(tezos, activation.operation.hash).then(() => {
+            confirmTezosOperation(tezos, activation.operation.hash).then(() => {
               setSuccess(`✅ ${t('accountActivated')}`);
             });
             break;
@@ -54,7 +72,7 @@ const ActivateAccount = memo(() => {
         setError('secret', SUBMIT_ERROR_TYPE, mes);
       }
     },
-    [clearError, submitting, setError, setSuccess, account.publicKeyHash, tezos]
+    [clearError, submitting, setError, setSuccess, account.address, rpcUrl]
   );
 
   const submit = useMemo(() => handleSubmit(onSubmit), [handleSubmit, onSubmit]);

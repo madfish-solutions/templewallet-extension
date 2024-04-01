@@ -10,14 +10,14 @@ import { setAnotherSelector, setTestID } from 'lib/analytics';
 import { t } from 'lib/i18n';
 import { getAssetName, getAssetSymbol, AssetMetadataBase } from 'lib/metadata';
 
-type Props = {
+interface Props {
   assetSlug: string;
   metadata?: AssetMetadataBase;
   last: boolean;
   checked: boolean;
   onToggle: (slug: string, newState: boolean) => void;
   onRemove: (slug: string) => void;
-};
+}
 
 export const ListItem = memo<Props>(({ assetSlug, metadata, last, checked, onToggle, onRemove }) => {
   const onCheckboxChange = useCallback((checked: boolean) => void onToggle(assetSlug, !checked), [assetSlug, onToggle]);

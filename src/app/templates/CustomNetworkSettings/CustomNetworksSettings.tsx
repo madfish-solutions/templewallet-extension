@@ -11,12 +11,12 @@ import { ReactComponent as CloseIcon } from 'app/icons/close.svg';
 import { setAnotherSelector, setTestID } from 'lib/analytics';
 import { T, t } from 'lib/i18n';
 import { useSettings, useTempleClient } from 'lib/temple/front';
-import { loadChainId } from 'lib/temple/helpers';
-import { NETWORK_IDS } from 'lib/temple/networks';
-import { TempleNetwork } from 'lib/temple/types';
+import { StoredNetwork } from 'lib/temple/types';
 import { COLORS } from 'lib/ui/colors';
 import { useConfirm } from 'lib/ui/dialog';
 import { delay } from 'lib/utils';
+import { TEZOS_NETWORK_NAMES } from 'temple/networks';
+import { loadTezosChainId } from 'temple/tezos';
 
 import { CustomNetworkSettingsSelectors } from './CustomNetworkSettingsSelectors';
 
@@ -50,7 +50,7 @@ const CustomNetworksSettings: FC = () => {
 
       let chainId;
       try {
-        chainId = await loadChainId(rpcBaseURL);
+        chainId = await loadTezosChainId(rpcBaseURL);
       } catch (err: any) {
         console.error(err);
 
@@ -62,7 +62,7 @@ const CustomNetworksSettings: FC = () => {
       }
 
       try {
-        const networkId = NETWORK_IDS.get(chainId) ?? rpcBaseURL;
+        const networkName = TEZOS_NETWORK_NAMES.get(chainId) ?? rpcBaseURL;
         await updateSettings({
           customNetworks: [
             ...customNetworks,
@@ -70,7 +70,7 @@ const CustomNetworksSettings: FC = () => {
               rpcBaseURL,
               name,
               description: name,
-              type: networkId === 'mainnet' ? 'main' : 'test',
+              type: networkName === 'mainnet' ? 'main' : 'test',
               disabled: false,
               color: COLORS[Math.floor(Math.random() * COLORS.length)],
               id: rpcBaseURL
@@ -208,7 +208,7 @@ export default CustomNetworksSettings;
 
 type NetworksListItemProps = {
   canRemove: boolean;
-  network: TempleNetwork;
+  network: StoredNetwork;
   onRemoveClick?: (baseUrl: string) => void;
   last: boolean;
 };

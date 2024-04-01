@@ -20,6 +20,7 @@ const dummyImageSrc =
   'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==';
 
 export const HypelabTextPromotion: FC<Omit<SingleProviderPromotionProps, 'variant'>> = ({
+  accountPkh,
   isVisible,
   pageName,
   onAdRectSeen,
@@ -56,6 +57,7 @@ export const HypelabTextPromotion: FC<Omit<SingleProviderPromotionProps, 'varian
       <span className="hidden" ref={hypelabHeadlineRef} data-ref="headline" />
 
       <TextPromotionView
+        accountPkh={accountPkh}
         href={currentAd?.cta_url ?? '/'}
         imageSrc={currentAd?.creative_set.icon.url ?? dummyImageSrc}
         isVisible={isVisible}

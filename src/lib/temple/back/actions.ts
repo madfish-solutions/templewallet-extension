@@ -12,7 +12,6 @@ import browser, { Runtime } from 'webextension-polyfill';
 import { BACKGROUND_IS_WORKER } from 'lib/env';
 import { addLocalOperation } from 'lib/temple/activity';
 import * as Beacon from 'lib/temple/beacon';
-import { loadChainId } from 'lib/temple/helpers';
 import {
   TempleState,
   TempleMessageType,
@@ -21,6 +20,8 @@ import {
   TempleSharedStorageKey
 } from 'lib/temple/types';
 import { createQueue, delay } from 'lib/utils';
+import { loadTezosChainId } from 'temple/tezos';
+import { TempleChainName } from 'temple/types';
 
 import {
   getCurrentPermission,
@@ -150,36 +151,36 @@ export function generateSyncPayload(password: string) {
   return withUnlocked(() => Vault.generateSyncPayload(password));
 }
 
-export function revealPrivateKey(accPublicKeyHash: string, password: string) {
-  return withUnlocked(() => Vault.revealPrivateKey(accPublicKeyHash, password));
+export function revealPrivateKey(chain: TempleChainName, address: string, password: string) {
+  return withUnlocked(() => Vault.revealPrivateKey(chain, address, password));
 }
 
-export function revealPublicKey(accPublicKeyHash: string) {
-  return withUnlocked(({ vault }) => vault.revealPublicKey(accPublicKeyHash));
+export function revealPublicKey(accountAddress: string) {
+  return withUnlocked(({ vault }) => vault.revealPublicKey(accountAddress));
 }
 
-export function removeAccount(accPublicKeyHash: string, password: string) {
+export function removeAccount(id: string, password: string) {
   return withUnlocked(async () => {
-    const updatedAccounts = await Vault.removeAccount(accPublicKeyHash, password);
+    const updatedAccounts = await Vault.removeAccount(id, password);
     accountsUpdated(updatedAccounts);
   });
 }
 
-export function editAccount(accPublicKeyHash: string, name: string) {
+export function editAccount(id: string, name: string) {
   return withUnlocked(async ({ vault }) => {
     name = name.trim();
     if (!ACCOUNT_NAME_PATTERN.test(name)) {
       throw new Error('Invalid name. It should be: 1-16 characters, without special');
     }
 
-    const updatedAccounts = await vault.editAccountName(accPublicKeyHash, name);
+    const updatedAccounts = await vault.editAccountName(id, name);
     accountsUpdated(updatedAccounts);
   });
 }
 
-export function importAccount(privateKey: string, encPassword?: string) {
+export function importAccount(chain: TempleChainName, privateKey: string, encPassword?: string) {
   return withUnlocked(async ({ vault }) => {
-    const updatedAccounts = await vault.importAccount(privateKey, encPassword);
+    const updatedAccounts = await vault.importAccount(chain, privateKey, encPassword);
     accountsUpdated(updatedAccounts);
   });
 }
@@ -205,9 +206,9 @@ export function importManagedKTAccount(address: string, chainId: string, owner: 
   });
 }
 
-export function importWatchOnlyAccount(address: string, chainId?: string) {
+export function importWatchOnlyAccount(chain: TempleChainName, address: string, chainId?: string) {
   return withUnlocked(async ({ vault }) => {
-    const updatedAccounts = await vault.importWatchOnlyAccount(address, chainId);
+    const updatedAccounts = await vault.importWatchOnlyAccount(chain, address, chainId);
     accountsUpdated(updatedAccounts);
   });
 }
@@ -251,7 +252,7 @@ export function sendOperations(
       sourcePublicKey
     });
     if (dryRunResult && dryRunResult.result) {
-      opParams = (dryRunResult.result as any).opParams;
+      opParams = dryRunResult.result.opParams;
     }
 
     return new Promise((resolve, reject) =>
@@ -337,7 +338,7 @@ const promisableUnlock = async (
 
 const safeAddLocalOperation = async (networkRpc: string, op: any) => {
   try {
-    const chainId = await loadChainId(networkRpc);
+    const chainId = await loadTezosChainId(networkRpc);
     await addLocalOperation(chainId, op.hash, op.results);
   } catch {}
   return undefined;
@@ -574,7 +575,7 @@ const getTempleReq = (req: Beacon.Request): TempleDAppRequest | void => {
 
       return {
         type: TempleDAppMessageType.PermissionRequest,
-        network: network as any,
+        network: network,
         appMeta: req.appMetadata,
         force: true
       };
@@ -617,7 +618,7 @@ const formatTempleReq = async (
           return {
             ...resBase,
             type: Beacon.MessageType.PermissionResponse,
-            publicKey: (templeRes as any).publicKey,
+            publicKey: templeRes.publicKey,
             network: (req as Beacon.PermissionRequest).network,
             scopes: [Beacon.PermissionScope.OPERATION_REQUEST, Beacon.PermissionScope.SIGN]
           };

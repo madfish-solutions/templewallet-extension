@@ -12,7 +12,6 @@ import { setTestID, setAnotherSelector, TestIDProperty } from 'lib/analytics';
 import { searchAssetsWithNoMeta } from 'lib/assets/search.utils';
 import { T, t } from 'lib/i18n';
 import { useAssetMetadata, getAssetSymbol, useGetAssetMetadata } from 'lib/metadata';
-import { useAccount } from 'lib/temple/front';
 
 import { AssetItemContent } from './AssetItemContent';
 import { DropdownSelect } from './DropdownSelect/DropdownSelect';
@@ -20,8 +19,10 @@ import { InputContainer } from './InputContainer/InputContainer';
 import { SendFormSelectors } from './SendForm/selectors';
 
 interface Props {
+  accountPkh: string;
   value: string;
   slugs: string[];
+  publicKeyHash: string;
   onChange?: (assetSlug: string) => void;
   className?: string;
   testIDs?: {
@@ -31,9 +32,11 @@ interface Props {
   };
 }
 
-const renderOptionContent = (slug: string, selected: boolean) => <AssetOptionContent slug={slug} selected={selected} />;
+const renderOptionContent = (slug: string, accountPkh: string, selected: boolean) => (
+  <AssetOptionContent accountPkh={accountPkh} slug={slug} selected={selected} />
+);
 
-const AssetSelect = memo<Props>(({ value, slugs, onChange, className, testIDs }) => {
+const AssetSelect = memo<Props>(({ accountPkh, value, slugs, publicKeyHash, onChange, className, testIDs }) => {
   const getAssetMetadata = useGetAssetMetadata();
 
   const [searchString, setSearchString] = useState<string>('');
@@ -59,7 +62,7 @@ const AssetSelect = memo<Props>(({ value, slugs, onChange, className, testIDs })
   return (
     <InputContainer className={className} header={<AssetSelectTitle />}>
       <DropdownSelect
-        DropdownFaceContent={<AssetFieldContent slug={value} testID={testIDs?.select} />}
+        DropdownFaceContent={<AssetFieldContent slug={value} publicKeyHash={publicKeyHash} testID={testIDs?.select} />}
         searchProps={{
           testId: testIDs?.searchInput,
           searchValue: searchString,
@@ -72,7 +75,7 @@ const AssetSelect = memo<Props>(({ value, slugs, onChange, className, testIDs })
           noItemsText: t('noAssetsFound'),
           getKey: option => option,
           onOptionChange: handleChange,
-          renderOptionContent: asset => renderOptionContent(asset, isEqual(asset, value))
+          renderOptionContent: asset => renderOptionContent(asset, accountPkh, isEqual(asset, value))
         }}
       />
     </InputContainer>
@@ -93,8 +96,12 @@ const AssetSelectTitle: FC = () => (
   </h2>
 );
 
-const AssetFieldContent = memo<{ slug: string } & TestIDProperty>(({ slug, testID }) => {
-  const { publicKeyHash } = useAccount();
+interface AssetFieldContent extends TestIDProperty {
+  slug: string;
+  publicKeyHash: string;
+}
+
+const AssetFieldContent = memo<AssetFieldContent>(({ slug, publicKeyHash, testID }) => {
   const metadata = useAssetMetadata(slug);
 
   return (
@@ -127,7 +134,13 @@ const AssetFieldContent = memo<{ slug: string } & TestIDProperty>(({ slug, testI
   );
 });
 
-const AssetOptionContent: FC<{ slug: string; selected: boolean }> = ({ slug, selected }) => (
+interface AssetOptionContentProps {
+  accountPkh: string;
+  slug: string;
+  selected: boolean;
+}
+
+const AssetOptionContent = memo<AssetOptionContentProps>(({ accountPkh, slug, selected }) => (
   <div
     className={classNames('flex items-center w-full py-1.5 px-2 h-15', selected ? 'bg-gray-200' : 'hover:bg-gray-100')}
     {...setTestID(SendFormSelectors.assetDropDownItem)}
@@ -135,6 +148,6 @@ const AssetOptionContent: FC<{ slug: string; selected: boolean }> = ({ slug, sel
   >
     <AssetIcon assetSlug={slug} className="mx-2" size={32} />
 
-    <AssetItemContent slug={slug} />
+    <AssetItemContent slug={slug} publicKeyHash={accountPkh} />
   </div>
-);
+));

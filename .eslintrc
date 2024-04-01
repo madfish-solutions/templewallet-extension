@@ -54,6 +54,8 @@
     "no-type-assertion/no-type-assertion": "warn",
     "@typescript-eslint/await-thenable": "error",
     "@typescript-eslint/prefer-ts-expect-error": "error",
+    "@typescript-eslint/no-unused-vars": "off",
+    "@typescript-eslint/switch-exhaustiveness-check": "warn",
     "react-hooks/rules-of-hooks": "warn",
     "react-hooks/exhaustive-deps": ["warn", {
       "additionalHooks": "(useMemoWithCompare|useDidUpdate)"

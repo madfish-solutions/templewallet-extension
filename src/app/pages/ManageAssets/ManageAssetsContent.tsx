@@ -9,9 +9,9 @@ import SearchAssetField from 'app/templates/SearchAssetField';
 import { AccountAsset } from 'lib/assets/types';
 import { t, T } from 'lib/i18n';
 import type { TokenMetadataGetter } from 'lib/metadata';
-import { useAccount, useChainId } from 'lib/temple/front';
 import { useConfirm } from 'lib/ui/dialog';
 import { Link } from 'lib/woozie';
+import { useTezosNetwork } from 'temple/front';
 
 import { ListItem } from './ListItem';
 import { ManageAssetsSelectors } from './selectors';
@@ -50,73 +50,75 @@ export const ManageAssetsContent: FC<Props> = ({ ofCollectibles, searchValue, se
 );
 
 interface ManageAssetsContentListProps {
+  publicKeyHash: string;
   ofCollectibles?: boolean;
   assets: AccountAsset[];
   getMetadata: TokenMetadataGetter;
 }
 
-export const ManageAssetsContentList = memo<ManageAssetsContentListProps>(({ ofCollectibles, assets, getMetadata }) => {
-  const chainId = useChainId(true)!;
-  const { publicKeyHash } = useAccount();
+export const ManageAssetsContentList = memo<ManageAssetsContentListProps>(
+  ({ publicKeyHash, ofCollectibles, assets, getMetadata }) => {
+    const { chainId } = useTezosNetwork();
 
-  const confirm = useConfirm();
+    const confirm = useConfirm();
 
-  const removeItem = useCallback(
-    async (slug: string) => {
-      try {
-        const confirmed = await confirm({
-          title: t(ofCollectibles ? 'deleteCollectibleConfirm' : 'deleteTokenConfirm')
-        });
+    const removeItem = useCallback(
+      async (slug: string) => {
+        try {
+          const confirmed = await confirm({
+            title: t(ofCollectibles ? 'deleteCollectibleConfirm' : 'deleteTokenConfirm')
+          });
 
-        if (confirmed)
-          dispatch(
-            (ofCollectibles ? setCollectibleStatusAction : setTokenStatusAction)({
-              account: publicKeyHash,
-              chainId,
-              slug,
-              status: 'removed'
-            })
+          if (confirmed)
+            dispatch(
+              (ofCollectibles ? setCollectibleStatusAction : setTokenStatusAction)({
+                account: publicKeyHash,
+                chainId,
+                slug,
+                status: 'removed'
+              })
+            );
+        } catch (err: any) {
+          console.error(err);
+          alert(err.message);
+        }
+      },
+      [ofCollectibles, chainId, publicKeyHash, confirm]
+    );
+
+    const toggleTokenStatus = useCallback(
+      (slug: string, toDisable: boolean) =>
+        void dispatch(
+          (ofCollectibles ? setCollectibleStatusAction : setTokenStatusAction)({
+            account: publicKeyHash,
+            chainId,
+            slug,
+            status: toDisable ? 'disabled' : 'enabled'
+          })
+        ),
+      [ofCollectibles, chainId, publicKeyHash]
+    );
+
+    return (
+      <div className="flex flex-col w-full overflow-hidden border rounded-md text-gray-700 text-sm leading-tight">
+        {assets.map(({ slug, status }, i, arr) => {
+          const metadata = getMetadata(slug);
+
+          const last = i === arr.length - 1;
+
+          return (
+            <ListItem
+              key={slug}
+              assetSlug={slug}
+              metadata={metadata}
+              last={last}
+              checked={status === 'enabled'}
+              onRemove={removeItem}
+              onToggle={toggleTokenStatus}
+            />
           );
-      } catch (err: any) {
-        console.error(err);
-        alert(err.message);
-      }
-    },
-    [ofCollectibles, chainId, publicKeyHash, confirm]
-  );
-
-  const toggleTokenStatus = useCallback(
-    (slug: string, toDisable: boolean) =>
-      void dispatch(
-        (ofCollectibles ? setCollectibleStatusAction : setTokenStatusAction)({
-          account: publicKeyHash,
-          chainId,
-          slug,
-          status: toDisable ? 'disabled' : 'enabled'
-        })
-      ),
-    [ofCollectibles, chainId, publicKeyHash]
-  );
-
-  return (
-    <div className="flex flex-col w-full overflow-hidden border rounded-md text-gray-700 text-sm leading-tight">
-      {assets.map(({ slug, status }, i, arr) => {
-        const metadata = getMetadata(slug);
-
-        const last = i === arr.length - 1;
-
-        return (
-          <ListItem
-            key={slug}
-            assetSlug={slug}
-            metadata={metadata}
-            last={last}
-            checked={status === 'enabled'}
-            onRemove={removeItem}
-            onToggle={toggleTokenStatus}
-          />
-        );
-      })}
-    </div>
-  );
-});
+        })}
+      </div>
+    );
+  }
+);

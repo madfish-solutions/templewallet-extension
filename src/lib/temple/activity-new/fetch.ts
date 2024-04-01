@@ -2,9 +2,8 @@ import type { TzktApiChainId, TzktOperation } from 'lib/apis/tzkt';
 import * as TZKT from 'lib/apis/tzkt';
 import { TEZ_TOKEN_SLUG } from 'lib/assets';
 import { detectTokenStandard } from 'lib/assets/standards';
-import { ReactiveTezosToolkit } from 'lib/temple/front';
-import { TempleAccount } from 'lib/temple/types';
 import { filterUnique } from 'lib/utils';
+import { getReadOnlyTezos } from 'temple/tezos';
 
 import type { Activity, OperationsGroup } from './types';
 import { operationsGroupToActivity } from './utils';
@@ -13,17 +12,17 @@ const LIQUIDITY_BAKING_DEX_ADDRESS = 'KT1TxqZ8QtKvLu3V3JH7Gx58n7Co8pgtpQU5';
 
 export default async function fetchActivities(
   chainId: TzktApiChainId,
-  account: TempleAccount,
+  rpcUrl: string,
+  accountAddress: string,
   assetSlug: string | undefined,
   pseudoLimit: number,
-  tezos: ReactiveTezosToolkit,
   olderThan?: Activity
 ): Promise<Activity[]> {
-  const operations = await fetchOperations(chainId, account, assetSlug, pseudoLimit, tezos, olderThan);
+  const operations = await fetchOperations(chainId, rpcUrl, accountAddress, assetSlug, pseudoLimit, olderThan);
 
   const groups = await fetchOperGroupsForOperations(chainId, operations, olderThan);
 
-  return groups.map(group => operationsGroupToActivity(group, account.publicKeyHash));
+  return groups.map(group => operationsGroupToActivity(group, accountAddress));
 }
 
 /**
@@ -34,14 +33,12 @@ export default async function fetchActivities(
  */
 async function fetchOperations(
   chainId: TzktApiChainId,
-  account: TempleAccount,
+  rpcUrl: string,
+  accAddress: string,
   assetSlug: string | undefined,
   pseudoLimit: number,
-  tezos: ReactiveTezosToolkit,
   olderThan?: Activity
 ): Promise<TzktOperation[]> {
-  const { publicKeyHash: accAddress } = account;
-
   if (assetSlug) {
     const [contractAddress, tokenId] = (assetSlug ?? '').split('_');
 
@@ -50,6 +47,7 @@ async function fetchOperations(
     } else if (assetSlug === LIQUIDITY_BAKING_DEX_ADDRESS) {
       return await fetchOperations_Contract(chainId, accAddress, pseudoLimit, olderThan);
     } else {
+      const tezos = getReadOnlyTezos(rpcUrl);
       const tokenType = await detectTokenStandard(tezos, contractAddress);
 
       if (tokenType === 'fa1.2') {

@@ -579,7 +579,7 @@
     "message": "불러오고자 하는 계정의 비밀 키입니다."
   },
   "privateKeyInputPlaceholder": {
-    "message": "예) edsk3wfiPMu..."
+    "message": "예) edsk3wfiPMu... | 0xL4mp3Ty..."
   },
   "password": {
     "message": "비밀번호"

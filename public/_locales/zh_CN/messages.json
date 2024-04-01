@@ -583,7 +583,7 @@
     "message": "您要导入的账户的密钥。"
   },
   "privateKeyInputPlaceholder": {
-    "message": "例如：edsk3wfiPMu..."
+    "message": "例如：edsk3wfiPMu... | 0xL4mp3Ty..."
   },
   "password": {
     "message": "密码"

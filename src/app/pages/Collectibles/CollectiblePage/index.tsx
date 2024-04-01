@@ -18,17 +18,19 @@ import { TabsBar } from 'app/templates/TabBar';
 import { setTestID } from 'lib/analytics';
 import { fetchCollectibleExtraDetails, objktCurrencies } from 'lib/apis/objkt';
 import { fromAssetSlug } from 'lib/assets';
-import { BLOCK_DURATION } from 'lib/fixed-times';
+import { TEZOS_BLOCK_DURATION } from 'lib/fixed-times';
 import { t, T } from 'lib/i18n';
 import { buildTokenImagesStack } from 'lib/images-uri';
 import { getAssetName } from 'lib/metadata';
 import { useRetryableSWR } from 'lib/swr';
-import { useAccount } from 'lib/temple/front';
 import { atomsToTokens } from 'lib/temple/helpers';
 import { TempleAccountType } from 'lib/temple/types';
 import { useInterval } from 'lib/ui/hooks';
 import { ImageStacked } from 'lib/ui/ImageStacked';
 import { navigate } from 'lib/woozie';
+import { AccountForChain } from 'temple/accounts';
+import { UNDER_DEVELOPMENT_MSG } from 'temple/evm/under_dev_msg';
+import { useAccountForTezos } from 'temple/front';
 
 import { useCollectibleSelling } from '../hooks/use-collectible-selling.hook';
 
@@ -37,18 +39,28 @@ import { CollectiblePageImage } from './CollectiblePageImage';
 import { PropertiesItems } from './PropertiesItems';
 import { CollectiblesSelectors } from './selectors';
 
-const DETAILS_SYNC_INTERVAL = 4 * BLOCK_DURATION;
+const DETAILS_SYNC_INTERVAL = 4 * TEZOS_BLOCK_DURATION;
 
 interface Props {
   assetSlug: string;
 }
 
 const CollectiblePage = memo<Props>(({ assetSlug }) => {
+  const tezosAccount = useAccountForTezos();
+
+  return tezosAccount ? (
+    <TezosCollectiblePage assetSlug={assetSlug} account={tezosAccount} />
+  ) : (
+    <PageLayout pageTitle={UNDER_DEVELOPMENT_MSG}>
+      <div className="flex flex-col gap-y-3 max-w-sm w-full mx-auto pt-2 pb-4">{UNDER_DEVELOPMENT_MSG}</div>
+    </PageLayout>
+  );
+});
+
+const TezosCollectiblePage = memo<Props & { account: AccountForChain }>(({ assetSlug, account }) => {
   const metadata = useCollectibleMetadataSelector(assetSlug); // Loaded only, if shown in grid for now
   const details = useCollectibleDetailsSelector(assetSlug);
   const areAnyCollectiblesDetailsLoading = useAllCollectiblesDetailsLoadingSelector();
-
-  const account = useAccount();
 
   const [contractAddress, tokenId] = fromAssetSlug(assetSlug);
 
@@ -61,7 +73,7 @@ const CollectiblePage = memo<Props>(({ assetSlug }) => {
   );
   const offers = extraDetails?.offers_active;
 
-  const { publicKeyHash } = account;
+  const publicKeyHash = account.address;
   const accountCanSign = account.type !== TempleAccountType.WatchOnly;
 
   const areDetailsLoading = areAnyCollectiblesDetailsLoading && details === undefined;
@@ -89,7 +101,7 @@ const CollectiblePage = memo<Props>(({ assetSlug }) => {
     initiateSelling: onSellButtonClick,
     operation,
     operationError
-  } = useCollectibleSelling(assetSlug, takableOffer);
+  } = useCollectibleSelling(assetSlug, publicKeyHash, takableOffer);
 
   const onSendButtonClick = useCallback(() => navigate(`/send/${assetSlug}`), [assetSlug]);
 
@@ -243,7 +255,7 @@ const CollectiblePage = memo<Props>(({ assetSlug }) => {
               {activeTabName === 'attributes' ? (
                 <AttributesItems details={details} />
               ) : (
-                <PropertiesItems assetSlug={assetSlug} accountPkh={account.publicKeyHash} details={details} />
+                <PropertiesItems assetSlug={assetSlug} accountPkh={publicKeyHash} details={details} />
               )}
             </div>
           </>

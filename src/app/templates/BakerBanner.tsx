@@ -9,27 +9,25 @@ import { ReactComponent as ChevronRightIcon } from 'app/icons/chevron-right.svg'
 import { BakingSectionSelectors } from 'app/pages/Home/OtherComponents/BakingSection.selectors';
 import { toLocalFormat, T } from 'lib/i18n';
 import { HELP_UKRAINE_BAKER_ADDRESS, RECOMMENDED_BAKER_ADDRESS } from 'lib/known-bakers';
-import { useRelevantAccounts, useAccount, useNetwork, useKnownBaker } from 'lib/temple/front';
-import { TempleAccount } from 'lib/temple/types';
+import { useKnownBaker, useAllAccounts } from 'lib/temple/front';
+import { AccountForChain, findAccountForTezos } from 'temple/accounts';
+import { useTezosNetwork } from 'temple/front';
 
 import { OpenInExplorerChip } from './OpenInExplorerChip';
 
-type BakerBannerProps = HTMLAttributes<HTMLDivElement> & {
+interface Props extends HTMLAttributes<HTMLDivElement> {
+  accountPkh: string;
   bakerPkh: string;
   link?: boolean;
   displayAddress?: boolean;
-};
+}
 
-const BakerBanner = memo<BakerBannerProps>(({ bakerPkh, link = false, displayAddress = false, className, style }) => {
-  const allAccounts = useRelevantAccounts();
-  const account = useAccount();
+const BakerBanner = memo<Props>(({ accountPkh, bakerPkh, link = false, displayAddress = false, className, style }) => {
+  const allAccounts = useAllAccounts();
   const { popup } = useAppEnv();
   const { data: baker } = useKnownBaker(bakerPkh);
 
-  const bakerAcc = useMemo(
-    () => allAccounts.find(acc => acc.publicKeyHash === bakerPkh) ?? null,
-    [allAccounts, bakerPkh]
-  );
+  const bakerAcc = useMemo(() => findAccountForTezos(allAccounts, bakerPkh), [allAccounts, bakerPkh]);
 
   const isRecommendedBaker = bakerPkh === RECOMMENDED_BAKER_ADDRESS;
   const isHelpUkraineBaker = bakerPkh === HELP_UKRAINE_BAKER_ADDRESS;
@@ -141,7 +139,7 @@ const BakerBanner = memo<BakerBannerProps>(({ bakerPkh, link = false, displayAdd
           <div className="flex flex-col items-start flex-1 ml-2">
             <div className={classNames('mb-px w-full', 'flex flex-wrap items-center', 'leading-none')}>
               <Name className="pb-1 mr-1 text-lg font-medium">
-                <BakerAccount account={account} bakerAcc={bakerAcc} bakerPkh={bakerPkh} />
+                <BakerAccount accPkh={accountPkh} bakerAcc={bakerAcc} bakerPkh={bakerPkh} />
               </Name>
             </div>
           </div>
@@ -153,17 +151,19 @@ const BakerBanner = memo<BakerBannerProps>(({ bakerPkh, link = false, displayAdd
 
 export default BakerBanner;
 
-const BakerAccount: React.FC<{
-  bakerAcc: TempleAccount | null;
-  account: TempleAccount;
+interface BakerAccountProps {
+  bakerAcc: AccountForChain | undefined;
+  accPkh: string;
   bakerPkh: string;
-}> = ({ bakerAcc, account, bakerPkh }) => {
-  const network = useNetwork();
+}
+
+const BakerAccount = memo<BakerAccountProps>(({ bakerAcc, accPkh, bakerPkh }) => {
+  const { isDcp } = useTezosNetwork();
 
   return bakerAcc ? (
     <>
       {bakerAcc.name}
-      {bakerAcc.publicKeyHash === account.publicKeyHash && (
+      {bakerAcc.address === accPkh && (
         <T id="selfComment">
           {message => (
             <>
@@ -174,7 +174,7 @@ const BakerAccount: React.FC<{
         </T>
       )}
     </>
-  ) : network.type === 'dcp' ? (
+  ) : isDcp ? (
     <div className="flex">
       <HashChip bgShade={200} rounded="base" className="mr-1" hash={bakerPkh} small textShade={700} />
 
@@ -185,7 +185,7 @@ const BakerAccount: React.FC<{
       {message => <span className="font-normal">{typeof message === 'string' ? message.toLowerCase() : message}</span>}
     </T>
   );
-};
+});
 
 const SponsoredBaker: FC<{ isRecommendedBaker: boolean }> = ({ isRecommendedBaker }) => (
   <div
@@ -195,6 +195,7 @@ const SponsoredBaker: FC<{ isRecommendedBaker: boolean }> = ({ isRecommendedBake
     <T id={isRecommendedBaker ? 'recommended' : 'helpUkraine'} />
   </div>
 );
+
 const PromotedBaker: FC<{ isRecommendedBaker: boolean }> = ({ isRecommendedBaker }) => (
   <div
     className={classNames('font-normal text-xs px-2 py-1 bg-primary-orange text-white ml-2')}

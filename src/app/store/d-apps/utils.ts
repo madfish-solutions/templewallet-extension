@@ -1,13 +1,13 @@
-import { TezosToolkit } from '@taquito/taquito';
 import BigNumber from 'bignumber.js';
 import { map } from 'rxjs';
 
+import { getYOUTokenApr$, getYouvesTokenApr$ } from 'lib/apis/youves';
+import { YouvesTokensEnum } from 'lib/apis/youves/enums';
+import { youvesTokensRecord } from 'lib/apis/youves/utils';
 import { fetchApyFromYupana$ } from 'lib/apis/yupana';
 import { KNOWN_TOKENS_SLUGS } from 'lib/assets/known-tokens';
+import { getReadOnlyTezos } from 'temple/tezos';
 
-import { getYOUTokenApr$, getYouvesTokenApr$ } from '../../../lib/apis/youves';
-import { YouvesTokensEnum } from '../../../lib/apis/youves/enums';
-import { youvesTokensRecord } from '../../../lib/apis/youves/utils';
 import { ExchangeRateRecord } from '../currency/state';
 
 export const fetchKUSDApy$ = () => {
@@ -25,20 +25,23 @@ export const fetchTzBtcApy$ = () => {
   return fetchApyFromYupana$('TZBTC').pipe(map(val => ({ [slug]: val })));
 };
 
-export const fetchUBTCApr$ = (tezos: TezosToolkit) => {
+export const fetchUBTCApr$ = (rpcUrl: string) => {
   const slug = KNOWN_TOKENS_SLUGS.UBTC;
+  const tezos = getReadOnlyTezos(rpcUrl);
 
   return getYouvesTokenApr$(tezos, youvesTokensRecord[YouvesTokensEnum.UBTC]).pipe(map(value => ({ [slug]: value })));
 };
 
-export const fetchUUSDCApr$ = (tezos: TezosToolkit) => {
+export const fetchUUSDCApr$ = (rpcUrl: string) => {
   const slug = KNOWN_TOKENS_SLUGS.UUSD;
+  const tezos = getReadOnlyTezos(rpcUrl);
 
   return getYouvesTokenApr$(tezos, youvesTokensRecord[YouvesTokensEnum.UUSD]).pipe(map(value => ({ [slug]: value })));
 };
 
-export const fetchYOUApr$ = (tezos: TezosToolkit, tokenUsdExchangeRates: ExchangeRateRecord) => {
+export const fetchYOUApr$ = (rpcUrl: string, tokenUsdExchangeRates: ExchangeRateRecord) => {
   const slug = KNOWN_TOKENS_SLUGS.YOU;
+  const tezos = getReadOnlyTezos(rpcUrl);
   const assetToUsdExchangeRate = new BigNumber(tokenUsdExchangeRates[slug]);
 
   return getYOUTokenApr$(tezos, assetToUsdExchangeRate, assetToUsdExchangeRate).pipe(map(value => ({ [slug]: value })));

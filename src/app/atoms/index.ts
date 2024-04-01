@@ -49,3 +49,5 @@ export { DataPlaceholder } from './DataPlaceholder';
 export { default as ABContainer } from './ABContainer';
 
 export { PageTitle } from './PageTitle';
+
+export { default as AccountTypeBadge } from './AccountTypeBadge';

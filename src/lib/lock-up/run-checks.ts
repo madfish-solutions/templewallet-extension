@@ -6,8 +6,8 @@
 import browser from 'webextension-polyfill';
 
 import { WALLET_AUTOLOCK_TIME } from 'lib/fixed-times';
-import { request, assertResponse } from 'lib/temple/front';
 import { TempleMessageType } from 'lib/temple/types';
+import { makeIntercomRequest, assertResponse } from 'temple/front/intercom-client';
 
 import { getIsLockUpEnabled } from './index';
 
@@ -42,7 +42,7 @@ function getOpenedTemplePagesN() {
 }
 
 async function lock() {
-  const res = await request({
+  const res = await makeIntercomRequest({
     type: TempleMessageType.LockRequest
   });
   assertResponse(res.type === TempleMessageType.LockResponse);

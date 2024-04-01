@@ -13,6 +13,7 @@ import { useMemoWithCompare } from 'lib/ui/hooks';
 import { isSearchStringApplicable } from 'lib/utils/search-items';
 
 export const useTokensListingLogic = (
+  publicKeyHash: string,
   assetsSlugs: string[],
   filterZeroBalances = false,
   leadingAssets?: string[],
@@ -23,7 +24,7 @@ export const useTokensListingLogic = (
     [assetsSlugs, leadingAssets]
   );
 
-  const balances = useCurrentAccountBalances();
+  const balances = useCurrentAccountBalances(publicKeyHash);
   const isNonZeroBalance = useCallback(
     (slug: string) => {
       const balance = balances[slug];
@@ -41,7 +42,7 @@ export const useTokensListingLogic = (
   const [tokenId, setTokenId] = useState<number>();
   const [searchValueDebounced] = useDebounce(tokenId ? toTokenSlug(searchValue, String(tokenId)) : searchValue, 300);
 
-  const assetsSortPredicate = useTokensSortPredicate();
+  const assetsSortPredicate = useTokensSortPredicate(publicKeyHash);
   const getMetadata = useGetTokenOrGasMetadata();
 
   const searchedSlugs = useMemo(

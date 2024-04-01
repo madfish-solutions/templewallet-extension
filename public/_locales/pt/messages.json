@@ -601,7 +601,7 @@
     "message": "A chave secreta da conta que pretende importar."
   },
   "privateKeyInputPlaceholder": {
-    "message": "por exemplo, edsk3wfiPMu..."
+    "message": "por exemplo, edsk3wfiPMu... | 0xL4mp3Ty..."
   },
   "password": {
     "message": "Palavra-passe"

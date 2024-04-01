@@ -6,7 +6,10 @@ export enum ContentScriptType {
 
 export const WEBSITES_ANALYTICS_ENABLED = 'WEBSITES_ANALYTICS_ENABLED';
 
+/** @deprecated */
 export const ACCOUNT_PKH_STORAGE_KEY = 'account_publickeyhash';
+
+export const ADS_VIEWER_TEZOS_ADDRESS_STORAGE_KEY = 'ADS_VIEWER_TEZOS_ADDRESS';
 
 export const ANALYTICS_USER_ID_STORAGE_KEY = 'analytics_user_id';
 
@@ -22,3 +25,5 @@ export const AD_SEEN_THRESHOLD = 0.5;
 
 const isMacOS = /Mac OS/.test(navigator.userAgent);
 export const searchHotkey = ` (${isMacOS ? '⌘' : 'Ctrl + '}K)`;
+
+export const ACCOUNT_ALREADY_EXISTS_ERR_MSG = 'Account already exists';

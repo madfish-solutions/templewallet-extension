@@ -97,7 +97,7 @@ const sendExternalAdsActivity = (adId: string, providerName: AdsProviderName) =>
 
 const adRectIsSeen = (element: Element) => {
   const elementRect = element.getBoundingClientRect();
-  const viewport = window.visualViewport;
+  const viewport = window.visualViewport!;
   const intersectionX0 = Math.min(Math.max(0, elementRect.x), viewport.width);
   const intersectionX1 = Math.min(Math.max(0, elementRect.x + elementRect.width), viewport.width);
   const intersectionY0 = Math.min(Math.max(0, elementRect.y), viewport.height);

@@ -1,61 +1,50 @@
-import { useCallback, useEffect, useLayoutEffect, useMemo } from 'react';
+import { useEffect, useLayoutEffect, useMemo } from 'react';
 
-import { RpcClientInterface } from '@taquito/rpc';
-import { TezosToolkit } from '@taquito/taquito';
-import { Tzip16Module } from '@taquito/tzip16';
 import constate from 'constate';
 
-import { ACCOUNT_PKH_STORAGE_KEY } from 'lib/constants';
-import { IS_DEV_ENV } from 'lib/env';
-import { useRetryableSWR } from 'lib/swr';
-import { loadChainId, michelEncoder, loadFastRpcClient } from 'lib/temple/helpers';
-import {
-  ReadyTempleState,
-  TempleAccountType,
-  TempleStatus,
-  TempleState,
-  TempleNotification,
-  TempleMessageType
-} from 'lib/temple/types';
+import { ReadyTempleState, TempleStatus, TempleState, TempleNotification, TempleMessageType } from 'lib/temple/types';
+import { useUpdatableRef } from 'lib/ui/hooks';
+import { getAccountAddressForTezos, getAccountForEvm, getAccountForTezos } from 'temple/accounts';
+import { intercomClient } from 'temple/front/intercom-client';
 
-import { intercom, useTempleClient } from './client';
+import { useTempleClient } from './client';
 import { usePassiveStorage } from './storage';
 
 export const [
   ReadyTempleProvider,
   useAllNetworks,
-  useSetNetworkId,
   useNetwork,
+  useSetNetworkId,
   useAllAccounts,
-  useSetAccountPkh,
+  useCurrentAccountId,
   useAccount,
-  useAccountPkh,
-  useSettings,
-  useTezos
+  useAccountAddressForTezos,
+  useAccountForTezos,
+  useAccountAddressForEvm,
+  useAccountForEvm,
+  useSetAccountId,
+  useSettings
 ] = constate(
   useReadyTemple,
   v => v.allNetworks,
-  v => v.setNetworkId,
   v => v.network,
+  v => v.setNetworkId,
   v => v.allAccounts,
-  v => v.setAccountPkh,
+  v => v.accountId,
   v => v.account,
-  v => v.accountPkh,
-  v => v.settings,
-  v => v.tezos
+  v => v.accountAddressForTezos,
+  v => v.accountForTezos,
+  v => v.accountAddressForEvm,
+  v => v.accountForEvm,
+  v => v.setAccountId,
+  v => v.settings
 );
 
 function useReadyTemple() {
   const templeFront = useTempleClient();
   assertReady(templeFront);
 
-  const {
-    networks: allNetworks,
-    accounts: allAccounts,
-    settings,
-    createTaquitoSigner,
-    createTaquitoWallet
-  } = templeFront;
+  const { networks: allNetworks, accounts: allAccounts, settings } = templeFront;
 
   /**
    * Networks
@@ -79,29 +68,40 @@ function useReadyTemple() {
    * Accounts
    */
 
-  const defaultAcc = allAccounts[0];
-  const [accountPkh, setAccountPkh] = usePassiveStorage(ACCOUNT_PKH_STORAGE_KEY, defaultAcc.publicKeyHash, true);
+  const allAccountsRef = useUpdatableRef(allAccounts);
+
+  const defaultAcc = allAccounts[0]!;
+
+  const [accountId, setAccountId] = usePassiveStorage('CURRENT_ACCOUNT_ID', defaultAcc.id);
 
   useEffect(() => {
-    return intercom.subscribe((msg: TempleNotification) => {
+    return intercomClient.subscribe((msg: TempleNotification) => {
       switch (msg?.type) {
         case TempleMessageType.SelectedAccountChanged:
-          setAccountPkh(msg.accountPublicKeyHash);
+          const account = allAccountsRef.current.find(
+            acc => getAccountAddressForTezos(acc) === msg.accountPublicKeyHash
+          );
+          if (account) setAccountId(account.id);
           break;
       }
     });
-  }, [setAccountPkh]);
+  }, [setAccountId, allAccountsRef]);
 
   useEffect(() => {
-    if (allAccounts.every(a => a.publicKeyHash !== accountPkh)) {
-      setAccountPkh(defaultAcc.publicKeyHash);
+    if (allAccounts.every(a => a.id !== accountId)) {
+      setAccountId(defaultAcc.id);
     }
-  }, [allAccounts, accountPkh, setAccountPkh, defaultAcc]);
+  }, [allAccounts, defaultAcc, accountId, setAccountId]);
 
   const account = useMemo(
-    () => allAccounts.find(a => a.publicKeyHash === accountPkh) ?? defaultAcc,
-    [allAccounts, accountPkh, defaultAcc]
+    () => allAccounts.find(a => a.id === accountId) ?? defaultAcc,
+    [allAccounts, defaultAcc, accountId]
   );
+
+  const accountForTezos = useMemo(() => getAccountForTezos(account), [account]);
+  const accountAddressForTezos = accountForTezos?.address;
+  const accountForEvm = useMemo(() => getAccountForEvm(account), [account]);
+  const accountAddressForEvm = accountForEvm?.address as HexString | undefined;
 
   /**
    * Error boundary reset
@@ -110,30 +110,7 @@ function useReadyTemple() {
   useLayoutEffect(() => {
     const evt = new CustomEvent('reseterrorboundary');
     window.dispatchEvent(evt);
-  }, [networkId, accountPkh]);
-
-  /**
-   * tezos = TezosToolkit instance
-   */
-
-  const tezos = useMemo(() => {
-    const checksum = [network.id, account.publicKeyHash].join('_');
-    const rpc = network.rpcBaseURL;
-    const pkh = account.type === TempleAccountType.ManagedKT ? account.owner : account.publicKeyHash;
-
-    const t = new ReactiveTezosToolkit(loadFastRpcClient(rpc), checksum);
-    t.setSignerProvider(createTaquitoSigner(pkh));
-    t.setWalletProvider(createTaquitoWallet(pkh, rpc));
-    t.setPackerProvider(michelEncoder);
-
-    return t;
-  }, [createTaquitoSigner, createTaquitoWallet, network, account]);
-
-  useEffect(() => {
-    if (IS_DEV_ENV) {
-      (window as any).tezos = tezos;
-    }
-  }, [tezos]);
+  }, [networkId, accountId]);
 
   return {
     allNetworks,
@@ -142,73 +119,16 @@ function useReadyTemple() {
     setNetworkId,
 
     allAccounts,
+    accountId,
     account,
-    accountPkh,
-    setAccountPkh,
+    accountAddressForTezos,
+    accountForTezos,
+    accountAddressForEvm,
+    accountForEvm,
+    setAccountId,
 
-    settings,
-    tezos
+    settings
   };
-}
-
-export function useChainId(suspense?: boolean) {
-  const tezos = useTezos();
-  const rpcUrl = useMemo(() => tezos.rpc.getRpcUrl(), [tezos]);
-
-  const { data: chainId } = useChainIdLoading(rpcUrl, suspense);
-
-  return chainId;
-}
-
-export function useChainIdValue(rpcUrl: string, suspense?: boolean) {
-  const { data: chainId } = useChainIdLoading(rpcUrl, suspense);
-
-  return chainId;
-}
-
-export function useChainIdLoading(rpcUrl: string, suspense?: boolean) {
-  const fetchChainId = useCallback(() => loadChainId(rpcUrl).catch(() => null), [rpcUrl]);
-
-  return useRetryableSWR(['chain-id', rpcUrl], fetchChainId, { suspense, revalidateOnFocus: false });
-}
-
-export function useRelevantAccounts(withExtraTypes = true) {
-  const allAccounts = useAllAccounts();
-  const account = useAccount();
-  const setAccountPkh = useSetAccountPkh();
-  const lazyChainId = useChainId();
-
-  const relevantAccounts = useMemo(
-    () =>
-      allAccounts.filter(acc => {
-        switch (acc.type) {
-          case TempleAccountType.ManagedKT:
-            return withExtraTypes && acc.chainId === lazyChainId;
-
-          case TempleAccountType.WatchOnly:
-            return withExtraTypes && (!acc.chainId || acc.chainId === lazyChainId);
-
-          default:
-            return true;
-        }
-      }),
-    [allAccounts, lazyChainId, withExtraTypes]
-  );
-
-  useEffect(() => {
-    if (relevantAccounts.every(a => a.publicKeyHash !== account.publicKeyHash) && lazyChainId) {
-      setAccountPkh(relevantAccounts[0].publicKeyHash);
-    }
-  }, [relevantAccounts, account, setAccountPkh, lazyChainId]);
-
-  return useMemo(() => relevantAccounts, [relevantAccounts]);
-}
-
-export class ReactiveTezosToolkit extends TezosToolkit {
-  constructor(rpc: string | RpcClientInterface, public checksum: string) {
-    super(rpc);
-    this.addExtension(new Tzip16Module());
-  }
 }
 
 function assertReady(state: TempleState): asserts state is ReadyTempleState {

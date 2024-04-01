@@ -2,35 +2,32 @@ import { useCallback, useMemo } from 'react';
 
 import { emptyFn } from '@rnw-community/shared';
 import BigNumber from 'bignumber.js';
-import memoizee from 'memoizee';
 
 import { useAllAccountBalancesSelector, useAllBalancesSelector } from 'app/store/balances/selectors';
 import { getKeyForBalancesRecord } from 'app/store/balances/utils';
 import { isKnownChainId } from 'lib/apis/tzkt';
 import { useAssetMetadata, useGetTokenOrGasMetadata } from 'lib/metadata';
 import { useTypedSWR } from 'lib/swr';
+import { atomsToTokens } from 'lib/temple/helpers';
 import {
-  useTezos,
-  useAccount,
-  useChainId,
-  ReactiveTezosToolkit,
-  useChainIdLoading,
-  useOnBlock
-} from 'lib/temple/front';
-import { michelEncoder, loadFastRpcClient, atomsToTokens } from 'lib/temple/helpers';
+  useTezosNetwork,
+  useAccountAddressForTezos,
+  useTezosChainIdLoading,
+  useOnTezosBlock,
+  useTezosNetworkRpcUrl
+} from 'temple/front';
+import { getReadOnlyTezos } from 'temple/tezos';
 
 import { fetchRawBalance as fetchRawBalanceFromBlockchain } from './fetch';
-import { getBalanceSWRKey } from './utils';
 
-export const useCurrentAccountBalances = () => {
-  const { publicKeyHash } = useAccount();
-  const chainId = useChainId(true)!;
+export const useCurrentAccountBalances = (publicKeyHash: string) => {
+  const { chainId } = useTezosNetwork();
 
   return useAllAccountBalancesSelector(publicKeyHash, chainId);
 };
 
-export const useGetCurrentAccountTokenOrGasBalanceWithDecimals = () => {
-  const rawBalances = useCurrentAccountBalances();
+export const useGetCurrentAccountTokenOrGasBalanceWithDecimals = (publicKeyHash: string) => {
+  const rawBalances = useCurrentAccountBalances(publicKeyHash);
   const getMetadata = useGetTokenOrGasMetadata();
 
   return useCallback(
@@ -54,13 +51,12 @@ export function useRawBalance(
   error?: unknown;
   refresh: EmptyFn;
 } {
-  const { publicKeyHash: currentAccountAddress } = useAccount();
-  const nativeTezos = useTezos();
-  const nativeRpcUrl = useMemo(() => nativeTezos.rpc.getRpcUrl(), [nativeTezos]);
+  const currentAccountAddress = useAccountAddressForTezos();
 
+  const nativeRpcUrl = useTezosNetworkRpcUrl();
   const rpcUrl = networkRpc ?? nativeRpcUrl;
 
-  const chainIdSwrRes = useChainIdLoading(rpcUrl);
+  const chainIdSwrRes = useTezosChainIdLoading(rpcUrl);
   const chainId = chainIdSwrRes.data;
 
   const allBalances = useAllBalancesSelector();
@@ -79,10 +75,10 @@ export function useRawBalance(
    */
   const usingStore = address === currentAccountAddress && isKnownChainId(chainId);
 
-  const tezos = useMemo(() => (networkRpc ? buildTezosToolkit(networkRpc) : nativeTezos), [networkRpc, nativeTezos]);
+  const tezos = getReadOnlyTezos(rpcUrl);
 
   const onChainBalanceSwrRes = useTypedSWR(
-    getBalanceSWRKey(tezos, assetSlug, address),
+    ['balance', rpcUrl, assetSlug, address],
     () => {
       if (!chainId || usingStore) return;
 
@@ -97,7 +93,7 @@ export function useRawBalance(
   const refreshChainId = useCallback(() => chainIdSwrRes.mutate(), [chainIdSwrRes.mutate]);
   const refreshBalanceOnChain = useCallback(() => void onChainBalanceSwrRes.mutate(), [onChainBalanceSwrRes.mutate]);
 
-  useOnBlock(refreshBalanceOnChain, tezos, !chainId || usingStore);
+  useOnTezosBlock(refreshBalanceOnChain, tezos, !chainId || usingStore);
 
   if (!chainId)
     return {
@@ -127,6 +123,7 @@ export function useRawBalance(
   };
 }
 
+/** useTezosBalance */
 export function useBalance(assetSlug: string, address: string, networkRpc?: string) {
   const { value: rawValue, isSyncing, error, refresh } = useRawBalance(assetSlug, address, networkRpc);
   const assetMetadata = useAssetMetadata(assetSlug);
@@ -138,15 +135,3 @@ export function useBalance(assetSlug: string, address: string, networkRpc?: stri
 
   return { rawValue, value, isSyncing, error, refresh, assetMetadata };
 }
-
-const buildTezosToolkit = memoizee(
-  (rpcUrl: string) => {
-    const t = new ReactiveTezosToolkit(loadFastRpcClient(rpcUrl), rpcUrl);
-    t.setPackerProvider(michelEncoder);
-    return t;
-  },
-  {
-    max: 15,
-    maxAge: 5 * 60_000
-  }
-);

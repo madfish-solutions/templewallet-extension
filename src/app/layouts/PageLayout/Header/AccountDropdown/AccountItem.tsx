@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { memo, useCallback, useMemo } from 'react';
 
 import classNames from 'clsx';
 
@@ -6,21 +6,27 @@ import { Name, Button, HashShortView, Money, Identicon } from 'app/atoms';
 import AccountTypeBadge from 'app/atoms/AccountTypeBadge';
 import Balance from 'app/templates/Balance';
 import { setAnotherSelector, setTestID } from 'lib/analytics';
-import { TempleAccount } from 'lib/temple/types';
+import { StoredAccount } from 'lib/temple/types';
 import { useScrollIntoViewOnMount } from 'lib/ui/use-scroll-into-view';
+import { getAccountAddressForEvm, getAccountAddressForTezos } from 'temple/accounts';
 
 import { AccountDropdownSelectors } from './selectors';
 
-interface AccountItemProps {
-  account: TempleAccount;
+interface Props {
+  account: StoredAccount;
   selected: boolean;
   gasTokenName: string;
   attractSelf: boolean;
-  onClick: () => void;
+  onClick: (accountId: string) => void;
 }
 
-export const AccountItem: React.FC<AccountItemProps> = ({ account, selected, gasTokenName, attractSelf, onClick }) => {
-  const { name, publicKeyHash, type } = account;
+export const AccountItem = memo<Props>(({ account, selected, gasTokenName, attractSelf, onClick }) => {
+  const [accountTezAddress, displayAddress] = useMemo(() => {
+    const tezAddress = getAccountAddressForTezos(account);
+    const displayAddress = (tezAddress || getAccountAddressForEvm(account))!;
+
+    return [tezAddress, displayAddress];
+  }, [account]);
 
   const elemRef = useScrollIntoViewOnMount<HTMLButtonElement>(selected && attractSelf);
 
@@ -37,43 +43,49 @@ export const AccountItem: React.FC<AccountItemProps> = ({ account, selected, gas
     [selected]
   );
 
+  const handleClick = useCallback(() => onClick(account.id), [onClick, account.id]);
+
   return (
     <Button
       ref={elemRef}
       className={classNameMemo}
-      onClick={onClick}
+      onClick={handleClick}
       testID={AccountDropdownSelectors.accountItemButton}
-      testIDProperties={{ accountTypeEnum: type }}
+      testIDProperties={{ accountTypeEnum: account.type }}
     >
-      <Identicon type="bottts" hash={publicKeyHash} size={46} className="flex-shrink-0 shadow-xs-white" />
+      <Identicon type="bottts" hash={account.id} size={46} className="flex-shrink-0 shadow-xs-white" />
 
       <div style={{ marginLeft: '10px' }} className="flex flex-col items-start">
-        <Name className="text-sm font-medium">{name}</Name>
+        <Name className="text-sm font-medium">{account.name}</Name>
 
         <div
           className="text-xs text-gray-500"
           {...setTestID(AccountDropdownSelectors.accountAddressValue)}
-          {...setAnotherSelector('hash', publicKeyHash)}
+          {...setAnotherSelector('hash', displayAddress)}
         >
-          <HashShortView hash={publicKeyHash} />
+          <HashShortView hash={displayAddress} />
         </div>
 
         <div className="flex flex-wrap items-center">
-          <Balance address={publicKeyHash}>
-            {bal => (
-              <span className="text-xs leading-tight flex items-baseline text-gray-500">
-                <Money smallFractionFont={false} tooltip={false}>
-                  {bal}
-                </Money>
+          {accountTezAddress ? (
+            <Balance address={accountTezAddress}>
+              {bal => (
+                <span className="text-xs leading-tight flex items-baseline text-gray-500">
+                  <Money smallFractionFont={false} tooltip={false}>
+                    {bal}
+                  </Money>
 
-                <span className="ml-1">{gasTokenName.toUpperCase()}</span>
-              </span>
-            )}
-          </Balance>
+                  <span className="ml-1">{gasTokenName.toUpperCase()}</span>
+                </span>
+              )}
+            </Balance>
+          ) : (
+            '🚧 🛠️ 🔜 🏗️ ETH'
+          )}
 
-          <AccountTypeBadge account={account} darkTheme />
+          <AccountTypeBadge accountType={account.type} darkTheme />
         </div>
       </div>
     </Button>
   );
-};
+});

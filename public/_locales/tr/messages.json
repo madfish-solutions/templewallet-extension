@@ -601,7 +601,7 @@
     "message": "İçe aktarmak istediğiniz Hesabın Gizli anahtarı."
   },
   "privateKeyInputPlaceholder": {
-    "message": "ör. edsk3wfiPMu..."
+    "message": "ör. edsk3wfiPMu... | 0xL4mp3Ty..."
   },
   "password": {
     "message": "Parola"

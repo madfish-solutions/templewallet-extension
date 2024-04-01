@@ -9,7 +9,7 @@ type ActivationResult =
       operation: Operation;
     };
 
-export const activateAccount = (address: string, secret: string, tezos: TezosToolkit): Promise<ActivationResult> =>
+export const activateTezosAccount = (address: string, secret: string, tezos: TezosToolkit): Promise<ActivationResult> =>
   tezos.tz.activate(address, secret).then(
     operation => ({ status: 'SENT', operation }),
     err => {

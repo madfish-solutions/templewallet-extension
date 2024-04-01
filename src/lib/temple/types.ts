@@ -3,6 +3,7 @@ import type { Estimate } from '@taquito/taquito';
 import type { TempleDAppMetadata, TempleDAppNetwork } from '@temple-wallet/dapp/dist/types';
 
 import type { TID } from 'lib/i18n/types';
+import { TempleChainName } from 'temple/types';
 
 import type {
   TempleSendPageEventRequest,
@@ -17,8 +18,8 @@ export { DerivationType };
 
 export interface ReadyTempleState extends TempleState {
   status: TempleStatus.Ready;
-  accounts: NonEmptyArray<TempleAccount>;
-  networks: NonEmptyArray<TempleNetwork>;
+  accounts: NonEmptyArray<StoredAccount>;
+  networks: NonEmptyArray<StoredNetwork>;
   settings: TempleSettings;
 }
 
@@ -31,12 +32,12 @@ export interface TempleDAppSession {
 
 export interface TempleState {
   status: TempleStatus;
-  accounts: TempleAccount[];
-  networks: TempleNetwork[];
+  accounts: StoredAccount[];
+  networks: StoredNetwork[];
   settings: TempleSettings | null;
 }
 
-export enum TempleChainId {
+export enum TempleTezosChainId {
   Mainnet = 'NetXdQprcVkpaWU',
   Ghostnet = 'NetXnHfVqm9iesp',
   Monday = 'NetXaqtQ8b5nihx',
@@ -47,8 +48,8 @@ export enum TempleChainId {
   DcpTest = 'NetXX7Tz1sK8JTa'
 }
 
-export function isKnownChainId(chainId: string): chainId is TempleChainId {
-  return Object.values(TempleChainId).includes(chainId as TempleChainId);
+export function isKnownChainId(chainId: string): chainId is TempleTezosChainId {
+  return Object.values<string>(TempleTezosChainId).includes(chainId);
 }
 
 export enum TempleStatus {
@@ -57,43 +58,54 @@ export enum TempleStatus {
   Ready
 }
 
-export type TempleAccount =
-  | TempleHDAccount
-  | TempleImportedAccount
-  | TempleLedgerAccount
-  | TempleManagedKTAccount
-  | TempleWatchOnlyAccount;
+export type StoredAccount =
+  | StoredHDAccount
+  | StoredImportedAccount
+  | StoredLedgerAccount
+  | StoredManagedKTAccount
+  | StoredWatchOnlyAccount;
 
-interface TempleLedgerAccount extends TempleAccountBase {
+interface StoredLedgerAccount extends StoredAccountBase {
   type: TempleAccountType.Ledger;
+  tezosAddress: string;
   derivationPath: string;
 }
 
-interface TempleImportedAccount extends TempleAccountBase {
+interface StoredImportedAccount extends StoredAccountBase {
   type: TempleAccountType.Imported;
+  chain: TempleChainName;
+  address: string;
 }
 
-interface TempleHDAccount extends TempleAccountBase {
+export interface StoredHDAccount extends StoredAccountBase {
   type: TempleAccountType.HD;
   hdIndex: number;
+  tezosAddress: string;
+  evmAddress: string;
 }
 
-interface TempleManagedKTAccount extends TempleAccountBase {
+interface StoredManagedKTAccount extends StoredAccountBase {
   type: TempleAccountType.ManagedKT;
+  tezosAddress: string;
   chainId: string;
   owner: string;
 }
 
-interface TempleWatchOnlyAccount extends TempleAccountBase {
+interface StoredWatchOnlyAccount extends StoredAccountBase {
   type: TempleAccountType.WatchOnly;
+  chain: TempleChainName;
+  address: string;
+  /** For contract addresses */
   chainId?: string;
 }
 
-interface TempleAccountBase {
+export interface StoredAccountBase {
+  id: string;
   type: TempleAccountType;
   name: string;
-  publicKeyHash: string;
-  hdIndex?: number;
+  // publicKeyHash: string;
+  // hdIndex?: number;
+  // evmAddress?: string;
   derivationPath?: string;
   derivationType?: DerivationType;
 }
@@ -106,20 +118,20 @@ export enum TempleAccountType {
   WatchOnly
 }
 
-interface TempleNetworkBase {
+interface StoredNetworkBase {
   id: string;
   name?: string;
   nameI18nKey?: TID;
   description: string;
   descriptionI18nKey?: string;
-  type: TempleNetworkType;
+  type: 'main' | 'test' | 'dcp';
   rpcBaseURL: string;
   color: string;
   disabled: boolean;
   hidden?: boolean;
 }
 
-export type TempleNetwork = TempleNetworkBase &
+export type StoredNetwork = StoredNetworkBase &
   (
     | {
         nameI18nKey: TID;
@@ -129,10 +141,8 @@ export type TempleNetwork = TempleNetworkBase &
       }
   );
 
-export type TempleNetworkType = 'main' | 'test' | 'dcp';
-
 export interface TempleSettings {
-  customNetworks?: TempleNetwork[];
+  customNetworks?: StoredNetwork[];
   contacts?: TempleContact[];
 }
 
@@ -442,7 +452,7 @@ interface TempleCreateAccountResponse extends TempleMessageBase {
 
 interface TempleRevealPublicKeyRequest extends TempleMessageBase {
   type: TempleMessageType.RevealPublicKeyRequest;
-  accountPublicKeyHash: string;
+  accountAddress: string;
 }
 
 interface TempleRevealPublicKeyResponse extends TempleMessageBase {
@@ -452,7 +462,8 @@ interface TempleRevealPublicKeyResponse extends TempleMessageBase {
 
 interface TempleRevealPrivateKeyRequest extends TempleMessageBase {
   type: TempleMessageType.RevealPrivateKeyRequest;
-  accountPublicKeyHash: string;
+  chain: TempleChainName;
+  address: string;
   password: string;
 }
 
@@ -483,7 +494,7 @@ interface TempleGenerateSyncPayloadResponse extends TempleMessageBase {
 
 interface TempleRemoveAccountRequest extends TempleMessageBase {
   type: TempleMessageType.RemoveAccountRequest;
-  accountPublicKeyHash: string;
+  id: string;
   password: string;
 }
 
@@ -493,7 +504,7 @@ interface TempleRemoveAccountResponse extends TempleMessageBase {
 
 interface TempleEditAccountRequest extends TempleMessageBase {
   type: TempleMessageType.EditAccountRequest;
-  accountPublicKeyHash: string;
+  id: string;
   name: string;
 }
 
@@ -503,6 +514,7 @@ interface TempleEditAccountResponse extends TempleMessageBase {
 
 interface TempleImportAccountRequest extends TempleMessageBase {
   type: TempleMessageType.ImportAccountRequest;
+  chain: TempleChainName;
   privateKey: string;
   encPassword?: string;
 }
@@ -547,6 +559,7 @@ interface TempleImportManagedKTAccountResponse extends TempleMessageBase {
 interface TempleImportWatchOnlyAccountRequest extends TempleMessageBase {
   type: TempleMessageType.ImportWatchOnlyAccountRequest;
   address: string;
+  chain: TempleChainName;
   chainId?: string;
 }
 

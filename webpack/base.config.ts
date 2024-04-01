@@ -75,7 +75,7 @@ export const buildBaseConfig = (): WebPack.Configuration & Pick<WebPack.WebpackO
 
     alias: {
       /*
-        Exports of `punycode@2.1.1/punycode.js` & `punycode@2.1.1/punycode.es6.js` are different.
+        Exports of `punycode@2.3.0/punycode.js` & `punycode@2.3.0/punycode.es6.js` are different.
         We need the former ones (e.g. `idna-uts46-hx` relies on it).
       */
       punycode$: require.resolve('punycode/punycode.js')
@@ -287,9 +287,6 @@ export const buildBaseConfig = (): WebPack.Configuration & Pick<WebPack.WebpackO
           { file: '**/src/setupProxy.*' },
           { file: '**/src/setupTests.*' }
         ]
-      },
-      logger: {
-        infrastructure: 'silent'
       }
     }),
 

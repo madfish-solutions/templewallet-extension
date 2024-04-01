@@ -1,4 +1,4 @@
-import React, { FC, ReactNode, useCallback, useMemo, useState } from 'react';
+import React, { memo, ReactNode, useCallback, useMemo, useState } from 'react';
 
 import { useForm } from 'react-hook-form';
 
@@ -7,7 +7,7 @@ import { useFormAnalytics } from 'lib/analytics';
 import { T, t } from 'lib/i18n';
 import { useTempleClient } from 'lib/temple/front';
 import { clearClipboard } from 'lib/ui/utils';
-import { delay } from 'lib/utils';
+import { TempleChainName } from 'temple/types';
 
 import { ImportAccountSelectors, ImportAccountFormType } from './selectors';
 
@@ -16,7 +16,7 @@ interface ByPrivateKeyFormData {
   encPassword?: string;
 }
 
-export const ByPrivateKeyForm: FC = () => {
+export const ByPrivateKeyForm = memo(() => {
   const { importAccount } = useTempleClient();
   const formAnalytics = useFormAnalytics(ImportAccountFormType.PrivateKey);
 
@@ -29,17 +29,18 @@ export const ByPrivateKeyForm: FC = () => {
 
       formAnalytics.trackSubmit();
       setError(null);
+      let chain: TempleChainName | undefined;
       try {
-        await importAccount(privateKey.replace(/\s/g, ''), encPassword);
+        const [finalPrivateKey, chain] = toPrivateKeyWithChain(privateKey.replace(/\s/g, ''));
 
-        formAnalytics.trackSubmitSuccess();
+        await importAccount(chain, finalPrivateKey, encPassword);
+
+        formAnalytics.trackSubmitSuccess({ chain });
       } catch (err: any) {
-        formAnalytics.trackSubmitFail();
+        formAnalytics.trackSubmitFail({ chain });
 
         console.error(err);
 
-        // Human delay
-        await delay();
         setError(err.message);
       }
     },
@@ -47,7 +48,7 @@ export const ByPrivateKeyForm: FC = () => {
   );
 
   const keyValue = watch('privateKey');
-  const encrypted = useMemo(() => keyValue?.substring(2, 3) === 'e', [keyValue]);
+  const encrypted = useMemo(() => isTezosPrivateKey(keyValue) && keyValue?.substring(2, 3) === 'e', [keyValue]);
 
   return (
     <form className="w-full max-w-sm mx-auto my-8" onSubmit={handleSubmit(onSubmit)}>
@@ -95,4 +96,14 @@ export const ByPrivateKeyForm: FC = () => {
       </FormSubmitButton>
     </form>
   );
-};
+});
+
+function toPrivateKeyWithChain(value: string): [string, TempleChainName] {
+  if (isTezosPrivateKey(value)) return [value, TempleChainName.Tezos];
+
+  if (!value.startsWith('0x')) value = `0x${value}`;
+
+  return [value, TempleChainName.EVM];
+}
+
+const isTezosPrivateKey = (value: string) => value.startsWith('edsk');

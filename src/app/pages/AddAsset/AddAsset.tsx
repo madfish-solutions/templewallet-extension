@@ -3,14 +3,13 @@ import React, { FC, memo, ReactNode, useCallback, useEffect, useRef, useMemo } f
 import { ContractAbstraction, ContractProvider, Wallet } from '@taquito/taquito';
 import classNames from 'clsx';
 import { FormContextValues, useForm } from 'react-hook-form';
-import { useDispatch } from 'react-redux';
-import { useSWRConfig, unstable_serialize } from 'swr';
 import { useDebouncedCallback } from 'use-debounce';
 
 import { Alert, FormField, FormSubmitButton, NoSpaceField } from 'app/atoms';
 import Spinner from 'app/atoms/Spinner/Spinner';
 import { ReactComponent as AddIcon } from 'app/icons/add.svg';
 import PageLayout from 'app/layouts/PageLayout';
+import { dispatch } from 'app/store';
 import { putTokensAsIsAction, putCollectiblesAsIsAction } from 'app/store/assets/actions';
 import { putCollectiblesMetadataAction } from 'app/store/collectibles-metadata/actions';
 import { putTokensMetadataAction } from 'app/store/tokens-metadata/actions';
@@ -23,42 +22,52 @@ import {
   detectTokenStandard,
   IncorrectTokenIdError
 } from 'lib/assets/standards';
-import { getBalanceSWRKey } from 'lib/balances';
 import { T, t } from 'lib/i18n';
 import { isCollectible, TokenMetadata } from 'lib/metadata';
 import { fetchOneTokenMetadata } from 'lib/metadata/fetch';
 import { TokenMetadataNotFoundError } from 'lib/metadata/on-chain';
 import { loadContract } from 'lib/temple/contract';
-import { useTezos, useNetwork, useChainId, useAccount, validateContractAddress } from 'lib/temple/front';
 import { useSafeState } from 'lib/ui/hooks';
 import { delay } from 'lib/utils';
 import { navigate } from 'lib/woozie';
+import { UNDER_DEVELOPMENT_MSG } from 'temple/evm/under_dev_msg';
+import { useAccountAddressForTezos, useTezosNetwork } from 'temple/front';
+import { validateTezosContractAddress } from 'temple/front/tezos';
+import { getReadOnlyTezos } from 'temple/tezos';
 
 import { AddAssetSelectors } from './AddAsset.selectors';
 
-const AddAsset: FC = () => (
-  <PageLayout
-    pageTitle={
-      <>
-        <AddIcon className="w-auto h-4 mr-1 stroke-current" />
-        <T id="addAsset" />
-      </>
-    }
-  >
-    <Form />
-  </PageLayout>
-);
+const AddAsset = memo(() => {
+  const accountPkh = useAccountAddressForTezos();
+
+  return (
+    <PageLayout
+      pageTitle={
+        <>
+          <AddIcon className="w-auto h-4 mr-1 stroke-current" />
+          <T id="addAsset" />
+        </>
+      }
+    >
+      {accountPkh ? (
+        <Form accountPkh={accountPkh} />
+      ) : (
+        <div className="w-full max-w-sm mx-auto my-8">{UNDER_DEVELOPMENT_MSG}</div>
+      )}
+    </PageLayout>
+  );
+});
 
 export default AddAsset;
 
-type FormData = {
+interface FormData {
   address: string;
   id?: number;
   symbol: string;
   name: string;
   decimals: number;
   thumbnailUri: string;
-};
+}
 
 type ComponentState = {
   processing: boolean;
@@ -76,15 +85,14 @@ const INITIAL_STATE: ComponentState = {
 
 class ContractNotFoundError extends Error {}
 
-const Form = memo(() => {
-  const tezos = useTezos();
-  const { id: networkId } = useNetwork();
-  const chainId = useChainId(true)!;
-  const { publicKeyHash: accountPkh } = useAccount();
-  const { cache: swrCache } = useSWRConfig();
+interface FormProps {
+  accountPkh: string;
+}
+
+const Form = memo<FormProps>(({ accountPkh }) => {
+  const { chainId, rpcUrl } = useTezosNetwork();
 
   const formAnalytics = useFormAnalytics('AddAsset');
-  const dispatch = useDispatch();
 
   const { register, handleSubmit, errors, formState, watch, setValue, triggerValidation, clearError } =
     useForm<FormData>({
@@ -95,7 +103,7 @@ const Form = memo(() => {
   const tokenId = watch('id') || 0;
 
   const formValid = useMemo(
-    () => validateContractAddress(contractAddress) === true && tokenId >= 0,
+    () => validateTezosContractAddress(contractAddress) === true && tokenId >= 0,
     [contractAddress, tokenId]
   );
 
@@ -118,6 +126,8 @@ const Form = memo(() => {
     let stateToSet: Partial<ComponentState>;
 
     try {
+      const tezos = getReadOnlyTezos(rpcUrl);
+
       let contract: ContractAbstraction<Wallet | ContractProvider>;
       try {
         contract = await loadContract(tezos, contractAddress, false);
@@ -132,7 +142,6 @@ const Form = memo(() => {
 
       if (tokenStandard === 'fa2') await assertFa2TokenDefined(tezos, contract, tokenId);
 
-      const rpcUrl = tezos.rpc.getRpcUrl();
       const metadata = await fetchOneTokenMetadata(rpcUrl, contractAddress, String(tokenId));
 
       if (metadata) {
@@ -164,7 +173,7 @@ const Form = memo(() => {
         processing: false
       }));
     }
-  }, [tezos, setValue, setState, formValid, contractAddress, tokenId]);
+  }, [rpcUrl, setValue, setState, formValid, contractAddress, tokenId]);
 
   const loadMetadata = useDebouncedCallback(loadMetadataPure, 500);
 
@@ -181,7 +190,7 @@ const Form = memo(() => {
       setState(INITIAL_STATE);
       attemptRef.current++;
     }
-  }, [setState, formValid, networkId, contractAddress, tokenId]);
+  }, [setState, formValid, rpcUrl, contractAddress, tokenId]);
 
   const cleanContractAddress = useCallback(() => {
     setValue('address', '');
@@ -226,8 +235,6 @@ const Form = memo(() => {
 
         dispatch(assetIsCollectible ? putCollectiblesAsIsAction([asset]) : putTokensAsIsAction([asset]));
 
-        swrCache.delete(unstable_serialize(getBalanceSWRKey(tezos, tokenSlug, accountPkh)));
-
         formAnalytics.trackSubmitSuccess();
 
         navigate({
@@ -235,27 +242,14 @@ const Form = memo(() => {
           search: 'after_token_added=true'
         });
       } catch (err: any) {
-        formAnalytics.trackSubmitFail();
-
         console.error(err);
 
-        // Human delay
-        await delay();
+        formAnalytics.trackSubmitFail();
+
         setSubmitError(err.message);
       }
     },
-    [
-      tezos,
-      swrCache,
-      formState.isSubmitting,
-      chainId,
-      accountPkh,
-      setSubmitError,
-      formAnalytics,
-      dispatch,
-      contractAddress,
-      tokenId
-    ]
+    [formState.isSubmitting, chainId, accountPkh, setSubmitError, formAnalytics, contractAddress, tokenId]
   );
 
   return (
@@ -263,7 +257,7 @@ const Form = memo(() => {
       <NoSpaceField
         ref={register({
           required: t('required'),
-          validate: validateContractAddress
+          validate: validateTezosContractAddress
         })}
         name="address"
         id="addtoken-address"

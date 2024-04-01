@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
 
-import { useDispatch } from 'react-redux';
 import { forkJoin } from 'rxjs';
 
+import { dispatch } from 'app/store';
 import { useUsdToTokenRatesSelector } from 'app/store/currency/selectors';
 import { loadTokensApyActions } from 'app/store/d-apps/actions';
 import {
@@ -13,26 +13,24 @@ import {
   fetchUUSDCApr$,
   fetchYOUApr$
 } from 'app/store/d-apps/utils';
-import { useChainId, useTezos } from 'lib/temple/front';
-import { TempleChainId } from 'lib/temple/types';
+import { TempleTezosChainId } from 'lib/temple/types';
+import { useTezosNetwork } from 'temple/front';
 
 export const useTokensApyLoading = () => {
-  const dispatch = useDispatch();
-  const tezos = useTezos();
-  const chainId = useChainId(true)!;
+  const { rpcUrl, chainId } = useTezosNetwork();
   const usdToTokenRates = useUsdToTokenRatesSelector();
 
   const [tokensApy, setTokensApy] = useState({});
 
   useEffect(() => {
-    if (chainId === TempleChainId.Mainnet) {
+    if (chainId === TempleTezosChainId.Mainnet) {
       const subscription = forkJoin([
         fetchTzBtcApy$(),
         fetchKUSDApy$(),
         fetchUSDTApy$(),
-        fetchUUSDCApr$(tezos),
-        fetchUBTCApr$(tezos),
-        fetchYOUApr$(tezos, usdToTokenRates)
+        fetchUUSDCApr$(rpcUrl),
+        fetchUBTCApr$(rpcUrl),
+        fetchYOUApr$(rpcUrl, usdToTokenRates)
       ]).subscribe(responses => {
         setTokensApy(Object.assign({}, ...responses));
       });
@@ -41,7 +39,7 @@ export const useTokensApyLoading = () => {
     }
 
     return;
-  }, [chainId, usdToTokenRates, tezos]);
+  }, [usdToTokenRates, chainId, rpcUrl]);
 
   useEffect(() => {
     dispatch(loadTokensApyActions.success(tokensApy));

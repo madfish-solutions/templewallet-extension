@@ -21,7 +21,7 @@ import CustomNetworksSettings from 'app/templates/CustomNetworkSettings/CustomNe
 import DAppSettings from 'app/templates/DAppSettings/DAppSettings';
 import HelpAndCommunity from 'app/templates/HelpAndCommunity';
 import RemoveAccount from 'app/templates/RemoveAccount/RemoveAccount';
-import RevealSecret from 'app/templates/RevealSecrets/RevealSecret';
+import { RevealSeedPhrase, RevealPrivateKeys } from 'app/templates/RevealSecrets';
 import GeneralSettings from 'app/templates/SettingsGeneral';
 import SyncSettings from 'app/templates/Synchronization/SyncSettings';
 import { TID, T } from 'lib/i18n';
@@ -32,9 +32,6 @@ import { SettingsSelectors } from './Settings.selectors';
 type SettingsProps = {
   tabSlug?: string | null;
 };
-
-const RevealPrivateKey: FC = () => <RevealSecret reveal="private-key" />;
-const RevealSeedPhrase: FC = () => <RevealSecret reveal="seed-phrase" />;
 
 interface Tab {
   slug: string;
@@ -78,7 +75,7 @@ const TABS: Tab[] = [
     slug: 'reveal-private-key',
     titleI18nKey: 'revealPrivateKey',
     Icon: KeyIcon,
-    Component: RevealPrivateKey,
+    Component: RevealPrivateKeys,
     color: '#3182CE',
     descriptionI18nKey: 'revealPrivateKeyDescription',
     testID: SettingsSelectors.revealPrivateKeyButton
