@@ -169,7 +169,7 @@ const DelegateForm = memo<Props>(({ account, balance, ownerAddress }) => {
     error: estimateBaseFeeError,
     isValidating: estimating
   } = useTypedSWR(
-    () => (toFilled ? ['delegate-base-fee', tezos.checksum, address, toResolved] : null),
+    () => (toFilled ? ['delegate-base-fee', tezos.clientId, address, toResolved] : null),
     estimateBaseFee,
     {
       shouldRetryOnError: false,
@@ -199,8 +199,8 @@ const DelegateForm = memo<Props>(({ account, balance, ownerAddress }) => {
     [maxAddFee]
   );
 
-  const [submitError, setSubmitError] = useSafeState<ReactNode>(null, `${tezos.checksum}_${toResolved}`);
-  const [operation, setOperation] = useSafeState<any>(null, tezos.checksum);
+  const [submitError, setSubmitError] = useSafeState<ReactNode>(null, `${tezos.clientId}_${toResolved}`);
+  const [operation, setOperation] = useSafeState<any>(null, tezos.clientId);
 
   const onSubmit = useCallback(
     async ({ fee: feeVal }: FormData) => {

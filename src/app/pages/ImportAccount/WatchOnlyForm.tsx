@@ -55,19 +55,15 @@ export const WatchOnlyForm = memo(() => {
     setError(null);
 
     formAnalytics.trackSubmit();
-    let chain: TempleChainName | undefined;
+    let chain: TempleChainName | nullish;
     try {
-      chain = isValidTezosAddress(resolvedAddress)
-        ? TempleChainName.Tezos
-        : Viem.isAddress(resolvedAddress)
-        ? TempleChainName.EVM
-        : undefined;
+      chain = getChainFromAddress(resolvedAddress);
 
       if (!chain) {
         throw new Error(t('invalidAddress'));
       }
 
-      let chainId: string | undefined;
+      let tezosChainId: string | undefined;
 
       if (chain === TempleChainName.Tezos && isTezosContractAddress(resolvedAddress)) {
         const tezos = getReadOnlyTezos(rpcUrl);
@@ -78,12 +74,12 @@ export const WatchOnlyForm = memo(() => {
           throw new Error(t('contractNotExistOnNetwork'));
         }
 
-        chainId = await tezos.rpc.getChainId();
+        tezosChainId = await tezos.rpc.getChainId();
       }
 
       const finalAddress = chain === TempleChainName.Tezos ? resolvedAddress : Viem.getAddress(resolvedAddress);
 
-      await importWatchOnlyAccount(chain, finalAddress, chainId);
+      await importWatchOnlyAccount(chain, finalAddress, tezosChainId);
 
       formAnalytics.trackSubmitSuccess({ chain });
     } catch (err: any) {
@@ -149,3 +145,11 @@ export const WatchOnlyForm = memo(() => {
     </form>
   );
 });
+
+function getChainFromAddress(address: string) {
+  if (isValidTezosAddress(address)) return TempleChainName.Tezos;
+
+  if (Viem.isAddress(address)) return TempleChainName.EVM;
+
+  return null;
+}

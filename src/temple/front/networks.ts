@@ -1,7 +1,5 @@
 import { useCallback, useMemo } from 'react';
 
-import * as ViemChains from 'viem/chains';
-
 import { useRetryableSWR } from 'lib/swr';
 import { useNetwork } from 'lib/temple/front/ready';
 import { TempleTezosChainId } from 'lib/temple/types';
@@ -23,8 +21,6 @@ export const useTezosNetwork = () => {
     [rpcUrl, chainId]
   );
 };
-
-export const useEvmNetwork = () => useMemo(() => ViemChains.optimism, []);
 
 export const useTezosNetworkRpcUrl = () => useNetwork().rpcBaseURL;
 

@@ -251,7 +251,7 @@ export const Form: FC<Props> = ({ account, ownerAddress, assetSlug, setOperation
     error: estimateBaseFeeError,
     isValidating: estimating
   } = useTypedSWR(
-    () => (toFilled ? ['transfer-base-fee', tezos.checksum, assetSlug, accountPkh, toResolved] : null),
+    () => (toFilled ? ['transfer-base-fee', tezos.clientId, assetSlug, accountPkh, toResolved] : null),
     estimateBaseFee,
     {
       shouldRetryOnError: false,
@@ -318,7 +318,7 @@ export const Form: FC<Props> = ({ account, ownerAddress, assetSlug, setOperation
     amountFieldRef.current?.focus({ preventScroll: true });
   }, []);
 
-  const [submitError, setSubmitError] = useSafeState<any>(null, `${tezos.checksum}_${toResolved}`);
+  const [submitError, setSubmitError] = useSafeState<any>(null, `${tezos.clientId}_${toResolved}`);
 
   const toAssetAmount = useCallback(
     (fiatAmount: BigNumber.Value) =>

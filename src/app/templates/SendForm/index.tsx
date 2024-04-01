@@ -16,7 +16,7 @@ import { useMemoWithCompare, useSafeState } from 'lib/ui/hooks';
 import { HistoryAction, navigate } from 'lib/woozie';
 import { getAccountForTezos } from 'temple/accounts';
 import { useAccount, useTezosNetworkRpcUrl } from 'temple/front';
-import { makeTezosChecksum } from 'temple/tezos';
+import { makeTezosClientId } from 'temple/tezos';
 
 import AddContactModal from './AddContactModal';
 import { Form } from './Form';
@@ -57,7 +57,7 @@ const SendForm = memo<Props>(({ assetSlug = TEZ_TOKEN_SLUG, publicKeyHash }) => 
 
   const [operation, setOperation] = useSafeState<WalletOperation | null>(
     null,
-    makeTezosChecksum(rpcUrl, tezosAccount.address)
+    makeTezosClientId(rpcUrl, tezosAccount.address)
   );
   const [addContactModalAddress, setAddContactModalAddress] = useState<string | null>(null);
   const { trackEvent } = useAnalytics();
