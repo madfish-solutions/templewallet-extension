@@ -35,6 +35,12 @@ const DEFAULT_DELAY = 300;
 
 export const delay = (ms = DEFAULT_DELAY) => new Promise(res => setTimeout(res, ms));
 
+export const rejectOnTimeout = <R>(promise: Promise<R>, timeout: number, timeoutRejectValue: unknown) =>
+  Promise.race([
+    promise,
+    new Promise((_, reject) => setTimeout(() => reject(timeoutRejectValue), timeout))
+  ]) as Promise<R>;
+
 class AssertionError extends Error {
   constructor(message?: string, public actual?: any) {
     super(message);

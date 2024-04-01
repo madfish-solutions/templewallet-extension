@@ -469,7 +469,10 @@ async function requestConfirm({ id, payload, onDecline, handleIntercomRequest }:
 
 async function getNetworkRPC(net: TempleDAppNetwork) {
   const targetRpc =
-    typeof net === 'string' ? DEFAULT_TEZOS_NETWORKS.find(n => n.id === net)!.rpcBaseURL : removeLastSlash(net.rpc);
+    typeof net === 'string'
+      ? // (!) Assertion here is false
+        DEFAULT_TEZOS_NETWORKS.find(n => n.id === net)!.rpcBaseURL
+      : removeLastSlash(net.rpc);
 
   if (typeof net === 'string') {
     try {

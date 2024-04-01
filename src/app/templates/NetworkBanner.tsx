@@ -6,7 +6,6 @@ import Name from 'app/atoms/Name';
 import { T } from 'lib/i18n';
 import { useAllTezosNetworks } from 'temple/front';
 import { getNetworkTitle } from 'temple/front/networks';
-import { HIDDEN_TEZOS_NETWORKS } from 'temple/networks';
 
 type NetworkBannerProps = {
   rpc: string;
@@ -16,10 +15,7 @@ type NetworkBannerProps = {
 const NetworkBanner: FC<NetworkBannerProps> = ({ rpc, narrow = false }) => {
   const networks = useAllTezosNetworks();
 
-  const knownNetwork = useMemo(
-    () => networks.find(n => n.rpcBaseURL === rpc) || HIDDEN_TEZOS_NETWORKS.find(n => n.rpcBaseURL === rpc),
-    [networks, rpc]
-  );
+  const knownNetwork = useMemo(() => networks.find(n => n.rpcBaseURL === rpc), [networks, rpc]);
 
   return (
     <div className={classNames('flex flex-col w-full', narrow ? '-mt-1 mb-2' : 'mb-4')}>

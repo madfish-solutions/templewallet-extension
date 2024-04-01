@@ -21,10 +21,8 @@ export const getNetworkTitle = ({
   rpcBaseURL?: string;
 }) => (nameI18nKey ? t(nameI18nKey) : name || rpcBaseURL || rpcUrl);
 
-/** (!) Relies on suspense - use only in PageLayout descendant components. */
 export const useTezosNetwork = () => {
-  const { id, rpcBaseURL, name, nameI18nKey, color } = useTezosNetworkStored();
-  const chainId = useTezosChainIdLoadingValue(rpcBaseURL, true)!;
+  const { id, rpcBaseURL, chainId, name, nameI18nKey, color } = useTezosNetworkStored();
 
   return useMemo(
     () => ({

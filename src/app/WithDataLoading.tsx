@@ -15,6 +15,7 @@ import { useLongRefreshLoading } from './hooks/use-long-refresh-loading.hook';
 import { useMetadataLoading } from './hooks/use-metadata-loading';
 import { useMetadataRefresh } from './hooks/use-metadata-refresh';
 import { useStorageAnalytics } from './hooks/use-storage-analytics';
+import { useTezosChainIdCheck } from './hooks/use-tezos-chain-id-check';
 import { useUserIdSync } from './hooks/use-user-id-sync';
 
 export const WithDataLoading: FC<PropsWithChildren> = ({ children }) => {
@@ -42,6 +43,8 @@ export const WithDataLoading: FC<PropsWithChildren> = ({ children }) => {
 };
 
 const WithTezosDataLoading: FC<{ publicKeyHash: string } & PropsWithChildren> = ({ publicKeyHash, children }) => {
+  useTezosChainIdCheck();
+
   useAssetsLoading(publicKeyHash);
   useMetadataLoading(publicKeyHash);
   useBalancesLoading(publicKeyHash);

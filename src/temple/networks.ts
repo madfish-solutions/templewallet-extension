@@ -1,4 +1,5 @@
 import type { TID } from 'lib/i18n';
+import { TempleTezosChainId } from 'lib/temple/types';
 
 export interface NetworkBase {
   id: string;
@@ -15,23 +16,9 @@ export interface NetworkBase {
   disabled?: boolean;
 }
 
-export type StoredTezosNetwork =
-  | (NetworkBase & {
-      nameI18nKey: TID;
-    })
-  | (NetworkBase & {
-      name: string;
-    });
-
-const formatDateToRPCFormat = (date: Date) => date.toLocaleDateString('en-GB').split('/').reverse().join('-');
-
-const getLastMonday = (date = new Date()) => {
-  const dateCopy = new Date(date.getTime() - 604800000);
-
-  const nextMonday = new Date(dateCopy.setDate(dateCopy.getDate() + ((7 - dateCopy.getDay() + 1) % 7 || 7)));
-
-  return formatDateToRPCFormat(nextMonday);
-};
+export interface StoredTezosNetwork extends NetworkBase {
+  chainId: string;
+}
 
 const DCP_TEZOS_NETWORKS: StoredTezosNetwork[] = [
   {
@@ -39,6 +26,7 @@ const DCP_TEZOS_NETWORKS: StoredTezosNetwork[] = [
     name: 'T4L3NT Mainnet',
     description: 'Decentralized pictures Betanet',
     rpcBaseURL: 'https://rpc.decentralized.pictures',
+    chainId: TempleTezosChainId.Dcp,
     color: '#047857'
   },
   {
@@ -46,6 +34,7 @@ const DCP_TEZOS_NETWORKS: StoredTezosNetwork[] = [
     name: 'T4L3NT Testnet',
     description: 'Decentralized pictures testnet',
     rpcBaseURL: 'https://staging-rpc.decentralized.pictures/',
+    chainId: TempleTezosChainId.DcpTest,
     color: '#131380'
   }
 ];
@@ -57,6 +46,7 @@ export const DEFAULT_TEZOS_NETWORKS: NonEmptyArray<StoredTezosNetwork> = [
     nameI18nKey: 'tezosMainnet',
     description: 'Tezos mainnet',
     rpcBaseURL: 'https://prod.tcinfra.net/rpc/mainnet',
+    chainId: TempleTezosChainId.Mainnet,
     color: '#83b300'
   },
   {
@@ -65,6 +55,7 @@ export const DEFAULT_TEZOS_NETWORKS: NonEmptyArray<StoredTezosNetwork> = [
     nameI18nKey: 'marigoldMainnet',
     description: 'Marigold mainnet',
     rpcBaseURL: 'https://mainnet.tezos.marigold.dev',
+    chainId: TempleTezosChainId.Mainnet,
     color: '#48bb78'
   },
   {
@@ -72,6 +63,7 @@ export const DEFAULT_TEZOS_NETWORKS: NonEmptyArray<StoredTezosNetwork> = [
     name: 'SmartPy Mainnet',
     description: 'SmartPy Mainnet',
     rpcBaseURL: 'https://mainnet.smartpy.io',
+    chainId: TempleTezosChainId.Mainnet,
     color: '#34D399'
   },
   {
@@ -79,6 +71,7 @@ export const DEFAULT_TEZOS_NETWORKS: NonEmptyArray<StoredTezosNetwork> = [
     name: 'ECAD Labs Mainnet',
     description: 'Highly available Tezos Mainnet nodes operated by ECAD Labs',
     rpcBaseURL: 'https://mainnet.api.tez.ie',
+    chainId: TempleTezosChainId.Mainnet,
     color: '#047857'
   },
   ...DCP_TEZOS_NETWORKS,
@@ -87,45 +80,8 @@ export const DEFAULT_TEZOS_NETWORKS: NonEmptyArray<StoredTezosNetwork> = [
     name: 'Ghostnet Testnet',
     description: 'Ghostnet testnet',
     rpcBaseURL: 'https://rpc.ghostnet.teztnets.com',
+    chainId: TempleTezosChainId.Ghostnet,
     color: '#131380'
-  },
-  {
-    id: 'monday',
-    name: 'MondayNet Testnet',
-    description: `MondayNet ${getLastMonday()}`,
-    rpcBaseURL: `https://rpc.mondaynet-${getLastMonday()}.teztnets.xyz/`,
-    color: '#FBBF24'
-  },
-  {
-    id: 'daily',
-    name: 'DailyNet Testnet',
-    description: 'DailyNet',
-    rpcBaseURL: `https://rpc.dailynet-${formatDateToRPCFormat(new Date())}.teztnets.xyz/`,
-    color: '#FBBF24'
-  },
-  {
-    id: 'sandbox',
-    name: 'localhost:8732',
-    description: 'Local Sandbox',
-    rpcBaseURL: 'http://localhost:8732',
-    color: '#e9e1cc'
-  }
-];
-
-export const HIDDEN_TEZOS_NETWORKS: StoredTezosNetwork[] = [
-  {
-    id: 'smartpy-ithacanet',
-    name: 'Ithacanet Testnet Smartpy',
-    description: 'Ithacanet testnet',
-    rpcBaseURL: 'https://ithacanet.smartpy.io',
-    color: '#FBBF24'
-  },
-  {
-    id: 'tzbeta-rpczero',
-    name: 'Edo Testnet @rpczero.tzbeta.net',
-    description: 'Highly available Edo Testnet nodes operated by Blockscale',
-    rpcBaseURL: 'https://rpczero.tzbeta.net',
-    color: '#FBBF24'
   }
 ];
 

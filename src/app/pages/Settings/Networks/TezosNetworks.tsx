@@ -43,8 +43,6 @@ export const TezosNetworksSettings = memo(() => {
       if (submitting) return;
       clearError();
 
-      // eslint-disable-next-line @typescript-eslint/prefer-ts-expect-error
-      // @ts-ignore
       let chainId;
       try {
         chainId = await loadTezosChainId(rpcBaseURL);
@@ -60,8 +58,8 @@ export const TezosNetworksSettings = memo(() => {
         const color = COLORS[Math.floor(Math.random() * COLORS.length)];
 
         await addTezosNetwork({
-          // TODO: chainId
           rpcBaseURL,
+          chainId,
           name,
           color,
           id: rpcBaseURL
