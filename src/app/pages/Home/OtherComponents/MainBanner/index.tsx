@@ -1,7 +1,6 @@
 import React, { memo, FC, useMemo } from 'react';
 
 import clsx from 'clsx';
-import * as Viem from 'viem';
 
 import { Button } from 'app/atoms';
 import Money from 'app/atoms/Money';
@@ -23,6 +22,7 @@ import { getAssetName, getAssetSymbol, useAssetMetadata } from 'lib/metadata';
 import { useTypedSWR } from 'lib/swr';
 import { atomsToTokens } from 'lib/temple/helpers';
 import useTippy from 'lib/ui/useTippy';
+import { getReadOnlyEvm } from 'temple/evm';
 import { UNDER_DEVELOPMENT_MSG } from 'temple/evm/under_dev_msg';
 import { useAccountAddressForEvm, useAccountAddressForTezos, useTezosNetwork, useEvmNetwork } from 'temple/front';
 
@@ -148,23 +148,7 @@ const EvmBalanceInfo: FC<{ address: HexString }> = ({ address }) => {
   const network = useEvmNetwork();
   const currency = network.currency;
 
-  const viemClient = useMemo(
-    () =>
-      Viem.createPublicClient({
-        chain: {
-          id: network.chainId,
-          name: network.name,
-          nativeCurrency: network.currency,
-          rpcUrls: {
-            default: {
-              http: [network.rpcBaseURL]
-            }
-          }
-        },
-        transport: Viem.http()
-      }),
-    [network]
-  );
+  const viemClient = getReadOnlyEvm(network.rpcBaseURL);
 
   const { data, isLoading } = useTypedSWR(['evm-gas-balance', address, network.rpcBaseURL], () =>
     viemClient.getBalance({ address })

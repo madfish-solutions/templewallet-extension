@@ -2,22 +2,44 @@ import memoizee from 'memoizee';
 import { createPublicClient, http } from 'viem';
 import type * as ViemChainsModuleType from 'viem/chains';
 
-import type { EvmNativeCurrency } from 'temple/networks';
+import { MAX_MEMOIZED_TOOLKITS } from 'temple/misc';
+import type { EvmNativeCurrency, StoredEvmNetwork } from 'temple/networks';
 
-export const loadEvmChainInfo = memoizee(
-  async (rpcUrl: string): Promise<{ chainId: number; currency: EvmNativeCurrency }> => {
-    const client = createPublicClient({
+export const getReadOnlyEvm = memoizee(
+  (rpcUrl: string) =>
+    createPublicClient({
+      transport: http(rpcUrl)
+    }),
+  { max: MAX_MEMOIZED_TOOLKITS }
+);
+
+// ts-prune-ignore-next
+export const getReadOnlyEvmForNetwork = memoizee(
+  (network: StoredEvmNetwork) =>
+    createPublicClient({
       chain: {
-        id: 0,
-        name: 'mock',
-        nativeCurrency: { name: 'mock', symbol: 'mock', decimals: 18 },
+        id: network.chainId,
+        name: network.name,
+        nativeCurrency: network.currency,
         rpcUrls: {
           default: {
-            http: [rpcUrl]
+            http: [network.rpcBaseURL]
           }
         }
       },
       transport: http()
+    }),
+  {
+    max: MAX_MEMOIZED_TOOLKITS,
+    normalizer: ([{ chainId, name, rpcBaseURL, currency }]) =>
+      `${rpcBaseURL}${chainId}${name}${currency.decimals}${currency.symbol}${currency.name}`
+  }
+);
+
+export const loadEvmChainInfo = memoizee(
+  async (rpcUrl: string): Promise<{ chainId: number; currency: EvmNativeCurrency }> => {
+    const client = createPublicClient({
+      transport: http(rpcUrl)
     });
 
     const chainId = await client.getChainId();

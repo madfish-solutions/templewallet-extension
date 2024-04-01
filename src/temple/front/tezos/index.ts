@@ -19,7 +19,8 @@ import toBuffer from 'typedarray-to-buffer';
 
 import { TempleMessageType } from 'lib/temple/types';
 import { makeIntercomRequest, assertResponse, getAccountPublicKey } from 'temple/front/intercom-client';
-import { MAX_MEMOIZED_TOOLKITS, getTezosFastRpcClient, makeTezosClientId, michelEncoder } from 'temple/tezos';
+import { MAX_MEMOIZED_TOOLKITS } from 'temple/misc';
+import { getTezosFastRpcClient, makeTezosClientId, michelEncoder } from 'temple/tezos';
 
 import { useTezosNetworkRpcUrl } from '../networks';
 import { setPendingConfirmationId } from '../pending-confirm';

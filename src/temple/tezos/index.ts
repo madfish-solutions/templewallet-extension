@@ -3,10 +3,9 @@ import { Tzip16Module } from '@taquito/tzip16';
 import memoizee from 'memoizee';
 
 import { FastRpcClient } from 'lib/taquito-fast-rpc';
+import { MAX_MEMOIZED_TOOLKITS } from 'temple/misc';
 
 export { TEZOS_CONFIRMATION_TIMED_OUT_ERROR_MSG, confirmTezosOperation } from './confirmation';
-
-export const MAX_MEMOIZED_TOOLKITS = 3;
 
 export const michelEncoder = new MichelCodecPacker();
 
