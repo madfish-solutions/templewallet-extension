@@ -20,9 +20,9 @@ import { searchHotkey } from 'lib/constants';
 import { T, t } from 'lib/i18n';
 import { useTempleClient, useSetAccountId } from 'lib/temple/front';
 import { PopperRenderProps } from 'lib/ui/Popper';
-import { searchAndFilterItems } from 'lib/utils/search-items';
 import { HistoryAction, navigate } from 'lib/woozie';
 import { useCurrentAccountId, useTezosNetwork, useRelevantAccounts } from 'temple/front';
+import { searchAndFilterAccounts } from 'temple/front/accounts';
 
 import { AccountItem } from './AccountItem';
 import { ActionButtonProps, ActionButton } from './ActionButton';
@@ -46,24 +46,10 @@ const AccountDropdown = memo<PopperRenderProps>(({ opened, setOpened }) => {
   const [searchValue, setSearchValue] = useState('');
   const [attractSelectedAccount, setAttractSelectedAccount] = useState(true);
 
-  const filteredAccounts = useMemo(() => {
-    if (searchValue.length === 0) {
-      return allAccounts;
-    }
-
-    return searchAndFilterItems(
-      allAccounts,
-      searchValue.toLowerCase(),
-      [
-        { name: 'name', weight: 1 },
-        { name: 'address', weight: 0.25 },
-        { name: 'tezosAddress', weight: 0.25 },
-        { name: 'evmAddress', weight: 0.25 }
-      ],
-      null,
-      0.35
-    );
-  }, [searchValue, allAccounts]);
+  const filteredAccounts = useMemo(
+    () => (searchValue.length ? searchAndFilterAccounts(allAccounts, searchValue) : allAccounts),
+    [searchValue, allAccounts]
+  );
 
   const closeDropdown = useCallback(() => {
     setOpened(false);

@@ -5,7 +5,7 @@ import * as Viem from 'viem';
 
 import { Alert, FormSubmitButton, NoSpaceField } from 'app/atoms';
 import { useFormAnalytics } from 'lib/analytics';
-import { t } from 'lib/i18n';
+import { T, t } from 'lib/i18n';
 import { useTempleClient, validateDelegate } from 'lib/temple/front';
 import { isValidTezosAddress, isTezosContractAddress } from 'lib/tezos';
 import { useTezosNetworkRpcUrl } from 'temple/front';
@@ -117,9 +117,8 @@ export const WatchOnlyForm = memo(() => {
         label={t('address')}
         testID={ImportAccountSelectors.watchOnlyInput}
         labelDescription={
-          // <T id={canUseDomainNames ? 'addressInputDescriptionWithDomain' : 'addressInputDescription'} />
           <span className="whitespace-pre-line">
-            <u>Tezos:</u> Public key hash or Tezos domain of the account or smart contract.
+            <u>Tezos:</u> <T id={canUseDomainNames ? 'addressInputDescriptionWithDomain' : 'addressInputDescription'} />
             <br />
             <u>EVM:</u> Public address of the account you want to watch.
           </span>
