@@ -12,7 +12,7 @@ import { moveValueInStorage, fetchFromStorage, putToStorage, removeFromStorage }
 import * as Passworder from 'lib/temple/passworder';
 import { StoredAccount, TempleAccountType, TempleContact, TempleSettings } from 'lib/temple/types';
 import { isTruthy } from 'lib/utils';
-import { StoredTezosNetwork } from 'temple/networks';
+import { StoredTezosNetwork, isTezosTestnetChainId } from 'temple/networks';
 import { loadTezosChainId } from 'temple/tezos';
 import { TempleChainName } from 'temple/types';
 
@@ -199,14 +199,18 @@ export const MIGRATIONS = [
     moveValueInStorage(NETWORK_ID_STORAGE_KEY, CURRENT_TEZOS_NETWORK_ID_STORAGE_KEY);
 
     // Taking a chance to migrate the list of manually-added user's Tezos networks (with chain IDs).
-    // (!) Internet has to be available during this.
+    // (!) Internet connection would have be available during this.
     fetchFromStorage<StoredTezosNetwork[]>(CUSTOM_NETWORKS_SNAPSHOT_STORAGE_KEY).then(async customTezosNetworks => {
       if (!customTezosNetworks) return;
 
       const migratedNetworks: StoredTezosNetwork[] = await Promise.all(
         customTezosNetworks.map(network =>
           loadTezosChainId(network.rpcBaseURL, 30_000)
-            .then(chainId => ({ ...network, chainId }))
+            .then(chainId => {
+              const testnet = isTezosTestnetChainId(chainId) ? true : undefined;
+
+              return { ...network, chainId, testnet };
+            })
             .catch(err => {
               console.error(err);
               return null;

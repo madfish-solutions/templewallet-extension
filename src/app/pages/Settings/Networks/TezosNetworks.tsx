@@ -8,7 +8,7 @@ import { T, t } from 'lib/i18n';
 import { COLORS } from 'lib/ui/colors';
 import { useConfirm } from 'lib/ui/dialog';
 import { useTempleNetworksActions } from 'temple/front';
-import { DEFAULT_TEZOS_NETWORKS } from 'temple/networks';
+import { TEZOS_DEFAULT_NETWORKS, isTezosTestnetChainId } from 'temple/networks';
 import { loadTezosChainId } from 'temple/tezos';
 import { TempleChainName } from 'temple/types';
 
@@ -55,11 +55,13 @@ export const TezosNetworksSettings = memo(() => {
       }
 
       try {
+        const testnet = isTezosTestnetChainId(chainId) ? true : undefined;
         const color = COLORS[Math.floor(Math.random() * COLORS.length)];
 
         await addTezosNetwork({
           rpcBaseURL,
           chainId,
+          testnet,
           name,
           color,
           id: rpcBaseURL
@@ -76,7 +78,7 @@ export const TezosNetworksSettings = memo(() => {
   );
 
   const rpcURLIsUnique = useCallback(
-    (url: string) => ![...DEFAULT_TEZOS_NETWORKS, ...customTezosNetworks].some(({ rpcBaseURL }) => rpcBaseURL === url),
+    (url: string) => ![...TEZOS_DEFAULT_NETWORKS, ...customTezosNetworks].some(({ rpcBaseURL }) => rpcBaseURL === url),
     [customTezosNetworks]
   );
 
@@ -105,7 +107,7 @@ export const TezosNetworksSettings = memo(() => {
       <NetworksList
         chain={TempleChainName.Tezos}
         customNetworks={customTezosNetworks}
-        defaultNetworks={DEFAULT_TEZOS_NETWORKS}
+        defaultNetworks={TEZOS_DEFAULT_NETWORKS}
         handleRemoveClick={handleRemoveClick}
       />
 

@@ -15,7 +15,7 @@ import {
 import { useMemoWithCompare, useUpdatableRef } from 'lib/ui/hooks';
 import { getAccountAddressForTezos, getAccountForEvm, getAccountForTezos } from 'temple/accounts';
 import { intercomClient } from 'temple/front/intercom-client';
-import { DEFAULT_EVM_NETWORKS, DEFAULT_TEZOS_NETWORKS } from 'temple/networks';
+import { DEFAULT_EVM_NETWORKS, TEZOS_DEFAULT_NETWORKS } from 'temple/networks';
 
 import { useTempleClient } from './client';
 import { usePassiveStorage } from './storage';
@@ -70,8 +70,8 @@ function useReadyTemple() {
    * Networks
    */
 
-  const allTezosNetworks = useMemo<typeof DEFAULT_TEZOS_NETWORKS>(
-    () => [...DEFAULT_TEZOS_NETWORKS, ...customTezosNetworks],
+  const allTezosNetworks = useMemo<typeof TEZOS_DEFAULT_NETWORKS>(
+    () => [...TEZOS_DEFAULT_NETWORKS, ...customTezosNetworks],
     [customTezosNetworks]
   );
   const allEvmNetworks = useMemo<typeof DEFAULT_EVM_NETWORKS>(

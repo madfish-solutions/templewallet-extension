@@ -36,19 +36,19 @@ export const getReadOnlyEvmForNetwork = memoizee(
   }
 );
 
-export const loadEvmChainInfo = memoizee(
-  async (rpcUrl: string): Promise<{ chainId: number; currency: EvmNativeCurrency }> => {
-    const client = createPublicClient({
-      transport: http(rpcUrl)
-    });
+export const loadEvmChainInfo = memoizee(async (rpcUrl: string) => {
+  const client = createPublicClient({
+    transport: http(rpcUrl)
+  });
 
-    const chainId = await client.getChainId();
+  const chainId = await client.getChainId();
 
-    const ViemChains: typeof ViemChainsModuleType = await import('viem/chains');
-    const currency = Object.values(ViemChains).find(chain => chain.id === chainId)?.nativeCurrency;
+  const ViemChains: typeof ViemChainsModuleType = await import('viem/chains');
+  const viemChain = Object.values(ViemChains).find(chain => chain.id === chainId);
 
-    if (!currency) throw new Error('Cannot resolve currency of the EVM network');
+  if (!viemChain) throw new Error('Cannot resolve currency of the EVM network');
 
-    return { chainId, currency };
-  }
-);
+  const currency: EvmNativeCurrency = viemChain.nativeCurrency;
+
+  return { chainId, currency, testnet: viemChain.testnet };
+});
