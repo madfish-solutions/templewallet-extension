@@ -40,6 +40,8 @@ const getUnitId = (shape: PersonaAdShape, isStaging: boolean) => {
     switch (shape) {
       case 'wide':
         return '3a094192-4c7b-4761-a50c-bd9b6a67e987';
+      case 'medium':
+        return 'cf20c750-2fe4-4761-861f-b73b2247fd4d';
       case 'squarish':
         return 'bf498e26-eb16-4e35-8954-e65690f28819';
       default:
@@ -49,6 +51,8 @@ const getUnitId = (shape: PersonaAdShape, isStaging: boolean) => {
   switch (shape) {
     case 'wide':
       return EnvVars.PERSONA_ADS_WIDE_BANNER_UNIT_ID;
+    case 'medium':
+      return EnvVars.PERSONA_ADS_MEDIUM_BANNER_UNIT_ID;
     case 'squarish':
       return EnvVars.PERSONA_ADS_SQUARISH_BANNER_UNIT_ID;
     default:

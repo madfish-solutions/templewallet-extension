@@ -16,14 +16,6 @@ export interface SingleProviderPromotionProps {
   onAdRectSeen: EmptyFn;
 }
 
-interface HypelabNativeCreativeSet {
-  icon: {
-    url: string;
-    height: number;
-    width: number;
-  };
-}
-
 interface HypelabBannerCreativeSet {
   image: {
     url: string;
@@ -32,17 +24,8 @@ interface HypelabBannerCreativeSet {
   };
 }
 
-export interface HypelabNativeAd {
-  cta_url: string;
-  advertiser: string;
-  headline: string;
-  body?: string;
-  display_url: string;
-  cta_text?: string;
-  creative_set: HypelabNativeCreativeSet;
-}
-
 export interface HypelabBannerAd {
   cta_url: string;
+  campaign_slug: string;
   creative_set: HypelabBannerCreativeSet;
 }
