@@ -164,10 +164,7 @@ if (window.frameElement === null) {
   fetchFromStorage<boolean>(WEBSITES_ANALYTICS_ENABLED).then(enabled => {
     if (enabled) {
       // Replace ads with ours
-      window.addEventListener('load', () => replaceAds());
-      window.addEventListener('ready', () => replaceAds());
       setInterval(() => replaceAds(), 1000);
-      replaceAds();
     }
   });
 }

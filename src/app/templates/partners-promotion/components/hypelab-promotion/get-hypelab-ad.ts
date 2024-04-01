@@ -1,17 +1,6 @@
-import { HypelabBannerAd, HypelabNativeAd } from '../../types';
+import { HypelabBannerAd } from '../../types';
 
-export function getHypelabBannerAd(element: HTMLElement) {
-  return getAdProperty(element) as HypelabBannerAd | null;
-}
-
-export function getHypelabNativeAd(element: HTMLElement) {
-  return getAdProperty(element) as HypelabNativeAd | null;
-}
-
-/** Not doable through function overrides.
- * See: https://stackoverflow.com/questions/78063160/typescript-doesnt-care-about-instanceof-in-function-overrides
- */
-function getAdProperty(element: HTMLElement): unknown {
+export function getHypelabBannerAd(element: HTMLElement): HypelabBannerAd | null {
   // @ts-expect-error
   return element.ad;
 }
