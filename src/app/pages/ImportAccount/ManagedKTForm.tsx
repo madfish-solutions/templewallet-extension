@@ -2,11 +2,7 @@ import React, { FC, ReactNode, useCallback, useMemo, useRef, useState } from 're
 
 import { Controller, useForm } from 'react-hook-form';
 
-import { Alert, FormSubmitButton, NoSpaceField } from 'app/atoms';
-import AccountTypeBadge from 'app/atoms/AccountTypeBadge';
-import Identicon from 'app/atoms/Identicon';
-import Money from 'app/atoms/Money';
-import Name from 'app/atoms/Name';
+import { Alert, FormSubmitButton, NoSpaceField, Identicon, Name, Money, AccountTypeBadge } from 'app/atoms';
 import Balance from 'app/templates/Balance';
 import CustomSelect, { OptionRenderProps } from 'app/templates/CustomSelect';
 import { useFormAnalytics } from 'lib/analytics';
@@ -14,8 +10,8 @@ import { getOneUserContracts, TzktRelatedContract, isKnownChainId } from 'lib/ap
 import { T, t } from 'lib/i18n';
 import { useRetryableSWR } from 'lib/swr';
 import { useTempleClient } from 'lib/temple/front';
-import { isAddressValid } from 'lib/temple/helpers';
 import { TempleAccountType } from 'lib/temple/types';
+import { isValidTezosAddress } from 'lib/tezos';
 import { isTruthy } from 'lib/utils';
 import { getAccountForTezos } from 'temple/accounts';
 import { useTezosNetwork, useRelevantAccounts } from 'temple/front';
@@ -73,7 +69,7 @@ export const ManagedKTForm: FC = () => {
         case value?.length > 0:
           return true;
 
-        case isAddressValid(value):
+        case isValidTezosAddress(value):
           return t('invalidAddress');
 
         case value.startsWith('KT'):
@@ -96,7 +92,7 @@ export const ManagedKTForm: FC = () => {
   }, [setValue, triggerValidation]);
 
   const contractAddressFilled = useMemo(
-    () => Boolean(contractAddress && isAddressValid(contractAddress)),
+    () => Boolean(contractAddress && isValidTezosAddress(contractAddress)),
     [contractAddress]
   );
 

@@ -24,6 +24,7 @@ import { MAX_MEMOIZED_TOOLKITS, getTezosFastRpcClient, makeTezosChecksum, michel
 import { useTezosNetworkRpcUrl } from '../networks';
 import { setPendingConfirmationId } from '../pending-confirm';
 
+export { validateTezosContractAddress } from './helpers';
 export { useOnTezosBlock, useTezosBlockLevel } from './use-block';
 export {
   isTezosDomainsNameValid,

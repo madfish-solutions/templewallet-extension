@@ -4,7 +4,7 @@ export { useTempleClient } from './client';
 
 export { useAllNetworks, useSetNetworkId, useNetwork, useAllAccounts, useSetAccountId, useSettings } from './ready';
 
-export { validateDerivationPath, validateContractAddress } from './helpers';
+export { validateDerivationPath } from './helpers';
 
 export { useContactsActions, searchContacts } from './address-book';
 

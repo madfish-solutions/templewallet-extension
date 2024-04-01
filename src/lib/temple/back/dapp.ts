@@ -23,7 +23,6 @@ import browser, { Runtime } from 'webextension-polyfill';
 
 import { addLocalOperation } from 'lib/temple/activity';
 import * as Beacon from 'lib/temple/beacon';
-import { isAddressValid } from 'lib/temple/helpers';
 import {
   TempleMessageType,
   TempleRequest,
@@ -32,6 +31,7 @@ import {
   TempleDAppSessions,
   TempleNotification
 } from 'lib/temple/types';
+import { isValidTezosAddress } from 'lib/tezos';
 import { TEZOS_NETWORKS } from 'temple/networks';
 import { loadTezosChainId } from 'temple/tezos';
 
@@ -136,7 +136,7 @@ export async function requestOperation(
 ): Promise<TempleDAppOperationResponse> {
   if (
     ![
-      isAddressValid(req?.sourcePkh),
+      isValidTezosAddress(req?.sourcePkh),
       req?.opParams?.length > 0,
       req?.opParams?.every(op => typeof op.kind === 'string')
     ].every(Boolean)
@@ -236,7 +236,7 @@ export async function requestSign(origin: string, req: TempleDAppSignRequest): P
     req = { ...req, payload: req.payload.substring(2) };
   }
 
-  if (![isAddressValid(req?.sourcePkh), HEX_PATTERN.test(req?.payload)].every(Boolean)) {
+  if (![isValidTezosAddress(req?.sourcePkh), HEX_PATTERN.test(req?.payload)].every(Boolean)) {
     throw new Error(TempleDAppErrorType.InvalidParams);
   }
 

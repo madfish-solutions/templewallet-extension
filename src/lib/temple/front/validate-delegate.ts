@@ -1,7 +1,7 @@
 import { TaquitoTezosDomainsClient } from '@tezos-domains/taquito-client';
 
 import { t } from 'lib/i18n';
-import { isAddressValid } from 'lib/temple/helpers';
+import { isValidTezosAddress } from 'lib/tezos';
 import { isTezosDomainsNameValid } from 'temple/front/tezos';
 
 function validateAnyAddress(value: string) {
@@ -9,7 +9,7 @@ function validateAnyAddress(value: string) {
     case value?.length > 0:
       return true;
 
-    case isAddressValid(value):
+    case isValidTezosAddress(value):
       return 'invalidAddress';
 
     default:
@@ -35,5 +35,5 @@ export const validateDelegate = async (
     value = resolved;
   }
 
-  return isAddressValid(value) ? true : t('invalidAddressOrDomain');
+  return isValidTezosAddress(value) ? true : t('invalidAddressOrDomain');
 };

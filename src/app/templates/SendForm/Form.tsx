@@ -45,8 +45,9 @@ import { transferImplicit, transferToContract } from 'lib/michelson';
 import { useTypedSWR } from 'lib/swr';
 import { loadContract } from 'lib/temple/contract';
 import { useFilteredContacts, validateRecipient } from 'lib/temple/front';
-import { hasManager, isAddressValid, isKTAddress, mutezToTz, tzToMutez } from 'lib/temple/helpers';
+import { mutezToTz, tzToMutez } from 'lib/temple/helpers';
 import { TempleAccountType } from 'lib/temple/types';
+import { isValidTezosAddress, isTezosContractAddress, tezosManagerKeyHasManager } from 'lib/tezos';
 import { useSafeState } from 'lib/ui/hooks';
 import { useScrollIntoView } from 'lib/ui/use-scroll-into-view';
 import { ZERO } from 'lib/utils/numbers';
@@ -157,7 +158,7 @@ export const Form: FC<Props> = ({ account, ownerAddress, assetSlug, setOperation
 
   const { onBlur } = useAddressFieldAnalytics(toValue, 'RECIPIENT_NETWORK');
 
-  const toFilledWithAddress = useMemo(() => Boolean(toValue && isAddressValid(toValue)), [toValue]);
+  const toFilledWithAddress = useMemo(() => Boolean(toValue && isValidTezosAddress(toValue)), [toValue]);
 
   const toFilledWithDomain = useMemo(
     () => toValue && isTezosDomainsNameValid(toValue, domainsClient),
@@ -173,7 +174,10 @@ export const Form: FC<Props> = ({ account, ownerAddress, assetSlug, setOperation
 
   const toResolved = useMemo(() => resolvedAddress || toValue, [resolvedAddress, toValue]);
 
-  const toFilledWithKTAddress = useMemo(() => isAddressValid(toResolved) && isKTAddress(toResolved), [toResolved]);
+  const toFilledWithKTAddress = useMemo(
+    () => isValidTezosAddress(toResolved) && isTezosContractAddress(toResolved),
+    [toResolved]
+  );
 
   const filledContact = useMemo(
     () => (toResolved && allContacts.find(c => c.address === toResolved)) || null,
@@ -222,7 +226,7 @@ export const Form: FC<Props> = ({ account, ownerAddress, assetSlug, setOperation
       const estmtnMax = await estimateMaxFee(account, tez, tezos, to, balance, transferParams, manager);
 
       let estimatedBaseFee = mutezToTz(estmtnMax.burnFeeMutez + estmtnMax.suggestedFeeMutez);
-      if (!hasManager(manager)) {
+      if (!tezosManagerKeyHasManager(manager)) {
         estimatedBaseFee = estimatedBaseFee.plus(mutezToTz(DEFAULT_FEE.REVEAL));
       }
 
@@ -280,7 +284,7 @@ export const Form: FC<Props> = ({ account, ownerAddress, assetSlug, setOperation
   const validateAmount = useCallback(
     (v?: number) => {
       if (v === undefined) return t('required');
-      if (!isKTAddress(toValue) && v === 0) {
+      if (!isTezosContractAddress(toValue) && v === 0) {
         return t('amountMustBePositive');
       }
       if (!maxAmount) return true;
@@ -338,8 +342,8 @@ export const Form: FC<Props> = ({ account, ownerAddress, assetSlug, setOperation
         if (!assetMetadata) throw new Error('Metadata not found');
 
         let op: TransactionWalletOperation | TransactionOperation;
-        if (isKTAddress(accountPkh)) {
-          const michelsonLambda = isKTAddress(toResolved) ? transferToContract : transferImplicit;
+        if (isTezosContractAddress(accountPkh)) {
+          const michelsonLambda = isTezosContractAddress(toResolved) ? transferToContract : transferImplicit;
 
           const contract = await loadContract(tezos, accountPkh);
           op = await contract.methods.do(michelsonLambda(toResolved, tzToMutez(amount))).send({ amount: 0 });
@@ -685,7 +689,7 @@ const estimateMaxFee = async (
 ) => {
   let estmtnMax: Estimate;
   if (acc.type === TempleAccountType.ManagedKT) {
-    const michelsonLambda = isKTAddress(to) ? transferToContract : transferImplicit;
+    const michelsonLambda = isTezosContractAddress(to) ? transferToContract : transferImplicit;
 
     const contract = await loadContract(tezos, acc.address);
     const transferParamsWrapper = contract.methods.do(michelsonLambda(to, tzToMutez(balanceBN))).toTransferParams();
@@ -693,7 +697,7 @@ const estimateMaxFee = async (
   } else if (tez) {
     const estmtn = await tezos.estimate.transfer(transferParams);
     let amountMax = balanceBN.minus(mutezToTz(estmtn.totalCost));
-    if (!hasManager(manager)) {
+    if (!tezosManagerKeyHasManager(manager)) {
       amountMax = amountMax.minus(mutezToTz(DEFAULT_FEE.REVEAL));
     }
     estmtnMax = await tezos.estimate.transfer({

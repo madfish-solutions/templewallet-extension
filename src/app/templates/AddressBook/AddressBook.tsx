@@ -8,8 +8,8 @@ import { ReactComponent as CloseIcon } from 'app/icons/close.svg';
 import { setAnotherSelector, setTestID } from 'lib/analytics';
 import { t, T } from 'lib/i18n';
 import { useContactsActions, useFilteredContacts } from 'lib/temple/front';
-import { isAddressValid } from 'lib/temple/helpers';
 import { TempleContact } from 'lib/temple/types';
+import { isValidTezosAddress } from 'lib/tezos';
 import { useConfirm } from 'lib/ui/dialog';
 import { delay } from 'lib/utils';
 import { isTezosDomainsNameValid, useTezosDomainsClient } from 'temple/front/tezos';
@@ -123,7 +123,7 @@ const AddNewContactForm: React.FC<{ className?: string }> = ({ className }) => {
           address = resolved;
         }
 
-        if (!isAddressValid(address)) {
+        if (!isValidTezosAddress(address)) {
           throw new Error(t('invalidAddressOrDomain'));
         }
 
@@ -155,7 +155,7 @@ const AddNewContactForm: React.FC<{ className?: string }> = ({ className }) => {
         value = resolved;
       }
 
-      return isAddressValid(value) ? true : t('invalidAddressOrDomain');
+      return isValidTezosAddress(value) ? true : t('invalidAddressOrDomain');
     },
     [domainsClient]
   );

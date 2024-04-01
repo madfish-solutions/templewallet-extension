@@ -27,7 +27,8 @@ import { setDelegate } from 'lib/michelson';
 import { useTypedSWR } from 'lib/swr';
 import { loadContract } from 'lib/temple/contract';
 import { Baker, useKnownBaker, useKnownBakers, validateDelegate } from 'lib/temple/front';
-import { hasManager, isAddressValid, isKTAddress, mutezToTz, tzToMutez } from 'lib/temple/helpers';
+import { mutezToTz, tzToMutez } from 'lib/temple/helpers';
+import { isValidTezosAddress, isTezosContractAddress, tezosManagerKeyHasManager } from 'lib/tezos';
 import { useSafeState } from 'lib/ui/hooks';
 import { delay, fifoResolve } from 'lib/utils';
 import { Link, useLocation } from 'lib/woozie';
@@ -79,7 +80,7 @@ const DelegateForm = memo<Props>(({ account, balance, ownerAddress }) => {
 
   const toValue = watch('to');
 
-  const toFilledWithAddress = useMemo(() => Boolean(toValue && isAddressValid(toValue)), [toValue]);
+  const toFilledWithAddress = useMemo(() => Boolean(toValue && isValidTezosAddress(toValue)), [toValue]);
   const toFilledWithDomain = useMemo(
     () => toValue && isTezosDomainsNameValid(toValue, domainsClient),
     [toValue, domainsClient]
@@ -131,7 +132,7 @@ const DelegateForm = memo<Props>(({ account, balance, ownerAddress }) => {
       const manager = await tezos.rpc.getManagerKey(ownerAddress || address);
 
       let baseFee = mutezToTz(estmtn.burnFeeMutez + estmtn.suggestedFeeMutez);
-      if (!hasManager(manager) && !ownerAddress) {
+      if (!tezosManagerKeyHasManager(manager) && !ownerAddress) {
         baseFee = baseFee.plus(mutezToTz(DEFAULT_FEE.REVEAL));
       }
 
@@ -768,10 +769,10 @@ function validateAddress(value: string) {
     case value?.length > 0:
       return true;
 
-    case isAddressValid(value):
+    case isValidTezosAddress(value):
       return 'invalidAddress';
 
-    case !isKTAddress(value):
+    case !isTezosContractAddress(value):
       return 'unableToDelegateToKTAddress';
 
     default:

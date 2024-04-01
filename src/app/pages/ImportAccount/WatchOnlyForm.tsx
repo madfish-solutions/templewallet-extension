@@ -7,7 +7,7 @@ import { Alert, FormSubmitButton, NoSpaceField } from 'app/atoms';
 import { useFormAnalytics } from 'lib/analytics';
 import { t } from 'lib/i18n';
 import { useTempleClient, validateDelegate } from 'lib/temple/front';
-import { isAddressValid as isValidTezosAddress, isKTAddress } from 'lib/temple/helpers';
+import { isValidTezosAddress, isTezosContractAddress } from 'lib/tezos';
 import { useTezosNetworkRpcUrl } from 'temple/front';
 import { useTezosAddressByDomainName, useTezosDomainsClient } from 'temple/front/tezos';
 import { getReadOnlyTezos } from 'temple/tezos';
@@ -69,7 +69,7 @@ export const WatchOnlyForm = memo(() => {
 
       let chainId: string | undefined;
 
-      if (chain === TempleChainName.Tezos && isKTAddress(resolvedAddress)) {
+      if (chain === TempleChainName.Tezos && isTezosContractAddress(resolvedAddress)) {
         const tezos = getReadOnlyTezos(rpcUrl);
 
         try {
@@ -125,7 +125,7 @@ export const WatchOnlyForm = memo(() => {
           <span className="whitespace-pre-line">
             <u>Tezos:</u> Public key hash or Tezos domain of the account or smart contract.
             <br />
-            <u>EVM:</u> ENS name or public address of the account you want to watch.
+            <u>EVM:</u> Public address of the account you want to watch.
           </span>
         }
         placeholder={t(canUseDomainNames ? 'recipientInputPlaceholderWithDomain' : 'recipientInputPlaceholder')}

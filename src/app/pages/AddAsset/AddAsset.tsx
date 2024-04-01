@@ -27,12 +27,12 @@ import { isCollectible, TokenMetadata } from 'lib/metadata';
 import { fetchOneTokenMetadata } from 'lib/metadata/fetch';
 import { TokenMetadataNotFoundError } from 'lib/metadata/on-chain';
 import { loadContract } from 'lib/temple/contract';
-import { validateContractAddress } from 'lib/temple/front';
 import { useSafeState } from 'lib/ui/hooks';
 import { delay } from 'lib/utils';
 import { navigate } from 'lib/woozie';
 import { UNDER_DEVELOPMENT_MSG } from 'temple/evm/under_dev_msg';
 import { useAccountAddressForTezos, useTezosNetwork } from 'temple/front';
+import { validateTezosContractAddress } from 'temple/front/tezos';
 import { getReadOnlyTezos } from 'temple/tezos';
 
 import { AddAssetSelectors } from './AddAsset.selectors';
@@ -103,7 +103,7 @@ const Form = memo<FormProps>(({ accountPkh }) => {
   const tokenId = watch('id') || 0;
 
   const formValid = useMemo(
-    () => validateContractAddress(contractAddress) === true && tokenId >= 0,
+    () => validateTezosContractAddress(contractAddress) === true && tokenId >= 0,
     [contractAddress, tokenId]
   );
 
@@ -257,7 +257,7 @@ const Form = memo<FormProps>(({ accountPkh }) => {
       <NoSpaceField
         ref={register({
           required: t('required'),
-          validate: validateContractAddress
+          validate: validateTezosContractAddress
         })}
         name="address"
         id="addtoken-address"
