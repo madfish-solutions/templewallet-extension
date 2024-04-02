@@ -1,8 +1,6 @@
 import { useCallback, useEffect, useRef } from 'react';
 
-import { isString } from 'lodash';
-import { useDispatch } from 'react-redux';
-
+import { dispatch } from 'app/store';
 import { loadCollectiblesMetadataAction } from 'app/store/collectibles-metadata/actions';
 import {
   useCollectiblesMetadataLoadingSelector,
@@ -25,6 +23,7 @@ import { AssetMetadataBase, TokenMetadata } from './types';
 
 export type { AssetMetadataBase, TokenMetadata } from './types';
 export { TEZOS_METADATA, EMPTY_BASE_METADATA } from './defaults';
+export { isCollectible, isCollectibleTokenMetadata, getAssetSymbol, getAssetName } from './utils';
 
 export const useGasTokenMetadata = () => {
   const { isDcp } = useTezosNetwork();
@@ -100,8 +99,7 @@ const useAssetsMetadataPresenceCheck = (
   getMetadata: TokenMetadataGetter,
   slugsToCheck?: string[]
 ) => {
-  const { rpcUrl } = useTezosNetwork();
-  const dispatch = useDispatch();
+  const { rpcBaseURL } = useTezosNetwork();
 
   const checkedRef = useRef<string[]>([]);
 
@@ -123,30 +121,10 @@ const useAssetsMetadataPresenceCheck = (
 
       dispatch(
         (ofCollectibles ? loadCollectiblesMetadataAction : loadTokensMetadataAction)({
-          rpcUrl,
+          rpcUrl: rpcBaseURL,
           slugs: missingChunk
         })
       );
     }
-  }, [ofCollectibles, slugsToCheck, getMetadata, metadataLoading, dispatch, rpcUrl]);
+  }, [ofCollectibles, slugsToCheck, getMetadata, metadataLoading, rpcBaseURL]);
 };
-
-export function getAssetSymbol(metadata: AssetMetadataBase | nullish, short = false) {
-  if (!metadata) return '???';
-  if (!short) return metadata.symbol;
-  return metadata.symbol === 'tez' ? 'ꜩ' : metadata.symbol.substring(0, 5);
-}
-
-export function getAssetName(metadata: AssetMetadataBase | nullish) {
-  return metadata ? metadata.name : 'Unknown Token';
-}
-
-/** Empty string for `artifactUri` counts */
-export const isCollectible = (metadata: Record<string, any>) =>
-  'artifactUri' in metadata && isString(metadata.artifactUri);
-
-/**
- * @deprecated // Assertion here is not safe!
- */
-export const isCollectibleTokenMetadata = (metadata: AssetMetadataBase): metadata is TokenMetadata =>
-  isCollectible(metadata);

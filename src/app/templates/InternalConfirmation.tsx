@@ -43,7 +43,7 @@ type InternalConfiramtionProps = {
 const MIN_GAS_FEE = 0;
 
 const InternalConfirmation: FC<InternalConfiramtionProps> = ({ payload, onConfirm, error: payloadError }) => {
-  const { rpcUrl: currentNetworkRpc } = useTezosNetwork();
+  const { rpcBaseURL: currentNetworkRpc } = useTezosNetwork();
   const { popup } = useAppEnv();
 
   const getContentToParse = useCallback(async () => {

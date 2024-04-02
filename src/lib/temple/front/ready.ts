@@ -10,7 +10,8 @@ import {
   TempleNotification,
   TempleMessageType,
   StoredAccount,
-  TempleSettings
+  TempleSettings,
+  TempleTezosChainId
 } from 'lib/temple/types';
 import { useMemoWithCompare, useUpdatableRef } from 'lib/ui/hooks';
 import { getAccountAddressForTezos, getAccountForEvm, getAccountForTezos } from 'temple/accounts';
@@ -24,7 +25,7 @@ export const [
   ReadyTempleProvider,
   useAllTezosNetworks,
   useAllEvmNetworks,
-  useTezosNetworkStored,
+  useTezosNetwork,
   useEvmNetwork,
   useSetTezosNetworkId,
   useSetEvmNetworkId,
@@ -90,7 +91,16 @@ function useReadyTemple() {
   const [evmNetworkId, setEvmNetworkId] = usePassiveStorage(CURRENT_EVM_NETWORK_ID_STORAGE_KEY, defEvmNetwork.id);
 
   const tezosNetwork = useMemoWithCompare(
-    () => allTezosNetworks.find(n => n.id === tezosNetworkId) ?? defTezosNetwork,
+    () => {
+      const tezosNetwork = allTezosNetworks.find(n => n.id === tezosNetworkId) ?? defTezosNetwork;
+      const chainId = tezosNetwork.chainId;
+
+      return {
+        ...tezosNetwork,
+        isMainnet: chainId === TempleTezosChainId.Mainnet,
+        isDcp: chainId === TempleTezosChainId.Dcp || chainId === TempleTezosChainId.DcpTest
+      };
+    },
     [allTezosNetworks, tezosNetworkId, defTezosNetwork],
     isEqual
   );

@@ -28,7 +28,7 @@ const getContractAddress = (contract: TzktRelatedContract) => contract.address;
 export const ManagedKTForm: FC = () => {
   const { importKTManagedAccount } = useTempleClient();
 
-  const { chainId, rpcUrl } = useTezosNetwork();
+  const { chainId, rpcBaseURL } = useTezosNetwork();
 
   const relevantAccounts = useRelevantAccounts(chainId);
   const tezosAccounts = useMemo(
@@ -110,7 +110,7 @@ export const ManagedKTForm: FC = () => {
       formAnalytics.trackSubmit();
       setError(null);
       try {
-        const tezos = getReadOnlyTezos(rpcUrl);
+        const tezos = getReadOnlyTezos(rpcBaseURL);
 
         const contract = await tezos.contract.at(address);
         const owner = await contract.storage();
@@ -134,7 +134,7 @@ export const ManagedKTForm: FC = () => {
         setError(err.message);
       }
     },
-    [formState, rpcUrl, tezosAccounts, importKTManagedAccount, formAnalytics]
+    [formState, rpcBaseURL, tezosAccounts, importKTManagedAccount, formAnalytics]
   );
 
   const handleKnownContractSelect = useCallback(

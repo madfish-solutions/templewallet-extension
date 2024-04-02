@@ -8,7 +8,7 @@ import type { Activity } from './types';
 type TLoading = 'init' | 'more' | false;
 
 export default function useTezosActivities(accountAddress: string, initialPseudoLimit: number, assetSlug?: string) {
-  const { chainId, rpcUrl } = useTezosNetwork();
+  const { chainId, rpcBaseURL } = useTezosNetwork();
 
   const [loading, setLoading] = useSafeState<TLoading>(isKnownChainId(chainId) && 'init');
   const [activities, setActivities] = useSafeState<Activity[]>([]);
@@ -28,7 +28,7 @@ export default function useTezosActivities(accountAddress: string, initialPseudo
 
     let newActivities: Activity[];
     try {
-      newActivities = await fetchActivities(chainId, rpcUrl, accountAddress, assetSlug, pseudoLimit, lastActivity);
+      newActivities = await fetchActivities(chainId, rpcBaseURL, accountAddress, assetSlug, pseudoLimit, lastActivity);
       if (shouldStop()) return;
     } catch (error) {
       if (shouldStop()) return;

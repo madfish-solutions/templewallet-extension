@@ -209,6 +209,7 @@ export const MIGRATIONS = [
             .then(chainId => {
               const testnet = isTezosTestnetChainId(chainId) ? true : undefined;
 
+              delete network.type;
               return { ...network, chainId, testnet };
             })
             .catch(err => {

@@ -4,8 +4,8 @@ import { fetchTokensMetadata, isKnownChainId } from 'lib/apis/temple';
 import { fetchTzktAccountAssets } from 'lib/apis/tzkt';
 import type { TzktAccountAsset } from 'lib/apis/tzkt/types';
 import { toTokenSlug } from 'lib/assets';
-import { isCollectible } from 'lib/metadata';
 import type { FetchedMetadataRecord } from 'lib/metadata/fetch';
+import { isCollectible } from 'lib/metadata/utils';
 
 import { MetadataMap } from '../collectibles-metadata/state';
 

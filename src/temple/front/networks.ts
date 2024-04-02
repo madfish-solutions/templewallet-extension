@@ -1,46 +1,20 @@
-import { useCallback, useMemo } from 'react';
+import { useCallback } from 'react';
 
-import { TID, t } from 'lib/i18n';
+import { t } from 'lib/i18n';
 import { useRetryableSWR } from 'lib/swr';
 import { useTempleClient } from 'lib/temple/front/client';
-import { useTezosNetworkStored } from 'lib/temple/front/ready';
-import { TempleTezosChainId } from 'lib/temple/types';
-import { StoredEvmNetwork, StoredTezosNetwork } from 'temple/networks';
+import { useTezosNetwork } from 'lib/temple/front/ready';
+import { NetworkBase, StoredEvmNetwork, StoredTezosNetwork } from 'temple/networks';
 
 import { loadTezosChainId } from '../tezos';
 
 export const getNetworkTitle = ({
-  rpcUrl,
   rpcBaseURL,
   name,
   nameI18nKey
-}: {
-  name: string;
-  nameI18nKey?: TID;
-  rpcUrl?: string;
-  rpcBaseURL?: string;
-}) => (nameI18nKey ? t(nameI18nKey) : name || rpcBaseURL || rpcUrl);
+}: Pick<NetworkBase, 'name' | 'nameI18nKey' | 'rpcBaseURL'>) => (nameI18nKey ? t(nameI18nKey) : name || rpcBaseURL);
 
-export const useTezosNetwork = () => {
-  const { id, rpcBaseURL, chainId, name, nameI18nKey, color } = useTezosNetworkStored();
-
-  return useMemo(
-    () => ({
-      id,
-      rpcBaseURL,
-      rpcUrl: rpcBaseURL,
-      chainId,
-      isMainnet: chainId === TempleTezosChainId.Mainnet,
-      isDcp: chainId === TempleTezosChainId.Dcp || chainId === TempleTezosChainId.DcpTest,
-      name,
-      nameI18nKey,
-      color
-    }),
-    [id, rpcBaseURL, chainId, name, nameI18nKey, color]
-  );
-};
-
-export const useTezosNetworkRpcUrl = () => useTezosNetworkStored().rpcBaseURL;
+export const useTezosNetworkRpcUrl = () => useTezosNetwork().rpcBaseURL;
 
 export function useTezosChainIdLoadingValue(rpcUrl: string, suspense?: boolean): string | undefined {
   const { data: chainId } = useTezosChainIdLoading(rpcUrl, suspense);

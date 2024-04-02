@@ -1,6 +1,7 @@
 export {
   useAllTezosNetworks,
   useAllEvmNetworks,
+  useTezosNetwork,
   useEvmNetwork,
   useSetTezosNetworkId as useChangeTezosNetwork,
   useSetEvmNetworkId as useChangeEvmNetwork,
@@ -17,7 +18,6 @@ export {
 
 export {
   getNetworkTitle,
-  useTezosNetwork,
   useTezosNetworkRpcUrl,
   useTezosChainIdLoading,
   useTezosChainIdLoadingValue,

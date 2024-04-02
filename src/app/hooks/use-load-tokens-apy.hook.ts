@@ -13,33 +13,30 @@ import {
   fetchUUSDCApr$,
   fetchYOUApr$
 } from 'app/store/d-apps/utils';
-import { TempleTezosChainId } from 'lib/temple/types';
 import { useTezosNetwork } from 'temple/front';
 
 export const useTokensApyLoading = () => {
-  const { rpcUrl, chainId } = useTezosNetwork();
+  const { rpcBaseURL, isMainnet } = useTezosNetwork();
   const usdToTokenRates = useUsdToTokenRatesSelector();
 
   const [tokensApy, setTokensApy] = useState({});
 
   useEffect(() => {
-    if (chainId === TempleTezosChainId.Mainnet) {
-      const subscription = forkJoin([
-        fetchTzBtcApy$(),
-        fetchKUSDApy$(),
-        fetchUSDTApy$(),
-        fetchUUSDCApr$(rpcUrl),
-        fetchUBTCApr$(rpcUrl),
-        fetchYOUApr$(rpcUrl, usdToTokenRates)
-      ]).subscribe(responses => {
-        setTokensApy(Object.assign({}, ...responses));
-      });
+    if (isMainnet === false) return;
 
-      return () => subscription.unsubscribe();
-    }
+    const subscription = forkJoin([
+      fetchTzBtcApy$(),
+      fetchKUSDApy$(),
+      fetchUSDTApy$(),
+      fetchUUSDCApr$(rpcBaseURL),
+      fetchUBTCApr$(rpcBaseURL),
+      fetchYOUApr$(rpcBaseURL, usdToTokenRates)
+    ]).subscribe(responses => {
+      setTokensApy(Object.assign({}, ...responses));
+    });
 
-    return;
-  }, [usdToTokenRates, chainId, rpcUrl]);
+    return () => subscription.unsubscribe();
+  }, [usdToTokenRates, isMainnet, rpcBaseURL]);
 
   useEffect(() => {
     dispatch(loadTokensApyActions.success(tokensApy));

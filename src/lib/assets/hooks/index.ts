@@ -10,7 +10,7 @@ export { useAccountCollectibles, useEnabledAccountCollectiblesSlugs } from './co
 const KNOWN_DCP_CHAIN_IDS: string[] = [TempleTezosChainId.Dcp, TempleTezosChainId.DcpTest];
 
 export const useGasToken = (networkRpc?: string) => {
-  const { rpcUrl: rpcBaseURL, isDcp: isDefaultDcp } = useTezosNetwork();
+  const { rpcBaseURL, isDcp: isDefaultDcp } = useTezosNetwork();
   const suspense = Boolean(networkRpc) && networkRpc !== rpcBaseURL;
   const chainId = useTezosChainIdLoadingValue(networkRpc ?? rpcBaseURL, suspense);
 

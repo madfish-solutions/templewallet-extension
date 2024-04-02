@@ -90,7 +90,7 @@ interface FormProps {
 }
 
 const Form = memo<FormProps>(({ accountPkh }) => {
-  const { chainId, rpcUrl } = useTezosNetwork();
+  const { chainId, rpcBaseURL } = useTezosNetwork();
 
   const formAnalytics = useFormAnalytics('AddAsset');
 
@@ -126,7 +126,7 @@ const Form = memo<FormProps>(({ accountPkh }) => {
     let stateToSet: Partial<ComponentState>;
 
     try {
-      const tezos = getReadOnlyTezos(rpcUrl);
+      const tezos = getReadOnlyTezos(rpcBaseURL);
 
       let contract: ContractAbstraction<Wallet | ContractProvider>;
       try {
@@ -142,7 +142,7 @@ const Form = memo<FormProps>(({ accountPkh }) => {
 
       if (tokenStandard === 'fa2') await assertFa2TokenDefined(tezos, contract, tokenId);
 
-      const metadata = await fetchOneTokenMetadata(rpcUrl, contractAddress, String(tokenId));
+      const metadata = await fetchOneTokenMetadata(rpcBaseURL, contractAddress, String(tokenId));
 
       if (metadata) {
         metadataRef.current = metadata;
@@ -173,7 +173,7 @@ const Form = memo<FormProps>(({ accountPkh }) => {
         processing: false
       }));
     }
-  }, [rpcUrl, setValue, setState, formValid, contractAddress, tokenId]);
+  }, [rpcBaseURL, setValue, setState, formValid, contractAddress, tokenId]);
 
   const loadMetadata = useDebouncedCallback(loadMetadataPure, 500);
 
@@ -190,7 +190,7 @@ const Form = memo<FormProps>(({ accountPkh }) => {
       setState(INITIAL_STATE);
       attemptRef.current++;
     }
-  }, [setState, formValid, rpcUrl, contractAddress, tokenId]);
+  }, [setState, formValid, rpcBaseURL, contractAddress, tokenId]);
 
   const cleanContractAddress = useCallback(() => {
     setValue('address', '');

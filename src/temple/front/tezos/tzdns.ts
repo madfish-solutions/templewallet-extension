@@ -5,9 +5,10 @@ import { DomainNameValidationResult, isTezosDomainsSupportedNetwork } from '@tez
 import { TaquitoTezosDomainsClient } from '@tezos-domains/taquito-client';
 
 import { useTypedSWR } from 'lib/swr';
+import { useTezosNetwork } from 'lib/temple/front/ready';
 import { getReadOnlyTezos } from 'temple/tezos';
 
-import { useTezosNetwork, useTezosNetworkRpcUrl } from '../networks';
+import { useTezosNetworkRpcUrl } from '../networks';
 
 function getClient(networkName: 'mainnet' | 'custom', rpcUrl: string) {
   return isTezosDomainsSupportedNetwork(networkName)
@@ -20,9 +21,12 @@ export function isTezosDomainsNameValid(name: string, client: TaquitoTezosDomain
 }
 
 export function useTezosDomainsClient() {
-  const { chainId, rpcUrl } = useTezosNetwork();
+  const { chainId, rpcBaseURL } = useTezosNetwork();
 
-  return useMemo(() => getClient(chainId === ChainIds.MAINNET ? 'mainnet' : 'custom', rpcUrl), [chainId, rpcUrl]);
+  return useMemo(
+    () => getClient(chainId === ChainIds.MAINNET ? 'mainnet' : 'custom', rpcBaseURL),
+    [chainId, rpcBaseURL]
+  );
 }
 
 export function useTezosAddressByDomainName(domainName: string) {

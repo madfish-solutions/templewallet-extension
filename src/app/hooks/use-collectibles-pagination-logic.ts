@@ -14,7 +14,7 @@ export const ITEMS_PER_PAGE = 30;
 export const useCollectiblesPaginationLogic = (allSlugsSorted: string[], initialSize: number) => {
   const allMeta = useAllCollectiblesMetadataSelector();
 
-  const { rpcUrl } = useTezosNetwork();
+  const { rpcBaseURL } = useTezosNetwork();
   const dispatch = useDispatch();
 
   const [slugs, setSlugs] = useState<string[]>(() => allSlugsSorted.slice(0, initialSize));
@@ -34,7 +34,7 @@ export const useCollectiblesPaginationLogic = (allSlugsSorted: string[], initial
         .filter(slug => !allMeta.get(slug));
 
       if (slugsWithoutMeta.length)
-        await loadTokensMetadata(rpcUrl, slugsWithoutMeta)
+        await loadTokensMetadata(rpcBaseURL, slugsWithoutMeta)
           .then(
             records => {
               dispatch(putCollectiblesMetadataAction({ records }));
@@ -52,7 +52,7 @@ export const useCollectiblesPaginationLogic = (allSlugsSorted: string[], initial
 
       setNavigateSearchParams({ amount: String(size) });
     },
-    [allSlugsSorted, slugs.length, allMeta, rpcUrl, dispatch]
+    [allSlugsSorted, slugs.length, allMeta, rpcBaseURL, dispatch]
   );
 
   useDidMount(() => {
