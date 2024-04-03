@@ -4,8 +4,9 @@ import classNames from 'clsx';
 
 import { Button } from 'app/atoms/Button';
 import { setAnotherSelector } from 'lib/analytics';
+import { TempleTezosChainId } from 'lib/temple/types';
 import { getNetworkTitle } from 'temple/front';
-import { NetworkBase } from 'temple/networks';
+import { NetworkBase, isTezosDcpChainId } from 'temple/networks';
 
 import { NetworkSelectSelectors } from './selectors';
 
@@ -16,15 +17,15 @@ interface Props {
 }
 
 export const NetworkButton: React.FC<Props> = ({ network, selected, onClick }) => {
-  const { id, color, disabled } = network;
+  const { id, chainId, color, disabled } = network;
 
   const title = getNetworkTitle(network);
 
   const testIDProperties = useMemo(
     () => ({
-      // TODO: `networkType` (or `chainId`)
+      networkType: chainId === TempleTezosChainId.Mainnet ? 'main' : isTezosDcpChainId(String(chainId)) ? 'dcp' : 'test'
     }),
-    []
+    [chainId]
   );
 
   return (

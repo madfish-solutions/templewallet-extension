@@ -4,6 +4,7 @@ import { TempleTezosChainId } from 'lib/temple/types';
 export interface NetworkBase {
   id: string;
   rpcBaseURL: string;
+  chainId: string | number;
   name: string;
   nameI18nKey?: TID;
   description?: string;
@@ -23,6 +24,10 @@ export interface StoredTezosNetwork extends NetworkBase {
 const TEZOS_NON_TESTNET_CHAIN_IDS: string[] = [TempleTezosChainId.Mainnet, TempleTezosChainId.Dcp];
 
 export const isTezosTestnetChainId = (chainId: string) => !TEZOS_NON_TESTNET_CHAIN_IDS.includes(chainId);
+
+const TEZOS_DCP_CHAIN_IDS: string[] = [TempleTezosChainId.Dcp, TempleTezosChainId.DcpTest];
+
+export const isTezosDcpChainId = (chainId: string) => !TEZOS_DCP_CHAIN_IDS.includes(chainId);
 
 const TEZOS_DCP_NETWORKS: StoredTezosNetwork[] = [
   {

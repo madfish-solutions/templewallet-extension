@@ -1,13 +1,11 @@
 import { useMemo } from 'react';
 
 import { TEZOS_METADATA, FILM_METADATA } from 'lib/metadata/defaults';
-import { TempleTezosChainId } from 'lib/temple/types';
 import { useTezosChainIdLoadingValue, useTezosNetwork } from 'temple/front';
+import { isTezosDcpChainId } from 'temple/networks';
 
 export { useAllAvailableTokens, useEnabledAccountTokensSlugs } from './tokens';
 export { useAccountCollectibles, useEnabledAccountCollectiblesSlugs } from './collectibles';
-
-const KNOWN_DCP_CHAIN_IDS: string[] = [TempleTezosChainId.Dcp, TempleTezosChainId.DcpTest];
 
 export const useGasToken = (networkRpc?: string) => {
   const { rpcBaseURL, isDcp: isDefaultDcp } = useTezosNetwork();
@@ -15,7 +13,7 @@ export const useGasToken = (networkRpc?: string) => {
   const chainId = useTezosChainIdLoadingValue(networkRpc ?? rpcBaseURL, suspense);
 
   const isDcpNetwork = useMemo(
-    () => (suspense ? KNOWN_DCP_CHAIN_IDS.includes(chainId!) : isDefaultDcp),
+    () => (suspense ? isTezosDcpChainId(chainId!) : isDefaultDcp),
     [chainId, suspense, isDefaultDcp]
   );
 
