@@ -7,14 +7,21 @@ import { useFormAnalytics } from 'lib/analytics';
 import { getObjktMarketplaceContract } from 'lib/apis/objkt';
 import type { ObjktOffer } from 'lib/apis/objkt/types';
 import { fromFa2TokenSlug } from 'lib/assets/utils';
+import { useUpdatableRef } from 'lib/ui/hooks';
 import { getTransferPermissions } from 'lib/utils/get-transfer-permissions';
 import { parseTransferParamsToParamsWithKind } from 'lib/utils/parse-transfer-params';
-import { useTezosWithSigner } from 'temple/front';
+import { getTezosToolkitWithSigner, useAllTezosNetworks } from 'temple/front';
 
 const DEFAULT_OBJKT_STORAGE_LIMIT = 350;
 
-export const useCollectibleSelling = (assetSlug: string, publicKeyHash: string, offer?: ObjktOffer) => {
-  const tezos = useTezosWithSigner(publicKeyHash);
+export const useCollectibleSelling = (
+  assetSlug: string,
+  publicKeyHash: string,
+  networkId: string,
+  offer?: ObjktOffer
+) => {
+  const allNetworks = useAllTezosNetworks();
+  const allNetworksRef = useUpdatableRef(allNetworks);
 
   const [isSelling, setIsSelling] = useState(false);
   const [operation, setOperation] = useState<WalletOperation | nullish>();
@@ -26,6 +33,11 @@ export const useCollectibleSelling = (assetSlug: string, publicKeyHash: string, 
     setIsSelling(true);
     setOperation(null);
     setOperationError(null);
+
+    const rpcUrl = allNetworksRef.current.find(n => n.id === networkId)?.rpcBaseURL;
+    if (!rpcUrl) return;
+
+    const tezos = getTezosToolkitWithSigner(rpcUrl, publicKeyHash);
 
     formAnalytics.trackSubmit({ assetSlug });
 
@@ -79,7 +91,17 @@ export const useCollectibleSelling = (assetSlug: string, publicKeyHash: string, 
         }
       )
       .finally(() => void setIsSelling(false));
-  }, [tezos, isSelling, offer, assetSlug, publicKeyHash, setOperation, setOperationError, formAnalytics]);
+  }, [
+    isSelling,
+    offer,
+    assetSlug,
+    publicKeyHash,
+    networkId,
+    setOperation,
+    setOperationError,
+    formAnalytics,
+    allNetworksRef
+  ]);
 
   return { isSelling, initiateSelling, operation, operationError };
 };

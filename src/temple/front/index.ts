@@ -26,4 +26,4 @@ export {
 
 export { useRelevantAccounts } from './accounts';
 
-export { useTezosWithSigner, useOnTezosBlock, useTezosBlockLevel } from './tezos';
+export { getTezosToolkitWithSigner, useOnTezosBlock, useTezosBlockLevel } from './tezos';

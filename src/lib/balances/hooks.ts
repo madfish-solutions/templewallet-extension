@@ -75,12 +75,12 @@ export function useRawBalance(
    */
   const usingStore = address === currentAccountAddress && isKnownChainId(chainId);
 
-  const tezos = getReadOnlyTezos(rpcUrl);
-
   const onChainBalanceSwrRes = useTypedSWR(
     ['balance', rpcUrl, assetSlug, address],
     () => {
       if (!chainId || usingStore) return;
+
+      const tezos = getReadOnlyTezos(rpcUrl);
 
       return fetchRawBalanceFromBlockchain(tezos, assetSlug, address).then(res => res.toString());
     },
@@ -93,7 +93,7 @@ export function useRawBalance(
   const refreshChainId = useCallback(() => chainIdSwrRes.mutate(), [chainIdSwrRes.mutate]);
   const refreshBalanceOnChain = useCallback(() => void onChainBalanceSwrRes.mutate(), [onChainBalanceSwrRes.mutate]);
 
-  useOnTezosBlock(refreshBalanceOnChain, tezos, !chainId || usingStore);
+  useOnTezosBlock(rpcUrl, refreshBalanceOnChain, !chainId || usingStore);
 
   if (!chainId)
     return {

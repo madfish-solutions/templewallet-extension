@@ -13,6 +13,7 @@ import { dispatch } from 'app/store';
 import { putTokensAsIsAction, putCollectiblesAsIsAction } from 'app/store/assets/actions';
 import { putCollectiblesMetadataAction } from 'app/store/collectibles-metadata/actions';
 import { putTokensMetadataAction } from 'app/store/tokens-metadata/actions';
+import { useNetworkSelectController, NetworkSelect } from 'app/templates/NetworkSelect';
 import { useFormAnalytics } from 'lib/analytics';
 import { TokenMetadataResponse } from 'lib/apis/temple';
 import { toTokenSlug } from 'lib/assets';
@@ -38,7 +39,6 @@ import { getReadOnlyTezos } from 'temple/tezos';
 import { TempleChainName } from 'temple/types';
 
 import { AddAssetSelectors } from './AddAsset.selectors';
-import { useNetworkSelectController, NetworkSelect } from './NetworkSelect';
 
 const AddAsset = memo(() => {
   const accountTezosAddress = useAccountAddressForTezos();

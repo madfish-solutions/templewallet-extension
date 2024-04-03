@@ -44,7 +44,7 @@ import {
   getRoutingFeeTransferParams
 } from 'lib/utils/swap.utils';
 import { HistoryAction, navigate } from 'lib/woozie';
-import { useTezosWithSigner, useTezosBlockLevel } from 'temple/front';
+import { getTezosToolkitWithSigner, useTezosBlockLevel } from 'temple/front';
 
 import { SwapExchangeRate } from './SwapExchangeRate/SwapExchangeRate';
 import { SwapFormValue, SwapInputValue, useSwapFormDefaultValue } from './SwapForm.form';
@@ -59,12 +59,14 @@ import { SwapRoute } from './SwapRoute/SwapRoute';
 import { useGetSwapTransferParams } from './use-swap-params';
 
 interface Props {
+  rpcUrl: string;
   publicKeyHash: string;
 }
 
-export const SwapForm = memo<Props>(({ publicKeyHash }) => {
-  const tezos = useTezosWithSigner(publicKeyHash);
-  const blockLevel = useTezosBlockLevel();
+export const SwapForm = memo<Props>(({ rpcUrl, publicKeyHash }) => {
+  const tezos = getTezosToolkitWithSigner(rpcUrl, publicKeyHash);
+
+  const blockLevel = useTezosBlockLevel(rpcUrl);
 
   const getSwapParams = useGetSwapTransferParams(tezos, publicKeyHash);
   const { data: route3Tokens } = useSwapTokensSelector();

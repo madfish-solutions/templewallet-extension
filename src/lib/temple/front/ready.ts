@@ -199,7 +199,7 @@ function assertReady<T extends TempleState>(state: T): asserts state is T & Read
   }
 }
 
-interface ReadyTempleState extends TempleState {
+interface ReadyTempleState {
   status: TempleStatus.Ready;
   accounts: NonEmptyArray<StoredAccount>;
   settings: TempleSettings;

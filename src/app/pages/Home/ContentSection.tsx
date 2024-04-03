@@ -3,9 +3,9 @@ import React, { FC, memo, Suspense, useCallback, useMemo, useRef } from 'react';
 import clsx from 'clsx';
 
 import Spinner from 'app/atoms/Spinner/Spinner';
-import { useTabSlug } from 'app/atoms/useTabSlug';
 import { useAppEnv } from 'app/env';
 import ErrorBoundary from 'app/ErrorBoundary';
+import { useLocationSearchParamValue } from 'app/hooks/use-location';
 import { ToolbarElement } from 'app/layouts/PageLayout';
 import { ActivityTab } from 'app/templates/activity/Activity';
 import AssetInfo from 'app/templates/AssetInfo';
@@ -36,7 +36,7 @@ interface TabData {
 
 export const ContentSection = memo<Props>(({ assetSlug, className }) => {
   const { fullPage } = useAppEnv();
-  const tabSlug = useTabSlug();
+  const tabSlug = useLocationSearchParamValue('tab');
 
   const tabBarElemRef = useRef<HTMLDivElement>(null);
 

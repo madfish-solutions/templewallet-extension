@@ -1,8 +1,11 @@
 import React, { memo, useMemo, useState } from 'react';
 
+import { ChainIds } from '@taquito/taquito';
+
 import { Stepper } from 'app/atoms';
 import { Anchor } from 'app/atoms/Anchor';
 import { DeadEndBoundaryError } from 'app/ErrorBoundary';
+import { useLocationSearchParamValue } from 'app/hooks/use-location';
 import { ReactComponent as AttentionRedIcon } from 'app/icons/attentionRed.svg';
 import PageLayout from 'app/layouts/PageLayout';
 import styles from 'app/pages/Buy/Crypto/Exolix/Exolix.module.css';
@@ -12,7 +15,7 @@ import { useStorage } from 'lib/temple/front';
 import { TempleAccountType } from 'lib/temple/types';
 import { Redirect } from 'lib/woozie';
 import { getAccountForTezos } from 'temple/accounts';
-import { useAccount, useTezosNetwork } from 'temple/front';
+import { useAccount, useAllTezosNetworks } from 'temple/front';
 
 import { WithdrawSelectors } from '../../Withdraw.selectors';
 
@@ -27,11 +30,15 @@ const ALICE_BOB_TERMS_LINK =
 const ALICE_BOB_CONTACT_LINK = 'https://t.me/alicebobhelp';
 
 export const AliceBobWithdraw = memo(() => {
-  const { isMainnet } = useTezosNetwork();
+  const networkId = useLocationSearchParamValue('networkId');
+
   const currentAccount = useAccount();
+  const allTezosNetworks = useAllTezosNetworks();
+
+  const network = useMemo(() => allTezosNetworks.find(n => n.id === networkId), [allTezosNetworks, networkId]);
 
   const account = useMemo(() => getAccountForTezos(currentAccount), [currentAccount]);
-  if (!account) throw new DeadEndBoundaryError();
+  if (!account || !network || network.chainId !== ChainIds.MAINNET) throw new DeadEndBoundaryError();
 
   const publicKeyHash = account.address;
 
@@ -42,7 +49,7 @@ export const AliceBobWithdraw = memo(() => {
     null
   );
 
-  if (!isMainnet || account.type === TempleAccountType.WatchOnly) {
+  if (account.type === TempleAccountType.WatchOnly) {
     return <Redirect to={'/'} />;
   }
 
@@ -87,6 +94,7 @@ export const AliceBobWithdraw = memo(() => {
           <SellStep
             publicKeyHash={publicKeyHash}
             ownerAddress={currentAccount.type === TempleAccountType.ManagedKT ? currentAccount.owner : undefined}
+            rpcUrl={network.rpcBaseURL}
             orderInfo={orderInfo}
             isApiError={isApiError}
             setStep={setStep}

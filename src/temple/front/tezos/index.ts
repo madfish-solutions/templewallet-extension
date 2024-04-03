@@ -22,7 +22,6 @@ import { makeIntercomRequest, assertResponse, getAccountPublicKey } from 'temple
 import { MAX_MEMOIZED_TOOLKITS } from 'temple/misc';
 import { getTezosFastRpcClient, makeTezosClientId, michelEncoder } from 'temple/tezos';
 
-import { useTezosNetworkRpcUrl } from '../networks';
 import { setPendingConfirmationId } from '../pending-confirm';
 
 export { validateTezosContractAddress } from './helpers';
@@ -34,13 +33,7 @@ export {
   useTezosDomainNameByAddress
 } from './tzdns';
 
-export const useTezosWithSigner = (signerPkh: string) => {
-  const rpcUrl = useTezosNetworkRpcUrl();
-
-  return buildTezosToolkitWithSigner(rpcUrl, signerPkh);
-};
-
-const buildTezosToolkitWithSigner = memoizee(
+export const getTezosToolkitWithSigner = memoizee(
   (rpcUrl: string, signerPkh: string) => {
     const tezos = new ReactiveTezosToolkit(rpcUrl, signerPkh);
 

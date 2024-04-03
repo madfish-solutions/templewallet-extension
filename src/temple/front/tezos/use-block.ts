@@ -1,22 +1,18 @@
 import { useEffect, useRef, useState } from 'react';
 
-import { Subscription, TezosToolkit } from '@taquito/taquito';
+import { Subscription } from '@taquito/taquito';
 
 import { useUpdatableRef } from 'lib/ui/hooks';
 import { getReadOnlyTezos } from 'temple/tezos';
 
-import { useTezosNetworkRpcUrl } from '../networks';
-
-export function useOnTezosBlock(callback: (blockHash: string) => void, altTezos?: TezosToolkit, pause = false) {
-  const rpcUrl = useTezosNetworkRpcUrl();
-
+export function useOnTezosBlock(rpcUrl: string, callback: (blockHash: string) => void, pause = false) {
   const blockHashRef = useRef<string>();
   const callbackRef = useUpdatableRef(callback);
 
   useEffect(() => {
     if (pause) return;
 
-    const tezos = altTezos || getReadOnlyTezos(rpcUrl);
+    const tezos = getReadOnlyTezos(rpcUrl);
 
     let sub: Subscription<string>;
     spawnSub();
@@ -38,12 +34,10 @@ export function useOnTezosBlock(callback: (blockHash: string) => void, altTezos?
         spawnSub();
       });
     }
-  }, [pause, rpcUrl, altTezos]);
+  }, [pause, rpcUrl]);
 }
 
-export const useTezosBlockLevel = () => {
-  const rpcUrl = useTezosNetworkRpcUrl();
-
+export const useTezosBlockLevel = (rpcUrl: string) => {
   const [blockLevel, setBlockLevel] = useState<number>();
 
   useEffect(() => {

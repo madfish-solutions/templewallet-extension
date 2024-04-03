@@ -4,7 +4,8 @@ import { isDefined } from '@rnw-community/shared';
 import { useDispatch } from 'react-redux';
 
 import { FormSubmitButton, FormSecondaryButton, Spinner, Money, Alert } from 'app/atoms';
-import { useTabSlug } from 'app/atoms/useTabSlug';
+import { DeadEndBoundaryError } from 'app/ErrorBoundary';
+import { useLocationSearchParamValue } from 'app/hooks/use-location';
 import PageLayout from 'app/layouts/PageLayout';
 import { loadCollectiblesDetailsActions } from 'app/store/collectibles/actions';
 import {
@@ -28,8 +29,6 @@ import { TempleAccountType } from 'lib/temple/types';
 import { useInterval } from 'lib/ui/hooks';
 import { ImageStacked } from 'lib/ui/ImageStacked';
 import { navigate } from 'lib/woozie';
-import { AccountForChain } from 'temple/accounts';
-import { UNDER_DEVELOPMENT_MSG } from 'temple/evm/under_dev_msg';
 import { useAccountForTezos } from 'temple/front';
 
 import { useCollectibleSelling } from '../hooks/use-collectible-selling.hook';
@@ -46,18 +45,11 @@ interface Props {
 }
 
 const CollectiblePage = memo<Props>(({ assetSlug }) => {
-  const tezosAccount = useAccountForTezos();
+  const networkId = useLocationSearchParamValue('networkId');
+  const account = useAccountForTezos();
 
-  return tezosAccount ? (
-    <TezosCollectiblePage assetSlug={assetSlug} account={tezosAccount} />
-  ) : (
-    <PageLayout pageTitle={UNDER_DEVELOPMENT_MSG}>
-      <div className="flex flex-col gap-y-3 max-w-sm w-full mx-auto pt-2 pb-4">{UNDER_DEVELOPMENT_MSG}</div>
-    </PageLayout>
-  );
-});
+  if (!networkId || !account) throw new DeadEndBoundaryError();
 
-const TezosCollectiblePage = memo<Props & { account: AccountForChain }>(({ assetSlug, account }) => {
   const metadata = useCollectibleMetadataSelector(assetSlug); // Loaded only, if shown in grid for now
   const details = useCollectibleDetailsSelector(assetSlug);
   const areAnyCollectiblesDetailsLoading = useAllCollectiblesDetailsLoadingSelector();
@@ -101,7 +93,7 @@ const TezosCollectiblePage = memo<Props & { account: AccountForChain }>(({ asset
     initiateSelling: onSellButtonClick,
     operation,
     operationError
-  } = useCollectibleSelling(assetSlug, publicKeyHash, takableOffer);
+  } = useCollectibleSelling(assetSlug, publicKeyHash, networkId, takableOffer);
 
   const onSendButtonClick = useCallback(() => navigate(`/send/${assetSlug}`), [assetSlug]);
 
@@ -137,7 +129,7 @@ const TezosCollectiblePage = memo<Props & { account: AccountForChain }>(({ asset
     return value;
   }, [displayedOffer, accountCanSign]);
 
-  const tabNameInUrl = useTabSlug();
+  const tabNameInUrl = useLocationSearchParamValue('tab');
 
   const tabs = useMemo(() => {
     const propertiesTab = { name: 'properties', titleI18nKey: 'properties' } as const;

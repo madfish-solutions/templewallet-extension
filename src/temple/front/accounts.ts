@@ -43,3 +43,25 @@ export function useRelevantAccounts(tezosChainId: string) {
     [tezosChainId, allAccounts]
   );
 }
+
+// ts-prune-ignore-next
+export function useNonContractAccounts() {
+  const allAccounts = useAllAccounts();
+
+  return useMemo(
+    () =>
+      allAccounts.filter(acc => {
+        switch (acc.type) {
+          case TempleAccountType.ManagedKT:
+            return false;
+
+          case TempleAccountType.WatchOnly:
+            return !Boolean(acc.chainId);
+
+          default:
+            return true;
+        }
+      }),
+    [allAccounts]
+  );
+}

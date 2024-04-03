@@ -15,7 +15,7 @@ import { TempleAccountType } from 'lib/temple/types';
 import { useMemoWithCompare, useSafeState } from 'lib/ui/hooks';
 import { HistoryAction, navigate } from 'lib/woozie';
 import { getAccountForTezos } from 'temple/accounts';
-import { useAccount, useTezosNetworkRpcUrl } from 'temple/front';
+import { useAccount, useTezosNetwork } from 'temple/front';
 import { makeTezosClientId } from 'temple/tezos';
 
 import AddContactModal from './AddContactModal';
@@ -31,9 +31,10 @@ interface Props {
 const SendForm = memo<Props>(({ assetSlug = TEZ_TOKEN_SLUG, publicKeyHash }) => {
   const currentAccount = useAccount();
 
-  const rpcUrl = useTezosNetworkRpcUrl();
   const tezosAccount = useMemo(() => getAccountForTezos(currentAccount), [currentAccount]);
   if (!tezosAccount) throw new DeadEndBoundaryError();
+
+  const tezosNetwork = useTezosNetwork();
 
   const tokensSlugs = useEnabledAccountTokensSlugs(publicKeyHash);
 
@@ -57,7 +58,7 @@ const SendForm = memo<Props>(({ assetSlug = TEZ_TOKEN_SLUG, publicKeyHash }) => 
 
   const [operation, setOperation] = useSafeState<WalletOperation | null>(
     null,
-    makeTezosClientId(rpcUrl, tezosAccount.address)
+    makeTezosClientId(tezosNetwork.rpcBaseURL, tezosAccount.address)
   );
   const [addContactModalAddress, setAddContactModalAddress] = useState<string | null>(null);
   const { trackEvent } = useAnalytics();
@@ -108,6 +109,7 @@ const SendForm = memo<Props>(({ assetSlug = TEZ_TOKEN_SLUG, publicKeyHash }) => 
         <Form
           account={tezosAccount}
           ownerAddress={currentAccount.type === TempleAccountType.ManagedKT ? currentAccount.owner : undefined}
+          network={tezosNetwork}
           assetSlug={selectedAsset}
           setOperation={setOperation}
           onAddContactRequested={handleAddContactRequested}

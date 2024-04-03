@@ -23,7 +23,7 @@ import { useDidUpdate } from 'lib/ui/hooks';
 import { useTezosNetwork, useOnTezosBlock } from 'temple/front';
 
 export const useBalancesLoading = (publicKeyHash: string) => {
-  const { chainId } = useTezosNetwork();
+  const { chainId, rpcBaseURL } = useTezosNetwork();
 
   const isLoading = useBalancesLoadingSelector(publicKeyHash, chainId);
   const isLoadingRef = useRef(false);
@@ -135,7 +135,7 @@ export const useBalancesLoading = (publicKeyHash: string) => {
   }, [publicKeyHash, chainId, isLoadingRef]);
 
   useEffect(dispatchLoadGasBalanceAction, [dispatchLoadGasBalanceAction]);
-  useOnTezosBlock(dispatchLoadGasBalanceAction, undefined, accountsSubscriptionConfirmed && isStoredError === false);
+  useOnTezosBlock(rpcBaseURL, dispatchLoadGasBalanceAction, accountsSubscriptionConfirmed && isStoredError === false);
 
   const dispatchLoadAssetsBalancesActions = useCallback(() => {
     if (isLoadingRef.current === false && isKnownChainId(chainId)) {
@@ -144,5 +144,9 @@ export const useBalancesLoading = (publicKeyHash: string) => {
   }, [publicKeyHash, chainId, isLoadingRef]);
 
   useEffect(dispatchLoadAssetsBalancesActions, [dispatchLoadAssetsBalancesActions]);
-  useOnTezosBlock(dispatchLoadAssetsBalancesActions, undefined, tokensSubscriptionConfirmed && isStoredError === false);
+  useOnTezosBlock(
+    rpcBaseURL,
+    dispatchLoadAssetsBalancesActions,
+    tokensSubscriptionConfirmed && isStoredError === false
+  );
 };

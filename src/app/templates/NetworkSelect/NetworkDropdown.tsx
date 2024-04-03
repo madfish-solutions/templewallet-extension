@@ -1,5 +1,6 @@
 import React, { memo, useCallback, useMemo } from 'react';
 
+import { ChainIds } from '@taquito/taquito';
 import clsx from 'clsx';
 
 import DropdownWrapper from 'app/atoms/DropdownWrapper';
@@ -20,10 +21,18 @@ interface Props extends PopperRenderProps {
 }
 
 export const NetworkDropdown = memo<Props>(({ opened, setOpened, controller }) => {
-  const { id: selectedId, chain } = controller.network;
+  const {
+    network: { id: selectedId, chain },
+    tezosMainnetOnly
+  } = controller;
 
   const allTezosNetworks = useAllTezosNetworks();
   const allEvmNetworks = useAllEvmNetworks();
+
+  const tezosNetworks = useMemo(
+    () => (tezosMainnetOnly ? allTezosNetworks.filter(n => n.chainId === ChainIds.MAINNET) : allTezosNetworks),
+    [allTezosNetworks, tezosMainnetOnly]
+  );
 
   useShortcutAccountSelectModalIsOpened(() => setOpened(false));
 
@@ -59,7 +68,7 @@ export const NetworkDropdown = memo<Props>(({ opened, setOpened, controller }) =
           {TempleChainTitle.tezos} <T id="networks" />
         </h2>
 
-        {allTezosNetworks.map(network => {
+        {tezosNetworks.map(network => {
           const { id } = network;
           const selected = id === selectedId && chain === 'tezos';
 
@@ -77,28 +86,32 @@ export const NetworkDropdown = memo<Props>(({ opened, setOpened, controller }) =
           );
         })}
 
-        <h2 className={clsx(h2ClassName, 'mt-2')}>
-          <SignalAltIcon className="w-auto h-4 mr-1 stroke-current" />
-          {TempleChainTitle.evm} <T id="networks" />
-        </h2>
+        {tezosMainnetOnly ? null : (
+          <>
+            <h2 className={clsx(h2ClassName, 'mt-2')}>
+              <SignalAltIcon className="w-auto h-4 mr-1 stroke-current" />
+              {TempleChainTitle.evm} <T id="networks" />
+            </h2>
 
-        {allEvmNetworks.map(network => {
-          const { id } = network;
-          const selected = id === selectedId && chain === 'evm';
+            {allEvmNetworks.map(network => {
+              const { id } = network;
+              const selected = id === selectedId && chain === 'evm';
 
-          return (
-            <NetworkButton
-              key={id}
-              network={network}
-              selected={selected}
-              onClick={() => {
-                setOpened(false);
+              return (
+                <NetworkButton
+                  key={id}
+                  network={network}
+                  selected={selected}
+                  onClick={() => {
+                    setOpened(false);
 
-                if (!selected) handleEvmNetworkSelect(network);
-              }}
-            />
-          );
-        })}
+                    if (!selected) handleEvmNetworkSelect(network);
+                  }}
+                />
+              );
+            })}
+          </>
+        )}
       </div>
     </DropdownWrapper>
   );

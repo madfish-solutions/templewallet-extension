@@ -17,7 +17,8 @@ import {
   Estimate,
   TransactionWalletOperation,
   TransactionOperation,
-  TezosToolkit
+  TezosToolkit,
+  ChainIds
 } from '@taquito/taquito';
 import BigNumber from 'bignumber.js';
 import classNames from 'clsx';
@@ -52,8 +53,13 @@ import { useSafeState } from 'lib/ui/hooks';
 import { useScrollIntoView } from 'lib/ui/use-scroll-into-view';
 import { ZERO } from 'lib/utils/numbers';
 import { AccountForTezos } from 'temple/accounts';
-import { useTezosNetwork, useTezosWithSigner } from 'temple/front';
-import { isTezosDomainsNameValid, useTezosAddressByDomainName, useTezosDomainsClient } from 'temple/front/tezos';
+import {
+  getTezosToolkitWithSigner,
+  isTezosDomainsNameValid,
+  useTezosAddressByDomainName,
+  useTezosDomainsClient
+} from 'temple/front/tezos';
+import { StoredTezosNetwork } from 'temple/networks';
 
 import ContactsDropdown, { ContactsDropdownProps } from './ContactsDropdown';
 import { FeeSection } from './FeeSection';
@@ -74,12 +80,13 @@ interface Props {
   account: AccountForTezos;
   /** Present for `account.type === TempleAccountType.ManagedKT` */
   ownerAddress?: string;
+  network: StoredTezosNetwork;
   assetSlug: string;
   setOperation: Dispatch<any>;
   onAddContactRequested: (address: string) => void;
 }
 
-export const Form: FC<Props> = ({ account, ownerAddress, assetSlug, setOperation, onAddContactRequested }) => {
+export const Form: FC<Props> = ({ account, ownerAddress, network, assetSlug, setOperation, onAddContactRequested }) => {
   const { registerBackHandler } = useAppEnv();
 
   const assetMetadata = useAssetMetadata(assetSlug);
@@ -88,9 +95,8 @@ export const Form: FC<Props> = ({ account, ownerAddress, assetSlug, setOperation
   const assetSymbol = useMemo(() => getAssetSymbol(assetMetadata), [assetMetadata]);
 
   const { allContacts } = useFilteredContacts();
-  const { isMainnet } = useTezosNetwork();
 
-  const tezos = useTezosWithSigner(ownerAddress || account.address);
+  const tezos = getTezosToolkitWithSigner(network.rpcBaseURL, ownerAddress || account.address);
   const domainsClient = useTezosDomainsClient();
 
   const formAnalytics = useFormAnalytics('SendForm');
@@ -103,7 +109,7 @@ export const Form: FC<Props> = ({ account, ownerAddress, assetSlug, setOperation
 
   const [shoudUseFiat, setShouldUseFiat] = useSafeState(false);
 
-  const canToggleFiat = isMainnet;
+  const canToggleFiat = network.chainId === ChainIds.MAINNET;
   const prevCanToggleFiat = useRef(canToggleFiat);
 
   /**

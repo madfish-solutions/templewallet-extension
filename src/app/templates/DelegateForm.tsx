@@ -33,8 +33,14 @@ import { useSafeState } from 'lib/ui/hooks';
 import { delay, fifoResolve } from 'lib/utils';
 import { Link, useLocation } from 'lib/woozie';
 import { AccountForTezos } from 'temple/accounts';
-import { useTezosNetwork, useTezosWithSigner } from 'temple/front';
-import { isTezosDomainsNameValid, useTezosAddressByDomainName, useTezosDomainsClient } from 'temple/front/tezos';
+import { useTezosNetwork } from 'temple/front';
+import {
+  getTezosToolkitWithSigner,
+  isTezosDomainsNameValid,
+  useTezosAddressByDomainName,
+  useTezosDomainsClient
+} from 'temple/front/tezos';
+import { StoredTezosNetwork } from 'temple/networks';
 
 import { DelegateFormSelectors } from './DelegateForm.selectors';
 
@@ -49,17 +55,18 @@ interface FormData {
 
 interface Props {
   account: AccountForTezos;
-  balance: BigNumber;
   /** Present for `account.type === TempleAccountType.ManagedKT` */
   ownerAddress?: string;
+  network: StoredTezosNetwork;
+  balance: BigNumber;
 }
 
-const DelegateForm = memo<Props>(({ account, balance, ownerAddress }) => {
+const DelegateForm = memo<Props>(({ account, ownerAddress, network, balance }) => {
   const { registerBackHandler } = useAppEnv();
   const formAnalytics = useFormAnalytics('DelegateForm');
   const { symbol, isDcpNetwork, logo } = useGasToken();
 
-  const tezos = useTezosWithSigner(ownerAddress || account.address);
+  const tezos = getTezosToolkitWithSigner(network.rpcBaseURL, ownerAddress || account.address);
 
   const address = account.address;
 

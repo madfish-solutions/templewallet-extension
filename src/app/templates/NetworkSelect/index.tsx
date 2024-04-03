@@ -18,7 +18,7 @@ interface Props {
 }
 
 export const NetworkSelect = memo<Props>(({ controller }) => {
-  const currentNetwork = controller.network;
+  const selectedNetwork = controller.network;
 
   return (
     <Popper
@@ -43,10 +43,10 @@ export const NetworkSelect = memo<Props>(({ controller }) => {
         >
           <div
             className="mr-2 w-3 h-3 border border-primary-white rounded-full shadow-xs"
-            style={{ backgroundColor: currentNetwork.color }}
+            style={{ backgroundColor: selectedNetwork.color }}
           />
 
-          <Name style={{ maxWidth: '7rem' }}>{getNetworkTitle(currentNetwork)}</Name>
+          <Name style={{ maxWidth: '7rem' }}>{getNetworkTitle(selectedNetwork)}</Name>
 
           <ChevronDownIcon className="ml-1 -mr-1 stroke-current stroke-2" style={{ height: 16, width: 'auto' }} />
         </Button>

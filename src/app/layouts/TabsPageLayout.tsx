@@ -4,7 +4,7 @@ import classNames from 'clsx';
 
 import { PageTitle } from 'app/atoms/PageTitle';
 import Spinner from 'app/atoms/Spinner/Spinner';
-import { useTabSlug } from 'app/atoms/useTabSlug';
+import { useLocationSearchParamValue } from 'app/hooks/use-location';
 import { TestIDProperty } from 'lib/analytics';
 import { Link } from 'lib/woozie';
 
@@ -28,7 +28,7 @@ interface Props {
 
 export const TabsPageLayout: FC<Props> = ({ tabs, icon, title, description }) => {
   const { fullPage } = useAppEnv();
-  const tabSlug = useTabSlug();
+  const tabSlug = useLocationSearchParamValue('tab');
 
   const { slug, Component } = useMemo(() => {
     const tab = tabSlug ? tabs.find(currentTab => currentTab.slug === tabSlug) : null;

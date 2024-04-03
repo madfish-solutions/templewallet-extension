@@ -14,6 +14,7 @@ export const getNetworkTitle = ({
   nameI18nKey
 }: Pick<NetworkBase, 'name' | 'nameI18nKey' | 'rpcBaseURL'>) => (nameI18nKey ? t(nameI18nKey) : name || rpcBaseURL);
 
+/** @deprecated */
 export const useTezosNetworkRpcUrl = () => useTezosNetwork().rpcBaseURL;
 
 export function useTezosChainIdLoadingValue(rpcUrl: string, suspense?: boolean): string | undefined {
