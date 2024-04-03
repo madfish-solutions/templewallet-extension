@@ -63,11 +63,12 @@ export const EvmNetworksSettings = memo(() => {
 
         await addEvmNetwork({
           id: rpcBaseURL,
+          chain: TempleChainName.EVM,
           chainId,
-          rpcBaseURL,
-          testnet,
-          name,
           currency,
+          testnet,
+          rpcBaseURL,
+          name,
           color
         });
 

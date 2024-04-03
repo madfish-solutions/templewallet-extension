@@ -8,7 +8,7 @@ import { ReactComponent as SignalAltIcon } from 'app/icons/signal-alt.svg';
 import { T } from 'lib/i18n';
 import { PopperRenderProps } from 'lib/ui/Popper';
 import { useAllTezosNetworks, useAllEvmNetworks } from 'temple/front';
-import { isTezosNetwork, NetworkBase } from 'temple/networks';
+import { StoredEvmNetwork, StoredTezosNetwork } from 'temple/networks';
 import { TempleChainTitle } from 'temple/types';
 
 import { NetworkSelectController } from './controller';
@@ -20,8 +20,7 @@ interface Props extends PopperRenderProps {
 }
 
 export const NetworkDropdown = memo<Props>(({ opened, setOpened, controller }) => {
-  const currentNetworkId = controller.network.id;
-  const currentNetworkIsOfTezos = isTezosNetwork(controller.network);
+  const { id: selectedId, chain } = controller.network;
 
   const allTezosNetworks = useAllTezosNetworks();
   const allEvmNetworks = useAllEvmNetworks();
@@ -29,14 +28,14 @@ export const NetworkDropdown = memo<Props>(({ opened, setOpened, controller }) =
   useShortcutAccountSelectModalIsOpened(() => setOpened(false));
 
   const handleTezosNetworkSelect = useCallback(
-    (network: NetworkBase) => {
+    (network: StoredTezosNetwork) => {
       controller.setNetwork(network);
     },
     [controller]
   );
 
   const handleEvmNetworkSelect = useCallback(
-    (network: NetworkBase) => {
+    (network: StoredEvmNetwork) => {
       controller.setNetwork(network);
     },
     [controller]
@@ -62,7 +61,7 @@ export const NetworkDropdown = memo<Props>(({ opened, setOpened, controller }) =
 
         {allTezosNetworks.map(network => {
           const { id } = network;
-          const selected = id === currentNetworkId && currentNetworkIsOfTezos;
+          const selected = id === selectedId && chain === 'tezos';
 
           return (
             <NetworkButton
@@ -85,7 +84,7 @@ export const NetworkDropdown = memo<Props>(({ opened, setOpened, controller }) =
 
         {allEvmNetworks.map(network => {
           const { id } = network;
-          const selected = id === currentNetworkId && !currentNetworkIsOfTezos;
+          const selected = id === selectedId && chain === 'evm';
 
           return (
             <NetworkButton

@@ -59,12 +59,13 @@ export const TezosNetworksSettings = memo(() => {
         const color = COLORS[Math.floor(Math.random() * COLORS.length)];
 
         await addTezosNetwork({
-          rpcBaseURL,
+          id: rpcBaseURL,
+          chain: TempleChainName.Tezos,
           chainId,
           testnet,
+          rpcBaseURL,
           name,
-          color,
-          id: rpcBaseURL
+          color
         });
 
         resetForm();

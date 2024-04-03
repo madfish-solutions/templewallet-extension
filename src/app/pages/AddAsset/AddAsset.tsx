@@ -33,8 +33,9 @@ import { navigate } from 'lib/woozie';
 import { UNDER_DEVELOPMENT_MSG } from 'temple/evm/under_dev_msg';
 import { useAccountAddressForTezos } from 'temple/front';
 import { validateTezosContractAddress } from 'temple/front/tezos';
-import { StoredTezosNetwork, isTezosNetwork } from 'temple/networks';
+import { StoredTezosNetwork } from 'temple/networks';
 import { getReadOnlyTezos } from 'temple/tezos';
+import { TempleChainName } from 'temple/types';
 
 import { AddAssetSelectors } from './AddAsset.selectors';
 import { useNetworkSelectController, NetworkSelect } from './NetworkSelect';
@@ -59,7 +60,7 @@ const AddAsset = memo(() => {
 
         <Divider className="mt-4 mb-8" />
 
-        {accountTezosAddress && isTezosNetwork(network) ? (
+        {accountTezosAddress && network.chain === TempleChainName.Tezos ? (
           <Form accountPkh={accountTezosAddress} network={network} />
         ) : (
           <div className="text-center">{UNDER_DEVELOPMENT_MSG}</div>

@@ -203,30 +203,32 @@ export const MIGRATIONS = [
 
     // Taking a chance to migrate the list of manually-added user's Tezos networks (with chain IDs).
     // (!) Internet connection would have be available during this.
-    fetchFromStorage<StoredTezosNetwork[]>(CUSTOM_NETWORKS_SNAPSHOT_STORAGE_KEY).then(async customTezosNetworks => {
-      if (!customTezosNetworks) return;
+    fetchFromStorage<Omit<StoredTezosNetwork, 'chain'>[]>(CUSTOM_NETWORKS_SNAPSHOT_STORAGE_KEY).then(
+      async customTezosNetworks => {
+        if (!customTezosNetworks) return;
 
-      const migratedNetworks: StoredTezosNetwork[] = await Promise.all(
-        customTezosNetworks.map(network =>
-          loadTezosChainId(network.rpcBaseURL, 30_000)
-            .then(chainId => {
-              const testnet = isTezosTestnetChainId(chainId) ? true : undefined;
+        const migratedNetworks: StoredTezosNetwork[] = await Promise.all(
+          customTezosNetworks.map(network =>
+            loadTezosChainId(network.rpcBaseURL, 30_000)
+              .then(chainId => {
+                const testnet = isTezosTestnetChainId(chainId) ? true : undefined;
 
-              delete network.type;
-              return { ...network, chainId, testnet };
-            })
-            .catch(err => {
-              console.error(err);
-              return null;
-            })
-        )
-      ).then(migratedNetworks => migratedNetworks.filter(isTruthy));
+                delete network.type;
+                return { ...network, chain: TempleChainName.Tezos as const, chainId, testnet };
+              })
+              .catch(err => {
+                console.error(err);
+                return null;
+              })
+          )
+        ).then(migratedNetworks => migratedNetworks.filter(isTruthy));
 
-      removeFromStorage(CUSTOM_NETWORKS_SNAPSHOT_STORAGE_KEY);
+        removeFromStorage(CUSTOM_NETWORKS_SNAPSHOT_STORAGE_KEY);
 
-      if (migratedNetworks.length)
-        putToStorage<StoredTezosNetwork[]>(CUSTOM_TEZOS_NETWORKS_STORAGE_KEY, migratedNetworks);
-    });
+        if (migratedNetworks.length)
+          putToStorage<StoredTezosNetwork[]>(CUSTOM_TEZOS_NETWORKS_STORAGE_KEY, migratedNetworks);
+      }
+    );
 
     await encryptAndSaveMany(toEncryptAndSave, passKey);
 

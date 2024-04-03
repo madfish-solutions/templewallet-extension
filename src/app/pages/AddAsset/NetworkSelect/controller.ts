@@ -1,17 +1,17 @@
 import { useMemo, useState } from 'react';
 
 import { useAllTezosNetworks } from 'temple/front';
-import { NetworkBase } from 'temple/networks';
+import { StoredNetwork } from 'temple/networks';
 
 export interface NetworkSelectController {
-  network: NetworkBase;
-  setNetwork: SyncFn<NetworkBase>;
+  network: StoredNetwork;
+  setNetwork: SyncFn<StoredNetwork>;
 }
 
-export const useNetworkSelectController = () => {
+export const useNetworkSelectController = (): NetworkSelectController => {
   const allTezosNetworks = useAllTezosNetworks();
 
-  const [network, setNetwork] = useState<NetworkBase>(() => allTezosNetworks[0]);
+  const [network, setNetwork] = useState<StoredNetwork>(() => allTezosNetworks[0]);
 
   return useMemo(() => ({ network, setNetwork }), [network]);
 };

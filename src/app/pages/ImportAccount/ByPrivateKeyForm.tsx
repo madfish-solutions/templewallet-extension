@@ -47,8 +47,11 @@ export const ByPrivateKeyForm = memo(() => {
     [importAccount, formState.isSubmitting, setError, formAnalytics]
   );
 
-  const keyValue = watch('privateKey');
-  const encrypted = useMemo(() => isTezosPrivateKey(keyValue) && keyValue?.substring(2, 3) === 'e', [keyValue]);
+  const keyValue = watch('privateKey') as string | undefined;
+  const encrypted = useMemo(
+    () => keyValue && isTezosPrivateKey(keyValue) && keyValue.substring(2, 3) === 'e',
+    [keyValue]
+  );
 
   return (
     <form className="w-full max-w-sm mx-auto my-8" onSubmit={handleSubmit(onSubmit)}>
