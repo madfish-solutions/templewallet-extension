@@ -191,10 +191,13 @@ export const MIGRATIONS = [
 
     /* NETWORKS */
 
-    const settings = await fetchAndDecryptOne<TempleSettings>(settingsStrgKey, passKey);
-    settings.customTezosNetworks = settings.customNetworks;
-    delete settings.customNetworks;
-    toEncryptAndSave.push([settingsStrgKey, settings]);
+    const settings = await fetchAndDecryptOne<TempleSettings>(settingsStrgKey, passKey).catch(() => null);
+
+    if (settings) {
+      settings.customTezosNetworks = settings.customNetworks;
+      delete settings.customNetworks;
+      toEncryptAndSave.push([settingsStrgKey, settings]);
+    }
 
     moveValueInStorage(NETWORK_ID_STORAGE_KEY, CURRENT_TEZOS_NETWORK_ID_STORAGE_KEY);
 

@@ -5,7 +5,7 @@ import classNames from 'clsx';
 import { FormContextValues, useForm } from 'react-hook-form';
 import { useDebouncedCallback } from 'use-debounce';
 
-import { Alert, FormField, FormSubmitButton, NoSpaceField } from 'app/atoms';
+import { Alert, Divider, FormField, FormSubmitButton, NoSpaceField } from 'app/atoms';
 import Spinner from 'app/atoms/Spinner/Spinner';
 import { ReactComponent as AddIcon } from 'app/icons/add.svg';
 import PageLayout from 'app/layouts/PageLayout';
@@ -31,14 +31,19 @@ import { useSafeState } from 'lib/ui/hooks';
 import { delay } from 'lib/utils';
 import { navigate } from 'lib/woozie';
 import { UNDER_DEVELOPMENT_MSG } from 'temple/evm/under_dev_msg';
-import { useAccountAddressForTezos, useTezosNetwork } from 'temple/front';
+import { useAccountAddressForTezos } from 'temple/front';
 import { validateTezosContractAddress } from 'temple/front/tezos';
+import { StoredTezosNetwork, isTezosNetwork } from 'temple/networks';
 import { getReadOnlyTezos } from 'temple/tezos';
 
 import { AddAssetSelectors } from './AddAsset.selectors';
+import { useNetworkSelectController, NetworkSelect } from './NetworkSelect';
 
 const AddAsset = memo(() => {
-  const accountPkh = useAccountAddressForTezos();
+  const accountTezosAddress = useAccountAddressForTezos();
+
+  const networkSelectController = useNetworkSelectController();
+  const network = networkSelectController.network;
 
   return (
     <PageLayout
@@ -49,11 +54,17 @@ const AddAsset = memo(() => {
         </>
       }
     >
-      {accountPkh ? (
-        <Form accountPkh={accountPkh} />
-      ) : (
-        <div className="w-full max-w-sm mx-auto my-8">{UNDER_DEVELOPMENT_MSG}</div>
-      )}
+      <div className="w-full max-w-sm mx-auto py-8">
+        <NetworkSelect controller={networkSelectController} />
+
+        <Divider className="mt-4 mb-8" />
+
+        {accountTezosAddress && isTezosNetwork(network) ? (
+          <Form accountPkh={accountTezosAddress} network={network} />
+        ) : (
+          <div className="text-center">{UNDER_DEVELOPMENT_MSG}</div>
+        )}
+      </div>
     </PageLayout>
   );
 });
@@ -87,10 +98,11 @@ class ContractNotFoundError extends Error {}
 
 interface FormProps {
   accountPkh: string;
+  network: StoredTezosNetwork;
 }
 
-const Form = memo<FormProps>(({ accountPkh }) => {
-  const { chainId, rpcBaseURL } = useTezosNetwork();
+const Form = memo<FormProps>(({ accountPkh, network }) => {
+  const { rpcBaseURL, chainId } = network;
 
   const formAnalytics = useFormAnalytics('AddAsset');
 
@@ -253,7 +265,7 @@ const Form = memo<FormProps>(({ accountPkh }) => {
   );
 
   return (
-    <form className="w-full max-w-sm mx-auto my-8" onSubmit={handleSubmit(onSubmit)}>
+    <form onSubmit={handleSubmit(onSubmit)}>
       <NoSpaceField
         ref={register({
           required: t('required'),

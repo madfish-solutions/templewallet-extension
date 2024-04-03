@@ -1,5 +1,6 @@
 ## TODO:
 
+- `settings.customNetworks` => `customNetworks: { tezos: {}[], evm: {}[] }`
 - Unit tests for EVM accounts in the Vault
 - TempleContact. See: `useFilteredContacts()`
 - - Migrate

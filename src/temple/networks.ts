@@ -21,6 +21,10 @@ export interface StoredTezosNetwork extends NetworkBase {
   chainId: string;
 }
 
+/** @deprecated // TODO: Introduce `TezosNetwork` | `UsableNetwork` */
+export const isTezosNetwork = (network: NetworkBase): network is StoredTezosNetwork =>
+  typeof network.chainId === 'string';
+
 const TEZOS_NON_TESTNET_CHAIN_IDS: string[] = [TempleTezosChainId.Mainnet, TempleTezosChainId.Dcp];
 
 export const isTezosTestnetChainId = (chainId: string) => !TEZOS_NON_TESTNET_CHAIN_IDS.includes(chainId);
