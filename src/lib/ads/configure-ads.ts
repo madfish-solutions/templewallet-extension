@@ -28,7 +28,8 @@ export const configureAds = async () => {
     tkeyInpageAdUrl,
     externalAdsActivityMessageType: ContentScriptType.ExternalAdsActivity,
     // Types are added to prevent TS errors for the core build
-    getPersonaIframeURL: (id: string, shape: string) => browser.runtime.getURL(`iframes/persona-ad.html?id=${id}&shape=${shape}`),
+    getPersonaIframeURL: (id: string, shape: string) =>
+      browser.runtime.getURL(`iframes/persona-ad.html?id=${id}&shape=${shape}`),
     getAdsStackIframeURL: (id: string, adsMetadataIds: any[], origin: string) => {
       const url = new URL(browser.runtime.getURL('iframes/ads-stack.html'));
       url.searchParams.set('id', id);
