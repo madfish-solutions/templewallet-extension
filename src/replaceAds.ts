@@ -1,36 +1,29 @@
 import browser from 'webextension-polyfill';
 
-import {
-  ContentScriptType,
-  ADS_RULES_UPDATE_INTERVAL,
-  WEBSITES_ANALYTICS_ENABLED,
-  TEMPLE_WALLET_AD_ATTRIBUTE_NAME
-} from 'lib/constants';
+import { buildSwapPageUrlQuery } from 'app/pages/Swap/utils/build-url-query';
+import { importExtensionAdsModule } from 'lib/ads/import-extension-ads-module';
+import { ContentScriptType, ADS_RULES_UPDATE_INTERVAL, WEBSITES_ANALYTICS_ENABLED } from 'lib/constants';
+import { EnvVars } from 'lib/env';
 import { fetchFromStorage } from 'lib/storage';
 
-import {
-  getRulesFromContentScript,
-  clearRulesCache,
-  getAdsActions,
-  AdActionType,
-  InsertAdAction,
-  AdMetadata,
-  overrideElementStyles,
-  observeIntersection,
-  subscribeToIframeLoadIfNecessary,
-  makeTKeyAdView,
-  makeHypelabAdView,
-  makePersonaAdView
-} from './content-scripts/replace-ads';
-import type { ReplaceElementWithAdAction } from './content-scripts/replace-ads/ads-actions/types';
+import { getRulesFromContentScript, clearRulesCache } from './content-scripts/replace-ads';
 
 let processing = false;
+
+const tkeyInpageAdUrl = browser.runtime.getURL(`/misc/ad-banners/tkey-inpage-ad.png`);
+
+const swapTkeyUrl = `${browser.runtime.getURL('fullpage.html')}#/swap?${buildSwapPageUrlQuery(
+  'tez',
+  'KT1VaEsVNiBoA56eToEK6n6BcPgh1tdx9eXi_0',
+  true
+)}`;
 
 const replaceAds = async () => {
   if (processing) return;
   processing = true;
 
   try {
+    const { getAdsActions, executeAdsActions } = await importExtensionAdsModule();
     const adsRules = await getRulesFromContentScript(window.parent.location);
 
     if (adsRules.timestamp < Date.now() - ADS_RULES_UPDATE_INTERVAL) {
@@ -40,20 +33,10 @@ const replaceAds = async () => {
 
     const adsActions = await getAdsActions(adsRules);
 
-    await Promise.allSettled(
-      adsActions.map(async action => {
-        try {
-          if (action.type === AdActionType.RemoveElement) {
-            action.element.remove();
-          } else if (action.type === AdActionType.HideElement) {
-            action.element.style.setProperty('display', 'none');
-          } else {
-            await processInsertAdAction(action, action.ad);
-          }
-        } catch (err) {
-          console.error('Replacing an ad error:', err);
-        }
-      })
+    const adsActionsResult = await executeAdsActions(adsActions);
+    adsActionsResult.forEach(
+      (result: PromiseSettledResult<void>) =>
+        void (result.status === 'rejected' && console.error('Replacing an ad error:', result.reason))
     );
   } catch (error) {
     console.error('Replacing Ads error:', error);
@@ -62,109 +45,27 @@ const replaceAds = async () => {
   processing = false;
 };
 
-const processInsertAdAction = async (action: InsertAdAction, ad: AdMetadata) => {
-  const { shouldUseDivWrapper, divWrapperStyle = {} } = action;
-
-  const wrapperElement = document.createElement('div');
-  wrapperElement.setAttribute(TEMPLE_WALLET_AD_ATTRIBUTE_NAME, 'true');
-
-  if (shouldUseDivWrapper) {
-    overrideElementStyles(wrapperElement, divWrapperStyle);
-  } else {
-    wrapperElement.style.display = 'contents';
-  }
-
-  await processInsertAdActionOnce(action, ad, wrapperElement).catch(error => {
-    console.error('Inserting an ad attempt error:', error);
-
-    const nextAd = action.fallbacks.shift();
-    if (nextAd) {
-      const { ad, fallbacks, divWrapperStyle, elementStyle, stylesOverrides } = action;
-      const newAction: ReplaceElementWithAdAction = {
-        type: AdActionType.ReplaceElement,
-        element: wrapperElement,
-        ad,
-        fallbacks,
-        divWrapperStyle,
-        elementStyle,
-        stylesOverrides
-      };
-
-      return processInsertAdAction(newAction, nextAd);
-    }
-
-    const emptyAdElement = document.createElement('div');
-    emptyAdElement.setAttribute(TEMPLE_WALLET_AD_ATTRIBUTE_NAME, 'true');
-    emptyAdElement.style.display = 'none';
-    wrapperElement.replaceWith(emptyAdElement);
-
-    throw error;
-  });
-};
-
-const processInsertAdActionOnce = async (action: InsertAdAction, ad: AdMetadata, wrapperElement: HTMLDivElement) => {
-  const { source, dimensions } = ad;
-
-  const { elementStyle = {}, stylesOverrides = [] } = action;
-
-  stylesOverrides.sort((a, b) => a.parentDepth - b.parentDepth);
-
-  let stylesOverridesCurrentElement: HTMLElement | null;
-
-  const { providerName } = source;
-
-  const { element: adElement, postAppend } =
-    providerName === 'Temple'
-      ? makeTKeyAdView(dimensions.width, dimensions.height, elementStyle)
-      : providerName === 'HypeLab'
-      ? makeHypelabAdView(source, dimensions, elementStyle)
-      : makePersonaAdView(source.shape, dimensions, elementStyle);
-
-  adElement.setAttribute(TEMPLE_WALLET_AD_ATTRIBUTE_NAME, 'true');
-  wrapperElement.appendChild(adElement);
-
-  switch (action.type) {
-    case AdActionType.ReplaceAllChildren:
-      stylesOverridesCurrentElement = action.parent;
-      action.parent.innerHTML = '';
-      action.parent.appendChild(wrapperElement);
-      break;
-    case AdActionType.ReplaceElement:
-      stylesOverridesCurrentElement = action.element.parentElement;
-      action.element.replaceWith(wrapperElement);
-      break;
-    default:
-      stylesOverridesCurrentElement = action.parent;
-      action.parent.insertBefore(wrapperElement, action.parent.children[action.insertionIndex]);
-      break;
-  }
-
-  if (postAppend) await postAppend();
-
-  if (adElement instanceof HTMLIFrameElement) {
-    await subscribeToIframeLoadIfNecessary(adElement.id, source.providerName, adElement);
-  } else {
-    observeIntersection(adElement, source.providerName);
-  }
-
-  let currentParentDepth = 0;
-  stylesOverrides.forEach(({ parentDepth, style }) => {
-    while (parentDepth > currentParentDepth && stylesOverridesCurrentElement) {
-      stylesOverridesCurrentElement = stylesOverridesCurrentElement.parentElement;
-      currentParentDepth++;
-    }
-    if (stylesOverridesCurrentElement) {
-      overrideElementStyles(stylesOverridesCurrentElement, style);
-    }
-  });
-};
-
 // Prevents the script from running in an Iframe
 if (window.frameElement === null) {
-  fetchFromStorage<boolean>(WEBSITES_ANALYTICS_ENABLED).then(enabled => {
-    if (enabled) {
+  fetchFromStorage<boolean>(WEBSITES_ANALYTICS_ENABLED)
+    .then(async enabled => {
+      if (!enabled) return;
+
+      const { configureAds } = await importExtensionAdsModule();
+      configureAds({
+        hypelabAdsWindowUrl: EnvVars.HYPELAB_ADS_WINDOW_URL,
+        hypelab: {
+          regular: EnvVars.HYPELAB_HIGH_PLACEMENT_SLUG,
+          native: EnvVars.HYPELAB_NATIVE_PLACEMENT_SLUG,
+          small: EnvVars.HYPELAB_SMALL_PLACEMENT_SLUG,
+          wide: EnvVars.HYPELAB_WIDE_PLACEMENT_SLUG
+        },
+        swapTkeyUrl,
+        tkeyInpageAdUrl,
+        externalAdsActivityMessageType: ContentScriptType.ExternalAdsActivity
+      });
       // Replace ads with ours
       setInterval(() => replaceAds(), 1000);
-    }
-  });
+    })
+    .catch(console.error);
 }

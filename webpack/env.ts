@@ -1,15 +1,17 @@
 type ProcessDotEnv = {
   NODE_ENV: 'development' | 'production' | 'test';
   TARGET_BROWSER: string;
-  SOURCE_MAP?: 'true' | 'false';
+  SOURCE_MAP?: `${boolean}`;
   IMAGE_INLINE_SIZE_LIMIT?: string;
+  CORE_BUILD?: `${boolean}`;
 };
 
 const {
   NODE_ENV = 'development',
   TARGET_BROWSER = 'chrome',
   SOURCE_MAP: SOURCE_MAP_ENV,
-  IMAGE_INLINE_SIZE_LIMIT: IMAGE_INLINE_SIZE_LIMIT_ENV = '10000'
+  IMAGE_INLINE_SIZE_LIMIT: IMAGE_INLINE_SIZE_LIMIT_ENV = '10000',
+  CORE_BUILD
 } = process.env as ProcessDotEnv;
 
 export const WEBPACK_MODE = NODE_ENV === 'test' ? 'none' : NODE_ENV;
@@ -20,6 +22,8 @@ export const PRODUCTION_ENV = NODE_ENV === 'production';
 export const SOURCE_MAP = NODE_ENV !== 'production' && SOURCE_MAP_ENV !== 'false';
 
 export const DROP_CONSOLE_IN_PROD = true;
+
+export const IS_CORE_BUILD = CORE_BUILD === 'true';
 
 export const RELOADER_PORTS = {
   BACKGROUND: 9090,

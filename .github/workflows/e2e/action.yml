@@ -2,12 +2,23 @@ name: End-to-end tests
 
 description: Prepares and runs e2e tests
 
+inputs:
+  optional_modules:
+    description: Install optional modules too
+    required: true
+
 runs:
   using: 'composite'
   steps:
     - working-directory: ./e2e
+      if: inputs.optional_modules == 'true'
       shell: bash
       run: yarn install
+    
+    - working-directory: ./e2e
+      if: inputs.optional_modules != 'true'
+      shell: bash
+      run: yarn install --ignore-optional
 
     - name: Run tests
       working-directory: ./e2e

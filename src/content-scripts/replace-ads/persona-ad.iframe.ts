@@ -1,7 +1,7 @@
 import { getPersonaAdClient, PERSONA_STAGING_ADS_BANNER_UNIT_ID } from 'lib/ads/persona';
 import { EnvVars } from 'lib/env';
 
-import type { PersonaAdShape } from './ads-meta';
+type PersonaAdShape = 'regular' | 'medium' | 'wide' | 'squarish';
 
 const CONTAINER_ID = 'container';
 
