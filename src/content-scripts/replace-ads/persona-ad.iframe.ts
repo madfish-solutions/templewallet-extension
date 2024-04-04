@@ -5,7 +5,6 @@ type PersonaAdShape = 'regular' | 'medium' | 'wide' | 'squarish';
 
 const CONTAINER_ID = 'container';
 
-console.log('personaAd');
 const usp = new URLSearchParams(window.location.search);
 const id = usp.get('id');
 const shape = usp.get('shape');
