@@ -56,7 +56,13 @@ const AddAsset = memo(() => {
       }
     >
       <div className="w-full max-w-sm mx-auto py-8">
-        <NetworkSelect controller={networkSelectController} />
+        <div className="flex">
+          <span className="text-xl text-gray-900">
+            <T id="network" />:
+          </span>
+          <div className="flex-1" />
+          <NetworkSelect controller={networkSelectController} />
+        </div>
 
         <Divider className="mt-4 mb-8" />
 

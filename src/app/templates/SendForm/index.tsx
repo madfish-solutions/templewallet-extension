@@ -36,7 +36,7 @@ const SendForm = memo<Props>(({ assetSlug = TEZ_TOKEN_SLUG, publicKeyHash }) => 
 
   const tezosNetwork = useTezosNetwork();
 
-  const tokensSlugs = useEnabledAccountTokensSlugs(publicKeyHash);
+  const tokensSlugs = useEnabledAccountTokensSlugs(publicKeyHash, tezosNetwork.chainId);
 
   const tokensSortPredicate = useTokensSortPredicate(publicKeyHash);
 

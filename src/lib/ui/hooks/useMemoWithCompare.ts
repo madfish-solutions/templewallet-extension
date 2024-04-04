@@ -1,5 +1,7 @@
 import { DependencyList, useMemo, useRef } from 'react';
 
+import { isEqual } from 'lodash';
+
 const VALUE_UNSET = Symbol();
 
 /** Allows to compare return value of `useMemo` hook with previous result.
@@ -8,7 +10,7 @@ const VALUE_UNSET = Symbol();
 export const useMemoWithCompare = <T>(
   factory: () => T,
   deps: DependencyList | undefined,
-  comparator: (prev: T, next: T) => boolean
+  comparator: (prev: T, next: T) => boolean = isEqual
 ) => {
   const valueRef = useRef<T | typeof VALUE_UNSET>(VALUE_UNSET);
 

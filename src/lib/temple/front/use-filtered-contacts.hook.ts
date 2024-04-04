@@ -1,7 +1,5 @@
 import { useEffect, useMemo } from 'react';
 
-import { isEqual } from 'lodash';
-
 import { isTezosContractAddress } from 'lib/tezos';
 import { useMemoWithCompare } from 'lib/ui/hooks';
 import { isTruthy } from 'lib/utils';
@@ -41,8 +39,7 @@ export function useFilteredContacts() {
       contacts
         ? contacts.filter(({ address }) => !accountContacts.some(accContact => address === accContact.address))
         : [],
-    [contacts, accountContacts],
-    isEqual
+    [contacts, accountContacts]
   );
 
   const allContacts = useMemo(() => [...filteredContacts, ...accountContacts], [filteredContacts, accountContacts]);

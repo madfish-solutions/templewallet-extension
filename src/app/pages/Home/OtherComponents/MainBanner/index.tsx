@@ -67,8 +67,8 @@ interface TezosBalanceInfoProps {
 }
 
 const TezosBalanceInfo: FC<TezosBalanceInfoProps> = ({ accountPkh }) => {
-  const { isMainnet } = useTezosNetwork();
-  const totalBalanceInDollar = useTotalBalance(accountPkh);
+  const { isMainnet, chainId } = useTezosNetwork();
+  const totalBalanceInDollar = useTotalBalance(accountPkh, chainId);
   const balanceMode = useBalanceModeSelector();
 
   const {

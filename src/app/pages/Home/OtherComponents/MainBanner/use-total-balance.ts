@@ -10,8 +10,8 @@ import { isTruthy } from 'lib/utils';
 import { ZERO } from 'lib/utils/numbers';
 
 /** Total balance in dollar value of displayed tokens, taken from store */
-export const useTotalBalance = (publicKeyHash: string) => {
-  const tokensSlugs = useEnabledAccountTokensSlugs(publicKeyHash);
+export const useTotalBalance = (publicKeyHash: string, chainId: string) => {
+  const tokensSlugs = useEnabledAccountTokensSlugs(publicKeyHash, chainId);
 
   const getBalance = useGetCurrentAccountTokenOrGasBalanceWithDecimals(publicKeyHash);
   const allUsdToTokenRates = useSelector(state => state.currency.usdToTokenRates.data);

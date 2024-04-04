@@ -75,9 +75,9 @@ const BakingSection = memo(() => {
   const account = useAccountForTezos();
   if (!account) throw new DeadEndBoundaryError();
 
+  const { chainId } = useTezosNetwork();
   const { data: myBakerPkh } = useDelegate(account.address, true, false);
   const canDelegate = account.type !== TempleAccountType.WatchOnly;
-  const { chainId } = useTezosNetwork();
   const { isDcpNetwork } = useGasToken();
   const testGroupName = useUserTestingGroupNameSelector();
 

@@ -56,7 +56,7 @@ const TezosTokensTab: FC<TezosTokensTabProps> = ({ publicKeyHash }) => {
 
   const isSyncing = useAreAssetsLoading('tokens');
 
-  const slugs = useEnabledAccountTokensSlugs(publicKeyHash);
+  const slugs = useEnabledAccountTokensSlugs(publicKeyHash, chainId);
 
   const [isZeroBalancesHidden, setIsZeroBalancesHidden] = useLocalStorage(LOCAL_STORAGE_TOGGLE_KEY, false);
 

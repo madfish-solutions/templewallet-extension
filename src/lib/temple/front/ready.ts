@@ -1,7 +1,6 @@
 import { useEffect, useLayoutEffect, useMemo } from 'react';
 
 import constate from 'constate';
-import { isEqual } from 'lodash';
 
 import { CURRENT_TEZOS_NETWORK_ID_STORAGE_KEY, CURRENT_EVM_NETWORK_ID_STORAGE_KEY } from 'lib/constants';
 import {
@@ -90,25 +89,20 @@ function useReadyTemple() {
 
   const [evmNetworkId, setEvmNetworkId] = usePassiveStorage(CURRENT_EVM_NETWORK_ID_STORAGE_KEY, defEvmNetwork.id);
 
-  const tezosNetwork = useMemoWithCompare(
-    () => {
-      const tezosNetwork = allTezosNetworks.find(n => n.id === tezosNetworkId) ?? defTezosNetwork;
-      const chainId = tezosNetwork.chainId;
+  const tezosNetwork = useMemoWithCompare(() => {
+    const tezosNetwork = allTezosNetworks.find(n => n.id === tezosNetworkId) ?? defTezosNetwork;
+    const chainId = tezosNetwork.chainId;
 
-      return {
-        ...tezosNetwork,
-        isMainnet: chainId === TempleTezosChainId.Mainnet,
-        isDcp: chainId === TempleTezosChainId.Dcp || chainId === TempleTezosChainId.DcpTest
-      };
-    },
-    [allTezosNetworks, tezosNetworkId, defTezosNetwork],
-    isEqual
-  );
+    return {
+      ...tezosNetwork,
+      isMainnet: chainId === TempleTezosChainId.Mainnet,
+      isDcp: chainId === TempleTezosChainId.Dcp || chainId === TempleTezosChainId.DcpTest
+    };
+  }, [allTezosNetworks, tezosNetworkId, defTezosNetwork]);
 
   const evmNetwork = useMemoWithCompare(
     () => allEvmNetworks.find(n => n.id === evmNetworkId) ?? defEvmNetwork,
-    [allEvmNetworks, evmNetworkId, defEvmNetwork],
-    isEqual
+    [allEvmNetworks, evmNetworkId, defEvmNetwork]
   );
 
   useEffect(() => {
@@ -154,8 +148,7 @@ function useReadyTemple() {
 
   const account = useMemoWithCompare(
     () => allAccounts.find(a => a.id === accountId) ?? defaultAcc,
-    [allAccounts, defaultAcc, accountId],
-    isEqual
+    [allAccounts, defaultAcc, accountId]
   );
 
   const accountForTezos = useMemo(() => getAccountForTezos(account), [account]);
