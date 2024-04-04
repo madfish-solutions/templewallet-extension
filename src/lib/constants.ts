@@ -4,6 +4,10 @@ export enum ContentScriptType {
   UpdateAdsRules = 'UpdateAdsRules'
 }
 
+export const ORIGIN_SEARCH_PARAM_NAME = 'o';
+
+export const ADS_META_SEARCH_PARAM_NAME = 'ads-meta';
+
 export const WEBSITES_ANALYTICS_ENABLED = 'WEBSITES_ANALYTICS_ENABLED';
 
 export const ACCOUNT_PKH_STORAGE_KEY = 'account_publickeyhash';
