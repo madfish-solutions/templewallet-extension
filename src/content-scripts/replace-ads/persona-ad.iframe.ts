@@ -11,7 +11,7 @@ const usp = new URLSearchParams(window.location.search);
 const id = usp.get('id');
 const shape = usp.get('shape');
 
-// TODO: change the storage key to prevent sending rewards to a watch only account
+// TODO: change the storage key to prevent sending watch only account address
 fetchFromStorage<string>(ACCOUNT_PKH_STORAGE_KEY)
   .then(accountPkhFromStorage => getPersonaAdClient(accountPkhFromStorage))
   .then(({ client, environment }) => {
