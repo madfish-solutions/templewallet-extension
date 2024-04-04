@@ -10,4 +10,4 @@ const adsMetadataIds = usp.getAll(ADS_META_SEARCH_PARAM_NAME).map(value => JSON.
 configureAds()
   .then(() => importExtensionAdsModule())
   .then(({ renderAdsStack }) => renderAdsStack(id ?? '', adsMetadataIds, origin))
-  .catch(console.error);
+  .catch(error => console.error(error));
