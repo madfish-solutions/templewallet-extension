@@ -22,17 +22,9 @@ const replaceAds = async () => {
       browser.runtime.sendMessage({ type: ContentScriptType.UpdateAdsRules }).catch(e => console.error(e));
     }
 
-    let t0 = Date.now();
     const adsActions = await getAdsActions(adsRules);
-    if (adsActions.length > 0) {
-      console.log('actions', Date.now() - t0, adsActions);
-    }
 
-    t0 = Date.now();
     const adsActionsResult = await executeAdsActions(adsActions);
-    if (adsActions.length > 0) {
-      console.log('executeAdsActions', Date.now() - t0);
-    }
     adsActionsResult.forEach(
       (result: PromiseSettledResult<void>) =>
         void (result.status === 'rejected' && console.error('Replacing an ad error:', result.reason))
