@@ -7,22 +7,13 @@ import { useFormAnalytics } from 'lib/analytics';
 import { getObjktMarketplaceContract } from 'lib/apis/objkt';
 import type { ObjktOffer } from 'lib/apis/objkt/types';
 import { fromFa2TokenSlug } from 'lib/assets/utils';
-import { useUpdatableRef } from 'lib/ui/hooks';
 import { getTransferPermissions } from 'lib/utils/get-transfer-permissions';
 import { parseTransferParamsToParamsWithKind } from 'lib/utils/parse-transfer-params';
-import { getTezosToolkitWithSigner, useAllTezosNetworks } from 'temple/front';
+import { getTezosToolkitWithSigner } from 'temple/front';
 
 const DEFAULT_OBJKT_STORAGE_LIMIT = 350;
 
-export const useCollectibleSelling = (
-  assetSlug: string,
-  publicKeyHash: string,
-  networkId: string,
-  offer?: ObjktOffer
-) => {
-  const allNetworks = useAllTezosNetworks();
-  const allNetworksRef = useUpdatableRef(allNetworks);
-
+export const useCollectibleSelling = (assetSlug: string, publicKeyHash: string, rpcUrl: string, offer?: ObjktOffer) => {
   const [isSelling, setIsSelling] = useState(false);
   const [operation, setOperation] = useState<WalletOperation | nullish>();
   const [operationError, setOperationError] = useState<unknown>();
@@ -33,9 +24,6 @@ export const useCollectibleSelling = (
     setIsSelling(true);
     setOperation(null);
     setOperationError(null);
-
-    const rpcUrl = allNetworksRef.current.find(n => n.id === networkId)?.rpcBaseURL;
-    if (!rpcUrl) return;
 
     const tezos = getTezosToolkitWithSigner(rpcUrl, publicKeyHash);
 
@@ -91,17 +79,7 @@ export const useCollectibleSelling = (
         }
       )
       .finally(() => void setIsSelling(false));
-  }, [
-    isSelling,
-    offer,
-    assetSlug,
-    publicKeyHash,
-    networkId,
-    setOperation,
-    setOperationError,
-    formAnalytics,
-    allNetworksRef
-  ]);
+  }, [isSelling, offer, assetSlug, publicKeyHash, rpcUrl, setOperation, setOperationError, formAnalytics]);
 
   return { isSelling, initiateSelling, operation, operationError };
 };

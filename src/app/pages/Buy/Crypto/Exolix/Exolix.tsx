@@ -7,9 +7,8 @@ import ExchangeStep from 'app/pages/Buy/Crypto/Exolix/steps/ExchangeStep';
 import InitialStep from 'app/pages/Buy/Crypto/Exolix/steps/InitialStep';
 import { T, t } from 'lib/i18n';
 import { useStorage } from 'lib/temple/front';
-import { Redirect } from 'lib/woozie';
 import { UNDER_DEVELOPMENT_MSG } from 'temple/evm/under_dev_msg';
-import { useAccountAddressForTezos, useTezosNetwork } from 'temple/front';
+import { useAccountAddressForTezos } from 'temple/front';
 
 import { EXOLIX_CONTACT_LINK } from './config';
 import { ExchangeDataInterface } from './exolix.interface';
@@ -42,8 +41,6 @@ interface BuyCryptoContentProps {
 }
 
 const BuyCryptoContent = memo<BuyCryptoContentProps>(({ publicKeyHash }) => {
-  const { isMainnet } = useTezosNetwork();
-
   const [step, setStep] = useStorage<number>(`topup_step_state_${publicKeyHash}`, 0);
   const [isError, setIsError] = useState(false);
   const [exchangeData, setExchangeData] = useStorage<ExchangeDataInterface | null>(
@@ -56,9 +53,10 @@ const BuyCryptoContent = memo<BuyCryptoContentProps>(({ publicKeyHash }) => {
     3: ExolixSelectors.topupThirdStepSupportButton
   };
 
-  if (!isMainnet) {
-    return <Redirect to={'/'} />;
-  }
+  // TODO: Highlight that feature is only available on Mainnet
+  // if (!isMainnet) {
+  //   return <Redirect to={'/'} />;
+  // }
 
   const steps = (stepWord => [`${stepWord} 1`, `${stepWord} 2`, `${stepWord} 3`, `${stepWord} 4`])(t('step'));
 

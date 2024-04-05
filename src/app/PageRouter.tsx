@@ -74,18 +74,27 @@ const ROUTE_MAP = Woozie.createMap<RouteContext>([
   ],
   ['/loading', (_p, ctx) => (ctx.ready ? <Woozie.Redirect to={'/'} /> : <RootSuspenseFallback />)],
   ['/', (_p, ctx) => (ctx.ready ? <Home /> : <Welcome />)],
-  ['/explore/:assetSlug?', onlyReady(({ assetSlug }) => <Home assetSlug={assetSlug} />)],
+  [
+    '/explore/:tezosChainId?/:assetSlug?',
+    onlyReady(({ tezosChainId, assetSlug }) => <Home tezosChainId={tezosChainId} assetSlug={assetSlug} />)
+  ],
   ['/create-wallet', onlyNotReady(() => <CreateWallet />)],
   ['/create-account', onlyReady(() => <CreateAccount />)],
   ['/import-account/:tabSlug?', onlyReady(({ tabSlug }) => <ImportAccount tabSlug={tabSlug} />)],
   ['/connect-ledger', onlyReady(onlyInFullPage(() => <ConnectLedger />))],
   ['/receive', onlyReady(() => <Receive />)],
-  ['/send/:assetSlug?', onlyReady(({ assetSlug }) => <Send assetSlug={assetSlug} />)],
+  [
+    '/send/:tezosChainId?/:assetSlug?',
+    onlyReady(({ tezosChainId, assetSlug }) => <Send tezosChainId={tezosChainId} assetSlug={assetSlug} />)
+  ],
   ['/swap', onlyReady(() => <Swap />)],
-  ['/delegate', onlyReady(() => <Delegate />)],
+  ['/delegate/:tezosChainId', onlyReady(({ tezosChainId }) => <Delegate tezosChainId={tezosChainId!} />)],
   ['/dapps', onlyReady(() => <DApps />)],
   ['/manage-assets/:assetType?', onlyReady(({ assetType }) => <ManageAssets assetType={assetType!} />)],
-  ['/collectible/:assetSlug?', onlyReady(({ assetSlug }) => <CollectiblePage assetSlug={assetSlug!} />)],
+  [
+    '/collectible/:tezosChainId/:assetSlug?',
+    onlyReady(({ tezosChainId, assetSlug }) => <CollectiblePage tezosChainId={tezosChainId!} assetSlug={assetSlug!} />)
+  ],
   ['/add-asset', onlyReady(onlyInFullPage(() => <AddAsset />))],
   ['/settings/:tabSlug?', onlyReady(({ tabSlug }) => <Settings tabSlug={tabSlug} />)],
   ['/buy', onlyReady(onlyInFullPage(() => <Buy />))],

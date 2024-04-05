@@ -8,25 +8,23 @@ import { ReactComponent as ChevronDownIcon } from 'app/icons/chevron-down.svg';
 import Popper from 'lib/ui/Popper';
 import { getNetworkTitle } from 'temple/front/networks';
 
-import { NetworkSelectController } from './controller';
-import { NetworkDropdown } from './NetworkDropdown';
+import { ChainSelectController } from './controller';
+import { ChainDropdown } from './NetworkDropdown';
 
-// ts-prune-ignore-next
-export { useNetworkSelectController } from './controller';
+export { useChainSelectController } from './controller';
 
 interface Props {
-  controller: NetworkSelectController;
+  controller: ChainSelectController;
 }
 
-// ts-prune-ignore-next
-export const NetworkSelect = memo<Props>(({ controller }) => {
-  const selectedNetwork = controller.network;
+export const ChainSelect = memo<Props>(({ controller }) => {
+  const selectedChain = controller.value;
 
   return (
     <Popper
       placement="bottom-end"
       strategy="fixed"
-      popup={props => <NetworkDropdown controller={controller} {...props} />}
+      popup={props => <ChainDropdown controller={controller} {...props} />}
     >
       {({ ref, opened, toggleOpened }) => (
         <Button
@@ -45,10 +43,10 @@ export const NetworkSelect = memo<Props>(({ controller }) => {
         >
           <div
             className="mr-2 w-3 h-3 border border-primary-white rounded-full shadow-xs"
-            style={{ backgroundColor: selectedNetwork.color }}
+            style={{ backgroundColor: selectedChain.color }}
           />
 
-          <Name style={{ maxWidth: '7rem' }}>{getNetworkTitle(selectedNetwork)}</Name>
+          <Name style={{ maxWidth: '7rem' }}>{getNetworkTitle(selectedChain)}</Name>
 
           <ChevronDownIcon className="ml-1 -mr-1 stroke-current stroke-2" style={{ height: 16, width: 'auto' }} />
         </Button>

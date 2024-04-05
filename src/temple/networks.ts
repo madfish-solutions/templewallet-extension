@@ -3,6 +3,19 @@ import { TempleTezosChainId } from 'lib/temple/types';
 
 import { TempleChainName } from './types';
 
+/** TODO: || UsableRpcBaseForTezos */
+export interface TezosNetworkEssentials {
+  rpcBaseURL: string;
+  chainId: string;
+}
+
+/** TODO: || UsableRpcBaseForEvm */
+// ts-prune-ignore-next
+export interface EvmNetworkEssentials {
+  rpcBaseURL: string;
+  chainId: number;
+}
+
 export interface NetworkBase {
   chain: TempleChainName;
   id: string;

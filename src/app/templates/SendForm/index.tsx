@@ -15,7 +15,8 @@ import { TempleAccountType } from 'lib/temple/types';
 import { useMemoWithCompare, useSafeState } from 'lib/ui/hooks';
 import { HistoryAction, navigate } from 'lib/woozie';
 import { getAccountForTezos } from 'temple/accounts';
-import { useAccount, useTezosNetwork } from 'temple/front';
+import { useAccount } from 'temple/front';
+import { TezosNetworkEssentials } from 'temple/networks';
 import { makeTezosClientId } from 'temple/tezos';
 
 import AddContactModal from './AddContactModal';
@@ -24,19 +25,20 @@ import { SendFormSelectors } from './selectors';
 import { SpinnerSection } from './SpinnerSection';
 
 interface Props {
-  assetSlug?: string | null;
+  network: TezosNetworkEssentials;
   publicKeyHash: string;
+  assetSlug?: string | null;
 }
 
-const SendForm = memo<Props>(({ assetSlug = TEZ_TOKEN_SLUG, publicKeyHash }) => {
+const SendForm = memo<Props>(({ network, publicKeyHash, assetSlug = TEZ_TOKEN_SLUG }) => {
   const currentAccount = useAccount();
 
   const tezosAccount = useMemo(() => getAccountForTezos(currentAccount), [currentAccount]);
   if (!tezosAccount) throw new DeadEndBoundaryError();
 
-  const tezosNetwork = useTezosNetwork();
+  const tezosChainId = network.chainId;
 
-  const tokensSlugs = useEnabledAccountTokensSlugs(publicKeyHash, tezosNetwork.chainId);
+  const tokensSlugs = useEnabledAccountTokensSlugs(publicKeyHash, tezosChainId);
 
   const tokensSortPredicate = useTokensSortPredicate(publicKeyHash);
 
@@ -58,7 +60,7 @@ const SendForm = memo<Props>(({ assetSlug = TEZ_TOKEN_SLUG, publicKeyHash }) => 
 
   const [operation, setOperation] = useSafeState<WalletOperation | null>(
     null,
-    makeTezosClientId(tezosNetwork.rpcBaseURL, tezosAccount.address)
+    makeTezosClientId(network.rpcBaseURL, tezosAccount.address)
   );
   const [addContactModalAddress, setAddContactModalAddress] = useState<string | null>(null);
   const { trackEvent } = useAnalytics();
@@ -66,9 +68,9 @@ const SendForm = memo<Props>(({ assetSlug = TEZ_TOKEN_SLUG, publicKeyHash }) => 
   const handleAssetChange = useCallback(
     (aSlug: string) => {
       trackEvent(SendFormSelectors.assetItemButton, AnalyticsEventCategory.ButtonPress);
-      navigate(`/send/${aSlug}`, HistoryAction.Replace);
+      navigate(`/send/${tezosChainId}/${aSlug}`, HistoryAction.Replace);
     },
-    [trackEvent]
+    [tezosChainId, trackEvent]
   );
 
   const handleAddContactRequested = useCallback(
@@ -93,7 +95,9 @@ const SendForm = memo<Props>(({ assetSlug = TEZ_TOKEN_SLUG, publicKeyHash }) => 
 
   return (
     <>
-      {operation && <OperationStatus typeTitle={t('transaction')} operation={operation} className="mb-8" />}
+      {operation && (
+        <OperationStatus network={network} typeTitle={t('transaction')} operation={operation} className="mb-8" />
+      )}
 
       <AssetSelect
         accountPkh={publicKeyHash}
@@ -109,7 +113,7 @@ const SendForm = memo<Props>(({ assetSlug = TEZ_TOKEN_SLUG, publicKeyHash }) => 
         <Form
           account={tezosAccount}
           ownerAddress={currentAccount.type === TempleAccountType.ManagedKT ? currentAccount.owner : undefined}
-          network={tezosNetwork}
+          network={network}
           assetSlug={selectedAsset}
           setOperation={setOperation}
           onAddContactRequested={handleAddContactRequested}

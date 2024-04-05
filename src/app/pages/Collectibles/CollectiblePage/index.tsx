@@ -29,7 +29,7 @@ import { TempleAccountType } from 'lib/temple/types';
 import { useInterval } from 'lib/ui/hooks';
 import { ImageStacked } from 'lib/ui/ImageStacked';
 import { navigate } from 'lib/woozie';
-import { useAccountForTezos } from 'temple/front';
+import { useTezosChainByChainId, useAccountForTezos } from 'temple/front';
 
 import { useCollectibleSelling } from '../hooks/use-collectible-selling.hook';
 
@@ -41,14 +41,17 @@ import { CollectiblesSelectors } from './selectors';
 const DETAILS_SYNC_INTERVAL = 4 * TEZOS_BLOCK_DURATION;
 
 interface Props {
+  tezosChainId: string;
   assetSlug: string;
 }
 
-const CollectiblePage = memo<Props>(({ assetSlug }) => {
-  const networkId = useLocationSearchParamValue('networkId');
+const CollectiblePage = memo<Props>(({ tezosChainId, assetSlug }) => {
+  const network = useTezosChainByChainId(tezosChainId);
   const account = useAccountForTezos();
 
-  if (!networkId || !account) throw new DeadEndBoundaryError();
+  if (!network || !account) throw new DeadEndBoundaryError();
+
+  const rpcUrl = network.rpcBaseURL;
 
   const metadata = useCollectibleMetadataSelector(assetSlug); // Loaded only, if shown in grid for now
   const details = useCollectibleDetailsSelector(assetSlug);
@@ -93,9 +96,12 @@ const CollectiblePage = memo<Props>(({ assetSlug }) => {
     initiateSelling: onSellButtonClick,
     operation,
     operationError
-  } = useCollectibleSelling(assetSlug, publicKeyHash, networkId, takableOffer);
+  } = useCollectibleSelling(assetSlug, publicKeyHash, rpcUrl, takableOffer);
 
-  const onSendButtonClick = useCallback(() => navigate(`/send/${assetSlug}`), [assetSlug]);
+  const onSendButtonClick = useCallback(
+    () => navigate(`/send/${tezosChainId}/${assetSlug}`),
+    [tezosChainId, assetSlug]
+  );
 
   const dispatch = useDispatch();
   useInterval(() => void dispatch(loadCollectiblesDetailsActions.submit([assetSlug])), DETAILS_SYNC_INTERVAL, [
@@ -162,7 +168,9 @@ const CollectiblePage = memo<Props>(({ assetSlug }) => {
             className="mb-4"
           />
         ) : (
-          operation && <OperationStatus typeTitle={t('transaction')} operation={operation} className="mb-4" />
+          operation && (
+            <OperationStatus network={network} typeTitle={t('transaction')} operation={operation} className="mb-4" />
+          )
         )}
 
         <div
@@ -247,7 +255,7 @@ const CollectiblePage = memo<Props>(({ assetSlug }) => {
               {activeTabName === 'attributes' ? (
                 <AttributesItems details={details} />
               ) : (
-                <PropertiesItems assetSlug={assetSlug} accountPkh={publicKeyHash} details={details} />
+                <PropertiesItems network={network} assetSlug={assetSlug} accountPkh={publicKeyHash} details={details} />
               )}
             </div>
           </>

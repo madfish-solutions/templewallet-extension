@@ -25,6 +25,7 @@ import { mutezToTz } from 'lib/temple/helpers';
 import styles from './BakingHistoryItem.module.css';
 
 type BakingHistoryItemProps = {
+  tezosChainId: string;
   content: TzktRewardsEntry;
   currentCycle?: number;
 } & Record<
@@ -36,6 +37,7 @@ type BakingHistoryItemProps = {
 >;
 
 const BakingHistoryItem: FC<BakingHistoryItemProps> = ({
+  tezosChainId,
   content,
   currentCycle,
   fallbackRewardPerEndorsement,
@@ -58,7 +60,7 @@ const BakingHistoryItem: FC<BakingHistoryItemProps> = ({
     missedEndorsements
   } = content;
 
-  const { data: bakerDetails } = useKnownBaker(baker.address);
+  const { data: bakerDetails } = useKnownBaker(baker.address, tezosChainId);
   const [showDetails, setShowDetails] = useState(false);
 
   const { isDcpNetwork, symbol } = useGasToken();
@@ -348,7 +350,13 @@ const BakingHistoryItem: FC<BakingHistoryItemProps> = ({
           <div className="flex">
             <HashChip bgShade={200} rounded="base" className="mr-1" hash={baker.address} small textShade={700} />
 
-            <OpenInExplorerChip hash={baker.address} type="account" small alternativeDesign />
+            <OpenInExplorerChip
+              tezosChainId={tezosChainId}
+              hash={baker.address}
+              type="account"
+              small
+              alternativeDesign
+            />
           </div>
 
           {statsEntriesProps.map(props => (

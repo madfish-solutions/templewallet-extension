@@ -19,14 +19,15 @@ const INITIAL_NUMBER = 30;
 const LOAD_STEP = 30;
 
 interface Props {
+  tezosChainId: string;
   assetSlug?: string;
 }
 
-export const ActivityTab = memo<Props>(({ assetSlug }) => {
+export const ActivityTab = memo<Props>(({ tezosChainId, assetSlug }) => {
   const accountAddress = useAccountAddressForTezos();
 
   return accountAddress ? (
-    <ActivityComponent accountAddress={accountAddress} assetSlug={assetSlug} />
+    <ActivityComponent tezosChainId={tezosChainId} accountAddress={accountAddress} assetSlug={assetSlug} />
   ) : (
     <div className="w-full max-w-sm mx-auto py-3 text-center">{UNDER_DEVELOPMENT_MSG}</div>
   );
@@ -36,7 +37,7 @@ interface ActivityComponentProps extends Props {
   accountAddress: string;
 }
 
-const ActivityComponent: FC<ActivityComponentProps> = ({ accountAddress, assetSlug }) => {
+const ActivityComponent: FC<ActivityComponentProps> = ({ tezosChainId, accountAddress, assetSlug }) => {
   const {
     loading,
     reachedTheEnd,
@@ -101,7 +102,12 @@ const ActivityComponent: FC<ActivityComponentProps> = ({ accountAddress, assetSl
           onScroll={onScroll}
         >
           {activities.map(activity => (
-            <ActivityItem key={activity.hash} address={accountAddress} activity={activity} />
+            <ActivityItem
+              key={activity.hash}
+              activity={activity}
+              tezosChainId={tezosChainId}
+              address={accountAddress}
+            />
           ))}
         </InfiniteScroll>
       </div>

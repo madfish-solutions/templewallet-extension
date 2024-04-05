@@ -13,17 +13,15 @@ import {
   fetchUUSDCApr$,
   fetchYOUApr$
 } from 'app/store/d-apps/utils';
-import { useTezosNetwork } from 'temple/front';
+import { useTezosMainnetChain } from 'temple/front';
 
 export const useTokensApyLoading = () => {
-  const { rpcBaseURL, isMainnet } = useTezosNetwork();
+  const { rpcBaseURL } = useTezosMainnetChain();
   const usdToTokenRates = useUsdToTokenRatesSelector();
 
   const [tokensApy, setTokensApy] = useState({});
 
   useEffect(() => {
-    if (isMainnet === false) return;
-
     const subscription = forkJoin([
       fetchTzBtcApy$(),
       fetchKUSDApy$(),
@@ -36,7 +34,7 @@ export const useTokensApyLoading = () => {
     });
 
     return () => subscription.unsubscribe();
-  }, [usdToTokenRates, isMainnet, rpcBaseURL]);
+  }, [usdToTokenRates, rpcBaseURL]);
 
   useEffect(() => {
     dispatch(loadTokensApyActions.success(tokensApy));

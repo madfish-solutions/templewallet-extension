@@ -13,21 +13,22 @@ import { Activity, buildOperStack, buildMoneyDiffs } from 'lib/temple/activity-n
 
 interface Props {
   activity: Activity;
+  tezosChainId: string;
   address: string;
 }
 
-export const ActivityItem = memo<Props>(({ activity, address }) => {
+export const ActivityItem = memo<Props>(({ tezosChainId, activity, address }) => {
   const { hash, addedAt, status } = activity;
 
   const operStack = useMemo(() => buildOperStack(activity, address), [activity, address]);
   const moneyDiffs = useMemo(() => buildMoneyDiffs(activity), [activity]);
 
   return (
-    <div className={classNames('my-3')}>
+    <div className="my-3">
       <div className="w-full flex items-center">
         <HashChip hash={hash} firstCharsCount={10} lastCharsCount={7} small className="mr-2" />
 
-        <OpenInExplorerChip hash={hash} className="mr-2" small />
+        <OpenInExplorerChip tezosChainId={tezosChainId} hash={hash} className="mr-2" small />
 
         <div className={classNames('flex-1', 'h-px', 'bg-gray-200')} />
       </div>

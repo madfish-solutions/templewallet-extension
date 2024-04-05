@@ -1,7 +1,6 @@
 import { useMemo } from 'react';
 
 import { isKnownChainId, TempleTezosChainId } from 'lib/temple/types';
-import { useTezosNetwork } from 'temple/front';
 
 import { useStorage } from './storage';
 
@@ -119,8 +118,7 @@ export function useBlockExplorer() {
   };
 }
 
-export function useExplorerBaseUrls(): Partial<BaseUrls> {
-  const { chainId } = useTezosNetwork();
+export function useExplorerBaseUrls(chainId: string): Partial<BaseUrls> {
   const { explorer } = useBlockExplorer();
 
   return useMemo(() => {

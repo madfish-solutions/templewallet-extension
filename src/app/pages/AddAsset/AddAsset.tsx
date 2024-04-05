@@ -13,7 +13,7 @@ import { dispatch } from 'app/store';
 import { putTokensAsIsAction, putCollectiblesAsIsAction } from 'app/store/assets/actions';
 import { putCollectiblesMetadataAction } from 'app/store/collectibles-metadata/actions';
 import { putTokensMetadataAction } from 'app/store/tokens-metadata/actions';
-import { useNetworkSelectController, NetworkSelect } from 'app/templates/NetworkSelect';
+import { useChainSelectController, ChainSelect } from 'app/templates/ChainSelect';
 import { useFormAnalytics } from 'lib/analytics';
 import { TokenMetadataResponse } from 'lib/apis/temple';
 import { toTokenSlug } from 'lib/assets';
@@ -34,17 +34,16 @@ import { navigate } from 'lib/woozie';
 import { UNDER_DEVELOPMENT_MSG } from 'temple/evm/under_dev_msg';
 import { useAccountAddressForTezos } from 'temple/front';
 import { validateTezosContractAddress } from 'temple/front/tezos';
-import { StoredTezosNetwork } from 'temple/networks';
+import { TezosNetworkEssentials } from 'temple/networks';
 import { getReadOnlyTezos } from 'temple/tezos';
-import { TempleChainName } from 'temple/types';
 
 import { AddAssetSelectors } from './AddAsset.selectors';
 
 const AddAsset = memo(() => {
   const accountTezosAddress = useAccountAddressForTezos();
 
-  const networkSelectController = useNetworkSelectController();
-  const network = networkSelectController.network;
+  const chainSelectController = useChainSelectController();
+  const network = chainSelectController.value;
 
   return (
     <PageLayout
@@ -61,12 +60,12 @@ const AddAsset = memo(() => {
             <T id="network" />:
           </span>
           <div className="flex-1" />
-          <NetworkSelect controller={networkSelectController} />
+          <ChainSelect controller={chainSelectController} />
         </div>
 
         <Divider className="mt-4 mb-8" />
 
-        {accountTezosAddress && network.chain === TempleChainName.Tezos ? (
+        {accountTezosAddress && network.chain === 'tezos' ? (
           <Form accountPkh={accountTezosAddress} network={network} />
         ) : (
           <div className="text-center">{UNDER_DEVELOPMENT_MSG}</div>
@@ -105,7 +104,7 @@ class ContractNotFoundError extends Error {}
 
 interface FormProps {
   accountPkh: string;
-  network: StoredTezosNetwork;
+  network: TezosNetworkEssentials;
 }
 
 const Form = memo<FormProps>(({ accountPkh, network }) => {
@@ -257,7 +256,7 @@ const Form = memo<FormProps>(({ accountPkh, network }) => {
         formAnalytics.trackSubmitSuccess();
 
         navigate({
-          pathname: `/explore/${tokenSlug}`,
+          pathname: `/explore/${chainId}/${tokenSlug}`,
           search: 'after_token_added=true'
         });
       } catch (err: any) {

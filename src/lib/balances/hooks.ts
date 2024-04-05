@@ -41,6 +41,9 @@ export const useGetCurrentAccountTokenOrGasBalanceWithDecimals = (publicKeyHash:
   );
 };
 
+/** Rename: useTezosAssetRawBalance.
+ * TODO: Require rpcUrl
+ */
 export function useRawBalance(
   assetSlug: string,
   address: string,
@@ -123,7 +126,9 @@ export function useRawBalance(
   };
 }
 
-/** useTezosBalance */
+/** Rename: useTezosAssetBalance.
+ * TODO: Require rpcUrl
+ */
 export function useBalance(assetSlug: string, address: string, networkRpc?: string) {
   const { value: rawValue, isSyncing, error, refresh } = useRawBalance(assetSlug, address, networkRpc);
   const assetMetadata = useAssetMetadata(assetSlug);

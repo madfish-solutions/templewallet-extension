@@ -23,7 +23,7 @@ import { useLocalStorage } from 'lib/ui/local-storage';
 import Popper, { PopperRenderProps } from 'lib/ui/Popper';
 import { Link, navigate } from 'lib/woozie';
 import { UNDER_DEVELOPMENT_MSG } from 'temple/evm/under_dev_msg';
-import { useAccountAddressForTezos, useTezosNetwork } from 'temple/front';
+import { useAccountAddressForTezos, useTezosMainnetChain } from 'temple/front';
 
 import { HomeSelectors } from '../../Home.selectors';
 import { AssetsSelectors } from '../Assets.selectors';
@@ -50,7 +50,8 @@ interface TezosTokensTabProps {
 }
 
 const TezosTokensTab: FC<TezosTokensTabProps> = ({ publicKeyHash }) => {
-  const { chainId } = useTezosNetwork();
+  const network = useTezosMainnetChain();
+  const chainId = network.chainId;
 
   const { popup } = useAppEnv();
 
@@ -90,6 +91,7 @@ const TezosTokensTab: FC<TezosTokensTabProps> = ({ publicKeyHash }) => {
   const tokensView = useMemo<JSX.Element[]>(() => {
     const tokensJsx = filteredAssets.map(assetSlug => (
       <ListItem
+        network={network}
         key={assetSlug}
         publicKeyHash={publicKeyHash}
         assetSlug={assetSlug}
@@ -133,7 +135,7 @@ const TezosTokensTab: FC<TezosTokensTabProps> = ({ publicKeyHash }) => {
     const handleKeyup = (evt: KeyboardEvent) => {
       switch (evt.key) {
         case 'Enter':
-          navigate(toExploreAssetLink(activeAssetSlug));
+          navigate(toExploreAssetLink(chainId, activeAssetSlug));
           break;
 
         case 'ArrowDown':
@@ -148,7 +150,7 @@ const TezosTokensTab: FC<TezosTokensTabProps> = ({ publicKeyHash }) => {
 
     window.addEventListener('keyup', handleKeyup);
     return () => window.removeEventListener('keyup', handleKeyup);
-  }, [activeAssetSlug, setActiveIndex]);
+  }, [activeAssetSlug, chainId, setActiveIndex]);
 
   return (
     <div className="w-full max-w-sm mx-auto">

@@ -44,7 +44,6 @@ export function useRelevantAccounts(tezosChainId: string) {
   );
 }
 
-// ts-prune-ignore-next
 export function useNonContractAccounts() {
   const allAccounts = useAllAccounts();
 

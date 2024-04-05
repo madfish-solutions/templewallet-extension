@@ -1,5 +1,7 @@
 ## TODO:
 
+- Forbid WebPack to include React
+- Revisit `loadTezosChainId` usage
 - `settings.customNetworks` => `customNetworks: { tezos: {}[], evm: {}[] }`
 - Unit tests for EVM accounts in the Vault
 - TempleContact. See: `useFilteredContacts()`

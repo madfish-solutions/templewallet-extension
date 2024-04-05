@@ -59,7 +59,7 @@ import {
   useTezosAddressByDomainName,
   useTezosDomainsClient
 } from 'temple/front/tezos';
-import { StoredTezosNetwork } from 'temple/networks';
+import { TezosNetworkEssentials } from 'temple/networks';
 
 import ContactsDropdown, { ContactsDropdownProps } from './ContactsDropdown';
 import { FeeSection } from './FeeSection';
@@ -80,7 +80,7 @@ interface Props {
   account: AccountForTezos;
   /** Present for `account.type === TempleAccountType.ManagedKT` */
   ownerAddress?: string;
-  network: StoredTezosNetwork;
+  network: TezosNetworkEssentials;
   assetSlug: string;
   setOperation: Dispatch<any>;
   onAddContactRequested: (address: string) => void;

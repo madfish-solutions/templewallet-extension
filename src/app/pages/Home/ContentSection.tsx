@@ -12,6 +12,7 @@ import AssetInfo from 'app/templates/AssetInfo';
 import { TabsBar } from 'app/templates/TabBar';
 import { isTezAsset } from 'lib/assets';
 import { t, TID } from 'lib/i18n';
+import { useTezosMainnetChain } from 'temple/front';
 
 import { CollectiblesTab } from '../Collectibles/CollectiblesTab';
 
@@ -37,6 +38,9 @@ interface TabData {
 export const ContentSection = memo<Props>(({ assetSlug, className }) => {
   const { fullPage } = useAppEnv();
   const tabSlug = useLocationSearchParamValue('tab');
+
+  // TODO: Differentiate on asset view of other chains
+  const chain = useTezosMainnetChain();
 
   const tabBarElemRef = useRef<HTMLDivElement>(null);
 
@@ -69,7 +73,7 @@ export const ContentSection = memo<Props>(({ assetSlug, className }) => {
         {
           name: 'activity',
           titleI18nKey: 'activity',
-          Component: ActivityTab,
+          Component: () => <ActivityTab tezosChainId={chain.chainId} />,
           testID: HomeSelectors.activityTab,
           whileMessageI18nKey: 'operationHistoryWhileMessage'
         }
@@ -79,7 +83,7 @@ export const ContentSection = memo<Props>(({ assetSlug, className }) => {
     const activity: TabData = {
       name: 'activity',
       titleI18nKey: 'activity',
-      Component: () => <ActivityTab assetSlug={assetSlug} />,
+      Component: () => <ActivityTab tezosChainId={chain.chainId} assetSlug={assetSlug} />,
       testID: HomeSelectors.activityTab
     };
 
@@ -89,7 +93,7 @@ export const ContentSection = memo<Props>(({ assetSlug, className }) => {
         {
           name: 'delegation',
           titleI18nKey: 'delegate',
-          Component: BakingSection,
+          Component: () => <BakingSection network={chain} />,
           testID: HomeSelectors.delegationTab,
           whileMessageI18nKey: 'delegationInfoWhileMessage'
         }
@@ -105,7 +109,7 @@ export const ContentSection = memo<Props>(({ assetSlug, className }) => {
         testID: HomeSelectors.infoTab
       }
     ];
-  }, [assetSlug, scrollToTheTabsBar]);
+  }, [assetSlug, chain, scrollToTheTabsBar]);
 
   const { name, Component, whileMessageI18nKey } = useMemo(() => {
     const tab = tabSlug ? tabs.find(currentTab => currentTab.name === tabSlug) : null;

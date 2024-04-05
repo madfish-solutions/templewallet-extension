@@ -10,17 +10,21 @@ import { T } from 'lib/i18n';
 import { TempleAccountType } from 'lib/temple/types';
 import { ZERO } from 'lib/utils/numbers';
 import { getAccountForTezos } from 'temple/accounts';
-import { useAccount, useTezosNetwork } from 'temple/front';
+import { useAccount, useTezosChainByChainId } from 'temple/front';
 
-const Delegate = memo(() => {
+interface Props {
+  tezosChainId: string;
+}
+
+const Delegate = memo<Props>(({ tezosChainId }) => {
   const currentAccount = useAccount();
 
   const account = useMemo(() => getAccountForTezos(currentAccount), [currentAccount]);
-  if (!account) throw new DeadEndBoundaryError();
+  const chain = useTezosChainByChainId(tezosChainId);
 
-  const network = useTezosNetwork();
+  if (!chain || !account) throw new DeadEndBoundaryError();
 
-  const gasBalance = useBalance(TEZ_TOKEN_SLUG, account.address);
+  const gasBalance = useBalance(TEZ_TOKEN_SLUG, account.address, chain.rpcBaseURL);
 
   const isLoading = !gasBalance.value && gasBalance.isSyncing;
 
@@ -42,8 +46,8 @@ const Delegate = memo(() => {
         <div className="py-4">
           <div className="w-full max-w-sm mx-auto">
             <DelegateForm
+              network={chain}
               account={account}
-              network={network}
               ownerAddress={ownerAddress}
               balance={gasBalance.value ?? ZERO}
             />

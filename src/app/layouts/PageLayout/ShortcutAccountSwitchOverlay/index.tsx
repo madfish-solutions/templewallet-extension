@@ -14,8 +14,8 @@ import { searchHotkey } from 'lib/constants';
 import { T, t } from 'lib/i18n';
 import Portal from 'lib/ui/Portal';
 import { HistoryAction, navigate } from 'lib/woozie';
-import { useCurrentAccountId, useTezosNetwork, useRelevantAccounts, useChangeAccount } from 'temple/front';
-import { searchAndFilterAccounts } from 'temple/front/accounts';
+import { useCurrentAccountId, useChangeAccount } from 'temple/front';
+import { searchAndFilterAccounts, useNonContractAccounts } from 'temple/front/accounts';
 
 import { AccountItem } from './AccountItem';
 
@@ -27,9 +27,8 @@ export const ShortcutAccountSwitchOverlay = memo(() => {
   useModalScrollLock(opened, accountSwitchRef);
   useOnClickOutside(accountSwitchRef, () => setOpened(false));
 
-  const { chainId } = useTezosNetwork();
   const currentAccountId = useCurrentAccountId();
-  const allAccounts = useRelevantAccounts(chainId);
+  const allAccounts = useNonContractAccounts();
   const setAccountId = useChangeAccount();
   const { assetName: gasTokenName } = useGasToken();
 

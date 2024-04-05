@@ -30,7 +30,8 @@ import { useDelegate } from 'lib/temple/front';
 import { TempleAccountType } from 'lib/temple/types';
 import useTippy from 'lib/ui/useTippy';
 import { Link } from 'lib/woozie';
-import { useAccountForTezos, useTezosNetwork } from 'temple/front';
+import { useAccountForTezos } from 'temple/front';
+import { TezosNetworkEssentials } from 'temple/networks';
 
 import styles from './BakingSection.module.css';
 import { BakingSectionSelectors } from './BakingSection.selectors';
@@ -71,12 +72,17 @@ const links = [
   }
 ];
 
-const BakingSection = memo(() => {
+interface Props {
+  network: TezosNetworkEssentials;
+}
+
+const BakingSection = memo<Props>(({ network }) => {
   const account = useAccountForTezos();
   if (!account) throw new DeadEndBoundaryError();
 
-  const { chainId } = useTezosNetwork();
-  const { data: myBakerPkh } = useDelegate(account.address, true, false);
+  const tezosChainId = network.chainId;
+
+  const { data: myBakerPkh } = useDelegate(account.address, network, true, false);
   const canDelegate = account.type !== TempleAccountType.WatchOnly;
   const { isDcpNetwork } = useGasToken();
   const testGroupName = useUserTestingGroupNameSelector();
@@ -105,7 +111,7 @@ const BakingSection = memo(() => {
     []
   );
   const { data: bakingHistory, isValidating: loadingBakingHistory } = useRetryableSWR(
-    ['baking-history', account.address, myBakerPkh, chainId],
+    ['baking-history', account.address, myBakerPkh, tezosChainId],
     getBakingHistory,
     { suspense: true, revalidateOnFocus: false, revalidateOnReconnect: false }
   );
@@ -225,12 +231,18 @@ const BakingSection = memo(() => {
                 </span>
 
                 <DelegateLink
+                  tezosChainId={tezosChainId}
                   canDelegate={canDelegate}
                   delegateButtonRef={delegateButtonRef}
                   delegateButtonProps={commonSmallDelegateButtonProps}
                 />
               </div>
-              <BakerBanner accountPkh={account.address} displayAddress bakerPkh={myBakerPkh} />
+              <BakerBanner
+                tezosChainId={tezosChainId}
+                accountPkh={account.address}
+                displayAddress
+                bakerPkh={myBakerPkh}
+              />
             </>
           ) : (
             <div className="flex flex-col items-center text-black">
@@ -278,6 +290,7 @@ const BakingSection = memo(() => {
                 </>
               )}
               <DelegateLink
+                tezosChainId={tezosChainId}
                 canDelegate={canDelegate}
                 delegateButtonRef={delegateButtonRef}
                 delegateButtonProps={commonDelegateButtonProps}
@@ -294,6 +307,7 @@ const BakingSection = memo(() => {
               <p className="text-gray-600 leading-tight mt-4">History:</p>
               {bakingHistory.map((historyItem, index) => (
                 <BakingHistoryItem
+                  tezosChainId={tezosChainId}
                   currentCycle={currentCycle}
                   key={`${historyItem.cycle},${historyItem.baker.address}`}
                   content={historyItem}
@@ -309,6 +323,8 @@ const BakingSection = memo(() => {
       </div>
     ),
     [
+      tezosChainId,
+      account.address,
       currentCycle,
       myBakerPkh,
       canDelegate,
@@ -328,6 +344,7 @@ const BakingSection = memo(() => {
 export default BakingSection;
 
 interface DelegateLinkProps {
+  tezosChainId: string;
   canDelegate: boolean;
   delegateButtonRef: React.RefObject<HTMLButtonElement>;
   delegateButtonProps: {
@@ -337,9 +354,14 @@ interface DelegateLinkProps {
   };
 }
 
-const DelegateLink: React.FC<DelegateLinkProps> = ({ canDelegate, delegateButtonRef, delegateButtonProps }) =>
+const DelegateLink: React.FC<DelegateLinkProps> = ({
+  tezosChainId,
+  canDelegate,
+  delegateButtonRef,
+  delegateButtonProps
+}) =>
   canDelegate ? (
-    <Link to="/delegate" type="button" {...delegateButtonProps} />
+    <Link to={`/delegate/${tezosChainId}`} type="button" {...delegateButtonProps} />
   ) : (
     <Button ref={delegateButtonRef} {...delegateButtonProps} />
   );

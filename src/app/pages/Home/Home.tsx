@@ -21,10 +21,11 @@ import { ScamTokenAlert } from './OtherComponents/ScamTokenAlert';
 import { TokenPageSelectors } from './OtherComponents/TokenPage.selectors';
 
 interface Props {
+  tezosChainId?: string | null;
   assetSlug?: string | null;
 }
 
-const Home = memo<Props>(({ assetSlug }) => {
+const Home = memo<Props>(({ tezosChainId, assetSlug }) => {
   const { fullPage, registerBackHandler } = useAppEnv();
   const { onboardingCompleted } = useOnboardingProgress();
   const { search } = useLocation();
@@ -73,7 +74,7 @@ const Home = memo<Props>(({ assetSlug }) => {
       <div className="flex flex-col items-center mb-6">
         <MainBanner assetSlug={assetSlug} />
 
-        <ActionButtonsBar assetSlug={assetSlug} />
+        <ActionButtonsBar tezosChainId={tezosChainId} assetSlug={assetSlug} />
       </div>
 
       <ContentSection assetSlug={assetSlug} />

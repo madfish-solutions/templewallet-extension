@@ -1,19 +1,12 @@
 import React, { memo, useMemo } from 'react';
 
-import { ChainIds } from '@taquito/taquito';
 import clsx from 'clsx';
 
 import { ReactComponent as AliceBobIcon } from 'app/pages/Buy/assets/AliceBob.svg';
-import { useNetworkSelectController, NetworkSelect } from 'app/templates/NetworkSelect';
 import { T } from 'lib/i18n/react';
 import { Link } from 'lib/woozie/Link';
 
 export const Debit = memo(() => {
-  const networkSelectController = useNetworkSelectController(true);
-  const network = networkSelectController.network;
-
-  const disabled = network.chainId !== ChainIds.MAINNET;
-
   const buttonClassName = useMemo(
     () =>
       clsx(
@@ -23,10 +16,9 @@ export const Debit = memo(() => {
         'flex items-center justify-center',
         'shadow-sm hover:shadow focus:shadow',
         'text-base font-medium',
-        'transition ease-in-out duration-300',
-        disabled ? 'opacity-25 pointer-events-none cursor-default' : 'cursor-pointer'
+        'transition ease-in-out duration-300'
       ),
-    [disabled]
+    []
   );
 
   return (
@@ -37,13 +29,11 @@ export const Debit = memo(() => {
         <T id="sellWithAliceBob" />
       </div>
 
-      <div className="text-center px-2 mt-2 mb-4 mx-auto text-gray-700">
+      <div className="text-center px-2 mt-2 mx-auto text-gray-700">
         <T id="sellWithAliceBobDescription" />
       </div>
 
-      <NetworkSelect controller={networkSelectController} />
-
-      <Link className={buttonClassName} to={`/withdraw/debit/alice-bob?networkId=${network.id}`}>
+      <Link className={buttonClassName} to={`/withdraw/debit/alice-bob`}>
         <T id="continue" />
       </Link>
     </div>

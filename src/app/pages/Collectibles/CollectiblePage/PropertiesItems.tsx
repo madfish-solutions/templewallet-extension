@@ -8,19 +8,21 @@ import { fromFa2TokenSlug } from 'lib/assets/utils';
 import { useBalance } from 'lib/balances';
 import { formatDate } from 'lib/i18n';
 import { useExplorerBaseUrls } from 'lib/temple/front';
+import { TezosNetworkEssentials } from 'temple/networks';
 
 interface PropertiesItemsProps {
+  network: TezosNetworkEssentials;
   assetSlug: string;
   accountPkh: string;
   details?: CollectibleDetails | null;
 }
 
-export const PropertiesItems = memo<PropertiesItemsProps>(({ assetSlug, accountPkh, details }) => {
+export const PropertiesItems = memo<PropertiesItemsProps>(({ network, assetSlug, accountPkh, details }) => {
   const { contract, id } = fromFa2TokenSlug(assetSlug);
 
-  const { value: balance } = useBalance(assetSlug, accountPkh);
+  const { value: balance } = useBalance(assetSlug, accountPkh, network.rpcBaseURL);
 
-  const { transaction: explorerBaseUrl } = useExplorerBaseUrls();
+  const { transaction: explorerBaseUrl } = useExplorerBaseUrls(network.chainId);
   const exploreContractUrl = useMemo(
     () => (explorerBaseUrl ? new URL(contract, explorerBaseUrl).href : null),
     [explorerBaseUrl, contract]

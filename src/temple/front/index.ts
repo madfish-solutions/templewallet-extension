@@ -16,6 +16,9 @@ export {
   useSetAccountId as useChangeAccount
 } from 'lib/temple/front/ready';
 
+export type { SomeChain, TezosChain, EvmChain } from './chains';
+export { useAllTezosChains, useAllEvmChains, useTezosChainByChainId, useTezosMainnetChain } from './chains';
+
 export {
   getNetworkTitle,
   useTezosNetworkRpcUrl,
@@ -24,6 +27,6 @@ export {
   useTempleNetworksActions
 } from './networks';
 
-export { useRelevantAccounts } from './accounts';
+export { searchAndFilterAccounts, useNonContractAccounts, useRelevantAccounts } from './accounts';
 
 export { getTezosToolkitWithSigner, useOnTezosBlock, useTezosBlockLevel } from './tezos';

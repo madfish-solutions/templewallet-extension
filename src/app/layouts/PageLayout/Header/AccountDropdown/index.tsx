@@ -21,8 +21,7 @@ import { T, t } from 'lib/i18n';
 import { useTempleClient } from 'lib/temple/front';
 import { PopperRenderProps } from 'lib/ui/Popper';
 import { HistoryAction, navigate } from 'lib/woozie';
-import { useCurrentAccountId, useTezosNetwork, useRelevantAccounts, useChangeAccount } from 'temple/front';
-import { searchAndFilterAccounts } from 'temple/front/accounts';
+import { searchAndFilterAccounts, useCurrentAccountId, useChangeAccount, useNonContractAccounts } from 'temple/front';
 
 import { AccountItem } from './AccountItem';
 import { ActionButtonProps, ActionButton } from './ActionButton';
@@ -35,8 +34,7 @@ interface TDropdownAction extends ActionButtonProps {
 const AccountDropdown = memo<PopperRenderProps>(({ opened, setOpened }) => {
   const appEnv = useAppEnv();
   const { lock } = useTempleClient();
-  const { chainId } = useTezosNetwork();
-  const allAccounts = useRelevantAccounts(chainId);
+  const allAccounts = useNonContractAccounts();
   const currentAccountId = useCurrentAccountId();
   const setAccountId = useChangeAccount();
   const { assetName: gasTokenName } = useGasToken();

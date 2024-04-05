@@ -54,7 +54,7 @@ interface TezosCollectiblesTabProps extends Props {
 
 const TezosCollectiblesTab = memo<TezosCollectiblesTabProps>(({ publicKeyHash, scrollToTheTabsBar }) => {
   const { popup } = useAppEnv();
-  const { chainId } = useTezosNetwork();
+  const { chainId: tezosChainId } = useTezosNetwork();
 
   const [areDetailsShown, setDetailsShown] = useLocalStorage(LOCAL_STORAGE_SHOW_INFO_TOGGLE_KEY, false);
   const toggleDetailsShown = useCallback(() => void setDetailsShown(val => !val), [setDetailsShown]);
@@ -88,7 +88,7 @@ const TezosCollectiblesTab = memo<TezosCollectiblesTabProps>(({ publicKeyHash, s
             key={slug}
             assetSlug={slug}
             accountPkh={publicKeyHash}
-            chainId={chainId}
+            tezosChainId={tezosChainId}
             adultBlur={adultBlur}
             areDetailsShown={areDetailsShown}
             hideWithoutMeta={isInSearchMode}
@@ -96,7 +96,7 @@ const TezosCollectiblesTab = memo<TezosCollectiblesTabProps>(({ publicKeyHash, s
         ))}
       </div>
     ),
-    [displayedSlugs, publicKeyHash, chainId, adultBlur, areDetailsShown, isInSearchMode]
+    [displayedSlugs, publicKeyHash, tezosChainId, adultBlur, areDetailsShown, isInSearchMode]
   );
 
   const renderManageDropdown = useCallback<PopperPopup>(
