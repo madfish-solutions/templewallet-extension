@@ -4,7 +4,7 @@ import classNames from 'clsx';
 
 import { AssetIcon } from 'app/templates/AssetIcon';
 import { setAnotherSelector } from 'lib/analytics';
-import { useBalance } from 'lib/balances/hooks';
+import { useTezosAssetBalance } from 'lib/balances/hooks';
 import { getAssetName, getAssetSymbol } from 'lib/metadata';
 import { ZERO } from 'lib/utils/numbers';
 import { Link } from 'lib/woozie';
@@ -26,7 +26,7 @@ interface Props {
 }
 
 export const ListItem = memo<Props>(({ network, publicKeyHash, assetSlug, active, scam }) => {
-  const { value: balance = ZERO, assetMetadata: metadata } = useBalance(assetSlug, publicKeyHash, network);
+  const { value: balance = ZERO, assetMetadata: metadata } = useTezosAssetBalance(assetSlug, publicKeyHash, network);
 
   const classNameMemo = useMemo(
     () =>

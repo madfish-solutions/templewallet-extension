@@ -28,12 +28,12 @@ import { useTypedSWR } from 'lib/swr';
 import { loadContract } from 'lib/temple/contract';
 import { Baker, useKnownBaker, useKnownBakers, validateDelegate } from 'lib/temple/front';
 import { mutezToTz, tzToMutez } from 'lib/temple/helpers';
+import { TEZOS_MAINNET_CHAIN_ID } from 'lib/temple/types';
 import { isValidTezosAddress, isTezosContractAddress, tezosManagerKeyHasManager } from 'lib/tezos';
 import { useSafeState } from 'lib/ui/hooks';
 import { delay, fifoResolve } from 'lib/utils';
 import { Link, useLocation } from 'lib/woozie';
 import { AccountForTezos } from 'temple/accounts';
-import { useTezosNetwork } from 'temple/front';
 import {
   isTezosDomainsNameValid,
   getTezosToolkitWithSigner,
@@ -500,7 +500,7 @@ interface BakerBannerComponentProps {
 
 const BakerBannerComponent = React.memo<BakerBannerComponentProps>(
   ({ tezosChainId, accountPkh, balanceNum, tzError, baker }) => {
-    const { isMainnet } = useTezosNetwork();
+    const isMainnet = tezosChainId === TEZOS_MAINNET_CHAIN_ID;
     const { symbol } = useGasToken();
 
     return baker ? (

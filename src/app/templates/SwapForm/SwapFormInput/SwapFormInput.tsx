@@ -13,7 +13,7 @@ import InFiat from 'app/templates/InFiat';
 import { InputContainer } from 'app/templates/InputContainer/InputContainer';
 import { setTestID, useFormAnalytics } from 'lib/analytics';
 import { TEZ_TOKEN_SLUG } from 'lib/assets';
-import { useBalance } from 'lib/balances';
+import { useTezosAssetBalance } from 'lib/balances';
 import { T, t, toLocalFormat } from 'lib/i18n';
 import {
   EMPTY_BASE_METADATA,
@@ -58,7 +58,7 @@ export const SwapFormInput: FC<SwapFormInputProps> = ({
   );
   const getTokenMetadata = useGetAssetMetadata(network.chainId);
 
-  const { value: balance } = useBalance(assetSlugWithFallback, publicKeyHash, network);
+  const { value: balance } = useTezosAssetBalance(assetSlugWithFallback, publicKeyHash, network);
 
   const { isLoading, route3tokensSlugs } = useAvailableRoute3TokensSlugs();
   const { filteredAssets, searchValue, setSearchValue, setTokenId } = useTokensListingLogic(
@@ -69,7 +69,7 @@ export const SwapFormInput: FC<SwapFormInputProps> = ({
     LEADING_ASSETS
   );
 
-  useTokensMetadataPresenceCheck(route3tokensSlugs);
+  useTokensMetadataPresenceCheck(network, route3tokensSlugs);
 
   const maxAmount = useMemo(() => {
     if (!assetSlug) {
@@ -137,7 +137,7 @@ export const SwapFormInput: FC<SwapFormInputProps> = ({
     [network, publicKeyHash]
   );
 
-  const { value: assetSlugWithFallbackBalance } = useBalance(assetSlugWithFallback, publicKeyHash, network);
+  const { value: assetSlugWithFallbackBalance } = useTezosAssetBalance(assetSlugWithFallback, publicKeyHash, network);
   const selectedAssetBalanceStr = assetSlugWithFallbackBalance?.toString();
 
   return (

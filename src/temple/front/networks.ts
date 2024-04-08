@@ -23,7 +23,7 @@ export function useTezosChainIdLoadingValue(rpcUrl: string, suspense?: boolean):
   return chainId;
 }
 
-export function useTezosChainIdLoading(rpcUrl: string, suspense?: boolean) {
+function useTezosChainIdLoading(rpcUrl: string, suspense?: boolean) {
   const fetchChainId = useCallback(() => loadTezosChainId(rpcUrl), [rpcUrl]);
 
   return useRetryableSWR(['chain-id', rpcUrl], fetchChainId, { suspense, revalidateOnFocus: false });

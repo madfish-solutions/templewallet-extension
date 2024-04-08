@@ -9,19 +9,20 @@ import { useAccountCollectibles } from 'lib/assets/hooks';
 import { useCollectiblesSortPredicate } from 'lib/assets/use-sorting';
 import { useGetCollectibleMetadata } from 'lib/metadata';
 import { useMemoWithCompare } from 'lib/ui/hooks';
+import { TezosNetworkEssentials } from 'temple/networks';
 
 import { AssetsPlaceholder } from './AssetsPlaceholder';
 import { ManageAssetsContent, ManageAssetsContentList } from './ManageAssetsContent';
 
 interface Props {
-  tezosChainId: string;
+  network: TezosNetworkEssentials;
   publicKeyHash: string;
 }
 
-export const ManageTezosCollectibles = memo<Props>(({ tezosChainId, publicKeyHash }) => {
-  const collectibles = useAccountCollectibles(publicKeyHash, tezosChainId);
+export const ManageTezosCollectibles = memo<Props>(({ network, publicKeyHash }) => {
+  const collectibles = useAccountCollectibles(publicKeyHash, network.chainId);
 
-  const assetsSortPredicate = useCollectiblesSortPredicate(publicKeyHash);
+  const assetsSortPredicate = useCollectiblesSortPredicate(publicKeyHash, network.chainId);
 
   const allSlugsSorted = useMemoWithCompare(
     () => collectibles.map(c => c.slug).sort(assetsSortPredicate),
@@ -30,7 +31,7 @@ export const ManageTezosCollectibles = memo<Props>(({ tezosChainId, publicKeyHas
   );
 
   const { isInSearchMode, displayedSlugs, isSyncing, loadNext, searchValue, setSearchValue } =
-    useCollectiblesListingLogic(allSlugsSorted);
+    useCollectiblesListingLogic(network, allSlugsSorted);
 
   const displayedAssets = useMemo(
     () => displayedSlugs.map(slug => ({ slug, status: collectibles.find(t => t.slug === slug)!.status })),
@@ -41,7 +42,7 @@ export const ManageTezosCollectibles = memo<Props>(({ tezosChainId, publicKeyHas
 
   const contentElement = (
     <ManageAssetsContentList
-      tezosChainId={tezosChainId}
+      tezosChainId={network.chainId}
       publicKeyHash={publicKeyHash}
       ofCollectibles={true}
       assets={displayedAssets}

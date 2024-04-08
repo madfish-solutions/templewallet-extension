@@ -37,7 +37,7 @@ import InFiat from 'app/templates/InFiat';
 import { useFormAnalytics } from 'lib/analytics';
 import { isTezAsset, TEZ_TOKEN_SLUG, toPenny } from 'lib/assets';
 import { toTransferParams } from 'lib/assets/contract.utils';
-import { useBalance } from 'lib/balances';
+import { useTezosAssetBalance } from 'lib/balances';
 import { useAssetFiatCurrencyPrice, useFiatCurrency } from 'lib/fiat-currency';
 import { TEZOS_BLOCK_DURATION } from 'lib/fixed-times';
 import { toLocalFixed, T, t } from 'lib/i18n';
@@ -102,8 +102,8 @@ export const Form: FC<Props> = ({ account, network, assetSlug, setOperation, onA
 
   const canUseDomainNames = domainsClient.isSupported;
 
-  const { value: balance = ZERO } = useBalance(assetSlug, accountPkh, network);
-  const { value: tezBalance = ZERO } = useBalance(TEZ_TOKEN_SLUG, accountPkh, network);
+  const { value: balance = ZERO } = useTezosAssetBalance(assetSlug, accountPkh, network);
+  const { value: tezBalance = ZERO } = useTezosAssetBalance(TEZ_TOKEN_SLUG, accountPkh, network);
 
   const [shoudUseFiat, setShouldUseFiat] = useSafeState(false);
 

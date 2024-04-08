@@ -22,7 +22,7 @@ import RawPayloadView from 'app/templates/RawPayloadView';
 import ViewsSwitcher from 'app/templates/ViewsSwitcher/ViewsSwitcher';
 import { ViewsSwitcherItemProps } from 'app/templates/ViewsSwitcher/ViewsSwitcherItem';
 import { TEZ_TOKEN_SLUG, toTokenSlug } from 'lib/assets';
-import { useRawBalance } from 'lib/balances';
+import { useTezosAssetRawBalance } from 'lib/balances';
 import { T, t } from 'lib/i18n';
 import { useRetryableSWR } from 'lib/swr';
 import { tryParseExpenses } from 'lib/temple/front';
@@ -91,7 +91,7 @@ const InternalConfirmation: FC<InternalConfiramtionProps> = ({ payload, onConfir
     }));
   }, [rawExpensesData]);
 
-  const { value: tezBalance } = useRawBalance(TEZ_TOKEN_SLUG, account.address, networkRpc);
+  const { value: tezBalance } = useTezosAssetRawBalance(TEZ_TOKEN_SLUG, account.address, tezosNetwork);
 
   const totalTransactionCost = useMemo(() => {
     if (payload.type === 'operations') {

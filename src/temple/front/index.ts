@@ -22,7 +22,6 @@ export { useAllTezosChains, useAllEvmChains, useTezosChainByChainId, useTezosMai
 export {
   getNetworkTitle,
   useTezosNetworkRpcUrl,
-  useTezosChainIdLoading,
   useTezosChainIdLoadingValue,
   useTempleNetworksActions
 } from './networks';

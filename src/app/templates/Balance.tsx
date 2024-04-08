@@ -4,7 +4,7 @@ import BigNumber from 'bignumber.js';
 import clsx from 'clsx';
 import CSSTransition from 'react-transition-group/CSSTransition';
 
-import { useBalance } from 'lib/balances';
+import { useTezosAssetBalance } from 'lib/balances';
 import { TezosNetworkEssentials } from 'temple/networks';
 
 interface Props {
@@ -16,7 +16,7 @@ interface Props {
 
 /** TezosBalance */
 const Balance: FC<Props> = ({ network, address, children, assetSlug = 'tez' }) => {
-  const { value: balance } = useBalance(assetSlug, address, network);
+  const { value: balance } = useTezosAssetBalance(assetSlug, address, network);
   const exist = balance !== undefined;
 
   const childNode = children(balance == null ? new BigNumber(0) : balance);

@@ -7,9 +7,9 @@ import { useTokensMetadataPresenceCheck } from 'lib/metadata';
 import { useTezosNetwork } from 'temple/front';
 
 export const useMetadataLoading = (publicKeyHash: string) => {
-  const { chainId } = useTezosNetwork();
+  const network = useTezosNetwork();
 
-  const tokens = useAccountTokensSelector(publicKeyHash, chainId);
+  const tokens = useAccountTokensSelector(publicKeyHash, network.chainId);
   const slugs = useMemo(() => Object.keys(tokens), [tokens]);
 
   useEffect(() => {
@@ -19,5 +19,5 @@ export const useMetadataLoading = (publicKeyHash: string) => {
   }, []);
 
   // TODO: Should there be a time interval?
-  useTokensMetadataPresenceCheck(slugs);
+  useTokensMetadataPresenceCheck(network, slugs);
 };

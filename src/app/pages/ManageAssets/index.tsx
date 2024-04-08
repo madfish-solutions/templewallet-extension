@@ -54,7 +54,7 @@ const ManageAssetsForChain: FC<ManageAssetsForChainProps> = ({ ofCollectibles, a
       {network.chain !== 'tezos' ? (
         <div className="text-center">{UNDER_DEVELOPMENT_MSG}</div>
       ) : ofCollectibles ? (
-        <ManageTezosCollectibles tezosChainId={network.chainId} publicKeyHash={accountTezAddress} />
+        <ManageTezosCollectibles network={network} publicKeyHash={accountTezAddress} />
       ) : (
         <ManageTezosTokens tezosChainId={network.chainId} publicKeyHash={accountTezAddress} />
       )}

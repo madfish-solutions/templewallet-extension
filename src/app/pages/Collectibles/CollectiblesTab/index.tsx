@@ -79,9 +79,9 @@ const TezosCollectiblesTab = memo<TezosCollectiblesTabProps>(({ network, publicK
   const [adultBlur, setAdultBlur] = useLocalStorage(LOCAL_STORAGE_ADULT_BLUR_TOGGLE_KEY, true);
   const toggleAdultBlur = useCallback(() => void setAdultBlur(val => !val), [setAdultBlur]);
 
-  const allSlugs = useEnabledAccountCollectiblesSlugs(publicKeyHash);
+  const allSlugs = useEnabledAccountCollectiblesSlugs(publicKeyHash, tezosChainId);
 
-  const assetsSortPredicate = useCollectiblesSortPredicate(publicKeyHash);
+  const assetsSortPredicate = useCollectiblesSortPredicate(publicKeyHash, tezosChainId);
 
   const allSlugsSorted = useMemoWithCompare(
     () => [...allSlugs].sort(assetsSortPredicate),
@@ -90,7 +90,7 @@ const TezosCollectiblesTab = memo<TezosCollectiblesTabProps>(({ network, publicK
   );
 
   const { isInSearchMode, displayedSlugs, paginatedSlugs, isSyncing, loadNext, searchValue, setSearchValue } =
-    useCollectiblesListingLogic(allSlugsSorted);
+    useCollectiblesListingLogic(network, allSlugsSorted);
 
   const shouldScrollToTheTabsBar = paginatedSlugs.length > 0;
   useEffect(() => {

@@ -8,10 +8,11 @@ import { searchAssetsWithNoMeta } from 'lib/assets/search.utils';
 import { useCollectiblesMetadataPresenceCheck, useGetCollectibleMetadata } from 'lib/metadata';
 import { isSearchStringApplicable } from 'lib/utils/search-items';
 import { createLocationState } from 'lib/woozie/location';
+import { TezosNetworkEssentials } from 'temple/networks';
 
 import { ITEMS_PER_PAGE, useCollectiblesPaginationLogic } from './use-collectibles-pagination-logic';
 
-export const useCollectiblesListingLogic = (allSlugsSorted: string[]) => {
+export const useCollectiblesListingLogic = (network: TezosNetworkEssentials, allSlugsSorted: string[]) => {
   const initialAmount = useMemo(() => {
     const { search } = createLocationState();
     const usp = new URLSearchParams(search);
@@ -48,7 +49,7 @@ export const useCollectiblesListingLogic = (allSlugsSorted: string[]) => {
     return pageIsLoading ? undefined : allSlugsSorted.slice(paginatedSlugs.length + ITEMS_PER_PAGE * 2);
   }, [isInSearchMode, pageIsLoading, allSlugsSorted, paginatedSlugs.length]);
 
-  useCollectiblesMetadataPresenceCheck(metaToCheckAndLoad);
+  useCollectiblesMetadataPresenceCheck(network, metaToCheckAndLoad);
 
   const getCollectibleMeta = useGetCollectibleMetadata();
 

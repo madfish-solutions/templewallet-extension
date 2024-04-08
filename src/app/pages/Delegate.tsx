@@ -5,7 +5,7 @@ import { ReactComponent as DiamondIcon } from 'app/icons/diamond.svg';
 import PageLayout, { SpinnerSection } from 'app/layouts/PageLayout';
 import DelegateForm from 'app/templates/DelegateForm';
 import { TEZ_TOKEN_SLUG } from 'lib/assets';
-import { useBalance } from 'lib/balances';
+import { useTezosAssetBalance } from 'lib/balances';
 import { T } from 'lib/i18n';
 import { ZERO } from 'lib/utils/numbers';
 import { getAccountForTezos } from 'temple/accounts';
@@ -23,7 +23,7 @@ const Delegate = memo<Props>(({ tezosChainId }) => {
 
   if (!chain || !account) throw new DeadEndBoundaryError();
 
-  const gasBalance = useBalance(TEZ_TOKEN_SLUG, account.address, chain);
+  const gasBalance = useTezosAssetBalance(TEZ_TOKEN_SLUG, account.address, chain);
 
   const isLoading = !gasBalance.value && gasBalance.isSyncing;
 

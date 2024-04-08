@@ -3,26 +3,19 @@ import { useCallback, useMemo } from 'react';
 import { emptyFn } from '@rnw-community/shared';
 import BigNumber from 'bignumber.js';
 
-import { useAllAccountBalancesSelector, useAllBalancesSelector } from 'app/store/balances/selectors';
-import { getKeyForBalancesRecord } from 'app/store/balances/utils';
+import { useAllAccountBalancesSelector, useAllAccountBalancesEntitySelector } from 'app/store/balances/selectors';
 import { isKnownChainId } from 'lib/apis/tzkt';
 import { useAssetMetadata, useGetTokenOrGasMetadata } from 'lib/metadata';
 import { useTypedSWR } from 'lib/swr';
 import { atomsToTokens } from 'lib/temple/helpers';
-import { useTezosNetwork, useAccountAddressForTezos, useTezosChainIdLoading, useOnTezosBlock } from 'temple/front';
+import { useAccountAddressForTezos, useOnTezosBlock } from 'temple/front';
 import { TezosNetworkEssentials } from 'temple/networks';
 import { getReadOnlyTezos } from 'temple/tezos';
 
 import { fetchRawBalance as fetchRawBalanceFromBlockchain } from './fetch';
 
-export const useCurrentAccountBalances = (publicKeyHash: string) => {
-  const { chainId } = useTezosNetwork();
-
-  return useAllAccountBalancesSelector(publicKeyHash, chainId);
-};
-
-export const useGetCurrentAccountTokenOrGasBalanceWithDecimals = (publicKeyHash: string, tezosChainId: string) => {
-  const rawBalances = useCurrentAccountBalances(publicKeyHash);
+export const useGetTezosTokenOrGasBalanceWithDecimals = (publicKeyHash: string, tezosChainId: string) => {
+  const rawBalances = useAllAccountBalancesSelector(publicKeyHash, tezosChainId);
   const getMetadata = useGetTokenOrGasMetadata(tezosChainId);
 
   return useCallback(
@@ -36,13 +29,10 @@ export const useGetCurrentAccountTokenOrGasBalanceWithDecimals = (publicKeyHash:
   );
 };
 
-/** Rename: useTezosAssetRawBalance.
- * TODO: Require rpcUrl | network essentials
- */
-export function useRawBalance(
+export function useTezosAssetRawBalance(
   assetSlug: string,
   address: string,
-  rpcUrl: string
+  network: TezosNetworkEssentials
 ): {
   value: string | undefined;
   isSyncing: boolean;
@@ -51,17 +41,9 @@ export function useRawBalance(
 } {
   const currentAccountAddress = useAccountAddressForTezos();
 
-  const chainIdSwrRes = useTezosChainIdLoading(rpcUrl);
-  const chainId = chainIdSwrRes.data;
+  const { chainId, rpcBaseURL } = network;
 
-  const allBalances = useAllBalancesSelector();
-  const balances = useMemo(() => {
-    if (!chainId) return null;
-
-    const key = getKeyForBalancesRecord(address, chainId);
-
-    return allBalances[key];
-  }, [allBalances, chainId, address]);
+  const balances = useAllAccountBalancesEntitySelector(address, chainId);
 
   /** Only using store for currently selected account - most used case
    * and with a refresh mechanism in useBalancesLoading hook.
@@ -71,11 +53,11 @@ export function useRawBalance(
   const usingStore = address === currentAccountAddress && isKnownChainId(chainId);
 
   const onChainBalanceSwrRes = useTypedSWR(
-    ['balance', rpcUrl, assetSlug, address],
+    ['balance', rpcBaseURL, assetSlug, address],
     () => {
-      if (!chainId || usingStore) return;
+      if (usingStore) return;
 
-      const tezos = getReadOnlyTezos(rpcUrl);
+      const tezos = getReadOnlyTezos(rpcBaseURL);
 
       return fetchRawBalanceFromBlockchain(tezos, assetSlug, address).then(res => res.toString());
     },
@@ -85,18 +67,9 @@ export function useRawBalance(
     }
   );
 
-  const refreshChainId = useCallback(() => chainIdSwrRes.mutate(), [chainIdSwrRes.mutate]);
   const refreshBalanceOnChain = useCallback(() => void onChainBalanceSwrRes.mutate(), [onChainBalanceSwrRes.mutate]);
 
-  useOnTezosBlock(rpcUrl, refreshBalanceOnChain, !chainId || usingStore);
-
-  if (!chainId)
-    return {
-      value: undefined,
-      isSyncing: chainIdSwrRes.isValidating,
-      error: chainIdSwrRes.error,
-      refresh: refreshChainId
-    };
+  useOnTezosBlock(rpcBaseURL, refreshBalanceOnChain, usingStore);
 
   if (usingStore)
     return {
@@ -118,9 +91,8 @@ export function useRawBalance(
   };
 }
 
-/** TODO: Rename: useTezosAssetBalance */
-export function useBalance(assetSlug: string, address: string, network: TezosNetworkEssentials) {
-  const { value: rawValue, isSyncing, error, refresh } = useRawBalance(assetSlug, address, network.rpcBaseURL);
+export function useTezosAssetBalance(assetSlug: string, address: string, network: TezosNetworkEssentials) {
+  const { value: rawValue, isSyncing, error, refresh } = useTezosAssetRawBalance(assetSlug, address, network);
   const assetMetadata = useAssetMetadata(assetSlug, network.chainId);
 
   const value = useMemo(
