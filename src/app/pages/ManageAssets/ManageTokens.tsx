@@ -8,19 +8,17 @@ import { TEMPLE_TOKEN_SLUG } from 'lib/assets';
 import { useAllAvailableTokens } from 'lib/assets/hooks';
 import { useGetTokenMetadata } from 'lib/metadata';
 import { isSearchStringApplicable } from 'lib/utils/search-items';
-import { useTezosNetwork } from 'temple/front';
 
 import { AssetsPlaceholder } from './AssetsPlaceholder';
 import { ManageAssetsContent, ManageAssetsContentList } from './ManageAssetsContent';
 
 interface Props {
+  tezosChainId: string;
   publicKeyHash: string;
 }
 
-export const ManageTezosTokens = memo<Props>(({ publicKeyHash }) => {
-  const { chainId } = useTezosNetwork();
-
-  const tokens = useAllAvailableTokens(publicKeyHash, chainId);
+export const ManageTezosTokens = memo<Props>(({ tezosChainId, publicKeyHash }) => {
+  const tokens = useAllAvailableTokens(publicKeyHash, tezosChainId);
 
   const managebleSlugs = useMemo(
     () => tokens.reduce<string[]>((acc, { slug }) => (slug === TEMPLE_TOKEN_SLUG ? acc : acc.concat(slug)), []),
@@ -31,7 +29,12 @@ export const ManageTezosTokens = memo<Props>(({ publicKeyHash }) => {
   const metadatasLoading = useTokensMetadataLoadingSelector();
   const isSyncing = assetsAreLoading || metadatasLoading;
 
-  const { filteredAssets, searchValue, setSearchValue } = useTokensListingLogic(publicKeyHash, managebleSlugs, false);
+  const { filteredAssets, searchValue, setSearchValue } = useTokensListingLogic(
+    tezosChainId,
+    publicKeyHash,
+    managebleSlugs,
+    false
+  );
 
   const isInSearchMode = isSearchStringApplicable(searchValue);
 
@@ -48,7 +51,12 @@ export const ManageTezosTokens = memo<Props>(({ publicKeyHash }) => {
         <AssetsPlaceholder isInSearchMode={isInSearchMode} isLoading={isSyncing} />
       ) : (
         <>
-          <ManageAssetsContentList publicKeyHash={publicKeyHash} assets={displayedAssets} getMetadata={getMetadata} />
+          <ManageAssetsContentList
+            tezosChainId={tezosChainId}
+            publicKeyHash={publicKeyHash}
+            assets={displayedAssets}
+            getMetadata={getMetadata}
+          />
 
           {isSyncing && <SyncSpinner className="mt-6" />}
         </>

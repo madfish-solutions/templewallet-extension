@@ -25,12 +25,13 @@ import { useGasToken } from 'lib/assets/hooks';
 import { T, t } from 'lib/i18n';
 import { useRetryableSWR } from 'lib/swr';
 import { useTempleClient } from 'lib/temple/front/client';
-import { TempleAccountType, TempleDAppPayload, TempleTezosChainId } from 'lib/temple/types';
+import { TempleAccountType, TempleDAppPayload } from 'lib/temple/types';
 import { useSafeState } from 'lib/ui/hooks';
 import { delay, isTruthy } from 'lib/utils';
 import { useLocation } from 'lib/woozie';
 import { AccountForTezos, getAccountForTezos, isAccountOfActableType } from 'temple/accounts';
 import { useAccountForTezos, useAllAccounts, useTezosChainIdLoadingValue } from 'temple/front';
+import { TezosNetworkEssentials } from 'temple/networks';
 
 import { ConfirmPageSelectors } from './ConfirmPage.selectors';
 
@@ -76,9 +77,14 @@ const PayloadContent: React.FC<PayloadContentProps> = ({
   error,
   modifyFeeAndLimit
 }) => {
-  const AccountOptionContent = useMemo(() => AccountOptionContentHOC(payload.networkRpc), [payload.networkRpc]);
-  const chainId = useTezosChainIdLoadingValue(payload.networkRpc, true)!;
-  const mainnet = chainId === TempleTezosChainId.Mainnet;
+  const tezosChainId = useTezosChainIdLoadingValue(payload.networkRpc, true)!;
+
+  const tezosNetwork = useMemo(
+    () => ({ chainId: tezosChainId, rpcBaseURL: payload.networkRpc }),
+    [tezosChainId, payload.networkRpc]
+  );
+
+  const AccountOptionContent = useMemo(() => AccountOptionContentHOC(tezosNetwork), [tezosNetwork]);
 
   return payload.type === 'connect' ? (
     <div className="w-full flex flex-col">
@@ -104,13 +110,7 @@ const PayloadContent: React.FC<PayloadContentProps> = ({
       />
     </div>
   ) : (
-    <OperationView
-      payload={payload}
-      error={error}
-      networkRpc={payload.networkRpc}
-      mainnet={mainnet}
-      modifyFeeAndLimit={modifyFeeAndLimit}
-    />
+    <OperationView tezosNetwork={tezosNetwork} payload={payload} error={error} modifyFeeAndLimit={modifyFeeAndLimit} />
   );
 };
 
@@ -377,8 +377,8 @@ const ConfirmDAppForm = memo(() => {
             <>
               {payload.type !== 'connect' && connectedAccount && (
                 <AccountBanner
+                  // tezosNetwork={tezosNetwork}
                   account={connectedAccount}
-                  networkRpc={payload.networkRpc}
                   smallLabelIndent
                   className="w-full mb-4"
                 />
@@ -438,9 +438,9 @@ const AccountIcon: FC<OptionRenderProps<AccountForTezos>> = ({ item }) => (
   <Identicon type="bottts" hash={item.id} size={32} className="flex-shrink-0 shadow-xs" />
 );
 
-const AccountOptionContentHOC = (networkRpc: string) =>
+const AccountOptionContentHOC = (tezosNetwork: TezosNetworkEssentials) =>
   memo<OptionRenderProps<AccountForTezos>>(({ item: acc }) => {
-    const { assetName } = useGasToken(networkRpc);
+    const { assetName } = useGasToken(tezosNetwork.rpcBaseURL);
 
     return (
       <>
@@ -454,7 +454,7 @@ const AccountOptionContentHOC = (networkRpc: string) =>
             <HashShortView hash={acc.address} />
           </div>
 
-          <Balance address={acc.address} networkRpc={networkRpc}>
+          <Balance network={tezosNetwork} address={acc.address}>
             {bal => (
               <div className="ml-2 text-xs leading-none flex items-baseline text-gray-600">
                 <Money>{bal}</Money>

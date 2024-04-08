@@ -30,8 +30,7 @@ import { useDelegate } from 'lib/temple/front';
 import { TempleAccountType } from 'lib/temple/types';
 import useTippy from 'lib/ui/useTippy';
 import { Link } from 'lib/woozie';
-import { useAccountForTezos } from 'temple/front';
-import { TezosNetworkEssentials } from 'temple/networks';
+import { useAccountForTezos, useTezosChainByChainId } from 'temple/front';
 
 import styles from './BakingSection.module.css';
 import { BakingSectionSelectors } from './BakingSection.selectors';
@@ -73,14 +72,13 @@ const links = [
 ];
 
 interface Props {
-  network: TezosNetworkEssentials;
+  tezosChainId: string;
 }
 
-const BakingSection = memo<Props>(({ network }) => {
+const BakingSection = memo<Props>(({ tezosChainId }) => {
+  const network = useTezosChainByChainId(tezosChainId);
   const account = useAccountForTezos();
-  if (!account) throw new DeadEndBoundaryError();
-
-  const tezosChainId = network.chainId;
+  if (!network || !account) throw new DeadEndBoundaryError();
 
   const { data: myBakerPkh } = useDelegate(account.address, network, true, false);
   const canDelegate = account.type !== TempleAccountType.WatchOnly;

@@ -56,7 +56,13 @@ export const ActivityItem = memo<Props>(({ tezosChainId, activity, address }) =>
 
         <div className="flex flex-col flex-shrink-0 pt-2">
           {moneyDiffs.map(({ assetSlug, diff }, i) => (
-            <MoneyDiffView key={i} assetId={assetSlug} diff={diff} pending={status === 'pending'} />
+            <MoneyDiffView
+              key={i}
+              tezosChainId={tezosChainId}
+              assetId={assetSlug}
+              diff={diff}
+              pending={status === 'pending'}
+            />
           ))}
         </div>
       </div>

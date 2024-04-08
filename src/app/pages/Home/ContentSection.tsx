@@ -12,7 +12,7 @@ import AssetInfo from 'app/templates/AssetInfo';
 import { TabsBar } from 'app/templates/TabBar';
 import { isTezAsset } from 'lib/assets';
 import { t, TID } from 'lib/i18n';
-import { useTezosMainnetChain } from 'temple/front';
+import { TEZOS_MAINNET_CHAIN_ID } from 'lib/temple/types';
 
 import { CollectiblesTab } from '../Collectibles/CollectiblesTab';
 
@@ -21,6 +21,7 @@ import BakingSection from './OtherComponents/BakingSection';
 import { TokensTab } from './OtherComponents/Tokens/Tokens';
 
 interface Props {
+  tezosChainId: string | nullish;
   assetSlug?: string | null;
   className?: string;
 }
@@ -35,12 +36,9 @@ interface TabData {
   whileMessageI18nKey?: TID;
 }
 
-export const ContentSection = memo<Props>(({ assetSlug, className }) => {
+export const ContentSection = memo<Props>(({ tezosChainId, assetSlug, className }) => {
   const { fullPage } = useAppEnv();
   const tabSlug = useLocationSearchParamValue('tab');
-
-  // TODO: Differentiate on asset view of other chains
-  const chain = useTezosMainnetChain();
 
   const tabBarElemRef = useRef<HTMLDivElement>(null);
 
@@ -56,7 +54,7 @@ export const ContentSection = memo<Props>(({ assetSlug, className }) => {
   }, []);
 
   const tabs = useMemo<TabData[]>(() => {
-    if (!assetSlug) {
+    if (!tezosChainId || !assetSlug) {
       return [
         {
           name: 'tokens',
@@ -73,7 +71,7 @@ export const ContentSection = memo<Props>(({ assetSlug, className }) => {
         {
           name: 'activity',
           titleI18nKey: 'activity',
-          Component: () => <ActivityTab tezosChainId={chain.chainId} />,
+          Component: () => <ActivityTab tezosChainId={TEZOS_MAINNET_CHAIN_ID} />,
           testID: HomeSelectors.activityTab,
           whileMessageI18nKey: 'operationHistoryWhileMessage'
         }
@@ -83,7 +81,7 @@ export const ContentSection = memo<Props>(({ assetSlug, className }) => {
     const activity: TabData = {
       name: 'activity',
       titleI18nKey: 'activity',
-      Component: () => <ActivityTab tezosChainId={chain.chainId} assetSlug={assetSlug} />,
+      Component: () => <ActivityTab tezosChainId={tezosChainId} assetSlug={assetSlug} />,
       testID: HomeSelectors.activityTab
     };
 
@@ -93,7 +91,7 @@ export const ContentSection = memo<Props>(({ assetSlug, className }) => {
         {
           name: 'delegation',
           titleI18nKey: 'delegate',
-          Component: () => <BakingSection network={chain} />,
+          Component: () => <BakingSection tezosChainId={tezosChainId} />,
           testID: HomeSelectors.delegationTab,
           whileMessageI18nKey: 'delegationInfoWhileMessage'
         }
@@ -105,11 +103,11 @@ export const ContentSection = memo<Props>(({ assetSlug, className }) => {
       {
         name: 'info',
         titleI18nKey: 'info',
-        Component: () => <AssetInfo assetSlug={assetSlug} />,
+        Component: () => <AssetInfo tezosChainId={tezosChainId} assetSlug={assetSlug} />,
         testID: HomeSelectors.infoTab
       }
     ];
-  }, [assetSlug, chain, scrollToTheTabsBar]);
+  }, [tezosChainId, assetSlug, scrollToTheTabsBar]);
 
   const { name, Component, whileMessageI18nKey } = useMemo(() => {
     const tab = tabSlug ? tabs.find(currentTab => currentTab.name === tabSlug) : null;

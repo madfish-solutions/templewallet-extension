@@ -1,14 +1,19 @@
 import { isKnownChainId } from 'lib/apis/tzkt/api';
 import { useDidMount, useDidUpdate, useSafeState, useStopper } from 'lib/ui/hooks';
-import { useTezosNetwork } from 'temple/front';
+import { TezosNetworkEssentials } from 'temple/networks';
 
 import fetchActivities from './fetch';
 import type { Activity } from './types';
 
 type TLoading = 'init' | 'more' | false;
 
-export default function useTezosActivities(accountAddress: string, initialPseudoLimit: number, assetSlug?: string) {
-  const { chainId, rpcBaseURL } = useTezosNetwork();
+export default function useTezosActivities(
+  network: TezosNetworkEssentials,
+  accountAddress: string,
+  initialPseudoLimit: number,
+  assetSlug?: string
+) {
+  const { chainId, rpcBaseURL } = network;
 
   const [loading, setLoading] = useSafeState<TLoading>(isKnownChainId(chainId) && 'init');
   const [activities, setActivities] = useSafeState<Activity[]>([]);

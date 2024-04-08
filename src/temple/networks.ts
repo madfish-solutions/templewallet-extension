@@ -46,7 +46,7 @@ export const isTezosTestnetChainId = (chainId: string) => !TEZOS_NON_TESTNET_CHA
 
 const TEZOS_DCP_CHAIN_IDS: string[] = [TempleTezosChainId.Dcp, TempleTezosChainId.DcpTest];
 
-export const isTezosDcpChainId = (chainId: string) => !TEZOS_DCP_CHAIN_IDS.includes(chainId);
+export const isTezosDcpChainId = (chainId: string) => TEZOS_DCP_CHAIN_IDS.includes(chainId);
 
 const TEZOS_DCP_NETWORKS: StoredTezosNetwork[] = [
   {

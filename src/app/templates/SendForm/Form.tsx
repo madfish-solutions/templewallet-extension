@@ -78,34 +78,32 @@ const RECOMMENDED_ADD_FEE = 0.0001;
 
 interface Props {
   account: AccountForTezos;
-  /** Present for `account.type === TempleAccountType.ManagedKT` */
-  ownerAddress?: string;
   network: TezosNetworkEssentials;
   assetSlug: string;
   setOperation: Dispatch<any>;
   onAddContactRequested: (address: string) => void;
 }
 
-export const Form: FC<Props> = ({ account, ownerAddress, network, assetSlug, setOperation, onAddContactRequested }) => {
+export const Form: FC<Props> = ({ account, network, assetSlug, setOperation, onAddContactRequested }) => {
   const { registerBackHandler } = useAppEnv();
 
-  const assetMetadata = useAssetMetadata(assetSlug);
+  const assetMetadata = useAssetMetadata(assetSlug, network.chainId);
   const assetPrice = useAssetFiatCurrencyPrice(assetSlug);
 
   const assetSymbol = useMemo(() => getAssetSymbol(assetMetadata), [assetMetadata]);
 
   const { allContacts } = useFilteredContacts();
 
-  const tezos = getTezosToolkitWithSigner(network.rpcBaseURL, ownerAddress || account.address);
+  const accountPkh = account.address;
+  const tezos = getTezosToolkitWithSigner(network.rpcBaseURL, account.ownerAddress || accountPkh);
   const domainsClient = useTezosDomainsClient();
 
   const formAnalytics = useFormAnalytics('SendForm');
 
   const canUseDomainNames = domainsClient.isSupported;
-  const accountPkh = account.address;
 
-  const { value: balance = ZERO } = useBalance(assetSlug, accountPkh);
-  const { value: tezBalance = ZERO } = useBalance(TEZ_TOKEN_SLUG, accountPkh);
+  const { value: balance = ZERO } = useBalance(assetSlug, accountPkh, network);
+  const { value: tezBalance = ZERO } = useBalance(TEZ_TOKEN_SLUG, accountPkh, network);
 
   const [shoudUseFiat, setShouldUseFiat] = useSafeState(false);
 
@@ -226,7 +224,7 @@ export const Form: FC<Props> = ({ account, ownerAddress, network, assetSlug, set
 
       const [transferParams, manager] = await Promise.all([
         toTransferParams(tezos, assetSlug, assetMetadata, accountPkh, to, toPenny(assetMetadata)),
-        tezos.rpc.getManagerKey(ownerAddress || accountPkh)
+        tezos.rpc.getManagerKey(account.ownerAddress || accountPkh)
       ]);
 
       const estmtnMax = await estimateMaxFee(account, tez, tezos, to, balance, transferParams, manager);
@@ -250,7 +248,7 @@ export const Form: FC<Props> = ({ account, ownerAddress, network, assetSlug, set
 
       throw err;
     }
-  }, [tezBalance, balance, assetMetadata, toResolved, assetSlug, tezos, accountPkh, account, ownerAddress]);
+  }, [tezBalance, balance, assetMetadata, toResolved, assetSlug, tezos, accountPkh, account]);
 
   const {
     data: baseFee,
@@ -476,7 +474,7 @@ export const Form: FC<Props> = ({ account, ownerAddress, network, assetSlug, set
                 className="flex-shrink-0 shadow-xs opacity-75"
               />
               <div className="ml-1 mr-px font-normal">{filledContact.name}</div> (
-              <Balance assetSlug={assetSlug} address={filledContact.address}>
+              <Balance network={network} assetSlug={assetSlug} address={filledContact.address}>
                 {bal => (
                   <span className="text-xs leading-none flex items-baseline">
                     <Money>{bal}</Money>{' '}

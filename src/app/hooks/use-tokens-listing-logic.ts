@@ -13,6 +13,7 @@ import { useMemoWithCompare } from 'lib/ui/hooks';
 import { isSearchStringApplicable } from 'lib/utils/search-items';
 
 export const useTokensListingLogic = (
+  tezosChainId: string,
   publicKeyHash: string,
   assetsSlugs: string[],
   filterZeroBalances = false,
@@ -42,8 +43,8 @@ export const useTokensListingLogic = (
   const [tokenId, setTokenId] = useState<number>();
   const [searchValueDebounced] = useDebounce(tokenId ? toTokenSlug(searchValue, String(tokenId)) : searchValue, 300);
 
-  const assetsSortPredicate = useTokensSortPredicate(publicKeyHash);
-  const getMetadata = useGetTokenOrGasMetadata();
+  const assetsSortPredicate = useTokensSortPredicate(publicKeyHash, tezosChainId);
+  const getMetadata = useGetTokenOrGasMetadata(tezosChainId);
 
   const searchedSlugs = useMemo(
     () =>

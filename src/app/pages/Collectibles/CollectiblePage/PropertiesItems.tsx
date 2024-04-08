@@ -20,7 +20,7 @@ interface PropertiesItemsProps {
 export const PropertiesItems = memo<PropertiesItemsProps>(({ network, assetSlug, accountPkh, details }) => {
   const { contract, id } = fromFa2TokenSlug(assetSlug);
 
-  const { value: balance } = useBalance(assetSlug, accountPkh, network.rpcBaseURL);
+  const { value: balance } = useBalance(assetSlug, accountPkh, network);
 
   const { transaction: explorerBaseUrl } = useExplorerBaseUrls(network.chainId);
   const exploreContractUrl = useMemo(

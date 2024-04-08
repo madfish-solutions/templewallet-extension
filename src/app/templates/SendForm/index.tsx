@@ -3,44 +3,37 @@ import React, { memo, Suspense, useCallback, useMemo, useState } from 'react';
 import type { WalletOperation } from '@taquito/taquito';
 import { isEqual } from 'lodash';
 
-import { DeadEndBoundaryError } from 'app/ErrorBoundary';
-import AssetSelect from 'app/templates/AssetSelect';
 import OperationStatus from 'app/templates/OperationStatus';
 import { AnalyticsEventCategory, useAnalytics } from 'lib/analytics';
 import { TEZ_TOKEN_SLUG } from 'lib/assets';
 import { useEnabledAccountTokensSlugs } from 'lib/assets/hooks';
 import { useTokensSortPredicate } from 'lib/assets/use-sorting';
 import { t } from 'lib/i18n';
-import { TempleAccountType } from 'lib/temple/types';
 import { useMemoWithCompare, useSafeState } from 'lib/ui/hooks';
 import { HistoryAction, navigate } from 'lib/woozie';
-import { getAccountForTezos } from 'temple/accounts';
-import { useAccount } from 'temple/front';
+import { AccountForTezos } from 'temple/accounts';
 import { TezosNetworkEssentials } from 'temple/networks';
 import { makeTezosClientId } from 'temple/tezos';
 
 import AddContactModal from './AddContactModal';
+import AssetSelect from './AssetSelect';
 import { Form } from './Form';
 import { SendFormSelectors } from './selectors';
 import { SpinnerSection } from './SpinnerSection';
 
 interface Props {
   network: TezosNetworkEssentials;
-  publicKeyHash: string;
+  tezosAccount: AccountForTezos;
   assetSlug?: string | null;
 }
 
-const SendForm = memo<Props>(({ network, publicKeyHash, assetSlug = TEZ_TOKEN_SLUG }) => {
-  const currentAccount = useAccount();
-
-  const tezosAccount = useMemo(() => getAccountForTezos(currentAccount), [currentAccount]);
-  if (!tezosAccount) throw new DeadEndBoundaryError();
-
+const SendForm = memo<Props>(({ network, tezosAccount, assetSlug = TEZ_TOKEN_SLUG }) => {
   const tezosChainId = network.chainId;
+  const publicKeyHash = tezosAccount.address;
 
   const tokensSlugs = useEnabledAccountTokensSlugs(publicKeyHash, tezosChainId);
 
-  const tokensSortPredicate = useTokensSortPredicate(publicKeyHash);
+  const tokensSortPredicate = useTokensSortPredicate(publicKeyHash, tezosChainId);
 
   const assetsSlugs = useMemoWithCompare<string[]>(
     () => {
@@ -100,10 +93,10 @@ const SendForm = memo<Props>(({ network, publicKeyHash, assetSlug = TEZ_TOKEN_SL
       )}
 
       <AssetSelect
+        network={network}
         accountPkh={publicKeyHash}
         value={selectedAsset}
         slugs={assetsSlugs}
-        publicKeyHash={publicKeyHash}
         onChange={handleAssetChange}
         className="mb-6"
         testIDs={testIDs}
@@ -112,7 +105,6 @@ const SendForm = memo<Props>(({ network, publicKeyHash, assetSlug = TEZ_TOKEN_SL
       <Suspense fallback={<SpinnerSection />}>
         <Form
           account={tezosAccount}
-          ownerAddress={currentAccount.type === TempleAccountType.ManagedKT ? currentAccount.owner : undefined}
           network={network}
           assetSlug={selectedAsset}
           setOperation={setOperation}

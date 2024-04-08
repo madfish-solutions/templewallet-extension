@@ -9,19 +9,17 @@ import { useAccountCollectibles } from 'lib/assets/hooks';
 import { useCollectiblesSortPredicate } from 'lib/assets/use-sorting';
 import { useGetCollectibleMetadata } from 'lib/metadata';
 import { useMemoWithCompare } from 'lib/ui/hooks';
-import { useTezosNetwork } from 'temple/front';
 
 import { AssetsPlaceholder } from './AssetsPlaceholder';
 import { ManageAssetsContent, ManageAssetsContentList } from './ManageAssetsContent';
 
 interface Props {
+  tezosChainId: string;
   publicKeyHash: string;
 }
 
-export const ManageTezosCollectibles = memo<Props>(({ publicKeyHash }) => {
-  const { chainId } = useTezosNetwork();
-
-  const collectibles = useAccountCollectibles(publicKeyHash, chainId);
+export const ManageTezosCollectibles = memo<Props>(({ tezosChainId, publicKeyHash }) => {
+  const collectibles = useAccountCollectibles(publicKeyHash, tezosChainId);
 
   const assetsSortPredicate = useCollectiblesSortPredicate(publicKeyHash);
 
@@ -43,6 +41,7 @@ export const ManageTezosCollectibles = memo<Props>(({ publicKeyHash }) => {
 
   const contentElement = (
     <ManageAssetsContentList
+      tezosChainId={tezosChainId}
       publicKeyHash={publicKeyHash}
       ofCollectibles={true}
       assets={displayedAssets}

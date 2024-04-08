@@ -7,7 +7,6 @@ import DelegateForm from 'app/templates/DelegateForm';
 import { TEZ_TOKEN_SLUG } from 'lib/assets';
 import { useBalance } from 'lib/balances';
 import { T } from 'lib/i18n';
-import { TempleAccountType } from 'lib/temple/types';
 import { ZERO } from 'lib/utils/numbers';
 import { getAccountForTezos } from 'temple/accounts';
 import { useAccount, useTezosChainByChainId } from 'temple/front';
@@ -24,11 +23,9 @@ const Delegate = memo<Props>(({ tezosChainId }) => {
 
   if (!chain || !account) throw new DeadEndBoundaryError();
 
-  const gasBalance = useBalance(TEZ_TOKEN_SLUG, account.address, chain.rpcBaseURL);
+  const gasBalance = useBalance(TEZ_TOKEN_SLUG, account.address, chain);
 
   const isLoading = !gasBalance.value && gasBalance.isSyncing;
-
-  const ownerAddress = currentAccount.type === TempleAccountType.ManagedKT ? currentAccount.owner : undefined;
 
   return (
     <PageLayout
@@ -45,12 +42,7 @@ const Delegate = memo<Props>(({ tezosChainId }) => {
       ) : (
         <div className="py-4">
           <div className="w-full max-w-sm mx-auto">
-            <DelegateForm
-              network={chain}
-              account={account}
-              ownerAddress={ownerAddress}
-              balance={gasBalance.value ?? ZERO}
-            />
+            <DelegateForm network={chain} account={account} balance={gasBalance.value ?? ZERO} />
           </div>
         </div>
       )}

@@ -2,9 +2,12 @@ import React, { memo } from 'react';
 
 import clsx from 'clsx';
 
+import { Divider } from 'app/atoms';
 import { Button } from 'app/atoms/Button';
 import Name from 'app/atoms/Name';
 import { ReactComponent as ChevronDownIcon } from 'app/icons/chevron-down.svg';
+import { T } from 'lib/i18n';
+import { useWillUnmount } from 'lib/ui/hooks/useWillUnmount';
 import Popper from 'lib/ui/Popper';
 import { getNetworkTitle } from 'temple/front/networks';
 
@@ -19,6 +22,10 @@ interface Props {
 
 export const ChainSelect = memo<Props>(({ controller }) => {
   const selectedChain = controller.value;
+
+  useWillUnmount(() => {
+    console.log('UNMOUNTED');
+  });
 
   return (
     <Popper
@@ -54,3 +61,17 @@ export const ChainSelect = memo<Props>(({ controller }) => {
     </Popper>
   );
 });
+
+export const ChainSelectSection = memo<Props>(props => (
+  <>
+    <div className="flex">
+      <span className="text-xl text-gray-900">
+        <T id="network" />:
+      </span>
+      <div className="flex-1" />
+      <ChainSelect {...props} />
+    </div>
+
+    <Divider className="my-4" />
+  </>
+));

@@ -12,6 +12,7 @@ import { toTransferParams } from 'lib/assets/contract.utils';
 import { T, TID } from 'lib/i18n';
 import { TEZOS_METADATA } from 'lib/metadata/defaults';
 import useCopyToClipboard from 'lib/ui/useCopyToClipboard';
+import { AccountForTezos } from 'temple/accounts';
 import { getTezosToolkitWithSigner } from 'temple/front';
 
 import { useUpdatedOrderInfo } from '../hooks/useUpdatedOrderInfo';
@@ -19,14 +20,12 @@ import { useUpdatedOrderInfo } from '../hooks/useUpdatedOrderInfo';
 import { StepProps } from './step.props';
 
 interface SellStepProps extends StepProps {
-  publicKeyHash: string;
-  /** Present for `account.type === TempleAccountType.ManagedKT` */
-  ownerAddress?: string;
+  account: AccountForTezos;
   rpcUrl: string;
 }
 
 export const SellStep = memo<SellStepProps>(
-  ({ publicKeyHash, ownerAddress, rpcUrl, orderInfo, isApiError, setStep, setOrderInfo, setIsApiError }) => {
+  ({ account, rpcUrl, orderInfo, isApiError, setStep, setOrderInfo, setIsApiError }) => {
     const { copy } = useCopyToClipboard();
 
     const formAnalytics = useFormAnalytics('AliceBobWithdrawSendProgress');
@@ -63,13 +62,13 @@ export const SellStep = memo<SellStepProps>(
       setIsLoading(true);
       formAnalytics.trackSubmit();
       try {
-        const tezos = getTezosToolkitWithSigner(rpcUrl, ownerAddress || publicKeyHash);
+        const tezos = getTezosToolkitWithSigner(rpcUrl, account.ownerAddress || account.address);
 
         const transferParams = await toTransferParams(
           tezos,
           'tez',
           TEZOS_METADATA,
-          publicKeyHash,
+          account.address,
           payCryptoAddress,
           fromAmount
         );

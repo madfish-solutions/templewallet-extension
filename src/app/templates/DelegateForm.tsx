@@ -56,20 +56,18 @@ interface FormData {
 interface Props {
   network: TezosNetworkEssentials;
   account: AccountForTezos;
-  /** Present for `account.type === TempleAccountType.ManagedKT` */
-  ownerAddress?: string;
   balance: BigNumber;
 }
 
-const DelegateForm = memo<Props>(({ network, account, ownerAddress, balance }) => {
+const DelegateForm = memo<Props>(({ network, account, balance }) => {
   const { registerBackHandler } = useAppEnv();
   const formAnalytics = useFormAnalytics('DelegateForm');
   const { symbol, isDcpNetwork, logo } = useGasToken();
 
   const { rpcBaseURL: rpcUrl, chainId: tezosChainId } = network;
-  const tezos = getTezosToolkitWithSigner(rpcUrl, ownerAddress || account.address);
-
+  const ownerAddress = account.ownerAddress;
   const address = account.address;
+  const tezos = getTezosToolkitWithSigner(rpcUrl, ownerAddress || account.address);
 
   const balanceNum = balance.toNumber();
   const domainsClient = useTezosDomainsClient();

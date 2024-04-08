@@ -2,15 +2,18 @@ import React, { memo, KeyboardEventHandler, ReactNode, useCallback, useMemo } fr
 
 import { useForm } from 'react-hook-form';
 
-import { Alert, FormField, FormSubmitButton } from 'app/atoms';
+import { Alert, Divider, FormField, FormSubmitButton } from 'app/atoms';
 import AccountBanner from 'app/templates/AccountBanner';
 import { T, t } from 'lib/i18n';
 import { useSafeState } from 'lib/ui/hooks';
 import { AccountForTezos } from 'temple/accounts';
 import { UNDER_DEVELOPMENT_MSG } from 'temple/evm/under_dev_msg';
-import { useAccountForTezos, useTezosNetworkRpcUrl } from 'temple/front';
+import { useAccountForTezos } from 'temple/front';
+import { TezosNetworkEssentials } from 'temple/networks';
 import { getReadOnlyTezos, confirmTezosOperation } from 'temple/tezos';
 import { activateTezosAccount } from 'temple/tezos/activate-account';
+
+import { ChainSelect, useChainSelectController } from '../ChainSelect';
 
 import { ActivateAccountSelectors } from './ActivateAccount.selectors';
 
@@ -22,25 +25,44 @@ const SUBMIT_ERROR_TYPE = 'submit-error';
 
 const ActivateAccount = memo(() => {
   const account = useAccountForTezos();
+  const chainSelectController = useChainSelectController();
+  const network = chainSelectController.value;
 
-  return account ? (
-    <ActivateTezosAccount account={account} />
-  ) : (
-    <div className="w-full max-w-sm p-2 mx-auto">{UNDER_DEVELOPMENT_MSG}</div>
+  return (
+    <>
+      <div className="w-full max-w-sm mx-auto my-8">
+        <div className="flex">
+          <span className="text-xl text-gray-900">
+            <T id="network" />:
+          </span>
+          <div className="flex-1" />
+          <ChainSelect controller={chainSelectController} />
+        </div>
+
+        <Divider className="mt-4 mb-8" />
+      </div>
+
+      {account && network.chain === 'tezos' ? (
+        <ActivateTezosAccount network={network} account={account} />
+      ) : (
+        <div className="text-center">{UNDER_DEVELOPMENT_MSG}</div>
+      )}
+    </>
   );
 });
 
 interface Props {
+  network: TezosNetworkEssentials;
   account: AccountForTezos;
 }
 
-const ActivateTezosAccount = memo<Props>(({ account }) => {
-  const rpcUrl = useTezosNetworkRpcUrl();
-
+const ActivateTezosAccount = memo<Props>(({ network, account }) => {
   const [success, setSuccess] = useSafeState<ReactNode>(null);
 
   const { register, handleSubmit, formState, clearError, setError, errors } = useForm<FormData>();
   const submitting = formState.isSubmitting;
+
+  const rpcUrl = network.rpcBaseURL;
 
   const onSubmit = useCallback(
     async (data: FormData) => {
@@ -90,6 +112,7 @@ const ActivateTezosAccount = memo<Props>(({ account }) => {
   return (
     <form className="w-full max-w-sm p-2 mx-auto" onSubmit={submit}>
       <AccountBanner
+        tezosNetwork={network}
         account={account}
         labelDescription={
           <>

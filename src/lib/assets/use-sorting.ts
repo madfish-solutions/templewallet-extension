@@ -8,8 +8,8 @@ import { useUsdToTokenRates } from 'lib/fiat-currency/core';
 import { ZERO } from 'lib/utils/numbers';
 import { useTezosNetwork } from 'temple/front';
 
-export const useTokensSortPredicate = (publicKeyHash: string) => {
-  const getBalance = useGetCurrentAccountTokenOrGasBalanceWithDecimals(publicKeyHash);
+export const useTokensSortPredicate = (publicKeyHash: string, tezosChainId: string) => {
+  const getBalance = useGetCurrentAccountTokenOrGasBalanceWithDecimals(publicKeyHash, tezosChainId);
   const usdToTokenRates = useUsdToTokenRates();
 
   return useCallback(

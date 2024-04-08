@@ -2,8 +2,7 @@ import React, { memo } from 'react';
 
 import clsx from 'clsx';
 
-import { Button } from 'app/atoms/Button';
-import Name from 'app/atoms/Name';
+import { Name, Button } from 'app/atoms';
 import { ReactComponent as ChevronDownIcon } from 'app/icons/chevron-down.svg';
 import Popper from 'lib/ui/Popper';
 import { getNetworkTitle } from 'temple/front/networks';

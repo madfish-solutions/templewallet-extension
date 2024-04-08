@@ -31,6 +31,7 @@
 - Collect all storage keys in a single record
 - Move deps-less callbacks out of `lib/temple/client.ts` to a module ?
 - `BG_State.defaultNetworks` to FG
+- `interface ChainAsset { chainId: string | number; slug: string; }`
 -
 
 

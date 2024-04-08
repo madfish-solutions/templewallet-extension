@@ -27,8 +27,10 @@ export interface TempleState {
   settings: TempleSettings | null;
 }
 
+export const TEZOS_MAINNET_CHAIN_ID = 'NetXdQprcVkpaWU';
+
 export enum TempleTezosChainId {
-  Mainnet = 'NetXdQprcVkpaWU',
+  Mainnet = TEZOS_MAINNET_CHAIN_ID,
   Ghostnet = 'NetXnHfVqm9iesp',
   Monday = 'NetXaqtQ8b5nihx',
   Mumbai = 'NetXgbcrNtXD2yA',

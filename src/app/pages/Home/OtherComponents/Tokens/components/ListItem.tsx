@@ -26,7 +26,7 @@ interface Props {
 }
 
 export const ListItem = memo<Props>(({ network, publicKeyHash, assetSlug, active, scam }) => {
-  const { value: balance = ZERO, assetMetadata: metadata } = useBalance(assetSlug, publicKeyHash);
+  const { value: balance = ZERO, assetMetadata: metadata } = useBalance(assetSlug, publicKeyHash, network);
 
   const classNameMemo = useMemo(
     () =>
@@ -51,7 +51,7 @@ export const ListItem = memo<Props>(({ network, publicKeyHash, assetSlug, active
       testIDProperties={{ key: assetSlug }}
       {...setAnotherSelector('name', assetName)}
     >
-      <AssetIcon assetSlug={assetSlug} size={40} className="mr-2 flex-shrink-0" />
+      <AssetIcon tezosChainId={network.chainId} assetSlug={assetSlug} size={40} className="mr-2 flex-shrink-0" />
 
       <div className={classNames('w-full', styles.tokenInfoWidth)}>
         <div className="flex justify-between w-full mb-1">

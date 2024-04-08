@@ -26,7 +26,7 @@ import { useRawBalance } from 'lib/balances';
 import { T, t } from 'lib/i18n';
 import { useRetryableSWR } from 'lib/swr';
 import { tryParseExpenses } from 'lib/temple/front';
-import { TempleAccountType, TempleTezosChainId, TempleConfirmationPayload } from 'lib/temple/types';
+import { TempleAccountType, TempleConfirmationPayload } from 'lib/temple/types';
 import { useSafeState } from 'lib/ui/hooks';
 import { isTruthy } from 'lib/utils';
 import { findAccountForTezos } from 'temple/accounts';
@@ -67,7 +67,8 @@ const InternalConfirmation: FC<InternalConfiramtionProps> = ({ payload, onConfir
   const networkRpc = payload.type === 'operations' ? payload.networkRpc : currentNetworkRpc;
 
   const tezosChainId = useTezosChainIdLoadingValue(networkRpc, true)!;
-  const mainnet = tezosChainId === TempleTezosChainId.Mainnet;
+
+  const tezosNetwork = useMemo(() => ({ chainId: tezosChainId, rpcBaseURL: networkRpc }), [tezosChainId, networkRpc]);
 
   const relevantAccounts = useRelevantAccounts(tezosChainId);
   const account = useMemo(
@@ -90,7 +91,7 @@ const InternalConfirmation: FC<InternalConfiramtionProps> = ({ payload, onConfir
     }));
   }, [rawExpensesData]);
 
-  const { value: tezBalance } = useRawBalance(TEZ_TOKEN_SLUG, account.address);
+  const { value: tezBalance } = useRawBalance(TEZ_TOKEN_SLUG, account.address, networkRpc);
 
   const totalTransactionCost = useMemo(() => {
     if (payload.type === 'operations') {
@@ -265,7 +266,7 @@ const InternalConfirmation: FC<InternalConfiramtionProps> = ({ payload, onConfir
             <>
               <AccountBanner account={account} className="w-full mb-4" smallLabelIndent />
 
-              <NetworkBanner rpc={payload.type === 'operations' ? payload.networkRpc : currentNetworkRpc} />
+              <NetworkBanner rpc={networkRpc} />
 
               {signPayloadFormats.length > 1 && (
                 <div className="w-full flex justify-end mb-3 items-center">
@@ -307,11 +308,11 @@ const InternalConfirmation: FC<InternalConfiramtionProps> = ({ payload, onConfir
 
               {spFormat.key === 'preview' && (
                 <ExpensesView
+                  tezosNetwork={tezosNetwork}
                   expenses={expensesData}
                   error={payloadError}
                   estimates={payload.type === 'operations' ? payload.estimates : undefined}
                   modifyFeeAndLimit={modifyFeeAndLimit}
-                  mainnet={mainnet}
                   gasFeeError={gasFeeError}
                 />
               )}

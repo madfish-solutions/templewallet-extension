@@ -7,7 +7,7 @@ import { useChainSelectController, ChainSelect } from 'app/templates/ChainSelect
 import SendForm from 'app/templates/SendForm';
 import { T, t } from 'lib/i18n';
 import { UNDER_DEVELOPMENT_MSG } from 'temple/evm/under_dev_msg';
-import { SomeChain, useAccountAddressForTezos, useAllTezosChains } from 'temple/front';
+import { SomeChain, useAccountForTezos, useAllTezosChains } from 'temple/front';
 
 interface Props {
   tezosChainId?: string | null;
@@ -15,7 +15,7 @@ interface Props {
 }
 
 const Send = memo<Props>(({ tezosChainId, assetSlug }) => {
-  const accountTezAddress = useAccountAddressForTezos();
+  const tezosAccount = useAccountForTezos();
 
   const allTezosChains = useAllTezosChains();
 
@@ -39,8 +39,8 @@ const Send = memo<Props>(({ tezosChainId, assetSlug }) => {
           </>
         )}
 
-        {accountTezAddress && network && network.chain === 'tezos' ? (
-          <SendForm network={network} assetSlug={assetSlug} publicKeyHash={accountTezAddress} />
+        {tezosAccount && network && network.chain === 'tezos' ? (
+          <SendForm network={network} tezosAccount={tezosAccount} assetSlug={assetSlug} />
         ) : (
           <div className="text-center">{UNDER_DEVELOPMENT_MSG}</div>
         )}

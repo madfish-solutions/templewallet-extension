@@ -17,6 +17,8 @@ import { TProps, T, t } from 'lib/i18n';
 import { useAssetMetadata, getAssetSymbol } from 'lib/metadata';
 import { RawOperationAssetExpense, RawOperationExpenses } from 'lib/temple/front';
 import { mutezToTz, tzToMutez } from 'lib/temple/helpers';
+import { TEZOS_MAINNET_CHAIN_ID } from 'lib/temple/types';
+import { TezosNetworkEssentials } from 'temple/networks';
 
 import OperationsBanner from '../OperationsBanner/OperationsBanner';
 import { OperationsBannerSelectors } from '../OperationsBanner/OperationsBanner.selectors';
@@ -31,14 +33,14 @@ type OperationExpenses = Omit<RawOperationExpenses, 'expenses'> & {
   expenses: OperationAssetExpense[];
 };
 
-type ExpensesViewProps = {
+interface ExpensesViewProps {
+  tezosNetwork: TezosNetworkEssentials;
   expenses?: OperationExpenses[];
   estimates?: Estimate[];
-  mainnet?: boolean;
   modifyFeeAndLimit?: ModifyFeeAndLimit;
   gasFeeError?: boolean;
   error?: any;
-};
+}
 
 export interface ModifyFeeAndLimit {
   totalFee: number;
@@ -50,14 +52,15 @@ export interface ModifyFeeAndLimit {
 const MAX_GAS_FEE = 1000;
 
 const ExpensesView: FC<ExpensesViewProps> = ({
+  tezosNetwork,
   expenses,
   estimates,
-  mainnet,
   modifyFeeAndLimit,
   gasFeeError,
   error
 }) => {
-  const { symbol } = useGasToken();
+  const mainnet = tezosNetwork.chainId === TEZOS_MAINNET_CHAIN_ID;
+  const { symbol } = useGasToken(tezosNetwork.rpcBaseURL);
   const [showDetails, setShowDetails] = useState(false);
 
   const toggleShowDetails = useCallback(() => setShowDetails(prevValue => !prevValue), []);
@@ -220,7 +223,13 @@ const ExpensesView: FC<ExpensesViewProps> = ({
         style={{ height: gasFeeError ? '10rem' : '11rem' }}
       >
         {expenses.map((item, index, arr) => (
-          <ExpenseViewItem key={index} item={item} last={index === arr.length - 1} mainnet={mainnet} />
+          <ExpenseViewItem
+            key={index}
+            tezosChainId={tezosNetwork.chainId}
+            item={item}
+            last={index === arr.length - 1}
+            mainnet={mainnet}
+          />
         ))}
 
         {modifyFeeAndLimit && (
@@ -281,13 +290,14 @@ const ExpensesView: FC<ExpensesViewProps> = ({
 
 export default ExpensesView;
 
-type ExpenseViewItemProps = {
+interface ExpenseViewItemProps {
+  tezosChainId: string;
   item: OperationExpenses;
   last: boolean;
   mainnet?: boolean;
-};
+}
 
-const ExpenseViewItem: FC<ExpenseViewItemProps> = ({ item, last, mainnet }) => {
+const ExpenseViewItem: FC<ExpenseViewItemProps> = ({ tezosChainId, item, last, mainnet }) => {
   const operationTypeLabel = useMemo(() => {
     switch (item.type) {
       // TODO: add translations for other operations types
@@ -400,6 +410,7 @@ const ExpenseViewItem: FC<ExpenseViewItemProps> = ({ item, last, mainnet }) => {
             .map((expense, index, arr) => (
               <span key={index}>
                 <OperationVolumeDisplay
+                  tezosChainId={tezosChainId}
                   expense={expense}
                   volume={item.amount}
                   withdrawal={withdrawal}
@@ -410,7 +421,7 @@ const ExpenseViewItem: FC<ExpenseViewItemProps> = ({ item, last, mainnet }) => {
             ))}
 
           {item.expenses.length === 0 && item.amount && new BigNumber(item.amount).isGreaterThan(0) ? (
-            <OperationVolumeDisplay volume={item.amount!} mainnet={mainnet} />
+            <OperationVolumeDisplay tezosChainId={tezosChainId} volume={item.amount!} mainnet={mainnet} />
           ) : null}
         </div>
       </div>
@@ -440,15 +451,16 @@ const OperationArgumentDisplay = memo<OperationArgumentDisplayProps>(({ i18nKey,
   />
 ));
 
-type OperationVolumeDisplayProps = {
+interface OperationVolumeDisplayProps {
+  tezosChainId: string;
   expense?: OperationAssetExpense;
   volume?: number;
   withdrawal?: boolean;
   mainnet?: boolean;
-};
+}
 
-const OperationVolumeDisplay = memo<OperationVolumeDisplayProps>(({ expense, volume, mainnet }) => {
-  const metadata = useAssetMetadata(expense?.assetSlug ?? TEZ_TOKEN_SLUG);
+const OperationVolumeDisplay = memo<OperationVolumeDisplayProps>(({ tezosChainId, expense, volume, mainnet }) => {
+  const metadata = useAssetMetadata(expense?.assetSlug ?? TEZ_TOKEN_SLUG, tezosChainId);
 
   const finalVolume = expense ? expense.amount.div(10 ** (metadata?.decimals || 0)) : volume;
 

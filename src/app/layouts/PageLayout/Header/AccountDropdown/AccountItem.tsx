@@ -9,7 +9,7 @@ import { setAnotherSelector, setTestID } from 'lib/analytics';
 import { StoredAccount } from 'lib/temple/types';
 import { useScrollIntoViewOnMount } from 'lib/ui/use-scroll-into-view';
 import { getAccountAddressForEvm, getAccountAddressForTezos } from 'temple/accounts';
-import { useEvmNetwork } from 'temple/front';
+import { useEvmNetwork, useTezosMainnetChain } from 'temple/front';
 
 import { AccountDropdownSelectors } from './selectors';
 
@@ -23,6 +23,7 @@ interface Props {
 
 export const AccountItem = memo<Props>(({ account, selected, gasTokenName, attractSelf, onClick }) => {
   const evmNetwork = useEvmNetwork();
+  const tezosMainnetChain = useTezosMainnetChain();
 
   const [accountTezAddress, displayAddress] = useMemo(() => {
     const tezAddress = getAccountAddressForTezos(account);
@@ -71,7 +72,7 @@ export const AccountItem = memo<Props>(({ account, selected, gasTokenName, attra
 
         <div className="flex flex-wrap items-center">
           {accountTezAddress ? (
-            <Balance address={accountTezAddress}>
+            <Balance network={tezosMainnetChain} address={accountTezAddress}>
               {bal => (
                 <span className="text-xs leading-tight flex items-baseline text-gray-500">
                   <Money smallFractionFont={false} tooltip={false}>

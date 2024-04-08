@@ -15,7 +15,7 @@ import {
 import { useMemoWithCompare, useUpdatableRef } from 'lib/ui/hooks';
 import { getAccountAddressForTezos, getAccountForEvm, getAccountForTezos } from 'temple/accounts';
 import { intercomClient } from 'temple/front/intercom-client';
-import { DEFAULT_EVM_NETWORKS, TEZOS_DEFAULT_NETWORKS } from 'temple/networks';
+import { DEFAULT_EVM_NETWORKS, TEZOS_DEFAULT_NETWORKS, isTezosDcpChainId } from 'temple/networks';
 
 import { useTempleClient } from './client';
 import { usePassiveStorage } from './storage';
@@ -96,7 +96,7 @@ function useReadyTemple() {
     return {
       ...tezosNetwork,
       isMainnet: chainId === TempleTezosChainId.Mainnet,
-      isDcp: chainId === TempleTezosChainId.Dcp || chainId === TempleTezosChainId.DcpTest
+      isDcp: isTezosDcpChainId(chainId)
     };
   }, [allTezosNetworks, tezosNetworkId, defTezosNetwork]);
 

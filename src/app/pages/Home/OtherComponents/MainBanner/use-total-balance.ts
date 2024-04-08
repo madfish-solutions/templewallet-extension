@@ -10,10 +10,10 @@ import { isTruthy } from 'lib/utils';
 import { ZERO } from 'lib/utils/numbers';
 
 /** Total balance in dollar value of displayed tokens, taken from store */
-export const useTotalBalance = (publicKeyHash: string, chainId: string) => {
-  const tokensSlugs = useEnabledAccountTokensSlugs(publicKeyHash, chainId);
+export const useTotalBalance = (publicKeyHash: string, tezosChainId: string) => {
+  const tokensSlugs = useEnabledAccountTokensSlugs(publicKeyHash, tezosChainId);
 
-  const getBalance = useGetCurrentAccountTokenOrGasBalanceWithDecimals(publicKeyHash);
+  const getBalance = useGetCurrentAccountTokenOrGasBalanceWithDecimals(publicKeyHash, tezosChainId);
   const allUsdToTokenRates = useSelector(state => state.currency.usdToTokenRates.data);
 
   const slugs = useMemo(() => [TEZ_TOKEN_SLUG, ...tokensSlugs], [tokensSlugs]);

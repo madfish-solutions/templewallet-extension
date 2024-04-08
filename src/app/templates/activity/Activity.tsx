@@ -11,7 +11,8 @@ import { PartnersPromotion, PartnersPromotionVariant } from 'app/templates/partn
 import { T } from 'lib/i18n/react';
 import useTezosActivities from 'lib/temple/activity-new/hook';
 import { UNDER_DEVELOPMENT_MSG } from 'temple/evm/under_dev_msg';
-import { useAccountAddressForTezos } from 'temple/front';
+import { useAccountAddressForTezos, useTezosChainByChainId } from 'temple/front';
+import { TezosNetworkEssentials } from 'temple/networks';
 
 import { ActivityItem } from './ActivityItem';
 
@@ -24,26 +25,29 @@ interface Props {
 }
 
 export const ActivityTab = memo<Props>(({ tezosChainId, assetSlug }) => {
+  const network = useTezosChainByChainId(tezosChainId);
   const accountAddress = useAccountAddressForTezos();
 
-  return accountAddress ? (
-    <ActivityComponent tezosChainId={tezosChainId} accountAddress={accountAddress} assetSlug={assetSlug} />
+  return network && accountAddress ? (
+    <ActivityComponent network={network} accountAddress={accountAddress} assetSlug={assetSlug} />
   ) : (
     <div className="w-full max-w-sm mx-auto py-3 text-center">{UNDER_DEVELOPMENT_MSG}</div>
   );
 });
 
-interface ActivityComponentProps extends Props {
+interface ActivityComponentProps {
+  network: TezosNetworkEssentials;
   accountAddress: string;
+  assetSlug?: string;
 }
 
-const ActivityComponent: FC<ActivityComponentProps> = ({ tezosChainId, accountAddress, assetSlug }) => {
+const ActivityComponent: FC<ActivityComponentProps> = ({ network, accountAddress, assetSlug }) => {
   const {
     loading,
     reachedTheEnd,
     list: activities,
     loadMore
-  } = useTezosActivities(accountAddress, INITIAL_NUMBER, assetSlug);
+  } = useTezosActivities(network, accountAddress, INITIAL_NUMBER, assetSlug);
 
   const { popup } = useAppEnv();
 
@@ -105,7 +109,7 @@ const ActivityComponent: FC<ActivityComponentProps> = ({ tezosChainId, accountAd
             <ActivityItem
               key={activity.hash}
               activity={activity}
-              tezosChainId={tezosChainId}
+              tezosChainId={network.chainId}
               address={accountAddress}
             />
           ))}
