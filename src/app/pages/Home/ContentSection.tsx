@@ -12,7 +12,6 @@ import AssetInfo from 'app/templates/AssetInfo';
 import { TabsBar } from 'app/templates/TabBar';
 import { isTezAsset } from 'lib/assets';
 import { t, TID } from 'lib/i18n';
-import { TEZOS_MAINNET_CHAIN_ID } from 'lib/temple/types';
 
 import { CollectiblesTab } from '../Collectibles/CollectiblesTab';
 
@@ -71,7 +70,7 @@ export const ContentSection = memo<Props>(({ tezosChainId, assetSlug, className 
         {
           name: 'activity',
           titleI18nKey: 'activity',
-          Component: () => <ActivityTab tezosChainId={TEZOS_MAINNET_CHAIN_ID} />,
+          Component: () => <ActivityTab />,
           testID: HomeSelectors.activityTab,
           whileMessageI18nKey: 'operationHistoryWhileMessage'
         }

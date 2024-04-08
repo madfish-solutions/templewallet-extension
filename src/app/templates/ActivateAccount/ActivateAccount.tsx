@@ -2,7 +2,8 @@ import React, { memo, KeyboardEventHandler, ReactNode, useCallback, useMemo } fr
 
 import { useForm } from 'react-hook-form';
 
-import { Alert, Divider, FormField, FormSubmitButton } from 'app/atoms';
+import { Alert, FormField, FormSubmitButton } from 'app/atoms';
+import { ContentContainer } from 'app/layouts/ContentContainer';
 import AccountBanner from 'app/templates/AccountBanner';
 import { T, t } from 'lib/i18n';
 import { useSafeState } from 'lib/ui/hooks';
@@ -13,7 +14,7 @@ import { TezosNetworkEssentials } from 'temple/networks';
 import { getReadOnlyTezos, confirmTezosOperation } from 'temple/tezos';
 import { activateTezosAccount } from 'temple/tezos/activate-account';
 
-import { ChainSelect, useChainSelectController } from '../ChainSelect';
+import { ChainSelectSection, useChainSelectController } from '../ChainSelect';
 
 import { ActivateAccountSelectors } from './ActivateAccount.selectors';
 
@@ -29,25 +30,15 @@ const ActivateAccount = memo(() => {
   const network = chainSelectController.value;
 
   return (
-    <>
-      <div className="w-full max-w-sm mx-auto my-8">
-        <div className="flex">
-          <span className="text-xl text-gray-900">
-            <T id="network" />:
-          </span>
-          <div className="flex-1" />
-          <ChainSelect controller={chainSelectController} />
-        </div>
-
-        <Divider className="mt-4 mb-8" />
-      </div>
+    <ContentContainer className="my-8">
+      <ChainSelectSection controller={chainSelectController} />
 
       {account && network.chain === 'tezos' ? (
         <ActivateTezosAccount network={network} account={account} />
       ) : (
         <div className="text-center">{UNDER_DEVELOPMENT_MSG}</div>
       )}
-    </>
+    </ContentContainer>
   );
 });
 
@@ -110,7 +101,7 @@ const ActivateTezosAccount = memo<Props>(({ network, account }) => {
   );
 
   return (
-    <form className="w-full max-w-sm p-2 mx-auto" onSubmit={submit}>
+    <form className="p-2" onSubmit={submit}>
       <AccountBanner
         tezosNetwork={network}
         account={account}

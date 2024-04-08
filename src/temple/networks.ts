@@ -17,6 +17,7 @@ export interface EvmNetworkEssentials {
 }
 
 export interface NetworkBase {
+  /** @deprecated // TODO: Better prop name? */
   chain: TempleChainName;
   id: string;
   rpcBaseURL: string;
@@ -36,6 +37,7 @@ export interface NetworkBase {
 export type StoredNetwork = StoredTezosNetwork | StoredEvmNetwork;
 
 export interface StoredTezosNetwork extends NetworkBase {
+  /** @deprecated // TODO: Better prop name? */
   chain: TempleChainName.Tezos;
   chainId: string;
 }
@@ -123,6 +125,7 @@ export const TEZOS_DEFAULT_NETWORKS: NonEmptyArray<StoredTezosNetwork> = [
 ];
 
 export interface StoredEvmNetwork extends NetworkBase {
+  /** @deprecated // TODO: Better prop name? */
   chain: TempleChainName.EVM;
   chainId: number;
   currency: EvmNativeCurrency;

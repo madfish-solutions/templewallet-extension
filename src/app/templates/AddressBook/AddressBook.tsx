@@ -5,6 +5,8 @@ import { useForm } from 'react-hook-form';
 
 import { Name, Identicon, FormField, FormSubmitButton, HashChip, SubTitle } from 'app/atoms';
 import { ReactComponent as CloseIcon } from 'app/icons/close.svg';
+import { ContentContainer } from 'app/layouts/ContentContainer';
+import { ChainSelectSection, useChainSelectController } from 'app/templates/ChainSelect';
 import { setAnotherSelector, setTestID } from 'lib/analytics';
 import { t, T } from 'lib/i18n';
 import { useContactsActions, useFilteredContacts } from 'lib/temple/front';
@@ -12,7 +14,7 @@ import { TempleContact } from 'lib/temple/types';
 import { isValidTezosAddress } from 'lib/tezos';
 import { useConfirm } from 'lib/ui/dialog';
 import { delay } from 'lib/utils';
-import { isTezosDomainsNameValid, useTezosDomainsClient } from 'temple/front/tezos';
+import { isTezosDomainsNameValid, getTezosDomainsClient } from 'temple/front/tezos';
 
 import CustomSelect, { OptionRenderProps } from '../CustomSelect';
 
@@ -52,7 +54,7 @@ const AddressBook: React.FC = () => {
   );
 
   return (
-    <div className="w-full max-w-sm p-2 pb-4 mx-auto">
+    <ContentContainer className="p-2 pb-4">
       <SubTitle className="mb-4">
         <T id="addNewContact" />
       </SubTitle>
@@ -79,7 +81,7 @@ const AddressBook: React.FC = () => {
         light
         hoverable={false}
       />
-    </div>
+    </ContentContainer>
   );
 };
 
@@ -94,7 +96,9 @@ const SUBMIT_ERROR_TYPE = 'submit-error';
 
 const AddNewContactForm: React.FC<{ className?: string }> = ({ className }) => {
   const { addContact } = useContactsActions();
-  const domainsClient = useTezosDomainsClient();
+
+  const chainSelectController = useChainSelectController();
+  const network = chainSelectController.value;
 
   const {
     register,
@@ -107,6 +111,25 @@ const AddNewContactForm: React.FC<{ className?: string }> = ({ className }) => {
   } = useForm<ContactFormData>();
   const submitting = formState.isSubmitting;
 
+  const resolveAddress = useCallback(
+    async (address: string) => {
+      const domainsClient =
+        network.chain === 'tezos' ? getTezosDomainsClient(network.chainId, network.rpcBaseURL) : null;
+
+      if (domainsClient && isTezosDomainsNameValid(address, domainsClient)) {
+        const resolved = await domainsClient.resolver.resolveNameToAddress(address);
+        if (!resolved) {
+          throw new Error(t('domainDoesntResolveToAddress', address));
+        }
+
+        return resolved;
+      }
+
+      return address;
+    },
+    [network]
+  );
+
   const onAddContactSubmit = useCallback(
     async ({ address, name }: ContactFormData) => {
       if (submitting) return;
@@ -114,14 +137,7 @@ const AddNewContactForm: React.FC<{ className?: string }> = ({ className }) => {
       try {
         clearError();
 
-        if (isTezosDomainsNameValid(address, domainsClient)) {
-          const resolved = await domainsClient.resolver.resolveNameToAddress(address);
-          if (!resolved) {
-            throw new Error(t('domainDoesntResolveToAddress', address));
-          }
-
-          address = resolved;
-        }
+        address = await resolveAddress(address);
 
         if (!isValidTezosAddress(address)) {
           throw new Error(t('invalidAddressOrDomain'));
@@ -137,7 +153,7 @@ const AddNewContactForm: React.FC<{ className?: string }> = ({ className }) => {
         setError('address', SUBMIT_ERROR_TYPE, err.message);
       }
     },
-    [submitting, clearError, addContact, resetForm, setError, domainsClient]
+    [submitting, resolveAddress, clearError, addContact, resetForm, setError]
   );
 
   const validateAddressField = useCallback(
@@ -146,22 +162,17 @@ const AddNewContactForm: React.FC<{ className?: string }> = ({ className }) => {
         return t('required');
       }
 
-      if (isTezosDomainsNameValid(value, domainsClient)) {
-        const resolved = await domainsClient.resolver.resolveNameToAddress(value);
-        if (!resolved) {
-          return t('domainDoesntResolveToAddress', value);
-        }
-
-        value = resolved;
-      }
+      value = await resolveAddress(value);
 
       return isValidTezosAddress(value) ? true : t('invalidAddressOrDomain');
     },
-    [domainsClient]
+    [resolveAddress]
   );
 
   return (
     <form className={className} onSubmit={handleSubmit(onAddContactSubmit)}>
+      <ChainSelectSection controller={chainSelectController} onlyForAddressResolution />
+
       <FormField
         ref={register({ validate: validateAddressField })}
         label={t('address')}

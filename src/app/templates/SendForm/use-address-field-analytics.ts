@@ -5,12 +5,17 @@ import { isDefined } from '@rnw-community/shared';
 import { AnalyticsEventCategory, useAnalytics } from 'lib/analytics';
 import { validateRecipient } from 'lib/temple/front';
 import { otherNetworks } from 'lib/temple/front/other-networks';
-import { isTezosDomainsNameValid, useTezosDomainsClient } from 'temple/front/tezos';
+import { isTezosDomainsNameValid, getTezosDomainsClient } from 'temple/front/tezos';
+import { TezosNetworkEssentials } from 'temple/networks';
 
-export const useAddressFieldAnalytics = (value: string, addressFromNetworkEventName: string) => {
+export const useAddressFieldAnalytics = (
+  network: TezosNetworkEssentials,
+  value: string,
+  addressFromNetworkEventName: string
+) => {
   const analytics = useAnalytics();
   const valueRef = useRef(value);
-  const domainsClient = useTezosDomainsClient();
+  const domainsClient = getTezosDomainsClient(network.chainId, network.rpcBaseURL);
 
   const trackNetworkEvent = useCallback(
     (networkSlug?: string) =>

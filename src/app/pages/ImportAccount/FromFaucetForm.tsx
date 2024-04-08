@@ -1,11 +1,12 @@
-import React, { FC, ReactNode, useCallback, useMemo, useRef } from 'react';
+import React, { FC, ReactNode, useCallback, useRef } from 'react';
 
 import { ChainIds } from '@taquito/taquito';
 import clsx from 'clsx';
 import { useForm, Controller } from 'react-hook-form';
 
-import { Alert, FileInputProps, FileInput, FormField, FormSubmitButton, Divider } from 'app/atoms';
-import { useChainSelectController, ChainSelect } from 'app/templates/ChainSelect';
+import { Alert, FileInputProps, FileInput, FormField, FormSubmitButton } from 'app/atoms';
+import { CONTENT_CONTAINER_CLASSNAME, ContentContainer } from 'app/layouts/ContentContainer';
+import { useChainSelectController, ChainSelectSection } from 'app/templates/ChainSelect';
 import { useFormAnalytics } from 'lib/analytics';
 import { ACCOUNT_ALREADY_EXISTS_ERR_MSG } from 'lib/constants';
 import { TID, T, t } from 'lib/i18n';
@@ -170,34 +171,18 @@ export const FromFaucetForm: FC = () => {
     [importAccount, processing, setAlert, setProcessing]
   );
 
-  const chainSelectElement = useMemo(
-    () => (
-      <>
-        <div className="flex">
-          <span className="text-xl text-gray-900">
-            <T id="network" />:
-          </span>
-          <div className="flex-1" />
-          <ChainSelect controller={chainSelectController} />
-        </div>
-
-        <Divider className="mt-4 mb-8" />
-      </>
-    ),
-    [chainSelectController]
-  );
-
   if (!rpcUrl)
     return (
-      <div className="w-full max-w-sm mx-auto mt-8 text-center">
-        {chainSelectElement}
-        {UNDER_DEVELOPMENT_MSG}
-      </div>
+      <ContentContainer className="mt-8">
+        <ChainSelectSection controller={chainSelectController} />
+
+        <div className="mt-8 text-center">{UNDER_DEVELOPMENT_MSG}</div>
+      </ContentContainer>
     );
 
   return (
     <>
-      <form ref={formRef} className="w-full max-w-sm mx-auto mt-8" onSubmit={handleFormSubmit}>
+      <form ref={formRef} className={clsx(CONTENT_CONTAINER_CLASSNAME, 'mt-8')} onSubmit={handleFormSubmit}>
         {alert && (
           <Alert
             type={alert instanceof Error ? 'error' : 'success'}
@@ -208,9 +193,9 @@ export const FromFaucetForm: FC = () => {
         )}
 
         <div className="flex flex-col w-full">
-          {chainSelectElement}
+          <ChainSelectSection controller={chainSelectController} />
 
-          <label className="mb-4 leading-tight flex flex-col">
+          <label className="mt-8 mb-4 leading-tight flex flex-col">
             <span className="text-base font-semibold text-gray-700">
               <T id="faucetFile" />
             </span>
@@ -237,7 +222,7 @@ export const FromFaucetForm: FC = () => {
         </div>
       </form>
 
-      <form className="w-full max-w-sm mx-auto my-8" onSubmit={handleTextFormSubmit(onTextFormSubmit)}>
+      <form className={clsx(CONTENT_CONTAINER_CLASSNAME, 'my-8')} onSubmit={handleTextFormSubmit(onTextFormSubmit)}>
         <Controller
           name="text"
           as={<FormField className="font-mono" ref={textFieldRef} />}

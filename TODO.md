@@ -1,5 +1,6 @@
 ## TODO:
 
+- Store Tezos native currency
 - Forbid WebPack to include React
 - Revisit `loadTezosChainId` usage
 - `settings.customNetworks` => `customNetworks: { tezos: {}[], evm: {}[] }`

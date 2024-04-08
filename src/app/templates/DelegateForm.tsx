@@ -35,10 +35,10 @@ import { Link, useLocation } from 'lib/woozie';
 import { AccountForTezos } from 'temple/accounts';
 import { useTezosNetwork } from 'temple/front';
 import {
-  getTezosToolkitWithSigner,
   isTezosDomainsNameValid,
-  useTezosAddressByDomainName,
-  useTezosDomainsClient
+  getTezosToolkitWithSigner,
+  getTezosDomainsClient,
+  useTezosAddressByDomainName
 } from 'temple/front/tezos';
 import { TezosNetworkEssentials } from 'temple/networks';
 
@@ -70,7 +70,7 @@ const DelegateForm = memo<Props>(({ network, account, balance }) => {
   const tezos = getTezosToolkitWithSigner(rpcUrl, ownerAddress || account.address);
 
   const balanceNum = balance.toNumber();
-  const domainsClient = useTezosDomainsClient();
+  const domainsClient = getTezosDomainsClient(network.chainId, network.rpcBaseURL);
   const canUseDomainNames = domainsClient.isSupported;
 
   /**
@@ -91,7 +91,7 @@ const DelegateForm = memo<Props>(({ network, account, balance }) => {
     () => toValue && isTezosDomainsNameValid(toValue, domainsClient),
     [toValue, domainsClient]
   );
-  const { data: resolvedAddress } = useTezosAddressByDomainName(toValue);
+  const { data: resolvedAddress } = useTezosAddressByDomainName(toValue, network);
 
   const toFieldRef = useRef<HTMLTextAreaElement>(null);
 

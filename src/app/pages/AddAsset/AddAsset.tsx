@@ -5,15 +5,16 @@ import classNames from 'clsx';
 import { FormContextValues, useForm } from 'react-hook-form';
 import { useDebouncedCallback } from 'use-debounce';
 
-import { Alert, Divider, FormField, FormSubmitButton, NoSpaceField } from 'app/atoms';
+import { Alert, FormField, FormSubmitButton, NoSpaceField } from 'app/atoms';
 import Spinner from 'app/atoms/Spinner/Spinner';
 import { ReactComponent as AddIcon } from 'app/icons/add.svg';
+import { ContentContainer } from 'app/layouts/ContentContainer';
 import PageLayout from 'app/layouts/PageLayout';
 import { dispatch } from 'app/store';
 import { putTokensAsIsAction, putCollectiblesAsIsAction } from 'app/store/assets/actions';
 import { putCollectiblesMetadataAction } from 'app/store/collectibles-metadata/actions';
 import { putTokensMetadataAction } from 'app/store/tokens-metadata/actions';
-import { useChainSelectController, ChainSelect } from 'app/templates/ChainSelect';
+import { useChainSelectController, ChainSelectSection } from 'app/templates/ChainSelect';
 import { useFormAnalytics } from 'lib/analytics';
 import { TokenMetadataResponse } from 'lib/apis/temple';
 import { toTokenSlug } from 'lib/assets';
@@ -54,23 +55,15 @@ const AddAsset = memo(() => {
         </>
       }
     >
-      <div className="w-full max-w-sm mx-auto py-8">
-        <div className="flex">
-          <span className="text-xl text-gray-900">
-            <T id="network" />:
-          </span>
-          <div className="flex-1" />
-          <ChainSelect controller={chainSelectController} />
-        </div>
-
-        <Divider className="mt-4 mb-8" />
+      <ContentContainer className="py-8">
+        <ChainSelectSection controller={chainSelectController} />
 
         {accountTezosAddress && network.chain === 'tezos' ? (
           <Form accountPkh={accountTezosAddress} network={network} />
         ) : (
           <div className="text-center">{UNDER_DEVELOPMENT_MSG}</div>
         )}
-      </div>
+      </ContentContainer>
     </PageLayout>
   );
 });

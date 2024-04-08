@@ -19,12 +19,12 @@ function validateAnyAddress(value: string) {
 
 export const validateDelegate = async (
   value: string | null | undefined,
-  domainsClient: TaquitoTezosDomainsClient,
+  domainsClient?: TaquitoTezosDomainsClient,
   validateAddress: (value: string) => boolean | string = validateAnyAddress
 ) => {
   if (!value) return false;
 
-  if (!domainsClient.isSupported) return validateAddress(value);
+  if (!domainsClient || !domainsClient.isSupported) return validateAddress(value);
 
   if (isTezosDomainsNameValid(value, domainsClient)) {
     const resolved = await domainsClient.resolver.resolveNameToAddress(value);

@@ -7,7 +7,6 @@ import { Button } from 'app/atoms/Button';
 import Name from 'app/atoms/Name';
 import { ReactComponent as ChevronDownIcon } from 'app/icons/chevron-down.svg';
 import { T } from 'lib/i18n';
-import { useWillUnmount } from 'lib/ui/hooks/useWillUnmount';
 import Popper from 'lib/ui/Popper';
 import { getNetworkTitle } from 'temple/front/networks';
 
@@ -20,12 +19,8 @@ interface Props {
   controller: ChainSelectController;
 }
 
-export const ChainSelect = memo<Props>(({ controller }) => {
+const ChainSelect = memo<Props>(({ controller }) => {
   const selectedChain = controller.value;
-
-  useWillUnmount(() => {
-    console.log('UNMOUNTED');
-  });
 
   return (
     <Popper
@@ -62,13 +57,20 @@ export const ChainSelect = memo<Props>(({ controller }) => {
   );
 });
 
-export const ChainSelectSection = memo<Props>(props => (
+interface ChainSelectSectionProps extends Props {
+  onlyForAddressResolution?: boolean;
+}
+export const ChainSelectSection = memo<ChainSelectSectionProps>(({ onlyForAddressResolution, ...props }) => (
   <>
     <div className="flex">
       <span className="text-xl text-gray-900">
         <T id="network" />:
       </span>
-      <div className="flex-1" />
+
+      <div className="flex-1 text-xs text-gray-100">
+        {onlyForAddressResolution && <span>{`(Only for address resolution)`}</span>}
+      </div>
+
       <ChainSelect {...props} />
     </div>
 

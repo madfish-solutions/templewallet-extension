@@ -22,7 +22,7 @@ interface Props extends PropsWithChildren {
 }
 
 export const ManageAssetsContent: FC<Props> = ({ ofCollectibles, searchValue, setSearchValue, children }) => (
-  <div className="w-full max-w-sm mx-auto mb-6">
+  <div className="mb-6">
     <div className="mb-3 w-full flex">
       <SearchAssetField
         value={searchValue}

@@ -12,11 +12,13 @@ import { SimpleInfiniteScroll } from 'app/atoms/SimpleInfiniteScroll';
 import { useAppEnv } from 'app/env';
 import { useCollectiblesListingLogic } from 'app/hooks/use-collectibles-listing-logic';
 import { ReactComponent as EditingIcon } from 'app/icons/editing.svg';
+import { ContentContainer } from 'app/layouts/ContentContainer';
 import {
   LOCAL_STORAGE_ADULT_BLUR_TOGGLE_KEY,
   LOCAL_STORAGE_SHOW_INFO_TOGGLE_KEY
 } from 'app/pages/Collectibles/constants';
 import { AssetsSelectors } from 'app/pages/Home/OtherComponents/Assets.selectors';
+import { ChainSelectSection, useChainSelectController } from 'app/templates/ChainSelect';
 import { ButtonForManageDropdown } from 'app/templates/ManageDropdown';
 import SearchAssetField from 'app/templates/SearchAssetField';
 import { setTestID } from 'lib/analytics';
@@ -29,7 +31,8 @@ import { useLocalStorage } from 'lib/ui/local-storage';
 import Popper, { PopperChildren, PopperPopup, PopperRenderProps } from 'lib/ui/Popper';
 import { Link } from 'lib/woozie';
 import { UNDER_DEVELOPMENT_MSG } from 'temple/evm/under_dev_msg';
-import { useAccountAddressForTezos, useTezosNetwork } from 'temple/front';
+import { useAccountAddressForTezos } from 'temple/front';
+import { TezosNetworkEssentials } from 'temple/networks';
 
 import { CollectibleItem } from './CollectibleItem';
 import { CollectibleTabSelectors } from './selectors';
@@ -39,22 +42,36 @@ interface Props {
 }
 
 export const CollectiblesTab = memo<Props>(({ scrollToTheTabsBar }) => {
+  const chainSelectController = useChainSelectController();
+  const network = chainSelectController.value;
+
   const accountTezAddress = useAccountAddressForTezos();
 
-  return accountTezAddress ? (
-    <TezosCollectiblesTab publicKeyHash={accountTezAddress} scrollToTheTabsBar={scrollToTheTabsBar} />
-  ) : (
-    <div className="w-full max-w-sm mx-auto py-3 text-center">{UNDER_DEVELOPMENT_MSG}</div>
+  return (
+    <ContentContainer>
+      <ChainSelectSection controller={chainSelectController} />
+
+      {network.chain === 'tezos' && accountTezAddress ? (
+        <TezosCollectiblesTab
+          network={network}
+          publicKeyHash={accountTezAddress}
+          scrollToTheTabsBar={scrollToTheTabsBar}
+        />
+      ) : (
+        <div className="py-3 text-center">{UNDER_DEVELOPMENT_MSG}</div>
+      )}
+    </ContentContainer>
   );
 });
 
 interface TezosCollectiblesTabProps extends Props {
+  network: TezosNetworkEssentials;
   publicKeyHash: string;
 }
 
-const TezosCollectiblesTab = memo<TezosCollectiblesTabProps>(({ publicKeyHash, scrollToTheTabsBar }) => {
+const TezosCollectiblesTab = memo<TezosCollectiblesTabProps>(({ network, publicKeyHash, scrollToTheTabsBar }) => {
   const { popup } = useAppEnv();
-  const { chainId: tezosChainId } = useTezosNetwork();
+  const { chainId: tezosChainId } = network;
 
   const [areDetailsShown, setDetailsShown] = useLocalStorage(LOCAL_STORAGE_SHOW_INFO_TOGGLE_KEY, false);
   const toggleDetailsShown = useCallback(() => void setDetailsShown(val => !val), [setDetailsShown]);
@@ -127,37 +144,35 @@ const TezosCollectiblesTab = memo<TezosCollectiblesTabProps>(({ publicKeyHash, s
   );
 
   return (
-    <div className="w-full max-w-sm mx-auto">
-      <div className={clsx('my-3', popup && 'mx-4')}>
-        <div className="relative mb-4 w-full flex">
-          <SearchAssetField
-            value={searchValue}
-            onValueChange={setSearchValue}
-            containerClassName="mr-2"
-            testID={AssetsSelectors.searchAssetsInputCollectibles}
-          />
+    <div className={clsx('my-3', popup && 'mx-4')}>
+      <div className="relative mb-4 w-full flex">
+        <SearchAssetField
+          value={searchValue}
+          onValueChange={setSearchValue}
+          containerClassName="mr-2"
+          testID={AssetsSelectors.searchAssetsInputCollectibles}
+        />
 
-          <Popper placement="bottom-end" strategy="fixed" popup={renderManageDropdown}>
-            {renderManageButton}
-          </Popper>
-        </div>
-
-        {displayedSlugs.length === 0 ? (
-          buildEmptySection(isSyncing)
-        ) : (
-          <>
-            {isInSearchMode ? (
-              contentElement
-            ) : (
-              <SimpleInfiniteScroll loadNext={loadNext}>{contentElement}</SimpleInfiniteScroll>
-            )}
-
-            <ScrollBackUpButton />
-
-            {isSyncing && <SyncSpinner className="mt-6" />}
-          </>
-        )}
+        <Popper placement="bottom-end" strategy="fixed" popup={renderManageDropdown}>
+          {renderManageButton}
+        </Popper>
       </div>
+
+      {displayedSlugs.length === 0 ? (
+        buildEmptySection(isSyncing)
+      ) : (
+        <>
+          {isInSearchMode ? (
+            contentElement
+          ) : (
+            <SimpleInfiniteScroll loadNext={loadNext}>{contentElement}</SimpleInfiniteScroll>
+          )}
+
+          <ScrollBackUpButton />
+
+          {isSyncing && <SyncSpinner className="mt-6" />}
+        </>
+      )}
     </div>
   );
 });

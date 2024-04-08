@@ -54,10 +54,10 @@ import { useScrollIntoView } from 'lib/ui/use-scroll-into-view';
 import { ZERO } from 'lib/utils/numbers';
 import { AccountForTezos } from 'temple/accounts';
 import {
-  getTezosToolkitWithSigner,
   isTezosDomainsNameValid,
-  useTezosAddressByDomainName,
-  useTezosDomainsClient
+  getTezosToolkitWithSigner,
+  getTezosDomainsClient,
+  useTezosAddressByDomainName
 } from 'temple/front/tezos';
 import { TezosNetworkEssentials } from 'temple/networks';
 
@@ -96,7 +96,7 @@ export const Form: FC<Props> = ({ account, network, assetSlug, setOperation, onA
 
   const accountPkh = account.address;
   const tezos = getTezosToolkitWithSigner(network.rpcBaseURL, account.ownerAddress || accountPkh);
-  const domainsClient = useTezosDomainsClient();
+  const domainsClient = getTezosDomainsClient(network.chainId, network.rpcBaseURL);
 
   const formAnalytics = useFormAnalytics('SendForm');
 
@@ -160,7 +160,7 @@ export const Form: FC<Props> = ({ account, network, assetSlug, setOperation, onA
 
   const amountFieldRef = useRef<HTMLInputElement>(null);
 
-  const { onBlur } = useAddressFieldAnalytics(toValue, 'RECIPIENT_NETWORK');
+  const { onBlur } = useAddressFieldAnalytics(network, toValue, 'RECIPIENT_NETWORK');
 
   const toFilledWithAddress = useMemo(() => Boolean(toValue && isValidTezosAddress(toValue)), [toValue]);
 
@@ -169,7 +169,7 @@ export const Form: FC<Props> = ({ account, network, assetSlug, setOperation, onA
     [toValue, domainsClient]
   );
 
-  const { data: resolvedAddress } = useTezosAddressByDomainName(toValue);
+  const { data: resolvedAddress } = useTezosAddressByDomainName(toValue, network);
 
   const toFilled = useMemo(
     () => (resolvedAddress ? toFilledWithDomain : toFilledWithAddress),

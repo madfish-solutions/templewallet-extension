@@ -28,7 +28,7 @@ export { validateTezosContractAddress } from './helpers';
 export { useOnTezosBlock, useTezosBlockLevel } from './use-block';
 export {
   isTezosDomainsNameValid,
-  useTezosDomainsClient,
+  getTezosDomainsClient,
   useTezosAddressByDomainName,
   useTezosDomainNameByAddress
 } from './tzdns';

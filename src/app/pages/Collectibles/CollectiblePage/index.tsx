@@ -212,7 +212,7 @@ const CollectiblePage = memo<Props>(({ tezosChainId, assetSlug }) => {
 
                 <div className="flex flex-wrap gap-1">
                   {creators.map(creator => (
-                    <AddressChip key={creator.address} pkh={creator.address} />
+                    <AddressChip key={creator.address} address={creator.address} tezosNetwork={network} />
                   ))}
                 </div>
               </div>

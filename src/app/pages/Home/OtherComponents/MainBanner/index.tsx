@@ -4,6 +4,7 @@ import clsx from 'clsx';
 
 import { Button } from 'app/atoms';
 import Money from 'app/atoms/Money';
+import { ContentContainer } from 'app/layouts/ContentContainer';
 import { useTotalBalance } from 'app/pages/Home/OtherComponents/MainBanner/use-total-balance';
 import { dispatch } from 'app/store';
 import { toggleBalanceModeAction } from 'app/store/settings/actions';
@@ -61,7 +62,7 @@ const TotalVolumeBanner = () => {
   const evmAddress = useAccountAddressForEvm();
 
   return (
-    <div className="flex items-start justify-between w-full max-w-sm mx-auto mb-4">
+    <ContentContainer className="flex items-start justify-between mb-4">
       {tezosAddress ? (
         <TezosBalanceInfo network={tezosMainnetChain} accountPkh={tezosAddress} />
       ) : evmAddress ? (
@@ -69,10 +70,16 @@ const TotalVolumeBanner = () => {
       ) : null}
 
       <div className="flex flex-col gap-y-1 items-end">
-        {tezosAddress ? <AddressChip pkh={tezosAddress} testID={HomeSelectors.publicAddressButton} /> : null}
-        {evmAddress ? <AddressChip pkh={evmAddress} /> : null}
+        {tezosAddress ? (
+          <AddressChip
+            address={tezosAddress}
+            tezosNetwork={tezosMainnetChain}
+            testID={HomeSelectors.publicAddressButton}
+          />
+        ) : null}
+        {evmAddress ? <AddressChip address={evmAddress} /> : null}
       </div>
-    </div>
+    </ContentContainer>
   );
 };
 
@@ -226,7 +233,11 @@ const TezosAssetBanner = memo<TezosTezosAssetBanner>(({ network, accountPkh, ass
           </div>
         </div>
 
-        <AddressChip pkh={accountPkh} modeSwitch={{ testID: HomeSelectors.addressModeSwitchButton }} />
+        <AddressChip
+          address={accountPkh}
+          tezosNetwork={network}
+          modeSwitchTestId={HomeSelectors.addressModeSwitchButton}
+        />
       </div>
 
       <div className="flex items-center text-2xl">

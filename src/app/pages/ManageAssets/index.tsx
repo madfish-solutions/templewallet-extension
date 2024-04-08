@@ -1,9 +1,9 @@
 import React, { FC, memo } from 'react';
 
-import { Divider } from 'app/atoms';
 import { ReactComponent as ControlCentreIcon } from 'app/icons/control-centre.svg';
+import { ContentContainer } from 'app/layouts/ContentContainer';
 import PageLayout from 'app/layouts/PageLayout';
-import { ChainSelect, useChainSelectController } from 'app/templates/ChainSelect';
+import { useChainSelectController, ChainSelectSection } from 'app/templates/ChainSelect';
 import { AssetTypesEnum } from 'lib/assets/types';
 import { T } from 'lib/i18n';
 import { UNDER_DEVELOPMENT_MSG } from 'temple/evm/under_dev_msg';
@@ -48,18 +48,8 @@ const ManageAssetsForChain: FC<ManageAssetsForChainProps> = ({ ofCollectibles, a
   const network = chainSelectController.value;
 
   return (
-    <>
-      <div className="w-full max-w-sm mx-auto mb-6">
-        <div className="flex">
-          <span className="text-xl text-gray-900">
-            <T id="network" />:
-          </span>
-          <div className="flex-1" />
-          <ChainSelect controller={chainSelectController} />
-        </div>
-
-        <Divider className="mt-4" />
-      </div>
+    <ContentContainer className="mb-6">
+      <ChainSelectSection controller={chainSelectController} />
 
       {network.chain !== 'tezos' ? (
         <div className="text-center">{UNDER_DEVELOPMENT_MSG}</div>
@@ -68,7 +58,7 @@ const ManageAssetsForChain: FC<ManageAssetsForChainProps> = ({ ofCollectibles, a
       ) : (
         <ManageTezosTokens tezosChainId={network.chainId} publicKeyHash={accountTezAddress} />
       )}
-    </>
+    </ContentContainer>
   );
 };
 

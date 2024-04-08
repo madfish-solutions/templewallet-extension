@@ -53,8 +53,6 @@ export const ChainDropdown = memo<Props>(({ opened, setOpened, controller }) => 
     []
   );
 
-  console.log('OPENED:', opened);
-
   return (
     <DropdownWrapper opened={opened} design="dark" className="origin-top-right p-2 abcdef">
       <div className={styles.scroll}>
@@ -73,9 +71,7 @@ export const ChainDropdown = memo<Props>(({ opened, setOpened, controller }) => 
               network={network}
               selected={selected}
               onClick={() => {
-                console.log('Close()', 1);
                 setOpened(false);
-                console.log('Close()', 2);
 
                 if (!selected) handleTezosNetworkSelect(network);
               }}

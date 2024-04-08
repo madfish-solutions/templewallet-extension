@@ -1,4 +1,4 @@
-import React, { memo, useEffect } from 'react';
+import React, { memo } from 'react';
 
 import classNames from 'clsx';
 import { QRCode } from 'react-qr-svg';
@@ -8,14 +8,18 @@ import { ReactComponent as CopyIcon } from 'app/icons/copy.svg';
 import { ReactComponent as GlobeIcon } from 'app/icons/globe.svg';
 import { ReactComponent as HashIcon } from 'app/icons/hash.svg';
 import { ReactComponent as QRIcon } from 'app/icons/qr.svg';
+import { ContentContainer } from 'app/layouts/ContentContainer';
 import PageLayout from 'app/layouts/PageLayout';
+import { useChainSelectController, ChainSelectSection } from 'app/templates/ChainSelect';
 import ViewsSwitcher, { ViewsSwitcherProps } from 'app/templates/ViewsSwitcher/ViewsSwitcher';
 import { setTestID } from 'lib/analytics';
 import { T, t } from 'lib/i18n';
 import { useSafeState } from 'lib/ui/hooks';
 import useCopyToClipboard from 'lib/ui/useCopyToClipboard';
+import { UNDER_DEVELOPMENT_MSG } from 'temple/evm/under_dev_msg';
 import { useAccountAddressForEvm, useAccountAddressForTezos } from 'temple/front';
-import { useTezosDomainNameByAddress, useTezosDomainsClient } from 'temple/front/tezos';
+import { useTezosDomainNameByAddress } from 'temple/front/tezos';
+import { TezosNetworkEssentials } from 'temple/networks';
 
 import { ReceiveSelectors } from './Receive.selectors';
 
@@ -36,14 +40,22 @@ const Receive = memo(() => {
   const tezosAddress = useAccountAddressForTezos();
   const evmAddress = useAccountAddressForEvm();
 
+  const chainSelectController = useChainSelectController();
+  const network = chainSelectController.value;
+
   return (
     <PageLayout pageTitle={<PageTitle icon={<QRIcon className="w-auto h-4 stroke-current" />} title={t('receive')} />}>
-      <div className="py-4">
-        <div className="w-full max-w-sm mx-auto">
-          {tezosAddress ? <ReceiveContent labelTitle="Tezos address" address={tezosAddress} /> : null}
-          {evmAddress ? <ReceiveContent labelTitle="EVM address" address={evmAddress} /> : null}
-        </div>
-      </div>
+      <ContentContainer className="py-4">
+        <ChainSelectSection controller={chainSelectController} />
+
+        {network.chain === 'tezos' && tezosAddress ? (
+          <ReceiveContent labelTitle="Tezos address" address={tezosAddress} />
+        ) : evmAddress ? (
+          <ReceiveContent labelTitle="EVM address" address={evmAddress} />
+        ) : (
+          <div className="text-center">{UNDER_DEVELOPMENT_MSG}</div>
+        )}
+      </ContentContainer>
     </PageLayout>
   );
 });
@@ -51,21 +63,14 @@ const Receive = memo(() => {
 interface ReceiveContentProps {
   address: string;
   labelTitle: string;
+  tezosNetwork?: TezosNetworkEssentials;
 }
 
-const ReceiveContent = memo<ReceiveContentProps>(({ address, labelTitle }) => {
-  const { isSupported } = useTezosDomainsClient();
-
+const ReceiveContent = memo<ReceiveContentProps>(({ address, labelTitle, tezosNetwork }) => {
   const { fieldRef, copy, copied } = useCopyToClipboard();
   const [activeView, setActiveView] = useSafeState(ADDRESS_FIELD_VIEWS[1]);
 
-  const { data: reverseName } = useTezosDomainNameByAddress(address);
-
-  useEffect(() => {
-    if (!isSupported) {
-      setActiveView(ADDRESS_FIELD_VIEWS[1]);
-    }
-  }, [isSupported, setActiveView]);
+  const { data: reverseName } = useTezosDomainNameByAddress(address, tezosNetwork);
 
   return (
     <>
@@ -77,7 +82,7 @@ const ReceiveContent = memo<ReceiveContentProps>(({ address, labelTitle }) => {
         id="receive-address"
         label={labelTitle}
         labelDescription={t('accountAddressLabel')}
-        value={activeView.key === 'hash' ? address : reverseName || ''}
+        value={activeView.key === 'hash' || !reverseName ? address : reverseName}
         size={36}
         spellCheck={false}
         readOnly
