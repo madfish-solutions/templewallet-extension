@@ -3,7 +3,6 @@ import { useCallback } from 'react';
 import { t } from 'lib/i18n';
 import { useRetryableSWR } from 'lib/swr';
 import { useTempleClient } from 'lib/temple/front/client';
-import { useTezosNetwork } from 'lib/temple/front/ready';
 import { NetworkBase, StoredEvmNetwork, StoredTezosNetwork } from 'temple/networks';
 
 import { loadTezosChainId } from '../tezos';
@@ -13,9 +12,6 @@ export const getNetworkTitle = ({
   name,
   nameI18nKey
 }: Pick<NetworkBase, 'name' | 'nameI18nKey' | 'rpcBaseURL'>) => (nameI18nKey ? t(nameI18nKey) : name || rpcBaseURL);
-
-/** @deprecated */
-export const useTezosNetworkRpcUrl = () => useTezosNetwork().rpcBaseURL;
 
 export function useTezosChainIdLoadingValue(rpcUrl: string, suspense?: boolean): string | undefined {
   const { data: chainId } = useTezosChainIdLoading(rpcUrl, suspense);

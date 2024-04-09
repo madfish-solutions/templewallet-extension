@@ -20,7 +20,7 @@ import DAppLogo from 'app/templates/DAppLogo';
 import { ModifyFeeAndLimit } from 'app/templates/ExpensesView/ExpensesView';
 import NetworkBanner from 'app/templates/NetworkBanner';
 import OperationView from 'app/templates/OperationView';
-import { CustomRpcContext } from 'lib/analytics';
+import { CustomTezosChainIdContext } from 'lib/analytics';
 import { T, t } from 'lib/i18n';
 import { getTezosGasMetadata } from 'lib/metadata';
 import { useRetryableSWR } from 'lib/swr';
@@ -61,6 +61,7 @@ const ConfirmPage = memo(() => {
 });
 
 interface PayloadContentProps {
+  tezosNetwork: TezosNetworkEssentials;
   accountPkhToConnect: string;
   accounts: AccountForTezos[];
   setAccountPkhToConnect: (item: string) => void;
@@ -70,6 +71,7 @@ interface PayloadContentProps {
 }
 
 const PayloadContent: React.FC<PayloadContentProps> = ({
+  tezosNetwork,
   accountPkhToConnect,
   accounts,
   setAccountPkhToConnect,
@@ -77,13 +79,6 @@ const PayloadContent: React.FC<PayloadContentProps> = ({
   error,
   modifyFeeAndLimit
 }) => {
-  const tezosChainId = useTezosChainIdLoadingValue(payload.networkRpc, true)!;
-
-  const tezosNetwork = useMemo(
-    () => ({ chainId: tezosChainId, rpcBaseURL: payload.networkRpc }),
-    [tezosChainId, payload.networkRpc]
-  );
-
   const AccountOptionContent = useMemo(() => AccountOptionContentHOC(tezosNetwork), [tezosNetwork]);
 
   return payload.type === 'connect' ? (
@@ -156,6 +151,13 @@ const ConfirmDAppForm = memo(() => {
   });
   const payload = data!;
   const payloadError = data!.error;
+
+  const tezosChainId = useTezosChainIdLoadingValue(payload.networkRpc, true)!;
+
+  const tezosNetwork = useMemo(
+    () => ({ chainId: tezosChainId, rpcBaseURL: payload.networkRpc }),
+    [tezosChainId, payload.networkRpc]
+  );
 
   const connectedAccount = useMemo(() => {
     const address = payload.type === 'connect' ? accountPkhToConnect : payload.sourcePkh;
@@ -344,7 +346,7 @@ const ConfirmDAppForm = memo(() => {
   );
 
   return (
-    <CustomRpcContext.Provider value={payload.networkRpc}>
+    <CustomTezosChainIdContext.Provider value={tezosChainId}>
       <div className="relative bg-white rounded-md shadow-md overflow-y-auto flex flex-col" style={CONTAINER_STYLE}>
         <div className="flex flex-col items-center px-4 py-2">
           <SubTitle small className={payload.type === 'connect' ? 'mt-4 mb-6' : 'mt-4 mb-2'}>
@@ -377,7 +379,7 @@ const ConfirmDAppForm = memo(() => {
             <>
               {payload.type !== 'connect' && connectedAccount && (
                 <AccountBanner
-                  // tezosNetwork={tezosNetwork}
+                  tezosNetwork={tezosNetwork}
                   account={connectedAccount}
                   smallLabelIndent
                   className="w-full mb-4"
@@ -387,6 +389,7 @@ const ConfirmDAppForm = memo(() => {
               <NetworkBanner rpc={payload.networkRpc} narrow={payload.type === 'connect'} />
 
               <PayloadContent
+                tezosNetwork={tezosNetwork}
                 error={payloadError}
                 payload={payload}
                 accountPkhToConnect={accountPkhToConnect}
@@ -430,7 +433,7 @@ const ConfirmDAppForm = memo(() => {
 
         <ConfirmLedgerOverlay displayed={confirming && connectedAccount?.type === TempleAccountType.Ledger} />
       </div>
-    </CustomRpcContext.Provider>
+    </CustomTezosChainIdContext.Provider>
   );
 });
 

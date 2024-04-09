@@ -2,8 +2,7 @@ import React, { FC, useMemo } from 'react';
 
 import { ShortcutAccountSelectStateProvider } from 'app/hooks/use-account-select-shortcut';
 import { usePushNotifications } from 'app/hooks/use-push-notifications';
-import { CustomRpcContext } from 'lib/analytics';
-import { useTezosNetworkRpcUrl } from 'temple/front';
+import { CustomTezosChainIdContext } from 'lib/analytics';
 
 import { TempleClientProvider, useTempleClient } from './client';
 import { ReadyTempleProvider } from './ready';
@@ -12,11 +11,11 @@ export const TempleProvider: FC<PropsWithChildren> = ({ children }) => {
   usePushNotifications();
 
   return (
-    <CustomRpcContext.Provider value={undefined}>
+    <CustomTezosChainIdContext.Provider value={undefined}>
       <TempleClientProvider>
         <ConditionalReadyTemple>{children}</ConditionalReadyTemple>
       </TempleClientProvider>
-    </CustomRpcContext.Provider>
+    </CustomTezosChainIdContext.Provider>
   );
 };
 
@@ -27,19 +26,11 @@ const ConditionalReadyTemple: FC<PropsWithChildren> = ({ children }) => {
     () =>
       ready ? (
         <ReadyTempleProvider>
-          <WalletRpcProvider>
-            <ShortcutAccountSelectStateProvider>{children}</ShortcutAccountSelectStateProvider>
-          </WalletRpcProvider>
+          <ShortcutAccountSelectStateProvider>{children}</ShortcutAccountSelectStateProvider>
         </ReadyTempleProvider>
       ) : (
         <>{children}</>
       ),
     [children, ready]
   );
-};
-
-const WalletRpcProvider: FC<PropsWithChildren> = ({ children }) => {
-  const rpcUrl = useTezosNetworkRpcUrl();
-
-  return <CustomRpcContext.Provider value={rpcUrl}>{children}</CustomRpcContext.Provider>;
 };

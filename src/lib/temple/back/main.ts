@@ -279,7 +279,7 @@ browser.runtime.onMessage.addListener(async msg => {
           userId: userId ?? '',
           event: 'External Ads Activity',
           properties: { domain: new URL(msg.url).hostname, accountPkh, provider: msg.provider },
-          rpc: undefined
+          chainId: undefined
         });
         break;
     }

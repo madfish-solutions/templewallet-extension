@@ -19,12 +19,7 @@ export {
 export type { SomeChain, TezosChain, EvmChain } from './chains';
 export { useAllTezosChains, useAllEvmChains, useTezosChainByChainId, useTezosMainnetChain } from './chains';
 
-export {
-  getNetworkTitle,
-  useTezosNetworkRpcUrl,
-  useTezosChainIdLoadingValue,
-  useTempleNetworksActions
-} from './networks';
+export { getNetworkTitle, useTezosChainIdLoadingValue, useTempleNetworksActions } from './networks';
 
 export { searchAndFilterAccounts, useNonContractAccounts, useRelevantAccounts } from './accounts';
 
