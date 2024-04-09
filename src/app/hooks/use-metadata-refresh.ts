@@ -1,8 +1,8 @@
 import { useEffect, useMemo } from 'react';
 
 import { dispatch } from 'app/store';
-import { refreshTokensMetadataAction } from 'app/store/tokens-metadata/actions';
-import { useAllTokensMetadataSelector } from 'app/store/tokens-metadata/selectors';
+import { refreshTokensMetadataAction } from 'app/store/tezos/tokens-metadata/actions';
+import { useAllTokensMetadataSelector } from 'app/store/tezos/tokens-metadata/selectors';
 import { fetchTokensMetadata } from 'lib/apis/temple';
 import { ALL_PREDEFINED_METADATAS_RECORD } from 'lib/assets/known-tokens';
 import { reduceToMetadataRecord } from 'lib/metadata/fetch';

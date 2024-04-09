@@ -6,12 +6,12 @@ import { useDispatch } from 'react-redux';
 import { FormSubmitButton, FormSecondaryButton, Spinner, Money, Alert } from 'app/atoms';
 import { useTabSlug } from 'app/atoms/useTabSlug';
 import PageLayout from 'app/layouts/PageLayout';
-import { loadCollectiblesDetailsActions } from 'app/store/collectibles/actions';
+import { loadCollectiblesDetailsActions } from 'app/store/tezos/collectibles/actions';
 import {
   useAllCollectiblesDetailsLoadingSelector,
   useCollectibleDetailsSelector
-} from 'app/store/collectibles/selectors';
-import { useCollectibleMetadataSelector } from 'app/store/collectibles-metadata/selectors';
+} from 'app/store/tezos/collectibles/selectors';
+import { useCollectibleMetadataSelector } from 'app/store/tezos/collectibles-metadata/selectors';
 import AddressChip from 'app/templates/AddressChip';
 import OperationStatus from 'app/templates/OperationStatus';
 import { TabsBar } from 'app/templates/TabBar';

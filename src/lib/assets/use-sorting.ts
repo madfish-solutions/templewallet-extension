@@ -2,7 +2,7 @@ import { useCallback } from 'react';
 
 import { BigNumber } from 'bignumber.js';
 
-import { useAllAccountBalancesSelector } from 'app/store/balances/selectors';
+import { useAllAccountBalancesSelector } from 'app/store/tezos/balances/selectors';
 import { useGetCurrentAccountTokenOrGasBalanceWithDecimals } from 'lib/balances/hooks';
 import { useUsdToTokenRates } from 'lib/fiat-currency/core';
 import { ZERO } from 'lib/utils/numbers';

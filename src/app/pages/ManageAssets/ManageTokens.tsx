@@ -2,8 +2,8 @@ import React, { memo, useMemo } from 'react';
 
 import { SyncSpinner } from 'app/atoms';
 import { useTokensListingLogic } from 'app/hooks/use-tokens-listing-logic';
-import { useAreAssetsLoading } from 'app/store/assets/selectors';
-import { useTokensMetadataLoadingSelector } from 'app/store/tokens-metadata/selectors';
+import { useAreAssetsLoading } from 'app/store/tezos/assets/selectors';
+import { useTokensMetadataLoadingSelector } from 'app/store/tezos/tokens-metadata/selectors';
 import { TEMPLE_TOKEN_SLUG } from 'lib/assets';
 import { useAllAvailableTokens } from 'lib/assets/hooks';
 import { useGetTokenMetadata } from 'lib/metadata';

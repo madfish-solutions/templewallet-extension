@@ -4,9 +4,13 @@ import { isDefined } from '@rnw-community/shared';
 import { noop } from 'lodash';
 
 import { dispatch } from 'app/store';
-import { loadGasBalanceActions, loadAssetsBalancesActions, putTokensBalancesAction } from 'app/store/balances/actions';
-import { useBalancesErrorSelector, useBalancesLoadingSelector } from 'app/store/balances/selectors';
-import { fixBalances } from 'app/store/balances/utils';
+import {
+  loadGasBalanceActions,
+  loadAssetsBalancesActions,
+  putTokensBalancesAction
+} from 'app/store/tezos/balances/actions';
+import { useBalancesErrorSelector, useBalancesLoadingSelector } from 'app/store/tezos/balances/selectors';
+import { fixBalances } from 'app/store/tezos/balances/utils';
 import {
   TzktSubscriptionChannel,
   TzktSubscriptionMethod,

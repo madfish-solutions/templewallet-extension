@@ -2,8 +2,8 @@ import { useMemo, useState } from 'react';
 
 import { useDebounce } from 'use-debounce';
 
-import { useAreAssetsLoading } from 'app/store/assets/selectors';
-import { useCollectiblesMetadataLoadingSelector } from 'app/store/collectibles-metadata/selectors';
+import { useAreAssetsLoading } from 'app/store/tezos/assets/selectors';
+import { useCollectiblesMetadataLoadingSelector } from 'app/store/tezos/collectibles-metadata/selectors';
 import { searchAssetsWithNoMeta } from 'lib/assets/search.utils';
 import { useCollectiblesMetadataPresenceCheck, useGetCollectibleMetadata } from 'lib/metadata';
 import { isSearchStringApplicable } from 'lib/utils/search-items';

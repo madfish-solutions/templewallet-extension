@@ -1,15 +1,16 @@
 import React, { FC, useEffect } from 'react';
 
 import { dispatch } from 'app/store';
-import { loadTokensScamlistActions } from 'app/store/assets/actions';
 import { loadSwapDexesAction, loadSwapTokensAction } from 'app/store/swap/actions';
-import { useAccountAddressForTezos } from 'temple/front';
+import { loadTokensScamlistActions } from 'app/store/tezos/assets/actions';
+import { useAccountAddressForEvm, useAccountAddressForTezos } from 'temple/front';
 
 import { useAdvertisingLoading } from './hooks/use-advertising.hook';
 import { useAssetsLoading } from './hooks/use-assets-loading';
 import { useAssetsMigrations } from './hooks/use-assets-migrations';
 import { useBalancesLoading } from './hooks/use-balances-loading';
 import { useCollectiblesDetailsLoading } from './hooks/use-collectibles-details-loading';
+import { useEVMDataLoading } from './hooks/use-evm-data-loading';
 import { useTokensApyLoading } from './hooks/use-load-tokens-apy.hook';
 import { useLongRefreshLoading } from './hooks/use-long-refresh-loading.hook';
 import { useMetadataLoading } from './hooks/use-metadata-loading';
@@ -37,15 +38,46 @@ export const WithDataLoading: FC<PropsWithChildren> = ({ children }) => {
   useUserIdSync();
 
   const tezosAddress = useAccountAddressForTezos();
+  const evmAddress = useAccountAddressForEvm();
 
-  return tezosAddress ? <WithTezosDataLoading publicKeyHash={tezosAddress} children={children} /> : <>{children}</>;
+  if (tezosAddress && evmAddress) {
+    return (
+      <WithTezosDataLoading publicKeyHash={tezosAddress}>
+        <WithEVMDataLoading publicKeyHash={evmAddress}>{children}</WithEVMDataLoading>
+      </WithTezosDataLoading>
+    );
+  }
+
+  if (tezosAddress) {
+    return <WithTezosDataLoading publicKeyHash={tezosAddress} children={children} />;
+  }
+
+  if (evmAddress) {
+    return <WithEVMDataLoading publicKeyHash={evmAddress} children={children} />;
+  }
+
+  return <>{children}</>;
 };
 
-const WithTezosDataLoading: FC<{ publicKeyHash: string } & PropsWithChildren> = ({ publicKeyHash, children }) => {
+interface WithTezosDataLoadingProps extends PropsWithChildren {
+  publicKeyHash: string;
+}
+
+const WithTezosDataLoading: FC<WithTezosDataLoadingProps> = ({ publicKeyHash, children }) => {
   useAssetsLoading(publicKeyHash);
   useMetadataLoading(publicKeyHash);
   useBalancesLoading(publicKeyHash);
   useCollectiblesDetailsLoading(publicKeyHash);
+
+  return <>{children}</>;
+};
+
+interface WithEVMDataLoadingProps extends PropsWithChildren {
+  publicKeyHash: HexString;
+}
+
+const WithEVMDataLoading: FC<WithEVMDataLoadingProps> = ({ publicKeyHash, children }) => {
+  useEVMDataLoading(publicKeyHash);
 
   return <>{children}</>;
 };

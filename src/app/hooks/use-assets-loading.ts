@@ -5,8 +5,8 @@ import {
   loadAccountTokensActions,
   loadTokensWhitelistActions,
   loadAccountCollectiblesActions
-} from 'app/store/assets/actions';
-import { useAreAssetsLoading } from 'app/store/assets/selectors';
+} from 'app/store/tezos/assets/actions';
+import { useAreAssetsLoading } from 'app/store/tezos/assets/selectors';
 import { isKnownChainId } from 'lib/apis/tzkt';
 import { ASSETS_SYNC_INTERVAL } from 'lib/fixed-times';
 import { TempleTezosChainId } from 'lib/temple/types';

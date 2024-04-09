@@ -5,12 +5,12 @@ import clsx from 'clsx';
 
 import Money from 'app/atoms/Money';
 import { useAppEnv } from 'app/env';
-import { useBalanceSelector } from 'app/store/balances/selectors';
+import { useBalanceSelector } from 'app/store/tezos/balances/selectors';
 import {
   useAllCollectiblesDetailsLoadingSelector,
   useCollectibleDetailsSelector
-} from 'app/store/collectibles/selectors';
-import { useCollectibleMetadataSelector } from 'app/store/collectibles-metadata/selectors';
+} from 'app/store/tezos/collectibles/selectors';
+import { useCollectibleMetadataSelector } from 'app/store/tezos/collectibles-metadata/selectors';
 import { setAnotherSelector, setTestID } from 'lib/analytics';
 import { objktCurrencies } from 'lib/apis/objkt';
 import { T } from 'lib/i18n';

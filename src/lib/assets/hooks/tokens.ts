@@ -7,9 +7,9 @@ import {
   useAllTokensSelector,
   useAccountTokensSelector,
   useMainnetTokensWhitelistSelector
-} from 'app/store/assets/selectors';
-import { isAccountAssetsStoreKeyOfSameChainIdAndDifferentAccount } from 'app/store/assets/utils';
-import { useAllAccountBalancesSelector } from 'app/store/balances/selectors';
+} from 'app/store/tezos/assets/selectors';
+import { isAccountAssetsStoreKeyOfSameChainIdAndDifferentAccount } from 'app/store/tezos/assets/utils';
+import { useAllAccountBalancesSelector } from 'app/store/tezos/balances/selectors';
 import { useMemoWithCompare } from 'lib/ui/hooks';
 import { useTezosNetwork } from 'temple/front';
 

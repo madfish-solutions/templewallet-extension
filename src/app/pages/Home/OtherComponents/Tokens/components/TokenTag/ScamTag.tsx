@@ -5,7 +5,7 @@ import clsx from 'clsx';
 import { Button } from 'app/atoms/Button';
 import { AssetsSelectors } from 'app/pages/Home/OtherComponents/Assets.selectors';
 import { dispatch } from 'app/store';
-import { setTokenStatusAction } from 'app/store/assets/actions';
+import { setTokenStatusAction } from 'app/store/tezos/assets/actions';
 import { t, T } from 'lib/i18n';
 import { useConfirm } from 'lib/ui/dialog';
 import { useTezosNetwork } from 'temple/front';

@@ -9,11 +9,11 @@ import { fetchWhitelistTokens } from 'lib/apis/temple';
 import { fetchScamlistTokens } from 'lib/apis/temple/scamlist-tokens';
 import { toLatestValue } from 'lib/store';
 
+import type { RootState } from '../../root-state.type';
 import { putTokensBalancesAction } from '../balances/actions';
 import { fixBalances } from '../balances/utils';
 import { putCollectiblesMetadataAction } from '../collectibles-metadata/actions';
 import { MetadataMap } from '../collectibles-metadata/state';
-import type { RootState } from '../root-state.type';
 import { putTokensMetadataAction } from '../tokens-metadata/actions';
 import { MetadataRecords } from '../tokens-metadata/state';
 

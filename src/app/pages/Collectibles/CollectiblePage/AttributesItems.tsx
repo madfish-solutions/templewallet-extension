@@ -1,6 +1,6 @@
 import React, { memo } from 'react';
 
-import type { CollectibleDetails } from 'app/store/collectibles/state';
+import type { CollectibleDetails } from 'app/store/tezos/collectibles/state';
 
 interface AttributesItemsProps {
   details?: CollectibleDetails | null;

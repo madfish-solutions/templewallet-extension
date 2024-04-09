@@ -1,8 +1,8 @@
 import { useEffect, useMemo } from 'react';
 
 import { dispatch } from 'app/store';
-import { useAccountTokensSelector } from 'app/store/assets/selectors';
-import { resetTokensMetadataLoadingAction } from 'app/store/tokens-metadata/actions';
+import { useAccountTokensSelector } from 'app/store/tezos/assets/selectors';
+import { resetTokensMetadataLoadingAction } from 'app/store/tezos/tokens-metadata/actions';
 import { useTokensMetadataPresenceCheck } from 'lib/metadata';
 import { useTezosNetwork } from 'temple/front';
 

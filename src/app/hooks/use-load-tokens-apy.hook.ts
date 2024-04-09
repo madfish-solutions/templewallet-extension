@@ -3,7 +3,6 @@ import { useEffect, useState } from 'react';
 import { forkJoin } from 'rxjs';
 
 import { dispatch } from 'app/store';
-import { useUsdToTokenRatesSelector } from 'app/store/currency/selectors';
 import { loadTokensApyActions } from 'app/store/d-apps/actions';
 import {
   fetchKUSDApy$,
@@ -13,6 +12,7 @@ import {
   fetchUUSDCApr$,
   fetchYOUApr$
 } from 'app/store/d-apps/utils';
+import { useUsdToTokenRatesSelector } from 'app/store/tezos/currency/selectors';
 import { TempleTezosChainId } from 'lib/temple/types';
 import { useTezosNetwork } from 'temple/front';
 

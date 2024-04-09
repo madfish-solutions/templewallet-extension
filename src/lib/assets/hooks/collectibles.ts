@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 
-import { useAccountCollectiblesSelector } from 'app/store/assets/selectors';
-import { useAllAccountBalancesSelector } from 'app/store/balances/selectors';
+import { useAccountCollectiblesSelector } from 'app/store/tezos/assets/selectors';
+import { useAllAccountBalancesSelector } from 'app/store/tezos/balances/selectors';
 import { useMemoWithCompare } from 'lib/ui/hooks';
 import { useTezosNetwork } from 'temple/front';
 

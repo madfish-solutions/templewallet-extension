@@ -4,7 +4,7 @@ import { isDefined } from '@rnw-community/shared';
 
 import { useAppEnv } from 'app/env';
 import PageLayout from 'app/layouts/PageLayout';
-import { useMainnetTokensScamlistSelector } from 'app/store/assets/selectors';
+import { useMainnetTokensScamlistSelector } from 'app/store/tezos/assets/selectors';
 import { setAnotherSelector, setTestID } from 'lib/analytics';
 import { TEZ_TOKEN_SLUG } from 'lib/assets';
 import { useAssetMetadata, getAssetSymbol } from 'lib/metadata';

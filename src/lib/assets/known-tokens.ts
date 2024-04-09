@@ -1,4 +1,4 @@
-import type { MetadataRecords } from 'app/store/tokens-metadata/state';
+import type { MetadataRecords } from 'app/store/tezos/tokens-metadata/state';
 import { TokenMetadata, TokenStandardsEnum } from 'lib/metadata/types';
 import { TempleTezosChainId } from 'lib/temple/types';
 

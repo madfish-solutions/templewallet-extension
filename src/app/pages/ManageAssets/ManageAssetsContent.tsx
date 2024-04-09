@@ -4,7 +4,7 @@ import clsx from 'clsx';
 
 import { ReactComponent as AddIcon } from 'app/icons/add-to-list.svg';
 import { dispatch } from 'app/store';
-import { setTokenStatusAction, setCollectibleStatusAction } from 'app/store/assets/actions';
+import { setTokenStatusAction, setCollectibleStatusAction } from 'app/store/tezos/assets/actions';
 import SearchAssetField from 'app/templates/SearchAssetField';
 import { AccountAsset } from 'lib/assets/types';
 import { t, T } from 'lib/i18n';
