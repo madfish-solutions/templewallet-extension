@@ -562,6 +562,7 @@ export const Form: FC<Props> = ({ account, network, assetSlug, setOperation, onA
                 {toLocalFixed(maxAmount)}
               </button>
               <TokenToFiat
+                tezosChainId={network.chainId}
                 amountValue={amountValue}
                 assetMetadata={assetMetadata}
                 shoudUseFiat={shoudUseFiat}
@@ -601,6 +602,7 @@ export const Form: FC<Props> = ({ account, network, assetSlug, setOperation, onA
 };
 
 interface TokenToFiatProps {
+  tezosChainId: string;
   amountValue: string;
   assetMetadata: AssetMetadataBase | nullish;
   shoudUseFiat: boolean;
@@ -609,6 +611,7 @@ interface TokenToFiatProps {
 }
 
 const TokenToFiat: React.FC<TokenToFiatProps> = ({
+  tezosChainId,
   amountValue,
   assetMetadata,
   shoudUseFiat,
@@ -627,7 +630,12 @@ const TokenToFiat: React.FC<TokenToFiatProps> = ({
           <T id="inAsset" substitutions={getAssetSymbol(assetMetadata, true)} />
         </div>
       ) : (
-        <InFiat assetSlug={assetSlug} volume={amountValue} roundingMode={BigNumber.ROUND_FLOOR}>
+        <InFiat
+          tezosChainId={tezosChainId}
+          assetSlug={assetSlug}
+          volume={amountValue}
+          roundingMode={BigNumber.ROUND_FLOOR}
+        >
           {({ balance, symbol }) => (
             <div className="mt-1 -mb-3 flex items-baseline">
               <span className="mr-1">≈</span>

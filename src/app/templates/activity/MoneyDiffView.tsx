@@ -36,7 +36,7 @@ export const MoneyDiffView = memo<Props>(({ tezosChainId, assetId: assetSlug, di
       </div>
 
       {assetSlug && (
-        <InFiat volume={diffBN.abs()} assetSlug={assetSlug}>
+        <InFiat volume={diffBN.abs()} tezosChainId={tezosChainId} assetSlug={assetSlug}>
           {({ balance, symbol }) => (
             <div className="text-xs text-gray-500 ml-1 flex">
               {balance}

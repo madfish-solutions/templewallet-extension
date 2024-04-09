@@ -16,7 +16,6 @@ import { TProps, T, t } from 'lib/i18n';
 import { useAssetMetadata, getAssetSymbol } from 'lib/metadata';
 import { RawOperationAssetExpense, RawOperationExpenses } from 'lib/temple/front';
 import { mutezToTz, tzToMutez } from 'lib/temple/helpers';
-import { TEZOS_MAINNET_CHAIN_ID } from 'lib/temple/types';
 import { TezosNetworkEssentials } from 'temple/networks';
 
 import OperationsBanner from '../OperationsBanner/OperationsBanner';
@@ -58,7 +57,6 @@ const ExpensesView: FC<ExpensesViewProps> = ({
   gasFeeError,
   error
 }) => {
-  const mainnet = tezosNetwork.chainId === TEZOS_MAINNET_CHAIN_ID;
   const symbol = getTezosGasSymbol(tezosNetwork.chainId);
   const [showDetails, setShowDetails] = useState(false);
 
@@ -164,7 +162,12 @@ const ExpensesView: FC<ExpensesViewProps> = ({
                   )}
                 </div>
 
-                <InFiat assetSlug={TEZ_TOKEN_SLUG} volume={value} roundingMode={BigNumber.ROUND_UP} mainnet={mainnet}>
+                <InFiat
+                  tezosChainId={tezosNetwork.chainId}
+                  assetSlug={TEZ_TOKEN_SLUG}
+                  volume={value}
+                  roundingMode={BigNumber.ROUND_UP}
+                >
                   {({ balance, symbol }) => (
                     <div className="flex">
                       <span className="opacity-75">(</span>
@@ -206,7 +209,7 @@ const ExpensesView: FC<ExpensesViewProps> = ({
         ))}
       </div>
     );
-  }, [modifyFeeAndLimit, estimates, gasFeeError, mainnet, symbol]);
+  }, [modifyFeeAndLimit, estimates, gasFeeError, symbol, tezosNetwork.chainId]);
 
   if (!expenses) {
     return null;
@@ -227,7 +230,6 @@ const ExpensesView: FC<ExpensesViewProps> = ({
             tezosChainId={tezosNetwork.chainId}
             item={item}
             last={index === arr.length - 1}
-            mainnet={mainnet}
           />
         ))}
 
@@ -293,10 +295,9 @@ interface ExpenseViewItemProps {
   tezosChainId: string;
   item: OperationExpenses;
   last: boolean;
-  mainnet?: boolean;
 }
 
-const ExpenseViewItem: FC<ExpenseViewItemProps> = ({ tezosChainId, item, last, mainnet }) => {
+const ExpenseViewItem: FC<ExpenseViewItemProps> = ({ tezosChainId, item, last }) => {
   const operationTypeLabel = useMemo(() => {
     switch (item.type) {
       // TODO: add translations for other operations types
@@ -413,14 +414,13 @@ const ExpenseViewItem: FC<ExpenseViewItemProps> = ({ tezosChainId, item, last, m
                   expense={expense}
                   volume={item.amount}
                   withdrawal={withdrawal}
-                  mainnet={mainnet}
                 />
                 {index === arr.length - 1 ? null : ',\u00a0'}
               </span>
             ))}
 
           {item.expenses.length === 0 && item.amount && new BigNumber(item.amount).isGreaterThan(0) ? (
-            <OperationVolumeDisplay tezosChainId={tezosChainId} volume={item.amount!} mainnet={mainnet} />
+            <OperationVolumeDisplay tezosChainId={tezosChainId} volume={item.amount!} />
           ) : null}
         </div>
       </div>
@@ -455,10 +455,9 @@ interface OperationVolumeDisplayProps {
   expense?: OperationAssetExpense;
   volume?: number;
   withdrawal?: boolean;
-  mainnet?: boolean;
 }
 
-const OperationVolumeDisplay = memo<OperationVolumeDisplayProps>(({ tezosChainId, expense, volume, mainnet }) => {
+const OperationVolumeDisplay = memo<OperationVolumeDisplayProps>(({ tezosChainId, expense, volume }) => {
   const metadata = useAssetMetadata(expense?.assetSlug ?? TEZ_TOKEN_SLUG, tezosChainId);
 
   const finalVolume = expense ? expense.amount.div(10 ** (metadata?.decimals || 0)) : volume;
@@ -474,7 +473,7 @@ const OperationVolumeDisplay = memo<OperationVolumeDisplayProps>(({ tezosChainId
       </span>
 
       {expense?.assetSlug && (
-        <InFiat volume={finalVolume || 0} assetSlug={expense.assetSlug} mainnet={mainnet}>
+        <InFiat volume={finalVolume || 0} tezosChainId={tezosChainId} assetSlug={expense.assetSlug}>
           {({ balance, symbol }) => (
             <div className="text-xs text-gray-500 ml-1 flex items-baseline">
               ({balance}

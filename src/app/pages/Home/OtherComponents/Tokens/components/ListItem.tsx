@@ -74,6 +74,7 @@ export const ListItem = memo<Props>(({ network, publicKeyHash, assetSlug, active
         <div className="flex justify-between w-full mb-1">
           <div className="text-xs font-normal text-gray-700 truncate flex-1">{assetName}</div>
           <FiatBalance
+            tezosChainId={network.chainId}
             assetSlug={assetSlug}
             value={balance}
             testID={AssetsSelectors.assetItemFiatBalanceButton}

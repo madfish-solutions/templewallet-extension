@@ -182,12 +182,13 @@ export const SwapFormInput: FC<SwapFormInputProps> = ({
           }}
           Input={
             <SwapInput
-              testId={testIDs?.input}
+              tezosChainId={network.chainId}
               amount={value.amount}
               amountInputDisabled={Boolean(amountInputDisabled)}
               onChange={handleAmountChange}
               selectedAssetSlug={assetSlugWithFallback}
               selectedAssetMetadata={assetMetadata}
+              testId={testIDs?.input}
             />
           }
           optionsProps={{
@@ -231,6 +232,7 @@ const SwapDropdownFace: FC<SwapFieldProps> = ({ tezosChainId, testId, selectedAs
 );
 
 interface SwapInputProps {
+  tezosChainId: string;
   amount: BigNumber | undefined;
   amountInputDisabled: boolean;
   selectedAssetSlug: string;
@@ -240,6 +242,7 @@ interface SwapInputProps {
 }
 
 const SwapInput: FC<SwapInputProps> = ({
+  tezosChainId,
   amount,
   amountInputDisabled,
   selectedAssetSlug,
@@ -272,7 +275,12 @@ const SwapInput: FC<SwapInputProps> = ({
           onChange={handleAmountChange}
         />
 
-        <InFiat assetSlug={selectedAssetSlug} volume={selectedAssetSlug ? amount ?? 0 : 0} smallFractionFont={false}>
+        <InFiat
+          tezosChainId={tezosChainId}
+          assetSlug={selectedAssetSlug}
+          volume={selectedAssetSlug ? amount ?? 0 : 0}
+          smallFractionFont={false}
+        >
           {({ balance, symbol }) => (
             <div className="text-gray-500 flex">
               <span className="mr-1">≈</span>

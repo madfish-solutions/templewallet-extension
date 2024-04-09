@@ -19,7 +19,7 @@ import OperationStatus from 'app/templates/OperationStatus';
 import { useFormAnalytics } from 'lib/analytics';
 import { submitDelegation } from 'lib/apis/everstake';
 import { ABTestGroup } from 'lib/apis/temple';
-import { getTezosGasSymbol, TEZOS_SYMBOL, getTezosGasToken } from 'lib/assets';
+import { getTezosGasSymbol, TEZOS_SYMBOL, getTezosGasToken, TEZ_TOKEN_SLUG } from 'lib/assets';
 import { TEZOS_BLOCK_DURATION } from 'lib/fixed-times';
 import { TID, T, t } from 'lib/i18n';
 import { HELP_UKRAINE_BAKER_ADDRESS, RECOMMENDED_BAKER_ADDRESS } from 'lib/known-bakers';
@@ -297,7 +297,7 @@ const DelegateForm = memo<Props>(({ network, account, balance }) => {
                       </span>
                     </span>
 
-                    <InFiat assetSlug="tez" volume={balance}>
+                    <InFiat tezosChainId={network.chainId} assetSlug={TEZ_TOKEN_SLUG} volume={balance}>
                       {({ balance, symbol }) => (
                         <div className="mt-1 text-sm text-gray-500 flex items-baseline">
                           {balance}
@@ -310,7 +310,7 @@ const DelegateForm = memo<Props>(({ network, account, balance }) => {
               </div>
             </div>
           ),
-          [balance, symbol, logo]
+          [balance, symbol, logo, network.chainId]
         )}
 
         <Controller
