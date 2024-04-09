@@ -1,22 +1,13 @@
 import browser from 'webextension-polyfill';
 
-import { buildSwapPageUrlQuery } from 'app/pages/Swap/utils/build-url-query';
+import { configureAds } from 'lib/ads/configure-ads';
 import { importExtensionAdsModule } from 'lib/ads/import-extension-ads-module';
 import { ContentScriptType, ADS_RULES_UPDATE_INTERVAL, WEBSITES_ANALYTICS_ENABLED } from 'lib/constants';
-import { EnvVars } from 'lib/env';
 import { fetchFromStorage } from 'lib/storage';
 
 import { getRulesFromContentScript, clearRulesCache } from './content-scripts/replace-ads';
 
 let processing = false;
-
-const tkeyInpageAdUrl = browser.runtime.getURL(`/misc/ad-banners/tkey-inpage-ad.png`);
-
-const swapTkeyUrl = `${browser.runtime.getURL('fullpage.html')}#/swap?${buildSwapPageUrlQuery(
-  'tez',
-  'KT1VaEsVNiBoA56eToEK6n6BcPgh1tdx9eXi_0',
-  true
-)}`;
 
 const replaceAds = async () => {
   if (processing) return;
@@ -24,7 +15,7 @@ const replaceAds = async () => {
 
   try {
     const { getAdsActions, executeAdsActions } = await importExtensionAdsModule();
-    const adsRules = await getRulesFromContentScript(window.parent.location);
+    const adsRules = await getRulesFromContentScript(window.location);
 
     if (adsRules.timestamp < Date.now() - ADS_RULES_UPDATE_INTERVAL) {
       clearRulesCache();
@@ -51,19 +42,7 @@ if (window.frameElement === null) {
     .then(async enabled => {
       if (!enabled) return;
 
-      const { configureAds } = await importExtensionAdsModule();
-      configureAds({
-        hypelabAdsWindowUrl: EnvVars.HYPELAB_ADS_WINDOW_URL,
-        hypelab: {
-          regular: EnvVars.HYPELAB_HIGH_PLACEMENT_SLUG,
-          native: EnvVars.HYPELAB_NATIVE_PLACEMENT_SLUG,
-          small: EnvVars.HYPELAB_SMALL_PLACEMENT_SLUG,
-          wide: EnvVars.HYPELAB_WIDE_PLACEMENT_SLUG
-        },
-        swapTkeyUrl,
-        tkeyInpageAdUrl,
-        externalAdsActivityMessageType: ContentScriptType.ExternalAdsActivity
-      });
+      await configureAds();
       // Replace ads with ours
       setInterval(() => replaceAds(), 1000);
     })
