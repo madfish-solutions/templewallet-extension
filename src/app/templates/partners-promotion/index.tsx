@@ -39,6 +39,7 @@ const shouldBeHiddenTemporarily = (hiddenAt: number) => {
 
 export const PartnersPromotion = memo<PartnersPromotionProps>(({ variant, id, pageName, withPersonaProvider }) => {
   const isImageAd = variant === PartnersPromotionVariant.Image;
+  // TODO: add logic to prevent sending rewards to a watch only account
   const accountPkh = useAccountPkh();
   const { trackEvent } = useAnalytics();
   const { popup } = useAppEnv();
