@@ -5,6 +5,7 @@ import { ofType, toPayload } from 'ts-action-operators';
 import { getEVMData } from 'lib/apis/temple/endpoints/evm-data';
 
 import { loadEVMDataActions } from './actions';
+import { proceedLoadedEVMAssetsAction } from './assets/actions';
 import { proceedLoadedEVMBalancesAction } from './balances/actions';
 
 const loadEVMDataEpic: Epic = action$ =>
@@ -13,7 +14,10 @@ const loadEVMDataEpic: Epic = action$ =>
     toPayload(),
     switchMap(({ publicKeyHash, chainIds, quoteCurrency }) =>
       from(getEVMData(publicKeyHash, chainIds, quoteCurrency)).pipe(
-        concatMap(data => [proceedLoadedEVMBalancesAction({ publicKeyHash, data })]),
+        concatMap(data => [
+          proceedLoadedEVMAssetsAction({ publicKeyHash, data }),
+          proceedLoadedEVMBalancesAction({ publicKeyHash, data })
+        ]),
         catchError(err => of(loadEVMDataActions.fail(err.message)))
       )
     )

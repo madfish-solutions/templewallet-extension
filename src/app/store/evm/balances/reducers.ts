@@ -10,6 +10,6 @@ export const evmBalancesReducer = createReducer(EVMBalancesInitialState, builder
 
     if (data.length === 0) return;
 
-    state.balancesAtomic = getBalancesAtomicRecord(publicKeyHash, data);
+    state.balancesAtomic = Object.assign({}, state.balancesAtomic, getBalancesAtomicRecord(publicKeyHash, data));
   });
 });

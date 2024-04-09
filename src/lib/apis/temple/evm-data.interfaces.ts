@@ -241,7 +241,7 @@ export interface BalancesResponse {
   /** * The requested address. */
   address: string;
   /** * The requested chain ID eg: `1`. */
-  chain_id: number;
+  chain_id: ChainID;
   /** * The requested chain name eg: `eth-mainnet`. */
   chain_name: string;
   /** * The requested quote currency eg: `USD`. */

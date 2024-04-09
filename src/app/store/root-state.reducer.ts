@@ -6,6 +6,7 @@ import { abTestingReducer } from './ab-testing/reducers';
 import { advertisingReducer } from './advertising/reducers';
 import { buyWithCreditCardReducer } from './buy-with-credit-card/reducers';
 import { dAppsReducer } from './d-apps/reducers';
+import { evmAssetsReducer } from './evm/assets/reducer';
 import { evmBalancesReducer } from './evm/balances/reducers';
 import { newsletterReducers } from './newsletter/newsletter-reducers';
 import { partnersPromotionPersistedReducer } from './partners-promotion/reducers';
@@ -34,7 +35,8 @@ const rootStateReducersMap = {
   buyWithCreditCard: buyWithCreditCardReducer,
   collectibles: collectiblesPersistedReducer,
   newsletter: newsletterReducers,
-  evmBalances: evmBalancesReducer
+  evmBalances: evmBalancesReducer,
+  evmAssets: evmAssetsReducer
 };
 
 export const rootReducer = combineReducers(rootStateReducersMap);
