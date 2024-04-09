@@ -21,8 +21,8 @@ import { ModifyFeeAndLimit } from 'app/templates/ExpensesView/ExpensesView';
 import NetworkBanner from 'app/templates/NetworkBanner';
 import OperationView from 'app/templates/OperationView';
 import { CustomRpcContext } from 'lib/analytics';
-import { useGasToken } from 'lib/assets/hooks';
 import { T, t } from 'lib/i18n';
+import { getTezosGasMetadata } from 'lib/metadata';
 import { useRetryableSWR } from 'lib/swr';
 import { useTempleClient } from 'lib/temple/front/client';
 import { TempleAccountType, TempleDAppPayload } from 'lib/temple/types';
@@ -440,7 +440,7 @@ const AccountIcon: FC<OptionRenderProps<AccountForTezos>> = ({ item }) => (
 
 const AccountOptionContentHOC = (tezosNetwork: TezosNetworkEssentials) =>
   memo<OptionRenderProps<AccountForTezos>>(({ item: acc }) => {
-    const { assetName } = useGasToken(tezosNetwork.rpcBaseURL);
+    const { symbol } = getTezosGasMetadata(tezosNetwork.chainId);
 
     return (
       <>
@@ -459,7 +459,7 @@ const AccountOptionContentHOC = (tezosNetwork: TezosNetworkEssentials) =>
               <div className="ml-2 text-xs leading-none flex items-baseline text-gray-600">
                 <Money>{bal}</Money>
                 <span className="ml-1" style={{ fontSize: '0.75em' }}>
-                  {assetName}
+                  {symbol}
                 </span>
               </div>
             )}

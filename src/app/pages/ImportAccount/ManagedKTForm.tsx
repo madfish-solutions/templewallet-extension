@@ -9,6 +9,7 @@ import { useChainSelectController, ChainSelectSection } from 'app/templates/Chai
 import CustomSelect, { OptionRenderProps } from 'app/templates/CustomSelect';
 import { useFormAnalytics } from 'lib/analytics';
 import { getOneUserContracts, TzktRelatedContract, isKnownChainId } from 'lib/apis/tzkt';
+import { TEZOS_SYMBOL } from 'lib/assets';
 import { T, t } from 'lib/i18n';
 import { useRetryableSWR } from 'lib/swr';
 import { useTempleClient } from 'lib/temple/front';
@@ -201,7 +202,7 @@ const ManagedKTFormContent: FC<{ network: TezosNetworkEssentials }> = ({ network
               <Balance network={network} assetSlug="tez" address={filledAccount.address}>
                 {bal => (
                   <span className="text-xs leading-none">
-                    <Money>{bal}</Money> <span style={{ fontSize: '0.75em' }}>ꜩ</span>
+                    <Money>{bal}</Money> <span style={{ fontSize: '0.75em' }}>{TEZOS_SYMBOL}</span>
                   </span>
                 )}
               </Balance>

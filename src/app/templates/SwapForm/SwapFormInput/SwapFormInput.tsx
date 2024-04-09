@@ -15,13 +15,7 @@ import { setTestID, useFormAnalytics } from 'lib/analytics';
 import { TEZ_TOKEN_SLUG } from 'lib/assets';
 import { useTezosAssetBalance } from 'lib/balances';
 import { T, t, toLocalFormat } from 'lib/i18n';
-import {
-  EMPTY_BASE_METADATA,
-  useAssetMetadata,
-  useGetAssetMetadata,
-  AssetMetadataBase,
-  useTokensMetadataPresenceCheck
-} from 'lib/metadata';
+import { useAssetMetadata, useGetAssetMetadata, AssetMetadataBase, useTokensMetadataPresenceCheck } from 'lib/metadata';
 import { useAvailableRoute3TokensSlugs } from 'lib/route3/assets';
 
 import { AssetOption } from './AssetsMenu/AssetOption';
@@ -31,6 +25,14 @@ import { SwapFormInputProps } from './SwapFormInput.props';
 const EXCHANGE_XTZ_RESERVE = new BigNumber('0.3');
 const PERCENTAGE_BUTTONS = [25, 50, 75, 100];
 const LEADING_ASSETS = [TEZ_TOKEN_SLUG];
+
+/** @deprecated // Bad practice */
+const EMPTY_BASE_METADATA: AssetMetadataBase = {
+  decimals: 0,
+  symbol: '',
+  name: '',
+  thumbnailUri: ''
+};
 
 export const SwapFormInput: FC<SwapFormInputProps> = ({
   network,
@@ -231,7 +233,7 @@ const SwapDropdownFace: FC<SwapFieldProps> = ({ tezosChainId, testId, selectedAs
 interface SwapInputProps {
   amount: BigNumber | undefined;
   amountInputDisabled: boolean;
-  selectedAssetSlug?: string;
+  selectedAssetSlug: string;
   selectedAssetMetadata: AssetMetadataBase;
   testId?: string;
   onChange: (value?: BigNumber) => void;

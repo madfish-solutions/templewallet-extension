@@ -17,7 +17,7 @@ import { ReactComponent as ShieldOkIcon } from 'app/icons/shield-ok.svg';
 import { ReactComponent as TimeIcon } from 'app/icons/time.svg';
 import { OpenInExplorerChip } from 'app/templates/OpenInExplorerChip';
 import { TzktRewardsEntry } from 'lib/apis/tzkt';
-import { useGasToken } from 'lib/assets/hooks';
+import { getTezosGasToken } from 'lib/assets';
 import { getPluralKey, toLocalFormat, T } from 'lib/i18n';
 import { getRewardsStats, useKnownBaker } from 'lib/temple/front';
 import { mutezToTz } from 'lib/temple/helpers';
@@ -63,7 +63,7 @@ const BakingHistoryItem: FC<BakingHistoryItemProps> = ({
   const { data: bakerDetails } = useKnownBaker(baker.address, tezosChainId);
   const [showDetails, setShowDetails] = useState(false);
 
-  const { isDcpNetwork, symbol } = useGasToken();
+  const { isDcpNetwork, symbol } = getTezosGasToken(tezosChainId);
 
   const toggleShowDetails = useCallback(() => setShowDetails(prevValue => !prevValue), []);
 

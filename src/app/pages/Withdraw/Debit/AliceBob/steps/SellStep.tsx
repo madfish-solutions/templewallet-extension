@@ -10,7 +10,7 @@ import { AnalyticsEventCategory, setTestID, useAnalytics, useFormAnalytics } fro
 import { AliceBobOrderStatus, cancelAliceBobOrder } from 'lib/apis/temple';
 import { toTransferParams } from 'lib/assets/contract.utils';
 import { T, TID } from 'lib/i18n';
-import { TEZOS_METADATA } from 'lib/metadata/defaults';
+import { TEZOS_METADATA } from 'lib/metadata';
 import useCopyToClipboard from 'lib/ui/useCopyToClipboard';
 import { AccountForTezos } from 'temple/accounts';
 import { getTezosToolkitWithSigner } from 'temple/front';

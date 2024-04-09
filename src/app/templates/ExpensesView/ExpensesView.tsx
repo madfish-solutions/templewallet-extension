@@ -11,8 +11,7 @@ import { ReactComponent as ChevronDownIcon } from 'app/icons/chevron-down.svg';
 import { ReactComponent as ClipboardIcon } from 'app/icons/clipboard.svg';
 import InFiat from 'app/templates/InFiat';
 import { setTestID } from 'lib/analytics';
-import { TEZ_TOKEN_SLUG } from 'lib/assets';
-import { useGasToken } from 'lib/assets/hooks';
+import { TEZ_TOKEN_SLUG, getTezosGasSymbol } from 'lib/assets';
 import { TProps, T, t } from 'lib/i18n';
 import { useAssetMetadata, getAssetSymbol } from 'lib/metadata';
 import { RawOperationAssetExpense, RawOperationExpenses } from 'lib/temple/front';
@@ -60,7 +59,7 @@ const ExpensesView: FC<ExpensesViewProps> = ({
   error
 }) => {
   const mainnet = tezosNetwork.chainId === TEZOS_MAINNET_CHAIN_ID;
-  const { symbol } = useGasToken(tezosNetwork.rpcBaseURL);
+  const symbol = getTezosGasSymbol(tezosNetwork.chainId);
   const [showDetails, setShowDetails] = useState(false);
 
   const toggleShowDetails = useCallback(() => setShowDetails(prevValue => !prevValue), []);
@@ -165,7 +164,7 @@ const ExpensesView: FC<ExpensesViewProps> = ({
                   )}
                 </div>
 
-                <InFiat volume={value} roundingMode={BigNumber.ROUND_UP} mainnet={mainnet}>
+                <InFiat assetSlug={TEZ_TOKEN_SLUG} volume={value} roundingMode={BigNumber.ROUND_UP} mainnet={mainnet}>
                   {({ balance, symbol }) => (
                     <div className="flex">
                       <span className="opacity-75">(</span>

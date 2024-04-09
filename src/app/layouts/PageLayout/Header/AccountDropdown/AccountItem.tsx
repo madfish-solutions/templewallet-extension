@@ -16,12 +16,11 @@ import { AccountDropdownSelectors } from './selectors';
 interface Props {
   account: StoredAccount;
   selected: boolean;
-  gasTokenName: string;
   attractSelf: boolean;
   onClick: (accountId: string) => void;
 }
 
-export const AccountItem = memo<Props>(({ account, selected, gasTokenName, attractSelf, onClick }) => {
+export const AccountItem = memo<Props>(({ account, selected, attractSelf, onClick }) => {
   const evmNetwork = useEvmNetwork();
   const tezosMainnetChain = useTezosMainnetChain();
 
@@ -79,7 +78,7 @@ export const AccountItem = memo<Props>(({ account, selected, gasTokenName, attra
                     {bal}
                   </Money>
 
-                  <span className="ml-1">{gasTokenName.toUpperCase()}</span>
+                  <span className="ml-1">TEZ</span>
                 </span>
               )}
             </Balance>

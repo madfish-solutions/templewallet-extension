@@ -23,7 +23,6 @@ import BakingHistoryItem from 'app/pages/Home/OtherComponents/BakingHistoryItem'
 import { useUserTestingGroupNameSelector } from 'app/store/ab-testing/selectors';
 import BakerBanner from 'app/templates/BakerBanner';
 import { getDelegatorRewards, isKnownChainId } from 'lib/apis/tzkt';
-import { useGasToken } from 'lib/assets/hooks';
 import { T, t } from 'lib/i18n';
 import { useRetryableSWR } from 'lib/swr';
 import { useDelegate } from 'lib/temple/front';
@@ -31,6 +30,7 @@ import { TempleAccountType } from 'lib/temple/types';
 import useTippy from 'lib/ui/useTippy';
 import { Link } from 'lib/woozie';
 import { useAccountForTezos, useTezosChainByChainId } from 'temple/front';
+import { isTezosDcpChainId } from 'temple/networks';
 
 import styles from './BakingSection.module.css';
 import { BakingSectionSelectors } from './BakingSection.selectors';
@@ -82,7 +82,7 @@ const BakingSection = memo<Props>(({ tezosChainId }) => {
 
   const { data: myBakerPkh } = useDelegate(account.address, network, true, false);
   const canDelegate = account.type !== TempleAccountType.WatchOnly;
-  const { isDcpNetwork } = useGasToken();
+  const isDcpNetwork = isTezosDcpChainId(tezosChainId);
   const testGroupName = useUserTestingGroupNameSelector();
 
   const { popup } = useAppEnv();

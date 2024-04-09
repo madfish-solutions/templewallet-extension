@@ -15,7 +15,6 @@ import { ReactComponent as MaximiseIcon } from 'app/icons/maximise.svg';
 import { ReactComponent as SadSearchIcon } from 'app/icons/sad-search.svg';
 import { ReactComponent as SettingsIcon } from 'app/icons/settings.svg';
 import SearchField from 'app/templates/SearchField';
-import { useGasToken } from 'lib/assets/hooks';
 import { searchHotkey } from 'lib/constants';
 import { T, t } from 'lib/i18n';
 import { useTempleClient } from 'lib/temple/front';
@@ -37,7 +36,6 @@ const AccountDropdown = memo<PopperRenderProps>(({ opened, setOpened }) => {
   const allAccounts = useNonContractAccounts();
   const currentAccountId = useCurrentAccountId();
   const setAccountId = useChangeAccount();
-  const { assetName: gasTokenName } = useGasToken();
 
   useShortcutAccountSelectModalIsOpened(() => setOpened(false));
 
@@ -207,7 +205,6 @@ const AccountDropdown = memo<PopperRenderProps>(({ opened, setOpened }) => {
                   key={acc.id}
                   account={acc}
                   selected={acc.id === currentAccountId}
-                  gasTokenName={gasTokenName}
                   attractSelf={attractSelectedAccount}
                   onClick={handleAccountClick}
                 />

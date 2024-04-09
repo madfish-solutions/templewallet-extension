@@ -583,6 +583,7 @@ export const Form: FC<Props> = ({ account, network, assetSlug, setOperation, onA
       ) : (
         <FeeSection
           accountPkh={accountPkh}
+          tezosChainId={network.chainId}
           restFormDisplayed={restFormDisplayed}
           submitError={submitError}
           estimationError={estimationError}

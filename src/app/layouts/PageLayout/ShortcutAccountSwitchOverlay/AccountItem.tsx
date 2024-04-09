@@ -19,7 +19,6 @@ const scrollIntoViewOptions: ScrollIntoViewOptions = { block: 'end', behavior: '
 interface AccountItemProps {
   account: StoredAccount;
   focused: boolean;
-  gasTokenName: string;
   arrayIndex?: number;
   itemsArrayRef?: RefObject<Array<HTMLButtonElement | null>>;
   onClick?: () => void;
@@ -28,7 +27,6 @@ interface AccountItemProps {
 export const AccountItem: React.FC<AccountItemProps> = ({
   account,
   focused,
-  gasTokenName,
   onClick = emptyFn,
   arrayIndex,
   itemsArrayRef
@@ -93,7 +91,7 @@ export const AccountItem: React.FC<AccountItemProps> = ({
                     {bal}
                   </Money>
 
-                  <span className="ml-1">{gasTokenName.toUpperCase()}</span>
+                  <span className="ml-1">TEZ</span>
                 </span>
               )}
             </Balance>

@@ -15,11 +15,10 @@ import { AssetIcon } from 'app/templates/AssetIcon';
 import Balance from 'app/templates/Balance';
 import InFiat from 'app/templates/InFiat';
 import { setAnotherSelector, setTestID } from 'lib/analytics';
-import { useGasToken } from 'lib/assets/hooks';
 import { useFiatCurrency } from 'lib/fiat-currency';
 import { t, T } from 'lib/i18n';
 import { TezosLogoIcon } from 'lib/icons';
-import { getAssetName, getAssetSymbol, useAssetMetadata } from 'lib/metadata';
+import { getAssetName, getAssetSymbol, getTezosGasMetadata, useAssetMetadata } from 'lib/metadata';
 import { useTypedSWR } from 'lib/swr';
 import { atomsToTokens } from 'lib/temple/helpers';
 import { TEZOS_MAINNET_CHAIN_ID } from 'lib/temple/types';
@@ -98,9 +97,7 @@ const TezosBalanceInfo: FC<TezosBalanceInfoProps> = ({ network, accountPkh }) =>
     selectedFiatCurrency: { name: fiatName, symbol: fiatSymbol }
   } = useFiatCurrency();
 
-  const {
-    metadata: { name: gasTokenName, symbol: gasTokenSymbol }
-  } = useGasToken();
+  const { name: gasTokenName, symbol: gasTokenSymbol } = getTezosGasMetadata(chainId);
 
   const tippyProps = useMemo(
     () => ({

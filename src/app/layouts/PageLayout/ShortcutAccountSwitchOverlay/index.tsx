@@ -9,7 +9,6 @@ import { useAccountSelectShortcut } from 'app/hooks/use-account-select-shortcut'
 import { useModalScrollLock } from 'app/hooks/use-modal-scroll-lock';
 import { ReactComponent as SadSearchIcon } from 'app/icons/sad-search.svg';
 import SearchField from 'app/templates/SearchField';
-import { useGasToken } from 'lib/assets/hooks';
 import { searchHotkey } from 'lib/constants';
 import { T, t } from 'lib/i18n';
 import Portal from 'lib/ui/Portal';
@@ -30,7 +29,6 @@ export const ShortcutAccountSwitchOverlay = memo(() => {
   const currentAccountId = useCurrentAccountId();
   const allAccounts = useNonContractAccounts();
   const setAccountId = useChangeAccount();
-  const { assetName: gasTokenName } = useGasToken();
 
   const [searchValue, setSearchValue] = useState('');
   const [focusedAccountItemIndex, setFocusedAccountItemIndex] = useState(0);
@@ -173,7 +171,6 @@ export const ShortcutAccountSwitchOverlay = memo(() => {
                         key={acc.id}
                         account={acc}
                         focused={focusedAccountItemIndex === index}
-                        gasTokenName={gasTokenName}
                         arrayIndex={index}
                         itemsArrayRef={accountItemsRef}
                         onClick={() => handleAccountClick(acc.id)}

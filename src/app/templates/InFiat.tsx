@@ -15,7 +15,7 @@ interface OutputProps {
 
 interface InFiatProps extends TestIDProps {
   volume: BigNumber | number | string;
-  assetSlug?: string;
+  assetSlug: string;
   children: (output: OutputProps) => ReactElement;
   roundingMode?: BigNumber.RoundingMode;
   shortened?: boolean;
@@ -36,7 +36,7 @@ const InFiat: FC<InFiatProps> = ({
   testID,
   testIDProperties
 }) => {
-  const price = useAssetFiatCurrencyPrice(assetSlug ?? 'tez');
+  const price = useAssetFiatCurrencyPrice(assetSlug);
   const { selectedFiatCurrency } = useFiatCurrency();
   const { isMainnet } = useTezosNetwork();
 

@@ -1,13 +1,14 @@
 import { isString, pick } from 'lodash';
 
 import type { TokenMetadataResponse, WhitelistResponseToken } from 'lib/apis/temple';
+import { TEZOS_SYMBOL } from 'lib/assets';
 
 import { AssetMetadataBase, TokenMetadata, TokenStandardsEnum } from './types';
 
 export function getAssetSymbol(metadata: AssetMetadataBase | nullish, short = false) {
   if (!metadata) return '???';
   if (!short) return metadata.symbol;
-  return metadata.symbol === 'tez' ? 'ꜩ' : metadata.symbol.substring(0, 5);
+  return metadata.symbol === 'tez' ? TEZOS_SYMBOL : metadata.symbol.substring(0, 5);
 }
 
 export function getAssetName(metadata: AssetMetadataBase | nullish) {

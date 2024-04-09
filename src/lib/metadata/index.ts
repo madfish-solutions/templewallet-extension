@@ -22,18 +22,17 @@ import { TEZOS_METADATA, FILM_METADATA } from './defaults';
 import { AssetMetadataBase, TokenMetadata } from './types';
 
 export type { AssetMetadataBase, TokenMetadata } from './types';
-export { TEZOS_METADATA, EMPTY_BASE_METADATA } from './defaults';
 export { isCollectible, isCollectibleTokenMetadata, getAssetSymbol, getAssetName } from './utils';
 
-export const useTezosGasTokenMetadata = (chainId: string) =>
-  isTezosDcpChainId(chainId) ? FILM_METADATA : TEZOS_METADATA;
+export { TEZOS_METADATA };
+
+export const getTezosGasMetadata = (chainId: string) => (isTezosDcpChainId(chainId) ? FILM_METADATA : TEZOS_METADATA);
 
 export const useAssetMetadata = (slug: string, tezosChainId: string): AssetMetadataBase | undefined => {
   const tokenMetadata = useTokenMetadataSelector(slug);
   const collectibleMetadata = useCollectibleMetadataSelector(slug);
-  const gasMetadata = useTezosGasTokenMetadata(tezosChainId);
 
-  return isTezAsset(slug) ? gasMetadata : tokenMetadata || collectibleMetadata;
+  return isTezAsset(slug) ? getTezosGasMetadata(tezosChainId) : tokenMetadata || collectibleMetadata;
 };
 
 export type TokenMetadataGetter = (slug: string) => TokenMetadata | undefined;
@@ -46,11 +45,11 @@ export const useGetTokenMetadata = () => {
 
 export const useGetTokenOrGasMetadata = (tezosChainId: string) => {
   const getTokenMetadata = useGetTokenMetadata();
-  const gasMetadata = useTezosGasTokenMetadata(tezosChainId);
 
   return useCallback(
-    (slug: string): AssetMetadataBase | undefined => (isTezAsset(slug) ? gasMetadata : getTokenMetadata(slug)),
-    [getTokenMetadata, gasMetadata]
+    (slug: string): AssetMetadataBase | undefined =>
+      isTezAsset(slug) ? getTezosGasMetadata(tezosChainId) : getTokenMetadata(slug),
+    [getTokenMetadata, tezosChainId]
   );
 };
 

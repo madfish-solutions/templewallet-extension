@@ -7,8 +7,8 @@ import Identicon from 'app/atoms/Identicon';
 import Money from 'app/atoms/Money';
 import Name from 'app/atoms/Name';
 import Balance from 'app/templates/Balance';
-import { useGasToken } from 'lib/assets/hooks';
 import { t } from 'lib/i18n';
+import { getTezosGasMetadata } from 'lib/metadata';
 import { StoredAccount } from 'lib/temple/types';
 import { AccountForChain, getAccountAddressForEvm, getAccountAddressForTezos } from 'temple/accounts';
 import { TezosNetworkEssentials } from 'temple/networks';
@@ -25,7 +25,6 @@ interface Props extends HTMLAttributes<HTMLDivElement> {
 
 const AccountBanner = memo<Props>(({ tezosNetwork, account, className, label, smallLabelIndent, labelDescription }) => {
   const labelWithFallback = label ?? t('account');
-  const { metadata } = useGasToken();
 
   const [tezosAddress, evmAddress] = useMemo(() => {
     if ('chain' in account && 'address' in account) {
@@ -70,7 +69,7 @@ const AccountBanner = memo<Props>(({ tezosNetwork, account, className, label, sm
                     <div className="ml-2 text-xs leading-none flex items-baseline text-gray-600">
                       <Money>{bal}</Money>
                       <span className="ml-1" style={{ fontSize: '0.75em' }}>
-                        {metadata.symbol}
+                        {getTezosGasMetadata(tezosNetwork.chainId).symbol}
                       </span>
                     </div>
                   )}

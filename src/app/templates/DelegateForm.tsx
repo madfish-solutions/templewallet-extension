@@ -19,7 +19,7 @@ import OperationStatus from 'app/templates/OperationStatus';
 import { useFormAnalytics } from 'lib/analytics';
 import { submitDelegation } from 'lib/apis/everstake';
 import { ABTestGroup } from 'lib/apis/temple';
-import { useGasToken } from 'lib/assets/hooks';
+import { getTezosGasSymbol, TEZOS_SYMBOL, getTezosGasToken } from 'lib/assets';
 import { TEZOS_BLOCK_DURATION } from 'lib/fixed-times';
 import { TID, T, t } from 'lib/i18n';
 import { HELP_UKRAINE_BAKER_ADDRESS, RECOMMENDED_BAKER_ADDRESS } from 'lib/known-bakers';
@@ -62,7 +62,7 @@ interface Props {
 const DelegateForm = memo<Props>(({ network, account, balance }) => {
   const { registerBackHandler } = useAppEnv();
   const formAnalytics = useFormAnalytics('DelegateForm');
-  const { symbol, isDcpNetwork, logo } = useGasToken();
+  const { symbol, isDcpNetwork, logo } = getTezosGasToken(network.chainId);
 
   const { rpcBaseURL: rpcUrl, chainId: tezosChainId } = network;
   const ownerAddress = account.ownerAddress;
@@ -412,7 +412,6 @@ const BakerForm: React.FC<BakerFormProps> = ({
   formState
 }) => {
   const testGroupName = useUserTestingGroupNameSelector();
-  const assetSymbol = 'ꜩ';
   const estimateFallbackDisplayed = toFilled && !baseFee && (estimating || bakerValidating);
 
   const bakerTestMessage = useMemo(() => {
@@ -457,13 +456,15 @@ const BakerForm: React.FC<BakerFormProps> = ({
         tzError={tzError}
       />
 
-      {tzError && <DelegateErrorAlert type={submitError ? 'submit' : 'estimation'} error={tzError} />}
+      {tzError && (
+        <DelegateErrorAlert type={submitError ? 'submit' : 'estimation'} error={tzError} tezosChainId={tezosChainId} />
+      )}
 
       <AdditionalFeeInput
         name="fee"
         control={control}
         onChange={handleFeeFieldChange}
-        assetSymbol={assetSymbol}
+        gasSymbol={TEZOS_SYMBOL}
         baseFee={baseFee}
         error={errors.fee}
         id="delegate-fee"
@@ -501,7 +502,7 @@ interface BakerBannerComponentProps {
 const BakerBannerComponent = React.memo<BakerBannerComponentProps>(
   ({ tezosChainId, accountPkh, balanceNum, tzError, baker }) => {
     const isMainnet = tezosChainId === TEZOS_MAINNET_CHAIN_ID;
-    const { symbol } = useGasToken();
+    const symbol = getTezosGasSymbol(tezosChainId);
 
     return baker ? (
       <>
@@ -731,14 +732,13 @@ const KnownDelegatorsList = memo<KnownDelegatorsListProps>(
   }
 );
 
-type DelegateErrorAlertProps = {
+interface DelegateErrorAlertProps {
   type: 'submit' | 'estimation';
   error: Error;
-};
+  tezosChainId: string;
+}
 
-const DelegateErrorAlert: FC<DelegateErrorAlertProps> = ({ type, error }) => {
-  const { symbol } = useGasToken();
-
+const DelegateErrorAlert: FC<DelegateErrorAlertProps> = ({ type, error, tezosChainId }) => {
   return (
     <Alert
       type={type === 'submit' ? 'error' : 'warning'}
@@ -782,7 +782,7 @@ const DelegateErrorAlert: FC<DelegateErrorAlertProps> = ({ type, error }) => {
 
                 <ul className="mt-1 ml-2 text-xs list-disc list-inside">
                   <li>
-                    <T id="minimalFeeGreaterThanBalanceVerbose" substitutions={symbol} />
+                    <T id="minimalFeeGreaterThanBalanceVerbose" substitutions={getTezosGasSymbol(tezosChainId)} />
                   </li>
 
                   <li>
