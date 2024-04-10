@@ -6,6 +6,8 @@ import { useAccountEVMTokensSelector, useAllEVMTokensSelector } from 'app/store/
 import { useAllEVMBalancesSelector } from 'app/store/evm/balances/selectors';
 import { defaultChainIDs } from 'lib/apis/temple/endpoints/evm-data';
 
+import { useAllEVMTokensMetadataSelector } from '../store/evm/tokens-metadata/selectors';
+
 export const useEVMDataLoading = (publicKeyHash: string) => {
   const balances = useAllEVMBalancesSelector();
   console.log(balances, 'balances');
@@ -15,6 +17,9 @@ export const useEVMDataLoading = (publicKeyHash: string) => {
 
   const allAccountTokens = useAccountEVMTokensSelector(publicKeyHash);
   console.log(allAccountTokens, 'allAccountTokens');
+
+  const tokensMetadata = useAllEVMTokensMetadataSelector();
+  console.log(tokensMetadata, 'tokensMetadata');
 
   useEffect(() => {
     dispatch(loadEVMDataActions.submit({ publicKeyHash, chainIds: defaultChainIDs }));

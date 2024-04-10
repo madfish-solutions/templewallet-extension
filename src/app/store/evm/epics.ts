@@ -7,6 +7,7 @@ import { getEVMData } from 'lib/apis/temple/endpoints/evm-data';
 import { loadEVMDataActions } from './actions';
 import { proceedLoadedEVMAssetsAction } from './assets/actions';
 import { proceedLoadedEVMBalancesAction } from './balances/actions';
+import { proceedLoadedEVMTokensMetadataAction } from './tokens-metadata/actions';
 
 const loadEVMDataEpic: Epic = action$ =>
   action$.pipe(
@@ -16,7 +17,8 @@ const loadEVMDataEpic: Epic = action$ =>
       from(getEVMData(publicKeyHash, chainIds, quoteCurrency)).pipe(
         concatMap(data => [
           proceedLoadedEVMAssetsAction({ publicKeyHash, data }),
-          proceedLoadedEVMBalancesAction({ publicKeyHash, data })
+          proceedLoadedEVMBalancesAction({ publicKeyHash, data }),
+          proceedLoadedEVMTokensMetadataAction({ data })
         ]),
         catchError(err => of(loadEVMDataActions.fail(err.message)))
       )

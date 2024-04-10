@@ -8,6 +8,7 @@ import { buyWithCreditCardReducer } from './buy-with-credit-card/reducers';
 import { dAppsReducer } from './d-apps/reducers';
 import { evmAssetsReducer } from './evm/assets/reducer';
 import { evmBalancesReducer } from './evm/balances/reducers';
+import { evmTokensMetadataReducer } from './evm/tokens-metadata/reducers';
 import { newsletterReducers } from './newsletter/newsletter-reducers';
 import { partnersPromotionPersistedReducer } from './partners-promotion/reducers';
 import { settingsReducer } from './settings/reducers';
@@ -36,7 +37,8 @@ const rootStateReducersMap = {
   collectibles: collectiblesPersistedReducer,
   newsletter: newsletterReducers,
   evmBalances: evmBalancesReducer,
-  evmAssets: evmAssetsReducer
+  evmAssets: evmAssetsReducer,
+  evmTokensMetadata: evmTokensMetadataReducer
 };
 
 export const rootReducer = combineReducers(rootStateReducersMap);

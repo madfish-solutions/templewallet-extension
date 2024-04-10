@@ -3,7 +3,7 @@ import { toTokenSlug } from 'lib/assets';
 
 import { EVMBalancesAtomicRecord } from './state';
 
-export const getKeyForBalancesRecord = (publicKeyHash: string, chainId: string) => `${publicKeyHash}_${chainId}`;
+const getKeyForBalancesRecord = (publicKeyHash: string, chainId: string) => `${publicKeyHash}_${chainId}`;
 
 export const getBalancesAtomicRecord = (publicKeyHash: string, data: BalancesResponse[]) =>
   data.reduce<EVMBalancesAtomicRecord>((acc, currentValue) => {
