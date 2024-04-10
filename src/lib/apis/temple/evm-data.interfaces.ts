@@ -297,11 +297,11 @@ export interface BalanceItem {
   /** * NFT-specific data. */
   nft_data?: BalanceNftData[] | null;
 }
-export interface ProtocolMetadata {
+interface ProtocolMetadata {
   /** * The name of the protocol. */
   protocol_name: string;
 }
-export interface BalanceNftData {
+interface BalanceNftData {
   /** * The token's id. */
   token_id: string | null;
   /** * The count of the number of NFTs with this ID. */
@@ -325,7 +325,7 @@ export interface BalanceNftData {
   burned: boolean;
 }
 
-export interface NftExternalDataV1 {
+interface NftExternalDataV1 {
   name: string;
   description: string;
   image: string;
@@ -338,7 +338,7 @@ export interface NftExternalDataV1 {
   owner: string;
 }
 
-export interface LogoUrls {
+interface LogoUrls {
   /** * The token logo URL. */
   token_logo_url: string;
   /** * The protocol logo URL. */
@@ -347,7 +347,7 @@ export interface LogoUrls {
   chain_logo_url: string;
 }
 
-export interface NftCollectionAttribute {
+interface NftCollectionAttribute {
   trait_type: string;
   value: string;
 }
