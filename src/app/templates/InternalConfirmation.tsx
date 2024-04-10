@@ -30,7 +30,7 @@ import { TempleAccountType, TempleConfirmationPayload } from 'lib/temple/types';
 import { useSafeState } from 'lib/ui/hooks';
 import { isTruthy } from 'lib/utils';
 import { findAccountForTezos } from 'temple/accounts';
-import { useTezosChainIdLoadingValue, useTezosNetwork, useRelevantAccounts } from 'temple/front';
+import { useTezosChainIdLoadingValue, useRelevantAccounts } from 'temple/front';
 
 import { InternalConfirmationSelectors } from './InternalConfirmation.selectors';
 
@@ -43,7 +43,6 @@ type InternalConfiramtionProps = {
 const MIN_GAS_FEE = 0;
 
 const InternalConfirmation: FC<InternalConfiramtionProps> = ({ payload, onConfirm, error: payloadError }) => {
-  const { rpcBaseURL: currentNetworkRpc } = useTezosNetwork();
   const { popup } = useAppEnv();
 
   const getContentToParse = useCallback(async () => {
@@ -64,7 +63,7 @@ const InternalConfirmation: FC<InternalConfiramtionProps> = ({ payload, onConfir
   }, [payload]);
   const { data: contentToParse } = useRetryableSWR(['content-to-parse'], getContentToParse, { suspense: true });
 
-  const networkRpc = payload.type === 'operations' ? payload.networkRpc : currentNetworkRpc;
+  const networkRpc = payload.networkRpc;
 
   const tezosChainId = useTezosChainIdLoadingValue(networkRpc, true)!;
 

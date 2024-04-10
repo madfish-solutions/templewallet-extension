@@ -348,7 +348,14 @@ const safeAddLocalOperation = async (networkRpc: string, op: any) => {
   return undefined;
 };
 
-export function sign(port: Runtime.Port, id: string, sourcePkh: string, bytes: string, watermark?: string) {
+export function sign(
+  port: Runtime.Port,
+  id: string,
+  sourcePkh: string,
+  networkRpc: string,
+  bytes: string,
+  watermark?: string
+) {
   return withUnlocked(
     () =>
       new Promise(async (resolve, reject) => {
@@ -358,6 +365,7 @@ export function sign(port: Runtime.Port, id: string, sourcePkh: string, bytes: s
           payload: {
             type: 'sign',
             sourcePkh,
+            networkRpc,
             bytes,
             watermark
           }

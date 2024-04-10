@@ -131,6 +131,7 @@ export interface TempleContact {
 interface TempleConfirmationPayloadBase {
   type: string;
   sourcePkh: string;
+  networkRpc: string;
 }
 
 interface TempleSignConfirmationPayload extends TempleConfirmationPayloadBase {
@@ -141,7 +142,6 @@ interface TempleSignConfirmationPayload extends TempleConfirmationPayloadBase {
 
 interface TempleOpsConfirmationPayload extends TempleConfirmationPayloadBase {
   type: 'operations';
-  networkRpc: string;
   opParams: any[];
   bytesToSign?: string;
   rawToSign?: any;
@@ -567,6 +567,7 @@ interface TempleSignRequest extends TempleMessageBase {
   type: TempleMessageType.SignRequest;
   id: string;
   sourcePkh: string;
+  networkRpc: string;
   bytes: string;
   watermark?: string;
 }

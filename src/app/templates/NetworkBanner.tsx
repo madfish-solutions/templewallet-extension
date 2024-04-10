@@ -1,4 +1,4 @@
-import React, { FC, useMemo } from 'react';
+import React, { memo, useMemo } from 'react';
 
 import classNames from 'clsx';
 
@@ -7,12 +7,12 @@ import { T } from 'lib/i18n';
 import { useAllTezosNetworks } from 'temple/front';
 import { getNetworkTitle } from 'temple/front/networks';
 
-type NetworkBannerProps = {
+interface Props {
   rpc: string;
   narrow?: boolean;
-};
+}
 
-const NetworkBanner: FC<NetworkBannerProps> = ({ rpc, narrow = false }) => {
+const NetworkBanner = memo<Props>(({ rpc, narrow = false }) => {
   const networks = useAllTezosNetworks();
 
   const knownNetwork = useMemo(() => networks.find(n => n.rpcBaseURL === rpc), [networks, rpc]);
@@ -56,6 +56,6 @@ const NetworkBanner: FC<NetworkBannerProps> = ({ rpc, narrow = false }) => {
       </h2>
     </div>
   );
-};
+});
 
 export default NetworkBanner;
