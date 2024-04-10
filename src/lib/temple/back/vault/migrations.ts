@@ -232,6 +232,10 @@ export const MIGRATIONS = [
 
     await encryptAndSaveMany(toEncryptAndSave, passKey);
 
+    /* CLEAN-UP */
+
+    removeFromStorage(['tokens_base_metadata', 'block_explorer']);
+
     console.log('VAULT.MIGRATIONS: EVM migration finished');
   }
 ];

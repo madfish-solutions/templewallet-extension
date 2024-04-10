@@ -70,7 +70,7 @@ export const ContentSection = memo<Props>(({ tezosChainId, assetSlug, className 
         {
           name: 'activity',
           titleI18nKey: 'activity',
-          Component: () => <ActivityTab />,
+          Component: ActivityTab,
           testID: HomeSelectors.activityTab,
           whileMessageI18nKey: 'operationHistoryWhileMessage'
         }

@@ -350,13 +350,7 @@ const BakingHistoryItem: FC<BakingHistoryItemProps> = ({
           <div className="flex">
             <HashChip bgShade={200} rounded="base" className="mr-1" hash={baker.address} small textShade={700} />
 
-            <OpenInExplorerChip
-              tezosChainId={tezosChainId}
-              hash={baker.address}
-              type="account"
-              small
-              alternativeDesign
-            />
+            <OpenInExplorerChip tezosChainId={tezosChainId} hash={baker.address} small alternativeDesign />
           </div>
 
           {statsEntriesProps.map(props => (

@@ -9,9 +9,6 @@ export { useContactsActions, searchContacts } from './address-book';
 export type { Baker } from './baking';
 export { getRewardsStats, useKnownBaker, useKnownBakers, useDelegate } from './baking';
 
-export type { BlockExplorer } from './blockexplorer';
-export { BLOCK_EXPLORERS, useBlockExplorer, useExplorerBaseUrls } from './blockexplorer';
-
 export type { RawOperationAssetExpense, RawOperationExpenses } from './expenses';
 export { tryParseExpenses } from './expenses';
 

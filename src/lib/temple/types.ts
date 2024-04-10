@@ -32,16 +32,10 @@ export const TEZOS_MAINNET_CHAIN_ID = 'NetXdQprcVkpaWU';
 export enum TempleTezosChainId {
   Mainnet = TEZOS_MAINNET_CHAIN_ID,
   Ghostnet = 'NetXnHfVqm9iesp',
-  Monday = 'NetXaqtQ8b5nihx',
   Mumbai = 'NetXgbcrNtXD2yA',
   Nairobi = 'NetXyuzvDo2Ugzb',
-  Daily = 'NetXxkAx4woPLyu',
   Dcp = 'NetXooyhiru73tk',
   DcpTest = 'NetXX7Tz1sK8JTa'
-}
-
-export function isKnownChainId(chainId: string): chainId is TempleTezosChainId {
-  return Object.values<string>(TempleTezosChainId).includes(chainId);
 }
 
 export enum TempleStatus {

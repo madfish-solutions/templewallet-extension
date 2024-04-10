@@ -6,6 +6,9 @@ export { arrayBufferToString, stringToArrayBuffer, uInt8ArrayToString, stringToU
 /** From lodash */
 type Truthy<T> = T extends null | undefined | void | false | '' | 0 | 0n ? never : T;
 
+export const EMPTY_FROZEN_OBJ = {};
+Object.freeze(EMPTY_FROZEN_OBJ);
+
 export const isTruthy = <T>(value: T): value is Truthy<T> => Boolean(value);
 
 /** With strict equality check (i.e. `===`) */

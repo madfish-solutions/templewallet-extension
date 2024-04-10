@@ -7,7 +7,7 @@ import type { CollectibleDetails } from 'app/store/collectibles/state';
 import { fromFa2TokenSlug } from 'lib/assets/utils';
 import { useTezosAssetBalance } from 'lib/balances';
 import { formatDate } from 'lib/i18n';
-import { useExplorerBaseUrls } from 'lib/temple/front';
+import { useTezosBlockExplorerUrl } from 'temple/front/block-explorers';
 import { TezosNetworkEssentials } from 'temple/networks';
 
 interface PropertiesItemsProps {
@@ -22,7 +22,7 @@ export const PropertiesItems = memo<PropertiesItemsProps>(({ network, assetSlug,
 
   const { value: balance } = useTezosAssetBalance(assetSlug, accountPkh, network);
 
-  const { transaction: explorerBaseUrl } = useExplorerBaseUrls(network.chainId);
+  const explorerBaseUrl = useTezosBlockExplorerUrl(network.chainId);
   const exploreContractUrl = useMemo(
     () => (explorerBaseUrl ? new URL(contract, explorerBaseUrl).href : null),
     [explorerBaseUrl, contract]

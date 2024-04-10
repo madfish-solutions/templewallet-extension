@@ -11,7 +11,8 @@ import { toLocalFormat, T } from 'lib/i18n';
 import { HELP_UKRAINE_BAKER_ADDRESS, RECOMMENDED_BAKER_ADDRESS } from 'lib/known-bakers';
 import { useKnownBaker } from 'lib/temple/front';
 import { AccountForChain, findAccountForTezos } from 'temple/accounts';
-import { useAllAccounts, useTezosNetwork } from 'temple/front';
+import { useAllAccounts } from 'temple/front';
+import { isTezosDcpChainId } from 'temple/networks';
 
 import { OpenInExplorerChip } from './OpenInExplorerChip';
 
@@ -84,13 +85,7 @@ const BakerBanner = memo<Props>(
 
                   {displayAddress && (
                     <div className="ml-2 flex flex-wrap items-center">
-                      <OpenInExplorerChip
-                        tezosChainId={tezosChainId}
-                        hash={baker.address}
-                        type="account"
-                        small
-                        alternativeDesign
-                      />
+                      <OpenInExplorerChip tezosChainId={tezosChainId} hash={baker.address} small alternativeDesign />
                     </div>
                   )}
                 </div>
@@ -185,8 +180,6 @@ interface BakerAccountProps {
 }
 
 const BakerAccount = memo<BakerAccountProps>(({ tezosChainId, bakerAcc, accPkh, bakerPkh }) => {
-  const { isDcp } = useTezosNetwork();
-
   return bakerAcc ? (
     <>
       {bakerAcc.name}
@@ -201,11 +194,11 @@ const BakerAccount = memo<BakerAccountProps>(({ tezosChainId, bakerAcc, accPkh, 
         </T>
       )}
     </>
-  ) : isDcp ? (
+  ) : isTezosDcpChainId(tezosChainId) ? (
     <div className="flex">
       <HashChip bgShade={200} rounded="base" className="mr-1" hash={bakerPkh} small textShade={700} />
 
-      <OpenInExplorerChip tezosChainId={tezosChainId} hash={bakerPkh} type="account" small alternativeDesign />
+      <OpenInExplorerChip tezosChainId={tezosChainId} hash={bakerPkh} small alternativeDesign />
     </div>
   ) : (
     <T id="unknownBakerTitle">

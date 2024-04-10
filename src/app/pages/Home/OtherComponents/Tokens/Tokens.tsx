@@ -45,17 +45,15 @@ export const TokensTab = memo(() => {
   const accountTezAddress = useAccountAddressForTezos();
 
   return (
-    <>
-      <ContentContainer className="pt-4">
-        <ChainSelectSection controller={chainSelectController} />
+    <ContentContainer className="pt-4">
+      <ChainSelectSection controller={chainSelectController} />
 
-        {network.chain === 'tezos' && accountTezAddress ? (
-          <TezosTokensTab network={network} publicKeyHash={accountTezAddress} />
-        ) : (
-          <div className="text-center py-3">{UNDER_DEVELOPMENT_MSG}</div>
-        )}
-      </ContentContainer>
-    </>
+      {network.chain === 'tezos' && accountTezAddress ? (
+        <TezosTokensTab network={network} publicKeyHash={accountTezAddress} />
+      ) : (
+        <div className="text-center py-3">{UNDER_DEVELOPMENT_MSG}</div>
+      )}
+    </ContentContainer>
   );
 });
 

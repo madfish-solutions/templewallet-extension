@@ -6,19 +6,10 @@ import DropdownWrapper from 'app/atoms/DropdownWrapper';
 import { useShortcutAccountSelectModalIsOpened } from 'app/hooks/use-account-select-shortcut';
 import { ReactComponent as SignalAltIcon } from 'app/icons/signal-alt.svg';
 import { T } from 'lib/i18n';
-import { BLOCK_EXPLORERS, useBlockExplorer } from 'lib/temple/front';
-import { isKnownChainId } from 'lib/temple/types';
 import { PopperRenderProps } from 'lib/ui/Popper';
 import { HistoryAction, navigate } from 'lib/woozie';
-import {
-  useAllTezosNetworks,
-  useAllEvmNetworks,
-  useTezosNetwork,
-  useChangeTezosNetwork,
-  useChangeEvmNetwork
-} from 'temple/front';
+import { useAllTezosNetworks, useAllEvmNetworks, useChangeTezosNetwork, useChangeEvmNetwork } from 'temple/front';
 import { NetworkBase } from 'temple/networks';
-import { loadTezosChainId } from 'temple/tezos';
 import { TempleChainName, TempleChainTitle } from 'temple/types';
 
 import { NetworkButton } from './NetworkButton';
@@ -34,36 +25,16 @@ export const TezosNetworkDropdown = memo<Props>(props => {
   const allNetworks = useAllTezosNetworks();
   const changeNetwork = useChangeTezosNetwork();
 
-  const { chainId } = useTezosNetwork();
-  const { setExplorerId } = useBlockExplorer();
-
   const handleNetworkSelect = useCallback(
-    async (netId: string, rpcUrl: string, selected: boolean) => {
+    async (netId: string, selected: boolean) => {
       setOpened(false);
 
       if (selected) return;
 
-      try {
-        const currentChainId = await loadTezosChainId(rpcUrl);
-
-        if (currentChainId && isKnownChainId(currentChainId)) {
-          const currentBlockExplorerId =
-            BLOCK_EXPLORERS.find(explorer => explorer.baseUrls.get(currentChainId))?.id ?? 'tzkt';
-
-          if (currentChainId !== chainId) {
-            setExplorerId(currentBlockExplorerId);
-          }
-        } else if (currentChainId !== chainId) {
-          setExplorerId('tzkt');
-        }
-      } catch (error) {
-        console.error(error);
-      }
-
       changeNetwork(netId);
       navigate('/', HistoryAction.Replace);
     },
-    [chainId, setExplorerId, setOpened, changeNetwork]
+    [setOpened, changeNetwork]
   );
 
   return (
@@ -105,7 +76,7 @@ export const EvmNetworkDropdown = memo<Props>(props => {
 interface NetworkDropdownProps extends Props {
   chain: TempleChainName;
   allNetworks: NetworkBase[];
-  handleNetworkSelect: (netId: string, rpcUrl: string, selected: boolean) => Promise<void>;
+  handleNetworkSelect: (netId: string, selected: boolean) => Promise<void>;
 }
 
 const NetworkDropdown = memo<NetworkDropdownProps>(
@@ -127,7 +98,7 @@ const NetworkDropdown = memo<NetworkDropdownProps>(
           </h2>
 
           {allNetworks.map(network => {
-            const { id, rpcBaseURL } = network;
+            const { id } = network;
             const selected = id === currentNetworkId;
 
             return (
@@ -135,7 +106,7 @@ const NetworkDropdown = memo<NetworkDropdownProps>(
                 key={id}
                 network={network}
                 selected={selected}
-                onClick={() => handleNetworkSelect(id, rpcBaseURL, selected)}
+                onClick={() => handleNetworkSelect(id, selected)}
               />
             );
           })}

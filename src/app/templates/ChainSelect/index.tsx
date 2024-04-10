@@ -60,16 +60,19 @@ const ChainSelect = memo<Props>(({ controller }) => {
 interface ChainSelectSectionProps extends Props {
   onlyForAddressResolution?: boolean;
 }
+
 export const ChainSelectSection = memo<ChainSelectSectionProps>(({ onlyForAddressResolution, ...props }) => (
   <>
-    <div className="flex">
-      <span className="text-xl text-gray-900">
-        <T id="network" />:
-      </span>
+    <div className="flex items-center">
+      <div className="flex flex-col text-xl text-gray-900">
+        <span>
+          <T id="network" />:
+        </span>
 
-      <div className="flex-1 text-xs text-gray-100">
-        {onlyForAddressResolution && <span>{`(Only for address resolution)`}</span>}
+        {onlyForAddressResolution && <span className="text-xs text-gray-600">{`(Only for address resolution)`}</span>}
       </div>
+
+      <div className="flex-1" />
 
       <ChainSelect {...props} />
     </div>

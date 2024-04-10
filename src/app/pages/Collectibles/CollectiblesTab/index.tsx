@@ -48,7 +48,7 @@ export const CollectiblesTab = memo<Props>(({ scrollToTheTabsBar }) => {
   const accountTezAddress = useAccountAddressForTezos();
 
   return (
-    <ContentContainer>
+    <ContentContainer className="pt-4">
       <ChainSelectSection controller={chainSelectController} />
 
       {network.chain === 'tezos' && accountTezAddress ? (

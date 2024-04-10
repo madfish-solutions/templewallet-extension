@@ -1,7 +1,6 @@
 import browser from 'webextension-polyfill';
 
 const DEPRECATED_KEYS = [
-  'tokens_base_metadata',
   'detailed_asset_metadata_' // `detailed_asset_metadata_${slug}`
 ];
 

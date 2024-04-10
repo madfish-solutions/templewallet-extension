@@ -1,7 +1,6 @@
 import React, { useMemo, useCallback, FC, useState, memo } from 'react';
 
-import classNames from 'clsx';
-import { isEqual } from 'lodash';
+import clsx from 'clsx';
 import browser from 'webextension-polyfill';
 
 import Flag from 'app/atoms/Flag';
@@ -9,37 +8,31 @@ import { DropdownSelect } from 'app/templates/DropdownSelect/DropdownSelect';
 import { InputContainer } from 'app/templates/InputContainer/InputContainer';
 import { setTestID } from 'lib/analytics';
 import { T } from 'lib/i18n';
-import { BlockExplorer, BLOCK_EXPLORERS, useBlockExplorer } from 'lib/temple/front';
-import { isKnownChainId } from 'lib/temple/types';
 import { searchAndFilterItems } from 'lib/utils/search-items';
-import { useTezosNetwork } from 'temple/front';
+import { TezosBlockExplorer, useTezosBlockExplorersListingLogic } from 'temple/front/block-explorers';
 
 import { SettingsGeneralSelectors } from '../selectors';
 
-const renderOptionContent = (option: BlockExplorer, isSelected: boolean) => (
-  <BlockExplorerOptionContent option={option} isSelected={isSelected} />
-);
+interface Props {
+  tezosChainId: string;
+}
 
-const BlockExplorerSelect = memo(() => {
-  const { explorer, setExplorerId } = useBlockExplorer();
-  const { chainId } = useTezosNetwork();
+const BlockExplorerSelect = memo<Props>(({ tezosChainId }) => {
+  const { knownOptions, currentKnownId, setExplorerById } = useTezosBlockExplorersListingLogic(tezosChainId);
   const [searchValue, setSearchValue] = useState<string>('');
 
-  const options = useMemo(() => {
-    if (chainId && isKnownChainId(chainId)) {
-      const knownExplorers = BLOCK_EXPLORERS.filter(explorer => explorer.baseUrls.get(chainId));
+  const currentOption = useMemo(
+    () => (currentKnownId ? knownOptions.find(o => o.id === currentKnownId) : null),
+    [knownOptions, currentKnownId]
+  );
 
-      return searchBlockExplorer(searchValue, knownExplorers);
-    }
-
-    return [];
-  }, [chainId, searchValue]);
+  const options = useMemo(() => searchBlockExplorer(searchValue, knownOptions), [knownOptions, searchValue]);
 
   const handleBlockExplorerChange = useCallback(
-    (option: BlockExplorer) => {
-      setExplorerId(option.id);
+    (option: TezosBlockExplorer) => {
+      setExplorerById(option.id);
     },
-    [setExplorerId]
+    [setExplorerById]
   );
 
   return (
@@ -49,12 +42,14 @@ const BlockExplorerSelect = memo(() => {
           testID={SettingsGeneralSelectors.blockExplorerDropDown}
           optionsListClassName="p-2"
           dropdownButtonClassName="p-3"
-          DropdownFaceContent={<BlockExplorerFieldContent {...explorer} />}
+          DropdownFaceContent={currentOption ? <BlockExplorerFieldContent {...currentOption} /> : null}
           optionsProps={{
             options,
             noItemsText: 'No items',
             getKey: option => option.id,
-            renderOptionContent: option => renderOptionContent(option, isEqual(option, explorer)),
+            renderOptionContent: option => (
+              <BlockExplorerOptionContent option={option} isSelected={option.id === currentKnownId} />
+            ),
             onOptionChange: handleBlockExplorerChange
           }}
           searchProps={{
@@ -77,32 +72,27 @@ const BlockExplorerTitle: FC = () => (
   </h2>
 );
 
-const BlockExplorerIcon: FC<Pick<BlockExplorer, 'id' | 'name'>> = ({ id, name }) => (
+const BlockExplorerIcon: FC<Pick<TezosBlockExplorer, 'id' | 'name'>> = ({ id, name }) => (
   <Flag alt={name} className="ml-2 mr-3" src={browser.runtime.getURL(`/misc/explorer-logos/${id}.ico`)} />
 );
 
-const BlockExplorerFieldContent: FC<BlockExplorer> = ({ id, name }) => {
-  return (
-    <div className="flex items-center">
-      <BlockExplorerIcon id={id} name={name} />
+const BlockExplorerFieldContent: FC<TezosBlockExplorer> = ({ id, name }) => (
+  <div className="flex items-center">
+    <BlockExplorerIcon id={id} name={name} />
 
-      <span className="text-xl text-gray-700">{name}</span>
-    </div>
-  );
-};
+    <span className="text-xl text-gray-700">{name}</span>
+  </div>
+);
 
 interface BlockExplorerOptionContentProps {
-  option: BlockExplorer;
+  option: TezosBlockExplorer;
   isSelected?: boolean;
 }
 
 const BlockExplorerOptionContent: FC<BlockExplorerOptionContentProps> = ({ option, isSelected }) => {
   return (
     <div
-      className={classNames(
-        'w-full flex items-center py-1.5 px-2 rounded',
-        isSelected ? 'bg-gray-200' : 'hover:bg-gray-100'
-      )}
+      className={clsx('w-full flex items-center py-1.5 px-2 rounded', isSelected ? 'bg-gray-200' : 'hover:bg-gray-100')}
     >
       <BlockExplorerIcon id={option.id} name={option.name} />
 
@@ -116,16 +106,8 @@ const BlockExplorerOptionContent: FC<BlockExplorerOptionContentProps> = ({ optio
   );
 };
 
-const searchBlockExplorer = (searchString: string, options: BlockExplorer[]) =>
-  searchAndFilterItems(
-    options,
-    searchString,
-    [
-      { name: 'name', weight: 1 },
-      { name: 'urls', weight: 0.25 }
-    ],
-    ({ name, baseUrls }) => ({
-      name,
-      urls: Array.from(baseUrls.values()).map(item => item.transaction)
-    })
-  );
+const searchBlockExplorer = (searchString: string, options: TezosBlockExplorer[]) =>
+  searchAndFilterItems(options, searchString, [
+    { name: 'name', weight: 1 },
+    { name: 'baseUrl', weight: 0.25 }
+  ]);

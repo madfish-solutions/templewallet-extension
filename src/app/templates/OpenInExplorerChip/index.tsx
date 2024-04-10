@@ -1,33 +1,21 @@
-import React, { FC, useMemo } from 'react';
+import React, { FC } from 'react';
 
 import { ExternalLinkChip, ExternalLinkChipProps } from 'app/atoms/ExternalLinkChip';
 import { t } from 'lib/i18n';
-import { useExplorerBaseUrls } from 'lib/temple/front';
+import { useTezosBlockExplorerUrl } from 'temple/front/block-explorers';
 
 import { OpenInExplorerChipSelectors } from './selectors';
 
-type Props = Omit<ExternalLinkChipProps, 'href'> & {
+interface Props extends Omit<ExternalLinkChipProps, 'href'> {
   tezosChainId: string;
   hash: string;
-  type?: keyof ReturnType<typeof useExplorerBaseUrls>;
-};
+}
 
-export const OpenInExplorerChip: FC<Props> = ({
-  tezosChainId,
-  hash,
-  type = 'transaction',
-  tooltip = t('viewOnBlockExplorer'),
-  ...props
-}) => {
-  const urls = useExplorerBaseUrls(tezosChainId);
+export const OpenInExplorerChip: FC<Props> = ({ tezosChainId, hash, tooltip = t('viewOnBlockExplorer'), ...props }) => {
+  const explorerBaseUrl = useTezosBlockExplorerUrl(tezosChainId);
+  if (!explorerBaseUrl) return null;
 
-  const href = useMemo(() => {
-    const baseUrl = type && urls[type];
-
-    return baseUrl ? new URL(hash, baseUrl).href : null;
-  }, [urls, hash, type]);
-
-  if (!href) return null;
+  const href = new URL(hash, explorerBaseUrl).href;
 
   return (
     <ExternalLinkChip

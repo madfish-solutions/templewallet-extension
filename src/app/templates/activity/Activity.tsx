@@ -42,7 +42,7 @@ const ActivityWithChainSelect = memo(() => {
   const network = chainSelectController.value;
 
   return (
-    <ContentContainer>
+    <ContentContainer className="pt-4">
       <ChainSelectSection controller={chainSelectController} />
 
       {network.chain === 'tezos' ? (
