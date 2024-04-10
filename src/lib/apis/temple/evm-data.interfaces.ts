@@ -281,7 +281,7 @@ export interface BalanceItem {
   /** * The 24h asset balance. Use `contract_decimals` to scale this balance for display purposes. */
   balance_24h: string | null;
   /** * The exchange rate for the requested quote currency. */
-  quote_rate: number;
+  quote_rate: number | null;
   /** * The 24h exchange rate for the requested quote currency. */
   quote_rate_24h: number;
   /** * The current balance converted to fiat in `quote-currency`. */
