@@ -24,7 +24,7 @@ export const useCollectiblesListingLogic = (network: TezosNetworkEssentials, all
     slugs: paginatedSlugs,
     isLoading: pageIsLoading,
     loadNext
-  } = useCollectiblesPaginationLogic(allSlugsSorted, initialAmount);
+  } = useCollectiblesPaginationLogic(allSlugsSorted, network.rpcBaseURL, initialAmount);
 
   const assetsAreLoading = useAreAssetsLoading('collectibles');
   const metadatasLoading = useCollectiblesMetadataLoadingSelector();

@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from 'react';
+import { useMemo } from 'react';
 
 import { dispatch } from 'app/store';
 import { refreshTokensMetadataAction } from 'app/store/tokens-metadata/actions';
@@ -7,17 +7,20 @@ import { fetchTokensMetadata } from 'lib/apis/temple';
 import { ALL_PREDEFINED_METADATAS_RECORD } from 'lib/assets/known-tokens';
 import { reduceToMetadataRecord } from 'lib/metadata/fetch';
 import { TempleTezosChainId } from 'lib/temple/types';
+import { useDidMount, useMemoWithCompare } from 'lib/ui/hooks';
 import { useLocalStorage } from 'lib/ui/local-storage';
-import { useTezosNetwork } from 'temple/front';
+import { useAllTezosChains } from 'temple/front';
 
 const STORAGE_KEY = 'METADATA_REFRESH';
 
-type RefreshRecords = Record<string, number>;
+type RefreshRecords = StringRecord<number>;
 
 const REFRESH_VERSION = 1;
 
 export const useMetadataRefresh = () => {
-  const { chainId } = useTezosNetwork();
+  const tezosNetworks = useAllTezosChains();
+
+  const tezosChainsIDs = useMemoWithCompare(() => Object.keys(tezosNetworks), [tezosNetworks]);
 
   const [records, setRecords] = useLocalStorage<RefreshRecords>(STORAGE_KEY, {});
 
@@ -27,27 +30,31 @@ export const useMetadataRefresh = () => {
     []
   );
 
-  useEffect(() => {
-    const lastVersion = records[chainId];
-    const setLastVersion = () => setRecords(r => ({ ...r, [chainId]: REFRESH_VERSION }));
+  useDidMount(() => {
+    for (const chainId of tezosChainsIDs) {
+      const lastVersion = records[chainId];
+      const setLastVersionPerChainId = () => setRecords(r => ({ ...r, [chainId]: REFRESH_VERSION }));
 
-    const needToSetVersion = !lastVersion || lastVersion < REFRESH_VERSION;
+      const needToSetVersion = !lastVersion || lastVersion < REFRESH_VERSION;
 
-    if (!slugsOnAppLoad.length) {
-      if (needToSetVersion) setLastVersion();
+      if (!slugsOnAppLoad.length) {
+        if (needToSetVersion) setLastVersionPerChainId();
 
-      return;
+        continue;
+      }
+
+      // Organized refresh only for Mainnet so far. Since fetching by mostly mainnet slugs
+      // for other chains might be a waste of request. Need to have slugs by chain record.
+      if (!needToSetVersion || chainId !== TempleTezosChainId.Mainnet) continue;
+
+      fetchTokensMetadata(chainId, slugsOnAppLoad).then(
+        data => {
+          const newRecords = reduceToMetadataRecord(slugsOnAppLoad, data);
+          dispatch(refreshTokensMetadataAction(newRecords));
+          setLastVersionPerChainId();
+        },
+        error => console.error(error)
+      );
     }
-
-    if (!needToSetVersion || chainId !== TempleTezosChainId.Mainnet) return;
-
-    fetchTokensMetadata(chainId, slugsOnAppLoad).then(
-      data => {
-        const record = reduceToMetadataRecord(slugsOnAppLoad, data);
-        dispatch(refreshTokensMetadataAction(record));
-        setLastVersion();
-      },
-      error => console.error(error)
-    );
-  }, [chainId]);
+  });
 };

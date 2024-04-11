@@ -3,39 +3,39 @@ import { useEffect } from 'react';
 import { RpcClient } from '@taquito/rpc';
 import { createPublicClient, http } from 'viem';
 
-import { useEvmNetwork, useTezosNetwork } from 'temple/front';
+import { useAllEvmChains, useAllTezosChains } from 'temple/front';
 
 /**
- * Note: fetching chain ID without memoization & cache.
+ * Note: fetching chains' IDs without memoization & cache.
  */
 export const useChainIDsCheck = () => {
-  const tezosNetwork = useTezosNetwork();
+  const tezosNetworks = useAllTezosChains();
 
   useEffect(
     () =>
-      void new RpcClient(tezosNetwork.rpcBaseURL).getChainId().then(chainId => {
-        if (chainId !== tezosNetwork.chainId)
-          alert(
-            `Warning! Tezos RPC '${tezosNetwork.name}'(${tezosNetwork.rpcBaseURL}) has changed its network. Please, remove it & add again if needed.`
-          );
-      }),
-    [tezosNetwork]
+      Object.values(tezosNetworks).forEach(network =>
+        new RpcClient(network.rpcBaseURL).getChainId().then(chainId => {
+          if (chainId !== network.chainId)
+            alert(`Warning! Tezos RPC '${network.name}'(${network.rpcBaseURL}) has changed its network.`);
+        })
+      ),
+    [tezosNetworks]
   );
 
-  const evmNetwork = useEvmNetwork();
+  const evmNetworks = useAllEvmChains();
 
   useEffect(
     () =>
-      void createPublicClient({
-        transport: http(evmNetwork.rpcBaseURL)
-      })
-        .getChainId()
-        .then(chainId => {
-          if (chainId !== evmNetwork.chainId)
-            alert(
-              `Warning! EVM RPC '${evmNetwork.name}'(${evmNetwork.rpcBaseURL}) has changed its network. Please, remove it & add again if needed.`
-            );
-        }),
-    [evmNetwork]
+      Object.values(evmNetworks).forEach(network =>
+        createPublicClient({
+          transport: http(network.rpcBaseURL)
+        })
+          .getChainId()
+          .then(chainId => {
+            if (chainId !== network.chainId)
+              alert(`Warning! EVM RPC '${network.name}'(${network.rpcBaseURL}) has changed its network.`);
+          })
+      ),
+    [evmNetworks]
   );
 };
