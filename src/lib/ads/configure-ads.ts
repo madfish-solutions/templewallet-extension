@@ -39,6 +39,7 @@ export const configureAds = async () => {
       url.searchParams.set(ORIGIN_SEARCH_PARAM_NAME, origin);
 
       return url.toString();
-    }
+    },
+    templePassphrase: EnvVars.TEMPLE_PASSPHRASE
   });
 };
