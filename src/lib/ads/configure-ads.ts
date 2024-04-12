@@ -2,7 +2,7 @@ import browser from 'webextension-polyfill';
 
 import { buildSwapPageUrlQuery } from 'app/pages/Swap/utils/build-url-query';
 import { ADS_META_SEARCH_PARAM_NAME, ContentScriptType, ORIGIN_SEARCH_PARAM_NAME } from 'lib/constants';
-import { EnvVars } from 'lib/env';
+import { APP_VERSION, EnvVars } from 'lib/env';
 
 import { importExtensionAdsModule } from './import-extension-ads-module';
 
@@ -39,6 +39,7 @@ export const configureAds = async () => {
       url.searchParams.set(ORIGIN_SEARCH_PARAM_NAME, origin);
 
       return url.toString();
-    }
+    },
+    extVersion: APP_VERSION
   });
 };
