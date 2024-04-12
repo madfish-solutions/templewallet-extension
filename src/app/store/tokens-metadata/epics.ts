@@ -11,7 +11,7 @@ import {
   putTokensMetadataAction,
   loadTokensMetadataAction,
   addWhitelistTokensMetadataAction,
-  resetTokensMetadataLoadingAction
+  setTokensMetadataLoadingAction
 } from './actions';
 
 const addWhitelistMetadataEpic: Epic = action$ =>
@@ -24,7 +24,7 @@ const loadTokensMetadataEpic: Epic = action$ =>
     switchMap(({ rpcUrl, slugs }) =>
       from(loadTokensMetadata(rpcUrl, slugs)).pipe(
         map(records => putTokensMetadataAction({ records, resetLoading: true })),
-        catchError(() => of(resetTokensMetadataLoadingAction()))
+        catchError(() => of(setTokensMetadataLoadingAction(false)))
       )
     )
   );

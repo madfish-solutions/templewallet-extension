@@ -11,6 +11,7 @@ import { ReactComponent as EditingIcon } from 'app/icons/editing.svg';
 import { ReactComponent as SearchIcon } from 'app/icons/search.svg';
 import { ContentContainer } from 'app/layouts/ContentContainer';
 import { useAreAssetsLoading, useMainnetTokensScamlistSelector } from 'app/store/assets/selectors';
+import { useTokensMetadataLoadingSelector } from 'app/store/tokens-metadata/selectors';
 import { useChainSelectController, ChainSelectSection } from 'app/templates/ChainSelect';
 import { ButtonForManageDropdown } from 'app/templates/ManageDropdown';
 import { PartnersPromotion, PartnersPromotionVariant } from 'app/templates/partners-promotion';
@@ -67,7 +68,9 @@ const TezosTokensTab: FC<TezosTokensTabProps> = ({ network, publicKeyHash }) => 
 
   const { popup } = useAppEnv();
 
-  const isSyncing = useAreAssetsLoading('tokens');
+  const assetsAreLoading = useAreAssetsLoading('tokens');
+  const metadatasLoading = useTokensMetadataLoadingSelector();
+  const isSyncing = assetsAreLoading || metadatasLoading;
 
   const slugs = useEnabledAccountTokensSlugs(publicKeyHash, chainId);
 

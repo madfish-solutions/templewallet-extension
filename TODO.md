@@ -1,5 +1,7 @@
 ## TODO:
 
+- `<WithDataLoading />` without children
+- - Move out of `PageRouter` ?
 - Store Tezos native currency
 - Forbid WebPack to include React
 - Revisit `loadTezosChainId` usage
@@ -33,6 +35,7 @@
 - Move deps-less callbacks out of `lib/temple/client.ts` to a module ?
 - `BG_State.defaultNetworks` to FG
 - `interface ChainAsset { chainId: string | number; slug: string; }`
+- `EMPTY_FROZEN_ARR`
 -
 
 

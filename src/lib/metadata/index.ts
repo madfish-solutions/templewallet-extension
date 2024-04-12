@@ -16,7 +16,7 @@ import {
 import { METADATA_API_LOAD_CHUNK_SIZE } from 'lib/apis/temple';
 import { isTezAsset } from 'lib/assets';
 import { isTruthy } from 'lib/utils';
-import { TezosNetworkEssentials, isTezosDcpChainId } from 'temple/networks';
+import { isTezosDcpChainId } from 'temple/networks';
 
 import { TEZOS_METADATA, FILM_METADATA } from './defaults';
 import { AssetMetadataBase, TokenMetadata } from './types';
@@ -72,32 +72,30 @@ export const useGetAssetMetadata = (tezosChainId: string) => {
 /**
  * @param slugsToCheck // Memoize
  */
-export const useTokensMetadataPresenceCheck = (network: TezosNetworkEssentials, slugsToCheck?: string[]) => {
+export const useTokensMetadataPresenceCheck = (rpcBaseURL: string, slugsToCheck?: string[]) => {
   const metadataLoading = useTokensMetadataLoadingSelector();
   const getMetadata = useGetTokenMetadata();
 
-  useAssetsMetadataPresenceCheck(network, false, metadataLoading, getMetadata, slugsToCheck);
+  useAssetsMetadataPresenceCheck(rpcBaseURL, false, metadataLoading, getMetadata, slugsToCheck);
 };
 
 /**
  * @param slugsToCheck // Memoize
  */
-export const useCollectiblesMetadataPresenceCheck = (network: TezosNetworkEssentials, slugsToCheck?: string[]) => {
+export const useCollectiblesMetadataPresenceCheck = (rpcBaseURL: string, slugsToCheck?: string[]) => {
   const metadataLoading = useCollectiblesMetadataLoadingSelector();
   const getMetadata = useGetCollectibleMetadata();
 
-  useAssetsMetadataPresenceCheck(network, true, metadataLoading, getMetadata, slugsToCheck);
+  useAssetsMetadataPresenceCheck(rpcBaseURL, true, metadataLoading, getMetadata, slugsToCheck);
 };
 
 const useAssetsMetadataPresenceCheck = (
-  network: TezosNetworkEssentials,
+  rpcBaseURL: string,
   ofCollectibles: boolean,
   metadataLoading: boolean,
   getMetadata: TokenMetadataGetter,
   slugsToCheck?: string[]
 ) => {
-  const { rpcBaseURL } = network;
-
   const checkedRef = useRef<string[]>([]);
 
   useEffect(() => {

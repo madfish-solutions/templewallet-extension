@@ -71,7 +71,7 @@ export const SwapFormInput: FC<SwapFormInputProps> = ({
     LEADING_ASSETS
   );
 
-  useTokensMetadataPresenceCheck(network, route3tokensSlugs);
+  useTokensMetadataPresenceCheck(network.rpcBaseURL, route3tokensSlugs);
 
   const maxAmount = useMemo(() => {
     if (!assetSlug) {

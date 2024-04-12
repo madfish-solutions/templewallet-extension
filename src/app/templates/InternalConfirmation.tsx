@@ -65,6 +65,7 @@ const InternalConfirmation: FC<InternalConfiramtionProps> = ({ payload, onConfir
 
   const networkRpc = payload.networkRpc;
 
+  // TODO: `payload.chainId`
   const tezosChainId = useTezosChainIdLoadingValue(networkRpc, true)!;
 
   const tezosNetwork = useMemo(() => ({ chainId: tezosChainId, rpcBaseURL: networkRpc }), [tezosChainId, networkRpc]);
