@@ -8,7 +8,7 @@ export const useAdsViewerPkh = () => {
   const selectedAccount = useAccount();
 
   return useMemo(() => {
-    if (selectedAccount && isAccountOfActableType(selectedAccount)) return selectedAccount.publicKeyHash;
+    if (isAccountOfActableType(selectedAccount)) return selectedAccount.publicKeyHash;
 
     return allAccounts[0].publicKeyHash;
   }, [allAccounts, selectedAccount]);
