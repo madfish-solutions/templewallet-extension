@@ -104,10 +104,11 @@ const CollectiblePage = memo<Props>(({ tezosChainId, assetSlug }) => {
   );
 
   const dispatch = useDispatch();
-  useInterval(() => void dispatch(loadCollectiblesDetailsActions.submit([assetSlug])), DETAILS_SYNC_INTERVAL, [
-    dispatch,
-    assetSlug
-  ]);
+  useInterval(
+    () => void dispatch(loadCollectiblesDetailsActions.submit([assetSlug])),
+    [dispatch, assetSlug],
+    DETAILS_SYNC_INTERVAL
+  );
 
   const displayedOffer = useMemo(() => {
     const highestOffer = offers?.[0];

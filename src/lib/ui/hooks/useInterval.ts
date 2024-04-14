@@ -4,8 +4,8 @@ import { useUpdatableRef } from './useUpdatableRef';
 
 export const useInterval = (
   callback: EmptyFn,
-  refreshInterval: number,
   deps: DependencyList,
+  refreshInterval: number,
   shouldCallImmediately = true
 ) => {
   const callbackRef = useUpdatableRef(callback);

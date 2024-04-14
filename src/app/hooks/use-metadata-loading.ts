@@ -10,6 +10,10 @@ import { loadTokensMetadata } from 'lib/metadata/fetch';
 import { useAllTezosChains } from 'temple/front';
 
 export const useMetadataLoading = (publicKeyHash: string) => {
+  useTezosTokensMetadataLoading(publicKeyHash);
+};
+
+const useTezosTokensMetadataLoading = (publicKeyHash: string) => {
   const allTezosNetworks = useAllTezosChains();
   const allTokens = useAllTokensSelector();
   const getMetadata = useGetTokenMetadata();
@@ -47,9 +51,7 @@ export const useMetadataLoading = (publicKeyHash: string) => {
             checkedRef.current = checkedRef.current.concat(slugsWithoutMeta);
             dispatch(putTokensMetadataAction({ records: fetchedMetadata }));
           },
-          error => {
-            console.error(error);
-          }
+          error => void console.error(error)
         );
       })
     ).then(() => void dispatch(setTokensMetadataLoadingAction(false)));

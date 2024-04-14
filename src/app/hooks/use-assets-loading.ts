@@ -1,44 +1,106 @@
-import { useEffect } from 'react';
-
 import { dispatch } from 'app/store';
 import {
   loadAccountTokensActions,
+  loadAccountCollectiblesActions,
   loadTokensWhitelistActions,
-  loadAccountCollectiblesActions
+  setAssetsIsLoadingAction,
+  addAccountTokensAction,
+  addAccountCollectiblesAction
 } from 'app/store/assets/actions';
 import { useAreAssetsLoading } from 'app/store/assets/selectors';
+import { loadAccountCollectibles, loadAccountTokens, mergeAssetsMetadata } from 'app/store/assets/utils';
+import { putTokensBalancesAction } from 'app/store/balances/actions';
+import { fixBalances } from 'app/store/balances/utils';
+import { putCollectiblesMetadataAction } from 'app/store/collectibles-metadata/actions';
+import { useAllCollectiblesMetadataSelector } from 'app/store/collectibles-metadata/selectors';
+import { putTokensMetadataAction } from 'app/store/tokens-metadata/actions';
+import { useAllTokensMetadataSelector } from 'app/store/tokens-metadata/selectors';
 import { isKnownChainId } from 'lib/apis/tzkt';
 import { ASSETS_SYNC_INTERVAL } from 'lib/fixed-times';
-import { TempleTezosChainId } from 'lib/temple/types';
-import { useInterval } from 'lib/ui/hooks';
-import { useTezosNetwork } from 'temple/front';
+import { useDidMount, useInterval, useMemoWithCompare, useUpdatableRef } from 'lib/ui/hooks';
+import { isTruthy } from 'lib/utils';
+import { useAllTezosChains } from 'temple/front';
 
 export const useAssetsLoading = (publicKeyHash: string) => {
-  const { chainId } = useTezosNetwork();
+  useDidMount(() => void dispatch(loadTokensWhitelistActions.submit()));
 
-  useEffect(() => {
-    if (chainId === TempleTezosChainId.Mainnet) dispatch(loadTokensWhitelistActions.submit());
-  }, [chainId]);
+  const allTezosNetworks = useAllTezosChains();
+
+  const networks = useMemoWithCompare(
+    () =>
+      Object.values(allTezosNetworks)
+        .map(({ chainId, rpcBaseURL }) => (isKnownChainId(chainId) ? { chainId, rpcBaseURL } : null))
+        .filter(isTruthy),
+    [allTezosNetworks]
+  );
 
   const tokensAreLoading = useAreAssetsLoading('tokens');
 
+  // useInterval(
+  //   () => {
+  //     if (!tokensAreLoading) dispatch(loadAccountTokensActions.submit({ account: publicKeyHash, networks }));
+  //   },
+  //   ASSETS_SYNC_INTERVAL,
+  //   [publicKeyHash, networks]
+  // );
+
+  const allTokensMetadata = useAllTokensMetadataSelector();
+  const allTokensMetadataRef = useUpdatableRef(allTokensMetadata);
+  const allCollectiblesMetadata = useAllCollectiblesMetadataSelector();
+  const allCollectiblesMetadataRef = useUpdatableRef(allCollectiblesMetadata);
+
   useInterval(
     () => {
-      if (!tokensAreLoading && isKnownChainId(chainId))
-        dispatch(loadAccountTokensActions.submit({ account: publicKeyHash, chainId }));
+      if (tokensAreLoading) return;
+
+      dispatch(setAssetsIsLoadingAction({ type: 'tokens', value: true, resetError: true }));
+
+      const allMetadata = mergeAssetsMetadata(allTokensMetadataRef.current, allCollectiblesMetadataRef.current);
+
+      Promise.allSettled(
+        networks.map(async network => {
+          const chainId = network.chainId;
+
+          const { slugs, balances, newMeta } = await loadAccountTokens(
+            publicKeyHash,
+            chainId,
+            network.rpcBaseURL,
+            allMetadata
+          );
+
+          dispatch(addAccountTokensAction({ account: publicKeyHash, chainId, slugs }));
+          dispatch(putTokensBalancesAction({ publicKeyHash, chainId, balances: fixBalances(balances) }));
+          dispatch(putTokensMetadataAction({ records: newMeta }));
+        })
+      ).then(() => void dispatch(setAssetsIsLoadingAction({ type: 'tokens', value: false })));
     },
-    ASSETS_SYNC_INTERVAL,
-    [chainId, publicKeyHash]
+    [tokensAreLoading, publicKeyHash, networks],
+    ASSETS_SYNC_INTERVAL
   );
 
   const collectiblesAreLoading = useAreAssetsLoading('collectibles');
 
   useInterval(
     () => {
-      if (!collectiblesAreLoading && isKnownChainId(chainId))
-        dispatch(loadAccountCollectiblesActions.submit({ account: publicKeyHash, chainId }));
+      if (collectiblesAreLoading) return;
+
+      dispatch(setAssetsIsLoadingAction({ type: 'collectibles', value: true, resetError: true }));
+
+      const allMetadata = mergeAssetsMetadata(allTokensMetadataRef.current, allCollectiblesMetadataRef.current);
+
+      Promise.allSettled(
+        networks.map(async network => {
+          const chainId = network.chainId;
+
+          const { slugs, balances, newMeta } = await loadAccountCollectibles(publicKeyHash, chainId, allMetadata);
+
+          dispatch(addAccountCollectiblesAction({ account: publicKeyHash, chainId, slugs }));
+          dispatch(putTokensBalancesAction({ publicKeyHash, chainId, balances: fixBalances(balances) }));
+          dispatch(putCollectiblesMetadataAction({ records: newMeta }));
+        })
+      ).then(() => void dispatch(setAssetsIsLoadingAction({ type: 'collectibles', value: false })));
     },
-    ASSETS_SYNC_INTERVAL,
-    [chainId, publicKeyHash]
+    [collectiblesAreLoading, publicKeyHash, networks],
+    ASSETS_SYNC_INTERVAL
   );
 };

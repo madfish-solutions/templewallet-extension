@@ -1,13 +1,14 @@
 import memoizee from 'memoizee';
 
-import { fetchTokensMetadata, isKnownChainId } from 'lib/apis/temple';
-import { fetchTzktAccountAssets } from 'lib/apis/tzkt';
+import { isKnownChainId, fetchTokensMetadata as fetchTokensMetadataOnAPI } from 'lib/apis/temple';
+import { TzktApiChainId, fetchTzktAccountAssets } from 'lib/apis/tzkt';
 import type { TzktAccountAsset } from 'lib/apis/tzkt/types';
 import { toTokenSlug } from 'lib/assets';
-import type { FetchedMetadataRecord } from 'lib/metadata/fetch';
+import { FetchedMetadataRecord, fetchTokensMetadata } from 'lib/metadata/fetch';
 import { isCollectible } from 'lib/metadata/utils';
 
-import { MetadataMap } from '../collectibles-metadata/state';
+import type { MetadataMap } from '../collectibles-metadata/state';
+import type { MetadataRecords } from '../tokens-metadata/state';
 
 export const getAccountAssetsStoreKey = (account: string, chainId: string) => `${account}@${chainId}`;
 
@@ -17,12 +18,22 @@ export const isAccountAssetsStoreKeyOfSameChainIdAndDifferentAccount = (
   chainId: string
 ) => !key.startsWith(account) && key.endsWith(chainId);
 
-export const loadAccountTokens = (account: string, chainId: string, knownMeta: MetadataMap) =>
+export const mergeAssetsMetadata = (tokensMetadata: MetadataRecords, collectiblesMetadata: MetadataMap) => {
+  const map = new Map(Object.entries(tokensMetadata));
+
+  for (const [slug, metadata] of collectiblesMetadata) {
+    map.set(slug, metadata);
+  }
+
+  return map;
+};
+
+export const loadAccountTokens = (account: string, chainId: TzktApiChainId, rpcUrl: string, knownMeta: MetadataMap) =>
   Promise.all([
     // Fetching assets known to be FTs, not checking metadata
-    fetchTzktAccountAssets(account, chainId, true).then(data => finishTokensLoading(data, chainId, knownMeta)),
+    fetchTzktAccountAssets(account, chainId, true).then(data => finishTokensLoading(data, rpcUrl, knownMeta)),
     // Fetching unknowns only, checking metadata to filter for FTs
-    fetchTzktAccountUnknownAssets(account, chainId).then(data => finishTokensLoading(data, chainId, knownMeta, true))
+    fetchTzktAccountUnknownAssets(account, chainId).then(data => finishTokensLoading(data, rpcUrl, knownMeta, true))
   ]).then(
     ([data1, data2]) => mergeLoadedAssetsData(data1, data2),
     error => {
@@ -55,7 +66,7 @@ const fetchTzktAccountUnknownAssets = memoizee(
 
 const finishTokensLoading = async (
   data: TzktAccountAsset[],
-  chainId: string,
+  rpcUrl: string,
   knownMeta: MetadataMap,
   fungibleByMetaCheck = false
 ) => {
@@ -64,11 +75,9 @@ const finishTokensLoading = async (
     return knownMeta.has(slug) ? acc : acc.concat(slug);
   }, []);
 
-  const newMetadatas = isKnownChainId(chainId)
-    ? await fetchTokensMetadata(chainId, slugsWithoutMeta).catch(err => {
-        console.error(err);
-      })
-    : null;
+  const newMetadatas = await fetchTokensMetadata(rpcUrl, slugsWithoutMeta).catch(err => {
+    console.error(err);
+  });
 
   const slugs: string[] = [];
   const balances: StringRecord = {};
@@ -119,7 +128,7 @@ const finishCollectiblesLoadingWithoutMeta = async (
   }, []);
 
   const newMetadatas = isKnownChainId(chainId)
-    ? await fetchTokensMetadata(chainId, slugsWithoutMeta).catch(err => {
+    ? await fetchTokensMetadataOnAPI(chainId, slugsWithoutMeta).catch(err => {
         console.error(err);
       })
     : null;

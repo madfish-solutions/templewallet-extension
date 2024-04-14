@@ -12,12 +12,21 @@ import {
   setCollectibleStatusAction,
   putTokensAsIsAction,
   putCollectiblesAsIsAction,
-  loadTokensScamlistActions
+  loadTokensScamlistActions,
+  addAccountTokensAction,
+  setAssetsIsLoadingAction,
+  addAccountCollectiblesAction
 } from './actions';
 import { initialState, SliceState } from './state';
 import { getAccountAssetsStoreKey } from './utils';
 
 const assetsReducer = createReducer<SliceState>(initialState, builder => {
+  builder.addCase(setAssetsIsLoadingAction, (state, { payload }) => {
+    const assets = state[payload.type];
+    assets.isLoading = payload.value;
+    if (payload.resetError) delete assets.error;
+  });
+
   builder.addCase(loadAccountTokensActions.submit, state => {
     state.tokens.isLoading = true;
     delete state.tokens.error;
@@ -56,11 +65,9 @@ const assetsReducer = createReducer<SliceState>(initialState, builder => {
     state.collectibles.error = payload.code ? String(payload.code) : 'unknown';
   });
 
-  builder.addCase(loadAccountCollectiblesActions.success, (state, { payload }) => {
+  builder.addCase(loadAccountCollectiblesActions.success, (state, { payload: { account, chainId, slugs } }) => {
     state.collectibles.isLoading = false;
     delete state.collectibles.error;
-
-    const { account, chainId, slugs } = payload;
 
     const data = state.collectibles.data;
     const key = getAccountAssetsStoreKey(account, chainId);
@@ -95,6 +102,39 @@ const assetsReducer = createReducer<SliceState>(initialState, builder => {
     const collectible = records[key]?.[slug];
 
     if (collectible) collectible.status = status;
+  });
+
+  builder.addCase(addAccountTokensAction, (state, { payload: { account, chainId, slugs } }) => {
+    const data = state.tokens.data;
+    const key = getAccountAssetsStoreKey(account, chainId);
+
+    if (!data[key]) data[key] = {};
+    const tokens = data[key];
+
+    for (const slug of slugs) {
+      const stored = tokens[slug];
+      if (!stored) tokens[slug] = { status: 'idle' };
+    }
+  });
+
+  builder.addCase(addAccountCollectiblesAction, (state, { payload: { account, chainId, slugs } }) => {
+    const data = state.collectibles.data;
+    const key = getAccountAssetsStoreKey(account, chainId);
+
+    if (!data[key]) data[key] = {};
+    const collectibles = data[key];
+
+    // Removing no-longer owned collectibles (if not 'idle' or added manually)
+    for (const [slug, stored] of Object.entries(collectibles)) {
+      if (stored.manual || stored.status !== 'idle') continue;
+
+      if (!slugs.includes(slug)) delete collectibles[slug];
+    }
+
+    for (const slug of slugs) {
+      const stored = collectibles[slug];
+      if (!stored) collectibles[slug] = { status: 'idle' };
+    }
   });
 
   builder.addCase(putTokensAsIsAction, (state, { payload }) => {

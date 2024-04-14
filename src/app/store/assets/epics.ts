@@ -1,8 +1,7 @@
 import axios from 'axios';
 import { Action } from 'redux';
 import { combineEpics, Epic } from 'redux-observable';
-import { from, of, concatMap } from 'rxjs';
-import { catchError, map, switchMap } from 'rxjs/operators';
+import { from, of, catchError, map, mergeMap, switchMap, concatMap, EMPTY } from 'rxjs';
 import { ofType, toPayload } from 'ts-action-operators';
 
 import { fetchWhitelistTokens } from 'lib/apis/temple';
@@ -12,40 +11,45 @@ import { toLatestValue } from 'lib/store';
 import { putTokensBalancesAction } from '../balances/actions';
 import { fixBalances } from '../balances/utils';
 import { putCollectiblesMetadataAction } from '../collectibles-metadata/actions';
-import { MetadataMap } from '../collectibles-metadata/state';
 import type { RootState } from '../root-state.type';
 import { putTokensMetadataAction } from '../tokens-metadata/actions';
-import { MetadataRecords } from '../tokens-metadata/state';
 
 import {
   loadAccountTokensActions,
   loadAccountCollectiblesActions,
   loadTokensWhitelistActions,
-  loadTokensScamlistActions
+  loadTokensScamlistActions,
+  addAccountTokensAction
 } from './actions';
-import { loadAccountTokens, loadAccountCollectibles } from './utils';
+import { loadAccountTokens, loadAccountCollectibles, mergeAssetsMetadata } from './utils';
 
 const loadAccountTokensEpic: Epic<Action, Action, RootState> = (action$, state$) =>
   action$.pipe(
     ofType(loadAccountTokensActions.submit),
     toPayload(),
     toLatestValue(state$),
-    switchMap(([{ account, chainId }, state]) =>
-      from(
-        loadAccountTokens(
-          account,
-          chainId,
-          mergeAssetsMetadata(state.tokensMetadata.metadataRecord, state.collectiblesMetadata.records)
-        )
-      ).pipe(
-        concatMap(({ slugs, balances, newMeta }) => [
-          loadAccountTokensActions.success({ account, chainId, slugs }),
-          putTokensBalancesAction({ publicKeyHash: account, chainId, balances: fixBalances(balances) }),
-          putTokensMetadataAction({ records: newMeta })
-        ]),
-        catchError(err => of(loadAccountTokensActions.fail({ code: axios.isAxiosError(err) ? err.code : undefined })))
-      )
-    )
+    switchMap(([{ account, networks }, state]) => {
+      const allMetadata = mergeAssetsMetadata(state.tokensMetadata.metadataRecord, state.collectiblesMetadata.records);
+
+      return from(networks).pipe(
+        mergeMap(network => {
+          const chainId = network.chainId;
+
+          return from(loadAccountTokens(account, chainId, network.rpcBaseURL, allMetadata)).pipe(
+            concatMap(({ slugs, balances, newMeta }) => [
+              addAccountTokensAction({ account, chainId, slugs }),
+              putTokensBalancesAction({ publicKeyHash: account, chainId, balances: fixBalances(balances) }),
+              putTokensMetadataAction({ records: newMeta })
+            ]),
+            catchError(error => {
+              console.error(error);
+
+              return EMPTY;
+            })
+          );
+        })
+      );
+    })
   );
 
 const loadAccountCollectiblesEpic: Epic<Action, Action, RootState> = (action$, state$) =>
@@ -101,13 +105,3 @@ export const assetsEpics = combineEpics(
   loadTokensWhitelistEpic,
   loadTokensScamlistEpic
 );
-
-const mergeAssetsMetadata = (tokensMetadata: MetadataRecords, collectiblesMetadata: MetadataMap) => {
-  const map = new Map(Object.entries(tokensMetadata));
-
-  for (const [slug, metadata] of collectiblesMetadata) {
-    map.set(slug, metadata);
-  }
-
-  return map;
-};

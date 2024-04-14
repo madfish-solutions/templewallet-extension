@@ -16,7 +16,7 @@ export const useCollectiblesDetailsLoading = (publicKeyHash: string) => {
     () => {
       if (slugs.length) dispatch(loadCollectiblesDetailsActions.submit(slugs));
     },
-    COLLECTIBLES_DETAILS_SYNC_INTERVAL,
-    [slugs]
+    [slugs],
+    COLLECTIBLES_DETAILS_SYNC_INTERVAL
   );
 };

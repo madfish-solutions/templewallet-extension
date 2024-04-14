@@ -12,12 +12,14 @@ interface LoadAssetsPayload {
   chainId: TzktApiChainId;
 }
 
+/** @deprecated // TODO: remove */
 export const loadAccountTokensActions = createActions<
-  LoadAssetsPayload,
+  { account: string; networks: { chainId: TzktApiChainId; rpcBaseURL: string }[] },
   LoadAssetsPayload & { slugs: string[] },
   { code?: string }
 >('assets/LOAD_ACCOUNT_TOKENS');
 
+/** @deprecated // TODO: remove */
 export const loadAccountCollectiblesActions = createActions<
   LoadAssetsPayload,
   LoadAssetsPayload & { slugs: string[] },
@@ -32,6 +34,12 @@ export const loadTokensScamlistActions = createActions<void, Record<string, bool
   'assets/LOAD_TOKENS_SCAMLIST'
 );
 
+export const setAssetsIsLoadingAction = createAction<{
+  type: 'tokens' | 'collectibles';
+  value: boolean;
+  resetError?: true;
+}>('assets/SET_TOKEN_STATUS');
+
 type SetAssetStatusPayload = AccountAssetForStore;
 
 export const setTokenStatusAction = createAction<SetAssetStatusPayload>('assets/SET_TOKEN_STATUS');
@@ -39,6 +47,11 @@ export const setTokenStatusAction = createAction<SetAssetStatusPayload>('assets/
 export const setCollectibleStatusAction = createAction<SetAssetStatusPayload>('assets/SET_COLLECTIBLE_STATUS');
 
 export type AssetToPut = AccountAssetForStore & StoredAsset;
+
+export const addAccountTokensAction = createAction<LoadAssetsPayload & { slugs: string[] }>('assets/ADD_TOKENS');
+export const addAccountCollectiblesAction = createAction<LoadAssetsPayload & { slugs: string[] }>(
+  'assets/ADD_COLLECTIBLES'
+);
 
 export const putTokensAsIsAction = createAction<AssetToPut[]>('assets/PUT_TOKENS_AS_IS');
 

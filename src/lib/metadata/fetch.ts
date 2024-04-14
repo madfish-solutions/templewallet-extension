@@ -28,7 +28,10 @@ export const fetchOneTokenMetadata = async (
   return chainTokenMetadataToBase(metadataOnChain) || undefined;
 };
 
-const fetchTokensMetadata = async (rpcUrl: string, slugs: string[]): Promise<(TokenMetadataResponse | null)[]> => {
+export const fetchTokensMetadata = async (
+  rpcUrl: string,
+  slugs: string[]
+): Promise<(TokenMetadataResponse | null)[]> => {
   if (slugs.length === 0) return [];
 
   const tezos = getReadOnlyTezos(rpcUrl);
