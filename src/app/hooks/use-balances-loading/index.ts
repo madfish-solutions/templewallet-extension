@@ -9,15 +9,19 @@ import { useBalancesErrorSelector, useBalancesLoadingSelector } from 'app/store/
 import { isKnownChainId } from 'lib/apis/tzkt';
 import { useDidUpdate, useMemoWithCompare } from 'lib/ui/hooks';
 import { isTruthy } from 'lib/utils';
-import { useTezosNetwork, useOnTezosBlock, useAllTezosChains } from 'temple/front';
-import { TempleTzktSubscription } from 'temple/tzkt-subscription';
+import { useTezosNetwork, useAllTezosChains } from 'temple/front';
+
+import { TempleTezosBlockSubscription } from './tezos-block-subscription';
+import { TempleTzktSubscription } from './tzkt-subscription';
 
 export const useBalancesLoading = (publicKeyHash: string) => {
+  const forceUpdate = useForceUpdate();
+
   const { chainId, rpcBaseURL } = useTezosNetwork();
 
   const allTezosNetworks = useAllTezosChains();
 
-  const networks = useMemoWithCompare(
+  const knownNetworks = useMemoWithCompare(
     () =>
       Object.values(allTezosNetworks)
         .map(({ chainId, rpcBaseURL }) => (isKnownChainId(chainId) ? { chainId, rpcBaseURL } : null))
@@ -27,7 +31,6 @@ export const useBalancesLoading = (publicKeyHash: string) => {
 
   const isLoading = useBalancesLoadingSelector(publicKeyHash, chainId);
   const isLoadingRef = useRef(false);
-  const forceUpdate = useForceUpdate();
 
   useDidUpdate(() => {
     // Persisted `isLoading` value might be `true`.
@@ -35,44 +38,61 @@ export const useBalancesLoading = (publicKeyHash: string) => {
     isLoadingRef.current = isLoading;
   }, [isLoading]);
 
+  const getIsLoading = useCallback(() => isLoadingRef.current, []);
+
   const storedError = useBalancesErrorSelector(publicKeyHash, chainId);
   const isStoredError = isDefined(storedError);
 
   const tzktSubscription = useMemo(
     () =>
-      isKnownChainId(chainId)
-        ? new TempleTzktSubscription(chainId, publicKeyHash, () => isLoadingRef.current, forceUpdate)
-        : null,
-    [chainId, publicKeyHash, forceUpdate]
+      isKnownChainId(chainId) ? new TempleTzktSubscription(chainId, publicKeyHash, getIsLoading, forceUpdate) : null,
+    [chainId, publicKeyHash, getIsLoading, forceUpdate]
   );
-  useEffect(() => () => void tzktSubscription?.cancel(), [tzktSubscription]);
+  useEffect(() => () => void tzktSubscription?.destroy(), [tzktSubscription]);
 
   //
   //
 
   const dispatchLoadGasBalanceAction = useCallback(() => {
-    if (isLoadingRef.current === false && isKnownChainId(chainId)) {
+    if (isKnownChainId(chainId) && !getIsLoading()) {
       dispatch(loadGasBalanceActions.submit({ publicKeyHash, chainId }));
     }
-  }, [publicKeyHash, chainId, isLoadingRef]);
+  }, [publicKeyHash, chainId, getIsLoading]);
 
   useEffect(dispatchLoadGasBalanceAction, [dispatchLoadGasBalanceAction]);
-  useOnTezosBlock(
-    rpcBaseURL,
-    dispatchLoadGasBalanceAction,
-    tzktSubscription?.subscribedToGasUpdates && isStoredError === false
-  );
+
+  const withBlockSubscriptionForGas =
+    isKnownChainId(chainId) && (!tzktSubscription?.subscribedToGasUpdates || isStoredError === true);
+
+  useEffect(() => {
+    const blockSubscriptionForGas = withBlockSubscriptionForGas
+      ? new TempleTezosBlockSubscription(rpcBaseURL, dispatchLoadGasBalanceAction)
+      : null;
+
+    return () => void blockSubscriptionForGas?.destroy();
+  }, [dispatchLoadGasBalanceAction, withBlockSubscriptionForGas, rpcBaseURL]);
+
+  //
 
   const dispatchLoadAssetsBalancesActions = useCallback(() => {
-    if (isLoadingRef.current === false && isKnownChainId(chainId)) {
+    if (isKnownChainId(chainId) && !getIsLoading()) {
       dispatch(loadAssetsBalancesActions.submit({ publicKeyHash, chainId }));
     }
-  }, [publicKeyHash, chainId, isLoadingRef]);
+  }, [publicKeyHash, chainId, getIsLoading]);
 
   useEffect(dispatchLoadAssetsBalancesActions, [dispatchLoadAssetsBalancesActions]);
-  useOnTezosBlock(
-    rpcBaseURL,
-    dispatchLoadAssetsBalancesActions,
-    tzktSubscription?.subscribedToTokensUpdates && isStoredError === false
-  );
+
+  const withBlockSubscriptionForAssets =
+    isKnownChainId(chainId) && (!tzktSubscription?.subscribedToTokensUpdates || isStoredError === true);
+
+  useEffect(() => {
+    const blockSubscriptionForAssets = withBlockSubscriptionForAssets
+      ? new TempleTezosBlockSubscription(rpcBaseURL, dispatchLoadAssetsBalancesActions)
+      : null;
+
+    return () => void blockSubscriptionForAssets?.destroy();
+  }, [dispatchLoadAssetsBalancesActions, withBlockSubscriptionForAssets, rpcBaseURL]);
+
+  //
+  //
 };

@@ -27,7 +27,7 @@ export const useAllTezosChains = () => {
   for (const [chainId, networks] of rpcByChainId) {
     const activeRpcId = 'NOT_IMPLEMENTED'; // TODO: Implement!
     const activeRpc = networks.find(n => n.id === activeRpcId) ?? networks[0];
-    const id = `tezos-${activeRpc.id}`;
+    const id = `tezos-${activeRpc.id}`; // TODO: Remove `id`
     const testnet = networks.some(n => n.testnet); // TODO: Implement solid!
 
     const defaultRpc = TEZOS_DEFAULT_NETWORKS.find(n => n.chainId === chainId);
@@ -64,7 +64,7 @@ export const useAllEvmChains = () => {
   for (const [chainId, networks] of rpcByChainId) {
     const activeRpcId = 'NOT_IMPLEMENTED'; // TODO: Implement!
     const activeRpc = networks.find(n => n.id === activeRpcId) ?? networks[0];
-    const id = `evm-${activeRpc.id}`;
+    const id = `evm-${activeRpc.id}`; // TODO: Remove `id`
     const testnet = networks.some(n => n.testnet); // TODO: Implement solid!
 
     const defaultRpc = DEFAULT_EVM_NETWORKS.find(n => n.chainId === chainId);

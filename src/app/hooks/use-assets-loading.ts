@@ -39,6 +39,8 @@ export const useAssetsLoading = (publicKeyHash: string) => {
   const allCollectiblesMetadata = useAllCollectiblesMetadataSelector();
   const allCollectiblesMetadataRef = useUpdatableRef(allCollectiblesMetadata);
 
+  /* Tokens loading */
+
   const tokensAreLoading = useAreAssetsLoading('tokens');
 
   // useInterval(
@@ -77,6 +79,8 @@ export const useAssetsLoading = (publicKeyHash: string) => {
     [tokensAreLoading, publicKeyHash, networks],
     ASSETS_SYNC_INTERVAL
   );
+
+  /* Collectibles loading */
 
   const collectiblesAreLoading = useAreAssetsLoading('collectibles');
 

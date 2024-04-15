@@ -3,10 +3,8 @@ import { HubConnectionBuilder } from '@microsoft/signalr';
 import { dispatch } from 'app/store';
 import { loadAssetsBalancesActions, loadGasBalanceActions, putTokensBalancesAction } from 'app/store/balances/actions';
 import { fixBalances } from 'app/store/balances/utils';
-import { toTokenSlug } from 'lib/assets';
-
-import type { TzktApiChainId } from '../lib/apis/tzkt/api';
-import { TZKT_API_BASE_URLS } from '../lib/apis/tzkt/misc';
+import type { TzktApiChainId } from 'lib/apis/tzkt/api';
+import { TZKT_API_BASE_URLS } from 'lib/apis/tzkt/misc';
 import {
   TzktAccountType,
   TzktAccountsSubscriptionMessage,
@@ -15,14 +13,14 @@ import {
   TzktSubscriptionMethod,
   TzktSubscriptionStateMessageType,
   TzktTokenBalancesSubscriptionMessage
-} from '../lib/apis/tzkt/types';
-import { calcTzktAccountSpendableTezBalance } from '../lib/apis/tzkt/utils';
+} from 'lib/apis/tzkt/types';
+import { calcTzktAccountSpendableTezBalance } from 'lib/apis/tzkt/utils';
+import { toTokenSlug } from 'lib/assets';
 
 export class TempleTzktSubscription {
-  private _ready = false;
   private accountsSubConfirmed = false;
   private tokensSubConfirmed = false;
-  private connection: TzktHubConnection;
+  private connection: TzktHubConnection | nullish;
 
   constructor(
     readonly chainId: TzktApiChainId,
@@ -30,48 +28,50 @@ export class TempleTzktSubscription {
     private shouldSkipDispatch: SyncFn<void, boolean>,
     private onStatusChanged: EmptyFn
   ) {
-    const nativeConnection = new HubConnectionBuilder().withUrl(`${TZKT_API_BASE_URLS[chainId]}/ws`).build();
-    this.connection = nativeConnection;
-
-    this.init();
-  }
-
-  get state() {
-    return this.connection.state;
-  }
-
-  get ready() {
-    return this._ready;
-  }
-
-  get isReady() {
-    return Boolean(this.connection.connectionId);
+    this.spawnConnection();
   }
 
   get subscribedToGasUpdates() {
-    return this.ready && this.accountsSubConfirmed;
+    return this.accountsSubConfirmed;
   }
 
   get subscribedToTokensUpdates() {
-    return this.ready && this.tokensSubConfirmed;
+    return this.tokensSubConfirmed;
   }
 
-  async cancel() {
-    const nativeConnection = this.connection;
-
-    await nativeConnection.stop().catch(err => void console.error(err));
-
-    nativeConnection.off(TzktSubscriptionChannel.TokenBalances, this.tokenBalancesListener);
-    nativeConnection.off(TzktSubscriptionChannel.Accounts, this.accountsListener);
-  }
-
-  private async init() {
+  /** (!) Not notifying on state change after this - beware of memory leaks */
+  async destroy() {
     const connection = this.connection;
+    if (!connection) return;
+    delete this.connection;
+
+    await connection.stop().catch(err => void console.error(err));
+
+    connection.off(TzktSubscriptionChannel.TokenBalances, this.tokenBalancesListener);
+    connection.off(TzktSubscriptionChannel.Accounts, this.accountsListener);
+  }
+
+  private async spawnConnection() {
+    const connection = new HubConnectionBuilder().withUrl(`${TZKT_API_BASE_URLS[this.chainId]}/ws`).build();
+    this.connection = connection;
 
     try {
-      await this.connection.start();
-      this._ready = true;
-      this.onStatusChanged();
+      await connection.start();
+
+      connection.onclose(async error => {
+        console.error(error);
+
+        if (!this.connection) return; // Already destroyed
+
+        this.accountsSubConfirmed = false;
+        this.tokensSubConfirmed = false;
+
+        this.onStatusChanged();
+
+        await this.destroy();
+
+        setTimeout(() => void this.spawnConnection(), 1000);
+      });
 
       connection.on(TzktSubscriptionChannel.TokenBalances, this.tokenBalancesListener);
       connection.on(TzktSubscriptionChannel.Accounts, this.accountsListener);

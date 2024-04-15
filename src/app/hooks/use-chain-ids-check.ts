@@ -7,6 +7,10 @@ import { useAllEvmChains, useAllTezosChains } from 'temple/front';
 
 /**
  * Note: fetching chains' IDs without memoization & cache.
+ *
+ * If user-action is applied, need to:
+ * - Remove (replace) RPC
+ * - Reload page to clear-out all runtime-memoized values by `chainId` + `rpcUrl` key
  */
 export const useChainIDsCheck = () => {
   const tezosNetworks = useAllTezosChains();

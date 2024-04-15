@@ -2,6 +2,7 @@
 
 - `<WithDataLoading />` without children
 - - Move out of `PageRouter` ?
+- - Hooks to indi comps for optimization ?
 - Store Tezos native currency
 - Forbid WebPack to include React
 - Revisit `loadTezosChainId` usage
@@ -79,6 +80,11 @@
 - Removing account in 1 window, observing another
 - Import Tezos accounts by revealed Private Key
 - Search field in account dropdown
+-
+- Assets & metadata loading
+- Balances loading
+- - With TZKT available
+- - Without TZKT available
 -
 
 ## SUB-TASKS FOR THIS EPIC
