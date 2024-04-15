@@ -34,6 +34,11 @@ export const useAssetsLoading = (publicKeyHash: string) => {
     [allTezosNetworks]
   );
 
+  const allTokensMetadata = useAllTokensMetadataSelector();
+  const allTokensMetadataRef = useUpdatableRef(allTokensMetadata);
+  const allCollectiblesMetadata = useAllCollectiblesMetadataSelector();
+  const allCollectiblesMetadataRef = useUpdatableRef(allCollectiblesMetadata);
+
   const tokensAreLoading = useAreAssetsLoading('tokens');
 
   // useInterval(
@@ -44,18 +49,13 @@ export const useAssetsLoading = (publicKeyHash: string) => {
   //   [publicKeyHash, networks]
   // );
 
-  const allTokensMetadata = useAllTokensMetadataSelector();
-  const allTokensMetadataRef = useUpdatableRef(allTokensMetadata);
-  const allCollectiblesMetadata = useAllCollectiblesMetadataSelector();
-  const allCollectiblesMetadataRef = useUpdatableRef(allCollectiblesMetadata);
-
   useInterval(
     () => {
       if (tokensAreLoading) return;
 
       dispatch(setAssetsIsLoadingAction({ type: 'tokens', value: true, resetError: true }));
 
-      const allMetadata = mergeAssetsMetadata(allTokensMetadataRef.current, allCollectiblesMetadataRef.current);
+      const knownMetadata = mergeAssetsMetadata(allTokensMetadataRef.current, allCollectiblesMetadataRef.current);
 
       Promise.allSettled(
         networks.map(async network => {
@@ -65,7 +65,7 @@ export const useAssetsLoading = (publicKeyHash: string) => {
             publicKeyHash,
             chainId,
             network.rpcBaseURL,
-            allMetadata
+            knownMetadata
           );
 
           dispatch(addAccountTokensAction({ account: publicKeyHash, chainId, slugs }));
@@ -86,13 +86,13 @@ export const useAssetsLoading = (publicKeyHash: string) => {
 
       dispatch(setAssetsIsLoadingAction({ type: 'collectibles', value: true, resetError: true }));
 
-      const allMetadata = mergeAssetsMetadata(allTokensMetadataRef.current, allCollectiblesMetadataRef.current);
+      const knownMetadata = mergeAssetsMetadata(allTokensMetadataRef.current, allCollectiblesMetadataRef.current);
 
       Promise.allSettled(
         networks.map(async network => {
           const chainId = network.chainId;
 
-          const { slugs, balances, newMeta } = await loadAccountCollectibles(publicKeyHash, chainId, allMetadata);
+          const { slugs, balances, newMeta } = await loadAccountCollectibles(publicKeyHash, chainId, knownMetadata);
 
           dispatch(addAccountCollectiblesAction({ account: publicKeyHash, chainId, slugs }));
           dispatch(putTokensBalancesAction({ publicKeyHash, chainId, balances: fixBalances(balances) }));

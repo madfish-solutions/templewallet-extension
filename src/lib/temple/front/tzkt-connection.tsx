@@ -13,6 +13,7 @@ import React, {
 import { noop } from 'lodash';
 
 import { createWsConnection, TzktHubConnection } from 'lib/apis/tzkt';
+import { useUpdatableRef } from 'lib/ui/hooks';
 import { useTezosNetwork } from 'temple/front';
 
 import { useTempleClient } from './client';
@@ -38,13 +39,8 @@ const NotReadyClientTzktConnectionProvider: FC<PropsWithChildren> = ({ children 
 const ReadyClientTzktConnectionProvider: FC<PropsWithChildren> = ({ children }) => {
   const { chainId } = useTezosNetwork();
   const [connectionReady, setConnectionReadyState] = useState(false);
-  const connectionReadyRef = useRef(connectionReady);
+  const connectionReadyRef = useUpdatableRef(connectionReady);
   const shouldShutdownConnection = useRef(false);
-
-  const setConnectionReady = useCallback((newState: boolean) => {
-    connectionReadyRef.current = newState;
-    setConnectionReadyState(newState);
-  }, []);
 
   const connection = useMemo(() => (chainId ? createWsConnection(chainId) : undefined), [chainId]);
 
@@ -53,22 +49,22 @@ const ReadyClientTzktConnectionProvider: FC<PropsWithChildren> = ({ children }) 
       return;
     }
 
-    setConnectionReady(false);
+    setConnectionReadyState(false);
     try {
       await connection.start();
       shouldShutdownConnection.current = false;
       connection.onclose(e => {
         if (!shouldShutdownConnection.current) {
           console.error(e);
-          setConnectionReady(false);
+          setConnectionReadyState(false);
           setTimeout(() => initConnection(), 1000);
         }
       });
-      setConnectionReady(true);
+      setConnectionReadyState(true);
     } catch (e) {
       console.error(e);
     }
-  }, [connection, setConnectionReady]);
+  }, [connection]);
 
   useEffect(() => {
     if (connection) {

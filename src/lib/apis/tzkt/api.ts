@@ -2,9 +2,9 @@ import { HubConnectionBuilder } from '@microsoft/signalr';
 import axios, { AxiosError } from 'axios';
 
 import { toTokenSlug } from 'lib/assets';
-import { TempleTezosChainId } from 'lib/temple/types';
 import { delay } from 'lib/utils';
 
+import { TZKT_API_BASE_URLS } from './misc';
 import {
   TzktOperation,
   TzktOperationType,
@@ -18,15 +18,6 @@ import {
   TzktHubConnection
 } from './types';
 import { calcTzktAccountSpendableTezBalance } from './utils';
-
-const TZKT_API_BASE_URLS = {
-  [TempleTezosChainId.Mainnet]: 'https://api.tzkt.io/v1',
-  [TempleTezosChainId.Mumbai]: 'https://api.mumbainet.tzkt.io/v1',
-  [TempleTezosChainId.Nairobi]: 'https://api.nairobinet.tzkt.io/v1',
-  [TempleTezosChainId.Ghostnet]: 'https://api.ghostnet.tzkt.io/v1',
-  [TempleTezosChainId.Dcp]: 'https://explorer-api.tlnt.net/v1',
-  [TempleTezosChainId.DcpTest]: 'https://explorer-api.test.tlnt.net/v1'
-};
 
 export type TzktApiChainId = keyof typeof TZKT_API_BASE_URLS;
 

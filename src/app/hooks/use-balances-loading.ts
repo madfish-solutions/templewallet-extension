@@ -1,32 +1,33 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef } from 'react';
 
 import { isDefined } from '@rnw-community/shared';
-import { noop } from 'lodash';
+import useForceUpdate from 'use-force-update';
 
 import { dispatch } from 'app/store';
-import { loadGasBalanceActions, loadAssetsBalancesActions, putTokensBalancesAction } from 'app/store/balances/actions';
+import { loadGasBalanceActions, loadAssetsBalancesActions } from 'app/store/balances/actions';
 import { useBalancesErrorSelector, useBalancesLoadingSelector } from 'app/store/balances/selectors';
-import { fixBalances } from 'app/store/balances/utils';
-import {
-  TzktSubscriptionChannel,
-  TzktSubscriptionMethod,
-  TzktSubscriptionStateMessageType,
-  TzktAccountsSubscriptionMessage,
-  TzktTokenBalancesSubscriptionMessage,
-  TzktAccountType,
-  isKnownChainId,
-  calcTzktAccountSpendableTezBalance
-} from 'lib/apis/tzkt';
-import { toTokenSlug } from 'lib/assets';
-import { useTzktConnection } from 'lib/temple/front';
-import { useDidUpdate } from 'lib/ui/hooks';
-import { useTezosNetwork, useOnTezosBlock } from 'temple/front';
+import { isKnownChainId } from 'lib/apis/tzkt';
+import { useDidUpdate, useMemoWithCompare } from 'lib/ui/hooks';
+import { isTruthy } from 'lib/utils';
+import { useTezosNetwork, useOnTezosBlock, useAllTezosChains } from 'temple/front';
+import { TempleTzktSubscription } from 'temple/tzkt-subscription';
 
 export const useBalancesLoading = (publicKeyHash: string) => {
   const { chainId, rpcBaseURL } = useTezosNetwork();
 
+  const allTezosNetworks = useAllTezosChains();
+
+  const networks = useMemoWithCompare(
+    () =>
+      Object.values(allTezosNetworks)
+        .map(({ chainId, rpcBaseURL }) => (isKnownChainId(chainId) ? { chainId, rpcBaseURL } : null))
+        .filter(isTruthy),
+    [allTezosNetworks]
+  );
+
   const isLoading = useBalancesLoadingSelector(publicKeyHash, chainId);
   const isLoadingRef = useRef(false);
+  const forceUpdate = useForceUpdate();
 
   useDidUpdate(() => {
     // Persisted `isLoading` value might be `true`.
@@ -37,96 +38,17 @@ export const useBalancesLoading = (publicKeyHash: string) => {
   const storedError = useBalancesErrorSelector(publicKeyHash, chainId);
   const isStoredError = isDefined(storedError);
 
-  const { connection, connectionReady } = useTzktConnection();
-  const [tokensSubscriptionConfirmed, setTokensSubscriptionConfirmed] = useState(false);
-  const [accountsSubscriptionConfirmed, setAccountsSubscriptionConfirmed] = useState(false);
-
-  const tokenBalancesListener = useCallback(
-    (msg: TzktTokenBalancesSubscriptionMessage) => {
-      const skipDispatch = isLoadingRef.current || !isKnownChainId(chainId);
-
-      switch (msg.type) {
-        case TzktSubscriptionStateMessageType.Reorg:
-          if (skipDispatch) return;
-          dispatch(loadAssetsBalancesActions.submit({ publicKeyHash, chainId }));
-          break;
-        case TzktSubscriptionStateMessageType.Data:
-          if (skipDispatch) return;
-          const balances: StringRecord = {};
-          msg.data.forEach(({ account, token, balance }) => {
-            if (account.address !== publicKeyHash) return;
-
-            balances[toTokenSlug(token.contract.address, token.tokenId)] = balance;
-          });
-          fixBalances(balances);
-          if (Object.keys(balances).length > 0) {
-            dispatch(putTokensBalancesAction({ publicKeyHash, chainId, balances }));
-          }
-          break;
-        default:
-          setTokensSubscriptionConfirmed(true);
-      }
-    },
-    [publicKeyHash, chainId, isLoadingRef]
+  const tzktSubscription = useMemo(
+    () =>
+      isKnownChainId(chainId)
+        ? new TempleTzktSubscription(chainId, publicKeyHash, () => isLoadingRef.current, forceUpdate)
+        : null,
+    [chainId, publicKeyHash, forceUpdate]
   );
+  useEffect(() => () => void tzktSubscription?.cancel(), [tzktSubscription]);
 
-  const accountsListener = useCallback(
-    (msg: TzktAccountsSubscriptionMessage) => {
-      const skipDispatch = isLoadingRef.current || !isKnownChainId(chainId);
-
-      switch (msg.type) {
-        case TzktSubscriptionStateMessageType.Reorg:
-          if (skipDispatch) return;
-          dispatch(loadGasBalanceActions.submit({ publicKeyHash, chainId }));
-          break;
-        case TzktSubscriptionStateMessageType.Data:
-          if (skipDispatch) return;
-          const matchingAccount = msg.data.find(acc => acc.address === publicKeyHash);
-          if (
-            matchingAccount?.type === TzktAccountType.Contract ||
-            matchingAccount?.type === TzktAccountType.Delegate ||
-            matchingAccount?.type === TzktAccountType.User
-          ) {
-            const balance = calcTzktAccountSpendableTezBalance(matchingAccount);
-
-            dispatch(
-              loadGasBalanceActions.success({
-                publicKeyHash,
-                chainId,
-                balance
-              })
-            );
-          } else if (matchingAccount) {
-            dispatch(loadGasBalanceActions.submit({ publicKeyHash, chainId }));
-          }
-          break;
-        default:
-          setAccountsSubscriptionConfirmed(true);
-      }
-    },
-    [publicKeyHash, chainId, isLoadingRef]
-  );
-
-  useEffect(() => {
-    if (connection && connectionReady) {
-      connection.on(TzktSubscriptionChannel.TokenBalances, tokenBalancesListener);
-      connection.on(TzktSubscriptionChannel.Accounts, accountsListener);
-
-      Promise.all([
-        connection.invoke(TzktSubscriptionMethod.SubscribeToAccounts, { addresses: [publicKeyHash] }),
-        connection.invoke(TzktSubscriptionMethod.SubscribeToTokenBalances, { account: publicKeyHash })
-      ]).catch(e => console.error(e));
-
-      return () => {
-        setAccountsSubscriptionConfirmed(false);
-        setTokensSubscriptionConfirmed(false);
-        connection.off(TzktSubscriptionChannel.TokenBalances, tokenBalancesListener);
-        connection.off(TzktSubscriptionChannel.Accounts, accountsListener);
-      };
-    }
-
-    return noop;
-  }, [accountsListener, tokenBalancesListener, connection, connectionReady, publicKeyHash]);
+  //
+  //
 
   const dispatchLoadGasBalanceAction = useCallback(() => {
     if (isLoadingRef.current === false && isKnownChainId(chainId)) {
@@ -135,7 +57,11 @@ export const useBalancesLoading = (publicKeyHash: string) => {
   }, [publicKeyHash, chainId, isLoadingRef]);
 
   useEffect(dispatchLoadGasBalanceAction, [dispatchLoadGasBalanceAction]);
-  useOnTezosBlock(rpcBaseURL, dispatchLoadGasBalanceAction, accountsSubscriptionConfirmed && isStoredError === false);
+  useOnTezosBlock(
+    rpcBaseURL,
+    dispatchLoadGasBalanceAction,
+    tzktSubscription?.subscribedToGasUpdates && isStoredError === false
+  );
 
   const dispatchLoadAssetsBalancesActions = useCallback(() => {
     if (isLoadingRef.current === false && isKnownChainId(chainId)) {
@@ -147,6 +73,6 @@ export const useBalancesLoading = (publicKeyHash: string) => {
   useOnTezosBlock(
     rpcBaseURL,
     dispatchLoadAssetsBalancesActions,
-    tokensSubscriptionConfirmed && isStoredError === false
+    tzktSubscription?.subscribedToTokensUpdates && isStoredError === false
   );
 };
