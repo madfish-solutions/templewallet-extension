@@ -4,6 +4,7 @@ import { updateRulesStorage } from 'lib/ads/update-rules-storage';
 import { ADS_VIEWER_ADDRESS_STORAGE_KEY, ANALYTICS_USER_ID_STORAGE_KEY, ContentScriptType } from 'lib/constants';
 import { E2eMessageType } from 'lib/e2e/types';
 import { BACKGROUND_IS_WORKER } from 'lib/env';
+import { fetchFromStorage } from 'lib/storage';
 import { encodeMessage, encryptMessage, getSenderId, MessageType, Response } from 'lib/temple/beacon';
 import { clearAsyncStorages } from 'lib/temple/reset';
 import { TempleMessageType, TempleRequest, TempleResponse } from 'lib/temple/types';
@@ -248,9 +249,7 @@ const processRequest = async (req: TempleRequest, port: Runtime.Port): Promise<T
 };
 
 const getAdsViewerPkh = async (): Promise<string | undefined> => {
-  const { [ADS_VIEWER_ADDRESS_STORAGE_KEY]: accountPkhFromStorage } = await browser.storage.local.get(
-    ADS_VIEWER_ADDRESS_STORAGE_KEY
-  );
+  const accountPkhFromStorage = await fetchFromStorage<string>(ADS_VIEWER_ADDRESS_STORAGE_KEY);
 
   if (accountPkhFromStorage) {
     return accountPkhFromStorage;
