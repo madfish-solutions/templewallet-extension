@@ -2,7 +2,7 @@ import browser from 'webextension-polyfill';
 
 import { buildSwapPageUrlQuery } from 'app/pages/Swap/utils/build-url-query';
 import { ADS_META_SEARCH_PARAM_NAME, ContentScriptType, ORIGIN_SEARCH_PARAM_NAME } from 'lib/constants';
-import { EnvVars } from 'lib/env';
+import { APP_VERSION, EnvVars } from 'lib/env';
 
 import { importExtensionAdsModule } from './import-extension-ads-module';
 
@@ -40,6 +40,7 @@ export const configureAds = async () => {
 
       return url.toString();
     },
-    templePassphrase: EnvVars.TEMPLE_PASSPHRASE
+    extVersion: APP_VERSION,
+    templePassphrase: EnvVars.TEMPLE_ADS_ORIGIN_PASSPHRASE
   });
 };
