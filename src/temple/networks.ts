@@ -25,8 +25,8 @@ export interface NetworkBase {
   name: string;
   nameI18nKey?: TID;
   description?: string;
+  /** TODO: Remove, when(if) deprecated */
   color: string;
-  testnet?: boolean;
   // Deprecated params:
   /** @deprecated */
   type?: 'main' | 'test' | 'dcp';
@@ -41,10 +41,6 @@ export interface StoredTezosNetwork extends NetworkBase {
   chain: TempleChainName.Tezos;
   chainId: string;
 }
-
-const TEZOS_NON_TESTNET_CHAIN_IDS: string[] = [TempleTezosChainId.Mainnet, TempleTezosChainId.Dcp];
-
-export const isTezosTestnetChainId = (chainId: string) => !TEZOS_NON_TESTNET_CHAIN_IDS.includes(chainId);
 
 const TEZOS_DCP_CHAIN_IDS: string[] = [TempleTezosChainId.Dcp, TempleTezosChainId.DcpTest];
 
@@ -67,7 +63,6 @@ const TEZOS_DCP_NETWORKS: StoredTezosNetwork[] = [
     chainId: TempleTezosChainId.DcpTest,
     rpcBaseURL: 'https://staging-rpc.decentralized.pictures/',
     description: 'Decentralized pictures testnet',
-    testnet: true,
     color: '#131380'
   }
 ];
@@ -117,7 +112,6 @@ export const TEZOS_DEFAULT_NETWORKS: NonEmptyArray<StoredTezosNetwork> = [
     name: 'Ghostnet Testnet',
     chain: TempleChainName.Tezos,
     chainId: TempleTezosChainId.Ghostnet,
-    testnet: true,
     rpcBaseURL: 'https://rpc.ghostnet.teztnets.com',
     description: 'Ghostnet testnet',
     color: '#131380'

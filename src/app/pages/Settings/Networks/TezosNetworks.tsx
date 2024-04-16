@@ -8,7 +8,7 @@ import { T, t } from 'lib/i18n';
 import { COLORS } from 'lib/ui/colors';
 import { useConfirm } from 'lib/ui/dialog';
 import { useTempleNetworksActions } from 'temple/front';
-import { TEZOS_DEFAULT_NETWORKS, isTezosTestnetChainId } from 'temple/networks';
+import { TEZOS_DEFAULT_NETWORKS } from 'temple/networks';
 import { loadTezosChainId } from 'temple/tezos';
 import { TempleChainName } from 'temple/types';
 
@@ -55,14 +55,12 @@ export const TezosNetworksSettings = memo(() => {
       }
 
       try {
-        const testnet = isTezosTestnetChainId(chainId) ? true : undefined;
         const color = COLORS[Math.floor(Math.random() * COLORS.length)];
 
         await addTezosNetwork({
           id: rpcBaseURL,
           chain: TempleChainName.Tezos,
           chainId,
-          testnet,
           rpcBaseURL,
           name,
           color

@@ -43,13 +43,12 @@ export const EvmNetworksSettings = memo(() => {
       if (submitting) return;
       clearError();
 
-      let chainId: number, currency: EvmNativeCurrency, testnet: boolean | undefined;
+      let chainId: number, currency: EvmNativeCurrency;
       try {
         const info = await loadEvmChainInfo(rpcBaseURL);
 
         chainId = info.chainId;
         currency = info.currency;
-        testnet = info.testnet;
       } catch (error) {
         console.error(error);
 
@@ -66,7 +65,6 @@ export const EvmNetworksSettings = memo(() => {
           chain: TempleChainName.EVM,
           chainId,
           currency,
-          testnet,
           rpcBaseURL,
           name,
           color

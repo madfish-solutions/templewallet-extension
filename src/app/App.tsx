@@ -19,8 +19,8 @@ import { TempleProvider } from 'lib/temple/front';
 import { DialogsProvider } from 'lib/ui/dialog';
 import * as Woozie from 'lib/woozie';
 
-import { AppDataLoadings } from './data-loadings';
 import { LoadHypelabScript } from './load-hypelab-script';
+import { AppRootHooks } from './root-hooks';
 import { StoreProvider } from './store/provider';
 
 interface Props extends React.PropsWithChildren {
@@ -46,7 +46,7 @@ export const App: FC<Props> = ({ env }) => (
                 <ConfirmPage />
               ) : (
                 <>
-                  <AppDataLoadings />
+                  <AppRootHooks />
                   <PageRouter />
                 </>
               )}

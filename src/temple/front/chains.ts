@@ -1,14 +1,33 @@
 import { ChainIds } from '@taquito/taquito';
 
+import type { TID } from 'lib/i18n';
 import { useAllTezosNetworks, useAllEvmNetworks } from 'lib/temple/front/ready';
 import { StoredTezosNetwork, StoredEvmNetwork, TEZOS_DEFAULT_NETWORKS, EVM_DEFAULT_NETWORKS } from 'temple/networks';
+import { TempleChainName } from 'temple/types';
 
 /** TODO: || SoleChain || ChainForOneOf || OneOfChains */
 export type SomeChain = TezosChain | EvmChain;
 
+interface ChainBase {
+  /** @deprecated // TODO: Better prop name? */
+  chain: TempleChainName;
+  rpcBaseURL: string;
+  name: string;
+  nameI18nKey?: TID;
+}
+
 /** TODO: || ChainOfTezos || ChainForTezos */
-export interface TezosChain extends StoredTezosNetwork {}
-export interface EvmChain extends StoredEvmNetwork {}
+export interface TezosChain extends ChainBase {
+  /** @deprecated // TODO: Better prop name? */
+  chain: TempleChainName.Tezos;
+  chainId: string;
+}
+
+export interface EvmChain extends ChainBase {
+  /** @deprecated // TODO: Better prop name? */
+  chain: TempleChainName.EVM;
+  chainId: number;
+}
 
 /** TODO: Memoization */
 export const useAllTezosChains = () => {
@@ -27,13 +46,12 @@ export const useAllTezosChains = () => {
   for (const [chainId, networks] of rpcByChainId) {
     const activeRpcId = 'NOT_IMPLEMENTED'; // TODO: Implement!
     const activeRpc = networks.find(n => n.id === activeRpcId) ?? networks[0];
-    const id = `tezos-${activeRpc.id}`; // TODO: Remove `id`
-    const testnet = networks.some(n => n.testnet); // TODO: Implement solid!
+    const { rpcBaseURL } = activeRpc;
 
     const defaultRpc = TEZOS_DEFAULT_NETWORKS.find(n => n.chainId === chainId);
     const { name, nameI18nKey } = defaultRpc ?? activeRpc;
 
-    chains[chainId] = { ...activeRpc, id, testnet, name, nameI18nKey };
+    chains[chainId] = { chain: TempleChainName.Tezos, chainId, rpcBaseURL, name, nameI18nKey };
   }
 
   return chains;
@@ -64,13 +82,12 @@ export const useAllEvmChains = () => {
   for (const [chainId, networks] of rpcByChainId) {
     const activeRpcId = 'NOT_IMPLEMENTED'; // TODO: Implement!
     const activeRpc = networks.find(n => n.id === activeRpcId) ?? networks[0];
-    const id = `evm-${activeRpc.id}`; // TODO: Remove `id`
-    const testnet = networks.some(n => n.testnet); // TODO: Implement solid!
+    const { rpcBaseURL } = activeRpc;
 
     const defaultRpc = EVM_DEFAULT_NETWORKS.find(n => n.chainId === chainId);
     const { name, nameI18nKey } = defaultRpc ?? activeRpc;
 
-    chains[chainId] = { ...activeRpc, id, testnet, name, nameI18nKey };
+    chains[chainId] = { chain: TempleChainName.EVM, chainId, rpcBaseURL, name, nameI18nKey };
   }
 
   return chains;

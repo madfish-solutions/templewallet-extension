@@ -12,7 +12,7 @@ import { moveValueInStorage, fetchFromStorage, putToStorage, removeFromStorage }
 import * as Passworder from 'lib/temple/passworder';
 import { StoredAccount, TempleAccountType, TempleContact, TempleSettings } from 'lib/temple/types';
 import { isTruthy } from 'lib/utils';
-import { StoredTezosNetwork, isTezosTestnetChainId } from 'temple/networks';
+import { StoredTezosNetwork } from 'temple/networks';
 import { loadTezosChainId } from 'temple/tezos';
 import { TempleChainName } from 'temple/types';
 
@@ -211,10 +211,8 @@ export const MIGRATIONS = [
           customTezosNetworks.map(network =>
             loadTezosChainId(network.rpcBaseURL, 30_000)
               .then(chainId => {
-                const testnet = isTezosTestnetChainId(chainId) ? true : undefined;
-
                 delete network.type;
-                return { ...network, chain: TempleChainName.Tezos as const, chainId, testnet };
+                return { ...network, chain: TempleChainName.Tezos as const, chainId };
               })
               .catch(err => {
                 console.error(err);

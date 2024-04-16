@@ -19,13 +19,13 @@ import { useAssetsLoading } from './use-assets-loading';
 import { useChainIDsCheck } from './use-chain-ids-check';
 import { useMetadataLoading } from './use-metadata-loading';
 
-export const AppDataLoadings = memo(() => {
+export const AppRootHooks = memo(() => {
   const { ready } = useTempleClient();
 
-  return ready ? <AppReadyDataLoadings /> : null;
+  return ready ? <AppReadyRootHooks /> : null;
 });
 
-const AppReadyDataLoadings = memo(() => {
+const AppReadyRootHooks = memo(() => {
   useAssetsMigrations();
 
   useEffect(() => void dispatch(loadTokensScamlistActions.submit()), []);
