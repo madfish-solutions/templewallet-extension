@@ -12,20 +12,6 @@ interface LoadAssetsPayload {
   chainId: TzktApiChainId;
 }
 
-/** @deprecated // TODO: remove */
-export const loadAccountTokensActions = createActions<
-  { account: string; networks: { chainId: TzktApiChainId; rpcBaseURL: string }[] },
-  LoadAssetsPayload & { slugs: string[] },
-  { code?: string }
->('assets/LOAD_ACCOUNT_TOKENS');
-
-/** @deprecated // TODO: remove */
-export const loadAccountCollectiblesActions = createActions<
-  LoadAssetsPayload,
-  LoadAssetsPayload & { slugs: string[] },
-  { code?: string }
->('assets/LOAD_ACCOUNT_COLLECTIBLES');
-
 export const loadTokensWhitelistActions = createActions<void, WhitelistResponseToken[], { code?: string }>(
   'assets/LOAD_TOKENS_WHITELIST'
 );

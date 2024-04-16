@@ -1,14 +1,11 @@
 import { dispatch } from 'app/store';
 import {
-  loadAccountTokensActions,
-  loadAccountCollectiblesActions,
   loadTokensWhitelistActions,
   setAssetsIsLoadingAction,
   addAccountTokensAction,
   addAccountCollectiblesAction
 } from 'app/store/assets/actions';
 import { useAreAssetsLoading } from 'app/store/assets/selectors';
-import { loadAccountCollectibles, loadAccountTokens, mergeAssetsMetadata } from 'app/store/assets/utils';
 import { putTokensBalancesAction } from 'app/store/balances/actions';
 import { fixBalances } from 'app/store/balances/utils';
 import { putCollectiblesMetadataAction } from 'app/store/collectibles-metadata/actions';
@@ -16,7 +13,9 @@ import { useAllCollectiblesMetadataSelector } from 'app/store/collectibles-metad
 import { putTokensMetadataAction } from 'app/store/tokens-metadata/actions';
 import { useAllTokensMetadataSelector } from 'app/store/tokens-metadata/selectors';
 import { isKnownChainId } from 'lib/apis/tzkt';
+import { loadAccountCollectibles, loadAccountTokens } from 'lib/assets/fetching';
 import { ASSETS_SYNC_INTERVAL } from 'lib/fixed-times';
+import type { MetadataRecords, MetadataMap } from 'lib/metadata/types';
 import { useDidMount, useInterval, useMemoWithCompare, useUpdatableRef } from 'lib/ui/hooks';
 import { isTruthy } from 'lib/utils';
 import { useAllTezosChains } from 'temple/front';
@@ -42,14 +41,6 @@ export const useAssetsLoading = (publicKeyHash: string) => {
   /* Tokens loading */
 
   const tokensAreLoading = useAreAssetsLoading('tokens');
-
-  // useInterval(
-  //   () => {
-  //     if (!tokensAreLoading) dispatch(loadAccountTokensActions.submit({ account: publicKeyHash, networks }));
-  //   },
-  //   ASSETS_SYNC_INTERVAL,
-  //   [publicKeyHash, networks]
-  // );
 
   useInterval(
     () => {
@@ -107,4 +98,14 @@ export const useAssetsLoading = (publicKeyHash: string) => {
     [collectiblesAreLoading, publicKeyHash, networks],
     ASSETS_SYNC_INTERVAL
   );
+};
+
+const mergeAssetsMetadata = (tokensMetadata: MetadataRecords, collectiblesMetadata: MetadataMap) => {
+  const map = new Map(Object.entries(tokensMetadata));
+
+  for (const [slug, metadata] of collectiblesMetadata) {
+    map.set(slug, metadata);
+  }
+
+  return map;
 };

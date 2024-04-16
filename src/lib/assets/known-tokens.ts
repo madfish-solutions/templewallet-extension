@@ -1,5 +1,4 @@
-import type { MetadataRecords } from 'app/store/tokens-metadata/state';
-import { TokenMetadata, TokenStandardsEnum } from 'lib/metadata/types';
+import { TokenMetadata, MetadataRecords, TokenStandardsEnum } from 'lib/metadata/types';
 import { TempleTezosChainId } from 'lib/temple/types';
 
 import { FA2Token } from './types';

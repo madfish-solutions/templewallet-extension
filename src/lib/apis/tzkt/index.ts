@@ -14,7 +14,7 @@ export {
   TzktSubscriptionMethod,
   TzktSubscriptionChannel
 } from './types';
-export type { TzktAccountsSubscriptionMessage, TzktTokenBalancesSubscriptionMessage, TzktHubConnection } from './types';
+export type { TzktAccountsSubscriptionMessage, TzktTokenBalancesSubscriptionMessage } from './types';
 
 export type { TzktApiChainId } from './api';
 export {
