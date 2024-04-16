@@ -2905,6 +2905,17 @@
   dependencies:
     nanoid "^3.1.25"
 
+"@temple-wallet/extension-ads@^4.0.0":
+  version "4.0.0"
+  resolved "https://registry.yarnpkg.com/@temple-wallet/extension-ads/-/extension-ads-4.0.0.tgz#3eb40097f0084a0279acef1e336f3cbd24b4d7c7"
+  integrity sha512-Avv04obvHd3Zvr0zb9QW0a3GPU1jXGqTfP2KWjz87tJL1rPdZs1d0ZIEXeUYXRrPOVWTaEBhWdTHpoSkKwzd1A==
+  dependencies:
+    "@vespaiach/axios-fetch-adapter" "^0.3.1"
+    axios "^1.6.7"
+    lodash "^4.17.21"
+    nanoid "^5.0.6"
+    webextension-polyfill "^0.10.0"
+
 "@temple-wallet/jest-webextension-mock@^4.1.0":
   version "4.1.0"
   resolved "https://registry.yarnpkg.com/@temple-wallet/jest-webextension-mock/-/jest-webextension-mock-4.1.0.tgz#6834acd98297eb1c76b85a2585a0584ff5578e8f"
@@ -9436,6 +9447,11 @@ nanoid@^3.3.4:
   version "3.3.7"
   resolved "https://registry.yarnpkg.com/nanoid/-/nanoid-3.3.7.tgz#d0c301a691bc8d54efa0a2226ccf3fe2fd656bd8"
   integrity sha512-eSRppjcPIatRIMC1U6UngP8XFcz8MQWGQdt1MTBQ7NaAmvXDfvNxbvWV3x2y6CdEUciCSsDHDQZbhYaB8QEo2g==
+
+nanoid@^5.0.6:
+  version "5.0.6"
+  resolved "https://registry.yarnpkg.com/nanoid/-/nanoid-5.0.6.tgz#7f99a033aa843e4dcf9778bdaec5eb02f4dc44d5"
+  integrity sha512-rRq0eMHoGZxlvaFOUdK1Ev83Bd1IgzzR+WJ3IbDJ7QOSdAxYjlurSPqFs9s4lJg29RT6nPwizFtJhQS6V5xgiA==
 
 napi-wasm@^1.1.0:
   version "1.1.0"

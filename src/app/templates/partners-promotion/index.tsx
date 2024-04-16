@@ -51,6 +51,7 @@ export const PartnersPromotion = memo<PartnersPromotionProps>(props => {
 const TezosPartnersPromotion = memo<PartnersPromotionProps & { accountPkh: string }>(
   ({ accountPkh, variant, id, pageName, withPersonaProvider }) => {
     const isImageAd = variant === PartnersPromotionVariant.Image;
+    // TODO: add logic to prevent sending rewards to a watch only account
     const { trackEvent } = useAnalytics();
     const { popup } = useAppEnv();
     const dispatch = useDispatch();

@@ -1,9 +1,20 @@
 name: Code quality check
 description: Installs dependencies and checks TS, linting, dead code
+
+inputs:
+  optional_modules:
+    description: Install optional modules too
+    required: true
+
 runs:
   using: 'composite'
   steps:
     - run: yarn install
+      if: inputs.optional_modules == 'true'
+      shell: bash
+
+    - run: yarn install --ignore-optional
+      if: inputs.optional_modules != 'true'
       shell: bash
 
     - name: Audit dependencies
