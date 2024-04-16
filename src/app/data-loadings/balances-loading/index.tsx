@@ -1,7 +1,6 @@
-import React, { memo, useCallback, useEffect, useMemo, useRef } from 'react';
+import React, { memo, useCallback, useEffect, useRef } from 'react';
 
 import { isDefined } from '@rnw-community/shared';
-import useForceUpdate from 'use-force-update';
 
 import { dispatch } from 'app/store';
 import { loadGasBalanceActions, loadAssetsBalancesActions } from 'app/store/balances/actions';
@@ -11,7 +10,7 @@ import { useDidUpdate, useMemoWithCompare } from 'lib/ui/hooks';
 import { isTruthy } from 'lib/utils';
 import { useAllTezosChains, useOnTezosBlock } from 'temple/front';
 
-import { TempleTzktSubscription } from './tzkt-subscription';
+import { useTzktSubscription } from './use-tzkt-subscription';
 
 export const AppBalancesLoading = memo<{ publicKeyHash: string }>(({ publicKeyHash }) => {
   const allTezosNetworks = useAllTezosChains();
@@ -40,8 +39,6 @@ export const AppBalancesLoading = memo<{ publicKeyHash: string }>(({ publicKeyHa
 
 const BalancesLoadingForTezosNetwork = memo<{ publicKeyHash: string; chainId: TzktApiChainId; rpcBaseURL: string }>(
   ({ publicKeyHash, chainId, rpcBaseURL }) => {
-    const forceUpdate = useForceUpdate();
-
     const isLoading = useBalancesLoadingSelector(publicKeyHash, chainId);
     const isLoadingRef = useRef(false);
 
@@ -56,14 +53,9 @@ const BalancesLoadingForTezosNetwork = memo<{ publicKeyHash: string; chainId: Tz
     const storedError = useBalancesErrorSelector(publicKeyHash, chainId);
     const isStoredError = isDefined(storedError);
 
-    const tzktSubscription = useMemo(
-      () => new TempleTzktSubscription(chainId, publicKeyHash, getIsLoading, forceUpdate),
-      [chainId, publicKeyHash, getIsLoading, forceUpdate]
-    );
-    useEffect(() => () => void tzktSubscription?.destroy(), [tzktSubscription]);
+    const tzktSubscription = useTzktSubscription(publicKeyHash, chainId, getIsLoading);
 
-    //
-    //
+    // Gas
 
     const dispatchLoadGasBalanceAction = useCallback(() => {
       if (!isLoadingRef.current) {
@@ -73,11 +65,11 @@ const BalancesLoadingForTezosNetwork = memo<{ publicKeyHash: string; chainId: Tz
 
     useEffect(dispatchLoadGasBalanceAction, [dispatchLoadGasBalanceAction]);
 
-    const withBlockSubscriptionForGas = !tzktSubscription?.subscribedToGasUpdates || isStoredError === true;
+    const withBlockSubscriptionForGas = !tzktSubscription.subscribedToGasUpdates || isStoredError === true;
 
     useOnTezosBlock(rpcBaseURL, dispatchLoadGasBalanceAction, !withBlockSubscriptionForGas);
 
-    //
+    // Assets
 
     const dispatchLoadAssetsBalancesActions = useCallback(() => {
       if (!isLoadingRef.current) {
@@ -87,7 +79,7 @@ const BalancesLoadingForTezosNetwork = memo<{ publicKeyHash: string; chainId: Tz
 
     useEffect(dispatchLoadAssetsBalancesActions, [dispatchLoadAssetsBalancesActions]);
 
-    const withBlockSubscriptionForAssets = !tzktSubscription?.subscribedToTokensUpdates || isStoredError === true;
+    const withBlockSubscriptionForAssets = !tzktSubscription.subscribedToTokensUpdates || isStoredError === true;
 
     useOnTezosBlock(rpcBaseURL, dispatchLoadAssetsBalancesActions, !withBlockSubscriptionForAssets);
 
