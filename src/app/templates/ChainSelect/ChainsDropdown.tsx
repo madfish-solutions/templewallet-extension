@@ -10,16 +10,16 @@ import { PopperRenderProps } from 'lib/ui/Popper';
 import { TezosChain, EvmChain, useAllTezosChains, useAllEvmChains } from 'temple/front';
 import { TempleChainTitle } from 'temple/types';
 
+import { ChainButton } from './ChainButton';
 import { ChainSelectController } from './controller';
-import { NetworkButton } from './NetworkButton';
 import styles from './style.module.css';
 
 interface Props extends PopperRenderProps {
   controller: ChainSelectController;
 }
 
-export const ChainDropdown = memo<Props>(({ opened, setOpened, controller }) => {
-  const { id: selectedId, chain } = controller.value;
+export const ChainsDropdown = memo<Props>(({ opened, setOpened, controller }) => {
+  const selectedChain = controller.value;
 
   const allTezosChains = useAllTezosChains();
   const allEvmNetworks = useAllEvmChains();
@@ -62,13 +62,13 @@ export const ChainDropdown = memo<Props>(({ opened, setOpened, controller }) => 
         </h2>
 
         {tezosNetworks.map(network => {
-          const { id } = network;
-          const selected = id === selectedId && chain === 'tezos';
+          const { chainId } = network;
+          const selected = chainId === selectedChain.chainId && selectedChain.kind === 'tezos';
 
           return (
-            <NetworkButton
-              key={id}
-              network={network}
+            <ChainButton
+              key={chainId}
+              chain={network}
               selected={selected}
               onClick={() => {
                 setOpened(false);
@@ -85,13 +85,13 @@ export const ChainDropdown = memo<Props>(({ opened, setOpened, controller }) => 
         </h2>
 
         {evmNetworks.map(network => {
-          const { id } = network;
-          const selected = id === selectedId && chain === 'evm';
+          const { chainId } = network;
+          const selected = chainId === selectedChain.chainId && selectedChain.kind === 'evm';
 
           return (
-            <NetworkButton
-              key={id}
-              network={network}
+            <ChainButton
+              key={chainId}
+              chain={network}
               selected={selected}
               onClick={() => {
                 setOpened(false);

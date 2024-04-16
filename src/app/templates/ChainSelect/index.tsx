@@ -10,8 +10,8 @@ import { T } from 'lib/i18n';
 import Popper from 'lib/ui/Popper';
 import { getNetworkTitle } from 'temple/front/networks';
 
+import { ChainsDropdown } from './ChainsDropdown';
 import { ChainSelectController } from './controller';
-import { ChainDropdown } from './NetworkDropdown';
 
 export { useChainSelectController } from './controller';
 
@@ -26,7 +26,7 @@ const ChainSelect = memo<Props>(({ controller }) => {
     <Popper
       placement="bottom-end"
       strategy="fixed"
-      popup={props => <ChainDropdown controller={controller} {...props} />}
+      popup={props => <ChainsDropdown controller={controller} {...props} />}
     >
       {({ ref, opened, toggleOpened }) => (
         <Button
@@ -45,7 +45,7 @@ const ChainSelect = memo<Props>(({ controller }) => {
         >
           <div
             className="mr-2 w-3 h-3 border border-primary-white rounded-full shadow-xs"
-            style={{ backgroundColor: selectedChain.color }}
+            style={{ backgroundColor: selectedChain.rpc.color }}
           />
 
           <Name style={{ maxWidth: '7rem' }}>{getNetworkTitle(selectedChain)}</Name>

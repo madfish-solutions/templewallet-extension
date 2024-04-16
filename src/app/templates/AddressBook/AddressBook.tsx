@@ -114,7 +114,7 @@ const AddNewContactForm: React.FC<{ className?: string }> = ({ className }) => {
   const resolveAddress = useCallback(
     async (address: string) => {
       const domainsClient =
-        network.chain === 'tezos' ? getTezosDomainsClient(network.chainId, network.rpcBaseURL) : null;
+        network.kind === 'tezos' ? getTezosDomainsClient(network.chainId, network.rpcBaseURL) : null;
 
       if (domainsClient && isTezosDomainsNameValid(address, domainsClient)) {
         const resolved = await domainsClient.resolver.resolveNameToAddress(address);

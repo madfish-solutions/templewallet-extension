@@ -7,7 +7,7 @@ import { isHex, toHex } from 'viem/utils';
 
 import { ACCOUNT_ALREADY_EXISTS_ERR_MSG } from 'lib/constants';
 import { StoredAccount, StoredHDAccount, TempleAccountType } from 'lib/temple/types';
-import { TempleChainName } from 'temple/types';
+import { TempleChainKind } from 'temple/types';
 
 import { PublicError } from '../PublicError';
 
@@ -29,7 +29,7 @@ export function concatAccount(current: StoredAccount[], newOne: Exclude<StoredAc
         return [newOne.chain, newOne.address];
       case TempleAccountType.ManagedKT:
       case TempleAccountType.Ledger:
-        return [TempleChainName.Tezos, newOne.tezosAddress];
+        return [TempleChainKind.Tezos, newOne.tezosAddress];
     }
 
     throw new PublicError('Missing account type');

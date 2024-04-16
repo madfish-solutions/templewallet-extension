@@ -44,7 +44,7 @@ export const FromFaucetForm: FC = () => {
 
   const chainSelectController = useChainSelectController();
   const network = chainSelectController.value;
-  const rpcUrl = network.chain === 'tezos' && network.chainId !== ChainIds.MAINNET ? network.rpcBaseURL : null;
+  const rpcUrl = network.kind === 'tezos' && network.chainId !== ChainIds.MAINNET ? network.rpcBaseURL : null;
 
   const setAccountId = useChangeAccount();
 

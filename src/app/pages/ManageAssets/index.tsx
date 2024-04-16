@@ -51,7 +51,7 @@ const ManageAssetsForChain: FC<ManageAssetsForChainProps> = ({ ofCollectibles, a
     <ContentContainer className="mb-6">
       <ChainSelectSection controller={chainSelectController} />
 
-      {network.chain !== 'tezos' ? (
+      {network.kind !== 'tezos' ? (
         <div className="text-center">{UNDER_DEVELOPMENT_MSG}</div>
       ) : ofCollectibles ? (
         <ManageTezosCollectibles network={network} publicKeyHash={accountTezAddress} />

@@ -58,7 +58,7 @@ const AddAsset = memo(() => {
       <ContentContainer className="py-8">
         <ChainSelectSection controller={chainSelectController} />
 
-        {accountTezosAddress && network.chain === 'tezos' ? (
+        {accountTezosAddress && network.kind === 'tezos' ? (
           <Form accountPkh={accountTezosAddress} network={network} />
         ) : (
           <div className="text-center">{UNDER_DEVELOPMENT_MSG}</div>

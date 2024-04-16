@@ -28,7 +28,7 @@ const Send = memo<Props>(({ tezosChainId, assetSlug }) => {
       <ContentContainer className="my-4">
         {tezosChainId ? null : <ChainSelectSection controller={chainSelectController} />}
 
-        {tezosAccount && network && network.chain === 'tezos' ? (
+        {tezosAccount && network && network.kind === 'tezos' ? (
           <SendForm network={network} tezosAccount={tezosAccount} assetSlug={assetSlug} />
         ) : (
           <div className="text-center">{UNDER_DEVELOPMENT_MSG}</div>

@@ -23,7 +23,7 @@ import {
 } from 'lib/temple/types';
 import { createQueue, delay } from 'lib/utils';
 import { loadTezosChainId } from 'temple/tezos';
-import { TempleChainName } from 'temple/types';
+import { TempleChainKind } from 'temple/types';
 
 import {
   getCurrentPermission,
@@ -153,7 +153,7 @@ export function generateSyncPayload(password: string) {
   return withUnlocked(() => Vault.generateSyncPayload(password));
 }
 
-export function revealPrivateKey(chain: TempleChainName, address: string, password: string) {
+export function revealPrivateKey(chain: TempleChainKind, address: string, password: string) {
   return withUnlocked(() => Vault.revealPrivateKey(chain, address, password));
 }
 
@@ -180,7 +180,7 @@ export function editAccount(id: string, name: string) {
   });
 }
 
-export function importAccount(chain: TempleChainName, privateKey: string, encPassword?: string) {
+export function importAccount(chain: TempleChainKind, privateKey: string, encPassword?: string) {
   return withUnlocked(async ({ vault }) => {
     const updatedAccounts = await vault.importAccount(chain, privateKey, encPassword);
     accountsUpdated(updatedAccounts);
@@ -208,7 +208,7 @@ export function importManagedKTAccount(address: string, chainId: string, owner: 
   });
 }
 
-export function importWatchOnlyAccount(chain: TempleChainName, address: string, chainId?: string) {
+export function importWatchOnlyAccount(chain: TempleChainKind, address: string, chainId?: string) {
   return withUnlocked(async ({ vault }) => {
     const updatedAccounts = await vault.importWatchOnlyAccount(chain, address, chainId);
     accountsUpdated(updatedAccounts);

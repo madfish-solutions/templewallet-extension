@@ -33,7 +33,7 @@ const ActivateAccount = memo(() => {
     <ContentContainer className="my-8">
       <ChainSelectSection controller={chainSelectController} />
 
-      {account && network.chain === 'tezos' ? (
+      {account && network.kind === 'tezos' ? (
         <ActivateTezosAccount network={network} account={account} />
       ) : (
         <div className="text-center">{UNDER_DEVELOPMENT_MSG}</div>

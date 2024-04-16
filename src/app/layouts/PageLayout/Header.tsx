@@ -12,7 +12,7 @@ import { useTempleClient } from 'lib/temple/front';
 import Popper from 'lib/ui/Popper';
 import { Link } from 'lib/woozie';
 import { useAccount, useEvmNetwork, useTezosNetwork } from 'temple/front';
-import { TempleChainName } from 'temple/types';
+import { TempleChainKind } from 'temple/types';
 
 import AccountDropdown from './Header/AccountDropdown';
 import NetworkSelect from './Header/NetworkSelect';
@@ -84,9 +84,9 @@ const Control = memo(() => {
       </div>
 
       <div className="mt-2 flex gap-x-2">
-        <NetworkSelect chain={TempleChainName.EVM} currentNetwork={evmNetwork} />
+        <NetworkSelect chain={TempleChainKind.EVM} currentNetwork={evmNetwork} />
 
-        <NetworkSelect chain={TempleChainName.Tezos} currentNetwork={tezosNetwork} />
+        <NetworkSelect chain={TempleChainKind.Tezos} currentNetwork={tezosNetwork} />
       </div>
     </div>
   );

@@ -12,7 +12,7 @@ import { getTezosGasMetadata } from 'lib/metadata';
 import { StoredAccount } from 'lib/temple/types';
 import { AccountForChain, getAccountAddressForEvm, getAccountAddressForTezos } from 'temple/accounts';
 import { TezosNetworkEssentials } from 'temple/networks';
-import { TempleChainName } from 'temple/types';
+import { TempleChainKind } from 'temple/types';
 
 interface Props extends HTMLAttributes<HTMLDivElement> {
   account: StoredAccount | AccountForChain;
@@ -29,8 +29,8 @@ const AccountBanner = memo<Props>(({ tezosNetwork, account, className, label, sm
   const [tezosAddress, evmAddress] = useMemo(() => {
     if ('chain' in account && 'address' in account) {
       return [
-        getAccountForChainAddress(account, TempleChainName.Tezos),
-        getAccountForChainAddress(account, TempleChainName.EVM)
+        getAccountForChainAddress(account, TempleChainKind.Tezos),
+        getAccountForChainAddress(account, TempleChainKind.EVM)
       ];
     }
 
@@ -111,5 +111,5 @@ const AccountBannerAddress = memo<AccountBannerAddressProps>(({ address }) => {
   );
 });
 
-const getAccountForChainAddress = (account: AccountForChain, chain: TempleChainName) =>
+const getAccountForChainAddress = (account: AccountForChain, chain: TempleChainKind) =>
   account.chain === chain ? account.address : undefined;

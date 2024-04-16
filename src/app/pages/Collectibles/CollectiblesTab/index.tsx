@@ -51,7 +51,7 @@ export const CollectiblesTab = memo<Props>(({ scrollToTheTabsBar }) => {
     <ContentContainer className="pt-4">
       <ChainSelectSection controller={chainSelectController} />
 
-      {network.chain === 'tezos' && accountTezAddress ? (
+      {network.kind === 'tezos' && accountTezAddress ? (
         <TezosCollectiblesTab
           network={network}
           publicKeyHash={accountTezAddress}

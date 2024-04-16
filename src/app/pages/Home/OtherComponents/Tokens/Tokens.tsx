@@ -49,7 +49,7 @@ export const TokensTab = memo(() => {
     <ContentContainer className="pt-4">
       <ChainSelectSection controller={chainSelectController} />
 
-      {network.chain === 'tezos' && accountTezAddress ? (
+      {network.kind === 'tezos' && accountTezAddress ? (
         <TezosTokensTab network={network} publicKeyHash={accountTezAddress} />
       ) : (
         <div className="text-center py-3">{UNDER_DEVELOPMENT_MSG}</div>

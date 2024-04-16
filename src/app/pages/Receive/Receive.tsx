@@ -48,7 +48,7 @@ const Receive = memo(() => {
       <ContentContainer className="py-4">
         <ChainSelectSection controller={chainSelectController} />
 
-        {network.chain === 'tezos' && tezosAddress ? (
+        {network.kind === 'tezos' && tezosAddress ? (
           <ReceiveContent labelTitle="Tezos address" address={tezosAddress} />
         ) : evmAddress ? (
           <ReceiveContent labelTitle="EVM address" address={evmAddress} />

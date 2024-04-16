@@ -8,12 +8,12 @@ import { setAnotherSelector, setTestID } from 'lib/analytics';
 import { T, t } from 'lib/i18n';
 import { getNetworkTitle } from 'temple/front';
 import { EVM_DEFAULT_NETWORKS, NetworkBase } from 'temple/networks';
-import { TempleChainName, TempleChainTitle } from 'temple/types';
+import { TempleChainKind, TempleChainTitle } from 'temple/types';
 
 import { NetworkSettingsSelectors } from './selectors';
 
 interface Props {
-  chain: TempleChainName;
+  chain: TempleChainKind;
   customNetworks: NetworkBase[];
   defaultNetworks: NetworkBase[];
   /** With passed network ID */

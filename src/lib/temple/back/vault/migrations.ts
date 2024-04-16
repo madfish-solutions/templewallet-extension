@@ -14,7 +14,7 @@ import { StoredAccount, TempleAccountType, TempleContact, TempleSettings } from 
 import { isTruthy } from 'lib/utils';
 import { StoredTezosNetwork } from 'temple/networks';
 import { loadTezosChainId } from 'temple/tezos';
-import { TempleChainName } from 'temple/types';
+import { TempleChainKind } from 'temple/types';
 
 import {
   generateCheck,
@@ -173,9 +173,9 @@ export const MIGRATIONS = [
 
           return { ...account, id, tezosAddress, evmAddress: evmAcc.address };
         case TempleAccountType.Imported:
-          return { ...account, id, address: tezosAddress, chain: TempleChainName.Tezos };
+          return { ...account, id, address: tezosAddress, chain: TempleChainKind.Tezos };
         case TempleAccountType.WatchOnly:
-          return { ...account, id, address: tezosAddress, chain: TempleChainName.Tezos };
+          return { ...account, id, address: tezosAddress, chain: TempleChainKind.Tezos };
         case TempleAccountType.Ledger:
           return { ...account, id, tezosAddress };
         case TempleAccountType.ManagedKT:
@@ -212,7 +212,7 @@ export const MIGRATIONS = [
             loadTezosChainId(network.rpcBaseURL, 30_000)
               .then(chainId => {
                 delete network.type;
-                return { ...network, chain: TempleChainName.Tezos as const, chainId };
+                return { ...network, chain: TempleChainKind.Tezos as const, chainId };
               })
               .catch(err => {
                 console.error(err);

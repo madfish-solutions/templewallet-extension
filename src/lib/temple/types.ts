@@ -3,7 +3,7 @@ import type { Estimate } from '@taquito/taquito';
 import type { TempleDAppMetadata, TempleDAppNetwork } from '@temple-wallet/dapp/dist/types';
 
 import type { StoredEvmNetwork, StoredTezosNetwork } from 'temple/networks';
-import type { TempleChainName } from 'temple/types';
+import type { TempleChainKind } from 'temple/types';
 
 import type {
   TempleSendPageEventRequest,
@@ -59,7 +59,7 @@ interface StoredLedgerAccount extends StoredAccountBase {
 
 interface StoredImportedAccount extends StoredAccountBase {
   type: TempleAccountType.Imported;
-  chain: TempleChainName;
+  chain: TempleChainKind;
   address: string;
 }
 
@@ -79,7 +79,7 @@ interface StoredManagedKTAccount extends StoredAccountBase {
 
 interface StoredWatchOnlyAccount extends StoredAccountBase {
   type: TempleAccountType.WatchOnly;
-  chain: TempleChainName;
+  chain: TempleChainKind;
   address: string;
   /** For contract addresses */
   chainId?: string;
@@ -425,7 +425,7 @@ interface TempleRevealPublicKeyResponse extends TempleMessageBase {
 
 interface TempleRevealPrivateKeyRequest extends TempleMessageBase {
   type: TempleMessageType.RevealPrivateKeyRequest;
-  chain: TempleChainName;
+  chain: TempleChainKind;
   address: string;
   password: string;
 }
@@ -477,7 +477,7 @@ interface TempleEditAccountResponse extends TempleMessageBase {
 
 interface TempleImportAccountRequest extends TempleMessageBase {
   type: TempleMessageType.ImportAccountRequest;
-  chain: TempleChainName;
+  chain: TempleChainKind;
   privateKey: string;
   encPassword?: string;
 }
@@ -522,7 +522,7 @@ interface TempleImportManagedKTAccountResponse extends TempleMessageBase {
 interface TempleImportWatchOnlyAccountRequest extends TempleMessageBase {
   type: TempleMessageType.ImportWatchOnlyAccountRequest;
   address: string;
-  chain: TempleChainName;
+  chain: TempleChainKind;
   chainId?: string;
 }
 

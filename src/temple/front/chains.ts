@@ -3,14 +3,12 @@ import { ChainIds } from '@taquito/taquito';
 import type { TID } from 'lib/i18n';
 import { useAllTezosNetworks, useAllEvmNetworks } from 'lib/temple/front/ready';
 import { StoredTezosNetwork, StoredEvmNetwork, TEZOS_DEFAULT_NETWORKS, EVM_DEFAULT_NETWORKS } from 'temple/networks';
-import { TempleChainName } from 'temple/types';
+import { TempleChainKind } from 'temple/types';
 
 /** TODO: || SoleChain || ChainForOneOf || OneOfChains */
 export type SomeChain = TezosChain | EvmChain;
 
 interface ChainBase {
-  /** @deprecated // TODO: Better prop name? */
-  chain: TempleChainName;
   rpcBaseURL: string;
   name: string;
   nameI18nKey?: TID;
@@ -18,15 +16,15 @@ interface ChainBase {
 
 /** TODO: || ChainOfTezos || ChainForTezos */
 export interface TezosChain extends ChainBase {
-  /** @deprecated // TODO: Better prop name? */
-  chain: TempleChainName.Tezos;
+  kind: TempleChainKind.Tezos;
   chainId: string;
+  rpc: StoredTezosNetwork;
 }
 
 export interface EvmChain extends ChainBase {
-  /** @deprecated // TODO: Better prop name? */
-  chain: TempleChainName.EVM;
+  kind: TempleChainKind.EVM;
   chainId: number;
+  rpc: StoredEvmNetwork;
 }
 
 /** TODO: Memoization */
@@ -51,7 +49,7 @@ export const useAllTezosChains = () => {
     const defaultRpc = TEZOS_DEFAULT_NETWORKS.find(n => n.chainId === chainId);
     const { name, nameI18nKey } = defaultRpc ?? activeRpc;
 
-    chains[chainId] = { chain: TempleChainName.Tezos, chainId, rpcBaseURL, name, nameI18nKey };
+    chains[chainId] = { kind: TempleChainKind.Tezos, chainId, rpcBaseURL, name, nameI18nKey, rpc: activeRpc };
   }
 
   return chains;
@@ -87,7 +85,7 @@ export const useAllEvmChains = () => {
     const defaultRpc = EVM_DEFAULT_NETWORKS.find(n => n.chainId === chainId);
     const { name, nameI18nKey } = defaultRpc ?? activeRpc;
 
-    chains[chainId] = { chain: TempleChainName.EVM, chainId, rpcBaseURL, name, nameI18nKey };
+    chains[chainId] = { kind: TempleChainKind.EVM, chainId, rpcBaseURL, name, nameI18nKey, rpc: activeRpc };
   }
 
   return chains;

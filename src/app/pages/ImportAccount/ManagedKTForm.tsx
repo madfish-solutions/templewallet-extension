@@ -38,7 +38,7 @@ export const ManagedKTForm = memo(() => {
     <ContentContainer className="w-full max-w-sm mx-auto my-8">
       <ChainSelectSection controller={chainSelectController} />
 
-      {network.chain === 'tezos' ? (
+      {network.kind === 'tezos' ? (
         <ManagedKTFormContent network={network} />
       ) : (
         <div className="text-center">{UNDER_DEVELOPMENT_MSG}</div>

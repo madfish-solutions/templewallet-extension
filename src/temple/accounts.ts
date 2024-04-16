@@ -1,11 +1,11 @@
 import { StoredAccount, TempleAccountType, StoredAccountBase } from 'lib/temple/types';
 
-import { TempleChainName } from './types';
+import { TempleChainKind } from './types';
 
 export const isAccountOfActableType = (account: StoredAccountBase) =>
   !(account.type === TempleAccountType.WatchOnly || account.type === TempleAccountType.ManagedKT);
 
-export interface AccountForChain<C extends TempleChainName = TempleChainName> {
+export interface AccountForChain<C extends TempleChainKind = TempleChainKind> {
   id: string;
   chain: C;
   address: string;
@@ -17,12 +17,12 @@ export interface AccountForChain<C extends TempleChainName = TempleChainName> {
   ownerAddress?: string;
 }
 
-export type AccountForTezos = AccountForChain<TempleChainName.Tezos>;
+export type AccountForTezos = AccountForChain<TempleChainKind.Tezos>;
 
-export const getAccountForTezos = (account: StoredAccount) => getAccountForChain(account, TempleChainName.Tezos);
-export const getAccountForEvm = (account: StoredAccount) => getAccountForChain(account, TempleChainName.EVM);
+export const getAccountForTezos = (account: StoredAccount) => getAccountForChain(account, TempleChainKind.Tezos);
+export const getAccountForEvm = (account: StoredAccount) => getAccountForChain(account, TempleChainKind.EVM);
 
-function getAccountForChain<C extends TempleChainName>(account: StoredAccount, chain: C): AccountForChain<C> | null {
+function getAccountForChain<C extends TempleChainKind>(account: StoredAccount, chain: C): AccountForChain<C> | null {
   const { id, type, name, derivationPath } = account;
   let address: string | undefined, ownerAddress: string | undefined;
 
@@ -50,12 +50,12 @@ function getAccountForChain<C extends TempleChainName>(account: StoredAccount, c
 }
 
 export const getAccountAddressForTezos = (account: StoredAccount) =>
-  getAccountAddressForChain(account, TempleChainName.Tezos);
+  getAccountAddressForChain(account, TempleChainKind.Tezos);
 
 export const getAccountAddressForEvm = (account: StoredAccount) =>
-  getAccountAddressForChain(account, TempleChainName.EVM) as HexString | undefined;
+  getAccountAddressForChain(account, TempleChainKind.EVM) as HexString | undefined;
 
-export const getAccountAddressForChain = (account: StoredAccount, chain: TempleChainName): string | undefined => {
+export const getAccountAddressForChain = (account: StoredAccount, chain: TempleChainKind): string | undefined => {
   switch (account.type) {
     case TempleAccountType.HD:
       return account[`${chain}Address`];

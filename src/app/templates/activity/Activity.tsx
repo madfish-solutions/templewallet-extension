@@ -45,7 +45,7 @@ const ActivityWithChainSelect = memo(() => {
     <ContentContainer className="pt-4">
       <ChainSelectSection controller={chainSelectController} />
 
-      {network.chain === 'tezos' ? (
+      {network.kind === 'tezos' ? (
         <TezosActivity tezosChainId={network.chainId} />
       ) : (
         <div className="py-3 text-center">{UNDER_DEVELOPMENT_MSG}</div>

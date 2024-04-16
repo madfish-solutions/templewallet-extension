@@ -10,7 +10,7 @@ import { PopperRenderProps } from 'lib/ui/Popper';
 import { HistoryAction, navigate } from 'lib/woozie';
 import { useAllTezosNetworks, useAllEvmNetworks, useChangeTezosNetwork, useChangeEvmNetwork } from 'temple/front';
 import { NetworkBase } from 'temple/networks';
-import { TempleChainName, TempleChainTitle } from 'temple/types';
+import { TempleChainKind, TempleChainTitle } from 'temple/types';
 
 import { NetworkButton } from './NetworkButton';
 import styles from './style.module.css';
@@ -40,7 +40,7 @@ export const TezosNetworkDropdown = memo<Props>(props => {
   return (
     <NetworkDropdown
       {...props}
-      chain={TempleChainName.Tezos}
+      chain={TempleChainKind.Tezos}
       allNetworks={allNetworks}
       handleNetworkSelect={handleNetworkSelect}
     />
@@ -66,7 +66,7 @@ export const EvmNetworkDropdown = memo<Props>(props => {
   return (
     <NetworkDropdown
       {...props}
-      chain={TempleChainName.EVM}
+      chain={TempleChainKind.EVM}
       allNetworks={allNetworks}
       handleNetworkSelect={handleNetworkSelect}
     />
@@ -74,7 +74,7 @@ export const EvmNetworkDropdown = memo<Props>(props => {
 });
 
 interface NetworkDropdownProps extends Props {
-  chain: TempleChainName;
+  chain: TempleChainKind;
   allNetworks: NetworkBase[];
   handleNetworkSelect: (netId: string, selected: boolean) => Promise<void>;
 }

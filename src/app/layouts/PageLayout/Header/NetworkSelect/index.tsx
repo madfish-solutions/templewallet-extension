@@ -8,18 +8,18 @@ import { ReactComponent as ChevronDownIcon } from 'app/icons/chevron-down.svg';
 import Popper from 'lib/ui/Popper';
 import { getNetworkTitle } from 'temple/front/networks';
 import { NetworkBase } from 'temple/networks';
-import { TempleChainName } from 'temple/types';
+import { TempleChainKind } from 'temple/types';
 
 import { TezosNetworkDropdown, EvmNetworkDropdown } from './NetworkDropdown';
 import { NetworkSelectSelectors } from './selectors';
 
 interface Props {
-  chain: TempleChainName;
+  chain: TempleChainKind;
   currentNetwork: NetworkBase;
 }
 
 const NetworkSelect = memo<Props>(({ chain, currentNetwork }) => {
-  const isForTezos = chain === TempleChainName.Tezos;
+  const isForTezos = chain === TempleChainKind.Tezos;
 
   return (
     <Popper

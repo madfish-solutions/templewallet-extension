@@ -10,7 +10,7 @@ import { useConfirm } from 'lib/ui/dialog';
 import { useTempleNetworksActions } from 'temple/front';
 import { TEZOS_DEFAULT_NETWORKS } from 'temple/networks';
 import { loadTezosChainId } from 'temple/tezos';
-import { TempleChainName } from 'temple/types';
+import { TempleChainKind } from 'temple/types';
 
 import { NetworksList } from './NetworksList';
 import { NetworkSettingsSelectors } from './selectors';
@@ -59,7 +59,7 @@ export const TezosNetworksSettings = memo(() => {
 
         await addTezosNetwork({
           id: rpcBaseURL,
-          chain: TempleChainName.Tezos,
+          chain: TempleChainKind.Tezos,
           chainId,
           rpcBaseURL,
           name,
@@ -104,7 +104,7 @@ export const TezosNetworksSettings = memo(() => {
   return (
     <div className="w-full max-w-sm mt-6 p-2 pb-4 mx-auto">
       <NetworksList
-        chain={TempleChainName.Tezos}
+        chain={TempleChainKind.Tezos}
         customNetworks={customTezosNetworks}
         defaultNetworks={TEZOS_DEFAULT_NETWORKS}
         handleRemoveClick={handleRemoveClick}

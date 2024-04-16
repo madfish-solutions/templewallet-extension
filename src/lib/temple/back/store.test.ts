@@ -1,7 +1,7 @@
 import browser from 'webextension-polyfill';
 
 import { getAccountAddressForTezos } from 'temple/accounts';
-import { TempleChainName } from 'temple/types';
+import { TempleChainKind } from 'temple/types';
 
 import { TempleAccountType, TempleStatus } from '../types';
 
@@ -50,7 +50,7 @@ describe('Store tests', () => {
         id: 'testId',
         name: 'testName',
         type: TempleAccountType.Imported,
-        chain: TempleChainName.Tezos,
+        chain: TempleChainKind.Tezos,
         address: 'testHashKey'
       }
     ]);

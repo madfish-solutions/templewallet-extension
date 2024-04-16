@@ -10,7 +10,7 @@ import { useConfirm } from 'lib/ui/dialog';
 import { loadEvmChainInfo } from 'temple/evm';
 import { useTempleNetworksActions } from 'temple/front';
 import { EVM_DEFAULT_NETWORKS, EvmNativeCurrency } from 'temple/networks';
-import { TempleChainName } from 'temple/types';
+import { TempleChainKind } from 'temple/types';
 
 import { NetworksList } from './NetworksList';
 // import { NetworkSettingsSelectors } from './selectors';
@@ -62,7 +62,7 @@ export const EvmNetworksSettings = memo(() => {
 
         await addEvmNetwork({
           id: rpcBaseURL,
-          chain: TempleChainName.EVM,
+          chain: TempleChainKind.EVM,
           chainId,
           currency,
           rpcBaseURL,
@@ -108,7 +108,7 @@ export const EvmNetworksSettings = memo(() => {
   return (
     <div className="w-full max-w-sm mt-6 p-2 pb-4 mx-auto">
       <NetworksList
-        chain={TempleChainName.EVM}
+        chain={TempleChainKind.EVM}
         customNetworks={customEvmNetworks}
         defaultNetworks={EVM_DEFAULT_NETWORKS}
         handleRemoveClick={handleRemoveClick}

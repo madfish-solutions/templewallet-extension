@@ -7,7 +7,7 @@ import { useFormAnalytics } from 'lib/analytics';
 import { T, t } from 'lib/i18n';
 import { useTempleClient } from 'lib/temple/front';
 import { clearClipboard } from 'lib/ui/utils';
-import { TempleChainName } from 'temple/types';
+import { TempleChainKind } from 'temple/types';
 
 import { ImportAccountSelectors, ImportAccountFormType } from './selectors';
 
@@ -29,7 +29,7 @@ export const ByPrivateKeyForm = memo(() => {
 
       formAnalytics.trackSubmit();
       setError(null);
-      let chain: TempleChainName | undefined;
+      let chain: TempleChainKind | undefined;
       try {
         const [finalPrivateKey, chain] = toPrivateKeyWithChain(privateKey.replace(/\s/g, ''));
 
@@ -101,12 +101,12 @@ export const ByPrivateKeyForm = memo(() => {
   );
 });
 
-function toPrivateKeyWithChain(value: string): [string, TempleChainName] {
-  if (isTezosPrivateKey(value)) return [value, TempleChainName.Tezos];
+function toPrivateKeyWithChain(value: string): [string, TempleChainKind] {
+  if (isTezosPrivateKey(value)) return [value, TempleChainKind.Tezos];
 
   if (!value.startsWith('0x')) value = `0x${value}`;
 
-  return [value, TempleChainName.EVM];
+  return [value, TempleChainKind.EVM];
 }
 
 const isTezosPrivateKey = (value: string) => value.startsWith('edsk');

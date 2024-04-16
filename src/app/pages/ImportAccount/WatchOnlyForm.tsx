@@ -13,7 +13,7 @@ import { useTempleClient, validateDelegate } from 'lib/temple/front';
 import { isValidTezosAddress, isTezosContractAddress } from 'lib/tezos';
 import { getTezosDomainsClient, useTezosAddressByDomainName } from 'temple/front/tezos';
 import { getReadOnlyTezos } from 'temple/tezos';
-import { TempleChainName } from 'temple/types';
+import { TempleChainKind } from 'temple/types';
 
 import { ImportAccountSelectors, ImportAccountFormType } from './selectors';
 
@@ -26,7 +26,7 @@ export const WatchOnlyForm = memo(() => {
 
   const chainSelectController = useChainSelectController();
   const network = chainSelectController.value;
-  const networkForTezos = network.chain === 'tezos' ? network : null;
+  const networkForTezos = network.kind === 'tezos' ? network : null;
 
   const domainsClient = useMemo(
     () => networkForTezos && getTezosDomainsClient(networkForTezos.chainId, networkForTezos.rpcBaseURL),
@@ -63,17 +63,17 @@ export const WatchOnlyForm = memo(() => {
     setError(null);
 
     formAnalytics.trackSubmit();
-    let chain: TempleChainName | nullish;
+    let chain: TempleChainKind | nullish;
     try {
       chain = getChainFromAddress(resolvedAddress);
 
-      if (!chain || chain !== network.chain) {
+      if (!chain || chain !== network.kind) {
         throw new Error(t('invalidAddress'));
       }
 
       let tezosChainId: string | undefined;
 
-      if (chain === TempleChainName.Tezos && isTezosContractAddress(resolvedAddress)) {
+      if (chain === TempleChainKind.Tezos && isTezosContractAddress(resolvedAddress)) {
         const tezos = getReadOnlyTezos(network.rpcBaseURL);
 
         try {
@@ -85,7 +85,7 @@ export const WatchOnlyForm = memo(() => {
         tezosChainId = await tezos.rpc.getChainId();
       }
 
-      const finalAddress = chain === TempleChainName.Tezos ? resolvedAddress : Viem.getAddress(resolvedAddress);
+      const finalAddress = chain === TempleChainKind.Tezos ? resolvedAddress : Viem.getAddress(resolvedAddress);
 
       await importWatchOnlyAccount(chain, finalAddress, tezosChainId);
 
@@ -156,9 +156,9 @@ export const WatchOnlyForm = memo(() => {
 });
 
 function getChainFromAddress(address: string) {
-  if (isValidTezosAddress(address)) return TempleChainName.Tezos;
+  if (isValidTezosAddress(address)) return TempleChainKind.Tezos;
 
-  if (Viem.isAddress(address)) return TempleChainName.EVM;
+  if (Viem.isAddress(address)) return TempleChainKind.EVM;
 
   return null;
 }

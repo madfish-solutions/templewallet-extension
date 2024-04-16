@@ -3,23 +3,21 @@ import React from 'react';
 import clsx from 'clsx';
 
 import { Button } from 'app/atoms/Button';
-import { getNetworkTitle } from 'temple/front';
-import { NetworkBase } from 'temple/networks';
+import { SomeChain, getNetworkTitle } from 'temple/front';
 
 interface Props {
-  network: NetworkBase;
+  chain: SomeChain;
   selected: boolean;
   onClick: EmptyFn;
 }
 
-export const NetworkButton: React.FC<Props> = ({ network, selected, onClick }) => {
-  const { id, color, disabled } = network;
+export const ChainButton: React.FC<Props> = ({ chain, selected, onClick }) => {
+  const { color, disabled, description } = chain.rpc;
 
-  const title = getNetworkTitle(network);
+  const title = getNetworkTitle(chain);
 
   return (
     <Button
-      key={id}
       className={clsx(
         'flex items-center w-full mb-1 rounded',
         'transition easy-in-out duration-200',
@@ -29,7 +27,7 @@ export const NetworkButton: React.FC<Props> = ({ network, selected, onClick }) =
       style={{
         padding: '0.375rem 1.5rem 0.375rem 0.5rem'
       }}
-      title={network.description}
+      title={description}
       disabled={disabled}
       autoFocus={selected}
       onClick={disabled ? undefined : onClick}
