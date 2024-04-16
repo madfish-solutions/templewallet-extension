@@ -19,7 +19,7 @@ export type { TzktAccountsSubscriptionMessage, TzktTokenBalancesSubscriptionMess
 export type { TzktApiChainId } from './api';
 export {
   isKnownChainId,
-  createWsConnection,
+  createTzktWsConnection,
   getAccountStatsFromTzkt,
   getDelegatorRewards,
   getOneUserContracts,

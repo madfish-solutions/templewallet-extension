@@ -27,13 +27,8 @@ export function isKnownChainId(chainId?: string | null): chainId is TzktApiChain
   return chainId != null && KNOWN_CHAIN_IDS.includes(chainId);
 }
 
-export const createWsConnection = (chainId: string): TzktHubConnection | undefined => {
-  if (isKnownChainId(chainId)) {
-    return new HubConnectionBuilder().withUrl(`${TZKT_API_BASE_URLS[chainId]}/ws`).build();
-  }
-
-  return undefined;
-};
+export const createTzktWsConnection = (chainId: TzktApiChainId): TzktHubConnection =>
+  new HubConnectionBuilder().withUrl(`${TZKT_API_BASE_URLS[chainId]}/ws`).build();
 
 const api = axios.create();
 

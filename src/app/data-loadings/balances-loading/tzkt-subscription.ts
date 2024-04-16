@@ -1,10 +1,7 @@
-import { HubConnectionBuilder } from '@microsoft/signalr';
-
 import { dispatch } from 'app/store';
 import { loadAssetsBalancesActions, loadGasBalanceActions, putTokensBalancesAction } from 'app/store/balances/actions';
 import { fixBalances } from 'app/store/balances/utils';
-import type { TzktApiChainId } from 'lib/apis/tzkt/api';
-import { TZKT_API_BASE_URLS } from 'lib/apis/tzkt/misc';
+import { createTzktWsConnection, type TzktApiChainId } from 'lib/apis/tzkt/api';
 import {
   TzktAccountType,
   TzktAccountsSubscriptionMessage,
@@ -52,7 +49,7 @@ export class TempleTzktSubscription {
   }
 
   private async spawnConnection() {
-    const connection = new HubConnectionBuilder().withUrl(`${TZKT_API_BASE_URLS[this.chainId]}/ws`).build();
+    const connection = createTzktWsConnection(this.chainId);
     this.connection = connection;
 
     try {
