@@ -1,9 +1,12 @@
 export {
   useAllTezosNetworks,
-  useAllEvmNetworks,
+  useAllTezosChains,
   useTezosNetwork,
-  useEvmNetwork,
   useSetTezosNetworkId as useChangeTezosNetwork,
+  //
+  useAllEvmNetworks,
+  useAllEvmChains,
+  useEvmNetwork,
   useSetEvmNetworkId as useChangeEvmNetwork,
   //
   useAllAccounts,
@@ -14,10 +17,10 @@ export {
   useAccountAddressForEvm,
   useAccountForEvm,
   useSetAccountId as useChangeAccount
-} from 'lib/temple/front/ready';
+} from './ready';
 
 export type { SomeChain, TezosChain, EvmChain } from './chains';
-export { useAllTezosChains, useAllEvmChains, useTezosChainByChainId, useTezosMainnetChain } from './chains';
+export { useTezosChainByChainId, useTezosMainnetChain } from './chains';
 
 export { getNetworkTitle, useTezosChainIdLoadingValue, useTempleNetworksActions } from './networks';
 

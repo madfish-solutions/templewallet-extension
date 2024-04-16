@@ -1,6 +1,7 @@
+import { memo } from 'react';
+
 import { dispatch } from 'app/store';
 import {
-  loadTokensWhitelistActions,
   setAssetsIsLoadingAction,
   addAccountTokensAction,
   addAccountCollectiblesAction
@@ -16,13 +17,11 @@ import { isKnownChainId } from 'lib/apis/tzkt';
 import { loadAccountCollectibles, loadAccountTokens } from 'lib/assets/fetching';
 import { ASSETS_SYNC_INTERVAL } from 'lib/fixed-times';
 import type { MetadataRecords, MetadataMap } from 'lib/metadata/types';
-import { useDidMount, useInterval, useMemoWithCompare, useUpdatableRef } from 'lib/ui/hooks';
+import { useInterval, useMemoWithCompare, useUpdatableRef } from 'lib/ui/hooks';
 import { isTruthy } from 'lib/utils';
 import { useAllTezosChains } from 'temple/front';
 
-export const useAssetsLoading = (publicKeyHash: string) => {
-  useDidMount(() => void dispatch(loadTokensWhitelistActions.submit()));
-
+export const AppTezosAssetsLoading = memo<{ publicKeyHash: string }>(({ publicKeyHash }) => {
   const allTezosNetworks = useAllTezosChains();
 
   const networks = useMemoWithCompare(
@@ -98,7 +97,9 @@ export const useAssetsLoading = (publicKeyHash: string) => {
     [collectiblesAreLoading, publicKeyHash, networks],
     ASSETS_SYNC_INTERVAL
   );
-};
+
+  return null;
+});
 
 const mergeAssetsMetadata = (tokensMetadata: MetadataRecords, collectiblesMetadata: MetadataMap) => {
   const map = new Map(Object.entries(tokensMetadata));

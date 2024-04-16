@@ -3,9 +3,9 @@ import React, { FC, useMemo } from 'react';
 import { ShortcutAccountSelectStateProvider } from 'app/hooks/use-account-select-shortcut';
 import { usePushNotifications } from 'app/hooks/use-push-notifications';
 import { CustomTezosChainIdContext } from 'lib/analytics';
+import { ReadyTempleProvider } from 'temple/front/ready';
 
 import { TempleClientProvider, useTempleClient } from './client';
-import { ReadyTempleProvider } from './ready';
 
 export const TempleProvider: FC<PropsWithChildren> = ({ children }) => {
   usePushNotifications();

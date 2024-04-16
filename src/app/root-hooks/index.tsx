@@ -9,15 +9,16 @@ import { useMetadataRefresh } from 'app/hooks/use-metadata-refresh';
 import { useStorageAnalytics } from 'app/hooks/use-storage-analytics';
 import { useUserIdSync } from 'app/hooks/use-user-id-sync';
 import { dispatch } from 'app/store';
-import { loadTokensScamlistActions } from 'app/store/assets/actions';
+import { loadTokensWhitelistActions, loadTokensScamlistActions } from 'app/store/assets/actions';
 import { loadSwapDexesAction, loadSwapTokensAction } from 'app/store/swap/actions';
 import { useTempleClient } from 'lib/temple/front';
+import { useDidMount } from 'lib/ui/hooks';
 import { useAccountAddressForTezos } from 'temple/front';
 
-import { AppBalancesLoading } from './balances-loading';
-import { useAssetsLoading } from './use-assets-loading';
+import { AppTezosAssetsLoading } from './assets-loading';
+import { AppTezosBalancesLoading } from './balances-loading';
+import { AppTezosTokensMetadataLoading } from './metadata-loading';
 import { useChainIDsCheck } from './use-chain-ids-check';
-import { useMetadataLoading } from './use-metadata-loading';
 
 export const AppRootHooks = memo(() => {
   const { ready } = useTempleClient();
@@ -28,7 +29,8 @@ export const AppRootHooks = memo(() => {
 const AppReadyRootHooks = memo(() => {
   useAssetsMigrations();
 
-  useEffect(() => void dispatch(loadTokensScamlistActions.submit()), []);
+  useDidMount(() => void dispatch(loadTokensWhitelistActions.submit()));
+  useDidMount(() => void dispatch(loadTokensScamlistActions.submit()));
 
   useMetadataRefresh();
 
@@ -48,17 +50,17 @@ const AppReadyRootHooks = memo(() => {
 
   const tezosAddress = useAccountAddressForTezos();
 
-  return tezosAddress ? <WithTezosDataLoading publicKeyHash={tezosAddress} /> : null;
+  return tezosAddress ? <TezosAccountHooks publicKeyHash={tezosAddress} /> : null;
 });
 
-const WithTezosDataLoading = memo<{ publicKeyHash: string }>(({ publicKeyHash }) => {
-  useAssetsLoading(publicKeyHash);
-  useMetadataLoading(publicKeyHash);
+const TezosAccountHooks = memo<{ publicKeyHash: string }>(({ publicKeyHash }) => {
   useCollectiblesDetailsLoading(publicKeyHash);
 
   return (
     <>
-      <AppBalancesLoading publicKeyHash={publicKeyHash} />
+      <AppTezosAssetsLoading publicKeyHash={publicKeyHash} />
+      <AppTezosBalancesLoading publicKeyHash={publicKeyHash} />
+      <AppTezosTokensMetadataLoading publicKeyHash={publicKeyHash} />
     </>
   );
 });

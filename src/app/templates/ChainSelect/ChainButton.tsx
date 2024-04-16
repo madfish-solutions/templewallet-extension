@@ -12,7 +12,8 @@ interface Props {
 }
 
 export const ChainButton: React.FC<Props> = ({ chain, selected, onClick }) => {
-  const { color, disabled, description } = chain.rpc;
+  const disabled = chain.disabled;
+  const { color, description } = chain.rpc;
 
   const title = getNetworkTitle(chain);
 

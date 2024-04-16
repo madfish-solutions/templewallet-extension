@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { memo, useEffect, useRef } from 'react';
 
 import { dispatch } from 'app/store';
 import { useAllTokensSelector } from 'app/store/assets/selectors';
@@ -9,11 +9,7 @@ import { useGetTokenMetadata } from 'lib/metadata';
 import { loadTokensMetadata } from 'lib/metadata/fetch';
 import { useAllTezosChains } from 'temple/front';
 
-export const useMetadataLoading = (publicKeyHash: string) => {
-  useTezosTokensMetadataLoading(publicKeyHash);
-};
-
-const useTezosTokensMetadataLoading = (publicKeyHash: string) => {
+export const AppTezosTokensMetadataLoading = memo<{ publicKeyHash: string }>(({ publicKeyHash }) => {
   const allTezosNetworks = useAllTezosChains();
   const allTokens = useAllTokensSelector();
   const getMetadata = useGetTokenMetadata();
@@ -56,4 +52,6 @@ const useTezosTokensMetadataLoading = (publicKeyHash: string) => {
       })
     ).then(() => void dispatch(setTokensMetadataLoadingAction(false)));
   }, [allTezosNetworks, allTokens, getMetadata, isLoading, publicKeyHash]);
-};
+
+  return null;
+});

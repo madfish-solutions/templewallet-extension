@@ -504,7 +504,7 @@ async function getCurrentTempleNetwork() {
 }
 
 function isAllowedNetwork(net: TempleDAppNetwork) {
-  return typeof net === 'string' ? TEZOS_DEFAULT_NETWORKS.some(n => !n.disabled && n.id === net) : Boolean(net?.rpc);
+  return typeof net === 'string' ? TEZOS_DEFAULT_NETWORKS.some(n => n.id === net) : Boolean(net?.rpc);
 }
 
 function isNetworkEquals(fNet: TempleDAppNetwork, sNet: TempleDAppNetwork) {

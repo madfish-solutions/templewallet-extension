@@ -4,11 +4,11 @@ import { isTezosContractAddress } from 'lib/tezos';
 import { useMemoWithCompare } from 'lib/ui/hooks';
 import { isTruthy } from 'lib/utils';
 import { getAccountForTezos } from 'temple/accounts';
+import { useAllAccounts, useSettings } from 'temple/front/ready';
 
 import type { TempleContact } from '../types';
 
 import { useTempleClient } from './client';
-import { useAllAccounts, useSettings } from './ready';
 
 export function useFilteredContacts() {
   const { updateSettings } = useTempleClient();

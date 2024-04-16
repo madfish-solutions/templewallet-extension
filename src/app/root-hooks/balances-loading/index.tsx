@@ -12,7 +12,7 @@ import { useAllTezosChains, useOnTezosBlock } from 'temple/front';
 
 import { useTzktSubscription } from './use-tzkt-subscription';
 
-export const AppBalancesLoading = memo<{ publicKeyHash: string }>(({ publicKeyHash }) => {
+export const AppTezosBalancesLoading = memo<{ publicKeyHash: string }>(({ publicKeyHash }) => {
   const allTezosNetworks = useAllTezosChains();
 
   const knownTezosNetworks = useMemoWithCompare(

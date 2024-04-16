@@ -1,8 +1,9 @@
 import { useMemo } from 'react';
 
-import { useAllAccounts } from 'lib/temple/front/ready';
 import { StoredAccount, TempleAccountType } from 'lib/temple/types';
 import { searchAndFilterItems } from 'lib/utils/search-items';
+
+import { useAllAccounts } from './ready';
 
 export function searchAndFilterAccounts(accounts: StoredAccount[], searchValue: string) {
   return searchAndFilterItems(
