@@ -7,7 +7,7 @@ import { ReactComponent as CloseIcon } from 'app/icons/close.svg';
 import { setAnotherSelector, setTestID } from 'lib/analytics';
 import { T, t } from 'lib/i18n';
 import { getNetworkTitle } from 'temple/front';
-import { DEFAULT_EVM_NETWORKS, NetworkBase } from 'temple/networks';
+import { EVM_DEFAULT_NETWORKS, NetworkBase } from 'temple/networks';
 import { TempleChainName, TempleChainTitle } from 'temple/types';
 
 import { NetworkSettingsSelectors } from './selectors';
@@ -39,7 +39,7 @@ export const NetworksList = memo<Props>(({ chain, customNetworks, defaultNetwork
           <ListItem network={network} last={false} key={network.rpcBaseURL} onRemoveClick={handleRemoveClick} />
         ))}
         {defaultNetworks.map((network, index) => (
-          <ListItem key={network.rpcBaseURL} last={index === DEFAULT_EVM_NETWORKS.length - 1} network={network} />
+          <ListItem key={network.rpcBaseURL} last={index === EVM_DEFAULT_NETWORKS.length - 1} network={network} />
         ))}
       </div>
     </div>

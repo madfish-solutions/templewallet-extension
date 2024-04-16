@@ -139,7 +139,7 @@ export interface EvmNativeCurrency {
 
 const DEFAULT_EVM_CURRENCY: EvmNativeCurrency = { name: 'Ether', symbol: 'ETH', decimals: 18 };
 
-export const DEFAULT_EVM_NETWORKS: NonEmptyArray<StoredEvmNetwork> = [
+export const EVM_DEFAULT_NETWORKS: NonEmptyArray<StoredEvmNetwork> = [
   {
     id: 'mainnet',
     name: 'Ethereum Mainnet',

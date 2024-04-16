@@ -19,6 +19,7 @@ import { TempleProvider } from 'lib/temple/front';
 import { DialogsProvider } from 'lib/ui/dialog';
 import * as Woozie from 'lib/woozie';
 
+import { AppDataLoadings } from './data-loadings';
 import { LoadHypelabScript } from './load-hypelab-script';
 import { StoreProvider } from './store/provider';
 
@@ -40,7 +41,16 @@ export const App: FC<Props> = ({ env }) => (
           <LoadHypelabScript />
 
           <AwaitFonts name="Inter" weights={[300, 400, 500, 600]} className="antialiased font-inter">
-            <BootAnimation>{env.confirmWindow ? <ConfirmPage /> : <PageRouter />}</BootAnimation>
+            <BootAnimation>
+              {env.confirmWindow ? (
+                <ConfirmPage />
+              ) : (
+                <>
+                  <AppDataLoadings />
+                  <PageRouter />
+                </>
+              )}
+            </BootAnimation>
           </AwaitFonts>
         </AppProvider>
       </Suspense>

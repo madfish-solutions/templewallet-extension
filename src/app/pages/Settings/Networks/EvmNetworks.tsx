@@ -9,7 +9,7 @@ import { COLORS } from 'lib/ui/colors';
 import { useConfirm } from 'lib/ui/dialog';
 import { loadEvmChainInfo } from 'temple/evm';
 import { useTempleNetworksActions } from 'temple/front';
-import { DEFAULT_EVM_NETWORKS, EvmNativeCurrency } from 'temple/networks';
+import { EVM_DEFAULT_NETWORKS, EvmNativeCurrency } from 'temple/networks';
 import { TempleChainName } from 'temple/types';
 
 import { NetworksList } from './NetworksList';
@@ -83,7 +83,7 @@ export const EvmNetworksSettings = memo(() => {
   );
 
   const rpcURLIsUnique = useCallback(
-    (url: string) => ![...DEFAULT_EVM_NETWORKS, ...customEvmNetworks].some(({ rpcBaseURL }) => rpcBaseURL === url),
+    (url: string) => ![...EVM_DEFAULT_NETWORKS, ...customEvmNetworks].some(({ rpcBaseURL }) => rpcBaseURL === url),
     [customEvmNetworks]
   );
 
@@ -112,7 +112,7 @@ export const EvmNetworksSettings = memo(() => {
       <NetworksList
         chain={TempleChainName.EVM}
         customNetworks={customEvmNetworks}
-        defaultNetworks={DEFAULT_EVM_NETWORKS}
+        defaultNetworks={EVM_DEFAULT_NETWORKS}
         handleRemoveClick={handleRemoveClick}
       />
 

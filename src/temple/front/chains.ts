@@ -1,7 +1,7 @@
 import { ChainIds } from '@taquito/taquito';
 
 import { useAllTezosNetworks, useAllEvmNetworks } from 'lib/temple/front/ready';
-import { StoredTezosNetwork, StoredEvmNetwork, TEZOS_DEFAULT_NETWORKS, DEFAULT_EVM_NETWORKS } from 'temple/networks';
+import { StoredTezosNetwork, StoredEvmNetwork, TEZOS_DEFAULT_NETWORKS, EVM_DEFAULT_NETWORKS } from 'temple/networks';
 
 /** TODO: || SoleChain || ChainForOneOf || OneOfChains */
 export type SomeChain = TezosChain | EvmChain;
@@ -67,7 +67,7 @@ export const useAllEvmChains = () => {
     const id = `evm-${activeRpc.id}`; // TODO: Remove `id`
     const testnet = networks.some(n => n.testnet); // TODO: Implement solid!
 
-    const defaultRpc = DEFAULT_EVM_NETWORKS.find(n => n.chainId === chainId);
+    const defaultRpc = EVM_DEFAULT_NETWORKS.find(n => n.chainId === chainId);
     const { name, nameI18nKey } = defaultRpc ?? activeRpc;
 
     chains[chainId] = { ...activeRpc, id, testnet, name, nameI18nKey };

@@ -1,8 +1,5 @@
 ## TODO:
 
-- `<WithDataLoading />` without children
-- - Move out of `PageRouter` ?
-- - Hooks to indi comps for optimization ?
 - Store Tezos native currency
 - Forbid WebPack to include React
 - Revisit `loadTezosChainId` usage

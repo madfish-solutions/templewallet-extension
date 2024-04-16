@@ -1,4 +1,4 @@
-import React, { FC, useLayoutEffect, useMemo } from 'react';
+import React, { memo, useLayoutEffect, useMemo } from 'react';
 
 import RootSuspenseFallback from 'app/a11y/RootSuspenseFallback';
 import { OpenInFullPage, useAppEnv } from 'app/env';
@@ -29,8 +29,6 @@ import { usePageRouterAnalytics } from 'lib/analytics';
 import { Notifications, NotificationsItem } from 'lib/notifications/components';
 import { useTempleClient } from 'lib/temple/front';
 import * as Woozie from 'lib/woozie';
-
-import { WithDataLoading } from './WithDataLoading';
 
 interface RouteContext {
   popup: boolean;
@@ -108,7 +106,7 @@ const ROUTE_MAP = Woozie.createMap<RouteContext>([
   ['*', () => <Woozie.Redirect to="/" />]
 ]);
 
-export const PageRouter: FC = () => {
+export const PageRouter = memo(() => {
   const { trigger, pathname, search } = Woozie.useLocation();
 
   // Scroll to top after new location pushed.
@@ -137,12 +135,8 @@ export const PageRouter: FC = () => {
 
   usePageRouterAnalytics(pathname, search, ctx.ready);
 
-  return useMemo(() => {
-    const routedElement = Woozie.resolve(ROUTE_MAP, pathname, ctx);
-
-    return ctx.ready ? <WithDataLoading>{routedElement}</WithDataLoading> : routedElement;
-  }, [pathname, ctx]);
-};
+  return useMemo(() => Woozie.resolve(ROUTE_MAP, pathname, ctx), [pathname, ctx]);
+});
 
 function onlyReady(factory: RouteFactory): RouteFactory {
   return (params, ctx) => (ctx.ready ? factory(params, ctx) : Woozie.SKIP);
