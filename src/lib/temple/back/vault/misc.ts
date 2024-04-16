@@ -6,7 +6,8 @@ import * as ViemAccounts from 'viem/accounts';
 import { isHex, toHex } from 'viem/utils';
 
 import { ACCOUNT_ALREADY_EXISTS_ERR_MSG } from 'lib/constants';
-import { StoredAccount, StoredHDAccount, TempleAccountType } from 'lib/temple/types';
+import { StoredAccount, TempleAccountType } from 'lib/temple/types';
+import { getAccountAddressForEvm, getAccountAddressForTezos } from 'temple/accounts';
 import { TempleChainName } from 'temple/types';
 
 import { PublicError } from '../PublicError';
@@ -20,7 +21,28 @@ export function generateCheck() {
   return Bip39.generateMnemonic(128);
 }
 
-export function concatAccount(current: StoredAccount[], newOne: Exclude<StoredAccount, StoredHDAccount>) {
+export function concatAccount(current: StoredAccount[], newOne: StoredAccount) {
+  if (newOne.type === TempleAccountType.HD) {
+    if (current.some(acc => acc.type === TempleAccountType.HD && acc.tezosAddress === newOne.tezosAddress)) {
+      throw new PublicError(ACCOUNT_ALREADY_EXISTS_ERR_MSG);
+    }
+
+    return [
+      ...current.filter(account => {
+        if (account.type === TempleAccountType.HD) {
+          return true;
+        }
+
+        const chain = 'chain' in account ? account.chain : TempleChainName.Tezos;
+
+        return chain === TempleChainName.Tezos
+          ? getAccountAddressForTezos(account) !== newOne.tezosAddress
+          : getAccountAddressForEvm(account) !== newOne.evmAddress;
+      }),
+      newOne
+    ];
+  }
+
   /** New account is for certain chain */
   const [chain, address] = (() => {
     switch (newOne.type) {
@@ -57,11 +79,41 @@ export function concatAccount(current: StoredAccount[], newOne: Exclude<StoredAc
 
 type NewAccountName = 'defaultAccountName' | 'defaultManagedKTAccountName' | 'defaultWatchOnlyAccountName';
 
-export function fetchNewAccountName(
+function getSameGroupAccounts(allAccounts: StoredAccount[], accountType: TempleAccountType, groupId?: string) {
+  return allAccounts.filter(
+    acc => acc.type === accountType && (acc.type !== TempleAccountType.HD || acc.groupId === groupId)
+  );
+}
+
+export function isNameCollision(
   allAccounts: StoredAccount[],
+  accountType: TempleAccountType,
+  name: string,
+  groupId?: string
+) {
+  return getSameGroupAccounts(allAccounts, accountType, groupId).some(acc => acc.name === name);
+}
+
+export async function fetchNewAccountName(
+  allAccounts: StoredAccount[],
+  newAccountType: TempleAccountType,
+  newAccountGroupId?: string,
   templateI18nKey: NewAccountName = 'defaultAccountName'
 ) {
-  return fetchMessage(templateI18nKey, String(allAccounts.length + 1));
+  const sameGroupAccounts = getSameGroupAccounts(allAccounts, newAccountType, newAccountGroupId);
+  for (let i = sameGroupAccounts.length + 1; ; i++) {
+    const nameCandidate = await fetchMessage(templateI18nKey, String(i));
+    if (!isNameCollision(allAccounts, newAccountType, nameCandidate, newAccountGroupId)) {
+      return nameCandidate;
+    }
+  }
+}
+
+export function canRemoveAccounts(allAccounts: StoredAccount[], accountsToRemove: StoredAccount[]) {
+  const allHdAccounts = allAccounts.filter(acc => acc.type === TempleAccountType.HD);
+  const hdAccountsToRemove = accountsToRemove.filter(acc => acc.type === TempleAccountType.HD);
+
+  return allHdAccounts.length - hdAccountsToRemove.length >= 1;
 }
 
 interface AccountCreds {
@@ -152,6 +204,6 @@ export async function withError<T>(errMessage: string, factory: (doThrow: () => 
     });
   } catch (err: any) {
     console.error(err);
-    throw err instanceof PublicError ? err : new PublicError(errMessage);
+    throw err.name === 'PublicError' ? err : new PublicError(errMessage);
   }
 }

@@ -82,6 +82,7 @@ export interface StoredHDAccount extends StoredAccountBase {
   hdIndex: number;
   tezosAddress: string;
   evmAddress: string;
+  groupId: string;
 }
 
 interface StoredManagedKTAccount extends StoredAccountBase {
@@ -116,6 +117,11 @@ export enum TempleAccountType {
   Ledger,
   ManagedKT,
   WatchOnly
+}
+
+export interface StoredHDGroup {
+  id: string;
+  name: string;
 }
 
 interface StoredNetworkBase {

@@ -29,3 +29,7 @@ const isMacOS = /Mac OS/.test(navigator.userAgent);
 export const searchHotkey = ` (${isMacOS ? '⌘' : 'Ctrl + '}K)`;
 
 export const ACCOUNT_ALREADY_EXISTS_ERR_MSG = 'Account already exists';
+
+export const AT_LEAST_ONE_HD_ACCOUNT_ERR_MSG = 'At least one HD account should remain';
+
+export const ACCOUNT_NAME_COLLISION_ERR_MSG = 'An account with the same name already exists in the group';

@@ -6,6 +6,7 @@ import * as Passworder from 'lib/temple/passworder';
 import { StoredAccount, TempleAccountType, TempleContact, TempleSettings } from 'lib/temple/types';
 import { TempleChainName } from 'temple/types';
 
+import { fetchMessage } from './helpers';
 import {
   generateCheck,
   fetchNewAccountName,
@@ -24,6 +25,8 @@ import {
 import {
   checkStrgKey,
   mnemonicStrgKey,
+  groupMnemonicStrgKey,
+  groupsStrgKey,
   accPrivKeyStrgKey,
   accPubKeyStrgKey,
   accountsStrgKey,
@@ -53,7 +56,7 @@ export const MIGRATIONS = [
 
     const newInitialAccount: LegacyTypes.TempleAccount = {
       type: TempleAccountType.HD,
-      name: await fetchNewAccountName(accounts),
+      name: await fetchNewAccountName(accounts, TempleAccountType.HD),
       publicKeyHash: tezosAcc.publicKey,
       hdIndex: hdAccIndex
     };
@@ -148,6 +151,10 @@ export const MIGRATIONS = [
     const mnemonic = await fetchAndDecryptOne<string>(mnemonicStrgKey, passKey);
 
     const toEncryptAndSave: [string, any][] = [];
+    const hdGroup = {
+      id: nanoid(),
+      name: await fetchMessage('hdGroupDefaultName', 'A')
+    };
 
     const newAccounts = accounts.map<StoredAccount>(account => {
       const tezosAddress = account.publicKeyHash;
@@ -158,7 +165,7 @@ export const MIGRATIONS = [
           const evmAcc = mnemonicToEvmAccountCreds(mnemonic, account.hdIndex);
           toEncryptAndSave.push(...buildEncryptAndSaveManyForAccount(evmAcc));
 
-          return { ...account, id, tezosAddress, evmAddress: evmAcc.address };
+          return { ...account, id, tezosAddress, evmAddress: evmAcc.address, groupId: hdGroup.id };
         case TempleAccountType.Imported:
           return { ...account, id, address: tezosAddress, chain: TempleChainName.Tezos };
         case TempleAccountType.WatchOnly:
@@ -172,7 +179,11 @@ export const MIGRATIONS = [
       return account;
     });
 
-    toEncryptAndSave.push([accountsStrgKey, newAccounts]);
+    toEncryptAndSave.push(
+      [accountsStrgKey, newAccounts],
+      [groupMnemonicStrgKey(hdGroup.id), mnemonic],
+      [groupsStrgKey, [hdGroup]]
+    );
     await encryptAndSaveMany(toEncryptAndSave, passKey);
 
     moveValueInStorage(ACCOUNT_PKH_STORAGE_KEY, ADS_VIEWER_TEZOS_ADDRESS_STORAGE_KEY);
