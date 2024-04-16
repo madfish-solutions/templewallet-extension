@@ -2,6 +2,7 @@ import retry from 'async-retry';
 import { debounce } from 'lodash';
 import memoizee from 'memoizee';
 
+import { configureAds } from 'lib/ads/configure-ads';
 import { ALL_ADS_RULES_STORAGE_KEY } from 'lib/constants';
 import { EnvVars } from 'lib/env';
 import { putToStorage } from 'lib/storage';
@@ -10,6 +11,7 @@ import { importExtensionAdsModule } from './import-extension-ads-module';
 
 const getApiInstance = memoizee(async () => {
   const { TempleWalletApi } = await importExtensionAdsModule();
+  await configureAds();
   return new TempleWalletApi(EnvVars.TEMPLE_WALLET_API_URL);
 });
 

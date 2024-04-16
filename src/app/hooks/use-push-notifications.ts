@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 
-import { initializeApp } from 'firebase/app';
-import { getMessaging, getToken } from 'firebase/messaging';
+import { initializeApp } from '@firebase/app';
+import { getMessaging, getToken } from '@firebase/messaging';
 import browser from 'webextension-polyfill';
 
 import { AnalyticsEventCategory, useAnalytics } from 'lib/analytics';
