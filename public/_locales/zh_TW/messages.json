@@ -391,9 +391,6 @@
       }
     }
   },
-  "accountsToRemoveConstraint": {
-    "message": "分層確定性帳戶無法移除。"
-  },
   "doNotSharePrivateKey": {
     "message": "<b>請勿</b>向任何人分享這組字元！他人可使用此組字元竊取您目前的帳戶。"
   },

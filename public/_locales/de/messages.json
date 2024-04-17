@@ -409,9 +409,6 @@
       }
     }
   },
-  "accountsToRemoveConstraint": {
-    "message": "Hierarchische deterministische Konten können nicht entfernt werden."
-  },
   "doNotSharePrivateKey": {
     "message": "<b>Teilen Sie diese Zeichensätze NICHT mit anderen</b>! Sie können verwendet werden, um Ihr aktuelles Konto zu stehlen."
   },

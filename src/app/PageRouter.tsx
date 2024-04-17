@@ -14,6 +14,7 @@ import Delegate from 'app/pages/Delegate';
 import Home from 'app/pages/Home/Home';
 import ImportAccount from 'app/pages/ImportAccount';
 import ManageAssets from 'app/pages/ManageAssets';
+import { CreateAnotherWallet } from 'app/pages/NewWallet/CreateAnotherWallet';
 import { CreateWallet } from 'app/pages/NewWallet/CreateWallet';
 import { ImportWallet } from 'app/pages/NewWallet/ImportWallet';
 import AttentionPage from 'app/pages/Onboarding/pages/AttentionPage';
@@ -76,6 +77,7 @@ const ROUTE_MAP = Woozie.createMap<RouteContext>([
   ['/', (_p, ctx) => (ctx.ready ? <Home /> : <Welcome />)],
   ['/explore/:assetSlug?', onlyReady(({ assetSlug }) => <Home assetSlug={assetSlug} />)],
   ['/create-wallet', onlyNotReady(() => <CreateWallet />)],
+  ['/create-another-wallet', onlyReady(() => <CreateAnotherWallet />)],
   ['/create-account', onlyReady(() => <CreateAccount />)],
   ['/import-account/:tabSlug?', onlyReady(({ tabSlug }) => <ImportAccount tabSlug={tabSlug} />)],
   ['/connect-ledger', onlyReady(onlyInFullPage(() => <ConnectLedger />))],

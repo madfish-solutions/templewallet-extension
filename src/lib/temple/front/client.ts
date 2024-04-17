@@ -10,7 +10,8 @@ import {
   TempleStatus,
   TempleNotification,
   TempleSettings,
-  DerivationType
+  DerivationType,
+  TempleAccountType
 } from 'lib/temple/types';
 import {
   intercomClient,
@@ -75,7 +76,7 @@ export const [TempleClientProvider, useTempleClient] = constate(() => {
    * Aliases
    */
 
-  const { status, networks: defaultNetworks, accounts, settings } = state;
+  const { status, networks: defaultNetworks, accounts, settings, hdGroups } = state;
   const idle = status === TempleStatus.Idle;
   const locked = status === TempleStatus.Locked;
   const ready = status === TempleStatus.Ready;
@@ -114,18 +115,18 @@ export const [TempleClientProvider, useTempleClient] = constate(() => {
     assertResponse(res.type === TempleMessageType.LockResponse);
   }, []);
 
-  const createAccount = useCallback(async (name?: string) => {
+  const createAccount = useCallback(async (groupId: string, name?: string) => {
     const res = await request({
       type: TempleMessageType.CreateAccountRequest,
+      groupId,
       name
     });
     assertResponse(res.type === TempleMessageType.CreateAccountResponse);
   }, []);
 
-  const revealPrivateKey = useCallback(async (chain: TempleChainName, address: string, password: string) => {
+  const revealPrivateKey = useCallback(async (address: string, password: string) => {
     const res = await request({
       type: TempleMessageType.RevealPrivateKeyRequest,
-      chain,
       address,
       password
     });
@@ -133,9 +134,10 @@ export const [TempleClientProvider, useTempleClient] = constate(() => {
     return res.privateKey;
   }, []);
 
-  const revealMnemonic = useCallback(async (password: string) => {
+  const revealMnemonic = useCallback(async (groupId: string, password: string) => {
     const res = await request({
       type: TempleMessageType.RevealMnemonicRequest,
+      groupId,
       password
     });
     assertResponse(res.type === TempleMessageType.RevealMnemonicResponse);
@@ -240,6 +242,44 @@ export const [TempleClientProvider, useTempleClient] = constate(() => {
     assertResponse(res.type === TempleMessageType.UpdateSettingsResponse);
   }, []);
 
+  const removeHdGroup = useCallback(async (id: string, password: string) => {
+    const res = await request({
+      type: TempleMessageType.RemoveHdGroupRequest,
+      id,
+      password
+    });
+    assertResponse(res.type === TempleMessageType.RemoveHdGroupResponse);
+  }, []);
+
+  const removeAccountsByType = useCallback(
+    async (type: Exclude<TempleAccountType, TempleAccountType.HD>, password: string) => {
+      const res = await request({
+        type: TempleMessageType.RemoveAccountsByTypeRequest,
+        accountsType: type,
+        password
+      });
+      assertResponse(res.type === TempleMessageType.RemoveAccountsByTypeResponse);
+    },
+    []
+  );
+
+  const createOrImportWallet = useCallback(async (mnemonic?: string) => {
+    const res = await request({
+      type: TempleMessageType.CreateOrImportWalletRequest,
+      mnemonic
+    });
+    assertResponse(res.type === TempleMessageType.CreateOrImportWalletResponse);
+  }, []);
+
+  const editHdGroupName = useCallback(async (id: string, name: string) => {
+    const res = await request({
+      type: TempleMessageType.EditGroupNameRequest,
+      id,
+      name
+    });
+    assertResponse(res.type === TempleMessageType.EditGroupNameResponse);
+  }, []);
+
   const confirmInternal = useCallback(
     async (id: string, confirmed: boolean, modifiedTotalFee?: number, modifiedStorageLimit?: number) => {
       const res = await request({
@@ -323,6 +363,7 @@ export const [TempleClientProvider, useTempleClient] = constate(() => {
     customNetworks,
     networks,
     accounts,
+    hdGroups,
     settings,
     idle,
     locked,
@@ -348,6 +389,10 @@ export const [TempleClientProvider, useTempleClient] = constate(() => {
     importWatchOnlyAccount,
     createLedgerAccount,
     updateSettings,
+    removeHdGroup,
+    removeAccountsByType,
+    createOrImportWallet,
+    editHdGroupName,
     confirmInternal,
     getDAppPayload,
     confirmDAppPermission,

@@ -409,9 +409,6 @@
       }
     }
   },
-  "accountsToRemoveConstraint": {
-    "message": "Hiyerarşik Belirleyici hesaplar kaldırılamıyor."
-  },
   "doNotSharePrivateKey": {
     "message": "Bu karakter dizisini kimseyle <b>PAYLAŞMAYIN</b>! Mevcut hesabınızı çalmak için kullanılabilir."
   },

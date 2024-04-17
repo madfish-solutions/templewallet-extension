@@ -66,7 +66,7 @@ const processRequest = async (req: TempleRequest, port: Runtime.Port): Promise<T
       return { type: TempleMessageType.LockResponse };
 
     case TempleMessageType.CreateAccountRequest:
-      await Actions.createHDAccount(req.name);
+      await Actions.createHDAccount(req.groupId, req.name);
       return { type: TempleMessageType.CreateAccountResponse };
 
     case TempleMessageType.RevealPublicKeyRequest:
@@ -77,14 +77,14 @@ const processRequest = async (req: TempleRequest, port: Runtime.Port): Promise<T
       };
 
     case TempleMessageType.RevealPrivateKeyRequest:
-      const privateKey = await Actions.revealPrivateKey(req.chain, req.address, req.password);
+      const privateKey = await Actions.revealPrivateKey(req.address, req.password);
       return {
         type: TempleMessageType.RevealPrivateKeyResponse,
         privateKey
       };
 
     case TempleMessageType.RevealMnemonicRequest:
-      const mnemonic = await Actions.revealMnemonic(req.password);
+      const mnemonic = await Actions.revealMnemonic(req.groupId, req.password);
       return {
         type: TempleMessageType.RevealMnemonicResponse,
         mnemonic
@@ -149,6 +149,30 @@ const processRequest = async (req: TempleRequest, port: Runtime.Port): Promise<T
       await Actions.updateSettings(req.settings);
       return {
         type: TempleMessageType.UpdateSettingsResponse
+      };
+
+    case TempleMessageType.RemoveHdGroupRequest:
+      await Actions.removeHdGroup(req.id, req.password);
+      return {
+        type: TempleMessageType.RemoveHdGroupResponse
+      };
+
+    case TempleMessageType.RemoveAccountsByTypeRequest:
+      await Actions.removeAccountsByType(req.accountsType, req.password);
+      return {
+        type: TempleMessageType.RemoveAccountsByTypeResponse
+      };
+
+    case TempleMessageType.CreateOrImportWalletRequest:
+      await Actions.createOrImportWallet(req.mnemonic);
+      return {
+        type: TempleMessageType.CreateOrImportWalletResponse
+      };
+
+    case TempleMessageType.EditGroupNameRequest:
+      await Actions.editGroupName(req.id, req.name);
+      return {
+        type: TempleMessageType.EditGroupNameResponse
       };
 
     case TempleMessageType.OperationsRequest:

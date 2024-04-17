@@ -48,7 +48,7 @@ export const ByPrivateKeyForm = memo(() => {
   );
 
   const keyValue = watch('privateKey');
-  const encrypted = useMemo(() => isTezosPrivateKey(keyValue) && keyValue?.substring(2, 3) === 'e', [keyValue]);
+  const encrypted = useMemo(() => isTezosPrivateKey(keyValue) && keyValue.substring(2, 3) === 'e', [keyValue]);
 
   return (
     <form className="w-full max-w-sm mx-auto my-8" onSubmit={handleSubmit(onSubmit)}>
@@ -106,4 +106,4 @@ function toPrivateKeyWithChain(value: string): [string, TempleChainName] {
   return [value, TempleChainName.EVM];
 }
 
-const isTezosPrivateKey = (value: string) => value.startsWith('edsk');
+const isTezosPrivateKey = (value?: string): value is `edsk${string}` => value?.startsWith('edsk') ?? false;

@@ -17,6 +17,7 @@ import Portal from 'lib/ui/Portal';
 import { HistoryAction, navigate } from 'lib/woozie';
 import { useCurrentAccountId, useTezosNetwork, useRelevantAccounts } from 'temple/front';
 import { searchAndFilterAccounts } from 'temple/front/accounts';
+import { useAccountsGroups } from 'temple/front/groups';
 
 import { AccountItem } from './AccountItem';
 
@@ -41,6 +42,7 @@ export const ShortcutAccountSwitchOverlay = memo(() => {
     () => (searchValue.length ? searchAndFilterAccounts(allAccounts, searchValue) : allAccounts),
     [searchValue, allAccounts]
   );
+  const filteredGroups = useAccountsGroups(filteredAccounts);
 
   const handleAccountClick = useCallback(
     (id: string) => {
@@ -170,16 +172,21 @@ export const ShortcutAccountSwitchOverlay = memo(() => {
                       <SadSearchIcon />
                     </div>
                   ) : (
-                    filteredAccounts.map((acc, index) => (
-                      <AccountItem
-                        key={acc.id}
-                        account={acc}
-                        focused={focusedAccountItemIndex === index}
-                        gasTokenName={gasTokenName}
-                        arrayIndex={index}
-                        itemsArrayRef={accountItemsRef}
-                        onClick={() => handleAccountClick(acc.id)}
-                      />
+                    filteredGroups.map(({ id, name, accounts }) => (
+                      <React.Fragment key={id}>
+                        <div className="text-sm font-medium text-gray-500">{name}</div>
+                        {accounts.map(acc => (
+                          <AccountItem
+                            key={acc.id}
+                            account={acc}
+                            focused={filteredAccounts[focusedAccountItemIndex]?.id === acc.id}
+                            gasTokenName={gasTokenName}
+                            arrayIndex={filteredAccounts.findIndex(a => a.id === acc.id)}
+                            itemsArrayRef={accountItemsRef}
+                            onClick={() => handleAccountClick(acc.id)}
+                          />
+                        ))}
+                      </React.Fragment>
                     ))
                   )}
                 </div>

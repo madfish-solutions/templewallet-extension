@@ -406,7 +406,7 @@
     }
   },
   "accountsToRemoveConstraint": {
-    "message": "Hierarchical Deterministic accounts cannot be removed."
+    "message": "The only Hierarchical Deterministic account cannot be removed."
   },
   "doNotSharePrivateKey": {
     "message": "<b>DO NOT share</b> this set of chars with anyone! It can be used to steal your current account."

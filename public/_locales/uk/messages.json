@@ -120,7 +120,7 @@
     "message": "Розширення буде заблоковане після 5 хвилин відсутності активності."
   },
   "importedAccount": {
-    "message": "Імпортовані"
+    "message": "Імпортований"
   },
   "networks": {
     "message": "Мережі"
@@ -409,7 +409,7 @@
     }
   },
   "accountsToRemoveConstraint": {
-    "message": "Hierarchical Deterministic аккаунти не можуть бути видалені."
+    "message": "Не можна видалити єдиний Hierarchical Deterministic аккаунт."
   },
   "doNotSharePrivateKey": {
     "message": "<b>Не ділись</b> цим набором символів з ким завгодно! З їх домогою можна вкрасти ваш поточний аккаунт!."
@@ -1083,7 +1083,7 @@
     "message": "Неможливо видалити"
   },
   "importedPlural": {
-    "message": "імпортований"
+    "message": "Імпортовані"
   },
   "enterPasswordToRemoveAccount": {
     "message": "Введіть пароль для видалення аккаунту."

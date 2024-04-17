@@ -34,6 +34,7 @@ export interface TempleState {
   status: TempleStatus;
   accounts: StoredAccount[];
   networks: StoredNetwork[];
+  hdGroups: StoredHDGroup[];
   settings: TempleSettings | null;
 }
 
@@ -122,6 +123,11 @@ export enum TempleAccountType {
 export interface StoredHDGroup {
   id: string;
   name: string;
+}
+
+export interface DisplayedGroup extends StoredHDGroup {
+  accounts: StoredAccount[];
+  type: TempleAccountType;
 }
 
 interface StoredNetworkBase {
@@ -281,6 +287,14 @@ export enum TempleMessageType {
   CreateLedgerAccountResponse = 'TEMPLE_CREATE_LEDGER_ACCOUNT_RESPONSE',
   UpdateSettingsRequest = 'TEMPLE_UPDATE_SETTINGS_REQUEST',
   UpdateSettingsResponse = 'TEMPLE_UPDATE_SETTINGS_RESPONSE',
+  RemoveHdGroupRequest = 'TEMPLE_REMOVE_HD_GROUP_REQUEST',
+  RemoveHdGroupResponse = 'TEMPLE_REMOVE_HD_GROUP_RESPONSE',
+  RemoveAccountsByTypeRequest = 'TEMPLE_REMOVE_ACCOUNTS_BY_TYPE_REQUEST',
+  RemoveAccountsByTypeResponse = 'TEMPLE_REMOVE_ACCOUNTS_BY_TYPE_RESPONSE',
+  CreateOrImportWalletRequest = 'TEMPLE_CREATE_OR_IMPORT_WALLET_REQUEST',
+  CreateOrImportWalletResponse = 'TEMPLE_CREATE_OR_IMPORT_WALLET_RESPONSE',
+  EditGroupNameRequest = 'TEMPLE_EDIT_GROUP_NAME_REQUEST',
+  EditGroupNameResponse = 'TEMPLE_EDIT_GROUP_NAME_RESPONSE',
   OperationsRequest = 'TEMPLE_OPERATIONS_REQUEST',
   OperationsResponse = 'TEMPLE_OPERATIONS_RESPONSE',
   SignRequest = 'TEMPLE_SIGN_REQUEST',
@@ -335,6 +349,10 @@ export type TempleRequest =
   | TempleSignRequest
   | TempleConfirmationRequest
   | TempleRemoveAccountRequest
+  | TempleRemoveHdGroupRequest
+  | TempleRemoveAccountsByTypeRequest
+  | TempleCreateOrImportWalletRequest
+  | TempleEditGroupNameRequest
   | TemplePageRequest
   | TempleDAppGetPayloadRequest
   | TempleDAppPermConfirmationRequest
@@ -368,6 +386,10 @@ export type TempleResponse =
   | TempleSignResponse
   | TempleConfirmationResponse
   | TempleRemoveAccountResponse
+  | TempleRemoveHdGroupResponse
+  | TempleRemoveAccountsByTypeResponse
+  | TempleCreateOrImportWalletResponse
+  | TempleEditGroupNameResponse
   | TemplePageResponse
   | TempleDAppGetPayloadResponse
   | TempleDAppPermConfirmationResponse
@@ -449,6 +471,7 @@ interface TempleLockResponse extends TempleMessageBase {
 
 interface TempleCreateAccountRequest extends TempleMessageBase {
   type: TempleMessageType.CreateAccountRequest;
+  groupId: string;
   name?: string;
 }
 
@@ -468,7 +491,6 @@ interface TempleRevealPublicKeyResponse extends TempleMessageBase {
 
 interface TempleRevealPrivateKeyRequest extends TempleMessageBase {
   type: TempleMessageType.RevealPrivateKeyRequest;
-  chain: TempleChainName;
   address: string;
   password: string;
 }
@@ -480,6 +502,7 @@ interface TempleRevealPrivateKeyResponse extends TempleMessageBase {
 
 interface TempleRevealMnemonicRequest extends TempleMessageBase {
   type: TempleMessageType.RevealMnemonicRequest;
+  groupId: string;
   password: string;
 }
 
@@ -591,6 +614,45 @@ interface TempleUpdateSettingsRequest extends TempleMessageBase {
 
 interface TempleUpdateSettingsResponse extends TempleMessageBase {
   type: TempleMessageType.UpdateSettingsResponse;
+}
+
+interface TempleRemoveHdGroupRequest extends TempleMessageBase {
+  type: TempleMessageType.RemoveHdGroupRequest;
+  id: string;
+  password: string;
+}
+
+interface TempleRemoveHdGroupResponse extends TempleMessageBase {
+  type: TempleMessageType.RemoveHdGroupResponse;
+}
+
+interface TempleRemoveAccountsByTypeRequest extends TempleMessageBase {
+  type: TempleMessageType.RemoveAccountsByTypeRequest;
+  accountsType: Exclude<TempleAccountType, TempleAccountType.HD>;
+  password: string;
+}
+
+interface TempleRemoveAccountsByTypeResponse extends TempleMessageBase {
+  type: TempleMessageType.RemoveAccountsByTypeResponse;
+}
+
+interface TempleCreateOrImportWalletRequest extends TempleMessageBase {
+  type: TempleMessageType.CreateOrImportWalletRequest;
+  mnemonic?: string;
+}
+
+interface TempleCreateOrImportWalletResponse extends TempleMessageBase {
+  type: TempleMessageType.CreateOrImportWalletResponse;
+}
+
+interface TempleEditGroupNameRequest extends TempleMessageBase {
+  type: TempleMessageType.EditGroupNameRequest;
+  id: string;
+  name: string;
+}
+
+interface TempleEditGroupNameResponse extends TempleMessageBase {
+  type: TempleMessageType.EditGroupNameResponse;
 }
 
 interface TempleOperationsRequest extends TempleMessageBase {

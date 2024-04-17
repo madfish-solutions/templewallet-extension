@@ -17,7 +17,8 @@ import {
   TempleMessageType,
   TempleRequest,
   TempleSettings,
-  TempleSharedStorageKey
+  TempleSharedStorageKey,
+  TempleAccountType
 } from 'lib/temple/types';
 import { createQueue, delay } from 'lib/utils';
 import { loadTezosChainId } from 'temple/tezos';
@@ -44,11 +45,12 @@ import {
   accountsUpdated,
   settingsUpdated,
   withInited,
-  withUnlocked
+  withUnlocked,
+  hdGroupsUpdated
 } from './store';
 import { Vault } from './vault';
 
-const ACCOUNT_NAME_PATTERN = /^.{0,16}$/;
+const ACCOUNT_OR_GROUP_NAME_PATTERN = /^.{0,16}$/;
 const AUTODECLINE_AFTER = 60_000;
 const BEACON_ID = `temple_wallet_${browser.runtime.id}`;
 let initLocked = false;
@@ -114,7 +116,8 @@ export function unlock(password: string) {
       const vault = await Vault.setup(password, BACKGROUND_IS_WORKER);
       const accounts = await vault.fetchAccounts();
       const settings = await vault.fetchSettings();
-      unlocked({ vault, accounts, settings });
+      const hdGroups = await vault.fetchHdGroups();
+      unlocked({ vault, accounts, settings, hdGroups });
     })
   );
 }
@@ -125,34 +128,35 @@ export async function unlockFromSession() {
     if (vault == null) return;
     const accounts = await vault.fetchAccounts();
     const settings = await vault.fetchSettings();
-    unlocked({ vault, accounts, settings });
+    const hdGroups = await vault.fetchHdGroups();
+    unlocked({ vault, accounts, settings, hdGroups });
   });
 }
 
-export function createHDAccount(name?: string) {
+export function createHDAccount(groupId: string, name?: string) {
   return withUnlocked(async ({ vault }) => {
     if (name) {
       name = name.trim();
-      if (!ACCOUNT_NAME_PATTERN.test(name)) {
+      if (!ACCOUNT_OR_GROUP_NAME_PATTERN.test(name)) {
         throw new Error('Invalid name. It should be: 1-16 characters, without special');
       }
     }
 
-    const updatedAccounts = await vault.createHDAccount(name);
+    const updatedAccounts = await vault.createHDAccount(groupId, name);
     accountsUpdated(updatedAccounts);
   });
 }
 
-export function revealMnemonic(password: string) {
-  return withUnlocked(() => Vault.revealMnemonic(password));
+export function revealMnemonic(groupId: string, password: string) {
+  return withUnlocked(() => Vault.revealMnemonic(groupId, password));
 }
 
 export function generateSyncPayload(password: string) {
   return withUnlocked(() => Vault.generateSyncPayload(password));
 }
 
-export function revealPrivateKey(chain: TempleChainName, address: string, password: string) {
-  return withUnlocked(() => Vault.revealPrivateKey(chain, address, password));
+export function revealPrivateKey(address: string, password: string) {
+  return withUnlocked(() => Vault.revealPrivateKey(address, password));
 }
 
 export function revealPublicKey(accountAddress: string) {
@@ -161,15 +165,16 @@ export function revealPublicKey(accountAddress: string) {
 
 export function removeAccount(id: string, password: string) {
   return withUnlocked(async () => {
-    const updatedAccounts = await Vault.removeAccount(id, password);
-    accountsUpdated(updatedAccounts);
+    const { newAccounts, newHdGroups } = await Vault.removeAccount(id, password);
+    accountsUpdated(newAccounts);
+    hdGroupsUpdated(newHdGroups);
   });
 }
 
 export function editAccount(id: string, name: string) {
   return withUnlocked(async ({ vault }) => {
     name = name.trim();
-    if (!ACCOUNT_NAME_PATTERN.test(name)) {
+    if (!ACCOUNT_OR_GROUP_NAME_PATTERN.test(name)) {
       throw new Error('Invalid name. It should be: 1-16 characters, without special');
     }
 
@@ -225,6 +230,41 @@ export function updateSettings(settings: Partial<TempleSettings>) {
     const updatedSettings = await vault.updateSettings(settings);
     createCustomNetworksSnapshot(updatedSettings);
     settingsUpdated(updatedSettings);
+  });
+}
+
+export function removeHdGroup(id: string, password: string) {
+  return withUnlocked(async () => {
+    const { newAccounts, newHdGroups } = await Vault.removeHdGroup(id, password);
+    accountsUpdated(newAccounts);
+    hdGroupsUpdated(newHdGroups);
+  });
+}
+
+export function removeAccountsByType(type: Exclude<TempleAccountType, TempleAccountType.HD>, password: string) {
+  return withUnlocked(async () => {
+    const newAccounts = await Vault.removeAccountsByType(type, password);
+    accountsUpdated(newAccounts);
+  });
+}
+
+export function createOrImportWallet(mnemonic?: string) {
+  return withUnlocked(async ({ vault }) => {
+    const { newAccounts, newHdGroups } = await vault.createOrImportWallet(mnemonic);
+    hdGroupsUpdated(newHdGroups);
+    accountsUpdated(newAccounts);
+  });
+}
+
+export function editGroupName(id: string, name: string) {
+  return withUnlocked(async ({ vault }) => {
+    name = name.trim();
+    if (!ACCOUNT_OR_GROUP_NAME_PATTERN.test(name)) {
+      throw new Error('Invalid name. It should be: 1-16 characters, without special');
+    }
+
+    const newHdGroups = await vault.editGroupName(id, name);
+    hdGroupsUpdated(newHdGroups);
   });
 }
 

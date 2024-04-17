@@ -1,6 +1,6 @@
 import { createStore, createEvent } from 'effector';
 
-import { TempleState, TempleStatus, StoredAccount, TempleSettings } from 'lib/temple/types';
+import { TempleState, TempleStatus, StoredAccount, TempleSettings, StoredHDGroup } from 'lib/temple/types';
 import { TEZOS_NETWORKS } from 'temple/networks';
 
 import { Vault } from './vault';
@@ -14,12 +14,13 @@ interface UnlockedStoreState extends StoreState {
   vault: Vault;
 }
 
-export function toFront({ status, accounts, networks, settings }: StoreState): TempleState {
+export function toFront({ status, accounts, networks, settings, hdGroups }: StoreState): TempleState {
   return {
     status,
     accounts,
     networks,
-    settings
+    settings,
+    hdGroups
   };
 }
 
@@ -35,9 +36,12 @@ export const unlocked = createEvent<{
   vault: Vault;
   accounts: StoredAccount[];
   settings: TempleSettings;
+  hdGroups: StoredHDGroup[];
 }>('Unlocked');
 
 export const accountsUpdated = createEvent<StoredAccount[]>('Accounts updated');
+
+export const hdGroupsUpdated = createEvent<StoredHDGroup[]>('HD groups updated');
 
 export const settingsUpdated = createEvent<TempleSettings>('Settings updated');
 
@@ -51,6 +55,7 @@ export const store = createStore<StoreState>({
   status: TempleStatus.Idle,
   accounts: [],
   networks: [],
+  hdGroups: [],
   settings: null
 })
   .on(inited, (state, vaultExist) => ({
@@ -69,19 +74,25 @@ export const store = createStore<StoreState>({
     vault: null,
     status: TempleStatus.Locked,
     accounts: [],
+    hdGroups: [],
     networks: TEZOS_NETWORKS,
     settings: null
   }))
-  .on(unlocked, (state, { vault, accounts, settings }) => ({
+  .on(unlocked, (state, { vault, accounts, settings, hdGroups }) => ({
     ...state,
     vault,
     status: TempleStatus.Ready,
     accounts,
-    settings
+    settings,
+    hdGroups
   }))
   .on(accountsUpdated, (state, accounts) => ({
     ...state,
     accounts
+  }))
+  .on(hdGroupsUpdated, (state, hdGroups) => ({
+    ...state,
+    hdGroups
   }))
   .on(settingsUpdated, (state, settings) => ({
     ...state,

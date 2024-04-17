@@ -10,7 +10,9 @@ import PageLayout from 'app/layouts/PageLayout';
 import { useFormAnalytics } from 'lib/analytics';
 import { T, t } from 'lib/i18n';
 import { useTempleClient } from 'lib/temple/front';
-import { TempleAccountType } from 'lib/temple/types';
+import { useAccount } from 'lib/temple/front/ready';
+import { fetchNewAccountNameSync } from 'lib/temple/helpers';
+import { StoredHDAccount, TempleAccountType } from 'lib/temple/types';
 import { delay } from 'lib/utils';
 
 import { CreateAccountSelectors } from './CreateAccount.selectors';
@@ -23,18 +25,26 @@ const SUBMIT_ERROR_TYPE = 'submit-error';
 
 const CreateAccount: FC = () => {
   const { createAccount } = useTempleClient();
-  const formAnalytics = useFormAnalytics('CreateAccount');
-
   const allAccounts = useAllAccountsReactiveOnAddition();
+  const currentAccount = useAccount();
 
-  const allHDOrImported = useMemo(
-    () => allAccounts.filter(acc => [TempleAccountType.HD, TempleAccountType.Imported].includes(acc.type)),
+  const fallbackGroupId = useMemo(
+    () => allAccounts.find((acc): acc is StoredHDAccount => acc.type === TempleAccountType.HD)!.groupId,
     [allAccounts]
   );
 
+  const newAccountGroupId = currentAccount.type === TempleAccountType.HD ? currentAccount.groupId : fallbackGroupId;
+  const formAnalytics = useFormAnalytics('CreateAccount');
+
   const defaultName = useMemo(
-    () => t('defaultAccountName', String(allHDOrImported.length + 1)),
-    [allHDOrImported.length]
+    () =>
+      fetchNewAccountNameSync(
+        allAccounts,
+        TempleAccountType.HD,
+        i => t('defaultAccountName', String(i)),
+        newAccountGroupId
+      ),
+    [allAccounts, newAccountGroupId]
   );
 
   const { register, handleSubmit, errors, setError, clearError, formState } = useForm<FormData>({
@@ -50,7 +60,7 @@ const CreateAccount: FC = () => {
 
       formAnalytics.trackSubmit();
       try {
-        await createAccount(name);
+        await createAccount(newAccountGroupId, name);
 
         formAnalytics.trackSubmitSuccess();
       } catch (err: any) {
@@ -63,7 +73,7 @@ const CreateAccount: FC = () => {
         setError('name', SUBMIT_ERROR_TYPE, err.message);
       }
     },
-    [submitting, clearError, setError, createAccount, formAnalytics]
+    [submitting, clearError, formAnalytics, createAccount, newAccountGroupId, setError]
   );
 
   return (

@@ -1,5 +1,7 @@
 import BigNumber from 'bignumber.js';
 
+import { StoredAccount, StoredHDGroup, TempleAccountType } from './types';
+
 export function usdToAssetAmount(
   usd?: BigNumber,
   assetUsdPrice?: number,
@@ -54,4 +56,91 @@ export function toExcelColumnName(n: number) {
   }
 
   return columnName;
+}
+
+function getSameGroupAccounts(allAccounts: StoredAccount[], accountType: TempleAccountType, groupId?: string) {
+  return allAccounts.filter(
+    acc => acc.type === accountType && (acc.type !== TempleAccountType.HD || acc.groupId === groupId)
+  );
+}
+
+function pickUniqueNameSync(
+  startIndex: number,
+  getNameCandidate: (i: number) => string,
+  isUnique: (name: string) => boolean
+) {
+  for (let i = startIndex; ; i++) {
+    const nameCandidate = getNameCandidate(i);
+    if (isUnique(nameCandidate)) {
+      return nameCandidate;
+    }
+  }
+}
+
+async function pickUniqueName(
+  startIndex: number,
+  getNameCandidate: (i: number) => Promise<string>,
+  isUnique: (name: string) => boolean
+) {
+  for (let i = startIndex; ; i++) {
+    const nameCandidate = await getNameCandidate(i);
+    if (isUnique(nameCandidate)) {
+      return nameCandidate;
+    }
+  }
+}
+
+export function isNameCollision(
+  allAccounts: StoredAccount[],
+  accountType: TempleAccountType,
+  name: string,
+  groupId?: string
+) {
+  return getSameGroupAccounts(allAccounts, accountType, groupId).some(acc => acc.name === name);
+}
+
+export function fetchNewAccountNameSync(
+  allAccounts: StoredAccount[],
+  newAccountType: TempleAccountType,
+  getNameCandidate: (i: number) => string,
+  newAccountGroupId?: string
+) {
+  const sameGroupAccounts = getSameGroupAccounts(allAccounts, newAccountType, newAccountGroupId);
+
+  return pickUniqueNameSync(
+    sameGroupAccounts.length + 1,
+    getNameCandidate,
+    name => !isNameCollision(allAccounts, newAccountType, name, newAccountGroupId)
+  );
+}
+
+export async function fetchNewAccountName(
+  allAccounts: StoredAccount[],
+  newAccountType: TempleAccountType,
+  getNameCandidate: (i: number) => Promise<string>,
+  newAccountGroupId?: string
+) {
+  const sameGroupAccounts = getSameGroupAccounts(allAccounts, newAccountType, newAccountGroupId);
+
+  return await pickUniqueName(
+    sameGroupAccounts.length + 1,
+    getNameCandidate,
+    name => !isNameCollision(allAccounts, newAccountType, name, newAccountGroupId)
+  );
+}
+
+export function fetchNewGroupNameSync(allGroups: StoredHDGroup[], getNameCandidate: (i: number) => string) {
+  return pickUniqueNameSync(
+    allGroups.length + 1,
+    getNameCandidate,
+    name => !allGroups.some(group => group.name === name)
+  );
+}
+
+export async function fetchNewGroupName(allGroups: StoredHDGroup[], getNameCandidate: (i: number) => Promise<string>) {
+  return await pickUniqueName(
+    allGroups.length + 1,
+    getNameCandidate,
+    name => !allGroups.some(group => group.name === name)
+  );
 }

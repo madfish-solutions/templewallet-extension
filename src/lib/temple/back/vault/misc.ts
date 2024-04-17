@@ -6,6 +6,7 @@ import * as ViemAccounts from 'viem/accounts';
 import { isHex, toHex } from 'viem/utils';
 
 import { ACCOUNT_ALREADY_EXISTS_ERR_MSG } from 'lib/constants';
+import { fetchNewAccountName as genericFetchNewAccountName } from 'lib/temple/helpers';
 import { StoredAccount, TempleAccountType } from 'lib/temple/types';
 import { getAccountAddressForEvm, getAccountAddressForTezos } from 'temple/accounts';
 import { TempleChainName } from 'temple/types';
@@ -100,13 +101,12 @@ export async function fetchNewAccountName(
   newAccountGroupId?: string,
   templateI18nKey: NewAccountName = 'defaultAccountName'
 ) {
-  const sameGroupAccounts = getSameGroupAccounts(allAccounts, newAccountType, newAccountGroupId);
-  for (let i = sameGroupAccounts.length + 1; ; i++) {
-    const nameCandidate = await fetchMessage(templateI18nKey, String(i));
-    if (!isNameCollision(allAccounts, newAccountType, nameCandidate, newAccountGroupId)) {
-      return nameCandidate;
-    }
-  }
+  return genericFetchNewAccountName(
+    allAccounts,
+    newAccountType,
+    i => fetchMessage(templateI18nKey, String(i)),
+    newAccountGroupId
+  );
 }
 
 export function canRemoveAccounts(allAccounts: StoredAccount[], accountsToRemove: StoredAccount[]) {

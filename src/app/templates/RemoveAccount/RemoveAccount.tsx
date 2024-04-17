@@ -1,4 +1,4 @@
-import React, { memo, useCallback } from 'react';
+import React, { memo, useCallback, useMemo } from 'react';
 
 import { OnSubmit, useForm } from 'react-hook-form';
 
@@ -6,7 +6,7 @@ import { Alert, FormField, FormSubmitButton } from 'app/atoms';
 import { useAllAccountsReactiveOnRemoval } from 'app/hooks/use-all-accounts-reactive';
 import AccountBanner from 'app/templates/AccountBanner';
 import { T, t } from 'lib/i18n';
-import { useTempleClient } from 'lib/temple/front';
+import { useAllAccounts, useTempleClient } from 'lib/temple/front';
 import { TempleAccountType } from 'lib/temple/types';
 import { useAccount } from 'temple/front';
 
@@ -22,6 +22,11 @@ const RemoveAccount = memo(() => {
   const { removeAccount } = useTempleClient();
 
   const account = useAccount();
+  const allAccounts = useAllAccounts();
+  const hdAccountsCount = useMemo(
+    () => allAccounts.filter(acc => acc.type === TempleAccountType.HD).length,
+    [allAccounts]
+  );
 
   useAllAccountsReactiveOnRemoval();
 
@@ -58,7 +63,7 @@ const RemoveAccount = memo(() => {
         className="mb-6"
       />
 
-      {account.type === TempleAccountType.HD ? (
+      {account.type === TempleAccountType.HD && hdAccountsCount === 1 ? (
         <Alert
           title={t('cannotBeRemoved')}
           description={

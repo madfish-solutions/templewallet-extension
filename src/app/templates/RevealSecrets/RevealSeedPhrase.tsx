@@ -1,9 +1,10 @@
 import React, { memo, useCallback } from 'react';
 
 import { T } from 'lib/i18n';
-import { useTempleClient } from 'lib/temple/front';
+import { useAllAccounts, useTempleClient } from 'lib/temple/front';
+import { StoredHDAccount, TempleAccountType } from 'lib/temple/types';
 import { useDidUpdate, useVanishingState } from 'lib/ui/hooks';
-import { useCurrentAccountId } from 'temple/front';
+import { useAccount } from 'temple/front';
 
 import { PasswordForRevealField } from './PasswordForRevealField';
 import { SecretField } from './SecretField';
@@ -11,16 +12,21 @@ import { SecretField } from './SecretField';
 export const RevealSeedPhrase = memo(() => {
   const { revealMnemonic } = useTempleClient();
 
-  const accountId = useCurrentAccountId();
+  const allAccounts = useAllAccounts();
+  const currentAccount = useAccount();
+  const groupId =
+    currentAccount.type === TempleAccountType.HD
+      ? currentAccount.groupId
+      : allAccounts.find((acc): acc is StoredHDAccount => acc.type === TempleAccountType.HD)!.groupId;
 
   const [secret, setSecret] = useVanishingState();
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  useDidUpdate(() => void setSecret(null), [accountId, setSecret]);
+  useDidUpdate(() => void setSecret(null), [currentAccount.id, setSecret]);
 
   const onPasswordSubmit = useCallback(
-    async (password: string) => revealMnemonic(password).then(scrt => void setSecret(scrt)),
-    [setSecret, revealMnemonic]
+    async (password: string) => revealMnemonic(groupId, password).then(scrt => void setSecret(scrt)),
+    [revealMnemonic, groupId, setSecret]
   );
 
   return (

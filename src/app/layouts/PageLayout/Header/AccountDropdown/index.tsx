@@ -18,11 +18,13 @@ import SearchField from 'app/templates/SearchField';
 import { useGasToken } from 'lib/assets/hooks';
 import { searchHotkey } from 'lib/constants';
 import { T, t } from 'lib/i18n';
-import { useTempleClient, useSetAccountId } from 'lib/temple/front';
+import { useTempleClient, useSetAccountId, useAllAccounts } from 'lib/temple/front';
+import { useAllGroups } from 'lib/temple/front/ready';
 import { PopperRenderProps } from 'lib/ui/Popper';
 import { HistoryAction, navigate } from 'lib/woozie';
 import { useCurrentAccountId, useTezosNetwork, useRelevantAccounts } from 'temple/front';
 import { searchAndFilterAccounts } from 'temple/front/accounts';
+import { useAccountsGroups } from 'temple/front/groups';
 
 import { AccountItem } from './AccountItem';
 import { ActionButtonProps, ActionButton } from './ActionButton';
@@ -36,6 +38,8 @@ const AccountDropdown = memo<PopperRenderProps>(({ opened, setOpened }) => {
   const appEnv = useAppEnv();
   const { lock } = useTempleClient();
   const { chainId } = useTezosNetwork();
+  const totalAllAccounts = useAllAccounts();
+  const allGroups = useAllGroups();
   const allAccounts = useRelevantAccounts(chainId);
   const currentAccountId = useCurrentAccountId();
   const setAccountId = useSetAccountId();
@@ -50,6 +54,9 @@ const AccountDropdown = memo<PopperRenderProps>(({ opened, setOpened }) => {
     () => (searchValue.length ? searchAndFilterAccounts(allAccounts, searchValue) : allAccounts),
     [searchValue, allAccounts]
   );
+  const filteredGroups = useAccountsGroups(filteredAccounts);
+
+  useEffect(() => console.log('oy vey 1', totalAllAccounts, allGroups), [totalAllAccounts, allGroups]);
 
   const closeDropdown = useCallback(() => {
     setOpened(false);
@@ -82,6 +89,14 @@ const AccountDropdown = memo<PopperRenderProps>(({ opened, setOpened }) => {
 
   const actions = useMemo(
     (): TDropdownAction[] => [
+      {
+        key: 'create-wallet',
+        Icon: AddIcon,
+        i18nKey: 'createWallet',
+        linkTo: '/create-another-wallet',
+        testID: AccountDropdownSelectors.createOrRestoreWalletButton,
+        onClick: closeDropdown
+      },
       {
         key: 'create-account',
         Icon: AddIcon,
@@ -204,15 +219,20 @@ const AccountDropdown = memo<PopperRenderProps>(({ opened, setOpened }) => {
                 <SadSearchIcon />
               </div>
             ) : (
-              filteredAccounts.map(acc => (
-                <AccountItem
-                  key={acc.id}
-                  account={acc}
-                  selected={acc.id === currentAccountId}
-                  gasTokenName={gasTokenName}
-                  attractSelf={attractSelectedAccount}
-                  onClick={handleAccountClick}
-                />
+              filteredGroups.map(({ id, name, accounts }) => (
+                <React.Fragment key={id}>
+                  <div className="text-sm font-medium text-gray-500">{name}</div>
+                  {accounts.map(acc => (
+                    <AccountItem
+                      key={acc.id}
+                      account={acc}
+                      selected={acc.id === currentAccountId}
+                      gasTokenName={gasTokenName}
+                      attractSelf={attractSelectedAccount}
+                      onClick={handleAccountClick}
+                    />
+                  ))}
+                </React.Fragment>
               ))
             )}
           </div>

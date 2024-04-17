@@ -2,9 +2,17 @@ import { useEffect, useLayoutEffect, useMemo } from 'react';
 
 import constate from 'constate';
 
-import { ReadyTempleState, TempleStatus, TempleState, TempleNotification, TempleMessageType } from 'lib/temple/types';
+import {
+  ReadyTempleState,
+  TempleStatus,
+  TempleState,
+  TempleNotification,
+  TempleMessageType,
+  DisplayedGroup
+} from 'lib/temple/types';
 import { useUpdatableRef } from 'lib/ui/hooks';
 import { getAccountAddressForTezos, getAccountForEvm, getAccountForTezos } from 'temple/accounts';
+import { getAllGroups } from 'temple/front/get-all-groups';
 import { intercomClient } from 'temple/front/intercom-client';
 
 import { useTempleClient } from './client';
@@ -23,7 +31,9 @@ export const [
   useAccountAddressForEvm,
   useAccountForEvm,
   useSetAccountId,
-  useSettings
+  useSettings,
+  useAllGroups,
+  useCurrentAccountGroup
 ] = constate(
   useReadyTemple,
   v => v.allNetworks,
@@ -37,14 +47,16 @@ export const [
   v => v.accountAddressForEvm,
   v => v.accountForEvm,
   v => v.setAccountId,
-  v => v.settings
+  v => v.settings,
+  v => v.allGroups,
+  v => v.currentAccountGroup
 );
 
 function useReadyTemple() {
   const templeFront = useTempleClient();
   assertReady(templeFront);
 
-  const { networks: allNetworks, accounts: allAccounts, settings } = templeFront;
+  const { networks: allNetworks, accounts: allAccounts, settings, hdGroups } = templeFront;
 
   /**
    * Networks
@@ -104,6 +116,12 @@ function useReadyTemple() {
   const accountAddressForEvm = accountForEvm?.address as HexString | undefined;
 
   /**
+   * Groups
+   */
+  const allGroups = useMemo<DisplayedGroup[]>(() => getAllGroups(hdGroups, allAccounts), [hdGroups, allAccounts]);
+  const currentAccountGroup = allGroups.find(g => g.accounts.some(acc => acc.id === accountId))!;
+
+  /**
    * Error boundary reset
    */
 
@@ -125,6 +143,8 @@ function useReadyTemple() {
     accountForTezos,
     accountAddressForEvm,
     accountForEvm,
+    allGroups,
+    currentAccountGroup,
     setAccountId,
 
     settings

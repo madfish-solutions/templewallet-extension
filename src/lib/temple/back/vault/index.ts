@@ -8,7 +8,7 @@ import { nanoid } from 'nanoid';
 import type * as WasmThemisPackageInterface from 'wasm-themis';
 
 import { AT_LEAST_ONE_HD_ACCOUNT_ERR_MSG, ACCOUNT_NAME_COLLISION_ERR_MSG } from 'lib/constants';
-import { formatOpParamsBeforeSend, toExcelColumnName } from 'lib/temple/helpers';
+import { fetchNewGroupName, formatOpParamsBeforeSend, isNameCollision, toExcelColumnName } from 'lib/temple/helpers';
 import * as Passworder from 'lib/temple/passworder';
 import { clearAsyncStorages } from 'lib/temple/reset';
 import { StoredAccount, StoredHDAccount, StoredHDGroup, TempleAccountType, TempleSettings } from 'lib/temple/types';
@@ -36,8 +36,7 @@ import {
   buildEncryptAndSaveManyForAccount,
   privateKeyToTezosAccountCreds,
   privateKeyToEvmAccountCreds,
-  canRemoveAccounts,
-  isNameCollision
+  canRemoveAccounts
 } from './misc';
 import {
   encryptAndSaveMany,
@@ -386,7 +385,7 @@ export class Vault {
     return fetchAndDecryptOne<StoredAccount[]>(accountsStrgKey, this.passKey);
   }
 
-  fetchHDGroups() {
+  fetchHdGroups() {
     return fetchAndDecryptOne<StoredHDGroup[]>(groupsStrgKey, this.passKey);
   }
 
@@ -403,7 +402,7 @@ export class Vault {
       const [mnemonic, allAccounts, hdGroups] = await Promise.all([
         fetchAndDecryptOne<string>(groupMnemonicStrgKey(groupId), this.passKey),
         this.fetchAccounts(),
-        this.fetchHDGroups()
+        this.fetchHdGroups()
       ]);
 
       if (!hdGroups.some(g => g.id === groupId)) {
@@ -459,7 +458,7 @@ export class Vault {
 
       const hdAccIndex = 0;
 
-      const hdGroups = await this.fetchHDGroups();
+      const hdGroups = await this.fetchHdGroups();
       const groupsMnemonics = await Promise.all(
         hdGroups.map(g => fetchAndDecryptOne<string>(groupMnemonicStrgKey(g.id), this.passKey))
       );
@@ -474,7 +473,7 @@ export class Vault {
 
       const newGroup = {
         id: nanoid(),
-        name: await fetchMessage('hdGroupDefaultName', toExcelColumnName(hdGroups.length)),
+        name: await fetchNewGroupName(hdGroups, i => fetchMessage('hdGroupDefaultName', toExcelColumnName(i))),
         hdIndex: hdAccIndex
       };
       const newAccount: StoredAccount = {
@@ -678,7 +677,7 @@ export class Vault {
 
   async editGroupName(id: string, name: string) {
     return withError('Failed to edit group name', async () => {
-      const hdGroups = await this.fetchHDGroups();
+      const hdGroups = await this.fetchHdGroups();
       const group = hdGroups.find(g => g.id === id);
 
       if (!group) {

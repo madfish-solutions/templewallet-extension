@@ -391,9 +391,6 @@
       }
     }
   },
-  "accountsToRemoveConstraint": {
-    "message": "階層的決定性アカウントは削除できません。"
-  },
   "doNotSharePrivateKey": {
     "message": "この文字セットを誰とも<b>共有しないでください</b>！現在のアカウントを乗っ取られる恐れがあります。"
   },
