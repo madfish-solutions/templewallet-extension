@@ -37,21 +37,20 @@ export const AppTezosTokensMetadataLoading = memo<{ publicKeyHash: string }>(({ 
 
         if (!slugsWithoutMeta.length) return null;
 
+        checkedRef.current = checkedRef.current.concat(slugsWithoutMeta);
+
         if (!willLoad) {
           willLoad = true;
           dispatch(setTokensMetadataLoadingAction(true));
         }
 
         return loadTokensMetadata(network.rpcBaseURL, slugsWithoutMeta).then(
-          fetchedMetadata => {
-            checkedRef.current = checkedRef.current.concat(slugsWithoutMeta);
-            dispatch(putTokensMetadataAction({ records: fetchedMetadata }));
-          },
+          fetchedMetadata => void dispatch(putTokensMetadataAction({ records: fetchedMetadata })),
           error => void console.error(error)
         );
       })
     ).then(() => void dispatch(setTokensMetadataLoadingAction(false)));
-  }, [allTezosNetworks, allTokens, getMetadata, isLoading, publicKeyHash]);
+  }, [allTezosNetworks, allTokens, publicKeyHash]);
 
   return null;
 });

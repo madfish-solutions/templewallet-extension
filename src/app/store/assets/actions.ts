@@ -24,7 +24,7 @@ export const setAssetsIsLoadingAction = createAction<{
   type: 'tokens' | 'collectibles';
   value: boolean;
   resetError?: true;
-}>('assets/SET_TOKEN_STATUS');
+}>('assets/SET_ASSETS_IS_LOADING');
 
 type SetAssetStatusPayload = AccountAssetForStore;
 
@@ -34,9 +34,11 @@ export const setCollectibleStatusAction = createAction<SetAssetStatusPayload>('a
 
 export type AssetToPut = AccountAssetForStore & StoredAsset;
 
-export const addAccountTokensAction = createAction<LoadAssetsPayload & { slugs: string[] }>('assets/ADD_TOKENS');
+export const addAccountTokensAction = createAction<LoadAssetsPayload & { slugs: string[] }>(
+  'assets/ADD_ACCOUNT_TOKENS'
+);
 export const addAccountCollectiblesAction = createAction<LoadAssetsPayload & { slugs: string[] }>(
-  'assets/ADD_COLLECTIBLES'
+  'assets/ADD_ACCOUNT_COLLECTIBLES'
 );
 
 export const putTokensAsIsAction = createAction<AssetToPut[]>('assets/PUT_TOKENS_AS_IS');

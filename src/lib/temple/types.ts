@@ -35,7 +35,7 @@ export enum TempleTezosChainId {
   Mumbai = 'NetXgbcrNtXD2yA',
   Nairobi = 'NetXyuzvDo2Ugzb',
   Dcp = 'NetXooyhiru73tk',
-  DcpTest = 'NetXX7Tz1sK8JTa'
+  DcpTest = 'NetXZb3Lz8FsrZx'
 }
 
 export enum TempleStatus {

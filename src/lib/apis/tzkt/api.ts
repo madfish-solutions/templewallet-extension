@@ -3,6 +3,7 @@ import axios, { AxiosError } from 'axios';
 
 import { toTokenSlug } from 'lib/assets';
 import { delay } from 'lib/utils';
+import { isTezosDcpChainId } from 'temple/networks';
 
 import { TZKT_API_BASE_URLS } from './misc';
 import {
@@ -27,8 +28,8 @@ export function isKnownChainId(chainId?: string | null): chainId is TzktApiChain
   return chainId != null && KNOWN_CHAIN_IDS.includes(chainId);
 }
 
-export const createTzktWsConnection = (chainId: TzktApiChainId): TzktHubConnection =>
-  new HubConnectionBuilder().withUrl(`${TZKT_API_BASE_URLS[chainId]}/ws`).build();
+export const createTzktWsConnection = (chainId: TzktApiChainId): TzktHubConnection | null =>
+  isTezosDcpChainId(chainId) ? null : new HubConnectionBuilder().withUrl(`${TZKT_API_BASE_URLS[chainId]}/ws`).build();
 
 const api = axios.create();
 

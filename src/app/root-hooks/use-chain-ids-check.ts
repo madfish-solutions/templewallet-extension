@@ -20,7 +20,9 @@ export const useChainIDsCheck = () => {
       Object.values(tezosNetworks).forEach(network =>
         new RpcClient(network.rpcBaseURL).getChainId().then(chainId => {
           if (chainId !== network.chainId)
-            alert(`Warning! Tezos RPC '${network.name}'(${network.rpcBaseURL}) has changed its network.`);
+            alert(
+              `Warning! Tezos RPC '${network.name}'(${network.rpcBaseURL}) has changed its network (${chainId} !== ${network.chainId}).`
+            );
         })
       ),
     [tezosNetworks]
@@ -37,7 +39,9 @@ export const useChainIDsCheck = () => {
           .getChainId()
           .then(chainId => {
             if (chainId !== network.chainId)
-              alert(`Warning! EVM RPC '${network.name}'(${network.rpcBaseURL}) has changed its network.`);
+              alert(
+                `Warning! EVM RPC '${network.name}'(${network.rpcBaseURL}) has changed its network. (${chainId} !== ${network.chainId})`
+              );
           })
       ),
     [evmNetworks]

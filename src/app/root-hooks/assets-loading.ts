@@ -66,7 +66,7 @@ export const AppTezosAssetsLoading = memo<{ publicKeyHash: string }>(({ publicKe
         })
       ).then(() => void dispatch(setAssetsIsLoadingAction({ type: 'tokens', value: false })));
     },
-    [tokensAreLoading, publicKeyHash, networks],
+    [networks, publicKeyHash],
     ASSETS_SYNC_INTERVAL
   );
 
@@ -94,7 +94,7 @@ export const AppTezosAssetsLoading = memo<{ publicKeyHash: string }>(({ publicKe
         })
       ).then(() => void dispatch(setAssetsIsLoadingAction({ type: 'collectibles', value: false })));
     },
-    [collectiblesAreLoading, publicKeyHash, networks],
+    [networks, publicKeyHash],
     ASSETS_SYNC_INTERVAL
   );
 

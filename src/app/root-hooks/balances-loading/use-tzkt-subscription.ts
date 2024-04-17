@@ -90,7 +90,7 @@ export const useTzktSubscription = (publicKeyHash: string, chainId: TzktApiChain
   );
 
   useEffect(() => {
-    if (!connectionReady) return;
+    if (!connection || !connectionReady) return;
 
     connection.on(TzktSubscriptionChannel.TokenBalances, tokenBalancesListener);
     connection.on(TzktSubscriptionChannel.Accounts, accountsListener);

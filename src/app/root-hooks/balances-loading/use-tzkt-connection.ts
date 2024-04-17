@@ -15,26 +15,30 @@ export const useTzktConnection = (chainId: TzktApiChainId) => {
   const connection = useMemo(() => createTzktWsConnection(chainId), [chainId]);
 
   const initConnection = useCallback(async () => {
+    if (!connection) return;
+
     setConnectionReady(false);
 
     try {
       await connection.start();
       shouldShutdownConnection.current = false;
-      connection.onclose(e => {
+      connection.onclose(error => {
         if (!shouldShutdownConnection.current) {
-          console.error(e);
+          console.error(error);
           setConnectionReady(false);
           setTimeout(() => initConnection(), 1000);
         }
       });
 
       setConnectionReady(true);
-    } catch (e) {
-      console.error(e);
+    } catch (error) {
+      console.error(error);
     }
   }, [connection, setConnectionReady]);
 
   useEffect(() => {
+    if (!connection) return;
+
     initConnection();
 
     return () => {
