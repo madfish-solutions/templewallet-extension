@@ -39,8 +39,8 @@ export const ActivityItem = memo<Props>(({ tezosChainId, activity, address }) =>
 
           <ActivityItemStatusComp activity={activity} />
 
-          <Time
-            children={() => (
+          <Time>
+            {() => (
               <span className="text-xs font-light text-gray-500">
                 {formatDistanceToNow(new Date(addedAt), {
                   includeSeconds: true,
@@ -49,7 +49,7 @@ export const ActivityItem = memo<Props>(({ tezosChainId, activity, address }) =>
                 })}
               </span>
             )}
-          />
+          </Time>
         </div>
 
         <div className="flex-1" />

@@ -56,7 +56,7 @@ export function useNonContractAccounts() {
             return false;
 
           case TempleAccountType.WatchOnly:
-            return !Boolean(acc.chainId);
+            return !acc.chainId;
 
           default:
             return true;
