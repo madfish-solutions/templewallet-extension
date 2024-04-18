@@ -51,7 +51,7 @@ export const ChainsDropdown = memo<Props>(({ opened, setOpened, controller }) =>
   );
 
   return (
-    <DropdownWrapper opened={opened} design="dark" className="origin-top-right p-2 abcdef">
+    <DropdownWrapper opened={opened} design="dark" className="origin-top-right p-2">
       <div className={styles.scroll}>
         <h2 className={h2ClassName}>
           <SignalAltIcon className="w-auto h-4 mr-1 stroke-current" />

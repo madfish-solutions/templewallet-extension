@@ -12,7 +12,11 @@ type WithRequired<T, K extends keyof T> = T & { [P in K]-?: T[P] };
 
 type SyncFn<T, R = void> = (arg: T) => R;
 
-type StringRecord<T = string> = Record<string | undefined, T>;
+type StringRecord<T = string> = Record<string, T>;
+
+type OptionalRecord<T = string> = {
+  [key in string]?: T;
+};
 
 type NonEmptyArray<T> = [T, ...T[]];
 

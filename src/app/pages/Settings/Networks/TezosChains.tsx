@@ -191,7 +191,7 @@ const ChainItem = memo<ChainItemProps>(({ chain, onRemoveClick }) => {
     rpc: { id: activeRpcId }
   } = chain;
 
-  const [tezosChainsSpecs, setTezosChainsSpecs] = useStorage<StringRecord<TezosChainSpecs>>(
+  const [tezosChainsSpecs, setTezosChainsSpecs] = useStorage<OptionalRecord<TezosChainSpecs>>(
     TEZOS_CHAINS_SPECS_STORAGE_KEY,
     EMPTY_FROZEN_OBJ
   );

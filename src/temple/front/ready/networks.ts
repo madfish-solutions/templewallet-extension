@@ -21,7 +21,7 @@ export function useReadyTempleTezosNetworks(customTezosNetworks: StoredTezosNetw
     [customTezosNetworks]
   );
 
-  const [tezosChainsSpecs] = useStorage<StringRecord<TezosChainSpecs>>(
+  const [tezosChainsSpecs] = useStorage<OptionalRecord<TezosChainSpecs>>(
     TEZOS_CHAINS_SPECS_STORAGE_KEY,
     EMPTY_FROZEN_OBJ
   );
@@ -61,7 +61,10 @@ export function useReadyTempleTezosNetworks(customTezosNetworks: StoredTezosNetw
     return chains;
   }, [allTezosNetworks, tezosChainsSpecs]);
 
-  const enabledTezosChains = useMemo(() => Object.values(allTezosChains), [allTezosChains]);
+  const enabledTezosChains = useMemo(
+    () => Object.values(allTezosChains).filter(chain => !chain.disabled),
+    [allTezosChains]
+  );
 
   return {
     allTezosChains,
@@ -75,7 +78,7 @@ export function useReadyTempleEvmNetworks(customEvmNetworks: StoredEvmNetwork[])
     [customEvmNetworks]
   );
 
-  const [evmChainsSpecs] = useStorage<StringRecord<EvmChainSpecs>>(EVM_CHAINS_SPECS_STORAGE_KEY, EMPTY_FROZEN_OBJ);
+  const [evmChainsSpecs] = useStorage<OptionalRecord<EvmChainSpecs>>(EVM_CHAINS_SPECS_STORAGE_KEY, EMPTY_FROZEN_OBJ);
 
   const allEvmChains = useMemo(() => {
     const rpcByChainId = new Map<number, NonEmptyArray<StoredEvmNetwork>>();
@@ -116,7 +119,7 @@ export function useReadyTempleEvmNetworks(customEvmNetworks: StoredEvmNetwork[])
     return chains;
   }, [allEvmNetworks, evmChainsSpecs]);
 
-  const enabledEvmChains = useMemo(() => Object.values(allEvmChains), [allEvmChains]);
+  const enabledEvmChains = useMemo(() => Object.values(allEvmChains).filter(chain => !chain.disabled), [allEvmChains]);
 
   return {
     allEvmChains,

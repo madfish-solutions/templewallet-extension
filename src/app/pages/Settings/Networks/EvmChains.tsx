@@ -196,7 +196,7 @@ const ChainItem = memo<ChainItemProps>(({ chain, onRemoveClick }) => {
     rpc: { id: activeRpcId }
   } = chain;
 
-  const [evmChainsSpecs, setEvmChainsSpecs] = useStorage<StringRecord<EvmChainSpecs>>(
+  const [evmChainsSpecs, setEvmChainsSpecs] = useStorage<OptionalRecord<EvmChainSpecs>>(
     EVM_CHAINS_SPECS_STORAGE_KEY,
     EMPTY_FROZEN_OBJ
   );

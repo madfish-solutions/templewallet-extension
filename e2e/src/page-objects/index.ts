@@ -47,7 +47,6 @@ import { UnlockScreenPage } from './pages/unlock-screen.page';
 import { VerifyMnemonicPage } from './pages/verify-mnemonic.page';
 import { WelcomePage } from './pages/welcome.page';
 
-
 export const Pages = {
   Welcome: new WelcomePage(),
   ImportExistingWallet: new ImportExistingWalletPage(),
