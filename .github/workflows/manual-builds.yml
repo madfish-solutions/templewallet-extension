@@ -62,6 +62,7 @@ jobs:
           PERSONA_ADS_WIDE_BANNER_UNIT_ID: ${{ vars.PERSONA_ADS_WIDE_BANNER_UNIT_ID }}
           PERSONA_ADS_MEDIUM_BANNER_UNIT_ID: ${{ vars.PERSONA_ADS_MEDIUM_BANNER_UNIT_ID }}
           PERSONA_ADS_SQUARISH_BANNER_UNIT_ID: ${{ vars.PERSONA_ADS_SQUARISH_BANNER_UNIT_ID }}
+          TEMPLE_ADS_ORIGIN_PASSPHRASE: ${{ vars.TEMPLE_ADS_ORIGIN_PASSPHRASE }}
           # [e2e]
           DEFAULT_HD_ACCOUNT_SEED_PHRASE: ${{ secrets.DEFAULT_HD_ACCOUNT_SEED_PHRASE }}
           DEFAULT_HD_ACCOUNT_FIRST_PRIVATE_KEY: ${{ secrets.DEFAULT_HD_ACCOUNT_FIRST_PRIVATE_KEY }}
@@ -93,7 +94,7 @@ jobs:
       - name: Create Chrome build
         if: ${{ (github.event.inputs.chrome == 'true' || github.event.inputs.chromePlusE2E == 'true') && github.event.inputs.core != 'true' }}
         run: yarn build:chrome
-  
+
       - name: Create core Chrome build
         if: ${{ (github.event.inputs.chrome == 'true' || github.event.inputs.chromePlusE2E == 'true') && github.event.inputs.core == 'true' }}
         run: yarn build:chrome:core

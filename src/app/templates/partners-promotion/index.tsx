@@ -5,6 +5,7 @@ import { useDispatch } from 'react-redux';
 
 import Spinner from 'app/atoms/Spinner/Spinner';
 import { useAppEnv } from 'app/env';
+import { useAdsViewerPkh } from 'app/hooks/use-ads-viewer-pkh';
 import { hidePromotionAction } from 'app/store/partners-promotion/actions';
 import {
   useShouldShowPartnersPromoSelector,
@@ -13,8 +14,6 @@ import {
 import { AdsProviderName, AdsProviderTitle } from 'lib/ads';
 import { AnalyticsEventCategory, useAnalytics } from 'lib/analytics';
 import { AD_HIDING_TIMEOUT } from 'lib/constants';
-import { UNDER_DEVELOPMENT_MSG } from 'temple/evm/under_dev_msg';
-import { useAccountAddressForTezos } from 'temple/front';
 
 import { HypelabPromotion } from './components/hypelab-promotion';
 import { OptimalPromotion } from './components/optimal-promotion';
@@ -38,145 +37,133 @@ const shouldBeHiddenTemporarily = (hiddenAt: number) => {
   return Date.now() - hiddenAt < AD_HIDING_TIMEOUT;
 };
 
-export const PartnersPromotion = memo<PartnersPromotionProps>(props => {
-  const accountPkh = useAccountAddressForTezos();
+export const PartnersPromotion = memo<PartnersPromotionProps>(({ variant, id, pageName, withPersonaProvider }) => {
+  const isImageAd = variant === PartnersPromotionVariant.Image;
+  const adsViewerAddress = useAdsViewerPkh();
+  const { trackEvent } = useAnalytics();
+  const { popup } = useAppEnv();
+  const dispatch = useDispatch();
+  const hiddenAt = usePromotionHidingTimestampSelector(id);
+  const shouldShowPartnersPromo = useShouldShowPartnersPromoSelector();
 
-  return accountPkh ? (
-    <TezosPartnersPromotion {...props} accountPkh={accountPkh} />
-  ) : (
-    <div>{UNDER_DEVELOPMENT_MSG}</div>
-  );
-});
+  const isAnalyticsSentRef = useRef(false);
 
-const TezosPartnersPromotion = memo<PartnersPromotionProps & { accountPkh: string }>(
-  ({ accountPkh, variant, id, pageName, withPersonaProvider }) => {
-    const isImageAd = variant === PartnersPromotionVariant.Image;
-    // TODO: add logic to prevent sending rewards to a watch only account
-    const { trackEvent } = useAnalytics();
-    const { popup } = useAppEnv();
-    const dispatch = useDispatch();
-    const hiddenAt = usePromotionHidingTimestampSelector(id);
-    const shouldShowPartnersPromo = useShouldShowPartnersPromoSelector();
+  const [isHiddenTemporarily, setIsHiddenTemporarily] = useState(shouldBeHiddenTemporarily(hiddenAt));
+  const [providerName, setProviderName] = useState<AdsProviderLocalName>('Optimal');
+  const [adError, setAdError] = useState(false);
+  const [adIsReady, setAdIsReady] = useState(false);
 
-    const isAnalyticsSentRef = useRef(false);
+  useEffect(() => {
+    const newIsHiddenTemporarily = shouldBeHiddenTemporarily(hiddenAt);
+    setIsHiddenTemporarily(newIsHiddenTemporarily);
 
-    const [isHiddenTemporarily, setIsHiddenTemporarily] = useState(shouldBeHiddenTemporarily(hiddenAt));
-    const [providerName, setProviderName] = useState<AdsProviderLocalName>('Optimal');
-    const [adError, setAdError] = useState(false);
-    const [adIsReady, setAdIsReady] = useState(false);
+    if (newIsHiddenTemporarily) {
+      const timeout = setTimeout(
+        () => setIsHiddenTemporarily(false),
+        Math.max(Date.now() - hiddenAt + AD_HIDING_TIMEOUT, 0)
+      );
 
-    useEffect(() => {
-      const newIsHiddenTemporarily = shouldBeHiddenTemporarily(hiddenAt);
-      setIsHiddenTemporarily(newIsHiddenTemporarily);
-
-      if (newIsHiddenTemporarily) {
-        const timeout = setTimeout(
-          () => setIsHiddenTemporarily(false),
-          Math.max(Date.now() - hiddenAt + AD_HIDING_TIMEOUT, 0)
-        );
-
-        return () => clearTimeout(timeout);
-      }
-
-      return;
-    }, [hiddenAt]);
-
-    const handleAdRectSeen = useCallback(() => {
-      if (isAnalyticsSentRef.current) return;
-
-      trackEvent('Internal Ads Activity', AnalyticsEventCategory.General, {
-        variant: providerName === 'Persona' ? PartnersPromotionVariant.Image : variant,
-        page: pageName,
-        provider: AdsProviderTitle[providerName],
-        accountPkh
-      });
-      isAnalyticsSentRef.current = true;
-    }, [providerName, pageName, accountPkh, variant, trackEvent]);
-
-    const handleClosePartnersPromoClick = useCallback<MouseEventHandler<HTMLButtonElement>>(
-      e => {
-        e.preventDefault();
-        e.stopPropagation();
-        dispatch(hidePromotionAction({ timestamp: Date.now(), id }));
-      },
-      [id, dispatch]
-    );
-
-    const handleOptimalError = useCallback(() => setProviderName('HypeLab'), []);
-    const handleHypelabError = useCallback(
-      () => (withPersonaProvider ? setProviderName('Persona') : setAdError(true)),
-      [withPersonaProvider]
-    );
-    const handlePersonaError = useCallback(() => setAdError(true), []);
-
-    const handleAdReady = useCallback(() => setAdIsReady(true), []);
-
-    if (!shouldShowPartnersPromo || adError || isHiddenTemporarily) {
-      return null;
+      return () => clearTimeout(timeout);
     }
 
-    return (
-      <div
-        className={clsx(
-          'w-full relative flex flex-col items-center',
-          !adIsReady && (isImageAd ? styles.imageAdLoading : styles.textAdLoading)
-        )}
-      >
-        {(() => {
-          switch (providerName) {
-            case 'Optimal':
-              return (
-                <OptimalPromotion
-                  accountPkh={accountPkh}
-                  variant={variant}
-                  isVisible={adIsReady}
-                  pageName={pageName}
-                  onAdRectSeen={handleAdRectSeen}
-                  onClose={handleClosePartnersPromoClick}
-                  onReady={handleAdReady}
-                  onError={handleOptimalError}
-                />
-              );
-            case 'HypeLab':
-              return (
-                <HypelabPromotion
-                  accountPkh={accountPkh}
-                  variant={variant}
-                  isVisible={adIsReady}
-                  pageName={pageName}
-                  onAdRectSeen={handleAdRectSeen}
-                  onClose={handleClosePartnersPromoClick}
-                  onReady={handleAdReady}
-                  onError={handleHypelabError}
-                />
-              );
-            case 'Persona':
-              return (
-                <PersonaPromotion
-                  id={id}
-                  accountPkh={accountPkh}
-                  isVisible={adIsReady}
-                  pageName={pageName}
-                  onAdRectSeen={handleAdRectSeen}
-                  onClose={handleClosePartnersPromoClick}
-                  onReady={handleAdReady}
-                  onError={handlePersonaError}
-                />
-              );
-          }
-        })()}
+    return;
+  }, [hiddenAt]);
 
-        {!adIsReady && (
-          <div
-            className={clsx(
-              'absolute top-0 left-0 w-full h-full bg-gray-100 flex justify-center items-center',
-              !popup && 'rounded-xl'
-            )}
-          >
-            <Spinner theme="dark-gray" className="w-6" />
-          </div>
-        )}
-      </div>
-    );
+  const handleAdRectSeen = useCallback(() => {
+    if (isAnalyticsSentRef.current) return;
+
+    trackEvent('Internal Ads Activity', AnalyticsEventCategory.General, {
+      variant: providerName === 'Persona' ? PartnersPromotionVariant.Image : variant,
+      page: pageName,
+      provider: AdsProviderTitle[providerName],
+      accountPkh: adsViewerAddress
+    });
+    isAnalyticsSentRef.current = true;
+  }, [providerName, pageName, adsViewerAddress, variant, trackEvent]);
+
+  const handleClosePartnersPromoClick = useCallback<MouseEventHandler<HTMLButtonElement>>(
+    e => {
+      e.preventDefault();
+      e.stopPropagation();
+      dispatch(hidePromotionAction({ timestamp: Date.now(), id }));
+    },
+    [id, dispatch]
+  );
+
+  const handleOptimalError = useCallback(() => setProviderName('HypeLab'), []);
+  const handleHypelabError = useCallback(
+    () => (withPersonaProvider ? setProviderName('Persona') : setAdError(true)),
+    [withPersonaProvider]
+  );
+  const handlePersonaError = useCallback(() => setAdError(true), []);
+
+  const handleAdReady = useCallback(() => setAdIsReady(true), []);
+
+  if (!shouldShowPartnersPromo || adError || isHiddenTemporarily) {
+    return null;
   }
-);
+
+  return (
+    <div
+      className={clsx(
+        'w-full relative flex flex-col items-center',
+        !adIsReady && (isImageAd ? styles.imageAdLoading : styles.textAdLoading)
+      )}
+    >
+      {(() => {
+        switch (providerName) {
+          case 'Optimal':
+            return (
+              <OptimalPromotion
+                accountPkh={adsViewerAddress}
+                variant={variant}
+                isVisible={adIsReady}
+                pageName={pageName}
+                onAdRectSeen={handleAdRectSeen}
+                onClose={handleClosePartnersPromoClick}
+                onReady={handleAdReady}
+                onError={handleOptimalError}
+              />
+            );
+          case 'HypeLab':
+            return (
+              <HypelabPromotion
+                accountPkh={adsViewerAddress}
+                variant={variant}
+                isVisible={adIsReady}
+                pageName={pageName}
+                onAdRectSeen={handleAdRectSeen}
+                onClose={handleClosePartnersPromoClick}
+                onReady={handleAdReady}
+                onError={handleHypelabError}
+              />
+            );
+          case 'Persona':
+            return (
+              <PersonaPromotion
+                accountPkh={adsViewerAddress}
+                id={id}
+                isVisible={adIsReady}
+                pageName={pageName}
+                onAdRectSeen={handleAdRectSeen}
+                onClose={handleClosePartnersPromoClick}
+                onReady={handleAdReady}
+                onError={handlePersonaError}
+              />
+            );
+        }
+      })()}
+
+      {!adIsReady && (
+        <div
+          className={clsx(
+            'absolute top-0 left-0 w-full h-full bg-gray-100 flex justify-center items-center',
+            !popup && 'rounded-xl'
+          )}
+        >
+          <Spinner theme="dark-gray" className="w-6" />
+        </div>
+      )}
+    </div>
+  );
+});

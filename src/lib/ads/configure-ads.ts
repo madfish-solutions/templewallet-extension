@@ -40,6 +40,7 @@ export const configureAds = async () => {
 
       return url.toString();
     },
-    extVersion: APP_VERSION
+    extVersion: APP_VERSION,
+    templePassphrase: EnvVars.TEMPLE_ADS_ORIGIN_PASSPHRASE
   });
 };

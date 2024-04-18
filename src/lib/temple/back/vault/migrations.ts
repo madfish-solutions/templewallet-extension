@@ -1,6 +1,6 @@
 import { nanoid } from 'nanoid';
 
-import { ACCOUNT_PKH_STORAGE_KEY, ADS_VIEWER_TEZOS_ADDRESS_STORAGE_KEY } from 'lib/constants';
+import { ACCOUNT_PKH_STORAGE_KEY, ADS_VIEWER_ADDRESS_STORAGE_KEY } from 'lib/constants';
 import { moveValueInStorage } from 'lib/storage';
 import * as Passworder from 'lib/temple/passworder';
 import { StoredAccount, TempleAccountType, TempleContact, TempleSettings } from 'lib/temple/types';
@@ -175,7 +175,7 @@ export const MIGRATIONS = [
     toEncryptAndSave.push([accountsStrgKey, newAccounts]);
     await encryptAndSaveMany(toEncryptAndSave, passKey);
 
-    moveValueInStorage(ACCOUNT_PKH_STORAGE_KEY, ADS_VIEWER_TEZOS_ADDRESS_STORAGE_KEY);
+    moveValueInStorage(ACCOUNT_PKH_STORAGE_KEY, ADS_VIEWER_ADDRESS_STORAGE_KEY);
 
     console.log('VAULT.MIGRATIONS: EVM migration finished');
   }

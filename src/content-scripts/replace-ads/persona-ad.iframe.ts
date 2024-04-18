@@ -1,5 +1,5 @@
 import { getPersonaAdClient, PERSONA_STAGING_ADS_BANNER_UNIT_ID } from 'lib/ads/persona';
-import { ACCOUNT_PKH_STORAGE_KEY } from 'lib/constants';
+import { ADS_VIEWER_ADDRESS_STORAGE_KEY } from 'lib/constants';
 import { EnvVars } from 'lib/env';
 import { fetchFromStorage } from 'lib/storage';
 
@@ -11,8 +11,7 @@ const usp = new URLSearchParams(window.location.search);
 const id = usp.get('id');
 const shape = usp.get('shape');
 
-// TODO: change the storage key to prevent sending watch only account address
-fetchFromStorage<string>(ACCOUNT_PKH_STORAGE_KEY)
+fetchFromStorage<string>(ADS_VIEWER_ADDRESS_STORAGE_KEY)
   .then(accountPkhFromStorage => getPersonaAdClient(accountPkhFromStorage))
   .then(({ client, environment }) => {
     const adUnitId = getUnitId(shape as PersonaAdShape, environment === 'staging');
