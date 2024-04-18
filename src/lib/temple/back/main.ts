@@ -1,13 +1,13 @@
 import browser, { Runtime } from 'webextension-polyfill';
 
 import { updateRulesStorage } from 'lib/ads/update-rules-storage';
-import { ADS_VIEWER_TEZOS_ADDRESS_STORAGE_KEY, ANALYTICS_USER_ID_STORAGE_KEY, ContentScriptType } from 'lib/constants';
+import { ADS_VIEWER_ADDRESS_STORAGE_KEY, ANALYTICS_USER_ID_STORAGE_KEY, ContentScriptType } from 'lib/constants';
 import { E2eMessageType } from 'lib/e2e/types';
 import { BACKGROUND_IS_WORKER } from 'lib/env';
 import { fetchFromStorage } from 'lib/storage';
 import { encodeMessage, encryptMessage, getSenderId, MessageType, Response } from 'lib/temple/beacon';
 import { clearAsyncStorages } from 'lib/temple/reset';
-import { TempleAccountType, TempleMessageType, TempleRequest, TempleResponse } from 'lib/temple/types';
+import { StoredHDAccount, TempleMessageType, TempleRequest, TempleResponse } from 'lib/temple/types';
 import { getTrackedCashbackServiceDomain, getTrackedUrl } from 'lib/utils/url-track/url-track.utils';
 
 import { AnalyticsEventCategory } from '../analytics-types';
@@ -254,8 +254,10 @@ browser.runtime.onMessage.addListener(async msg => {
       case ContentScriptType.UpdateAdsRules:
         await updateRulesStorage();
         return;
+
       case E2eMessageType.ResetRequest:
         return clearAsyncStorages().then(() => ({ type: E2eMessageType.ResetResponse }));
+
       case ContentScriptType.ExternalLinksActivity:
         const trackedCashbackServiceDomain = getTrackedCashbackServiceDomain(msg.url);
 
@@ -266,14 +268,16 @@ browser.runtime.onMessage.addListener(async msg => {
         const trackedUrl = getTrackedUrl(msg.url);
 
         if (trackedUrl) {
-          const accountPkh = await getTezosAccountAddressForAdsImpressions();
+          const accountPkh = await getAdsViewerPkh();
           await Analytics.client.track('External links activity', { url: trackedUrl, accountPkh });
         }
 
         break;
+
       case ContentScriptType.ExternalAdsActivity:
         const userId = await getAnalyticsUserId();
-        const accountPkh = await getTezosAccountAddressForAdsImpressions();
+        const accountPkh = await getAdsViewerPkh();
+
         await Analytics.trackEvent({
           category: AnalyticsEventCategory.General,
           userId: userId ?? '',
@@ -289,10 +293,8 @@ browser.runtime.onMessage.addListener(async msg => {
   return;
 });
 
-const getAnalyticsUserId = () => fetchFromStorage<string>(ANALYTICS_USER_ID_STORAGE_KEY);
-
-async function getTezosAccountAddressForAdsImpressions() {
-  const accountPkhFromStorage = await fetchFromStorage<string>(ADS_VIEWER_TEZOS_ADDRESS_STORAGE_KEY);
+async function getAdsViewerPkh() {
+  const accountPkhFromStorage = await fetchFromStorage<string>(ADS_VIEWER_ADDRESS_STORAGE_KEY);
 
   if (accountPkhFromStorage) {
     return accountPkhFromStorage;
@@ -300,9 +302,7 @@ async function getTezosAccountAddressForAdsImpressions() {
 
   const frontState = await Actions.getFrontState();
 
-  for (const account of frontState.accounts) {
-    if (account.type === TempleAccountType.HD) return account.tezosAddress;
-  }
-
-  return null;
+  return (frontState.accounts[0] as StoredHDAccount | undefined)?.tezosAddress;
 }
+
+const getAnalyticsUserId = () => fetchFromStorage<string>(ANALYTICS_USER_ID_STORAGE_KEY);

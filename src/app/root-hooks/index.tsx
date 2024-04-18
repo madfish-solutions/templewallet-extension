@@ -19,6 +19,7 @@ import { AppTezosAssetsLoading } from './assets-loading';
 import { AppTezosBalancesLoading } from './balances-loading';
 import { AppTezosTokensMetadataLoading } from './metadata-loading';
 import { useChainIDsCheck } from './use-chain-ids-check';
+import { useUserIdAccountPkhSync } from "app/hooks/use-user-id-account-pkh-sync";
 
 export const AppRootHooks = memo(() => {
   const { ready } = useTempleClient();
@@ -47,6 +48,7 @@ const AppReadyRootHooks = memo(() => {
   useUserIdSync();
 
   useChainIDsCheck();
+  useUserIdAccountPkhSync();
 
   const tezosAddress = useAccountAddressForTezos();
 
