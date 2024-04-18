@@ -35,8 +35,8 @@
 - `interface ChainAsset { chainId: string | number; slug: string; }`
 - `EMPTY_FROZEN_ARR`
 - - Read-only for Redux state
-- Build to ES6+
-- - `babel-loader` -> `ts-loader` (|| `esbuild-loader`)
+- Build to ESNext ?
+- `StoredNetwork.id` not RPC URL
 -
 
 

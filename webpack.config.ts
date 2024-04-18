@@ -11,7 +11,7 @@ import CssMinimizerPlugin from 'css-minimizer-webpack-plugin';
 import HtmlWebpackPlugin from 'html-webpack-plugin';
 import MiniCssExtractPlugin from 'mini-css-extract-plugin';
 import * as Path from 'path';
-// import WebPack from 'webpack';
+import WebPack from 'webpack';
 import ExtensionReloaderMV3BadlyTyped, {
   ExtensionReloader as ExtensionReloaderMV3Type
 } from 'webpack-ext-reloader-mv3';
@@ -235,9 +235,9 @@ const backgroundConfig = (() => {
         color: '#ed8936'
       }),
 
-      // new WebPack.NormalModuleReplacementPlugin(/^react$/, () => {
-      //   throw new Error('React is not allowed in BG script');
-      // }),
+      new WebPack.NormalModuleReplacementPlugin(/^react$/, () => {
+        throw new Error('React is not allowed in BG script');
+      }),
 
       new CleanWebpackPlugin({
         cleanOnceBeforeBuildPatterns: ['background/**'],
