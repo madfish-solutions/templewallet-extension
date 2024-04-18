@@ -12,6 +12,8 @@ export const WEBSITES_ANALYTICS_ENABLED = 'WEBSITES_ANALYTICS_ENABLED';
 
 export const ACCOUNT_PKH_STORAGE_KEY = 'account_publickeyhash';
 
+export const ADS_VIEWER_ADDRESS_STORAGE_KEY = 'ADS_VIEWER_ADDRESS';
+
 export const ANALYTICS_USER_ID_STORAGE_KEY = 'analytics_user_id';
 
 export const ALL_ADS_RULES_STORAGE_KEY = 'ALL_ADS_RULES';

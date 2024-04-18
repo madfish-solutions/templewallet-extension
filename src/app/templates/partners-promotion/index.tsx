@@ -5,6 +5,7 @@ import { useDispatch } from 'react-redux';
 
 import Spinner from 'app/atoms/Spinner/Spinner';
 import { useAppEnv } from 'app/env';
+import { useAdsViewerPkh } from 'app/hooks/use-ads-viewer-pkh';
 import { hidePromotionAction } from 'app/store/partners-promotion/actions';
 import {
   useShouldShowPartnersPromoSelector,
@@ -13,7 +14,6 @@ import {
 import { AdsProviderName, AdsProviderTitle } from 'lib/ads';
 import { AnalyticsEventCategory, useAnalytics } from 'lib/analytics';
 import { AD_HIDING_TIMEOUT } from 'lib/constants';
-import { useAccountPkh } from 'lib/temple/front';
 
 import { HypelabPromotion } from './components/hypelab-promotion';
 import { OptimalPromotion } from './components/optimal-promotion';
@@ -39,8 +39,7 @@ const shouldBeHiddenTemporarily = (hiddenAt: number) => {
 
 export const PartnersPromotion = memo<PartnersPromotionProps>(({ variant, id, pageName, withPersonaProvider }) => {
   const isImageAd = variant === PartnersPromotionVariant.Image;
-  // TODO: add logic to prevent sending rewards to a watch only account
-  const accountPkh = useAccountPkh();
+  const adsViewerAddress = useAdsViewerPkh();
   const { trackEvent } = useAnalytics();
   const { popup } = useAppEnv();
   const dispatch = useDispatch();
@@ -77,10 +76,10 @@ export const PartnersPromotion = memo<PartnersPromotionProps>(({ variant, id, pa
       variant: providerName === 'Persona' ? PartnersPromotionVariant.Image : variant,
       page: pageName,
       provider: AdsProviderTitle[providerName],
-      accountPkh
+      accountPkh: adsViewerAddress
     });
     isAnalyticsSentRef.current = true;
-  }, [providerName, pageName, accountPkh, variant, trackEvent]);
+  }, [providerName, pageName, adsViewerAddress, variant, trackEvent]);
 
   const handleClosePartnersPromoClick = useCallback<MouseEventHandler<HTMLButtonElement>>(
     e => {

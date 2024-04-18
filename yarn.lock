@@ -3650,13 +3650,14 @@
   dependencies:
     nanoid "^3.1.25"
 
-"@temple-wallet/extension-ads@^4.0.0":
-  version "4.0.0"
-  resolved "https://registry.yarnpkg.com/@temple-wallet/extension-ads/-/extension-ads-4.0.0.tgz#3eb40097f0084a0279acef1e336f3cbd24b4d7c7"
-  integrity sha512-Avv04obvHd3Zvr0zb9QW0a3GPU1jXGqTfP2KWjz87tJL1rPdZs1d0ZIEXeUYXRrPOVWTaEBhWdTHpoSkKwzd1A==
+"@temple-wallet/extension-ads@^5.0.1":
+  version "5.0.1"
+  resolved "https://registry.yarnpkg.com/@temple-wallet/extension-ads/-/extension-ads-5.0.1.tgz#49a86ab2b6f6b9d2005ec1e8d7b97cbea73dee11"
+  integrity sha512-GOlzlUf383uu1Ik1QCqhNo50uenp4qXGBj9Q8LZ2jYX/A7ABOYdTDPFE/cQ28aqTqSdfjMn75TML3NHYLqdoxg==
   dependencies:
     "@vespaiach/axios-fetch-adapter" "^0.3.1"
     axios "^1.6.7"
+    crypto-js "^4.2.0"
     lodash "^4.17.21"
     nanoid "^5.0.6"
     webextension-polyfill "^0.10.0"
