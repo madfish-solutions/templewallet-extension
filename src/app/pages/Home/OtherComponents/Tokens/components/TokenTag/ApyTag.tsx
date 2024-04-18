@@ -21,7 +21,7 @@ const APY = 'APY';
 
 const YOUVES_TOKENS_WITH_APR = [KNOWN_TOKENS_SLUGS.UUSD, KNOWN_TOKENS_SLUGS.UBTC, KNOWN_TOKENS_SLUGS.YOU];
 
-const TAGS_CLASSNAME_RECORD: StringRecord<string | undefined> = {
+const TAGS_CLASSNAME_RECORD: StringRecord = {
   [KNOWN_TOKENS_SLUGS.KUSD]: modStyles.kusdTag,
   [KNOWN_TOKENS_SLUGS.TZBTC]: modStyles.tzbtcTag,
   [KNOWN_TOKENS_SLUGS.USDT]: modStyles.usdtTag,
@@ -33,7 +33,7 @@ const TAGS_CLASSNAME_RECORD: StringRecord<string | undefined> = {
 const YUPANA_LEND_LINK = 'https://app.yupana.finance/lending';
 const YOUVES_LINK = 'https://app.youves.com/earn';
 
-const TOKEN_APY_LINKS: StringRecord<string | undefined> = {
+const TOKEN_APY_LINKS: StringRecord = {
   [KNOWN_TOKENS_SLUGS.KUSD]: YUPANA_LEND_LINK,
   [KNOWN_TOKENS_SLUGS.USDT]: YUPANA_LEND_LINK,
   [KNOWN_TOKENS_SLUGS.TZBTC]: YUPANA_LEND_LINK,

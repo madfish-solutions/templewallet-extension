@@ -21,7 +21,7 @@ export function useReadyTempleTezosNetworks(customTezosNetworks: StoredTezosNetw
     [customTezosNetworks]
   );
 
-  const [tezosChainsSpecs] = useStorage<StringRecord<TezosChainSpecs | undefined>>(
+  const [tezosChainsSpecs] = useStorage<StringRecord<TezosChainSpecs>>(
     TEZOS_CHAINS_SPECS_STORAGE_KEY,
     EMPTY_FROZEN_OBJ
   );
@@ -75,10 +75,7 @@ export function useReadyTempleEvmNetworks(customEvmNetworks: StoredEvmNetwork[])
     [customEvmNetworks]
   );
 
-  const [evmChainsSpecs] = useStorage<StringRecord<EvmChainSpecs | undefined>>(
-    EVM_CHAINS_SPECS_STORAGE_KEY,
-    EMPTY_FROZEN_OBJ
-  );
+  const [evmChainsSpecs] = useStorage<StringRecord<EvmChainSpecs>>(EVM_CHAINS_SPECS_STORAGE_KEY, EMPTY_FROZEN_OBJ);
 
   const allEvmChains = useMemo(() => {
     const rpcByChainId = new Map<number, NonEmptyArray<StoredEvmNetwork>>();

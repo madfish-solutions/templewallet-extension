@@ -492,9 +492,7 @@ async function getActiveTempleRpcUrlByChainId(chainId: string): Promise<string |
     customTezosNetworks ? [...TEZOS_DEFAULT_NETWORKS, ...customTezosNetworks] : TEZOS_DEFAULT_NETWORKS
   ).filter(n => n.chainId === chainId);
 
-  const tezosChainsSpecs = await fetchFromStorage<StringRecord<TezosChainSpecs | undefined>>(
-    TEZOS_CHAINS_SPECS_STORAGE_KEY
-  );
+  const tezosChainsSpecs = await fetchFromStorage<StringRecord<TezosChainSpecs>>(TEZOS_CHAINS_SPECS_STORAGE_KEY);
   const activeRpcId = tezosChainsSpecs?.[chainId]?.activeRpcId;
 
   const activeChainRpc = (activeRpcId && chainNetworks.find(n => n.id === activeRpcId)) || chainNetworks[0];

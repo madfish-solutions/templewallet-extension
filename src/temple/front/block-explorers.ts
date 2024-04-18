@@ -92,7 +92,7 @@ const TEZOS_BLOCK_EXPLORERS: {
   }
 };
 
-const DEFAULT_TEZOS_BLOCK_EXPLORERS: StringRecord<TezosBlockExplorerKnownId | undefined> = {
+const DEFAULT_TEZOS_BLOCK_EXPLORERS: StringRecord<TezosBlockExplorerKnownId> = {
   [TempleTezosChainId.Mainnet]: 'tzkt',
   [TempleTezosChainId.Ghostnet]: 'tzkt',
   [TempleTezosChainId.Mumbai]: 'tzkt',
@@ -102,10 +102,10 @@ const DEFAULT_TEZOS_BLOCK_EXPLORERS: StringRecord<TezosBlockExplorerKnownId | un
 };
 
 const useStoredTezosBlockExplorers = () =>
-  useStorage<StringRecord<TezosBlockExplorerKnownId | undefined>>('TEZOS_BLOCK_EXPLORERS', EMPTY_FROZEN_OBJ);
+  useStorage<StringRecord<TezosBlockExplorerKnownId>>('TEZOS_BLOCK_EXPLORERS', EMPTY_FROZEN_OBJ);
 
 function getTezosExplorerKnownId(
-  explorers: StringRecord<TezosBlockExplorerKnownId | undefined>,
+  explorers: StringRecord<TezosBlockExplorerKnownId>,
   chainId: string
 ): TezosBlockExplorerKnownId | undefined {
   return explorers[chainId] || DEFAULT_TEZOS_BLOCK_EXPLORERS[chainId];
