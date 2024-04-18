@@ -6,11 +6,12 @@ import browser from 'webextension-polyfill';
 import Flag from 'app/atoms/Flag';
 import { DropdownSelect } from 'app/templates/DropdownSelect/DropdownSelect';
 import { InputContainer } from 'app/templates/InputContainer/InputContainer';
+import { setTestID } from 'lib/analytics';
 import { T } from 'lib/i18n';
 import { searchAndFilterItems } from 'lib/utils/search-items';
 import { TezosBlockExplorer, useTezosBlockExplorersListingLogic } from 'temple/front/block-explorers';
 
-// import { NetworksSettingsSelectors } from '../selectors';
+import { NetworkSettingsSelectors } from './selectors';
 
 interface Props {
   tezosChainId: string;
@@ -42,7 +43,7 @@ const BlockExplorerSelect = memo<Props>(({ tezosChainId }) => {
         }
       >
         <DropdownSelect
-          // testID={NetworksSettingsSelectors.blockExplorerDropDown}
+          testID={NetworkSettingsSelectors.blockExplorerDropDown}
           optionsListClassName="p-2"
           dropdownButtonClassName="p-3"
           DropdownFaceContent={currentOption ? <BlockExplorerFieldContent {...currentOption} /> : null}
@@ -93,7 +94,7 @@ const BlockExplorerOptionContent: FC<BlockExplorerOptionContentProps> = ({ optio
 
       <div
         className="w-full text-left text-lg text-gray-700"
-        // {...setTestID(NetworksSettingsSelectors.blockExplorerItem)}
+        {...setTestID(NetworkSettingsSelectors.blockExplorerItem)}
       >
         {option.name}
       </div>

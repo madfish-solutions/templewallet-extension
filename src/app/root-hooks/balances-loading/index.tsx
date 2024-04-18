@@ -37,52 +37,56 @@ export const AppTezosBalancesLoading = memo<{ publicKeyHash: string }>(({ public
   );
 });
 
-const BalancesLoadingForTezosNetwork = memo<{ publicKeyHash: string; chainId: TzktApiChainId; rpcBaseURL: string }>(
-  ({ publicKeyHash, chainId, rpcBaseURL }) => {
-    const isLoading = useBalancesLoadingSelector(publicKeyHash, chainId);
-    const isLoadingRef = useRef(false);
+interface LoadingForTezosNetworkProps {
+  publicKeyHash: string;
+  chainId: TzktApiChainId;
+  rpcBaseURL: string;
+}
 
-    useDidUpdate(() => {
-      // Persisted `isLoading` value might be `true`.
-      // Using initial `false` & only updating on further changes.
-      isLoadingRef.current = isLoading;
-    }, [isLoading]);
+const BalancesLoadingForTezosNetwork = memo<LoadingForTezosNetworkProps>(({ publicKeyHash, chainId, rpcBaseURL }) => {
+  const isLoading = useBalancesLoadingSelector(publicKeyHash, chainId);
+  const isLoadingRef = useRef(false);
 
-    const getIsLoading = useCallback(() => isLoadingRef.current, []);
+  useDidUpdate(() => {
+    // Persisted `isLoading` value might be `true`.
+    // Using initial `false` & only updating on further changes.
+    isLoadingRef.current = isLoading;
+  }, [isLoading]);
 
-    const storedError = useBalancesErrorSelector(publicKeyHash, chainId);
-    const isStoredError = isDefined(storedError);
+  const getIsLoading = useCallback(() => isLoadingRef.current, []);
 
-    const tzktSubscription = useTzktSubscription(publicKeyHash, chainId, getIsLoading);
+  const storedError = useBalancesErrorSelector(publicKeyHash, chainId);
+  const isStoredError = isDefined(storedError);
 
-    // Gas
+  const tzktSubscription = useTzktSubscription(publicKeyHash, chainId, getIsLoading);
 
-    const dispatchLoadGasBalanceAction = useCallback(() => {
-      if (!isLoadingRef.current) {
-        dispatch(loadGasBalanceActions.submit({ publicKeyHash, chainId }));
-      }
-    }, [publicKeyHash, chainId, isLoadingRef]);
+  // Gas
 
-    useEffect(dispatchLoadGasBalanceAction, [dispatchLoadGasBalanceAction]);
+  const dispatchLoadGasBalanceAction = useCallback(() => {
+    if (!isLoadingRef.current) {
+      dispatch(loadGasBalanceActions.submit({ publicKeyHash, chainId }));
+    }
+  }, [publicKeyHash, chainId, isLoadingRef]);
 
-    const withBlockSubscriptionForGas = !tzktSubscription.subscribedToGasUpdates || isStoredError === true;
+  useEffect(dispatchLoadGasBalanceAction, [dispatchLoadGasBalanceAction]);
 
-    useOnTezosBlock(rpcBaseURL, dispatchLoadGasBalanceAction, !withBlockSubscriptionForGas);
+  const withBlockSubscriptionForGas = !tzktSubscription.subscribedToGasUpdates || isStoredError === true;
 
-    // Assets
+  useOnTezosBlock(rpcBaseURL, dispatchLoadGasBalanceAction, !withBlockSubscriptionForGas);
 
-    const dispatchLoadAssetsBalancesActions = useCallback(() => {
-      if (!isLoadingRef.current) {
-        dispatch(loadAssetsBalancesActions.submit({ publicKeyHash, chainId }));
-      }
-    }, [publicKeyHash, chainId, isLoadingRef]);
+  // Assets
 
-    useEffect(dispatchLoadAssetsBalancesActions, [dispatchLoadAssetsBalancesActions]);
+  const dispatchLoadAssetsBalancesActions = useCallback(() => {
+    if (!isLoadingRef.current) {
+      dispatch(loadAssetsBalancesActions.submit({ publicKeyHash, chainId }));
+    }
+  }, [publicKeyHash, chainId, isLoadingRef]);
 
-    const withBlockSubscriptionForAssets = !tzktSubscription.subscribedToTokensUpdates || isStoredError === true;
+  useEffect(dispatchLoadAssetsBalancesActions, [dispatchLoadAssetsBalancesActions]);
 
-    useOnTezosBlock(rpcBaseURL, dispatchLoadAssetsBalancesActions, !withBlockSubscriptionForAssets);
+  const withBlockSubscriptionForAssets = !tzktSubscription.subscribedToTokensUpdates || isStoredError === true;
 
-    return null;
-  }
-);
+  useOnTezosBlock(rpcBaseURL, dispatchLoadAssetsBalancesActions, !withBlockSubscriptionForAssets);
+
+  return null;
+});

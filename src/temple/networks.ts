@@ -3,13 +3,11 @@ import { TempleTezosChainId } from 'lib/temple/types';
 
 import { TempleChainKind } from './types';
 
-/** TODO: || UsableRpcBaseForTezos */
 export interface TezosNetworkEssentials {
   rpcBaseURL: string;
   chainId: string;
 }
 
-/** TODO: || UsableRpcBaseForEvm */
 // ts-prune-ignore-next
 export interface EvmNetworkEssentials {
   rpcBaseURL: string;

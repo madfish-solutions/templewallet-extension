@@ -5,9 +5,6 @@ import type { TempleChainKind } from 'temple/types';
 
 import { useAllTezosChains, useAllEvmChains } from './ready';
 
-/** TODO: || SoleChain || ChainForOneOf || OneOfChains */
-export type SomeChain = TezosChain | EvmChain;
-
 interface ChainBase {
   rpcBaseURL: string;
   name: string;
@@ -15,7 +12,6 @@ interface ChainBase {
   disabled?: boolean;
 }
 
-/** TODO: || ChainOfTezos || ChainForTezos */
 export interface TezosChain extends ChainBase {
   kind: TempleChainKind.Tezos;
   chainId: string;
@@ -30,6 +26,8 @@ export interface EvmChain extends ChainBase {
   rpc: StoredEvmNetwork;
   allRpcs: StoredEvmNetwork[];
 }
+
+export type OneOfChains = TezosChain | EvmChain;
 
 export interface TezosChainSpecs {
   activeRpcId: string;

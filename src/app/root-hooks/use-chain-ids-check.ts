@@ -3,47 +3,48 @@ import { useEffect } from 'react';
 import { RpcClient } from '@taquito/rpc';
 import { createPublicClient, http } from 'viem';
 
-import { useAllEvmChains, useAllTezosChains } from 'temple/front';
+import { OneOfChains, useAllEvmChains, useAllTezosChains } from 'temple/front';
+import { TempleChainTitle } from 'temple/types';
 
 /**
  * Note: fetching chains' IDs without memoization & cache.
  *
- * If user-action is applied, need to:
- * - Remove (replace) RPC
+ * TODO: Present consistent with UI dialog (instead of `alert`) with user action to:
+ * - Remove (replace) RPC & various cache
  * - Reload page to clear-out all runtime-memoized values by `chainId` + `rpcUrl` key
  */
 export const useChainIDsCheck = () => {
-  const tezosNetworks = useAllTezosChains();
+  const tezosChains = useAllTezosChains();
 
-  useEffect(
-    () =>
-      Object.values(tezosNetworks).forEach(network =>
-        new RpcClient(network.rpcBaseURL).getChainId().then(chainId => {
-          if (chainId !== network.chainId)
-            alert(
-              `Warning! Tezos RPC '${network.name}'(${network.rpcBaseURL}) has changed its network (${chainId} !== ${network.chainId}).`
-            );
-        })
-      ),
-    [tezosNetworks]
-  );
+  useEffect(() => {
+    for (const chain of Object.values(tezosChains)) {
+      const rpcClient = new RpcClient(chain.rpcBaseURL);
 
-  const evmNetworks = useAllEvmChains();
+      rpcClient.getChainId().then(chainId => {
+        if (chainId !== chain.chainId) handleChainIdMissmatch(chain, chainId);
+      });
+    }
+  }, [tezosChains]);
 
-  useEffect(
-    () =>
-      Object.values(evmNetworks).forEach(network =>
-        createPublicClient({
-          transport: http(network.rpcBaseURL)
-        })
-          .getChainId()
-          .then(chainId => {
-            if (chainId !== network.chainId)
-              alert(
-                `Warning! EVM RPC '${network.name}'(${network.rpcBaseURL}) has changed its network. (${chainId} !== ${network.chainId})`
-              );
-          })
-      ),
-    [evmNetworks]
+  const evmChains = useAllEvmChains();
+
+  useEffect(() => {
+    for (const chain of Object.values(evmChains)) {
+      const rpcClient = createPublicClient({
+        transport: http(chain.rpcBaseURL)
+      });
+
+      rpcClient.getChainId().then(chainId => {
+        if (chainId !== chain.chainId) handleChainIdMissmatch(chain, chainId);
+      });
+    }
+  }, [evmChains]);
+};
+
+const handleChainIdMissmatch = (chain: OneOfChains, chainId: string | number) => {
+  alert(
+    `Warning! ${TempleChainTitle[chain.kind]} RPC '${chain.name}'(${
+      chain.rpcBaseURL
+    }) has changed its network. (${chainId} !== ${chain.chainId})`
   );
 };

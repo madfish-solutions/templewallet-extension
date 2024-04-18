@@ -14,6 +14,10 @@ import { EXOLIX_CONTACT_LINK } from './config';
 import { ExchangeDataInterface } from './exolix.interface';
 import { ExolixSelectors } from './Exolix.selectors';
 
+/**
+ * Note: Feature is only available on Tezos Mainnet.
+ * TODO: Highlight in UI/UX
+ */
 const Exolix = memo(() => {
   const publicKeyHash = useAccountAddressForTezos();
 
@@ -52,11 +56,6 @@ const BuyCryptoContent = memo<BuyCryptoContentProps>(({ publicKeyHash }) => {
     2: ExolixSelectors.topupSecondStepSupportButton,
     3: ExolixSelectors.topupThirdStepSupportButton
   };
-
-  // TODO: Highlight that feature is only available on Mainnet
-  // if (!isMainnet) {
-  //   return <Redirect to={'/'} />;
-  // }
 
   const steps = (stepWord => [`${stepWord} 1`, `${stepWord} 2`, `${stepWord} 3`, `${stepWord} 4`])(t('step'));
 

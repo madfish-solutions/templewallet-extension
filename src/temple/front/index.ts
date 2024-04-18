@@ -15,7 +15,7 @@ export {
   useSetAccountId as useChangeAccount
 } from './ready';
 
-export type { SomeChain, TezosChain, EvmChain } from './chains';
+export type { TezosChain, EvmChain, OneOfChains } from './chains';
 export { useTezosChainByChainId, useTezosMainnetChain, useEvmMainnetChain } from './chains';
 
 export { getNetworkTitle, useTezosChainIdLoadingValue, useTempleNetworksActions } from './networks';

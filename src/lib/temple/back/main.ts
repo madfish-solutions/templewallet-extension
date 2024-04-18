@@ -278,8 +278,7 @@ browser.runtime.onMessage.addListener(async msg => {
           category: AnalyticsEventCategory.General,
           userId: userId ?? '',
           event: 'External Ads Activity',
-          properties: { domain: new URL(msg.url).hostname, accountPkh, provider: msg.provider },
-          chainId: undefined
+          properties: { domain: new URL(msg.url).hostname, accountPkh, provider: msg.provider }
         });
         break;
     }

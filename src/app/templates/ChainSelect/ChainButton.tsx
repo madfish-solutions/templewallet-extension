@@ -3,10 +3,10 @@ import React from 'react';
 import clsx from 'clsx';
 
 import { Button } from 'app/atoms/Button';
-import { SomeChain, getNetworkTitle } from 'temple/front';
+import { OneOfChains, getNetworkTitle } from 'temple/front';
 
 interface Props {
-  chain: SomeChain;
+  chain: OneOfChains;
   selected: boolean;
   onClick: EmptyFn;
 }

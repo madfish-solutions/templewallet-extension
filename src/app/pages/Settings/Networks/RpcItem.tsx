@@ -51,7 +51,7 @@ export const RpcItem = memo<Props>(({ network, onSelect, onRemoveClick, selected
           style={{ background: network.color }}
         />
       ) : (
-        <div className="ml-2 mr-3 w-3" />
+        <div className="w-8" />
       )}
 
       <div className="flex flex-col justify-between flex-1">

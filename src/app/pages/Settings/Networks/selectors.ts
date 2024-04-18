@@ -8,5 +8,8 @@ export enum NetworkSettingsSelectors {
   RPCbaseURLinputSection = 'Networks Settings/RPC base URL Input Section',
   RPCbaseURLinput = 'Networks Settings/RPC base URL Input',
 
-  addNetworkButton = 'Networks Settings/Add Network Button'
+  addNetworkButton = 'Networks Settings/Add Network Button',
+
+  blockExplorerItem = 'Networks Settings/Block Explorer Item',
+  blockExplorerDropDown = 'Networks Settings/Block Explorer Drop-down'
 }

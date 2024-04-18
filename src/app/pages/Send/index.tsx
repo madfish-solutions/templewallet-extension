@@ -8,7 +8,7 @@ import { useChainSelectController, ChainSelectSection } from 'app/templates/Chai
 import SendForm from 'app/templates/SendForm';
 import { t } from 'lib/i18n';
 import { UNDER_DEVELOPMENT_MSG } from 'temple/evm/under_dev_msg';
-import { SomeChain, useAccountForTezos, useAllTezosChains } from 'temple/front';
+import { OneOfChains, useAccountForTezos, useAllTezosChains } from 'temple/front';
 
 interface Props {
   tezosChainId?: string | null;
@@ -21,7 +21,9 @@ const Send = memo<Props>(({ tezosChainId, assetSlug }) => {
   const allTezosChains = useAllTezosChains();
 
   const chainSelectController = useChainSelectController();
-  const network = tezosChainId ? (allTezosChains[tezosChainId] as SomeChain | undefined) : chainSelectController.value;
+  const network = tezosChainId
+    ? (allTezosChains[tezosChainId] as OneOfChains | undefined)
+    : chainSelectController.value;
 
   return (
     <PageLayout pageTitle={<PageTitle icon={<SendIcon className="w-auto h-4 stroke-current" />} title={t('send')} />}>

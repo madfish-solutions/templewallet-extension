@@ -12,7 +12,6 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     const { trackEvent } = useAnalytics();
 
     const handleClick = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
-      // TODO: Not send event, if `props.disabled === true`
       testID && trackEvent(testID, AnalyticsEventCategory.ButtonPress, testIDProperties);
 
       return onClick?.(e);

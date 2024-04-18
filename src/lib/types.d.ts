@@ -14,6 +14,7 @@ type SyncFn<T, R = void> = (arg: T) => R;
 
 type StringRecord<T = string> = Record<string, T>;
 
+/** A more strict way to use Record, while `noUncheckedIndexedAccess` is not turned on. */
 type OptionalRecord<T = string> = {
   [key in string]?: T;
 };

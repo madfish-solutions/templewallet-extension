@@ -52,15 +52,7 @@ export const ActionButtonsBar = memo<Props>(({ tezosChainId, assetSlug }) => {
     <div className="flex justify-between mx-auto w-full max-w-sm">
       <ActionButton labelI18nKey="receive" Icon={ReceiveIcon} to="/receive" testID={HomeSelectors.receiveButton} />
 
-      <ActionButton
-        labelI18nKey="buyButton"
-        Icon={BuyIcon}
-        // to={isDcp ? 'https://buy.chainbits.com' : '/buy'}
-        // isAnchor={isDcp}
-        to="/buy"
-        // disabled={!(isDcp || isMainnet)}
-        testID={HomeSelectors.buyButton}
-      />
+      <ActionButton labelI18nKey="buyButton" Icon={BuyIcon} to="/buy" testID={HomeSelectors.buyButton} />
       <ActionButton
         labelI18nKey="swap"
         Icon={SwapIcon}
@@ -73,7 +65,6 @@ export const ActionButtonsBar = memo<Props>(({ tezosChainId, assetSlug }) => {
         labelI18nKey="withdraw"
         Icon={WithdrawIcon}
         to="/withdraw"
-        // disabled={!canSend || !isMainnet}
         disabled={!canSend}
         testID={HomeSelectors.withdrawButton}
       />
