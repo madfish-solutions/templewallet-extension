@@ -7,10 +7,10 @@ import { putTokensMetadataAction, setTokensMetadataLoadingAction } from 'app/sto
 import { useTokensMetadataLoadingSelector } from 'app/store/tokens-metadata/selectors';
 import { useGetTokenMetadata } from 'lib/metadata';
 import { loadTokensMetadata } from 'lib/metadata/fetch';
-import { useAllTezosChains } from 'temple/front';
+import { useEnabledTezosChains } from 'temple/front';
 
 export const AppTezosTokensMetadataLoading = memo<{ publicKeyHash: string }>(({ publicKeyHash }) => {
-  const allTezosNetworks = useAllTezosChains();
+  const tezosChains = useEnabledTezosChains();
   const allTokens = useAllTokensSelector();
   const getMetadata = useGetTokenMetadata();
   const isLoading = useTokensMetadataLoadingSelector();
@@ -29,8 +29,8 @@ export const AppTezosTokensMetadataLoading = memo<{ publicKeyHash: string }>(({ 
     let willLoad = false;
 
     Promise.allSettled(
-      Object.values(allTezosNetworks).map(network => {
-        const key = getAccountAssetsStoreKey(publicKeyHash, network.chainId);
+      tezosChains.map(chain => {
+        const key = getAccountAssetsStoreKey(publicKeyHash, chain.chainId);
         const tokensRecord = allTokens[key];
         const slugs = tokensRecord ? Object.keys(tokensRecord) : [];
         const slugsWithoutMeta = slugs.filter(slug => !getMetadata(slug) && !checkedRef.current.includes(slug));
@@ -44,13 +44,13 @@ export const AppTezosTokensMetadataLoading = memo<{ publicKeyHash: string }>(({ 
           dispatch(setTokensMetadataLoadingAction(true));
         }
 
-        return loadTokensMetadata(network.rpcBaseURL, slugsWithoutMeta).then(
+        return loadTokensMetadata(chain.rpcBaseURL, slugsWithoutMeta).then(
           fetchedMetadata => void dispatch(putTokensMetadataAction({ records: fetchedMetadata })),
           error => void console.error(error)
         );
       })
     ).then(() => void dispatch(setTokensMetadataLoadingAction(false)));
-  }, [allTezosNetworks, allTokens, publicKeyHash]);
+  }, [tezosChains, allTokens, publicKeyHash]);
 
   return null;
 });

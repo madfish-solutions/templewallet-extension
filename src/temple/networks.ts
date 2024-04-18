@@ -26,14 +26,12 @@ export interface NetworkBase {
   description?: string;
   /** TODO: Remove, when(if) deprecated */
   color: string;
+  /** Means: hardcoded, never stored */
+  default?: boolean;
   // Deprecated params:
   /** @deprecated */
   type?: 'main' | 'test' | 'dcp';
-  /** @deprecated // (i) No persisted item had it set to `true` */
-  disabled?: boolean;
 }
-
-export type StoredNetwork = StoredTezosNetwork | StoredEvmNetwork;
 
 export interface StoredTezosNetwork extends NetworkBase {
   chain: TempleChainKind.Tezos;
@@ -52,7 +50,8 @@ const TEZOS_DCP_NETWORKS: StoredTezosNetwork[] = [
     chainId: TempleTezosChainId.Dcp,
     rpcBaseURL: 'https://rpc.decentralized.pictures',
     description: 'Decentralized pictures Betanet',
-    color: '#047857'
+    color: '#047857',
+    default: true
   },
   {
     id: 't4l3nt-testnet',
@@ -61,10 +60,12 @@ const TEZOS_DCP_NETWORKS: StoredTezosNetwork[] = [
     chainId: TempleTezosChainId.DcpTest,
     rpcBaseURL: 'https://staging-rpc.decentralized.pictures/',
     description: 'Decentralized pictures testnet',
-    color: '#131380'
+    color: '#131380',
+    default: true
   }
 ];
 
+/** (!) Never remove Mainnet */
 export const TEZOS_DEFAULT_NETWORKS: NonEmptyArray<StoredTezosNetwork> = [
   {
     id: 'mainnet',
@@ -74,7 +75,8 @@ export const TEZOS_DEFAULT_NETWORKS: NonEmptyArray<StoredTezosNetwork> = [
     chainId: TempleTezosChainId.Mainnet,
     rpcBaseURL: 'https://prod.tcinfra.net/rpc/mainnet',
     description: 'Tezos mainnet',
-    color: '#83b300'
+    color: '#83b300',
+    default: true
   },
   {
     id: 'marigold-mainnet',
@@ -84,7 +86,8 @@ export const TEZOS_DEFAULT_NETWORKS: NonEmptyArray<StoredTezosNetwork> = [
     chainId: TempleTezosChainId.Mainnet,
     rpcBaseURL: 'https://mainnet.tezos.marigold.dev',
     description: 'Marigold mainnet',
-    color: '#48bb78'
+    color: '#48bb78',
+    default: true
   },
   {
     id: 'smartpy-mainnet',
@@ -93,7 +96,8 @@ export const TEZOS_DEFAULT_NETWORKS: NonEmptyArray<StoredTezosNetwork> = [
     chainId: TempleTezosChainId.Mainnet,
     rpcBaseURL: 'https://mainnet.smartpy.io',
     description: 'SmartPy Mainnet',
-    color: '#34D399'
+    color: '#34D399',
+    default: true
   },
   {
     id: 'tezie-mainnet',
@@ -102,7 +106,8 @@ export const TEZOS_DEFAULT_NETWORKS: NonEmptyArray<StoredTezosNetwork> = [
     chainId: TempleTezosChainId.Mainnet,
     rpcBaseURL: 'https://mainnet.api.tez.ie',
     description: 'Highly available Tezos Mainnet nodes operated by ECAD Labs',
-    color: '#047857'
+    color: '#047857',
+    default: true
   },
   ...TEZOS_DCP_NETWORKS,
   {
@@ -112,14 +117,14 @@ export const TEZOS_DEFAULT_NETWORKS: NonEmptyArray<StoredTezosNetwork> = [
     chainId: TempleTezosChainId.Ghostnet,
     rpcBaseURL: 'https://rpc.ghostnet.teztnets.com',
     description: 'Ghostnet testnet',
-    color: '#131380'
+    color: '#131380',
+    default: true
   }
 ];
 
 export interface StoredEvmNetwork extends NetworkBase {
   chain: TempleChainKind.EVM;
   chainId: number;
-  currency: EvmNativeCurrency;
 }
 
 export interface EvmNativeCurrency {
@@ -128,44 +133,45 @@ export interface EvmNativeCurrency {
   decimals: number;
 }
 
-const DEFAULT_EVM_CURRENCY: EvmNativeCurrency = { name: 'Ether', symbol: 'ETH', decimals: 18 };
+export const DEFAULT_EVM_CURRENCY: EvmNativeCurrency = { name: 'Ether', symbol: 'ETH', decimals: 18 };
 
+/** (!) Never remove Mainnet */
 export const EVM_DEFAULT_NETWORKS: NonEmptyArray<StoredEvmNetwork> = [
   {
     id: 'mainnet',
     name: 'Ethereum Mainnet',
-    chainId: 1,
     chain: TempleChainKind.EVM,
-    currency: DEFAULT_EVM_CURRENCY,
+    chainId: 1,
     rpcBaseURL: 'https://cloudflare-eth.com',
-    color: '#83b300'
+    color: '#83b300',
+    default: true
   },
   {
     id: 'optimism',
     name: 'OP Mainnet',
     chain: TempleChainKind.EVM,
     chainId: 10,
-    currency: DEFAULT_EVM_CURRENCY,
     rpcBaseURL: 'https://mainnet.optimism.io',
     description: 'Optimism Mainnet',
-    color: '#48bb78'
+    color: '#48bb78',
+    default: true
   },
   {
     id: 'arbitrum',
     name: 'Arbitrum One',
     chain: TempleChainKind.EVM,
     chainId: 42_161,
-    currency: DEFAULT_EVM_CURRENCY,
     rpcBaseURL: 'https://arb1.arbitrum.io/rpc',
-    color: '#047857'
+    color: '#047857',
+    default: true
   },
   {
     id: 'polygon',
     name: 'Polygon',
     chain: TempleChainKind.EVM,
     chainId: 137,
-    currency: { name: 'MATIC', symbol: 'MATIC', decimals: 18 },
     rpcBaseURL: 'https://polygon-rpc.com',
-    color: '#34D399'
+    color: '#34D399',
+    default: true
   }
 ];

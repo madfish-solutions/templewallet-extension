@@ -19,17 +19,17 @@ import { ASSETS_SYNC_INTERVAL } from 'lib/fixed-times';
 import type { MetadataRecords, MetadataMap } from 'lib/metadata/types';
 import { useInterval, useMemoWithCompare, useUpdatableRef } from 'lib/ui/hooks';
 import { isTruthy } from 'lib/utils';
-import { useAllTezosChains } from 'temple/front';
+import { useEnabledTezosChains } from 'temple/front';
 
 export const AppTezosAssetsLoading = memo<{ publicKeyHash: string }>(({ publicKeyHash }) => {
-  const allTezosNetworks = useAllTezosChains();
+  const tezosChains = useEnabledTezosChains();
 
   const networks = useMemoWithCompare(
     () =>
-      Object.values(allTezosNetworks)
+      tezosChains
         .map(({ chainId, rpcBaseURL }) => (isKnownChainId(chainId) ? { chainId, rpcBaseURL } : null))
         .filter(isTruthy),
-    [allTezosNetworks]
+    [tezosChains]
   );
 
   const allTokensMetadata = useAllTokensMetadataSelector();

@@ -6,12 +6,11 @@ import browser from 'webextension-polyfill';
 import Flag from 'app/atoms/Flag';
 import { DropdownSelect } from 'app/templates/DropdownSelect/DropdownSelect';
 import { InputContainer } from 'app/templates/InputContainer/InputContainer';
-import { setTestID } from 'lib/analytics';
 import { T } from 'lib/i18n';
 import { searchAndFilterItems } from 'lib/utils/search-items';
 import { TezosBlockExplorer, useTezosBlockExplorersListingLogic } from 'temple/front/block-explorers';
 
-import { SettingsGeneralSelectors } from '../selectors';
+// import { NetworksSettingsSelectors } from '../selectors';
 
 interface Props {
   tezosChainId: string;
@@ -29,17 +28,21 @@ const BlockExplorerSelect = memo<Props>(({ tezosChainId }) => {
   const options = useMemo(() => searchBlockExplorer(searchValue, knownOptions), [knownOptions, searchValue]);
 
   const handleBlockExplorerChange = useCallback(
-    (option: TezosBlockExplorer) => {
-      setExplorerById(option.id);
-    },
+    (option: TezosBlockExplorer) => void setExplorerById(option.id),
     [setExplorerById]
   );
 
   return (
-    <div className="mb-8">
-      <InputContainer header={<BlockExplorerTitle />}>
+    <div>
+      <InputContainer
+        header={
+          <span className="mb-1 text-md leading-tight">
+            <T id="blockExplorer" />:
+          </span>
+        }
+      >
         <DropdownSelect
-          testID={SettingsGeneralSelectors.blockExplorerDropDown}
+          // testID={NetworksSettingsSelectors.blockExplorerDropDown}
           optionsListClassName="p-2"
           dropdownButtonClassName="p-3"
           DropdownFaceContent={currentOption ? <BlockExplorerFieldContent {...currentOption} /> : null}
@@ -63,14 +66,6 @@ const BlockExplorerSelect = memo<Props>(({ tezosChainId }) => {
 });
 
 export default BlockExplorerSelect;
-
-const BlockExplorerTitle: FC = () => (
-  <h2 className="leading-tight flex flex-col">
-    <span className="text-base font-semibold text-gray-700">
-      <T id="blockExplorer" />
-    </span>
-  </h2>
-);
 
 const BlockExplorerIcon: FC<Pick<TezosBlockExplorer, 'id' | 'name'>> = ({ id, name }) => (
   <Flag alt={name} className="ml-2 mr-3" src={browser.runtime.getURL(`/misc/explorer-logos/${id}.ico`)} />
@@ -98,7 +93,7 @@ const BlockExplorerOptionContent: FC<BlockExplorerOptionContentProps> = ({ optio
 
       <div
         className="w-full text-left text-lg text-gray-700"
-        {...setTestID(SettingsGeneralSelectors.blockExplorerItem)}
+        // {...setTestID(NetworksSettingsSelectors.blockExplorerItem)}
       >
         {option.name}
       </div>

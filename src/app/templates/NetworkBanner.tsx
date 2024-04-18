@@ -1,21 +1,20 @@
-import React, { memo, useMemo } from 'react';
+import React, { memo } from 'react';
 
 import classNames from 'clsx';
 
 import Name from 'app/atoms/Name';
 import { T } from 'lib/i18n';
-import { useAllTezosNetworks } from 'temple/front';
+import { useTezosChainByChainId } from 'temple/front';
 import { getNetworkTitle } from 'temple/front/networks';
+import { TezosNetworkEssentials } from 'temple/networks';
 
 interface Props {
-  rpc: string;
+  network: TezosNetworkEssentials;
   narrow?: boolean;
 }
 
-const NetworkBanner = memo<Props>(({ rpc, narrow = false }) => {
-  const networks = useAllTezosNetworks();
-
-  const knownNetwork = useMemo(() => networks.find(n => n.rpcBaseURL === rpc), [networks, rpc]);
+const NetworkBanner = memo<Props>(({ network, narrow = false }) => {
+  const knownChain = useTezosChainByChainId(network.chainId);
 
   return (
     <div className={classNames('flex flex-col w-full', narrow ? '-mt-1 mb-2' : 'mb-4')}>
@@ -24,16 +23,16 @@ const NetworkBanner = memo<Props>(({ rpc, narrow = false }) => {
           <T id="network" />
         </span>
 
-        {knownNetwork ? (
+        {knownChain ? (
           <div className="mb-1 flex items-center">
             <div
               className="mr-1 w-3 h-3 border border-primary-white rounded-full shadow-xs"
               style={{
-                backgroundColor: knownNetwork.color
+                backgroundColor: knownChain.rpc.color
               }}
             />
 
-            <span className="text-gray-700 text-sm">{getNetworkTitle(knownNetwork)}</span>
+            <span className="text-gray-700 text-sm">{getNetworkTitle(knownChain)}</span>
           </div>
         ) : (
           <div className="w-full mb-1 flex items-center">
@@ -49,7 +48,7 @@ const NetworkBanner = memo<Props>(({ rpc, narrow = false }) => {
             </span>
 
             <Name className="text-xs font-mono italic text-gray-900" style={{ maxWidth: '15rem' }}>
-              {rpc}
+              {network.rpcBaseURL}
             </Name>
           </div>
         )}

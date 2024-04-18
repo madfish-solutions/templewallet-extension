@@ -1,13 +1,9 @@
 export {
-  useAllTezosNetworks,
   useAllTezosChains,
-  useTezosNetwork,
-  useSetTezosNetworkId as useChangeTezosNetwork,
+  useEnabledTezosChains,
   //
-  useAllEvmNetworks,
   useAllEvmChains,
-  useEvmNetwork,
-  useSetEvmNetworkId as useChangeEvmNetwork,
+  useEnabledEvmChains,
   //
   useAllAccounts,
   useCurrentAccountId,
@@ -20,7 +16,7 @@ export {
 } from './ready';
 
 export type { SomeChain, TezosChain, EvmChain } from './chains';
-export { useTezosChainByChainId, useTezosMainnetChain } from './chains';
+export { useTezosChainByChainId, useTezosMainnetChain, useEvmMainnetChain } from './chains';
 
 export { getNetworkTitle, useTezosChainIdLoadingValue, useTempleNetworksActions } from './networks';
 

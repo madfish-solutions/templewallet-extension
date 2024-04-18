@@ -386,7 +386,7 @@ const ConfirmDAppForm = memo(() => {
                 />
               )}
 
-              <NetworkBanner rpc={payload.networkRpc} narrow={payload.type === 'connect'} />
+              <NetworkBanner network={tezosNetwork} narrow={payload.type === 'connect'} />
 
               <PayloadContent
                 tezosNetwork={tezosNetwork}

@@ -11,11 +11,9 @@ import ContentContainer from 'app/layouts/ContentContainer';
 import { useTempleClient } from 'lib/temple/front';
 import Popper from 'lib/ui/Popper';
 import { Link } from 'lib/woozie';
-import { useAccount, useEvmNetwork, useTezosNetwork } from 'temple/front';
-import { TempleChainKind } from 'temple/types';
+import { useAccount } from 'temple/front';
 
 import AccountDropdown from './Header/AccountDropdown';
-import NetworkSelect from './Header/NetworkSelect';
 import styles from './Header.module.css';
 import { HeaderSelectors } from './Header.selectors';
 
@@ -28,13 +26,11 @@ const Header = memo(() => {
       <ContentContainer className="py-4">
         <div className={classNames(appEnv.fullPage && 'px-4')}>
           <div className="flex items-stretch">
-            {appEnv.fullPage && (
-              <Link to="/" className="flex-shrink-0 mr-4" testID={HeaderSelectors.templeLogoIcon}>
-                <div className="flex items-center">
-                  <Logo hasTitle={appEnv.fullPage} fill="#FFFFFF" />
-                </div>
-              </Link>
-            )}
+            <Link to="/" className="flex-shrink-0 mr-4" testID={HeaderSelectors.templeLogoIcon}>
+              <div className="flex items-center">
+                <Logo hasTitle={appEnv.fullPage} fill="#FFFFFF" />
+              </div>
+            </Link>
 
             {ready && <Control />}
           </div>
@@ -48,8 +44,6 @@ export default Header;
 
 const Control = memo(() => {
   const account = useAccount();
-  const tezosNetwork = useTezosNetwork();
-  const evmNetwork = useEvmNetwork();
 
   return (
     <div className="flex-1 flex flex-col items-end">
@@ -81,12 +75,6 @@ const Control = memo(() => {
             </Button>
           )}
         </Popper>
-      </div>
-
-      <div className="mt-2 flex gap-x-2">
-        <NetworkSelect chain={TempleChainKind.EVM} currentNetwork={evmNetwork} />
-
-        <NetworkSelect chain={TempleChainKind.Tezos} currentNetwork={tezosNetwork} />
       </div>
     </div>
   );

@@ -15,12 +15,12 @@ export const getReadOnlyEvm = memoizee(
 
 // ts-prune-ignore-next
 export const getReadOnlyEvmForNetwork = memoizee(
-  (network: StoredEvmNetwork) =>
+  (network: StoredEvmNetwork, currency: EvmNativeCurrency) =>
     createPublicClient({
       chain: {
         id: network.chainId,
         name: network.name,
-        nativeCurrency: network.currency,
+        nativeCurrency: currency,
         rpcUrls: {
           default: {
             http: [network.rpcBaseURL]
@@ -31,8 +31,8 @@ export const getReadOnlyEvmForNetwork = memoizee(
     }),
   {
     max: MAX_MEMOIZED_TOOLKITS,
-    normalizer: ([{ chainId, name, rpcBaseURL, currency }]) =>
-      `${rpcBaseURL}${chainId}${name}${currency.decimals}${currency.symbol}${currency.name}`
+    normalizer: ([{ chainId, name, rpcBaseURL }, currency]) =>
+      `${rpcBaseURL}${chainId}${name}${JSON.stringify(currency)}`
   }
 );
 

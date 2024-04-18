@@ -21,7 +21,8 @@ import {
 import { nanoid } from 'nanoid';
 import browser, { Runtime } from 'webextension-polyfill';
 
-import { CURRENT_TEZOS_NETWORK_ID_STORAGE_KEY, CUSTOM_TEZOS_NETWORKS_STORAGE_KEY } from 'lib/constants';
+import { CUSTOM_TEZOS_NETWORKS_STORAGE_KEY, TEZOS_CHAINS_SPECS_STORAGE_KEY } from 'lib/constants';
+import { fetchFromStorage } from 'lib/storage';
 import { addLocalOperation } from 'lib/temple/activity';
 import * as Beacon from 'lib/temple/beacon';
 import {
@@ -30,10 +31,12 @@ import {
   TempleDAppPayload,
   TempleDAppSession,
   TempleDAppSessions,
-  TempleNotification
+  TempleNotification,
+  TEZOS_MAINNET_CHAIN_ID
 } from 'lib/temple/types';
 import { isValidTezosAddress } from 'lib/tezos';
-import { TEZOS_DEFAULT_NETWORKS } from 'temple/networks';
+import { TezosChainSpecs } from 'temple/front/chains';
+import { StoredTezosNetwork, TEZOS_DEFAULT_NETWORKS } from 'temple/networks';
 import { loadTezosChainId } from 'temple/tezos';
 
 import { intercom } from './defaults';
@@ -468,39 +471,35 @@ async function requestConfirm({ id, payload, onDecline, handleIntercomRequest }:
 }
 
 async function getNetworkRPC(net: TempleDAppNetwork) {
-  const targetRpc =
-    typeof net === 'string'
-      ? // (!) Assertion here is false
-        TEZOS_DEFAULT_NETWORKS.find(n => n.id === net)!.rpcBaseURL
-      : removeLastSlash(net.rpc);
-
-  if (typeof net === 'string') {
-    try {
-      const current = await getCurrentTempleNetwork();
-      const [currentChainId, targetChainId] = await Promise.all([
-        loadTezosChainId(current.rpcBaseURL),
-        loadTezosChainId(targetRpc).catch(() => null)
-      ]);
-
-      return targetChainId === null || currentChainId === targetChainId ? current.rpcBaseURL : targetRpc;
-    } catch {
-      return targetRpc;
-    }
-  } else {
-    return targetRpc;
+  if (net === 'sandbox') {
+    return 'http://localhost:8732';
   }
+
+  if (net === 'mainnet') {
+    const rpcUrl = await getActiveTempleRpcUrlByChainId(TEZOS_MAINNET_CHAIN_ID);
+
+    return rpcUrl!;
+  }
+
+  if (typeof net === 'string') throw new Error('Unsupported network');
+
+  return removeLastSlash(net.rpc);
 }
 
-async function getCurrentTempleNetwork() {
-  const {
-    [CURRENT_TEZOS_NETWORK_ID_STORAGE_KEY]: networkId,
-    [CUSTOM_TEZOS_NETWORKS_STORAGE_KEY]: customTezosNetworks
-  } = await browser.storage.local.get([CURRENT_TEZOS_NETWORK_ID_STORAGE_KEY, CUSTOM_TEZOS_NETWORKS_STORAGE_KEY]);
+async function getActiveTempleRpcUrlByChainId(chainId: string): Promise<string | undefined> {
+  const customTezosNetworks = await fetchFromStorage<StoredTezosNetwork[]>(CUSTOM_TEZOS_NETWORKS_STORAGE_KEY);
+  const chainNetworks = (
+    customTezosNetworks ? [...TEZOS_DEFAULT_NETWORKS, ...customTezosNetworks] : TEZOS_DEFAULT_NETWORKS
+  ).filter(n => n.chainId === chainId);
 
-  return (
-    [...TEZOS_DEFAULT_NETWORKS, ...(customTezosNetworks ?? [])].find(n => n.id === networkId) ??
-    TEZOS_DEFAULT_NETWORKS[0]
+  const tezosChainsSpecs = await fetchFromStorage<StringRecord<TezosChainSpecs | undefined>>(
+    TEZOS_CHAINS_SPECS_STORAGE_KEY
   );
+  const activeRpcId = tezosChainsSpecs?.[chainId]?.activeRpcId;
+
+  const activeChainRpc = (activeRpcId && chainNetworks.find(n => n.id === activeRpcId)) || chainNetworks[0];
+
+  return activeChainRpc?.rpcBaseURL;
 }
 
 function isAllowedNetwork(net: TempleDAppNetwork) {

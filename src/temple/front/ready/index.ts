@@ -11,15 +11,11 @@ import { useReadyTempleTezosNetworks, useReadyTempleEvmNetworks } from './networ
 export const [
   ReadyTempleProvider,
   //
-  useAllTezosNetworks,
   useAllTezosChains,
-  useTezosNetwork,
-  useSetTezosNetworkId,
+  useEnabledTezosChains,
   //
-  useAllEvmNetworks,
   useAllEvmChains,
-  useEvmNetwork,
-  useSetEvmNetworkId,
+  useEnabledEvmChains,
   //
   useAllAccounts,
   useCurrentAccountId,
@@ -34,15 +30,11 @@ export const [
 ] = constate(
   useReadyTemple,
   //
-  v => v.allTezosNetworks,
   v => v.allTezosChains,
-  v => v.tezosNetwork,
-  v => v.setTezosNetworkId,
+  v => v.enabledTezosChains,
   //
-  v => v.allEvmNetworks,
   v => v.allEvmChains,
-  v => v.evmNetwork,
-  v => v.setEvmNetworkId,
+  v => v.enabledEvmChains,
   //
   v => v.allAccounts,
   v => v.accountId,
@@ -71,7 +63,7 @@ function useReadyTemple() {
   useLayoutEffect(() => {
     const evt = new CustomEvent('reseterrorboundary');
     window.dispatchEvent(evt);
-  }, [readyTempleAccounts.accountId, readyTempleTezosNetworks.tezosNetwork.id, readyTempleEvmNetworks.evmNetwork.id]);
+  }, [readyTempleAccounts.accountId]);
 
   return {
     ...readyTempleTezosNetworks,

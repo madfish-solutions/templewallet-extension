@@ -266,7 +266,7 @@ const InternalConfirmation: FC<InternalConfiramtionProps> = ({ payload, onConfir
             <>
               <AccountBanner account={account} className="w-full mb-4" smallLabelIndent />
 
-              <NetworkBanner rpc={networkRpc} />
+              <NetworkBanner network={tezosNetwork} />
 
               {signPayloadFormats.length > 1 && (
                 <div className="w-full flex justify-end mb-3 items-center">

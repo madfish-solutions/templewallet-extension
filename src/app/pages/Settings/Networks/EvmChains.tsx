@@ -2,18 +2,23 @@ import React, { memo, useCallback } from 'react';
 
 import { useForm } from 'react-hook-form';
 
-import { FormField, FormSubmitButton, SubTitle } from 'app/atoms';
+import { FormField, FormSubmitButton, Name, SubTitle } from 'app/atoms';
 import { URL_PATTERN } from 'app/defaults';
+import { EVM_CHAINS_SPECS_STORAGE_KEY } from 'lib/constants';
 import { T, t } from 'lib/i18n';
+import { useStorage } from 'lib/temple/front';
 import { COLORS } from 'lib/ui/colors';
 import { useConfirm } from 'lib/ui/dialog';
+import { EMPTY_FROZEN_OBJ } from 'lib/utils';
 import { loadEvmChainInfo } from 'temple/evm';
-import { useTempleNetworksActions } from 'temple/front';
-import { EVM_DEFAULT_NETWORKS, EvmNativeCurrency } from 'temple/networks';
-import { TempleChainKind } from 'temple/types';
+import { EvmChain, getNetworkTitle, useAllEvmChains, useTempleNetworksActions } from 'temple/front';
+import { EvmChainSpecs } from 'temple/front/chains';
+import { EVM_DEFAULT_NETWORKS } from 'temple/networks';
+import { TempleChainKind, TempleChainTitle } from 'temple/types';
 
-import { NetworksList } from './NetworksList';
-// import { NetworkSettingsSelectors } from './selectors';
+import { RpcItem } from './RpcItem';
+
+// import { NetworkSettingsSelectors } from './selectors'; // TODO: Set
 
 interface NetworkFormData {
   name: string;
@@ -22,7 +27,8 @@ interface NetworkFormData {
 
 const SUBMIT_ERROR_TYPE = 'submit-error';
 
-export const EvmNetworksSettings = memo(() => {
+export const EvmChainsSettings = memo(() => {
+  const chainsRecord = useAllEvmChains();
   const { customEvmNetworks, addEvmNetwork, removeEvmNetwork } = useTempleNetworksActions();
 
   const confirm = useConfirm();
@@ -43,12 +49,11 @@ export const EvmNetworksSettings = memo(() => {
       if (submitting) return;
       clearError();
 
-      let chainId: number, currency: EvmNativeCurrency;
+      let chainId: number;
       try {
         const info = await loadEvmChainInfo(rpcBaseURL);
 
         chainId = info.chainId;
-        currency = info.currency;
       } catch (error) {
         console.error(error);
 
@@ -64,7 +69,6 @@ export const EvmNetworksSettings = memo(() => {
           id: rpcBaseURL,
           chain: TempleChainKind.EVM,
           chainId,
-          currency,
           rpcBaseURL,
           name,
           color
@@ -106,13 +110,25 @@ export const EvmNetworksSettings = memo(() => {
   );
 
   return (
-    <div className="w-full max-w-sm mt-6 p-2 pb-4 mx-auto">
-      <NetworksList
-        chain={TempleChainKind.EVM}
-        customNetworks={customEvmNetworks}
-        defaultNetworks={EVM_DEFAULT_NETWORKS}
-        handleRemoveClick={handleRemoveClick}
-      />
+    <>
+      <div className="flex flex-col mb-8">
+        <h2 className="mb-4 leading-tight flex flex-col">
+          <span className="text-base font-semibold text-gray-700">
+            {/* <T id="currentNetworks" /> */}
+            {TempleChainTitle[TempleChainKind.EVM]} <T id="networks" />
+          </span>
+
+          <span className="mt-1 text-xs font-light text-gray-600 max-w-9/10">
+            <T id="deleteNetworkHint" />
+          </span>
+        </h2>
+
+        <div className="flex flex-col gap-y-4">
+          {Object.values(chainsRecord).map(chain => (
+            <ChainItem key={chain.chainId} chain={chain} onRemoveClick={handleRemoveClick} />
+          ))}
+        </div>
+      </div>
 
       <SubTitle>
         <T id="addNetwork" />
@@ -164,6 +180,60 @@ export const EvmNetworksSettings = memo(() => {
           <T id="addNetwork" />
         </FormSubmitButton>
       </form>
+    </>
+  );
+});
+
+interface ChainItemProps {
+  chain: EvmChain;
+  onRemoveClick: SyncFn<string>;
+}
+
+const ChainItem = memo<ChainItemProps>(({ chain, onRemoveClick }) => {
+  const {
+    chainId,
+    allRpcs: networks,
+    rpc: { id: activeRpcId }
+  } = chain;
+
+  const [evmChainsSpecs, setEvmChainsSpecs] = useStorage<StringRecord<EvmChainSpecs | undefined>>(
+    EVM_CHAINS_SPECS_STORAGE_KEY,
+    EMPTY_FROZEN_OBJ
+  );
+
+  const onRpcSelect = useCallback(
+    (rpcId: string) => {
+      const specs = { ...evmChainsSpecs[chainId], activeRpcId: rpcId };
+
+      setEvmChainsSpecs({ ...evmChainsSpecs, [chainId]: specs });
+    },
+    [setEvmChainsSpecs, evmChainsSpecs, chainId]
+  );
+
+  const lastIndex = networks.length - 1;
+
+  return (
+    <div className="flex flex-col text-gray-700 text-sm leading-tight border rounded-lg overflow-hidden">
+      <div className="flex flex-col justify-between py-2 px-4 bg-gray-100 border-b border-gray-200">
+        <Name className="mb-1 text-md font-medium leading-tight">{getNetworkTitle(chain)}</Name>
+
+        <div className="text-xs text-gray-700 font-light flex items-center mb-1">
+          Chain ID:<Name className="ml-1 font-normal">{chain.chainId}</Name>
+        </div>
+      </div>
+
+      <div className="flex flex-col">
+        {networks.map((rpc, index) => (
+          <RpcItem
+            key={rpc.id}
+            network={rpc}
+            selected={rpc.id === activeRpcId}
+            last={index === lastIndex}
+            onSelect={onRpcSelect}
+            onRemoveClick={rpc.default ? undefined : onRemoveClick}
+          />
+        ))}
+      </div>
     </div>
   );
 });

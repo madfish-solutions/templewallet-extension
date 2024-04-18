@@ -1,59 +1,28 @@
-import React, { FC, memo, useMemo } from 'react';
+import React, { memo, useCallback, useMemo } from 'react';
 
 import clsx from 'clsx';
 
 import { Name } from 'app/atoms';
 import { ReactComponent as CloseIcon } from 'app/icons/close.svg';
 import { setAnotherSelector, setTestID } from 'lib/analytics';
-import { T, t } from 'lib/i18n';
+import { t } from 'lib/i18n';
 import { getNetworkTitle } from 'temple/front';
-import { EVM_DEFAULT_NETWORKS, NetworkBase } from 'temple/networks';
-import { TempleChainKind, TempleChainTitle } from 'temple/types';
+import { NetworkBase } from 'temple/networks';
 
 import { NetworkSettingsSelectors } from './selectors';
 
 interface Props {
-  chain: TempleChainKind;
-  customNetworks: NetworkBase[];
-  defaultNetworks: NetworkBase[];
-  /** With passed network ID */
-  handleRemoveClick: SyncFn<string>;
+  network: NetworkBase;
+  selected: boolean;
+  last: boolean;
+  onSelect: SyncFn<string>;
+  onRemoveClick?: SyncFn<string>;
 }
 
-export const NetworksList = memo<Props>(({ chain, customNetworks, defaultNetworks, handleRemoveClick }) => {
-  return (
-    <div className="flex flex-col mb-8">
-      <h2 className="mb-4 leading-tight flex flex-col">
-        <span className="text-base font-semibold text-gray-700">
-          {/* <T id="currentNetworks" /> */}
-          {TempleChainTitle[chain]} <T id="networks" />
-        </span>
-
-        <span className="mt-1 text-xs font-light text-gray-600 max-w-9/10">
-          <T id="deleteNetworkHint" />
-        </span>
-      </h2>
-
-      <div className="flex flex-col text-gray-700 text-sm leading-tight border rounded-md overflow-hidden">
-        {customNetworks.map(network => (
-          <ListItem network={network} last={false} key={network.rpcBaseURL} onRemoveClick={handleRemoveClick} />
-        ))}
-        {defaultNetworks.map((network, index) => (
-          <ListItem key={network.rpcBaseURL} last={index === EVM_DEFAULT_NETWORKS.length - 1} network={network} />
-        ))}
-      </div>
-    </div>
-  );
-});
-
-type ListItemProps = {
-  network: NetworkBase;
-  onRemoveClick?: (id: string) => void;
-  last: boolean;
-};
-
-const ListItem: FC<ListItemProps> = ({ network, onRemoveClick, last }) => {
+export const RpcItem = memo<Props>(({ network, onSelect, onRemoveClick, selected, last }) => {
   const rpcBaseURL = network.rpcBaseURL;
+
+  const handleClick = useCallback(() => (selected ? null : onSelect(network.id)), [onSelect, selected, network.id]);
 
   const handleRemoveClick = useMemo(() => {
     if (!onRemoveClick) return null;
@@ -64,7 +33,7 @@ const ListItem: FC<ListItemProps> = ({ network, onRemoveClick, last }) => {
   return (
     <div
       className={clsx(
-        'flex items-stretch block w-full overflow-hidden text-gray-700',
+        'flex items-stretch block w-full overflow-hidden text-gray-700 cursor-pointer',
         !last && 'border-b border-gray-200',
         'opacity-90 hover:opacity-100 focus:outline-none',
         'transition ease-in-out duration-200'
@@ -72,13 +41,18 @@ const ListItem: FC<ListItemProps> = ({ network, onRemoveClick, last }) => {
       style={{
         padding: '0.4rem 0.375rem 0.4rem 0.375rem'
       }}
+      onClick={handleClick}
       {...setTestID(NetworkSettingsSelectors.networkItem)}
       {...setAnotherSelector('url', rpcBaseURL)}
     >
-      <div
-        className="mt-1 ml-2 mr-3 w-3 h-3 border border-primary-white rounded-full shadow-xs"
-        style={{ background: network.color }}
-      />
+      {selected ? (
+        <div
+          className="mt-1 ml-2 mr-3 w-3 h-3 border border-primary-white rounded-full shadow-xs"
+          style={{ background: network.color }}
+        />
+      ) : (
+        <div className="ml-2 mr-3 w-3" />
+      )}
 
       <div className="flex flex-col justify-between flex-1">
         <Name className="mb-1 text-sm font-medium leading-tight">{getNetworkTitle(network)}</Name>
@@ -105,4 +79,4 @@ const ListItem: FC<ListItemProps> = ({ network, onRemoveClick, last }) => {
       )}
     </div>
   );
-};
+});

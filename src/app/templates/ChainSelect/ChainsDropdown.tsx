@@ -7,7 +7,7 @@ import { useShortcutAccountSelectModalIsOpened } from 'app/hooks/use-account-sel
 import { ReactComponent as SignalAltIcon } from 'app/icons/signal-alt.svg';
 import { T } from 'lib/i18n';
 import { PopperRenderProps } from 'lib/ui/Popper';
-import { TezosChain, EvmChain, useAllTezosChains, useAllEvmChains } from 'temple/front';
+import { TezosChain, EvmChain, useEnabledTezosChains, useEnabledEvmChains } from 'temple/front';
 import { TempleChainTitle } from 'temple/types';
 
 import { ChainButton } from './ChainButton';
@@ -21,11 +21,8 @@ interface Props extends PopperRenderProps {
 export const ChainsDropdown = memo<Props>(({ opened, setOpened, controller }) => {
   const selectedChain = controller.value;
 
-  const allTezosChains = useAllTezosChains();
-  const allEvmNetworks = useAllEvmChains();
-
-  const tezosNetworks = useMemo(() => Object.values(allTezosChains), [allTezosChains]);
-  const evmNetworks = useMemo(() => Object.values(allEvmNetworks), [allEvmNetworks]);
+  const tezosChains = useEnabledTezosChains();
+  const evmChains = useEnabledEvmChains();
 
   useShortcutAccountSelectModalIsOpened(() => setOpened(false));
 
@@ -61,19 +58,19 @@ export const ChainsDropdown = memo<Props>(({ opened, setOpened, controller }) =>
           {TempleChainTitle.tezos} <T id="networks" />
         </h2>
 
-        {tezosNetworks.map(network => {
-          const { chainId } = network;
+        {tezosChains.map(chain => {
+          const { chainId } = chain;
           const selected = chainId === selectedChain.chainId && selectedChain.kind === 'tezos';
 
           return (
             <ChainButton
               key={chainId}
-              chain={network}
+              chain={chain}
               selected={selected}
               onClick={() => {
                 setOpened(false);
 
-                if (!selected) handleTezosNetworkSelect(network);
+                if (!selected) handleTezosNetworkSelect(chain);
               }}
             />
           );
@@ -84,19 +81,19 @@ export const ChainsDropdown = memo<Props>(({ opened, setOpened, controller }) =>
           {TempleChainTitle.evm} <T id="networks" />
         </h2>
 
-        {evmNetworks.map(network => {
-          const { chainId } = network;
+        {evmChains.map(chain => {
+          const { chainId } = chain;
           const selected = chainId === selectedChain.chainId && selectedChain.kind === 'evm';
 
           return (
             <ChainButton
               key={chainId}
-              chain={network}
+              chain={chain}
               selected={selected}
               onClick={() => {
                 setOpened(false);
 
-                if (!selected) handleEvmNetworkSelect(network);
+                if (!selected) handleEvmNetworkSelect(chain);
               }}
             />
           );

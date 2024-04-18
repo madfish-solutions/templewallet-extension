@@ -8,19 +8,19 @@ import { useBalancesErrorSelector, useBalancesLoadingSelector } from 'app/store/
 import { TzktApiChainId, isKnownChainId } from 'lib/apis/tzkt';
 import { useDidUpdate, useMemoWithCompare } from 'lib/ui/hooks';
 import { isTruthy } from 'lib/utils';
-import { useAllTezosChains, useOnTezosBlock } from 'temple/front';
+import { useEnabledTezosChains, useOnTezosBlock } from 'temple/front';
 
 import { useTzktSubscription } from './use-tzkt-subscription';
 
 export const AppTezosBalancesLoading = memo<{ publicKeyHash: string }>(({ publicKeyHash }) => {
-  const allTezosNetworks = useAllTezosChains();
+  const tezosChains = useEnabledTezosChains();
 
   const knownTezosNetworks = useMemoWithCompare(
     () =>
-      Object.values(allTezosNetworks)
+      tezosChains
         .map(({ chainId, rpcBaseURL }) => (isKnownChainId(chainId) ? { chainId, rpcBaseURL } : null))
         .filter(isTruthy),
-    [allTezosNetworks]
+    [tezosChains]
   );
 
   return (

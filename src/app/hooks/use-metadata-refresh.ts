@@ -9,7 +9,7 @@ import { reduceToMetadataRecord } from 'lib/metadata/fetch';
 import { TempleTezosChainId } from 'lib/temple/types';
 import { useDidMount, useMemoWithCompare } from 'lib/ui/hooks';
 import { useLocalStorage } from 'lib/ui/local-storage';
-import { useAllTezosChains } from 'temple/front';
+import { useEnabledTezosChains } from 'temple/front';
 
 const STORAGE_KEY = 'METADATA_REFRESH';
 
@@ -18,9 +18,9 @@ type RefreshRecords = StringRecord<number>;
 const REFRESH_VERSION = 1;
 
 export const useMetadataRefresh = () => {
-  const tezosNetworks = useAllTezosChains();
+  const tezosChains = useEnabledTezosChains();
 
-  const tezosChainsIDs = useMemoWithCompare(() => Object.keys(tezosNetworks), [tezosNetworks]);
+  const tezosChainsIDs = useMemoWithCompare(() => tezosChains.map(chain => chain.chainId), [tezosChains]);
 
   const [records, setRecords] = useLocalStorage<RefreshRecords>(STORAGE_KEY, {});
 

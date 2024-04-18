@@ -2,10 +2,8 @@ import { nanoid } from 'nanoid';
 
 import {
   ADS_VIEWER_TEZOS_ADDRESS_STORAGE_KEY,
-  CURRENT_TEZOS_NETWORK_ID_STORAGE_KEY,
   CUSTOM_TEZOS_NETWORKS_STORAGE_KEY,
   ACCOUNT_PKH_STORAGE_KEY,
-  NETWORK_ID_STORAGE_KEY,
   CUSTOM_NETWORKS_SNAPSHOT_STORAGE_KEY
 } from 'lib/constants';
 import { moveValueInStorage, fetchFromStorage, putToStorage, removeFromStorage } from 'lib/storage';
@@ -199,8 +197,6 @@ export const MIGRATIONS = [
       toEncryptAndSave.push([settingsStrgKey, settings]);
     }
 
-    moveValueInStorage(NETWORK_ID_STORAGE_KEY, CURRENT_TEZOS_NETWORK_ID_STORAGE_KEY);
-
     // Taking a chance to migrate the list of manually-added user's Tezos networks (with chain IDs).
     // (!) Internet connection would have be available during this.
     fetchFromStorage<Omit<StoredTezosNetwork, 'chain'>[]>(CUSTOM_NETWORKS_SNAPSHOT_STORAGE_KEY).then(
@@ -232,7 +228,7 @@ export const MIGRATIONS = [
 
     /* CLEAN-UP */
 
-    removeFromStorage(['tokens_base_metadata', 'block_explorer']);
+    removeFromStorage(['network_id', 'tokens_base_metadata', 'block_explorer']);
 
     console.log('VAULT.MIGRATIONS: EVM migration finished');
   }

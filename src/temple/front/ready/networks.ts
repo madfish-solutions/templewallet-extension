@@ -1,19 +1,19 @@
-import { useEffect, useMemo } from 'react';
+import { useMemo } from 'react';
 
-import { CURRENT_TEZOS_NETWORK_ID_STORAGE_KEY, CURRENT_EVM_NETWORK_ID_STORAGE_KEY } from 'lib/constants';
-import { usePassiveStorage } from 'lib/temple/front/storage';
-import { TempleTezosChainId } from 'lib/temple/types';
-import { useMemoWithCompare } from 'lib/ui/hooks';
+import { EVM_CHAINS_SPECS_STORAGE_KEY, TEZOS_CHAINS_SPECS_STORAGE_KEY } from 'lib/constants';
+import { useStorage } from 'lib/temple/front/storage';
+import { TEZOS_MAINNET_CHAIN_ID } from 'lib/temple/types';
+import { EMPTY_FROZEN_OBJ } from 'lib/utils';
 import {
+  DEFAULT_EVM_CURRENCY,
   EVM_DEFAULT_NETWORKS,
   StoredEvmNetwork,
   StoredTezosNetwork,
-  TEZOS_DEFAULT_NETWORKS,
-  isTezosDcpChainId
+  TEZOS_DEFAULT_NETWORKS
 } from 'temple/networks';
 import { TempleChainKind } from 'temple/types';
 
-import type { TezosChain, EvmChain } from '../chains';
+import type { TezosChain, EvmChain, TezosChainSpecs, EvmChainSpecs } from '../chains';
 
 export function useReadyTempleTezosNetworks(customTezosNetworks: StoredTezosNetwork[]) {
   const allTezosNetworks = useMemo<typeof TEZOS_DEFAULT_NETWORKS>(
@@ -21,23 +21,10 @@ export function useReadyTempleTezosNetworks(customTezosNetworks: StoredTezosNetw
     [customTezosNetworks]
   );
 
-  const defTezosNetwork = allTezosNetworks[0];
-
-  const [tezosNetworkId, setTezosNetworkId] = usePassiveStorage(
-    CURRENT_TEZOS_NETWORK_ID_STORAGE_KEY,
-    defTezosNetwork.id
+  const [tezosChainsSpecs] = useStorage<StringRecord<TezosChainSpecs | undefined>>(
+    TEZOS_CHAINS_SPECS_STORAGE_KEY,
+    EMPTY_FROZEN_OBJ
   );
-
-  const tezosNetwork = useMemoWithCompare(() => {
-    const tezosNetwork = allTezosNetworks.find(n => n.id === tezosNetworkId) ?? defTezosNetwork;
-    const chainId = tezosNetwork.chainId;
-
-    return {
-      ...tezosNetwork,
-      isMainnet: chainId === TempleTezosChainId.Mainnet,
-      isDcp: isTezosDcpChainId(chainId)
-    };
-  }, [allTezosNetworks, tezosNetworkId, defTezosNetwork]);
 
   const allTezosChains = useMemo(() => {
     const rpcByChainId = new Map<string, NonEmptyArray<StoredTezosNetwork>>();
@@ -51,8 +38,9 @@ export function useReadyTempleTezosNetworks(customTezosNetworks: StoredTezosNetw
     const chains: StringRecord<TezosChain> = {};
 
     for (const [chainId, networks] of rpcByChainId) {
-      const activeRpcId = 'NOT_IMPLEMENTED'; // TODO: Implement!
-      const activeRpc = networks.find(n => n.id === activeRpcId) ?? networks[0];
+      const specs = tezosChainsSpecs[chainId];
+      const activeRpcId = specs?.activeRpcId;
+      const activeRpc = (activeRpcId && networks.find(n => n.id === activeRpcId)) || networks[0];
       const { rpcBaseURL } = activeRpc;
 
       const defaultRpc = TEZOS_DEFAULT_NETWORKS.find(n => n.chainId === chainId);
@@ -65,26 +53,19 @@ export function useReadyTempleTezosNetworks(customTezosNetworks: StoredTezosNetw
         name,
         nameI18nKey,
         rpc: activeRpc,
-        disabled: false // TODO: Implement!
+        allRpcs: networks,
+        disabled: chainId === TEZOS_MAINNET_CHAIN_ID ? false : specs?.disabled
       };
     }
 
     return chains;
-  }, [allTezosNetworks]);
+  }, [allTezosNetworks, tezosChainsSpecs]);
 
-  useEffect(() => {
-    if (allTezosNetworks.every(a => a.id !== tezosNetworkId)) {
-      setTezosNetworkId(defTezosNetwork.id);
-    }
-  }, [allTezosNetworks, tezosNetworkId, defTezosNetwork, setTezosNetworkId]);
+  const enabledTezosChains = useMemo(() => Object.values(allTezosChains), [allTezosChains]);
 
   return {
-    allTezosNetworks,
     allTezosChains,
-    //
-    //
-    tezosNetwork,
-    setTezosNetworkId
+    enabledTezosChains
   };
 }
 
@@ -94,13 +75,9 @@ export function useReadyTempleEvmNetworks(customEvmNetworks: StoredEvmNetwork[])
     [customEvmNetworks]
   );
 
-  const defEvmNetwork = allEvmNetworks[0];
-
-  const [evmNetworkId, setEvmNetworkId] = usePassiveStorage(CURRENT_EVM_NETWORK_ID_STORAGE_KEY, defEvmNetwork.id);
-
-  const evmNetwork = useMemoWithCompare(
-    () => allEvmNetworks.find(n => n.id === evmNetworkId) ?? defEvmNetwork,
-    [allEvmNetworks, evmNetworkId, defEvmNetwork]
+  const [evmChainsSpecs] = useStorage<StringRecord<EvmChainSpecs | undefined>>(
+    EVM_CHAINS_SPECS_STORAGE_KEY,
+    EMPTY_FROZEN_OBJ
   );
 
   const allEvmChains = useMemo(() => {
@@ -115,7 +92,11 @@ export function useReadyTempleEvmNetworks(customEvmNetworks: StoredEvmNetwork[])
     const chains: StringRecord<EvmChain> = {};
 
     for (const [chainId, networks] of rpcByChainId) {
-      const activeRpcId = 'NOT_IMPLEMENTED'; // TODO: Implement!
+      const specs = evmChainsSpecs[chainId];
+      const currency = specs?.currency ?? DEFAULT_EVM_CURRENCY;
+      // TODO: if (!currency) continue; // Without default one, with defaults by chain IDs
+
+      const activeRpcId = specs?.activeRpcId;
       const activeRpc = networks.find(n => n.id === activeRpcId) ?? networks[0];
       const { rpcBaseURL } = activeRpc;
 
@@ -128,26 +109,20 @@ export function useReadyTempleEvmNetworks(customEvmNetworks: StoredEvmNetwork[])
         rpcBaseURL,
         name,
         nameI18nKey,
+        currency,
         rpc: activeRpc,
-        disabled: false // TODO: Implement!
+        allRpcs: networks,
+        disabled: chainId === 1 ? false : specs?.disabled
       };
     }
 
     return chains;
-  }, [allEvmNetworks]);
+  }, [allEvmNetworks, evmChainsSpecs]);
 
-  useEffect(() => {
-    if (allEvmNetworks.every(a => a.id !== evmNetworkId)) {
-      setEvmNetworkId(defEvmNetwork.id);
-    }
-  }, [allEvmNetworks, evmNetworkId, defEvmNetwork, setEvmNetworkId]);
+  const enabledEvmChains = useMemo(() => Object.values(allEvmChains), [allEvmChains]);
 
   return {
-    allEvmNetworks,
     allEvmChains,
-    //
-    //
-    evmNetwork,
-    setEvmNetworkId
+    enabledEvmChains
   };
 }
