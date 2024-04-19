@@ -30,12 +30,12 @@ export interface EvmChain extends ChainBase {
 export type OneOfChains = TezosChain | EvmChain;
 
 export interface TezosChainSpecs {
-  activeRpcId: string;
+  activeRpcId?: string;
   disabled?: boolean;
 }
 
 export interface EvmChainSpecs {
-  activeRpcId: string;
+  activeRpcId?: string;
   disabled?: boolean;
   currency?: EvmNativeCurrency;
 }

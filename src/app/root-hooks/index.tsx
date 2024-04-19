@@ -7,7 +7,7 @@ import { useTokensApyLoading } from 'app/hooks/use-load-tokens-apy.hook';
 import { useLongRefreshLoading } from 'app/hooks/use-long-refresh-loading.hook';
 import { useMetadataRefresh } from 'app/hooks/use-metadata-refresh';
 import { useStorageAnalytics } from 'app/hooks/use-storage-analytics';
-import { useUserIdSync } from 'app/hooks/use-user-id-sync';
+import { useUserIdAccountPkhSync } from 'app/hooks/use-user-id-account-pkh-sync';
 import { dispatch } from 'app/store';
 import { loadTokensWhitelistActions, loadTokensScamlistActions } from 'app/store/assets/actions';
 import { loadSwapDexesAction, loadSwapTokensAction } from 'app/store/swap/actions';
@@ -19,7 +19,6 @@ import { AppTezosAssetsLoading } from './assets-loading';
 import { AppTezosBalancesLoading } from './balances-loading';
 import { AppTezosTokensMetadataLoading } from './metadata-loading';
 import { useChainIDsCheck } from './use-chain-ids-check';
-import { useUserIdAccountPkhSync } from "app/hooks/use-user-id-account-pkh-sync";
 
 export const AppRootHooks = memo(() => {
   const { ready } = useTempleClient();
@@ -45,7 +44,6 @@ const AppReadyRootHooks = memo(() => {
   }, []);
 
   useStorageAnalytics();
-  useUserIdSync();
 
   useChainIDsCheck();
   useUserIdAccountPkhSync();

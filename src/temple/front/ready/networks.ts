@@ -97,7 +97,7 @@ export function useReadyTempleEvmNetworks(customEvmNetworks: StoredEvmNetwork[])
       // TODO: if (!currency) continue; // Without default one, with defaults by chain IDs
 
       const activeRpcId = specs?.activeRpcId;
-      const activeRpc = networks.find(n => n.id === activeRpcId) ?? networks[0];
+      const activeRpc = (activeRpcId && networks.find(n => n.id === activeRpcId)) || networks[0];
       const { rpcBaseURL } = activeRpc;
 
       const defaultRpc = EVM_DEFAULT_NETWORKS.find(n => n.chainId === chainId);

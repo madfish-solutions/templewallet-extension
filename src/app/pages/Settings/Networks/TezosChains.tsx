@@ -1,12 +1,14 @@
-import React, { memo, useCallback } from 'react';
+import React, { memo, useCallback, useMemo } from 'react';
 
+import clsx from 'clsx';
 import { useForm } from 'react-hook-form';
 
-import { FormField, FormSubmitButton, Name, SubTitle } from 'app/atoms';
+import { Checkbox, FormField, FormSubmitButton, Name, SubTitle } from 'app/atoms';
 import { URL_PATTERN } from 'app/defaults';
 import { TEZOS_CHAINS_SPECS_STORAGE_KEY } from 'lib/constants';
 import { T, t } from 'lib/i18n';
 import { useStorage } from 'lib/temple/front';
+import { TEZOS_MAINNET_CHAIN_ID } from 'lib/temple/types';
 import { COLORS } from 'lib/ui/colors';
 import { useConfirm } from 'lib/ui/dialog';
 import { EMPTY_FROZEN_OBJ } from 'lib/utils';
@@ -191,6 +193,8 @@ const ChainItem = memo<ChainItemProps>(({ chain, onRemoveClick }) => {
     rpc: { id: activeRpcId }
   } = chain;
 
+  const enabled = !chain.disabled;
+
   const [tezosChainsSpecs, setTezosChainsSpecs] = useStorage<OptionalRecord<TezosChainSpecs>>(
     TEZOS_CHAINS_SPECS_STORAGE_KEY,
     EMPTY_FROZEN_OBJ
@@ -198,24 +202,46 @@ const ChainItem = memo<ChainItemProps>(({ chain, onRemoveClick }) => {
 
   const onRpcSelect = useCallback(
     (rpcId: string) => {
-      const specs = { ...tezosChainsSpecs[chainId], activeRpcId: rpcId };
+      const specs: TezosChainSpecs = { ...tezosChainsSpecs[chainId], activeRpcId: rpcId };
 
       setTezosChainsSpecs({ ...tezosChainsSpecs, [chainId]: specs });
     },
     [setTezosChainsSpecs, tezosChainsSpecs, chainId]
   );
 
+  const onToggleChain = useMemo(() => {
+    if (chainId === TEZOS_MAINNET_CHAIN_ID) return undefined;
+
+    return (toEnable: boolean) => {
+      if (toEnable === enabled) return;
+
+      const specs: TezosChainSpecs = { ...tezosChainsSpecs[chainId], disabled: !toEnable };
+
+      setTezosChainsSpecs({ ...tezosChainsSpecs, [chainId]: specs });
+    };
+  }, [setTezosChainsSpecs, tezosChainsSpecs, enabled, chainId]);
+
+  const CheckboxWrapper = onToggleChain ? 'label' : 'div';
+
   const lastIndex = networks.length - 1;
 
   return (
     <div className="flex flex-col text-gray-700 text-sm leading-tight border rounded-lg overflow-hidden">
-      <div className="flex flex-col justify-between py-2 px-4 bg-gray-100 border-b border-gray-200">
-        <Name className="mb-1 text-md font-medium leading-tight">{getNetworkTitle(chain)}</Name>
+      <CheckboxWrapper className="flex items-center py-2 px-4 bg-gray-100 border-b border-gray-200">
+        <div className="flex-1 flex flex-col">
+          <Name className="mb-1 text-md font-medium leading-tight">{getNetworkTitle(chain)}</Name>
 
-        <div className="text-xs text-gray-700 font-light flex items-center mb-1">
-          Chain ID:<Name className="ml-1 font-normal">{chain.chainId}</Name>
+          <div className="text-xs text-gray-700 font-light flex items-center mb-1">
+            Chain ID:<Name className="ml-1 font-normal">{chain.chainId}</Name>
+          </div>
         </div>
-      </div>
+
+        <Checkbox
+          overrideClassNames={clsx('h-6 w-6 rounded-md', !onToggleChain && 'opacity-50')}
+          checked={enabled}
+          onChange={onToggleChain}
+        />
+      </CheckboxWrapper>
 
       <div className="flex flex-col">
         {networks.map((rpc, index) => (
