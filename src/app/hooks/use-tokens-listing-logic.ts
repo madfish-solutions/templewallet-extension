@@ -4,7 +4,7 @@ import { isDefined } from '@rnw-community/shared';
 import { isEqual } from 'lodash';
 import { useDebounce } from 'use-debounce';
 
-import { useAllAccountBalancesSelector } from 'app/store/balances/selectors';
+import { useAllAccountBalancesSelector } from 'app/store/tezos/balances/selectors';
 import { toTokenSlug } from 'lib/assets';
 import { searchAssetsWithNoMeta } from 'lib/assets/search.utils';
 import { useTokensSortPredicate } from 'lib/assets/use-sorting';

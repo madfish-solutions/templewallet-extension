@@ -1,3 +1,5 @@
+import { ChainID } from '../apis/temple/evm-data.interfaces';
+
 export enum TokenStandardsEnum {
   Fa2 = 'fa2',
   Fa12 = 'fa12'
@@ -25,3 +27,10 @@ export type MetadataRecords = Record<string, TokenMetadata>;
  * Be sure to convert to a serializible value before persisting.
  */
 export type MetadataMap = Map<string, TokenMetadata>;
+
+export interface EVMTokenMetadata extends AssetMetadataBase {
+  address: string;
+  chainID: ChainID;
+  native: boolean;
+  thumbnailUri: string;
+}

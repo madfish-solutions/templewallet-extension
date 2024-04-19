@@ -1,7 +1,7 @@
 import { LoadableEntityState } from 'lib/store';
 import { EMPTY_FROZEN_OBJ } from 'lib/utils';
 
-import { useSelector } from '../root-state.selector';
+import { useSelector } from '../../root-state.selector';
 
 import { getKeyForBalancesRecord } from './utils';
 

@@ -1,18 +1,18 @@
 import { useCallback, useEffect, useRef } from 'react';
 
 import { dispatch } from 'app/store';
-import { loadCollectiblesMetadataAction } from 'app/store/collectibles-metadata/actions';
+import { loadCollectiblesMetadataAction } from 'app/store/tezos/collectibles-metadata/actions';
 import {
-  useCollectiblesMetadataLoadingSelector,
   useAllCollectiblesMetadataSelector,
-  useCollectibleMetadataSelector
-} from 'app/store/collectibles-metadata/selectors';
-import { loadTokensMetadataAction } from 'app/store/tokens-metadata/actions';
+  useCollectibleMetadataSelector,
+  useCollectiblesMetadataLoadingSelector
+} from 'app/store/tezos/collectibles-metadata/selectors';
+import { loadTokensMetadataAction } from 'app/store/tezos/tokens-metadata/actions';
 import {
   useTokenMetadataSelector,
   useTokensMetadataLoadingSelector,
   useAllTokensMetadataSelector
-} from 'app/store/tokens-metadata/selectors';
+} from 'app/store/tezos/tokens-metadata/selectors';
 import { METADATA_API_LOAD_CHUNK_SIZE } from 'lib/apis/temple';
 import { isTezAsset } from 'lib/assets';
 import { isTruthy } from 'lib/utils';

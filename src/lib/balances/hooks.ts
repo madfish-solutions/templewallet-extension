@@ -3,7 +3,7 @@ import { useCallback, useMemo } from 'react';
 import { emptyFn } from '@rnw-community/shared';
 import BigNumber from 'bignumber.js';
 
-import { useAllAccountBalancesSelector, useAllAccountBalancesEntitySelector } from 'app/store/balances/selectors';
+import { useAllAccountBalancesSelector, useAllAccountBalancesEntitySelector } from 'app/store/tezos/balances/selectors';
 import { isKnownChainId } from 'lib/apis/tzkt';
 import { useAssetMetadata, useGetTokenOrGasMetadata } from 'lib/metadata';
 import { useTypedSWR } from 'lib/swr';
