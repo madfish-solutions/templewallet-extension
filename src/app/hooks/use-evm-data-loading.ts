@@ -9,7 +9,9 @@ import { defaultChainIDs } from 'lib/apis/temple/endpoints/evm-data';
 import { useEVMUsdToTokenRatesSelector } from '../store/evm/currency/selectors';
 import { useAllEVMTokensMetadataSelector } from '../store/evm/tokens-metadata/selectors';
 
-export const useEVMDataLoading = (publicKeyHash: string) => {
+export const useEVMDataLoading = (publicKeyHash?: string) => {
+  if (!publicKeyHash) return;
+
   const balances = useAllEVMBalancesSelector();
   console.log(balances, 'balances');
 

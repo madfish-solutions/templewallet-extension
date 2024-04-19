@@ -13,7 +13,9 @@ import { loadSwapDexesAction, loadSwapTokensAction } from 'app/store/swap/action
 import { loadTokensWhitelistActions, loadTokensScamlistActions } from 'app/store/tezos/assets/actions';
 import { useTempleClient } from 'lib/temple/front';
 import { useDidMount } from 'lib/ui/hooks';
-import { useAccountAddressForTezos } from 'temple/front';
+import { useAccountAddressForEvm, useAccountAddressForTezos } from 'temple/front';
+
+import { useEVMDataLoading } from '../hooks/use-evm-data-loading';
 
 import { AppTezosAssetsLoading } from './assets-loading';
 import { AppTezosBalancesLoading } from './balances-loading';
@@ -49,6 +51,9 @@ const AppReadyRootHooks = memo(() => {
   useUserIdAccountPkhSync();
 
   const tezosAddress = useAccountAddressForTezos();
+  const evmAddress = useAccountAddressForEvm();
+
+  useEVMDataLoading(evmAddress);
 
   return tezosAddress ? <TezosAccountHooks publicKeyHash={tezosAddress} /> : null;
 });
