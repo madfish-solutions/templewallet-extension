@@ -5,35 +5,43 @@ import { toTokenSlug } from 'lib/assets';
 import { storageConfig, createTransformsBeforePersist } from 'lib/store';
 
 import {
-  loadAccountTokensActions,
-  loadAccountCollectiblesActions,
   loadTokensWhitelistActions,
   setTokenStatusAction,
   setCollectibleStatusAction,
   putTokensAsIsAction,
   putCollectiblesAsIsAction,
-  loadTokensScamlistActions
+  loadTokensScamlistActions,
+  addAccountTokensAction,
+  setAssetsIsLoadingAction,
+  addAccountCollectiblesAction
 } from './actions';
 import { initialState, SliceState } from './state';
 import { getAccountAssetsStoreKey } from './utils';
 
 const assetsReducer = createReducer<SliceState>(initialState, builder => {
-  builder.addCase(loadAccountTokensActions.submit, state => {
-    state.tokens.isLoading = true;
-    delete state.tokens.error;
+  builder.addCase(setAssetsIsLoadingAction, (state, { payload }) => {
+    const assets = state[payload.type];
+    assets.isLoading = payload.value;
+    if (payload.resetError) delete assets.error;
   });
 
-  builder.addCase(loadAccountTokensActions.fail, (state, { payload }) => {
-    state.tokens.isLoading = false;
-    state.tokens.error = payload ? String(payload) : 'unknown';
+  builder.addCase(setTokenStatusAction, (state, { payload: { account, chainId, slug, status } }) => {
+    const records = state.tokens.data;
+    const key = getAccountAssetsStoreKey(account, chainId);
+    const token = records[key]?.[slug];
+
+    if (token) token.status = status;
   });
 
-  builder.addCase(loadAccountTokensActions.success, (state, { payload }) => {
-    state.tokens.isLoading = false;
-    delete state.tokens.error;
+  builder.addCase(setCollectibleStatusAction, (state, { payload: { account, chainId, slug, status } }) => {
+    const records = state.collectibles.data;
+    const key = getAccountAssetsStoreKey(account, chainId);
+    const collectible = records[key]?.[slug];
 
-    const { account, chainId, slugs } = payload;
+    if (collectible) collectible.status = status;
+  });
 
+  builder.addCase(addAccountTokensAction, (state, { payload: { account, chainId, slugs } }) => {
     const data = state.tokens.data;
     const key = getAccountAssetsStoreKey(account, chainId);
 
@@ -46,22 +54,7 @@ const assetsReducer = createReducer<SliceState>(initialState, builder => {
     }
   });
 
-  builder.addCase(loadAccountCollectiblesActions.submit, state => {
-    state.collectibles.isLoading = true;
-    delete state.collectibles.error;
-  });
-
-  builder.addCase(loadAccountCollectiblesActions.fail, (state, { payload }) => {
-    state.collectibles.isLoading = false;
-    state.collectibles.error = payload.code ? String(payload.code) : 'unknown';
-  });
-
-  builder.addCase(loadAccountCollectiblesActions.success, (state, { payload }) => {
-    state.collectibles.isLoading = false;
-    delete state.collectibles.error;
-
-    const { account, chainId, slugs } = payload;
-
+  builder.addCase(addAccountCollectiblesAction, (state, { payload: { account, chainId, slugs } }) => {
     const data = state.collectibles.data;
     const key = getAccountAssetsStoreKey(account, chainId);
 
@@ -79,22 +72,6 @@ const assetsReducer = createReducer<SliceState>(initialState, builder => {
       const stored = collectibles[slug];
       if (!stored) collectibles[slug] = { status: 'idle' };
     }
-  });
-
-  builder.addCase(setTokenStatusAction, (state, { payload: { account, chainId, slug, status } }) => {
-    const records = state.tokens.data;
-    const key = getAccountAssetsStoreKey(account, chainId);
-    const token = records[key]?.[slug];
-
-    if (token) token.status = status;
-  });
-
-  builder.addCase(setCollectibleStatusAction, (state, { payload: { account, chainId, slug, status } }) => {
-    const records = state.collectibles.data;
-    const key = getAccountAssetsStoreKey(account, chainId);
-    const collectible = records[key]?.[slug];
-
-    if (collectible) collectible.status = status;
   });
 
   builder.addCase(putTokensAsIsAction, (state, { payload }) => {

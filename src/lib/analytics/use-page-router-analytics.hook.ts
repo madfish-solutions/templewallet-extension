@@ -11,12 +11,19 @@ export const usePageRouterAnalytics = (pathname: string, search: string, isConte
   const { pageEvent } = useAnalytics();
 
   useEffect(() => {
+    return; // TODO: Let it work
+
     if (pathname === '/' && !isContextReady) {
       return void pageEvent('/welcome', search);
     }
 
     if (pageRoutesWithToken.some(route => pathname.startsWith(route))) {
-      const [, route = '', tokenSlug = 'tez'] = pathname.split('/');
+      const [
+        ,
+        route = '',
+        // TODO: chainId = ''
+        tokenSlug = 'tez'
+      ] = pathname.split('/');
       const [tokenAddress, tokenId] = fromAssetSlug(tokenSlug);
 
       return void pageEvent(`/${route}`, search, {

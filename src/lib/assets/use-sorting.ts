@@ -2,14 +2,13 @@ import { useCallback } from 'react';
 
 import { BigNumber } from 'bignumber.js';
 
-import { useAllAccountBalancesSelector } from 'app/store/tezos/balances/selectors';
-import { useGetCurrentAccountTokenOrGasBalanceWithDecimals } from 'lib/balances/hooks';
+import { useAllAccountBalancesSelector } from 'app/store/balances/selectors';
+import { useGetTezosTokenOrGasBalanceWithDecimals } from 'lib/balances/hooks';
 import { useUsdToTokenRates } from 'lib/fiat-currency/core';
 import { ZERO } from 'lib/utils/numbers';
-import { useTezosNetwork } from 'temple/front';
 
-export const useTokensSortPredicate = (publicKeyHash: string) => {
-  const getBalance = useGetCurrentAccountTokenOrGasBalanceWithDecimals(publicKeyHash);
+export const useTokensSortPredicate = (publicKeyHash: string, tezosChainId: string) => {
+  const getBalance = useGetTezosTokenOrGasBalanceWithDecimals(publicKeyHash, tezosChainId);
   const usdToTokenRates = useUsdToTokenRates();
 
   return useCallback(
@@ -29,10 +28,8 @@ export const useTokensSortPredicate = (publicKeyHash: string) => {
   );
 };
 
-export const useCollectiblesSortPredicate = (publicKeyHash: string) => {
-  const { chainId } = useTezosNetwork();
-
-  const balancesRaw = useAllAccountBalancesSelector(publicKeyHash, chainId);
+export const useCollectiblesSortPredicate = (publicKeyHash: string, tezosChainId: string) => {
+  const balancesRaw = useAllAccountBalancesSelector(publicKeyHash, tezosChainId);
 
   return useCallback(
     (aSlug: string, bSlug: string) => {

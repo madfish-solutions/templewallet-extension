@@ -1,4 +1,4 @@
-import React, { FC, useLayoutEffect, useMemo } from 'react';
+import React, { memo, useLayoutEffect, useMemo } from 'react';
 
 import RootSuspenseFallback from 'app/a11y/RootSuspenseFallback';
 import { OpenInFullPage, useAppEnv } from 'app/env';
@@ -29,8 +29,6 @@ import { usePageRouterAnalytics } from 'lib/analytics';
 import { Notifications, NotificationsItem } from 'lib/notifications/components';
 import { useTempleClient } from 'lib/temple/front';
 import * as Woozie from 'lib/woozie';
-
-import { WithDataLoading } from './WithDataLoading';
 
 interface RouteContext {
   popup: boolean;
@@ -74,18 +72,27 @@ const ROUTE_MAP = Woozie.createMap<RouteContext>([
   ],
   ['/loading', (_p, ctx) => (ctx.ready ? <Woozie.Redirect to={'/'} /> : <RootSuspenseFallback />)],
   ['/', (_p, ctx) => (ctx.ready ? <Home /> : <Welcome />)],
-  ['/explore/:assetSlug?', onlyReady(({ assetSlug }) => <Home assetSlug={assetSlug} />)],
+  [
+    '/explore/:tezosChainId?/:assetSlug?',
+    onlyReady(({ tezosChainId, assetSlug }) => <Home tezosChainId={tezosChainId} assetSlug={assetSlug} />)
+  ],
   ['/create-wallet', onlyNotReady(() => <CreateWallet />)],
   ['/create-account', onlyReady(() => <CreateAccount />)],
   ['/import-account/:tabSlug?', onlyReady(({ tabSlug }) => <ImportAccount tabSlug={tabSlug} />)],
   ['/connect-ledger', onlyReady(onlyInFullPage(() => <ConnectLedger />))],
   ['/receive', onlyReady(() => <Receive />)],
-  ['/send/:assetSlug?', onlyReady(({ assetSlug }) => <Send assetSlug={assetSlug} />)],
+  [
+    '/send/:tezosChainId?/:assetSlug?',
+    onlyReady(({ tezosChainId, assetSlug }) => <Send tezosChainId={tezosChainId} assetSlug={assetSlug} />)
+  ],
   ['/swap', onlyReady(() => <Swap />)],
-  ['/delegate', onlyReady(() => <Delegate />)],
+  ['/delegate/:tezosChainId', onlyReady(({ tezosChainId }) => <Delegate tezosChainId={tezosChainId!} />)],
   ['/dapps', onlyReady(() => <DApps />)],
   ['/manage-assets/:assetType?', onlyReady(({ assetType }) => <ManageAssets assetType={assetType!} />)],
-  ['/collectible/:assetSlug?', onlyReady(({ assetSlug }) => <CollectiblePage assetSlug={assetSlug!} />)],
+  [
+    '/collectible/:tezosChainId/:assetSlug?',
+    onlyReady(({ tezosChainId, assetSlug }) => <CollectiblePage tezosChainId={tezosChainId!} assetSlug={assetSlug!} />)
+  ],
   ['/add-asset', onlyReady(onlyInFullPage(() => <AddAsset />))],
   ['/settings/:tabSlug?', onlyReady(({ tabSlug }) => <Settings tabSlug={tabSlug} />)],
   ['/buy', onlyReady(onlyInFullPage(() => <Buy />))],
@@ -99,7 +106,7 @@ const ROUTE_MAP = Woozie.createMap<RouteContext>([
   ['*', () => <Woozie.Redirect to="/" />]
 ]);
 
-export const PageRouter: FC = () => {
+export const PageRouter = memo(() => {
   const { trigger, pathname, search } = Woozie.useLocation();
 
   // Scroll to top after new location pushed.
@@ -128,12 +135,8 @@ export const PageRouter: FC = () => {
 
   usePageRouterAnalytics(pathname, search, ctx.ready);
 
-  return useMemo(() => {
-    const routedElement = Woozie.resolve(ROUTE_MAP, pathname, ctx);
-
-    return ctx.ready ? <WithDataLoading>{routedElement}</WithDataLoading> : routedElement;
-  }, [pathname, ctx]);
-};
+  return useMemo(() => Woozie.resolve(ROUTE_MAP, pathname, ctx), [pathname, ctx]);
+});
 
 function onlyReady(factory: RouteFactory): RouteFactory {
   return (params, ctx) => (ctx.ready ? factory(params, ctx) : Woozie.SKIP);

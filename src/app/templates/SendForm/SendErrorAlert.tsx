@@ -4,17 +4,16 @@ import { HttpResponseError } from '@taquito/http-utils';
 
 import { Alert } from 'app/atoms';
 import { NotEnoughFundsError, ZeroBalanceError, ZeroTEZBalanceError } from 'app/defaults';
-import { useGasToken } from 'lib/assets/hooks';
+import { getTezosGasSymbol } from 'lib/assets';
 import { T, t } from 'lib/i18n';
 
 interface Props {
   type: 'submit' | 'estimation';
   error: unknown;
+  tezosChainId: string;
 }
 
-const SendErrorAlert = memo<Props>(({ type, error }) => {
-  const { symbol } = useGasToken();
-
+const SendErrorAlert = memo<Props>(({ type, error, tezosChainId }) => {
   return (
     <Alert
       type={type === 'submit' ? 'error' : 'warning'}
@@ -52,7 +51,7 @@ const SendErrorAlert = memo<Props>(({ type, error }) => {
                 <T id="thisMayHappenBecause" />
                 <ul className="mt-1 ml-2 text-xs list-disc list-inside">
                   <li>
-                    <T id="minimalFeeGreaterThanBalanceVerbose" substitutions={symbol} />
+                    <T id="minimalFeeGreaterThanBalanceVerbose" substitutions={getTezosGasSymbol(tezosChainId)} />
                   </li>
                   <li>
                     <T id="networkOrOtherIssue" />

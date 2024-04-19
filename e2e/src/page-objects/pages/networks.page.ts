@@ -1,5 +1,5 @@
 import retry from 'async-retry';
-import { CustomNetworkSettingsSelectors } from 'src/app/templates/CustomNetworkSettings/CustomNetworkSettingsSelectors';
+import { NetworkSettingsSelectors as CustomNetworkSettingsSelectors } from 'src/app/pages/Settings/Networks/selectors';
 
 import { RETRY_OPTIONS, VERY_SHORT_TIMEOUT } from 'e2e/src/utils/timing.utils';
 

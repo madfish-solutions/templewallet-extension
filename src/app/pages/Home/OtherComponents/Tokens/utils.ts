@@ -1,1 +1,1 @@
-export const toExploreAssetLink = (key: string) => `/explore/${key}`;
+export const toExploreAssetLink = (tezosChainId: string, assetSlug: string) => `/explore/${tezosChainId}/${assetSlug}`;

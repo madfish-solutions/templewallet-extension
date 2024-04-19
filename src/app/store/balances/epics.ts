@@ -1,5 +1,5 @@
 import { combineEpics, Epic } from 'redux-observable';
-import { catchError, from, map, of, switchMap } from 'rxjs';
+import { catchError, from, map, of, switchMap, mergeMap } from 'rxjs';
 import { ofType, toPayload } from 'ts-action-operators';
 
 import { fetchTezosBalanceFromTzkt, fetchAllAssetsBalancesFromTzkt } from 'lib/apis/tzkt';
@@ -11,7 +11,7 @@ const loadGasBalanceEpic: Epic = action$ =>
   action$.pipe(
     ofType(loadGasBalanceActions.submit),
     toPayload(),
-    switchMap(({ publicKeyHash, chainId }) =>
+    mergeMap(({ publicKeyHash, chainId }) =>
       from(fetchTezosBalanceFromTzkt(publicKeyHash, chainId)).pipe(
         map(balance =>
           loadGasBalanceActions.success({

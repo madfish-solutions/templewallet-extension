@@ -3,16 +3,15 @@ import { useMemo } from 'react';
 import { useAccountCollectiblesSelector } from 'app/store/tezos/assets/selectors';
 import { useAllAccountBalancesSelector } from 'app/store/tezos/balances/selectors';
 import { useMemoWithCompare } from 'lib/ui/hooks';
-import { useTezosNetwork } from 'temple/front';
 
 import type { AccountAsset } from '../types';
 
 import { getAssetStatus } from './utils';
 
-export const useAccountCollectibles = (account: string, chainId: string) => {
-  const stored = useAccountCollectiblesSelector(account, chainId);
+export const useAccountCollectibles = (account: string, tezosChainId: string) => {
+  const stored = useAccountCollectiblesSelector(account, tezosChainId);
 
-  const balances = useAllAccountBalancesSelector(account, chainId);
+  const balances = useAllAccountBalancesSelector(account, tezosChainId);
 
   return useMemoWithCompare<AccountAsset[]>(
     () => {
@@ -36,10 +35,8 @@ export const useAccountCollectibles = (account: string, chainId: string) => {
   );
 };
 
-export const useEnabledAccountCollectiblesSlugs = (publicKeyHash: string) => {
-  const { chainId } = useTezosNetwork();
-
-  const collectibles = useAccountCollectibles(publicKeyHash, chainId);
+export const useEnabledAccountCollectiblesSlugs = (publicKeyHash: string, tezosChainId: string) => {
+  const collectibles = useAccountCollectibles(publicKeyHash, tezosChainId);
 
   return useMemo(
     () => collectibles.reduce<string[]>((acc, { slug, status }) => (status === 'enabled' ? acc.concat(slug) : acc), []),

@@ -19,7 +19,7 @@ import OperationStatus from 'app/templates/OperationStatus';
 import { useFormAnalytics } from 'lib/analytics';
 import { submitDelegation } from 'lib/apis/everstake';
 import { ABTestGroup } from 'lib/apis/temple';
-import { useGasToken } from 'lib/assets/hooks';
+import { getTezosGasSymbol, TEZOS_SYMBOL, getTezosGasToken, TEZ_TOKEN_SLUG } from 'lib/assets';
 import { TEZOS_BLOCK_DURATION } from 'lib/fixed-times';
 import { TID, T, t } from 'lib/i18n';
 import { HELP_UKRAINE_BAKER_ADDRESS, RECOMMENDED_BAKER_ADDRESS } from 'lib/known-bakers';
@@ -28,13 +28,19 @@ import { useTypedSWR } from 'lib/swr';
 import { loadContract } from 'lib/temple/contract';
 import { Baker, useKnownBaker, useKnownBakers, validateDelegate } from 'lib/temple/front';
 import { mutezToTz, tzToMutez } from 'lib/temple/helpers';
+import { TEZOS_MAINNET_CHAIN_ID } from 'lib/temple/types';
 import { isValidTezosAddress, isTezosContractAddress, tezosManagerKeyHasManager } from 'lib/tezos';
 import { useSafeState } from 'lib/ui/hooks';
 import { delay, fifoResolve } from 'lib/utils';
 import { Link, useLocation } from 'lib/woozie';
 import { AccountForTezos } from 'temple/accounts';
-import { useTezosNetwork, useTezosWithSigner } from 'temple/front';
-import { isTezosDomainsNameValid, useTezosAddressByDomainName, useTezosDomainsClient } from 'temple/front/tezos';
+import {
+  isTezosDomainsNameValid,
+  getTezosToolkitWithSigner,
+  getTezosDomainsClient,
+  useTezosAddressByDomainName
+} from 'temple/front/tezos';
+import { TezosNetworkEssentials } from 'temple/networks';
 
 import { DelegateFormSelectors } from './DelegateForm.selectors';
 
@@ -48,23 +54,23 @@ interface FormData {
 }
 
 interface Props {
+  network: TezosNetworkEssentials;
   account: AccountForTezos;
   balance: BigNumber;
-  /** Present for `account.type === TempleAccountType.ManagedKT` */
-  ownerAddress?: string;
 }
 
-const DelegateForm = memo<Props>(({ account, balance, ownerAddress }) => {
+const DelegateForm = memo<Props>(({ network, account, balance }) => {
   const { registerBackHandler } = useAppEnv();
   const formAnalytics = useFormAnalytics('DelegateForm');
-  const { symbol, isDcpNetwork, logo } = useGasToken();
+  const { symbol, isDcpNetwork, logo } = getTezosGasToken(network.chainId);
 
-  const tezos = useTezosWithSigner(ownerAddress || account.address);
-
+  const { rpcBaseURL: rpcUrl, chainId: tezosChainId } = network;
+  const ownerAddress = account.ownerAddress;
   const address = account.address;
+  const tezos = getTezosToolkitWithSigner(rpcUrl, ownerAddress || account.address);
 
   const balanceNum = balance.toNumber();
-  const domainsClient = useTezosDomainsClient();
+  const domainsClient = getTezosDomainsClient(network.chainId, network.rpcBaseURL);
   const canUseDomainNames = domainsClient.isSupported;
 
   /**
@@ -85,7 +91,7 @@ const DelegateForm = memo<Props>(({ account, balance, ownerAddress }) => {
     () => toValue && isTezosDomainsNameValid(toValue, domainsClient),
     [toValue, domainsClient]
   );
-  const { data: resolvedAddress } = useTezosAddressByDomainName(toValue);
+  const { data: resolvedAddress } = useTezosAddressByDomainName(toValue, network);
 
   const toFieldRef = useRef<HTMLTextAreaElement>(null);
 
@@ -180,7 +186,7 @@ const DelegateForm = memo<Props>(({ account, balance, ownerAddress }) => {
   const baseFeeError = baseFee instanceof Error ? baseFee : estimateBaseFeeError;
   const estimationError = !estimating ? baseFeeError : null;
 
-  const { data: baker, isValidating: bakerValidating } = useKnownBaker(toResolved || null, false);
+  const { data: baker, isValidating: bakerValidating } = useKnownBaker(toResolved || null, tezosChainId, false);
 
   const maxAddFee = useMemo(() => {
     if (baseFee instanceof BigNumber) {
@@ -271,7 +277,9 @@ const DelegateForm = memo<Props>(({ account, balance, ownerAddress }) => {
 
   return (
     <>
-      {operation && <OperationStatus typeTitle={t('delegation')} operation={operation} className="mb-8" />}
+      {operation && (
+        <OperationStatus network={network} typeTitle={t('delegation')} operation={operation} className="mb-8" />
+      )}
 
       <form onSubmit={handleSubmit(onSubmit)}>
         {useMemo(
@@ -289,7 +297,7 @@ const DelegateForm = memo<Props>(({ account, balance, ownerAddress }) => {
                       </span>
                     </span>
 
-                    <InFiat assetSlug="tez" volume={balance}>
+                    <InFiat tezosChainId={network.chainId} assetSlug={TEZ_TOKEN_SLUG} volume={balance}>
                       {({ balance, symbol }) => (
                         <div className="mt-1 text-sm text-gray-500 flex items-baseline">
                           {balance}
@@ -302,7 +310,7 @@ const DelegateForm = memo<Props>(({ account, balance, ownerAddress }) => {
               </div>
             </div>
           ),
-          [balance, symbol, logo]
+          [balance, symbol, logo, network.chainId]
         )}
 
         <Controller
@@ -342,6 +350,7 @@ const DelegateForm = memo<Props>(({ account, balance, ownerAddress }) => {
         )}
 
         <BakerForm
+          tezosChainId={tezosChainId}
           accountPkh={address}
           baker={baker}
           balance={balance}
@@ -366,6 +375,7 @@ const DelegateForm = memo<Props>(({ account, balance, ownerAddress }) => {
 export default DelegateForm;
 
 interface BakerFormProps {
+  tezosChainId: string;
   accountPkh: string;
   baker: Baker | null | undefined;
   toFilled: boolean | '';
@@ -384,6 +394,7 @@ interface BakerFormProps {
 }
 
 const BakerForm: React.FC<BakerFormProps> = ({
+  tezosChainId,
   accountPkh,
   baker,
   balance,
@@ -401,7 +412,6 @@ const BakerForm: React.FC<BakerFormProps> = ({
   formState
 }) => {
   const testGroupName = useUserTestingGroupNameSelector();
-  const assetSymbol = 'ꜩ';
   const estimateFallbackDisplayed = toFilled && !baseFee && (estimating || bakerValidating);
 
   const bakerTestMessage = useMemo(() => {
@@ -438,15 +448,23 @@ const BakerForm: React.FC<BakerFormProps> = ({
         />
       )}
 
-      <BakerBannerComponent accountPkh={accountPkh} balanceNum={balance.toNumber()} baker={baker} tzError={tzError} />
+      <BakerBannerComponent
+        tezosChainId={tezosChainId}
+        accountPkh={accountPkh}
+        balanceNum={balance.toNumber()}
+        baker={baker}
+        tzError={tzError}
+      />
 
-      {tzError && <DelegateErrorAlert type={submitError ? 'submit' : 'estimation'} error={tzError} />}
+      {tzError && (
+        <DelegateErrorAlert type={submitError ? 'submit' : 'estimation'} error={tzError} tezosChainId={tezosChainId} />
+      )}
 
       <AdditionalFeeInput
         name="fee"
         control={control}
         onChange={handleFeeFieldChange}
-        assetSymbol={assetSymbol}
+        gasSymbol={TEZOS_SYMBOL}
         baseFee={baseFee}
         error={errors.fee}
         id="delegate-fee"
@@ -464,242 +482,263 @@ const BakerForm: React.FC<BakerFormProps> = ({
       </FormSubmitButton>
     </>
   ) : (
-    <KnownDelegatorsList accountPkh={accountPkh} setValue={setValue} triggerValidation={triggerValidation} />
+    <KnownDelegatorsList
+      tezosChainId={tezosChainId}
+      accountPkh={accountPkh}
+      setValue={setValue}
+      triggerValidation={triggerValidation}
+    />
   );
 };
 
 interface BakerBannerComponentProps {
+  tezosChainId: string;
   accountPkh: string;
   balanceNum: number;
   baker: Baker | null | undefined;
   tzError: any;
 }
 
-const BakerBannerComponent = React.memo<BakerBannerComponentProps>(({ accountPkh, balanceNum, tzError, baker }) => {
-  const { isMainnet } = useTezosNetwork();
-  const { symbol } = useGasToken();
+const BakerBannerComponent = React.memo<BakerBannerComponentProps>(
+  ({ tezosChainId, accountPkh, balanceNum, tzError, baker }) => {
+    const isMainnet = tezosChainId === TEZOS_MAINNET_CHAIN_ID;
+    const symbol = getTezosGasSymbol(tezosChainId);
 
-  return baker ? (
-    <>
-      <div className="-mt-2 mb-6 flex flex-col items-center">
-        <BakerBanner accountPkh={accountPkh} bakerPkh={baker.address} style={{ width: undefined }} />
-      </div>
+    return baker ? (
+      <>
+        <div className="-mt-2 mb-6 flex flex-col items-center">
+          <BakerBanner
+            tezosChainId={tezosChainId}
+            accountPkh={accountPkh}
+            bakerPkh={baker.address}
+            style={{ width: undefined }}
+          />
+        </div>
 
-      {!tzError && baker.minDelegation > balanceNum && (
-        <Alert
-          type="warning"
-          title={t('minDelegationAmountTitle')}
-          description={
-            <T
-              id="minDelegationAmountDescription"
-              substitutions={[
-                <span className="font-normal" key="minDelegationsAmount">
-                  <Money>{baker.minDelegation}</Money> <span style={{ fontSize: '0.75em' }}>{symbol}</span>
-                </span>
-              ]}
-            />
-          }
-          className="mb-6"
-        />
-      )}
-    </>
-  ) : !tzError && isMainnet ? (
-    <Alert type="warning" title={t('unknownBakerTitle')} description={t('unknownBakerDescription')} className="mb-6" />
-  ) : null;
-});
+        {!tzError && baker.minDelegation > balanceNum && (
+          <Alert
+            type="warning"
+            title={t('minDelegationAmountTitle')}
+            description={
+              <T
+                id="minDelegationAmountDescription"
+                substitutions={[
+                  <span className="font-normal" key="minDelegationsAmount">
+                    <Money>{baker.minDelegation}</Money> <span style={{ fontSize: '0.75em' }}>{symbol}</span>
+                  </span>
+                ]}
+              />
+            }
+            className="mb-6"
+          />
+        )}
+      </>
+    ) : !tzError && isMainnet ? (
+      <Alert
+        type="warning"
+        title={t('unknownBakerTitle')}
+        description={t('unknownBakerDescription')}
+        className="mb-6"
+      />
+    ) : null;
+  }
+);
 
 interface KnownDelegatorsListProps {
+  tezosChainId: string;
   accountPkh: string;
   setValue: any;
   triggerValidation: any;
 }
 
-const KnownDelegatorsList = memo<KnownDelegatorsListProps>(({ accountPkh, setValue, triggerValidation }) => {
-  const knownBakers = useKnownBakers();
-  const { search } = useLocation();
-  const testGroupName = useUserTestingGroupNameSelector();
+const KnownDelegatorsList = memo<KnownDelegatorsListProps>(
+  ({ tezosChainId, accountPkh, setValue, triggerValidation }) => {
+    const knownBakers = useKnownBakers(tezosChainId);
+    const { search } = useLocation();
+    const testGroupName = useUserTestingGroupNameSelector();
 
-  const bakerSortTypes = useMemo(
-    () => [
-      {
-        key: 'rank',
-        title: t('rank'),
-        testID: DelegateFormSelectors.sortBakerByRankTab
-      },
-      {
-        key: 'fee',
-        title: t('fee'),
-        testID: DelegateFormSelectors.sortBakerByFeeTab
-      },
-      {
-        key: 'space',
-        title: t('space'),
-        testID: DelegateFormSelectors.sortBakerBySpaceTab
-      },
-      {
-        key: 'staking',
-        title: t('staking'),
-        testID: DelegateFormSelectors.sortBakerByStakingTab
+    const bakerSortTypes = useMemo(
+      () => [
+        {
+          key: 'rank',
+          title: t('rank'),
+          testID: DelegateFormSelectors.sortBakerByRankTab
+        },
+        {
+          key: 'fee',
+          title: t('fee'),
+          testID: DelegateFormSelectors.sortBakerByFeeTab
+        },
+        {
+          key: 'space',
+          title: t('space'),
+          testID: DelegateFormSelectors.sortBakerBySpaceTab
+        },
+        {
+          key: 'staking',
+          title: t('staking'),
+          testID: DelegateFormSelectors.sortBakerByStakingTab
+        }
+      ],
+      []
+    );
+
+    const sortBakersBy = useMemo(() => {
+      const usp = new URLSearchParams(search);
+      const val = usp.get(SORT_BAKERS_BY_KEY);
+      return bakerSortTypes.find(({ key }) => key === val) ?? bakerSortTypes[0];
+    }, [search, bakerSortTypes]);
+    const baseSortedKnownBakers = useMemo(() => {
+      if (!knownBakers) return null;
+
+      const toSort = Array.from(knownBakers);
+      switch (sortBakersBy.key) {
+        case 'fee':
+          return toSort.sort((a, b) => a.fee - b.fee);
+
+        case 'space':
+          return toSort.sort((a, b) => b.freeSpace - a.freeSpace);
+
+        case 'staking':
+          return toSort.sort((a, b) => b.stakingBalance - a.stakingBalance);
+
+        case 'rank':
+        default:
+          return toSort;
       }
-    ],
-    []
-  );
+    }, [knownBakers, sortBakersBy]);
+    if (!baseSortedKnownBakers) return null;
+    const sponsoredBakers = baseSortedKnownBakers.filter(
+      baker => baker.address === RECOMMENDED_BAKER_ADDRESS || baker.address === HELP_UKRAINE_BAKER_ADDRESS
+    );
+    const sortedKnownBakers = [
+      ...sponsoredBakers,
+      ...baseSortedKnownBakers.filter(
+        baker => baker.address !== RECOMMENDED_BAKER_ADDRESS && baker.address !== HELP_UKRAINE_BAKER_ADDRESS
+      )
+    ];
+    return (
+      <div className="my-6 flex flex-col">
+        <h2 className="mb-4 leading-tight flex flex-col">
+          <span className="text-base font-semibold text-gray-700">
+            <T id="delegateToRecommendedBakers" />
+          </span>
 
-  const sortBakersBy = useMemo(() => {
-    const usp = new URLSearchParams(search);
-    const val = usp.get(SORT_BAKERS_BY_KEY);
-    return bakerSortTypes.find(({ key }) => key === val) ?? bakerSortTypes[0];
-  }, [search, bakerSortTypes]);
-  const baseSortedKnownBakers = useMemo(() => {
-    if (!knownBakers) return null;
+          <span className="mt-1 text-xs font-light text-gray-600 max-w-9/10">
+            <T
+              id="clickOnBakerPrompt"
+              substitutions={[
+                <a
+                  href="https://baking-bad.org/"
+                  key="link"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="font-normal underline"
+                >
+                  Baking Bad
+                </a>
+              ]}
+            />
+          </span>
+        </h2>
 
-    const toSort = Array.from(knownBakers);
-    switch (sortBakersBy.key) {
-      case 'fee':
-        return toSort.sort((a, b) => a.fee - b.fee);
+        <div className="mb-2 flex items-center">
+          <span className="mr-1 text-xs text-gray-500">
+            <T id="sortBy" />
+          </span>
 
-      case 'space':
-        return toSort.sort((a, b) => b.freeSpace - a.freeSpace);
+          {bakerSortTypes.map(({ key, title, testID }, i, arr) => {
+            const first = i === 0;
+            const last = i === arr.length - 1;
+            const selected = sortBakersBy.key === key;
 
-      case 'staking':
-        return toSort.sort((a, b) => b.stakingBalance - a.stakingBalance);
-
-      case 'rank':
-      default:
-        return toSort;
-    }
-  }, [knownBakers, sortBakersBy]);
-  if (!baseSortedKnownBakers) return null;
-  const sponsoredBakers = baseSortedKnownBakers.filter(
-    baker => baker.address === RECOMMENDED_BAKER_ADDRESS || baker.address === HELP_UKRAINE_BAKER_ADDRESS
-  );
-  const sortedKnownBakers = [
-    ...sponsoredBakers,
-    ...baseSortedKnownBakers.filter(
-      baker => baker.address !== RECOMMENDED_BAKER_ADDRESS && baker.address !== HELP_UKRAINE_BAKER_ADDRESS
-    )
-  ];
-  return (
-    <div className="my-6 flex flex-col">
-      <h2 className="mb-4 leading-tight flex flex-col">
-        <span className="text-base font-semibold text-gray-700">
-          <T id="delegateToRecommendedBakers" />
-        </span>
-
-        <span className="mt-1 text-xs font-light text-gray-600 max-w-9/10">
-          <T
-            id="clickOnBakerPrompt"
-            substitutions={[
-              <a
-                href="https://baking-bad.org/"
-                key="link"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="font-normal underline"
+            return (
+              <Link
+                key={key}
+                to={{
+                  pathname: `/delegate${tezosChainId}`,
+                  search: `${SORT_BAKERS_BY_KEY}=${key}`
+                }}
+                replace
+                className={classNames(
+                  'border px-2 py-px text-xs text-gray-600',
+                  first ? 'rounded rounded-r-none' : last ? 'rounded rounded-l-none border-l-0' : 'border-l-0',
+                  selected && 'bg-gray-100'
+                )}
+                testID={testID}
               >
-                Baking Bad
-              </a>
-            ]}
-          />
-        </span>
-      </h2>
+                {title}
+              </Link>
+            );
+          })}
 
-      <div className="mb-2 flex items-center">
-        <span className="mr-1 text-xs text-gray-500">
-          <T id="sortBy" />
-        </span>
+          <div className="flex-1" />
+        </div>
 
-        {bakerSortTypes.map(({ key, title, testID }, i, arr) => {
-          const first = i === 0;
-          const last = i === arr.length - 1;
-          const selected = sortBakersBy.key === key;
+        <div className="flex flex-col rounded-md overflow-hidden border text-gray-700 text-sm leading-tight">
+          {sortedKnownBakers.map((baker, i, arr) => {
+            const last = i === arr.length - 1;
+            const handleBakerClick = () => {
+              setValue('to', baker.address);
+              triggerValidation('to');
+              window.scrollTo(0, 0);
+            };
 
-          return (
-            <Link
-              key={key}
-              to={{
-                pathname: '/delegate',
-                search: `${SORT_BAKERS_BY_KEY}=${key}`
-              }}
-              replace
-              className={classNames(
-                'border px-2 py-px text-xs text-gray-600',
-                first ? 'rounded rounded-r-none' : last ? 'rounded rounded-l-none border-l-0' : 'border-l-0',
-                selected && 'bg-gray-100'
-              )}
-              testID={testID}
-            >
-              {title}
-            </Link>
-          );
-        })}
+            let testId = DelegateFormSelectors.knownBakerItemButton;
+            let classnames = classNames(
+              'hover:bg-gray-100 focus:bg-gray-100',
+              'transition ease-in-out duration-200',
+              'focus:outline-none',
+              'opacity-90 hover:opacity-100'
+            );
 
-        <div className="flex-1" />
-      </div>
-
-      <div className="flex flex-col rounded-md overflow-hidden border text-gray-700 text-sm leading-tight">
-        {sortedKnownBakers.map((baker, i, arr) => {
-          const last = i === arr.length - 1;
-          const handleBakerClick = () => {
-            setValue('to', baker.address);
-            triggerValidation('to');
-            window.scrollTo(0, 0);
-          };
-
-          let testId = DelegateFormSelectors.knownBakerItemButton;
-          let classnames = classNames(
-            'hover:bg-gray-100 focus:bg-gray-100',
-            'transition ease-in-out duration-200',
-            'focus:outline-none',
-            'opacity-90 hover:opacity-100'
-          );
-
-          if (baker.address === RECOMMENDED_BAKER_ADDRESS) {
-            testId = DelegateFormSelectors.knownBakerItemAButton;
-            if (testGroupName === ABTestGroup.B) {
-              testId = DelegateFormSelectors.knownBakerItemBButton;
-              classnames = classNames(
-                'hover:bg-gray-100 focus:bg-gray-100',
-                'transition ease-in-out duration-200',
-                'focus:outline-none',
-                'opacity-90 hover:opacity-100',
-                'bg-orange-100'
-              );
+            if (baker.address === RECOMMENDED_BAKER_ADDRESS) {
+              testId = DelegateFormSelectors.knownBakerItemAButton;
+              if (testGroupName === ABTestGroup.B) {
+                testId = DelegateFormSelectors.knownBakerItemBButton;
+                classnames = classNames(
+                  'hover:bg-gray-100 focus:bg-gray-100',
+                  'transition ease-in-out duration-200',
+                  'focus:outline-none',
+                  'opacity-90 hover:opacity-100',
+                  'bg-orange-100'
+                );
+              }
             }
-          }
 
-          return (
-            <Button
-              key={baker.address}
-              type="button"
-              className={classnames}
-              onClick={handleBakerClick}
-              testID={testId}
-              testIDProperties={{ bakerAddress: baker.address, abTestingCategory: testGroupName }}
-            >
-              <BakerBanner
-                accountPkh={accountPkh}
-                bakerPkh={baker.address}
-                link
-                style={{ width: undefined }}
-                className={classNames(!last && 'border-b border-gray-200')}
-              />
-            </Button>
-          );
-        })}
+            return (
+              <Button
+                key={baker.address}
+                type="button"
+                className={classnames}
+                onClick={handleBakerClick}
+                testID={testId}
+                testIDProperties={{ bakerAddress: baker.address, abTestingCategory: testGroupName }}
+              >
+                <BakerBanner
+                  tezosChainId={tezosChainId}
+                  accountPkh={accountPkh}
+                  bakerPkh={baker.address}
+                  link
+                  style={{ width: undefined }}
+                  className={classNames(!last && 'border-b border-gray-200')}
+                />
+              </Button>
+            );
+          })}
+        </div>
       </div>
-    </div>
-  );
-});
+    );
+  }
+);
 
-type DelegateErrorAlertProps = {
+interface DelegateErrorAlertProps {
   type: 'submit' | 'estimation';
   error: Error;
-};
+  tezosChainId: string;
+}
 
-const DelegateErrorAlert: FC<DelegateErrorAlertProps> = ({ type, error }) => {
-  const { symbol } = useGasToken();
-
+const DelegateErrorAlert: FC<DelegateErrorAlertProps> = ({ type, error, tezosChainId }) => {
   return (
     <Alert
       type={type === 'submit' ? 'error' : 'warning'}
@@ -743,7 +782,7 @@ const DelegateErrorAlert: FC<DelegateErrorAlertProps> = ({ type, error }) => {
 
                 <ul className="mt-1 ml-2 text-xs list-disc list-inside">
                   <li>
-                    <T id="minimalFeeGreaterThanBalanceVerbose" substitutions={symbol} />
+                    <T id="minimalFeeGreaterThanBalanceVerbose" substitutions={getTezosGasSymbol(tezosChainId)} />
                   </li>
 
                   <li>

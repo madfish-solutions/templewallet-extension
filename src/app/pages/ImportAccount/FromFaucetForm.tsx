@@ -1,18 +1,22 @@
 import React, { FC, ReactNode, useCallback, useRef } from 'react';
 
+import { ChainIds } from '@taquito/taquito';
 import clsx from 'clsx';
 import { useForm, Controller } from 'react-hook-form';
 
 import { Alert, FileInputProps, FileInput, FormField, FormSubmitButton } from 'app/atoms';
+import { CONTENT_CONTAINER_CLASSNAME, ContentContainer } from 'app/layouts/ContentContainer';
+import { useChainSelectController, ChainSelectSection } from 'app/templates/ChainSelect';
 import { useFormAnalytics } from 'lib/analytics';
 import { ACCOUNT_ALREADY_EXISTS_ERR_MSG } from 'lib/constants';
 import { TID, T, t } from 'lib/i18n';
-import { useTempleClient, useAllAccounts, useSetAccountId } from 'lib/temple/front';
+import { useTempleClient } from 'lib/temple/front/client';
 import { useSafeState, useUpdatableRef } from 'lib/ui/hooks';
 import { delay } from 'lib/utils';
 import { navigate } from 'lib/woozie';
 import { getAccountAddressForTezos } from 'temple/accounts';
-import { useTezosNetworkRpcUrl } from 'temple/front';
+import { UNDER_DEVELOPMENT_MSG } from 'temple/evm/under_dev_msg';
+import { useAllAccounts, useChangeAccount } from 'temple/front';
 import { getReadOnlyTezos, confirmTezosOperation } from 'temple/tezos';
 import { activateTezosAccount } from 'temple/tezos/activate-account';
 
@@ -38,8 +42,12 @@ export const FromFaucetForm: FC = () => {
   const allAccounts = useAllAccounts();
   const allAccountsRef = useUpdatableRef(allAccounts);
 
-  const setAccountId = useSetAccountId();
-  const rpcUrl = useTezosNetworkRpcUrl();
+  const chainSelectController = useChainSelectController();
+  const network = chainSelectController.value;
+  const rpcUrl = network.kind === 'tezos' && network.chainId !== ChainIds.MAINNET ? network.rpcBaseURL : null;
+
+  const setAccountId = useChangeAccount();
+
   const formAnalytics = useFormAnalytics(ImportAccountFormType.FaucetFile);
 
   const { control, handleSubmit: handleTextFormSubmit, watch, errors, setValue } = useForm<FaucetTextInputFormData>();
@@ -58,6 +66,8 @@ export const FromFaucetForm: FC = () => {
 
   const importAccount = useCallback(
     async (data: FaucetData) => {
+      if (!rpcUrl) throw new Error('Unsupported network');
+
       const tezos = getReadOnlyTezos(rpcUrl);
 
       const activation = await activateTezosAccount(data.pkh, data.secret ?? data.activation_code, tezos);
@@ -161,9 +171,18 @@ export const FromFaucetForm: FC = () => {
     [importAccount, processing, setAlert, setProcessing]
   );
 
+  if (!rpcUrl)
+    return (
+      <ContentContainer className="mt-8">
+        <ChainSelectSection controller={chainSelectController} />
+
+        <div className="mt-8 text-center">{UNDER_DEVELOPMENT_MSG}</div>
+      </ContentContainer>
+    );
+
   return (
     <>
-      <form ref={formRef} className="w-full max-w-sm mx-auto mt-8" onSubmit={handleFormSubmit}>
+      <form ref={formRef} className={clsx(CONTENT_CONTAINER_CLASSNAME, 'mt-8')} onSubmit={handleFormSubmit}>
         {alert && (
           <Alert
             type={alert instanceof Error ? 'error' : 'success'}
@@ -174,7 +193,9 @@ export const FromFaucetForm: FC = () => {
         )}
 
         <div className="flex flex-col w-full">
-          <label className="mb-4 leading-tight flex flex-col">
+          <ChainSelectSection controller={chainSelectController} />
+
+          <label className="mt-8 mb-4 leading-tight flex flex-col">
             <span className="text-base font-semibold text-gray-700">
               <T id="faucetFile" />
             </span>
@@ -201,7 +222,7 @@ export const FromFaucetForm: FC = () => {
         </div>
       </form>
 
-      <form className="w-full max-w-sm mx-auto my-8" onSubmit={handleTextFormSubmit(onTextFormSubmit)}>
+      <form className={clsx(CONTENT_CONTAINER_CLASSNAME, 'my-8')} onSubmit={handleTextFormSubmit(onTextFormSubmit)}>
         <Controller
           name="text"
           as={<FormField className="font-mono" ref={textFieldRef} />}

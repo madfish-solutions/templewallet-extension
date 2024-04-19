@@ -4,7 +4,8 @@ import { isDefined } from '@rnw-community/shared';
 import { useDispatch } from 'react-redux';
 
 import { FormSubmitButton, FormSecondaryButton, Spinner, Money, Alert } from 'app/atoms';
-import { useTabSlug } from 'app/atoms/useTabSlug';
+import { DeadEndBoundaryError } from 'app/ErrorBoundary';
+import { useLocationSearchParamValue } from 'app/hooks/use-location';
 import PageLayout from 'app/layouts/PageLayout';
 import { loadCollectiblesDetailsActions } from 'app/store/tezos/collectibles/actions';
 import {
@@ -28,9 +29,7 @@ import { TempleAccountType } from 'lib/temple/types';
 import { useInterval } from 'lib/ui/hooks';
 import { ImageStacked } from 'lib/ui/ImageStacked';
 import { navigate } from 'lib/woozie';
-import { AccountForChain } from 'temple/accounts';
-import { UNDER_DEVELOPMENT_MSG } from 'temple/evm/under_dev_msg';
-import { useAccountForTezos } from 'temple/front';
+import { useTezosChainByChainId, useAccountForTezos } from 'temple/front';
 
 import { useCollectibleSelling } from '../hooks/use-collectible-selling.hook';
 
@@ -42,22 +41,18 @@ import { CollectiblesSelectors } from './selectors';
 const DETAILS_SYNC_INTERVAL = 4 * TEZOS_BLOCK_DURATION;
 
 interface Props {
+  tezosChainId: string;
   assetSlug: string;
 }
 
-const CollectiblePage = memo<Props>(({ assetSlug }) => {
-  const tezosAccount = useAccountForTezos();
+const CollectiblePage = memo<Props>(({ tezosChainId, assetSlug }) => {
+  const network = useTezosChainByChainId(tezosChainId);
+  const account = useAccountForTezos();
 
-  return tezosAccount ? (
-    <TezosCollectiblePage assetSlug={assetSlug} account={tezosAccount} />
-  ) : (
-    <PageLayout pageTitle={UNDER_DEVELOPMENT_MSG}>
-      <div className="flex flex-col gap-y-3 max-w-sm w-full mx-auto pt-2 pb-4">{UNDER_DEVELOPMENT_MSG}</div>
-    </PageLayout>
-  );
-});
+  if (!network || !account) throw new DeadEndBoundaryError();
 
-const TezosCollectiblePage = memo<Props & { account: AccountForChain }>(({ assetSlug, account }) => {
+  const rpcUrl = network.rpcBaseURL;
+
   const metadata = useCollectibleMetadataSelector(assetSlug); // Loaded only, if shown in grid for now
   const details = useCollectibleDetailsSelector(assetSlug);
   const areAnyCollectiblesDetailsLoading = useAllCollectiblesDetailsLoadingSelector();
@@ -101,15 +96,19 @@ const TezosCollectiblePage = memo<Props & { account: AccountForChain }>(({ asset
     initiateSelling: onSellButtonClick,
     operation,
     operationError
-  } = useCollectibleSelling(assetSlug, publicKeyHash, takableOffer);
+  } = useCollectibleSelling(assetSlug, publicKeyHash, rpcUrl, takableOffer);
 
-  const onSendButtonClick = useCallback(() => navigate(`/send/${assetSlug}`), [assetSlug]);
+  const onSendButtonClick = useCallback(
+    () => navigate(`/send/${tezosChainId}/${assetSlug}`),
+    [tezosChainId, assetSlug]
+  );
 
   const dispatch = useDispatch();
-  useInterval(() => void dispatch(loadCollectiblesDetailsActions.submit([assetSlug])), DETAILS_SYNC_INTERVAL, [
-    dispatch,
-    assetSlug
-  ]);
+  useInterval(
+    () => void dispatch(loadCollectiblesDetailsActions.submit([assetSlug])),
+    [dispatch, assetSlug],
+    DETAILS_SYNC_INTERVAL
+  );
 
   const displayedOffer = useMemo(() => {
     const highestOffer = offers?.[0];
@@ -137,7 +136,7 @@ const TezosCollectiblePage = memo<Props & { account: AccountForChain }>(({ asset
     return value;
   }, [displayedOffer, accountCanSign]);
 
-  const tabNameInUrl = useTabSlug();
+  const tabNameInUrl = useLocationSearchParamValue('tab');
 
   const tabs = useMemo(() => {
     const propertiesTab = { name: 'properties', titleI18nKey: 'properties' } as const;
@@ -170,7 +169,9 @@ const TezosCollectiblePage = memo<Props & { account: AccountForChain }>(({ asset
             className="mb-4"
           />
         ) : (
-          operation && <OperationStatus typeTitle={t('transaction')} operation={operation} className="mb-4" />
+          operation && (
+            <OperationStatus network={network} typeTitle={t('transaction')} operation={operation} className="mb-4" />
+          )
         )}
 
         <div
@@ -212,7 +213,7 @@ const TezosCollectiblePage = memo<Props & { account: AccountForChain }>(({ asset
 
                 <div className="flex flex-wrap gap-1">
                   {creators.map(creator => (
-                    <AddressChip key={creator.address} pkh={creator.address} />
+                    <AddressChip key={creator.address} address={creator.address} tezosNetwork={network} />
                   ))}
                 </div>
               </div>
@@ -255,7 +256,7 @@ const TezosCollectiblePage = memo<Props & { account: AccountForChain }>(({ asset
               {activeTabName === 'attributes' ? (
                 <AttributesItems details={details} />
               ) : (
-                <PropertiesItems assetSlug={assetSlug} accountPkh={publicKeyHash} details={details} />
+                <PropertiesItems network={network} assetSlug={assetSlug} accountPkh={publicKeyHash} details={details} />
               )}
             </div>
           </>

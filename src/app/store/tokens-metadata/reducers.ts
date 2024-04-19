@@ -8,7 +8,7 @@ import {
   putTokensMetadataAction,
   addWhitelistTokensMetadataAction,
   loadTokensMetadataAction,
-  resetTokensMetadataLoadingAction,
+  setTokensMetadataLoadingAction,
   refreshTokensMetadataAction
 } from './actions';
 import { tokensMetadataInitialState, TokensMetadataState } from './state';
@@ -39,8 +39,8 @@ export const tokensMetadataReducer = createReducer<TokensMetadataState>(tokensMe
     state.metadataLoading = true;
   });
 
-  builder.addCase(resetTokensMetadataLoadingAction, state => {
-    state.metadataLoading = false;
+  builder.addCase(setTokensMetadataLoadingAction, (state, { payload }) => {
+    state.metadataLoading = payload;
   });
 
   builder.addCase(refreshTokensMetadataAction, (state, { payload }) => {

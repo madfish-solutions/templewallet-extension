@@ -21,7 +21,7 @@ const getValidAssetSlug = (queryAssetSlug: string | null) =>
   queryAssetSlug && queryAssetSlug.length > 0 ? queryAssetSlug : undefined;
 
 const getAssetsSlugsFromUrl = (fromSlug: null | string, toSlug: null | string) => {
-  if (!Boolean(fromSlug) && !Boolean(toSlug)) {
+  if (!fromSlug && !toSlug) {
     return {
       fromSlug: TEZ_TOKEN_SLUG,
       toSlug

@@ -24,18 +24,18 @@ import { CollectibleTabSelectors } from './selectors';
 interface Props {
   assetSlug: string;
   accountPkh: string;
-  chainId: string;
+  tezosChainId: string;
   adultBlur: boolean;
   areDetailsShown: boolean;
   hideWithoutMeta?: boolean;
 }
 
 export const CollectibleItem = memo<Props>(
-  ({ assetSlug, accountPkh, chainId, adultBlur, areDetailsShown, hideWithoutMeta }) => {
+  ({ assetSlug, accountPkh, tezosChainId, adultBlur, areDetailsShown, hideWithoutMeta }) => {
     const { popup } = useAppEnv();
     const metadata = useCollectibleMetadataSelector(assetSlug);
     const wrapperElemRef = useRef<HTMLDivElement>(null);
-    const balanceAtomic = useBalanceSelector(accountPkh, chainId, assetSlug);
+    const balanceAtomic = useBalanceSelector(accountPkh, tezosChainId, assetSlug);
 
     const decimals = metadata?.decimals;
 
@@ -86,7 +86,7 @@ export const CollectibleItem = memo<Props>(
 
     return (
       <Link
-        to={`/collectible/${assetSlug}`}
+        to={`/collectible/${tezosChainId}/${assetSlug}`}
         className="flex flex-col border border-gray-300 rounded-lg overflow-hidden"
         style={style}
         testID={CollectibleTabSelectors.collectibleItem}

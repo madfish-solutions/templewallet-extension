@@ -35,6 +35,7 @@ import { getPercentageRatio } from 'lib/route3/utils/get-percentage-ratio';
 import { getRoute3TokenBySlug } from 'lib/route3/utils/get-route3-token-by-slug';
 import { ROUTING_FEE_PERCENT, SWAP_CASHBACK_PERCENT } from 'lib/swap-router/config';
 import { atomsToTokens, tokensToAtoms } from 'lib/temple/helpers';
+import { TEZOS_MAINNET_CHAIN_ID } from 'lib/temple/types';
 import useTippy from 'lib/ui/useTippy';
 import { ZERO } from 'lib/utils/numbers';
 import { parseTransferParamsToParamsWithKind } from 'lib/utils/parse-transfer-params';
@@ -44,7 +45,7 @@ import {
   getRoutingFeeTransferParams
 } from 'lib/utils/swap.utils';
 import { HistoryAction, navigate } from 'lib/woozie';
-import { useTezosWithSigner, useTezosBlockLevel } from 'temple/front';
+import { getTezosToolkitWithSigner, useTezosBlockLevel, useTezosMainnetChain } from 'temple/front';
 
 import { SwapExchangeRate } from './SwapExchangeRate/SwapExchangeRate';
 import { SwapFormValue, SwapInputValue, useSwapFormDefaultValue } from './SwapForm.form';
@@ -63,14 +64,16 @@ interface Props {
 }
 
 export const SwapForm = memo<Props>(({ publicKeyHash }) => {
-  const tezos = useTezosWithSigner(publicKeyHash);
-  const blockLevel = useTezosBlockLevel();
+  const network = useTezosMainnetChain();
+  const tezos = getTezosToolkitWithSigner(network.rpcBaseURL, publicKeyHash);
+
+  const blockLevel = useTezosBlockLevel(network.rpcBaseURL);
 
   const getSwapParams = useGetSwapTransferParams(tezos, publicKeyHash);
   const { data: route3Tokens } = useSwapTokensSelector();
   const swapParams = useSwapParamsSelector();
   const allUsdToTokenRates = useSelector(state => state.currency.usdToTokenRates.data);
-  const getTokenMetadata = useGetAssetMetadata();
+  const getTokenMetadata = useGetAssetMetadata(TEZOS_MAINNET_CHAIN_ID);
   const prevOutputRef = useRef(swapParams.data.output);
 
   const formAnalytics = useFormAnalytics('SwapForm');
@@ -91,8 +94,8 @@ export const SwapForm = memo<Props>(({ publicKeyHash }) => {
   const fromRoute3Token = useSwapTokenSelector(inputValue.assetSlug ?? '');
   const toRoute3Token = useSwapTokenSelector(outputValue.assetSlug ?? '');
 
-  const inputAssetMetadata = useAssetMetadata(inputValue.assetSlug ?? TEZ_TOKEN_SLUG)!;
-  const outputAssetMetadata = useAssetMetadata(outputValue.assetSlug ?? TEZ_TOKEN_SLUG)!;
+  const inputAssetMetadata = useAssetMetadata(inputValue.assetSlug ?? TEZ_TOKEN_SLUG, TEZOS_MAINNET_CHAIN_ID)!;
+  const outputAssetMetadata = useAssetMetadata(outputValue.assetSlug ?? TEZ_TOKEN_SLUG, TEZOS_MAINNET_CHAIN_ID)!;
 
   const [error, setError] = useState<Error>();
   const [operation, setOperation] = useState<BatchWalletOperation>();
@@ -447,6 +450,7 @@ export const SwapForm = memo<Props>(({ publicKeyHash }) => {
 
       {operation && (
         <OperationStatus
+          network={network}
           className="mb-8"
           closable
           typeTitle={t('swapNoun')}
@@ -456,6 +460,7 @@ export const SwapForm = memo<Props>(({ publicKeyHash }) => {
       )}
 
       <SwapFormInput
+        network={network}
         publicKeyHash={publicKeyHash}
         name="input"
         value={inputValue}
@@ -478,6 +483,7 @@ export const SwapForm = memo<Props>(({ publicKeyHash }) => {
       </div>
 
       <SwapFormInput
+        network={network}
         publicKeyHash={publicKeyHash}
         className="mb-6"
         name="output"

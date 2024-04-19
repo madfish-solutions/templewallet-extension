@@ -19,11 +19,13 @@ export const CryptoBalance = memo<CryptoBalanceProps>(({ value, testID, testIDPr
 ));
 
 interface FiatBalanceProps extends CryptoBalanceProps {
+  tezosChainId: string;
   assetSlug: string;
 }
 
-export const FiatBalance = memo<FiatBalanceProps>(({ assetSlug, value, testID, testIDProperties }) => (
+export const FiatBalance = memo<FiatBalanceProps>(({ tezosChainId, assetSlug, value, testID, testIDProperties }) => (
   <InFiat
+    tezosChainId={tezosChainId}
     assetSlug={assetSlug}
     volume={value}
     smallFractionFont={false}

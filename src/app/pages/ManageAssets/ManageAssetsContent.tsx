@@ -11,7 +11,6 @@ import { t, T } from 'lib/i18n';
 import type { TokenMetadataGetter } from 'lib/metadata';
 import { useConfirm } from 'lib/ui/dialog';
 import { Link } from 'lib/woozie';
-import { useTezosNetwork } from 'temple/front';
 
 import { ListItem } from './ListItem';
 import { ManageAssetsSelectors } from './selectors';
@@ -23,7 +22,7 @@ interface Props extends PropsWithChildren {
 }
 
 export const ManageAssetsContent: FC<Props> = ({ ofCollectibles, searchValue, setSearchValue, children }) => (
-  <div className="w-full max-w-sm mx-auto mb-6">
+  <div className="mb-6">
     <div className="mb-3 w-full flex">
       <SearchAssetField
         value={searchValue}
@@ -50,6 +49,7 @@ export const ManageAssetsContent: FC<Props> = ({ ofCollectibles, searchValue, se
 );
 
 interface ManageAssetsContentListProps {
+  tezosChainId: string;
   publicKeyHash: string;
   ofCollectibles?: boolean;
   assets: AccountAsset[];
@@ -57,9 +57,7 @@ interface ManageAssetsContentListProps {
 }
 
 export const ManageAssetsContentList = memo<ManageAssetsContentListProps>(
-  ({ publicKeyHash, ofCollectibles, assets, getMetadata }) => {
-    const { chainId } = useTezosNetwork();
-
+  ({ tezosChainId: chainId, publicKeyHash, ofCollectibles, assets, getMetadata }) => {
     const confirm = useConfirm();
 
     const removeItem = useCallback(
@@ -108,6 +106,7 @@ export const ManageAssetsContentList = memo<ManageAssetsContentListProps>(
 
           return (
             <ListItem
+              tezosChainId={chainId}
               key={slug}
               assetSlug={slug}
               metadata={metadata}

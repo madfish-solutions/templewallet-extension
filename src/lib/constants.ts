@@ -4,20 +4,30 @@ export enum ContentScriptType {
   UpdateAdsRules = 'UpdateAdsRules'
 }
 
+export const ORIGIN_SEARCH_PARAM_NAME = 'o';
+
+export const ADS_META_SEARCH_PARAM_NAME = 'ads-meta';
+
 export const WEBSITES_ANALYTICS_ENABLED = 'WEBSITES_ANALYTICS_ENABLED';
 
 /** @deprecated */
 export const ACCOUNT_PKH_STORAGE_KEY = 'account_publickeyhash';
 
-export const ADS_VIEWER_TEZOS_ADDRESS_STORAGE_KEY = 'ADS_VIEWER_TEZOS_ADDRESS';
+export const ADS_VIEWER_ADDRESS_STORAGE_KEY = 'ADS_VIEWER_ADDRESS';
+
+/** @deprecated */
+export const CUSTOM_NETWORKS_SNAPSHOT_STORAGE_KEY = 'custom_networks_snapshot';
+
+export const CUSTOM_TEZOS_NETWORKS_STORAGE_KEY = 'CUSTOM_TEZOS_NETWORKS';
+
+export const TEZOS_CHAINS_SPECS_STORAGE_KEY = 'TEZOS_CHAINS_SPECS';
+export const EVM_CHAINS_SPECS_STORAGE_KEY = 'EVM_CHAINS_SPECS';
 
 export const ANALYTICS_USER_ID_STORAGE_KEY = 'analytics_user_id';
 
 export const ALL_ADS_RULES_STORAGE_KEY = 'ALL_ADS_RULES';
 
 export const ADS_RULES_UPDATE_INTERVAL = 5 * 60 * 1000;
-
-export const TEMPLE_WALLET_AD_ATTRIBUTE_NAME = 'twa';
 
 export const AD_HIDING_TIMEOUT = 12 * 3600 * 1000;
 

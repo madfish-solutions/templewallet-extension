@@ -1,5 +1,3 @@
-import { ChainID } from '../apis/temple/evm-data.interfaces';
-
 export enum TokenStandardsEnum {
   Fa2 = 'fa2',
   Fa12 = 'fa12'
@@ -20,9 +18,10 @@ export interface TokenMetadata extends AssetMetadataBase {
   artifactUri?: string;
 }
 
-export interface EVMTokenMetadata extends AssetMetadataBase {
-  address: string;
-  chainID: ChainID;
-  native: boolean;
-  thumbnailUri: string;
-}
+export type MetadataRecords = Record<string, TokenMetadata>;
+
+/**
+ * Maps are up to 2000 times faster to read from than arrays.
+ * Be sure to convert to a serializible value before persisting.
+ */
+export type MetadataMap = Map<string, TokenMetadata>;

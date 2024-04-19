@@ -15,14 +15,12 @@ import { ReactComponent as MaximiseIcon } from 'app/icons/maximise.svg';
 import { ReactComponent as SadSearchIcon } from 'app/icons/sad-search.svg';
 import { ReactComponent as SettingsIcon } from 'app/icons/settings.svg';
 import SearchField from 'app/templates/SearchField';
-import { useGasToken } from 'lib/assets/hooks';
 import { searchHotkey } from 'lib/constants';
 import { T, t } from 'lib/i18n';
-import { useTempleClient, useSetAccountId } from 'lib/temple/front';
+import { useTempleClient } from 'lib/temple/front';
 import { PopperRenderProps } from 'lib/ui/Popper';
 import { HistoryAction, navigate } from 'lib/woozie';
-import { useCurrentAccountId, useTezosNetwork, useRelevantAccounts } from 'temple/front';
-import { searchAndFilterAccounts } from 'temple/front/accounts';
+import { searchAndFilterAccounts, useCurrentAccountId, useChangeAccount, useNonContractAccounts } from 'temple/front';
 
 import { AccountItem } from './AccountItem';
 import { ActionButtonProps, ActionButton } from './ActionButton';
@@ -35,11 +33,9 @@ interface TDropdownAction extends ActionButtonProps {
 const AccountDropdown = memo<PopperRenderProps>(({ opened, setOpened }) => {
   const appEnv = useAppEnv();
   const { lock } = useTempleClient();
-  const { chainId } = useTezosNetwork();
-  const allAccounts = useRelevantAccounts(chainId);
+  const allAccounts = useNonContractAccounts();
   const currentAccountId = useCurrentAccountId();
-  const setAccountId = useSetAccountId();
-  const { assetName: gasTokenName } = useGasToken();
+  const setAccountId = useChangeAccount();
 
   useShortcutAccountSelectModalIsOpened(() => setOpened(false));
 
@@ -209,7 +205,6 @@ const AccountDropdown = memo<PopperRenderProps>(({ opened, setOpened }) => {
                   key={acc.id}
                   account={acc}
                   selected={acc.id === currentAccountId}
-                  gasTokenName={gasTokenName}
                   attractSelf={attractSelectedAccount}
                   onClick={handleAccountClick}
                 />

@@ -9,14 +9,12 @@ import { useAccountSelectShortcut } from 'app/hooks/use-account-select-shortcut'
 import { useModalScrollLock } from 'app/hooks/use-modal-scroll-lock';
 import { ReactComponent as SadSearchIcon } from 'app/icons/sad-search.svg';
 import SearchField from 'app/templates/SearchField';
-import { useGasToken } from 'lib/assets/hooks';
 import { searchHotkey } from 'lib/constants';
 import { T, t } from 'lib/i18n';
-import { useSetAccountId } from 'lib/temple/front';
 import Portal from 'lib/ui/Portal';
 import { HistoryAction, navigate } from 'lib/woozie';
-import { useCurrentAccountId, useTezosNetwork, useRelevantAccounts } from 'temple/front';
-import { searchAndFilterAccounts } from 'temple/front/accounts';
+import { useCurrentAccountId, useChangeAccount } from 'temple/front';
+import { searchAndFilterAccounts, useNonContractAccounts } from 'temple/front/accounts';
 
 import { AccountItem } from './AccountItem';
 
@@ -28,11 +26,9 @@ export const ShortcutAccountSwitchOverlay = memo(() => {
   useModalScrollLock(opened, accountSwitchRef);
   useOnClickOutside(accountSwitchRef, () => setOpened(false));
 
-  const { chainId } = useTezosNetwork();
   const currentAccountId = useCurrentAccountId();
-  const allAccounts = useRelevantAccounts(chainId);
-  const setAccountId = useSetAccountId();
-  const { assetName: gasTokenName } = useGasToken();
+  const allAccounts = useNonContractAccounts();
+  const setAccountId = useChangeAccount();
 
   const [searchValue, setSearchValue] = useState('');
   const [focusedAccountItemIndex, setFocusedAccountItemIndex] = useState(0);
@@ -175,7 +171,6 @@ export const ShortcutAccountSwitchOverlay = memo(() => {
                         key={acc.id}
                         account={acc}
                         focused={focusedAccountItemIndex === index}
-                        gasTokenName={gasTokenName}
                         arrayIndex={index}
                         itemsArrayRef={accountItemsRef}
                         onClick={() => handleAccountClick(acc.id)}

@@ -1,7 +1,9 @@
 import { getPersonaAdClient, PERSONA_STAGING_ADS_BANNER_UNIT_ID } from 'lib/ads/persona';
+import { ADS_VIEWER_ADDRESS_STORAGE_KEY } from 'lib/constants';
 import { EnvVars } from 'lib/env';
+import { fetchFromStorage } from 'lib/storage';
 
-import type { PersonaAdShape } from './ads-meta';
+type PersonaAdShape = 'regular' | 'medium' | 'wide' | 'squarish';
 
 const CONTAINER_ID = 'container';
 
@@ -9,7 +11,8 @@ const usp = new URLSearchParams(window.location.search);
 const id = usp.get('id');
 const shape = usp.get('shape');
 
-getPersonaAdClient()
+fetchFromStorage<string>(ADS_VIEWER_ADDRESS_STORAGE_KEY)
+  .then(accountPkhFromStorage => getPersonaAdClient(accountPkhFromStorage))
   .then(({ client, environment }) => {
     const adUnitId = getUnitId(shape as PersonaAdShape, environment === 'staging');
 

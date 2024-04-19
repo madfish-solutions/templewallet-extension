@@ -23,7 +23,7 @@ interface Props<T> extends TestIDProperty {
   optionsProps: SelectOptionsPropsBase<T>;
 }
 
-export const DropdownSelect = <T extends unknown>({
+export const DropdownSelect = <T,>({
   Input,
   singleToken = false,
   searchProps,
@@ -112,7 +112,7 @@ interface SelectOptionsProps<Type> extends SelectOptionsPropsBase<Type> {
   setOpened: Dispatch<SetStateAction<boolean>>;
 }
 
-const SelectOptions = <Type extends unknown>({
+const SelectOptions = <Type,>({
   opened,
   options,
   noItemsText,

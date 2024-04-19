@@ -3,10 +3,10 @@ import { Tzip16Module } from '@taquito/tzip16';
 import memoizee from 'memoizee';
 
 import { FastRpcClient } from 'lib/taquito-fast-rpc';
+import { rejectOnTimeout } from 'lib/utils';
+import { MAX_MEMOIZED_TOOLKITS } from 'temple/misc';
 
 export { TEZOS_CONFIRMATION_TIMED_OUT_ERROR_MSG, confirmTezosOperation } from './confirmation';
-
-export const MAX_MEMOIZED_TOOLKITS = 3;
 
 export const michelEncoder = new MichelCodecPacker();
 
@@ -28,8 +28,11 @@ export const getTezosFastRpcClient = memoizee((rpcUrl: string) => new FastRpcCli
   max: MAX_MEMOIZED_TOOLKITS
 });
 
-export function loadTezosChainId(rpcUrl: string) {
+export function loadTezosChainId(rpcUrl: string, timeout?: number) {
   const rpc = getTezosFastRpcClient(rpcUrl);
+
+  if (timeout && timeout > 0)
+    return rejectOnTimeout(rpc.getChainId(), timeout, new Error('Timed-out for loadTezosChainId()'));
 
   return rpc.getChainId();
 }

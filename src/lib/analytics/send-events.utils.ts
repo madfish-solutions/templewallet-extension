@@ -4,7 +4,7 @@ import { assertResponse, makeIntercomRequest } from 'temple/front/intercom-clien
 
 export const sendTrackEvent = async (
   userId: string,
-  rpc: string | undefined,
+  chainId: string | undefined,
   event: string,
   category: AnalyticsEventCategory = AnalyticsEventCategory.General,
   properties?: object
@@ -12,7 +12,7 @@ export const sendTrackEvent = async (
   const res = await makeIntercomRequest({
     type: TempleMessageType.SendTrackEventRequest,
     userId,
-    rpc,
+    chainId,
     event,
     category,
     properties
@@ -22,7 +22,7 @@ export const sendTrackEvent = async (
 
 export const sendPageEvent = async (
   userId: string,
-  rpc: string | undefined,
+  chainId: string | undefined,
   path: string,
   search: string,
   additionalProperties = {}
@@ -30,7 +30,7 @@ export const sendPageEvent = async (
   const res = await makeIntercomRequest({
     type: TempleMessageType.SendPageEventRequest,
     userId,
-    rpc,
+    chainId,
     path,
     search,
     additionalProperties

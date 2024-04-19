@@ -9,18 +9,21 @@ import { setAnotherSelector, setTestID } from 'lib/analytics';
 import { StoredAccount } from 'lib/temple/types';
 import { useScrollIntoViewOnMount } from 'lib/ui/use-scroll-into-view';
 import { getAccountAddressForEvm, getAccountAddressForTezos } from 'temple/accounts';
+import { useEvmMainnetChain, useTezosMainnetChain } from 'temple/front';
 
 import { AccountDropdownSelectors } from './selectors';
 
 interface Props {
   account: StoredAccount;
   selected: boolean;
-  gasTokenName: string;
   attractSelf: boolean;
   onClick: (accountId: string) => void;
 }
 
-export const AccountItem = memo<Props>(({ account, selected, gasTokenName, attractSelf, onClick }) => {
+export const AccountItem = memo<Props>(({ account, selected, attractSelf, onClick }) => {
+  const tezosMainnetChain = useTezosMainnetChain();
+  const evmMainnetChain = useEvmMainnetChain();
+
   const [accountTezAddress, displayAddress] = useMemo(() => {
     const tezAddress = getAccountAddressForTezos(account);
     const displayAddress = (tezAddress || getAccountAddressForEvm(account))!;
@@ -68,19 +71,19 @@ export const AccountItem = memo<Props>(({ account, selected, gasTokenName, attra
 
         <div className="flex flex-wrap items-center">
           {accountTezAddress ? (
-            <Balance address={accountTezAddress}>
+            <Balance network={tezosMainnetChain} address={accountTezAddress}>
               {bal => (
                 <span className="text-xs leading-tight flex items-baseline text-gray-500">
                   <Money smallFractionFont={false} tooltip={false}>
                     {bal}
                   </Money>
 
-                  <span className="ml-1">{gasTokenName.toUpperCase()}</span>
+                  <span className="ml-1">TEZ</span>
                 </span>
               )}
             </Balance>
           ) : (
-            '🚧 🛠️ 🔜 🏗️ ETH'
+            `🚧 🛠️ 🔜 🏗️ ${evmMainnetChain.currency.symbol}`
           )}
 
           <AccountTypeBadge accountType={account.type} darkTheme />

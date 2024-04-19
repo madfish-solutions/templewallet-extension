@@ -1,4 +1,4 @@
-import React, { ChangeEvent, FC, memo, ReactNode, useMemo } from 'react';
+import React, { ChangeEvent, FC, memo, ReactNode, useCallback, useMemo } from 'react';
 
 import { isDefined } from '@rnw-community/shared';
 import BigNumber from 'bignumber.js';
@@ -13,15 +13,9 @@ import InFiat from 'app/templates/InFiat';
 import { InputContainer } from 'app/templates/InputContainer/InputContainer';
 import { setTestID, useFormAnalytics } from 'lib/analytics';
 import { TEZ_TOKEN_SLUG } from 'lib/assets';
-import { useBalance, useRawBalance } from 'lib/balances';
+import { useTezosAssetBalance } from 'lib/balances';
 import { T, t, toLocalFormat } from 'lib/i18n';
-import {
-  EMPTY_BASE_METADATA,
-  useAssetMetadata,
-  useGetAssetMetadata,
-  AssetMetadataBase,
-  useTokensMetadataPresenceCheck
-} from 'lib/metadata';
+import { useAssetMetadata, useGetAssetMetadata, AssetMetadataBase, useTokensMetadataPresenceCheck } from 'lib/metadata';
 import { useAvailableRoute3TokensSlugs } from 'lib/route3/assets';
 
 import { AssetOption } from './AssetsMenu/AssetOption';
@@ -32,11 +26,16 @@ const EXCHANGE_XTZ_RESERVE = new BigNumber('0.3');
 const PERCENTAGE_BUTTONS = [25, 50, 75, 100];
 const LEADING_ASSETS = [TEZ_TOKEN_SLUG];
 
-const renderOptionContent = (option: string, accountPkh: string, isSelected: boolean) => (
-  <AssetOption accountPkh={accountPkh} assetSlug={option} selected={isSelected} />
-);
+/** @deprecated // Bad practice */
+const EMPTY_BASE_METADATA: AssetMetadataBase = {
+  decimals: 0,
+  symbol: '',
+  name: '',
+  thumbnailUri: ''
+};
 
 export const SwapFormInput: FC<SwapFormInputProps> = ({
+  network,
   publicKeyHash,
   className,
   value,
@@ -54,24 +53,25 @@ export const SwapFormInput: FC<SwapFormInputProps> = ({
   const isTezosSlug = assetSlug === 'tez';
   const assetSlugWithFallback = assetSlug ?? 'tez';
 
-  const assetMetadataWithFallback = useAssetMetadata(assetSlugWithFallback)!;
+  const assetMetadataWithFallback = useAssetMetadata(assetSlugWithFallback, network.chainId)!;
   const assetMetadata = useMemo(
     () => (assetSlug ? assetMetadataWithFallback : EMPTY_BASE_METADATA),
     [assetSlug, assetMetadataWithFallback]
   );
-  const getTokenMetadata = useGetAssetMetadata();
+  const getTokenMetadata = useGetAssetMetadata(network.chainId);
 
-  const { value: balance } = useBalance(assetSlugWithFallback, publicKeyHash);
+  const { value: balance } = useTezosAssetBalance(assetSlugWithFallback, publicKeyHash, network);
 
   const { isLoading, route3tokensSlugs } = useAvailableRoute3TokensSlugs();
   const { filteredAssets, searchValue, setSearchValue, setTokenId } = useTokensListingLogic(
+    network.chainId,
     publicKeyHash,
     route3tokensSlugs,
     name === 'input',
     LEADING_ASSETS
   );
 
-  useTokensMetadataPresenceCheck(route3tokensSlugs);
+  useTokensMetadataPresenceCheck(network.rpcBaseURL, route3tokensSlugs);
 
   const maxAmount = useMemo(() => {
     if (!assetSlug) {
@@ -132,24 +132,33 @@ export const SwapFormInput: FC<SwapFormInputProps> = ({
     return error;
   }, [error]);
 
+  const renderOptionContent = useCallback(
+    (option: string, isSelected: boolean) => (
+      <AssetOption network={network} accountPkh={publicKeyHash} assetSlug={option} selected={isSelected} />
+    ),
+    [network, publicKeyHash]
+  );
+
+  const { value: assetSlugWithFallbackBalance } = useTezosAssetBalance(assetSlugWithFallback, publicKeyHash, network);
+  const selectedAssetBalanceStr = assetSlugWithFallbackBalance?.toString();
+
   return (
     <div className={className}>
       <InputContainer
         header={
           <SwapInputHeader
-            publicKeyHash={publicKeyHash}
             label={label}
             selectedAssetSlug={assetSlugWithFallback}
             selectedAssetSymbol={assetMetadataWithFallback.symbol}
+            selectedAssetBalanceStr={selectedAssetBalanceStr}
           />
         }
         footer={
           <div className={classNames('w-full flex items-center', prettyError ? 'justify-between' : 'justify-end')}>
             {prettyError && <div className="text-red-700 text-xs">{prettyError}</div>}
             <SwapFooter
-              publicKeyHash={publicKeyHash}
               amountInputDisabled={Boolean(amountInputDisabled)}
-              selectedAssetSlug={assetSlugWithFallback}
+              selectedAssetBalanceStr={selectedAssetBalanceStr}
               handlePercentageClick={handlePercentageClick}
             />
           </div>
@@ -160,6 +169,7 @@ export const SwapFormInput: FC<SwapFormInputProps> = ({
           dropdownButtonClassName="pl-4 pr-3 py-5"
           DropdownFaceContent={
             <SwapDropdownFace
+              tezosChainId={network.chainId}
               testId={testIDs?.assetDropDownButton}
               selectedAssetSlug={assetSlug}
               selectedAssetMetadata={assetMetadata}
@@ -172,12 +182,13 @@ export const SwapFormInput: FC<SwapFormInputProps> = ({
           }}
           Input={
             <SwapInput
-              testId={testIDs?.input}
+              tezosChainId={network.chainId}
               amount={value.amount}
               amountInputDisabled={Boolean(amountInputDisabled)}
               onChange={handleAmountChange}
               selectedAssetSlug={assetSlugWithFallback}
               selectedAssetMetadata={assetMetadata}
+              testId={testIDs?.input}
             />
           }
           optionsProps={{
@@ -185,7 +196,7 @@ export const SwapFormInput: FC<SwapFormInputProps> = ({
             options: filteredAssets,
             noItemsText,
             getKey: option => option,
-            renderOptionContent: option => renderOptionContent(option, publicKeyHash, value.assetSlug === option),
+            renderOptionContent: option => renderOptionContent(option, value.assetSlug === option),
             onOptionChange: handleSelectedAssetChange
           }}
         />
@@ -195,16 +206,17 @@ export const SwapFormInput: FC<SwapFormInputProps> = ({
 };
 
 interface SwapFieldProps {
+  tezosChainId: string;
   testId?: string;
   selectedAssetSlug?: string;
   selectedAssetMetadata: AssetMetadataBase;
 }
 
-const SwapDropdownFace: FC<SwapFieldProps> = ({ testId, selectedAssetSlug, selectedAssetMetadata }) => (
+const SwapDropdownFace: FC<SwapFieldProps> = ({ tezosChainId, testId, selectedAssetSlug, selectedAssetMetadata }) => (
   <div {...setTestID(testId)} className="max-h-18">
     {selectedAssetSlug ? (
       <div className="flex gap-2 align-center">
-        <AssetIcon assetSlug={selectedAssetSlug} size={32} className="w-8" />
+        <AssetIcon tezosChainId={tezosChainId} assetSlug={selectedAssetSlug} size={32} className="w-8" />
         <span className="text-gray-700 text-lg overflow-hidden w-16 leading-8 text-ellipsis">
           {selectedAssetMetadata.symbol}
         </span>
@@ -219,13 +231,18 @@ const SwapDropdownFace: FC<SwapFieldProps> = ({ testId, selectedAssetSlug, selec
   </div>
 );
 
-interface SwapInputProps extends SwapFieldProps {
-  testId?: string;
+interface SwapInputProps {
+  tezosChainId: string;
   amount: BigNumber | undefined;
   amountInputDisabled: boolean;
+  selectedAssetSlug: string;
+  selectedAssetMetadata: AssetMetadataBase;
+  testId?: string;
   onChange: (value?: BigNumber) => void;
 }
+
 const SwapInput: FC<SwapInputProps> = ({
+  tezosChainId,
   amount,
   amountInputDisabled,
   selectedAssetSlug,
@@ -258,7 +275,12 @@ const SwapInput: FC<SwapInputProps> = ({
           onChange={handleAmountChange}
         />
 
-        <InFiat assetSlug={selectedAssetSlug} volume={selectedAssetSlug ? amount ?? 0 : 0} smallFractionFont={false}>
+        <InFiat
+          tezosChainId={tezosChainId}
+          assetSlug={selectedAssetSlug}
+          volume={selectedAssetSlug ? amount ?? 0 : 0}
+          smallFractionFont={false}
+        >
           {({ balance, symbol }) => (
             <div className="text-gray-500 flex">
               <span className="mr-1">≈</span>
@@ -273,16 +295,14 @@ const SwapInput: FC<SwapInputProps> = ({
 };
 
 interface SwapInputHeaderProps {
-  publicKeyHash: string;
   label: ReactNode;
   selectedAssetSlug: string;
   selectedAssetSymbol: string;
+  selectedAssetBalanceStr?: string;
 }
 
 const SwapInputHeader = memo<SwapInputHeaderProps>(
-  ({ publicKeyHash, selectedAssetSlug, selectedAssetSymbol, label }) => {
-    const { value: balance } = useBalance(selectedAssetSlug, publicKeyHash);
-
+  ({ selectedAssetSlug, selectedAssetSymbol, selectedAssetBalanceStr, label }) => {
     return (
       <div className="w-full flex items-center justify-between">
         <span className="text-xl text-gray-900">{label}</span>
@@ -293,10 +313,15 @@ const SwapInputHeader = memo<SwapInputHeaderProps>(
               <T id="balance" />:
             </span>
 
-            {balance && (
-              <span className={classNames('text-sm mr-1 text-gray-700', balance.isZero() && 'text-red-700')}>
+            {selectedAssetBalanceStr && (
+              <span
+                className={classNames(
+                  'text-sm mr-1 text-gray-700',
+                  Number(selectedAssetBalanceStr) === 0 && 'text-red-700'
+                )}
+              >
                 <Money smallFractionFont={false} fiat={false}>
-                  {balance}
+                  {selectedAssetBalanceStr}
                 </Money>
               </span>
             )}
@@ -310,25 +335,17 @@ const SwapInputHeader = memo<SwapInputHeaderProps>(
 );
 
 interface SwapFooterProps {
-  publicKeyHash: string;
   amountInputDisabled: boolean;
-  selectedAssetSlug: string;
+  selectedAssetBalanceStr?: string;
   handlePercentageClick: (percentage: number) => void;
 }
 
-const SwapFooter: FC<SwapFooterProps> = ({
-  publicKeyHash,
-  amountInputDisabled,
-  selectedAssetSlug,
-  handlePercentageClick
-}) => {
-  const { value: balance } = useRawBalance(selectedAssetSlug, publicKeyHash);
-
+const SwapFooter: FC<SwapFooterProps> = ({ amountInputDisabled, selectedAssetBalanceStr, handlePercentageClick }) => {
   return amountInputDisabled ? null : (
     <div className="flex">
       {PERCENTAGE_BUTTONS.map(percentage => (
         <PercentageButton
-          disabled={!balance}
+          disabled={!selectedAssetBalanceStr}
           key={percentage}
           percentage={percentage}
           onClick={handlePercentageClick}

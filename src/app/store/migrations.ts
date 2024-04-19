@@ -1,7 +1,7 @@
 import type { MigrationManifest, PersistedState } from 'redux-persist';
 
 import { toTokenSlug } from 'lib/assets';
-import { isCollectible } from 'lib/metadata';
+import { isCollectible } from 'lib/metadata/utils';
 
 import type { RootState } from './root-state.type';
 import { collectiblesMetadataInitialStateClone } from './tezos/collectibles-metadata/state';
