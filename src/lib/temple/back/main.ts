@@ -1,9 +1,10 @@
 import browser, { Runtime } from 'webextension-polyfill';
 
 import { updateRulesStorage } from 'lib/ads/update-rules-storage';
-import { ACCOUNT_PKH_STORAGE_KEY, ANALYTICS_USER_ID_STORAGE_KEY, ContentScriptType } from 'lib/constants';
+import { ADS_VIEWER_ADDRESS_STORAGE_KEY, ANALYTICS_USER_ID_STORAGE_KEY, ContentScriptType } from 'lib/constants';
 import { E2eMessageType } from 'lib/e2e/types';
 import { BACKGROUND_IS_WORKER } from 'lib/env';
+import { fetchFromStorage } from 'lib/storage';
 import { encodeMessage, encryptMessage, getSenderId, MessageType, Response } from 'lib/temple/beacon';
 import { clearAsyncStorages } from 'lib/temple/reset';
 import { TempleMessageType, TempleRequest, TempleResponse } from 'lib/temple/types';
@@ -247,8 +248,8 @@ const processRequest = async (req: TempleRequest, port: Runtime.Port): Promise<T
   }
 };
 
-const getCurrentAccountPkh = async (): Promise<string | undefined> => {
-  const { [ACCOUNT_PKH_STORAGE_KEY]: accountPkhFromStorage } = await browser.storage.local.get(ACCOUNT_PKH_STORAGE_KEY);
+const getAdsViewerPkh = async (): Promise<string | undefined> => {
+  const accountPkhFromStorage = await fetchFromStorage<string>(ADS_VIEWER_ADDRESS_STORAGE_KEY);
 
   if (accountPkhFromStorage) {
     return accountPkhFromStorage;
@@ -275,7 +276,7 @@ browser.runtime.onMessage.addListener(async msg => {
         return clearAsyncStorages().then(() => ({ type: E2eMessageType.ResetResponse }));
     }
 
-    const accountPkh = await getCurrentAccountPkh();
+    const accountPkh = await getAdsViewerPkh();
 
     switch (msg?.type) {
       case ContentScriptType.ExternalLinksActivity:

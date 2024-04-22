@@ -1,5 +1,5 @@
-import { initializeApp } from 'firebase/app';
-import { getMessaging } from 'firebase/messaging/sw';
+import { initializeApp } from '@firebase/app';
+import { getMessaging } from '@firebase/messaging/sw';
 import browser from 'webextension-polyfill';
 
 import 'lib/keep-bg-worker-alive/background';

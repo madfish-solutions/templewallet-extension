@@ -6,6 +6,8 @@ import memoizee from 'memoizee';
 
 import { FastRpcClient } from 'lib/taquito-fast-rpc';
 
+import { TempleAccount, TempleAccountType } from './types';
+
 export const loadFastRpcClient = memoizee((rpc: string) => new FastRpcClient(rpc), { max: 5 });
 
 export const michelEncoder = new MichelCodecPacker();
@@ -71,3 +73,6 @@ export function formatOpParamsBeforeSend(params: any) {
   }
   return params;
 }
+
+export const isAccountOfActableType = (account: TempleAccount) =>
+  !(account.type === TempleAccountType.WatchOnly || account.type === TempleAccountType.ManagedKT);

@@ -14,7 +14,7 @@ import { useLongRefreshLoading } from './hooks/use-long-refresh-loading.hook';
 import { useMetadataLoading } from './hooks/use-metadata-loading';
 import { useMetadataRefresh } from './hooks/use-metadata-refresh';
 import { useStorageAnalytics } from './hooks/use-storage-analytics';
-import { useUserIdSync } from './hooks/use-user-id-sync';
+import { useUserIdAccountPkhSync } from './hooks/use-user-id-account-pkh-sync';
 
 export const WithDataLoading: FC<PropsWithChildren> = ({ children }) => {
   useAssetsMigrations();
@@ -37,7 +37,7 @@ export const WithDataLoading: FC<PropsWithChildren> = ({ children }) => {
   }, []);
 
   useStorageAnalytics();
-  useUserIdSync();
+  useUserIdAccountPkhSync();
 
   return <>{children}</>;
 };
