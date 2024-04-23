@@ -15,17 +15,18 @@ interface OutputProps {
 
 interface Props extends TestIDProps {
   volume: BigNumber | number | string;
-  tezosChainId: string;
+  chainId: number | string;
   assetSlug: string;
   children: (output: OutputProps) => ReactElement;
   roundingMode?: BigNumber.RoundingMode;
   shortened?: boolean;
   smallFractionFont?: boolean;
   showCents?: boolean;
+  evm?: boolean;
 }
 
 const InFiat: FC<Props> = props => {
-  if (props.tezosChainId !== TEZOS_MAINNET_CHAIN_ID) return null;
+  if (!props.evm && props.chainId !== TEZOS_MAINNET_CHAIN_ID) return null;
 
   return <InFiatContent {...props} />;
 };
@@ -33,6 +34,8 @@ const InFiat: FC<Props> = props => {
 export default InFiat;
 
 const InFiatContent: FC<Props> = ({
+  evm,
+  chainId,
   volume,
   assetSlug,
   children,
@@ -43,7 +46,7 @@ const InFiatContent: FC<Props> = ({
   testID,
   testIDProperties
 }) => {
-  const price = useAssetFiatCurrencyPrice(assetSlug);
+  const price = useAssetFiatCurrencyPrice(assetSlug, chainId, evm);
   const { selectedFiatCurrency } = useFiatCurrency();
 
   const roundedInFiat = useMemo(() => {

@@ -1,3 +1,3 @@
-import { useSelector } from '../../index';
+import { useSelector } from '../../root-state.selector';
 
-export const useUsdToTokenRatesSelector = () => useSelector(({ currency }) => currency.usdToTokenRates.data);
+export const useTezosUsdToTokenRatesSelector = () => useSelector(({ currency }) => currency.usdToTokenRates.data);

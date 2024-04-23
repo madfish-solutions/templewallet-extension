@@ -64,7 +64,7 @@ const AssetItemContentComponent: FC<AssetItemContentComponentProps> = ({
       <span className="text-xs text-gray-600">
         <Balance network={network} assetSlug={slug} address={publicKeyHash}>
           {volume => (
-            <InFiat tezosChainId={network.chainId} assetSlug={slug} volume={volume} smallFractionFont={false}>
+            <InFiat chainId={network.chainId} assetSlug={slug} volume={volume} smallFractionFont={false}>
               {({ balance, symbol }) => (
                 <>
                   <span className="mr-1">≈</span>

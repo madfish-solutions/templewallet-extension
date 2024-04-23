@@ -276,7 +276,7 @@ const SwapInput: FC<SwapInputProps> = ({
         />
 
         <InFiat
-          tezosChainId={tezosChainId}
+          chainId={tezosChainId}
           assetSlug={selectedAssetSlug}
           volume={selectedAssetSlug ? amount ?? 0 : 0}
           smallFractionFont={false}

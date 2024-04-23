@@ -10,6 +10,6 @@ export const evmAssetsReducer = createReducer<EVMAssetsStateInterface>(EVMAssets
 
     if (data.length === 0) return;
 
-    state.tokens = Object.assign({}, state.tokens, getStoredAssetsRecord(publicKeyHash, data));
+    state.tokens = getStoredAssetsRecord(publicKeyHash, data);
   });
 });

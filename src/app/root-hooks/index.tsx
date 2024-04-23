@@ -53,9 +53,24 @@ const AppReadyRootHooks = memo(() => {
   const tezosAddress = useAccountAddressForTezos();
   const evmAddress = useAccountAddressForEvm();
 
-  useEVMDataLoading(evmAddress);
+  if (tezosAddress && evmAddress) {
+    return (
+      <>
+        <TezosAccountHooks publicKeyHash={tezosAddress} />
+        <EvmAccountHooks publicKeyHash={evmAddress} />
+      </>
+    );
+  }
 
-  return tezosAddress ? <TezosAccountHooks publicKeyHash={tezosAddress} /> : null;
+  if (tezosAddress) {
+    return <TezosAccountHooks publicKeyHash={tezosAddress} />;
+  }
+
+  if (evmAddress) {
+    return <EvmAccountHooks publicKeyHash={evmAddress} />;
+  }
+
+  return null;
 });
 
 const TezosAccountHooks = memo<{ publicKeyHash: string }>(({ publicKeyHash }) => {
@@ -68,4 +83,10 @@ const TezosAccountHooks = memo<{ publicKeyHash: string }>(({ publicKeyHash }) =>
       <AppTezosTokensMetadataLoading publicKeyHash={publicKeyHash} />
     </>
   );
+});
+
+const EvmAccountHooks = memo<{ publicKeyHash: HexString }>(({ publicKeyHash }) => {
+  useEVMDataLoading(publicKeyHash);
+
+  return null;
 });

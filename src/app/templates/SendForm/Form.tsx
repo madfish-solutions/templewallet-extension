@@ -88,7 +88,7 @@ export const Form: FC<Props> = ({ account, network, assetSlug, setOperation, onA
   const { registerBackHandler } = useAppEnv();
 
   const assetMetadata = useAssetMetadata(assetSlug, network.chainId);
-  const assetPrice = useAssetFiatCurrencyPrice(assetSlug);
+  const assetPrice = useAssetFiatCurrencyPrice(assetSlug, network.chainId);
 
   const assetSymbol = useMemo(() => getAssetSymbol(assetMetadata), [assetMetadata]);
 
@@ -630,12 +630,7 @@ const TokenToFiat: React.FC<TokenToFiatProps> = ({
           <T id="inAsset" substitutions={getAssetSymbol(assetMetadata, true)} />
         </div>
       ) : (
-        <InFiat
-          tezosChainId={tezosChainId}
-          assetSlug={assetSlug}
-          volume={amountValue}
-          roundingMode={BigNumber.ROUND_FLOOR}
-        >
+        <InFiat chainId={tezosChainId} assetSlug={assetSlug} volume={amountValue} roundingMode={BigNumber.ROUND_FLOOR}>
           {({ balance, symbol }) => (
             <div className="mt-1 -mb-3 flex items-baseline">
               <span className="mr-1">≈</span>

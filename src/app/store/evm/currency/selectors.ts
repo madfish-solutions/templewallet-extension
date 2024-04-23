@@ -1,3 +1,3 @@
-import { useSelector } from '../../index';
+import { useSelector } from '../../root-state.selector';
 
-export const useEVMUsdToTokenRatesSelector = () => useSelector(({ evmCurrency }) => evmCurrency.usdToTokenRates);
+export const useEvmUsdToTokenRatesSelector = () => useSelector(({ evmCurrency }) => evmCurrency.usdToTokenRates);

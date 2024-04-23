@@ -25,14 +25,14 @@ import { TEZOS_MAINNET_CHAIN_ID } from 'lib/temple/types';
 import { useLocalStorage } from 'lib/ui/local-storage';
 import Popper, { PopperRenderProps } from 'lib/ui/Popper';
 import { Link, navigate } from 'lib/woozie';
-import { UNDER_DEVELOPMENT_MSG } from 'temple/evm/under_dev_msg';
-import { useAccountAddressForTezos } from 'temple/front';
-import { TezosNetworkEssentials } from 'temple/networks';
+import { useAccountAddressForEvm, useAccountAddressForTezos } from 'temple/front';
+import { EvmNetworkEssentials, TezosNetworkEssentials } from 'temple/networks';
 
+import { useAllAccountEvmAssets } from '../../../../hooks/evm/use-all-account-evm-assets';
 import { HomeSelectors } from '../../Home.selectors';
 import { AssetsSelectors } from '../Assets.selectors';
 
-import { ListItem } from './components/ListItem';
+import { EvmListItem, TezosListItem } from './components/ListItem';
 import { UpdateAppBanner } from './components/UpdateAppBanner';
 import { toExploreAssetLink } from './utils';
 
@@ -44,19 +44,43 @@ export const TokensTab = memo(() => {
   const network = chainSelectController.value;
 
   const accountTezAddress = useAccountAddressForTezos();
+  const accountEvmAddress = useAccountAddressForEvm();
 
   return (
     <ContentContainer className="pt-4">
       <ChainSelectSection controller={chainSelectController} />
 
-      {network.kind === 'tezos' && accountTezAddress ? (
+      {network.kind === 'tezos' && accountTezAddress && (
         <TezosTokensTab network={network} publicKeyHash={accountTezAddress} />
-      ) : (
-        <div className="text-center py-3">{UNDER_DEVELOPMENT_MSG}</div>
+      )}
+
+      {network.kind === 'evm' && accountEvmAddress && (
+        <EvmTokensTab network={network} publicKeyHash={accountEvmAddress} />
       )}
     </ContentContainer>
   );
 });
+
+interface EvmTokensTabProps {
+  network: EvmNetworkEssentials;
+  publicKeyHash: HexString;
+}
+
+const EvmTokensTab: FC<EvmTokensTabProps> = ({ network, publicKeyHash }) => {
+  const { slugs } = useAllAccountEvmAssets(publicKeyHash, network.chainId);
+
+  if (slugs.length === 0) {
+    return <>NO RECORDS FOUND</>;
+  }
+
+  return (
+    <>
+      {slugs.map(assetSlug => (
+        <EvmListItem key={assetSlug} assetSlug={assetSlug} publicKeyHash={publicKeyHash} network={network} />
+      ))}
+    </>
+  );
+};
 
 interface TezosTokensTabProps {
   network: TezosNetworkEssentials;
@@ -106,7 +130,7 @@ const TezosTokensTab: FC<TezosTokensTabProps> = ({ network, publicKeyHash }) => 
 
   const tokensView = useMemo<JSX.Element[]>(() => {
     const tokensJsx = filteredAssets.map(assetSlug => (
-      <ListItem
+      <TezosListItem
         network={network}
         key={assetSlug}
         publicKeyHash={publicKeyHash}

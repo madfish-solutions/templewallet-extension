@@ -248,7 +248,7 @@ const TezosAssetBanner = memo<TezosTezosAssetBanner>(({ network, accountPkh, ass
                 <span className="ml-1">{assetSymbol}</span>
               </div>
 
-              <InFiat tezosChainId={network.chainId} assetSlug={assetSlug} volume={balance} smallFractionFont={false}>
+              <InFiat chainId={network.chainId} assetSlug={assetSlug} volume={balance} smallFractionFont={false}>
                 {({ balance, symbol }) => (
                   <div style={{ lineHeight: '19px' }} className="mt-1 text-base text-gray-500 flex">
                     <span className="mr-1">≈</span>

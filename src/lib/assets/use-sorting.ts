@@ -3,13 +3,13 @@ import { useCallback } from 'react';
 import { BigNumber } from 'bignumber.js';
 
 import { useAllAccountBalancesSelector } from 'app/store/tezos/balances/selectors';
+import { useTezosUsdToTokenRatesSelector } from 'app/store/tezos/currency/selectors';
 import { useGetTezosTokenOrGasBalanceWithDecimals } from 'lib/balances/hooks';
-import { useUsdToTokenRates } from 'lib/fiat-currency/core';
 import { ZERO } from 'lib/utils/numbers';
 
 export const useTokensSortPredicate = (publicKeyHash: string, tezosChainId: string) => {
   const getBalance = useGetTezosTokenOrGasBalanceWithDecimals(publicKeyHash, tezosChainId);
-  const usdToTokenRates = useUsdToTokenRates();
+  const usdToTokenRates = useTezosUsdToTokenRatesSelector();
 
   return useCallback(
     (aSlug: string, bSlug: string) => {

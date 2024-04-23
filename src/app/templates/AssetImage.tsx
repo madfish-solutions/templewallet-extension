@@ -9,9 +9,11 @@ export interface AssetImageProps
   metadata?: AssetMetadataBase;
   size?: number;
   fullViewCollectible?: boolean;
+  evm?: boolean;
 }
 
 export const AssetImage: FC<AssetImageProps> = ({
+  evm = false,
   metadata,
   className,
   size,
@@ -23,11 +25,15 @@ export const AssetImage: FC<AssetImageProps> = ({
   onStackFailed
 }) => {
   const sources = useMemo(() => {
+    if (evm) {
+      return metadata?.thumbnailUri ? [metadata?.thumbnailUri] : [];
+    }
+
     if (metadata && isCollectibleTokenMetadata(metadata))
       return buildCollectibleImagesStack(metadata, fullViewCollectible);
 
     return buildTokenImagesStack(metadata?.thumbnailUri);
-  }, [metadata, fullViewCollectible]);
+  }, [evm, metadata, fullViewCollectible]);
 
   const styleMemo: React.CSSProperties = useMemo(
     () => ({

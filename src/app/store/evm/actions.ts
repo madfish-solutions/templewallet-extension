@@ -2,7 +2,7 @@ import { ChainID, Quote } from 'lib/apis/temple/evm-data.interfaces';
 import { createActions } from 'lib/store';
 
 interface LoadEVMDataSubmitPayload {
-  publicKeyHash: string;
+  publicKeyHash: HexString;
   chainIds?: ChainID[];
   quoteCurrency?: Quote;
 }

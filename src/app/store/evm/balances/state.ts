@@ -1,7 +1,7 @@
-type PublicKeyHashWithChainId = string;
-type TokenSlugBalanceRecord = StringRecord;
+type PublicKeyHash = HexString;
+type TokenSlugWithChainIdBalanceRecord = StringRecord;
 
-export type EVMBalancesAtomicRecord = Record<PublicKeyHashWithChainId, TokenSlugBalanceRecord>;
+export type EVMBalancesAtomicRecord = Record<PublicKeyHash, TokenSlugWithChainIdBalanceRecord>;
 
 export interface EVMBalancesStateInterface {
   balancesAtomic: EVMBalancesAtomicRecord;

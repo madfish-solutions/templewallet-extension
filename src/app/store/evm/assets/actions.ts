@@ -2,7 +2,7 @@ import { createAction } from '@reduxjs/toolkit';
 
 import { BalancesResponse } from 'lib/apis/temple/evm-data.interfaces';
 interface proceedLoadedEVMAssetsActionPayload {
-  publicKeyHash: string;
+  publicKeyHash: HexString;
   data: BalancesResponse[];
 }
 

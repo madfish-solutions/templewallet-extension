@@ -125,7 +125,7 @@ const AssetFieldContent = memo<AssetFieldContentProps>(({ network, slug, publicK
               </span>
             </span>
 
-            <InFiat tezosChainId={network.chainId} smallFractionFont={false} assetSlug={slug} volume={balance}>
+            <InFiat chainId={network.chainId} smallFractionFont={false} assetSlug={slug} volume={balance}>
               {({ balance, symbol }) => (
                 <div className="mt-1 text-sm text-gray-500 flex">
                   <span className="mr-1">≈</span>
