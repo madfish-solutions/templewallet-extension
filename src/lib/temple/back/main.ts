@@ -159,7 +159,7 @@ const processRequest = async (req: TempleRequest, port: Runtime.Port): Promise<T
       };
 
     case TempleMessageType.SignRequest:
-      const result = await Actions.sign(port, req.id, req.sourcePkh, req.bytes, req.watermark);
+      const result = await Actions.sign(port, req.id, req.sourcePkh, req.networkRpc, req.bytes, req.watermark);
       return {
         type: TempleMessageType.SignResponse,
         result
@@ -282,8 +282,7 @@ browser.runtime.onMessage.addListener(async msg => {
           category: AnalyticsEventCategory.General,
           userId: userId ?? '',
           event: 'External Ads Activity',
-          properties: { domain: new URL(msg.url).hostname, accountPkh, provider: msg.provider },
-          rpc: undefined
+          properties: { domain: new URL(msg.url).hostname, accountPkh, provider: msg.provider }
         });
         break;
     }

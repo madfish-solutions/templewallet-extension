@@ -8,7 +8,7 @@ import AccountBanner from 'app/templates/AccountBanner';
 import { T, t } from 'lib/i18n';
 import { useTempleClient } from 'lib/temple/front';
 import { TempleAccountType } from 'lib/temple/types';
-import { useAccount } from 'temple/front';
+import { useAccount, useTezosMainnetChain } from 'temple/front';
 
 import { RemoveAccountSelectors } from './RemoveAccount.selectors';
 
@@ -22,6 +22,7 @@ const RemoveAccount = memo(() => {
   const { removeAccount } = useTempleClient();
 
   const account = useAccount();
+  const tezosMainnetNetwork = useTezosMainnetChain();
 
   useAllAccountsReactiveOnRemoval();
 
@@ -48,6 +49,7 @@ const RemoveAccount = memo(() => {
     <div className="w-full max-w-sm p-2 mx-auto">
       <AccountBanner
         account={account}
+        tezosNetwork={tezosMainnetNetwork}
         labelDescription={
           <>
             <T id="accountToBeRemoved" />

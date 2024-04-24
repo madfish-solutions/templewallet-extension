@@ -1,7 +1,6 @@
 import React, { FC, memo, useCallback, useMemo, useState } from 'react';
 
 import classNames from 'clsx';
-import { isEqual } from 'lodash';
 import { useDebounce } from 'use-debounce';
 
 import Money from 'app/atoms/Money';
@@ -12,17 +11,19 @@ import { setTestID, setAnotherSelector, TestIDProperty } from 'lib/analytics';
 import { searchAssetsWithNoMeta } from 'lib/assets/search.utils';
 import { T, t } from 'lib/i18n';
 import { useAssetMetadata, getAssetSymbol, useGetAssetMetadata } from 'lib/metadata';
+import { TezosNetworkEssentials } from 'temple/networks';
 
-import { AssetItemContent } from './AssetItemContent';
-import { DropdownSelect } from './DropdownSelect/DropdownSelect';
-import { InputContainer } from './InputContainer/InputContainer';
-import { SendFormSelectors } from './SendForm/selectors';
+import { AssetItemContent } from '../AssetItemContent';
+import { DropdownSelect } from '../DropdownSelect/DropdownSelect';
+import { InputContainer } from '../InputContainer/InputContainer';
+
+import { SendFormSelectors } from './selectors';
 
 interface Props {
+  network: TezosNetworkEssentials;
   accountPkh: string;
   value: string;
   slugs: string[];
-  publicKeyHash: string;
   onChange?: (assetSlug: string) => void;
   className?: string;
   testIDs?: {
@@ -32,12 +33,8 @@ interface Props {
   };
 }
 
-const renderOptionContent = (slug: string, accountPkh: string, selected: boolean) => (
-  <AssetOptionContent accountPkh={accountPkh} slug={slug} selected={selected} />
-);
-
-const AssetSelect = memo<Props>(({ accountPkh, value, slugs, publicKeyHash, onChange, className, testIDs }) => {
-  const getAssetMetadata = useGetAssetMetadata();
+const AssetSelect = memo<Props>(({ network, accountPkh, value, slugs, onChange, className, testIDs }) => {
+  const getAssetMetadata = useGetAssetMetadata(network.chainId);
 
   const [searchString, setSearchString] = useState<string>('');
   const [searchStringDebounced] = useDebounce(searchString, 300);
@@ -59,10 +56,19 @@ const AssetSelect = memo<Props>(({ accountPkh, value, slugs, publicKeyHash, onCh
     [onChange]
   );
 
+  const renderOptionContent = useCallback(
+    (slug: string, selected: boolean) => (
+      <AssetOptionContent network={network} accountPkh={accountPkh} slug={slug} selected={selected} />
+    ),
+    [network, accountPkh]
+  );
+
   return (
     <InputContainer className={className} header={<AssetSelectTitle />}>
       <DropdownSelect
-        DropdownFaceContent={<AssetFieldContent slug={value} publicKeyHash={publicKeyHash} testID={testIDs?.select} />}
+        DropdownFaceContent={
+          <AssetFieldContent network={network} slug={value} publicKeyHash={accountPkh} testID={testIDs?.select} />
+        }
         searchProps={{
           testId: testIDs?.searchInput,
           searchValue: searchString,
@@ -75,7 +81,7 @@ const AssetSelect = memo<Props>(({ accountPkh, value, slugs, publicKeyHash, onCh
           noItemsText: t('noAssetsFound'),
           getKey: option => option,
           onOptionChange: handleChange,
-          renderOptionContent: asset => renderOptionContent(asset, accountPkh, isEqual(asset, value))
+          renderOptionContent: slug => renderOptionContent(slug, slug === value)
         }}
       />
     </InputContainer>
@@ -96,19 +102,20 @@ const AssetSelectTitle: FC = () => (
   </h2>
 );
 
-interface AssetFieldContent extends TestIDProperty {
+interface AssetFieldContentProps extends TestIDProperty {
+  network: TezosNetworkEssentials;
   slug: string;
   publicKeyHash: string;
 }
 
-const AssetFieldContent = memo<AssetFieldContent>(({ slug, publicKeyHash, testID }) => {
-  const metadata = useAssetMetadata(slug);
+const AssetFieldContent = memo<AssetFieldContentProps>(({ network, slug, publicKeyHash, testID }) => {
+  const metadata = useAssetMetadata(slug, network.chainId);
 
   return (
     <div className="flex items-center" {...setTestID(testID)} {...setAnotherSelector('slug', slug)}>
-      <AssetIcon assetSlug={slug} className="mr-3" size={48} />
+      <AssetIcon tezosChainId={network.chainId} assetSlug={slug} className="mr-3" size={48} />
 
-      <Balance assetSlug={slug} address={publicKeyHash}>
+      <Balance network={network} assetSlug={slug} address={publicKeyHash}>
         {balance => (
           <div className="flex flex-col items-start leading-none">
             <span className="text-xl text-gray-800 flex items-baseline">
@@ -118,7 +125,7 @@ const AssetFieldContent = memo<AssetFieldContent>(({ slug, publicKeyHash, testID
               </span>
             </span>
 
-            <InFiat smallFractionFont={false} assetSlug={slug} volume={balance}>
+            <InFiat tezosChainId={network.chainId} smallFractionFont={false} assetSlug={slug} volume={balance}>
               {({ balance, symbol }) => (
                 <div className="mt-1 text-sm text-gray-500 flex">
                   <span className="mr-1">≈</span>
@@ -135,19 +142,20 @@ const AssetFieldContent = memo<AssetFieldContent>(({ slug, publicKeyHash, testID
 });
 
 interface AssetOptionContentProps {
+  network: TezosNetworkEssentials;
   accountPkh: string;
   slug: string;
   selected: boolean;
 }
 
-const AssetOptionContent = memo<AssetOptionContentProps>(({ accountPkh, slug, selected }) => (
+const AssetOptionContent = memo<AssetOptionContentProps>(({ network, accountPkh, slug, selected }) => (
   <div
     className={classNames('flex items-center w-full py-1.5 px-2 h-15', selected ? 'bg-gray-200' : 'hover:bg-gray-100')}
     {...setTestID(SendFormSelectors.assetDropDownItem)}
     {...setAnotherSelector('slug', slug)}
   >
-    <AssetIcon assetSlug={slug} className="mx-2" size={32} />
+    <AssetIcon tezosChainId={network.chainId} assetSlug={slug} className="mx-2" size={32} />
 
-    <AssetItemContent slug={slug} publicKeyHash={accountPkh} />
+    <AssetItemContent network={network} slug={slug} publicKeyHash={accountPkh} />
   </div>
 ));

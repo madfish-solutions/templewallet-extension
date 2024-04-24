@@ -1,5 +1,6 @@
 import React, { memo, FunctionComponent, SVGProps, useMemo } from 'react';
 
+import { ChainIds } from '@taquito/taquito';
 import clsx from 'clsx';
 import { Props as TippyProps } from 'tippy.js';
 
@@ -9,6 +10,7 @@ import { ReactComponent as ReceiveIcon } from 'app/icons/receive.svg';
 import { ReactComponent as SendIcon } from 'app/icons/send-alt.svg';
 import { ReactComponent as SwapIcon } from 'app/icons/swap.svg';
 import { ReactComponent as WithdrawIcon } from 'app/icons/withdraw.svg';
+import { buildSendPagePath } from 'app/pages/Send/build-url';
 import { buildSwapPageUrlQuery } from 'app/pages/Swap/utils/build-url-query';
 import { TestIDProps } from 'lib/analytics';
 import { TID, T, t } from 'lib/i18n';
@@ -16,7 +18,7 @@ import { TempleAccountType } from 'lib/temple/types';
 import useTippy from 'lib/ui/useTippy';
 import { createUrl, Link, To } from 'lib/woozie';
 import { createLocationState } from 'lib/woozie/location';
-import { useAccount, useTezosNetwork } from 'temple/front';
+import { useAccount } from 'temple/front';
 
 import { HomeSelectors } from './Home.selectors';
 
@@ -28,36 +30,29 @@ const tippyPropsMock = {
 };
 
 interface Props {
+  tezosChainId: string | nullish;
   assetSlug: string | nullish;
 }
 
-export const ActionButtonsBar = memo<Props>(({ assetSlug }) => {
+export const ActionButtonsBar = memo<Props>(({ tezosChainId, assetSlug }) => {
   const account = useAccount();
-  const { isMainnet, isDcp } = useTezosNetwork();
 
   const canSend = account.type !== TempleAccountType.WatchOnly;
-  const sendLink = assetSlug ? `/send/${assetSlug}` : '/send';
+  const sendLink = buildSendPagePath(tezosChainId, assetSlug);
 
   const swapLink = useMemo(
     () => ({
       pathname: '/swap',
-      search: buildSwapPageUrlQuery(assetSlug)
+      search: tezosChainId === ChainIds.MAINNET ? buildSwapPageUrlQuery(assetSlug) : undefined
     }),
-    [assetSlug]
+    [assetSlug, tezosChainId]
   );
 
   return (
     <div className="flex justify-between mx-auto w-full max-w-sm">
       <ActionButton labelI18nKey="receive" Icon={ReceiveIcon} to="/receive" testID={HomeSelectors.receiveButton} />
 
-      <ActionButton
-        labelI18nKey="buyButton"
-        Icon={BuyIcon}
-        to={isDcp ? 'https://buy.chainbits.com' : '/buy'}
-        isAnchor={isDcp}
-        disabled={!(isDcp || isMainnet)}
-        testID={HomeSelectors.buyButton}
-      />
+      <ActionButton labelI18nKey="buyButton" Icon={BuyIcon} to="/buy" testID={HomeSelectors.buyButton} />
       <ActionButton
         labelI18nKey="swap"
         Icon={SwapIcon}
@@ -70,7 +65,7 @@ export const ActionButtonsBar = memo<Props>(({ assetSlug }) => {
         labelI18nKey="withdraw"
         Icon={WithdrawIcon}
         to="/withdraw"
-        disabled={!canSend || !isMainnet}
+        disabled={!canSend}
         testID={HomeSelectors.withdrawButton}
       />
       <ActionButton

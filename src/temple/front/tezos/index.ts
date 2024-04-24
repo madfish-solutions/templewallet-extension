@@ -19,27 +19,21 @@ import toBuffer from 'typedarray-to-buffer';
 
 import { TempleMessageType } from 'lib/temple/types';
 import { makeIntercomRequest, assertResponse, getAccountPublicKey } from 'temple/front/intercom-client';
-import { MAX_MEMOIZED_TOOLKITS, getTezosFastRpcClient, makeTezosClientId, michelEncoder } from 'temple/tezos';
+import { MAX_MEMOIZED_TOOLKITS } from 'temple/misc';
+import { getTezosFastRpcClient, makeTezosClientId, michelEncoder } from 'temple/tezos';
 
-import { useTezosNetworkRpcUrl } from '../networks';
 import { setPendingConfirmationId } from '../pending-confirm';
 
 export { validateTezosContractAddress } from './helpers';
 export { useOnTezosBlock, useTezosBlockLevel } from './use-block';
 export {
   isTezosDomainsNameValid,
-  useTezosDomainsClient,
+  getTezosDomainsClient,
   useTezosAddressByDomainName,
   useTezosDomainNameByAddress
 } from './tzdns';
 
-export const useTezosWithSigner = (signerPkh: string) => {
-  const rpcUrl = useTezosNetworkRpcUrl();
-
-  return buildTezosToolkitWithSigner(rpcUrl, signerPkh);
-};
-
-const buildTezosToolkitWithSigner = memoizee(
+export const getTezosToolkitWithSigner = memoizee(
   (rpcUrl: string, signerPkh: string) => {
     const tezos = new ReactiveTezosToolkit(rpcUrl, signerPkh);
 
@@ -49,7 +43,7 @@ const buildTezosToolkitWithSigner = memoizee(
     // TODO: Do we need signer, if wallet is provided ?
     // Note: Taquito's WalletProvider already has `sign()` method - just need to implement it ?
 
-    const signer = new TempleTaquitoSigner(signerPkh, setPendingConfirmationId);
+    const signer = new TempleTaquitoSigner(signerPkh, rpcUrl, setPendingConfirmationId);
     tezos.setSignerProvider(signer);
 
     return tezos;
@@ -161,7 +155,7 @@ function withoutFeesOverride<T>(params: any, op: T): T {
 }
 
 class TempleTaquitoSigner implements Signer {
-  constructor(private pkh: string, private onBeforeSign?: (id: string) => void) {}
+  constructor(private pkh: string, private rpc: string, private onBeforeSign?: (id: string) => void) {}
 
   async publicKeyHash() {
     return this.pkh;
@@ -183,6 +177,7 @@ class TempleTaquitoSigner implements Signer {
     const res = await makeIntercomRequest({
       type: TempleMessageType.SignRequest,
       sourcePkh: this.pkh,
+      networkRpc: this.rpc,
       id,
       bytes,
       watermark: watermark ? buf2hex(toBuffer(watermark)) : undefined

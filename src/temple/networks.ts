@@ -1,136 +1,175 @@
-import { TempleTezosChainId, StoredNetwork } from 'lib/temple/types';
+import type { TID } from 'lib/i18n';
+import { TempleTezosChainId } from 'lib/temple/types';
 
-const formatDateToRPCFormat = (date: Date) => date.toLocaleDateString('en-GB').split('/').reverse().join('-');
+import { TempleChainKind } from './types';
 
-const getLastMonday = (date = new Date()) => {
-  const dateCopy = new Date(date.getTime() - 604800000);
+export interface TezosNetworkEssentials {
+  rpcBaseURL: string;
+  chainId: string;
+}
 
-  const nextMonday = new Date(dateCopy.setDate(dateCopy.getDate() + ((7 - dateCopy.getDay() + 1) % 7 || 7)));
+// ts-prune-ignore-next
+export interface EvmNetworkEssentials {
+  rpcBaseURL: string;
+  chainId: number;
+}
 
-  return formatDateToRPCFormat(nextMonday);
-};
+export interface NetworkBase {
+  chain: TempleChainKind;
+  id: string;
+  rpcBaseURL: string;
+  chainId: string | number;
+  name: string;
+  nameI18nKey?: TID;
+  description?: string;
+  /** TODO: Remove, when(if) deprecated */
+  color: string;
+  /** Means: hardcoded, never stored */
+  default?: boolean;
+  // Deprecated params:
+  /** @deprecated */
+  type?: 'main' | 'test' | 'dcp';
+}
 
-export const TEZOS_NETWORK_NAMES = new Map<string, string>([
-  [TempleTezosChainId.Mainnet, 'mainnet'],
-  [TempleTezosChainId.Ghostnet, 'ghostnet'],
-  [TempleTezosChainId.Mumbai, 'mumbainet'],
-  [TempleTezosChainId.Nairobi, 'nairobinet']
-]);
+export interface StoredTezosNetwork extends NetworkBase {
+  chain: TempleChainKind.Tezos;
+  chainId: string;
+}
 
-const DCP_TEZOS_NETWORKS: StoredNetwork[] = [
+const TEZOS_DCP_CHAIN_IDS: string[] = [TempleTezosChainId.Dcp, TempleTezosChainId.DcpTest];
+
+export const isTezosDcpChainId = (chainId: string) => TEZOS_DCP_CHAIN_IDS.includes(chainId);
+
+const TEZOS_DCP_NETWORKS: StoredTezosNetwork[] = [
   {
     id: 't4l3nt-mainnet',
     name: 'T4L3NT Mainnet',
-    description: 'Decentralized pictures Betanet',
-    type: 'dcp',
+    chain: TempleChainKind.Tezos,
+    chainId: TempleTezosChainId.Dcp,
     rpcBaseURL: 'https://rpc.decentralized.pictures',
+    description: 'Decentralized pictures Betanet',
     color: '#047857',
-    disabled: false
+    default: true
   },
   {
     id: 't4l3nt-testnet',
     name: 'T4L3NT Testnet',
-    description: 'Decentralized pictures testnet',
-    type: 'dcp',
+    chain: TempleChainKind.Tezos,
+    chainId: TempleTezosChainId.DcpTest,
     rpcBaseURL: 'https://staging-rpc.decentralized.pictures/',
+    description: 'Decentralized pictures testnet',
     color: '#131380',
-    disabled: false
+    default: true
   }
 ];
 
-export const TEZOS_NETWORKS: StoredNetwork[] = [
+/** (!) Never remove Mainnet */
+export const TEZOS_DEFAULT_NETWORKS: NonEmptyArray<StoredTezosNetwork> = [
   {
     id: 'mainnet',
+    name: 'Tezos Mainnet',
     nameI18nKey: 'tezosMainnet',
-    description: 'Tezos mainnet',
-    type: 'main',
+    chain: TempleChainKind.Tezos,
+    chainId: TempleTezosChainId.Mainnet,
     rpcBaseURL: 'https://prod.tcinfra.net/rpc/mainnet',
+    description: 'Tezos mainnet',
     color: '#83b300',
-    disabled: false
+    default: true
   },
   {
     id: 'marigold-mainnet',
+    name: 'Marigold Mainnet',
     nameI18nKey: 'marigoldMainnet',
-    description: 'Marigold mainnet',
-    type: 'main',
+    chain: TempleChainKind.Tezos,
+    chainId: TempleTezosChainId.Mainnet,
     rpcBaseURL: 'https://mainnet.tezos.marigold.dev',
+    description: 'Marigold mainnet',
     color: '#48bb78',
-    disabled: false
+    default: true
   },
   {
     id: 'smartpy-mainnet',
     name: 'SmartPy Mainnet',
-    description: 'SmartPy Mainnet',
-    type: 'main',
+    chain: TempleChainKind.Tezos,
+    chainId: TempleTezosChainId.Mainnet,
     rpcBaseURL: 'https://mainnet.smartpy.io',
+    description: 'SmartPy Mainnet',
     color: '#34D399',
-    disabled: false
+    default: true
   },
   {
     id: 'tezie-mainnet',
     name: 'ECAD Labs Mainnet',
-    description: 'Highly available Tezos Mainnet nodes operated by ECAD Labs',
-    type: 'main',
+    chain: TempleChainKind.Tezos,
+    chainId: TempleTezosChainId.Mainnet,
     rpcBaseURL: 'https://mainnet.api.tez.ie',
+    description: 'Highly available Tezos Mainnet nodes operated by ECAD Labs',
     color: '#047857',
-    disabled: false
+    default: true
   },
-  ...DCP_TEZOS_NETWORKS,
+  ...TEZOS_DCP_NETWORKS,
   {
     id: 'ghostnet',
     name: 'Ghostnet Testnet',
-    description: 'Ghostnet testnet',
-    type: 'test',
+    chain: TempleChainKind.Tezos,
+    chainId: TempleTezosChainId.Ghostnet,
     rpcBaseURL: 'https://rpc.ghostnet.teztnets.com',
+    description: 'Ghostnet testnet',
     color: '#131380',
-    disabled: false
+    default: true
+  }
+];
+
+export interface StoredEvmNetwork extends NetworkBase {
+  chain: TempleChainKind.EVM;
+  chainId: number;
+}
+
+export interface EvmNativeCurrency {
+  name: string;
+  symbol: string;
+  decimals: number;
+}
+
+export const DEFAULT_EVM_CURRENCY: EvmNativeCurrency = { name: 'Ether', symbol: 'ETH', decimals: 18 };
+
+/** (!) Never remove Mainnet */
+export const EVM_DEFAULT_NETWORKS: NonEmptyArray<StoredEvmNetwork> = [
+  {
+    id: 'mainnet',
+    name: 'Ethereum Mainnet',
+    chain: TempleChainKind.EVM,
+    chainId: 1,
+    rpcBaseURL: 'https://cloudflare-eth.com',
+    color: '#83b300',
+    default: true
   },
   {
-    id: 'monday',
-    name: 'MondayNet Testnet',
-    description: `MondayNet ${getLastMonday()}`,
-    type: 'test',
-    rpcBaseURL: `https://rpc.mondaynet-${getLastMonday()}.teztnets.xyz/`,
-    color: '#FBBF24',
-    disabled: false
+    id: 'optimism',
+    name: 'OP Mainnet',
+    chain: TempleChainKind.EVM,
+    chainId: 10,
+    rpcBaseURL: 'https://mainnet.optimism.io',
+    description: 'Optimism Mainnet',
+    color: '#48bb78',
+    default: true
   },
   {
-    id: 'daily',
-    name: 'DailyNet Testnet',
-    description: 'DailyNet',
-    type: 'test',
-    rpcBaseURL: `https://rpc.dailynet-${formatDateToRPCFormat(new Date())}.teztnets.xyz/`,
-    color: '#FBBF24',
-    disabled: false
+    id: 'arbitrum',
+    name: 'Arbitrum One',
+    chain: TempleChainKind.EVM,
+    chainId: 42_161,
+    rpcBaseURL: 'https://arb1.arbitrum.io/rpc',
+    color: '#047857',
+    default: true
   },
   {
-    id: 'sandbox',
-    name: 'localhost:8732',
-    description: 'Local Sandbox',
-    type: 'test',
-    rpcBaseURL: 'http://localhost:8732',
-    color: '#e9e1cc',
-    disabled: false
-  },
-  // Hidden
-  {
-    id: 'smartpy-ithacanet',
-    name: 'Ithacanet Testnet Smartpy',
-    description: 'Ithacanet testnet',
-    type: 'test',
-    rpcBaseURL: 'https://ithacanet.smartpy.io',
-    color: '#FBBF24',
-    disabled: false,
-    hidden: true
-  },
-  {
-    id: 'tzbeta-rpczero',
-    name: 'Edo Testnet @rpczero.tzbeta.net',
-    description: 'Highly available Edo Testnet nodes operated by Blockscale',
-    type: 'test',
-    rpcBaseURL: 'https://rpczero.tzbeta.net',
-    color: '#FBBF24',
-    disabled: false,
-    hidden: true
+    id: 'polygon',
+    name: 'Polygon',
+    chain: TempleChainKind.EVM,
+    chainId: 137,
+    rpcBaseURL: 'https://polygon-rpc.com',
+    color: '#34D399',
+    default: true
   }
 ];

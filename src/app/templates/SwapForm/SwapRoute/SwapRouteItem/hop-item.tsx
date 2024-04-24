@@ -10,6 +10,7 @@ import { Route3Token } from 'lib/apis/route3/fetch-route3-tokens';
 import { toTokenSlug, TEZ_TOKEN_SLUG } from 'lib/assets';
 import { getDexName } from 'lib/route3/utils/get-dex-name';
 import { DexTypeIcon } from 'lib/swap-router';
+import { TEZOS_MAINNET_CHAIN_ID } from 'lib/temple/types';
 import useTippy from 'lib/ui/useTippy';
 
 interface Props {
@@ -46,12 +47,14 @@ export const HopItem: FC<Props> = ({ dex, aToken, bToken, className }) => {
       <div ref={dexInfoDivRef}>
         <DexTypeIcon dexType={dex?.type ?? null} />
       </div>
+
       <div className={classNames('flex items-center', popup ? 'ml-1' : 'ml-2')}>
         <div ref={tokenAInfoDivRef}>
-          <AssetIcon assetSlug={toAssetSlugLocal(aToken)} size={20} />
+          <AssetIcon tezosChainId={TEZOS_MAINNET_CHAIN_ID} assetSlug={toAssetSlugLocal(aToken)} size={20} />
         </div>
+
         <div ref={tokenBInfoDivRef} style={{ marginLeft: -8 }}>
-          <AssetIcon assetSlug={toAssetSlugLocal(bToken)} size={20} />
+          <AssetIcon tezosChainId={TEZOS_MAINNET_CHAIN_ID} assetSlug={toAssetSlugLocal(bToken)} size={20} />
         </div>
       </div>
     </div>

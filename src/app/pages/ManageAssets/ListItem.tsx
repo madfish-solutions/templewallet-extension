@@ -11,6 +11,7 @@ import { t } from 'lib/i18n';
 import { getAssetName, getAssetSymbol, AssetMetadataBase } from 'lib/metadata';
 
 interface Props {
+  tezosChainId: string;
   assetSlug: string;
   metadata?: AssetMetadataBase;
   last: boolean;
@@ -19,7 +20,7 @@ interface Props {
   onRemove: (slug: string) => void;
 }
 
-export const ListItem = memo<Props>(({ assetSlug, metadata, last, checked, onToggle, onRemove }) => {
+export const ListItem = memo<Props>(({ tezosChainId, assetSlug, metadata, last, checked, onToggle, onRemove }) => {
   const onCheckboxChange = useCallback((checked: boolean) => void onToggle(assetSlug, !checked), [assetSlug, onToggle]);
 
   const onRemoveBtnClick = useCallback<React.MouseEventHandler<HTMLDivElement>>(
@@ -42,7 +43,7 @@ export const ListItem = memo<Props>(({ assetSlug, metadata, last, checked, onTog
       {...setTestID(ManageAssetsSelectors.assetItem)}
       {...setAnotherSelector('slug', assetSlug)}
     >
-      <AssetIcon assetSlug={assetSlug} size={32} className="mr-3 flex-shrink-0" />
+      <AssetIcon tezosChainId={tezosChainId} assetSlug={assetSlug} size={32} className="mr-3 flex-shrink-0" />
 
       <div className="flex items-center max-w-56">
         <div className="flex flex-col items-start w-full">

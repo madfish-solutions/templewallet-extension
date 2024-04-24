@@ -1,6 +1,5 @@
 import React, { FC, memo, useCallback, useEffect, useMemo, useState } from 'react';
 
-import { ChainIds } from '@taquito/taquito';
 import clsx from 'clsx';
 
 import { SyncSpinner, Divider, Checkbox } from 'app/atoms';
@@ -10,7 +9,10 @@ import { useLoadPartnersPromo } from 'app/hooks/use-load-partners-promo';
 import { useTokensListingLogic } from 'app/hooks/use-tokens-listing-logic';
 import { ReactComponent as EditingIcon } from 'app/icons/editing.svg';
 import { ReactComponent as SearchIcon } from 'app/icons/search.svg';
+import { ContentContainer } from 'app/layouts/ContentContainer';
 import { useAreAssetsLoading, useMainnetTokensScamlistSelector } from 'app/store/assets/selectors';
+import { useTokensMetadataLoadingSelector } from 'app/store/tokens-metadata/selectors';
+import { useChainSelectController, ChainSelectSection } from 'app/templates/ChainSelect';
 import { ButtonForManageDropdown } from 'app/templates/ManageDropdown';
 import { PartnersPromotion, PartnersPromotionVariant } from 'app/templates/partners-promotion';
 import SearchAssetField from 'app/templates/SearchAssetField';
@@ -19,11 +21,13 @@ import { OptimalPromoVariantEnum } from 'lib/apis/optimal';
 import { TEZ_TOKEN_SLUG, TEMPLE_TOKEN_SLUG } from 'lib/assets';
 import { useEnabledAccountTokensSlugs } from 'lib/assets/hooks';
 import { T, t } from 'lib/i18n';
+import { TEZOS_MAINNET_CHAIN_ID } from 'lib/temple/types';
 import { useLocalStorage } from 'lib/ui/local-storage';
 import Popper, { PopperRenderProps } from 'lib/ui/Popper';
 import { Link, navigate } from 'lib/woozie';
 import { UNDER_DEVELOPMENT_MSG } from 'temple/evm/under_dev_msg';
-import { useAccountAddressForTezos, useTezosNetwork } from 'temple/front';
+import { useAccountAddressForTezos } from 'temple/front';
+import { TezosNetworkEssentials } from 'temple/networks';
 
 import { HomeSelectors } from '../../Home.selectors';
 import { AssetsSelectors } from '../Assets.selectors';
@@ -36,27 +40,39 @@ const LOCAL_STORAGE_TOGGLE_KEY = 'tokens-list:hide-zero-balances';
 const svgIconClassName = 'w-4 h-4 stroke-current fill-current text-gray-600';
 
 export const TokensTab = memo(() => {
+  const chainSelectController = useChainSelectController();
+  const network = chainSelectController.value;
+
   const accountTezAddress = useAccountAddressForTezos();
 
-  return accountTezAddress ? (
-    <TezosTokensTab publicKeyHash={accountTezAddress} />
-  ) : (
-    <div className="w-full max-w-sm mx-auto py-3 text-center">{UNDER_DEVELOPMENT_MSG}</div>
+  return (
+    <ContentContainer className="pt-4">
+      <ChainSelectSection controller={chainSelectController} />
+
+      {network.kind === 'tezos' && accountTezAddress ? (
+        <TezosTokensTab network={network} publicKeyHash={accountTezAddress} />
+      ) : (
+        <div className="text-center py-3">{UNDER_DEVELOPMENT_MSG}</div>
+      )}
+    </ContentContainer>
   );
 });
 
 interface TezosTokensTabProps {
+  network: TezosNetworkEssentials;
   publicKeyHash: string;
 }
 
-const TezosTokensTab: FC<TezosTokensTabProps> = ({ publicKeyHash }) => {
-  const { chainId } = useTezosNetwork();
+const TezosTokensTab: FC<TezosTokensTabProps> = ({ network, publicKeyHash }) => {
+  const chainId = network.chainId;
 
   const { popup } = useAppEnv();
 
-  const isSyncing = useAreAssetsLoading('tokens');
+  const assetsAreLoading = useAreAssetsLoading('tokens');
+  const metadatasLoading = useTokensMetadataLoadingSelector();
+  const isSyncing = assetsAreLoading || metadatasLoading;
 
-  const slugs = useEnabledAccountTokensSlugs(publicKeyHash);
+  const slugs = useEnabledAccountTokensSlugs(publicKeyHash, chainId);
 
   const [isZeroBalancesHidden, setIsZeroBalancesHidden] = useLocalStorage(LOCAL_STORAGE_TOGGLE_KEY, false);
 
@@ -66,13 +82,14 @@ const TezosTokensTab: FC<TezosTokensTabProps> = ({ publicKeyHash }) => {
   );
 
   const leadingAssets = useMemo(
-    () => (chainId === ChainIds.MAINNET ? [TEZ_TOKEN_SLUG, TEMPLE_TOKEN_SLUG] : [TEZ_TOKEN_SLUG]),
+    () => (chainId === TEZOS_MAINNET_CHAIN_ID ? [TEZ_TOKEN_SLUG, TEMPLE_TOKEN_SLUG] : [TEZ_TOKEN_SLUG]),
     [chainId]
   );
 
   const mainnetTokensScamSlugsRecord = useMainnetTokensScamlistSelector();
 
   const { filteredAssets, searchValue, setSearchValue } = useTokensListingLogic(
+    chainId,
     publicKeyHash,
     slugs,
     isZeroBalancesHidden,
@@ -90,6 +107,7 @@ const TezosTokensTab: FC<TezosTokensTabProps> = ({ publicKeyHash }) => {
   const tokensView = useMemo<JSX.Element[]>(() => {
     const tokensJsx = filteredAssets.map(assetSlug => (
       <ListItem
+        network={network}
         key={assetSlug}
         publicKeyHash={publicKeyHash}
         assetSlug={assetSlug}
@@ -114,7 +132,7 @@ const TezosTokensTab: FC<TezosTokensTabProps> = ({ publicKeyHash }) => {
     }
 
     return tokensJsx;
-  }, [filteredAssets, activeAssetSlug, publicKeyHash, mainnetTokensScamSlugsRecord]);
+  }, [network, filteredAssets, activeAssetSlug, publicKeyHash, mainnetTokensScamSlugsRecord]);
 
   useLoadPartnersPromo(OptimalPromoVariantEnum.Token);
 
@@ -133,7 +151,7 @@ const TezosTokensTab: FC<TezosTokensTabProps> = ({ publicKeyHash }) => {
     const handleKeyup = (evt: KeyboardEvent) => {
       switch (evt.key) {
         case 'Enter':
-          navigate(toExploreAssetLink(activeAssetSlug));
+          navigate(toExploreAssetLink(chainId, activeAssetSlug));
           break;
 
         case 'ArrowDown':
@@ -148,10 +166,10 @@ const TezosTokensTab: FC<TezosTokensTabProps> = ({ publicKeyHash }) => {
 
     window.addEventListener('keyup', handleKeyup);
     return () => window.removeEventListener('keyup', handleKeyup);
-  }, [activeAssetSlug, setActiveIndex]);
+  }, [activeAssetSlug, chainId, setActiveIndex]);
 
   return (
-    <div className="w-full max-w-sm mx-auto">
+    <>
       <div className={clsx('my-3 w-full flex', popup && 'px-4')}>
         <SearchAssetField
           value={searchValue}
@@ -216,7 +234,7 @@ const TezosTokensTab: FC<TezosTokensTabProps> = ({ publicKeyHash }) => {
       )}
 
       {isSyncing && <SyncSpinner className="mt-4" />}
-    </div>
+    </>
   );
 };
 

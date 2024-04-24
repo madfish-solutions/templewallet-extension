@@ -1,11 +1,11 @@
 import { useEffect, useRef } from 'react';
 
-import { useAllAccounts, useSetAccountId } from 'lib/temple/front';
 import { navigate } from 'lib/woozie';
+import { useAllAccounts, useChangeAccount } from 'temple/front';
 
 export const useAllAccountsReactiveOnAddition = () => {
   const allAccounts = useAllAccounts();
-  const setAccountId = useSetAccountId();
+  const setAccountId = useChangeAccount();
 
   const prevAccLengthRef = useRef(allAccounts.length);
 

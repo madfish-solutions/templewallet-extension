@@ -1,4 +1,4 @@
-import React, { memo, useMemo, useState } from 'react';
+import React, { memo, useState } from 'react';
 
 import { Stepper } from 'app/atoms';
 import { Anchor } from 'app/atoms/Anchor';
@@ -11,8 +11,7 @@ import { t, T } from 'lib/i18n/react';
 import { useStorage } from 'lib/temple/front';
 import { TempleAccountType } from 'lib/temple/types';
 import { Redirect } from 'lib/woozie';
-import { getAccountForTezos } from 'temple/accounts';
-import { useAccount, useTezosNetwork } from 'temple/front';
+import { useAccountForTezos, useTezosMainnetChain } from 'temple/front';
 
 import { WithdrawSelectors } from '../../Withdraw.selectors';
 
@@ -27,11 +26,11 @@ const ALICE_BOB_TERMS_LINK =
 const ALICE_BOB_CONTACT_LINK = 'https://t.me/alicebobhelp';
 
 export const AliceBobWithdraw = memo(() => {
-  const { isMainnet } = useTezosNetwork();
-  const currentAccount = useAccount();
+  const account = useAccountForTezos();
 
-  const account = useMemo(() => getAccountForTezos(currentAccount), [currentAccount]);
   if (!account) throw new DeadEndBoundaryError();
+
+  const network = useTezosMainnetChain();
 
   const publicKeyHash = account.address;
 
@@ -42,7 +41,7 @@ export const AliceBobWithdraw = memo(() => {
     null
   );
 
-  if (!isMainnet || account.type === TempleAccountType.WatchOnly) {
+  if (account.type === TempleAccountType.WatchOnly) {
     return <Redirect to={'/'} />;
   }
 
@@ -75,6 +74,7 @@ export const AliceBobWithdraw = memo(() => {
 
         {step === 0 && (
           <InitialStep
+            network={network}
             publicKeyHash={publicKeyHash}
             isApiError={isApiError}
             setStep={setStep}
@@ -85,8 +85,8 @@ export const AliceBobWithdraw = memo(() => {
 
         {orderInfo && step === 1 && (
           <SellStep
-            publicKeyHash={publicKeyHash}
-            ownerAddress={currentAccount.type === TempleAccountType.ManagedKT ? currentAccount.owner : undefined}
+            account={account}
+            rpcUrl={network.rpcBaseURL}
             orderInfo={orderInfo}
             isApiError={isApiError}
             setStep={setStep}

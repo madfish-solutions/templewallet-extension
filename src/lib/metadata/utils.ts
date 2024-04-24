@@ -1,8 +1,29 @@
-import { pick } from 'lodash';
+import { isString, pick } from 'lodash';
 
 import type { TokenMetadataResponse, WhitelistResponseToken } from 'lib/apis/temple';
+import { TEZOS_SYMBOL } from 'lib/assets';
 
-import { TokenMetadata, TokenStandardsEnum } from './types';
+import { AssetMetadataBase, TokenMetadata, TokenStandardsEnum } from './types';
+
+export function getAssetSymbol(metadata: AssetMetadataBase | nullish, short = false) {
+  if (!metadata) return '???';
+  if (!short) return metadata.symbol;
+  return metadata.symbol === 'tez' ? TEZOS_SYMBOL : metadata.symbol.substring(0, 5);
+}
+
+export function getAssetName(metadata: AssetMetadataBase | nullish) {
+  return metadata ? metadata.name : 'Unknown Token';
+}
+
+/** Empty string for `artifactUri` counts */
+export const isCollectible = (metadata: StringRecord<any>) =>
+  'artifactUri' in metadata && isString(metadata.artifactUri);
+
+/**
+ * @deprecated // Assertion here is not safe!
+ */
+export const isCollectibleTokenMetadata = (metadata: AssetMetadataBase): metadata is TokenMetadata =>
+  isCollectible(metadata);
 
 export const buildTokenMetadataFromFetched = (
   token: TokenMetadataResponse,

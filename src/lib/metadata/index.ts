@@ -1,8 +1,6 @@
 import { useCallback, useEffect, useRef } from 'react';
 
-import { isString } from 'lodash';
-import { useDispatch } from 'react-redux';
-
+import { dispatch } from 'app/store';
 import { loadCollectiblesMetadataAction } from 'app/store/collectibles-metadata/actions';
 import {
   useCollectiblesMetadataLoadingSelector,
@@ -18,26 +16,23 @@ import {
 import { METADATA_API_LOAD_CHUNK_SIZE } from 'lib/apis/temple';
 import { isTezAsset } from 'lib/assets';
 import { isTruthy } from 'lib/utils';
-import { useTezosNetwork } from 'temple/front';
+import { isTezosDcpChainId } from 'temple/networks';
 
 import { TEZOS_METADATA, FILM_METADATA } from './defaults';
 import { AssetMetadataBase, TokenMetadata } from './types';
 
 export type { AssetMetadataBase, TokenMetadata } from './types';
-export { TEZOS_METADATA, EMPTY_BASE_METADATA } from './defaults';
+export { isCollectible, isCollectibleTokenMetadata, getAssetSymbol, getAssetName } from './utils';
 
-export const useGasTokenMetadata = () => {
-  const { isDcp } = useTezosNetwork();
+export { TEZOS_METADATA };
 
-  return isDcp ? FILM_METADATA : TEZOS_METADATA;
-};
+export const getTezosGasMetadata = (chainId: string) => (isTezosDcpChainId(chainId) ? FILM_METADATA : TEZOS_METADATA);
 
-export const useAssetMetadata = (slug: string): AssetMetadataBase | undefined => {
+export const useAssetMetadata = (slug: string, tezosChainId: string): AssetMetadataBase | undefined => {
   const tokenMetadata = useTokenMetadataSelector(slug);
   const collectibleMetadata = useCollectibleMetadataSelector(slug);
-  const gasMetadata = useGasTokenMetadata();
 
-  return isTezAsset(slug) ? gasMetadata : tokenMetadata || collectibleMetadata;
+  return isTezAsset(slug) ? getTezosGasMetadata(tezosChainId) : tokenMetadata || collectibleMetadata;
 };
 
 export type TokenMetadataGetter = (slug: string) => TokenMetadata | undefined;
@@ -48,13 +43,13 @@ export const useGetTokenMetadata = () => {
   return useCallback<TokenMetadataGetter>(slug => allMeta[slug], [allMeta]);
 };
 
-export const useGetTokenOrGasMetadata = () => {
+export const useGetTokenOrGasMetadata = (tezosChainId: string) => {
   const getTokenMetadata = useGetTokenMetadata();
-  const gasMetadata = useGasTokenMetadata();
 
   return useCallback(
-    (slug: string): AssetMetadataBase | undefined => (isTezAsset(slug) ? gasMetadata : getTokenMetadata(slug)),
-    [getTokenMetadata, gasMetadata]
+    (slug: string): AssetMetadataBase | undefined =>
+      isTezAsset(slug) ? getTezosGasMetadata(tezosChainId) : getTokenMetadata(slug),
+    [getTokenMetadata, tezosChainId]
   );
 };
 
@@ -64,8 +59,8 @@ export const useGetCollectibleMetadata = () => {
   return useCallback<TokenMetadataGetter>(slug => allMeta.get(slug), [allMeta]);
 };
 
-export const useGetAssetMetadata = () => {
-  const getTokenOrGasMetadata = useGetTokenOrGasMetadata();
+export const useGetAssetMetadata = (tezosChainId: string) => {
+  const getTokenOrGasMetadata = useGetTokenOrGasMetadata(tezosChainId);
   const getCollectibleMetadata = useGetCollectibleMetadata();
 
   return useCallback(
@@ -77,32 +72,30 @@ export const useGetAssetMetadata = () => {
 /**
  * @param slugsToCheck // Memoize
  */
-export const useTokensMetadataPresenceCheck = (slugsToCheck?: string[]) => {
+export const useTokensMetadataPresenceCheck = (rpcBaseURL: string, slugsToCheck?: string[]) => {
   const metadataLoading = useTokensMetadataLoadingSelector();
   const getMetadata = useGetTokenMetadata();
 
-  useAssetsMetadataPresenceCheck(false, metadataLoading, getMetadata, slugsToCheck);
+  useAssetsMetadataPresenceCheck(rpcBaseURL, false, metadataLoading, getMetadata, slugsToCheck);
 };
 
 /**
  * @param slugsToCheck // Memoize
  */
-export const useCollectiblesMetadataPresenceCheck = (slugsToCheck?: string[]) => {
+export const useCollectiblesMetadataPresenceCheck = (rpcBaseURL: string, slugsToCheck?: string[]) => {
   const metadataLoading = useCollectiblesMetadataLoadingSelector();
   const getMetadata = useGetCollectibleMetadata();
 
-  useAssetsMetadataPresenceCheck(true, metadataLoading, getMetadata, slugsToCheck);
+  useAssetsMetadataPresenceCheck(rpcBaseURL, true, metadataLoading, getMetadata, slugsToCheck);
 };
 
 const useAssetsMetadataPresenceCheck = (
+  rpcBaseURL: string,
   ofCollectibles: boolean,
   metadataLoading: boolean,
   getMetadata: TokenMetadataGetter,
   slugsToCheck?: string[]
 ) => {
-  const { rpcUrl } = useTezosNetwork();
-  const dispatch = useDispatch();
-
   const checkedRef = useRef<string[]>([]);
 
   useEffect(() => {
@@ -123,30 +116,10 @@ const useAssetsMetadataPresenceCheck = (
 
       dispatch(
         (ofCollectibles ? loadCollectiblesMetadataAction : loadTokensMetadataAction)({
-          rpcUrl,
+          rpcUrl: rpcBaseURL,
           slugs: missingChunk
         })
       );
     }
-  }, [ofCollectibles, slugsToCheck, getMetadata, metadataLoading, dispatch, rpcUrl]);
+  }, [ofCollectibles, slugsToCheck, getMetadata, metadataLoading, rpcBaseURL]);
 };
-
-export function getAssetSymbol(metadata: AssetMetadataBase | nullish, short = false) {
-  if (!metadata) return '???';
-  if (!short) return metadata.symbol;
-  return metadata.symbol === 'tez' ? 'ꜩ' : metadata.symbol.substring(0, 5);
-}
-
-export function getAssetName(metadata: AssetMetadataBase | nullish) {
-  return metadata ? metadata.name : 'Unknown Token';
-}
-
-/** Empty string for `artifactUri` counts */
-export const isCollectible = (metadata: Record<string, any>) =>
-  'artifactUri' in metadata && isString(metadata.artifactUri);
-
-/**
- * @deprecated // Assertion here is not safe!
- */
-export const isCollectibleTokenMetadata = (metadata: AssetMetadataBase): metadata is TokenMetadata =>
-  isCollectible(metadata);

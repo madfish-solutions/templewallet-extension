@@ -1,8 +1,9 @@
 import { useMemo } from 'react';
 
-import { useAllAccounts } from 'lib/temple/front/ready';
 import { StoredAccount, TempleAccountType } from 'lib/temple/types';
 import { searchAndFilterItems } from 'lib/utils/search-items';
+
+import { useAllAccounts } from './ready';
 
 export function searchAndFilterAccounts(accounts: StoredAccount[], searchValue: string) {
   return searchAndFilterItems(
@@ -41,5 +42,26 @@ export function useRelevantAccounts(tezosChainId: string) {
         }
       }),
     [tezosChainId, allAccounts]
+  );
+}
+
+export function useNonContractAccounts() {
+  const allAccounts = useAllAccounts();
+
+  return useMemo(
+    () =>
+      allAccounts.filter(acc => {
+        switch (acc.type) {
+          case TempleAccountType.ManagedKT:
+            return false;
+
+          case TempleAccountType.WatchOnly:
+            return !acc.chainId;
+
+          default:
+            return true;
+        }
+      }),
+    [allAccounts]
   );
 }

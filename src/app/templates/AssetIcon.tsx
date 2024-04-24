@@ -9,11 +9,12 @@ import { AssetMetadataBase, getAssetSymbol, isCollectible, useAssetMetadata } fr
 import { AssetImage, AssetImageProps } from './AssetImage';
 
 interface Props extends Omit<AssetImageProps, 'metadata' | 'loader' | 'fallback'> {
+  tezosChainId: string;
   assetSlug: string;
 }
 
-export const AssetIcon: FC<Props> = memo<Props>(({ className, style, ...props }) => {
-  const metadata = useAssetMetadata(props.assetSlug);
+export const AssetIcon: FC<Props> = memo<Props>(({ tezosChainId, className, style, ...props }) => {
+  const metadata = useAssetMetadata(props.assetSlug, tezosChainId);
 
   return (
     <div className={clsx('flex items-center justify-center', className)} style={style}>

@@ -1,4 +1,4 @@
-import React, { FC, Suspense, useEffect } from 'react';
+import React, { memo, Suspense, useEffect } from 'react';
 
 import { PageTitle } from 'app/atoms/PageTitle';
 import { ReactComponent as SwapIcon } from 'app/icons/swap-header.svg';
@@ -7,13 +7,12 @@ import { dispatch } from 'app/store';
 import { resetSwapParamsAction } from 'app/store/swap/actions';
 import { SwapForm } from 'app/templates/SwapForm/SwapForm';
 import { t, T } from 'lib/i18n';
-import { useAccountAddressForTezos, useTezosNetwork } from 'temple/front';
+import { useAccountAddressForTezos } from 'temple/front';
 
 import TkeyAd from './assets/tkey-swap-page-ad.png';
 import { useTKeyAd } from './hooks/use-tkey-ad';
 
-export const Swap: FC = () => {
-  const { isMainnet } = useTezosNetwork();
+export const Swap = memo(() => {
   const publicKeyHash = useAccountAddressForTezos();
 
   const showTKeyAd = useTKeyAd();
@@ -27,7 +26,7 @@ export const Swap: FC = () => {
       <div className="py-4">
         <div className="w-full max-w-sm mx-auto">
           <Suspense fallback={null}>
-            {isMainnet && publicKeyHash ? (
+            {publicKeyHash ? (
               <>
                 {showTKeyAd && <img src={TkeyAd} alt="Tkey Ad" className="h-full w-full mb-6" />}
                 <SwapForm publicKeyHash={publicKeyHash} />
@@ -42,4 +41,4 @@ export const Swap: FC = () => {
       </div>
     </PageLayout>
   );
-};
+});

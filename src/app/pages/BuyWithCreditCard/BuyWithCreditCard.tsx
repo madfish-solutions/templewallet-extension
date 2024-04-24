@@ -151,7 +151,7 @@ const BuyTezosWithCreditCard = memo<{ publicKeyHash: string }>(({ publicKeyHash 
     isLoading
   );
 
-  useInterval(refreshForm, FORM_REFRESH_INTERVAL, [refreshForm], false);
+  useInterval(refreshForm, [refreshForm], FORM_REFRESH_INTERVAL, false);
 
   const minAmountStr = useMemo(
     () =>

@@ -1,7 +1,9 @@
-import React, { FC, HTMLAttributes, useCallback, useRef, useState } from 'react';
+import React, { FC, HTMLAttributes, useRef, useState } from 'react';
 
 import classNames from 'clsx';
 import CSSTransition from 'react-transition-group/CSSTransition';
+
+import { useDidUpdate } from 'lib/ui/hooks';
 
 type DropdownWrapperProps = HTMLAttributes<HTMLDivElement> & {
   opened: boolean;
@@ -33,14 +35,13 @@ const DropdownWrapper: FC<DropdownWrapperProps> = ({
 
   const [key, setKey] = useState(0);
 
-  const onExiting = useCallback(() => {
+  useDidUpdate(() => {
     // Transition component does not propperly update, when Suspense is involved.
-    // E.g. happens when new node RPC is selected & chainId is being fetched (see: `useChainIdValue` hook).
-    // Status `exited` & `unmounted` never arrive in such case!
+    // Statuses `exiting`, `exited` & `unmounted` might never arrive!
     // See: https://github.com/reactjs/react-transition-group/issues/817#issuecomment-1122997210
     // We will re-create it every time ourselves via different key.
-    setTimeout(() => setKey(key => (key % 2) + 1), 2 * ANIMATION_DURATION);
-  }, []);
+    if (!opened) setTimeout(() => setKey(key => (key % 2) + 1), 1.5 * ANIMATION_DURATION);
+  }, [opened]);
 
   return (
     <CSSTransition
@@ -59,7 +60,6 @@ const DropdownWrapper: FC<DropdownWrapperProps> = ({
       }}
       mountOnEnter
       unmountOnExit
-      onExiting={onExiting}
     >
       <div
         ref={nodeRef}

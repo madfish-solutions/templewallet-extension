@@ -1,10 +1,11 @@
-import React, { ComponentProps, FC } from 'react';
+import React, { ComponentProps, FC, memo } from 'react';
 
 import BigNumber from 'bignumber.js';
 import classNames from 'clsx';
 
 import { FormField } from 'app/atoms';
 import { useAppEnv } from 'app/env';
+import { DeadEndBoundaryError } from 'app/ErrorBoundary';
 import { ReactComponent as CopyIcon } from 'app/icons/copy.svg';
 import { isFA2Token, isTezAsset } from 'lib/assets';
 import { fromAssetSlugWithStandardDetect } from 'lib/assets/contract.utils';
@@ -12,16 +13,33 @@ import { T } from 'lib/i18n';
 import { getAssetSymbol, useAssetMetadata } from 'lib/metadata';
 import { useRetryableSWR } from 'lib/swr';
 import useCopyToClipboard from 'lib/ui/useCopyToClipboard';
-import { useTezosNetworkRpcUrl } from 'temple/front';
+import { useTezosChainByChainId } from 'temple/front';
+import { TezosNetworkEssentials } from 'temple/networks';
 import { getReadOnlyTezos } from 'temple/tezos';
 
-type AssetInfoProps = {
+interface Props {
+  tezosChainId: string;
   assetSlug: string;
-};
+}
 
-const AssetInfo: FC<AssetInfoProps> = ({ assetSlug }) => {
+const AssetInfo = memo<Props>(({ tezosChainId, assetSlug }) => {
+  const network = useTezosChainByChainId(tezosChainId);
+  if (!network) throw new DeadEndBoundaryError();
+
+  return <AssetInfoContent network={network} assetSlug={assetSlug} />;
+});
+
+export default AssetInfo;
+
+interface AssetInfoContentProps {
+  network: TezosNetworkEssentials;
+  assetSlug: string;
+}
+
+const AssetInfoContent: FC<AssetInfoContentProps> = ({ network, assetSlug }) => {
   const { popup } = useAppEnv();
-  const rpcUrl = useTezosNetworkRpcUrl();
+
+  const rpcUrl = network.rpcBaseURL;
 
   const { data } = useRetryableSWR(
     ['asset', assetSlug, rpcUrl],
@@ -30,7 +48,7 @@ const AssetInfo: FC<AssetInfoProps> = ({ assetSlug }) => {
   );
   const asset = data!;
 
-  const metadata = useAssetMetadata(assetSlug);
+  const metadata = useAssetMetadata(assetSlug, network.chainId);
 
   return (
     <div className={classNames(popup && 'mx-4')}>
@@ -59,8 +77,6 @@ const AssetInfo: FC<AssetInfoProps> = ({ assetSlug }) => {
     </div>
   );
 };
-
-export default AssetInfo;
 
 type InfoFieldProps = ComponentProps<typeof FormField>;
 

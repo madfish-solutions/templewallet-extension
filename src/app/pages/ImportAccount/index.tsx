@@ -1,13 +1,10 @@
-import React, { FC, useEffect, useMemo, useRef } from 'react';
+import React, { FC, useMemo } from 'react';
 
 import { TabSwitcher } from 'app/atoms';
 import { useAllAccountsReactiveOnAddition } from 'app/hooks/use-all-accounts-reactive';
 import { ReactComponent as DownloadIcon } from 'app/icons/download.svg';
 import PageLayout from 'app/layouts/PageLayout';
 import { TID, T } from 'lib/i18n';
-import { isTruthy } from 'lib/utils';
-import { navigate } from 'lib/woozie';
-import { useTezosNetwork } from 'temple/front';
 
 import { ByFundraiserForm } from './ByFundraiserForm';
 import { ByMnemonicForm } from './ByMnemonicForm';
@@ -27,62 +24,12 @@ interface ImportTabDescriptor {
 }
 
 const ImportAccount: FC<ImportAccountProps> = ({ tabSlug }) => {
-  const { isMainnet } = useTezosNetwork();
-
-  const prevIsMainnetRef = useRef(isMainnet);
-
   useAllAccountsReactiveOnAddition();
 
-  const allTabs = useMemo(() => {
-    const unfiltered: (ImportTabDescriptor | null)[] = [
-      {
-        slug: 'private-key',
-        i18nKey: 'privateKey',
-        Form: ByPrivateKeyForm
-      },
-      {
-        slug: 'mnemonic',
-        i18nKey: 'mnemonic',
-        Form: ByMnemonicForm
-      },
-      {
-        slug: 'fundraiser',
-        i18nKey: 'fundraiser',
-        Form: ByFundraiserForm
-      },
-      isMainnet
-        ? null
-        : {
-            slug: 'faucet',
-            i18nKey: 'faucetFileTitle',
-            Form: FromFaucetForm
-          },
-      {
-        slug: 'managed-kt',
-        i18nKey: 'managedKTAccount',
-        Form: ManagedKTForm
-      },
-      {
-        slug: 'watch-only',
-        i18nKey: 'watchOnlyAccount',
-        Form: WatchOnlyForm
-      }
-    ];
-
-    return unfiltered.filter(isTruthy);
-  }, [isMainnet]);
-
   const { slug, Form } = useMemo(() => {
-    const tab = tabSlug ? allTabs.find(currentTab => currentTab.slug === tabSlug) : null;
-    return tab ?? allTabs[0];
-  }, [allTabs, tabSlug]);
-
-  useEffect(() => {
-    const prevIsMainnet = prevIsMainnetRef.current;
-    prevIsMainnetRef.current = isMainnet;
-
-    if (slug === 'faucet' && isMainnet && !prevIsMainnet) navigate(`/import-account/private-key`);
-  }, [isMainnet, slug]);
+    const tab = tabSlug ? ALL_TABS.find(currentTab => currentTab.slug === tabSlug) : null;
+    return tab ?? ALL_TABS[0];
+  }, [tabSlug]);
 
   return (
     <PageLayout
@@ -96,7 +43,7 @@ const ImportAccount: FC<ImportAccountProps> = ({ tabSlug }) => {
       }
     >
       <div className="py-4">
-        <TabSwitcher className="mb-4" tabs={allTabs} activeTabSlug={slug} urlPrefix="/import-account" />
+        <TabSwitcher className="mb-4" tabs={ALL_TABS} activeTabSlug={slug} urlPrefix="/import-account" />
 
         <Form />
       </div>
@@ -105,3 +52,36 @@ const ImportAccount: FC<ImportAccountProps> = ({ tabSlug }) => {
 };
 
 export default ImportAccount;
+
+const ALL_TABS: ImportTabDescriptor[] = [
+  {
+    slug: 'private-key',
+    i18nKey: 'privateKey',
+    Form: ByPrivateKeyForm
+  },
+  {
+    slug: 'mnemonic',
+    i18nKey: 'mnemonic',
+    Form: ByMnemonicForm
+  },
+  {
+    slug: 'fundraiser',
+    i18nKey: 'fundraiser',
+    Form: ByFundraiserForm
+  },
+  {
+    slug: 'faucet',
+    i18nKey: 'faucetFileTitle',
+    Form: FromFaucetForm
+  },
+  {
+    slug: 'managed-kt',
+    i18nKey: 'managedKTAccount',
+    Form: ManagedKTForm
+  },
+  {
+    slug: 'watch-only',
+    i18nKey: 'watchOnlyAccount',
+    Form: WatchOnlyForm
+  }
+];

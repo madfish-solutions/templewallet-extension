@@ -45,6 +45,8 @@ const CSS_MODULE_REGEX = /\.module\.css$/;
 export const buildBaseConfig = (): WebPack.Configuration & Pick<WebPack.WebpackOptionsNormalized, 'devServer'> => ({
   mode: WEBPACK_MODE,
   bail: PRODUCTION_ENV,
+  /** Will pick-up on `.browserslistrc` */
+  target: 'browserslist',
   devtool: SOURCE_MAP && 'inline-cheap-module-source-map',
 
   output: {
@@ -131,42 +133,16 @@ export const buildBaseConfig = (): WebPack.Configuration & Pick<WebPack.WebpackO
               }
             ]
           },
-          // Process application JS with Babel.
-          // The preset includes JSX, Flow, TypeScript, and some ESnext features.
           {
-            test: /\.(js|mjs|jsx|ts|tsx)$/,
-            include: PATHS.SOURCE,
-            loader: require.resolve('babel-loader'),
+            test: /\.(ts|mts|cts|tsx)$/,
+            loader: require.resolve('ts-loader'),
             options: {
-              customize: require.resolve('babel-preset-react-app/webpack-overrides'),
-              // This is a feature of `babel-loader` for webpack (not Babel itself).
-              // It enables caching results in ./node_modules/.cache/babel-loader/
-              // directory for faster rebuilds.
-              cacheDirectory: true,
-              // See #6846 for context on why cacheCompression is disabled
-              cacheCompression: false,
-              compact: PRODUCTION_ENV
-            }
-          },
-          // Process any JS outside of the app with Babel.
-          // Unlike the application JS, we only compile the standard ES features.
-          {
-            test: /\.(js|mjs)$/,
-            exclude: /@babel(?:\/|\\{1,2})runtime/,
-            loader: require.resolve('babel-loader'),
-            options: {
-              babelrc: false,
-              configFile: false,
-              compact: false,
-              presets: [[require.resolve('babel-preset-react-app/dependencies'), { helpers: true }]],
-              cacheDirectory: true,
-              // See #6846 for context on why cacheCompression is disabled
-              cacheCompression: false,
-              // Babel sourcemaps are needed for debugging into node_modules
-              // code.  Without the options below, debuggers like VSCode
-              // show incorrect code and set breakpoints on the wrong lines.
-              sourceMaps: SOURCE_MAP,
-              inputSourceMap: SOURCE_MAP
+              transpileOnly: true,
+              compilerOptions: {
+                target: 'ESNext',
+                removeComments: PRODUCTION_ENV,
+                sourceMap: SOURCE_MAP
+              }
             }
           },
           // "postcss" loader applies autoprefixer to our CSS.
@@ -329,7 +305,7 @@ export const buildBaseConfig = (): WebPack.Configuration & Pick<WebPack.WebpackO
             ecma: 2017 // ES8
           },
           compress: {
-            ecma: 5,
+            ecma: 2017,
             /*
               Disabled because of an issue with Uglify breaking seemingly valid code:
               https://github.com/facebook/create-react-app/issues/2376
@@ -346,13 +322,13 @@ export const buildBaseConfig = (): WebPack.Configuration & Pick<WebPack.WebpackO
             inline: 2,
             drop_console: DROP_CONSOLE_IN_PROD && PRODUCTION_ENV
           },
-          mangle: {
-            safari10: true
-          },
+          // mangle: {
+          //   safari10: true
+          // },
           keep_classnames: false,
           keep_fnames: false,
           output: {
-            ecma: 5,
+            ecma: 2017,
             comments: false,
             /*
               Turned on because emoji and regex is not minified properly using default
@@ -389,6 +365,7 @@ function getStyleLoaders(cssOptions = {}) {
           ident: 'postcss',
           plugins: [
             require('postcss-flexbugs-fixes'),
+            // eslint-disable-next-line @typescript-eslint/no-var-requires
             require('postcss-preset-env')({
               autoprefixer: {
                 flexbox: 'no-2009'

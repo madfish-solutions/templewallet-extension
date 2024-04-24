@@ -10,6 +10,7 @@ import { setAnotherSelector, setTestID } from 'lib/analytics';
 import { StoredAccount } from 'lib/temple/types';
 import { useScrollIntoView } from 'lib/ui/use-scroll-into-view';
 import { getAccountAddressForEvm, getAccountAddressForTezos } from 'temple/accounts';
+import { useTezosMainnetChain } from 'temple/front';
 
 import { ShortcutAccountSwitchSelectors } from './selectors';
 
@@ -18,7 +19,6 @@ const scrollIntoViewOptions: ScrollIntoViewOptions = { block: 'end', behavior: '
 interface AccountItemProps {
   account: StoredAccount;
   focused: boolean;
-  gasTokenName: string;
   arrayIndex?: number;
   itemsArrayRef?: RefObject<Array<HTMLButtonElement | null>>;
   onClick?: () => void;
@@ -27,11 +27,12 @@ interface AccountItemProps {
 export const AccountItem: React.FC<AccountItemProps> = ({
   account,
   focused,
-  gasTokenName,
   onClick = emptyFn,
   arrayIndex,
   itemsArrayRef
 }) => {
+  const tezosMainnetChain = useTezosMainnetChain();
+
   const [accountTezAddress, displayAddress] = useMemo(() => {
     const tezAddress = getAccountAddressForTezos(account);
     const displayAddress = (tezAddress || getAccountAddressForEvm(account))!;
@@ -83,14 +84,14 @@ export const AccountItem: React.FC<AccountItemProps> = ({
 
         <div className="flex flex-wrap items-end">
           {accountTezAddress && (
-            <Balance address={accountTezAddress}>
+            <Balance network={tezosMainnetChain} address={accountTezAddress}>
               {bal => (
                 <span className="text-xs leading-tight flex items-baseline text-gray-500">
                   <Money smallFractionFont={false} tooltip={false}>
                     {bal}
                   </Money>
 
-                  <span className="ml-1">{gasTokenName.toUpperCase()}</span>
+                  <span className="ml-1">TEZ</span>
                 </span>
               )}
             </Balance>

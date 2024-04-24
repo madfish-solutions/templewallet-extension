@@ -17,7 +17,8 @@ import {
   Estimate,
   TransactionWalletOperation,
   TransactionOperation,
-  TezosToolkit
+  TezosToolkit,
+  ChainIds
 } from '@taquito/taquito';
 import BigNumber from 'bignumber.js';
 import classNames from 'clsx';
@@ -36,7 +37,7 @@ import InFiat from 'app/templates/InFiat';
 import { useFormAnalytics } from 'lib/analytics';
 import { isTezAsset, TEZ_TOKEN_SLUG, toPenny } from 'lib/assets';
 import { toTransferParams } from 'lib/assets/contract.utils';
-import { useBalance } from 'lib/balances';
+import { useTezosAssetBalance } from 'lib/balances';
 import { useAssetFiatCurrencyPrice, useFiatCurrency } from 'lib/fiat-currency';
 import { TEZOS_BLOCK_DURATION } from 'lib/fixed-times';
 import { toLocalFixed, T, t } from 'lib/i18n';
@@ -52,8 +53,13 @@ import { useSafeState } from 'lib/ui/hooks';
 import { useScrollIntoView } from 'lib/ui/use-scroll-into-view';
 import { ZERO } from 'lib/utils/numbers';
 import { AccountForTezos } from 'temple/accounts';
-import { useTezosNetwork, useTezosWithSigner } from 'temple/front';
-import { isTezosDomainsNameValid, useTezosAddressByDomainName, useTezosDomainsClient } from 'temple/front/tezos';
+import {
+  isTezosDomainsNameValid,
+  getTezosToolkitWithSigner,
+  getTezosDomainsClient,
+  useTezosAddressByDomainName
+} from 'temple/front/tezos';
+import { TezosNetworkEssentials } from 'temple/networks';
 
 import ContactsDropdown, { ContactsDropdownProps } from './ContactsDropdown';
 import { FeeSection } from './FeeSection';
@@ -72,38 +78,36 @@ const RECOMMENDED_ADD_FEE = 0.0001;
 
 interface Props {
   account: AccountForTezos;
-  /** Present for `account.type === TempleAccountType.ManagedKT` */
-  ownerAddress?: string;
+  network: TezosNetworkEssentials;
   assetSlug: string;
   setOperation: Dispatch<any>;
   onAddContactRequested: (address: string) => void;
 }
 
-export const Form: FC<Props> = ({ account, ownerAddress, assetSlug, setOperation, onAddContactRequested }) => {
+export const Form: FC<Props> = ({ account, network, assetSlug, setOperation, onAddContactRequested }) => {
   const { registerBackHandler } = useAppEnv();
 
-  const assetMetadata = useAssetMetadata(assetSlug);
+  const assetMetadata = useAssetMetadata(assetSlug, network.chainId);
   const assetPrice = useAssetFiatCurrencyPrice(assetSlug);
 
   const assetSymbol = useMemo(() => getAssetSymbol(assetMetadata), [assetMetadata]);
 
   const { allContacts } = useFilteredContacts();
-  const { isMainnet } = useTezosNetwork();
 
-  const tezos = useTezosWithSigner(ownerAddress || account.address);
-  const domainsClient = useTezosDomainsClient();
+  const accountPkh = account.address;
+  const tezos = getTezosToolkitWithSigner(network.rpcBaseURL, account.ownerAddress || accountPkh);
+  const domainsClient = getTezosDomainsClient(network.chainId, network.rpcBaseURL);
 
   const formAnalytics = useFormAnalytics('SendForm');
 
   const canUseDomainNames = domainsClient.isSupported;
-  const accountPkh = account.address;
 
-  const { value: balance = ZERO } = useBalance(assetSlug, accountPkh);
-  const { value: tezBalance = ZERO } = useBalance(TEZ_TOKEN_SLUG, accountPkh);
+  const { value: balance = ZERO } = useTezosAssetBalance(assetSlug, accountPkh, network);
+  const { value: tezBalance = ZERO } = useTezosAssetBalance(TEZ_TOKEN_SLUG, accountPkh, network);
 
   const [shoudUseFiat, setShouldUseFiat] = useSafeState(false);
 
-  const canToggleFiat = isMainnet;
+  const canToggleFiat = network.chainId === ChainIds.MAINNET;
   const prevCanToggleFiat = useRef(canToggleFiat);
 
   /**
@@ -156,7 +160,7 @@ export const Form: FC<Props> = ({ account, ownerAddress, assetSlug, setOperation
 
   const amountFieldRef = useRef<HTMLInputElement>(null);
 
-  const { onBlur } = useAddressFieldAnalytics(toValue, 'RECIPIENT_NETWORK');
+  const { onBlur } = useAddressFieldAnalytics(network, toValue, 'RECIPIENT_NETWORK');
 
   const toFilledWithAddress = useMemo(() => Boolean(toValue && isValidTezosAddress(toValue)), [toValue]);
 
@@ -165,7 +169,7 @@ export const Form: FC<Props> = ({ account, ownerAddress, assetSlug, setOperation
     [toValue, domainsClient]
   );
 
-  const { data: resolvedAddress } = useTezosAddressByDomainName(toValue);
+  const { data: resolvedAddress } = useTezosAddressByDomainName(toValue, network);
 
   const toFilled = useMemo(
     () => (resolvedAddress ? toFilledWithDomain : toFilledWithAddress),
@@ -220,7 +224,7 @@ export const Form: FC<Props> = ({ account, ownerAddress, assetSlug, setOperation
 
       const [transferParams, manager] = await Promise.all([
         toTransferParams(tezos, assetSlug, assetMetadata, accountPkh, to, toPenny(assetMetadata)),
-        tezos.rpc.getManagerKey(ownerAddress || accountPkh)
+        tezos.rpc.getManagerKey(account.ownerAddress || accountPkh)
       ]);
 
       const estmtnMax = await estimateMaxFee(account, tez, tezos, to, balance, transferParams, manager);
@@ -244,7 +248,7 @@ export const Form: FC<Props> = ({ account, ownerAddress, assetSlug, setOperation
 
       throw err;
     }
-  }, [tezBalance, balance, assetMetadata, toResolved, assetSlug, tezos, accountPkh, account, ownerAddress]);
+  }, [tezBalance, balance, assetMetadata, toResolved, assetSlug, tezos, accountPkh, account]);
 
   const {
     data: baseFee,
@@ -470,7 +474,7 @@ export const Form: FC<Props> = ({ account, ownerAddress, assetSlug, setOperation
                 className="flex-shrink-0 shadow-xs opacity-75"
               />
               <div className="ml-1 mr-px font-normal">{filledContact.name}</div> (
-              <Balance assetSlug={assetSlug} address={filledContact.address}>
+              <Balance network={network} assetSlug={assetSlug} address={filledContact.address}>
                 {bal => (
                   <span className="text-xs leading-none flex items-baseline">
                     <Money>{bal}</Money>{' '}
@@ -558,6 +562,7 @@ export const Form: FC<Props> = ({ account, ownerAddress, assetSlug, setOperation
                 {toLocalFixed(maxAmount)}
               </button>
               <TokenToFiat
+                tezosChainId={network.chainId}
                 amountValue={amountValue}
                 assetMetadata={assetMetadata}
                 shoudUseFiat={shoudUseFiat}
@@ -579,6 +584,7 @@ export const Form: FC<Props> = ({ account, ownerAddress, assetSlug, setOperation
       ) : (
         <FeeSection
           accountPkh={accountPkh}
+          tezosChainId={network.chainId}
           restFormDisplayed={restFormDisplayed}
           submitError={submitError}
           estimationError={estimationError}
@@ -596,6 +602,7 @@ export const Form: FC<Props> = ({ account, ownerAddress, assetSlug, setOperation
 };
 
 interface TokenToFiatProps {
+  tezosChainId: string;
   amountValue: string;
   assetMetadata: AssetMetadataBase | nullish;
   shoudUseFiat: boolean;
@@ -604,6 +611,7 @@ interface TokenToFiatProps {
 }
 
 const TokenToFiat: React.FC<TokenToFiatProps> = ({
+  tezosChainId,
   amountValue,
   assetMetadata,
   shoudUseFiat,
@@ -622,7 +630,12 @@ const TokenToFiat: React.FC<TokenToFiatProps> = ({
           <T id="inAsset" substitutions={getAssetSymbol(assetMetadata, true)} />
         </div>
       ) : (
-        <InFiat assetSlug={assetSlug} volume={amountValue} roundingMode={BigNumber.ROUND_FLOOR}>
+        <InFiat
+          tezosChainId={tezosChainId}
+          assetSlug={assetSlug}
+          volume={amountValue}
+          roundingMode={BigNumber.ROUND_FLOOR}
+        >
           {({ balance, symbol }) => (
             <div className="mt-1 -mb-3 flex items-baseline">
               <span className="mr-1">≈</span>

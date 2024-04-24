@@ -48,6 +48,6 @@ export const DexTypeIcon: FC<Props> = ({ dexType }) => {
       return <img src={WtzLogoSrc} height={20} width={20} alt="Dexter logo" />;
 
     default:
-      return <AssetIcon assetSlug="" size={24} />;
+      return <AssetIcon tezosChainId="" assetSlug="" size={24} />;
   }
 };

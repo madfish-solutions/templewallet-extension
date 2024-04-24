@@ -7,17 +7,19 @@ import { AssetItemContent } from 'app/templates/AssetItemContent';
 import { setAnotherSelector, setTestID } from 'lib/analytics';
 import { useAssetMetadata } from 'lib/metadata';
 import { isTruthy } from 'lib/utils';
+import { TezosNetworkEssentials } from 'temple/networks';
 
 import { AssetsMenuSelectors } from './selectors';
 
 interface Props {
+  network: TezosNetworkEssentials;
   accountPkh: string;
   assetSlug: string;
   selected?: boolean;
 }
 
-export const AssetOption: FC<Props> = ({ assetSlug, selected, accountPkh }) => {
-  const assetMetadata = useAssetMetadata(assetSlug);
+export const AssetOption: FC<Props> = ({ network, assetSlug, selected, accountPkh }) => {
+  const assetMetadata = useAssetMetadata(assetSlug, network.chainId);
 
   if (!isTruthy(assetMetadata)) return null;
 
@@ -30,9 +32,9 @@ export const AssetOption: FC<Props> = ({ assetSlug, selected, accountPkh }) => {
       {...setTestID(AssetsMenuSelectors.assetsMenuAssetItem)}
       {...setAnotherSelector('slug', assetSlug)}
     >
-      <AssetIcon assetSlug={assetSlug} size={32} className="mx-2" />
+      <AssetIcon tezosChainId={network.chainId} assetSlug={assetSlug} size={32} className="mx-2" />
 
-      <AssetItemContent slug={assetSlug} metadata={assetMetadata} publicKeyHash={accountPkh} />
+      <AssetItemContent network={network} slug={assetSlug} metadata={assetMetadata} publicKeyHash={accountPkh} />
     </div>
   );
 };

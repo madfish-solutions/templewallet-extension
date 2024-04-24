@@ -1,9 +1,8 @@
 import { useMemo } from 'react';
 
-import { useAllAccounts } from 'lib/temple/front';
 import { StoredHDAccount } from 'lib/temple/types';
 import { isAccountOfActableType } from 'temple/accounts';
-import { useAccountForTezos } from 'temple/front';
+import { useAllAccounts, useAccountForTezos } from 'temple/front';
 
 export const useAdsViewerPkh = () => {
   const allAccounts = useAllAccounts();

@@ -6,7 +6,6 @@ import { useAppEnv } from 'app/env';
 import PageLayout from 'app/layouts/PageLayout';
 import { useMainnetTokensScamlistSelector } from 'app/store/assets/selectors';
 import { setAnotherSelector, setTestID } from 'lib/analytics';
-import { TEZ_TOKEN_SLUG } from 'lib/assets';
 import { useAssetMetadata, getAssetSymbol } from 'lib/metadata';
 import { HistoryAction, navigate, useLocation } from 'lib/woozie';
 
@@ -21,19 +20,17 @@ import { ScamTokenAlert } from './OtherComponents/ScamTokenAlert';
 import { TokenPageSelectors } from './OtherComponents/TokenPage.selectors';
 
 interface Props {
+  tezosChainId?: string | null;
   assetSlug?: string | null;
 }
 
-const Home = memo<Props>(({ assetSlug }) => {
+const Home = memo<Props>(({ tezosChainId, assetSlug }) => {
   const { fullPage, registerBackHandler } = useAppEnv();
   const { onboardingCompleted } = useOnboardingProgress();
   const { search } = useLocation();
 
   const mainnetTokensScamSlugsRecord = useMainnetTokensScamlistSelector();
   const showScamTokenAlert = isDefined(assetSlug) && mainnetTokensScamSlugsRecord[assetSlug];
-
-  const assetMetadata = useAssetMetadata(assetSlug || TEZ_TOKEN_SLUG);
-  const assetSymbol = getAssetSymbol(assetMetadata);
 
   useLayoutEffect(() => {
     const usp = new URLSearchParams(search);
@@ -47,17 +44,7 @@ const Home = memo<Props>(({ assetSlug }) => {
 
   return onboardingCompleted ? (
     <PageLayout
-      pageTitle={
-        assetSlug ? (
-          <span
-            className="font-normal"
-            {...setTestID(TokenPageSelectors.pageName)}
-            {...setAnotherSelector('symbol', assetSymbol)}
-          >
-            {assetSymbol}
-          </span>
-        ) : null
-      }
+      pageTitle={tezosChainId && assetSlug ? <PageTitle tezosChainId={tezosChainId} assetSlug={assetSlug} /> : null}
       attention={true}
       adShow
     >
@@ -71,12 +58,12 @@ const Home = memo<Props>(({ assetSlug }) => {
       {showScamTokenAlert && <ScamTokenAlert />}
 
       <div className="flex flex-col items-center mb-6">
-        <MainBanner assetSlug={assetSlug} />
+        <MainBanner tezosChainId={tezosChainId} assetSlug={assetSlug} />
 
-        <ActionButtonsBar assetSlug={assetSlug} />
+        <ActionButtonsBar tezosChainId={tezosChainId} assetSlug={assetSlug} />
       </div>
 
-      <ContentSection assetSlug={assetSlug} />
+      <ContentSection tezosChainId={tezosChainId} assetSlug={assetSlug} />
     </PageLayout>
   ) : (
     <Onboarding />
@@ -84,3 +71,23 @@ const Home = memo<Props>(({ assetSlug }) => {
 });
 
 export default Home;
+
+interface PageTitleProps {
+  tezosChainId: string;
+  assetSlug: string;
+}
+
+const PageTitle = memo<PageTitleProps>(({ tezosChainId, assetSlug }) => {
+  const assetMetadata = useAssetMetadata(assetSlug, tezosChainId);
+  const assetSymbol = getAssetSymbol(assetMetadata);
+
+  return (
+    <span
+      className="font-normal"
+      {...setTestID(TokenPageSelectors.pageName)}
+      {...setAnotherSelector('symbol', assetSymbol)}
+    >
+      {assetSymbol}
+    </span>
+  );
+});

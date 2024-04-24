@@ -1,29 +1,25 @@
 import React from 'react';
 
-import classNames from 'clsx';
+import clsx from 'clsx';
 
 import { Button } from 'app/atoms/Button';
-import { setAnotherSelector } from 'lib/analytics';
-import { t } from 'lib/i18n';
-import { StoredNetwork } from 'lib/temple/types';
-
-import { NetworkSelectSelectors } from './selectors';
+import { OneOfChains, getNetworkTitle } from 'temple/front';
 
 interface Props {
-  network: StoredNetwork;
+  chain: OneOfChains;
   selected: boolean;
   onClick: EmptyFn;
 }
 
-export const NetworkButton: React.FC<Props> = ({ network, selected, onClick }) => {
-  const { id, name, color, disabled, nameI18nKey } = network;
+export const ChainButton: React.FC<Props> = ({ chain, selected, onClick }) => {
+  const disabled = chain.disabled;
+  const { color, description } = chain.rpc;
 
-  const title = (nameI18nKey && t(nameI18nKey)) || name;
+  const title = getNetworkTitle(chain);
 
   return (
     <Button
-      key={id}
-      className={classNames(
+      className={clsx(
         'flex items-center w-full mb-1 rounded',
         'transition easy-in-out duration-200',
         !disabled && (selected ? 'bg-white bg-opacity-10' : 'hover:bg-white hover:bg-opacity-5'),
@@ -32,12 +28,10 @@ export const NetworkButton: React.FC<Props> = ({ network, selected, onClick }) =
       style={{
         padding: '0.375rem 1.5rem 0.375rem 0.5rem'
       }}
+      title={description}
       disabled={disabled}
       autoFocus={selected}
       onClick={disabled ? undefined : onClick}
-      testID={NetworkSelectSelectors.networkItemButton}
-      testIDProperties={{ networkType: network.type }}
-      {...setAnotherSelector('name', title)}
     >
       <div
         className="mr-2 w-3 h-3 border border-primary-white rounded-full shadow-xs"

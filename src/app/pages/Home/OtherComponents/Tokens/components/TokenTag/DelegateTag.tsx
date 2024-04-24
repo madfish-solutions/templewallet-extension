@@ -8,16 +8,18 @@ import { AnalyticsEventCategory, useAnalytics } from 'lib/analytics';
 import { T } from 'lib/i18n';
 import { useDelegate } from 'lib/temple/front';
 import { navigate } from 'lib/woozie';
+import { TezosNetworkEssentials } from 'temple/networks';
 
 import { AssetsSelectors } from '../../../Assets.selectors';
 import modStyles from '../../Tokens.module.css';
 
 interface Props {
+  network: TezosNetworkEssentials;
   pkh: string;
 }
 
-export const DelegateTezosTag = memo<Props>(({ pkh }) => {
-  const { data: myBakerPkh } = useDelegate(pkh);
+export const DelegateTezosTag = memo<Props>(({ network, pkh }) => {
+  const { data: myBakerPkh } = useDelegate(pkh, network);
   const { trackEvent } = useAnalytics();
 
   const handleTagClick = useCallback(
@@ -25,9 +27,9 @@ export const DelegateTezosTag = memo<Props>(({ pkh }) => {
       e.preventDefault();
       e.stopPropagation();
       trackEvent(HomeSelectors.delegateButton, AnalyticsEventCategory.ButtonPress);
-      navigate('/explore/tez/?tab=delegation');
+      navigate(`/explore/${network.chainId}/tez/?tab=delegation`);
     },
-    [trackEvent]
+    [network.chainId, trackEvent]
   );
 
   const NotDelegatedButton = useMemo(
