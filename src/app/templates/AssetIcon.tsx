@@ -42,7 +42,7 @@ export const EvmAssetIcon = memo<EvmAssetIconProps>(({ evmChainId, className, st
     <div className={clsx('flex items-center justify-center', className)} style={style}>
       <AssetImage
         {...props}
-        evm
+        evmChainId={evmChainId}
         metadata={metadata}
         loader={<AssetIconPlaceholder metadata={metadata} size={props.size} />}
         fallback={<AssetIconPlaceholder metadata={metadata} size={props.size} />}

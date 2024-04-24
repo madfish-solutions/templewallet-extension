@@ -162,3 +162,27 @@ const buildIpfsMediaUriByInfo = (
 
   return;
 };
+
+const customChainIdsToAssetNames: Record<number, string> = {
+  1: 'ethereum',
+  11155111: 'sepolia',
+  137: 'polygon',
+  80001: 'polygonmumbai',
+  56: 'binance',
+  97: 'bnbt',
+  43114: 'avalanchex',
+  43113: 'avalanchecfuji',
+  10: 'optimism'
+};
+
+const EvmAddressZero = '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee';
+
+export const getEvmCustomChainIconUrl = (chainId: number, tokenAddress: HexString) => {
+  const baseUrl = 'https://raw.githubusercontent.com/rainbow-me/assets/master/blockchains/';
+
+  if (tokenAddress === EvmAddressZero) {
+    return `${baseUrl}${customChainIdsToAssetNames[chainId]}/info/logo.png`;
+  } else {
+    return `${baseUrl}${customChainIdsToAssetNames[chainId]}/assets/${tokenAddress}/logo.png`;
+  }
+};

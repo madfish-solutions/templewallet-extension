@@ -26,7 +26,7 @@ const getTokenSlugWithChainIdTokensMetadataRecord = (chainID: ChainID, data: Bal
       symbol: currentValue.contract_ticker_symbol,
       decimals: currentValue.contract_decimals,
       thumbnailUri: currentValue.logo_url,
-      address: currentValue.contract_address,
+      address: currentValue.contract_address as HexString,
       native: currentValue.native_token
     };
 
