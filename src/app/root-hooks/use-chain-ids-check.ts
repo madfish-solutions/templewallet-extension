@@ -1,8 +1,9 @@
-import { useEffect } from 'react';
+import { useCallback, useEffect } from 'react';
 
 import { RpcClient } from '@taquito/rpc';
 import { createPublicClient, http } from 'viem';
 
+import { useAlert } from 'lib/ui';
 import { OneOfChains, useAllEvmChains, useAllTezosChains } from 'temple/front';
 import { TempleChainTitle } from 'temple/types';
 
@@ -15,6 +16,19 @@ import { TempleChainTitle } from 'temple/types';
  */
 export const useChainIDsCheck = () => {
   const tezosChains = useAllTezosChains();
+
+  const customAlert = useAlert();
+
+  const handleChainIdMissmatch = useCallback(
+    (chain: OneOfChains, chainId: string | number) =>
+      void customAlert({
+        title: `Warning!`,
+        children: `${TempleChainTitle[chain.kind]} RPC '${chain.name}'(${
+          chain.rpcBaseURL
+        }) has changed its network. (${chainId} !== ${chain.chainId})`
+      }),
+    []
+  );
 
   useEffect(() => {
     for (const chain of Object.values(tezosChains)) {
@@ -39,12 +53,4 @@ export const useChainIDsCheck = () => {
       });
     }
   }, [evmChains]);
-};
-
-const handleChainIdMissmatch = (chain: OneOfChains, chainId: string | number) => {
-  alert(
-    `Warning! ${TempleChainTitle[chain.kind]} RPC '${chain.name}'(${
-      chain.rpcBaseURL
-    }) has changed its network. (${chainId} !== ${chain.chainId})`
-  );
 };

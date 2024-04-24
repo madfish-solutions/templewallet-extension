@@ -55,4 +55,4 @@ export const useEvmChainByChainId = (evmChainId: number): EvmChain | null => {
   return allEvmChains[evmChainId] ?? null;
 };
 
-export const useEvmMainnetChain = () => useEvmChainByChainId(1)!;
+export const useEthereumMainnetChain = () => useEvmChainByChainId(1)!;

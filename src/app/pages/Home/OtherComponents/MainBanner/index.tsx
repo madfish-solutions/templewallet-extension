@@ -28,7 +28,7 @@ import { UNDER_DEVELOPMENT_MSG } from 'temple/evm/under_dev_msg';
 import {
   useAccountAddressForEvm,
   useAccountAddressForTezos,
-  useEvmMainnetChain,
+  useEthereumMainnetChain,
   useTezosChainByChainId,
   useTezosMainnetChain
 } from 'temple/front';
@@ -170,7 +170,7 @@ const TezosBalanceInfo: FC<TezosBalanceInfoProps> = ({ network, accountPkh }) =>
 };
 
 const EvmBalanceInfo: FC<{ address: HexString }> = ({ address }) => {
-  const mainnetChain = useEvmMainnetChain();
+  const mainnetChain = useEthereumMainnetChain();
   const currency = mainnetChain.currency;
 
   const viemClient = getReadOnlyEvm(mainnetChain.rpcBaseURL);

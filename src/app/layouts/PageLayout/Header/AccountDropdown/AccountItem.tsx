@@ -9,7 +9,7 @@ import { setAnotherSelector, setTestID } from 'lib/analytics';
 import { StoredAccount } from 'lib/temple/types';
 import { useScrollIntoViewOnMount } from 'lib/ui/use-scroll-into-view';
 import { getAccountAddressForEvm, getAccountAddressForTezos } from 'temple/accounts';
-import { useEvmMainnetChain, useTezosMainnetChain } from 'temple/front';
+import { useEthereumMainnetChain, useTezosMainnetChain } from 'temple/front';
 
 import { AccountDropdownSelectors } from './selectors';
 
@@ -22,7 +22,7 @@ interface Props {
 
 export const AccountItem = memo<Props>(({ account, selected, attractSelf, onClick }) => {
   const tezosMainnetChain = useTezosMainnetChain();
-  const evmMainnetChain = useEvmMainnetChain();
+  const evmMainnetChain = useEthereumMainnetChain();
 
   const [accountTezAddress, displayAddress] = useMemo(() => {
     const tezAddress = getAccountAddressForTezos(account);
