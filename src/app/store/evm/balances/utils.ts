@@ -4,7 +4,11 @@ import { getEvmAssetRecordKey, isProperMetadata } from 'lib/utils/evm.utils';
 
 import { EVMBalancesAtomicRecord } from './state';
 
-export const getBalancesAtomicRecord = (publicKeyHash: HexString, data: BalancesResponse[]) =>
+export const getNewBalancesAtomicRecord = (
+  oldRecord: EVMBalancesAtomicRecord,
+  publicKeyHash: HexString,
+  data: BalancesResponse[]
+) =>
   data.reduce<EVMBalancesAtomicRecord>((acc, currentValue) => {
     if (!currentValue.chain_id) return acc;
 
@@ -15,7 +19,7 @@ export const getBalancesAtomicRecord = (publicKeyHash: HexString, data: Balances
     );
 
     return acc;
-  }, {});
+  }, oldRecord);
 
 const getTokenSlugWithChainIdBalanceRecord = (data: BalanceItem[], chainId: ChainID) =>
   data.reduce<StringRecord>((acc, currentValue) => {

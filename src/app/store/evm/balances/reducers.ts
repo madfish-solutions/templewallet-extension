@@ -2,7 +2,7 @@ import { createReducer } from '@reduxjs/toolkit';
 
 import { proceedLoadedEVMBalancesAction } from './actions';
 import { EVMBalancesInitialState } from './state';
-import { getBalancesAtomicRecord } from './utils';
+import { getNewBalancesAtomicRecord } from './utils';
 
 export const evmBalancesReducer = createReducer(EVMBalancesInitialState, builder => {
   builder.addCase(proceedLoadedEVMBalancesAction, (state, { payload }) => {
@@ -10,6 +10,10 @@ export const evmBalancesReducer = createReducer(EVMBalancesInitialState, builder
 
     if (data.length === 0) return;
 
-    state.balancesAtomic = getBalancesAtomicRecord(publicKeyHash, data);
+    if (state.balancesAtomic[publicKeyHash]) {
+      delete state.balancesAtomic[publicKeyHash];
+    }
+
+    state.balancesAtomic = getNewBalancesAtomicRecord(state.balancesAtomic, publicKeyHash, data);
   });
 });

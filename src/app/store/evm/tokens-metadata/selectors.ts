@@ -4,4 +4,4 @@ export const useAllEvmTokensMetadataSelector = () =>
   useSelector(({ evmTokensMetadata }) => evmTokensMetadata.metadataRecord);
 
 export const useEvmTokenMetadataSelector = (slugWithChainId: string) =>
-  useSelector(({ evmTokensMetadata }) => evmTokensMetadata.metadataRecord[slugWithChainId]);
+  useSelector(({ evmTokensMetadata }) => evmTokensMetadata.metadataRecord[slugWithChainId] ?? {});
