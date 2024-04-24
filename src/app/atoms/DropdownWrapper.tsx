@@ -13,8 +13,9 @@ type DropdownWrapperProps = HTMLAttributes<HTMLDivElement> & {
 };
 
 const DESIGN_CLASS_NAMES = {
-  light: 'bg-white border-gray-300',
-  dark: 'bg-gray-910 border-gray-850'
+  light: 'bg-white border border-gray-300 shadow-xl',
+  dark: 'bg-gray-910 border border-gray-850 shadow-xl',
+  day: 'bg-white shadow-page'
 };
 
 const ANIMATION_DURATION = 100;
@@ -64,7 +65,7 @@ const DropdownWrapper: FC<DropdownWrapperProps> = ({
       <div
         ref={nodeRef}
         className={classNames(
-          'mt-2 border rounded-md shadow-xl',
+          'mt-2 rounded-md',
           hiddenOverflow && 'overflow-hidden',
           process.env.TARGET_BROWSER === 'firefox' && 'grayscale-firefox-fix',
           DESIGN_CLASS_NAMES[design],

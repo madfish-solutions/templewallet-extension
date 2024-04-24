@@ -60,23 +60,12 @@ const TotalVolumeBanner = () => {
   const evmAddress = useAccountAddressForEvm();
 
   return (
-    <div className="flex items-start justify-between">
+    <div className="flex">
       {tezosAddress ? (
         <TezosBalanceInfo network={tezosMainnetChain} accountPkh={tezosAddress} />
       ) : evmAddress ? (
         <EvmBalanceInfo address={evmAddress} />
       ) : null}
-
-      <div className="flex flex-col gap-y-1 items-end">
-        {tezosAddress ? (
-          <AddressChip
-            address={tezosAddress}
-            tezosNetwork={tezosMainnetChain}
-            testID={HomeSelectors.publicAddressButton}
-          />
-        ) : null}
-        {evmAddress ? <AddressChip address={evmAddress} /> : null}
-      </div>
     </div>
   );
 };

@@ -518,16 +518,6 @@ module.exports = {
       out: 'cubic-bezier(0, 0, 0.2, 1)',
       'in-out': 'cubic-bezier(0.4, 0, 0.2, 1)'
     },
-    transitionDuration: {
-      75: '75ms',
-      100: '100ms',
-      150: '150ms',
-      200: '200ms',
-      300: '300ms',
-      500: '500ms',
-      700: '700ms',
-      1000: '1000ms'
-    },
     transitionDelay: {
       75: '75ms',
       100: '100ms',
@@ -659,6 +649,9 @@ module.exports = {
         2.5: '0.625rem', // 10px
         circle: '50%'
       },
+      transitionDuration: {
+        400: '400ms'
+      }
     }
   },
   variants: {
