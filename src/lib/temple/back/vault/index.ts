@@ -116,8 +116,7 @@ export class Vault {
 
       const initialGroup = {
         id: nanoid(),
-        name: await fetchMessage('hdGroupDefaultName', 'A'),
-        hdIndex: hdAccIndex
+        name: await fetchMessage('hdGroupDefaultName', 'A')
       };
       const initialAccount: StoredAccount = {
         id: nanoid(),
@@ -473,8 +472,7 @@ export class Vault {
 
       const newGroup = {
         id: nanoid(),
-        name: await fetchNewGroupName(hdGroups, i => fetchMessage('hdGroupDefaultName', toExcelColumnName(i))),
-        hdIndex: hdAccIndex
+        name: await fetchNewGroupName(hdGroups, i => fetchMessage('hdGroupDefaultName', toExcelColumnName(i)))
       };
       const newAccount: StoredAccount = {
         id: nanoid(),

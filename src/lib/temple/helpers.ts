@@ -79,7 +79,7 @@ function pickUniqueNameSync(
 
 async function pickUniqueName(
   startIndex: number,
-  getNameCandidate: (i: number) => Promise<string>,
+  getNameCandidate: (i: number) => string | Promise<string>,
   isUnique: (name: string) => boolean
 ) {
   for (let i = startIndex; ; i++) {
@@ -117,7 +117,7 @@ export function fetchNewAccountNameSync(
 export async function fetchNewAccountName(
   allAccounts: StoredAccount[],
   newAccountType: TempleAccountType,
-  getNameCandidate: (i: number) => Promise<string>,
+  getNameCandidate: (i: number) => string | Promise<string>,
   newAccountGroupId?: string
 ) {
   const sameGroupAccounts = getSameGroupAccounts(allAccounts, newAccountType, newAccountGroupId);
@@ -139,7 +139,7 @@ export function fetchNewGroupNameSync(allGroups: StoredHDGroup[], getNameCandida
 
 export async function fetchNewGroupName(allGroups: StoredHDGroup[], getNameCandidate: (i: number) => Promise<string>) {
   return await pickUniqueName(
-    allGroups.length + 1,
+    allGroups.length,
     getNameCandidate,
     name => !allGroups.some(group => group.name === name)
   );

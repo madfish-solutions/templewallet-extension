@@ -18,8 +18,7 @@ import SearchField from 'app/templates/SearchField';
 import { useGasToken } from 'lib/assets/hooks';
 import { searchHotkey } from 'lib/constants';
 import { T, t } from 'lib/i18n';
-import { useTempleClient, useSetAccountId, useAllAccounts } from 'lib/temple/front';
-import { useAllGroups } from 'lib/temple/front/ready';
+import { useTempleClient, useSetAccountId } from 'lib/temple/front';
 import { PopperRenderProps } from 'lib/ui/Popper';
 import { HistoryAction, navigate } from 'lib/woozie';
 import { useCurrentAccountId, useTezosNetwork, useRelevantAccounts } from 'temple/front';
@@ -38,8 +37,6 @@ const AccountDropdown = memo<PopperRenderProps>(({ opened, setOpened }) => {
   const appEnv = useAppEnv();
   const { lock } = useTempleClient();
   const { chainId } = useTezosNetwork();
-  const totalAllAccounts = useAllAccounts();
-  const allGroups = useAllGroups();
   const allAccounts = useRelevantAccounts(chainId);
   const currentAccountId = useCurrentAccountId();
   const setAccountId = useSetAccountId();
@@ -55,8 +52,6 @@ const AccountDropdown = memo<PopperRenderProps>(({ opened, setOpened }) => {
     [searchValue, allAccounts]
   );
   const filteredGroups = useAccountsGroups(filteredAccounts);
-
-  useEffect(() => console.log('oy vey 1', totalAllAccounts, allGroups), [totalAllAccounts, allGroups]);
 
   const closeDropdown = useCallback(() => {
     setOpened(false);
@@ -95,14 +90,6 @@ const AccountDropdown = memo<PopperRenderProps>(({ opened, setOpened }) => {
         i18nKey: 'createWallet',
         linkTo: '/create-another-wallet',
         testID: AccountDropdownSelectors.createOrRestoreWalletButton,
-        onClick: closeDropdown
-      },
-      {
-        key: 'create-account',
-        Icon: AddIcon,
-        i18nKey: 'createAccount',
-        linkTo: '/create-account',
-        testID: AccountDropdownSelectors.createOrRestoreAccountButton,
         onClick: closeDropdown
       },
       {
@@ -229,6 +216,7 @@ const AccountDropdown = memo<PopperRenderProps>(({ opened, setOpened }) => {
                       selected={acc.id === currentAccountId}
                       gasTokenName={gasTokenName}
                       attractSelf={attractSelectedAccount}
+                      searchValue={searchValue}
                       onClick={handleAccountClick}
                     />
                   ))}

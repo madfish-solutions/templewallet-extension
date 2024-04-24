@@ -524,6 +524,27 @@
   "accountsToRemoveConstraint": {
     "message": "The only Hierarchical Deterministic account cannot be removed."
   },
+  "walletsToRemoveConstraint": {
+    "message": "The only HD wallet cannot be removed."
+  },
+  "hdWalletRemoveWarning": {
+    "message": "Backup wallet before deleting to avoid permanent loss. You can anytime restore your wallet by importing the seed phrase."
+  },
+  "importedAccountsRemoveWarning": {
+    "message": "Backup private keys before deleting to avoid permanent loss. You can anytime restore your accounts by importing the private keys."
+  },
+  "deleteWalletPasswordLabel": {
+    "message": "Enter the password to delete wallet"
+  },
+  "walletNameInputLabel": {
+    "message": "Enter your wallet name"
+  },
+  "newRevealSeedPhraseLabel": {
+    "message": "Here you can reveal your seed phrase"
+  },
+  "revealSeedPhrasePasswordLabel": {
+    "message": "Enter your password to reveal seed phrase"
+  },
   "doNotSharePrivateKey": {
     "message": "<b>DO NOT share</b> this set of chars with anyone! It can be used to steal your current account."
   },
@@ -906,6 +927,12 @@
   },
   "removeAccountDescription": {
     "message": "Use this section to remove your selected account. Only imported accounts can be removed."
+  },
+  "accountsManagement": {
+    "message": "Accounts management"
+  },
+  "accountsManagementDescription": {
+    "message": "Use this section to create, edit, and delete accounts."
   },
   "about": {
     "message": "About"
@@ -1769,8 +1796,17 @@
   "watchOnlyAccount": {
     "message": "Watch-only"
   },
+  "hdAccount": {
+    "message": "HD"
+  },
   "disabledForWatchOnlyAccount": {
     "message": "Disabled for watch-only account"
+  },
+  "importedGroupLabel": {
+    "message": "Integrated"
+  },
+  "ledgerGroupLabel": {
+    "message": "Hardware"
   },
   "activationOperationType": {
     "message": "Activation"

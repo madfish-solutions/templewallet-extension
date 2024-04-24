@@ -1,0 +1,118 @@
+import React, { memo, useCallback } from 'react';
+
+import { Alert, FormField } from 'app/atoms';
+import { T, t } from 'lib/i18n';
+import { useTempleClient } from 'lib/temple/front';
+import { useHDGroups } from 'lib/temple/front/ready';
+import { DisplayedGroup, TempleAccountType } from 'lib/temple/types';
+
+import { ActionModal } from './action-modal';
+import { ActionModalBodyContainer } from './action-modal-body-container';
+import { ActionModalButton } from './action-modal-button';
+import { ActionModalButtonsContainer } from './action-modal-buttons-container';
+import { useTempleBackendActionForm } from './use-temple-backend-action-form';
+
+interface DeleteWalletModalProps {
+  onClose: () => void;
+  selectedGroup: DisplayedGroup;
+}
+
+const removeWarningsI18nKeys = {
+  [TempleAccountType.HD]: 'hdWalletRemoveWarning' as const,
+  [TempleAccountType.Imported]: 'importedAccountsRemoveWarning' as const
+};
+
+interface FormData {
+  password: string;
+}
+
+export const DeleteWalletModal = memo<DeleteWalletModalProps>(({ onClose, selectedGroup }) => {
+  const { removeAccountsByType, removeHdGroup } = useTempleClient();
+  const hdGroups = useHDGroups();
+  const shouldPreventDeletion = hdGroups.length === 1 && selectedGroup.type === TempleAccountType.HD;
+  const removeWarningsI18nKey =
+    selectedGroup.type in removeWarningsI18nKeys
+      ? removeWarningsI18nKeys[selectedGroup.type as keyof typeof removeWarningsI18nKeys]
+      : undefined;
+
+  const deleteGroup = useCallback(
+    async ({ password }: FormData) => {
+      selectedGroup.type === TempleAccountType.HD
+        ? await removeHdGroup(selectedGroup.id, password)
+        : await removeAccountsByType(selectedGroup.type, password);
+      onClose();
+    },
+    [onClose, removeAccountsByType, removeHdGroup, selectedGroup]
+  );
+  const { register, handleSubmit, errors, formState, onSubmit } = useTempleBackendActionForm<FormData>(
+    deleteGroup,
+    'password'
+  );
+  const submitting = formState.isSubmitting;
+
+  return (
+    <ActionModal title={`Delete ${selectedGroup.name}?`} onClose={onClose}>
+      {shouldPreventDeletion ? (
+        <>
+          <ActionModalBodyContainer>
+            <Alert
+              type="error"
+              title={<T id="cannotBeRemoved" />}
+              description={
+                <p>
+                  <T id="walletsToRemoveConstraint" />
+                </p>
+              }
+            />
+          </ActionModalBodyContainer>
+          <ActionModalButtonsContainer>
+            <ActionModalButton className="bg-orange-200 text-orange-20" onClick={onClose} type="button">
+              <T id="cancel" />
+            </ActionModalButton>
+          </ActionModalButtonsContainer>
+        </>
+      ) : (
+        <form onSubmit={handleSubmit(onSubmit)}>
+          <ActionModalBodyContainer>
+            {removeWarningsI18nKey && (
+              <Alert
+                type="warning"
+                description={
+                  <p className="text-xs leading-4 text-gray-900">
+                    <T id={removeWarningsI18nKey} />
+                  </p>
+                }
+                className="mb-1"
+              />
+            )}
+
+            <FormField
+              ref={register({ required: t('required') })}
+              label={t('deleteWalletPasswordLabel')}
+              id="removewallet-secret-password"
+              type="password"
+              name="password"
+              placeholder="********"
+              errorCaption={errors.password?.message}
+              containerClassName="mb-1"
+            />
+          </ActionModalBodyContainer>
+          <ActionModalButtonsContainer>
+            <ActionModalButton
+              className="bg-orange-200 text-orange-20"
+              disabled={submitting}
+              onClick={onClose}
+              type="button"
+            >
+              <T id="cancel" />
+            </ActionModalButton>
+
+            <ActionModalButton className="bg-red-600 text-white" disabled={submitting} type="submit">
+              <T id="delete" />
+            </ActionModalButton>
+          </ActionModalButtonsContainer>
+        </form>
+      )}
+    </ActionModal>
+  );
+});

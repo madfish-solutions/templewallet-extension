@@ -2,8 +2,8 @@ import { TID, t } from 'lib/i18n';
 import { DisplayedGroup, StoredAccount, StoredHDAccount, StoredHDGroup, TempleAccountType } from 'lib/temple/types';
 
 const nonHdGroupsNamesI18nKeys: Record<Exclude<TempleAccountType, TempleAccountType.HD>, TID> = {
-  [TempleAccountType.Imported]: 'importedPlural',
-  [TempleAccountType.Ledger]: 'ledger',
+  [TempleAccountType.Imported]: 'importedGroupLabel',
+  [TempleAccountType.Ledger]: 'ledgerGroupLabel',
   [TempleAccountType.ManagedKT]: 'managedKTAccount',
   [TempleAccountType.WatchOnly]: 'watchOnlyAccount'
 };

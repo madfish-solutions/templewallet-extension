@@ -33,6 +33,7 @@ export const [
   useSetAccountId,
   useSettings,
   useAllGroups,
+  useHDGroups,
   useCurrentAccountGroup
 ] = constate(
   useReadyTemple,
@@ -49,6 +50,7 @@ export const [
   v => v.setAccountId,
   v => v.settings,
   v => v.allGroups,
+  v => v.hdGroups,
   v => v.currentAccountGroup
 );
 
@@ -144,6 +146,7 @@ function useReadyTemple() {
     accountAddressForEvm,
     accountForEvm,
     allGroups,
+    hdGroups,
     currentAccountGroup,
     setAccountId,
 

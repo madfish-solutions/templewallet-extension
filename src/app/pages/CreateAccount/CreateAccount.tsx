@@ -3,7 +3,7 @@ import React, { FC, useCallback, useMemo } from 'react';
 import { OnSubmit, useForm } from 'react-hook-form';
 
 import { FormField, FormSubmitButton } from 'app/atoms';
-import { ACCOUNT_NAME_PATTERN } from 'app/defaults';
+import { ACCOUNT_OR_GROUP_NAME_PATTERN } from 'app/defaults';
 import { useAllAccountsReactiveOnAddition } from 'app/hooks/use-all-accounts-reactive';
 import { ReactComponent as AddIcon } from 'app/icons/add.svg';
 import PageLayout from 'app/layouts/PageLayout';
@@ -90,7 +90,7 @@ const CreateAccount: FC = () => {
           <FormField
             ref={register({
               pattern: {
-                value: ACCOUNT_NAME_PATTERN,
+                value: ACCOUNT_OR_GROUP_NAME_PATTERN,
                 message: t('accountNameInputTitle')
               }
             })}

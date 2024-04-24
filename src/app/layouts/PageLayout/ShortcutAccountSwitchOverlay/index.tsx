@@ -183,6 +183,7 @@ export const ShortcutAccountSwitchOverlay = memo(() => {
                             gasTokenName={gasTokenName}
                             arrayIndex={filteredAccounts.findIndex(a => a.id === acc.id)}
                             itemsArrayRef={accountItemsRef}
+                            searchValue={searchValue}
                             onClick={() => handleAccountClick(acc.id)}
                           />
                         ))}
