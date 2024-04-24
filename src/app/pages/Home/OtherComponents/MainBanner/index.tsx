@@ -4,7 +4,6 @@ import clsx from 'clsx';
 
 import { Button } from 'app/atoms';
 import Money from 'app/atoms/Money';
-import { ContentContainer } from 'app/layouts/ContentContainer';
 import { useTotalBalance } from 'app/pages/Home/OtherComponents/MainBanner/use-total-balance';
 import { dispatch } from 'app/store';
 import { toggleBalanceModeAction } from 'app/store/settings/actions';
@@ -28,7 +27,7 @@ import { UNDER_DEVELOPMENT_MSG } from 'temple/evm/under_dev_msg';
 import {
   useAccountAddressForEvm,
   useAccountAddressForTezos,
-  useEvmMainnetChain,
+  useEthereumMainnetChain,
   useTezosChainByChainId,
   useTezosMainnetChain
 } from 'temple/front';
@@ -170,7 +169,7 @@ const TezosBalanceInfo: FC<TezosBalanceInfoProps> = ({ network, accountPkh }) =>
 };
 
 const EvmBalanceInfo: FC<{ address: HexString }> = ({ address }) => {
-  const mainnetChain = useEvmMainnetChain();
+  const mainnetChain = useEthereumMainnetChain();
   const currency = mainnetChain.currency;
 
   const viemClient = getReadOnlyEvm(mainnetChain.rpcBaseURL);

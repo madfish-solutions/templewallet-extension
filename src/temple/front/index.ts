@@ -16,7 +16,7 @@ export {
 } from './ready';
 
 export type { TezosChain, EvmChain, OneOfChains } from './chains';
-export { useTezosChainByChainId, useTezosMainnetChain, useEvmMainnetChain } from './chains';
+export { useTezosChainByChainId, useTezosMainnetChain, useEthereumMainnetChain } from './chains';
 
 export { getNetworkTitle, useTezosChainIdLoadingValue, useTempleNetworksActions } from './networks';
 
