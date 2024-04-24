@@ -1,15 +1,15 @@
-import React, { FC, HTMLAttributes } from 'react';
+import React, { FC, HTMLAttributes, useMemo } from 'react';
 
 import classNames from 'clsx';
 
 import { setTestID, TestIDProps } from 'lib/analytics';
 
-type NameProps = HTMLAttributes<HTMLDivElement> & TestIDProps;
+interface NameProps extends HTMLAttributes<HTMLDivElement>, TestIDProps {}
 
 const Name: FC<NameProps> = ({ className, style = {}, testID, ...rest }) => (
   <div
     className={classNames('whitespace-nowrap overflow-x-auto truncate no-scrollbar', className)}
-    style={{ maxWidth: '12rem', ...style }}
+    style={useMemo(() => ({ maxWidth: '12rem', ...style }), [style])}
     {...setTestID(testID)}
     {...rest}
   />

@@ -19,7 +19,7 @@ import Spinner from 'app/atoms/Spinner/Spinner';
 import { useAppEnv } from 'app/env';
 import ErrorBoundary from 'app/ErrorBoundary';
 import { ReactComponent as ChevronLeftIcon } from 'app/icons/chevron-left.svg';
-import ContentContainer from 'app/layouts/ContentContainer';
+import { ContentContainer } from 'app/layouts/ContentContainer';
 import { useOnboardingProgress } from 'app/pages/Onboarding/hooks/useOnboardingProgress.hook';
 import { AdvertisingBanner } from 'app/templates/advertising/advertising-banner/advertising-banner';
 import { AdvertisingOverlay } from 'app/templates/advertising/advertising-overlay/advertising-overlay';
@@ -28,6 +28,7 @@ import { NotificationsBell } from 'lib/notifications/components/bell';
 import { useTempleClient } from 'lib/temple/front';
 import { goBack, HistoryAction, navigate, useLocation } from 'lib/woozie';
 
+import { AppHeader } from './PageLayout/AppHeader';
 import { ChangelogOverlay } from './PageLayout/ChangelogOverlay/ChangelogOverlay';
 import ConfirmationOverlay from './PageLayout/ConfirmationOverlay';
 import Header from './PageLayout/Header';
@@ -37,10 +38,10 @@ import { ShortcutAccountSwitchOverlay } from './PageLayout/ShortcutAccountSwitch
 import { PageLayoutSelectors } from './PageLayout.selectors';
 
 interface PageLayoutProps extends PropsWithChildren, ToolbarProps {
-  contentContainerStyle?: React.CSSProperties;
+  contentPadding?: boolean;
 }
 
-const PageLayout: FC<PageLayoutProps> = ({ children, contentContainerStyle, ...toolbarProps }) => {
+const PageLayout: FC<PageLayoutProps> = ({ children, contentPadding = false, ...toolbarProps }) => {
   const { fullPage } = useAppEnv();
   const { ready } = useTempleClient();
 
@@ -48,13 +49,14 @@ const PageLayout: FC<PageLayoutProps> = ({ children, contentContainerStyle, ...t
     <>
       <DocBg bgClassName="bg-primary-orange" />
 
-      <div className={clsx(fullPage && 'pb-20', 'relative')}>
-        <Header />
+      <div className={clsx(fullPage && 'pt-9 pb-8', 'relative')}>
+        {/* <Header /> */}
 
         <ContentPaper>
-          <Toolbar {...toolbarProps} />
+          {/* <Toolbar {...toolbarProps} /> */}
+          {ready && <AppHeader />}
 
-          <div className="p-4" style={contentContainerStyle}>
+          <div className="flex flex-col">
             <ErrorBoundary whileMessage="displaying this page">
               <Suspense fallback={<SpinnerSection />}>{children}</Suspense>
             </ErrorBoundary>
@@ -74,23 +76,17 @@ const PageLayout: FC<PageLayoutProps> = ({ children, contentContainerStyle, ...t
 
 export default PageLayout;
 
-type ContentPaparProps = ComponentProps<typeof ContentContainer>;
+type ContentPaperProps = ComponentProps<typeof ContentContainer>;
 
-const ContentPaper: FC<ContentPaparProps> = ({ className, style = {}, children, ...rest }) => {
+const ContentPaper: FC<ContentPaperProps> = ({ className, style, children, ...rest }) => {
   const appEnv = useAppEnv();
 
-  return appEnv.fullPage ? (
-    <ContentContainer>
-      <div
-        className={clsx('bg-white rounded-md shadow-lg', className)}
-        style={{ minHeight: '20rem', ...style }}
-        {...rest}
-      >
-        {children}
-      </div>
-    </ContentContainer>
-  ) : (
-    <ContentContainer padding={false} className={clsx('bg-white', className)} style={style} {...rest}>
+  return (
+    <ContentContainer
+      className={clsx('bg-paper-white overflow-hidden', appEnv.fullPage && 'rounded-md shadow-page', className)}
+      style={appEnv.fullPage ? { minHeight: '20rem', ...style } : style}
+      {...rest}
+    >
       {children}
     </ContentContainer>
   );
@@ -102,15 +98,15 @@ export const SpinnerSection: FC = () => (
   </div>
 );
 
-type ToolbarProps = {
+interface ToolbarProps {
   pageTitle?: ReactNode;
   hasBackAction?: boolean;
   step?: number;
   setStep?: (step: number) => void;
-  adShow?: boolean;
+  withToolbarAd?: boolean;
   skip?: boolean;
   attention?: boolean;
-};
+}
 
 export let ToolbarElement: HTMLDivElement | null = null;
 
@@ -122,7 +118,7 @@ const Toolbar: FC<ToolbarProps> = ({
   hasBackAction = true,
   step,
   setStep,
-  adShow = false,
+  withToolbarAd = false,
   skip,
   attention
 }) => {
@@ -195,7 +191,7 @@ const Toolbar: FC<ToolbarProps> = ({
   return (
     <div ref={updateRootRef} className={className}>
       <div className="flex-1">
-        {!isBackButtonAvailable && adShow && <DonationBanner />}
+        {!isBackButtonAvailable && withToolbarAd && <DonationBanner />}
 
         {isBackButtonAvailable && (
           <Button

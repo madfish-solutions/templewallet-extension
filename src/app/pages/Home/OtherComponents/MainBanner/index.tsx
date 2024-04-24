@@ -61,7 +61,7 @@ const TotalVolumeBanner = () => {
   const evmAddress = useAccountAddressForEvm();
 
   return (
-    <ContentContainer className="flex items-start justify-between mb-4">
+    <div className="flex items-start justify-between">
       {tezosAddress ? (
         <TezosBalanceInfo network={tezosMainnetChain} accountPkh={tezosAddress} />
       ) : evmAddress ? (
@@ -78,7 +78,7 @@ const TotalVolumeBanner = () => {
         ) : null}
         {evmAddress ? <AddressChip address={evmAddress} /> : null}
       </div>
-    </ContentContainer>
+    </div>
   );
 };
 
@@ -200,7 +200,7 @@ const AssetBanner = memo<AssetBannerProps>(({ tezosChainId, assetSlug }) => {
   return network && accountTezAddress ? (
     <TezosAssetBanner network={network} assetSlug={assetSlug} accountPkh={accountTezAddress} />
   ) : (
-    <div className="w-full max-w-sm mx-auto mb-4">{UNDER_DEVELOPMENT_MSG}</div>
+    UNDER_DEVELOPMENT_MSG
   );
 });
 
@@ -216,7 +216,7 @@ const TezosAssetBanner = memo<TezosTezosAssetBanner>(({ network, accountPkh, ass
   const assetSymbol = getAssetSymbol(assetMetadata);
 
   return (
-    <div className="w-full max-w-sm mx-auto mb-4">
+    <>
       <div className="flex justify-between items-center mb-3">
         <div className="flex items-center">
           <AssetIcon tezosChainId={network.chainId} assetSlug={assetSlug} size={24} className="flex-shrink-0" />
@@ -261,6 +261,6 @@ const TezosAssetBanner = memo<TezosTezosAssetBanner>(({ network, accountPkh, ass
           )}
         </Balance>
       </div>
-    </div>
+    </>
   );
 });

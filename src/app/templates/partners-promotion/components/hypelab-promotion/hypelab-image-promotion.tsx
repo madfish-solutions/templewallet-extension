@@ -78,7 +78,7 @@ export const HypelabImagePromotion: FC<Omit<SingleProviderPromotionProps, 'varia
         <Banner
           placement={EnvVars.HYPELAB_SMALL_PLACEMENT_SLUG}
           // @ts-expect-error
-          class="rounded-xl overflow-hidden"
+          class="rounded-2.5 overflow-hidden"
           onReady={handleReady}
           onError={onError}
         />

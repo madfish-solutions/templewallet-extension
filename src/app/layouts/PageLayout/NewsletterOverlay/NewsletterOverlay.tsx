@@ -9,7 +9,7 @@ import { Button } from 'app/atoms';
 import Spinner from 'app/atoms/Spinner/Spinner';
 import { useAppEnv } from 'app/env';
 import { ReactComponent as CloseIcon } from 'app/icons/close.svg';
-import ContentContainer from 'app/layouts/ContentContainer';
+import { ContentContainer } from 'app/layouts/ContentContainer';
 import { useOnboardingProgress } from 'app/pages/Onboarding/hooks/useOnboardingProgress.hook';
 import { shouldShowNewsletterModalAction } from 'app/store/newsletter/newsletter-actions';
 import { useShouldShowNewsletterModalSelector } from 'app/store/newsletter/newsletter-selectors';
@@ -93,11 +93,11 @@ export const NewsletterOverlay: FC = () => {
   return (
     <>
       <div className="fixed left-0 right-0 top-0 bottom-0 opacity-20 bg-gray-700 z-40"></div>
+
       <form onSubmit={handleSubmit(onSubmit)}>
         <ContentContainer
           className={classNames('fixed z-40 overflow-y-scroll', popupClassName)}
           style={{ maxWidth: '37.5rem', maxHeight: 'calc(100vh - 50px)' }}
-          padding={false}
         >
           <div
             className={classNames(

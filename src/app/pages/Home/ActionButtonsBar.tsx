@@ -49,10 +49,11 @@ export const ActionButtonsBar = memo<Props>(({ tezosChainId, assetSlug }) => {
   );
 
   return (
-    <div className="flex justify-between mx-auto w-full max-w-sm">
+    <div className="flex justify-between h-13.5 mt-4">
       <ActionButton labelI18nKey="receive" Icon={ReceiveIcon} to="/receive" testID={HomeSelectors.receiveButton} />
 
       <ActionButton labelI18nKey="buyButton" Icon={BuyIcon} to="/buy" testID={HomeSelectors.buyButton} />
+
       <ActionButton
         labelI18nKey="swap"
         Icon={SwapIcon}
@@ -61,6 +62,7 @@ export const ActionButtonsBar = memo<Props>(({ tezosChainId, assetSlug }) => {
         tippyProps={tippyPropsMock}
         testID={HomeSelectors.swapButton}
       />
+
       <ActionButton
         labelI18nKey="withdraw"
         Icon={WithdrawIcon}
@@ -68,6 +70,7 @@ export const ActionButtonsBar = memo<Props>(({ tezosChainId, assetSlug }) => {
         disabled={!canSend}
         testID={HomeSelectors.withdrawButton}
       />
+
       <ActionButton
         labelI18nKey="send"
         Icon={SendIcon}
@@ -98,21 +101,18 @@ const ActionButton = memo<ActionButtonProps>(
 
     const commonButtonProps = useMemo(
       () => ({
-        className: `flex flex-col items-center`,
+        className: clsx(
+          'min-w-15 flex flex-col gap-y-1 p-2 items-center justify-center rounded-lg',
+          disabled
+            ? 'bg-gray-10 text-gray'
+            : 'bg-primary-low text-primary hover:bg-primary-low-hover hover:text-primary-hover'
+        ),
         type: 'button' as const,
         children: (
           <>
-            <div
-              className={clsx(
-                disabled ? 'bg-gray-10' : 'bg-orange-10',
-                'rounded mb-2 flex items-center text-white',
-                'p-2 h-10'
-              )}
-            >
-              <Icon className={clsx('w-6 h-auto', disabled ? 'stroke-gray' : 'stroke-accent-orange')} />
-            </div>
+            <Icon className="h-5 stroke-current fill-current" />
 
-            <span className={clsx('text-center text-xxs', disabled ? 'text-gray-20' : 'text-gray-910')}>
+            <span className="text-xxxs font-semibold leading-3">
               <T id={labelI18nKey} />
             </span>
           </>

@@ -7,15 +7,15 @@ import Identicon from 'app/atoms/Identicon';
 import Logo from 'app/atoms/Logo';
 import Name from 'app/atoms/Name';
 import { useAppEnv } from 'app/env';
-import ContentContainer from 'app/layouts/ContentContainer';
+import { ContentContainer } from 'app/layouts/ContentContainer';
 import { useTempleClient } from 'lib/temple/front';
 import Popper from 'lib/ui/Popper';
 import { Link } from 'lib/woozie';
 import { useAccount } from 'temple/front';
 
 import AccountDropdown from './Header/AccountDropdown';
-import styles from './Header.module.css';
-import { HeaderSelectors } from './Header.selectors';
+import { HeaderSelectors } from './Header/selectors';
+import styles from './Header/styles.module.css';
 
 const Header = memo(() => {
   const appEnv = useAppEnv();

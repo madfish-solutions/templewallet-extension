@@ -76,7 +76,7 @@ export const PersonaPromotion = memo<Props>(
     );
 
     return (
-      <div className={clsx('relative rounded-xl overflow-hidden', `h-${AD_BANNER_HEIGHT}`, !isVisible && 'invisible')}>
+      <div className={clsx('relative rounded-2.5 overflow-hidden', `h-${AD_BANNER_HEIGHT}`, !isVisible && 'invisible')}>
         <div ref={ref} id={containerId} onClick={onClick} className={clsx('h-full', ModStyles.container)} />
 
         <ImageAdLabel />

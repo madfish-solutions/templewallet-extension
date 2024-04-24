@@ -1,9 +1,6 @@
 import React, { FC, memo, Suspense, useCallback, useMemo, useRef } from 'react';
 
-import clsx from 'clsx';
-
 import Spinner from 'app/atoms/Spinner/Spinner';
-import { useAppEnv } from 'app/env';
 import ErrorBoundary from 'app/ErrorBoundary';
 import { useLocationSearchParamValue } from 'app/hooks/use-location';
 import { ToolbarElement } from 'app/layouts/PageLayout';
@@ -22,7 +19,6 @@ import { TokensTab } from './OtherComponents/Tokens/Tokens';
 interface Props {
   tezosChainId: string | nullish;
   assetSlug?: string | null;
-  className?: string;
 }
 
 type TabName = 'tokens' | 'collectibles' | 'activity' | 'delegation' | 'info';
@@ -35,8 +31,7 @@ interface TabData {
   whileMessageI18nKey?: TID;
 }
 
-export const ContentSection = memo<Props>(({ tezosChainId, assetSlug, className }) => {
-  const { fullPage } = useAppEnv();
+export const ContentSection = memo<Props>(({ tezosChainId, assetSlug }) => {
   const tabSlug = useLocationSearchParamValue('tab');
 
   const tabBarElemRef = useRef<HTMLDivElement>(null);
@@ -114,30 +109,20 @@ export const ContentSection = memo<Props>(({ tezosChainId, assetSlug, className 
   }, [tabSlug, tabs]);
 
   return (
-    <div className={clsx('-mx-4 shadow-top-light', fullPage && 'rounded-t-md', className)}>
+    <>
       <TabsBar ref={tabBarElemRef} tabs={tabs} activeTabName={name} />
 
-      <ContentContainer
+      <ErrorBoundary
         key={tabSlug ?? 'tokens'}
-        ContentComponent={Component}
         whileMessage={whileMessageI18nKey ? t(whileMessageI18nKey) : 'displaying tab'}
-      />
-    </div>
+      >
+        <Suspense fallback={<SpinnerSection />}>
+          <Component />
+        </Suspense>
+      </ErrorBoundary>
+    </>
   );
 });
-
-interface ContentContainerProps {
-  whileMessage: string;
-  ContentComponent: React.FC | React.ExoticComponent;
-}
-
-const ContentContainer = memo<ContentContainerProps>(({ whileMessage, ContentComponent }) => (
-  <ErrorBoundary whileMessage={whileMessage}>
-    <Suspense fallback={<SpinnerSection />}>
-      <ContentComponent />
-    </Suspense>
-  </ErrorBoundary>
-));
 
 const SpinnerSection = () => (
   <div className="flex justify-center my-12">

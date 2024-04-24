@@ -10,7 +10,7 @@ import Name from 'app/atoms/Name';
 import Spinner from 'app/atoms/Spinner/Spinner';
 import SubTitle from 'app/atoms/SubTitle';
 import ErrorBoundary from 'app/ErrorBoundary';
-import ContentContainer from 'app/layouts/ContentContainer';
+import { ContentContainer } from 'app/layouts/ContentContainer';
 import Unlock from 'app/pages/Unlock/Unlock';
 import AccountBanner from 'app/templates/AccountBanner';
 import Balance from 'app/templates/Balance';
@@ -40,7 +40,7 @@ const ConfirmPage = memo(() => {
 
   if (ready)
     return (
-      <ContentContainer padding={false} className="min-h-screen flex flex-col items-center justify-center">
+      <ContentContainer className="min-h-screen flex flex-col items-center justify-center">
         <ErrorBoundary whileMessage={t('fetchingConfirmationDetails')}>
           <Suspense
             fallback={

@@ -4,7 +4,7 @@ import classNames from 'clsx';
 
 import { Button } from 'app/atoms/Button';
 import { useAppEnv } from 'app/env';
-import ContentContainer from 'app/layouts/ContentContainer';
+import { ContentContainer } from 'app/layouts/ContentContainer';
 import { APP_VERSION } from 'lib/env';
 import { T } from 'lib/i18n';
 import { useTempleClient, useStorage } from 'lib/temple/front';
@@ -34,7 +34,7 @@ export const ChangelogOverlay: FC = () => {
     <>
       <div className={'fixed left-0 right-0 top-0 bottom-0 opacity-20 bg-gray-700 z-50'}></div>
 
-      <ContentContainer className={classNames('fixed z-50 max-h-full', popupClassName)} padding={!popup}>
+      <ContentContainer className={classNames('fixed z-50 max-h-full', popupClassName)}>
         <div
           className={classNames(
             'bg-white shadow-lg relative',

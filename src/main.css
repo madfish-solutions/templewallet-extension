@@ -4,6 +4,10 @@
 
 @import '~inter-ui/inter.css';
 
+:root {
+  color: #151618;
+}
+
 * {
   font-variant-ligatures: none;
 }

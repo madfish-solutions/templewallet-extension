@@ -37,6 +37,7 @@ module.exports = {
           350: '#d8e0e8',
           400: '#cbd5e0',
           500: '#a0aec0',
+          550: '#707070',
           600: '#718096',
           700: '#4a5568',
           800: '#2d3748',
@@ -56,8 +57,6 @@ module.exports = {
           900: '#742a2a'
         },
         orange: {
-          10: '#fff2e6',
-          20: '#ff5b00',
           100: '#fffaf0',
           200: '#feebc8',
           300: '#fbd38d',
@@ -157,8 +156,23 @@ module.exports = {
        */
       const brandColors = {
         'primary-white': '#fcfaf7',
+        'paper-white': '#fbfbfb',
+        'paper-gray': baseColors.gray[10],
+        'toggle-gray': '#E4E4E4',
+        //
+        //
+        'primary': '#FF5B00',
+        'primary-hover': '#E85300',
+        'primary-low': '#FAEAE1',
+        'primary-low-hover': '#F7E1D5',
+        //
+        'secondary': '#1373E4',
+        'secondary-hover': '#1062C2',
+        'secondary-low': '#E3ECF8',
+        'secondary-low-hover': '#D7E3F2',
+        //
+        //
         'primary-orange': baseColors.orange[500],
-        'accent-orange': baseColors.orange[20],
         'primary-orange-light': baseColors.orange[300],
         'primary-orange-dark': baseColors.orange[700],
         'primary-orange-lighter': baseColors.orange[100],
@@ -190,20 +204,10 @@ module.exports = {
     },
     borderColor: theme => ({
       ...theme('colors'),
-      DEFAULT: theme('colors.gray.300', 'currentColor')
+      // DEFAULT: theme('colors.gray.300', 'currentColor')
+      DEFAULT: '#e2e8f0'
     }),
     borderOpacity: theme => theme('opacity'),
-    borderRadius: {
-      none: '0',
-      sm: '0.125rem',
-      DEFAULT: '0.25rem',
-      md: '0.375rem',
-      lg: '0.5rem',
-      xl: '0.625rem',
-      '2xl': '0.75rem',
-      full: '9999px',
-      circle: '50%'
-    },
     borderWidth: {
       DEFAULT: '1px',
       0: '0',
@@ -224,7 +228,9 @@ module.exports = {
       '2xl': '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
       inner: 'inset 0 2px 4px 0 rgba(0, 0, 0, 0.06)',
       outline: '0 0 0 3px rgba(237, 137, 54, 0.5)',
-      none: 'none'
+      none: 'none',
+      page: '0px 2px 8px 0px #00000014',
+      'page-inner': 'inset 0px 10px 8px -8px #00000014'
     },
     container: {},
     cursor: {
@@ -339,8 +345,6 @@ module.exports = {
     placeholderOpacity: theme => theme('opacity'),
     stroke: {
       current: 'currentColor',
-      'accent-orange': '#FF5B00',
-      gray: '#AEAEB2',
       orange: '#ED8936'
     },
     strokeWidth: {
@@ -576,6 +580,7 @@ module.exports = {
       },
       spacing: {
         13: '3.25rem',
+        13.5: '3.375rem',
         15: '3.75rem',
         18: '4.5rem',
         25: '6.25rem',
@@ -648,7 +653,12 @@ module.exports = {
         ...theme('spacing'),
         ...negative(theme('spacing'))
       }),
-      gap: theme => theme('spacing')
+      gap: theme => theme('spacing'),
+      borderRadius: {
+        1.25: '0.3125rem', // 5px
+        2.5: '0.625rem', // 10px
+        circle: '50%'
+      },
     }
   },
   variants: {

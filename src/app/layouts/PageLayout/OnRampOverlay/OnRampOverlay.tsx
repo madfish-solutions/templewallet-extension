@@ -9,7 +9,7 @@ import { ReactComponent as CloseIcon } from 'app/icons/close.svg';
 import { ReactComponent as SmileWithDollarIcon } from 'app/icons/smile-with-dollar.svg';
 import { ReactComponent as SmileWithGlassesIcon } from 'app/icons/smile-with-glasses.svg';
 import { ReactComponent as SmileIcon } from 'app/icons/smile.svg';
-import ContentContainer from 'app/layouts/ContentContainer';
+import { ContentContainer } from 'app/layouts/ContentContainer';
 import { useOnboardingProgress } from 'app/pages/Onboarding/hooks/useOnboardingProgress.hook';
 import { dispatch } from 'app/store';
 import { setOnRampPossibilityAction } from 'app/store/settings/actions';
@@ -40,10 +40,10 @@ export const OnRampOverlay: FC = () => {
   return (
     <>
       <div className="fixed left-0 right-0 top-0 bottom-0 opacity-20 bg-gray-700 z-50"></div>
+
       <ContentContainer
         className={classNames('fixed z-50 overflow-y-auto', popupClassName)}
         style={{ maxWidth: '37.5rem', maxHeight: popup ? undefined : 'calc(100vh - 50px)' }}
-        padding={false}
       >
         <div
           className={classNames(

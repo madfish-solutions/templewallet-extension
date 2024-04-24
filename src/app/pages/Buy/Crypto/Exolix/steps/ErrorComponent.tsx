@@ -1,7 +1,5 @@
 import React, { FC, useEffect } from 'react';
 
-import classNames from 'clsx';
-
 import { FormSubmitButton } from 'app/atoms';
 import CopyButton from 'app/atoms/CopyButton';
 import { ReactComponent as CopyIcon } from 'app/icons/copy.svg';
@@ -62,7 +60,7 @@ const ErrorComponent: FC<Props> = ({ exchangeData, testIDProperties, setIsError,
               <CopyButton text={exchangeData!.id} type="link">
                 <CopyIcon
                   style={{ verticalAlign: 'inherit' }}
-                  className={classNames('h-4 ml-1 w-auto inline', 'stroke-orange stroke-2')}
+                  className="h-4 ml-1 w-auto inline stroke-orange stroke-2"
                   onClick={() => copy()}
                 />
               </CopyButton>

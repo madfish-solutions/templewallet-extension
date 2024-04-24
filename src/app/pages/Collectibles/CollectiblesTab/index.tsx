@@ -99,7 +99,7 @@ const TezosCollectiblesTab = memo<TezosCollectiblesTabProps>(({ network, publicK
 
   const contentElement = useMemo(
     () => (
-      <div className="grid grid-cols-3 gap-1">
+      <div className="grid grid-cols-3 gap-2">
         {displayedSlugs.map(slug => (
           <CollectibleItem
             key={slug}
@@ -145,7 +145,7 @@ const TezosCollectiblesTab = memo<TezosCollectiblesTabProps>(({ network, publicK
 
   return (
     <div className={clsx('my-3', popup && 'mx-4')}>
-      <div className="relative mb-4 w-full flex">
+      <div className="relative mb-4 w-full flex items-center gap-x-2">
         <SearchAssetField
           value={searchValue}
           onValueChange={setSearchValue}

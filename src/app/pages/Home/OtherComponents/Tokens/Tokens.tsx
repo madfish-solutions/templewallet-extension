@@ -2,12 +2,15 @@ import React, { FC, memo, useCallback, useEffect, useMemo, useState } from 'reac
 
 import clsx from 'clsx';
 
-import { SyncSpinner, Divider, Checkbox } from 'app/atoms';
+import { SyncSpinner, Divider, Checkbox, Button } from 'app/atoms';
 import DropdownWrapper from 'app/atoms/DropdownWrapper';
+import { IconButton } from 'app/atoms/IconButton';
 import { useAppEnv } from 'app/env';
 import { useLoadPartnersPromo } from 'app/hooks/use-load-partners-promo';
 import { useTokensListingLogic } from 'app/hooks/use-tokens-listing-logic';
 import { ReactComponent as EditingIcon } from 'app/icons/editing.svg';
+import { ReactComponent as FiltersIcon } from 'app/icons/filters.svg';
+import { ReactComponent as HistoryIcon } from 'app/icons/history.svg';
 import { ReactComponent as SearchIcon } from 'app/icons/search.svg';
 import { ContentContainer } from 'app/layouts/ContentContainer';
 import { useAreAssetsLoading, useMainnetTokensScamlistSelector } from 'app/store/assets/selectors';
@@ -24,7 +27,7 @@ import { T, t } from 'lib/i18n';
 import { TEZOS_MAINNET_CHAIN_ID } from 'lib/temple/types';
 import { useLocalStorage } from 'lib/ui/local-storage';
 import Popper, { PopperRenderProps } from 'lib/ui/Popper';
-import { Link, navigate } from 'lib/woozie';
+import { HistoryAction, Link, navigate } from 'lib/woozie';
 import { UNDER_DEVELOPMENT_MSG } from 'temple/evm/under_dev_msg';
 import { useAccountAddressForTezos } from 'temple/front';
 import { TezosNetworkEssentials } from 'temple/networks';
@@ -170,7 +173,7 @@ const TezosTokensTab: FC<TezosTokensTabProps> = ({ network, publicKeyHash }) => 
 
   return (
     <>
-      <div className={clsx('my-3 w-full flex', popup && 'px-4')}>
+      <div className={clsx('my-3 flex items-center gap-x-2', popup && 'px-4')}>
         <SearchAssetField
           value={searchValue}
           onValueChange={setSearchValue}
@@ -179,6 +182,13 @@ const TezosTokensTab: FC<TezosTokensTabProps> = ({ network, publicKeyHash }) => 
           containerClassName="mr-2"
           testID={AssetsSelectors.searchAssetsInputTokens}
         />
+
+        <IconButton
+          Icon={HistoryIcon}
+          onClick={() => void navigate({ search: 'tab=activity' }, HistoryAction.Replace)}
+        />
+
+        <IconButton Icon={FiltersIcon} />
 
         <Popper
           placement="bottom-end"
@@ -228,9 +238,7 @@ const TezosTokensTab: FC<TezosTokensTabProps> = ({ network, publicKeyHash }) => 
           </p>
         </div>
       ) : (
-        <div className="flex flex-col w-full overflow-hidden rounded-md text-gray-700 text-sm leading-tight">
-          {tokensView}
-        </div>
+        <div className="flex flex-col overflow-hidden rounded-md text-gray-700 text-sm leading-tight">{tokensView}</div>
       )}
 
       {isSyncing && <SyncSpinner className="mt-4" />}

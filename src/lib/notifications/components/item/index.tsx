@@ -41,13 +41,12 @@ export const NotificationsItem: FC<Props> = ({ id }) => {
           <T id="notifications" />
         </>
       }
-      contentContainerStyle={{ padding: 0 }}
     >
       <div className={classNames(['max-w-sm mx-auto px-4 pb-15', popup ? 'pt-4' : 'pt-6'])}>
         <img
           src={notification.extensionImageUrl}
           alt="Notification"
-          className="w-full items-center rounded-md overflow-hidden bg-orange-10 mb-6"
+          className="w-full items-center rounded-md overflow-hidden bg-primary-low mb-6"
         />
         <p
           className="font-inter text-gray-900 font-semibold mb-4"

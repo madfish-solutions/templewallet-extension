@@ -34,7 +34,6 @@ export const Notifications = () => {
           <T id="notifications" />
         </>
       }
-      contentContainerStyle={{ padding: 0 }}
     >
       <div className="max-w-sm mx-auto pb-15">
         {shouldShowPartnersPromoState && (
