@@ -1,5 +1,11 @@
 ## TODO:
 
+- Toast on copied address
+- Test Mode button
+- Accounts modal
+- - IconButton with blue style
+- Manage Assets tab
+- Filters tab
 - Store Tezos native currency
 - `settings.customNetworks` => `customNetworks: { tezos: {}[], evm: {}[] }`
 - Unit tests for EVM accounts in the Vault

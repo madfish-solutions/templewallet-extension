@@ -47,18 +47,14 @@ export const AppHeader = memo(() => {
         popup={props => {
           //
           return (
-            <DropdownWrapper opened={props.opened} design="day">
-              <div className="p-2 flex flex-col" style={{ width: 173 }}>
-                <h6 className="py-2.5 px-2 text-xxxs leading-3 font-semibold text-gray-550">Select Address to copy</h6>
+            <DropdownWrapper opened={props.opened} design="day" className="p-2 flex flex-col" style={{ minWidth: 173 }}>
+              <h6 className="py-2.5 px-2 text-xxxs leading-3 font-semibold text-gray-550">Select Address to copy</h6>
 
-                {accountTezosAddress ? (
-                  <CopyAddressButton chain={TempleChainKind.Tezos} address={accountTezosAddress} />
-                ) : null}
+              {accountTezosAddress ? (
+                <CopyAddressButton chain={TempleChainKind.Tezos} address={accountTezosAddress} />
+              ) : null}
 
-                {accountEvmAddress ? (
-                  <CopyAddressButton chain={TempleChainKind.EVM} address={accountEvmAddress} />
-                ) : null}
-              </div>
+              {accountEvmAddress ? <CopyAddressButton chain={TempleChainKind.EVM} address={accountEvmAddress} /> : null}
             </DropdownWrapper>
           );
         }}

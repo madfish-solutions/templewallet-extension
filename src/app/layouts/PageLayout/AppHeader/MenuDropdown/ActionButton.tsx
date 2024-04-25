@@ -1,43 +1,36 @@
-import React from 'react';
+import React, { memo } from 'react';
 
-import classNames from 'clsx';
+import clsx from 'clsx';
 
 import { Button } from 'app/atoms/Button';
 import { TID, T } from 'lib/i18n';
 import { Link } from 'lib/woozie';
 
 export interface ActionButtonProps {
-  Icon: React.FC<React.SVGProps<SVGSVGElement>>;
+  Icon: ImportedSVGComponent;
   i18nKey: TID;
   linkTo: string | null;
-  onClick: () => void;
+  onClick: EmptyFn;
   testID: string;
 }
 
-export const ActionButton: React.FC<ActionButtonProps> = ({ Icon, linkTo, onClick, i18nKey, testID }) => {
+export const ActionButton = memo<ActionButtonProps>(({ Icon, linkTo, onClick, i18nKey, testID }) => {
   const baseProps = {
     testID,
-    className: classNames(
-      'block w-full flex items-center px-2 whitespace-nowrap overflow-hidden',
-      'rounded text-white text-shadow-black text-sm',
-      'hover:bg-gray-700 hover:bg-opacity-30',
-      'transition ease-in-out duration-200'
-    ),
-    style: {
-      paddingTop: '0.5rem',
-      paddingBottom: '0.5rem'
-    },
+    className: clsx('flex items-center py-1.5 px-2 gap-x-1 rounded-md', 'hover:bg-secondary-low'),
     onClick,
     children: (
       <>
-        <div className="flex items-center w-6">
-          <Icon className="w-auto h-4 stroke-current" />
+        <div className="flex items-center w-6 h-6 text-secondary">
+          <Icon className="w-4 h-4 m-auto stroke-current fill-current" />
         </div>
 
-        <T id={i18nKey} />
+        <span className="text-xs">
+          <T id={i18nKey} />
+        </span>
       </>
     )
   };
 
   return linkTo ? <Link {...baseProps} to={linkTo} /> : <Button {...baseProps} />;
-};
+});
