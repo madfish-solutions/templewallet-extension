@@ -1,3 +1,4 @@
+<<<<<<<< HEAD:src/lib/assets/fetching.ts
 import memoizee from 'memoizee';
 
 import { isKnownChainId, fetchTokensMetadata as fetchTokensMetadataOnAPI } from 'lib/apis/temple';
@@ -148,3 +149,12 @@ const mergeLoadedAssetsData = (data1: LoadedAssetsData, data2: LoadedAssetsData)
 });
 
 const tzktAssetToTokenSlug = ({ token }: TzktAccountAsset) => toTokenSlug(token.contract.address, token.tokenId);
+========
+export const getAccountAssetsStoreKey = (account: string, chainId: string) => `${account}@${chainId}`;
+
+export const isAccountAssetsStoreKeyOfSameChainIdAndDifferentAccount = (
+  key: string,
+  account: string,
+  chainId: string
+) => !key.startsWith(account) && key.endsWith(chainId);
+>>>>>>>> TW-1343-epic-evm-arch-prep:src/app/store/assets/utils.ts
