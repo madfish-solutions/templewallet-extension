@@ -381,7 +381,7 @@
   "alert": {
     "message": "Alarm"
   },
-  "accountNameInputTitle": {
+  "accountOrGroupNameInputTitle": {
     "message": "1-16 Zeichen, keine Sonderzeichen"
   },
   "defaultAccountName": {

@@ -171,6 +171,13 @@ export function removeAccount(id: string, password: string) {
   });
 }
 
+export function setAccountVisible(id: string, visible: boolean) {
+  return withUnlocked(async ({ vault }) => {
+    const updatedAccounts = await vault.setAccountVisible(id, visible);
+    accountsUpdated(updatedAccounts);
+  });
+}
+
 export function editAccount(id: string, name: string) {
   return withUnlocked(async ({ vault }) => {
     name = name.trim();

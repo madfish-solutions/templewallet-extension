@@ -485,7 +485,7 @@
   "alert": {
     "message": "Alert"
   },
-  "accountNameInputTitle": {
+  "accountOrGroupNameInputTitle": {
     "message": "1-16 characters, no special"
   },
   "hdGroupDefaultName": {
@@ -539,11 +539,25 @@
   "walletNameInputLabel": {
     "message": "Enter your wallet name"
   },
+  "accountNameInputLabel": {
+    "message": "Enter Account Name"
+  },
   "newRevealSeedPhraseLabel": {
     "message": "Here you can reveal your seed phrase"
   },
   "revealSeedPhrasePasswordLabel": {
     "message": "Enter your password to reveal seed phrase"
+  },
+  "walletFromMnemonic": {
+    "message": "Wallet from Seed Phrase"
+  },
+  "newRevealPrivateKeyLabel": {
+    "message": "Here you can reveal your $chainName$ private key",
+    "placeholders": {
+      "chainName": {
+        "content": "$1"
+      }
+    }
   },
   "doNotSharePrivateKey": {
     "message": "<b>DO NOT share</b> this set of chars with anyone! It can be used to steal your current account."
@@ -898,6 +912,9 @@
   },
   "revealPrivateKeyDescription": {
     "message": "Also known as \"Export Account\", reveals private key for your selected account."
+  },
+  "revealPrivateKeyPasswordLabel": {
+    "message": "Enter your password to reveal private key"
   },
   "revealSeedPhrase": {
     "message": "Reveal Seed Phrase"

@@ -363,7 +363,7 @@
   "alert": {
     "message": "提示"
   },
-  "accountNameInputTitle": {
+  "accountOrGroupNameInputTitle": {
     "message": "1-16个字符，无特殊字符"
   },
   "defaultAccountName": {

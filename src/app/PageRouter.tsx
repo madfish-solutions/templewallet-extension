@@ -2,6 +2,7 @@ import React, { FC, useLayoutEffect, useMemo } from 'react';
 
 import RootSuspenseFallback from 'app/a11y/RootSuspenseFallback';
 import { OpenInFullPage, useAppEnv } from 'app/env';
+import { AccountSettings } from 'app/pages/AccountSettings';
 import AddAsset from 'app/pages/AddAsset/AddAsset';
 import { Buy } from 'app/pages/Buy/Buy';
 import Exolix from 'app/pages/Buy/Crypto/Exolix/Exolix';
@@ -96,6 +97,7 @@ const ROUTE_MAP = Woozie.createMap<RouteContext>([
   ['/attention', onlyReady(onlyInFullPage(() => <AttentionPage />))],
   ['/notifications', onlyReady(() => <Notifications />)],
   ['/notifications/:id', onlyReady(({ id }) => <NotificationsItem id={Number(id) ?? 0} />)],
+  ['/account/:id', onlyReady(({ id }) => <AccountSettings id={id!} />)],
   ['*', () => <Woozie.Redirect to="/" />]
 ]);
 

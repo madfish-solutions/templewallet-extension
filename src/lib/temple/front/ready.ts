@@ -33,8 +33,7 @@ export const [
   useSetAccountId,
   useSettings,
   useAllGroups,
-  useHDGroups,
-  useCurrentAccountGroup
+  useHDGroups
 ] = constate(
   useReadyTemple,
   v => v.allNetworks,
@@ -50,8 +49,7 @@ export const [
   v => v.setAccountId,
   v => v.settings,
   v => v.allGroups,
-  v => v.hdGroups,
-  v => v.currentAccountGroup
+  v => v.hdGroups
 );
 
 function useReadyTemple() {
@@ -121,7 +119,6 @@ function useReadyTemple() {
    * Groups
    */
   const allGroups = useMemo<DisplayedGroup[]>(() => getAllGroups(hdGroups, allAccounts), [hdGroups, allAccounts]);
-  const currentAccountGroup = allGroups.find(g => g.accounts.some(acc => acc.id === accountId))!;
 
   /**
    * Error boundary reset
@@ -147,7 +144,6 @@ function useReadyTemple() {
     accountForEvm,
     allGroups,
     hdGroups,
-    currentAccountGroup,
     setAccountId,
 
     settings

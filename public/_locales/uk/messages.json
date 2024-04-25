@@ -380,7 +380,7 @@
   "alert": {
     "message": "Сповіщення"
   },
-  "accountNameInputTitle": {
+  "accountOrGroupNameInputTitle": {
     "message": "1-16 символів, без спеціальних"
   },
   "defaultAccountName": {

@@ -60,7 +60,8 @@ describe('Store tests', () => {
         name: 'testName',
         type: TempleAccountType.Imported,
         chain: TempleChainName.Tezos,
-        address: 'testHashKey'
+        address: 'testHashKey',
+        isVisible: true
       }
     ]);
     const { accounts } = store.getState();

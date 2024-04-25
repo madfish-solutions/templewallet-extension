@@ -1,5 +1,7 @@
 import { t } from 'lib/i18n';
+import { getDerivationPath } from 'lib/temple/helpers';
 import { TempleAccountType } from 'lib/temple/types';
+import { TempleChainName } from 'temple/types';
 
 export const OP_STACK_PREVIEW_SIZE = 2;
 
@@ -27,8 +29,6 @@ export const specialCharacterRegx = /[!@#$%^&*()_+\-=\]{};':"\\|,.<>?]/;
 export const URL_PATTERN =
   /(^(https:\/\/)?[\w.-]+(?:\.[\w.-]+)+[\w\-._~:/?#[\]@!$&'()*+,;=.]+$)|(^http(s)?:\/\/localhost:[0-9]+$)/;
 
-export const DEFAULT_DERIVATION_PATH = "m/44'/1729'/0'/0'";
-
 export function formatMnemonic(m: string) {
   return m.replace(/\n/g, ' ').trim();
 }
@@ -51,3 +51,5 @@ export function getAccountBadgeTitle(accountType: TempleAccountType) {
       return null;
   }
 }
+
+export const DEFAULT_DERIVATION_PATH = getDerivationPath(TempleChainName.Tezos, 0);

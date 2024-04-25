@@ -363,7 +363,7 @@
   "alert": {
     "message": "アラート"
   },
-  "accountNameInputTitle": {
+  "accountOrGroupNameInputTitle": {
     "message": "1～16文字、特殊文字なし"
   },
   "defaultAccountName": {

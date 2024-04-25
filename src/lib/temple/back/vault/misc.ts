@@ -6,7 +6,7 @@ import * as ViemAccounts from 'viem/accounts';
 import { isHex, toHex } from 'viem/utils';
 
 import { ACCOUNT_ALREADY_EXISTS_ERR_MSG } from 'lib/constants';
-import { fetchNewAccountName as genericFetchNewAccountName } from 'lib/temple/helpers';
+import { fetchNewAccountName as genericFetchNewAccountName, getDerivationPath } from 'lib/temple/helpers';
 import { StoredAccount, TempleAccountType } from 'lib/temple/types';
 import { getAccountAddressForEvm, getAccountAddressForTezos } from 'temple/accounts';
 import { TempleChainName } from 'temple/types';
@@ -15,8 +15,6 @@ import { PublicError } from '../PublicError';
 
 import { fetchMessage } from './helpers';
 import { accPrivKeyStrgKey, accPubKeyStrgKey } from './storage-keys';
-
-const TEZOS_BIP44_COINTYPE = 1729;
 
 export function generateCheck() {
   return Bip39.generateMnemonic(128);
@@ -79,21 +77,6 @@ export function concatAccount(current: StoredAccount[], newOne: StoredAccount) {
 }
 
 type NewAccountName = 'defaultAccountName' | 'defaultManagedKTAccountName' | 'defaultWatchOnlyAccountName';
-
-function getSameGroupAccounts(allAccounts: StoredAccount[], accountType: TempleAccountType, groupId?: string) {
-  return allAccounts.filter(
-    acc => acc.type === accountType && (acc.type !== TempleAccountType.HD || acc.groupId === groupId)
-  );
-}
-
-export function isNameCollision(
-  allAccounts: StoredAccount[],
-  accountType: TempleAccountType,
-  name: string,
-  groupId?: string
-) {
-  return getSameGroupAccounts(allAccounts, accountType, groupId).some(acc => acc.name === name);
-}
 
 export async function fetchNewAccountName(
   allAccounts: StoredAccount[],
@@ -177,11 +160,7 @@ export function createMemorySigner(privateKey: string, encPassword?: string) {
 }
 
 function seedToHDPrivateKey(seed: Buffer, hdAccIndex: number) {
-  return seedToPrivateKey(deriveSeed(seed, getMainDerivationPath(hdAccIndex)));
-}
-
-export function getMainDerivationPath(accIndex: number) {
-  return `m/44'/${TEZOS_BIP44_COINTYPE}'/${accIndex}'/0'`;
+  return seedToPrivateKey(deriveSeed(seed, getDerivationPath(TempleChainName.Tezos, hdAccIndex)));
 }
 
 export function seedToPrivateKey(seed: Buffer) {

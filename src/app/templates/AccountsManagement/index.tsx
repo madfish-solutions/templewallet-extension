@@ -29,7 +29,6 @@ export const AccountsManagement = memo(() => {
 
   const allAccounts = useAllAccountsReactiveOnAddition();
   useAllAccountsReactiveOnRemoval();
-  console.log('oy vey 1', allAccounts.length);
 
   const filteredAccounts = useMemo(
     () => (searchValue.length ? searchAndFilterAccounts(allAccounts, searchValue) : allAccounts),

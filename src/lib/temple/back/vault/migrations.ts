@@ -165,15 +165,15 @@ export const MIGRATIONS = [
           const evmAcc = mnemonicToEvmAccountCreds(mnemonic, account.hdIndex);
           toEncryptAndSave.push(...buildEncryptAndSaveManyForAccount(evmAcc));
 
-          return { ...account, id, tezosAddress, evmAddress: evmAcc.address, groupId: hdGroup.id };
+          return { ...account, id, tezosAddress, evmAddress: evmAcc.address, groupId: hdGroup.id, isVisible: true };
         case TempleAccountType.Imported:
-          return { ...account, id, address: tezosAddress, chain: TempleChainName.Tezos };
+          return { ...account, id, address: tezosAddress, chain: TempleChainName.Tezos, isVisible: true };
         case TempleAccountType.WatchOnly:
-          return { ...account, id, address: tezosAddress, chain: TempleChainName.Tezos };
+          return { ...account, id, address: tezosAddress, chain: TempleChainName.Tezos, isVisible: true };
         case TempleAccountType.Ledger:
-          return { ...account, id, tezosAddress };
+          return { ...account, id, tezosAddress, isVisible: true };
         case TempleAccountType.ManagedKT:
-          return { ...account, id, tezosAddress };
+          return { ...account, id, tezosAddress, isVisible: true };
       }
 
       return account;

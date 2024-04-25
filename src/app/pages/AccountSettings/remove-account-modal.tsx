@@ -1,59 +1,51 @@
-import React, { memo, useCallback } from 'react';
+import React, { memo, useCallback, useMemo } from 'react';
 
 import { Alert, FormField } from 'app/atoms';
 import {
   ActionModal,
-  ActionModalButton,
   ActionModalBodyContainer,
+  ActionModalButton,
   ActionModalButtonsContainer
 } from 'app/atoms/action-modal';
+import { useTempleBackendActionForm } from 'app/hooks/use-temple-backend-action-form';
 import { T, t } from 'lib/i18n';
-import { useTempleClient } from 'lib/temple/front';
-import { useHDGroups } from 'lib/temple/front/ready';
-import { DisplayedGroup, TempleAccountType } from 'lib/temple/types';
+import { useAllAccounts, useTempleClient } from 'lib/temple/front';
+import { StoredAccount, TempleAccountType } from 'lib/temple/types';
 
-import { useTempleBackendActionForm } from '../../hooks/use-temple-backend-action-form';
-
-interface DeleteWalletModalProps {
+interface RemoveAccountModalProps {
+  account: StoredAccount;
   onClose: () => void;
-  selectedGroup: DisplayedGroup;
 }
-
-const removeWarningsI18nKeys = {
-  [TempleAccountType.HD]: 'hdWalletRemoveWarning' as const,
-  [TempleAccountType.Imported]: 'importedAccountsRemoveWarning' as const
-};
 
 interface FormData {
   password: string;
 }
 
-export const DeleteWalletModal = memo<DeleteWalletModalProps>(({ onClose, selectedGroup }) => {
-  const { removeAccountsByType, removeHdGroup } = useTempleClient();
-  const hdGroups = useHDGroups();
-  const shouldPreventDeletion = hdGroups.length === 1 && selectedGroup.type === TempleAccountType.HD;
-  const removeWarningsI18nKey =
-    selectedGroup.type in removeWarningsI18nKeys
-      ? removeWarningsI18nKeys[selectedGroup.type as keyof typeof removeWarningsI18nKeys]
-      : undefined;
+export const RemoveAccountModal = memo<RemoveAccountModalProps>(({ account, onClose }) => {
+  const { removeAccount } = useTempleClient();
+  const allAccounts = useAllAccounts();
+  const shouldPreventDeletion = useMemo(
+    () =>
+      account.type === TempleAccountType.HD &&
+      allAccounts.filter(({ type }) => type === TempleAccountType.HD).length === 1,
+    [account.type, allAccounts]
+  );
 
-  const deleteGroup = useCallback(
+  const deleteAccount = useCallback(
     async ({ password }: FormData) => {
-      selectedGroup.type === TempleAccountType.HD
-        ? await removeHdGroup(selectedGroup.id, password)
-        : await removeAccountsByType(selectedGroup.type, password);
+      await removeAccount(account.id, password);
       onClose();
     },
-    [onClose, removeAccountsByType, removeHdGroup, selectedGroup]
+    [account.id, onClose, removeAccount]
   );
   const { register, handleSubmit, errors, formState, onSubmit } = useTempleBackendActionForm<FormData>(
-    deleteGroup,
+    deleteAccount,
     'password'
   );
   const submitting = formState.isSubmitting;
 
   return (
-    <ActionModal title={`Delete ${selectedGroup.name}?`} onClose={onClose}>
+    <ActionModal title={`Remove ${account.name}?`} onClose={onClose}>
       {shouldPreventDeletion ? (
         <>
           <ActionModalBodyContainer>
@@ -62,7 +54,7 @@ export const DeleteWalletModal = memo<DeleteWalletModalProps>(({ onClose, select
               title={<T id="cannotBeRemoved" />}
               description={
                 <p>
-                  <T id="walletsToRemoveConstraint" />
+                  <T id="accountsToRemoveConstraint" />
                 </p>
               }
             />
@@ -76,21 +68,8 @@ export const DeleteWalletModal = memo<DeleteWalletModalProps>(({ onClose, select
       ) : (
         <form onSubmit={handleSubmit(onSubmit)}>
           <ActionModalBodyContainer>
-            {removeWarningsI18nKey && (
-              <Alert
-                type="warning"
-                description={
-                  <p className="text-xs leading-4 text-gray-900">
-                    <T id={removeWarningsI18nKey} />
-                  </p>
-                }
-                className="mb-1"
-              />
-            )}
-
             <FormField
               ref={register({ required: t('required') })}
-              label={t('deleteWalletPasswordLabel')}
               id="removewallet-secret-password"
               type="password"
               name="password"
@@ -98,6 +77,9 @@ export const DeleteWalletModal = memo<DeleteWalletModalProps>(({ onClose, select
               errorCaption={errors.password?.message}
               containerClassName="mb-1"
             />
+            <span className="text-xs leading-4 text-gray-600 w-full text-center">
+              This will remove the account from this list and delete all data associated with it.
+            </span>
           </ActionModalBodyContainer>
           <ActionModalButtonsContainer>
             <ActionModalButton
@@ -110,7 +92,7 @@ export const DeleteWalletModal = memo<DeleteWalletModalProps>(({ onClose, select
             </ActionModalButton>
 
             <ActionModalButton className="bg-red-600 text-white" disabled={submitting} type="submit">
-              <T id="delete" />
+              <T id="remove" />
             </ActionModalButton>
           </ActionModalButtonsContainer>
         </form>

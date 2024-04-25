@@ -110,6 +110,7 @@ export interface StoredAccountBase {
   // evmAddress?: string;
   derivationPath?: string;
   derivationType?: DerivationType;
+  isVisible: boolean;
 }
 
 export enum TempleAccountType {
@@ -273,6 +274,8 @@ export enum TempleMessageType {
   RemoveAccountResponse = 'TEMPLE_REMOVE_ACCOUNT_RESPONSE',
   EditAccountRequest = 'TEMPLE_EDIT_ACCOUNT_REQUEST',
   EditAccountResponse = 'TEMPLE_EDIT_ACCOUNT_RESPONSE',
+  SetAccountVisibleRequest = 'TEMPLE_SET_ACCOUNT_VISIBLE_REQUEST',
+  SetAccountVisibleResponse = 'TEMPLE_SET_ACCOUNT_VISIBLE_RESPONSE',
   ImportAccountRequest = 'TEMPLE_IMPORT_ACCOUNT_REQUEST',
   ImportAccountResponse = 'TEMPLE_IMPORT_ACCOUNT_RESPONSE',
   ImportMnemonicAccountRequest = 'TEMPLE_IMPORT_MNEMONIC_ACCOUNT_REQUEST',
@@ -338,6 +341,7 @@ export type TempleRequest =
   | TempleRevealPrivateKeyRequest
   | TempleRevealMnemonicRequest
   | TempleGenerateSyncPayloadRequest
+  | TempleSetAccountVisibleRequest
   | TempleEditAccountRequest
   | TempleImportAccountRequest
   | TempleImportMnemonicAccountRequest
@@ -375,6 +379,7 @@ export type TempleResponse =
   | TempleRevealPrivateKeyResponse
   | TempleRevealMnemonicResponse
   | TempleGenerateSyncPayloadResponse
+  | TempleSetAccountVisibleResponse
   | TempleEditAccountResponse
   | TempleImportAccountResponse
   | TempleImportMnemonicAccountResponse
@@ -539,6 +544,16 @@ interface TempleEditAccountRequest extends TempleMessageBase {
 
 interface TempleEditAccountResponse extends TempleMessageBase {
   type: TempleMessageType.EditAccountResponse;
+}
+
+interface TempleSetAccountVisibleRequest extends TempleMessageBase {
+  type: TempleMessageType.SetAccountVisibleRequest;
+  id: string;
+  visible: boolean;
+}
+
+interface TempleSetAccountVisibleResponse extends TempleMessageBase {
+  type: TempleMessageType.SetAccountVisibleResponse;
 }
 
 interface TempleImportAccountRequest extends TempleMessageBase {

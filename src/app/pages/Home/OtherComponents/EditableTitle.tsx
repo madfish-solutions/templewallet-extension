@@ -116,7 +116,7 @@ const EditableTitle: FC = () => {
             defaultValue={accountTitle}
             maxLength={16}
             pattern={ACCOUNT_OR_GROUP_NAME_PATTERN.toString().slice(1, -1)}
-            title={t('accountNameInputTitle')}
+            title={t('accountOrGroupNameInputTitle')}
             spellCheck={false}
             className="w-full mx-auto max-w-xs text-2xl font-light text-gray-700 text-center"
             style={{ padding: '0.075rem 0' }}

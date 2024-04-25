@@ -137,7 +137,8 @@ describe('Vault tests', () => {
         hdIndex: 0,
         tezosAddress: hdWallets[0].accounts[0].tezos.address,
         evmAddress: hdWallets[0].accounts[0].evm.address,
-        groupId: groups[0].id
+        groupId: groups[0].id,
+        isVisible: true
       },
       {
         type: TempleAccountType.HD,
@@ -145,7 +146,8 @@ describe('Vault tests', () => {
         hdIndex: 1,
         tezosAddress: hdWallets[0].accounts[1].tezos.address,
         evmAddress: hdWallets[0].accounts[1].evm.address,
-        groupId: groups[0].id
+        groupId: groups[0].id,
+        isVisible: true
       }
     ]);
     expect(accounts[0].id).not.toBe(accounts[1].id);
@@ -218,7 +220,8 @@ describe('Vault tests', () => {
         name: 'Translated<defaultAccountName, "1">',
         hdIndex: 0,
         tezosAddress: hdWallets[0].accounts[0].tezos.address,
-        evmAddress: hdWallets[0].accounts[0].evm.address
+        evmAddress: hdWallets[0].accounts[0].evm.address,
+        isVisible: true
       }
     ]);
   });
@@ -283,7 +286,8 @@ describe('Vault tests', () => {
           evmAddress: hdWallets[0].accounts[0].evm.address,
           groupId: firstGroupId,
           id: accountsBeforeDeletion[0].id,
-          name: 'Translated<defaultAccountName, "1">'
+          name: 'Translated<defaultAccountName, "1">',
+          isVisible: true
         },
         {
           type: TempleAccountType.HD,
@@ -291,14 +295,16 @@ describe('Vault tests', () => {
           evmAddress: hdWallets[0].accounts[2].evm.address,
           groupId: firstGroupId,
           id: accountsBeforeDeletion[2].id,
-          name: 'Translated<defaultAccountName, "3">'
+          name: 'Translated<defaultAccountName, "3">',
+          isVisible: true
         },
         {
           type: TempleAccountType.HD,
           tezosAddress: hdWallets[0].accounts[3].tezos.address,
           evmAddress: hdWallets[0].accounts[3].evm.address,
           groupId: firstGroupId,
-          name: 'Translated<defaultAccountName, "4">'
+          name: 'Translated<defaultAccountName, "4">',
+          isVisible: true
         }
       ]);
     }, 20000);
@@ -355,6 +361,23 @@ describe('Vault tests', () => {
         }
       ]);
     });
+  });
+
+  it('should change the visibility of the specified account', async () => {
+    await Vault.spawn(password, defaultMnemonic);
+    const vault = await Vault.setup(password);
+    const [{ id: firstGroupId }] = await vault.fetchHdGroups();
+    const initialAccounts = await vault.createHDAccount(firstGroupId);
+    const accountsV2 = await vault.setAccountVisible(initialAccounts[1].id, false);
+    expectObjectArrayMatch(accountsV2, [
+      { id: initialAccounts[0].id, isVisible: true },
+      { id: initialAccounts[1].id, isVisible: false }
+    ]);
+    const accountsV3 = await vault.setAccountVisible(initialAccounts[1].id, true);
+    expectObjectArrayMatch(accountsV3, [
+      { id: initialAccounts[0].id, isVisible: true },
+      { id: initialAccounts[1].id, isVisible: true }
+    ]);
   });
 
   describe('editAccountName', () => {

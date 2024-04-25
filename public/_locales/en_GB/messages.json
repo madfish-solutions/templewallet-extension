@@ -377,7 +377,7 @@
   "alert": {
     "message": "Alert"
   },
-  "accountNameInputTitle": {
+  "accountOrGroupNameInputTitle": {
     "message": "1-16 characters, no special"
   },
   "defaultAccountName": {

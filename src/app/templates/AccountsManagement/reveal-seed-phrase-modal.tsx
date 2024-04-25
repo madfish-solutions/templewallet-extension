@@ -1,16 +1,18 @@
 import React, { memo, useCallback, useState } from 'react';
 
 import { Alert, FormField } from 'app/atoms';
+import {
+  ActionModal,
+  ActionModalButton,
+  ActionModalBodyContainer,
+  ActionModalButtonsContainer
+} from 'app/atoms/action-modal';
 import { ReadOnlySecretField } from 'app/atoms/ReadOnlySecretField';
 import { T, t } from 'lib/i18n';
 import { useTempleClient } from 'lib/temple/front';
 import { DisplayedGroup } from 'lib/temple/types';
 
-import { ActionModal } from './action-modal';
-import { ActionModalBodyContainer } from './action-modal-body-container';
-import { ActionModalButton } from './action-modal-button';
-import { ActionModalButtonsContainer } from './action-modal-buttons-container';
-import { useTempleBackendActionForm } from './use-temple-backend-action-form';
+import { useTempleBackendActionForm } from '../../hooks/use-temple-backend-action-form';
 
 interface RevealSeedPhraseModalProps {
   onClose: () => void;

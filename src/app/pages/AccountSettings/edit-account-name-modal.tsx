@@ -3,36 +3,35 @@ import React, { memo, useCallback, useMemo } from 'react';
 import { FormField } from 'app/atoms';
 import {
   ActionModal,
-  ActionModalButton,
   ActionModalBodyContainer,
+  ActionModalButton,
   ActionModalButtonsContainer
 } from 'app/atoms/action-modal';
 import { ACCOUNT_OR_GROUP_NAME_PATTERN } from 'app/defaults';
+import { useTempleBackendActionForm } from 'app/hooks/use-temple-backend-action-form';
 import { T, t } from 'lib/i18n';
 import { useTempleClient } from 'lib/temple/front';
-import { DisplayedGroup } from 'lib/temple/types';
+import { StoredAccount } from 'lib/temple/types';
 
-import { useTempleBackendActionForm } from '../../hooks/use-temple-backend-action-form';
-
-interface RenameWalletModalProps {
+interface EditAccountNameModalProps {
+  account: StoredAccount;
   onClose: () => void;
-  selectedGroup: DisplayedGroup;
 }
 
 interface FormData {
   name: string;
 }
 
-export const RenameWalletModal = memo<RenameWalletModalProps>(({ onClose, selectedGroup }) => {
-  const { editHdGroupName } = useTempleClient();
-  const renameFormInitialValues = useMemo(() => ({ name: selectedGroup.name }), [selectedGroup]);
+export const EditAccountNameModal = memo<EditAccountNameModalProps>(({ account, onClose }) => {
+  const { editAccountName } = useTempleClient();
+  const renameFormInitialValues = useMemo(() => ({ name: account.name }), [account]);
 
   const renameGroup = useCallback(
     async ({ name }: FormData) => {
-      await editHdGroupName(selectedGroup.id, name);
+      await editAccountName(account.id, name);
       onClose();
     },
-    [editHdGroupName, onClose, selectedGroup.id]
+    [account.id, editAccountName, onClose]
   );
 
   const { register, handleSubmit, errors, formState, onSubmit } = useTempleBackendActionForm<FormData>(
@@ -43,7 +42,7 @@ export const RenameWalletModal = memo<RenameWalletModalProps>(({ onClose, select
   const submitting = formState.isSubmitting;
 
   return (
-    <ActionModal title="Rename Wallet" onClose={onClose}>
+    <ActionModal title="Edit Account Name" onClose={onClose}>
       <form onSubmit={handleSubmit(onSubmit)}>
         <ActionModalBodyContainer>
           <FormField
@@ -54,11 +53,11 @@ export const RenameWalletModal = memo<RenameWalletModalProps>(({ onClose, select
                 message: t('accountOrGroupNameInputTitle')
               }
             })}
-            label={t('walletNameInputLabel')}
-            id="rename-wallet-input"
+            label={t('accountNameInputLabel')}
+            id="rename-account-input"
             type="text"
             name="name"
-            placeholder={selectedGroup.name}
+            placeholder={account.name}
             errorCaption={errors.name?.message}
             containerClassName="mb-1"
           />

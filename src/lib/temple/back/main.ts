@@ -109,6 +109,12 @@ const processRequest = async (req: TempleRequest, port: Runtime.Port): Promise<T
         type: TempleMessageType.EditAccountResponse
       };
 
+    case TempleMessageType.SetAccountVisibleRequest:
+      await Actions.setAccountVisible(req.id, req.visible);
+      return {
+        type: TempleMessageType.SetAccountVisibleResponse
+      };
+
     case TempleMessageType.ImportAccountRequest:
       await Actions.importAccount(req.chain, req.privateKey, req.encPassword);
       return {

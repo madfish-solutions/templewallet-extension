@@ -363,7 +363,7 @@
   "alert": {
     "message": "경고"
   },
-  "accountNameInputTitle": {
+  "accountOrGroupNameInputTitle": {
     "message": "1-16글자, 특수문자 제외"
   },
   "defaultAccountName": {

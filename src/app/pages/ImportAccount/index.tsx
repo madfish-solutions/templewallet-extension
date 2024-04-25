@@ -5,9 +5,8 @@ import { useAllAccountsReactiveOnAddition } from 'app/hooks/use-all-accounts-rea
 import { ReactComponent as DownloadIcon } from 'app/icons/download.svg';
 import PageLayout from 'app/layouts/PageLayout';
 import { TID, T } from 'lib/i18n';
-import { TempleAccountType } from 'lib/temple/types';
 import { isTruthy } from 'lib/utils';
-import { navigate, useLocation } from 'lib/woozie';
+import { navigate } from 'lib/woozie';
 import { useTezosNetwork } from 'temple/front';
 
 import { ByFundraiserForm } from './ByFundraiserForm';
@@ -15,6 +14,7 @@ import { ByMnemonicForm } from './ByMnemonicForm';
 import { ByPrivateKeyForm } from './ByPrivateKeyForm';
 import { FromFaucetForm } from './FromFaucetForm';
 import { ManagedKTForm } from './ManagedKTForm';
+import { WalletFromMnemonicForm } from './wallet-from-mnemonic-form';
 import { WatchOnlyForm } from './WatchOnlyForm';
 
 type ImportAccountProps = {
@@ -27,14 +27,7 @@ interface ImportTabDescriptor {
   Form: FC<{}>;
 }
 
-const tabsForAccountsTypes = {
-  [TempleAccountType.Imported]: ['private-key', 'mnemonic', 'fundraiser', 'faucet'],
-  [TempleAccountType.ManagedKT]: ['managed-kt'],
-  [TempleAccountType.WatchOnly]: ['watch-only']
-};
-
 const ImportAccount: FC<ImportAccountProps> = ({ tabSlug }) => {
-  const location = useLocation();
   const { isMainnet } = useTezosNetwork();
 
   const prevIsMainnetRef = useRef(isMainnet);
@@ -42,7 +35,6 @@ const ImportAccount: FC<ImportAccountProps> = ({ tabSlug }) => {
   useAllAccountsReactiveOnAddition();
 
   const allTabs = useMemo(() => {
-    const accountType = new URLSearchParams(location.search).get('accountType');
     const unfiltered: (ImportTabDescriptor | null)[] = [
       {
         slug: 'private-key',
@@ -58,6 +50,11 @@ const ImportAccount: FC<ImportAccountProps> = ({ tabSlug }) => {
         slug: 'fundraiser',
         i18nKey: 'fundraiser',
         Form: ByFundraiserForm
+      },
+      {
+        slug: 'wallet-from-mnemonic',
+        i18nKey: 'walletFromMnemonic',
+        Form: WalletFromMnemonicForm
       },
       isMainnet
         ? null
@@ -78,18 +75,8 @@ const ImportAccount: FC<ImportAccountProps> = ({ tabSlug }) => {
       }
     ];
 
-    return unfiltered.filter((value): value is ImportTabDescriptor => {
-      if (!isTruthy(value)) {
-        return false;
-      }
-
-      if (accountType && accountType in tabsForAccountsTypes) {
-        return tabsForAccountsTypes[Number(accountType) as keyof typeof tabsForAccountsTypes].includes(value.slug);
-      }
-
-      return true;
-    });
-  }, [isMainnet, location.search]);
+    return unfiltered.filter(isTruthy);
+  }, [isMainnet]);
 
   const { slug, Form } = useMemo(() => {
     const tab = tabSlug ? allTabs.find(currentTab => currentTab.slug === tabSlug) : null;
@@ -115,9 +102,7 @@ const ImportAccount: FC<ImportAccountProps> = ({ tabSlug }) => {
       }
     >
       <div className="py-4">
-        {allTabs.length > 1 && (
-          <TabSwitcher className="mb-4" tabs={allTabs} activeTabSlug={slug} urlPrefix="/import-account" />
-        )}
+        <TabSwitcher className="mb-4" tabs={allTabs} activeTabSlug={slug} urlPrefix="/import-account" />
 
         <Form />
       </div>

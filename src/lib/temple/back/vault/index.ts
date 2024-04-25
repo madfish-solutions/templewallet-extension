@@ -8,7 +8,13 @@ import { nanoid } from 'nanoid';
 import type * as WasmThemisPackageInterface from 'wasm-themis';
 
 import { AT_LEAST_ONE_HD_ACCOUNT_ERR_MSG, ACCOUNT_NAME_COLLISION_ERR_MSG } from 'lib/constants';
-import { fetchNewGroupName, formatOpParamsBeforeSend, isNameCollision, toExcelColumnName } from 'lib/temple/helpers';
+import {
+  fetchNewGroupName,
+  formatOpParamsBeforeSend,
+  getDerivationPath,
+  isNameCollision,
+  toExcelColumnName
+} from 'lib/temple/helpers';
 import * as Passworder from 'lib/temple/passworder';
 import { clearAsyncStorages } from 'lib/temple/reset';
 import { StoredAccount, StoredHDAccount, StoredHDGroup, TempleAccountType, TempleSettings } from 'lib/temple/types';
@@ -29,7 +35,6 @@ import {
   fetchNewAccountName,
   concatAccount,
   createMemorySigner,
-  getMainDerivationPath,
   withError,
   mnemonicToTezosAccountCreds,
   mnemonicToEvmAccountCreds,
@@ -125,7 +130,8 @@ export class Vault {
         hdIndex: hdAccIndex,
         tezosAddress: tezosAcc.address,
         evmAddress: evmAcc.address,
-        groupId: initialGroup.id
+        groupId: initialGroup.id,
+        isVisible: true
       };
       const newAccounts = [initialAccount];
 
@@ -431,21 +437,22 @@ export class Vault {
         hdIndex: hdAccIndex,
         tezosAddress: tezosAcc.address,
         evmAddress: evmAcc.address,
-        groupId
+        groupId,
+        isVisible: true
       };
 
-      const newAllAcounts = concatAccount(allAccounts, newAccount);
+      const newAllAccounts = concatAccount(allAccounts, newAccount);
 
       await encryptAndSaveMany(
         [
           ...buildEncryptAndSaveManyForAccount(tezosAcc),
           ...buildEncryptAndSaveManyForAccount(evmAcc),
-          [accountsStrgKey, newAllAcounts]
+          [accountsStrgKey, newAllAccounts]
         ],
         this.passKey
       );
 
-      return newAllAcounts;
+      return newAllAccounts;
     });
   }
 
@@ -481,7 +488,8 @@ export class Vault {
         hdIndex: hdAccIndex,
         tezosAddress: tezosAcc.address,
         evmAddress: evmAcc.address,
-        groupId: newGroup.id
+        groupId: newGroup.id,
+        isVisible: true
       };
 
       const newAccounts = concatAccount(allAccounts, newAccount);
@@ -518,16 +526,17 @@ export class Vault {
         type: TempleAccountType.Imported,
         chain,
         name: await fetchNewAccountName(allAccounts, TempleAccountType.Imported),
-        address: accCreds.address
+        address: accCreds.address,
+        isVisible: true
       };
-      const newAllAcounts = concatAccount(allAccounts, newAccount);
+      const newAllAccounts = concatAccount(allAccounts, newAccount);
 
       await encryptAndSaveMany(
-        [...buildEncryptAndSaveManyForAccount(accCreds), [accountsStrgKey, newAllAcounts]],
+        [...buildEncryptAndSaveManyForAccount(accCreds), [accountsStrgKey, newAllAccounts]],
         this.passKey
       );
 
-      return newAllAcounts;
+      return newAllAccounts;
     });
   }
 
@@ -571,13 +580,14 @@ export class Vault {
         ),
         tezosAddress: address,
         chainId,
-        owner
+        owner,
+        isVisible: true
       };
-      const newAllAcounts = concatAccount(allAccounts, newAccount);
+      const newAllAccounts = concatAccount(allAccounts, newAccount);
 
-      await encryptAndSaveMany([[accountsStrgKey, newAllAcounts]], this.passKey);
+      await encryptAndSaveMany([[accountsStrgKey, newAllAccounts]], this.passKey);
 
-      return newAllAcounts;
+      return newAllAccounts;
     });
   }
 
@@ -595,19 +605,20 @@ export class Vault {
         ),
         address,
         chain,
-        chainId
+        chainId,
+        isVisible: true
       };
-      const newAllAcounts = concatAccount(allAccounts, newAccount);
+      const newAllAccounts = concatAccount(allAccounts, newAccount);
 
-      await encryptAndSaveMany([[accountsStrgKey, newAllAcounts]], this.passKey);
+      await encryptAndSaveMany([[accountsStrgKey, newAllAccounts]], this.passKey);
 
-      return newAllAcounts;
+      return newAllAccounts;
     });
   }
 
   async createLedgerAccount(name: string, derivationPath?: string, derivationType?: DerivationType) {
     return withError('Failed to connect Ledger account', async () => {
-      if (!derivationPath) derivationPath = getMainDerivationPath(0);
+      if (!derivationPath) derivationPath = getDerivationPath(TempleChainName.Tezos, 0);
 
       const { signer, cleanup } = await createLedgerSigner(derivationPath, derivationType);
 
@@ -627,22 +638,33 @@ export class Vault {
           name,
           tezosAddress: accPublicKeyHash,
           derivationPath,
-          derivationType
+          derivationType,
+          isVisible: true
         };
-        const newAllAcounts = concatAccount(allAccounts, newAccount);
+        const newAllAccounts = concatAccount(allAccounts, newAccount);
 
         await encryptAndSaveMany(
           [
             [accPubKeyStrgKey(accPublicKeyHash), accPublicKey],
-            [accountsStrgKey, newAllAcounts]
+            [accountsStrgKey, newAllAccounts]
           ],
           this.passKey
         );
 
-        return newAllAcounts;
+        return newAllAccounts;
       } finally {
         cleanup();
       }
+    });
+  }
+
+  async setAccountVisible(id: string, value: boolean) {
+    return withError('Failed to set account visibility', async () => {
+      const allAccounts = await this.fetchAccounts();
+      const newAllAccounts = allAccounts.map(acc => (acc.id === id ? { ...acc, isVisible: value } : acc));
+      await encryptAndSaveMany([[accountsStrgKey, newAllAccounts]], this.passKey);
+
+      return newAllAccounts;
     });
   }
 
@@ -666,10 +688,10 @@ export class Vault {
         throw new PublicError(ACCOUNT_NAME_COLLISION_ERR_MSG);
       }
 
-      const newAllAcounts = allAccounts.map(acc => (acc.id === id ? { ...acc, name } : acc));
-      await encryptAndSaveMany([[accountsStrgKey, newAllAcounts]], this.passKey);
+      const newAllAccounts = allAccounts.map(acc => (acc.id === id ? { ...acc, name } : acc));
+      await encryptAndSaveMany([[accountsStrgKey, newAllAccounts]], this.passKey);
 
-      return newAllAcounts;
+      return newAllAccounts;
     });
   }
 

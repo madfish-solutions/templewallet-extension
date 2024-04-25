@@ -6,7 +6,6 @@ import { ReactComponent as DownloadIcon } from 'app/icons/download.svg';
 import { ReactComponent as EyeIcon } from 'app/icons/eye.svg';
 import { ReactComponent as LinkIcon } from 'app/icons/link.svg';
 import { ReactComponent as PlusIcon } from 'app/icons/plus.svg';
-import { TempleAccountType } from 'lib/temple/types';
 import Popper, { PopperRenderProps } from 'lib/ui/Popper';
 import { navigate } from 'lib/woozie';
 
@@ -29,7 +28,7 @@ const NewWalletActionsDropdown = memo<PopperRenderProps>(({ opened, setOpened, t
         danger: false,
         i18nKey: 'importWallet' as const,
         icon: DownloadIcon,
-        onClick: () => navigate('/import-account')
+        onClick: () => navigate('/import-account/wallet-from-mnemonic')
       },
       {
         key: 'ledger-connect',
@@ -43,7 +42,7 @@ const NewWalletActionsDropdown = memo<PopperRenderProps>(({ opened, setOpened, t
         danger: false,
         i18nKey: 'watchOnlyAccount' as const,
         icon: EyeIcon,
-        onClick: () => navigate(`/import-account?accountType=${TempleAccountType.WatchOnly}`)
+        onClick: () => navigate('/import-account/watch-only')
       }
     ],
     []

@@ -38,107 +38,86 @@ const GroupActionsDropdown = memo<PopperRenderProps & GroupActionsPopperProps>(
     const actions = useMemo<Action[]>(() => {
       const hdGroupsCount = allGroups.filter(g => g.type === TempleAccountType.HD).length;
 
-      switch (group.type) {
-        case TempleAccountType.HD:
-          return [
-            {
-              key: 'add-account',
-              i18nKey: 'createAccount' as const,
-              icon: AddIcon,
-              onClick: async () => {
-                try {
-                  const name = await fetchNewAccountName(
-                    allAccounts,
-                    TempleAccountType.HD,
-                    i => t('defaultAccountName', String(i)),
-                    group.id
-                  );
-                  await createAccount(group.id, name);
-                } catch (e: any) {
-                  console.error(e);
-                  customAlert({
-                    title: 'Failed to create an account',
-                    description: e.message
-                  });
-                }
-              },
-              danger: false
+      if (group.type === TempleAccountType.HD) {
+        return [
+          {
+            key: 'add-account',
+            i18nKey: 'createAccount' as const,
+            icon: AddIcon,
+            onClick: async () => {
+              try {
+                const name = await fetchNewAccountName(
+                  allAccounts,
+                  TempleAccountType.HD,
+                  i => t('defaultAccountName', String(i)),
+                  group.id
+                );
+                await createAccount(group.id, name);
+              } catch (e: any) {
+                console.error(e);
+                customAlert({
+                  title: 'Failed to create an account',
+                  description: e.message
+                });
+              }
             },
-            {
-              key: 'rename-wallet',
-              i18nKey: 'edit' as const,
-              icon: EditIcon,
-              onClick: async () => {
-                // setOpened(false);
-                onRenameClick(group);
-              },
-              danger: false
-            },
-            {
-              key: 'reveal-seed-phrase',
-              i18nKey: 'revealSeedPhrase' as const,
-              icon: RevealEyeIcon,
-              onClick: () => {
-                // setOpened(false);
-                onRevealSeedPhraseClick(group);
-              },
-              danger: false
-            },
-            hdGroupsCount > 1 && {
-              key: 'delete-wallet',
-              i18nKey: 'delete' as const,
-              icon: RemoveIcon,
-              onClick: () => {
-                // setOpened(false);
-                onDeleteClick(group);
-              },
-              danger: true
-            }
-          ].filter(isTruthy);
-        case TempleAccountType.Imported:
-          return [
-            {
-              key: 'import-new',
-              i18nKey: 'importAccount' as const,
-              icon: DownloadIcon,
-              onClick: () => navigate(`/import-account?accountType=${TempleAccountType.Imported}`),
-              danger: false
-            },
-            {
-              key: 'delete-group',
-              i18nKey: 'delete' as const,
-              icon: RemoveIcon,
-              onClick: () => {
-                onDeleteClick(group);
-              },
-              danger: true
-            }
-          ];
-        default:
-          return [
-            {
-              key: 'add-account',
-              i18nKey: 'createAccount' as const,
-              icon: AddIcon,
-              onClick: () =>
-                navigate(
-                  group.type === TempleAccountType.Ledger
-                    ? '/connect-ledger'
-                    : `/import-account?accountType=${group.type}`
-                ),
-              danger: false
-            },
-            {
-              key: 'delete-wallet',
-              i18nKey: 'delete' as const,
-              icon: RemoveIcon,
-              onClick: () => {
-                onDeleteClick(group);
-              },
-              danger: true
-            }
-          ];
+            danger: false
+          },
+          {
+            key: 'rename-wallet',
+            i18nKey: 'edit' as const,
+            icon: EditIcon,
+            onClick: async () => onRenameClick(group),
+            danger: false
+          },
+          {
+            key: 'reveal-seed-phrase',
+            i18nKey: 'revealSeedPhrase' as const,
+            icon: RevealEyeIcon,
+            onClick: () => onRevealSeedPhraseClick(group),
+            danger: false
+          },
+          hdGroupsCount > 1 && {
+            key: 'delete-wallet',
+            i18nKey: 'delete' as const,
+            icon: RemoveIcon,
+            onClick: () => onDeleteClick(group),
+            danger: true
+          }
+        ].filter(isTruthy);
       }
+
+      let importActionUrl;
+      switch (group.type) {
+        case TempleAccountType.Imported:
+          importActionUrl = '/import-account/private-key';
+          break;
+        case TempleAccountType.Ledger:
+          importActionUrl = '/connect-ledger';
+          break;
+        case TempleAccountType.ManagedKT:
+          importActionUrl = '/import-account/managed-kt';
+          break;
+        default:
+          importActionUrl = '/import-account/watch-only';
+      }
+
+      return [
+        {
+          key: 'import',
+          i18nKey: group.type === TempleAccountType.Imported ? 'importAccount' : 'createAccount',
+          icon: DownloadIcon,
+          onClick: () => navigate(importActionUrl),
+          danger: false
+        },
+        {
+          key: 'delete-group',
+          i18nKey: 'delete' as const,
+          icon: RemoveIcon,
+          onClick: () => onDeleteClick(group),
+          danger: true
+        }
+      ];
     }, [
       allGroups,
       group,

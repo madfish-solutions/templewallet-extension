@@ -6,10 +6,7 @@ import { Button } from 'app/atoms/Button';
 import DropdownWrapper from 'app/atoms/DropdownWrapper';
 import { openInFullPage, useAppEnv } from 'app/env';
 import { useShortcutAccountSelectModalIsOpened } from 'app/hooks/use-account-select-shortcut';
-import { ReactComponent as AddIcon } from 'app/icons/add.svg';
 import { ReactComponent as DAppsIcon } from 'app/icons/apps-alt.svg';
-import { ReactComponent as DownloadIcon } from 'app/icons/download.svg';
-import { ReactComponent as LinkIcon } from 'app/icons/link.svg';
 import { ReactComponent as LockIcon } from 'app/icons/lock.svg';
 import { ReactComponent as MaximiseIcon } from 'app/icons/maximise.svg';
 import { ReactComponent as SadSearchIcon } from 'app/icons/sad-search.svg';
@@ -84,30 +81,6 @@ const AccountDropdown = memo<PopperRenderProps>(({ opened, setOpened }) => {
 
   const actions = useMemo(
     (): TDropdownAction[] => [
-      {
-        key: 'create-wallet',
-        Icon: AddIcon,
-        i18nKey: 'createWallet',
-        linkTo: '/create-another-wallet',
-        testID: AccountDropdownSelectors.createOrRestoreWalletButton,
-        onClick: closeDropdown
-      },
-      {
-        key: 'import-account',
-        Icon: DownloadIcon,
-        i18nKey: 'importAccount',
-        linkTo: '/import-account',
-        testID: AccountDropdownSelectors.importAccountButton,
-        onClick: closeDropdown
-      },
-      {
-        key: 'connect-ledger',
-        Icon: LinkIcon,
-        i18nKey: 'connectLedger',
-        linkTo: '/connect-ledger',
-        testID: AccountDropdownSelectors.connectLedgerButton,
-        onClick: closeDropdown
-      },
       {
         key: 'dapps',
         Icon: DAppsIcon,

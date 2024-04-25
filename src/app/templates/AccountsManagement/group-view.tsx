@@ -4,6 +4,7 @@ import { Identicon } from 'app/atoms';
 import { ReactComponent as ChevronRightIcon } from 'app/icons/chevron-right.svg';
 import { TID, t } from 'lib/i18n';
 import { TempleAccountType } from 'lib/temple/types';
+import { Link } from 'lib/woozie';
 
 import { GroupActionsPopper, GroupActionsPopperProps } from './group-actions-popper';
 
@@ -29,11 +30,11 @@ export const GroupView = memo<GroupActionsPopperProps>(({ group, ...restProps })
         </div>
       </div>
       {group.accounts.map(acc => (
-        <div
+        <Link
+          to={`/account/${acc.id}`}
           className="w-full flex flex-row h-12 items-center justify-between border-t-0.5 border-gray-300 px-3"
           key={acc.id}
         >
-          {/* TODO: make the element above a link */}
           <div className="flex items-center gap-2">
             <div className="w-6 h-6 flex justify-center items-center rounded border border-blue-600">
               <Identicon type="bottts" hash={acc.id} size={20} className="rounded-sm" />
@@ -41,7 +42,7 @@ export const GroupView = memo<GroupActionsPopperProps>(({ group, ...restProps })
             <span className="text-sm leading-5 font-semibold">{acc.name}</span>
           </div>
           <ChevronRightIcon className="h-4 w-auto stroke-2 stroke-current text-orange-20 m-1" />
-        </div>
+        </Link>
       ))}
     </div>
   );

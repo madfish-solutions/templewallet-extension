@@ -363,7 +363,7 @@
   "alert": {
     "message": "Alerte"
   },
-  "accountNameInputTitle": {
+  "accountOrGroupNameInputTitle": {
     "message": "1 à 16 caractères, aucun caractère spécial"
   },
   "defaultAccountName": {

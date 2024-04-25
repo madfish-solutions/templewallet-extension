@@ -162,6 +162,15 @@ export const [TempleClientProvider, useTempleClient] = constate(() => {
     assertResponse(res.type === TempleMessageType.RemoveAccountResponse);
   }, []);
 
+  const setAccountVisible = useCallback(async (id: string, visible: boolean) => {
+    const res = await request({
+      type: TempleMessageType.SetAccountVisibleRequest,
+      id,
+      visible
+    });
+    assertResponse(res.type === TempleMessageType.SetAccountVisibleResponse);
+  }, []);
+
   const editAccountName = useCallback(async (id: string, name: string) => {
     const res = await request({
       type: TempleMessageType.EditAccountRequest,
@@ -381,6 +390,7 @@ export const [TempleClientProvider, useTempleClient] = constate(() => {
     revealMnemonic,
     generateSyncPayload,
     removeAccount,
+    setAccountVisible,
     editAccountName,
     importAccount,
     importMnemonicAccount,

@@ -381,7 +381,7 @@
   "alert": {
     "message": "Uyarı"
   },
-  "accountNameInputTitle": {
+  "accountOrGroupNameInputTitle": {
     "message": "1-16 karakter, özel karakter yok"
   },
   "defaultAccountName": {
