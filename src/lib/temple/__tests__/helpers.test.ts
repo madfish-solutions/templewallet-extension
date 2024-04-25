@@ -4,7 +4,7 @@
 
 import BigNumber from 'bignumber.js';
 
-import { DEFAULT_DERIVATION_PATH } from 'app/defaults';
+import { DEFAULT_DERIVATION_PATH } from 'lib/constants';
 
 import * as FrontHelpers from '../front/helpers';
 import * as Helpers from '../helpers';
