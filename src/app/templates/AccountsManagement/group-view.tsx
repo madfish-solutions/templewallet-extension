@@ -1,13 +1,13 @@
 import React, { memo } from 'react';
 
 import { Identicon } from 'app/atoms';
+import { SearchHighlightText } from 'app/atoms/SearchHighlightText';
 import { ReactComponent as ChevronRightIcon } from 'app/icons/chevron-right.svg';
 import { TID, t } from 'lib/i18n';
 import { TempleAccountType } from 'lib/temple/types';
 import { Link } from 'lib/woozie';
 
 import { GroupActionsPopper, GroupActionsPopperProps } from './group-actions-popper';
-import { SearchHighlightText } from 'app/atoms/SearchHighlightText';
 
 const typesLabelsI18nKeys: Record<TempleAccountType, TID> = {
   [TempleAccountType.HD]: 'hdAccount',

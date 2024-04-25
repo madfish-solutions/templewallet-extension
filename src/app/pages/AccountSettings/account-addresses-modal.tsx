@@ -4,9 +4,9 @@ import { HashShortView } from 'app/atoms';
 import { ActionModal, ActionModalBodyContainer } from 'app/atoms/action-modal';
 import CopyButton from 'app/atoms/CopyButton';
 import { StoredAccount } from 'lib/temple/types';
+import { isTruthy } from 'lib/utils';
 import { getAccountAddressForChain } from 'temple/accounts';
 import { TempleChainKind } from 'temple/types';
-import { isTruthy } from 'lib/utils';
 
 interface AccountAddressesModalProps {
   account: StoredAccount;
@@ -19,13 +19,12 @@ const addressesEntryTextClassName = 'text-sm text-gray-900 font-semibold leading
 export const AccountAddressesModal = memo<AccountAddressesModalProps>(({ account, onClose }) => {
   const addresses = useMemo(
     () =>
-      [TempleChainKind.Tezos, TempleChainKind.EVM].map(
-        (chain) => {
+      [TempleChainKind.Tezos, TempleChainKind.EVM]
+        .map(chain => {
           const address = getAccountAddressForChain(account, chain);
 
           return address && { chain, address };
-        }
-      ).filter(isTruthy),
+        }).filter(isTruthy),
     [account]
   );
 

@@ -3,12 +3,12 @@ import React, { memo, useState } from 'react';
 import { ActionModal } from 'app/atoms/action-modal';
 import { t } from 'lib/i18n';
 import { StoredAccount } from 'lib/temple/types';
+import { useVanishingState } from 'lib/ui/hooks';
 
 import { ChainSelection } from './chain-selection';
 import { PrivateKeyView } from './private-key-view';
 import { RevealPrivateKeysForm } from './reveal-private-keys-form';
 import { PrivateKeyPayload } from './types';
-import { useVanishingState } from 'lib/ui/hooks';
 
 interface RevealPrivateKeyModalProps {
   account: StoredAccount;

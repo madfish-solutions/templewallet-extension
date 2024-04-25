@@ -5,7 +5,7 @@ import * as sodium from 'libsodium-wrappers';
 import { crypto_sign_verify_detached, crypto_generichash } from 'libsodium-wrappers';
 import toBuffer from 'typedarray-to-buffer';
 
-import { DEFAULT_DERIVATION_PATH } from 'app/defaults';
+import { DEFAULT_DERIVATION_PATH } from 'lib/constants';
 
 import { toLedgerError } from './helpers';
 

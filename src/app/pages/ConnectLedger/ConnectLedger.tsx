@@ -6,12 +6,12 @@ import { Controller, useForm } from 'react-hook-form';
 
 import { Alert, FormField, FormSubmitButton } from 'app/atoms';
 import ConfirmLedgerOverlay from 'app/atoms/ConfirmLedgerOverlay';
-import { DEFAULT_DERIVATION_PATH } from 'app/defaults';
 import { useAllAccountsReactiveOnAddition } from 'app/hooks/use-all-accounts-reactive';
 import { ReactComponent as LinkIcon } from 'app/icons/link.svg';
 import { ReactComponent as OkIcon } from 'app/icons/ok.svg';
 import PageLayout from 'app/layouts/PageLayout';
 import { useFormAnalytics } from 'lib/analytics';
+import { DEFAULT_DERIVATION_PATH } from 'lib/constants';
 import { T, t } from 'lib/i18n';
 import { getLedgerTransportType } from 'lib/ledger/helpers';
 import { useTempleClient, validateDerivationPath } from 'lib/temple/front';

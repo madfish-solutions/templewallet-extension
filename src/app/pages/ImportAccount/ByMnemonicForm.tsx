@@ -4,10 +4,11 @@ import clsx from 'clsx';
 import { useForm } from 'react-hook-form';
 
 import { Alert, FormField, FormSubmitButton } from 'app/atoms';
-import { DEFAULT_DERIVATION_PATH, formatMnemonic } from 'app/defaults';
+import { formatMnemonic } from 'app/defaults';
 import { ReactComponent as OkIcon } from 'app/icons/ok.svg';
 import { isSeedPhraseFilled, SeedPhraseInput } from 'app/templates/SeedPhraseInput';
 import { setTestID, useFormAnalytics } from 'lib/analytics';
+import { DEFAULT_DERIVATION_PATH } from 'lib/constants';
 import { T, t, TID } from 'lib/i18n';
 import { useTempleClient, validateDerivationPath } from 'lib/temple/front';
 
