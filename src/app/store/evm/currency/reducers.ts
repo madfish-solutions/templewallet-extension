@@ -11,6 +11,6 @@ export const evmCurrencyReducer = createReducer<EVMCurrencyState>(evmCurrencyIni
 
     if (data.length === 0) return;
 
-    state.usdToTokenRates = getStoredExchangeRatesRecord(data);
+    state.usdToTokenRates = getStoredExchangeRatesRecord(state.usdToTokenRates, data);
   });
 });

@@ -4,16 +4,12 @@ import { getEvmAssetRecordKey, isProperMetadata } from 'lib/utils/evm.utils';
 
 import { EVMExchangeRateRecords } from './state';
 
-export const getStoredExchangeRatesRecord = (data: BalancesResponse[]) =>
+export const getStoredExchangeRatesRecord = (oldRecord: EVMExchangeRateRecords, data: BalancesResponse[]) =>
   data.reduce<EVMExchangeRateRecords>((acc, currentValue) => {
     if (!currentValue.chain_id) return acc;
 
-    return Object.assign(
-      {},
-      acc,
-      getTokenSlugWithChainIdExchangeRatesRecord(currentValue.chain_id, currentValue.items)
-    );
-  }, {});
+    return Object.assign(acc, getTokenSlugWithChainIdExchangeRatesRecord(currentValue.chain_id, currentValue.items));
+  }, oldRecord);
 
 const getTokenSlugWithChainIdExchangeRatesRecord = (chainID: ChainID, data: BalanceItem[]) =>
   data.reduce<EVMExchangeRateRecords>((acc, currentValue) => {

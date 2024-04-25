@@ -99,9 +99,6 @@ interface EvmListItemProps {
 
 export const EvmListItem = memo<EvmListItemProps>(({ network, publicKeyHash, assetSlug }) => {
   const tokenMetadata = useEvmTokenMetadataSelector(getEvmAssetRecordKey(assetSlug, network.chainId));
-  if (!tokenMetadata) {
-    console.log(tokenMetadata, 'META');
-  }
 
   const rawBalance = useAccountEvmTokenBalanceSelector(publicKeyHash, assetSlug, network.chainId);
 

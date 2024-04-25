@@ -4,16 +4,13 @@ import { getEvmAssetRecordKey, isProperMetadata } from 'lib/utils/evm.utils';
 
 import { EVMMetadataRecords } from './state';
 
-export const getStoredTokensMetadataRecord = (data: BalancesResponse[]) =>
+// TODO: figure out how to get rid of unused metadata
+export const getStoredTokensMetadataRecord = (oldRecord: EVMMetadataRecords, data: BalancesResponse[]) =>
   data.reduce<EVMMetadataRecords>((acc, currentValue) => {
     if (!currentValue.chain_id) return acc;
 
-    return Object.assign(
-      {},
-      acc,
-      getTokenSlugWithChainIdTokensMetadataRecord(currentValue.chain_id, currentValue.items)
-    );
-  }, {});
+    return Object.assign(acc, getTokenSlugWithChainIdTokensMetadataRecord(currentValue.chain_id, currentValue.items));
+  }, oldRecord);
 
 const getTokenSlugWithChainIdTokensMetadataRecord = (chainID: ChainID, data: BalanceItem[]) =>
   data.reduce<EVMMetadataRecords>((acc, currentValue) => {

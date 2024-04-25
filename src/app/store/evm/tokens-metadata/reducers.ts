@@ -12,7 +12,7 @@ export const evmTokensMetadataReducer = createReducer<EVMTokensMetadataState>(
 
       if (data.length === 0) return;
 
-      state.metadataRecord = getStoredTokensMetadataRecord(data);
+      state.metadataRecord = getStoredTokensMetadataRecord(state.metadataRecord, data);
     });
   }
 );

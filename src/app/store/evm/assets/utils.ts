@@ -13,21 +13,29 @@ export const getNewStoredAssetsRecord = (
     if (!currentValue.chain_id) return acc;
 
     acc[publicKeyHash] = Object.assign(
-      {},
       acc[publicKeyHash] ?? {},
-      getTokenSlugStoredAssetRecord(currentValue.chain_id, currentValue.items)
+      getTokenSlugStoredAssetRecord(oldRecord[publicKeyHash] ?? {}, currentValue.chain_id, currentValue.items)
     );
 
     return acc;
   }, oldRecord);
 
-const getTokenSlugStoredAssetRecord = (chainID: ChainID, data: BalanceItem[]) =>
+const getTokenSlugStoredAssetRecord = (
+  oldRecord: TokenSlugWithChainIdStoredAssetRecord,
+  chainID: ChainID,
+  data: BalanceItem[]
+) =>
   data.reduce<TokenSlugWithChainIdStoredAssetRecord>((acc, currentValue) => {
     if (!isProperMetadata(currentValue)) {
       return acc;
     }
 
-    acc[getEvmAssetRecordKey(toTokenSlug(currentValue.contract_address), chainID)] = { status: 'idle' };
+    const recordKey = getEvmAssetRecordKey(toTokenSlug(currentValue.contract_address), chainID);
+    const oldRecordValue = oldRecord[recordKey];
+
+    if (!oldRecordValue?.manual) {
+      acc[recordKey] = { status: 'idle' };
+    }
 
     return acc;
   }, {});

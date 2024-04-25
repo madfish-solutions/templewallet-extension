@@ -13,7 +13,6 @@ export const getNewBalancesAtomicRecord = (
     if (!currentValue.chain_id) return acc;
 
     acc[publicKeyHash] = Object.assign(
-      {},
       acc[publicKeyHash] ?? {},
       getTokenSlugWithChainIdBalanceRecord(currentValue.items, currentValue.chain_id)
     );
