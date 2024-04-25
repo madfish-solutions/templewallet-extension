@@ -6,7 +6,6 @@ import { useTempleClient } from 'lib/temple/front/client';
 import { TempleStatus, TempleState, StoredAccount, TempleSettings } from 'lib/temple/types';
 
 import { useReadyTempleAccounts } from './accounts';
-import { useReadyTempleGroups } from './groups';
 import { useReadyTempleTezosNetworks, useReadyTempleEvmNetworks } from './networks';
 
 export const [
@@ -29,7 +28,6 @@ export const [
   //
   useSettings,
   //
-  useAllGroups,
   useHDGroups
 ] = constate(
   useReadyTemple,
@@ -51,7 +49,6 @@ export const [
   //
   v => v.settings,
   //
-  v => v.allGroups,
   v => v.hdGroups
 );
 
@@ -66,8 +63,6 @@ function useReadyTemple() {
 
   const readyTempleAccounts = useReadyTempleAccounts(allAccounts);
 
-  const readyTempleGroups = useReadyTempleGroups(allAccounts, hdGroups);
-
   /** Error boundary reset */
   useLayoutEffect(() => {
     const evt = new CustomEvent('reseterrorboundary');
@@ -80,8 +75,7 @@ function useReadyTemple() {
 
     ...readyTempleAccounts,
 
-    ...readyTempleGroups,
-
+    hdGroups,
     settings
   };
 }

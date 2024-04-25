@@ -24,7 +24,8 @@ export const AccountAddressesModal = memo<AccountAddressesModalProps>(({ account
           const address = getAccountAddressForChain(account, chain);
 
           return address && { chain, address };
-        }).filter(isTruthy),
+        })
+        .filter(isTruthy),
     [account]
   );
 

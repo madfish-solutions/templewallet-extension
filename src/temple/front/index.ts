@@ -14,7 +14,6 @@ export {
   useAccountForEvm,
   useSetAccountId as useChangeAccount,
   //
-  useAllGroups,
   useHDGroups
 } from './ready';
 
