@@ -5,11 +5,13 @@ import clsx from 'clsx';
 import { SyncSpinner, Divider, Checkbox } from 'app/atoms';
 import DropdownWrapper from 'app/atoms/DropdownWrapper';
 import { useAppEnv } from 'app/env';
+import { useAllAccountEvmAssets } from 'app/hooks/evm/use-all-account-evm-assets';
 import { useLoadPartnersPromo } from 'app/hooks/use-load-partners-promo';
 import { useTokensListingLogic } from 'app/hooks/use-tokens-listing-logic';
 import { ReactComponent as EditingIcon } from 'app/icons/editing.svg';
 import { ReactComponent as SearchIcon } from 'app/icons/search.svg';
 import { ContentContainer } from 'app/layouts/ContentContainer';
+import { useEvmDataLoadingSelector } from 'app/store/evm/selectors';
 import { useAreAssetsLoading, useMainnetTokensScamlistSelector } from 'app/store/tezos/assets/selectors';
 import { useTokensMetadataLoadingSelector } from 'app/store/tezos/tokens-metadata/selectors';
 import { useChainSelectController, ChainSelectSection } from 'app/templates/ChainSelect';
@@ -28,7 +30,6 @@ import { Link, navigate } from 'lib/woozie';
 import { useAccountAddressForEvm, useAccountAddressForTezos } from 'temple/front';
 import { EvmNetworkEssentials, TezosNetworkEssentials } from 'temple/networks';
 
-import { useAllAccountEvmAssets } from '../../../../hooks/evm/use-all-account-evm-assets';
 import { HomeSelectors } from '../../Home.selectors';
 import { AssetsSelectors } from '../Assets.selectors';
 
@@ -68,6 +69,7 @@ interface EvmTokensTabProps {
 
 const EvmTokensTab: FC<EvmTokensTabProps> = ({ network, publicKeyHash }) => {
   const { slugs } = useAllAccountEvmAssets(publicKeyHash, network.chainId);
+  const isDataLoading = useEvmDataLoadingSelector();
 
   if (slugs.length === 0) {
     return <>NO RECORDS FOUND</>;
@@ -78,6 +80,7 @@ const EvmTokensTab: FC<EvmTokensTabProps> = ({ network, publicKeyHash }) => {
       {slugs.map(assetSlug => (
         <EvmListItem key={assetSlug} assetSlug={assetSlug} publicKeyHash={publicKeyHash} network={network} />
       ))}
+      {isDataLoading && <SyncSpinner className="mt-4" />}
     </>
   );
 };
