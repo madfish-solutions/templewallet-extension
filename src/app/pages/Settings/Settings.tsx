@@ -18,7 +18,6 @@ import About from 'app/templates/About/About';
 import { AccountsManagement } from 'app/templates/AccountsManagement';
 import ActivateAccount from 'app/templates/ActivateAccount/ActivateAccount';
 import AddressBook from 'app/templates/AddressBook/AddressBook';
-import CustomNetworksSettings from 'app/templates/CustomNetworkSettings/CustomNetworksSettings';
 import DAppSettings from 'app/templates/DAppSettings/DAppSettings';
 import HelpAndCommunity from 'app/templates/HelpAndCommunity';
 import { RevealSeedPhrase, RevealPrivateKeys } from 'app/templates/RevealSecrets';
@@ -27,6 +26,7 @@ import SyncSettings from 'app/templates/Synchronization/SyncSettings';
 import { TID, T } from 'lib/i18n';
 import { Link } from 'lib/woozie';
 
+import NetworksSettings from './Networks';
 import { SettingsSelectors } from './Settings.selectors';
 
 type SettingsProps = {
@@ -102,7 +102,7 @@ const TABS: Tab[] = [
     slug: 'networks',
     titleI18nKey: 'networks',
     Icon: SignalAltIcon,
-    Component: CustomNetworksSettings,
+    Component: NetworksSettings,
     color: '#F6C90E',
     descriptionI18nKey: 'networksDescription',
     testID: SettingsSelectors.networksButton

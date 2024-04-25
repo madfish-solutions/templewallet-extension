@@ -2,7 +2,7 @@ import browser from 'webextension-polyfill';
 
 import { AT_LEAST_ONE_HD_ACCOUNT_ERR_MSG, ACCOUNT_NAME_COLLISION_ERR_MSG } from 'lib/constants';
 import { getAccountAddressForTezos } from 'temple/accounts';
-import { TempleChainName } from 'temple/types';
+import { TempleChainKind } from 'temple/types';
 
 import { TempleAccountType, TempleSettings } from '../../types';
 
@@ -337,9 +337,9 @@ describe('Vault tests', () => {
       await Vault.spawn(password, defaultMnemonic);
       const vault = await Vault.setup(password);
       const [{ id: firstGroupId }] = await vault.fetchHdGroups();
-      await vault.importAccount(TempleChainName.Tezos, hdWallets[0].accounts[1].tezos.privateKey);
-      await vault.importWatchOnlyAccount(TempleChainName.EVM, hdWallets[0].accounts[1].evm.address);
-      await vault.importAccount(TempleChainName.Tezos, hdWallets[0].accounts[2].tezos.privateKey);
+      await vault.importAccount(TempleChainKind.Tezos, hdWallets[0].accounts[1].tezos.privateKey);
+      await vault.importWatchOnlyAccount(TempleChainKind.EVM, hdWallets[0].accounts[1].evm.address);
+      await vault.importAccount(TempleChainKind.Tezos, hdWallets[0].accounts[2].tezos.privateKey);
       const accounts = await vault.createHDAccount(firstGroupId);
       expectObjectArrayMatch(accounts, [
         {
@@ -350,7 +350,7 @@ describe('Vault tests', () => {
         },
         {
           type: TempleAccountType.Imported,
-          chain: TempleChainName.Tezos,
+          chain: TempleChainKind.Tezos,
           address: hdWallets[0].accounts[2].tezos.address
         },
         {
@@ -427,7 +427,7 @@ describe('Vault tests', () => {
         await Vault.spawn(password, defaultMnemonic);
         const vault = await Vault.setup(password);
         const accounts = await vault.importAccount(
-          TempleChainName.Tezos,
+          TempleChainKind.Tezos,
           'edsk4TjJWEszkHKono7XMnepVqwi37FrpbVt1KCsifJeAGimxheShG'
         );
         const publicKeyHash = getAccountAddressForTezos(accounts[1])!;
@@ -441,7 +441,7 @@ describe('Vault tests', () => {
         await Vault.spawn(password, defaultMnemonic);
         const vault = await Vault.setup(password);
         const accounts = await vault.importAccount(
-          TempleChainName.Tezos,
+          TempleChainKind.Tezos,
           'edskS3DtVSbWbPD1yviMGebjYwWJtruMjDcfAZsH9uba22EzKeYhmQkkraFosFETmEMfFNVcDYQ5QbFerj9ozDKroXZ6mb5oxV'
         );
         const publicKeyHash = getAccountAddressForTezos(accounts[1])!;
@@ -457,7 +457,7 @@ describe('Vault tests', () => {
         await Vault.spawn(password, defaultMnemonic);
         const vault = await Vault.setup(password);
         const accounts = await vault.importAccount(
-          TempleChainName.Tezos,
+          TempleChainKind.Tezos,
           'spsk2rBDDeUqakQ42nBHDGQTtP3GErb6AahHPwF9bhca3Q5KA5HESE'
         );
         const publicKeyHash = getAccountAddressForTezos(accounts[1])!;
@@ -471,7 +471,7 @@ describe('Vault tests', () => {
         await Vault.spawn(password, defaultMnemonic);
         const vault = await Vault.setup(password);
         const accounts = await vault.importAccount(
-          TempleChainName.Tezos,
+          TempleChainKind.Tezos,
           'spsk33kCcKpgrvXRQJB2GVGxAMxrSEmwKXLh2KR4ztLcbaCnQq3FFs'
         );
         const publicKeyHash = getAccountAddressForTezos(accounts[1])!;
@@ -487,7 +487,7 @@ describe('Vault tests', () => {
         await Vault.spawn(password, defaultMnemonic);
         const vault = await Vault.setup(password);
         const accounts = await vault.importAccount(
-          TempleChainName.Tezos,
+          TempleChainKind.Tezos,
           'p2sk2obfVMEuPUnadAConLWk7Tf4Dt3n4svSgJwrgpamRqJXvaYcg1'
         );
         const publicKeyHash = getAccountAddressForTezos(accounts[1])!;
@@ -501,7 +501,7 @@ describe('Vault tests', () => {
         await Vault.spawn(password, defaultMnemonic);
         const vault = await Vault.setup(password);
         const accounts = await vault.importAccount(
-          TempleChainName.Tezos,
+          TempleChainKind.Tezos,
           'p2esk2TFqgNcoT4u99ut5doGTUFNwo9x4nNvkpM6YMLqXrt4SbFdQnqLM3hoAXLMB2uZYazj6LZGvcoYzk16H6Et',
           'test1234'
         );
@@ -516,7 +516,7 @@ describe('Vault tests', () => {
         await Vault.spawn(password, defaultMnemonic);
         const vault = await Vault.setup(password);
         const accounts = await vault.importAccount(
-          TempleChainName.Tezos,
+          TempleChainKind.Tezos,
           'p2sk2ke47zhFz3znRZj39TW5KKS9VgfU1Hax7KeErgnShNe9oQFQUP'
         );
         const publicKeyHash = getAccountAddressForTezos(accounts[1])!;
@@ -540,13 +540,13 @@ describe('Vault tests', () => {
     await Vault.spawn(password, defaultMnemonic);
     const vault = await Vault.setup(password);
     const accounts = await vault.importAccount(
-      TempleChainName.Tezos,
+      TempleChainKind.Tezos,
       'edskS3DtVSbWbPD1yviMGebjYwWJtruMjDcfAZsH9uba22EzKeYhmQkkraFosFETmEMfFNVcDYQ5QbFerj9ozDKroXZ6mb5oxV'
     );
     expect(accounts[1]).toMatchObject({
       name: 'Translated<defaultAccountName, "1">',
       type: TempleAccountType.Imported,
-      chain: TempleChainName.Tezos,
+      chain: TempleChainKind.Tezos,
       address: 'tz1RvhdZ5pcjD19vCCK9PgZpnmErTba3dsBs'
     });
   });
@@ -554,10 +554,10 @@ describe('Vault tests', () => {
   it('should import an account by EVM private key', async () => {
     await Vault.spawn(password, defaultMnemonic);
     const vault = await Vault.setup(password);
-    const accounts = await vault.importAccount(TempleChainName.EVM, hdWallets[0].accounts[1].evm.privateKey);
+    const accounts = await vault.importAccount(TempleChainKind.EVM, hdWallets[0].accounts[1].evm.privateKey);
     expect(accounts[1]).toMatchObject({
       type: TempleAccountType.Imported,
-      chain: TempleChainName.EVM,
+      chain: TempleChainKind.EVM,
       address: hdWallets[0].accounts[1].evm.address
     });
   });
@@ -588,7 +588,7 @@ describe('Vault tests', () => {
     );
     expect(fundraiserAccount).toMatchObject({
       type: TempleAccountType.Imported,
-      chain: TempleChainName.Tezos,
+      chain: TempleChainKind.Tezos,
       address: 'tz1ZfrERcALBwmAqwonRXYVQBDT9BjNjBHJu'
     });
   });
@@ -611,11 +611,11 @@ describe('Vault tests', () => {
   it('should import a watch-only account', async () => {
     await Vault.spawn(password, defaultMnemonic);
     const vault = await Vault.setup(password);
-    const [, newAccount] = await vault.importWatchOnlyAccount(TempleChainName.Tezos, mockManagedContractAddress);
+    const [, newAccount] = await vault.importWatchOnlyAccount(TempleChainKind.Tezos, mockManagedContractAddress);
     expect(newAccount).toMatchObject({
       type: TempleAccountType.WatchOnly,
       name: 'Translated<defaultWatchOnlyAccountName, "1">',
-      chain: TempleChainName.Tezos,
+      chain: TempleChainKind.Tezos,
       address: mockManagedContractAddress
     });
   });
@@ -623,8 +623,8 @@ describe('Vault tests', () => {
   it('should not import an account with the same address', async () => {
     await Vault.spawn(password, defaultMnemonic);
     const vault = await Vault.setup(password);
-    await vault.importWatchOnlyAccount(TempleChainName.Tezos, mockManagedContractAddress);
-    await expect(() => vault.importWatchOnlyAccount(TempleChainName.Tezos, mockManagedContractAddress)).rejects.toThrow(
+    await vault.importWatchOnlyAccount(TempleChainKind.Tezos, mockManagedContractAddress);
+    await expect(() => vault.importWatchOnlyAccount(TempleChainKind.Tezos, mockManagedContractAddress)).rejects.toThrow(
       'Account already exists'
     );
   });
@@ -639,7 +639,7 @@ describe('Vault tests', () => {
     it('should throw an error for an attempt to remove the only HD account', async () => {
       await Vault.spawn(password, defaultMnemonic);
       const vault = await Vault.setup(password);
-      const [hdAccount] = await vault.importAccount(TempleChainName.Tezos, hdWallets[0].accounts[1].tezos.privateKey);
+      const [hdAccount] = await vault.importAccount(TempleChainKind.Tezos, hdWallets[0].accounts[1].tezos.privateKey);
       await expect(() => Vault.removeAccount(hdAccount.id, password)).rejects.toThrow(AT_LEAST_ONE_HD_ACCOUNT_ERR_MSG);
     });
 
@@ -666,7 +666,7 @@ describe('Vault tests', () => {
       await Vault.spawn(password, defaultMnemonic);
       const vault = await Vault.setup(password);
       const accountsBeforeDeletion = await vault.importAccount(
-        TempleChainName.Tezos,
+        TempleChainKind.Tezos,
         hdWallets[0].accounts[1].tezos.privateKey
       );
       const { newAccounts: accountsAfterDeletion } = await Vault.removeAccount(accountsBeforeDeletion[1].id, password);
@@ -705,9 +705,9 @@ describe('Vault tests', () => {
   it('should remove accounts of the specified type, except the HD ones', async () => {
     await Vault.spawn(password, defaultMnemonic);
     const vault = await Vault.setup(password);
-    await vault.importAccount(TempleChainName.Tezos, hdWallets[0].accounts[1].tezos.privateKey);
-    await vault.importAccount(TempleChainName.EVM, hdWallets[0].accounts[1].evm.privateKey);
-    await vault.importWatchOnlyAccount(TempleChainName.Tezos, hdWallets[0].accounts[2].tezos.address);
+    await vault.importAccount(TempleChainKind.Tezos, hdWallets[0].accounts[1].tezos.privateKey);
+    await vault.importAccount(TempleChainKind.EVM, hdWallets[0].accounts[1].evm.privateKey);
+    await vault.importWatchOnlyAccount(TempleChainKind.Tezos, hdWallets[0].accounts[2].tezos.address);
     await vault.importManagedKTAccount(
       mockManagedContractAddress,
       'NetXdQprcVkpaWU',
@@ -765,10 +765,10 @@ describe('Vault tests', () => {
     it('should replace non-HD accounts with the same addresses', async () => {
       await Vault.spawn(password, defaultMnemonic);
       const vault = await Vault.setup(password);
-      await vault.importAccount(TempleChainName.Tezos, hdWallets[1].accounts[0].tezos.privateKey);
-      await vault.importWatchOnlyAccount(TempleChainName.EVM, hdWallets[1].accounts[0].evm.address);
+      await vault.importAccount(TempleChainKind.Tezos, hdWallets[1].accounts[0].tezos.privateKey);
+      await vault.importWatchOnlyAccount(TempleChainKind.EVM, hdWallets[1].accounts[0].evm.address);
       const accountsBeforeReplacement = await vault.importAccount(
-        TempleChainName.Tezos,
+        TempleChainKind.Tezos,
         hdWallets[0].accounts[2].tezos.privateKey
       );
       const { newHdGroups: hdGroups, newAccounts: accounts } = await vault.createOrImportWallet(hdWallets[1].mnemonic);

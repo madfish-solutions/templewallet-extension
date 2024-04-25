@@ -1,10 +1,12 @@
 import React from 'react';
 
 import { TestIDProps } from 'lib/analytics';
+import { TezosNetworkEssentials } from 'temple/networks';
 
 import { SwapInputValue } from '../SwapForm.form';
 
 export interface SwapFormInputProps extends TestIDProps {
+  network: TezosNetworkEssentials;
   publicKeyHash: string;
   value: SwapInputValue;
   className?: string;

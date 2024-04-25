@@ -1,5 +1,6 @@
 import { useCallback, useMemo } from 'react';
 
+import { ChainIds } from '@taquito/taquito';
 import retry from 'async-retry';
 import BigNumber from 'bignumber.js';
 import useSWR, { unstable_serialize, useSWRConfig } from 'swr';
@@ -15,7 +16,7 @@ import { getAccountStatsFromTzkt, isKnownChainId, TzktRewardsEntry, TzktAccountT
 import { t } from 'lib/i18n';
 import { useRetryableSWR } from 'lib/swr';
 import { getOnlineStatus } from 'lib/ui/get-online-status';
-import { useTezosNetwork } from 'temple/front';
+import { TezosNetworkEssentials } from 'temple/networks';
 import { getReadOnlyTezos } from 'temple/tezos';
 
 function getDelegateCacheKey(
@@ -27,18 +28,25 @@ function getDelegateCacheKey(
   return ['delegate', rpcUrl, address, chainId, shouldPreventErrorPropagation];
 }
 
-export function useDelegate(address: string, suspense = true, shouldPreventErrorPropagation = true) {
-  const { chainId, rpcUrl } = useTezosNetwork();
+export function useDelegate(
+  address: string,
+  network: TezosNetworkEssentials,
+  suspense = true,
+  shouldPreventErrorPropagation = true
+) {
+  const { rpcBaseURL, chainId } = network;
 
   const { cache: swrCache } = useSWRConfig();
 
   const resetDelegateCache = useCallback(() => {
-    swrCache.delete(unstable_serialize(getDelegateCacheKey(rpcUrl, address, chainId, shouldPreventErrorPropagation)));
-  }, [address, rpcUrl, chainId, swrCache, shouldPreventErrorPropagation]);
+    swrCache.delete(
+      unstable_serialize(getDelegateCacheKey(rpcBaseURL, address, chainId, shouldPreventErrorPropagation))
+    );
+  }, [address, rpcBaseURL, chainId, swrCache, shouldPreventErrorPropagation]);
 
   const getDelegate = useCallback(async () => {
     try {
-      const tezos = getReadOnlyTezos(rpcUrl);
+      const tezos = getReadOnlyTezos(rpcBaseURL);
 
       return await retry(
         async () => {
@@ -73,9 +81,9 @@ export function useDelegate(address: string, suspense = true, shouldPreventError
         resetDelegateCache
       );
     }
-  }, [chainId, rpcUrl, address, shouldPreventErrorPropagation, resetDelegateCache]);
+  }, [chainId, rpcBaseURL, address, shouldPreventErrorPropagation, resetDelegateCache]);
 
-  return useSWR(getDelegateCacheKey(rpcUrl, address, chainId, shouldPreventErrorPropagation), getDelegate, {
+  return useSWR(getDelegateCacheKey(rpcBaseURL, address, chainId, shouldPreventErrorPropagation), getDelegate, {
     dedupingInterval: 20_000,
     suspense
   });
@@ -129,8 +137,8 @@ const defaultRewardConfigHistory = [
   }
 ];
 
-export function useKnownBaker(address: string | null, suspense = true) {
-  const { isMainnet } = useTezosNetwork();
+export function useKnownBaker(address: string | null, chainId: string, suspense = true) {
+  const isMainnet = chainId === ChainIds.MAINNET;
 
   const fetchBaker = useCallback(async (): Promise<Baker | null> => {
     if (!address) return null;
@@ -183,8 +191,8 @@ export function useKnownBaker(address: string | null, suspense = true) {
   });
 }
 
-export function useKnownBakers(suspense = true) {
-  const { isMainnet } = useTezosNetwork();
+export function useKnownBakers(chainId: string, suspense = true) {
+  const isMainnet = chainId === ChainIds.MAINNET;
 
   const { data: bakers } = useRetryableSWR(isMainnet ? 'all-bakers' : null, getAllBakersBakingBad, {
     refreshInterval: 120_000,

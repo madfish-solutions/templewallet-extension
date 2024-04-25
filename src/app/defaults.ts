@@ -1,7 +1,7 @@
 import { t } from 'lib/i18n';
 import { getDerivationPath } from 'lib/temple/helpers';
 import { TempleAccountType } from 'lib/temple/types';
-import { TempleChainName } from 'temple/types';
+import { TempleChainKind } from 'temple/types';
 
 export const OP_STACK_PREVIEW_SIZE = 2;
 
@@ -52,4 +52,4 @@ export function getAccountBadgeTitle(accountType: TempleAccountType) {
   }
 }
 
-export const DEFAULT_DERIVATION_PATH = getDerivationPath(TempleChainName.Tezos, 0);
+export const DEFAULT_DERIVATION_PATH = getDerivationPath(TempleChainKind.Tezos, 0);

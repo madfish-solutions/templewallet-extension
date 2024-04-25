@@ -5,8 +5,8 @@ import { FieldError } from 'react-hook-form';
 
 import { Alert, FormSubmitButton } from 'app/atoms';
 import AdditionalFeeInput from 'app/templates/AdditionalFeeInput/AdditionalFeeInput';
-import { useGasToken } from 'lib/assets/hooks';
 import { t, T } from 'lib/i18n';
+import { getTezosGasMetadata } from 'lib/metadata';
 
 import { SendFormSelectors } from './selectors';
 import SendErrorAlert from './SendErrorAlert';
@@ -23,6 +23,7 @@ interface FeeComponentProps extends FeeAlertPropsBase {
 
 export const FeeSection: React.FC<FeeComponentProps> = ({
   accountPkh,
+  tezosChainId,
   restFormDisplayed,
   estimationError,
   control,
@@ -32,19 +33,19 @@ export const FeeSection: React.FC<FeeComponentProps> = ({
   isSubmitting,
   ...rest
 }) => {
-  const { metadata } = useGasToken();
-
   if (!restFormDisplayed) return null;
+
+  const metadata = getTezosGasMetadata(tezosChainId);
 
   return (
     <>
-      <FeeAlert {...rest} estimationError={estimationError} accountPkh={accountPkh} />
+      <FeeAlert {...rest} estimationError={estimationError} accountPkh={accountPkh} tezosChainId={tezosChainId} />
 
       <AdditionalFeeInput
         name="fee"
         control={control}
         onChange={handleFeeFieldChange}
-        assetSymbol={metadata.symbol}
+        gasSymbol={metadata.symbol}
         baseFee={baseFee}
         error={error}
         id="send-fee"
@@ -66,6 +67,7 @@ interface FeeAlertPropsBase {
   estimationError: unknown;
   toResolved: string;
   toFilledWithKTAddress: boolean;
+  tezosChainId: string;
 }
 
 interface FeeAlertProps extends FeeAlertPropsBase {
@@ -77,11 +79,12 @@ const FeeAlert: React.FC<FeeAlertProps> = ({
   estimationError,
   toResolved,
   toFilledWithKTAddress,
-  accountPkh
+  accountPkh,
+  tezosChainId
 }) => {
-  if (submitError) return <SendErrorAlert type="submit" error={submitError} />;
+  if (submitError) return <SendErrorAlert type="submit" error={submitError} tezosChainId={tezosChainId} />;
 
-  if (estimationError) return <SendErrorAlert type="estimation" error={estimationError} />;
+  if (estimationError) return <SendErrorAlert type="estimation" error={estimationError} tezosChainId={tezosChainId} />;
 
   if (toResolved === accountPkh)
     return (

@@ -8,7 +8,7 @@ import { useTempleClient } from 'lib/temple/front';
 import { StoredAccount } from 'lib/temple/types';
 import { isTruthy } from 'lib/utils';
 import { getAccountAddressForChain } from 'temple/accounts';
-import { TempleChainName } from 'temple/types';
+import { TempleChainKind } from 'temple/types';
 
 import { PrivateKeyPayload } from './types';
 
@@ -27,7 +27,7 @@ export const RevealPrivateKeysForm = memo<RevealPrivateKeysFormProps>(({ onRevea
   const revealSecretKeys = useCallback(
     async ({ password }: FormData) => {
       const rawPayloads = await Promise.all(
-        [TempleChainName.EVM, TempleChainName.Tezos].map(async chainName => {
+        [TempleChainKind.EVM, TempleChainKind.Tezos].map(async chainName => {
           const accountAddress = getAccountAddressForChain(account, chainName);
 
           return accountAddress

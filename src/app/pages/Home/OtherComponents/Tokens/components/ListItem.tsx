@@ -4,10 +4,11 @@ import classNames from 'clsx';
 
 import { AssetIcon } from 'app/templates/AssetIcon';
 import { setAnotherSelector } from 'lib/analytics';
-import { useBalance } from 'lib/balances/hooks';
+import { useTezosAssetBalance } from 'lib/balances/hooks';
 import { getAssetName, getAssetSymbol } from 'lib/metadata';
 import { ZERO } from 'lib/utils/numbers';
 import { Link } from 'lib/woozie';
+import { TezosNetworkEssentials } from 'temple/networks';
 
 import { AssetsSelectors } from '../../Assets.selectors';
 import styles from '../Tokens.module.css';
@@ -17,14 +18,15 @@ import { CryptoBalance, FiatBalance } from './Balance';
 import { TokenTag } from './TokenTag';
 
 interface Props {
+  network: TezosNetworkEssentials;
   publicKeyHash: string;
   assetSlug: string;
   active: boolean;
   scam?: boolean;
 }
 
-export const ListItem = memo<Props>(({ publicKeyHash, assetSlug, active, scam }) => {
-  const { value: balance = ZERO, assetMetadata: metadata } = useBalance(assetSlug, publicKeyHash);
+export const ListItem = memo<Props>(({ network, publicKeyHash, assetSlug, active, scam }) => {
+  const { value: balance = ZERO, assetMetadata: metadata } = useTezosAssetBalance(assetSlug, publicKeyHash, network);
 
   const classNameMemo = useMemo(
     () =>
@@ -43,19 +45,25 @@ export const ListItem = memo<Props>(({ publicKeyHash, assetSlug, active, scam })
 
   return (
     <Link
-      to={toExploreAssetLink(assetSlug)}
+      to={toExploreAssetLink(network.chainId, assetSlug)}
       className={classNameMemo}
       testID={AssetsSelectors.assetItemButton}
       testIDProperties={{ key: assetSlug }}
       {...setAnotherSelector('name', assetName)}
     >
-      <AssetIcon assetSlug={assetSlug} size={40} className="mr-2 flex-shrink-0" />
+      <AssetIcon tezosChainId={network.chainId} assetSlug={assetSlug} size={40} className="mr-2 flex-shrink-0" />
 
       <div className={classNames('w-full', styles.tokenInfoWidth)}>
         <div className="flex justify-between w-full mb-1">
           <div className="flex items-center flex-initial">
             <div className={styles['tokenSymbol']}>{assetSymbol}</div>
-            <TokenTag tezPkh={publicKeyHash} assetSlug={assetSlug} assetSymbol={assetSymbol} scam={scam} />
+            <TokenTag
+              network={network}
+              tezPkh={publicKeyHash}
+              assetSlug={assetSlug}
+              assetSymbol={assetSymbol}
+              scam={scam}
+            />
           </div>
           <CryptoBalance
             value={balance}
@@ -66,6 +74,7 @@ export const ListItem = memo<Props>(({ publicKeyHash, assetSlug, active, scam })
         <div className="flex justify-between w-full mb-1">
           <div className="text-xs font-normal text-gray-700 truncate flex-1">{assetName}</div>
           <FiatBalance
+            tezosChainId={network.chainId}
             assetSlug={assetSlug}
             value={balance}
             testID={AssetsSelectors.assetItemFiatBalanceButton}

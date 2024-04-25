@@ -1,7 +1,7 @@
 import browser from 'webextension-polyfill';
 
 import { getAccountAddressForTezos } from 'temple/accounts';
-import { TempleChainName } from 'temple/types';
+import { TempleChainKind } from 'temple/types';
 
 import { TempleAccountType, TempleStatus } from '../types';
 
@@ -24,12 +24,11 @@ describe('Store tests', () => {
   });
 
   it('Initial store values', () => {
-    const { inited, vault, status, accounts, networks, settings } = store.getState();
+    const { inited, vault, status, accounts, settings } = store.getState();
     expect(inited).toBeFalsy();
     expect(vault).toBeNull();
     expect(status).toBe(TempleStatus.Idle);
     expect(accounts).toEqual([]);
-    expect(networks).toEqual([]);
     expect(settings).toBeNull();
   });
   it('Inited event', () => {
@@ -59,7 +58,7 @@ describe('Store tests', () => {
         id: 'testId',
         name: 'testName',
         type: TempleAccountType.Imported,
-        chain: TempleChainName.Tezos,
+        chain: TempleChainKind.Tezos,
         address: 'testHashKey',
         isVisible: true
       }

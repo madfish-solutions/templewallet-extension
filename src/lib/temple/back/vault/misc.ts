@@ -9,7 +9,7 @@ import { ACCOUNT_ALREADY_EXISTS_ERR_MSG } from 'lib/constants';
 import { fetchNewAccountName as genericFetchNewAccountName, getDerivationPath } from 'lib/temple/helpers';
 import { StoredAccount, TempleAccountType } from 'lib/temple/types';
 import { getAccountAddressForEvm, getAccountAddressForTezos } from 'temple/accounts';
-import { TempleChainName } from 'temple/types';
+import { TempleChainKind } from 'temple/types';
 
 import { PublicError } from '../PublicError';
 
@@ -32,9 +32,9 @@ export function concatAccount(current: StoredAccount[], newOne: StoredAccount) {
           return true;
         }
 
-        const chain = 'chain' in account ? account.chain : TempleChainName.Tezos;
+        const chain = 'chain' in account ? account.chain : TempleChainKind.Tezos;
 
-        return chain === TempleChainName.Tezos
+        return chain === TempleChainKind.Tezos
           ? getAccountAddressForTezos(account) !== newOne.tezosAddress
           : getAccountAddressForEvm(account) !== newOne.evmAddress;
       }),
@@ -50,7 +50,7 @@ export function concatAccount(current: StoredAccount[], newOne: StoredAccount) {
         return [newOne.chain, newOne.address];
       case TempleAccountType.ManagedKT:
       case TempleAccountType.Ledger:
-        return [TempleChainName.Tezos, newOne.tezosAddress];
+        return [TempleChainKind.Tezos, newOne.tezosAddress];
     }
 
     throw new PublicError('Missing account type');
@@ -160,7 +160,7 @@ export function createMemorySigner(privateKey: string, encPassword?: string) {
 }
 
 function seedToHDPrivateKey(seed: Buffer, hdAccIndex: number) {
-  return seedToPrivateKey(deriveSeed(seed, getDerivationPath(TempleChainName.Tezos, hdAccIndex)));
+  return seedToPrivateKey(deriveSeed(seed, getDerivationPath(TempleChainKind.Tezos, hdAccIndex)));
 }
 
 export function seedToPrivateKey(seed: Buffer) {

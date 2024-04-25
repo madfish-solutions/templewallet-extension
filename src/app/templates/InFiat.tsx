@@ -6,43 +6,45 @@ import BigNumber from 'bignumber.js';
 import Money from 'app/atoms/Money';
 import { TestIDProps } from 'lib/analytics';
 import { useAssetFiatCurrencyPrice, useFiatCurrency } from 'lib/fiat-currency';
-import { useTezosNetwork } from 'temple/front';
+import { TEZOS_MAINNET_CHAIN_ID } from 'lib/temple/types';
 
 interface OutputProps {
   balance: ReactNode;
   symbol: string;
 }
 
-interface InFiatProps extends TestIDProps {
+interface Props extends TestIDProps {
   volume: BigNumber | number | string;
-  assetSlug?: string;
+  tezosChainId: string;
+  assetSlug: string;
   children: (output: OutputProps) => ReactElement;
   roundingMode?: BigNumber.RoundingMode;
   shortened?: boolean;
   smallFractionFont?: boolean;
-  mainnet?: boolean;
   showCents?: boolean;
 }
 
-const InFiat: FC<InFiatProps> = ({
+const InFiat: FC<Props> = props => {
+  if (props.tezosChainId !== TEZOS_MAINNET_CHAIN_ID) return null;
+
+  return <InFiatContent {...props} />;
+};
+
+export default InFiat;
+
+const InFiatContent: FC<Props> = ({
   volume,
   assetSlug,
   children,
   roundingMode,
   shortened,
   smallFractionFont,
-  mainnet,
   showCents = true,
   testID,
   testIDProperties
 }) => {
-  const price = useAssetFiatCurrencyPrice(assetSlug ?? 'tez');
+  const price = useAssetFiatCurrencyPrice(assetSlug);
   const { selectedFiatCurrency } = useFiatCurrency();
-  const { isMainnet } = useTezosNetwork();
-
-  if (mainnet === undefined) {
-    mainnet = isMainnet;
-  }
 
   const roundedInFiat = useMemo(() => {
     if (!isDefined(price)) return new BigNumber(0);
@@ -56,7 +58,7 @@ const InFiat: FC<InFiatProps> = ({
 
   const cryptoDecimals = showCents ? undefined : 0;
 
-  return mainnet && isDefined(price)
+  return isDefined(price)
     ? children({
         balance: (
           <Money
@@ -75,5 +77,3 @@ const InFiat: FC<InFiatProps> = ({
       })
     : null;
 };
-
-export default InFiat;

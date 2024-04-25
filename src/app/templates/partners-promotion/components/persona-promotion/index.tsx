@@ -53,18 +53,18 @@ export const PersonaPromotion = memo<Props>(
     useAdRectObservation(ref, onAdRectSeen, isVisible);
 
     const injectAd = useCallback(async () => {
-      const { client, environment } = await getPersonaAdClient();
+      const { client, environment } = await getPersonaAdClient(accountPkh);
       const adUnitId =
         environment === 'staging' ? PERSONA_STAGING_ADS_BANNER_UNIT_ID : EnvVars.PERSONA_ADS_BANNER_UNIT_ID;
 
       await client.showBannerAd(
-        // @ts-expect-error // for missing `adConfig` prop
+        // @ts-expect-error // for missung `adConfig` prop
         { adUnitId, containerId },
         errorMsg => {
           throw new Error(String(errorMsg));
         }
       );
-    }, [containerId]);
+    }, [accountPkh, containerId]);
 
     useEffect(
       () =>

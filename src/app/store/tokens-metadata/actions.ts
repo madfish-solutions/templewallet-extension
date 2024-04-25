@@ -17,6 +17,6 @@ export const loadTokensMetadataAction = createAction<{
   slugs: string[];
 }>('tokens-metadata/LOAD');
 
-export const resetTokensMetadataLoadingAction = createAction('tokens-metadata/RESET_LOADING');
+export const setTokensMetadataLoadingAction = createAction<boolean>('tokens-metadata/SET_LOADING');
 
 export const refreshTokensMetadataAction = createAction<FetchedMetadataRecord>('tokens-metadata/REFRESH_MULTIPLE');

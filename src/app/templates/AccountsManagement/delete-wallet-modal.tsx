@@ -7,12 +7,11 @@ import {
   ActionModalBodyContainer,
   ActionModalButtonsContainer
 } from 'app/atoms/action-modal';
+import { useTempleBackendActionForm } from 'app/hooks/use-temple-backend-action-form';
 import { T, t } from 'lib/i18n';
 import { useTempleClient } from 'lib/temple/front';
-import { useHDGroups } from 'lib/temple/front/ready';
 import { DisplayedGroup, TempleAccountType } from 'lib/temple/types';
-
-import { useTempleBackendActionForm } from '../../hooks/use-temple-backend-action-form';
+import { useHDGroups } from 'temple/front';
 
 interface DeleteWalletModalProps {
   onClose: () => void;

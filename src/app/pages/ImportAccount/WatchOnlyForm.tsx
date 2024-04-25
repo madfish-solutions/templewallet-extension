@@ -1,17 +1,19 @@
 import React, { memo, ReactNode, useCallback, useMemo, useRef, useState } from 'react';
 
+import clsx from 'clsx';
 import { useForm, Controller } from 'react-hook-form';
 import * as Viem from 'viem';
 
 import { Alert, FormSubmitButton, NoSpaceField } from 'app/atoms';
+import { CONTENT_CONTAINER_CLASSNAME } from 'app/layouts/ContentContainer';
+import { ChainSelectSection, useChainSelectController } from 'app/templates/ChainSelect';
 import { useFormAnalytics } from 'lib/analytics';
 import { T, t } from 'lib/i18n';
 import { useTempleClient, validateDelegate } from 'lib/temple/front';
 import { isValidTezosAddress, isTezosContractAddress } from 'lib/tezos';
-import { useTezosNetworkRpcUrl } from 'temple/front';
-import { useTezosAddressByDomainName, useTezosDomainsClient } from 'temple/front/tezos';
+import { getTezosDomainsClient, useTezosAddressByDomainName } from 'temple/front/tezos';
 import { getReadOnlyTezos } from 'temple/tezos';
-import { TempleChainName } from 'temple/types';
+import { TempleChainKind } from 'temple/types';
 
 import { ImportAccountSelectors, ImportAccountFormType } from './selectors';
 
@@ -22,11 +24,17 @@ interface WatchOnlyFormData {
 export const WatchOnlyForm = memo(() => {
   const { importWatchOnlyAccount } = useTempleClient();
 
-  const rpcUrl = useTezosNetworkRpcUrl();
-  const domainsClient = useTezosDomainsClient();
+  const chainSelectController = useChainSelectController();
+  const network = chainSelectController.value;
+  const networkForTezos = network.kind === 'tezos' ? network : null;
+
+  const domainsClient = useMemo(
+    () => networkForTezos && getTezosDomainsClient(networkForTezos.chainId, networkForTezos.rpcBaseURL),
+    [networkForTezos]
+  );
   const formAnalytics = useFormAnalytics(ImportAccountFormType.WatchOnly);
 
-  const canUseDomainNames = domainsClient.isSupported;
+  const canUseDomainNames = domainsClient ? domainsClient.isSupported : false;
 
   const { watch, handleSubmit, errors, control, formState, setValue, triggerValidation } = useForm<WatchOnlyFormData>({
     mode: 'onChange'
@@ -37,7 +45,7 @@ export const WatchOnlyForm = memo(() => {
 
   const addressValue = watch('address');
 
-  const { data: tezAddressFromTzDomainName } = useTezosAddressByDomainName(addressValue);
+  const { data: tezAddressFromTzDomainName } = useTezosAddressByDomainName(addressValue, networkForTezos);
 
   const resolvedAddress = useMemo(
     () => tezAddressFromTzDomainName || addressValue,
@@ -55,18 +63,18 @@ export const WatchOnlyForm = memo(() => {
     setError(null);
 
     formAnalytics.trackSubmit();
-    let chain: TempleChainName | nullish;
+    let chain: TempleChainKind | nullish;
     try {
       chain = getChainFromAddress(resolvedAddress);
 
-      if (!chain) {
+      if (!chain || chain !== network.kind) {
         throw new Error(t('invalidAddress'));
       }
 
       let tezosChainId: string | undefined;
 
-      if (chain === TempleChainName.Tezos && isTezosContractAddress(resolvedAddress)) {
-        const tezos = getReadOnlyTezos(rpcUrl);
+      if (chain === TempleChainKind.Tezos && isTezosContractAddress(resolvedAddress)) {
+        const tezos = getReadOnlyTezos(network.rpcBaseURL);
 
         try {
           await tezos.contract.at(resolvedAddress);
@@ -77,7 +85,7 @@ export const WatchOnlyForm = memo(() => {
         tezosChainId = await tezos.rpc.getChainId();
       }
 
-      const finalAddress = chain === TempleChainName.Tezos ? resolvedAddress : Viem.getAddress(resolvedAddress);
+      const finalAddress = chain === TempleChainKind.Tezos ? resolvedAddress : Viem.getAddress(resolvedAddress);
 
       await importWatchOnlyAccount(chain, finalAddress, tezosChainId);
 
@@ -89,11 +97,13 @@ export const WatchOnlyForm = memo(() => {
 
       setError(err.message);
     }
-  }, [importWatchOnlyAccount, resolvedAddress, rpcUrl, formState.isSubmitting, setError, formAnalytics]);
+  }, [resolvedAddress, network, formState.isSubmitting, setError, formAnalytics, importWatchOnlyAccount]);
 
   return (
-    <form className="w-full max-w-sm mx-auto my-8" onSubmit={handleSubmit(onSubmit)}>
+    <form className={clsx(CONTENT_CONTAINER_CLASSNAME, 'my-8')} onSubmit={handleSubmit(onSubmit)}>
       {error && <Alert type="error" title={t('error')} description={error} autoFocus className="mb-6" />}
+
+      <ChainSelectSection controller={chainSelectController} onlyForAddressResolution />
 
       <Controller
         name="address"
@@ -104,7 +114,7 @@ export const WatchOnlyForm = memo(() => {
           validate: (value: any) => {
             if (value && Viem.isAddress(value)) return true;
 
-            return validateDelegate(value, domainsClient);
+            return validateDelegate(value, domainsClient ?? undefined);
           }
         }}
         onChange={([v]) => v}
@@ -146,9 +156,9 @@ export const WatchOnlyForm = memo(() => {
 });
 
 function getChainFromAddress(address: string) {
-  if (isValidTezosAddress(address)) return TempleChainName.Tezos;
+  if (isValidTezosAddress(address)) return TempleChainKind.Tezos;
 
-  if (Viem.isAddress(address)) return TempleChainName.EVM;
+  if (Viem.isAddress(address)) return TempleChainKind.EVM;
 
   return null;
 }

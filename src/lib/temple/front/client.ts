@@ -20,7 +20,7 @@ import {
   getAccountPublicKey
 } from 'temple/front/intercom-client';
 import { getPendingConfirmationId, resetPendingConfirmationId } from 'temple/front/pending-confirm';
-import { TempleChainName } from 'temple/types';
+import { TempleChainKind } from 'temple/types';
 
 type Confirmation = {
   id: string;
@@ -76,13 +76,15 @@ export const [TempleClientProvider, useTempleClient] = constate(() => {
    * Aliases
    */
 
-  const { status, networks: defaultNetworks, accounts, settings, hdGroups } = state;
+  const { status, accounts, settings, hdGroups } = state;
   const idle = status === TempleStatus.Idle;
   const locked = status === TempleStatus.Locked;
   const ready = status === TempleStatus.Ready;
 
-  const customNetworks = useMemo(() => settings?.customNetworks ?? [], [settings]);
-  const networks = useMemo(() => [...defaultNetworks, ...customNetworks], [defaultNetworks, customNetworks]);
+  const [customTezosNetworks, customEvmNetworks] = useMemo(
+    () => [settings?.customTezosNetworks ?? [], settings?.customEvmNetworks ?? []],
+    [settings]
+  );
 
   /**
    * Actions
@@ -180,7 +182,7 @@ export const [TempleClientProvider, useTempleClient] = constate(() => {
     assertResponse(res.type === TempleMessageType.EditAccountResponse);
   }, []);
 
-  const importAccount = useCallback(async (chain: TempleChainName, privateKey: string, encPassword?: string) => {
+  const importAccount = useCallback(async (chain: TempleChainKind, privateKey: string, encPassword?: string) => {
     const res = await request({
       type: TempleMessageType.ImportAccountRequest,
       chain,
@@ -220,7 +222,7 @@ export const [TempleClientProvider, useTempleClient] = constate(() => {
     assertResponse(res.type === TempleMessageType.ImportManagedKTAccountResponse);
   }, []);
 
-  const importWatchOnlyAccount = useCallback(async (chain: TempleChainName, address: string, chainId?: string) => {
+  const importWatchOnlyAccount = useCallback(async (chain: TempleChainKind, address: string, chainId?: string) => {
     const res = await request({
       type: TempleMessageType.ImportWatchOnlyAccountRequest,
       address,
@@ -368,9 +370,8 @@ export const [TempleClientProvider, useTempleClient] = constate(() => {
 
     // Aliases
     status,
-    defaultNetworks,
-    customNetworks,
-    networks,
+    customTezosNetworks,
+    customEvmNetworks,
     accounts,
     hdGroups,
     settings,

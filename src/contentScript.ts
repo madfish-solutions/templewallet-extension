@@ -44,7 +44,12 @@ if (window.frameElement === null) {
       let oldHref = '';
 
       const trackUrlChange = () => {
-        const newHref = window.parent.location.href;
+        let newHref: string;
+        try {
+          newHref = window.parent.location.href;
+        } catch {
+          newHref = window.location.href;
+        }
         if (oldHref !== newHref) {
           oldHref = newHref;
 

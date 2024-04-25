@@ -9,7 +9,9 @@ import {
 } from '@temple-wallet/dapp/dist/types';
 import browser, { Runtime } from 'webextension-polyfill';
 
+import { CUSTOM_TEZOS_NETWORKS_STORAGE_KEY } from 'lib/constants';
 import { BACKGROUND_IS_WORKER } from 'lib/env';
+import { putToStorage } from 'lib/storage';
 import { addLocalOperation } from 'lib/temple/activity';
 import * as Beacon from 'lib/temple/beacon';
 import {
@@ -22,7 +24,7 @@ import {
 } from 'lib/temple/types';
 import { createQueue, delay } from 'lib/utils';
 import { loadTezosChainId } from 'temple/tezos';
-import { TempleChainName } from 'temple/types';
+import { TempleChainKind } from 'temple/types';
 
 import {
   getCurrentPermission,
@@ -190,7 +192,7 @@ export function editAccount(id: string, name: string) {
   });
 }
 
-export function importAccount(chain: TempleChainName, privateKey: string, encPassword?: string) {
+export function importAccount(chain: TempleChainKind, privateKey: string, encPassword?: string) {
   return withUnlocked(async ({ vault }) => {
     const updatedAccounts = await vault.importAccount(chain, privateKey, encPassword);
     accountsUpdated(updatedAccounts);
@@ -218,7 +220,7 @@ export function importManagedKTAccount(address: string, chainId: string, owner: 
   });
 }
 
-export function importWatchOnlyAccount(chain: TempleChainName, address: string, chainId?: string) {
+export function importWatchOnlyAccount(chain: TempleChainKind, address: string, chainId?: string) {
   return withUnlocked(async ({ vault }) => {
     const updatedAccounts = await vault.importWatchOnlyAccount(chain, address, chainId);
     accountsUpdated(updatedAccounts);
@@ -235,7 +237,9 @@ export function createLedgerAccount(name: string, derivationPath?: string, deriv
 export function updateSettings(settings: Partial<TempleSettings>) {
   return withUnlocked(async ({ vault }) => {
     const updatedSettings = await vault.updateSettings(settings);
-    createCustomNetworksSnapshot(updatedSettings);
+
+    putToStorage(CUSTOM_TEZOS_NETWORKS_STORAGE_KEY, updatedSettings.customTezosNetworks);
+
     settingsUpdated(updatedSettings);
   });
 }
@@ -391,7 +395,14 @@ const safeAddLocalOperation = async (networkRpc: string, op: any) => {
   return undefined;
 };
 
-export function sign(port: Runtime.Port, id: string, sourcePkh: string, bytes: string, watermark?: string) {
+export function sign(
+  port: Runtime.Port,
+  id: string,
+  sourcePkh: string,
+  networkRpc: string,
+  bytes: string,
+  watermark?: string
+) {
   return withUnlocked(
     () =>
       new Promise(async (resolve, reject) => {
@@ -401,6 +412,7 @@ export function sign(port: Runtime.Port, id: string, sourcePkh: string, bytes: s
           payload: {
             type: 'sign',
             sourcePkh,
+            networkRpc,
             bytes,
             watermark
           }
@@ -696,16 +708,6 @@ const formatTempleReq = async (
 
   throw new Error(Beacon.ErrorType.UNKNOWN_ERROR);
 };
-
-async function createCustomNetworksSnapshot(settings: TempleSettings) {
-  try {
-    if (settings.customNetworks) {
-      await browser.storage.local.set({
-        custom_networks_snapshot: settings.customNetworks
-      });
-    }
-  } catch {}
-}
 
 function getErrorData(err: any) {
   return err instanceof TezosOperationError ? err.errors.map(({ contract_code, ...rest }: any) => rest) : undefined;

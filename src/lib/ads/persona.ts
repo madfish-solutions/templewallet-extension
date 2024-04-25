@@ -6,7 +6,7 @@ import { EnvVars } from 'lib/env';
 export const PERSONA_STAGING_ADS_BANNER_UNIT_ID = 'e6b82a11-6a94-46c0-a9d2-cf730159a5e6';
 
 export const getPersonaAdClient = memoizee(
-  async () => {
+  async (walletAddress: string | null) => {
     const { PersonaAdSDK } = await import('@personaxyz/ad-sdk');
 
     const stageApiKey = 'XXXX_api_key_staging_XXXX';
@@ -21,6 +21,7 @@ export const getPersonaAdClient = memoizee(
     });
 
     const client = sdk.getClient();
+    walletAddress && client.setWalletAddress(walletAddress);
 
     return { client, environment };
   },

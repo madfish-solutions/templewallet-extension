@@ -5,7 +5,7 @@ import { ActionModal, ActionModalBodyContainer } from 'app/atoms/action-modal';
 import CopyButton from 'app/atoms/CopyButton';
 import { StoredAccount } from 'lib/temple/types';
 import { getAccountAddressForChain } from 'temple/accounts';
-import { TempleChainName } from 'temple/types';
+import { TempleChainKind } from 'temple/types';
 
 interface AccountAddressesModalProps {
   account: StoredAccount;
@@ -18,7 +18,7 @@ const addressesEntryTextClassName = 'text-sm text-gray-900 font-semibold leading
 export const AccountAddressesModal = memo<AccountAddressesModalProps>(({ account, onClose }) => {
   const addresses = useMemo(
     () =>
-      [TempleChainName.Tezos, TempleChainName.EVM].reduce<Array<{ chain: TempleChainName; address: string }>>(
+      [TempleChainKind.Tezos, TempleChainKind.EVM].reduce<Array<{ chain: TempleChainKind; address: string }>>(
         (acc, chain) => {
           const address = getAccountAddressForChain(account, chain);
 

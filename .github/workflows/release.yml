@@ -23,6 +23,7 @@ jobs:
         uses: ./.github/workflows/secrets-setup
         with:
           GITHUB_ACTION_RUN_ENV: production
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
           TEMPLE_WALLET_JITSU_TRACKING_HOST: ${{ vars.TEMPLE_WALLET_JITSU_TRACKING_HOST }}
           TEMPLE_WALLET_JITSU_WRITE_KEY: ${{ vars.TEMPLE_WALLET_JITSU_WRITE_KEY }}
           TEMPLE_WALLET_EXOLIX_API_KEY: ${{ secrets.TEMPLE_WALLET_EXOLIX_API_KEY }}
@@ -47,9 +48,12 @@ jobs:
           PERSONA_ADS_WIDE_BANNER_UNIT_ID: ${{ vars.PERSONA_ADS_WIDE_BANNER_UNIT_ID }}
           PERSONA_ADS_MEDIUM_BANNER_UNIT_ID: ${{ vars.PERSONA_ADS_MEDIUM_BANNER_UNIT_ID }}
           PERSONA_ADS_SQUARISH_BANNER_UNIT_ID: ${{ vars.PERSONA_ADS_SQUARISH_BANNER_UNIT_ID }}
+          TEMPLE_ADS_ORIGIN_PASSPHRASE: ${{ vars.TEMPLE_ADS_ORIGIN_PASSPHRASE }}
 
       - name: Install dependencies and code quality
         uses: ./.github/workflows/code-quality-check
+        with:
+          optional_modules: true
 
       - name: Create Chrome and Firefox builds
         run: yarn build:chrome & yarn build:firefox

@@ -18,7 +18,7 @@ import { useTempleClient, validateDerivationPath } from 'lib/temple/front';
 import { getDerivationPath } from 'lib/temple/helpers';
 import { TempleAccountType } from 'lib/temple/types';
 import { delay } from 'lib/utils';
-import { TempleChainName } from 'temple/types';
+import { TempleChainKind } from 'temple/types';
 
 import { ConnectLedgerSelectors } from './ConnectLedger.selectors';
 
@@ -122,7 +122,7 @@ const ConnectLedger: FC = () => {
         await createLedgerAccount(
           name,
           derivationType,
-          customDerivationPath ?? (accountNumber && getDerivationPath(TempleChainName.Tezos, accountNumber - 1))
+          customDerivationPath ?? (accountNumber && getDerivationPath(TempleChainKind.Tezos, accountNumber - 1))
         );
 
         formAnalytics.trackSubmitSuccess();

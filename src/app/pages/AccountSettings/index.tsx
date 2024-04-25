@@ -11,12 +11,13 @@ import { ReactComponent as CopyIcon } from 'app/icons/copy.svg';
 import PageLayout from 'app/layouts/PageLayout';
 import { useFiatCurrency } from 'lib/fiat-currency';
 import { T, TID, t } from 'lib/i18n';
-import { useAllAccounts, useTempleClient } from 'lib/temple/front';
+import { useTempleClient } from 'lib/temple/front';
 import { getDerivationPath } from 'lib/temple/helpers';
 import { TempleAccountType } from 'lib/temple/types';
 import { useAlert } from 'lib/ui';
 import { getAccountAddressForEvm, getAccountAddressForTezos } from 'temple/accounts';
-import { TempleChainName, TempleChainTitle } from 'temple/types';
+import { useAllAccounts, useTezosMainnetChain } from 'temple/front';
+import { TempleChainKind, TempleChainTitle } from 'temple/types';
 
 import { BalanceFiat } from '../Home/OtherComponents/MainBanner/BalanceFiat';
 
@@ -61,7 +62,8 @@ export const AccountSettings = memo<AccountSettingsProps>(({ id }) => {
   const account = useMemo(() => allAccounts.find(({ id: accountId }) => accountId === id), [allAccounts, id]);
   const tezosAddress = account && getAccountAddressForTezos(account);
   const evmAddress = account && getAccountAddressForEvm(account);
-  const totalBalanceInDollar = useTotalBalance(tezosAddress ?? '');
+  const tezosChain = useTezosMainnetChain();
+  const totalBalanceInDollar = useTotalBalance(tezosAddress ?? '', tezosChain.chainId);
 
   const handleCopyClick = useCallback(() => {
     if (account?.type !== TempleAccountType.HD) {
@@ -90,12 +92,12 @@ export const AccountSettings = memo<AccountSettingsProps>(({ id }) => {
   const derivationPaths = useMemo(() => {
     switch (account?.type) {
       case TempleAccountType.HD:
-        return [TempleChainName.Tezos, TempleChainName.EVM].map(chainName => ({
+        return [TempleChainKind.Tezos, TempleChainKind.EVM].map(chainName => ({
           chainName,
           path: getDerivationPath(chainName, account.hdIndex)
         }));
       case TempleAccountType.Ledger:
-        return [{ chainName: TempleChainName.Tezos, path: account.derivationPath }];
+        return [{ chainName: TempleChainKind.Tezos, path: account.derivationPath }];
       default:
         return [];
     }

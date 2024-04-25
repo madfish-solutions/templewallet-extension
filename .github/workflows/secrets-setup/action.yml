@@ -5,6 +5,8 @@ description: Writes secrets
 inputs:
   GITHUB_ACTION_RUN_ENV:
     required: true
+  NPM_TOKEN:
+    required: false
   TEMPLE_WALLET_JITSU_TRACKING_HOST:
     required: true
   TEMPLE_WALLET_JITSU_WRITE_KEY:
@@ -100,6 +102,10 @@ inputs:
 runs:
   using: 'composite'
   steps:
+    - name: Authenticate with private NPM package
+      shell: bash
+      if: ${{ inputs.NPM_TOKEN }}
+      run: echo "//registry.npmjs.org/:_authToken=${{ inputs.NPM_TOKEN }}" > .npmrc
     - name: Create .env file
       shell: bash
       run: |
@@ -133,6 +139,7 @@ runs:
         PERSONA_ADS_WIDE_BANNER_UNIT_ID=${{ inputs.PERSONA_ADS_WIDE_BANNER_UNIT_ID }}
         PERSONA_ADS_MEDIUM_BANNER_UNIT_ID=${{ inputs.PERSONA_ADS_MEDIUM_BANNER_UNIT_ID }}
         PERSONA_ADS_SQUARISH_BANNER_UNIT_ID=${{ inputs.PERSONA_ADS_SQUARISH_BANNER_UNIT_ID }}
+        TEMPLE_ADS_ORIGIN_PASSPHRASE=${{ inputs.TEMPLE_ADS_ORIGIN_PASSPHRASE }}
 
         TEMPLE_WALLET_DEVELOPMENT_BRANCH_NAME=${{ github.ref_name }}
         EOF

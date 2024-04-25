@@ -9,13 +9,13 @@ import { ReactComponent as RemoveIcon } from 'app/icons/remove.svg';
 import { ReactComponent as RevealEyeIcon } from 'app/icons/reveal-eye.svg';
 import { t } from 'lib/i18n';
 import { useTempleClient } from 'lib/temple/front';
-import { useAllAccounts, useAllGroups } from 'lib/temple/front/ready';
 import { fetchNewAccountName } from 'lib/temple/helpers';
 import { DisplayedGroup, TempleAccountType } from 'lib/temple/types';
 import { useAlert } from 'lib/ui';
 import Popper, { PopperRenderProps } from 'lib/ui/Popper';
 import { isTruthy } from 'lib/utils';
 import { navigate } from 'lib/woozie';
+import { useAllAccounts, useAllGroups } from 'temple/front';
 
 import { Action, ActionsDropdown } from './actions-dropdown';
 

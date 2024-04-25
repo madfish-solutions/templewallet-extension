@@ -1,7 +1,7 @@
-import { TempleChainName } from 'temple/types';
+import { TempleChainKind } from 'temple/types';
 
 export interface PrivateKeyPayload {
-  chain: TempleChainName;
+  chain: TempleChainKind;
   address: string;
   privateKey: string;
 }

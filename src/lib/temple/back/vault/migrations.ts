@@ -1,10 +1,18 @@
 import { nanoid } from 'nanoid';
 
-import { ACCOUNT_PKH_STORAGE_KEY, ADS_VIEWER_TEZOS_ADDRESS_STORAGE_KEY } from 'lib/constants';
-import { moveValueInStorage } from 'lib/storage';
+import {
+  ADS_VIEWER_ADDRESS_STORAGE_KEY,
+  CUSTOM_TEZOS_NETWORKS_STORAGE_KEY,
+  ACCOUNT_PKH_STORAGE_KEY,
+  CUSTOM_NETWORKS_SNAPSHOT_STORAGE_KEY
+} from 'lib/constants';
+import { moveValueInStorage, fetchFromStorage, putToStorage, removeFromStorage } from 'lib/storage';
 import * as Passworder from 'lib/temple/passworder';
 import { StoredAccount, TempleAccountType, TempleContact, TempleSettings } from 'lib/temple/types';
-import { TempleChainName } from 'temple/types';
+import { isTruthy } from 'lib/utils';
+import { StoredTezosNetwork } from 'temple/networks';
+import { loadTezosChainId } from 'temple/tezos';
+import { TempleChainKind } from 'temple/types';
 
 import { fetchMessage } from './helpers';
 import {
@@ -143,10 +151,13 @@ export const MIGRATIONS = [
     await removeManyLegacy([...toSave.map(([key]) => key), 'contacts']);
   },
 
-  // [5] Extend accounts for EVM support
+  // [5] Extend data formats for EVM support
   async (password: string) => {
     console.log('VAULT.MIGRATIONS: EVM migration started');
     const passKey = await Passworder.generateKey(password);
+
+    /* ACCOUNTS */
+
     const accounts = await fetchAndDecryptOne<LegacyTypes.TempleAccount[]>(accountsStrgKey, passKey);
     const mnemonic = await fetchAndDecryptOne<string>(mnemonicStrgKey, passKey);
 
@@ -167,9 +178,9 @@ export const MIGRATIONS = [
 
           return { ...account, id, tezosAddress, evmAddress: evmAcc.address, groupId: hdGroup.id, isVisible: true };
         case TempleAccountType.Imported:
-          return { ...account, id, address: tezosAddress, chain: TempleChainName.Tezos, isVisible: true };
+          return { ...account, id, address: tezosAddress, chain: TempleChainKind.Tezos, isVisible: true };
         case TempleAccountType.WatchOnly:
-          return { ...account, id, address: tezosAddress, chain: TempleChainName.Tezos, isVisible: true };
+          return { ...account, id, address: tezosAddress, chain: TempleChainKind.Tezos, isVisible: true };
         case TempleAccountType.Ledger:
           return { ...account, id, tezosAddress, isVisible: true };
         case TempleAccountType.ManagedKT:
@@ -184,9 +195,51 @@ export const MIGRATIONS = [
       [groupMnemonicStrgKey(hdGroup.id), mnemonic],
       [groupsStrgKey, [hdGroup]]
     );
+
+    moveValueInStorage(ACCOUNT_PKH_STORAGE_KEY, ADS_VIEWER_ADDRESS_STORAGE_KEY);
+
+    /* NETWORKS */
+
+    const settings = await fetchAndDecryptOne<TempleSettings>(settingsStrgKey, passKey).catch(() => null);
+
+    if (settings) {
+      settings.customTezosNetworks = settings.customNetworks;
+      delete settings.customNetworks;
+      toEncryptAndSave.push([settingsStrgKey, settings]);
+    }
+
+    // Taking a chance to migrate the list of manually-added user's Tezos networks (with chain IDs).
+    // (!) Internet connection would have be available during this.
+    fetchFromStorage<Omit<StoredTezosNetwork, 'chain'>[]>(CUSTOM_NETWORKS_SNAPSHOT_STORAGE_KEY).then(
+      async customTezosNetworks => {
+        if (!customTezosNetworks) return;
+
+        const migratedNetworks: StoredTezosNetwork[] = await Promise.all(
+          customTezosNetworks.map(network =>
+            loadTezosChainId(network.rpcBaseURL, 30_000)
+              .then(chainId => {
+                delete network.type;
+                return { ...network, chain: TempleChainKind.Tezos as const, chainId };
+              })
+              .catch(err => {
+                console.error(err);
+                return null;
+              })
+          )
+        ).then(migratedNetworks => migratedNetworks.filter(isTruthy));
+
+        removeFromStorage(CUSTOM_NETWORKS_SNAPSHOT_STORAGE_KEY);
+
+        if (migratedNetworks.length)
+          putToStorage<StoredTezosNetwork[]>(CUSTOM_TEZOS_NETWORKS_STORAGE_KEY, migratedNetworks);
+      }
+    );
+
     await encryptAndSaveMany(toEncryptAndSave, passKey);
 
-    moveValueInStorage(ACCOUNT_PKH_STORAGE_KEY, ADS_VIEWER_TEZOS_ADDRESS_STORAGE_KEY);
+    /* CLEAN-UP */
+
+    removeFromStorage(['network_id', 'tokens_base_metadata', 'block_explorer']);
 
     console.log('VAULT.MIGRATIONS: EVM migration finished');
   }

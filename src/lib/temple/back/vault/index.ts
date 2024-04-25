@@ -21,7 +21,7 @@ import { StoredAccount, StoredHDAccount, StoredHDGroup, TempleAccountType, Templ
 import { isTruthy } from 'lib/utils';
 import { getAccountAddressForChain, getAccountAddressForTezos } from 'temple/accounts';
 import { michelEncoder, getTezosFastRpcClient } from 'temple/tezos';
-import { TempleChainName } from 'temple/types';
+import { TempleChainKind } from 'temple/types';
 
 import { createLedgerSigner } from '../ledger';
 import { PublicError } from '../PublicError';
@@ -264,7 +264,7 @@ export class Vault {
   }
 
   private static async removeAccountsKeys(accounts: StoredAccount[]) {
-    const accAddresses = Object.values(TempleChainName)
+    const accAddresses = Object.values(TempleChainKind)
       .map(chain => accounts.map(acc => getAccountAddressForChain(acc, chain)))
       .flat()
       .filter(isTruthy);
@@ -510,14 +510,14 @@ export class Vault {
     });
   }
 
-  async importAccount(chain: TempleChainName, accPrivateKey: string, encPassword?: string) {
+  async importAccount(chain: TempleChainKind, accPrivateKey: string, encPassword?: string) {
     const errMessage = 'Failed to import account.\nThis may happen because provided Key is invalid';
 
     return withError(errMessage, async () => {
       const allAccounts = await this.fetchAccounts();
 
       const accCreds =
-        chain === TempleChainName.EVM
+        chain === TempleChainKind.EVM
           ? privateKeyToEvmAccountCreds(accPrivateKey)
           : await privateKeyToTezosAccountCreds(accPrivateKey, encPassword);
 
@@ -554,7 +554,7 @@ export class Vault {
       }
 
       const privateKey = seedToPrivateKey(seed);
-      return this.importAccount(TempleChainName.Tezos, privateKey);
+      return this.importAccount(TempleChainKind.Tezos, privateKey);
     });
   }
 
@@ -562,7 +562,7 @@ export class Vault {
     return withError('Failed to import fundraiser account', async () => {
       const seed = Bip39.mnemonicToSeedSync(mnemonic, `${email}${password}`);
       const privateKey = seedToPrivateKey(seed);
-      return this.importAccount(TempleChainName.Tezos, privateKey);
+      return this.importAccount(TempleChainKind.Tezos, privateKey);
     });
   }
 
@@ -591,7 +591,7 @@ export class Vault {
     });
   }
 
-  async importWatchOnlyAccount(chain: TempleChainName, address: string, chainId?: string) {
+  async importWatchOnlyAccount(chain: TempleChainKind, address: string, chainId?: string) {
     return withError('Failed to import Watch Only account', async () => {
       const allAccounts = await this.fetchAccounts();
       const newAccount: StoredAccount = {
@@ -618,7 +618,7 @@ export class Vault {
 
   async createLedgerAccount(name: string, derivationPath?: string, derivationType?: DerivationType) {
     return withError('Failed to connect Ledger account', async () => {
-      if (!derivationPath) derivationPath = getDerivationPath(TempleChainName.Tezos, 0);
+      if (!derivationPath) derivationPath = getDerivationPath(TempleChainKind.Tezos, 0);
 
       const { signer, cleanup } = await createLedgerSigner(derivationPath, derivationType);
 

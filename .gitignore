@@ -46,3 +46,6 @@ DerivedData
 
 #e2e
 video-rep
+
+#private package config
+.npmrc

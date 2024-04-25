@@ -1,10 +1,10 @@
 import React, { memo, useCallback } from 'react';
 
 import { T } from 'lib/i18n';
-import { useAllAccounts, useTempleClient } from 'lib/temple/front';
+import { useTempleClient } from 'lib/temple/front';
 import { StoredHDAccount, TempleAccountType } from 'lib/temple/types';
 import { useDidUpdate, useVanishingState } from 'lib/ui/hooks';
-import { useAccount } from 'temple/front';
+import { useAccount, useAllAccounts } from 'temple/front';
 
 import { PasswordForRevealField } from './PasswordForRevealField';
 import { SecretField } from './SecretField';

@@ -8,18 +8,20 @@ import { ReactComponent as HashIcon } from 'app/icons/hash.svg';
 import { TestIDProps } from 'lib/analytics';
 import { useStorage } from 'lib/temple/front';
 import { useTezosDomainNameByAddress } from 'temple/front/tezos';
+import { TezosNetworkEssentials } from 'temple/networks';
 
-type Props = TestIDProps & {
-  pkh: string;
+interface Props extends TestIDProps {
+  address: string;
+  tezosNetwork?: TezosNetworkEssentials;
   className?: string;
   small?: boolean;
-  modeSwitch?: TestIDProps;
-};
+  modeSwitchTestId?: string;
+}
 
 const TZDNS_MODE_ON_STORAGE_KEY = 'domain-displayed';
 
-const AddressChip: FC<Props> = ({ pkh, className, small, modeSwitch, ...rest }) => {
-  const { data: tzdnsName } = useTezosDomainNameByAddress(pkh);
+const AddressChip: FC<Props> = ({ address, tezosNetwork, className, small, modeSwitchTestId, ...rest }) => {
+  const { data: tzdnsName } = useTezosDomainNameByAddress(address, tezosNetwork);
 
   const [domainDisplayed, setDomainDisplayed] = useStorage(TZDNS_MODE_ON_STORAGE_KEY, false);
 
@@ -32,7 +34,7 @@ const AddressChip: FC<Props> = ({ pkh, className, small, modeSwitch, ...rest }) 
       {tzdnsName && domainDisplayed ? (
         <HashChip hash={tzdnsName} firstCharsCount={7} lastCharsCount={10} small={small} {...rest} />
       ) : (
-        <HashChip hash={pkh} small={small} {...rest} />
+        <HashChip hash={address} small={small} {...rest} />
       )}
 
       {tzdnsName && (
@@ -45,8 +47,8 @@ const AddressChip: FC<Props> = ({ pkh, className, small, modeSwitch, ...rest }) 
             'transition ease-in-out duration-300'
           )}
           onClick={handleToggleDomainClick}
-          testID={modeSwitch?.testID}
-          testIDProperties={{ toDomainMode: !domainDisplayed, ...modeSwitch?.testIDProperties }}
+          testID={modeSwitchTestId}
+          testIDProperties={{ toDomainMode: !domainDisplayed }}
         >
           <Icon className={classNames('w-auto stroke-current fill-current', small ? 'h-3' : 'h-4')} />
         </Button>

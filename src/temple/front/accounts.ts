@@ -2,9 +2,10 @@ import { useMemo } from 'react';
 
 import { uniqBy } from 'lodash';
 
-import { useAllAccounts } from 'lib/temple/front/ready';
 import { StoredAccount, TempleAccountType } from 'lib/temple/types';
 import { searchAndFilterItems } from 'lib/utils/search-items';
+
+import { useAllAccounts } from './ready';
 
 export function searchAndFilterAccounts(accounts: StoredAccount[], searchValue: string) {
   const textSearchItems = searchAndFilterItems(
@@ -57,4 +58,10 @@ export function useRelevantAccounts(tezosChainId: string) {
       }),
     [tezosChainId, allAccounts]
   );
+}
+
+export function useVisibleAccounts() {
+  const allAccounts = useAllAccounts();
+
+  return useMemo(() => allAccounts.filter(acc => acc.isVisible), [allAccounts]);
 }

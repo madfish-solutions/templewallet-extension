@@ -1,23 +1,20 @@
 import { useEffect, useMemo } from 'react';
 
-import { isEqual } from 'lodash';
-
+import { isTezosContractAddress } from 'lib/tezos';
 import { useMemoWithCompare } from 'lib/ui/hooks';
 import { isTruthy } from 'lib/utils';
 import { getAccountForTezos } from 'temple/accounts';
-import { useTezosNetwork, useRelevantAccounts } from 'temple/front';
+import { useAllAccounts, useSettings } from 'temple/front/ready';
 
 import type { TempleContact } from '../types';
 
 import { useTempleClient } from './client';
-import { useSettings } from './ready';
 
 export function useFilteredContacts() {
   const { updateSettings } = useTempleClient();
   const { contacts } = useSettings();
 
-  const { chainId } = useTezosNetwork();
-  const accounts = useRelevantAccounts(chainId);
+  const accounts = useAllAccounts();
 
   const accountContacts = useMemo<TempleContact[]>(
     () =>
@@ -25,7 +22,7 @@ export function useFilteredContacts() {
         .map(acc => {
           const tezosAccount = getAccountForTezos(acc);
 
-          return tezosAccount
+          return tezosAccount && !isTezosContractAddress(tezosAccount.address)
             ? {
                 address: tezosAccount.address,
                 name: tezosAccount.name,
@@ -42,8 +39,7 @@ export function useFilteredContacts() {
       contacts
         ? contacts.filter(({ address }) => !accountContacts.some(accContact => address === accContact.address))
         : [],
-    [contacts, accountContacts],
-    isEqual
+    [contacts, accountContacts]
   );
 
   const allContacts = useMemo(() => [...filteredContacts, ...accountContacts], [filteredContacts, accountContacts]);

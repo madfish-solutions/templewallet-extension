@@ -1,6 +1,6 @@
 import BigNumber from 'bignumber.js';
 
-import { TempleChainName } from 'temple/types';
+import { TempleChainKind } from 'temple/types';
 
 import { StoredAccount, StoredHDGroup, TempleAccountType } from './types';
 
@@ -111,8 +111,8 @@ export async function fetchNewGroupName(allGroups: StoredHDGroup[], getNameCandi
   );
 }
 
-export function getDerivationPath(chainName: TempleChainName, index: number) {
-  if (chainName === TempleChainName.EVM) {
+export function getDerivationPath(chainName: TempleChainKind, index: number) {
+  if (chainName === TempleChainKind.EVM) {
     return `m/44'/60'/${index}'/0`;
   }
 

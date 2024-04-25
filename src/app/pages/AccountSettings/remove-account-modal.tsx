@@ -9,8 +9,9 @@ import {
 } from 'app/atoms/action-modal';
 import { useTempleBackendActionForm } from 'app/hooks/use-temple-backend-action-form';
 import { T, t } from 'lib/i18n';
-import { useAllAccounts, useTempleClient } from 'lib/temple/front';
+import { useTempleClient } from 'lib/temple/front';
 import { StoredAccount, TempleAccountType } from 'lib/temple/types';
+import { useAllAccounts } from 'temple/front';
 
 interface RemoveAccountModalProps {
   account: StoredAccount;

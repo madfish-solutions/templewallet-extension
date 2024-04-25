@@ -8,11 +8,13 @@ import { useDebouncedCallback } from 'use-debounce';
 import { Alert, FormField, FormSubmitButton, NoSpaceField } from 'app/atoms';
 import Spinner from 'app/atoms/Spinner/Spinner';
 import { ReactComponent as AddIcon } from 'app/icons/add.svg';
+import { ContentContainer } from 'app/layouts/ContentContainer';
 import PageLayout from 'app/layouts/PageLayout';
 import { dispatch } from 'app/store';
 import { putTokensAsIsAction, putCollectiblesAsIsAction } from 'app/store/assets/actions';
 import { putCollectiblesMetadataAction } from 'app/store/collectibles-metadata/actions';
 import { putTokensMetadataAction } from 'app/store/tokens-metadata/actions';
+import { useChainSelectController, ChainSelectSection } from 'app/templates/ChainSelect';
 import { useFormAnalytics } from 'lib/analytics';
 import { TokenMetadataResponse } from 'lib/apis/temple';
 import { toTokenSlug } from 'lib/assets';
@@ -31,14 +33,18 @@ import { useSafeState } from 'lib/ui/hooks';
 import { delay } from 'lib/utils';
 import { navigate } from 'lib/woozie';
 import { UNDER_DEVELOPMENT_MSG } from 'temple/evm/under_dev_msg';
-import { useAccountAddressForTezos, useTezosNetwork } from 'temple/front';
+import { useAccountAddressForTezos } from 'temple/front';
 import { validateTezosContractAddress } from 'temple/front/tezos';
+import { TezosNetworkEssentials } from 'temple/networks';
 import { getReadOnlyTezos } from 'temple/tezos';
 
 import { AddAssetSelectors } from './AddAsset.selectors';
 
 const AddAsset = memo(() => {
-  const accountPkh = useAccountAddressForTezos();
+  const accountTezosAddress = useAccountAddressForTezos();
+
+  const chainSelectController = useChainSelectController();
+  const network = chainSelectController.value;
 
   return (
     <PageLayout
@@ -49,11 +55,15 @@ const AddAsset = memo(() => {
         </>
       }
     >
-      {accountPkh ? (
-        <Form accountPkh={accountPkh} />
-      ) : (
-        <div className="w-full max-w-sm mx-auto my-8">{UNDER_DEVELOPMENT_MSG}</div>
-      )}
+      <ContentContainer className="py-8">
+        <ChainSelectSection controller={chainSelectController} />
+
+        {accountTezosAddress && network.kind === 'tezos' ? (
+          <Form accountPkh={accountTezosAddress} network={network} />
+        ) : (
+          <div className="text-center">{UNDER_DEVELOPMENT_MSG}</div>
+        )}
+      </ContentContainer>
     </PageLayout>
   );
 });
@@ -87,10 +97,11 @@ class ContractNotFoundError extends Error {}
 
 interface FormProps {
   accountPkh: string;
+  network: TezosNetworkEssentials;
 }
 
-const Form = memo<FormProps>(({ accountPkh }) => {
-  const { chainId, rpcUrl } = useTezosNetwork();
+const Form = memo<FormProps>(({ accountPkh, network }) => {
+  const { rpcBaseURL, chainId } = network;
 
   const formAnalytics = useFormAnalytics('AddAsset');
 
@@ -126,7 +137,7 @@ const Form = memo<FormProps>(({ accountPkh }) => {
     let stateToSet: Partial<ComponentState>;
 
     try {
-      const tezos = getReadOnlyTezos(rpcUrl);
+      const tezos = getReadOnlyTezos(rpcBaseURL);
 
       let contract: ContractAbstraction<Wallet | ContractProvider>;
       try {
@@ -142,7 +153,7 @@ const Form = memo<FormProps>(({ accountPkh }) => {
 
       if (tokenStandard === 'fa2') await assertFa2TokenDefined(tezos, contract, tokenId);
 
-      const metadata = await fetchOneTokenMetadata(rpcUrl, contractAddress, String(tokenId));
+      const metadata = await fetchOneTokenMetadata(rpcBaseURL, contractAddress, String(tokenId));
 
       if (metadata) {
         metadataRef.current = metadata;
@@ -173,7 +184,7 @@ const Form = memo<FormProps>(({ accountPkh }) => {
         processing: false
       }));
     }
-  }, [rpcUrl, setValue, setState, formValid, contractAddress, tokenId]);
+  }, [rpcBaseURL, setValue, setState, formValid, contractAddress, tokenId]);
 
   const loadMetadata = useDebouncedCallback(loadMetadataPure, 500);
 
@@ -190,7 +201,7 @@ const Form = memo<FormProps>(({ accountPkh }) => {
       setState(INITIAL_STATE);
       attemptRef.current++;
     }
-  }, [setState, formValid, rpcUrl, contractAddress, tokenId]);
+  }, [setState, formValid, rpcBaseURL, contractAddress, tokenId]);
 
   const cleanContractAddress = useCallback(() => {
     setValue('address', '');
@@ -238,7 +249,7 @@ const Form = memo<FormProps>(({ accountPkh }) => {
         formAnalytics.trackSubmitSuccess();
 
         navigate({
-          pathname: `/explore/${tokenSlug}`,
+          pathname: `/explore/${chainId}/${tokenSlug}`,
           search: 'after_token_added=true'
         });
       } catch (err: any) {
@@ -253,7 +264,7 @@ const Form = memo<FormProps>(({ accountPkh }) => {
   );
 
   return (
-    <form className="w-full max-w-sm mx-auto my-8" onSubmit={handleSubmit(onSubmit)}>
+    <form onSubmit={handleSubmit(onSubmit)}>
       <NoSpaceField
         ref={register({
           required: t('required'),

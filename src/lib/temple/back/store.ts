@@ -1,7 +1,6 @@
 import { createStore, createEvent } from 'effector';
 
 import { TempleState, TempleStatus, StoredAccount, TempleSettings, StoredHDGroup } from 'lib/temple/types';
-import { TEZOS_NETWORKS } from 'temple/networks';
 
 import { Vault } from './vault';
 
@@ -14,11 +13,10 @@ interface UnlockedStoreState extends StoreState {
   vault: Vault;
 }
 
-export function toFront({ status, accounts, networks, settings, hdGroups }: StoreState): TempleState {
+export function toFront({ status, accounts, settings, hdGroups }: StoreState): TempleState {
   return {
     status,
     accounts,
-    networks,
     settings,
     hdGroups
   };
@@ -54,15 +52,13 @@ export const store = createStore<StoreState>({
   vault: null,
   status: TempleStatus.Idle,
   accounts: [],
-  networks: [],
   hdGroups: [],
   settings: null
 })
   .on(inited, (state, vaultExist) => ({
     ...state,
     inited: true,
-    status: vaultExist ? TempleStatus.Locked : TempleStatus.Idle,
-    networks: TEZOS_NETWORKS
+    status: vaultExist ? TempleStatus.Locked : TempleStatus.Idle
   }))
   .on(locked, () => ({
     // Attention!
@@ -75,7 +71,6 @@ export const store = createStore<StoreState>({
     status: TempleStatus.Locked,
     accounts: [],
     hdGroups: [],
-    networks: TEZOS_NETWORKS,
     settings: null
   }))
   .on(unlocked, (state, { vault, accounts, settings, hdGroups }) => ({

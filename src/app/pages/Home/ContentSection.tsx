@@ -3,9 +3,9 @@ import React, { FC, memo, Suspense, useCallback, useMemo, useRef } from 'react';
 import clsx from 'clsx';
 
 import Spinner from 'app/atoms/Spinner/Spinner';
-import { useTabSlug } from 'app/atoms/useTabSlug';
 import { useAppEnv } from 'app/env';
 import ErrorBoundary from 'app/ErrorBoundary';
+import { useLocationSearchParamValue } from 'app/hooks/use-location';
 import { ToolbarElement } from 'app/layouts/PageLayout';
 import { ActivityTab } from 'app/templates/activity/Activity';
 import AssetInfo from 'app/templates/AssetInfo';
@@ -20,6 +20,7 @@ import BakingSection from './OtherComponents/BakingSection';
 import { TokensTab } from './OtherComponents/Tokens/Tokens';
 
 interface Props {
+  tezosChainId: string | nullish;
   assetSlug?: string | null;
   className?: string;
 }
@@ -34,9 +35,9 @@ interface TabData {
   whileMessageI18nKey?: TID;
 }
 
-export const ContentSection = memo<Props>(({ assetSlug, className }) => {
+export const ContentSection = memo<Props>(({ tezosChainId, assetSlug, className }) => {
   const { fullPage } = useAppEnv();
-  const tabSlug = useTabSlug();
+  const tabSlug = useLocationSearchParamValue('tab');
 
   const tabBarElemRef = useRef<HTMLDivElement>(null);
 
@@ -52,7 +53,7 @@ export const ContentSection = memo<Props>(({ assetSlug, className }) => {
   }, []);
 
   const tabs = useMemo<TabData[]>(() => {
-    if (!assetSlug) {
+    if (!tezosChainId || !assetSlug) {
       return [
         {
           name: 'tokens',
@@ -79,7 +80,7 @@ export const ContentSection = memo<Props>(({ assetSlug, className }) => {
     const activity: TabData = {
       name: 'activity',
       titleI18nKey: 'activity',
-      Component: () => <ActivityTab assetSlug={assetSlug} />,
+      Component: () => <ActivityTab tezosChainId={tezosChainId} assetSlug={assetSlug} />,
       testID: HomeSelectors.activityTab
     };
 
@@ -89,7 +90,7 @@ export const ContentSection = memo<Props>(({ assetSlug, className }) => {
         {
           name: 'delegation',
           titleI18nKey: 'delegate',
-          Component: BakingSection,
+          Component: () => <BakingSection tezosChainId={tezosChainId} />,
           testID: HomeSelectors.delegationTab,
           whileMessageI18nKey: 'delegationInfoWhileMessage'
         }
@@ -101,11 +102,11 @@ export const ContentSection = memo<Props>(({ assetSlug, className }) => {
       {
         name: 'info',
         titleI18nKey: 'info',
-        Component: () => <AssetInfo assetSlug={assetSlug} />,
+        Component: () => <AssetInfo tezosChainId={tezosChainId} assetSlug={assetSlug} />,
         testID: HomeSelectors.infoTab
       }
     ];
-  }, [assetSlug, scrollToTheTabsBar]);
+  }, [tezosChainId, assetSlug, scrollToTheTabsBar]);
 
   const { name, Component, whileMessageI18nKey } = useMemo(() => {
     const tab = tabSlug ? tabs.find(currentTab => currentTab.name === tabSlug) : null;

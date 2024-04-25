@@ -1,9 +1,9 @@
-export enum TempleChainName {
+export enum TempleChainKind {
   Tezos = 'tezos',
   EVM = 'evm'
 }
 
-export const TempleChainTitle: Record<TempleChainName, string> = {
-  [TempleChainName.Tezos]: 'Tezos',
-  [TempleChainName.EVM]: 'EVM'
+export const TempleChainTitle: Record<TempleChainKind, string> = {
+  [TempleChainKind.Tezos]: 'Tezos',
+  [TempleChainKind.EVM]: 'EVM'
 };

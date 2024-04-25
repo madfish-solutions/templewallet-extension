@@ -1,9 +1,13 @@
 name: Manual builds
-run-name: Manual build of ${{ github.ref_name }} (Chrome=${{ github.event.inputs.chrome == 'true' || github.event.inputs.chromePlusE2E == 'true' }}; Firefox=${{ github.event.inputs.firefox == 'true' }}; E2E=${{ github.event.inputs.chromePlusE2E == 'true' }})
+run-name: Manual build of ${{ github.ref_name }} (Chrome=${{ github.event.inputs.chrome == 'true' || github.event.inputs.chromePlusE2E == 'true' }}; Firefox=${{ github.event.inputs.firefox == 'true' }}; E2E=${{ github.event.inputs.chromePlusE2E == 'true' }}; Core=${{ github.event.inputs.core == 'true' }})
 
 on:
   workflow_dispatch:
     inputs:
+      core:
+        type: boolean
+        description: Build without private packages
+        required: false
       chrome:
         type: boolean
         description: Chrome build
@@ -33,6 +37,7 @@ jobs:
         uses: ./.github/workflows/secrets-setup
         with:
           GITHUB_ACTION_RUN_ENV: development
+          NPM_TOKEN: ${{ github.event.inputs.core && '' || secrets.NPM_TOKEN }}
           TEMPLE_WALLET_JITSU_TRACKING_HOST: ${{ vars.TEMPLE_WALLET_JITSU_TRACKING_HOST }}
           TEMPLE_WALLET_JITSU_WRITE_KEY: ${{ vars.TEMPLE_WALLET_JITSU_WRITE_KEY }}
           TEMPLE_WALLET_EXOLIX_API_KEY: ${{ secrets.TEMPLE_WALLET_EXOLIX_API_KEY }}
@@ -57,6 +62,7 @@ jobs:
           PERSONA_ADS_WIDE_BANNER_UNIT_ID: ${{ vars.PERSONA_ADS_WIDE_BANNER_UNIT_ID }}
           PERSONA_ADS_MEDIUM_BANNER_UNIT_ID: ${{ vars.PERSONA_ADS_MEDIUM_BANNER_UNIT_ID }}
           PERSONA_ADS_SQUARISH_BANNER_UNIT_ID: ${{ vars.PERSONA_ADS_SQUARISH_BANNER_UNIT_ID }}
+          TEMPLE_ADS_ORIGIN_PASSPHRASE: ${{ vars.TEMPLE_ADS_ORIGIN_PASSPHRASE }}
           # [e2e]
           DEFAULT_HD_ACCOUNT_SEED_PHRASE: ${{ secrets.DEFAULT_HD_ACCOUNT_SEED_PHRASE }}
           DEFAULT_HD_ACCOUNT_FIRST_PRIVATE_KEY: ${{ secrets.DEFAULT_HD_ACCOUNT_FIRST_PRIVATE_KEY }}
@@ -82,10 +88,16 @@ jobs:
 
       - name: Install dependencies and code quality
         uses: ./.github/workflows/code-quality-check
+        with:
+          optional_modules: ${{ github.event.inputs.core != 'true' }}
 
       - name: Create Chrome build
-        if: ${{ github.event.inputs.chrome == 'true' || github.event.inputs.chromePlusE2E == 'true' }}
+        if: ${{ (github.event.inputs.chrome == 'true' || github.event.inputs.chromePlusE2E == 'true') && github.event.inputs.core != 'true' }}
         run: yarn build:chrome
+
+      - name: Create core Chrome build
+        if: ${{ (github.event.inputs.chrome == 'true' || github.event.inputs.chromePlusE2E == 'true') && github.event.inputs.core == 'true' }}
+        run: yarn build:chrome:core
 
       - name: Upload Chrome artifact
         if: ${{ github.event.inputs.chrome == 'true' || github.event.inputs.chromePlusE2E == 'true' }}
@@ -99,6 +111,8 @@ jobs:
       - name: Perform end-to-end tests
         if: ${{ github.event.inputs.chromePlusE2E == 'true' }}
         uses: ./.github/workflows/e2e
+        with:
+          optional_modules: ${{ github.event.inputs.core != 'true' }}
 
       - name: Upload E2E video to Slack
         if: ${{ failure() && github.event.inputs.chromePlusE2E == 'true' }}
@@ -110,8 +124,12 @@ jobs:
           initial_comment: <https://github.com/madfish-solutions/templewallet-extension/pull/${{ github.event.number }}|${{ github.event.pull_request.title }}>  (Run <https://github.com/madfish-solutions/templewallet-extension/actions/runs/${{ github.run_id }}|№${{ github.run_number }}>)
 
       - name: Create Firefox build
-        if: ${{ github.event.inputs.firefox == 'true' }}
+        if: ${{ github.event.inputs.firefox == 'true' && github.event.inputs.core != 'true'}}
         run: yarn build:firefox
+
+      - name: Create core Firefox build
+        if: ${{ github.event.inputs.firefox == 'true' && github.event.inputs.core == 'true'}}
+        run: yarn build:firefox:core
 
       - name: Upload Firefox artifact
         if: ${{ github.event.inputs.firefox == 'true' }}
