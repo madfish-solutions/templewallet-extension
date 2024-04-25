@@ -26,7 +26,7 @@ export const EditAccountNameModal = memo<EditAccountNameModalProps>(({ account, 
   const { editAccountName } = useTempleClient();
   const renameFormInitialValues = useMemo(() => ({ name: account.name }), [account]);
 
-  const renameGroup = useCallback(
+  const renameAccount = useCallback(
     async ({ name }: FormData) => {
       await editAccountName(account.id, name);
       onClose();
@@ -35,7 +35,7 @@ export const EditAccountNameModal = memo<EditAccountNameModalProps>(({ account, 
   );
 
   const { register, handleSubmit, errors, formState, onSubmit } = useTempleBackendActionForm<FormData>(
-    renameGroup,
+    renameAccount,
     'name',
     { defaultValues: renameFormInitialValues }
   );

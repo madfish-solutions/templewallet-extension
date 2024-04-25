@@ -21,7 +21,7 @@ export const PrivateKeyView = memo<PrivateKeyViewProps>(({ privateKey, onClose }
         description={
           <p className="text-xs leading-4 text-gray-900">
             <span className="font-semibold">Never share</span> your private key or enter it into any apps. It grants
-            full access to your wallet.
+            full access to your account.
           </p>
         }
       />

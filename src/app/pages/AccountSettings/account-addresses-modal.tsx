@@ -6,6 +6,7 @@ import CopyButton from 'app/atoms/CopyButton';
 import { StoredAccount } from 'lib/temple/types';
 import { getAccountAddressForChain } from 'temple/accounts';
 import { TempleChainKind } from 'temple/types';
+import { isTruthy } from 'lib/utils';
 
 interface AccountAddressesModalProps {
   account: StoredAccount;
@@ -18,18 +19,13 @@ const addressesEntryTextClassName = 'text-sm text-gray-900 font-semibold leading
 export const AccountAddressesModal = memo<AccountAddressesModalProps>(({ account, onClose }) => {
   const addresses = useMemo(
     () =>
-      [TempleChainKind.Tezos, TempleChainKind.EVM].reduce<Array<{ chain: TempleChainKind; address: string }>>(
-        (acc, chain) => {
+      [TempleChainKind.Tezos, TempleChainKind.EVM].map(
+        (chain) => {
           const address = getAccountAddressForChain(account, chain);
 
-          if (address) {
-            acc.push({ chain, address });
-          }
-
-          return acc;
-        },
-        []
-      ),
+          return address && { chain, address };
+        }
+      ).filter(isTruthy),
     [account]
   );
 

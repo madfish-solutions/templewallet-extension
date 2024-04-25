@@ -15,7 +15,7 @@ import { useAlert } from 'lib/ui';
 import Popper, { PopperRenderProps } from 'lib/ui/Popper';
 import { isTruthy } from 'lib/utils';
 import { navigate } from 'lib/woozie';
-import { useAllAccounts, useAllGroups } from 'temple/front';
+import { useAllAccounts, useHDGroups } from 'temple/front';
 
 import { Action, ActionsDropdown } from './actions-dropdown';
 
@@ -32,12 +32,10 @@ const GroupActionsDropdown = memo<PopperRenderProps & GroupActionsPopperProps>(
   ({ group, opened, setOpened, toggleOpened, onRenameClick, onRevealSeedPhraseClick, onDeleteClick }) => {
     const { createAccount } = useTempleClient();
     const allAccounts = useAllAccounts();
-    const allGroups = useAllGroups();
+    const hdGroups = useHDGroups();
     const customAlert = useAlert();
 
     const actions = useMemo<Action[]>(() => {
-      const hdGroupsCount = allGroups.filter(g => g.type === TempleAccountType.HD).length;
-
       if (group.type === TempleAccountType.HD) {
         return [
           {
@@ -77,7 +75,7 @@ const GroupActionsDropdown = memo<PopperRenderProps & GroupActionsPopperProps>(
             onClick: () => onRevealSeedPhraseClick(group),
             danger: false
           },
-          hdGroupsCount > 1 && {
+          hdGroups.length > 1 && {
             key: 'delete-wallet',
             i18nKey: 'delete' as const,
             icon: RemoveIcon,
@@ -119,7 +117,7 @@ const GroupActionsDropdown = memo<PopperRenderProps & GroupActionsPopperProps>(
         }
       ];
     }, [
-      allGroups,
+      hdGroups,
       group,
       allAccounts,
       createAccount,

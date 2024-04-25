@@ -8,6 +8,7 @@ import { ChainSelection } from './chain-selection';
 import { PrivateKeyView } from './private-key-view';
 import { RevealPrivateKeysForm } from './reveal-private-keys-form';
 import { PrivateKeyPayload } from './types';
+import { useVanishingState } from 'lib/ui/hooks';
 
 interface RevealPrivateKeyModalProps {
   account: StoredAccount;
@@ -15,7 +16,7 @@ interface RevealPrivateKeyModalProps {
 }
 
 export const RevealPrivateKeyModal = memo<RevealPrivateKeyModalProps>(({ account, onClose }) => {
-  const [privateKeys, setPrivateKeys] = useState<PrivateKeyPayload[] | null>(null);
+  const [privateKeys, setPrivateKeys] = useVanishingState<PrivateKeyPayload[]>(30_000);
   const [selectedPrivateKey, setSelectedPrivateKey] = useState<PrivateKeyPayload | null>(null);
 
   return (

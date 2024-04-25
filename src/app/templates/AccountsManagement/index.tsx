@@ -101,6 +101,7 @@ export const AccountsManagement = memo(() => {
               onDeleteClick={handleDeleteClick}
               onRenameClick={handleRenameClick}
               onRevealSeedPhraseClick={handleRevealSeedPhraseClick}
+              searchValue={searchValue}
             />
           ))}
         </div>

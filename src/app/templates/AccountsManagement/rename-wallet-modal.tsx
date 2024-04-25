@@ -8,11 +8,10 @@ import {
   ActionModalButtonsContainer
 } from 'app/atoms/action-modal';
 import { ACCOUNT_OR_GROUP_NAME_PATTERN } from 'app/defaults';
+import { useTempleBackendActionForm } from 'app/hooks/use-temple-backend-action-form';
 import { T, t } from 'lib/i18n';
 import { useTempleClient } from 'lib/temple/front';
 import { DisplayedGroup } from 'lib/temple/types';
-
-import { useTempleBackendActionForm } from '../../hooks/use-temple-backend-action-form';
 
 interface RenameWalletModalProps {
   onClose: () => void;

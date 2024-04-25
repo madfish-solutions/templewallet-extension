@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useState } from 'react';
+import React, { memo, useCallback } from 'react';
 
 import { Alert, FormField } from 'app/atoms';
 import {
@@ -8,11 +8,11 @@ import {
   ActionModalButtonsContainer
 } from 'app/atoms/action-modal';
 import { ReadOnlySecretField } from 'app/atoms/ReadOnlySecretField';
+import { useTempleBackendActionForm } from 'app/hooks/use-temple-backend-action-form';
 import { T, t } from 'lib/i18n';
 import { useTempleClient } from 'lib/temple/front';
 import { DisplayedGroup } from 'lib/temple/types';
-
-import { useTempleBackendActionForm } from '../../hooks/use-temple-backend-action-form';
+import { useVanishingState } from 'lib/ui/hooks';
 
 interface RevealSeedPhraseModalProps {
   onClose: () => void;
@@ -20,7 +20,7 @@ interface RevealSeedPhraseModalProps {
 }
 
 export const RevealSeedPhraseModal = memo<RevealSeedPhraseModalProps>(({ onClose, selectedGroup }) => {
-  const [seedPhrase, setSeedPhrase] = useState('');
+  const [seedPhrase, setSeedPhrase] = useVanishingState();
 
   return (
     <ActionModal title={seedPhrase ? t('revealSeedPhrase') : 'Confirm Access'} onClose={onClose}>
