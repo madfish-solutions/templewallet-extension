@@ -113,7 +113,7 @@ export async function fetchNewGroupName(allGroups: StoredHDGroup[], getNameCandi
 
 export function getDerivationPath(chainName: TempleChainKind, index: number) {
   if (chainName === TempleChainKind.EVM) {
-    return `m/44'/60'/${index}'/0`;
+    return `m/44'/60'/0'/0/${index}`;
   }
 
   return `m/44'/1729'/${index}'/0'`;

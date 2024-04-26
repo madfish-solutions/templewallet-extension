@@ -240,7 +240,7 @@ export class Vault {
     return withError('Failed to generate sync payload', async () => {
       const [firstHDGroup] = await fetchAndDecryptOne<StoredHDGroup[]>(groupsStrgKey, passKey);
       const [mnemonic, allAccounts] = await Promise.all([
-        fetchAndDecryptOne<string>(firstHDGroup.id, passKey),
+        fetchAndDecryptOne<string>(groupMnemonicStrgKey(firstHDGroup.id), passKey),
         fetchAndDecryptOne<StoredAccount[]>(accountsStrgKey, passKey)
       ]);
 
