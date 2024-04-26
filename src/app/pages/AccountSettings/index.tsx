@@ -16,7 +16,8 @@ import { getDerivationPath } from 'lib/temple/helpers';
 import { TempleAccountType } from 'lib/temple/types';
 import { useAlert } from 'lib/ui';
 import { getAccountAddressForEvm, getAccountAddressForTezos } from 'temple/accounts';
-import { useAllAccounts, useTezosMainnetChain } from 'temple/front';
+import { useAllAccounts, useCurrentAccountId, useTezosMainnetChain } from 'temple/front';
+import { useSetAccountId } from 'temple/front/ready';
 import { TempleChainKind, TempleChainTitle } from 'temple/types';
 
 import { BalanceFiat } from '../Home/OtherComponents/MainBanner/BalanceFiat';
@@ -50,9 +51,12 @@ const menuEntryTextClassName = 'text-sm text-gray-900 font-semibold leading-5';
 
 export const AccountSettings = memo<AccountSettingsProps>(({ id }) => {
   const alert = useAlert();
+  const currentAccountId = useCurrentAccountId();
+  const setAccountId = useSetAccountId();
   const { setAccountVisible } = useTempleClient();
   useAllAccountsReactiveOnRemoval();
   const allAccounts = useAllAccounts();
+  const firstAccountId = allAccounts[0].id;
   const {
     selectedFiatCurrency: { symbol: fiatSymbol }
   } = useFiatCurrency();
@@ -77,6 +81,9 @@ export const AccountSettings = memo<AccountSettingsProps>(({ id }) => {
     async (newValue: boolean) => {
       try {
         setVisibilityBeingChanged(true);
+        if (id === currentAccountId) {
+          setAccountId(firstAccountId);
+        }
         await setAccountVisible(id, newValue);
       } catch (e: any) {
         console.error(e);
@@ -86,7 +93,7 @@ export const AccountSettings = memo<AccountSettingsProps>(({ id }) => {
         setVisibilityBeingChanged(false);
       }
     },
-    [alert, id, setAccountVisible]
+    [alert, currentAccountId, firstAccountId, id, setAccountId, setAccountVisible]
   );
 
   const derivationPaths = useMemo(() => {

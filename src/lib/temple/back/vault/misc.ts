@@ -1,3 +1,4 @@
+import { isDefined } from '@rnw-community/shared';
 import { InMemorySigner } from '@taquito/signer';
 import * as TaquitoUtils from '@taquito/utils';
 import * as Bip39 from 'bip39';
@@ -122,7 +123,7 @@ export async function privateKeyToTezosAccountCreds(
   const signer = await createMemorySigner(accPrivateKey, encPassword);
 
   const [realAccPrivateKey, publicKey, address] = await Promise.all([
-    signer.secretKey(),
+    isDefined(encPassword) ? signer.secretKey() : Promise.resolve(accPrivateKey),
     signer.publicKey(),
     signer.publicKeyHash()
   ]);
