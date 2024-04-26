@@ -7,7 +7,11 @@ import * as Bip39 from 'bip39';
 import { nanoid } from 'nanoid';
 import type * as WasmThemisPackageInterface from 'wasm-themis';
 
-import { AT_LEAST_ONE_HD_ACCOUNT_ERR_MSG, ACCOUNT_NAME_COLLISION_ERR_MSG } from 'lib/constants';
+import {
+  AT_LEAST_ONE_HD_ACCOUNT_ERR_MSG,
+  ACCOUNT_NAME_COLLISION_ERR_MSG,
+  WALLETS_NAMES_STORAGE_KEY
+} from 'lib/constants';
 import {
   fetchNewGroupName,
   formatOpParamsBeforeSend,
@@ -17,7 +21,7 @@ import {
 } from 'lib/temple/helpers';
 import * as Passworder from 'lib/temple/passworder';
 import { clearAsyncStorages } from 'lib/temple/reset';
-import { StoredAccount, StoredHDAccount, StoredHDGroup, TempleAccountType, TempleSettings } from 'lib/temple/types';
+import { StoredAccount, StoredHDAccount, TempleAccountType, TempleSettings } from 'lib/temple/types';
 import { isTruthy } from 'lib/utils';
 import { getAccountAddressForChain, getAccountAddressForTezos } from 'temple/accounts';
 import { michelEncoder, getTezosFastRpcClient } from 'temple/tezos';
@@ -59,7 +63,6 @@ import {
   checkStrgKey,
   migrationLevelStrgKey,
   groupMnemonicStrgKey,
-  groupsStrgKey,
   accPrivKeyStrgKey,
   accPubKeyStrgKey,
   accountsStrgKey,
@@ -119,10 +122,8 @@ export class Vault {
       const tezosAcc = await mnemonicToTezosAccountCreds(mnemonic, hdAccIndex);
       const evmAcc = mnemonicToEvmAccountCreds(mnemonic, hdAccIndex);
 
-      const initialGroup = {
-        id: nanoid(),
-        name: await fetchMessage('hdGroupDefaultName', 'A')
-      };
+      const walletId = nanoid();
+      const walletName = await fetchMessage('hdWalletDefaultName', 'A');
       const initialAccount: StoredAccount = {
         id: nanoid(),
         type: TempleAccountType.HD,
@@ -130,7 +131,7 @@ export class Vault {
         hdIndex: hdAccIndex,
         tezosAddress: tezosAcc.address,
         evmAddress: evmAcc.address,
-        groupId: initialGroup.id,
+        walletId,
         isVisible: true
       };
       const newAccounts = [initialAccount];
@@ -144,14 +145,14 @@ export class Vault {
       await encryptAndSaveMany(
         [
           [checkStrgKey, generateCheck()],
-          [groupMnemonicStrgKey(initialGroup.id), mnemonic],
+          [groupMnemonicStrgKey(walletId), mnemonic],
           ...buildEncryptAndSaveManyForAccount(tezosAcc),
           ...buildEncryptAndSaveManyForAccount(evmAcc),
-          [accountsStrgKey, newAccounts],
-          [groupsStrgKey, [initialGroup]]
+          [accountsStrgKey, newAccounts]
         ],
         passKey
       );
+      await savePlain(WALLETS_NAMES_STORAGE_KEY, { [walletId]: walletName });
       await savePlain(migrationLevelStrgKey, MIGRATIONS.length);
 
       return tezosAcc.address;
@@ -238,13 +239,14 @@ export class Vault {
 
     const { passKey } = await Vault.toValidPassKey(password);
     return withError('Failed to generate sync payload', async () => {
-      const [firstHDGroup] = await fetchAndDecryptOne<StoredHDGroup[]>(groupsStrgKey, passKey);
+      const hdWalletsNames = await getPlain<StringRecord>(WALLETS_NAMES_STORAGE_KEY);
+      const firstWalletId = Object.keys(hdWalletsNames ?? {})[0];
       const [mnemonic, allAccounts] = await Promise.all([
-        fetchAndDecryptOne<string>(groupMnemonicStrgKey(firstHDGroup.id), passKey),
+        fetchAndDecryptOne<string>(groupMnemonicStrgKey(firstWalletId), passKey),
         fetchAndDecryptOne<StoredAccount[]>(accountsStrgKey, passKey)
       ]);
 
-      const hdAccounts = allAccounts.filter(acc => acc.type === TempleAccountType.HD);
+      const hdAccounts = allAccounts.filter(acc => acc.type === TempleAccountType.HD && acc.walletId === firstWalletId);
 
       const data = [mnemonic, hdAccounts.length];
 
@@ -287,53 +289,44 @@ export class Vault {
       }
 
       const newAccounts = allAccounts.filter(currentAccount => currentAccount.id !== id);
-      const allHdGroups = await fetchAndDecryptOne<StoredHDGroup[]>(groupsStrgKey, passKey);
-      const newHdGroups = allHdGroups.filter(group =>
-        newAccounts.some(acc => acc.type === TempleAccountType.HD && acc.groupId === group.id)
+      const allHdWalletsEntries = Object.entries((await getPlain<StringRecord>(WALLETS_NAMES_STORAGE_KEY)) ?? {});
+      const newHdWalletsNames = Object.fromEntries(
+        allHdWalletsEntries.filter(([groupId]) =>
+          newAccounts.some(acc => acc.type === TempleAccountType.HD && acc.walletId === groupId)
+        )
       );
-      await encryptAndSaveMany(
-        [
-          [accountsStrgKey, newAccounts],
-          [groupsStrgKey, newHdGroups]
-        ],
-        passKey
-      );
+      await encryptAndSaveMany([[accountsStrgKey, newAccounts]], passKey);
+      await savePlain(WALLETS_NAMES_STORAGE_KEY, newHdWalletsNames);
       await Vault.removeAccountsKeys([acc]);
 
-      return { newAccounts, newHdGroups };
+      return { newAccounts, newHdWalletsNames };
     });
   }
 
-  static async removeHdGroup(id: string, password: string) {
+  static async removeHdWallet(id: string, password: string) {
     const { passKey } = await Vault.toValidPassKey(password);
 
     return withError('Failed to remove HD group', async doThrow => {
-      const allHdGroups = await fetchAndDecryptOne<StoredHDGroup[]>(groupsStrgKey, passKey);
-      const group = allHdGroups.find(g => g.id === id);
+      const allHdWalletsNames = (await getPlain<StringRecord>(WALLETS_NAMES_STORAGE_KEY)) ?? {};
 
-      if (!group) {
+      if (!(id in allHdWalletsNames)) {
         throw doThrow();
       }
 
       const allAccounts = await fetchAndDecryptOne<StoredAccount[]>(accountsStrgKey, passKey);
-      const accountsToRemove = allAccounts.filter(acc => acc.type === TempleAccountType.HD && acc.groupId === id);
+      const accountsToRemove = allAccounts.filter(acc => acc.type === TempleAccountType.HD && acc.walletId === id);
 
       if (!canRemoveAccounts(allAccounts, accountsToRemove)) {
         throw new PublicError(AT_LEAST_ONE_HD_ACCOUNT_ERR_MSG);
       }
 
       const newAccounts = allAccounts.filter(acc => !accountsToRemove.includes(acc));
-      const newHdGroups = allHdGroups.filter(g => g.id !== id);
-      await encryptAndSaveMany(
-        [
-          [accountsStrgKey, newAccounts],
-          [groupsStrgKey, newHdGroups]
-        ],
-        passKey
-      );
+      const { [id]: oldGroupName, ...newHdWalletsNames } = allHdWalletsNames;
+      await encryptAndSaveMany([[accountsStrgKey, newAccounts]], passKey);
+      await savePlain(WALLETS_NAMES_STORAGE_KEY, newHdWalletsNames);
       await Vault.removeAccountsKeys(accountsToRemove);
 
-      return { newAccounts, newHdGroups };
+      return { newAccounts, newHdWalletsNames };
     });
   }
 
@@ -390,8 +383,8 @@ export class Vault {
     return fetchAndDecryptOne<StoredAccount[]>(accountsStrgKey, this.passKey);
   }
 
-  fetchHdGroups() {
-    return fetchAndDecryptOne<StoredHDGroup[]>(groupsStrgKey, this.passKey);
+  async fetchHdWalletsNames() {
+    return (await getPlain<StringRecord>(WALLETS_NAMES_STORAGE_KEY)) ?? {};
   }
 
   async fetchSettings() {
@@ -402,28 +395,28 @@ export class Vault {
     return saved ? { ...DEFAULT_SETTINGS, ...saved } : DEFAULT_SETTINGS;
   }
 
-  async createHDAccount(groupId: string, name?: string, hdAccIndex?: number): Promise<StoredAccount[]> {
+  async createHDAccount(walletId: string, name?: string, hdAccIndex?: number): Promise<StoredAccount[]> {
     return withError('Failed to create account', async doThrow => {
-      const [mnemonic, allAccounts, hdGroups] = await Promise.all([
-        fetchAndDecryptOne<string>(groupMnemonicStrgKey(groupId), this.passKey),
+      const [mnemonic, allAccounts, hdWalletsNames] = await Promise.all([
+        fetchAndDecryptOne<string>(groupMnemonicStrgKey(walletId), this.passKey),
         this.fetchAccounts(),
-        this.fetchHdGroups()
+        this.fetchHdWalletsNames()
       ]);
 
-      if (!hdGroups.some(g => g.id === groupId)) {
+      if (!(walletId in hdWalletsNames)) {
         throw doThrow();
       }
 
       if (!hdAccIndex) {
         const sameGroupHDAccounts = allAccounts.filter(
-          (a): a is StoredHDAccount => a.type === TempleAccountType.HD && a.groupId === groupId
+          (a): a is StoredHDAccount => a.type === TempleAccountType.HD && a.walletId === walletId
         );
         hdAccIndex = Math.max(-1, ...sameGroupHDAccounts.map(a => a.hdIndex)) + 1;
       }
 
-      const accName = name || (await fetchNewAccountName(allAccounts, TempleAccountType.HD, groupId));
+      const accName = name || (await fetchNewAccountName(allAccounts, TempleAccountType.HD, walletId));
 
-      if (isNameCollision(allAccounts, TempleAccountType.HD, accName, groupId)) {
+      if (isNameCollision(allAccounts, TempleAccountType.HD, accName, walletId)) {
         throw new PublicError(ACCOUNT_NAME_COLLISION_ERR_MSG);
       }
 
@@ -437,7 +430,7 @@ export class Vault {
         hdIndex: hdAccIndex,
         tezosAddress: tezosAcc.address,
         evmAddress: evmAcc.address,
-        groupId,
+        walletId,
         isVisible: true
       };
 
@@ -464,9 +457,11 @@ export class Vault {
 
       const hdAccIndex = 0;
 
-      const hdGroups = await this.fetchHdGroups();
+      const hdWalletsNames = await this.fetchHdWalletsNames();
       const groupsMnemonics = await Promise.all(
-        hdGroups.map(g => fetchAndDecryptOne<string>(groupMnemonicStrgKey(g.id), this.passKey))
+        Object.keys(hdWalletsNames).map(groupId =>
+          fetchAndDecryptOne<string>(groupMnemonicStrgKey(groupId), this.passKey)
+        )
       );
 
       if (groupsMnemonics.some(m => m === mnemonic)) {
@@ -477,10 +472,10 @@ export class Vault {
       const tezosAcc = await mnemonicToTezosAccountCreds(mnemonic, hdAccIndex);
       const evmAcc = mnemonicToEvmAccountCreds(mnemonic, hdAccIndex);
 
-      const newGroup = {
-        id: nanoid(),
-        name: await fetchNewGroupName(hdGroups, i => fetchMessage('hdGroupDefaultName', toExcelColumnName(i)))
-      };
+      const walletId = nanoid();
+      const walletName = await fetchNewGroupName(hdWalletsNames, i =>
+        fetchMessage('hdWalletDefaultName', toExcelColumnName(i))
+      );
       const newAccount: StoredAccount = {
         id: nanoid(),
         type: TempleAccountType.HD,
@@ -488,25 +483,25 @@ export class Vault {
         hdIndex: hdAccIndex,
         tezosAddress: tezosAcc.address,
         evmAddress: evmAcc.address,
-        groupId: newGroup.id,
+        walletId,
         isVisible: true
       };
 
       const newAccounts = concatAccount(allAccounts, newAccount);
-      const newHdGroups = [...hdGroups, newGroup];
+      const newHdWalletsNames = { ...hdWalletsNames, [walletId]: walletName };
 
       await encryptAndSaveMany(
         [
-          [groupMnemonicStrgKey(newGroup.id), mnemonic],
+          [groupMnemonicStrgKey(walletId), mnemonic],
           ...buildEncryptAndSaveManyForAccount(tezosAcc),
           ...buildEncryptAndSaveManyForAccount(evmAcc),
-          [accountsStrgKey, newAccounts],
-          [groupsStrgKey, newHdGroups]
+          [accountsStrgKey, newAccounts]
         ],
         this.passKey
       );
+      await savePlain(WALLETS_NAMES_STORAGE_KEY, newHdWalletsNames);
 
-      return { newAccounts, newHdGroups };
+      return { newAccounts, newHdWalletsNames };
     });
   }
 
@@ -682,7 +677,7 @@ export class Vault {
           allAccounts.filter(acc => acc.id !== id),
           account.type,
           name,
-          account.type === TempleAccountType.HD ? account.groupId : undefined
+          account.type === TempleAccountType.HD ? account.walletId : undefined
         )
       ) {
         throw new PublicError(ACCOUNT_NAME_COLLISION_ERR_MSG);
@@ -697,21 +692,20 @@ export class Vault {
 
   async editGroupName(id: string, name: string) {
     return withError('Failed to edit group name', async () => {
-      const hdGroups = await this.fetchHdGroups();
-      const group = hdGroups.find(g => g.id === id);
+      const hdWalletsNames = await this.fetchHdWalletsNames();
 
-      if (!group) {
+      if (!(id in hdWalletsNames)) {
         throw new PublicError('Group not found');
       }
 
-      if (hdGroups.some(group => group.id !== id && group.name === name)) {
+      if (Object.entries(hdWalletsNames).some(([groupId, currentName]) => groupId !== id && currentName === name)) {
         throw new PublicError('Group with this name already exists');
       }
 
-      const newHdGroups = hdGroups.map(g => (g.id === id ? { ...g, name } : g));
-      await encryptAndSaveMany([[groupsStrgKey, newHdGroups]], this.passKey);
+      const newHdWalletsNames = { ...hdWalletsNames, [id]: name };
+      await savePlain(WALLETS_NAMES_STORAGE_KEY, newHdWalletsNames);
 
-      return newHdGroups;
+      return newHdWalletsNames;
     });
   }
 

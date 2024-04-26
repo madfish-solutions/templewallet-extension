@@ -157,10 +157,10 @@ const processRequest = async (req: TempleRequest, port: Runtime.Port): Promise<T
         type: TempleMessageType.UpdateSettingsResponse
       };
 
-    case TempleMessageType.RemoveHdGroupRequest:
-      await Actions.removeHdGroup(req.id, req.password);
+    case TempleMessageType.RemoveHdWalletRequest:
+      await Actions.removeHdWallet(req.id, req.password);
       return {
-        type: TempleMessageType.RemoveHdGroupResponse
+        type: TempleMessageType.RemoveHdWalletResponse
       };
 
     case TempleMessageType.RemoveAccountsByTypeRequest:

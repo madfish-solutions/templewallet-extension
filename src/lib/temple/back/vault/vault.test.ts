@@ -127,9 +127,10 @@ describe('Vault tests', () => {
   it('init test', async () => {
     await Vault.spawn(password, defaultMnemonic);
     const vault = await Vault.setup(password);
-    const groups = await vault.fetchHdGroups();
-    expectObjectArrayMatch(groups, [{ name: 'Translated<hdGroupDefaultName, "A">' }]);
-    const accounts = await vault.createHDAccount(groups[0].id, defaultCustomAccountName);
+    const groupsNames = await vault.fetchHdWalletsNames();
+    expect(Object.values(groupsNames)).toEqual(['Translated<hdWalletDefaultName, "A">']);
+    const firstGroupId = Object.keys(groupsNames)[0];
+    const accounts = await vault.createHDAccount(firstGroupId, defaultCustomAccountName);
     expectObjectArrayMatch(accounts, [
       {
         type: TempleAccountType.HD,
@@ -137,7 +138,7 @@ describe('Vault tests', () => {
         hdIndex: 0,
         tezosAddress: hdWallets[0].accounts[0].tezos.address,
         evmAddress: hdWallets[0].accounts[0].evm.address,
-        groupId: groups[0].id,
+        walletId: firstGroupId,
         isVisible: true
       },
       {
@@ -146,7 +147,7 @@ describe('Vault tests', () => {
         hdIndex: 1,
         tezosAddress: hdWallets[0].accounts[1].tezos.address,
         evmAddress: hdWallets[0].accounts[1].evm.address,
-        groupId: groups[0].id,
+        walletId: firstGroupId,
         isVisible: true
       }
     ]);
@@ -173,8 +174,8 @@ describe('Vault tests', () => {
   it('should reveal the mnemonic of the specified HD group', async () => {
     await Vault.spawn(password, defaultMnemonic);
     const vault = await Vault.setup(password);
-    const groups = await vault.fetchHdGroups();
-    expect(await Vault.revealMnemonic(groups[0].id, password)).toBe(defaultMnemonic);
+    const groupsNames = await vault.fetchHdWalletsNames();
+    expect(await Vault.revealMnemonic(Object.keys(groupsNames)[0], password)).toBe(defaultMnemonic);
     await expect(() => Vault.revealMnemonic('invalidnanoid', password)).rejects.toThrow();
   });
 
@@ -238,9 +239,10 @@ describe('Vault tests', () => {
     it('should fail if an account with the same name exists in the same group', async () => {
       await Vault.spawn(password, defaultMnemonic);
       const vault = await Vault.setup(password);
-      const [{ id: groupId }] = await vault.fetchHdGroups();
-      await vault.createHDAccount(groupId, defaultCustomAccountName);
-      await expect(vault.createHDAccount(groupId, defaultCustomAccountName)).rejects.toThrow(
+      const groupsNames = await vault.fetchHdWalletsNames();
+      const firstGroupId = Object.keys(groupsNames)[0];
+      await vault.createHDAccount(firstGroupId, defaultCustomAccountName);
+      await expect(vault.createHDAccount(firstGroupId, defaultCustomAccountName)).rejects.toThrow(
         ACCOUNT_NAME_COLLISION_ERR_MSG
       );
     });
@@ -249,23 +251,23 @@ describe('Vault tests', () => {
       await Vault.spawn(password, defaultMnemonic);
       const vault = await Vault.setup(password);
       await vault.createOrImportWallet(hdWallets[1].mnemonic);
-      const [{ id: firstGroupId }, { id: secondGroupId }] = await vault.fetchHdGroups();
+      const [firstGroupId, secondGroupId] = Object.keys(await vault.fetchHdWalletsNames());
       await vault.createHDAccount(firstGroupId, defaultCustomAccountName);
       await vault.createHDAccount(secondGroupId, defaultCustomAccountName);
       const accounts = await vault.fetchAccounts();
       expectObjectArrayMatch(accounts, [
-        { type: TempleAccountType.HD, tezosAddress: hdWallets[0].accounts[0].tezos.address, groupId: firstGroupId },
-        { type: TempleAccountType.HD, tezosAddress: hdWallets[1].accounts[0].tezos.address, groupId: secondGroupId },
+        { type: TempleAccountType.HD, tezosAddress: hdWallets[0].accounts[0].tezos.address, walletId: firstGroupId },
+        { type: TempleAccountType.HD, tezosAddress: hdWallets[1].accounts[0].tezos.address, walletId: secondGroupId },
         {
           type: TempleAccountType.HD,
           tezosAddress: hdWallets[0].accounts[1].tezos.address,
-          groupId: firstGroupId,
+          walletId: firstGroupId,
           name: defaultCustomAccountName
         },
         {
           type: TempleAccountType.HD,
           tezosAddress: hdWallets[1].accounts[1].tezos.address,
-          groupId: secondGroupId,
+          walletId: secondGroupId,
           name: defaultCustomAccountName
         }
       ]);
@@ -274,7 +276,7 @@ describe('Vault tests', () => {
     it('should create the 4th HD account given the 1st and the 3rd one', async () => {
       await Vault.spawn(password, defaultMnemonic);
       const vault = await Vault.setup(password);
-      const [{ id: firstGroupId }] = await vault.fetchHdGroups();
+      const firstGroupId = Object.keys(await vault.fetchHdWalletsNames())[0];
       await vault.createHDAccount(firstGroupId);
       const accountsBeforeDeletion = await vault.createHDAccount(firstGroupId);
       await Vault.removeAccount(accountsBeforeDeletion[1].id, password);
@@ -284,7 +286,7 @@ describe('Vault tests', () => {
           type: TempleAccountType.HD,
           tezosAddress: hdWallets[0].accounts[0].tezos.address,
           evmAddress: hdWallets[0].accounts[0].evm.address,
-          groupId: firstGroupId,
+          walletId: firstGroupId,
           id: accountsBeforeDeletion[0].id,
           name: 'Translated<defaultAccountName, "1">',
           isVisible: true
@@ -293,7 +295,7 @@ describe('Vault tests', () => {
           type: TempleAccountType.HD,
           tezosAddress: hdWallets[0].accounts[2].tezos.address,
           evmAddress: hdWallets[0].accounts[2].evm.address,
-          groupId: firstGroupId,
+          walletId: firstGroupId,
           id: accountsBeforeDeletion[2].id,
           name: 'Translated<defaultAccountName, "3">',
           isVisible: true
@@ -302,7 +304,7 @@ describe('Vault tests', () => {
           type: TempleAccountType.HD,
           tezosAddress: hdWallets[0].accounts[3].tezos.address,
           evmAddress: hdWallets[0].accounts[3].evm.address,
-          groupId: firstGroupId,
+          walletId: firstGroupId,
           name: 'Translated<defaultAccountName, "4">',
           isVisible: true
         }
@@ -312,7 +314,7 @@ describe('Vault tests', () => {
     it('should create an account with the specified name', async () => {
       await Vault.spawn(password, defaultMnemonic);
       const vault = await Vault.setup(password);
-      const [{ id: firstGroupId }] = await vault.fetchHdGroups();
+      const firstGroupId = Object.keys(await vault.fetchHdWalletsNames())[0];
       const accounts = await vault.createHDAccount(firstGroupId, defaultCustomAccountName);
       expect(accounts[1]).toMatchObject({
         type: TempleAccountType.HD,
@@ -323,7 +325,7 @@ describe('Vault tests', () => {
     it('should create an account with the specified HD index', async () => {
       await Vault.spawn(password, defaultMnemonic);
       const vault = await Vault.setup(password);
-      const [{ id: firstGroupId }] = await vault.fetchHdGroups();
+      const firstGroupId = Object.keys(await vault.fetchHdWalletsNames())[0];
       const accounts = await vault.createHDAccount(firstGroupId, defaultCustomAccountName, 3);
       expect(accounts[1]).toMatchObject({
         type: TempleAccountType.HD,
@@ -336,7 +338,7 @@ describe('Vault tests', () => {
     it('should replace non-HD accounts with the same addresses', async () => {
       await Vault.spawn(password, defaultMnemonic);
       const vault = await Vault.setup(password);
-      const [{ id: firstGroupId }] = await vault.fetchHdGroups();
+      const firstGroupId = Object.keys(await vault.fetchHdWalletsNames())[0];
       await vault.importAccount(TempleChainKind.Tezos, hdWallets[0].accounts[1].tezos.privateKey);
       await vault.importWatchOnlyAccount(TempleChainKind.EVM, hdWallets[0].accounts[1].evm.address);
       await vault.importAccount(TempleChainKind.Tezos, hdWallets[0].accounts[2].tezos.privateKey);
@@ -346,7 +348,7 @@ describe('Vault tests', () => {
           type: TempleAccountType.HD,
           tezosAddress: hdWallets[0].accounts[0].tezos.address,
           evmAddress: hdWallets[0].accounts[0].evm.address,
-          groupId: firstGroupId
+          walletId: firstGroupId
         },
         {
           type: TempleAccountType.Imported,
@@ -357,7 +359,7 @@ describe('Vault tests', () => {
           type: TempleAccountType.HD,
           tezosAddress: hdWallets[0].accounts[1].tezos.address,
           evmAddress: hdWallets[0].accounts[1].evm.address,
-          groupId: firstGroupId
+          walletId: firstGroupId
         }
       ]);
     });
@@ -366,7 +368,7 @@ describe('Vault tests', () => {
   it('should change the visibility of the specified account', async () => {
     await Vault.spawn(password, defaultMnemonic);
     const vault = await Vault.setup(password);
-    const [{ id: firstGroupId }] = await vault.fetchHdGroups();
+    const firstGroupId = Object.keys(await vault.fetchHdWalletsNames())[0];
     const initialAccounts = await vault.createHDAccount(firstGroupId);
     const accountsV2 = await vault.setAccountVisible(initialAccounts[1].id, false);
     expectObjectArrayMatch(accountsV2, [
@@ -392,7 +394,7 @@ describe('Vault tests', () => {
     it('should throw an error if an account with the same name exists in the same group', async () => {
       await Vault.spawn(password, defaultMnemonic);
       const vault = await Vault.setup(password);
-      const [{ id: firstGroupId }] = await vault.fetchHdGroups();
+      const firstGroupId = Object.keys(await vault.fetchHdWalletsNames())[0];
       await vault.createHDAccount(firstGroupId, defaultCustomAccountName);
       const accounts = await vault.createHDAccount(firstGroupId);
       await expect(() => vault.editAccountName(accounts[2].id, defaultCustomAccountName)).rejects.toThrow(
@@ -646,19 +648,20 @@ describe('Vault tests', () => {
     it('should remove an HD account and its HD group if it becomes empty', async () => {
       await Vault.spawn(password, defaultMnemonic);
       const vault = await Vault.setup(password);
-      const { newHdGroups: hdGroupsBeforeDeletion } = await vault.createOrImportWallet();
-      const accountsBeforeDeletion = await vault.createHDAccount(hdGroupsBeforeDeletion[1].id);
-      const { newAccounts: accountsV2, newHdGroups: hdGroupsV2 } = await Vault.removeAccount(
+      const { newHdWalletsNames: hdWalletsNamesBeforeDeletion } = await vault.createOrImportWallet();
+      const [firstGroupId, secondGroupId] = Object.keys(hdWalletsNamesBeforeDeletion);
+      const accountsBeforeDeletion = await vault.createHDAccount(secondGroupId);
+      const { newAccounts: accountsV2, newHdWalletsNames: hdWalletsNamesV2 } = await Vault.removeAccount(
         accountsBeforeDeletion[1].id,
         password
       );
-      expect(hdGroupsV2).toEqual(hdGroupsBeforeDeletion);
+      expect(hdWalletsNamesV2).toEqual(hdWalletsNamesBeforeDeletion);
       expect(accountsV2).toEqual([accountsBeforeDeletion[0], accountsBeforeDeletion[2]]);
-      const { newAccounts: accountsV3, newHdGroups: hdGroupsV3 } = await Vault.removeAccount(
+      const { newAccounts: accountsV3, newHdWalletsNames: hdWalletsNamesV3 } = await Vault.removeAccount(
         accountsBeforeDeletion[2].id,
         password
       );
-      expect(hdGroupsV3).toEqual([hdGroupsBeforeDeletion[0]]);
+      expect(hdWalletsNamesV3).toEqual({ [firstGroupId]: hdWalletsNamesBeforeDeletion[firstGroupId] });
       expect(accountsV3).toEqual([accountsBeforeDeletion[0]]);
     });
 
@@ -674,30 +677,31 @@ describe('Vault tests', () => {
     });
   });
 
-  describe('removeHDGroup', () => {
+  describe('removeHdWallet', () => {
     it('should throw an error if the specified group does not exist', async () => {
       await Vault.spawn(password, defaultMnemonic);
       await Vault.setup(password);
-      await expect(() => Vault.removeHdGroup('invalidnanoid', password)).rejects.toThrow();
+      await expect(() => Vault.removeHdWallet('invalidnanoid', password)).rejects.toThrow();
     });
 
     it('should throw an error on an attempt to remove the only HD group', async () => {
       await Vault.spawn(password, defaultMnemonic);
       const vault = await Vault.setup(password);
-      const [hdGroup] = await vault.fetchHdGroups();
-      await expect(() => Vault.removeHdGroup(hdGroup.id, password)).rejects.toThrow(AT_LEAST_ONE_HD_ACCOUNT_ERR_MSG);
+      const firstGroupId = Object.keys(await vault.fetchHdWalletsNames())[0];
+      await expect(() => Vault.removeHdWallet(firstGroupId, password)).rejects.toThrow(AT_LEAST_ONE_HD_ACCOUNT_ERR_MSG);
     });
 
     it('should remove the specified HD group and its accounts', async () => {
       await Vault.spawn(password, defaultMnemonic);
       const vault = await Vault.setup(password);
-      const { newHdGroups: hdGroupsBeforeDeletion } = await vault.createOrImportWallet();
-      const accountsBeforeDeletion = await vault.createHDAccount(hdGroupsBeforeDeletion[1].id);
-      const { newAccounts: accountsV2, newHdGroups: hdGroupsV2 } = await Vault.removeHdGroup(
-        hdGroupsBeforeDeletion[1].id,
+      const { newHdWalletsNames: hdWalletsNamesBeforeDeletion } = await vault.createOrImportWallet();
+      const [firstGroupId, secondGroupId] = Object.keys(hdWalletsNamesBeforeDeletion);
+      const accountsBeforeDeletion = await vault.createHDAccount(secondGroupId);
+      const { newAccounts: accountsV2, newHdWalletsNames: hdWalletsNamesV2 } = await Vault.removeHdWallet(
+        secondGroupId,
         password
       );
-      expect(hdGroupsV2).toEqual([hdGroupsBeforeDeletion[0]]);
+      expect(hdWalletsNamesV2).toEqual({ [firstGroupId]: hdWalletsNamesBeforeDeletion[firstGroupId] });
       expect(accountsV2).toEqual([accountsBeforeDeletion[0]]);
     });
   });
@@ -729,16 +733,16 @@ describe('Vault tests', () => {
   it('should fetch all HD groups', async () => {
     await Vault.spawn(password, defaultMnemonic);
     const vault = await Vault.setup(password);
-    const groups = await vault.fetchHdGroups();
-    expectObjectArrayMatch(groups, [{ name: 'Translated<hdGroupDefaultName, "A">' }]);
+    const groupsNames = await vault.fetchHdWalletsNames();
+    expect(Object.values(groupsNames)).toEqual(['Translated<hdWalletDefaultName, "A">']);
   });
 
   describe('createOrImportWallet', () => {
     it('should throw an error on an attempt to import a wallet with the same mnemonic', async () => {
       await Vault.spawn(password, defaultMnemonic);
       const vault = await Vault.setup(password);
-      const [firstGroup] = await vault.fetchHdGroups();
-      const [firstAccount] = await vault.createHDAccount(firstGroup.id);
+      const firstGroupId = Object.keys(await vault.fetchHdWalletsNames())[0];
+      const [firstAccount] = await vault.createHDAccount(firstGroupId);
       await Vault.removeAccount(firstAccount.id, password);
       await expect(() => vault.createOrImportWallet(defaultMnemonic)).rejects.toThrow(
         'This wallet is already imported'
@@ -749,16 +753,18 @@ describe('Vault tests', () => {
       await Vault.spawn(password, defaultMnemonic);
       const vault = await Vault.setup(password);
       setGeneratedMnemonicOnce(mockBip39GeneratedMnemonic);
-      const { newHdGroups: hdGroups } = await vault.createOrImportWallet();
-      const generatedMnemonic = await Vault.revealMnemonic(hdGroups[1].id, password);
+      const { newHdWalletsNames: hdWalletsNames } = await vault.createOrImportWallet();
+      const [, secondGroupId] = Object.keys(hdWalletsNames);
+      const generatedMnemonic = await Vault.revealMnemonic(secondGroupId, password);
       expect(generatedMnemonic).toBe(mockBip39GeneratedMnemonic);
     });
 
     it('should use the specified mnemonic', async () => {
       await Vault.spawn(password, defaultMnemonic);
       const vault = await Vault.setup(password);
-      const { newHdGroups: hdGroups } = await vault.createOrImportWallet(hdWallets[1].mnemonic);
-      const importedMnemonic = await Vault.revealMnemonic(hdGroups[1].id, password);
+      const { newHdWalletsNames: hdWalletsNames } = await vault.createOrImportWallet(hdWallets[1].mnemonic);
+      const [, secondGroupId] = Object.keys(hdWalletsNames);
+      const importedMnemonic = await Vault.revealMnemonic(secondGroupId, password);
       expect(importedMnemonic).toBe(hdWallets[1].mnemonic);
     });
 
@@ -771,11 +777,14 @@ describe('Vault tests', () => {
         TempleChainKind.Tezos,
         hdWallets[0].accounts[2].tezos.privateKey
       );
-      const { newHdGroups: hdGroups, newAccounts: accounts } = await vault.createOrImportWallet(hdWallets[1].mnemonic);
-      expectObjectArrayMatch(hdGroups, [
-        { name: 'Translated<hdGroupDefaultName, "A">' },
-        { name: 'Translated<hdGroupDefaultName, "B">' }
+      const { newHdWalletsNames: hdWalletsNames, newAccounts: accounts } = await vault.createOrImportWallet(
+        hdWallets[1].mnemonic
+      );
+      expect(Object.values(hdWalletsNames)).toEqual([
+        'Translated<hdWalletDefaultName, "A">',
+        'Translated<hdWalletDefaultName, "B">'
       ]);
+      const [, secondHdWalletId] = Object.keys(hdWalletsNames);
       expectObjectArrayMatch(accounts, [
         accountsBeforeReplacement[0],
         accountsBeforeReplacement[3],
@@ -783,7 +792,7 @@ describe('Vault tests', () => {
           type: TempleAccountType.HD,
           tezosAddress: hdWallets[1].accounts[0].tezos.address,
           evmAddress: hdWallets[1].accounts[0].evm.address,
-          groupId: hdGroups[1].id,
+          walletId: secondHdWalletId,
           name: 'Translated<defaultAccountName, "1">'
         }
       ]);
@@ -800,8 +809,9 @@ describe('Vault tests', () => {
     it('should throw an error if a group with the same name exists', async () => {
       await Vault.spawn(password, defaultMnemonic);
       const vault = await Vault.setup(password);
-      const { newHdGroups } = await vault.createOrImportWallet();
-      await expect(() => vault.editGroupName(newHdGroups[1].id, newHdGroups[0].name)).rejects.toThrow(
+      const { newHdWalletsNames } = await vault.createOrImportWallet();
+      const [firstWalletId, secondWalletId] = Object.keys(newHdWalletsNames);
+      await expect(() => vault.editGroupName(secondWalletId, newHdWalletsNames[firstWalletId])).rejects.toThrow(
         'Group with this name already exists'
       );
     });
@@ -809,9 +819,10 @@ describe('Vault tests', () => {
     it('should edit the name of the specified group', async () => {
       await Vault.spawn(password, defaultMnemonic);
       const vault = await Vault.setup(password);
-      const { newHdGroups } = await vault.createOrImportWallet();
-      const newGroups = await vault.editGroupName(newHdGroups[1].id, 'newName');
-      expect(newGroups[1]).toMatchObject({ name: 'newName' });
+      const { newHdWalletsNames } = await vault.createOrImportWallet();
+      const [, secondWalletId] = Object.keys(newHdWalletsNames);
+      const newGroupsNames = await vault.editGroupName(secondWalletId, 'newName');
+      expect(newGroupsNames[secondWalletId]).toEqual('newName');
     });
   });
 });

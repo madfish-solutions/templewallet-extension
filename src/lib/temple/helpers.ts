@@ -2,7 +2,7 @@ import BigNumber from 'bignumber.js';
 
 import { TempleChainKind } from 'temple/types';
 
-import { StoredAccount, StoredHDGroup, TempleAccountType } from './types';
+import { StoredAccount, TempleAccountType } from './types';
 
 export function usdToAssetAmount(
   usd?: BigNumber,
@@ -62,7 +62,7 @@ export function toExcelColumnName(n: number) {
 
 function getSameGroupAccounts(allAccounts: StoredAccount[], accountType: TempleAccountType, groupId?: string) {
   return allAccounts.filter(
-    acc => acc.type === accountType && (acc.type !== TempleAccountType.HD || acc.groupId === groupId)
+    acc => acc.type === accountType && (acc.type !== TempleAccountType.HD || acc.walletId === groupId)
   );
 }
 
@@ -103,12 +103,10 @@ export async function fetchNewAccountName(
   );
 }
 
-export async function fetchNewGroupName(allGroups: StoredHDGroup[], getNameCandidate: (i: number) => Promise<string>) {
-  return await pickUniqueName(
-    allGroups.length,
-    getNameCandidate,
-    name => !allGroups.some(group => group.name === name)
-  );
+export async function fetchNewGroupName(groupsEntries: StringRecord, getNameCandidate: (i: number) => Promise<string>) {
+  const groupsNames = Object.values(groupsEntries);
+
+  return await pickUniqueName(groupsNames.length, getNameCandidate, name => !groupsNames.includes(name));
 }
 
 export function getDerivationPath(chainName: TempleChainKind, index: number) {

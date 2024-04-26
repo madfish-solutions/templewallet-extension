@@ -488,7 +488,7 @@
   "accountOrGroupNameInputTitle": {
     "message": "1-16 characters, no special"
   },
-  "hdGroupDefaultName": {
+  "hdWalletDefaultName": {
     "message": "Wallet $groupLetter$",
     "placeholders": {
       "groupLetter": {

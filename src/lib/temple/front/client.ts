@@ -76,7 +76,7 @@ export const [TempleClientProvider, useTempleClient] = constate(() => {
    * Aliases
    */
 
-  const { status, accounts, settings, hdGroups } = state;
+  const { status, accounts, settings, hdWalletsNames } = state;
   const idle = status === TempleStatus.Idle;
   const locked = status === TempleStatus.Locked;
   const ready = status === TempleStatus.Ready;
@@ -255,11 +255,11 @@ export const [TempleClientProvider, useTempleClient] = constate(() => {
 
   const removeHdGroup = useCallback(async (id: string, password: string) => {
     const res = await request({
-      type: TempleMessageType.RemoveHdGroupRequest,
+      type: TempleMessageType.RemoveHdWalletRequest,
       id,
       password
     });
-    assertResponse(res.type === TempleMessageType.RemoveHdGroupResponse);
+    assertResponse(res.type === TempleMessageType.RemoveHdWalletResponse);
   }, []);
 
   const removeAccountsByType = useCallback(
@@ -373,7 +373,7 @@ export const [TempleClientProvider, useTempleClient] = constate(() => {
     customTezosNetworks,
     customEvmNetworks,
     accounts,
-    hdGroups,
+    hdWalletsNames,
     settings,
     idle,
     locked,

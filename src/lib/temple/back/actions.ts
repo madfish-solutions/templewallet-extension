@@ -48,7 +48,7 @@ import {
   settingsUpdated,
   withInited,
   withUnlocked,
-  hdGroupsUpdated
+  hdWalletsNamesUpdated
 } from './store';
 import { Vault } from './vault';
 
@@ -118,8 +118,8 @@ export function unlock(password: string) {
       const vault = await Vault.setup(password, BACKGROUND_IS_WORKER);
       const accounts = await vault.fetchAccounts();
       const settings = await vault.fetchSettings();
-      const hdGroups = await vault.fetchHdGroups();
-      unlocked({ vault, accounts, settings, hdGroups });
+      const hdWalletsNames = await vault.fetchHdWalletsNames();
+      unlocked({ vault, accounts, settings, hdWalletsNames });
     })
   );
 }
@@ -130,8 +130,8 @@ export async function unlockFromSession() {
     if (vault == null) return;
     const accounts = await vault.fetchAccounts();
     const settings = await vault.fetchSettings();
-    const hdGroups = await vault.fetchHdGroups();
-    unlocked({ vault, accounts, settings, hdGroups });
+    const hdWalletsNames = await vault.fetchHdWalletsNames();
+    unlocked({ vault, accounts, settings, hdWalletsNames });
   });
 }
 
@@ -167,9 +167,9 @@ export function revealPublicKey(accountAddress: string) {
 
 export function removeAccount(id: string, password: string) {
   return withUnlocked(async () => {
-    const { newAccounts, newHdGroups } = await Vault.removeAccount(id, password);
+    const { newAccounts, newHdWalletsNames } = await Vault.removeAccount(id, password);
     accountsUpdated(newAccounts);
-    hdGroupsUpdated(newHdGroups);
+    hdWalletsNamesUpdated(newHdWalletsNames);
   });
 }
 
@@ -244,11 +244,11 @@ export function updateSettings(settings: Partial<TempleSettings>) {
   });
 }
 
-export function removeHdGroup(id: string, password: string) {
+export function removeHdWallet(id: string, password: string) {
   return withUnlocked(async () => {
-    const { newAccounts, newHdGroups } = await Vault.removeHdGroup(id, password);
+    const { newAccounts, newHdWalletsNames } = await Vault.removeHdWallet(id, password);
     accountsUpdated(newAccounts);
-    hdGroupsUpdated(newHdGroups);
+    hdWalletsNamesUpdated(newHdWalletsNames);
   });
 }
 
@@ -261,8 +261,8 @@ export function removeAccountsByType(type: Exclude<TempleAccountType, TempleAcco
 
 export function createOrImportWallet(mnemonic?: string) {
   return withUnlocked(async ({ vault }) => {
-    const { newAccounts, newHdGroups } = await vault.createOrImportWallet(mnemonic);
-    hdGroupsUpdated(newHdGroups);
+    const { newAccounts, newHdWalletsNames } = await vault.createOrImportWallet(mnemonic);
+    hdWalletsNamesUpdated(newHdWalletsNames);
     accountsUpdated(newAccounts);
   });
 }
@@ -274,8 +274,8 @@ export function editGroupName(id: string, name: string) {
       throw new Error('Invalid name. It should be: 1-16 characters, without special');
     }
 
-    const newHdGroups = await vault.editGroupName(id, name);
-    hdGroupsUpdated(newHdGroups);
+    const newHdWalletsNames = await vault.editGroupName(id, name);
+    hdWalletsNamesUpdated(newHdWalletsNames);
   });
 }
 

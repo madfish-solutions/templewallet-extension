@@ -1,6 +1,6 @@
 import { createStore, createEvent } from 'effector';
 
-import { TempleState, TempleStatus, StoredAccount, TempleSettings, StoredHDGroup } from 'lib/temple/types';
+import { TempleState, TempleStatus, StoredAccount, TempleSettings } from 'lib/temple/types';
 
 import { Vault } from './vault';
 
@@ -13,12 +13,12 @@ interface UnlockedStoreState extends StoreState {
   vault: Vault;
 }
 
-export function toFront({ status, accounts, settings, hdGroups }: StoreState): TempleState {
+export function toFront({ status, accounts, settings, hdWalletsNames }: StoreState): TempleState {
   return {
     status,
     accounts,
     settings,
-    hdGroups
+    hdWalletsNames
   };
 }
 
@@ -34,12 +34,12 @@ export const unlocked = createEvent<{
   vault: Vault;
   accounts: StoredAccount[];
   settings: TempleSettings;
-  hdGroups: StoredHDGroup[];
+  hdWalletsNames: StringRecord;
 }>('Unlocked');
 
 export const accountsUpdated = createEvent<StoredAccount[]>('Accounts updated');
 
-export const hdGroupsUpdated = createEvent<StoredHDGroup[]>('HD groups updated');
+export const hdWalletsNamesUpdated = createEvent<StringRecord>('HD wallets names updated');
 
 export const settingsUpdated = createEvent<TempleSettings>('Settings updated');
 
@@ -52,7 +52,7 @@ export const store = createStore<StoreState>({
   vault: null,
   status: TempleStatus.Idle,
   accounts: [],
-  hdGroups: [],
+  hdWalletsNames: {},
   settings: null
 })
   .on(inited, (state, vaultExist) => ({
@@ -70,24 +70,24 @@ export const store = createStore<StoreState>({
     vault: null,
     status: TempleStatus.Locked,
     accounts: [],
-    hdGroups: [],
+    hdWalletsNames: {},
     settings: null
   }))
-  .on(unlocked, (state, { vault, accounts, settings, hdGroups }) => ({
+  .on(unlocked, (state, { vault, accounts, settings, hdWalletsNames }) => ({
     ...state,
     vault,
     status: TempleStatus.Ready,
     accounts,
     settings,
-    hdGroups
+    hdWalletsNames
   }))
   .on(accountsUpdated, (state, accounts) => ({
     ...state,
     accounts
   }))
-  .on(hdGroupsUpdated, (state, hdGroups) => ({
+  .on(hdWalletsNamesUpdated, (state, hdWalletsNames) => ({
     ...state,
-    hdGroups
+    hdWalletsNames
   }))
   .on(settingsUpdated, (state, settings) => ({
     ...state,

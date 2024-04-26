@@ -24,7 +24,7 @@ export interface TempleDAppSession {
 export interface TempleState {
   status: TempleStatus;
   accounts: StoredAccount[];
-  hdGroups: StoredHDGroup[];
+  hdWalletsNames: StringRecord;
   settings: TempleSettings | null;
 }
 
@@ -69,7 +69,7 @@ export interface StoredHDAccount extends StoredAccountBase {
   hdIndex: number;
   tezosAddress: string;
   evmAddress: string;
-  groupId: string;
+  walletId: string;
 }
 
 interface StoredManagedKTAccount extends StoredAccountBase {
@@ -104,12 +104,9 @@ export enum TempleAccountType {
   WatchOnly
 }
 
-export interface StoredHDGroup {
+export interface DisplayedGroup {
   id: string;
   name: string;
-}
-
-export interface DisplayedGroup extends StoredHDGroup {
   accounts: StoredAccount[];
   type: TempleAccountType;
 }
@@ -253,8 +250,8 @@ export enum TempleMessageType {
   CreateLedgerAccountResponse = 'TEMPLE_CREATE_LEDGER_ACCOUNT_RESPONSE',
   UpdateSettingsRequest = 'TEMPLE_UPDATE_SETTINGS_REQUEST',
   UpdateSettingsResponse = 'TEMPLE_UPDATE_SETTINGS_RESPONSE',
-  RemoveHdGroupRequest = 'TEMPLE_REMOVE_HD_GROUP_REQUEST',
-  RemoveHdGroupResponse = 'TEMPLE_REMOVE_HD_GROUP_RESPONSE',
+  RemoveHdWalletRequest = 'TEMPLE_REMOVE_HD_WALLET_REQUEST',
+  RemoveHdWalletResponse = 'TEMPLE_REMOVE_HD_WALLET_RESPONSE',
   RemoveAccountsByTypeRequest = 'TEMPLE_REMOVE_ACCOUNTS_BY_TYPE_REQUEST',
   RemoveAccountsByTypeResponse = 'TEMPLE_REMOVE_ACCOUNTS_BY_TYPE_RESPONSE',
   CreateOrImportWalletRequest = 'TEMPLE_CREATE_OR_IMPORT_WALLET_REQUEST',
@@ -316,7 +313,7 @@ export type TempleRequest =
   | TempleSignRequest
   | TempleConfirmationRequest
   | TempleRemoveAccountRequest
-  | TempleRemoveHdGroupRequest
+  | TempleRemoveHdWalletRequest
   | TempleRemoveAccountsByTypeRequest
   | TempleCreateOrImportWalletRequest
   | TempleEditGroupNameRequest
@@ -354,7 +351,7 @@ export type TempleResponse =
   | TempleSignResponse
   | TempleConfirmationResponse
   | TempleRemoveAccountResponse
-  | TempleRemoveHdGroupResponse
+  | TempleRemoveHdWalletResponse
   | TempleRemoveAccountsByTypeResponse
   | TempleCreateOrImportWalletResponse
   | TempleEditGroupNameResponse
@@ -594,14 +591,14 @@ interface TempleUpdateSettingsResponse extends TempleMessageBase {
   type: TempleMessageType.UpdateSettingsResponse;
 }
 
-interface TempleRemoveHdGroupRequest extends TempleMessageBase {
-  type: TempleMessageType.RemoveHdGroupRequest;
+interface TempleRemoveHdWalletRequest extends TempleMessageBase {
+  type: TempleMessageType.RemoveHdWalletRequest;
   id: string;
   password: string;
 }
 
-interface TempleRemoveHdGroupResponse extends TempleMessageBase {
-  type: TempleMessageType.RemoveHdGroupResponse;
+interface TempleRemoveHdWalletResponse extends TempleMessageBase {
+  type: TempleMessageType.RemoveHdWalletResponse;
 }
 
 interface TempleRemoveAccountsByTypeRequest extends TempleMessageBase {

@@ -1,5 +1,5 @@
 import { TID, t } from 'lib/i18n';
-import { DisplayedGroup, StoredAccount, StoredHDAccount, StoredHDGroup, TempleAccountType } from 'lib/temple/types';
+import { DisplayedGroup, StoredAccount, StoredHDAccount, TempleAccountType } from 'lib/temple/types';
 
 const nonHdGroupsNamesI18nKeys: Record<Exclude<TempleAccountType, TempleAccountType.HD>, TID> = {
   [TempleAccountType.Imported]: 'importedGroupLabel',
@@ -8,14 +8,14 @@ const nonHdGroupsNamesI18nKeys: Record<Exclude<TempleAccountType, TempleAccountT
   [TempleAccountType.WatchOnly]: 'watchOnlyAccount'
 };
 
-export const getAllGroups = (hdGroups: StoredHDGroup[], accounts: StoredAccount[]) => {
+export const getAllGroups = (hdGroups: Pick<DisplayedGroup, 'id' | 'name'>[], accounts: StoredAccount[]) => {
   const displayedHdGroups: DisplayedGroup[] = hdGroups
     .map(({ id, name }) => ({
       type: TempleAccountType.HD,
       id,
       name,
       accounts: accounts.filter(
-        (acc): acc is StoredHDAccount => acc.type === TempleAccountType.HD && acc.groupId === id
+        (acc): acc is StoredHDAccount => acc.type === TempleAccountType.HD && acc.walletId === id
       )
     }))
     .filter(({ accounts }) => accounts.length > 0);

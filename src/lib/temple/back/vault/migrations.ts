@@ -4,7 +4,8 @@ import {
   ADS_VIEWER_ADDRESS_STORAGE_KEY,
   CUSTOM_TEZOS_NETWORKS_STORAGE_KEY,
   ACCOUNT_PKH_STORAGE_KEY,
-  CUSTOM_NETWORKS_SNAPSHOT_STORAGE_KEY
+  CUSTOM_NETWORKS_SNAPSHOT_STORAGE_KEY,
+  WALLETS_NAMES_STORAGE_KEY
 } from 'lib/constants';
 import { moveValueInStorage, fetchFromStorage, putToStorage, removeFromStorage } from 'lib/storage';
 import * as Passworder from 'lib/temple/passworder';
@@ -28,13 +29,13 @@ import {
   fetchAndDecryptOne,
   fetchAndDecryptOneLegacy,
   getPlain,
-  removeManyLegacy
+  removeManyLegacy,
+  savePlain
 } from './safe-storage';
 import {
   checkStrgKey,
   mnemonicStrgKey,
   groupMnemonicStrgKey,
-  groupsStrgKey,
   accPrivKeyStrgKey,
   accPubKeyStrgKey,
   accountsStrgKey,
@@ -162,10 +163,8 @@ export const MIGRATIONS = [
     const mnemonic = await fetchAndDecryptOne<string>(mnemonicStrgKey, passKey);
 
     const toEncryptAndSave: [string, any][] = [];
-    const hdGroup = {
-      id: nanoid(),
-      name: await fetchMessage('hdGroupDefaultName', 'A')
-    };
+    const walletId = nanoid();
+    const hdWalletName = await fetchMessage('hdWalletDefaultName', 'A');
 
     const newAccounts = accounts.map<StoredAccount>(account => {
       const tezosAddress = account.publicKeyHash;
@@ -176,7 +175,7 @@ export const MIGRATIONS = [
           const evmAcc = mnemonicToEvmAccountCreds(mnemonic, account.hdIndex);
           toEncryptAndSave.push(...buildEncryptAndSaveManyForAccount(evmAcc));
 
-          return { ...account, id, tezosAddress, evmAddress: evmAcc.address, groupId: hdGroup.id, isVisible: true };
+          return { ...account, id, tezosAddress, evmAddress: evmAcc.address, walletId, isVisible: true };
         case TempleAccountType.Imported:
           return { ...account, id, address: tezosAddress, chain: TempleChainKind.Tezos, isVisible: true };
         case TempleAccountType.WatchOnly:
@@ -190,11 +189,8 @@ export const MIGRATIONS = [
       return account;
     });
 
-    toEncryptAndSave.push(
-      [accountsStrgKey, newAccounts],
-      [groupMnemonicStrgKey(hdGroup.id), mnemonic],
-      [groupsStrgKey, [hdGroup]]
-    );
+    toEncryptAndSave.push([accountsStrgKey, newAccounts], [groupMnemonicStrgKey(walletId), mnemonic]);
+    await savePlain(WALLETS_NAMES_STORAGE_KEY, { [walletId]: hdWalletName });
 
     moveValueInStorage(ACCOUNT_PKH_STORAGE_KEY, ADS_VIEWER_ADDRESS_STORAGE_KEY);
 

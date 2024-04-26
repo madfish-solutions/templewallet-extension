@@ -5,7 +5,6 @@ enum StorageEntity {
   MigrationLevel = 'migration',
   Mnemonic = 'mnemonic',
   GroupMnemonic = 'groupmnemonic',
-  Groups = 'groups',
   AccPrivKey = 'accprivkey',
   AccPubKey = 'accpubkey',
   Accounts = 'accounts',
@@ -18,7 +17,6 @@ export const migrationLevelStrgKey = createStorageKey(StorageEntity.MigrationLev
 /** @deprecated */
 export const mnemonicStrgKey = createStorageKey(StorageEntity.Mnemonic);
 export const groupMnemonicStrgKey = createDynamicStorageKey(StorageEntity.GroupMnemonic);
-export const groupsStrgKey = createStorageKey(StorageEntity.Groups);
 export const accPrivKeyStrgKey = createDynamicStorageKey(StorageEntity.AccPrivKey);
 export const accPubKeyStrgKey = createDynamicStorageKey(StorageEntity.AccPubKey);
 export const accountsStrgKey = createStorageKey(StorageEntity.Accounts);

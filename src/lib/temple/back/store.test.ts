@@ -7,7 +7,7 @@ import { TempleAccountType, TempleStatus } from '../types';
 
 import {
   accountsUpdated,
-  hdGroupsUpdated,
+  hdWalletsNamesUpdated,
   inited as initEvent,
   locked,
   settingsUpdated,
@@ -48,7 +48,7 @@ describe('Store tests', () => {
     expect(status).toBe(TempleStatus.Locked);
   });
   it('Unlocked event', () => {
-    unlocked({ vault: {} as Vault, accounts: [], hdGroups: [], settings: {} });
+    unlocked({ vault: {} as Vault, accounts: [], hdWalletsNames: {}, settings: {} });
     const { status } = store.getState();
     expect(status).toBe(TempleStatus.Ready);
   });
@@ -70,9 +70,9 @@ describe('Store tests', () => {
     expect(getAccountAddressForTezos(accounts[0])).toBe('testHashKey');
   });
   it('HD groups updated event', () => {
-    hdGroupsUpdated([{ id: 'testId', name: 'testName' }]);
-    const { hdGroups } = store.getState();
-    expect(hdGroups).toEqual([{ id: 'testId', name: 'testName' }]);
+    hdWalletsNamesUpdated({ testId: 'testName' });
+    const { hdWalletsNames } = store.getState();
+    expect(hdWalletsNames).toEqual({ testId: 'testName' });
   });
   it('Settings updated event', () => {
     settingsUpdated({});

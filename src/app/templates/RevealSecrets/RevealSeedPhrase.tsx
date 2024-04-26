@@ -16,8 +16,8 @@ export const RevealSeedPhrase = memo(() => {
   const currentAccount = useAccount();
   const groupId =
     currentAccount.type === TempleAccountType.HD
-      ? currentAccount.groupId
-      : allAccounts.find((acc): acc is StoredHDAccount => acc.type === TempleAccountType.HD)!.groupId;
+      ? currentAccount.walletId
+      : allAccounts.find((acc): acc is StoredHDAccount => acc.type === TempleAccountType.HD)!.walletId;
 
   const [secret, setSecret] = useVanishingState();
 
