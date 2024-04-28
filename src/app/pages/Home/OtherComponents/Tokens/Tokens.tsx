@@ -2,7 +2,7 @@ import React, { FC, memo, useCallback, useEffect, useMemo, useState } from 'reac
 
 import clsx from 'clsx';
 
-import { SyncSpinner, Divider, Checkbox, Button } from 'app/atoms';
+import { SyncSpinner, Divider, Checkbox } from 'app/atoms';
 import DropdownWrapper from 'app/atoms/DropdownWrapper';
 import { IconButton } from 'app/atoms/IconButton';
 import { useAppEnv } from 'app/env';

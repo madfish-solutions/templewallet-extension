@@ -4,7 +4,7 @@ import { ChainIds } from '@taquito/taquito';
 import clsx from 'clsx';
 import { Props as TippyProps } from 'tippy.js';
 
-import { Anchor } from 'app/atoms';
+import { Anchor, IconBase } from 'app/atoms';
 import { ReactComponent as BuyIcon } from 'app/icons/buy.svg';
 import { ReactComponent as ReceiveIcon } from 'app/icons/receive.svg';
 import { ReactComponent as SendIcon } from 'app/icons/send-alt.svg';
@@ -102,7 +102,7 @@ const ActionButton = memo<ActionButtonProps>(
     const commonButtonProps = useMemo(
       () => ({
         className: clsx(
-          'min-w-15 flex flex-col gap-y-1 p-2 items-center justify-center rounded-lg',
+          'min-w-15 flex flex-col gap-y-0.5 p-2 items-center justify-center rounded-lg',
           disabled
             ? 'bg-gray-10 text-gray'
             : 'bg-primary-low text-primary hover:bg-primary-low-hover hover:text-primary-hover'
@@ -110,7 +110,7 @@ const ActionButton = memo<ActionButtonProps>(
         type: 'button' as const,
         children: (
           <>
-            <Icon className="h-5 stroke-current fill-current" />
+            <IconBase Icon={Icon} size={24} />
 
             <span className="text-xxxs font-semibold leading-3">
               <T id={labelI18nKey} />

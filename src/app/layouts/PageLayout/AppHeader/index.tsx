@@ -2,7 +2,7 @@ import React, { memo } from 'react';
 
 import clsx from 'clsx';
 
-import { HashShortView } from 'app/atoms';
+import { HashShortView, IconBase } from 'app/atoms';
 import { Button } from 'app/atoms/Button';
 import DropdownWrapper from 'app/atoms/DropdownWrapper';
 import Identicon from 'app/atoms/Identicon';
@@ -81,7 +81,7 @@ export const AppHeader = memo(() => {
           >
             <Name>{account.name}</Name>
 
-            <CopyIcon className="ml-1 h-4 w-4 stroke-current fill-current text-secondary" />
+            <IconBase Icon={CopyIcon} size={12} className="ml-1 text-secondary" />
           </Button>
         )}
       </Popper>
@@ -93,14 +93,14 @@ export const AppHeader = memo(() => {
           <Button
             ref={ref}
             className={clsx(
-              'p-2 rounded-md text-secondary bg-secondary-low',
+              'p-1 rounded-md text-secondary bg-secondary-low',
               'hover:text-secondary-hover hover:bg-secondary-low-hover',
               opened && 'text-secondary-hover bg-secondary-low-hover'
             )}
             onClick={toggleOpened}
             testID={AppHeaderSelectors.menuIcon}
           >
-            <BurgerIcon className="h-4 w-4 stroke-current fill-current" />
+            <IconBase Icon={BurgerIcon} size={16} />
           </Button>
         )}
       </Popper>

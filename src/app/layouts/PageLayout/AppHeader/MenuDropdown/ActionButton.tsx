@@ -2,6 +2,7 @@ import React, { memo } from 'react';
 
 import clsx from 'clsx';
 
+import { IconBase } from 'app/atoms';
 import { Button } from 'app/atoms/Button';
 import { TID, T } from 'lib/i18n';
 import { Link } from 'lib/woozie';
@@ -21,9 +22,7 @@ export const ActionButton = memo<ActionButtonProps>(({ Icon, linkTo, onClick, i1
     onClick,
     children: (
       <>
-        <div className="flex items-center w-6 h-6 text-secondary">
-          <Icon className="w-4 h-4 m-auto stroke-current fill-current" />
-        </div>
+        <IconBase Icon={Icon} size={16} className="text-secondary" />
 
         <span className="text-xs">
           <T id={i18nKey} />

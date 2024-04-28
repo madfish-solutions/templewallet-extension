@@ -14,6 +14,9 @@ export { default as Name } from './Name';
 
 export { default as Identicon } from './Identicon';
 
+export type { IconBaseProps } from './IconBase';
+export { IconBase } from './IconBase';
+
 export { default as HashShortView } from './HashShortView';
 
 export { HashChip } from './HashChip';

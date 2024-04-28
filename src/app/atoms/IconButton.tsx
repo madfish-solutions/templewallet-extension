@@ -7,6 +7,7 @@ import useTippy from 'lib/ui/useTippy';
 import { combineRefs } from 'lib/ui/utils';
 
 import { Button } from './Button';
+import { IconBase } from './IconBase';
 
 interface Props extends TestIDProps {
   Icon: ImportedSVGComponent;
@@ -37,7 +38,7 @@ export const IconButton = memo(
       <Button
         ref={finalRef}
         className={clsx(
-          'p-2 rounded-md',
+          'p-1 rounded-md',
           active
             ? 'bg-paper-gray text-gray-550 shadow-none'
             : clsx(
@@ -50,7 +51,7 @@ export const IconButton = memo(
         testID={testID}
         testIDProperties={testIDProperties}
       >
-        <Icon className="h-4 w-4 stroke-current fill-current" />
+        <IconBase size={16} Icon={Icon} />
       </Button>
     );
   })

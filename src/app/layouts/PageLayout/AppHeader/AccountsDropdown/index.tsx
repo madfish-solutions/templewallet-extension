@@ -2,6 +2,7 @@ import React, { memo, useCallback, useMemo, useState, useEffect } from 'react';
 
 import clsx from 'clsx';
 
+import { IconBase } from 'app/atoms';
 import { Button } from 'app/atoms/Button';
 import DropdownWrapper from 'app/atoms/DropdownWrapper';
 import { useShortcutAccountSelectModalIsOpened } from 'app/hooks/use-account-select-shortcut';
@@ -121,7 +122,7 @@ const AccountsDropdown = memo<PopperRenderProps>(({ opened, setOpened }) => {
           onClick={handleLogoutClick}
           testID={AccountDropdownSelectors.logoutButton}
         >
-          <LockIcon className="mr-1 h-4 w-auto" />
+          <IconBase Icon={LockIcon} size={16} className="mr-1" />
           <T id="lock" />
         </Button>
       </div>
