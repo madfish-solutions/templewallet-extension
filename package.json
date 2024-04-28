@@ -170,6 +170,7 @@
     "react-dev-utils": "^12",
     "react-dom": "18.2.0",
     "react-hook-form": "5.3.1",
+    "react-hot-toast": "^2.4.1",
     "react-infinite-scroll-component": "^6.1.0",
     "react-json-view": "1.21.3",
     "react-modal": "3.15.1",

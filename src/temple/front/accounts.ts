@@ -44,24 +44,3 @@ export function useRelevantAccounts(tezosChainId: string) {
     [tezosChainId, allAccounts]
   );
 }
-
-export function useNonContractAccounts() {
-  const allAccounts = useAllAccounts();
-
-  return useMemo(
-    () =>
-      allAccounts.filter(acc => {
-        switch (acc.type) {
-          case TempleAccountType.ManagedKT:
-            return false;
-
-          case TempleAccountType.WatchOnly:
-            return !acc.chainId;
-
-          default:
-            return true;
-        }
-      }),
-    [allAccounts]
-  );
-}

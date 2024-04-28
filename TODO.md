@@ -1,5 +1,6 @@
 ## TODO:
 
+- Notifications button
 - Toast on copied address
 - Test Mode button
 - Accounts modal

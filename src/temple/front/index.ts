@@ -20,6 +20,6 @@ export { useTezosChainByChainId, useTezosMainnetChain, useEthereumMainnetChain }
 
 export { getNetworkTitle, useTezosChainIdLoadingValue, useTempleNetworksActions } from './networks';
 
-export { searchAndFilterAccounts, useNonContractAccounts, useRelevantAccounts } from './accounts';
+export { searchAndFilterAccounts, useRelevantAccounts } from './accounts';
 
 export { getTezosToolkitWithSigner, useOnTezosBlock, useTezosBlockLevel } from './tezos';

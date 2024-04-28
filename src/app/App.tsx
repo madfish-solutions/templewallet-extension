@@ -22,6 +22,7 @@ import * as Woozie from 'lib/woozie';
 import { LoadHypelabScript } from './load-hypelab-script';
 import { AppRootHooks } from './root-hooks';
 import { StoreProvider } from './store/provider';
+import { ToasterProvider } from './toaster';
 
 interface Props extends React.PropsWithChildren {
   env: ComponentProps<typeof AppEnvProvider>;
@@ -48,6 +49,7 @@ export const App: FC<Props> = ({ env }) => (
                 <>
                   <AppRootHooks />
                   <PageRouter />
+                  <ToasterProvider />
                 </>
               )}
             </BootAnimation>

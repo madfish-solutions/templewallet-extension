@@ -20,7 +20,7 @@ import { T, t } from 'lib/i18n';
 import { useTempleClient } from 'lib/temple/front';
 import { PopperRenderProps } from 'lib/ui/Popper';
 import { HistoryAction, navigate } from 'lib/woozie';
-import { searchAndFilterAccounts, useCurrentAccountId, useChangeAccount, useNonContractAccounts } from 'temple/front';
+import { searchAndFilterAccounts, useCurrentAccountId, useChangeAccount, useAllAccounts } from 'temple/front';
 
 import { AccountItem } from './AccountItem';
 import { ActionButtonProps, ActionButton } from './ActionButton';
@@ -33,7 +33,7 @@ interface TDropdownAction extends ActionButtonProps {
 const AccountDropdown = memo<PopperRenderProps>(({ opened, setOpened }) => {
   const appEnv = useAppEnv();
   const { lock } = useTempleClient();
-  const allAccounts = useNonContractAccounts();
+  const allAccounts = useAllAccounts();
   const currentAccountId = useCurrentAccountId();
   const setAccountId = useChangeAccount();
 

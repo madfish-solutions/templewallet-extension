@@ -13,8 +13,8 @@ import { searchHotkey } from 'lib/constants';
 import { T, t } from 'lib/i18n';
 import Portal from 'lib/ui/Portal';
 import { HistoryAction, navigate } from 'lib/woozie';
-import { useCurrentAccountId, useChangeAccount } from 'temple/front';
-import { searchAndFilterAccounts, useNonContractAccounts } from 'temple/front/accounts';
+import { useCurrentAccountId, useChangeAccount, useAllAccounts } from 'temple/front';
+import { searchAndFilterAccounts } from 'temple/front/accounts';
 
 import { AccountItem } from './AccountItem';
 
@@ -27,7 +27,7 @@ export const ShortcutAccountSwitchOverlay = memo(() => {
   useOnClickOutside(accountSwitchRef, () => setOpened(false));
 
   const currentAccountId = useCurrentAccountId();
-  const allAccounts = useNonContractAccounts();
+  const allAccounts = useAllAccounts();
   const setAccountId = useChangeAccount();
 
   const [searchValue, setSearchValue] = useState('');

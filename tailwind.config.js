@@ -171,6 +171,10 @@ module.exports = {
         'secondary-low': '#E3ECF8',
         'secondary-low-hover': '#D7E3F2',
         //
+        'success-low': '#E6F5E9',
+        'error-low': '#FAE7E6',
+        'warning-low': '#FAF6E1',
+        //
         //
         'primary-orange': baseColors.orange[500],
         'primary-orange-light': baseColors.orange[300],

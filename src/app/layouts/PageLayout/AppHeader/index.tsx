@@ -9,8 +9,8 @@ import Identicon from 'app/atoms/Identicon';
 import Name from 'app/atoms/Name';
 import { ReactComponent as BurgerIcon } from 'app/icons/burger.svg';
 import { ReactComponent as CopyIcon } from 'app/icons/copy-files.svg';
+import { toastSuccess } from 'app/toaster';
 import Popper from 'lib/ui/Popper';
-import { useClipboardWrite } from 'lib/ui/useCopyToClipboard';
 import { getAccountAddressForTezos, getAccountAddressForEvm } from 'temple/accounts';
 import { useAccount } from 'temple/front';
 import { TempleChainKind, TempleChainTitle } from 'temple/types';
@@ -51,10 +51,20 @@ export const AppHeader = memo(() => {
               <h6 className="py-2.5 px-2 text-xxxs leading-3 font-semibold text-gray-550">Select Address to copy</h6>
 
               {accountTezosAddress ? (
-                <CopyAddressButton chain={TempleChainKind.Tezos} address={accountTezosAddress} />
+                <CopyAddressButton
+                  chain={TempleChainKind.Tezos}
+                  address={accountTezosAddress}
+                  onCopy={props.toggleOpened}
+                />
               ) : null}
 
-              {accountEvmAddress ? <CopyAddressButton chain={TempleChainKind.EVM} address={accountEvmAddress} /> : null}
+              {accountEvmAddress ? (
+                <CopyAddressButton
+                  chain={TempleChainKind.EVM}
+                  address={accountEvmAddress}
+                  onCopy={props.toggleOpened}
+                />
+              ) : null}
             </DropdownWrapper>
           );
         }}
@@ -101,20 +111,23 @@ export const AppHeader = memo(() => {
 interface CopyAddressButtonProps {
   chain: TempleChainKind;
   address: string;
+  onCopy: EmptyFn;
 }
 
-const CopyAddressButton = memo<CopyAddressButtonProps>(({ chain, address }) => {
-  const { copied, copy } = useClipboardWrite();
-
+const CopyAddressButton = memo<CopyAddressButtonProps>(({ chain, address, onCopy }) => {
   return (
     <Button
-      onClick={() => void copy(address)}
+      onClick={() => {
+        window.navigator.clipboard.writeText(address);
+        onCopy();
+        toastSuccess('Address Copied');
+      }}
       className={clsx('flex items-center py-1.5 px-2 rounded-md', 'hover:bg-secondary-low')}
     >
       <div className="flex flex-col gap-y-0.5 items-start">
         <span className="text-xs">{TempleChainTitle[chain]}</span>
         <span className="text-xxxs leading-3 text-gray-550">
-          {copied ? 'copied' : <HashShortView hash={address} />}
+          <HashShortView hash={address} />
         </span>
       </div>
     </Button>
