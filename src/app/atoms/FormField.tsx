@@ -255,7 +255,7 @@ const Copyable: React.FC<CopyableProps> = ({ copy, cleanable, value, copyable })
     >
       <CopyIcon
         style={{ verticalAlign: 'inherit' }}
-        className="h-4 ml-1 w-auto inline stroke-orange stroke-2"
+        className="h-4 ml-1 w-auto inline stroke-orange-500 stroke-2"
         onClick={() => copy()}
       />
     </CopyButton>

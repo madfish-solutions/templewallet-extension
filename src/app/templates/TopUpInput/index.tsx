@@ -151,10 +151,10 @@ const TopUpMainContent: FC<TopUpMainContentProps> = ({ currency, fitIconsValue, 
           fitImg={fitIconsValue}
         />
         <div className="flex flex-col text-left whitespace-nowrap">
-          <span className="text-gray-700 font-normal text-lg overflow-ellipsis overflow-hidden w-16">
+          <span className="text-gray-700 font-normal text-lg text-ellipsis overflow-hidden w-16">
             {getAssetSymbolToDisplay(currency)}
           </span>
-          <span className="text-indigo-500 font-medium overflow-ellipsis overflow-hidden w-12 text-xxs">
+          <span className="text-indigo-500 font-medium text-ellipsis overflow-hidden w-12 text-xxs">
             {currency.network?.shortName ?? getProperNetworkFullName(currency)}
           </span>
         </div>

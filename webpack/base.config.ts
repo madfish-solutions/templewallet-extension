@@ -6,6 +6,7 @@
 import ESLintPlugin from 'eslint-webpack-plugin';
 import MiniCssExtractPlugin from 'mini-css-extract-plugin';
 import * as path from 'path';
+import postcssPresetEnv from 'postcss-preset-env';
 import ForkTsCheckerWebpackPlugin from 'react-dev-utils/ForkTsCheckerWebpackPlugin';
 import getCSSModuleLocalIdent from 'react-dev-utils/getCSSModuleLocalIdent';
 import ModuleNotFoundPlugin from 'react-dev-utils/ModuleNotFoundPlugin';
@@ -155,10 +156,7 @@ export const buildBaseConfig = (): WebPack.Configuration & Pick<WebPack.WebpackO
           {
             test: CSS_REGEX,
             exclude: CSS_MODULE_REGEX,
-            use: getStyleLoaders({
-              importLoaders: 1,
-              sourceMap: SOURCE_MAP
-            }),
+            use: getStyleLoaders(),
             // Don't consider CSS imports dead code even if the
             // containing package claims to have no side effects.
             // Remove this when webpack adds a warning or an error for this.
@@ -169,13 +167,7 @@ export const buildBaseConfig = (): WebPack.Configuration & Pick<WebPack.WebpackO
           // using the extension .module.css
           {
             test: CSS_MODULE_REGEX,
-            use: getStyleLoaders({
-              importLoaders: 1,
-              sourceMap: SOURCE_MAP,
-              modules: {
-                getLocalIdent: getCSSModuleLocalIdent
-              }
-            })
+            use: getStyleLoaders(true)
           },
           // "file" loader makes sure those assets get served by WebpackDevServer.
           // When you `import` an asset, you get its (virtual) filename.
@@ -346,7 +338,16 @@ export const buildBaseConfig = (): WebPack.Configuration & Pick<WebPack.WebpackO
   performance: false
 });
 
-function getStyleLoaders(cssOptions = {}) {
+function getStyleLoaders(module = false) {
+  const extraCssOptions = module
+    ? {
+        modules: {
+        namedExport: false,
+        exportLocalsConvention: 'as-is',
+        getLocalIdent: getCSSModuleLocalIdent
+      }
+  } : undefined;
+
   return [
     {
       loader: MiniCssExtractPlugin.loader,
@@ -356,20 +357,22 @@ function getStyleLoaders(cssOptions = {}) {
     },
     {
       loader: require.resolve('css-loader'),
-      options: cssOptions
+      options: {
+        importLoaders: 1,
+        sourceMap: SOURCE_MAP,
+        ...extraCssOptions
+      }
     },
     {
       loader: require.resolve('postcss-loader'),
       options: {
+        sourceMap: SOURCE_MAP,
         postcssOptions: {
           ident: 'postcss',
           plugins: [
             require('postcss-flexbugs-fixes'),
-            // eslint-disable-next-line @typescript-eslint/no-var-requires
-            require('postcss-preset-env')({
-              autoprefixer: {
-                flexbox: 'no-2009'
-              },
+            postcssPresetEnv({
+              autoprefixer: {},
               stage: 3
             }),
             require('tailwindcss'),

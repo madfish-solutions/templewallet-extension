@@ -59,7 +59,7 @@ export const OrderStatusStep: FC<StepProps> = ({ orderInfo, setStep, setOrderInf
         <span className="flex flex-row justify-center">
           <p className="text-gray-910">{truncatedOrderId}</p>
           <CopyButton text={orderId} type="link">
-            <CopyIcon className="h-4 ml-1 w-auto stroke-orange stroke-2" onClick={copy} />
+            <CopyIcon className="h-4 ml-1 w-auto stroke-orange-500 stroke-2" onClick={copy} />
           </CopyButton>
         </span>
       </div>

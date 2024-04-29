@@ -21,6 +21,7 @@ const SearchField: FC<SearchFieldProps> = ({
   className,
   containerClassName,
   value,
+  placeholder,
   onValueChange,
   onFocus = emptyFn,
   onBlur = emptyFn,
@@ -79,6 +80,7 @@ const SearchField: FC<SearchFieldProps> = ({
         value={value}
         spellCheck={false}
         autoComplete="off"
+        placeholder={focused ? undefined : placeholder}
         onFocus={handleFocus}
         onBlur={handleBlur}
         onChange={handleChange}

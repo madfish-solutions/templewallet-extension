@@ -6,6 +6,7 @@
 
   "compilerOptions": {
     "baseUrl": "../",
-    "module": "CommonJS"
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
   }
 }

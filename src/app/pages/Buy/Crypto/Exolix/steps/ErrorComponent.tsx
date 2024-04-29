@@ -60,7 +60,7 @@ const ErrorComponent: FC<Props> = ({ exchangeData, testIDProperties, setIsError,
               <CopyButton text={exchangeData!.id} type="link">
                 <CopyIcon
                   style={{ verticalAlign: 'inherit' }}
-                  className="h-4 ml-1 w-auto inline stroke-orange stroke-2"
+                  className="h-4 ml-1 w-auto inline stroke-orange-500 stroke-2"
                   onClick={() => copy()}
                 />
               </CopyButton>

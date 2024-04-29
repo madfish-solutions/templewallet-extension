@@ -118,7 +118,7 @@ const ExchangeStep: FC<Props> = ({ exchangeData, setExchangeData, setStep, step,
                   >
                     <CopyIcon
                       style={{ verticalAlign: 'inherit' }}
-                      className={classNames('h-4 ml-1 w-auto inline', 'stroke-orange stroke-2')}
+                      className={classNames('h-4 ml-1 w-auto inline', 'stroke-orange-500 stroke-2')}
                       onClick={() => copy()}
                     />
                   </CopyButton>
@@ -181,7 +181,7 @@ const ExchangeStep: FC<Props> = ({ exchangeData, setExchangeData, setStep, step,
               <CopyButton text={exchangeData.id} type="link">
                 <CopyIcon
                   style={{ verticalAlign: 'inherit' }}
-                  className={classNames('h-4 ml-1 w-auto inline', 'stroke-orange stroke-2')}
+                  className={classNames('h-4 ml-1 w-auto inline', 'stroke-orange-500 stroke-2')}
                   onClick={() => copy()}
                 />
               </CopyButton>
