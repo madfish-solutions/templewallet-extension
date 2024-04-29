@@ -23,7 +23,7 @@ import * as Passworder from 'lib/temple/passworder';
 import { clearAsyncStorages } from 'lib/temple/reset';
 import { StoredAccount, StoredHDAccount, TempleAccountType, TempleSettings } from 'lib/temple/types';
 import { isTruthy } from 'lib/utils';
-import { getAccountAddressForChain, getAccountAddressForTezos } from 'temple/accounts';
+import { getAccountAddressForChain, getAccountAddressForEvm, getAccountAddressForTezos } from 'temple/accounts';
 import { michelEncoder, getTezosFastRpcClient } from 'temple/tezos';
 import { TempleChainKind } from 'temple/types';
 
@@ -414,14 +414,28 @@ export class Vault {
         hdAccIndex = Math.max(-1, ...sameGroupHDAccounts.map(a => a.hdIndex)) + 1;
       }
 
-      const accName = name || (await fetchNewAccountName(allAccounts, TempleAccountType.HD, walletId));
+      const tezosAcc = await mnemonicToTezosAccountCreds(mnemonic, hdAccIndex);
+      const evmAcc = mnemonicToEvmAccountCreds(mnemonic, hdAccIndex);
+      const accountToReplace = allAccounts.find(acc => {
+        if (acc.type === TempleAccountType.HD) {
+          return false;
+        }
+
+        const chain = 'chain' in acc ? acc.chain : TempleChainKind.Tezos;
+
+        return chain === TempleChainKind.Tezos
+          ? getAccountAddressForTezos(acc) === tezosAcc.address
+          : getAccountAddressForEvm(acc) === evmAcc.address;
+      });
+      const fallbackAccName =
+        accountToReplace && !isNameCollision(allAccounts, TempleAccountType.HD, accountToReplace.name, walletId)
+          ? accountToReplace.name
+          : await fetchNewAccountName(allAccounts, TempleAccountType.HD, walletId);
+      const accName = name ?? fallbackAccName;
 
       if (isNameCollision(allAccounts, TempleAccountType.HD, accName, walletId)) {
         throw new PublicError(ACCOUNT_NAME_COLLISION_ERR_MSG);
       }
-
-      const tezosAcc = await mnemonicToTezosAccountCreds(mnemonic, hdAccIndex);
-      const evmAcc = mnemonicToEvmAccountCreds(mnemonic, hdAccIndex);
 
       const newAccount: StoredAccount = {
         id: nanoid(),
@@ -476,10 +490,21 @@ export class Vault {
       const walletName = await fetchNewGroupName(hdWalletsNames, i =>
         fetchMessage('hdWalletDefaultName', toExcelColumnName(i))
       );
+      const accountToReplace = allAccounts.find(acc => {
+        if (acc.type === TempleAccountType.HD) {
+          return false;
+        }
+
+        const chain = 'chain' in acc ? acc.chain : TempleChainKind.Tezos;
+
+        return chain === TempleChainKind.Tezos
+          ? getAccountAddressForTezos(acc) === tezosAcc.address
+          : getAccountAddressForEvm(acc) === evmAcc.address;
+      });
       const newAccount: StoredAccount = {
         id: nanoid(),
         type: TempleAccountType.HD,
-        name: await fetchMessage('defaultAccountName', '1'),
+        name: accountToReplace?.name ?? (await fetchMessage('defaultAccountName', '1')),
         hdIndex: hdAccIndex,
         tezosAddress: tezosAcc.address,
         evmAddress: evmAcc.address,

@@ -17,7 +17,6 @@ import { TempleAccountType } from 'lib/temple/types';
 import { useAlert } from 'lib/ui';
 import { getAccountAddressForEvm, getAccountAddressForTezos } from 'temple/accounts';
 import { useAllAccounts, useCurrentAccountId, useTezosMainnetChain } from 'temple/front';
-import { useSetAccountId } from 'temple/front/ready';
 import { TempleChainKind, TempleChainTitle } from 'temple/types';
 
 import { BalanceFiat } from '../Home/OtherComponents/MainBanner/BalanceFiat';
@@ -52,16 +51,15 @@ const menuEntryTextClassName = 'text-sm text-gray-900 font-semibold leading-5';
 export const AccountSettings = memo<AccountSettingsProps>(({ id }) => {
   const alert = useAlert();
   const currentAccountId = useCurrentAccountId();
-  const setAccountId = useSetAccountId();
   const { setAccountVisible } = useTempleClient();
   useAllAccountsReactiveOnRemoval();
   const allAccounts = useAllAccounts();
-  const firstAccountId = allAccounts[0].id;
   const {
     selectedFiatCurrency: { symbol: fiatSymbol }
   } = useFiatCurrency();
   const [visibilityBeingChanged, setVisibilityBeingChanged] = useState(false);
   const [currentModal, setCurrentModal] = useState<AccountSettingsModal | null>(null);
+  const shouldDisableVisibilityChange = visibilityBeingChanged || currentAccountId === id;
 
   const account = useMemo(() => allAccounts.find(({ id: accountId }) => accountId === id), [allAccounts, id]);
   const tezosAddress = account && getAccountAddressForTezos(account);
@@ -81,9 +79,6 @@ export const AccountSettings = memo<AccountSettingsProps>(({ id }) => {
     async (newValue: boolean) => {
       try {
         setVisibilityBeingChanged(true);
-        if (id === currentAccountId) {
-          setAccountId(firstAccountId);
-        }
         await setAccountVisible(id, newValue);
       } catch (e: any) {
         console.error(e);
@@ -93,7 +88,7 @@ export const AccountSettings = memo<AccountSettingsProps>(({ id }) => {
         setVisibilityBeingChanged(false);
       }
     },
-    [alert, currentAccountId, firstAccountId, id, setAccountId, setAccountVisible]
+    [alert, id, setAccountVisible]
   );
 
   const derivationPaths = useMemo(() => {
@@ -177,10 +172,10 @@ export const AccountSettings = memo<AccountSettingsProps>(({ id }) => {
             <div className={menuEntryClassName}>
               <span className={menuEntryTextClassName}>Display</span>
 
-              <label className={clsx('cursor-pointer', visibilityBeingChanged && 'opacity-75')}>
+              <label className={shouldDisableVisibilityChange ? 'opacity-75 pointer-events-none' : 'cursor-pointer'}>
                 <Checkbox
                   checked={account.isVisible}
-                  disabled={visibilityBeingChanged}
+                  disabled={shouldDisableVisibilityChange}
                   onChange={handleVisibilityChange}
                 />
               </label>

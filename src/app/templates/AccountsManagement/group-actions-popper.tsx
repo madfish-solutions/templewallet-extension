@@ -7,9 +7,7 @@ import { ReactComponent as EditIcon } from 'app/icons/edit.svg';
 import { ReactComponent as EllipsisIcon } from 'app/icons/ellypsis.svg';
 import { ReactComponent as RemoveIcon } from 'app/icons/remove.svg';
 import { ReactComponent as RevealEyeIcon } from 'app/icons/reveal-eye.svg';
-import { t } from 'lib/i18n';
 import { useTempleClient } from 'lib/temple/front';
-import { fetchNewAccountName } from 'lib/temple/helpers';
 import { DisplayedGroup, TempleAccountType } from 'lib/temple/types';
 import { useAlert } from 'lib/ui';
 import Popper, { PopperRenderProps } from 'lib/ui/Popper';
@@ -44,13 +42,7 @@ const GroupActionsDropdown = memo<PopperRenderProps & GroupActionsPopperProps>(
             icon: AddIcon,
             onClick: async () => {
               try {
-                const name = await fetchNewAccountName(
-                  allAccounts,
-                  TempleAccountType.HD,
-                  i => t('defaultAccountName', String(i)),
-                  group.id
-                );
-                await createAccount(group.id, name);
+                await createAccount(group.id);
               } catch (e: any) {
                 console.error(e);
                 customAlert({

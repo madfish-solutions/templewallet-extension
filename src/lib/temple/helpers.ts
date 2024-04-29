@@ -83,23 +83,23 @@ export function isNameCollision(
   allAccounts: StoredAccount[],
   accountType: TempleAccountType,
   name: string,
-  groupId?: string
+  walletId?: string
 ) {
-  return getSameGroupAccounts(allAccounts, accountType, groupId).some(acc => acc.name === name);
+  return getSameGroupAccounts(allAccounts, accountType, walletId).some(acc => acc.name === name);
 }
 
 export async function fetchNewAccountName(
   allAccounts: StoredAccount[],
   newAccountType: TempleAccountType,
   getNameCandidate: (i: number) => string | Promise<string>,
-  newAccountGroupId?: string
+  newAccountWalletId?: string
 ) {
-  const sameGroupAccounts = getSameGroupAccounts(allAccounts, newAccountType, newAccountGroupId);
+  const sameGroupAccounts = getSameGroupAccounts(allAccounts, newAccountType, newAccountWalletId);
 
   return await pickUniqueName(
     sameGroupAccounts.length + 1,
     getNameCandidate,
-    name => !isNameCollision(allAccounts, newAccountType, name, newAccountGroupId)
+    name => !isNameCollision(allAccounts, newAccountType, name, newAccountWalletId)
   );
 }
 
