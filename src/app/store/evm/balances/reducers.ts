@@ -1,15 +1,16 @@
 import { createReducer } from '@reduxjs/toolkit';
 
-import { proceedLoadedEVMBalancesAction } from './actions';
-import { EVMBalancesInitialState } from './state';
-import { getNewBalancesAtomicRecord } from './utils';
+import { proceedLoadedEvmBalancesAction } from './actions';
+import { EvmBalancesInitialState } from './state';
+import { getTokenSlugBalanceRecord } from './utils';
 
-export const evmBalancesReducer = createReducer(EVMBalancesInitialState, builder => {
-  builder.addCase(proceedLoadedEVMBalancesAction, (state, { payload }) => {
-    const { publicKeyHash, data } = payload;
+export const evmBalancesReducer = createReducer(EvmBalancesInitialState, builder => {
+  builder.addCase(proceedLoadedEvmBalancesAction, ({ balancesAtomic }, { payload }) => {
+    const { publicKeyHash, chainId, data } = payload;
 
-    if (data.length === 0) return;
+    if (!balancesAtomic[publicKeyHash]) balancesAtomic[publicKeyHash] = {};
+    const accountBalances = balancesAtomic[publicKeyHash];
 
-    state.balancesAtomic = getNewBalancesAtomicRecord(state.balancesAtomic, publicKeyHash, data);
+    accountBalances[chainId] = Object.assign({}, accountBalances[chainId] ?? {}, getTokenSlugBalanceRecord(data.items));
   });
 });

@@ -1,7 +1,7 @@
 import React, { FC } from 'react';
 
 import Money from 'app/atoms/Money';
-import Balance from 'app/templates/Balance';
+import { TezosBalance } from 'app/templates/Balance';
 import InFiat from 'app/templates/InFiat';
 import { AssetMetadataBase, useAssetMetadata, getAssetName, getAssetSymbol } from 'lib/metadata';
 import { TezosNetworkEssentials } from 'temple/networks';
@@ -52,17 +52,17 @@ const AssetItemContentComponent: FC<AssetItemContentComponentProps> = ({
 
     <div className="flex-1 flex flex-col items-end text-right leading-none">
       <span className="text-gray-910 text-lg mb-2">
-        <Balance network={network} assetSlug={slug} address={publicKeyHash}>
+        <TezosBalance network={network} assetSlug={slug} address={publicKeyHash}>
           {balance => (
             <Money smallFractionFont={false} tooltip={false}>
               {balance}
             </Money>
           )}
-        </Balance>
+        </TezosBalance>
       </span>
 
       <span className="text-xs text-gray-600">
-        <Balance network={network} assetSlug={slug} address={publicKeyHash}>
+        <TezosBalance network={network} assetSlug={slug} address={publicKeyHash}>
           {volume => (
             <InFiat chainId={network.chainId} assetSlug={slug} volume={volume} smallFractionFont={false}>
               {({ balance, symbol }) => (
@@ -74,7 +74,7 @@ const AssetItemContentComponent: FC<AssetItemContentComponentProps> = ({
               )}
             </InFiat>
           )}
-        </Balance>
+        </TezosBalance>
       </span>
     </div>
   </>

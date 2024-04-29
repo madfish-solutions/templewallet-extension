@@ -1,5 +1,5 @@
-import { EVMBalancesStateInterface } from './state';
+import { EvmBalancesStateInterface } from './state';
 
-export const mockEVMBalancesState: EVMBalancesStateInterface = {
+export const mockEvmBalancesState: EvmBalancesStateInterface = {
   balancesAtomic: {}
 };

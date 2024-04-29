@@ -1,13 +1,13 @@
-import { EVMTokenMetadata } from 'lib/metadata/types';
+import { EvmTokenMetadata } from 'lib/metadata/types';
 
-type TokenSlugWithChainId = string;
+type ChainId = number;
+export type TokenSlugMetadataRecord = StringRecord<EvmTokenMetadata>;
+type EvmTokenMetadataRecord = Record<ChainId, TokenSlugMetadataRecord>;
 
-export type EVMMetadataRecords = Record<TokenSlugWithChainId, EVMTokenMetadata>;
-
-export interface EVMTokensMetadataState {
-  metadataRecord: EVMMetadataRecords;
+export interface EvmTokensMetadataState {
+  metadataRecord: EvmTokenMetadataRecord;
 }
 
-export const evmTokensMetadataInitialState: EVMTokensMetadataState = {
+export const evmTokensMetadataInitialState: EvmTokensMetadataState = {
   metadataRecord: {}
 };

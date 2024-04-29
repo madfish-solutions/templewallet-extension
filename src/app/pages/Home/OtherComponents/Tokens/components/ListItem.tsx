@@ -3,17 +3,17 @@ import React, { memo, useMemo } from 'react';
 import BigNumber from 'bignumber.js';
 import classNames from 'clsx';
 
-import { useAccountEvmTokenBalanceSelector } from 'app/store/evm/balances/selectors';
-import { useEvmTokenMetadataSelector } from 'app/store/evm/tokens-metadata/selectors';
+import { useEvmAccountTokenBalance } from 'app/hooks/evm/use-evm-account-token-balance';
+import { useEvmTokenMetadata } from 'app/hooks/evm/use-evm-token-metadata';
 import { AssetIcon, EvmAssetIcon } from 'app/templates/AssetIcon';
 import { setAnotherSelector } from 'lib/analytics';
 import { useTezosAssetBalance } from 'lib/balances/hooks';
 import { getAssetName, getAssetSymbol } from 'lib/metadata';
 import { atomsToTokens } from 'lib/temple/helpers';
-import { getEvmAssetRecordKey } from 'lib/utils/evm.utils';
 import { ZERO } from 'lib/utils/numbers';
 import { Link } from 'lib/woozie';
 import { EvmNetworkEssentials, TezosNetworkEssentials } from 'temple/networks';
+import { TempleChainKind } from 'temple/types';
 
 import { AssetsSelectors } from '../../Assets.selectors';
 import styles from '../Tokens.module.css';
@@ -50,7 +50,7 @@ export const TezosListItem = memo<TezosListItemProps>(({ network, publicKeyHash,
 
   return (
     <Link
-      to={toExploreAssetLink(network.chainId, assetSlug)}
+      to={toExploreAssetLink(TempleChainKind.Tezos, network.chainId, assetSlug)}
       className={classNameMemo}
       testID={AssetsSelectors.assetItemButton}
       testIDProperties={{ key: assetSlug }}
@@ -98,18 +98,18 @@ interface EvmListItemProps {
 }
 
 export const EvmListItem = memo<EvmListItemProps>(({ network, publicKeyHash, assetSlug }) => {
-  const tokenMetadata = useEvmTokenMetadataSelector(getEvmAssetRecordKey(assetSlug, network.chainId));
+  const tokenMetadata = useEvmTokenMetadata(network.chainId, assetSlug);
+  const rawBalance = useEvmAccountTokenBalance(publicKeyHash, network.chainId, assetSlug);
 
-  const rawBalance = useAccountEvmTokenBalanceSelector(publicKeyHash, assetSlug, network.chainId);
+  if (!tokenMetadata || !rawBalance) return null;
 
-  const balance = useMemo(() => atomsToTokens(new BigNumber(rawBalance), tokenMetadata.decimals), [rawBalance]);
-
+  const balance = atomsToTokens(new BigNumber(rawBalance), tokenMetadata.decimals);
   const assetName = tokenMetadata.name;
   const assetSymbol = tokenMetadata.symbol;
 
   return (
     <Link
-      to={toExploreAssetLink(network.chainId, assetSlug)}
+      to={toExploreAssetLink(TempleChainKind.EVM, network.chainId, assetSlug)}
       className={classNames(
         'relative w-full overflow-hidden flex items-center px-4 py-3 rounded',
         'hover:bg-gray-200 text-gray-700 transition ease-in-out duration-200 focus:outline-none',

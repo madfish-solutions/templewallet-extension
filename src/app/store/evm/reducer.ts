@@ -1,16 +1,16 @@
 import { createReducer } from '@reduxjs/toolkit';
 
-import { loadEVMDataActions } from './actions';
+import { loadSingleEvmChainDataActions } from './actions';
 import { EvmInitialState, EvmStateInterface } from './state';
 
 export const evmReducer = createReducer<EvmStateInterface>(EvmInitialState, builder => {
-  builder.addCase(loadEVMDataActions.submit, state => {
-    state.isDataLoading = true;
+  builder.addCase(loadSingleEvmChainDataActions.submit, (state, { payload }) => {
+    state.loadingStateRecord[payload.chainId] = { isLoading: true };
   });
-  builder.addCase(loadEVMDataActions.success, state => {
-    state.isDataLoading = false;
+  builder.addCase(loadSingleEvmChainDataActions.success, (state, { payload }) => {
+    state.loadingStateRecord[payload.chainId] = { isLoading: false };
   });
-  builder.addCase(loadEVMDataActions.fail, state => {
-    state.isDataLoading = false;
+  builder.addCase(loadSingleEvmChainDataActions.fail, (state, { payload }) => {
+    state.loadingStateRecord[payload.chainId] = { isLoading: false, error: payload.error };
   });
 });

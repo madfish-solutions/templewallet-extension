@@ -1,10 +1,20 @@
-import { ChainID, Quote } from 'lib/apis/temple/evm-data.interfaces';
+import { ChainID } from 'lib/apis/temple/evm-data.interfaces';
 import { createActions } from 'lib/store';
 
-interface LoadEVMDataSubmitPayload {
-  publicKeyHash: HexString;
-  chainIds?: ChainID[];
-  quoteCurrency?: Quote;
+interface LoadSingleEvmChainDataSuccessPayload {
+  chainId: ChainID;
 }
 
-export const loadEVMDataActions = createActions<LoadEVMDataSubmitPayload, void, string>('evm/LOAD_EVM_DATA_ACTIONS');
+interface LoadSingleEvmChainDataSubmitPayload extends LoadSingleEvmChainDataSuccessPayload {
+  publicKeyHash: HexString;
+}
+
+interface LoadSingleEvmChainDataFailedPayload extends LoadSingleEvmChainDataSuccessPayload {
+  error?: string;
+}
+
+export const loadSingleEvmChainDataActions = createActions<
+  LoadSingleEvmChainDataSubmitPayload,
+  LoadSingleEvmChainDataSuccessPayload,
+  LoadSingleEvmChainDataFailedPayload
+>('evm/LOAD_SINGLE_CHAIN_EVM_DATA_ACTIONS');

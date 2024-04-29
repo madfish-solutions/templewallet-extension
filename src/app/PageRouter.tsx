@@ -73,8 +73,10 @@ const ROUTE_MAP = Woozie.createMap<RouteContext>([
   ['/loading', (_p, ctx) => (ctx.ready ? <Woozie.Redirect to={'/'} /> : <RootSuspenseFallback />)],
   ['/', (_p, ctx) => (ctx.ready ? <Home /> : <Welcome />)],
   [
-    '/explore/:tezosChainId?/:assetSlug?',
-    onlyReady(({ tezosChainId, assetSlug }) => <Home tezosChainId={tezosChainId} assetSlug={assetSlug} />)
+    '/explore/:chainKind?/:chainId?/:assetSlug?',
+    onlyReady(({ chainKind, chainId, assetSlug }) => (
+      <Home chainKind={chainKind} chainId={chainId} assetSlug={assetSlug} />
+    ))
   ],
   ['/create-wallet', onlyNotReady(() => <CreateWallet />)],
   ['/create-account', onlyReady(() => <CreateAccount />)],

@@ -1,7 +1,7 @@
 import { mockPersistedState } from 'lib/store';
 
-import { EVMAssetsStateInterface } from './state';
+import { EvmAssetsStateInterface } from './state';
 
-export const mockEVMAssetsState = mockPersistedState<EVMAssetsStateInterface>({
-  tokens: {}
+export const mockEvmAssetsState = mockPersistedState<EvmAssetsStateInterface>({
+  assets: {}
 });

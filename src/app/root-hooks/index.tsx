@@ -1,5 +1,6 @@
 import React, { memo, useEffect } from 'react';
 
+import { useLoadEvmTokensData } from 'app/hooks/evm/use-load-evm-tokens-data';
 import { useAdvertisingLoading } from 'app/hooks/use-advertising.hook';
 import { useAssetsMigrations } from 'app/hooks/use-assets-migrations';
 import { useCollectiblesDetailsLoading } from 'app/hooks/use-collectibles-details-loading';
@@ -14,8 +15,6 @@ import { loadTokensWhitelistActions, loadTokensScamlistActions } from 'app/store
 import { useTempleClient } from 'lib/temple/front';
 import { useDidMount } from 'lib/ui/hooks';
 import { useAccountAddressForEvm, useAccountAddressForTezos } from 'temple/front';
-
-import { useEVMDataLoading } from '../hooks/use-evm-data-loading';
 
 import { AppTezosAssetsLoading } from './assets-loading';
 import { AppTezosBalancesLoading } from './balances-loading';
@@ -53,24 +52,12 @@ const AppReadyRootHooks = memo(() => {
   const tezosAddress = useAccountAddressForTezos();
   const evmAddress = useAccountAddressForEvm();
 
-  if (tezosAddress && evmAddress) {
-    return (
-      <>
-        <TezosAccountHooks publicKeyHash={tezosAddress} />
-        <EvmAccountHooks publicKeyHash={evmAddress} />
-      </>
-    );
-  }
-
-  if (tezosAddress) {
-    return <TezosAccountHooks publicKeyHash={tezosAddress} />;
-  }
-
-  if (evmAddress) {
-    return <EvmAccountHooks publicKeyHash={evmAddress} />;
-  }
-
-  return null;
+  return (
+    <>
+      {tezosAddress && <TezosAccountHooks publicKeyHash={tezosAddress} />}
+      {evmAddress && <EvmAccountHooks publicKeyHash={evmAddress} />}
+    </>
+  );
 });
 
 const TezosAccountHooks = memo<{ publicKeyHash: string }>(({ publicKeyHash }) => {
@@ -86,7 +73,7 @@ const TezosAccountHooks = memo<{ publicKeyHash: string }>(({ publicKeyHash }) =>
 });
 
 const EvmAccountHooks = memo<{ publicKeyHash: HexString }>(({ publicKeyHash }) => {
-  useEVMDataLoading(publicKeyHash);
+  useLoadEvmTokensData(publicKeyHash);
 
   return null;
 });

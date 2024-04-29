@@ -1,11 +1,10 @@
-import { EVM_DEFAULT_NETWORKS } from '../../../../temple/networks';
-import { BalancesResponse, ChainID, Quote } from '../evm-data.interfaces';
+import { BalancesResponse, ChainID, Quote } from 'lib/apis/temple/evm-data.interfaces';
 
 import { templeWalletApi } from './templewallet.api';
 
-export const defaultChainIDs = EVM_DEFAULT_NETWORKS.map(network => network.chainId as ChainID);
-
-export const getEVMData = (publicKeyHash: string, chainIDs?: ChainID[], quoteCurrency: Quote = 'USD') =>
+export const getEvmSingleChainData = (walletAddress: string, chainId: ChainID, quoteCurrency: Quote = 'USD') =>
   templeWalletApi
-    .get<BalancesResponse[]>('/evm-data', { params: { walletAddress: publicKeyHash, chainIDs, quoteCurrency } })
+    .get<BalancesResponse>('/evm-single-chain-data', {
+      params: { walletAddress, chainId, quoteCurrency }
+    })
     .then(res => res.data);

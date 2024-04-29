@@ -1,5 +1,5 @@
-import { EVMCurrencyState } from './state';
+import { EvmCurrencyState } from './state';
 
-export const mockEVMCurrencyState: EVMCurrencyState = {
+export const mockEvmCurrencyState: EvmCurrencyState = {
   usdToTokenRates: {}
 };

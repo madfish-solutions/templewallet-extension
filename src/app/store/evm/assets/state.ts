@@ -7,15 +7,17 @@ interface StoredAsset {
   manual?: boolean;
 }
 
-type PublicKeyHash = string;
-export type TokenSlugWithChainIdStoredAssetRecord = Record<string, StoredAsset>;
+type PublicKeyHash = HexString;
 
-export type EVMStoredAssetsRecords = Record<PublicKeyHash, TokenSlugWithChainIdStoredAssetRecord>;
+type TokenSlugStoredAssetsRecord = Record<string, StoredAsset>;
+export type ChainIdTokenSlugsRecord = Record<number, TokenSlugStoredAssetsRecord>;
 
-export interface EVMAssetsStateInterface {
-  tokens: EVMStoredAssetsRecords;
+export type EvmStoredAssetsRecords = Record<PublicKeyHash, ChainIdTokenSlugsRecord>;
+
+export interface EvmAssetsStateInterface {
+  assets: EvmStoredAssetsRecords;
 }
 
-export const EVMAssetsInitialState: EVMAssetsStateInterface = {
-  tokens: {}
+export const EvmAssetsInitialState: EvmAssetsStateInterface = {
+  assets: {}
 };

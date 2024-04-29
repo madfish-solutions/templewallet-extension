@@ -1,5 +1,5 @@
-import { EVMTokensMetadataState } from './state';
+import { EvmTokensMetadataState } from './state';
 
-export const mockEVMTokensMetadataState: EVMTokensMetadataState = {
+export const mockEvmTokensMetadataState: EvmTokensMetadataState = {
   metadataRecord: {}
 };

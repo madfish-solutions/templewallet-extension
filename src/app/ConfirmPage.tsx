@@ -13,7 +13,7 @@ import ErrorBoundary from 'app/ErrorBoundary';
 import ContentContainer from 'app/layouts/ContentContainer';
 import Unlock from 'app/pages/Unlock/Unlock';
 import AccountBanner from 'app/templates/AccountBanner';
-import Balance from 'app/templates/Balance';
+import { TezosBalance } from 'app/templates/Balance';
 import ConnectBanner from 'app/templates/ConnectBanner';
 import CustomSelect, { OptionRenderProps } from 'app/templates/CustomSelect';
 import DAppLogo from 'app/templates/DAppLogo';
@@ -457,7 +457,7 @@ const AccountOptionContentHOC = (tezosNetwork: TezosNetworkEssentials) =>
             <HashShortView hash={acc.address} />
           </div>
 
-          <Balance network={tezosNetwork} address={acc.address}>
+          <TezosBalance network={tezosNetwork} address={acc.address}>
             {bal => (
               <div className="ml-2 text-xs leading-none flex items-baseline text-gray-600">
                 <Money>{bal}</Money>
@@ -466,7 +466,7 @@ const AccountOptionContentHOC = (tezosNetwork: TezosNetworkEssentials) =>
                 </span>
               </div>
             )}
-          </Balance>
+          </TezosBalance>
         </div>
       </>
     );

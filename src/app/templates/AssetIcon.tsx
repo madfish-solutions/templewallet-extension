@@ -3,10 +3,9 @@ import React, { FC, memo } from 'react';
 import clsx from 'clsx';
 
 import Identicon from 'app/atoms/Identicon';
+import { useEvmTokenMetadata } from 'app/hooks/evm/use-evm-token-metadata';
 import { ReactComponent as CollectiblePlaceholder } from 'app/icons/collectible-placeholder.svg';
-import { useEvmTokenMetadataSelector } from 'app/store/evm/tokens-metadata/selectors';
 import { AssetMetadataBase, getAssetSymbol, isCollectible, useAssetMetadata } from 'lib/metadata';
-import { getEvmAssetRecordKey } from 'lib/utils/evm.utils';
 
 import { AssetImage, AssetImageProps } from './AssetImage';
 
@@ -35,8 +34,8 @@ interface EvmAssetIconProps extends Omit<AssetImageProps, 'metadata' | 'loader' 
   assetSlug: string;
 }
 
-export const EvmAssetIcon = memo<EvmAssetIconProps>(({ evmChainId, className, style, ...props }) => {
-  const metadata = useEvmTokenMetadataSelector(getEvmAssetRecordKey(props.assetSlug, evmChainId));
+export const EvmAssetIcon = memo<EvmAssetIconProps>(({ evmChainId, assetSlug, className, style, ...props }) => {
+  const metadata = useEvmTokenMetadata(evmChainId, assetSlug);
 
   return (
     <div className={clsx('flex items-center justify-center', className)} style={style}>

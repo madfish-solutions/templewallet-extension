@@ -4,6 +4,7 @@ import clsx from 'clsx';
 
 import { Button } from 'app/atoms';
 import Money from 'app/atoms/Money';
+import { useEvmTokenMetadata } from 'app/hooks/evm/use-evm-token-metadata';
 import { ContentContainer } from 'app/layouts/ContentContainer';
 import { useTotalBalance } from 'app/pages/Home/OtherComponents/MainBanner/use-total-balance';
 import { dispatch } from 'app/store';
@@ -11,8 +12,8 @@ import { toggleBalanceModeAction } from 'app/store/settings/actions';
 import { useBalanceModeSelector } from 'app/store/settings/selectors';
 import { BalanceMode } from 'app/store/settings/state';
 import AddressChip from 'app/templates/AddressChip';
-import { AssetIcon } from 'app/templates/AssetIcon';
-import Balance from 'app/templates/Balance';
+import { AssetIcon, EvmAssetIcon } from 'app/templates/AssetIcon';
+import { EvmBalance, TezosBalance } from 'app/templates/Balance';
 import InFiat from 'app/templates/InFiat';
 import { setAnotherSelector, setTestID } from 'lib/analytics';
 import { useFiatCurrency } from 'lib/fiat-currency';
@@ -24,7 +25,6 @@ import { atomsToTokens } from 'lib/temple/helpers';
 import { TEZOS_MAINNET_CHAIN_ID } from 'lib/temple/types';
 import useTippy from 'lib/ui/useTippy';
 import { getReadOnlyEvm } from 'temple/evm';
-import { UNDER_DEVELOPMENT_MSG } from 'temple/evm/under_dev_msg';
 import {
   useAccountAddressForEvm,
   useAccountAddressForTezos,
@@ -33,21 +33,19 @@ import {
   useTezosMainnetChain
 } from 'temple/front';
 import { TezosNetworkEssentials } from 'temple/networks';
+import { TempleChainKind } from 'temple/types';
 
+import { useEvmChainByChainId } from '../../../../../temple/front/chains';
 import { HomeSelectors } from '../../Home.selectors';
+import { HomeProps } from '../../interfaces';
 import { TokenPageSelectors } from '../TokenPage.selectors';
 
 import { BalanceFiat } from './BalanceFiat';
 import { BalanceGas } from './BalanceGas';
 
-interface Props {
-  tezosChainId?: string | null;
-  assetSlug?: string | null;
-}
-
-const MainBanner = memo<Props>(({ tezosChainId, assetSlug }) => {
-  return tezosChainId && assetSlug ? (
-    <AssetBanner tezosChainId={tezosChainId} assetSlug={assetSlug} />
+const MainBanner = memo<HomeProps>(({ chainKind, chainId, assetSlug }) => {
+  return chainKind && chainId && assetSlug ? (
+    <AssetBanner chainKind={chainKind} chainId={chainId} assetSlug={assetSlug} />
   ) : (
     <TotalVolumeBanner />
   );
@@ -189,37 +187,38 @@ const EvmBalanceInfo: FC<{ address: HexString }> = ({ address }) => {
 };
 
 interface AssetBannerProps {
-  tezosChainId: string;
+  chainKind: string;
+  chainId: string;
   assetSlug: string;
 }
 
-const AssetBanner = memo<AssetBannerProps>(({ tezosChainId, assetSlug }) => {
-  const accountTezAddress = useAccountAddressForTezos();
-  const network = useTezosChainByChainId(tezosChainId);
-
-  return network && accountTezAddress ? (
-    <TezosAssetBanner network={network} assetSlug={assetSlug} accountPkh={accountTezAddress} />
+const AssetBanner = memo<AssetBannerProps>(({ chainKind, chainId, assetSlug }) =>
+  chainKind === TempleChainKind.Tezos ? (
+    <TezosAssetBanner chainId={chainId} assetSlug={assetSlug} />
   ) : (
-    <div className="w-full max-w-sm mx-auto mb-4">{UNDER_DEVELOPMENT_MSG}</div>
-  );
-});
+    <EvmAssetBanner chainId={Number(chainId)} assetSlug={assetSlug} />
+  )
+);
 
-interface TezosTezosAssetBanner {
-  network: TezosNetworkEssentials;
-  accountPkh: string;
+interface EvmAssetBannerProps {
+  chainId: number;
   assetSlug: string;
 }
 
-const TezosAssetBanner = memo<TezosTezosAssetBanner>(({ network, accountPkh, assetSlug }) => {
-  const assetMetadata = useAssetMetadata(assetSlug, network.chainId);
-  const assetName = getAssetName(assetMetadata);
-  const assetSymbol = getAssetSymbol(assetMetadata);
+const EvmAssetBanner = memo<EvmAssetBannerProps>(({ chainId, assetSlug }) => {
+  const accountEvmAddress = useAccountAddressForEvm();
+  const network = useEvmChainByChainId(chainId);
+  const metadata = useEvmTokenMetadata(chainId, assetSlug);
+  const assetName = getAssetName(metadata);
+  const assetSymbol = getAssetSymbol(metadata);
+
+  if (!accountEvmAddress || !network || !metadata) return null;
 
   return (
     <div className="w-full max-w-sm mx-auto mb-4">
       <div className="flex justify-between items-center mb-3">
         <div className="flex items-center">
-          <AssetIcon tezosChainId={network.chainId} assetSlug={assetSlug} size={24} className="flex-shrink-0" />
+          <EvmAssetIcon evmChainId={network.chainId} assetSlug={assetSlug} size={24} className="flex-shrink-0" />
 
           <div
             className="text-sm font-normal text-gray-700 truncate flex-1 ml-2"
@@ -230,21 +229,15 @@ const TezosAssetBanner = memo<TezosTezosAssetBanner>(({ network, accountPkh, ass
           </div>
         </div>
 
-        <AddressChip
-          address={accountPkh}
-          tezosNetwork={network}
-          modeSwitchTestId={HomeSelectors.addressModeSwitchButton}
-        />
+        <AddressChip address={accountEvmAddress} modeSwitchTestId={HomeSelectors.addressModeSwitchButton} />
       </div>
 
       <div className="flex items-center text-2xl">
-        <Balance network={network} address={accountPkh} assetSlug={assetSlug}>
+        <EvmBalance chainId={chainId} address={accountEvmAddress} assetSlug={assetSlug}>
           {balance => (
             <div className="flex flex-col">
               <div className="flex text-2xl">
-                <Money smallFractionFont={false} fiat>
-                  {balance}
-                </Money>
+                <Money smallFractionFont={false}>{balance}</Money>
                 <span className="ml-1">{assetSymbol}</span>
               </div>
 
@@ -259,7 +252,64 @@ const TezosAssetBanner = memo<TezosTezosAssetBanner>(({ network, accountPkh, ass
               </InFiat>
             </div>
           )}
-        </Balance>
+        </EvmBalance>
+      </div>
+    </div>
+  );
+});
+
+const TezosAssetBanner = memo<Omit<AssetBannerProps, 'chainKind'>>(({ chainId, assetSlug }) => {
+  const accountTezAddress = useAccountAddressForTezos();
+  const network = useTezosChainByChainId(chainId);
+  const metadata = useAssetMetadata(assetSlug, chainId);
+  const assetName = getAssetName(metadata);
+  const assetSymbol = getAssetSymbol(metadata);
+
+  if (!accountTezAddress || !network || !metadata) return null;
+
+  return (
+    <div className="w-full max-w-sm mx-auto mb-4">
+      <div className="flex justify-between items-center mb-3">
+        <div className="flex items-center">
+          <AssetIcon tezosChainId={chainId} assetSlug={assetSlug} size={24} className="flex-shrink-0" />
+
+          <div
+            className="text-sm font-normal text-gray-700 truncate flex-1 ml-2"
+            {...setTestID(TokenPageSelectors.tokenName)}
+            {...setAnotherSelector('name', assetName)}
+          >
+            {assetName}
+          </div>
+        </div>
+
+        <AddressChip
+          address={accountTezAddress}
+          tezosNetwork={network}
+          modeSwitchTestId={HomeSelectors.addressModeSwitchButton}
+        />
+      </div>
+
+      <div className="flex items-center text-2xl">
+        <TezosBalance network={network} address={accountTezAddress} assetSlug={assetSlug}>
+          {balance => (
+            <div className="flex flex-col">
+              <div className="flex text-2xl">
+                <Money smallFractionFont={false}>{balance}</Money>
+                <span className="ml-1">{assetSymbol}</span>
+              </div>
+
+              <InFiat chainId={network.chainId} assetSlug={assetSlug} volume={balance} smallFractionFont={false}>
+                {({ balance, symbol }) => (
+                  <div style={{ lineHeight: '19px' }} className="mt-1 text-base text-gray-500 flex">
+                    <span className="mr-1">≈</span>
+                    {balance}
+                    <span className="ml-1">{symbol}</span>
+                  </div>
+                )}
+              </InFiat>
+            </div>
+          )}
+        </TezosBalance>
       </div>
     </div>
   );

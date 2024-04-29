@@ -1,11 +1,12 @@
 import { createAction } from '@reduxjs/toolkit';
 
 import { BalancesResponse } from 'lib/apis/temple/evm-data.interfaces';
-interface proceedLoadedEVMBalancesActionPayload {
+interface proceedLoadedEvmBalancesActionPayload {
   publicKeyHash: HexString;
-  data: BalancesResponse[];
+  chainId: number;
+  data: BalancesResponse;
 }
 
-export const proceedLoadedEVMBalancesAction = createAction<proceedLoadedEVMBalancesActionPayload>(
+export const proceedLoadedEvmBalancesAction = createAction<proceedLoadedEvmBalancesActionPayload>(
   'evm/PROCEED_LOADED_EVM_BALANCES_ACTION'
 );

@@ -1,10 +1,11 @@
-type TokenSlugWithChainId = string;
-export type EVMExchangeRateRecords = Record<TokenSlugWithChainId, number>;
+type ChainId = number;
+export type TokenSlugExchangeRateRecord = StringRecord<number>;
+type EvmExchangeRateRecord = Record<ChainId, TokenSlugExchangeRateRecord>;
 
-export interface EVMCurrencyState {
-  usdToTokenRates: EVMExchangeRateRecords;
+export interface EvmCurrencyState {
+  usdToTokenRates: EvmExchangeRateRecord;
 }
 
-export const evmCurrencyInitialState: EVMCurrencyState = {
+export const evmCurrencyInitialState: EvmCurrencyState = {
   usdToTokenRates: {}
 };

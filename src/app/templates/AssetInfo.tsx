@@ -5,7 +5,6 @@ import classNames from 'clsx';
 
 import { FormField } from 'app/atoms';
 import { useAppEnv } from 'app/env';
-import { DeadEndBoundaryError } from 'app/ErrorBoundary';
 import { ReactComponent as CopyIcon } from 'app/icons/copy.svg';
 import { isFA2Token, isTezAsset } from 'lib/assets';
 import { fromAssetSlugWithStandardDetect } from 'lib/assets/contract.utils';
@@ -16,27 +15,69 @@ import useCopyToClipboard from 'lib/ui/useCopyToClipboard';
 import { useTezosChainByChainId } from 'temple/front';
 import { TezosNetworkEssentials } from 'temple/networks';
 import { getReadOnlyTezos } from 'temple/tezos';
+import { TempleChainKind } from 'temple/types';
+
+import { useEvmTokenMetadata } from '../hooks/evm/use-evm-token-metadata';
 
 interface Props {
-  tezosChainId: string;
+  chainKind: string;
+  chainId: string;
   assetSlug: string;
 }
 
-const AssetInfo = memo<Props>(({ tezosChainId, assetSlug }) => {
-  const network = useTezosChainByChainId(tezosChainId);
-  if (!network) throw new DeadEndBoundaryError();
+const AssetInfo = memo<Props>(({ chainKind, chainId, assetSlug }) => {
+  const network = useTezosChainByChainId(chainId);
 
-  return <AssetInfoContent network={network} assetSlug={assetSlug} />;
+  return chainKind === TempleChainKind.Tezos && network ? (
+    <TezosAssetInfoContent network={network} assetSlug={assetSlug} />
+  ) : (
+    <EvmAssetInfoContent chainId={Number(chainId)} assetSlug={assetSlug} />
+  );
 });
 
 export default AssetInfo;
 
-interface AssetInfoContentProps {
+interface EvmAssetInfoContentProps {
+  chainId: number;
+  assetSlug: string;
+}
+
+const EvmAssetInfoContent: FC<EvmAssetInfoContentProps> = ({ chainId, assetSlug }) => {
+  const { popup } = useAppEnv();
+  const metadata = useEvmTokenMetadata(chainId, assetSlug);
+
+  if (!metadata) return null;
+
+  return (
+    <div className={classNames(popup && 'mx-4')}>
+      <div className="w-full max-w-sm mx-auto">
+        <InfoField
+          textarea
+          rows={2}
+          id="contract-address"
+          label={<T id="contract" />}
+          labelDescription={<T id="addressOfTokenContract" substitutions={[getAssetSymbol(metadata)]} />}
+          value={metadata.address}
+          size={36}
+          style={{
+            resize: 'none'
+          }}
+        />
+
+        {metadata && metadata.decimals > 0 && (
+          <InfoField id="token-decimals" label={<T id="decimals" />} value={metadata.decimals} />
+        )}
+      </div>
+    </div>
+  );
+};
+
+interface TezosAssetInfoContentProps {
   network: TezosNetworkEssentials;
   assetSlug: string;
 }
 
-const AssetInfoContent: FC<AssetInfoContentProps> = ({ network, assetSlug }) => {
+const TezosAssetInfoContent: FC<TezosAssetInfoContentProps> = ({ network, assetSlug }) => {
   const { popup } = useAppEnv();
 
   const rpcUrl = network.rpcBaseURL;

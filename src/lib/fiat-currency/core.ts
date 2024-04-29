@@ -9,7 +9,6 @@ import { useSelector } from 'app/store/root-state.selector';
 import { useTezosUsdToTokenRatesSelector } from 'app/store/tezos/currency/selectors';
 import { useStorage } from 'lib/temple/front';
 import { isTruthy } from 'lib/utils';
-import { getEvmAssetRecordKey } from 'lib/utils/evm.utils';
 
 import { FIAT_CURRENCIES } from './consts';
 import type { FiatCurrencyOption, CoingeckoFiatInterface } from './types';
@@ -22,9 +21,7 @@ function useAssetUSDPrice(slug: string, chainId: number | string, evm = false) {
 
   return useMemo(() => {
     const rateStr =
-      evm && typeof chainId === 'number'
-        ? evmUsdToTokenRates[getEvmAssetRecordKey(slug, chainId)]
-        : tezosUsdToTokenRates[slug];
+      evm && typeof chainId === 'number' ? evmUsdToTokenRates[chainId]?.[slug] ?? 0 : tezosUsdToTokenRates[slug];
     return rateStr ? Number(rateStr) : undefined;
   }, [evm, chainId, evmUsdToTokenRates, slug, tezosUsdToTokenRates]);
 }

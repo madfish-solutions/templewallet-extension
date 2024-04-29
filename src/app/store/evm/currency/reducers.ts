@@ -1,16 +1,17 @@
 import { createReducer } from '@reduxjs/toolkit';
 
-import { proceedLoadedEVMTokensMetadataAction } from '../tokens-metadata/actions';
+import { proceedLoadedEvmExchangeRatesAction } from './actions';
+import { evmCurrencyInitialState, EvmCurrencyState } from './state';
+import { getTokenSlugExchangeRateRecord } from './utils';
 
-import { evmCurrencyInitialState, EVMCurrencyState } from './state';
-import { getStoredExchangeRatesRecord } from './utils';
+export const evmCurrencyReducer = createReducer<EvmCurrencyState>(evmCurrencyInitialState, builder => {
+  builder.addCase(proceedLoadedEvmExchangeRatesAction, ({ usdToTokenRates }, { payload }) => {
+    const { chainId, data } = payload;
 
-export const evmCurrencyReducer = createReducer<EVMCurrencyState>(evmCurrencyInitialState, builder => {
-  builder.addCase(proceedLoadedEVMTokensMetadataAction, (state, { payload }) => {
-    const { data } = payload;
-
-    if (data.length === 0) return;
-
-    state.usdToTokenRates = getStoredExchangeRatesRecord(state.usdToTokenRates, data);
+    usdToTokenRates[chainId] = Object.assign(
+      {},
+      usdToTokenRates[chainId] ?? {},
+      getTokenSlugExchangeRateRecord(data.items)
+    );
   });
 });

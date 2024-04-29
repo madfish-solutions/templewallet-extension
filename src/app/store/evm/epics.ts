@@ -1,28 +1,29 @@
 import { combineEpics, Epic } from 'redux-observable';
-import { catchError, concatMap, from, of, switchMap } from 'rxjs';
+import { catchError, concatMap, from, mergeMap, of } from 'rxjs';
 import { ofType, toPayload } from 'ts-action-operators';
 
-import { getEVMData } from 'lib/apis/temple/endpoints/evm-data';
+import { getEvmSingleChainData } from 'lib/apis/temple/endpoints/evm-data';
 
-import { loadEVMDataActions } from './actions';
-import { proceedLoadedEVMAssetsAction } from './assets/actions';
-import { proceedLoadedEVMBalancesAction } from './balances/actions';
-import { proceedLoadedEVMExchangeRatesAction } from './currency/actions';
-import { proceedLoadedEVMTokensMetadataAction } from './tokens-metadata/actions';
+import { loadSingleEvmChainDataActions } from './actions';
+import { proceedLoadedEvmAssetsAction } from './assets/actions';
+import { proceedLoadedEvmBalancesAction } from './balances/actions';
+import { proceedLoadedEvmExchangeRatesAction } from './currency/actions';
+import { proceedLoadedEvmTokensMetadataAction } from './tokens-metadata/actions';
 
 const loadEVMDataEpic: Epic = action$ =>
   action$.pipe(
-    ofType(loadEVMDataActions.submit),
+    ofType(loadSingleEvmChainDataActions.submit),
     toPayload(),
-    switchMap(({ publicKeyHash, chainIds, quoteCurrency }) =>
-      from(getEVMData(publicKeyHash, chainIds, quoteCurrency)).pipe(
+    mergeMap(({ publicKeyHash, chainId }) =>
+      from(getEvmSingleChainData(publicKeyHash, chainId)).pipe(
         concatMap(data => [
-          proceedLoadedEVMAssetsAction({ publicKeyHash, data }),
-          proceedLoadedEVMBalancesAction({ publicKeyHash, data }),
-          proceedLoadedEVMTokensMetadataAction({ data }),
-          proceedLoadedEVMExchangeRatesAction({ data })
+          proceedLoadedEvmAssetsAction({ publicKeyHash, chainId, data }),
+          proceedLoadedEvmBalancesAction({ publicKeyHash, chainId, data }),
+          proceedLoadedEvmTokensMetadataAction({ chainId, data }),
+          proceedLoadedEvmExchangeRatesAction({ chainId, data }),
+          loadSingleEvmChainDataActions.success({ chainId })
         ]),
-        catchError(err => of(loadEVMDataActions.fail(err.message)))
+        catchError(err => of(loadSingleEvmChainDataActions.fail({ chainId, error: err.message })))
       )
     )
   );

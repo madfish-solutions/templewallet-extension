@@ -1,15 +1,30 @@
 import { createReducer } from '@reduxjs/toolkit';
 
-import { proceedLoadedEVMAssetsAction } from './actions';
-import { EVMAssetsInitialState, EVMAssetsStateInterface } from './state';
-import { getNewStoredAssetsRecord } from './utils';
+import { toTokenSlug } from 'lib/assets';
+import { isProperMetadata } from 'lib/utils/evm.utils';
 
-export const evmAssetsReducer = createReducer<EVMAssetsStateInterface>(EVMAssetsInitialState, builder => {
-  builder.addCase(proceedLoadedEVMAssetsAction, (state, { payload }) => {
-    const { publicKeyHash, data } = payload;
+import { proceedLoadedEvmAssetsAction } from './actions';
+import { EvmAssetsInitialState, EvmAssetsStateInterface } from './state';
 
-    if (data.length === 0) return;
+export const evmAssetsReducer = createReducer<EvmAssetsStateInterface>(EvmAssetsInitialState, builder => {
+  builder.addCase(proceedLoadedEvmAssetsAction, ({ assets }, { payload }) => {
+    const { publicKeyHash, chainId, data } = payload;
 
-    state.tokens = getNewStoredAssetsRecord(state.tokens, publicKeyHash, data);
+    if (!assets[publicKeyHash]) assets[publicKeyHash] = {};
+    const accountAssets = assets[publicKeyHash];
+
+    if (!accountAssets[chainId]) accountAssets[chainId] = {};
+    const chainAssets = accountAssets[chainId];
+
+    const items = data.items;
+
+    for (const item of items) {
+      if (!isProperMetadata(item)) continue;
+
+      const slug = toTokenSlug(item.contract_address);
+
+      const stored = chainAssets[slug];
+      if (!stored) chainAssets[slug] = { status: 'idle' };
+    }
   });
 });

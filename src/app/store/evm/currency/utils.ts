@@ -1,23 +1,14 @@
-import { BalanceItem, BalancesResponse, ChainID } from 'lib/apis/temple/evm-data.interfaces';
+import { BalanceItem } from 'lib/apis/temple/evm-data.interfaces';
 import { toTokenSlug } from 'lib/assets';
-import { getEvmAssetRecordKey, isProperMetadata } from 'lib/utils/evm.utils';
+import { isProperMetadata } from 'lib/utils/evm.utils';
 
-import { EVMExchangeRateRecords } from './state';
+import { TokenSlugExchangeRateRecord } from './state';
 
-export const getStoredExchangeRatesRecord = (oldRecord: EVMExchangeRateRecords, data: BalancesResponse[]) =>
-  data.reduce<EVMExchangeRateRecords>((acc, currentValue) => {
-    if (!currentValue.chain_id) return acc;
+export const getTokenSlugExchangeRateRecord = (data: BalanceItem[]) =>
+  data.reduce<TokenSlugExchangeRateRecord>((acc, currentValue) => {
+    if (!isProperMetadata(currentValue) || !currentValue.quote_rate) return acc;
 
-    return Object.assign(acc, getTokenSlugWithChainIdExchangeRatesRecord(currentValue.chain_id, currentValue.items));
-  }, oldRecord);
-
-const getTokenSlugWithChainIdExchangeRatesRecord = (chainID: ChainID, data: BalanceItem[]) =>
-  data.reduce<EVMExchangeRateRecords>((acc, currentValue) => {
-    if (!isProperMetadata(currentValue)) {
-      return acc;
-    }
-
-    acc[getEvmAssetRecordKey(toTokenSlug(currentValue.contract_address), chainID)] = currentValue.quote_rate ?? 0;
+    acc[toTokenSlug(currentValue.contract_address)] = currentValue.quote_rate;
 
     return acc;
   }, {});

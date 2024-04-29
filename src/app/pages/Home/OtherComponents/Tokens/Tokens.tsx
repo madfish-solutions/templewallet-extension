@@ -2,25 +2,25 @@ import React, { FC, memo, useCallback, useEffect, useMemo, useState } from 'reac
 
 import clsx from 'clsx';
 
-import { SyncSpinner, Divider, Checkbox } from 'app/atoms';
+import { Checkbox, Divider, SyncSpinner } from 'app/atoms';
 import DropdownWrapper from 'app/atoms/DropdownWrapper';
 import { useAppEnv } from 'app/env';
-import { useAllAccountEvmAssets } from 'app/hooks/evm/use-all-account-evm-assets';
+import { useEvmChainAccountAssetsSlugs } from 'app/hooks/evm/use-evm-chain-account-assets-slugs';
+import { useEvmTokensDataLoadingState } from 'app/hooks/evm/use-evm-tokens-data-loading-state';
 import { useLoadPartnersPromo } from 'app/hooks/use-load-partners-promo';
 import { useTokensListingLogic } from 'app/hooks/use-tokens-listing-logic';
 import { ReactComponent as EditingIcon } from 'app/icons/editing.svg';
 import { ReactComponent as SearchIcon } from 'app/icons/search.svg';
 import { ContentContainer } from 'app/layouts/ContentContainer';
-import { useEvmDataLoadingSelector } from 'app/store/evm/selectors';
 import { useAreAssetsLoading, useMainnetTokensScamlistSelector } from 'app/store/tezos/assets/selectors';
 import { useTokensMetadataLoadingSelector } from 'app/store/tezos/tokens-metadata/selectors';
-import { useChainSelectController, ChainSelectSection } from 'app/templates/ChainSelect';
+import { ChainSelectSection, useChainSelectController } from 'app/templates/ChainSelect';
 import { ButtonForManageDropdown } from 'app/templates/ManageDropdown';
 import { PartnersPromotion, PartnersPromotionVariant } from 'app/templates/partners-promotion';
 import SearchAssetField from 'app/templates/SearchAssetField';
 import { setTestID } from 'lib/analytics';
 import { OptimalPromoVariantEnum } from 'lib/apis/optimal';
-import { TEZ_TOKEN_SLUG, TEMPLE_TOKEN_SLUG } from 'lib/assets';
+import { TEMPLE_TOKEN_SLUG, TEZ_TOKEN_SLUG } from 'lib/assets';
 import { useEnabledAccountTokensSlugs } from 'lib/assets/hooks';
 import { T, t } from 'lib/i18n';
 import { TEZOS_MAINNET_CHAIN_ID } from 'lib/temple/types';
@@ -29,6 +29,7 @@ import Popper, { PopperRenderProps } from 'lib/ui/Popper';
 import { Link, navigate } from 'lib/woozie';
 import { useAccountAddressForEvm, useAccountAddressForTezos } from 'temple/front';
 import { EvmNetworkEssentials, TezosNetworkEssentials } from 'temple/networks';
+import { TempleChainKind } from 'temple/types';
 
 import { HomeSelectors } from '../../Home.selectors';
 import { AssetsSelectors } from '../Assets.selectors';
@@ -68,16 +69,16 @@ interface EvmTokensTabProps {
 }
 
 const EvmTokensTab: FC<EvmTokensTabProps> = ({ network, publicKeyHash }) => {
-  const { slugs } = useAllAccountEvmAssets(publicKeyHash, network.chainId);
-  const isDataLoading = useEvmDataLoadingSelector();
+  const tokenSlugs = useEvmChainAccountAssetsSlugs(publicKeyHash, network.chainId);
+  const isDataLoading = useEvmTokensDataLoadingState(network.chainId);
 
-  if (slugs.length === 0) {
+  if (tokenSlugs.length === 0) {
     return <>NO RECORDS FOUND</>;
   }
 
   return (
     <>
-      {slugs.map(assetSlug => (
+      {tokenSlugs.map(assetSlug => (
         <EvmListItem key={assetSlug} assetSlug={assetSlug} publicKeyHash={publicKeyHash} network={network} />
       ))}
       {isDataLoading && <SyncSpinner className="mt-4" />}
@@ -178,7 +179,7 @@ const TezosTokensTab: FC<TezosTokensTabProps> = ({ network, publicKeyHash }) => 
     const handleKeyup = (evt: KeyboardEvent) => {
       switch (evt.key) {
         case 'Enter':
-          navigate(toExploreAssetLink(chainId, activeAssetSlug));
+          navigate(toExploreAssetLink(TempleChainKind.Tezos, chainId, activeAssetSlug));
           break;
 
         case 'ArrowDown':

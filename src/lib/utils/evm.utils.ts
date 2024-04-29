@@ -1,7 +1,5 @@
 import { BalanceItem } from '../apis/temple/evm-data.interfaces';
 
-export const getEvmAssetRecordKey = (slug: string, chainId: number) => `${slug}@${chainId}`;
-
 export const isProperMetadata = (metadata: BalanceItem) =>
   metadata.contract_address &&
   metadata.contract_ticker_symbol &&

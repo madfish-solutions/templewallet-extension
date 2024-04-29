@@ -19,8 +19,10 @@ import useTippy from 'lib/ui/useTippy';
 import { createUrl, Link, To } from 'lib/woozie';
 import { createLocationState } from 'lib/woozie/location';
 import { useAccount } from 'temple/front';
+import { TempleChainKind } from 'temple/types';
 
 import { HomeSelectors } from './Home.selectors';
+import { HomeProps } from './interfaces';
 
 const tippyPropsMock = {
   trigger: 'mouseenter',
@@ -29,23 +31,21 @@ const tippyPropsMock = {
   animation: 'shift-away-subtle'
 };
 
-interface Props {
-  tezosChainId: string | nullish;
-  assetSlug: string | nullish;
-}
-
-export const ActionButtonsBar = memo<Props>(({ tezosChainId, assetSlug }) => {
+export const ActionButtonsBar = memo<HomeProps>(({ chainKind, chainId, assetSlug }) => {
   const account = useAccount();
 
   const canSend = account.type !== TempleAccountType.WatchOnly;
-  const sendLink = buildSendPagePath(tezosChainId, assetSlug);
+  const sendLink = buildSendPagePath(chainKind, chainId, assetSlug);
 
   const swapLink = useMemo(
     () => ({
       pathname: '/swap',
-      search: tezosChainId === ChainIds.MAINNET ? buildSwapPageUrlQuery(assetSlug) : undefined
+      search:
+        chainKind === TempleChainKind.Tezos && chainId === ChainIds.MAINNET
+          ? buildSwapPageUrlQuery(assetSlug)
+          : undefined
     }),
-    [assetSlug, tezosChainId]
+    [chainKind, chainId, assetSlug]
   );
 
   return (
@@ -57,7 +57,7 @@ export const ActionButtonsBar = memo<Props>(({ tezosChainId, assetSlug }) => {
         labelI18nKey="swap"
         Icon={SwapIcon}
         to={swapLink}
-        disabled={!canSend}
+        disabled={!canSend || !swapLink}
         tippyProps={tippyPropsMock}
         testID={HomeSelectors.swapButton}
       />

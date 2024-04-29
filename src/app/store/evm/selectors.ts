@@ -1,3 +1,3 @@
 import { useSelector } from '../root-state.selector';
 
-export const useEvmDataLoadingSelector = () => useSelector(state => state.evm.isDataLoading);
+export const useEvmLoadingStateRecordSelector = () => useSelector(state => state.evm.loadingStateRecord);

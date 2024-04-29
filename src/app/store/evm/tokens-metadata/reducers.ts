@@ -1,18 +1,33 @@
 import { createReducer } from '@reduxjs/toolkit';
 
-import { proceedLoadedEVMTokensMetadataAction } from './actions';
-import { evmTokensMetadataInitialState, EVMTokensMetadataState } from './state';
-import { getStoredTokensMetadataRecord } from './utils';
+import { toTokenSlug } from 'lib/assets';
+import { isProperMetadata } from 'lib/utils/evm.utils';
 
-export const evmTokensMetadataReducer = createReducer<EVMTokensMetadataState>(
+import { proceedLoadedEvmTokensMetadataAction } from './actions';
+import { evmTokensMetadataInitialState, EvmTokensMetadataState } from './state';
+import { buildEvmTokenMetadataFromFetched } from './utils';
+
+// TODO: figure out how to get rid of unused metadata
+
+export const evmTokensMetadataReducer = createReducer<EvmTokensMetadataState>(
   evmTokensMetadataInitialState,
   builder => {
-    builder.addCase(proceedLoadedEVMTokensMetadataAction, (state, { payload }) => {
-      const { data } = payload;
+    builder.addCase(proceedLoadedEvmTokensMetadataAction, ({ metadataRecord }, { payload }) => {
+      const { chainId, data } = payload;
 
-      if (data.length === 0) return;
+      if (!metadataRecord[chainId]) metadataRecord[chainId] = {};
+      const chainTokensMetadata = metadataRecord[chainId];
 
-      state.metadataRecord = getStoredTokensMetadataRecord(state.metadataRecord, data);
+      const items = data.items;
+
+      for (const item of items) {
+        if (!isProperMetadata(item)) continue;
+
+        const slug = toTokenSlug(item.contract_address);
+
+        const stored = chainTokensMetadata[slug];
+        if (!stored) chainTokensMetadata[slug] = buildEvmTokenMetadataFromFetched(item);
+      }
     });
   }
 );

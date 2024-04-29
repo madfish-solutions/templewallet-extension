@@ -5,7 +5,7 @@ import { useDebounce } from 'use-debounce';
 
 import Money from 'app/atoms/Money';
 import { AssetIcon } from 'app/templates/AssetIcon';
-import Balance from 'app/templates/Balance';
+import { TezosBalance } from 'app/templates/Balance';
 import InFiat from 'app/templates/InFiat';
 import { setTestID, setAnotherSelector, TestIDProperty } from 'lib/analytics';
 import { searchAssetsWithNoMeta } from 'lib/assets/search.utils';
@@ -115,7 +115,7 @@ const AssetFieldContent = memo<AssetFieldContentProps>(({ network, slug, publicK
     <div className="flex items-center" {...setTestID(testID)} {...setAnotherSelector('slug', slug)}>
       <AssetIcon tezosChainId={network.chainId} assetSlug={slug} className="mr-3" size={48} />
 
-      <Balance network={network} assetSlug={slug} address={publicKeyHash}>
+      <TezosBalance network={network} assetSlug={slug} address={publicKeyHash}>
         {balance => (
           <div className="flex flex-col items-start leading-none">
             <span className="text-xl text-gray-800 flex items-baseline">
@@ -136,7 +136,7 @@ const AssetFieldContent = memo<AssetFieldContentProps>(({ network, slug, publicK
             </InFiat>
           </div>
         )}
-      </Balance>
+      </TezosBalance>
     </div>
   );
 });

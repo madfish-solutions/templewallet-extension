@@ -1,31 +1,11 @@
-import { BalanceItem, BalancesResponse, ChainID } from 'lib/apis/temple/evm-data.interfaces';
-import { toTokenSlug } from 'lib/assets';
-import { getEvmAssetRecordKey, isProperMetadata } from 'lib/utils/evm.utils';
+import { BalanceItem } from 'lib/apis/temple/evm-data.interfaces';
+import { EvmTokenMetadata } from 'lib/metadata/types';
 
-import { EVMMetadataRecords } from './state';
-
-// TODO: figure out how to get rid of unused metadata
-export const getStoredTokensMetadataRecord = (oldRecord: EVMMetadataRecords, data: BalancesResponse[]) =>
-  data.reduce<EVMMetadataRecords>((acc, currentValue) => {
-    if (!currentValue.chain_id) return acc;
-
-    return Object.assign(acc, getTokenSlugWithChainIdTokensMetadataRecord(currentValue.chain_id, currentValue.items));
-  }, oldRecord);
-
-const getTokenSlugWithChainIdTokensMetadataRecord = (chainID: ChainID, data: BalanceItem[]) =>
-  data.reduce<EVMMetadataRecords>((acc, currentValue) => {
-    if (!isProperMetadata(currentValue)) {
-      return acc;
-    }
-
-    acc[getEvmAssetRecordKey(toTokenSlug(currentValue.contract_address), chainID)] = {
-      name: currentValue.contract_display_name,
-      symbol: currentValue.contract_ticker_symbol,
-      decimals: currentValue.contract_decimals,
-      thumbnailUri: currentValue.logo_url,
-      address: currentValue.contract_address as HexString,
-      native: currentValue.native_token
-    };
-
-    return acc;
-  }, {});
+export const buildEvmTokenMetadataFromFetched = (data: BalanceItem): EvmTokenMetadata => ({
+  address: data.contract_address as HexString,
+  name: data.contract_display_name,
+  symbol: data.contract_ticker_symbol,
+  decimals: data.contract_decimals,
+  thumbnailUri: data.logo_url,
+  native: data.native_token
+});

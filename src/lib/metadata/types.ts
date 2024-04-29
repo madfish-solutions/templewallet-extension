@@ -26,7 +26,7 @@ export type MetadataRecords = Record<string, TokenMetadata>;
  */
 export type MetadataMap = Map<string, TokenMetadata>;
 
-export interface EVMTokenMetadata extends AssetMetadataBase {
+export interface EvmTokenMetadata extends AssetMetadataBase {
   address: HexString;
   native: boolean;
   thumbnailUri: string;
