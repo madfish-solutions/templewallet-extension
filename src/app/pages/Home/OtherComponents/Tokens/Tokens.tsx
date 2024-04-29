@@ -179,7 +179,7 @@ const TezosTokensTab: FC<TezosTokensTabProps> = ({ network, publicKeyHash }) => 
           onValueChange={setSearchValue}
           onFocus={handleSearchFieldFocus}
           onBlur={handleSearchFieldBlur}
-          containerClassName="mr-2"
+          containerClassName="flex-1 mr-2"
           testID={AssetsSelectors.searchAssetsInputTokens}
         />
 

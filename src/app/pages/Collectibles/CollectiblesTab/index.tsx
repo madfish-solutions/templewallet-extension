@@ -149,7 +149,7 @@ const TezosCollectiblesTab = memo<TezosCollectiblesTabProps>(({ network, publicK
         <SearchAssetField
           value={searchValue}
           onValueChange={setSearchValue}
-          containerClassName="mr-2"
+          containerClassName="flex-1 mr-2"
           testID={AssetsSelectors.searchAssetsInputCollectibles}
         />
 

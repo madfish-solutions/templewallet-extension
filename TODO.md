@@ -32,6 +32,7 @@
 - - Read-only for Redux state
 - Build to ESNext ?
 - `StoredNetwork.id` not RPC URL
+- Clean unused i18n
 -
 
 

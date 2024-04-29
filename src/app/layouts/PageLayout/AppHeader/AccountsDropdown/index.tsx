@@ -140,11 +140,6 @@ const AccountsDropdown = memo<PopperRenderProps>(({ opened, setOpened }) => {
             'text-gray-500 placeholder-gray-600 text-sm leading-tight'
           )}
           placeholder={t('searchAccount', [searchHotkey])}
-          searchIconClassName="h-5 w-auto text-gray-600 stroke-current"
-          searchIconWrapperClassName="px-2"
-          cleanButtonClassName="border-gray-600"
-          cleanButtonIconClassName="text-gray-600 stroke-current"
-          cleanButtonStyle={{ backgroundColor: 'transparent' }}
           onValueChange={setSearchValue}
         />
 

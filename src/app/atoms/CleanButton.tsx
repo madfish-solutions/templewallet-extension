@@ -1,27 +1,20 @@
-import React, { FC, HTMLAttributes, useMemo } from 'react';
+import React, { memo, useMemo } from 'react';
 
 import classNames from 'clsx';
 
-import { ReactComponent as CloseIcon } from 'app/icons/close.svg';
+import { ReactComponent as CleanIcon } from 'app/icons/x-circle.svg';
 import { t } from 'lib/i18n';
 import useTippy from 'lib/ui/useTippy';
 
-type CleanButtonProps = HTMLAttributes<HTMLButtonElement> & {
-  bottomOffset?: string;
-  iconClassName?: string;
-  iconStyle?: React.CSSProperties;
-};
+import { IconBase } from './IconBase';
+
+interface Props {
+  onClick: EmptyFn;
+}
 
 export const CLEAN_BUTTON_ID = 'CLEAN_BUTTON_ID';
 
-const CleanButton: FC<CleanButtonProps> = ({
-  bottomOffset = '0.4rem',
-  className,
-  iconClassName,
-  style = {},
-  iconStyle = {},
-  ...rest
-}) => {
+const CleanButton = memo<Props>(({ onClick }) => {
   const tippyProps = useMemo(
     () => ({
       trigger: 'mouseenter',
@@ -39,23 +32,13 @@ const CleanButton: FC<CleanButtonProps> = ({
       id={CLEAN_BUTTON_ID}
       ref={buttonRef}
       type="button"
-      className={classNames(
-        'absolute',
-        'border rounded-full shadow-sm hover:shadow',
-        'bg-white',
-        'p-px',
-        'flex items-center',
-        'text-xs text-gray-700',
-        'transition ease-in-out duration-200',
-        className
-      )}
-      style={{ right: '0.4rem', bottom: bottomOffset, ...style }}
+      className={classNames('absolute right-3 bottom-2', 'flex items-center', 'transition ease-in-out duration-200')}
       tabIndex={-1}
-      {...rest}
+      onClick={onClick}
     >
-      <CloseIcon className={classNames('w-auto h-4 stroke-current', iconClassName)} style={iconStyle} />
+      <IconBase Icon={CleanIcon} size={12} className="text-gray-20" />
     </button>
   );
-};
+});
 
 export default CleanButton;

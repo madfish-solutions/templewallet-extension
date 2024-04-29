@@ -73,6 +73,7 @@ const DAppsList = () => {
     >
       <div className="mx-auto flex flex-col items-center" style={{ maxWidth: '25rem' }}>
         <span className="text-sm text-gray-600 mb-2">{t('promoted')}</span>
+
         <div
           className={classNames(popup ? 'py-2 mb-4' : 'py-6 mb-6', 'rounded-lg bg-gray-100 w-full flex justify-center')}
         >
@@ -98,6 +99,7 @@ const DAppsList = () => {
             </Anchor>
           ))}
         </div>
+
         <SearchField
           className={classNames(
             'text-gray-700 placeholder-alphagray',
@@ -106,11 +108,10 @@ const DAppsList = () => {
           )}
           containerClassName="mb-4"
           placeholder={t('searchDApps')}
-          searchIconClassName="h-4 w-auto"
-          searchIconWrapperClassName="px-2 text-gray-700"
           value={searchString}
           onValueChange={setSearchString}
         />
+
         <div className={classNames(popup ? 'mb-4' : 'mb-6', 'w-full flex justify-between')}>
           <div className={classNames(!popup && 'mr-2', 'flex-1 flex flex-wrap')}>
             {USED_TAGS.map(tag => (
@@ -118,10 +119,12 @@ const DAppsList = () => {
             ))}
           </div>
         </div>
+
         {matchingDApps.slice(0, popup ? 3 : matchingDApps.length).map(dAppProps => (
           <DAppItem {...dAppProps} key={dAppProps.slug} />
         ))}
       </div>
+
       <div
         className={classNames(
           'absolute bottom-0 left-0 h-16 bg-gray-200 w-full',

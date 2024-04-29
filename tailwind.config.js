@@ -161,6 +161,9 @@ module.exports = {
         'toggle-gray': '#E4E4E4',
         //
         //
+        /** Set in :root. Use in special cases by name */
+        'text': '#151618',
+        //
         'primary': '#FF5B00',
         'primary-hover': '#E85300',
         'primary-low': '#FAEAE1',
@@ -174,6 +177,9 @@ module.exports = {
         'success-low': '#E6F5E9',
         'error-low': '#FAE7E6',
         'warning-low': '#FAF6E1',
+        //
+        /** Originally 'input' */
+        'input-low': '#F0F0F0',
         //
         //
         'primary-orange': baseColors.orange[500],
@@ -563,6 +569,9 @@ module.exports = {
         }
       }
     },
+
+    // ## EXTENDING:
+
     extend: {
       fontSize: {
         xxxxs: '0.563rem',
@@ -717,7 +726,7 @@ module.exports = {
     overflow: ['responsive'],
     overscrollBehavior: ['responsive'],
     padding: ['responsive'],
-    placeholderColor: ['responsive', 'focus'],
+    placeholderColor: ['responsive', 'focus', 'hover'],
     placeholderOpacity: ['responsive', 'focus'],
     pointerEvents: ['responsive'],
     position: ['responsive'],
@@ -727,7 +736,7 @@ module.exports = {
     strokeWidth: ['responsive'],
     tableLayout: ['responsive'],
     textAlign: ['responsive'],
-    textColor: ['responsive', 'hover', 'focus'],
+    textColor: ['responsive', 'hover', 'focus', 'group-hover'],
     textOpacity: ['responsive', 'hover', 'focus'],
     textDecoration: ['responsive', 'hover', 'focus'],
     textTransform: ['responsive'],
@@ -759,7 +768,7 @@ module.exports = {
     transitionDuration: ['responsive'],
     transitionDelay: ['responsive'],
     animation: ['responsive'],
-    textOverflow: ['responsive', 'group-hover']
+    textOverflow: ['responsive']
   },
   corePlugins: {},
   plugins: []
