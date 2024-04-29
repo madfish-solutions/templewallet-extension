@@ -1,7 +1,7 @@
 import { EvmTokenMetadata } from 'lib/metadata/types';
 
 type ChainId = number;
-export type TokenSlugMetadataRecord = StringRecord<EvmTokenMetadata>;
+type TokenSlugMetadataRecord = StringRecord<EvmTokenMetadata>;
 type EvmTokenMetadataRecord = Record<ChainId, TokenSlugMetadataRecord>;
 
 export interface EvmTokensMetadataState {
