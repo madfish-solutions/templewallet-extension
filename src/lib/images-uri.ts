@@ -177,22 +177,20 @@ const customChainIdsToAssetNames: Record<number, string> = {
   10: 'optimism'
 };
 
-const EvmAddressZero = '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee';
-
-const getEvmCustomChainIconUrl = (chainId: number, tokenAddress: HexString) => {
+const getEvmCustomChainIconUrl = (chainId: number, metadata: EvmTokenMetadata) => {
   if (!customChainIdsToAssetNames[chainId]) return null;
 
   const baseUrl = 'https://raw.githubusercontent.com/rainbow-me/assets/master/blockchains/';
 
-  if (tokenAddress === EvmAddressZero) {
+  if (metadata.native) {
     return `${baseUrl}${customChainIdsToAssetNames[chainId]}/info/logo.png`;
   } else {
-    return `${baseUrl}${customChainIdsToAssetNames[chainId]}/assets/${tokenAddress}/logo.png`;
+    return `${baseUrl}${customChainIdsToAssetNames[chainId]}/assets/${metadata.address}/logo.png`;
   }
 };
 
 export const buildEvmTokenIconSources = (chainId: number, metadata: EvmTokenMetadata) => {
-  const mainFallback = getEvmCustomChainIconUrl(chainId, metadata.address);
+  const mainFallback = getEvmCustomChainIconUrl(chainId, metadata);
 
   return mainFallback ? [mainFallback, metadata.thumbnailUri] : [metadata.thumbnailUri];
 };
