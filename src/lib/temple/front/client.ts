@@ -76,7 +76,7 @@ export const [TempleClientProvider, useTempleClient] = constate(() => {
    * Aliases
    */
 
-  const { status, accounts, settings, hdWalletsNames } = state;
+  const { status, accounts, settings, walletsSpecs } = state;
   const idle = status === TempleStatus.Idle;
   const locked = status === TempleStatus.Locked;
   const ready = status === TempleStatus.Ready;
@@ -136,10 +136,10 @@ export const [TempleClientProvider, useTempleClient] = constate(() => {
     return res.privateKey;
   }, []);
 
-  const revealMnemonic = useCallback(async (groupId: string, password: string) => {
+  const revealMnemonic = useCallback(async (walletId: string, password: string) => {
     const res = await request({
       type: TempleMessageType.RevealMnemonicRequest,
-      groupId,
+      walletId,
       password
     });
     assertResponse(res.type === TempleMessageType.RevealMnemonicResponse);
@@ -164,13 +164,13 @@ export const [TempleClientProvider, useTempleClient] = constate(() => {
     assertResponse(res.type === TempleMessageType.RemoveAccountResponse);
   }, []);
 
-  const setAccountVisible = useCallback(async (id: string, visible: boolean) => {
+  const setAccountHidden = useCallback(async (id: string, value: boolean) => {
     const res = await request({
-      type: TempleMessageType.SetAccountVisibleRequest,
+      type: TempleMessageType.SetAccountHiddenRequest,
       id,
-      visible
+      value
     });
-    assertResponse(res.type === TempleMessageType.SetAccountVisibleResponse);
+    assertResponse(res.type === TempleMessageType.SetAccountHiddenResponse);
   }, []);
 
   const editAccountName = useCallback(async (id: string, name: string) => {
@@ -373,7 +373,7 @@ export const [TempleClientProvider, useTempleClient] = constate(() => {
     customTezosNetworks,
     customEvmNetworks,
     accounts,
-    hdWalletsNames,
+    walletsSpecs,
     settings,
     idle,
     locked,
@@ -391,7 +391,7 @@ export const [TempleClientProvider, useTempleClient] = constate(() => {
     revealMnemonic,
     generateSyncPayload,
     removeAccount,
-    setAccountVisible,
+    setAccountHidden,
     editAccountName,
     importAccount,
     importMnemonicAccount,

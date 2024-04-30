@@ -8,7 +8,7 @@ import { formatMnemonic } from 'app/defaults';
 import { ReactComponent as OkIcon } from 'app/icons/ok.svg';
 import { isSeedPhraseFilled, SeedPhraseInput } from 'app/templates/SeedPhraseInput';
 import { setTestID, useFormAnalytics } from 'lib/analytics';
-import { DEFAULT_DERIVATION_PATH } from 'lib/constants';
+import { DEFAULT_TEZOS_DERIVATION_PATH } from 'lib/constants';
 import { T, t, TID } from 'lib/i18n';
 import { useTempleClient, validateDerivationPath } from 'lib/temple/front';
 
@@ -48,7 +48,7 @@ export const ByMnemonicForm: FC = () => {
 
   const { register, handleSubmit, errors, formState, reset } = useForm<ByMnemonicFormData>({
     defaultValues: {
-      customDerivationPath: DEFAULT_DERIVATION_PATH,
+      customDerivationPath: DEFAULT_TEZOS_DERIVATION_PATH,
       accountNumber: 1
     }
   });
@@ -67,7 +67,7 @@ export const ByMnemonicForm: FC = () => {
           await importMnemonicAccount(
             formatMnemonic(seedPhrase),
             password || undefined,
-            derivationPath.type === 'custom' ? customDerivationPath || undefined : DEFAULT_DERIVATION_PATH
+            derivationPath.type === 'custom' ? customDerivationPath || undefined : DEFAULT_TEZOS_DERIVATION_PATH
           );
 
           formAnalytics.trackSubmitSuccess();

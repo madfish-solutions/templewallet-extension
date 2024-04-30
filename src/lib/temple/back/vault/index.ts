@@ -10,7 +10,7 @@ import type * as WasmThemisPackageInterface from 'wasm-themis';
 import {
   AT_LEAST_ONE_HD_ACCOUNT_ERR_MSG,
   ACCOUNT_NAME_COLLISION_ERR_MSG,
-  WALLETS_NAMES_STORAGE_KEY
+  WALLETS_SPECS_STORAGE_KEY
 } from 'lib/constants';
 import {
   fetchNewGroupName,
@@ -21,7 +21,7 @@ import {
 } from 'lib/temple/helpers';
 import * as Passworder from 'lib/temple/passworder';
 import { clearAsyncStorages } from 'lib/temple/reset';
-import { StoredAccount, StoredHDAccount, TempleAccountType, TempleSettings } from 'lib/temple/types';
+import { StoredAccount, StoredHDAccount, TempleAccountType, TempleSettings, WalletSpecs } from 'lib/temple/types';
 import { isTruthy } from 'lib/utils';
 import { getAccountAddressForChain, getAccountAddressForEvm, getAccountAddressForTezos } from 'temple/accounts';
 import { michelEncoder, getTezosFastRpcClient } from 'temple/tezos';
@@ -62,7 +62,7 @@ import * as SessionStore from './session-store';
 import {
   checkStrgKey,
   migrationLevelStrgKey,
-  groupMnemonicStrgKey,
+  walletMnemonicStrgKey,
   accPrivKeyStrgKey,
   accPubKeyStrgKey,
   accountsStrgKey,
@@ -131,8 +131,7 @@ export class Vault {
         hdIndex: hdAccIndex,
         tezosAddress: tezosAcc.address,
         evmAddress: evmAcc.address,
-        walletId,
-        isVisible: true
+        walletId
       };
       const newAccounts = [initialAccount];
 
@@ -145,14 +144,14 @@ export class Vault {
       await encryptAndSaveMany(
         [
           [checkStrgKey, generateCheck()],
-          [groupMnemonicStrgKey(walletId), mnemonic],
+          [walletMnemonicStrgKey(walletId), mnemonic],
           ...buildEncryptAndSaveManyForAccount(tezosAcc),
           ...buildEncryptAndSaveManyForAccount(evmAcc),
           [accountsStrgKey, newAccounts]
         ],
         passKey
       );
-      await savePlain(WALLETS_NAMES_STORAGE_KEY, { [walletId]: walletName });
+      await savePlain(WALLETS_SPECS_STORAGE_KEY, { [walletId]: { name: walletName } });
       await savePlain(migrationLevelStrgKey, MIGRATIONS.length);
 
       return tezosAcc.address;
@@ -224,7 +223,7 @@ export class Vault {
   static async revealMnemonic(groupId: string, password: string) {
     const { passKey } = await Vault.toValidPassKey(password);
     return withError('Failed to reveal seed phrase', () =>
-      fetchAndDecryptOne<string>(groupMnemonicStrgKey(groupId), passKey)
+      fetchAndDecryptOne<string>(walletMnemonicStrgKey(groupId), passKey)
     );
   }
 
@@ -239,10 +238,10 @@ export class Vault {
 
     const { passKey } = await Vault.toValidPassKey(password);
     return withError('Failed to generate sync payload', async () => {
-      const hdWalletsNames = await getPlain<StringRecord>(WALLETS_NAMES_STORAGE_KEY);
-      const firstWalletId = Object.keys(hdWalletsNames ?? {})[0];
+      const walletsSpecs = await getPlain<StringRecord<WalletSpecs>>(WALLETS_SPECS_STORAGE_KEY);
+      const firstWalletId = Object.keys(walletsSpecs ?? {})[0];
       const [mnemonic, allAccounts] = await Promise.all([
-        fetchAndDecryptOne<string>(groupMnemonicStrgKey(firstWalletId), passKey),
+        fetchAndDecryptOne<string>(walletMnemonicStrgKey(firstWalletId), passKey),
         fetchAndDecryptOne<StoredAccount[]>(accountsStrgKey, passKey)
       ]);
 
@@ -289,17 +288,19 @@ export class Vault {
       }
 
       const newAccounts = allAccounts.filter(currentAccount => currentAccount.id !== id);
-      const allHdWalletsEntries = Object.entries((await getPlain<StringRecord>(WALLETS_NAMES_STORAGE_KEY)) ?? {});
-      const newHdWalletsNames = Object.fromEntries(
+      const allHdWalletsEntries = Object.entries(
+        (await getPlain<StringRecord<WalletSpecs>>(WALLETS_SPECS_STORAGE_KEY)) ?? {}
+      );
+      const newWalletsSpecs = Object.fromEntries(
         allHdWalletsEntries.filter(([groupId]) =>
           newAccounts.some(acc => acc.type === TempleAccountType.HD && acc.walletId === groupId)
         )
       );
       await encryptAndSaveMany([[accountsStrgKey, newAccounts]], passKey);
-      await savePlain(WALLETS_NAMES_STORAGE_KEY, newHdWalletsNames);
+      await savePlain(WALLETS_SPECS_STORAGE_KEY, newWalletsSpecs);
       await Vault.removeAccountsKeys([acc]);
 
-      return { newAccounts, newHdWalletsNames };
+      return { newAccounts, newWalletsSpecs };
     });
   }
 
@@ -307,9 +308,9 @@ export class Vault {
     const { passKey } = await Vault.toValidPassKey(password);
 
     return withError('Failed to remove HD group', async doThrow => {
-      const allHdWalletsNames = (await getPlain<StringRecord>(WALLETS_NAMES_STORAGE_KEY)) ?? {};
+      const walletsSpecs = (await getPlain<StringRecord<WalletSpecs>>(WALLETS_SPECS_STORAGE_KEY)) ?? {};
 
-      if (!(id in allHdWalletsNames)) {
+      if (!(id in walletsSpecs)) {
         throw doThrow();
       }
 
@@ -321,12 +322,12 @@ export class Vault {
       }
 
       const newAccounts = allAccounts.filter(acc => !accountsToRemove.includes(acc));
-      const { [id]: oldGroupName, ...newHdWalletsNames } = allHdWalletsNames;
+      const { [id]: oldGroupName, ...newWalletsSpecs } = walletsSpecs;
       await encryptAndSaveMany([[accountsStrgKey, newAccounts]], passKey);
-      await savePlain(WALLETS_NAMES_STORAGE_KEY, newHdWalletsNames);
+      await savePlain(WALLETS_SPECS_STORAGE_KEY, newWalletsSpecs);
       await Vault.removeAccountsKeys(accountsToRemove);
 
-      return { newAccounts, newHdWalletsNames };
+      return { newAccounts, newWalletsSpecs };
     });
   }
 
@@ -383,8 +384,8 @@ export class Vault {
     return fetchAndDecryptOne<StoredAccount[]>(accountsStrgKey, this.passKey);
   }
 
-  async fetchHdWalletsNames() {
-    return (await getPlain<StringRecord>(WALLETS_NAMES_STORAGE_KEY)) ?? {};
+  async fetchWalletsSpecs() {
+    return (await getPlain<StringRecord<WalletSpecs>>(WALLETS_SPECS_STORAGE_KEY)) ?? {};
   }
 
   async fetchSettings() {
@@ -397,13 +398,13 @@ export class Vault {
 
   async createHDAccount(walletId: string, name?: string, hdAccIndex?: number): Promise<StoredAccount[]> {
     return withError('Failed to create account', async doThrow => {
-      const [mnemonic, allAccounts, hdWalletsNames] = await Promise.all([
-        fetchAndDecryptOne<string>(groupMnemonicStrgKey(walletId), this.passKey),
+      const [mnemonic, allAccounts, walletsSpecs] = await Promise.all([
+        fetchAndDecryptOne<string>(walletMnemonicStrgKey(walletId), this.passKey),
         this.fetchAccounts(),
-        this.fetchHdWalletsNames()
+        this.fetchWalletsSpecs()
       ]);
 
-      if (!(walletId in hdWalletsNames)) {
+      if (!(walletId in walletsSpecs)) {
         throw doThrow();
       }
 
@@ -444,8 +445,7 @@ export class Vault {
         hdIndex: hdAccIndex,
         tezosAddress: tezosAcc.address,
         evmAddress: evmAcc.address,
-        walletId,
-        isVisible: true
+        walletId
       };
 
       const newAllAccounts = concatAccount(allAccounts, newAccount);
@@ -471,10 +471,10 @@ export class Vault {
 
       const hdAccIndex = 0;
 
-      const hdWalletsNames = await this.fetchHdWalletsNames();
+      const walletsSpecs = await this.fetchWalletsSpecs();
       const groupsMnemonics = await Promise.all(
-        Object.keys(hdWalletsNames).map(groupId =>
-          fetchAndDecryptOne<string>(groupMnemonicStrgKey(groupId), this.passKey)
+        Object.keys(walletsSpecs).map(groupId =>
+          fetchAndDecryptOne<string>(walletMnemonicStrgKey(groupId), this.passKey)
         )
       );
 
@@ -487,7 +487,7 @@ export class Vault {
       const evmAcc = mnemonicToEvmAccountCreds(mnemonic, hdAccIndex);
 
       const walletId = nanoid();
-      const walletName = await fetchNewGroupName(hdWalletsNames, i =>
+      const walletName = await fetchNewGroupName(walletsSpecs, i =>
         fetchMessage('hdWalletDefaultName', toExcelColumnName(i))
       );
       const accountToReplace = allAccounts.find(acc => {
@@ -508,25 +508,24 @@ export class Vault {
         hdIndex: hdAccIndex,
         tezosAddress: tezosAcc.address,
         evmAddress: evmAcc.address,
-        walletId,
-        isVisible: true
+        walletId
       };
 
       const newAccounts = concatAccount(allAccounts, newAccount);
-      const newHdWalletsNames = { ...hdWalletsNames, [walletId]: walletName };
+      const newWalletsSpecs: StringRecord<WalletSpecs> = { ...walletsSpecs, [walletId]: { name: walletName } };
 
       await encryptAndSaveMany(
         [
-          [groupMnemonicStrgKey(walletId), mnemonic],
+          [walletMnemonicStrgKey(walletId), mnemonic],
           ...buildEncryptAndSaveManyForAccount(tezosAcc),
           ...buildEncryptAndSaveManyForAccount(evmAcc),
           [accountsStrgKey, newAccounts]
         ],
         this.passKey
       );
-      await savePlain(WALLETS_NAMES_STORAGE_KEY, newHdWalletsNames);
+      await savePlain(WALLETS_SPECS_STORAGE_KEY, newWalletsSpecs);
 
-      return { newAccounts, newHdWalletsNames };
+      return { newAccounts, newWalletsSpecs };
     });
   }
 
@@ -546,8 +545,7 @@ export class Vault {
         type: TempleAccountType.Imported,
         chain,
         name: await fetchNewAccountName(allAccounts, TempleAccountType.Imported),
-        address: accCreds.address,
-        isVisible: true
+        address: accCreds.address
       };
       const newAllAccounts = concatAccount(allAccounts, newAccount);
 
@@ -600,8 +598,7 @@ export class Vault {
         ),
         tezosAddress: address,
         chainId,
-        owner,
-        isVisible: true
+        owner
       };
       const newAllAccounts = concatAccount(allAccounts, newAccount);
 
@@ -625,8 +622,7 @@ export class Vault {
         ),
         address,
         chain,
-        chainId,
-        isVisible: true
+        chainId
       };
       const newAllAccounts = concatAccount(allAccounts, newAccount);
 
@@ -658,8 +654,7 @@ export class Vault {
           name,
           tezosAddress: accPublicKeyHash,
           derivationPath,
-          derivationType,
-          isVisible: true
+          derivationType
         };
         const newAllAccounts = concatAccount(allAccounts, newAccount);
 
@@ -678,10 +673,10 @@ export class Vault {
     });
   }
 
-  async setAccountVisible(id: string, value: boolean) {
+  async setAccountHidden(id: string, value: boolean) {
     return withError('Failed to set account visibility', async () => {
       const allAccounts = await this.fetchAccounts();
-      const newAllAccounts = allAccounts.map(acc => (acc.id === id ? { ...acc, isVisible: value } : acc));
+      const newAllAccounts = allAccounts.map(acc => (acc.id === id ? { ...acc, hidden: value } : acc));
       await encryptAndSaveMany([[accountsStrgKey, newAllAccounts]], this.passKey);
 
       return newAllAccounts;
@@ -717,20 +712,24 @@ export class Vault {
 
   async editGroupName(id: string, name: string) {
     return withError('Failed to edit group name', async () => {
-      const hdWalletsNames = await this.fetchHdWalletsNames();
+      const walletsSpecs = await this.fetchWalletsSpecs();
 
-      if (!(id in hdWalletsNames)) {
+      if (!(id in walletsSpecs)) {
         throw new PublicError('Group not found');
       }
 
-      if (Object.entries(hdWalletsNames).some(([groupId, currentName]) => groupId !== id && currentName === name)) {
+      if (
+        Object.entries(walletsSpecs).some(
+          ([walletId, { name: currentName }]) => walletId !== id && currentName === name
+        )
+      ) {
         throw new PublicError('Group with this name already exists');
       }
 
-      const newHdWalletsNames = { ...hdWalletsNames, [id]: name };
-      await savePlain(WALLETS_NAMES_STORAGE_KEY, newHdWalletsNames);
+      const newWalletsSpecs: StringRecord<WalletSpecs> = { ...walletsSpecs, [id]: { name } };
+      await savePlain(WALLETS_SPECS_STORAGE_KEY, newWalletsSpecs);
 
-      return newHdWalletsNames;
+      return newWalletsSpecs;
     });
   }
 

@@ -14,7 +14,7 @@ export const RevealSeedPhrase = memo(() => {
 
   const allAccounts = useAllAccounts();
   const currentAccount = useAccount();
-  const groupId =
+  const walletId =
     currentAccount.type === TempleAccountType.HD
       ? currentAccount.walletId
       : allAccounts.find((acc): acc is StoredHDAccount => acc.type === TempleAccountType.HD)!.walletId;
@@ -25,8 +25,8 @@ export const RevealSeedPhrase = memo(() => {
   useDidUpdate(() => void setSecret(null), [currentAccount.id, setSecret]);
 
   const onPasswordSubmit = useCallback(
-    async (password: string) => revealMnemonic(groupId, password).then(scrt => void setSecret(scrt)),
-    [revealMnemonic, groupId, setSecret]
+    async (password: string) => revealMnemonic(walletId, password).then(scrt => void setSecret(scrt)),
+    [revealMnemonic, walletId, setSecret]
   );
 
   return (

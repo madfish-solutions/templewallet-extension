@@ -1,6 +1,6 @@
 import { createStore, createEvent } from 'effector';
 
-import { TempleState, TempleStatus, StoredAccount, TempleSettings } from 'lib/temple/types';
+import { TempleState, TempleStatus, StoredAccount, TempleSettings, WalletSpecs } from 'lib/temple/types';
 
 import { Vault } from './vault';
 
@@ -13,12 +13,12 @@ interface UnlockedStoreState extends StoreState {
   vault: Vault;
 }
 
-export function toFront({ status, accounts, settings, hdWalletsNames }: StoreState): TempleState {
+export function toFront({ status, accounts, settings, walletsSpecs }: StoreState): TempleState {
   return {
     status,
     accounts,
     settings,
-    hdWalletsNames
+    walletsSpecs
   };
 }
 
@@ -34,12 +34,12 @@ export const unlocked = createEvent<{
   vault: Vault;
   accounts: StoredAccount[];
   settings: TempleSettings;
-  hdWalletsNames: StringRecord;
+  walletsSpecs: StringRecord<WalletSpecs>;
 }>('Unlocked');
 
 export const accountsUpdated = createEvent<StoredAccount[]>('Accounts updated');
 
-export const hdWalletsNamesUpdated = createEvent<StringRecord>('HD wallets names updated');
+export const walletsSpecsUpdated = createEvent<StringRecord<WalletSpecs>>('Wallets specs updated');
 
 export const settingsUpdated = createEvent<TempleSettings>('Settings updated');
 
@@ -52,7 +52,7 @@ export const store = createStore<StoreState>({
   vault: null,
   status: TempleStatus.Idle,
   accounts: [],
-  hdWalletsNames: {},
+  walletsSpecs: {},
   settings: null
 })
   .on(inited, (state, vaultExist) => ({
@@ -70,24 +70,24 @@ export const store = createStore<StoreState>({
     vault: null,
     status: TempleStatus.Locked,
     accounts: [],
-    hdWalletsNames: {},
+    walletsSpecs: {},
     settings: null
   }))
-  .on(unlocked, (state, { vault, accounts, settings, hdWalletsNames }) => ({
+  .on(unlocked, (state, { vault, accounts, settings, walletsSpecs }) => ({
     ...state,
     vault,
     status: TempleStatus.Ready,
     accounts,
     settings,
-    hdWalletsNames
+    walletsSpecs
   }))
   .on(accountsUpdated, (state, accounts) => ({
     ...state,
     accounts
   }))
-  .on(hdWalletsNamesUpdated, (state, hdWalletsNames) => ({
+  .on(walletsSpecsUpdated, (state, walletsSpecs) => ({
     ...state,
-    hdWalletsNames
+    walletsSpecs
   }))
   .on(settingsUpdated, (state, settings) => ({
     ...state,

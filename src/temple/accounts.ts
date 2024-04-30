@@ -13,7 +13,7 @@ export interface AccountForChain<C extends TempleChainKind = TempleChainKind> {
   name: string;
   /** Present for `AccountForChain.type === TempleAccountType.Ledger` */
   derivationPath?: string;
-  isVisible: boolean;
+  hidden?: boolean;
   /** Present for `AccountForChain.type === TempleAccountType.ManagedKT` */
   ownerAddress?: string;
 }
@@ -24,7 +24,7 @@ export const getAccountForTezos = (account: StoredAccount) => getAccountForChain
 export const getAccountForEvm = (account: StoredAccount) => getAccountForChain(account, TempleChainKind.EVM);
 
 function getAccountForChain<C extends TempleChainKind>(account: StoredAccount, chain: C): AccountForChain<C> | null {
-  const { id, type, name, derivationPath, isVisible } = account;
+  const { id, type, name, derivationPath, hidden } = account;
   let address: string | undefined, ownerAddress: string | undefined;
 
   switch (account.type) {
@@ -47,7 +47,7 @@ function getAccountForChain<C extends TempleChainKind>(account: StoredAccount, c
 
   if (!address) return null;
 
-  return { id, address, chain, type, name, derivationPath, isVisible, ownerAddress };
+  return { id, address, chain, type, name, derivationPath, hidden, ownerAddress };
 }
 
 export const getAccountAddressForTezos = (account: StoredAccount) =>

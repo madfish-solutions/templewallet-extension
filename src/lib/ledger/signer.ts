@@ -5,14 +5,14 @@ import * as sodium from 'libsodium-wrappers';
 import { crypto_sign_verify_detached, crypto_generichash } from 'libsodium-wrappers';
 import toBuffer from 'typedarray-to-buffer';
 
-import { DEFAULT_DERIVATION_PATH } from 'lib/constants';
+import { DEFAULT_TEZOS_DERIVATION_PATH } from 'lib/constants';
 
 import { toLedgerError } from './helpers';
 
 export class TempleLedgerSigner extends LedgerSigner {
   constructor(
     transport: LedgerTransport,
-    path: string = DEFAULT_DERIVATION_PATH,
+    path: string = DEFAULT_TEZOS_DERIVATION_PATH,
     prompt: boolean = true,
     derivationType: DerivationType = DerivationType.ED25519,
     private accPublicKey?: string,

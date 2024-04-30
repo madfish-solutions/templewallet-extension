@@ -51,7 +51,7 @@ const menuEntryTextClassName = 'text-sm text-gray-900 font-semibold leading-5';
 export const AccountSettings = memo<AccountSettingsProps>(({ id }) => {
   const alert = useAlert();
   const currentAccountId = useCurrentAccountId();
-  const { setAccountVisible } = useTempleClient();
+  const { setAccountHidden } = useTempleClient();
   useAllAccountsReactiveOnRemoval();
   const allAccounts = useAllAccounts();
   const {
@@ -79,7 +79,7 @@ export const AccountSettings = memo<AccountSettingsProps>(({ id }) => {
     async (newValue: boolean) => {
       try {
         setVisibilityBeingChanged(true);
-        await setAccountVisible(id, newValue);
+        await setAccountHidden(id, !newValue);
       } catch (e: any) {
         console.error(e);
 
@@ -88,7 +88,7 @@ export const AccountSettings = memo<AccountSettingsProps>(({ id }) => {
         setVisibilityBeingChanged(false);
       }
     },
-    [alert, id, setAccountVisible]
+    [alert, id, setAccountHidden]
   );
 
   const derivationPaths = useMemo(() => {
@@ -174,7 +174,7 @@ export const AccountSettings = memo<AccountSettingsProps>(({ id }) => {
 
               <label className={shouldDisableVisibilityChange ? 'opacity-75 pointer-events-none' : 'cursor-pointer'}>
                 <Checkbox
-                  checked={account.isVisible}
+                  checked={!account.hidden}
                   disabled={shouldDisableVisibilityChange}
                   onChange={handleVisibilityChange}
                 />

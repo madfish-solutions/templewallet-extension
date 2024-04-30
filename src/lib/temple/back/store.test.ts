@@ -7,7 +7,7 @@ import { TempleAccountType, TempleStatus } from '../types';
 
 import {
   accountsUpdated,
-  hdWalletsNamesUpdated,
+  walletsSpecsUpdated,
   inited as initEvent,
   locked,
   settingsUpdated,
@@ -48,7 +48,7 @@ describe('Store tests', () => {
     expect(status).toBe(TempleStatus.Locked);
   });
   it('Unlocked event', () => {
-    unlocked({ vault: {} as Vault, accounts: [], hdWalletsNames: {}, settings: {} });
+    unlocked({ vault: {} as Vault, accounts: [], walletsSpecs: {}, settings: {} });
     const { status } = store.getState();
     expect(status).toBe(TempleStatus.Ready);
   });
@@ -59,8 +59,7 @@ describe('Store tests', () => {
         name: 'testName',
         type: TempleAccountType.Imported,
         chain: TempleChainKind.Tezos,
-        address: 'testHashKey',
-        isVisible: true
+        address: 'testHashKey'
       }
     ]);
     const { accounts } = store.getState();
@@ -70,9 +69,9 @@ describe('Store tests', () => {
     expect(getAccountAddressForTezos(accounts[0])).toBe('testHashKey');
   });
   it('HD groups updated event', () => {
-    hdWalletsNamesUpdated({ testId: 'testName' });
-    const { hdWalletsNames } = store.getState();
-    expect(hdWalletsNames).toEqual({ testId: 'testName' });
+    walletsSpecsUpdated({ testId: { name: 'testName' } });
+    const { walletsSpecs } = store.getState();
+    expect(walletsSpecs).toEqual({ testId: { name: 'testName' } });
   });
   it('Settings updated event', () => {
     settingsUpdated({});

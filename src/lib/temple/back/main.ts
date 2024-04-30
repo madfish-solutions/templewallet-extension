@@ -84,7 +84,7 @@ const processRequest = async (req: TempleRequest, port: Runtime.Port): Promise<T
       };
 
     case TempleMessageType.RevealMnemonicRequest:
-      const mnemonic = await Actions.revealMnemonic(req.groupId, req.password);
+      const mnemonic = await Actions.revealMnemonic(req.walletId, req.password);
       return {
         type: TempleMessageType.RevealMnemonicResponse,
         mnemonic
@@ -109,10 +109,10 @@ const processRequest = async (req: TempleRequest, port: Runtime.Port): Promise<T
         type: TempleMessageType.EditAccountResponse
       };
 
-    case TempleMessageType.SetAccountVisibleRequest:
-      await Actions.setAccountVisible(req.id, req.visible);
+    case TempleMessageType.SetAccountHiddenRequest:
+      await Actions.setAccountHidden(req.id, req.value);
       return {
-        type: TempleMessageType.SetAccountVisibleResponse
+        type: TempleMessageType.SetAccountHiddenResponse
       };
 
     case TempleMessageType.ImportAccountRequest:

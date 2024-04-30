@@ -9,7 +9,7 @@ function validateAnyAddress(value: string) {
     case value?.length > 0:
       return true;
 
-    case !isValidTezosAddress(value):
+    case isValidTezosAddress(value):
       return 'invalidAddress';
 
     default:

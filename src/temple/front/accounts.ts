@@ -1,34 +1,27 @@
 import { useMemo } from 'react';
 
-import { uniqBy } from 'lodash';
-
 import { StoredAccount, TempleAccountType } from 'lib/temple/types';
 import { searchAndFilterItems } from 'lib/utils/search-items';
 
 import { useAllAccounts } from './ready';
 
 export function searchAndFilterAccounts(accounts: StoredAccount[], searchValue: string) {
-  const textSearchItems = searchAndFilterItems(
-    accounts,
-    searchValue.toLowerCase(),
-    [{ name: 'name', weight: 1 }],
-    null,
-    0.35
-  );
-
+  const searchValueTrimmed = searchValue.trim();
   const addressMatchItems = accounts.filter(acc => {
     switch (acc.type) {
       case TempleAccountType.ManagedKT:
       case TempleAccountType.Ledger:
-        return acc.tezosAddress === searchValue;
+        return acc.tezosAddress === searchValueTrimmed;
       case TempleAccountType.HD:
-        return acc.tezosAddress === searchValue || acc.evmAddress === searchValue;
+        return acc.tezosAddress === searchValueTrimmed || acc.evmAddress === searchValueTrimmed;
       default:
-        return acc.address === searchValue;
+        return acc.address === searchValueTrimmed;
     }
   });
 
-  return uniqBy([...textSearchItems, ...addressMatchItems], 'id');
+  if (addressMatchItems.length) return addressMatchItems;
+
+  return searchAndFilterItems(accounts, searchValue.toLowerCase(), [{ name: 'name', weight: 1 }], null, 0.35);
 }
 
 /** Filters out Tezos accounts, irrelevant for given Chain ID */
@@ -38,7 +31,7 @@ export function useRelevantAccounts(tezosChainId: string) {
   return useMemo(
     () =>
       allAccounts.filter(acc => {
-        if (!acc.isVisible) {
+        if (acc.hidden) {
           return false;
         }
 
@@ -63,5 +56,5 @@ export function useRelevantAccounts(tezosChainId: string) {
 export function useVisibleAccounts() {
   const allAccounts = useAllAccounts();
 
-  return useMemo(() => allAccounts.filter(acc => acc.isVisible), [allAccounts]);
+  return useMemo(() => allAccounts.filter(acc => !acc.hidden), [allAccounts]);
 }

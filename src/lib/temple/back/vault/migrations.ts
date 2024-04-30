@@ -5,7 +5,7 @@ import {
   CUSTOM_TEZOS_NETWORKS_STORAGE_KEY,
   ACCOUNT_PKH_STORAGE_KEY,
   CUSTOM_NETWORKS_SNAPSHOT_STORAGE_KEY,
-  WALLETS_NAMES_STORAGE_KEY
+  WALLETS_SPECS_STORAGE_KEY
 } from 'lib/constants';
 import { moveValueInStorage, fetchFromStorage, putToStorage, removeFromStorage } from 'lib/storage';
 import * as Passworder from 'lib/temple/passworder';
@@ -35,7 +35,7 @@ import {
 import {
   checkStrgKey,
   mnemonicStrgKey,
-  groupMnemonicStrgKey,
+  walletMnemonicStrgKey,
   accPrivKeyStrgKey,
   accPubKeyStrgKey,
   accountsStrgKey,
@@ -175,22 +175,22 @@ export const MIGRATIONS = [
           const evmAcc = mnemonicToEvmAccountCreds(mnemonic, account.hdIndex);
           toEncryptAndSave.push(...buildEncryptAndSaveManyForAccount(evmAcc));
 
-          return { ...account, id, tezosAddress, evmAddress: evmAcc.address, walletId, isVisible: true };
+          return { ...account, id, tezosAddress, evmAddress: evmAcc.address, walletId };
         case TempleAccountType.Imported:
-          return { ...account, id, address: tezosAddress, chain: TempleChainKind.Tezos, isVisible: true };
+          return { ...account, id, address: tezosAddress, chain: TempleChainKind.Tezos };
         case TempleAccountType.WatchOnly:
-          return { ...account, id, address: tezosAddress, chain: TempleChainKind.Tezos, isVisible: true };
+          return { ...account, id, address: tezosAddress, chain: TempleChainKind.Tezos };
         case TempleAccountType.Ledger:
-          return { ...account, id, tezosAddress, isVisible: true };
+          return { ...account, id, tezosAddress };
         case TempleAccountType.ManagedKT:
-          return { ...account, id, tezosAddress, isVisible: true };
+          return { ...account, id, tezosAddress };
       }
 
       return account;
     });
 
-    toEncryptAndSave.push([accountsStrgKey, newAccounts], [groupMnemonicStrgKey(walletId), mnemonic]);
-    await savePlain(WALLETS_NAMES_STORAGE_KEY, { [walletId]: hdWalletName });
+    toEncryptAndSave.push([accountsStrgKey, newAccounts], [walletMnemonicStrgKey(walletId), mnemonic]);
+    await savePlain(WALLETS_SPECS_STORAGE_KEY, { [walletId]: { name: hdWalletName } });
 
     moveValueInStorage(ACCOUNT_PKH_STORAGE_KEY, ADS_VIEWER_ADDRESS_STORAGE_KEY);
 

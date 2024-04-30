@@ -4,7 +4,7 @@
 
 import BigNumber from 'bignumber.js';
 
-import { DEFAULT_DERIVATION_PATH } from 'lib/constants';
+import { DEFAULT_TEZOS_DERIVATION_PATH } from 'lib/constants';
 
 import * as FrontHelpers from '../front/helpers';
 import * as Helpers from '../helpers';
@@ -58,6 +58,6 @@ describe('Helpers', () => {
     expect(FrontHelpers.validateDerivationPath("44'/1729'/0'/0'")).toBe('Translated<derivationPathMustStartWithM>');
     expect(FrontHelpers.validateDerivationPath("m44'/1729'/0'/0'")).toBe('Translated<derivationSeparatorMustBeSlash>');
     expect(FrontHelpers.validateDerivationPath("m/44'/asd'/0'/0'")).toBe('Translated<invalidPath>');
-    expect(FrontHelpers.validateDerivationPath(DEFAULT_DERIVATION_PATH)).toBeTruthy();
+    expect(FrontHelpers.validateDerivationPath(DEFAULT_TEZOS_DERIVATION_PATH)).toBeTruthy();
   });
 });

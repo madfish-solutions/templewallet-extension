@@ -21,10 +21,14 @@ export interface TempleDAppSession {
   publicKey: string;
 }
 
+export interface WalletSpecs {
+  name: string;
+}
+
 export interface TempleState {
   status: TempleStatus;
   accounts: StoredAccount[];
-  hdWalletsNames: StringRecord;
+  walletsSpecs: StringRecord<WalletSpecs>;
   settings: TempleSettings | null;
 }
 
@@ -93,7 +97,7 @@ export interface StoredAccountBase {
   name: string;
   derivationPath?: string;
   derivationType?: DerivationType;
-  isVisible: boolean;
+  hidden?: boolean;
 }
 
 export enum TempleAccountType {
@@ -234,8 +238,8 @@ export enum TempleMessageType {
   RemoveAccountResponse = 'TEMPLE_REMOVE_ACCOUNT_RESPONSE',
   EditAccountRequest = 'TEMPLE_EDIT_ACCOUNT_REQUEST',
   EditAccountResponse = 'TEMPLE_EDIT_ACCOUNT_RESPONSE',
-  SetAccountVisibleRequest = 'TEMPLE_SET_ACCOUNT_VISIBLE_REQUEST',
-  SetAccountVisibleResponse = 'TEMPLE_SET_ACCOUNT_VISIBLE_RESPONSE',
+  SetAccountHiddenRequest = 'TEMPLE_SET_ACCOUNT_HIDDEN_REQUEST',
+  SetAccountHiddenResponse = 'TEMPLE_SET_ACCOUNT_HIDDEN_RESPONSE',
   ImportAccountRequest = 'TEMPLE_IMPORT_ACCOUNT_REQUEST',
   ImportAccountResponse = 'TEMPLE_IMPORT_ACCOUNT_RESPONSE',
   ImportMnemonicAccountRequest = 'TEMPLE_IMPORT_MNEMONIC_ACCOUNT_REQUEST',
@@ -301,7 +305,7 @@ export type TempleRequest =
   | TempleRevealPrivateKeyRequest
   | TempleRevealMnemonicRequest
   | TempleGenerateSyncPayloadRequest
-  | TempleSetAccountVisibleRequest
+  | TempleSetAccountHiddenRequest
   | TempleEditAccountRequest
   | TempleImportAccountRequest
   | TempleImportMnemonicAccountRequest
@@ -339,7 +343,7 @@ export type TempleResponse =
   | TempleRevealPrivateKeyResponse
   | TempleRevealMnemonicResponse
   | TempleGenerateSyncPayloadResponse
-  | TempleSetAccountVisibleResponse
+  | TempleSetAccountHiddenResponse
   | TempleEditAccountResponse
   | TempleImportAccountResponse
   | TempleImportMnemonicAccountResponse
@@ -467,7 +471,7 @@ interface TempleRevealPrivateKeyResponse extends TempleMessageBase {
 
 interface TempleRevealMnemonicRequest extends TempleMessageBase {
   type: TempleMessageType.RevealMnemonicRequest;
-  groupId: string;
+  walletId: string;
   password: string;
 }
 
@@ -506,14 +510,14 @@ interface TempleEditAccountResponse extends TempleMessageBase {
   type: TempleMessageType.EditAccountResponse;
 }
 
-interface TempleSetAccountVisibleRequest extends TempleMessageBase {
-  type: TempleMessageType.SetAccountVisibleRequest;
+interface TempleSetAccountHiddenRequest extends TempleMessageBase {
+  type: TempleMessageType.SetAccountHiddenRequest;
   id: string;
-  visible: boolean;
+  value: boolean;
 }
 
-interface TempleSetAccountVisibleResponse extends TempleMessageBase {
-  type: TempleMessageType.SetAccountVisibleResponse;
+interface TempleSetAccountHiddenResponse extends TempleMessageBase {
+  type: TempleMessageType.SetAccountHiddenResponse;
 }
 
 interface TempleImportAccountRequest extends TempleMessageBase {

@@ -2,7 +2,7 @@ import BigNumber from 'bignumber.js';
 
 import { TempleChainKind } from 'temple/types';
 
-import { StoredAccount, TempleAccountType } from './types';
+import { StoredAccount, TempleAccountType, WalletSpecs } from './types';
 
 export function usdToAssetAmount(
   usd?: BigNumber,
@@ -103,8 +103,11 @@ export async function fetchNewAccountName(
   );
 }
 
-export async function fetchNewGroupName(groupsEntries: StringRecord, getNameCandidate: (i: number) => Promise<string>) {
-  const groupsNames = Object.values(groupsEntries);
+export async function fetchNewGroupName(
+  walletsSpecs: StringRecord<WalletSpecs>,
+  getNameCandidate: (i: number) => Promise<string>
+) {
+  const groupsNames = Object.values(walletsSpecs).map(spec => spec.name);
 
   return await pickUniqueName(groupsNames.length, getNameCandidate, name => !groupsNames.includes(name));
 }
