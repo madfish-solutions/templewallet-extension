@@ -6,7 +6,7 @@ import classNames from 'clsx';
 
 import AssetField from 'app/atoms/AssetField';
 import Money from 'app/atoms/Money';
-import { useTokensListingLogic } from 'app/hooks/use-tokens-listing-logic';
+import { useTezosTokensListingLogic } from 'app/hooks/use-tokens-listing-logic';
 import { AssetIcon } from 'app/templates/AssetIcon';
 import { DropdownSelect } from 'app/templates/DropdownSelect/DropdownSelect';
 import InFiat from 'app/templates/InFiat';
@@ -63,7 +63,7 @@ export const SwapFormInput: FC<SwapFormInputProps> = ({
   const { value: balance } = useTezosAssetBalance(assetSlugWithFallback, publicKeyHash, network);
 
   const { isLoading, route3tokensSlugs } = useAvailableRoute3TokensSlugs();
-  const { filteredAssets, searchValue, setSearchValue, setTokenId } = useTokensListingLogic(
+  const { filteredAssets, searchValue, setSearchValue, setTokenId } = useTezosTokensListingLogic(
     network.chainId,
     publicKeyHash,
     route3tokensSlugs,

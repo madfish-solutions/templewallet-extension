@@ -1,6 +1,6 @@
 import React, { memo, useEffect } from 'react';
 
-import { useEvmTokenMetadata } from 'app/hooks/evm/use-evm-token-metadata';
+import { useEvmTokenMetadata } from 'app/hooks/evm/metadata';
 import { setAnotherSelector, setTestID } from 'lib/analytics';
 import { getAssetSymbol, useAssetMetadata } from 'lib/metadata';
 import { TempleChainKind } from 'temple/types';

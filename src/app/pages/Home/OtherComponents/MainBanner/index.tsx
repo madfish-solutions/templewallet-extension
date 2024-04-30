@@ -4,7 +4,7 @@ import clsx from 'clsx';
 
 import { Button } from 'app/atoms';
 import Money from 'app/atoms/Money';
-import { useEvmTokenMetadata } from 'app/hooks/evm/use-evm-token-metadata';
+import { useEvmTokenMetadata } from 'app/hooks/evm/metadata';
 import { ContentContainer } from 'app/layouts/ContentContainer';
 import { useTotalBalance } from 'app/pages/Home/OtherComponents/MainBanner/use-total-balance';
 import { dispatch } from 'app/store';

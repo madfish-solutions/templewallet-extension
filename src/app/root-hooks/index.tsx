@@ -1,6 +1,6 @@
 import React, { memo, useEffect } from 'react';
 
-import { useLoadEvmTokensData } from 'app/hooks/evm/use-load-evm-tokens-data';
+import { useLoadEvmTokensData } from 'app/hooks/evm/loading';
 import { useAdvertisingLoading } from 'app/hooks/use-advertising.hook';
 import { useAssetsMigrations } from 'app/hooks/use-assets-migrations';
 import { useCollectiblesDetailsLoading } from 'app/hooks/use-collectibles-details-loading';

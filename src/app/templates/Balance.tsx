@@ -5,8 +5,8 @@ import BigNumber from 'bignumber.js';
 import clsx from 'clsx';
 import CSSTransition from 'react-transition-group/CSSTransition';
 
-import { useEvmAccountTokenBalance } from 'app/hooks/evm/use-evm-account-token-balance';
-import { useEvmTokenMetadata } from 'app/hooks/evm/use-evm-token-metadata';
+import { useEvmAccountTokenBalance } from 'app/hooks/evm/balance';
+import { useEvmTokenMetadata } from 'app/hooks/evm/metadata';
 import { useTezosAssetBalance } from 'lib/balances';
 import { atomsToTokens } from 'lib/temple/helpers';
 import { TezosNetworkEssentials } from 'temple/networks';

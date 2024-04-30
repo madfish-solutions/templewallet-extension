@@ -3,8 +3,8 @@ import React, { memo, useMemo } from 'react';
 import BigNumber from 'bignumber.js';
 import classNames from 'clsx';
 
-import { useEvmAccountTokenBalance } from 'app/hooks/evm/use-evm-account-token-balance';
-import { useEvmTokenMetadata } from 'app/hooks/evm/use-evm-token-metadata';
+import { useEvmAccountTokenBalance } from 'app/hooks/evm/balance';
+import { useEvmTokenMetadata } from 'app/hooks/evm/metadata';
 import { AssetIcon, EvmAssetIcon } from 'app/templates/AssetIcon';
 import { setAnotherSelector } from 'lib/analytics';
 import { useTezosAssetBalance } from 'lib/balances/hooks';

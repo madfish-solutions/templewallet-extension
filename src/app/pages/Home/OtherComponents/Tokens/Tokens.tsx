@@ -5,10 +5,10 @@ import clsx from 'clsx';
 import { Checkbox, Divider, SyncSpinner } from 'app/atoms';
 import DropdownWrapper from 'app/atoms/DropdownWrapper';
 import { useAppEnv } from 'app/env';
-import { useEvmChainAccountAssetsSlugs } from 'app/hooks/evm/use-evm-chain-account-assets-slugs';
-import { useEvmTokensDataLoadingState } from 'app/hooks/evm/use-evm-tokens-data-loading-state';
+import { useEvmChainAccountAssetsSlugs } from 'app/hooks/evm/assets';
+import { useEvmTokensDataLoadingState } from 'app/hooks/evm/loading';
 import { useLoadPartnersPromo } from 'app/hooks/use-load-partners-promo';
-import { useTokensListingLogic } from 'app/hooks/use-tokens-listing-logic';
+import { useEvmTokensListingLogic, useTezosTokensListingLogic } from 'app/hooks/use-tokens-listing-logic';
 import { ReactComponent as EditingIcon } from 'app/icons/editing.svg';
 import { ReactComponent as SearchIcon } from 'app/icons/search.svg';
 import { ContentContainer } from 'app/layouts/ContentContainer';
@@ -69,18 +69,43 @@ interface EvmTokensTabProps {
 }
 
 const EvmTokensTab: FC<EvmTokensTabProps> = ({ network, publicKeyHash }) => {
-  const tokenSlugs = useEvmChainAccountAssetsSlugs(publicKeyHash, network.chainId);
+  const assetsSlugs = useEvmChainAccountAssetsSlugs(publicKeyHash, network.chainId);
   const isDataLoading = useEvmTokensDataLoadingState(network.chainId);
 
-  if (tokenSlugs.length === 0) {
-    return <>NO RECORDS FOUND</>;
-  }
+  const { sortedAssets } = useEvmTokensListingLogic(publicKeyHash, network.chainId, assetsSlugs);
+
+  const tokensView = useMemo<JSX.Element[]>(
+    () =>
+      sortedAssets.map(assetSlug => (
+        <EvmListItem key={assetSlug} assetSlug={assetSlug} publicKeyHash={publicKeyHash} network={network} />
+      )),
+    [network, publicKeyHash, sortedAssets]
+  );
 
   return (
     <>
-      {tokenSlugs.map(assetSlug => (
-        <EvmListItem key={assetSlug} assetSlug={assetSlug} publicKeyHash={publicKeyHash} network={network} />
-      ))}
+      {sortedAssets.length === 0 ? (
+        <div className="my-8 flex flex-col items-center justify-center text-gray-500">
+          <p className="mb-2 flex items-center justify-center text-gray-600 text-base font-light">
+            <span {...setTestID(HomeSelectors.emptyStateText)}>
+              <T id="noAssetsFound" />
+            </span>
+          </p>
+
+          <p className="text-center text-xs font-light">
+            <T
+              id="ifYouDontSeeYourAsset"
+              substitutions={[
+                <b>
+                  <T id="manage" />
+                </b>
+              ]}
+            />
+          </p>
+        </div>
+      ) : (
+        tokensView
+      )}
       {isDataLoading && <SyncSpinner className="mt-4" />}
     </>
   );
@@ -116,7 +141,7 @@ const TezosTokensTab: FC<TezosTokensTabProps> = ({ network, publicKeyHash }) => 
 
   const mainnetTokensScamSlugsRecord = useMainnetTokensScamlistSelector();
 
-  const { filteredAssets, searchValue, setSearchValue } = useTokensListingLogic(
+  const { filteredAssets, searchValue, setSearchValue } = useTezosTokensListingLogic(
     chainId,
     publicKeyHash,
     slugs,

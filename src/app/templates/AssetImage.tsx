@@ -1,6 +1,6 @@
 import React, { FC, useMemo } from 'react';
 
-import { buildTokenImagesStack, buildCollectibleImagesStack, getEvmCustomChainIconUrl } from 'lib/images-uri';
+import { buildTokenImagesStack, buildCollectibleImagesStack, buildEvmTokenIconSources } from 'lib/images-uri';
 import { AssetMetadataBase, isCollectibleTokenMetadata } from 'lib/metadata';
 import { EvmTokenMetadata } from 'lib/metadata/types';
 import { ImageStacked, ImageStackedProps } from 'lib/ui/ImageStacked';
@@ -27,9 +27,7 @@ export const AssetImage: FC<AssetImageProps> = ({
 }) => {
   const sources = useMemo(() => {
     if (evmChainId) {
-      return metadata?.thumbnailUri
-        ? [getEvmCustomChainIconUrl(evmChainId, (metadata as EvmTokenMetadata).address), metadata?.thumbnailUri]
-        : [];
+      return buildEvmTokenIconSources(evmChainId, metadata as EvmTokenMetadata);
     }
 
     if (metadata && isCollectibleTokenMetadata(metadata))

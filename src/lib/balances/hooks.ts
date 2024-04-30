@@ -3,9 +3,12 @@ import { useCallback, useMemo } from 'react';
 import { emptyFn } from '@rnw-community/shared';
 import BigNumber from 'bignumber.js';
 
+import { useEvmAccountChainBalances } from 'app/hooks/evm/balance';
+import { useEvmChainTokensMetadata } from 'app/hooks/evm/metadata';
 import { useAllAccountBalancesSelector, useAllAccountBalancesEntitySelector } from 'app/store/tezos/balances/selectors';
 import { isKnownChainId } from 'lib/apis/tzkt';
 import { useAssetMetadata, useGetTokenOrGasMetadata } from 'lib/metadata';
+import { EvmTokenMetadata } from 'lib/metadata/types';
 import { useTypedSWR } from 'lib/swr';
 import { atomsToTokens } from 'lib/temple/helpers';
 import { useAccountAddressForTezos, useOnTezosBlock } from 'temple/front';
@@ -13,6 +16,21 @@ import { TezosNetworkEssentials } from 'temple/networks';
 import { getReadOnlyTezos } from 'temple/tezos';
 
 import { fetchRawBalance as fetchRawBalanceFromBlockchain } from './fetch';
+
+export const useGetEvmTokenBalanceWithDecimals = (publicKeyHash: HexString, chainId: number) => {
+  const rawBalances = useEvmAccountChainBalances(publicKeyHash, chainId);
+  const tokensMetadata = useEvmChainTokensMetadata(chainId);
+
+  return useCallback(
+    (slug: string) => {
+      const rawBalance = rawBalances[slug] as string | undefined;
+      const metadata = tokensMetadata[slug] as EvmTokenMetadata | undefined;
+
+      return rawBalance && metadata ? atomsToTokens(new BigNumber(rawBalance), metadata.decimals) : undefined;
+    },
+    [rawBalances, tokensMetadata]
+  );
+};
 
 export const useGetTezosTokenOrGasBalanceWithDecimals = (publicKeyHash: string, tezosChainId: string) => {
   const rawBalances = useAllAccountBalancesSelector(publicKeyHash, tezosChainId);

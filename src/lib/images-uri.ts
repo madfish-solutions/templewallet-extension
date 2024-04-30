@@ -3,6 +3,8 @@ import { uniq } from 'lodash';
 import type { TokenMetadata } from 'lib/metadata';
 import { isTruthy } from 'lib/utils';
 
+import { EvmTokenMetadata } from './metadata/types';
+
 type TcInfraMediaSize = 'small' | 'medium' | 'large' | 'raw';
 type ObjktMediaTail = 'display' | 'artifact' | 'thumb288';
 
@@ -177,7 +179,9 @@ const customChainIdsToAssetNames: Record<number, string> = {
 
 const EvmAddressZero = '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee';
 
-export const getEvmCustomChainIconUrl = (chainId: number, tokenAddress: HexString) => {
+const getEvmCustomChainIconUrl = (chainId: number, tokenAddress: HexString) => {
+  if (!customChainIdsToAssetNames[chainId]) return null;
+
   const baseUrl = 'https://raw.githubusercontent.com/rainbow-me/assets/master/blockchains/';
 
   if (tokenAddress === EvmAddressZero) {
@@ -185,4 +189,10 @@ export const getEvmCustomChainIconUrl = (chainId: number, tokenAddress: HexStrin
   } else {
     return `${baseUrl}${customChainIdsToAssetNames[chainId]}/assets/${tokenAddress}/logo.png`;
   }
+};
+
+export const buildEvmTokenIconSources = (chainId: number, metadata: EvmTokenMetadata) => {
+  const mainFallback = getEvmCustomChainIconUrl(chainId, metadata.address);
+
+  return mainFallback ? [mainFallback, metadata.thumbnailUri] : [metadata.thumbnailUri];
 };

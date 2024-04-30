@@ -17,7 +17,7 @@ import { TezosNetworkEssentials } from 'temple/networks';
 import { getReadOnlyTezos } from 'temple/tezos';
 import { TempleChainKind } from 'temple/types';
 
-import { useEvmTokenMetadata } from '../hooks/evm/use-evm-token-metadata';
+import { useEvmTokenMetadata } from '../hooks/evm/metadata';
 
 interface Props {
   chainKind: string;

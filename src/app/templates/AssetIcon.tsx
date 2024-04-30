@@ -3,7 +3,7 @@ import React, { FC, memo } from 'react';
 import clsx from 'clsx';
 
 import Identicon from 'app/atoms/Identicon';
-import { useEvmTokenMetadata } from 'app/hooks/evm/use-evm-token-metadata';
+import { useEvmTokenMetadata } from 'app/hooks/evm/metadata';
 import { ReactComponent as CollectiblePlaceholder } from 'app/icons/collectible-placeholder.svg';
 import { AssetMetadataBase, getAssetSymbol, isCollectible, useAssetMetadata } from 'lib/metadata';
 

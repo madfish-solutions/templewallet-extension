@@ -7,12 +7,12 @@ import { useDebounce } from 'use-debounce';
 import { useAllAccountBalancesSelector } from 'app/store/tezos/balances/selectors';
 import { toTokenSlug } from 'lib/assets';
 import { searchAssetsWithNoMeta } from 'lib/assets/search.utils';
-import { useTokensSortPredicate } from 'lib/assets/use-sorting';
+import { useEvmTokensSortPredicate, useTokensSortPredicate } from 'lib/assets/use-sorting';
 import { useGetTokenOrGasMetadata } from 'lib/metadata';
 import { useMemoWithCompare } from 'lib/ui/hooks';
 import { isSearchStringApplicable } from 'lib/utils/search-items';
 
-export const useTokensListingLogic = (
+export const useTezosTokensListingLogic = (
   tezosChainId: string,
   publicKeyHash: string,
   assetsSlugs: string[],
@@ -88,5 +88,19 @@ export const useTokensListingLogic = (
     setSearchValue,
     tokenId,
     setTokenId
+  };
+};
+
+export const useEvmTokensListingLogic = (publicKeyHash: HexString, chainId: number, assetsSlugs: string[]) => {
+  const assetsSortPredicate = useEvmTokensSortPredicate(publicKeyHash, chainId);
+
+  const sortedAssets = useMemoWithCompare(
+    () => assetsSlugs.sort(assetsSortPredicate),
+    [assetsSlugs, assetsSortPredicate],
+    isEqual
+  );
+
+  return {
+    sortedAssets
   };
 };
