@@ -1,8 +1,8 @@
 import { useEvmTokensMetadataRecordSelector } from 'app/store/evm/tokens-metadata/selectors';
-import { TokenSlugMetadataRecord } from 'app/store/evm/tokens-metadata/state';
+import { TokenSlugTokenMetadataRecord } from 'app/store/evm/tokens-metadata/state';
 import { EvmTokenMetadata } from 'lib/metadata/types';
 
-export const useEvmChainTokensMetadata = (chainId: number): TokenSlugMetadataRecord => {
+export const useEvmChainTokensMetadata = (chainId: number): TokenSlugTokenMetadataRecord => {
   const metadataRecord = useEvmTokensMetadataRecordSelector();
 
   return metadataRecord[chainId] ?? {};

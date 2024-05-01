@@ -7,5 +7,5 @@ interface proceedLoadedEvmTokensMetadataActionPayload {
 }
 
 export const proceedLoadedEvmTokensMetadataAction = createAction<proceedLoadedEvmTokensMetadataActionPayload>(
-  'evm/PROCEED_LOADED_EVM_TOKENS_METADATA_ACTION'
+  'evm/PROCEED_LOADED_TOKENS_METADATA_ACTION'
 );

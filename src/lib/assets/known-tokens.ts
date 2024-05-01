@@ -1,4 +1,4 @@
-import { TokenMetadata, MetadataRecords, TokenStandardsEnum } from 'lib/metadata/types';
+import { TokenMetadata, MetadataRecords, TezosTokenStandardsEnum } from 'lib/metadata/types';
 import { TempleTezosChainId } from 'lib/temple/types';
 
 import { FA2Token } from './types';
@@ -29,7 +29,7 @@ const DEPRECATED_TKEY_METADATA: TokenMetadata = {
   name: 'Deprecated Temple Key',
   symbol: 'TKEY_OLD',
   decimals: 18,
-  standard: TokenStandardsEnum.Fa2
+  standard: TezosTokenStandardsEnum.Fa2
 };
 
 export const TZBTC_TOKEN_METADATA: TokenMetadata = {
@@ -39,7 +39,7 @@ export const TZBTC_TOKEN_METADATA: TokenMetadata = {
   symbol: 'tzBTC',
   decimals: 8,
   thumbnailUri: 'https://tzbtc.io/wp-content/uploads/2020/03/tzbtc_logo_single.svg',
-  standard: TokenStandardsEnum.Fa12
+  standard: TezosTokenStandardsEnum.Fa12
 };
 
 export const SIRS_TOKEN_METADATA: TokenMetadata = {
@@ -49,7 +49,7 @@ export const SIRS_TOKEN_METADATA: TokenMetadata = {
   symbol: 'SIRS',
   decimals: 0,
   thumbnailUri: 'ipfs://QmNXQPkRACxaR17cht5ZWaaKiQy46qfCwNVT5FGZy6qnyp',
-  standard: TokenStandardsEnum.Fa12
+  standard: TezosTokenStandardsEnum.Fa12
 };
 
 const PREDEFINED_MAINNET_TOKENS_METADATA: TokenMetadata[] = [
@@ -60,7 +60,7 @@ const PREDEFINED_MAINNET_TOKENS_METADATA: TokenMetadata[] = [
     symbol: 'TKEY',
     decimals: 18,
     thumbnailUri: 'ipfs://Qmb9QUXYn1PW8e7E2CwpBMgEur7gFAPPpq2Zh7H2D7eQcT',
-    standard: TokenStandardsEnum.Fa2
+    standard: TezosTokenStandardsEnum.Fa2
   },
   {
     id: '0',
@@ -69,7 +69,7 @@ const PREDEFINED_MAINNET_TOKENS_METADATA: TokenMetadata[] = [
     symbol: 'USDt',
     decimals: 6,
     thumbnailUri: 'ipfs://QmRymVGWEudMfLrbjaEiXxngCRTDgWCsscjQMwizy4ZJjX',
-    standard: TokenStandardsEnum.Fa2
+    standard: TezosTokenStandardsEnum.Fa2
   },
   {
     id: '0',
@@ -78,7 +78,7 @@ const PREDEFINED_MAINNET_TOKENS_METADATA: TokenMetadata[] = [
     symbol: 'uUSD',
     decimals: 12,
     thumbnailUri: 'ipfs://QmbvhanNCxydZEbGu1RdqkG3LcpNGv7XYsCHgzWBXnmxRd',
-    standard: TokenStandardsEnum.Fa2
+    standard: TezosTokenStandardsEnum.Fa2
   },
   {
     id: '0',
@@ -87,7 +87,7 @@ const PREDEFINED_MAINNET_TOKENS_METADATA: TokenMetadata[] = [
     symbol: 'kUSD',
     decimals: 18,
     thumbnailUri: 'https://kolibri-data.s3.amazonaws.com/logo.png',
-    standard: TokenStandardsEnum.Fa12
+    standard: TezosTokenStandardsEnum.Fa12
   },
   TZBTC_TOKEN_METADATA,
   {
@@ -97,7 +97,7 @@ const PREDEFINED_MAINNET_TOKENS_METADATA: TokenMetadata[] = [
     symbol: 'uBTC',
     decimals: 12,
     thumbnailUri: 'ipfs://Qmbev41h4axBqVzxsXP2NSaAF996bJjJBPb8FFZVqTvJTY',
-    standard: TokenStandardsEnum.Fa2
+    standard: TezosTokenStandardsEnum.Fa2
   },
   {
     id: '0',
@@ -106,7 +106,7 @@ const PREDEFINED_MAINNET_TOKENS_METADATA: TokenMetadata[] = [
     symbol: 'QUIPU',
     decimals: 6,
     thumbnailUri: 'ipfs://Qmb2GiHN9EjcrN29J6y9PsXu3ZDosXTv6uLUWGZfRRSzS2/quipu.png',
-    standard: TokenStandardsEnum.Fa2
+    standard: TezosTokenStandardsEnum.Fa2
   },
   {
     id: '0',
@@ -115,7 +115,7 @@ const PREDEFINED_MAINNET_TOKENS_METADATA: TokenMetadata[] = [
     symbol: 'YOU',
     decimals: 12,
     thumbnailUri: 'ipfs://QmYAJaJvEJuwvMEgRbBoAUKrTxRTT22nCC9RuY7Jy4L4Gc',
-    standard: TokenStandardsEnum.Fa2
+    standard: TezosTokenStandardsEnum.Fa2
   }
 ];
 
@@ -127,7 +127,7 @@ const DCP_TOKENS_METADATA: TokenMetadata[] = [
     symbol: 'APX',
     name: 'APXCOIN',
     thumbnailUri: 'https://loonfilms.com/apx/apx-coin-220px.png',
-    standard: TokenStandardsEnum.Fa2
+    standard: TezosTokenStandardsEnum.Fa2
   }
 ];
 

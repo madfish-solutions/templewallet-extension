@@ -219,23 +219,6 @@ export type ChainID =
   | 686868
   | 1992
   | 660279;
-export type Quote =
-  | 'USD'
-  | 'CAD'
-  | 'EUR'
-  | 'SGD'
-  | 'INR'
-  | 'JPY'
-  | 'VND'
-  | 'CNY'
-  | 'KRW'
-  | 'RUB'
-  | 'TRY'
-  | 'NGN'
-  | 'ARS'
-  | 'AUD'
-  | 'CHF'
-  | 'GBP';
 
 export interface BalancesResponse {
   /** * The requested address. */
@@ -347,7 +330,72 @@ interface LogoUrls {
   chain_logo_url: string;
 }
 
-interface NftCollectionAttribute {
+export interface NftCollectionAttribute {
   trait_type: string;
   value: string;
+}
+
+export interface NftAddressBalanceNftResponse {
+  /** * The requested address. */
+  address: string;
+  /** * The timestamp when the response was generated. Useful to show data staleness to users. */
+  updated_at: Date;
+  /** * List of response items. */
+  items: NftTokenContractBalanceItem[];
+}
+
+export interface NftTokenContractBalanceItem {
+  /** * The string returned by the `name()` method. */
+  contract_name: string;
+  /** * The ticker symbol for this contract. This field is set by a developer and non-unique across a network. */
+  contract_ticker_symbol: string;
+  /** * Use the relevant `contract_address` to lookup prices, logos, token transfers, etc. */
+  contract_address: string;
+  /** * A list of supported standard ERC interfaces, eg: `ERC20` and `ERC721`. */
+  supports_erc: string[];
+  /** * Denotes whether the token is suspected spam. Supports `eth-mainnet` and `matic-mainnet`. */
+  is_spam: boolean;
+  last_transfered_at: Date;
+  /** * The asset balance. Use `contract_decimals` to scale this balance for display purposes. */
+  balance: string | null;
+  balance_24h: string;
+  type: string;
+  /** * The current floor price converted to fiat in `quote-currency`. The floor price is determined by the last minimum sale price within the last 30 days across all the supported markets where the collection is sold on. */
+  floor_price_quote: number;
+  /** * A prettier version of the floor price quote for rendering purposes. */
+  pretty_floor_price_quote: string;
+  /** * The current floor price in native currency. The floor price is determined by the last minimum sale price within the last 30 days across all the supported markets where the collection is sold on. */
+  floor_price_native_quote: number;
+  nft_data: NftData[];
+}
+
+export interface NftData {
+  /** * The token's id. */
+  token_id: string | null;
+  token_url: string;
+  /** * The original minter. */
+  original_owner: string;
+  /** * The current holder of this NFT. */
+  current_owner: string;
+  external_data: NftExternalData | null;
+  /** * If `true`, the asset data is available from the Covalent CDN. */
+  asset_cached: boolean;
+  /** * If `true`, the image data is available from the Covalent CDN. */
+  image_cached: boolean;
+}
+
+interface NftExternalData {
+  name: string;
+  description: string;
+  asset_url: string;
+  asset_file_extension: string;
+  asset_mime_type: string;
+  asset_size_bytes: string;
+  image: string;
+  image_256: string;
+  image_512: string;
+  image_1024: string;
+  animation_url: string;
+  external_url: string;
+  attributes: NftCollectionAttribute[];
 }

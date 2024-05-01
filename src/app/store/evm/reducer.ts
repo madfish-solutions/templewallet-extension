@@ -1,16 +1,26 @@
 import { createReducer } from '@reduxjs/toolkit';
 
-import { loadSingleEvmChainDataActions } from './actions';
+import { loadSingleEvmChainCollectiblesActions, loadSingleEvmChainTokensActions } from './actions';
 import { EvmInitialState, EvmStateInterface } from './state';
 
 export const evmReducer = createReducer<EvmStateInterface>(EvmInitialState, builder => {
-  builder.addCase(loadSingleEvmChainDataActions.submit, (state, { payload }) => {
-    state.loadingStateRecord[payload.chainId] = { isLoading: true };
+  builder.addCase(loadSingleEvmChainTokensActions.submit, (state, { payload }) => {
+    state.tokensLoadingStateRecord[payload.chainId] = { isLoading: true };
   });
-  builder.addCase(loadSingleEvmChainDataActions.success, (state, { payload }) => {
-    state.loadingStateRecord[payload.chainId] = { isLoading: false };
+  builder.addCase(loadSingleEvmChainTokensActions.success, (state, { payload }) => {
+    state.tokensLoadingStateRecord[payload.chainId] = { isLoading: false };
   });
-  builder.addCase(loadSingleEvmChainDataActions.fail, (state, { payload }) => {
-    state.loadingStateRecord[payload.chainId] = { isLoading: false, error: payload.error };
+  builder.addCase(loadSingleEvmChainTokensActions.fail, (state, { payload }) => {
+    state.tokensLoadingStateRecord[payload.chainId] = { isLoading: false, error: payload.error };
+  });
+
+  builder.addCase(loadSingleEvmChainCollectiblesActions.submit, (state, { payload }) => {
+    state.collectiblesLoadingStateRecord[payload.chainId] = { isLoading: true };
+  });
+  builder.addCase(loadSingleEvmChainCollectiblesActions.success, (state, { payload }) => {
+    state.collectiblesLoadingStateRecord[payload.chainId] = { isLoading: false };
+  });
+  builder.addCase(loadSingleEvmChainCollectiblesActions.fail, (state, { payload }) => {
+    state.collectiblesLoadingStateRecord[payload.chainId] = { isLoading: false, error: payload.error };
   });
 });

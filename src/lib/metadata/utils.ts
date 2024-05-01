@@ -3,7 +3,7 @@ import { isString, pick } from 'lodash';
 import type { TokenMetadataResponse, WhitelistResponseToken } from 'lib/apis/temple';
 import { TEZOS_SYMBOL } from 'lib/assets';
 
-import { AssetMetadataBase, TokenMetadata, TokenStandardsEnum } from './types';
+import { AssetMetadataBase, TokenMetadata, TezosTokenStandardsEnum } from './types';
 
 export function getAssetSymbol(metadata: AssetMetadataBase | nullish, short = false) {
   if (!metadata) return '???';
@@ -49,5 +49,5 @@ export const buildTokenMetadataFromWhitelist = ({
   symbol: metadata.symbol ?? metadata.name?.substring(0, 8) ?? '???',
   name: metadata.name ?? metadata.symbol ?? 'Unknown Token',
   thumbnailUri: metadata.thumbnailUri,
-  standard: type === 'FA12' ? TokenStandardsEnum.Fa12 : TokenStandardsEnum.Fa2
+  standard: type === 'FA12' ? TezosTokenStandardsEnum.Fa12 : TezosTokenStandardsEnum.Fa2
 });

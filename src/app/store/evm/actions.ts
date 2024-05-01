@@ -13,8 +13,14 @@ interface LoadSingleEvmChainDataFailedPayload extends LoadSingleEvmChainDataSucc
   error?: string;
 }
 
-export const loadSingleEvmChainDataActions = createActions<
+export const loadSingleEvmChainTokensActions = createActions<
   LoadSingleEvmChainDataSubmitPayload,
   LoadSingleEvmChainDataSuccessPayload,
   LoadSingleEvmChainDataFailedPayload
->('evm/LOAD_SINGLE_CHAIN_EVM_DATA_ACTIONS');
+>('evm/LOAD_SINGLE_CHAIN_TOKENS_ACTIONS');
+
+export const loadSingleEvmChainCollectiblesActions = createActions<
+  LoadSingleEvmChainDataSubmitPayload,
+  LoadSingleEvmChainDataSuccessPayload,
+  LoadSingleEvmChainDataFailedPayload
+>('evm/LOAD_SINGLE_CHAIN_COLLECTIBLES_ACTIONS');

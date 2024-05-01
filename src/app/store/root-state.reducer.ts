@@ -6,10 +6,12 @@ import { abTestingReducer } from './ab-testing/reducers';
 import { advertisingReducer } from './advertising/reducers';
 import { buyWithCreditCardReducer } from './buy-with-credit-card/reducers';
 import { dAppsReducer } from './d-apps/reducers';
-import { evmAssetsReducer } from './evm/assets/reducer';
-import { evmBalancesReducer } from './evm/balances/reducers';
-import { evmCurrencyReducer } from './evm/currency/reducers';
+import { evmCollectiblesReducer } from './evm/collectibles/reducer';
+import { evmCollectiblesMetadataReducer } from './evm/collectibles-metadata/reducers';
 import { evmReducer } from './evm/reducer';
+import { evmTokensReducer } from './evm/tokens/reducer';
+import { evmTokensBalancesReducer } from './evm/tokens-balances/reducers';
+import { evmTokensExchangeRatesReducer } from './evm/tokens-exchange-rates/reducers';
 import { evmTokensMetadataReducer } from './evm/tokens-metadata/reducers';
 import { newsletterReducers } from './newsletter/newsletter-reducers';
 import { partnersPromotionPersistedReducer } from './partners-promotion/reducers';
@@ -39,10 +41,12 @@ const rootStateReducersMap = {
   collectibles: collectiblesPersistedReducer,
   newsletter: newsletterReducers,
   evm: evmReducer,
-  evmBalances: evmBalancesReducer,
-  evmAssets: evmAssetsReducer,
+  evmTokens: evmTokensReducer,
+  evmTokensBalances: evmTokensBalancesReducer,
   evmTokensMetadata: evmTokensMetadataReducer,
-  evmCurrency: evmCurrencyReducer
+  evmTokensExchangeRates: evmTokensExchangeRatesReducer,
+  evmCollectibles: evmCollectiblesReducer,
+  evmCollectiblesMetadata: evmCollectiblesMetadataReducer
 };
 
 export const rootReducer = combineReducers(rootStateReducersMap);

@@ -1,7 +1,7 @@
 import { createReducer } from '@reduxjs/toolkit';
 
 import { toTokenSlug } from 'lib/assets';
-import { isProperMetadata } from 'lib/utils/evm.utils';
+import { isProperTokenMetadata } from 'lib/utils/evm.utils';
 
 import { proceedLoadedEvmTokensMetadataAction } from './actions';
 import { evmTokensMetadataInitialState, EvmTokensMetadataState } from './state';
@@ -21,7 +21,7 @@ export const evmTokensMetadataReducer = createReducer<EvmTokensMetadataState>(
       const items = data.items;
 
       for (const item of items) {
-        if (!isProperMetadata(item)) continue;
+        if (!isProperTokenMetadata(item)) continue;
 
         const slug = toTokenSlug(item.contract_address);
 

@@ -1,4 +1,6 @@
-export enum TokenStandardsEnum {
+import { NftCollectionAttribute } from '../apis/temple/evm-data.interfaces';
+
+export enum TezosTokenStandardsEnum {
   Fa2 = 'fa2',
   Fa12 = 'fa12'
 }
@@ -13,7 +15,7 @@ export interface AssetMetadataBase {
 export interface TokenMetadata extends AssetMetadataBase {
   address: string;
   id: string;
-  standard?: TokenStandardsEnum;
+  standard?: TezosTokenStandardsEnum;
   displayUri?: string;
   artifactUri?: string;
 }
@@ -30,4 +32,17 @@ export interface EvmTokenMetadata extends AssetMetadataBase {
   address: HexString;
   native: boolean;
   thumbnailUri: string;
+}
+
+export interface EvmCollectibleMetadata {
+  address: HexString;
+  tokenId: number;
+  name: string;
+  description: string;
+  originalUri: string;
+  thumbnailUri: string;
+  displayUri: string;
+  artifactUri: string;
+  attributes: NftCollectionAttribute[];
+  mimeType: string | null;
 }

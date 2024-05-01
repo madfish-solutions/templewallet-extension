@@ -3,7 +3,7 @@ import { useCallback } from 'react';
 import { BigNumber } from 'bignumber.js';
 
 import { useEvmChainTokensMetadata } from 'app/hooks/evm/metadata';
-import { useEvmUsdToTokenRatesSelector } from 'app/store/evm/currency/selectors';
+import { useEvmUsdToTokenRatesSelector } from 'app/store/evm/tokens-exchange-rates/selectors';
 import { useAllAccountBalancesSelector } from 'app/store/tezos/balances/selectors';
 import { useTezosUsdToTokenRatesSelector } from 'app/store/tezos/currency/selectors';
 import { useGetEvmTokenBalanceWithDecimals, useGetTezosTokenOrGasBalanceWithDecimals } from 'lib/balances/hooks';
