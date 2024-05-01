@@ -47,8 +47,7 @@ import {
   accountsUpdated,
   settingsUpdated,
   withInited,
-  withUnlocked,
-  walletsSpecsUpdated
+  withUnlocked
 } from './store';
 import { Vault } from './vault';
 
@@ -118,8 +117,7 @@ export function unlock(password: string) {
       const vault = await Vault.setup(password, BACKGROUND_IS_WORKER);
       const accounts = await vault.fetchAccounts();
       const settings = await vault.fetchSettings();
-      const walletsSpecs = await vault.fetchWalletsSpecs();
-      unlocked({ vault, accounts, settings, walletsSpecs });
+      unlocked({ vault, accounts, settings });
     })
   );
 }
@@ -130,12 +128,15 @@ export async function unlockFromSession() {
     if (vault == null) return;
     const accounts = await vault.fetchAccounts();
     const settings = await vault.fetchSettings();
-    const walletsSpecs = await vault.fetchWalletsSpecs();
-    unlocked({ vault, accounts, settings, walletsSpecs });
+    unlocked({ vault, accounts, settings });
   });
 }
 
-export function createHDAccount(groupId: string, name?: string) {
+export function findFreeHDAccountIndex(walletId: string) {
+  return withUnlocked(({ vault }) => vault.findFreeHDAccountIndex(walletId));
+}
+
+export function createHDAccount(walletId: string, name?: string, hdIndex?: number) {
   return withUnlocked(async ({ vault }) => {
     if (name) {
       name = name.trim();
@@ -144,13 +145,13 @@ export function createHDAccount(groupId: string, name?: string) {
       }
     }
 
-    const updatedAccounts = await vault.createHDAccount(groupId, name);
+    const updatedAccounts = await vault.createHDAccount(walletId, name, hdIndex);
     accountsUpdated(updatedAccounts);
   });
 }
 
-export function revealMnemonic(groupId: string, password: string) {
-  return withUnlocked(() => Vault.revealMnemonic(groupId, password));
+export function revealMnemonic(walletId: string, password: string) {
+  return withUnlocked(() => Vault.revealMnemonic(walletId, password));
 }
 
 export function generateSyncPayload(password: string) {
@@ -167,9 +168,8 @@ export function revealPublicKey(accountAddress: string) {
 
 export function removeAccount(id: string, password: string) {
   return withUnlocked(async () => {
-    const { newAccounts, newWalletsSpecs } = await Vault.removeAccount(id, password);
+    const { newAccounts } = await Vault.removeAccount(id, password);
     accountsUpdated(newAccounts);
-    walletsSpecsUpdated(newWalletsSpecs);
   });
 }
 
@@ -246,9 +246,8 @@ export function updateSettings(settings: Partial<TempleSettings>) {
 
 export function removeHdWallet(id: string, password: string) {
   return withUnlocked(async () => {
-    const { newAccounts, newWalletsSpecs } = await Vault.removeHdWallet(id, password);
+    const { newAccounts } = await Vault.removeHdWallet(id, password);
     accountsUpdated(newAccounts);
-    walletsSpecsUpdated(newWalletsSpecs);
   });
 }
 
@@ -261,20 +260,8 @@ export function removeAccountsByType(type: Exclude<TempleAccountType, TempleAcco
 
 export function createOrImportWallet(mnemonic?: string) {
   return withUnlocked(async ({ vault }) => {
-    const { newAccounts, newWalletsSpecs } = await vault.createOrImportWallet(mnemonic);
-    walletsSpecsUpdated(newWalletsSpecs);
+    const { newAccounts } = await vault.createOrImportWallet(mnemonic);
     accountsUpdated(newAccounts);
-  });
-}
-
-export function editGroupName(id: string, name: string) {
-  return withUnlocked(async ({ vault }) => {
-    name = name.trim();
-    if (!ACCOUNT_OR_GROUP_NAME_PATTERN.test(name)) {
-      throw new Error('Invalid name. It should be: 1-16 characters, without special');
-    }
-
-    walletsSpecsUpdated(await vault.editGroupName(id, name));
   });
 }
 

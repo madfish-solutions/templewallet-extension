@@ -1,5 +1,7 @@
 import React, { memo, useCallback, useState } from 'react';
 
+import clsx from 'clsx';
+
 import { Alert, Button } from 'app/atoms';
 import { formatMnemonic } from 'app/defaults';
 import { SeedPhraseInput, isSeedPhraseFilled } from 'app/templates/SeedPhraseInput';
@@ -72,7 +74,10 @@ export const WalletFromMnemonicForm = memo(() => {
 
       <Button
         disabled={isSubmitting || Boolean(error)}
-        className="w-full rounded-lg bg-orange-200 text-orange-20 leading-tight p-4 text-sm font-semibold"
+        className={clsx(
+          'w-full rounded-lg bg-orange-200 text-orange-20 leading-tight p-4 text-sm font-semibold',
+          (isSubmitting || Boolean(error)) && 'opacity-75'
+        )}
         onClick={handleSubmit}
       >
         <T id="importWallet" />

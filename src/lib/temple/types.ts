@@ -28,7 +28,6 @@ export interface WalletSpecs {
 export interface TempleState {
   status: TempleStatus;
   accounts: StoredAccount[];
-  walletsSpecs: StringRecord<WalletSpecs>;
   settings: TempleSettings | null;
 }
 
@@ -224,6 +223,8 @@ export enum TempleMessageType {
   UnlockResponse = 'TEMPLE_UNLOCK_RESPONSE',
   LockRequest = 'TEMPLE_LOCK_REQUEST',
   LockResponse = 'TEMPLE_LOCK_RESPONSE',
+  FindFreeHDAccountIndexRequest = 'TEMPLE_FIND_FREE_HD_ACCOUNT_INDEX_REQUEST',
+  FindFreeHDAccountIndexResponse = 'TEMPLE_FIND_FREE_HD_ACCOUNT_INDEX_RESPONSE',
   CreateAccountRequest = 'TEMPLE_CREATE_ACCOUNT_REQUEST',
   CreateAccountResponse = 'TEMPLE_CREATE_ACCOUNT_RESPONSE',
   RevealPublicKeyRequest = 'TEMPLE_REVEAL_PUBLIC_KEY_REQUEST',
@@ -260,8 +261,6 @@ export enum TempleMessageType {
   RemoveAccountsByTypeResponse = 'TEMPLE_REMOVE_ACCOUNTS_BY_TYPE_RESPONSE',
   CreateOrImportWalletRequest = 'TEMPLE_CREATE_OR_IMPORT_WALLET_REQUEST',
   CreateOrImportWalletResponse = 'TEMPLE_CREATE_OR_IMPORT_WALLET_RESPONSE',
-  EditGroupNameRequest = 'TEMPLE_EDIT_GROUP_NAME_REQUEST',
-  EditGroupNameResponse = 'TEMPLE_EDIT_GROUP_NAME_RESPONSE',
   OperationsRequest = 'TEMPLE_OPERATIONS_REQUEST',
   OperationsResponse = 'TEMPLE_OPERATIONS_RESPONSE',
   SignRequest = 'TEMPLE_SIGN_REQUEST',
@@ -300,6 +299,7 @@ export type TempleRequest =
   | TempleNewWalletRequest
   | TempleUnlockRequest
   | TempleLockRequest
+  | TempleFreeHDAccountIndexRequest
   | TempleCreateAccountRequest
   | TempleRevealPublicKeyRequest
   | TempleRevealPrivateKeyRequest
@@ -320,7 +320,6 @@ export type TempleRequest =
   | TempleRemoveHdWalletRequest
   | TempleRemoveAccountsByTypeRequest
   | TempleCreateOrImportWalletRequest
-  | TempleEditGroupNameRequest
   | TemplePageRequest
   | TempleDAppGetPayloadRequest
   | TempleDAppPermConfirmationRequest
@@ -338,6 +337,7 @@ export type TempleResponse =
   | TempleNewWalletResponse
   | TempleUnlockResponse
   | TempleLockResponse
+  | TempleFreeHDAccountIndexResponse
   | TempleCreateAccountResponse
   | TempleRevealPublicKeyResponse
   | TempleRevealPrivateKeyResponse
@@ -358,7 +358,6 @@ export type TempleResponse =
   | TempleRemoveHdWalletResponse
   | TempleRemoveAccountsByTypeResponse
   | TempleCreateOrImportWalletResponse
-  | TempleEditGroupNameResponse
   | TemplePageResponse
   | TempleDAppGetPayloadResponse
   | TempleDAppPermConfirmationResponse
@@ -438,10 +437,22 @@ interface TempleLockResponse extends TempleMessageBase {
   type: TempleMessageType.LockResponse;
 }
 
+interface TempleFreeHDAccountIndexRequest extends TempleMessageBase {
+  type: TempleMessageType.FindFreeHDAccountIndexRequest;
+  walletId: string;
+}
+
+interface TempleFreeHDAccountIndexResponse extends TempleMessageBase {
+  type: TempleMessageType.FindFreeHDAccountIndexResponse;
+  hdIndex: number;
+  firstSkippedAccount: StoredAccount | undefined;
+}
+
 interface TempleCreateAccountRequest extends TempleMessageBase {
   type: TempleMessageType.CreateAccountRequest;
-  groupId: string;
+  walletId: string;
   name?: string;
+  hdIndex?: number;
 }
 
 interface TempleCreateAccountResponse extends TempleMessageBase {
@@ -622,16 +633,6 @@ interface TempleCreateOrImportWalletRequest extends TempleMessageBase {
 
 interface TempleCreateOrImportWalletResponse extends TempleMessageBase {
   type: TempleMessageType.CreateOrImportWalletResponse;
-}
-
-interface TempleEditGroupNameRequest extends TempleMessageBase {
-  type: TempleMessageType.EditGroupNameRequest;
-  id: string;
-  name: string;
-}
-
-interface TempleEditGroupNameResponse extends TempleMessageBase {
-  type: TempleMessageType.EditGroupNameResponse;
 }
 
 interface TempleOperationsRequest extends TempleMessageBase {

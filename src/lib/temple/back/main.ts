@@ -65,8 +65,15 @@ const processRequest = async (req: TempleRequest, port: Runtime.Port): Promise<T
       await Actions.lock();
       return { type: TempleMessageType.LockResponse };
 
+    case TempleMessageType.FindFreeHDAccountIndexRequest:
+      const responsePayload = await Actions.findFreeHDAccountIndex(req.walletId);
+      return {
+        type: TempleMessageType.FindFreeHDAccountIndexResponse,
+        ...responsePayload
+      };
+
     case TempleMessageType.CreateAccountRequest:
-      await Actions.createHDAccount(req.groupId, req.name);
+      await Actions.createHDAccount(req.walletId, req.name, req.hdIndex);
       return { type: TempleMessageType.CreateAccountResponse };
 
     case TempleMessageType.RevealPublicKeyRequest:
@@ -173,12 +180,6 @@ const processRequest = async (req: TempleRequest, port: Runtime.Port): Promise<T
       await Actions.createOrImportWallet(req.mnemonic);
       return {
         type: TempleMessageType.CreateOrImportWalletResponse
-      };
-
-    case TempleMessageType.EditGroupNameRequest:
-      await Actions.editGroupName(req.id, req.name);
-      return {
-        type: TempleMessageType.EditGroupNameResponse
       };
 
     case TempleMessageType.OperationsRequest:

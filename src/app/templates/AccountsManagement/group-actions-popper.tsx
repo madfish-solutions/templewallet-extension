@@ -7,13 +7,14 @@ import { ReactComponent as EditIcon } from 'app/icons/edit.svg';
 import { ReactComponent as EllipsisIcon } from 'app/icons/ellypsis.svg';
 import { ReactComponent as RemoveIcon } from 'app/icons/remove.svg';
 import { ReactComponent as RevealEyeIcon } from 'app/icons/reveal-eye.svg';
-import { useTempleClient } from 'lib/temple/front';
-import { DisplayedGroup, TempleAccountType } from 'lib/temple/types';
+import { ACCOUNT_EXISTS_SHOWN_WARNINGS_STORAGE_KEY } from 'lib/constants';
+import { useStorage, useTempleClient } from 'lib/temple/front';
+import { DisplayedGroup, StoredAccount, TempleAccountType } from 'lib/temple/types';
 import { useAlert } from 'lib/ui';
 import Popper, { PopperRenderProps } from 'lib/ui/Popper';
 import { isTruthy } from 'lib/utils';
 import { navigate } from 'lib/woozie';
-import { useAllAccounts, useHDGroups } from 'temple/front';
+import { useHDGroups } from 'temple/front';
 
 import { Action, ActionsDropdown } from './actions-dropdown';
 
@@ -22,16 +23,29 @@ export interface GroupActionsPopperProps {
   onRenameClick: (group: DisplayedGroup) => void;
   onRevealSeedPhraseClick: (group: DisplayedGroup) => void;
   onDeleteClick: (group: DisplayedGroup) => void;
+  showAccountAlreadyExistsWarning: (group: DisplayedGroup, oldAccount: StoredAccount) => void;
 }
 
 const actionsDropdownStyle = { transform: 'translate(1.25rem, 1rem)' };
 
 const GroupActionsDropdown = memo<PopperRenderProps & GroupActionsPopperProps>(
-  ({ group, opened, setOpened, toggleOpened, onRenameClick, onRevealSeedPhraseClick, onDeleteClick }) => {
-    const { createAccount } = useTempleClient();
-    const allAccounts = useAllAccounts();
+  ({
+    group,
+    opened,
+    setOpened,
+    toggleOpened,
+    onRenameClick,
+    onRevealSeedPhraseClick,
+    onDeleteClick,
+    showAccountAlreadyExistsWarning
+  }) => {
+    const { createAccount, findFreeHdIndex } = useTempleClient();
     const hdGroups = useHDGroups();
     const customAlert = useAlert();
+    const [accountExistsShownWarnings, setAccountExistsShownWarnings] = useStorage<Record<string, boolean>>(
+      ACCOUNT_EXISTS_SHOWN_WARNINGS_STORAGE_KEY,
+      {}
+    );
 
     const actions = useMemo<Action[]>(() => {
       if (group.type === TempleAccountType.HD) {
@@ -42,7 +56,16 @@ const GroupActionsDropdown = memo<PopperRenderProps & GroupActionsPopperProps>(
             icon: AddIcon,
             onClick: async () => {
               try {
-                await createAccount(group.id);
+                const { firstSkippedAccount } = await findFreeHdIndex(group.id);
+                if (firstSkippedAccount && !accountExistsShownWarnings[group.id]) {
+                  showAccountAlreadyExistsWarning(group, firstSkippedAccount);
+                  setAccountExistsShownWarnings(prevState => ({
+                    ...prevState,
+                    [group.id]: true
+                  }));
+                } else {
+                  await createAccount(group.id);
+                }
               } catch (e: any) {
                 console.error(e);
                 customAlert({
@@ -109,9 +132,12 @@ const GroupActionsDropdown = memo<PopperRenderProps & GroupActionsPopperProps>(
         }
       ];
     }, [
-      hdGroups,
       group,
-      allAccounts,
+      hdGroups.length,
+      findFreeHdIndex,
+      accountExistsShownWarnings,
+      showAccountAlreadyExistsWarning,
+      setAccountExistsShownWarnings,
       createAccount,
       customAlert,
       onRenameClick,

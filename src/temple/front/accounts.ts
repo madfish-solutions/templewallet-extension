@@ -31,10 +31,6 @@ export function useRelevantAccounts(tezosChainId: string) {
   return useMemo(
     () =>
       allAccounts.filter(acc => {
-        if (acc.hidden) {
-          return false;
-        }
-
         switch (acc.type) {
           case TempleAccountType.ManagedKT:
             return (

@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
 
-import { isEqual } from 'lodash';
+import { difference } from 'lodash';
 
 import { navigate } from 'lib/woozie';
 import { useAllAccounts, useChangeAccount } from 'temple/front';
@@ -12,15 +12,9 @@ export const useAllAccountsReactiveOnAddition = () => {
   const prevAccountsIds = useRef(allAccounts.map(a => a.id));
 
   useEffect(() => {
-    const prevAccLength = prevAccountsIds.current.length;
-
-    const accLength = allAccounts.length;
     const newAccountsIds = allAccounts.map(a => a.id);
-    if (
-      prevAccLength < accLength ||
-      (prevAccLength === accLength && !isEqual(prevAccountsIds.current, newAccountsIds))
-    ) {
-      setAccountId(allAccounts[accLength - 1].id);
+    if (difference(newAccountsIds, prevAccountsIds.current).length > 0) {
+      setAccountId(allAccounts[allAccounts.length - 1].id);
       navigate('/');
     }
     prevAccountsIds.current = newAccountsIds;

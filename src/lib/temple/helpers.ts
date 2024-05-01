@@ -2,7 +2,7 @@ import BigNumber from 'bignumber.js';
 
 import { TempleChainKind } from 'temple/types';
 
-import { StoredAccount, TempleAccountType, WalletSpecs } from './types';
+import { StoredAccount, StoredHDAccount, TempleAccountType, WalletSpecs } from './types';
 
 export function usdToAssetAmount(
   usd?: BigNumber,
@@ -60,7 +60,17 @@ export function toExcelColumnName(n: number) {
   return columnName;
 }
 
-function getSameGroupAccounts(allAccounts: StoredAccount[], accountType: TempleAccountType, groupId?: string) {
+export function getSameGroupAccounts(
+  allAccounts: StoredAccount[],
+  accountType: TempleAccountType.HD,
+  groupId: string
+): StoredHDAccount[];
+export function getSameGroupAccounts(
+  allAccounts: StoredAccount[],
+  accountType: TempleAccountType,
+  groupId?: string
+): StoredAccount[];
+export function getSameGroupAccounts(allAccounts: StoredAccount[], accountType: TempleAccountType, groupId?: string) {
   return allAccounts.filter(
     acc => acc.type === accountType && (acc.type !== TempleAccountType.HD || acc.walletId === groupId)
   );

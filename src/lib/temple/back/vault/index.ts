@@ -10,18 +10,20 @@ import type * as WasmThemisPackageInterface from 'wasm-themis';
 import {
   AT_LEAST_ONE_HD_ACCOUNT_ERR_MSG,
   ACCOUNT_NAME_COLLISION_ERR_MSG,
-  WALLETS_SPECS_STORAGE_KEY
+  WALLETS_SPECS_STORAGE_KEY,
+  ACCOUNT_ALREADY_EXISTS_ERR_MSG
 } from 'lib/constants';
 import {
   fetchNewGroupName,
   formatOpParamsBeforeSend,
   getDerivationPath,
+  getSameGroupAccounts,
   isNameCollision,
   toExcelColumnName
 } from 'lib/temple/helpers';
 import * as Passworder from 'lib/temple/passworder';
 import { clearAsyncStorages } from 'lib/temple/reset';
-import { StoredAccount, StoredHDAccount, TempleAccountType, TempleSettings, WalletSpecs } from 'lib/temple/types';
+import { StoredAccount, TempleAccountType, TempleSettings, WalletSpecs } from 'lib/temple/types';
 import { isTruthy } from 'lib/utils';
 import { getAccountAddressForChain, getAccountAddressForEvm, getAccountAddressForTezos } from 'temple/accounts';
 import { michelEncoder, getTezosFastRpcClient } from 'temple/tezos';
@@ -220,10 +222,10 @@ export class Vault {
     }
   }
 
-  static async revealMnemonic(groupId: string, password: string) {
+  static async revealMnemonic(walletId: string, password: string) {
     const { passKey } = await Vault.toValidPassKey(password);
     return withError('Failed to reveal seed phrase', () =>
-      fetchAndDecryptOne<string>(walletMnemonicStrgKey(groupId), passKey)
+      fetchAndDecryptOne<string>(walletMnemonicStrgKey(walletId), passKey)
     );
   }
 
@@ -245,7 +247,7 @@ export class Vault {
         fetchAndDecryptOne<StoredAccount[]>(accountsStrgKey, passKey)
       ]);
 
-      const hdAccounts = allAccounts.filter(acc => acc.type === TempleAccountType.HD && acc.walletId === firstWalletId);
+      const hdAccounts = getSameGroupAccounts(allAccounts, TempleAccountType.HD, firstWalletId);
 
       const data = [mnemonic, hdAccounts.length];
 
@@ -292,8 +294,8 @@ export class Vault {
         (await getPlain<StringRecord<WalletSpecs>>(WALLETS_SPECS_STORAGE_KEY)) ?? {}
       );
       const newWalletsSpecs = Object.fromEntries(
-        allHdWalletsEntries.filter(([groupId]) =>
-          newAccounts.some(acc => acc.type === TempleAccountType.HD && acc.walletId === groupId)
+        allHdWalletsEntries.filter(([walletId]) =>
+          newAccounts.some(acc => acc.type === TempleAccountType.HD && acc.walletId === walletId)
         )
       );
       await encryptAndSaveMany([[accountsStrgKey, newAccounts]], passKey);
@@ -315,7 +317,7 @@ export class Vault {
       }
 
       const allAccounts = await fetchAndDecryptOne<StoredAccount[]>(accountsStrgKey, passKey);
-      const accountsToRemove = allAccounts.filter(acc => acc.type === TempleAccountType.HD && acc.walletId === id);
+      const accountsToRemove: StoredAccount[] = getSameGroupAccounts(allAccounts, TempleAccountType.HD, id);
 
       if (!canRemoveAccounts(allAccounts, accountsToRemove)) {
         throw new PublicError(AT_LEAST_ONE_HD_ACCOUNT_ERR_MSG);
@@ -396,6 +398,46 @@ export class Vault {
     return saved ? { ...DEFAULT_SETTINGS, ...saved } : DEFAULT_SETTINGS;
   }
 
+  async findFreeHDAccountIndex(walletId: string) {
+    return withError('Failed to find free HD account index', async doThrow => {
+      const [mnemonic, allAccounts, walletsSpecs] = await Promise.all([
+        fetchAndDecryptOne<string>(walletMnemonicStrgKey(walletId), this.passKey),
+        this.fetchAccounts(),
+        this.fetchWalletsSpecs()
+      ]);
+
+      if (!(walletId in walletsSpecs)) {
+        throw doThrow();
+      }
+
+      const sameGroupHDAccounts = getSameGroupAccounts(allAccounts, TempleAccountType.HD, walletId);
+      const startHdIndex = Math.max(-1, ...sameGroupHDAccounts.map(a => a.hdIndex)) + 1;
+      let firstSkippedAccount: StoredAccount | undefined;
+      for (let skipsCount = 0; ; skipsCount++) {
+        const hdIndex = startHdIndex + skipsCount;
+        const tezosAcc = await mnemonicToTezosAccountCreds(mnemonic, hdIndex);
+        const evmAcc = mnemonicToEvmAccountCreds(mnemonic, hdIndex);
+        const sameAddressAccount = allAccounts.find(acc => {
+          if (acc.type === TempleAccountType.HD) {
+            return false;
+          }
+
+          const chain = 'chain' in acc ? acc.chain : TempleChainKind.Tezos;
+
+          return chain === TempleChainKind.Tezos
+            ? getAccountAddressForTezos(acc) === tezosAcc.address
+            : getAccountAddressForEvm(acc) === evmAcc.address;
+        });
+
+        if (sameAddressAccount && !firstSkippedAccount) {
+          firstSkippedAccount = sameAddressAccount;
+        } else if (!sameAddressAccount) {
+          return { hdIndex, firstSkippedAccount };
+        }
+      }
+    });
+  }
+
   async createHDAccount(walletId: string, name?: string, hdAccIndex?: number): Promise<StoredAccount[]> {
     return withError('Failed to create account', async doThrow => {
       const [mnemonic, allAccounts, walletsSpecs] = await Promise.all([
@@ -409,15 +451,12 @@ export class Vault {
       }
 
       if (!hdAccIndex) {
-        const sameGroupHDAccounts = allAccounts.filter(
-          (a): a is StoredHDAccount => a.type === TempleAccountType.HD && a.walletId === walletId
-        );
-        hdAccIndex = Math.max(-1, ...sameGroupHDAccounts.map(a => a.hdIndex)) + 1;
+        hdAccIndex = (await this.findFreeHDAccountIndex(walletId)).hdIndex;
       }
 
       const tezosAcc = await mnemonicToTezosAccountCreds(mnemonic, hdAccIndex);
       const evmAcc = mnemonicToEvmAccountCreds(mnemonic, hdAccIndex);
-      const accountToReplace = allAccounts.find(acc => {
+      const sameAddressAccount = allAccounts.find(acc => {
         if (acc.type === TempleAccountType.HD) {
           return false;
         }
@@ -428,11 +467,12 @@ export class Vault {
           ? getAccountAddressForTezos(acc) === tezosAcc.address
           : getAccountAddressForEvm(acc) === evmAcc.address;
       });
-      const fallbackAccName =
-        accountToReplace && !isNameCollision(allAccounts, TempleAccountType.HD, accountToReplace.name, walletId)
-          ? accountToReplace.name
-          : await fetchNewAccountName(allAccounts, TempleAccountType.HD, walletId);
-      const accName = name ?? fallbackAccName;
+
+      if (sameAddressAccount) {
+        throw new PublicError(ACCOUNT_ALREADY_EXISTS_ERR_MSG);
+      }
+
+      const accName = name ?? (await fetchNewAccountName(allAccounts, TempleAccountType.HD, walletId));
 
       if (isNameCollision(allAccounts, TempleAccountType.HD, accName, walletId)) {
         throw new PublicError(ACCOUNT_NAME_COLLISION_ERR_MSG);
@@ -473,8 +513,8 @@ export class Vault {
 
       const walletsSpecs = await this.fetchWalletsSpecs();
       const groupsMnemonics = await Promise.all(
-        Object.keys(walletsSpecs).map(groupId =>
-          fetchAndDecryptOne<string>(walletMnemonicStrgKey(groupId), this.passKey)
+        Object.keys(walletsSpecs).map(walletId =>
+          fetchAndDecryptOne<string>(walletMnemonicStrgKey(walletId), this.passKey)
         )
       );
 
