@@ -24,7 +24,7 @@ import { useOnboardingProgress } from 'app/pages/Onboarding/hooks/useOnboardingP
 import { AdvertisingBanner } from 'app/templates/advertising/advertising-banner/advertising-banner';
 import { AdvertisingOverlay } from 'app/templates/advertising/advertising-overlay/advertising-overlay';
 import { T } from 'lib/i18n';
-import { NotificationsBell } from 'lib/notifications/components/bell';
+import { OldNotificationsBell } from 'lib/notifications/components/bell';
 import { useTempleClient } from 'lib/temple/front';
 import { goBack, HistoryAction, navigate, useLocation } from 'lib/woozie';
 
@@ -222,7 +222,7 @@ const Toolbar: FC<ToolbarProps> = ({
       {attention && (
         <div className="flex items-center content-end absolute right-0">
           <AdvertisingBanner />
-          <NotificationsBell />
+          <OldNotificationsBell />
         </div>
       )}
 

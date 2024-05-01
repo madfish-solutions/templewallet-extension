@@ -41,10 +41,7 @@ export const IconButton = memo(
           'p-1 rounded-md',
           active
             ? 'bg-grey-4 text-grey-1 shadow-none'
-            : clsx(
-                'bg-white text-primary shadow-bottom',
-                'hover:bg-grey-4 hover:shadow-none hover:text-primary-hover'
-              )
+            : clsx('bg-white text-primary shadow-bottom', 'hover:bg-grey-4 hover:shadow-none hover:text-primary-hover')
         )}
         disabled={disabled || active}
         onClick={onClick}

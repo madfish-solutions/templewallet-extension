@@ -5,10 +5,10 @@ import DropdownWrapper from 'app/atoms/DropdownWrapper';
 import { openInFullPage, useAppEnv } from 'app/env';
 import { useShortcutAccountSelectModalIsOpened } from 'app/hooks/use-account-select-shortcut';
 import { ReactComponent as DAppsIcon } from 'app/icons/apps-alt.svg';
-import { ReactComponent as BellIcon } from 'app/icons/bell.svg';
 import { ReactComponent as LockIcon } from 'app/icons/lock.svg';
 import { ReactComponent as MaximiseIcon } from 'app/icons/maximise.svg';
 import { ReactComponent as SettingsIcon } from 'app/icons/settings.svg';
+import { NotificationsBell } from 'lib/notifications/components/bell';
 import { useTempleClient } from 'lib/temple/front';
 import { PopperRenderProps } from 'lib/ui/Popper';
 
@@ -62,7 +62,7 @@ const MenuDropdown = memo<PopperRenderProps>(({ opened, setOpened }) => {
       },
       {
         key: 'notifications',
-        Icon: BellIcon,
+        Icon: NotificationsBell,
         i18nKey: 'notifications',
         linkTo: '/notifications',
         testID: MenuDropdownSelectors.notificationsButton,
