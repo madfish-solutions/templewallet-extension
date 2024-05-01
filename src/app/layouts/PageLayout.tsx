@@ -56,7 +56,7 @@ const PageLayout: FC<PageLayoutProps> = ({ children, contentPadding = false, ...
           {/* <Toolbar {...toolbarProps} /> */}
           {ready && <AppHeader />}
 
-          <div className="flex flex-col">
+          <div className={clsx('flex flex-col', contentPadding && 'p-4')}>
             <ErrorBoundary whileMessage="displaying this page">
               <Suspense fallback={<SpinnerSection />}>{children}</Suspense>
             </ErrorBoundary>
@@ -83,7 +83,7 @@ const ContentPaper: FC<ContentPaperProps> = ({ className, style, children, ...re
 
   return (
     <ContentContainer
-      className={clsx('bg-paper-white overflow-hidden', appEnv.fullPage && 'rounded-md shadow-page', className)}
+      className={clsx('bg-background overflow-hidden', appEnv.fullPage && 'rounded-md shadow-bottom', className)}
       style={appEnv.fullPage ? { minHeight: '20rem', ...style } : style}
       {...rest}
     >

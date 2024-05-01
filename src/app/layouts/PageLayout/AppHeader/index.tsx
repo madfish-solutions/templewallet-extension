@@ -48,7 +48,7 @@ export const AppHeader = memo(() => {
           //
           return (
             <DropdownWrapper opened={props.opened} design="day" className="p-2 flex flex-col" style={{ minWidth: 173 }}>
-              <h6 className="py-2.5 px-2 text-xxxs leading-3 font-semibold text-gray-550">Select Address to copy</h6>
+              <h6 className="py-2.5 px-2 text-xxxs leading-3 font-semibold text-grey-1">Select Address to copy</h6>
 
               {accountTezosAddress ? (
                 <CopyAddressButton
@@ -126,7 +126,7 @@ const CopyAddressButton = memo<CopyAddressButtonProps>(({ chain, address, onCopy
     >
       <div className="flex flex-col gap-y-0.5 items-start">
         <span className="text-xs">{TempleChainTitle[chain]}</span>
-        <span className="text-xxxs leading-3 text-gray-550">
+        <span className="text-xxxs leading-3 text-grey-1">
           <HashShortView hash={address} />
         </span>
       </div>

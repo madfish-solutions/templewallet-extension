@@ -18,8 +18,10 @@ module.exports = {
       inner: 'inset 0 2px 4px 0 rgba(0, 0, 0, 0.06)',
       outline: '0 0 0 3px rgba(237, 137, 54, 0.5)',
       none: 'none',
-      page: '0px 2px 8px 0px #00000014',
-      'page-inner': 'inset 0px 10px 8px -8px #00000014'
+      //
+      'bottom': '0px 2px 8px 0px #00000014',
+      'content-inset': 'inset 0px 10px 8px -8px #00000014',
+      'drop': '0px 2px 4px 0px #00000040'
     },
 
     fontFamily: (() => {
@@ -55,16 +57,12 @@ module.exports = {
     extend: {
       colors: {
         gray: {
-          10: '#f4f4f4',
-          20: '#aeaeb2',
-          30: '#aeaaae',
           100: '#f7fafc',
           200: '#edf2f7',
           300: '#e2e8f0',
           350: '#d8e0e8',
           400: '#cbd5e0',
           500: '#a0aec0',
-          550: '#707070',
           600: '#718096',
           700: '#4a5568',
           800: '#2d3748',
@@ -111,14 +109,17 @@ module.exports = {
           600: '#5a67d8'
         },
 
-        'primary-white': '#fcfaf7',
-        'paper-white': '#fbfbfb',
-        'paper-gray': '#f4f4f4',
-        'toggle-gray': '#E4E4E4',
-        //
-        //
+        'document': '#F4F4F4',
         /** Set in :root. Use in special cases by name */
         'text': '#151618',
+        'background': '#fbfbfb',
+        'lines': '#E4E4E4',
+        'disable': '#DDDDDD',
+        //
+        'grey-1': '#707070',
+        'grey-2': '#AEAEB2',
+        'grey-3': '#C2C2C8',
+        'grey-4': '#F4F4F4',
         //
         'primary': '#FF5B00',
         'primary-hover': '#E85300',
@@ -137,7 +138,8 @@ module.exports = {
         /** Originally 'input' */
         'input-low': '#F0F0F0',
         //
-        //
+        // # Deprecated
+        'primary-white': '#fcfaf7',
         'primary-orange': '#ed8936',
         'primary-orange-light': '#fbd38d',
         'primary-orange-dark': '#c05621',

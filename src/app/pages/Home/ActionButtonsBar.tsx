@@ -104,7 +104,7 @@ const ActionButton = memo<ActionButtonProps>(
         className: clsx(
           'min-w-15 flex flex-col gap-y-0.5 p-2 items-center justify-center rounded-lg',
           disabled
-            ? 'bg-gray-10 text-gray'
+            ? 'bg-grey-4 text-gray'
             : 'bg-primary-low text-primary hover:bg-primary-low-hover hover:text-primary-hover'
         ),
         type: 'button' as const,

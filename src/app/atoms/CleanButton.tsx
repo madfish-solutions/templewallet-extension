@@ -36,7 +36,7 @@ const CleanButton = memo<Props>(({ onClick }) => {
       tabIndex={-1}
       onClick={onClick}
     >
-      <IconBase Icon={CleanIcon} size={12} className="text-gray-20" />
+      <IconBase Icon={CleanIcon} size={12} className="text-grey-2" />
     </button>
   );
 });

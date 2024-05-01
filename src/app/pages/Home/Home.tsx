@@ -85,7 +85,7 @@ const Home = memo<Props>(({ tezosChainId, assetSlug }) => {
 
       {/* <ContentSection tezosChainId={tezosChainId} assetSlug={assetSlug} /> */}
 
-      <div className="px-4 bg-paper-white shadow-page-inner">
+      <div className="px-4 bg-background shadow-content-inset">
         {/* TODO: ErrorBoundary + Suspense */}
         {(() => {
           if (!tezosChainId || !assetSlug)

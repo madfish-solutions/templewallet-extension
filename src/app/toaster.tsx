@@ -31,7 +31,7 @@ const CustomToastBar = memo<{ toast: Toast; customType?: ToastTypeExtended }>(({
   const type: ToastTypeExtended = customType || toast.type;
 
   return (
-    <div className={clsx('px-3 py-2.5 flex gap-x-2 items-center rounded-md shadow-page', TOAST_CLASSES[type])}>
+    <div className={clsx('px-3 py-2.5 flex gap-x-2 items-center rounded-md shadow-bottom', TOAST_CLASSES[type])}>
       <CustomToastIcon toast={toast} type={type} />
 
       {typeof toast.message === 'function' ? (

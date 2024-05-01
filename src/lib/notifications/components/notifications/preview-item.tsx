@@ -31,7 +31,7 @@ export const NotificationPreviewItem: FC<Props> = ({ notification }) => {
       to={`/notifications/${notification.id}`}
       className={classNames([
         'flex column p-4 border-b border-gray-300',
-        notification.status === NotificationStatus.Read && 'bg-gray-10'
+        notification.status === NotificationStatus.Read && 'bg-grey-4'
       ])}
       testID={PreviewItemSelectors.notificationItem}
       testIDProperties={{ id: notification.id, type: notification.type }}

@@ -1,7 +1,6 @@
 import React, { FC, memo } from 'react';
 
 import { ReactComponent as ControlCentreIcon } from 'app/icons/control-centre.svg';
-import { ContentContainer } from 'app/layouts/ContentContainer';
 import PageLayout from 'app/layouts/PageLayout';
 import { useChainSelectController, ChainSelectSection } from 'app/templates/ChainSelect';
 import { AssetTypesEnum } from 'lib/assets/types';
@@ -28,6 +27,7 @@ const ManageAssets = memo<Props>(({ assetType }) => {
           <T id={ofCollectibles ? 'manageCollectibles' : 'manageTokens'} />
         </>
       }
+      contentPadding
     >
       {!accountTezAddress ? (
         <div className="text-center">{UNDER_DEVELOPMENT_MSG}</div>
@@ -48,7 +48,7 @@ const ManageAssetsForChain: FC<ManageAssetsForChainProps> = ({ ofCollectibles, a
   const network = chainSelectController.value;
 
   return (
-    <ContentContainer className="mb-6">
+    <>
       <ChainSelectSection controller={chainSelectController} />
 
       {network.kind !== 'tezos' ? (
@@ -58,7 +58,7 @@ const ManageAssetsForChain: FC<ManageAssetsForChainProps> = ({ ofCollectibles, a
       ) : (
         <ManageTezosTokens tezosChainId={network.chainId} publicKeyHash={accountTezAddress} />
       )}
-    </ContentContainer>
+    </>
   );
 };
 

@@ -7,11 +7,14 @@ import { SyncSpinner } from 'app/atoms';
 import Checkbox from 'app/atoms/Checkbox';
 import Divider from 'app/atoms/Divider';
 import DropdownWrapper from 'app/atoms/DropdownWrapper';
+import { IconButton } from 'app/atoms/IconButton';
 import { ScrollBackUpButton } from 'app/atoms/ScrollBackUpButton';
 import { SimpleInfiniteScroll } from 'app/atoms/SimpleInfiniteScroll';
 import { useAppEnv } from 'app/env';
 import { useCollectiblesListingLogic } from 'app/hooks/use-collectibles-listing-logic';
 import { ReactComponent as EditingIcon } from 'app/icons/editing.svg';
+import { ReactComponent as FiltersIcon } from 'app/icons/filters.svg';
+import { ReactComponent as HistoryIcon } from 'app/icons/history.svg';
 import { ContentContainer } from 'app/layouts/ContentContainer';
 import {
   LOCAL_STORAGE_ADULT_BLUR_TOGGLE_KEY,
@@ -29,7 +32,7 @@ import { T, t } from 'lib/i18n';
 import { useMemoWithCompare } from 'lib/ui/hooks';
 import { useLocalStorage } from 'lib/ui/local-storage';
 import Popper, { PopperChildren, PopperPopup, PopperRenderProps } from 'lib/ui/Popper';
-import { Link } from 'lib/woozie';
+import { HistoryAction, Link, navigate } from 'lib/woozie';
 import { UNDER_DEVELOPMENT_MSG } from 'temple/evm/under_dev_msg';
 import { useAccountAddressForTezos } from 'temple/front';
 import { TezosNetworkEssentials } from 'temple/networks';
@@ -152,6 +155,13 @@ const TezosCollectiblesTab = memo<TezosCollectiblesTabProps>(({ network, publicK
           containerClassName="flex-1 mr-2"
           testID={AssetsSelectors.searchAssetsInputCollectibles}
         />
+
+        <IconButton
+          Icon={HistoryIcon}
+          onClick={() => void navigate({ search: 'tab=activity' }, HistoryAction.Replace)}
+        />
+
+        <IconButton Icon={FiltersIcon} />
 
         <Popper placement="bottom-end" strategy="fixed" popup={renderManageDropdown}>
           {renderManageButton}

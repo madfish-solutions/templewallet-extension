@@ -258,7 +258,7 @@ const BuyTezosWithCreditCard = memo<{ publicKeyHash: string }>(({ publicKeyHash 
             </FormSubmitButton>
 
             <div className="flex justify-between w-full">
-              <span className="text-xs text-gray-30 leading-relaxed">
+              <span className="text-xs text-[#aeaaae] leading-relaxed">
                 <T id="exchangeRate" />:
               </span>
               <span className="text-xs text-gray-600 leading-relaxed">{exchangeRateStr}</span>

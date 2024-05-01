@@ -93,7 +93,7 @@ const SearchField: FC<SearchFieldProps> = ({
         size={12}
         className={clsx(
           'group-hover:text-primary absolute left-3 top-2 pointer-events-none',
-          focused || value ? 'text-primary' : 'text-gray-550'
+          focused || value ? 'text-primary' : 'text-grey-1'
         )}
       />
 

@@ -14,7 +14,7 @@ interface DropdownWrapperProps extends HTMLAttributes<HTMLDivElement> {
 const DESIGN_CLASS_NAMES = {
   light: 'bg-white border border-gray-300 shadow-xl',
   dark: 'bg-gray-910 border border-gray-850 shadow-xl',
-  day: 'bg-white shadow-page'
+  day: 'bg-white shadow-bottom'
 };
 
 const ANIMATION_DURATION = 100;

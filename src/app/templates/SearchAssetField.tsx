@@ -10,7 +10,7 @@ const SearchAssetField = memo<SearchAssetFieldProps>(({ className, value, ...res
   <SearchField
     value={value}
     className={clsx(
-      'bg-input-low rounded-lg placeholder-gray-550 hover:placeholder-text caret-primary',
+      'bg-input-low rounded-lg placeholder-grey-1 hover:placeholder-text caret-primary',
       'transition ease-in-out duration-200',
       className
     )}

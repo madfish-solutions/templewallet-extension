@@ -1,9 +1,11 @@
 import React, { memo, useCallback, useMemo } from 'react';
 
+import { Divider, ToggleSwitch } from 'app/atoms';
 import DropdownWrapper from 'app/atoms/DropdownWrapper';
 import { openInFullPage, useAppEnv } from 'app/env';
 import { useShortcutAccountSelectModalIsOpened } from 'app/hooks/use-account-select-shortcut';
 import { ReactComponent as DAppsIcon } from 'app/icons/apps-alt.svg';
+import { ReactComponent as BellIcon } from 'app/icons/bell.svg';
 import { ReactComponent as LockIcon } from 'app/icons/lock.svg';
 import { ReactComponent as MaximiseIcon } from 'app/icons/maximise.svg';
 import { ReactComponent as SettingsIcon } from 'app/icons/settings.svg';
@@ -11,7 +13,7 @@ import { useTempleClient } from 'lib/temple/front';
 import { PopperRenderProps } from 'lib/ui/Popper';
 
 import { ActionButtonProps, ActionButton } from './ActionButton';
-import { AccountDropdownSelectors } from './selectors';
+import { MenuDropdownSelectors } from './selectors';
 
 interface TDropdownAction extends ActionButtonProps {
   key: string;
@@ -47,7 +49,7 @@ const MenuDropdown = memo<PopperRenderProps>(({ opened, setOpened }) => {
         Icon: DAppsIcon,
         i18nKey: 'dApps',
         linkTo: '/dApps',
-        testID: AccountDropdownSelectors.dAppsButton,
+        testID: MenuDropdownSelectors.dAppsButton,
         onClick: closeDropdown
       },
       {
@@ -55,7 +57,15 @@ const MenuDropdown = memo<PopperRenderProps>(({ opened, setOpened }) => {
         Icon: SettingsIcon,
         i18nKey: 'settings',
         linkTo: '/settings',
-        testID: AccountDropdownSelectors.settingsButton,
+        testID: MenuDropdownSelectors.settingsButton,
+        onClick: closeDropdown
+      },
+      {
+        key: 'notifications',
+        Icon: BellIcon,
+        i18nKey: 'notifications',
+        linkTo: '/notifications',
+        testID: MenuDropdownSelectors.notificationsButton,
         onClick: closeDropdown
       },
       {
@@ -63,7 +73,7 @@ const MenuDropdown = memo<PopperRenderProps>(({ opened, setOpened }) => {
         Icon: MaximiseIcon,
         i18nKey: appEnv.fullPage ? 'openNewTab' : 'maximiseView',
         linkTo: null,
-        testID: appEnv.fullPage ? AccountDropdownSelectors.newTabButton : AccountDropdownSelectors.maximizeButton,
+        testID: appEnv.fullPage ? MenuDropdownSelectors.newTabButton : MenuDropdownSelectors.maximizeButton,
         onClick: handleMaximiseViewClick
       },
       {
@@ -71,7 +81,7 @@ const MenuDropdown = memo<PopperRenderProps>(({ opened, setOpened }) => {
         Icon: LockIcon,
         i18nKey: 'lock',
         linkTo: null,
-        testID: AccountDropdownSelectors.logoutButton,
+        testID: MenuDropdownSelectors.logoutButton,
         onClick: handleLogoutClick
       }
     ],
@@ -80,11 +90,19 @@ const MenuDropdown = memo<PopperRenderProps>(({ opened, setOpened }) => {
 
   return (
     <DropdownWrapper opened={opened} design="day" className="p-2 flex flex-col" style={{ minWidth: 163 }}>
-      <h6 className="py-2.5 px-2 text-xxxs leading-3 font-semibold text-gray-550">Menu</h6>
+      <h6 className="py-2.5 px-2 text-xxxs leading-3 font-semibold text-grey-1">Menu</h6>
 
       {actions.map(action => (
         <ActionButton {...action} />
       ))}
+
+      <Divider className="my-1.5" />
+
+      <label className="py-2.5 px-2 flex items-center gap-x-1">
+        <span className="flex-1 text-xs">Testnet Mode</span>
+
+        <ToggleSwitch small checked={false} />
+      </label>
     </DropdownWrapper>
   );
 });

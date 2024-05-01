@@ -31,6 +31,7 @@ export { FileInput } from './FileInput';
 export { PASSWORD_ERROR_CAPTION, FormField } from './FormField';
 
 export { default as Checkbox } from './Checkbox';
+export { ToggleSwitch } from './ToggleSwitch';
 
 export { FormSubmitButton } from './FormSubmitButton';
 

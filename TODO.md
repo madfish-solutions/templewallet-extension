@@ -2,7 +2,7 @@
 
 - Notifications button
 - Toast on copied address
-- Test Mode button
+- Notifications disclaimer
 - Accounts modal
 - - IconButton with blue style
 - Manage Assets tab
@@ -68,6 +68,10 @@
 - Block explorers
 - Adding localhost RPC
 - - What native currency?
+-
+- Robot icon
+- Toast on copy address
+- Segment Control & Toggle animations
 -
 
 ## TO QA
