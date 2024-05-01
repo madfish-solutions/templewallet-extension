@@ -2,6 +2,7 @@ import React, { FC, memo, PropsWithChildren, useCallback } from 'react';
 
 import clsx from 'clsx';
 
+import { CaptionAlert } from 'app/atoms';
 import { ReactComponent as AddIcon } from 'app/icons/add-to-list.svg';
 import { dispatch } from 'app/store';
 import { setTokenStatusAction, setCollectibleStatusAction } from 'app/store/assets/actions';
@@ -23,7 +24,7 @@ interface Props extends PropsWithChildren {
 
 export const ManageAssetsContent: FC<Props> = ({ ofCollectibles, searchValue, setSearchValue, children }) => (
   <>
-    <div className="mb-3 flex gap-x-2">
+    <div className="flex gap-x-2">
       <SearchAssetField
         value={searchValue}
         containerClassName="flex-1 mr-2"
@@ -44,6 +45,12 @@ export const ManageAssetsContent: FC<Props> = ({ ofCollectibles, searchValue, se
         <T id={ofCollectibles ? 'addCollectible' : 'addToken'} />
       </Link>
     </div>
+
+    <CaptionAlert
+      type="info"
+      className="my-4"
+      message="To add another token, enter the token address into the search bar"
+    />
 
     {children}
   </>

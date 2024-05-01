@@ -2,6 +2,8 @@ export { default as Divider } from './Divider';
 
 export { Alert } from './Alert';
 
+export { CaptionAlert } from './CaptionAlert';
+
 export { Anchor } from './Anchor';
 
 export { Button } from './Button';

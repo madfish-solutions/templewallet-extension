@@ -1,8 +1,7 @@
 ## TODO:
 
-- Notifications button
-- Toast on copied address
-- Notifications disclaimer
+- SegmentControl animation interrupted by Suspense
+- Toast on copied address design
 - Accounts modal
 - - IconButton with blue style
 - Manage Assets tab
