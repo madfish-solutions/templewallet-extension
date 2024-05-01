@@ -299,15 +299,14 @@ export const [TempleClientProvider, useTempleClient] = constate(() => {
   }, []);
 
   const editHdGroupName = useCallback(
-    async (id: string, name: string) => {
-      await setWalletsSpecs(prevSpecs => ({
+    (id: string, name: string) =>
+      setWalletsSpecs(prevSpecs => ({
         ...prevSpecs,
         [id]: {
           ...prevSpecs[id],
           name: name.trim()
         }
-      }));
-    },
+      })),
     [setWalletsSpecs]
   );
 
