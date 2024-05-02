@@ -1,7 +1,7 @@
 import { Buffer } from 'buffer';
 import browser from 'webextension-polyfill';
 
-import { fetchFromStorage as getPlain } from 'lib/storage';
+import { fetchFromStorage } from 'lib/storage';
 import * as Passworder from 'lib/temple/passworder';
 
 interface EncryptedStorage {
@@ -12,8 +12,9 @@ interface EncryptedStorage {
 export async function isStored(storageKey: string) {
   storageKey = await wrapStorageKey(storageKey);
 
-  const value = await getPlain(storageKey);
-  return value !== null;
+  const value = await fetchFromStorage(storageKey);
+
+  return value != null;
 }
 
 export async function fetchAndDecryptOne<T>(storageKey: string, passKey: CryptoKey) {
@@ -89,9 +90,24 @@ async function wrapStorageKey(key: string) {
 /**
  * @deprecated
  */
+export async function getPlainLegacy<T>(key: string): Promise<T | undefined> {
+  const items = await browser.storage.local.get([key]);
+  return items[key];
+}
+
+/**
+ * @deprecated
+ */
+export function savePlainLegacy<T>(key: string, value: T) {
+  return browser.storage.local.set({ [key]: value });
+}
+
+/**
+ * @deprecated
+ */
 export async function isStoredLegacy(storageKey: string) {
-  const value = await getPlain(storageKey);
-  return value !== null;
+  const value = await getPlainLegacy(storageKey);
+  return value !== undefined;
 }
 
 /**

@@ -28,6 +28,7 @@ import {
   encryptAndSaveManyLegacy,
   fetchAndDecryptOne,
   fetchAndDecryptOneLegacy,
+  getPlainLegacy,
   removeManyLegacy
 } from './safe-storage';
 import {
@@ -126,7 +127,7 @@ export const MIGRATIONS = [
     ]);
 
     // Address book contacts migration
-    const contacts = await fetchFromStorage<TempleContact[]>('contacts');
+    const contacts = await getPlainLegacy<TempleContact[]>('contacts');
 
     const accountsStrgKeys = accounts!
       .map(acc => [accPrivKeyStrgKey(acc.publicKeyHash), accPubKeyStrgKey(acc.publicKeyHash)])

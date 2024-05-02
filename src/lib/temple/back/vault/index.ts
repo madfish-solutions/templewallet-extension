@@ -6,6 +6,7 @@ import * as TaquitoUtils from '@taquito/utils';
 import * as Bip39 from 'bip39';
 import { nanoid } from 'nanoid';
 import type * as WasmThemisPackageInterface from 'wasm-themis';
+import browser from 'webextension-polyfill';
 
 import {
   AT_LEAST_ONE_HD_ACCOUNT_ERR_MSG,
@@ -54,10 +55,12 @@ import {
   encryptAndSaveMany,
   fetchAndDecryptOne,
   fetchAndDecryptOneLegacy,
+  getPlainLegacy,
   isStored,
   isStoredLegacy,
   removeMany,
-  removeManyLegacy
+  removeManyLegacy,
+  savePlainLegacy
 } from './safe-storage';
 import * as SessionStore from './session-store';
 import {
@@ -78,6 +81,7 @@ const libthemisWasmSrc = '/wasm/libthemis.wasm';
 export class Vault {
   static async isExist() {
     const stored = await isStored(checkStrgKey);
+    console.log('oy vey 1', await browser.storage.local.get(null), checkStrgKey, stored);
     if (stored) return stored;
 
     return isStoredLegacy(checkStrgKey);
@@ -172,7 +176,7 @@ export class Vault {
         return fetchAndDecryptOneLegacy<number>(legacyMigrationLevelStrgKey, legacyPassKey);
       });
     } else {
-      const saved = await getPlain<number>(migrationLevelStrgKey);
+      const saved = await getPlainLegacy<number>(migrationLevelStrgKey);
 
       migrationLevel = saved ?? 0;
 
@@ -217,7 +221,7 @@ export class Vault {
         await removeManyLegacy([legacyMigrationLevelStrgKey]);
       }
 
-      await savePlain(migrationLevelStrgKey, MIGRATIONS.length);
+      await savePlainLegacy(migrationLevelStrgKey, MIGRATIONS.length);
     }
   }
 
