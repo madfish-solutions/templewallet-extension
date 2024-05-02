@@ -13,7 +13,7 @@ import { defaultNumberOfWords } from './constants';
 export const WalletFromMnemonicForm = memo(() => {
   const { createOrImportWallet } = useTempleClient();
 
-  const [submitCount, setSubmitCount] = useState(0);
+  const [wasSubmitted, setWasSubmitted] = useState(false);
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [seedPhrase, setSeedPhrase] = useState('');
@@ -36,7 +36,7 @@ export const WalletFromMnemonicForm = memo(() => {
       return;
     }
 
-    setSubmitCount(x => x + 1);
+    setWasSubmitted(true);
 
     if (seedError || !isSeedPhraseFilled(seedPhrase)) {
       setSeedError(t('mnemonicWordsAmountConstraint', [numberOfWords]) as string);
@@ -63,7 +63,7 @@ export const WalletFromMnemonicForm = memo(() => {
       {error && <Alert type="error" title={t('error')} autoFocus description={error} className="mb-6" />}
 
       <SeedPhraseInput
-        submitted={submitCount !== 0}
+        submitted={wasSubmitted}
         seedError={seedError}
         setSeedError={setSeedError}
         onChange={handleSeedPhraseChange}
