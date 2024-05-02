@@ -6,7 +6,6 @@ import * as TaquitoUtils from '@taquito/utils';
 import * as Bip39 from 'bip39';
 import { nanoid } from 'nanoid';
 import type * as WasmThemisPackageInterface from 'wasm-themis';
-import browser from 'webextension-polyfill';
 
 import {
   AT_LEAST_ONE_HD_ACCOUNT_ERR_MSG,
