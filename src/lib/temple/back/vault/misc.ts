@@ -12,7 +12,7 @@ import { StoredAccount, TempleAccountType } from 'lib/temple/types';
 import { getAccountAddressForEvm, getAccountAddressForTezos } from 'temple/accounts';
 import { TempleChainKind } from 'temple/types';
 
-import { PublicError } from '../PublicError';
+import { PublicError, isPublicError } from '../PublicError';
 
 import { fetchMessage } from './helpers';
 import { accPrivKeyStrgKey, accPubKeyStrgKey } from './storage-keys';
@@ -184,6 +184,6 @@ export async function withError<T>(errMessage: string, factory: (doThrow: () => 
     });
   } catch (err: any) {
     console.error(err);
-    throw err.name === 'PublicError' ? err : new PublicError(errMessage);
+    throw isPublicError(err) ? err : new PublicError(errMessage);
   }
 }

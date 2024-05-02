@@ -65,7 +65,7 @@ const DerivationPathBanner = memo(() => (
     <h3 className="mt-2 text-sm font-semibold text-gray-700">EVM:</h3>
 
     <div className="mt-1 w-full border rounded-md p-2 flex items-center">
-      <span className="text-sm font-medium text-gray-800">{`m/44'/60'/<address_index>'/0`}</span>
+      <span className="text-sm font-medium text-gray-800">{`m/44'/60'/0'/0/<address_index>`}</span>
     </div>
   </div>
 ));

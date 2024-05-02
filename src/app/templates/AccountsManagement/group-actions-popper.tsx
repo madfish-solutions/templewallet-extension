@@ -60,7 +60,9 @@ const GroupActionsDropdown = memo<PopperRenderProps & GroupActionsPopperProps>(
                 if (firstSkippedAccount && !accountExistsShownWarnings[group.id]) {
                   showAccountAlreadyExistsWarning(group, firstSkippedAccount);
                   setAccountExistsShownWarnings(prevState => ({
-                    ...prevState,
+                    ...Object.fromEntries(
+                      Object.entries(prevState).filter(([groupId]) => !hdGroups.some(({ id }) => id === groupId))
+                    ),
                     [group.id]: true
                   }));
                 } else {
@@ -133,7 +135,7 @@ const GroupActionsDropdown = memo<PopperRenderProps & GroupActionsPopperProps>(
       ];
     }, [
       group,
-      hdGroups.length,
+      hdGroups,
       findFreeHdIndex,
       accountExistsShownWarnings,
       showAccountAlreadyExistsWarning,

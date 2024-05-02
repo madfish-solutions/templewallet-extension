@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 
 import { StoredAccount } from 'lib/temple/types';
 
-import { getAllGroups } from './get-all-groups';
+import { getAllGroups } from './accounts-groups';
 import { useHDGroups } from './ready';
 
 export const useAccountsGroups = (accounts: StoredAccount[]) => {

@@ -9,7 +9,7 @@ import {
 import { t } from 'lib/i18n';
 import { DisplayedGroup, StoredAccount } from 'lib/temple/types';
 import { useHDGroups } from 'temple/front';
-import { getAllGroups } from 'temple/front/get-all-groups';
+import { getAllGroups } from 'temple/front/accounts-groups';
 
 interface AccountAlreadyExistsWarningProps {
   newAccountGroup: DisplayedGroup;

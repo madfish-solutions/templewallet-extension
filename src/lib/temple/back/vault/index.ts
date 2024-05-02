@@ -13,6 +13,7 @@ import {
   WALLETS_SPECS_STORAGE_KEY,
   ACCOUNT_ALREADY_EXISTS_ERR_MSG
 } from 'lib/constants';
+import { fetchFromStorage as getPlain, putToStorage as savePlain } from 'lib/storage';
 import {
   fetchNewGroupName,
   formatOpParamsBeforeSend,
@@ -53,12 +54,10 @@ import {
   encryptAndSaveMany,
   fetchAndDecryptOne,
   fetchAndDecryptOneLegacy,
-  getPlain,
   isStored,
   isStoredLegacy,
   removeMany,
-  removeManyLegacy,
-  savePlain
+  removeManyLegacy
 } from './safe-storage';
 import * as SessionStore from './session-store';
 import {

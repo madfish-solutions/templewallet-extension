@@ -28,9 +28,7 @@ import {
   encryptAndSaveManyLegacy,
   fetchAndDecryptOne,
   fetchAndDecryptOneLegacy,
-  getPlain,
-  removeManyLegacy,
-  savePlain
+  removeManyLegacy
 } from './safe-storage';
 import {
   checkStrgKey,
@@ -128,7 +126,7 @@ export const MIGRATIONS = [
     ]);
 
     // Address book contacts migration
-    const contacts = await getPlain<TempleContact[]>('contacts');
+    const contacts = await fetchFromStorage<TempleContact[]>('contacts');
 
     const accountsStrgKeys = accounts!
       .map(acc => [accPrivKeyStrgKey(acc.publicKeyHash), accPubKeyStrgKey(acc.publicKeyHash)])
@@ -190,7 +188,7 @@ export const MIGRATIONS = [
     });
 
     toEncryptAndSave.push([accountsStrgKey, newAccounts], [walletMnemonicStrgKey(walletId), mnemonic]);
-    await savePlain(WALLETS_SPECS_STORAGE_KEY, { [walletId]: { name: hdWalletName } });
+    await putToStorage(WALLETS_SPECS_STORAGE_KEY, { [walletId]: { name: hdWalletName } });
 
     moveValueInStorage(ACCOUNT_PKH_STORAGE_KEY, ADS_VIEWER_ADDRESS_STORAGE_KEY);
 
