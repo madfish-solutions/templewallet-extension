@@ -81,7 +81,6 @@ const libthemisWasmSrc = '/wasm/libthemis.wasm';
 export class Vault {
   static async isExist() {
     const stored = await isStored(checkStrgKey);
-    console.log('oy vey 1', await browser.storage.local.get(null), checkStrgKey, stored);
     if (stored) return stored;
 
     return isStoredLegacy(checkStrgKey);
