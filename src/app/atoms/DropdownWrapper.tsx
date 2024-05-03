@@ -21,6 +21,7 @@ const ANIMATION_DURATION = 100;
 
 type Design = keyof typeof DESIGN_CLASS_NAMES;
 
+/** TODO: See common usage cases */
 const DropdownWrapper: FC<DropdownWrapperProps> = ({
   opened,
   design = 'light',
@@ -59,7 +60,7 @@ const DropdownWrapper: FC<DropdownWrapperProps> = ({
       <div
         ref={nodeRef}
         className={clsx(
-          'mt-2 rounded-md overflow-hidden',
+          'rounded-md overflow-hidden',
           process.env.TARGET_BROWSER === 'firefox' && 'grayscale-firefox-fix',
           DESIGN_CLASS_NAMES[design],
           className

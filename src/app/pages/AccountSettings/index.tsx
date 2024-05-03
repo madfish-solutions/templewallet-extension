@@ -7,7 +7,7 @@ import CopyButton from 'app/atoms/CopyButton';
 import { useAllAccountsReactiveOnRemoval } from 'app/hooks/use-all-accounts-reactive';
 import { useTotalBalance } from 'app/hooks/use-total-balance';
 import { ReactComponent as ChevronRightIcon } from 'app/icons/chevron-right.svg';
-import { ReactComponent as CopyIcon } from 'app/icons/copy.svg';
+import { ReactComponent as CopyIcon } from 'app/icons/copy-old.svg';
 import PageLayout from 'app/layouts/PageLayout';
 import { useFiatCurrency } from 'lib/fiat-currency';
 import { T, TID, t } from 'lib/i18n';

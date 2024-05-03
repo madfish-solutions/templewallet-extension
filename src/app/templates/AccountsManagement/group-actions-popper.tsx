@@ -1,12 +1,12 @@
 import React, { FC, memo, useMemo } from 'react';
 
-import { Button } from 'app/atoms';
-import { ReactComponent as AddIcon } from 'app/icons/add.svg';
+import { Button, IconBase } from 'app/atoms';
+import { ReactComponent as DeleteIcon } from 'app/icons/delete.svg';
 import { ReactComponent as DownloadIcon } from 'app/icons/download.svg';
 import { ReactComponent as EditIcon } from 'app/icons/edit.svg';
-import { ReactComponent as EllipsisIcon } from 'app/icons/ellypsis.svg';
-import { ReactComponent as RemoveIcon } from 'app/icons/remove.svg';
-import { ReactComponent as RevealEyeIcon } from 'app/icons/reveal-eye.svg';
+import { ReactComponent as EllipsisIcon } from 'app/icons/menu_ellipsis.svg';
+import { ReactComponent as AddIcon } from 'app/icons/plus_circle.svg';
+import { ReactComponent as RevealEyeIcon } from 'app/icons/reveal.svg';
 import { ACCOUNT_EXISTS_SHOWN_WARNINGS_STORAGE_KEY } from 'lib/constants';
 import { useStorage, useTempleClient } from 'lib/temple/front';
 import { DisplayedGroup, StoredAccount, TempleAccountType } from 'lib/temple/types';
@@ -25,8 +25,6 @@ export interface GroupActionsPopperProps {
   onDeleteClick: (group: DisplayedGroup) => void;
   showAccountAlreadyExistsWarning: (group: DisplayedGroup, oldAccount: StoredAccount) => void;
 }
-
-const actionsDropdownStyle = { transform: 'translate(1.25rem, 1rem)' };
 
 const GroupActionsDropdown = memo<PopperRenderProps & GroupActionsPopperProps>(
   ({
@@ -95,7 +93,7 @@ const GroupActionsDropdown = memo<PopperRenderProps & GroupActionsPopperProps>(
           hdGroups.length > 1 && {
             key: 'delete-wallet',
             i18nKey: 'delete' as const,
-            icon: RemoveIcon,
+            icon: DeleteIcon,
             onClick: () => onDeleteClick(group),
             danger: true
           }
@@ -128,7 +126,7 @@ const GroupActionsDropdown = memo<PopperRenderProps & GroupActionsPopperProps>(
         {
           key: 'delete-group',
           i18nKey: 'delete' as const,
-          icon: RemoveIcon,
+          icon: DeleteIcon,
           onClick: () => onDeleteClick(group),
           danger: true
         }
@@ -154,7 +152,6 @@ const GroupActionsDropdown = memo<PopperRenderProps & GroupActionsPopperProps>(
         toggleOpened={toggleOpened}
         title={group.type === TempleAccountType.HD ? 'Wallet Actions' : 'Actions'}
         actions={actions}
-        style={actionsDropdownStyle}
       />
     );
   }
@@ -162,18 +159,16 @@ const GroupActionsDropdown = memo<PopperRenderProps & GroupActionsPopperProps>(
 
 export const GroupActionsPopper: FC<GroupActionsPopperProps> = ({ group, ...restPopperProps }) => (
   <Popper
-    placement="left-start"
+    // placement="left-start"
+    // strategy="fixed"
+    // style={{ pointerEvents: 'none' }}
+    placement="bottom-end"
     strategy="fixed"
-    style={{ pointerEvents: 'none' }}
     popup={props => <GroupActionsDropdown group={group} {...restPopperProps} {...props} />}
   >
     {({ ref, toggleOpened }) => (
-      <Button
-        ref={ref}
-        onClick={toggleOpened}
-        className="border border-blue-500 rounded-full text-blue-500 w-4 h-4 flex justify-center items-center m-1"
-      >
-        <EllipsisIcon className="w-3 h-3 stroke-current" />
+      <Button ref={ref} onClick={toggleOpened}>
+        <IconBase Icon={EllipsisIcon} size={16} className="text-secondary" />
       </Button>
     )}
   </Popper>

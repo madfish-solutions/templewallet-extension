@@ -72,7 +72,7 @@ const AccountsDropdown = memo<PopperRenderProps>(({ opened, setOpened }) => {
       //   transform: 'translate(3.25rem, 3.25rem)',
       //   pointerEvents: 'all'
       // }}
-      className="p-2 w-64 min-h-96 flex flex-col"
+      className="mt-3 p-2 w-64 min-h-96 flex flex-col"
     >
       <div className="flex items-center mb-2">
         <h3 className="flex items-center text-sm text-white opacity-20">

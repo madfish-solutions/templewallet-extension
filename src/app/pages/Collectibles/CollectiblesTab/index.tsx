@@ -13,8 +13,8 @@ import { SimpleInfiniteScroll } from 'app/atoms/SimpleInfiniteScroll';
 import { useAppEnv } from 'app/env';
 import { useCollectiblesListingLogic } from 'app/hooks/use-collectibles-listing-logic';
 import { ReactComponent as EditingIcon } from 'app/icons/editing.svg';
-import { ReactComponent as FiltersIcon } from 'app/icons/filters.svg';
-import { ReactComponent as HistoryIcon } from 'app/icons/history.svg';
+import { ReactComponent as FiltersIcon } from 'app/icons/filteroff.svg';
+import { ReactComponent as HistoryIcon } from 'app/icons/activity.svg';
 import { ContentContainer } from 'app/layouts/ContentContainer';
 import {
   LOCAL_STORAGE_ADULT_BLUR_TOGGLE_KEY,
@@ -217,7 +217,7 @@ const ManageButtonDropdown: FC<ManageButtonDropdownProps> = ({
   return (
     <DropdownWrapper
       opened={opened}
-      className="origin-top-right p-2 flex flex-col min-w-40"
+      className="origin-top-right mt-1 p-2 flex flex-col min-w-40"
       style={{ border: 'unset', marginTop: '0.25rem' }}
     >
       <Link

@@ -4,7 +4,7 @@ import classNames from 'clsx';
 import { QRCode } from 'react-qr-svg';
 
 import { FormField, PageTitle } from 'app/atoms';
-import { ReactComponent as CopyIcon } from 'app/icons/copy.svg';
+import { ReactComponent as CopyIcon } from 'app/icons/copy-old.svg';
 import { ReactComponent as GlobeIcon } from 'app/icons/globe.svg';
 import { ReactComponent as HashIcon } from 'app/icons/hash.svg';
 import { ReactComponent as QRIcon } from 'app/icons/qr.svg';

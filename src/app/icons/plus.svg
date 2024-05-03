@@ -1,1 +1,6 @@
-<svg role="img" xmlns="http://www.w3.org/2000/svg" width="48px" height="48px" viewBox="0 0 24 24" aria-labelledby="plusIconTitle" stroke="white" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" fill="none"> <title id="plusIconTitle">Plus</title> <path d="M20 12L4 12M12 4L12 20"/> </svg>
+<svg viewBox="0 0 12 12" xmlns="http://www.w3.org/2000/svg">
+  <path
+    stroke="none"
+    d="M0.27832 6.06445C0.27832 5.64746 0.626953 5.29883 1.04395 5.29883H5.23438V1.1084C5.23438 0.691406 5.58301 0.342773 6 0.342773C6.41699 0.342773 6.76562 0.691406 6.76562 1.1084L6.76563 5.29883H10.9561C11.373 5.29883 11.7217 5.64746 11.7217 6.06445C11.7217 6.48828 11.373 6.83008 10.9561 6.83008H6.76563V11.0205C6.76563 11.4375 6.41699 11.7861 6 11.7861C5.58301 11.7861 5.23438 11.4375 5.23438 11.0205V6.83008L1.04395 6.83008C0.626953 6.83008 0.27832 6.48828 0.27832 6.06445Z"
+  />
+</svg>

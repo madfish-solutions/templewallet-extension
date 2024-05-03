@@ -11,13 +11,14 @@ import { IconBase } from './IconBase';
 
 interface Props extends TestIDProps {
   Icon: ImportedSVGComponent;
+  design?: 'blue' | 'orange' | 'red';
   active?: boolean;
   tooltip?: string;
   onClick?: EmptyFn;
 }
 
 export const IconButton = memo(
-  forwardRef<HTMLButtonElement, Props>(({ Icon, active, tooltip, onClick, testID, testIDProperties }, ref) => {
+  forwardRef<HTMLButtonElement, Props>(({ Icon, design, active, tooltip, onClick, testID, testIDProperties }, ref) => {
     const disabled = !onClick;
 
     const tippyProps = useMemo(
@@ -34,15 +35,28 @@ export const IconButton = memo(
 
     const finalRef = useMemo(() => combineRefs<HTMLButtonElement>(ref, tippyRef), [ref, tippyRef]);
 
+    const designClassName = useMemo(() => {
+      if (active) return 'bg-grey-4 text-grey-1 shadow-none';
+
+      switch (design) {
+        case 'blue':
+          return clsx('bg-secondary-low text-secondary', 'hover:bg-secondary-hover-low hover:text-secondary-hover');
+        case 'orange':
+          return clsx('bg-primary-low text-primary', 'hover:bg-primary-hover-low hover:text-primary-hover');
+        case 'red':
+          return clsx('bg-error text-error-low', 'hover:bg-error-low-hover hover:text-error-hover');
+        default:
+          return clsx(
+            'bg-white text-primary shadow-bottom',
+            'hover:bg-grey-4 hover:shadow-none hover:text-primary-hover'
+          );
+      }
+    }, [active, design]);
+
     return (
       <Button
         ref={finalRef}
-        className={clsx(
-          'p-1 rounded-md',
-          active
-            ? 'bg-grey-4 text-grey-1 shadow-none'
-            : clsx('bg-white text-primary shadow-bottom', 'hover:bg-grey-4 hover:shadow-none hover:text-primary-hover')
-        )}
+        className={clsx('p-1 rounded-md', designClassName)}
         disabled={disabled || active}
         onClick={onClick}
         testID={testID}

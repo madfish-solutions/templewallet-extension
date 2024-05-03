@@ -124,15 +124,18 @@ module.exports = {
         'primary': '#FF5B00',
         'primary-hover': '#E85300',
         'primary-low': '#FAEAE1',
-        'primary-low-hover': '#F7E1D5',
+        'primary-hover-low': '#F7E1D5',
         //
         'secondary': '#1373E4',
         'secondary-hover': '#1062C2',
         'secondary-low': '#E3ECF8',
-        'secondary-low-hover': '#D7E3F2',
+        'secondary-hover-low': '#D7E3F2',
         //
         'success-low': '#E6F5E9',
+        'error': '#FF3B30',
+        'error-hover': '#D93229',
         'error-low': '#FAE7E6',
+        'error-low-hover': '#EFD4D2',
         'warning-low': '#FAF6E1',
         //
         /** Originally 'input' */

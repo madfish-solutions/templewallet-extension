@@ -7,8 +7,8 @@ import { Button } from 'app/atoms/Button';
 import DropdownWrapper from 'app/atoms/DropdownWrapper';
 import Identicon from 'app/atoms/Identicon';
 import Name from 'app/atoms/Name';
-import { ReactComponent as BurgerIcon } from 'app/icons/burger.svg';
-import { ReactComponent as CopyIcon } from 'app/icons/copy-files.svg';
+import { ReactComponent as CopyIcon } from 'app/icons/copy.svg';
+import { ReactComponent as BurgerIcon } from 'app/icons/menu.svg';
 import { toastSuccess } from 'app/toaster';
 import Popper from 'lib/ui/Popper';
 import { getAccountAddressForTezos, getAccountAddressForEvm } from 'temple/accounts';
@@ -47,7 +47,12 @@ export const AppHeader = memo(() => {
         popup={props => {
           //
           return (
-            <DropdownWrapper opened={props.opened} design="day" className="p-2 flex flex-col" style={{ minWidth: 173 }}>
+            <DropdownWrapper
+              opened={props.opened}
+              design="day"
+              className="mt-3 p-2 flex flex-col"
+              style={{ minWidth: 173 }}
+            >
               <h6 className="py-2.5 px-2 text-xxxs leading-3 font-semibold text-grey-1">Select Address to copy</h6>
 
               {accountTezosAddress ? (
@@ -94,8 +99,8 @@ export const AppHeader = memo(() => {
             ref={ref}
             className={clsx(
               'p-1 rounded-md text-secondary bg-secondary-low',
-              'hover:text-secondary-hover hover:bg-secondary-low-hover',
-              opened && 'text-secondary-hover bg-secondary-low-hover'
+              'hover:text-secondary-hover hover:bg-secondary-hover-low',
+              opened && 'text-secondary-hover bg-secondary-hover-low'
             )}
             onClick={toggleOpened}
             testID={AppHeaderSelectors.menuIcon}

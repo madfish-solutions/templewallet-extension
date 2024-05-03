@@ -89,7 +89,7 @@ const MenuDropdown = memo<PopperRenderProps>(({ opened, setOpened }) => {
   );
 
   return (
-    <DropdownWrapper opened={opened} design="day" className="p-2 flex flex-col" style={{ minWidth: 163 }}>
+    <DropdownWrapper opened={opened} design="day" className="mt-3 p-2 flex flex-col" style={{ minWidth: 163 }}>
       <h6 className="py-2.5 px-2 text-xxxs leading-3 font-semibold text-grey-1">Menu</h6>
 
       {actions.map(action => (

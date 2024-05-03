@@ -6,9 +6,9 @@ import { IconButton } from 'app/atoms/IconButton';
 import { useAppEnv } from 'app/env';
 import { useLoadPartnersPromo } from 'app/hooks/use-load-partners-promo';
 import { useTokensListingLogic } from 'app/hooks/use-tokens-listing-logic';
+import { ReactComponent as HistoryIcon } from 'app/icons/activity.svg';
 import { ReactComponent as EditingIcon } from 'app/icons/editing.svg';
-import { ReactComponent as FiltersIcon } from 'app/icons/filters.svg';
-import { ReactComponent as HistoryIcon } from 'app/icons/history.svg';
+import { ReactComponent as FiltersIcon } from 'app/icons/filteroff.svg';
 import { ReactComponent as SearchIcon } from 'app/icons/search.svg';
 import { ContentContainer } from 'app/layouts/ContentContainer';
 import { useAreAssetsLoading, useMainnetTokensScamlistSelector } from 'app/store/assets/selectors';
@@ -259,7 +259,7 @@ const ManageButtonDropdown: FC<ManageButtonDropdownProps> = ({
   return (
     <DropdownWrapper
       opened={opened}
-      className="origin-top-right p-2 flex flex-col min-w-40"
+      className="origin-top-right mt-1 p-2 flex flex-col min-w-40"
       style={{ border: 'unset', marginTop: '0.25rem' }}
     >
       <Link

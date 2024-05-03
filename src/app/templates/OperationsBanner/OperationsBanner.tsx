@@ -3,7 +3,7 @@ import React, { CSSProperties, memo, ReactNode } from 'react';
 import classNames from 'clsx';
 import ReactJson from 'react-json-view';
 
-import { ReactComponent as CopyIcon } from 'app/icons/copy.svg';
+import { ReactComponent as CopyIcon } from 'app/icons/copy-old.svg';
 import { setTestID } from 'lib/analytics';
 import { T } from 'lib/i18n';
 import useCopyToClipboard from 'lib/ui/useCopyToClipboard';

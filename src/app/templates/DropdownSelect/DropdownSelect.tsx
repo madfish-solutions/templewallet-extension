@@ -131,7 +131,7 @@ const SelectOptions = <Type,>({
   return (
     <DropdownWrapper
       opened={opened}
-      className="origin-top overflow-x-hidden overflow-y-auto"
+      className="origin-top mt-2 overflow-x-hidden overflow-y-auto"
       style={{
         maxHeight: '15.125rem',
         backgroundColor: 'white',

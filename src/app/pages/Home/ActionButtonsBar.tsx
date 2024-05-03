@@ -5,11 +5,11 @@ import clsx from 'clsx';
 import { Props as TippyProps } from 'tippy.js';
 
 import { Anchor, IconBase } from 'app/atoms';
-import { ReactComponent as BuyIcon } from 'app/icons/buy.svg';
-import { ReactComponent as ReceiveIcon } from 'app/icons/receive.svg';
-import { ReactComponent as SendIcon } from 'app/icons/send-alt.svg';
+import { ReactComponent as BuyIcon } from 'app/icons/cart.svg';
+import { ReactComponent as ReceiveIcon } from 'app/icons/income.svg';
+import { ReactComponent as WithdrawIcon } from 'app/icons/outcome.svg';
+import { ReactComponent as SendIcon } from 'app/icons/send.svg';
 import { ReactComponent as SwapIcon } from 'app/icons/swap.svg';
-import { ReactComponent as WithdrawIcon } from 'app/icons/withdraw.svg';
 import { buildSendPagePath } from 'app/pages/Send/build-url';
 import { buildSwapPageUrlQuery } from 'app/pages/Swap/utils/build-url-query';
 import { TestIDProps } from 'lib/analytics';
@@ -105,7 +105,7 @@ const ActionButton = memo<ActionButtonProps>(
           'min-w-15 flex flex-col gap-y-0.5 p-2 items-center justify-center rounded-lg',
           disabled
             ? 'bg-grey-4 text-gray'
-            : 'bg-primary-low text-primary hover:bg-primary-low-hover hover:text-primary-hover'
+            : 'bg-primary-low text-primary hover:bg-primary-hover-low hover:text-primary-hover'
         ),
         type: 'button' as const,
         children: (
