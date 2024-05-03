@@ -43,8 +43,8 @@ const RevealForChain: FC<RevealForChainProps> = ({ account }) => {
   useDidUpdate(() => void setSecret(null), [account.id, setSecret]);
 
   const onPasswordSubmit = useCallback(
-    async (password: string) => revealPrivateKey(chain, address, password).then(scrt => void setSecret(scrt)),
-    [chain, address, setSecret, revealPrivateKey]
+    async (password: string) => revealPrivateKey(address, password).then(scrt => void setSecret(scrt)),
+    [address, setSecret, revealPrivateKey]
   );
 
   const mainContent = useMemo(() => {

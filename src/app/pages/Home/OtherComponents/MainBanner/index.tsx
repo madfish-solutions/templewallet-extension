@@ -4,8 +4,8 @@ import clsx from 'clsx';
 
 import { Button } from 'app/atoms';
 import Money from 'app/atoms/Money';
+import { useTotalBalance } from 'app/hooks/use-total-balance';
 import { ContentContainer } from 'app/layouts/ContentContainer';
-import { useTotalBalance } from 'app/pages/Home/OtherComponents/MainBanner/use-total-balance';
 import { dispatch } from 'app/store';
 import { toggleBalanceModeAction } from 'app/store/settings/actions';
 import { useBalanceModeSelector } from 'app/store/settings/selectors';

@@ -1,9 +1,10 @@
 import React, { memo, useCallback, useMemo } from 'react';
 
-import classNames from 'clsx';
+import clsx from 'clsx';
 
 import { Name, Button, HashShortView, Money, Identicon } from 'app/atoms';
 import AccountTypeBadge from 'app/atoms/AccountTypeBadge';
+import { SearchHighlightText } from 'app/atoms/SearchHighlightText';
 import Balance from 'app/templates/Balance';
 import { setAnotherSelector, setTestID } from 'lib/analytics';
 import { StoredAccount } from 'lib/temple/types';
@@ -17,10 +18,11 @@ interface Props {
   account: StoredAccount;
   selected: boolean;
   attractSelf: boolean;
+  searchValue: string;
   onClick: (accountId: string) => void;
 }
 
-export const AccountItem = memo<Props>(({ account, selected, attractSelf, onClick }) => {
+export const AccountItem = memo<Props>(({ account, selected, attractSelf, searchValue, onClick }) => {
   const tezosMainnetChain = useTezosMainnetChain();
   const evmMainnetChain = useEthereumMainnetChain();
 
@@ -35,7 +37,7 @@ export const AccountItem = memo<Props>(({ account, selected, attractSelf, onClic
 
   const classNameMemo = useMemo(
     () =>
-      classNames(
+      clsx(
         'block w-full p-2 flex items-center',
         'text-white text-shadow-black overflow-hidden',
         'transition ease-in-out duration-200',
@@ -59,10 +61,12 @@ export const AccountItem = memo<Props>(({ account, selected, attractSelf, onClic
       <Identicon type="bottts" hash={account.id} size={46} className="flex-shrink-0 shadow-xs-white" />
 
       <div style={{ marginLeft: '10px' }} className="flex flex-col items-start">
-        <Name className="text-sm font-medium">{account.name}</Name>
+        <Name className="text-sm font-medium">
+          <SearchHighlightText searchValue={searchValue}>{account.name}</SearchHighlightText>
+        </Name>
 
         <div
-          className="text-xs text-gray-500"
+          className={clsx('text-xs', searchValue === displayAddress ? 'bg-yellow-110 text-gray-900' : 'text-gray-500')}
           {...setTestID(AccountDropdownSelectors.accountAddressValue)}
           {...setAnotherSelector('hash', displayAddress)}
         >

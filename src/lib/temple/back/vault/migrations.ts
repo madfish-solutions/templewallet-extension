@@ -4,7 +4,8 @@ import {
   ADS_VIEWER_ADDRESS_STORAGE_KEY,
   CUSTOM_TEZOS_NETWORKS_STORAGE_KEY,
   ACCOUNT_PKH_STORAGE_KEY,
-  CUSTOM_NETWORKS_SNAPSHOT_STORAGE_KEY
+  CUSTOM_NETWORKS_SNAPSHOT_STORAGE_KEY,
+  WALLETS_SPECS_STORAGE_KEY
 } from 'lib/constants';
 import { moveValueInStorage, fetchFromStorage, putToStorage, removeFromStorage } from 'lib/storage';
 import * as Passworder from 'lib/temple/passworder';
@@ -14,6 +15,7 @@ import { StoredTezosNetwork } from 'temple/networks';
 import { loadTezosChainId } from 'temple/tezos';
 import { TempleChainKind } from 'temple/types';
 
+import { fetchMessage } from './helpers';
 import {
   generateCheck,
   fetchNewAccountName,
@@ -26,12 +28,13 @@ import {
   encryptAndSaveManyLegacy,
   fetchAndDecryptOne,
   fetchAndDecryptOneLegacy,
-  getPlain,
+  getPlainLegacy,
   removeManyLegacy
 } from './safe-storage';
 import {
   checkStrgKey,
   mnemonicStrgKey,
+  walletMnemonicStrgKey,
   accPrivKeyStrgKey,
   accPubKeyStrgKey,
   accountsStrgKey,
@@ -61,7 +64,7 @@ export const MIGRATIONS = [
 
     const newInitialAccount: LegacyTypes.TempleAccount = {
       type: TempleAccountType.HD,
-      name: await fetchNewAccountName(accounts),
+      name: await fetchNewAccountName(accounts, TempleAccountType.HD),
       publicKeyHash: tezosAcc.publicKey,
       hdIndex: hdAccIndex
     };
@@ -124,7 +127,7 @@ export const MIGRATIONS = [
     ]);
 
     // Address book contacts migration
-    const contacts = await getPlain<TempleContact[]>('contacts');
+    const contacts = await getPlainLegacy<TempleContact[]>('contacts');
 
     const accountsStrgKeys = accounts!
       .map(acc => [accPrivKeyStrgKey(acc.publicKeyHash), accPubKeyStrgKey(acc.publicKeyHash)])
@@ -159,6 +162,8 @@ export const MIGRATIONS = [
     const mnemonic = await fetchAndDecryptOne<string>(mnemonicStrgKey, passKey);
 
     const toEncryptAndSave: [string, any][] = [];
+    const walletId = nanoid();
+    const hdWalletName = await fetchMessage('hdWalletDefaultName', 'A');
 
     const newAccounts = accounts.map<StoredAccount>(account => {
       const tezosAddress = account.publicKeyHash;
@@ -169,7 +174,7 @@ export const MIGRATIONS = [
           const evmAcc = mnemonicToEvmAccountCreds(mnemonic, account.hdIndex);
           toEncryptAndSave.push(...buildEncryptAndSaveManyForAccount(evmAcc));
 
-          return { ...account, id, tezosAddress, evmAddress: evmAcc.address };
+          return { ...account, id, tezosAddress, evmAddress: evmAcc.address, walletId };
         case TempleAccountType.Imported:
           return { ...account, id, address: tezosAddress, chain: TempleChainKind.Tezos };
         case TempleAccountType.WatchOnly:
@@ -183,7 +188,8 @@ export const MIGRATIONS = [
       return account;
     });
 
-    toEncryptAndSave.push([accountsStrgKey, newAccounts]);
+    toEncryptAndSave.push([accountsStrgKey, newAccounts], [walletMnemonicStrgKey(walletId), mnemonic]);
+    await putToStorage(WALLETS_SPECS_STORAGE_KEY, { [walletId]: { name: hdWalletName } });
 
     moveValueInStorage(ACCOUNT_PKH_STORAGE_KEY, ADS_VIEWER_ADDRESS_STORAGE_KEY);
 

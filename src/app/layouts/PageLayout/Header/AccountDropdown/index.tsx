@@ -6,10 +6,7 @@ import { Button } from 'app/atoms/Button';
 import DropdownWrapper from 'app/atoms/DropdownWrapper';
 import { openInFullPage, useAppEnv } from 'app/env';
 import { useShortcutAccountSelectModalIsOpened } from 'app/hooks/use-account-select-shortcut';
-import { ReactComponent as AddIcon } from 'app/icons/add.svg';
 import { ReactComponent as DAppsIcon } from 'app/icons/apps-alt.svg';
-import { ReactComponent as DownloadIcon } from 'app/icons/download.svg';
-import { ReactComponent as LinkIcon } from 'app/icons/link.svg';
 import { ReactComponent as LockIcon } from 'app/icons/lock.svg';
 import { ReactComponent as MaximiseIcon } from 'app/icons/maximise.svg';
 import { ReactComponent as SadSearchIcon } from 'app/icons/sad-search.svg';
@@ -20,7 +17,13 @@ import { T, t } from 'lib/i18n';
 import { useTempleClient } from 'lib/temple/front';
 import { PopperRenderProps } from 'lib/ui/Popper';
 import { HistoryAction, navigate } from 'lib/woozie';
-import { searchAndFilterAccounts, useCurrentAccountId, useChangeAccount, useNonContractAccounts } from 'temple/front';
+import {
+  searchAndFilterAccounts,
+  useAccountsGroups,
+  useCurrentAccountId,
+  useChangeAccount,
+  useVisibleAccounts
+} from 'temple/front';
 
 import { AccountItem } from './AccountItem';
 import { ActionButtonProps, ActionButton } from './ActionButton';
@@ -33,7 +36,7 @@ interface TDropdownAction extends ActionButtonProps {
 const AccountDropdown = memo<PopperRenderProps>(({ opened, setOpened }) => {
   const appEnv = useAppEnv();
   const { lock } = useTempleClient();
-  const allAccounts = useNonContractAccounts();
+  const allAccounts = useVisibleAccounts();
   const currentAccountId = useCurrentAccountId();
   const setAccountId = useChangeAccount();
 
@@ -46,6 +49,7 @@ const AccountDropdown = memo<PopperRenderProps>(({ opened, setOpened }) => {
     () => (searchValue.length ? searchAndFilterAccounts(allAccounts, searchValue) : allAccounts),
     [searchValue, allAccounts]
   );
+  const filteredGroups = useAccountsGroups(filteredAccounts);
 
   const closeDropdown = useCallback(() => {
     setOpened(false);
@@ -78,30 +82,6 @@ const AccountDropdown = memo<PopperRenderProps>(({ opened, setOpened }) => {
 
   const actions = useMemo(
     (): TDropdownAction[] => [
-      {
-        key: 'create-account',
-        Icon: AddIcon,
-        i18nKey: 'createAccount',
-        linkTo: '/create-account',
-        testID: AccountDropdownSelectors.createOrRestoreAccountButton,
-        onClick: closeDropdown
-      },
-      {
-        key: 'import-account',
-        Icon: DownloadIcon,
-        i18nKey: 'importAccount',
-        linkTo: '/import-account',
-        testID: AccountDropdownSelectors.importAccountButton,
-        onClick: closeDropdown
-      },
-      {
-        key: 'connect-ledger',
-        Icon: LinkIcon,
-        i18nKey: 'connectLedger',
-        linkTo: '/connect-ledger',
-        testID: AccountDropdownSelectors.connectLedgerButton,
-        onClick: closeDropdown
-      },
       {
         key: 'dapps',
         Icon: DAppsIcon,
@@ -200,14 +180,20 @@ const AccountDropdown = memo<PopperRenderProps>(({ opened, setOpened }) => {
                 <SadSearchIcon />
               </div>
             ) : (
-              filteredAccounts.map(acc => (
-                <AccountItem
-                  key={acc.id}
-                  account={acc}
-                  selected={acc.id === currentAccountId}
-                  attractSelf={attractSelectedAccount}
-                  onClick={handleAccountClick}
-                />
+              filteredGroups.map(({ id, name, accounts }) => (
+                <React.Fragment key={id}>
+                  <div className="text-sm font-medium text-gray-500">{name}</div>
+                  {accounts.map(acc => (
+                    <AccountItem
+                      key={acc.id}
+                      account={acc}
+                      selected={acc.id === currentAccountId}
+                      attractSelf={attractSelectedAccount}
+                      searchValue={searchValue}
+                      onClick={handleAccountClick}
+                    />
+                  ))}
+                </React.Fragment>
               ))
             )}
           </div>

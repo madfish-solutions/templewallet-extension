@@ -7,19 +7,19 @@ import { ReactComponent as ContactBookIcon } from 'app/icons/contact-book.svg';
 import { ReactComponent as ExtensionIcon } from 'app/icons/extension.svg';
 import { ReactComponent as HelpIcon } from 'app/icons/help.svg';
 import { ReactComponent as KeyIcon } from 'app/icons/key.svg';
-import { ReactComponent as MinusIcon } from 'app/icons/minus.svg';
 import { ReactComponent as OkIcon } from 'app/icons/ok.svg';
+import { ReactComponent as PeopleIcon } from 'app/icons/people.svg';
 import { ReactComponent as SettingsIcon } from 'app/icons/settings.svg';
 import { ReactComponent as SignalAltIcon } from 'app/icons/signal-alt.svg';
 import { ReactComponent as StickerIcon } from 'app/icons/sticker.svg';
 import { ReactComponent as SyncIcon } from 'app/icons/sync.svg';
 import PageLayout from 'app/layouts/PageLayout';
 import About from 'app/templates/About/About';
+import { AccountsManagement } from 'app/templates/AccountsManagement';
 import ActivateAccount from 'app/templates/ActivateAccount/ActivateAccount';
 import AddressBook from 'app/templates/AddressBook/AddressBook';
 import DAppSettings from 'app/templates/DAppSettings/DAppSettings';
 import HelpAndCommunity from 'app/templates/HelpAndCommunity';
-import RemoveAccount from 'app/templates/RemoveAccount/RemoveAccount';
 import { RevealSeedPhrase, RevealPrivateKeys } from 'app/templates/RevealSecrets';
 import GeneralSettings from 'app/templates/SettingsGeneral';
 import SyncSettings from 'app/templates/Synchronization/SyncSettings';
@@ -117,13 +117,13 @@ const TABS: Tab[] = [
     testID: SettingsSelectors.activateAccountButton
   },
   {
-    slug: 'remove-account',
-    titleI18nKey: 'removeAccount',
-    Icon: MinusIcon,
-    Component: RemoveAccount,
-    color: 'rgb(245, 101, 101)',
-    descriptionI18nKey: 'removeAccountDescription',
-    testID: SettingsSelectors.removeAccountButton
+    slug: 'accounts-management',
+    titleI18nKey: 'accountsManagement',
+    Icon: PeopleIcon,
+    Component: AccountsManagement,
+    color: 'teal',
+    descriptionI18nKey: 'accountsManagementDescription',
+    testID: SettingsSelectors.accountsManagementButton
   },
   {
     slug: 'about',

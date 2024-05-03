@@ -1,10 +1,11 @@
 import React, { RefObject, useMemo } from 'react';
 
 import { emptyFn, isDefined } from '@rnw-community/shared';
-import classNames from 'clsx';
+import clsx from 'clsx';
 
 import { Name, Button, HashShortView, Money, Identicon } from 'app/atoms';
 import AccountTypeBadge from 'app/atoms/AccountTypeBadge';
+import { SearchHighlightText } from 'app/atoms/SearchHighlightText';
 import Balance from 'app/templates/Balance';
 import { setAnotherSelector, setTestID } from 'lib/analytics';
 import { StoredAccount } from 'lib/temple/types';
@@ -19,6 +20,7 @@ const scrollIntoViewOptions: ScrollIntoViewOptions = { block: 'end', behavior: '
 interface AccountItemProps {
   account: StoredAccount;
   focused: boolean;
+  searchValue: string;
   arrayIndex?: number;
   itemsArrayRef?: RefObject<Array<HTMLButtonElement | null>>;
   onClick?: () => void;
@@ -29,7 +31,8 @@ export const AccountItem: React.FC<AccountItemProps> = ({
   focused,
   onClick = emptyFn,
   arrayIndex,
-  itemsArrayRef
+  itemsArrayRef,
+  searchValue
 }) => {
   const tezosMainnetChain = useTezosMainnetChain();
 
@@ -44,7 +47,7 @@ export const AccountItem: React.FC<AccountItemProps> = ({
 
   const classNameMemo = useMemo(
     () =>
-      classNames(
+      clsx(
         'block w-full p-2 flex items-center rounded-lg',
         'text-white text-shadow-black overflow-hidden',
         'transition ease-in-out duration-200',
@@ -72,10 +75,12 @@ export const AccountItem: React.FC<AccountItemProps> = ({
       <Identicon type="bottts" hash={account.id} size={46} className="flex-shrink-0 shadow-xs-white" />
 
       <div style={{ marginLeft: '10px' }} className="flex flex-col items-start">
-        <Name className="text-sm font-medium">{account.name}</Name>
+        <Name className="text-sm font-medium">
+          <SearchHighlightText searchValue={searchValue}>{account.name}</SearchHighlightText>
+        </Name>
 
         <div
-          className="text-xs text-gray-500"
+          className={clsx('text-xs', searchValue === displayAddress ? 'bg-yellow-110 text-gray-900' : 'text-gray-500')}
           {...setTestID(ShortcutAccountSwitchSelectors.accountAddressValue)}
           {...setAnotherSelector('hash', displayAddress)}
         >
