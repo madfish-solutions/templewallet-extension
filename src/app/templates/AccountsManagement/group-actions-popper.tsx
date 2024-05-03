@@ -8,6 +8,7 @@ import { ReactComponent as MenuCircleIcon } from 'app/icons/menu_circle.svg';
 import { ReactComponent as AddIcon } from 'app/icons/plus_circle.svg';
 import { ReactComponent as RevealEyeIcon } from 'app/icons/reveal.svg';
 import { ACCOUNT_EXISTS_SHOWN_WARNINGS_STORAGE_KEY } from 'lib/constants';
+import { t } from 'lib/i18n';
 import { useStorage, useTempleClient } from 'lib/temple/front';
 import { DisplayedGroup, StoredAccount, TempleAccountType } from 'lib/temple/types';
 import { useAlert } from 'lib/ui';
@@ -50,7 +51,7 @@ const GroupActionsDropdown = memo<PopperRenderProps & GroupActionsPopperProps>(
         return [
           {
             key: 'add-account',
-            i18nKey: 'createAccount' as const,
+            title: () => 'Add Account',
             icon: AddIcon,
             onClick: async () => {
               try {
@@ -73,26 +74,23 @@ const GroupActionsDropdown = memo<PopperRenderProps & GroupActionsPopperProps>(
                   description: e.message
                 });
               }
-            },
-            danger: false
+            }
           },
           {
             key: 'rename-wallet',
-            i18nKey: 'edit' as const,
+            title: () => 'Rename Wallet',
             icon: EditIcon,
-            onClick: async () => onRenameClick(group),
-            danger: false
+            onClick: async () => onRenameClick(group)
           },
           {
             key: 'reveal-seed-phrase',
-            i18nKey: 'revealSeedPhrase' as const,
+            title: () => t('revealSeedPhrase'),
             icon: RevealEyeIcon,
-            onClick: () => onRevealSeedPhraseClick(group),
-            danger: false
+            onClick: () => onRevealSeedPhraseClick(group)
           },
           hdGroups.length > 1 && {
             key: 'delete-wallet',
-            i18nKey: 'delete' as const,
+            title: () => 'Delete Wallet',
             icon: DeleteIcon,
             onClick: () => onDeleteClick(group),
             danger: true
@@ -118,14 +116,13 @@ const GroupActionsDropdown = memo<PopperRenderProps & GroupActionsPopperProps>(
       return [
         {
           key: 'import',
-          i18nKey: group.type === TempleAccountType.Imported ? 'importAccount' : 'createAccount',
+          title: () => t(group.type === TempleAccountType.Imported ? 'importAccount' : 'createAccount'),
           icon: DownloadIcon,
-          onClick: () => navigate(importActionUrl),
-          danger: false
+          onClick: () => navigate(importActionUrl)
         },
         {
           key: 'delete-group',
-          i18nKey: 'delete' as const,
+          title: () => t('delete'),
           icon: DeleteIcon,
           onClick: () => onDeleteClick(group),
           danger: true

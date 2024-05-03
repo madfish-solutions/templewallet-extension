@@ -1,5 +1,10 @@
 <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-  <g fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
+  <g
+    transform="scale(0.75)"
+    style="transform-origin: center"
+    fill="none"
+    stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+  >
     <path d="M10 3H3V10H10V3Z" />
     <path d="M21 3H14V10H21V3Z" />
     <path d="M10 14H3V21H10V14Z" />

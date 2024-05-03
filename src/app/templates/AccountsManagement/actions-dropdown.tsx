@@ -1,18 +1,17 @@
-import React, { FC, SVGProps, memo, useCallback } from 'react';
+import React, { memo, useCallback } from 'react';
 
 import clsx from 'clsx';
 
 import { Button, IconBase } from 'app/atoms';
 import DropdownWrapper from 'app/atoms/DropdownWrapper';
-import { T, TID } from 'lib/i18n';
 import { PopperRenderProps } from 'lib/ui/Popper';
 
 export interface Action {
   key: string;
-  i18nKey: TID;
-  icon: FC<SVGProps<SVGSVGElement>>;
+  title: () => string;
+  icon: ImportedSVGComponent;
   onClick: () => void;
-  danger: boolean;
+  danger?: boolean;
 }
 
 interface ActionsDropdownProps extends PopperRenderProps {
@@ -35,7 +34,7 @@ interface ActionButtonProps extends Pick<PopperRenderProps, 'setOpened'> {
 }
 
 const ActionButton = memo<ActionButtonProps>(({ action, setOpened }) => {
-  const { i18nKey, icon: Icon, onClick, danger } = action;
+  const { title, icon: Icon, onClick, danger } = action;
 
   const handleClick = useCallback(() => {
     setOpened(false);
@@ -49,9 +48,7 @@ const ActionButton = memo<ActionButtonProps>(({ action, setOpened }) => {
     >
       <IconBase Icon={Icon} size={16} className={danger ? 'text-error' : 'text-secondary'} />
 
-      <span className={clsx('text-xs', danger && 'text-error')}>
-        <T id={i18nKey} />
-      </span>
+      <span className={clsx('text-xs', danger && 'text-error')}>{title()}</span>
     </Button>
   );
 });
