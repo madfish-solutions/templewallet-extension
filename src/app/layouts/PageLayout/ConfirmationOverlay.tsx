@@ -38,7 +38,7 @@ const ConfirmationOverlay = memo(() => {
 
   return (
     <>
-      {displayed && <DocBg bgClassName="bg-primary-white" />}
+      {displayed && <DocBg bgClassName="bg-secondary-low" />}
 
       <Portal>
         <CSSTransition

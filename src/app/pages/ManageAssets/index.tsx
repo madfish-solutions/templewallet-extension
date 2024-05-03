@@ -27,7 +27,6 @@ const ManageAssets = memo<Props>(({ assetType }) => {
           <T id={ofCollectibles ? 'manageCollectibles' : 'manageTokens'} />
         </>
       }
-      contentPadding
     >
       {!accountTezAddress ? (
         <div className="text-center">{UNDER_DEVELOPMENT_MSG}</div>

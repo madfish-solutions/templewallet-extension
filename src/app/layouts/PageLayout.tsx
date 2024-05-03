@@ -41,13 +41,13 @@ interface PageLayoutProps extends PropsWithChildren, ToolbarProps {
   contentPadding?: boolean;
 }
 
-const PageLayout: FC<PageLayoutProps> = ({ children, contentPadding = false, ...toolbarProps }) => {
+const PageLayout: FC<PageLayoutProps> = ({ children, contentPadding = true, ...toolbarProps }) => {
   const { fullPage } = useAppEnv();
   const { ready } = useTempleClient();
 
   return (
     <>
-      <DocBg bgClassName="bg-primary-orange" />
+      <DocBg bgClassName="bg-secondary-low" />
 
       <div className={clsx(fullPage && 'pt-9 pb-8', 'relative')}>
         {/* <Header /> */}
@@ -56,7 +56,7 @@ const PageLayout: FC<PageLayoutProps> = ({ children, contentPadding = false, ...
           {/* <Toolbar {...toolbarProps} /> */}
           {ready && <AppHeader />}
 
-          <div className={clsx('flex flex-col', contentPadding && 'p-4')}>
+          <div className={clsx('flex flex-col', contentPadding && 'p-4 pb-15')}>
             <ErrorBoundary whileMessage="displaying this page">
               <Suspense fallback={<SpinnerSection />}>{children}</Suspense>
             </ErrorBoundary>
@@ -83,7 +83,7 @@ const ContentPaper: FC<ContentPaperProps> = ({ className, style, children, ...re
 
   return (
     <ContentContainer
-      className={clsx('bg-background overflow-hidden', appEnv.fullPage && 'rounded-md shadow-bottom', className)}
+      className={clsx('bg-white overflow-hidden', appEnv.fullPage && 'rounded-md shadow-bottom', className)}
       style={appEnv.fullPage ? { minHeight: '20rem', ...style } : style}
       {...rest}
     >

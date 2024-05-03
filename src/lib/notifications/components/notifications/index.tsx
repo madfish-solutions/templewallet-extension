@@ -35,25 +35,22 @@ export const Notifications = () => {
         </>
       }
     >
-      <div className="max-w-sm mx-auto pb-15">
-        {shouldShowPartnersPromoState && (
-          <div className="pt-6 pb-4 flex justify-center">
-            <PartnersPromotion
-              id="promo-notifications-item"
-              variant={PartnersPromotionVariant.Image}
-              pageName="Notifications"
-              withPersonaProvider
-            />
-          </div>
-        )}
-        {notifications.length === 0 ? (
-          <DataPlaceholder id="notificationsNotFound" />
-        ) : (
-          notifications.map(notification => (
-            <NotificationPreviewItem key={notification.id} notification={notification} />
-          ))
-        )}
-      </div>
+      {shouldShowPartnersPromoState && (
+        <div className="mb-4 flex justify-center">
+          <PartnersPromotion
+            id="promo-notifications-item"
+            variant={PartnersPromotionVariant.Image}
+            pageName="Notifications"
+            withPersonaProvider
+          />
+        </div>
+      )}
+
+      {notifications.length === 0 ? (
+        <DataPlaceholder id="notificationsNotFound" />
+      ) : (
+        notifications.map(notification => <NotificationPreviewItem key={notification.id} notification={notification} />)
+      )}
     </PageLayout>
   );
 };

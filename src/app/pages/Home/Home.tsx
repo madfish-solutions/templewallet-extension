@@ -58,6 +58,7 @@ const Home = memo<Props>(({ tezosChainId, assetSlug }) => {
       pageTitle={tezosChainId && assetSlug ? <PageTitle tezosChainId={tezosChainId} assetSlug={assetSlug} /> : null}
       attention={true}
       withToolbarAd
+      contentPadding={false}
     >
       {/* {fullPage && (
         <div className="w-full max-w-sm mx-auto">

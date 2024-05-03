@@ -16,7 +16,7 @@ const SimplePageLayout: FC<SimplePageLayoutProps> = ({ title, children }) => {
 
   return (
     <>
-      {!appEnv.fullPage && <DocBg bgClassName="bg-primary-white" />}
+      {!appEnv.fullPage && <DocBg bgClassName="bg-secondary-low" />}
 
       <ContentContainer className={clsx('min-h-screen flex flex-col', !appEnv.fullPage && 'bg-primary-white')}>
         <div className="mt-12 mb-10 flex flex-col items-center justify-center">

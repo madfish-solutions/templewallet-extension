@@ -155,7 +155,6 @@ const Settings: FC<SettingsProps> = ({ tabSlug }) => {
           <T id="settings" />
         </>
       }
-      contentPadding
     >
       {activeTab && (
         <>

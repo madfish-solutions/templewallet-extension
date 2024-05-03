@@ -1,6 +1,6 @@
 import React, { FC, useCallback, useMemo, useState } from 'react';
 
-import classNames from 'clsx';
+import clsx from 'clsx';
 
 import { Anchor } from 'app/atoms/Anchor';
 import { openInFullPage, useAppEnv } from 'app/env';
@@ -64,76 +64,64 @@ const DAppsList = () => {
   }, [dApps, searchString, selectedTags]);
 
   return (
-    <div
-      className={classNames(
-        popup ? 'px-1' : 'px-5',
-        popup && matchingDApps.length > 3 ? 'pb-12' : 'pb-4',
-        'w-full flex pt-2'
-      )}
-    >
-      <div className="mx-auto flex flex-col items-center" style={{ maxWidth: '25rem' }}>
-        <span className="text-sm text-gray-600 mb-2">{t('promoted')}</span>
+    <div className={clsx('flex flex-col', popup && matchingDApps.length > 3 && 'pb-12')}>
+      <span className="self-center text-sm text-gray-600 mb-2">{t('promoted')}</span>
 
-        <div
-          className={classNames(popup ? 'py-2 mb-4' : 'py-6 mb-6', 'rounded-lg bg-gray-100 w-full flex justify-center')}
-        >
-          {featuredDApps.slice(0, 3).map(({ slug, name, logo, dappUrl }) => (
-            <Anchor
-              className="mx-4 py-1 flex flex-col items-center"
-              key={slug}
-              href={dappUrl}
-              rel="noreferrer"
-              testID={DAppStoreSelectors.DAppOpened}
-              testIDProperties={{ website: dappUrl, name, promoted: true }}
+      <div className={clsx(popup ? 'py-2 mb-4' : 'py-6 mb-6', 'rounded-lg bg-gray-100 flex justify-center')}>
+        {featuredDApps.slice(0, 3).map(({ slug, name, logo, dappUrl }) => (
+          <Anchor
+            className="mx-4 py-1 flex flex-col items-center"
+            key={slug}
+            href={dappUrl}
+            rel="noreferrer"
+            testID={DAppStoreSelectors.DAppOpened}
+            testIDProperties={{ website: dappUrl, name, promoted: true }}
+          >
+            <DAppIcon className="mb-2" name={name} logo={logo} />
+            <span
+              className={clsx(!popup && 'w-20', 'text-center overflow-hidden text-gray-900')}
+              style={{
+                textOverflow: 'ellipsis',
+                width: popup ? '4.5rem' : undefined
+              }}
             >
-              <DAppIcon className="mb-2" name={name} logo={logo} />
-              <span
-                className={classNames(!popup && 'w-20', 'text-center overflow-hidden text-gray-900')}
-                style={{
-                  textOverflow: 'ellipsis',
-                  width: popup ? '4.5rem' : undefined
-                }}
-              >
-                {name}
-              </span>
-            </Anchor>
-          ))}
-        </div>
-
-        <SearchField
-          className={classNames(
-            'text-gray-700 placeholder-alphagray',
-            'rounded-lg border border-gray-300',
-            'transition ease-in-out duration-200'
-          )}
-          containerClassName="mb-4"
-          placeholder={t('searchDApps')}
-          value={searchString}
-          onValueChange={setSearchString}
-        />
-
-        <div className={classNames(popup ? 'mb-4' : 'mb-6', 'w-full flex justify-between')}>
-          <div className={classNames(!popup && 'mr-2', 'flex-1 flex flex-wrap')}>
-            {USED_TAGS.map(tag => (
-              <Tag key={tag} name={tag} onClick={handleTagClick} selected={selectedTags.includes(tag)} />
-            ))}
-          </div>
-        </div>
-
-        {matchingDApps.slice(0, popup ? 3 : matchingDApps.length).map(dAppProps => (
-          <DAppItem {...dAppProps} key={dAppProps.slug} />
+              {name}
+            </span>
+          </Anchor>
         ))}
       </div>
 
+      <SearchField
+        className={clsx(
+          'bg-input-low rounded-lg placeholder-grey-1 hover:placeholder-text caret-primary',
+          'transition ease-in-out duration-200'
+        )}
+        placeholder={t('searchDApps')}
+        value={searchString}
+        onValueChange={setSearchString}
+      />
+
+      <div className={clsx('mt-4', popup ? 'mb-4' : 'mb-6', 'flex justify-between')}>
+        <div className={clsx(!popup && 'mr-2', 'flex-1 flex flex-wrap')}>
+          {USED_TAGS.map(tag => (
+            <Tag key={tag} name={tag} onClick={handleTagClick} selected={selectedTags.includes(tag)} />
+          ))}
+        </div>
+      </div>
+
+      {matchingDApps.slice(0, popup ? 3 : matchingDApps.length).map(dAppProps => (
+        <DAppItem {...dAppProps} key={dAppProps.slug} />
+      ))}
+
       <div
-        className={classNames(
+        className={clsx(
           'absolute bottom-0 left-0 h-16 bg-gray-200 w-full',
           (!popup || matchingDApps.length <= 3) && 'hidden'
         )}
         style={{ padding: '0.625rem 1.25rem' }}
       >
         <button
-          className={classNames(
+          className={clsx(
             'bg-white w-full h-full border border-blue-500 rounded flex shadow-sm',
             'justify-center items-center font-medium text-sm text-blue-500 leading-tight'
           )}
@@ -160,7 +148,7 @@ const Tag: FC<TagProps> = ({ name, onClick, selected }) => {
 
   return (
     <button
-      className={classNames(
+      className={clsx(
         'mr-2 mb-2 h-6 inline-flex items-center rounded-full px-4',
         'border border-gray-300 text-xs text-gray-900 hover:bg-gray-200',
         selected && 'bg-gray-200'
