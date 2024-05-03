@@ -6,11 +6,13 @@ interface EvmChainDataLoadingState {
 type ChainId = number;
 
 export interface EvmStateInterface {
-  tokensLoadingStateRecord: Record<ChainId, EvmChainDataLoadingState>;
-  collectiblesLoadingStateRecord: Record<ChainId, EvmChainDataLoadingState>;
+  balancesLoadingStateRecord: Record<ChainId, EvmChainDataLoadingState>;
+  tokensMetadataLoadingStateRecord: Record<ChainId, EvmChainDataLoadingState>;
+  collectiblesMetadataLoadingStateRecord: Record<ChainId, EvmChainDataLoadingState>;
 }
 
 export const EvmInitialState: EvmStateInterface = {
-  tokensLoadingStateRecord: {},
-  collectiblesLoadingStateRecord: {}
+  balancesLoadingStateRecord: {},
+  tokensMetadataLoadingStateRecord: {},
+  collectiblesMetadataLoadingStateRecord: {}
 };

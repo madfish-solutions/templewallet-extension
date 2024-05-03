@@ -1,19 +1,25 @@
 import { useEffect } from 'react';
 
 import { dispatch } from 'app/store';
-import { loadSingleEvmChainCollectiblesActions, loadSingleEvmChainTokensActions } from 'app/store/evm/actions';
-import { useEvmStoredCollectiblesRecordSelector } from 'app/store/evm/collectibles/selectors';
+import {
+  loadEvmCollectiblesMetadataActions,
+  loadEvmBalancesActions,
+  loadEvmTokensMetadataActions
+} from 'app/store/evm/actions';
+import {
+  useEvmStoredCollectiblesRecordSelector,
+  useEvmStoredTokensRecordSelector
+} from 'app/store/evm/assets/selectors';
+import { useEvmBalancesAtomicRecordSelector } from 'app/store/evm/balances/selectors';
 import { useEvmCollectiblesMetadataRecordSelector } from 'app/store/evm/collectibles-metadata/selectors';
-import { useEvmTokensLoadingStateRecordSelector } from 'app/store/evm/selectors';
-import { useEvmStoredTokensRecordSelector } from 'app/store/evm/tokens/selectors';
-import { useEvmTokensBalancesAtomicRecordSelector } from 'app/store/evm/tokens-balances/selectors';
+import { useEvmBalancesLoadingStateRecordSelector } from 'app/store/evm/selectors';
 import { useEvmUsdToTokenRatesSelector } from 'app/store/evm/tokens-exchange-rates/selectors';
 import { useEvmTokensMetadataRecordSelector } from 'app/store/evm/tokens-metadata/selectors';
 import type { ChainID } from 'lib/apis/temple/evm-data.interfaces';
 import { EVM_DEFAULT_NETWORKS } from 'temple/networks';
 
 export const useEvmTokensDataLoadingState = (chainId: number) => {
-  const loadingStateRecord = useEvmTokensLoadingStateRecordSelector();
+  const loadingStateRecord = useEvmBalancesLoadingStateRecordSelector();
 
   return loadingStateRecord[chainId] ? loadingStateRecord[chainId].isLoading : false;
 };
@@ -24,17 +30,17 @@ export const useLoadEvmTokensData = (publicKeyHash: HexString) => {
   const tokens = useEvmStoredTokensRecordSelector();
   console.log(tokens, 'tokens');
 
-  const tokensBalances = useEvmTokensBalancesAtomicRecordSelector();
-  console.log(tokensBalances, 'tokensBalances');
+  const collectibles = useEvmStoredCollectiblesRecordSelector();
+  console.log(collectibles, 'collectibles');
 
-  const tokensMetadata = useEvmTokensMetadataRecordSelector();
-  console.log(tokensMetadata, 'tokensMetadata');
+  const balances = useEvmBalancesAtomicRecordSelector();
+  console.log(balances, 'balances');
 
   const exchangeRates = useEvmUsdToTokenRatesSelector();
   console.log(exchangeRates, 'exchangeRates');
 
-  const collectibles = useEvmStoredCollectiblesRecordSelector();
-  console.log(collectibles, 'collectibles');
+  const tokensMetadata = useEvmTokensMetadataRecordSelector();
+  console.log(tokensMetadata, 'tokensMetadata');
 
   const collectiblesMetadata = useEvmCollectiblesMetadataRecordSelector();
   console.log(collectiblesMetadata, 'collectiblesMetadata');
@@ -43,8 +49,9 @@ export const useLoadEvmTokensData = (publicKeyHash: HexString) => {
     EVM_DEFAULT_NETWORKS.forEach(network => {
       const chainId = network.chainId as ChainID;
 
-      dispatch(loadSingleEvmChainTokensActions.submit({ publicKeyHash, chainId }));
-      dispatch(loadSingleEvmChainCollectiblesActions.submit({ publicKeyHash, chainId }));
+      dispatch(loadEvmBalancesActions.submit({ publicKeyHash, chainId }));
+      dispatch(loadEvmTokensMetadataActions.submit({ publicKeyHash, chainId }));
+      dispatch(loadEvmCollectiblesMetadataActions.submit({ publicKeyHash, chainId }));
     });
   }, [publicKeyHash]);
 };

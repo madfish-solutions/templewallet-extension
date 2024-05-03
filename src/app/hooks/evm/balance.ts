@@ -1,8 +1,8 @@
-import { useEvmTokensBalancesAtomicRecordSelector } from 'app/store/evm/tokens-balances/selectors';
-import { TokenSlugBalanceRecord } from 'app/store/evm/tokens-balances/state';
+import { useEvmBalancesAtomicRecordSelector } from 'app/store/evm/balances/selectors';
+import { TokenSlugBalanceRecord } from 'app/store/evm/balances/state';
 
 export const useEvmAccountChainBalances = (publicKeyHash: HexString, chainId: number): TokenSlugBalanceRecord => {
-  const balancesRecord = useEvmTokensBalancesAtomicRecordSelector();
+  const balancesRecord = useEvmBalancesAtomicRecordSelector();
   const accountBalances = balancesRecord[publicKeyHash] ?? {};
 
   return accountBalances[chainId] ?? {};

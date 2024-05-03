@@ -4,11 +4,10 @@ import { mockABTestingState } from './ab-testing/state.mock';
 import { mockAdvertisingState } from './advertising/state.mock';
 import { mockBuyWithCreditCardState } from './buy-with-credit-card/state.mock';
 import { mockDAppsState } from './d-apps/state.mock';
-import { mockEvmCollectiblesState } from './evm/collectibles/state.mock';
+import { mockEvmAssetsState } from './evm/assets/state.mock';
+import { mockEvmBalancesState } from './evm/balances/state.mock';
 import { mockEvmCollectiblesMetadataState } from './evm/collectibles-metadata/state.mock';
 import { mockEvmState } from './evm/state.mock';
-import { mockEvmTokensState } from './evm/tokens/state.mock';
-import { mockEvmTokensBalancesState } from './evm/tokens-balances/state.mock';
 import { mockEvmTokensExchangeRatesState } from './evm/tokens-exchange-rates/state.mock';
 import { mockEvmTokensMetadataState } from './evm/tokens-metadata/state.mock';
 import { mockNewsletterState } from './newsletter/newsletter-state.mock';
@@ -41,10 +40,9 @@ export const mockRootState: RootState = {
   collectibles: mockCollectiblesState,
   newsletter: mockNewsletterState,
   evm: mockEvmState,
-  evmTokens: mockEvmTokensState,
-  evmTokensBalances: mockEvmTokensBalancesState,
+  evmAssets: mockEvmAssetsState,
+  evmBalances: mockEvmBalancesState,
   evmTokensMetadata: mockEvmTokensMetadataState,
-  evmCollectibles: mockEvmCollectiblesState,
   evmCollectiblesMetadata: mockEvmCollectiblesMetadataState,
   evmTokensExchangeRates: mockEvmTokensExchangeRatesState
 };

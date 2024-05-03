@@ -2,16 +2,23 @@ import { BalancesResponse, ChainID, NftAddressBalanceNftResponse } from 'lib/api
 
 import { templeWalletApi } from './templewallet.api';
 
-export const getEvmSingleChainTokens = (walletAddress: string, chainId: ChainID) =>
+export const getEvmBalances = (walletAddress: string, chainId: ChainID) =>
   templeWalletApi
-    .get<BalancesResponse>('/evm-single-chain-tokens', {
+    .get<BalancesResponse>('/evm-balances', {
       params: { walletAddress, chainId }
     })
     .then(res => res.data);
 
-export const getEvmSingleChainNfts = (walletAddress: string, chainId: ChainID) =>
+export const getEvmTokensMetadata = (walletAddress: string, chainId: ChainID) =>
   templeWalletApi
-    .get<NftAddressBalanceNftResponse>('/evm-single-chain-nfts', {
+    .get<BalancesResponse>('/evm-tokens-metadata', {
+      params: { walletAddress, chainId }
+    })
+    .then(res => res.data);
+
+export const getEvmCollectiblesMetadata = (walletAddress: string, chainId: ChainID) =>
+  templeWalletApi
+    .get<NftAddressBalanceNftResponse>('/evm-collectibles-metadata', {
       params: { walletAddress, chainId }
     })
     .then(res => res.data);

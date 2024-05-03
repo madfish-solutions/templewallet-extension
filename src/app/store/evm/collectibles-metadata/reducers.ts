@@ -1,7 +1,7 @@
 import { createReducer } from '@reduxjs/toolkit';
 
 import { toTokenSlug } from 'lib/assets';
-import { isProperCollectibleContract, isProperCollectibleMetadata } from 'lib/utils/evm.utils';
+import { isProperCollectibleMetadata } from 'lib/utils/evm.utils';
 
 import { proceedLoadedEvmCollectiblesMetadataAction } from './actions';
 import { evmCollectiblesMetadataInitialState, EvmCollectiblesMetadataState } from './state';
@@ -21,8 +21,6 @@ export const evmCollectiblesMetadataReducer = createReducer<EvmCollectiblesMetad
       const contracts = data.items;
 
       for (const contract of contracts) {
-        if (!isProperCollectibleContract(contract)) continue;
-
         const collectibles = contract.nft_data;
 
         for (const collectible of collectibles) {

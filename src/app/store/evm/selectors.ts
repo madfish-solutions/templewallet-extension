@@ -1,3 +1,4 @@
 import { useSelector } from '../root-state.selector';
 
-export const useEvmTokensLoadingStateRecordSelector = () => useSelector(state => state.evm.tokensLoadingStateRecord);
+export const useEvmBalancesLoadingStateRecordSelector = () =>
+  useSelector(state => state.evm.balancesLoadingStateRecord);

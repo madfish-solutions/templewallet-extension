@@ -7,6 +7,6 @@ interface proceedLoadedEvmTokensBalancesActionPayload {
   data: BalancesResponse;
 }
 
-export const proceedLoadedEvmTokensBalancesAction = createAction<proceedLoadedEvmTokensBalancesActionPayload>(
-  'evm/PROCEED_LOADED_TOKENS_BALANCES_ACTION'
+export const proceedLoadedEvmAssetsBalancesAction = createAction<proceedLoadedEvmTokensBalancesActionPayload>(
+  'evm/PROCEED_LOADED_ASSETS_BALANCES_ACTION'
 );

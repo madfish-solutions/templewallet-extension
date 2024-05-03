@@ -6,7 +6,7 @@ import { TEZOS_SYMBOL } from 'lib/assets';
 import { AssetMetadataBase, TokenMetadata, TezosTokenStandardsEnum } from './types';
 
 export function getAssetSymbol(metadata: AssetMetadataBase | nullish, short = false) {
-  if (!metadata) return '???';
+  if (!metadata || !metadata.symbol) return '???';
   if (!short) return metadata.symbol;
   return metadata.symbol === 'tez' ? TEZOS_SYMBOL : metadata.symbol.substring(0, 5);
 }

@@ -1,17 +1,13 @@
-import { BalanceItem, NftData, NftTokenContractBalanceItem } from 'lib/apis/temple/evm-data.interfaces';
+import { BalanceItem, BalanceNftData, NftData } from 'lib/apis/temple/evm-data.interfaces';
 
-export const isProperTokenMetadata = (metadata: BalanceItem) =>
-  Boolean(
-    metadata.contract_address &&
-      metadata.contract_ticker_symbol &&
-      metadata.contract_display_name &&
-      metadata.contract_decimals
-  );
+export const isPositiveTokenBalance = (data: BalanceItem): data is NonNullableField<BalanceItem, 'balance'> =>
+  Boolean(data.balance && data.balance !== '0');
 
-export const isProperCollectibleContract = (contract: NftTokenContractBalanceItem) =>
-  Boolean(contract.contract_name && contract.contract_address && contract.contract_ticker_symbol);
+export const isPositiveCollectibleBalance = (
+  data: BalanceNftData
+): data is NonNullableField<BalanceNftData, 'token_id' | 'token_balance'> =>
+  Boolean(data.token_id && data.token_balance && data.token_balance !== '0');
 
 export const isProperCollectibleMetadata = (
-  collectible: NftData
-): collectible is NonNullableField<NftData, 'token_id' | 'external_data'> =>
-  Boolean(collectible.token_id && collectible.external_data);
+  data: NftData
+): data is NonNullableField<NftData, 'token_id' | 'external_data'> => Boolean(data.token_id && data.external_data);

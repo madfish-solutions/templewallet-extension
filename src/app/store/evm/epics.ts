@@ -1,49 +1,61 @@
 import { combineEpics, Epic } from 'redux-observable';
-import { catchError, concatMap, from, mergeMap, of } from 'rxjs';
+import { catchError, concatMap, from, of } from 'rxjs';
 import { ofType, toPayload } from 'ts-action-operators';
 
-import { getEvmSingleChainNfts, getEvmSingleChainTokens } from 'lib/apis/temple/endpoints/evm-data';
+import { getEvmCollectiblesMetadata, getEvmBalances, getEvmTokensMetadata } from 'lib/apis/temple/endpoints/evm-data';
 
-import { loadSingleEvmChainCollectiblesActions, loadSingleEvmChainTokensActions } from './actions';
-import { proceedLoadedEvmCollectiblesAction } from './collectibles/actions';
+import { loadEvmCollectiblesMetadataActions, loadEvmBalancesActions, loadEvmTokensMetadataActions } from './actions';
+import { proceedLoadedEvmAssetsAction } from './assets/actions';
+import { proceedLoadedEvmAssetsBalancesAction } from './balances/actions';
 import { proceedLoadedEvmCollectiblesMetadataAction } from './collectibles-metadata/actions';
-import { proceedLoadedEvmTokensAction } from './tokens/actions';
-import { proceedLoadedEvmTokensBalancesAction } from './tokens-balances/actions';
 import { proceedLoadedEvmExchangeRatesAction } from './tokens-exchange-rates/actions';
 import { proceedLoadedEvmTokensMetadataAction } from './tokens-metadata/actions';
 
-const loadEvmTokensDataEpic: Epic = action$ =>
+const loadEvmBalancesEpic: Epic = action$ =>
   action$.pipe(
-    ofType(loadSingleEvmChainTokensActions.submit),
+    ofType(loadEvmBalancesActions.submit),
     toPayload(),
-    mergeMap(({ publicKeyHash, chainId }) =>
-      from(getEvmSingleChainTokens(publicKeyHash, chainId)).pipe(
+    concatMap(({ publicKeyHash, chainId }) =>
+      from(getEvmBalances(publicKeyHash, chainId)).pipe(
         concatMap(data => [
-          proceedLoadedEvmTokensAction({ publicKeyHash, chainId, data }),
-          proceedLoadedEvmTokensBalancesAction({ publicKeyHash, chainId, data }),
+          proceedLoadedEvmAssetsAction({ publicKeyHash, chainId, data }),
+          proceedLoadedEvmAssetsBalancesAction({ publicKeyHash, chainId, data }),
+          loadEvmBalancesActions.success({ chainId })
+        ]),
+        catchError(err => of(loadEvmBalancesActions.fail({ chainId, error: err.message })))
+      )
+    )
+  );
+
+const loadEvmTokensMetadataEpic: Epic = action$ =>
+  action$.pipe(
+    ofType(loadEvmTokensMetadataActions.submit),
+    toPayload(),
+    concatMap(({ publicKeyHash, chainId }) =>
+      from(getEvmTokensMetadata(publicKeyHash, chainId)).pipe(
+        concatMap(data => [
           proceedLoadedEvmTokensMetadataAction({ chainId, data }),
           proceedLoadedEvmExchangeRatesAction({ chainId, data }),
-          loadSingleEvmChainTokensActions.success({ chainId })
+          loadEvmTokensMetadataActions.success({ chainId })
         ]),
-        catchError(err => of(loadSingleEvmChainTokensActions.fail({ chainId, error: err.message })))
+        catchError(err => of(loadEvmTokensMetadataActions.fail({ chainId, error: err.message })))
       )
     )
   );
 
-const loadEvmCollectiblesDataEpic: Epic = action$ =>
+const loadEvmCollectiblesMetadataEpic: Epic = action$ =>
   action$.pipe(
-    ofType(loadSingleEvmChainCollectiblesActions.submit),
+    ofType(loadEvmCollectiblesMetadataActions.submit),
     toPayload(),
-    mergeMap(({ publicKeyHash, chainId }) =>
-      from(getEvmSingleChainNfts(publicKeyHash, chainId)).pipe(
+    concatMap(({ publicKeyHash, chainId }) =>
+      from(getEvmCollectiblesMetadata(publicKeyHash, chainId)).pipe(
         concatMap(data => [
-          proceedLoadedEvmCollectiblesAction({ publicKeyHash, chainId, data }),
           proceedLoadedEvmCollectiblesMetadataAction({ chainId, data }),
-          loadSingleEvmChainCollectiblesActions.success({ chainId })
+          loadEvmCollectiblesMetadataActions.success({ chainId })
         ]),
-        catchError(err => of(loadSingleEvmChainCollectiblesActions.fail({ chainId, error: err.message })))
+        catchError(err => of(loadEvmCollectiblesMetadataActions.fail({ chainId, error: err.message })))
       )
     )
   );
 
-export const evmEpics = combineEpics(loadEvmTokensDataEpic, loadEvmCollectiblesDataEpic);
+export const evmEpics = combineEpics(loadEvmBalancesEpic, loadEvmTokensMetadataEpic, loadEvmCollectiblesMetadataEpic);

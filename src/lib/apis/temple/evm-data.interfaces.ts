@@ -236,15 +236,15 @@ export interface BalancesResponse {
 }
 export interface BalanceItem {
   /** * Use contract decimals to format the token balance for display purposes - divide the balance by `10^{contract_decimals}`. */
-  contract_decimals: number;
+  contract_decimals: number | null;
   /** * The string returned by the `name()` method. */
-  contract_name: string;
+  contract_name: string | null;
   /** * The ticker symbol for this contract. This field is set by a developer and non-unique across a network. */
-  contract_ticker_symbol: string;
+  contract_ticker_symbol: string | null;
   /** * Use the relevant `contract_address` to lookup prices, logos, token transfers, etc. */
   contract_address: string;
   /** * A display-friendly name for the contract. */
-  contract_display_name: string;
+  contract_display_name: string | null;
   /** * A list of supported standard ERC interfaces, eg: `ERC20` and `ERC721`. */
   supports_erc: string[];
   /** * The contract logo URL. */
@@ -278,13 +278,13 @@ export interface BalanceItem {
   /** * The protocol metadata. */
   protocol_metadata: ProtocolMetadata | null;
   /** * NFT-specific data. */
-  nft_data?: BalanceNftData[] | null;
+  nft_data: BalanceNftData[] | null;
 }
 interface ProtocolMetadata {
   /** * The name of the protocol. */
   protocol_name: string;
 }
-interface BalanceNftData {
+export interface BalanceNftData {
   /** * The token's id. */
   token_id: string | null;
   /** * The count of the number of NFTs with this ID. */

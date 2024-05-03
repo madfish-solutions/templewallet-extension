@@ -195,7 +195,7 @@ export const EVM_DEFAULT_NETWORKS: NonEmptyArray<StoredEvmNetwork> = [
     name: 'Polygon Mumbai',
     chain: TempleChainKind.EVM,
     chainId: 80001,
-    rpcBaseURL: 'https://polygon-mumbai-pokt.nodies.app',
+    rpcBaseURL: 'https://polygon-mumbai.gateway.tenderly.co',
     color: '#392f77',
     default: true
   },

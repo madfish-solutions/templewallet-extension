@@ -1,4 +1,4 @@
-import { useEvmStoredTokensRecordSelector } from 'app/store/evm/tokens/selectors';
+import { useEvmStoredTokensRecordSelector } from 'app/store/evm/assets/selectors';
 
 export const useEvmChainAccountAssetsSlugs = (publicKeyHash: HexString, chainId: number) => {
   const storedAssetsRecord = useEvmStoredTokensRecordSelector();
