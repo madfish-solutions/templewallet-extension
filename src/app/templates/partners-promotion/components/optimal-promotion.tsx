@@ -70,9 +70,7 @@ export const OptimalPromotion = memo<SingleProviderPromotionProps>(
           onAdRectSeen={onAdRectSeen}
           backgroundAssetUrl={imageSrc}
         >
-          <div>
-            <img src={imageSrc} alt="Partners promotion" className="rounded-xl" onError={onImageError} />
-          </div>
+          <img src={imageSrc} alt="Partners promotion" className="rounded-xl" onError={onImageError} />
         </ImagePromotionView>
       );
     }

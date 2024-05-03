@@ -39,9 +39,6 @@ export const HypelabImagePromotion: FC<Omit<SingleProviderPromotionProps, 'varia
 
     return { backgroundAssetType: 'video' as const, backgroundAssetUrl: creativeSet.video.url };
   }, [currentAd]);
-  /* const currentAssetType = currentCreativeSet && ('image' in currentCreativeSet ? 'image' : 'video');
-  const currentAssetUrl =
-    currentCreativeSet && ('image' in currentCreativeSet ? currentCreativeSet.image.url : currentCreativeSet.video.url); */
 
   useAdTimeout(adIsReady, onError);
 
