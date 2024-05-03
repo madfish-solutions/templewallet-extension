@@ -12,7 +12,7 @@ import { useScrollIntoViewOnMount } from 'lib/ui/use-scroll-into-view';
 import { getAccountAddressForEvm, getAccountAddressForTezos } from 'temple/accounts';
 import { useEthereumMainnetChain, useTezosMainnetChain } from 'temple/front';
 
-import { AccountDropdownSelectors } from './selectors';
+import { AccountsDropdownSelectors } from './selectors';
 
 interface Props {
   account: StoredAccount;
@@ -55,7 +55,7 @@ export const AccountItem = memo<Props>(({ account, selected, attractSelf, search
       ref={elemRef}
       className={classNameMemo}
       onClick={handleClick}
-      testID={AccountDropdownSelectors.accountItemButton}
+      testID={AccountsDropdownSelectors.accountItemButton}
       testIDProperties={{ accountTypeEnum: account.type }}
     >
       <Identicon type="bottts" hash={account.id} size={46} className="flex-shrink-0 shadow-xs-white" />
@@ -66,8 +66,11 @@ export const AccountItem = memo<Props>(({ account, selected, attractSelf, search
         </Name>
 
         <div
-          className={clsx('text-xs', searchValue === displayAddress ? 'bg-marker-highlight text-gray-900' : 'text-gray-500')}
-          {...setTestID(AccountDropdownSelectors.accountAddressValue)}
+          className={clsx(
+            'text-xs',
+            searchValue === displayAddress ? 'bg-marker-highlight text-gray-900' : 'text-gray-500'
+          )}
+          {...setTestID(AccountsDropdownSelectors.accountAddressValue)}
           {...setAnotherSelector('hash', displayAddress)}
         >
           <HashShortView hash={displayAddress} />

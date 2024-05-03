@@ -38,10 +38,6 @@ export const ChainSelection = memo<ChainSelectionProps>(({ privateKeys, onSelect
             'text-gray-900 placeholder-gray-600 text-xs leading-tight rounded-lg'
           )}
           placeholder={t('searchAccount', '')}
-          searchIconClassName="h-3 w-auto text-gray-600 stroke-current"
-          searchIconWrapperClassName="pl-3 pr-0.5"
-          cleanButtonIconClassName="text-gray-200 w-auto stroke-current stroke-2"
-          cleanButtonStyle={{ backgroundColor: '#AEAEB2', borderWidth: 0 }}
           onValueChange={setSearchValue}
         />
         <div className="w-full flex flex-col gap-3">

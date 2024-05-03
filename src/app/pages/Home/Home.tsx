@@ -8,7 +8,7 @@ import { useLocationSearchParamValue } from 'app/hooks/use-location';
 import PageLayout from 'app/layouts/PageLayout';
 import { useMainnetTokensScamlistSelector } from 'app/store/assets/selectors';
 import { ActivityTab } from 'app/templates/activity/Activity';
-import AssetInfo from 'app/templates/AssetInfo';
+// import AssetInfo from 'app/templates/AssetInfo';
 import { setAnotherSelector, setTestID } from 'lib/analytics';
 import { useAssetMetadata, getAssetSymbol } from 'lib/metadata';
 import { HistoryAction, navigate, useLocation } from 'lib/woozie';
@@ -18,9 +18,7 @@ import { useOnboardingProgress } from '../Onboarding/hooks/useOnboardingProgress
 import Onboarding from '../Onboarding/Onboarding';
 
 import { ActionButtonsBar } from './ActionButtonsBar';
-import { ContentSection } from './ContentSection';
-import BakingSection from './OtherComponents/BakingSection';
-import EditableTitle from './OtherComponents/EditableTitle';
+// import { ContentSection } from './ContentSection';
 import MainBanner from './OtherComponents/MainBanner';
 import { ScamTokenAlert } from './OtherComponents/ScamTokenAlert';
 import { TezosAssetTab } from './OtherComponents/TezosAssetTab';
@@ -33,7 +31,7 @@ interface Props {
 }
 
 const Home = memo<Props>(({ tezosChainId, assetSlug }) => {
-  const { fullPage, registerBackHandler } = useAppEnv();
+  const { registerBackHandler } = useAppEnv();
   const tabSlug = useLocationSearchParamValue('tab');
   const { onboardingCompleted } = useOnboardingProgress();
   const { search } = useLocation();
@@ -60,13 +58,6 @@ const Home = memo<Props>(({ tezosChainId, assetSlug }) => {
       withToolbarAd
       contentPadding={false}
     >
-      {/* {fullPage && (
-        <div className="w-full max-w-sm mx-auto">
-          <EditableTitle />
-          <hr className="mb-4" />
-        </div>
-      )} */}
-
       {showScamTokenAlert && <ScamTokenAlert />}
 
       <div className="flex flex-col pt-1 px-4 pb-3 bg-white">

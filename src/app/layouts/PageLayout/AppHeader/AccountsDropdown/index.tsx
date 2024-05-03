@@ -6,9 +6,6 @@ import { IconBase } from 'app/atoms';
 import { Button } from 'app/atoms/Button';
 import DropdownWrapper from 'app/atoms/DropdownWrapper';
 import { useShortcutAccountSelectModalIsOpened } from 'app/hooks/use-account-select-shortcut';
-import { ReactComponent as AddIcon } from 'app/icons/add.svg';
-import { ReactComponent as DownloadIcon } from 'app/icons/download.svg';
-import { ReactComponent as LinkIcon } from 'app/icons/link.svg';
 import { ReactComponent as LockIcon } from 'app/icons/lock.svg';
 import { ReactComponent as SadSearchIcon } from 'app/icons/sad-search.svg';
 import SearchField from 'app/templates/SearchField';
@@ -17,19 +14,20 @@ import { T, t } from 'lib/i18n';
 import { useTempleClient } from 'lib/temple/front';
 import { PopperRenderProps } from 'lib/ui/Popper';
 import { HistoryAction, navigate } from 'lib/woozie';
-import { searchAndFilterAccounts, useCurrentAccountId, useChangeAccount, useAllAccounts } from 'temple/front';
+import {
+  searchAndFilterAccounts,
+  useAccountsGroups,
+  useCurrentAccountId,
+  useChangeAccount,
+  useVisibleAccounts
+} from 'temple/front';
 
 import { AccountItem } from './AccountItem';
-import { ActionButtonProps, ActionButton } from './ActionButton';
-import { AccountDropdownSelectors } from './selectors';
-
-interface TDropdownAction extends ActionButtonProps {
-  key: string;
-}
+import { AccountsDropdownSelectors } from './selectors';
 
 const AccountsDropdown = memo<PopperRenderProps>(({ opened, setOpened }) => {
   const { lock } = useTempleClient();
-  const allAccounts = useAllAccounts();
+  const allAccounts = useVisibleAccounts();
   const currentAccountId = useCurrentAccountId();
   const setAccountId = useChangeAccount();
 
@@ -42,10 +40,7 @@ const AccountsDropdown = memo<PopperRenderProps>(({ opened, setOpened }) => {
     () => (searchValue.length ? searchAndFilterAccounts(allAccounts, searchValue) : allAccounts),
     [searchValue, allAccounts]
   );
-
-  const closeDropdown = useCallback(() => {
-    setOpened(false);
-  }, [setOpened]);
+  const filteredGroups = useAccountsGroups(filteredAccounts);
 
   const handleLogoutClick = useCallback(() => {
     lock();
@@ -63,43 +58,22 @@ const AccountsDropdown = memo<PopperRenderProps>(({ opened, setOpened }) => {
     [currentAccountId, setAccountId, setOpened]
   );
 
-  const actions = useMemo(
-    (): TDropdownAction[] => [
-      {
-        key: 'create-account',
-        Icon: AddIcon,
-        i18nKey: 'createAccount',
-        linkTo: '/create-account',
-        testID: AccountDropdownSelectors.createOrRestoreAccountButton,
-        onClick: closeDropdown
-      },
-      {
-        key: 'import-account',
-        Icon: DownloadIcon,
-        i18nKey: 'importAccount',
-        linkTo: '/import-account',
-        testID: AccountDropdownSelectors.importAccountButton,
-        onClick: closeDropdown
-      },
-      {
-        key: 'connect-ledger',
-        Icon: LinkIcon,
-        i18nKey: 'connectLedger',
-        linkTo: '/connect-ledger',
-        testID: AccountDropdownSelectors.connectLedgerButton,
-        onClick: closeDropdown
-      }
-    ],
-    [closeDropdown]
-  );
-
   useEffect(() => {
     if (searchValue) setAttractSelectedAccount(false);
     else if (!opened) setAttractSelectedAccount(true);
   }, [opened, searchValue]);
 
   return (
-    <DropdownWrapper opened={opened} design="dark" className="p-2 w-64">
+    <DropdownWrapper
+      opened={opened}
+      design="dark"
+      // className="origin-top-right p-2 w-64"
+      // style={{
+      //   transform: 'translate(3.25rem, 3.25rem)',
+      //   pointerEvents: 'all'
+      // }}
+      className="p-2 w-64 min-h-96 flex flex-col"
+    >
       <div className="flex items-center mb-2">
         <h3 className="flex items-center text-sm text-white opacity-20">
           <T id="accounts" />
@@ -120,54 +94,53 @@ const AccountsDropdown = memo<PopperRenderProps>(({ opened, setOpened }) => {
             'hover:opacity-100'
           )}
           onClick={handleLogoutClick}
-          testID={AccountDropdownSelectors.logoutButton}
+          testID={AccountsDropdownSelectors.logoutButton}
         >
           <IconBase Icon={LockIcon} size={16} className="mr-1" />
           <T id="lock" />
         </Button>
       </div>
 
-      <div className="my-2">
-        <SearchField
-          value={searchValue}
-          className={clsx(
-            'py-2 pl-8 pr-8',
-            'bg-transparent',
-            'border border-gray-200 border-opacity-20',
-            'focus:outline-none',
-            'transition ease-in-out duration-200',
-            'rounded-md rounded-b-none',
-            'text-gray-500 placeholder-gray-600 text-sm leading-tight'
+      <SearchField
+        value={searchValue}
+        className={clsx(
+          'py-2 pl-8 pr-8',
+          'bg-transparent',
+          'border border-gray-200 border-opacity-20',
+          'focus:outline-none',
+          'transition ease-in-out duration-200',
+          'rounded-md rounded-b-none',
+          'text-gray-500 placeholder-gray-600 text-sm leading-tight'
+        )}
+        placeholder={t('searchAccount', [searchHotkey])}
+        onValueChange={setSearchValue}
+      />
+
+      <div className="flex-1 overflow-y-auto rounded border border-gray-200 border-opacity-20 shadow-inner border-t-0 rounded-t-none h-48">
+        <div className="flex flex-col">
+          {filteredAccounts.length === 0 ? (
+            <div className="h-48 flex justify-center items-center">
+              <SadSearchIcon />
+            </div>
+          ) : (
+            filteredGroups.map(({ id, name, accounts }) => (
+              <React.Fragment key={id}>
+                <h6 className="p-2 text-sm text-gray-500">{name}</h6>
+
+                {accounts.map(acc => (
+                  <AccountItem
+                    key={acc.id}
+                    account={acc}
+                    selected={acc.id === currentAccountId}
+                    attractSelf={attractSelectedAccount}
+                    searchValue={searchValue}
+                    onClick={handleAccountClick}
+                  />
+                ))}
+              </React.Fragment>
+            ))
           )}
-          placeholder={t('searchAccount', [searchHotkey])}
-          onValueChange={setSearchValue}
-        />
-
-        <div className="overflow-y-auto rounded border border-gray-200 border-opacity-20 shadow-inner border-t-0 rounded-t-none h-48">
-          <div className="flex flex-col">
-            {filteredAccounts.length === 0 ? (
-              <div className="h-48 flex justify-center items-center">
-                <SadSearchIcon />
-              </div>
-            ) : (
-              filteredAccounts.map(acc => (
-                <AccountItem
-                  key={acc.id}
-                  account={acc}
-                  selected={acc.id === currentAccountId}
-                  attractSelf={attractSelectedAccount}
-                  onClick={handleAccountClick}
-                />
-              ))
-            )}
-          </div>
         </div>
-      </div>
-
-      <div className="mt-2">
-        {actions.map(action => (
-          <ActionButton {...action} />
-        ))}
       </div>
     </DropdownWrapper>
   );

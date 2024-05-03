@@ -31,7 +31,7 @@ import { goBack, HistoryAction, navigate, useLocation } from 'lib/woozie';
 import { AppHeader } from './PageLayout/AppHeader';
 import { ChangelogOverlay } from './PageLayout/ChangelogOverlay/ChangelogOverlay';
 import ConfirmationOverlay from './PageLayout/ConfirmationOverlay';
-import Header from './PageLayout/Header';
+// import Header from './PageLayout/Header';
 import { NewsletterOverlay } from './PageLayout/NewsletterOverlay/NewsletterOverlay';
 import { OnRampOverlay } from './PageLayout/OnRampOverlay/OnRampOverlay';
 import { ShortcutAccountSwitchOverlay } from './PageLayout/ShortcutAccountSwitchOverlay';
@@ -41,6 +41,7 @@ interface PageLayoutProps extends PropsWithChildren, ToolbarProps {
   contentPadding?: boolean;
 }
 
+// @ts-expect-error
 const PageLayout: FC<PageLayoutProps> = ({ children, contentPadding = true, ...toolbarProps }) => {
   const { fullPage } = useAppEnv();
   const { ready } = useTempleClient();
@@ -113,6 +114,7 @@ export let ToolbarElement: HTMLDivElement | null = null;
 /** Defined for reference in code to highlight relation between multiple sticky elements & their sizes */
 export const TOOLBAR_IS_STICKY = true;
 
+// @ts-expect-error
 const Toolbar: FC<ToolbarProps> = ({
   pageTitle,
   hasBackAction = true,

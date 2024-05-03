@@ -1,6 +1,6 @@
 import React, { memo, useCallback, useMemo, useState, useEffect } from 'react';
 
-import classNames from 'clsx';
+import clsx from 'clsx';
 
 import { Button } from 'app/atoms/Button';
 import DropdownWrapper from 'app/atoms/DropdownWrapper';
@@ -22,9 +22,9 @@ import {
 } from 'temple/front';
 
 import { AccountItem } from './AccountItem';
-import { AccountDropdownSelectors } from './selectors';
+import { AccountsDropdownSelectors } from './selectors';
 
-const AccountDropdown = memo<PopperRenderProps>(({ opened, setOpened }) => {
+const AccountsDropdown = memo<PopperRenderProps>(({ opened, setOpened }) => {
   const { lock } = useTempleClient();
   const allAccounts = useVisibleAccounts();
   const currentAccountId = useCurrentAccountId();
@@ -66,12 +66,11 @@ const AccountDropdown = memo<PopperRenderProps>(({ opened, setOpened }) => {
     <DropdownWrapper
       opened={opened}
       design="dark"
-      // className="origin-top-right p-2 w-64"
-      // style={{
-      //   transform: 'translate(3.25rem, 3.25rem)',
-      //   pointerEvents: 'all'
-      // }}
-      className="p-2 w-64"
+      className="origin-top-right p-2 w-64"
+      style={{
+        transform: 'translate(3.25rem, 3.25rem)',
+        pointerEvents: 'all'
+      }}
     >
       <div className="flex items-center mb-2">
         <h3 className="flex items-center text-sm text-white opacity-20">
@@ -81,7 +80,7 @@ const AccountDropdown = memo<PopperRenderProps>(({ opened, setOpened }) => {
         <div className="flex-1" />
 
         <Button
-          className={classNames(
+          className={clsx(
             'px-2 py-0.5',
             'rounded-md',
             'border border-gray-200',
@@ -93,7 +92,7 @@ const AccountDropdown = memo<PopperRenderProps>(({ opened, setOpened }) => {
             'hover:opacity-100'
           )}
           onClick={handleLogoutClick}
-          testID={AccountDropdownSelectors.logoutButton}
+          testID={AccountsDropdownSelectors.logoutButton}
         >
           <LockIcon className="mr-1 h-4 w-auto" />
           <T id="lock" />
@@ -103,7 +102,7 @@ const AccountDropdown = memo<PopperRenderProps>(({ opened, setOpened }) => {
       <div className="my-2">
         <SearchField
           value={searchValue}
-          className={classNames(
+          className={clsx(
             'py-2 pl-8 pr-8',
             'bg-transparent',
             'border border-gray-200 border-opacity-20',
@@ -146,4 +145,4 @@ const AccountDropdown = memo<PopperRenderProps>(({ opened, setOpened }) => {
   );
 });
 
-export default AccountDropdown;
+export default AccountsDropdown;

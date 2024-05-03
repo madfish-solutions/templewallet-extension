@@ -13,7 +13,7 @@ import Popper from 'lib/ui/Popper';
 import { Link } from 'lib/woozie';
 import { useAccount } from 'temple/front';
 
-import AccountDropdown from './Header/AccountDropdown';
+import AccountsDropdown from './Header/AccountsDropdown';
 import { HeaderSelectors } from './Header/selectors';
 import styles from './Header/styles.module.css';
 
@@ -54,7 +54,7 @@ const Control = memo(() => {
           placement="left-start"
           strategy="fixed"
           style={{ pointerEvents: 'none' }}
-          popup={props => <AccountDropdown {...props} />}
+          popup={props => <AccountsDropdown {...props} />}
         >
           {({ ref, opened, toggleOpened }) => (
             <Button
