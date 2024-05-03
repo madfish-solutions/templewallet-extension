@@ -47,9 +47,9 @@ const ActionButton = memo<ActionButtonProps>(({ action, setOpened }) => {
       className={clsx('flex items-center py-1.5 px-2 gap-x-1 rounded-md', 'hover:bg-secondary-low')}
       onClick={handleClick}
     >
-      <IconBase Icon={Icon} size={16} className={danger ? 'text-red-500' : 'text-secondary'} />
+      <IconBase Icon={Icon} size={16} className={danger ? 'text-error' : 'text-secondary'} />
 
-      <span className={clsx('text-xs', danger && 'text-red-500')}>
+      <span className={clsx('text-xs', danger && 'text-error')}>
         <T id={i18nKey} />
       </span>
     </Button>

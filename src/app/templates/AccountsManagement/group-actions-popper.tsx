@@ -4,7 +4,7 @@ import { Button, IconBase } from 'app/atoms';
 import { ReactComponent as DeleteIcon } from 'app/icons/delete.svg';
 import { ReactComponent as DownloadIcon } from 'app/icons/download.svg';
 import { ReactComponent as EditIcon } from 'app/icons/edit.svg';
-import { ReactComponent as EllipsisIcon } from 'app/icons/menu_ellipsis.svg';
+import { ReactComponent as MenuCircleIcon } from 'app/icons/menu_circle.svg';
 import { ReactComponent as AddIcon } from 'app/icons/plus_circle.svg';
 import { ReactComponent as RevealEyeIcon } from 'app/icons/reveal.svg';
 import { ACCOUNT_EXISTS_SHOWN_WARNINGS_STORAGE_KEY } from 'lib/constants';
@@ -159,16 +159,13 @@ const GroupActionsDropdown = memo<PopperRenderProps & GroupActionsPopperProps>(
 
 export const GroupActionsPopper: FC<GroupActionsPopperProps> = ({ group, ...restPopperProps }) => (
   <Popper
-    // placement="left-start"
-    // strategy="fixed"
-    // style={{ pointerEvents: 'none' }}
     placement="bottom-end"
     strategy="fixed"
     popup={props => <GroupActionsDropdown group={group} {...restPopperProps} {...props} />}
   >
     {({ ref, toggleOpened }) => (
       <Button ref={ref} onClick={toggleOpened}>
-        <IconBase Icon={EllipsisIcon} size={16} className="text-secondary" />
+        <IconBase Icon={MenuCircleIcon} size={16} className="text-secondary" />
       </Button>
     )}
   </Popper>
