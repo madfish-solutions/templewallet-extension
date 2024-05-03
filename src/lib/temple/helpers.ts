@@ -1,5 +1,9 @@
 import BigNumber from 'bignumber.js';
 
+import { TempleChainKind } from 'temple/types';
+
+import { StoredAccount, StoredHDAccount, TempleAccountType, WalletSpecs } from './types';
+
 export function usdToAssetAmount(
   usd?: BigNumber,
   assetUsdPrice?: number,
@@ -40,4 +44,88 @@ export function formatOpParamsBeforeSend(params: any) {
     return newParams;
   }
   return params;
+}
+
+export function toExcelColumnName(n: number) {
+  let dividend = n + 1;
+  let columnName = '';
+  let modulo;
+
+  while (dividend > 0) {
+    modulo = (dividend - 1) % 26;
+    columnName = String.fromCharCode(65 + modulo) + columnName;
+    dividend = Math.floor((dividend - modulo) / 26);
+  }
+
+  return columnName;
+}
+
+export function getSameGroupAccounts(
+  allAccounts: StoredAccount[],
+  accountType: TempleAccountType.HD,
+  groupId: string
+): StoredHDAccount[];
+export function getSameGroupAccounts(
+  allAccounts: StoredAccount[],
+  accountType: TempleAccountType,
+  groupId?: string
+): StoredAccount[];
+export function getSameGroupAccounts(allAccounts: StoredAccount[], accountType: TempleAccountType, groupId?: string) {
+  return allAccounts.filter(
+    acc => acc.type === accountType && (acc.type !== TempleAccountType.HD || acc.walletId === groupId)
+  );
+}
+
+async function pickUniqueName(
+  startIndex: number,
+  getNameCandidate: (i: number) => string | Promise<string>,
+  isUnique: (name: string) => boolean
+) {
+  for (let i = startIndex; ; i++) {
+    const nameCandidate = await getNameCandidate(i);
+    if (isUnique(nameCandidate)) {
+      return nameCandidate;
+    }
+  }
+}
+
+export function isNameCollision(
+  allAccounts: StoredAccount[],
+  accountType: TempleAccountType,
+  name: string,
+  walletId?: string
+) {
+  return getSameGroupAccounts(allAccounts, accountType, walletId).some(acc => acc.name === name);
+}
+
+export async function fetchNewAccountName(
+  allAccounts: StoredAccount[],
+  newAccountType: TempleAccountType,
+  getNameCandidate: (i: number) => string | Promise<string>,
+  newAccountWalletId?: string
+) {
+  const sameGroupAccounts = getSameGroupAccounts(allAccounts, newAccountType, newAccountWalletId);
+
+  return await pickUniqueName(
+    sameGroupAccounts.length + 1,
+    getNameCandidate,
+    name => !isNameCollision(allAccounts, newAccountType, name, newAccountWalletId)
+  );
+}
+
+export async function fetchNewGroupName(
+  walletsSpecs: StringRecord<WalletSpecs>,
+  getNameCandidate: (i: number) => Promise<string>
+) {
+  const groupsNames = Object.values(walletsSpecs).map(spec => spec.name);
+
+  return await pickUniqueName(groupsNames.length, getNameCandidate, name => !groupsNames.includes(name));
+}
+
+export function getDerivationPath(chainName: TempleChainKind, index: number) {
+  if (chainName === TempleChainKind.EVM) {
+    return `m/44'/60'/0'/0/${index}`;
+  }
+
+  return `m/44'/1729'/${index}'/0'`;
 }

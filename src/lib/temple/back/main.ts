@@ -65,8 +65,15 @@ const processRequest = async (req: TempleRequest, port: Runtime.Port): Promise<T
       await Actions.lock();
       return { type: TempleMessageType.LockResponse };
 
+    case TempleMessageType.FindFreeHDAccountIndexRequest:
+      const responsePayload = await Actions.findFreeHDAccountIndex(req.walletId);
+      return {
+        type: TempleMessageType.FindFreeHDAccountIndexResponse,
+        ...responsePayload
+      };
+
     case TempleMessageType.CreateAccountRequest:
-      await Actions.createHDAccount(req.name);
+      await Actions.createHDAccount(req.walletId, req.name, req.hdIndex);
       return { type: TempleMessageType.CreateAccountResponse };
 
     case TempleMessageType.RevealPublicKeyRequest:
@@ -77,14 +84,14 @@ const processRequest = async (req: TempleRequest, port: Runtime.Port): Promise<T
       };
 
     case TempleMessageType.RevealPrivateKeyRequest:
-      const privateKey = await Actions.revealPrivateKey(req.chain, req.address, req.password);
+      const privateKey = await Actions.revealPrivateKey(req.address, req.password);
       return {
         type: TempleMessageType.RevealPrivateKeyResponse,
         privateKey
       };
 
     case TempleMessageType.RevealMnemonicRequest:
-      const mnemonic = await Actions.revealMnemonic(req.password);
+      const mnemonic = await Actions.revealMnemonic(req.walletId, req.password);
       return {
         type: TempleMessageType.RevealMnemonicResponse,
         mnemonic
@@ -107,6 +114,12 @@ const processRequest = async (req: TempleRequest, port: Runtime.Port): Promise<T
       await Actions.editAccount(req.id, req.name);
       return {
         type: TempleMessageType.EditAccountResponse
+      };
+
+    case TempleMessageType.SetAccountHiddenRequest:
+      await Actions.setAccountHidden(req.id, req.value);
+      return {
+        type: TempleMessageType.SetAccountHiddenResponse
       };
 
     case TempleMessageType.ImportAccountRequest:
@@ -149,6 +162,24 @@ const processRequest = async (req: TempleRequest, port: Runtime.Port): Promise<T
       await Actions.updateSettings(req.settings);
       return {
         type: TempleMessageType.UpdateSettingsResponse
+      };
+
+    case TempleMessageType.RemoveHdWalletRequest:
+      await Actions.removeHdWallet(req.id, req.password);
+      return {
+        type: TempleMessageType.RemoveHdWalletResponse
+      };
+
+    case TempleMessageType.RemoveAccountsByTypeRequest:
+      await Actions.removeAccountsByType(req.accountsType, req.password);
+      return {
+        type: TempleMessageType.RemoveAccountsByTypeResponse
+      };
+
+    case TempleMessageType.CreateOrImportWalletRequest:
+      await Actions.createOrImportWallet(req.mnemonic);
+      return {
+        type: TempleMessageType.CreateOrImportWalletResponse
       };
 
     case TempleMessageType.OperationsRequest:

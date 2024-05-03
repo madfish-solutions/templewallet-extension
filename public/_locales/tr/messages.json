@@ -381,7 +381,7 @@
   "alert": {
     "message": "Uyarı"
   },
-  "accountNameInputTitle": {
+  "accountOrGroupNameInputTitle": {
     "message": "1-16 karakter, özel karakter yok"
   },
   "defaultAccountName": {
@@ -408,9 +408,6 @@
         "content": "$1"
       }
     }
-  },
-  "accountsToRemoveConstraint": {
-    "message": "Hiyerarşik Belirleyici hesaplar kaldırılamıyor."
   },
   "doNotSharePrivateKey": {
     "message": "Bu karakter dizisini kimseyle <b>PAYLAŞMAYIN</b>! Mevcut hesabınızı çalmak için kullanılabilir."

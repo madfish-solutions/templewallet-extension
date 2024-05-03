@@ -137,6 +137,7 @@ module.exports = {
         //
         /** Originally 'input' */
         'input-low': '#F0F0F0',
+        'marker-highlight': '#FFFF02',
         //
         // # Deprecated
         'primary-white': '#fcfaf7',
@@ -235,6 +236,8 @@ module.exports = {
       },
 
       borderWidth: {
+        0.5: '0.5px',
+        1.5: '1.5px',
         3: '3px'
       },
 

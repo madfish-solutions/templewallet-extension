@@ -8,7 +8,10 @@ import { blurHandler, checkedHandler, focusHandler } from 'lib/ui/inputHandlers'
 
 export interface CheckboxProps
   extends TestIDProps,
-    Pick<InputHTMLAttributes<HTMLInputElement>, 'name' | 'checked' | 'className' | 'onFocus' | 'onBlur' | 'onClick'> {
+    Pick<
+      InputHTMLAttributes<HTMLInputElement>,
+      'name' | 'checked' | 'className' | 'onFocus' | 'onBlur' | 'onClick' | 'disabled'
+    > {
   overrideClassNames?: string;
   errored?: boolean;
   onChange?: (checked: boolean, event: React.ChangeEvent<HTMLInputElement>) => void;
@@ -26,6 +29,7 @@ const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
       onBlur,
       testID,
       testIDProperties,
+      disabled,
       ...rest
     },
     ref
@@ -82,14 +86,16 @@ const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
                 return 'border-gray-400';
             }
           })(),
+          disabled && 'opacity-75 pointer-events-none',
           overrideClassNames || 'h-6 w-6 rounded-md'
         ),
-      [localChecked, localFocused, errored, overrideClassNames]
+      [localChecked, localFocused, disabled, overrideClassNames, errored]
     );
 
     return (
       <div className={classNameMemo} {...setTestID(testID)}>
         <input
+          disabled={disabled}
           ref={ref}
           type="checkbox"
           className={clsx('sr-only', className)}

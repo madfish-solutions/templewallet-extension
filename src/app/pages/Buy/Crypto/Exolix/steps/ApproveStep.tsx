@@ -195,7 +195,7 @@ const ApproveStep: FC<Props> = ({ exchangeData, setExchangeData, setStep, isErro
                 trackEvent(ExolixSelectors.topupSecondStepCancelButton, AnalyticsEventCategory.ButtonPress);
                 setStep(0);
               }}
-              className="font inter font-medium text-red-700 text-sm mb-8 inline-block cursor-pointer inline-block w-auto"
+              className="font inter font-medium text-red-700 text-sm mb-8 inline-block cursor-pointer w-auto"
             >
               <T id={'cancel'} />
             </p>

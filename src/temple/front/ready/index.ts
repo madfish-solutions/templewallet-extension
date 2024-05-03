@@ -1,4 +1,4 @@
-import { useLayoutEffect } from 'react';
+import { useLayoutEffect, useMemo } from 'react';
 
 import constate from 'constate';
 
@@ -26,7 +26,9 @@ export const [
   useAccountForEvm,
   useSetAccountId,
   //
-  useSettings
+  useSettings,
+  //
+  useHDGroups
 ] = constate(
   useReadyTemple,
   //
@@ -45,19 +47,23 @@ export const [
   v => v.accountForEvm,
   v => v.setAccountId,
   //
-  v => v.settings
+  v => v.settings,
+  //
+  v => v.hdGroups
 );
 
 function useReadyTemple() {
   const templeFront = useTempleClient();
   assertReady(templeFront);
 
-  const { customTezosNetworks, customEvmNetworks, accounts: allAccounts, settings } = templeFront;
+  const { customTezosNetworks, customEvmNetworks, accounts: allAccounts, settings, walletsSpecs } = templeFront;
 
   const readyTempleTezosNetworks = useReadyTempleTezosNetworks(customTezosNetworks);
   const readyTempleEvmNetworks = useReadyTempleEvmNetworks(customEvmNetworks);
 
   const readyTempleAccounts = useReadyTempleAccounts(allAccounts);
+
+  const hdGroups = useMemo(() => Object.entries(walletsSpecs).map(([id, { name }]) => ({ id, name })), [walletsSpecs]);
 
   /** Error boundary reset */
   useLayoutEffect(() => {
@@ -71,6 +77,7 @@ function useReadyTemple() {
 
     ...readyTempleAccounts,
 
+    hdGroups,
     settings
   };
 }

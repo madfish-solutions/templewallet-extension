@@ -3044,10 +3044,10 @@
     nanoid "^5.0.6"
     webextension-polyfill "^0.10.0"
 
-"@temple-wallet/jest-webextension-mock@^4.1.0":
-  version "4.1.0"
-  resolved "https://registry.yarnpkg.com/@temple-wallet/jest-webextension-mock/-/jest-webextension-mock-4.1.0.tgz#6834acd98297eb1c76b85a2585a0584ff5578e8f"
-  integrity sha512-1D/3WpaJS9rk5SENnFB1RZ3oeYkrfDvCV4qyIYjAD6uWe6RHVzcGxQ8UPtSQ/MRrcqjT95q2VwDNxek+9z6+yw==
+"@temple-wallet/jest-webextension-mock@^5.0.0":
+  version "5.0.0"
+  resolved "https://registry.yarnpkg.com/@temple-wallet/jest-webextension-mock/-/jest-webextension-mock-5.0.0.tgz#82e1d7742a1904d89a4c4ecfca8759059dc8a590"
+  integrity sha512-dqm5h55Uu1OmD4Flq/HGjvxhkA4ETgLCReaodx/9c/NVfDZ44eLbzB25MIKmyuO6x33hhc9O4if0K3eihnGKPQ==
 
 "@temple-wallet/save-remote-file-webpack-plugin@^1.1.2":
   version "1.1.2"
