@@ -56,7 +56,7 @@ export const ImportFromKeystoreFile: FC<ImportFromKeystoreFileProps> = ({
   );
 
   return (
-    <form className="w-full max-w-sm mx-auto my-8 pb-8" onSubmit={handleSubmit(onSubmit)}>
+    <form onSubmit={handleSubmit(onSubmit)}>
       <label className="mb-4 leading-tight flex flex-col">
         <span className="text-base font-semibold text-gray-700">
           <T id="file" />

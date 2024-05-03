@@ -15,6 +15,8 @@ import { getAccountAddressForTezos, getAccountAddressForEvm } from 'temple/accou
 import { useAccount } from 'temple/front';
 import { TempleChainKind, TempleChainTitle } from 'temple/types';
 
+import AccountDropdown from '../Header/AccountDropdown';
+
 import AccountsDropdown from './AccountsDropdown';
 import MenuDropdown from './MenuDropdown';
 import { AppHeaderSelectors } from './selectors';

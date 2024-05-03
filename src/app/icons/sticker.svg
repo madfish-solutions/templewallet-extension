@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
   <g stroke-width="1" stroke-linecap="round"
-    stroke-linejoin="round" fill="none" stroke="white"
+    stroke-linejoin="round" fill="none"
   >
     <path d="M21,3 L21,11 C21,16.5228475 16.5228475,21 11,21 L3,21 L3,3 L21,3 Z" />
     <path

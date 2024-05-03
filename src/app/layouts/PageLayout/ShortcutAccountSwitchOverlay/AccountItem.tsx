@@ -80,7 +80,10 @@ export const AccountItem: React.FC<AccountItemProps> = ({
         </Name>
 
         <div
-          className={clsx('text-xs', searchValue === displayAddress ? 'bg-marker-highlight text-gray-900' : 'text-gray-500')}
+          className={clsx(
+            'text-xs',
+            searchValue === displayAddress ? 'bg-marker-highlight text-gray-900' : 'text-gray-500'
+          )}
           {...setTestID(ShortcutAccountSwitchSelectors.accountAddressValue)}
           {...setAnotherSelector('hash', displayAddress)}
         >

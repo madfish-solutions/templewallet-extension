@@ -22,6 +22,7 @@ const TYPE_CLASSES: Record<CaptionAlertType, string> = {
   warning: 'bg-warning-low'
 };
 
+/** Refer to `./Alert` for existing functionality */
 export const CaptionAlert = memo<Props>(({ type, message, className }) => {
   const Icon = (() => {
     switch (type) {

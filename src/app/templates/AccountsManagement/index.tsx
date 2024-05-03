@@ -109,39 +109,37 @@ export const AccountsManagement = memo(() => {
   }, [activeModal, handleAccountAlreadyExistsWarnClose, handleModalClose, oldAccount, selectedGroup]);
 
   return (
-    <div className="w-full flex justify-center">
-      <div className="w-full flex flex-col max-w-sm">
-        <div className="flex flex-row py-4 gap-4 w-full items-center">
-          <SearchField
-            value={searchValue}
-            className={clsx(
-              'bg-gray-200 focus:outline-none transition ease-in-out duration-200',
-              'text-gray-900 placeholder-gray-600 text-xs leading-tight rounded-lg'
-            )}
-            placeholder={t('searchAccount', '')}
-            searchIconClassName="h-3 w-auto text-gray-600 stroke-current"
-            searchIconWrapperClassName="pl-3 pr-0.5"
-            cleanButtonIconClassName="text-gray-200 w-auto stroke-current stroke-2"
-            cleanButtonStyle={{ backgroundColor: '#AEAEB2', borderWidth: 0 }}
-            onValueChange={setSearchValue}
-          />
-          <NewWalletActionsPopper />
-        </div>
-        <div className="flex flex-col gap-4 overflow-y-auto w-full">
-          {filteredGroups.map(group => (
-            <GroupView
-              group={group}
-              key={group.id}
-              searchValue={searchValue}
-              onDeleteClick={handleDeleteClick}
-              onRenameClick={handleRenameClick}
-              onRevealSeedPhraseClick={handleRevealSeedPhraseClick}
-              showAccountAlreadyExistsWarning={showAccountAlreadyExistsWarning}
-            />
-          ))}
-        </div>
-        {modal}
+    <>
+      <div className="flex my-3 gap-x-2 w-full items-center">
+        <SearchField
+          value={searchValue}
+          className={clsx(
+            'bg-input-low rounded-lg placeholder-grey-1 hover:placeholder-text caret-primary',
+            'transition ease-in-out duration-200'
+          )}
+          containerClassName="flex-1 mr-2"
+          placeholder={t('searchAccount', '')}
+          onValueChange={setSearchValue}
+        />
+
+        <NewWalletActionsPopper />
       </div>
-    </div>
+
+      <div className="flex flex-col gap-y-4 overflow-y-auto w-full">
+        {filteredGroups.map(group => (
+          <GroupView
+            group={group}
+            key={group.id}
+            searchValue={searchValue}
+            onDeleteClick={handleDeleteClick}
+            onRenameClick={handleRenameClick}
+            onRevealSeedPhraseClick={handleRevealSeedPhraseClick}
+            showAccountAlreadyExistsWarning={showAccountAlreadyExistsWarning}
+          />
+        ))}
+      </div>
+
+      {modal}
+    </>
   );
 });

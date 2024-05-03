@@ -71,6 +71,8 @@ const SearchField: FC<SearchFieldProps> = ({
     onCleanButtonClick();
   }, [onCleanButtonClick, onValueChange, value]);
 
+  const notEmpty = Boolean(focused || value);
+
   return (
     <div className={clsx('group relative', containerClassName)}>
       <input
@@ -93,11 +95,11 @@ const SearchField: FC<SearchFieldProps> = ({
         size={12}
         className={clsx(
           'group-hover:text-primary absolute left-3 top-2 pointer-events-none',
-          focused || value ? 'text-primary' : 'text-grey-1'
+          notEmpty ? 'text-primary' : 'text-grey-1'
         )}
       />
 
-      {focused && <CleanButton onClick={handleClean} />}
+      {notEmpty && <CleanButton onClick={handleClean} />}
     </div>
   );
 };
