@@ -566,6 +566,9 @@ module.exports = {
       }
     },
     extend: {
+      blur: {
+        DEFAULT: '6px'
+      },
       fontSize: {
         xxxxs: '0.563rem',
         xxxs: '0.625rem',
