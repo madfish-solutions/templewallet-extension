@@ -1,6 +1,7 @@
 import React, { FC, memo, useCallback, useEffect, useMemo, useState } from 'react';
 
 import clsx from 'clsx';
+import InfiniteScroll from 'react-infinite-scroller';
 
 import { Checkbox, Divider, SyncSpinner } from 'app/atoms';
 import DropdownWrapper from 'app/atoms/DropdownWrapper';
@@ -63,6 +64,8 @@ export const TokensTab = memo(() => {
   );
 });
 
+const ITEMS_PER_PAGE = 30;
+
 interface EvmTokensTabProps {
   network: EvmNetworkEssentials;
   publicKeyHash: HexString;
@@ -74,17 +77,48 @@ const EvmTokensTab: FC<EvmTokensTabProps> = ({ network, publicKeyHash }) => {
 
   const { sortedAssets } = useEvmTokensListingLogic(publicKeyHash, network.chainId, assetsSlugs);
 
-  const tokensView = useMemo<JSX.Element[]>(
-    () =>
-      sortedAssets.map(assetSlug => (
-        <EvmListItem key={assetSlug} assetSlug={assetSlug} publicKeyHash={publicKeyHash} network={network} />
-      )),
-    [network, publicKeyHash, sortedAssets]
+  const [hasMore, setHasMore] = useState(true);
+  const [itemsCount, setItemsCount] = useState(ITEMS_PER_PAGE);
+
+  const resetInfiniteScroll = useCallback(() => {
+    setHasMore(true);
+    setItemsCount(ITEMS_PER_PAGE);
+  }, []);
+
+  useEffect(() => {
+    resetInfiniteScroll();
+  }, [resetInfiniteScroll, network.chainId, publicKeyHash]);
+
+  const showItems = useCallback(
+    (assetsSlugs: string[]) => {
+      const items = [];
+
+      for (let i = 0; i < itemsCount; i++) {
+        const currentSlug = assetsSlugs[i];
+
+        if (!currentSlug) break;
+
+        items.push(
+          <EvmListItem key={currentSlug} assetSlug={currentSlug} publicKeyHash={publicKeyHash} network={network} />
+        );
+      }
+
+      return items;
+    },
+    [itemsCount, publicKeyHash, network]
   );
+
+  const loadMore = useCallback(() => {
+    if (itemsCount >= sortedAssets.length) {
+      setHasMore(false);
+    } else {
+      setItemsCount(itemsCount + ITEMS_PER_PAGE);
+    }
+  }, [itemsCount, sortedAssets.length]);
 
   return (
     <>
-      {sortedAssets.length === 0 ? (
+      {!isDataLoading && sortedAssets.length === 0 ? (
         <div className="my-8 flex flex-col items-center justify-center text-gray-500">
           <p className="mb-2 flex items-center justify-center text-gray-600 text-base font-light">
             <span {...setTestID(HomeSelectors.emptyStateText)}>
@@ -104,7 +138,9 @@ const EvmTokensTab: FC<EvmTokensTabProps> = ({ network, publicKeyHash }) => {
           </p>
         </div>
       ) : (
-        tokensView
+        <InfiniteScroll loadMore={loadMore} hasMore={hasMore} loader={<SyncSpinner key="loader" className="mt-4" />}>
+          {showItems(sortedAssets)}
+        </InfiniteScroll>
       )}
       {isDataLoading && <SyncSpinner className="mt-4" />}
     </>
