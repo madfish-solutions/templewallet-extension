@@ -2,7 +2,10 @@ import React, { FC } from 'react';
 
 import classNames from 'clsx';
 
-import { AlertTriangleIcon, ArrowRightIcon, NewsIcon, NotificationDotIcon, UpdateIcon } from 'lib/icons';
+import { ReactComponent as AlertTriangleIcon } from 'app/icons/alert-triangle.svg';
+import { ReactComponent as ArrowRightIcon } from 'app/icons/arrow-to-right.svg';
+import { ReactComponent as NewsIcon } from 'app/icons/news.svg';
+import { ReactComponent as UpdateIcon } from 'app/icons/update.svg';
 import { Link } from 'lib/woozie';
 
 import { setAnotherSelector, setTestID } from '../../../analytics';
@@ -10,6 +13,7 @@ import { NotificationStatus } from '../../enums/notification-status.enum';
 import { NotificationType } from '../../enums/notification-type.enum';
 import type { NotificationInterface } from '../../types';
 import { formatDateOutput } from '../../utils/date.utils';
+import { NitificationsDot } from '../bell';
 
 import { PreviewItemSelectors } from './preview-item.selectors';
 
@@ -38,19 +42,7 @@ export const NotificationPreviewItem: FC<Props> = ({ notification }) => {
       {...setAnotherSelector('id', notification.id)}
     >
       <div className="relative">
-        {notification.status === NotificationStatus.New && (
-          <NotificationDotIcon
-            width={8}
-            height={8}
-            stroke="#FFFFFF"
-            style={{
-              position: 'absolute',
-              zIndex: 1,
-              top: 0,
-              right: 0
-            }}
-          />
-        )}
+        {notification.status === NotificationStatus.New && <NitificationsDot />}
 
         <Icon width={24} height={24} stroke="#718096" />
       </div>

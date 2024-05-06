@@ -21,7 +21,7 @@ const ANIMATION_DURATION = 100;
 
 type Design = keyof typeof DESIGN_CLASS_NAMES;
 
-/** TODO: See common usage cases */
+/** TODO: See common usage cases & generalize */
 const DropdownWrapper: FC<DropdownWrapperProps> = ({
   opened,
   design = 'light',

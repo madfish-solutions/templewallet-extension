@@ -14,15 +14,9 @@ export interface IconBaseProps {
 /** For monochrome icons */
 export const IconBase = memo<IconBaseProps>(({ size, className, Icon }) => (
   <div data-icon-size={size} className={clsx(CONTAINER_CLASSNAME[size], className)}>
-    <Icon
-      className="w-full h-full stroke-current fill-current"
-      /** Icon of size 16 comes with same sized container already */
-      transform={size === 16 ? undefined : `scale(${SCALES[size]})`}
-    />
+    <Icon className="w-full h-full stroke-current fill-current" transform={SCALE_TRANSFORMS[size]} />
   </div>
 ));
-
-type ScaledSize = Exclude<Size, 16>;
 
 /** Exact icons (icons' base containers) sizes */
 const CONTAINER_CLASSNAME: Record<Size, string> = {
@@ -33,11 +27,12 @@ const CONTAINER_CLASSNAME: Record<Size, string> = {
 };
 
 const COMMON_SCALE_FACTOR = 24 / 16;
+const buildScaleTransform = (scale: number) => `scale(${scale})`;
 
-/** Scale = (16_base / target_base) * (target_icon / 16_icon) */
-const SCALES: Record<ScaledSize, number> = {
-  12: COMMON_SCALE_FACTOR * (12 / 16),
-  // 16: 1,
-  24: COMMON_SCALE_FACTOR * (20 / 24),
-  32: COMMON_SCALE_FACTOR * (24 / 32)
+/** Scale formula = (16_base / target_base) * (target_icon / 16_icon) */
+const SCALE_TRANSFORMS: Record<Size, string | undefined> = {
+  12: buildScaleTransform(COMMON_SCALE_FACTOR * (12 / 16)),
+  16: undefined, // Icon of size 16 comes with same sized container already
+  24: buildScaleTransform(COMMON_SCALE_FACTOR * (20 / 24)),
+  32: buildScaleTransform(COMMON_SCALE_FACTOR * (24 / 32))
 };

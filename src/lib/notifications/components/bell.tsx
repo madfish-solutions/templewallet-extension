@@ -3,14 +3,12 @@ import React, { memo } from 'react';
 import { IconBase } from 'app/atoms';
 import { ReactComponent as BellIcon } from 'app/icons/bell.svg';
 import { HomeSelectors } from 'app/pages/Home/Home.selectors';
-import { BellIcon as OldBellIcon, NotificationDotIcon } from 'lib/icons';
 import { Link } from 'lib/woozie';
 
 import { useNewNotificationsAmountSelector } from '../store/selectors';
 
 export const OldNotificationsBell = () => {
   const newNotificationsAmount = useNewNotificationsAmountSelector();
-  const isNewNotificationsAvailable = newNotificationsAmount > 0;
 
   return (
     <Link
@@ -26,21 +24,7 @@ export const OldNotificationsBell = () => {
       testID={HomeSelectors.notificationIconButton}
       testIDProperties={{ newNotificationsAmount }}
     >
-      {isNewNotificationsAvailable && (
-        <NotificationDotIcon
-          height={5.5}
-          width={5.5}
-          stroke="#E5F2FF"
-          style={{
-            position: 'absolute',
-            zIndex: 1,
-            top: 5,
-            right: 8
-          }}
-        />
-      )}
-
-      <OldBellIcon height={16} width={16} stroke="#007AFF" />
+      <NotificationsBell />
     </Link>
   );
 };
@@ -57,3 +41,7 @@ export const NotificationsBell = memo(() => {
     </div>
   );
 });
+
+export const NitificationsDot = memo(() => (
+  <div className="absolute top-1 left-0.5 w-1 h-1 rounded-circle bg-primary" />
+));

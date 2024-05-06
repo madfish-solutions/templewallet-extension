@@ -2,7 +2,7 @@ import React, { memo, useMemo } from 'react';
 
 import classNames from 'clsx';
 
-import { ReactComponent as CleanIcon } from 'app/icons/x-circle.svg';
+import { ReactComponent as CleanIcon } from 'app/icons/x_circle_fill.svg';
 import { t } from 'lib/i18n';
 import useTippy from 'lib/ui/useTippy';
 

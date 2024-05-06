@@ -1,12 +1,10 @@
 import React, { memo, useCallback } from 'react';
 
-import clsx from 'clsx';
-
 import { Button, IconBase } from 'app/atoms';
-import DropdownWrapper from 'app/atoms/DropdownWrapper';
+import { ACTIONS_DROPDOWN_ITEM_CLASSNAME, ActionsDropdownPopup } from 'app/atoms/ActionsDropdown';
 import { PopperRenderProps } from 'lib/ui/Popper';
 
-export interface Action {
+export interface AccountsAction {
   key: string;
   title: () => string;
   icon: ImportedSVGComponent;
@@ -15,22 +13,20 @@ export interface Action {
 }
 
 interface ActionsDropdownProps extends PopperRenderProps {
-  actions: Action[];
+  actions: AccountsAction[];
   title: string;
 }
 
-export const ActionsDropdown = memo<ActionsDropdownProps>(({ actions, opened, title, setOpened }) => (
-  <DropdownWrapper opened={opened} design="day" className="mt-1 p-2 flex flex-col" style={{ minWidth: 154 }}>
-    <h6 className="py-2.5 px-2 text-xxxs leading-3 font-semibold text-grey-1">{title}</h6>
-
+export const AccountsActionsDropdown = memo<ActionsDropdownProps>(({ actions, opened, title, setOpened }) => (
+  <ActionsDropdownPopup title={() => title} opened={opened} style={{ minWidth: 154 }}>
     {actions.map(action => (
       <ActionButton key={action.key} action={action} setOpened={setOpened} />
     ))}
-  </DropdownWrapper>
+  </ActionsDropdownPopup>
 ));
 
 interface ActionButtonProps extends Pick<PopperRenderProps, 'setOpened'> {
-  action: Action;
+  action: AccountsAction;
 }
 
 const ActionButton = memo<ActionButtonProps>(({ action, setOpened }) => {
@@ -42,13 +38,10 @@ const ActionButton = memo<ActionButtonProps>(({ action, setOpened }) => {
   }, [onClick, setOpened]);
 
   return (
-    <Button
-      className={clsx('flex items-center py-1.5 px-2 gap-x-1 rounded-md', 'hover:bg-secondary-low')}
-      onClick={handleClick}
-    >
+    <Button className={ACTIONS_DROPDOWN_ITEM_CLASSNAME} onClick={handleClick}>
       <IconBase Icon={Icon} size={16} className={danger ? 'text-error' : 'text-secondary'} />
 
-      <span className={clsx('text-xs', danger && 'text-error')}>{title()}</span>
+      <span className={danger ? 'text-error' : undefined}>{title()}</span>
     </Button>
   );
 });

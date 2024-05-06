@@ -17,7 +17,7 @@ import { isTruthy } from 'lib/utils';
 import { navigate } from 'lib/woozie';
 import { useHDGroups } from 'temple/front';
 
-import { Action, ActionsDropdown } from './actions-dropdown';
+import { AccountsAction, AccountsActionsDropdown } from './actions-dropdown';
 
 export interface GroupActionsPopperProps {
   group: DisplayedGroup;
@@ -46,7 +46,7 @@ const GroupActionsDropdown = memo<PopperRenderProps & GroupActionsPopperProps>(
       {}
     );
 
-    const actions = useMemo<Action[]>(() => {
+    const actions = useMemo<AccountsAction[]>(() => {
       if (group.type === TempleAccountType.HD) {
         return [
           {
@@ -143,7 +143,7 @@ const GroupActionsDropdown = memo<PopperRenderProps & GroupActionsPopperProps>(
     ]);
 
     return (
-      <ActionsDropdown
+      <AccountsActionsDropdown
         opened={opened}
         setOpened={setOpened}
         toggleOpened={toggleOpened}

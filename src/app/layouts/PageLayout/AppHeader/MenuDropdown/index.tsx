@@ -1,7 +1,7 @@
 import React, { memo, useCallback, useMemo } from 'react';
 
 import { Divider, ToggleSwitch } from 'app/atoms';
-import DropdownWrapper from 'app/atoms/DropdownWrapper';
+import { ActionsDropdownPopup } from 'app/atoms/ActionsDropdown';
 import { openInFullPage, useAppEnv } from 'app/env';
 import { useShortcutAccountSelectModalIsOpened } from 'app/hooks/use-account-select-shortcut';
 import { ReactComponent as DAppsIcon } from 'app/icons/apps-alt.svg';
@@ -89,9 +89,7 @@ const MenuDropdown = memo<PopperRenderProps>(({ opened, setOpened }) => {
   );
 
   return (
-    <DropdownWrapper opened={opened} design="day" className="mt-3 p-2 flex flex-col" style={{ minWidth: 163 }}>
-      <h6 className="py-2.5 px-2 text-xxxs leading-3 font-semibold text-grey-1">Menu</h6>
-
+    <ActionsDropdownPopup title={() => 'Menu'} opened={opened} lowered style={{ minWidth: 163 }}>
       {actions.map(action => (
         <ActionButton {...action} />
       ))}
@@ -103,7 +101,7 @@ const MenuDropdown = memo<PopperRenderProps>(({ opened, setOpened }) => {
 
         <ToggleSwitch small checked={false} />
       </label>
-    </DropdownWrapper>
+    </ActionsDropdownPopup>
   );
 });
 

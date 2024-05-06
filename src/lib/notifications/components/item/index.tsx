@@ -4,11 +4,11 @@ import { isDefined } from '@rnw-community/shared';
 import classNames from 'clsx';
 import { useDispatch } from 'react-redux';
 
-import { Button } from 'app/atoms';
+import { Button, IconBase } from 'app/atoms';
 import { useAppEnv } from 'app/env';
+import { ReactComponent as BellIcon } from 'app/icons/bell.svg';
 import PageLayout from 'app/layouts/PageLayout';
 import { T } from 'lib/i18n';
-import { BellIcon } from 'lib/icons';
 import { goBack } from 'lib/woozie';
 
 import { setTestID } from '../../../analytics';
@@ -37,7 +37,7 @@ export const NotificationsItem: FC<Props> = ({ id }) => {
     <PageLayout
       pageTitle={
         <>
-          <BellIcon className="w-auto h-4 mr-1 stroke-current" />
+          <IconBase Icon={BellIcon} size={16} className="mr-1" />
           <T id="notifications" />
         </>
       }

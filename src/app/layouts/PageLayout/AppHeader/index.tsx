@@ -3,8 +3,8 @@ import React, { memo } from 'react';
 import clsx from 'clsx';
 
 import { HashShortView, IconBase } from 'app/atoms';
+import { ACTIONS_DROPDOWN_ITEM_CLASSNAME, ActionsDropdownPopup } from 'app/atoms/ActionsDropdown';
 import { Button } from 'app/atoms/Button';
-import DropdownWrapper from 'app/atoms/DropdownWrapper';
 import Identicon from 'app/atoms/Identicon';
 import Name from 'app/atoms/Name';
 import { ReactComponent as CopyIcon } from 'app/icons/copy.svg';
@@ -44,35 +44,26 @@ export const AppHeader = memo(() => {
       <Popper
         placement="bottom-start"
         strategy="fixed"
-        popup={props => {
-          //
-          return (
-            <DropdownWrapper
-              opened={props.opened}
-              design="day"
-              className="mt-3 p-2 flex flex-col"
-              style={{ minWidth: 173 }}
-            >
-              <h6 className="py-2.5 px-2 text-xxxs leading-3 font-semibold text-grey-1">Select Address to copy</h6>
+        popup={props => (
+          <ActionsDropdownPopup
+            title={() => 'Select Address to copy'}
+            opened={props.opened}
+            lowered
+            style={{ minWidth: 173 }}
+          >
+            {accountTezosAddress ? (
+              <CopyAddressButton
+                chain={TempleChainKind.Tezos}
+                address={accountTezosAddress}
+                onCopy={props.toggleOpened}
+              />
+            ) : null}
 
-              {accountTezosAddress ? (
-                <CopyAddressButton
-                  chain={TempleChainKind.Tezos}
-                  address={accountTezosAddress}
-                  onCopy={props.toggleOpened}
-                />
-              ) : null}
-
-              {accountEvmAddress ? (
-                <CopyAddressButton
-                  chain={TempleChainKind.EVM}
-                  address={accountEvmAddress}
-                  onCopy={props.toggleOpened}
-                />
-              ) : null}
-            </DropdownWrapper>
-          );
-        }}
+            {accountEvmAddress ? (
+              <CopyAddressButton chain={TempleChainKind.EVM} address={accountEvmAddress} onCopy={props.toggleOpened} />
+            ) : null}
+          </ActionsDropdownPopup>
+        )}
       >
         {({ ref, opened, toggleOpened }) => (
           <Button
@@ -127,10 +118,11 @@ const CopyAddressButton = memo<CopyAddressButtonProps>(({ chain, address, onCopy
         onCopy();
         toastSuccess('Address Copied');
       }}
-      className={clsx('flex items-center py-1.5 px-2 rounded-md', 'hover:bg-secondary-low')}
+      className={ACTIONS_DROPDOWN_ITEM_CLASSNAME}
     >
       <div className="flex flex-col gap-y-0.5 items-start">
         <span className="text-xs">{TempleChainTitle[chain]}</span>
+
         <span className="text-xxxs leading-3 text-grey-1">
           <HashShortView hash={address} />
         </span>

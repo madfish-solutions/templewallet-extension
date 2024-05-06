@@ -10,9 +10,9 @@ import { t } from 'lib/i18n';
 import Popper, { PopperRenderProps } from 'lib/ui/Popper';
 import { navigate } from 'lib/woozie';
 
-import { Action, ActionsDropdown } from './actions-dropdown';
+import { AccountsAction, AccountsActionsDropdown } from './actions-dropdown';
 
-const actions: Action[] = [
+const actions: AccountsAction[] = [
   {
     key: 'create-wallet',
     title: () => 'Create wallet',
@@ -40,7 +40,7 @@ const actions: Action[] = [
 ];
 
 const NewWalletActionsDropdown = memo<PopperRenderProps>(({ opened, setOpened, toggleOpened }) => (
-  <ActionsDropdown
+  <AccountsActionsDropdown
     opened={opened}
     setOpened={setOpened}
     toggleOpened={toggleOpened}

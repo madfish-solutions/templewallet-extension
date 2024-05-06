@@ -342,11 +342,12 @@ function getStyleLoaders(module = false) {
   const extraCssOptions = module
     ? {
         modules: {
-        namedExport: false,
-        exportLocalsConvention: 'as-is',
-        getLocalIdent: getCSSModuleLocalIdent
+          namedExport: false,
+          exportLocalsConvention: 'as-is',
+          getLocalIdent: getCSSModuleLocalIdent
+        }
       }
-  } : undefined;
+    : undefined;
 
   return [
     {
