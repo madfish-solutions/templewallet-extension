@@ -9,6 +9,7 @@ import { balancesReducer } from './balances/reducers';
 import { buyWithCreditCardReducer } from './buy-with-credit-card/reducers';
 import { collectiblesPersistedReducer } from './collectibles/reducer';
 import { collectiblesMetadataPersistedReducer } from './collectibles-metadata/reducer';
+import { conversionReducers } from './conversion-tracking/conversion-reducers';
 import { currencyReducer } from './currency/reducers';
 import { dAppsReducer } from './d-apps/reducers';
 import { newsletterReducers } from './newsletter/newsletter-reducers';
@@ -32,7 +33,8 @@ const rootStateReducersMap = {
   abTesting: abTestingReducer,
   buyWithCreditCard: buyWithCreditCardReducer,
   collectibles: collectiblesPersistedReducer,
-  newsletter: newsletterReducers
+  newsletter: newsletterReducers,
+  conversion: conversionReducers
 };
 
 export const rootReducer = combineReducers(rootStateReducersMap);

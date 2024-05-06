@@ -15,6 +15,7 @@ import type { RootState } from './root-state.type';
 import { mockSettingsState } from './settings/state.mock';
 import { mockSwapState } from './swap/state.mock';
 import { mockTokensMetadataState } from './tokens-metadata/state.mock';
+import { mockConversionState } from './conversion-tracking/conversion-state.mock';
 
 // ts-prune-ignore-next
 export const mockRootState: RootState = {
@@ -32,5 +33,6 @@ export const mockRootState: RootState = {
   abTesting: mockABTestingState,
   buyWithCreditCard: mockBuyWithCreditCardState,
   collectibles: mockCollectiblesState,
-  newsletter: mockNewsletterState
+  newsletter: mockNewsletterState,
+  conversion: mockConversionState
 };
