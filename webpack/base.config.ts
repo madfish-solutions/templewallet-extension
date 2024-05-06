@@ -14,6 +14,7 @@ import resolve from 'resolve';
 import TerserPlugin from 'terser-webpack-plugin';
 import WebPack from 'webpack';
 
+import { Config as SvgrLoaderOptions } from '../node_modules/@svgr/core/dist';
 import packageJSON from '../package.json';
 import tsConfig from '../tsconfig.json';
 
@@ -107,30 +108,20 @@ export const buildBaseConfig = (): WebPack.Configuration & Pick<WebPack.WebpackO
               }
             }
           },
+          // # SVGs. See: https://react-svgr.com/docs/webpack
           {
-            test: /\.svg$/,
-            issuer: {
-              and: [/\.(ts|tsx|js|jsx|md|mdx)$/]
-            },
+            test: /\.svg$/i,
+            type: 'asset/resource',
+            resourceQuery: /url/ // *.svg?url
+          },
+          {
+            test: /\.svg$/i,
+            issuer: /\.tsx?$/,
+            resourceQuery: { not: /url/ }, // exclude react component if *.svg?url
             use: [
               {
                 loader: require.resolve('@svgr/webpack'),
-                options: {
-                  prettier: false,
-                  svgo: false,
-                  svgoConfig: {
-                    plugins: [{ removeViewBox: false }]
-                  },
-                  titleProp: true,
-                  ref: true
-                }
-              },
-              {
-                /* `type: 'asset/resource'` is not applicable here - WebPack bug. Had to go with `file-loader` */
-                loader: require.resolve('file-loader'),
-                options: {
-                  name: 'media/[hash:8].[ext]'
-                }
+                options: svgrLoaderOptions
               }
             ]
           },
@@ -179,8 +170,8 @@ export const buildBaseConfig = (): WebPack.Configuration & Pick<WebPack.WebpackO
             // Exclude `js` files to keep "css" loader working as it injects
             // its runtime that would otherwise be processed through "file" loader.
             // Also exclude `html` and `json` extensions so they get processed
-            // by webpacks internal loaders.
-            exclude: [/\.(js|mjs|jsx|ts|tsx)$/, /\.html$/, /\.json$/]
+            // by webpacks internal loaders & `svg` extensions to be processed (as assets) differently (above).
+            exclude: [/\.(js|mjs|jsx|ts|tsx)$/, /\.html$/, /\.json$/, /\.svg$/]
           }
           // ** STOP ** Are you adding a new loader?
           // Make sure to add the new loader(s) before the "file" loader.
@@ -384,3 +375,17 @@ function getStyleLoaders(module = false) {
     }
   ].filter(Boolean);
 }
+
+/** See: https://react-svgr.com/docs/options */
+const svgrLoaderOptions: SvgrLoaderOptions = {
+  typescript: true,
+  exportType: 'named',
+  prettier: false,
+  svgo: false,
+  // svgoConfig: {
+  //   plugins: [{ name: 'preset-default', params: { overrides: { removeViewBox: false } } }]
+  // },
+  titleProp: true,
+  ref: true,
+  memo: true
+};
