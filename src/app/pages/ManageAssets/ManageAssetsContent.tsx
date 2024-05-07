@@ -6,7 +6,7 @@ import { CaptionAlert } from 'app/atoms';
 import { ReactComponent as AddIcon } from 'app/icons/add-to-list.svg';
 import { dispatch } from 'app/store';
 import { setTokenStatusAction, setCollectibleStatusAction } from 'app/store/assets/actions';
-import SearchAssetField from 'app/templates/SearchAssetField';
+import { SearchBarField } from 'app/templates/SearchField';
 import { AccountAsset } from 'lib/assets/types';
 import { t, T } from 'lib/i18n';
 import type { TokenMetadataGetter } from 'lib/metadata';
@@ -25,9 +25,8 @@ interface Props extends PropsWithChildren {
 export const ManageAssetsContent: FC<Props> = ({ ofCollectibles, searchValue, setSearchValue, children }) => (
   <>
     <div className="flex gap-x-2">
-      <SearchAssetField
+      <SearchBarField
         value={searchValue}
-        containerClassName="flex-1 mr-2"
         onValueChange={setSearchValue}
         testID={ManageAssetsSelectors.searchAssetsInput}
       />

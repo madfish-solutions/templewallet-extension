@@ -1,4 +1,4 @@
-import React, { FC, InputHTMLAttributes, useCallback, useRef, useState } from 'react';
+import React, { FC, InputHTMLAttributes, memo, useCallback, useRef, useState } from 'react';
 
 import { emptyFn } from '@rnw-community/shared';
 import clsx from 'clsx';
@@ -106,3 +106,17 @@ const SearchField: FC<SearchFieldProps> = ({
 };
 
 export default SearchField;
+
+export const SearchBarField = memo<SearchFieldProps>(({ className, containerClassName, value, ...rest }) => (
+  <SearchField
+    value={value}
+    className={clsx(
+      'bg-input-low rounded-lg placeholder-grey-1 hover:placeholder-text caret-primary',
+      'transition ease-in-out duration-200',
+      className
+    )}
+    containerClassName={clsx('flex-1 mr-2', containerClassName)}
+    placeholder="Search"
+    {...rest}
+  />
+));

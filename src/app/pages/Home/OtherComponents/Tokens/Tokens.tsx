@@ -16,7 +16,7 @@ import { useTokensMetadataLoadingSelector } from 'app/store/tokens-metadata/sele
 import { useChainSelectController, ChainSelectSection } from 'app/templates/ChainSelect';
 import { ButtonForManageDropdown } from 'app/templates/ManageDropdown';
 import { PartnersPromotion, PartnersPromotionVariant } from 'app/templates/partners-promotion';
-import SearchAssetField from 'app/templates/SearchAssetField';
+import { SearchBarField } from 'app/templates/SearchField';
 import { setTestID } from 'lib/analytics';
 import { OptimalPromoVariantEnum } from 'lib/apis/optimal';
 import { TEZ_TOKEN_SLUG, TEMPLE_TOKEN_SLUG } from 'lib/assets';
@@ -172,12 +172,11 @@ const TezosTokensTab: FC<TezosTokensTabProps> = ({ network, publicKeyHash }) => 
   return (
     <>
       <div className="my-3 flex items-center gap-x-2">
-        <SearchAssetField
+        <SearchBarField
           value={searchValue}
           onValueChange={setSearchValue}
           onFocus={handleSearchFieldFocus}
           onBlur={handleSearchFieldBlur}
-          containerClassName="flex-1 mr-2"
           testID={AssetsSelectors.searchAssetsInputTokens}
         />
 

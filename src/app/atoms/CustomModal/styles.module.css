@@ -1,0 +1,27 @@
+/* Overlay */
+
+.overlayBase {
+  opacity: 0;
+}
+
+.overlayOpened {
+  opacity: unset;
+}
+
+.overlayClosed {
+  opacity: 0;
+}
+
+/* Content */
+
+.base {
+  scale: 75%;
+}
+
+.opened {
+  scale: unset;
+}
+
+.closed {
+  scale: 75%;
+}

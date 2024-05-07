@@ -12,6 +12,7 @@ import React, {
 
 import clsx from 'clsx';
 
+import { ContentFader } from 'app/a11y/ContentFader';
 import DocBg from 'app/a11y/DocBg';
 import { Button } from 'app/atoms/Button';
 import { DonationBanner } from 'app/atoms/DonationBanner/DonationBanner';
@@ -50,7 +51,7 @@ const PageLayout: FC<PageLayoutProps> = ({ children, contentPadding = true, ...t
     <>
       <DocBg bgClassName="bg-secondary-low" />
 
-      <div className={clsx(fullPage && 'pt-9 pb-8', 'relative')}>
+      <div className={clsx(fullPage && 'pt-9 pb-8')}>
         {/* <Header /> */}
 
         <ContentPaper>
@@ -84,11 +85,13 @@ const ContentPaper: FC<ContentPaperProps> = ({ className, style, children, ...re
 
   return (
     <ContentContainer
-      className={clsx('bg-white overflow-hidden', appEnv.fullPage && 'rounded-md shadow-bottom', className)}
+      className={clsx('relative bg-white overflow-hidden', appEnv.fullPage && 'rounded-md shadow-bottom', className)}
       style={appEnv.fullPage ? { minHeight: '20rem', ...style } : style}
       {...rest}
     >
       {children}
+
+      <ContentFader />
     </ContentContainer>
   );
 };

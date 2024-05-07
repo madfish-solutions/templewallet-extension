@@ -23,7 +23,7 @@ import {
 import { AssetsSelectors } from 'app/pages/Home/OtherComponents/Assets.selectors';
 import { ChainSelectSection, useChainSelectController } from 'app/templates/ChainSelect';
 import { ButtonForManageDropdown } from 'app/templates/ManageDropdown';
-import SearchAssetField from 'app/templates/SearchAssetField';
+import { SearchBarField } from 'app/templates/SearchField';
 import { setTestID } from 'lib/analytics';
 import { useEnabledAccountCollectiblesSlugs } from 'lib/assets/hooks';
 import { AssetTypesEnum } from 'lib/assets/types';
@@ -149,10 +149,9 @@ const TezosCollectiblesTab = memo<TezosCollectiblesTabProps>(({ network, publicK
   return (
     <div className={clsx('my-3', popup && 'mx-4')}>
       <div className="relative mb-4 w-full flex items-center gap-x-2">
-        <SearchAssetField
+        <SearchBarField
           value={searchValue}
           onValueChange={setSearchValue}
-          containerClassName="flex-1 mr-2"
           testID={AssetsSelectors.searchAssetsInputCollectibles}
         />
 

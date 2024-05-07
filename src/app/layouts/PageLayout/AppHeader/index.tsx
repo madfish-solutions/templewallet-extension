@@ -3,32 +3,30 @@ import React, { memo } from 'react';
 import clsx from 'clsx';
 
 import { HashShortView, IconBase } from 'app/atoms';
+import { AccountName } from 'app/atoms/AccountName';
 import { ACTIONS_DROPDOWN_ITEM_CLASSNAME, ActionsDropdownPopup } from 'app/atoms/ActionsDropdown';
 import { Button } from 'app/atoms/Button';
 import Identicon from 'app/atoms/Identicon';
-import Name from 'app/atoms/Name';
-import { ReactComponent as CopyIcon } from 'app/icons/copy.svg';
 import { ReactComponent as BurgerIcon } from 'app/icons/menu.svg';
 import { toastSuccess } from 'app/toaster';
+import { useBooleanState } from 'lib/ui/hooks';
 import Popper from 'lib/ui/Popper';
-import { getAccountAddressForTezos, getAccountAddressForEvm } from 'temple/accounts';
 import { useAccount } from 'temple/front';
 import { TempleChainKind, TempleChainTitle } from 'temple/types';
 
 import AccountsDropdown from './AccountsDropdown';
+import { AccountsModal } from './AccountsModal';
 import MenuDropdown from './MenuDropdown';
 import { AppHeaderSelectors } from './selectors';
 
 /** TODO: || PageHeader || AppToolbar */
 export const AppHeader = memo(() => {
   const account = useAccount();
-
-  const accountTezosAddress = getAccountAddressForTezos(account);
-  const accountEvmAddress = getAccountAddressForEvm(account);
+  const [accountsModalOpened, setAccountsModalOpen, setAccountsModalClosed] = useBooleanState(false);
 
   return (
     <div className="flex items-center py-3 px-4 gap-x-1 bg-white">
-      <Popper placement="bottom-start" strategy="fixed" popup={props => <AccountsDropdown {...props} />}>
+      {/* <Popper placement="bottom-start" strategy="fixed" popup={props => <AccountsDropdown {...props} />}>
         {({ ref, toggleOpened }) => (
           <Button
             ref={ref}
@@ -39,48 +37,18 @@ export const AppHeader = memo(() => {
             <Identicon type="bottts" hash={account.id} size={28} className="rounded-sm" />
           </Button>
         )}
-      </Popper>
-
-      <Popper
-        placement="bottom-start"
-        strategy="fixed"
-        popup={props => (
-          <ActionsDropdownPopup
-            title={() => 'Select Address to copy'}
-            opened={props.opened}
-            lowered
-            style={{ minWidth: 173 }}
-          >
-            {accountTezosAddress ? (
-              <CopyAddressButton
-                chain={TempleChainKind.Tezos}
-                address={accountTezosAddress}
-                onCopy={props.toggleOpened}
-              />
-            ) : null}
-
-            {accountEvmAddress ? (
-              <CopyAddressButton chain={TempleChainKind.EVM} address={accountEvmAddress} onCopy={props.toggleOpened} />
-            ) : null}
-          </ActionsDropdownPopup>
-        )}
+      </Popper> */}
+      <Button
+        className="flex p-px rounded-md border border-secondary hover:bg-secondary-low"
+        onClick={setAccountsModalOpen}
+        testID={AppHeaderSelectors.accountIcon}
       >
-        {({ ref, opened, toggleOpened }) => (
-          <Button
-            ref={ref}
-            className={clsx(
-              'flex items-center p-1.5 gap-x-1 text-sm leading-5 rounded-md',
-              opened ? 'bg-secondary-low' : 'hover:bg-secondary-low'
-            )}
-            onClick={toggleOpened}
-            testID={AppHeaderSelectors.menuIcon}
-          >
-            <Name>{account.name}</Name>
+        <Identicon type="bottts" hash={account.id} size={28} className="rounded-sm" />
+      </Button>
 
-            <IconBase Icon={CopyIcon} size={12} className="ml-1 text-secondary" />
-          </Button>
-        )}
-      </Popper>
+      <AccountsModal opened={accountsModalOpened} onRequestClose={setAccountsModalClosed} />
+
+      <AccountName account={account} />
 
       <div className="flex-1" />
 

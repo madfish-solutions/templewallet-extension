@@ -43,12 +43,12 @@ module.exports = {
         ],
         serif: ['Georgia', 'Cambria', '"Times New Roman"', 'Times', 'serif'],
         mono: ['Menlo', 'Monaco', 'Consolas', '"Liberation Mono"', '"Courier New"', 'monospace'],
-        inter: ['Inter', 'sans-serif']
       };
 
       return {
         ...baseFontFamily,
-        inter: ["'Inter'", ...baseFontFamily.sans]
+        inter: ["'Inter'", ...baseFontFamily.sans],
+        rubik: ["'Rubik'", "'Inter'", ...baseFontFamily.sans]
       };
     })(),
 
@@ -280,7 +280,8 @@ module.exports = {
       }),
 
       transitionDuration: {
-        400: '400ms'
+        400: '400ms',
+        10000: '10000ms'
       }
     }
   }

@@ -7,6 +7,7 @@ import { ReactComponent as ErrorIcon } from 'app/icons/typed-msg/error.svg';
 import { ReactComponent as InfoIcon } from 'app/icons/typed-msg/info.svg';
 import { ReactComponent as SuccessIcon } from 'app/icons/typed-msg/success.svg';
 import { ReactComponent as WarningIcon } from 'app/icons/typed-msg/warning.svg';
+import DocumentBodyPortal from 'lib/ui/Portal';
 
 export const toastSuccess = (title: string) => void toast.success(title);
 export const toastError = (title: string) => void toast.error(title);
@@ -15,7 +16,9 @@ export const toastWarning = (title: string) =>
   void toast.custom(toast => <CustomToastBar toast={{ ...toast, message: title }} customType="warning" />);
 
 export const ToasterProvider = memo(() => (
-  <Toaster position="bottom-center">{t => <CustomToastBar toast={t} />}</Toaster>
+  <DocumentBodyPortal>
+    <Toaster position="bottom-center">{t => <CustomToastBar toast={t} />}</Toaster>
+  </DocumentBodyPortal>
 ));
 
 type ToastTypeExtended = ToastType | 'warning';

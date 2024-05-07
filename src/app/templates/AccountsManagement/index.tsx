@@ -1,7 +1,5 @@
 import React, { memo, useCallback, useMemo, useState } from 'react';
 
-import clsx from 'clsx';
-
 import { useAllAccountsReactiveOnAddition, useAllAccountsReactiveOnRemoval } from 'app/hooks/use-all-accounts-reactive';
 import { t } from 'lib/i18n';
 import { useTempleClient } from 'lib/temple/front';
@@ -10,7 +8,7 @@ import { useAlert } from 'lib/ui';
 import { searchAndFilterAccounts } from 'temple/front/accounts';
 import { useAccountsGroups } from 'temple/front/groups';
 
-import SearchField from '../SearchField';
+import { SearchBarField } from '../SearchField';
 
 import { AccountAlreadyExistsWarning } from './account-already-exists-warning';
 import { DeleteWalletModal } from './delete-wallet-modal';
@@ -111,16 +109,7 @@ export const AccountsManagement = memo(() => {
   return (
     <>
       <div className="flex my-3 gap-x-2 w-full items-center">
-        <SearchField
-          value={searchValue}
-          className={clsx(
-            'bg-input-low rounded-lg placeholder-grey-1 hover:placeholder-text caret-primary',
-            'transition ease-in-out duration-200'
-          )}
-          containerClassName="flex-1 mr-2"
-          placeholder={t('searchAccount', '')}
-          onValueChange={setSearchValue}
-        />
+        <SearchBarField value={searchValue} placeholder={t('searchAccount', '')} onValueChange={setSearchValue} />
 
         <NewWalletActionsPopper />
       </div>

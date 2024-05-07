@@ -1,0 +1,11 @@
+.base {
+  translate: 0 110%;
+}
+
+.opened {
+  translate: unset;
+}
+
+.closed {
+  translate: 0 110%;
+}
