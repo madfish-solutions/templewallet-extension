@@ -1,3 +1,4 @@
+import { isDefined } from '@rnw-community/shared';
 import { InMemorySigner } from '@taquito/signer';
 import * as TaquitoUtils from '@taquito/utils';
 import * as Bip39 from 'bip39';
@@ -6,7 +7,9 @@ import * as ViemAccounts from 'viem/accounts';
 import { isHex, toHex } from 'viem/utils';
 
 import { ACCOUNT_ALREADY_EXISTS_ERR_MSG } from 'lib/constants';
-import { StoredAccount, StoredHDAccount, TempleAccountType } from 'lib/temple/types';
+import { fetchNewAccountName as genericFetchNewAccountName, getDerivationPath } from 'lib/temple/helpers';
+import { StoredAccount, TempleAccountType } from 'lib/temple/types';
+import { getAccountAddressForEvm, getAccountAddressForTezos } from 'temple/accounts';
 import { TempleChainKind } from 'temple/types';
 
 import { PublicError } from '../PublicError';
@@ -14,13 +17,32 @@ import { PublicError } from '../PublicError';
 import { fetchMessage } from './helpers';
 import { accPrivKeyStrgKey, accPubKeyStrgKey } from './storage-keys';
 
-const TEZOS_BIP44_COINTYPE = 1729;
-
 export function generateCheck() {
   return Bip39.generateMnemonic(128);
 }
 
-export function concatAccount(current: StoredAccount[], newOne: Exclude<StoredAccount, StoredHDAccount>) {
+export function concatAccount(current: StoredAccount[], newOne: StoredAccount) {
+  if (newOne.type === TempleAccountType.HD) {
+    if (current.some(acc => acc.type === TempleAccountType.HD && acc.tezosAddress === newOne.tezosAddress)) {
+      throw new PublicError(ACCOUNT_ALREADY_EXISTS_ERR_MSG);
+    }
+
+    return [
+      ...current.filter(account => {
+        if (account.type === TempleAccountType.HD) {
+          return true;
+        }
+
+        const chain = 'chain' in account ? account.chain : TempleChainKind.Tezos;
+
+        return chain === TempleChainKind.Tezos
+          ? getAccountAddressForTezos(account) !== newOne.tezosAddress
+          : getAccountAddressForEvm(account) !== newOne.evmAddress;
+      }),
+      newOne
+    ];
+  }
+
   /** New account is for certain chain */
   const [chain, address] = (() => {
     switch (newOne.type) {
@@ -57,11 +79,25 @@ export function concatAccount(current: StoredAccount[], newOne: Exclude<StoredAc
 
 type NewAccountName = 'defaultAccountName' | 'defaultManagedKTAccountName' | 'defaultWatchOnlyAccountName';
 
-export function fetchNewAccountName(
+export async function fetchNewAccountName(
   allAccounts: StoredAccount[],
+  newAccountType: TempleAccountType,
+  newAccountGroupId?: string,
   templateI18nKey: NewAccountName = 'defaultAccountName'
 ) {
-  return fetchMessage(templateI18nKey, String(allAccounts.length + 1));
+  return genericFetchNewAccountName(
+    allAccounts,
+    newAccountType,
+    i => fetchMessage(templateI18nKey, String(i)),
+    newAccountGroupId
+  );
+}
+
+export function canRemoveAccounts(allAccounts: StoredAccount[], accountsToRemove: StoredAccount[]) {
+  const allHdAccounts = allAccounts.filter(acc => acc.type === TempleAccountType.HD);
+  const hdAccountsToRemove = accountsToRemove.filter(acc => acc.type === TempleAccountType.HD);
+
+  return allHdAccounts.length - hdAccountsToRemove.length >= 1;
 }
 
 interface AccountCreds {
@@ -87,7 +123,7 @@ export async function privateKeyToTezosAccountCreds(
   const signer = await createMemorySigner(accPrivateKey, encPassword);
 
   const [realAccPrivateKey, publicKey, address] = await Promise.all([
-    signer.secretKey(),
+    isDefined(encPassword) ? signer.secretKey() : Promise.resolve(accPrivateKey),
     signer.publicKey(),
     signer.publicKeyHash()
   ]);
@@ -125,11 +161,7 @@ export function createMemorySigner(privateKey: string, encPassword?: string) {
 }
 
 function seedToHDPrivateKey(seed: Buffer, hdAccIndex: number) {
-  return seedToPrivateKey(deriveSeed(seed, getMainDerivationPath(hdAccIndex)));
-}
-
-export function getMainDerivationPath(accIndex: number) {
-  return `m/44'/${TEZOS_BIP44_COINTYPE}'/${accIndex}'/0'`;
+  return seedToPrivateKey(deriveSeed(seed, getDerivationPath(TempleChainKind.Tezos, hdAccIndex)));
 }
 
 export function seedToPrivateKey(seed: Buffer) {

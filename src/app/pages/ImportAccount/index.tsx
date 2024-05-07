@@ -11,6 +11,7 @@ import { ByMnemonicForm } from './ByMnemonicForm';
 import { ByPrivateKeyForm } from './ByPrivateKeyForm';
 import { FromFaucetForm } from './FromFaucetForm';
 import { ManagedKTForm } from './ManagedKTForm';
+import { WalletFromMnemonicForm } from './wallet-from-mnemonic-form';
 import { WatchOnlyForm } from './WatchOnlyForm';
 
 type ImportAccountProps = {
@@ -68,6 +69,11 @@ const ALL_TABS: ImportTabDescriptor[] = [
     slug: 'fundraiser',
     i18nKey: 'fundraiser',
     Form: ByFundraiserForm
+  },
+  {
+    slug: 'wallet-from-mnemonic',
+    i18nKey: 'walletFromMnemonic',
+    Form: WalletFromMnemonicForm
   },
   {
     slug: 'faucet',

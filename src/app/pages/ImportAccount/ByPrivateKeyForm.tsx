@@ -109,4 +109,4 @@ function toPrivateKeyWithChain(value: string): [string, TempleChainKind] {
   return [value, TempleChainKind.EVM];
 }
 
-const isTezosPrivateKey = (value: string) => value.startsWith('edsk');
+const isTezosPrivateKey = (value?: string): value is `edsk${string}` => value?.startsWith('edsk') ?? false;

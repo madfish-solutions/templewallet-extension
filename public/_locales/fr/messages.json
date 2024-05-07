@@ -363,7 +363,7 @@
   "alert": {
     "message": "Alerte"
   },
-  "accountNameInputTitle": {
+  "accountOrGroupNameInputTitle": {
     "message": "1 à 16 caractères, aucun caractère spécial"
   },
   "defaultAccountName": {
@@ -390,9 +390,6 @@
         "content": "$1"
       }
     }
-  },
-  "accountsToRemoveConstraint": {
-    "message": "Les comptes déterministes et hiérarchiques ne peuvent pas être retirés."
   },
   "doNotSharePrivateKey": {
     "message": "<b>NE PARTAGEZ</b> cet ensemble de caractères avec personne ! Il peut servir à dérober votre compte actuel."

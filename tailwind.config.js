@@ -70,6 +70,7 @@ module.exports = {
         },
         yellow: {
           100: '#fffff0',
+          110: '#ffff02',
           200: '#fefcbf',
           300: '#faf089',
           400: '#f6e05e',
@@ -207,6 +208,8 @@ module.exports = {
     borderWidth: {
       DEFAULT: '1px',
       0: '0',
+      0.5: '0.5px',
+      1.5: '1.5px',
       2: '2px',
       3: '3px',
       4: '4px',

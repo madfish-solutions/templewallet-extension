@@ -381,7 +381,7 @@
   "alert": {
     "message": "Alerta"
   },
-  "accountNameInputTitle": {
+  "accountOrGroupNameInputTitle": {
     "message": "1-16 carateres, nenhum especial"
   },
   "defaultAccountName": {
@@ -408,9 +408,6 @@
         "content": "$1"
       }
     }
-  },
-  "accountsToRemoveConstraint": {
-    "message": "Não é possível remover contas determinísticas hierárquicas."
   },
   "doNotSharePrivateKey": {
     "message": "<b>NÃO partilhe</b> este conjunto de caracteres com ninguém! Pode ser utilizado para roubar a sua conta corrente."

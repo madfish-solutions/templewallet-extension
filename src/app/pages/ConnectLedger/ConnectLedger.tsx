@@ -6,17 +6,19 @@ import { Controller, useForm } from 'react-hook-form';
 
 import { Alert, FormField, FormSubmitButton } from 'app/atoms';
 import ConfirmLedgerOverlay from 'app/atoms/ConfirmLedgerOverlay';
-import { DEFAULT_DERIVATION_PATH } from 'app/defaults';
 import { useAllAccountsReactiveOnAddition } from 'app/hooks/use-all-accounts-reactive';
 import { ReactComponent as LinkIcon } from 'app/icons/link.svg';
 import { ReactComponent as OkIcon } from 'app/icons/ok.svg';
 import PageLayout from 'app/layouts/PageLayout';
 import { useFormAnalytics } from 'lib/analytics';
+import { DEFAULT_TEZOS_DERIVATION_PATH } from 'lib/constants';
 import { T, t } from 'lib/i18n';
 import { getLedgerTransportType } from 'lib/ledger/helpers';
 import { useTempleClient, validateDerivationPath } from 'lib/temple/front';
+import { getDerivationPath } from 'lib/temple/helpers';
 import { TempleAccountType } from 'lib/temple/types';
 import { delay } from 'lib/utils';
+import { TempleChainKind } from 'temple/types';
 
 import { ConnectLedgerSelectors } from './ConnectLedger.selectors';
 
@@ -72,7 +74,7 @@ const ConnectLedger: FC = () => {
   const { control, register, handleSubmit, errors, formState } = useForm<FormData>({
     defaultValues: {
       name: defaultName,
-      customDerivationPath: DEFAULT_DERIVATION_PATH,
+      customDerivationPath: DEFAULT_TEZOS_DERIVATION_PATH,
       accountNumber: 1,
       derivationType: DerivationType.ED25519
     }
@@ -120,7 +122,7 @@ const ConnectLedger: FC = () => {
         await createLedgerAccount(
           name,
           derivationType,
-          customDerivationPath ?? (accountNumber && `m/44'/1729'/${accountNumber - 1}'/0'`)
+          customDerivationPath ?? (accountNumber && getDerivationPath(TempleChainKind.Tezos, accountNumber - 1))
         );
 
         formAnalytics.trackSubmitSuccess();
@@ -195,7 +197,7 @@ const ConnectLedger: FC = () => {
                 </span>
 
                 <span className="mt-1 text-xs font-light text-gray-600 max-w-9/10">
-                  <T id="defaultDerivationPathLabel" substitutions={[<b>44'/1729'/0'/0'</b>]} />
+                  <T id="defaultDerivationPathLabel" substitutions={[<b>{DEFAULT_TEZOS_DERIVATION_PATH}</b>]} />
                   <br />
                   <T id="clickOnCustomDerivationPath" />
                 </span>

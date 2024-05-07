@@ -19,7 +19,8 @@ import {
   TempleMessageType,
   TempleRequest,
   TempleSettings,
-  TempleSharedStorageKey
+  TempleSharedStorageKey,
+  TempleAccountType
 } from 'lib/temple/types';
 import { createQueue, delay } from 'lib/utils';
 import { loadTezosChainId } from 'temple/tezos';
@@ -50,7 +51,7 @@ import {
 } from './store';
 import { Vault } from './vault';
 
-const ACCOUNT_NAME_PATTERN = /^.{0,16}$/;
+const ACCOUNT_OR_GROUP_NAME_PATTERN = /^.{0,16}$/;
 const AUTODECLINE_AFTER = 60_000;
 const BEACON_ID = `temple_wallet_${browser.runtime.id}`;
 let initLocked = false;
@@ -131,30 +132,34 @@ export async function unlockFromSession() {
   });
 }
 
-export function createHDAccount(name?: string) {
+export function findFreeHDAccountIndex(walletId: string) {
+  return withUnlocked(({ vault }) => vault.findFreeHDAccountIndex(walletId));
+}
+
+export function createHDAccount(walletId: string, name?: string, hdIndex?: number) {
   return withUnlocked(async ({ vault }) => {
     if (name) {
       name = name.trim();
-      if (!ACCOUNT_NAME_PATTERN.test(name)) {
+      if (!ACCOUNT_OR_GROUP_NAME_PATTERN.test(name)) {
         throw new Error('Invalid name. It should be: 1-16 characters, without special');
       }
     }
 
-    const updatedAccounts = await vault.createHDAccount(name);
+    const updatedAccounts = await vault.createHDAccount(walletId, name, hdIndex);
     accountsUpdated(updatedAccounts);
   });
 }
 
-export function revealMnemonic(password: string) {
-  return withUnlocked(() => Vault.revealMnemonic(password));
+export function revealMnemonic(walletId: string, password: string) {
+  return withUnlocked(() => Vault.revealMnemonic(walletId, password));
 }
 
 export function generateSyncPayload(password: string) {
   return withUnlocked(() => Vault.generateSyncPayload(password));
 }
 
-export function revealPrivateKey(chain: TempleChainKind, address: string, password: string) {
-  return withUnlocked(() => Vault.revealPrivateKey(chain, address, password));
+export function revealPrivateKey(address: string, password: string) {
+  return withUnlocked(() => Vault.revealPrivateKey(address, password));
 }
 
 export function revealPublicKey(accountAddress: string) {
@@ -163,7 +168,14 @@ export function revealPublicKey(accountAddress: string) {
 
 export function removeAccount(id: string, password: string) {
   return withUnlocked(async () => {
-    const updatedAccounts = await Vault.removeAccount(id, password);
+    const { newAccounts } = await Vault.removeAccount(id, password);
+    accountsUpdated(newAccounts);
+  });
+}
+
+export function setAccountHidden(id: string, value: boolean) {
+  return withUnlocked(async ({ vault }) => {
+    const updatedAccounts = await vault.setAccountHidden(id, value);
     accountsUpdated(updatedAccounts);
   });
 }
@@ -171,7 +183,7 @@ export function removeAccount(id: string, password: string) {
 export function editAccount(id: string, name: string) {
   return withUnlocked(async ({ vault }) => {
     name = name.trim();
-    if (!ACCOUNT_NAME_PATTERN.test(name)) {
+    if (!ACCOUNT_OR_GROUP_NAME_PATTERN.test(name)) {
       throw new Error('Invalid name. It should be: 1-16 characters, without special');
     }
 
@@ -229,6 +241,27 @@ export function updateSettings(settings: Partial<TempleSettings>) {
     putToStorage(CUSTOM_TEZOS_NETWORKS_STORAGE_KEY, updatedSettings.customTezosNetworks);
 
     settingsUpdated(updatedSettings);
+  });
+}
+
+export function removeHdWallet(id: string, password: string) {
+  return withUnlocked(async () => {
+    const { newAccounts } = await Vault.removeHdWallet(id, password);
+    accountsUpdated(newAccounts);
+  });
+}
+
+export function removeAccountsByType(type: Exclude<TempleAccountType, TempleAccountType.HD>, password: string) {
+  return withUnlocked(async () => {
+    const newAccounts = await Vault.removeAccountsByType(type, password);
+    accountsUpdated(newAccounts);
+  });
+}
+
+export function createOrImportWallet(mnemonic?: string) {
+  return withUnlocked(async ({ vault }) => {
+    const { newAccounts } = await vault.createOrImportWallet(mnemonic);
+    accountsUpdated(newAccounts);
   });
 }
 

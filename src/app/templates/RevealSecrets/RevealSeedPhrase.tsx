@@ -2,8 +2,9 @@ import React, { memo, useCallback } from 'react';
 
 import { T } from 'lib/i18n';
 import { useTempleClient } from 'lib/temple/front';
+import { StoredHDAccount, TempleAccountType } from 'lib/temple/types';
 import { useDidUpdate, useVanishingState } from 'lib/ui/hooks';
-import { useCurrentAccountId } from 'temple/front';
+import { useAccount, useAllAccounts } from 'temple/front';
 
 import { PasswordForRevealField } from './PasswordForRevealField';
 import { SecretField } from './SecretField';
@@ -11,16 +12,21 @@ import { SecretField } from './SecretField';
 export const RevealSeedPhrase = memo(() => {
   const { revealMnemonic } = useTempleClient();
 
-  const accountId = useCurrentAccountId();
+  const allAccounts = useAllAccounts();
+  const currentAccount = useAccount();
+  const walletId =
+    currentAccount.type === TempleAccountType.HD
+      ? currentAccount.walletId
+      : allAccounts.find((acc): acc is StoredHDAccount => acc.type === TempleAccountType.HD)!.walletId;
 
   const [secret, setSecret] = useVanishingState();
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  useDidUpdate(() => void setSecret(null), [accountId, setSecret]);
+  useDidUpdate(() => void setSecret(null), [currentAccount.id, setSecret]);
 
   const onPasswordSubmit = useCallback(
-    async (password: string) => revealMnemonic(password).then(scrt => void setSecret(scrt)),
-    [setSecret, revealMnemonic]
+    async (password: string) => revealMnemonic(walletId, password).then(scrt => void setSecret(scrt)),
+    [revealMnemonic, walletId, setSecret]
   );
 
   return (
@@ -59,7 +65,7 @@ const DerivationPathBanner = memo(() => (
     <h3 className="mt-2 text-sm font-semibold text-gray-700">EVM:</h3>
 
     <div className="mt-1 w-full border rounded-md p-2 flex items-center">
-      <span className="text-sm font-medium text-gray-800">{`m/44'/60'/0'/0'/<address_index>'`}</span>
+      <span className="text-sm font-medium text-gray-800">{`m/44'/60'/0'/0/<address_index>`}</span>
     </div>
   </div>
 ));

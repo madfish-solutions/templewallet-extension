@@ -8,7 +8,7 @@ export class NotEnoughFundsError extends ArtificialError {}
 export class ZeroBalanceError extends NotEnoughFundsError {}
 export class ZeroTEZBalanceError extends NotEnoughFundsError {}
 
-export const ACCOUNT_NAME_PATTERN = /[^\s-].{0,16}$/;
+export const ACCOUNT_OR_GROUP_NAME_PATTERN = /[^\s-].{0,16}$/;
 
 export const PASSWORD_PATTERN = new RegExp(
   [
@@ -26,8 +26,6 @@ export const specialCharacterRegx = /[!@#$%^&*()_+\-=\]{};':"\\|,.<>?]/;
 
 export const URL_PATTERN =
   /(^(https:\/\/)?[\w.-]+(?:\.[\w.-]+)+[\w\-._~:/?#[\]@!$&'()*+,;=.]+$)|(^http(s)?:\/\/localhost:[0-9]+$)/;
-
-export const DEFAULT_DERIVATION_PATH = "m/44'/1729'/0'/0'";
 
 export function formatMnemonic(m: string) {
   return m.replace(/\n/g, ' ').trim();

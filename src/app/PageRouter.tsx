@@ -2,18 +2,19 @@ import React, { memo, useLayoutEffect, useMemo } from 'react';
 
 import RootSuspenseFallback from 'app/a11y/RootSuspenseFallback';
 import { OpenInFullPage, useAppEnv } from 'app/env';
+import { AccountSettings } from 'app/pages/AccountSettings';
 import AddAsset from 'app/pages/AddAsset/AddAsset';
 import { Buy } from 'app/pages/Buy/Buy';
 import Exolix from 'app/pages/Buy/Crypto/Exolix/Exolix';
 import { BuyWithCreditCard } from 'app/pages/BuyWithCreditCard/BuyWithCreditCard';
 import CollectiblePage from 'app/pages/Collectibles/CollectiblePage';
 import ConnectLedger from 'app/pages/ConnectLedger/ConnectLedger';
-import CreateAccount from 'app/pages/CreateAccount/CreateAccount';
 import DApps from 'app/pages/DApps';
 import Delegate from 'app/pages/Delegate';
 import Home from 'app/pages/Home/Home';
 import ImportAccount from 'app/pages/ImportAccount';
 import ManageAssets from 'app/pages/ManageAssets';
+import { CreateAnotherWallet } from 'app/pages/NewWallet/CreateAnotherWallet';
 import { CreateWallet } from 'app/pages/NewWallet/CreateWallet';
 import { ImportWallet } from 'app/pages/NewWallet/ImportWallet';
 import AttentionPage from 'app/pages/Onboarding/pages/AttentionPage';
@@ -79,7 +80,7 @@ const ROUTE_MAP = Woozie.createMap<RouteContext>([
     ))
   ],
   ['/create-wallet', onlyNotReady(() => <CreateWallet />)],
-  ['/create-account', onlyReady(() => <CreateAccount />)],
+  ['/create-another-wallet', onlyReady(() => <CreateAnotherWallet />)],
   ['/import-account/:tabSlug?', onlyReady(({ tabSlug }) => <ImportAccount tabSlug={tabSlug} />)],
   ['/connect-ledger', onlyReady(onlyInFullPage(() => <ConnectLedger />))],
   ['/receive', onlyReady(() => <Receive />)],
@@ -105,6 +106,7 @@ const ROUTE_MAP = Woozie.createMap<RouteContext>([
   ['/attention', onlyReady(onlyInFullPage(() => <AttentionPage />))],
   ['/notifications', onlyReady(() => <Notifications />)],
   ['/notifications/:id', onlyReady(({ id }) => <NotificationsItem id={Number(id) ?? 0} />)],
+  ['/account/:id', onlyReady(({ id }) => <AccountSettings id={id!} />)],
   ['*', () => <Woozie.Redirect to="/" />]
 ]);
 
