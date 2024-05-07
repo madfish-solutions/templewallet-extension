@@ -10,7 +10,8 @@ import DropdownWrapper from 'app/atoms/DropdownWrapper';
 import { ScrollBackUpButton } from 'app/atoms/ScrollBackUpButton';
 import { SimpleInfiniteScroll } from 'app/atoms/SimpleInfiniteScroll';
 import { useAppEnv } from 'app/env';
-import { useCollectiblesListingLogic } from 'app/hooks/use-collectibles-listing-logic';
+import { useEvmChainAccountCollectiblesSlugs } from 'app/hooks/evm/assets';
+import { useCollectiblesListingLogic, useEvmCollectiblesListingLogic } from 'app/hooks/use-collectibles-listing-logic';
 import { ReactComponent as EditingIcon } from 'app/icons/editing.svg';
 import { ContentContainer } from 'app/layouts/ContentContainer';
 import {
@@ -24,17 +25,16 @@ import SearchAssetField from 'app/templates/SearchAssetField';
 import { setTestID } from 'lib/analytics';
 import { useEnabledAccountCollectiblesSlugs } from 'lib/assets/hooks';
 import { AssetTypesEnum } from 'lib/assets/types';
-import { useCollectiblesSortPredicate } from 'lib/assets/use-sorting';
+import { useEvmCollectiblesSortPredicate, useTezosCollectiblesSortPredicate } from 'lib/assets/use-sorting';
 import { T, t } from 'lib/i18n';
 import { useMemoWithCompare } from 'lib/ui/hooks';
 import { useLocalStorage } from 'lib/ui/local-storage';
 import Popper, { PopperChildren, PopperPopup, PopperRenderProps } from 'lib/ui/Popper';
 import { Link } from 'lib/woozie';
-import { UNDER_DEVELOPMENT_MSG } from 'temple/evm/under_dev_msg';
-import { useAccountAddressForTezos } from 'temple/front';
-import { TezosNetworkEssentials } from 'temple/networks';
+import { useAccountAddressForEvm, useAccountAddressForTezos } from 'temple/front';
+import { EvmNetworkEssentials, TezosNetworkEssentials } from 'temple/networks';
 
-import { CollectibleItem } from './CollectibleItem';
+import { EvmCollectibleItem, TezosCollectibleItem } from './CollectibleItem';
 import { CollectibleTabSelectors } from './selectors';
 
 interface Props {
@@ -46,6 +46,7 @@ export const CollectiblesTab = memo<Props>(({ scrollToTheTabsBar }) => {
   const network = chainSelectController.value;
 
   const accountTezAddress = useAccountAddressForTezos();
+  const accountEvmAddress = useAccountAddressForEvm();
 
   return (
     <ContentContainer className="pt-4">
@@ -57,10 +58,68 @@ export const CollectiblesTab = memo<Props>(({ scrollToTheTabsBar }) => {
           publicKeyHash={accountTezAddress}
           scrollToTheTabsBar={scrollToTheTabsBar}
         />
-      ) : (
-        <div className="py-3 text-center">{UNDER_DEVELOPMENT_MSG}</div>
-      )}
+      ) : network.kind === 'evm' && accountEvmAddress ? (
+        <EvmCollectiblesTab
+          network={network}
+          publicKeyHash={accountEvmAddress}
+          scrollToTheTabsBar={scrollToTheTabsBar}
+        />
+      ) : null}
     </ContentContainer>
+  );
+});
+
+interface EvmCollectiblesTabProps extends Props {
+  network: EvmNetworkEssentials;
+  publicKeyHash: HexString;
+}
+
+const EvmCollectiblesTab = memo<EvmCollectiblesTabProps>(({ network, publicKeyHash, scrollToTheTabsBar }) => {
+  const { popup } = useAppEnv();
+  const { chainId: evmChainId } = network;
+
+  const allSlugs = useEvmChainAccountCollectiblesSlugs(publicKeyHash, evmChainId);
+
+  const assetsSortPredicate = useEvmCollectiblesSortPredicate(publicKeyHash, evmChainId);
+
+  const allSlugsSorted = useMemoWithCompare(
+    () => [...allSlugs].sort(assetsSortPredicate),
+    [allSlugs, assetsSortPredicate],
+    isEqual
+  );
+
+  const { paginatedSlugs, isSyncing, loadNext } = useEvmCollectiblesListingLogic(network, allSlugsSorted);
+
+  const shouldScrollToTheTabsBar = paginatedSlugs.length > 0;
+  useEffect(() => {
+    if (shouldScrollToTheTabsBar) void scrollToTheTabsBar();
+  }, [shouldScrollToTheTabsBar, scrollToTheTabsBar]);
+
+  const contentElement = useMemo(
+    () => (
+      <div className="grid grid-cols-3 gap-1">
+        {paginatedSlugs.map(slug => (
+          <EvmCollectibleItem key={slug} assetSlug={slug} evmChainId={evmChainId} />
+        ))}
+      </div>
+    ),
+    [paginatedSlugs, evmChainId]
+  );
+
+  return (
+    <div className={clsx('my-3', popup && 'mx-4')}>
+      {paginatedSlugs.length === 0 ? (
+        buildEmptySection(isSyncing)
+      ) : (
+        <>
+          <SimpleInfiniteScroll loadNext={loadNext}>{contentElement}</SimpleInfiniteScroll>
+
+          <ScrollBackUpButton />
+
+          {isSyncing && <SyncSpinner className="mt-6" />}
+        </>
+      )}
+    </div>
   );
 });
 
@@ -81,7 +140,7 @@ const TezosCollectiblesTab = memo<TezosCollectiblesTabProps>(({ network, publicK
 
   const allSlugs = useEnabledAccountCollectiblesSlugs(publicKeyHash, tezosChainId);
 
-  const assetsSortPredicate = useCollectiblesSortPredicate(publicKeyHash, tezosChainId);
+  const assetsSortPredicate = useTezosCollectiblesSortPredicate(publicKeyHash, tezosChainId);
 
   const allSlugsSorted = useMemoWithCompare(
     () => [...allSlugs].sort(assetsSortPredicate),
@@ -101,7 +160,7 @@ const TezosCollectiblesTab = memo<TezosCollectiblesTabProps>(({ network, publicK
     () => (
       <div className="grid grid-cols-3 gap-1">
         {displayedSlugs.map(slug => (
-          <CollectibleItem
+          <TezosCollectibleItem
             key={slug}
             assetSlug={slug}
             accountPkh={publicKeyHash}

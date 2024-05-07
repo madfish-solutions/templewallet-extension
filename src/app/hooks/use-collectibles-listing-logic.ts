@@ -8,9 +8,14 @@ import { searchAssetsWithNoMeta } from 'lib/assets/search.utils';
 import { useCollectiblesMetadataPresenceCheck, useGetCollectibleMetadata } from 'lib/metadata';
 import { isSearchStringApplicable } from 'lib/utils/search-items';
 import { createLocationState } from 'lib/woozie/location';
-import { TezosNetworkEssentials } from 'temple/networks';
+import { EvmNetworkEssentials, TezosNetworkEssentials } from 'temple/networks';
 
-import { ITEMS_PER_PAGE, useCollectiblesPaginationLogic } from './use-collectibles-pagination-logic';
+import { useEvmBalancesLoadingState, useEvmCollectiblesMetadataLoadingState } from './evm/loading';
+import {
+  ITEMS_PER_PAGE,
+  useCollectiblesPaginationLogic,
+  useEvmCollectiblesPaginationLogic
+} from './use-collectibles-pagination-logic';
 
 export const useCollectiblesListingLogic = (network: TezosNetworkEssentials, allSlugsSorted: string[]) => {
   const initialAmount = useMemo(() => {
@@ -69,5 +74,33 @@ export const useCollectiblesListingLogic = (network: TezosNetworkEssentials, all
     loadNext,
     searchValue,
     setSearchValue
+  };
+};
+
+export const useEvmCollectiblesListingLogic = (network: EvmNetworkEssentials, allSlugsSorted: string[]) => {
+  const { chainId: evmChainId } = network;
+
+  const initialAmount = useMemo(() => {
+    const { search } = createLocationState();
+    const usp = new URLSearchParams(search);
+    const amount = usp.get('amount');
+    return amount ? Number(amount) : 0;
+  }, []);
+
+  const {
+    slugs: paginatedSlugs,
+    isLoading: pageIsLoading,
+    loadNext
+  } = useEvmCollectiblesPaginationLogic(allSlugsSorted, initialAmount);
+
+  const balancesLoading = useEvmBalancesLoadingState(evmChainId);
+  const metadatasLoading = useEvmCollectiblesMetadataLoadingState(evmChainId);
+
+  const isSyncing = balancesLoading || pageIsLoading || metadatasLoading;
+
+  return {
+    paginatedSlugs,
+    isSyncing,
+    loadNext
   };
 };

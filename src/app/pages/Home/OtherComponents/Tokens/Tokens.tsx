@@ -6,8 +6,8 @@ import InfiniteScroll from 'react-infinite-scroller';
 import { Checkbox, Divider, SyncSpinner } from 'app/atoms';
 import DropdownWrapper from 'app/atoms/DropdownWrapper';
 import { useAppEnv } from 'app/env';
-import { useEvmChainAccountAssetsSlugs } from 'app/hooks/evm/assets';
-import { useEvmTokensDataLoadingState } from 'app/hooks/evm/loading';
+import { useEvmChainAccountTokensSlugs } from 'app/hooks/evm/assets';
+import { useEvmBalancesLoadingState } from 'app/hooks/evm/loading';
 import { useLoadPartnersPromo } from 'app/hooks/use-load-partners-promo';
 import { useEvmTokensListingLogic, useTezosTokensListingLogic } from 'app/hooks/use-tokens-listing-logic';
 import { ReactComponent as EditingIcon } from 'app/icons/editing.svg';
@@ -72,8 +72,8 @@ interface EvmTokensTabProps {
 }
 
 const EvmTokensTab: FC<EvmTokensTabProps> = ({ network, publicKeyHash }) => {
-  const assetsSlugs = useEvmChainAccountAssetsSlugs(publicKeyHash, network.chainId);
-  const isDataLoading = useEvmTokensDataLoadingState(network.chainId);
+  const assetsSlugs = useEvmChainAccountTokensSlugs(publicKeyHash, network.chainId);
+  const isDataLoading = useEvmBalancesLoadingState(network.chainId);
 
   const { sortedAssets } = useEvmTokensListingLogic(publicKeyHash, network.chainId, assetsSlugs);
 

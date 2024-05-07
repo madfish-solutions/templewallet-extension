@@ -7,7 +7,7 @@ import { useDebounce } from 'use-debounce';
 import { useAllAccountBalancesSelector } from 'app/store/tezos/balances/selectors';
 import { toTokenSlug } from 'lib/assets';
 import { searchAssetsWithNoMeta } from 'lib/assets/search.utils';
-import { useEvmTokensSortPredicate, useTokensSortPredicate } from 'lib/assets/use-sorting';
+import { useEvmTokensSortPredicate, useTezosTokensSortPredicate } from 'lib/assets/use-sorting';
 import { useGetTokenOrGasMetadata } from 'lib/metadata';
 import { useMemoWithCompare } from 'lib/ui/hooks';
 import { isSearchStringApplicable } from 'lib/utils/search-items';
@@ -43,7 +43,7 @@ export const useTezosTokensListingLogic = (
   const [tokenId, setTokenId] = useState<number>();
   const [searchValueDebounced] = useDebounce(tokenId ? toTokenSlug(searchValue, String(tokenId)) : searchValue, 300);
 
-  const assetsSortPredicate = useTokensSortPredicate(publicKeyHash, tezosChainId);
+  const assetsSortPredicate = useTezosTokensSortPredicate(publicKeyHash, tezosChainId);
   const getMetadata = useGetTokenOrGasMetadata(tezosChainId);
 
   const searchedSlugs = useMemo(

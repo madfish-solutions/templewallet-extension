@@ -9,6 +9,7 @@ import type { TokenMetadata } from 'lib/metadata';
 import { ImageStacked } from 'lib/ui/ImageStacked';
 import { useIntersectionByOffsetObserver } from 'lib/ui/use-intersection-observer';
 
+import { EvmCollectibleMetadata } from '../../../../lib/metadata/types';
 import { CollectibleBlur } from '../components/CollectibleBlur';
 import { CollectibleImageFallback } from '../components/CollectibleImageFallback';
 import { CollectibleImageLoader } from '../components/CollectibleImageLoader';
@@ -56,3 +57,32 @@ export const CollectibleItemImage = memo<Props>(
     );
   }
 );
+
+interface EvmCollectibleItemImageProps {
+  metadata?: EvmCollectibleMetadata;
+  containerElemRef: React.RefObject<Element>;
+}
+
+export const EvmCollectibleItemImage = memo<EvmCollectibleItemImageProps>(({ metadata, containerElemRef }) => {
+  const sources = useMemo(
+    () => (metadata ? [metadata.thumbnailUri, metadata.displayUri, metadata.artifactUri, metadata.originalUri] : []),
+    [metadata]
+  );
+
+  const [isInViewport, setIsInViewport] = useState(false);
+  const handleIntersection = useMemo(() => debounce(setIsInViewport, 500), []);
+
+  useIntersectionByOffsetObserver(containerElemRef, handleIntersection, true, 800);
+
+  return (
+    <div className={isInViewport ? 'contents' : 'hidden'}>
+      <ImageStacked
+        sources={sources}
+        loading="lazy"
+        className="max-w-full max-h-full object-contain"
+        loader={<CollectibleImageLoader />}
+        fallback={<CollectibleImageFallback />}
+      />
+    </div>
+  );
+});

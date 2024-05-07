@@ -5,6 +5,7 @@ import clsx from 'clsx';
 
 import Money from 'app/atoms/Money';
 import { useAppEnv } from 'app/env';
+import { useEvmCollectibleMetadata } from 'app/hooks/evm/metadata';
 import { useBalanceSelector } from 'app/store/tezos/balances/selectors';
 import {
   useAllCollectiblesDetailsLoadingSelector,
@@ -18,10 +19,10 @@ import { getAssetName } from 'lib/metadata';
 import { atomsToTokens } from 'lib/temple/helpers';
 import { Link } from 'lib/woozie';
 
-import { CollectibleItemImage } from './CollectibleItemImage';
+import { CollectibleItemImage, EvmCollectibleItemImage } from './CollectibleItemImage';
 import { CollectibleTabSelectors } from './selectors';
 
-interface Props {
+interface TezosCollectibleItemProps {
   assetSlug: string;
   accountPkh: string;
   tezosChainId: string;
@@ -30,7 +31,7 @@ interface Props {
   hideWithoutMeta?: boolean;
 }
 
-export const CollectibleItem = memo<Props>(
+export const TezosCollectibleItem = memo<TezosCollectibleItemProps>(
   ({ assetSlug, accountPkh, tezosChainId, adultBlur, areDetailsShown, hideWithoutMeta }) => {
     const { popup } = useAppEnv();
     const metadata = useCollectibleMetadataSelector(assetSlug);
@@ -146,3 +147,55 @@ export const CollectibleItem = memo<Props>(
     );
   }
 );
+
+interface EvmCollectibleItemProps {
+  assetSlug: string;
+  evmChainId: number;
+}
+
+export const EvmCollectibleItem = memo<EvmCollectibleItemProps>(({ assetSlug, evmChainId }) => {
+  const { popup } = useAppEnv();
+  const metadata = useEvmCollectibleMetadata(evmChainId, assetSlug);
+  const wrapperElemRef = useRef<HTMLDivElement>(null);
+
+  // Fixed sizes to improve large grid performance
+  const [style, imgWrapStyle] = useMemo(() => {
+    const size = popup ? 106 : 125;
+
+    const style = {
+      width: size,
+      height: size
+    };
+
+    const imgWrapStyle = {
+      height: size - 2
+    };
+
+    return [style, imgWrapStyle];
+  }, [popup]);
+
+  if (!metadata) return null;
+
+  const assetName = metadata.name;
+
+  return (
+    <Link
+      to={`#`}
+      className="flex flex-col border border-gray-300 rounded-lg overflow-hidden"
+      style={style}
+      testID={CollectibleTabSelectors.collectibleItem}
+      testIDProperties={{ assetSlug: assetSlug }}
+    >
+      <div
+        ref={wrapperElemRef}
+        className={clsx(
+          'relative flex items-center justify-center bg-blue-50 rounded-lg overflow-hidden hover:opacity-70'
+        )}
+        style={imgWrapStyle}
+        title={assetName}
+      >
+        <EvmCollectibleItemImage metadata={metadata} containerElemRef={wrapperElemRef} />
+      </div>
+    </Link>
+  );
+});
