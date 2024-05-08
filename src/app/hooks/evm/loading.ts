@@ -14,7 +14,8 @@ import { useEvmBalancesAtomicRecordSelector } from 'app/store/evm/balances/selec
 import { useEvmCollectiblesMetadataRecordSelector } from 'app/store/evm/collectibles-metadata/selectors';
 import {
   useEvmBalancesLoadingStateRecordSelector,
-  useEvmCollectiblesMetadataLoadingStateRecordSelector
+  useEvmCollectiblesMetadataLoadingStateRecordSelector,
+  useEvmTokensMetadataLoadingStateRecordSelector
 } from 'app/store/evm/selectors';
 import { useEvmUsdToTokenRatesSelector } from 'app/store/evm/tokens-exchange-rates/selectors';
 import { useEvmTokensMetadataRecordSelector } from 'app/store/evm/tokens-metadata/selectors';
@@ -55,6 +56,12 @@ export const useLoadEvmTokensData = (publicKeyHash: HexString) => {
 
 export const useEvmBalancesLoadingState = (chainId: number) => {
   const loadingStateRecord = useEvmBalancesLoadingStateRecordSelector();
+
+  return loadingStateRecord[chainId] ? loadingStateRecord[chainId].isLoading : false;
+};
+
+export const useEvmTokensMetadataLoadingState = (chainId: number) => {
+  const loadingStateRecord = useEvmTokensMetadataLoadingStateRecordSelector();
 
   return loadingStateRecord[chainId] ? loadingStateRecord[chainId].isLoading : false;
 };

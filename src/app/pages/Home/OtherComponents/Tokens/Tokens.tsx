@@ -7,7 +7,7 @@ import { Checkbox, Divider, SyncSpinner } from 'app/atoms';
 import DropdownWrapper from 'app/atoms/DropdownWrapper';
 import { useAppEnv } from 'app/env';
 import { useEvmChainAccountTokensSlugs } from 'app/hooks/evm/assets';
-import { useEvmBalancesLoadingState } from 'app/hooks/evm/loading';
+import { useEvmBalancesLoadingState, useEvmTokensMetadataLoadingState } from 'app/hooks/evm/loading';
 import { useLoadPartnersPromo } from 'app/hooks/use-load-partners-promo';
 import { useEvmTokensListingLogic, useTezosTokensListingLogic } from 'app/hooks/use-tokens-listing-logic';
 import { ReactComponent as EditingIcon } from 'app/icons/editing.svg';
@@ -73,7 +73,10 @@ interface EvmTokensTabProps {
 
 const EvmTokensTab: FC<EvmTokensTabProps> = ({ network, publicKeyHash }) => {
   const assetsSlugs = useEvmChainAccountTokensSlugs(publicKeyHash, network.chainId);
-  const isDataLoading = useEvmBalancesLoadingState(network.chainId);
+  const isBalancesLoading = useEvmBalancesLoadingState(network.chainId);
+  const isMetadataLoading = useEvmTokensMetadataLoadingState(network.chainId);
+
+  const isLoading = isBalancesLoading || isMetadataLoading;
 
   const { sortedAssets } = useEvmTokensListingLogic(publicKeyHash, network.chainId, assetsSlugs);
 
@@ -118,7 +121,7 @@ const EvmTokensTab: FC<EvmTokensTabProps> = ({ network, publicKeyHash }) => {
 
   return (
     <>
-      {!isDataLoading && sortedAssets.length === 0 ? (
+      {sortedAssets.length === 0 ? (
         <div className="my-8 flex flex-col items-center justify-center text-gray-500">
           <p className="mb-2 flex items-center justify-center text-gray-600 text-base font-light">
             <span {...setTestID(HomeSelectors.emptyStateText)}>
@@ -142,7 +145,7 @@ const EvmTokensTab: FC<EvmTokensTabProps> = ({ network, publicKeyHash }) => {
           {showItems(sortedAssets)}
         </InfiniteScroll>
       )}
-      {isDataLoading && <SyncSpinner className="mt-4" />}
+      {isLoading && <SyncSpinner className="mt-4" />}
     </>
   );
 };
