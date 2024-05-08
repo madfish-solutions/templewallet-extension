@@ -1,4 +1,4 @@
-import React, { memo, useMemo, useState } from 'react';
+import React, { memo, useCallback, useMemo, useState } from 'react';
 
 import clsx from 'clsx';
 
@@ -7,11 +7,13 @@ import { AccLabel } from 'app/atoms/AccLabel';
 import { AccountName } from 'app/atoms/AccountName';
 import { IconButton } from 'app/atoms/IconButton';
 import { PageModal } from 'app/atoms/PageModal';
+import { RadioButton } from 'app/atoms/RadioButton';
 import { ReactComponent as PlusIcon } from 'app/icons/plus.svg';
 import { ReactComponent as SettingsIcon } from 'app/icons/settings.svg';
 import { SearchBarField } from 'app/templates/SearchField';
 import { StoredAccount } from 'lib/temple/types';
-import { searchAndFilterAccounts, useAccountsGroups, useVisibleAccounts } from 'temple/front';
+import { searchAndFilterAccounts, useAccountsGroups, useCurrentAccountId, useVisibleAccounts } from 'temple/front';
+import { useSetAccountId } from 'temple/front/ready';
 
 interface Props {
   opened: boolean;
@@ -20,6 +22,7 @@ interface Props {
 
 export const AccountsModal = memo<Props>(({ opened, onRequestClose }) => {
   const allAccounts = useVisibleAccounts();
+  const currentAccountId = useCurrentAccountId();
 
   const [searchValue, setSearchValue] = useState('');
 
@@ -41,7 +44,13 @@ export const AccountsModal = memo<Props>(({ opened, onRequestClose }) => {
 
       <div className="flex flex-col">
         {filteredGroups.map(group => (
-          <AccountsGroup key={group.id} title={group.name} accounts={group.accounts} />
+          <AccountsGroup
+            key={group.id}
+            title={group.name}
+            accounts={group.accounts}
+            currentAccountId={currentAccountId}
+            onAccountSelect={onRequestClose}
+          />
         ))}
       </div>
     </PageModal>
@@ -51,9 +60,11 @@ export const AccountsModal = memo<Props>(({ opened, onRequestClose }) => {
 interface AccountsGroupProps {
   title: string;
   accounts: StoredAccount[];
+  currentAccountId: string;
+  onAccountSelect: EmptyFn;
 }
 
-const AccountsGroup = memo<AccountsGroupProps>(({ title, accounts }) => {
+const AccountsGroup = memo<AccountsGroupProps>(({ title, accounts, currentAccountId, onAccountSelect }) => {
   //
   return (
     <div className="flex flex-col mb-4">
@@ -61,7 +72,12 @@ const AccountsGroup = memo<AccountsGroupProps>(({ title, accounts }) => {
 
       <div className="flex flex-col gap-y-3">
         {accounts.map(account => (
-          <AccountOfGroup key={account.id} account={account} />
+          <AccountOfGroup
+            key={account.id}
+            account={account}
+            isCurrent={account.id === currentAccountId}
+            onSelect={onAccountSelect}
+          />
         ))}
       </div>
     </div>
@@ -70,16 +86,28 @@ const AccountsGroup = memo<AccountsGroupProps>(({ title, accounts }) => {
 
 interface AccountOfGroupProps {
   account: StoredAccount;
+  isCurrent: boolean;
+  onSelect: EmptyFn;
 }
 
-const AccountOfGroup = memo<AccountOfGroupProps>(({ account }) => {
-  //
+const AccountOfGroup = memo<AccountOfGroupProps>(({ account, isCurrent, onSelect }) => {
+  const setAccountId = useSetAccountId();
+
+  const onClick = useCallback(() => {
+    if (isCurrent) return;
+
+    setAccountId(account.id);
+    onSelect();
+  }, [isCurrent, account.id, onSelect, setAccountId]);
+
   return (
     <div
       className={clsx(
-        'flex flex-col p-2 gap-y-1.5 rounded-lg',
-        'shadow-bottom border border-transparent hover:border-lines'
+        'flex flex-col p-2 gap-y-1.5',
+        'rounded-lg shadow-bottom border',
+        isCurrent ? 'border-primary' : 'cursor-pointer group border-transparent hover:border-lines'
       )}
+      onClick={onClick}
     >
       <div className="flex gap-x-1">
         <div className="flex p-px rounded-md border border-grey-3">
@@ -87,6 +115,10 @@ const AccountOfGroup = memo<AccountOfGroupProps>(({ account }) => {
         </div>
 
         <AccountName account={account} smaller />
+
+        <div className="flex-1" />
+
+        <RadioButton active={isCurrent} className={isCurrent ? undefined : 'opacity-0 group-hover:opacity-100'} />
       </div>
 
       <div className="flex items-center">

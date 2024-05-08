@@ -51,7 +51,7 @@ export const PageModal = memo<PropsWithChildren<Props>>(({ title, opened, onRequ
       onRequestClose={onRequestClose}
     >
       {/* <PageModalContent active={active}>{children}</PageModalContent> */}
-      <div className="p-4 text-center text-sm leading-5 font-semibold">{title}</div>
+      <div className="p-4 text-center text-sm leading-5 font-semibold border-b border-lines">{title}</div>
 
       <div className="p-4">{children}</div>
     </Modal>

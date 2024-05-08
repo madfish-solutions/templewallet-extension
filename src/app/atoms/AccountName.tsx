@@ -55,7 +55,10 @@ export const AccountName = memo<Props>(({ account, smaller }) => {
             smaller ? 'py-1.5 px-2' : 'p-1.5',
             opened ? 'bg-secondary-low' : 'hover:bg-secondary-low'
           )}
-          onClick={toggleOpened}
+          onClick={event => {
+            event.stopPropagation();
+            toggleOpened();
+          }}
         >
           <Name className="text-sm leading-5 font-semibold">{account.name}</Name>
 

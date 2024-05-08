@@ -16,7 +16,6 @@ export interface SearchFieldProps extends InputHTMLAttributes<HTMLInputElement>,
   onCleanButtonClick?: () => void;
 }
 
-/** TODO: See common usage cases & generalize */
 const SearchField: FC<SearchFieldProps> = ({
   bottomOffset = '0.45rem',
   className,

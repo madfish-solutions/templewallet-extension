@@ -4,6 +4,7 @@ import clsx from 'clsx';
 import CSSTransition from 'react-transition-group/CSSTransition';
 
 import { useDidUpdate } from 'lib/ui/hooks';
+import { PORTAL_EVENTS_LEAK_GUARD } from 'lib/ui/Portal';
 
 interface DropdownWrapperProps extends HTMLAttributes<HTMLDivElement> {
   opened: boolean;
@@ -66,6 +67,7 @@ const DropdownWrapper: FC<DropdownWrapperProps> = ({
           className
         )}
         style={style}
+        {...PORTAL_EVENTS_LEAK_GUARD}
         {...rest}
       />
     </CSSTransition>
