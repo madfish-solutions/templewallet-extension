@@ -19,7 +19,7 @@ export const CloseButton = memo<CloseButtonProps>(({ onClick, variant }) => {
   return (
     <button
       className={clsx(
-        'w-4 h-4 flex justify-center items-center',
+        'w-4 h-4 flex justify-center items-center z-20',
         isImageAd ? 'absolute top-2 right-2 bg-blue-500 rounded-circle' : 'border border-gray-300 rounded'
       )}
       onClick={onClick}
