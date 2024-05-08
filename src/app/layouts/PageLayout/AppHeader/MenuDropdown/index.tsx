@@ -1,6 +1,7 @@
 import React, { memo, useCallback, useMemo } from 'react';
 
 import { Divider, ToggleSwitch } from 'app/atoms';
+import { ActionListItem, ActionListItemProps } from 'app/atoms/ActionListItem';
 import { ActionsDropdownPopup } from 'app/atoms/ActionsDropdown';
 import { openInFullPage, useAppEnv } from 'app/env';
 import { useShortcutAccountSelectModalIsOpened } from 'app/hooks/use-account-select-shortcut';
@@ -8,14 +9,14 @@ import { ReactComponent as DAppsIcon } from 'app/icons/apps-alt.svg';
 import { ReactComponent as LockIcon } from 'app/icons/lock.svg';
 import { ReactComponent as MaximiseIcon } from 'app/icons/maximise.svg';
 import { ReactComponent as SettingsIcon } from 'app/icons/settings.svg';
+import { T } from 'lib/i18n';
 import { NotificationsBell } from 'lib/notifications/components/bell';
 import { useTempleClient } from 'lib/temple/front';
 import { PopperRenderProps } from 'lib/ui/Popper';
 
-import { ActionButtonProps, ActionButton } from './ActionButton';
 import { MenuDropdownSelectors } from './selectors';
 
-interface TDropdownAction extends ActionButtonProps {
+interface TDropdownAction extends ActionListItemProps {
   key: string;
 }
 
@@ -47,7 +48,7 @@ const MenuDropdown = memo<PopperRenderProps>(({ opened, setOpened }) => {
       {
         key: 'dapps',
         Icon: DAppsIcon,
-        i18nKey: 'dApps',
+        children: <T id="dApps" />,
         linkTo: '/dApps',
         testID: MenuDropdownSelectors.dAppsButton,
         onClick: closeDropdown
@@ -55,7 +56,7 @@ const MenuDropdown = memo<PopperRenderProps>(({ opened, setOpened }) => {
       {
         key: 'settings',
         Icon: SettingsIcon,
-        i18nKey: 'settings',
+        children: <T id="settings" />,
         linkTo: '/settings',
         testID: MenuDropdownSelectors.settingsButton,
         onClick: closeDropdown
@@ -63,7 +64,7 @@ const MenuDropdown = memo<PopperRenderProps>(({ opened, setOpened }) => {
       {
         key: 'notifications',
         Icon: NotificationsBell,
-        i18nKey: 'notifications',
+        children: <T id="notifications" />,
         linkTo: '/notifications',
         testID: MenuDropdownSelectors.notificationsButton,
         onClick: closeDropdown
@@ -71,16 +72,14 @@ const MenuDropdown = memo<PopperRenderProps>(({ opened, setOpened }) => {
       {
         key: 'maximize',
         Icon: MaximiseIcon,
-        i18nKey: appEnv.fullPage ? 'openNewTab' : 'maximiseView',
-        linkTo: null,
+        children: <T id={appEnv.fullPage ? 'openNewTab' : 'maximiseView'} />,
         testID: appEnv.fullPage ? MenuDropdownSelectors.newTabButton : MenuDropdownSelectors.maximizeButton,
         onClick: handleMaximiseViewClick
       },
       {
         key: 'lock',
         Icon: LockIcon,
-        i18nKey: 'lock',
-        linkTo: null,
+        children: <T id="lock" />,
         testID: MenuDropdownSelectors.logoutButton,
         onClick: handleLogoutClick
       }
@@ -91,7 +90,7 @@ const MenuDropdown = memo<PopperRenderProps>(({ opened, setOpened }) => {
   return (
     <ActionsDropdownPopup title={() => 'Menu'} opened={opened} lowered style={{ minWidth: 163 }}>
       {actions.map(action => (
-        <ActionButton {...action} />
+        <ActionListItem {...action} key={action.key} />
       ))}
 
       <Divider className="my-1.5" />

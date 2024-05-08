@@ -8,7 +8,7 @@ import { ReactComponent as MenuCircleIcon } from 'app/icons/menu_circle.svg';
 import { ReactComponent as AddIcon } from 'app/icons/plus_circle.svg';
 import { ReactComponent as RevealEyeIcon } from 'app/icons/reveal.svg';
 import { ACCOUNT_EXISTS_SHOWN_WARNINGS_STORAGE_KEY } from 'lib/constants';
-import { t } from 'lib/i18n';
+import { T } from 'lib/i18n';
 import { useStorage, useTempleClient } from 'lib/temple/front';
 import { DisplayedGroup, StoredAccount, TempleAccountType } from 'lib/temple/types';
 import { useAlert } from 'lib/ui';
@@ -51,8 +51,8 @@ const GroupActionsDropdown = memo<PopperRenderProps & GroupActionsPopperProps>(
         return [
           {
             key: 'add-account',
-            title: () => 'Add Account',
-            icon: AddIcon,
+            children: 'Add Account',
+            Icon: AddIcon,
             onClick: async () => {
               try {
                 const { firstSkippedAccount } = await findFreeHdIndex(group.id);
@@ -78,22 +78,23 @@ const GroupActionsDropdown = memo<PopperRenderProps & GroupActionsPopperProps>(
           },
           {
             key: 'rename-wallet',
-            title: () => 'Rename Wallet',
-            icon: EditIcon,
-            onClick: async () => onRenameClick(group)
+            children: 'Rename Wallet',
+            Icon: EditIcon,
+            onClick: () => onRenameClick(group)
           },
           {
             key: 'reveal-seed-phrase',
-            title: () => t('revealSeedPhrase'),
-            icon: RevealEyeIcon,
+            children: <T id="revealSeedPhrase" />,
+            Icon: RevealEyeIcon,
             onClick: () => onRevealSeedPhraseClick(group)
           },
           hdGroups.length > 1 && {
             key: 'delete-wallet',
-            title: () => 'Delete Wallet',
-            icon: DeleteIcon,
-            onClick: () => onDeleteClick(group),
-            danger: true
+            children: 'Delete Wallet',
+            className: 'text-error',
+            Icon: DeleteIcon,
+            danger: true,
+            onClick: () => onDeleteClick(group)
           }
         ].filter(isTruthy);
       }
@@ -116,16 +117,17 @@ const GroupActionsDropdown = memo<PopperRenderProps & GroupActionsPopperProps>(
       return [
         {
           key: 'import',
-          title: () => t(group.type === TempleAccountType.Imported ? 'importAccount' : 'createAccount'),
-          icon: DownloadIcon,
+          children: <T id={group.type === TempleAccountType.Imported ? 'importAccount' : 'createAccount'} />,
+          Icon: DownloadIcon,
           onClick: () => navigate(importActionUrl)
         },
         {
           key: 'delete-group',
-          title: () => t('delete'),
-          icon: DeleteIcon,
-          onClick: () => onDeleteClick(group),
-          danger: true
+          children: <T id="delete" />,
+          className: 'text-error',
+          Icon: DeleteIcon,
+          danger: true,
+          onClick: () => onDeleteClick(group)
         }
       ];
     }, [

@@ -9,11 +9,12 @@ export interface IconBaseProps {
   Icon: ImportedSVGComponent;
   size: Size;
   className?: string;
+  onClick?: EmptyFn;
 }
 
 /** For monochrome icons */
-export const IconBase = memo<IconBaseProps>(({ size, className, Icon }) => (
-  <div data-icon-size={size} className={clsx(CONTAINER_CLASSNAME[size], className)}>
+export const IconBase = memo<IconBaseProps>(({ size, className, Icon, onClick }) => (
+  <div data-icon-size={size} className={clsx(CONTAINER_CLASSNAME[size], className)} onClick={onClick}>
     <Icon className="w-full h-full stroke-current fill-current" transform={SCALE_TRANSFORMS[size]} />
   </div>
 ));

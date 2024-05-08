@@ -8,12 +8,12 @@ import { useAlert } from 'lib/ui';
 import { searchAndFilterAccounts } from 'temple/front/accounts';
 import { useAccountsGroups } from 'temple/front/groups';
 
+import { NewWalletActionsPopper } from '../NewWalletActionsPopper';
 import { SearchBarField } from '../SearchField';
 
 import { AccountAlreadyExistsWarning } from './account-already-exists-warning';
 import { DeleteWalletModal } from './delete-wallet-modal';
 import { GroupView } from './group-view';
-import { NewWalletActionsPopper } from './new-wallet-actions-popper';
 import { RenameWalletModal } from './rename-wallet-modal';
 import { RevealSeedPhraseModal } from './reveal-seed-phrase-modal';
 

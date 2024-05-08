@@ -8,10 +8,12 @@ import { AccountName } from 'app/atoms/AccountName';
 import { IconButton } from 'app/atoms/IconButton';
 import { PageModal } from 'app/atoms/PageModal';
 import { RadioButton } from 'app/atoms/RadioButton';
-import { ReactComponent as PlusIcon } from 'app/icons/plus.svg';
+import { useShortcutAccountSelectModalIsOpened } from 'app/hooks/use-account-select-shortcut';
 import { ReactComponent as SettingsIcon } from 'app/icons/settings.svg';
+import { NewWalletActionsPopper } from 'app/templates/NewWalletActionsPopper';
 import { SearchBarField } from 'app/templates/SearchField';
 import { StoredAccount } from 'lib/temple/types';
+import { navigate } from 'lib/woozie';
 import { searchAndFilterAccounts, useAccountsGroups, useCurrentAccountId, useVisibleAccounts } from 'temple/front';
 import { useSetAccountId } from 'temple/front/ready';
 
@@ -26,6 +28,8 @@ export const AccountsModal = memo<Props>(({ opened, onRequestClose }) => {
 
   const [searchValue, setSearchValue] = useState('');
 
+  useShortcutAccountSelectModalIsOpened(onRequestClose);
+
   const filteredAccounts = useMemo(
     () => (searchValue.length ? searchAndFilterAccounts(allAccounts, searchValue) : allAccounts),
     [searchValue, allAccounts]
@@ -37,9 +41,9 @@ export const AccountsModal = memo<Props>(({ opened, onRequestClose }) => {
       <div className="flex gap-x-2 mb-4">
         <SearchBarField value={searchValue} onValueChange={setSearchValue} />
 
-        <IconButton Icon={SettingsIcon} design="blue" />
+        <IconButton Icon={SettingsIcon} design="blue" onClick={() => void navigate('settings/accounts-management')} />
 
-        <IconButton Icon={PlusIcon} design="blue" />
+        <NewWalletActionsPopper />
       </div>
 
       <div className="flex flex-col">
@@ -49,6 +53,7 @@ export const AccountsModal = memo<Props>(({ opened, onRequestClose }) => {
             title={group.name}
             accounts={group.accounts}
             currentAccountId={currentAccountId}
+            searchValue={searchValue}
             onAccountSelect={onRequestClose}
           />
         ))}
@@ -61,36 +66,41 @@ interface AccountsGroupProps {
   title: string;
   accounts: StoredAccount[];
   currentAccountId: string;
+  searchValue: string;
   onAccountSelect: EmptyFn;
 }
 
-const AccountsGroup = memo<AccountsGroupProps>(({ title, accounts, currentAccountId, onAccountSelect }) => {
-  //
-  return (
-    <div className="flex flex-col mb-4">
-      <Name className="mb-1 p-1 text-xs font-semibold">{title}</Name>
+const AccountsGroup = memo<AccountsGroupProps>(
+  ({ title, accounts, currentAccountId, searchValue, onAccountSelect }) => {
+    //
+    return (
+      <div className="flex flex-col mb-4">
+        <Name className="mb-1 p-1 text-xs font-semibold">{title}</Name>
 
-      <div className="flex flex-col gap-y-3">
-        {accounts.map(account => (
-          <AccountOfGroup
-            key={account.id}
-            account={account}
-            isCurrent={account.id === currentAccountId}
-            onSelect={onAccountSelect}
-          />
-        ))}
+        <div className="flex flex-col gap-y-3">
+          {accounts.map(account => (
+            <AccountOfGroup
+              key={account.id}
+              account={account}
+              isCurrent={account.id === currentAccountId}
+              searchValue={searchValue}
+              onSelect={onAccountSelect}
+            />
+          ))}
+        </div>
       </div>
-    </div>
-  );
-});
+    );
+  }
+);
 
 interface AccountOfGroupProps {
   account: StoredAccount;
   isCurrent: boolean;
+  searchValue: string;
   onSelect: EmptyFn;
 }
 
-const AccountOfGroup = memo<AccountOfGroupProps>(({ account, isCurrent, onSelect }) => {
+const AccountOfGroup = memo<AccountOfGroupProps>(({ account, isCurrent, searchValue, onSelect }) => {
   const setAccountId = useSetAccountId();
 
   const onClick = useCallback(() => {
@@ -114,7 +124,7 @@ const AccountOfGroup = memo<AccountOfGroupProps>(({ account, isCurrent, onSelect
           <Identicon type="bottts" hash={account.id} size={28} className="rounded-sm" />
         </div>
 
-        <AccountName account={account} smaller />
+        <AccountName account={account} searchValue={searchValue} smaller />
 
         <div className="flex-1" />
 

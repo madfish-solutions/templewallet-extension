@@ -3,7 +3,7 @@ import React, { FC, useEffect, useMemo } from 'react';
 import { eventHandlers } from 'jsx-ast-utils';
 import * as ReactDOM from 'react-dom';
 
-const DocumentBodyPortal: FC<PropsWithChildren> = ({ children }) => {
+const PortalToDocumentBody: FC<PropsWithChildren> = ({ children }) => {
   const portalEl = useMemo(() => document.createElement('div'), []);
 
   useEffect(() => {
@@ -15,8 +15,9 @@ const DocumentBodyPortal: FC<PropsWithChildren> = ({ children }) => {
   return ReactDOM.createPortal(children, portalEl);
 };
 
-export default DocumentBodyPortal;
+export default PortalToDocumentBody;
 
+/** See: https://github.com/facebook/react/issues/11387 */
 export const PORTAL_EVENTS_LEAK_GUARD: Partial<
   React.DOMAttributes<HTMLDivElement> & { [key: `data-${string}`]: string }
 > = {
@@ -28,7 +29,6 @@ const stopPropagation = (event: React.BaseSyntheticEvent) => void event.stopProp
 for (const name of eventHandlers)
   PORTAL_EVENTS_LEAK_GUARD[name === 'onDblClick' ? 'onDoubleClick' : name] = stopPropagation;
 
-/** See: https://github.com/facebook/react/issues/11387 */
 export const PortalEventsLeakGuard: FC<PropsWithChildren> = ({ children }) => (
   <div {...PORTAL_EVENTS_LEAK_GUARD} className="contents">
     {children}

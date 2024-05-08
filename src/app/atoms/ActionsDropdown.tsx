@@ -26,8 +26,3 @@ export const ActionsDropdownPopup: FC<PropsWithChildren<Props>> = ({ title, open
     </DropdownWrapper>
   );
 };
-
-export const ACTIONS_DROPDOWN_ITEM_CLASSNAME = clsx(
-  'flex items-center py-1.5 px-2 gap-x-1 rounded-md text-xs',
-  'hover:bg-secondary-low'
-);

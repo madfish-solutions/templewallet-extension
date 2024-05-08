@@ -11,7 +11,6 @@ import { useBooleanState } from 'lib/ui/hooks';
 import Popper from 'lib/ui/Popper';
 import { useAccount } from 'temple/front';
 
-import AccountsDropdown from './AccountsDropdown';
 import { AccountsModal } from './AccountsModal';
 import MenuDropdown from './MenuDropdown';
 import { AppHeaderSelectors } from './selectors';
@@ -23,18 +22,6 @@ export const AppHeader = memo(() => {
 
   return (
     <div className="flex items-center py-3 px-4 gap-x-1 bg-white">
-      {/* <Popper placement="bottom-start" strategy="fixed" popup={props => <AccountsDropdown {...props} />}>
-        {({ ref, toggleOpened }) => (
-          <Button
-            ref={ref}
-            className="flex p-px rounded-md border border-secondary hover:bg-secondary-low"
-            onClick={toggleOpened}
-            testID={AppHeaderSelectors.accountIcon}
-          >
-            <Identicon type="bottts" hash={account.id} size={28} className="rounded-sm" />
-          </Button>
-        )}
-      </Popper> */}
       <Button
         className="flex p-px rounded-md border border-secondary hover:bg-secondary-low"
         onClick={setAccountsModalOpen}

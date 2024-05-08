@@ -5,7 +5,10 @@ import Modal from 'react-modal';
 import CSSTransition from 'react-transition-group/CSSTransition';
 
 import { ACTIVATE_CONTENT_FADER_CLASSNAME } from 'app/a11y/ContentFader';
+import { ReactComponent as ExIcon } from 'app/icons/x.svg';
 import { CONTENT_CONTAINER_CLASSNAME } from 'app/layouts/ContentContainer';
+
+import { IconBase } from '../IconBase';
 
 import ModStyles from './styles.module.css';
 
@@ -51,7 +54,15 @@ export const PageModal = memo<PropsWithChildren<Props>>(({ title, opened, onRequ
       onRequestClose={onRequestClose}
     >
       {/* <PageModalContent active={active}>{children}</PageModalContent> */}
-      <div className="p-4 text-center text-sm leading-5 font-semibold border-b border-lines">{title}</div>
+      <div className="flex items-center p-4 border-b border-lines">
+        <div className="w-12" />
+
+        <div className="flex-1 text-center text-sm leading-5 font-semibold">{title}</div>
+
+        <div className="w-12 flex justify-end">
+          <IconBase Icon={ExIcon} size={16} className="text-grey-2 cursor-pointer" onClick={onRequestClose} />
+        </div>
+      </div>
 
       <div className="p-4">{children}</div>
     </Modal>
