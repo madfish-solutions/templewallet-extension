@@ -1,6 +1,6 @@
 {
   "appName": {
-    "message": "Temple - Tezos & EVM Wallet"
+    "message": "Temple Wallet"
   },
   "showIncomingTransactions": {
     "message": "Show Incoming Transactions"
@@ -41,7 +41,7 @@
     "message": "Open new tab"
   },
   "maximiseView": {
-    "message": "Maximize view"
+    "message": "View Full Screen"
   },
   "selectFile": {
     "message": "Select file"
@@ -2245,6 +2245,9 @@
   "social": {
     "message": "Social"
   },
+  "market": {
+    "message": "Market"
+  },
   "marketplace": {
     "message": "Marketplace"
   },
@@ -2852,9 +2855,6 @@
   },
   "topUpCrypto": {
     "message": "Crypto"
-  },
-  "topUpDebit": {
-    "message": "Debit/Credit Card"
   },
   "overdueTransaction": {
     "message": "Transaction is overdue"

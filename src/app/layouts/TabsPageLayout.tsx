@@ -13,31 +13,30 @@ import ErrorBoundary from '../ErrorBoundary';
 
 import PageLayout from './PageLayout';
 
-export interface TabInterface extends Required<TestIDProperty> {
+export interface TabInterface extends TestIDProperty {
   slug: string;
   title: string;
   Component: FC;
+  description?: string;
 }
 
 interface Props {
   tabs: TabInterface[];
   icon: JSX.Element;
   title: string;
-  description: string;
 }
 
-export const TabsPageLayout: FC<Props> = ({ tabs, icon, title, description }) => {
+export const TabsPageLayout: FC<Props> = ({ tabs, icon, title }) => {
   const { fullPage } = useAppEnv();
   const tabSlug = useLocationSearchParamValue('tab');
 
-  const { slug, Component } = useMemo(() => {
+  const { slug, Component, description } = useMemo(() => {
     const tab = tabSlug ? tabs.find(currentTab => currentTab.slug === tabSlug) : null;
     return tab ?? tabs[0];
   }, [tabSlug, tabs]);
 
   return (
     <PageLayout pageTitle={<PageTitle icon={icon} title={title} />}>
-      <div className="text-center my-3 text-gray-700 max-w-lg m-auto">{description}</div>
       <div className={classNames('-mx-4', fullPage && 'rounded-t-md')}>
         <div
           className="border-gray-300"
@@ -45,7 +44,7 @@ export const TabsPageLayout: FC<Props> = ({ tabs, icon, title, description }) =>
             borderBottomWidth: 1
           }}
         >
-          <div className="w-full max-w-sm mx-auto mt-6 flex items-center justify-center">
+          <div className="w-full max-w-sm mx-auto flex items-center justify-center">
             {tabs.map(tab => {
               const active = slug === tab.slug;
 
@@ -73,6 +72,8 @@ export const TabsPageLayout: FC<Props> = ({ tabs, icon, title, description }) =>
         </div>
 
         <div className="mx-4 mb-4 mt-6">
+          <div className="text-center my-3 text-gray-700 max-w-lg m-auto">{description}</div>
+
           <SuspenseContainer whileMessage="displaying tab">{Component && <Component />}</SuspenseContainer>
         </div>
       </div>

@@ -6,7 +6,6 @@ import { IconButton } from 'app/atoms/IconButton';
 import { useAppEnv } from 'app/env';
 import { useLoadPartnersPromo } from 'app/hooks/use-load-partners-promo';
 import { useTokensListingLogic } from 'app/hooks/use-tokens-listing-logic';
-import { ReactComponent as HistoryIcon } from 'app/icons/activity.svg';
 import { ReactComponent as EditingIcon } from 'app/icons/editing.svg';
 import { ReactComponent as FiltersIcon } from 'app/icons/filteroff.svg';
 import { ReactComponent as SearchIcon } from 'app/icons/search.svg';
@@ -25,7 +24,7 @@ import { T, t } from 'lib/i18n';
 import { TEZOS_MAINNET_CHAIN_ID } from 'lib/temple/types';
 import { useLocalStorage } from 'lib/ui/local-storage';
 import Popper, { PopperRenderProps } from 'lib/ui/Popper';
-import { HistoryAction, Link, navigate } from 'lib/woozie';
+import { Link, navigate } from 'lib/woozie';
 import { UNDER_DEVELOPMENT_MSG } from 'temple/evm/under_dev_msg';
 import { useAccountAddressForTezos } from 'temple/front';
 import { TezosNetworkEssentials } from 'temple/networks';
@@ -178,11 +177,6 @@ const TezosTokensTab: FC<TezosTokensTabProps> = ({ network, publicKeyHash }) => 
           onFocus={handleSearchFieldFocus}
           onBlur={handleSearchFieldBlur}
           testID={AssetsSelectors.searchAssetsInputTokens}
-        />
-
-        <IconButton
-          Icon={HistoryIcon}
-          onClick={() => void navigate({ search: 'tab=activity' }, HistoryAction.Replace)}
         />
 
         <IconButton Icon={FiltersIcon} />

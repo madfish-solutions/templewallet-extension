@@ -6,8 +6,8 @@ import { ActionsDropdownPopup } from 'app/atoms/ActionsDropdown';
 import { openInFullPage, useAppEnv } from 'app/env';
 import { useShortcutAccountSelectModalIsOpened } from 'app/hooks/use-account-select-shortcut';
 import { ReactComponent as DAppsIcon } from 'app/icons/apps-alt.svg';
+import { ReactComponent as FullViewIcon } from 'app/icons/fullview.svg';
 import { ReactComponent as LockIcon } from 'app/icons/lock.svg';
-import { ReactComponent as MaximiseIcon } from 'app/icons/maximise.svg';
 import { ReactComponent as SettingsIcon } from 'app/icons/settings.svg';
 import { T } from 'lib/i18n';
 import { NotificationsBell } from 'lib/notifications/components/bell';
@@ -71,7 +71,7 @@ const MenuDropdown = memo<PopperRenderProps>(({ opened, setOpened }) => {
       },
       {
         key: 'maximize',
-        Icon: MaximiseIcon,
+        Icon: FullViewIcon,
         children: <T id={appEnv.fullPage ? 'openNewTab' : 'maximiseView'} />,
         testID: appEnv.fullPage ? MenuDropdownSelectors.newTabButton : MenuDropdownSelectors.maximizeButton,
         onClick: handleMaximiseViewClick

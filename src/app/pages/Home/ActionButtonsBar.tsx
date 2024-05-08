@@ -5,9 +5,9 @@ import clsx from 'clsx';
 import { Props as TippyProps } from 'tippy.js';
 
 import { Anchor, IconBase } from 'app/atoms';
-import { ReactComponent as BuyIcon } from 'app/icons/cart.svg';
+import { ReactComponent as ActivityIcon } from 'app/icons/activity.svg';
+import { ReactComponent as MarketIcon } from 'app/icons/card.svg';
 import { ReactComponent as ReceiveIcon } from 'app/icons/income.svg';
-import { ReactComponent as WithdrawIcon } from 'app/icons/outcome.svg';
 import { ReactComponent as SendIcon } from 'app/icons/send.svg';
 import { ReactComponent as SwapIcon } from 'app/icons/swap.svg';
 import { buildSendPagePath } from 'app/pages/Send/build-url';
@@ -52,7 +52,7 @@ export const ActionButtonsBar = memo<Props>(({ tezosChainId, assetSlug }) => {
     <div className="flex justify-between h-13.5 mt-4">
       <ActionButton labelI18nKey="receive" Icon={ReceiveIcon} to="/receive" testID={HomeSelectors.receiveButton} />
 
-      <ActionButton labelI18nKey="buyButton" Icon={BuyIcon} to="/buy" testID={HomeSelectors.buyButton} />
+      <ActionButton labelI18nKey="market" Icon={MarketIcon} to="/market" testID={HomeSelectors.marketButton} />
 
       <ActionButton
         labelI18nKey="swap"
@@ -64,11 +64,10 @@ export const ActionButtonsBar = memo<Props>(({ tezosChainId, assetSlug }) => {
       />
 
       <ActionButton
-        labelI18nKey="withdraw"
-        Icon={WithdrawIcon}
-        to="/withdraw"
-        disabled={!canSend}
-        testID={HomeSelectors.withdrawButton}
+        labelI18nKey="activity"
+        Icon={ActivityIcon}
+        to={{ search: 'tab=activity' }}
+        testID={HomeSelectors.activityButton}
       />
 
       <ActionButton

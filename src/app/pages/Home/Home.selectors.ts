@@ -1,8 +1,8 @@
 export enum HomeSelectors {
   receiveButton = 'Home/Receive Button',
-  buyButton = 'Home/Buy Button',
+  marketButton = 'Home/Market Button',
   sendButton = 'Home/Send Button',
-  withdrawButton = 'Home/Withdraw Button',
+  activityButton = 'Home/Activity Button',
   swapButton = 'Home/Swap Button',
   assetsTab = 'Home/Assets Tab',
   delegationTab = 'Home/Delegation Tab',

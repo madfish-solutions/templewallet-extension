@@ -1,6 +1,6 @@
 {
   "appName": {
-    "message": "Temple - Tezos & EVM Wallet"
+    "message": "Temple Wallet"
   },
   "showIncomingTransactions": {
     "message": "Show Incoming Transactions"
@@ -30,7 +30,7 @@
     "message": "Open new tab"
   },
   "maximiseView": {
-    "message": "Maximise view"
+    "message": "View Full Screen"
   },
   "selectFileOfFormat": {
     "message": "Select $format$ file",
