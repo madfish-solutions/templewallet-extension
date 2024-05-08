@@ -2,6 +2,8 @@ import React, { memo } from 'react';
 
 import type { CollectibleDetails } from 'app/store/tezos/collectibles/state';
 
+import { NftCollectionAttribute } from '../../../../lib/apis/temple/evm-data.interfaces';
+
 interface AttributesItemsProps {
   details?: CollectibleDetails | null;
 }
@@ -24,3 +26,21 @@ export const AttributesItems = memo<AttributesItemsProps>(({ details }) => {
     </>
   );
 });
+
+interface EvmAttributesItemsProps {
+  attributes: NftCollectionAttribute[];
+}
+
+export const EvmAttributesItems = memo<EvmAttributesItemsProps>(({ attributes }) => (
+  <>
+    {attributes.map(attribute => (
+      <div
+        key={attribute.trait_type}
+        className="flex flex-col justify-between gap-y-1 p-2 border border-gray-300 rounded-md text-center break-words"
+      >
+        <span className="text-xs text-gray-600 leading-5">{attribute.trait_type}</span>
+        <h6 className="text-base font-semibold leading-5">{attribute.value}</h6>
+      </div>
+    ))}
+  </>
+));

@@ -21,7 +21,7 @@ export const evmTokensMetadataReducer = createReducer<EvmTokensMetadataState>(
       const items = data.items;
 
       for (const item of items) {
-        if (!isPositiveTokenBalance(item)) continue;
+        if (!item.native_token && !isPositiveTokenBalance(item)) continue;
 
         const slug = toTokenSlug(item.contract_address);
 

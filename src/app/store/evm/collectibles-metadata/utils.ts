@@ -6,9 +6,11 @@ export const buildEvmCollectibleMetadataFromFetched = (
   contract: NftTokenContractBalanceItem
 ): EvmCollectibleMetadata => ({
   address: contract.contract_address as HexString,
-  tokenId: Number(collectible.token_id),
+  tokenId: collectible.token_id,
   name: collectible.external_data.name,
   description: collectible.external_data.description,
+  contractName: contract.contract_name,
+  originalOwner: collectible.original_owner,
   originalUri: collectible.external_data.image,
   thumbnailUri: collectible.external_data.image_256,
   displayUri: collectible.external_data.image_512,

@@ -3,7 +3,7 @@ import React, { memo, useMemo } from 'react';
 import BigNumber from 'bignumber.js';
 import classNames from 'clsx';
 
-import { useEvmAccountTokenBalance } from 'app/hooks/evm/balance';
+import { useEvmAccountAssetBalance } from 'app/hooks/evm/balance';
 import { useEvmTokenMetadata } from 'app/hooks/evm/metadata';
 import { AssetIcon, EvmAssetIcon } from 'app/templates/AssetIcon';
 import { setAnotherSelector } from 'lib/analytics';
@@ -99,11 +99,11 @@ interface EvmListItemProps {
 
 export const EvmListItem = memo<EvmListItemProps>(({ network, publicKeyHash, assetSlug }) => {
   const tokenMetadata = useEvmTokenMetadata(network.chainId, assetSlug);
-  const rawBalance = useEvmAccountTokenBalance(publicKeyHash, network.chainId, assetSlug);
+  const rawBalance = useEvmAccountAssetBalance(publicKeyHash, network.chainId, assetSlug);
 
-  if (!tokenMetadata || !rawBalance) return null;
+  if (!tokenMetadata) return null;
 
-  const balance = atomsToTokens(new BigNumber(rawBalance), tokenMetadata.decimals);
+  const balance = atomsToTokens(new BigNumber(rawBalance ?? '0'), tokenMetadata.decimals);
   const assetName = tokenMetadata.name;
   const assetSymbol = tokenMetadata.symbol;
 

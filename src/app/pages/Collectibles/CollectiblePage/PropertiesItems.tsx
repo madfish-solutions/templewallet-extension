@@ -3,10 +3,12 @@ import React, { memo, useMemo } from 'react';
 import BigNumber from 'bignumber.js';
 
 import { HashChip, ExternalLinkChip } from 'app/atoms';
+import { useEvmAccountAssetBalance } from 'app/hooks/evm/balance';
 import type { CollectibleDetails } from 'app/store/tezos/collectibles/state';
 import { fromFa2TokenSlug } from 'lib/assets/utils';
 import { useTezosAssetBalance } from 'lib/balances';
 import { formatDate } from 'lib/i18n';
+import { EvmCollectibleMetadata } from 'lib/metadata/types';
 import { useTezosBlockExplorerUrl } from 'temple/front/block-explorers';
 import { TezosNetworkEssentials } from 'temple/networks';
 
@@ -97,6 +99,50 @@ export const PropertiesItems = memo<PropertiesItemsProps>(({ network, assetSlug,
       <div className={itemClassName}>
         <h6 className={itemTitleClassName}>Token id</h6>
         <span className={itemValueClassName}>{id.toString()}</span>
+      </div>
+    </>
+  );
+});
+
+interface EvmPropertiesItemsProps {
+  accountPkh: HexString;
+  assetSlug: string;
+  evmChainId: number;
+  metadata?: EvmCollectibleMetadata;
+}
+
+export const EvmPropertiesItems = memo<EvmPropertiesItemsProps>(({ accountPkh, evmChainId, assetSlug, metadata }) => {
+  const rawBalance = useEvmAccountAssetBalance(accountPkh, evmChainId, assetSlug);
+
+  const itemClassName = 'flex flex-col gap-y-2 p-3 border border-gray-300 rounded-md';
+  const itemTitleClassName = 'text-xs text-gray-600 leading-5';
+  const itemValueClassName = 'text-base font-semibold leading-5 break-words';
+
+  if (!metadata) return null;
+
+  return (
+    <>
+      <div className={itemClassName}>
+        <h6 className={itemTitleClassName}>Owned</h6>
+        <span className={itemValueClassName}>{rawBalance ?? '-'}</span>
+      </div>
+
+      <div className={itemClassName}>
+        <h6 className={itemTitleClassName}>Contract</h6>
+        <div className="flex gap-x-1.5">
+          <HashChip
+            hash={metadata.address}
+            firstCharsCount={5}
+            lastCharsCount={5}
+            className="tracking-tighter"
+            rounded="base"
+          />
+        </div>
+      </div>
+
+      <div className={itemClassName}>
+        <h6 className={itemTitleClassName}>Token id</h6>
+        <span className={itemValueClassName}>{metadata.tokenId}</span>
       </div>
     </>
   );

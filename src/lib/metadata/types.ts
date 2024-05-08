@@ -36,9 +36,11 @@ export interface EvmTokenMetadata extends AssetMetadataBase {
 
 export interface EvmCollectibleMetadata {
   address: HexString;
-  tokenId: number;
+  tokenId: string;
   name: string;
   description: string;
+  contractName: string;
+  originalOwner: string;
   originalUri: string;
   thumbnailUri: string;
   displayUri: string;

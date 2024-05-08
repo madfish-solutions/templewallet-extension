@@ -16,7 +16,7 @@ export const getTokenSlugBalanceRecord = (data: BalanceItem[]) =>
       return acc;
     }
 
-    if (!isPositiveTokenBalance(currentValue)) return acc;
+    if ((data.length > 1 && !isPositiveTokenBalance(currentValue)) || !currentValue.balance) return acc;
 
     acc[toTokenSlug(currentValue.contract_address)] = currentValue.balance;
 

@@ -93,8 +93,10 @@ const ROUTE_MAP = Woozie.createMap<RouteContext>([
   ['/dapps', onlyReady(() => <DApps />)],
   ['/manage-assets/:assetType?', onlyReady(({ assetType }) => <ManageAssets assetType={assetType!} />)],
   [
-    '/collectible/:tezosChainId/:assetSlug?',
-    onlyReady(({ tezosChainId, assetSlug }) => <CollectiblePage tezosChainId={tezosChainId!} assetSlug={assetSlug!} />)
+    '/collectible/:chainKind?/:chainId?/:assetSlug?',
+    onlyReady(({ chainKind, chainId, assetSlug }) => (
+      <CollectiblePage chainKind={chainKind!} chainId={chainId!} assetSlug={assetSlug!} />
+    ))
   ],
   ['/add-asset', onlyReady(onlyInFullPage(() => <AddAsset />))],
   ['/settings/:tabSlug?', onlyReady(({ tabSlug }) => <Settings tabSlug={tabSlug} />)],

@@ -6,7 +6,7 @@ import { TokenSlugExchangeRateRecord } from './state';
 
 export const getTokenSlugExchangeRateRecord = (data: BalanceItem[]) =>
   data.reduce<TokenSlugExchangeRateRecord>((acc, currentValue) => {
-    if (!isPositiveTokenBalance(currentValue) || !currentValue.quote_rate) return acc;
+    if ((!currentValue.native_token && !isPositiveTokenBalance(currentValue)) || !currentValue.quote_rate) return acc;
 
     acc[toTokenSlug(currentValue.contract_address)] = currentValue.quote_rate;
 

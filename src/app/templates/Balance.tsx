@@ -5,7 +5,7 @@ import BigNumber from 'bignumber.js';
 import clsx from 'clsx';
 import CSSTransition from 'react-transition-group/CSSTransition';
 
-import { useEvmAccountTokenBalance } from 'app/hooks/evm/balance';
+import { useEvmAccountAssetBalance } from 'app/hooks/evm/balance';
 import { useEvmTokenMetadata } from 'app/hooks/evm/metadata';
 import { useTezosAssetBalance } from 'lib/balances';
 import { atomsToTokens } from 'lib/temple/helpers';
@@ -48,7 +48,7 @@ interface EvmBalanceProps {
 }
 export const EvmBalance: FC<EvmBalanceProps> = ({ chainId, address, children, assetSlug = 'tez' }) => {
   const tokenMetadata = useEvmTokenMetadata(chainId, assetSlug);
-  const rawBalance = useEvmAccountTokenBalance(address, chainId, assetSlug);
+  const rawBalance = useEvmAccountAssetBalance(address, chainId, assetSlug);
 
   const exist = isDefined(tokenMetadata) && isDefined(rawBalance);
 

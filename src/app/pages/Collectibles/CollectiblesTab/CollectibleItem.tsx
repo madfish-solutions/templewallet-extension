@@ -1,4 +1,4 @@
-import React, { memo, useRef, useMemo } from 'react';
+import React, { memo, useMemo, useRef } from 'react';
 
 import { isDefined } from '@rnw-community/shared';
 import clsx from 'clsx';
@@ -18,9 +18,11 @@ import { T } from 'lib/i18n';
 import { getAssetName } from 'lib/metadata';
 import { atomsToTokens } from 'lib/temple/helpers';
 import { Link } from 'lib/woozie';
+import { TempleChainKind } from 'temple/types';
 
 import { CollectibleItemImage, EvmCollectibleItemImage } from './CollectibleItemImage';
 import { CollectibleTabSelectors } from './selectors';
+import { toCollectibleLink } from './utils';
 
 interface TezosCollectibleItemProps {
   assetSlug: string;
@@ -87,7 +89,7 @@ export const TezosCollectibleItem = memo<TezosCollectibleItemProps>(
 
     return (
       <Link
-        to={`/collectible/${tezosChainId}/${assetSlug}`}
+        to={toCollectibleLink(TempleChainKind.Tezos, tezosChainId, assetSlug)}
         className="flex flex-col border border-gray-300 rounded-lg overflow-hidden"
         style={style}
         testID={CollectibleTabSelectors.collectibleItem}
@@ -180,7 +182,7 @@ export const EvmCollectibleItem = memo<EvmCollectibleItemProps>(({ assetSlug, ev
 
   return (
     <Link
-      to={`#`}
+      to={toCollectibleLink(TempleChainKind.EVM, evmChainId, assetSlug)}
       className="flex flex-col border border-gray-300 rounded-lg overflow-hidden"
       style={style}
       testID={CollectibleTabSelectors.collectibleItem}

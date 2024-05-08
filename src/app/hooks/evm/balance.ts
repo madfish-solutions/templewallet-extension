@@ -8,7 +8,7 @@ export const useEvmAccountChainBalances = (publicKeyHash: HexString, chainId: nu
   return accountBalances[chainId] ?? {};
 };
 
-export const useEvmAccountTokenBalance = (
+export const useEvmAccountAssetBalance = (
   publicKeyHash: HexString,
   chainId: number,
   tokenSlug: string

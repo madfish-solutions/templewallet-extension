@@ -5,6 +5,7 @@ import { useDispatch } from 'react-redux';
 
 import { FormSubmitButton, FormSecondaryButton, Spinner, Money, Alert } from 'app/atoms';
 import { DeadEndBoundaryError } from 'app/ErrorBoundary';
+import { useEvmCollectibleMetadata } from 'app/hooks/evm/metadata';
 import { useLocationSearchParamValue } from 'app/hooks/use-location';
 import PageLayout from 'app/layouts/PageLayout';
 import { loadCollectiblesDetailsActions } from 'app/store/tezos/collectibles/actions';
@@ -29,23 +30,128 @@ import { TempleAccountType } from 'lib/temple/types';
 import { useInterval } from 'lib/ui/hooks';
 import { ImageStacked } from 'lib/ui/ImageStacked';
 import { navigate } from 'lib/woozie';
-import { useTezosChainByChainId, useAccountForTezos } from 'temple/front';
+import { useTezosChainByChainId, useAccountForTezos, useAccountAddressForEvm } from 'temple/front';
+import { useEvmChainByChainId } from 'temple/front/chains';
+import { TempleChainKind } from 'temple/types';
 
 import { useCollectibleSelling } from '../hooks/use-collectible-selling.hook';
 
-import { AttributesItems } from './AttributesItems';
-import { CollectiblePageImage } from './CollectiblePageImage';
-import { PropertiesItems } from './PropertiesItems';
+import { AttributesItems, EvmAttributesItems } from './AttributesItems';
+import { EvmCollectiblePageImage, TezosCollectiblePageImage } from './CollectiblePageImage';
+import { EvmPropertiesItems, PropertiesItems } from './PropertiesItems';
 import { CollectiblesSelectors } from './selectors';
 
 const DETAILS_SYNC_INTERVAL = 4 * TEZOS_BLOCK_DURATION;
 
 interface Props {
+  chainKind: string;
+  chainId: string;
+  assetSlug: string;
+}
+
+const CollectiblePage = memo<Props>(({ chainKind, chainId, assetSlug }) =>
+  chainKind === TempleChainKind.Tezos ? (
+    <TezosCollectiblePage tezosChainId={chainId} assetSlug={assetSlug} />
+  ) : (
+    <EvmCollectiblePage evmChainId={Number(chainId)} assetSlug={assetSlug} />
+  )
+);
+
+interface EvmCollectiblePageProps {
+  evmChainId: number;
+  assetSlug: string;
+}
+
+export const EvmCollectiblePage = memo<EvmCollectiblePageProps>(({ evmChainId, assetSlug }) => {
+  const network = useEvmChainByChainId(evmChainId);
+  const publicKeyHash = useAccountAddressForEvm();
+  const metadata = useEvmCollectibleMetadata(evmChainId, assetSlug);
+
+  if (!publicKeyHash || !network || !metadata) throw new DeadEndBoundaryError();
+
+  const tabNameInUrl = useLocationSearchParamValue('tab');
+
+  const tabs = useMemo(() => {
+    const propertiesTab = { name: 'properties', titleI18nKey: 'properties' } as const;
+
+    if (!metadata.attributes.length) return [propertiesTab];
+
+    return [{ name: 'attributes', titleI18nKey: 'attributes' } as const, propertiesTab];
+  }, [metadata]);
+
+  const { name: activeTabName } = useMemo(() => {
+    const tab = tabNameInUrl ? tabs.find(({ name }) => name === tabNameInUrl) : null;
+
+    return tab ?? tabs[0]!;
+  }, [tabs, tabNameInUrl]);
+
+  return (
+    <PageLayout
+      pageTitle={
+        <span className="truncate" {...setTestID(CollectiblesSelectors.collectibleTitle)}>
+          {metadata.name}
+        </span>
+      }
+    >
+      <div className="flex flex-col gap-y-3 max-w-sm w-full mx-auto pt-2 pb-4">
+        <div
+          className="rounded-lg mb-2 border border-gray-300 bg-blue-50 overflow-hidden"
+          style={{ aspectRatio: '1/1' }}
+        >
+          <EvmCollectiblePageImage metadata={metadata} className="h-full w-full" />
+        </div>
+
+        <>
+          {metadata.contractName && (
+            <div className="flex justify-between items-center">
+              <div className="flex items-center justify-center rounded">
+                <div className="content-center ml-2 text-gray-910 text-sm">{metadata.contractName ?? ''}</div>
+              </div>
+            </div>
+          )}
+
+          <div className="text-gray-910 text-2xl truncate">{metadata.name}</div>
+
+          <div className="text-xs text-gray-910 break-words">{metadata.description ?? ''}</div>
+
+          {metadata.originalOwner && (
+            <div className="flex items-center">
+              <div className="self-start leading-6 text-gray-600 text-xs mr-1">
+                <T id="creator" />
+              </div>
+
+              <div className="flex flex-wrap gap-1">
+                <AddressChip address={metadata.originalOwner} />
+              </div>
+            </div>
+          )}
+
+          <TabsBar tabs={tabs} activeTabName={activeTabName} withOutline />
+
+          <div className="grid grid-cols-2 gap-2 text-gray-910">
+            {activeTabName === 'attributes' ? (
+              <EvmAttributesItems attributes={metadata.attributes} />
+            ) : (
+              <EvmPropertiesItems
+                accountPkh={publicKeyHash}
+                assetSlug={assetSlug}
+                evmChainId={evmChainId}
+                metadata={metadata}
+              />
+            )}
+          </div>
+        </>
+      </div>
+    </PageLayout>
+  );
+});
+
+interface TezosCollectiblePageProps {
   tezosChainId: string;
   assetSlug: string;
 }
 
-const CollectiblePage = memo<Props>(({ tezosChainId, assetSlug }) => {
+const TezosCollectiblePage = memo<TezosCollectiblePageProps>(({ tezosChainId, assetSlug }) => {
   const network = useTezosChainByChainId(tezosChainId);
   const account = useAccountForTezos();
 
@@ -178,7 +284,7 @@ const CollectiblePage = memo<Props>(({ tezosChainId, assetSlug }) => {
           className="rounded-lg mb-2 border border-gray-300 bg-blue-50 overflow-hidden"
           style={{ aspectRatio: '1/1' }}
         >
-          <CollectiblePageImage
+          <TezosCollectiblePageImage
             metadata={metadata}
             areDetailsLoading={areDetailsLoading}
             objktArtifactUri={details?.objktArtifactUri}

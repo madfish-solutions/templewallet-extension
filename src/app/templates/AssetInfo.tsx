@@ -51,18 +51,20 @@ const EvmAssetInfoContent: FC<EvmAssetInfoContentProps> = ({ chainId, assetSlug 
   return (
     <div className={classNames(popup && 'mx-4')}>
       <div className="w-full max-w-sm mx-auto">
-        <InfoField
-          textarea
-          rows={2}
-          id="contract-address"
-          label={<T id="contract" />}
-          labelDescription={<T id="addressOfTokenContract" substitutions={[getAssetSymbol(metadata)]} />}
-          value={metadata.address}
-          size={36}
-          style={{
-            resize: 'none'
-          }}
-        />
+        {!metadata.native && (
+          <InfoField
+            textarea
+            rows={2}
+            id="contract-address"
+            label={<T id="contract" />}
+            labelDescription={<T id="addressOfTokenContract" substitutions={[getAssetSymbol(metadata)]} />}
+            value={metadata.address}
+            size={36}
+            style={{
+              resize: 'none'
+            }}
+          />
+        )}
 
         {metadata && metadata.decimals > 0 && (
           <InfoField id="token-decimals" label={<T id="decimals" />} value={metadata.decimals} />

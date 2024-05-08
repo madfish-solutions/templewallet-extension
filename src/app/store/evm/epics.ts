@@ -1,5 +1,5 @@
 import { combineEpics, Epic } from 'redux-observable';
-import { catchError, concatMap, from, of } from 'rxjs';
+import { catchError, concatMap, from, mergeMap, of } from 'rxjs';
 import { ofType, toPayload } from 'ts-action-operators';
 
 import { getEvmCollectiblesMetadata, getEvmBalances, getEvmTokensMetadata } from 'lib/apis/temple/endpoints/evm-data';
@@ -15,7 +15,7 @@ const loadEvmBalancesEpic: Epic = action$ =>
   action$.pipe(
     ofType(loadEvmBalancesActions.submit),
     toPayload(),
-    concatMap(({ publicKeyHash, chainId }) =>
+    mergeMap(({ publicKeyHash, chainId }) =>
       from(getEvmBalances(publicKeyHash, chainId)).pipe(
         concatMap(data => [
           proceedLoadedEvmAssetsAction({ publicKeyHash, chainId, data }),
@@ -31,7 +31,7 @@ const loadEvmTokensMetadataEpic: Epic = action$ =>
   action$.pipe(
     ofType(loadEvmTokensMetadataActions.submit),
     toPayload(),
-    concatMap(({ publicKeyHash, chainId }) =>
+    mergeMap(({ publicKeyHash, chainId }) =>
       from(getEvmTokensMetadata(publicKeyHash, chainId)).pipe(
         concatMap(data => [
           proceedLoadedEvmTokensMetadataAction({ chainId, data }),
@@ -47,7 +47,7 @@ const loadEvmCollectiblesMetadataEpic: Epic = action$ =>
   action$.pipe(
     ofType(loadEvmCollectiblesMetadataActions.submit),
     toPayload(),
-    concatMap(({ publicKeyHash, chainId }) =>
+    mergeMap(({ publicKeyHash, chainId }) =>
       from(getEvmCollectiblesMetadata(publicKeyHash, chainId)).pipe(
         concatMap(data => [
           proceedLoadedEvmCollectiblesMetadataAction({ chainId, data }),

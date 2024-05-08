@@ -1,9 +1,11 @@
-import React, { memo, useCallback, useEffect, useState } from 'react';
+import React, { memo, useCallback, useEffect, useMemo, useState } from 'react';
 
 import { Model3DViewer } from 'app/atoms/Model3DViewer';
 import { AssetImage } from 'app/templates/AssetImage';
 import { isSvgDataUriInUtf8Encoding, buildObjktCollectibleArtifactUri } from 'lib/images-uri';
 import { TokenMetadata } from 'lib/metadata';
+import { EvmCollectibleMetadata } from 'lib/metadata/types';
+import { ImageStacked } from 'lib/ui/ImageStacked';
 import { useLocalStorage } from 'lib/ui/local-storage';
 
 import { AudioCollectible } from '../components/AudioCollectible';
@@ -22,7 +24,7 @@ interface Props {
   className?: string;
 }
 
-export const CollectiblePageImage = memo<Props>(
+export const TezosCollectiblePageImage = memo<Props>(
   ({ metadata, mime, objktArtifactUri, className, areDetailsLoading, isAdultContent = false }) => {
     const [adultBlur] = useLocalStorage(LOCAL_STORAGE_ADULT_BLUR_TOGGLE_KEY, true);
     const blurred = isAdultContent && adultBlur;
@@ -94,3 +96,24 @@ export const CollectiblePageImage = memo<Props>(
     );
   }
 );
+
+interface EvmCollectiblePageImageProps {
+  metadata: EvmCollectibleMetadata;
+  className?: string;
+}
+
+export const EvmCollectiblePageImage = memo<EvmCollectiblePageImageProps>(({ metadata, className }) => {
+  const sources = useMemo(
+    () => (metadata ? [metadata.artifactUri, metadata.displayUri, metadata.originalUri, metadata.thumbnailUri] : []),
+    [metadata]
+  );
+
+  return (
+    <ImageStacked
+      sources={sources}
+      className={className}
+      loader={<CollectibleImageLoader large />}
+      fallback={<CollectibleImageFallback large />}
+    />
+  );
+});

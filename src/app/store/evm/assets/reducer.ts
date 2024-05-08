@@ -38,7 +38,7 @@ export const evmAssetsReducer = createReducer<EvmAssetsStateInterface>(EvmAssets
         continue;
       }
 
-      if (!isPositiveTokenBalance(item)) continue;
+      if (items.length > 1 && !isPositiveTokenBalance(item)) continue;
 
       const slug = toTokenSlug(item.contract_address);
 
