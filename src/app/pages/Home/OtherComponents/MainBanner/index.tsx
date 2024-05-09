@@ -205,7 +205,7 @@ const TezosAssetBanner = memo<TezosTezosAssetBanner>(({ network, accountPkh, ass
 
   return (
     <>
-      <div className="flex justify-between items-center mb-3">
+      <div className="flex justify-between items-center my-3">
         <div className="flex items-center">
           <AssetIcon tezosChainId={network.chainId} assetSlug={assetSlug} size={24} className="flex-shrink-0" />
 

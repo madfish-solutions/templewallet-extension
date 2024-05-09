@@ -5,7 +5,6 @@ import clsx from 'clsx';
 import { useForm, Controller } from 'react-hook-form';
 
 import { Alert, FileInputProps, FileInput, FormField, FormSubmitButton } from 'app/atoms';
-import { CONTENT_CONTAINER_CLASSNAME, ContentContainer } from 'app/layouts/ContentContainer';
 import { useChainSelectController, ChainSelectSection } from 'app/templates/ChainSelect';
 import { useFormAnalytics } from 'lib/analytics';
 import { ACCOUNT_ALREADY_EXISTS_ERR_MSG } from 'lib/constants';
@@ -173,16 +172,16 @@ export const FromFaucetForm: FC = () => {
 
   if (!rpcUrl)
     return (
-      <ContentContainer className="mt-8">
+      <>
         <ChainSelectSection controller={chainSelectController} />
 
         <div className="mt-8 text-center">{UNDER_DEVELOPMENT_MSG}</div>
-      </ContentContainer>
+      </>
     );
 
   return (
     <>
-      <form ref={formRef} className={clsx(CONTENT_CONTAINER_CLASSNAME, 'mt-8')} onSubmit={handleFormSubmit}>
+      <form ref={formRef} onSubmit={handleFormSubmit}>
         {alert && (
           <Alert
             type={alert instanceof Error ? 'error' : 'success'}
@@ -222,7 +221,7 @@ export const FromFaucetForm: FC = () => {
         </div>
       </form>
 
-      <form className={clsx(CONTENT_CONTAINER_CLASSNAME, 'my-8')} onSubmit={handleTextFormSubmit(onTextFormSubmit)}>
+      <form className="my-8" onSubmit={handleTextFormSubmit(onTextFormSubmit)}>
         <Controller
           name="text"
           as={<FormField className="font-mono" ref={textFieldRef} />}

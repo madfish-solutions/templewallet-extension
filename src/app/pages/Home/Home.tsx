@@ -1,14 +1,15 @@
-import React, { memo, useLayoutEffect } from 'react';
+import React, { memo, useLayoutEffect, useMemo } from 'react';
 
 import { isDefined } from '@rnw-community/shared';
 
 import { SimpleSegmentControl } from 'app/atoms/SimpleSegmentControl';
 import { useAppEnv } from 'app/env';
 import { useLocationSearchParamValue } from 'app/hooks/use-location';
-import PageLayout from 'app/layouts/PageLayout';
+import PageLayout, { PageLayoutProps } from 'app/layouts/PageLayout';
 import { useMainnetTokensScamlistSelector } from 'app/store/assets/selectors';
 import { ActivityTab } from 'app/templates/activity/Activity';
-// import AssetInfo from 'app/templates/AssetInfo';
+import { AdvertisingBanner } from 'app/templates/advertising/advertising-banner/advertising-banner';
+import { AppHeader } from 'app/templates/AppHeader';
 import { setAnotherSelector, setTestID } from 'lib/analytics';
 import { useAssetMetadata, getAssetSymbol } from 'lib/metadata';
 import { HistoryAction, navigate, useLocation } from 'lib/woozie';
@@ -18,7 +19,6 @@ import { useOnboardingProgress } from '../Onboarding/hooks/useOnboardingProgress
 import Onboarding from '../Onboarding/Onboarding';
 
 import { ActionButtonsBar } from './ActionButtonsBar';
-// import { ContentSection } from './ContentSection';
 import MainBanner from './OtherComponents/MainBanner';
 import { ScamTokenAlert } from './OtherComponents/ScamTokenAlert';
 import { TezosAssetTab } from './OtherComponents/TezosAssetTab';
@@ -49,18 +49,23 @@ const Home = memo<Props>(({ tezosChainId, assetSlug }) => {
     return undefined;
   }, [registerBackHandler, assetSlug, search]);
 
+  const pageProps = useMemo<PageLayoutProps>(() => {
+    if (tezosChainId && assetSlug)
+      return {
+        pageTitle: <PageTitle tezosChainId={tezosChainId} assetSlug={assetSlug} />,
+        headerRightElem: <AdvertisingBanner />
+      };
+
+    return { Header: AppHeader };
+  }, [tezosChainId, assetSlug]);
+
   if (!onboardingCompleted) return <Onboarding />;
 
   return (
-    <PageLayout
-      pageTitle={tezosChainId && assetSlug ? <PageTitle tezosChainId={tezosChainId} assetSlug={assetSlug} /> : null}
-      attention={true}
-      withToolbarAd
-      contentPadding={false}
-    >
+    <PageLayout {...pageProps} contentPadding={false}>
       {showScamTokenAlert && <ScamTokenAlert />}
 
-      <div className="flex flex-col pt-1 px-4 pb-3 bg-white">
+      <div className="flex flex-col pt-1 px-4">
         <MainBanner tezosChainId={tezosChainId} assetSlug={assetSlug} />
 
         <ActionButtonsBar tezosChainId={tezosChainId} assetSlug={assetSlug} />
@@ -70,29 +75,25 @@ const Home = memo<Props>(({ tezosChainId, assetSlug }) => {
           secondTitle="Collectibles"
           activeSecond={tabSlug === 'collectibles'}
           className="mt-6"
-          onFirstClick={() => void navigate({ search: 'tab=tokens' }, HistoryAction.Replace)}
-          onSecondClick={() => void navigate({ search: 'tab=collectibles' }, HistoryAction.Replace)}
+          onFirstClick={() => navigate({ search: 'tab=tokens' })}
+          onSecondClick={() => navigate({ search: 'tab=collectibles' })}
         />
       </div>
 
-      {/* <ContentSection tezosChainId={tezosChainId} assetSlug={assetSlug} /> */}
+      {/* TODO: ErrorBoundary + Suspense */}
+      {(() => {
+        if (!tezosChainId || !assetSlug)
+          switch (tabSlug) {
+            case 'collectibles':
+              return <CollectiblesTab />;
+            case 'activity':
+              return <ActivityTab />;
+            default:
+              return <TokensTab />;
+          }
 
-      <div className="px-4 bg-background shadow-content-inset">
-        {/* TODO: ErrorBoundary + Suspense */}
-        {(() => {
-          if (!tezosChainId || !assetSlug)
-            switch (tabSlug) {
-              case 'collectibles':
-                return <CollectiblesTab scrollToTheTabsBar={() => void 0} />;
-              case 'activity':
-                return <ActivityTab />;
-              default:
-                return <TokensTab />;
-            }
-
-          return <TezosAssetTab tezosChainId={tezosChainId} assetSlug={assetSlug} />;
-        })()}
-      </div>
+        return <TezosAssetTab tezosChainId={tezosChainId} assetSlug={assetSlug} />;
+      })()}
     </PageLayout>
   );
 });
@@ -109,11 +110,7 @@ const PageTitle = memo<PageTitleProps>(({ tezosChainId, assetSlug }) => {
   const assetSymbol = getAssetSymbol(assetMetadata);
 
   return (
-    <span
-      className="font-normal"
-      {...setTestID(TokenPageSelectors.pageName)}
-      {...setAnotherSelector('symbol', assetSymbol)}
-    >
+    <span {...setTestID(TokenPageSelectors.pageName)} {...setAnotherSelector('symbol', assetSymbol)}>
       {assetSymbol}
     </span>
   );

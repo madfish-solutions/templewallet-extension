@@ -2,6 +2,7 @@ import React, { FC, useMemo } from 'react';
 
 import classNames from 'clsx';
 
+import { IconBase } from 'app/atoms';
 import { ReactComponent as AppsIcon } from 'app/icons/apps.svg';
 import { ReactComponent as ContactBookIcon } from 'app/icons/contact-book.svg';
 import { ReactComponent as ExtensionIcon } from 'app/icons/extension.svg';
@@ -151,7 +152,7 @@ const Settings: FC<SettingsProps> = ({ tabSlug }) => {
     <PageLayout
       pageTitle={
         <>
-          <SettingsIcon className="mr-1 h-4 w-auto stroke-current" />
+          <IconBase Icon={SettingsIcon} className="mr-1" />
           <T id="settings" />
         </>
       }

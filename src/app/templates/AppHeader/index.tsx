@@ -15,13 +15,12 @@ import { AccountsModal } from './AccountsModal';
 import MenuDropdown from './MenuDropdown';
 import { AppHeaderSelectors } from './selectors';
 
-/** TODO: || PageHeader || AppToolbar */
 export const AppHeader = memo(() => {
   const account = useAccount();
   const [accountsModalOpened, setAccountsModalOpen, setAccountsModalClosed] = useBooleanState(false);
 
   return (
-    <div className="flex items-center py-3 px-4 gap-x-1 bg-white">
+    <div className="relative z-header flex items-center py-3 px-4 gap-x-1 rounded-t-inherit">
       <Button
         className="flex p-px rounded-md border border-secondary hover:bg-secondary-low"
         onClick={setAccountsModalOpen}

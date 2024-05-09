@@ -1,9 +1,8 @@
-import React, { FC, memo, Suspense, useCallback, useMemo, useRef } from 'react';
+import React, { FC, memo, Suspense, useMemo, useRef } from 'react';
 
 import Spinner from 'app/atoms/Spinner/Spinner';
 import ErrorBoundary from 'app/ErrorBoundary';
 import { useLocationSearchParamValue } from 'app/hooks/use-location';
-import { ToolbarElement } from 'app/layouts/PageLayout';
 import { ActivityTab } from 'app/templates/activity/Activity';
 import AssetInfo from 'app/templates/AssetInfo';
 import { TabsBar } from 'app/templates/TabBar';
@@ -36,17 +35,6 @@ export const ContentSection = memo<Props>(({ tezosChainId, assetSlug }) => {
 
   const tabBarElemRef = useRef<HTMLDivElement>(null);
 
-  const scrollToTheTabsBar = useCallback(() => {
-    if (!tabBarElemRef.current) return;
-
-    const stickyBarHeight = ToolbarElement?.scrollHeight ?? 0;
-
-    window.scrollTo({
-      top: window.pageYOffset + tabBarElemRef.current.getBoundingClientRect().top - stickyBarHeight,
-      behavior: 'smooth'
-    });
-  }, []);
-
   const tabs = useMemo<TabData[]>(() => {
     if (!tezosChainId || !assetSlug) {
       return [
@@ -59,7 +47,7 @@ export const ContentSection = memo<Props>(({ tezosChainId, assetSlug }) => {
         {
           name: 'collectibles',
           titleI18nKey: 'collectibles',
-          Component: () => <CollectiblesTab scrollToTheTabsBar={scrollToTheTabsBar} />,
+          Component: () => <CollectiblesTab />,
           testID: HomeSelectors.collectiblesTab
         },
         {
@@ -101,7 +89,7 @@ export const ContentSection = memo<Props>(({ tezosChainId, assetSlug }) => {
         testID: HomeSelectors.infoTab
       }
     ];
-  }, [tezosChainId, assetSlug, scrollToTheTabsBar]);
+  }, [tezosChainId, assetSlug]);
 
   const { name, Component, whileMessageI18nKey } = useMemo(() => {
     const tab = tabSlug ? tabs.find(currentTab => currentTab.name === tabSlug) : null;

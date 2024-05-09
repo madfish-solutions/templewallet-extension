@@ -1,4 +1,4 @@
-import React, { FC } from 'react';
+import React, { memo } from 'react';
 
 import { Anchor } from 'app/atoms/Anchor';
 import { ReactComponent as Ukraine } from 'app/icons/ukraine.svg';
@@ -8,21 +8,16 @@ import { DonationBannerSelectors } from './selectors';
 
 const DONATE_MAD_FISH_URL = 'https://donate.mad.fish';
 
-export const DonationBanner: FC = () => (
+export const DonationBanner = memo(() => (
   <Anchor
-    className="flex flex-col items-center justify-center rounded h-7 bg-blue-150 max-w-25"
+    className="flex items-center rounded h-7 bg-blue-150 max-w-25 px-2"
     href={DONATE_MAD_FISH_URL}
     testID={DonationBannerSelectors.ukraineDonationBanner}
   >
-    <div className="flex flex-row justify-center px-2 items-center">
-      <div className="flex flex-col">
-        <span className="font-inter font-semibold text-sm text-blue-650">
-          <T id={'support'} />
-        </span>
-      </div>
-      <div className="ml-1">
-        <Ukraine />
-      </div>
-    </div>
+    <span className="font-inter font-semibold mr-3 text-sm text-blue-650">
+      <T id={'support'} />
+    </span>
+
+    <Ukraine />
   </Anchor>
-);
+));

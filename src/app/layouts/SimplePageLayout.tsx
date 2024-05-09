@@ -5,7 +5,8 @@ import clsx from 'clsx';
 import DocBg from 'app/a11y/DocBg';
 import Logo from 'app/atoms/Logo';
 import { useAppEnv } from 'app/env';
-import { ContentContainer } from 'app/layouts/ContentContainer';
+
+import { LAYOUT_CONTAINER_CLASSNAME } from './containers';
 
 interface SimplePageLayoutProps extends PropsWithChildren {
   title: ReactNode;
@@ -18,7 +19,13 @@ const SimplePageLayout: FC<SimplePageLayoutProps> = ({ title, children }) => {
     <>
       {!appEnv.fullPage && <DocBg bgClassName="bg-secondary-low" />}
 
-      <ContentContainer className={clsx('min-h-screen flex flex-col', !appEnv.fullPage && 'bg-primary-white')}>
+      <div
+        className={clsx(
+          LAYOUT_CONTAINER_CLASSNAME,
+          'min-h-screen flex flex-col',
+          !appEnv.fullPage && 'bg-primary-white'
+        )}
+      >
         <div className="mt-12 mb-10 flex flex-col items-center justify-center">
           <div className="flex items-center">
             <Logo hasTitle />
@@ -39,7 +46,7 @@ const SimplePageLayout: FC<SimplePageLayoutProps> = ({ title, children }) => {
         </div>
 
         <div className={clsx('flex-1', !appEnv.fullPage && '-mx-4 px-4 bg-white')} />
-      </ContentContainer>
+      </div>
     </>
   );
 };

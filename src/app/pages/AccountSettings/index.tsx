@@ -137,7 +137,7 @@ export const AccountSettings = memo<AccountSettingsProps>(({ id }) => {
   }
 
   return (
-    <PageLayout pageTitle="Edit Account" hasBackAction>
+    <PageLayout pageTitle="Edit Account">
       <div className="w-full flex justify-center">
         <div className="w-full max-w-sm flex flex-col">
           <div className="w-full flex flex-row p-4 gap-1 items-end">

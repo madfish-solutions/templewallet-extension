@@ -6,7 +6,7 @@ import CSSTransition from 'react-transition-group/CSSTransition';
 
 import { ACTIVATE_CONTENT_FADER_CLASSNAME } from 'app/a11y/ContentFader';
 import { ReactComponent as ExIcon } from 'app/icons/x.svg';
-import { CONTENT_CONTAINER_CLASSNAME } from 'app/layouts/ContentContainer';
+import { LAYOUT_CONTAINER_CLASSNAME } from 'app/layouts/containers';
 
 import { IconBase } from '../IconBase';
 
@@ -32,13 +32,13 @@ export const PageModal = memo<PropsWithChildren<Props>>(({ title, opened, onRequ
       isOpen={opened}
       closeTimeoutMS={300}
       overlayClassName={{
-        base: 'fixed z-20 inset-0 pt-13 pb-8',
+        base: 'fixed z-modal-page inset-0 pt-13 pb-8',
         afterOpen: '',
         beforeClose: ''
       }}
       className={{
         base: clsx(
-          CONTENT_CONTAINER_CLASSNAME,
+          LAYOUT_CONTAINER_CLASSNAME,
           'h-full flex flex-col bg-white rounded-lg',
           ModStyles.base,
           'ease-out duration-300'
@@ -97,7 +97,7 @@ const PageModalContent = memo<PropsWithChildren<PageModalContentProps>>(({ activ
       mountOnEnter
       unmountOnExit
     >
-      <div ref={nodeRef} className={clsx(CONTENT_CONTAINER_CLASSNAME, 'h-full mt-4 bg-white rounded-t-lg')}>
+      <div ref={nodeRef} className={clsx(LAYOUT_CONTAINER_CLASSNAME, 'h-full mt-4 bg-white rounded-t-lg')}>
         {children}
       </div>
     </CSSTransition>

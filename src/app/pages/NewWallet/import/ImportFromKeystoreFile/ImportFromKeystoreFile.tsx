@@ -129,7 +129,7 @@ const KeystoreFileInput: React.FC<KeystoreFileInputProps> = ({ value, name, clea
           </span>
           {keystoreFile ? (
             <TrashbinIcon
-              className="ml-2 w-6 h-auto text-red-700 stroke-current z-10 cursor-pointer"
+              className="ml-2 w-6 h-auto text-red-700 stroke-current z-1 cursor-pointer"
               style={{ minWidth: '1.5rem' }}
               onClick={clearKeystoreFileInput}
             />

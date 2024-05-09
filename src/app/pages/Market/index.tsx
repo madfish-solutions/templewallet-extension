@@ -3,9 +3,8 @@ import React, { memo, useMemo } from 'react';
 import clsx from 'clsx';
 
 import { ReactComponent as BuyWithCryptoIcon } from 'app/icons/buy-with-crypto.svg';
+import { ReactComponent as CardIcon } from 'app/icons/card.svg';
 import { ReactComponent as CreditCardIcon } from 'app/icons/credit-card.svg';
-import { ReactComponent as ShoppingCartIcon } from 'app/icons/shopping-cart.svg';
-import { ReactComponent as WithdrawGreyIcon } from 'app/icons/withdraw-grey.svg';
 import { TabInterface, TabsPageLayout } from 'app/layouts/TabsPageLayout';
 import { ReactComponent as AliceBobIcon } from 'app/pages/Buy/assets/AliceBob.svg';
 import { T, t } from 'lib/i18n/react';
@@ -33,18 +32,7 @@ export const Market = memo(() => {
     ];
   }, []);
 
-  return (
-    <TabsPageLayout
-      tabs={tabs}
-      icon={
-        <>
-          <ShoppingCartIcon />
-          <WithdrawGreyIcon />
-        </>
-      }
-      title="Market"
-    />
-  );
+  return <TabsPageLayout tabs={tabs} Icon={CardIcon} title="Market" />;
 });
 
 const BuyTab = memo(() => (

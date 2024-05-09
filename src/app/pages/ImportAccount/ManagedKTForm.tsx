@@ -3,7 +3,6 @@ import React, { FC, memo, ReactNode, useCallback, useMemo, useRef, useState } fr
 import { Controller, useForm } from 'react-hook-form';
 
 import { Alert, FormSubmitButton, NoSpaceField, Identicon, Name, Money, AccountTypeBadge } from 'app/atoms';
-import { ContentContainer } from 'app/layouts/ContentContainer';
 import Balance from 'app/templates/Balance';
 import { useChainSelectController, ChainSelectSection } from 'app/templates/ChainSelect';
 import CustomSelect, { OptionRenderProps } from 'app/templates/CustomSelect';
@@ -35,15 +34,15 @@ export const ManagedKTForm = memo(() => {
   const network = chainSelectController.value;
 
   return (
-    <ContentContainer className="w-full max-w-sm mx-auto my-8">
+    <>
       <ChainSelectSection controller={chainSelectController} />
 
       {network.kind === 'tezos' ? (
         <ManagedKTFormContent network={network} />
       ) : (
-        <div className="text-center">{UNDER_DEVELOPMENT_MSG}</div>
+        <div className="mt-8 text-center">{UNDER_DEVELOPMENT_MSG}</div>
       )}
-    </ContentContainer>
+    </>
   );
 });
 
@@ -168,7 +167,7 @@ const ManagedKTFormContent: FC<{ network: TezosNetworkEssentials }> = ({ network
   );
 
   return (
-    <form className="my-8" onSubmit={handleSubmit(onSubmit)}>
+    <form onSubmit={handleSubmit(onSubmit)}>
       {error && <Alert type="error" title="Error" description={error} autoFocus className="mb-6" />}
 
       <Controller

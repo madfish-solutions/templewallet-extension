@@ -5,7 +5,6 @@ import { useForm } from 'react-hook-form';
 
 import { Name, Identicon, FormField, FormSubmitButton, HashChip, SubTitle } from 'app/atoms';
 import { ReactComponent as CloseIcon } from 'app/icons/close.svg';
-import { ContentContainer } from 'app/layouts/ContentContainer';
 import { ChainSelectSection, useChainSelectController } from 'app/templates/ChainSelect';
 import { setAnotherSelector, setTestID } from 'lib/analytics';
 import { t, T } from 'lib/i18n';
@@ -54,7 +53,7 @@ const AddressBook: React.FC = () => {
   );
 
   return (
-    <ContentContainer className="p-2 pb-4">
+    <>
       <SubTitle className="mb-4">
         <T id="addNewContact" />
       </SubTitle>
@@ -81,7 +80,7 @@ const AddressBook: React.FC = () => {
         light
         hoverable={false}
       />
-    </ContentContainer>
+    </>
   );
 };
 

@@ -1,5 +1,7 @@
 import React, { FC, Fragment, memo, Suspense, useCallback, useMemo, useState } from 'react';
 
+import clsx from 'clsx';
+
 import { Alert, FormSubmitButton, FormSecondaryButton } from 'app/atoms';
 import AccountTypeBadge from 'app/atoms/AccountTypeBadge';
 import ConfirmLedgerOverlay from 'app/atoms/ConfirmLedgerOverlay';
@@ -10,7 +12,7 @@ import Name from 'app/atoms/Name';
 import Spinner from 'app/atoms/Spinner/Spinner';
 import SubTitle from 'app/atoms/SubTitle';
 import ErrorBoundary from 'app/ErrorBoundary';
-import { ContentContainer } from 'app/layouts/ContentContainer';
+import { LAYOUT_CONTAINER_CLASSNAME } from 'app/layouts/containers';
 import Unlock from 'app/pages/Unlock/Unlock';
 import AccountBanner from 'app/templates/AccountBanner';
 import Balance from 'app/templates/Balance';
@@ -40,7 +42,7 @@ const ConfirmPage = memo(() => {
 
   if (ready)
     return (
-      <ContentContainer className="min-h-screen flex flex-col items-center justify-center">
+      <div className={clsx(LAYOUT_CONTAINER_CLASSNAME, 'min-h-screen flex flex-col items-center justify-center')}>
         <ErrorBoundary whileMessage={t('fetchingConfirmationDetails')}>
           <Suspense
             fallback={
@@ -54,7 +56,7 @@ const ConfirmPage = memo(() => {
             <ConfirmDAppForm />
           </Suspense>
         </ErrorBoundary>
-      </ContentContainer>
+      </div>
     );
 
   return <Unlock canImportNew={false} />;

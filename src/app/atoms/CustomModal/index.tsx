@@ -18,7 +18,7 @@ const CustomModal = memo<CustomModalProps>(props => {
       bodyOpenClassName="overscroll-y-none"
       overlayClassName={{
         base: clsx(
-          'fixed inset-0 z-30',
+          'fixed inset-0 z-modal-dialog',
           'bg-black bg-opacity-75',
           'flex items-center justify-center',
           'p-4',
@@ -30,7 +30,7 @@ const CustomModal = memo<CustomModalProps>(props => {
         beforeClose: ModStyles.overlayClosed
       }}
       className={{
-        base: clsx('bg-white rounded z-30 shadow-2xl', 'ease-in-out duration-200', ModStyles.base, className),
+        base: clsx('bg-white rounded shadow-2xl', 'ease-in-out duration-200', ModStyles.base, className),
         afterOpen: ModStyles.opened,
         beforeClose: ModStyles.closed
       }}

@@ -12,6 +12,15 @@
   color: #151618;
 }
 
+html {
+  height: 100%;
+}
+
+body {
+  /* min-height: calc(100vh + 1px); */
+  min-height: 100%;
+}
+
 * {
   font-variant-ligatures: none;
 }

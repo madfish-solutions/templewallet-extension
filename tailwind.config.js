@@ -254,7 +254,16 @@ module.exports = {
       divideWidth: theme => theme('borderWidth'),
 
       zIndex: {
-        1: '1'
+        1: 1,
+        'header': 50,
+        'sticky': 100,
+        'content-fade': 200,
+        'overlay-promo': 300,
+        'overlay': 400,
+        'overlay-confirm': 500,
+        'modal-page': 600,
+        'dropdown': 800,
+        'modal-dialog': 1000
       },
 
       space: (theme, { negative }) => ({
@@ -267,7 +276,8 @@ module.exports = {
       borderRadius: {
         1.25: '0.3125rem', // 5px
         2.5: '0.625rem', // 10px
-        circle: '50%'
+        circle: '50%',
+        inherit: 'inherit'
       },
 
       translate: (theme, { negative }) => ({

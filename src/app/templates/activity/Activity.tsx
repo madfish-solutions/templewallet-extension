@@ -8,7 +8,7 @@ import { useAppEnv } from 'app/env';
 import { DeadEndBoundaryError } from 'app/ErrorBoundary';
 import { useLoadPartnersPromo } from 'app/hooks/use-load-partners-promo';
 import { ReactComponent as LayersIcon } from 'app/icons/layers.svg';
-import { ContentContainer } from 'app/layouts/ContentContainer';
+import { ContentContainer } from 'app/layouts/containers';
 import { useChainSelectController, ChainSelectSection } from 'app/templates/ChainSelect';
 import { PartnersPromotion, PartnersPromotionVariant } from 'app/templates/partners-promotion';
 import { T } from 'lib/i18n/react';
@@ -27,12 +27,7 @@ interface Props {
 }
 
 export const ActivityTab = memo<Props>(({ tezosChainId, assetSlug }) => {
-  if (tezosChainId)
-    return (
-      <ContentContainer>
-        <TezosActivity tezosChainId={tezosChainId} assetSlug={assetSlug} />
-      </ContentContainer>
-    );
+  if (tezosChainId) return <TezosActivity tezosChainId={tezosChainId} assetSlug={assetSlug} />;
 
   return <ActivityWithChainSelect />;
 });
@@ -42,15 +37,19 @@ const ActivityWithChainSelect = memo(() => {
   const network = chainSelectController.value;
 
   return (
-    <ContentContainer className="pt-4">
-      <ChainSelectSection controller={chainSelectController} />
+    <>
+      <div className="h-3" />
 
-      {network.kind === 'tezos' ? (
-        <TezosActivity tezosChainId={network.chainId} />
-      ) : (
-        <div className="py-3 text-center">{UNDER_DEVELOPMENT_MSG}</div>
-      )}
-    </ContentContainer>
+      <ContentContainer>
+        <ChainSelectSection controller={chainSelectController} />
+
+        {network.kind === 'tezos' ? (
+          <TezosActivity tezosChainId={network.chainId} />
+        ) : (
+          <div className="py-3 text-center">{UNDER_DEVELOPMENT_MSG}</div>
+        )}
+      </ContentContainer>
+    </>
   );
 });
 

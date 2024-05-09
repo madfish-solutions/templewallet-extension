@@ -1,4 +1,6 @@
 export enum OnboardingSelectors {
+  skipButton = 'Onboarding/Skip Button',
+
   firstStepText = 'Onboarding (First Step)/`Your address and balance` Text',
   firstStepNextButton = 'Onboarding (First Step)/Next Button',
 

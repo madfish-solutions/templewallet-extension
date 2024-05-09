@@ -8,7 +8,6 @@ import { useLocationSearchParamValue } from 'app/hooks/use-location';
 import { TestIDProperty } from 'lib/analytics';
 import { Link } from 'lib/woozie';
 
-import { useAppEnv } from '../env';
 import ErrorBoundary from '../ErrorBoundary';
 
 import PageLayout from './PageLayout';
@@ -22,12 +21,11 @@ export interface TabInterface extends TestIDProperty {
 
 interface Props {
   tabs: TabInterface[];
-  icon: JSX.Element;
+  Icon: ImportedSVGComponent;
   title: string;
 }
 
-export const TabsPageLayout: FC<Props> = ({ tabs, icon, title }) => {
-  const { fullPage } = useAppEnv();
+export const TabsPageLayout: FC<Props> = ({ tabs, Icon, title }) => {
   const tabSlug = useLocationSearchParamValue('tab');
 
   const { slug, Component, description } = useMemo(() => {
@@ -36,46 +34,35 @@ export const TabsPageLayout: FC<Props> = ({ tabs, icon, title }) => {
   }, [tabSlug, tabs]);
 
   return (
-    <PageLayout pageTitle={<PageTitle icon={icon} title={title} />}>
-      <div className={classNames('-mx-4', fullPage && 'rounded-t-md')}>
-        <div
-          className="border-gray-300"
-          style={{
-            borderBottomWidth: 1
-          }}
-        >
-          <div className="w-full max-w-sm mx-auto flex items-center justify-center">
-            {tabs.map(tab => {
-              const active = slug === tab.slug;
+    <PageLayout pageTitle={<PageTitle Icon={Icon} title={title} />} contentPadding={false}>
+      <div className="mt-4 flex justify-center border-b border-lines">
+        {tabs.map(tab => {
+          const active = slug === tab.slug;
 
-              return (
-                <Link
-                  key={tab.slug}
-                  to={lctn => ({ ...lctn, search: `?tab=${tab.slug}` })}
-                  replace
-                  className={classNames(
-                    'flex1 w-full text-center cursor-pointer pb-2',
-                    'border-b-2 text-gray-700 text-lg truncate',
-                    tabs.length === 1 && 'mx-20',
-                    active
-                      ? 'border-primary-orange text-primary-orange'
-                      : 'border-transparent hover:text-primary-orange',
-                    'transition ease-in-out duration-300'
-                  )}
-                  testID={tab.testID}
-                >
-                  {tab.title}
-                </Link>
-              );
-            })}
-          </div>
-        </div>
+          return (
+            <Link
+              key={tab.slug}
+              to={lctn => ({ ...lctn, search: `?tab=${tab.slug}` })}
+              replace
+              className={classNames(
+                'flex-1 w-full text-center cursor-pointer pb-2',
+                'border-b-2 text-gray-700 text-lg truncate',
+                tabs.length === 1 && 'mx-20',
+                active ? 'border-primary-orange text-primary-orange' : 'border-transparent hover:text-primary-orange',
+                'transition ease-in-out duration-300'
+              )}
+              testID={tab.testID}
+            >
+              {tab.title}
+            </Link>
+          );
+        })}
+      </div>
 
-        <div className="mx-4 mb-4 mt-6">
-          <div className="text-center my-3 text-gray-700 max-w-lg m-auto">{description}</div>
+      <div className="flex flex-col px-4 pt-6 pb-15">
+        <div className="mb-4 text-center text-grey-2">{description}</div>
 
-          <SuspenseContainer whileMessage="displaying tab">{Component && <Component />}</SuspenseContainer>
-        </div>
+        <SuspenseContainer whileMessage="displaying tab">{Component && <Component />}</SuspenseContainer>
       </div>
     </PageLayout>
   );

@@ -41,7 +41,7 @@ export const CaptionAlert = memo<Props>(({ type, message, className }) => {
     <div className={clsx('flex items-start p-3 gap-x-1 rounded-md', TYPE_CLASSES[type], className)}>
       <Icon className="shrink-0 w-6 h-6" />
 
-      <div className="flex-1 text-xs">{message}</div>
+      <p className="flex-1 text-xs">{message}</p>
     </div>
   );
 });

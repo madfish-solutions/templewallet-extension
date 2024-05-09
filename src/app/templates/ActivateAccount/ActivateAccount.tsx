@@ -3,7 +3,6 @@ import React, { memo, KeyboardEventHandler, ReactNode, useCallback, useMemo } fr
 import { useForm } from 'react-hook-form';
 
 import { Alert, FormField, FormSubmitButton } from 'app/atoms';
-import { ContentContainer } from 'app/layouts/ContentContainer';
 import AccountBanner from 'app/templates/AccountBanner';
 import { T, t } from 'lib/i18n';
 import { useSafeState } from 'lib/ui/hooks';
@@ -30,7 +29,7 @@ const ActivateAccount = memo(() => {
   const network = chainSelectController.value;
 
   return (
-    <ContentContainer className="my-8">
+    <>
       <ChainSelectSection controller={chainSelectController} />
 
       {account && network.kind === 'tezos' ? (
@@ -38,7 +37,7 @@ const ActivateAccount = memo(() => {
       ) : (
         <div className="text-center">{UNDER_DEVELOPMENT_MSG}</div>
       )}
-    </ContentContainer>
+    </>
   );
 });
 

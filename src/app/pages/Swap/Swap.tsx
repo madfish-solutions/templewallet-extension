@@ -1,7 +1,7 @@
 import React, { memo, Suspense, useEffect } from 'react';
 
 import { PageTitle } from 'app/atoms/PageTitle';
-import { ReactComponent as SwapIcon } from 'app/icons/swap-header.svg';
+import { ReactComponent as SwapIcon } from 'app/icons/swap.svg';
 import PageLayout from 'app/layouts/PageLayout';
 import { dispatch } from 'app/store';
 import { resetSwapParamsAction } from 'app/store/swap/actions';
@@ -22,7 +22,7 @@ export const Swap = memo(() => {
   }, []);
 
   return (
-    <PageLayout pageTitle={<PageTitle icon={<SwapIcon className="w-auto h-4 stroke-current" />} title={t('swap')} />}>
+    <PageLayout pageTitle={<PageTitle Icon={SwapIcon} title={t('swap')} />}>
       <div className="py-4">
         <div className="w-full max-w-sm mx-auto">
           <Suspense fallback={null}>

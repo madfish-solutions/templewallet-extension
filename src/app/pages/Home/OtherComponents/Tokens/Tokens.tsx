@@ -1,18 +1,18 @@
-import React, { FC, memo, useCallback, useEffect, useMemo, useState } from 'react';
+import React, { FC, memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { SyncSpinner, Divider, Checkbox } from 'app/atoms';
 import DropdownWrapper from 'app/atoms/DropdownWrapper';
 import { IconButton } from 'app/atoms/IconButton';
-import { useAppEnv } from 'app/env';
 import { useLoadPartnersPromo } from 'app/hooks/use-load-partners-promo';
 import { useTokensListingLogic } from 'app/hooks/use-tokens-listing-logic';
 import { ReactComponent as EditingIcon } from 'app/icons/editing.svg';
 import { ReactComponent as FiltersIcon } from 'app/icons/filteroff.svg';
 import { ReactComponent as SearchIcon } from 'app/icons/search.svg';
-import { ContentContainer } from 'app/layouts/ContentContainer';
+import { ContentContainer, StickyBar } from 'app/layouts/containers';
 import { useAreAssetsLoading, useMainnetTokensScamlistSelector } from 'app/store/assets/selectors';
 import { useTokensMetadataLoadingSelector } from 'app/store/tokens-metadata/selectors';
-import { useChainSelectController, ChainSelectSection } from 'app/templates/ChainSelect';
+import { useChainSelectController, ChainSelect, ChainsDropdown } from 'app/templates/ChainSelect';
+import { ChainSelectController } from 'app/templates/ChainSelect/controller';
 import { ButtonForManageDropdown } from 'app/templates/ManageDropdown';
 import { PartnersPromotion, PartnersPromotionVariant } from 'app/templates/partners-promotion';
 import { SearchBarField } from 'app/templates/SearchField';
@@ -45,28 +45,40 @@ export const TokensTab = memo(() => {
 
   const accountTezAddress = useAccountAddressForTezos();
 
-  return (
-    <ContentContainer className="pt-4">
-      <ChainSelectSection controller={chainSelectController} />
+  if (network.kind === 'tezos' && accountTezAddress)
+    return (
+      <TezosTokensTab
+        network={network}
+        publicKeyHash={accountTezAddress}
+        chainSelectController={chainSelectController}
+      />
+    );
 
-      {network.kind === 'tezos' && accountTezAddress ? (
-        <TezosTokensTab network={network} publicKeyHash={accountTezAddress} />
-      ) : (
-        <div className="text-center py-3">{UNDER_DEVELOPMENT_MSG}</div>
-      )}
-    </ContentContainer>
+  return (
+    <>
+      <div className="h-3" />
+
+      <ContentContainer>
+        <div className="flex items-center mb-4">
+          <div className="flex-1 text-xl">Change network:</div>
+
+          <ChainSelect controller={chainSelectController} />
+        </div>
+
+        <span className="text-center">{UNDER_DEVELOPMENT_MSG}</span>
+      </ContentContainer>
+    </>
   );
 });
 
 interface TezosTokensTabProps {
   network: TezosNetworkEssentials;
   publicKeyHash: string;
+  chainSelectController: ChainSelectController;
 }
 
-const TezosTokensTab: FC<TezosTokensTabProps> = ({ network, publicKeyHash }) => {
+const TezosTokensTab: FC<TezosTokensTabProps> = ({ network, publicKeyHash, chainSelectController }) => {
   const chainId = network.chainId;
-
-  const { popup } = useAppEnv();
 
   const assetsAreLoading = useAreAssetsLoading('tokens');
   const metadatasLoading = useTokensMetadataLoadingSelector();
@@ -168,9 +180,11 @@ const TezosTokensTab: FC<TezosTokensTabProps> = ({ network, publicKeyHash }) => 
     return () => window.removeEventListener('keyup', handleKeyup);
   }, [activeAssetSlug, chainId, setActiveIndex]);
 
+  const stickyBarRef = useRef<HTMLDivElement>(null);
+
   return (
     <>
-      <div className="my-3 flex items-center gap-x-2">
+      <StickyBar ref={stickyBarRef}>
         <SearchBarField
           value={searchValue}
           onValueChange={setSearchValue}
@@ -179,7 +193,15 @@ const TezosTokensTab: FC<TezosTokensTabProps> = ({ network, publicKeyHash }) => 
           testID={AssetsSelectors.searchAssetsInputTokens}
         />
 
-        <IconButton Icon={FiltersIcon} />
+        <Popper
+          placement="bottom-end"
+          strategy="fixed"
+          popup={props => <ChainsDropdown controller={chainSelectController} {...props} />}
+        >
+          {({ ref, opened, toggleOpened }) => (
+            <IconButton Icon={FiltersIcon} ref={ref} active={opened} onClick={toggleOpened} />
+          )}
+        </Popper>
 
         <Popper
           placement="bottom-end"
@@ -203,36 +225,38 @@ const TezosTokensTab: FC<TezosTokensTabProps> = ({ network, publicKeyHash }) => 
             />
           )}
         </Popper>
-      </div>
+      </StickyBar>
 
-      <UpdateAppBanner popup={popup} />
+      <ContentContainer>
+        <UpdateAppBanner stickyBarRef={stickyBarRef} />
 
-      {filteredAssets.length === 0 ? (
-        <div className="my-8 flex flex-col items-center justify-center text-gray-500">
-          <p className="mb-2 flex items-center justify-center text-gray-600 text-base font-light">
-            {searchValueExist && <SearchIcon className="w-5 h-auto mr-1 stroke-current fill-current" />}
+        {filteredAssets.length === 0 ? (
+          <div className="my-8 flex flex-col items-center justify-center text-gray-500">
+            <p className="mb-2 flex items-center justify-center text-gray-600 text-base font-light">
+              {searchValueExist && <SearchIcon className="w-5 h-auto mr-1 stroke-current fill-current" />}
 
-            <span {...setTestID(HomeSelectors.emptyStateText)}>
-              <T id="noAssetsFound" />
-            </span>
-          </p>
+              <span {...setTestID(HomeSelectors.emptyStateText)}>
+                <T id="noAssetsFound" />
+              </span>
+            </p>
 
-          <p className="text-center text-xs font-light">
-            <T
-              id="ifYouDontSeeYourAsset"
-              substitutions={[
-                <b>
-                  <T id="manage" />
-                </b>
-              ]}
-            />
-          </p>
-        </div>
-      ) : (
-        <div className="flex flex-col overflow-hidden rounded-md text-gray-700 text-sm leading-tight">{tokensView}</div>
-      )}
+            <p className="text-center text-xs font-light">
+              <T
+                id="ifYouDontSeeYourAsset"
+                substitutions={[
+                  <b>
+                    <T id="manage" />
+                  </b>
+                ]}
+              />
+            </p>
+          </div>
+        ) : (
+          tokensView
+        )}
 
-      {isSyncing && <SyncSpinner className="mt-4" />}
+        {isSyncing && <SyncSpinner className="mt-4" />}
+      </ContentContainer>
     </>
   );
 };

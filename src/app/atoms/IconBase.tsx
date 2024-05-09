@@ -7,13 +7,13 @@ type Size = 12 | 16 | 24 | 32;
 export interface IconBaseProps {
   /** SVG of the 16px icon base container */
   Icon: ImportedSVGComponent;
-  size: Size;
+  size?: Size;
   className?: string;
   onClick?: EmptyFn;
 }
 
 /** For monochrome icons */
-export const IconBase = memo<IconBaseProps>(({ size, className, Icon, onClick }) => (
+export const IconBase = memo<IconBaseProps>(({ size = 16, className, Icon, onClick }) => (
   <div data-icon-size={size} className={clsx(CONTAINER_CLASSNAME[size], className)} onClick={onClick}>
     <Icon className="w-full h-full stroke-current fill-current" transform={SCALE_TRANSFORMS[size]} />
   </div>

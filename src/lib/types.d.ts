@@ -21,6 +21,4 @@ type OptionalRecord<T = string> = {
 
 type NonEmptyArray<T> = [T, ...T[]];
 
-interface PropsWithChildren {
-  children: import('react').ReactNode;
-}
+type PropsWithChildren<P = unknown> = P & { children: import('react').ReactNode };

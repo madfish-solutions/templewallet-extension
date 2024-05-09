@@ -1,8 +1,7 @@
 import React, { memo } from 'react';
 
 import { PageTitle } from 'app/atoms';
-import { ReactComponent as SendIcon } from 'app/icons/send-alt.svg';
-import { ContentContainer } from 'app/layouts/ContentContainer';
+import { ReactComponent as SendIcon } from 'app/icons/send.svg';
 import PageLayout from 'app/layouts/PageLayout';
 import { useChainSelectController, ChainSelectSection } from 'app/templates/ChainSelect';
 import SendForm from 'app/templates/SendForm';
@@ -26,8 +25,8 @@ const Send = memo<Props>(({ tezosChainId, assetSlug }) => {
     : chainSelectController.value;
 
   return (
-    <PageLayout pageTitle={<PageTitle icon={<SendIcon className="w-auto h-4 stroke-current" />} title={t('send')} />}>
-      <ContentContainer className="my-4">
+    <PageLayout pageTitle={<PageTitle Icon={SendIcon} title={t('send')} />}>
+      <>
         {tezosChainId ? null : <ChainSelectSection controller={chainSelectController} />}
 
         {tezosAccount && network && network.kind === 'tezos' ? (
@@ -35,7 +34,7 @@ const Send = memo<Props>(({ tezosChainId, assetSlug }) => {
         ) : (
           <div className="text-center">{UNDER_DEVELOPMENT_MSG}</div>
         )}
-      </ContentContainer>
+      </>
     </PageLayout>
   );
 });

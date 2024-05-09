@@ -1,6 +1,7 @@
 import React, { memo } from 'react';
 
 import { useLocationSearchParamValue } from 'app/hooks/use-location';
+import { ContentContainer } from 'app/layouts/containers';
 import { ActivityTab } from 'app/templates/activity/Activity';
 import AssetInfo from 'app/templates/AssetInfo';
 import { TabsBar, TabsBarTabInterface } from 'app/templates/TabBar';
@@ -13,11 +14,18 @@ interface Props {
   assetSlug: string;
 }
 
-export const TezosAssetTab = memo<Props>(({ tezosChainId, assetSlug }) => {
-  if (isTezAsset(assetSlug)) return <TezosGasTab tezosChainId={tezosChainId} />;
-
-  return <TezosTokenTab tezosChainId={tezosChainId} assetSlug={assetSlug} />;
-});
+export const TezosAssetTab = memo<Props>(({ tezosChainId, assetSlug }) => (
+  <>
+    <div className="h-3" />
+    <ContentContainer>
+      {isTezAsset(assetSlug) ? (
+        <TezosGasTab tezosChainId={tezosChainId} />
+      ) : (
+        <TezosTokenTab tezosChainId={tezosChainId} assetSlug={assetSlug} />
+      )}
+    </ContentContainer>
+  </>
+));
 
 const TEZOS_GAS_TABS: TabsBarTabInterface[] = [
   { name: 'activity', titleI18nKey: 'activity' },
