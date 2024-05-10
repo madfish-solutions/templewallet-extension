@@ -28,7 +28,7 @@ export const SimpleSegmentControl = memo<Props>(
 
           <Button
             disabled={!activeSecond}
-            className={clsx('flex-1 relative p-1 text-xs leading-4 font-medium', !activeSecond && 'text-primary')}
+            className={clsx('flex-1 relative p-1 text-font-num-bold-12', !activeSecond && 'text-primary')}
             onClick={onFirstClick}
           >
             {firstTitle}
@@ -36,7 +36,7 @@ export const SimpleSegmentControl = memo<Props>(
 
           <Button
             disabled={activeSecond}
-            className={clsx('flex-1 relative p-1 text-xs leading-4 font-medium', activeSecond && 'text-primary')}
+            className={clsx('flex-1 relative p-1 text-font-num-bold-12', activeSecond && 'text-primary')}
             onClick={onSecondClick}
           >
             {secondTitle}

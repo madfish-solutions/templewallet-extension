@@ -20,7 +20,7 @@ export const ActionsDropdownPopup: FC<PropsWithChildren<Props>> = ({ title, open
       className={clsx('p-2 flex flex-col', lowered ? 'mt-3' : 'mt-1')}
       style={style}
     >
-      <div className="py-2.5 px-2 text-xs font-semibold text-grey-1">{title()}</div>
+      <div className="py-2.5 px-2 text-font-small-bold text-grey-1">{title()}</div>
 
       {children}
     </DropdownWrapper>

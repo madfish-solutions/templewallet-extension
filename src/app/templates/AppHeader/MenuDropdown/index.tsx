@@ -96,7 +96,7 @@ const MenuDropdown = memo<PopperRenderProps>(({ opened, setOpened }) => {
       <Divider className="my-1.5" />
 
       <label className="py-2.5 px-2 flex items-center gap-x-1">
-        <span className="flex-1 text-xs">Testnet Mode</span>
+        <span className="flex-1 text-font-description">Testnet Mode</span>
 
         <ToggleSwitch small checked={false} />
       </label>

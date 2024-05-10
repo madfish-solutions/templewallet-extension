@@ -1,9 +1,8 @@
 ## TODO:
 
+- Texts (font, size, weight, leading) in TailWind
 - SegmentControl animation interrupted by Suspense
 - Toast on copied address design
-- Accounts modal
-- - IconButton with blue style
 - Manage Assets tab
 - Filters tab
 - Store Tezos native currency

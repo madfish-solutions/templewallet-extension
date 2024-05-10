@@ -78,7 +78,7 @@ const SearchField: FC<SearchFieldProps> = ({
       <input
         ref={inputRef}
         type="text"
-        className={clsx('appearance-none w-full py-2 px-8 text-xs', className)}
+        className={clsx('appearance-none w-full py-2 px-8 text-font-description', className)}
         value={value}
         spellCheck={false}
         autoComplete="off"
@@ -110,7 +110,8 @@ export const SearchBarField = memo<SearchFieldProps>(({ className, containerClas
   <SearchField
     value={value}
     className={clsx(
-      'bg-input-low rounded-lg placeholder-grey-1 hover:placeholder-text caret-primary',
+      'bg-input-low rounded-lg',
+      'placeholder-grey-1 hover:placeholder-text caret-primary',
       'transition ease-in-out duration-200',
       className
     )}

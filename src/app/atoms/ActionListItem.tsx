@@ -6,11 +6,6 @@ import { IconBase } from 'app/atoms';
 import { Button } from 'app/atoms/Button';
 import { Link } from 'lib/woozie';
 
-const ACTION_LIST_ITEM_CLASSNAME = clsx(
-  'flex items-center py-1.5 px-2 gap-x-1 rounded-md text-xs',
-  'hover:bg-secondary-low'
-);
-
 export interface ActionListItemProps extends PropsWithChildren {
   Icon?: ImportedSVGComponent;
   linkTo?: string;
@@ -26,7 +21,11 @@ export const ActionListItem = memo<ActionListItemProps>(
   ({ Icon, linkTo, className, onClick, setOpened, testID, danger, children }) => {
     const baseProps = {
       testID,
-      className: clsx(ACTION_LIST_ITEM_CLASSNAME, className),
+      className: clsx(
+        'flex items-center py-1.5 px-2 gap-x-1 rounded-md text-font-description',
+        'hover:bg-secondary-low',
+        className
+      ),
       onClick: setOpened
         ? () => {
             setOpened(false);

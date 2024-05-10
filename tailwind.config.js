@@ -1,3 +1,25 @@
+const DEFAULT_FONT_FAMILIES = [
+  'system-ui',
+  '-apple-system',
+  'BlinkMacSystemFont',
+  '"Segoe UI"',
+  'Roboto',
+  '"Helvetica Neue"',
+  'Arial',
+  '"Noto Sans"',
+  'sans-serif',
+  '"Apple Color Emoji"',
+  '"Segoe UI Emoji"',
+  '"Segoe UI Symbol"',
+  '"Noto Color Emoji"'
+];
+
+const FONTS_FAMILIES = {
+  Inter: ["'Inter'", ...DEFAULT_FONT_FAMILIES],
+  Rubik: ["'Rubik'", "'Inter'", ...DEFAULT_FONT_FAMILIES]
+}
+
+
 module.exports = {
   content: ['./public/**/*.{html,js,mjs}', './src/**/*.{js,jsx,ts,tsx}'],
   prefix: '',
@@ -24,33 +46,10 @@ module.exports = {
       'drop': '0px 2px 4px 0px #00000040'
     },
 
-    fontFamily: (() => {
-      const baseFontFamily = {
-        sans: [
-          'system-ui',
-          '-apple-system',
-          'BlinkMacSystemFont',
-          '"Segoe UI"',
-          'Roboto',
-          '"Helvetica Neue"',
-          'Arial',
-          '"Noto Sans"',
-          'sans-serif',
-          '"Apple Color Emoji"',
-          '"Segoe UI Emoji"',
-          '"Segoe UI Symbol"',
-          '"Noto Color Emoji"'
-        ],
-        serif: ['Georgia', 'Cambria', '"Times New Roman"', 'Times', 'serif'],
-        mono: ['Menlo', 'Monaco', 'Consolas', '"Liberation Mono"', '"Courier New"', 'monospace'],
-      };
-
-      return {
-        ...baseFontFamily,
-        inter: ["'Inter'", ...baseFontFamily.sans],
-        rubik: ["'Rubik'", "'Inter'", ...baseFontFamily.sans]
-      };
-    })(),
+    fontFamily: {
+      inter: FONTS_FAMILIES.Inter,
+      rubik: FONTS_FAMILIES.Rubik,
+    },
 
     // # EXTENDING DEFAULTS:
 
@@ -152,12 +151,11 @@ module.exports = {
       },
 
       fontSize: {
-        xxxxs: '0.563rem',
-        xxxs: '0.625rem',
+        xxxs: ['0.625rem', { lineHeight: '0.75rem' }],
         xxs: '0.6875rem',
         '2xs': '0.8125rem',
         ulg: '1.0625rem',
-        '2xl-plus': '1.75rem'
+        '2xl-plus': ['2rem', { lineHeight: '3rem' }],
       },
 
       spacing: {
@@ -170,11 +168,11 @@ module.exports = {
         63: '15.75rem'
       },
 
-      height: theme => theme('spacing'),
+      // height: theme => theme('spacing'),
 
-      minHeight: theme => theme('height'),
+      // minHeight: theme => theme('height'),
 
-      maxHeight: theme => theme('height'),
+      // maxHeight: theme => theme('height'),
 
       width: theme => theme('spacing'),
 

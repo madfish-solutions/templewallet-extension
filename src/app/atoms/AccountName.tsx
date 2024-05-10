@@ -64,7 +64,7 @@ export const AccountName = memo<Props>(({ account, searchValue, smaller }) => {
             toggleOpened();
           }}
         >
-          <Name className="text-sm leading-5 font-semibold">
+          <Name className="text-font-medium-bold">
             {searchValue ? (
               <SearchHighlightText searchValue={searchValue}>{account.name}</SearchHighlightText>
             ) : (
@@ -94,9 +94,9 @@ const CopyAddressButton = memo<CopyAddressButtonProps>(({ chain, address, onCopy
     }}
   >
     <div className="flex flex-col gap-y-0.5 items-start">
-      <span className="text-xs">{TempleChainTitle[chain]}</span>
+      <span className="text-font-description">{TempleChainTitle[chain]}</span>
 
-      <span className="text-xxxs leading-3 text-grey-1">
+      <span className="text-font-small text-grey-1">
         <HashShortView hash={address} />
       </span>
     </div>

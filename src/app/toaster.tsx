@@ -40,7 +40,7 @@ const CustomToastBar = memo<{ toast: Toast; customType?: ToastTypeExtended }>(({
       {typeof toast.message === 'function' ? (
         toast.message(toast)
       ) : (
-        <span className="text-xs font-semibold">{toast.message}</span>
+        <span className="text-font-description-bold">{toast.message}</span>
       )}
     </div>
   );

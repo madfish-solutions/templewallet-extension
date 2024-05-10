@@ -111,7 +111,7 @@ const ActionButton = memo<ActionButtonProps>(
           <>
             <IconBase Icon={Icon} size={24} />
 
-            <span className="text-xxxs font-semibold leading-3">
+            <span className="text-font-small-bold">
               <T id={labelI18nKey} />
             </span>
           </>

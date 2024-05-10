@@ -75,7 +75,7 @@ export const DefaultHeader: FC<DefaultHeaderProps> = ({
         )}
       </div>
 
-      {pageTitle && <div className="flex items-center text-center text-base font-semibold truncate">{pageTitle}</div>}
+      {pageTitle && <div className="flex items-center text-center text-font-medium-bold truncate">{pageTitle}</div>}
 
       <div className="flex-1 flex items-center">{headerRightElem}</div>
     </div>

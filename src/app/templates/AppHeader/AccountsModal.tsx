@@ -75,7 +75,7 @@ const AccountsGroup = memo<AccountsGroupProps>(
     //
     return (
       <div className="flex flex-col mb-4">
-        <Name className="mb-1 p-1 text-xs font-semibold">{title}</Name>
+        <Name className="mb-1 p-1 text-font-description-bold">{title}</Name>
 
         <div className="flex flex-col gap-y-3">
           {accounts.map(account => (
@@ -133,9 +133,9 @@ const AccountOfGroup = memo<AccountOfGroupProps>(({ account, isCurrent, searchVa
 
       <div className="flex items-center">
         <div className="flex-1 flex flex-col">
-          <div className="text-xxxs leading-3 text-grey-1">Total Balance:</div>
+          <div className="text-font-small text-grey-1">Total Balance:</div>
 
-          <div className="text-xs font-rubik">12 345 678.00 $</div>
+          <div className="text-font-num-12">12 345 678.00 $</div>
         </div>
 
         <AccLabel type={account.type} />
