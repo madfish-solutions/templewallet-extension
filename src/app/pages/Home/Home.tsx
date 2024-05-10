@@ -3,6 +3,7 @@ import React, { memo, useLayoutEffect, useMemo } from 'react';
 import { isDefined } from '@rnw-community/shared';
 
 import { SimpleSegmentControl } from 'app/atoms/SimpleSegmentControl';
+import { SuspenseContainer } from 'app/atoms/SuspenseContainer';
 import { useAppEnv } from 'app/env';
 import { useLocationSearchParamValue } from 'app/hooks/use-location';
 import PageLayout, { PageLayoutProps } from 'app/layouts/PageLayout';
@@ -80,20 +81,21 @@ const Home = memo<Props>(({ tezosChainId, assetSlug }) => {
         />
       </div>
 
-      {/* TODO: ErrorBoundary + Suspense */}
-      {(() => {
-        if (!tezosChainId || !assetSlug)
-          switch (tabSlug) {
-            case 'collectibles':
-              return <CollectiblesTab />;
-            case 'activity':
-              return <ActivityTab />;
-            default:
-              return <TokensTab />;
-          }
+      <SuspenseContainer key={`${tezosChainId}/${assetSlug}`}>
+        {(() => {
+          if (!tezosChainId || !assetSlug)
+            switch (tabSlug) {
+              case 'collectibles':
+                return <CollectiblesTab />;
+              case 'activity':
+                return <ActivityTab />;
+              default:
+                return <TokensTab />;
+            }
 
-        return <TezosAssetTab tezosChainId={tezosChainId} assetSlug={assetSlug} />;
-      })()}
+          return <TezosAssetTab tezosChainId={tezosChainId} assetSlug={assetSlug} />;
+        })()}
+      </SuspenseContainer>
     </PageLayout>
   );
 });

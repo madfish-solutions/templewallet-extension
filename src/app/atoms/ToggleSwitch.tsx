@@ -1,19 +1,17 @@
-import React, { forwardRef, InputHTMLAttributes, useCallback, useEffect, useMemo, useState } from 'react';
+import React, { forwardRef, useCallback, useEffect, useMemo, useState } from 'react';
 
 import clsx from 'clsx';
 
-import { TestIDProps, setTestID, useAnalytics, AnalyticsEventCategory } from 'lib/analytics';
+import { setTestID, useAnalytics, AnalyticsEventCategory } from 'lib/analytics';
 import { blurHandler, checkedHandler, focusHandler } from 'lib/ui/inputHandlers';
 
-export interface CheckboxProps
-  extends TestIDProps,
-    Pick<InputHTMLAttributes<HTMLInputElement>, 'name' | 'checked' | 'disabled' | 'onFocus' | 'onBlur' | 'onClick'> {
+import { CheckboxProps } from './Checkbox';
+
+interface Props extends CheckboxProps {
   small?: boolean;
-  errored?: boolean;
-  onChange?: (checked: boolean, event: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
-export const ToggleSwitch = forwardRef<HTMLInputElement, CheckboxProps>(
+export const ToggleSwitch = forwardRef<HTMLInputElement, Props>(
   (
     { errored = false, checked, disabled, small, onChange, onFocus, onBlur, testID, testIDProperties, ...rest },
     ref

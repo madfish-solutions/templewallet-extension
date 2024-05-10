@@ -1,8 +1,5 @@
 ## TODO:
 
-- Texts (font, size, weight, leading) in TailWind
-- SegmentControl animation interrupted by Suspense
-- Toast on copied address design
 - Manage Assets tab
 - Filters tab
 - Store Tezos native currency

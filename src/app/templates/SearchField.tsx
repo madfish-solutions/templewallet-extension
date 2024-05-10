@@ -8,7 +8,7 @@ import CleanButton, { CLEAN_BUTTON_ID } from 'app/atoms/CleanButton';
 import { ReactComponent as SearchIcon } from 'app/icons/search.svg';
 import { setTestID, TestIDProps } from 'lib/analytics';
 
-export interface SearchFieldProps extends InputHTMLAttributes<HTMLInputElement>, TestIDProps {
+interface Props extends InputHTMLAttributes<HTMLInputElement>, TestIDProps {
   value: string;
   onValueChange: (value: string) => void;
   bottomOffset?: string;
@@ -16,7 +16,7 @@ export interface SearchFieldProps extends InputHTMLAttributes<HTMLInputElement>,
   onCleanButtonClick?: () => void;
 }
 
-const SearchField: FC<SearchFieldProps> = ({
+const SearchField: FC<Props> = ({
   bottomOffset = '0.45rem',
   className,
   containerClassName,
@@ -106,7 +106,7 @@ const SearchField: FC<SearchFieldProps> = ({
 
 export default SearchField;
 
-export const SearchBarField = memo<SearchFieldProps>(({ className, containerClassName, value, ...rest }) => (
+export const SearchBarField = memo<Props>(({ className, containerClassName, value, ...rest }) => (
   <SearchField
     value={value}
     className={clsx(

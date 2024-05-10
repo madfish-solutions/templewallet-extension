@@ -12,12 +12,15 @@ export interface CheckboxProps
       InputHTMLAttributes<HTMLInputElement>,
       'name' | 'checked' | 'className' | 'onFocus' | 'onBlur' | 'onClick' | 'disabled'
     > {
-  overrideClassNames?: string;
   errored?: boolean;
   onChange?: (checked: boolean, event: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
-const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
+interface Props extends CheckboxProps {
+  overrideClassNames?: string;
+}
+
+const Checkbox = forwardRef<HTMLInputElement, Props>(
   (
     {
       overrideClassNames,

@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useMemo, useState } from 'react';
+import React, { memo, useCallback, useEffect, useMemo, useState } from 'react';
 
 import clsx from 'clsx';
 
@@ -13,6 +13,7 @@ import { ReactComponent as SettingsIcon } from 'app/icons/settings.svg';
 import { NewWalletActionsPopper } from 'app/templates/NewWalletActionsPopper';
 import { SearchBarField } from 'app/templates/SearchField';
 import { StoredAccount } from 'lib/temple/types';
+import { useScrollIntoViewOnMount } from 'lib/ui/use-scroll-into-view';
 import { navigate } from 'lib/woozie';
 import { searchAndFilterAccounts, useAccountsGroups, useCurrentAccountId, useVisibleAccounts } from 'temple/front';
 import { useSetAccountId } from 'temple/front/ready';
@@ -36,6 +37,13 @@ export const AccountsModal = memo<Props>(({ opened, onRequestClose }) => {
   );
   const filteredGroups = useAccountsGroups(filteredAccounts);
 
+  const [attractSelectedAccount, setAttractSelectedAccount] = useState(true);
+
+  useEffect(() => {
+    if (searchValue) setAttractSelectedAccount(false);
+    else if (!opened) setAttractSelectedAccount(true);
+  }, [opened, searchValue]);
+
   return (
     <PageModal title="My Accounts" opened={opened} onRequestClose={onRequestClose}>
       <div className="flex gap-x-2 mb-4">
@@ -54,6 +62,7 @@ export const AccountsModal = memo<Props>(({ opened, onRequestClose }) => {
             accounts={group.accounts}
             currentAccountId={currentAccountId}
             searchValue={searchValue}
+            attractSelectedAccount={attractSelectedAccount}
             onAccountSelect={onRequestClose}
           />
         ))}
@@ -67,11 +76,12 @@ interface AccountsGroupProps {
   accounts: StoredAccount[];
   currentAccountId: string;
   searchValue: string;
+  attractSelectedAccount: boolean;
   onAccountSelect: EmptyFn;
 }
 
 const AccountsGroup = memo<AccountsGroupProps>(
-  ({ title, accounts, currentAccountId, searchValue, onAccountSelect }) => {
+  ({ title, accounts, currentAccountId, searchValue, attractSelectedAccount, onAccountSelect }) => {
     //
     return (
       <div className="flex flex-col mb-4">
@@ -84,6 +94,7 @@ const AccountsGroup = memo<AccountsGroupProps>(
               account={account}
               isCurrent={account.id === currentAccountId}
               searchValue={searchValue}
+              attractSelf={attractSelectedAccount}
               onSelect={onAccountSelect}
             />
           ))}
@@ -97,10 +108,11 @@ interface AccountOfGroupProps {
   account: StoredAccount;
   isCurrent: boolean;
   searchValue: string;
+  attractSelf: boolean;
   onSelect: EmptyFn;
 }
 
-const AccountOfGroup = memo<AccountOfGroupProps>(({ account, isCurrent, searchValue, onSelect }) => {
+const AccountOfGroup = memo<AccountOfGroupProps>(({ account, isCurrent, searchValue, attractSelf, onSelect }) => {
   const setAccountId = useSetAccountId();
 
   const onClick = useCallback(() => {
@@ -110,8 +122,11 @@ const AccountOfGroup = memo<AccountOfGroupProps>(({ account, isCurrent, searchVa
     onSelect();
   }, [isCurrent, account.id, onSelect, setAccountId]);
 
+  const elemRef = useScrollIntoViewOnMount<HTMLDivElement>(isCurrent && attractSelf);
+
   return (
     <div
+      ref={elemRef}
       className={clsx(
         'flex flex-col p-2 gap-y-1.5',
         'rounded-lg shadow-bottom border',

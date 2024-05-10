@@ -1,11 +1,13 @@
 import React, { memo } from 'react';
 
+import { SuspenseContainer } from 'app/atoms/SuspenseContainer';
 import { useLocationSearchParamValue } from 'app/hooks/use-location';
 import { ContentContainer } from 'app/layouts/containers';
 import { ActivityTab } from 'app/templates/activity/Activity';
 import AssetInfo from 'app/templates/AssetInfo';
 import { TabsBar, TabsBarTabInterface } from 'app/templates/TabBar';
 import { TEZ_TOKEN_SLUG, isTezAsset } from 'lib/assets';
+import { t } from 'lib/i18n';
 
 import BakingSection from './BakingSection';
 
@@ -15,16 +17,13 @@ interface Props {
 }
 
 export const TezosAssetTab = memo<Props>(({ tezosChainId, assetSlug }) => (
-  <>
-    <div className="h-3" />
-    <ContentContainer>
-      {isTezAsset(assetSlug) ? (
-        <TezosGasTab tezosChainId={tezosChainId} />
-      ) : (
-        <TezosTokenTab tezosChainId={tezosChainId} assetSlug={assetSlug} />
-      )}
-    </ContentContainer>
-  </>
+  <ContentContainer className="mt-3">
+    {isTezAsset(assetSlug) ? (
+      <TezosGasTab tezosChainId={tezosChainId} />
+    ) : (
+      <TezosTokenTab tezosChainId={tezosChainId} assetSlug={assetSlug} />
+    )}
+  </ContentContainer>
 ));
 
 const TEZOS_GAS_TABS: TabsBarTabInterface[] = [
@@ -43,7 +42,9 @@ const TezosGasTab = memo<{ tezosChainId: string }>(({ tezosChainId }) => {
       {tabName === 'activity' ? (
         <ActivityTab tezosChainId={tezosChainId} assetSlug={TEZ_TOKEN_SLUG} />
       ) : (
-        <BakingSection tezosChainId={tezosChainId} />
+        <SuspenseContainer errorMessage={t('delegationInfoWhileMessage')}>
+          <BakingSection tezosChainId={tezosChainId} />
+        </SuspenseContainer>
       )}
     </>
   );

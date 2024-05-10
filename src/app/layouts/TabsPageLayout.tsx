@@ -1,14 +1,12 @@
-import React, { FC, ReactNode, Suspense, useMemo } from 'react';
+import React, { FC, useMemo } from 'react';
 
 import classNames from 'clsx';
 
 import { PageTitle } from 'app/atoms/PageTitle';
-import Spinner from 'app/atoms/Spinner/Spinner';
+import { SuspenseContainer } from 'app/atoms/SuspenseContainer';
 import { useLocationSearchParamValue } from 'app/hooks/use-location';
 import { TestIDProperty } from 'lib/analytics';
 import { Link } from 'lib/woozie';
-
-import ErrorBoundary from '../ErrorBoundary';
 
 import PageLayout from './PageLayout';
 
@@ -62,25 +60,8 @@ export const TabsPageLayout: FC<Props> = ({ tabs, Icon, title }) => {
       <div className="flex flex-col px-4 pt-6 pb-15">
         <div className="mb-4 text-center text-grey-2">{description}</div>
 
-        <SuspenseContainer whileMessage="displaying tab">{Component && <Component />}</SuspenseContainer>
+        <SuspenseContainer errorMessage="displaying tab">{Component && <Component />}</SuspenseContainer>
       </div>
     </PageLayout>
   );
 };
-
-interface SuspenseContainerProps extends PropsWithChildren {
-  whileMessage: string;
-  fallback?: ReactNode;
-}
-
-const SuspenseContainer: FC<SuspenseContainerProps> = ({ whileMessage, fallback = <SpinnerSection />, children }) => (
-  <ErrorBoundary whileMessage={whileMessage}>
-    <Suspense fallback={fallback}>{children}</Suspense>
-  </ErrorBoundary>
-);
-
-const SpinnerSection: FC = () => (
-  <div className="flex justify-center my-12">
-    <Spinner theme="gray" className="w-20" />
-  </div>
-);

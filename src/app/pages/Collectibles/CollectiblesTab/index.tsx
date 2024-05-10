@@ -9,6 +9,7 @@ import DropdownWrapper from 'app/atoms/DropdownWrapper';
 import { IconButton } from 'app/atoms/IconButton';
 import { ScrollBackUpButton } from 'app/atoms/ScrollBackUpButton';
 import { SimpleInfiniteScroll } from 'app/atoms/SimpleInfiniteScroll';
+import { SuspenseContainer } from 'app/atoms/SuspenseContainer';
 import { useCollectiblesListingLogic } from 'app/hooks/use-collectibles-listing-logic';
 import { ReactComponent as EditingIcon } from 'app/icons/editing.svg';
 import { ReactComponent as FiltersIcon } from 'app/icons/filteroff.svg';
@@ -55,18 +56,17 @@ export const CollectiblesTab = memo(() => {
     );
 
   return (
-    <>
-      <div className="h-3" />
-
-      <ContentContainer>
+    <ContentContainer className="mt-3">
+      <SuspenseContainer>
         <div className="flex items-center mb-4">
           <div className="flex-1 text-xl">Change network:</div>
 
           <ChainSelect controller={chainSelectController} />
         </div>
+
         <span className="text-center">{UNDER_DEVELOPMENT_MSG}</span>
-      </ContentContainer>
-    </>
+      </SuspenseContainer>
+    </ContentContainer>
   );
 });
 

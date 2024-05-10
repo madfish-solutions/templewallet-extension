@@ -1,12 +1,12 @@
-import React, { FC, Suspense } from 'react';
+import React, { FC } from 'react';
 
 import clsx from 'clsx';
 
 import { ContentFader } from 'app/a11y/ContentFader';
 import DocBg from 'app/a11y/DocBg';
 import Spinner from 'app/atoms/Spinner/Spinner';
+import { SuspenseContainer } from 'app/atoms/SuspenseContainer';
 import { useAppEnv } from 'app/env';
-import ErrorBoundary from 'app/ErrorBoundary';
 import { AdvertisingOverlay } from 'app/templates/advertising/advertising-overlay/advertising-overlay';
 import { useTempleClient } from 'lib/temple/front';
 
@@ -43,9 +43,7 @@ const PageLayout: FC<PropsWithChildren<PageLayoutProps>> = ({
           {Header ? <Header /> : <DefaultHeader {...headerProps} />}
 
           <div className={clsx('flex-1 flex flex-col', contentPadding && 'p-4 pb-15')}>
-            <ErrorBoundary whileMessage="displaying this page">
-              <Suspense fallback={<SpinnerSection />}>{children}</Suspense>
-            </ErrorBoundary>
+            <SuspenseContainer errorMessage="displaying this page">{children}</SuspenseContainer>
           </div>
         </ContentPaper>
       </div>

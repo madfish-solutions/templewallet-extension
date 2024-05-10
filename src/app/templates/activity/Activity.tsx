@@ -4,6 +4,7 @@ import clsx from 'clsx';
 import InfiniteScroll from 'react-infinite-scroll-component';
 
 import { SyncSpinner } from 'app/atoms';
+import { SuspenseContainer } from 'app/atoms/SuspenseContainer';
 import { useAppEnv } from 'app/env';
 import { DeadEndBoundaryError } from 'app/ErrorBoundary';
 import { useLoadPartnersPromo } from 'app/hooks/use-load-partners-promo';
@@ -11,7 +12,7 @@ import { ReactComponent as LayersIcon } from 'app/icons/layers.svg';
 import { ContentContainer } from 'app/layouts/containers';
 import { useChainSelectController, ChainSelectSection } from 'app/templates/ChainSelect';
 import { PartnersPromotion, PartnersPromotionVariant } from 'app/templates/partners-promotion';
-import { T } from 'lib/i18n/react';
+import { t, T } from 'lib/i18n/react';
 import useTezosActivities from 'lib/temple/activity-new/hook';
 import { UNDER_DEVELOPMENT_MSG } from 'temple/evm/under_dev_msg';
 import { useAccountAddressForTezos, useTezosChainByChainId } from 'temple/front';
@@ -26,11 +27,11 @@ interface Props {
   assetSlug?: string;
 }
 
-export const ActivityTab = memo<Props>(({ tezosChainId, assetSlug }) => {
-  if (tezosChainId) return <TezosActivity tezosChainId={tezosChainId} assetSlug={assetSlug} />;
-
-  return <ActivityWithChainSelect />;
-});
+export const ActivityTab = memo<Props>(({ tezosChainId, assetSlug }) => (
+  <SuspenseContainer errorMessage={t('operationHistoryWhileMessage')}>
+    {tezosChainId ? <TezosActivity tezosChainId={tezosChainId} assetSlug={assetSlug} /> : <ActivityWithChainSelect />}
+  </SuspenseContainer>
+));
 
 const ActivityWithChainSelect = memo(() => {
   const chainSelectController = useChainSelectController();
