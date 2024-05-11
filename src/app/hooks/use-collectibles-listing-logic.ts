@@ -7,24 +7,16 @@ import { useCollectiblesMetadataLoadingSelector } from 'app/store/collectibles-m
 import { searchAssetsWithNoMeta } from 'lib/assets/search.utils';
 import { useCollectiblesMetadataPresenceCheck, useGetCollectibleMetadata } from 'lib/metadata';
 import { isSearchStringApplicable } from 'lib/utils/search-items';
-import { createLocationState } from 'lib/woozie/location';
 import { TezosNetworkEssentials } from 'temple/networks';
 
 import { ITEMS_PER_PAGE, useCollectiblesPaginationLogic } from './use-collectibles-pagination-logic';
 
 export const useCollectiblesListingLogic = (network: TezosNetworkEssentials, allSlugsSorted: string[]) => {
-  const initialAmount = useMemo(() => {
-    const { search } = createLocationState();
-    const usp = new URLSearchParams(search);
-    const amount = usp.get('amount');
-    return amount ? Number(amount) : 0;
-  }, []);
-
   const {
     slugs: paginatedSlugs,
     isLoading: pageIsLoading,
     loadNext
-  } = useCollectiblesPaginationLogic(allSlugsSorted, network.rpcBaseURL, initialAmount);
+  } = useCollectiblesPaginationLogic(allSlugsSorted, network.rpcBaseURL);
 
   const assetsAreLoading = useAreAssetsLoading('collectibles');
   const metadatasLoading = useCollectiblesMetadataLoadingSelector();

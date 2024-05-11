@@ -1,4 +1,4 @@
-import React, { memo, useLayoutEffect, useMemo } from 'react';
+import React, { memo, useCallback, useLayoutEffect, useMemo } from 'react';
 
 import { isDefined } from '@rnw-community/shared';
 
@@ -50,6 +50,9 @@ const Home = memo<Props>(({ tezosChainId, assetSlug }) => {
     return undefined;
   }, [registerBackHandler, assetSlug, search]);
 
+  const onTokensTabClick = useCallback(() => navigate({ search: 'tab=tokens' }, HistoryAction.Replace), []);
+  const onCollectiblesTabClick = useCallback(() => navigate({ search: 'tab=collectibles' }, HistoryAction.Replace), []);
+
   const pageProps = useMemo<PageLayoutProps>(() => {
     if (tezosChainId && assetSlug)
       return {
@@ -76,8 +79,8 @@ const Home = memo<Props>(({ tezosChainId, assetSlug }) => {
           secondTitle="Collectibles"
           activeSecond={tabSlug === 'collectibles'}
           className="mt-6"
-          onFirstClick={() => navigate({ search: 'tab=tokens' })}
-          onSecondClick={() => navigate({ search: 'tab=collectibles' })}
+          onFirstClick={onTokensTabClick}
+          onSecondClick={onCollectiblesTabClick}
         />
       </div>
 

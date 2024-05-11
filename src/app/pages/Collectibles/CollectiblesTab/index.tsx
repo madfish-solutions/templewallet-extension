@@ -57,15 +57,13 @@ export const CollectiblesTab = memo(() => {
 
   return (
     <ContentContainer className="mt-3">
-      <SuspenseContainer>
-        <div className="flex items-center mb-4">
-          <div className="flex-1 text-xl">Change network:</div>
+      <div className="flex items-center mb-4">
+        <div className="flex-1 text-xl">Change network:</div>
 
-          <ChainSelect controller={chainSelectController} />
-        </div>
+        <ChainSelect controller={chainSelectController} />
+      </div>
 
-        <span className="text-center">{UNDER_DEVELOPMENT_MSG}</span>
-      </SuspenseContainer>
+      <span className="text-center">{UNDER_DEVELOPMENT_MSG}</span>
     </ContentContainer>
   );
 });
