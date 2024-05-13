@@ -88,7 +88,7 @@ const MenuDropdown = memo<PopperRenderProps>(({ opened, setOpened }) => {
   );
 
   return (
-    <ActionsDropdownPopup title={() => 'Menu'} opened={opened} lowered style={{ minWidth: 163 }}>
+    <ActionsDropdownPopup title={() => 'Menu'} opened={opened} lowering={3} style={{ minWidth: 163 }}>
       {actions.map(action => (
         <ActionListItem {...action} key={action.key} />
       ))}

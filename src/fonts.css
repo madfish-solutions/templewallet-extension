@@ -81,7 +81,7 @@
 }
 
 .text-font-num-24 {
-  @apply text-font-num text-2xl;
+  @apply text-font-num text-2xl leading-9;
 }
 
 .text-font-num-32 {

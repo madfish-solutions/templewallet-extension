@@ -4,22 +4,19 @@ import clsx from 'clsx';
 
 import { Button, Checkbox, Identicon } from 'app/atoms';
 import CopyButton from 'app/atoms/CopyButton';
+import { TotalEquity } from 'app/atoms/TotalEquity';
 import { useAllAccountsReactiveOnRemoval } from 'app/hooks/use-all-accounts-reactive';
-import { useTotalBalance } from 'app/hooks/use-total-balance';
 import { ReactComponent as ChevronRightIcon } from 'app/icons/chevron-right.svg';
 import { ReactComponent as CopyIcon } from 'app/icons/copy-old.svg';
 import PageLayout from 'app/layouts/PageLayout';
-import { useFiatCurrency } from 'lib/fiat-currency';
 import { T, TID, t } from 'lib/i18n';
 import { useTempleClient } from 'lib/temple/front';
 import { getDerivationPath } from 'lib/temple/helpers';
 import { TempleAccountType } from 'lib/temple/types';
 import { useAlert } from 'lib/ui';
 import { getAccountAddressForEvm, getAccountAddressForTezos } from 'temple/accounts';
-import { useAllAccounts, useCurrentAccountId, useTezosMainnetChain } from 'temple/front';
+import { useAllAccounts, useCurrentAccountId } from 'temple/front';
 import { TempleChainKind, TempleChainTitle } from 'temple/types';
-
-import { BalanceFiat } from '../Home/OtherComponents/MainBanner/BalanceFiat';
 
 import { AccountAddressesModal } from './account-addresses-modal';
 import { EditAccountNameModal } from './edit-account-name-modal';
@@ -54,9 +51,7 @@ export const AccountSettings = memo<AccountSettingsProps>(({ id }) => {
   const { setAccountHidden } = useTempleClient();
   useAllAccountsReactiveOnRemoval();
   const allAccounts = useAllAccounts();
-  const {
-    selectedFiatCurrency: { symbol: fiatSymbol }
-  } = useFiatCurrency();
+
   const [visibilityBeingChanged, setVisibilityBeingChanged] = useState(false);
   const [currentModal, setCurrentModal] = useState<AccountSettingsModal | null>(null);
   const shouldDisableVisibilityChange = visibilityBeingChanged || currentAccountId === id;
@@ -64,8 +59,6 @@ export const AccountSettings = memo<AccountSettingsProps>(({ id }) => {
   const account = useMemo(() => allAccounts.find(({ id: accountId }) => accountId === id), [allAccounts, id]);
   const tezosAddress = account && getAccountAddressForTezos(account);
   const evmAddress = account && getAccountAddressForEvm(account);
-  const tezosChain = useTezosMainnetChain();
-  const totalBalanceInDollar = useTotalBalance(tezosAddress ?? '', tezosChain.chainId);
 
   const handleCopyClick = useCallback(() => {
     if (account?.type !== TempleAccountType.HD) {
@@ -160,7 +153,7 @@ export const AccountSettings = memo<AccountSettingsProps>(({ id }) => {
                 <T id="totalBalance" />:
               </span>
               <span className="ml-1.5 text-gray-900 text-xs leading-4">
-                <BalanceFiat totalBalanceInDollar={totalBalanceInDollar} currency={fiatSymbol} />
+                <TotalEquity account={account} currency="fiat" />
               </span>
             </div>
             <span className="text-gray-600 text-xxxs leading-3 font-medium">

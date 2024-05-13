@@ -20,11 +20,12 @@ import { useOnboardingProgress } from '../Onboarding/hooks/useOnboardingProgress
 import Onboarding from '../Onboarding/Onboarding';
 
 import { ActionButtonsBar } from './ActionButtonsBar';
-import MainBanner from './OtherComponents/MainBanner';
+import { AssetBanner } from './OtherComponents/AssetBanner';
 import { ScamTokenAlert } from './OtherComponents/ScamTokenAlert';
 import { TezosAssetTab } from './OtherComponents/TezosAssetTab';
-import { TokenPageSelectors } from './OtherComponents/TokenPage.selectors';
 import { TokensTab } from './OtherComponents/Tokens/Tokens';
+import { TotalEquityBanner } from './OtherComponents/TotalEquityBanner';
+import { TokenPageSelectors } from './selectors';
 
 interface Props {
   tezosChainId?: string | null;
@@ -70,7 +71,11 @@ const Home = memo<Props>(({ tezosChainId, assetSlug }) => {
       {showScamTokenAlert && <ScamTokenAlert />}
 
       <div className="flex flex-col pt-1 px-4">
-        <MainBanner tezosChainId={tezosChainId} assetSlug={assetSlug} />
+        {tezosChainId && assetSlug ? (
+          <AssetBanner tezosChainId={tezosChainId} assetSlug={assetSlug} />
+        ) : (
+          <TotalEquityBanner />
+        )}
 
         <ActionButtonsBar tezosChainId={tezosChainId} assetSlug={assetSlug} />
 

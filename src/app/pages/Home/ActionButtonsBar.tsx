@@ -20,7 +20,7 @@ import { createUrl, Link, To } from 'lib/woozie';
 import { createLocationState } from 'lib/woozie/location';
 import { useAccount } from 'temple/front';
 
-import { HomeSelectors } from './Home.selectors';
+import { HomeSelectors } from './selectors';
 
 const tippyPropsMock = {
   trigger: 'mouseenter',

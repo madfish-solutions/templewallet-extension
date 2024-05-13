@@ -8,6 +8,7 @@ import { AccountName } from 'app/atoms/AccountName';
 import { IconButton } from 'app/atoms/IconButton';
 import { PageModal } from 'app/atoms/PageModal';
 import { RadioButton } from 'app/atoms/RadioButton';
+import { TotalEquity } from 'app/atoms/TotalEquity';
 import { useShortcutAccountSelectModalIsOpened } from 'app/hooks/use-account-select-shortcut';
 import { ReactComponent as SettingsIcon } from 'app/icons/settings.svg';
 import { NewWalletActionsPopper } from 'app/templates/NewWalletActionsPopper';
@@ -150,7 +151,9 @@ const AccountOfGroup = memo<AccountOfGroupProps>(({ account, isCurrent, searchVa
         <div className="flex-1 flex flex-col">
           <div className="text-font-small text-grey-1">Total Balance:</div>
 
-          <div className="text-font-num-12">12 345 678.00 $</div>
+          <div className="text-font-num-12">
+            <TotalEquity account={account} currency="fiat" />
+          </div>
         </div>
 
         <AccLabel type={account.type} />

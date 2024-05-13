@@ -29,7 +29,7 @@ import { UNDER_DEVELOPMENT_MSG } from 'temple/evm/under_dev_msg';
 import { useAccountAddressForTezos } from 'temple/front';
 import { TezosNetworkEssentials } from 'temple/networks';
 
-import { HomeSelectors } from '../../Home.selectors';
+import { HomeSelectors } from '../../selectors';
 import { AssetsSelectors } from '../Assets.selectors';
 
 import { ListItem } from './components/ListItem';

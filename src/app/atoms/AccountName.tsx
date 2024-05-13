@@ -34,7 +34,7 @@ export const AccountName = memo<Props>(({ account, searchValue, smaller }) => {
         <ActionsDropdownPopup
           title={() => 'Select Address to copy'}
           opened={props.opened}
-          lowered={!smaller}
+          lowering={smaller ? 1 : 3}
           style={{ minWidth: 173 }}
         >
           {accountTezosAddress ? (

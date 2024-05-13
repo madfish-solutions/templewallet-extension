@@ -3,7 +3,7 @@ import React, { memo, useCallback, useMemo } from 'react';
 import classNames from 'clsx';
 
 import { Button } from 'app/atoms/Button';
-import { HomeSelectors } from 'app/pages/Home/Home.selectors';
+import { HomeSelectors } from 'app/pages/Home/selectors';
 import { AnalyticsEventCategory, useAnalytics } from 'lib/analytics';
 import { T } from 'lib/i18n';
 import { useDelegate } from 'lib/temple/front';
