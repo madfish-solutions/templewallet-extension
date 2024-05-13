@@ -4,7 +4,7 @@ import clsx from 'clsx';
 
 import DropdownWrapper from 'app/atoms/DropdownWrapper';
 import { useShortcutAccountSelectModalIsOpened } from 'app/hooks/use-account-select-shortcut';
-import { ReactComponent as SignalAltIcon } from 'app/icons/signal-alt.svg';
+import { ReactComponent as SignalAltIcon } from 'app/icons/monochrome/signal-alt.svg';
 import { T } from 'lib/i18n';
 import { PopperRenderProps } from 'lib/ui/Popper';
 import { TezosChain, EvmChain, useEnabledTezosChains, useEnabledEvmChains } from 'temple/front';

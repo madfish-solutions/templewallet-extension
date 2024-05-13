@@ -7,7 +7,7 @@ import useOnClickOutside from 'use-onclickoutside';
 import Divider from 'app/atoms/Divider';
 import { useAccountSelectShortcut } from 'app/hooks/use-account-select-shortcut';
 import { useModalScrollLock } from 'app/hooks/use-modal-scroll-lock';
-import { ReactComponent as SadSearchIcon } from 'app/icons/sad-search.svg';
+import { ReactComponent as SadSearchIcon } from 'app/icons/monochrome/sad-search.svg';
 import SearchField from 'app/templates/SearchField';
 import { searchHotkey } from 'lib/constants';
 import { T, t } from 'lib/i18n';

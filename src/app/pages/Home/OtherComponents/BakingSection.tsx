@@ -8,13 +8,13 @@ import Spinner from 'app/atoms/Spinner/Spinner';
 import { useAppEnv } from 'app/env';
 // SVG
 import { DeadEndBoundaryError } from 'app/ErrorBoundary';
-import { ReactComponent as ClockRepeatIcon } from 'app/icons/clock-repeat.svg';
 import { ReactComponent as DelegateIcon } from 'app/icons/delegate.svg';
 import { ReactComponent as DiscordIcon } from 'app/icons/delegationDis.svg';
 import { ReactComponent as RedditIcon } from 'app/icons/delegationRed.svg';
 import { ReactComponent as TelegramIcon } from 'app/icons/delegationTg.svg';
 import { ReactComponent as TwitterIcon } from 'app/icons/delegationTwi.svg';
 import { ReactComponent as YoutubeIcon } from 'app/icons/delegationYt.svg';
+import { ReactComponent as ClockRepeatIcon } from 'app/icons/monochrome/clock-repeat.svg';
 import { ReactComponent as StockUpIcon } from 'app/icons/stock-up.svg';
 import { ReactComponent as ClockIcon } from 'app/icons/time.svg';
 import { ReactComponent as UnlockIcon } from 'app/icons/unlock.svg';

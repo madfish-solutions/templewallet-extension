@@ -8,7 +8,7 @@ import { Alert, FormField, FormSubmitButton } from 'app/atoms';
 import ConfirmLedgerOverlay from 'app/atoms/ConfirmLedgerOverlay';
 import { useAllAccountsReactiveOnAddition } from 'app/hooks/use-all-accounts-reactive';
 import { ReactComponent as OkIcon } from 'app/icons/base/ok.svg';
-import { ReactComponent as LinkIcon } from 'app/icons/link.svg';
+import { ReactComponent as LinkIcon } from 'app/icons/monochrome/link.svg';
 import PageLayout from 'app/layouts/PageLayout';
 import { useFormAnalytics } from 'lib/analytics';
 import { DEFAULT_TEZOS_DERIVATION_PATH } from 'lib/constants';
