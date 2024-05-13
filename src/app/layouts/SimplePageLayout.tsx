@@ -36,16 +36,12 @@ const SimplePageLayout: FC<SimplePageLayoutProps> = ({ title, children }) => {
 
         <div
           className={clsx(
-            appEnv.fullPage ? 'w-full mx-auto max-w-md rounded-md' : '-mx-4 border-t border-gray-200',
-            'px-4',
-            'bg-white',
-            'shadow-md'
+            'px-4 bg-white shadow-md',
+            appEnv.fullPage ? 'rounded-md' : 'flex-1 border-t border-gray-200'
           )}
         >
           {children}
         </div>
-
-        <div className={clsx('flex-1', !appEnv.fullPage && '-mx-4 px-4 bg-white')} />
       </div>
     </>
   );
