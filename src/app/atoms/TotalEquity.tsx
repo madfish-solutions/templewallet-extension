@@ -4,10 +4,10 @@ import BigNumber from 'bignumber.js';
 
 import { useTotalBalance } from 'app/hooks/use-total-balance';
 import { useSelector } from 'app/store';
-import { TEZ_TOKEN_SLUG } from 'lib/assets';
+import { TEZOS_SYMBOL, TEZ_TOKEN_SLUG } from 'lib/assets';
 import { useTezosAssetBalance } from 'lib/balances';
 import { useFiatCurrency, useFiatToUsdRate } from 'lib/fiat-currency';
-import { getTezosGasMetadata } from 'lib/metadata';
+import { TEZOS_METADATA } from 'lib/metadata';
 import { useTypedSWR } from 'lib/swr';
 import { atomsToTokens } from 'lib/temple/helpers';
 import { TEZOS_MAINNET_CHAIN_ID, type StoredAccount } from 'lib/temple/types';
@@ -78,7 +78,6 @@ const TotalEquityForTezosOnlyInFiat = memo<{ amountInDollar: string }>(({ amount
 const TotalEquityForTezosOnlyInGas = memo<{ accountPkh: string; amountInDollar: string }>(
   ({ amountInDollar, accountPkh }) => {
     const network = useTezosMainnetChain();
-    const { symbol: gasTokenSymbol } = getTezosGasMetadata(TEZOS_MAINNET_CHAIN_ID);
 
     const tezosToUsdRate = useSelector(state => state.currency.usdToTokenRates.data[TEZ_TOKEN_SLUG]);
     const { value: gasBalance } = useTezosAssetBalance(TEZ_TOKEN_SLUG, accountPkh, network);
@@ -86,17 +85,17 @@ const TotalEquityForTezosOnlyInGas = memo<{ accountPkh: string; amountInDollar: 
     const amountInGas = useMemo(() => {
       const amountInDollarBN = new BigNumber(amountInDollar);
 
-      const { decimals } = getTezosGasMetadata(network.chainId);
-
       return amountInDollarBN.isZero() || !isTruthy(tezosToUsdRate)
         ? gasBalance
-        : amountInDollarBN.dividedBy(tezosToUsdRate).decimalPlaces(decimals);
-    }, [gasBalance, tezosToUsdRate, amountInDollar, network.chainId]);
+        : amountInDollarBN.dividedBy(tezosToUsdRate).decimalPlaces(TEZOS_METADATA.decimals);
+    }, [gasBalance, tezosToUsdRate, amountInDollar]);
 
     return (
       <>
         <Money smallFractionFont={false}>{amountInGas || ZERO}</Money>
-        <span style={SYMBOL_STYLE}>{gasTokenSymbol}</span>
+        <span style={SYMBOL_STYLE} className="font-semibold">
+          {TEZOS_SYMBOL}
+        </span>
       </>
     );
   }

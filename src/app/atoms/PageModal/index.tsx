@@ -52,7 +52,7 @@ export const PageModal = memo<PropsWithChildren<Props>>(({ title, opened, onRequ
         </div>
       </div>
 
-      <div className="p-4 flex-1 flex flex-col">{children}</div>
+      <div className="flex-1 flex flex-col overflow-hidden">{children}</div>
     </Modal>
   );
 });

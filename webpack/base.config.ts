@@ -262,8 +262,9 @@ export const buildBaseConfig = (): WebPack.Configuration & Pick<WebPack.WebpackO
       formatter: require.resolve('react-dev-utils/eslintFormatter'),
       eslintPath: require.resolve('eslint'),
       resolvePluginsRelativeTo: PATHS.CWD,
-      cache: true,
+      cache: DEVELOPMENT_ENV,
       cacheLocation: path.resolve(PATHS.NODE_MODULES, '.cache/.eslintcache'),
+      lintDirtyModulesOnly: DEVELOPMENT_ENV,
       failOnError: true,
       quiet: true
     })

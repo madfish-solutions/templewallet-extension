@@ -48,7 +48,7 @@ export const AccountsModal = memo<Props>(({ opened, onRequestClose }) => {
 
   return (
     <PageModal title="My Accounts" opened={opened} onRequestClose={onRequestClose}>
-      <div className="flex gap-x-2 mb-4">
+      <div className="flex gap-x-2 p-4">
         <SearchBarField value={searchValue} onValueChange={setSearchValue} />
 
         <IconButton Icon={SettingsIcon} design="blue" onClick={() => void navigate('settings/accounts-management')} />
@@ -56,7 +56,7 @@ export const AccountsModal = memo<Props>(({ opened, onRequestClose }) => {
         <NewWalletActionsPopper />
       </div>
 
-      <div className="flex-1 flex flex-col">
+      <div className="px-4 flex-1 flex flex-col overflow-y-auto">
         {filteredGroups.map(group => (
           <AccountsGroup
             key={group.id}
@@ -70,7 +70,7 @@ export const AccountsModal = memo<Props>(({ opened, onRequestClose }) => {
         ))}
       </div>
 
-      <div className="-m-4 p-4 pb-6 flex flex-col bg-white">
+      <div className="p-4 pb-6 flex flex-col bg-white">
         <StyledButton size="L" color="primary-low" onClick={onRequestClose}>
           Cancel
         </StyledButton>
