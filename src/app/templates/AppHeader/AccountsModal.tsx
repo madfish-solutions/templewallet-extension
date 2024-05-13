@@ -8,6 +8,7 @@ import { AccountName } from 'app/atoms/AccountName';
 import { IconButton } from 'app/atoms/IconButton';
 import { PageModal } from 'app/atoms/PageModal';
 import { RadioButton } from 'app/atoms/RadioButton';
+import { StyledButton } from 'app/atoms/StyledButton';
 import { TotalEquity } from 'app/atoms/TotalEquity';
 import { useShortcutAccountSelectModalIsOpened } from 'app/hooks/use-account-select-shortcut';
 import { ReactComponent as SettingsIcon } from 'app/icons/base/settings.svg';
@@ -55,7 +56,7 @@ export const AccountsModal = memo<Props>(({ opened, onRequestClose }) => {
         <NewWalletActionsPopper />
       </div>
 
-      <div className="flex flex-col">
+      <div className="flex-1 flex flex-col">
         {filteredGroups.map(group => (
           <AccountsGroup
             key={group.id}
@@ -67,6 +68,12 @@ export const AccountsModal = memo<Props>(({ opened, onRequestClose }) => {
             onAccountSelect={onRequestClose}
           />
         ))}
+      </div>
+
+      <div className="-m-4 p-4 pb-6 flex flex-col bg-white">
+        <StyledButton size="L" color="primary-low" onClick={onRequestClose}>
+          Cancel
+        </StyledButton>
       </div>
     </PageModal>
   );

@@ -2,6 +2,9 @@
   position: absolute;
   inset: 0;
 
+  border-radius: inherit;
+
+  /* Since it always hangs over content, we make it pervious */
   pointer-events: none;
 
   background-color: black;

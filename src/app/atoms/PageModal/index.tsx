@@ -30,7 +30,7 @@ export const PageModal = memo<PropsWithChildren<Props>>(({ title, opened, onRequ
       className={{
         base: clsx(
           LAYOUT_CONTAINER_CLASSNAME,
-          'h-full flex flex-col bg-white rounded-lg',
+          'h-full flex flex-col bg-white rounded-lg overflow-hidden',
           ModStyles.base,
           'ease-out duration-300'
         ),
@@ -52,7 +52,7 @@ export const PageModal = memo<PropsWithChildren<Props>>(({ title, opened, onRequ
         </div>
       </div>
 
-      <div className="p-4">{children}</div>
+      <div className="p-4 flex-1 flex flex-col">{children}</div>
     </Modal>
   );
 });
