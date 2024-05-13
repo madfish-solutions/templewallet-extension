@@ -4,7 +4,7 @@ import clsx from 'clsx';
 
 import { IconBase } from 'app/atoms';
 import { Button } from 'app/atoms/Button';
-import { ReactComponent as ChevronLeftIcon } from 'app/icons/chevron_left.svg';
+import { ReactComponent as ChevronLeftIcon } from 'app/icons/base/chevron_left.svg';
 import { goBack, HistoryAction, navigate, useLocation } from 'lib/woozie';
 
 import { useStickyObservation } from '../containers';

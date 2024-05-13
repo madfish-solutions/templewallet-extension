@@ -10,7 +10,7 @@ import { PageModal } from 'app/atoms/PageModal';
 import { RadioButton } from 'app/atoms/RadioButton';
 import { TotalEquity } from 'app/atoms/TotalEquity';
 import { useShortcutAccountSelectModalIsOpened } from 'app/hooks/use-account-select-shortcut';
-import { ReactComponent as SettingsIcon } from 'app/icons/settings.svg';
+import { ReactComponent as SettingsIcon } from 'app/icons/base/settings.svg';
 import { NewWalletActionsPopper } from 'app/templates/NewWalletActionsPopper';
 import { SearchBarField } from 'app/templates/SearchField';
 import { StoredAccount } from 'lib/temple/types';

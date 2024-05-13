@@ -1,10 +1,10 @@
 import React, { memo, useMemo } from 'react';
 
-import { ReactComponent as HdIcon } from 'app/icons/hd.svg';
-import { ReactComponent as ImportedIcon } from 'app/icons/imported.svg';
-import { ReactComponent as LedgerIcon } from 'app/icons/ledger2.svg';
-import { ReactComponent as ManageKtIcon } from 'app/icons/manage_kt.svg';
-import { ReactComponent as WatchIcon } from 'app/icons/watch.svg';
+import { ReactComponent as HdIcon } from 'app/icons/base/hd.svg';
+import { ReactComponent as ImportedIcon } from 'app/icons/base/imported.svg';
+import { ReactComponent as LedgerIcon } from 'app/icons/base/ledger2.svg';
+import { ReactComponent as ManageKtIcon } from 'app/icons/base/manage_kt.svg';
+import { ReactComponent as WatchIcon } from 'app/icons/base/watch.svg';
 import { TempleAccountType } from 'lib/temple/types';
 
 import { IconBase } from './IconBase';

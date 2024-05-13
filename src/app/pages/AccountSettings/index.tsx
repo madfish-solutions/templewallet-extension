@@ -7,7 +7,7 @@ import CopyButton from 'app/atoms/CopyButton';
 import { TotalEquity } from 'app/atoms/TotalEquity';
 import { useAllAccountsReactiveOnRemoval } from 'app/hooks/use-all-accounts-reactive';
 import { ReactComponent as ChevronRightIcon } from 'app/icons/chevron-right.svg';
-import { ReactComponent as CopyIcon } from 'app/icons/copy-old.svg';
+import { ReactComponent as CopyIcon } from 'app/icons/monochrome/copy.svg';
 import PageLayout from 'app/layouts/PageLayout';
 import { T, TID, t } from 'lib/i18n';
 import { useTempleClient } from 'lib/temple/front';

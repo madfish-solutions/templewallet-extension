@@ -5,7 +5,7 @@ import clsx from 'clsx';
 
 import { IconBase } from 'app/atoms';
 import CleanButton, { CLEAN_BUTTON_ID } from 'app/atoms/CleanButton';
-import { ReactComponent as SearchIcon } from 'app/icons/search.svg';
+import { ReactComponent as SearchIcon } from 'app/icons/base/search.svg';
 import { setTestID, TestIDProps } from 'lib/analytics';
 
 interface Props extends InputHTMLAttributes<HTMLInputElement>, TestIDProps {

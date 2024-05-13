@@ -2,8 +2,8 @@ import React, { memo } from 'react';
 
 import clsx from 'clsx';
 
-import { ReactComponent as CircleIcon } from 'app/icons/circle.svg';
-import { ReactComponent as OkFillIcon } from 'app/icons/ok_fill.svg';
+import { ReactComponent as CircleIcon } from 'app/icons/base/circle.svg';
+import { ReactComponent as OkFillIcon } from 'app/icons/base/ok_fill.svg';
 
 import { IconBase } from './IconBase';
 

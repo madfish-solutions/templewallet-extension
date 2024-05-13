@@ -6,7 +6,7 @@ import { HashShortView, IconBase } from 'app/atoms';
 import { ActionsDropdownPopup } from 'app/atoms/ActionsDropdown';
 import { Button } from 'app/atoms/Button';
 import Name from 'app/atoms/Name';
-import { ReactComponent as CopyIcon } from 'app/icons/copy.svg';
+import { ReactComponent as CopyIcon } from 'app/icons/base/copy.svg';
 import { toastSuccess } from 'app/toaster';
 import { StoredAccount } from 'lib/temple/types';
 import Popper from 'lib/ui/Popper';

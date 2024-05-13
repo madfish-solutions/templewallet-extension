@@ -4,10 +4,10 @@ import classNames from 'clsx';
 import { QRCode } from 'react-qr-svg';
 
 import { FormField, PageTitle } from 'app/atoms';
-import { ReactComponent as CopyIcon } from 'app/icons/copy-old.svg';
+import { ReactComponent as QRIcon } from 'app/icons/base/qr_code.svg';
 import { ReactComponent as GlobeIcon } from 'app/icons/globe.svg';
 import { ReactComponent as HashIcon } from 'app/icons/hash.svg';
-import { ReactComponent as QRIcon } from 'app/icons/qr_code.svg';
+import { ReactComponent as CopyIcon } from 'app/icons/monochrome/copy.svg';
 import PageLayout from 'app/layouts/PageLayout';
 import { useChainSelectController, ChainSelectSection } from 'app/templates/ChainSelect';
 import ViewsSwitcher, { ViewsSwitcherProps } from 'app/templates/ViewsSwitcher/ViewsSwitcher';

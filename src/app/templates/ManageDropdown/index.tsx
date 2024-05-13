@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { IconButton } from 'app/atoms/IconButton';
-import { ReactComponent as ManageIcon } from 'app/icons/manage.svg';
+import { ReactComponent as ManageIcon } from 'app/icons/base/manage.svg';
 import { TestIDProps } from 'lib/analytics';
 
 interface ButtonForManageDropdownProps extends TestIDProps {

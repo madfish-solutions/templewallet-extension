@@ -7,7 +7,7 @@ import { useDebouncedCallback } from 'use-debounce';
 
 import { Alert, FormField, FormSubmitButton, NoSpaceField, PageTitle } from 'app/atoms';
 import Spinner from 'app/atoms/Spinner/Spinner';
-import { ReactComponent as AddIcon } from 'app/icons/plus_circle.svg';
+import { ReactComponent as AddIcon } from 'app/icons/base/plus_circle.svg';
 import PageLayout from 'app/layouts/PageLayout';
 import { dispatch } from 'app/store';
 import { putTokensAsIsAction, putCollectiblesAsIsAction } from 'app/store/assets/actions';

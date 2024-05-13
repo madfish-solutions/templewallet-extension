@@ -2,7 +2,7 @@ import React, { forwardRef, InputHTMLAttributes, useCallback, useEffect, useMemo
 
 import clsx from 'clsx';
 
-import { ReactComponent as OkIcon } from 'app/icons/ok.svg';
+import { ReactComponent as OkIcon } from 'app/icons/base/ok.svg';
 import { TestIDProps, setTestID, useAnalytics, AnalyticsEventCategory } from 'lib/analytics';
 import { blurHandler, checkedHandler, focusHandler } from 'lib/ui/inputHandlers';
 

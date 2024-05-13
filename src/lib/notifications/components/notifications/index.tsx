@@ -2,7 +2,7 @@ import React, { useCallback } from 'react';
 
 import { DataPlaceholder, IconBase } from 'app/atoms';
 import { useLoadPartnersPromo } from 'app/hooks/use-load-partners-promo';
-import { ReactComponent as BellIcon } from 'app/icons/bell.svg';
+import { ReactComponent as BellIcon } from 'app/icons/base/bell.svg';
 import PageLayout from 'app/layouts/PageLayout';
 import { dispatch } from 'app/store';
 import { useShouldShowPartnersPromoSelector } from 'app/store/partners-promotion/selectors';

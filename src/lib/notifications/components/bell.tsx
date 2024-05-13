@@ -1,7 +1,7 @@
 import React, { memo } from 'react';
 
 import { IconBase } from 'app/atoms';
-import { ReactComponent as BellIcon } from 'app/icons/bell.svg';
+import { ReactComponent as BellIcon } from 'app/icons/base/bell.svg';
 
 import { useNewNotificationsAmountSelector } from '../store/selectors';
 

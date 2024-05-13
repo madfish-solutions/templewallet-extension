@@ -4,7 +4,7 @@ import clsx from 'clsx';
 import Modal from 'react-modal';
 
 import { ACTIVATE_CONTENT_FADER_CLASSNAME } from 'app/a11y/ContentFader';
-import { ReactComponent as ExIcon } from 'app/icons/x.svg';
+import { ReactComponent as ExIcon } from 'app/icons/base/x.svg';
 import { LAYOUT_CONTAINER_CLASSNAME } from 'app/layouts/containers';
 
 import { IconBase } from '../IconBase';

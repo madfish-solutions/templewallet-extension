@@ -4,7 +4,7 @@ import classNames from 'clsx';
 
 import { ReactComponent as AlertTriangleIcon } from 'app/icons/alert-triangle.svg';
 import { ReactComponent as ArrowRightIcon } from 'app/icons/arrow-to-right.svg';
-import { ReactComponent as NewsIcon } from 'app/icons/news.svg';
+import { ReactComponent as NewsIcon } from 'app/icons/monochrome/news.svg';
 import { ReactComponent as UpdateIcon } from 'app/icons/update.svg';
 import { Link } from 'lib/woozie';
 

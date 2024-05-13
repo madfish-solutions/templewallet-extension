@@ -5,11 +5,11 @@ import clsx from 'clsx';
 import { Props as TippyProps } from 'tippy.js';
 
 import { Anchor, IconBase } from 'app/atoms';
-import { ReactComponent as ActivityIcon } from 'app/icons/activity.svg';
-import { ReactComponent as MarketIcon } from 'app/icons/card.svg';
-import { ReactComponent as ReceiveIcon } from 'app/icons/income.svg';
-import { ReactComponent as SendIcon } from 'app/icons/send.svg';
-import { ReactComponent as SwapIcon } from 'app/icons/swap.svg';
+import { ReactComponent as ActivityIcon } from 'app/icons/base/activity.svg';
+import { ReactComponent as MarketIcon } from 'app/icons/base/card.svg';
+import { ReactComponent as ReceiveIcon } from 'app/icons/base/income.svg';
+import { ReactComponent as SendIcon } from 'app/icons/base/send.svg';
+import { ReactComponent as SwapIcon } from 'app/icons/base/swap.svg';
 import { buildSendPagePath } from 'app/pages/Send/build-url';
 import { buildSwapPageUrlQuery } from 'app/pages/Swap/utils/build-url-query';
 import { TestIDProps } from 'lib/analytics';

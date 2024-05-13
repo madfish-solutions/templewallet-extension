@@ -3,11 +3,11 @@ import React, { FC, memo } from 'react';
 import { ActionListItem } from 'app/atoms/ActionListItem';
 import { ActionsDropdownPopup } from 'app/atoms/ActionsDropdown';
 import { IconButton } from 'app/atoms/IconButton';
-import { ReactComponent as AddAccIcon } from 'app/icons/add_acc.svg';
-import { ReactComponent as ImportedIcon } from 'app/icons/imported.svg';
-import { ReactComponent as LedgerIcon } from 'app/icons/ledger2.svg';
-import { ReactComponent as PlusIcon } from 'app/icons/plus.svg';
-import { ReactComponent as WatchIcon } from 'app/icons/watch.svg';
+import { ReactComponent as AddAccIcon } from 'app/icons/base/add_acc.svg';
+import { ReactComponent as ImportedIcon } from 'app/icons/base/imported.svg';
+import { ReactComponent as LedgerIcon } from 'app/icons/base/ledger2.svg';
+import { ReactComponent as PlusIcon } from 'app/icons/base/plus.svg';
+import { ReactComponent as WatchIcon } from 'app/icons/base/watch.svg';
 import { T } from 'lib/i18n';
 import Popper, { PopperRenderProps } from 'lib/ui/Popper';
 

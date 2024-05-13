@@ -2,8 +2,8 @@ import React, { memo, useMemo } from 'react';
 
 import clsx from 'clsx';
 
+import { ReactComponent as CardIcon } from 'app/icons/base/card.svg';
 import { ReactComponent as BuyWithCryptoIcon } from 'app/icons/buy-with-crypto.svg';
-import { ReactComponent as CardIcon } from 'app/icons/card.svg';
 import { ReactComponent as CreditCardIcon } from 'app/icons/credit-card.svg';
 import { TabInterface, TabsPageLayout } from 'app/layouts/TabsPageLayout';
 import { ReactComponent as AliceBobIcon } from 'app/pages/Buy/assets/AliceBob.svg';

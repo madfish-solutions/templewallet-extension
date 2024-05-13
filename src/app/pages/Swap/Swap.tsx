@@ -1,7 +1,7 @@
 import React, { memo, Suspense, useEffect } from 'react';
 
 import { PageTitle } from 'app/atoms/PageTitle';
-import { ReactComponent as SwapIcon } from 'app/icons/swap.svg';
+import { ReactComponent as SwapIcon } from 'app/icons/base/swap.svg';
 import PageLayout from 'app/layouts/PageLayout';
 import { dispatch } from 'app/store';
 import { resetSwapParamsAction } from 'app/store/swap/actions';

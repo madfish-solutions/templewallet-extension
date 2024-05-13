@@ -1,7 +1,7 @@
 import React, { memo } from 'react';
 
 import { PageTitle } from 'app/atoms';
-import { ReactComponent as SendIcon } from 'app/icons/send.svg';
+import { ReactComponent as SendIcon } from 'app/icons/base/send.svg';
 import PageLayout from 'app/layouts/PageLayout';
 import { useChainSelectController, ChainSelectSection } from 'app/templates/ChainSelect';
 import SendForm from 'app/templates/SendForm';

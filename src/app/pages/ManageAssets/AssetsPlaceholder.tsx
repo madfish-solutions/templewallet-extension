@@ -1,7 +1,7 @@
 import React, { memo } from 'react';
 
 import { SyncSpinner } from 'app/atoms';
-import { ReactComponent as SearchIcon } from 'app/icons/search.svg';
+import { ReactComponent as SearchIcon } from 'app/icons/base/search.svg';
 import { setTestID } from 'lib/analytics';
 import { T } from 'lib/i18n';
 

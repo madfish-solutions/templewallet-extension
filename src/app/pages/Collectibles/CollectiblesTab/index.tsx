@@ -10,8 +10,8 @@ import { IconButton } from 'app/atoms/IconButton';
 import { ScrollBackUpButton } from 'app/atoms/ScrollBackUpButton';
 import { SimpleInfiniteScroll } from 'app/atoms/SimpleInfiniteScroll';
 import { useCollectiblesListingLogic } from 'app/hooks/use-collectibles-listing-logic';
+import { ReactComponent as FiltersIcon } from 'app/icons/base/filteroff.svg';
 import { ReactComponent as EditingIcon } from 'app/icons/editing.svg';
-import { ReactComponent as FiltersIcon } from 'app/icons/filteroff.svg';
 import { ContentContainer, StickyBar } from 'app/layouts/containers';
 import {
   LOCAL_STORAGE_ADULT_BLUR_TOGGLE_KEY,

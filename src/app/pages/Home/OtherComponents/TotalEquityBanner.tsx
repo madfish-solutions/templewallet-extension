@@ -4,7 +4,7 @@ import { Button, IconBase } from 'app/atoms';
 import { ActionListItem } from 'app/atoms/ActionListItem';
 import { ActionsDropdownPopup } from 'app/atoms/ActionsDropdown';
 import { EquityCurrency, TotalEquity } from 'app/atoms/TotalEquity';
-import { ReactComponent as CompactDownIcon } from 'app/icons/compact_down.svg';
+import { ReactComponent as CompactDownIcon } from 'app/icons/base/compact_down.svg';
 import { useFiatCurrency } from 'lib/fiat-currency';
 import { T } from 'lib/i18n';
 import { usePassiveStorage } from 'lib/temple/front/storage';

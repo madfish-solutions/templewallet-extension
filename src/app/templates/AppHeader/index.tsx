@@ -6,7 +6,7 @@ import { IconBase } from 'app/atoms';
 import { AccountName } from 'app/atoms/AccountName';
 import { Button } from 'app/atoms/Button';
 import Identicon from 'app/atoms/Identicon';
-import { ReactComponent as BurgerIcon } from 'app/icons/menu.svg';
+import { ReactComponent as BurgerIcon } from 'app/icons/base/menu.svg';
 import { useBooleanState } from 'lib/ui/hooks';
 import Popper from 'lib/ui/Popper';
 import { useAccount } from 'temple/front';

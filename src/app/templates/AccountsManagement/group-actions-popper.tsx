@@ -1,12 +1,12 @@
 import React, { FC, memo, useMemo } from 'react';
 
 import { Button, IconBase } from 'app/atoms';
-import { ReactComponent as DeleteIcon } from 'app/icons/delete.svg';
-import { ReactComponent as DownloadIcon } from 'app/icons/download.svg';
-import { ReactComponent as EditIcon } from 'app/icons/edit.svg';
-import { ReactComponent as MenuCircleIcon } from 'app/icons/menu_circle.svg';
-import { ReactComponent as AddIcon } from 'app/icons/plus_circle.svg';
-import { ReactComponent as RevealEyeIcon } from 'app/icons/reveal.svg';
+import { ReactComponent as DeleteIcon } from 'app/icons/base/delete.svg';
+import { ReactComponent as EditIcon } from 'app/icons/base/edit.svg';
+import { ReactComponent as MenuCircleIcon } from 'app/icons/base/menu_circle.svg';
+import { ReactComponent as AddIcon } from 'app/icons/base/plus_circle.svg';
+import { ReactComponent as RevealEyeIcon } from 'app/icons/base/reveal.svg';
+import { ReactComponent as DownloadIcon } from 'app/icons/monochrome/download.svg';
 import { ACCOUNT_EXISTS_SHOWN_WARNINGS_STORAGE_KEY } from 'lib/constants';
 import { T } from 'lib/i18n';
 import { useStorage, useTempleClient } from 'lib/temple/front';

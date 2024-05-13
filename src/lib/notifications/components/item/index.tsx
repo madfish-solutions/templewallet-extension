@@ -6,7 +6,7 @@ import { useDispatch } from 'react-redux';
 
 import { Button, IconBase } from 'app/atoms';
 import { useAppEnv } from 'app/env';
-import { ReactComponent as BellIcon } from 'app/icons/bell.svg';
+import { ReactComponent as BellIcon } from 'app/icons/base/bell.svg';
 import PageLayout from 'app/layouts/PageLayout';
 import { T } from 'lib/i18n';
 import { goBack } from 'lib/woozie';
