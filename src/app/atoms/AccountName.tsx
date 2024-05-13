@@ -14,6 +14,7 @@ import { getAccountAddressForEvm, getAccountAddressForTezos } from 'temple/accou
 import { TempleChainKind, TempleChainTitle } from 'temple/types';
 
 import { ActionListItem } from './ActionListItem';
+import { EvmNetworksLogos, TezosNetworkLogo } from './NetworksLogos';
 import { SearchHighlightText } from './SearchHighlightText';
 
 interface Props {
@@ -87,18 +88,21 @@ interface CopyAddressButtonProps {
 
 const CopyAddressButton = memo<CopyAddressButtonProps>(({ chain, address, onCopy }) => (
   <ActionListItem
+    className="flex items-center"
     onClick={() => {
       window.navigator.clipboard.writeText(address);
       onCopy();
       toastSuccess('Address Copied');
     }}
   >
-    <div className="flex flex-col gap-y-0.5 items-start">
+    <div className="flex-1 flex flex-col gap-y-0.5 items-start">
       <span className="text-font-description">{TempleChainTitle[chain]}</span>
 
       <span className="text-font-small text-grey-1">
         <HashShortView hash={address} />
       </span>
     </div>
+
+    {chain === 'tezos' ? <TezosNetworkLogo /> : <EvmNetworksLogos />}
   </ActionListItem>
 ));
