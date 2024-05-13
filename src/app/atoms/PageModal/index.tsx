@@ -1,8 +1,7 @@
-import React, { PropsWithChildren, memo, useCallback, useRef, useState } from 'react';
+import React, { PropsWithChildren, memo } from 'react';
 
 import clsx from 'clsx';
 import Modal from 'react-modal';
-import CSSTransition from 'react-transition-group/CSSTransition';
 
 import { ACTIVATE_CONTENT_FADER_CLASSNAME } from 'app/a11y/ContentFader';
 import { ReactComponent as ExIcon } from 'app/icons/x.svg';
@@ -11,14 +10,6 @@ import { LAYOUT_CONTAINER_CLASSNAME } from 'app/layouts/containers';
 import { IconBase } from '../IconBase';
 
 import ModStyles from './styles.module.css';
-
-export const usePageModalState = () => {
-  const [opened, setActive] = useState(false);
-
-  const close = useCallback(() => {}, []);
-
-  return { opened, close };
-};
 
 interface Props {
   title: string;
@@ -48,12 +39,9 @@ export const PageModal = memo<PropsWithChildren<Props>>(({ title, opened, onRequ
       }}
       bodyOpenClassName={ACTIVATE_CONTENT_FADER_CLASSNAME}
       htmlOpenClassName="overflow-hidden"
-      // portalClassName={undefined}
-      // overlayClassName="fixed inset-0 bg-[#00000026]"
       appElement={document.getElementById('root')!}
       onRequestClose={onRequestClose}
     >
-      {/* <PageModalContent active={active}>{children}</PageModalContent> */}
       <div className="flex items-center p-4 border-b border-lines">
         <div className="w-12" />
 
@@ -66,40 +54,5 @@ export const PageModal = memo<PropsWithChildren<Props>>(({ title, opened, onRequ
 
       <div className="p-4">{children}</div>
     </Modal>
-  );
-});
-
-interface PageModalContentProps {
-  active: boolean;
-}
-
-const PageModalContent = memo<PropsWithChildren<PageModalContentProps>>(({ active, children }) => {
-  // Recommended: https://reactcommunity.org/react-transition-group/transition#Transition-prop-nodeRef
-  const nodeRef = useRef<HTMLDivElement | null>(null);
-
-  // return (
-  //   <Modal isOpen={active} className={'ease-out duration-300'}>
-  //     {children}
-  //   </Modal>
-  // );
-
-  return (
-    <CSSTransition
-      nodeRef={nodeRef}
-      // key={key}
-      in={active}
-      timeout={10000}
-      classNames={{
-        enter: clsx('translate-y-full'),
-        enterActive: clsx('!translate-y-0', 'ease-out duration-10000'),
-        exit: clsx('translate-y-full', 'ease-in duration-10000')
-      }}
-      mountOnEnter
-      unmountOnExit
-    >
-      <div ref={nodeRef} className={clsx(LAYOUT_CONTAINER_CLASSNAME, 'h-full mt-4 bg-white rounded-t-lg')}>
-        {children}
-      </div>
-    </CSSTransition>
   );
 });

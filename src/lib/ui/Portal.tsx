@@ -28,9 +28,3 @@ const stopPropagation = (event: React.BaseSyntheticEvent) => void event.stopProp
 
 for (const name of eventHandlers)
   PORTAL_EVENTS_LEAK_GUARD[name === 'onDblClick' ? 'onDoubleClick' : name] = stopPropagation;
-
-export const PortalEventsLeakGuard: FC<PropsWithChildren> = ({ children }) => (
-  <div {...PORTAL_EVENTS_LEAK_GUARD} className="contents">
-    {children}
-  </div>
-);

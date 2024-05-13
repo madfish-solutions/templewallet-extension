@@ -36,10 +36,6 @@ export const TotalEquity = memo<Props>(({ account, currency }) => {
 
   if (evmAddress) return <TotalEquityForEvmOnly address={evmAddress} targetCurrency={currency} />;
 
-  // const totalTezosBalanceInDollar = useMemo(() => {
-  //   if (!tezosPkh) return 0;
-  // }, [tezosPkh]);
-
   return null;
 });
 
@@ -79,12 +75,10 @@ const TotalEquityForTezosOnlyInFiat = memo<{ amountInDollar: string }>(({ amount
   );
 });
 
-export const TotalEquityForTezosOnlyInGas = memo<{ accountPkh: string; amountInDollar: string }>(
+const TotalEquityForTezosOnlyInGas = memo<{ accountPkh: string; amountInDollar: string }>(
   ({ amountInDollar, accountPkh }) => {
     const network = useTezosMainnetChain();
     const { symbol: gasTokenSymbol } = getTezosGasMetadata(TEZOS_MAINNET_CHAIN_ID);
-
-    //
 
     const tezosToUsdRate = useSelector(state => state.currency.usdToTokenRates.data[TEZ_TOKEN_SLUG]);
     const { value: gasBalance } = useTezosAssetBalance(TEZ_TOKEN_SLUG, accountPkh, network);

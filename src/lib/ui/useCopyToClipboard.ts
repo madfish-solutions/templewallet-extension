@@ -1,29 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 
-export function useClipboardWrite(resetDelay: number = 1000 * 2) {
-  const [copied, setCopied] = useState(false);
-
-  useEffect(() => {
-    if (!copied) return;
-
-    const timeout = window.setTimeout(() => void setCopied(false), resetDelay);
-
-    return () => void window.clearTimeout(timeout);
-  }, [copied]);
-
-  const copy = useCallback(
-    (value: string) => {
-      if (copied) return;
-
-      navigator.clipboard.writeText(value);
-      setCopied(true);
-    },
-    [copied, setCopied]
-  );
-
-  return { copied, copy };
-}
-
 export default function useCopyToClipboard<T extends HTMLInputElement | HTMLTextAreaElement = HTMLInputElement>(
   copyDelay: number = 1000 * 2
 ) {

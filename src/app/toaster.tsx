@@ -10,8 +10,11 @@ import { ReactComponent as WarningIcon } from 'app/icons/typed-msg/warning.svg';
 import PortalToDocumentBody from 'lib/ui/Portal';
 
 export const toastSuccess = (title: string) => void toast.success(title);
+// @ts-prune-ignore-next
 export const toastError = (title: string) => void toast.error(title);
+// @ts-prune-ignore-next
 export const toastInfo = (title: string) => void toast(title);
+// @ts-prune-ignore-next
 export const toastWarning = (title: string) =>
   void toast.custom(toast => <CustomToastBar toast={{ ...toast, message: title }} customType="warning" />);
 
