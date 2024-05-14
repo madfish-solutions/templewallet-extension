@@ -1,5 +1,6 @@
 ## TODO:
 
+- Fix bouncing doc behind popup. Do before 'cut'
 - Manage Assets tab
 - Filters tab
 - Store Tezos native currency

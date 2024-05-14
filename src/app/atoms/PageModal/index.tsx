@@ -4,6 +4,7 @@ import clsx from 'clsx';
 import Modal from 'react-modal';
 
 import { ACTIVATE_CONTENT_FADER_CLASSNAME } from 'app/a11y/ContentFader';
+import { useAppEnv } from 'app/env';
 import { ReactComponent as ExIcon } from 'app/icons/base/x.svg';
 import { LAYOUT_CONTAINER_CLASSNAME } from 'app/layouts/containers';
 
@@ -18,12 +19,14 @@ interface Props {
 }
 
 export const PageModal = memo<PropsWithChildren<Props>>(({ title, opened, onRequestClose, children }) => {
+  const { fullPage } = useAppEnv();
+
   return (
     <Modal
       isOpen={opened}
       closeTimeoutMS={300}
       overlayClassName={{
-        base: 'fixed z-modal-page inset-0 pt-13 pb-8',
+        base: clsx('fixed z-modal-page inset-0', fullPage ? 'pt-13 pb-8' : 'pt-4'),
         afterOpen: '',
         beforeClose: ''
       }}
