@@ -59,7 +59,7 @@ export const DefaultHeader = memo<DefaultHeaderProps>(({ pageTitle, step, setSte
 
       {pageTitle && <div className="flex items-center text-center text-font-medium-bold truncate">{pageTitle}</div>}
 
-      <div className="flex-1 flex items-center">{headerRightElem}</div>
+      <div className="flex-1 flex items-center justify-end">{headerRightElem}</div>
     </div>
   );
 });

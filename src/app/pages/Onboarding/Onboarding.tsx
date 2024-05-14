@@ -24,11 +24,7 @@ const Onboarding: FC = () => {
 
   return (
     <PageLayout
-      pageTitle={
-        <span style={step !== 4 ? { marginLeft: 62 } : {}}>
-          {step >= 1 ? <T id="onboarding" /> : <T id="welcomeToOnboarding" />}
-        </span>
-      }
+      pageTitle={<T id={step >= 1 ? 'onboarding' : 'welcomeToOnboarding'} />}
       step={step}
       setStep={setStep}
       headerRightElem={
