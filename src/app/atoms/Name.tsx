@@ -1,4 +1,4 @@
-import React, { FC, HTMLAttributes, useMemo } from 'react';
+import React, { FC, HTMLAttributes } from 'react';
 
 import classNames from 'clsx';
 
@@ -8,8 +8,8 @@ interface NameProps extends HTMLAttributes<HTMLDivElement>, TestIDProps {}
 
 const Name: FC<NameProps> = ({ className, style = {}, testID, ...rest }) => (
   <div
-    className={classNames('whitespace-nowrap overflow-x-auto truncate no-scrollbar', className)}
-    style={useMemo(() => ({ maxWidth: '12rem', ...style }), [style])}
+    className={classNames('max-w-48 whitespace-nowrap overflow-x-auto truncate no-scrollbar', className)}
+    style={style}
     {...setTestID(testID)}
     {...rest}
   />

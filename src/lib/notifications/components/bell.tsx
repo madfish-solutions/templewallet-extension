@@ -18,6 +18,6 @@ export const NotificationsBell = memo(() => {
   );
 });
 
-export const NitificationsDot = memo(() => (
+export const NotificationsDot = memo(() => (
   <div className="absolute top-1 left-0.5 w-1 h-1 rounded-circle bg-primary" />
 ));

@@ -1,7 +1,5 @@
 import React, { memo, useMemo } from 'react';
 
-import classNames from 'clsx';
-
 import { ReactComponent as CleanIcon } from 'app/icons/base/x_circle_fill.svg';
 import { t } from 'lib/i18n';
 import useTippy from 'lib/ui/useTippy';
@@ -32,7 +30,7 @@ const CleanButton = memo<Props>(({ onClick }) => {
       id={CLEAN_BUTTON_ID}
       ref={buttonRef}
       type="button"
-      className={classNames('absolute right-3 bottom-2', 'flex items-center', 'transition ease-in-out duration-200')}
+      className="absolute right-3 bottom-2 flex items-center ease-in-out duration-200"
       tabIndex={-1}
       onClick={onClick}
     >

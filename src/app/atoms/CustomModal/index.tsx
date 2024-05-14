@@ -30,7 +30,7 @@ const CustomModal = memo<CustomModalProps>(props => {
         beforeClose: ModStyles.overlayClosed
       }}
       className={{
-        base: clsx('bg-white rounded shadow-2xl', 'ease-in-out duration-200', ModStyles.base, className),
+        base: clsx('bg-white rounded shadow-2xl ease-in-out duration-200', ModStyles.base, className),
         afterOpen: ModStyles.opened,
         beforeClose: ModStyles.closed
       }}

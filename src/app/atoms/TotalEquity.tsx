@@ -4,7 +4,7 @@ import BigNumber from 'bignumber.js';
 
 import { useTotalBalance } from 'app/hooks/use-total-balance';
 import { useSelector } from 'app/store';
-import { TEZOS_SYMBOL, TEZ_TOKEN_SLUG } from 'lib/assets';
+import { TEZ_TOKEN_SLUG } from 'lib/assets';
 import { useTezosAssetBalance } from 'lib/balances';
 import { useFiatCurrency, useFiatToUsdRate } from 'lib/fiat-currency';
 import { TEZOS_METADATA } from 'lib/metadata';
@@ -66,7 +66,6 @@ const TotalEquityForTezosOnlyInFiat = memo<{ amountInDollar: string }>(({ amount
 
   return (
     <>
-      {/* <span className="mr-1">≈</span> */}
       <Money smallFractionFont={false} fiat>
         {amountInFiat}
       </Money>
@@ -94,7 +93,7 @@ const TotalEquityForTezosOnlyInGas = memo<{ accountPkh: string; amountInDollar: 
       <>
         <Money smallFractionFont={false}>{amountInGas || ZERO}</Money>
         <span style={SYMBOL_STYLE} className="font-semibold">
-          {TEZOS_SYMBOL}
+          TEZ
         </span>
       </>
     );

@@ -15,7 +15,7 @@ export const DonationBanner = memo(() => (
     testID={DonationBannerSelectors.ukraineDonationBanner}
   >
     <span className="font-inter font-semibold mr-3 text-sm text-blue-650">
-      <T id={'support'} />
+      <T id="support" />
     </span>
 
     <Ukraine />

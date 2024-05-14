@@ -2,7 +2,7 @@ import React, { FC, useLayoutEffect, useRef } from 'react';
 
 import * as Woozie from 'lib/woozie';
 
-interface Props extends React.DetailedHTMLProps<React.HTMLAttributes<HTMLDivElement>, HTMLDivElement> {}
+interface Props extends React.HTMLAttributes<HTMLDivElement> {}
 
 let SCROLL_RESTORATION = new Map<string, number>();
 const MEMOIZED_SCROLLS_LIMIT = 10;

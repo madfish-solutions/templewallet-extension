@@ -191,7 +191,6 @@ const Settings: FC<SettingsProps> = ({ tabSlug }) => {
       {activeTab ? (
         <activeTab.Component />
       ) : (
-        // <ul className="md:grid md:grid-cols-2 md:gap-x-8 md:gap-y-10"> + md:mt-0
         <ul>
           {TABS.map(({ slug, titleI18nKey, descriptionI18nKey, Icon, color, testID }, i) => {
             const first = i === 0;

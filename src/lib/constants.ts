@@ -4,7 +4,7 @@ export enum ContentScriptType {
   UpdateAdsRules = 'UpdateAdsRules'
 }
 
-export const APP_TITLE = 'Temple - Tezos Wallet';
+export const APP_TITLE = 'Temple Wallet';
 
 export const ORIGIN_SEARCH_PARAM_NAME = 'o';
 

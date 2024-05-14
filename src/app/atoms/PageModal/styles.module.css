@@ -1,3 +1,10 @@
+/*
+  (!) Definition order influences precedence. Keep the order.
+
+  Library applies them at the same time for some states,
+  while precedence has to take place.
+*/
+
 .base {
   translate: 0 110%;
 }

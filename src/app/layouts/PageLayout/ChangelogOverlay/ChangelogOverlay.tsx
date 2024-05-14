@@ -32,7 +32,7 @@ export const ChangelogOverlay: FC = () => {
 
   return ready && lastShownVersion !== APP_VERSION ? (
     <>
-      <div className={'fixed inset-0 opacity-20 bg-gray-700 z-overlay-promo'}></div>
+      <div className="fixed inset-0 opacity-20 bg-gray-700 z-overlay-promo"></div>
 
       <div className={classNames(LAYOUT_CONTAINER_CLASSNAME, 'fixed z-overlay-promo max-h-full', popupClassName)}>
         <div

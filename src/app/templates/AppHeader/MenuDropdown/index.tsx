@@ -24,15 +24,9 @@ const MenuDropdown = memo<PopperRenderProps>(({ opened, setOpened }) => {
   const appEnv = useAppEnv();
   const { lock } = useTempleClient();
 
-  useShortcutAccountSelectModalIsOpened(() => setOpened(false));
+  const closeDropdown = useCallback(() => void setOpened(false), [setOpened]);
 
-  const closeDropdown = useCallback(() => {
-    setOpened(false);
-  }, [setOpened]);
-
-  const handleLogoutClick = useCallback(() => {
-    lock();
-  }, [lock]);
+  useShortcutAccountSelectModalIsOpened(closeDropdown);
 
   const handleMaximiseViewClick = useCallback(() => {
     openInFullPage();
@@ -81,10 +75,10 @@ const MenuDropdown = memo<PopperRenderProps>(({ opened, setOpened }) => {
         Icon: LockIcon,
         children: <T id="lock" />,
         testID: MenuDropdownSelectors.logoutButton,
-        onClick: handleLogoutClick
+        onClick: lock
       }
     ],
-    [appEnv.fullPage, closeDropdown, handleMaximiseViewClick, handleLogoutClick]
+    [appEnv.fullPage, closeDropdown, handleMaximiseViewClick, lock]
   );
 
   return (

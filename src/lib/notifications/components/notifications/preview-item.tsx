@@ -13,7 +13,7 @@ import { NotificationStatus } from '../../enums/notification-status.enum';
 import { NotificationType } from '../../enums/notification-type.enum';
 import type { NotificationInterface } from '../../types';
 import { formatDateOutput } from '../../utils/date.utils';
-import { NitificationsDot } from '../bell';
+import { NotificationsDot } from '../bell';
 
 import { PreviewItemSelectors } from './preview-item.selectors';
 
@@ -42,7 +42,7 @@ export const NotificationPreviewItem: FC<Props> = ({ notification }) => {
       {...setAnotherSelector('id', notification.id)}
     >
       <div className="relative">
-        {notification.status === NotificationStatus.New && <NitificationsDot />}
+        {notification.status === NotificationStatus.New && <NotificationsDot />}
 
         <Icon width={24} height={24} stroke="#718096" />
       </div>

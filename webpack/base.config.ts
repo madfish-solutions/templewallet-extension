@@ -383,9 +383,6 @@ const svgrLoaderOptions: SvgrLoaderOptions = {
   exportType: 'named',
   prettier: false,
   svgo: false,
-  // svgoConfig: {
-  //   plugins: [{ name: 'preset-default', params: { overrides: { removeViewBox: false } } }]
-  // },
   titleProp: true,
   ref: true,
   memo: true

@@ -8,14 +8,14 @@ import OptimismIconSrc from 'app/icons/networks/optimism.svg?url';
 import PolygonIconSrc from 'app/icons/networks/polygon.svg?url';
 import TezosIconSrc from 'app/icons/networks/tezos.svg?url';
 
-export const TezosNetworkLogo = memo(() => <NetworkLogoBase src={TezosIconSrc} alt="Tezos" className="bg-white" />);
+export const TezosNetworkLogo = memo(() => <NetworkLogoBase src={TezosIconSrc} alt="Tezos" />);
 
 export const EvmNetworksLogos: FC = () => (
   <div className="flex">
-    <NetworkLogoBase src={OptimismIconSrc} alt="Optimism" className="bg-white" />
-    <NetworkLogoBase src={PolygonIconSrc} alt="Polygon" className="bg-white" style={SHIFTED_LOGO_STYLE} />
-    <NetworkLogoBase src={BinanceSmartChainIconSrc} alt="BSC" className="bg-white" style={SHIFTED_LOGO_STYLE} />
-    <NetworkLogoBase src={EthereumIconSrc} alt="ETH" className="bg-white" style={SHIFTED_LOGO_STYLE} />
+    <NetworkLogoBase src={OptimismIconSrc} alt="Optimism" />
+    <NetworkLogoBase src={PolygonIconSrc} alt="Polygon" className="-ml-3.5" />
+    <NetworkLogoBase src={BinanceSmartChainIconSrc} alt="BSC" className="-ml-3.5" />
+    <NetworkLogoBase src={EthereumIconSrc} alt="ETH" className="-ml-3.5" />
   </div>
 );
 
@@ -32,11 +32,7 @@ const NetworkLogoBase = memo<NetworkLogoBaseProps>(({ src, alt, className, style
     alt={alt}
     width={24}
     height={24}
-    className={clsx('p-0.5 border border-grey-4 rounded-full', className)}
+    className={clsx('p-0.5 border border-grey-4 bg-white rounded-full', className)}
     style={style}
   />
 ));
-
-const SHIFTED_LOGO_STYLE: React.CSSProperties = {
-  marginLeft: '-14px'
-};
