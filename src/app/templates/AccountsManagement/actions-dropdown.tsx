@@ -14,7 +14,7 @@ interface Props extends PopperRenderProps {
 }
 
 export const AccountsActionsDropdown = memo<Props>(({ actions, opened, title, setOpened }) => (
-  <ActionsDropdownPopup title={() => title} opened={opened} style={{ minWidth: 154 }}>
+  <ActionsDropdownPopup title={title} opened={opened} style={{ minWidth: 154 }}>
     {actions.map(action => (
       <ActionListItem {...action} key={action.key} setOpened={setOpened} />
     ))}

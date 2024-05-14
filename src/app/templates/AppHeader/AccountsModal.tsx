@@ -51,7 +51,7 @@ export const AccountsModal = memo<Props>(({ opened, onRequestClose }) => {
       <div className="flex gap-x-2 p-4">
         <SearchBarField value={searchValue} onValueChange={setSearchValue} />
 
-        <IconButton Icon={SettingsIcon} design="blue" onClick={() => void navigate('settings/accounts-management')} />
+        <IconButton Icon={SettingsIcon} color="blue" onClick={() => void navigate('settings/accounts-management')} />
 
         <NewWalletActionsPopper />
       </div>

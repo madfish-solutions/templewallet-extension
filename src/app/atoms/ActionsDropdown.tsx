@@ -1,9 +1,9 @@
-import React, { FC, PropsWithChildren, CSSProperties } from 'react';
+import React, { FC, CSSProperties } from 'react';
 
 import DropdownWrapper from './DropdownWrapper';
 
 interface Props {
-  title: () => string;
+  title: React.ReactNode;
   opened: boolean;
   lowering?: 1 | 2 | 3;
   style?: CSSProperties;
@@ -17,7 +17,7 @@ export const ActionsDropdownPopup: FC<PropsWithChildren<Props>> = ({
   children
 }) => (
   <DropdownWrapper opened={opened} design="day" className={`p-2 flex flex-col mt-${lowering}`} style={style}>
-    <div className="py-2.5 px-2 text-font-small-bold text-grey-1">{title()}</div>
+    <div className="py-2.5 px-2 text-font-small-bold text-grey-1">{title}</div>
 
     {children}
   </DropdownWrapper>

@@ -53,7 +53,7 @@ const EquityCurrencyDropdown = memo<EquityCurrencyDropdownProps>(({ opened, togg
   } = useFiatCurrency();
 
   return (
-    <ActionsDropdownPopup title={() => 'Show balance in'} opened={opened} lowering={2} style={{ minWidth: 126 }}>
+    <ActionsDropdownPopup title="Show balance in" opened={opened} lowering={2} style={{ minWidth: 126 }}>
       <EquityCurrencyButton
         value="btc"
         title="BTC"

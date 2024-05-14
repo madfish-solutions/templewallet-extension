@@ -12,7 +12,7 @@ import { T } from 'lib/i18n';
 import Popper, { PopperRenderProps } from 'lib/ui/Popper';
 
 const NewWalletActionsDropdown = memo<PopperRenderProps>(({ opened }) => (
-  <ActionsDropdownPopup title={() => 'Add New Wallet'} opened={opened} style={{ minWidth: 154 }}>
+  <ActionsDropdownPopup title="Add New Wallet" opened={opened} style={{ minWidth: 154 }}>
     <ActionListItem Icon={AddAccIcon} linkTo="/create-another-wallet">
       Create wallet
     </ActionListItem>
@@ -34,7 +34,7 @@ const NewWalletActionsDropdown = memo<PopperRenderProps>(({ opened }) => (
 export const NewWalletActionsPopper: FC = () => (
   <Popper placement="bottom-end" strategy="fixed" popup={props => <NewWalletActionsDropdown {...props} />}>
     {({ ref, opened, toggleOpened }) => (
-      <IconButton Icon={PlusIcon} design="blue" ref={ref} active={opened} onClick={toggleOpened} />
+      <IconButton Icon={PlusIcon} color="blue" ref={ref} active={opened} onClick={toggleOpened} />
     )}
   </Popper>
 );

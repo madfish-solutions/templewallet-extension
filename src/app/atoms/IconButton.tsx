@@ -8,17 +8,24 @@ import { combineRefs } from 'lib/ui/utils';
 
 import { Button } from './Button';
 import { IconBase } from './IconBase';
+import {
+  StyledButtonColor,
+  ACTIVE_STYLED_BUTTON_COLORS_CLASSNAME,
+  getStyledButtonColorsClassNames
+} from './StyledButton';
+
+type Color = 'blue' | 'orange' | 'red';
 
 interface Props extends TestIDProps {
   Icon: ImportedSVGComponent;
-  design?: 'blue' | 'orange' | 'red';
+  color?: Color;
   active?: boolean;
   tooltip?: string;
   onClick?: EmptyFn;
 }
 
 export const IconButton = memo(
-  forwardRef<HTMLButtonElement, Props>(({ Icon, design, active, tooltip, onClick, testID, testIDProperties }, ref) => {
+  forwardRef<HTMLButtonElement, Props>(({ Icon, color, active, tooltip, onClick, testID, testIDProperties }, ref) => {
     const disabled = !onClick;
 
     const tippyProps = useMemo(
@@ -35,28 +42,18 @@ export const IconButton = memo(
 
     const finalRef = useMemo(() => combineRefs<HTMLButtonElement>(ref, tippyRef), [ref, tippyRef]);
 
-    const designClassName = useMemo(() => {
-      if (active) return 'bg-grey-4 text-grey-1 shadow-none';
+    const colorClassName = useMemo(() => {
+      if (active) return clsx(ACTIVE_STYLED_BUTTON_COLORS_CLASSNAME, 'shadow-none');
 
-      switch (design) {
-        case 'blue':
-          return clsx('bg-secondary-low text-secondary', 'hover:bg-secondary-hover-low hover:text-secondary-hover');
-        case 'orange':
-          return clsx('bg-primary-low text-primary', 'hover:bg-primary-hover-low hover:text-primary-hover');
-        case 'red':
-          return clsx('bg-error text-error-low', 'hover:bg-error-low-hover hover:text-error-hover');
-        default:
-          return clsx(
-            'bg-white text-primary shadow-bottom',
-            'hover:bg-grey-4 hover:shadow-none hover:text-primary-hover'
-          );
-      }
-    }, [active, design]);
+      return color
+        ? getStyledButtonColorsClassNames(MAP_TO_STYLED_BUTTON_COLORS[color])
+        : 'bg-white text-primary shadow-bottom hover:bg-grey-4 hover:shadow-none hover:text-primary-hover';
+    }, [active, color]);
 
     return (
       <Button
         ref={finalRef}
-        className={clsx('p-1 rounded-md', designClassName)}
+        className={clsx('p-1 rounded-md', colorClassName)}
         disabled={disabled || active}
         onClick={onClick}
         testID={testID}
@@ -67,3 +64,9 @@ export const IconButton = memo(
     );
   })
 );
+
+const MAP_TO_STYLED_BUTTON_COLORS: Record<Color, StyledButtonColor> = {
+  blue: 'secondary-low',
+  orange: 'primary-low',
+  red: 'red-low'
+};
