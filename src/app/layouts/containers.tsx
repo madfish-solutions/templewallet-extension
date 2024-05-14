@@ -5,6 +5,13 @@ import clsx from 'clsx';
 import { useIntersectionObserver } from 'lib/ui/use-intersection-observer';
 import { combineRefs } from 'lib/ui/utils';
 
+export const SCROLL_DOCUMENT = process.env.SCROLL_DOCUMENT === 'true';
+// (!) Condition mustn't be `if(!SCROLL_DOCUMENT)` - won't work for WebPack
+if (process.env.SCROLL_DOCUMENT !== 'true') require('./PageLayout/custom-app-scroll.css');
+
+export const APP_CONTENT_WRAP_DOM_ID = 'app-content-wrap';
+export const APP_CONTENT_PAPER_DOM_ID = 'app-content-paper';
+
 export const LAYOUT_CONTAINER_CLASSNAME = 'max-w-full w-96 mx-auto';
 
 interface ContentContainerProps extends PropsWithChildren {

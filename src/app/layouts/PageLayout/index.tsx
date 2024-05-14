@@ -10,13 +10,19 @@ import { useAppEnv } from 'app/env';
 import { AdvertisingOverlay } from 'app/templates/advertising/advertising-overlay/advertising-overlay';
 import { useTempleClient } from 'lib/temple/front';
 
-import { LAYOUT_CONTAINER_CLASSNAME } from '../containers';
+import {
+  SCROLL_DOCUMENT,
+  APP_CONTENT_PAPER_DOM_ID,
+  APP_CONTENT_WRAP_DOM_ID,
+  LAYOUT_CONTAINER_CLASSNAME
+} from '../containers';
 
 import { ChangelogOverlay } from './ChangelogOverlay/ChangelogOverlay';
 import ConfirmationOverlay from './ConfirmationOverlay';
 import { DefaultHeader, DefaultHeaderProps } from './DefaultHeader';
 import { NewsletterOverlay } from './NewsletterOverlay/NewsletterOverlay';
 import { OnRampOverlay } from './OnRampOverlay/OnRampOverlay';
+import { ScrollRestorer } from './ScrollRestorer';
 import { ShortcutAccountSwitchOverlay } from './ShortcutAccountSwitchOverlay';
 
 export interface PageLayoutProps extends DefaultHeaderProps {
@@ -38,7 +44,7 @@ const PageLayout: FC<PropsWithChildren<PageLayoutProps>> = ({
     <>
       <DocBg bgClassName="bg-secondary-low" />
 
-      <div className={clsx(fullPage && 'pt-9 pb-8')}>
+      <div id={APP_CONTENT_WRAP_DOM_ID} className={clsx(fullPage && 'pt-9 pb-8')}>
         <ContentPaper>
           {Header ? <Header /> : <DefaultHeader {...headerProps} />}
 
@@ -64,10 +70,12 @@ const ContentPaper: FC<PropsWithChildren> = ({ children }) => {
   const appEnv = useAppEnv();
 
   return (
-    <div
+    <ContentPaperNode
+      id={APP_CONTENT_PAPER_DOM_ID}
       className={clsx(
         LAYOUT_CONTAINER_CLASSNAME,
         'relative flex flex-col bg-white',
+        !SCROLL_DOCUMENT && 'overflow-y-auto',
         appEnv.fullPage && 'rounded-md shadow-bottom'
       )}
       style={appEnv.fullPage ? { minHeight: '20rem' } : undefined}
@@ -75,9 +83,11 @@ const ContentPaper: FC<PropsWithChildren> = ({ children }) => {
       {children}
 
       <ContentFader />
-    </div>
+    </ContentPaperNode>
   );
 };
+
+const ContentPaperNode = SCROLL_DOCUMENT ? 'div' : ScrollRestorer;
 
 export const SpinnerSection: FC = () => (
   <div className="flex justify-center mt-24">

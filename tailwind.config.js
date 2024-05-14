@@ -168,12 +168,6 @@ module.exports = {
         63: '15.75rem'
       },
 
-      // height: theme => theme('spacing'),
-
-      // minHeight: theme => theme('height'),
-
-      // maxHeight: theme => theme('height'),
-
       width: theme => theme('spacing'),
 
       minWidth: theme => theme('width'),
