@@ -10,7 +10,7 @@ import { EnvVars } from 'lib/env';
 
 function fetchConversionInformation() {
   return axios
-    .get<{ trackingId: string; name: string }>(EnvVars.CONVERSION_VERIFICATION_URL)
+    .get<{ linkId: string; name: string }>(EnvVars.CONVERSION_VERIFICATION_URL)
     .then(response => response.data);
 }
 
@@ -21,9 +21,9 @@ export const useConversionTracking = () => {
 
   useEffect(() => {
     if (!isConversionTracked) {
-      fetchConversionInformation().then(({ trackingId, name }) => {
+      fetchConversionInformation().then(({ linkId, name }) => {
         trackEvent('Conversion Info', AnalyticsEventCategory.General, {
-          conversionId: trackingId,
+          conversionId: linkId,
           conversionName: name
         });
       });
