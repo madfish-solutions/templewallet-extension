@@ -6,12 +6,12 @@ import { dispatch } from 'app/store';
 import { setConversionTrackedAction } from 'app/store/conversion-tracking/conversion-actions';
 import { useIsConversionTrackedSelector } from 'app/store/conversion-tracking/conversion-selectors';
 import { AnalyticsEventCategory, useAnalytics } from 'lib/analytics';
-
-/* @todo move out to env variable */
-const CONVERSION_VERIFICATION_URL = 'http://0.0.0.0:3000/v1/verify';
+import { EnvVars } from 'lib/env';
 
 function fetchConversionInformation() {
-  return axios.get<{ trackingId: string; name: string }>(CONVERSION_VERIFICATION_URL).then(response => response.data);
+  return axios
+    .get<{ trackingId: string; name: string }>(EnvVars.CONVERSION_VERIFICATION_URL)
+    .then(response => response.data);
 }
 
 export const useConversionTracking = () => {
