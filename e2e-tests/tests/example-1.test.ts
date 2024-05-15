@@ -7,7 +7,7 @@ test.describe('Example', () => {
     await new Promise(res => setTimeout(res, 5000));
 
     expect(extensionId).toEqual(EXTENSION_ID);
-    expect(extensionId).toEqual('mcjacniackbieefjdoohebbnenlbilcf');
+    expect(extensionId).toEqual('gndfdfigmjebllgpfdapkcnedmebglam');
   });
 
   test('FG Extension ID', async ({ extensionId }) => {
@@ -16,7 +16,7 @@ test.describe('Example', () => {
     await new Promise(res => setTimeout(res, 5000));
 
     expect(extensionId).toEqual(EXTENSION_ID);
-    expect(extensionId).toEqual('mcjacniackbieefjdoohebbnenlbilcf');
+    expect(extensionId).toEqual('gndfdfigmjebllgpfdapkcnedmebglam');
   });
 
   test('TW.com Title', async () => {

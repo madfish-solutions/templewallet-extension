@@ -1,22 +1,18 @@
-import { EXTENSION_ID, test, expect, page } from 'e2e/fixtures/extension';
+import { test, expect, page } from 'e2e/fixtures/extension';
 
-test.describe('Example', () => {
+test.describe('Example 2', () => {
   test('BG Extension ID', async ({ extensionId }) => {
     console.log('Extension ID:', extensionId);
 
-    await new Promise(res => setTimeout(res, 5000));
-
-    expect(extensionId).toEqual(EXTENSION_ID);
-    expect(extensionId).toEqual('mcjacniackbieefjdoohebbnenlbilcf');
+   await page.goto('https://jabko.ua/ipad/ipad-air-10-5/apple-ipad-air--2022-/apple-ipad-air--64gb--wi-fi--blue--2022-')
+    await new Promise(res => setTimeout(res, 2000));
   });
 
   test('FG Extension ID', async ({ extensionId }) => {
     console.log('Extension ID:', extensionId);
 
-    await new Promise(res => setTimeout(res, 5000));
-
-    expect(extensionId).toEqual(EXTENSION_ID);
-    expect(extensionId).toEqual('mcjacniackbieefjdoohebbnenlbilcf');
+   await page.goto('https://github.com/madfish-solutions/templewallet-extension/pull/1143/files')
+    await new Promise(res => setTimeout(res, 2000));
   });
 
   test('TW.com Title', async () => {
@@ -29,3 +25,12 @@ test.describe('Example', () => {
     );
   });
 });
+
+test.afterAll(() => {
+  // context.close();
+  console.log('after all hook in the file')
+});
+
+test.afterEach(() => {
+  console.log('after each hook in the file!')
+})

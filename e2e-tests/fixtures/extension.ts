@@ -13,13 +13,6 @@ export const test = base.extend<{
   extensionId: async ({ context }, use) => {
     if (EXTENSION_ID) return void (await use(EXTENSION_ID));
 
-    /*
-    // for manifest v2:
-    let [background] = context.backgroundPages()
-    if (!background)
-      background = await context.waitForEvent('backgroundpage')
-    */
-
     // for manifest v3:
     let [background] = context.serviceWorkers();
     if (!background) background = await context.waitForEvent('serviceworker');
@@ -41,12 +34,22 @@ test.beforeAll(async () => {
 
   context = await chromium.launchPersistentContext('', {
     headless: false,
-    args: [`--disable-extensions-except=${pathToExtension}`, `--load-extension=${pathToExtension}`]
+    args: [
+      `--disable-extensions-except=${pathToExtension}`,
+      `--load-extension=${pathToExtension}`,
+      '--user-agent=E2EPipeline/0.0.1',
+      '--disable-notifications']
   });
 
   page = await context.newPage();
 });
 
+
 test.afterAll(() => {
-  context.close();
+  // context.close();
+  console.log('after all hook!')
 });
+
+test.afterEach(() => {
+  console.log('after each hook!')
+})
