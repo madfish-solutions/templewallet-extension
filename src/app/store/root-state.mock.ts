@@ -7,6 +7,7 @@ import { mockBalancesState } from './balances/state.mock';
 import { mockBuyWithCreditCardState } from './buy-with-credit-card/state.mock';
 import { mockCollectiblesState } from './collectibles/state.mock';
 import { mockCollectiblesMetadataState } from './collectibles-metadata/state.mock';
+import { mockConversionState } from './conversion-tracking/conversion-state.mock';
 import { mockCurrencyState } from './currency/state.mock';
 import { mockDAppsState } from './d-apps/state.mock';
 import { mockNewsletterState } from './newsletter/newsletter-state.mock';
@@ -15,7 +16,6 @@ import type { RootState } from './root-state.type';
 import { mockSettingsState } from './settings/state.mock';
 import { mockSwapState } from './swap/state.mock';
 import { mockTokensMetadataState } from './tokens-metadata/state.mock';
-import { mockConversionState } from './conversion-tracking/conversion-state.mock';
 
 // ts-prune-ignore-next
 export const mockRootState: RootState = {
