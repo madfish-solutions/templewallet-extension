@@ -1,4 +1,4 @@
-import React, { FC, useCallback, useEffect, useRef, useState } from 'react';
+import React, { FC, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { Banner } from '@hypelab/sdk-react';
 
@@ -27,6 +27,19 @@ export const HypelabImagePromotion: FC<Omit<SingleProviderPromotionProps, 'varia
   const [adIsReady, setAdIsReady] = useState(false);
   const [currentAd, setCurrentAd] = useState<HypelabBannerAd | null>(null);
   const prevAdUrlRef = useRef('');
+  const { backgroundAssetType, backgroundAssetUrl } = useMemo(() => {
+    const creativeSet = currentAd?.creative_set;
+
+    if (!creativeSet) {
+      return {};
+    }
+
+    if ('image' in creativeSet) {
+      return { backgroundAssetType: 'image' as const, backgroundAssetUrl: creativeSet.image.url };
+    }
+
+    return { backgroundAssetType: 'video' as const, backgroundAssetUrl: creativeSet.video.url };
+  }, [currentAd]);
 
   useAdTimeout(adIsReady, onError);
 
@@ -73,6 +86,8 @@ export const HypelabImagePromotion: FC<Omit<SingleProviderPromotionProps, 'varia
       providerTitle={AdsProviderTitle.HypeLab}
       pageName={pageName}
       onAdRectSeen={onAdRectSeen}
+      backgroundAssetUrl={backgroundAssetUrl}
+      backgroundAssetType={backgroundAssetType}
     >
       <div ref={hypelabBannerParentRef}>
         <Banner

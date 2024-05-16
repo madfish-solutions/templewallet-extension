@@ -16,13 +16,23 @@ export interface SingleProviderPromotionProps {
   onAdRectSeen: EmptyFn;
 }
 
-interface HypelabBannerCreativeSet {
+interface HypelabImageCreativeSet {
   image: {
     url: string;
     height: number;
     width: number;
   };
 }
+
+interface HypelabVideoCreativeSet {
+  video: {
+    url: string;
+    height: number;
+    width: number;
+  };
+}
+
+type HypelabBannerCreativeSet = HypelabImageCreativeSet | HypelabVideoCreativeSet;
 
 export interface HypelabBannerAd {
   cta_url: string;
