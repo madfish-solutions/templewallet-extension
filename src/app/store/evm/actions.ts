@@ -1,4 +1,6 @@
-import { ChainID } from 'lib/apis/temple/evm-data.interfaces';
+import { createAction } from '@reduxjs/toolkit';
+
+import { ChainID } from 'lib/apis/temple/endpoints/evm/api.interfaces';
 import { createActions } from 'lib/store';
 
 interface LoadSingleEvmChainDataSuccessPayload {
@@ -13,11 +15,7 @@ interface LoadSingleEvmChainDataFailedPayload extends LoadSingleEvmChainDataSucc
   error?: string;
 }
 
-export const loadEvmBalancesActions = createActions<
-  LoadSingleEvmChainDataSubmitPayload,
-  LoadSingleEvmChainDataSuccessPayload,
-  LoadSingleEvmChainDataFailedPayload
->('evm/LOAD_EVM_BALANCES_ACTIONS');
+export const setEvmBalancesLoading = createAction<boolean>('evm/SET_BALANCES_LOADING');
 
 export const loadEvmTokensMetadataActions = createActions<
   LoadSingleEvmChainDataSubmitPayload,

@@ -1,4 +1,4 @@
-import { NftData, NftTokenContractBalanceItem } from 'lib/apis/temple/evm-data.interfaces';
+import { NftData, NftTokenContractBalanceItem } from 'lib/apis/temple/endpoints/evm/api.interfaces';
 import { EvmCollectibleMetadata } from 'lib/metadata/types';
 
 export const buildEvmCollectibleMetadataFromFetched = (

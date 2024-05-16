@@ -1,15 +1,11 @@
 import React, { memo, useMemo } from 'react';
 
-import BigNumber from 'bignumber.js';
 import classNames from 'clsx';
 
-import { useEvmAccountAssetBalance } from 'app/hooks/evm/balance';
-import { useEvmTokenMetadata } from 'app/hooks/evm/metadata';
 import { AssetIcon, EvmAssetIcon } from 'app/templates/AssetIcon';
 import { setAnotherSelector } from 'lib/analytics';
-import { useTezosAssetBalance } from 'lib/balances/hooks';
+import { useEvmAssetBalance, useTezosAssetBalance } from 'lib/balances/hooks';
 import { getAssetName, getAssetSymbol } from 'lib/metadata';
-import { atomsToTokens } from 'lib/temple/helpers';
 import { ZERO } from 'lib/utils/numbers';
 import { Link } from 'lib/woozie';
 import { EvmNetworkEssentials, TezosNetworkEssentials } from 'temple/networks';
@@ -98,14 +94,16 @@ interface EvmListItemProps {
 }
 
 export const EvmListItem = memo<EvmListItemProps>(({ network, publicKeyHash, assetSlug }) => {
-  const tokenMetadata = useEvmTokenMetadata(network.chainId, assetSlug);
-  const rawBalance = useEvmAccountAssetBalance(publicKeyHash, network.chainId, assetSlug);
+  const { value: balance = ZERO, assetMetadata: metadata } = useEvmAssetBalance(
+    assetSlug,
+    publicKeyHash,
+    network.chainId
+  );
 
-  if (!tokenMetadata) return null;
+  if (metadata == null) return null;
 
-  const balance = atomsToTokens(new BigNumber(rawBalance ?? '0'), tokenMetadata.decimals);
-  const assetName = tokenMetadata.name;
-  const assetSymbol = tokenMetadata.symbol;
+  const assetSymbol = getAssetSymbol(metadata);
+  const assetName = getAssetName(metadata);
 
   return (
     <Link

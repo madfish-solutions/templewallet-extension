@@ -1,6 +1,5 @@
 import React, { memo, useEffect } from 'react';
 
-import { useLoadEvmTokensData } from 'app/hooks/evm/loading';
 import { useAdvertisingLoading } from 'app/hooks/use-advertising.hook';
 import { useAssetsMigrations } from 'app/hooks/use-assets-migrations';
 import { useCollectiblesDetailsLoading } from 'app/hooks/use-collectibles-details-loading';
@@ -18,6 +17,7 @@ import { useAccountAddressForEvm, useAccountAddressForTezos } from 'temple/front
 
 import { AppTezosAssetsLoading } from './assets-loading';
 import { AppTezosBalancesLoading } from './balances-loading';
+import { AppEvmBalancesLoading } from './evm/balances-loading';
 import { AppTezosTokensMetadataLoading } from './metadata-loading';
 import { useChainIDsCheck } from './use-chain-ids-check';
 
@@ -72,8 +72,8 @@ const TezosAccountHooks = memo<{ publicKeyHash: string }>(({ publicKeyHash }) =>
   );
 });
 
-const EvmAccountHooks = memo<{ publicKeyHash: HexString }>(({ publicKeyHash }) => {
-  useLoadEvmTokensData(publicKeyHash);
-
-  return null;
-});
+const EvmAccountHooks = memo<{ publicKeyHash: HexString }>(({ publicKeyHash }) => (
+  <>
+    <AppEvmBalancesLoading publicKeyHash={publicKeyHash} />
+  </>
+));

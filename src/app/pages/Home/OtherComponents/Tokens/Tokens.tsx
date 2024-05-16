@@ -7,12 +7,13 @@ import { Checkbox, Divider, SyncSpinner } from 'app/atoms';
 import DropdownWrapper from 'app/atoms/DropdownWrapper';
 import { useAppEnv } from 'app/env';
 import { useEvmChainAccountTokensSlugs } from 'app/hooks/evm/assets';
-import { useEvmBalancesLoadingState, useEvmTokensMetadataLoadingState } from 'app/hooks/evm/loading';
+import { useEvmTokensMetadataLoadingState } from 'app/hooks/evm/loading';
 import { useLoadPartnersPromo } from 'app/hooks/use-load-partners-promo';
 import { useEvmTokensListingLogic, useTezosTokensListingLogic } from 'app/hooks/use-tokens-listing-logic';
 import { ReactComponent as EditingIcon } from 'app/icons/editing.svg';
 import { ReactComponent as SearchIcon } from 'app/icons/search.svg';
 import { ContentContainer } from 'app/layouts/ContentContainer';
+import { useEvmBalancesLoadingSelector } from 'app/store/evm/selectors';
 import { useAreAssetsLoading, useMainnetTokensScamlistSelector } from 'app/store/tezos/assets/selectors';
 import { useTokensMetadataLoadingSelector } from 'app/store/tezos/tokens-metadata/selectors';
 import { ChainSelectSection, useChainSelectController } from 'app/templates/ChainSelect';
@@ -73,10 +74,10 @@ interface EvmTokensTabProps {
 
 const EvmTokensTab: FC<EvmTokensTabProps> = ({ network, publicKeyHash }) => {
   const assetsSlugs = useEvmChainAccountTokensSlugs(publicKeyHash, network.chainId);
-  const isBalancesLoading = useEvmBalancesLoadingState(network.chainId);
+  const balancesLoading = useEvmBalancesLoadingSelector();
   const isMetadataLoading = useEvmTokensMetadataLoadingState(network.chainId);
 
-  const isLoading = isBalancesLoading || isMetadataLoading;
+  const isLoading = balancesLoading || isMetadataLoading;
 
   const { sortedAssets } = useEvmTokensListingLogic(publicKeyHash, network.chainId, assetsSlugs);
 

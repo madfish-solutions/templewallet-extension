@@ -1,6 +1,6 @@
 import { createAction } from '@reduxjs/toolkit';
 
-import { NftAddressBalanceNftResponse } from 'lib/apis/temple/evm-data.interfaces';
+import { NftAddressBalanceNftResponse } from 'lib/apis/temple/endpoints/evm/api.interfaces';
 interface proceedLoadedEvmCollectiblesMetadataActionPayload {
   chainId: number;
   data: NftAddressBalanceNftResponse;

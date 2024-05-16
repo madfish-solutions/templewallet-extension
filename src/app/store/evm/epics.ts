@@ -2,30 +2,12 @@ import { combineEpics, Epic } from 'redux-observable';
 import { catchError, concatMap, from, mergeMap, of } from 'rxjs';
 import { ofType, toPayload } from 'ts-action-operators';
 
-import { getEvmCollectiblesMetadata, getEvmBalances, getEvmTokensMetadata } from 'lib/apis/temple/endpoints/evm-data';
+import { getEvmCollectiblesMetadata, getEvmTokensMetadata } from 'lib/apis/temple/endpoints/evm/api';
 
-import { loadEvmCollectiblesMetadataActions, loadEvmBalancesActions, loadEvmTokensMetadataActions } from './actions';
-import { proceedLoadedEvmAssetsAction } from './assets/actions';
-import { proceedLoadedEvmAssetsBalancesAction } from './balances/actions';
+import { loadEvmCollectiblesMetadataActions, loadEvmTokensMetadataActions } from './actions';
 import { proceedLoadedEvmCollectiblesMetadataAction } from './collectibles-metadata/actions';
 import { proceedLoadedEvmExchangeRatesAction } from './tokens-exchange-rates/actions';
 import { proceedLoadedEvmTokensMetadataAction } from './tokens-metadata/actions';
-
-const loadEvmBalancesEpic: Epic = action$ =>
-  action$.pipe(
-    ofType(loadEvmBalancesActions.submit),
-    toPayload(),
-    mergeMap(({ publicKeyHash, chainId }) =>
-      from(getEvmBalances(publicKeyHash, chainId)).pipe(
-        concatMap(data => [
-          proceedLoadedEvmAssetsAction({ publicKeyHash, chainId, data }),
-          proceedLoadedEvmAssetsBalancesAction({ publicKeyHash, chainId, data }),
-          loadEvmBalancesActions.success({ chainId })
-        ]),
-        catchError(err => of(loadEvmBalancesActions.fail({ chainId, error: err.message })))
-      )
-    )
-  );
 
 const loadEvmTokensMetadataEpic: Epic = action$ =>
   action$.pipe(
@@ -58,4 +40,4 @@ const loadEvmCollectiblesMetadataEpic: Epic = action$ =>
     )
   );
 
-export const evmEpics = combineEpics(loadEvmBalancesEpic, loadEvmTokensMetadataEpic, loadEvmCollectiblesMetadataEpic);
+export const evmEpics = combineEpics(loadEvmTokensMetadataEpic, loadEvmCollectiblesMetadataEpic);

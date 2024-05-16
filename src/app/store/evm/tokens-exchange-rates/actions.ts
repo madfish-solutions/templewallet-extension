@@ -1,6 +1,6 @@
 import { createAction } from '@reduxjs/toolkit';
 
-import { BalancesResponse } from 'lib/apis/temple/evm-data.interfaces';
+import { BalancesResponse } from 'lib/apis/temple/endpoints/evm/api.interfaces';
 interface proceedLoadedEvmExchangeRatesActionPayload {
   chainId: number;
   data: BalancesResponse;

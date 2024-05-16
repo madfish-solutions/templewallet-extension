@@ -2,8 +2,9 @@ import memoizee from 'memoizee';
 import { createPublicClient, http } from 'viem';
 import type * as ViemChainsModuleType from 'viem/chains';
 
+import { EvmChain } from 'temple/front';
 import { MAX_MEMOIZED_TOOLKITS } from 'temple/misc';
-import type { EvmNativeCurrency, StoredEvmNetwork } from 'temple/networks';
+import type { EvmNativeCurrency } from 'temple/networks';
 
 export const getReadOnlyEvm = memoizee(
   (rpcUrl: string) =>
@@ -13,14 +14,13 @@ export const getReadOnlyEvm = memoizee(
   { max: MAX_MEMOIZED_TOOLKITS }
 );
 
-// ts-prune-ignore-next
 export const getReadOnlyEvmForNetwork = memoizee(
-  (network: StoredEvmNetwork, currency: EvmNativeCurrency) =>
+  (network: EvmChain) =>
     createPublicClient({
       chain: {
         id: network.chainId,
         name: network.name,
-        nativeCurrency: currency,
+        nativeCurrency: network.currency,
         rpcUrls: {
           default: {
             http: [network.rpcBaseURL]
@@ -31,7 +31,7 @@ export const getReadOnlyEvmForNetwork = memoizee(
     }),
   {
     max: MAX_MEMOIZED_TOOLKITS,
-    normalizer: ([{ chainId, name, rpcBaseURL }, currency]) =>
+    normalizer: ([{ chainId, name, rpcBaseURL, currency }]) =>
       `${rpcBaseURL}${chainId}${name}${JSON.stringify(currency)}`
   }
 );

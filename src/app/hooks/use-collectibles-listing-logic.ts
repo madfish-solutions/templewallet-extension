@@ -10,7 +10,9 @@ import { isSearchStringApplicable } from 'lib/utils/search-items';
 import { createLocationState } from 'lib/woozie/location';
 import { EvmNetworkEssentials, TezosNetworkEssentials } from 'temple/networks';
 
-import { useEvmBalancesLoadingState, useEvmCollectiblesMetadataLoadingState } from './evm/loading';
+import { useEvmBalancesLoadingSelector } from '../store/evm/selectors';
+
+import { useEvmCollectiblesMetadataLoadingState } from './evm/loading';
 import {
   ITEMS_PER_PAGE,
   useCollectiblesPaginationLogic,
@@ -93,7 +95,7 @@ export const useEvmCollectiblesListingLogic = (network: EvmNetworkEssentials, al
     loadNext
   } = useEvmCollectiblesPaginationLogic(allSlugsSorted, initialAmount);
 
-  const balancesLoading = useEvmBalancesLoadingState(evmChainId);
+  const balancesLoading = useEvmBalancesLoadingSelector();
   const metadatasLoading = useEvmCollectiblesMetadataLoadingState(evmChainId);
 
   const isSyncing = balancesLoading || pageIsLoading || metadatasLoading;

@@ -1,4 +1,4 @@
-import { BalanceItem } from 'lib/apis/temple/evm-data.interfaces';
+import { BalanceItem } from 'lib/apis/temple/endpoints/evm/api.interfaces';
 import { EvmTokenMetadata } from 'lib/metadata/types';
 
 export const buildEvmTokenMetadataFromFetched = (data: BalanceItem): EvmTokenMetadata => ({

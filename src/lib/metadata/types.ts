@@ -1,4 +1,4 @@
-import { NftCollectionAttribute } from '../apis/temple/evm-data.interfaces';
+import { NftCollectionAttribute } from '../apis/temple/endpoints/evm/api.interfaces';
 
 export enum TezosTokenStandardsEnum {
   Fa2 = 'fa2',

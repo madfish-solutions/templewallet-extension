@@ -1,4 +1,4 @@
-import { BalanceItem } from 'lib/apis/temple/evm-data.interfaces';
+import { BalanceItem } from 'lib/apis/temple/endpoints/evm/api.interfaces';
 import { toTokenSlug } from 'lib/assets';
 import { isPositiveCollectibleBalance, isPositiveTokenBalance } from 'lib/utils/evm.utils';
 
