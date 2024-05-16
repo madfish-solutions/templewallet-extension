@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 
 import { dispatch } from 'app/store';
 import { putCollectiblesMetadataAction } from 'app/store/collectibles-metadata/actions';
@@ -6,15 +6,32 @@ import { useAllCollectiblesMetadataSelector } from 'app/store/collectibles-metad
 import { loadTokensMetadata } from 'lib/metadata/fetch';
 import { useDidMount, useDidUpdate } from 'lib/ui/hooks';
 import { setNavigateSearchParams } from 'lib/woozie';
+import { createLocationState } from 'lib/woozie/location';
 
 export const ITEMS_PER_PAGE = 30;
 
-export const useCollectiblesPaginationLogic = (allSlugsSorted: string[], rpcBaseURL: string, initialSize: number) => {
+export const useCollectiblesPaginationLogic = (allSlugsSorted: string[], rpcBaseURL: string) => {
+  const initialAmountParam = useMemo(() => {
+    const { search } = createLocationState();
+    const usp = new URLSearchParams(search);
+    const amount = usp.get('amount');
+
+    return amount ? Number(amount) : 0;
+  }, []);
+
   const allMeta = useAllCollectiblesMetadataSelector();
 
-  const [slugs, setSlugs] = useState<string[]>(() => allSlugsSorted.slice(0, initialSize));
+  const [slugs, setSlugs] = useState<string[]>(() => {
+    /* It should only be >0 on page reload */
+    if (initialAmountParam) return allSlugsSorted.slice(0, initialAmountParam);
 
-  const initialIsLoading = initialSize ? false : Boolean(allSlugsSorted.length);
+    // Attempt to have initial items show-up without loader
+    const initialSlugs = allSlugsSorted.slice(0, ITEMS_PER_PAGE);
+    const firstAbsentMetaI = initialSlugs.findIndex(slug => !allMeta.get(slug));
+    return firstAbsentMetaI === -1 ? initialSlugs : initialSlugs.slice(0, firstAbsentMetaI + 1);
+  });
+
+  const initialIsLoading = initialAmountParam ? false : Boolean(allSlugsSorted.length);
   const [isLoading, setIsLoading] = useState(initialIsLoading);
 
   const _load = useCallback(

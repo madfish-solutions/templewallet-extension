@@ -6,11 +6,11 @@ import { Collapse } from 'react-collapse';
 
 import { Money, HashChip } from 'app/atoms';
 import Identicon from 'app/atoms/Identicon';
+import { ReactComponent as OkIcon } from 'app/icons/base/ok.svg';
 import { ReactComponent as BoxCrossedIcon } from 'app/icons/box-crossed.svg';
 import { ReactComponent as BoxIcon } from 'app/icons/box.svg';
 import { ReactComponent as ChevronDownIcon } from 'app/icons/chevron-down.svg';
 import { ReactComponent as HourglassIcon } from 'app/icons/hourglass.svg';
-import { ReactComponent as OkIcon } from 'app/icons/ok.svg';
 import { ReactComponent as InProgressIcon } from 'app/icons/rotate.svg';
 import { ReactComponent as ShieldCancelIcon } from 'app/icons/shield-cancel.svg';
 import { ReactComponent as ShieldOkIcon } from 'app/icons/shield-ok.svg';

@@ -6,9 +6,9 @@ const IS_SUPPORTED = 'IntersectionObserver' in window;
 
 export const useIntersectionObserver = (
   elemRef: RefObject<Element>,
-  callback: (intersecting: boolean) => void,
-  predicate = true,
-  init: IntersectionObserverInit
+  callback: (entry: IntersectionObserverEntry) => void,
+  init: IntersectionObserverInit,
+  predicate = true
 ) => {
   const callbackRef = useUpdatableRef(callback);
 
@@ -19,7 +19,7 @@ export const useIntersectionObserver = (
     if (!canDetect) return;
 
     const observer = new IntersectionObserver(([entry]) => {
-      callbackRef.current(entry.isIntersecting);
+      callbackRef.current(entry);
     }, init);
 
     observer.observe(elem);
@@ -32,11 +32,10 @@ export const useIntersectionObserver = (
 export const useIntersectionByOffsetObserver = (
   elemRef: RefObject<Element>,
   callback: (intersecting: boolean) => void,
-  predicate = true,
   verticalOffset = 0,
   root: Document | Element | null = document
 ) =>
-  useIntersectionObserver(elemRef, callback, predicate, {
+  useIntersectionObserver(elemRef, entry => void callback(entry.isIntersecting), {
     root,
     rootMargin: verticalOffset ? `${verticalOffset}px 0px ${verticalOffset}px 0px` : '0px'
   });

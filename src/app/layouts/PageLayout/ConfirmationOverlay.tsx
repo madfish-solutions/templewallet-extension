@@ -38,7 +38,7 @@ const ConfirmationOverlay = memo(() => {
 
   return (
     <>
-      {displayed && <DocBg bgClassName="bg-primary-white" />}
+      {displayed && <DocBg bgClassName="bg-secondary-low" />}
 
       <Portal>
         <CSSTransition
@@ -51,7 +51,7 @@ const ConfirmationOverlay = memo(() => {
           }}
           unmountOnExit
         >
-          <div className="fixed inset-0 z-50 overflow-y-auto bg-primary-white">
+          <div className="fixed inset-0 z-overlay-confirm overflow-y-auto bg-primary-white">
             {confirmation && (
               <InternalConfirmation
                 payload={confirmation.payload}

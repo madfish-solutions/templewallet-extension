@@ -4,7 +4,7 @@ import clsx from 'clsx';
 
 import DropdownWrapper from 'app/atoms/DropdownWrapper';
 import { useShortcutAccountSelectModalIsOpened } from 'app/hooks/use-account-select-shortcut';
-import { ReactComponent as SignalAltIcon } from 'app/icons/signal-alt.svg';
+import { ReactComponent as SignalAltIcon } from 'app/icons/monochrome/signal-alt.svg';
 import { T } from 'lib/i18n';
 import { PopperRenderProps } from 'lib/ui/Popper';
 import { TezosChain, EvmChain, useEnabledTezosChains, useEnabledEvmChains } from 'temple/front';
@@ -51,7 +51,7 @@ export const ChainsDropdown = memo<Props>(({ opened, setOpened, controller }) =>
   );
 
   return (
-    <DropdownWrapper opened={opened} design="dark" className="origin-top-right p-2">
+    <DropdownWrapper opened={opened} design="dark" className="origin-top-right mt-1 p-2">
       <div className={styles.scroll}>
         <h2 className={h2ClassName}>
           <SignalAltIcon className="w-auto h-4 mr-1 stroke-current" />

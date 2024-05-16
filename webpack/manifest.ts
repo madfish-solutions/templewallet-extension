@@ -138,8 +138,8 @@ const buildManifestCommons = (vendor: string): Omit<Manifest.WebExtensionManifes
     // Public key to fixate extension ID
     key: envFilesData._MANIFEST_KEY_,
 
-    name: 'Temple - Tezos Wallet',
-    short_name: 'Temple - Tezos Wallet',
+    name: 'Temple - Tezos & EVM Wallet',
+    short_name: 'Temple Wallet',
 
     icons: {
       '16': 'misc/icon-16.png',
@@ -202,7 +202,7 @@ const buildBrowserAction = (vendor: string) => {
   const withVendors = makeWithVendors(vendor);
 
   return {
-    default_title: 'Temple - Tezos Wallet',
+    default_title: 'Temple Wallet',
     ...withVendors('chrome', 'firefox', 'opera')({ default_popup: 'popup.html' }),
     default_icon: {
       '16': 'misc/icon-16.png',

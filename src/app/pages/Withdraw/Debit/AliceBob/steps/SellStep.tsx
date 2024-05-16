@@ -4,7 +4,7 @@ import BigNumber from 'bignumber.js';
 
 import { FormSubmitButton } from 'app/atoms';
 import CopyButton from 'app/atoms/CopyButton';
-import { ReactComponent as CopyIcon } from 'app/icons/copy.svg';
+import { ReactComponent as CopyIcon } from 'app/icons/monochrome/copy.svg';
 import { WithdrawSelectors } from 'app/pages/Withdraw/Withdraw.selectors';
 import { AnalyticsEventCategory, setTestID, useAnalytics, useFormAnalytics } from 'lib/analytics';
 import { AliceBobOrderStatus, cancelAliceBobOrder } from 'lib/apis/temple';
@@ -102,7 +102,7 @@ export const SellStep = memo<SellStepProps>(
               {truncatedOrderId}
             </p>
             <CopyButton text={orderId} type="link">
-              <CopyIcon className="h-4 ml-1 w-auto stroke-orange stroke-2" onClick={copy} />
+              <CopyIcon className="h-4 ml-1 w-auto stroke-orange-500 stroke-2" onClick={copy} />
             </CopyButton>
           </span>
         </div>

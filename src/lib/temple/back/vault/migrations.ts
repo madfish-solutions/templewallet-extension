@@ -9,7 +9,7 @@ import {
 } from 'lib/constants';
 import { moveValueInStorage, fetchFromStorage, putToStorage, removeFromStorage } from 'lib/storage';
 import * as Passworder from 'lib/temple/passworder';
-import { StoredAccount, TempleAccountType, TempleContact, TempleSettings } from 'lib/temple/types';
+import { StoredAccount, TempleAccountType, TempleContact, TempleSettings, WalletSpecs } from 'lib/temple/types';
 import { isTruthy } from 'lib/utils';
 import { StoredTezosNetwork } from 'temple/networks';
 import { loadTezosChainId } from 'temple/tezos';
@@ -189,7 +189,7 @@ export const MIGRATIONS = [
     });
 
     toEncryptAndSave.push([accountsStrgKey, newAccounts], [walletMnemonicStrgKey(walletId), mnemonic]);
-    await putToStorage(WALLETS_SPECS_STORAGE_KEY, { [walletId]: { name: hdWalletName } });
+    await putToStorage<StringRecord<WalletSpecs>>(WALLETS_SPECS_STORAGE_KEY, { [walletId]: { name: hdWalletName } });
 
     moveValueInStorage(ACCOUNT_PKH_STORAGE_KEY, ADS_VIEWER_ADDRESS_STORAGE_KEY);
 

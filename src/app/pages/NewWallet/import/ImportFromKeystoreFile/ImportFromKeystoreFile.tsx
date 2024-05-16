@@ -56,7 +56,7 @@ export const ImportFromKeystoreFile: FC<ImportFromKeystoreFileProps> = ({
   );
 
   return (
-    <form className="w-full max-w-sm mx-auto my-8 pb-8" onSubmit={handleSubmit(onSubmit)}>
+    <form onSubmit={handleSubmit(onSubmit)}>
       <label className="mb-4 leading-tight flex flex-col">
         <span className="text-base font-semibold text-gray-700">
           <T id="file" />
@@ -129,7 +129,7 @@ const KeystoreFileInput: React.FC<KeystoreFileInputProps> = ({ value, name, clea
           </span>
           {keystoreFile ? (
             <TrashbinIcon
-              className="ml-2 w-6 h-auto text-red-700 stroke-current z-10 cursor-pointer"
+              className="ml-2 w-6 h-auto text-red-700 stroke-current z-1 cursor-pointer"
               style={{ minWidth: '1.5rem' }}
               onClick={clearKeystoreFileInput}
             />

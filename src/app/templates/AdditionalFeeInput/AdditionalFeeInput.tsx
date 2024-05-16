@@ -18,10 +18,10 @@ import { Controller, ControllerProps, EventFunction, FieldError } from 'react-ho
 import AssetField from 'app/atoms/AssetField';
 import Money from 'app/atoms/Money';
 import Name from 'app/atoms/Name';
+import { ReactComponent as SettingsIcon } from 'app/icons/base/settings.svg';
 import { ReactComponent as CoffeeIcon } from 'app/icons/coffee.svg';
 import { ReactComponent as CupIcon } from 'app/icons/cup.svg';
 import { ReactComponent as RocketIcon } from 'app/icons/rocket.svg';
-import { ReactComponent as SettingsIcon } from 'app/icons/settings.svg';
 import CustomSelect, { OptionRenderProps } from 'app/templates/CustomSelect';
 import { AnalyticsEventCategory, useAnalytics } from 'lib/analytics';
 import { TID, toLocalFixed, T, t } from 'lib/i18n';

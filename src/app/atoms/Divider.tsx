@@ -13,7 +13,7 @@ const Divider: FC<DividerProps> = ({ style, className }) => (
       height: '1px',
       ...style
     }}
-    className={clsx('w-auto bg-gray-300', className)}
+    className={clsx('w-auto bg-lines', className)}
   />
 );
 

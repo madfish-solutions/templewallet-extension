@@ -5,7 +5,7 @@ import { useForm } from 'react-hook-form';
 
 import { Alert, FormField, FormSubmitButton } from 'app/atoms';
 import { formatMnemonic } from 'app/defaults';
-import { ReactComponent as OkIcon } from 'app/icons/ok.svg';
+import { ReactComponent as OkIcon } from 'app/icons/base/ok.svg';
 import { isSeedPhraseFilled, SeedPhraseInput } from 'app/templates/SeedPhraseInput';
 import { setTestID, useFormAnalytics } from 'lib/analytics';
 import { DEFAULT_TEZOS_DERIVATION_PATH } from 'lib/constants';

@@ -1,18 +1,17 @@
-import React, { memo, Suspense, useEffect, useMemo, useState } from 'react';
+import React, { memo, useEffect, useMemo, useState } from 'react';
 
 import { isDefined } from '@rnw-community/shared';
 import BigNumber from 'bignumber.js';
 import { isEqual } from 'lodash';
 
 import { Alert, FormSubmitButton } from 'app/atoms';
-import ErrorBoundary from 'app/ErrorBoundary';
+import { SuspenseContainer } from 'app/atoms/SuspenseContainer';
 import { ReactComponent as ArrowDownIcon } from 'app/icons/arrow-down.svg';
 import PageLayout from 'app/layouts/PageLayout';
 import { dispatch } from 'app/store';
 import { loadAllCurrenciesActions, updatePairLimitsActions } from 'app/store/buy-with-credit-card/actions';
 import { useCurrenciesLoadingSelector } from 'app/store/buy-with-credit-card/selectors';
 import { PaymentProviderInput } from 'app/templates/PaymentProviderInput';
-import { SpinnerSection } from 'app/templates/SendForm/SpinnerSection';
 import { TopUpInput } from 'app/templates/TopUpInput';
 import { MOONPAY_ASSETS_BASE_URL } from 'lib/apis/moonpay';
 import { getAssetSymbolToDisplay } from 'lib/buy-with-credit-card/get-asset-symbol-to-display';
@@ -182,94 +181,92 @@ const BuyTezosWithCreditCard = memo<{ publicKeyHash: string }>(({ publicKeyHash 
   }, [exchangeRate, inputCurrency, outputToken]);
 
   return (
-    <ErrorBoundary>
-      <Suspense fallback={<SpinnerSection />}>
-        <div className="flex flex-col items-center gap-4 w-full">
-          {isDefined(alertErrorMessage) && !shouldHideErrorAlert && (
-            <Alert
-              type="error"
-              title={<T id="error" />}
-              description={alertErrorMessage}
-              closable={true}
-              onClose={onAlertClose}
-            />
-          )}
-
-          <TopUpInput
-            isFiat
-            isSearchable
-            label={<T id="send" />}
-            amount={inputAmount}
-            currency={inputCurrency}
-            currenciesList={allFiatCurrencies}
-            decimals={inputCurrency.precision}
-            isCurrenciesLoading={currenciesLoading}
-            minAmount={minAmountStr}
-            maxAmount={maxAmountStr}
-            isMinAmountError={isMinAmountError}
-            isMaxAmountError={isMaxAmountError}
-            amountInputDisabled={false}
-            fitIcons={fitFiatIconFn}
-            emptyListPlaceholder={t('currencyNotFound')}
-            onCurrencySelect={handleInputAssetChange}
-            onAmountChange={handleInputAmountChange}
-            testID={BuyWithCreditCardSelectors.sendInput}
+    <SuspenseContainer>
+      <div className="flex flex-col items-center gap-4 w-full">
+        {isDefined(alertErrorMessage) && !shouldHideErrorAlert && (
+          <Alert
+            type="error"
+            title={<T id="error" />}
+            description={alertErrorMessage}
+            closable={true}
+            onClose={onAlertClose}
           />
+        )}
 
-          <ArrowDownIcon stroke="#4299E1" className="w-6 h-6" />
+        <TopUpInput
+          isFiat
+          isSearchable
+          label={<T id="send" />}
+          amount={inputAmount}
+          currency={inputCurrency}
+          currenciesList={allFiatCurrencies}
+          decimals={inputCurrency.precision}
+          isCurrenciesLoading={currenciesLoading}
+          minAmount={minAmountStr}
+          maxAmount={maxAmountStr}
+          isMinAmountError={isMinAmountError}
+          isMaxAmountError={isMaxAmountError}
+          amountInputDisabled={false}
+          fitIcons={fitFiatIconFn}
+          emptyListPlaceholder={t('currencyNotFound')}
+          onCurrencySelect={handleInputAssetChange}
+          onAmountChange={handleInputAmountChange}
+          testID={BuyWithCreditCardSelectors.sendInput}
+        />
 
-          <TopUpInput
-            readOnly
-            amountInputDisabled
-            label={<T id="get" />}
-            currency={outputToken}
-            currenciesList={allCryptoCurrencies}
-            isCurrenciesLoading={currenciesLoading}
-            onCurrencySelect={handleOutputTokenChange}
-            amount={outputAmount}
-            testID={BuyWithCreditCardSelectors.getInput}
-          />
+        <ArrowDownIcon stroke="#4299E1" className="w-6 h-6" />
 
-          <PaymentProviderInput
-            error={shouldShowPaymentProviderError ? t('pleaseSelectPaymentProvider') : undefined}
-            headerTestID={BuyWithCreditCardSelectors.paymentProviderDropdownHeader}
-            options={paymentProvidersToDisplay}
-            isLoading={formIsLoading}
-            onChange={handlePaymentProviderChange}
-            value={topUpProvider}
-            testID={BuyWithCreditCardSelectors.paymentProviderDropdown}
-          />
+        <TopUpInput
+          readOnly
+          amountInputDisabled
+          label={<T id="get" />}
+          currency={outputToken}
+          currenciesList={allCryptoCurrencies}
+          isCurrenciesLoading={currenciesLoading}
+          onCurrencySelect={handleOutputTokenChange}
+          amount={outputAmount}
+          testID={BuyWithCreditCardSelectors.getInput}
+        />
 
-          <div className="w-full flex flex-col mt-2 gap-6 items-center">
-            <FormSubmitButton
-              className="w-full justify-center border-none"
-              style={{
-                background: '#4299e1',
-                padding: 0
-              }}
-              disabled={submitDisabled}
-              loading={isLoading}
-              testID={BuyWithCreditCardSelectors.topUpButton}
-              onClick={handleSubmit(onSubmit)}
-            >
-              <span>
-                <T id="topUp" />
-              </span>
-            </FormSubmitButton>
+        <PaymentProviderInput
+          error={shouldShowPaymentProviderError ? t('pleaseSelectPaymentProvider') : undefined}
+          headerTestID={BuyWithCreditCardSelectors.paymentProviderDropdownHeader}
+          options={paymentProvidersToDisplay}
+          isLoading={formIsLoading}
+          onChange={handlePaymentProviderChange}
+          value={topUpProvider}
+          testID={BuyWithCreditCardSelectors.paymentProviderDropdown}
+        />
 
-            <div className="flex justify-between w-full">
-              <span className="text-xs text-gray-30 leading-relaxed">
-                <T id="exchangeRate" />:
-              </span>
-              <span className="text-xs text-gray-600 leading-relaxed">{exchangeRateStr}</span>
-            </div>
-
-            <span className="text-center text-xs text-gray-700 leading-relaxed">
-              <T id="topUpDescription" />
+        <div className="w-full flex flex-col mt-2 gap-6 items-center">
+          <FormSubmitButton
+            className="w-full justify-center border-none"
+            style={{
+              background: '#4299e1',
+              padding: 0
+            }}
+            disabled={submitDisabled}
+            loading={isLoading}
+            testID={BuyWithCreditCardSelectors.topUpButton}
+            onClick={handleSubmit(onSubmit)}
+          >
+            <span>
+              <T id="topUp" />
             </span>
+          </FormSubmitButton>
+
+          <div className="flex justify-between w-full">
+            <span className="text-xs text-[#aeaaae] leading-relaxed">
+              <T id="exchangeRate" />:
+            </span>
+            <span className="text-xs text-gray-600 leading-relaxed">{exchangeRateStr}</span>
           </div>
+
+          <span className="text-center text-xs text-gray-700 leading-relaxed">
+            <T id="topUpDescription" />
+          </span>
         </div>
-      </Suspense>
-    </ErrorBoundary>
+      </div>
+    </SuspenseContainer>
   );
 });

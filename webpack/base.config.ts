@@ -6,6 +6,7 @@
 import ESLintPlugin from 'eslint-webpack-plugin';
 import MiniCssExtractPlugin from 'mini-css-extract-plugin';
 import * as path from 'path';
+import postcssPresetEnv from 'postcss-preset-env';
 import ForkTsCheckerWebpackPlugin from 'react-dev-utils/ForkTsCheckerWebpackPlugin';
 import getCSSModuleLocalIdent from 'react-dev-utils/getCSSModuleLocalIdent';
 import ModuleNotFoundPlugin from 'react-dev-utils/ModuleNotFoundPlugin';
@@ -13,6 +14,7 @@ import resolve from 'resolve';
 import TerserPlugin from 'terser-webpack-plugin';
 import WebPack from 'webpack';
 
+import { Config as SvgrLoaderOptions } from '../node_modules/@svgr/core/dist';
 import packageJSON from '../package.json';
 import tsConfig from '../tsconfig.json';
 
@@ -106,30 +108,20 @@ export const buildBaseConfig = (): WebPack.Configuration & Pick<WebPack.WebpackO
               }
             }
           },
+          // # SVGs. See: https://react-svgr.com/docs/webpack
           {
-            test: /\.svg$/,
-            issuer: {
-              and: [/\.(ts|tsx|js|jsx|md|mdx)$/]
-            },
+            test: /\.svg$/i,
+            type: 'asset/resource',
+            resourceQuery: /url/ // *.svg?url
+          },
+          {
+            test: /\.svg$/i,
+            issuer: /\.tsx?$/,
+            resourceQuery: { not: /url/ }, // exclude react component if *.svg?url
             use: [
               {
                 loader: require.resolve('@svgr/webpack'),
-                options: {
-                  prettier: false,
-                  svgo: false,
-                  svgoConfig: {
-                    plugins: [{ removeViewBox: false }]
-                  },
-                  titleProp: true,
-                  ref: true
-                }
-              },
-              {
-                /* `type: 'asset/resource'` is not applicable here - WebPack bug. Had to go with `file-loader` */
-                loader: require.resolve('file-loader'),
-                options: {
-                  name: 'media/[hash:8].[ext]'
-                }
+                options: svgrLoaderOptions
               }
             ]
           },
@@ -155,10 +147,7 @@ export const buildBaseConfig = (): WebPack.Configuration & Pick<WebPack.WebpackO
           {
             test: CSS_REGEX,
             exclude: CSS_MODULE_REGEX,
-            use: getStyleLoaders({
-              importLoaders: 1,
-              sourceMap: SOURCE_MAP
-            }),
+            use: getStyleLoaders(),
             // Don't consider CSS imports dead code even if the
             // containing package claims to have no side effects.
             // Remove this when webpack adds a warning or an error for this.
@@ -169,13 +158,7 @@ export const buildBaseConfig = (): WebPack.Configuration & Pick<WebPack.WebpackO
           // using the extension .module.css
           {
             test: CSS_MODULE_REGEX,
-            use: getStyleLoaders({
-              importLoaders: 1,
-              sourceMap: SOURCE_MAP,
-              modules: {
-                getLocalIdent: getCSSModuleLocalIdent
-              }
-            })
+            use: getStyleLoaders(true)
           },
           // "file" loader makes sure those assets get served by WebpackDevServer.
           // When you `import` an asset, you get its (virtual) filename.
@@ -187,8 +170,8 @@ export const buildBaseConfig = (): WebPack.Configuration & Pick<WebPack.WebpackO
             // Exclude `js` files to keep "css" loader working as it injects
             // its runtime that would otherwise be processed through "file" loader.
             // Also exclude `html` and `json` extensions so they get processed
-            // by webpacks internal loaders.
-            exclude: [/\.(js|mjs|jsx|ts|tsx)$/, /\.html$/, /\.json$/]
+            // by webpacks internal loaders & `svg` extensions to be processed (as assets) differently (above).
+            exclude: [/\.(js|mjs|jsx|ts|tsx)$/, /\.html$/, /\.json$/, /\.svg$/]
           }
           // ** STOP ** Are you adding a new loader?
           // Make sure to add the new loader(s) before the "file" loader.
@@ -279,8 +262,9 @@ export const buildBaseConfig = (): WebPack.Configuration & Pick<WebPack.WebpackO
       formatter: require.resolve('react-dev-utils/eslintFormatter'),
       eslintPath: require.resolve('eslint'),
       resolvePluginsRelativeTo: PATHS.CWD,
-      cache: true,
+      cache: DEVELOPMENT_ENV,
       cacheLocation: path.resolve(PATHS.NODE_MODULES, '.cache/.eslintcache'),
+      lintDirtyModulesOnly: DEVELOPMENT_ENV,
       failOnError: true,
       quiet: true
     })
@@ -346,7 +330,17 @@ export const buildBaseConfig = (): WebPack.Configuration & Pick<WebPack.WebpackO
   performance: false
 });
 
-function getStyleLoaders(cssOptions = {}) {
+function getStyleLoaders(module = false) {
+  const extraCssOptions = module
+    ? {
+        modules: {
+          namedExport: false,
+          exportLocalsConvention: 'as-is',
+          getLocalIdent: getCSSModuleLocalIdent
+        }
+      }
+    : undefined;
+
   return [
     {
       loader: MiniCssExtractPlugin.loader,
@@ -356,20 +350,22 @@ function getStyleLoaders(cssOptions = {}) {
     },
     {
       loader: require.resolve('css-loader'),
-      options: cssOptions
+      options: {
+        importLoaders: 1,
+        sourceMap: SOURCE_MAP,
+        ...extraCssOptions
+      }
     },
     {
       loader: require.resolve('postcss-loader'),
       options: {
+        sourceMap: SOURCE_MAP,
         postcssOptions: {
           ident: 'postcss',
           plugins: [
             require('postcss-flexbugs-fixes'),
-            // eslint-disable-next-line @typescript-eslint/no-var-requires
-            require('postcss-preset-env')({
-              autoprefixer: {
-                flexbox: 'no-2009'
-              },
+            postcssPresetEnv({
+              autoprefixer: {},
               stage: 3
             }),
             require('tailwindcss'),
@@ -380,3 +376,14 @@ function getStyleLoaders(cssOptions = {}) {
     }
   ].filter(Boolean);
 }
+
+/** See: https://react-svgr.com/docs/options */
+const svgrLoaderOptions: SvgrLoaderOptions = {
+  typescript: true,
+  exportType: 'named',
+  prettier: false,
+  svgo: false,
+  titleProp: true,
+  ref: true,
+  memo: true
+};

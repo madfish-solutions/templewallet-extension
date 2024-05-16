@@ -1,5 +1,4 @@
 export enum WithdrawSelectors {
-  debitTab = 'Withdraw/Card Tab',
   aliceBobNextButton = 'Withdraw AliceBob/Initial Step Next Button',
   aliceBobNewSellButton = 'Withdraw AliceBob/New Sell Button',
   aliceBobSellButton = 'Withdraw AliceBob/Sell Button',

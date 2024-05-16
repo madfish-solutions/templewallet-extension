@@ -1,13 +1,14 @@
 import React, { FC, memo, useMemo } from 'react';
 
-import { Button } from 'app/atoms';
-import { ReactComponent as AddIcon } from 'app/icons/add.svg';
-import { ReactComponent as DownloadIcon } from 'app/icons/download.svg';
-import { ReactComponent as EditIcon } from 'app/icons/edit.svg';
-import { ReactComponent as EllipsisIcon } from 'app/icons/ellypsis.svg';
-import { ReactComponent as RemoveIcon } from 'app/icons/remove.svg';
-import { ReactComponent as RevealEyeIcon } from 'app/icons/reveal-eye.svg';
+import { Button, IconBase } from 'app/atoms';
+import { ReactComponent as DeleteIcon } from 'app/icons/base/delete.svg';
+import { ReactComponent as EditIcon } from 'app/icons/base/edit.svg';
+import { ReactComponent as MenuCircleIcon } from 'app/icons/base/menu_circle.svg';
+import { ReactComponent as AddIcon } from 'app/icons/base/plus_circle.svg';
+import { ReactComponent as RevealEyeIcon } from 'app/icons/base/reveal.svg';
+import { ReactComponent as DownloadIcon } from 'app/icons/monochrome/download.svg';
 import { ACCOUNT_EXISTS_SHOWN_WARNINGS_STORAGE_KEY } from 'lib/constants';
+import { T } from 'lib/i18n';
 import { useStorage, useTempleClient } from 'lib/temple/front';
 import { DisplayedGroup, StoredAccount, TempleAccountType } from 'lib/temple/types';
 import { useAlert } from 'lib/ui';
@@ -16,7 +17,7 @@ import { isTruthy } from 'lib/utils';
 import { navigate } from 'lib/woozie';
 import { useHDGroups } from 'temple/front';
 
-import { Action, ActionsDropdown } from './actions-dropdown';
+import { AccountsAction, AccountsActionsDropdown } from './actions-dropdown';
 
 export interface GroupActionsPopperProps {
   group: DisplayedGroup;
@@ -25,8 +26,6 @@ export interface GroupActionsPopperProps {
   onDeleteClick: (group: DisplayedGroup) => void;
   showAccountAlreadyExistsWarning: (group: DisplayedGroup, oldAccount: StoredAccount) => void;
 }
-
-const actionsDropdownStyle = { transform: 'translate(1.25rem, 1rem)' };
 
 const GroupActionsDropdown = memo<PopperRenderProps & GroupActionsPopperProps>(
   ({
@@ -47,13 +46,13 @@ const GroupActionsDropdown = memo<PopperRenderProps & GroupActionsPopperProps>(
       {}
     );
 
-    const actions = useMemo<Action[]>(() => {
+    const actions = useMemo<AccountsAction[]>(() => {
       if (group.type === TempleAccountType.HD) {
         return [
           {
             key: 'add-account',
-            i18nKey: 'createAccount' as const,
-            icon: AddIcon,
+            children: 'Add Account',
+            Icon: AddIcon,
             onClick: async () => {
               try {
                 const { firstSkippedAccount } = await findFreeHdIndex(group.id);
@@ -75,29 +74,27 @@ const GroupActionsDropdown = memo<PopperRenderProps & GroupActionsPopperProps>(
                   description: e.message
                 });
               }
-            },
-            danger: false
+            }
           },
           {
             key: 'rename-wallet',
-            i18nKey: 'edit' as const,
-            icon: EditIcon,
-            onClick: async () => onRenameClick(group),
-            danger: false
+            children: 'Rename Wallet',
+            Icon: EditIcon,
+            onClick: () => onRenameClick(group)
           },
           {
             key: 'reveal-seed-phrase',
-            i18nKey: 'revealSeedPhrase' as const,
-            icon: RevealEyeIcon,
-            onClick: () => onRevealSeedPhraseClick(group),
-            danger: false
+            children: <T id="revealSeedPhrase" />,
+            Icon: RevealEyeIcon,
+            onClick: () => onRevealSeedPhraseClick(group)
           },
           hdGroups.length > 1 && {
             key: 'delete-wallet',
-            i18nKey: 'delete' as const,
-            icon: RemoveIcon,
-            onClick: () => onDeleteClick(group),
-            danger: true
+            children: 'Delete Wallet',
+            className: 'text-error',
+            Icon: DeleteIcon,
+            danger: true,
+            onClick: () => onDeleteClick(group)
           }
         ].filter(isTruthy);
       }
@@ -120,17 +117,17 @@ const GroupActionsDropdown = memo<PopperRenderProps & GroupActionsPopperProps>(
       return [
         {
           key: 'import',
-          i18nKey: group.type === TempleAccountType.Imported ? 'importAccount' : 'createAccount',
-          icon: DownloadIcon,
-          onClick: () => navigate(importActionUrl),
-          danger: false
+          children: <T id={group.type === TempleAccountType.Imported ? 'importAccount' : 'createAccount'} />,
+          Icon: DownloadIcon,
+          onClick: () => navigate(importActionUrl)
         },
         {
           key: 'delete-group',
-          i18nKey: 'delete' as const,
-          icon: RemoveIcon,
-          onClick: () => onDeleteClick(group),
-          danger: true
+          children: <T id="delete" />,
+          className: 'text-error',
+          Icon: DeleteIcon,
+          danger: true,
+          onClick: () => onDeleteClick(group)
         }
       ];
     }, [
@@ -148,13 +145,12 @@ const GroupActionsDropdown = memo<PopperRenderProps & GroupActionsPopperProps>(
     ]);
 
     return (
-      <ActionsDropdown
+      <AccountsActionsDropdown
         opened={opened}
         setOpened={setOpened}
         toggleOpened={toggleOpened}
         title={group.type === TempleAccountType.HD ? 'Wallet Actions' : 'Actions'}
         actions={actions}
-        style={actionsDropdownStyle}
       />
     );
   }
@@ -162,18 +158,13 @@ const GroupActionsDropdown = memo<PopperRenderProps & GroupActionsPopperProps>(
 
 export const GroupActionsPopper: FC<GroupActionsPopperProps> = ({ group, ...restPopperProps }) => (
   <Popper
-    placement="left-start"
+    placement="bottom-end"
     strategy="fixed"
-    style={{ pointerEvents: 'none' }}
     popup={props => <GroupActionsDropdown group={group} {...restPopperProps} {...props} />}
   >
     {({ ref, toggleOpened }) => (
-      <Button
-        ref={ref}
-        onClick={toggleOpened}
-        className="border border-blue-500 rounded-full text-blue-500 w-4 h-4 flex justify-center items-center m-1"
-      >
-        <EllipsisIcon className="w-3 h-3 stroke-current" />
+      <Button ref={ref} onClick={toggleOpened}>
+        <IconBase Icon={MenuCircleIcon} size={16} className="text-secondary" />
       </Button>
     )}
   </Popper>
