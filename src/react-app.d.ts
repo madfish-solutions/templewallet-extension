@@ -44,8 +44,13 @@ declare module '*.webp' {
 declare module '*.svg' {
   export const ReactComponent: ImportedSVGComponent;
 
-  const src: string;
-  export default src;
+  const defExport: never;
+  export default defExport;
+}
+
+declare module '*.svg?url' {
+  const srcUrl: string;
+  export default srcUrl;
 }
 
 declare module '*.module.css' {

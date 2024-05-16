@@ -5,10 +5,9 @@ import classNames from 'clsx';
 import { FormContextValues, useForm } from 'react-hook-form';
 import { useDebouncedCallback } from 'use-debounce';
 
-import { Alert, FormField, FormSubmitButton, NoSpaceField } from 'app/atoms';
+import { Alert, FormField, FormSubmitButton, NoSpaceField, PageTitle } from 'app/atoms';
 import Spinner from 'app/atoms/Spinner/Spinner';
-import { ReactComponent as AddIcon } from 'app/icons/add.svg';
-import { ContentContainer } from 'app/layouts/ContentContainer';
+import { ReactComponent as AddIcon } from 'app/icons/base/plus_circle.svg';
 import PageLayout from 'app/layouts/PageLayout';
 import { dispatch } from 'app/store';
 import { putTokensAsIsAction, putCollectiblesAsIsAction } from 'app/store/tezos/assets/actions';
@@ -47,15 +46,8 @@ const AddAsset = memo(() => {
   const network = chainSelectController.value;
 
   return (
-    <PageLayout
-      pageTitle={
-        <>
-          <AddIcon className="w-auto h-4 mr-1 stroke-current" />
-          <T id="addAsset" />
-        </>
-      }
-    >
-      <ContentContainer className="py-8">
+    <PageLayout pageTitle={<PageTitle Icon={AddIcon} title={t('addAsset')} />}>
+      <>
         <ChainSelectSection controller={chainSelectController} />
 
         {accountTezosAddress && network.kind === 'tezos' ? (
@@ -63,7 +55,7 @@ const AddAsset = memo(() => {
         ) : (
           <div className="text-center">{UNDER_DEVELOPMENT_MSG}</div>
         )}
-      </ContentContainer>
+      </>
     </PageLayout>
   );
 });

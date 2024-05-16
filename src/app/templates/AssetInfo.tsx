@@ -5,7 +5,7 @@ import classNames from 'clsx';
 
 import { FormField } from 'app/atoms';
 import { useAppEnv } from 'app/env';
-import { ReactComponent as CopyIcon } from 'app/icons/copy.svg';
+import { ReactComponent as CopyIcon } from 'app/icons/monochrome/copy.svg';
 import { isFA2Token, isTezAsset } from 'lib/assets';
 import { fromAssetSlugWithStandardDetect } from 'lib/assets/contract.utils';
 import { T } from 'lib/i18n';

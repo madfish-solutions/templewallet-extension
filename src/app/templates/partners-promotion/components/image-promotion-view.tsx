@@ -8,7 +8,7 @@ import type { AdsProviderTitle } from 'lib/ads';
 
 import { PartnersPromotionSelectors } from '../selectors';
 import { PartnersPromotionVariant } from '../types';
-import { AD_BANNER_HEIGHT, buildAdClickAnalyticsProperties } from '../utils';
+import { buildAdClickAnalyticsProperties } from '../utils';
 
 import { CloseButton } from './close-button';
 
@@ -18,6 +18,8 @@ interface Props extends PropsWithChildren {
   isVisible: boolean;
   providerTitle: AdsProviderTitle;
   pageName: string;
+  backgroundAssetUrl?: string;
+  backgroundAssetType?: 'image' | 'video';
   onAdRectSeen: EmptyFn;
   onClose: MouseEventHandler<HTMLButtonElement>;
 }
@@ -29,6 +31,8 @@ export const ImagePromotionView: FC<Props> = ({
   isVisible,
   providerTitle,
   pageName,
+  backgroundAssetUrl,
+  backgroundAssetType = 'image',
   onAdRectSeen,
   onClose
 }) => {
@@ -43,8 +47,7 @@ export const ImagePromotionView: FC<Props> = ({
   return (
     <Anchor
       className={clsx(
-        'relative w-full flex justify-center items-center rounded-xl',
-        `min-h-${AD_BANNER_HEIGHT}`,
+        'relative w-full rounded-xl overflow-hidden',
         'bg-gray-100 hover:bg-gray-200',
         !isVisible && 'invisible'
       )}
@@ -55,7 +58,29 @@ export const ImagePromotionView: FC<Props> = ({
       testID={PartnersPromotionSelectors.promoLink}
       testIDProperties={testIDProperties}
     >
-      {children}
+      {backgroundAssetUrl && (
+        <>
+          {backgroundAssetType === 'image' ? (
+            <img
+              className="absolute inset-0 w-full h-full object-cover filter blur-md"
+              src={backgroundAssetUrl}
+              alt=""
+            />
+          ) : (
+            <video
+              className="absolute inset-0 w-full h-full object-cover filter blur-md"
+              src={backgroundAssetUrl}
+              autoPlay
+              preload="auto"
+              playsInline
+              muted
+              loop
+            />
+          )}
+        </>
+      )}
+
+      <div className="w-full flex justify-center items-center z-10 relative">{children}</div>
 
       <ImageAdLabel />
 
@@ -64,10 +89,10 @@ export const ImagePromotionView: FC<Props> = ({
   );
 };
 
-export const ImageAdLabel: FC = () => (
+const ImageAdLabel: FC = () => (
   <div
     className={clsx(
-      'absolute top-0 left-0 px-3 rounded-tl-lg rounded-br-lg ',
+      'absolute top-0 left-0 px-3 rounded-tl-xl rounded-br-xl z-20',
       'bg-blue-500 text-2xs leading-snug font-semibold text-white'
     )}
   >

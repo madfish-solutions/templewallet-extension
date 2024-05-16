@@ -10,6 +10,7 @@ import { TezosBalance } from 'app/templates/Balance';
 import { setAnotherSelector, setTestID } from 'lib/analytics';
 import { StoredAccount } from 'lib/temple/types';
 import { useScrollIntoView } from 'lib/ui/use-scroll-into-view';
+import { combineRefs } from 'lib/ui/utils';
 import { getAccountAddressForEvm, getAccountAddressForTezos } from 'temple/accounts';
 import { useTezosMainnetChain } from 'temple/front';
 
@@ -60,13 +61,11 @@ export const AccountItem: React.FC<AccountItemProps> = ({
 
   return (
     <Button
-      ref={el => {
-        elemRef.current = el;
-
+      ref={combineRefs(elemRef, el => {
         if (isDefined(arrayIndex) && itemsArrayRef?.current) {
           itemsArrayRef.current[arrayIndex] = el;
         }
-      }}
+      })}
       className={classNameMemo}
       onClick={onClick}
       testID={ShortcutAccountSwitchSelectors.accountItemButton}
@@ -80,7 +79,10 @@ export const AccountItem: React.FC<AccountItemProps> = ({
         </Name>
 
         <div
-          className={clsx('text-xs', searchValue === displayAddress ? 'bg-yellow-110 text-gray-900' : 'text-gray-500')}
+          className={clsx(
+            'text-xs',
+            searchValue === displayAddress ? 'bg-marker-highlight text-gray-900' : 'text-gray-500'
+          )}
           {...setTestID(ShortcutAccountSwitchSelectors.accountAddressValue)}
           {...setAnotherSelector('hash', displayAddress)}
         >

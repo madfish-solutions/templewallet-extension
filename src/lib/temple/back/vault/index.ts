@@ -154,7 +154,7 @@ export class Vault {
         ],
         passKey
       );
-      await savePlain(WALLETS_SPECS_STORAGE_KEY, { [walletId]: { name: walletName } });
+      await savePlain<StringRecord<WalletSpecs>>(WALLETS_SPECS_STORAGE_KEY, { [walletId]: { name: walletName } });
       await savePlain(migrationLevelStrgKey, MIGRATIONS.length);
 
       return tezosAcc.address;
@@ -327,7 +327,7 @@ export class Vault {
       const newAccounts = allAccounts.filter(acc => !accountsToRemove.includes(acc));
       const { [id]: oldGroupName, ...newWalletsSpecs } = walletsSpecs;
       await encryptAndSaveMany([[accountsStrgKey, newAccounts]], passKey);
-      await savePlain(WALLETS_SPECS_STORAGE_KEY, newWalletsSpecs);
+      await savePlain<StringRecord<WalletSpecs>>(WALLETS_SPECS_STORAGE_KEY, newWalletsSpecs);
       await Vault.removeAccountsKeys(accountsToRemove);
 
       return { newAccounts, newWalletsSpecs };
@@ -564,7 +564,7 @@ export class Vault {
         ],
         this.passKey
       );
-      await savePlain(WALLETS_SPECS_STORAGE_KEY, newWalletsSpecs);
+      await savePlain<StringRecord<WalletSpecs>>(WALLETS_SPECS_STORAGE_KEY, newWalletsSpecs);
 
       return { newAccounts, newWalletsSpecs };
     });
@@ -768,7 +768,7 @@ export class Vault {
       }
 
       const newWalletsSpecs: StringRecord<WalletSpecs> = { ...walletsSpecs, [id]: { name } };
-      await savePlain(WALLETS_SPECS_STORAGE_KEY, newWalletsSpecs);
+      await savePlain<StringRecord<WalletSpecs>>(WALLETS_SPECS_STORAGE_KEY, newWalletsSpecs);
 
       return newWalletsSpecs;
     });

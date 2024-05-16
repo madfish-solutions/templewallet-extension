@@ -36,7 +36,7 @@ export const CollectibleItemImage = memo<Props>(
     const [isInViewport, setIsInViewport] = useState(false);
     const handleIntersection = useMemo(() => debounce(setIsInViewport, 500), []);
 
-    useIntersectionByOffsetObserver(containerElemRef, handleIntersection, true, 800);
+    useIntersectionByOffsetObserver(containerElemRef, handleIntersection, 800);
 
     return (
       <div className={isInViewport ? 'contents' : 'hidden'}>

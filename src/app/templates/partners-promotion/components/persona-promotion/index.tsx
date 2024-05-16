@@ -3,6 +3,7 @@ import React, { memo, useEffect, useRef, useCallback } from 'react';
 import clsx from 'clsx';
 
 import { useAdRectObservation } from 'app/hooks/ads/use-ad-rect-observation';
+import { useElementValue } from 'app/hooks/ads/use-element-value';
 import { AdsProviderTitle } from 'lib/ads';
 import { getPersonaAdClient, PERSONA_STAGING_ADS_BANNER_UNIT_ID } from 'lib/ads/persona';
 import { AnalyticsEventCategory, useAnalytics } from 'lib/analytics';
@@ -10,9 +11,8 @@ import { EnvVars } from 'lib/env';
 
 import { PartnersPromotionSelectors } from '../../selectors';
 import { PartnersPromotionVariant, SingleProviderPromotionProps } from '../../types';
-import { AD_BANNER_HEIGHT, buildAdClickAnalyticsProperties } from '../../utils';
-import { CloseButton } from '../close-button';
-import { ImageAdLabel } from '../image-promotion-view';
+import { buildAdClickAnalyticsProperties } from '../../utils';
+import { ImagePromotionView } from '../image-promotion-view';
 
 import ModStyles from './styles.module.css';
 
@@ -20,18 +20,44 @@ interface Props extends Omit<SingleProviderPromotionProps, 'variant'> {
   id: string;
 }
 
+interface AdProperties {
+  href: string;
+  backgroundAssetUrl?: string;
+  backgroundAssetType?: 'image' | 'video';
+}
+
+const DEFAULT_AD_PROPERTIES: AdProperties = { href: '#' };
+
+const adPropsObservationOptions = { childList: true, subtree: true };
+
+const getAdProperties = (adRoot: HTMLDivElement): AdProperties => {
+  const adLink = adRoot.querySelector<HTMLAnchorElement>('a.persona-product');
+  const adImage = adRoot.querySelector<HTMLImageElement>('img');
+  const adVideo = adRoot.querySelector<HTMLVideoElement>('video');
+
+  return {
+    href: adLink?.href ?? '#',
+    backgroundAssetUrl: adImage?.src ?? adVideo?.src,
+    backgroundAssetType: adVideo?.src ? 'video' : 'image'
+  };
+};
+
 export const PersonaPromotion = memo<Props>(
-  ({ id, accountPkh, isVisible, pageName, onReady, onError, onAdRectSeen, onClose }) => {
+  ({ id, isVisible, pageName, accountPkh, onReady, onError, onAdRectSeen, onClose }) => {
     const containerId = `persona-ad-${id}`;
 
     const ref = useRef<HTMLDivElement>(null);
 
+    const { href, backgroundAssetUrl, backgroundAssetType } = useElementValue(
+      ref,
+      getAdProperties,
+      DEFAULT_AD_PROPERTIES,
+      adPropsObservationOptions
+    );
+
     const { trackEvent } = useAnalytics();
 
     const onClick = useCallback(() => {
-      const anchorElem = ref.current?.querySelector<HTMLAnchorElement>('a.persona-product');
-      const href = anchorElem?.href;
-
       if (!href) {
         console.error('Persona ad href not found');
         return;
@@ -48,7 +74,7 @@ export const PersonaPromotion = memo<Props>(
           href
         )
       );
-    }, [trackEvent, pageName, accountPkh]);
+    }, [href, trackEvent, pageName, accountPkh]);
 
     useAdRectObservation(ref, onAdRectSeen, isVisible);
 
@@ -76,13 +102,24 @@ export const PersonaPromotion = memo<Props>(
     );
 
     return (
-      <div className={clsx('relative rounded-xl overflow-hidden', `h-${AD_BANNER_HEIGHT}`, !isVisible && 'invisible')}>
-        <div ref={ref} id={containerId} onClick={onClick} className={clsx('h-full', ModStyles.container)} />
-
-        <ImageAdLabel />
-
-        <CloseButton onClick={onClose} variant={PartnersPromotionVariant.Image} />
-      </div>
+      <ImagePromotionView
+        onClose={onClose}
+        href={href}
+        isVisible={isVisible}
+        providerTitle={AdsProviderTitle.HypeLab}
+        pageName={pageName}
+        accountPkh={accountPkh}
+        onAdRectSeen={onAdRectSeen}
+        backgroundAssetUrl={backgroundAssetUrl}
+        backgroundAssetType={backgroundAssetType}
+      >
+        <div
+          ref={ref}
+          id={containerId}
+          onClick={onClick}
+          className={clsx('h-full rounded-xl overflow-hidden', ModStyles.container)}
+        />
+      </ImagePromotionView>
     );
   }
 );

@@ -1,11 +1,9 @@
 import React, { memo, ReactNode, useCallback, useMemo, useRef, useState } from 'react';
 
-import clsx from 'clsx';
 import { useForm, Controller } from 'react-hook-form';
 import * as Viem from 'viem';
 
 import { Alert, FormSubmitButton, NoSpaceField } from 'app/atoms';
-import { CONTENT_CONTAINER_CLASSNAME } from 'app/layouts/ContentContainer';
 import { ChainSelectSection, useChainSelectController } from 'app/templates/ChainSelect';
 import { useFormAnalytics } from 'lib/analytics';
 import { T, t } from 'lib/i18n';
@@ -100,7 +98,7 @@ export const WatchOnlyForm = memo(() => {
   }, [resolvedAddress, network, formState.isSubmitting, setError, formAnalytics, importWatchOnlyAccount]);
 
   return (
-    <form className={clsx(CONTENT_CONTAINER_CLASSNAME, 'my-8')} onSubmit={handleSubmit(onSubmit)}>
+    <form className="my-8" onSubmit={handleSubmit(onSubmit)}>
       {error && <Alert type="error" title={t('error')} description={error} autoFocus className="mb-6" />}
 
       <ChainSelectSection controller={chainSelectController} onlyForAddressResolution />

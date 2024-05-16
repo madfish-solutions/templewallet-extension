@@ -20,18 +20,11 @@ import {
 } from './use-collectibles-pagination-logic';
 
 export const useCollectiblesListingLogic = (network: TezosNetworkEssentials, allSlugsSorted: string[]) => {
-  const initialAmount = useMemo(() => {
-    const { search } = createLocationState();
-    const usp = new URLSearchParams(search);
-    const amount = usp.get('amount');
-    return amount ? Number(amount) : 0;
-  }, []);
-
   const {
     slugs: paginatedSlugs,
     isLoading: pageIsLoading,
     loadNext
-  } = useCollectiblesPaginationLogic(allSlugsSorted, network.rpcBaseURL, initialAmount);
+  } = useCollectiblesPaginationLogic(allSlugsSorted, network.rpcBaseURL);
 
   const assetsAreLoading = useAreAssetsLoading('collectibles');
   const metadatasLoading = useCollectiblesMetadataLoadingSelector();

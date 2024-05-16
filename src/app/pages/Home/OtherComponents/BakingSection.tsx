@@ -14,7 +14,7 @@ import { ReactComponent as RedditIcon } from 'app/icons/delegationRed.svg';
 import { ReactComponent as TelegramIcon } from 'app/icons/delegationTg.svg';
 import { ReactComponent as TwitterIcon } from 'app/icons/delegationTwi.svg';
 import { ReactComponent as YoutubeIcon } from 'app/icons/delegationYt.svg';
-import { ReactComponent as ClockRepeatIcon } from 'app/icons/history.svg';
+import { ReactComponent as ClockRepeatIcon } from 'app/icons/monochrome/clock-repeat.svg';
 import { ReactComponent as StockUpIcon } from 'app/icons/stock-up.svg';
 import { ReactComponent as ClockIcon } from 'app/icons/time.svg';
 import { ReactComponent as UnlockIcon } from 'app/icons/unlock.svg';

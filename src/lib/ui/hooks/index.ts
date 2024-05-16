@@ -15,3 +15,5 @@ export { useStopper } from './useStopper';
 export { useMemoWithCompare } from './useMemoWithCompare';
 
 export { useVanishingState } from './useVanishingState';
+
+export { useBooleanState } from './useBooleanState';

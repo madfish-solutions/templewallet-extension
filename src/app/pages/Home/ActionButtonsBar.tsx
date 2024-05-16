@@ -4,12 +4,12 @@ import { ChainIds } from '@taquito/taquito';
 import clsx from 'clsx';
 import { Props as TippyProps } from 'tippy.js';
 
-import { Anchor } from 'app/atoms';
-import { ReactComponent as BuyIcon } from 'app/icons/buy.svg';
-import { ReactComponent as ReceiveIcon } from 'app/icons/receive.svg';
-import { ReactComponent as SendIcon } from 'app/icons/send-alt.svg';
-import { ReactComponent as SwapIcon } from 'app/icons/swap.svg';
-import { ReactComponent as WithdrawIcon } from 'app/icons/withdraw.svg';
+import { Anchor, IconBase } from 'app/atoms';
+import { ReactComponent as ActivityIcon } from 'app/icons/base/activity.svg';
+import { ReactComponent as MarketIcon } from 'app/icons/base/card.svg';
+import { ReactComponent as ReceiveIcon } from 'app/icons/base/income.svg';
+import { ReactComponent as SendIcon } from 'app/icons/base/send.svg';
+import { ReactComponent as SwapIcon } from 'app/icons/base/swap.svg';
 import { buildSendPagePath } from 'app/pages/Send/build-url';
 import { buildSwapPageUrlQuery } from 'app/pages/Swap/utils/build-url-query';
 import { TestIDProps } from 'lib/analytics';
@@ -21,8 +21,8 @@ import { createLocationState } from 'lib/woozie/location';
 import { useAccount } from 'temple/front';
 import { TempleChainKind } from 'temple/types';
 
-import { HomeSelectors } from './Home.selectors';
 import { HomeProps } from './interfaces';
+import { HomeSelectors } from './selectors';
 
 const tippyPropsMock = {
   trigger: 'mouseenter',
@@ -49,10 +49,11 @@ export const ActionButtonsBar = memo<HomeProps>(({ chainKind, chainId, assetSlug
   );
 
   return (
-    <div className="flex justify-between mx-auto w-full max-w-sm">
+    <div className="flex justify-between gap-x-2 h-13.5 mt-4">
       <ActionButton labelI18nKey="receive" Icon={ReceiveIcon} to="/receive" testID={HomeSelectors.receiveButton} />
 
-      <ActionButton labelI18nKey="buyButton" Icon={BuyIcon} to="/buy" testID={HomeSelectors.buyButton} />
+      <ActionButton labelI18nKey="market" Icon={MarketIcon} to="/market" testID={HomeSelectors.marketButton} />
+
       <ActionButton
         labelI18nKey="swap"
         Icon={SwapIcon}
@@ -61,13 +62,14 @@ export const ActionButtonsBar = memo<HomeProps>(({ chainKind, chainId, assetSlug
         tippyProps={tippyPropsMock}
         testID={HomeSelectors.swapButton}
       />
+
       <ActionButton
-        labelI18nKey="withdraw"
-        Icon={WithdrawIcon}
-        to="/withdraw"
-        disabled={!canSend}
-        testID={HomeSelectors.withdrawButton}
+        labelI18nKey="activity"
+        Icon={ActivityIcon}
+        to={{ search: 'tab=activity' }}
+        testID={HomeSelectors.activityButton}
       />
+
       <ActionButton
         labelI18nKey="send"
         Icon={SendIcon}
@@ -98,21 +100,18 @@ const ActionButton = memo<ActionButtonProps>(
 
     const commonButtonProps = useMemo(
       () => ({
-        className: `flex flex-col items-center`,
+        className: clsx(
+          'flex-1 max-w-16 flex flex-col gap-y-0.5 p-2 items-center justify-center rounded-lg',
+          disabled
+            ? 'bg-grey-4 text-gray'
+            : 'bg-primary-low text-primary hover:bg-primary-hover-low hover:text-primary-hover'
+        ),
         type: 'button' as const,
         children: (
           <>
-            <div
-              className={clsx(
-                disabled ? 'bg-gray-10' : 'bg-orange-10',
-                'rounded mb-2 flex items-center text-white',
-                'p-2 h-10'
-              )}
-            >
-              <Icon className={clsx('w-6 h-auto', disabled ? 'stroke-gray' : 'stroke-accent-orange')} />
-            </div>
+            <IconBase Icon={Icon} size={24} />
 
-            <span className={clsx('text-center text-xxs', disabled ? 'text-gray-20' : 'text-gray-910')}>
+            <span className="text-font-small-bold">
               <T id={labelI18nKey} />
             </span>
           </>

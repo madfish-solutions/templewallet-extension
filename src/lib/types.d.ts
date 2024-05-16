@@ -27,6 +27,4 @@ type NonNullableFields<T> = {
 
 type NonNullableField<T, K extends keyof T> = T & NonNullableFields<Pick<T, K>>;
 
-interface PropsWithChildren {
-  children: import('react').ReactNode;
-}
+type PropsWithChildren<P = unknown> = P & { children: import('react').ReactNode };

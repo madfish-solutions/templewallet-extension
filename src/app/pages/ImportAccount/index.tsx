@@ -2,7 +2,7 @@ import React, { FC, useMemo } from 'react';
 
 import { TabSwitcher } from 'app/atoms';
 import { useAllAccountsReactiveOnAddition } from 'app/hooks/use-all-accounts-reactive';
-import { ReactComponent as DownloadIcon } from 'app/icons/download.svg';
+import { ReactComponent as DownloadIcon } from 'app/icons/monochrome/download.svg';
 import PageLayout from 'app/layouts/PageLayout';
 import { TID, T } from 'lib/i18n';
 

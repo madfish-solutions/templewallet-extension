@@ -1,4 +1,6 @@
-import React, { FC, Fragment, memo, Suspense, useCallback, useMemo, useState } from 'react';
+import React, { FC, Fragment, memo, useCallback, useMemo, useState } from 'react';
+
+import clsx from 'clsx';
 
 import { Alert, FormSubmitButton, FormSecondaryButton } from 'app/atoms';
 import AccountTypeBadge from 'app/atoms/AccountTypeBadge';
@@ -9,8 +11,8 @@ import Money from 'app/atoms/Money';
 import Name from 'app/atoms/Name';
 import Spinner from 'app/atoms/Spinner/Spinner';
 import SubTitle from 'app/atoms/SubTitle';
-import ErrorBoundary from 'app/ErrorBoundary';
-import ContentContainer from 'app/layouts/ContentContainer';
+import { SuspenseContainer } from 'app/atoms/SuspenseContainer';
+import { LAYOUT_CONTAINER_CLASSNAME } from 'app/layouts/containers';
 import Unlock from 'app/pages/Unlock/Unlock';
 import AccountBanner from 'app/templates/AccountBanner';
 import { TezosBalance } from 'app/templates/Balance';
@@ -40,21 +42,20 @@ const ConfirmPage = memo(() => {
 
   if (ready)
     return (
-      <ContentContainer padding={false} className="min-h-screen flex flex-col items-center justify-center">
-        <ErrorBoundary whileMessage={t('fetchingConfirmationDetails')}>
-          <Suspense
-            fallback={
-              <div className="flex items-center justify-center h-screen">
-                <div>
-                  <Spinner theme="primary" className="w-20" />
-                </div>
+      <div className={clsx(LAYOUT_CONTAINER_CLASSNAME, 'min-h-screen flex flex-col items-center justify-center')}>
+        <SuspenseContainer
+          errorMessage={t('fetchingConfirmationDetails')}
+          loader={
+            <div className="flex items-center justify-center h-screen">
+              <div>
+                <Spinner theme="primary" className="w-20" />
               </div>
-            }
-          >
-            <ConfirmDAppForm />
-          </Suspense>
-        </ErrorBoundary>
-      </ContentContainer>
+            </div>
+          }
+        >
+          <ConfirmDAppForm />
+        </SuspenseContainer>
+      </div>
     );
 
   return <Unlock canImportNew={false} />;

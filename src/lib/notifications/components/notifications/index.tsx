@@ -1,13 +1,13 @@
 import React, { useCallback } from 'react';
 
-import { DataPlaceholder } from 'app/atoms';
+import { DataPlaceholder, IconBase } from 'app/atoms';
 import { useLoadPartnersPromo } from 'app/hooks/use-load-partners-promo';
+import { ReactComponent as BellIcon } from 'app/icons/base/bell.svg';
 import PageLayout from 'app/layouts/PageLayout';
 import { dispatch } from 'app/store';
 import { useShouldShowPartnersPromoSelector } from 'app/store/partners-promotion/selectors';
 import { PartnersPromotion, PartnersPromotionVariant } from 'app/templates/partners-promotion';
 import { T } from 'lib/i18n';
-import { BellIcon } from 'lib/icons';
 import { useTimeout } from 'lib/ui/hooks';
 
 import { viewAllNotificationsAction } from '../../store/actions';
@@ -30,31 +30,27 @@ export const Notifications = () => {
     <PageLayout
       pageTitle={
         <>
-          <BellIcon className="w-auto h-4 mr-1 stroke-current" />
+          <IconBase Icon={BellIcon} size={16} className="mr-1" />
           <T id="notifications" />
         </>
       }
-      contentContainerStyle={{ padding: 0 }}
     >
-      <div className="max-w-sm mx-auto pb-15">
-        {shouldShowPartnersPromoState && (
-          <div className="pt-6 pb-4 flex justify-center">
-            <PartnersPromotion
-              id="promo-notifications-item"
-              variant={PartnersPromotionVariant.Image}
-              pageName="Notifications"
-              withPersonaProvider
-            />
-          </div>
-        )}
-        {notifications.length === 0 ? (
-          <DataPlaceholder id="notificationsNotFound" />
-        ) : (
-          notifications.map(notification => (
-            <NotificationPreviewItem key={notification.id} notification={notification} />
-          ))
-        )}
-      </div>
+      {shouldShowPartnersPromoState && (
+        <div className="mb-4 flex justify-center">
+          <PartnersPromotion
+            id="promo-notifications-item"
+            variant={PartnersPromotionVariant.Image}
+            pageName="Notifications"
+            withPersonaProvider
+          />
+        </div>
+      )}
+
+      {notifications.length === 0 ? (
+        <DataPlaceholder id="notificationsNotFound" />
+      ) : (
+        notifications.map(notification => <NotificationPreviewItem key={notification.id} notification={notification} />)
+      )}
     </PageLayout>
   );
 };

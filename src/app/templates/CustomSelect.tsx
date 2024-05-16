@@ -2,7 +2,7 @@ import React, { ComponentType, CSSProperties, useCallback } from 'react';
 
 import classNames from 'clsx';
 
-import { ReactComponent as OkIcon } from 'app/icons/ok.svg';
+import { ReactComponent as OkIcon } from 'app/icons/base/ok.svg';
 
 type Actions<K extends string | number> = { [key: string]: (id: K) => void };
 

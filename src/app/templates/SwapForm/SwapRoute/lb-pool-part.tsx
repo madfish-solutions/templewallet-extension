@@ -49,7 +49,7 @@ export const LbPoolPart: FC<Props> = ({ amount, isLbOutput, totalChains }) => {
         </div>
 
         <div
-          className="flex items-center p-1 border border-gray-400 rounded-lg bg-white z-10"
+          className="flex items-center p-1 border border-gray-400 rounded-lg bg-white z-1"
           style={advancedLbPoolItemStyles}
         >
           <div ref={dexInfoDivRef}>

@@ -1,3 +1,4 @@
+import React, { FC, memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import React, { FC, memo, useCallback, useEffect, useMemo, useState } from 'react';
 
 import clsx from 'clsx';
@@ -5,12 +6,21 @@ import InfiniteScroll from 'react-infinite-scroller';
 
 import { Checkbox, Divider, SyncSpinner } from 'app/atoms';
 import DropdownWrapper from 'app/atoms/DropdownWrapper';
+import { IconButton } from 'app/atoms/IconButton';
 import { useAppEnv } from 'app/env';
 import { useEvmChainAccountTokensSlugs } from 'app/hooks/evm/assets';
 import { useEvmTokensMetadataLoadingState } from 'app/hooks/evm/loading';
 import { useLoadPartnersPromo } from 'app/hooks/use-load-partners-promo';
+import { useTokensListingLogic } from 'app/hooks/use-tokens-listing-logic';
+import { ReactComponent as FiltersIcon } from 'app/icons/base/filteroff.svg';
+import { ReactComponent as SearchIcon } from 'app/icons/base/search.svg';
 import { useEvmTokensListingLogic, useTezosTokensListingLogic } from 'app/hooks/use-tokens-listing-logic';
 import { ReactComponent as EditingIcon } from 'app/icons/editing.svg';
+import { ContentContainer, StickyBar } from 'app/layouts/containers';
+import { useAreAssetsLoading, useMainnetTokensScamlistSelector } from 'app/store/assets/selectors';
+import { useTokensMetadataLoadingSelector } from 'app/store/tokens-metadata/selectors';
+import { useChainSelectController, ChainSelect, ChainsDropdown } from 'app/templates/ChainSelect';
+import { ChainSelectController } from 'app/templates/ChainSelect/controller';
 import { ReactComponent as SearchIcon } from 'app/icons/search.svg';
 import { ContentContainer } from 'app/layouts/ContentContainer';
 import { useEvmBalancesLoadingSelector } from 'app/store/evm/selectors';
@@ -19,7 +29,7 @@ import { useTokensMetadataLoadingSelector } from 'app/store/tezos/tokens-metadat
 import { ChainSelectSection, useChainSelectController } from 'app/templates/ChainSelect';
 import { ButtonForManageDropdown } from 'app/templates/ManageDropdown';
 import { PartnersPromotion, PartnersPromotionVariant } from 'app/templates/partners-promotion';
-import SearchAssetField from 'app/templates/SearchAssetField';
+import { SearchBarField } from 'app/templates/SearchField';
 import { setTestID } from 'lib/analytics';
 import { OptimalPromoVariantEnum } from 'lib/apis/optimal';
 import { TEMPLE_TOKEN_SLUG, TEZ_TOKEN_SLUG } from 'lib/assets';
@@ -33,7 +43,7 @@ import { useAccountAddressForEvm, useAccountAddressForTezos } from 'temple/front
 import { EvmNetworkEssentials, TezosNetworkEssentials } from 'temple/networks';
 import { TempleChainKind } from 'temple/types';
 
-import { HomeSelectors } from '../../Home.selectors';
+import { HomeSelectors } from '../../selectors';
 import { AssetsSelectors } from '../Assets.selectors';
 
 import { EvmListItem, TezosListItem } from './components/ListItem';
@@ -50,17 +60,24 @@ export const TokensTab = memo(() => {
   const accountTezAddress = useAccountAddressForTezos();
   const accountEvmAddress = useAccountAddressForEvm();
 
+  if (network.kind === 'tezos' && accountTezAddress)
+    return (
+      <TezosTokensTab
+        network={network}
+        publicKeyHash={accountTezAddress}
+        chainSelectController={chainSelectController}
+      />
+    );
+
   return (
-    <ContentContainer className="pt-4">
-      <ChainSelectSection controller={chainSelectController} />
+    <ContentContainer className="mt-3">
+      <div className="flex items-center mb-4">
+        <div className="flex-1 text-xl">Change network:</div>
 
-      {network.kind === 'tezos' && accountTezAddress && (
-        <TezosTokensTab network={network} publicKeyHash={accountTezAddress} />
-      )}
+        <ChainSelect controller={chainSelectController} />
+      </div>
 
-      {network.kind === 'evm' && accountEvmAddress && (
-        <EvmTokensTab network={network} publicKeyHash={accountEvmAddress} />
-      )}
+      <EvmTokensTab network={network} publicKeyHash={accountEvmAddress} />
     </ContentContainer>
   );
 });
@@ -154,12 +171,11 @@ const EvmTokensTab: FC<EvmTokensTabProps> = ({ network, publicKeyHash }) => {
 interface TezosTokensTabProps {
   network: TezosNetworkEssentials;
   publicKeyHash: string;
+  chainSelectController: ChainSelectController;
 }
 
-const TezosTokensTab: FC<TezosTokensTabProps> = ({ network, publicKeyHash }) => {
+const TezosTokensTab: FC<TezosTokensTabProps> = ({ network, publicKeyHash, chainSelectController }) => {
   const chainId = network.chainId;
-
-  const { popup } = useAppEnv();
 
   const assetsAreLoading = useAreAssetsLoading('tokens');
   const metadatasLoading = useTokensMetadataLoadingSelector();
@@ -261,17 +277,28 @@ const TezosTokensTab: FC<TezosTokensTabProps> = ({ network, publicKeyHash }) => 
     return () => window.removeEventListener('keyup', handleKeyup);
   }, [activeAssetSlug, chainId, setActiveIndex]);
 
+  const stickyBarRef = useRef<HTMLDivElement>(null);
+
   return (
     <>
-      <div className={clsx('my-3 w-full flex', popup && 'px-4')}>
-        <SearchAssetField
+      <StickyBar ref={stickyBarRef}>
+        <SearchBarField
           value={searchValue}
           onValueChange={setSearchValue}
           onFocus={handleSearchFieldFocus}
           onBlur={handleSearchFieldBlur}
-          containerClassName="mr-2"
           testID={AssetsSelectors.searchAssetsInputTokens}
         />
+
+        <Popper
+          placement="bottom-end"
+          strategy="fixed"
+          popup={props => <ChainsDropdown controller={chainSelectController} {...props} />}
+        >
+          {({ ref, opened, toggleOpened }) => (
+            <IconButton Icon={FiltersIcon} ref={ref} active={opened} onClick={toggleOpened} />
+          )}
+        </Popper>
 
         <Popper
           placement="bottom-end"
@@ -295,38 +322,38 @@ const TezosTokensTab: FC<TezosTokensTabProps> = ({ network, publicKeyHash }) => 
             />
           )}
         </Popper>
-      </div>
+      </StickyBar>
 
-      <UpdateAppBanner popup={popup} />
+      <ContentContainer>
+        <UpdateAppBanner stickyBarRef={stickyBarRef} />
 
-      {filteredAssets.length === 0 ? (
-        <div className="my-8 flex flex-col items-center justify-center text-gray-500">
-          <p className="mb-2 flex items-center justify-center text-gray-600 text-base font-light">
-            {searchValueExist && <SearchIcon className="w-5 h-auto mr-1 stroke-current" />}
+        {filteredAssets.length === 0 ? (
+          <div className="my-8 flex flex-col items-center justify-center text-gray-500">
+            <p className="mb-2 flex items-center justify-center text-gray-600 text-base font-light">
+              {searchValueExist && <SearchIcon className="w-5 h-auto mr-1 stroke-current fill-current" />}
 
-            <span {...setTestID(HomeSelectors.emptyStateText)}>
-              <T id="noAssetsFound" />
-            </span>
-          </p>
+              <span {...setTestID(HomeSelectors.emptyStateText)}>
+                <T id="noAssetsFound" />
+              </span>
+            </p>
 
-          <p className="text-center text-xs font-light">
-            <T
-              id="ifYouDontSeeYourAsset"
-              substitutions={[
-                <b>
-                  <T id="manage" />
-                </b>
-              ]}
-            />
-          </p>
-        </div>
-      ) : (
-        <div className="flex flex-col w-full overflow-hidden rounded-md text-gray-700 text-sm leading-tight">
-          {tokensView}
-        </div>
-      )}
+            <p className="text-center text-xs font-light">
+              <T
+                id="ifYouDontSeeYourAsset"
+                substitutions={[
+                  <b>
+                    <T id="manage" />
+                  </b>
+                ]}
+              />
+            </p>
+          </div>
+        ) : (
+          tokensView
+        )}
 
-      {isSyncing && <SyncSpinner className="mt-4" />}
+        {isSyncing && <SyncSpinner className="mt-4" />}
+      </ContentContainer>
     </>
   );
 };
@@ -346,7 +373,7 @@ const ManageButtonDropdown: FC<ManageButtonDropdownProps> = ({
   return (
     <DropdownWrapper
       opened={opened}
-      className="origin-top-right p-2 flex flex-col min-w-40"
+      className="origin-top-right mt-1 p-2 flex flex-col min-w-40"
       style={{ border: 'unset', marginTop: '0.25rem' }}
     >
       <Link

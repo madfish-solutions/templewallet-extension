@@ -1,11 +1,11 @@
-import React, { ComponentProps, FC, Suspense } from 'react';
+import React, { PropsWithChildren, ComponentProps, FC, Suspense } from 'react';
 
 import 'lib/local-storage/migrations';
 import 'lib/lock-up/run-checks';
 import 'lib/ledger/proxy/foreground';
 import 'lib/keep-bg-worker-alive/script';
 
-import AwaitFonts from 'app/a11y/AwaitFonts';
+import AwaitFontFamily from 'app/a11y/AwaitFonts';
 import AwaitI18N from 'app/a11y/AwaitI18N';
 import BootAnimation from 'app/a11y/BootAnimation';
 import DisableOutlinesForClick from 'app/a11y/DisableOutlinesForClick';
@@ -22,8 +22,9 @@ import * as Woozie from 'lib/woozie';
 import { LoadHypelabScript } from './load-hypelab-script';
 import { AppRootHooks } from './root-hooks';
 import { StoreProvider } from './store/provider';
+import { ToasterProvider } from './toaster';
 
-interface Props extends React.PropsWithChildren {
+interface Props extends PropsWithChildren {
   env: ComponentProps<typeof AppEnvProvider>;
 }
 
@@ -40,7 +41,7 @@ export const App: FC<Props> = ({ env }) => (
 
           <LoadHypelabScript />
 
-          <AwaitFonts name="Inter" weights={[300, 400, 500, 600]} className="antialiased font-inter">
+          <AwaitFonts>
             <BootAnimation>
               {env.confirmWindow ? (
                 <ConfirmPage />
@@ -48,6 +49,7 @@ export const App: FC<Props> = ({ env }) => (
                 <>
                   <AppRootHooks />
                   <PageRouter />
+                  <ToasterProvider />
                 </>
               )}
             </BootAnimation>
@@ -66,4 +68,14 @@ const AppProvider: FC<Props> = ({ children, env }) => (
       </Woozie.Provider>
     </StoreProvider>
   </AppEnvProvider>
+);
+
+const FONTS_WEIGHTS = [300, 400, 500, 600];
+
+const AwaitFonts: FC<PropsWithChildren> = ({ children }) => (
+  <AwaitFontFamily name="Inter" weights={FONTS_WEIGHTS} className="antialiased font-inter">
+    <AwaitFontFamily name="Rubik" weights={FONTS_WEIGHTS} className="antialiased">
+      {children}
+    </AwaitFontFamily>
+  </AwaitFontFamily>
 );

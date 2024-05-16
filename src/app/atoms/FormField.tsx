@@ -13,7 +13,7 @@ import classNames from 'clsx';
 
 import CleanButton from 'app/atoms/CleanButton';
 import CopyButton from 'app/atoms/CopyButton';
-import { ReactComponent as CopyIcon } from 'app/icons/copy.svg';
+import { ReactComponent as CopyIcon } from 'app/icons/monochrome/copy.svg';
 import { setTestID, TestIDProperty } from 'lib/analytics';
 import { useDidUpdate } from 'lib/ui/hooks';
 import { blurHandler, focusHandler, inputChangeHandler } from 'lib/ui/inputHandlers';
@@ -255,7 +255,7 @@ const Copyable: React.FC<CopyableProps> = ({ copy, cleanable, value, copyable })
     >
       <CopyIcon
         style={{ verticalAlign: 'inherit' }}
-        className="h-4 ml-1 w-auto inline stroke-orange stroke-2"
+        className="h-4 ml-1 w-auto inline stroke-orange-500 stroke-2"
         onClick={() => copy()}
       />
     </CopyButton>

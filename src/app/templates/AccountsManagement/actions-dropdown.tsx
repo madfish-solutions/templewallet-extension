@@ -1,69 +1,22 @@
-import React, { FC, SVGProps, memo, useCallback } from 'react';
+import React, { memo } from 'react';
 
-import clsx from 'clsx';
-
-import { Button } from 'app/atoms';
-import DropdownWrapper from 'app/atoms/DropdownWrapper';
-import { TID, t } from 'lib/i18n';
+import { ActionListItem, ActionListItemProps } from 'app/atoms/ActionListItem';
+import { ActionsDropdownPopup } from 'app/atoms/ActionsDropdown';
 import { PopperRenderProps } from 'lib/ui/Popper';
 
-export interface Action {
+export interface AccountsAction extends ActionListItemProps {
   key: string;
-  i18nKey: TID;
-  icon: FC<SVGProps<SVGSVGElement>>;
-  onClick: () => void;
-  danger: boolean;
 }
 
-interface ActionsDropdownProps extends PopperRenderProps {
-  actions: Action[];
+interface Props extends PopperRenderProps {
+  actions: AccountsAction[];
   title: string;
-  style?: React.CSSProperties;
 }
 
-export const ActionsDropdown = memo<ActionsDropdownProps>(({ actions, opened, title, style = {}, setOpened }) => (
-  <DropdownWrapper
-    opened={opened}
-    design="light"
-    className="origin-top-right p-2 w-40"
-    style={{
-      pointerEvents: 'all',
-      ...style
-    }}
-  >
-    <div className="flex flex-col">
-      <span className="text-xxxs text-gray-500 px-2 py-2.5 font-semibold leading-3">{title}</span>
-      {actions.map(action => (
-        <ActionButton key={action.key} action={action} setOpened={setOpened} />
-      ))}
-    </div>
-  </DropdownWrapper>
+export const AccountsActionsDropdown = memo<Props>(({ actions, opened, title, setOpened }) => (
+  <ActionsDropdownPopup title={title} opened={opened} style={{ minWidth: 154 }}>
+    {actions.map(action => (
+      <ActionListItem {...action} key={action.key} setOpened={setOpened} />
+    ))}
+  </ActionsDropdownPopup>
 ));
-
-interface ActionButtonProps extends Pick<PopperRenderProps, 'setOpened'> {
-  action: Action;
-}
-
-const ActionButton = memo<ActionButtonProps>(({ action, setOpened }) => {
-  const { i18nKey, icon: Icon, onClick, danger } = action;
-
-  const handleClick = useCallback(() => {
-    setOpened(false);
-    onClick();
-  }, [onClick, setOpened]);
-
-  return (
-    <Button
-      className={clsx(
-        'flex items-center px-2 py-1.5 text-xs text-left leading-4',
-        danger ? 'text-red-500' : 'text-gray-900'
-      )}
-      onClick={handleClick}
-    >
-      <span className={clsx('leading-none', danger ? 'text-red-500' : 'text-blue-500')}>
-        <Icon className="w-4 h-4 ml-1 mr-2 stroke-current stroke-2" />
-      </span>
-      {t(i18nKey)}
-    </Button>
-  );
-});
