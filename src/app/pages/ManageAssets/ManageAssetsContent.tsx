@@ -1,11 +1,11 @@
 import React, { FC, memo, PropsWithChildren, useCallback } from 'react';
 
-import { setTokenStatusAction, setCollectibleStatusAction } from 'app/store/assets/actions';
 import clsx from 'clsx';
 
 import { CaptionAlert } from 'app/atoms';
 import { ReactComponent as AddIcon } from 'app/icons/add-to-list.svg';
 import { dispatch } from 'app/store';
+import { setCollectibleStatusAction, setTokenStatusAction } from 'app/store/tezos/assets/actions';
 import { SearchBarField } from 'app/templates/SearchField';
 import { AccountAsset } from 'lib/assets/types';
 import { t, T } from 'lib/i18n';

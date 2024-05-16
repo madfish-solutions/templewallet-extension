@@ -6,7 +6,7 @@ import { getAssetSymbol, useAssetMetadata } from 'lib/metadata';
 import { TempleChainKind } from 'temple/types';
 
 import { HomeProps } from './interfaces';
-import { TokenPageSelectors } from './OtherComponents/TokenPage.selectors';
+import { TokenPageSelectors } from './selectors';
 
 interface BaseProps {
   assetSlug: string;

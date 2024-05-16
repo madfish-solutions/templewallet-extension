@@ -1,32 +1,23 @@
 import React, { FC, memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import React, { FC, memo, useCallback, useEffect, useMemo, useState } from 'react';
 
-import clsx from 'clsx';
 import InfiniteScroll from 'react-infinite-scroller';
 
 import { Checkbox, Divider, SyncSpinner } from 'app/atoms';
 import DropdownWrapper from 'app/atoms/DropdownWrapper';
 import { IconButton } from 'app/atoms/IconButton';
-import { useAppEnv } from 'app/env';
 import { useEvmChainAccountTokensSlugs } from 'app/hooks/evm/assets';
 import { useEvmTokensMetadataLoadingState } from 'app/hooks/evm/loading';
 import { useLoadPartnersPromo } from 'app/hooks/use-load-partners-promo';
-import { useTokensListingLogic } from 'app/hooks/use-tokens-listing-logic';
+import { useEvmTokensListingLogic, useTezosTokensListingLogic } from 'app/hooks/use-tokens-listing-logic';
 import { ReactComponent as FiltersIcon } from 'app/icons/base/filteroff.svg';
 import { ReactComponent as SearchIcon } from 'app/icons/base/search.svg';
-import { useEvmTokensListingLogic, useTezosTokensListingLogic } from 'app/hooks/use-tokens-listing-logic';
 import { ReactComponent as EditingIcon } from 'app/icons/editing.svg';
 import { ContentContainer, StickyBar } from 'app/layouts/containers';
-import { useAreAssetsLoading, useMainnetTokensScamlistSelector } from 'app/store/assets/selectors';
-import { useTokensMetadataLoadingSelector } from 'app/store/tokens-metadata/selectors';
-import { useChainSelectController, ChainSelect, ChainsDropdown } from 'app/templates/ChainSelect';
-import { ChainSelectController } from 'app/templates/ChainSelect/controller';
-import { ReactComponent as SearchIcon } from 'app/icons/search.svg';
-import { ContentContainer } from 'app/layouts/ContentContainer';
 import { useEvmBalancesLoadingSelector } from 'app/store/evm/selectors';
 import { useAreAssetsLoading, useMainnetTokensScamlistSelector } from 'app/store/tezos/assets/selectors';
 import { useTokensMetadataLoadingSelector } from 'app/store/tezos/tokens-metadata/selectors';
-import { ChainSelectSection, useChainSelectController } from 'app/templates/ChainSelect';
+import { ChainsDropdown, ChainSelect, useChainSelectController } from 'app/templates/ChainSelect';
+import { ChainSelectController } from 'app/templates/ChainSelect/controller';
 import { ButtonForManageDropdown } from 'app/templates/ManageDropdown';
 import { PartnersPromotion, PartnersPromotionVariant } from 'app/templates/partners-promotion';
 import { SearchBarField } from 'app/templates/SearchField';
@@ -39,6 +30,7 @@ import { TEZOS_MAINNET_CHAIN_ID } from 'lib/temple/types';
 import { useLocalStorage } from 'lib/ui/local-storage';
 import Popper, { PopperRenderProps } from 'lib/ui/Popper';
 import { Link, navigate } from 'lib/woozie';
+import { UNDER_DEVELOPMENT_MSG } from 'temple/evm/under_dev_msg';
 import { useAccountAddressForEvm, useAccountAddressForTezos } from 'temple/front';
 import { EvmNetworkEssentials, TezosNetworkEssentials } from 'temple/networks';
 import { TempleChainKind } from 'temple/types';
@@ -77,7 +69,11 @@ export const TokensTab = memo(() => {
         <ChainSelect controller={chainSelectController} />
       </div>
 
-      <EvmTokensTab network={network} publicKeyHash={accountEvmAddress} />
+      {network.kind === 'evm' && accountEvmAddress ? (
+        <EvmTokensTab network={network} publicKeyHash={accountEvmAddress} />
+      ) : (
+        <div className="text-center py-3">{UNDER_DEVELOPMENT_MSG}</div>
+      )}
     </ContentContainer>
   );
 });

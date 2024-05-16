@@ -3,7 +3,7 @@ import React, { memo } from 'react';
 import Money from 'app/atoms/Money';
 import AddressChip from 'app/templates/AddressChip';
 import { AssetIcon } from 'app/templates/AssetIcon';
-import Balance from 'app/templates/Balance';
+import { TezosBalance } from 'app/templates/Balance';
 import InFiat from 'app/templates/InFiat';
 import { setAnotherSelector, setTestID } from 'lib/analytics';
 import { getAssetName, getAssetSymbol, useAssetMetadata } from 'lib/metadata';
@@ -63,7 +63,7 @@ const TezosAssetBanner = memo<TezosTezosAssetBanner>(({ network, accountPkh, ass
       </div>
 
       <div className="flex items-center text-2xl">
-        <Balance network={network} address={accountPkh} assetSlug={assetSlug}>
+        <TezosBalance network={network} address={accountPkh} assetSlug={assetSlug}>
           {balance => (
             <div className="flex flex-col">
               <div className="flex text-2xl">
@@ -73,7 +73,7 @@ const TezosAssetBanner = memo<TezosTezosAssetBanner>(({ network, accountPkh, ass
                 <span className="ml-1">{assetSymbol}</span>
               </div>
 
-              <InFiat tezosChainId={network.chainId} assetSlug={assetSlug} volume={balance} smallFractionFont={false}>
+              <InFiat chainId={network.chainId} assetSlug={assetSlug} volume={balance} smallFractionFont={false}>
                 {({ balance, symbol }) => (
                   <div className="mt-1 text-base leading-5 text-gray-500 flex">
                     <span className="mr-1">≈</span>
@@ -84,7 +84,7 @@ const TezosAssetBanner = memo<TezosTezosAssetBanner>(({ network, accountPkh, ass
               </InFiat>
             </div>
           )}
-        </Balance>
+        </TezosBalance>
       </div>
     </>
   );

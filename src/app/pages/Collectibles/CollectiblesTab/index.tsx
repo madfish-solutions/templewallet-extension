@@ -1,5 +1,6 @@
 import React, { FC, memo, useCallback, useMemo } from 'react';
 
+import clsx from 'clsx';
 import { isEqual } from 'lodash';
 
 import { SyncSpinner } from 'app/atoms';
@@ -11,7 +12,7 @@ import { ScrollBackUpButton } from 'app/atoms/ScrollBackUpButton';
 import { SimpleInfiniteScroll } from 'app/atoms/SimpleInfiniteScroll';
 import { useAppEnv } from 'app/env';
 import { useEvmChainAccountCollectiblesSlugs } from 'app/hooks/evm/assets';
-import { useCollectiblesListingLogic } from 'app/hooks/use-collectibles-listing-logic';
+import { useCollectiblesListingLogic, useEvmCollectiblesListingLogic } from 'app/hooks/use-collectibles-listing-logic';
 import { ReactComponent as FiltersIcon } from 'app/icons/base/filteroff.svg';
 import { ReactComponent as EditingIcon } from 'app/icons/editing.svg';
 import { ContentContainer, StickyBar } from 'app/layouts/containers';
@@ -34,6 +35,7 @@ import { useLocalStorage } from 'lib/ui/local-storage';
 import Popper, { PopperChildren, PopperPopup, PopperRenderProps } from 'lib/ui/Popper';
 import { useScrollIntoView } from 'lib/ui/use-scroll-into-view';
 import { Link } from 'lib/woozie';
+import { UNDER_DEVELOPMENT_MSG } from 'temple/evm/under_dev_msg';
 import { useAccountAddressForEvm, useAccountAddressForTezos } from 'temple/front';
 import { EvmNetworkEssentials, TezosNetworkEssentials } from 'temple/networks';
 
@@ -64,21 +66,21 @@ export const CollectiblesTab = memo(() => {
         <ChainSelect controller={chainSelectController} />
       </div>
 
-      <EvmCollectiblesTab
-        network={network}
-        publicKeyHash={accountEvmAddress}
-        scrollToTheTabsBar={scrollToTheTabsBar}
-      />
+      {network.kind === 'evm' && accountEvmAddress ? (
+        <EvmCollectiblesTab network={network} publicKeyHash={accountEvmAddress} />
+      ) : (
+        <div className="text-center py-3">{UNDER_DEVELOPMENT_MSG}</div>
+      )}
     </ContentContainer>
   );
 });
 
-interface EvmCollectiblesTabProps extends Props {
+interface EvmCollectiblesTabProps {
   network: EvmNetworkEssentials;
   publicKeyHash: HexString;
 }
 
-const EvmCollectiblesTab = memo<EvmCollectiblesTabProps>(({ network, publicKeyHash, scrollToTheTabsBar }) => {
+const EvmCollectiblesTab = memo<EvmCollectiblesTabProps>(({ network, publicKeyHash }) => {
   const { popup } = useAppEnv();
   const { chainId: evmChainId } = network;
 
@@ -93,11 +95,6 @@ const EvmCollectiblesTab = memo<EvmCollectiblesTabProps>(({ network, publicKeyHa
   );
 
   const { paginatedSlugs, isSyncing, loadNext } = useEvmCollectiblesListingLogic(network, allSlugsSorted);
-
-  const shouldScrollToTheTabsBar = paginatedSlugs.length > 0;
-  useEffect(() => {
-    if (shouldScrollToTheTabsBar) void scrollToTheTabsBar();
-  }, [shouldScrollToTheTabsBar, scrollToTheTabsBar]);
 
   const contentElement = useMemo(
     () => (
