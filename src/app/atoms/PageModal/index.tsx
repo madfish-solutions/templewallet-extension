@@ -25,6 +25,8 @@ export const PageModal = memo<PropsWithChildren<Props>>(({ title, opened, onRequ
     <Modal
       isOpen={opened}
       closeTimeoutMS={300}
+      htmlOpenClassName="overflow-hidden" // Disabling page scroll and/or bounce behind modal
+      bodyOpenClassName={ACTIVATE_CONTENT_FADER_CLASSNAME}
       overlayClassName={{
         base: clsx('fixed z-modal-page inset-0', fullPage ? 'pt-13 pb-8' : 'pt-4'),
         afterOpen: '',
@@ -33,15 +35,14 @@ export const PageModal = memo<PropsWithChildren<Props>>(({ title, opened, onRequ
       className={{
         base: clsx(
           LAYOUT_CONTAINER_CLASSNAME,
-          'h-full flex flex-col bg-white rounded-lg overflow-hidden',
+          'h-full flex flex-col bg-white overflow-hidden',
+          fullPage ? 'rounded-lg' : 'rounded-t-lg',
           ModStyles.base,
           'ease-out duration-300'
         ),
         afterOpen: ModStyles.opened,
         beforeClose: ModStyles.closed
       }}
-      bodyOpenClassName={ACTIVATE_CONTENT_FADER_CLASSNAME}
-      htmlOpenClassName="overflow-hidden"
       appElement={document.getElementById('root')!}
       onRequestClose={onRequestClose}
     >

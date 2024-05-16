@@ -134,7 +134,7 @@ module.exports = {
         'error': '#FF3B30',
         'error-hover': '#D93229',
         'error-low': '#FAE7E6',
-        'error-low-hover': '#EFD4D2',
+        'error-hover-low': '#EFD4D2',
         'warning-low': '#FAF6E1',
         //
         /** Originally 'input' */

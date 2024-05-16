@@ -96,9 +96,9 @@ const CopyAddressButton = memo<CopyAddressButtonProps>(({ chain, address, onCopy
     }}
   >
     <div className="flex-1 flex flex-col gap-y-0.5 items-start">
-      <span className="text-font-description">{TempleChainTitle[chain]}</span>
+      <span className="text-font-description-bold">{TempleChainTitle[chain]}</span>
 
-      <span className="text-font-small text-grey-1">
+      <span className="text-font-description text-grey-1">
         <HashShortView hash={address} />
       </span>
     </div>

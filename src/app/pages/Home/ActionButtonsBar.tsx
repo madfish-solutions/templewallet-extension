@@ -49,7 +49,7 @@ export const ActionButtonsBar = memo<Props>(({ tezosChainId, assetSlug }) => {
   );
 
   return (
-    <div className="flex justify-between h-13.5 mt-4">
+    <div className="flex justify-between gap-x-2 h-13.5 mt-4">
       <ActionButton labelI18nKey="receive" Icon={ReceiveIcon} to="/receive" testID={HomeSelectors.receiveButton} />
 
       <ActionButton labelI18nKey="market" Icon={MarketIcon} to="/market" testID={HomeSelectors.marketButton} />
@@ -101,7 +101,7 @@ const ActionButton = memo<ActionButtonProps>(
     const commonButtonProps = useMemo(
       () => ({
         className: clsx(
-          'min-w-15 flex flex-col gap-y-0.5 p-2 items-center justify-center rounded-lg',
+          'flex-1 max-w-16 flex flex-col gap-y-0.5 p-2 items-center justify-center rounded-lg',
           disabled
             ? 'bg-grey-4 text-gray'
             : 'bg-primary-low text-primary hover:bg-primary-hover-low hover:text-primary-hover'

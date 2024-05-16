@@ -25,7 +25,7 @@ export const AccLabel = memo<Props>(({ type }) => {
       case TempleAccountType.WatchOnly:
         return [WatchIcon, 'WATCH'];
       case TempleAccountType.ManagedKT:
-        return [ManageKtIcon, 'MANAGE KT'];
+        return [ManageKtIcon, 'MANAGED KT'];
     }
   }, [type]);
 

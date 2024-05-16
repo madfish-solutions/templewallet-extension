@@ -76,9 +76,8 @@ const ContentPaper: FC<PropsWithChildren> = ({ children }) => {
         LAYOUT_CONTAINER_CLASSNAME,
         'relative flex flex-col bg-white',
         !SCROLL_DOCUMENT && 'overflow-y-auto',
-        appEnv.fullPage && 'rounded-md shadow-bottom'
+        appEnv.fullPage && 'min-h-80 rounded-md shadow-bottom'
       )}
-      style={appEnv.fullPage ? { minHeight: '20rem' } : undefined}
     >
       {children}
 

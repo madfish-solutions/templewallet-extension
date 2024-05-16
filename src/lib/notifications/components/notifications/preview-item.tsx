@@ -6,9 +6,9 @@ import { ReactComponent as AlertTriangleIcon } from 'app/icons/alert-triangle.sv
 import { ReactComponent as ArrowRightIcon } from 'app/icons/arrow-to-right.svg';
 import { ReactComponent as NewsIcon } from 'app/icons/monochrome/news.svg';
 import { ReactComponent as UpdateIcon } from 'app/icons/update.svg';
+import { setAnotherSelector, setTestID } from 'lib/analytics';
 import { Link } from 'lib/woozie';
 
-import { setAnotherSelector, setTestID } from '../../../analytics';
 import { NotificationStatus } from '../../enums/notification-status.enum';
 import { NotificationType } from '../../enums/notification-type.enum';
 import type { NotificationInterface } from '../../types';

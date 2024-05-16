@@ -158,7 +158,7 @@ const AccountOfGroup = memo<AccountOfGroupProps>(({ account, isCurrent, searchVa
         <div className="flex-1 flex flex-col">
           <div className="text-font-small text-grey-1">Total Balance:</div>
 
-          <div className="text-font-num-12">
+          <div className="text-font-num-14">
             <TotalEquity account={account} currency="fiat" />
           </div>
         </div>

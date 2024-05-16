@@ -45,7 +45,7 @@ export function getStyledButtonColorsClassNames(color: StyledButtonColor, active
     case 'red':
       return 'bg-red hover:bg-red-hover text-white';
     case 'red-low':
-      return 'bg-error-low hover:bg-error-low-hover text-error hover:text-error-hover';
+      return 'bg-error-low hover:bg-error-hover-low text-error hover:text-error-hover';
   }
 }
 
