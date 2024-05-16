@@ -1,6 +1,6 @@
 import React, { FC, memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
-import { SyncSpinner, Divider, Checkbox } from 'app/atoms';
+import { SyncSpinner, Lines, Checkbox } from 'app/atoms';
 import DropdownWrapper from 'app/atoms/DropdownWrapper';
 import { IconButton } from 'app/atoms/IconButton';
 import { useLoadPartnersPromo } from 'app/hooks/use-load-partners-promo';
@@ -287,7 +287,7 @@ const ManageButtonDropdown: FC<ManageButtonDropdownProps> = ({
         </span>
       </Link>
 
-      <Divider className="my-2" />
+      <Lines className="my-2" />
 
       <label className={buttonClassName}>
         <Checkbox

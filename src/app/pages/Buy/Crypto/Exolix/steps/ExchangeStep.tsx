@@ -2,9 +2,8 @@ import React, { FC, useEffect, useState } from 'react';
 
 import classNames from 'clsx';
 
-import { FormSubmitButton } from 'app/atoms';
+import { FormSubmitButton, Lines } from 'app/atoms';
 import CopyButton from 'app/atoms/CopyButton';
-import Divider from 'app/atoms/Divider';
 import HashShortView from 'app/atoms/HashShortView';
 import { ReactComponent as CopyIcon } from 'app/icons/monochrome/copy.svg';
 import useTopUpUpdate from 'app/pages/Buy/Crypto/Exolix/hooks/useTopUpUpdate.hook';
@@ -102,7 +101,7 @@ const ExchangeStep: FC<Props> = ({ exchangeData, setExchangeData, setStep, step,
             />
           ) : (
             <>
-              <Divider style={{ marginTop: '2.25rem' }} />
+              <Lines className="mt-9" />
               <div className="flex justify-between items-baseline mt-4">
                 <p className="text-gray-600 text-xs">
                   <T id={'transactionId'} />
@@ -156,7 +155,7 @@ const ExchangeStep: FC<Props> = ({ exchangeData, setExchangeData, setStep, step,
                   <HashShortView hash={exchangeData.withdrawalAddress} />
                 </p>
               </div>
-              <Divider style={{ marginTop: '1rem', marginBottom: '3rem' }} />
+              <Lines className="mt-4 mb-12" />
             </>
           )}
         </>
@@ -171,7 +170,7 @@ const ExchangeStep: FC<Props> = ({ exchangeData, setExchangeData, setStep, step,
               <T id={'completedDescription'} />
             </p>
           </div>
-          <Divider style={{ marginTop: '2.25rem' }} />
+          <Lines className="mt-9" />
           <div className="flex justify-between items-baseline mt-4">
             <p className="text-gray-600 text-xs">
               <T id={'transactionId'} />
@@ -250,7 +249,7 @@ const ExchangeStep: FC<Props> = ({ exchangeData, setExchangeData, setStep, step,
               <HashShortView hash={exchangeData.depositAddress} />
             </p>
           </div>
-          <Divider style={{ marginTop: '1rem', marginBottom: '2.5rem' }} />
+          <Lines className="mt-4 mb-10" />
           <FormSubmitButton
             className="w-full justify-center border-none mt-6 mb-12"
             style={{

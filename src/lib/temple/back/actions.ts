@@ -104,11 +104,15 @@ export function registerNewWallet(password: string, mnemonic?: string) {
 }
 
 export async function lock() {
-  if (!store.getState().inited) initLocked = true;
-  if (BACKGROUND_IS_WORKER) await Vault.forgetSession();
-  return withInited(() => {
-    locked();
-  });
+  if (await Vault.isExist()) {
+    if (!store.getState().inited) initLocked = true;
+    if (BACKGROUND_IS_WORKER) await Vault.forgetSession();
+    return withInited(() => {
+      locked();
+    });
+  } else {
+    console.warn('There is nothing to lock');
+  }
 }
 
 export function unlock(password: string) {

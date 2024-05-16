@@ -298,14 +298,14 @@
   "advancedUser": {
     "message": "I'm an advanced user"
   },
-  "analytics": {
-    "message": "Analytics"
+  "usageAnalytics": {
+    "message": "Usage Analytics"
   },
   "analyticsCollecting": {
     "message": "anonymous information collecting"
   },
   "analyticsInputDescription": {
-    "message": "I agree to the $analyticsLink$",
+    "message": "By pressing this button you are agree to the $analyticsLink$",
     "placeholders": {
       "analyticsLink": {
         "content": "$1"
@@ -621,6 +621,21 @@
   "requirements": {
     "message": "Requirements:"
   },
+  "eightCharacters": {
+    "message": "8 characters"
+  },
+  "atLeastOneNumber": {
+    "message": "At least one number"
+  },
+  "specialCharacter": {
+    "message": "Special character"
+  },
+  "atLeastOneLowercase": {
+    "message": "At least one lowercase letter"
+  },
+  "atLeastOneCapital": {
+    "message": "At least one capital letter"
+  },
   "atLeast8Characters": {
     "message": "At least 8 characters - the more characters, the better."
   },
@@ -755,6 +770,12 @@
   },
   "createNewWallet": {
     "message": "Create a new Wallet"
+  },
+  "welcomeQuote": {
+    "message": "“The only function of economic forecasting is\nto make astrology look more respectable.”"
+  },
+  "welcomeQuoteAuthor": {
+    "message": "© John Kenneth Galbraith"
   },
   "createNewWalletDescription": {
     "message": "New to Temple Wallet? Let's set it up! This will create a new wallet and seed phrase"
@@ -998,6 +1019,12 @@
   "connectLedger": {
     "message": "Connect Ledger",
     "description": "Ledger = https://www.ledger.com/"
+  },
+  "continueWithGoogleDrive": {
+    "message": "Continue with Google Drive"
+  },
+  "or": {
+    "message": "or"
   },
   "importExistingWallet": {
     "message": "Import existing Wallet"
@@ -2888,6 +2915,20 @@
   "sellDetailsDescription": {
     "message": "Sell TEZ to fiat. Get fiat to Visa, Mastercard cards."
   },
+  "twTermsAndPrivacyLinks": {
+    "message": "By pressing $buttonContent$ you agree with the $termsOfUse$ and $privacyPolicy$",
+    "placeholders": {
+      "buttonContent": {
+        "content": "$1"
+      },
+      "termsOfUse": {
+        "content": "$2"
+      },
+      "privacyPolicy": {
+        "content": "$3"
+      }
+    }
+  },
   "privacyAndPolicyLinks": {
     "message": "By clicking $buttonContent$ you agree with \n$termsOfUse$ and $privacyPolicy$",
     "placeholders": {
@@ -3181,11 +3222,11 @@
   "selectedAccountCannotSignTx": { "message": "Selected account cannot sign transactions" },
   "attributes": { "message": "Attributes" },
   "properties": { "message": "Properties" },
-  "viewAds": {
-    "message": "View Ads"
+  "earnRewardsWithAds": {
+    "message": "Earn Rewards with Ads"
   },
-  "viewAdsDescription": {
-    "message": "I agree to share data(wallet address, IP) and get cashback at Temple Keys for viewing ads"
+  "earnRewardsWithAdsDescription": {
+    "message": "By enabling this checkbox, you agree to share your wallet address and IP to receive ads and rewards in TKEY token."
   },
   "dropdownNoItems": {
     "message": "No items"

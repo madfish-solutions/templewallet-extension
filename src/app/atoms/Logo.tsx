@@ -1,35 +1,44 @@
-import React, { CSSProperties, memo, SVGProps } from 'react';
+import React, { SVGProps, memo, useMemo } from 'react';
 
-import { ReactComponent as LogoTitle } from 'app/misc/logo-title.svg';
 import { ReactComponent as WhiteLogoTitle } from 'app/misc/logo-white-title.svg';
 import { ReactComponent as WhiteLogo } from 'app/misc/logo-white.svg';
-import { ReactComponent as PlainLogo } from 'app/misc/logo.svg';
+import { ReactComponent as TempleIconTitleFullV } from 'app/misc/temple-icon-title-full-v.svg';
+import { ReactComponent as TempleIconTitleFull } from 'app/misc/temple-icon-title-full.svg';
+import { ReactComponent as TempleIconTitle } from 'app/misc/temple-icon-title.svg';
+import { ReactComponent as TempleIcon } from 'app/misc/temple-icon.svg';
 import { APP_TITLE } from 'lib/constants';
 
-type LogoProps = SVGProps<SVGSVGElement> & {
-  hasTitle?: boolean;
+type LogoType = 'icon' | 'icon-title' | 'icon-title-full' | 'icon-title-full-v';
+
+interface LogoProps extends SVGProps<SVGSVGElement> {
+  size?: number;
+  type: LogoType;
   white?: boolean;
-  style?: CSSProperties;
+}
+
+const logoIcons = {
+  icon: {
+    standard: TempleIcon,
+    white: WhiteLogo
+  },
+  'icon-title': {
+    standard: TempleIconTitle,
+    white: WhiteLogoTitle
+  },
+  'icon-title-full': {
+    standard: TempleIconTitleFull,
+    // TODO: add white version
+    white: TempleIconTitleFull
+  },
+  'icon-title-full-v': {
+    standard: TempleIconTitleFullV,
+    white: TempleIconTitleFullV
+  }
 };
 
-const Logo = memo<LogoProps>(({ hasTitle, white, style = {}, ...rest }) => {
-  const whiteLogoType = hasTitle ? WhiteLogoTitle : WhiteLogo;
-  const plainLogoType = hasTitle ? LogoTitle : PlainLogo;
-  const Component = white ? whiteLogoType : plainLogoType;
+export const Logo = memo<LogoProps>(({ size = 40, type, style: customStyle, white, ...rest }) => {
+  const Component = logoIcons[type][white ? 'white' : 'standard'];
+  const style = useMemo(() => ({ ...(customStyle ?? {}), height: size }), [customStyle, size]);
 
-  return (
-    <Component
-      title={APP_TITLE}
-      style={{
-        height: 40,
-        width: 'auto',
-        marginTop: 6,
-        marginBottom: 6,
-        ...style
-      }}
-      {...rest}
-    />
-  );
+  return <Component style={style} title={APP_TITLE} {...rest} />;
 });
-
-export default Logo;

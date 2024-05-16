@@ -29,12 +29,14 @@ export interface PageLayoutProps extends DefaultHeaderProps {
   /** With this given, header props are ignored */
   Header?: React.ComponentType;
   contentPadding?: boolean;
+  shouldTakeAllHeight?: boolean;
 }
 
 const PageLayout: FC<PropsWithChildren<PageLayoutProps>> = ({
   Header,
   children,
   contentPadding = true,
+  shouldTakeAllHeight = false,
   ...headerProps
 }) => {
   const { fullPage } = useAppEnv();
@@ -44,8 +46,11 @@ const PageLayout: FC<PropsWithChildren<PageLayoutProps>> = ({
     <>
       <DocBg bgClassName="bg-secondary-low" />
 
-      <div id={APP_CONTENT_WRAP_DOM_ID} className={clsx(fullPage && 'pt-9 pb-8')}>
-        <ContentPaper>
+      <div
+        id={APP_CONTENT_WRAP_DOM_ID}
+        className={clsx(fullPage && 'pt-9 pb-8', shouldTakeAllHeight && 'h-[100vh] min-h-[24.25rem]')}
+      >
+        <ContentPaper shouldTakeAllHeight={shouldTakeAllHeight}>
           {Header ? <Header /> : <DefaultHeader {...headerProps} />}
 
           <div className={clsx('flex-1 flex flex-col', contentPadding && 'p-4 pb-15')}>
@@ -66,7 +71,9 @@ const PageLayout: FC<PropsWithChildren<PageLayoutProps>> = ({
 
 export default PageLayout;
 
-const ContentPaper: FC<PropsWithChildren> = ({ children }) => {
+type ContentPaperProps = PropsWithChildren<{ shouldTakeAllHeight: boolean }>;
+
+const ContentPaper: FC<ContentPaperProps> = ({ children, shouldTakeAllHeight }) => {
   const appEnv = useAppEnv();
 
   return (
@@ -76,7 +83,8 @@ const ContentPaper: FC<PropsWithChildren> = ({ children }) => {
         LAYOUT_CONTAINER_CLASSNAME,
         'relative flex flex-col bg-white',
         !SCROLL_DOCUMENT && 'overflow-y-auto',
-        appEnv.fullPage && 'min-h-80 rounded-md shadow-bottom'
+        appEnv.fullPage && 'min-h-80 rounded-md shadow-bottom',
+        shouldTakeAllHeight && 'h-full'
       )}
     >
       {children}

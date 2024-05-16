@@ -4,7 +4,7 @@ import classNames from 'clsx';
 import CSSTransition from 'react-transition-group/CSSTransition';
 import useOnClickOutside from 'use-onclickoutside';
 
-import Divider from 'app/atoms/Divider';
+import { Lines } from 'app/atoms';
 import { useAccountSelectShortcut } from 'app/hooks/use-account-select-shortcut';
 import { useModalScrollLock } from 'app/hooks/use-modal-scroll-lock';
 import { ReactComponent as SadSearchIcon } from 'app/icons/monochrome/sad-search.svg';
@@ -153,7 +153,7 @@ export const ShortcutAccountSwitchOverlay = memo(() => {
               onCleanButtonClick={handleCleanButtonClick}
             />
 
-            <Divider className="bg-gray-700 -mx-2" />
+            <Lines className="bg-gray-700 -mx-2" />
 
             <div className="py-2">
               <div className="overflow-y-auto overscroll-contain h-63 px-2 -mx-2">
@@ -184,7 +184,7 @@ export const ShortcutAccountSwitchOverlay = memo(() => {
               </div>
             </div>
 
-            <Divider className="bg-gray-700 mb-2 -mx-2" />
+            <Lines className="bg-gray-700 mb-2 -mx-2" />
 
             <p className="text-center text-gray-500 text-xs font-normal font-inter">
               <T id="shortcutSwitchAccountOverlayNavigation" />

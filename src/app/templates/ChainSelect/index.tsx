@@ -2,7 +2,7 @@ import React, { memo } from 'react';
 
 import clsx from 'clsx';
 
-import { Divider } from 'app/atoms';
+import { Lines } from 'app/atoms';
 import { Button } from 'app/atoms/Button';
 import Name from 'app/atoms/Name';
 import { ReactComponent as ChevronDownIcon } from 'app/icons/chevron-down.svg';
@@ -79,6 +79,6 @@ export const ChainSelectSection = memo<ChainSelectSectionProps>(({ onlyForAddres
       <ChainSelect {...props} />
     </div>
 
-    <Divider className="my-4" />
+    <Lines className="my-4" />
   </>
 ));

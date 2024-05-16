@@ -40,7 +40,7 @@ export const RevealSeedPhraseModal = memo<RevealSeedPhraseModalProps>(({ onClose
             <ReadOnlySecretField value={seedPhrase} label="newRevealSeedPhraseLabel" description={null} />
           </ActionModalBodyContainer>
           <ActionModalButtonsContainer>
-            <ActionModalButton className="bg-orange-200 text-orange-20" onClick={onClose} type="button">
+            <ActionModalButton className="bg-primary-low text-primary" onClick={onClose} type="button">
               <T id="cancel" />
             </ActionModalButton>
           </ActionModalButtonsContainer>
@@ -90,7 +90,7 @@ const RevealSeedPhraseForm = memo<RevealSeedPhraseFormProps>(({ onReveal, select
         />
       </ActionModalBodyContainer>
       <ActionModalButtonsContainer>
-        <ActionModalButton className="bg-orange-20 text-white" disabled={submitting} type="submit">
+        <ActionModalButton className="bg-primary text-white" disabled={submitting} type="submit">
           <T id="revealSeedPhrase" />
         </ActionModalButton>
       </ActionModalButtonsContainer>

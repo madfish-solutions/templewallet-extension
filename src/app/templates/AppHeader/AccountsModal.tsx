@@ -7,6 +7,8 @@ import { AccLabel } from 'app/atoms/AccLabel';
 import { AccountName } from 'app/atoms/AccountName';
 import { IconButton } from 'app/atoms/IconButton';
 import { PageModal } from 'app/atoms/PageModal';
+import { ActionsButtonsBox } from 'app/atoms/PageModal/actions-buttons-box';
+import { ScrollView } from 'app/atoms/PageModal/scroll-view';
 import { RadioButton } from 'app/atoms/RadioButton';
 import { StyledButton } from 'app/atoms/StyledButton';
 import { TotalEquity } from 'app/atoms/TotalEquity';
@@ -56,7 +58,7 @@ export const AccountsModal = memo<Props>(({ opened, onRequestClose }) => {
         <NewWalletActionsPopper />
       </div>
 
-      <div className="px-4 flex-1 flex flex-col overflow-y-auto">
+      <ScrollView>
         {filteredGroups.map(group => (
           <AccountsGroup
             key={group.id}
@@ -68,13 +70,13 @@ export const AccountsModal = memo<Props>(({ opened, onRequestClose }) => {
             onAccountSelect={onRequestClose}
           />
         ))}
-      </div>
+      </ScrollView>
 
-      <div className="p-4 pb-6 flex flex-col bg-white">
+      <ActionsButtonsBox>
         <StyledButton size="L" color="primary-low" onClick={onRequestClose}>
           Cancel
         </StyledButton>
-      </div>
+      </ActionsButtonsBox>
     </PageModal>
   );
 });

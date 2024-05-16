@@ -30,7 +30,7 @@ export const AccountAlreadyExistsWarning = memo<AccountAlreadyExistsWarningProps
           </span>
         </ActionModalBodyContainer>
         <ActionModalButtonsContainer>
-          <ActionModalButton className="bg-orange-20 text-white" type="button" onClick={onClose}>
+          <ActionModalButton className="bg-primary text-white" type="button" onClick={onClose}>
             Got it
           </ActionModalButton>
         </ActionModalButtonsContainer>

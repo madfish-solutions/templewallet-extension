@@ -6,7 +6,7 @@ import { USE_LOCATION_HASH_AS_URL } from './config';
 import { HistoryAction, createUrl, changeState } from './history';
 import { To, createLocationUpdates, useLocation } from './location';
 
-interface LinkProps extends AnchorHTMLAttributes<HTMLAnchorElement>, TestIDProps {
+export interface LinkProps extends AnchorHTMLAttributes<HTMLAnchorElement>, TestIDProps {
   to: To;
   replace?: boolean;
 }

@@ -2,9 +2,8 @@ import React, { FC, useCallback, useMemo } from 'react';
 
 import classNames from 'clsx';
 
-import { FormSubmitButton } from 'app/atoms';
+import { FormSubmitButton, Lines } from 'app/atoms';
 import CopyButton from 'app/atoms/CopyButton';
-import Divider from 'app/atoms/Divider';
 import { ReactComponent as CopyIcon } from 'app/icons/monochrome/copy.svg';
 import { WithdrawSelectors } from 'app/pages/Withdraw/Withdraw.selectors';
 import { AliceBobOrderStatus } from 'lib/apis/temple';
@@ -51,7 +50,7 @@ export const OrderStatusStep: FC<StepProps> = ({ orderInfo, setStep, setOrderInf
         </p>
       </div>
 
-      <Divider className="mt-8" />
+      <Lines className="mt-8" />
       <div className="flex justify-between items-baseline mt-4">
         <p className="text-gray-600 text-xs">
           <T id={'transactionId'} />

@@ -99,7 +99,7 @@ const SearchField: FC<Props> = ({
         )}
       />
 
-      {notEmpty && <CleanButton onClick={handleClean} />}
+      {notEmpty && <CleanButton className="absolute right-3 bottom-2" onClick={handleClean} />}
     </div>
   );
 };

@@ -6,7 +6,7 @@ import classNames from 'clsx';
 
 import { Alert, FormSubmitButton, FormSecondaryButton } from 'app/atoms';
 import ConfirmLedgerOverlay from 'app/atoms/ConfirmLedgerOverlay';
-import Logo from 'app/atoms/Logo';
+import { Logo } from 'app/atoms/Logo';
 import SubTitle from 'app/atoms/SubTitle';
 import { useAppEnv } from 'app/env';
 import { ReactComponent as CodeAltIcon } from 'app/icons/code-alt.svg';
@@ -236,7 +236,7 @@ const InternalConfirmation: FC<InternalConfiramtionProps> = ({ payload, onConfir
     <div className={classNames('h-full w-full max-w-sm mx-auto flex flex-col', !popup && 'justify-center px-2')}>
       <div className={classNames('flex flex-col items-center justify-center', popup && 'flex-1')}>
         <div className="flex items-center my-4">
-          <Logo hasTitle />
+          <Logo className="my-1.5" type="icon-title" />
         </div>
       </div>
 

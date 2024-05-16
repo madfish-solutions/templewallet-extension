@@ -13,7 +13,7 @@ import { LAYOUT_CONTAINER_CLASSNAME } from 'app/layouts/containers';
 import { useOnboardingProgress } from 'app/pages/Onboarding/hooks/useOnboardingProgress.hook';
 import { dispatch } from 'app/store';
 import { setOnRampPossibilityAction } from 'app/store/settings/actions';
-import { useOnRampPossibilitySelector } from 'app/store/settings/selectors';
+import { useOnRampPossibilitySelector, useShouldBackupMnemonicSelector } from 'app/store/settings/selectors';
 import { T } from 'lib/i18n/react';
 import { useAccountAddressForTezos } from 'temple/front';
 
@@ -24,6 +24,7 @@ import { OnRampSmileButton } from './OnRampSmileButton/OnRampSmileButton';
 import { getWertLink } from './utils/getWertLink.util';
 
 export const OnRampOverlay: FC = () => {
+  const shouldBackupMnemonic = useShouldBackupMnemonicSelector();
   const publicKeyHash = useAccountAddressForTezos();
   const { popup } = useAppEnv();
   const isOnRampPossibility = useOnRampPossibilitySelector();
@@ -35,7 +36,7 @@ export const OnRampOverlay: FC = () => {
   );
   const close = () => void dispatch(setOnRampPossibilityAction(false));
 
-  if (!isOnRampPossibility || !onboardingCompleted || !publicKeyHash) return null;
+  if (!isOnRampPossibility || !onboardingCompleted || !publicKeyHash || shouldBackupMnemonic) return null;
 
   return (
     <>

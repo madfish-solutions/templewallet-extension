@@ -34,7 +34,7 @@ export const PrivateKeyView = memo<PrivateKeyViewProps>(({ privateKey, onClose }
       />
     </ActionModalBodyContainer>
     <ActionModalButtonsContainer>
-      <ActionModalButton className="bg-orange-200 text-orange-20" onClick={onClose} type="button">
+      <ActionModalButton className="bg-primary-low text-primary" onClick={onClose} type="button">
         <T id="cancel" />
       </ActionModalButton>
     </ActionModalButtonsContainer>
