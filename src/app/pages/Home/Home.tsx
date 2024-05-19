@@ -12,7 +12,6 @@ import { ActivityTab } from 'app/templates/activity/Activity';
 import { AdvertisingBanner } from 'app/templates/advertising/advertising-banner/advertising-banner';
 import { AppHeader } from 'app/templates/AppHeader';
 import { HistoryAction, navigate, useLocation } from 'lib/woozie';
-import { TempleChainKind } from 'temple/types';
 
 import { CollectiblesTab } from '../Collectibles/CollectiblesTab';
 import { useOnboardingProgress } from '../Onboarding/hooks/useOnboardingProgress.hook';
@@ -67,8 +66,8 @@ const Home = memo<HomeProps>(props => {
       {showScamTokenAlert && <ScamTokenAlert />}
 
       <div className="flex flex-col pt-1 px-4">
-        {chainKind === TempleChainKind.Tezos && chainId && assetSlug ? (
-          <AssetBanner tezosChainId={chainId} assetSlug={assetSlug} />
+        {chainKind && chainId && assetSlug ? (
+          <AssetBanner chainKind={chainKind} chainId={chainId} assetSlug={assetSlug} />
         ) : (
           <TotalEquityBanner />
         )}

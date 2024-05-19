@@ -1,6 +1,5 @@
 import React, { FC, memo, useCallback, useMemo } from 'react';
 
-import clsx from 'clsx';
 import { isEqual } from 'lodash';
 
 import { SyncSpinner } from 'app/atoms';
@@ -10,7 +9,6 @@ import DropdownWrapper from 'app/atoms/DropdownWrapper';
 import { IconButton } from 'app/atoms/IconButton';
 import { ScrollBackUpButton } from 'app/atoms/ScrollBackUpButton';
 import { SimpleInfiniteScroll } from 'app/atoms/SimpleInfiniteScroll';
-import { useAppEnv } from 'app/env';
 import { useEvmChainAccountCollectiblesSlugs } from 'app/hooks/evm/assets';
 import { useCollectiblesListingLogic, useEvmCollectiblesListingLogic } from 'app/hooks/use-collectibles-listing-logic';
 import { ReactComponent as FiltersIcon } from 'app/icons/base/filteroff.svg';
@@ -81,7 +79,6 @@ interface EvmCollectiblesTabProps {
 }
 
 const EvmCollectiblesTab = memo<EvmCollectiblesTabProps>(({ network, publicKeyHash }) => {
-  const { popup } = useAppEnv();
   const { chainId: evmChainId } = network;
 
   const allSlugs = useEvmChainAccountCollectiblesSlugs(publicKeyHash, evmChainId);
@@ -98,7 +95,7 @@ const EvmCollectiblesTab = memo<EvmCollectiblesTabProps>(({ network, publicKeyHa
 
   const contentElement = useMemo(
     () => (
-      <div className="grid grid-cols-3 gap-1">
+      <div className="grid grid-cols-3 gap-2">
         {paginatedSlugs.map(slug => (
           <EvmCollectibleItem key={slug} assetSlug={slug} evmChainId={evmChainId} />
         ))}
@@ -108,7 +105,7 @@ const EvmCollectiblesTab = memo<EvmCollectiblesTabProps>(({ network, publicKeyHa
   );
 
   return (
-    <div className={clsx('my-3', popup && 'mx-4')}>
+    <div>
       {paginatedSlugs.length === 0 ? (
         buildEmptySection(isSyncing)
       ) : (

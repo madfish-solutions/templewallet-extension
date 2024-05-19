@@ -162,7 +162,7 @@ export const EvmCollectibleItem = memo<EvmCollectibleItemProps>(({ assetSlug, ev
 
   // Fixed sizes to improve large grid performance
   const [style, imgWrapStyle] = useMemo(() => {
-    const size = popup ? 106 : 125;
+    const size = popup ? 104 : 112;
 
     const style = {
       width: size,

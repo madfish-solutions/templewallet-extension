@@ -26,6 +26,7 @@ interface Props extends TestIDProps {
 }
 
 const InFiat: FC<Props> = props => {
+  // TODO: show fiat value only for mainnet chains
   if (!props.evm && props.chainId !== TEZOS_MAINNET_CHAIN_ID) return null;
 
   return <InFiatContent {...props} />;
