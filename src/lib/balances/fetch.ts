@@ -5,7 +5,7 @@ import { parseAbi } from 'viem';
 import { fromAssetSlug, isFA2Token, TEZ_TOKEN_SLUG } from 'lib/assets';
 import { fromAssetSlugWithStandardDetect } from 'lib/assets/contract.utils';
 import { loadContract } from 'lib/temple/contract';
-import { ZERO } from 'lib/utils/numbers';
+import { ONE, ZERO } from 'lib/utils/numbers';
 import { getReadOnlyEvmForNetwork } from 'temple/evm';
 import { EvmChain } from 'temple/front';
 
@@ -54,6 +54,8 @@ export const fetchEvmRawBalance = async (network: EvmChain, assetSlug: string, a
       args: [account]
     });
 
+    balance = new BigNumber(fetchedBalance.toString());
+
     try {
       const ownerAddress = await publicClient.readContract({
         address: contractAddress,
@@ -62,10 +64,8 @@ export const fetchEvmRawBalance = async (network: EvmChain, assetSlug: string, a
         args: [tokenId]
       });
 
-      if (ownerAddress === account) balance = new BigNumber(1);
-    } catch {
-      balance = BigNumber(fetchedBalance.toString());
-    }
+      if (ownerAddress === account && balance.gte(ONE)) balance = ONE;
+    } catch {}
   } catch {
     try {
       const fetchedErc1155Balance = await publicClient.readContract({
