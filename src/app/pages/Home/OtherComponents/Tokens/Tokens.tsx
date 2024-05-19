@@ -1,7 +1,5 @@
 import React, { FC, memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
-import InfiniteScroll from 'react-infinite-scroller';
-
 import { Checkbox, Divider, SyncSpinner } from 'app/atoms';
 import DropdownWrapper from 'app/atoms/DropdownWrapper';
 import { IconButton } from 'app/atoms/IconButton';
@@ -35,6 +33,7 @@ import { useAccountAddressForEvm, useAccountAddressForTezos } from 'temple/front
 import { EvmNetworkEssentials, TezosNetworkEssentials } from 'temple/networks';
 import { TempleChainKind } from 'temple/types';
 
+import { SimpleInfiniteScroll } from '../../../../atoms/SimpleInfiniteScroll';
 import { HomeSelectors } from '../../selectors';
 import { AssetsSelectors } from '../Assets.selectors';
 
@@ -126,12 +125,17 @@ const EvmTokensTab: FC<EvmTokensTabProps> = ({ network, publicKeyHash }) => {
   );
 
   const loadMore = useCallback(() => {
+    console.log('LOAD MORE fire');
+    if (!hasMore) return;
+
+    console.log('LOAD MORE');
+
     if (itemsCount >= sortedAssets.length) {
       setHasMore(false);
     } else {
       setItemsCount(itemsCount + ITEMS_PER_PAGE);
     }
-  }, [itemsCount, sortedAssets.length]);
+  }, [hasMore, itemsCount, sortedAssets.length]);
 
   return (
     <>
@@ -155,10 +159,9 @@ const EvmTokensTab: FC<EvmTokensTabProps> = ({ network, publicKeyHash }) => {
           </p>
         </div>
       ) : (
-        <InfiniteScroll loadMore={loadMore} hasMore={hasMore} loader={<SyncSpinner key="loader" className="mt-4" />}>
-          {showItems(sortedAssets)}
-        </InfiniteScroll>
+        <SimpleInfiniteScroll loadNext={loadMore}>{showItems(sortedAssets)}</SimpleInfiniteScroll>
       )}
+
       {isLoading && <SyncSpinner className="mt-4" />}
     </>
   );
