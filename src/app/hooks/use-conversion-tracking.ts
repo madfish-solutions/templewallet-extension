@@ -3,8 +3,8 @@ import { useEffect } from 'react';
 import axios from 'axios';
 
 import { dispatch } from 'app/store';
-import { setConversionTrackedAction } from 'app/store/conversion-tracking/conversion-actions';
-import { useIsConversionTrackedSelector } from 'app/store/conversion-tracking/conversion-selectors';
+import { setConversionTrackedAction } from 'app/store/settings/actions';
+import { useIsConversionTrackedSelector } from 'app/store/settings/selectors';
 import { AnalyticsEventCategory, useAnalytics } from 'lib/analytics';
 import { EnvVars } from 'lib/env';
 
