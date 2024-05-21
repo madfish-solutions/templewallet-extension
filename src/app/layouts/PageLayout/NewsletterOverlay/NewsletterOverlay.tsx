@@ -10,14 +10,15 @@ import Spinner from 'app/atoms/Spinner/Spinner';
 import { useAppEnv } from 'app/env';
 import { ReactComponent as CloseIcon } from 'app/icons/close.svg';
 import { LAYOUT_CONTAINER_CLASSNAME } from 'app/layouts/containers';
-import { useOnboardingProgress } from 'app/pages/Onboarding/hooks/useOnboardingProgress.hook';
 import { shouldShowNewsletterModalAction } from 'app/store/newsletter/newsletter-actions';
 import { useShouldShowNewsletterModalSelector } from 'app/store/newsletter/newsletter-selectors';
 import { useOnRampPossibilitySelector } from 'app/store/settings/selectors';
 import { setTestID } from 'lib/analytics';
 import { newsletterApi } from 'lib/apis/newsletter';
+import { SHOULD_BACKUP_MNEMONIC_STORAGE_KEY } from 'lib/constants';
 import { useYupValidationResolver } from 'lib/form/use-yup-validation-resolver';
 import { T, t } from 'lib/i18n/react';
+import { useStorage, useTempleClient } from 'lib/temple/front';
 import { useLocation } from 'lib/woozie';
 
 import NewsletterImage from './NewsletterImage.png';
@@ -38,9 +39,10 @@ export const NewsletterOverlay: FC = () => {
   const { popup } = useAppEnv();
   const { pathname } = useLocation();
 
-  const { onboardingCompleted } = useOnboardingProgress();
+  const { ready } = useTempleClient();
   const shouldShowNewsletterModal = useShouldShowNewsletterModalSelector();
   const isOnRampPossibility = useOnRampPossibilitySelector();
+  const [shouldBackupMnemonic] = useStorage(SHOULD_BACKUP_MNEMONIC_STORAGE_KEY, false);
 
   const validationResolver = useYupValidationResolver<FormValues>(validationSchema);
 
@@ -87,7 +89,14 @@ export const NewsletterOverlay: FC = () => {
     return 'Subscribe';
   }, [successSubscribing, isLoading]);
 
-  if (!shouldShowNewsletterModal || !onboardingCompleted || isOnRampPossibility || pathname !== HOME_PAGE_PATH)
+  // TODO: remove 'ready' condition and add 'onboardingCompleted' condition when onboarding is reimplemented
+  if (
+    !shouldShowNewsletterModal ||
+    !ready ||
+    isOnRampPossibility ||
+    shouldBackupMnemonic ||
+    pathname !== HOME_PAGE_PATH
+  )
     return null;
 
   return (

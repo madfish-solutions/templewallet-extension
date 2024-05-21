@@ -18,7 +18,5 @@ export const WordInput = memo<WordInputProps>(({ wordIndex, active, value }) => 
     extraLeftInner={<span className="text-sm text-grey-2">{wordIndex + 1}.</span>}
     value={value}
     readOnly
-    revealForbidden={!value}
-    type="password"
   />
 ));

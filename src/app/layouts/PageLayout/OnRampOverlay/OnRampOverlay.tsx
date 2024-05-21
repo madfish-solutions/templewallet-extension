@@ -14,7 +14,9 @@ import { useOnboardingProgress } from 'app/pages/Onboarding/hooks/useOnboardingP
 import { dispatch } from 'app/store';
 import { setOnRampPossibilityAction } from 'app/store/settings/actions';
 import { useOnRampPossibilitySelector } from 'app/store/settings/selectors';
+import { SHOULD_BACKUP_MNEMONIC_STORAGE_KEY } from 'lib/constants';
 import { T } from 'lib/i18n/react';
+import { useStorage } from 'lib/temple/front';
 import { useAccountAddressForTezos } from 'temple/front';
 
 import OnRampOverlayBgPopupImg from './assets/on-ramp-overlay-bg-popup.png';
@@ -28,6 +30,7 @@ export const OnRampOverlay: FC = () => {
   const { popup } = useAppEnv();
   const isOnRampPossibility = useOnRampPossibilitySelector();
   const { onboardingCompleted } = useOnboardingProgress();
+  const [shouldBackupMnemonic] = useStorage(SHOULD_BACKUP_MNEMONIC_STORAGE_KEY, false);
 
   const popupClassName = useMemo(
     () => (popup ? 'inset-0 p-4' : 'top-1/2 left-1/2 transform -translate-y-1/2 -translate-x-1/2'),
@@ -35,7 +38,7 @@ export const OnRampOverlay: FC = () => {
   );
   const close = () => void dispatch(setOnRampPossibilityAction(false));
 
-  if (!isOnRampPossibility || !onboardingCompleted || !publicKeyHash) return null;
+  if (!isOnRampPossibility || !onboardingCompleted || !publicKeyHash || shouldBackupMnemonic) return null;
 
   return (
     <>
@@ -97,7 +100,7 @@ export const OnRampOverlay: FC = () => {
               href={getWertLink(publicKeyHash, 100)}
               SmileIcon={SmileWithGlassesIcon}
               amount={100}
-              className="hover:shadow hover:opacity-90 hover:bg-orange-500 bg-orange-500"
+              className="hover:shadow hover:opacity-90 hover:!bg-orange-500 !bg-orange-500"
               titleClassName="text-primary-white"
               onClick={close}
               testID={OnRampOverlaySelectors.oneHundredDollarButton}

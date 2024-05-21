@@ -51,12 +51,7 @@ export const CheckboxV2 = forwardRef<HTMLInputElement, Props>((props, ref) => {
         onBlur={handleBlur}
       />
 
-      <IconBase
-        size={16}
-        Icon={localChecked ? CheckmarkFilledIcon : CheckmarkEmptyIcon}
-        className="text-primary"
-        stroke={false}
-      />
+      <IconBase size={16} Icon={localChecked ? CheckmarkFilledIcon : CheckmarkEmptyIcon} className="text-primary" />
     </div>
   );
 });

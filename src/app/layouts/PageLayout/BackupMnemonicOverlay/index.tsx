@@ -5,16 +5,18 @@ import { VerifySeedPhraseModal } from 'app/templates/VerifySeedPhraseModal';
 import { toastError, toastSuccess } from 'app/toaster';
 import { SHOULD_BACKUP_MNEMONIC_STORAGE_KEY } from 'lib/constants';
 import { t } from 'lib/i18n';
+import { useStorage } from 'lib/temple/front';
 import { getMnemonicToBackup } from 'lib/temple/front/mnemonic-to-backup-keeper';
 
 import { BackupOptionsModal } from './backup-options-modal';
 
 export const BackupMnemonicOverlay = memo(() => {
-  // TODO: change state to support Google Drive and manual backups
+  // TODO: change state to support both Google Drive and manual backups
   const [backupSelected, setBackupSelected] = useState(false);
   const [mnemonicToBackup, setMnemonicToBackup] = useState('');
   const [shouldVerifySeedPhrase, setShouldVerifySeedPhrase] = useState(false);
   const [seedPhraseVerified, setSeedPhraseVerified] = useState(false);
+  const [shouldBackupMnemonic, setShouldBackupMnemonic] = useStorage(SHOULD_BACKUP_MNEMONIC_STORAGE_KEY, false);
 
   const handleBackupOptionSelect = useCallback(() => {
     const currentMnemonicToBackup = getMnemonicToBackup();
@@ -35,10 +37,10 @@ export const BackupMnemonicOverlay = memo(() => {
   const handleSeedPhraseVerified = useCallback(() => {
     toastSuccess(t('walletCreatedSuccessfully'));
     setSeedPhraseVerified(true);
-    localStorage.removeItem(SHOULD_BACKUP_MNEMONIC_STORAGE_KEY);
-  }, []);
+    setShouldBackupMnemonic(false).catch(console.error);
+  }, [setShouldBackupMnemonic]);
 
-  if (!localStorage.getItem(SHOULD_BACKUP_MNEMONIC_STORAGE_KEY) || seedPhraseVerified) {
+  if (!shouldBackupMnemonic || seedPhraseVerified) {
     return null;
   }
 

@@ -28,7 +28,7 @@ export const SettingsCheckbox = memo<SettingsCheckboxProps>(
 
       return {
         trigger: 'mouseenter',
-        hideOnClick: false, // tooltipTrigger === 'click' ? ('toggle' as const) : false,
+        hideOnClick: false,
         interactive: true,
         content,
         placement: 'bottom-end' as const,
@@ -62,7 +62,7 @@ export const SettingsCheckbox = memo<SettingsCheckboxProps>(
         </label>
         {tooltip && (
           <div ref={infoIconWrapperRef}>
-            <IconBase Icon={InfoFillIcon} size={16} className="text-grey-3" stroke={false} />
+            <IconBase Icon={InfoFillIcon} size={16} className="text-grey-3" />
           </div>
         )}
       </div>

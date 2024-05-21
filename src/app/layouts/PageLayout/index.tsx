@@ -47,10 +47,7 @@ const PageLayout: FC<PropsWithChildren<PageLayoutProps>> = ({
     <>
       <DocBg bgClassName="bg-secondary-low" />
 
-      <div
-        id={APP_CONTENT_WRAP_DOM_ID}
-        className={clsx(fullPage && 'pt-9 pb-8', shouldTakeAllHeight && 'h-[100vh] min-h-[24.25rem]')}
-      >
+      <div id={APP_CONTENT_WRAP_DOM_ID} className={clsx(fullPage && 'pt-9 pb-8', shouldTakeAllHeight && 'h-[100vh]')}>
         <ContentPaper shouldTakeAllHeight={shouldTakeAllHeight}>
           {Header ? <Header /> : <DefaultHeader {...headerProps} />}
 

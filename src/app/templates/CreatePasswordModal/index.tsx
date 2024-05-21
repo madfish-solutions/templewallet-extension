@@ -12,8 +12,6 @@ import { SettingsCheckbox } from 'app/atoms/SettingsCheckbox';
 import { StyledButton } from 'app/atoms/StyledButton';
 import { ValidationLabel } from 'app/atoms/ValidationLabel';
 import { PASSWORD_PATTERN, PasswordValidation, formatMnemonic, passwordValidationRegexes } from 'app/defaults';
-import { useOnboardingProgress } from 'app/pages/Onboarding/hooks/useOnboardingProgress.hook';
-import { shouldShowNewsletterModalAction } from 'app/store/newsletter/newsletter-actions';
 import { togglePartnersPromotionAction } from 'app/store/partners-promotion/actions';
 import { setIsAnalyticsEnabledAction, setOnRampPossibilityAction } from 'app/store/settings/actions';
 import { toastError } from 'app/toaster';
@@ -21,7 +19,7 @@ import { AnalyticsEventCategory, useAnalytics } from 'lib/analytics';
 import { SHOULD_BACKUP_MNEMONIC_STORAGE_KEY, WEBSITES_ANALYTICS_ENABLED } from 'lib/constants';
 import { T, TID, t } from 'lib/i18n';
 import { putToStorage } from 'lib/storage';
-import { useTempleClient } from 'lib/temple/front';
+import { useStorage, useTempleClient } from 'lib/temple/front';
 import { setMnemonicToBackup } from 'lib/temple/front/mnemonic-to-backup-keeper';
 import { navigate } from 'lib/woozie';
 
@@ -52,12 +50,11 @@ export const CreatePasswordModal = memo<CreatePasswordModalProps>(
   ({ opened, seedPhrase: seedPhraseToImport, onRequestClose }) => {
     const { registerWallet } = useTempleClient();
     const { trackEvent } = useAnalytics();
+    const [, setShouldBackupMnemonicStorageKey] = useStorage(SHOULD_BACKUP_MNEMONIC_STORAGE_KEY);
 
     const dispatch = useDispatch();
 
-    const { setOnboardingCompleted } = useOnboardingProgress();
-
-    const { control, watch, register, handleSubmit, errors, triggerValidation, formState, reset } = useForm<FormData>({
+    const { control, watch, register, handleSubmit, errors, triggerValidation, formState } = useForm<FormData>({
       defaultValues: {
         analytics: true,
         getRewards: true
@@ -87,6 +84,8 @@ export const CreatePasswordModal = memo<CreatePasswordModalProps>(
 
     const onSubmit = useCallback(
       async (data: FormData) => {
+        // TODO: enable onboarding when it is reimplemented
+
         if (submitting) return;
 
         try {
@@ -95,18 +94,15 @@ export const CreatePasswordModal = memo<CreatePasswordModalProps>(
           const shouldEnableWebsiteAnalytics = data.getRewards && data.analytics;
           await putToStorage(WEBSITES_ANALYTICS_ENABLED, shouldEnableWebsiteAnalytics);
 
-          setOnboardingCompleted(true);
-
           const accountPkh = await registerWallet(data.password!, formatMnemonic(seedPhrase));
           if (shouldEnableWebsiteAnalytics) {
             trackEvent('AnalyticsAndAdsEnabled', AnalyticsEventCategory.General, { accountPkh }, data.analytics);
           }
           if (!seedPhraseToImport) {
-            localStorage.setItem(SHOULD_BACKUP_MNEMONIC_STORAGE_KEY, 'true');
+            await setShouldBackupMnemonicStorageKey(true);
             setMnemonicToBackup(seedPhrase);
           }
-          dispatch(setOnRampPossibilityAction(false));
-          dispatch(shouldShowNewsletterModalAction(false));
+          dispatch(setOnRampPossibilityAction(!seedPhraseToImport));
           navigate('/loading');
         } catch (err: any) {
           console.error(err);
@@ -114,7 +110,15 @@ export const CreatePasswordModal = memo<CreatePasswordModalProps>(
           toastError(err.message);
         }
       },
-      [dispatch, registerWallet, seedPhrase, seedPhraseToImport, setOnboardingCompleted, submitting, trackEvent]
+      [
+        dispatch,
+        registerWallet,
+        seedPhrase,
+        seedPhraseToImport,
+        setShouldBackupMnemonicStorageKey,
+        submitting,
+        trackEvent
+      ]
     );
 
     const buttonName = t(seedPhraseToImport ? 'importWallet' : 'createWallet');

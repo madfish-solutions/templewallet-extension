@@ -50,7 +50,13 @@ export const VerifySeedPhraseModal = memo<VerifySeedPhraseModalProps>(
     }, []);
 
     return (
-      <PageModal title={t('verifySeedPhrase')} onGoBack={onBack} opened={opened} onRequestClose={onClose}>
+      <PageModal
+        title={t('verifySeedPhrase')}
+        opened={opened}
+        shouldShowBackButton
+        onGoBack={onBack}
+        onRequestClose={onClose}
+      >
         <ScrollView className="py-4">
           <VerifySeedPhraseInput
             onChange={handleInputChange}

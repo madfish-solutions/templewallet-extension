@@ -29,7 +29,13 @@ export const ManualBackupModal = memo<ManualBackupModalProps>(({ opened, mnemoni
   );
 
   return (
-    <PageModal title={t('backupYourSeedPhrase')} opened={opened} onRequestClose={onBack} onGoBack={onBack}>
+    <PageModal
+      title={t('backupYourSeedPhrase')}
+      opened={opened}
+      shouldShowBackButton
+      onRequestClose={onBack}
+      onGoBack={onBack}
+    >
       <ScrollView className="py-4">
         <Alert
           className="mb-4"

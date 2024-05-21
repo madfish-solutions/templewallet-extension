@@ -7,7 +7,7 @@ import { TempleMessageType, WalletSpecs } from '../types';
 let mnemonicBackup: string | undefined;
 
 export async function loadMnemonicToBackup(password: string) {
-  if (!localStorage.getItem(SHOULD_BACKUP_MNEMONIC_STORAGE_KEY)) {
+  if (!(await fetchFromStorage(SHOULD_BACKUP_MNEMONIC_STORAGE_KEY))) {
     return;
   }
 
