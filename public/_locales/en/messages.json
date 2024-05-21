@@ -3230,5 +3230,61 @@
   },
   "dropdownNoItems": {
     "message": "No items"
+  },
+  "backupYourWallet": {
+    "message": "Backup your wallet"
+  },
+  "backupWalletDescription": {
+    "message": "Save access to your wallet using backup"
+  },
+  "useGoogleDrive": {
+    "message": "Use Google Drive"
+  },
+  "backupManually": {
+    "message": "Backup Manually"
+  },
+  "backupYourSeedPhrase": {
+    "message": "Backup your Seed Phrase"
+  },
+  "notedSeedPhraseDown": {
+    "message": "I’ve noted it down"
+  },
+  "manualBackupWarning": {
+    "message": "Note down your seed phrase and keep it safe. Write the words in order and keep them stored safely. $neverShareSeedPhrase$ or $enterSeedPhrase$ it into any apps.",
+    "placeholders": {
+      "neverShareSeedPhrase": {
+        "content": "$1"
+      },
+      "enterSeedPhrase": {
+        "content": "$2"
+      }
+    }
+  },
+  "neverShareSeedPhrase": {
+    "message": "Never share"
+  },
+  "enterSeedPhrase": {
+    "message": "enter"
+  },
+  "copyMnemonic": {
+    "message": "Copy"
+  },
+  "verifySeedPhraseInputTitle": {
+    "message": "Fill the fields to verify your seed backup"
+  },
+  "verifySeedPhraseInputDescription": {
+    "message": "Arrange words correctly in the order your seed phrase display them"
+  },
+  "wordsBoxLabel": {
+    "message": "Pick the words you need"
+  },
+  "verifySeedPhraseError": {
+    "message": "Wrong combination. Try again."
+  },
+  "walletCreatedSuccessfully": {
+    "message": "Wallet has been created successfully"
+  },
+  "failedToLoadMnemonic": {
+    "message": "Failed to load mnemonic to backup, please try again"
   }
 }

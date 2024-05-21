@@ -31,6 +31,8 @@ export const PASSWORD_ERROR_CAPTION = 'PASSWORD_ERROR_CAPTION';
 export type FormFieldElement = HTMLInputElement | HTMLTextAreaElement;
 type FormFieldAttrs = InputHTMLAttributes<HTMLInputElement> & TextareaHTMLAttributes<HTMLTextAreaElement>;
 
+type InnerWrapperType = 'default' | 'none' | 'unset';
+
 export interface FormFieldProps extends TestIDProperty, Omit<FormFieldAttrs, 'type' | 'onBlur'> {
   type?: 'text' | 'number' | 'password';
   extraSection?: ReactNode;
@@ -52,8 +54,10 @@ export interface FormFieldProps extends TestIDProperty, Omit<FormFieldAttrs, 'ty
    */
   revealRef?: unknown;
   cleanable?: boolean;
-  extraInner?: ReactNode;
-  extraInnerWrapper?: 'default' | 'none' | 'unset';
+  extraLeftInner?: ReactNode;
+  extraLeftInnerWrapper?: InnerWrapperType;
+  extraRightInner?: ReactNode;
+  extraRightInnerWrapper?: InnerWrapperType;
   onClean?: EmptyFn;
   onReveal?: EmptyFn;
   onBlur?: React.FocusEventHandler;
@@ -85,8 +89,10 @@ export const FormField = forwardRef<FormFieldElement, FormFieldProps>(
       revealForbidden = false,
       revealRef,
       cleanable,
-      extraInner = null,
-      extraInnerWrapper = 'default',
+      extraLeftInner = null,
+      extraLeftInnerWrapper = 'default',
+      extraRightInner = null,
+      extraRightInnerWrapper = 'default',
       id,
       type,
       value,
@@ -152,13 +158,24 @@ export const FormField = forwardRef<FormFieldElement, FormFieldProps>(
     const fieldStyle = useMemo(
       () => ({
         ...style,
-        ...buildPaddingRightStyle(
+        ...buildHorizontalPaddingStyle(
           [cleanable, copyable, hasRevealablePassword].filter(Boolean).length,
-          extraInnerWrapper === 'unset' ? false : Boolean(extraInner),
+          extraLeftInnerWrapper === 'unset' ? false : Boolean(extraLeftInner),
+          extraRightInnerWrapper === 'unset' ? false : Boolean(extraRightInner),
           smallPaddings
         )
       }),
-      [cleanable, copyable, extraInner, extraInnerWrapper, hasRevealablePassword, smallPaddings, style]
+      [
+        cleanable,
+        copyable,
+        extraLeftInner,
+        extraLeftInnerWrapper,
+        extraRightInner,
+        extraRightInnerWrapper,
+        hasRevealablePassword,
+        smallPaddings,
+        style
+      ]
     );
 
     return (
@@ -180,6 +197,12 @@ export const FormField = forwardRef<FormFieldElement, FormFieldProps>(
         {extraSection}
 
         <div className={clsx('relative flex items-stretch', fieldWrapperBottomMargin && 'mb-1')}>
+          <ExtraInner
+            innerComponent={extraLeftInner}
+            useDefaultWrapper={extraLeftInnerWrapper === 'default'}
+            position="left"
+          />
+
           <Field
             ref={combineRefs(ref, spareRef)}
             className={clsx(
@@ -202,7 +225,11 @@ export const FormField = forwardRef<FormFieldElement, FormFieldProps>(
             {...setTestID(testIDs?.input || testID)}
           />
 
-          <ExtraInner innerComponent={extraInner} useDefaultWrapper={extraInnerWrapper === 'default'} />
+          <ExtraInner
+            innerComponent={extraRightInner}
+            useDefaultWrapper={extraRightInnerWrapper === 'default'}
+            position="right"
+          />
 
           <div
             className={clsx(
@@ -212,7 +239,7 @@ export const FormField = forwardRef<FormFieldElement, FormFieldProps>(
             )}
           >
             {cleanable && <CleanButton size={16} onClick={handleCleanClick} />}
-            {copyable && <Copyable value={String(value)} copy={copy} />}
+            {copyable && <Copyable value={String(value)} copy={copy} isSecret={hasRevealablePassword} />}
             {hasRevealablePassword && RevealPasswordIcon}
           </div>
 
@@ -233,12 +260,18 @@ export const FORM_FIELD_CLASS_NAME = clsx(
 interface ExtraInnerProps {
   innerComponent: React.ReactNode;
   useDefaultWrapper: boolean;
+  position: 'left' | 'right';
 }
 
-const ExtraInner: React.FC<ExtraInnerProps> = ({ useDefaultWrapper, innerComponent }) => {
+const ExtraInner: React.FC<ExtraInnerProps> = ({ useDefaultWrapper, innerComponent, position }) => {
   if (useDefaultWrapper)
     return (
-      <div className="absolute flex items-center justify-end inset-y-0 right-0 w-32 opacity-50 pointer-events-none">
+      <div
+        className={clsx(
+          'absolute flex items-center inset-y-0 pointer-events-none',
+          position === 'right' ? 'justify-end right-0 w-32 opacity-50' : 'justify-start left-0 w-10'
+        )}
+      >
         <div className="mx-4 text-lg font-light text-gray-900">{innerComponent}</div>
       </div>
     );
@@ -248,6 +281,7 @@ const ExtraInner: React.FC<ExtraInnerProps> = ({ useDefaultWrapper, innerCompone
 interface CopyableProps {
   value: string;
   copy: () => void;
+  isSecret: boolean;
 }
 
 const Copyable: React.FC<CopyableProps> = ({ copy, value }) => (
@@ -274,6 +308,14 @@ const ErrorCaption: React.FC<ErrorCaptionProps> = ({ errorCaption }) => {
   ) : null;
 };
 
-const buildPaddingRightStyle = (buttonsCount: number, withExtraInner: boolean, smallPaddings: boolean) => {
-  return { paddingRight: withExtraInner ? 128 : (smallPaddings ? 8 : 12) + buttonsCount * 28 };
+const buildHorizontalPaddingStyle = (
+  buttonsCount: number,
+  withExtraInnerLeft: boolean,
+  withExtraInnerRight: boolean,
+  smallPaddings: boolean
+) => {
+  return {
+    paddingRight: withExtraInnerRight ? 128 : (smallPaddings ? 8 : 12) + buttonsCount * 28,
+    paddingLeft: withExtraInnerLeft ? 40 : smallPaddings ? 8 : 12
+  };
 };

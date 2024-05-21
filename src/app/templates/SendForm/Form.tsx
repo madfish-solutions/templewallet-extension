@@ -441,7 +441,7 @@ export const Form: FC<Props> = ({ account, network, assetSlug, setOperation, onA
           <NoSpaceField
             ref={toFieldRef}
             onFocus={handleToFieldFocus}
-            extraInner={
+            extraRightInner={
               <InnerDropDownComponentGuard
                 contacts={allContactsWithoutCurrent}
                 opened={isContactsDropdownOpen}
@@ -449,7 +449,7 @@ export const Form: FC<Props> = ({ account, network, assetSlug, setOperation, onA
                 searchTerm={toValue}
               />
             }
-            extraInnerWrapper="unset"
+            extraRightInnerWrapper="unset"
           />
         }
         control={control}

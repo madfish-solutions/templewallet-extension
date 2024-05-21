@@ -54,6 +54,10 @@ module.exports = {
     // # EXTENDING DEFAULTS:
 
     extend: {
+      blur: {
+        'xs': '2px'
+      },
+
       colors: {
         gray: {
           100: '#f7fafc',

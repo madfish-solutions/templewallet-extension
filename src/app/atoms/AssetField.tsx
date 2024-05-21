@@ -93,7 +93,7 @@ const AssetField = forwardRef<HTMLInputElement, AssetFieldProps>(
         onChange={handleChange}
         onFocus={handleFocus}
         onBlur={handleBlur}
-        extraInner={assetSymbol}
+        extraRightInner={assetSymbol}
         {...rest}
       />
     );

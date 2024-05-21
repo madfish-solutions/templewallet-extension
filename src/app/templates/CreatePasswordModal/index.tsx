@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useLayoutEffect, useMemo, useState } from 'react';
+import React, { memo, useCallback, useLayoutEffect, useMemo } from 'react';
 
 import { generateMnemonic } from 'bip39';
 import { Controller, useForm } from 'react-hook-form';
@@ -18,10 +18,11 @@ import { togglePartnersPromotionAction } from 'app/store/partners-promotion/acti
 import { setIsAnalyticsEnabledAction, setOnRampPossibilityAction } from 'app/store/settings/actions';
 import { toastError } from 'app/toaster';
 import { AnalyticsEventCategory, useAnalytics } from 'lib/analytics';
-import { WEBSITES_ANALYTICS_ENABLED } from 'lib/constants';
+import { SHOULD_BACKUP_MNEMONIC_STORAGE_KEY, WEBSITES_ANALYTICS_ENABLED } from 'lib/constants';
 import { T, TID, t } from 'lib/i18n';
 import { putToStorage } from 'lib/storage';
 import { useTempleClient } from 'lib/temple/front';
+import { setMnemonicToBackup } from 'lib/temple/front/mnemonic-to-backup-keeper';
 import { navigate } from 'lib/woozie';
 
 import { createPasswordSelectors } from './selectors';
@@ -56,7 +57,7 @@ export const CreatePasswordModal = memo<CreatePasswordModalProps>(
 
     const { setOnboardingCompleted } = useOnboardingProgress();
 
-    const { control, watch, register, handleSubmit, errors, triggerValidation, formState } = useForm<FormData>({
+    const { control, watch, register, handleSubmit, errors, triggerValidation, formState, reset } = useForm<FormData>({
       defaultValues: {
         analytics: true,
         getRewards: true
@@ -68,13 +69,13 @@ export const CreatePasswordModal = memo<CreatePasswordModalProps>(
     const passwordValue = watch('password');
     const repeatPasswordValue = watch('repeatPassword');
 
-    const [passwordValidation, setPasswordValidation] = useState<PasswordValidation>({
-      minChar: false,
-      number: false,
-      specialChar: false,
-      upperCase: false,
-      lowerCase: false
-    });
+    const passwordValidation = useMemo(
+      () =>
+        Object.fromEntries(
+          Object.entries(passwordValidationRegexes).map(([key, regex]) => [key, regex.test(passwordValue ?? '')])
+        ) as PasswordValidation,
+      [passwordValue]
+    );
 
     const seedPhrase = useMemo(() => seedPhraseToImport ?? generateMnemonic(128), [seedPhraseToImport]);
 
@@ -83,18 +84,6 @@ export const CreatePasswordModal = memo<CreatePasswordModalProps>(
         triggerValidation('repeatPassword');
       }
     }, [triggerValidation, formState.dirtyFields, passwordValue]);
-
-    const handlePasswordChange = useCallback(
-      (e: React.ChangeEvent<HTMLInputElement> | React.ChangeEvent<HTMLTextAreaElement>) => {
-        const tempValue = e.target.value;
-        setPasswordValidation(
-          Object.fromEntries(
-            Object.entries(passwordValidationRegexes).map(([key, regex]) => [key, regex.test(tempValue)])
-          ) as unknown as PasswordValidation
-        );
-      },
-      []
-    );
 
     const onSubmit = useCallback(
       async (data: FormData) => {
@@ -112,16 +101,20 @@ export const CreatePasswordModal = memo<CreatePasswordModalProps>(
           if (shouldEnableWebsiteAnalytics) {
             trackEvent('AnalyticsAndAdsEnabled', AnalyticsEventCategory.General, { accountPkh }, data.analytics);
           }
-          navigate('/loading');
+          if (!seedPhraseToImport) {
+            localStorage.setItem(SHOULD_BACKUP_MNEMONIC_STORAGE_KEY, 'true');
+            setMnemonicToBackup(seedPhrase);
+          }
           dispatch(setOnRampPossibilityAction(false));
           dispatch(shouldShowNewsletterModalAction(false));
+          navigate('/loading');
         } catch (err: any) {
           console.error(err);
 
           toastError(err.message);
         }
       },
-      [dispatch, registerWallet, seedPhrase, setOnboardingCompleted, submitting, trackEvent]
+      [dispatch, registerWallet, seedPhrase, seedPhraseToImport, setOnboardingCompleted, submitting, trackEvent]
     );
 
     const buttonName = t(seedPhraseToImport ? 'importWallet' : 'createWallet');
@@ -149,7 +142,6 @@ export const CreatePasswordModal = memo<CreatePasswordModalProps>(
                 fieldWrapperBottomMargin={false}
                 cleanable={passwordValue ? passwordValue.length > 0 : false}
                 containerClassName="mb-2"
-                onChange={handlePasswordChange}
                 testID={createPasswordSelectors.passwordField}
               />
               <div className="flex flex-wrap gap-1">

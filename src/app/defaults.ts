@@ -20,13 +20,7 @@ export const PASSWORD_PATTERN = new RegExp(
   ].join('')
 );
 
-export interface PasswordValidation {
-  minChar: boolean;
-  number: boolean;
-  specialChar: boolean;
-  lowerCase: boolean;
-  upperCase: boolean;
-}
+export type PasswordValidation = Record<'minChar' | 'number' | 'specialChar' | 'lowerCase' | 'upperCase', boolean>;
 
 export const passwordValidationRegexes: Record<keyof PasswordValidation, RegExp> = {
   minChar: /.{8,}/,

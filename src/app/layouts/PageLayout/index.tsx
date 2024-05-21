@@ -17,6 +17,7 @@ import {
   LAYOUT_CONTAINER_CLASSNAME
 } from '../containers';
 
+import { BackupMnemonicOverlay } from './BackupMnemonicOverlay';
 import { ChangelogOverlay } from './ChangelogOverlay/ChangelogOverlay';
 import ConfirmationOverlay from './ConfirmationOverlay';
 import { DefaultHeader, DefaultHeaderProps } from './DefaultHeader';
@@ -64,7 +65,12 @@ const PageLayout: FC<PropsWithChildren<PageLayoutProps>> = ({
       <ChangelogOverlay />
       <OnRampOverlay />
       <NewsletterOverlay />
-      {ready && <ShortcutAccountSwitchOverlay />}
+      {ready && (
+        <>
+          <ShortcutAccountSwitchOverlay />
+          <BackupMnemonicOverlay />
+        </>
+      )}
     </>
   );
 };
