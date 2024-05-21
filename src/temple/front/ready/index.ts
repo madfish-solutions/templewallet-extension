@@ -1,9 +1,9 @@
-import { useEffect, useLayoutEffect, useMemo } from 'react';
+import { useLayoutEffect, useMemo } from 'react';
 
 import constate from 'constate';
 
 import { useTempleClient } from 'lib/temple/front/client';
-import { TempleStatus, TempleState, StoredAccount, TempleSettings, TempleAccountType } from 'lib/temple/types';
+import { TempleStatus, TempleState, StoredAccount, TempleSettings } from 'lib/temple/types';
 
 import { useReadyTempleAccounts } from './accounts';
 import { useReadyTempleTezosNetworks, useReadyTempleEvmNetworks } from './networks';
