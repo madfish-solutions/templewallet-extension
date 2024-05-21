@@ -10,7 +10,9 @@ import { EnvVars } from 'lib/env';
 
 function fetchConversionInformation() {
   return axios
-    .get<{ linkId: string; name: string }>(EnvVars.CONVERSION_VERIFICATION_URL)
+    .get<{ linkId: string; name: string }>(EnvVars.CONVERSION_VERIFICATION_URL, {
+      withCredentials: true
+    })
     .then(response => response.data);
 }
 
