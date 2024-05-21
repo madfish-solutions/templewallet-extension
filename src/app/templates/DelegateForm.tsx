@@ -4,7 +4,6 @@ import { DEFAULT_FEE, DelegateParams, TransactionOperation, WalletOperation } fr
 import BigNumber from 'bignumber.js';
 import classNames from 'clsx';
 import { Control, Controller, FieldError, FormStateProxy, NestDataObject, useForm } from 'react-hook-form';
-import browser from 'webextension-polyfill';
 
 import { Alert, Button, FormSubmitButton, NoSpaceField } from 'app/atoms';
 import Money from 'app/atoms/Money';
@@ -23,6 +22,7 @@ import { useGasToken } from 'lib/assets/hooks';
 import { BLOCK_DURATION } from 'lib/fixed-times';
 import { TID, T, t } from 'lib/i18n';
 import { HELP_UKRAINE_BAKER_ADDRESS, RECOMMENDED_BAKER_ADDRESS } from 'lib/known-bakers';
+import { useGasTokenMetadata } from 'lib/metadata';
 import { setDelegate } from 'lib/michelson';
 import { useTypedSWR } from 'lib/swr';
 import { loadContract } from 'lib/temple/contract';
@@ -62,7 +62,8 @@ interface Props {
 const DelegateForm = memo<Props>(({ balance }) => {
   const { registerBackHandler } = useAppEnv();
   const formAnalytics = useFormAnalytics('DelegateForm');
-  const { symbol, isDcpNetwork, logo } = useGasToken();
+  const network = useNetwork();
+  const isDcpNetwork = network.type === 'dcp';
 
   const acc = useAccount();
   const tezos = useTezos();
@@ -258,8 +259,6 @@ const DelegateForm = memo<Props>(({ balance }) => {
 
         console.error(err);
 
-        // Human delay.
-        await delay();
         setSubmitError(err);
       }
     },
@@ -282,36 +281,7 @@ const DelegateForm = memo<Props>(({ balance }) => {
       {operation && <OperationStatus typeTitle={t('delegation')} operation={operation} className="mb-8" />}
 
       <form onSubmit={handleSubmit(onSubmit)}>
-        {useMemo(
-          () => (
-            <div className="mb-6 border rounded-md p-2 flex items-center">
-              <img src={browser.runtime.getURL(logo)} alt={symbol} className="w-auto h-12 mr-3" />
-
-              <div className="font-light leading-none">
-                <div className="flex items-center">
-                  <div className="flex flex-col">
-                    <span className="text-xl text-gray-700 flex items-baseline">
-                      <Money>{balance}</Money>{' '}
-                      <span style={{ fontSize: '0.75em' }}>
-                        <span className="ml-1">{symbol}</span>
-                      </span>
-                    </span>
-
-                    <InFiat assetSlug="tez" volume={balance}>
-                      {({ balance, symbol }) => (
-                        <div className="mt-1 text-sm text-gray-500 flex items-baseline">
-                          {balance}
-                          <span className="ml-1">{symbol}</span>
-                        </div>
-                      )}
-                    </InFiat>
-                  </div>
-                </div>
-              </div>
-            </div>
-          ),
-          [balance, symbol, logo]
-        )}
+        {/* <GasBalanceBanner balance={balance} /> */}
 
         <Controller
           name="to"
@@ -371,6 +341,38 @@ const DelegateForm = memo<Props>(({ balance }) => {
 });
 
 export default DelegateForm;
+
+interface GasBalanceBannerProps {
+  balance: BigNumber;
+}
+
+const GasBalanceBanner = memo<GasBalanceBannerProps>(({ balance }) => {
+  const { symbol, thumbnailUri } = useGasTokenMetadata();
+
+  return (
+    <div className="mb-6 border rounded-md p-2 flex items-center">
+      <img src={thumbnailUri} alt={symbol} className="w-auto h-12 mr-3" />
+
+      <div className="flex flex-col font-light leading-none">
+        <span className="text-xl text-gray-700 flex items-baseline">
+          <Money>{balance}</Money>{' '}
+          <span style={{ fontSize: '0.75em' }}>
+            <span className="ml-1">{symbol}</span>
+          </span>
+        </span>
+
+        <InFiat assetSlug="tez" volume={balance}>
+          {({ balance, symbol }) => (
+            <div className="mt-1 text-sm text-gray-500 flex items-baseline">
+              {balance}
+              <span className="ml-1">{symbol}</span>
+            </div>
+          )}
+        </InFiat>
+      </div>
+    </div>
+  );
+});
 
 interface BakerFormProps {
   baker: Baker | null | undefined;

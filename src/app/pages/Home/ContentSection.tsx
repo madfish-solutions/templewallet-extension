@@ -9,9 +9,9 @@ import ErrorBoundary from 'app/ErrorBoundary';
 import { ToolbarElement } from 'app/layouts/PageLayout';
 import { ActivityComponent } from 'app/templates/activity/Activity';
 import AssetInfo from 'app/templates/AssetInfo';
-import { TabsBar } from 'app/templates/TabBar';
+import { TabInterface, TabsBar } from 'app/templates/TabBar';
 import { isTezAsset } from 'lib/assets';
-import { t, TID } from 'lib/i18n';
+import { T, t, TID } from 'lib/i18n';
 
 import { CollectiblesTab } from '../Collectibles/CollectiblesTab';
 
@@ -26,9 +26,8 @@ type Props = {
 
 type TabName = 'tokens' | 'collectibles' | 'activity' | 'delegation' | 'info';
 
-interface TabData {
+interface TabData extends TabInterface {
   name: TabName;
-  titleI18nKey: TID;
   Component: FC;
   testID: string;
   whileMessageI18nKey?: TID;
@@ -56,19 +55,19 @@ export const ContentSection = memo<Props>(({ assetSlug, className }) => {
       return [
         {
           name: 'tokens',
-          titleI18nKey: 'tokens',
+          title: <T id="tokens" />,
           Component: TokensTab,
           testID: HomeSelectors.assetsTab
         },
         {
           name: 'collectibles',
-          titleI18nKey: 'collectibles',
+          title: <T id="collectibles" />,
           Component: () => <CollectiblesTab scrollToTheTabsBar={scrollToTheTabsBar} />,
           testID: HomeSelectors.collectiblesTab
         },
         {
           name: 'activity',
-          titleI18nKey: 'activity',
+          title: <T id="activity" />,
           Component: ActivityComponent,
           testID: HomeSelectors.activityTab,
           whileMessageI18nKey: 'operationHistoryWhileMessage'
@@ -78,7 +77,7 @@ export const ContentSection = memo<Props>(({ assetSlug, className }) => {
 
     const activity: TabData = {
       name: 'activity',
-      titleI18nKey: 'activity',
+      title: <T id="activity" />,
       Component: () => <ActivityComponent assetSlug={assetSlug} />,
       testID: HomeSelectors.activityTab
     };
@@ -88,7 +87,7 @@ export const ContentSection = memo<Props>(({ assetSlug, className }) => {
         activity,
         {
           name: 'delegation',
-          titleI18nKey: 'delegate',
+          title: <span>Delegate & Stake</span>,
           Component: BakingSection,
           testID: HomeSelectors.delegationTab,
           whileMessageI18nKey: 'delegationInfoWhileMessage'
@@ -100,7 +99,7 @@ export const ContentSection = memo<Props>(({ assetSlug, className }) => {
       activity,
       {
         name: 'info',
-        titleI18nKey: 'info',
+        title: <T id="info" />,
         Component: () => <AssetInfo assetSlug={assetSlug} />,
         testID: HomeSelectors.infoTab
       }

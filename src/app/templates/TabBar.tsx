@@ -3,7 +3,6 @@ import React, { FC } from 'react';
 import clsx from 'clsx';
 
 import { TestIDProps } from 'lib/analytics';
-import { T, TID } from 'lib/i18n';
 import { Link } from 'lib/woozie';
 
 interface Props {
@@ -12,9 +11,9 @@ interface Props {
   withOutline?: boolean;
 }
 
-interface TabInterface extends TestIDProps {
+export interface TabInterface extends TestIDProps {
   name: string;
-  titleI18nKey: TID;
+  title: JSX.Element;
 }
 
 export const TabsBar = React.forwardRef<HTMLDivElement, Props>(({ activeTabName, tabs, withOutline }, ref) => (
@@ -27,12 +26,12 @@ export const TabsBar = React.forwardRef<HTMLDivElement, Props>(({ activeTabName,
 
 interface TabButtonProps extends TestIDProps {
   name: string;
-  titleI18nKey: TID;
+  title: JSX.Element;
   active: boolean;
   withOutline?: boolean;
 }
 
-const TabButton: FC<TabButtonProps> = ({ name, titleI18nKey, active, withOutline, testID, testIDProperties }) => (
+const TabButton: FC<TabButtonProps> = ({ name, title, active, withOutline, testID, testIDProperties }) => (
   <Link
     to={lctn => ({ ...lctn, search: `?tab=${name}` })}
     replace
@@ -47,6 +46,6 @@ const TabButton: FC<TabButtonProps> = ({ name, titleI18nKey, active, withOutline
     testID={testID}
     testIDProperties={testIDProperties}
   >
-    <T id={titleI18nKey} />
+    {title}
   </Link>
 );

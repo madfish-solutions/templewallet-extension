@@ -22,7 +22,7 @@ import { getPluralKey, toLocalFormat, T } from 'lib/i18n';
 import { getRewardsStats, useKnownBaker } from 'lib/temple/front';
 import { mutezToTz } from 'lib/temple/helpers';
 
-import styles from './BakingHistoryItem.module.css';
+import ModStyles from './styles.module.css';
 
 type BakingHistoryItemProps = {
   content: TzktRewardsEntry;
@@ -383,7 +383,7 @@ const BakingHistoryItem: FC<BakingHistoryItemProps> = ({
         </div>
       </div>
       <Collapse
-        theme={{ collapse: styles.ReactCollapse }}
+        theme={{ collapse: ModStyles.reactCollapse }}
         isOpened={showDetails}
         initialStyle={{ height: '0px', overflow: 'hidden' }}
       >

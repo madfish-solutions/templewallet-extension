@@ -308,7 +308,7 @@
     "message": "Delegated to:"
   },
   "dcpDelegatingMotivation": {
-    "message": "Delegating your funds to producers is a great way of earning interest on your balance"
+    "message": "Delegating your funds to producers is a great way of\nearning interest on your balance"
   },
   "delegatingMotivation": {
     "message": "Delegating your funds to bakers is a great way of earning interest on your balance"
@@ -1081,28 +1081,22 @@
     "message": "How to Delegate XTZ"
   },
   "delegationComunity": {
-    "message": "In case you have any questions, write them in our communities"
+    "message": "In case you have any questions, write them\nin our communities"
   },
   "delegationPointsHead1": {
-    "message": "Earn 5.6% interest"
+    "message": "Earn"
   },
   "delegationPointsHead2": {
-    "message": "on your Tezos"
-  },
-  "delegationPointsHead3": {
-    "message": "annualy from Baking rewards"
+    "message": "on your Tezos annualy from\nBaking & Stake rewards"
   },
   "delegationPoint1": {
     "message": "Your first reward in Tezos will be paid approximately in 36 days."
   },
   "delegationPoint2": {
-    "message": "Then, you receive a reward every 3 days."
+    "message": "Receive rewards every 3 days."
   },
   "delegationPoint3": {
-    "message": "Earn rate varies over time. Check the current rate in your Wallet."
-  },
-  "delegationPoint4": {
-    "message": "Your Tezos tokens are never locked. Send anytime!"
+    "message": "Earn rate varies over time.\nCheck the current rate in Wallet."
   },
   "baker": {
     "message": "Baker"

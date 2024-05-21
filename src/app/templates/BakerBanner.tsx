@@ -6,7 +6,7 @@ import classNames from 'clsx';
 import { Identicon, Name, Money, HashChip, ABContainer } from 'app/atoms';
 import { useAppEnv } from 'app/env';
 import { ReactComponent as ChevronRightIcon } from 'app/icons/chevron-right.svg';
-import { BakingSectionSelectors } from 'app/pages/Home/OtherComponents/BakingSection.selectors';
+import { BakingSectionSelectors } from 'app/pages/Home/OtherComponents/BakingSection/selectors';
 import { toLocalFormat, T } from 'lib/i18n';
 import { HELP_UKRAINE_BAKER_ADDRESS, RECOMMENDED_BAKER_ADDRESS } from 'lib/known-bakers';
 import { useRelevantAccounts, useAccount, useNetwork, useKnownBaker } from 'lib/temple/front';

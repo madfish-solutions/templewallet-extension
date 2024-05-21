@@ -102,7 +102,8 @@ const ExchangeStep: FC<Props> = ({ exchangeData, setExchangeData, setStep, step,
             />
           ) : (
             <>
-              <Divider style={{ marginTop: '2.25rem' }} />
+              <Divider className="mt-9" />
+
               <div className="flex justify-between items-baseline mt-4">
                 <p className="text-gray-600 text-xs">
                   <T id={'transactionId'} />
@@ -156,7 +157,8 @@ const ExchangeStep: FC<Props> = ({ exchangeData, setExchangeData, setStep, step,
                   <HashShortView hash={exchangeData.withdrawalAddress} />
                 </p>
               </div>
-              <Divider style={{ marginTop: '1rem', marginBottom: '3rem' }} />
+
+              <Divider className="mt-4 mb-12" />
             </>
           )}
         </>
@@ -171,7 +173,9 @@ const ExchangeStep: FC<Props> = ({ exchangeData, setExchangeData, setStep, step,
               <T id={'completedDescription'} />
             </p>
           </div>
-          <Divider style={{ marginTop: '2.25rem' }} />
+
+          <Divider className="mt-9" />
+
           <div className="flex justify-between items-baseline mt-4">
             <p className="text-gray-600 text-xs">
               <T id={'transactionId'} />
@@ -250,7 +254,9 @@ const ExchangeStep: FC<Props> = ({ exchangeData, setExchangeData, setStep, step,
               <HashShortView hash={exchangeData.depositAddress} />
             </p>
           </div>
-          <Divider style={{ marginTop: '1rem', marginBottom: '2.5rem' }} />
+
+          <Divider className="mt-4 mb-10" />
+
           <FormSubmitButton
             className="w-full justify-center border-none mt-6 mb-12"
             style={{

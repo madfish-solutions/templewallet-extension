@@ -159,6 +159,7 @@ module.exports = {
         'primary-white': '#fcfaf7',
         'primary-orange': baseColors.orange[500],
         'accent-orange': baseColors.orange[20],
+        'accent-blue': '#1373E4',
         'primary-orange-light': baseColors.orange[300],
         'primary-orange-dark': baseColors.orange[700],
         'primary-orange-lighter': baseColors.orange[100],
@@ -575,6 +576,7 @@ module.exports = {
         '2xl-plus': '1.75rem'
       },
       spacing: {
+        '0.5px': '0.5px',
         13: '3.25rem',
         15: '3.75rem',
         18: '4.5rem',
