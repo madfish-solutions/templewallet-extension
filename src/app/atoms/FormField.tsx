@@ -48,6 +48,8 @@ export interface FormFieldProps extends TestIDProperty, Omit<FormFieldAttrs, 'ty
   secret?: boolean;
   /** `type='password'` only */
   revealForbidden?: boolean;
+  /** `type='password'` only */
+  shouldShowRevealWhenEmpty?: boolean;
   /**
    * Any value, whose change will result in password un-reveal.
    * `type='password'` only
@@ -87,6 +89,7 @@ export const FormField = forwardRef<FormFieldElement, FormFieldProps>(
       textarea,
       secret: secretProp,
       revealForbidden = false,
+      shouldShowRevealWhenEmpty = false,
       revealRef,
       cleanable,
       extraLeftInner = null,
@@ -154,7 +157,8 @@ export const FormField = forwardRef<FormFieldElement, FormFieldProps>(
     const handleSecretBannerClick = () => void spareRef.current?.focus();
     const handleCleanClick = useCallback(() => void onClean?.(), [onClean]);
 
-    const hasRevealablePassword = isPasswordInput && !revealForbidden;
+    const hasRevealablePassword =
+      isPasswordInput && !revealForbidden && (shouldShowRevealWhenEmpty || Boolean(localValue));
     const fieldStyle = useMemo(
       () => ({
         ...style,
@@ -239,7 +243,7 @@ export const FormField = forwardRef<FormFieldElement, FormFieldProps>(
             )}
           >
             {cleanable && <CleanButton size={16} onClick={handleCleanClick} />}
-            {copyable && <Copyable value={String(value)} copy={copy} isSecret={hasRevealablePassword} />}
+            {copyable && <Copyable value={String(value)} copy={copy} isSecret={type === 'password'} />}
             {hasRevealablePassword && RevealPasswordIcon}
           </div>
 

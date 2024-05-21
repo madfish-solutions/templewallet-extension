@@ -16,6 +16,6 @@ export const FieldLabel: React.FC<Props> = ({ label, className, description, war
 
     {description && <span className="mt-1 text-grey-1">{description}</span>}
 
-    {warning && <span className="mt-1 text-xs font-medium text-error">{warning}</span>}
+    {warning && <span className="mt-1 font-medium text-error">{warning}</span>}
   </label>
 );

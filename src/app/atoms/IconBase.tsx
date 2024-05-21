@@ -15,7 +15,7 @@ interface Props {
 /** For monochrome icons */
 export const IconBase = memo<Props>(({ size = 16, className, Icon, onClick }) => (
   <div data-icon-size={size} className={clsx(CONTAINER_CLASSNAME[size], className)} onClick={onClick}>
-    <Icon className="w-full h-full fill-current stroke-current" transform={SCALE_TRANSFORMS[size]} />
+    <Icon className="w-full h-full stroke-current fill-current" transform={SCALE_TRANSFORMS[size]} />
   </div>
 ));
 

@@ -1,9 +1,9 @@
-import { useLayoutEffect, useMemo } from 'react';
+import { useEffect, useLayoutEffect, useMemo } from 'react';
 
 import constate from 'constate';
 
 import { useTempleClient } from 'lib/temple/front/client';
-import { TempleStatus, TempleState, StoredAccount, TempleSettings } from 'lib/temple/types';
+import { TempleStatus, TempleState, StoredAccount, TempleSettings, TempleAccountType } from 'lib/temple/types';
 
 import { useReadyTempleAccounts } from './accounts';
 import { useReadyTempleTezosNetworks, useReadyTempleEvmNetworks } from './networks';
@@ -58,12 +58,18 @@ function useReadyTemple() {
 
   const { customTezosNetworks, customEvmNetworks, accounts: allAccounts, settings, walletsSpecs } = templeFront;
 
+  const hdGroups = useMemo(
+    () =>
+      Object.entries(walletsSpecs)
+        .sort(([, { createdAt: aCreatedAt }], [, { createdAt: bCreatedAt }]) => aCreatedAt - bCreatedAt)
+        .map(([id, { name }]) => ({ id, name })),
+    [walletsSpecs]
+  );
+
   const readyTempleTezosNetworks = useReadyTempleTezosNetworks(customTezosNetworks);
   const readyTempleEvmNetworks = useReadyTempleEvmNetworks(customEvmNetworks);
 
   const readyTempleAccounts = useReadyTempleAccounts(allAccounts);
-
-  const hdGroups = useMemo(() => Object.entries(walletsSpecs).map(([id, { name }]) => ({ id, name })), [walletsSpecs]);
 
   /** Error boundary reset */
   useLayoutEffect(() => {

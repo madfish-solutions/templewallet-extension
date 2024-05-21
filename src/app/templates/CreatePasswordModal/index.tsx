@@ -146,6 +146,7 @@ export const CreatePasswordModal = memo<CreatePasswordModalProps>(
                 fieldWrapperBottomMargin={false}
                 cleanable={passwordValue ? passwordValue.length > 0 : false}
                 containerClassName="mb-2"
+                shouldShowRevealWhenEmpty
                 testID={createPasswordSelectors.passwordField}
               />
               <div className="flex flex-wrap gap-1">
@@ -170,6 +171,7 @@ export const CreatePasswordModal = memo<CreatePasswordModalProps>(
                 errorCaption={errors.repeatPassword?.message}
                 cleanable={repeatPasswordValue ? repeatPasswordValue.length > 0 : false}
                 containerClassName="my-4"
+                shouldShowRevealWhenEmpty
                 testID={createPasswordSelectors.repeatPasswordField}
               />
             </div>
