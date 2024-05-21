@@ -26,16 +26,16 @@ const isSinglePageOpened = () => getOpenedTemplePagesN() === 1;
 */
 
 if (getIsLockUpEnabled() && isSinglePageOpened()) {
-  fetchFromStorage<boolean>(SHOULD_BACKUP_MNEMONIC_STORAGE_KEY)
-    .catch(e => {
-      console.error(e);
-
-      return false;
-    })
-    .then(shouldBackupMnemonic => {
-      const closureTimestamp = Number(localStorage.getItem(CLOSURE_STORAGE_KEY));
-      if ((closureTimestamp && Date.now() - closureTimestamp >= WALLET_AUTOLOCK_TIME) || shouldBackupMnemonic) lock();
-    });
+  const closureTimestamp = Number(localStorage.getItem(CLOSURE_STORAGE_KEY));
+  const shouldLockByTimeout = closureTimestamp && Date.now() - closureTimestamp >= WALLET_AUTOLOCK_TIME;
+  (async () => {
+    if (
+      shouldLockByTimeout ||
+      (await fetchFromStorage<boolean>(SHOULD_BACKUP_MNEMONIC_STORAGE_KEY).catch(() => false))
+    ) {
+      lock();
+    }
+  })();
 }
 
 // Saving last time, when all pages are closed

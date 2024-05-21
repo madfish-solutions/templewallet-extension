@@ -15,8 +15,8 @@ export const BackupMnemonicOverlay = memo(() => {
   const [mnemonicToBackup, setMnemonicToBackup] = useState('');
   const [shouldBackupMnemonic, setShouldBackupMnemonic] = useStorage(SHOULD_BACKUP_MNEMONIC_STORAGE_KEY, false);
 
-  const handleBackupOptionSelect = useCallback(() => {
-    const currentMnemonicToBackup = getMnemonicToBackup();
+  const handleBackupOptionSelect = useCallback(async () => {
+    const currentMnemonicToBackup = await getMnemonicToBackup();
     if (currentMnemonicToBackup) {
       setBackupSelected(true);
       setMnemonicToBackup(currentMnemonicToBackup);
