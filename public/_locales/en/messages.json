@@ -907,9 +907,15 @@
     "message": "Processing..."
   },
   "importWallet": {
-    "message": "Import Your Wallet"
+    "message": "Import Wallet"
   },
   "createWallet": {
+    "message": "Create Wallet"
+  },
+  "importYourWallet": {
+    "message": "Import Your Wallet"
+  },
+  "createYourWallet": {
     "message": "Create Your Wallet"
   },
   "errorImportingKukaiWallet": {

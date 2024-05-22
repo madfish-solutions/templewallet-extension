@@ -38,7 +38,7 @@ export const ImportWallet: FC<ImportWalletProps> = ({ tabSlug = 'seed-phrase' })
   const isImportFromSeedPhrase = tabSlug === 'seed-phrase';
 
   return (
-    <PageLayout pageTitle={t('importWallet')}>
+    <PageLayout pageTitle={t('importYourWallet')}>
       <ImportTabSwitcher tabs={importWalletOptions} activeTabSlug={tabSlug} urlPrefix="/import-wallet" />
 
       <LockedWalletExists locked={locked} />

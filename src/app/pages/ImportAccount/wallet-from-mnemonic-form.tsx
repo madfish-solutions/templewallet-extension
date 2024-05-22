@@ -80,7 +80,7 @@ export const WalletFromMnemonicForm = memo(() => {
         )}
         onClick={handleSubmit}
       >
-        <T id="importWallet" />
+        <T id="importYourWallet" />
       </Button>
     </div>
   );
