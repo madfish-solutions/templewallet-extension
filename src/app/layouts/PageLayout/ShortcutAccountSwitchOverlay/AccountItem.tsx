@@ -74,13 +74,13 @@ export const AccountItem: React.FC<AccountItemProps> = ({
       <Identicon type="bottts" hash={account.id} size={46} className="flex-shrink-0 shadow-xs-white" />
 
       <div style={{ marginLeft: '10px' }} className="flex flex-col items-start">
-        <Name className="text-sm font-medium">
+        <Name className="text-font-medium font-medium">
           <SearchHighlightText searchValue={searchValue}>{account.name}</SearchHighlightText>
         </Name>
 
         <div
           className={clsx(
-            'text-xs',
+            'text-font-description',
             searchValue === displayAddress ? 'bg-marker-highlight text-gray-900' : 'text-gray-500'
           )}
           {...setTestID(ShortcutAccountSwitchSelectors.accountAddressValue)}
@@ -93,7 +93,7 @@ export const AccountItem: React.FC<AccountItemProps> = ({
           {accountTezAddress && (
             <Balance network={tezosMainnetChain} address={accountTezAddress}>
               {bal => (
-                <span className="text-xs leading-tight flex items-baseline text-gray-500">
+                <span className="text-font-description leading-tight flex items-baseline text-gray-500">
                   <Money smallFractionFont={false} tooltip={false}>
                     {bal}
                   </Money>

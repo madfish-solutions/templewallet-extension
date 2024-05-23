@@ -11,7 +11,7 @@ interface Props {
 }
 
 export const FieldLabel: React.FC<Props> = ({ label, className, description, warning, id }) => (
-  <label className={clsx(className, 'text-xs flex flex-col')} htmlFor={id}>
+  <label className={clsx(className, 'text-font-description flex flex-col')} htmlFor={id}>
     <span className="font-semibold">{label}</span>
 
     {description && <span className="mt-1 text-grey-1">{description}</span>}

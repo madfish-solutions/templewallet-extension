@@ -1,9 +1,11 @@
 import React, { useCallback, useMemo, useState } from 'react';
 
-import { ReactComponent as EyeClosedBold } from 'app/icons/eye-closed-bold.svg';
-import { ReactComponent as EyeOpenBold } from 'app/icons/eye-open-bold.svg';
+import { ReactComponent as EyeClose } from 'app/icons/base/eye_close.svg';
+import { ReactComponent as EyeOpen } from 'app/icons/base/eye_open.svg';
 import { USER_ACTION_TIMEOUT } from 'lib/fixed-times';
 import { useDidUpdate, useTimeout } from 'lib/ui/hooks';
+
+import { IconBase } from './IconBase';
 
 const usePasswordToggle = (
   id?: string,
@@ -35,7 +37,7 @@ const usePasswordToggle = (
         }}
         onBlur={handleBlur}
       >
-        {visible ? <EyeOpenBold /> : <EyeClosedBold />}
+        <IconBase size={16} Icon={visible ? EyeOpen : EyeClose} className="text-primary" />
       </button>
     ),
     [buttonId, handleBlur, visible, onReveal]

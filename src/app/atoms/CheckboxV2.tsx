@@ -2,8 +2,8 @@ import React, { forwardRef, InputHTMLAttributes, useMemo } from 'react';
 
 import clsx from 'clsx';
 
-import { ReactComponent as CheckmarkEmptyIcon } from 'app/icons/monochrome/checkmark-empty.svg';
-import { ReactComponent as CheckmarkFilledIcon } from 'app/icons/monochrome/checkmark-fill.svg';
+import { ReactComponent as CheckmarkEmptyIcon } from 'app/icons/base/checkmark_empty.svg';
+import { ReactComponent as CheckmarkFilledIcon } from 'app/icons/base/checkmark_fill.svg';
 import { TestIDProps, setTestID } from 'lib/analytics';
 
 import { useCheckboxHooks } from './Checkbox';

@@ -5,7 +5,7 @@ import clsx from 'clsx';
 import { Button, IconBase } from 'app/atoms';
 import { FieldLabel } from 'app/atoms/FieldLabel';
 import { ReactComponent as XCircleFillIcon } from 'app/icons/base/x_circle_fill.svg';
-import { t } from 'lib/i18n';
+import { T } from 'lib/i18n';
 
 import { WordInput } from './word-input';
 import { WordsBoxItem, WordsBoxItemData } from './words-box-item';
@@ -29,8 +29,8 @@ export const VerifySeedPhraseInput = memo<VerifySeedPhraseInputProps>(
       <div className="w-full flex flex-col">
         <FieldLabel
           className="p-1 mb-2"
-          label={t('verifySeedPhraseInputTitle')}
-          description={t('verifySeedPhraseInputDescription')}
+          label={<T id="verifySeedPhraseInputTitle" />}
+          description={<T id="verifySeedPhraseInputDescription" />}
         />
         <div
           className={clsx(
@@ -50,8 +50,8 @@ export const VerifySeedPhraseInput = memo<VerifySeedPhraseInputProps>(
             <IconBase size={16} Icon={XCircleFillIcon} />
           </Button>
         </div>
-        {error ? <span className="text-xs text-error mb-4">{error}</span> : <div className="h-4 mb-4" />}
-        <FieldLabel className="p-1 pt-0.5" label={t('wordsBoxLabel')} />
+        {error ? <span className="text-font-description text-error mb-4">{error}</span> : <div className="h-4 mb-4" />}
+        <FieldLabel className="p-1 pt-0.5" label={<T id="wordsBoxLabel" />} />
         <div className="flex mt-2 gap-1">
           {wordsBox.map(item => (
             <WordsBoxItem

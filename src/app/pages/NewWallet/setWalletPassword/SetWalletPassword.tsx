@@ -46,7 +46,9 @@ interface SetWalletPasswordProps {
   testID?: string;
 }
 
-// TODO: remove this component after `CreatePasswordModal` is used for importing wallet
+/** TODO: remove this component after `CreatePasswordModal` is used for importing wallet
+ * @deprecated
+ */
 export const SetWalletPassword: FC<SetWalletPasswordProps> = ({
   ownMnemonic = false,
   seedPhrase,
@@ -131,7 +133,7 @@ export const SetWalletPassword: FC<SetWalletPasswordProps> = ({
         const shouldEnableWebsiteAnalytics = data.viewAds && shouldEnableAnalytics;
         await putToStorage(WEBSITES_ANALYTICS_ENABLED, shouldEnableWebsiteAnalytics);
 
-        setOnboardingCompleted(data.skipOnboarding!);
+        await setOnboardingCompleted(data.skipOnboarding!);
 
         const accountPkh = await registerWallet(password!, formatMnemonic(seedPhrase));
         trackEvent(

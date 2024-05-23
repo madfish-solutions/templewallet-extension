@@ -156,7 +156,7 @@ module.exports = {
       },
 
       fontSize: {
-        xxxs: ['0.625rem', { lineHeight: '0.75rem' }],
+        'font-small': ['0.625rem', { lineHeight: '0.75rem' }],
         xxs: '0.6875rem',
         '2xs': '0.8125rem',
         ulg: '1.0625rem',
@@ -173,7 +173,10 @@ module.exports = {
         63: '15.75rem'
       },
 
-      width: theme => theme('spacing'),
+      width: theme => ({
+        ...theme('spacing'),
+        modal: '22rem'
+      }),
 
       minWidth: theme => theme('width'),
 

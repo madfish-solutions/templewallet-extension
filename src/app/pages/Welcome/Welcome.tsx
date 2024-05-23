@@ -7,9 +7,9 @@ import { SocialButton } from 'app/atoms/SocialButton';
 import { StyledButton } from 'app/atoms/StyledButton';
 import { StyledButtonLikeLink } from 'app/atoms/StyledButtonLikeLink';
 import { useABTestingLoading } from 'app/hooks/use-ab-testing-loading';
+import { ReactComponent as GoogleDriveIcon } from 'app/icons/base/google_drive.svg';
 import { ReactComponent as ImportedIcon } from 'app/icons/base/imported.svg';
 import { ReactComponent as PlusIcon } from 'app/icons/base/plus.svg';
-import { ReactComponent as GoogleDriveIcon } from 'app/icons/google-drive.svg';
 import PageLayout from 'app/layouts/PageLayout';
 import { CreatePasswordModal } from 'app/templates/CreatePasswordModal';
 import { T } from 'lib/i18n';
@@ -26,16 +26,16 @@ const Welcome = memo(() => {
   const handleRequestClose = useCallback(() => setShouldShowPasswordModal(false), []);
 
   return (
-    <PageLayout Header={EmptyHeader} contentPadding={false} shouldTakeAllHeight>
+    <PageLayout Header={EmptyHeader} contentPadding={false}>
       <CreatePasswordModal opened={shouldShowPasswordModal} onRequestClose={handleRequestClose} />
 
       <div className="flex-1 flex flex-col px-4 pb-8 h-full">
         <div className="flex-1 flex flex-col justify-center items-center">
           <Logo type="icon-title" size={40} className="mb-6" />
-          <span className="text-xs text-center font-semibold text-text pb-3">
+          <span className="text-font-description-bold text-center pb-3">
             <T id="welcomeQuote" />
           </span>
-          <span className="text-xxxs text-center text-grey-1">
+          <span className="text-font-small text-center text-grey-1">
             <T id="welcomeQuoteAuthor" />
           </span>
         </div>
@@ -43,7 +43,7 @@ const Welcome = memo(() => {
         <div className="flex flex-col gap-4">
           <SocialButton className="w-full" testID={WelcomeSelectors.continueWithGoogleDrive}>
             <GoogleDriveIcon className="h-8 w-auto" />
-            <span className="text-base font-semibold">
+            <span className="text-font-regular-bold">
               <T id="continueWithGoogleDrive" />
             </span>
           </SocialButton>

@@ -35,7 +35,7 @@ export const ChainSelection = memo<ChainSelectionProps>(({ privateKeys, onSelect
           value={searchValue}
           className={clsx(
             'bg-gray-200 focus:outline-none transition ease-in-out duration-200',
-            'text-gray-900 placeholder-gray-600 text-xs leading-tight rounded-lg'
+            'text-gray-900 placeholder-gray-600 text-font-description leading-tight rounded-lg'
           )}
           placeholder={t('searchAccount', '')}
           onValueChange={setSearchValue}
@@ -68,8 +68,8 @@ const ChainOption = memo<ChainOptionProps>(({ onSelect, privateKey }) => {
   return (
     <Button className="w-full flex rounded-md border border-gray-300 p-3" onClick={handleClick}>
       <div className="flex-1 text-left">
-        <p className="text-sm text-gray-900 leading-5 font-semibold">{TempleChainTitle[chain]}</p>
-        <p className="text-xs text-gray-600 leading-4">
+        <p className=" text-gray-900 leading-5 font-semibold">{TempleChainTitle[chain]}</p>
+        <p className="text-font-description text-gray-600">
           <HashShortView hash={address} />
         </p>
       </div>

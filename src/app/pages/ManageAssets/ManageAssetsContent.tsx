@@ -34,7 +34,7 @@ export const ManageAssetsContent: FC<Props> = ({ ofCollectibles, searchValue, se
       <Link
         to="/add-asset"
         className={clsx(
-          'flex items-center flex-shrink-0 px-3 py-1 text-gray-600 text-sm rounded overflow-hidden',
+          'flex items-center flex-shrink-0 px-3 py-1 text-gray-600 text-font-medium rounded overflow-hidden',
           'opacity-75 hover:bg-gray-100 hover:opacity-100 focus:opacity-100',
           'transition ease-in-out duration-200'
         )}

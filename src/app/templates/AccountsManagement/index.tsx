@@ -8,7 +8,7 @@ import { useAlert } from 'lib/ui';
 import { searchAndFilterAccounts } from 'temple/front/accounts';
 import { useAccountsGroups } from 'temple/front/groups';
 
-import { CreateHDWalletFlow } from '../CreateHDWalletFlow';
+import { CreateHDWalletModal } from '../CreateHDWalletModal';
 import { NewWalletActionsPopper } from '../NewWalletActionsPopper';
 import { SearchBarField } from '../SearchField';
 
@@ -107,7 +107,7 @@ export const AccountsManagement = memo(() => {
           />
         );
       case AccountsManagementModal.CreateHDWalletFlow:
-        return <CreateHDWalletFlow onEnd={onCreateWalletFlowEnd} />;
+        return <CreateHDWalletModal onEnd={onCreateWalletFlowEnd} />;
       default:
         return null;
     }

@@ -32,7 +32,7 @@ const NetworkBanner = memo<Props>(({ network, narrow = false }) => {
               }}
             />
 
-            <span className="text-gray-700 text-sm">{getNetworkTitle(knownChain)}</span>
+            <span className="text-gray-700 text-font-medium">{getNetworkTitle(knownChain)}</span>
           </div>
         ) : (
           <div className="w-full mb-1 flex items-center">

@@ -14,6 +14,7 @@ import { mockPartnersPromotionState } from './partners-promotion/state.mock';
 import type { RootState } from './root-state.type';
 import { mockSettingsState } from './settings/state.mock';
 import { mockSwapState } from './swap/state.mock';
+import { mockToastsContainerShiftState } from './toasts-container-shift/state.mock';
 import { mockTokensMetadataState } from './tokens-metadata/state.mock';
 
 // ts-prune-ignore-next
@@ -32,5 +33,6 @@ export const mockRootState: RootState = {
   abTesting: mockABTestingState,
   buyWithCreditCard: mockBuyWithCreditCardState,
   collectibles: mockCollectiblesState,
-  newsletter: mockNewsletterState
+  newsletter: mockNewsletterState,
+  toastsContainerShift: mockToastsContainerShiftState
 };

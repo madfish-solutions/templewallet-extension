@@ -17,7 +17,7 @@ export const Lines = memo<LinesProps>(({ type = 'divider', className, style }) =
     <div className={clsx('flex-1 border-lines', type === 'line' ? 'border-b-0.5' : 'border-b')} />
     {type === 'or' && (
       <>
-        <span className="text-xxxs text-grey-3 font-semibold">
+        <span className="text-font-small text-grey-3 font-semibold">
           <T id="or" />
         </span>
         <div className="flex-1 border-b border-lines" />

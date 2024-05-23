@@ -15,6 +15,7 @@ import { newsletterReducers } from './newsletter/newsletter-reducers';
 import { partnersPromotionPersistedReducer } from './partners-promotion/reducers';
 import { settingsReducer } from './settings/reducers';
 import { swapReducer } from './swap/reducers';
+import { toastsContainerShiftReducer } from './toasts-container-shift/reducers';
 import { tokensMetadataReducer } from './tokens-metadata/reducers';
 
 const rootStateReducersMap = {
@@ -32,7 +33,8 @@ const rootStateReducersMap = {
   abTesting: abTestingReducer,
   buyWithCreditCard: buyWithCreditCardReducer,
   collectibles: collectiblesPersistedReducer,
-  newsletter: newsletterReducers
+  newsletter: newsletterReducers,
+  toastsContainerShift: toastsContainerShiftReducer
 };
 
 export const rootReducer = combineReducers(rootStateReducersMap);

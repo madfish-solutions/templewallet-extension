@@ -23,7 +23,7 @@ import { navigate } from 'lib/woozie';
 import { searchAndFilterAccounts, useAccountsGroups, useCurrentAccountId, useVisibleAccounts } from 'temple/front';
 import { useSetAccountId } from 'temple/front/ready';
 
-import { CreateHDWalletFlow } from '../CreateHDWalletFlow';
+import { CreateHDWalletModal } from '../CreateHDWalletModal';
 
 interface Props {
   opened: boolean;
@@ -58,7 +58,7 @@ export const AccountsModal = memo<Props>(({ opened, onRequestClose }) => {
 
   return (
     <>
-      {shouldShowCreateWalletFlow && <CreateHDWalletFlow onEnd={onCreateWalletFlowEnd} />}
+      {shouldShowCreateWalletFlow && <CreateHDWalletModal onEnd={onCreateWalletFlowEnd} />}
 
       <PageModal title="My Accounts" opened={opened} onRequestClose={onRequestClose}>
         <div className="flex gap-x-2 p-4">

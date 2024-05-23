@@ -112,36 +112,36 @@ export const SellStep = memo<SellStepProps>(
             className="py-2 px-4 rounded-lg border border-red-700 mt-12 mb-10"
             style={{ backgroundColor: '#FCFAFC' }}
           >
-            <p className="text-red-700 text-base">{status}</p>
-            <p className="text-red-700 text-xs">
+            <p className="text-red-700 text-font-regular">{status}</p>
+            <p className="text-red-700 text-font-description">
               <T id={(status.toLowerCase() + 'StatusDescription') as TID} />
             </p>
           </div>
         )}
 
         <div className="flex justify-between items-baseline mt-10">
-          <p className="text-gray-600 text-xs">
+          <p className="text-gray-600 text-font-description">
             <T id="youSell" />
           </p>
           <p className="text-sm font-medium text-gray-910">{fromAmount} TEZ</p>
         </div>
 
         <div className="flex justify-between items-baseline mt-2">
-          <p className="text-gray-600 text-xs">
+          <p className="text-gray-600 text-font-description">
             <T id="exchangeRate" />:
           </p>
-          <p className="text-xs text-gray-600">1 TEZ ≈ {exchangeRate} UAH</p>
+          <p className="text-font-description text-gray-600">1 TEZ ≈ {exchangeRate} UAH</p>
         </div>
 
         <div className="flex justify-between items-baseline mt-2">
-          <p className="text-gray-600 text-xs">
+          <p className="text-gray-600 text-font-description">
             <T id="fee" />:
           </p>
-          <p className="text-xs text-gray-600">{totalFee} UAH</p>
+          <p className="text-font-description text-gray-600">{totalFee} UAH</p>
         </div>
 
         <div className="flex justify-between items-baseline mt-2">
-          <p className="text-gray-600 text-xs">
+          <p className="text-gray-600 text-font-description">
             <T id={'youGet'} />
           </p>
           <p className="text-sm font-medium text-gray-910">

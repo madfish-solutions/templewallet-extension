@@ -22,7 +22,7 @@ export async function loadMnemonicToBackup(password: string) {
     const res = await makeIntercomRequest({
       type: TempleMessageType.RevealMnemonicRequest,
       password,
-      walletId: Object.keys(groups)[0]
+      walletId: Object.keys(groups)[0] // Expecting the first wallet by number index to be the only one there at this point
     });
     assertResponse(res.type === TempleMessageType.RevealMnemonicResponse);
 

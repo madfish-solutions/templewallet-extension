@@ -14,7 +14,7 @@ export const DonationBanner = memo(() => (
     href={DONATE_MAD_FISH_URL}
     testID={DonationBannerSelectors.ukraineDonationBanner}
   >
-    <span className="font-inter font-semibold mr-3 text-sm text-blue-650">
+    <span className="font-inter text-font-medium-bold mr-3 text-blue-650">
       <T id="support" />
     </span>
 

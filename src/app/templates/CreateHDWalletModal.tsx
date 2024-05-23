@@ -6,13 +6,13 @@ import { toastError, toastSuccess } from 'app/toaster';
 import { t } from 'lib/i18n';
 import { useTempleClient } from 'lib/temple/front';
 
-import { ManualBackupFlow } from './ManualBackupFlow';
+import { ManualBackupModal } from './ManualBackupModal';
 
-interface CreateHDWalletFlowProps {
+interface CreateHDWalletModalProps {
   onEnd: () => void;
 }
 
-export const CreateHDWalletFlow = memo<CreateHDWalletFlowProps>(({ onEnd }) => {
+export const CreateHDWalletModal = memo<CreateHDWalletModalProps>(({ onEnd }) => {
   const mnemonic = useMemo(() => generateMnemonic(128), []);
   const { createOrImportWallet } = useTempleClient();
 
@@ -28,5 +28,5 @@ export const CreateHDWalletFlow = memo<CreateHDWalletFlowProps>(({ onEnd }) => {
     }
   }, [createOrImportWallet, mnemonic, onEnd]);
 
-  return <ManualBackupFlow mnemonic={mnemonic} onCancel={onEnd} onSuccess={createWallet} />;
+  return <ManualBackupModal mnemonic={mnemonic} onCancel={onEnd} onSuccess={createWallet} />;
 });

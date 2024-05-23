@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { ReactComponent as LockAltIcon } from 'app/icons/base/lock-alt.svg';
+import { ReactComponent as LockAltIcon } from 'app/icons/monochrome/lock-alt.svg';
 import ProtectedFieldCoverSrc from 'app/misc/protected-field-cover.gif';
 import { setTestID, TestIDProps } from 'lib/analytics';
 import { T } from 'lib/i18n';
@@ -18,7 +18,7 @@ export const SecretCover: React.FC<Props> = ({ onClick, singleRow, testID }) => 
     {...setTestID(testID)}
   >
     {singleRow ? (
-      <p className="flex items-center text-black text-sm">
+      <p className="flex items-center text-black text-font-medium">
         <LockAltIcon className="mr-1 w-4 h-auto fill-current" />
         <span>
           <T id="clickToReveal" />

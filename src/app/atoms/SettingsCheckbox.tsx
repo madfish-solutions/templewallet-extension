@@ -2,7 +2,7 @@ import React, { memo, ReactNode, useCallback, useEffect, useMemo } from 'react';
 
 import { createRoot } from 'react-dom/client';
 
-import { ReactComponent as InfoFillIcon } from 'app/icons/monochrome/info-fill.svg';
+import { ReactComponent as InfoFillIcon } from 'app/icons/base/InfoFill.svg';
 import { AnalyticsEventCategory, setTestID, useAnalytics } from 'lib/analytics';
 import useTippy from 'lib/ui/useTippy';
 
@@ -58,7 +58,7 @@ export const SettingsCheckbox = memo<SettingsCheckboxProps>(
       <div className="flex items-center p-3 rounded-lg bg-white shadow-bottom gap-2 border-0.5 border-transparent hover:border-lines">
         <label className="flex-1 flex items-center gap-2" {...setTestID(testID)}>
           <CheckboxV2 onChange={handleChange} {...restProps} />
-          <span className="text-sm font-semibold">{label}</span>
+          <span className="text-font-medium-bold">{label}</span>
         </label>
         {tooltip && (
           <div ref={infoIconWrapperRef}>

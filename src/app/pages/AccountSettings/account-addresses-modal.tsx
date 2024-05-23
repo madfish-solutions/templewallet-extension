@@ -14,7 +14,7 @@ interface AccountAddressesModalProps {
 }
 
 const addressesEntryClassName = 'w-full h-12 flex justify-between items-center px-3 rounded-lg border border-gray-300';
-const addressesEntryTextClassName = 'text-sm text-gray-900 font-semibold leading-5';
+const addressesEntryTextClassName = 'text-font-medium-bold text-gray-900 leading-5';
 
 export const AccountAddressesModal = memo<AccountAddressesModalProps>(({ account, onClose }) => {
   const addresses = useMemo(

@@ -39,7 +39,7 @@ export const ChainButton: React.FC<Props> = ({ chain, selected, onClick }) => {
       />
 
       <span
-        className="overflow-hidden text-sm text-white whitespace-nowrap text-shadow-black"
+        className="overflow-hidden text-font-medium text-white whitespace-nowrap text-shadow-black"
         style={{ textOverflow: 'ellipsis', maxWidth: '10rem' }}
       >
         {title}

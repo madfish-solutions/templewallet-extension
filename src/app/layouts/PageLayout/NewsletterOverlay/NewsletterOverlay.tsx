@@ -15,10 +15,9 @@ import { useShouldShowNewsletterModalSelector } from 'app/store/newsletter/newsl
 import { useOnRampPossibilitySelector } from 'app/store/settings/selectors';
 import { setTestID } from 'lib/analytics';
 import { newsletterApi } from 'lib/apis/newsletter';
-import { SHOULD_BACKUP_MNEMONIC_STORAGE_KEY } from 'lib/constants';
 import { useYupValidationResolver } from 'lib/form/use-yup-validation-resolver';
 import { T, t } from 'lib/i18n/react';
-import { useStorage, useTempleClient } from 'lib/temple/front';
+import { useTempleClient } from 'lib/temple/front';
 import { useLocation } from 'lib/woozie';
 
 import NewsletterImage from './NewsletterImage.png';
@@ -42,7 +41,6 @@ export const NewsletterOverlay: FC = () => {
   const { ready } = useTempleClient();
   const shouldShowNewsletterModal = useShouldShowNewsletterModalSelector();
   const isOnRampPossibility = useOnRampPossibilitySelector();
-  const [shouldBackupMnemonic] = useStorage(SHOULD_BACKUP_MNEMONIC_STORAGE_KEY, false);
 
   const validationResolver = useYupValidationResolver<FormValues>(validationSchema);
 
@@ -90,14 +88,7 @@ export const NewsletterOverlay: FC = () => {
   }, [successSubscribing, isLoading]);
 
   // TODO: remove 'ready' condition and add 'onboardingCompleted' condition when onboarding is reimplemented
-  if (
-    !shouldShowNewsletterModal ||
-    !ready ||
-    isOnRampPossibility ||
-    shouldBackupMnemonic ||
-    pathname !== HOME_PAGE_PATH
-  )
-    return null;
+  if (!shouldShowNewsletterModal || !ready || isOnRampPossibility || pathname !== HOME_PAGE_PATH) return null;
 
   return (
     <>

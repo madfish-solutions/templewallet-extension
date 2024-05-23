@@ -14,5 +14,5 @@ const statusesClassNames = {
 };
 
 export const ValidationLabel = memo<ValidationLabelProps>(({ text, status }) => (
-  <div className={clsx('px-3 py-1 rounded border-0.5 text-xxxs', statusesClassNames[status])}>{text}</div>
+  <div className={clsx('px-3 py-1 rounded border-0.5 text-font-small', statusesClassNames[status])}>{text}</div>
 ));

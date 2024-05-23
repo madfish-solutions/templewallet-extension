@@ -4,7 +4,7 @@ import clsx from 'clsx';
 
 import { ReactComponent as CopyIcon } from 'app/icons/base/copy.svg';
 import { setTestID, TestIDProperty } from 'lib/analytics';
-import { TID, T, t } from 'lib/i18n';
+import { TID, T } from 'lib/i18n';
 import { selectNodeContent } from 'lib/ui/content-selection';
 
 import CopyButton from './CopyButton';
@@ -65,13 +65,15 @@ export const ReadOnlySecretField: FC<ReadOnlySecretFieldProps> = ({
           text={covered ? '' : value}
           isSecret
           className={clsx(
-            'text-secondary absolute right-3 bottom-3 flex text-xs font-semibold items-center',
+            'text-secondary absolute right-3 bottom-3 flex text-font-description-bold items-center',
             'bg-transparent hover:bg-transparent'
           )}
           onFocus={() => void setCopyButtonFocused(true)}
           onBlur={() => void setCopyButtonFocused(false)}
         >
-          <span>{t('copyMnemonic')}</span>
+          <span>
+            <T id="copyMnemonic" />
+          </span>
           <IconBase size={12} Icon={CopyIcon} />
         </CopyButton>
 

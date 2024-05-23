@@ -55,10 +55,10 @@ export const RpcItem = memo<Props>(({ network, onSelect, onRemoveClick, selected
       )}
 
       <div className="flex flex-col justify-between flex-1">
-        <Name className="mb-1 text-sm font-medium leading-tight">{getNetworkTitle(network)}</Name>
+        <Name className="mb-1 text-font-medium font-medium leading-tight">{getNetworkTitle(network)}</Name>
 
         <div
-          className="text-xs text-gray-700 font-light flex items-center"
+          className="text-font-description text-gray-700 font-light flex items-center"
           style={{
             marginBottom: '0.125rem'
           }}

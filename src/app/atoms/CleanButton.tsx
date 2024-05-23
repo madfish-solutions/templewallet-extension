@@ -22,7 +22,8 @@ const CleanButton = memo<Props>(({ className, size = 12, onClick }) => {
       trigger: 'mouseenter',
       hideOnClick: false,
       content: t('clean'),
-      animation: 'shift-away-subtle'
+      animation: 'shift-away-subtle',
+      placement: 'bottom' as const
     }),
     []
   );

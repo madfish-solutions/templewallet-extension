@@ -8,7 +8,8 @@ import Spinner from 'app/atoms/Spinner/Spinner';
 import { SuspenseContainer } from 'app/atoms/SuspenseContainer';
 import { useAppEnv } from 'app/env';
 import { AdvertisingOverlay } from 'app/templates/advertising/advertising-overlay/advertising-overlay';
-import { useTempleClient } from 'lib/temple/front';
+import { SHOULD_BACKUP_MNEMONIC_STORAGE_KEY } from 'lib/constants';
+import { useStorage, useTempleClient } from 'lib/temple/front';
 
 import {
   SCROLL_DOCUMENT,
@@ -30,25 +31,24 @@ export interface PageLayoutProps extends DefaultHeaderProps {
   /** With this given, header props are ignored */
   Header?: React.ComponentType;
   contentPadding?: boolean;
-  shouldTakeAllHeight?: boolean;
 }
 
 const PageLayout: FC<PropsWithChildren<PageLayoutProps>> = ({
   Header,
   children,
   contentPadding = true,
-  shouldTakeAllHeight = false,
   ...headerProps
 }) => {
   const { fullPage } = useAppEnv();
   const { ready } = useTempleClient();
+  const [shouldBackupMnemonic] = useStorage(SHOULD_BACKUP_MNEMONIC_STORAGE_KEY, false);
 
   return (
     <>
       <DocBg bgClassName="bg-secondary-low" />
 
-      <div id={APP_CONTENT_WRAP_DOM_ID} className={clsx(fullPage && 'pt-9 pb-8', shouldTakeAllHeight && 'h-[100vh]')}>
-        <ContentPaper shouldTakeAllHeight={shouldTakeAllHeight}>
+      <div id={APP_CONTENT_WRAP_DOM_ID} className={clsx(fullPage && 'pt-9 pb-8')}>
+        <ContentPaper>
           {Header ? <Header /> : <DefaultHeader {...headerProps} />}
 
           <div className={clsx('flex-1 flex flex-col', contentPadding && 'p-4 pb-15')}>
@@ -60,12 +60,16 @@ const PageLayout: FC<PropsWithChildren<PageLayoutProps>> = ({
       <AdvertisingOverlay />
       <ConfirmationOverlay />
       <ChangelogOverlay />
-      <OnRampOverlay />
-      <NewsletterOverlay />
+      {!shouldBackupMnemonic && (
+        <>
+          <OnRampOverlay />
+          <NewsletterOverlay />
+        </>
+      )}
       {ready && (
         <>
           <ShortcutAccountSwitchOverlay />
-          <BackupMnemonicOverlay />
+          {shouldBackupMnemonic && <BackupMnemonicOverlay />}
         </>
       )}
     </>
@@ -74,9 +78,7 @@ const PageLayout: FC<PropsWithChildren<PageLayoutProps>> = ({
 
 export default PageLayout;
 
-type ContentPaperProps = PropsWithChildren<{ shouldTakeAllHeight: boolean }>;
-
-const ContentPaper: FC<ContentPaperProps> = ({ children, shouldTakeAllHeight }) => {
+const ContentPaper: FC<PropsWithChildren> = ({ children }) => {
   const appEnv = useAppEnv();
 
   return (
@@ -86,8 +88,7 @@ const ContentPaper: FC<ContentPaperProps> = ({ children, shouldTakeAllHeight }) 
         LAYOUT_CONTAINER_CLASSNAME,
         'relative flex flex-col bg-white',
         !SCROLL_DOCUMENT && 'overflow-y-auto',
-        appEnv.fullPage && 'min-h-80 rounded-md shadow-bottom',
-        shouldTakeAllHeight && 'h-full'
+        appEnv.fullPage && 'min-h-80 rounded-md shadow-bottom'
       )}
     >
       {children}

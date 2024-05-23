@@ -52,7 +52,8 @@ const CopyButton: FC<CopyButtonProps> = ({
       trigger: 'mouseenter',
       hideOnClick: true,
       content: t('copyHashToClipboard'),
-      animation: 'shift-away-subtle'
+      animation: 'shift-away-subtle',
+      placement: 'bottom-end' as const
     }),
     []
   );
@@ -73,7 +74,7 @@ const CopyButton: FC<CopyButtonProps> = ({
             'font-tnum leading-none select-none',
             'transition ease-in-out duration-300',
             rounded === 'base' ? 'rounded' : 'rounded-sm',
-            small ? 'text-xs p-1' : 'text-sm py-1 px-2',
+            small ? 'text-font-description p-1' : 'text-font-medium py-1 px-2',
             BG_SHADES[bgShade],
             TEXT_SHADES[textShade],
             className

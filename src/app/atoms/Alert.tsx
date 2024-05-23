@@ -54,7 +54,7 @@ export const Alert: FC<AlertProps> = ({
 
   const descriptionElement = (
     <div
-      className="text-xs flex-1 max-h-32 break-words overflow-y-auto"
+      className="text-font-description flex-1 max-h-32 break-words overflow-y-auto"
       {...setTestID(AlertSelectors.alertDescription)}
     >
       {description}

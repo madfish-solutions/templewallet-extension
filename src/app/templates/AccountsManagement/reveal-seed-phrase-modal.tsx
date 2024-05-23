@@ -30,7 +30,7 @@ export const RevealSeedPhraseModal = memo<RevealSeedPhraseModalProps>(({ onClose
             <Alert
               type="warning"
               description={
-                <p className="text-xs leading-4 text-gray-900">
+                <p className="text-font-description text-gray-900">
                   <span className="font-semibold">Never share</span> your seed phrase or enter it into any apps. It
                   grants full access to your wallet.
                 </p>

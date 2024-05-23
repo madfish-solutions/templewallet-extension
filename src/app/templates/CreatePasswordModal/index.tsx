@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useLayoutEffect, useMemo } from 'react';
+import React, { memo, useCallback, useLayoutEffect, useMemo, useState } from 'react';
 
 import { generateMnemonic } from 'bip39';
 import { Controller, useForm } from 'react-hook-form';
@@ -12,6 +12,7 @@ import { SettingsCheckbox } from 'app/atoms/SettingsCheckbox';
 import { StyledButton } from 'app/atoms/StyledButton';
 import { ValidationLabel } from 'app/atoms/ValidationLabel';
 import { PASSWORD_PATTERN, PasswordValidation, formatMnemonic, passwordValidationRegexes } from 'app/defaults';
+import { useOnboardingProgress } from 'app/pages/Onboarding/hooks/useOnboardingProgress.hook';
 import { togglePartnersPromotionAction } from 'app/store/partners-promotion/actions';
 import { setIsAnalyticsEnabledAction, setOnRampPossibilityAction } from 'app/store/settings/actions';
 import { toastError } from 'app/toaster';
@@ -50,7 +51,9 @@ export const CreatePasswordModal = memo<CreatePasswordModalProps>(
   ({ opened, seedPhrase: seedPhraseToImport, onRequestClose }) => {
     const { registerWallet } = useTempleClient();
     const { trackEvent } = useAnalytics();
-    const [, setShouldBackupMnemonicStorageKey] = useStorage(SHOULD_BACKUP_MNEMONIC_STORAGE_KEY);
+    const [, setShouldBackupMnemonic] = useStorage(SHOULD_BACKUP_MNEMONIC_STORAGE_KEY);
+    const [bottomEdgeIsVisible, setBottomEdgeIsVisible] = useState(true);
+    const { setOnboardingCompleted } = useOnboardingProgress();
 
     const dispatch = useDispatch();
 
@@ -62,6 +65,7 @@ export const CreatePasswordModal = memo<CreatePasswordModalProps>(
       mode: 'onChange'
     });
     const submitting = formState.isSubmitting;
+    const wasSubmitted = formState.submitCount > 0;
 
     const passwordValue = watch('password');
     const repeatPasswordValue = watch('repeatPassword');
@@ -85,6 +89,7 @@ export const CreatePasswordModal = memo<CreatePasswordModalProps>(
     const onSubmit = useCallback(
       async (data: FormData) => {
         // TODO: enable onboarding when it is reimplemented
+        await setOnboardingCompleted(true);
 
         if (submitting) return;
 
@@ -99,7 +104,7 @@ export const CreatePasswordModal = memo<CreatePasswordModalProps>(
             trackEvent('AnalyticsAndAdsEnabled', AnalyticsEventCategory.General, { accountPkh }, data.analytics);
           }
           if (!seedPhraseToImport) {
-            await setShouldBackupMnemonicStorageKey(true);
+            await setShouldBackupMnemonic(true);
             setMnemonicToBackup(seedPhrase);
           }
           dispatch(setOnRampPossibilityAction(!seedPhraseToImport));
@@ -115,7 +120,8 @@ export const CreatePasswordModal = memo<CreatePasswordModalProps>(
         registerWallet,
         seedPhrase,
         seedPhraseToImport,
-        setShouldBackupMnemonicStorageKey,
+        setOnboardingCompleted,
+        setShouldBackupMnemonic,
         submitting,
         trackEvent
       ]
@@ -124,9 +130,13 @@ export const CreatePasswordModal = memo<CreatePasswordModalProps>(
     const buttonName = t(seedPhraseToImport ? 'importWallet' : 'createWallet');
 
     return (
-      <PageModal title="Create Password" opened={opened} onRequestClose={onRequestClose}>
+      <PageModal title={t('createPassword')} opened={opened} onRequestClose={onRequestClose}>
         <form onSubmit={handleSubmit(onSubmit)} className="flex-1 flex flex-col max-h-full">
-          <ScrollView className="pt-4 pb-6">
+          <ScrollView
+            className="pt-4 pb-6"
+            bottomEdgeThreshold={24}
+            onBottomEdgeVisibilityChange={setBottomEdgeIsVisible}
+          >
             <div className="flex-1 flex flex-col">
               <FormField
                 ref={register({
@@ -136,7 +146,7 @@ export const CreatePasswordModal = memo<CreatePasswordModalProps>(
                     message: PASSWORD_ERROR_CAPTION
                   }
                 })}
-                label="Enter your password"
+                label={t('enterYourPassword')}
                 id="newwallet-password"
                 type="password"
                 name="password"
@@ -154,7 +164,9 @@ export const CreatePasswordModal = memo<CreatePasswordModalProps>(
                   <ValidationLabel
                     text={t(textI18nKey)}
                     key={key}
-                    status={passwordValidation[key] ? 'success' : key === 'specialChar' ? 'default' : 'error'}
+                    status={
+                      passwordValidation[key] ? 'success' : key === 'specialChar' || !wasSubmitted ? 'default' : 'error'
+                    }
                   />
                 ))}
               </div>
@@ -209,7 +221,7 @@ export const CreatePasswordModal = memo<CreatePasswordModalProps>(
                 testID={createPasswordSelectors.getRewardsCheckBox}
               />
             </div>
-            <span className="w-full text-center text-xxxs text-grey-1 mt-6">
+            <span className="w-full text-center text-font-small text-grey-1 mt-6">
               <T
                 id="twTermsAndPrivacyLinks"
                 substitutions={[
@@ -236,7 +248,7 @@ export const CreatePasswordModal = memo<CreatePasswordModalProps>(
               />
             </span>
           </ScrollView>
-          <ActionsButtonsBox>
+          <ActionsButtonsBox shouldCastShadow={!bottomEdgeIsVisible}>
             <StyledButton
               size="L"
               color="primary"

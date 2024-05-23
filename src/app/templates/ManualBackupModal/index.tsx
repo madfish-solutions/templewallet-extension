@@ -1,62 +1,35 @@
-import React, { memo, useMemo } from 'react';
+import React, { memo, useCallback, useState } from 'react';
 
-import { Alert } from 'app/atoms';
 import { PageModal } from 'app/atoms/PageModal';
-import { ActionsButtonsBox } from 'app/atoms/PageModal/actions-buttons-box';
-import { ScrollView } from 'app/atoms/PageModal/scroll-view';
-import { ReadOnlySecretField } from 'app/atoms/ReadOnlySecretField';
-import { StyledButton } from 'app/atoms/StyledButton';
-import { T, t } from 'lib/i18n';
+import { t } from 'lib/i18n';
 
-import { ManualBackupModalSelectors } from './selectors';
+import { MnemonicView } from './mnemonic-view';
+import { VerifyMnemonicView } from './verify-mnemonic-view';
 
 interface ManualBackupModalProps {
-  opened: boolean;
   mnemonic: string;
   onSuccess: () => void;
-  onBack: () => void;
+  onCancel: () => void;
 }
 
-export const ManualBackupModal = memo<ManualBackupModalProps>(({ opened, mnemonic, onSuccess, onBack }) => {
-  const manualBackupSubstitutions = useMemo(
-    () =>
-      ['neverShareSeedPhrase' as const, 'enterSeedPhrase' as const].map(i18nKey => (
-        <span className="font-semibold" key={i18nKey}>
-          {t(i18nKey)}
-        </span>
-      )),
-    []
-  );
+export const ManualBackupModal = memo<ManualBackupModalProps>(({ mnemonic, onSuccess, onCancel }) => {
+  const [shouldVerifySeedPhrase, setShouldVerifySeedPhrase] = useState(false);
+  const goToManualBackup = useCallback(() => setShouldVerifySeedPhrase(false), []);
+  const goToVerifySeedPhrase = useCallback(() => setShouldVerifySeedPhrase(true), []);
 
   return (
     <PageModal
-      title={t('backupYourSeedPhrase')}
-      opened={opened}
+      title={t(shouldVerifySeedPhrase ? 'verifySeedPhrase' : 'backupYourSeedPhrase')}
+      opened
       shouldShowBackButton
-      onRequestClose={onBack}
-      onGoBack={onBack}
+      onGoBack={shouldVerifySeedPhrase ? goToManualBackup : onCancel}
+      onRequestClose={onCancel}
     >
-      <ScrollView className="py-4">
-        <Alert
-          className="mb-4"
-          type="warning"
-          description={<T id="manualBackupWarning" substitutions={manualBackupSubstitutions} />}
-        />
-
-        <ReadOnlySecretField value={mnemonic} label="newRevealSeedPhraseLabel" description={null} />
-      </ScrollView>
-
-      <ActionsButtonsBox>
-        <StyledButton
-          className="w-full"
-          size="L"
-          color="primary"
-          onClick={onSuccess}
-          testID={ManualBackupModalSelectors.notedDownButton}
-        >
-          {t('notedSeedPhraseDown')}
-        </StyledButton>
-      </ActionsButtonsBox>
+      {shouldVerifySeedPhrase ? (
+        <VerifyMnemonicView mnemonic={mnemonic} onSuccess={onSuccess} onCancel={onCancel} />
+      ) : (
+        <MnemonicView mnemonic={mnemonic} onConfirm={goToVerifySeedPhrase} />
+      )}
     </PageModal>
   );
 });

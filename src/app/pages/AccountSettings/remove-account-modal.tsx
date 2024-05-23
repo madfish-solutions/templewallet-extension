@@ -78,7 +78,7 @@ export const RemoveAccountModal = memo<RemoveAccountModalProps>(({ account, onCl
               errorCaption={errors.password?.message}
               containerClassName="mb-1"
             />
-            <span className="text-xs leading-4 text-gray-600 w-full text-center">
+            <span className="text-font-description text-gray-600 w-full text-center">
               This will remove the account from this list and delete all data associated with it.
             </span>
           </ActionModalBodyContainer>

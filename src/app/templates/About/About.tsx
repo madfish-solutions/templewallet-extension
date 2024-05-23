@@ -74,7 +74,7 @@ const About: FC = () => (
       </div>
     </div>
 
-    <p className="my-6 text-base font-light text-gray-600">
+    <p className="my-6 text-font-regular font-light text-gray-600">
       <T
         id="madeWithLove"
         substitutions={[

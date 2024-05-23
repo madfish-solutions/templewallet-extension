@@ -79,7 +79,7 @@ export const DeleteWalletModal = memo<DeleteWalletModalProps>(({ onClose, select
               <Alert
                 type="warning"
                 description={
-                  <p className="text-xs leading-4 text-gray-900">
+                  <p className="text-font-description text-gray-900">
                     <T id={removeWarningsI18nKey} />
                   </p>
                 }

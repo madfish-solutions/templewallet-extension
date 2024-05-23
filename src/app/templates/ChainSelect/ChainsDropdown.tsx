@@ -45,7 +45,7 @@ export const ChainsDropdown = memo<Props>(({ opened, setOpened, controller }) =>
       clsx(
         'flex items-center mb-2 px-1 pb-1',
         'border-b border-white border-opacity-25',
-        'text-white text-opacity-90 text-sm text-center'
+        'text-white text-opacity-90 text-font-medium text-center'
       ),
     []
   );

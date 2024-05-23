@@ -43,7 +43,7 @@ const typesLabelsI18nKeys: Record<TempleAccountType, TID> = {
 };
 
 const menuEntryClassName = 'w-full h-12 flex justify-between items-center px-3 rounded-lg border border-gray-300';
-const menuEntryTextClassName = 'text-sm text-gray-900 font-semibold leading-5';
+const menuEntryTextClassName = 'text-font-medium-bold text-gray-900 leading-5';
 
 export const AccountSettings = memo<AccountSettingsProps>(({ id }) => {
   const alert = useAlert();
@@ -140,25 +140,23 @@ export const AccountSettings = memo<AccountSettingsProps>(({ id }) => {
             <div className="flex-1 flex flex-col gap-0.5">
               {account.type === TempleAccountType.HD ? (
                 <Button className="pl-1.5 pr-1 py-1 flex items-center" onClick={handleCopyClick}>
-                  <span className="text-sm leading-5 text-gray-900 font-semibold mr-1">{account.name}</span>
+                  <span className="text-font-medium-bold leading-5 text-gray-900 mr-1">{account.name}</span>
                   <CopyIcon className="w-4 h-auto stroke-current text-blue-500" />
                 </Button>
               ) : (
                 <CopyButton text={tezosAddress ?? evmAddress ?? ''} className="pl-1.5 pr-1 py-1 flex items-center">
-                  <span className="text-sm leading-5 text-gray-900 font-semibold mr-1">{account.name}</span>
+                  <span className="text-font-medium-bold leading-5 text-gray-900 mr-1">{account.name}</span>
                   <CopyIcon className="w-4 h-auto stroke-current text-blue-500" />
                 </CopyButton>
               )}
-              <span className="ml-1.5 text-gray-600 text-xxxs leading-3">
+              <span className="ml-1.5 text-gray-600 text-font-small">
                 <T id="totalBalance" />:
               </span>
-              <span className="ml-1.5 text-gray-900 text-xs leading-4">
+              <span className="ml-1.5 text-gray-900 text-font-description leading-4">
                 <TotalEquity account={account} currency="fiat" />
               </span>
             </div>
-            <span className="text-gray-600 text-xxxs leading-3 font-medium">
-              {t(typesLabelsI18nKeys[account.type])}
-            </span>
+            <span className="text-gray-600 text-font-small font-medium">{t(typesLabelsI18nKeys[account.type])}</span>
           </div>
 
           <div className="w-full flex flex-col pt-1 pb-5 px-4 gap-3">
@@ -193,7 +191,7 @@ export const AccountSettings = memo<AccountSettingsProps>(({ id }) => {
 
           {derivationPaths.length > 0 && (
             <div className="w-full flex flex-col px-4 gap-3">
-              <p className="text-xs leading-4 font-semibold text-gray-500">
+              <p className="text-font-description-bold text-gray-500">
                 <T id="derivationPath" />
               </p>
               {derivationPaths.map(({ chainName, path }) => (
@@ -208,7 +206,7 @@ export const AccountSettings = memo<AccountSettingsProps>(({ id }) => {
 
           <div className="w-full p-4">
             <Button
-              className="w-full text-red-500 bg-red-200 rounded-lg p-2 text-base leading-6 font-semibold"
+              className="w-full text-red-500 bg-red-200 rounded-lg p-2 text-font-regular-bold"
               onClick={openRemoveAccountModal}
             >
               <T id="removeAccount" />

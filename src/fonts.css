@@ -6,10 +6,6 @@
 
 /* TEXT */
 
-.text-font-small {
-  @apply text-xxxs;
-}
-
 .text-font-description {
   @apply text-xs;
 }
@@ -65,7 +61,7 @@
 }
 
 .text-font-num-10 {
-  @apply text-font-num text-xxxs;
+  @apply text-font-num text-font-small;
 }
 
 .text-font-num-12 {

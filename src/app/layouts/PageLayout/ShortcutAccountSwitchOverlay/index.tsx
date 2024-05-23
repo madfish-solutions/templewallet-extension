@@ -146,7 +146,7 @@ export const ShortcutAccountSwitchOverlay = memo(() => {
                 'focus:outline-none',
                 'transition ease-in-out duration-200',
                 'rounded-md rounded-b-none',
-                'text-gray-500 placeholder-gray-600 text-sm leading-tight'
+                'text-gray-500 placeholder-gray-600 text-font-medium leading-tight'
               )}
               placeholder={t('searchAccount', [searchHotkey])}
               onValueChange={handleSearchValueChange}
@@ -165,7 +165,7 @@ export const ShortcutAccountSwitchOverlay = memo(() => {
                   ) : (
                     filteredGroups.map(({ id, name, accounts }) => (
                       <React.Fragment key={id}>
-                        <div className="text-sm font-medium text-gray-500">{name}</div>
+                        <div className="text-font-medium font-medium text-gray-500">{name}</div>
                         {accounts.map(acc => (
                           <AccountItem
                             key={acc.id}

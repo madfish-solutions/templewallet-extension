@@ -3287,10 +3287,19 @@
   "verifySeedPhraseError": {
     "message": "Wrong combination. Try again."
   },
+  "backupSuccessful": {
+    "message": "You successfully backed up your wallet"
+  },
   "walletCreatedSuccessfully": {
     "message": "Wallet has been created successfully"
   },
   "failedToLoadMnemonic": {
     "message": "Failed to load mnemonic to backup, please try again"
+  },
+  "createPassword": {
+    "message": "Create Password"
+  },
+  "enterYourPassword": {
+    "message": "Enter your password"
   }
 }
