@@ -31,7 +31,7 @@ export type MetadataMap = Map<string, TokenMetadata>;
 
 export const EVM_NATIVE_TOKEN_ADDRESS = 'eth';
 
-export interface EvmAssetMetadataBase {
+interface EvmAssetMetadataBase {
   standard: EvmAssetStandard;
   address: typeof EVM_NATIVE_TOKEN_ADDRESS | HexString;
 }

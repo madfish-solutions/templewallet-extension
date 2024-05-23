@@ -1,8 +1,11 @@
 import React, { FC, memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
+import { emptyFn } from '@rnw-community/shared';
+
 import { Checkbox, Divider, SyncSpinner } from 'app/atoms';
 import DropdownWrapper from 'app/atoms/DropdownWrapper';
 import { IconButton } from 'app/atoms/IconButton';
+import { SimpleInfiniteScroll } from 'app/atoms/SimpleInfiniteScroll';
 import { useEvmChainAccountTokensSlugs } from 'app/hooks/evm/assets';
 import { useLoadPartnersPromo } from 'app/hooks/use-load-partners-promo';
 import { useEvmTokensListingLogic, useTezosTokensListingLogic } from 'app/hooks/use-tokens-listing-logic';
@@ -13,7 +16,7 @@ import { ContentContainer, StickyBar } from 'app/layouts/containers';
 import { useEvmBalancesLoadingSelector, useEvmTokensMetadataLoadingSelector } from 'app/store/evm/selectors';
 import { useAreAssetsLoading, useMainnetTokensScamlistSelector } from 'app/store/tezos/assets/selectors';
 import { useTokensMetadataLoadingSelector } from 'app/store/tezos/tokens-metadata/selectors';
-import { ChainsDropdown, ChainSelect, useChainSelectController } from 'app/templates/ChainSelect';
+import { ChainsDropdown, useChainSelectController } from 'app/templates/ChainSelect';
 import { ChainSelectController } from 'app/templates/ChainSelect/controller';
 import { ButtonForManageDropdown } from 'app/templates/ManageDropdown';
 import { PartnersPromotion, PartnersPromotionVariant } from 'app/templates/partners-promotion';
@@ -28,11 +31,10 @@ import { useLocalStorage } from 'lib/ui/local-storage';
 import Popper, { PopperRenderProps } from 'lib/ui/Popper';
 import { Link, navigate } from 'lib/woozie';
 import { UNDER_DEVELOPMENT_MSG } from 'temple/evm/under_dev_msg';
-import { useAccountAddressForEvm, useAccountAddressForTezos } from 'temple/front';
+import { useAccountAddressForEvm, useAccountAddressForTezos, useEthereumMainnetChain } from 'temple/front';
 import { EvmNetworkEssentials, TezosNetworkEssentials } from 'temple/networks';
 import { TempleChainKind } from 'temple/types';
 
-import { SimpleInfiniteScroll } from '../../../../atoms/SimpleInfiniteScroll';
 import { HomeSelectors } from '../../selectors';
 import { AssetsSelectors } from '../Assets.selectors';
 
@@ -46,9 +48,14 @@ const svgIconClassName = 'w-4 h-4 stroke-current fill-current text-gray-600';
 export const TokensTab = memo(() => {
   const chainSelectController = useChainSelectController();
   const network = chainSelectController.value;
+  const evmMainnet = useEthereumMainnetChain();
 
   const accountTezAddress = useAccountAddressForTezos();
   const accountEvmAddress = useAccountAddressForEvm();
+
+  useEffect(() => {
+    if (!accountTezAddress && accountEvmAddress) chainSelectController.setValue(evmMainnet);
+  }, []);
 
   if (network.kind === 'tezos' && accountTezAddress)
     return (
@@ -59,19 +66,14 @@ export const TokensTab = memo(() => {
       />
     );
 
+  if (network.kind === 'evm' && accountEvmAddress)
+    return (
+      <EvmTokensTab network={network} publicKeyHash={accountEvmAddress} chainSelectController={chainSelectController} />
+    );
+
   return (
     <ContentContainer className="mt-3">
-      <div className="flex items-center mb-4">
-        <div className="flex-1 text-xl">Change network:</div>
-
-        <ChainSelect controller={chainSelectController} />
-      </div>
-
-      {network.kind === 'evm' && accountEvmAddress ? (
-        <EvmTokensTab network={network} publicKeyHash={accountEvmAddress} />
-      ) : (
-        <div className="text-center py-3">{UNDER_DEVELOPMENT_MSG}</div>
-      )}
+      <div className="text-center py-3">{UNDER_DEVELOPMENT_MSG}</div>
     </ContentContainer>
   );
 });
@@ -81,14 +83,22 @@ const ITEMS_PER_PAGE = 30;
 interface EvmTokensTabProps {
   network: EvmNetworkEssentials;
   publicKeyHash: HexString;
+  chainSelectController: ChainSelectController;
 }
 
-const EvmTokensTab: FC<EvmTokensTabProps> = ({ network, publicKeyHash }) => {
+const EvmTokensTab: FC<EvmTokensTabProps> = ({ network, publicKeyHash, chainSelectController }) => {
   const assetsSlugs = useEvmChainAccountTokensSlugs(publicKeyHash, network.chainId);
   const balancesLoading = useEvmBalancesLoadingSelector();
   const isMetadataLoading = useEvmTokensMetadataLoadingSelector();
 
   const isLoading = balancesLoading || isMetadataLoading;
+
+  const [isZeroBalancesHidden, setIsZeroBalancesHidden] = useLocalStorage(LOCAL_STORAGE_TOGGLE_KEY, false);
+
+  const toggleHideZeroBalances = useCallback(
+    () => void setIsZeroBalancesHidden(val => !val),
+    [setIsZeroBalancesHidden]
+  );
 
   const { sortedAssets } = useEvmTokensListingLogic(publicKeyHash, network.chainId, assetsSlugs);
 
@@ -124,10 +134,7 @@ const EvmTokensTab: FC<EvmTokensTabProps> = ({ network, publicKeyHash }) => {
   );
 
   const loadMore = useCallback(() => {
-    console.log('LOAD MORE fire');
     if (!hasMore) return;
-
-    console.log('LOAD MORE');
 
     if (itemsCount >= sortedAssets.length) {
       setHasMore(false);
@@ -136,32 +143,79 @@ const EvmTokensTab: FC<EvmTokensTabProps> = ({ network, publicKeyHash }) => {
     }
   }, [hasMore, itemsCount, sortedAssets.length]);
 
+  const stickyBarRef = useRef<HTMLDivElement>(null);
+
   return (
     <>
-      {sortedAssets.length === 0 ? (
-        <div className="my-8 flex flex-col items-center justify-center text-gray-500">
-          <p className="mb-2 flex items-center justify-center text-gray-600 text-base font-light">
-            <span {...setTestID(HomeSelectors.emptyStateText)}>
-              <T id="noAssetsFound" />
-            </span>
-          </p>
+      <StickyBar ref={stickyBarRef}>
+        <SearchBarField
+          value="Not working yet"
+          onValueChange={emptyFn}
+          onFocus={emptyFn}
+          onBlur={emptyFn}
+          testID={AssetsSelectors.searchAssetsInputTokens}
+        />
 
-          <p className="text-center text-xs font-light">
-            <T
-              id="ifYouDontSeeYourAsset"
-              substitutions={[
-                <b>
-                  <T id="manage" />
-                </b>
-              ]}
+        <Popper
+          placement="bottom-end"
+          strategy="fixed"
+          popup={props => <ChainsDropdown controller={chainSelectController} {...props} />}
+        >
+          {({ ref, opened, toggleOpened }) => (
+            <IconButton Icon={FiltersIcon} ref={ref} active={opened} onClick={toggleOpened} />
+          )}
+        </Popper>
+
+        <Popper
+          placement="bottom-end"
+          strategy="fixed"
+          popup={props => (
+            <ManageButtonDropdown
+              {...props}
+              isZeroBalancesHidden={isZeroBalancesHidden}
+              toggleHideZeroBalances={toggleHideZeroBalances}
             />
-          </p>
-        </div>
-      ) : (
-        <SimpleInfiniteScroll loadNext={loadMore}>{showItems(sortedAssets)}</SimpleInfiniteScroll>
-      )}
+          )}
+        >
+          {({ ref, opened, toggleOpened }) => (
+            <ButtonForManageDropdown
+              ref={ref}
+              opened={opened}
+              tooltip={t('manageAssetsList')}
+              onClick={toggleOpened}
+              testID={AssetsSelectors.manageButton}
+              testIDProperties={{ listOf: 'Tokens' }}
+            />
+          )}
+        </Popper>
+      </StickyBar>
 
-      {isLoading && <SyncSpinner className="mt-4" />}
+      <ContentContainer>
+        {sortedAssets.length === 0 ? (
+          <div className="my-8 flex flex-col items-center justify-center text-gray-500">
+            <p className="mb-2 flex items-center justify-center text-gray-600 text-base font-light">
+              <span {...setTestID(HomeSelectors.emptyStateText)}>
+                <T id="noAssetsFound" />
+              </span>
+            </p>
+
+            <p className="text-center text-xs font-light">
+              <T
+                id="ifYouDontSeeYourAsset"
+                substitutions={[
+                  <b>
+                    <T id="manage" />
+                  </b>
+                ]}
+              />
+            </p>
+          </div>
+        ) : (
+          <SimpleInfiniteScroll loadNext={loadMore}>{showItems(sortedAssets)}</SimpleInfiniteScroll>
+        )}
+
+        {isLoading && <SyncSpinner className="mt-4" />}
+      </ContentContainer>
     </>
   );
 };

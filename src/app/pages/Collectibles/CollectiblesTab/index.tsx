@@ -1,5 +1,6 @@
 import React, { FC, memo, useCallback, useMemo } from 'react';
 
+import { emptyFn } from '@rnw-community/shared';
 import { isEqual } from 'lodash';
 
 import { SyncSpinner } from 'app/atoms';
@@ -19,7 +20,7 @@ import {
   LOCAL_STORAGE_SHOW_INFO_TOGGLE_KEY
 } from 'app/pages/Collectibles/constants';
 import { AssetsSelectors } from 'app/pages/Home/OtherComponents/Assets.selectors';
-import { ChainsDropdown, ChainSelect, useChainSelectController } from 'app/templates/ChainSelect';
+import { ChainsDropdown, useChainSelectController } from 'app/templates/ChainSelect';
 import { ChainSelectController } from 'app/templates/ChainSelect/controller';
 import { ButtonForManageDropdown } from 'app/templates/ManageDropdown';
 import { SearchBarField } from 'app/templates/SearchField';
@@ -56,19 +57,18 @@ export const CollectiblesTab = memo(() => {
       />
     );
 
+  if (network.kind === 'evm' && accountEvmAddress)
+    return (
+      <EvmCollectiblesTab
+        network={network}
+        publicKeyHash={accountEvmAddress}
+        chainSelectController={chainSelectController}
+      />
+    );
+
   return (
     <ContentContainer className="mt-3">
-      <div className="flex items-center mb-4">
-        <div className="flex-1 text-xl">Change network:</div>
-
-        <ChainSelect controller={chainSelectController} />
-      </div>
-
-      {network.kind === 'evm' && accountEvmAddress ? (
-        <EvmCollectiblesTab network={network} publicKeyHash={accountEvmAddress} />
-      ) : (
-        <div className="text-center py-3">{UNDER_DEVELOPMENT_MSG}</div>
-      )}
+      <div className="text-center py-3">{UNDER_DEVELOPMENT_MSG}</div>
     </ContentContainer>
   );
 });
@@ -76,9 +76,10 @@ export const CollectiblesTab = memo(() => {
 interface EvmCollectiblesTabProps {
   network: EvmNetworkEssentials;
   publicKeyHash: HexString;
+  chainSelectController: ChainSelectController;
 }
 
-const EvmCollectiblesTab = memo<EvmCollectiblesTabProps>(({ network, publicKeyHash }) => {
+const EvmCollectiblesTab = memo<EvmCollectiblesTabProps>(({ network, publicKeyHash, chainSelectController }) => {
   const { chainId: evmChainId } = network;
 
   const allSlugs = useEvmChainAccountCollectiblesSlugs(publicKeyHash, evmChainId);
@@ -93,6 +94,10 @@ const EvmCollectiblesTab = memo<EvmCollectiblesTabProps>(({ network, publicKeyHa
 
   const { paginatedSlugs, isSyncing, loadNext } = useEvmCollectiblesListingLogic(allSlugsSorted);
 
+  const shouldScrollToTheBar = paginatedSlugs.length > 0;
+
+  const stickyBarRef = useScrollIntoView<HTMLDivElement>(shouldScrollToTheBar, { behavior: 'smooth' });
+
   const contentElement = useMemo(
     () => (
       <div className="grid grid-cols-3 gap-2">
@@ -104,20 +109,71 @@ const EvmCollectiblesTab = memo<EvmCollectiblesTabProps>(({ network, publicKeyHa
     [paginatedSlugs, evmChainId]
   );
 
+  const renderManageDropdown = useCallback<PopperPopup>(
+    props => (
+      <ManageButtonDropdown
+        {...props}
+        areDetailsShown={false}
+        adultBlur={false}
+        toggleDetailsShown={emptyFn}
+        toggleAdultBlur={emptyFn}
+      />
+    ),
+    []
+  );
+
+  const renderManageButton = useCallback<PopperChildren>(
+    ({ ref, opened, toggleOpened }) => (
+      <ButtonForManageDropdown
+        ref={ref}
+        opened={opened}
+        tooltip={t('manageAssetsList')}
+        onClick={toggleOpened}
+        testID={AssetsSelectors.manageButton}
+        testIDProperties={{ listOf: 'Collectibles' }}
+      />
+    ),
+    []
+  );
+
   return (
-    <div>
-      {paginatedSlugs.length === 0 ? (
-        buildEmptySection(isSyncing)
-      ) : (
-        <>
-          <SimpleInfiniteScroll loadNext={loadNext}>{contentElement}</SimpleInfiniteScroll>
+    <>
+      <StickyBar ref={stickyBarRef}>
+        <SearchBarField
+          value="Not working yet"
+          onValueChange={emptyFn}
+          testID={AssetsSelectors.searchAssetsInputCollectibles}
+        />
 
-          <ScrollBackUpButton />
+        <Popper
+          placement="bottom-end"
+          strategy="fixed"
+          popup={props => <ChainsDropdown controller={chainSelectController} {...props} />}
+        >
+          {({ ref, opened, toggleOpened }) => (
+            <IconButton Icon={FiltersIcon} ref={ref} active={opened} onClick={toggleOpened} />
+          )}
+        </Popper>
 
-          {isSyncing && <SyncSpinner className="mt-6" />}
-        </>
-      )}
-    </div>
+        <Popper placement="bottom-end" strategy="fixed" popup={renderManageDropdown}>
+          {renderManageButton}
+        </Popper>
+      </StickyBar>
+
+      <ContentContainer>
+        {paginatedSlugs.length === 0 ? (
+          buildEmptySection(isSyncing)
+        ) : (
+          <>
+            <SimpleInfiniteScroll loadNext={loadNext}>{contentElement}</SimpleInfiniteScroll>
+
+            <ScrollBackUpButton />
+
+            {isSyncing && <SyncSpinner className="mt-6" />}
+          </>
+        )}
+      </ContentContainer>
+    </>
   );
 });
 

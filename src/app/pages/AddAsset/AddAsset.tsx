@@ -1,4 +1,4 @@
-import React, { FC, memo, ReactNode, useCallback, useEffect, useRef, useMemo } from 'react';
+import React, { FC, memo, ReactNode, useCallback, useEffect, useMemo, useRef } from 'react';
 
 import { ContractAbstraction, ContractProvider, Wallet } from '@taquito/taquito';
 import classNames from 'clsx';
@@ -10,37 +10,47 @@ import Spinner from 'app/atoms/Spinner/Spinner';
 import { ReactComponent as AddIcon } from 'app/icons/base/plus_circle.svg';
 import PageLayout from 'app/layouts/PageLayout';
 import { dispatch } from 'app/store';
-import { putTokensAsIsAction, putCollectiblesAsIsAction } from 'app/store/tezos/assets/actions';
+import { putNewEvmCollectibleAction, putNewEvmTokenAction } from 'app/store/evm/assets/actions';
+import { putEvmCollectiblesMetadataAction } from 'app/store/evm/collectibles-metadata/actions';
+import { putEvmTokensMetadataAction } from 'app/store/evm/tokens-metadata/actions';
+import { putCollectiblesAsIsAction, putTokensAsIsAction } from 'app/store/tezos/assets/actions';
 import { putCollectiblesMetadataAction } from 'app/store/tezos/collectibles-metadata/actions';
 import { putTokensMetadataAction } from 'app/store/tezos/tokens-metadata/actions';
-import { useChainSelectController, ChainSelectSection } from 'app/templates/ChainSelect';
+import { ChainSelectSection, useChainSelectController } from 'app/templates/ChainSelect';
 import { useFormAnalytics } from 'lib/analytics';
 import { TokenMetadataResponse } from 'lib/apis/temple';
 import { toTokenSlug } from 'lib/assets';
 import {
-  NotMatchingStandardError,
   assertFa2TokenDefined,
   detectTokenStandard,
-  IncorrectTokenIdError
+  IncorrectTokenIdError,
+  NotMatchingStandardError
 } from 'lib/assets/standards';
+import { fetchEvmAssetMetadataFromChain } from 'lib/evm/on-chain/metadata';
+import { EvmAssetStandard } from 'lib/evm/types';
 import { T, t } from 'lib/i18n';
 import { isCollectible, TokenMetadata } from 'lib/metadata';
 import { fetchOneTokenMetadata } from 'lib/metadata/fetch';
 import { TokenMetadataNotFoundError } from 'lib/metadata/on-chain';
+import { EvmCollectibleMetadata, EvmTokenMetadata } from 'lib/metadata/types';
 import { loadContract } from 'lib/temple/contract';
 import { useSafeState } from 'lib/ui/hooks';
 import { delay } from 'lib/utils';
 import { navigate } from 'lib/woozie';
 import { UNDER_DEVELOPMENT_MSG } from 'temple/evm/under_dev_msg';
-import { useAccountAddressForTezos } from 'temple/front';
+import { EvmChain, useAccountAddressForEvm, useAccountAddressForTezos } from 'temple/front';
 import { validateTezosContractAddress } from 'temple/front/tezos';
 import { TezosNetworkEssentials } from 'temple/networks';
 import { getReadOnlyTezos } from 'temple/tezos';
+import { TempleChainKind } from 'temple/types';
+
+import { toExploreAssetLink } from '../Home/OtherComponents/Tokens/utils';
 
 import { AddAssetSelectors } from './AddAsset.selectors';
 
 const AddAsset = memo(() => {
   const accountTezosAddress = useAccountAddressForTezos();
+  const accountEvmAddress = useAccountAddressForEvm();
 
   const chainSelectController = useChainSelectController();
   const network = chainSelectController.value;
@@ -52,6 +62,8 @@ const AddAsset = memo(() => {
 
         {accountTezosAddress && network.kind === 'tezos' ? (
           <Form accountPkh={accountTezosAddress} network={network} />
+        ) : accountEvmAddress && network.kind === 'evm' ? (
+          <EvmForm accountPkh={accountEvmAddress} network={network} />
         ) : (
           <div className="text-center">{UNDER_DEVELOPMENT_MSG}</div>
         )}
@@ -61,6 +73,100 @@ const AddAsset = memo(() => {
 });
 
 export default AddAsset;
+
+interface EvmFormProps {
+  accountPkh: HexString;
+  network: EvmChain;
+}
+
+interface EvmFormData {
+  address: string;
+  id?: string;
+}
+
+const EvmForm = memo<EvmFormProps>(({ accountPkh, network }) => {
+  const { chainId } = network;
+
+  const { register, handleSubmit, formState } = useForm<EvmFormData>({
+    mode: 'onChange'
+  });
+
+  const onSubmit = useCallback(
+    async ({ address, id }: EvmFormData) => {
+      if (formState.isSubmitting) return;
+
+      try {
+        const assetSlug = toTokenSlug(address, id);
+
+        const metadata = await fetchEvmAssetMetadataFromChain(network, assetSlug);
+
+        if (!metadata) {
+          console.error('Failed to load asset metadata');
+
+          return;
+        }
+
+        const isToken = metadata.standard === EvmAssetStandard.ERC20;
+
+        if (isToken) {
+          dispatch(putNewEvmTokenAction({ publicKeyHash: accountPkh, chainId, assetSlug }));
+          dispatch(putEvmTokensMetadataAction({ chainId, records: { [assetSlug]: metadata as EvmTokenMetadata } }));
+        } else {
+          dispatch(putNewEvmCollectibleAction({ publicKeyHash: accountPkh, chainId, assetSlug }));
+          dispatch(
+            putEvmCollectiblesMetadataAction({ chainId, records: { [assetSlug]: metadata as EvmCollectibleMetadata } })
+          );
+        }
+
+        navigate({
+          pathname: toExploreAssetLink(TempleChainKind.EVM, chainId, assetSlug)
+        });
+      } catch (err: any) {
+        console.error(err);
+      }
+    },
+    [formState.isSubmitting, network, accountPkh]
+  );
+
+  return (
+    <form onSubmit={handleSubmit(onSubmit)}>
+      <NoSpaceField
+        ref={register({
+          required: t('required')
+        })}
+        name="address"
+        id="addtoken-address"
+        textarea
+        rows={2}
+        label={t('address')}
+        labelDescription={t('addressOfDeployedTokenContract')}
+        placeholder="0x915a2..."
+        containerClassName="mb-6"
+        testIDs={{
+          inputSection: AddAssetSelectors.addressInputSection,
+          input: AddAssetSelectors.addressInput
+        }}
+      />
+
+      <FormField
+        ref={register()}
+        min={0}
+        type="text"
+        name="id"
+        id="token-id"
+        label={`${t('assetId')} ${t('optionalComment')}`}
+        labelDescription="A non-negative integer number that identifies the asset inside contract"
+        placeholder="0"
+        containerClassName="mb-6"
+        testID={AddAssetSelectors.assetIDInput}
+      />
+
+      <FormSubmitButton loading={formState.isSubmitting} testID={AddAssetSelectors.addAssetButton}>
+        <T id="addToken" />
+      </FormSubmitButton>
+    </form>
+  );
+});
 
 interface FormData {
   address: string;
@@ -241,7 +347,7 @@ const Form = memo<FormProps>(({ accountPkh, network }) => {
         formAnalytics.trackSubmitSuccess();
 
         navigate({
-          pathname: `/explore/${chainId}/${tokenSlug}`,
+          pathname: toExploreAssetLink(TempleChainKind.Tezos, chainId, tokenSlug),
           search: 'after_token_added=true'
         });
       } catch (err: any) {

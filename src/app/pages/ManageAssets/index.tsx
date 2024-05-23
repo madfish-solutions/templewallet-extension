@@ -28,18 +28,14 @@ const ManageAssets = memo<Props>(({ assetType }) => {
         </>
       }
     >
-      {!accountTezAddress ? (
-        <div className="text-center">{UNDER_DEVELOPMENT_MSG}</div>
-      ) : (
-        <ManageAssetsForChain ofCollectibles={ofCollectibles} accountTezAddress={accountTezAddress} />
-      )}
+      <ManageAssetsForChain ofCollectibles={ofCollectibles} accountTezAddress={accountTezAddress} />
     </PageLayout>
   );
 });
 
 interface ManageAssetsForChainProps {
   ofCollectibles: boolean;
-  accountTezAddress: string;
+  accountTezAddress?: string;
 }
 
 const ManageAssetsForChain: FC<ManageAssetsForChainProps> = ({ ofCollectibles, accountTezAddress }) => {
@@ -50,7 +46,7 @@ const ManageAssetsForChain: FC<ManageAssetsForChainProps> = ({ ofCollectibles, a
     <>
       <ChainSelectSection controller={chainSelectController} />
 
-      {network.kind !== 'tezos' ? (
+      {network.kind !== 'tezos' || !accountTezAddress ? (
         <div className="text-center">{UNDER_DEVELOPMENT_MSG}</div>
       ) : ofCollectibles ? (
         <ManageTezosCollectibles network={network} publicKeyHash={accountTezAddress} />

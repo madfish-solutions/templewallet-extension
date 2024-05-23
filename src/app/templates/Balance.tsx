@@ -1,14 +1,11 @@
 import React, { FC, cloneElement, ReactElement } from 'react';
 
-import { isDefined } from '@rnw-community/shared';
 import BigNumber from 'bignumber.js';
 import clsx from 'clsx';
 import CSSTransition from 'react-transition-group/CSSTransition';
 
-import { useEvmAccountAssetBalance } from 'app/hooks/evm/balance';
-import { useEvmTokenMetadata } from 'app/hooks/evm/metadata';
 import { useTezosAssetBalance } from 'lib/balances';
-import { atomsToTokens } from 'lib/temple/helpers';
+import { useEvmAssetBalance } from 'lib/balances/hooks';
 import { TezosNetworkEssentials } from 'temple/networks';
 
 interface TezosBalanceProps {
@@ -47,14 +44,10 @@ interface EvmBalanceProps {
   assetSlug?: string;
 }
 export const EvmBalance: FC<EvmBalanceProps> = ({ chainId, address, children, assetSlug = 'tez' }) => {
-  const tokenMetadata = useEvmTokenMetadata(chainId, assetSlug);
-  const rawBalance = useEvmAccountAssetBalance(address, chainId, assetSlug);
+  const { value: balance } = useEvmAssetBalance(assetSlug, address, chainId);
+  const exist = balance !== undefined;
 
-  const exist = isDefined(tokenMetadata) && isDefined(rawBalance);
-
-  const childNode = children(
-    exist ? atomsToTokens(new BigNumber(rawBalance), tokenMetadata.decimals) : new BigNumber(0)
-  );
+  const childNode = children(balance == null ? new BigNumber(0) : balance);
 
   return (
     <CSSTransition

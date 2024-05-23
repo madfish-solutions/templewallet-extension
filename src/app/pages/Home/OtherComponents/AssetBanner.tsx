@@ -132,9 +132,7 @@ const EvmAssetBanner = memo<EvmAssetBannerProps>(({ evmChainId, assetSlug }) => 
           {balance => (
             <div className="flex flex-col">
               <div className="flex text-2xl">
-                <Money smallFractionFont={false} fiat>
-                  {balance}
-                </Money>
+                <Money smallFractionFont={false}>{balance}</Money>
                 <span className="ml-1">{assetSymbol}</span>
               </div>
 

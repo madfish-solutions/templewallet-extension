@@ -10,7 +10,7 @@ export const useEvmChainTokensMetadata = (chainId: number): TokenSlugTokenMetada
   return metadataRecord[chainId] ?? {};
 };
 
-export const useEvmChainCollectiblesMetadata = (chainId: number): TokenSlugCollectibleMetadataRecord => {
+const useEvmChainCollectiblesMetadata = (chainId: number): TokenSlugCollectibleMetadataRecord => {
   const metadataRecord = useEvmCollectiblesMetadataRecordSelector();
 
   return metadataRecord[chainId] ?? {};

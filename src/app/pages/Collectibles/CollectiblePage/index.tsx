@@ -62,7 +62,7 @@ interface EvmCollectiblePageProps {
   assetSlug: string;
 }
 
-export const EvmCollectiblePage = memo<EvmCollectiblePageProps>(({ evmChainId, assetSlug }) => {
+const EvmCollectiblePage = memo<EvmCollectiblePageProps>(({ evmChainId, assetSlug }) => {
   const network = useEvmChainByChainId(evmChainId);
   const publicKeyHash = useAccountAddressForEvm();
   const metadata = useEvmCollectibleMetadata(evmChainId, assetSlug);

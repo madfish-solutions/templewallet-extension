@@ -3,7 +3,7 @@ import { createReducer } from '@reduxjs/toolkit';
 import { toTokenSlug } from 'lib/assets';
 import { isPositiveCollectibleBalance, isPositiveTokenBalance } from 'lib/utils/evm.utils';
 
-import { proceedLoadedEvmAssetsAction } from './actions';
+import { proceedLoadedEvmAssetsAction, putNewEvmCollectibleAction, putNewEvmTokenAction } from './actions';
 import { EvmAssetsInitialState, EvmAssetsStateInterface } from './state';
 
 export const evmAssetsReducer = createReducer<EvmAssetsStateInterface>(EvmAssetsInitialState, builder => {
@@ -45,5 +45,29 @@ export const evmAssetsReducer = createReducer<EvmAssetsStateInterface>(EvmAssets
       const stored = chainTokens[slug];
       if (!stored) chainTokens[slug] = { status: 'idle' };
     }
+  });
+
+  builder.addCase(putNewEvmTokenAction, ({ tokens }, { payload }) => {
+    const { publicKeyHash, chainId, assetSlug } = payload;
+
+    if (!tokens[publicKeyHash]) tokens[publicKeyHash] = {};
+    const accountTokens = tokens[publicKeyHash];
+
+    if (!accountTokens[chainId]) accountTokens[chainId] = {};
+    const chainTokens = accountTokens[chainId];
+
+    chainTokens[assetSlug] = { status: 'idle' };
+  });
+
+  builder.addCase(putNewEvmCollectibleAction, ({ collectibles }, { payload }) => {
+    const { publicKeyHash, chainId, assetSlug } = payload;
+
+    if (!collectibles[publicKeyHash]) collectibles[publicKeyHash] = {};
+    const accountCollectibles = collectibles[publicKeyHash];
+
+    if (!accountCollectibles[chainId]) accountCollectibles[chainId] = {};
+    const chainCollectibles = accountCollectibles[chainId];
+
+    chainCollectibles[assetSlug] = { status: 'idle' };
   });
 });
