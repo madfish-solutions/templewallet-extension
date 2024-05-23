@@ -18,6 +18,9 @@ import { useAccountAddressForEvm, useAccountAddressForTezos } from 'temple/front
 import { AppTezosAssetsLoading } from './assets-loading';
 import { AppTezosBalancesLoading } from './balances-loading';
 import { AppEvmBalancesLoading } from './evm/balances-loading';
+import { AppEvmCollectiblesMetadataLoading } from './evm/collectibles-metadata-loading';
+import { AppEvmTokensExchangeRatesLoading } from './evm/tokens-exchange-rates-loading';
+import { AppEvmTokensMetadataLoading } from './evm/tokens-metadata-loading';
 import { AppTezosTokensMetadataLoading } from './metadata-loading';
 import { useChainIDsCheck } from './use-chain-ids-check';
 
@@ -75,5 +78,8 @@ const TezosAccountHooks = memo<{ publicKeyHash: string }>(({ publicKeyHash }) =>
 const EvmAccountHooks = memo<{ publicKeyHash: HexString }>(({ publicKeyHash }) => (
   <>
     <AppEvmBalancesLoading publicKeyHash={publicKeyHash} />
+    <AppEvmTokensExchangeRatesLoading publicKeyHash={publicKeyHash} />
+    <AppEvmTokensMetadataLoading publicKeyHash={publicKeyHash} />
+    <AppEvmCollectiblesMetadataLoading publicKeyHash={publicKeyHash} />
   </>
 ));

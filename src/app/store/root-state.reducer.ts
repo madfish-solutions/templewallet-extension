@@ -9,7 +9,7 @@ import { dAppsReducer } from './d-apps/reducers';
 import { evmAssetsReducer } from './evm/assets/reducer';
 import { evmBalancesReducer } from './evm/balances/reducers';
 import { evmCollectiblesMetadataReducer } from './evm/collectibles-metadata/reducers';
-import { evmReducer } from './evm/reducer';
+import { evmLoadingReducer } from './evm/reducer';
 import { evmTokensExchangeRatesReducer } from './evm/tokens-exchange-rates/reducers';
 import { evmTokensMetadataReducer } from './evm/tokens-metadata/reducers';
 import { newsletterReducers } from './newsletter/newsletter-reducers';
@@ -39,7 +39,7 @@ const rootStateReducersMap = {
   buyWithCreditCard: buyWithCreditCardReducer,
   collectibles: collectiblesPersistedReducer,
   newsletter: newsletterReducers,
-  evm: evmReducer,
+  evmLoading: evmLoadingReducer,
   evmAssets: evmAssetsReducer,
   evmBalances: evmBalancesReducer,
   evmTokensMetadata: evmTokensMetadataReducer,

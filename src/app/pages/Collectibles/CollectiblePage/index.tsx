@@ -74,7 +74,7 @@ export const EvmCollectiblePage = memo<EvmCollectiblePageProps>(({ evmChainId, a
   const tabs = useMemo(() => {
     const propertiesTab = { name: 'properties', titleI18nKey: 'properties' } as const;
 
-    if (!metadata.attributes.length) return [propertiesTab];
+    if (!metadata.attributes || metadata.attributes.length === 0) return [propertiesTab];
 
     return [{ name: 'attributes', titleI18nKey: 'attributes' } as const, propertiesTab];
   }, [metadata]);
@@ -102,10 +102,10 @@ export const EvmCollectiblePage = memo<EvmCollectiblePageProps>(({ evmChainId, a
         </div>
 
         <>
-          {metadata.contractName && (
+          {metadata.collectionName && (
             <div className="flex justify-between items-center">
               <div className="flex items-center justify-center rounded">
-                <div className="content-center ml-2 text-gray-910 text-sm">{metadata.contractName ?? ''}</div>
+                <div className="content-center ml-2 text-gray-910 text-sm">{metadata.collectionName}</div>
               </div>
             </div>
           )}
@@ -130,7 +130,7 @@ export const EvmCollectiblePage = memo<EvmCollectiblePageProps>(({ evmChainId, a
 
           <div className="grid grid-cols-2 gap-2 text-gray-910">
             {activeTabName === 'attributes' ? (
-              <EvmAttributesItems attributes={metadata.attributes} />
+              <EvmAttributesItems attributes={metadata.attributes ?? []} />
             ) : (
               <EvmPropertiesItems
                 accountPkh={publicKeyHash}

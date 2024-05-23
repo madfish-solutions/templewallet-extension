@@ -1,4 +1,5 @@
 import { NftCollectionAttribute } from '../apis/temple/endpoints/evm/api.interfaces';
+import { EvmAssetStandard } from '../evm/types';
 
 export enum TezosTokenStandardsEnum {
   Fa2 = 'fa2',
@@ -28,23 +29,30 @@ export type MetadataRecords = Record<string, TokenMetadata>;
  */
 export type MetadataMap = Map<string, TokenMetadata>;
 
-export interface EvmTokenMetadata extends AssetMetadataBase {
-  address: HexString;
-  native: boolean;
-  thumbnailUri: string;
+export const EVM_NATIVE_TOKEN_ADDRESS = 'eth';
+
+export interface EvmAssetMetadataBase {
+  standard: EvmAssetStandard;
+  address: typeof EVM_NATIVE_TOKEN_ADDRESS | HexString;
 }
 
-export interface EvmCollectibleMetadata {
-  address: HexString;
+export interface EvmTokenMetadata extends EvmAssetMetadataBase {
+  name: string;
+  symbol: string;
+  decimals: number;
+  native: boolean;
+}
+
+export interface EvmCollectibleMetadata extends EvmAssetMetadataBase {
   tokenId: string;
+  collectionName: string;
+  collectionSymbol: string;
+  metadataUri: string;
+  image: string;
   name: string;
   description: string;
-  contractName: string;
-  originalOwner: string;
-  originalUri: string;
-  thumbnailUri: string;
-  displayUri: string;
-  artifactUri: string;
-  attributes: NftCollectionAttribute[];
-  mimeType: string | null;
+  attributes?: NftCollectionAttribute[];
+  externalUrl?: string;
+  animationUrl?: string;
+  originalOwner?: string;
 }

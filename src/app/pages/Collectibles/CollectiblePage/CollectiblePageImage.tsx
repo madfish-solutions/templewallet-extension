@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useEffect, useMemo, useState } from 'react';
+import React, { memo, useCallback, useEffect, useState } from 'react';
 
 import { Model3DViewer } from 'app/atoms/Model3DViewer';
 import { AssetImage } from 'app/templates/AssetImage';
@@ -103,14 +103,9 @@ interface EvmCollectiblePageImageProps {
 }
 
 export const EvmCollectiblePageImage = memo<EvmCollectiblePageImageProps>(({ metadata, className }) => {
-  const sources = useMemo(
-    () => (metadata ? [metadata.artifactUri, metadata.displayUri, metadata.originalUri, metadata.thumbnailUri] : []),
-    [metadata]
-  );
-
   return (
     <ImageStacked
-      sources={sources}
+      sources={[metadata.image]}
       className={className}
       loader={<CollectibleImageLoader large />}
       fallback={<CollectibleImageFallback large />}

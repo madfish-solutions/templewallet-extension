@@ -59,16 +59,11 @@ export const CollectibleItemImage = memo<Props>(
 );
 
 interface EvmCollectibleItemImageProps {
-  metadata?: EvmCollectibleMetadata;
+  metadata: EvmCollectibleMetadata;
   containerElemRef: React.RefObject<Element>;
 }
 
 export const EvmCollectibleItemImage = memo<EvmCollectibleItemImageProps>(({ metadata, containerElemRef }) => {
-  const sources = useMemo(
-    () => (metadata ? [metadata.thumbnailUri, metadata.displayUri, metadata.artifactUri, metadata.originalUri] : []),
-    [metadata]
-  );
-
   const [isInViewport, setIsInViewport] = useState(false);
   const handleIntersection = useMemo(() => debounce(setIsInViewport, 500), []);
 
@@ -77,7 +72,7 @@ export const EvmCollectibleItemImage = memo<EvmCollectibleItemImageProps>(({ met
   return (
     <div className={isInViewport ? 'contents' : 'hidden'}>
       <ImageStacked
-        sources={sources}
+        sources={[metadata?.image]}
         loading="lazy"
         className="max-w-full max-h-full object-contain"
         loader={<CollectibleImageLoader />}

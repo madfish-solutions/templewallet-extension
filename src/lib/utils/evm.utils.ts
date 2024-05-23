@@ -10,4 +10,5 @@ export const isPositiveCollectibleBalance = (
 
 export const isProperCollectibleMetadata = (
   data: NftData
-): data is NonNullableField<NftData, 'token_id' | 'external_data'> => Boolean(data.token_id && data.external_data);
+): data is NonNullableField<NftData, 'token_id' | 'external_data' | 'token_url'> =>
+  Boolean(data.token_id && data.external_data && data.external_data.image && data.token_url);

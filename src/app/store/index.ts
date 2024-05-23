@@ -17,7 +17,7 @@ export const SLICES_BLACKLIST = [
   'collectibles' as const,
   'assets' as const,
   'collectiblesMetadata' as const,
-  'evm' as const
+  'evmLoading' as const
 ];
 
 const persistConfigBlacklist: (keyof RootState)[] = SLICES_BLACKLIST;

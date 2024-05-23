@@ -1,18 +1,13 @@
-interface EvmChainDataLoadingState {
-  isLoading: boolean;
-  error?: string;
-}
-
-type ChainId = number;
-
-export interface EvmStateInterface {
+export interface EvmLoadingStateInterface {
   balancesLoading: boolean;
-  tokensMetadataLoadingStateRecord: Record<ChainId, EvmChainDataLoadingState>;
-  collectiblesMetadataLoadingStateRecord: Record<ChainId, EvmChainDataLoadingState>;
+  tokensMetadataLoading: boolean;
+  collectiblesMetadataLoading: boolean;
+  tokensExchangeRatesLoading: boolean;
 }
 
-export const EvmInitialState: EvmStateInterface = {
+export const EvmLoadingInitialState: EvmLoadingStateInterface = {
   balancesLoading: false,
-  tokensMetadataLoadingStateRecord: {},
-  collectiblesMetadataLoadingStateRecord: {}
+  tokensMetadataLoading: false,
+  collectiblesMetadataLoading: false,
+  tokensExchangeRatesLoading: false
 };

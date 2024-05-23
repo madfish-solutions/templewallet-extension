@@ -15,6 +15,7 @@ export const getEvmBalances = (walletAddress: string, chainId: ChainID) =>
       }
     );
 
+// Response also contains exchange rates
 export const getEvmTokensMetadata = (walletAddress: string, chainId: ChainID) =>
   templeWalletApi
     .get<BalancesResponse>('/evm-tokens-metadata', {

@@ -8,11 +8,10 @@ import { searchAssetsWithNoMeta } from 'lib/assets/search.utils';
 import { useCollectiblesMetadataPresenceCheck, useGetCollectibleMetadata } from 'lib/metadata';
 import { isSearchStringApplicable } from 'lib/utils/search-items';
 import { createLocationState } from 'lib/woozie/location';
-import { EvmNetworkEssentials, TezosNetworkEssentials } from 'temple/networks';
+import { TezosNetworkEssentials } from 'temple/networks';
 
-import { useEvmBalancesLoadingSelector } from '../store/evm/selectors';
+import { useEvmBalancesLoadingSelector, useEvmCollectiblesMetadataLoadingSelector } from '../store/evm/selectors';
 
-import { useEvmCollectiblesMetadataLoadingState } from './evm/loading';
 import {
   ITEMS_PER_PAGE,
   useCollectiblesPaginationLogic,
@@ -72,9 +71,7 @@ export const useCollectiblesListingLogic = (network: TezosNetworkEssentials, all
   };
 };
 
-export const useEvmCollectiblesListingLogic = (network: EvmNetworkEssentials, allSlugsSorted: string[]) => {
-  const { chainId: evmChainId } = network;
-
+export const useEvmCollectiblesListingLogic = (allSlugsSorted: string[]) => {
   const initialAmount = useMemo(() => {
     const { search } = createLocationState();
     const usp = new URLSearchParams(search);
@@ -89,7 +86,7 @@ export const useEvmCollectiblesListingLogic = (network: EvmNetworkEssentials, al
   } = useEvmCollectiblesPaginationLogic(allSlugsSorted, initialAmount);
 
   const balancesLoading = useEvmBalancesLoadingSelector();
-  const metadatasLoading = useEvmCollectiblesMetadataLoadingState(evmChainId);
+  const metadatasLoading = useEvmCollectiblesMetadataLoadingSelector();
 
   const isSyncing = balancesLoading || pageIsLoading || metadatasLoading;
 

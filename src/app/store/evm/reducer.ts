@@ -1,30 +1,27 @@
 import { createReducer } from '@reduxjs/toolkit';
 
-import { loadEvmCollectiblesMetadataActions, loadEvmTokensMetadataActions, setEvmBalancesLoading } from './actions';
-import { EvmInitialState, EvmStateInterface } from './state';
+import {
+  setEvmBalancesLoading,
+  setEvmTokensMetadataLoading,
+  setEvmCollectiblesMetadataLoading,
+  setEvmTokensExchangeRatesLoading
+} from './actions';
+import { EvmLoadingInitialState, EvmLoadingStateInterface } from './state';
 
-export const evmReducer = createReducer<EvmStateInterface>(EvmInitialState, builder => {
+export const evmLoadingReducer = createReducer<EvmLoadingStateInterface>(EvmLoadingInitialState, builder => {
   builder.addCase(setEvmBalancesLoading, (state, { payload }) => {
     state.balancesLoading = payload;
   });
 
-  builder.addCase(loadEvmTokensMetadataActions.submit, (state, { payload }) => {
-    state.tokensMetadataLoadingStateRecord[payload.chainId] = { isLoading: true };
-  });
-  builder.addCase(loadEvmTokensMetadataActions.success, (state, { payload }) => {
-    state.tokensMetadataLoadingStateRecord[payload.chainId] = { isLoading: false };
-  });
-  builder.addCase(loadEvmTokensMetadataActions.fail, (state, { payload }) => {
-    state.tokensMetadataLoadingStateRecord[payload.chainId] = { isLoading: false, error: payload.error };
+  builder.addCase(setEvmTokensMetadataLoading, (state, { payload }) => {
+    state.tokensMetadataLoading = payload;
   });
 
-  builder.addCase(loadEvmCollectiblesMetadataActions.submit, (state, { payload }) => {
-    state.collectiblesMetadataLoadingStateRecord[payload.chainId] = { isLoading: true };
+  builder.addCase(setEvmCollectiblesMetadataLoading, (state, { payload }) => {
+    state.collectiblesMetadataLoading = payload;
   });
-  builder.addCase(loadEvmCollectiblesMetadataActions.success, (state, { payload }) => {
-    state.collectiblesMetadataLoadingStateRecord[payload.chainId] = { isLoading: false };
-  });
-  builder.addCase(loadEvmCollectiblesMetadataActions.fail, (state, { payload }) => {
-    state.collectiblesMetadataLoadingStateRecord[payload.chainId] = { isLoading: false, error: payload.error };
+
+  builder.addCase(setEvmTokensExchangeRatesLoading, (state, { payload }) => {
+    state.tokensExchangeRatesLoading = payload;
   });
 });

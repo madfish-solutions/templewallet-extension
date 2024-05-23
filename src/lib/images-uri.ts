@@ -165,7 +165,7 @@ const buildIpfsMediaUriByInfo = (
   return;
 };
 
-const customChainIdsToAssetNames: Record<number, string> = {
+const chainIdsChainNamesRecord: Record<number, string> = {
   1: 'ethereum',
   11155111: 'sepolia',
   137: 'polygon',
@@ -174,23 +174,70 @@ const customChainIdsToAssetNames: Record<number, string> = {
   97: 'bnbt',
   43114: 'avalanchex',
   43113: 'avalanchecfuji',
-  10: 'optimism'
+  10: 'optimism',
+  42170: 'arbitrumnova',
+  1313161554: 'aurora',
+  81457: 'blast',
+  168587773: 'blastsepolia',
+  288: 'boba',
+  42220: 'celo',
+  61: 'classic',
+  25: 'cronos',
+  2000: 'dogechain',
+  250: 'fantom',
+  314: 'filecoin',
+  1666600000: 'harmony',
+  13371: 'immutablezkevm',
+  2222: 'kavaevm',
+  8217: 'klaytn',
+  59144: 'linea',
+  957: 'lyra',
+  169: 'manta',
+  5000: 'mantle',
+  1088: 'metis',
+  34443: 'mode',
+  1284: 'moonbeam',
+  7700: 'nativecanto',
+  204: 'opbnb',
+  11297108109: 'palm',
+  424: 'pgn',
+  1101: 'polygonzkevm',
+  369: 'pulsechain',
+  1380012617: 'rari',
+  1918988905: 'raritestnet',
+  17001: 'redstoneholesky',
+  534352: 'scroll',
+  100: 'xdai',
+  324: 'zksync'
 };
 
 const getEvmCustomChainIconUrl = (chainId: number, metadata: EvmTokenMetadata) => {
-  if (!customChainIdsToAssetNames[chainId]) return null;
+  const chainName = chainIdsChainNamesRecord[chainId];
+
+  if (!chainName) return null;
 
   const baseUrl = 'https://raw.githubusercontent.com/rainbow-me/assets/master/blockchains/';
 
   if (metadata.native) {
-    return `${baseUrl}${customChainIdsToAssetNames[chainId]}/info/logo.png`;
+    return `${baseUrl}${chainName}/info/logo.png`;
   } else {
-    return `${baseUrl}${customChainIdsToAssetNames[chainId]}/assets/${metadata.address}/logo.png`;
+    return chainName === 'binance' ? null : `${baseUrl}${chainName}/assets/${metadata.address}/logo.png`;
   }
 };
 
 export const buildEvmTokenIconSources = (chainId: number, metadata: EvmTokenMetadata) => {
   const mainFallback = getEvmCustomChainIconUrl(chainId, metadata);
 
-  return mainFallback ? [mainFallback, metadata.thumbnailUri] : [metadata.thumbnailUri];
+  return mainFallback ? [mainFallback] : [];
+};
+
+export const buildMetadataLinkFromUri = (uri?: string) => {
+  if (!uri) return undefined;
+
+  if (uri.startsWith(IPFS_PROTOCOL)) {
+    const uriInfo = getMediaUriInfo(uri);
+    return buildIpfsMediaUriByInfo(uriInfo, 'small', false);
+  } else {
+    return uri;
+  }
 };

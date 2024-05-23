@@ -3,7 +3,7 @@ import { createReducer } from '@reduxjs/toolkit';
 import { toTokenSlug } from 'lib/assets';
 import { isPositiveTokenBalance } from 'lib/utils/evm.utils';
 
-import { proceedLoadedEvmTokensMetadataAction } from './actions';
+import { proceedLoadedEvmTokensMetadataAction, putEvmTokensMetadataAction } from './actions';
 import { evmTokensMetadataInitialState, EvmTokensMetadataState } from './state';
 import { buildEvmTokenMetadataFromFetched } from './utils';
 
@@ -27,6 +27,21 @@ export const evmTokensMetadataReducer = createReducer<EvmTokensMetadataState>(
 
         const stored = chainTokensMetadata[slug];
         if (!stored) chainTokensMetadata[slug] = buildEvmTokenMetadataFromFetched(item);
+      }
+    });
+
+    builder.addCase(putEvmTokensMetadataAction, ({ metadataRecord }, { payload }) => {
+      const { chainId, records } = payload;
+
+      if (!metadataRecord[chainId]) metadataRecord[chainId] = {};
+      const chainTokensMetadata = metadataRecord[chainId];
+
+      for (const slug of Object.keys(records)) {
+        const metadata = records[slug];
+        if (!metadata) continue;
+
+        const stored = chainTokensMetadata[slug];
+        if (!stored) chainTokensMetadata[slug] = chainTokensMetadata[slug] = metadata;
       }
     });
   }

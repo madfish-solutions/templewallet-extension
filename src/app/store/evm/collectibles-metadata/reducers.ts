@@ -3,7 +3,7 @@ import { createReducer } from '@reduxjs/toolkit';
 import { toTokenSlug } from 'lib/assets';
 import { isProperCollectibleMetadata } from 'lib/utils/evm.utils';
 
-import { proceedLoadedEvmCollectiblesMetadataAction } from './actions';
+import { proceedLoadedEvmCollectiblesMetadataAction, putEvmCollectiblesMetadataAction } from './actions';
 import { evmCollectiblesMetadataInitialState, EvmCollectiblesMetadataState } from './state';
 import { buildEvmCollectibleMetadataFromFetched } from './utils';
 
@@ -31,6 +31,21 @@ export const evmCollectiblesMetadataReducer = createReducer<EvmCollectiblesMetad
           const stored = chainTokensMetadata[slug];
           if (!stored) chainTokensMetadata[slug] = buildEvmCollectibleMetadataFromFetched(collectible, contract);
         }
+      }
+    });
+
+    builder.addCase(putEvmCollectiblesMetadataAction, ({ metadataRecord }, { payload }) => {
+      const { chainId, records } = payload;
+
+      if (!metadataRecord[chainId]) metadataRecord[chainId] = {};
+      const chainTokensMetadata = metadataRecord[chainId];
+
+      for (const slug of Object.keys(records)) {
+        const metadata = records[slug];
+        if (!metadata) continue;
+
+        const stored = chainTokensMetadata[slug];
+        if (!stored) chainTokensMetadata[slug] = chainTokensMetadata[slug] = metadata;
       }
     });
   }

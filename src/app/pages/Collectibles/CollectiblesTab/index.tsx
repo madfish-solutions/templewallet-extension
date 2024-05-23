@@ -91,7 +91,7 @@ const EvmCollectiblesTab = memo<EvmCollectiblesTabProps>(({ network, publicKeyHa
     isEqual
   );
 
-  const { paginatedSlugs, isSyncing, loadNext } = useEvmCollectiblesListingLogic(network, allSlugsSorted);
+  const { paginatedSlugs, isSyncing, loadNext } = useEvmCollectiblesListingLogic(allSlugsSorted);
 
   const contentElement = useMemo(
     () => (

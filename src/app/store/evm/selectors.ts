@@ -1,9 +1,11 @@
 import { useSelector } from '../root-state.selector';
 
-export const useEvmBalancesLoadingSelector = () => useSelector(state => state.evm.balancesLoading);
+export const useEvmBalancesLoadingSelector = () => useSelector(state => state.evmLoading.balancesLoading);
 
-export const useEvmTokensMetadataLoadingStateRecordSelector = () =>
-  useSelector(state => state.evm.tokensMetadataLoadingStateRecord);
+export const useEvmTokensMetadataLoadingSelector = () => useSelector(state => state.evmLoading.tokensMetadataLoading);
 
-export const useEvmCollectiblesMetadataLoadingStateRecordSelector = () =>
-  useSelector(state => state.evm.collectiblesMetadataLoadingStateRecord);
+export const useEvmCollectiblesMetadataLoadingSelector = () =>
+  useSelector(state => state.evmLoading.collectiblesMetadataLoading);
+
+export const useEvmTokensExchangeRatesLoadingSelector = () =>
+  useSelector(state => state.evmLoading.tokensExchangeRatesLoading);

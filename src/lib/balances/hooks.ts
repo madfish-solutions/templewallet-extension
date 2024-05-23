@@ -3,29 +3,28 @@ import { useCallback, useMemo } from 'react';
 import { emptyFn } from '@rnw-community/shared';
 import BigNumber from 'bignumber.js';
 
+import { DeadEndBoundaryError } from 'app/ErrorBoundary';
 import { useEvmAccountChainBalances } from 'app/hooks/evm/balance';
 import { useEvmChainTokensMetadata, useEvmTokenMetadata } from 'app/hooks/evm/metadata';
 import { useEvmBalancesLoadingSelector } from 'app/store/evm/selectors';
 import { useAllAccountBalancesSelector, useAllAccountBalancesEntitySelector } from 'app/store/tezos/balances/selectors';
 import { isSupportedChainId } from 'lib/apis/temple/endpoints/evm/api.utils';
 import { isKnownChainId } from 'lib/apis/tzkt';
+import { fetchEvmRawBalance as fetchEvmRawBalanceFromBlockchain } from 'lib/evm/on-chain/balance';
 import { useAssetMetadata, useGetTokenOrGasMetadata } from 'lib/metadata';
 import { EvmTokenMetadata } from 'lib/metadata/types';
 import { useTypedSWR } from 'lib/swr';
 import { atomsToTokens } from 'lib/temple/helpers';
+import { useInterval } from 'lib/ui/hooks';
 import { useAccountAddressForEvm, useAccountAddressForTezos, useOnTezosBlock } from 'temple/front';
+import { useEvmChainByChainId } from 'temple/front/chains';
 import { TezosNetworkEssentials } from 'temple/networks';
 import { getReadOnlyTezos } from 'temple/tezos';
 
-import { DeadEndBoundaryError } from '../../app/ErrorBoundary';
-import { useEvmChainByChainId } from '../../temple/front/chains';
+import { EvmAssetStandard } from '../evm/types';
 import { EVM_BALANCES_SYNC_INTERVAL } from '../fixed-times';
-import { useInterval } from '../ui/hooks';
 
-import {
-  fetchRawBalance as fetchRawBalanceFromBlockchain,
-  fetchEvmRawBalance as fetchEvmRawBalanceFromBlockchain
-} from './fetch';
+import { fetchRawBalance as fetchRawBalanceFromBlockchain } from './fetch';
 
 export const useGetEvmTokenBalanceWithDecimals = (publicKeyHash: HexString, chainId: number) => {
   const rawBalances = useEvmAccountChainBalances(publicKeyHash, chainId);
@@ -134,7 +133,8 @@ export function useTezosAssetBalance(assetSlug: string, address: string, network
 export function useEvmAssetRawBalance(
   assetSlug: string,
   address: HexString,
-  evmChainId: number
+  evmChainId: number,
+  assetStandard?: EvmAssetStandard
 ): {
   value: string | undefined;
   isSyncing: boolean;
@@ -158,7 +158,7 @@ export function useEvmAssetRawBalance(
     () => {
       if (usingStore) return;
 
-      return fetchEvmRawBalanceFromBlockchain(network, assetSlug, address).then(res => res.toString());
+      return fetchEvmRawBalanceFromBlockchain(network, assetSlug, address, assetStandard).then(res => res.toString());
     },
     {
       revalidateOnFocus: false,
@@ -194,8 +194,13 @@ export function useEvmAssetRawBalance(
 }
 
 export function useEvmAssetBalance(assetSlug: string, address: HexString, evmChainId: number) {
-  const { value: rawValue, isSyncing, error, refresh } = useEvmAssetRawBalance(assetSlug, address, evmChainId);
   const assetMetadata = useEvmTokenMetadata(evmChainId, assetSlug);
+  const {
+    value: rawValue,
+    isSyncing,
+    error,
+    refresh
+  } = useEvmAssetRawBalance(assetSlug, address, evmChainId, assetMetadata?.standard);
 
   const value = useMemo(
     () => (rawValue && assetMetadata ? atomsToTokens(new BigNumber(rawValue), assetMetadata.decimals) : undefined),
