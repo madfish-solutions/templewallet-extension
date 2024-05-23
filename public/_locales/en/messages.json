@@ -248,8 +248,8 @@
       }
     }
   },
-  "clickOnBakerPrompt": {
-    "message": "Click on the Baker you want to delegate funds to. This list is powered by $link$.",
+  "recommendedBakersDescription": {
+    "message": "This list is powered by $link$.",
     "placeholders": {
       "link": {
         "content": "$1"
@@ -705,6 +705,9 @@
   "delegate": {
     "message": "Delegate"
   },
+  "delegateAndStake": {
+    "message": "Delegate & Stake"
+  },
   "notDelegated": {
     "message": "Not delegated"
   },
@@ -1098,8 +1101,8 @@
   "delegationPoint3": {
     "message": "Earn rate varies over time.\nCheck the current rate in Wallet."
   },
-  "baker": {
-    "message": "Baker"
+  "customBaker": {
+    "message": "Custom Baker"
   },
   "bakerInputDescription": {
     "message": "Address of a registered baker."
@@ -1125,8 +1128,8 @@
   "unknownBakerDescription": {
     "message": "Provided address is not known to us as a baker! Only delegate funds to it at your own risk."
   },
-  "delegateToRecommendedBakers": {
-    "message": "Delegate to Recommended Bakers"
+  "recommendedBakers": {
+    "message": "Recommended Bakers"
   },
   "sortBy": {
     "message": "Sort by"

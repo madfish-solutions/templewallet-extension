@@ -11,7 +11,7 @@ import { ActivityComponent } from 'app/templates/activity/Activity';
 import AssetInfo from 'app/templates/AssetInfo';
 import { TabInterface, TabsBar } from 'app/templates/TabBar';
 import { isTezAsset } from 'lib/assets';
-import { T, t, TID } from 'lib/i18n';
+import { t, TID } from 'lib/i18n';
 
 import { CollectiblesTab } from '../Collectibles/CollectiblesTab';
 
@@ -55,19 +55,19 @@ export const ContentSection = memo<Props>(({ assetSlug, className }) => {
       return [
         {
           name: 'tokens',
-          title: <T id="tokens" />,
+          titleI18nKey: 'tokens',
           Component: TokensTab,
           testID: HomeSelectors.assetsTab
         },
         {
           name: 'collectibles',
-          title: <T id="collectibles" />,
+          titleI18nKey: 'collectibles',
           Component: () => <CollectiblesTab scrollToTheTabsBar={scrollToTheTabsBar} />,
           testID: HomeSelectors.collectiblesTab
         },
         {
           name: 'activity',
-          title: <T id="activity" />,
+          titleI18nKey: 'activity',
           Component: ActivityComponent,
           testID: HomeSelectors.activityTab,
           whileMessageI18nKey: 'operationHistoryWhileMessage'
@@ -77,7 +77,7 @@ export const ContentSection = memo<Props>(({ assetSlug, className }) => {
 
     const activity: TabData = {
       name: 'activity',
-      title: <T id="activity" />,
+      titleI18nKey: 'activity',
       Component: () => <ActivityComponent assetSlug={assetSlug} />,
       testID: HomeSelectors.activityTab
     };
@@ -87,7 +87,7 @@ export const ContentSection = memo<Props>(({ assetSlug, className }) => {
         activity,
         {
           name: 'delegation',
-          title: <span>Delegate & Stake</span>,
+          titleI18nKey: 'delegateAndStake',
           Component: BakingSection,
           testID: HomeSelectors.delegationTab,
           whileMessageI18nKey: 'delegationInfoWhileMessage'
@@ -99,7 +99,7 @@ export const ContentSection = memo<Props>(({ assetSlug, className }) => {
       activity,
       {
         name: 'info',
-        title: <T id="info" />,
+        titleI18nKey: 'info',
         Component: () => <AssetInfo assetSlug={assetSlug} />,
         testID: HomeSelectors.infoTab
       }

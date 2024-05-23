@@ -176,8 +176,8 @@
       }
     }
   },
-  "clickOnBakerPrompt": {
-    "message": "Klicken Sie auf den Baker, an den Sie Gelder delegieren möchten. Diese Liste wird unterstützt von $link$.",
+  "recommendedBakersDescription": {
+    "message": "Diese Liste wird unterstützt von $link$.",
     "placeholders": {
       "link": {
         "content": "$1"
@@ -884,8 +884,8 @@
   "delegation": {
     "message": "Delegation"
   },
-  "baker": {
-    "message": "Baker"
+  "customBaker": {
+    "message": "Custom Baker"
   },
   "bakerInputDescription": {
     "message": "Adresse eines registrierten Bakers."
@@ -905,7 +905,7 @@
   "unknownBakerDescription": {
     "message": "Die angegebene Adresse ist uns als Baker nicht bekannt! Delegieren Sie Gelder nur auf eigenes Risiko."
   },
-  "delegateToRecommendedBakers": {
+  "recommendedBakers": {
     "message": "Delegieren an empfohlene Baker"
   },
   "sortBy": {

@@ -176,8 +176,8 @@
       }
     }
   },
-  "clickOnBakerPrompt": {
-    "message": "Fonu devretmek istediğiniz Fırıncıyı seçin. Bu liste $link$ tarafından desteklenir.",
+  "recommendedBakersDescription": {
+    "message": "Bu liste $link$ tarafından desteklenir.",
     "placeholders": {
       "link": {
         "content": "$1"
@@ -884,7 +884,7 @@
   "delegation": {
     "message": "Delegasyon"
   },
-  "baker": {
+  "customBaker": {
     "message": "Fırıncı"
   },
   "bakerInputDescription": {
@@ -905,7 +905,7 @@
   "unknownBakerDescription": {
     "message": "Verilen adres sistemimizde fırıncı olarak görünmüyor! Bu adrese fon devretme riskinin sorumluluğu size aittir."
   },
-  "delegateToRecommendedBakers": {
+  "recommendedBakers": {
     "message": "Önerilen Fırıncılara Devret"
   },
   "sortBy": {
