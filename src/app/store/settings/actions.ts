@@ -7,3 +7,5 @@ export const setIsAnalyticsEnabledAction = createAction<boolean>('settings/SET_I
 export const toggleBalanceModeAction = createAction<BalanceMode>('settings/TOGGLE_BALANCE_MODE');
 
 export const setOnRampPossibilityAction = createAction<boolean>('settings/SET_ON_RAMP_POSSIBILITY_ACTION');
+
+export const setConversionTrackedAction = createAction<void>('settings/SET_CONVERSION_TRACKED');

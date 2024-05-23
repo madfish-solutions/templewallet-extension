@@ -19,7 +19,7 @@ export const getRulesFromContentScript = memoizee(
       return {
         adPlacesRules: [],
         permanentAdPlacesRules: [],
-        providersSelector: '',
+        providersSelectors: [],
         timestamp: 0
       };
     }
