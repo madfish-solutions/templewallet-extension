@@ -1,8 +1,8 @@
-import { PlaywrightTestConfig, devices } from '@playwright/test'
+import { PlaywrightTestConfig } from '@playwright/test'
 
 const config: PlaywrightTestConfig = {
   fullyParallel: true,
-  testDir: './tests',
+  testDir: './src/tests',
   workers: 1,
   use: {
     screenshot: 'only-on-failure',

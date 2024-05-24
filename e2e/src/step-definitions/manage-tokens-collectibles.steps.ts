@@ -1,9 +1,9 @@
 import { Given } from '@cucumber/cucumber';
 
-import { IEnterValuesKey, iEnterValues, iSelectTokenSlugs } from 'e2e/src/utils/input-data.utils';
-import { MEDIUM_TIMEOUT } from 'e2e/src/utils/timing.utils';
+import { IEnterValuesKey, iEnterValues, iSelectTokenSlugs } from 'e2e/../../../e2e-tests/src/utils/input-data.utils';
+import { MEDIUM_TIMEOUT } from 'e2e/../../../e2e-tests/src/utils/timing.utils';
 
-import { Pages } from '../page-objects';
+import { Pages } from '../../../e2e-tests/src/page-objects';
 
 Given(/I wait until adding asset (.*) is preloaded/, { timeout: MEDIUM_TIMEOUT }, async (name: IEnterValuesKey) => {
   await Pages.AddAsset.waitAddingAssetPreloaded(iEnterValues[name]);

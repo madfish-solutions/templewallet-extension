@@ -3,10 +3,10 @@ import retry from 'async-retry';
 import { InternalConfirmationSelectors } from 'src/app/templates/InternalConfirmation.selectors';
 import { SwapFormSelectors } from 'src/app/templates/SwapForm/SwapForm.selectors';
 
-import { Pages } from 'e2e/src/page-objects';
-import { iSelectTokenSlugs } from 'e2e/src/utils/input-data.utils';
-import { createPageElement } from 'e2e/src/utils/search.utils';
-import { MEDIUM_TIMEOUT, VERY_LONG_TIMEOUT, SHORT_TIMEOUT } from 'e2e/src/utils/timing.utils';
+import { Pages } from 'e2e/../../../e2e-tests/src/page-objects';
+import { iSelectTokenSlugs } from 'e2e/../../../e2e-tests/src/utils/input-data.utils';
+import { createPageElement } from 'e2e/../../../e2e-tests/src/utils/search.utils';
+import { MEDIUM_TIMEOUT, VERY_LONG_TIMEOUT, SHORT_TIMEOUT } from 'e2e/../../../e2e-tests/src/utils/timing.utils';
 
 Given(
   /I select (.*) token in the token drop-down list on the Swap page/,

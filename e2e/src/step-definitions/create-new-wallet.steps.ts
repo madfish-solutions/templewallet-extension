@@ -1,14 +1,14 @@
 import { Given } from '@cucumber/cucumber';
 
-import { MEDIUM_TIMEOUT } from 'e2e/src/utils/timing.utils';
+import { MEDIUM_TIMEOUT } from 'e2e/../../../e2e-tests/src/utils/timing.utils';
 
-import { BrowserContext } from '../classes/browser-context.class';
-import { Pages } from '../page-objects';
+import { CustomBrowserContext } from '../../../e2e-tests/src/classes/browser-context.class';
+import { Pages } from '../../../e2e-tests/src/page-objects';
 
 Given(/I save my mnemonic/, { timeout: MEDIUM_TIMEOUT }, async () => {
   const value = await Pages.NewSeedBackup.seedPhraseValue.getText();
 
-  BrowserContext.seedPhrase = value;
+  CustomBrowserContext.seedPhrase = value;
 });
 
 Given(/I verify my mnemonic/, async () => {

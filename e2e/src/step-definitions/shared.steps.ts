@@ -3,12 +3,12 @@ import { expect } from 'chai';
 import { ErrorCaptionSelectors } from 'src/app/atoms/ErrorCaption.selectors';
 import { OperationStatusSelectors } from 'src/app/templates/OperationStatus.selectors';
 
-import { BrowserContext } from '../classes/browser-context.class';
-import { Pages } from '../page-objects';
-import { envVars } from '../utils/env.utils';
-import { iComparePrivateKeys } from '../utils/input-data.utils';
-import { createPageElement, findElement, getElementText } from '../utils/search.utils';
-import { LONG_TIMEOUT, MEDIUM_TIMEOUT, VERY_SHORT_TIMEOUT, sleep } from '../utils/timing.utils';
+import { CustomBrowserContext } from '../../../e2e-tests/src/classes/browser-context.class';
+import { Pages } from '../../../e2e-tests/src/page-objects';
+import { envVars } from '../../../e2e-tests/src/utils/env.utils';
+import { iComparePrivateKeys } from '../../../e2e-tests/src/utils/input-data.utils';
+import { createPageElement, findElement, getElementText } from '../../../e2e-tests/src/utils/search.utils';
+import { LONG_TIMEOUT, MEDIUM_TIMEOUT, VERY_SHORT_TIMEOUT, sleep } from '../../../e2e-tests/src/utils/timing.utils';
 
 Given(
   /I reveal a private key and compare with (.*)/,
@@ -21,7 +21,7 @@ Given(
     await Pages.Settings.isVisible();
     await Pages.Settings.revealPrivateKeyButton.click();
     await Pages.RevealSecrets.isVisible();
-    await Pages.RevealSecrets.revealPasswordField.type(BrowserContext.password);
+    await Pages.RevealSecrets.revealPasswordField.type(CustomBrowserContext.password);
     await Pages.RevealSecrets.revealButton.click();
 
     await Pages.RevealSecrets.revealSecretsProtectedMask.click();

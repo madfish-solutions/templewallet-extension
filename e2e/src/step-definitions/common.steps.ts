@@ -1,10 +1,10 @@
 import { Given } from '@cucumber/cucumber';
 
-import { BrowserContext } from '../classes/browser-context.class';
-import { Pages } from '../page-objects';
-import { iEnterValues, IEnterValuesKey, clearDataFromCurrentInput } from '../utils/input-data.utils';
-import { createPageElement } from '../utils/search.utils';
-import { LONG_TIMEOUT, MEDIUM_TIMEOUT, SHORT_TIMEOUT } from '../utils/timing.utils';
+import { CustomBrowserContext } from '../../../e2e-tests/src/classes/browser-context.class';
+import { Pages } from '../../../e2e-tests/src/page-objects';
+import { iEnterValues, IEnterValuesKey, clearDataFromCurrentInput } from '../../../e2e-tests/src/utils/input-data.utils';
+import { createPageElement } from '../../../e2e-tests/src/utils/search.utils';
+import { LONG_TIMEOUT, MEDIUM_TIMEOUT, SHORT_TIMEOUT } from '../../../e2e-tests/src/utils/timing.utils';
 
 Given(/^I am on the (\w+) page$/, { timeout: LONG_TIMEOUT }, async (page: keyof typeof Pages) => {
   await Pages[page].isVisible();
@@ -39,12 +39,12 @@ Given(/I have imported an existing account/, { timeout: LONG_TIMEOUT }, async ()
   await Pages.Welcome.importExistingWalletButton.click();
 
   await Pages.ImportExistingWallet.isVisible();
-  await Pages.ImportExistingWallet.enterSeedPhrase(BrowserContext.seedPhrase);
+  await Pages.ImportExistingWallet.enterSeedPhrase(CustomBrowserContext.seedPhrase);
   await Pages.ImportExistingWallet.nextButton.click();
 
   await Pages.SetWallet.isVisible();
-  await Pages.SetWallet.passwordField.type(BrowserContext.password);
-  await Pages.SetWallet.repeatPasswordField.type(BrowserContext.password);
+  await Pages.SetWallet.passwordField.type(CustomBrowserContext.password);
+  await Pages.SetWallet.repeatPasswordField.type(CustomBrowserContext.password);
   await Pages.SetWallet.analyticsCheckbox.click();
   await Pages.SetWallet.skipOnboarding.click();
   await Pages.SetWallet.acceptTerms.click();
@@ -65,5 +65,5 @@ Given(
 );
 
 Given(/I reload the page/, async () => {
-  await BrowserContext.page.reload();
+  await CustomBrowserContext.page.reload();
 });

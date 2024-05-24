@@ -1,8 +1,8 @@
 import { Given } from '@cucumber/cucumber';
 
-import { Pages } from 'e2e/src/page-objects';
-import { envVars } from 'e2e/src/utils/env.utils';
-import { MEDIUM_TIMEOUT } from 'e2e/src/utils/timing.utils';
+import { Pages } from 'e2e/../../../e2e-tests/src/page-objects';
+import { envVars } from 'e2e/../../../e2e-tests/src/utils/env.utils';
+import { MEDIUM_TIMEOUT } from 'e2e/../../../e2e-tests/src/utils/timing.utils';
 
 const hashObject = {
   defaultFirstAccount: envVars.DEFAULT_HD_ACCOUNT_FIRST_PUBLIC_KEY_HASH,

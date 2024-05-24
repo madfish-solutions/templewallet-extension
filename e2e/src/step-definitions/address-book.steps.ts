@@ -1,10 +1,10 @@
 import { Given } from '@cucumber/cucumber';
 import { SendFormSelectors } from 'src/app/templates/SendForm/selectors';
 
-import { Pages } from 'e2e/src/page-objects';
-import { iEnterValues } from 'e2e/src/utils/input-data.utils';
-import { findElement } from 'e2e/src/utils/search.utils';
-import { MEDIUM_TIMEOUT, VERY_SHORT_TIMEOUT } from 'e2e/src/utils/timing.utils';
+import { Pages } from 'e2e/../../../e2e-tests/src/page-objects';
+import { iEnterValues } from 'e2e/../../../e2e-tests/src/utils/input-data.utils';
+import { findElement } from 'e2e/../../../e2e-tests/src/utils/search.utils';
+import { MEDIUM_TIMEOUT, VERY_SHORT_TIMEOUT } from 'e2e/../../../e2e-tests/src/utils/timing.utils';
 
 type ContactVarName = 'contactPublicKey' | 'secondContactPublicKey';
 

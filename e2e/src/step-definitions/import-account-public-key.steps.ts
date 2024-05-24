@@ -1,10 +1,10 @@
 import { Given } from '@cucumber/cucumber';
 import { expect } from 'chai';
 
-import { MEDIUM_TIMEOUT } from 'e2e/src/utils/timing.utils';
+import { MEDIUM_TIMEOUT } from 'e2e/../../../e2e-tests/src/utils/timing.utils';
 
-import { Pages } from '../page-objects';
-import { envVars } from '../utils/env.utils';
+import { Pages } from '../../../e2e-tests/src/page-objects';
+import { envVars } from '../../../e2e-tests/src/utils/env.utils';
 
 Given(/I compare my Watch-only Public hash with imported account/, { timeout: MEDIUM_TIMEOUT }, async () => {
   const getPublicHash = await Pages.Home.PublicAddressButton.getText();

@@ -1,9 +1,9 @@
 import { Given } from '@cucumber/cucumber';
 
-import { iEnterValues } from 'e2e/src/utils/input-data.utils';
-import { MEDIUM_TIMEOUT } from 'e2e/src/utils/timing.utils';
+import { iEnterValues } from 'e2e/../../../e2e-tests/src/utils/input-data.utils';
+import { MEDIUM_TIMEOUT } from 'e2e/../../../e2e-tests/src/utils/timing.utils';
 
-import { Pages } from '../page-objects';
+import { Pages } from '../../../e2e-tests/src/page-objects';
 
 type mnemonicPage = 'ImportAccountMnemonic' | 'ImportExistingWallet';
 
