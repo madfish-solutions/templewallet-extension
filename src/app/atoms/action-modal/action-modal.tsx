@@ -6,7 +6,7 @@ import { ReactComponent as CloseIcon } from 'app/icons/close.svg';
 
 interface ActionModalProps {
   closable?: boolean;
-  onClose?: () => void;
+  onClose?: EmptyFn;
   children: JSX.Element | JSX.Element[];
   title: string;
   overlayClassName?: string;

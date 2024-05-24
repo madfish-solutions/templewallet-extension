@@ -20,7 +20,7 @@ type AlertProps = Omit<HTMLAttributes<HTMLDivElement>, 'title'> & {
   description: ReactNode;
   autoFocus?: boolean;
   closable?: boolean;
-  onClose?: () => void;
+  onClose?: EmptyFn;
 };
 
 const backgroundClassNames: Record<AlertType, string> = {

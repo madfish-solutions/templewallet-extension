@@ -13,7 +13,7 @@ import { PrivateKeyPayload } from './types';
 interface ChainSelectionProps {
   privateKeys: PrivateKeyPayload[];
   onSelect: (pk: PrivateKeyPayload) => void;
-  onClose: () => void;
+  onClose: EmptyFn;
 }
 
 export const ChainSelection = memo<ChainSelectionProps>(({ privateKeys, onSelect, onClose }) => {
@@ -68,7 +68,7 @@ const ChainOption = memo<ChainOptionProps>(({ onSelect, privateKey }) => {
   return (
     <Button className="w-full flex rounded-md border border-gray-300 p-3" onClick={handleClick}>
       <div className="flex-1 text-left">
-        <p className=" text-gray-900 leading-5 font-semibold">{TempleChainTitle[chain]}</p>
+        <p className="text-font-medium-bold leading-5">{TempleChainTitle[chain]}</p>
         <p className="text-font-description text-gray-600">
           <HashShortView hash={address} />
         </p>

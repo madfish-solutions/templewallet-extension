@@ -15,7 +15,7 @@ import { StoredAccount } from 'lib/temple/types';
 
 interface EditAccountNameModalProps {
   account: StoredAccount;
-  onClose: () => void;
+  onClose: EmptyFn;
 }
 
 interface FormData {

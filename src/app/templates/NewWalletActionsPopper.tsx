@@ -12,7 +12,7 @@ import { T } from 'lib/i18n';
 import Popper, { PopperRenderProps } from 'lib/ui/Popper';
 
 interface NewWalletActionsPopperProps {
-  startWalletCreation: () => void;
+  startWalletCreation: EmptyFn;
 }
 
 const NewWalletActionsDropdown = memo<PopperRenderProps & NewWalletActionsPopperProps>(

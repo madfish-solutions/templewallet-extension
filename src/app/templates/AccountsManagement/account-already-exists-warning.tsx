@@ -14,7 +14,7 @@ import { getAllGroups } from 'temple/front/accounts-groups';
 interface AccountAlreadyExistsWarningProps {
   newAccountGroup: DisplayedGroup;
   oldAccount: StoredAccount;
-  onClose: () => void;
+  onClose: EmptyFn;
 }
 
 export const AccountAlreadyExistsWarning = memo<AccountAlreadyExistsWarningProps>(

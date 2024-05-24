@@ -12,7 +12,7 @@ import { PrivateKeyPayload } from './types';
 
 interface RevealPrivateKeyModalProps {
   account: StoredAccount;
-  onClose: () => void;
+  onClose: EmptyFn;
 }
 
 export const RevealPrivateKeyModal = memo<RevealPrivateKeyModalProps>(({ account, onClose }) => {

@@ -7,7 +7,7 @@ import { T } from 'lib/i18n';
 
 interface Props extends TestIDProps {
   singleRow?: boolean;
-  onClick: () => void;
+  onClick: EmptyFn;
 }
 
 export const SecretCover: React.FC<Props> = ({ onClick, singleRow, testID }) => (
@@ -18,7 +18,7 @@ export const SecretCover: React.FC<Props> = ({ onClick, singleRow, testID }) => 
     {...setTestID(testID)}
   >
     {singleRow ? (
-      <p className="flex items-center text-black text-font-medium">
+      <p className="flex items-center text-font-medium">
         <LockAltIcon className="mr-1 w-4 h-auto fill-current" />
         <span>
           <T id="clickToReveal" />

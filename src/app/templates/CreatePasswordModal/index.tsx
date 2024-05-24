@@ -127,7 +127,7 @@ export const CreatePasswordModal = memo<CreatePasswordModalProps>(
       ]
     );
 
-    const buttonName = t(seedPhraseToImport ? 'importWallet' : 'createWallet');
+    const buttonNameI18nKey = seedPhraseToImport ? 'importWallet' : 'createWallet';
 
     return (
       <PageModal title={t('createPassword')} opened={opened} onRequestClose={onRequestClose}>
@@ -146,7 +146,7 @@ export const CreatePasswordModal = memo<CreatePasswordModalProps>(
                     message: PASSWORD_ERROR_CAPTION
                   }
                 })}
-                label={t('enterYourPassword')}
+                label={<T id="enterYourPassword" />}
                 id="newwallet-password"
                 type="password"
                 name="password"
@@ -175,7 +175,7 @@ export const CreatePasswordModal = memo<CreatePasswordModalProps>(
                   required: t('required'),
                   validate: val => val === passwordValue || t('mustBeEqualToPasswordAbove')
                 })}
-                label={t('repeatPassword')}
+                label={<T id="repeatPassword" />}
                 id="newwallet-repassword"
                 type="password"
                 name="repeatPassword"
@@ -192,7 +192,7 @@ export const CreatePasswordModal = memo<CreatePasswordModalProps>(
                 control={control}
                 name="analytics"
                 as={SettingsCheckbox}
-                label={t('usageAnalytics')}
+                label={<T id="usageAnalytics" />}
                 tooltip={
                   <T
                     id="analyticsInputDescription"
@@ -216,7 +216,7 @@ export const CreatePasswordModal = memo<CreatePasswordModalProps>(
                 control={control}
                 name="getRewards"
                 as={SettingsCheckbox}
-                label={t('earnRewardsWithAds')}
+                label={<T id="earnRewardsWithAds" />}
                 tooltip={<T id="earnRewardsWithAdsDescription" />}
                 testID={createPasswordSelectors.getRewardsCheckBox}
               />
@@ -225,7 +225,9 @@ export const CreatePasswordModal = memo<CreatePasswordModalProps>(
               <T
                 id="twTermsAndPrivacyLinks"
                 substitutions={[
-                  <span key="buttonContent">{buttonName}</span>,
+                  <span key="buttonContent">
+                    <T id={buttonNameI18nKey} />
+                  </span>,
                   <a
                     href="https://templewallet.com/terms"
                     key="termsLink"
@@ -256,7 +258,7 @@ export const CreatePasswordModal = memo<CreatePasswordModalProps>(
               disabled={submitting}
               testID={createPasswordSelectors.createButton}
             >
-              {buttonName}
+              <T id={buttonNameI18nKey} />
             </StyledButton>
           </ActionsButtonsBox>
         </form>

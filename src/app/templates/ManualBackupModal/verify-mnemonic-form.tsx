@@ -11,15 +11,15 @@ import { ManualBackupModalSelectors } from './selectors';
 import { VerifySeedPhraseInput } from './verify-seed-phrase-input';
 import { WordsBoxItemData } from './verify-seed-phrase-input/words-box-item';
 
-interface VerifyMnemonicViewProps {
+interface VerifyMnemonicFormProps {
   mnemonic: string;
-  onSuccess: () => void;
-  onCancel: () => void;
+  onSuccess: EmptyFn;
+  onCancel: EmptyFn;
 }
 
 const WORDS_TO_VERIFY_COUNT = 3;
 
-export const VerifyMnemonicView = memo<VerifyMnemonicViewProps>(({ mnemonic, onSuccess, onCancel }) => {
+export const VerifyMnemonicForm = memo<VerifyMnemonicFormProps>(({ mnemonic, onSuccess, onCancel }) => {
   const [bottomEdgeIsVisible, setBottomEdgeIsVisible] = useState(true);
   const [isError, setIsError] = useState(false);
   const [inputValue, setInputValue] = useState<WordsBoxItemData[]>([]);

@@ -34,7 +34,7 @@ export const ActionListItem = memo<ActionListItemProps>(
         : onClick,
       children: (
         <>
-          {Icon && <IconBase Icon={Icon} size={16} className={danger ? 'text-text-error' : 'text-secondary'} />}
+          {Icon && <IconBase Icon={Icon} size={16} className={danger ? 'text-error' : 'text-secondary'} />}
 
           {children}
         </>

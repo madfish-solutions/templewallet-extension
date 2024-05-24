@@ -258,7 +258,7 @@ export const FormField = forwardRef<FormFieldElement, FormFieldProps>(
 
 export const FORM_FIELD_CLASS_NAME = clsx(
   'appearance-none w-full border rounded-lg bg-input-low caret-primary focus:outline-none',
-  'transition ease-in-out duration-200 text-text text-font-regular placeholder-grey-2 hover:placeholder-grey-1'
+  'transition ease-in-out duration-200 text-font-regular placeholder-grey-2 hover:placeholder-grey-1'
 );
 
 interface ExtraInnerProps {
@@ -284,7 +284,7 @@ const ExtraInner: React.FC<ExtraInnerProps> = ({ useDefaultWrapper, innerCompone
 
 interface CopyableProps {
   value: string;
-  copy: () => void;
+  copy: EmptyFn;
   isSecret: boolean;
 }
 

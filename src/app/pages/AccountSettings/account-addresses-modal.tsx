@@ -10,7 +10,7 @@ import { TempleChainKind } from 'temple/types';
 
 interface AccountAddressesModalProps {
   account: StoredAccount;
-  onClose: () => void;
+  onClose: EmptyFn;
 }
 
 const addressesEntryClassName = 'w-full h-12 flex justify-between items-center px-3 rounded-lg border border-gray-300';

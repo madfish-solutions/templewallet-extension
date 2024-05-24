@@ -14,7 +14,7 @@ import { DisplayedGroup, TempleAccountType } from 'lib/temple/types';
 import { useHDGroups } from 'temple/front';
 
 interface DeleteWalletModalProps {
-  onClose: () => void;
+  onClose: EmptyFn;
   selectedGroup: DisplayedGroup;
 }
 

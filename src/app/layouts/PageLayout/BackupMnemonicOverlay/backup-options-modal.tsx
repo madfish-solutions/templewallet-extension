@@ -11,7 +11,7 @@ import { t } from 'lib/i18n';
 import { BackupOptionsModalSelectors } from './selectors';
 
 interface BackupOptionsModalProps {
-  onSelect: () => void;
+  onSelect: EmptyFn;
 }
 
 export const BackupOptionsModal = memo<BackupOptionsModalProps>(({ onSelect }) => (

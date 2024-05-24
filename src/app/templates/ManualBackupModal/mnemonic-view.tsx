@@ -11,7 +11,7 @@ import { ManualBackupModalSelectors } from './selectors';
 
 interface MnemonicViewProps {
   mnemonic: string;
-  onConfirm: () => void;
+  onConfirm: EmptyFn;
 }
 
 export const MnemonicView = memo<MnemonicViewProps>(({ mnemonic, onConfirm }) => {

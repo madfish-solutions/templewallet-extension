@@ -15,7 +15,7 @@ import { useAllAccounts } from 'temple/front';
 
 interface RemoveAccountModalProps {
   account: StoredAccount;
-  onClose: () => void;
+  onClose: EmptyFn;
 }
 
 interface FormData {

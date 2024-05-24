@@ -152,7 +152,7 @@ export const AccountSettings = memo<AccountSettingsProps>(({ id }) => {
               <span className="ml-1.5 text-gray-600 text-font-small">
                 <T id="totalBalance" />:
               </span>
-              <span className="ml-1.5 text-gray-900 text-font-description leading-4">
+              <span className="ml-1.5 text-font-description">
                 <TotalEquity account={account} currency="fiat" />
               </span>
             </div>

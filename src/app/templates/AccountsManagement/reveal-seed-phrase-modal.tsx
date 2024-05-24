@@ -15,7 +15,7 @@ import { DisplayedGroup } from 'lib/temple/types';
 import { useVanishingState } from 'lib/ui/hooks';
 
 interface RevealSeedPhraseModalProps {
-  onClose: () => void;
+  onClose: EmptyFn;
   selectedGroup: DisplayedGroup;
 }
 

@@ -10,7 +10,7 @@ import { PrivateKeyPayload } from './types';
 
 interface PrivateKeyViewProps {
   privateKey: PrivateKeyPayload;
-  onClose: () => void;
+  onClose: EmptyFn;
 }
 
 export const PrivateKeyView = memo<PrivateKeyViewProps>(({ privateKey, onClose }) => (

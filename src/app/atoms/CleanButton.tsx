@@ -35,7 +35,7 @@ const CleanButton = memo<Props>(({ className, size = 12, onClick }) => {
       id={CLEAN_BUTTON_ID}
       ref={buttonRef}
       type="button"
-      className={clsx(className, 'flex items-center transition ease-in-out duration-200')}
+      className={clsx(className, 'flex items-center ease-in-out duration-200')}
       tabIndex={-1}
       onClick={onClick}
     >

@@ -9,7 +9,7 @@ import { useTempleClient } from 'lib/temple/front';
 import { ManualBackupModal } from './ManualBackupModal';
 
 interface CreateHDWalletModalProps {
-  onEnd: () => void;
+  onEnd: EmptyFn;
 }
 
 export const CreateHDWalletModal = memo<CreateHDWalletModalProps>(({ onEnd }) => {
