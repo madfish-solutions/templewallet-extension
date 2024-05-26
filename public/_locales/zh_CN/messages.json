@@ -174,7 +174,7 @@
     }
   },
   "recommendedBakersDescription": {
-    "message": "此列表由$link$提供技术支持。",
+    "message": "此列表由$link$提供技术支持",
     "placeholders": {
       "link": {
         "content": "$1"

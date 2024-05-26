@@ -249,7 +249,7 @@
     }
   },
   "recommendedBakersDescription": {
-    "message": "This list is powered by $link$.",
+    "message": "This list is powered by $link$",
     "placeholders": {
       "link": {
         "content": "$1"
@@ -704,6 +704,9 @@
   },
   "delegate": {
     "message": "Delegate"
+  },
+  "stake": {
+    "message": "Stake"
   },
   "delegateAndStake": {
     "message": "Delegate & Stake"

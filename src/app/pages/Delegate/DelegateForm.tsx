@@ -12,7 +12,7 @@ import { useFormAnalytics } from 'lib/analytics';
 import { submitDelegation } from 'lib/apis/everstake';
 import { BLOCK_DURATION } from 'lib/fixed-times';
 import { TID, t } from 'lib/i18n';
-import { HELP_UKRAINE_BAKER_ADDRESS, RECOMMENDED_BAKER_ADDRESS } from 'lib/known-bakers';
+import { RECOMMENDED_BAKER_ADDRESS } from 'lib/known-bakers';
 import { setDelegate } from 'lib/michelson';
 import { useTypedSWR } from 'lib/swr';
 import { loadContract } from 'lib/temple/contract';
@@ -293,12 +293,13 @@ const DelegateForm = memo<Props>(({ balance }) => {
           style={{
             resize: 'none'
           }}
-          containerClassName={baker?.address === HELP_UKRAINE_BAKER_ADDRESS ? 'mb-2' : 'mb-4'}
+          containerClassName={!resolvedAddress && 'mb-6'}
+          fieldWrapperBottomMargin={false}
           testID={DelegateFormSelectors.bakerInput}
         />
 
         {resolvedAddress && (
-          <div className="mb-4 -mt-3 text-xs font-light text-gray-600 flex flex-wrap items-center">
+          <div className="mb-6 text-xs font-light text-gray-600 flex flex-wrap items-center">
             <span className="mr-1 whitespace-nowrap">{t('resolvedAddress')}:</span>
             <span className="font-normal">{resolvedAddress}</span>
           </div>

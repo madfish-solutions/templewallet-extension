@@ -188,7 +188,7 @@
     }
   },
   "recommendedBakersDescription": {
-    "message": "This list is powered by $link$.",
+    "message": "This list is powered by $link$",
     "placeholders": {
       "link": {
         "content": "$1"

@@ -177,7 +177,7 @@
     }
   },
   "recommendedBakersDescription": {
-    "message": "Esta lista é fornecida por $link$.",
+    "message": "Esta lista é fornecida por $link$",
     "placeholders": {
       "link": {
         "content": "$1"

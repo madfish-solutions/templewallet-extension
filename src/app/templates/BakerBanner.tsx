@@ -5,7 +5,6 @@ import clsx from 'clsx';
 
 import { Identicon, Name, Money, HashChip, ABContainer } from 'app/atoms';
 import { useAppEnv } from 'app/env';
-import { ReactComponent as ChevronRightIcon } from 'app/icons/chevron-right.svg';
 import { BakingSectionSelectors } from 'app/pages/Home/OtherComponents/BakingSection/selectors';
 import { toLocalFormat, T } from 'lib/i18n';
 import { HELP_UKRAINE_BAKER_ADDRESS, RECOMMENDED_BAKER_ADDRESS } from 'lib/known-bakers';
@@ -16,12 +15,12 @@ import { OpenInExplorerChip } from './OpenInExplorerChip';
 
 interface Props {
   bakerPkh: string;
-  link?: boolean;
   displayAddress?: boolean;
   className?: string;
+  HeaderRight?: React.ComponentType;
 }
 
-const BakerBanner = memo<Props>(({ bakerPkh, link = false, displayAddress = false, className }) => {
+export const BakerCard = memo<Props>(({ bakerPkh, displayAddress = false, className, HeaderRight }) => {
   const allAccounts = useRelevantAccounts();
   const account = useAccount();
   const { fullPage } = useAppEnv();
@@ -35,86 +34,74 @@ const BakerBanner = memo<Props>(({ bakerPkh, link = false, displayAddress = fals
   const isRecommendedBaker = bakerPkh === RECOMMENDED_BAKER_ADDRESS;
   const isHelpUkraineBaker = bakerPkh === HELP_UKRAINE_BAKER_ADDRESS;
 
+  if (!baker)
+    return (
+      <div className={clsx('flex gap-x-2 min-h-20', className)}>
+        <Identicon type="bottts" hash={bakerPkh} size={40} className="shadow-xs" />
+
+        <Name className="text-lg leading-none font-medium text-gray-700">
+          <BakerAccount account={account} bakerAcc={bakerAcc} bakerPkh={bakerPkh} />
+        </Name>
+      </div>
+    );
+
   return (
-    <div className={clsx('flex gap-x-2 text-gray-700 border rounded-md p-3', className)}>
-      {baker ? (
-        <>
-          <img src={baker.logo} alt={baker.name} className="flex-shrink-0 w-16 h-16 bg-white rounded shadow-xs" />
+    <div className={clsx('flex flex-col gap-y-4 text-gray-700', className)}>
+      <div className="flex items-center gap-x-2">
+        <img src={baker.logo} alt={baker.name} className="flex-shrink-0 w-8 h-8 bg-white rounded shadow-xs" />
 
-          <div className="flex-1 flex flex-col gap-y-2 relative overflow-hidden">
-            <div className="flex items-center gap-x-2">
-              <Name className="text-ulg leading-5 text-gray-900" testID={BakingSectionSelectors.delegatedBakerName}>
-                {baker.name}
-              </Name>
+        <Name className="text-ulg leading-5 text-gray-900" testID={BakingSectionSelectors.delegatedBakerName}>
+          {baker.name}
+        </Name>
 
-              {(isRecommendedBaker || isHelpUkraineBaker) && (
-                <ABContainer
-                  groupAComponent={<SponsoredBaker isRecommendedBaker={isRecommendedBaker} />}
-                  groupBComponent={<PromotedBaker isRecommendedBaker={isRecommendedBaker} />}
-                />
-              )}
+        {(isRecommendedBaker || isHelpUkraineBaker) && (
+          <ABContainer
+            groupAComponent={<SponsoredBaker isRecommendedBaker={isRecommendedBaker} />}
+            groupBComponent={<PromotedBaker isRecommendedBaker={isRecommendedBaker} />}
+          />
+        )}
 
-              {displayAddress && (
-                <div className="flex flex-wrap items-center">
-                  <OpenInExplorerChip hash={baker.address} type="account" small alternativeDesign />
-                </div>
-              )}
-
-              <div className="w-24" />
-            </div>
-
-            <div
-              className={clsx(
-                'flex flex-wrap items-center text-left text-xs leading-tight text-gray-500',
-                fullPage && 'gap-x-8'
-              )}
-            >
-              <div className="flex-1 flex flex-col">
-                <T id="staking" />:
-                <span style={{ marginTop: 2 }} className="text-gray-600 flex">
-                  <Money>{(baker.stakingBalance / 1000).toFixed(0)}</Money>K
-                </span>
-              </div>
-
-              <div className="flex-1 flex flex-col">
-                <T id="space" />:
-                <span style={{ marginTop: 2 }} className="text-gray-600 flex">
-                  <Money>{(baker.freeSpace / 1000).toFixed(0)}</Money>K
-                </span>
-              </div>
-
-              <div className="flex-1 flex flex-col">
-                <T id="fee" />:
-                <span style={{ marginTop: 2 }} className="text-gray-600">
-                  {toLocalFormat(new BigNumber(baker.fee).times(100), {
-                    decimalPlaces: 2
-                  })}
-                  %
-                </span>
-              </div>
-            </div>
-
-            {link && (
-              <div className="absolute right-0 top-0 bottom-0 flex items-center">
-                <ChevronRightIcon className="h-5 w-5 stroke-current text-gray-500" />
-              </div>
-            )}
+        {displayAddress && (
+          <div className="flex flex-wrap items-center">
+            <OpenInExplorerChip hash={baker.address} type="account" small alternativeDesign />
           </div>
-        </>
-      ) : (
-        <>
-          <Identicon type="bottts" hash={bakerPkh} size={40} className="shadow-xs" />
+        )}
 
-          <Name className="text-lg leading-none font-medium text-gray-700">
-            <BakerAccount account={account} bakerAcc={bakerAcc} bakerPkh={bakerPkh} />
-          </Name>
-        </>
-      )}
+        <div className="flex-1 min-w-16 flex justify-end">{HeaderRight && <HeaderRight />}</div>
+      </div>
+
+      <div
+        className={clsx('flex flex-wrap items-center text-left text-xs leading-5 text-gray-500', fullPage && 'gap-x-8')}
+      >
+        <div className="flex-1 flex flex-col gap-y-1">
+          <T id="staking" />:
+          <span className="font-medium leading-none text-blue-750">
+            <Money>{(baker.stakingBalance / 1000).toFixed(0)}</Money>K
+          </span>
+        </div>
+
+        <div className="flex-1 flex flex-col gap-y-1">
+          <T id="space" />:
+          <span className="font-medium leading-none text-blue-750">
+            <Money>{(baker.freeSpace / 1000).toFixed(0)}</Money>K
+          </span>
+        </div>
+
+        <div className="flex-1 flex flex-col gap-y-1">
+          <T id="fee" />:
+          <span className="font-medium leading-none text-blue-750">
+            {toLocalFormat(new BigNumber(baker.fee).times(100), {
+              decimalPlaces: 2
+            })}
+            %
+          </span>
+        </div>
+      </div>
     </div>
   );
 });
 
-export default BakerBanner;
+export const BAKER_BANNER_CLASSNAME = 'p-4 rounded-lg border';
 
 const BakerAccount: React.FC<{
   bakerAcc: TempleAccount | null;
@@ -151,17 +138,16 @@ const BakerAccount: React.FC<{
   return <T id="unknownBakerTitle" />;
 };
 
+const BAKER_TAG_CLASSNAME = 'flex-shrink-0 font-medium text-xs leading-none px-2 py-1 text-white rounded-full';
+
 const SponsoredBaker: FC<{ isRecommendedBaker: boolean }> = ({ isRecommendedBaker }) => (
-  <div className="flex-shrink-0 font-normal text-xs px-2 py-1 bg-blue-500 text-white" style={{ borderRadius: '10px' }}>
+  <div className={clsx(BAKER_TAG_CLASSNAME, 'bg-blue-500')}>
     <T id={isRecommendedBaker ? 'recommended' : 'helpUkraine'} />
   </div>
 );
 
 const PromotedBaker: FC<{ isRecommendedBaker: boolean }> = ({ isRecommendedBaker }) => (
-  <div
-    className="flex-shrink-0 font-normal text-xs px-2 py-1 bg-primary-orange text-white"
-    style={{ borderRadius: '10px' }}
-  >
+  <div className={clsx(BAKER_TAG_CLASSNAME, 'bg-primary-orange')}>
     <T id={isRecommendedBaker ? 'recommended' : 'helpUkraine'} />
   </div>
 );

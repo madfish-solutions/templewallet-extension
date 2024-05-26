@@ -17,13 +17,14 @@ import { useGasToken } from 'lib/assets/hooks';
 import { T } from 'lib/i18n';
 
 import { DelegateButton } from './DelegateButton';
+import { BakingSectionSelectors } from './selectors';
 
 interface Props {
   noPreviousHistory: boolean;
-  canDelegate: boolean;
+  cannotDelegate: boolean;
 }
 
-export const NotBakingBanner = memo<Props>(({ noPreviousHistory, canDelegate }) => {
+export const NotBakingBanner = memo<Props>(({ noPreviousHistory, cannotDelegate }) => {
   const { isDcpNetwork } = useGasToken();
   const { fullPage } = useAppEnv();
 
@@ -36,7 +37,9 @@ export const NotBakingBanner = memo<Props>(({ noPreviousHistory, canDelegate }) 
           <T id="dcpDelegatingMotivation" />
         </p>
 
-        <DelegateButton canDelegate={canDelegate} />
+        <DelegateButton disabled={cannotDelegate} testID={BakingSectionSelectors.delegateNowButton}>
+          <T id="delegateAndStake" />
+        </DelegateButton>
       </>
     );
 
@@ -59,7 +62,9 @@ export const NotBakingBanner = memo<Props>(({ noPreviousHistory, canDelegate }) 
         </ul>
       )}
 
-      <DelegateButton canDelegate={canDelegate} />
+      <DelegateButton disabled={cannotDelegate} testID={BakingSectionSelectors.delegateNowButton}>
+        <T id="delegateAndStake" />
+      </DelegateButton>
 
       <p className="mt-6 mb-2.5 text-xs leading-5 text-center text-gray-600">
         <T id="delegationComunity" />

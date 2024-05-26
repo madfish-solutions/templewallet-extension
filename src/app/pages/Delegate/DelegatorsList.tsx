@@ -1,10 +1,11 @@
-import React, { useMemo } from 'react';
+import React, { FC, useMemo } from 'react';
 
 import clsx from 'clsx';
 
 import { Button } from 'app/atoms';
+import { ReactComponent as ChevronRightIcon } from 'app/icons/chevron-right.svg';
 import { useUserTestingGroupNameSelector } from 'app/store/ab-testing/selectors';
-import BakerBanner from 'app/templates/BakerBanner';
+import { BakerCard, BAKER_BANNER_CLASSNAME } from 'app/templates/BakerBanner';
 import { ABTestGroup } from 'lib/apis/temple';
 import { T, t } from 'lib/i18n';
 import { HELP_UKRAINE_BAKER_ADDRESS, RECOMMENDED_BAKER_ADDRESS } from 'lib/known-bakers';
@@ -89,8 +90,8 @@ export const KnownDelegatorsList: React.FC<{ setValue: any; triggerValidation: a
   ];
 
   return (
-    <div className="my-6 flex flex-col">
-      <h2 className="mb-4 leading-tight flex flex-col">
+    <div className="pb-6 flex flex-col">
+      <h2 className="leading-tight flex flex-col">
         <span className="text-base font-semibold text-gray-700">
           <T id="recommendedBakers" />
         </span>
@@ -113,7 +114,7 @@ export const KnownDelegatorsList: React.FC<{ setValue: any; triggerValidation: a
         </span>
       </h2>
 
-      <div className="mb-2 flex items-center">
+      <div className="mt-4 flex items-center">
         <span className="mr-1 text-xs text-gray-500">
           <T id="sortBy" />
         </span>
@@ -146,9 +147,8 @@ export const KnownDelegatorsList: React.FC<{ setValue: any; triggerValidation: a
         <div className="flex-1" />
       </div>
 
-      <div className="flex flex-col rounded-md overflow-hidden border text-gray-700 text-sm leading-tight">
-        {sortedKnownBakers.map((baker, i, arr) => {
-          const last = i === arr.length - 1;
+      <div className="mt-3 flex flex-col gap-y-3">
+        {sortedKnownBakers.map(baker => {
           const handleBakerClick = () => {
             setValue('to', baker.address);
             triggerValidation('to');
@@ -157,6 +157,7 @@ export const KnownDelegatorsList: React.FC<{ setValue: any; triggerValidation: a
 
           let testId = DelegateFormSelectors.knownBakerItemButton;
           let className = clsx(
+            BAKER_BANNER_CLASSNAME,
             'hover:bg-gray-100 focus:bg-gray-100',
             'transition ease-in-out duration-200',
             'focus:outline-none',
@@ -167,13 +168,7 @@ export const KnownDelegatorsList: React.FC<{ setValue: any; triggerValidation: a
             testId = DelegateFormSelectors.knownBakerItemAButton;
             if (testGroupName === ABTestGroup.B) {
               testId = DelegateFormSelectors.knownBakerItemBButton;
-              className = clsx(
-                'hover:bg-gray-100 focus:bg-gray-100',
-                'transition ease-in-out duration-200',
-                'focus:outline-none',
-                'opacity-90 hover:opacity-100',
-                'bg-orange-100'
-              );
+              className += 'bg-orange-100';
             }
           }
 
@@ -186,7 +181,7 @@ export const KnownDelegatorsList: React.FC<{ setValue: any; triggerValidation: a
               testID={testId}
               testIDProperties={{ bakerAddress: baker.address, abTestingCategory: testGroupName }}
             >
-              <BakerBanner bakerPkh={baker.address} link className={clsx(!last && 'border-b border-gray-200')} />
+              <BakerCard bakerPkh={baker.address} className="w-full" HeaderRight={BakerBannerHeaderRight} />
             </Button>
           );
         })}
@@ -194,3 +189,5 @@ export const KnownDelegatorsList: React.FC<{ setValue: any; triggerValidation: a
     </div>
   );
 };
+
+const BakerBannerHeaderRight: FC = () => <ChevronRightIcon className="h-6 w-6 stroke-current text-gray-500" />;

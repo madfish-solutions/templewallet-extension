@@ -174,7 +174,7 @@
     }
   },
   "recommendedBakersDescription": {
-    "message": "このリストは$link$によって提供されています。",
+    "message": "このリストは$link$によって提供されています",
     "placeholders": {
       "link": {
         "content": "$1"

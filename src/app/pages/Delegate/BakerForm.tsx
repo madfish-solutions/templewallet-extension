@@ -1,6 +1,7 @@
 import React, { FC, ReactNode, useMemo } from 'react';
 
 import BigNumber from 'bignumber.js';
+import clsx from 'clsx';
 import { Control, FieldError, FormStateProxy, NestDataObject } from 'react-hook-form';
 
 import { Alert, FormSubmitButton } from 'app/atoms';
@@ -9,7 +10,7 @@ import Spinner from 'app/atoms/Spinner/Spinner';
 import { ArtificialError, NotEnoughFundsError, ZeroBalanceError } from 'app/defaults';
 import { useUserTestingGroupNameSelector } from 'app/store/ab-testing/selectors';
 import AdditionalFeeInput from 'app/templates/AdditionalFeeInput/AdditionalFeeInput';
-import BakerBanner from 'app/templates/BakerBanner';
+import { BakerCard, BAKER_BANNER_CLASSNAME } from 'app/templates/BakerBanner';
 import { ABTestGroup } from 'lib/apis/temple';
 import { useGasToken } from 'lib/assets/hooks';
 import { T, t } from 'lib/i18n';
@@ -138,7 +139,7 @@ const BakerBannerComponent = React.memo<BakerBannerComponentProps>(({ balanceNum
 
   return baker ? (
     <>
-      <BakerBanner bakerPkh={baker.address} className="mb-6" />
+      <BakerCard bakerPkh={baker.address} className={clsx(BAKER_BANNER_CLASSNAME, 'mb-6')} />
 
       {!tzError && baker.minDelegation > balanceNum && (
         <Alert

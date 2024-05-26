@@ -174,7 +174,7 @@
     }
   },
   "recommendedBakersDescription": {
-    "message": "Cette liste est alimentée par $link$.",
+    "message": "Cette liste est alimentée par $link$",
     "placeholders": {
       "link": {
         "content": "$1"

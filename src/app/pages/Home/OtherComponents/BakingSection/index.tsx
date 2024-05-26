@@ -1,27 +1,31 @@
-import React, { memo, useCallback, useMemo } from 'react';
+import React, { FC, memo, useCallback, useMemo } from 'react';
 
 import BigNumber from 'bignumber.js';
 import clsx from 'clsx';
 
+import { Divider, Money } from 'app/atoms';
 import Spinner from 'app/atoms/Spinner/Spinner';
 import { useAppEnv } from 'app/env';
 import BakingHistoryItem from 'app/pages/Home/OtherComponents/BakingSection/HistoryItem';
-import BakerBanner from 'app/templates/BakerBanner';
+import { BakerCard, BAKER_BANNER_CLASSNAME } from 'app/templates/BakerBanner';
 import { getDelegatorRewards, isKnownChainId } from 'lib/apis/tzkt';
 import { T } from 'lib/i18n';
+import { TEZOS_METADATA } from 'lib/metadata';
 import { useRetryableSWR } from 'lib/swr';
-import { useAccount, useChainId, useDelegate } from 'lib/temple/front';
+import { useAccount, useChainId, useDelegate, useTezos } from 'lib/temple/front';
+import { atomsToTokens } from 'lib/temple/helpers';
 import { TempleAccountType } from 'lib/temple/types';
 
-import { RedelegateButton } from './DelegateButton';
+import { DelegateButton, RedelegateButton } from './DelegateButton';
 import { NotBakingBanner } from './NotBakingBanner';
 import { reduceFunction, RewardsPerEventHistoryItem } from './utils';
 
 const BakingSection = memo(() => {
   const acc = useAccount();
   const { data: myBakerPkh } = useDelegate(acc.publicKeyHash, true, false);
-  const canDelegate = acc.type !== TempleAccountType.WatchOnly;
+  const cannotDelegate = acc.type === TempleAccountType.WatchOnly;
   const chainId = useChainId(true);
+  const tezos = useTezos();
 
   const { popup } = useAppEnv();
 
@@ -45,6 +49,18 @@ const BakingSection = memo(() => {
     getBakingHistory,
     { suspense: true, revalidateOnFocus: false, revalidateOnReconnect: false }
   );
+
+  const { data: stakedData } = useRetryableSWR(
+    ['delegate-stake', 'get-staked', tezos.checksum],
+    () => tezos.rpc.getStakedBalance(acc.publicKeyHash),
+    {
+      suspense: true
+    }
+  );
+
+  const stakedAmount = stakedData && stakedData.gt(0) ? atomsToTokens(stakedData, TEZOS_METADATA.decimals) : null;
+
+  console.log('STAKED DATA:', stakedData?.toString());
 
   const rewardsPerEventHistory = useMemo(() => {
     if (!bakingHistory) {
@@ -107,35 +123,56 @@ const BakingSection = memo(() => {
     [bakingHistory]
   );
 
+  const BakerBannerHeaderRight = useCallback<FC>(
+    () => <RedelegateButton disabled={cannotDelegate} />,
+    [cannotDelegate]
+  );
+
   const noPreviousHistory = bakingHistory ? bakingHistory.length === 0 : false;
 
   return (
     <div className={clsx('pt-4 pb-12 flex flex-col max-w-sm mx-auto', popup && 'px-5')}>
       {myBakerPkh ? (
-        <>
-          <div className="mb-4 flex justify-between items-center text-xs leading-tight">
-            <span className="text-gray-600">
-              <T id="delegatedTo" />
-            </span>
+        <div className={clsx(BAKER_BANNER_CLASSNAME, 'flex flex-col gap-y-4')}>
+          <BakerCard displayAddress bakerPkh={myBakerPkh} HeaderRight={BakerBannerHeaderRight} />
 
-            <RedelegateButton canDelegate={canDelegate} />
-          </div>
+          <Divider />
 
-          <BakerBanner displayAddress bakerPkh={myBakerPkh} />
-        </>
+          {stakedAmount && (
+            <div className="text-sm text-blue-750">
+              <span className="mr-1">Staked:</span>
+              <span className="font-semibold">
+                <Money smallFractionFont={false} cryptoDecimals={TEZOS_METADATA.decimals}>
+                  {stakedAmount}
+                </Money>{' '}
+                {TEZOS_METADATA.symbol}
+              </span>
+            </div>
+          )}
+
+          <DelegateButton thinner disabled={cannotDelegate}>
+            {stakedAmount ? (
+              <T id="manage" />
+            ) : (
+              <span>
+                <T id="stake" /> {TEZOS_METADATA.symbol}
+              </span>
+            )}
+          </DelegateButton>
+        </div>
       ) : (
-        <NotBakingBanner noPreviousHistory={noPreviousHistory} canDelegate={canDelegate} />
+        <NotBakingBanner noPreviousHistory={noPreviousHistory} cannotDelegate={cannotDelegate} />
       )}
 
       {loadingBakingHistory && (
-        <div className="flex justify-center items-center h-10 mt-4">
+        <div className="flex justify-center items-center h-10 mt-6">
           <Spinner theme="gray" className="w-16" />
         </div>
       )}
 
       {bakingHistory && bakingHistory.length > 0 && (
         <>
-          <p className="text-gray-600 leading-tight mt-4">History:</p>
+          <h4 className="mt-8 text-base leading-tight font-medium text-blue-750">Rewards:</h4>
 
           {bakingHistory.map((historyItem, index) => (
             <BakingHistoryItem

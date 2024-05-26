@@ -177,7 +177,7 @@
     }
   },
   "recommendedBakersDescription": {
-    "message": "Bu liste $link$ tarafından desteklenir.",
+    "message": "Bu liste $link$ tarafından desteklenir",
     "placeholders": {
       "link": {
         "content": "$1"

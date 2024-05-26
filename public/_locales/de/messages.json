@@ -177,7 +177,7 @@
     }
   },
   "recommendedBakersDescription": {
-    "message": "Diese Liste wird unterstützt von $link$.",
+    "message": "Diese Liste wird unterstützt von $link$",
     "placeholders": {
       "link": {
         "content": "$1"
