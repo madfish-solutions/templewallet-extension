@@ -102,10 +102,10 @@ const EvmCollectiblePage = memo<EvmCollectiblePageProps>(({ evmChainId, assetSlu
         </div>
 
         <>
-          {metadata.collectionName && (
+          {metadata.name && (
             <div className="flex justify-between items-center">
               <div className="flex items-center justify-center rounded">
-                <div className="content-center ml-2 text-gray-910 text-sm">{metadata.collectionName}</div>
+                <div className="content-center ml-2 text-gray-910 text-sm">{metadata.name}</div>
               </div>
             </div>
           )}

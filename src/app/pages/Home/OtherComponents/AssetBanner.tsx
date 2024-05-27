@@ -4,11 +4,12 @@ import Money from 'app/atoms/Money';
 import { DeadEndBoundaryError } from 'app/ErrorBoundary';
 import { useEvmTokenMetadata } from 'app/hooks/evm/metadata';
 import AddressChip from 'app/templates/AddressChip';
-import { AssetIcon, EvmAssetIcon } from 'app/templates/AssetIcon';
+import { AssetIcon, EvmTokenIcon } from 'app/templates/AssetIcon';
 import { EvmBalance, TezosBalance } from 'app/templates/Balance';
 import InFiat from 'app/templates/InFiat';
 import { setAnotherSelector, setTestID } from 'lib/analytics';
 import { getAssetName, getAssetSymbol, useAssetMetadata } from 'lib/metadata';
+import { isEvmNativeTokenSlug } from 'lib/utils/evm.utils';
 import { useAccountAddressForEvm, useAccountAddressForTezos, useTezosChainByChainId } from 'temple/front';
 import { useEvmChainByChainId } from 'temple/front/chains';
 import { TempleChainKind } from 'temple/types';
@@ -105,15 +106,18 @@ const EvmAssetBanner = memo<EvmAssetBannerProps>(({ evmChainId, assetSlug }) => 
 
   if (!accountEvmAddress || !network) throw new DeadEndBoundaryError();
 
-  const assetMetadata = useEvmTokenMetadata(evmChainId, assetSlug);
-  const assetName = getAssetName(assetMetadata);
-  const assetSymbol = getAssetSymbol(assetMetadata);
+  const tokenMetadata = useEvmTokenMetadata(evmChainId, assetSlug);
+
+  const metadata = isEvmNativeTokenSlug(assetSlug) ? network.currency : tokenMetadata;
+
+  const assetName = getAssetName(metadata);
+  const assetSymbol = getAssetSymbol(metadata);
 
   return (
     <>
       <div className="flex justify-between items-center my-3">
         <div className="flex items-center">
-          <EvmAssetIcon evmChainId={network.chainId} assetSlug={assetSlug} size={24} className="flex-shrink-0" />
+          <EvmTokenIcon evmChainId={network.chainId} assetSlug={assetSlug} size={24} className="flex-shrink-0" />
 
           <div
             className="text-sm font-normal text-gray-700 truncate flex-1 ml-2"

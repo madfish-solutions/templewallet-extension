@@ -31,6 +31,7 @@ export interface BalancesResponse {
   /** * List of response items. */
   items: BalanceItem[];
 }
+
 export interface BalanceItem {
   /** * Use contract decimals to format the token balance for display purposes - divide the balance by `10^{contract_decimals}`. */
   contract_decimals: number | null;
@@ -77,10 +78,12 @@ export interface BalanceItem {
   /** * NFT-specific data. */
   nft_data: BalanceNftData[] | null;
 }
+
 interface ProtocolMetadata {
   /** * The name of the protocol. */
   protocol_name: string;
 }
+
 export interface BalanceNftData {
   /** * The token's id. */
   token_id: string | null;

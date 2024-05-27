@@ -12,6 +12,8 @@ import { useGetTokenOrGasMetadata } from 'lib/metadata';
 import { useMemoWithCompare } from 'lib/ui/hooks';
 import { isSearchStringApplicable } from 'lib/utils/search-items';
 
+import { EVM_NATIVE_CURRENCY_ADDRESS } from '../../lib/metadata/types';
+
 export const useTezosTokensListingLogic = (
   tezosChainId: string,
   publicKeyHash: string,
@@ -92,15 +94,15 @@ export const useTezosTokensListingLogic = (
 };
 
 export const useEvmTokensListingLogic = (publicKeyHash: HexString, chainId: number, assetsSlugs: string[]) => {
-  const assetsSortPredicate = useEvmTokensSortPredicate(publicKeyHash, chainId);
+  const tokensSortPredicate = useEvmTokensSortPredicate(publicKeyHash, chainId);
 
-  const sortedAssets = useMemoWithCompare(
-    () => assetsSlugs.sort(assetsSortPredicate),
-    [assetsSlugs, assetsSortPredicate],
+  const sortedTokenSlugs = useMemoWithCompare(
+    () => [EVM_NATIVE_CURRENCY_ADDRESS, ...assetsSlugs.sort(tokensSortPredicate)],
+    [assetsSlugs, tokensSortPredicate],
     isEqual
   );
 
   return {
-    sortedAssets
+    sortedTokenSlugs
   };
 };

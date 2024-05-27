@@ -6,7 +6,7 @@ import { Checkbox, Divider, SyncSpinner } from 'app/atoms';
 import DropdownWrapper from 'app/atoms/DropdownWrapper';
 import { IconButton } from 'app/atoms/IconButton';
 import { SimpleInfiniteScroll } from 'app/atoms/SimpleInfiniteScroll';
-import { useEvmChainAccountTokensSlugs } from 'app/hooks/evm/assets';
+import { useEvmChainAccountTokenSlugs } from 'app/hooks/evm/assets';
 import { useLoadPartnersPromo } from 'app/hooks/use-load-partners-promo';
 import { useEvmTokensListingLogic, useTezosTokensListingLogic } from 'app/hooks/use-tokens-listing-logic';
 import { ReactComponent as FiltersIcon } from 'app/icons/base/filteroff.svg';
@@ -31,8 +31,8 @@ import { useLocalStorage } from 'lib/ui/local-storage';
 import Popper, { PopperRenderProps } from 'lib/ui/Popper';
 import { Link, navigate } from 'lib/woozie';
 import { UNDER_DEVELOPMENT_MSG } from 'temple/evm/under_dev_msg';
-import { useAccountAddressForEvm, useAccountAddressForTezos, useEthereumMainnetChain } from 'temple/front';
-import { EvmNetworkEssentials, TezosNetworkEssentials } from 'temple/networks';
+import { EvmChain, useAccountAddressForEvm, useAccountAddressForTezos, useEthereumMainnetChain } from 'temple/front';
+import { TezosNetworkEssentials } from 'temple/networks';
 import { TempleChainKind } from 'temple/types';
 
 import { HomeSelectors } from '../../selectors';
@@ -81,13 +81,13 @@ export const TokensTab = memo(() => {
 const ITEMS_PER_PAGE = 30;
 
 interface EvmTokensTabProps {
-  network: EvmNetworkEssentials;
+  network: EvmChain;
   publicKeyHash: HexString;
   chainSelectController: ChainSelectController;
 }
 
 const EvmTokensTab: FC<EvmTokensTabProps> = ({ network, publicKeyHash, chainSelectController }) => {
-  const assetsSlugs = useEvmChainAccountTokensSlugs(publicKeyHash, network.chainId);
+  const tokenSlugs = useEvmChainAccountTokenSlugs(publicKeyHash, network.chainId);
   const balancesLoading = useEvmBalancesLoadingSelector();
   const isMetadataLoading = useEvmTokensMetadataLoadingSelector();
 
@@ -100,7 +100,7 @@ const EvmTokensTab: FC<EvmTokensTabProps> = ({ network, publicKeyHash, chainSele
     [setIsZeroBalancesHidden]
   );
 
-  const { sortedAssets } = useEvmTokensListingLogic(publicKeyHash, network.chainId, assetsSlugs);
+  const { sortedTokenSlugs } = useEvmTokensListingLogic(publicKeyHash, network.chainId, tokenSlugs);
 
   const [hasMore, setHasMore] = useState(true);
   const [itemsCount, setItemsCount] = useState(ITEMS_PER_PAGE);
@@ -136,12 +136,12 @@ const EvmTokensTab: FC<EvmTokensTabProps> = ({ network, publicKeyHash, chainSele
   const loadMore = useCallback(() => {
     if (!hasMore) return;
 
-    if (itemsCount >= sortedAssets.length) {
+    if (itemsCount >= sortedTokenSlugs.length) {
       setHasMore(false);
     } else {
       setItemsCount(itemsCount + ITEMS_PER_PAGE);
     }
-  }, [hasMore, itemsCount, sortedAssets.length]);
+  }, [hasMore, itemsCount, sortedTokenSlugs.length]);
 
   const stickyBarRef = useRef<HTMLDivElement>(null);
 
@@ -191,7 +191,7 @@ const EvmTokensTab: FC<EvmTokensTabProps> = ({ network, publicKeyHash, chainSele
       </StickyBar>
 
       <ContentContainer>
-        {sortedAssets.length === 0 ? (
+        {sortedTokenSlugs.length === 0 ? (
           <div className="my-8 flex flex-col items-center justify-center text-gray-500">
             <p className="mb-2 flex items-center justify-center text-gray-600 text-base font-light">
               <span {...setTestID(HomeSelectors.emptyStateText)}>
@@ -211,7 +211,7 @@ const EvmTokensTab: FC<EvmTokensTabProps> = ({ network, publicKeyHash, chainSele
             </p>
           </div>
         ) : (
-          <SimpleInfiniteScroll loadNext={loadMore}>{showItems(sortedAssets)}</SimpleInfiniteScroll>
+          <SimpleInfiniteScroll loadNext={loadMore}>{showItems(sortedTokenSlugs)}</SimpleInfiniteScroll>
         )}
 
         {isLoading && <SyncSpinner className="mt-4" />}

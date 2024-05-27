@@ -1,4 +1,5 @@
 import { createReducer } from '@reduxjs/toolkit';
+import { getAddress } from 'viem';
 
 import { toTokenSlug } from 'lib/assets';
 import { isProperCollectibleMetadata } from 'lib/utils/evm.utils';
@@ -26,7 +27,7 @@ export const evmCollectiblesMetadataReducer = createReducer<EvmCollectiblesMetad
         for (const collectible of collectibles) {
           if (!isProperCollectibleMetadata(collectible)) continue;
 
-          const slug = toTokenSlug(contract.contract_address, collectible.token_id);
+          const slug = toTokenSlug(getAddress(contract.contract_address), collectible.token_id);
 
           const stored = chainTokensMetadata[slug];
           if (!stored) chainTokensMetadata[slug] = buildEvmCollectibleMetadataFromFetched(collectible, contract);

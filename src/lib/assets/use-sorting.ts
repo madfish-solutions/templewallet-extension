@@ -3,7 +3,6 @@ import { useCallback } from 'react';
 import { BigNumber } from 'bignumber.js';
 
 import { useEvmAccountChainBalances } from 'app/hooks/evm/balance';
-import { useEvmChainTokensMetadata } from 'app/hooks/evm/metadata';
 import { useEvmUsdToTokenRatesSelector } from 'app/store/evm/tokens-exchange-rates/selectors';
 import { useAllAccountBalancesSelector } from 'app/store/tezos/balances/selectors';
 import { useTezosUsdToTokenRatesSelector } from 'app/store/tezos/currency/selectors';
@@ -32,7 +31,6 @@ export const useTezosTokensSortPredicate = (publicKeyHash: string, tezosChainId:
 };
 
 export const useEvmTokensSortPredicate = (publicKeyHash: HexString, chainId: number) => {
-  const chainTokensMetadata = useEvmChainTokensMetadata(chainId);
   const getBalance = useGetEvmTokenBalanceWithDecimals(publicKeyHash, chainId);
   const usdToTokenRates = useEvmUsdToTokenRatesSelector();
 
@@ -43,17 +41,13 @@ export const useEvmTokensSortPredicate = (publicKeyHash: HexString, chainId: num
       const aEquity = aBalance.multipliedBy(usdToTokenRates[chainId]?.[aSlug] ?? ZERO);
       const bEquity = bBalance.multipliedBy(usdToTokenRates[chainId]?.[bSlug] ?? ZERO);
 
-      // native token on top of the list
-      if (chainTokensMetadata[aSlug]?.native) return -1;
-      if (chainTokensMetadata[bSlug]?.native) return 1;
-
       if (aEquity.isEqualTo(bEquity)) {
         return bBalance.comparedTo(aBalance);
       }
 
       return bEquity.comparedTo(aEquity);
     },
-    [chainId, chainTokensMetadata, getBalance, usdToTokenRates]
+    [chainId, getBalance, usdToTokenRates]
   );
 };
 

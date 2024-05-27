@@ -1,4 +1,5 @@
 import { createReducer } from '@reduxjs/toolkit';
+import { getAddress } from 'viem';
 
 import { toTokenSlug } from 'lib/assets';
 import { isPositiveTokenBalance } from 'lib/utils/evm.utils';
@@ -21,9 +22,9 @@ export const evmTokensMetadataReducer = createReducer<EvmTokensMetadataState>(
       const items = data.items;
 
       for (const item of items) {
-        if (!item.native_token && !isPositiveTokenBalance(item)) continue;
+        if (item.native_token || !isPositiveTokenBalance(item)) continue;
 
-        const slug = toTokenSlug(item.contract_address);
+        const slug = toTokenSlug(getAddress(item.contract_address));
 
         const stored = chainTokensMetadata[slug];
         if (!stored) chainTokensMetadata[slug] = buildEvmTokenMetadataFromFetched(item);

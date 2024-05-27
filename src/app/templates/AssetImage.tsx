@@ -4,10 +4,11 @@ import { buildTokenImagesStack, buildCollectibleImagesStack, buildEvmTokenIconSo
 import { AssetMetadataBase, isCollectibleTokenMetadata } from 'lib/metadata';
 import { EvmTokenMetadata } from 'lib/metadata/types';
 import { ImageStacked, ImageStackedProps } from 'lib/ui/ImageStacked';
+import { isEvmTokenMetadata } from 'lib/utils/evm.utils';
 
 export interface AssetImageProps
   extends Pick<ImageStackedProps, 'loader' | 'fallback' | 'className' | 'style' | 'onStackLoaded' | 'onStackFailed'> {
-  metadata?: AssetMetadataBase;
+  metadata?: EvmTokenMetadata | AssetMetadataBase;
   size?: number;
   fullViewCollectible?: boolean;
   evmChainId?: number;
@@ -26,8 +27,8 @@ export const AssetImage: FC<AssetImageProps> = ({
   onStackFailed
 }) => {
   const sources = useMemo(() => {
-    if (evmChainId) {
-      return buildEvmTokenIconSources(evmChainId, metadata as EvmTokenMetadata);
+    if (isEvmTokenMetadata(metadata)) {
+      return buildEvmTokenIconSources(metadata, evmChainId);
     }
 
     if (metadata && isCollectibleTokenMetadata(metadata))

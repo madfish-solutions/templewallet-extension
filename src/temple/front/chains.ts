@@ -1,6 +1,8 @@
 import type { TID } from 'lib/i18n';
+import { EvmNativeTokenMetadata } from 'lib/metadata/types';
 import { TEZOS_MAINNET_CHAIN_ID } from 'lib/temple/types';
-import type { StoredTezosNetwork, StoredEvmNetwork, EvmNativeCurrency } from 'temple/networks';
+import { useMemoWithCompare } from 'lib/ui/hooks';
+import type { StoredTezosNetwork, StoredEvmNetwork } from 'temple/networks';
 import type { TempleChainKind } from 'temple/types';
 
 import { useAllTezosChains, useAllEvmChains } from './ready';
@@ -22,22 +24,17 @@ export interface TezosChain extends ChainBase {
 export interface EvmChain extends ChainBase {
   kind: TempleChainKind.EVM;
   chainId: number;
-  currency: EvmNativeCurrency;
+  currency: EvmNativeTokenMetadata;
+  testnet: boolean;
   rpc: StoredEvmNetwork;
   allRpcs: StoredEvmNetwork[];
 }
 
 export type OneOfChains = TezosChain | EvmChain;
 
-export interface TezosChainSpecs {
+export interface ChainSpecs {
   activeRpcId?: string;
   disabled?: boolean;
-}
-
-export interface EvmChainSpecs {
-  activeRpcId?: string;
-  disabled?: boolean;
-  currency?: EvmNativeCurrency;
 }
 
 export const useTezosChainByChainId = (tezosChainId: string): TezosChain | null => {
@@ -49,10 +46,22 @@ export const useTezosChainByChainId = (tezosChainId: string): TezosChain | null 
 export const useTezosMainnetChain = () => useTezosChainByChainId(TEZOS_MAINNET_CHAIN_ID)!;
 
 // ts-prune-ignore-next
-export const useEvmChainByChainId = (evmChainId: number): EvmChain | null => {
+export const useEvmChainByChainId = (evmChainId: number): EvmChain | undefined => {
   const allEvmChains = useAllEvmChains();
 
-  return allEvmChains[evmChainId] ?? null;
+  return allEvmChains[evmChainId];
 };
 
 export const useEthereumMainnetChain = () => useEvmChainByChainId(1)!;
+
+const useEvmMainnetChains = () => {
+  const allNetworks = useAllEvmChains();
+
+  return useMemoWithCompare(() => Object.values(allNetworks).filter(({ testnet }) => !testnet), [allNetworks]);
+};
+
+export const useEvmMainnetChainIds = () => {
+  const mainnetNetworks = useEvmMainnetChains();
+
+  return mainnetNetworks.map(({ chainId }) => chainId);
+};

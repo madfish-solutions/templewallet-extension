@@ -4,6 +4,7 @@ import { ContractAbstraction, ContractProvider, Wallet } from '@taquito/taquito'
 import classNames from 'clsx';
 import { FormContextValues, useForm } from 'react-hook-form';
 import { useDebouncedCallback } from 'use-debounce';
+import { getAddress } from 'viem';
 
 import { Alert, FormField, FormSubmitButton, NoSpaceField, PageTitle } from 'app/atoms';
 import Spinner from 'app/atoms/Spinner/Spinner';
@@ -81,7 +82,7 @@ interface EvmFormProps {
 
 interface EvmFormData {
   address: string;
-  id?: string;
+  id: string;
 }
 
 const EvmForm = memo<EvmFormProps>(({ accountPkh, network }) => {
@@ -95,8 +96,10 @@ const EvmForm = memo<EvmFormProps>(({ accountPkh, network }) => {
     async ({ address, id }: EvmFormData) => {
       if (formState.isSubmitting) return;
 
+      const tokenId = id === '' ? '0' : id;
+
       try {
-        const assetSlug = toTokenSlug(address, id);
+        const assetSlug = toTokenSlug(getAddress(address), tokenId);
 
         const metadata = await fetchEvmAssetMetadataFromChain(network, assetSlug);
 
@@ -150,7 +153,6 @@ const EvmForm = memo<EvmFormProps>(({ accountPkh, network }) => {
 
       <FormField
         ref={register()}
-        min={0}
         type="text"
         name="id"
         id="token-id"

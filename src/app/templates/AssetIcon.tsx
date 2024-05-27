@@ -6,6 +6,9 @@ import Identicon from 'app/atoms/Identicon';
 import { useEvmTokenMetadata } from 'app/hooks/evm/metadata';
 import { ReactComponent as CollectiblePlaceholder } from 'app/icons/collectible-placeholder.svg';
 import { AssetMetadataBase, getAssetSymbol, isCollectible, useAssetMetadata } from 'lib/metadata';
+import { EvmTokenMetadata } from 'lib/metadata/types';
+import { isEvmNativeTokenSlug } from 'lib/utils/evm.utils';
+import { useEvmChainByChainId } from 'temple/front/chains';
 
 import { AssetImage, AssetImageProps } from './AssetImage';
 
@@ -34,8 +37,11 @@ interface EvmAssetIconProps extends Omit<AssetImageProps, 'metadata' | 'loader' 
   assetSlug: string;
 }
 
-export const EvmAssetIcon = memo<EvmAssetIconProps>(({ evmChainId, assetSlug, className, style, ...props }) => {
-  const metadata = useEvmTokenMetadata(evmChainId, assetSlug);
+export const EvmTokenIcon = memo<EvmAssetIconProps>(({ evmChainId, assetSlug, className, style, ...props }) => {
+  const network = useEvmChainByChainId(evmChainId);
+  const tokenMetadata = useEvmTokenMetadata(evmChainId, assetSlug);
+
+  const metadata = isEvmNativeTokenSlug(assetSlug) ? network?.currency : tokenMetadata;
 
   return (
     <div className={clsx('flex items-center justify-center', className)} style={style}>
@@ -51,7 +57,7 @@ export const EvmAssetIcon = memo<EvmAssetIconProps>(({ evmChainId, assetSlug, cl
 });
 
 interface PlaceholderProps {
-  metadata: AssetMetadataBase | nullish;
+  metadata: EvmTokenMetadata | AssetMetadataBase | nullish;
   size?: number;
 }
 

@@ -2,9 +2,9 @@ import React, { memo, useMemo } from 'react';
 
 import classNames from 'clsx';
 
-import { AssetIcon, EvmAssetIcon } from 'app/templates/AssetIcon';
+import { AssetIcon, EvmTokenIcon } from 'app/templates/AssetIcon';
 import { setAnotherSelector } from 'lib/analytics';
-import { useEvmAssetBalance, useTezosAssetBalance } from 'lib/balances/hooks';
+import { useEvmTokenBalance, useTezosAssetBalance } from 'lib/balances/hooks';
 import { getAssetName, getAssetSymbol } from 'lib/metadata';
 import { ZERO } from 'lib/utils/numbers';
 import { Link } from 'lib/woozie';
@@ -94,11 +94,7 @@ interface EvmListItemProps {
 }
 
 export const EvmListItem = memo<EvmListItemProps>(({ network, publicKeyHash, assetSlug }) => {
-  const { value: balance = ZERO, assetMetadata: metadata } = useEvmAssetBalance(
-    assetSlug,
-    publicKeyHash,
-    network.chainId
-  );
+  const { value: balance = ZERO, metadata } = useEvmTokenBalance(assetSlug, publicKeyHash, network.chainId);
 
   if (metadata == null) return null;
 
@@ -117,7 +113,7 @@ export const EvmListItem = memo<EvmListItemProps>(({ network, publicKeyHash, ass
       testIDProperties={{ key: assetSlug }}
       {...setAnotherSelector('name', assetName)}
     >
-      <EvmAssetIcon evmChainId={network.chainId} assetSlug={assetSlug} size={40} className="mr-2 flex-shrink-0" />
+      <EvmTokenIcon evmChainId={network.chainId} assetSlug={assetSlug} size={40} className="mr-2 flex-shrink-0" />
 
       <div className={classNames('w-full', styles.tokenInfoWidth)}>
         <div className="flex justify-between w-full mb-1">

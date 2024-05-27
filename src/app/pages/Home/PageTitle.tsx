@@ -1,8 +1,10 @@
-import React, { memo, useEffect } from 'react';
+import React, { memo } from 'react';
 
 import { useEvmTokenMetadata } from 'app/hooks/evm/metadata';
 import { setAnotherSelector, setTestID } from 'lib/analytics';
 import { getAssetSymbol, useAssetMetadata } from 'lib/metadata';
+import { isEvmNativeTokenSlug } from 'lib/utils/evm.utils';
+import { useEvmChainByChainId } from 'temple/front/chains';
 import { TempleChainKind } from 'temple/types';
 
 import { HomeProps } from './interfaces';
@@ -36,12 +38,12 @@ const TezosPageTitle = memo<TezosProps>(({ assetSlug, tezosChainId }) => {
 });
 
 const EvmPageTitle = memo<EvmProps>(({ assetSlug, evmChainId }) => {
+  const network = useEvmChainByChainId(evmChainId);
   const assetMetadata = useEvmTokenMetadata(evmChainId, assetSlug);
-  const assetSymbol = getAssetSymbol(assetMetadata);
 
-  useEffect(() => {
-    (async () => {})();
-  }, []);
+  const metadata = isEvmNativeTokenSlug(assetSlug) ? network?.currency : assetMetadata;
+
+  const assetSymbol = getAssetSymbol(metadata);
 
   return <BaseTitle assetSymbol={assetSymbol} />;
 });

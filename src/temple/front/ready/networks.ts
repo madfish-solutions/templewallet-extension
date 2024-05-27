@@ -13,7 +13,7 @@ import {
 } from 'temple/networks';
 import { TempleChainKind } from 'temple/types';
 
-import type { TezosChain, EvmChain, TezosChainSpecs, EvmChainSpecs } from '../chains';
+import type { TezosChain, EvmChain, ChainSpecs } from '../chains';
 
 export function useReadyTempleTezosNetworks(customTezosNetworks: StoredTezosNetwork[]) {
   const allTezosNetworks = useMemo<typeof TEZOS_DEFAULT_NETWORKS>(
@@ -21,10 +21,7 @@ export function useReadyTempleTezosNetworks(customTezosNetworks: StoredTezosNetw
     [customTezosNetworks]
   );
 
-  const [tezosChainsSpecs] = useStorage<OptionalRecord<TezosChainSpecs>>(
-    TEZOS_CHAINS_SPECS_STORAGE_KEY,
-    EMPTY_FROZEN_OBJ
-  );
+  const [tezosChainsSpecs] = useStorage<OptionalRecord<ChainSpecs>>(TEZOS_CHAINS_SPECS_STORAGE_KEY, EMPTY_FROZEN_OBJ);
 
   const allTezosChains = useMemo(() => {
     const rpcByChainId = new Map<string, NonEmptyArray<StoredTezosNetwork>>();
@@ -78,7 +75,7 @@ export function useReadyTempleEvmNetworks(customEvmNetworks: StoredEvmNetwork[])
     [customEvmNetworks]
   );
 
-  const [evmChainsSpecs] = useStorage<OptionalRecord<EvmChainSpecs>>(EVM_CHAINS_SPECS_STORAGE_KEY, EMPTY_FROZEN_OBJ);
+  const [evmChainsSpecs] = useStorage<OptionalRecord<ChainSpecs>>(EVM_CHAINS_SPECS_STORAGE_KEY, EMPTY_FROZEN_OBJ);
 
   const allEvmChains = useMemo(() => {
     const rpcByChainId = new Map<number, NonEmptyArray<StoredEvmNetwork>>();
@@ -93,11 +90,21 @@ export function useReadyTempleEvmNetworks(customEvmNetworks: StoredEvmNetwork[])
 
     for (const [chainId, networks] of rpcByChainId) {
       const specs = evmChainsSpecs[chainId];
-      const currency = specs?.currency ?? DEFAULT_EVM_CURRENCY;
-      // TODO: if (!currency) continue; // Without default one, with defaults by chain IDs
 
       const activeRpcId = specs?.activeRpcId;
-      const activeRpc = (activeRpcId && networks.find(n => n.id === activeRpcId)) || networks[0];
+
+      let activeRpc = networks[0];
+      let currency = DEFAULT_EVM_CURRENCY;
+      let testnet = false;
+
+      for (const network of networks) {
+        if (activeRpcId && network.id === activeRpcId) activeRpc = network;
+        if (network.chainId === chainId) {
+          currency = network.currency;
+          testnet = network.testnet;
+        }
+      }
+
       const { rpcBaseURL } = activeRpc;
 
       const defaultRpc = EVM_DEFAULT_NETWORKS.find(n => n.chainId === chainId);
@@ -107,9 +114,10 @@ export function useReadyTempleEvmNetworks(customEvmNetworks: StoredEvmNetwork[])
         kind: TempleChainKind.EVM,
         chainId,
         rpcBaseURL,
+        currency,
+        testnet,
         name,
         nameI18nKey,
-        currency,
         rpc: activeRpc,
         allRpcs: networks,
         disabled: chainId === 1 ? false : specs?.disabled

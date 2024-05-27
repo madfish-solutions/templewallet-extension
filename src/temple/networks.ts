@@ -1,6 +1,9 @@
 import type { TID } from 'lib/i18n';
 import { TempleTezosChainId } from 'lib/temple/types';
 
+import { EvmAssetStandard } from '../lib/evm/types';
+import { EVM_NATIVE_CURRENCY_ADDRESS, EvmNativeTokenMetadata } from '../lib/metadata/types';
+
 import { TempleChainKind } from './types';
 
 export interface TezosNetworkEssentials {
@@ -122,15 +125,21 @@ export const TEZOS_DEFAULT_NETWORKS: NonEmptyArray<StoredTezosNetwork> = [
 export interface StoredEvmNetwork extends NetworkBase {
   chain: TempleChainKind.EVM;
   chainId: number;
+  currency: EvmNativeTokenMetadata;
+  testnet: boolean;
 }
 
-export interface EvmNativeCurrency {
-  name: string;
-  symbol: string;
-  decimals: number;
-}
+const commonNativeTokenProps: Pick<EvmNativeTokenMetadata, 'standard' | 'address'> = {
+  standard: EvmAssetStandard.NATIVE,
+  address: EVM_NATIVE_CURRENCY_ADDRESS
+};
 
-export const DEFAULT_EVM_CURRENCY: EvmNativeCurrency = { name: 'Ether', symbol: 'ETH', decimals: 18 };
+export const DEFAULT_EVM_CURRENCY: EvmNativeTokenMetadata = {
+  ...commonNativeTokenProps,
+  name: 'Ether',
+  symbol: 'ETH',
+  decimals: 18
+};
 
 /** (!) Never remove Mainnet */
 export const EVM_DEFAULT_NETWORKS: NonEmptyArray<StoredEvmNetwork> = [
@@ -141,7 +150,14 @@ export const EVM_DEFAULT_NETWORKS: NonEmptyArray<StoredEvmNetwork> = [
     chainId: 1,
     rpcBaseURL: 'https://cloudflare-eth.com',
     color: '#0036fc',
-    default: true
+    default: true,
+    currency: {
+      ...commonNativeTokenProps,
+      name: 'Ether',
+      symbol: 'ETH',
+      decimals: 18
+    },
+    testnet: false
   },
   {
     id: 'matic-mainnet',
@@ -150,7 +166,14 @@ export const EVM_DEFAULT_NETWORKS: NonEmptyArray<StoredEvmNetwork> = [
     chainId: 137,
     rpcBaseURL: 'https://polygon-rpc.com',
     color: '#725ae8',
-    default: true
+    default: true,
+    currency: {
+      ...commonNativeTokenProps,
+      name: 'MATIC',
+      symbol: 'MATIC',
+      decimals: 18
+    },
+    testnet: false
   },
   {
     id: 'bsc-mainnet',
@@ -160,7 +183,14 @@ export const EVM_DEFAULT_NETWORKS: NonEmptyArray<StoredEvmNetwork> = [
     rpcBaseURL: 'https://binance.llamarpc.com',
     description: 'Binance Smart Chain Mainnet',
     color: '#f5d300',
-    default: true
+    default: true,
+    currency: {
+      ...commonNativeTokenProps,
+      decimals: 18,
+      name: 'BNB',
+      symbol: 'BNB'
+    },
+    testnet: false
   },
   {
     id: 'avalanche-mainnet',
@@ -169,7 +199,14 @@ export const EVM_DEFAULT_NETWORKS: NonEmptyArray<StoredEvmNetwork> = [
     chainId: 43114,
     rpcBaseURL: 'https://avalanche.drpc.org',
     color: '#ff5959',
-    default: true
+    default: true,
+    currency: {
+      ...commonNativeTokenProps,
+      decimals: 18,
+      name: 'Avalanche',
+      symbol: 'AVAX'
+    },
+    testnet: false
   },
   {
     id: 'optimism-mainnet',
@@ -179,7 +216,14 @@ export const EVM_DEFAULT_NETWORKS: NonEmptyArray<StoredEvmNetwork> = [
     rpcBaseURL: 'https://mainnet.optimism.io',
     description: 'Optimism Mainnet',
     color: '#fc0000',
-    default: true
+    default: true,
+    currency: {
+      ...commonNativeTokenProps,
+      name: 'Ether',
+      symbol: 'ETH',
+      decimals: 18
+    },
+    testnet: false
   },
   {
     id: 'eth-sepolia',
@@ -188,7 +232,14 @@ export const EVM_DEFAULT_NETWORKS: NonEmptyArray<StoredEvmNetwork> = [
     chainId: 11155111,
     rpcBaseURL: 'https://ethereum-sepolia-rpc.publicnode.com',
     color: '#010b79',
-    default: true
+    default: true,
+    currency: {
+      ...commonNativeTokenProps,
+      name: 'Sepolia Ether',
+      symbol: 'ETH',
+      decimals: 18
+    },
+    testnet: true
   },
   {
     id: 'matic-mumbai',
@@ -197,7 +248,14 @@ export const EVM_DEFAULT_NETWORKS: NonEmptyArray<StoredEvmNetwork> = [
     chainId: 80001,
     rpcBaseURL: 'https://polygon-mumbai.gateway.tenderly.co',
     color: '#392f77',
-    default: true
+    default: true,
+    currency: {
+      ...commonNativeTokenProps,
+      name: 'MATIC',
+      symbol: 'MATIC',
+      decimals: 18
+    },
+    testnet: true
   },
   {
     id: 'bsc-testnet',
@@ -207,7 +265,14 @@ export const EVM_DEFAULT_NETWORKS: NonEmptyArray<StoredEvmNetwork> = [
     rpcBaseURL: 'https://bsc-testnet-rpc.publicnode.com',
     description: 'Binance Smart Chain Testnet',
     color: '#867000',
-    default: true
+    default: true,
+    currency: {
+      ...commonNativeTokenProps,
+      decimals: 18,
+      name: 'BNB',
+      symbol: 'tBNB'
+    },
+    testnet: true
   },
   {
     id: 'avalanche-testnet',
@@ -217,7 +282,14 @@ export const EVM_DEFAULT_NETWORKS: NonEmptyArray<StoredEvmNetwork> = [
     rpcBaseURL: 'https://endpoints.omniatech.io/v1/avax/fuji/public',
     description: 'Avalanche Testnet',
     color: '#812e2e',
-    default: true
+    default: true,
+    currency: {
+      ...commonNativeTokenProps,
+      decimals: 18,
+      name: 'Avalanche Fuji',
+      symbol: 'AVAX'
+    },
+    testnet: true
   },
   {
     id: 'optimism-sepolia',
@@ -227,6 +299,13 @@ export const EVM_DEFAULT_NETWORKS: NonEmptyArray<StoredEvmNetwork> = [
     rpcBaseURL: 'https://endpoints.omniatech.io/v1/op/sepolia/public',
     description: 'Optimism Testnet',
     color: '#fc0000',
-    default: true
+    default: true,
+    currency: {
+      ...commonNativeTokenProps,
+      name: 'Sepolia Ether',
+      symbol: 'ETH',
+      decimals: 18
+    },
+    testnet: true
   }
 ];

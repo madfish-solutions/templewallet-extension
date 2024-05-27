@@ -13,7 +13,7 @@ import { COLORS } from 'lib/ui/colors';
 import { useConfirm } from 'lib/ui/dialog';
 import { EMPTY_FROZEN_OBJ } from 'lib/utils';
 import { TezosChain, getNetworkTitle, useAllTezosChains, useTempleNetworksActions } from 'temple/front';
-import { TezosChainSpecs } from 'temple/front/chains';
+import { ChainSpecs } from 'temple/front/chains';
 import { TEZOS_DEFAULT_NETWORKS } from 'temple/networks';
 import { loadTezosChainId } from 'temple/tezos';
 import { TempleChainKind, TempleChainTitle } from 'temple/types';
@@ -195,14 +195,14 @@ const ChainItem = memo<ChainItemProps>(({ chain, onRemoveClick }) => {
 
   const enabled = !chain.disabled;
 
-  const [tezosChainsSpecs, setTezosChainsSpecs] = useStorage<OptionalRecord<TezosChainSpecs>>(
+  const [tezosChainsSpecs, setTezosChainsSpecs] = useStorage<OptionalRecord<ChainSpecs>>(
     TEZOS_CHAINS_SPECS_STORAGE_KEY,
     EMPTY_FROZEN_OBJ
   );
 
   const onRpcSelect = useCallback(
     (rpcId: string) => {
-      const specs: TezosChainSpecs = { ...tezosChainsSpecs[chainId], activeRpcId: rpcId };
+      const specs: ChainSpecs = { ...tezosChainsSpecs[chainId], activeRpcId: rpcId };
 
       setTezosChainsSpecs({ ...tezosChainsSpecs, [chainId]: specs });
     },
@@ -215,7 +215,7 @@ const ChainItem = memo<ChainItemProps>(({ chain, onRemoveClick }) => {
     return (toEnable: boolean) => {
       if (toEnable === enabled) return;
 
-      const specs: TezosChainSpecs = { ...tezosChainsSpecs[chainId], disabled: !toEnable };
+      const specs: ChainSpecs = { ...tezosChainsSpecs[chainId], disabled: !toEnable };
 
       setTezosChainsSpecs({ ...tezosChainsSpecs, [chainId]: specs });
     };

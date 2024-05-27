@@ -65,10 +65,9 @@ const fetchEvmTokenMetadataFromChain = async (network: EvmChain, tokenSlug: stri
     const metadata: EvmTokenMetadata = {
       address: contractAddress,
       standard: EvmAssetStandard.ERC20,
-      name: getValueWithFallback<string>(results[0], '???'),
-      symbol: getValueWithFallback<string>(results[1], '???'),
-      decimals: getValueWithFallback<number>(results[2], 0),
-      native: false
+      name: getValue<string>(results[0]),
+      symbol: getValue<string>(results[1]),
+      decimals: getValue<number>(results[2])
     };
 
     return metadata;
@@ -113,7 +112,9 @@ const fetchEvmCollectibleMetadataFromChain = async (network: EvmChain, collectib
         })
       ]);
 
-      const metadataUri = getValueWithFallback<string>(results[2], '');
+      const metadataUri = getValue<string>(results[2]);
+
+      if (!metadataUri) throw new Error();
 
       const collectibleMetadata = await getCollectibleMetadataFromUri(metadataUri);
 
@@ -121,8 +122,8 @@ const fetchEvmCollectibleMetadataFromChain = async (network: EvmChain, collectib
         address: contractAddress,
         tokenId: tokenIdStr ?? '0',
         standard: EvmAssetStandard.ERC1155,
-        collectionName: getValueWithFallback<string>(results[0], '???'),
-        collectionSymbol: getValueWithFallback<string>(results[1], '???'),
+        name: getValue<string>(results[0]),
+        symbol: getValue<string>(results[1]),
         metadataUri,
         ...collectibleMetadata
       };
@@ -141,7 +142,9 @@ const fetchEvmCollectibleMetadataFromChain = async (network: EvmChain, collectib
         })
       ]);
 
-      const metadataUri = getValueWithFallback<string>(results[2], '');
+      const metadataUri = getValue<string>(results[2]);
+
+      if (!metadataUri) throw new Error();
 
       const collectibleMetadata = await getCollectibleMetadataFromUri(metadataUri);
 
@@ -149,8 +152,8 @@ const fetchEvmCollectibleMetadataFromChain = async (network: EvmChain, collectib
         address: contractAddress,
         tokenId: tokenIdStr ?? '0',
         standard: EvmAssetStandard.ERC721,
-        collectionName: getValueWithFallback<string>(results[0], '???'),
-        collectionSymbol: getValueWithFallback<string>(results[1], '???'),
+        name: getValue<string>(results[0]),
+        symbol: getValue<string>(results[1]),
         metadataUri,
         ...collectibleMetadata
       };
@@ -204,7 +207,9 @@ export const fetchEvmAssetMetadataFromChain = async (network: EvmChain, assetSlu
         })
       ]);
 
-      const metadataUri = getValueWithFallback<string>(results[2], '');
+      const metadataUri = getValue<string>(results[2]);
+
+      if (!metadataUri) throw new Error();
 
       const collectibleMetadata = await getCollectibleMetadataFromUri(metadataUri);
 
@@ -212,8 +217,8 @@ export const fetchEvmAssetMetadataFromChain = async (network: EvmChain, assetSlu
         address: contractAddress,
         tokenId: tokenIdStr ?? '0',
         standard: EvmAssetStandard.ERC1155,
-        collectionName: getValueWithFallback<string>(results[0], '???'),
-        collectionSymbol: getValueWithFallback<string>(results[1], '???'),
+        name: getValue<string>(results[0]),
+        symbol: getValue<string>(results[1]),
         metadataUri,
         ...collectibleMetadata
       };
@@ -232,7 +237,9 @@ export const fetchEvmAssetMetadataFromChain = async (network: EvmChain, assetSlu
         })
       ]);
 
-      const metadataUri = getValueWithFallback<string>(results[2], '');
+      const metadataUri = getValue<string>(results[2]);
+
+      if (!metadataUri) throw new Error();
 
       const collectibleMetadata = await getCollectibleMetadataFromUri(metadataUri);
 
@@ -240,8 +247,8 @@ export const fetchEvmAssetMetadataFromChain = async (network: EvmChain, assetSlu
         address: contractAddress,
         tokenId: tokenIdStr ?? '0',
         standard: EvmAssetStandard.ERC721,
-        collectionName: getValueWithFallback<string>(results[0], '???'),
-        collectionSymbol: getValueWithFallback<string>(results[1], '???'),
+        name: getValue<string>(results[0]),
+        symbol: getValue<string>(results[1]),
         metadataUri,
         ...collectibleMetadata
       };
@@ -261,10 +268,9 @@ export const fetchEvmAssetMetadataFromChain = async (network: EvmChain, assetSlu
     const metadata: EvmTokenMetadata = {
       address: contractAddress,
       standard: EvmAssetStandard.ERC20,
-      name: getValueWithFallback<string>(results[0], '???'),
-      symbol: getValueWithFallback<string>(results[1], '???'),
-      decimals: getValueWithFallback<number>(results[2], 0),
-      native: false
+      name: getValue<string>(results[0]),
+      symbol: getValue<string>(results[1]),
+      decimals: getValue<number>(results[2])
     };
 
     return metadata;
@@ -275,11 +281,11 @@ export const fetchEvmAssetMetadataFromChain = async (network: EvmChain, assetSlu
   }
 };
 
-const getValueWithFallback = <T>(result: PromiseSettledResult<unknown>, fallback: T) =>
-  result.status === 'fulfilled' ? (result.value as T) : fallback;
+const getValue = <T>(result: PromiseSettledResult<unknown>) =>
+  result.status === 'fulfilled' ? (result.value as T) : undefined;
 
 interface CollectibleMetadata {
-  image: string;
+  image?: string;
   name?: string;
   description?: string;
   attributes?: NftCollectionAttribute[];
@@ -288,9 +294,12 @@ interface CollectibleMetadata {
 }
 
 const getCollectibleMetadataFromUri = async (
-  metadataUri: string
+  metadataUri?: string
 ): Promise<
-  Pick<EvmCollectibleMetadata, 'image' | 'name' | 'description' | 'attributes' | 'externalUrl' | 'animationUrl'>
+  Pick<
+    EvmCollectibleMetadata,
+    'image' | 'collectibleName' | 'description' | 'attributes' | 'externalUrl' | 'animationUrl'
+  >
 > => {
   const uri = buildMetadataLinkFromUri(metadataUri);
 
@@ -298,14 +307,14 @@ const getCollectibleMetadataFromUri = async (
 
   const { data } = await axios.get<CollectibleMetadata>(uri);
 
-  if (typeof data !== 'object' || !data.image) throw new Error();
+  if (typeof data !== 'object' || !data.image || !data.name || !data.description) throw new Error();
 
   const { name, description, image, attributes, external_url: externalUrl, animation_url: animationUrl } = data;
 
   return {
     image,
-    name: name ?? '???',
-    description: description ?? '???',
+    collectibleName: name,
+    description,
     ...(attributes && { attributes }),
     ...(externalUrl && { externalUrl }),
     ...(animationUrl && { animationUrl })

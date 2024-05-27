@@ -3,6 +3,7 @@ import { uniq } from 'lodash';
 import type { TokenMetadata } from 'lib/metadata';
 import { isTruthy } from 'lib/utils';
 
+import { EvmAssetStandard } from './evm/types';
 import { EvmTokenMetadata } from './metadata/types';
 
 type TcInfraMediaSize = 'small' | 'medium' | 'large' | 'raw';
@@ -170,7 +171,7 @@ const chainIdsChainNamesRecord: Record<number, string> = {
   11155111: 'sepolia',
   137: 'polygon',
   80001: 'polygonmumbai',
-  56: 'binance',
+  56: 'smartchain',
   97: 'bnbt',
   43114: 'avalanchex',
   43113: 'avalanchecfuji',
@@ -218,14 +219,14 @@ const getEvmCustomChainIconUrl = (chainId: number, metadata: EvmTokenMetadata) =
 
   const baseUrl = 'https://raw.githubusercontent.com/rainbow-me/assets/master/blockchains/';
 
-  if (metadata.native) {
-    return `${baseUrl}${chainName}/info/logo.png`;
-  } else {
-    return chainName === 'binance' ? null : `${baseUrl}${chainName}/assets/${metadata.address}/logo.png`;
-  }
+  return metadata.standard === EvmAssetStandard.NATIVE
+    ? `${baseUrl}${chainName}/info/logo.png`
+    : `${baseUrl}${chainName}/assets/${metadata.address}/logo.png`;
 };
 
-export const buildEvmTokenIconSources = (chainId: number, metadata: EvmTokenMetadata) => {
+export const buildEvmTokenIconSources = (metadata: EvmTokenMetadata, chainId?: number) => {
+  if (!chainId) return [];
+
   const mainFallback = getEvmCustomChainIconUrl(chainId, metadata);
 
   return mainFallback ? [mainFallback] : [];

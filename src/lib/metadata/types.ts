@@ -29,27 +29,29 @@ export type MetadataRecords = Record<string, TokenMetadata>;
  */
 export type MetadataMap = Map<string, TokenMetadata>;
 
-export const EVM_NATIVE_TOKEN_ADDRESS = 'eth';
+export const EVM_NATIVE_CURRENCY_ADDRESS = 'eth';
 
-interface EvmAssetMetadataBase {
+export interface EvmTokenMetadata {
   standard: EvmAssetStandard;
-  address: typeof EVM_NATIVE_TOKEN_ADDRESS | HexString;
+  address: typeof EVM_NATIVE_CURRENCY_ADDRESS | HexString;
+  /** contract name (for nft contract refers to collection name) */
+  name?: string;
+  /** contract symbol (for nft contract refers to collection symbol) */
+  symbol?: string;
+  /** contract decimals (could be available only for ERC20 tokens and native currency) */
+  decimals?: number;
 }
 
-export interface EvmTokenMetadata extends EvmAssetMetadataBase {
-  name: string;
-  symbol: string;
-  decimals: number;
-  native: boolean;
+export interface EvmNativeTokenMetadata extends Required<EvmTokenMetadata> {
+  standard: EvmAssetStandard.NATIVE;
+  address: typeof EVM_NATIVE_CURRENCY_ADDRESS;
 }
 
-export interface EvmCollectibleMetadata extends EvmAssetMetadataBase {
+export interface EvmCollectibleMetadata extends EvmTokenMetadata {
   tokenId: string;
-  collectionName: string;
-  collectionSymbol: string;
   metadataUri: string;
   image: string;
-  name: string;
+  collectibleName: string;
   description: string;
   attributes?: NftCollectionAttribute[];
   externalUrl?: string;

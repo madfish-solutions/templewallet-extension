@@ -11,9 +11,9 @@ import { useStorage } from 'lib/temple/front';
 import { COLORS } from 'lib/ui/colors';
 import { useConfirm } from 'lib/ui/dialog';
 import { EMPTY_FROZEN_OBJ } from 'lib/utils';
-import { loadEvmChainInfo } from 'temple/evm';
+import { EvmChainInfo, loadEvmChainInfo } from 'temple/evm';
 import { EvmChain, getNetworkTitle, useAllEvmChains, useTempleNetworksActions } from 'temple/front';
-import { EvmChainSpecs } from 'temple/front/chains';
+import { ChainSpecs } from 'temple/front/chains';
 import { EVM_DEFAULT_NETWORKS } from 'temple/networks';
 import { TempleChainKind, TempleChainTitle } from 'temple/types';
 
@@ -50,11 +50,9 @@ export const EvmChainsSettings = memo(() => {
       if (submitting) return;
       clearError();
 
-      let chainId: number;
+      let chainInfo: EvmChainInfo;
       try {
-        const info = await loadEvmChainInfo(rpcBaseURL);
-
-        chainId = info.chainId;
+        chainInfo = await loadEvmChainInfo(rpcBaseURL);
       } catch (error) {
         console.error(error);
 
@@ -69,7 +67,9 @@ export const EvmChainsSettings = memo(() => {
         await addEvmNetwork({
           id: rpcBaseURL,
           chain: TempleChainKind.EVM,
-          chainId,
+          chainId: chainInfo.chainId,
+          currency: chainInfo.currency,
+          testnet: chainInfo.testnet,
           rpcBaseURL,
           name,
           color
@@ -199,14 +199,14 @@ const ChainItem = memo<ChainItemProps>(({ chain, onRemoveClick }) => {
 
   const enabled = !chain.disabled;
 
-  const [evmChainsSpecs, setEvmChainsSpecs] = useStorage<OptionalRecord<EvmChainSpecs>>(
+  const [evmChainsSpecs, setEvmChainsSpecs] = useStorage<OptionalRecord<ChainSpecs>>(
     EVM_CHAINS_SPECS_STORAGE_KEY,
     EMPTY_FROZEN_OBJ
   );
 
   const onRpcSelect = useCallback(
     (rpcId: string) => {
-      const specs: EvmChainSpecs = { ...evmChainsSpecs[chainId], activeRpcId: rpcId };
+      const specs: ChainSpecs = { ...evmChainsSpecs[chainId], activeRpcId: rpcId };
 
       setEvmChainsSpecs({ ...evmChainsSpecs, [chainId]: specs });
     },
@@ -219,7 +219,7 @@ const ChainItem = memo<ChainItemProps>(({ chain, onRemoveClick }) => {
     return (toEnable: boolean) => {
       if (toEnable === enabled) return;
 
-      const specs: EvmChainSpecs = { ...evmChainsSpecs[chainId], disabled: !toEnable };
+      const specs: ChainSpecs = { ...evmChainsSpecs[chainId], disabled: !toEnable };
 
       setEvmChainsSpecs({ ...evmChainsSpecs, [chainId]: specs });
     };

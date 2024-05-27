@@ -2,9 +2,10 @@ import memoizee from 'memoizee';
 import { createPublicClient, http } from 'viem';
 import type * as ViemChainsModuleType from 'viem/chains';
 
+import { EvmAssetStandard } from 'lib/evm/types';
+import { EVM_NATIVE_CURRENCY_ADDRESS, EvmNativeTokenMetadata } from 'lib/metadata/types';
 import { EvmChain } from 'temple/front';
 import { MAX_MEMOIZED_TOOLKITS } from 'temple/misc';
-import type { EvmNativeCurrency } from 'temple/networks';
 
 export const getReadOnlyEvm = memoizee(
   (rpcUrl: string) =>
@@ -36,7 +37,13 @@ export const getReadOnlyEvmForNetwork = memoizee(
   }
 );
 
-export const loadEvmChainInfo = memoizee(async (rpcUrl: string) => {
+export interface EvmChainInfo {
+  chainId: number;
+  currency: EvmNativeTokenMetadata;
+  testnet: boolean;
+}
+
+export const loadEvmChainInfo = memoizee(async (rpcUrl: string): Promise<EvmChainInfo> => {
   const client = createPublicClient({
     transport: http(rpcUrl)
   });
@@ -48,7 +55,11 @@ export const loadEvmChainInfo = memoizee(async (rpcUrl: string) => {
 
   if (!viemChain) throw new Error('Cannot resolve currency of the EVM network');
 
-  const currency: EvmNativeCurrency = viemChain.nativeCurrency;
+  const currency: EvmNativeTokenMetadata = {
+    standard: EvmAssetStandard.NATIVE,
+    address: EVM_NATIVE_CURRENCY_ADDRESS,
+    ...viemChain.nativeCurrency
+  };
 
-  return { chainId, currency, testnet: viemChain.testnet };
+  return { chainId, currency, testnet: viemChain.testnet ?? false };
 });

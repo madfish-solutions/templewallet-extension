@@ -5,6 +5,7 @@ import classNames from 'clsx';
 
 import { FormField } from 'app/atoms';
 import { useAppEnv } from 'app/env';
+import { useEvmTokenMetadata } from 'app/hooks/evm/metadata';
 import { ReactComponent as CopyIcon } from 'app/icons/monochrome/copy.svg';
 import { isFA2Token, isTezAsset } from 'lib/assets';
 import { fromAssetSlugWithStandardDetect } from 'lib/assets/contract.utils';
@@ -12,12 +13,12 @@ import { T } from 'lib/i18n';
 import { getAssetSymbol, useAssetMetadata } from 'lib/metadata';
 import { useRetryableSWR } from 'lib/swr';
 import useCopyToClipboard from 'lib/ui/useCopyToClipboard';
+import { isEvmNativeTokenSlug } from 'lib/utils/evm.utils';
 import { useTezosChainByChainId } from 'temple/front';
+import { useEvmChainByChainId } from 'temple/front/chains';
 import { TezosNetworkEssentials } from 'temple/networks';
 import { getReadOnlyTezos } from 'temple/tezos';
 import { TempleChainKind } from 'temple/types';
-
-import { useEvmTokenMetadata } from '../hooks/evm/metadata';
 
 interface Props {
   chainKind: string;
@@ -44,14 +45,19 @@ interface EvmAssetInfoContentProps {
 
 const EvmAssetInfoContent: FC<EvmAssetInfoContentProps> = ({ chainId, assetSlug }) => {
   const { popup } = useAppEnv();
-  const metadata = useEvmTokenMetadata(chainId, assetSlug);
+  const network = useEvmChainByChainId(chainId);
+  const tokenMetadata = useEvmTokenMetadata(chainId, assetSlug);
+
+  const isNative = isEvmNativeTokenSlug(assetSlug);
+
+  const metadata = isNative ? network?.currency : tokenMetadata;
 
   if (!metadata) return null;
 
   return (
     <div className={classNames(popup && 'mx-4')}>
       <div className="w-full max-w-sm mx-auto">
-        {!metadata.native && (
+        {!isNative && (
           <InfoField
             textarea
             rows={2}
@@ -66,9 +72,7 @@ const EvmAssetInfoContent: FC<EvmAssetInfoContentProps> = ({ chainId, assetSlug 
           />
         )}
 
-        {metadata && metadata.decimals > 0 && (
-          <InfoField id="token-decimals" label={<T id="decimals" />} value={metadata.decimals} />
-        )}
+        {metadata && <InfoField id="token-decimals" label={<T id="decimals" />} value={metadata.decimals} />}
       </div>
     </div>
   );

@@ -2,6 +2,7 @@ import BigNumber from 'bignumber.js';
 import { parseAbi } from 'viem';
 
 import { fromAssetSlug } from 'lib/assets';
+import { isEvmNativeTokenSlug } from 'lib/utils/evm.utils';
 import { ONE, ZERO } from 'lib/utils/numbers';
 import { getReadOnlyEvmForNetwork } from 'temple/evm';
 import { EvmChain } from 'temple/front';
@@ -16,6 +17,10 @@ export const fetchEvmRawBalance = async (
   account: HexString,
   assetStandard?: EvmAssetStandard
 ) => {
+  if (isEvmNativeTokenSlug(assetSlug)) {
+    return fetchEvmNativeBalance(account, network);
+  }
+
   const [contractAddress, tokenIdStr] = fromAssetSlug<HexString>(assetSlug);
 
   const tokenId = BigInt(tokenIdStr ?? 0);
@@ -65,6 +70,20 @@ export const fetchEvmRawBalance = async (
     return balance;
   } catch {
     console.error('Failed to fetch balance for: ', assetSlug);
+
+    return ZERO;
+  }
+};
+
+const fetchEvmNativeBalance = async (address: HexString, network: EvmChain) => {
+  const publicClient = getReadOnlyEvmForNetwork(network);
+
+  try {
+    const fetchedBalance = await publicClient.getBalance({ address });
+
+    return new BigNumber(fetchedBalance.toString());
+  } catch {
+    console.error('Failed to fetch native balance for: ', network.name);
 
     return ZERO;
   }

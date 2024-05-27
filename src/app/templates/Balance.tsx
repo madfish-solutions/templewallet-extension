@@ -5,7 +5,7 @@ import clsx from 'clsx';
 import CSSTransition from 'react-transition-group/CSSTransition';
 
 import { useTezosAssetBalance } from 'lib/balances';
-import { useEvmAssetBalance } from 'lib/balances/hooks';
+import { useEvmTokenBalance } from 'lib/balances/hooks';
 import { TezosNetworkEssentials } from 'temple/networks';
 
 interface TezosBalanceProps {
@@ -43,8 +43,8 @@ interface EvmBalanceProps {
   children: (b: BigNumber) => ReactElement;
   assetSlug?: string;
 }
-export const EvmBalance: FC<EvmBalanceProps> = ({ chainId, address, children, assetSlug = 'tez' }) => {
-  const { value: balance } = useEvmAssetBalance(assetSlug, address, chainId);
+export const EvmBalance: FC<EvmBalanceProps> = ({ chainId, address, children, assetSlug = 'eth' }) => {
+  const { value: balance } = useEvmTokenBalance(assetSlug, address, chainId);
   const exist = balance !== undefined;
 
   const childNode = children(balance == null ? new BigNumber(0) : balance);
