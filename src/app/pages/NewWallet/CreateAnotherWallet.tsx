@@ -36,11 +36,13 @@ export const CreateAnotherWallet: FC = () => {
   return (
     <PageLayout pageTitle={t('createWallet')}>
       {error && <Alert type="error" title={t('error')} autoFocus description={error} className="mb-6" />}
+
       {!backupCompleted && (
         <Template title={t('backupNewSeedPhrase')}>
           <NewSeedBackup seedPhrase={seedPhrase} onBackupComplete={() => setBackupCompleted(true)} />
         </Template>
       )}
+
       {backupCompleted && (
         <Template title={t('verifySeedPhrase')}>
           <NewSeedVerify seedPhrase={seedPhrase} onVerificationComplete={handleVerificationCompleted} />

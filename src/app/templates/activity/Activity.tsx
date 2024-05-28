@@ -4,14 +4,15 @@ import clsx from 'clsx';
 import InfiniteScroll from 'react-infinite-scroll-component';
 
 import { SyncSpinner } from 'app/atoms';
+import { SuspenseContainer } from 'app/atoms/SuspenseContainer';
 import { useAppEnv } from 'app/env';
 import { DeadEndBoundaryError } from 'app/ErrorBoundary';
 import { useLoadPartnersPromo } from 'app/hooks/use-load-partners-promo';
 import { ReactComponent as LayersIcon } from 'app/icons/layers.svg';
-import { ContentContainer } from 'app/layouts/ContentContainer';
+import { ContentContainer } from 'app/layouts/containers';
 import { useChainSelectController, ChainSelectSection } from 'app/templates/ChainSelect';
 import { PartnersPromotion, PartnersPromotionVariant } from 'app/templates/partners-promotion';
-import { T } from 'lib/i18n/react';
+import { t, T } from 'lib/i18n/react';
 import useTezosActivities from 'lib/temple/activity-new/hook';
 import { UNDER_DEVELOPMENT_MSG } from 'temple/evm/under_dev_msg';
 import { useAccountAddressForTezos, useTezosChainByChainId } from 'temple/front';
@@ -26,31 +27,30 @@ interface Props {
   assetSlug?: string;
 }
 
-export const ActivityTab = memo<Props>(({ tezosChainId, assetSlug }) => {
-  if (tezosChainId)
-    return (
-      <ContentContainer>
-        <TezosActivity tezosChainId={tezosChainId} assetSlug={assetSlug} />
-      </ContentContainer>
-    );
-
-  return <ActivityWithChainSelect />;
-});
+export const ActivityTab = memo<Props>(({ tezosChainId, assetSlug }) => (
+  <SuspenseContainer errorMessage={t('operationHistoryWhileMessage')}>
+    {tezosChainId ? <TezosActivity tezosChainId={tezosChainId} assetSlug={assetSlug} /> : <ActivityWithChainSelect />}
+  </SuspenseContainer>
+));
 
 const ActivityWithChainSelect = memo(() => {
   const chainSelectController = useChainSelectController();
   const network = chainSelectController.value;
 
   return (
-    <ContentContainer className="pt-4">
-      <ChainSelectSection controller={chainSelectController} />
+    <>
+      <div className="h-3" />
 
-      {network.kind === 'tezos' ? (
-        <TezosActivity tezosChainId={network.chainId} />
-      ) : (
-        <div className="py-3 text-center">{UNDER_DEVELOPMENT_MSG}</div>
-      )}
-    </ContentContainer>
+      <ContentContainer>
+        <ChainSelectSection controller={chainSelectController} />
+
+        {network.kind === 'tezos' ? (
+          <TezosActivity tezosChainId={network.chainId} />
+        ) : (
+          <div className="py-3 text-center">{UNDER_DEVELOPMENT_MSG}</div>
+        )}
+      </ContentContainer>
+    </>
   );
 });
 

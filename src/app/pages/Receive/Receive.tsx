@@ -4,11 +4,10 @@ import classNames from 'clsx';
 import { QRCode } from 'react-qr-svg';
 
 import { FormField, PageTitle } from 'app/atoms';
-import { ReactComponent as CopyIcon } from 'app/icons/copy.svg';
+import { ReactComponent as QRIcon } from 'app/icons/base/qr_code.svg';
 import { ReactComponent as GlobeIcon } from 'app/icons/globe.svg';
 import { ReactComponent as HashIcon } from 'app/icons/hash.svg';
-import { ReactComponent as QRIcon } from 'app/icons/qr.svg';
-import { ContentContainer } from 'app/layouts/ContentContainer';
+import { ReactComponent as CopyIcon } from 'app/icons/monochrome/copy.svg';
 import PageLayout from 'app/layouts/PageLayout';
 import { useChainSelectController, ChainSelectSection } from 'app/templates/ChainSelect';
 import ViewsSwitcher, { ViewsSwitcherProps } from 'app/templates/ViewsSwitcher/ViewsSwitcher';
@@ -44,8 +43,8 @@ const Receive = memo(() => {
   const network = chainSelectController.value;
 
   return (
-    <PageLayout pageTitle={<PageTitle icon={<QRIcon className="w-auto h-4 stroke-current" />} title={t('receive')} />}>
-      <ContentContainer className="py-4">
+    <PageLayout pageTitle={<PageTitle Icon={QRIcon} title={t('receive')} />}>
+      <>
         <ChainSelectSection controller={chainSelectController} />
 
         {network.kind === 'tezos' && tezosAddress ? (
@@ -55,7 +54,7 @@ const Receive = memo(() => {
         ) : (
           <div className="text-center">{UNDER_DEVELOPMENT_MSG}</div>
         )}
-      </ContentContainer>
+      </>
     </PageLayout>
   );
 });

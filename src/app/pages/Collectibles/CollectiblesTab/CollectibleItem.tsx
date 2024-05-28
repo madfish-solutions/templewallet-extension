@@ -61,16 +61,16 @@ export const CollectibleItem = memo<Props>(
 
     // Fixed sizes to improve large grid performance
     const [style, imgWrapStyle] = useMemo(() => {
-      const size = popup ? 106 : 125;
+      const size = popup ? 104 : 112;
 
       const style = popup
         ? {
             width: size,
-            height: areDetailsShown ? 152 : size
+            height: areDetailsShown ? size + 27 : size
           }
         : {
             width: size,
-            height: areDetailsShown ? 171 : size
+            height: areDetailsShown ? size + 46 : size
           };
 
       const imgWrapStyle = {

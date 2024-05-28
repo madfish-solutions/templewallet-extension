@@ -1,22 +1,24 @@
 import React, { memo, useMemo, useState } from 'react';
 
-import clsx from 'clsx';
 import browser from 'webextension-polyfill';
 
 import { FormSubmitButton } from 'app/atoms';
-import { TOOLBAR_IS_STICKY } from 'app/layouts/PageLayout';
 import { AppUpdateDetails, useStoredAppUpdateDetails } from 'app/storage/app-update/use-value.hook';
 import { EmojiInlineIcon } from 'lib/icons/emoji';
 import { useDidMount } from 'lib/ui/hooks';
+import { useIntersectionObserver } from 'lib/ui/use-intersection-observer';
 
 interface Props {
-  popup?: boolean;
+  stickyBarRef: React.RefObject<HTMLDivElement>;
 }
 
-export const UpdateAppBanner = memo<Props>(({ popup }) => {
+export const UpdateAppBanner = memo<Props>(({ stickyBarRef }) => {
   const [storedUpdateDetails, setStoredUpdateDetails] = useStoredAppUpdateDetails();
 
   const [checkedUpdateDetails, setCheckedUpdateDetails] = useState<AppUpdateDetails>();
+  const [stickyBarHeight, setStickyBarHeight] = useState(0);
+
+  useIntersectionObserver(stickyBarRef, entry => void setStickyBarHeight(entry.boundingClientRect.height), {});
 
   useDidMount(() => {
     // Only available in Chrome
@@ -42,16 +44,17 @@ export const UpdateAppBanner = memo<Props>(({ popup }) => {
     };
   }, [updateDetails, setStoredUpdateDetails]);
 
+  const style = useMemo(
+    () => ({
+      top: stickyBarHeight + 12
+    }),
+    [stickyBarHeight]
+  );
+
   if (!onUpdateButtonPress) return null;
 
   return (
-    <div
-      className={clsx(
-        'sticky z-1 flex flex-col p-3 mb-3 bg-white rounded-md shadow-lg',
-        TOOLBAR_IS_STICKY ? 'top-14' : 'top-3',
-        popup && 'mx-4'
-      )}
-    >
+    <div className="sticky z-1 flex flex-col p-3 mb-3 bg-white rounded-md shadow-lg" style={style}>
       <h5 className="text-sm font-inter font-medium leading-4 text-gray-910">Update your Temple Wallet extension!</h5>
 
       <p className="mt-1 text-xs font-inter leading-5 text-gray-700">

@@ -1,30 +1,31 @@
 import React, { FC, HTMLAttributes, useRef, useState } from 'react';
 
-import classNames from 'clsx';
+import clsx from 'clsx';
 import CSSTransition from 'react-transition-group/CSSTransition';
 
 import { useDidUpdate } from 'lib/ui/hooks';
+import { PORTAL_EVENTS_LEAK_GUARD } from 'lib/ui/Portal';
 
-type DropdownWrapperProps = HTMLAttributes<HTMLDivElement> & {
+interface DropdownWrapperProps extends HTMLAttributes<HTMLDivElement> {
   opened: boolean;
   design?: Design;
-  hiddenOverflow?: boolean;
   scaleAnimation?: boolean;
-};
+}
 
 const DESIGN_CLASS_NAMES = {
-  light: 'bg-white border-gray-300',
-  dark: 'bg-gray-910 border-gray-850'
+  light: 'bg-white border border-gray-300 shadow-xl',
+  dark: 'bg-gray-910 border border-gray-850 shadow-xl',
+  day: 'bg-white shadow-bottom'
 };
 
 const ANIMATION_DURATION = 100;
 
 type Design = keyof typeof DESIGN_CLASS_NAMES;
 
+/** TODO: See common usage cases & generalize */
 const DropdownWrapper: FC<DropdownWrapperProps> = ({
   opened,
   design = 'light',
-  hiddenOverflow = true,
   scaleAnimation = true,
   className,
   style = {},
@@ -50,27 +51,23 @@ const DropdownWrapper: FC<DropdownWrapperProps> = ({
       in={opened}
       timeout={ANIMATION_DURATION}
       classNames={{
-        enter: classNames('transform opacity-0', scaleAnimation && 'scale-95'),
-        enterActive: classNames(
-          'transform opacity-100',
-          scaleAnimation && 'scale-100',
-          'transition ease-out duration-100'
-        ),
-        exit: classNames('transform opacity-0', scaleAnimation && 'scale-95', 'transition ease-in duration-100')
+        enter: clsx('opacity-0', scaleAnimation && 'scale-95'),
+        enterActive: clsx('!opacity-100', scaleAnimation && '!scale-100', 'ease-out duration-100'),
+        exit: clsx('opacity-0', scaleAnimation && 'scale-95', 'ease-in duration-100')
       }}
       mountOnEnter
       unmountOnExit
     >
       <div
         ref={nodeRef}
-        className={classNames(
-          'mt-2 border rounded-md shadow-xl',
-          hiddenOverflow && 'overflow-hidden',
+        className={clsx(
+          'rounded-md overflow-hidden',
           process.env.TARGET_BROWSER === 'firefox' && 'grayscale-firefox-fix',
           DESIGN_CLASS_NAMES[design],
           className
         )}
         style={style}
+        {...PORTAL_EVENTS_LEAK_GUARD}
         {...rest}
       />
     </CSSTransition>

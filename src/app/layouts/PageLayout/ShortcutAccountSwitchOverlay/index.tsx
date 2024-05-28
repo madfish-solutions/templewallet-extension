@@ -7,7 +7,7 @@ import useOnClickOutside from 'use-onclickoutside';
 import Divider from 'app/atoms/Divider';
 import { useAccountSelectShortcut } from 'app/hooks/use-account-select-shortcut';
 import { useModalScrollLock } from 'app/hooks/use-modal-scroll-lock';
-import { ReactComponent as SadSearchIcon } from 'app/icons/sad-search.svg';
+import { ReactComponent as SadSearchIcon } from 'app/icons/monochrome/sad-search.svg';
 import SearchField from 'app/templates/SearchField';
 import { searchHotkey } from 'lib/constants';
 import { T, t } from 'lib/i18n';
@@ -129,7 +129,7 @@ export const ShortcutAccountSwitchOverlay = memo(() => {
         }}
         unmountOnExit
       >
-        <div className="fixed inset-0 z-50 w-full h-full bg-black bg-opacity-20">
+        <div className="fixed inset-0 z-overlay w-full h-full bg-black bg-opacity-20">
           <div
             ref={accountSwitchRef}
             tabIndex={0}
@@ -149,11 +149,6 @@ export const ShortcutAccountSwitchOverlay = memo(() => {
                 'text-gray-500 placeholder-gray-600 text-sm leading-tight'
               )}
               placeholder={t('searchAccount', [searchHotkey])}
-              searchIconClassName="h-5 w-auto text-gray-600 stroke-current"
-              searchIconWrapperClassName="px-2"
-              cleanButtonClassName="border-gray-600"
-              cleanButtonIconClassName="text-gray-600 stroke-current"
-              cleanButtonStyle={{ backgroundColor: 'transparent' }}
               onValueChange={handleSearchValueChange}
               onCleanButtonClick={handleCleanButtonClick}
             />

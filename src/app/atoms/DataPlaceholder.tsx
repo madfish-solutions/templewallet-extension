@@ -1,7 +1,7 @@
 import React, { FC } from 'react';
 
+import { ReactComponent as NoResultIcon } from 'app/icons/no-result.svg';
 import { T, TProps } from 'lib/i18n';
-import { NoResultIcon } from 'lib/icons';
 
 interface Props extends Pick<TProps, 'id'> {}
 

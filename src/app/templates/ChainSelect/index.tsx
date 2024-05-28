@@ -15,11 +15,13 @@ import { ChainSelectController } from './controller';
 
 export { useChainSelectController } from './controller';
 
+export { ChainsDropdown };
+
 interface Props {
   controller: ChainSelectController;
 }
 
-const ChainSelect = memo<Props>(({ controller }) => {
+export const ChainSelect = memo<Props>(({ controller }) => {
   const selectedChain = controller.value;
 
   return (

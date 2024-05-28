@@ -2,10 +2,11 @@ import React, { FC, memo, PropsWithChildren, useCallback } from 'react';
 
 import clsx from 'clsx';
 
+import { CaptionAlert } from 'app/atoms';
 import { ReactComponent as AddIcon } from 'app/icons/add-to-list.svg';
 import { dispatch } from 'app/store';
 import { setTokenStatusAction, setCollectibleStatusAction } from 'app/store/assets/actions';
-import SearchAssetField from 'app/templates/SearchAssetField';
+import { SearchBarField } from 'app/templates/SearchField';
 import { AccountAsset } from 'lib/assets/types';
 import { t, T } from 'lib/i18n';
 import type { TokenMetadataGetter } from 'lib/metadata';
@@ -22,9 +23,9 @@ interface Props extends PropsWithChildren {
 }
 
 export const ManageAssetsContent: FC<Props> = ({ ofCollectibles, searchValue, setSearchValue, children }) => (
-  <div className="mb-6">
-    <div className="mb-3 w-full flex">
-      <SearchAssetField
+  <>
+    <div className="flex gap-x-2">
+      <SearchBarField
         value={searchValue}
         onValueChange={setSearchValue}
         testID={ManageAssetsSelectors.searchAssetsInput}
@@ -33,7 +34,7 @@ export const ManageAssetsContent: FC<Props> = ({ ofCollectibles, searchValue, se
       <Link
         to="/add-asset"
         className={clsx(
-          'flex items-center ml-2 flex-shrink-0 px-3 py-1 text-gray-600 text-sm rounded overflow-hidden',
+          'flex items-center flex-shrink-0 px-3 py-1 text-gray-600 text-sm rounded overflow-hidden',
           'opacity-75 hover:bg-gray-100 hover:opacity-100 focus:opacity-100',
           'transition ease-in-out duration-200'
         )}
@@ -44,8 +45,14 @@ export const ManageAssetsContent: FC<Props> = ({ ofCollectibles, searchValue, se
       </Link>
     </div>
 
+    <CaptionAlert
+      type="info"
+      className="my-4"
+      message="To add another token, enter the token address into the search bar"
+    />
+
     {children}
-  </div>
+  </>
 );
 
 interface ManageAssetsContentListProps {

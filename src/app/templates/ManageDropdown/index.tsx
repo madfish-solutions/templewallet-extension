@@ -1,49 +1,25 @@
-import React, { FC, useMemo } from 'react';
+import React from 'react';
 
-import clsx from 'clsx';
+import { IconButton } from 'app/atoms/IconButton';
+import { ReactComponent as ManageIcon } from 'app/icons/base/manage.svg';
+import { TestIDProps } from 'lib/analytics';
 
-import { Button, ButtonProps } from 'app/atoms/Button';
-import { ReactComponent as ManageIcon } from 'app/icons/manage.svg';
-import useTippy from 'lib/ui/useTippy';
-import { combineRefs } from 'lib/ui/utils';
-
-interface ButtonForManageDropdownProps extends ButtonProps {
+interface ButtonForManageDropdownProps extends TestIDProps {
   opened: boolean;
   tooltip?: string;
+  onClick?: EmptyFn;
 }
 
-export const ButtonForManageDropdown: FC<ButtonForManageDropdownProps> = React.forwardRef<
-  HTMLButtonElement,
-  ButtonForManageDropdownProps
->(({ opened, tooltip, ...buttonProps }, popperRef) => {
-  const withTippy = !opened && tooltip;
-
-  const tippyProps = useMemo(
-    () => ({
-      trigger: withTippy ? 'mouseenter' : '__SOME_INVALID_VALUE__',
-      hideOnClick: true,
-      content: tooltip,
-      animation: 'shift-away-subtle'
-    }),
-    [withTippy, tooltip]
-  );
-
-  const tippyRef = useTippy<HTMLButtonElement>(tippyProps);
-
-  const ref = useMemo(() => combineRefs<HTMLButtonElement>(popperRef, tippyRef), [popperRef, tippyRef]);
-
-  return (
-    <Button
-      {...buttonProps}
-      ref={ref}
-      className={clsx(
-        'flex flex-shrink-0 items-center justify-center w-10 rounded-lg',
-        'transition ease-in-out duration-200 hover:bg-gray-200',
-        'opacity-75 hover:opacity-100 focus:opacity-100',
-        opened && 'bg-gray-200'
-      )}
-    >
-      <ManageIcon className="w-4 h-4 stroke-current fill-current text-gray-600" />
-    </Button>
-  );
-});
+export const ButtonForManageDropdown = React.forwardRef<HTMLButtonElement, ButtonForManageDropdownProps>(
+  ({ opened, tooltip, testID, testIDProperties, onClick }, popperRef) => (
+    <IconButton
+      ref={popperRef}
+      Icon={ManageIcon}
+      active={opened}
+      tooltip={opened ? undefined : tooltip}
+      testID={testID}
+      testIDProperties={testIDProperties}
+      onClick={onClick}
+    />
+  )
+);
