@@ -13,13 +13,10 @@ import { NotificationContentPage } from '../page-objects/pages/notification-cont
 import { NotificationsListPage } from '../page-objects/pages/notifications-list.page';
 import { OnRumModalPage } from '../page-objects/pages/on-rum-modal.page';
 import { SwapPage } from '../page-objects/pages/swap.page';
-import { TokenPage } from '../page-objects/pages/token.page';
 
 import { OperationStatusAlert } from './pages/alerts/operation-status.alert';
 import { DelegateFormPage } from './pages/delegate-form.page';
 import { DelegateTab } from './pages/delegate-tab.page';
-import { AccountsDropdown } from './pages/drop-down-lists/accounts.drop-down';
-import { HeaderPage } from './pages/header.page';
 import { HomePage } from './pages/home.page';
 import { ImportExistingWalletPage } from './pages/importing-existing-wallet.page';
 // eslint-disable-next-line import/namespace
@@ -36,8 +33,6 @@ export const Pages = {
   Welcome: new WelcomePage(),
   ImportExistingWallet: new ImportExistingWalletPage(),
   SetWallet: new setWalletPage(),
-  Header: new HeaderPage(),
-  AccountsDropdown: new AccountsDropdown(),
   Settings: new SettingsPage(),
   RevealSecrets: new RevealSecretsPage(),
   NewSeedBackup: new NewSeedBackupPage(),
@@ -57,7 +52,6 @@ export const Pages = {
   ManageAssetsCollectibles: new ManageAssetsCollectiblesPage(),
   ManageAssetsTokens: new ManageAssetsTokensPage(),
   AddAsset: new AddAssetPage(),
-  Token: new TokenPage(),
   CollectiblePage: new CollectiblePage(),
   CollectiblesTabPage: new CollectiblesTabPage(),
   NotificationsList: new NotificationsListPage(),
