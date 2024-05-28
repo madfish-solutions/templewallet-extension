@@ -1,8 +1,7 @@
 import React, { FC, ReactNode, Suspense, useMemo } from 'react';
 
-import classNames from 'clsx';
+import clsx from 'clsx';
 
-import { PageTitle } from 'app/atoms/PageTitle';
 import Spinner from 'app/atoms/Spinner/Spinner';
 import { useTabSlug } from 'app/atoms/useTabSlug';
 import { TestIDProperty } from 'lib/analytics';
@@ -21,12 +20,12 @@ export interface TabInterface extends Required<TestIDProperty> {
 
 interface Props {
   tabs: TabInterface[];
-  icon: JSX.Element;
+  Icon?: React.ComponentType;
   title: string;
-  description: string;
+  description?: string;
 }
 
-export const TabsPageLayout: FC<Props> = ({ tabs, icon, title, description }) => {
+export const TabsPageLayout: FC<Props> = ({ tabs, Icon, title, description }) => {
   const { fullPage } = useAppEnv();
   const tabSlug = useTabSlug();
 
@@ -36,16 +35,12 @@ export const TabsPageLayout: FC<Props> = ({ tabs, icon, title, description }) =>
   }, [tabSlug, tabs]);
 
   return (
-    <PageLayout pageTitle={<PageTitle icon={icon} title={title} />}>
-      <div className="text-center my-3 text-gray-700 max-w-lg m-auto">{description}</div>
-      <div className={classNames('-mx-4', fullPage && 'rounded-t-md')}>
-        <div
-          className="border-gray-300"
-          style={{
-            borderBottomWidth: 1
-          }}
-        >
-          <div className="w-full max-w-sm mx-auto mt-6 flex items-center justify-center">
+    <PageLayout pageTitle={<PageTitle Icon={Icon} title={title} />}>
+      {description && <div className="text-center mt-3 mb-6 text-gray-700 max-w-lg m-auto">{description}</div>}
+
+      <div className={clsx('mt-2 -mx-4', fullPage && 'rounded-t-md')}>
+        <div className="border-b border-gray-300">
+          <div className="w-full max-w-sm mx-auto flex items-center justify-center">
             {tabs.map(tab => {
               const active = slug === tab.slug;
 
@@ -54,7 +49,7 @@ export const TabsPageLayout: FC<Props> = ({ tabs, icon, title, description }) =>
                   key={tab.slug}
                   to={lctn => ({ ...lctn, search: `?tab=${tab.slug}` })}
                   replace
-                  className={classNames(
+                  className={clsx(
                     'flex1 w-full text-center cursor-pointer pb-2',
                     'border-b-2 text-gray-700 text-lg truncate',
                     tabs.length === 1 && 'mx-20',
@@ -79,6 +74,18 @@ export const TabsPageLayout: FC<Props> = ({ tabs, icon, title, description }) =>
     </PageLayout>
   );
 };
+
+interface PageTitleProps {
+  Icon?: React.ComponentType;
+  title: string;
+}
+
+const PageTitle: FC<PageTitleProps> = ({ Icon, title }) => (
+  <div className="flex items-center gap-x-1">
+    {Icon && <Icon />}
+    <span className="font-normal text-sm">{title}</span>
+  </div>
+);
 
 interface SuspenseContainerProps extends PropsWithChildren {
   whileMessage: string;

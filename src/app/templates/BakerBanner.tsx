@@ -3,12 +3,15 @@ import React, { FC, memo, useMemo } from 'react';
 import BigNumber from 'bignumber.js';
 import clsx from 'clsx';
 
-import { Identicon, Name, Money, HashChip, ABContainer } from 'app/atoms';
+import { Identicon, Name, Money, HashChip, ABContainer, Divider } from 'app/atoms';
 import { useAppEnv } from 'app/env';
 import { BakingSectionSelectors } from 'app/pages/Home/OtherComponents/BakingSection/selectors';
 import { toLocalFormat, T } from 'lib/i18n';
 import { HELP_UKRAINE_BAKER_ADDRESS, RECOMMENDED_BAKER_ADDRESS } from 'lib/known-bakers';
-import { useRelevantAccounts, useAccount, useNetwork, useKnownBaker } from 'lib/temple/front';
+import { TEZOS_METADATA } from 'lib/metadata';
+import { useRetryableSWR } from 'lib/swr';
+import { useRelevantAccounts, useAccount, useNetwork, useKnownBaker, useTezos } from 'lib/temple/front';
+import { atomsToTokens } from 'lib/temple/helpers';
 import { TempleAccount } from 'lib/temple/types';
 
 import { OpenInExplorerChip } from './OpenInExplorerChip';
@@ -36,7 +39,7 @@ export const BakerCard = memo<Props>(({ bakerPkh, displayAddress = false, classN
 
   if (!baker)
     return (
-      <div className={clsx('flex gap-x-2 min-h-20', className)}>
+      <div className={clsx('flex gap-x-2', className)}>
         <Identicon type="bottts" hash={bakerPkh} size={40} className="shadow-xs" />
 
         <Name className="text-lg leading-none font-medium text-gray-700">
@@ -102,6 +105,61 @@ export const BakerCard = memo<Props>(({ bakerPkh, displayAddress = false, classN
 });
 
 export const BAKER_BANNER_CLASSNAME = 'p-4 rounded-lg border';
+
+interface BakerBannerProps {
+  bakerPkh: string;
+  ActionButton?: React.ComponentType<{ staked: number }>;
+  HeaderRight?: React.ComponentType;
+  allowDisplayZeroStake?: boolean;
+}
+
+export const BakerBanner = memo<BakerBannerProps>(({ bakerPkh, ActionButton, HeaderRight, allowDisplayZeroStake }) => {
+  const acc = useAccount();
+  const tezos = useTezos();
+
+  const { data: stakedData } = useRetryableSWR(
+    ['delegate-stake', 'get-staked', tezos.checksum],
+    () => tezos.rpc.getStakedBalance(acc.publicKeyHash),
+    {
+      suspense: true
+    }
+  );
+
+  console.log('STAKED DATA:', stakedData?.toString());
+
+  const staked = stakedData && stakedData.gt(0) ? atomsToTokens(stakedData, TEZOS_METADATA.decimals) : null;
+  const stakedAtomic = stakedData?.toNumber() || 0;
+
+  const displayingStaked = allowDisplayZeroStake || staked?.gt(0) || false;
+
+  return (
+    <div className={clsx(BAKER_BANNER_CLASSNAME, 'flex flex-col gap-y-4')}>
+      <BakerCard displayAddress bakerPkh={bakerPkh} HeaderRight={HeaderRight} />
+
+      {(ActionButton || displayingStaked) && <Divider />}
+
+      {displayingStaked && (
+        <div className="text-sm text-blue-750">
+          <span className="mr-1">Staked:</span>
+
+          <span className="font-semibold">
+            {staked ? (
+              <Money smallFractionFont={false} cryptoDecimals={TEZOS_METADATA.decimals}>
+                {staked}
+              </Money>
+            ) : (
+              '0.00'
+            )}
+
+            {' ' + TEZOS_METADATA.symbol}
+          </span>
+        </div>
+      )}
+
+      {ActionButton && <ActionButton staked={stakedAtomic} />}
+    </div>
+  );
+});
 
 const BakerAccount: React.FC<{
   bakerAcc: TempleAccount | null;

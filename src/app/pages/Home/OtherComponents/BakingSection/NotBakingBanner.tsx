@@ -3,6 +3,7 @@ import React, { memo } from 'react';
 import clsx from 'clsx';
 
 import { Divider } from 'app/atoms';
+import { DelegateButton } from 'app/atoms/BakingButtons';
 import { useAppEnv } from 'app/env';
 import { ReactComponent as DelegateIcon } from 'app/icons/delegate.svg';
 import { ReactComponent as DiscordIcon } from 'app/icons/delegationDis.svg';
@@ -16,7 +17,6 @@ import { ReactComponent as ClockIcon } from 'app/icons/time.svg';
 import { useGasToken } from 'lib/assets/hooks';
 import { T } from 'lib/i18n';
 
-import { DelegateButton } from './DelegateButton';
 import { BakingSectionSelectors } from './selectors';
 
 interface Props {
@@ -37,7 +37,12 @@ export const NotBakingBanner = memo<Props>(({ noPreviousHistory, cannotDelegate 
           <T id="dcpDelegatingMotivation" />
         </p>
 
-        <DelegateButton disabled={cannotDelegate} testID={BakingSectionSelectors.delegateNowButton}>
+        <DelegateButton
+          to="/delegate"
+          disabled={cannotDelegate}
+          flashing
+          testID={BakingSectionSelectors.delegateNowButton}
+        >
           <T id="delegateAndStake" />
         </DelegateButton>
       </>
@@ -62,7 +67,12 @@ export const NotBakingBanner = memo<Props>(({ noPreviousHistory, cannotDelegate 
         </ul>
       )}
 
-      <DelegateButton disabled={cannotDelegate} testID={BakingSectionSelectors.delegateNowButton}>
+      <DelegateButton
+        to="/delegate"
+        disabled={cannotDelegate}
+        flashing
+        testID={BakingSectionSelectors.delegateNowButton}
+      >
         <T id="delegateAndStake" />
       </DelegateButton>
 

@@ -10,7 +10,10 @@ export const useBlockLevel = () => {
   useEffect(() => {
     const subscription = tezos.stream.subscribeBlock('head');
 
-    subscription.on('data', block => setBlockLevel(block.header.level));
+    subscription.on('data', block => {
+      console.log('CYCLE:', block.metadata.level?.cycle, block.metadata.level?.cycle_position);
+      setBlockLevel(block.header.level);
+    });
 
     return () => subscription.close();
   }, [tezos]);

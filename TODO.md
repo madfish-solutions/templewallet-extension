@@ -1,0 +1,12 @@
+- 'Min amount' in BakerCard
+- 'Payout' in Baking history item
+- Counter in 'My Stake' tab
+- MyStake screen. 'Cooldown period' info hint
+- Buttons with unsupported networks
+- A/B testing
+- Buttons design consistancy
+- - Disabled state
+- Module with staking hooks
+- Amoiunts' tooltips without rounding
+- 'hover' design for Unstake buttons
+-
