@@ -1,12 +1,18 @@
-import React, { memo, useCallback, useState } from 'react';
+import React, { memo, useCallback, useMemo } from 'react';
+
+import BigNumber from 'bignumber.js';
+import { Controller, useForm } from 'react-hook-form';
 
 import AssetField from 'app/atoms/AssetField';
 import { StakeButton } from 'app/atoms/BakingButtons';
 import { BakerBanner, BAKER_BANNER_CLASSNAME } from 'app/templates/BakerBanner';
-import { t } from 'lib/i18n';
+import { TEZ_TOKEN_SLUG } from 'lib/assets';
+import { useBalance } from 'lib/balances';
+import { t, toLocalFixed } from 'lib/i18n';
 import { TEZOS_METADATA } from 'lib/metadata';
 import { useAccount, useDelegate, useTezos } from 'lib/temple/front';
 import { TempleAccountType } from 'lib/temple/types';
+import { ZERO } from 'lib/utils/numbers';
 
 export const NewStakeTab = memo(() => {
   const acc = useAccount();
@@ -16,26 +22,74 @@ export const NewStakeTab = memo(() => {
 
   const { data: myBakerPkh } = useDelegate(acc.publicKeyHash, true, false);
 
-  const [value, setValue] = useState<number>();
+  const { value: balance = ZERO } = useBalance(TEZ_TOKEN_SLUG, acc.publicKeyHash);
 
-  const handleStake = useCallback(() => {
-    if (!value) return;
+  const maxAmount: BigNumber | null = balance;
 
-    tezos.wallet
-      .stake({
-        amount: value,
-        mutez: true
-      })
-      .send()
-      .then(
-        operation => {
-          console.log('Operation:', operation);
-        },
-        error => {
-          console.error(error);
+  const rules = useMemo(
+    () => ({
+      validate: (val?: string) => {
+        if (val == null) return t('required');
+        if (Number(val) === 0) {
+          return t('amountMustBePositive');
         }
-      );
-  }, [tezos, value]);
+        if (!maxAmount) return true;
+        const vBN = new BigNumber(val);
+        return vBN.isLessThanOrEqualTo(maxAmount) || t('maximalAmount', toLocalFixed(maxAmount));
+      }
+    }),
+    [maxAmount]
+  );
+
+  const { handleSubmit, errors, control, setValue, triggerValidation } = useForm<FormData>({
+    mode: 'onChange'
+  });
+
+  const handleSetMaxAmount = useCallback(() => {
+    if (maxAmount) {
+      setValue('amount', maxAmount.toString());
+      triggerValidation('amount');
+    }
+  }, [setValue, maxAmount, triggerValidation]);
+
+  const onSubmit = useCallback(
+    ({ amount }: FormData) => {
+      const value = Number(amount);
+      if (!value) return;
+
+      tezos.wallet
+        .stake({
+          amount: value,
+          mutez: true
+        })
+        .send()
+        .then(
+          operation => {
+            console.log('Operation:', operation);
+          },
+          error => {
+            console.error(error);
+          }
+        );
+    },
+    [tezos]
+  );
+
+  const labelDescription = useMemo(() => {
+    if (!maxAmount) return null;
+
+    return (
+      <>
+        <span>Available (max) : </span>
+
+        <button type="button" className="underline" onClick={handleSetMaxAmount}>
+          {`${toLocalFixed(maxAmount)} ${TEZOS_METADATA.symbol}`}
+        </button>
+      </>
+    );
+  }, [maxAmount, handleSetMaxAmount]);
+
+  const errorsInForm = Boolean(errors.amount);
 
   return (
     <div className="mx-auto max-w-sm flex flex-col gap-y-8 pb-4">
@@ -45,26 +99,27 @@ export const NewStakeTab = memo(() => {
         {myBakerPkh ? <BakerBanner bakerPkh={myBakerPkh} /> : <div className={BAKER_BANNER_CLASSNAME}>---</div>}
       </div>
 
-      <div className="flex flex-col gap-y-4">
-        <div className="flex flex-col gap-y-1">
-          <span className="text-base font-medium text-blue-750">Stake {TEZOS_METADATA.symbol}</span>
-
-          <span className="text-xs leading-5 text-gray-600">
-            Avalable (max) : {100.04} {TEZOS_METADATA.symbol}
-          </span>
-        </div>
-
-        <AssetField
+      <form className="flex flex-col gap-y-4" onSubmit={handleSubmit(onSubmit)}>
+        <Controller
+          as={AssetField}
           name="amount"
+          control={control}
+          rules={rules}
+          assetSymbol={TEZOS_METADATA.symbol}
+          assetDecimals={TEZOS_METADATA.decimals}
+          label={`Stake ${TEZOS_METADATA.symbol}`}
+          labelDescription={labelDescription}
           placeholder={t('amountPlaceholder')}
-          value={value}
-          onChange={val => {
-            setValue(Number(val) || 0);
-          }}
+          errorCaption={errors.amount?.message}
+          autoFocus
         />
 
-        <StakeButton disabled={!value} onClick={handleStake} />
-      </div>
+        <StakeButton type="submit" disabled={cannotDelegate || errorsInForm} />
+      </form>
     </div>
   );
 });
+
+interface FormData {
+  amount: string;
+}

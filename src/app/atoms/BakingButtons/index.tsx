@@ -1,4 +1,4 @@
-import React, { FC, memo, PropsWithChildren, useMemo } from 'react';
+import React, { ButtonHTMLAttributes, FC, memo, PropsWithChildren, useMemo } from 'react';
 
 import clsx from 'clsx';
 
@@ -43,11 +43,12 @@ export const DelegateButton: FC<PropsWithChildren<Props>> = ({ to, disabled, thi
 };
 
 interface StakeButtonProps extends TestIDProperty {
+  type?: ButtonHTMLAttributes<unknown>['type'];
   disabled: boolean;
   onClick?: EmptyFn;
 }
 
-export const StakeButton: FC<StakeButtonProps> = ({ disabled, testID, onClick }) => {
+export const StakeButton: FC<StakeButtonProps> = ({ type, disabled, testID, onClick }) => {
   const className = useMemo(
     () =>
       clsx(
@@ -64,6 +65,7 @@ export const StakeButton: FC<StakeButtonProps> = ({ disabled, testID, onClick })
 
   return (
     <Button
+      type={type}
       className={className}
       disabled={disabled}
       onClick={onClick}
