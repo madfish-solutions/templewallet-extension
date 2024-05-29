@@ -17,7 +17,6 @@ import { SwapPage } from '../page-objects/pages/swap.page';
 import { OperationStatusAlert } from './pages/alerts/operation-status.alert';
 import { DelegateFormPage } from './pages/delegate-form.page';
 import { DelegateTab } from './pages/delegate-tab.page';
-import { HomePage } from './pages/home.page';
 import { ImportExistingWalletPage } from './pages/importing-existing-wallet.page';
 // eslint-disable-next-line import/namespace
 import { InternalConfirmationPage } from './pages/internal-confirmation.page';
@@ -36,7 +35,6 @@ export const Pages = {
   Settings: new SettingsPage(),
   RevealSecrets: new RevealSecretsPage(),
   NewSeedBackup: new NewSeedBackupPage(),
-  Home: new HomePage(),
   UnlockScreen: new UnlockScreenPage(),
   DelegateTab: new DelegateTab(),
   DelegateForm: new DelegateFormPage(),

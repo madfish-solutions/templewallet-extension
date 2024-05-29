@@ -3,6 +3,8 @@ import path from 'path';
 import { CustomBrowserContext } from '../classes/browser-context.class';
 
 let EXTENSION_ID = '';
+let context: BrowserContext;
+let page: Page;
 
 export const test = base.extend<{
   extensionId: string;
@@ -10,6 +12,8 @@ export const test = base.extend<{
   // eslint-disable-next-line no-empty-pattern
   context: async ({}, use) => {
     await use(context);
+    await context.close()
+    CustomBrowserContext.browser = context
   },
   extensionId: async ({ context }, use) => {
     if (EXTENSION_ID) return void (await use(EXTENSION_ID));
@@ -27,9 +31,6 @@ export const test = base.extend<{
 
 export const expect = test.expect;
 
-let context: BrowserContext;
-let page: Page;
-
 export { EXTENSION_ID, context, page };
 
 test.beforeAll(async () => {
@@ -43,12 +44,13 @@ test.beforeAll(async () => {
       '--user-agent=E2EPipeline/0.0.1',
       '--disable-notifications']
   });
-
+ console.log('it works still!!!')
   page = await context.newPage();
   CustomBrowserContext.browser = context
   CustomBrowserContext.EXTENSION_ID = EXTENSION_ID
 
 });
+
 
 
 test.afterAll(() => {
