@@ -6,17 +6,20 @@ import { Checkbox, Divider, SyncSpinner } from 'app/atoms';
 import DropdownWrapper from 'app/atoms/DropdownWrapper';
 import { IconButton } from 'app/atoms/IconButton';
 import { SimpleInfiniteScroll } from 'app/atoms/SimpleInfiniteScroll';
-import { useEvmChainAccountTokenSlugs } from 'app/hooks/evm/assets';
 import { useLoadPartnersPromo } from 'app/hooks/use-load-partners-promo';
 import { useEvmTokensListingLogic, useTezosTokensListingLogic } from 'app/hooks/use-tokens-listing-logic';
 import { ReactComponent as FiltersIcon } from 'app/icons/base/filteroff.svg';
 import { ReactComponent as SearchIcon } from 'app/icons/base/search.svg';
 import { ReactComponent as EditingIcon } from 'app/icons/editing.svg';
 import { ContentContainer, StickyBar } from 'app/layouts/containers';
-import { useEvmBalancesLoadingSelector, useEvmTokensMetadataLoadingSelector } from 'app/store/evm/selectors';
+import {
+  useEvmBalancesLoadingSelector,
+  useEvmTokensExchangeRatesLoadingSelector,
+  useEvmTokensMetadataLoadingSelector
+} from 'app/store/evm/selectors';
 import { useAreAssetsLoading, useMainnetTokensScamlistSelector } from 'app/store/tezos/assets/selectors';
 import { useTokensMetadataLoadingSelector } from 'app/store/tezos/tokens-metadata/selectors';
-import { ChainsDropdown, useChainSelectController } from 'app/templates/ChainSelect';
+import { ChainsDropdown } from 'app/templates/ChainSelect';
 import { ChainSelectController } from 'app/templates/ChainSelect/controller';
 import { ButtonForManageDropdown } from 'app/templates/ManageDropdown';
 import { PartnersPromotion, PartnersPromotionVariant } from 'app/templates/partners-promotion';
@@ -25,13 +28,14 @@ import { setTestID } from 'lib/analytics';
 import { OptimalPromoVariantEnum } from 'lib/apis/optimal';
 import { TEMPLE_TOKEN_SLUG, TEZ_TOKEN_SLUG } from 'lib/assets';
 import { useEnabledAccountTokensSlugs } from 'lib/assets/hooks';
+import { useEnabledEvmChainAccountTokensSlugs } from 'lib/assets/hooks/tokens';
 import { T, t } from 'lib/i18n';
 import { TEZOS_MAINNET_CHAIN_ID } from 'lib/temple/types';
 import { useLocalStorage } from 'lib/ui/local-storage';
 import Popper, { PopperRenderProps } from 'lib/ui/Popper';
 import { Link, navigate } from 'lib/woozie';
 import { UNDER_DEVELOPMENT_MSG } from 'temple/evm/under_dev_msg';
-import { EvmChain, useAccountAddressForEvm, useAccountAddressForTezos, useEthereumMainnetChain } from 'temple/front';
+import { EvmChain, useAccountAddressForEvm, useAccountAddressForTezos } from 'temple/front';
 import { TezosNetworkEssentials } from 'temple/networks';
 import { TempleChainKind } from 'temple/types';
 
@@ -45,17 +49,15 @@ import { toExploreAssetLink } from './utils';
 const LOCAL_STORAGE_TOGGLE_KEY = 'tokens-list:hide-zero-balances';
 const svgIconClassName = 'w-4 h-4 stroke-current fill-current text-gray-600';
 
-export const TokensTab = memo(() => {
-  const chainSelectController = useChainSelectController();
+interface TokensTabProps {
+  chainSelectController: ChainSelectController;
+}
+
+export const TokensTab = memo<TokensTabProps>(({ chainSelectController }) => {
   const network = chainSelectController.value;
-  const evmMainnet = useEthereumMainnetChain();
 
   const accountTezAddress = useAccountAddressForTezos();
   const accountEvmAddress = useAccountAddressForEvm();
-
-  useEffect(() => {
-    if (!accountTezAddress && accountEvmAddress) chainSelectController.setValue(evmMainnet);
-  }, []);
 
   if (network.kind === 'tezos' && accountTezAddress)
     return (
@@ -87,11 +89,13 @@ interface EvmTokensTabProps {
 }
 
 const EvmTokensTab: FC<EvmTokensTabProps> = ({ network, publicKeyHash, chainSelectController }) => {
-  const tokenSlugs = useEvmChainAccountTokenSlugs(publicKeyHash, network.chainId);
+  const tokenSlugs = useEnabledEvmChainAccountTokensSlugs(publicKeyHash, network.chainId);
+
   const balancesLoading = useEvmBalancesLoadingSelector();
   const isMetadataLoading = useEvmTokensMetadataLoadingSelector();
+  const exchangeRatesLoading = useEvmTokensExchangeRatesLoadingSelector();
 
-  const isLoading = balancesLoading || isMetadataLoading;
+  const isLoading = balancesLoading || isMetadataLoading || exchangeRatesLoading;
 
   const [isZeroBalancesHidden, setIsZeroBalancesHidden] = useLocalStorage(LOCAL_STORAGE_TOGGLE_KEY, false);
 

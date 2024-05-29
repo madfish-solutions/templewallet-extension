@@ -1,4 +1,4 @@
-import React, { FC, memo, useCallback, useEffect, useMemo } from 'react';
+import React, { FC, memo, useCallback, useMemo } from 'react';
 
 import { emptyFn } from '@rnw-community/shared';
 import { isEqual } from 'lodash';
@@ -10,7 +10,6 @@ import DropdownWrapper from 'app/atoms/DropdownWrapper';
 import { IconButton } from 'app/atoms/IconButton';
 import { ScrollBackUpButton } from 'app/atoms/ScrollBackUpButton';
 import { SimpleInfiniteScroll } from 'app/atoms/SimpleInfiniteScroll';
-import { useEvmChainAccountCollectibleSlugs } from 'app/hooks/evm/assets';
 import { useCollectiblesListingLogic, useEvmCollectiblesListingLogic } from 'app/hooks/use-collectibles-listing-logic';
 import { ReactComponent as FiltersIcon } from 'app/icons/base/filteroff.svg';
 import { ReactComponent as EditingIcon } from 'app/icons/editing.svg';
@@ -20,12 +19,13 @@ import {
   LOCAL_STORAGE_SHOW_INFO_TOGGLE_KEY
 } from 'app/pages/Collectibles/constants';
 import { AssetsSelectors } from 'app/pages/Home/OtherComponents/Assets.selectors';
-import { ChainsDropdown, useChainSelectController } from 'app/templates/ChainSelect';
+import { ChainsDropdown } from 'app/templates/ChainSelect';
 import { ChainSelectController } from 'app/templates/ChainSelect/controller';
 import { ButtonForManageDropdown } from 'app/templates/ManageDropdown';
 import { SearchBarField } from 'app/templates/SearchField';
 import { setTestID } from 'lib/analytics';
 import { useEnabledAccountCollectiblesSlugs } from 'lib/assets/hooks';
+import { useEnabledEvmChainAccountCollectiblesSlugs } from 'lib/assets/hooks/collectibles';
 import { AssetTypesEnum } from 'lib/assets/types';
 import { useEvmCollectiblesSortPredicate, useTezosCollectiblesSortPredicate } from 'lib/assets/use-sorting';
 import { T, t } from 'lib/i18n';
@@ -35,23 +35,21 @@ import Popper, { PopperChildren, PopperPopup, PopperRenderProps } from 'lib/ui/P
 import { useScrollIntoView } from 'lib/ui/use-scroll-into-view';
 import { Link } from 'lib/woozie';
 import { UNDER_DEVELOPMENT_MSG } from 'temple/evm/under_dev_msg';
-import { useAccountAddressForEvm, useAccountAddressForTezos, useEthereumMainnetChain } from 'temple/front';
+import { useAccountAddressForEvm, useAccountAddressForTezos } from 'temple/front';
 import { EvmNetworkEssentials, TezosNetworkEssentials } from 'temple/networks';
 
 import { EvmCollectibleItem, TezosCollectibleItem } from './CollectibleItem';
 import { CollectibleTabSelectors } from './selectors';
 
-export const CollectiblesTab = memo(() => {
-  const chainSelectController = useChainSelectController();
+interface CollectiblesTabProps {
+  chainSelectController: ChainSelectController;
+}
+
+export const CollectiblesTab = memo<CollectiblesTabProps>(({ chainSelectController }) => {
   const network = chainSelectController.value;
-  const evmMainnet = useEthereumMainnetChain();
 
   const accountTezAddress = useAccountAddressForTezos();
   const accountEvmAddress = useAccountAddressForEvm();
-
-  useEffect(() => {
-    if (!accountTezAddress && accountEvmAddress) chainSelectController.setValue(evmMainnet);
-  }, []);
 
   if (network.kind === 'tezos' && accountTezAddress)
     return (
@@ -87,7 +85,7 @@ interface EvmCollectiblesTabProps {
 const EvmCollectiblesTab = memo<EvmCollectiblesTabProps>(({ network, publicKeyHash, chainSelectController }) => {
   const { chainId: evmChainId } = network;
 
-  const allSlugs = useEvmChainAccountCollectibleSlugs(publicKeyHash, evmChainId);
+  const allSlugs = useEnabledEvmChainAccountCollectiblesSlugs(publicKeyHash, evmChainId);
 
   const assetsSortPredicate = useEvmCollectiblesSortPredicate(publicKeyHash, evmChainId);
 

@@ -77,9 +77,9 @@ const TezosAccountHooks = memo<{ publicKeyHash: string }>(({ publicKeyHash }) =>
 
 const EvmAccountHooks = memo<{ publicKeyHash: HexString }>(({ publicKeyHash }) => (
   <>
-    <AppEvmBalancesLoading publicKeyHash={publicKeyHash} />
     <AppEvmTokensExchangeRatesLoading publicKeyHash={publicKeyHash} />
     <AppEvmTokensMetadataLoading publicKeyHash={publicKeyHash} />
     <AppEvmCollectiblesMetadataLoading publicKeyHash={publicKeyHash} />
+    <AppEvmBalancesLoading publicKeyHash={publicKeyHash} />
   </>
 ));

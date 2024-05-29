@@ -61,7 +61,7 @@ export const evmAssetsReducer = createReducer<EvmAssetsStateInterface>(EvmAssets
     if (!accountTokens[chainId]) accountTokens[chainId] = {};
     const chainTokens = accountTokens[chainId];
 
-    chainTokens[assetSlug] = { status: 'idle' };
+    chainTokens[assetSlug] = { status: 'enabled' };
   });
 
   builder.addCase(putNewEvmCollectibleAction, ({ collectibles }, { payload }) => {
@@ -73,6 +73,6 @@ export const evmAssetsReducer = createReducer<EvmAssetsStateInterface>(EvmAssets
     if (!accountCollectibles[chainId]) accountCollectibles[chainId] = {};
     const chainCollectibles = accountCollectibles[chainId];
 
-    chainCollectibles[assetSlug] = { status: 'idle' };
+    chainCollectibles[assetSlug] = { status: 'enabled' };
   });
 });

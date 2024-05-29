@@ -9,8 +9,8 @@ interface StoredAsset {
 
 type PublicKeyHash = HexString;
 
-type TokenSlugStoredAssetRecord = Record<string, StoredAsset>;
-type ChainIdTokenSlugsRecord = Record<number, TokenSlugStoredAssetRecord>;
+type CollectibleSlugStoredAssetRecord = Record<string, StoredAsset>;
+type ChainIdTokenSlugsRecord = Record<number, CollectibleSlugStoredAssetRecord>;
 
 type EvmStoredAssetsRecords = Record<PublicKeyHash, ChainIdTokenSlugsRecord>;
 

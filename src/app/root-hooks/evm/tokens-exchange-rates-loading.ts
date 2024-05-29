@@ -34,7 +34,7 @@ export const AppEvmTokensExchangeRatesLoading = memo<{ publicKeyHash: HexString 
         })
       ).then(() => void dispatch(setEvmTokensExchangeRatesLoading(false)));
     },
-    [],
+    [apiSupportedChainIds, publicKeyHash],
     RATES_SYNC_INTERVAL
   );
 

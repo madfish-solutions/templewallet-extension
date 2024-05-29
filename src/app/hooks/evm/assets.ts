@@ -3,20 +3,16 @@ import {
   useEvmStoredTokensRecordSelector
 } from 'app/store/evm/assets/selectors';
 
-export const useEvmChainAccountTokenSlugs = (publicKeyHash: HexString, chainId: number) => {
+export const useRawEvmChainAccountTokens = (publicKeyHash: HexString, chainId: number) => {
   const storedTokensRecord = useEvmStoredTokensRecordSelector();
-
   const accountTokens = storedTokensRecord[publicKeyHash] ?? {};
-  const chainIdTokens = accountTokens[chainId] ?? {};
 
-  return Object.keys(chainIdTokens);
+  return accountTokens[chainId] ?? {};
 };
 
-export const useEvmChainAccountCollectibleSlugs = (publicKeyHash: HexString, chainId: number) => {
+export const useRawEvmChainAccountCollectibles = (publicKeyHash: HexString, chainId: number) => {
   const storedCollectiblesRecord = useEvmStoredCollectiblesRecordSelector();
-
   const accountCollectibles = storedCollectiblesRecord[publicKeyHash] ?? {};
-  const chainIdCollectibles = accountCollectibles[chainId] ?? {};
 
-  return Object.keys(chainIdCollectibles);
+  return accountCollectibles[chainId] ?? {};
 };

@@ -12,6 +12,8 @@ import { isAccountAssetsStoreKeyOfSameChainIdAndDifferentAccount } from 'app/sto
 import { useAllAccountBalancesSelector } from 'app/store/tezos/balances/selectors';
 import { useMemoWithCompare } from 'lib/ui/hooks';
 
+import { useRawEvmChainAccountTokens } from '../../../app/hooks/evm/assets';
+import { useEvmAccountChainBalances } from '../../../app/hooks/evm/balance';
 import { PREDEFINED_TOKENS_METADATA } from '../known-tokens';
 import type { AccountAsset } from '../types';
 import { tokenToSlug } from '../utils';
@@ -109,6 +111,30 @@ const useAccountTokens = (account: string, chainId: string) => {
     },
     [chainId, storedRaw, whitelistSlugs, balances],
     isEqual
+  );
+};
+
+const useEvmChainAccountTokens = (account: HexString, chainId: number) => {
+  const storedRaw = useRawEvmChainAccountTokens(account, chainId);
+  const balances = useEvmAccountChainBalances(account, chainId);
+
+  return useMemoWithCompare<AccountToken[]>(
+    () =>
+      Object.entries(storedRaw).map<AccountToken>(([slug, { status }]) => ({
+        slug,
+        status: getAssetStatus(balances[slug], status)
+      })),
+    [storedRaw, balances],
+    isEqual
+  );
+};
+
+export const useEnabledEvmChainAccountTokensSlugs = (publicKeyHash: HexString, chainId: number) => {
+  const tokens = useEvmChainAccountTokens(publicKeyHash, chainId);
+
+  return useMemo(
+    () => tokens.reduce<string[]>((acc, { slug, status }) => (status === 'enabled' ? acc.concat(slug) : acc), []),
+    [tokens]
   );
 };
 
