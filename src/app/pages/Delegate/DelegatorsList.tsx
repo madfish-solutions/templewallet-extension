@@ -45,6 +45,11 @@ export const KnownDelegatorsList: React.FC<{ setValue: any; triggerValidation: a
         key: 'staking',
         title: t('staking'),
         testID: DelegateFormSelectors.sortBakerByStakingTab
+      },
+      {
+        key: 'min-amount',
+        title: t('minAmount'),
+        testID: DelegateFormSelectors.sortBakerByMinAmountTab
       }
     ],
     []
@@ -69,6 +74,9 @@ export const KnownDelegatorsList: React.FC<{ setValue: any; triggerValidation: a
 
       case 'staking':
         return toSort.sort((a, b) => b.stakingBalance - a.stakingBalance);
+
+      case 'min-amount':
+        return toSort.sort((a, b) => a.minDelegation - b.minDelegation);
 
       case 'rank':
       default:
@@ -181,7 +189,7 @@ export const KnownDelegatorsList: React.FC<{ setValue: any; triggerValidation: a
               testID={testId}
               testIDProperties={{ bakerAddress: baker.address, abTestingCategory: testGroupName }}
             >
-              <BakerCard bakerPkh={baker.address} className="w-full" HeaderRight={BakerBannerHeaderRight} />
+              <BakerCard bakerPkh={baker.address} hideAddress className="w-full" HeaderRight={BakerBannerHeaderRight} />
             </Button>
           );
         })}

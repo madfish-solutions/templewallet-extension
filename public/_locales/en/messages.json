@@ -1491,6 +1491,9 @@
   "amount": {
     "message": "Amount"
   },
+  "minAmount": {
+    "message": "Min Amount"
+  },
   "availableToSend": {
     "message": "Available to send(max):"
   },

@@ -16,7 +16,6 @@ import { useAccount, useDelegate, useTezos } from 'lib/temple/front';
 import { tokensToAtoms } from 'lib/temple/helpers';
 import { TempleAccountType } from 'lib/temple/types';
 import { useSafeState } from 'lib/ui/hooks';
-import { ZERO } from 'lib/utils/numbers';
 
 export const NewStakeTab = memo(() => {
   const acc = useAccount();
@@ -26,9 +25,9 @@ export const NewStakeTab = memo(() => {
 
   const { data: myBakerPkh } = useDelegate(acc.publicKeyHash, true, false);
 
-  const { value: balance = ZERO } = useBalance(TEZ_TOKEN_SLUG, acc.publicKeyHash);
+  const { value: balance } = useBalance(TEZ_TOKEN_SLUG, acc.publicKeyHash);
 
-  const maxAmount: BigNumber | null = balance;
+  const maxAmount = useMemo(() => (balance ? BigNumber.max(balance.minus(MINIMAL_FEE), 0) : null), [balance]);
 
   const [operation, setOperation] = useSafeState<WalletOperation | null>(null, tezos.checksum);
 
@@ -131,3 +130,5 @@ export const NewStakeTab = memo(() => {
 interface FormData {
   amount: string;
 }
+
+const MINIMAL_FEE = 1e-4;

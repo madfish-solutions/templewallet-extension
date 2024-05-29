@@ -18,12 +18,12 @@ import { OpenInExplorerChip } from './OpenInExplorerChip';
 
 interface Props {
   bakerPkh: string;
-  displayAddress?: boolean;
+  hideAddress?: boolean;
   className?: string;
   HeaderRight?: React.ComponentType;
 }
 
-export const BakerCard = memo<Props>(({ bakerPkh, displayAddress = false, className, HeaderRight }) => {
+export const BakerCard = memo<Props>(({ bakerPkh, hideAddress, className, HeaderRight }) => {
   const allAccounts = useRelevantAccounts();
   const account = useAccount();
   const { fullPage } = useAppEnv();
@@ -39,12 +39,18 @@ export const BakerCard = memo<Props>(({ bakerPkh, displayAddress = false, classN
 
   if (!baker)
     return (
-      <div className={clsx('flex gap-x-2', className)}>
+      <div className={clsx('flex items-center gap-x-2', className)}>
         <Identicon type="bottts" hash={bakerPkh} size={40} className="shadow-xs" />
 
-        <Name className="text-lg leading-none font-medium text-gray-700">
-          <BakerAccount account={account} bakerAcc={bakerAcc} bakerPkh={bakerPkh} />
+        <Name className="text-ulg leading-5 text-gray-910">
+          {bakerAcc ? (
+            <SelfBaker bakerAcc={bakerAcc} accountPkh={account.publicKeyHash} />
+          ) : (
+            <UnknownBaker bakerPkh={bakerPkh} />
+          )}
         </Name>
+
+        <div className="flex-1 min-w-16 flex justify-end">{HeaderRight && <HeaderRight />}</div>
       </div>
     );
 
@@ -53,7 +59,7 @@ export const BakerCard = memo<Props>(({ bakerPkh, displayAddress = false, classN
       <div className="flex items-center gap-x-2">
         <img src={baker.logo} alt={baker.name} className="flex-shrink-0 w-8 h-8 bg-white rounded shadow-xs" />
 
-        <Name className="text-ulg leading-5 text-gray-900" testID={BakingSectionSelectors.delegatedBakerName}>
+        <Name className="text-ulg leading-5 text-gray-910" testID={BakingSectionSelectors.delegatedBakerName}>
           {baker.name}
         </Name>
 
@@ -64,39 +70,45 @@ export const BakerCard = memo<Props>(({ bakerPkh, displayAddress = false, classN
           />
         )}
 
-        {displayAddress && (
-          <div className="flex flex-wrap items-center">
-            <OpenInExplorerChip hash={baker.address} type="account" small alternativeDesign />
-          </div>
-        )}
+        {!hideAddress && <OpenInExplorerChip hash={baker.address} type="account" small alternativeDesign />}
 
         <div className="flex-1 min-w-16 flex justify-end">{HeaderRight && <HeaderRight />}</div>
       </div>
 
       <div
-        className={clsx('flex flex-wrap items-center text-left text-xs leading-5 text-gray-500', fullPage && 'gap-x-8')}
+        className={clsx(
+          'flex flex-wrap items-center text-left text-xs leading-5 whitespace-nowrap text-gray-500',
+          fullPage ? 'gap-x-8' : 'justify-between'
+        )}
       >
-        <div className="flex-1 flex flex-col gap-y-1">
+        <div className="flex flex-col gap-y-1">
           <T id="staking" />:
           <span className="font-medium leading-none text-blue-750">
             <Money>{(baker.stakingBalance / 1000).toFixed(0)}</Money>K
           </span>
         </div>
 
-        <div className="flex-1 flex flex-col gap-y-1">
+        <div className="flex flex-col gap-y-1">
           <T id="space" />:
           <span className="font-medium leading-none text-blue-750">
             <Money>{(baker.freeSpace / 1000).toFixed(0)}</Money>K
           </span>
         </div>
 
-        <div className="flex-1 flex flex-col gap-y-1">
+        <div className="flex flex-col gap-y-1">
           <T id="fee" />:
           <span className="font-medium leading-none text-blue-750">
             {toLocalFormat(new BigNumber(baker.fee).times(100), {
               decimalPlaces: 2
             })}
             %
+          </span>
+        </div>
+
+        <div className="flex flex-col gap-y-1">
+          <T id="minAmount" />:
+          <span className="font-medium leading-none text-blue-750">
+            <Money smallFractionFont={false}>{baker.minDelegation}</Money> {TEZOS_METADATA.symbol}
           </span>
         </div>
       </div>
@@ -128,11 +140,11 @@ export const BakerBanner = memo<BakerBannerProps>(({ bakerPkh, ActionButton, Hea
   const staked = stakedData && stakedData.gt(0) ? atomsToTokens(stakedData, TEZOS_METADATA.decimals) : null;
   const stakedAtomic = stakedData?.toNumber() || 0;
 
-  const displayingStaked = allowDisplayZeroStake || staked?.gt(0) || false;
+  const displayingStaked = allowDisplayZeroStake || staked?.gt(0);
 
   return (
     <div className={clsx(BAKER_BANNER_CLASSNAME, 'flex flex-col gap-y-4')}>
-      <BakerCard displayAddress bakerPkh={bakerPkh} HeaderRight={HeaderRight} />
+      <BakerCard bakerPkh={bakerPkh} HeaderRight={HeaderRight} />
 
       {(ActionButton || displayingStaked) && <Divider />}
 
@@ -159,28 +171,28 @@ export const BakerBanner = memo<BakerBannerProps>(({ bakerPkh, ActionButton, Hea
   );
 });
 
-const BakerAccount: React.FC<{
-  bakerAcc: TempleAccount | null;
-  account: TempleAccount;
-  bakerPkh: string;
-}> = ({ bakerAcc, account, bakerPkh }) => {
-  const network = useNetwork();
+const SelfBaker: React.FC<{
+  bakerAcc: TempleAccount;
+  accountPkh: string;
+}> = ({ bakerAcc, accountPkh }) => (
+  <>
+    {bakerAcc.name}
 
-  if (bakerAcc)
-    return (
+    {bakerAcc.publicKeyHash === accountPkh && (
       <>
-        {bakerAcc.name}
-
-        {bakerAcc.publicKeyHash === account.publicKeyHash && (
-          <>
-            {' '}
-            <span className="font-light opacity-75">
-              <T id="selfComment" />
-            </span>
-          </>
-        )}
+        {' '}
+        <span className="font-light opacity-75">
+          <T id="selfComment" />
+        </span>
       </>
-    );
+    )}
+  </>
+);
+
+const UnknownBaker: React.FC<{
+  bakerPkh: string;
+}> = ({ bakerPkh }) => {
+  const network = useNetwork();
 
   if (network.type === 'dcp')
     return (

@@ -117,7 +117,7 @@ export const RedelegateButton = memo<RedelegateButtonProps>(({ disabled, testID 
     () =>
       clsx(
         COMMON_BUTTON_CLASSNAMES,
-        'whitespace-nowrap text-xs font-medium bg-gray-200',
+        'whitespace-nowrap text-xs font-medium bg-gray-200 text-gray-600',
         disabled && 'opacity-50 cursor-default'
       ),
     [disabled]
