@@ -7,6 +7,9 @@
 - Buttons design consistancy
 - - Disabled state
 - Module with staking hooks
-- Amoiunts' tooltips without rounding
+- Amounts' tooltips without rounding
 - 'hover' design for Unstake buttons
+- Stake amount
+- - Max - fee
+- - Fiat value
 -

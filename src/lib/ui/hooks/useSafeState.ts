@@ -16,6 +16,7 @@ export function useSafeState<T>(initialState: T | (() => T), dep?: any): [T, Dis
   );
 
   const depRef = useRef(dep);
+
   useEffect(() => {
     if (depRef.current !== dep) {
       setState(initialState);

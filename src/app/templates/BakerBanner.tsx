@@ -10,7 +10,7 @@ import { toLocalFormat, T } from 'lib/i18n';
 import { HELP_UKRAINE_BAKER_ADDRESS, RECOMMENDED_BAKER_ADDRESS } from 'lib/known-bakers';
 import { TEZOS_METADATA } from 'lib/metadata';
 import { useRetryableSWR } from 'lib/swr';
-import { useRelevantAccounts, useAccount, useNetwork, useKnownBaker, useTezos } from 'lib/temple/front';
+import { useRelevantAccounts, useAccount, useNetwork, useKnownBaker, useTezos, useOnBlock } from 'lib/temple/front';
 import { atomsToTokens } from 'lib/temple/helpers';
 import { TempleAccount } from 'lib/temple/types';
 
@@ -117,13 +117,11 @@ export const BakerBanner = memo<BakerBannerProps>(({ bakerPkh, ActionButton, Hea
   const acc = useAccount();
   const tezos = useTezos();
 
-  const { data: stakedData } = useRetryableSWR(
-    ['delegate-stake', 'get-staked', tezos.checksum],
-    () => tezos.rpc.getStakedBalance(acc.publicKeyHash),
-    {
-      suspense: true
-    }
+  const { data: stakedData, mutate } = useRetryableSWR(['delegate-stake', 'get-staked', tezos.checksum], () =>
+    tezos.rpc.getStakedBalance(acc.publicKeyHash)
   );
+
+  useOnBlock(() => void mutate());
 
   console.log('STAKED DATA:', stakedData?.toString());
 
