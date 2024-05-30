@@ -189,7 +189,13 @@ export const KnownDelegatorsList: React.FC<{ setValue: any; triggerValidation: a
               testID={testId}
               testIDProperties={{ bakerAddress: baker.address, abTestingCategory: testGroupName }}
             >
-              <BakerCard bakerPkh={baker.address} hideAddress className="w-full" HeaderRight={BakerBannerHeaderRight} />
+              <BakerCard
+                bakerPkh={baker.address}
+                hideAddress
+                showBakerTag
+                className="w-full"
+                HeaderRight={BakerBannerHeaderRight}
+              />
             </Button>
           );
         })}

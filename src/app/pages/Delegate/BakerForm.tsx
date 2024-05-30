@@ -139,7 +139,7 @@ const BakerBannerComponent = React.memo<BakerBannerComponentProps>(({ balanceNum
 
   return baker ? (
     <>
-      <BakerCard bakerPkh={baker.address} hideAddress className={clsx(BAKER_BANNER_CLASSNAME, 'mb-6')} />
+      <BakerCard bakerPkh={baker.address} hideAddress showBakerTag className={clsx(BAKER_BANNER_CLASSNAME, 'mb-6')} />
 
       {!tzError && baker.minDelegation > balanceNum && (
         <Alert

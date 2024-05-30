@@ -1,17 +1,14 @@
-- 'Payout' in Baking history item
 - Counter in 'My Stake' tab
 - MyStake screen. 'Cooldown period' info hint
 - Buttons with unsupported networks
-- A/B testing
-- Buttons design consistancy
-- - Height
-- - Disabled state
 - Module with staking hooks
 - Amounts' tooltips without rounding
-- 'hover' design for Unstake buttons
 - Stake amount
 - - Max - fee
 - - Fiat value
+-
+
+# Discarded:
+- 'Payout' in Baking history item
 - 'Open In Explorer' new arrow
-- 'Unknown baker's address
 -

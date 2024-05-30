@@ -3,7 +3,6 @@ import React, { ButtonHTMLAttributes, FC, memo, PropsWithChildren, useMemo } fro
 import clsx from 'clsx';
 
 import { Button } from 'app/atoms/Button';
-import { useUserTestingGroupNameSelector } from 'app/store/ab-testing/selectors';
 import { TestIDProperty, TestIDProps } from 'lib/analytics';
 import { T, t } from 'lib/i18n';
 import useTippy from 'lib/ui/useTippy';
@@ -11,32 +10,40 @@ import { Link } from 'lib/woozie';
 
 import ModStyles from './styles.module.css';
 
-interface Props extends TestIDProperty {
+interface DelegateButtonProps extends TestIDProperty {
   to: string;
   disabled: boolean;
-  thinner?: boolean;
+  small?: boolean;
+  slim?: boolean;
   flashing?: boolean;
 }
 
-export const DelegateButton: FC<PropsWithChildren<Props>> = ({ to, disabled, thinner, flashing, testID, children }) => {
+export const DelegateButton: FC<PropsWithChildren<DelegateButtonProps>> = ({
+  to,
+  disabled,
+  small,
+  slim = small,
+  flashing,
+  testID,
+  children
+}) => {
   const className = useMemo(
     () =>
       clsx(
         COMMON_BUTTON_CLASSNAMES,
-        'text-xs font-semibold bg-blue-500 text-white',
-        thinner ? 'min-h-10' : 'min-h-11',
+        'font-semibold bg-blue-500 text-white',
+        small ? 'text-sm' : 'text-sm',
+        slim ? 'min-h-10' : 'min-h-11',
         !disabled && 'hover:bg-blue-600 focus:bg-blue-600',
         disabled ? 'opacity-50 cursor-default' : flashing && ModStyles.delegateButton
       ),
-    [disabled, thinner, flashing]
+    [disabled, small, slim, flashing]
   );
-
-  const testIDProperties = useTestIdParams();
 
   if (disabled) return <CannotDelegateButton className={className}>{children}</CannotDelegateButton>;
 
   return (
-    <Link to={to} type="button" className={className} testID={testID} testIDProperties={testIDProperties}>
+    <Link to={to} type="button" className={className} testID={testID}>
       {children}
     </Link>
   );
@@ -59,51 +66,9 @@ export const StakeButton: FC<StakeButtonProps> = ({ type, disabled, testID, onCl
     [disabled]
   );
 
-  const testIDProperties = useTestIdParams();
-
-  const children = <T id="stake" />;
-
   return (
-    <Button
-      type={type}
-      className={className}
-      disabled={disabled}
-      onClick={onClick}
-      testID={testID}
-      testIDProperties={testIDProperties}
-    >
-      {children}
-    </Button>
-  );
-};
-
-interface RequestUnstakeButtonProps extends TestIDProperty, PropsWithChildren {
-  disabled: boolean;
-  onClick?: EmptyFn;
-}
-
-export const UnstakeButton: FC<RequestUnstakeButtonProps> = ({ disabled, testID, onClick, children }) => {
-  const className = useMemo(
-    () =>
-      clsx(
-        COMMON_BUTTON_CLASSNAMES,
-        'min-h-10 text-xs font-semibold bg-orange-500 text-white',
-        disabled && 'opacity-50 cursor-default'
-      ),
-    [disabled]
-  );
-
-  const testIDProperties = useTestIdParams();
-
-  return (
-    <Button
-      className={className}
-      disabled={disabled}
-      onClick={onClick}
-      testID={testID}
-      testIDProperties={testIDProperties}
-    >
-      {children}
+    <Button type={type} className={className} disabled={disabled} onClick={onClick} testID={testID}>
+      <T id="stake" />
     </Button>
   );
 };
@@ -118,19 +83,17 @@ export const RedelegateButton = memo<RedelegateButtonProps>(({ disabled, testID 
       clsx(
         COMMON_BUTTON_CLASSNAMES,
         'whitespace-nowrap text-xs font-medium bg-gray-200 text-gray-600',
-        disabled && 'opacity-50 cursor-default'
+        disabled ? 'opacity-50 cursor-default' : 'hover:bg-gray-300'
       ),
     [disabled]
   );
-
-  const testIDProperties = useTestIdParams();
 
   const children = <T id="reDelegate" />;
 
   if (disabled) return <CannotDelegateButton className={className}>{children}</CannotDelegateButton>;
 
   return (
-    <Link to="/delegate" type="button" className={className} testID={testID} testIDProperties={testIDProperties}>
+    <Link to="/delegate" type="button" className={className} testID={testID}>
       {children}
     </Link>
   );
@@ -141,11 +104,11 @@ const COMMON_BUTTON_CLASSNAMES = clsx(
   'transition ease-in-out duration-300'
 );
 
-interface DelegateButtonProps extends TestIDProps, PropsWithChildren {
+interface CannotDelegateButtonProps extends TestIDProps, PropsWithChildren {
   className: string;
 }
 
-const CannotDelegateButton: FC<DelegateButtonProps> = props => {
+const CannotDelegateButton: FC<CannotDelegateButtonProps> = props => {
   const ref = useTippy<HTMLButtonElement>({
     trigger: 'mouseenter',
     hideOnClick: false,
@@ -154,10 +117,4 @@ const CannotDelegateButton: FC<DelegateButtonProps> = props => {
   });
 
   return <Button ref={ref} {...props} />;
-};
-
-const useTestIdParams = () => {
-  const testGroupName = useUserTestingGroupNameSelector();
-
-  return useMemo(() => ({ abTestingCategory: testGroupName }), [testGroupName]);
 };

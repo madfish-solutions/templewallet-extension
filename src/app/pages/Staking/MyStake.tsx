@@ -3,8 +3,7 @@ import React, { FC, memo, useState, useCallback } from 'react';
 import BigNumber from 'bignumber.js';
 import clsx from 'clsx';
 
-import { Money } from 'app/atoms';
-import { UnstakeButton } from 'app/atoms/BakingButtons';
+import { FormSubmitButton, Money } from 'app/atoms';
 import Spinner from 'app/atoms/Spinner/Spinner';
 import { BakerBanner, BAKER_BANNER_CLASSNAME } from 'app/templates/BakerBanner';
 import { TEZOS_METADATA } from 'lib/metadata';
@@ -41,9 +40,15 @@ export const MyStakeTab = memo(() => {
 
   const RequestUnstakeButtonLocal = useCallback<FC<{ staked: number }>>(
     ({ staked }) => (
-      <UnstakeButton disabled={!staked || cannotDelegate} onClick={toggleUnstakeModal}>
+      <FormSubmitButton
+        disabled={!staked || cannotDelegate}
+        small
+        unsetHeight
+        className="h-10"
+        onClick={toggleUnstakeModal}
+      >
         Request Unstake
-      </UnstakeButton>
+      </FormSubmitButton>
     ),
     [cannotDelegate, toggleUnstakeModal]
   );
@@ -86,8 +91,11 @@ export const MyStakeTab = memo(() => {
                   ))}
                 </div>
 
-                <UnstakeButton
+                <FormSubmitButton
                   disabled={!readyRequests?.length || cannotDelegate}
+                  small
+                  unsetHeight
+                  className="h-10"
                   onClick={() => {
                     if (!readyRequests) return;
 
@@ -107,7 +115,7 @@ export const MyStakeTab = memo(() => {
                   }}
                 >
                   Unstake
-                </UnstakeButton>
+                </FormSubmitButton>
               </>
             ) : requestsSwr.isLoading ? (
               <Spinner className="w-10 self-center" />

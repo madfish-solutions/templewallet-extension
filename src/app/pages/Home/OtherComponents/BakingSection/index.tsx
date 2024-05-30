@@ -119,7 +119,7 @@ const BakingSection = memo(() => {
     ({ staked }) => (
       <DelegateButton
         to={`/staking?tab=${staked ? 'my-stake' : 'new-stake'}`}
-        thinner
+        small
         flashing={!staked}
         disabled={cannotDelegate}
       >

@@ -3,7 +3,7 @@ import React, { FC, memo, useMemo } from 'react';
 import BigNumber from 'bignumber.js';
 import clsx from 'clsx';
 
-import { Identicon, Name, Money, HashChip, ABContainer, Divider } from 'app/atoms';
+import { Identicon, Name, Money, HashChip, Divider } from 'app/atoms';
 import { useAppEnv } from 'app/env';
 import { BakingSectionSelectors } from 'app/pages/Home/OtherComponents/BakingSection/selectors';
 import { toLocalFormat, T } from 'lib/i18n';
@@ -19,11 +19,12 @@ import { OpenInExplorerChip } from './OpenInExplorerChip';
 interface Props {
   bakerPkh: string;
   hideAddress?: boolean;
+  showBakerTag?: boolean;
   className?: string;
   HeaderRight?: React.ComponentType;
 }
 
-export const BakerCard = memo<Props>(({ bakerPkh, hideAddress, className, HeaderRight }) => {
+export const BakerCard = memo<Props>(({ bakerPkh, hideAddress, showBakerTag, className, HeaderRight }) => {
   const allAccounts = useRelevantAccounts();
   const account = useAccount();
   const { fullPage } = useAppEnv();
@@ -36,19 +37,20 @@ export const BakerCard = memo<Props>(({ bakerPkh, hideAddress, className, Header
 
   const isRecommendedBaker = bakerPkh === RECOMMENDED_BAKER_ADDRESS;
   const isHelpUkraineBaker = bakerPkh === HELP_UKRAINE_BAKER_ADDRESS;
+  const withBakerTag = showBakerTag && (isRecommendedBaker || isHelpUkraineBaker);
 
   if (!baker)
     return (
       <div className={clsx('flex items-center gap-x-2', className)}>
         <Identicon type="bottts" hash={bakerPkh} size={40} className="shadow-xs" />
 
-        <Name className="text-ulg leading-5 text-gray-910">
-          {bakerAcc ? (
-            <SelfBaker bakerAcc={bakerAcc} accountPkh={account.publicKeyHash} />
-          ) : (
-            <UnknownBaker bakerPkh={bakerPkh} />
-          )}
-        </Name>
+        {bakerAcc ? (
+          <BakerName>
+            <SelfBakerNameValue bakerAcc={bakerAcc} accountPkh={account.publicKeyHash} />
+          </BakerName>
+        ) : (
+          <UnknownBakerName bakerPkh={bakerPkh} />
+        )}
 
         <div className="flex-1 min-w-16 flex justify-end">{HeaderRight && <HeaderRight />}</div>
       </div>
@@ -59,16 +61,9 @@ export const BakerCard = memo<Props>(({ bakerPkh, hideAddress, className, Header
       <div className="flex items-center gap-x-2">
         <img src={baker.logo} alt={baker.name} className="flex-shrink-0 w-8 h-8 bg-white rounded shadow-xs" />
 
-        <Name className="text-ulg leading-5 text-gray-910" testID={BakingSectionSelectors.delegatedBakerName}>
-          {baker.name}
-        </Name>
+        <BakerName>{baker.name}</BakerName>
 
-        {(isRecommendedBaker || isHelpUkraineBaker) && (
-          <ABContainer
-            groupAComponent={<SponsoredBaker isRecommendedBaker={isRecommendedBaker} />}
-            groupBComponent={<PromotedBaker isRecommendedBaker={isRecommendedBaker} />}
-          />
-        )}
+        {withBakerTag && <BakerTag recommended={isRecommendedBaker} />}
 
         {!hideAddress && <OpenInExplorerChip hash={baker.address} type="account" small alternativeDesign />}
 
@@ -171,7 +166,13 @@ export const BakerBanner = memo<BakerBannerProps>(({ bakerPkh, ActionButton, Hea
   );
 });
 
-const SelfBaker: React.FC<{
+const BakerName: React.FC<PropsWithChildren> = ({ children }) => (
+  <Name className="text-ulg leading-5 text-gray-910" testID={BakingSectionSelectors.delegatedBakerName}>
+    {children}
+  </Name>
+);
+
+const SelfBakerNameValue: React.FC<{
   bakerAcc: TempleAccount;
   accountPkh: string;
 }> = ({ bakerAcc, accountPkh }) => (
@@ -189,7 +190,7 @@ const SelfBaker: React.FC<{
   </>
 );
 
-const UnknownBaker: React.FC<{
+const UnknownBakerName: React.FC<{
   bakerPkh: string;
 }> = ({ bakerPkh }) => {
   const network = useNetwork();
@@ -203,19 +204,19 @@ const UnknownBaker: React.FC<{
       </div>
     );
 
-  return <T id="unknownBakerTitle" />;
+  return (
+    <>
+      <BakerName>
+        <T id="unknownBakerTitle" />
+      </BakerName>
+
+      <HashChip bgShade={200} rounded="base" hash={bakerPkh} small textShade={700} />
+    </>
+  );
 };
 
-const BAKER_TAG_CLASSNAME = 'flex-shrink-0 font-medium text-xs leading-none px-2 py-1 text-white rounded-full';
-
-const SponsoredBaker: FC<{ isRecommendedBaker: boolean }> = ({ isRecommendedBaker }) => (
-  <div className={clsx(BAKER_TAG_CLASSNAME, 'bg-blue-500')}>
-    <T id={isRecommendedBaker ? 'recommended' : 'helpUkraine'} />
-  </div>
-);
-
-const PromotedBaker: FC<{ isRecommendedBaker: boolean }> = ({ isRecommendedBaker }) => (
-  <div className={clsx(BAKER_TAG_CLASSNAME, 'bg-primary-orange')}>
-    <T id={isRecommendedBaker ? 'recommended' : 'helpUkraine'} />
+const BakerTag: FC<{ recommended: boolean }> = ({ recommended }) => (
+  <div className="flex-shrink-0 font-medium text-xs leading-none px-2 py-1 bg-blue-500 text-white rounded-full">
+    <T id={recommended ? 'recommended' : 'helpUkraine'} />
   </div>
 );
