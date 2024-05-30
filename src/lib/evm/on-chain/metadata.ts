@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { parseAbi } from 'viem';
+import { parseAbi, PublicClient } from 'viem';
 
 import { NftCollectionAttribute } from 'lib/apis/temple/endpoints/evm/api.interfaces';
 import { fromAssetSlug } from 'lib/assets';
@@ -17,13 +17,7 @@ export const fetchEvmTokensMetadataFromChain = async (network: EvmChain, tokenSl
     tokenSlugs.map(async slug => {
       return await fetchEvmTokenMetadataFromChain(network, slug);
     })
-  ).then(fetchedMetadata =>
-    fetchedMetadata.reduce<Record<string, EvmTokenMetadata | undefined>>((acc, metadata, index) => {
-      const slug = tokenSlugs[index];
-
-      return { ...acc, [slug]: metadata };
-    }, {})
-  );
+  ).then(fetchedMetadata => handleFetchedMetadata<EvmTokenMetadata | undefined>(fetchedMetadata, tokenSlugs));
 
 export const fetchEvmCollectiblesMetadataFromChain = async (network: EvmChain, collectibleSlugs: string[]) =>
   Promise.all(
@@ -31,12 +25,34 @@ export const fetchEvmCollectiblesMetadataFromChain = async (network: EvmChain, c
       return await fetchEvmCollectibleMetadataFromChain(network, slug);
     })
   ).then(fetchedMetadata =>
-    fetchedMetadata.reduce<Record<string, EvmCollectibleMetadata | undefined>>((acc, metadata, index) => {
-      const slug = collectibleSlugs[index];
-
-      return { ...acc, [slug]: metadata };
-    }, {})
+    handleFetchedMetadata<EvmCollectibleMetadata | undefined>(fetchedMetadata, collectibleSlugs)
   );
+
+export const fetchEvmAssetMetadataFromChain = async (network: EvmChain, assetSlug: string) => {
+  const [contractAddress, tokenIdStr] = fromAssetSlug<HexString>(assetSlug);
+
+  const tokenId = BigInt(tokenIdStr ?? 0);
+
+  const publicClient = getReadOnlyEvmForNetwork(network);
+
+  const standard = await detectEvmTokenStandard(network, assetSlug);
+
+  try {
+    if (standard === EvmAssetStandard.ERC1155) {
+      return await getERC1155Metadata(publicClient, contractAddress, tokenId);
+    }
+
+    if (standard === EvmAssetStandard.ERC721) {
+      return await getERC721Metadata(publicClient, contractAddress, tokenId);
+    }
+
+    return await getERC20Metadata(publicClient, contractAddress);
+  } catch {
+    console.error(`ChainId: ${network.chainId}. Failed to get metadata for: ${assetSlug}.`);
+
+    return undefined;
+  }
+};
 
 const fetchEvmTokenMetadataFromChain = async (network: EvmChain, tokenSlug: string) => {
   const [contractAddress] = fromAssetSlug<HexString>(tokenSlug);
@@ -44,33 +60,7 @@ const fetchEvmTokenMetadataFromChain = async (network: EvmChain, tokenSlug: stri
   const publicClient = getReadOnlyEvmForNetwork(network);
 
   try {
-    const results = await Promise.allSettled([
-      publicClient.readContract({
-        address: contractAddress,
-        abi: parseAbi(['function name() public view returns (string)']),
-        functionName: 'name'
-      }),
-      publicClient.readContract({
-        address: contractAddress,
-        abi: parseAbi(['function symbol() public view returns (string)']),
-        functionName: 'symbol'
-      }),
-      publicClient.readContract({
-        address: contractAddress,
-        abi: parseAbi(['function decimals() public view returns (uint8)']),
-        functionName: 'decimals'
-      })
-    ]);
-
-    const metadata: EvmTokenMetadata = {
-      address: contractAddress,
-      standard: EvmAssetStandard.ERC20,
-      name: getValue<string>(results[0]),
-      symbol: getValue<string>(results[1]),
-      decimals: getValue<number>(results[2])
-    };
-
-    return metadata;
+    return await getERC20Metadata(publicClient, contractAddress);
   } catch {
     console.error(`ChainId: ${network.chainId}. Failed to get metadata for: ${tokenSlug}.`);
 
@@ -87,78 +77,13 @@ const fetchEvmCollectibleMetadataFromChain = async (network: EvmChain, collectib
 
   const standard = await detectEvmTokenStandard(network, collectibleSlug);
 
-  const commonPromises = [
-    publicClient.readContract({
-      address: contractAddress,
-      abi: parseAbi(['function name() public view returns (string)']),
-      functionName: 'name'
-    }),
-    publicClient.readContract({
-      address: contractAddress,
-      abi: parseAbi(['function symbol() public view returns (string)']),
-      functionName: 'symbol'
-    })
-  ];
-
   try {
     if (standard === EvmAssetStandard.ERC1155) {
-      const results = await Promise.allSettled([
-        ...commonPromises,
-        publicClient.readContract({
-          address: contractAddress,
-          abi: parseAbi(['function uri(uint256 _id) external view returns (string memory)']),
-          functionName: 'uri',
-          args: [tokenId]
-        })
-      ]);
-
-      const metadataUri = getValue<string>(results[2]);
-
-      if (!metadataUri) throw new Error();
-
-      const collectibleMetadata = await getCollectibleMetadataFromUri(metadataUri);
-
-      const metadata: EvmCollectibleMetadata = {
-        address: contractAddress,
-        tokenId: tokenIdStr ?? '0',
-        standard: EvmAssetStandard.ERC1155,
-        name: getValue<string>(results[0]),
-        symbol: getValue<string>(results[1]),
-        metadataUri,
-        ...collectibleMetadata
-      };
-
-      return metadata;
+      return await getERC1155Metadata(publicClient, contractAddress, tokenId);
     }
 
     if (standard === EvmAssetStandard.ERC721) {
-      const results = await Promise.allSettled([
-        ...commonPromises,
-        publicClient.readContract({
-          address: contractAddress,
-          abi: parseAbi(['function tokenURI(uint256 _tokenId) external view returns (string)']),
-          functionName: 'tokenURI',
-          args: [tokenId]
-        })
-      ]);
-
-      const metadataUri = getValue<string>(results[2]);
-
-      if (!metadataUri) throw new Error();
-
-      const collectibleMetadata = await getCollectibleMetadataFromUri(metadataUri);
-
-      const metadata: EvmCollectibleMetadata = {
-        address: contractAddress,
-        tokenId: tokenIdStr ?? '0',
-        standard: EvmAssetStandard.ERC721,
-        name: getValue<string>(results[0]),
-        symbol: getValue<string>(results[1]),
-        metadataUri,
-        ...collectibleMetadata
-      };
-
-      return metadata;
+      return await getERC721Metadata(publicClient, contractAddress, tokenId);
     }
 
     console.error(
@@ -173,113 +98,115 @@ const fetchEvmCollectibleMetadataFromChain = async (network: EvmChain, collectib
   }
 };
 
-export const fetchEvmAssetMetadataFromChain = async (network: EvmChain, assetSlug: string) => {
-  const [contractAddress, tokenIdStr] = fromAssetSlug<HexString>(assetSlug);
+const getERC20Metadata = async (publicClient: PublicClient, contractAddress: HexString) => {
+  const results = await getERC20Properties(publicClient, contractAddress);
 
-  const tokenId = BigInt(tokenIdStr ?? 0);
+  const metadata: EvmTokenMetadata = {
+    address: contractAddress,
+    standard: EvmAssetStandard.ERC20,
+    name: getValue<string>(results[0]),
+    symbol: getValue<string>(results[1]),
+    decimals: getValue<number>(results[2])
+  };
 
-  const publicClient = getReadOnlyEvmForNetwork(network);
-
-  const standard = await detectEvmTokenStandard(network, assetSlug);
-
-  const commonPromises = [
-    publicClient.readContract({
-      address: contractAddress,
-      abi: parseAbi(['function name() public view returns (string)']),
-      functionName: 'name'
-    }),
-    publicClient.readContract({
-      address: contractAddress,
-      abi: parseAbi(['function symbol() public view returns (string)']),
-      functionName: 'symbol'
-    })
-  ];
-
-  try {
-    if (standard === EvmAssetStandard.ERC1155) {
-      const results = await Promise.allSettled([
-        ...commonPromises,
-        publicClient.readContract({
-          address: contractAddress,
-          abi: parseAbi(['function uri(uint256 _id) external view returns (string memory)']),
-          functionName: 'uri',
-          args: [tokenId]
-        })
-      ]);
-
-      const metadataUri = getValue<string>(results[2]);
-
-      if (!metadataUri) throw new Error();
-
-      const collectibleMetadata = await getCollectibleMetadataFromUri(metadataUri);
-
-      const metadata: EvmCollectibleMetadata = {
-        address: contractAddress,
-        tokenId: tokenIdStr ?? '0',
-        standard: EvmAssetStandard.ERC1155,
-        name: getValue<string>(results[0]),
-        symbol: getValue<string>(results[1]),
-        metadataUri,
-        ...collectibleMetadata
-      };
-
-      return metadata;
-    }
-
-    if (standard === EvmAssetStandard.ERC721) {
-      const results = await Promise.allSettled([
-        ...commonPromises,
-        publicClient.readContract({
-          address: contractAddress,
-          abi: parseAbi(['function tokenURI(uint256 _tokenId) external view returns (string)']),
-          functionName: 'tokenURI',
-          args: [tokenId]
-        })
-      ]);
-
-      const metadataUri = getValue<string>(results[2]);
-
-      if (!metadataUri) throw new Error();
-
-      const collectibleMetadata = await getCollectibleMetadataFromUri(metadataUri);
-
-      const metadata: EvmCollectibleMetadata = {
-        address: contractAddress,
-        tokenId: tokenIdStr ?? '0',
-        standard: EvmAssetStandard.ERC721,
-        name: getValue<string>(results[0]),
-        symbol: getValue<string>(results[1]),
-        metadataUri,
-        ...collectibleMetadata
-      };
-
-      return metadata;
-    }
-
-    const results = await Promise.allSettled([
-      ...commonPromises,
-      publicClient.readContract({
-        address: contractAddress,
-        abi: parseAbi(['function decimals() public view returns (uint8)']),
-        functionName: 'decimals'
-      })
-    ]);
-
-    const metadata: EvmTokenMetadata = {
-      address: contractAddress,
-      standard: EvmAssetStandard.ERC20,
-      name: getValue<string>(results[0]),
-      symbol: getValue<string>(results[1]),
-      decimals: getValue<number>(results[2])
-    };
-
-    return metadata;
-  } catch {
-    console.error(`ChainId: ${network.chainId}. Failed to get metadata for: ${assetSlug}.`);
-
-    return undefined;
-  }
+  return metadata;
 };
+
+const getERC721Metadata = async (publicClient: PublicClient, contractAddress: HexString, tokenId: bigint) => {
+  const results = await getERC721Properties(publicClient, contractAddress, tokenId);
+
+  const metadataUri = getValue<string>(results[2]);
+
+  if (!metadataUri) throw new Error();
+
+  const collectibleMetadata = await getCollectiblePropertiesFromUri(metadataUri);
+
+  const metadata: EvmCollectibleMetadata = {
+    address: contractAddress,
+    tokenId: tokenId.toString(),
+    standard: EvmAssetStandard.ERC721,
+    name: getValue<string>(results[0]),
+    symbol: getValue<string>(results[1]),
+    metadataUri,
+    ...collectibleMetadata
+  };
+
+  return metadata;
+};
+
+const getERC1155Metadata = async (publicClient: PublicClient, contractAddress: HexString, tokenId: bigint) => {
+  const results = await getERC1155Properties(publicClient, contractAddress, tokenId);
+
+  const metadataUri = getValue<string>(results[2]);
+
+  if (!metadataUri) throw new Error();
+
+  const collectibleMetadata = await getCollectiblePropertiesFromUri(metadataUri);
+
+  const metadata: EvmCollectibleMetadata = {
+    address: contractAddress,
+    tokenId: tokenId.toString(),
+    standard: EvmAssetStandard.ERC1155,
+    name: getValue<string>(results[0]),
+    symbol: getValue<string>(results[1]),
+    metadataUri,
+    ...collectibleMetadata
+  };
+
+  return metadata;
+};
+
+const getCommonPromises = (publicClient: PublicClient, contractAddress: HexString): Promise<string>[] => [
+  publicClient.readContract({
+    address: contractAddress,
+    abi: parseAbi(['function name() public view returns (string)']),
+    functionName: 'name'
+  }),
+  publicClient.readContract({
+    address: contractAddress,
+    abi: parseAbi(['function symbol() public view returns (string)']),
+    functionName: 'symbol'
+  })
+];
+
+const getERC20Properties = async (publicClient: PublicClient, contractAddress: HexString) =>
+  Promise.allSettled([
+    ...getCommonPromises(publicClient, contractAddress),
+    publicClient.readContract({
+      address: contractAddress,
+      abi: parseAbi(['function decimals() public view returns (uint8)']),
+      functionName: 'decimals'
+    })
+  ]);
+
+const getERC721Properties = async (publicClient: PublicClient, contractAddress: HexString, tokenId: bigint) =>
+  Promise.allSettled([
+    ...getCommonPromises(publicClient, contractAddress),
+    publicClient.readContract({
+      address: contractAddress,
+      abi: parseAbi(['function tokenURI(uint256 _tokenId) external view returns (string)']),
+      functionName: 'tokenURI',
+      args: [tokenId]
+    })
+  ]);
+
+const getERC1155Properties = async (publicClient: PublicClient, contractAddress: HexString, tokenId: bigint) =>
+  Promise.allSettled([
+    ...getCommonPromises(publicClient, contractAddress),
+    publicClient.readContract({
+      address: contractAddress,
+      abi: parseAbi(['function uri(uint256 _id) external view returns (string memory)']),
+      functionName: 'uri',
+      args: [tokenId]
+    })
+  ]);
+
+const handleFetchedMetadata = <T>(fetchedMetadata: T[], assetSlugs: string[]) =>
+  fetchedMetadata.reduce<Record<string, T | undefined>>((acc, metadata, index) => {
+    const slug = assetSlugs[index];
+
+    return { ...acc, [slug]: metadata };
+  }, {});
 
 const getValue = <T>(result: PromiseSettledResult<unknown>) =>
   result.status === 'fulfilled' ? (result.value as T) : undefined;
@@ -293,7 +220,7 @@ interface CollectibleMetadata {
   animation_url?: string;
 }
 
-const getCollectibleMetadataFromUri = async (
+const getCollectiblePropertiesFromUri = async (
   metadataUri?: string
 ): Promise<
   Pick<
