@@ -41,7 +41,7 @@ export const BakerCard = memo<Props>(({ bakerPkh, hideAddress, showBakerTag, cla
 
   if (!baker)
     return (
-      <div className={clsx('flex items-center gap-x-2', className)}>
+      <BakerHeader HeaderRight={HeaderRight} className={className}>
         <Identicon type="bottts" hash={bakerPkh} size={40} className="shadow-xs" />
 
         {bakerAcc ? (
@@ -51,14 +51,12 @@ export const BakerCard = memo<Props>(({ bakerPkh, hideAddress, showBakerTag, cla
         ) : (
           <UnknownBakerName bakerPkh={bakerPkh} />
         )}
-
-        <div className="flex-1 min-w-16 flex justify-end">{HeaderRight && <HeaderRight />}</div>
-      </div>
+      </BakerHeader>
     );
 
   return (
     <div className={clsx('flex flex-col gap-y-4 text-gray-700', className)}>
-      <div className="flex items-center gap-x-2">
+      <BakerHeader HeaderRight={HeaderRight}>
         <img src={baker.logo} alt={baker.name} className="flex-shrink-0 w-8 h-8 bg-white rounded shadow-xs" />
 
         <BakerName>{baker.name}</BakerName>
@@ -66,9 +64,7 @@ export const BakerCard = memo<Props>(({ bakerPkh, hideAddress, showBakerTag, cla
         {withBakerTag && <BakerTag recommended={isRecommendedBaker} />}
 
         {!hideAddress && <OpenInExplorerChip hash={baker.address} type="account" small alternativeDesign />}
-
-        <div className="flex-1 min-w-16 flex justify-end">{HeaderRight && <HeaderRight />}</div>
-      </div>
+      </BakerHeader>
 
       <div
         className={clsx(
@@ -115,17 +111,24 @@ export const BAKER_BANNER_CLASSNAME = 'p-4 rounded-lg border';
 
 interface BakerBannerProps {
   bakerPkh: string;
-  ActionButton?: React.ComponentType<{ staked: number }>;
-  HeaderRight?: React.ComponentType;
+  ActionButton?: React.ComponentType<PropComponentProps>;
+  HeaderRight?: React.ComponentType<PropComponentProps>;
   allowDisplayZeroStake?: boolean;
+}
+
+interface PropComponentProps {
+  /** Atomic value */
+  staked: number;
 }
 
 export const BakerBanner = memo<BakerBannerProps>(({ bakerPkh, ActionButton, HeaderRight, allowDisplayZeroStake }) => {
   const acc = useAccount();
   const tezos = useTezos();
 
-  const { data: stakedData, mutate } = useRetryableSWR(['delegate-stake', 'get-staked', tezos.checksum], () =>
-    tezos.rpc.getStakedBalance(acc.publicKeyHash)
+  const { data: stakedData, mutate } = useRetryableSWR(
+    ['delegate-stake', 'get-staked', tezos.checksum],
+    () => tezos.rpc.getStakedBalance(acc.publicKeyHash),
+    { revalidateOnFocus: false }
   );
 
   useOnBlock(() => void mutate());
@@ -137,9 +140,14 @@ export const BakerBanner = memo<BakerBannerProps>(({ bakerPkh, ActionButton, Hea
 
   const displayingStaked = allowDisplayZeroStake || staked?.gt(0);
 
+  const HeaderRightWithProps = useMemo<FC | undefined>(
+    () => HeaderRight && (() => <HeaderRight staked={stakedAtomic} />),
+    [HeaderRight, stakedAtomic]
+  );
+
   return (
     <div className={clsx(BAKER_BANNER_CLASSNAME, 'flex flex-col gap-y-4')}>
-      <BakerCard bakerPkh={bakerPkh} HeaderRight={HeaderRight} />
+      <BakerCard bakerPkh={bakerPkh} HeaderRight={HeaderRightWithProps} />
 
       {(ActionButton || displayingStaked) && <Divider />}
 
@@ -166,8 +174,21 @@ export const BakerBanner = memo<BakerBannerProps>(({ bakerPkh, ActionButton, Hea
   );
 });
 
+interface BakerHeaderProps extends PropsWithChildren {
+  className?: string;
+  HeaderRight?: React.ComponentType;
+}
+
+const BakerHeader: React.FC<BakerHeaderProps> = ({ className, HeaderRight, children }) => (
+  <div className={clsx('flex items-center gap-x-2', className)}>
+    {children}
+
+    <div className="flex-grow flex-shrink-0 min-w-16 flex justify-end">{HeaderRight && <HeaderRight />}</div>
+  </div>
+);
+
 const BakerName: React.FC<PropsWithChildren> = ({ children }) => (
-  <Name className="text-ulg leading-5 text-gray-910" testID={BakingSectionSelectors.delegatedBakerName}>
+  <Name className="text-ulg leading-none text-gray-910" testID={BakingSectionSelectors.delegatedBakerName}>
     {children}
   </Name>
 );
@@ -205,13 +226,13 @@ const UnknownBakerName: React.FC<{
     );
 
   return (
-    <>
+    <div className="flex flex-col gap-y-1 items-start">
       <BakerName>
         <T id="unknownBakerTitle" />
       </BakerName>
 
       <HashChip bgShade={200} rounded="base" hash={bakerPkh} small textShade={700} />
-    </>
+    </div>
   );
 };
 

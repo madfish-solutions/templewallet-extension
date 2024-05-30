@@ -10,6 +10,7 @@ import { TEZOS_METADATA } from 'lib/metadata';
 import { useRetryableSWR } from 'lib/swr';
 import { useAccount, useDelegate, useTezos } from 'lib/temple/front';
 import { atomsToTokens } from 'lib/temple/helpers';
+import { confirmOperation } from 'lib/temple/operation';
 import { TempleAccountType } from 'lib/temple/types';
 import { ZERO } from 'lib/utils/numbers';
 
@@ -26,8 +27,10 @@ export const MyStakeTab = memo(() => {
 
   const { data: myBakerPkh } = useDelegate(acc.publicKeyHash, true, false);
 
-  const requestsSwr = useRetryableSWR(['delegate-stake', 'get-unstake-requests', tezos.checksum], () =>
-    tezos.rpc.getUnstakeRequests(acc.publicKeyHash)
+  const requestsSwr = useRetryableSWR(
+    ['delegate-stake', 'get-unstake-requests', tezos.checksum],
+    () => tezos.rpc.getUnstakeRequests(acc.publicKeyHash),
+    { suspense: true, revalidateOnFocus: false }
   );
   const { data: data2 } = useRetryableSWR(['delegate-stake', 'get-unstaked-frozen-balance', tezos.checksum], () =>
     tezos.rpc.getUnstakedFrozenBalance(acc.publicKeyHash)
@@ -37,6 +40,9 @@ export const MyStakeTab = memo(() => {
   );
 
   console.log('DATA:', requestsSwr.data, '|', data2?.toString(), '|', data3?.toString());
+
+  const bakerPkh =
+    requestsSwr?.data?.unfinalizable.delegate || requestsSwr?.data?.finalizable[0]?.delegate || myBakerPkh;
 
   const RequestUnstakeButtonLocal = useCallback<FC<{ staked: number }>>(
     ({ staked }) => (
@@ -64,8 +70,8 @@ export const MyStakeTab = memo(() => {
         <div className="flex flex-col gap-y-4">
           <span className="text-base font-medium text-blue-750">Current Staking</span>
 
-          {myBakerPkh && (
-            <BakerBanner bakerPkh={myBakerPkh} allowDisplayZeroStake ActionButton={RequestUnstakeButtonLocal} />
+          {bakerPkh && (
+            <BakerBanner bakerPkh={bakerPkh} allowDisplayZeroStake ActionButton={RequestUnstakeButtonLocal} />
           )}
         </div>
 
@@ -107,6 +113,7 @@ export const MyStakeTab = memo(() => {
                       .then(
                         oper => {
                           console.log('Op:', oper);
+                          confirmOperation(tezos, oper.opHash).then(() => void requestsSwr.mutate());
                         },
                         err => {
                           console.error(err);

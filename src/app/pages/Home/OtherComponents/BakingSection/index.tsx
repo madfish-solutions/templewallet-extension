@@ -110,8 +110,14 @@ const BakingSection = memo(() => {
     [bakingHistory]
   );
 
-  const BakerBannerHeaderRight = useCallback<FC>(
-    () => <RedelegateButton disabled={cannotDelegate} testID={BakingSectionSelectors.reDelegateButton} />,
+  const BakerBannerHeaderRight = useCallback<FC<{ staked: number }>>(
+    ({ staked }) => (
+      <RedelegateButton
+        disabled={cannotDelegate}
+        staked={staked > 0}
+        testID={BakingSectionSelectors.reDelegateButton}
+      />
+    ),
     [cannotDelegate]
   );
 

@@ -2,6 +2,7 @@
 - MyStake screen. 'Cooldown period' info hint
 - Buttons with unsupported networks
 - Module with staking hooks
+- Memoization
 - Amounts' tooltips without rounding
 - Stake amount
 - - Max - fee
