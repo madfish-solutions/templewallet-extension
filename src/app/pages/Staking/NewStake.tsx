@@ -13,7 +13,6 @@ import { useBalance } from 'lib/balances';
 import { t, toLocalFixed } from 'lib/i18n';
 import { TEZOS_METADATA } from 'lib/metadata';
 import { useAccount, useDelegate, useTezos } from 'lib/temple/front';
-import { tokensToAtoms } from 'lib/temple/helpers';
 import { TempleAccountType } from 'lib/temple/types';
 import { useSafeState } from 'lib/ui/hooks';
 
@@ -59,12 +58,9 @@ export const NewStakeTab = memo(() => {
 
   const onSubmit = useCallback(
     ({ amount }: FormData) => {
-      const amountAtoms = tokensToAtoms(amount, TEZOS_METADATA.decimals);
-
       tezos.wallet
         .stake({
-          amount: amountAtoms.toNumber(),
-          mutez: true
+          amount: Number(amount)
         })
         .send()
         .then(
@@ -95,6 +91,7 @@ export const NewStakeTab = memo(() => {
   }, [maxAmount, handleSetMaxAmount]);
 
   const errorsInForm = Boolean(errors.amount);
+  const disableSubmit = cannotDelegate || errorsInForm || Boolean(operation);
 
   return (
     <div className="mx-auto max-w-sm flex flex-col gap-y-8 pb-4">
@@ -121,7 +118,7 @@ export const NewStakeTab = memo(() => {
           autoFocus
         />
 
-        <StakeButton type="submit" disabled={cannotDelegate || errorsInForm || Boolean(operation)} />
+        <StakeButton type="submit" disabled={disableSubmit} />
       </form>
     </div>
   );

@@ -1,4 +1,4 @@
-import React, { FC, memo, useCallback } from 'react';
+import React, { FC, memo, useState, useCallback } from 'react';
 
 import BigNumber from 'bignumber.js';
 import clsx from 'clsx';
@@ -6,7 +6,6 @@ import clsx from 'clsx';
 import { Money } from 'app/atoms';
 import { UnstakeButton } from 'app/atoms/BakingButtons';
 import Spinner from 'app/atoms/Spinner/Spinner';
-import { useBlockLevel } from 'app/hooks/use-block-level.hook';
 import { BakerBanner, BAKER_BANNER_CLASSNAME } from 'app/templates/BakerBanner';
 import { TEZOS_METADATA } from 'lib/metadata';
 import { useRetryableSWR } from 'lib/swr';
@@ -15,12 +14,16 @@ import { atomsToTokens } from 'lib/temple/helpers';
 import { TempleAccountType } from 'lib/temple/types';
 import { ZERO } from 'lib/utils/numbers';
 
+import { RequestUnstakeModal } from './RequestUnstakeModal';
+
 export const MyStakeTab = memo(() => {
   const acc = useAccount();
   const cannotDelegate = acc.type === TempleAccountType.WatchOnly;
 
   const tezos = useTezos();
-  useBlockLevel();
+
+  const [requestingUnstake, setRequestingUnstake] = useState(false);
+  const toggleUnstakeModal = useCallback(() => setRequestingUnstake(val => !val), []);
 
   const { data: myBakerPkh } = useDelegate(acc.publicKeyHash, true, false);
 
@@ -38,94 +41,83 @@ export const MyStakeTab = memo(() => {
 
   const RequestUnstakeButtonLocal = useCallback<FC<{ staked: number }>>(
     ({ staked }) => (
-      <UnstakeButton
-        disabled={!staked || cannotDelegate}
-        onClick={() => {
-          tezos.wallet
-            .unstake({ amount: staked, mutez: true })
-            .send()
-            .then(
-              oper => {
-                console.log('Op:', oper);
-              },
-              err => {
-                console.error(err);
-              }
-            );
-        }}
-      >
+      <UnstakeButton disabled={!staked || cannotDelegate} onClick={toggleUnstakeModal}>
         Request Unstake
       </UnstakeButton>
     ),
-    [cannotDelegate, tezos]
+    [cannotDelegate, toggleUnstakeModal]
   );
 
   const readyRequests = requestsSwr.data?.finalizable;
   const requests = requestsSwr.data?.unfinalizable?.requests;
 
   return (
-    <div className="mx-auto max-w-sm flex flex-col gap-y-8">
-      <div className="flex flex-col gap-y-4">
-        <span className="text-base font-medium text-blue-750">Current Staking</span>
+    <>
+      {requestingUnstake && <RequestUnstakeModal close={toggleUnstakeModal} />}
 
-        {myBakerPkh && (
-          <BakerBanner bakerPkh={myBakerPkh} allowDisplayZeroStake ActionButton={RequestUnstakeButtonLocal} />
-        )}
-      </div>
+      <div className="mx-auto max-w-sm flex flex-col gap-y-8">
+        <div className="flex flex-col gap-y-4">
+          <span className="text-base font-medium text-blue-750">Current Staking</span>
 
-      <div className="flex flex-col gap-y-4">
-        <span className="text-base font-medium text-blue-750">Unstake requests</span>
-
-        <div className={clsx(BAKER_BANNER_CLASSNAME, 'flex flex-col gap-y-4 text-xs leading-5 text-gray-500')}>
-          <div className="flex items-center pb-1 border-b">
-            <span>Amount</span>
-            <div className="flex-1" />
-            <span>Cooldown period</span>
-          </div>
-
-          {requests?.length || readyRequests?.length ? (
-            <>
-              <div className="flex flex-col gap-y-3">
-                {requests?.map((request, i) => (
-                  <RequestItem key={i} amount={request.amount} />
-                ))}
-
-                {readyRequests?.map((request, i) => (
-                  <RequestItem key={i} amount={request.amount} ready />
-                ))}
-              </div>
-
-              <UnstakeButton
-                disabled={!readyRequests?.length || cannotDelegate}
-                onClick={() => {
-                  if (!readyRequests) return;
-
-                  const amount = readyRequests.reduce((acc, curr) => acc.plus(curr.amount), ZERO).toNumber();
-
-                  tezos.wallet
-                    .finalizeUnstake({ amount, mutez: true })
-                    .send()
-                    .then(
-                      oper => {
-                        console.log('Op:', oper);
-                      },
-                      err => {
-                        console.error(err);
-                      }
-                    );
-                }}
-              >
-                Unstake
-              </UnstakeButton>
-            </>
-          ) : requestsSwr.isLoading ? (
-            <Spinner className="w-10 self-center" />
-          ) : (
-            <div className="text-center">Your unstake requests will be shown here</div>
+          {myBakerPkh && (
+            <BakerBanner bakerPkh={myBakerPkh} allowDisplayZeroStake ActionButton={RequestUnstakeButtonLocal} />
           )}
         </div>
+
+        <div className="flex flex-col gap-y-4">
+          <span className="text-base font-medium text-blue-750">Unstake requests</span>
+
+          <div className={clsx(BAKER_BANNER_CLASSNAME, 'flex flex-col gap-y-4 text-xs leading-5 text-gray-500')}>
+            <div className="flex items-center pb-1 border-b">
+              <span>Amount</span>
+              <div className="flex-1" />
+              <span>Cooldown period</span>
+            </div>
+
+            {requests?.length || readyRequests?.length ? (
+              <>
+                <div className="flex flex-col gap-y-3">
+                  {requests?.map((request, i) => (
+                    <RequestItem key={i} amount={request.amount} />
+                  ))}
+
+                  {readyRequests?.map((request, i) => (
+                    <RequestItem key={i} amount={request.amount} ready />
+                  ))}
+                </div>
+
+                <UnstakeButton
+                  disabled={!readyRequests?.length || cannotDelegate}
+                  onClick={() => {
+                    if (!readyRequests) return;
+
+                    const amount = readyRequests.reduce((acc, curr) => acc.plus(curr.amount), ZERO).toNumber();
+
+                    tezos.wallet
+                      .finalizeUnstake({ amount, mutez: true })
+                      .send()
+                      .then(
+                        oper => {
+                          console.log('Op:', oper);
+                        },
+                        err => {
+                          console.error(err);
+                        }
+                      );
+                  }}
+                >
+                  Unstake
+                </UnstakeButton>
+              </>
+            ) : requestsSwr.isLoading ? (
+              <Spinner className="w-10 self-center" />
+            ) : (
+              <div className="text-center">Your unstake requests will be shown here</div>
+            )}
+          </div>
+        </div>
       </div>
-    </div>
+    </>
   );
 });
 

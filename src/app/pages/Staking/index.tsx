@@ -12,13 +12,13 @@ export const StakingPage = memo(() => (
     tabs={[
       {
         slug: 'new-stake',
-        title: 'New Stake',
+        title: 'New stake',
         Component: NewStakeTab,
         testID: StakingPageSelectors.newStakeTab
       },
       {
         slug: 'my-stake',
-        title: 'My Stake',
+        title: 'My stake',
         Component: MyStakeTab,
         testID: StakingPageSelectors.myStakeTab
       }
