@@ -6,10 +6,10 @@ import { debounce } from 'lodash';
 import { useCollectibleIsAdultSelector } from 'app/store/tezos/collectibles/selectors';
 import { buildCollectibleImagesStack } from 'lib/images-uri';
 import type { TokenMetadata } from 'lib/metadata';
+import { EvmCollectibleMetadata } from 'lib/metadata/types';
 import { ImageStacked } from 'lib/ui/ImageStacked';
 import { useIntersectionByOffsetObserver } from 'lib/ui/use-intersection-observer';
 
-import { EvmCollectibleMetadata } from '../../../../lib/metadata/types';
 import { CollectibleBlur } from '../components/CollectibleBlur';
 import { CollectibleImageFallback } from '../components/CollectibleImageFallback';
 import { CollectibleImageLoader } from '../components/CollectibleImageLoader';

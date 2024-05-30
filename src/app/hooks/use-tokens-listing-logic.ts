@@ -9,10 +9,9 @@ import { toTokenSlug } from 'lib/assets';
 import { searchAssetsWithNoMeta } from 'lib/assets/search.utils';
 import { useEvmTokensSortPredicate, useTezosTokensSortPredicate } from 'lib/assets/use-sorting';
 import { useGetTokenOrGasMetadata } from 'lib/metadata';
+import { EVM_NATIVE_CURRENCY_ADDRESS } from 'lib/metadata/types';
 import { useMemoWithCompare } from 'lib/ui/hooks';
 import { isSearchStringApplicable } from 'lib/utils/search-items';
-
-import { EVM_NATIVE_CURRENCY_ADDRESS } from '../../lib/metadata/types';
 
 export const useTezosTokensListingLogic = (
   tezosChainId: string,

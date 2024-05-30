@@ -1,8 +1,7 @@
 import React, { memo } from 'react';
 
 import type { CollectibleDetails } from 'app/store/tezos/collectibles/state';
-
-import { NftCollectionAttribute } from '../../../../lib/apis/temple/endpoints/evm/api.interfaces';
+import { NftCollectionAttribute } from 'lib/apis/temple/endpoints/evm/api.interfaces';
 
 interface AttributesItemsProps {
   details?: CollectibleDetails | null;

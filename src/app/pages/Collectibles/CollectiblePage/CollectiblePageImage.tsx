@@ -102,13 +102,11 @@ interface EvmCollectiblePageImageProps {
   className?: string;
 }
 
-export const EvmCollectiblePageImage = memo<EvmCollectiblePageImageProps>(({ metadata, className }) => {
-  return (
-    <ImageStacked
-      sources={[metadata.image]}
-      className={className}
-      loader={<CollectibleImageLoader large />}
-      fallback={<CollectibleImageFallback large />}
-    />
-  );
-});
+export const EvmCollectiblePageImage = memo<EvmCollectiblePageImageProps>(({ metadata, className }) => (
+  <ImageStacked
+    sources={[metadata.image]}
+    className={className}
+    loader={<CollectibleImageLoader large />}
+    fallback={<CollectibleImageFallback large />}
+  />
+));

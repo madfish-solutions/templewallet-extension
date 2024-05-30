@@ -160,7 +160,6 @@ export const EvmCollectibleItem = memo<EvmCollectibleItemProps>(({ assetSlug, ev
   const metadata = useEvmCollectibleMetadata(evmChainId, assetSlug);
   const wrapperElemRef = useRef<HTMLDivElement>(null);
 
-  // Fixed sizes to improve large grid performance
   const [style, imgWrapStyle] = useMemo(() => {
     const size = popup ? 104 : 112;
 
