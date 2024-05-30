@@ -38,13 +38,8 @@ export const fetchEvmAssetMetadataFromChain = async (network: EvmChain, assetSlu
   const standard = await detectEvmTokenStandard(network, assetSlug);
 
   try {
-    if (standard === EvmAssetStandard.ERC1155) {
-      return await getERC1155Metadata(publicClient, contractAddress, tokenId);
-    }
-
-    if (standard === EvmAssetStandard.ERC721) {
-      return await getERC721Metadata(publicClient, contractAddress, tokenId);
-    }
+    if (standard === EvmAssetStandard.ERC1155) return await getERC1155Metadata(publicClient, contractAddress, tokenId);
+    if (standard === EvmAssetStandard.ERC721) return await getERC721Metadata(publicClient, contractAddress, tokenId);
 
     return await getERC20Metadata(publicClient, contractAddress);
   } catch {
@@ -78,13 +73,8 @@ const fetchEvmCollectibleMetadataFromChain = async (network: EvmChain, collectib
   const standard = await detectEvmTokenStandard(network, collectibleSlug);
 
   try {
-    if (standard === EvmAssetStandard.ERC1155) {
-      return await getERC1155Metadata(publicClient, contractAddress, tokenId);
-    }
-
-    if (standard === EvmAssetStandard.ERC721) {
-      return await getERC721Metadata(publicClient, contractAddress, tokenId);
-    }
+    if (standard === EvmAssetStandard.ERC1155) return await getERC1155Metadata(publicClient, contractAddress, tokenId);
+    if (standard === EvmAssetStandard.ERC721) return await getERC721Metadata(publicClient, contractAddress, tokenId);
 
     console.error(
       `ChainId: ${network.chainId}. Slug: ${collectibleSlug}. Standard: ${standard}. Failed to load metadata. Standard is not ERC721 or ERC1155`
