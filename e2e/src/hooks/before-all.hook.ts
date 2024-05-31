@@ -1,11 +1,28 @@
-import { BeforeAll } from '@cucumber/cucumber';
+import path from "path";
+import { chromium } from "@playwright/test";
+import { CustomBrowserContext } from "src/classes/browser-context.class";
+import { sleep, VERY_SHORT_TIMEOUT } from "src/utils/timing.utils";
 
-import { initBrowserContext } from '../../../e2e-tests/src/utils/browser-context.utils';
-import { initBrowser } from '../../../e2e-tests/src/utils/browser.utils';
-import { MEDIUM_TIMEOUT } from '../../../e2e-tests/src/utils/timing.utils';
+const pathToExtension = path.join(process.cwd(), '../dist/chrome_unpacked');
 
-BeforeAll({ timeout: MEDIUM_TIMEOUT }, async () => {
-  const browser = await initBrowser();
+export async function beforeAllHook() {
 
-  await initBrowserContext(browser);
-});
+  const context = await chromium.launchPersistentContext('', {
+    headless: false,
+    args: [
+      `--disable-extensions-except=${pathToExtension}`,
+      `--load-extension=${pathToExtension}`,
+      '--user-agent=E2EPipeline/0.0.1',
+      '--disable-notifications']
+  });
+
+  CustomBrowserContext.browser = context
+
+
+  await sleep(VERY_SHORT_TIMEOUT)
+
+  CustomBrowserContext.page = CustomBrowserContext.browser.pages()[1]
+
+  CustomBrowserContext.EXTENSION_URL =  CustomBrowserContext.page.url()
+
+}
