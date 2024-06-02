@@ -10,11 +10,12 @@ import { StakeButton } from 'app/atoms/BakingButtons';
 import { useUnstakeRequests } from 'app/hooks/use-baking-hooks';
 import { BakerBanner, BAKER_BANNER_CLASSNAME } from 'app/templates/BakerBanner';
 import OperationStatus from 'app/templates/OperationStatus';
+import { useFormAnalytics } from 'lib/analytics';
 import { TEZ_TOKEN_SLUG } from 'lib/assets';
 import { useBalance } from 'lib/balances';
 import { t, toLocalFixed } from 'lib/i18n';
 import { TEZOS_METADATA } from 'lib/metadata';
-import { useAccount, useDelegate, useTezos } from 'lib/temple/front';
+import { useAccount, useDelegate, useKnownBaker, useTezos } from 'lib/temple/front';
 import { TempleAccountType } from 'lib/temple/types';
 import { useSafeState } from 'lib/ui/hooks';
 
@@ -25,6 +26,8 @@ export const NewStakeTab = memo(() => {
   const tezos = useTezos();
 
   const { data: myBakerPkh } = useDelegate(acc.publicKeyHash, true, false);
+  const { data: knownBaker } = useKnownBaker(myBakerPkh || null, false);
+  const knownBakerName = knownBaker?.name;
 
   const { value: balance } = useBalance(TEZ_TOKEN_SLUG, acc.publicKeyHash);
 
@@ -46,6 +49,8 @@ export const NewStakeTab = memo(() => {
   const { handleSubmit, errors, control, setValue, reset, triggerValidation } = useForm<FormData>({
     mode: 'onChange'
   });
+
+  const { trackSubmitSuccess, trackSubmitFail } = useFormAnalytics('STAKE_FOR_BAKER_FORM');
 
   const amountRules = useMemo(
     () => ({
@@ -71,22 +76,31 @@ export const NewStakeTab = memo(() => {
 
   const onSubmit = useCallback(
     ({ amount }: FormData) => {
+      const amountNumber = Number(amount);
+
+      const analyticsProps = {
+        inputAsset: 'TEZ',
+        inputAmount: amountNumber,
+        provider: knownBakerName
+      };
+
       tezos.wallet
-        .stake({
-          amount: Number(amount)
-        })
+        .stake({ amount: amountNumber })
         .send()
         .then(
           operation => {
             setOperation(operation);
             reset();
+            trackSubmitSuccess(analyticsProps);
           },
           error => {
             console.error(error);
+            if (error?.message === 'Declined') return;
+            trackSubmitFail(analyticsProps);
           }
         );
     },
-    [tezos, setOperation, reset]
+    [tezos, setOperation, reset, trackSubmitSuccess, trackSubmitFail, knownBakerName]
   );
 
   const labelDescription = useMemo(() => {

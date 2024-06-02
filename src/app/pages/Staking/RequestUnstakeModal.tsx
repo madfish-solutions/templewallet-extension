@@ -9,6 +9,7 @@ import AssetField from 'app/atoms/AssetField';
 import CustomModal from 'app/atoms/CustomModal';
 import { useAppEnv } from 'app/env';
 import { useStakedAmount } from 'app/hooks/use-baking-hooks';
+import { useFormAnalytics } from 'lib/analytics';
 import { t, T, toLocalFixed } from 'lib/i18n';
 import { TEZOS_METADATA } from 'lib/metadata';
 import { useAccountPkh, useTezos } from 'lib/temple/front';
@@ -17,10 +18,11 @@ import { atomsToTokens } from 'lib/temple/helpers';
 import { StakingPageSelectors } from './selectors';
 
 interface Props {
+  knownBakerName?: string;
   close: EmptyFn;
 }
 
-export const RequestUnstakeModal = memo<Props>(({ close }) => {
+export const RequestUnstakeModal = memo<Props>(({ knownBakerName, close }) => {
   const { fullPage } = useAppEnv();
 
   const accountPkh = useAccountPkh();
@@ -33,6 +35,8 @@ export const RequestUnstakeModal = memo<Props>(({ close }) => {
   const { handleSubmit, errors, control, setValue, triggerValidation } = useForm<FormData>({
     mode: 'onChange'
   });
+
+  const { trackSubmitSuccess, trackSubmitFail } = useFormAnalytics('UNSTAKE_REQUEST_FORM');
 
   const amountRules = useMemo(
     () => ({
@@ -58,15 +62,30 @@ export const RequestUnstakeModal = memo<Props>(({ close }) => {
 
   const onSubmit = useCallback(
     ({ amount }: FormData) => {
+      const amountNumber = Number(amount);
+
+      const analyticsProps = {
+        inputAsset: 'TEZ',
+        inputAmount: amountNumber,
+        provider: knownBakerName
+      };
+
       tezos.wallet
-        .unstake({ amount: Number(amount) })
+        .unstake({ amount: amountNumber })
         .send()
         .then(
-          () => void close(),
-          err => void console.error(err)
+          () => {
+            close();
+            trackSubmitSuccess(analyticsProps);
+          },
+          error => {
+            console.error(error);
+            if (error?.message === 'Declined') return;
+            trackSubmitFail(analyticsProps);
+          }
         );
     },
-    [tezos, close]
+    [tezos, close, trackSubmitSuccess, trackSubmitFail, knownBakerName]
   );
 
   const labelDescription = useMemo(() => {

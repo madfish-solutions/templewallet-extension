@@ -185,6 +185,7 @@ const buildStakeOrManageButton = (cannotDelegate: boolean) => {
         small
         flashing={!staked}
         disabled={cannotDelegate}
+        testID={shouldManage ? undefined : BakingSectionSelectors.stakeTezosButton}
       >
         {shouldManage ? (
           <T id="manage" />
