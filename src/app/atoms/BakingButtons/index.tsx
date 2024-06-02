@@ -31,11 +31,9 @@ export const DelegateButton: FC<PropsWithChildren<DelegateButtonProps>> = ({
   const className = useMemo(
     () =>
       clsx(
-        COMMON_BUTTON_CLASSNAMES,
-        'font-semibold text-white',
+        getSecondaryButtonClassName(disabled),
         small ? 'text-sm' : 'text-sm',
         slim ? 'min-h-10' : 'min-h-11',
-        disabled ? 'bg-gray-400 pointer-events-none' : 'bg-blue-500 hover:bg-blue-600 focus:bg-blue-600',
         !disabled && flashing && ModStyles.delegateButton
       ),
     [disabled, small, slim, flashing]
@@ -57,15 +55,7 @@ interface StakeButtonProps extends TestIDProperty {
 }
 
 export const StakeButton: FC<StakeButtonProps> = ({ type, disabled, testID, onClick }) => {
-  const className = useMemo(
-    () =>
-      clsx(
-        COMMON_BUTTON_CLASSNAMES,
-        'min-h-12 text-base font-semibold text-white',
-        disabled ? 'bg-gray-400 pointer-events-none' : 'bg-blue-500 hover:bg-blue-600 focus:bg-blue-600'
-      ),
-    [disabled]
-  );
+  const className = useMemo(() => clsx(getSecondaryButtonClassName(disabled), 'min-h-12 text-base'), [disabled]);
 
   return (
     <Button type={type} className={className} disabled={disabled} onClick={onClick} testID={testID}>
@@ -134,6 +124,13 @@ const COMMON_BUTTON_CLASSNAMES = clsx(
   'flex items-center justify-center p-2 leading-none rounded-md',
   'transition ease-in-out duration-300'
 );
+
+const getSecondaryButtonClassName = (disabled?: boolean) =>
+  clsx(
+    COMMON_BUTTON_CLASSNAMES,
+    'font-semibold text-white',
+    disabled ? 'bg-gray-400 pointer-events-none' : 'bg-blue-500 hover:bg-blue-600 focus:bg-blue-600'
+  );
 
 interface CannotDelegateButtonProps extends TestIDProps, PropsWithChildren {
   className: string;

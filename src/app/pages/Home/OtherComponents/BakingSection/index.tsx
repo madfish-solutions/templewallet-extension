@@ -12,7 +12,8 @@ import { getDelegatorRewards, isKnownChainId } from 'lib/apis/tzkt';
 import { T } from 'lib/i18n';
 import { TEZOS_METADATA } from 'lib/metadata';
 import { useRetryableSWR } from 'lib/swr';
-import { useAccount, useChainId, useDelegate } from 'lib/temple/front';
+import { useAccount, useAccountPkh, useChainId, useDelegate, useNetwork } from 'lib/temple/front';
+import { loadFastRpcClient } from 'lib/temple/helpers';
 import { TempleAccountType } from 'lib/temple/types';
 
 import { NotBakingBanner } from './NotBakingBanner';
@@ -121,25 +122,7 @@ const BakingSection = memo(() => {
     [cannotDelegate]
   );
 
-  const StakeOrManageButton = useCallback<FC<{ staked: number }>>(
-    ({ staked }) => (
-      <DelegateButton
-        to={`/staking?tab=${staked ? 'my-stake' : 'new-stake'}`}
-        small
-        flashing={!staked}
-        disabled={cannotDelegate}
-      >
-        {staked ? (
-          <T id="manage" />
-        ) : (
-          <span>
-            <T id="stake" /> {TEZOS_METADATA.symbol}
-          </span>
-        )}
-      </DelegateButton>
-    ),
-    [cannotDelegate]
-  );
+  const StakeOrManageButton = useMemo(() => buildStakeOrManageButton(cannotDelegate), [cannotDelegate]);
 
   const noPreviousHistory = bakingHistory ? bakingHistory.length === 0 : false;
 
@@ -186,3 +169,37 @@ const ALL_REWARDS_PER_EVENT_KEYS: (keyof RewardsPerEventHistoryItem)[] = [
   'rewardPerFutureBlock',
   'rewardPerFutureEndorsement'
 ];
+
+const buildStakeOrManageButton = (cannotDelegate: boolean) => {
+  const StakeOrManageButton: FC<{ staked: number }> = ({ staked }) => {
+    const accountPkh = useAccountPkh();
+    const { rpcBaseURL } = useNetwork();
+
+    const { data: requests } = useRetryableSWR(
+      ['delegate-stake', 'get-unstake-requests', rpcBaseURL],
+      () => loadFastRpcClient(rpcBaseURL).getUnstakeRequests(accountPkh),
+      { revalidateOnFocus: false }
+    );
+
+    const shouldManage = staked > 0 || Boolean(requests?.finalizable.length);
+
+    return (
+      <DelegateButton
+        to={`/staking?tab=${shouldManage ? 'my-stake' : 'new-stake'}`}
+        small
+        flashing={!staked}
+        disabled={cannotDelegate}
+      >
+        {shouldManage ? (
+          <T id="manage" />
+        ) : (
+          <span>
+            <T id="stake" /> {TEZOS_METADATA.symbol}
+          </span>
+        )}
+      </DelegateButton>
+    );
+  };
+
+  return StakeOrManageButton;
+};

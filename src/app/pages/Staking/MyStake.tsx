@@ -5,12 +5,14 @@ import memoizee from 'memoizee';
 
 import { FormSubmitButton } from 'app/atoms';
 import Spinner from 'app/atoms/Spinner/Spinner';
+import { ReactComponent as AlertCircleIcon } from 'app/icons/alert-circle.svg';
 import { BakerBanner, BAKER_BANNER_CLASSNAME } from 'app/templates/BakerBanner';
 import { useRetryableSWR } from 'lib/swr';
 import { useAccount, useDelegate, useNetwork, useTezos } from 'lib/temple/front';
 import { loadFastRpcClient } from 'lib/temple/helpers';
 import { confirmOperation } from 'lib/temple/operation';
 import { TempleAccountType } from 'lib/temple/types';
+import useTippy from 'lib/ui/useTippy';
 import { ZERO } from 'lib/utils/numbers';
 
 import { FinalizableRequestItem, UnfinalizableRequestItem } from './RequestItem';
@@ -65,6 +67,8 @@ export const MyStakeTab = memo(() => {
   const bakerPkh =
     requestsSwr?.data?.unfinalizable.delegate || requestsSwr?.data?.finalizable[0]?.delegate || myBakerPkh;
 
+  const cooldownTippyRef = useTippy<SVGSVGElement>(COOLDOWN_TIPPY_PROPS);
+
   const RequestUnstakeButtonLocal = useCallback<FC<{ staked: number }>>(
     ({ staked }) => (
       <FormSubmitButton
@@ -104,6 +108,7 @@ export const MyStakeTab = memo(() => {
               <span>Amount</span>
               <div className="flex-1" />
               <span>Cooldown period</span>
+              <AlertCircleIcon ref={cooldownTippyRef} className="ml-1 w-3 h-3 stroke-current" />
             </div>
 
             {requests?.length || readyRequests?.length ? (
@@ -139,12 +144,10 @@ export const MyStakeTab = memo(() => {
                       .send()
                       .then(
                         oper => {
-                          console.log('Op:', oper);
+                          console.log('Operation:', oper);
                           confirmOperation(tezos, oper.opHash).then(() => void requestsSwr.mutate());
                         },
-                        err => {
-                          console.error(err);
-                        }
+                        err => void console.error(err)
                       );
                   }}
                 >
@@ -179,3 +182,11 @@ const getCyclesInfo = memoizee(
   },
   { promise: true, max: 10 }
 );
+
+const COOLDOWN_TIPPY_PROPS = {
+  trigger: 'mouseenter',
+  hideOnClick: false,
+  content:
+    'Unstake requests will be processed after 4 validation cycles end. You should claim your unstaked TEZ here after the cooldown preiod ends.',
+  animation: 'shift-away-subtle'
+};

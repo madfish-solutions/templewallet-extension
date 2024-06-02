@@ -14,8 +14,9 @@ import PageLayout from './PageLayout';
 
 export interface TabInterface extends Required<TestIDProperty> {
   slug: string;
-  title: string;
+  title: React.ReactNode;
   Component: FC;
+  disabled?: boolean;
 }
 
 interface Props {
@@ -47,15 +48,17 @@ export const TabsPageLayout: FC<Props> = ({ tabs, Icon, title, description }) =>
               return (
                 <Link
                   key={tab.slug}
-                  to={lctn => ({ ...lctn, search: `?tab=${tab.slug}` })}
+                  to={lctn => (tab.disabled ? lctn : { ...lctn, search: `?tab=${tab.slug}` })}
                   replace
                   className={clsx(
-                    'flex1 w-full text-center cursor-pointer pb-2',
-                    'border-b-2 text-gray-700 text-lg truncate',
+                    'w-full pb-2 border-b-2 text-ulg leading-5 text-center truncate',
                     tabs.length === 1 && 'mx-20',
                     active
                       ? 'border-primary-orange text-primary-orange'
-                      : 'border-transparent hover:text-primary-orange',
+                      : clsx(
+                          'border-transparent',
+                          tab.disabled ? 'text-gray-350' : 'text-gray-500 hover:text-primary-orange'
+                        ),
                     'transition ease-in-out duration-300'
                   )}
                   testID={tab.testID}

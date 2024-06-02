@@ -40,10 +40,11 @@ export const NewStakeTab = memo(() => {
 
   const pendingRequestsForAnotherBaker = useMemo(() => {
     if (!myBakerPkh || !requestsSwr.data) return false;
+    const { finalizable, unfinalizable } = requestsSwr.data;
 
-    if (requestsSwr.data.unfinalizable.delegate === myBakerPkh) return true;
+    if (unfinalizable.delegate && unfinalizable.delegate !== myBakerPkh) return true;
 
-    return requestsSwr.data.finalizable.some(r => r.delegate === myBakerPkh);
+    return finalizable.length ? finalizable.some(r => r.delegate !== myBakerPkh) : false;
   }, [requestsSwr.data, myBakerPkh]);
 
   const { handleSubmit, errors, control, setValue, reset, triggerValidation } = useForm<FormData>({
@@ -153,4 +154,5 @@ interface FormData {
   amount: string;
 }
 
+/** Just to be able to apply 'Max Amount' & not fail estimation on confirm */
 const MINIMAL_FEE = 1e-4;
