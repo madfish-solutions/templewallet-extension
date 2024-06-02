@@ -8,10 +8,10 @@ import { FormSecondaryButton, FormSubmitButton } from 'app/atoms';
 import AssetField from 'app/atoms/AssetField';
 import CustomModal from 'app/atoms/CustomModal';
 import { useAppEnv } from 'app/env';
+import { useStakedAmount } from 'app/hooks/use-baking-hooks';
 import { t, T, toLocalFixed } from 'lib/i18n';
 import { TEZOS_METADATA } from 'lib/metadata';
-import { useRetryableSWR } from 'lib/swr';
-import { useAccount, useTezos } from 'lib/temple/front';
+import { useAccountPkh, useTezos } from 'lib/temple/front';
 import { atomsToTokens } from 'lib/temple/helpers';
 
 import { StakingPageSelectors } from './selectors';
@@ -23,12 +23,10 @@ interface Props {
 export const RequestUnstakeModal = memo<Props>(({ close }) => {
   const { fullPage } = useAppEnv();
 
-  const acc = useAccount();
+  const accountPkh = useAccountPkh();
   const tezos = useTezos();
 
-  const { data: stakedAmount } = useRetryableSWR(['delegate-stake', 'get-staked', tezos.checksum], () =>
-    tezos.rpc.getStakedBalance(acc.publicKeyHash)
-  );
+  const { data: stakedAmount } = useStakedAmount(tezos.rpc.getRpcUrl(), accountPkh);
 
   const maxAmount = stakedAmount ? atomsToTokens(stakedAmount, TEZOS_METADATA.decimals) : null;
 

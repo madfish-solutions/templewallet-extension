@@ -1,15 +1,14 @@
 import React, { FC, memo, useState, useCallback } from 'react';
 
 import clsx from 'clsx';
-import memoizee from 'memoizee';
 
 import { FormSubmitButton } from 'app/atoms';
 import Spinner from 'app/atoms/Spinner/Spinner';
+import { useBlockLevelInfo, useStakingCyclesInfo, useUnstakeRequests } from 'app/hooks/use-baking-hooks';
 import { ReactComponent as AlertCircleIcon } from 'app/icons/alert-circle.svg';
 import { BakerBanner, BAKER_BANNER_CLASSNAME } from 'app/templates/BakerBanner';
 import { useRetryableSWR } from 'lib/swr';
 import { useAccount, useDelegate, useNetwork, useTezos } from 'lib/temple/front';
-import { loadFastRpcClient } from 'lib/temple/helpers';
 import { confirmOperation } from 'lib/temple/operation';
 import { TempleAccountType } from 'lib/temple/types';
 import useTippy from 'lib/ui/useTippy';
@@ -17,7 +16,6 @@ import { ZERO } from 'lib/utils/numbers';
 
 import { FinalizableRequestItem, UnfinalizableRequestItem } from './RequestItem';
 import { RequestUnstakeModal } from './RequestUnstakeModal';
-import { StakingCyclesInfo } from './types';
 
 export const MyStakeTab = memo(() => {
   const acc = useAccount();
@@ -31,30 +29,15 @@ export const MyStakeTab = memo(() => {
 
   const { data: myBakerPkh } = useDelegate(acc.publicKeyHash, true, false);
 
-  const { data: cyclesInfo } = useRetryableSWR(
-    ['delegate-stake', 'get-cycles-info', rpcBaseURL],
-    () => getCyclesInfo(rpcBaseURL),
-    {
-      revalidateOnFocus: false
-    }
-  );
+  const { data: cyclesInfo } = useStakingCyclesInfo(rpcBaseURL);
 
-  const { data: level_info } = useRetryableSWR(
-    ['delegate-stake', 'get-level-info', rpcBaseURL],
-    () =>
-      loadFastRpcClient(rpcBaseURL)
-        .getBlockMetadata()
-        .then(m => m.level_info),
-    {
-      revalidateOnFocus: false
-    }
-  );
+  const blockLevelInfo = useBlockLevelInfo(rpcBaseURL);
 
-  const requestsSwr = useRetryableSWR(
-    ['delegate-stake', 'get-unstake-requests', tezos.checksum],
-    () => tezos.rpc.getUnstakeRequests(acc.publicKeyHash),
-    { suspense: true, revalidateOnFocus: false }
-  );
+  const requestsSwr = useUnstakeRequests(rpcBaseURL, acc.publicKeyHash, true);
+
+  const requests = requestsSwr.data?.unfinalizable?.requests;
+  const readyRequests = requestsSwr.data?.finalizable;
+
   const { data: data2 } = useRetryableSWR(['delegate-stake', 'get-unstaked-frozen-balance', tezos.checksum], () =>
     tezos.rpc.getUnstakedFrozenBalance(acc.publicKeyHash)
   );
@@ -62,10 +45,10 @@ export const MyStakeTab = memo(() => {
     tezos.rpc.getUnstakedFinalizableBalance(acc.publicKeyHash)
   );
 
-  console.log('DATA:', requestsSwr.data, '|', data2?.toString(), '|', data3?.toString());
+  console.log('DATA:', requestsSwr, '|', data2?.toString(), '|', data3?.toString());
 
-  const bakerPkh =
-    requestsSwr?.data?.unfinalizable.delegate || requestsSwr?.data?.finalizable[0]?.delegate || myBakerPkh;
+  /** Priority is to show baker with user's stake in this page's banner */
+  const bakerPkh = readyRequests?.[0]?.delegate || requestsSwr?.data?.unfinalizable.delegate || myBakerPkh;
 
   const cooldownTippyRef = useTippy<SVGSVGElement>(COOLDOWN_TIPPY_PROPS);
 
@@ -83,9 +66,6 @@ export const MyStakeTab = memo(() => {
     ),
     [cannotDelegate, toggleUnstakeModal]
   );
-
-  const readyRequests = requestsSwr.data?.finalizable;
-  const requests = requestsSwr.data?.unfinalizable?.requests;
 
   return (
     <>
@@ -120,7 +100,7 @@ export const MyStakeTab = memo(() => {
                       amount={request.amount}
                       cycle={request.cycle}
                       cyclesInfo={cyclesInfo}
-                      level_info={level_info}
+                      blockLevelInfo={blockLevelInfo}
                     />
                   ))}
 
@@ -165,23 +145,6 @@ export const MyStakeTab = memo(() => {
     </>
   );
 });
-
-const getCyclesInfo = memoizee(
-  async (rpcBaseURL: string): Promise<StakingCyclesInfo | null> => {
-    const rpc = loadFastRpcClient(rpcBaseURL);
-
-    const { blocks_per_cycle, consensus_rights_delay, max_slashing_period, minimal_block_delay } =
-      await rpc.getConstants();
-
-    if (consensus_rights_delay == null && max_slashing_period == null) return null;
-
-    const cooldownCyclesLeft =
-      (consensus_rights_delay ?? 0) + (max_slashing_period ?? 0) - /* Accounting for current cycle*/ 1;
-
-    return { blocks_per_cycle, minimal_block_delay, cooldownCyclesLeft };
-  },
-  { promise: true, max: 10 }
-);
 
 const COOLDOWN_TIPPY_PROPS = {
   trigger: 'mouseenter',

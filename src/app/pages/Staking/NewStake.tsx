@@ -7,13 +7,13 @@ import { Controller, useForm } from 'react-hook-form';
 import { Alert } from 'app/atoms';
 import AssetField from 'app/atoms/AssetField';
 import { StakeButton } from 'app/atoms/BakingButtons';
+import { useUnstakeRequests } from 'app/hooks/use-baking-hooks';
 import { BakerBanner, BAKER_BANNER_CLASSNAME } from 'app/templates/BakerBanner';
 import OperationStatus from 'app/templates/OperationStatus';
 import { TEZ_TOKEN_SLUG } from 'lib/assets';
 import { useBalance } from 'lib/balances';
 import { t, toLocalFixed } from 'lib/i18n';
 import { TEZOS_METADATA } from 'lib/metadata';
-import { useRetryableSWR } from 'lib/swr';
 import { useAccount, useDelegate, useTezos } from 'lib/temple/front';
 import { TempleAccountType } from 'lib/temple/types';
 import { useSafeState } from 'lib/ui/hooks';
@@ -32,11 +32,7 @@ export const NewStakeTab = memo(() => {
 
   const [operation, setOperation] = useSafeState<WalletOperation | null>(null, tezos.checksum);
 
-  const requestsSwr = useRetryableSWR(
-    ['delegate-stake', 'get-unstake-requests', tezos.checksum],
-    () => tezos.rpc.getUnstakeRequests(acc.publicKeyHash),
-    { suspense: true, revalidateOnFocus: false }
-  );
+  const requestsSwr = useUnstakeRequests(tezos.rpc.getRpcUrl(), acc.publicKeyHash, true);
 
   const pendingRequestsForAnotherBaker = useMemo(() => {
     if (!myBakerPkh || !requestsSwr.data) return false;

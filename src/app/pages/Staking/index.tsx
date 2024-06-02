@@ -1,8 +1,8 @@
 import React, { memo, useMemo } from 'react';
 
+import { useStakedAmount, useUnstakeRequests } from 'app/hooks/use-baking-hooks';
 import { TabInterface, TabsPageLayout } from 'app/layouts/TabsPageLayout';
-import { useRetryableSWR } from 'lib/swr';
-import { useAccountPkh, useTezos } from 'lib/temple/front';
+import { useAccountPkh, useNetwork } from 'lib/temple/front';
 
 import { MyStakeTab } from './MyStake';
 import { NewStakeTab } from './NewStake';
@@ -10,19 +10,11 @@ import { StakingPageSelectors } from './selectors';
 
 export const StakingPage = memo(() => {
   const accountPkh = useAccountPkh();
-  const tezos = useTezos();
+  const { rpcBaseURL } = useNetwork();
 
-  const { data: stakedData } = useRetryableSWR(
-    ['delegate-stake', 'get-staked', tezos.checksum],
-    () => tezos.rpc.getStakedBalance(accountPkh),
-    { revalidateOnFocus: false }
-  );
+  const { data: stakedData } = useStakedAmount(rpcBaseURL, accountPkh);
 
-  const { data: requests } = useRetryableSWR(
-    ['delegate-stake', 'get-unstake-requests', tezos.checksum],
-    () => tezos.rpc.getUnstakeRequests(accountPkh),
-    { revalidateOnFocus: false }
-  );
+  const { data: requests } = useUnstakeRequests(rpcBaseURL, accountPkh);
 
   const tabs = useMemo<TabInterface[]>(() => {
     const requestsN = requests ? requests.finalizable.length + requests.unfinalizable.requests.length : 0;

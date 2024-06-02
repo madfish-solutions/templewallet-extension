@@ -6,6 +6,7 @@ import clsx from 'clsx';
 import { DelegateButton, RedelegateButton } from 'app/atoms/BakingButtons';
 import Spinner from 'app/atoms/Spinner/Spinner';
 import { useAppEnv } from 'app/env';
+import { useUnstakeRequests } from 'app/hooks/use-baking-hooks';
 import BakingHistoryItem from 'app/pages/Home/OtherComponents/BakingSection/HistoryItem';
 import { BakerBanner } from 'app/templates/BakerBanner';
 import { getDelegatorRewards, isKnownChainId } from 'lib/apis/tzkt';
@@ -13,7 +14,6 @@ import { T } from 'lib/i18n';
 import { TEZOS_METADATA } from 'lib/metadata';
 import { useRetryableSWR } from 'lib/swr';
 import { useAccount, useAccountPkh, useChainId, useDelegate, useNetwork } from 'lib/temple/front';
-import { loadFastRpcClient } from 'lib/temple/helpers';
 import { TempleAccountType } from 'lib/temple/types';
 
 import { NotBakingBanner } from './NotBakingBanner';
@@ -175,11 +175,7 @@ const buildStakeOrManageButton = (cannotDelegate: boolean) => {
     const accountPkh = useAccountPkh();
     const { rpcBaseURL } = useNetwork();
 
-    const { data: requests } = useRetryableSWR(
-      ['delegate-stake', 'get-unstake-requests', rpcBaseURL],
-      () => loadFastRpcClient(rpcBaseURL).getUnstakeRequests(accountPkh),
-      { revalidateOnFocus: false }
-    );
+    const { data: requests } = useUnstakeRequests(rpcBaseURL, accountPkh);
 
     const shouldManage = staked > 0 || Boolean(requests?.finalizable.length);
 

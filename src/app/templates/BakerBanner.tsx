@@ -5,12 +5,20 @@ import clsx from 'clsx';
 
 import { Identicon, Name, Money, HashChip, Divider } from 'app/atoms';
 import { useAppEnv } from 'app/env';
+import { useStakedAmount } from 'app/hooks/use-baking-hooks';
 import { BakingSectionSelectors } from 'app/pages/Home/OtherComponents/BakingSection/selectors';
 import { toLocalFormat, T } from 'lib/i18n';
 import { HELP_UKRAINE_BAKER_ADDRESS, RECOMMENDED_BAKER_ADDRESS } from 'lib/known-bakers';
 import { TEZOS_METADATA } from 'lib/metadata';
-import { useRetryableSWR } from 'lib/swr';
-import { useRelevantAccounts, useAccount, useNetwork, useKnownBaker, useTezos, useOnBlock } from 'lib/temple/front';
+import {
+  useRelevantAccounts,
+  useAccount,
+  useNetwork,
+  useKnownBaker,
+  useTezos,
+  useOnBlock,
+  useAccountPkh
+} from 'lib/temple/front';
 import { atomsToTokens } from 'lib/temple/helpers';
 import { TempleAccount } from 'lib/temple/types';
 
@@ -122,21 +130,21 @@ interface PropComponentProps {
 }
 
 export const BakerBanner = memo<BakerBannerProps>(({ bakerPkh, ActionButton, HeaderRight, allowDisplayZeroStake }) => {
-  const acc = useAccount();
+  const accountPkh = useAccountPkh();
   const tezos = useTezos();
 
-  const { data: stakedData, mutate } = useRetryableSWR(
-    ['delegate-stake', 'get-staked', tezos.checksum],
-    () => tezos.rpc.getStakedBalance(acc.publicKeyHash),
-    { revalidateOnFocus: false }
-  );
+  const { data: stakedData, mutate } = useStakedAmount(tezos.rpc.getRpcUrl(), accountPkh);
 
   useOnBlock(() => void mutate());
 
   console.log('STAKED DATA:', stakedData?.toString());
 
-  const staked = stakedData && stakedData.gt(0) ? atomsToTokens(stakedData, TEZOS_METADATA.decimals) : null;
-  const stakedAtomic = stakedData?.toNumber() || 0;
+  const [staked, stakedAtomic] = useMemo(() => {
+    const staked = stakedData && stakedData.gt(0) ? atomsToTokens(stakedData, TEZOS_METADATA.decimals) : null;
+    const stakedAtomic = stakedData?.toNumber() || 0;
+
+    return [staked, stakedAtomic] as const;
+  }, [stakedData]);
 
   const displayingStaked = allowDisplayZeroStake || staked?.gt(0);
 

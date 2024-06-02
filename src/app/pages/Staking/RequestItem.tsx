@@ -4,11 +4,10 @@ import { LevelInfo } from '@taquito/rpc';
 import BigNumber from 'bignumber.js';
 
 import { Money } from 'app/atoms';
+import { StakingCyclesInfo } from 'app/hooks/use-baking-hooks';
 import { BLOCK_DURATION } from 'lib/fixed-times';
 import { TEZOS_METADATA } from 'lib/metadata';
 import { atomsToTokens } from 'lib/temple/helpers';
-
-import { StakingCyclesInfo } from './types';
 
 export const FinalizableRequestItem = memo<RequestItemProps>(({ amount }) => (
   <RequestItem amount={amount}>
@@ -19,18 +18,18 @@ export const FinalizableRequestItem = memo<RequestItemProps>(({ amount }) => (
 interface UnfinalizableRequestItemProps extends RequestItemProps {
   cycle: number;
   cyclesInfo: StakingCyclesInfo | nullish;
-  level_info: LevelInfo | nullish;
+  blockLevelInfo: LevelInfo | nullish;
 }
 
 export const UnfinalizableRequestItem = memo<UnfinalizableRequestItemProps>(
-  ({ amount, cycle, cyclesInfo, level_info }) => {
+  ({ amount, cycle, cyclesInfo, blockLevelInfo }) => {
     const cooldownTime = useMemo(() => {
-      if (!cyclesInfo || !level_info) return 0;
+      if (!cyclesInfo || !blockLevelInfo) return 0;
 
       const { blocks_per_cycle, minimal_block_delay, cooldownCyclesLeft } = cyclesInfo;
 
-      const fullCyclesLeft = cycle + cooldownCyclesLeft - level_info.cycle;
-      const blocksLeftInCurrentCycle = blocks_per_cycle - level_info.cycle_position;
+      const fullCyclesLeft = cycle + cooldownCyclesLeft - blockLevelInfo.cycle;
+      const blocksLeftInCurrentCycle = blocks_per_cycle - blockLevelInfo.cycle_position;
 
       const blocksLeft = blocks_per_cycle * fullCyclesLeft + blocksLeftInCurrentCycle;
 
@@ -38,7 +37,7 @@ export const UnfinalizableRequestItem = memo<UnfinalizableRequestItemProps>(
       const secondsLeft = blocksLeft * blockDuration;
 
       return Math.floor(secondsLeft / 3600);
-    }, [cycle, cyclesInfo, level_info]);
+    }, [cycle, cyclesInfo, blockLevelInfo]);
 
     return (
       <RequestItem amount={amount}>
