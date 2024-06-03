@@ -4,8 +4,8 @@ import {
   SwapFormToInputSelectors
 } from 'src/app/templates/SwapForm/SwapForm.selectors';
 
-import { Page } from 'e2e/src/classes/page.class';
-import { createPageElement } from 'e2e/src/utils/search.utils';
+import { Page } from '../../classes/page.class';
+import { createPageElement } from '../../utils/search.utils';
 
 export class SwapPage extends Page {
   swapPlacesButton = createPageElement(SwapFormSelectors.swapPlacesButton);

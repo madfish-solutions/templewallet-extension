@@ -1,6 +1,6 @@
 import { SettingsSelectors } from 'src/app/pages/Settings/Settings.selectors';
 
-import { Page } from 'e2e/src/classes/page.class';
+import { Page } from '../../classes/page.class';
 import { createPageElement } from '../../utils/search.utils';
 
 export class SettingsPage extends Page {

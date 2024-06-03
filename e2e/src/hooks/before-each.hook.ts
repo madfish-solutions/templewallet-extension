@@ -1,5 +1,5 @@
-import { sleep } from 'e2e/src/utils/timing.utils';
-import { CustomBrowserContext } from 'e2e/src/classes/browser-context.class';
+import { sleep } from '../utils/timing.utils';
+import { CustomBrowserContext } from '../classes/browser-context.class';
 
 
 export async function beforeEachHook() {

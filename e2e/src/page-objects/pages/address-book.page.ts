@@ -1,7 +1,7 @@
 import { AddressBookSelectors } from 'src/app/templates/AddressBook/AddressBook.selectors';
 
-import { Page } from 'e2e/src/classes/page.class';
-import { createPageElement } from 'e2e/src/utils/search.utils';
+import { Page } from '../../classes/page.class';
+import { createPageElement } from '../../utils/search.utils';
 
 export class AddressBookPage extends Page {
   addressInput = createPageElement(AddressBookSelectors.addressInput);

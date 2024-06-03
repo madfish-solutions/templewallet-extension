@@ -1,7 +1,7 @@
 import path from "path";
 import { chromium } from "@playwright/test";
-import { CustomBrowserContext } from "e2e/src/classes/browser-context.class";
-import { sleep, VERY_SHORT_TIMEOUT } from "e2e/src/utils/timing.utils";
+import { CustomBrowserContext } from "../classes/browser-context.class";
+import { sleep, VERY_SHORT_TIMEOUT } from "../utils/timing.utils";
 
 const pathToExtension = path.join(process.cwd(), '../dist/chrome_unpacked');
 

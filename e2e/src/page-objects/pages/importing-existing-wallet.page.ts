@@ -1,9 +1,9 @@
 import { ImportFromSeedPhraseSelectors } from 'src/app/pages/NewWallet/import/ImportSeedPhrase/ImportFromSeedPhrase.selectors';
 
-import { clearDataFromCurrentInput } from 'e2e/src/utils/input-data.utils';
+import { clearDataFromCurrentInput } from '../../utils/input-data.utils';
 
-import { Page } from 'e2e/src/classes/page.class';
-import { createPageElement, findElements } from 'e2e/src/utils/search.utils';
+import { Page } from '../../classes/page.class';
+import { createPageElement, findElements } from '../../utils/search.utils';
 
 export class ImportExistingWalletPage extends Page {
   nextButton = createPageElement(ImportFromSeedPhraseSelectors.nextButton);

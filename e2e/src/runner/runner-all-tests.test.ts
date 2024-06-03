@@ -1,9 +1,9 @@
 import { test } from '../utils/extension.fixtures'
 
 import { ImportExistingWallet } from '../scenarios/import-existing-wallet.scenario';
-import { beforeAllHook } from "../hooks/before-all.hook";
-import { afterEachHook } from "../hooks/after-each.hook";
-import { beforeEachHook } from "../hooks/before-each.hook";
+import { beforeAllHook } from '../hooks/before-all.hook';
+import { afterEachHook } from '../hooks/after-each.hook';
+import { beforeEachHook } from '../hooks/before-each.hook';
 
 // Hooks
 

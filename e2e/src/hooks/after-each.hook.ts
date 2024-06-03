@@ -1,7 +1,7 @@
-import { CustomBrowserContext } from "e2e/src/classes/browser-context.class";
+import { CustomBrowserContext } from "../classes/browser-context.class";
 import { E2eMessageType } from "src/lib/e2e/types";
 import retry from "async-retry";
-import { RETRY_OPTIONS } from "e2e/src/utils/timing.utils";
+import { RETRY_OPTIONS } from "../utils/timing.utils";
 
 const FAILED_RESET_ERROR = new Error('Failed to reset extension');
 

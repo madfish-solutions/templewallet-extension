@@ -1,8 +1,8 @@
 import { PreviewItemSelectors } from 'src/lib/notifications/components/notifications/preview-item.selectors';
 import type { NotificationInterface } from 'src/lib/notifications/types';
 
-import { Page } from 'e2e/src/classes/page.class';
-import { createPageElement } from 'e2e/src/utils/search.utils';
+import { Page } from '../../classes/page.class';
+import { createPageElement } from '../../utils/search.utils';
 
 export class NotificationsListPage extends Page {
   newNotification?: NotificationInterface;
