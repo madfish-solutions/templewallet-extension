@@ -266,8 +266,6 @@ const DelegateForm = memo<Props>(({ balance }) => {
       {operation && <OperationStatus typeTitle={t('delegation')} operation={operation} className="mb-8" />}
 
       <form onSubmit={handleSubmit(onSubmit)}>
-        {/* <GasBalanceBanner balance={balance} /> */}
-
         <Controller
           name="to"
           as={<NoSpaceField ref={toFieldRef} />}

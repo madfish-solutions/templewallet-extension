@@ -10,7 +10,7 @@ import { useStakedAmount } from 'app/hooks/use-baking-hooks';
 import { StakeAmountField, FormData, convertFiatToAssetAmount } from 'app/templates/StakeAmountInput';
 import { useFormAnalytics } from 'lib/analytics';
 import { TEZ_TOKEN_SLUG } from 'lib/assets';
-import { useAssetFiatCurrencyPrice, useFiatCurrency } from 'lib/fiat-currency';
+import { useAssetFiatCurrencyPrice } from 'lib/fiat-currency';
 import { T } from 'lib/i18n';
 import { TEZOS_METADATA, useGasTokenMetadata } from 'lib/metadata';
 import { useAccountPkh, useTezos } from 'lib/temple/front';
@@ -33,10 +33,7 @@ export const RequestUnstakeModal = memo<Props>(({ knownBakerName, close }) => {
 
   const [inFiat, setInFiat] = useState(false);
 
-  const { symbol, decimals } = useGasTokenMetadata();
-  const {
-    selectedFiatCurrency: { name: fiatName }
-  } = useFiatCurrency();
+  const { decimals } = useGasTokenMetadata();
 
   const maxAmountInTezos = useMemo(
     () => (stakedAmount ? atomsToTokens(stakedAmount, TEZOS_METADATA.decimals) : null),
@@ -55,16 +52,16 @@ export const RequestUnstakeModal = memo<Props>(({ knownBakerName, close }) => {
 
   const onSubmit = useCallback(
     ({ amount }: FormData) => {
+      const tezosAmount = inFiat ? convertFiatToAssetAmount(amount, assetPrice, decimals) : amount;
+      const inputAmount = Number(tezosAmount);
+
       const analyticsProps = {
-        inputAsset: inFiat ? fiatName : symbol,
-        inputAmount: amount,
+        inputAmount,
         provider: knownBakerName
       };
 
-      const tezosAmount = inFiat ? convertFiatToAssetAmount(amount, assetPrice, decimals) : amount;
-
       tezos.wallet
-        .unstake({ amount: Number(tezosAmount) })
+        .unstake({ amount: inputAmount })
         .send()
         .then(
           () => {
@@ -78,7 +75,7 @@ export const RequestUnstakeModal = memo<Props>(({ knownBakerName, close }) => {
           }
         );
     },
-    [inFiat, tezos, close, trackSubmitSuccess, trackSubmitFail, knownBakerName, assetPrice, decimals, symbol, fiatName]
+    [inFiat, tezos, close, trackSubmitSuccess, trackSubmitFail, knownBakerName, assetPrice, decimals]
   );
 
   const errorsInForm = Boolean(errors.amount);

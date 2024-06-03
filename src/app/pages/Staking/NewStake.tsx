@@ -13,7 +13,7 @@ import { StakeAmountField, FormData, convertFiatToAssetAmount } from 'app/templa
 import { useFormAnalytics } from 'lib/analytics';
 import { TEZ_TOKEN_SLUG } from 'lib/assets';
 import { useBalance } from 'lib/balances';
-import { useFiatCurrency, useAssetFiatCurrencyPrice } from 'lib/fiat-currency';
+import { useAssetFiatCurrencyPrice } from 'lib/fiat-currency';
 import { t } from 'lib/i18n';
 import { useGasTokenMetadata } from 'lib/metadata';
 import { useAccount, useDelegate, useKnownBaker, useTezos } from 'lib/temple/front';
@@ -60,25 +60,22 @@ export const NewStakeTab = memo(() => {
 
   const [inFiat, setInFiat] = useState(false);
 
-  const {
-    selectedFiatCurrency: { name: fiatName }
-  } = useFiatCurrency();
   const assetPrice = useAssetFiatCurrencyPrice(TEZ_TOKEN_SLUG);
 
-  const { symbol, decimals } = useGasTokenMetadata();
+  const { decimals } = useGasTokenMetadata();
 
   const onSubmit = useCallback(
     ({ amount }: FormData) => {
+      const tezosAmount = inFiat ? convertFiatToAssetAmount(amount, assetPrice, decimals) : amount;
+      const inputAmount = Number(tezosAmount);
+
       const analyticsProps = {
-        inputAsset: inFiat ? fiatName : symbol,
-        inputAmount: amount,
+        inputAmount,
         provider: knownBakerName
       };
 
-      const tezosAmount = inFiat ? convertFiatToAssetAmount(amount, assetPrice, decimals) : amount;
-
       tezos.wallet
-        .stake({ amount: Number(tezosAmount) })
+        .stake({ amount: inputAmount })
         .send()
         .then(
           operation => {
@@ -93,19 +90,7 @@ export const NewStakeTab = memo(() => {
           }
         );
     },
-    [
-      tezos,
-      setOperation,
-      reset,
-      trackSubmitSuccess,
-      trackSubmitFail,
-      inFiat,
-      assetPrice,
-      fiatName,
-      knownBakerName,
-      symbol,
-      decimals
-    ]
+    [tezos, setOperation, reset, trackSubmitSuccess, trackSubmitFail, inFiat, assetPrice, knownBakerName, decimals]
   );
 
   const errorsInForm = Boolean(errors.amount);
