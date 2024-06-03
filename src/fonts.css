@@ -6,6 +6,10 @@
 
 /* TEXT */
 
+.text-font-small {
+  @apply text-xxxs;
+}
+
 .text-font-description {
   @apply text-xs;
 }

@@ -12,7 +12,7 @@ interface ActionsButtonsBoxProps extends HTMLAttributes<HTMLDivElement> {
 
 const getDivHeight = (element: HTMLDivElement) => element.getBoundingClientRect().height;
 
-const shiftUpdateEvents = ['resize'];
+const shiftUpdateEvents: string[] = [];
 
 export const ActionsButtonsBox = memo<ActionsButtonsBoxProps>(
   ({ className, shouldCastShadow, flexDirection = 'col', ...restProps }) => {

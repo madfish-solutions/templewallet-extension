@@ -10,6 +10,8 @@ import { ReactComponent as WarningIcon } from 'app/icons/typed-msg/warning.svg';
 import { useToastsContainerBottomShiftSelector } from 'app/store/toasts-container-shift/selectors';
 import PortalToDocumentBody from 'lib/ui/Portal';
 
+import { useAppEnv } from './env';
+
 export const toastSuccess = (title: string) => void toast.success(title);
 // @ts-prune-ignore-next
 export const toastError = (title: string) => void toast.error(title);
@@ -21,7 +23,8 @@ export const toastWarning = (title: string) =>
 
 export const ToasterProvider = memo(() => {
   const bottomShift = useToastsContainerBottomShiftSelector();
-  const toastsContainerStyle = useMemo(() => ({ bottom: 64 + bottomShift }), [bottomShift]);
+  const { popup } = useAppEnv();
+  const toastsContainerStyle = useMemo(() => ({ bottom: (popup ? 32 : 64) + bottomShift }), [bottomShift, popup]);
 
   return (
     <PortalToDocumentBody>
