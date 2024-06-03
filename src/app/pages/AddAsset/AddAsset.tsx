@@ -28,15 +28,14 @@ import {
   NotMatchingStandardError
 } from 'lib/assets/standards';
 import { fetchEvmAssetMetadataFromChain } from 'lib/evm/on-chain/metadata';
-import { EvmAssetStandard } from 'lib/evm/types';
 import { T, t } from 'lib/i18n';
 import { isCollectible, TokenMetadata } from 'lib/metadata';
 import { fetchOneTokenMetadata } from 'lib/metadata/fetch';
 import { TokenMetadataNotFoundError } from 'lib/metadata/on-chain';
-import { EvmCollectibleMetadata, EvmTokenMetadata } from 'lib/metadata/types';
 import { loadContract } from 'lib/temple/contract';
 import { useSafeState } from 'lib/ui/hooks';
 import { delay } from 'lib/utils';
+import { isEvmCollectibleMetadata, isEvmTokenMetadata } from 'lib/utils/evm.utils';
 import { navigate } from 'lib/woozie';
 import { UNDER_DEVELOPMENT_MSG } from 'temple/evm/under_dev_msg';
 import { EvmChain, useAccountAddressForEvm, useAccountAddressForTezos } from 'temple/front';
@@ -109,16 +108,14 @@ const EvmForm = memo<EvmFormProps>(({ accountPkh, network }) => {
           return;
         }
 
-        const isToken = metadata.standard === EvmAssetStandard.ERC20;
-
-        if (isToken) {
+        if (isEvmTokenMetadata(metadata)) {
           dispatch(putNewEvmTokenAction({ publicKeyHash: accountPkh, chainId, assetSlug }));
-          dispatch(putEvmTokensMetadataAction({ chainId, records: { [assetSlug]: metadata as EvmTokenMetadata } }));
-        } else {
+          dispatch(putEvmTokensMetadataAction({ chainId, records: { [assetSlug]: metadata } }));
+        }
+
+        if (isEvmCollectibleMetadata(metadata)) {
           dispatch(putNewEvmCollectibleAction({ publicKeyHash: accountPkh, chainId, assetSlug }));
-          dispatch(
-            putEvmCollectiblesMetadataAction({ chainId, records: { [assetSlug]: metadata as EvmCollectibleMetadata } })
-          );
+          dispatch(putEvmCollectiblesMetadataAction({ chainId, records: { [assetSlug]: metadata } }));
         }
 
         navigate({

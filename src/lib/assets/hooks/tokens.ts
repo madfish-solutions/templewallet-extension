@@ -3,6 +3,8 @@ import { useMemo } from 'react';
 import { ChainIds } from '@taquito/taquito';
 import { isEqual, sortBy, uniqBy } from 'lodash';
 
+import { useRawEvmChainAccountTokens } from 'app/hooks/evm/assets';
+import { useEvmAccountChainBalances } from 'app/hooks/evm/balance';
 import {
   useAllTokensSelector,
   useAccountTokensSelector,
@@ -12,8 +14,6 @@ import { isAccountAssetsStoreKeyOfSameChainIdAndDifferentAccount } from 'app/sto
 import { useAllAccountBalancesSelector } from 'app/store/tezos/balances/selectors';
 import { useMemoWithCompare } from 'lib/ui/hooks';
 
-import { useRawEvmChainAccountTokens } from '../../../app/hooks/evm/assets';
-import { useEvmAccountChainBalances } from '../../../app/hooks/evm/balance';
 import { PREDEFINED_TOKENS_METADATA } from '../known-tokens';
 import type { AccountAsset } from '../types';
 import { tokenToSlug } from '../utils';

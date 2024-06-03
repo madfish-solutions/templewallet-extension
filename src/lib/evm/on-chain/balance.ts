@@ -47,16 +47,7 @@ export const fetchEvmRawBalance = async (
       return new BigNumber(fetchedErc1155Balance.toString());
     }
 
-    const fetchedBalance = await publicClient.readContract({
-      address: contractAddress,
-      abi: parseAbi(['function balanceOf(address owner) view returns (uint256)']),
-      functionName: 'balanceOf',
-      args: [account]
-    });
-
-    const balance = new BigNumber(fetchedBalance.toString());
-
-    if (standard === EvmAssetStandard.ERC721 && balance.gte(ONE)) {
+    if (standard === EvmAssetStandard.ERC721) {
       const ownerAddress = await publicClient.readContract({
         address: contractAddress,
         abi: parseAbi(['function ownerOf(uint256 tokenId) view returns (address owner)']),
@@ -67,7 +58,14 @@ export const fetchEvmRawBalance = async (
       return ownerAddress === account ? ONE : ZERO;
     }
 
-    return balance;
+    const fetchedBalance = await publicClient.readContract({
+      address: contractAddress,
+      abi: parseAbi(['function balanceOf(address owner) view returns (uint256)']),
+      functionName: 'balanceOf',
+      args: [account]
+    });
+
+    return new BigNumber(fetchedBalance.toString());
   } catch {
     console.error('Failed to fetch balance for: ', assetSlug);
 

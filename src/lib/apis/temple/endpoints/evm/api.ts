@@ -3,35 +3,18 @@ import { BalancesResponse, ChainID, NftAddressBalanceNftResponse } from 'lib/api
 import { templeWalletApi } from '../templewallet.api';
 
 export const getEvmBalances = (walletAddress: string, chainId: ChainID) =>
-  templeWalletApi
-    .get<BalancesResponse>('/evm-balances', {
-      params: { walletAddress, chainId }
-    })
-    .then(
-      res => res.data,
-      error => {
-        console.error(error);
-        throw error;
-      }
-    );
+  buildEvmRequest<BalancesResponse>('/evm-balances', walletAddress, chainId);
 
 // Response also contains exchange rates
 export const getEvmTokensMetadata = (walletAddress: string, chainId: ChainID) =>
-  templeWalletApi
-    .get<BalancesResponse>('/evm-tokens-metadata', {
-      params: { walletAddress, chainId }
-    })
-    .then(
-      res => res.data,
-      error => {
-        console.error(error);
-        throw error;
-      }
-    );
+  buildEvmRequest<BalancesResponse>('/evm-tokens-metadata', walletAddress, chainId);
 
 export const getEvmCollectiblesMetadata = (walletAddress: string, chainId: ChainID) =>
+  buildEvmRequest<NftAddressBalanceNftResponse>('/evm-collectibles-metadata', walletAddress, chainId);
+
+const buildEvmRequest = <T>(url: string, walletAddress: string, chainId: ChainID) =>
   templeWalletApi
-    .get<NftAddressBalanceNftResponse>('/evm-collectibles-metadata', {
+    .get<T>(url, {
       params: { walletAddress, chainId }
     })
     .then(

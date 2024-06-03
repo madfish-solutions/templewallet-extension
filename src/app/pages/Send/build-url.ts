@@ -5,17 +5,9 @@ export const buildSendPagePath = (
 ) => {
   let url = '/send';
 
-  if (chainKind) {
-    url += `/${chainKind}`;
-
-    if (chainId) {
-      url += `/${chainId}`;
-
-      if (assetSlug) {
-        url += `/${assetSlug}`;
-      }
-    }
-  }
+  [chainKind, chainId, assetSlug].forEach(param => {
+    if (param) url += `/${param}`;
+  });
 
   return url;
 };
