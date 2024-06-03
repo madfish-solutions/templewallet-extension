@@ -24,6 +24,7 @@ import { useStorage, useTempleClient } from 'lib/temple/front';
 import { setMnemonicToBackup } from 'lib/temple/front/mnemonic-to-backup-keeper';
 import { navigate } from 'lib/woozie';
 
+import { TEMPLE_ANALYTICS_LINK, TEMPLE_PRIVACY_POLICY_LINK, TEMPLE_TERMS_LINK } from './config';
 import { createPasswordSelectors } from './selectors';
 
 interface FormData {
@@ -198,7 +199,7 @@ export const CreatePasswordModal = memo<CreatePasswordModalProps>(
                     id="analyticsInputDescription"
                     substitutions={[
                       <a
-                        href="https://templewallet.com/analytics-collecting"
+                        href={TEMPLE_ANALYTICS_LINK}
                         key="analyticsLink"
                         target="_blank"
                         rel="noopener noreferrer"
@@ -229,7 +230,7 @@ export const CreatePasswordModal = memo<CreatePasswordModalProps>(
                     <T id={buttonNameI18nKey} />
                   </span>,
                   <a
-                    href="https://templewallet.com/terms"
+                    href={TEMPLE_TERMS_LINK}
                     key="termsLink"
                     target="_blank"
                     rel="noopener noreferrer"
@@ -238,7 +239,7 @@ export const CreatePasswordModal = memo<CreatePasswordModalProps>(
                     <T id="termsOfUsage" />
                   </a>,
                   <a
-                    href="https://templewallet.com/privacy"
+                    href={TEMPLE_PRIVACY_POLICY_LINK}
                     key="privacyPolicyLink"
                     target="_blank"
                     rel="noopener noreferrer"
