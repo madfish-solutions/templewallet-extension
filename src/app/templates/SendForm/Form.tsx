@@ -24,6 +24,7 @@ import { Controller, FieldError, useForm } from 'react-hook-form';
 
 import { NoSpaceField } from 'app/atoms';
 import AssetField from 'app/atoms/AssetField';
+import { ConvertedInputAssetAmount } from 'app/atoms/ConvertedInputAssetAmount';
 import Identicon from 'app/atoms/Identicon';
 import Money from 'app/atoms/Money';
 import { ArtificialError, NotEnoughFundsError, ZeroBalanceError, ZeroTEZBalanceError } from 'app/defaults';
@@ -31,7 +32,6 @@ import { useAppEnv } from 'app/env';
 import { ReactComponent as ChevronDownIcon } from 'app/icons/chevron-down.svg';
 import { ReactComponent as ChevronUpIcon } from 'app/icons/chevron-up.svg';
 import Balance from 'app/templates/Balance';
-import InFiat from 'app/templates/InFiat';
 import { useFormAnalytics } from 'lib/analytics';
 import { isTezAsset, TEZ_TOKEN_SLUG, toPenny } from 'lib/assets';
 import { toTransferParams } from 'lib/assets/contract.utils';
@@ -39,7 +39,7 @@ import { useBalance } from 'lib/balances';
 import { useAssetFiatCurrencyPrice, useFiatCurrency } from 'lib/fiat-currency';
 import { BLOCK_DURATION } from 'lib/fixed-times';
 import { toLocalFixed, T, t } from 'lib/i18n';
-import { AssetMetadataBase, useAssetMetadata, getAssetSymbol } from 'lib/metadata';
+import { useAssetMetadata, getAssetSymbol } from 'lib/metadata';
 import { transferImplicit, transferToContract } from 'lib/michelson';
 import { useTypedSWR } from 'lib/swr';
 import { loadContract } from 'lib/temple/contract';
@@ -549,20 +549,24 @@ export const Form: FC<FormProps> = ({ assetSlug, setOperation, onAddContactReque
         labelDescription={
           restFormDisplayed &&
           maxAmount && (
-            <>
-              <T id="availableToSend" />{' '}
-              <button type="button" className="underline" onClick={handleSetMaxAmount}>
-                {shoudUseFiat ? <span className="pr-px">{selectedFiatCurrency.symbol}</span> : null}
-                {toLocalFixed(maxAmount)}
-              </button>
-              <TokenToFiat
-                amountValue={amountValue}
-                assetMetadata={assetMetadata}
-                shoudUseFiat={shoudUseFiat}
-                assetSlug={assetSlug}
-                toAssetAmount={toAssetAmount}
-              />
-            </>
+            <div className="flex flex-col gap-y-1">
+              <div>
+                <T id="availableToSend" />{' '}
+                <button type="button" className="underline" onClick={handleSetMaxAmount}>
+                  {shoudUseFiat ? <span className="pr-px">{selectedFiatCurrency.symbol}</span> : null}
+                  {toLocalFixed(maxAmount)}
+                </button>
+              </div>
+
+              {amountValue ? (
+                <ConvertedInputAssetAmount
+                  assetSlug={assetSlug}
+                  assetMetadata={assetMetadata}
+                  amountValue={shoudUseFiat ? toAssetAmount(amountValue) : amountValue}
+                  toFiat={!shoudUseFiat}
+                />
+              ) : null}
+            </div>
           )
         }
         placeholder={t('amountPlaceholder')}
@@ -589,50 +593,6 @@ export const Form: FC<FormProps> = ({ assetSlug, setOperation, onAddContactReque
         />
       )}
     </form>
-  );
-};
-
-interface TokenToFiatProps {
-  amountValue: string;
-  assetMetadata: AssetMetadataBase | nullish;
-  shoudUseFiat: boolean;
-  assetSlug: string;
-  toAssetAmount: (fiatAmount: BigNumber.Value) => string;
-}
-
-const TokenToFiat: React.FC<TokenToFiatProps> = ({
-  amountValue,
-  assetMetadata,
-  shoudUseFiat,
-  assetSlug,
-  toAssetAmount
-}) => {
-  if (!amountValue) return null;
-
-  return (
-    <>
-      <br />
-      {shoudUseFiat ? (
-        <div className="mt-1 -mb-3">
-          <span className="mr-1">≈</span>
-          <span className="font-normal text-gray-700 mr-1">{toAssetAmount(amountValue)}</span>{' '}
-          <T id="inAsset" substitutions={getAssetSymbol(assetMetadata, true)} />
-        </div>
-      ) : (
-        <InFiat assetSlug={assetSlug} volume={amountValue} roundingMode={BigNumber.ROUND_FLOOR}>
-          {({ balance, symbol }) => (
-            <div className="mt-1 -mb-3 flex items-baseline">
-              <span className="mr-1">≈</span>
-              <span className="font-normal text-gray-700 mr-1 flex items-baseline">
-                {balance}
-                <span className="pr-px">{symbol}</span>
-              </span>{' '}
-              <T id="inFiat" />
-            </div>
-          )}
-        </InFiat>
-      )}
-    </>
   );
 };
 
