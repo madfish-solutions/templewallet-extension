@@ -1,5 +1,5 @@
 import { BrowserContext, Page } from '@playwright/test';
-import { envVars } from '../utils/env.utils';
+// import { envVars } from '../utils/env.utils';
 
 export class CustomBrowserContext {
   public static EXTENSION_URL: string;
