@@ -1,9 +1,9 @@
 import { test } from '../utils/extension.fixtures'
 
-import { ImportExistingWallet } from 'src/scenarios/import-existing-wallet.scenario';
-import { beforeAllHook } from "src/hooks/before-all.hook";
-import { afterEachHook } from "src/hooks/after-each.hook";
-import { beforeEachHook } from "src/hooks/before-each.hook";
+import { ImportExistingWallet } from 'e2e/src/scenarios/import-existing-wallet.scenario';
+import { beforeAllHook } from "e2e/src/hooks/before-all.hook";
+import { afterEachHook } from "e2e/src/hooks/after-each.hook";
+import { beforeEachHook } from "e2e/src/hooks/before-each.hook";
 
 // Hooks
 

@@ -1,7 +1,7 @@
 import { AddAssetSelectors } from 'src/app/pages/AddAsset/AddAsset.selectors';
 
-import { Page } from '../../classes/page.class';
-import { createPageElement } from '../../utils/search.utils';
+import { Page } from 'e2e/src/classes/page.class';
+import { createPageElement } from 'e2e/src/utils/search.utils';
 
 export class AddAssetPage extends Page {
   addressInput = createPageElement(AddAssetSelectors.addressInput);

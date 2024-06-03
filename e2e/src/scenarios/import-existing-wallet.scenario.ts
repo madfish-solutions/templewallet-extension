@@ -1,7 +1,7 @@
-import { ONE_SECOND, sleep } from "src/utils/timing.utils";
+import { ONE_SECOND, sleep } from "e2e/src/utils/timing.utils";
 import { Pages } from '../page-objects';
-import { switchToPage } from 'src/utils/shared.utils';
-import { envVars } from 'src/utils/env.utils';
+import { switchToPage } from 'e2e/src/utils/shared.utils';
+import { envVars } from 'e2e/src/utils/env.utils';
 
 
 export async function ImportExistingWallet(): Promise<void> {

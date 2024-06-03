@@ -1,6 +1,6 @@
 import { RevealSecretsSelectors } from 'src/app/templates/RevealSecrets/RevealSecrets.selectors';
 
-import { Page } from 'src/classes/page.class';
+import { Page } from 'e2e/src/classes/page.class';
 import { createPageElement } from 'src/utils/search.utils';
 
 export class RevealSecretsPage extends Page {

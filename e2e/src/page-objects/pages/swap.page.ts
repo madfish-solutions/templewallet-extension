@@ -1,14 +1,11 @@
-import retry from 'async-retry';
 import {
   SwapFormFromInputSelectors,
   SwapFormSelectors,
   SwapFormToInputSelectors
 } from 'src/app/templates/SwapForm/SwapForm.selectors';
-import { AssetsMenuSelectors } from 'src/app/templates/SwapForm/SwapFormInput/AssetsMenu/selectors';
 
 import { Page } from 'src/classes/page.class';
-import { createPageElement, findElement } from 'src/utils/search.utils';
-import { sleep } from 'src/utils/timing.utils';
+import { createPageElement, findElement } from 'e2e/src/utils/search.utils';
 
 export class SwapPage extends Page {
   swapPlacesButton = createPageElement(SwapFormSelectors.swapPlacesButton);

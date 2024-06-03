@@ -1,7 +1,7 @@
 import { SendFormSelectors } from 'src/app/templates/SendForm/selectors';
 
-import { Page } from '../../classes/page.class';
-import { createPageElement, findElement } from '../../utils/search.utils';
+import { Page } from 'e2e/src/classes/page.class';
+import { createPageElement, findElement } from 'e2e/src/utils/search.utils';
 
 export class SendPage extends Page {
   assetDropDown = createPageElement(SendFormSelectors.assetDropDown);

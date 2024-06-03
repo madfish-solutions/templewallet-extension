@@ -3,8 +3,8 @@ import { NetworkSettingsSelectors as CustomNetworkSettingsSelectors } from 'src/
 
 import { RETRY_OPTIONS, VERY_SHORT_TIMEOUT } from 'src/utils/timing.utils';
 
-import { Page } from '../../classes/page.class';
-import { createPageElement } from '../../utils/search.utils';
+import { Page } from 'e2e/src/classes/page.class';
+import { createPageElement } from 'e2e/src/utils/search.utils';
 
 export class NetworksPage extends Page {
   networkItem = createPageElement(CustomNetworkSettingsSelectors.networkItem);
