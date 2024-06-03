@@ -94,7 +94,6 @@ export const NewStakeTab = memo(() => {
   );
 
   const errorsInForm = Boolean(errors.amount);
-  console.log('D:', myBakerPkh, requestsSwr.data?.unfinalizable.delegate);
   const disableSubmit = cannotDelegate || pendingRequestsForAnotherBaker || errorsInForm || Boolean(operation);
 
   return (

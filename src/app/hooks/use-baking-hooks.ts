@@ -1,3 +1,4 @@
+import axios from 'axios';
 import BigNumber from 'bignumber.js';
 import memoizee from 'memoizee';
 
@@ -65,4 +66,35 @@ export const useBlockLevelInfo = (rpcUrl: string) => {
   );
 
   return data;
+};
+
+export const useIsStakingNotSupported = (rpcUrl: string) => {
+  const { data, isLoading } = useRetryableSWR(
+    [COMMON_SWR_KEY, 'is-staking-not-supported', rpcUrl],
+    async () => {
+      const rpc = loadFastRpcClient(rpcUrl);
+
+      let launchCycle: number | null;
+      try {
+        launchCycle = await rpc.getAdaptiveIssuanceLaunchCycle();
+        if (launchCycle == null) return true;
+      } catch (error) {
+        if (axios.isAxiosError(error) && error.response?.status === 404) return true;
+        console.error(error);
+        throw error;
+      }
+
+      const { level_info } = await rpc.getBlockMetadata();
+
+      if (level_info == null) return false;
+
+      return level_info.cycle < launchCycle;
+    },
+    {
+      revalidateOnFocus: false,
+      revalidateOnMount: false
+    }
+  );
+
+  return data || isLoading;
 };

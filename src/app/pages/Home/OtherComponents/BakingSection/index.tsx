@@ -6,7 +6,7 @@ import clsx from 'clsx';
 import { DelegateButton, RedelegateButton } from 'app/atoms/BakingButtons';
 import Spinner from 'app/atoms/Spinner/Spinner';
 import { useAppEnv } from 'app/env';
-import { useUnstakeRequests } from 'app/hooks/use-baking-hooks';
+import { useIsStakingNotSupported, useUnstakeRequests } from 'app/hooks/use-baking-hooks';
 import BakingHistoryItem from 'app/pages/Home/OtherComponents/BakingSection/HistoryItem';
 import { BakerBanner } from 'app/templates/BakerBanner';
 import { getDelegatorRewards, isKnownChainId } from 'lib/apis/tzkt';
@@ -175,9 +175,13 @@ const buildStakeOrManageButton = (cannotDelegate: boolean) => {
     const accountPkh = useAccountPkh();
     const { rpcBaseURL } = useNetwork();
 
+    const stakingIsNotSupported = useIsStakingNotSupported(rpcBaseURL);
+
     const { data: requests } = useUnstakeRequests(rpcBaseURL, accountPkh);
 
     const shouldManage = staked > 0 || Boolean(requests?.finalizable.length);
+
+    if (stakingIsNotSupported && !shouldManage) return null;
 
     return (
       <DelegateButton

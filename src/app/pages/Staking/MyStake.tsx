@@ -7,7 +7,6 @@ import Spinner from 'app/atoms/Spinner/Spinner';
 import { useBlockLevelInfo, useStakingCyclesInfo, useUnstakeRequests } from 'app/hooks/use-baking-hooks';
 import { ReactComponent as AlertCircleIcon } from 'app/icons/alert-circle.svg';
 import { BakerBanner, BAKER_BANNER_CLASSNAME } from 'app/templates/BakerBanner';
-import { useRetryableSWR } from 'lib/swr';
 import { useAccount, useDelegate, useNetwork, useTezos } from 'lib/temple/front';
 import { confirmOperation } from 'lib/temple/operation';
 import { TempleAccountType } from 'lib/temple/types';
@@ -37,15 +36,6 @@ export const MyStakeTab = memo(() => {
 
   const requests = requestsSwr.data?.unfinalizable?.requests;
   const readyRequests = requestsSwr.data?.finalizable;
-
-  const { data: data2 } = useRetryableSWR(['delegate-stake', 'get-unstaked-frozen-balance', tezos.checksum], () =>
-    tezos.rpc.getUnstakedFrozenBalance(acc.publicKeyHash)
-  );
-  const { data: data3 } = useRetryableSWR(['delegate-stake', 'get-unstaked-finalizable-balance', tezos.checksum], () =>
-    tezos.rpc.getUnstakedFinalizableBalance(acc.publicKeyHash)
-  );
-
-  console.log('DATA:', requestsSwr, '|', data2?.toString(), '|', data3?.toString());
 
   /** Priority is to show baker with user's stake in this page's banner */
   const bakerPkh = readyRequests?.[0]?.delegate || requestsSwr?.data?.unfinalizable.delegate || myBakerPkh;

@@ -137,8 +137,6 @@ export const BakerBanner = memo<BakerBannerProps>(({ bakerPkh, ActionButton, Hea
 
   useOnBlock(() => void mutate());
 
-  console.log('STAKED DATA:', stakedData?.toString());
-
   const [staked, stakedAtomic] = useMemo(() => {
     const staked = stakedData && stakedData.gt(0) ? atomsToTokens(stakedData, TEZOS_METADATA.decimals) : null;
     const stakedAtomic = stakedData?.toNumber() || 0;
