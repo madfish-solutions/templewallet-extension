@@ -17,7 +17,7 @@ export class InternalConfirmationPage extends Page {
 
   async isVisible() {
     try {
-      await this.errorText.waitForDisplayed(5000);
+      await this.errorText.waitForDisplayed();
       await this.errorDropDownButton.click();
 
       const errorLog = await this.errorValue.getText();

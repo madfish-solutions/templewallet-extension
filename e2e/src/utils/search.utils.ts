@@ -38,7 +38,7 @@ export class PageElement {
   constructor(public selector: string) {}
 
 
-  async findElement(errorTitle?: string, timeout?: number) {
+  async findElement(errorTitle?: string) {
     return findElementBySelector(this.selector).catch(error => {
       if (errorTitle && error instanceof Error ) {
         error.message = `${errorTitle}\n` + error.message;
@@ -48,8 +48,8 @@ export class PageElement {
     ;
   }
 
-  async waitForDisplayed(timeout?: number) {
-    return this.findElement(undefined, timeout);
+  async waitForDisplayed() {
+    return this.findElement();
   }
 
   async click() {
