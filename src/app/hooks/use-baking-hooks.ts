@@ -1,25 +1,30 @@
 import { HttpResponseError } from '@taquito/http-utils';
 import BigNumber from 'bignumber.js';
 import memoizee from 'memoizee';
+import { SWRConfiguration } from 'swr';
 
 import { BAKING_STAKE_SYNC_INTERVAL } from 'lib/fixed-times';
 import { useRetryableSWR } from 'lib/swr';
 import { loadFastRpcClient } from 'lib/temple/helpers';
 
 const COMMON_SWR_KEY = 'BAKING';
+const COMMON_SWR_OPTIONS: SWRConfiguration = {
+  revalidateOnFocus: false,
+  refreshInterval: BAKING_STAKE_SYNC_INTERVAL
+};
 
 export const useStakedAmount = (rpcUrl: string, accountPkh: string) =>
   useRetryableSWR(
     [COMMON_SWR_KEY, 'get-staked', rpcUrl, accountPkh],
     () => loadFastRpcClient(rpcUrl).getStakedBalance(accountPkh),
-    { revalidateOnFocus: false }
+    COMMON_SWR_OPTIONS
   );
 
 export const useUnstakeRequests = (rpcUrl: string, accountPkh: string, suspense?: boolean) =>
   useRetryableSWR(
     [COMMON_SWR_KEY, 'get-unstake-requests', rpcUrl, accountPkh],
     () => loadFastRpcClient(rpcUrl).getUnstakeRequests(accountPkh),
-    { suspense, revalidateOnFocus: false }
+    { ...COMMON_SWR_OPTIONS, suspense }
   );
 
 export interface StakingCyclesInfo {
@@ -30,9 +35,7 @@ export interface StakingCyclesInfo {
 }
 
 export const useStakingCyclesInfo = (rpcUrl: string) =>
-  useRetryableSWR([COMMON_SWR_KEY, 'get-cycles-info', rpcUrl], () => getCyclesInfo(rpcUrl), {
-    revalidateOnFocus: false
-  });
+  useRetryableSWR([COMMON_SWR_KEY, 'get-cycles-info', rpcUrl], () => getCyclesInfo(rpcUrl), COMMON_SWR_OPTIONS);
 
 const getCyclesInfo = memoizee(
   async (rpcUrl: string): Promise<StakingCyclesInfo | null> => {
@@ -58,41 +61,53 @@ export const useBlockLevelInfo = (rpcUrl: string) => {
       loadFastRpcClient(rpcUrl)
         .getBlockMetadata()
         .then(m => m.level_info),
-    {
-      revalidateOnFocus: false,
-      refreshInterval: BAKING_STAKE_SYNC_INTERVAL
-    }
+    COMMON_SWR_OPTIONS
   );
 
   return data;
 };
 
-export const useIsStakingNotSupported = (rpcUrl: string) => {
-  const { data, isLoading } = useRetryableSWR(
-    [COMMON_SWR_KEY, 'is-staking-not-supported', rpcUrl],
-    async () => {
-      const rpc = loadFastRpcClient(rpcUrl);
-
-      let launchCycle: number | null;
-      try {
-        launchCycle = await rpc.getAdaptiveIssuanceLaunchCycle();
-        if (launchCycle == null) return true;
-      } catch (error) {
-        if (error instanceof HttpResponseError && error.status === 404) return true;
-        console.error(error);
-        throw error;
-      }
-
-      const { level_info } = await rpc.getBlockMetadata();
-
-      if (level_info == null) return false;
-
-      return level_info.cycle < launchCycle;
-    },
-    {
-      revalidateOnFocus: false
-    }
+export const useIsStakingNotSupported = (rpcUrl: string, bakerPkh: string) =>
+  useRetryableSWR(
+    [COMMON_SWR_KEY, 'is-staking-not-supported', rpcUrl, bakerPkh],
+    () =>
+      Promise.all([getIsStakingNotSupportedByChain(rpcUrl), getIsStakingNotSupportedByBaker(rpcUrl, bakerPkh)]).then(
+        ([res1, res2]) => res1 || res2
+      ),
+    COMMON_SWR_OPTIONS
   );
 
-  return data || isLoading;
+const getIsStakingNotSupportedByChain = memoizee(
+  async (rpcUrl: string) => {
+    const rpc = loadFastRpcClient(rpcUrl);
+
+    let launchCycle: number | null;
+    try {
+      launchCycle = await rpc.getAdaptiveIssuanceLaunchCycle();
+      if (launchCycle == null) return true;
+    } catch (error) {
+      return processIsStakingNotSupportedEndpointError(error);
+    }
+
+    const { level_info } = await rpc.getBlockMetadata();
+
+    if (level_info == null) return false;
+
+    return level_info.cycle < launchCycle;
+  },
+  { promise: true }
+);
+
+const getIsStakingNotSupportedByBaker = memoizee(
+  (rpcUrl: string, bakerPkh: string) =>
+    loadFastRpcClient(rpcUrl)
+      .getDelegateLimitOfStakingOverBakingIsPositive(bakerPkh)
+      .catch(processIsStakingNotSupportedEndpointError),
+  { promise: true, normalizer: ([rpcUrl, bakerPkh]) => `${bakerPkh}@${rpcUrl}` }
+);
+
+const processIsStakingNotSupportedEndpointError = (error: unknown) => {
+  if (error instanceof HttpResponseError && error.status === 404) return true;
+  console.error(error);
+  throw error;
 };

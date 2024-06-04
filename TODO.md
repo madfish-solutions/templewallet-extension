@@ -1,5 +1,0 @@
-- 'Stake TEZ' button
-- - Sudden appearance
-- - Absent -> Divider present
-- `staking_to_delegate_that_refuses_external_staking`
--

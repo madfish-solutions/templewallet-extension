@@ -1,5 +1,6 @@
 import React, { FC, memo, useMemo, useCallback } from 'react';
 
+import { Spinner } from 'app/atoms';
 import { DelegateButton, RedelegateButton } from 'app/atoms/BakingButtons';
 import { useIsStakingNotSupported, useStakedAmount, useUnstakeRequests } from 'app/hooks/use-baking-hooks';
 import { BakerBanner } from 'app/templates/BakerBanner';
@@ -19,11 +20,9 @@ export const BakerBannerWithStake = memo<Props>(({ bakerPkh, cannotDelegate }) =
   const { rpcBaseURL } = useNetwork();
   const { symbol } = useGasTokenMetadata();
 
-  const { data: stakedData } = useStakedAmount(rpcBaseURL, accountPkh);
-
-  const stakingIsNotSupported = useIsStakingNotSupported(rpcBaseURL);
-
-  const { data: requests } = useUnstakeRequests(rpcBaseURL, accountPkh);
+  const isNotSupportedSwr = useIsStakingNotSupported(rpcBaseURL, bakerPkh);
+  const stakedSwr = useStakedAmount(rpcBaseURL, accountPkh);
+  const requestsSwr = useUnstakeRequests(rpcBaseURL, accountPkh);
 
   const BakerBannerHeaderRight = useCallback<FC<{ staked: number }>>(
     ({ staked }) => (
@@ -36,10 +35,15 @@ export const BakerBannerWithStake = memo<Props>(({ bakerPkh, cannotDelegate }) =
     [cannotDelegate]
   );
 
-  const staked = stakedData?.gt(0);
-  const shouldManage = staked || Boolean(requests?.finalizable.length);
+  const stakingIsNotSupported = isNotSupportedSwr.data;
+  const staked = stakedSwr.data?.gt(0);
+  const shouldManage: boolean = staked || Boolean(requestsSwr.data?.finalizable.length);
+
+  const isSupportedLoading = isNotSupportedSwr.isLoading || stakedSwr.isLoading || requestsSwr.isLoading;
 
   const StakeOrManageButton = useMemo<FC | undefined>(() => {
+    if (isSupportedLoading) return () => <Spinner className="w-8 self-center" theme="gray" />;
+
     if (stakingIsNotSupported && !shouldManage) return;
 
     return () => (
@@ -59,7 +63,7 @@ export const BakerBannerWithStake = memo<Props>(({ bakerPkh, cannotDelegate }) =
         )}
       </DelegateButton>
     );
-  }, [cannotDelegate, stakingIsNotSupported, shouldManage, staked, symbol]);
+  }, [isSupportedLoading, cannotDelegate, stakingIsNotSupported, shouldManage, staked, symbol]);
 
   return <BakerBanner bakerPkh={bakerPkh} HeaderRight={BakerBannerHeaderRight} ActionButton={StakeOrManageButton} />;
 });
