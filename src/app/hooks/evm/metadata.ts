@@ -1,5 +1,5 @@
 import { useEvmCollectiblesMetadataRecordSelector } from 'app/store/evm/collectibles-metadata/selectors';
-import { TokenSlugCollectibleMetadataRecord } from 'app/store/evm/collectibles-metadata/state';
+import { CollectibleSlugCollectibleMetadataRecord } from 'app/store/evm/collectibles-metadata/state';
 import { useEvmTokensMetadataRecordSelector } from 'app/store/evm/tokens-metadata/selectors';
 import { TokenSlugTokenMetadataRecord } from 'app/store/evm/tokens-metadata/state';
 import { EvmCollectibleMetadata, EvmTokenMetadata } from 'lib/metadata/types';
@@ -10,7 +10,7 @@ export const useEvmChainTokensMetadata = (chainId: number): TokenSlugTokenMetada
   return metadataRecord[chainId] ?? {};
 };
 
-const useEvmChainCollectiblesMetadata = (chainId: number): TokenSlugCollectibleMetadataRecord => {
+const useEvmChainCollectiblesMetadata = (chainId: number): CollectibleSlugCollectibleMetadataRecord => {
   const metadataRecord = useEvmCollectiblesMetadataRecordSelector();
 
   return metadataRecord[chainId] ?? {};

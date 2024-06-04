@@ -7,22 +7,14 @@ import { isPositiveCollectibleBalance, isPositiveTokenBalance } from 'lib/utils/
 
 import { proceedLoadedEvmAssetsAction, putNewEvmCollectibleAction, putNewEvmTokenAction } from './actions';
 import { EvmAssetsInitialState, EvmAssetsStateInterface } from './state';
+import { getChainRecords } from './utils';
 
 export const evmAssetsReducer = createReducer<EvmAssetsStateInterface>(EvmAssetsInitialState, builder => {
   builder.addCase(proceedLoadedEvmAssetsAction, ({ tokens, collectibles }, { payload }) => {
     const { publicKeyHash, chainId, data } = payload;
 
-    if (!tokens[publicKeyHash]) tokens[publicKeyHash] = {};
-    const accountTokens = tokens[publicKeyHash];
-
-    if (!collectibles[publicKeyHash]) collectibles[publicKeyHash] = {};
-    const accountCollectibles = collectibles[publicKeyHash];
-
-    if (!accountTokens[chainId]) accountTokens[chainId] = {};
-    const chainTokens = accountTokens[chainId];
-
-    if (!accountCollectibles[chainId]) accountCollectibles[chainId] = {};
-    const chainCollectibles = accountCollectibles[chainId];
+    const chainTokens = getChainRecords(tokens, publicKeyHash, chainId);
+    const chainCollectibles = getChainRecords(collectibles, publicKeyHash, chainId);
 
     const items = data.items;
 
@@ -55,11 +47,7 @@ export const evmAssetsReducer = createReducer<EvmAssetsStateInterface>(EvmAssets
   builder.addCase(putNewEvmTokenAction, ({ tokens }, { payload }) => {
     const { publicKeyHash, chainId, assetSlug } = payload;
 
-    if (!tokens[publicKeyHash]) tokens[publicKeyHash] = {};
-    const accountTokens = tokens[publicKeyHash];
-
-    if (!accountTokens[chainId]) accountTokens[chainId] = {};
-    const chainTokens = accountTokens[chainId];
+    const chainTokens = getChainRecords(tokens, publicKeyHash, chainId);
 
     chainTokens[assetSlug] = { status: 'enabled' };
   });
@@ -67,11 +55,7 @@ export const evmAssetsReducer = createReducer<EvmAssetsStateInterface>(EvmAssets
   builder.addCase(putNewEvmCollectibleAction, ({ collectibles }, { payload }) => {
     const { publicKeyHash, chainId, assetSlug } = payload;
 
-    if (!collectibles[publicKeyHash]) collectibles[publicKeyHash] = {};
-    const accountCollectibles = collectibles[publicKeyHash];
-
-    if (!accountCollectibles[chainId]) accountCollectibles[chainId] = {};
-    const chainCollectibles = accountCollectibles[chainId];
+    const chainCollectibles = getChainRecords(collectibles, publicKeyHash, chainId);
 
     chainCollectibles[assetSlug] = { status: 'enabled' };
   });

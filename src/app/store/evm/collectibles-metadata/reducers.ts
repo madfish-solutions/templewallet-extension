@@ -39,14 +39,14 @@ export const evmCollectiblesMetadataReducer = createReducer<EvmCollectiblesMetad
       const { chainId, records } = payload;
 
       if (!metadataRecord[chainId]) metadataRecord[chainId] = {};
-      const chainTokensMetadata = metadataRecord[chainId];
+      const chainCollectiblesMetadata = metadataRecord[chainId];
 
       for (const slug of Object.keys(records)) {
         const metadata = records[slug];
         if (!metadata) continue;
 
-        const stored = chainTokensMetadata[slug];
-        if (!stored) chainTokensMetadata[slug] = chainTokensMetadata[slug] = metadata;
+        const stored = chainCollectiblesMetadata[slug];
+        if (!stored) chainCollectiblesMetadata[slug] = chainCollectiblesMetadata[slug] = metadata;
       }
     });
   }

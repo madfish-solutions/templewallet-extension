@@ -9,10 +9,10 @@ interface StoredAsset {
 
 type PublicKeyHash = HexString;
 
-type CollectibleSlugStoredAssetRecord = Record<string, StoredAsset>;
-type ChainIdTokenSlugsRecord = Record<number, CollectibleSlugStoredAssetRecord>;
+type AssetSlugStoredAssetRecord = Record<string, StoredAsset>;
+type ChainIdTokenSlugsRecord = Record<number, AssetSlugStoredAssetRecord>;
 
-type EvmStoredAssetsRecords = Record<PublicKeyHash, ChainIdTokenSlugsRecord>;
+export type EvmStoredAssetsRecords = Record<PublicKeyHash, ChainIdTokenSlugsRecord>;
 
 export interface EvmAssetsStateInterface {
   tokens: EvmStoredAssetsRecords;
