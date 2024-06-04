@@ -54,7 +54,7 @@ interface StakeButtonProps extends TestIDProperty {
   onClick?: EmptyFn;
 }
 
-export const StakeButton: FC<StakeButtonProps> = ({ type, disabled, testID, onClick }) => {
+export const StakeButton = memo<StakeButtonProps>(({ type, disabled, testID, onClick }) => {
   const className = useMemo(() => clsx(getBakingButtonClassName(disabled), 'min-h-12 text-base'), [disabled]);
 
   return (
@@ -62,7 +62,7 @@ export const StakeButton: FC<StakeButtonProps> = ({ type, disabled, testID, onCl
       <T id="stake" />
     </Button>
   );
-};
+});
 
 interface RedelegateButtonProps extends TestIDProperty {
   disabled: boolean;
@@ -96,7 +96,7 @@ export const RedelegateButton = memo<RedelegateButtonProps>(({ disabled, staked,
   );
 });
 
-const RedelegateButtonWithConfirmation: FC<PropsWithClassName<TestIDProperty>> = ({ className, testID }) => {
+const RedelegateButtonWithConfirmation = memo<PropsWithClassName<TestIDProperty>>(({ className, testID }) => {
   const customConfirm = useConfirm();
 
   const onClick = useCallback(
@@ -118,7 +118,7 @@ const RedelegateButtonWithConfirmation: FC<PropsWithClassName<TestIDProperty>> =
       <T id="reDelegate" />
     </Button>
   );
-};
+});
 
 const COMMON_BUTTON_CLASSNAMES = clsx(
   'flex items-center justify-center p-2 leading-none rounded-md',

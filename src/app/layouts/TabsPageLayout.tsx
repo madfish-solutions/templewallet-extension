@@ -1,4 +1,4 @@
-import React, { FC, ReactNode, Suspense, useMemo } from 'react';
+import React, { ComponentType, ReactNode, Suspense, memo, useMemo } from 'react';
 
 import clsx from 'clsx';
 
@@ -15,7 +15,7 @@ import PageLayout from './PageLayout';
 export interface TabInterface extends Required<TestIDProperty> {
   slug: string;
   title: React.ReactNode;
-  Component: FC;
+  Component: ComponentType;
   disabled?: boolean;
 }
 
@@ -26,7 +26,7 @@ interface Props {
   description?: string;
 }
 
-export const TabsPageLayout: FC<Props> = ({ tabs, Icon, title, description }) => {
+export const TabsPageLayout = memo<Props>(({ tabs, Icon, title, description }) => {
   const { fullPage } = useAppEnv();
   const tabSlug = useTabSlug();
 
@@ -71,38 +71,39 @@ export const TabsPageLayout: FC<Props> = ({ tabs, Icon, title, description }) =>
         </div>
 
         <div className="mx-4 mb-4 mt-6">
-          <SuspenseContainer whileMessage="displaying tab">{Component && <Component />}</SuspenseContainer>
+          <SuspenseContainer Component={Component} whileMessage="displaying tab" />
         </div>
       </div>
     </PageLayout>
   );
-};
+});
 
 interface PageTitleProps {
   Icon?: React.ComponentType;
   title: string;
 }
 
-const PageTitle: FC<PageTitleProps> = ({ Icon, title }) => (
+const PageTitle = memo<PageTitleProps>(({ Icon, title }) => (
   <div className="flex items-center gap-x-1">
     {Icon && <Icon />}
     <span className="font-normal text-sm">{title}</span>
   </div>
-);
+));
 
-interface SuspenseContainerProps extends PropsWithChildren {
+interface SuspenseContainerProps {
+  Component: ComponentType;
   whileMessage: string;
   fallback?: ReactNode;
 }
 
-const SuspenseContainer: FC<SuspenseContainerProps> = ({ whileMessage, fallback = <SpinnerSection />, children }) => (
+const SuspenseContainer = memo<SuspenseContainerProps>(({ whileMessage, fallback = <SpinnerSection />, Component }) => (
   <ErrorBoundary whileMessage={whileMessage}>
-    <Suspense fallback={fallback}>{children}</Suspense>
+    <Suspense fallback={fallback}>{Component && <Component />}</Suspense>
   </ErrorBoundary>
-);
+));
 
-const SpinnerSection: FC = () => (
+const SpinnerSection = memo(() => (
   <div className="flex justify-center my-12">
     <Spinner theme="gray" className="w-20" />
   </div>
-);
+));

@@ -1,14 +1,13 @@
 import { HttpResponseError } from '@taquito/http-utils';
 import BigNumber from 'bignumber.js';
 import memoizee from 'memoizee';
-import { SWRConfiguration } from 'swr';
 
 import { BAKING_STAKE_SYNC_INTERVAL } from 'lib/fixed-times';
 import { useRetryableSWR } from 'lib/swr';
 import { loadFastRpcClient } from 'lib/temple/helpers';
 
 const COMMON_SWR_KEY = 'BAKING';
-const COMMON_SWR_OPTIONS: SWRConfiguration = {
+const COMMON_SWR_OPTIONS = {
   revalidateOnFocus: false,
   refreshInterval: BAKING_STAKE_SYNC_INTERVAL
 };
