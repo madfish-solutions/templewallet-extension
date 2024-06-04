@@ -22,7 +22,7 @@ export const ActionsButtonsBox = memo<ActionsButtonsBoxProps>(
     const handleResize = useMemo(
       () =>
         throttle<ResizeObserverCallback>(entries => {
-          const borderBoxSize = entries.map(entry => entry.borderBoxSize?.[0])[0];
+          const borderBoxSize = entries.map(entry => entry.borderBoxSize?.[0]).filter(Boolean)[0];
 
           if (borderBoxSize) {
             dispatch(setToastsContainerBottomShiftAction(borderBoxSize.blockSize));
