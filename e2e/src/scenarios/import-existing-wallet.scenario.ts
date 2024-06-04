@@ -19,4 +19,3 @@ export async function ImportExistingWallet(): Promise<void> {
   await Pages.SetWallet.importButton.click();
   await Pages.NewsletterModal.closeButton.click();
 }
-

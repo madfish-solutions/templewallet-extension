@@ -1,5 +1,6 @@
+import { Locator } from '@playwright/test';
+
 import { CustomBrowserContext } from '../classes/browser-context.class';
-import { Locator } from "@playwright/test";
 
 const buildTestIDSelector = (testID: string) => `[data-testid="${testID}"]`;
 
