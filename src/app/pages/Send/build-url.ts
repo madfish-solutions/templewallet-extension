@@ -3,11 +3,13 @@ export const buildSendPagePath = (
   chainId?: string | nullish,
   assetSlug?: string | nullish
 ) => {
+  const pathElements = [chainKind, chainId, assetSlug];
   let url = '/send';
 
-  [chainKind, chainId, assetSlug].forEach(param => {
-    if (param) url += `/${param}`;
-  });
+  for (const pathEl of pathElements) {
+    if (pathEl) url += `/${pathEl}`;
+    else break;
+  }
 
   return url;
 };
