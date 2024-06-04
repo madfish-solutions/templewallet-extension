@@ -1,7 +1,7 @@
 import { afterEachHook } from '../hooks/after-each.hook';
 import { beforeAllHook } from '../hooks/before-all.hook';
 import { beforeEachHook } from '../hooks/before-each.hook';
-import { ImportExistingWallet } from '../scenarios/import-existing-wallet.scenario';
+import { ImportExistingWallet } from "../scenarios/import-existing-wallet.scenario";
 import { test } from '../utils/extension.fixtures';
 
 // Hooks
@@ -20,20 +20,7 @@ test.afterEach(async () => {
 
 // Scenarios
 
-test.describe('Import existing wallet feature ', () => {
-  test('import existing wallet', async () => {
+  test('import existing wallet: Positive Scenario', async () => {
     await ImportExistingWallet();
   });
 
-  test('import existing wallet 2', async () => {
-    await ImportExistingWallet();
-  });
-
-  test('import existing wallet 3', async () => {
-    await ImportExistingWallet();
-  });
-
-  test('import existing wallet 4', async () => {
-    await ImportExistingWallet();
-  });
-});

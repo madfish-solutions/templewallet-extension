@@ -1,4 +1,5 @@
 import { CustomBrowserContext } from '../classes/browser-context.class';
+import { Locator } from "@playwright/test";
 
 const buildTestIDSelector = (testID: string) => `[data-testid="${testID}"]`;
 
@@ -34,7 +35,7 @@ export const createPageElement = (selector: string) => {
 export class PageElement {
   constructor(public selector: string) {}
 
-  async findElement(errorTitle?: string) {
+  async findElement(errorTitle?: string): Promise<Locator> {
     return findElementBySelector(this.selector).catch(error => {
       if (errorTitle && error instanceof Error) {
         error.message = `${errorTitle}\n` + error.message;

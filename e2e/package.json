@@ -6,6 +6,7 @@
   "scripts": {
     "install": "yarn playwright install chromium",
     "test": "yarn playwright test",
+    "test-fast": "yarn playwright test --max-failures=1",
     "ts": "tsc --pretty"
   },
   "dependencies": {
