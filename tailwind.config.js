@@ -156,7 +156,7 @@ module.exports = {
       },
 
       fontSize: {
-        'xxxs': ['0.625rem', { lineHeight: '0.75rem' }],
+        xxxs: ['0.625rem', { lineHeight: '0.75rem' }],
         xxs: '0.6875rem',
         '2xs': '0.8125rem',
         ulg: '1.0625rem',

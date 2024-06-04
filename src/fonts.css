@@ -65,7 +65,7 @@
 }
 
 .text-font-num-10 {
-  @apply text-font-num text-font-small;
+  @apply text-font-num text-xxxs;
 }
 
 .text-font-num-12 {
