@@ -1,13 +1,12 @@
-import { ONE_SECOND, sleep } from "../utils/timing.utils";
 import { Pages } from '../page-objects';
-import { switchToPage } from '../utils/shared.utils';
 import { envVars } from '../utils/env.utils';
-
+import { switchToPage } from '../utils/shared.utils';
+import { ONE_SECOND, sleep } from '../utils/timing.utils';
 
 export async function ImportExistingWallet(): Promise<void> {
   await sleep(ONE_SECOND);
 
-  await switchToPage('chrome-extension://')
+  await switchToPage('chrome-extension://');
 
   await Pages.Welcome.importExistingWalletButton.waitForDisplayed();
   await Pages.Welcome.importExistingWalletButton.click();
@@ -20,7 +19,3 @@ export async function ImportExistingWallet(): Promise<void> {
   await Pages.SetWallet.importButton.click();
   await Pages.NewsletterModal.closeButton.click();
 }
-
-
-
-

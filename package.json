@@ -24,7 +24,7 @@
     "test:coverage": "jest --coverage",
     "ts": "tsc --pretty",
     "ts:e2e": "cd e2e && yarn && yarn ts",
-    "lint": "eslint --quiet src",
+    "lint": "eslint --quiet src e2e",
     "lint:fix": "prettier \"./**/*\" --write --ignore-unknown",
     "clear:lint": "rimraf node_modules/.cache/.eslintcache",
     "find-deadcode": "ts-prune --error",

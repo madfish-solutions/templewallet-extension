@@ -17,5 +17,4 @@ export class SendPage extends Page {
     await this.recipientInput.waitForDisplayed();
     await this.amountInput.waitForDisplayed();
   }
-
 }

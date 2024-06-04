@@ -1,4 +1,4 @@
-import { PlaywrightTestConfig } from '@playwright/test'
+import { PlaywrightTestConfig } from '@playwright/test';
 
 const config: PlaywrightTestConfig = {
   fullyParallel: true,
@@ -13,8 +13,8 @@ const config: PlaywrightTestConfig = {
     {
       name: 'chromium',
       use: { browserName: 'chromium' }
-    },
+    }
   ]
-}
+};
 
-export default config
+export default config;

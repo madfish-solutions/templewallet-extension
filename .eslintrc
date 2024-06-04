@@ -24,7 +24,7 @@
       "ecmaVersion": 2020,
 
       // typescript-eslint specific options
-      "project": ["tsconfig.json", "e2e/tsconfig.json", "e2e-tests/tsconfig.json", "webpack/tsconfig.json"],
+      "project": ["tsconfig.json", "e2e/tsconfig.json", "webpack/tsconfig.json"],
       "warnOnUnsupportedTypeScriptVersion": true
     }
   }],
@@ -32,7 +32,7 @@
   "settings": {
     "import/resolver": {
       "typescript": {
-        "project": ["tsconfig.json", "e2e/tsconfig.json", "e2e-tests/tsconfig.json"]
+        "project": ["tsconfig.json", "e2e/tsconfig.json"]
       },
       "node": {
         "extensions": [".d.ts"]

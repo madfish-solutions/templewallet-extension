@@ -18,5 +18,4 @@ export class AddressBookPage extends Page {
     await this.contactItem.waitForDisplayed();
     await this.contactOwnLabelText.waitForDisplayed();
   }
-
 }

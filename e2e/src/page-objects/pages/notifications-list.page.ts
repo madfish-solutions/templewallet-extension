@@ -15,5 +15,4 @@ export class NotificationsListPage extends Page {
     await this.notificationItemTitleText.waitForDisplayed();
     await this.notificationItemDescriptionText.waitForDisplayed();
   }
-
 }

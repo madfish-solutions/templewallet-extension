@@ -27,5 +27,4 @@ export class SwapPage extends Page {
     await this.assetInputTo.waitForDisplayed();
     await this.assetItemTo.waitForDisplayed();
   }
-
 }

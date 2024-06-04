@@ -16,5 +16,4 @@ export class AddAssetPage extends Page {
     await this.addressInput.waitForDisplayed();
     await this.assetIDInput.waitForDisplayed();
   }
-
 }
