@@ -1,15 +1,5 @@
-- Counter in 'My Stake' tab
-- MyStake screen. 'Cooldown period' info hint
-- Buttons with unsupported networks
-- Module with staking hooks
-- Memoization
-- Amounts' tooltips without rounding
-- Stake amount
-- - Max - fee
-- - Fiat value
--
-
-# Discarded:
-- 'Payout' in Baking history item
-- 'Open In Explorer' new arrow
+- 'Stake TEZ' button
+- - Sudden appearance
+- - Absent -> Divider present
+- `staking_to_delegate_that_refuses_external_staking`
 -

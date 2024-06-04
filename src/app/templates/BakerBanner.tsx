@@ -7,15 +7,14 @@ import { Identicon, Name, Money, HashChip, Divider } from 'app/atoms';
 import { useAppEnv } from 'app/env';
 import { useStakedAmount } from 'app/hooks/use-baking-hooks';
 import { BakingSectionSelectors } from 'app/pages/Home/OtherComponents/BakingSection/selectors';
-import { toLocalFormat, T } from 'lib/i18n';
+import { toLocalFormat, T, toLocalFixed } from 'lib/i18n';
 import { HELP_UKRAINE_BAKER_ADDRESS, RECOMMENDED_BAKER_ADDRESS } from 'lib/known-bakers';
-import { TEZOS_METADATA } from 'lib/metadata';
+import { useGasTokenMetadata } from 'lib/metadata';
 import {
   useRelevantAccounts,
   useAccount,
   useNetwork,
   useKnownBaker,
-  useTezos,
   useOnBlock,
   useAccountPkh
 } from 'lib/temple/front';
@@ -37,6 +36,7 @@ export const BakerCard = memo<Props>(({ bakerPkh, hideAddress, showBakerTag, cla
   const account = useAccount();
   const { fullPage } = useAppEnv();
   const { data: baker } = useKnownBaker(bakerPkh);
+  const { symbol } = useGasTokenMetadata();
 
   const bakerAcc = useMemo(
     () => allAccounts.find(acc => acc.publicKeyHash === bakerPkh) ?? null,
@@ -107,7 +107,7 @@ export const BakerCard = memo<Props>(({ bakerPkh, hideAddress, showBakerTag, cla
         <div className="flex flex-col gap-y-1">
           <T id="minAmount" />:
           <span className="font-medium leading-none text-blue-750">
-            <Money smallFractionFont={false}>{baker.minDelegation}</Money> {TEZOS_METADATA.symbol}
+            <Money smallFractionFont={false}>{baker.minDelegation}</Money> {symbol}
           </span>
         </div>
       </div>
@@ -131,18 +131,20 @@ interface PropComponentProps {
 
 export const BakerBanner = memo<BakerBannerProps>(({ bakerPkh, ActionButton, HeaderRight, allowDisplayZeroStake }) => {
   const accountPkh = useAccountPkh();
-  const tezos = useTezos();
+  const { rpcBaseURL } = useNetwork();
 
-  const { data: stakedData, mutate } = useStakedAmount(tezos.rpc.getRpcUrl(), accountPkh);
+  const { data: stakedData, mutate } = useStakedAmount(rpcBaseURL, accountPkh);
 
   useOnBlock(() => void mutate());
 
+  const { symbol, decimals } = useGasTokenMetadata();
+
   const [staked, stakedAtomic] = useMemo(() => {
-    const staked = stakedData && stakedData.gt(0) ? atomsToTokens(stakedData, TEZOS_METADATA.decimals) : null;
+    const staked = stakedData && stakedData.gt(0) ? atomsToTokens(stakedData, decimals) : null;
     const stakedAtomic = stakedData?.toNumber() || 0;
 
     return [staked, stakedAtomic] as const;
-  }, [stakedData]);
+  }, [stakedData, decimals]);
 
   const displayingStaked = allowDisplayZeroStake || staked?.gt(0);
 
@@ -163,14 +165,14 @@ export const BakerBanner = memo<BakerBannerProps>(({ bakerPkh, ActionButton, Hea
 
           <span className="font-semibold">
             {staked ? (
-              <Money smallFractionFont={false} cryptoDecimals={TEZOS_METADATA.decimals}>
+              <Money smallFractionFont={false} cryptoDecimals={decimals}>
                 {staked}
               </Money>
             ) : (
-              '0.00'
+              toLocalFixed(0, 2)
             )}
 
-            {' ' + TEZOS_METADATA.symbol}
+            {' ' + symbol}
           </span>
         </div>
       )}

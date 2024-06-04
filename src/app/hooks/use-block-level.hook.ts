@@ -11,7 +11,6 @@ export const useBlockLevel = () => {
     const subscription = tezos.stream.subscribeBlock('head');
 
     subscription.on('data', block => {
-      console.log('CYCLE:', block.metadata.level?.cycle, block.metadata.level?.cycle_position);
       setBlockLevel(block.header.level);
     });
 

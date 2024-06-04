@@ -1,23 +1,18 @@
-import React, { FC, memo, useCallback, useMemo } from 'react';
+import React, { memo, useCallback, useMemo } from 'react';
 
 import BigNumber from 'bignumber.js';
 import clsx from 'clsx';
 
-import { DelegateButton, RedelegateButton } from 'app/atoms/BakingButtons';
 import Spinner from 'app/atoms/Spinner/Spinner';
 import { useAppEnv } from 'app/env';
-import { useIsStakingNotSupported, useUnstakeRequests } from 'app/hooks/use-baking-hooks';
 import BakingHistoryItem from 'app/pages/Home/OtherComponents/BakingSection/HistoryItem';
-import { BakerBanner } from 'app/templates/BakerBanner';
 import { getDelegatorRewards, isKnownChainId } from 'lib/apis/tzkt';
-import { T } from 'lib/i18n';
-import { TEZOS_METADATA } from 'lib/metadata';
 import { useRetryableSWR } from 'lib/swr';
-import { useAccount, useAccountPkh, useChainId, useDelegate, useNetwork } from 'lib/temple/front';
+import { useAccount, useChainId, useDelegate } from 'lib/temple/front';
 import { TempleAccountType } from 'lib/temple/types';
 
+import { BakerBannerWithStake } from './BakerBannerWithStake';
 import { NotBakingBanner } from './NotBakingBanner';
-import { BakingSectionSelectors } from './selectors';
 import { reduceFunction, RewardsPerEventHistoryItem } from './utils';
 
 const BakingSection = memo(() => {
@@ -111,25 +106,12 @@ const BakingSection = memo(() => {
     [bakingHistory]
   );
 
-  const BakerBannerHeaderRight = useCallback<FC<{ staked: number }>>(
-    ({ staked }) => (
-      <RedelegateButton
-        disabled={cannotDelegate}
-        staked={staked > 0}
-        testID={BakingSectionSelectors.reDelegateButton}
-      />
-    ),
-    [cannotDelegate]
-  );
-
-  const StakeOrManageButton = useMemo(() => buildStakeOrManageButton(cannotDelegate), [cannotDelegate]);
-
   const noPreviousHistory = bakingHistory ? bakingHistory.length === 0 : false;
 
   return (
     <div className={clsx('pt-4 pb-12 flex flex-col max-w-sm mx-auto', popup && 'px-5')}>
       {myBakerPkh ? (
-        <BakerBanner bakerPkh={myBakerPkh} HeaderRight={BakerBannerHeaderRight} ActionButton={StakeOrManageButton} />
+        <BakerBannerWithStake bakerPkh={myBakerPkh} cannotDelegate={cannotDelegate} />
       ) : (
         <NotBakingBanner noPreviousHistory={noPreviousHistory} cannotDelegate={cannotDelegate} />
       )}
@@ -169,38 +151,3 @@ const ALL_REWARDS_PER_EVENT_KEYS: (keyof RewardsPerEventHistoryItem)[] = [
   'rewardPerFutureBlock',
   'rewardPerFutureEndorsement'
 ];
-
-const buildStakeOrManageButton = (cannotDelegate: boolean) => {
-  const StakeOrManageButton: FC<{ staked: number }> = ({ staked }) => {
-    const accountPkh = useAccountPkh();
-    const { rpcBaseURL } = useNetwork();
-
-    const stakingIsNotSupported = useIsStakingNotSupported(rpcBaseURL);
-
-    const { data: requests } = useUnstakeRequests(rpcBaseURL, accountPkh);
-
-    const shouldManage = staked > 0 || Boolean(requests?.finalizable.length);
-
-    if (stakingIsNotSupported && !shouldManage) return null;
-
-    return (
-      <DelegateButton
-        to={`/staking?tab=${shouldManage ? 'my-stake' : 'new-stake'}`}
-        small
-        flashing={!staked}
-        disabled={cannotDelegate}
-        testID={shouldManage ? undefined : BakingSectionSelectors.stakeTezosButton}
-      >
-        {shouldManage ? (
-          <T id="manage" />
-        ) : (
-          <span>
-            <T id="stake" /> {TEZOS_METADATA.symbol}
-          </span>
-        )}
-      </DelegateButton>
-    );
-  };
-
-  return StakeOrManageButton;
-};

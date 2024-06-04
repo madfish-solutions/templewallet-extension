@@ -1,4 +1,4 @@
-import axios from 'axios';
+import { HttpResponseError } from '@taquito/http-utils';
 import BigNumber from 'bignumber.js';
 import memoizee from 'memoizee';
 
@@ -31,8 +31,7 @@ export interface StakingCyclesInfo {
 
 export const useStakingCyclesInfo = (rpcUrl: string) =>
   useRetryableSWR([COMMON_SWR_KEY, 'get-cycles-info', rpcUrl], () => getCyclesInfo(rpcUrl), {
-    revalidateOnFocus: false,
-    revalidateOnMount: false
+    revalidateOnFocus: false
   });
 
 const getCyclesInfo = memoizee(
@@ -79,7 +78,7 @@ export const useIsStakingNotSupported = (rpcUrl: string) => {
         launchCycle = await rpc.getAdaptiveIssuanceLaunchCycle();
         if (launchCycle == null) return true;
       } catch (error) {
-        if (axios.isAxiosError(error) && error.response?.status === 404) return true;
+        if (error instanceof HttpResponseError && error.status === 404) return true;
         console.error(error);
         throw error;
       }
@@ -91,8 +90,7 @@ export const useIsStakingNotSupported = (rpcUrl: string) => {
       return level_info.cycle < launchCycle;
     },
     {
-      revalidateOnFocus: false,
-      revalidateOnMount: false
+      revalidateOnFocus: false
     }
   );
 

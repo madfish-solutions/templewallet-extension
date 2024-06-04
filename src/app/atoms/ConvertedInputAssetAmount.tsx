@@ -13,27 +13,28 @@ interface Props {
   toFiat: boolean;
 }
 
-export const ConvertedInputAssetAmount = memo<Props>(({ assetSlug, assetMetadata, amountValue, toFiat }) => (
-  <div className="-mb-3 flex">
-    <span className="mr-1">≈</span>
-
-    {toFiat ? (
+export const ConvertedInputAssetAmount = memo<Props>(({ assetSlug, assetMetadata, amountValue, toFiat }) => {
+  if (toFiat)
+    return (
       <InFiat assetSlug={assetSlug} volume={amountValue} roundingMode={BigNumber.ROUND_FLOOR}>
         {({ balance, symbol }) => (
-          <>
+          <div className="-mb-3 flex">
+            <span className="mr-1">≈</span>
             <span className="font-normal text-gray-700 mr-1 flex items-baseline">
               {balance}
               <span className="pr-px">{symbol}</span>
             </span>{' '}
             <T id="inFiat" />
-          </>
+          </div>
         )}
       </InFiat>
-    ) : (
-      <>
-        <span className="font-normal text-gray-700 mr-1">{amountValue}</span>{' '}
-        <T id="inAsset" substitutions={getAssetSymbol(assetMetadata, true)} />
-      </>
-    )}
-  </div>
-));
+    );
+
+  return (
+    <div className="-mb-3 flex">
+      <span className="mr-1">≈</span>
+      <span className="font-normal text-gray-700 mr-1">{amountValue}</span>{' '}
+      <T id="inAsset" substitutions={getAssetSymbol(assetMetadata, true)} />
+    </div>
+  );
+});
