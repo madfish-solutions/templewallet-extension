@@ -1,9 +1,7 @@
-import React, { HTMLAttributes, memo, useCallback, useEffect, useRef } from 'react';
+import React, { HTMLAttributes, memo, useEffect, useMemo, useRef } from 'react';
 
 import clsx from 'clsx';
-import { noop } from 'lodash';
-
-import { useElementValueWithEvents } from 'app/hooks/use-element-value-with-events';
+import { noop, throttle } from 'lodash';
 
 interface ScrollViewProps extends HTMLAttributes<HTMLDivElement> {
   onBottomEdgeVisibilityChange?: (isVisible: boolean) => void;
@@ -13,31 +11,44 @@ interface ScrollViewProps extends HTMLAttributes<HTMLDivElement> {
 const bottomEdgeIsVisible = (element: HTMLDivElement, threshold: number) =>
   element.scrollHeight - element.scrollTop - element.clientHeight <= threshold;
 
-const scrollEdgesChangeEvents = ['scroll'];
-
 export const ScrollView = memo<ScrollViewProps>(
   ({ className, onBottomEdgeVisibilityChange = noop, bottomEdgeThreshold = 0, ...restProps }) => {
     const rootRef = useRef<HTMLDivElement>(null);
+    const prevBottomEdgeIsVisibleRef = useRef(true);
 
-    const localBottomEdgeIsVisible = useCallback(
-      (element: HTMLDivElement) => bottomEdgeIsVisible(element, bottomEdgeThreshold),
-      [bottomEdgeThreshold]
-    );
+    const updateBottomEdgeIsVisible = useMemo(
+      () =>
+        throttle(() => {
+          if (!rootRef.current) {
+            return;
+          }
 
-    const { updateValue: updateBottomEdgeVisibilityChange } = useElementValueWithEvents(
-      rootRef,
-      localBottomEdgeIsVisible,
-      true,
-      scrollEdgesChangeEvents,
-      20,
-      onBottomEdgeVisibilityChange
+          const currentBottomEdgeIsVisible = bottomEdgeIsVisible(rootRef.current, bottomEdgeThreshold);
+
+          if (currentBottomEdgeIsVisible !== prevBottomEdgeIsVisibleRef.current) {
+            prevBottomEdgeIsVisibleRef.current = currentBottomEdgeIsVisible;
+            onBottomEdgeVisibilityChange(currentBottomEdgeIsVisible);
+          }
+        }, 20),
+      [bottomEdgeThreshold, onBottomEdgeVisibilityChange]
     );
 
     useEffect(() => {
-      window.addEventListener('resize', updateBottomEdgeVisibilityChange);
+      updateBottomEdgeIsVisible();
 
-      return () => window.removeEventListener('resize', updateBottomEdgeVisibilityChange);
-    }, [updateBottomEdgeVisibilityChange]);
+      const element = rootRef.current;
+      if (element) {
+        window.addEventListener('resize', updateBottomEdgeIsVisible);
+        element.addEventListener('scroll', updateBottomEdgeIsVisible);
+
+        return () => {
+          window.removeEventListener('resize', updateBottomEdgeIsVisible);
+          element.removeEventListener('scroll', updateBottomEdgeIsVisible);
+        };
+      }
+
+      return undefined;
+    }, [updateBottomEdgeIsVisible]);
 
     return (
       <div className={clsx('px-4 flex-1 flex flex-col overflow-y-auto', className)} ref={rootRef} {...restProps} />

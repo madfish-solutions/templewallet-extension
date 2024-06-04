@@ -1,25 +1,48 @@
-import React, { HTMLAttributes, memo, useRef } from 'react';
+import React, { HTMLAttributes, memo, useCallback, useEffect, useMemo } from 'react';
 
 import clsx from 'clsx';
+import { throttle } from 'lodash';
+import { useDispatch } from 'react-redux';
 
-import { useElementValueWithEvents } from 'app/hooks/use-element-value-with-events';
-import { useSetToastsContainerShift } from 'app/hooks/use-set-toasts-container-shift';
+import { setToastsContainerBottomShiftAction } from 'app/store/settings/actions';
 
 interface ActionsButtonsBoxProps extends HTMLAttributes<HTMLDivElement> {
   shouldCastShadow?: boolean;
   flexDirection?: 'row' | 'col';
 }
 
-const getDivHeight = (element: HTMLDivElement) => element.getBoundingClientRect().height;
-
-const shiftUpdateEvents: string[] = [];
-
 export const ActionsButtonsBox = memo<ActionsButtonsBoxProps>(
   ({ className, shouldCastShadow, flexDirection = 'col', ...restProps }) => {
-    const rootRef = useRef<HTMLDivElement>(null);
-    const setToastsContainerShift = useSetToastsContainerShift();
+    const dispatch = useDispatch();
 
-    useElementValueWithEvents(rootRef, getDivHeight, 0, shiftUpdateEvents, 100, setToastsContainerShift);
+    useEffect(() => {
+      return () => void dispatch(setToastsContainerBottomShiftAction(0));
+    }, []);
+
+    const handleResize = useMemo(
+      () =>
+        throttle<ResizeObserverCallback>(entries => {
+          const borderBoxSize = entries.map(entry => entry.borderBoxSize?.[0])[0];
+
+          if (borderBoxSize) {
+            dispatch(setToastsContainerBottomShiftAction(borderBoxSize.blockSize));
+          }
+        }, 100),
+      [dispatch]
+    );
+
+    const resizeObserver = useMemo(() => new ResizeObserver(handleResize), [handleResize]);
+    const rootRef = useCallback(
+      (node: HTMLDivElement | null) => {
+        resizeObserver.disconnect();
+        if (node) {
+          resizeObserver.observe(node);
+          const { height } = node.getBoundingClientRect();
+          dispatch(setToastsContainerBottomShiftAction(height));
+        }
+      },
+      [dispatch, resizeObserver]
+    );
 
     return (
       <div

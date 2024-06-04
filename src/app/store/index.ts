@@ -16,8 +16,7 @@ export const SLICES_BLACKLIST = [
   'buyWithCreditCard' as const,
   'collectibles' as const,
   'assets' as const,
-  'collectiblesMetadata' as const,
-  'toastsContainerShift' as const
+  'collectiblesMetadata' as const
 ];
 
 const persistConfigBlacklist: (keyof RootState)[] = SLICES_BLACKLIST;

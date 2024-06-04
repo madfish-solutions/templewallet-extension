@@ -13,13 +13,12 @@ import { currencyReducer } from './currency/reducers';
 import { dAppsReducer } from './d-apps/reducers';
 import { newsletterReducers } from './newsletter/newsletter-reducers';
 import { partnersPromotionPersistedReducer } from './partners-promotion/reducers';
-import { settingsReducer } from './settings/reducers';
+import { settingsPersistedReducer } from './settings/reducers';
 import { swapReducer } from './swap/reducers';
-import { toastsContainerShiftReducer } from './toasts-container-shift/reducers';
 import { tokensMetadataReducer } from './tokens-metadata/reducers';
 
 const rootStateReducersMap = {
-  settings: settingsReducer,
+  settings: settingsPersistedReducer,
   advertising: advertisingReducer,
   currency: currencyReducer,
   notifications: notificationsReducer,
@@ -33,8 +32,7 @@ const rootStateReducersMap = {
   abTesting: abTestingReducer,
   buyWithCreditCard: buyWithCreditCardReducer,
   collectibles: collectiblesPersistedReducer,
-  newsletter: newsletterReducers,
-  toastsContainerShift: toastsContainerShiftReducer
+  newsletter: newsletterReducers
 };
 
 export const rootReducer = combineReducers(rootStateReducersMap);

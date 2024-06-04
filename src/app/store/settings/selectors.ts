@@ -5,3 +5,6 @@ export const useUserIdSelector = () => useSelector(({ settings }) => settings.us
 export const useAnalyticsEnabledSelector = () => useSelector(({ settings }) => settings.isAnalyticsEnabled);
 
 export const useOnRampPossibilitySelector = () => useSelector(({ settings }) => settings.isOnRampPossibility);
+
+export const useToastsContainerBottomShiftSelector = () =>
+  useSelector(({ settings }) => settings.toastsContainerBottomShift);

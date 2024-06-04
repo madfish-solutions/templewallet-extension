@@ -3,14 +3,13 @@ import React, { memo, useMemo } from 'react';
 import clsx from 'clsx';
 import toast, { Toaster, Toast, ToastIcon, ToastType } from 'react-hot-toast';
 
+import { useAppEnv } from 'app/env';
 import { ReactComponent as ErrorIcon } from 'app/icons/typed-msg/error.svg';
 import { ReactComponent as InfoIcon } from 'app/icons/typed-msg/info.svg';
 import { ReactComponent as SuccessIcon } from 'app/icons/typed-msg/success.svg';
 import { ReactComponent as WarningIcon } from 'app/icons/typed-msg/warning.svg';
-import { useToastsContainerBottomShiftSelector } from 'app/store/toasts-container-shift/selectors';
+import { useToastsContainerBottomShiftSelector } from 'app/store/settings/selectors';
 import PortalToDocumentBody from 'lib/ui/Portal';
-
-import { useAppEnv } from './env';
 
 export const toastSuccess = (title: string) => void toast.success(title);
 // @ts-prune-ignore-next

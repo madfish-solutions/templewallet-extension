@@ -1,7 +1,10 @@
+import { mockPersistedState } from 'lib/store';
+
 import { SettingsState } from './state';
 
-export const mockSettingsState: SettingsState = {
+export const mockSettingsState = mockPersistedState<SettingsState>({
   isAnalyticsEnabled: true,
   userId: '0',
-  isOnRampPossibility: false
-};
+  isOnRampPossibility: false,
+  toastsContainerBottomShift: 0
+});
