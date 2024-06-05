@@ -4,7 +4,7 @@ import { getAddress } from 'viem';
 import { toTokenSlug } from 'lib/assets';
 import { isProperCollectibleMetadata } from 'lib/utils/evm.utils';
 
-import { proceedLoadedEvmCollectiblesMetadataAction, putEvmCollectiblesMetadataAction } from './actions';
+import { processLoadedEvmCollectiblesMetadataAction, putEvmCollectiblesMetadataAction } from './actions';
 import { evmCollectiblesMetadataInitialState, EvmCollectiblesMetadataState } from './state';
 import { buildEvmCollectibleMetadataFromFetched } from './utils';
 
@@ -13,7 +13,7 @@ import { buildEvmCollectibleMetadataFromFetched } from './utils';
 export const evmCollectiblesMetadataReducer = createReducer<EvmCollectiblesMetadataState>(
   evmCollectiblesMetadataInitialState,
   builder => {
-    builder.addCase(proceedLoadedEvmCollectiblesMetadataAction, ({ metadataRecord }, { payload }) => {
+    builder.addCase(processLoadedEvmCollectiblesMetadataAction, ({ metadataRecord }, { payload }) => {
       const { chainId, data } = payload;
 
       if (!metadataRecord[chainId]) metadataRecord[chainId] = {};

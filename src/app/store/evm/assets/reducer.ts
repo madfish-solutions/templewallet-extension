@@ -5,12 +5,12 @@ import { NATIVE_TOKEN_INDEX } from 'lib/apis/temple/endpoints/evm/api.utils';
 import { toTokenSlug } from 'lib/assets';
 import { isPositiveCollectibleBalance, isPositiveTokenBalance } from 'lib/utils/evm.utils';
 
-import { proceedLoadedEvmAssetsAction, putNewEvmCollectibleAction, putNewEvmTokenAction } from './actions';
+import { processLoadedEvmAssetsAction, putNewEvmCollectibleAction, putNewEvmTokenAction } from './actions';
 import { EvmAssetsInitialState, EvmAssetsStateInterface } from './state';
 import { getChainRecords } from './utils';
 
 export const evmAssetsReducer = createReducer<EvmAssetsStateInterface>(EvmAssetsInitialState, builder => {
-  builder.addCase(proceedLoadedEvmAssetsAction, ({ tokens, collectibles }, { payload }) => {
+  builder.addCase(processLoadedEvmAssetsAction, ({ tokens, collectibles }, { payload }) => {
     const { publicKeyHash, chainId, data } = payload;
 
     const chainTokens = getChainRecords(tokens, publicKeyHash, chainId);

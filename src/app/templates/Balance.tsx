@@ -16,13 +16,13 @@ interface TezosBalanceProps {
 }
 export const TezosBalance: FC<TezosBalanceProps> = ({ network, address, children, assetSlug = 'tez' }) => {
   const { value: balance } = useTezosAssetBalance(assetSlug, address, network);
-  const exist = balance !== undefined;
+  const exists = balance !== undefined;
 
   const childNode = children(balance == null ? new BigNumber(0) : balance);
 
   return (
     <CSSTransition
-      in={exist}
+      in={exists}
       timeout={200}
       classNames={{
         enter: 'opacity-0',
@@ -31,7 +31,7 @@ export const TezosBalance: FC<TezosBalanceProps> = ({ network, address, children
       }}
     >
       {cloneElement(childNode, {
-        className: clsx(childNode.props.className, !exist && 'invisible')
+        className: clsx(childNode.props.className, !exists && 'invisible')
       })}
     </CSSTransition>
   );
@@ -45,13 +45,13 @@ interface EvmBalanceProps {
 }
 export const EvmBalance: FC<EvmBalanceProps> = ({ chainId, address, children, assetSlug = 'eth' }) => {
   const { value: balance } = useEvmTokenBalance(assetSlug, address, chainId);
-  const exist = balance !== undefined;
+  const exists = balance !== undefined;
 
   const childNode = children(balance == null ? new BigNumber(0) : balance);
 
   return (
     <CSSTransition
-      in={exist}
+      in={exists}
       timeout={200}
       classNames={{
         enter: 'opacity-0',
@@ -60,7 +60,7 @@ export const EvmBalance: FC<EvmBalanceProps> = ({ chainId, address, children, as
       }}
     >
       {cloneElement(childNode, {
-        className: clsx(childNode.props.className, !exist && 'invisible')
+        className: clsx(childNode.props.className, !exists && 'invisible')
       })}
     </CSSTransition>
   );

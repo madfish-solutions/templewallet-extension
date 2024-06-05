@@ -79,14 +79,16 @@ const Home = memo<HomeProps>(props => {
 
         <ActionButtonsBar {...props} />
 
-        <SimpleSegmentControl
-          firstTitle="Tokens"
-          secondTitle="Collectibles"
-          activeSecond={tabSlug === 'collectibles'}
-          className="mt-6"
-          onFirstClick={onTokensTabClick}
-          onSecondClick={onCollectiblesTabClick}
-        />
+        {!assetSlug && (
+          <SimpleSegmentControl
+            firstTitle="Tokens"
+            secondTitle="Collectibles"
+            activeSecond={tabSlug === 'collectibles'}
+            className="mt-6"
+            onFirstClick={onTokensTabClick}
+            onSecondClick={onCollectiblesTabClick}
+          />
+        )}
       </div>
 
       <SuspenseContainer key={`${chainId}/${assetSlug}`}>

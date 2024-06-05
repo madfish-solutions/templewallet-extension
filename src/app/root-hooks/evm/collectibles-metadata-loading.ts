@@ -4,7 +4,7 @@ import { dispatch } from 'app/store';
 import { setEvmCollectiblesMetadataLoading } from 'app/store/evm/actions';
 import { useEvmStoredCollectiblesRecordSelector } from 'app/store/evm/assets/selectors';
 import {
-  proceedLoadedEvmCollectiblesMetadataAction,
+  processLoadedEvmCollectiblesMetadataAction,
   putEvmCollectiblesMetadataAction
 } from 'app/store/evm/collectibles-metadata/actions';
 import { useEvmCollectiblesMetadataRecordSelector } from 'app/store/evm/collectibles-metadata/selectors';
@@ -47,7 +47,7 @@ export const AppEvmCollectiblesMetadataLoading = memo<{ publicKeyHash: HexString
 
         if (isSupportedChainId(chainId)) {
           return getEvmCollectiblesMetadata(publicKeyHash, chainId).then(data => {
-            dispatch(proceedLoadedEvmCollectiblesMetadataAction({ chainId, data }));
+            dispatch(processLoadedEvmCollectiblesMetadataAction({ chainId, data }));
           });
         }
 

@@ -1,11 +1,11 @@
 import { createReducer } from '@reduxjs/toolkit';
 
-import { proceedLoadedEvmAssetsBalancesAction } from './actions';
+import { processLoadedEvmAssetsBalancesAction } from './actions';
 import { EvmBalancesInitialState, EvmBalancesStateInterface } from './state';
 import { getTokenSlugBalanceRecord } from './utils';
 
 export const evmBalancesReducer = createReducer<EvmBalancesStateInterface>(EvmBalancesInitialState, builder => {
-  builder.addCase(proceedLoadedEvmAssetsBalancesAction, ({ balancesAtomic }, { payload }) => {
+  builder.addCase(processLoadedEvmAssetsBalancesAction, ({ balancesAtomic }, { payload }) => {
     const { publicKeyHash, chainId, data } = payload;
 
     if (!balancesAtomic[publicKeyHash]) balancesAtomic[publicKeyHash] = {};

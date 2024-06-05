@@ -5,7 +5,7 @@ import { setEvmTokensMetadataLoading } from 'app/store/evm/actions';
 import { useEvmStoredTokensRecordSelector } from 'app/store/evm/assets/selectors';
 import { useEvmTokensMetadataLoadingSelector } from 'app/store/evm/selectors';
 import {
-  proceedLoadedEvmTokensMetadataAction,
+  processLoadedEvmTokensMetadataAction,
   putEvmTokensMetadataAction
 } from 'app/store/evm/tokens-metadata/actions';
 import { useEvmTokensMetadataRecordSelector } from 'app/store/evm/tokens-metadata/selectors';
@@ -47,7 +47,7 @@ export const AppEvmTokensMetadataLoading = memo<{ publicKeyHash: HexString }>(({
 
         if (isSupportedChainId(chainId)) {
           return getEvmTokensMetadata(publicKeyHash, chainId).then(data => {
-            dispatch(proceedLoadedEvmTokensMetadataAction({ chainId, data }));
+            dispatch(processLoadedEvmTokensMetadataAction({ chainId, data }));
           });
         }
 

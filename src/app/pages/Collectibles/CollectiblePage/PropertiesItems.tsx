@@ -12,6 +12,10 @@ import { EvmCollectibleMetadata } from 'lib/metadata/types';
 import { useTezosBlockExplorerUrl } from 'temple/front/block-explorers';
 import { TezosNetworkEssentials } from 'temple/networks';
 
+const itemClassName = 'flex flex-col gap-y-2 p-3 border border-gray-300 rounded-md';
+const itemTitleClassName = 'text-xs text-gray-600 leading-5';
+const itemValueClassName = 'text-base font-semibold leading-5 break-words';
+
 interface PropertiesItemsProps {
   network: TezosNetworkEssentials;
   assetSlug: string;
@@ -43,10 +47,6 @@ export const PropertiesItems = memo<PropertiesItemsProps>(({ network, assetSlug,
 
     return `${royalties.toString()}%`;
   }, [details]);
-
-  const itemClassName = 'flex flex-col gap-y-2 p-3 border border-gray-300 rounded-md';
-  const itemTitleClassName = 'text-xs text-gray-600 leading-5';
-  const itemValueClassName = 'text-base font-semibold leading-5 break-words';
 
   return (
     <>
@@ -113,10 +113,6 @@ interface EvmPropertiesItemsProps {
 
 export const EvmPropertiesItems = memo<EvmPropertiesItemsProps>(({ accountPkh, evmChainId, assetSlug, metadata }) => {
   const rawBalance = useEvmAccountAssetBalance(accountPkh, evmChainId, assetSlug);
-
-  const itemClassName = 'flex flex-col gap-y-2 p-3 border border-gray-300 rounded-md';
-  const itemTitleClassName = 'text-xs text-gray-600 leading-5';
-  const itemValueClassName = 'text-base font-semibold leading-5 break-words';
 
   if (!metadata) return null;
 

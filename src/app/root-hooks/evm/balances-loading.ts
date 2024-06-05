@@ -2,8 +2,8 @@ import { memo } from 'react';
 
 import { dispatch } from 'app/store';
 import { setEvmBalancesLoading } from 'app/store/evm/actions';
-import { proceedLoadedEvmAssetsAction } from 'app/store/evm/assets/actions';
-import { proceedLoadedEvmAssetsBalancesAction } from 'app/store/evm/balances/actions';
+import { processLoadedEvmAssetsAction } from 'app/store/evm/assets/actions';
+import { processLoadedEvmAssetsBalancesAction } from 'app/store/evm/balances/actions';
 import { useEvmBalancesLoadingSelector } from 'app/store/evm/selectors';
 import { getEvmBalances } from 'lib/apis/temple/endpoints/evm/api';
 import { isSupportedChainId } from 'lib/apis/temple/endpoints/evm/api.utils';
@@ -31,8 +31,8 @@ export const AppEvmBalancesLoading = memo<{ publicKeyHash: HexString }>(({ publi
         apiSupportedChainIds.map(async chainId => {
           const data = await getEvmBalances(publicKeyHash, chainId);
 
-          dispatch(proceedLoadedEvmAssetsAction({ publicKeyHash, chainId, data }));
-          dispatch(proceedLoadedEvmAssetsBalancesAction({ publicKeyHash, chainId, data }));
+          dispatch(processLoadedEvmAssetsAction({ publicKeyHash, chainId, data }));
+          dispatch(processLoadedEvmAssetsBalancesAction({ publicKeyHash, chainId, data }));
         })
       ).then(() => void dispatch(setEvmBalancesLoading(false)));
     },

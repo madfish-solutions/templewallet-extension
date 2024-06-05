@@ -1,4 +1,4 @@
 import { TempleChainKind } from 'temple/types';
 
-export const toExploreAssetLink = (chainKink: TempleChainKind, chainId: number | string, assetSlug: string) =>
-  `/explore/${chainKink}/${chainId}/${assetSlug}`;
+export const toExploreAssetLink = (chainKind: TempleChainKind, chainId: number | string, assetSlug: string) =>
+  `/explore/${chainKind}/${chainId}/${assetSlug}`;

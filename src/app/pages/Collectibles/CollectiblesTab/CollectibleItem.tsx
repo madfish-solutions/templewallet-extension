@@ -24,6 +24,9 @@ import { CollectibleItemImage, EvmCollectibleItemImage } from './CollectibleItem
 import { CollectibleTabSelectors } from './selectors';
 import { toCollectibleLink } from './utils';
 
+const POPUP_ITEM_SIZE = 104;
+const FULLPAGE_ITEM_SIZE = 112;
+
 interface TezosCollectibleItemProps {
   assetSlug: string;
   accountPkh: string;
@@ -64,7 +67,7 @@ export const TezosCollectibleItem = memo<TezosCollectibleItemProps>(
 
     // Fixed sizes to improve large grid performance
     const [style, imgWrapStyle] = useMemo(() => {
-      const size = popup ? 104 : 112;
+      const size = popup ? POPUP_ITEM_SIZE : FULLPAGE_ITEM_SIZE;
 
       const style = popup
         ? {
@@ -161,7 +164,7 @@ export const EvmCollectibleItem = memo<EvmCollectibleItemProps>(({ assetSlug, ev
   const wrapperElemRef = useRef<HTMLDivElement>(null);
 
   const [style, imgWrapStyle] = useMemo(() => {
-    const size = popup ? 104 : 112;
+    const size = popup ? POPUP_ITEM_SIZE : FULLPAGE_ITEM_SIZE;
 
     const style = {
       width: size,

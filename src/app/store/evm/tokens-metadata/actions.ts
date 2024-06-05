@@ -3,13 +3,13 @@ import { createAction } from '@reduxjs/toolkit';
 import { BalancesResponse } from 'lib/apis/temple/endpoints/evm/api.interfaces';
 import { EvmTokenMetadata } from 'lib/metadata/types';
 
-interface proceedLoadedEvmTokensMetadataActionPayload {
+interface processLoadedEvmTokensMetadataActionPayload {
   chainId: number;
   data: BalancesResponse;
 }
 
-export const proceedLoadedEvmTokensMetadataAction = createAction<proceedLoadedEvmTokensMetadataActionPayload>(
-  'evm/PROCEED_LOADED_TOKENS_METADATA_ACTION'
+export const processLoadedEvmTokensMetadataAction = createAction<processLoadedEvmTokensMetadataActionPayload>(
+  'evm/PROCESS_LOADED_TOKENS_METADATA_ACTION'
 );
 
 interface putEvmTokensMetadataActionActionPayload {

@@ -28,18 +28,13 @@ export const buildEvmCollectibleMetadataFromFetched = (
 };
 
 const getCollectibleStandard = (supportedErcs: string[]) => {
-  let isErc721 = false;
-  let isErc1155 = false;
-
-  for (const erc of supportedErcs) {
-    if (erc === EvmAssetStandard.ERC721) {
-      isErc721 = true;
-      continue;
-    }
-    if (erc === EvmAssetStandard.ERC1155) isErc1155 = true;
+  if (supportedErcs.some(erc => erc === EvmAssetStandard.ERC721)) {
+    return EvmAssetStandard.ERC721;
   }
 
-  if (!isErc721 && isErc1155) return EvmAssetStandard.ERC1155;
+  if (supportedErcs.some(erc => erc === EvmAssetStandard.ERC1155)) {
+    return EvmAssetStandard.ERC1155;
+  }
 
-  return EvmAssetStandard.ERC721;
+  return EvmAssetStandard.UNKNOWN;
 };

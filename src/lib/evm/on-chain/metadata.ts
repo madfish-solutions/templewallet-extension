@@ -13,18 +13,12 @@ import { EvmAssetStandard } from '../types';
 import { detectEvmTokenStandard } from './utils/common.utils';
 
 export const fetchEvmTokensMetadataFromChain = async (network: EvmChain, tokenSlugs: string[]) =>
-  Promise.all(
-    tokenSlugs.map(async slug => {
-      return await fetchEvmTokenMetadataFromChain(network, slug);
-    })
-  ).then(fetchedMetadata => handleFetchedMetadata<EvmTokenMetadata | undefined>(fetchedMetadata, tokenSlugs));
+  Promise.all(tokenSlugs.map(slug => fetchEvmTokenMetadataFromChain(network, slug))).then(fetchedMetadata =>
+    handleFetchedMetadata<EvmTokenMetadata | undefined>(fetchedMetadata, tokenSlugs)
+  );
 
 export const fetchEvmCollectiblesMetadataFromChain = async (network: EvmChain, collectibleSlugs: string[]) =>
-  Promise.all(
-    collectibleSlugs.map(async slug => {
-      return await fetchEvmCollectibleMetadataFromChain(network, slug);
-    })
-  ).then(fetchedMetadata =>
+  Promise.all(collectibleSlugs.map(slug => fetchEvmCollectibleMetadataFromChain(network, slug))).then(fetchedMetadata =>
     handleFetchedMetadata<EvmCollectibleMetadata | undefined>(fetchedMetadata, collectibleSlugs)
   );
 
@@ -38,10 +32,14 @@ export const fetchEvmAssetMetadataFromChain = async (network: EvmChain, assetSlu
   const standard = await detectEvmTokenStandard(network, assetSlug);
 
   try {
-    if (standard === EvmAssetStandard.ERC1155) return await getERC1155Metadata(publicClient, contractAddress, tokenId);
-    if (standard === EvmAssetStandard.ERC721) return await getERC721Metadata(publicClient, contractAddress, tokenId);
-
-    return await getERC20Metadata(publicClient, contractAddress);
+    switch (standard) {
+      case EvmAssetStandard.ERC1155:
+        return await getERC1155Metadata(publicClient, contractAddress, tokenId);
+      case EvmAssetStandard.ERC721:
+        return await getERC721Metadata(publicClient, contractAddress, tokenId);
+      default:
+        return await getERC20Metadata(publicClient, contractAddress);
+    }
   } catch {
     console.error(`ChainId: ${network.chainId}. Failed to get metadata for: ${assetSlug}.`);
 
@@ -73,14 +71,19 @@ const fetchEvmCollectibleMetadataFromChain = async (network: EvmChain, collectib
   const standard = await detectEvmTokenStandard(network, collectibleSlug);
 
   try {
-    if (standard === EvmAssetStandard.ERC1155) return await getERC1155Metadata(publicClient, contractAddress, tokenId);
-    if (standard === EvmAssetStandard.ERC721) return await getERC721Metadata(publicClient, contractAddress, tokenId);
+    switch (standard) {
+      case EvmAssetStandard.ERC1155:
+        return await getERC1155Metadata(publicClient, contractAddress, tokenId);
+      case EvmAssetStandard.ERC721:
+        return await getERC721Metadata(publicClient, contractAddress, tokenId);
+      default: {
+        console.error(
+          `ChainId: ${network.chainId}. Slug: ${collectibleSlug}. Standard: ${standard}. Failed to load metadata. Standard is not ERC721 or ERC1155`
+        );
 
-    console.error(
-      `ChainId: ${network.chainId}. Slug: ${collectibleSlug}. Standard: ${standard}. Failed to load metadata. Standard is not ERC721 or ERC1155`
-    );
-
-    return undefined;
+        return undefined;
+      }
+    }
   } catch {
     console.error(`ChainId: ${network.chainId}. Failed to get metadata for: ${collectibleSlug}.`);
 

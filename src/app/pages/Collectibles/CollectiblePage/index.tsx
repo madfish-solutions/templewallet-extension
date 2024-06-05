@@ -43,6 +43,9 @@ import { CollectiblesSelectors } from './selectors';
 
 const DETAILS_SYNC_INTERVAL = 4 * TEZOS_BLOCK_DURATION;
 
+const propertiesTab = { name: 'properties', titleI18nKey: 'properties' } as const;
+const attributesTab = { name: 'attributes', titleI18nKey: 'attributes' } as const;
+
 interface Props {
   chainKind: string;
   chainId: string;
@@ -72,11 +75,9 @@ const EvmCollectiblePage = memo<EvmCollectiblePageProps>(({ evmChainId, assetSlu
   const tabNameInUrl = useLocationSearchParamValue('tab');
 
   const tabs = useMemo(() => {
-    const propertiesTab = { name: 'properties', titleI18nKey: 'properties' } as const;
-
     if (!metadata.attributes || metadata.attributes.length === 0) return [propertiesTab];
 
-    return [{ name: 'attributes', titleI18nKey: 'attributes' } as const, propertiesTab];
+    return [attributesTab, propertiesTab];
   }, [metadata]);
 
   const { name: activeTabName } = useMemo(() => {
@@ -245,11 +246,9 @@ const TezosCollectiblePage = memo<TezosCollectiblePageProps>(({ tezosChainId, as
   const tabNameInUrl = useLocationSearchParamValue('tab');
 
   const tabs = useMemo(() => {
-    const propertiesTab = { name: 'properties', titleI18nKey: 'properties' } as const;
-
     if (!details?.attributes.length) return [propertiesTab];
 
-    return [{ name: 'attributes', titleI18nKey: 'attributes' } as const, propertiesTab];
+    return [attributesTab, propertiesTab];
   }, [details]);
 
   const { name: activeTabName } = useMemo(() => {
