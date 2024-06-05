@@ -25,6 +25,7 @@ interface Props extends FormContextValues<FormData> {
   maxAmountInTezos: BigNumber | null;
   assetPrice: BigNumber;
   accountPkh: string;
+  disabled?: boolean;
   setInFiat: SyncFn<boolean>;
 }
 
@@ -34,6 +35,7 @@ export const StakeAmountField: FC<Props> = ({
   maxAmountInTezos,
   assetPrice,
   accountPkh,
+  disabled,
   setInFiat,
   ...form
 }) => {
@@ -100,11 +102,12 @@ export const StakeAmountField: FC<Props> = ({
     return (
       <button
         onClick={handleFiatToggle}
+        disabled={disabled}
         className={clsx(
           'px-1 rounded-md flex items-center gap-x-1 font-light',
           'hover:bg-black hover:bg-opacity-5',
           'trasition ease-in-out duration-200',
-          'pointer-events-auto'
+          !disabled && 'pointer-events-auto'
         )}
       >
         {inFiat ? fiatSymbol : symbol}
@@ -115,7 +118,7 @@ export const StakeAmountField: FC<Props> = ({
         </div>
       </button>
     );
-  }, [canEnterInFiat, inFiat, symbol, fiatSymbol, decimals, assetPrice, getValues, setValue, setInFiat]);
+  }, [canEnterInFiat, inFiat, symbol, fiatSymbol, decimals, assetPrice, disabled, getValues, setValue, setInFiat]);
 
   const handleSetMaxAmount = useCallback(() => {
     if (maxAmount) {
@@ -134,7 +137,12 @@ export const StakeAmountField: FC<Props> = ({
         <div>
           <span>Available {forUnstake ? 'amount' : '(max)'}: </span>
 
-          <button type="button" className="underline" onClick={handleSetMaxAmount}>
+          <button
+            type="button"
+            className={clsx('underline', disabled && 'pointer-events-none')}
+            disabled={disabled}
+            onClick={handleSetMaxAmount}
+          >
             {inFiat ? `${fiatSymbol}${maxAmountFormatted}` : `${maxAmountFormatted} ${symbol}`}
           </button>
         </div>
@@ -149,7 +157,18 @@ export const StakeAmountField: FC<Props> = ({
         ) : null}
       </div>
     );
-  }, [inFiat, maxAmount, handleSetMaxAmount, fiatSymbol, amountValue, assetPrice, symbol, decimals, forUnstake]);
+  }, [
+    inFiat,
+    maxAmount,
+    handleSetMaxAmount,
+    fiatSymbol,
+    amountValue,
+    assetPrice,
+    symbol,
+    decimals,
+    disabled,
+    forUnstake
+  ]);
 
   return (
     <Controller
@@ -163,6 +182,7 @@ export const StakeAmountField: FC<Props> = ({
       labelDescription={labelDescription}
       placeholder={t('amountPlaceholder')}
       errorCaption={errors.amount?.message}
+      disabled={disabled}
       autoFocus
     />
   );

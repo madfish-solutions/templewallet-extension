@@ -15,14 +15,20 @@ const COMMON_SWR_OPTIONS = {
 export const useStakedAmount = (rpcUrl: string, accountPkh: string) =>
   useRetryableSWR(
     [COMMON_SWR_KEY, 'get-staked', rpcUrl, accountPkh],
-    () => loadFastRpcClient(rpcUrl).getStakedBalance(accountPkh),
+    () =>
+      loadFastRpcClient(rpcUrl)
+        .getStakedBalance(accountPkh)
+        .catch(error => processIsStakingNotSupportedEndpointError(error, null)),
     COMMON_SWR_OPTIONS
   );
 
 export const useUnstakeRequests = (rpcUrl: string, accountPkh: string, suspense?: boolean) =>
   useRetryableSWR(
     [COMMON_SWR_KEY, 'get-unstake-requests', rpcUrl, accountPkh],
-    () => loadFastRpcClient(rpcUrl).getUnstakeRequests(accountPkh),
+    () =>
+      loadFastRpcClient(rpcUrl)
+        .getUnstakeRequests(accountPkh)
+        .catch(error => processIsStakingNotSupportedEndpointError(error, null)),
     { ...COMMON_SWR_OPTIONS, suspense }
   );
 
@@ -85,7 +91,7 @@ const getIsStakingNotSupportedByChain = memoizee(
       launchCycle = await rpc.getAdaptiveIssuanceLaunchCycle();
       if (launchCycle == null) return true;
     } catch (error) {
-      return processIsStakingNotSupportedEndpointError(error);
+      return processIsStakingNotSupportedEndpointError(error, true);
     }
 
     const { level_info } = await rpc.getBlockMetadata();
@@ -101,12 +107,12 @@ const getIsStakingNotSupportedByBaker = memoizee(
   (rpcUrl: string, bakerPkh: string) =>
     loadFastRpcClient(rpcUrl)
       .getDelegateLimitOfStakingOverBakingIsPositive(bakerPkh)
-      .catch(processIsStakingNotSupportedEndpointError),
+      .catch(error => processIsStakingNotSupportedEndpointError(error, true)),
   { promise: true, normalizer: ([rpcUrl, bakerPkh]) => `${bakerPkh}@${rpcUrl}` }
 );
 
-const processIsStakingNotSupportedEndpointError = (error: unknown) => {
-  if (error instanceof HttpResponseError && error.status === 404) return true;
+const processIsStakingNotSupportedEndpointError = <T>(error: unknown, fallbackVal: T): T => {
+  if (error instanceof HttpResponseError && error.status === 404) return fallbackVal;
   console.error(error);
   throw error;
 };

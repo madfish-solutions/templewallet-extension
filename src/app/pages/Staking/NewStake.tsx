@@ -121,6 +121,7 @@ export const NewStakeTab = memo(() => {
           assetPrice={assetPrice}
           accountPkh={acc.publicKeyHash}
           setInFiat={setInFiat}
+          disabled={disableSubmit}
           {...form}
         />
 

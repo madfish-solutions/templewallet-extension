@@ -41,6 +41,9 @@ export const BakerBannerWithStake = memo<Props>(({ bakerPkh, cannotDelegate }) =
 
   const isSupportedLoading = isNotSupportedSwr.isLoading || stakedSwr.isLoading || requestsSwr.isLoading;
 
+  console.log(1, isNotSupportedSwr.isLoading, stakedSwr.isLoading, requestsSwr.isLoading);
+  console.log(2, isNotSupportedSwr.error, stakedSwr.error, requestsSwr.error);
+
   const StakeOrManageButton = useMemo<FC | undefined>(() => {
     if (isSupportedLoading) return () => <Spinner className="w-8 self-center" theme="gray" />;
 
