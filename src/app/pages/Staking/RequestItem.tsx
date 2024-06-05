@@ -41,7 +41,7 @@ export const UnfinalizableRequestItem = memo<UnfinalizableRequestItemProps>(
 
     return (
       <RequestItem amount={amount}>
-        <span>{cooldownTime > 0 ? `${cooldownTime}s` : '---'}</span>
+        <span>{cooldownTime}h</span>
       </RequestItem>
     );
   }

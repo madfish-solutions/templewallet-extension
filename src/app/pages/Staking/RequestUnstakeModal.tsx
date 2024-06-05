@@ -20,10 +20,10 @@ import { StakingPageSelectors } from './selectors';
 
 interface Props {
   knownBakerName?: string;
-  close: EmptyFn;
+  onDone: (opHash?: string) => void;
 }
 
-export const RequestUnstakeModal = memo<Props>(({ knownBakerName, close }) => {
+export const RequestUnstakeModal = memo<Props>(({ knownBakerName, onDone }) => {
   const { fullPage } = useAppEnv();
 
   const accountPkh = useAccountPkh();
@@ -64,8 +64,8 @@ export const RequestUnstakeModal = memo<Props>(({ knownBakerName, close }) => {
         .unstake({ amount: inputAmount })
         .send()
         .then(
-          () => {
-            close();
+          oper => {
+            onDone(oper.opHash);
             trackSubmitSuccess(analyticsProps);
           },
           error => {
@@ -75,8 +75,10 @@ export const RequestUnstakeModal = memo<Props>(({ knownBakerName, close }) => {
           }
         );
     },
-    [inFiat, tezos, close, trackSubmitSuccess, trackSubmitFail, knownBakerName, assetPrice, decimals]
+    [inFiat, tezos, onDone, trackSubmitSuccess, trackSubmitFail, knownBakerName, assetPrice, decimals]
   );
+
+  const close = useCallback(() => void onDone(), [onDone]);
 
   const errorsInForm = Boolean(errors.amount);
   const disableSubmit = errorsInForm;

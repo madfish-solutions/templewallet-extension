@@ -32,13 +32,17 @@ export const MyStakeTab = memo(() => {
 
   const blockLevelInfo = useBlockLevelInfo(rpcBaseURL);
 
-  const requestsSwr = useUnstakeRequests(rpcBaseURL, acc.publicKeyHash, true);
+  const {
+    data: requests,
+    mutate: updateRequests,
+    isLoading: requestsAreLoading
+  } = useUnstakeRequests(rpcBaseURL, acc.publicKeyHash, true);
 
-  const requests = requestsSwr.data?.unfinalizable?.requests;
-  const readyRequests = requestsSwr.data?.finalizable;
+  const pendingRequests = requests?.unfinalizable?.requests;
+  const readyRequests = requests?.finalizable;
 
   /** Priority is to show baker with user's stake in this page's banner */
-  const bakerPkh = readyRequests?.[0]?.delegate || requestsSwr?.data?.unfinalizable.delegate || myBakerPkh;
+  const bakerPkh = readyRequests?.[0]?.delegate || requests?.unfinalizable.delegate || myBakerPkh;
 
   const cooldownTippyRef = useTippy<SVGSVGElement>(COOLDOWN_TIPPY_PROPS);
 
@@ -57,9 +61,34 @@ export const MyStakeTab = memo(() => {
     [cannotDelegate, toggleUnstakeModal]
   );
 
+  const onRequestUnstakeDone = useCallback(
+    (opHash?: string) => {
+      toggleUnstakeModal();
+
+      if (opHash) confirmOperation(tezos, opHash).then(() => void updateRequests());
+    },
+    [toggleUnstakeModal, updateRequests, tezos]
+  );
+
+  const finalizeUnstake = useCallback(() => {
+    if (!readyRequests) return;
+
+    const amount = readyRequests.reduce((acc, curr) => acc.plus(curr.amount), ZERO).toNumber();
+
+    tezos.wallet
+      .finalizeUnstake({ amount, mutez: true })
+      .send()
+      .then(
+        oper => {
+          confirmOperation(tezos, oper.opHash).then(() => void updateRequests());
+        },
+        err => void console.error(err)
+      );
+  }, [readyRequests, tezos, updateRequests]);
+
   return (
     <>
-      {requestingUnstake && <RequestUnstakeModal close={toggleUnstakeModal} />}
+      {requestingUnstake && <RequestUnstakeModal onDone={onRequestUnstakeDone} />}
 
       <div className="mx-auto max-w-sm flex flex-col gap-y-8">
         <div className="flex flex-col gap-y-4">
@@ -81,10 +110,10 @@ export const MyStakeTab = memo(() => {
               <AlertCircleIcon ref={cooldownTippyRef} className="ml-1 w-3 h-3 stroke-current" />
             </div>
 
-            {requests?.length || readyRequests?.length ? (
+            {pendingRequests?.length || readyRequests?.length ? (
               <>
                 <div className="flex flex-col gap-y-3">
-                  {requests?.map((request, i) => (
+                  {pendingRequests?.map((request, i) => (
                     <UnfinalizableRequestItem
                       key={i}
                       amount={request.amount}
@@ -104,27 +133,12 @@ export const MyStakeTab = memo(() => {
                   small
                   unsetHeight
                   className="h-10"
-                  onClick={() => {
-                    if (!readyRequests) return;
-
-                    const amount = readyRequests.reduce((acc, curr) => acc.plus(curr.amount), ZERO).toNumber();
-
-                    tezos.wallet
-                      .finalizeUnstake({ amount, mutez: true })
-                      .send()
-                      .then(
-                        oper => {
-                          console.log('Operation:', oper);
-                          confirmOperation(tezos, oper.opHash).then(() => void requestsSwr.mutate());
-                        },
-                        err => void console.error(err)
-                      );
-                  }}
+                  onClick={finalizeUnstake}
                 >
                   Unstake
                 </FormSubmitButton>
               </>
-            ) : requestsSwr.isLoading ? (
+            ) : requestsAreLoading ? (
               <Spinner className="w-10 self-center" />
             ) : (
               <div className="text-center">Your unstake requests will be shown here</div>
