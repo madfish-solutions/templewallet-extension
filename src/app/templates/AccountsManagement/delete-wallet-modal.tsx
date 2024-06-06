@@ -13,6 +13,8 @@ import { useTempleClient } from 'lib/temple/front';
 import { DisplayedGroup, TempleAccountType } from 'lib/temple/types';
 import { useHDGroups } from 'temple/front';
 
+import { AccountsManagementSelectors } from './selectors';
+
 interface DeleteWalletModalProps {
   onClose: EmptyFn;
   selectedGroup: DisplayedGroup;
@@ -67,7 +69,7 @@ export const DeleteWalletModal = memo<DeleteWalletModalProps>(({ onClose, select
             />
           </ActionModalBodyContainer>
           <ActionModalButtonsContainer>
-            <ActionModalButton className="bg-primary-low text-primary" onClick={onClose} type="button">
+            <ActionModalButton color="primary-low" onClick={onClose} type="button">
               <T id="cancel" />
             </ActionModalButton>
           </ActionModalButtonsContainer>
@@ -79,7 +81,7 @@ export const DeleteWalletModal = memo<DeleteWalletModalProps>(({ onClose, select
               <Alert
                 type="warning"
                 description={
-                  <p className="text-font-description text-gray-900">
+                  <p className="text-font-description">
                     <T id={removeWarningsI18nKey} />
                   </p>
                 }
@@ -89,26 +91,34 @@ export const DeleteWalletModal = memo<DeleteWalletModalProps>(({ onClose, select
 
             <FormField
               ref={register({ required: t('required') })}
-              label={t('deleteWalletPasswordLabel')}
+              label={<T id="deleteWalletPasswordLabel" />}
+              labelContainerClassName="text-grey-2"
               id="removewallet-secret-password"
               type="password"
               name="password"
-              placeholder="********"
+              placeholder={t('password')}
               errorCaption={errors.password?.message}
               containerClassName="mb-1"
+              testID={AccountsManagementSelectors.deleteWalletPasswordInput}
             />
           </ActionModalBodyContainer>
           <ActionModalButtonsContainer>
             <ActionModalButton
-              className="bg-primary-low text-primary"
+              color="primary-low"
               disabled={submitting}
               onClick={onClose}
               type="button"
+              testID={AccountsManagementSelectors.cancelButton}
             >
               <T id="cancel" />
             </ActionModalButton>
 
-            <ActionModalButton className="bg-error text-white" disabled={submitting} type="submit">
+            <ActionModalButton
+              color="red"
+              disabled={submitting}
+              type="submit"
+              testID={AccountsManagementSelectors.confirmDeleteButton}
+            >
               <T id="delete" />
             </ActionModalButton>
           </ActionModalButtonsContainer>

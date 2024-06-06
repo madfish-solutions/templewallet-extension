@@ -12,7 +12,7 @@ export { default as Money } from './Money';
 
 export { default as Name } from './Name';
 
-export { default as Identicon } from './Identicon';
+export { Identicon } from './Identicon';
 
 export { IconBase } from './IconBase';
 

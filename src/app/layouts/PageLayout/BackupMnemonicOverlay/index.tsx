@@ -35,7 +35,12 @@ export const BackupMnemonicOverlay = memo(() => {
   }, [setShouldBackupMnemonic]);
 
   return backupSelected ? (
-    <ManualBackupModal mnemonic={mnemonicToBackup} onSuccess={handleSeedPhraseVerified} onCancel={goToBackupOptions} />
+    <ManualBackupModal
+      isNewMnemonic
+      mnemonic={mnemonicToBackup}
+      onSuccess={handleSeedPhraseVerified}
+      onCancel={goToBackupOptions}
+    />
   ) : (
     <BackupOptionsModal onSelect={handleBackupOptionSelect} />
   );

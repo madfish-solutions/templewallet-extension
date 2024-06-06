@@ -5,7 +5,7 @@ import classNames from 'clsx';
 import { Collapse } from 'react-collapse';
 
 import { Money, HashChip } from 'app/atoms';
-import Identicon from 'app/atoms/Identicon';
+import { AccountAvatar } from 'app/atoms/AccountAvatar';
 import { ReactComponent as OkIcon } from 'app/icons/base/ok.svg';
 import { ReactComponent as BoxCrossedIcon } from 'app/icons/box-crossed.svg';
 import { ReactComponent as BoxIcon } from 'app/icons/box.svg';
@@ -337,7 +337,7 @@ const BakingHistoryItem: FC<BakingHistoryItemProps> = ({
           {bakerDetails ? (
             <img className="w-6 h-auto" src={bakerDetails.logo} alt={bakerDetails.name} />
           ) : (
-            <Identicon type="bottts" hash={baker.address} size={24} className="rounded-full" />
+            <AccountAvatar seed={baker.address} size={24} className="rounded-full" />
           )}
         </div>
         <div className="flex-1 relative">

@@ -13,7 +13,6 @@ import Delegate from 'app/pages/Delegate';
 import Home from 'app/pages/Home/Home';
 import ImportAccount from 'app/pages/ImportAccount';
 import ManageAssets from 'app/pages/ManageAssets';
-import { CreateAnotherWallet } from 'app/pages/NewWallet/CreateAnotherWallet';
 import { ImportWallet } from 'app/pages/NewWallet/ImportWallet';
 import AttentionPage from 'app/pages/Onboarding/pages/AttentionPage';
 import Receive from 'app/pages/Receive/Receive';
@@ -76,7 +75,6 @@ const ROUTE_MAP = Woozie.createMap<RouteContext>([
     '/explore/:tezosChainId?/:assetSlug?',
     onlyReady(({ tezosChainId, assetSlug }) => <Home tezosChainId={tezosChainId} assetSlug={assetSlug} />)
   ],
-  ['/create-another-wallet', onlyReady(() => <CreateAnotherWallet />)],
   ['/import-account/:tabSlug?', onlyReady(({ tabSlug }) => <ImportAccount tabSlug={tabSlug} />)],
   ['/connect-ledger', onlyReady(onlyInFullPage(() => <ConnectLedger />))],
   ['/receive', onlyReady(() => <Receive />)],

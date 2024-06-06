@@ -11,15 +11,17 @@ import { ManualBackupModalSelectors } from './selectors';
 
 interface MnemonicViewProps {
   mnemonic: string;
+  isNewMnemonic: boolean;
+  onCancel?: EmptyFn;
   onConfirm: EmptyFn;
 }
 
-export const MnemonicView = memo<MnemonicViewProps>(({ mnemonic, onConfirm }) => {
+export const MnemonicView = memo<MnemonicViewProps>(({ mnemonic, isNewMnemonic, onCancel, onConfirm }) => {
   const [bottomEdgeIsVisible, setBottomEdgeIsVisible] = useState(true);
 
   const manualBackupSubstitutions = useMemo(
     () =>
-      ['neverShareSeedPhrase' as const, 'enterSeedPhrase' as const].map(i18nKey => (
+      ['neverShare' as const, 'enterSeedPhrase' as const].map(i18nKey => (
         <span className="font-semibold" key={i18nKey}>
           <T id={i18nKey} />
         </span>
@@ -40,15 +42,27 @@ export const MnemonicView = memo<MnemonicViewProps>(({ mnemonic, onConfirm }) =>
       </ScrollView>
 
       <ActionsButtonsBox shouldCastShadow={!bottomEdgeIsVisible}>
-        <StyledButton
-          className="w-full"
-          size="L"
-          color="primary"
-          onClick={onConfirm}
-          testID={ManualBackupModalSelectors.notedDownButton}
-        >
-          <T id="notedSeedPhraseDown" />
-        </StyledButton>
+        {isNewMnemonic ? (
+          <StyledButton
+            className="w-full"
+            size="L"
+            color="primary"
+            onClick={onConfirm}
+            testID={ManualBackupModalSelectors.notedDownButton}
+          >
+            <T id="notedSeedPhraseDown" />
+          </StyledButton>
+        ) : (
+          <StyledButton
+            className="w-full"
+            size="L"
+            color="primary-low"
+            onClick={onCancel}
+            testID={ManualBackupModalSelectors.cancelButton}
+          >
+            <T id="cancel" />
+          </StyledButton>
+        )}
       </ActionsButtonsBox>
     </>
   );

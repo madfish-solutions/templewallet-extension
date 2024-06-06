@@ -1,27 +1,34 @@
 import React, { memo, useCallback, useMemo, useState } from 'react';
 
-import clsx from 'clsx';
-
-import { Button, Checkbox, Identicon } from 'app/atoms';
-import CopyButton from 'app/atoms/CopyButton';
+import { Button, IconBase, ToggleSwitch } from 'app/atoms';
+import { AccLabel } from 'app/atoms/AccLabel';
+import { AccountAvatar } from 'app/atoms/AccountAvatar';
+import { AccountName } from 'app/atoms/AccountName';
+import { CopyButton } from 'app/atoms/CopyButton';
+import { EvmNetworksLogos, TezosNetworkLogo } from 'app/atoms/NetworksLogos';
+import { ActionsButtonsBox } from 'app/atoms/PageModal/actions-buttons-box';
+import { SettingsCell } from 'app/atoms/SettingsCell';
+import { StyledButton } from 'app/atoms/StyledButton';
 import { TotalEquity } from 'app/atoms/TotalEquity';
 import { useAllAccountsReactiveOnRemoval } from 'app/hooks/use-all-accounts-reactive';
-import { ReactComponent as ChevronRightIcon } from 'app/icons/chevron-right.svg';
-import { ReactComponent as CopyIcon } from 'app/icons/monochrome/copy.svg';
+import { ReactComponent as ChevronRightIcon } from 'app/icons/base/chevron_right.svg';
+import { ReactComponent as CopyIcon } from 'app/icons/base/copy.svg';
 import PageLayout from 'app/layouts/PageLayout';
-import { T, TID, t } from 'lib/i18n';
+import { T, t } from 'lib/i18n';
 import { useTempleClient } from 'lib/temple/front';
 import { getDerivationPath } from 'lib/temple/helpers';
 import { TempleAccountType } from 'lib/temple/types';
 import { useAlert } from 'lib/ui';
 import { getAccountAddressForEvm, getAccountAddressForTezos } from 'temple/accounts';
 import { useAllAccounts, useCurrentAccountId } from 'temple/front';
-import { TempleChainKind, TempleChainTitle } from 'temple/types';
+import { TempleChainKind } from 'temple/types';
 
-import { AccountAddressesModal } from './account-addresses-modal';
+import { ConfirmRevealPrivateKeyAccessModal } from './confirm-reveal-private-key-access-modal';
 import { EditAccountNameModal } from './edit-account-name-modal';
 import { RemoveAccountModal } from './remove-account-modal';
 import { RevealPrivateKeyModal } from './reveal-private-key-modal';
+import { AccountSettingsSelectors } from './selectors';
+import { PrivateKeyPayload } from './types';
 
 interface AccountSettingsProps {
   id: string;
@@ -29,21 +36,10 @@ interface AccountSettingsProps {
 
 enum AccountSettingsModal {
   EditName,
+  ConfirmRevealPrivateKeyAccess,
   RevealPrivateKey,
-  RemoveAccount,
-  AccountAddresses
+  RemoveAccount
 }
-
-const typesLabelsI18nKeys: Record<TempleAccountType, TID> = {
-  [TempleAccountType.HD]: 'hdAccount',
-  [TempleAccountType.Imported]: 'importedAccount',
-  [TempleAccountType.Ledger]: 'ledger',
-  [TempleAccountType.ManagedKT]: 'managedKTAccount',
-  [TempleAccountType.WatchOnly]: 'watchOnlyAccount'
-};
-
-const menuEntryClassName = 'w-full h-12 flex justify-between items-center px-3 rounded-lg border border-gray-300';
-const menuEntryTextClassName = 'text-font-medium-bold text-gray-900 leading-5';
 
 export const AccountSettings = memo<AccountSettingsProps>(({ id }) => {
   const alert = useAlert();
@@ -51,22 +47,16 @@ export const AccountSettings = memo<AccountSettingsProps>(({ id }) => {
   const { setAccountHidden } = useTempleClient();
   useAllAccountsReactiveOnRemoval();
   const allAccounts = useAllAccounts();
+  const [bottomEdgeIsVisible, setBottomEdgeIsVisible] = useState(true);
 
   const [visibilityBeingChanged, setVisibilityBeingChanged] = useState(false);
   const [currentModal, setCurrentModal] = useState<AccountSettingsModal | null>(null);
+  const [privateKeysPayload, setPrivateKeysPayload] = useState<PrivateKeyPayload[]>([]);
   const shouldDisableVisibilityChange = visibilityBeingChanged || currentAccountId === id;
 
   const account = useMemo(() => allAccounts.find(({ id: accountId }) => accountId === id), [allAccounts, id]);
   const tezosAddress = account && getAccountAddressForTezos(account);
   const evmAddress = account && getAccountAddressForEvm(account);
-
-  const handleCopyClick = useCallback(() => {
-    if (account?.type !== TempleAccountType.HD) {
-      return;
-    }
-
-    setCurrentModal(AccountSettingsModal.AccountAddresses);
-  }, [account?.type]);
 
   const handleVisibilityChange = useCallback(
     async (newValue: boolean) => {
@@ -98,26 +88,40 @@ export const AccountSettings = memo<AccountSettingsProps>(({ id }) => {
     }
   }, [account]);
 
-  const handleModalClose = useCallback(() => setCurrentModal(null), []);
+  const goToRevealPrivateKey = useCallback((privateKeys: PrivateKeyPayload[]) => {
+    setPrivateKeysPayload(privateKeys);
+    setCurrentModal(AccountSettingsModal.RevealPrivateKey);
+  }, []);
+
+  const handleModalClose = useCallback(() => {
+    setCurrentModal(null);
+    setPrivateKeysPayload([]);
+  }, []);
   const modal = useMemo(() => {
     switch (currentModal) {
       case AccountSettingsModal.EditName:
         return <EditAccountNameModal account={account!} onClose={handleModalClose} />;
-      case AccountSettingsModal.RevealPrivateKey:
-        return <RevealPrivateKeyModal account={account!} onClose={handleModalClose} />;
+      case AccountSettingsModal.ConfirmRevealPrivateKeyAccess:
+        return (
+          <ConfirmRevealPrivateKeyAccessModal
+            account={account!}
+            onClose={handleModalClose}
+            onReveal={goToRevealPrivateKey}
+          />
+        );
       case AccountSettingsModal.RemoveAccount:
         return <RemoveAccountModal account={account!} onClose={handleModalClose} />;
-      case AccountSettingsModal.AccountAddresses:
-        return <AccountAddressesModal account={account!} onClose={handleModalClose} />;
+      case AccountSettingsModal.RevealPrivateKey:
+        return <RevealPrivateKeyModal privateKeys={privateKeysPayload} onClose={handleModalClose} />;
       default:
         return null;
     }
-  }, [account, currentModal, handleModalClose]);
+  }, [account, currentModal, goToRevealPrivateKey, handleModalClose, privateKeysPayload]);
 
   const openModalFactory = useCallback((modal: AccountSettingsModal) => () => setCurrentModal(modal), []);
   const openEditNameModal = useMemo(() => openModalFactory(AccountSettingsModal.EditName), [openModalFactory]);
   const openRevealPrivateKeyModal = useMemo(
-    () => openModalFactory(AccountSettingsModal.RevealPrivateKey),
+    () => openModalFactory(AccountSettingsModal.ConfirmRevealPrivateKeyAccess),
     [openModalFactory]
   );
   const openRemoveAccountModal = useMemo(
@@ -130,90 +134,105 @@ export const AccountSettings = memo<AccountSettingsProps>(({ id }) => {
   }
 
   return (
-    <PageLayout pageTitle="Edit Account">
-      <div className="w-full flex justify-center">
-        <div className="w-full max-w-sm flex flex-col">
-          <div className="w-full flex flex-row p-4 gap-1 items-end">
-            <div className="w-15 h-15 flex justify-center items-center rounded-xl border-1.5 border-gray-500">
-              <Identicon type="bottts" hash={id} size={56} className="rounded-lg" />
-            </div>
-            <div className="flex-1 flex flex-col gap-0.5">
+    <PageLayout
+      pageTitle={t('editAccount')}
+      contentPadding={false}
+      paperClassName="!bg-background"
+      onBottomEdgeVisibilityChange={setBottomEdgeIsVisible}
+      bottomEdgeThreshold={16}
+    >
+      <div className="w-full h-full flex flex-col px-4">
+        <div className="flex gap-1 items-end justify-between py-4">
+          <div className="flex gap-1">
+            <AccountAvatar seed={id} size={60} />
+
+            <div className="flex flex-col">
               {account.type === TempleAccountType.HD ? (
-                <Button className="pl-1.5 pr-1 py-1 flex items-center" onClick={handleCopyClick}>
-                  <span className="text-font-medium-bold leading-5 text-gray-900 mr-1">{account.name}</span>
-                  <CopyIcon className="w-4 h-auto stroke-current text-blue-500" />
-                </Button>
+                <AccountName account={account} testID={AccountSettingsSelectors.accountName} />
               ) : (
-                <CopyButton text={tezosAddress ?? evmAddress ?? ''} className="pl-1.5 pr-1 py-1 flex items-center">
-                  <span className="text-font-medium-bold leading-5 text-gray-900 mr-1">{account.name}</span>
-                  <CopyIcon className="w-4 h-auto stroke-current text-blue-500" />
+                <CopyButton
+                  text={tezosAddress ?? evmAddress ?? ''}
+                  className="pl-1.5 pr-1 py-1 flex items-center gap-1 mb-0.5 rounded-md hover:bg-secondary-low"
+                  testID={AccountSettingsSelectors.accountName}
+                >
+                  <span className="text-font-medium-bold">{account.name}</span>
+
+                  <IconBase size={12} Icon={CopyIcon} className="text-secondary" />
                 </CopyButton>
               )}
-              <span className="ml-1.5 text-gray-600 text-font-small">
+
+              <span className="ml-1.5 text-grey-1 text-font-small">
                 <T id="totalBalance" />:
               </span>
-              <span className="ml-1.5 text-font-description">
+              <span className="ml-1.5 text-font-num-14">
                 <TotalEquity account={account} currency="fiat" />
               </span>
             </div>
-            <span className="text-gray-600 text-font-small font-medium">{t(typesLabelsI18nKeys[account.type])}</span>
           </div>
 
-          <div className="w-full flex flex-col pt-1 pb-5 px-4 gap-3">
-            <div className={menuEntryClassName}>
-              <span className={menuEntryTextClassName}>Display</span>
-
-              <label className={shouldDisableVisibilityChange ? 'opacity-75 pointer-events-none' : 'cursor-pointer'}>
-                <Checkbox
-                  checked={!account.hidden}
-                  disabled={shouldDisableVisibilityChange}
-                  onChange={handleVisibilityChange}
-                />
-              </label>
-            </div>
-
-            <Button className={menuEntryClassName} onClick={openEditNameModal}>
-              <span className={menuEntryTextClassName}>Edit name</span>
-
-              <ChevronRightIcon className="w-4 h-auto mx-1 text-orange-20 stroke-current" />
-            </Button>
-
-            {(account.type === TempleAccountType.HD || account.type === TempleAccountType.Imported) && (
-              <Button className={menuEntryClassName} onClick={openRevealPrivateKeyModal}>
-                <span className={menuEntryTextClassName}>
-                  <T id="revealPrivateKey" />
-                </span>
-
-                <ChevronRightIcon className="w-4 h-auto mx-1 text-orange-20 stroke-current" />
-              </Button>
-            )}
-          </div>
-
-          {derivationPaths.length > 0 && (
-            <div className="w-full flex flex-col px-4 gap-3">
-              <p className="text-font-description-bold text-gray-500">
-                <T id="derivationPath" />
-              </p>
-              {derivationPaths.map(({ chainName, path }) => (
-                <CopyButton className={clsx(menuEntryClassName, 'bg-white')} text={path} key={chainName}>
-                  <span className={menuEntryTextClassName}>{path}</span>
-
-                  <span className={menuEntryTextClassName}>{TempleChainTitle[chainName]}</span>
-                </CopyButton>
-              ))}
-            </div>
-          )}
-
-          <div className="w-full p-4">
-            <Button
-              className="w-full text-red-500 bg-red-200 rounded-lg p-2 text-font-regular-bold"
-              onClick={openRemoveAccountModal}
-            >
-              <T id="removeAccount" />
-            </Button>
-          </div>
+          <AccLabel type={account.type} />
         </div>
+
+        <div className="flex flex-col pt-0.5 pb-5 gap-3">
+          <SettingsCell cellName={<T id="displayAccount" />} Component="div">
+            <ToggleSwitch
+              checked={!account.hidden}
+              onChange={handleVisibilityChange}
+              disabled={shouldDisableVisibilityChange}
+              testID={AccountSettingsSelectors.visibilityToggle}
+            />
+          </SettingsCell>
+
+          <SettingsCell
+            cellName={<T id="editName" />}
+            Component={Button}
+            onClick={openEditNameModal}
+            testID={AccountSettingsSelectors.editName}
+          >
+            <IconBase size={16} Icon={ChevronRightIcon} className="text-primary" />
+          </SettingsCell>
+
+          <SettingsCell
+            cellName={<T id="revealPrivateKey" />}
+            Component={Button}
+            onClick={openRevealPrivateKeyModal}
+            testID={AccountSettingsSelectors.revealPrivateKey}
+          >
+            <IconBase size={16} Icon={ChevronRightIcon} className="text-primary" />
+          </SettingsCell>
+        </div>
+
+        {derivationPaths.length > 0 && (
+          <div className="flex flex-col gap-3 mb-4">
+            <p className="text-font-description-bold text-grey-2">
+              <T id="derivationPath" />
+            </p>
+            {derivationPaths.map(({ chainName, path }) => (
+              <SettingsCell
+                key={chainName}
+                cellName={path}
+                Component={CopyButton}
+                text={path}
+                testID={AccountSettingsSelectors.derivationPathButton}
+                testIDProperties={{ chainName }}
+              >
+                {chainName === 'tezos' ? <TezosNetworkLogo /> : <EvmNetworksLogos />}
+              </SettingsCell>
+            ))}
+          </div>
+        )}
       </div>
+      <ActionsButtonsBox className="sticky left-0 bottom-0" shouldCastShadow={!bottomEdgeIsVisible}>
+        <StyledButton
+          className="flex-1"
+          size="L"
+          color="red-low"
+          onClick={openRemoveAccountModal}
+          testID={AccountSettingsSelectors.removeAccount}
+        >
+          <T id="removeAccount" />
+        </StyledButton>
+      </ActionsButtonsBox>
       {modal}
     </PageLayout>
   );

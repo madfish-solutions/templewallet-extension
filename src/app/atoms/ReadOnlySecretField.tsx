@@ -7,7 +7,7 @@ import { setTestID, TestIDProperty } from 'lib/analytics';
 import { TID, T } from 'lib/i18n';
 import { selectNodeContent } from 'lib/ui/content-selection';
 
-import CopyButton from './CopyButton';
+import { CopyButton } from './CopyButton';
 import { FieldLabel } from './FieldLabel';
 import { FORM_FIELD_CLASS_NAME } from './FormField';
 import { IconBase } from './IconBase';
@@ -64,10 +64,7 @@ export const ReadOnlySecretField: FC<ReadOnlySecretFieldProps> = ({
         <CopyButton
           text={covered ? '' : value}
           isSecret
-          className={clsx(
-            'text-secondary absolute right-3 bottom-3 flex text-font-description-bold items-center',
-            'bg-transparent hover:bg-transparent'
-          )}
+          className="text-secondary absolute right-3 bottom-3 flex text-font-description-bold items-center"
           onFocus={() => void setCopyButtonFocused(true)}
           onBlur={() => void setCopyButtonFocused(false)}
         >

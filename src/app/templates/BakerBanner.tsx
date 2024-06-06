@@ -148,7 +148,7 @@ const BakerBanner = memo<Props>(
         ) : (
           <div className={classNames('flex items-stretch', 'text-gray-700')}>
             <div>
-              <Identicon type="bottts" hash={bakerPkh} size={40} className="shadow-xs" />
+              <Identicon type="botttsneutral" hash={bakerPkh} size={40} className="shadow-xs" />
             </div>
 
             <div className="flex flex-col items-start flex-1 ml-2">

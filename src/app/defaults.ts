@@ -43,6 +43,9 @@ export function formatMnemonic(m: string) {
 
 export function getAccountBadgeTitle(accountType: TempleAccountType) {
   switch (accountType) {
+    case TempleAccountType.HD:
+      return t('hdAccount');
+
     case TempleAccountType.Imported:
       return t('importedAccount');
 

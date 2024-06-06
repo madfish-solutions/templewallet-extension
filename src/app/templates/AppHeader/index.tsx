@@ -3,9 +3,9 @@ import React, { memo } from 'react';
 import clsx from 'clsx';
 
 import { IconBase } from 'app/atoms';
+import { AccountAvatar } from 'app/atoms/AccountAvatar';
 import { AccountName } from 'app/atoms/AccountName';
 import { Button } from 'app/atoms/Button';
-import Identicon from 'app/atoms/Identicon';
 import { ReactComponent as BurgerIcon } from 'app/icons/base/menu.svg';
 import { useBooleanState } from 'lib/ui/hooks';
 import Popper from 'lib/ui/Popper';
@@ -21,13 +21,13 @@ export const AppHeader = memo(() => {
 
   return (
     <div className="relative z-header flex items-center py-3 px-4 gap-x-1 rounded-t-inherit">
-      <Button
-        className="flex p-px rounded-md border border-secondary hover:bg-secondary-low"
+      <AccountAvatar
+        seed={account.id}
+        size={32}
         onClick={setAccountsModalOpen}
         testID={AppHeaderSelectors.accountIcon}
-      >
-        <Identicon type="bottts" hash={account.id} size={28} className="rounded-sm" />
-      </Button>
+        elementType="button"
+      />
 
       <AccountsModal opened={accountsModalOpened} onRequestClose={setAccountsModalClosed} />
 

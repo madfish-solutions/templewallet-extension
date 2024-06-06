@@ -8,18 +8,21 @@ import { VerifyMnemonicForm } from './verify-mnemonic-form';
 
 interface ManualBackupModalProps {
   mnemonic: string;
+  isNewMnemonic: boolean;
   onSuccess: EmptyFn;
   onCancel: EmptyFn;
 }
 
-export const ManualBackupModal = memo<ManualBackupModalProps>(({ mnemonic, onSuccess, onCancel }) => {
+export const ManualBackupModal = memo<ManualBackupModalProps>(({ mnemonic, onSuccess, onCancel, isNewMnemonic }) => {
   const [shouldVerifySeedPhrase, setShouldVerifySeedPhrase] = useState(false);
   const goToManualBackup = useCallback(() => setShouldVerifySeedPhrase(false), []);
   const goToVerifySeedPhrase = useCallback(() => setShouldVerifySeedPhrase(true), []);
 
   return (
     <PageModal
-      title={t(shouldVerifySeedPhrase ? 'verifySeedPhrase' : 'backupYourSeedPhrase')}
+      title={t(
+        shouldVerifySeedPhrase ? 'verifySeedPhrase' : isNewMnemonic ? 'backupYourSeedPhrase' : 'revealSeedPhrase'
+      )}
       opened
       shouldShowBackButton
       onGoBack={shouldVerifySeedPhrase ? goToManualBackup : onCancel}
@@ -28,7 +31,12 @@ export const ManualBackupModal = memo<ManualBackupModalProps>(({ mnemonic, onSuc
       {shouldVerifySeedPhrase ? (
         <VerifyMnemonicForm mnemonic={mnemonic} onSuccess={onSuccess} onCancel={onCancel} />
       ) : (
-        <MnemonicView mnemonic={mnemonic} onConfirm={goToVerifySeedPhrase} />
+        <MnemonicView
+          mnemonic={mnemonic}
+          isNewMnemonic={isNewMnemonic}
+          onCancel={onCancel}
+          onConfirm={goToVerifySeedPhrase}
+        />
       )}
     </PageModal>
   );

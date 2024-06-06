@@ -12,7 +12,7 @@ import React, {
 import clsx from 'clsx';
 
 import CleanButton from 'app/atoms/CleanButton';
-import CopyButton from 'app/atoms/CopyButton';
+import OldStyleCopyButton from 'app/atoms/OldStyleCopyButton';
 import { ReactComponent as CopyIcon } from 'app/icons/monochrome/copy.svg';
 import { setTestID, TestIDProperty } from 'lib/analytics';
 import { useDidUpdate } from 'lib/ui/hooks';
@@ -42,6 +42,7 @@ export interface FormFieldProps extends TestIDProperty, Omit<FormFieldAttrs, 'ty
   errorCaption?: ReactNode;
   shouldShowErrorCaption?: boolean;
   containerClassName?: string;
+  labelContainerClassName?: string;
   containerStyle?: React.CSSProperties;
   textarea?: boolean;
   /** `textarea=true` only */
@@ -86,6 +87,7 @@ export const FormField = forwardRef<FormFieldElement, FormFieldProps>(
       errorCaption,
       shouldShowErrorCaption = true,
       containerClassName,
+      labelContainerClassName,
       textarea,
       secret: secretProp,
       revealForbidden = false,
@@ -191,6 +193,7 @@ export const FormField = forwardRef<FormFieldElement, FormFieldProps>(
         {label && (
           <FieldLabel
             label={label}
+            labelContainerClassName={labelContainerClassName}
             warning={labelWarning}
             description={labelDescription}
             className="mt-1 pb-2"
@@ -289,13 +292,13 @@ interface CopyableProps {
 }
 
 const Copyable: React.FC<CopyableProps> = ({ copy, value }) => (
-  <CopyButton text={value} type="link">
+  <OldStyleCopyButton text={value} type="link">
     <CopyIcon
       style={{ verticalAlign: 'inherit' }}
       className="h-4 ml-1 w-auto inline stroke-orange-500 stroke-2"
       onClick={copy}
     />
-  </CopyButton>
+  </OldStyleCopyButton>
 );
 
 interface ErrorCaptionProps {

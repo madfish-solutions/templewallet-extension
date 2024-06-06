@@ -2,8 +2,8 @@ import React, { HTMLAttributes, memo, ReactNode, useMemo } from 'react';
 
 import classNames from 'clsx';
 
+import { AccountAvatar } from 'app/atoms/AccountAvatar';
 import AccountTypeBadge from 'app/atoms/AccountTypeBadge';
-import Identicon from 'app/atoms/Identicon';
 import Money from 'app/atoms/Money';
 import Name from 'app/atoms/Name';
 import Balance from 'app/templates/Balance';
@@ -50,7 +50,7 @@ const AccountBanner = memo<Props>(({ tezosNetwork, account, className, label, sm
       )}
 
       <div className="w-full border rounded-md p-2 flex items-center">
-        <Identicon type="bottts" hash={account.id} size={32} className="flex-shrink-0 shadow-xs" />
+        <AccountAvatar seed={account.id} size={32} className="flex-shrink-0" />
 
         <div className="flex flex-col items-start ml-2">
           <div className="flex flex-wrap items-center">

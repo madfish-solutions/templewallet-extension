@@ -61,7 +61,7 @@ export const RemoveAccountModal = memo<RemoveAccountModalProps>(({ account, onCl
             />
           </ActionModalBodyContainer>
           <ActionModalButtonsContainer>
-            <ActionModalButton className="bg-primary-low text-primary" onClick={onClose} type="button">
+            <ActionModalButton color="primary-low" onClick={onClose} type="button">
               <T id="cancel" />
             </ActionModalButton>
           </ActionModalButtonsContainer>
@@ -83,16 +83,11 @@ export const RemoveAccountModal = memo<RemoveAccountModalProps>(({ account, onCl
             </span>
           </ActionModalBodyContainer>
           <ActionModalButtonsContainer>
-            <ActionModalButton
-              className="bg-primary-low text-primary"
-              disabled={submitting}
-              onClick={onClose}
-              type="button"
-            >
+            <ActionModalButton color="primary-low" disabled={submitting} onClick={onClose} type="button">
               <T id="cancel" />
             </ActionModalButton>
 
-            <ActionModalButton className="bg-error text-white" disabled={submitting} type="submit">
+            <ActionModalButton color="red" disabled={submitting} type="submit">
               <T id="remove" />
             </ActionModalButton>
           </ActionModalButtonsContainer>

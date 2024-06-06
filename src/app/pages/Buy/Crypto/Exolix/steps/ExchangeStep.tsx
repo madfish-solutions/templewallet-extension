@@ -3,8 +3,8 @@ import React, { FC, useEffect, useState } from 'react';
 import classNames from 'clsx';
 
 import { FormSubmitButton, Lines } from 'app/atoms';
-import CopyButton from 'app/atoms/CopyButton';
 import HashShortView from 'app/atoms/HashShortView';
+import OldStyleCopyButton from 'app/atoms/OldStyleCopyButton';
 import { ReactComponent as CopyIcon } from 'app/icons/monochrome/copy.svg';
 import useTopUpUpdate from 'app/pages/Buy/Crypto/Exolix/hooks/useTopUpUpdate.hook';
 import ErrorComponent from 'app/pages/Buy/Crypto/Exolix/steps/ErrorComponent';
@@ -108,7 +108,7 @@ const ExchangeStep: FC<Props> = ({ exchangeData, setExchangeData, setStep, step,
                 </p>
                 <span>
                   <p className="text-xs inline align-text-bottom text-gray-910">{exchangeData.id}</p>
-                  <CopyButton
+                  <OldStyleCopyButton
                     text={exchangeData.id}
                     type="link"
                     testID={
@@ -120,7 +120,7 @@ const ExchangeStep: FC<Props> = ({ exchangeData, setExchangeData, setStep, step,
                       className={classNames('h-4 ml-1 w-auto inline', 'stroke-orange-500 stroke-2')}
                       onClick={() => copy()}
                     />
-                  </CopyButton>
+                  </OldStyleCopyButton>
                 </span>
               </div>
               <div className="flex justify-between items-baseline mt-4">
@@ -177,13 +177,13 @@ const ExchangeStep: FC<Props> = ({ exchangeData, setExchangeData, setStep, step,
             </p>
             <span>
               <p className="text-xs inline align-text-bottom text-gray-910">{exchangeData.id}</p>
-              <CopyButton text={exchangeData.id} type="link">
+              <OldStyleCopyButton text={exchangeData.id} type="link">
                 <CopyIcon
                   style={{ verticalAlign: 'inherit' }}
                   className={classNames('h-4 ml-1 w-auto inline', 'stroke-orange-500 stroke-2')}
                   onClick={() => copy()}
                 />
-              </CopyButton>
+              </OldStyleCopyButton>
             </span>
           </div>
           <div className="flex justify-between items-baseline mt-4">

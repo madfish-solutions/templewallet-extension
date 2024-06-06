@@ -322,7 +322,7 @@ const ExpenseViewItem: FC<ExpenseViewItemProps> = ({ tezosChainId, item, last })
 
   const { iconHash, iconType, argumentDisplayProps } = useMemo<{
     iconHash: string;
-    iconType: 'bottts' | 'jdenticon';
+    iconType: 'botttsneutral' | 'jdenticon';
     argumentDisplayProps?: OperationArgumentDisplayProps;
   }>(() => {
     const receivers = [
@@ -338,7 +338,7 @@ const ExpenseViewItem: FC<ExpenseViewItemProps> = ({ tezosChainId, item, last })
       case 'transfer':
         return {
           iconHash: item.expenses[0]?.to || 'unknown',
-          iconType: 'bottts',
+          iconType: 'botttsneutral',
           argumentDisplayProps: {
             i18nKey: 'transferToSmb',
             arg: receivers
@@ -359,7 +359,7 @@ const ExpenseViewItem: FC<ExpenseViewItemProps> = ({ tezosChainId, item, last })
         if (item.delegate) {
           return {
             iconHash: item.delegate,
-            iconType: 'bottts',
+            iconType: 'botttsneutral',
             argumentDisplayProps: {
               i18nKey: 'delegationToSmb',
               arg: [item.delegate]

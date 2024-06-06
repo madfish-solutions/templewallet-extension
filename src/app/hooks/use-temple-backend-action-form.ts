@@ -9,7 +9,7 @@ export const useTempleBackendActionForm = <T extends object>(
   submitErrorField: FieldName<T>,
   options?: UseFormOptions<T>
 ) => {
-  const { register, handleSubmit, errors, setError, clearError, formState } = useForm<T>(options);
+  const { register, handleSubmit, errors, setError, clearError, formState, ...rest } = useForm<T>(options);
   const submitting = formState.isSubmitting;
 
   const onSubmit = useCallback<OnSubmit<T>>(
@@ -35,6 +35,7 @@ export const useTempleBackendActionForm = <T extends object>(
     setError,
     clearError,
     formState,
-    onSubmit
+    onSubmit,
+    ...rest
   };
 };

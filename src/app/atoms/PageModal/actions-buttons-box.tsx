@@ -49,7 +49,7 @@ export const ActionsButtonsBox = memo<ActionsButtonsBoxProps>(
         className={clsx(
           'p-4 pb-6 flex bg-white',
           `flex-${flexDirection}`,
-          shouldCastShadow && 'shadow-bottom overflow-y-visible',
+          shouldCastShadow && 'shadow-bottom border-t-0.5 border-lines overflow-y-visible',
           className
         )}
         ref={rootRef}

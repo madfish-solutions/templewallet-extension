@@ -2,7 +2,7 @@ import React, { CSSProperties, memo, useCallback, useMemo, useState } from 'reac
 
 import classNames from 'clsx';
 
-import Identicon from 'app/atoms/Identicon';
+import { Identicon } from 'app/atoms';
 
 type DAppLogoProps = {
   origin: string;

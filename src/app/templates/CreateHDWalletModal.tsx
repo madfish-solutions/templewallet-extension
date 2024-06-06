@@ -28,5 +28,5 @@ export const CreateHDWalletModal = memo<CreateHDWalletModalProps>(({ onEnd }) =>
     }
   }, [createOrImportWallet, mnemonic, onEnd]);
 
-  return <ManualBackupModal mnemonic={mnemonic} onCancel={onEnd} onSuccess={createWallet} />;
+  return <ManualBackupModal isNewMnemonic mnemonic={mnemonic} onCancel={onEnd} onSuccess={createWallet} />;
 });

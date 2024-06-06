@@ -1,14 +1,15 @@
-import React, { FC, HTMLAttributes, useMemo } from 'react';
+import React, { HTMLAttributes, memo, useMemo } from 'react';
 
-import Avatars from '@dicebear/avatars';
-import botttsSprites from '@dicebear/avatars-bottts-sprites';
-import jdenticonSpirtes from '@dicebear/avatars-jdenticon-sprites';
-import classNames from 'clsx';
+import * as botttsNeutral from '@dicebear/bottts-neutral';
+import { createAvatar } from '@dicebear/core';
+import clsx from 'clsx';
+import * as jdenticon from 'jdenticon';
+import memoizee from 'memoizee';
 
-import initialsSprites from 'lib/avatars-initials-sprites';
+import * as firstLetters from 'lib/first-letters';
 
 type IdenticonProps = HTMLAttributes<HTMLDivElement> & {
-  type?: 'jdenticon' | 'bottts' | 'initials';
+  type?: 'jdenticon' | 'botttsneutral' | 'initials';
   hash: string;
   size?: number;
 };
@@ -16,67 +17,48 @@ type IdenticonProps = HTMLAttributes<HTMLDivElement> & {
 const MAX_INITIALS_LENGTH = 5;
 const DEFAULT_FONT_SIZE = 50;
 
-const cache = new Map<string, string>();
-
-const icons: Record<NonNullable<IdenticonProps['type']>, Avatars<{}>> = {
-  jdenticon: new Avatars(jdenticonSpirtes),
-  bottts: new Avatars(botttsSprites),
-  initials: new Avatars(initialsSprites)
-};
-
-const Identicon: FC<IdenticonProps> = ({ type = 'jdenticon', hash, size = 100, className, style = {}, ...rest }) => {
-  const backgroundImage = useMemo(() => {
-    const key = `${type}_${hash}_${size}`;
-    if (cache.has(key)) {
-      return cache.get(key);
-    } else {
-      const basicOpts = {
-        base64: true,
-        width: size,
-        height: size,
-        margin: 4
-      };
-
-      const opts =
-        type === 'initials'
-          ? {
-              ...basicOpts,
-              chars: MAX_INITIALS_LENGTH,
-              radius: 50,
-              fontSize: estimateOptimalFontSize(hash.slice(0, MAX_INITIALS_LENGTH).length)
-            }
-          : basicOpts;
-      const imgSrc = icons[type].create(hash, opts);
-
-      const bi = `url('${imgSrc}')`;
-      cache.set(key, bi);
-      return bi;
+const getBackgroundImageUrl = memoizee(
+  (hash: string, size: number, type: NonNullable<IdenticonProps['type']>) => {
+    switch (type) {
+      case 'jdenticon':
+        return `data:image/svg;base64,${Buffer.from(jdenticon.toSvg(hash, size)).toString('base64')}`;
+      case 'botttsneutral':
+        return createAvatar(botttsNeutral, { seed: hash, size }).toDataUriSync();
+      default:
+        return createAvatar(firstLetters, {
+          seed: hash,
+          size,
+          fontFamily: ['Menlo', 'Monaco', 'monospace'],
+          fontSize: estimateOptimalFontSize(hash.length),
+          chars: MAX_INITIALS_LENGTH
+        }).toDataUriSync();
     }
-  }, [type, hash, size]);
+  },
+  { max: 1024 }
+);
 
-  return (
-    <div
-      className={classNames(
-        'inline-block',
-        type === 'initials' ? 'bg-transparent' : 'bg-gray-100',
-        'bg-no-repeat bg-center',
-        'overflow-hidden',
-        className
-      )}
-      style={{
-        backgroundImage,
-        width: size,
-        height: size,
-        maxWidth: size,
-        borderRadius: Math.round(size / 10),
-        ...style
-      }}
-      {...rest}
-    />
-  );
-};
+export const Identicon = memo<IdenticonProps>(
+  ({ type = 'jdenticon', hash, size = 100, className, style = {}, ...rest }) => {
+    const backgroundImage = useMemo(() => getBackgroundImageUrl(hash, size, type), [hash, size, type]);
+    console.log('oy vey 1', type, hash, backgroundImage, style);
 
-export default Identicon;
+    return (
+      <div
+        className={clsx(
+          'inline-block',
+          type === 'initials' ? 'bg-transparent' : 'bg-white',
+          'bg-no-repeat bg-center',
+          'overflow-hidden',
+          className
+        )}
+        style={style}
+        {...rest}
+      >
+        <img src={backgroundImage} alt="" style={{ width: size, height: size }} />
+      </div>
+    );
+  }
+);
 
 function estimateOptimalFontSize(length: number) {
   const initialsLength = Math.min(length, MAX_INITIALS_LENGTH);

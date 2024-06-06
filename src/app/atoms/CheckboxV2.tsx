@@ -32,9 +32,10 @@ export const CheckboxV2 = forwardRef<HTMLInputElement, Props>((props, ref) => {
     () =>
       clsx(
         'flex justify-center items-center flex-shrink-0 transition ease-in-out duration-200 disable-outline-for-click',
-        localFocused && 'shadow-outline'
+        localFocused && 'shadow-outline',
+        !disabled && 'cursor-pointer'
       ),
-    [localFocused]
+    [localFocused, disabled]
   );
 
   return (

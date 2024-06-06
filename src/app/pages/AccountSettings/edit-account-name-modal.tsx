@@ -42,7 +42,7 @@ export const EditAccountNameModal = memo<EditAccountNameModalProps>(({ account, 
   const submitting = formState.isSubmitting;
 
   return (
-    <ActionModal title="Edit Account Name" onClose={onClose}>
+    <ActionModal title={t('editAccountName')} onClose={onClose}>
       <form onSubmit={handleSubmit(onSubmit)}>
         <ActionModalBodyContainer>
           <FormField
@@ -54,6 +54,7 @@ export const EditAccountNameModal = memo<EditAccountNameModalProps>(({ account, 
               }
             })}
             label={t('accountNameInputLabel')}
+            labelContainerClassName="text-grey-2"
             id="rename-account-input"
             type="text"
             name="name"
@@ -63,16 +64,11 @@ export const EditAccountNameModal = memo<EditAccountNameModalProps>(({ account, 
           />
         </ActionModalBodyContainer>
         <ActionModalButtonsContainer>
-          <ActionModalButton
-            className="bg-primary-low text-primary"
-            disabled={submitting}
-            onClick={onClose}
-            type="button"
-          >
+          <ActionModalButton color="primary-low" disabled={submitting} onClick={onClose} type="button">
             <T id="cancel" />
           </ActionModalButton>
 
-          <ActionModalButton className="bg-primary text-white" disabled={submitting} type="submit">
+          <ActionModalButton color="primary" disabled={submitting} type="submit">
             <T id="save" />
           </ActionModalButton>
         </ActionModalButtonsContainer>
