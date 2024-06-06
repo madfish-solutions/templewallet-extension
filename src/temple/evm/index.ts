@@ -2,8 +2,9 @@ import memoizee from 'memoizee';
 import { createPublicClient, http } from 'viem';
 import type * as ViemChainsModuleType from 'viem/chains';
 
+import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
 import { EvmAssetStandard } from 'lib/evm/types';
-import { EVM_NATIVE_CURRENCY_ADDRESS, EvmNativeTokenMetadata } from 'lib/metadata/types';
+import { EvmNativeTokenMetadata } from 'lib/metadata/types';
 import { EvmChain } from 'temple/front';
 import { MAX_MEMOIZED_TOOLKITS } from 'temple/misc';
 
@@ -57,7 +58,7 @@ export const loadEvmChainInfo = memoizee(async (rpcUrl: string): Promise<EvmChai
 
   const currency: EvmNativeTokenMetadata = {
     standard: EvmAssetStandard.NATIVE,
-    address: EVM_NATIVE_CURRENCY_ADDRESS,
+    address: EVM_TOKEN_SLUG,
     ...viemChain.nativeCurrency
   };
 

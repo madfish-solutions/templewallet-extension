@@ -1,6 +1,6 @@
 type PublicKeyHash = HexString;
-export type TokenSlugBalanceRecord = StringRecord;
-type ChainIdTokenSlugsRecord = Record<number, TokenSlugBalanceRecord>;
+export type AssetSlugBalanceRecord = StringRecord;
+type ChainIdTokenSlugsRecord = Record<number, AssetSlugBalanceRecord>;
 
 type EvmBalancesAtomicRecord = Record<PublicKeyHash, ChainIdTokenSlugsRecord>;
 

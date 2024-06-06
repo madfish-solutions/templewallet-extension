@@ -2,7 +2,7 @@ import { getAddress } from 'viem';
 
 import { BalanceItem } from 'lib/apis/temple/endpoints/evm/api.interfaces';
 import { toTokenSlug } from 'lib/assets';
-import { EVM_NATIVE_CURRENCY_ADDRESS } from 'lib/metadata/types';
+import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
 import { isPositiveTokenBalance } from 'lib/utils/evm.utils';
 
 import { TokenSlugExchangeRateRecord } from './state';
@@ -12,7 +12,7 @@ export const getTokenSlugExchangeRateRecord = (data: BalanceItem[]) =>
     if (!isPositiveTokenBalance(currentValue) || !currentValue.quote_rate) return acc;
 
     if (currentValue.native_token) {
-      acc[EVM_NATIVE_CURRENCY_ADDRESS] = currentValue.quote_rate;
+      acc[EVM_TOKEN_SLUG] = currentValue.quote_rate;
 
       return acc;
     }

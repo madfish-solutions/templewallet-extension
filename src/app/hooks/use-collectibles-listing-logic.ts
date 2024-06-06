@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 
 import { useDebounce } from 'use-debounce';
 
+import { useEvmBalancesLoadingSelector, useEvmCollectiblesMetadataLoadingSelector } from 'app/store/evm/selectors';
 import { useAreAssetsLoading } from 'app/store/tezos/assets/selectors';
 import { useCollectiblesMetadataLoadingSelector } from 'app/store/tezos/collectibles-metadata/selectors';
 import { searchAssetsWithNoMeta } from 'lib/assets/search.utils';
@@ -9,8 +10,6 @@ import { useCollectiblesMetadataPresenceCheck, useGetCollectibleMetadata } from 
 import { isSearchStringApplicable } from 'lib/utils/search-items';
 import { createLocationState } from 'lib/woozie/location';
 import { TezosNetworkEssentials } from 'temple/networks';
-
-import { useEvmBalancesLoadingSelector, useEvmCollectiblesMetadataLoadingSelector } from '../store/evm/selectors';
 
 import {
   ITEMS_PER_PAGE,

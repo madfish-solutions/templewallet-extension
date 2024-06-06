@@ -3,8 +3,8 @@ import { useMemo } from 'react';
 import { ChainIds } from '@taquito/taquito';
 import { isEqual, sortBy, uniqBy } from 'lodash';
 
-import { useRawEvmChainAccountTokens } from 'app/hooks/evm/assets';
-import { useEvmAccountChainBalances } from 'app/hooks/evm/balance';
+import { useRawEvmChainAccountTokensSelector } from 'app/store/evm/assets/selectors';
+import { useRawEvmChainAccountBalancesSelector } from 'app/store/evm/balances/selectors';
 import {
   useAllTokensSelector,
   useAccountTokensSelector,
@@ -115,8 +115,8 @@ const useAccountTokens = (account: string, chainId: string) => {
 };
 
 const useEvmChainAccountTokens = (account: HexString, chainId: number) => {
-  const storedRaw = useRawEvmChainAccountTokens(account, chainId);
-  const balances = useEvmAccountChainBalances(account, chainId);
+  const storedRaw = useRawEvmChainAccountTokensSelector(account, chainId);
+  const balances = useRawEvmChainAccountBalancesSelector(account, chainId);
 
   return useMemoWithCompare<AccountToken[]>(
     () =>

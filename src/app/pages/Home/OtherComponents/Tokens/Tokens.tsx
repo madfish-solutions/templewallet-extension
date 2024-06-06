@@ -31,6 +31,7 @@ import { useEnabledAccountTokensSlugs } from 'lib/assets/hooks';
 import { useEnabledEvmChainAccountTokensSlugs } from 'lib/assets/hooks/tokens';
 import { T, t } from 'lib/i18n';
 import { TEZOS_MAINNET_CHAIN_ID } from 'lib/temple/types';
+import { useDidUpdate } from 'lib/ui/hooks';
 import { useLocalStorage } from 'lib/ui/local-storage';
 import Popper, { PopperRenderProps } from 'lib/ui/Popper';
 import { Link, navigate } from 'lib/woozie';
@@ -109,14 +110,10 @@ const EvmTokensTab: FC<EvmTokensTabProps> = ({ network, publicKeyHash, chainSele
   const [hasMore, setHasMore] = useState(true);
   const [itemsCount, setItemsCount] = useState(ITEMS_PER_PAGE);
 
-  const resetInfiniteScroll = useCallback(() => {
+  useDidUpdate(() => {
     setHasMore(true);
     setItemsCount(ITEMS_PER_PAGE);
-  }, []);
-
-  useEffect(() => {
-    resetInfiniteScroll();
-  }, [resetInfiniteScroll, network.chainId, publicKeyHash]);
+  }, [network.chainId, publicKeyHash]);
 
   const showItems = useCallback(
     (assetsSlugs: string[]) => {
@@ -155,8 +152,6 @@ const EvmTokensTab: FC<EvmTokensTabProps> = ({ network, publicKeyHash, chainSele
         <SearchBarField
           value="Not working yet"
           onValueChange={emptyFn}
-          onFocus={emptyFn}
-          onBlur={emptyFn}
           testID={AssetsSelectors.searchAssetsInputTokens}
         />
 

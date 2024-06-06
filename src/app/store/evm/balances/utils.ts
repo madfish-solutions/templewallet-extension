@@ -5,10 +5,10 @@ import { NATIVE_TOKEN_INDEX } from 'lib/apis/temple/endpoints/evm/api.utils';
 import { toTokenSlug } from 'lib/assets';
 import { isPositiveCollectibleBalance, isPositiveTokenBalance } from 'lib/utils/evm.utils';
 
-import { TokenSlugBalanceRecord } from './state';
+import { AssetSlugBalanceRecord } from './state';
 
 export const getTokenSlugBalanceRecord = (data: BalanceItem[]) =>
-  data.reduce<TokenSlugBalanceRecord>((acc, currentValue, currentIndex) => {
+  data.reduce<AssetSlugBalanceRecord>((acc, currentValue, currentIndex) => {
     const contractAddress = getAddress(currentValue.contract_address);
 
     if (currentValue.nft_data) {

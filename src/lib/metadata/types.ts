@@ -1,4 +1,5 @@
 import { NftCollectionAttribute } from '../apis/temple/endpoints/evm/api.interfaces';
+import { EVM_TOKEN_SLUG } from '../assets/defaults';
 import { EvmAssetStandard } from '../evm/types';
 
 export enum TezosTokenStandardsEnum {
@@ -29,11 +30,9 @@ export type MetadataRecords = Record<string, TokenMetadata>;
  */
 export type MetadataMap = Map<string, TokenMetadata>;
 
-export const EVM_NATIVE_CURRENCY_ADDRESS = 'eth';
-
 export interface EvmTokenMetadata {
   standard: EvmAssetStandard;
-  address: typeof EVM_NATIVE_CURRENCY_ADDRESS | HexString;
+  address: typeof EVM_TOKEN_SLUG | HexString;
   /** contract name (for nft contract refers to collection name) */
   name?: string;
   /** contract symbol (for nft contract refers to collection symbol) */
@@ -44,7 +43,7 @@ export interface EvmTokenMetadata {
 
 export interface EvmNativeTokenMetadata extends Required<EvmTokenMetadata> {
   standard: EvmAssetStandard.NATIVE;
-  address: typeof EVM_NATIVE_CURRENCY_ADDRESS;
+  address: typeof EVM_TOKEN_SLUG;
 }
 
 export interface EvmCollectibleMetadata extends EvmTokenMetadata {

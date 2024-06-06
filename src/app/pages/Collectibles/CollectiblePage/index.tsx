@@ -5,9 +5,9 @@ import { useDispatch } from 'react-redux';
 
 import { FormSubmitButton, FormSecondaryButton, Spinner, Money, Alert } from 'app/atoms';
 import { DeadEndBoundaryError } from 'app/ErrorBoundary';
-import { useEvmCollectibleMetadata } from 'app/hooks/evm/metadata';
 import { useLocationSearchParamValue } from 'app/hooks/use-location';
 import PageLayout from 'app/layouts/PageLayout';
+import { useEvmCollectibleMetadataSelector } from 'app/store/evm/collectibles-metadata/selectors';
 import { loadCollectiblesDetailsActions } from 'app/store/tezos/collectibles/actions';
 import {
   useAllCollectiblesDetailsLoadingSelector,
@@ -68,7 +68,7 @@ interface EvmCollectiblePageProps {
 const EvmCollectiblePage = memo<EvmCollectiblePageProps>(({ evmChainId, assetSlug }) => {
   const network = useEvmChainByChainId(evmChainId);
   const publicKeyHash = useAccountAddressForEvm();
-  const metadata = useEvmCollectibleMetadata(evmChainId, assetSlug);
+  const metadata = useEvmCollectibleMetadataSelector(evmChainId, assetSlug);
 
   if (!publicKeyHash || !network || !metadata) throw new DeadEndBoundaryError();
 

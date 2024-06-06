@@ -2,7 +2,7 @@ import { useCallback } from 'react';
 
 import { BigNumber } from 'bignumber.js';
 
-import { useEvmAccountChainBalances } from 'app/hooks/evm/balance';
+import { useRawEvmChainAccountBalancesSelector } from 'app/store/evm/balances/selectors';
 import { useEvmUsdToTokenRatesSelector } from 'app/store/evm/tokens-exchange-rates/selectors';
 import { useAllAccountBalancesSelector } from 'app/store/tezos/balances/selectors';
 import { useTezosUsdToTokenRatesSelector } from 'app/store/tezos/currency/selectors';
@@ -66,7 +66,7 @@ export const useTezosCollectiblesSortPredicate = (publicKeyHash: string, tezosCh
 };
 
 export const useEvmCollectiblesSortPredicate = (publicKeyHash: HexString, evmChainId: number) => {
-  const balancesRaw = useEvmAccountChainBalances(publicKeyHash, evmChainId);
+  const balancesRaw = useRawEvmChainAccountBalancesSelector(publicKeyHash, evmChainId);
 
   return useCallback(
     (aSlug: string, bSlug: string) => {

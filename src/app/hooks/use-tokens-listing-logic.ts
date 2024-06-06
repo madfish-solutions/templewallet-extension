@@ -6,10 +6,10 @@ import { useDebounce } from 'use-debounce';
 
 import { useAllAccountBalancesSelector } from 'app/store/tezos/balances/selectors';
 import { toTokenSlug } from 'lib/assets';
+import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
 import { searchAssetsWithNoMeta } from 'lib/assets/search.utils';
 import { useEvmTokensSortPredicate, useTezosTokensSortPredicate } from 'lib/assets/use-sorting';
 import { useGetTokenOrGasMetadata } from 'lib/metadata';
-import { EVM_NATIVE_CURRENCY_ADDRESS } from 'lib/metadata/types';
 import { useMemoWithCompare } from 'lib/ui/hooks';
 import { isSearchStringApplicable } from 'lib/utils/search-items';
 
@@ -96,7 +96,7 @@ export const useEvmTokensListingLogic = (publicKeyHash: HexString, chainId: numb
   const tokensSortPredicate = useEvmTokensSortPredicate(publicKeyHash, chainId);
 
   const sortedTokenSlugs = useMemoWithCompare(
-    () => [EVM_NATIVE_CURRENCY_ADDRESS, ...assetsSlugs.sort(tokensSortPredicate)],
+    () => [EVM_TOKEN_SLUG, ...assetsSlugs.sort(tokensSortPredicate)],
     [assetsSlugs, tokensSortPredicate],
     isEqual
   );

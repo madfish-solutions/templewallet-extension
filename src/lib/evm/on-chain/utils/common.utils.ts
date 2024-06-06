@@ -28,22 +28,19 @@ export const detectEvmTokenStandard = async (network: EvmChain, assetSlug: strin
       args: [ContractInterfaceId.ERC1155]
     });
 
-    if (isERC1155Supported && !isERC721Supported) return EvmAssetStandard.ERC1155;
+    if (isERC721Supported) return EvmAssetStandard.ERC721;
+    if (isERC1155Supported) return EvmAssetStandard.ERC1155;
+  } catch {}
 
-    if (!isERC1155Supported && !isERC721Supported) throw new Error();
+  try {
+    await publicClient.readContract({
+      address: contractAddress,
+      abi: parseAbi(['function totalSupply() public view returns (uint256)']),
+      functionName: 'totalSupply'
+    });
 
-    return EvmAssetStandard.ERC721;
+    return EvmAssetStandard.ERC20;
   } catch {
-    try {
-      await publicClient.readContract({
-        address: contractAddress,
-        abi: parseAbi(['function totalSupply() public view returns (uint256)']),
-        functionName: 'totalSupply'
-      });
-
-      return EvmAssetStandard.ERC20;
-    } catch {
-      return EvmAssetStandard.UNKNOWN;
-    }
+    return EvmAssetStandard.UNKNOWN;
   }
 };

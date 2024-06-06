@@ -27,7 +27,7 @@ export const AssetImage: FC<AssetImageProps> = ({
   onStackFailed
 }) => {
   const sources = useMemo(() => {
-    if (isEvmTokenMetadata(metadata)) {
+    if (metadata && isEvmTokenMetadata(metadata)) {
       return buildEvmTokenIconSources(metadata, evmChainId);
     }
 

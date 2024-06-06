@@ -35,7 +35,7 @@ import { TokenMetadataNotFoundError } from 'lib/metadata/on-chain';
 import { loadContract } from 'lib/temple/contract';
 import { useSafeState } from 'lib/ui/hooks';
 import { delay } from 'lib/utils';
-import { isEvmCollectibleMetadata, isEvmTokenMetadata } from 'lib/utils/evm.utils';
+import { isEvmCollectibleMetadata, isEvmNativeOrErc20TokenMetadata } from 'lib/utils/evm.utils';
 import { navigate } from 'lib/woozie';
 import { UNDER_DEVELOPMENT_MSG } from 'temple/evm/under_dev_msg';
 import { EvmChain, useAccountAddressForEvm, useAccountAddressForTezos } from 'temple/front';
@@ -108,7 +108,7 @@ const EvmForm = memo<EvmFormProps>(({ accountPkh, network }) => {
           return;
         }
 
-        if (isEvmTokenMetadata(metadata)) {
+        if (isEvmNativeOrErc20TokenMetadata(metadata)) {
           dispatch(putNewEvmTokenAction({ publicKeyHash: accountPkh, chainId, assetSlug }));
           dispatch(putEvmTokensMetadataAction({ chainId, records: { [assetSlug]: metadata } }));
         }

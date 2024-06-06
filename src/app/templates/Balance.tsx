@@ -4,6 +4,7 @@ import BigNumber from 'bignumber.js';
 import clsx from 'clsx';
 import CSSTransition from 'react-transition-group/CSSTransition';
 
+import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
 import { useTezosAssetBalance } from 'lib/balances';
 import { useEvmTokenBalance } from 'lib/balances/hooks';
 import { TezosNetworkEssentials } from 'temple/networks';
@@ -43,7 +44,7 @@ interface EvmBalanceProps {
   children: (b: BigNumber) => ReactElement;
   assetSlug?: string;
 }
-export const EvmBalance: FC<EvmBalanceProps> = ({ chainId, address, children, assetSlug = 'eth' }) => {
+export const EvmBalance: FC<EvmBalanceProps> = ({ chainId, address, children, assetSlug = EVM_TOKEN_SLUG }) => {
   const { value: balance } = useEvmTokenBalance(assetSlug, address, chainId);
   const exists = balance !== undefined;
 

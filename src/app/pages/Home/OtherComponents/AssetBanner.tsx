@@ -2,7 +2,7 @@ import React, { memo } from 'react';
 
 import Money from 'app/atoms/Money';
 import { DeadEndBoundaryError } from 'app/ErrorBoundary';
-import { useEvmTokenMetadata } from 'app/hooks/evm/metadata';
+import { useEvmTokenMetadataSelector } from 'app/store/evm/tokens-metadata/selectors';
 import AddressChip from 'app/templates/AddressChip';
 import { AssetIcon, EvmTokenIcon } from 'app/templates/AssetIcon';
 import { EvmBalance, TezosBalance } from 'app/templates/Balance';
@@ -106,7 +106,7 @@ const EvmAssetBanner = memo<EvmAssetBannerProps>(({ evmChainId, assetSlug }) => 
 
   if (!accountEvmAddress || !network) throw new DeadEndBoundaryError();
 
-  const tokenMetadata = useEvmTokenMetadata(evmChainId, assetSlug);
+  const tokenMetadata = useEvmTokenMetadataSelector(evmChainId, assetSlug);
 
   const metadata = isEvmNativeTokenSlug(assetSlug) ? network.currency : tokenMetadata;
 

@@ -4,9 +4,12 @@ import { emptyFn } from '@rnw-community/shared';
 import BigNumber from 'bignumber.js';
 
 import { DeadEndBoundaryError } from 'app/ErrorBoundary';
-import { useEvmAccountChainBalances } from 'app/hooks/evm/balance';
-import { useEvmChainTokensMetadata, useEvmTokenMetadata } from 'app/hooks/evm/metadata';
+import { useRawEvmChainAccountBalancesSelector } from 'app/store/evm/balances/selectors';
 import { useEvmBalancesLoadingSelector } from 'app/store/evm/selectors';
+import {
+  useEvmChainTokensMetadataSelector,
+  useEvmTokenMetadataSelector
+} from 'app/store/evm/tokens-metadata/selectors';
 import { useAllAccountBalancesSelector, useAllAccountBalancesEntitySelector } from 'app/store/tezos/balances/selectors';
 import { isSupportedChainId } from 'lib/apis/temple/endpoints/evm/api.utils';
 import { isKnownChainId } from 'lib/apis/tzkt';
@@ -28,8 +31,8 @@ import { isEvmNativeTokenSlug } from '../utils/evm.utils';
 import { fetchRawBalance as fetchRawBalanceFromBlockchain } from './fetch';
 
 export const useGetEvmTokenBalanceWithDecimals = (publicKeyHash: HexString, chainId: number) => {
-  const rawBalances = useEvmAccountChainBalances(publicKeyHash, chainId);
-  const tokensMetadata = useEvmChainTokensMetadata(chainId);
+  const rawBalances = useRawEvmChainAccountBalancesSelector(publicKeyHash, chainId);
+  const tokensMetadata = useEvmChainTokensMetadataSelector(chainId);
 
   return useCallback(
     (slug: string) => {
@@ -149,7 +152,7 @@ function useEvmAssetRawBalance(
 
   const { chainId, rpcBaseURL } = network;
 
-  const balances = useEvmAccountChainBalances(address, network.chainId);
+  const balances = useRawEvmChainAccountBalancesSelector(address, network.chainId);
   const balancesLoading = useEvmBalancesLoadingSelector();
 
   const usingStore =
@@ -197,7 +200,7 @@ function useEvmAssetRawBalance(
 
 export function useEvmTokenBalance(assetSlug: string, address: HexString, evmChainId: number) {
   const network = useEvmChainByChainId(evmChainId);
-  const tokenMetadata = useEvmTokenMetadata(evmChainId, assetSlug);
+  const tokenMetadata = useEvmTokenMetadataSelector(evmChainId, assetSlug);
 
   const metadata = isEvmNativeTokenSlug(assetSlug) ? network?.currency : tokenMetadata;
 

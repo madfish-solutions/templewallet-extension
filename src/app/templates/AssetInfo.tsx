@@ -5,8 +5,8 @@ import classNames from 'clsx';
 
 import { FormField } from 'app/atoms';
 import { useAppEnv } from 'app/env';
-import { useEvmTokenMetadata } from 'app/hooks/evm/metadata';
 import { ReactComponent as CopyIcon } from 'app/icons/monochrome/copy.svg';
+import { useEvmTokenMetadataSelector } from 'app/store/evm/tokens-metadata/selectors';
 import { isFA2Token, isTezAsset } from 'lib/assets';
 import { fromAssetSlugWithStandardDetect } from 'lib/assets/contract.utils';
 import { T } from 'lib/i18n';
@@ -46,7 +46,7 @@ interface EvmAssetInfoContentProps {
 const EvmAssetInfoContent: FC<EvmAssetInfoContentProps> = ({ chainId, assetSlug }) => {
   const { popup } = useAppEnv();
   const network = useEvmChainByChainId(chainId);
-  const tokenMetadata = useEvmTokenMetadata(chainId, assetSlug);
+  const tokenMetadata = useEvmTokenMetadataSelector(chainId, assetSlug);
 
   const isNative = isEvmNativeTokenSlug(assetSlug);
 

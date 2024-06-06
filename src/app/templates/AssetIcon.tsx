@@ -3,8 +3,8 @@ import React, { FC, memo } from 'react';
 import clsx from 'clsx';
 
 import Identicon from 'app/atoms/Identicon';
-import { useEvmTokenMetadata } from 'app/hooks/evm/metadata';
 import { ReactComponent as CollectiblePlaceholder } from 'app/icons/collectible-placeholder.svg';
+import { useEvmTokenMetadataSelector } from 'app/store/evm/tokens-metadata/selectors';
 import { AssetMetadataBase, getAssetSymbol, isCollectible, useAssetMetadata } from 'lib/metadata';
 import { EvmTokenMetadata } from 'lib/metadata/types';
 import { isEvmNativeTokenSlug } from 'lib/utils/evm.utils';
@@ -39,7 +39,7 @@ interface EvmAssetIconProps extends Omit<AssetImageProps, 'metadata' | 'loader' 
 
 export const EvmTokenIcon = memo<EvmAssetIconProps>(({ evmChainId, assetSlug, className, style, ...props }) => {
   const network = useEvmChainByChainId(evmChainId);
-  const tokenMetadata = useEvmTokenMetadata(evmChainId, assetSlug);
+  const tokenMetadata = useEvmTokenMetadataSelector(evmChainId, assetSlug);
 
   const metadata = isEvmNativeTokenSlug(assetSlug) ? network?.currency : tokenMetadata;
 

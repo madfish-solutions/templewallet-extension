@@ -1,8 +1,8 @@
+import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
+import { EvmAssetStandard } from 'lib/evm/types';
 import type { TID } from 'lib/i18n';
+import { EvmNativeTokenMetadata } from 'lib/metadata/types';
 import { TempleTezosChainId } from 'lib/temple/types';
-
-import { EvmAssetStandard } from '../lib/evm/types';
-import { EVM_NATIVE_CURRENCY_ADDRESS, EvmNativeTokenMetadata } from '../lib/metadata/types';
 
 import { TempleChainKind } from './types';
 
@@ -131,7 +131,7 @@ export interface StoredEvmNetwork extends NetworkBase {
 
 const commonNativeTokenProps: Pick<EvmNativeTokenMetadata, 'standard' | 'address'> = {
   standard: EvmAssetStandard.NATIVE,
-  address: EVM_NATIVE_CURRENCY_ADDRESS
+  address: EVM_TOKEN_SLUG
 };
 
 export const DEFAULT_EVM_CURRENCY: EvmNativeTokenMetadata = {

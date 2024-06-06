@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 
-import { useRawEvmChainAccountCollectibles } from 'app/hooks/evm/assets';
-import { useEvmAccountChainBalances } from 'app/hooks/evm/balance';
+import { useRawEvmChainAccountCollectiblesSelector } from 'app/store/evm/assets/selectors';
+import { useRawEvmChainAccountBalancesSelector } from 'app/store/evm/balances/selectors';
 import { useAccountCollectiblesSelector } from 'app/store/tezos/assets/selectors';
 import { useAllAccountBalancesSelector } from 'app/store/tezos/balances/selectors';
 import { useMemoWithCompare } from 'lib/ui/hooks';
@@ -47,8 +47,8 @@ export const useEnabledAccountCollectiblesSlugs = (publicKeyHash: string, tezosC
 };
 
 const useEvmChainAccountCollectibles = (account: HexString, evmChainId: number) => {
-  const stored = useRawEvmChainAccountCollectibles(account, evmChainId);
-  const balances = useEvmAccountChainBalances(account, evmChainId);
+  const stored = useRawEvmChainAccountCollectiblesSelector(account, evmChainId);
+  const balances = useRawEvmChainAccountBalancesSelector(account, evmChainId);
 
   return useMemoWithCompare<AccountAsset[]>(
     () => {

@@ -3,7 +3,7 @@ import React, { memo, useMemo } from 'react';
 import BigNumber from 'bignumber.js';
 
 import { HashChip, ExternalLinkChip } from 'app/atoms';
-import { useEvmAccountAssetBalance } from 'app/hooks/evm/balance';
+import { useRawEvmAssetBalanceSelector } from 'app/store/evm/balances/selectors';
 import type { CollectibleDetails } from 'app/store/tezos/collectibles/state';
 import { fromFa2TokenSlug } from 'lib/assets/utils';
 import { useTezosAssetBalance } from 'lib/balances';
@@ -112,7 +112,7 @@ interface EvmPropertiesItemsProps {
 }
 
 export const EvmPropertiesItems = memo<EvmPropertiesItemsProps>(({ accountPkh, evmChainId, assetSlug, metadata }) => {
-  const rawBalance = useEvmAccountAssetBalance(accountPkh, evmChainId, assetSlug);
+  const rawBalance = useRawEvmAssetBalanceSelector(accountPkh, evmChainId, assetSlug);
 
   if (!metadata) return null;
 

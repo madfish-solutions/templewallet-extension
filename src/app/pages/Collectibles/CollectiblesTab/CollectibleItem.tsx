@@ -5,7 +5,7 @@ import clsx from 'clsx';
 
 import Money from 'app/atoms/Money';
 import { useAppEnv } from 'app/env';
-import { useEvmCollectibleMetadata } from 'app/hooks/evm/metadata';
+import { useEvmCollectibleMetadataSelector } from 'app/store/evm/collectibles-metadata/selectors';
 import { useBalanceSelector } from 'app/store/tezos/balances/selectors';
 import {
   useAllCollectiblesDetailsLoadingSelector,
@@ -160,7 +160,7 @@ interface EvmCollectibleItemProps {
 
 export const EvmCollectibleItem = memo<EvmCollectibleItemProps>(({ assetSlug, evmChainId }) => {
   const { popup } = useAppEnv();
-  const metadata = useEvmCollectibleMetadata(evmChainId, assetSlug);
+  const metadata = useEvmCollectibleMetadataSelector(evmChainId, assetSlug);
   const wrapperElemRef = useRef<HTMLDivElement>(null);
 
   const [style, imgWrapStyle] = useMemo(() => {

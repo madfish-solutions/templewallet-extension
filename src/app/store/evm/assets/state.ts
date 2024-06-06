@@ -9,7 +9,7 @@ interface StoredAsset {
 
 type PublicKeyHash = HexString;
 
-type AssetSlugStoredAssetRecord = Record<string, StoredAsset>;
+export type AssetSlugStoredAssetRecord = Record<string, StoredAsset>;
 type ChainIdTokenSlugsRecord = Record<number, AssetSlugStoredAssetRecord>;
 
 export type EvmStoredAssetsRecords = Record<PublicKeyHash, ChainIdTokenSlugsRecord>;

@@ -1,6 +1,6 @@
 import React, { memo } from 'react';
 
-import { useEvmTokenMetadata } from 'app/hooks/evm/metadata';
+import { useEvmTokenMetadataSelector } from 'app/store/evm/tokens-metadata/selectors';
 import { setAnotherSelector, setTestID } from 'lib/analytics';
 import { getAssetSymbol, useAssetMetadata } from 'lib/metadata';
 import { isEvmNativeTokenSlug } from 'lib/utils/evm.utils';
@@ -39,7 +39,7 @@ const TezosPageTitle = memo<TezosProps>(({ assetSlug, tezosChainId }) => {
 
 const EvmPageTitle = memo<EvmProps>(({ assetSlug, evmChainId }) => {
   const network = useEvmChainByChainId(evmChainId);
-  const assetMetadata = useEvmTokenMetadata(evmChainId, assetSlug);
+  const assetMetadata = useEvmTokenMetadataSelector(evmChainId, assetSlug);
 
   const metadata = isEvmNativeTokenSlug(assetSlug) ? network?.currency : assetMetadata;
 
