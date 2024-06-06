@@ -75,7 +75,7 @@ export const AccountName = memo<Props>(({ account, searchValue, smaller, testID 
             )}
           </Name>
 
-          <IconBase Icon={CopyIcon} size={12} className="ml-1 text-secondary" />
+          <IconBase Icon={CopyIcon} size={12} className="text-secondary" />
         </Button>
       )}
     </Popper>

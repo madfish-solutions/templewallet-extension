@@ -1,9 +1,10 @@
 import React, { memo } from 'react';
 
+import { IconBase } from 'app/atoms';
 import { AccLabel } from 'app/atoms/AccLabel';
 import { AccountAvatar } from 'app/atoms/AccountAvatar';
 import { SearchHighlightText } from 'app/atoms/SearchHighlightText';
-import { ReactComponent as ChevronRightIcon } from 'app/icons/chevron-right.svg';
+import { ReactComponent as ChevronRightIcon } from 'app/icons/base/chevron_right.svg';
 import { getPluralKey, t } from 'lib/i18n';
 import { Link } from 'lib/woozie';
 
@@ -44,7 +45,7 @@ export const GroupView = memo<GroupViewProps>(({ group, searchValue, ...restProp
             <SearchHighlightText searchValue={searchValue}>{acc.name}</SearchHighlightText>
           </div>
         </div>
-        <ChevronRightIcon className="h-4 w-auto stroke-2 stroke-current text-primary m-1" />
+        <IconBase Icon={ChevronRightIcon} size={16} className="text-primary" />
       </Link>
     ))}
   </div>
