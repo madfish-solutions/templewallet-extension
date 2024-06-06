@@ -16,12 +16,13 @@ import {
   useNetwork,
   useKnownBaker,
   useOnBlock,
-  useAccountPkh
+  useAccountPkh,
+  useExplorerHref
 } from 'lib/temple/front';
 import { atomsToTokens } from 'lib/temple/helpers';
 import { TempleAccount } from 'lib/temple/types';
 
-import { OpenInExplorerChip } from './OpenInExplorerChip';
+import { OpenInExplorerChip, OpenInExplorerChipBase } from './OpenInExplorerChip';
 
 interface Props {
   bakerPkh: string;
@@ -50,7 +51,7 @@ export const BakerCard = memo<Props>(({ bakerPkh, hideAddress, showBakerTag, cla
   if (!baker)
     return (
       <BakerHeader HeaderRight={HeaderRight} className={className}>
-        <Identicon type="bottts" hash={bakerPkh} size={40} className="shadow-xs" />
+        <Identicon type="bottts" hash={bakerPkh} size={32} className="self-start flex-shrink-0 shadow-xs" />
 
         {bakerAcc ? (
           <BakerName>
@@ -219,17 +220,17 @@ const SelfBakerNameValue: React.FC<{
   </>
 );
 
-const UnknownBakerName: React.FC<{
-  bakerPkh: string;
-}> = ({ bakerPkh }) => {
-  const network = useNetwork();
+const UnknownBakerName = memo<{ bakerPkh: string }>(({ bakerPkh }) => {
+  const explorerHref = useExplorerHref(bakerPkh, 'account');
 
-  if (network.type === 'dcp')
+  if (explorerHref)
     return (
-      <div className="flex gap-x-1">
-        <HashChip bgShade={200} rounded="base" hash={bakerPkh} small textShade={700} />
+      <div className="flex gap-x-2">
+        <BakerName>
+          <T id="unknownBakerTitle" />
+        </BakerName>
 
-        <OpenInExplorerChip hash={bakerPkh} type="account" small alternativeDesign />
+        <OpenInExplorerChipBase href={explorerHref} small alternativeDesign />
       </div>
     );
 
@@ -242,7 +243,7 @@ const UnknownBakerName: React.FC<{
       <HashChip bgShade={200} rounded="base" hash={bakerPkh} small textShade={700} />
     </div>
   );
-};
+});
 
 const BakerTag: FC<{ recommended: boolean }> = ({ recommended }) => (
   <div className="flex-shrink-0 font-medium text-xs leading-none px-2 py-1 bg-blue-500 text-white rounded-full">

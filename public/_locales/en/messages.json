@@ -1096,7 +1096,7 @@
     "message": "on your Tezos annualy from\nBaking & Stake rewards"
   },
   "delegationPoint1": {
-    "message": "Your first reward in Tezos will be paid approximately in 36 days."
+    "message": "First reward in Tezos will be paid approximately in 36 days."
   },
   "delegationPoint2": {
     "message": "Receive rewards every 3 days."

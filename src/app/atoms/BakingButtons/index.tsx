@@ -32,7 +32,7 @@ export const DelegateButton: FC<PropsWithChildren<DelegateButtonProps>> = ({
     () =>
       clsx(
         getBakingButtonClassName(disabled),
-        small ? 'text-sm' : 'text-sm',
+        small ? 'text-xs' : 'text-base',
         slim ? 'min-h-10' : 'min-h-11',
         !disabled && flashing && ModStyles.delegateButton
       ),
