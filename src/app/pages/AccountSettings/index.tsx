@@ -12,14 +12,12 @@ import { StyledButton } from 'app/atoms/StyledButton';
 import { TotalEquity } from 'app/atoms/TotalEquity';
 import { useAllAccountsReactiveOnRemoval } from 'app/hooks/use-all-accounts-reactive';
 import { ReactComponent as ChevronRightIcon } from 'app/icons/base/chevron_right.svg';
-import { ReactComponent as CopyIcon } from 'app/icons/base/copy.svg';
 import PageLayout from 'app/layouts/PageLayout';
 import { T, t } from 'lib/i18n';
 import { useTempleClient } from 'lib/temple/front';
 import { getDerivationPath } from 'lib/temple/helpers';
 import { TempleAccountType } from 'lib/temple/types';
 import { useAlert } from 'lib/ui';
-import { getAccountAddressForEvm, getAccountAddressForTezos } from 'temple/accounts';
 import { useAllAccounts, useCurrentAccountId } from 'temple/front';
 import { TempleChainKind } from 'temple/types';
 
@@ -55,8 +53,6 @@ export const AccountSettings = memo<AccountSettingsProps>(({ id }) => {
   const shouldDisableVisibilityChange = visibilityBeingChanged || currentAccountId === id;
 
   const account = useMemo(() => allAccounts.find(({ id: accountId }) => accountId === id), [allAccounts, id]);
-  const tezosAddress = account && getAccountAddressForTezos(account);
-  const evmAddress = account && getAccountAddressForEvm(account);
 
   const handleVisibilityChange = useCallback(
     async (newValue: boolean) => {
@@ -147,19 +143,7 @@ export const AccountSettings = memo<AccountSettingsProps>(({ id }) => {
             <AccountAvatar seed={id} size={60} />
 
             <div className="flex flex-col">
-              {account.type === TempleAccountType.HD ? (
-                <AccountName account={account} testID={AccountSettingsSelectors.accountName} />
-              ) : (
-                <CopyButton
-                  text={tezosAddress ?? evmAddress ?? ''}
-                  className="pl-1.5 pr-1 py-1 flex items-center gap-1 mb-0.5 rounded-md hover:bg-secondary-low"
-                  testID={AccountSettingsSelectors.accountName}
-                >
-                  <span className="text-font-medium-bold">{account.name}</span>
-
-                  <IconBase size={12} Icon={CopyIcon} className="text-secondary" />
-                </CopyButton>
-              )}
+              <AccountName account={account} testID={AccountSettingsSelectors.accountName} />
 
               <span className="ml-1.5 text-grey-1 text-font-small">
                 <T id="totalBalance" />:
@@ -192,14 +176,16 @@ export const AccountSettings = memo<AccountSettingsProps>(({ id }) => {
             <IconBase size={16} Icon={ChevronRightIcon} className="text-primary" />
           </SettingsCell>
 
-          <SettingsCell
-            cellName={<T id="revealPrivateKey" />}
-            Component={Button}
-            onClick={openRevealPrivateKeyModal}
-            testID={AccountSettingsSelectors.revealPrivateKey}
-          >
-            <IconBase size={16} Icon={ChevronRightIcon} className="text-primary" />
-          </SettingsCell>
+          {(account.type === TempleAccountType.HD || account.type === TempleAccountType.Imported) && (
+            <SettingsCell
+              cellName={<T id="revealPrivateKey" />}
+              Component={Button}
+              onClick={openRevealPrivateKeyModal}
+              testID={AccountSettingsSelectors.revealPrivateKey}
+            >
+              <IconBase size={16} Icon={ChevronRightIcon} className="text-primary" />
+            </SettingsCell>
+          )}
         </div>
 
         {derivationPaths.length > 0 && (

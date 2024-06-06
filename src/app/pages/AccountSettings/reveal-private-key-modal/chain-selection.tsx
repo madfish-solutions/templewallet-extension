@@ -5,6 +5,7 @@ import { EvmNetworksLogos, TezosNetworkLogo } from 'app/atoms/NetworksLogos';
 import { T } from 'lib/i18n';
 import { TempleChainTitle } from 'temple/types';
 
+import { AccountSettingsSelectors } from '../selectors';
 import { PrivateKeyPayload } from '../types';
 
 interface ChainSelectionProps {
@@ -39,6 +40,8 @@ const ChainOption = memo<ChainOptionProps>(({ onSelect, privateKey }) => {
     <Button
       className="w-full flex rounded-md shadow-bottom p-3 items-center hover:bg-secondary-low"
       onClick={handleClick}
+      testID={AccountSettingsSelectors.chainOptionButton}
+      testIDProperties={{ chain }}
     >
       <div className="flex-1 text-left">
         <p className="text-font-medium-bold">{TempleChainTitle[chain]}</p>

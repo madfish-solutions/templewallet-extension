@@ -39,8 +39,8 @@ export const AccountsModal = memo<Props>(({ opened, onRequestClose }) => {
 
   const [searchValue, setSearchValue] = useState('');
   const [shouldShowCreateWalletFlow, setShouldShowCreateWalletFlow] = useState(false);
-  const [topEdgeIsVisible, setTopEdgeIsVisible] = useState(false);
-  const [bottomEdgeIsVisible, setBottomEdgeIsVisible] = useState(false);
+  const [topEdgeIsVisible, setTopEdgeIsVisible] = useState(true);
+  const [bottomEdgeIsVisible, setBottomEdgeIsVisible] = useState(true);
 
   useAllAccountsReactiveOnAddition();
   useShortcutAccountSelectModalIsOpened(onRequestClose);

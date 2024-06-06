@@ -14,5 +14,6 @@ export enum AccountsManagementSelectors {
   confirmDeleteButton = 'Accounts Management/Confirm Delete Button',
   saveNameButton = 'Accounts Management/Save Name Button',
   newWalletNameInput = 'Accounts Management/New Wallet Name Input',
-  deleteWalletPasswordInput = 'Accounts Management/Delete Wallet Password Input'
+  passwordInput = 'Accounts Management/Delete Wallet Password Input',
+  confirmRevealSeedPhrase = 'Accounts Management/Confirm Reveal Seed Phrase'
 }

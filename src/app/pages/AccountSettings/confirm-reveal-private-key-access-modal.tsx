@@ -15,6 +15,7 @@ import { isTruthy } from 'lib/utils';
 import { getAccountAddressForChain } from 'temple/accounts';
 import { TempleChainKind } from 'temple/types';
 
+import { AccountSettingsSelectors } from './selectors';
 import { PrivateKeyPayload } from './types';
 
 interface ConfirmRevealPrivateKeyAccessModalProps {
@@ -72,10 +73,16 @@ export const ConfirmRevealPrivateKeyAccessModal = memo<ConfirmRevealPrivateKeyAc
               placeholder="********"
               errorCaption={errors.password?.message}
               containerClassName="mb-1"
+              testID={AccountSettingsSelectors.passwordInput}
             />
           </ActionModalBodyContainer>
           <ActionModalButtonsContainer>
-            <ActionModalButton color="primary" disabled={submitting} type="submit">
+            <ActionModalButton
+              color="primary"
+              disabled={submitting}
+              type="submit"
+              testID={AccountSettingsSelectors.confirmRevealPrivateKeyButton}
+            >
               <T id="revealPrivateKey" />
             </ActionModalButton>
           </ActionModalButtonsContainer>

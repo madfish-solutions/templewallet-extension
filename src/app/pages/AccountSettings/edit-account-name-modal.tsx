@@ -13,6 +13,8 @@ import { T, t } from 'lib/i18n';
 import { useTempleClient } from 'lib/temple/front';
 import { StoredAccount } from 'lib/temple/types';
 
+import { AccountSettingsSelectors } from './selectors';
+
 interface EditAccountNameModalProps {
   account: StoredAccount;
   onClose: EmptyFn;
@@ -61,14 +63,26 @@ export const EditAccountNameModal = memo<EditAccountNameModalProps>(({ account, 
             placeholder={account.name}
             errorCaption={errors.name?.message}
             containerClassName="mb-1"
+            testID={AccountSettingsSelectors.accountNameInput}
           />
         </ActionModalBodyContainer>
         <ActionModalButtonsContainer>
-          <ActionModalButton color="primary-low" disabled={submitting} onClick={onClose} type="button">
+          <ActionModalButton
+            color="primary-low"
+            disabled={submitting}
+            onClick={onClose}
+            type="button"
+            testID={AccountSettingsSelectors.cancelButton}
+          >
             <T id="cancel" />
           </ActionModalButton>
 
-          <ActionModalButton color="primary" disabled={submitting} type="submit">
+          <ActionModalButton
+            color="primary"
+            disabled={submitting}
+            type="submit"
+            testID={AccountSettingsSelectors.saveAccountNameButton}
+          >
             <T id="save" />
           </ActionModalButton>
         </ActionModalButtonsContainer>

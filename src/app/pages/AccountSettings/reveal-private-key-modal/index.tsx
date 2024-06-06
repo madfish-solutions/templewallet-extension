@@ -6,6 +6,7 @@ import { ScrollView } from 'app/atoms/PageModal/scroll-view';
 import { StyledButton } from 'app/atoms/StyledButton';
 import { T, t } from 'lib/i18n';
 
+import { AccountSettingsSelectors } from '../selectors';
 import { PrivateKeyPayload } from '../types';
 
 import { ChainSelection } from './chain-selection';
@@ -37,7 +38,7 @@ export const RevealPrivateKeyModal = memo<RevealPrivateKeyModalProps>(({ private
         )}
       </ScrollView>
       <ActionsButtonsBox shouldCastShadow={!bottomEdgeVisible}>
-        <StyledButton onClick={onClose} color="primary-low" size="L">
+        <StyledButton onClick={onClose} color="primary-low" size="L" testID={AccountSettingsSelectors.cancelButton}>
           <T id="cancel" />
         </StyledButton>
       </ActionsButtonsBox>

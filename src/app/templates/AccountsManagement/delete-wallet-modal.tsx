@@ -99,7 +99,7 @@ export const DeleteWalletModal = memo<DeleteWalletModalProps>(({ onClose, select
               placeholder={t('password')}
               errorCaption={errors.password?.message}
               containerClassName="mb-1"
-              testID={AccountsManagementSelectors.deleteWalletPasswordInput}
+              testID={AccountsManagementSelectors.passwordInput}
             />
           </ActionModalBodyContainer>
           <ActionModalButtonsContainer>

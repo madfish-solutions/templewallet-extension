@@ -21,7 +21,7 @@ const getBackgroundImageUrl = memoizee(
   (hash: string, size: number, type: NonNullable<IdenticonProps['type']>) => {
     switch (type) {
       case 'jdenticon':
-        return `data:image/svg;base64,${Buffer.from(jdenticon.toSvg(hash, size)).toString('base64')}`;
+        return `data:image/svg+xml,${encodeURIComponent(jdenticon.toSvg(hash, size))}`;
       case 'botttsneutral':
         return createAvatar(botttsNeutral, { seed: hash, size }).toDataUriSync();
       default:
@@ -40,7 +40,6 @@ const getBackgroundImageUrl = memoizee(
 export const Identicon = memo<IdenticonProps>(
   ({ type = 'jdenticon', hash, size = 100, className, style = {}, ...rest }) => {
     const backgroundImage = useMemo(() => getBackgroundImageUrl(hash, size, type), [hash, size, type]);
-    console.log('oy vey 1', type, hash, backgroundImage, style);
 
     return (
       <div

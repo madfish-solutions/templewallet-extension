@@ -5,6 +5,7 @@ import { ReadOnlySecretField } from 'app/atoms/ReadOnlySecretField';
 import { T } from 'lib/i18n';
 import { TempleChainTitle } from 'temple/types';
 
+import { AccountSettingsSelectors } from '../selectors';
 import { PrivateKeyPayload } from '../types';
 
 interface PrivateKeyViewProps {
@@ -35,6 +36,8 @@ export const PrivateKeyView = memo<PrivateKeyViewProps>(({ privateKey }) => (
       label="newRevealPrivateKeyLabel"
       labelSubstitutions={TempleChainTitle[privateKey.chain]}
       description={null}
+      testID={AccountSettingsSelectors.privateKeyField}
+      secretCoverTestId={AccountSettingsSelectors.privateKeyFieldCover}
     />
   </>
 ));
