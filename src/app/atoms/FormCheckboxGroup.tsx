@@ -4,7 +4,7 @@ import clsx from 'clsx';
 
 import Divider from './Divider';
 
-export interface FormCheckboxGroupProps {
+interface FormCheckboxGroupProps {
   children: ReactNode | ReactNode[];
   isError?: boolean;
   className?: string;

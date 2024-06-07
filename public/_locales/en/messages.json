@@ -278,9 +278,6 @@
       }
     }
   },
-  "skipOnboarding": {
-    "message": "Skip Onboarding"
-  },
   "advancedUser": {
     "message": "I'm an advanced user"
   },
