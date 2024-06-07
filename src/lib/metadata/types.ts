@@ -31,8 +31,8 @@ export type MetadataRecords = Record<string, TokenMetadata>;
 export type MetadataMap = Map<string, TokenMetadata>;
 
 export interface EvmTokenMetadata {
-  standard: EvmAssetStandard;
   address: typeof EVM_TOKEN_SLUG | HexString;
+  standard?: EvmAssetStandard;
   /** contract name (for nft contract refers to collection name) */
   name?: string;
   /** contract symbol (for nft contract refers to collection symbol) */
@@ -48,10 +48,10 @@ export interface EvmNativeTokenMetadata extends Required<EvmTokenMetadata> {
 
 export interface EvmCollectibleMetadata extends EvmTokenMetadata {
   tokenId: string;
-  metadataUri: string;
-  image: string;
-  collectibleName: string;
-  description: string;
+  metadataUri?: string;
+  image?: string;
+  collectibleName?: string;
+  description?: string;
   attributes?: NftCollectionAttribute[];
   externalUrl?: string;
   animationUrl?: string;

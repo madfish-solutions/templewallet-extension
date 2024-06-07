@@ -36,5 +36,5 @@ const getCollectibleStandard = (supportedErcs: string[]) => {
     return EvmAssetStandard.ERC1155;
   }
 
-  return EvmAssetStandard.UNKNOWN;
+  return undefined;
 };

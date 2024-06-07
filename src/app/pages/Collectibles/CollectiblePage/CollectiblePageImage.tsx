@@ -1,7 +1,7 @@
 import React, { memo, useCallback, useEffect, useState } from 'react';
 
 import { Model3DViewer } from 'app/atoms/Model3DViewer';
-import { AssetImage } from 'app/templates/AssetImage';
+import { TezosAssetImage } from 'app/templates/AssetImage';
 import { isSvgDataUriInUtf8Encoding, buildObjktCollectibleArtifactUri } from 'lib/images-uri';
 import { TokenMetadata } from 'lib/metadata';
 import { EvmCollectibleMetadata } from 'lib/metadata/types';
@@ -86,7 +86,7 @@ export const TezosCollectiblePageImage = memo<Props>(
     }
 
     return (
-      <AssetImage
+      <TezosAssetImage
         metadata={metadata}
         fullViewCollectible
         loader={<CollectibleImageLoader large />}
@@ -104,7 +104,7 @@ interface EvmCollectiblePageImageProps {
 
 export const EvmCollectiblePageImage = memo<EvmCollectiblePageImageProps>(({ metadata, className }) => (
   <ImageStacked
-    sources={[metadata.image]}
+    sources={metadata.image ? [metadata.image] : []}
     className={className}
     loader={<CollectibleImageLoader large />}
     fallback={<CollectibleImageFallback large />}

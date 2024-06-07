@@ -2,7 +2,7 @@ import React, { memo, useMemo } from 'react';
 
 import classNames from 'clsx';
 
-import { AssetIcon, EvmTokenIcon } from 'app/templates/AssetIcon';
+import { TezosAssetIcon, EvmTokenIcon } from 'app/templates/AssetIcon';
 import { setAnotherSelector } from 'lib/analytics';
 import { useEvmTokenBalance, useTezosAssetBalance } from 'lib/balances/hooks';
 import { getAssetName, getAssetSymbol } from 'lib/metadata';
@@ -52,7 +52,7 @@ export const TezosListItem = memo<TezosListItemProps>(({ network, publicKeyHash,
       testIDProperties={{ key: assetSlug }}
       {...setAnotherSelector('name', assetName)}
     >
-      <AssetIcon tezosChainId={network.chainId} assetSlug={assetSlug} size={40} className="mr-2 flex-shrink-0" />
+      <TezosAssetIcon tezosChainId={network.chainId} assetSlug={assetSlug} size={40} className="mr-2 flex-shrink-0" />
 
       <div className={classNames('w-full', styles.tokenInfoWidth)}>
         <div className="flex justify-between w-full mb-1">

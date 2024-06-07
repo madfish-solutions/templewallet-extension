@@ -9,5 +9,5 @@ interface processLoadedEvmTokensBalancesActionPayload {
 }
 
 export const processLoadedEvmAssetsBalancesAction = createAction<processLoadedEvmTokensBalancesActionPayload>(
-  'evm/PROCESS_LOADED_ASSETS_BALANCES_ACTION'
+  'evm/balances/PROCESS_LOADED_ASSETS_BALANCES_ACTION'
 );

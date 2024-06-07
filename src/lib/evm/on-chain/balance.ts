@@ -27,7 +27,7 @@ export const fetchEvmRawBalance = async (
 
   const publicClient = getReadOnlyEvmForNetwork(network);
 
-  let standard: EvmAssetStandard;
+  let standard: EvmAssetStandard | undefined;
 
   if (assetStandard) {
     standard = assetStandard;

@@ -72,7 +72,7 @@ export const EvmCollectibleItemImage = memo<EvmCollectibleItemImageProps>(({ met
   return (
     <div className={isInViewport ? 'contents' : 'hidden'}>
       <ImageStacked
-        sources={[metadata?.image]}
+        sources={metadata.image ? [metadata.image] : []}
         loading="lazy"
         className="max-w-full max-h-full object-contain"
         loader={<CollectibleImageLoader />}

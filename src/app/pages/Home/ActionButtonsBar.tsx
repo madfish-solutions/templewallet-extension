@@ -58,7 +58,7 @@ export const ActionButtonsBar = memo<HomeProps>(({ chainKind, chainId, assetSlug
         labelI18nKey="swap"
         Icon={SwapIcon}
         to={swapLink}
-        disabled={!canSend || !swapLink}
+        disabled={!canSend}
         tippyProps={tippyPropsMock}
         testID={HomeSelectors.swapButton}
       />

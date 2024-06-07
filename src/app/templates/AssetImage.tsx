@@ -4,39 +4,25 @@ import { buildTokenImagesStack, buildCollectibleImagesStack, buildEvmTokenIconSo
 import { AssetMetadataBase, isCollectibleTokenMetadata } from 'lib/metadata';
 import { EvmTokenMetadata } from 'lib/metadata/types';
 import { ImageStacked, ImageStackedProps } from 'lib/ui/ImageStacked';
-import { isEvmTokenMetadata } from 'lib/utils/evm.utils';
 
-export interface AssetImageProps
+export interface AssetImageBaseProps
   extends Pick<ImageStackedProps, 'loader' | 'fallback' | 'className' | 'style' | 'onStackLoaded' | 'onStackFailed'> {
+  sources: string[];
   metadata?: EvmTokenMetadata | AssetMetadataBase;
   size?: number;
-  fullViewCollectible?: boolean;
-  evmChainId?: number;
 }
 
-export const AssetImage: FC<AssetImageProps> = ({
-  evmChainId,
+const AssetImageBase: FC<AssetImageBaseProps> = ({
+  sources,
   metadata,
   className,
   size,
-  fullViewCollectible,
   style,
   loader,
   fallback,
   onStackLoaded,
   onStackFailed
 }) => {
-  const sources = useMemo(() => {
-    if (metadata && isEvmTokenMetadata(metadata)) {
-      return buildEvmTokenIconSources(metadata, evmChainId);
-    }
-
-    if (metadata && isCollectibleTokenMetadata(metadata))
-      return buildCollectibleImagesStack(metadata, fullViewCollectible);
-
-    return buildTokenImagesStack(metadata?.thumbnailUri);
-  }, [evmChainId, metadata, fullViewCollectible]);
-
   const styleMemo: React.CSSProperties = useMemo(
     () => ({
       objectFit: 'contain',
@@ -61,4 +47,34 @@ export const AssetImage: FC<AssetImageProps> = ({
       onStackFailed={onStackFailed}
     />
   );
+};
+
+interface TezosAssetImageProps extends Omit<AssetImageBaseProps, 'sources'> {
+  metadata?: AssetMetadataBase;
+  fullViewCollectible?: boolean;
+}
+
+export const TezosAssetImage: FC<TezosAssetImageProps> = ({ metadata, fullViewCollectible, ...rest }) => {
+  const sources = useMemo(() => {
+    if (metadata && isCollectibleTokenMetadata(metadata))
+      return buildCollectibleImagesStack(metadata, fullViewCollectible);
+
+    return buildTokenImagesStack(metadata?.thumbnailUri);
+  }, [metadata, fullViewCollectible]);
+
+  return <AssetImageBase sources={sources} metadata={metadata} {...rest} />;
+};
+
+interface EvmAssetImageProps extends Omit<AssetImageBaseProps, 'sources'> {
+  metadata?: EvmTokenMetadata;
+  evmChainId?: number;
+}
+
+export const EvmAssetImage: FC<EvmAssetImageProps> = ({ evmChainId, metadata, ...rest }) => {
+  const sources = useMemo(
+    () => (metadata ? buildEvmTokenIconSources(metadata, evmChainId) : []),
+    [evmChainId, metadata]
+  );
+
+  return <AssetImageBase sources={sources} metadata={metadata} {...rest} />;
 };

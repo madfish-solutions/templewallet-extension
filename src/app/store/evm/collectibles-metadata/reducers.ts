@@ -46,7 +46,7 @@ export const evmCollectiblesMetadataReducer = createReducer<EvmCollectiblesMetad
         if (!metadata) continue;
 
         const stored = chainCollectiblesMetadata[slug];
-        if (!stored) chainCollectiblesMetadata[slug] = chainCollectiblesMetadata[slug] = metadata;
+        if (!stored) chainCollectiblesMetadata[slug] = metadata;
       }
     });
   }

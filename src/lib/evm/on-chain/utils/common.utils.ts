@@ -8,7 +8,10 @@ import { ContractInterfaceId, EvmAssetStandard } from '../../types';
 
 const supportsInterfaceAbi = parseAbi(['function supportsInterface(bytes4 interfaceID) external view returns (bool)']);
 
-export const detectEvmTokenStandard = async (network: EvmChain, assetSlug: string): Promise<EvmAssetStandard> => {
+export const detectEvmTokenStandard = async (
+  network: EvmChain,
+  assetSlug: string
+): Promise<EvmAssetStandard | undefined> => {
   const [contractAddress] = fromAssetSlug<HexString>(assetSlug);
 
   const publicClient = getReadOnlyEvmForNetwork(network);
@@ -41,6 +44,6 @@ export const detectEvmTokenStandard = async (network: EvmChain, assetSlug: strin
 
     return EvmAssetStandard.ERC20;
   } catch {
-    return EvmAssetStandard.UNKNOWN;
+    return undefined;
   }
 };

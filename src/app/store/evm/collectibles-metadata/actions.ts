@@ -9,7 +9,9 @@ interface processLoadedEvmCollectiblesMetadataActionPayload {
 }
 
 export const processLoadedEvmCollectiblesMetadataAction =
-  createAction<processLoadedEvmCollectiblesMetadataActionPayload>('evm/PROCESS_LOADED_COLLECTIBLES_METADATA_ACTION');
+  createAction<processLoadedEvmCollectiblesMetadataActionPayload>(
+    'evm/collectible-metadata/PROCESS_LOADED_COLLECTIBLES_METADATA_ACTION'
+  );
 
 interface putEvmCollectiblesMetadataActionActionPayload {
   chainId: number;
@@ -17,5 +19,5 @@ interface putEvmCollectiblesMetadataActionActionPayload {
 }
 
 export const putEvmCollectiblesMetadataAction = createAction<putEvmCollectiblesMetadataActionActionPayload>(
-  'evm/PUT_COLLECTIBLES_METADATA_ACTION'
+  'evm/collectible-metadata/PUT_COLLECTIBLES_METADATA_ACTION'
 );

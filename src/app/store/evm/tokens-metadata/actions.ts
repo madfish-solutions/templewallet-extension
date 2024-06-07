@@ -9,7 +9,7 @@ interface processLoadedEvmTokensMetadataActionPayload {
 }
 
 export const processLoadedEvmTokensMetadataAction = createAction<processLoadedEvmTokensMetadataActionPayload>(
-  'evm/PROCESS_LOADED_TOKENS_METADATA_ACTION'
+  'evm/tokens-metadata/PROCESS_LOADED_TOKENS_METADATA_ACTION'
 );
 
 interface putEvmTokensMetadataActionActionPayload {
@@ -18,5 +18,5 @@ interface putEvmTokensMetadataActionActionPayload {
 }
 
 export const putEvmTokensMetadataAction = createAction<putEvmTokensMetadataActionActionPayload>(
-  'evm/PUT_TOKENS_METADATA_ACTION'
+  'evm/tokens-metadata/PUT_TOKENS_METADATA_ACTION'
 );

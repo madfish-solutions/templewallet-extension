@@ -10,19 +10,19 @@ import { EvmTokenMetadata } from 'lib/metadata/types';
 import { isEvmNativeTokenSlug } from 'lib/utils/evm.utils';
 import { useEvmChainByChainId } from 'temple/front/chains';
 
-import { AssetImage, AssetImageProps } from './AssetImage';
+import { TezosAssetImage, AssetImageBaseProps, EvmAssetImage } from './AssetImage';
 
-interface AssetIconProps extends Omit<AssetImageProps, 'metadata' | 'loader' | 'fallback'> {
+interface TezosAssetIconProps extends Omit<AssetImageBaseProps, 'sources' | 'metadata' | 'loader' | 'fallback'> {
   tezosChainId: string;
   assetSlug: string;
 }
 
-export const AssetIcon = memo<AssetIconProps>(({ tezosChainId, className, style, ...props }) => {
+export const TezosAssetIcon = memo<TezosAssetIconProps>(({ tezosChainId, className, style, ...props }) => {
   const metadata = useAssetMetadata(props.assetSlug, tezosChainId);
 
   return (
     <div className={clsx('flex items-center justify-center', className)} style={style}>
-      <AssetImage
+      <TezosAssetImage
         {...props}
         metadata={metadata}
         loader={<AssetIconPlaceholder metadata={metadata} size={props.size} />}
@@ -32,7 +32,7 @@ export const AssetIcon = memo<AssetIconProps>(({ tezosChainId, className, style,
   );
 });
 
-interface EvmAssetIconProps extends Omit<AssetImageProps, 'metadata' | 'loader' | 'fallback'> {
+interface EvmAssetIconProps extends Omit<AssetImageBaseProps, 'sources' | 'metadata' | 'loader' | 'fallback'> {
   evmChainId: number;
   assetSlug: string;
 }
@@ -45,7 +45,7 @@ export const EvmTokenIcon = memo<EvmAssetIconProps>(({ evmChainId, assetSlug, cl
 
   return (
     <div className={clsx('flex items-center justify-center', className)} style={style}>
-      <AssetImage
+      <EvmAssetImage
         {...props}
         evmChainId={evmChainId}
         metadata={metadata}

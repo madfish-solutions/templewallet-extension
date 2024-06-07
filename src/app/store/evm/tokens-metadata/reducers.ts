@@ -42,7 +42,7 @@ export const evmTokensMetadataReducer = createReducer<EvmTokensMetadataState>(
         if (!metadata) continue;
 
         const stored = chainTokensMetadata[slug];
-        if (!stored) chainTokensMetadata[slug] = chainTokensMetadata[slug] = metadata;
+        if (!stored) chainTokensMetadata[slug] = metadata;
       }
     });
   }

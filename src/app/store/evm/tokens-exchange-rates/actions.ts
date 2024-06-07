@@ -8,5 +8,5 @@ interface processLoadedEvmExchangeRatesActionPayload {
 }
 
 export const processLoadedEvmExchangeRatesAction = createAction<processLoadedEvmExchangeRatesActionPayload>(
-  'evm/PROCESS_LOADED_EVM_EXCHANGE_RATES_ACTION'
+  'evm/tokens-exchange-rates/PROCESS_LOADED_EVM_EXCHANGE_RATES_ACTION'
 );

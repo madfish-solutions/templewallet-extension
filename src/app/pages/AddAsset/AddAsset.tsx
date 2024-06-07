@@ -108,6 +108,12 @@ const EvmForm = memo<EvmFormProps>(({ accountPkh, network }) => {
           return;
         }
 
+        if (!metadata.standard) {
+          console.error('Failed identify token standard');
+
+          return;
+        }
+
         if (isEvmNativeOrErc20TokenMetadata(metadata)) {
           dispatch(putNewEvmTokenAction({ publicKeyHash: accountPkh, chainId, assetSlug }));
           dispatch(putEvmTokensMetadataAction({ chainId, records: { [assetSlug]: metadata } }));

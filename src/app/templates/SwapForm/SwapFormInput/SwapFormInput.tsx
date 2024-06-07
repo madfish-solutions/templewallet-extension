@@ -7,7 +7,7 @@ import classNames from 'clsx';
 import AssetField from 'app/atoms/AssetField';
 import Money from 'app/atoms/Money';
 import { useTezosTokensListingLogic } from 'app/hooks/use-tokens-listing-logic';
-import { AssetIcon } from 'app/templates/AssetIcon';
+import { TezosAssetIcon } from 'app/templates/AssetIcon';
 import { DropdownSelect } from 'app/templates/DropdownSelect/DropdownSelect';
 import InFiat from 'app/templates/InFiat';
 import { InputContainer } from 'app/templates/InputContainer/InputContainer';
@@ -216,7 +216,7 @@ const SwapDropdownFace: FC<SwapFieldProps> = ({ tezosChainId, testId, selectedAs
   <div {...setTestID(testId)} className="max-h-18">
     {selectedAssetSlug ? (
       <div className="flex gap-2 align-center">
-        <AssetIcon tezosChainId={tezosChainId} assetSlug={selectedAssetSlug} size={32} className="w-8" />
+        <TezosAssetIcon tezosChainId={tezosChainId} assetSlug={selectedAssetSlug} size={32} className="w-8" />
         <span className="text-gray-700 text-lg overflow-hidden w-16 leading-8 text-ellipsis">
           {selectedAssetMetadata.symbol}
         </span>

@@ -4,7 +4,7 @@ import Money from 'app/atoms/Money';
 import { DeadEndBoundaryError } from 'app/ErrorBoundary';
 import { useEvmTokenMetadataSelector } from 'app/store/evm/tokens-metadata/selectors';
 import AddressChip from 'app/templates/AddressChip';
-import { AssetIcon, EvmTokenIcon } from 'app/templates/AssetIcon';
+import { TezosAssetIcon, EvmTokenIcon } from 'app/templates/AssetIcon';
 import { EvmBalance, TezosBalance } from 'app/templates/Balance';
 import InFiat from 'app/templates/InFiat';
 import { setAnotherSelector, setTestID } from 'lib/analytics';
@@ -49,7 +49,7 @@ const TezosAssetBanner = memo<TezosAssetBannerProps>(({ tezosChainId, assetSlug 
     <>
       <div className="flex justify-between items-center my-3">
         <div className="flex items-center">
-          <AssetIcon tezosChainId={network.chainId} assetSlug={assetSlug} size={24} className="flex-shrink-0" />
+          <TezosAssetIcon tezosChainId={network.chainId} assetSlug={assetSlug} size={24} className="flex-shrink-0" />
 
           <div
             className="text-sm font-normal text-gray-700 truncate flex-1 ml-2"
