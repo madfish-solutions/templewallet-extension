@@ -2,7 +2,7 @@ import React, { FC, memo, useMemo, useCallback } from 'react';
 
 import { Spinner } from 'app/atoms';
 import { DelegateButton, RedelegateButton } from 'app/atoms/BakingButtons';
-import { useIsStakingNotSupported, useStakedAmount, useUnstakeRequests } from 'app/hooks/use-baking-hooks';
+import { useIsStakingNotSupported, useManagableTezosStakeInfo } from 'app/hooks/use-baking-hooks';
 import { BakerBanner } from 'app/templates/BakerBanner';
 import { T } from 'lib/i18n';
 import { useGasTokenMetadata } from 'lib/metadata';
@@ -21,8 +21,11 @@ export const BakerBannerWithStake = memo<Props>(({ bakerPkh, cannotDelegate }) =
   const { symbol } = useGasTokenMetadata();
 
   const isNotSupportedSwr = useIsStakingNotSupported(rpcBaseURL, bakerPkh);
-  const stakedSwr = useStakedAmount(rpcBaseURL, accountPkh);
-  const requestsSwr = useUnstakeRequests(rpcBaseURL, accountPkh);
+
+  const { mayManage: shouldManage, isLoading: isShouldManageLoading } = useManagableTezosStakeInfo(
+    rpcBaseURL,
+    accountPkh
+  );
 
   const BakerBannerHeaderRight = useCallback<FC<{ staked: number }>>(
     ({ staked }) => (
@@ -36,13 +39,11 @@ export const BakerBannerWithStake = memo<Props>(({ bakerPkh, cannotDelegate }) =
   );
 
   const stakingIsNotSupported = isNotSupportedSwr.data;
-  const staked = stakedSwr.data?.gt(0);
-  const shouldManage: boolean = staked || Boolean(requestsSwr.data?.finalizable.length);
 
-  const isSupportedLoading = isNotSupportedSwr.isLoading || stakedSwr.isLoading || requestsSwr.isLoading;
+  const isLoading = isNotSupportedSwr.isLoading || isShouldManageLoading;
 
   const StakeOrManageButton = useMemo<FC | undefined>(() => {
-    if (isSupportedLoading) return () => <Spinner className="w-8 self-center" theme="gray" />;
+    if (isLoading) return () => <Spinner className="w-8 self-center" theme="gray" />;
 
     if (stakingIsNotSupported && !shouldManage) return;
 
@@ -50,7 +51,7 @@ export const BakerBannerWithStake = memo<Props>(({ bakerPkh, cannotDelegate }) =
       <DelegateButton
         to={`/staking?tab=${shouldManage ? 'my-stake' : 'new-stake'}`}
         small
-        flashing={!staked}
+        flashing={!shouldManage}
         disabled={cannotDelegate}
         testID={shouldManage ? undefined : BakingSectionSelectors.stakeTezosButton}
       >
@@ -63,7 +64,7 @@ export const BakerBannerWithStake = memo<Props>(({ bakerPkh, cannotDelegate }) =
         )}
       </DelegateButton>
     );
-  }, [isSupportedLoading, cannotDelegate, stakingIsNotSupported, shouldManage, staked, symbol]);
+  }, [isLoading, cannotDelegate, stakingIsNotSupported, shouldManage, symbol]);
 
   return <BakerBanner bakerPkh={bakerPkh} HeaderRight={BakerBannerHeaderRight} ActionButton={StakeOrManageButton} />;
 });

@@ -6,7 +6,7 @@ import { useForm } from 'react-hook-form';
 
 import { Alert } from 'app/atoms';
 import { StakeButton } from 'app/atoms/BakingButtons';
-import { useUnstakeRequests } from 'app/hooks/use-baking-hooks';
+import { useIsStakingNotSupported, useUnstakeRequests } from 'app/hooks/use-baking-hooks';
 import { BakerBanner, BAKER_BANNER_CLASSNAME } from 'app/templates/BakerBanner';
 import OperationStatus from 'app/templates/OperationStatus';
 import { StakeAmountField, FormData, convertFiatToAssetAmount } from 'app/templates/StakeAmountInput';
@@ -25,6 +25,7 @@ export const NewStakeTab = memo(() => {
   const cannotDelegate = acc.type === TempleAccountType.WatchOnly;
 
   const tezos = useTezos();
+  const rpcUrl = tezos.rpc.getRpcUrl();
 
   const { value: balance } = useBalance(TEZ_TOKEN_SLUG, acc.publicKeyHash);
 
@@ -40,7 +41,8 @@ export const NewStakeTab = memo(() => {
 
   const [operation, setOperation] = useSafeState<WalletOperation | null>(null, tezos.checksum);
 
-  const requestsSwr = useUnstakeRequests(tezos.rpc.getRpcUrl(), acc.publicKeyHash, true);
+  const { data: stakingIsNotSupported } = useIsStakingNotSupported(rpcUrl, myBakerPkh);
+  const requestsSwr = useUnstakeRequests(rpcUrl, acc.publicKeyHash, true);
 
   const pendingRequestsForAnotherBaker = useMemo(() => {
     if (!myBakerPkh || !requestsSwr.data) return false;
@@ -93,20 +95,37 @@ export const NewStakeTab = memo(() => {
     [tezos, setOperation, reset, trackSubmitSuccess, trackSubmitFail, inFiat, assetPrice, knownBakerName, decimals]
   );
 
-  const errorsInForm = Boolean(errors.amount);
-  const disableSubmit = cannotDelegate || pendingRequestsForAnotherBaker || errorsInForm || Boolean(operation);
+  const alertElement = useMemo(() => {
+    if (stakingIsNotSupported)
+      return (
+        <Alert
+          type="warning"
+          title="Unable to stake"
+          description="Your current baker doesn’t support TEZ staking. To unlock staking feature, re-delegate your account to another baker."
+        />
+      );
 
-  return (
-    <div className="mx-auto max-w-sm flex flex-col gap-y-8 pb-4">
-      {operation && <OperationStatus typeTitle={t('stake')} operation={operation} />}
-
-      {pendingRequestsForAnotherBaker && (
+    if (pendingRequestsForAnotherBaker)
+      return (
         <Alert
           type="warning"
           title="Pending unstake"
           description="You've got an unstake request ongoing. New stake will be available after unstake request is finalized."
         />
-      )}
+      );
+
+    return null;
+  }, [stakingIsNotSupported, pendingRequestsForAnotherBaker]);
+
+  const errorsInForm = Boolean(errors.amount);
+  const disableSubmit =
+    cannotDelegate || stakingIsNotSupported || pendingRequestsForAnotherBaker || errorsInForm || Boolean(operation);
+
+  return (
+    <div className="mx-auto max-w-sm flex flex-col gap-y-8 pb-4">
+      {operation && <OperationStatus typeTitle={t('stake')} operation={operation} />}
+
+      {alertElement}
 
       <div className="flex flex-col gap-y-4">
         <span className="text-base font-medium text-blue-750">Current Baker</span>

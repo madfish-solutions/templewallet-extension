@@ -1,6 +1,6 @@
 import React, { memo, useMemo } from 'react';
 
-import { useStakedAmount, useUnstakeRequests } from 'app/hooks/use-baking-hooks';
+import { useManagableTezosStakeInfo } from 'app/hooks/use-baking-hooks';
 import { TabInterface, TabsPageLayout } from 'app/layouts/TabsPageLayout';
 import { useAccountPkh, useNetwork } from 'lib/temple/front';
 
@@ -12,16 +12,10 @@ export const StakingPage = memo(() => {
   const accountPkh = useAccountPkh();
   const { rpcBaseURL } = useNetwork();
 
-  const { data: stakedData } = useStakedAmount(rpcBaseURL, accountPkh);
+  const { mayManage, requestsN } = useManagableTezosStakeInfo(rpcBaseURL, accountPkh);
 
-  const { data: requests } = useUnstakeRequests(rpcBaseURL, accountPkh);
-
-  const tabs = useMemo<TabInterface[]>(() => {
-    const requestsN = requests ? requests.finalizable.length + requests.unfinalizable.requests.length : 0;
-
-    const myStakeDisabled = !requestsN && (!stakedData || stakedData.isZero());
-
-    return [
+  const tabs = useMemo<TabInterface[]>(
+    () => [
       {
         slug: 'new-stake',
         title: 'New stake',
@@ -30,7 +24,7 @@ export const StakingPage = memo(() => {
       },
       {
         slug: 'my-stake',
-        disabled: myStakeDisabled,
+        disabled: !mayManage,
         title: (
           <div className="flex items-center justify-center gap-x-2">
             <span>My stake</span>
@@ -47,8 +41,9 @@ export const StakingPage = memo(() => {
         Component: MyStakeTab,
         testID: StakingPageSelectors.myStakeTab
       }
-    ];
-  }, [requests, stakedData]);
+    ],
+    [mayManage, requestsN]
+  );
 
   return <TabsPageLayout title="Tezos Staking" tabs={tabs} />;
 });

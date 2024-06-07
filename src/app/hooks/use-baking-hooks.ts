@@ -32,11 +32,25 @@ export const useUnstakeRequests = (rpcUrl: string, accountPkh: string, suspense?
     { ...COMMON_SWR_OPTIONS, suspense }
   );
 
+export const useManagableTezosStakeInfo = (rpcURL: string, accountPkh: string) => {
+  const stakedSwr = useStakedAmount(rpcURL, accountPkh);
+  const requestsSwr = useUnstakeRequests(rpcURL, accountPkh);
+
+  const requests = requestsSwr.data;
+  const requestsN = requests ? requests.finalizable.length + requests.unfinalizable.requests.length : 0;
+
+  const mayManage: boolean = stakedSwr.data?.gt(0) || Boolean(requestsN);
+
+  const isLoading = stakedSwr.isLoading || requestsSwr.isLoading;
+
+  return { mayManage, isLoading, requestsN };
+};
+
 export interface StakingCyclesInfo {
   blocks_per_cycle: number;
   /** In seconds */
   minimal_block_delay?: BigNumber;
-  cooldownCyclesLeft: number;
+  cooldownCyclesNumber: number;
 }
 
 export const useStakingCyclesInfo = (rpcUrl: string) =>
@@ -51,10 +65,9 @@ const getCyclesInfo = memoizee(
 
     if (consensus_rights_delay == null && max_slashing_period == null) return null;
 
-    const cooldownCyclesLeft =
-      (consensus_rights_delay ?? 0) + (max_slashing_period ?? 0) - /* Accounting for current cycle*/ 1;
+    const cooldownCyclesNumber = (consensus_rights_delay ?? 0) + (max_slashing_period ?? 0);
 
-    return { blocks_per_cycle, minimal_block_delay, cooldownCyclesLeft };
+    return { blocks_per_cycle, minimal_block_delay, cooldownCyclesNumber };
   },
   { promise: true, max: 10 }
 );
@@ -72,13 +85,14 @@ export const useBlockLevelInfo = (rpcUrl: string) => {
   return data;
 };
 
-export const useIsStakingNotSupported = (rpcUrl: string, bakerPkh: string) =>
+export const useIsStakingNotSupported = (rpcUrl: string, bakerPkh: string | nullish) =>
   useRetryableSWR(
-    [COMMON_SWR_KEY, 'is-staking-not-supported', rpcUrl, bakerPkh],
+    [COMMON_SWR_KEY, 'is-staking-not-supported', rpcUrl, bakerPkh ?? 'by-chain'],
     () =>
-      Promise.all([getIsStakingNotSupportedByChain(rpcUrl), getIsStakingNotSupportedByBaker(rpcUrl, bakerPkh)]).then(
-        ([res1, res2]) => res1 || res2
-      ),
+      Promise.all([
+        getIsStakingNotSupportedByChain(rpcUrl),
+        bakerPkh ? getIsStakingNotSupportedByBaker(rpcUrl, bakerPkh) : false
+      ]).then(([res1, res2]) => res1 || res2),
     COMMON_SWR_OPTIONS
   );
 
