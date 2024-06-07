@@ -8,14 +8,10 @@ import { useCollectiblesMetadataLoadingSelector } from 'app/store/tezos/collecti
 import { searchAssetsWithNoMeta } from 'lib/assets/search.utils';
 import { useCollectiblesMetadataPresenceCheck, useGetCollectibleMetadata } from 'lib/metadata';
 import { isSearchStringApplicable } from 'lib/utils/search-items';
-import { createLocationState } from 'lib/woozie/location';
 import { TezosNetworkEssentials } from 'temple/networks';
 
-import {
-  ITEMS_PER_PAGE,
-  useCollectiblesPaginationLogic,
-  useEvmCollectiblesPaginationLogic
-} from './use-collectibles-pagination-logic';
+import { ITEMS_PER_PAGE, useCollectiblesPaginationLogic } from './use-collectibles-pagination-logic';
+import { useEvmAssetsPaginationLogic } from './use-evm-assets-pagination-logic';
 
 export const useCollectiblesListingLogic = (network: TezosNetworkEssentials, allSlugsSorted: string[]) => {
   const {
@@ -70,24 +66,13 @@ export const useCollectiblesListingLogic = (network: TezosNetworkEssentials, all
   };
 };
 
-export const useEvmCollectiblesListingLogic = (allSlugsSorted: string[]) => {
-  const initialAmount = useMemo(() => {
-    const { search } = createLocationState();
-    const usp = new URLSearchParams(search);
-    const amount = usp.get('amount');
-    return amount ? Number(amount) : 0;
-  }, []);
-
-  const {
-    slugs: paginatedSlugs,
-    isLoading: pageIsLoading,
-    loadNext
-  } = useEvmCollectiblesPaginationLogic(allSlugsSorted, initialAmount);
+export const useEvmCollectiblesListingLogic = (allSlugsSorted: string[], chainId: number) => {
+  const { slugs: paginatedSlugs, loadNext } = useEvmAssetsPaginationLogic(allSlugsSorted, chainId);
 
   const balancesLoading = useEvmBalancesLoadingSelector();
   const metadatasLoading = useEvmCollectiblesMetadataLoadingSelector();
 
-  const isSyncing = balancesLoading || pageIsLoading || metadatasLoading;
+  const isSyncing = balancesLoading || metadatasLoading;
 
   return {
     paginatedSlugs,

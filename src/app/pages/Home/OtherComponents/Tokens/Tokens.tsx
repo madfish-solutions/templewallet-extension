@@ -12,11 +12,6 @@ import { ReactComponent as FiltersIcon } from 'app/icons/base/filteroff.svg';
 import { ReactComponent as SearchIcon } from 'app/icons/base/search.svg';
 import { ReactComponent as EditingIcon } from 'app/icons/editing.svg';
 import { ContentContainer, StickyBar } from 'app/layouts/containers';
-import {
-  useEvmBalancesLoadingSelector,
-  useEvmTokensExchangeRatesLoadingSelector,
-  useEvmTokensMetadataLoadingSelector
-} from 'app/store/evm/selectors';
 import { useAreAssetsLoading, useMainnetTokensScamlistSelector } from 'app/store/tezos/assets/selectors';
 import { useTokensMetadataLoadingSelector } from 'app/store/tezos/tokens-metadata/selectors';
 import { ChainsDropdown } from 'app/templates/ChainSelect';
@@ -28,10 +23,8 @@ import { setTestID } from 'lib/analytics';
 import { OptimalPromoVariantEnum } from 'lib/apis/optimal';
 import { TEMPLE_TOKEN_SLUG, TEZ_TOKEN_SLUG } from 'lib/assets';
 import { useEnabledAccountTokensSlugs } from 'lib/assets/hooks';
-import { useEnabledEvmChainAccountTokensSlugs } from 'lib/assets/hooks/tokens';
 import { T, t } from 'lib/i18n';
 import { TEZOS_MAINNET_CHAIN_ID } from 'lib/temple/types';
-import { useDidUpdate } from 'lib/ui/hooks';
 import { useLocalStorage } from 'lib/ui/local-storage';
 import Popper, { PopperRenderProps } from 'lib/ui/Popper';
 import { Link, navigate } from 'lib/woozie';
@@ -81,8 +74,6 @@ export const TokensTab = memo<TokensTabProps>(({ chainSelectController }) => {
   );
 });
 
-const ITEMS_PER_PAGE = 30;
-
 interface EvmTokensTabProps {
   network: EvmChain;
   publicKeyHash: HexString;
@@ -90,14 +81,6 @@ interface EvmTokensTabProps {
 }
 
 const EvmTokensTab: FC<EvmTokensTabProps> = ({ network, publicKeyHash, chainSelectController }) => {
-  const tokenSlugs = useEnabledEvmChainAccountTokensSlugs(publicKeyHash, network.chainId);
-
-  const balancesLoading = useEvmBalancesLoadingSelector();
-  const isMetadataLoading = useEvmTokensMetadataLoadingSelector();
-  const exchangeRatesLoading = useEvmTokensExchangeRatesLoadingSelector();
-
-  const isSyncing = balancesLoading || isMetadataLoading || exchangeRatesLoading;
-
   const [isZeroBalancesHidden, setIsZeroBalancesHidden] = useLocalStorage(LOCAL_STORAGE_TOGGLE_KEY, false);
 
   const toggleHideZeroBalances = useCallback(
@@ -105,44 +88,15 @@ const EvmTokensTab: FC<EvmTokensTabProps> = ({ network, publicKeyHash, chainSele
     [setIsZeroBalancesHidden]
   );
 
-  const { sortedTokenSlugs } = useEvmTokensListingLogic(publicKeyHash, network.chainId, tokenSlugs);
+  const { paginatedSlugs, isSyncing, loadNext } = useEvmTokensListingLogic(publicKeyHash, network.chainId);
 
-  const [hasMore, setHasMore] = useState(true);
-  const [itemsCount, setItemsCount] = useState(ITEMS_PER_PAGE);
-
-  useDidUpdate(() => {
-    setHasMore(true);
-    setItemsCount(ITEMS_PER_PAGE);
-  }, [network.chainId, publicKeyHash]);
-
-  const showItems = useCallback(
-    (assetsSlugs: string[]) => {
-      const items = [];
-
-      for (let i = 0; i < itemsCount; i++) {
-        const currentSlug = assetsSlugs[i];
-
-        if (!currentSlug) break;
-
-        items.push(
-          <EvmListItem key={currentSlug} assetSlug={currentSlug} publicKeyHash={publicKeyHash} network={network} />
-        );
-      }
-
-      return items;
-    },
-    [itemsCount, publicKeyHash, network]
+  const contentElement = useMemo(
+    () =>
+      paginatedSlugs.map(slug => (
+        <EvmListItem key={slug} assetSlug={slug} publicKeyHash={publicKeyHash} network={network} />
+      )),
+    [paginatedSlugs]
   );
-
-  const loadMore = useCallback(() => {
-    if (!hasMore) return;
-
-    if (itemsCount >= sortedTokenSlugs.length) {
-      setHasMore(false);
-    } else {
-      setItemsCount(itemsCount + ITEMS_PER_PAGE);
-    }
-  }, [hasMore, itemsCount, sortedTokenSlugs.length]);
 
   const stickyBarRef = useRef<HTMLDivElement>(null);
 
@@ -190,11 +144,11 @@ const EvmTokensTab: FC<EvmTokensTabProps> = ({ network, publicKeyHash, chainSele
       </StickyBar>
 
       <ContentContainer>
-        {sortedTokenSlugs.length === 0 ? (
+        {paginatedSlugs.length === 0 ? (
           buildEmptySection(isSyncing)
         ) : (
           <>
-            <SimpleInfiniteScroll loadNext={loadMore}>{showItems(sortedTokenSlugs)}</SimpleInfiniteScroll>
+            <SimpleInfiniteScroll loadNext={loadNext}>{contentElement}</SimpleInfiniteScroll>
             {isSyncing && <SyncSpinner className="mt-4" />}
           </>
         )}
@@ -366,7 +320,7 @@ const TezosTokensTab: FC<TezosTokensTabProps> = ({ network, publicKeyHash, chain
           buildEmptySection(isSyncing, searchValueExist)
         ) : (
           <>
-            {tokensView}
+            <>{tokensView}</>
             {isSyncing && <SyncSpinner className="mt-4" />}
           </>
         )}

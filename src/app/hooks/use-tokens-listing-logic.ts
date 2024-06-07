@@ -13,6 +13,15 @@ import { useGetTokenOrGasMetadata } from 'lib/metadata';
 import { useMemoWithCompare } from 'lib/ui/hooks';
 import { isSearchStringApplicable } from 'lib/utils/search-items';
 
+import { useEnabledEvmChainAccountTokensSlugs } from '../../lib/assets/hooks/tokens';
+import {
+  useEvmBalancesLoadingSelector,
+  useEvmTokensExchangeRatesLoadingSelector,
+  useEvmTokensMetadataLoadingSelector
+} from '../store/evm/selectors';
+
+import { useEvmAssetsPaginationLogic } from './use-evm-assets-pagination-logic';
+
 export const useTezosTokensListingLogic = (
   tezosChainId: string,
   publicKeyHash: string,
@@ -92,16 +101,28 @@ export const useTezosTokensListingLogic = (
   };
 };
 
-export const useEvmTokensListingLogic = (publicKeyHash: HexString, chainId: number, assetsSlugs: string[]) => {
+export const useEvmTokensListingLogic = (publicKeyHash: HexString, chainId: number) => {
+  const tokenSlugs = useEnabledEvmChainAccountTokensSlugs(publicKeyHash, chainId);
+
   const tokensSortPredicate = useEvmTokensSortPredicate(publicKeyHash, chainId);
 
+  const balancesLoading = useEvmBalancesLoadingSelector();
+  const isMetadataLoading = useEvmTokensMetadataLoadingSelector();
+  const exchangeRatesLoading = useEvmTokensExchangeRatesLoadingSelector();
+
+  const isSyncing = balancesLoading || isMetadataLoading || exchangeRatesLoading;
+
   const sortedTokenSlugs = useMemoWithCompare(
-    () => [EVM_TOKEN_SLUG, ...assetsSlugs.sort(tokensSortPredicate)],
-    [assetsSlugs, tokensSortPredicate],
+    () => [EVM_TOKEN_SLUG, ...tokenSlugs.sort(tokensSortPredicate)],
+    [tokenSlugs, tokensSortPredicate],
     isEqual
   );
 
+  const { slugs: paginatedSlugs, loadNext } = useEvmAssetsPaginationLogic(sortedTokenSlugs, chainId);
+
   return {
-    sortedTokenSlugs
+    paginatedSlugs,
+    isSyncing,
+    loadNext
   };
 };
