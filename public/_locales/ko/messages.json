@@ -439,9 +439,6 @@
   "toBeConnectedWithDApp": {
     "message": "분산 앱과 연결합니다."
   },
-  "atLeast8Characters": {
-    "message": "최소 8글자"
-  },
   "atLeast1Number": {
     "message": "최소 숫자 1개"
   },

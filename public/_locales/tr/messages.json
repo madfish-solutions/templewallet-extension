@@ -457,9 +457,6 @@
   "toBeConnectedWithDApp": {
     "message": "dApp ile bağlantı kurulacak."
   },
-  "atLeast8Characters": {
-    "message": "En az 8 karakter"
-  },
   "atLeast1Number": {
     "message": "En az 1 sayı"
   },

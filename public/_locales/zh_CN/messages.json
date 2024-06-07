@@ -439,9 +439,6 @@
   "toBeConnectedWithDApp": {
     "message": "待与dApp连接。"
   },
-  "atLeast8Characters": {
-    "message": "至少8个字符"
-  },
   "atLeast1Number": {
     "message": "至少1个数字"
   },

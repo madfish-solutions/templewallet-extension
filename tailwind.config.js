@@ -207,6 +207,7 @@ module.exports = {
     borderWidth: {
       DEFAULT: '1px',
       0: '0',
+      0.5: '0.5px',
       2: '2px',
       3: '3px',
       4: '4px',
@@ -581,6 +582,9 @@ module.exports = {
         25: '6.25rem',
         29: '7.25rem',
         63: '15.75rem'
+      },
+      opacity: {
+        15: '0.15'
       },
       height: theme => theme('spacing'),
       minHeight: theme => theme('height'),

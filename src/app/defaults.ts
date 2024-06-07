@@ -20,6 +20,16 @@ export const PASSWORD_PATTERN = new RegExp(
   ].join('')
 );
 
+export type PasswordValidation = Record<'minChar' | 'number' | 'specialChar' | 'lowerCase' | 'upperCase', boolean>;
+
+export const passwordValidationRegexes: Record<keyof PasswordValidation, RegExp> = {
+  minChar: /.{8,}/,
+  number: /\d/,
+  specialChar: /[!@#$%^&*()_+\-=\]{};':"\\|,.<>?]/,
+  lowerCase: /[a-z]/,
+  upperCase: /[A-Z]/
+};
+
 export const uppercaseLowercaseMixtureRegx = /(?=.*[a-z])(?=.*[A-Z])/;
 export const lettersNumbersMixtureRegx = /(?=.*\d)(?=.*[A-Za-z])/;
 export const specialCharacterRegx = /[!@#$%^&*()_+\-=\]{};':"\\|,.<>?]/;

@@ -439,9 +439,6 @@
   "toBeConnectedWithDApp": {
     "message": "à connecter à une application décentralisée."
   },
-  "atLeast8Characters": {
-    "message": "Au moins 8 caractères"
-  },
   "atLeast1Number": {
     "message": "Au moins 1 chiffre"
   },
