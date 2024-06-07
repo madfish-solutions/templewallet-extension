@@ -13,7 +13,7 @@ import { useConfirm } from 'lib/ui/dialog';
 import { EMPTY_FROZEN_OBJ } from 'lib/utils';
 import { EvmChainInfo, loadEvmChainInfo } from 'temple/evm';
 import { EvmChain, getNetworkTitle, useAllEvmChains, useTempleNetworksActions } from 'temple/front';
-import { ChainSpecs } from 'temple/front/chains';
+import { EvmChainSpecs } from 'temple/front/chains';
 import { EVM_DEFAULT_NETWORKS } from 'temple/networks';
 import { TempleChainKind, TempleChainTitle } from 'temple/types';
 
@@ -68,8 +68,6 @@ export const EvmChainsSettings = memo(() => {
           id: rpcBaseURL,
           chain: TempleChainKind.EVM,
           chainId: chainInfo.chainId,
-          currency: chainInfo.currency,
-          testnet: chainInfo.testnet,
           rpcBaseURL,
           name,
           color
@@ -199,14 +197,14 @@ const ChainItem = memo<ChainItemProps>(({ chain, onRemoveClick }) => {
 
   const enabled = !chain.disabled;
 
-  const [evmChainsSpecs, setEvmChainsSpecs] = useStorage<OptionalRecord<ChainSpecs>>(
+  const [evmChainsSpecs, setEvmChainsSpecs] = useStorage<OptionalRecord<EvmChainSpecs>>(
     EVM_CHAINS_SPECS_STORAGE_KEY,
     EMPTY_FROZEN_OBJ
   );
 
   const onRpcSelect = useCallback(
     (rpcId: string) => {
-      const specs: ChainSpecs = { ...evmChainsSpecs[chainId], activeRpcId: rpcId };
+      const specs: EvmChainSpecs = { ...evmChainsSpecs[chainId], activeRpcId: rpcId };
 
       setEvmChainsSpecs({ ...evmChainsSpecs, [chainId]: specs });
     },
@@ -219,7 +217,7 @@ const ChainItem = memo<ChainItemProps>(({ chain, onRemoveClick }) => {
     return (toEnable: boolean) => {
       if (toEnable === enabled) return;
 
-      const specs: ChainSpecs = { ...evmChainsSpecs[chainId], disabled: !toEnable };
+      const specs: EvmChainSpecs = { ...evmChainsSpecs[chainId], disabled: !toEnable };
 
       setEvmChainsSpecs({ ...evmChainsSpecs, [chainId]: specs });
     };

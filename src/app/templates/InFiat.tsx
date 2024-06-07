@@ -7,7 +7,6 @@ import Money from 'app/atoms/Money';
 import { TestIDProps } from 'lib/analytics';
 import { useAssetFiatCurrencyPrice, useFiatCurrency } from 'lib/fiat-currency';
 import { TEZOS_MAINNET_CHAIN_ID } from 'lib/temple/types';
-import { useEvmMainnetChainIds } from 'temple/front/chains';
 
 interface OutputProps {
   balance: ReactNode;
@@ -27,17 +26,8 @@ interface Props extends TestIDProps {
 }
 
 const InFiat: FC<Props> = props => {
-  const { evm, chainId } = props;
-  const evmMainnetChainIds = useEvmMainnetChainIds();
-
-  const isMainnet = useMemo(
-    () =>
-      chainId === TEZOS_MAINNET_CHAIN_ID ||
-      (evm && typeof chainId === 'number' && evmMainnetChainIds.includes(chainId)),
-    [chainId, evm, evmMainnetChainIds]
-  );
-
-  if (!isMainnet) return null;
+  // TODO: show fiat value only for mainnet chains
+  if (!props.evm && props.chainId !== TEZOS_MAINNET_CHAIN_ID) return null;
 
   return <InFiatContent {...props} />;
 };

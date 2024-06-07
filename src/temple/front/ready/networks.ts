@@ -1,6 +1,11 @@
 import { useMemo } from 'react';
 
+import * as ViemChains from 'viem/chains';
+
+import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
 import { EVM_CHAINS_SPECS_STORAGE_KEY, TEZOS_CHAINS_SPECS_STORAGE_KEY } from 'lib/constants';
+import { EvmAssetStandard } from 'lib/evm/types';
+import { EvmNativeTokenMetadata } from 'lib/metadata/types';
 import { useStorage } from 'lib/temple/front/storage';
 import { TEZOS_MAINNET_CHAIN_ID } from 'lib/temple/types';
 import { EMPTY_FROZEN_OBJ } from 'lib/utils';
@@ -13,7 +18,7 @@ import {
 } from 'temple/networks';
 import { TempleChainKind } from 'temple/types';
 
-import type { TezosChain, EvmChain, ChainSpecs } from '../chains';
+import type { TezosChain, EvmChain, TezosChainSpecs, EvmChainSpecs } from '../chains';
 
 export function useReadyTempleTezosNetworks(customTezosNetworks: StoredTezosNetwork[]) {
   const allTezosNetworks = useMemo<typeof TEZOS_DEFAULT_NETWORKS>(
@@ -21,7 +26,10 @@ export function useReadyTempleTezosNetworks(customTezosNetworks: StoredTezosNetw
     [customTezosNetworks]
   );
 
-  const [tezosChainsSpecs] = useStorage<OptionalRecord<ChainSpecs>>(TEZOS_CHAINS_SPECS_STORAGE_KEY, EMPTY_FROZEN_OBJ);
+  const [tezosChainsSpecs] = useStorage<OptionalRecord<TezosChainSpecs>>(
+    TEZOS_CHAINS_SPECS_STORAGE_KEY,
+    EMPTY_FROZEN_OBJ
+  );
 
   const allTezosChains = useMemo(() => {
     const rpcByChainId = new Map<string, NonEmptyArray<StoredTezosNetwork>>();
@@ -75,7 +83,7 @@ export function useReadyTempleEvmNetworks(customEvmNetworks: StoredEvmNetwork[])
     [customEvmNetworks]
   );
 
-  const [evmChainsSpecs] = useStorage<OptionalRecord<ChainSpecs>>(EVM_CHAINS_SPECS_STORAGE_KEY, EMPTY_FROZEN_OBJ);
+  const [evmChainsSpecs] = useStorage<OptionalRecord<EvmChainSpecs>>(EVM_CHAINS_SPECS_STORAGE_KEY, EMPTY_FROZEN_OBJ);
 
   const allEvmChains = useMemo(() => {
     const rpcByChainId = new Map<number, NonEmptyArray<StoredEvmNetwork>>();
@@ -92,18 +100,9 @@ export function useReadyTempleEvmNetworks(customEvmNetworks: StoredEvmNetwork[])
       const specs = evmChainsSpecs[chainId];
 
       const activeRpcId = specs?.activeRpcId;
+      const activeRpc = (activeRpcId && networks.find(n => n.id === activeRpcId)) || networks[0];
 
-      let activeRpc = networks[0];
-      let currency = DEFAULT_EVM_CURRENCY;
-      let testnet = false;
-
-      for (const network of networks) {
-        if (activeRpcId && network.id === activeRpcId) activeRpc = network;
-        if (network.chainId === chainId) {
-          currency = network.currency;
-          testnet = network.testnet;
-        }
-      }
+      const currency: EvmNativeTokenMetadata = getCurrency(chainId, specs?.currency);
 
       const { rpcBaseURL } = activeRpc;
 
@@ -115,7 +114,6 @@ export function useReadyTempleEvmNetworks(customEvmNetworks: StoredEvmNetwork[])
         chainId,
         rpcBaseURL,
         currency,
-        testnet,
         name,
         nameI18nKey,
         rpc: activeRpc,
@@ -134,3 +132,19 @@ export function useReadyTempleEvmNetworks(customEvmNetworks: StoredEvmNetwork[])
     enabledEvmChains
   };
 }
+
+const getCurrency = (chainId: number, specsCurrency?: EvmNativeTokenMetadata): EvmNativeTokenMetadata => {
+  if (specsCurrency) return specsCurrency;
+
+  const viemChain = Object.values(ViemChains).find(chain => chain.id === chainId);
+
+  if (viemChain) {
+    return {
+      standard: EvmAssetStandard.NATIVE,
+      address: EVM_TOKEN_SLUG,
+      ...viemChain.nativeCurrency
+    };
+  }
+
+  return DEFAULT_EVM_CURRENCY;
+};
