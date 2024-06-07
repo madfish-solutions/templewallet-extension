@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useEffect, useState } from 'react';
+import React, { memo, useCallback, useEffect, useMemo, useState } from 'react';
 
 import { Model3DViewer } from 'app/atoms/Model3DViewer';
 import { TezosAssetImage } from 'app/templates/AssetImage';
@@ -102,11 +102,15 @@ interface EvmCollectiblePageImageProps {
   className?: string;
 }
 
-export const EvmCollectiblePageImage = memo<EvmCollectiblePageImageProps>(({ metadata, className }) => (
-  <ImageStacked
-    sources={metadata.image ? [metadata.image] : []}
-    className={className}
-    loader={<CollectibleImageLoader large />}
-    fallback={<CollectibleImageFallback large />}
-  />
-));
+export const EvmCollectiblePageImage = memo<EvmCollectiblePageImageProps>(({ metadata, className }) => {
+  const sources = useMemo(() => (metadata.image ? [metadata.image] : []), [metadata.image]);
+
+  return (
+    <ImageStacked
+      sources={sources}
+      className={className}
+      loader={<CollectibleImageLoader large />}
+      fallback={<CollectibleImageFallback large />}
+    />
+  );
+});

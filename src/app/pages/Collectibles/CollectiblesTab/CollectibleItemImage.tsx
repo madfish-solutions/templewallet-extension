@@ -4,7 +4,7 @@ import { isDefined } from '@rnw-community/shared';
 import { debounce } from 'lodash';
 
 import { useCollectibleIsAdultSelector } from 'app/store/tezos/collectibles/selectors';
-import { buildCollectibleImagesStack } from 'lib/images-uri';
+import { buildCollectibleImagesStack, buildEvmCollectibleIconSources } from 'lib/images-uri';
 import type { TokenMetadata } from 'lib/metadata';
 import { EvmCollectibleMetadata } from 'lib/metadata/types';
 import { ImageStacked } from 'lib/ui/ImageStacked';
@@ -60,24 +60,18 @@ export const CollectibleItemImage = memo<Props>(
 
 interface EvmCollectibleItemImageProps {
   metadata: EvmCollectibleMetadata;
-  containerElemRef: React.RefObject<Element>;
 }
 
-export const EvmCollectibleItemImage = memo<EvmCollectibleItemImageProps>(({ metadata, containerElemRef }) => {
-  const [isInViewport, setIsInViewport] = useState(false);
-  const handleIntersection = useMemo(() => debounce(setIsInViewport, 500), []);
-
-  useIntersectionByOffsetObserver(containerElemRef, handleIntersection, 800);
+export const EvmCollectibleItemImage = memo<EvmCollectibleItemImageProps>(({ metadata }) => {
+  const sources = useMemo(() => buildEvmCollectibleIconSources(metadata), [metadata]);
 
   return (
-    <div className={isInViewport ? 'contents' : 'hidden'}>
-      <ImageStacked
-        sources={metadata.image ? [metadata.image] : []}
-        loading="lazy"
-        className="max-w-full max-h-full object-contain"
-        loader={<CollectibleImageLoader />}
-        fallback={<CollectibleImageFallback />}
-      />
-    </div>
+    <ImageStacked
+      sources={sources}
+      loading="lazy"
+      className="max-w-full max-h-full object-contain"
+      loader={<CollectibleImageLoader />}
+      fallback={<CollectibleImageFallback />}
+    />
   );
 });

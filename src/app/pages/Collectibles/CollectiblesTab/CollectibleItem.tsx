@@ -161,7 +161,6 @@ interface EvmCollectibleItemProps {
 export const EvmCollectibleItem = memo<EvmCollectibleItemProps>(({ assetSlug, evmChainId }) => {
   const { popup } = useAppEnv();
   const metadata = useEvmCollectibleMetadataSelector(evmChainId, assetSlug);
-  const wrapperElemRef = useRef<HTMLDivElement>(null);
 
   const [style, imgWrapStyle] = useMemo(() => {
     const size = popup ? POPUP_ITEM_SIZE : FULLPAGE_ITEM_SIZE;
@@ -191,14 +190,13 @@ export const EvmCollectibleItem = memo<EvmCollectibleItemProps>(({ assetSlug, ev
       testIDProperties={{ assetSlug: assetSlug }}
     >
       <div
-        ref={wrapperElemRef}
         className={clsx(
           'relative flex items-center justify-center bg-blue-50 rounded-lg overflow-hidden hover:opacity-70'
         )}
         style={imgWrapStyle}
         title={assetName}
       >
-        <EvmCollectibleItemImage metadata={metadata} containerElemRef={wrapperElemRef} />
+        <EvmCollectibleItemImage metadata={metadata} />
       </div>
     </Link>
   );

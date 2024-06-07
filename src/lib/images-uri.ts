@@ -4,10 +4,13 @@ import type { TokenMetadata } from 'lib/metadata';
 import { isTruthy } from 'lib/utils';
 
 import { EvmAssetStandard } from './evm/types';
-import { EvmTokenMetadata } from './metadata/types';
+import { EvmCollectibleMetadata, EvmTokenMetadata } from './metadata/types';
 
 type TcInfraMediaSize = 'small' | 'medium' | 'large' | 'raw';
 type ObjktMediaTail = 'display' | 'artifact' | 'thumb288';
+
+const COMPRESSES_TOKEN_ICON_SIZE = 80;
+const COMPRESSES_COLLECTIBLE_ICON_SIZE = 250;
 
 const IPFS_PROTOCOL = 'ipfs://';
 const IPFS_GATE = 'https://cloudflare-ipfs.com/ipfs';
@@ -212,6 +215,9 @@ const chainIdsChainNamesRecord: Record<number, string> = {
   324: 'zksync'
 };
 
+const getCompressedImageUrl = (imageUrl: string, size: number) =>
+  `https://img.templewallet.com/insecure/fill/${size}/${size}/ce/0/plain/${imageUrl}`;
+
 const getEvmCustomChainIconUrl = (chainId: number, metadata: EvmTokenMetadata) => {
   const chainName = chainIdsChainNamesRecord[chainId];
 
@@ -229,8 +235,11 @@ export const buildEvmTokenIconSources = (metadata: EvmTokenMetadata, chainId?: n
 
   const mainFallback = getEvmCustomChainIconUrl(chainId, metadata);
 
-  return mainFallback ? [mainFallback] : [];
+  return mainFallback ? [getCompressedImageUrl(mainFallback, COMPRESSES_TOKEN_ICON_SIZE)] : [];
 };
+
+export const buildEvmCollectibleIconSources = (metadata: EvmCollectibleMetadata) =>
+  metadata.image ? [getCompressedImageUrl(metadata.image, COMPRESSES_COLLECTIBLE_ICON_SIZE), metadata.image] : [];
 
 export const buildMetadataLinkFromUri = (uri?: string) => {
   if (!uri) return undefined;
