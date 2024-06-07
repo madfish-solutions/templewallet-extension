@@ -155,8 +155,7 @@ function useEvmAssetRawBalance(
   const balances = useRawEvmChainAccountBalancesSelector(address, network.chainId);
   const balancesLoading = useEvmBalancesLoadingSelector();
 
-  const usingStore =
-    !isEvmNativeTokenSlug(assetSlug) && address === currentAccountAddress && isSupportedChainId(chainId);
+  const usingStore = address === currentAccountAddress && isSupportedChainId(chainId);
 
   const onChainBalanceSwrRes = useTypedSWR(
     ['evm-balance', rpcBaseURL, assetSlug, address],
@@ -199,10 +198,10 @@ function useEvmAssetRawBalance(
 }
 
 export function useEvmTokenBalance(assetSlug: string, address: HexString, evmChainId: number) {
-  const network = useEvmChainByChainId(evmChainId);
+  const chain = useEvmChainByChainId(evmChainId);
   const tokenMetadata = useEvmTokenMetadataSelector(evmChainId, assetSlug);
 
-  const metadata = isEvmNativeTokenSlug(assetSlug) ? network?.currency : tokenMetadata;
+  const metadata = isEvmNativeTokenSlug(assetSlug) ? chain?.currency : tokenMetadata;
 
   const {
     value: rawValue,

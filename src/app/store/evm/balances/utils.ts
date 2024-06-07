@@ -5,6 +5,8 @@ import { NATIVE_TOKEN_INDEX } from 'lib/apis/temple/endpoints/evm/api.utils';
 import { toTokenSlug } from 'lib/assets';
 import { isPositiveCollectibleBalance, isPositiveTokenBalance } from 'lib/utils/evm.utils';
 
+import { EVM_TOKEN_SLUG } from '../../../../lib/assets/defaults';
+
 import { AssetSlugBalanceRecord } from './state';
 
 export const getTokenSlugBalanceRecord = (data: BalanceItem[]) =>
@@ -21,9 +23,13 @@ export const getTokenSlugBalanceRecord = (data: BalanceItem[]) =>
       return acc;
     }
 
-    if (currentIndex === NATIVE_TOKEN_INDEX || !isPositiveTokenBalance(currentValue)) return acc;
+    if (!isPositiveTokenBalance(currentValue)) return acc;
 
-    acc[toTokenSlug(contractAddress)] = currentValue.balance;
+    if (currentIndex === NATIVE_TOKEN_INDEX) {
+      acc[EVM_TOKEN_SLUG] = currentValue.balance;
+    } else {
+      acc[toTokenSlug(contractAddress)] = currentValue.balance;
+    }
 
     return acc;
   }, {});
