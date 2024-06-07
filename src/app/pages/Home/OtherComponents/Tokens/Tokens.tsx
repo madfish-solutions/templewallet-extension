@@ -96,7 +96,7 @@ const EvmTokensTab: FC<EvmTokensTabProps> = ({ network, publicKeyHash, chainSele
   const isMetadataLoading = useEvmTokensMetadataLoadingSelector();
   const exchangeRatesLoading = useEvmTokensExchangeRatesLoadingSelector();
 
-  const isLoading = balancesLoading || isMetadataLoading || exchangeRatesLoading;
+  const isSyncing = balancesLoading || isMetadataLoading || exchangeRatesLoading;
 
   const [isZeroBalancesHidden, setIsZeroBalancesHidden] = useLocalStorage(LOCAL_STORAGE_TOGGLE_KEY, false);
 
@@ -191,29 +191,13 @@ const EvmTokensTab: FC<EvmTokensTabProps> = ({ network, publicKeyHash, chainSele
 
       <ContentContainer>
         {sortedTokenSlugs.length === 0 ? (
-          <div className="my-8 flex flex-col items-center justify-center text-gray-500">
-            <p className="mb-2 flex items-center justify-center text-gray-600 text-base font-light">
-              <span {...setTestID(HomeSelectors.emptyStateText)}>
-                <T id="noAssetsFound" />
-              </span>
-            </p>
-
-            <p className="text-center text-xs font-light">
-              <T
-                id="ifYouDontSeeYourAsset"
-                substitutions={[
-                  <b>
-                    <T id="manage" />
-                  </b>
-                ]}
-              />
-            </p>
-          </div>
+          buildEmptySection(isSyncing)
         ) : (
-          <SimpleInfiniteScroll loadNext={loadMore}>{showItems(sortedTokenSlugs)}</SimpleInfiniteScroll>
+          <>
+            <SimpleInfiniteScroll loadNext={loadMore}>{showItems(sortedTokenSlugs)}</SimpleInfiniteScroll>
+            {isSyncing && <SyncSpinner className="mt-4" />}
+          </>
         )}
-
-        {isLoading && <SyncSpinner className="mt-4" />}
       </ContentContainer>
     </>
   );
@@ -379,31 +363,13 @@ const TezosTokensTab: FC<TezosTokensTabProps> = ({ network, publicKeyHash, chain
         <UpdateAppBanner stickyBarRef={stickyBarRef} />
 
         {filteredAssets.length === 0 ? (
-          <div className="my-8 flex flex-col items-center justify-center text-gray-500">
-            <p className="mb-2 flex items-center justify-center text-gray-600 text-base font-light">
-              {searchValueExist && <SearchIcon className="w-5 h-auto mr-1 stroke-current fill-current" />}
-
-              <span {...setTestID(HomeSelectors.emptyStateText)}>
-                <T id="noAssetsFound" />
-              </span>
-            </p>
-
-            <p className="text-center text-xs font-light">
-              <T
-                id="ifYouDontSeeYourAsset"
-                substitutions={[
-                  <b>
-                    <T id="manage" />
-                  </b>
-                ]}
-              />
-            </p>
-          </div>
+          buildEmptySection(isSyncing, searchValueExist)
         ) : (
-          tokensView
+          <>
+            {tokensView}
+            {isSyncing && <SyncSpinner className="mt-4" />}
+          </>
         )}
-
-        {isSyncing && <SyncSpinner className="mt-4" />}
       </ContentContainer>
     </>
   );
@@ -455,3 +421,29 @@ const ManageButtonDropdown: FC<ManageButtonDropdownProps> = ({
     </DropdownWrapper>
   );
 };
+
+const buildEmptySection = (isSyncing: boolean, searchValueExist?: boolean) =>
+  isSyncing ? (
+    <SyncSpinner className="mt-6" />
+  ) : (
+    <div className="my-8 flex flex-col items-center justify-center text-gray-500">
+      <p className="mb-2 flex items-center justify-center text-gray-600 text-base font-light">
+        {searchValueExist && <SearchIcon className="w-5 h-auto mr-1 stroke-current fill-current" />}
+
+        <span {...setTestID(HomeSelectors.emptyStateText)}>
+          <T id="noAssetsFound" />
+        </span>
+      </p>
+
+      <p className="text-center text-xs font-light">
+        <T
+          id="ifYouDontSeeYourAsset"
+          substitutions={[
+            <b>
+              <T id="manage" />
+            </b>
+          ]}
+        />
+      </p>
+    </div>
+  );

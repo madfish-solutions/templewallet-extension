@@ -96,7 +96,7 @@ export const useEvmTokensListingLogic = (publicKeyHash: HexString, chainId: numb
   const tokensSortPredicate = useEvmTokensSortPredicate(publicKeyHash, chainId);
 
   const sortedTokenSlugs = useMemoWithCompare(
-    () => (assetsSlugs.length === 0 ? [] : [EVM_TOKEN_SLUG, ...assetsSlugs.sort(tokensSortPredicate)]),
+    () => [EVM_TOKEN_SLUG, ...assetsSlugs.sort(tokensSortPredicate)],
     [assetsSlugs, tokensSortPredicate],
     isEqual
   );
