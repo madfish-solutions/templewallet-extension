@@ -7,7 +7,6 @@ import { AccountName } from 'app/atoms/AccountName';
 import { CopyButton } from 'app/atoms/CopyButton';
 import { EvmNetworksLogos, TezosNetworkLogo } from 'app/atoms/NetworksLogos';
 import { ActionsButtonsBox } from 'app/atoms/PageModal/actions-buttons-box';
-import { SettingsCell } from 'app/atoms/SettingsCell';
 import { StyledButton } from 'app/atoms/StyledButton';
 import { TotalEquity } from 'app/atoms/TotalEquity';
 import { useAllAccountsReactiveOnRemoval } from 'app/hooks/use-all-accounts-reactive';
@@ -26,6 +25,7 @@ import { EditAccountNameModal } from './edit-account-name-modal';
 import { RemoveAccountModal } from './remove-account-modal';
 import { RevealPrivateKeyModal } from './reveal-private-key-modal';
 import { AccountSettingsSelectors } from './selectors';
+import { SettingsCell } from './settings-cell';
 import { PrivateKeyPayload } from './types';
 
 interface AccountSettingsProps {
