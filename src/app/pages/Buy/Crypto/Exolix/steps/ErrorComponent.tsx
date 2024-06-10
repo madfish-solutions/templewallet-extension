@@ -56,8 +56,8 @@ const ErrorComponent: FC<Props> = ({ exchangeData, testIDProperties, setIsError,
               <T id={'transactionId'} />
             </p>
             <span>
-              <p className="text-xs inline align-text-bottom text-gray-910">{exchangeData!.id}</p>
-              <OldStyleCopyButton text={exchangeData!.id} type="link">
+              <p className="text-xs inline align-text-bottom text-gray-910">{exchangeData.id}</p>
+              <OldStyleCopyButton text={exchangeData.id} type="link">
                 <CopyIcon
                   style={{ verticalAlign: 'inherit' }}
                   className="h-4 ml-1 w-auto inline stroke-orange-500 stroke-2"

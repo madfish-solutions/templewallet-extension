@@ -32,7 +32,7 @@ export const RevealPrivateKeyModal = memo<RevealPrivateKeyModalProps>(({ private
     >
       <ScrollView onBottomEdgeVisibilityChange={setBottomEdgeVisible} bottomEdgeThreshold={16}>
         {selectedPrivateKey ? (
-          <PrivateKeyView privateKey={selectedPrivateKey!} />
+          <PrivateKeyView privateKey={selectedPrivateKey} />
         ) : (
           <ChainSelection privateKeys={privateKeys} onSelect={setSelectedPrivateKey} />
         )}
