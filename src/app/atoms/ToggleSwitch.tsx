@@ -49,7 +49,7 @@ export const ToggleSwitch = forwardRef<HTMLInputElement, Props>((props, ref) => 
 
   return (
     <div className={containerClassName} {...setTestID(testID)}>
-      <div className="w-full h-full relative">
+      <div className="w-full h-full relative cursor-pointer">
         <input
           {...rest}
           ref={ref}

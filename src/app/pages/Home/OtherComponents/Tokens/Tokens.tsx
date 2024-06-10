@@ -14,6 +14,7 @@ import { ReactComponent as EditingIcon } from 'app/icons/editing.svg';
 import { ContentContainer, StickyBar } from 'app/layouts/containers';
 import { useAreAssetsLoading, useMainnetTokensScamlistSelector } from 'app/store/tezos/assets/selectors';
 import { useTokensMetadataLoadingSelector } from 'app/store/tezos/tokens-metadata/selectors';
+import { AssetsFilterOptions } from 'app/templates/AssetsFilterOptions';
 import { ChainsDropdown } from 'app/templates/ChainSelect';
 import { ChainSelectController } from 'app/templates/ChainSelect/controller';
 import { ButtonForManageDropdown } from 'app/templates/ManageDropdown';
@@ -148,7 +149,8 @@ const EvmTokensTab: FC<EvmTokensTabProps> = ({ network, publicKeyHash, chainSele
           buildEmptySection(isSyncing)
         ) : (
           <>
-            <SimpleInfiniteScroll loadNext={loadNext}>{contentElement}</SimpleInfiniteScroll>
+            <AssetsFilterOptions />
+            {/*<SimpleInfiniteScroll loadNext={loadNext}>{contentElement}</SimpleInfiniteScroll>*/}
             {isSyncing && <SyncSpinner className="mt-4" />}
           </>
         )}

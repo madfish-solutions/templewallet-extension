@@ -2472,7 +2472,9 @@
   },
   "showInfo": { "message": "Show info" },
   "blur": { "message": "Blur" },
+  "filterTokens": { "message": "Filter Tokens" },
   "hideZeroBalance": { "message": "Hide 0 balance" },
+  "groupByNetwork": { "message": "Group by Network" },
   "recentDestinations": {
     "message": "Recent destinations"
   },
@@ -3189,5 +3191,8 @@
   },
   "dropdownNoItems": {
     "message": "No items"
+  },
+  "allNetworks": {
+    "message": "All Networks"
   }
 }
