@@ -3,9 +3,8 @@ import { getAddress } from 'viem';
 import { BalanceItem } from 'lib/apis/temple/endpoints/evm/api.interfaces';
 import { NATIVE_TOKEN_INDEX } from 'lib/apis/temple/endpoints/evm/api.utils';
 import { toTokenSlug } from 'lib/assets';
+import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
 import { isPositiveCollectibleBalance, isPositiveTokenBalance } from 'lib/utils/evm.utils';
-
-import { EVM_TOKEN_SLUG } from '../../../../lib/assets/defaults';
 
 import { AssetSlugBalanceRecord } from './state';
 

@@ -24,6 +24,8 @@ export const detectEvmTokenStandard = async (
       args: [ContractInterfaceId.ERC721]
     });
 
+    if (isERC721Supported) return EvmAssetStandard.ERC721;
+
     const isERC1155Supported = await publicClient.readContract({
       address: contractAddress,
       abi: supportsInterfaceAbi,
@@ -31,7 +33,6 @@ export const detectEvmTokenStandard = async (
       args: [ContractInterfaceId.ERC1155]
     });
 
-    if (isERC721Supported) return EvmAssetStandard.ERC721;
     if (isERC1155Supported) return EvmAssetStandard.ERC1155;
   } catch {}
 
