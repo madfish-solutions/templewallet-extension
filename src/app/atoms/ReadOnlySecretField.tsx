@@ -33,7 +33,9 @@ export const ReadOnlySecretField: FC<ReadOnlySecretFieldProps> = ({
   const [copyButtonFocused, setCopyButtonFocused] = useState(false);
   const fieldRef = useRef<HTMLParagraphElement>(null);
 
-  const onSecretCoverClick = useCallback(() => void fieldRef.current?.focus(), []);
+  const onSecretCoverClick = useCallback(() => {
+    fieldRef.current?.focus();
+  }, []);
 
   const covered = !focused && !copyButtonFocused;
 
@@ -54,8 +56,8 @@ export const ReadOnlySecretField: FC<ReadOnlySecretFieldProps> = ({
           ref={fieldRef}
           tabIndex={0}
           className={clsx(FORM_FIELD_CLASS_NAME, 'h-40 break-words py-3 px-4 overflow-y-auto border-input-low')}
-          onFocus={() => void setFocused(true)}
-          onBlur={() => void setFocused(false)}
+          onFocus={() => setFocused(true)}
+          onBlur={() => setFocused(false)}
           {...setTestID(testID)}
         >
           {covered ? '' : value}
@@ -65,8 +67,8 @@ export const ReadOnlySecretField: FC<ReadOnlySecretFieldProps> = ({
           text={covered ? '' : value}
           isSecret
           className="text-secondary absolute right-3 bottom-3 flex text-font-description-bold items-center"
-          onFocus={() => void setCopyButtonFocused(true)}
-          onBlur={() => void setCopyButtonFocused(false)}
+          onFocus={() => setCopyButtonFocused(true)}
+          onBlur={() => setCopyButtonFocused(false)}
         >
           <span>
             <T id="copyMnemonic" />

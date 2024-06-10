@@ -81,7 +81,7 @@ export const AccountsModal = memo<Props>(({ opened, onRequestClose }) => {
           <IconButton
             Icon={SettingsIcon}
             color="blue"
-            onClick={() => void navigate('settings/accounts-management')}
+            onClick={() => navigate('settings/accounts-management')}
             testID={AccountsModalSelectors.accountsManagementButton}
           />
 

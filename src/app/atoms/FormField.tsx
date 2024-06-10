@@ -10,6 +10,7 @@ import React, {
 } from 'react';
 
 import clsx from 'clsx';
+import { noop } from 'lodash';
 
 import CleanButton from 'app/atoms/CleanButton';
 import OldStyleCopyButton from 'app/atoms/OldStyleCopyButton';
@@ -105,7 +106,7 @@ export const FormField = forwardRef<FormFieldElement, FormFieldProps>(
       onChange,
       onFocus,
       onBlur,
-      onClean,
+      onClean = noop,
       onReveal,
       className,
       spellCheck = false,
@@ -130,7 +131,7 @@ export const FormField = forwardRef<FormFieldElement, FormFieldProps>(
     const { copy } = useCopyToClipboard();
 
     const [localValue, setLocalValue] = useState(value ?? defaultValue ?? '');
-    useDidUpdate(() => void setLocalValue(value ?? ''), [value]);
+    useDidUpdate(() => setLocalValue(value ?? ''), [value]);
 
     const [focused, setFocused] = useState(false);
 
@@ -154,10 +155,9 @@ export const FormField = forwardRef<FormFieldElement, FormFieldProps>(
 
     const spareRef = useRef<FormFieldElement>();
 
-    useBlurElementOnTimeout(spareRef, focused && Boolean(secret || isPasswordInput));
+    useBlurElementOnTimeout(spareRef, focused && Boolean(secret ?? isPasswordInput));
 
-    const handleSecretBannerClick = () => void spareRef.current?.focus();
-    const handleCleanClick = useCallback(() => void onClean?.(), [onClean]);
+    const handleSecretBannerClick = () => spareRef.current?.focus();
 
     const hasRevealablePassword =
       isPasswordInput && !revealForbidden && (shouldShowRevealWhenEmpty || Boolean(localValue));
@@ -229,7 +229,7 @@ export const FormField = forwardRef<FormFieldElement, FormFieldProps>(
             onFocus={handleFocus}
             onBlur={handleBlur}
             {...rest}
-            {...setTestID(testIDs?.input || testID)}
+            {...setTestID(testIDs?.input ?? testID)}
           />
 
           <ExtraInner
@@ -245,7 +245,7 @@ export const FormField = forwardRef<FormFieldElement, FormFieldProps>(
               smallPaddings ? 'right-2' : 'right-3'
             )}
           >
-            {cleanable && <CleanButton size={16} onClick={handleCleanClick} />}
+            {cleanable && <CleanButton size={16} onClick={onClean} />}
             {copyable && <Copyable value={String(value)} copy={copy} isSecret={type === 'password'} />}
             {hasRevealablePassword && RevealPasswordIcon}
           </div>
