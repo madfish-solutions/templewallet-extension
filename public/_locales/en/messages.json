@@ -298,14 +298,14 @@
   "advancedUser": {
     "message": "I'm an advanced user"
   },
-  "analytics": {
-    "message": "Analytics"
+  "usageAnalytics": {
+    "message": "Usage Analytics"
   },
   "analyticsCollecting": {
     "message": "anonymous information collecting"
   },
   "analyticsInputDescription": {
-    "message": "I agree to the $analyticsLink$",
+    "message": "By pressing this button you are agree to the $analyticsLink$",
     "placeholders": {
       "analyticsLink": {
         "content": "$1"
@@ -621,6 +621,21 @@
   "requirements": {
     "message": "Requirements:"
   },
+  "eightCharacters": {
+    "message": "8 characters"
+  },
+  "atLeastOneNumber": {
+    "message": "At least one number"
+  },
+  "specialCharacter": {
+    "message": "Special character"
+  },
+  "atLeastOneLowercase": {
+    "message": "At least one lowercase letter"
+  },
+  "atLeastOneCapital": {
+    "message": "At least one capital letter"
+  },
   "atLeast8Characters": {
     "message": "At least 8 characters - the more characters, the better."
   },
@@ -756,6 +771,12 @@
   "createNewWallet": {
     "message": "Create a new Wallet"
   },
+  "welcomeQuote": {
+    "message": "“The only function of economic forecasting is\nto make astrology look more respectable.”"
+  },
+  "welcomeQuoteAuthor": {
+    "message": "© John Kenneth Galbraith"
+  },
   "createNewWalletDescription": {
     "message": "New to Temple Wallet? Let's set it up! This will create a new wallet and seed phrase"
   },
@@ -886,9 +907,15 @@
     "message": "Processing..."
   },
   "importWallet": {
-    "message": "Import Your Wallet"
+    "message": "Import Wallet"
   },
   "createWallet": {
+    "message": "Create Wallet"
+  },
+  "importYourWallet": {
+    "message": "Import Your Wallet"
+  },
+  "createYourWallet": {
     "message": "Create Your Wallet"
   },
   "errorImportingKukaiWallet": {
@@ -998,6 +1025,12 @@
   "connectLedger": {
     "message": "Connect Ledger",
     "description": "Ledger = https://www.ledger.com/"
+  },
+  "continueWithGoogleDrive": {
+    "message": "Continue with Google Drive"
+  },
+  "or": {
+    "message": "or"
   },
   "importExistingWallet": {
     "message": "Import existing Wallet"
@@ -2888,6 +2921,20 @@
   "sellDetailsDescription": {
     "message": "Sell TEZ to fiat. Get fiat to Visa, Mastercard cards."
   },
+  "twTermsAndPrivacyLinks": {
+    "message": "By pressing $buttonContent$ you agree with the $termsOfUse$ and $privacyPolicy$",
+    "placeholders": {
+      "buttonContent": {
+        "content": "$1"
+      },
+      "termsOfUse": {
+        "content": "$2"
+      },
+      "privacyPolicy": {
+        "content": "$3"
+      }
+    }
+  },
   "privacyAndPolicyLinks": {
     "message": "By clicking $buttonContent$ you agree with \n$termsOfUse$ and $privacyPolicy$",
     "placeholders": {
@@ -3181,13 +3228,78 @@
   "selectedAccountCannotSignTx": { "message": "Selected account cannot sign transactions" },
   "attributes": { "message": "Attributes" },
   "properties": { "message": "Properties" },
-  "viewAds": {
-    "message": "View Ads"
+  "earnRewardsWithAds": {
+    "message": "Earn Rewards with Ads"
   },
-  "viewAdsDescription": {
-    "message": "I agree to share data(wallet address, IP) and get cashback at Temple Keys for viewing ads"
+  "earnRewardsWithAdsDescription": {
+    "message": "By enabling this checkbox, you agree to share your wallet address and IP to receive ads and rewards in TKEY token."
   },
   "dropdownNoItems": {
     "message": "No items"
+  },
+  "backupYourWallet": {
+    "message": "Backup your wallet"
+  },
+  "backupWalletDescription": {
+    "message": "Save access to your wallet using backup"
+  },
+  "useGoogleDrive": {
+    "message": "Use Google Drive"
+  },
+  "backupManually": {
+    "message": "Backup Manually"
+  },
+  "backupYourSeedPhrase": {
+    "message": "Backup your Seed Phrase"
+  },
+  "notedSeedPhraseDown": {
+    "message": "I’ve noted it down"
+  },
+  "manualBackupWarning": {
+    "message": "Note down your seed phrase and keep it safe. Write the words in order and keep them stored safely. $neverShareSeedPhrase$ or $enterSeedPhrase$ it into any apps.",
+    "placeholders": {
+      "neverShareSeedPhrase": {
+        "content": "$1"
+      },
+      "enterSeedPhrase": {
+        "content": "$2"
+      }
+    }
+  },
+  "neverShareSeedPhrase": {
+    "message": "Never share"
+  },
+  "enterSeedPhrase": {
+    "message": "enter"
+  },
+  "copyMnemonic": {
+    "message": "Copy"
+  },
+  "verifySeedPhraseInputTitle": {
+    "message": "Fill the fields to verify your seed backup"
+  },
+  "verifySeedPhraseInputDescription": {
+    "message": "Arrange words correctly in the order your seed phrase display them"
+  },
+  "wordsBoxLabel": {
+    "message": "Pick the words you need"
+  },
+  "verifySeedPhraseError": {
+    "message": "Wrong combination. Try again."
+  },
+  "backupSuccessful": {
+    "message": "You successfully backed up your wallet"
+  },
+  "walletCreatedSuccessfully": {
+    "message": "Wallet has been created successfully"
+  },
+  "failedToLoadMnemonic": {
+    "message": "Failed to load mnemonic to backup, please try again"
+  },
+  "createPassword": {
+    "message": "Create Password"
+  },
+  "enterYourPassword": {
+    "message": "Enter your password"
   }
 }

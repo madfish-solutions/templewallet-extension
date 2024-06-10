@@ -94,7 +94,7 @@ const BakerBanner = memo<Props>(
                   <div className={classNames('flex-1 flex items-start', popup ? (link ? 'mr-3' : 'mr-7') : 'mr-8')}>
                     <div
                       className={classNames(
-                        'text-xs leading-tight flex',
+                        'text-font-description leading-tight flex',
                         'text-gray-500 flex-col',
                         'items-start flex-1'
                       )}
@@ -108,7 +108,7 @@ const BakerBanner = memo<Props>(
                   <div className={classNames('flex-1 flex items-start', popup ? (link ? 'mr-3' : 'mr-7') : 'mr-8')}>
                     <div
                       className={classNames(
-                        'text-xs leading-tight flex',
+                        'text-font-description leading-tight flex',
                         'text-gray-500 flex-col',
                         'items-start flex-1'
                       )}
@@ -122,7 +122,7 @@ const BakerBanner = memo<Props>(
                   <div className={classNames('flex-1 flex items-start', popup ? 'mr-9' : 'mr-16')}>
                     <div
                       className={classNames(
-                        'text-xs leading-tight',
+                        'text-font-description leading-tight',
                         'text-gray-500 flex flex-col',
                         'items-start flex-1'
                       )}

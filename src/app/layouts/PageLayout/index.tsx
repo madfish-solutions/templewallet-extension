@@ -8,7 +8,8 @@ import Spinner from 'app/atoms/Spinner/Spinner';
 import { SuspenseContainer } from 'app/atoms/SuspenseContainer';
 import { useAppEnv } from 'app/env';
 import { AdvertisingOverlay } from 'app/templates/advertising/advertising-overlay/advertising-overlay';
-import { useTempleClient } from 'lib/temple/front';
+import { SHOULD_BACKUP_MNEMONIC_STORAGE_KEY } from 'lib/constants';
+import { useStorage, useTempleClient } from 'lib/temple/front';
 
 import {
   SCROLL_DOCUMENT,
@@ -17,6 +18,7 @@ import {
   LAYOUT_CONTAINER_CLASSNAME
 } from '../containers';
 
+import { BackupMnemonicOverlay } from './BackupMnemonicOverlay';
 import { ChangelogOverlay } from './ChangelogOverlay/ChangelogOverlay';
 import ConfirmationOverlay from './ConfirmationOverlay';
 import { DefaultHeader, DefaultHeaderProps } from './DefaultHeader';
@@ -39,6 +41,7 @@ const PageLayout: FC<PropsWithChildren<PageLayoutProps>> = ({
 }) => {
   const { fullPage } = useAppEnv();
   const { ready } = useTempleClient();
+  const [shouldBackupMnemonic] = useStorage(SHOULD_BACKUP_MNEMONIC_STORAGE_KEY, false);
 
   return (
     <>
@@ -57,9 +60,18 @@ const PageLayout: FC<PropsWithChildren<PageLayoutProps>> = ({
       <AdvertisingOverlay />
       <ConfirmationOverlay />
       <ChangelogOverlay />
-      <OnRampOverlay />
-      <NewsletterOverlay />
-      {ready && <ShortcutAccountSwitchOverlay />}
+      {!shouldBackupMnemonic && (
+        <>
+          <OnRampOverlay />
+          <NewsletterOverlay />
+        </>
+      )}
+      {ready && (
+        <>
+          <ShortcutAccountSwitchOverlay />
+          {shouldBackupMnemonic && <BackupMnemonicOverlay />}
+        </>
+      )}
     </>
   );
 };

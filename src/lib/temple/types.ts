@@ -23,6 +23,7 @@ export interface TempleDAppSession {
 
 export interface WalletSpecs {
   name: string;
+  createdAt: number;
 }
 
 export interface TempleState {

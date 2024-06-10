@@ -113,9 +113,10 @@ const defaultMnemonic = hdWallets[0].mnemonic;
 
 const defaultCustomAccountName = 'Temple';
 const mockManagedContractAddress = 'KT19txYWjVo4yLvcGnnyiGc35CuX12Pc4krn';
+const defaultTestTimeout = 15000;
 
 describe('Vault tests', () => {
-  jest.setTimeout(15000);
+  jest.setTimeout(defaultTestTimeout);
 
   beforeEach(async () => {
     await browser.storage.local.clear();
@@ -128,11 +129,18 @@ describe('Vault tests', () => {
     });
   };
 
+  const expectRecentTimestampInMs = (value: number) => {
+    expect(value).toBeGreaterThan(Date.now() - defaultTestTimeout);
+    expect(value).toBeLessThanOrEqual(Date.now());
+  };
+
   it('init test', async () => {
     await Vault.spawn(password, defaultMnemonic);
     const vault = await Vault.setup(password);
     const walletsSpecs = await vault.fetchWalletsSpecs();
-    expect(Object.values(walletsSpecs)).toEqual([{ name: 'Translated<hdWalletDefaultName, "A">' }]);
+    const values = Object.values(walletsSpecs);
+    expectObjectArrayMatch(values, [{ name: 'Translated<hdWalletDefaultName, "A">' }]);
+    expectRecentTimestampInMs(values[0].createdAt);
     const firstGroupId = Object.keys(walletsSpecs)[0];
     const accounts = await vault.createHDAccount(firstGroupId, defaultCustomAccountName);
     expectObjectArrayMatch(accounts, [
@@ -749,8 +757,10 @@ describe('Vault tests', () => {
   it('should fetch all HD groups', async () => {
     await Vault.spawn(password, defaultMnemonic);
     const vault = await Vault.setup(password);
-    const groupsNames = await vault.fetchWalletsSpecs();
-    expect(Object.values(groupsNames)).toEqual([{ name: 'Translated<hdWalletDefaultName, "A">' }]);
+    const walletsSpecs = await vault.fetchWalletsSpecs();
+    const values = Object.values(walletsSpecs);
+    expectObjectArrayMatch(values, [{ name: 'Translated<hdWalletDefaultName, "A">' }]);
+    expectRecentTimestampInMs(values[0].createdAt);
   });
 
   describe('createOrImportWallet', () => {
@@ -798,10 +808,13 @@ describe('Vault tests', () => {
         hdWallets[0].accounts[2].tezos.privateKey
       );
       const { newWalletsSpecs, newAccounts: accounts } = await vault.createOrImportWallet(hdWallets[1].mnemonic);
-      expect(Object.values(newWalletsSpecs)).toEqual([
+      const values = Object.values(newWalletsSpecs);
+      expectObjectArrayMatch(values, [
         { name: 'Translated<hdWalletDefaultName, "A">' },
         { name: 'Translated<hdWalletDefaultName, "B">' }
       ]);
+      expectRecentTimestampInMs(values[0].createdAt);
+      expectRecentTimestampInMs(values[1].createdAt);
       const [, secondHdWalletId] = Object.keys(newWalletsSpecs);
       expectObjectArrayMatch(accounts, [
         accountsBeforeReplacement[0],
@@ -840,7 +853,9 @@ describe('Vault tests', () => {
       const { newWalletsSpecs } = await vault.createOrImportWallet();
       const [, secondWalletId] = Object.keys(newWalletsSpecs);
       const newGroupsNames = await vault.editGroupName(secondWalletId, 'newName');
-      expect(newGroupsNames[secondWalletId]).toEqual({ name: 'newName' });
+      const { name, createdAt } = newGroupsNames[secondWalletId];
+      expect(name).toEqual('newName');
+      expectRecentTimestampInMs(createdAt);
     });
   });
 });

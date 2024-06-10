@@ -5,9 +5,9 @@ export const useOnboardingProgress = () => {
   const [onBoarding, setOnboarding] = useLocalStorage('onboarding', false);
   const [onboardingCompleted, setIsOnboardingCompleted] = useStorage('onboarding_completed', onBoarding);
 
-  const setOnboardingCompleted = (value: boolean) => {
+  const setOnboardingCompleted = async (value: boolean) => {
     setOnboarding(value);
-    setIsOnboardingCompleted(value);
+    await setIsOnboardingCompleted(value);
   };
 
   return {

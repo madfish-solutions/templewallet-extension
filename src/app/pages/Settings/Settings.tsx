@@ -235,7 +235,7 @@ const Settings: FC<SettingsProps> = ({ tabSlug }) => {
                     </T>
 
                     <T id={descriptionI18nKey}>
-                      {message => <p className="mt-1 text-sm font-light leading-5 text-gray-600">{message}</p>}
+                      {message => <p className="mt-1 text-font-medium font-light leading-5 text-gray-600">{message}</p>}
                     </T>
                   </div>
                 </div>

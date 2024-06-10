@@ -15,7 +15,7 @@ import { StoredAccount } from 'lib/temple/types';
 
 interface EditAccountNameModalProps {
   account: StoredAccount;
-  onClose: () => void;
+  onClose: EmptyFn;
 }
 
 interface FormData {
@@ -64,7 +64,7 @@ export const EditAccountNameModal = memo<EditAccountNameModalProps>(({ account, 
         </ActionModalBodyContainer>
         <ActionModalButtonsContainer>
           <ActionModalButton
-            className="bg-orange-200 text-orange-20"
+            className="bg-primary-low text-primary"
             disabled={submitting}
             onClick={onClose}
             type="button"
@@ -72,7 +72,7 @@ export const EditAccountNameModal = memo<EditAccountNameModalProps>(({ account, 
             <T id="cancel" />
           </ActionModalButton>
 
-          <ActionModalButton className="bg-orange-20 text-white" disabled={submitting} type="submit">
+          <ActionModalButton className="bg-primary text-white" disabled={submitting} type="submit">
             <T id="save" />
           </ActionModalButton>
         </ActionModalButtonsContainer>

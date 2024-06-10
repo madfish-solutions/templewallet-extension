@@ -11,28 +11,38 @@ import { ReactComponent as WatchIcon } from 'app/icons/base/watch.svg';
 import { T } from 'lib/i18n';
 import Popper, { PopperRenderProps } from 'lib/ui/Popper';
 
-const NewWalletActionsDropdown = memo<PopperRenderProps>(({ opened }) => (
-  <ActionsDropdownPopup title="Add New Wallet" opened={opened} style={{ minWidth: 154 }}>
-    <ActionListItem Icon={AddAccIcon} linkTo="/create-another-wallet">
-      Create wallet
-    </ActionListItem>
+interface NewWalletActionsPopperProps {
+  startWalletCreation: EmptyFn;
+}
 
-    <ActionListItem Icon={ImportedIcon} linkTo="/import-account/wallet-from-mnemonic">
-      Import wallet
-    </ActionListItem>
+const NewWalletActionsDropdown = memo<PopperRenderProps & NewWalletActionsPopperProps>(
+  ({ opened, setOpened, startWalletCreation }) => (
+    <ActionsDropdownPopup title="Add New Wallet" opened={opened} style={{ minWidth: 154 }}>
+      <ActionListItem Icon={AddAccIcon} onClick={startWalletCreation} setOpened={setOpened}>
+        Create wallet
+      </ActionListItem>
 
-    <ActionListItem Icon={LedgerIcon} linkTo="/connect-ledger">
-      Ledger connect
-    </ActionListItem>
+      <ActionListItem Icon={ImportedIcon} linkTo="/import-account/wallet-from-mnemonic">
+        Import wallet
+      </ActionListItem>
 
-    <ActionListItem Icon={WatchIcon} linkTo="/import-account/watch-only">
-      <T id="watchOnlyAccount" />
-    </ActionListItem>
-  </ActionsDropdownPopup>
-));
+      <ActionListItem Icon={LedgerIcon} linkTo="/connect-ledger">
+        Ledger connect
+      </ActionListItem>
 
-export const NewWalletActionsPopper: FC = () => (
-  <Popper placement="bottom-end" strategy="fixed" popup={props => <NewWalletActionsDropdown {...props} />}>
+      <ActionListItem Icon={WatchIcon} linkTo="/import-account/watch-only">
+        <T id="watchOnlyAccount" />
+      </ActionListItem>
+    </ActionsDropdownPopup>
+  )
+);
+
+export const NewWalletActionsPopper: FC<NewWalletActionsPopperProps> = props => (
+  <Popper
+    placement="bottom-end"
+    strategy="fixed"
+    popup={popperProps => <NewWalletActionsDropdown {...popperProps} {...props} />}
+  >
     {({ ref, opened, toggleOpened }) => (
       <IconButton Icon={PlusIcon} color="blue" ref={ref} active={opened} onClick={toggleOpened} />
     )}

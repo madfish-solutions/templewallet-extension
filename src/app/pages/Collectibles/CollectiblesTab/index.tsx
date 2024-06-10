@@ -2,9 +2,8 @@ import React, { FC, memo, useCallback, useMemo } from 'react';
 
 import { isEqual } from 'lodash';
 
-import { SyncSpinner } from 'app/atoms';
+import { Lines, SyncSpinner } from 'app/atoms';
 import Checkbox from 'app/atoms/Checkbox';
-import Divider from 'app/atoms/Divider';
 import DropdownWrapper from 'app/atoms/DropdownWrapper';
 import { IconButton } from 'app/atoms/IconButton';
 import { ScrollBackUpButton } from 'app/atoms/ScrollBackUpButton';
@@ -235,7 +234,7 @@ const ManageButtonDropdown: FC<ManageButtonDropdownProps> = ({
         </span>
       </Link>
 
-      <Divider className="my-2" />
+      <Lines className="my-2" />
 
       <label className={buttonClassName}>
         <Checkbox
@@ -249,7 +248,7 @@ const ManageButtonDropdown: FC<ManageButtonDropdownProps> = ({
         </span>
       </label>
 
-      <Divider className="my-2" />
+      <Lines className="my-2" />
 
       <label className={buttonClassName}>
         <Checkbox

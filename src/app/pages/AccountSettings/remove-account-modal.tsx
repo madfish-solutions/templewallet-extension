@@ -15,7 +15,7 @@ import { useAllAccounts } from 'temple/front';
 
 interface RemoveAccountModalProps {
   account: StoredAccount;
-  onClose: () => void;
+  onClose: EmptyFn;
 }
 
 interface FormData {
@@ -61,7 +61,7 @@ export const RemoveAccountModal = memo<RemoveAccountModalProps>(({ account, onCl
             />
           </ActionModalBodyContainer>
           <ActionModalButtonsContainer>
-            <ActionModalButton className="bg-orange-200 text-orange-20" onClick={onClose} type="button">
+            <ActionModalButton className="bg-primary-low text-primary" onClick={onClose} type="button">
               <T id="cancel" />
             </ActionModalButton>
           </ActionModalButtonsContainer>
@@ -78,13 +78,13 @@ export const RemoveAccountModal = memo<RemoveAccountModalProps>(({ account, onCl
               errorCaption={errors.password?.message}
               containerClassName="mb-1"
             />
-            <span className="text-xs leading-4 text-gray-600 w-full text-center">
+            <span className="text-font-description text-gray-600 w-full text-center">
               This will remove the account from this list and delete all data associated with it.
             </span>
           </ActionModalBodyContainer>
           <ActionModalButtonsContainer>
             <ActionModalButton
-              className="bg-orange-200 text-orange-20"
+              className="bg-primary-low text-primary"
               disabled={submitting}
               onClick={onClose}
               type="button"
@@ -92,7 +92,7 @@ export const RemoveAccountModal = memo<RemoveAccountModalProps>(({ account, onCl
               <T id="cancel" />
             </ActionModalButton>
 
-            <ActionModalButton className="bg-red-600 text-white" disabled={submitting} type="submit">
+            <ActionModalButton className="bg-error text-white" disabled={submitting} type="submit">
               <T id="remove" />
             </ActionModalButton>
           </ActionModalButtonsContainer>

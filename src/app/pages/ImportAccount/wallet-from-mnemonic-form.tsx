@@ -75,12 +75,12 @@ export const WalletFromMnemonicForm = memo(() => {
       <Button
         disabled={isSubmitting || Boolean(error)}
         className={clsx(
-          'w-full rounded-lg bg-orange-200 text-orange-20 leading-tight p-4 text-sm font-semibold',
+          'w-full rounded-lg bg-primary-low text-primary leading-tight p-4 text-font-medium-bold',
           (isSubmitting || Boolean(error)) && 'opacity-75'
         )}
         onClick={handleSubmit}
       >
-        <T id="importWallet" />
+        <T id="importYourWallet" />
       </Button>
     </div>
   );

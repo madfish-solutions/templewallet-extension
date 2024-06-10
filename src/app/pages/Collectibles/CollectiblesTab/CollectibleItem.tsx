@@ -111,7 +111,7 @@ export const CollectibleItem = memo<Props>(
           />
 
           {areDetailsShown && balance ? (
-            <div className="absolute bottom-1.5 left-1.5 text-xxxs text-white leading-none p-1 bg-black bg-opacity-60 rounded">
+            <div className="absolute bottom-1.5 left-1.5 text-font-small text-white leading-none p-1 bg-black bg-opacity-60 rounded">
               {balance.toFixed()}×
             </div>
           ) : null}
@@ -121,7 +121,7 @@ export const CollectibleItem = memo<Props>(
           <div className="mt-1 mx-1.5">
             <h5 className="text-sm leading-5 text-gray-910 truncate">{assetName}</h5>
             <div
-              className="mt-1 text-xxxs leading-3 text-gray-600"
+              className="mt-1 text-font-small text-gray-600"
               {...setTestID(CollectibleTabSelectors.collectibleName)}
               {...setAnotherSelector('name', assetName)}
             >

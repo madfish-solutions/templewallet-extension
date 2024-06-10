@@ -2,7 +2,7 @@ import React, { memo } from 'react';
 
 import clsx from 'clsx';
 
-import { Divider } from 'app/atoms';
+import { Lines } from 'app/atoms';
 import { Button } from 'app/atoms/Button';
 import Name from 'app/atoms/Name';
 import { ReactComponent as ChevronDownIcon } from 'app/icons/chevron-down.svg';
@@ -35,7 +35,7 @@ export const ChainSelect = memo<Props>(({ controller }) => {
           ref={ref}
           className={clsx(
             'flex items-center px-2 py-1 select-none',
-            'text-xs font-medium bg-primary-orange bg-opacity-95 rounded',
+            'text-font-description font-medium bg-primary-orange bg-opacity-95 rounded',
             'border border-primary-orange border-opacity-25',
             'text-primary-white text-shadow-black',
             'transition ease-in-out duration-200',
@@ -71,7 +71,9 @@ export const ChainSelectSection = memo<ChainSelectSectionProps>(({ onlyForAddres
           <T id="network" />:
         </span>
 
-        {onlyForAddressResolution && <span className="text-xs text-gray-600">{`(Only for address resolution)`}</span>}
+        {onlyForAddressResolution && (
+          <span className="text-font-description text-gray-600">{`(Only for address resolution)`}</span>
+        )}
       </div>
 
       <div className="flex-1" />
@@ -79,6 +81,6 @@ export const ChainSelectSection = memo<ChainSelectSectionProps>(({ onlyForAddres
       <ChainSelect {...props} />
     </div>
 
-    <Divider className="my-4" />
+    <Lines className="my-4" />
   </>
 ));

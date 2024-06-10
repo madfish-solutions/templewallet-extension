@@ -66,7 +66,7 @@ export const RevealPrivateKeysForm = memo<RevealPrivateKeysFormProps>(({ onRevea
         />
       </ActionModalBodyContainer>
       <ActionModalButtonsContainer>
-        <ActionModalButton className="bg-orange-20 text-white" disabled={submitting} type="submit">
+        <ActionModalButton className="bg-primary text-white" disabled={submitting} type="submit">
           <T id="revealPrivateKey" />
         </ActionModalButton>
       </ActionModalButtonsContainer>

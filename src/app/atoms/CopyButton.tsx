@@ -2,6 +2,7 @@ import React, { FC, HTMLAttributes, useMemo } from 'react';
 
 import classNames from 'clsx';
 
+import { toastSuccess } from 'app/toaster';
 import { AnalyticsEventCategory, setTestID, TestIDProps, useAnalytics } from 'lib/analytics';
 import { t } from 'lib/i18n';
 import useCopyToClipboard from 'lib/ui/useCopyToClipboard';
@@ -26,6 +27,7 @@ export type CopyButtonProps = HTMLAttributes<HTMLButtonElement> &
     small?: boolean;
     type?: 'button' | 'link';
     textShade?: 500 | 600 | 700;
+    isSecret?: boolean;
   };
 
 const CopyButton: FC<CopyButtonProps> = ({
@@ -39,22 +41,21 @@ const CopyButton: FC<CopyButtonProps> = ({
   textShade = 600,
   testID,
   testIDProperties,
+  isSecret,
   ...rest
 }) => {
   const { trackEvent } = useAnalytics();
-  const { fieldRef, copy, copied, setCopied } = useCopyToClipboard();
+  const { fieldRef, copy } = useCopyToClipboard();
 
   const tippyProps = useMemo(
     () => ({
       trigger: 'mouseenter',
-      hideOnClick: false,
-      content: copied ? t('copiedHash') : t('copyHashToClipboard'),
+      hideOnClick: true,
+      content: t('copyHashToClipboard'),
       animation: 'shift-away-subtle',
-      onHidden() {
-        setCopied(false);
-      }
+      placement: 'bottom-end' as const
     }),
-    [copied, setCopied]
+    []
   );
 
   const buttonRef = useTippy<HTMLButtonElement>(tippyProps);
@@ -62,7 +63,8 @@ const CopyButton: FC<CopyButtonProps> = ({
   const handleCopyPress = () => {
     testID && trackEvent(testID, AnalyticsEventCategory.ButtonPress, testIDProperties);
 
-    return copy();
+    copy();
+    toastSuccess(t('copiedHash'));
   };
 
   const classNameMemo = useMemo(
@@ -72,7 +74,7 @@ const CopyButton: FC<CopyButtonProps> = ({
             'font-tnum leading-none select-none',
             'transition ease-in-out duration-300',
             rounded === 'base' ? 'rounded' : 'rounded-sm',
-            small ? 'text-xs p-1' : 'text-sm py-1 px-2',
+            small ? 'text-font-description p-1' : 'text-font-medium py-1 px-2',
             BG_SHADES[bgShade],
             TEXT_SHADES[textShade],
             className
@@ -94,7 +96,7 @@ const CopyButton: FC<CopyButtonProps> = ({
         {children}
       </button>
 
-      <input ref={fieldRef} value={text} readOnly className="sr-only" />
+      <input type={isSecret ? 'password' : 'text'} ref={fieldRef} value={text} readOnly className="sr-only" />
     </>
   );
 };

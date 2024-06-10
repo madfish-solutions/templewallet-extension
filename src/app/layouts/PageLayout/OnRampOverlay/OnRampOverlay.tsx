@@ -97,7 +97,7 @@ export const OnRampOverlay: FC = () => {
               href={getWertLink(publicKeyHash, 100)}
               SmileIcon={SmileWithGlassesIcon}
               amount={100}
-              className="hover:shadow hover:opacity-90 hover:bg-orange-500 bg-orange-500"
+              className="hover:shadow hover:opacity-90 hover:!bg-orange-500 !bg-orange-500"
               titleClassName="text-primary-white"
               onClick={close}
               testID={OnRampOverlaySelectors.oneHundredDollarButton}

@@ -14,7 +14,7 @@ import { getAllGroups } from 'temple/front/accounts-groups';
 interface AccountAlreadyExistsWarningProps {
   newAccountGroup: DisplayedGroup;
   oldAccount: StoredAccount;
-  onClose: () => void;
+  onClose: EmptyFn;
 }
 
 export const AccountAlreadyExistsWarning = memo<AccountAlreadyExistsWarningProps>(
@@ -25,12 +25,12 @@ export const AccountAlreadyExistsWarning = memo<AccountAlreadyExistsWarningProps
     return (
       <ActionModal title={t('addAccount')} onClose={onClose}>
         <ActionModalBodyContainer>
-          <span className="w-full text-center text-xs leading-4 text-gray-600">
+          <span className="w-full text-center text-font-description text-gray-600">
             {t('accountAlreadyExistsWarning', [newAccountGroup.name, oldAccountGroupName])}
           </span>
         </ActionModalBodyContainer>
         <ActionModalButtonsContainer>
-          <ActionModalButton className="bg-orange-20 text-white" type="button" onClick={onClose}>
+          <ActionModalButton className="bg-primary text-white" type="button" onClick={onClose}>
             Got it
           </ActionModalButton>
         </ActionModalButtonsContainer>

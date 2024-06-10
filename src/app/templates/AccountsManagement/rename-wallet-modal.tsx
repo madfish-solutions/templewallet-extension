@@ -14,7 +14,7 @@ import { useTempleClient } from 'lib/temple/front';
 import { DisplayedGroup } from 'lib/temple/types';
 
 interface RenameWalletModalProps {
-  onClose: () => void;
+  onClose: EmptyFn;
   selectedGroup: DisplayedGroup;
 }
 
@@ -64,7 +64,7 @@ export const RenameWalletModal = memo<RenameWalletModalProps>(({ onClose, select
         </ActionModalBodyContainer>
         <ActionModalButtonsContainer>
           <ActionModalButton
-            className="bg-orange-200 text-orange-20"
+            className="bg-primary-low text-primary"
             disabled={submitting}
             onClick={onClose}
             type="button"
@@ -72,7 +72,7 @@ export const RenameWalletModal = memo<RenameWalletModalProps>(({ onClose, select
             <T id="cancel" />
           </ActionModalButton>
 
-          <ActionModalButton className="bg-orange-20 text-white" disabled={submitting} type="submit">
+          <ActionModalButton className="bg-primary text-white" disabled={submitting} type="submit">
             <T id="save" />
           </ActionModalButton>
         </ActionModalButtonsContainer>

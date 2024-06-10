@@ -1,6 +1,6 @@
 import React, { FC, memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
-import { SyncSpinner, Divider, Checkbox } from 'app/atoms';
+import { SyncSpinner, Lines, Checkbox } from 'app/atoms';
 import DropdownWrapper from 'app/atoms/DropdownWrapper';
 import { IconButton } from 'app/atoms/IconButton';
 import { useLoadPartnersPromo } from 'app/hooks/use-load-partners-promo';
@@ -228,7 +228,7 @@ const TezosTokensTab: FC<TezosTokensTabProps> = ({ network, publicKeyHash, chain
 
         {filteredAssets.length === 0 ? (
           <div className="my-8 flex flex-col items-center justify-center text-gray-500">
-            <p className="mb-2 flex items-center justify-center text-gray-600 text-base font-light">
+            <p className="mb-2 flex items-center justify-center text-gray-600 text-font-regular font-light">
               {searchValueExist && <SearchIcon className="w-5 h-auto mr-1 stroke-current fill-current" />}
 
               <span {...setTestID(HomeSelectors.emptyStateText)}>
@@ -236,7 +236,7 @@ const TezosTokensTab: FC<TezosTokensTabProps> = ({ network, publicKeyHash, chain
               </span>
             </p>
 
-            <p className="text-center text-xs font-light">
+            <p className="text-center text-font-description font-light">
               <T
                 id="ifYouDontSeeYourAsset"
                 substitutions={[
@@ -287,7 +287,7 @@ const ManageButtonDropdown: FC<ManageButtonDropdownProps> = ({
         </span>
       </Link>
 
-      <Divider className="my-2" />
+      <Lines className="my-2" />
 
       <label className={buttonClassName}>
         <Checkbox

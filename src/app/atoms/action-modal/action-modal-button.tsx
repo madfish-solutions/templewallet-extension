@@ -6,7 +6,7 @@ import { Button, ButtonProps } from 'app/atoms/Button';
 
 type ActionModalButtonProps = Pick<ButtonProps, 'className' | 'disabled' | 'onClick' | 'type' | 'children'>;
 
-const modalActionButtonClassName = 'flex-1 p-2 text-center font-semibold text-base leading-6 rounded-lg';
+const modalActionButtonClassName = 'flex-1 p-2 text-center text-font-regular-bold rounded-lg';
 
 export const ActionModalButton = memo<ActionModalButtonProps>(({ className, disabled, onClick, type, children }) => (
   <Button

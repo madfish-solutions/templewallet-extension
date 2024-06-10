@@ -25,13 +25,13 @@ export const GroupView = memo<GroupViewProps>(({ group, searchValue, ...restProp
   <div className="rounded-lg w-full flex flex-col border border-gray-300">
     <div className="p-4 gap-0.5 w-full flex flex-col">
       <div className="w-full flex flex-row justify-between items-center">
-        <span className="text-xs font-semibold leading-4">{group.name}</span>
+        <span className="text-font-description-bold">{group.name}</span>
         <GroupActionsPopper group={group} {...restProps} />
       </div>
 
       <div className="w-full flex flex-row justify-between items-center">
-        <span className="text-gray-600 text-xxxs leading-3 font-medium">{t(typesLabelsI18nKeys[group.type])}</span>
-        <span className="text-gray-600 text-xs leading-4">{group.accounts.length} Accounts</span>
+        <span className="text-gray-600 text-font-small font-medium">{t(typesLabelsI18nKeys[group.type])}</span>
+        <span className="text-gray-600 text-font-description">{group.accounts.length} Accounts</span>
       </div>
     </div>
 
@@ -46,7 +46,7 @@ export const GroupView = memo<GroupViewProps>(({ group, searchValue, ...restProp
             <Identicon type="bottts" hash={acc.id} size={20} className="rounded-sm" />
           </div>
 
-          <div className="text-sm leading-5 font-semibold">
+          <div className="text-font-medium-bold leading-5">
             <SearchHighlightText searchValue={searchValue}>{acc.name}</SearchHighlightText>
           </div>
         </div>

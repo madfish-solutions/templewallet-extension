@@ -51,7 +51,7 @@ export const NotificationPreviewItem: FC<Props> = ({ notification }) => {
         <div className="mb-4">
           <p
             className={classNames(
-              'mb-2 text-sm font-medium',
+              'mb-2 text-font-medium font-medium',
               notification.status === NotificationStatus.Read ? 'text-gray-600' : 'text-black'
             )}
             {...setTestID(PreviewItemSelectors.notificationItemTitleText)}

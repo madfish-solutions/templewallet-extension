@@ -8,6 +8,7 @@ import { useAlert } from 'lib/ui';
 import { searchAndFilterAccounts } from 'temple/front/accounts';
 import { useAccountsGroups } from 'temple/front/groups';
 
+import { CreateHDWalletModal } from '../CreateHDWalletModal';
 import { NewWalletActionsPopper } from '../NewWalletActionsPopper';
 import { SearchBarField } from '../SearchField';
 
@@ -21,7 +22,8 @@ enum AccountsManagementModal {
   RenameWallet = 'rename-wallet',
   RevealSeedPhrase = 'reveal-seed-phrase',
   DeleteWallet = 'delete-wallet',
-  AccountAlreadyExistsWarning = 'account-already-exists-warning'
+  AccountAlreadyExistsWarning = 'account-already-exists-warning',
+  CreateHDWalletFlow = 'create-hd-wallet-flow'
 }
 
 export const AccountsManagement = memo(() => {
@@ -34,6 +36,9 @@ export const AccountsManagement = memo(() => {
   const [selectedGroup, setSelectedGroup] = useState<DisplayedGroup | null>(null);
   const [activeModal, setActiveModal] = useState<AccountsManagementModal | null>(null);
   const [oldAccount, setOldAccount] = useState<StoredAccount | null>(null);
+
+  const startWalletCreation = useCallback(() => setActiveModal(AccountsManagementModal.CreateHDWalletFlow), []);
+  const onCreateWalletFlowEnd = useCallback(() => setActiveModal(null), []);
 
   const filteredAccounts = useMemo(
     () => (searchValue.length ? searchAndFilterAccounts(allAccounts, searchValue) : allAccounts),
@@ -101,17 +106,26 @@ export const AccountsManagement = memo(() => {
             onClose={handleAccountAlreadyExistsWarnClose}
           />
         );
+      case AccountsManagementModal.CreateHDWalletFlow:
+        return <CreateHDWalletModal onEnd={onCreateWalletFlowEnd} />;
       default:
         return null;
     }
-  }, [activeModal, handleAccountAlreadyExistsWarnClose, handleModalClose, oldAccount, selectedGroup]);
+  }, [
+    activeModal,
+    handleAccountAlreadyExistsWarnClose,
+    handleModalClose,
+    oldAccount,
+    onCreateWalletFlowEnd,
+    selectedGroup
+  ]);
 
   return (
     <>
       <div className="flex my-3 gap-x-2 w-full items-center">
         <SearchBarField value={searchValue} placeholder={t('searchAccount', '')} onValueChange={setSearchValue} />
 
-        <NewWalletActionsPopper />
+        <NewWalletActionsPopper startWalletCreation={startWalletCreation} />
       </div>
 
       <div className="flex flex-col gap-y-4 overflow-y-auto w-full">

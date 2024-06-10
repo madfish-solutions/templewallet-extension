@@ -1,12 +1,14 @@
-import React, { memo } from 'react';
+import React, { memo, useMemo } from 'react';
 
 import clsx from 'clsx';
 import toast, { Toaster, Toast, ToastIcon, ToastType } from 'react-hot-toast';
 
+import { useAppEnv } from 'app/env';
 import { ReactComponent as ErrorIcon } from 'app/icons/typed-msg/error.svg';
 import { ReactComponent as InfoIcon } from 'app/icons/typed-msg/info.svg';
 import { ReactComponent as SuccessIcon } from 'app/icons/typed-msg/success.svg';
 import { ReactComponent as WarningIcon } from 'app/icons/typed-msg/warning.svg';
+import { useToastsContainerBottomShiftSelector } from 'app/store/settings/selectors';
 import PortalToDocumentBody from 'lib/ui/Portal';
 
 export const toastSuccess = (title: string) => void toast.success(title);
@@ -18,11 +20,19 @@ export const toastInfo = (title: string) => void toast(title);
 export const toastWarning = (title: string) =>
   void toast.custom(toast => <CustomToastBar toast={{ ...toast, message: title }} customType="warning" />);
 
-export const ToasterProvider = memo(() => (
-  <PortalToDocumentBody>
-    <Toaster position="bottom-center">{t => <CustomToastBar toast={t} />}</Toaster>
-  </PortalToDocumentBody>
-));
+export const ToasterProvider = memo(() => {
+  const bottomShift = useToastsContainerBottomShiftSelector();
+  const { popup } = useAppEnv();
+  const toastsContainerStyle = useMemo(() => ({ bottom: (popup ? 32 : 64) + bottomShift }), [bottomShift, popup]);
+
+  return (
+    <PortalToDocumentBody>
+      <Toaster position="bottom-center" containerStyle={toastsContainerStyle}>
+        {t => <CustomToastBar toast={t} />}
+      </Toaster>
+    </PortalToDocumentBody>
+  );
+});
 
 type ToastTypeExtended = ToastType | 'warning';
 

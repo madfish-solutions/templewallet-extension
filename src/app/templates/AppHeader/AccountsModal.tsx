@@ -7,10 +7,13 @@ import { AccLabel } from 'app/atoms/AccLabel';
 import { AccountName } from 'app/atoms/AccountName';
 import { IconButton } from 'app/atoms/IconButton';
 import { PageModal } from 'app/atoms/PageModal';
+import { ActionsButtonsBox } from 'app/atoms/PageModal/actions-buttons-box';
+import { ScrollView } from 'app/atoms/PageModal/scroll-view';
 import { RadioButton } from 'app/atoms/RadioButton';
 import { StyledButton } from 'app/atoms/StyledButton';
 import { TotalEquity } from 'app/atoms/TotalEquity';
 import { useShortcutAccountSelectModalIsOpened } from 'app/hooks/use-account-select-shortcut';
+import { useAllAccountsReactiveOnAddition } from 'app/hooks/use-all-accounts-reactive';
 import { ReactComponent as SettingsIcon } from 'app/icons/base/settings.svg';
 import { NewWalletActionsPopper } from 'app/templates/NewWalletActionsPopper';
 import { SearchBarField } from 'app/templates/SearchField';
@@ -19,6 +22,8 @@ import { useScrollIntoViewOnMount } from 'lib/ui/use-scroll-into-view';
 import { navigate } from 'lib/woozie';
 import { searchAndFilterAccounts, useAccountsGroups, useCurrentAccountId, useVisibleAccounts } from 'temple/front';
 import { useSetAccountId } from 'temple/front/ready';
+
+import { CreateHDWalletModal } from '../CreateHDWalletModal';
 
 interface Props {
   opened: boolean;
@@ -30,7 +35,9 @@ export const AccountsModal = memo<Props>(({ opened, onRequestClose }) => {
   const currentAccountId = useCurrentAccountId();
 
   const [searchValue, setSearchValue] = useState('');
+  const [shouldShowCreateWalletFlow, setShouldShowCreateWalletFlow] = useState(false);
 
+  useAllAccountsReactiveOnAddition();
   useShortcutAccountSelectModalIsOpened(onRequestClose);
 
   const filteredAccounts = useMemo(
@@ -46,36 +53,43 @@ export const AccountsModal = memo<Props>(({ opened, onRequestClose }) => {
     else if (!opened) setAttractSelectedAccount(true);
   }, [opened, searchValue]);
 
+  const startWalletCreation = useCallback(() => setShouldShowCreateWalletFlow(true), []);
+  const onCreateWalletFlowEnd = useCallback(() => setShouldShowCreateWalletFlow(false), []);
+
   return (
-    <PageModal title="My Accounts" opened={opened} onRequestClose={onRequestClose}>
-      <div className="flex gap-x-2 p-4">
-        <SearchBarField value={searchValue} onValueChange={setSearchValue} />
+    <>
+      {shouldShowCreateWalletFlow && <CreateHDWalletModal onEnd={onCreateWalletFlowEnd} />}
 
-        <IconButton Icon={SettingsIcon} color="blue" onClick={() => void navigate('settings/accounts-management')} />
+      <PageModal title="My Accounts" opened={opened} onRequestClose={onRequestClose}>
+        <div className="flex gap-x-2 p-4">
+          <SearchBarField value={searchValue} onValueChange={setSearchValue} />
 
-        <NewWalletActionsPopper />
-      </div>
+          <IconButton Icon={SettingsIcon} color="blue" onClick={() => void navigate('settings/accounts-management')} />
 
-      <div className="px-4 flex-1 flex flex-col overflow-y-auto">
-        {filteredGroups.map(group => (
-          <AccountsGroup
-            key={group.id}
-            title={group.name}
-            accounts={group.accounts}
-            currentAccountId={currentAccountId}
-            searchValue={searchValue}
-            attractSelectedAccount={attractSelectedAccount}
-            onAccountSelect={onRequestClose}
-          />
-        ))}
-      </div>
+          <NewWalletActionsPopper startWalletCreation={startWalletCreation} />
+        </div>
 
-      <div className="p-4 pb-6 flex flex-col bg-white">
-        <StyledButton size="L" color="primary-low" onClick={onRequestClose}>
-          Cancel
-        </StyledButton>
-      </div>
-    </PageModal>
+        <ScrollView>
+          {filteredGroups.map(group => (
+            <AccountsGroup
+              key={group.id}
+              title={group.name}
+              accounts={group.accounts}
+              currentAccountId={currentAccountId}
+              searchValue={searchValue}
+              attractSelectedAccount={attractSelectedAccount}
+              onAccountSelect={onRequestClose}
+            />
+          ))}
+        </ScrollView>
+
+        <ActionsButtonsBox>
+          <StyledButton size="L" color="primary-low" onClick={onRequestClose}>
+            Cancel
+          </StyledButton>
+        </ActionsButtonsBox>
+      </PageModal>
+    </>
   );
 });
 

@@ -620,7 +620,7 @@ const KnownDelegatorsList = memo<KnownDelegatorsListProps>(
     return (
       <div className="my-6 flex flex-col">
         <h2 className="mb-4 leading-tight flex flex-col">
-          <span className="text-base font-semibold text-gray-700">
+          <span className="text-font-regular-bold text-gray-700">
             <T id="delegateToRecommendedBakers" />
           </span>
 
@@ -675,7 +675,7 @@ const KnownDelegatorsList = memo<KnownDelegatorsListProps>(
           <div className="flex-1" />
         </div>
 
-        <div className="flex flex-col rounded-md overflow-hidden border text-gray-700 text-sm leading-tight">
+        <div className="flex flex-col rounded-md overflow-hidden border text-gray-700 text-font-medium leading-tight">
           {sortedKnownBakers.map((baker, i, arr) => {
             const last = i === arr.length - 1;
             const handleBakerClick = () => {

@@ -2,7 +2,7 @@ import React, { FC } from 'react';
 
 import classNames from 'clsx';
 
-import Logo from 'app/atoms/Logo';
+import { Logo } from 'app/atoms/Logo';
 import Name from 'app/atoms/Name';
 import { ReactComponent as OkIcon } from 'app/icons/base/ok.svg';
 import { ReactComponent as LayersIcon } from 'app/icons/layers.svg';
@@ -46,7 +46,7 @@ const ConnectBanner: FC<ConnectBannerProps> = ({ type, origin, appMeta, classNam
       </div>
 
       <div className={classNames('w-32', 'border border-gray-200 rounded', 'flex flex-col items-center', 'p-2')}>
-        <Logo className="mb-1" style={{ height: 32, margin: 'auto' }} />
+        <Logo type="icon" size={32} className="mb-1 m-auto" />
 
         <span className="text-xs font-semibold text-gray-700">Temple</span>
       </div>

@@ -4,8 +4,7 @@ import { isDefined } from '@rnw-community/shared';
 import classNames from 'clsx';
 import { useDebounce } from 'use-debounce';
 
-import { FormSubmitButton } from 'app/atoms';
-import Divider from 'app/atoms/Divider';
+import { FormSubmitButton, Lines } from 'app/atoms';
 import styles from 'app/pages/Buy/Crypto/Exolix/Exolix.module.css';
 import ErrorComponent from 'app/pages/Buy/Crypto/Exolix/steps/ErrorComponent';
 import WarningComponent from 'app/pages/Buy/Crypto/Exolix/steps/WarningComponent';
@@ -148,7 +147,7 @@ const InitialStep: FC<Props> = ({ publicKeyHash, exchangeData, setExchangeData, 
 
       <WarningComponent currency={coinFrom} />
 
-      <Divider style={{ marginBottom: '10px' }} />
+      <Lines className="mb-2.5" />
 
       <TopUpInput
         amount={amount}
@@ -182,7 +181,7 @@ const InitialStep: FC<Props> = ({ publicKeyHash, exchangeData, setExchangeData, 
         onCurrencySelect={setCoinTo}
       />
 
-      <Divider style={{ marginTop: '40px', marginBottom: '20px' }} />
+      <Lines className="mt-10 mb-5" />
 
       <div className={classNames('flex justify-between', Number(rate) < 0 ? 'text-red-700' : 'text-gray-600')}>
         <p className={styles['exchangeTitle']}>
@@ -210,11 +209,11 @@ const InitialStep: FC<Props> = ({ publicKeyHash, exchangeData, setExchangeData, 
         <T
           id="privacyAndPolicyLinks"
           substitutions={[
-            <T id={'topUp'} />,
-            <a className={styles['link']} rel="noreferrer" href={EXOLIX_TERMS_LINK} target="_blank">
+            <T id={'topUp'} key="buttonContent" />,
+            <a className={styles['link']} rel="noreferrer" href={EXOLIX_TERMS_LINK} target="_blank" key="termsOfUse">
               <T id={'termsOfUse'} />
             </a>,
-            <a className={styles['link']} rel="noreferrer" href={EXOLIX_PRIVICY_LINK} target="_blank">
+            <a className={styles['link']} rel="noreferrer" href={EXOLIX_PRIVICY_LINK} target="_blank" key="privacy">
               <T id={'privacyPolicy'} />
             </a>
           ]}

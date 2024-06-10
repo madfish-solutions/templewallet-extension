@@ -58,12 +58,18 @@ function useReadyTemple() {
 
   const { customTezosNetworks, customEvmNetworks, accounts: allAccounts, settings, walletsSpecs } = templeFront;
 
+  const hdGroups = useMemo(
+    () =>
+      Object.entries(walletsSpecs)
+        .sort(([, { createdAt: aCreatedAt }], [, { createdAt: bCreatedAt }]) => aCreatedAt - bCreatedAt)
+        .map(([id, { name }]) => ({ id, name })),
+    [walletsSpecs]
+  );
+
   const readyTempleTezosNetworks = useReadyTempleTezosNetworks(customTezosNetworks);
   const readyTempleEvmNetworks = useReadyTempleEvmNetworks(customEvmNetworks);
 
   const readyTempleAccounts = useReadyTempleAccounts(allAccounts);
-
-  const hdGroups = useMemo(() => Object.entries(walletsSpecs).map(([id, { name }]) => ({ id, name })), [walletsSpecs]);
 
   /** Error boundary reset */
   useLayoutEffect(() => {

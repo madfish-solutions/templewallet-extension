@@ -14,7 +14,7 @@ import { DisplayedGroup, TempleAccountType } from 'lib/temple/types';
 import { useHDGroups } from 'temple/front';
 
 interface DeleteWalletModalProps {
-  onClose: () => void;
+  onClose: EmptyFn;
   selectedGroup: DisplayedGroup;
 }
 
@@ -67,7 +67,7 @@ export const DeleteWalletModal = memo<DeleteWalletModalProps>(({ onClose, select
             />
           </ActionModalBodyContainer>
           <ActionModalButtonsContainer>
-            <ActionModalButton className="bg-orange-200 text-orange-20" onClick={onClose} type="button">
+            <ActionModalButton className="bg-primary-low text-primary" onClick={onClose} type="button">
               <T id="cancel" />
             </ActionModalButton>
           </ActionModalButtonsContainer>
@@ -79,7 +79,7 @@ export const DeleteWalletModal = memo<DeleteWalletModalProps>(({ onClose, select
               <Alert
                 type="warning"
                 description={
-                  <p className="text-xs leading-4 text-gray-900">
+                  <p className="text-font-description text-gray-900">
                     <T id={removeWarningsI18nKey} />
                   </p>
                 }
@@ -100,7 +100,7 @@ export const DeleteWalletModal = memo<DeleteWalletModalProps>(({ onClose, select
           </ActionModalBodyContainer>
           <ActionModalButtonsContainer>
             <ActionModalButton
-              className="bg-orange-200 text-orange-20"
+              className="bg-primary-low text-primary"
               disabled={submitting}
               onClick={onClose}
               type="button"
@@ -108,7 +108,7 @@ export const DeleteWalletModal = memo<DeleteWalletModalProps>(({ onClose, select
               <T id="cancel" />
             </ActionModalButton>
 
-            <ActionModalButton className="bg-red-600 text-white" disabled={submitting} type="submit">
+            <ActionModalButton className="bg-error text-white" disabled={submitting} type="submit">
               <T id="delete" />
             </ActionModalButton>
           </ActionModalButtonsContainer>

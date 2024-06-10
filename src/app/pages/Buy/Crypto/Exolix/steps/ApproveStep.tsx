@@ -3,9 +3,8 @@ import React, { FC, useEffect } from 'react';
 import Countdown from 'react-countdown';
 import { QRCode } from 'react-qr-svg';
 
-import { FormField } from 'app/atoms';
+import { FormField, Lines } from 'app/atoms';
 import CopyButton from 'app/atoms/CopyButton';
-import Divider from 'app/atoms/Divider';
 import HashShortView from 'app/atoms/HashShortView';
 import { ReactComponent as CopyIcon } from 'app/icons/monochrome/copy.svg';
 import useTopUpUpdate from 'app/pages/Buy/Crypto/Exolix/hooks/useTopUpUpdate.hook';
@@ -91,7 +90,7 @@ const ApproveStep: FC<Props> = ({ exchangeData, setExchangeData, setStep, isErro
 
           <WarningComponent amountAttention />
 
-          <Divider style={{ marginBottom: '1.5rem', marginTop: '2rem' }} />
+          <Lines className="mb-6 mt-8" />
 
           <div className="flex justify-between items-baseline">
             <p className="text-gray-600 text-xs">
@@ -178,7 +177,7 @@ const ApproveStep: FC<Props> = ({ exchangeData, setExchangeData, setStep, isErro
             </>
           )}
 
-          <Divider style={{ marginTop: '2.5rem' }} />
+          <Lines className="mt-10" />
 
           <div className="flex justify-between items-baseline mt-4 mb-12">
             <p className="text-gray-600 text-xs">

@@ -165,7 +165,7 @@ export const InitialStep = memo<Props>(
             <span className="text-xl text-gray-900">
               <T id="toCard" />
             </span>
-            <span className="inline-flex items-center font-inter text-xs font-normal text-orange-500">
+            <span className="inline-flex items-center font-inter text-font-description font-normal text-orange-500">
               <AlertIcon className="mr-1 stroke-current" />
               <T id="onlyForCountryBankingCards" substitutions={[outputCurrency.name.split(' ')[0]]} />
             </span>

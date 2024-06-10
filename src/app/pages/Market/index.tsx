@@ -57,7 +57,7 @@ const WithdrawTab = memo(() => {
         'border-blue-500 hover:border-blue-600 focus:border-blue-600',
         'flex items-center justify-center',
         'shadow-sm hover:shadow focus:shadow',
-        'text-base font-medium',
+        'text-font-regular font-medium',
         'transition ease-in-out duration-300'
       ),
     []

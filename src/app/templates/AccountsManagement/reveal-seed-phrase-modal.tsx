@@ -15,7 +15,7 @@ import { DisplayedGroup } from 'lib/temple/types';
 import { useVanishingState } from 'lib/ui/hooks';
 
 interface RevealSeedPhraseModalProps {
-  onClose: () => void;
+  onClose: EmptyFn;
   selectedGroup: DisplayedGroup;
 }
 
@@ -30,7 +30,7 @@ export const RevealSeedPhraseModal = memo<RevealSeedPhraseModalProps>(({ onClose
             <Alert
               type="warning"
               description={
-                <p className="text-xs leading-4 text-gray-900">
+                <p className="text-font-description text-gray-900">
                   <span className="font-semibold">Never share</span> your seed phrase or enter it into any apps. It
                   grants full access to your wallet.
                 </p>
@@ -40,7 +40,7 @@ export const RevealSeedPhraseModal = memo<RevealSeedPhraseModalProps>(({ onClose
             <ReadOnlySecretField value={seedPhrase} label="newRevealSeedPhraseLabel" description={null} />
           </ActionModalBodyContainer>
           <ActionModalButtonsContainer>
-            <ActionModalButton className="bg-orange-200 text-orange-20" onClick={onClose} type="button">
+            <ActionModalButton className="bg-primary-low text-primary" onClick={onClose} type="button">
               <T id="cancel" />
             </ActionModalButton>
           </ActionModalButtonsContainer>
@@ -90,7 +90,7 @@ const RevealSeedPhraseForm = memo<RevealSeedPhraseFormProps>(({ onReveal, select
         />
       </ActionModalBodyContainer>
       <ActionModalButtonsContainer>
-        <ActionModalButton className="bg-orange-20 text-white" disabled={submitting} type="submit">
+        <ActionModalButton className="bg-primary text-white" disabled={submitting} type="submit">
           <T id="revealSeedPhrase" />
         </ActionModalButton>
       </ActionModalButtonsContainer>

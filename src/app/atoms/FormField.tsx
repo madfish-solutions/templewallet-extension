@@ -9,7 +9,7 @@ import React, {
   useState
 } from 'react';
 
-import classNames from 'clsx';
+import clsx from 'clsx';
 
 import CleanButton from 'app/atoms/CleanButton';
 import CopyButton from 'app/atoms/CopyButton';
@@ -31,6 +31,8 @@ export const PASSWORD_ERROR_CAPTION = 'PASSWORD_ERROR_CAPTION';
 export type FormFieldElement = HTMLInputElement | HTMLTextAreaElement;
 type FormFieldAttrs = InputHTMLAttributes<HTMLInputElement> & TextareaHTMLAttributes<HTMLTextAreaElement>;
 
+type InnerWrapperType = 'default' | 'none' | 'unset';
+
 export interface FormFieldProps extends TestIDProperty, Omit<FormFieldAttrs, 'type' | 'onBlur'> {
   type?: 'text' | 'number' | 'password';
   extraSection?: ReactNode;
@@ -38,6 +40,7 @@ export interface FormFieldProps extends TestIDProperty, Omit<FormFieldAttrs, 'ty
   labelDescription?: ReactNode;
   labelWarning?: ReactNode;
   errorCaption?: ReactNode;
+  shouldShowErrorCaption?: boolean;
   containerClassName?: string;
   containerStyle?: React.CSSProperties;
   textarea?: boolean;
@@ -45,14 +48,18 @@ export interface FormFieldProps extends TestIDProperty, Omit<FormFieldAttrs, 'ty
   secret?: boolean;
   /** `type='password'` only */
   revealForbidden?: boolean;
+  /** `type='password'` only */
+  shouldShowRevealWhenEmpty?: boolean;
   /**
    * Any value, whose change will result in password un-reveal.
    * `type='password'` only
    */
   revealRef?: unknown;
   cleanable?: boolean;
-  extraInner?: ReactNode;
-  extraInnerWrapper?: 'default' | 'none' | 'unset';
+  extraLeftInner?: ReactNode;
+  extraLeftInnerWrapper?: InnerWrapperType;
+  extraRightInner?: ReactNode;
+  extraRightInnerWrapper?: InnerWrapperType;
   onClean?: EmptyFn;
   onReveal?: EmptyFn;
   onBlur?: React.FocusEventHandler;
@@ -77,14 +84,18 @@ export const FormField = forwardRef<FormFieldElement, FormFieldProps>(
       labelDescription,
       labelWarning,
       errorCaption,
+      shouldShowErrorCaption = true,
       containerClassName,
       textarea,
       secret: secretProp,
       revealForbidden = false,
+      shouldShowRevealWhenEmpty = false,
       revealRef,
       cleanable,
-      extraInner = null,
-      extraInnerWrapper = 'default',
+      extraLeftInner = null,
+      extraLeftInnerWrapper = 'default',
+      extraRightInner = null,
+      extraRightInnerWrapper = 'default',
       id,
       type,
       value,
@@ -102,6 +113,7 @@ export const FormField = forwardRef<FormFieldElement, FormFieldProps>(
       copyable,
       testID,
       testIDs,
+      style,
       ...rest
     },
     ref
@@ -109,7 +121,7 @@ export const FormField = forwardRef<FormFieldElement, FormFieldProps>(
     const secret = secretProp && textarea;
     const Field = textarea ? 'textarea' : 'input';
 
-    const [passwordInputType, RevealPasswordIcon] = usePasswordToggle(smallPaddings, id, onReveal, revealRef, onBlur);
+    const [passwordInputType, RevealPasswordIcon] = usePasswordToggle(id, onReveal, revealRef, onBlur);
     const isPasswordInput = type === 'password';
     const inputType = isPasswordInput ? passwordInputType : type;
 
@@ -145,32 +157,65 @@ export const FormField = forwardRef<FormFieldElement, FormFieldProps>(
     const handleSecretBannerClick = () => void spareRef.current?.focus();
     const handleCleanClick = useCallback(() => void onClean?.(), [onClean]);
 
+    const hasRevealablePassword =
+      isPasswordInput && !revealForbidden && (shouldShowRevealWhenEmpty || Boolean(localValue));
+    const fieldStyle = useMemo(
+      () => ({
+        ...style,
+        ...buildHorizontalPaddingStyle(
+          [cleanable, copyable, hasRevealablePassword].filter(Boolean).length,
+          extraLeftInnerWrapper === 'unset' ? false : Boolean(extraLeftInner),
+          extraRightInnerWrapper === 'unset' ? false : Boolean(extraRightInner),
+          smallPaddings
+        )
+      }),
+      [
+        cleanable,
+        copyable,
+        extraLeftInner,
+        extraLeftInnerWrapper,
+        extraRightInner,
+        extraRightInnerWrapper,
+        hasRevealablePassword,
+        smallPaddings,
+        style
+      ]
+    );
+
     return (
       <div
-        className={classNames('w-full flex flex-col', containerClassName)}
+        className={clsx('w-full flex flex-col', containerClassName)}
         style={containerStyle}
         {...setTestID(testIDs?.inputSection)}
       >
         {label && (
-          <FieldLabel label={label} warning={labelWarning} description={labelDescription} className="mb-4" id={id} />
+          <FieldLabel
+            label={label}
+            warning={labelWarning}
+            description={labelDescription}
+            className="mt-1 pb-2"
+            id={id}
+          />
         )}
 
         {extraSection}
 
-        <div className={classNames('relative flex items-stretch', fieldWrapperBottomMargin && 'mb-2')}>
+        <div className={clsx('relative flex items-stretch', fieldWrapperBottomMargin && 'mb-1')}>
+          <ExtraInner
+            innerComponent={extraLeftInner}
+            useDefaultWrapper={extraLeftInnerWrapper === 'default'}
+            position="left"
+          />
+
           <Field
             ref={combineRefs(ref, spareRef)}
-            className={classNames(
+            className={clsx(
               FORM_FIELD_CLASS_NAME,
-              smallPaddings ? 'py-2 pl-2' : 'py-3 pl-4',
-              buildPaddingRightClassName(
-                isPasswordInput,
-                extraInnerWrapper === 'unset' ? false : Boolean(extraInner),
-                smallPaddings
-              ),
-              errorCaption ? 'border-red-500' : 'border-gray-300',
+              smallPaddings ? 'py-2 pl-2' : 'p-3',
+              errorCaption ? 'border-error' : 'border-input-low',
               className
             )}
+            style={fieldStyle}
             id={id}
             type={inputType}
             value={value}
@@ -184,41 +229,51 @@ export const FormField = forwardRef<FormFieldElement, FormFieldProps>(
             {...setTestID(testIDs?.input || testID)}
           />
 
-          {isPasswordInput && !revealForbidden && localValue !== '' && RevealPasswordIcon}
+          <ExtraInner
+            innerComponent={extraRightInner}
+            useDefaultWrapper={extraRightInnerWrapper === 'default'}
+            position="right"
+          />
 
-          <ExtraInner innerComponent={extraInner} useDefaultWrapper={extraInnerWrapper === 'default'} />
+          <div
+            className={clsx(
+              'absolute flex justify-end gap-1 items-center',
+              textarea ? 'bottom-0' : 'inset-y-0',
+              smallPaddings ? 'right-2' : 'right-3'
+            )}
+          >
+            {cleanable && <CleanButton size={16} onClick={handleCleanClick} />}
+            {copyable && <Copyable value={String(value)} copy={copy} isSecret={type === 'password'} />}
+            {hasRevealablePassword && RevealPasswordIcon}
+          </div>
 
           {secretCovered && <SecretCover onClick={handleSecretBannerClick} />}
-
-          <Cleanable cleanable={cleanable} handleCleanClick={handleCleanClick} />
-          <Copyable value={value} copy={copy} cleanable={cleanable} copyable={copyable} />
         </div>
 
-        <ErrorCaption errorCaption={errorCaption} />
+        {shouldShowErrorCaption && <ErrorCaption errorCaption={errorCaption} />}
       </div>
     );
   }
 );
 
-export const FORM_FIELD_CLASS_NAME = classNames(
-  'appearance-none w-full border-2 rounded-md bg-gray-100',
-  'focus:border-primary-orange focus:bg-transparent focus:outline-none focus:shadow-outline',
-  'transition ease-in-out duration-200',
-  'text-gray-700 text-lg leading-tight placeholder-alphagray'
+export const FORM_FIELD_CLASS_NAME = clsx(
+  'appearance-none w-full border rounded-lg bg-input-low caret-primary focus:outline-none',
+  'transition ease-in-out duration-200 text-font-regular placeholder-grey-2 hover:placeholder-grey-1'
 );
 
 interface ExtraInnerProps {
   innerComponent: React.ReactNode;
   useDefaultWrapper: boolean;
+  position: 'left' | 'right';
 }
 
-const ExtraInner: React.FC<ExtraInnerProps> = ({ useDefaultWrapper, innerComponent }) => {
+const ExtraInner: React.FC<ExtraInnerProps> = ({ useDefaultWrapper, innerComponent, position }) => {
   if (useDefaultWrapper)
     return (
       <div
-        className={classNames(
-          'absolute flex items-center justify-end inset-y-0 right-0 w-32',
-          'opacity-50 pointer-events-none'
+        className={clsx(
+          'absolute flex items-center inset-y-0 pointer-events-none',
+          position === 'right' ? 'justify-end right-0 w-32 opacity-50' : 'justify-start left-0 w-10'
         )}
       >
         <div className="mx-4 text-lg font-light text-gray-900">{innerComponent}</div>
@@ -227,39 +282,21 @@ const ExtraInner: React.FC<ExtraInnerProps> = ({ useDefaultWrapper, innerCompone
   return <>{innerComponent}</>;
 };
 
-interface CleanableProps {
-  handleCleanClick: () => void;
-  cleanable: React.ReactNode;
-}
-
-const Cleanable: React.FC<CleanableProps> = ({ cleanable, handleCleanClick }) =>
-  cleanable ? <CleanButton onClick={handleCleanClick} /> : null;
-
 interface CopyableProps {
-  value: React.ReactNode;
-  copy: () => void;
-  cleanable: React.ReactNode;
-  copyable: React.ReactNode;
+  value: string;
+  copy: EmptyFn;
+  isSecret: boolean;
 }
 
-const Copyable: React.FC<CopyableProps> = ({ copy, cleanable, value, copyable }) =>
-  copyable ? (
-    <CopyButton
-      style={{
-        position: 'absolute',
-        bottom: cleanable ? '3px' : '0px',
-        right: cleanable ? '30px' : '5px'
-      }}
-      text={value as string}
-      type="link"
-    >
-      <CopyIcon
-        style={{ verticalAlign: 'inherit' }}
-        className="h-4 ml-1 w-auto inline stroke-orange-500 stroke-2"
-        onClick={() => copy()}
-      />
-    </CopyButton>
-  ) : null;
+const Copyable: React.FC<CopyableProps> = ({ copy, value }) => (
+  <CopyButton text={value} type="link">
+    <CopyIcon
+      style={{ verticalAlign: 'inherit' }}
+      className="h-4 ml-1 w-auto inline stroke-orange-500 stroke-2"
+      onClick={copy}
+    />
+  </CopyButton>
+);
 
 interface ErrorCaptionProps {
   errorCaption: React.ReactNode;
@@ -275,10 +312,14 @@ const ErrorCaption: React.FC<ErrorCaptionProps> = ({ errorCaption }) => {
   ) : null;
 };
 
-const buildPaddingRightClassName = (isPasswordInput: boolean, withExtraInner: boolean, smallPaddings: boolean) => {
-  if (withExtraInner) return 'pr-32';
-
-  if (isPasswordInput) return smallPaddings ? 'pr-9' : 'pr-12';
-
-  return smallPaddings ? 'pr-2' : 'pr-4';
+const buildHorizontalPaddingStyle = (
+  buttonsCount: number,
+  withExtraInnerLeft: boolean,
+  withExtraInnerRight: boolean,
+  smallPaddings: boolean
+) => {
+  return {
+    paddingRight: withExtraInnerRight ? 128 : (smallPaddings ? 8 : 12) + buttonsCount * 28,
+    paddingLeft: withExtraInnerLeft ? 40 : smallPaddings ? 8 : 12
+  };
 };

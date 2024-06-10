@@ -1,5 +1,3 @@
-export { default as Divider } from './Divider';
-
 export { Alert } from './Alert';
 
 export { CaptionAlert } from './CaptionAlert';
@@ -21,6 +19,8 @@ export { IconBase } from './IconBase';
 export { default as HashShortView } from './HashShortView';
 
 export { HashChip } from './HashChip';
+
+export { Lines } from './Lines';
 
 export { ExternalLinkChip } from './ExternalLinkChip';
 

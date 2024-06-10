@@ -54,6 +54,10 @@ module.exports = {
     // # EXTENDING DEFAULTS:
 
     extend: {
+      blur: {
+        'xs': '2px'
+      },
+
       colors: {
         gray: {
           100: '#f7fafc',
@@ -130,6 +134,7 @@ module.exports = {
         'secondary-low': '#E3ECF8',
         'secondary-hover-low': '#D7E3F2',
         //
+        'success': '#34CC4E',
         'success-low': '#E6F5E9',
         'error': '#FF3B30',
         'error-hover': '#D93229',
@@ -168,7 +173,10 @@ module.exports = {
         63: '15.75rem'
       },
 
-      width: theme => theme('spacing'),
+      width: theme => ({
+        ...theme('spacing'),
+        modal: '22rem'
+      }),
 
       minWidth: theme => theme('width'),
 

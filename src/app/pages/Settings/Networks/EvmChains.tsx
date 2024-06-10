@@ -114,12 +114,12 @@ export const EvmChainsSettings = memo(() => {
     <>
       <div className="flex flex-col mb-8">
         <h2 className="mb-4 leading-tight flex flex-col">
-          <span className="text-base font-semibold text-gray-700">
+          <span className="text-font-regular-bold text-gray-700">
             {/* <T id="currentNetworks" /> */}
             {TempleChainTitle[TempleChainKind.EVM]} <T id="networks" />
           </span>
 
-          <span className="mt-1 text-xs font-light text-gray-600 max-w-9/10">
+          <span className="mt-1 text-font-description font-light text-gray-600 max-w-9/10">
             <T id="deleteNetworkHint" />
           </span>
         </h2>
@@ -230,12 +230,12 @@ const ChainItem = memo<ChainItemProps>(({ chain, onRemoveClick }) => {
   const lastIndex = networks.length - 1;
 
   return (
-    <div className="flex flex-col text-gray-700 text-sm leading-tight border rounded-lg overflow-hidden">
+    <div className="flex flex-col text-gray-700 text-font-medium leading-tight border rounded-lg overflow-hidden">
       <CheckboxWrapper className="flex items-center py-2 px-4 bg-gray-100 border-b border-gray-200">
         <div className="flex-1 flex flex-col">
           <Name className="mb-1 text-md font-medium leading-tight">{getNetworkTitle(chain)}</Name>
 
-          <div className="text-xs text-gray-700 font-light flex items-center mb-1">
+          <div className="text-font-description text-gray-700 font-light flex items-center mb-1">
             Chain ID:<Name className="ml-1 font-normal">{chain.chainId}</Name>
           </div>
         </div>
