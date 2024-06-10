@@ -2,7 +2,6 @@ import { chromium } from '@playwright/test';
 import path from 'path';
 
 import { CustomBrowserContext } from '../classes/browser-context.class';
-import { sleep, VERY_SHORT_TIMEOUT } from '../utils/timing.utils';
 
 const pathToExtension = path.join(process.cwd(), '../dist/chrome_unpacked');
 
@@ -19,9 +18,13 @@ export async function beforeAllHook() {
 
   CustomBrowserContext.browser = context;
 
-  await sleep(VERY_SHORT_TIMEOUT);
+  const [newPage] = await Promise.all([
+    context.waitForEvent('page'),
+  ]);
 
-  CustomBrowserContext.page = CustomBrowserContext.browser.pages()[1];
+  CustomBrowserContext.page = newPage;
 
   CustomBrowserContext.EXTENSION_URL = CustomBrowserContext.page.url();
+
+  if (newPage.url() !== CustomBrowserContext.EXTENSION_URL) throw new Error('Extension was not opened')
 }
