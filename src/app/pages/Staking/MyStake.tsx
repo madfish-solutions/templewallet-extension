@@ -12,7 +12,6 @@ import { useAccount, useChainId, useDelegate, useNetwork, useTezos } from 'lib/t
 import { confirmOperation } from 'lib/temple/operation';
 import { TempleAccountType } from 'lib/temple/types';
 import useTippy from 'lib/ui/useTippy';
-import { ZERO } from 'lib/utils/numbers';
 
 import { AMOUNT_COLUMN_STYLE, RequestItem, UnstakeRequest } from './RequestItem';
 import { RequestUnstakeModal } from './RequestUnstakeModal';
@@ -87,12 +86,8 @@ export const MyStakeTab = memo(() => {
   );
 
   const finalizeUnstake = useCallback(() => {
-    if (!readyRequests) return;
-
-    const amount = readyRequests.reduce((acc, curr) => acc.plus(curr.amount), ZERO).toNumber();
-
     tezos.wallet
-      .finalizeUnstake({ amount, mutez: true })
+      .finalizeUnstake({ amount: 0 })
       .send()
       .then(
         oper => {
@@ -100,7 +95,7 @@ export const MyStakeTab = memo(() => {
         },
         err => void console.error(err)
       );
-  }, [readyRequests, tezos, updateRequests]);
+  }, [tezos, updateRequests]);
 
   const cyclesLookupUrl = chainId ? CYCLES_LOOKUP_URLS[chainId] : undefined;
 
