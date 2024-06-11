@@ -205,7 +205,7 @@
     "use-force-update": "1.0.7",
     "use-onclickoutside": "0.4.1",
     "util": "0.11.1",
-    "viem": "^2.8.6",
+    "viem": "^2.10.5",
     "wasm-themis": "0.14.6",
     "webextension-polyfill": "^0.10.0",
     "webpack": "^5",

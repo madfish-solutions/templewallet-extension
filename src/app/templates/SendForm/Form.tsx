@@ -32,7 +32,7 @@ import { ArtificialError, NotEnoughFundsError, ZeroBalanceError, ZeroTEZBalanceE
 import { useAppEnv } from 'app/env';
 import { ReactComponent as ChevronDownIcon } from 'app/icons/chevron-down.svg';
 import { ReactComponent as ChevronUpIcon } from 'app/icons/chevron-up.svg';
-import Balance from 'app/templates/Balance';
+import { TezosBalance } from 'app/templates/Balance';
 import InFiat from 'app/templates/InFiat';
 import { useFormAnalytics } from 'lib/analytics';
 import { isTezAsset, TEZ_TOKEN_SLUG, toPenny } from 'lib/assets';
@@ -88,7 +88,7 @@ export const Form: FC<Props> = ({ account, network, assetSlug, setOperation, onA
   const { registerBackHandler } = useAppEnv();
 
   const assetMetadata = useAssetMetadata(assetSlug, network.chainId);
-  const assetPrice = useAssetFiatCurrencyPrice(assetSlug);
+  const assetPrice = useAssetFiatCurrencyPrice(assetSlug, network.chainId);
 
   const assetSymbol = useMemo(() => getAssetSymbol(assetMetadata), [assetMetadata]);
 
@@ -474,7 +474,7 @@ export const Form: FC<Props> = ({ account, network, assetSlug, setOperation, onA
                 className="flex-shrink-0 shadow-xs opacity-75"
               />
               <div className="ml-1 mr-px font-normal">{filledContact.name}</div> (
-              <Balance network={network} assetSlug={assetSlug} address={filledContact.address}>
+              <TezosBalance network={network} assetSlug={assetSlug} address={filledContact.address}>
                 {bal => (
                   <span className="text-xs leading-none flex items-baseline">
                     <Money>{bal}</Money>{' '}
@@ -483,7 +483,7 @@ export const Form: FC<Props> = ({ account, network, assetSlug, setOperation, onA
                     </span>
                   </span>
                 )}
-              </Balance>
+              </TezosBalance>
               )
             </div>
           ) : (
@@ -630,12 +630,7 @@ const TokenToFiat: React.FC<TokenToFiatProps> = ({
           <T id="inAsset" substitutions={getAssetSymbol(assetMetadata, true)} />
         </div>
       ) : (
-        <InFiat
-          tezosChainId={tezosChainId}
-          assetSlug={assetSlug}
-          volume={amountValue}
-          roundingMode={BigNumber.ROUND_FLOOR}
-        >
+        <InFiat chainId={tezosChainId} assetSlug={assetSlug} volume={amountValue} roundingMode={BigNumber.ROUND_FLOOR}>
           {({ balance, symbol }) => (
             <div className="mt-1 -mb-3 flex items-baseline">
               <span className="mr-1">≈</span>

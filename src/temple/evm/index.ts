@@ -2,8 +2,11 @@ import memoizee from 'memoizee';
 import { createPublicClient, http } from 'viem';
 import type * as ViemChainsModuleType from 'viem/chains';
 
+import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
+import { EvmAssetStandard } from 'lib/evm/types';
+import { EvmNativeTokenMetadata } from 'lib/metadata/types';
+import { EvmChain } from 'temple/front';
 import { MAX_MEMOIZED_TOOLKITS } from 'temple/misc';
-import type { EvmNativeCurrency, StoredEvmNetwork } from 'temple/networks';
 
 export const getReadOnlyEvm = memoizee(
   (rpcUrl: string) =>
@@ -13,14 +16,13 @@ export const getReadOnlyEvm = memoizee(
   { max: MAX_MEMOIZED_TOOLKITS }
 );
 
-// ts-prune-ignore-next
 export const getReadOnlyEvmForNetwork = memoizee(
-  (network: StoredEvmNetwork, currency: EvmNativeCurrency) =>
+  (network: EvmChain) =>
     createPublicClient({
       chain: {
         id: network.chainId,
         name: network.name,
-        nativeCurrency: currency,
+        nativeCurrency: network.currency,
         rpcUrls: {
           default: {
             http: [network.rpcBaseURL]
@@ -31,12 +33,18 @@ export const getReadOnlyEvmForNetwork = memoizee(
     }),
   {
     max: MAX_MEMOIZED_TOOLKITS,
-    normalizer: ([{ chainId, name, rpcBaseURL }, currency]) =>
+    normalizer: ([{ chainId, name, rpcBaseURL, currency }]) =>
       `${rpcBaseURL}${chainId}${name}${JSON.stringify(currency)}`
   }
 );
 
-export const loadEvmChainInfo = memoizee(async (rpcUrl: string) => {
+export interface EvmChainInfo {
+  chainId: number;
+  currency: EvmNativeTokenMetadata;
+  testnet: boolean;
+}
+
+export const loadEvmChainInfo = memoizee(async (rpcUrl: string): Promise<EvmChainInfo> => {
   const client = createPublicClient({
     transport: http(rpcUrl)
   });
@@ -48,7 +56,11 @@ export const loadEvmChainInfo = memoizee(async (rpcUrl: string) => {
 
   if (!viemChain) throw new Error('Cannot resolve currency of the EVM network');
 
-  const currency: EvmNativeCurrency = viemChain.nativeCurrency;
+  const currency: EvmNativeTokenMetadata = {
+    standard: EvmAssetStandard.NATIVE,
+    address: EVM_TOKEN_SLUG,
+    ...viemChain.nativeCurrency
+  };
 
-  return { chainId, currency, testnet: viemChain.testnet };
+  return { chainId, currency, testnet: viemChain.testnet ?? false };
 });

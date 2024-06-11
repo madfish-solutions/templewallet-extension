@@ -21,7 +21,7 @@ interface Props {
   controller: ChainSelectController;
 }
 
-export const ChainSelect = memo<Props>(({ controller }) => {
+const ChainSelect = memo<Props>(({ controller }) => {
   const selectedChain = controller.value;
 
   return (

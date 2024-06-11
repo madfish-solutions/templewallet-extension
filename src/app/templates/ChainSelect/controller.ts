@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 
-import { OneOfChains, useTezosMainnetChain } from 'temple/front';
+import { OneOfChains, useAccountAddressForTezos, useEthereumMainnetChain, useTezosMainnetChain } from 'temple/front';
 
 export interface ChainSelectController {
   value: OneOfChains;
@@ -9,8 +9,10 @@ export interface ChainSelectController {
 
 export const useChainSelectController = (): ChainSelectController => {
   const tezosMainnetChain = useTezosMainnetChain();
+  const evmMainnet = useEthereumMainnetChain();
+  const accountTezAddress = useAccountAddressForTezos();
 
-  const [value, setValue] = useState<OneOfChains>(() => tezosMainnetChain);
+  const [value, setValue] = useState<OneOfChains>(() => (accountTezAddress ? tezosMainnetChain : evmMainnet));
 
   return useMemo(() => ({ value, setValue }), [value]);
 };

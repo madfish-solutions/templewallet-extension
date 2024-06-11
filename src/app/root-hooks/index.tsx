@@ -9,14 +9,18 @@ import { useMetadataRefresh } from 'app/hooks/use-metadata-refresh';
 import { useStorageAnalytics } from 'app/hooks/use-storage-analytics';
 import { useUserIdAccountPkhSync } from 'app/hooks/use-user-id-account-pkh-sync';
 import { dispatch } from 'app/store';
-import { loadTokensWhitelistActions, loadTokensScamlistActions } from 'app/store/assets/actions';
 import { loadSwapDexesAction, loadSwapTokensAction } from 'app/store/swap/actions';
+import { loadTokensWhitelistActions, loadTokensScamlistActions } from 'app/store/tezos/assets/actions';
 import { useTempleClient } from 'lib/temple/front';
 import { useDidMount } from 'lib/ui/hooks';
-import { useAccountAddressForTezos } from 'temple/front';
+import { useAccountAddressForEvm, useAccountAddressForTezos } from 'temple/front';
 
 import { AppTezosAssetsLoading } from './assets-loading';
 import { AppTezosBalancesLoading } from './balances-loading';
+import { AppEvmBalancesLoading } from './evm/balances-loading';
+import { AppEvmCollectiblesMetadataLoading } from './evm/collectibles-metadata-loading';
+import { AppEvmTokensExchangeRatesLoading } from './evm/tokens-exchange-rates-loading';
+import { AppEvmTokensMetadataLoading } from './evm/tokens-metadata-loading';
 import { AppTezosTokensMetadataLoading } from './metadata-loading';
 import { useChainIDsCheck } from './use-chain-ids-check';
 
@@ -49,8 +53,14 @@ const AppReadyRootHooks = memo(() => {
   useUserIdAccountPkhSync();
 
   const tezosAddress = useAccountAddressForTezos();
+  const evmAddress = useAccountAddressForEvm();
 
-  return tezosAddress ? <TezosAccountHooks publicKeyHash={tezosAddress} /> : null;
+  return (
+    <>
+      {tezosAddress && <TezosAccountHooks publicKeyHash={tezosAddress} />}
+      {evmAddress && <EvmAccountHooks publicKeyHash={evmAddress} />}
+    </>
+  );
 });
 
 const TezosAccountHooks = memo<{ publicKeyHash: string }>(({ publicKeyHash }) => {
@@ -64,3 +74,12 @@ const TezosAccountHooks = memo<{ publicKeyHash: string }>(({ publicKeyHash }) =>
     </>
   );
 });
+
+const EvmAccountHooks = memo<{ publicKeyHash: HexString }>(({ publicKeyHash }) => (
+  <>
+    <AppEvmTokensExchangeRatesLoading publicKeyHash={publicKeyHash} />
+    <AppEvmTokensMetadataLoading publicKeyHash={publicKeyHash} />
+    <AppEvmCollectiblesMetadataLoading publicKeyHash={publicKeyHash} />
+    <AppEvmBalancesLoading publicKeyHash={publicKeyHash} />
+  </>
+));

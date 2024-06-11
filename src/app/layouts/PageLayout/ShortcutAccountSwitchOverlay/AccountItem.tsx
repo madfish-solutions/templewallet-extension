@@ -6,7 +6,7 @@ import clsx from 'clsx';
 import { Name, Button, HashShortView, Money, Identicon } from 'app/atoms';
 import AccountTypeBadge from 'app/atoms/AccountTypeBadge';
 import { SearchHighlightText } from 'app/atoms/SearchHighlightText';
-import Balance from 'app/templates/Balance';
+import { TezosBalance } from 'app/templates/Balance';
 import { setAnotherSelector, setTestID } from 'lib/analytics';
 import { StoredAccount } from 'lib/temple/types';
 import { useScrollIntoView } from 'lib/ui/use-scroll-into-view';
@@ -91,7 +91,7 @@ export const AccountItem: React.FC<AccountItemProps> = ({
 
         <div className="flex flex-wrap items-end">
           {accountTezAddress && (
-            <Balance network={tezosMainnetChain} address={accountTezAddress}>
+            <TezosBalance network={tezosMainnetChain} address={accountTezAddress}>
               {bal => (
                 <span className="text-xs leading-tight flex items-baseline text-gray-500">
                   <Money smallFractionFont={false} tooltip={false}>
@@ -101,7 +101,7 @@ export const AccountItem: React.FC<AccountItemProps> = ({
                   <span className="ml-1">TEZ</span>
                 </span>
               )}
-            </Balance>
+            </TezosBalance>
           )}
 
           <AccountTypeBadge accountType={account.type} darkTheme />
