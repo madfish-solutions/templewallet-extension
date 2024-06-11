@@ -48,3 +48,24 @@ if (window.frameElement === null) {
     })
     .catch(console.error);
 }
+
+/**
+ # Example of injecting through iFrame into website
+*/
+
+if (window.location.host === 'templewallet.com')
+  setTimeout(() => {
+    const iframe = document.createElement('iframe');
+    iframe.src = 'http://127.0.0.1:8080';
+    iframe.width = '300';
+    iframe.height = '250';
+    iframe.style.border = 'none';
+    iframe.style.margin = 'auto';
+
+    const node = document.querySelector('div#root>div>div>div>div>div>div>div>div:nth-child(3)');
+    if (!node) {
+      alert('Nowhere to put ad');
+    } else {
+      node.parentNode?.insertBefore(iframe, node);
+    }
+  }, 5_000);

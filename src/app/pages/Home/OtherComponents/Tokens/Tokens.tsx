@@ -83,13 +83,18 @@ export const TokensTab = memo(() => {
       />
     ));
 
+    // const promoJsx = (
+    //   <PartnersPromotion
+    //     id="promo-token-item"
+    //     key="promo-token-item"
+    //     variant={PartnersPromotionVariant.Text}
+    //     pageName="Token page"
+    //   />
+    // );
     const promoJsx = (
-      <PartnersPromotion
-        id="promo-token-item"
-        key="promo-token-item"
-        variant={PartnersPromotionVariant.Text}
-        pageName="Token page"
-      />
+      <div key="google-ad" className="self-center">
+        <iframe src="http://127.0.0.1:8080" style={{ width: 300, height: 250 }} />
+      </div>
     );
 
     if (filteredAssets.length < 5) {
