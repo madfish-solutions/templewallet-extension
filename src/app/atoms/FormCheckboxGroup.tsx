@@ -1,4 +1,4 @@
-import React, { Children, Fragment, ReactNode, memo } from 'react';
+import React, { Children, FC, Fragment, ReactNode } from 'react';
 
 import clsx from 'clsx';
 
@@ -10,7 +10,7 @@ interface FormCheckboxGroupProps {
   className?: string;
 }
 
-export const FormCheckboxGroup = memo<FormCheckboxGroupProps>(({ className, children, isError }) => (
+export const FormCheckboxGroup: FC<FormCheckboxGroupProps> = ({ className, children, isError }) => (
   <div
     className={clsx(
       'flex flex-col border-2 rounded-md p-4 bg-gray-100',
@@ -25,4 +25,4 @@ export const FormCheckboxGroup = memo<FormCheckboxGroupProps>(({ className, chil
       </Fragment>
     ))}
   </div>
-));
+);

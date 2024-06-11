@@ -14,7 +14,7 @@ export const useUserAnalyticsAndAdsSettings = () => {
   const isAdsEnabled = useShouldShowPartnersPromoSelector();
 
   const [, setIsWebsitesAnalyticsEnabled] = usePassiveStorage(WEBSITES_ANALYTICS_ENABLED);
-  const prevWebsiteAnalyticsEnabledRef = useRef(isAdsEnabled);
+  const prevAdsEnabledRef = useRef(isAdsEnabled);
   const accountPkh = useAccountPkh();
 
   useEffect(() => {
@@ -22,13 +22,13 @@ export const useUserAnalyticsAndAdsSettings = () => {
 
     // It happens when the wallet is not ready although `registerWallet` promise has been resolved
     if (typeof accountPkh !== 'string') {
-      prevWebsiteAnalyticsEnabledRef.current = isAdsEnabled;
-
       return;
     }
 
-    if (isAdsEnabled && !prevWebsiteAnalyticsEnabledRef.current) {
+    if (isAdsEnabled && !prevAdsEnabledRef.current) {
       trackEvent('AdsEnabled', AnalyticsEventCategory.General, { accountPkh }, true);
     }
+
+    prevAdsEnabledRef.current = isAdsEnabled;
   }, [isAdsEnabled, setIsWebsitesAnalyticsEnabled, trackEvent, accountPkh, isAnalyticsEnabled]);
 };
