@@ -117,9 +117,9 @@ export const NewStakeTab = memo(() => {
     return null;
   }, [stakingIsNotSupported, pendingRequestsForAnotherBaker]);
 
+  const disableInput = cannotDelegate || stakingIsNotSupported || pendingRequestsForAnotherBaker;
   const errorsInForm = Boolean(errors.amount);
-  const disableSubmit =
-    cannotDelegate || stakingIsNotSupported || pendingRequestsForAnotherBaker || errorsInForm || Boolean(operation);
+  const disableSubmit = disableInput || errorsInForm;
 
   return (
     <div className="mx-auto max-w-sm flex flex-col gap-y-8 pb-4">
@@ -140,7 +140,7 @@ export const NewStakeTab = memo(() => {
           assetPrice={assetPrice}
           accountPkh={acc.publicKeyHash}
           setInFiat={setInFiat}
-          disabled={disableSubmit}
+          disabled={disableInput}
           {...form}
         />
 
