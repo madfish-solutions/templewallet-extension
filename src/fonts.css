@@ -32,6 +32,10 @@
   @apply text-font-description font-semibold;
 }
 
+.text-font-description-regular {
+  @apply text-font-description font-medium;
+}
+
 .text-font-medium-bold {
   @apply text-font-medium font-semibold;
 }

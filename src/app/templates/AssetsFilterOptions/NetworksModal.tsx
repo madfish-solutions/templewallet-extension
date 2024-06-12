@@ -1,11 +1,26 @@
-import React, { memo, useEffect, useState } from 'react';
+import React, { FC, memo, useEffect, useMemo, useState } from 'react';
 
+import { IconBase } from 'app/atoms';
+import { EvmNetworkLogo } from 'app/atoms/EvmNetworkLogo';
 import { IconButton } from 'app/atoms/IconButton';
+import { TezosNetworkLogo } from 'app/atoms/NetworksLogos';
 import { PageModal } from 'app/atoms/PageModal';
+import { RadioButton } from 'app/atoms/RadioButton';
 import { StyledButton } from 'app/atoms/StyledButton';
+import { ReactComponent as Browse } from 'app/icons/base/browse.svg';
 import { ReactComponent as PlusIcon } from 'app/icons/base/plus.svg';
+import { dispatch } from 'app/store';
+import { setTokensFilterChain } from 'app/store/assets-filter-options/actions';
+import { useTokensFilterOptionsSelector } from 'app/store/assets-filter-options/selectors';
 import { SearchBarField } from 'app/templates/SearchField';
+import { T, t } from 'lib/i18n';
+import { TEZOS_MAINNET_CHAIN_ID } from 'lib/temple/types';
+import { useScrollIntoViewOnMount } from 'lib/ui/use-scroll-into-view';
 import { navigate } from 'lib/woozie';
+import { TempleChainKind } from 'temple/types';
+
+import { useSortedNetworks } from './hooks/use-sorted-networks';
+import { searchAndFilterNetworks } from './utils/search-and-filter-networks';
 
 interface Props {
   opened: boolean;
@@ -13,13 +28,21 @@ interface Props {
 }
 
 export const NetworksModal = memo<Props>(({ opened, onRequestClose }) => {
+  const { filterChain } = useTokensFilterOptionsSelector();
+  const sortedNetworks = useSortedNetworks();
+
   const [searchValue, setSearchValue] = useState('');
 
-  const [attractSelectedAccount, setAttractSelectedAccount] = useState(true);
+  const [attractSelectedNetwork, setAttractSelectedNetwork] = useState(true);
+
+  const filteredNetworks = useMemo(
+    () => (searchValue.length ? searchAndFilterNetworks(sortedNetworks, searchValue) : sortedNetworks),
+    [searchValue, sortedNetworks]
+  );
 
   useEffect(() => {
-    if (searchValue) setAttractSelectedAccount(false);
-    else if (!opened) setAttractSelectedAccount(true);
+    if (searchValue) setAttractSelectedNetwork(false);
+    else if (!opened) setAttractSelectedNetwork(true);
   }, [opened, searchValue]);
 
   return (
@@ -30,7 +53,54 @@ export const NetworksModal = memo<Props>(({ opened, onRequestClose }) => {
         <IconButton Icon={PlusIcon} color="blue" onClick={() => void navigate('settings/networks')} />
       </div>
 
-      <div className="px-4 flex-1 flex flex-col overflow-y-auto">networks...</div>
+      <div className="px-4 flex-1 flex flex-col overflow-y-auto">
+        {filteredNetworks.map(network => {
+          if (typeof network === 'string') {
+            return (
+              <Network
+                key={network}
+                active={!filterChain}
+                icon={<IconBase Icon={Browse} className="text-primary mx-0.5" size={32} />}
+                name={t('allNetworks')}
+                attractSelf={attractSelectedNetwork}
+                onClick={() => dispatch(setTokensFilterChain(null))}
+              />
+            );
+          }
+
+          if (network.kind === TempleChainKind.Tezos) {
+            return (
+              <Network
+                key={network.chainId}
+                active={filterChain?.kind === TempleChainKind.Tezos && filterChain.chainId === network.chainId}
+                icon={
+                  network.chainId === TEZOS_MAINNET_CHAIN_ID ? (
+                    <TezosNetworkLogo size={36} />
+                  ) : (
+                    <IconBase Icon={Browse} size={32} className="mx-0.5" />
+                  )
+                }
+                name={network.name}
+                attractSelf={attractSelectedNetwork}
+                onClick={() =>
+                  dispatch(setTokensFilterChain({ kind: TempleChainKind.Tezos, chainId: network.chainId }))
+                }
+              />
+            );
+          }
+
+          return (
+            <Network
+              key={network.chainId}
+              active={filterChain?.kind === TempleChainKind.EVM && filterChain.chainId === network.chainId}
+              icon={<EvmNetworkLogo chainId={network.chainId} size={36} />}
+              name={network.name}
+              attractSelf={attractSelectedNetwork}
+              onClick={() => dispatch(setTokensFilterChain({ kind: TempleChainKind.EVM, chainId: network.chainId }))}
+            />
+          );
+        })}
+      </div>
 
       <div className="p-4 pb-6 flex flex-col bg-white">
         <StyledButton size="L" color="primary-low" onClick={onRequestClose}>
@@ -40,3 +110,34 @@ export const NetworksModal = memo<Props>(({ opened, onRequestClose }) => {
     </PageModal>
   );
 });
+
+interface NetworkProps {
+  active: boolean;
+  icon: JSX.Element;
+  name: string;
+  attractSelf: boolean;
+  onClick: EmptyFn;
+}
+
+const Network: FC<NetworkProps> = ({ active, icon, name, attractSelf, onClick }) => {
+  const elemRef = useScrollIntoViewOnMount<HTMLDivElement>(active && attractSelf);
+
+  return (
+    <div
+      ref={elemRef}
+      className="cursor-pointer mb-3 flex justify-between items-center p-3 rounded-lg shadow-bottom border-0.5 border-transparent group"
+      onClick={onClick}
+    >
+      <div className="flex items-center gap-x-2">
+        {icon}
+        <div className="flex flex-col">
+          <span className="text-font-medium-bold">{name}</span>
+          <span className="text-grey-1 text-font-description">
+            <T id="balance" />: 0$
+          </span>
+        </div>
+      </div>
+      <RadioButton active={active} className={active ? undefined : 'opacity-0 group-hover:opacity-100'} />
+    </div>
+  );
+};

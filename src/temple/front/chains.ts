@@ -49,7 +49,6 @@ export const useTezosChainByChainId = (tezosChainId: string): TezosChain | null 
 
 export const useTezosMainnetChain = () => useTezosChainByChainId(TEZOS_MAINNET_CHAIN_ID)!;
 
-// ts-prune-ignore-next
 export const useEvmChainByChainId = (evmChainId: number): EvmChain | undefined => {
   const allEvmChains = useAllEvmChains();
 

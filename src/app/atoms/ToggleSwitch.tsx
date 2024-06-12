@@ -20,6 +20,7 @@ export const ToggleSwitch = forwardRef<HTMLInputElement, Props>((props, ref) => 
       clsx(
         small ? 'h-4 w-8 p-px rounded-md' : 'h-6 w-12 p-0.5 rounded-lg',
         disabled ? 'bg-disable' : localChecked ? (small ? 'bg-secondary' : 'bg-primary') : 'bg-lines',
+        !disabled && 'cursor-pointer',
         // Other styles, not designed yet
         // 'disable-outline-for-click',
         (() => {
@@ -48,8 +49,8 @@ export const ToggleSwitch = forwardRef<HTMLInputElement, Props>((props, ref) => 
   );
 
   return (
-    <div className={containerClassName} {...setTestID(testID)}>
-      <div className="w-full h-full relative cursor-pointer">
+    <label className={containerClassName} {...setTestID(testID)}>
+      <div className="w-full h-full relative">
         <input
           {...rest}
           ref={ref}
@@ -65,6 +66,6 @@ export const ToggleSwitch = forwardRef<HTMLInputElement, Props>((props, ref) => 
         {/* Knob */}
         <div className={knobClassName} />
       </div>
-    </div>
+    </label>
   );
 });

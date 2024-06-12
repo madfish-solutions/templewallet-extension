@@ -2473,6 +2473,7 @@
   "showInfo": { "message": "Show info" },
   "blur": { "message": "Blur" },
   "filterTokens": { "message": "Filter Tokens" },
+  "resetAll": { "message": "Reset All" },
   "hideZeroBalance": { "message": "Hide 0 balance" },
   "groupByNetwork": { "message": "Group by Network" },
   "recentDestinations": {
