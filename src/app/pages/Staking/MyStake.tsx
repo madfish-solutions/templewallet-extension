@@ -25,6 +25,7 @@ export const MyStakeTab = memo(() => {
   const chainId = useChainId(false);
 
   const [requestingUnstake, setRequestingUnstake] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
   const toggleUnstakeModal = useCallback(() => setRequestingUnstake(val => !val), []);
 
   const { data: myBakerPkh } = useDelegate(acc.publicKeyHash, true, false);
@@ -86,6 +87,8 @@ export const MyStakeTab = memo(() => {
   );
 
   const finalizeUnstake = useCallback(() => {
+    setSubmitting(true);
+
     tezos.wallet
       .finalizeUnstake({ amount: 0 })
       .send()
@@ -94,7 +97,8 @@ export const MyStakeTab = memo(() => {
           confirmOperation(tezos, oper.opHash).then(() => void updateRequests());
         },
         err => void console.error(err)
-      );
+      )
+      .finally(() => setSubmitting(false));
   }, [tezos, updateRequests]);
 
   const cyclesLookupUrl = chainId ? CYCLES_LOOKUP_URLS[chainId] : undefined;
@@ -154,6 +158,7 @@ export const MyStakeTab = memo(() => {
 
                 <FormSubmitButton
                   disabled={!readyRequests?.length || cannotDelegate}
+                  loading={submitting}
                   small
                   unsetHeight
                   className="h-10"

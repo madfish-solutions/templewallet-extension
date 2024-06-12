@@ -2,6 +2,7 @@ import React, { ButtonHTMLAttributes, FC, memo, PropsWithChildren, useCallback, 
 
 import clsx from 'clsx';
 
+import { Spinner } from 'app/atoms';
 import { Button } from 'app/atoms/Button';
 import { TestIDProperty, TestIDProps } from 'lib/analytics';
 import { T, t } from 'lib/i18n';
@@ -51,15 +52,19 @@ export const DelegateButton: FC<PropsWithChildren<DelegateButtonProps>> = ({
 interface StakeButtonProps extends TestIDProperty {
   type?: ButtonHTMLAttributes<unknown>['type'];
   disabled: boolean;
+  loading?: boolean;
   onClick?: EmptyFn;
 }
 
-export const StakeButton = memo<StakeButtonProps>(({ type, disabled, testID, onClick }) => {
-  const className = useMemo(() => clsx(getBakingButtonClassName(disabled), 'min-h-12 text-base'), [disabled]);
+export const StakeButton = memo<StakeButtonProps>(({ type, disabled, loading, testID, onClick }) => {
+  const className = useMemo(
+    () => clsx(getBakingButtonClassName(disabled, loading), 'min-h-12 text-base'),
+    [disabled, loading]
+  );
 
   return (
     <Button type={type} className={className} disabled={disabled} onClick={onClick} testID={testID}>
-      <T id="stake" />
+      {loading ? <Spinner theme="white" className="w-10" /> : <T id="stake" />}
     </Button>
   );
 });
@@ -125,11 +130,12 @@ const COMMON_BUTTON_CLASSNAMES = clsx(
   'transition ease-in-out duration-300'
 );
 
-const getBakingButtonClassName = (disabled?: boolean) =>
+const getBakingButtonClassName = (disabled?: boolean, loading = false) =>
   clsx(
     COMMON_BUTTON_CLASSNAMES,
     'font-semibold text-white',
-    disabled ? 'bg-gray-400 pointer-events-none' : 'bg-blue-500 hover:bg-blue-600 focus:bg-blue-600'
+    disabled ? 'bg-gray-400' : clsx('bg-blue-500', !loading && 'hover:bg-blue-600 focus:bg-blue-600'),
+    (disabled || loading) && 'pointer-events-none'
   );
 
 interface CannotDelegateButtonProps extends TestIDProps, PropsWithChildren {

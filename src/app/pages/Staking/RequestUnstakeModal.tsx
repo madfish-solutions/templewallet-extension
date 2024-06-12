@@ -32,6 +32,7 @@ export const RequestUnstakeModal = memo<Props>(({ knownBakerName, onDone }) => {
   const { data: stakedAmount } = useStakedAmount(tezos.rpc.getRpcUrl(), accountPkh);
 
   const [inFiat, setInFiat] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
 
   const { decimals } = useGasTokenMetadata();
 
@@ -60,6 +61,8 @@ export const RequestUnstakeModal = memo<Props>(({ knownBakerName, onDone }) => {
         provider: knownBakerName
       };
 
+      setSubmitting(true);
+
       tezos.wallet
         .unstake({ amount: inputAmount })
         .send()
@@ -73,7 +76,8 @@ export const RequestUnstakeModal = memo<Props>(({ knownBakerName, onDone }) => {
             if (error?.message === 'Declined') return;
             trackSubmitFail(analyticsProps);
           }
-        );
+        )
+        .finally(() => setSubmitting(false));
     },
     [inFiat, tezos, onDone, trackSubmitSuccess, trackSubmitFail, knownBakerName, assetPrice, decimals]
   );
@@ -101,13 +105,14 @@ export const RequestUnstakeModal = memo<Props>(({ knownBakerName, onDone }) => {
         </div>
 
         <div className="mt-6 h-10 flex gap-x-4">
-          <FormSecondaryButton onClick={close} unsetHeight rounder className="flex-1">
+          <FormSecondaryButton onClick={close} disabled={submitting} unsetHeight rounder className="flex-1">
             <T id="cancel" />
           </FormSecondaryButton>
 
           <FormSubmitButton
             type="submit"
             disabled={disableSubmit}
+            loading={submitting}
             unsetHeight
             rounder
             className="flex-1"

@@ -40,6 +40,7 @@ export const NewStakeTab = memo(() => {
   const knownBakerName = knownBaker?.name;
 
   const [operation, setOperation] = useSafeState<WalletOperation | null>(null, tezos.checksum);
+  const [submitting, setSubmitting] = useState(false);
 
   const { data: stakingIsNotSupported } = useIsStakingNotSupported(rpcUrl, myBakerPkh);
   const requestsSwr = useUnstakeRequests(rpcUrl, acc.publicKeyHash, true);
@@ -76,6 +77,8 @@ export const NewStakeTab = memo(() => {
         provider: knownBakerName
       };
 
+      setSubmitting(true);
+
       tezos.wallet
         .stake({ amount: inputAmount })
         .send()
@@ -90,7 +93,8 @@ export const NewStakeTab = memo(() => {
             if (error?.message === 'Declined') return;
             trackSubmitFail(analyticsProps);
           }
-        );
+        )
+        .finally(() => setSubmitting(false));
     },
     [tezos, setOperation, reset, trackSubmitSuccess, trackSubmitFail, inFiat, assetPrice, knownBakerName, decimals]
   );
@@ -144,7 +148,7 @@ export const NewStakeTab = memo(() => {
           {...form}
         />
 
-        <StakeButton type="submit" disabled={disableSubmit} />
+        <StakeButton type="submit" disabled={disableSubmit} loading={submitting} />
       </form>
     </div>
   );
