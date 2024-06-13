@@ -8,6 +8,8 @@ import OptimismIconSrc from 'app/icons/networks/optimism.svg?url';
 import PolygonIconSrc from 'app/icons/networks/polygon.svg?url';
 import { getEvmNativeAssetIcon } from 'lib/images-uri';
 
+import Identicon, { InitialsOpts } from './Identicon';
+
 const logosRecord: Record<number, string> = {
   1: EthereumIconSrc,
   56: BinanceSmartChainIconSrc,
@@ -48,7 +50,9 @@ export const EvmNetworkLogo = memo<EvmNetworkLogoProps>(({ networkName, chainId,
   );
 });
 
-const ICON_PADDING = 10;
+const ICON_CONTAINER_MULTIPLIER = 0.8;
+const ICON_SIZE_MULTIPLIER = 2;
+const initialsOpts: InitialsOpts = { backgroundColors: ['grey'], chars: 1 };
 
 interface NetworkLogoFallbackProps {
   networkName: string;
@@ -56,18 +60,16 @@ interface NetworkLogoFallbackProps {
   className?: string;
 }
 
-export const NetworkLogoFallback = memo<NetworkLogoFallbackProps>(({ networkName, size = 24, className }) => {
-  return (
+export const NetworkLogoFallback = memo<NetworkLogoFallbackProps>(({ networkName, size = 24, className }) => (
+  <div
+    style={{ width: size, height: size }}
+    className={clsx('flex justify-center items-center p-0.5 border border-grey-4 bg-white rounded-full', className)}
+  >
     <div
-      style={{ width: size, height: size }}
-      className={clsx('flex justify-center items-center p-0.5 border border-grey-4 bg-white rounded-full', className)}
+      style={{ width: size * ICON_CONTAINER_MULTIPLIER, height: size * ICON_CONTAINER_MULTIPLIER }}
+      className="flex justify-center items-center rounded-full overflow-clip"
     >
-      <div
-        style={{ width: size - ICON_PADDING, height: size - ICON_PADDING }}
-        className="flex justify-center items-center bg-grey-1 rounded-full"
-      >
-        <span className="text-white text-font-medium-bold">{networkName[0]}</span>
-      </div>
+      <Identicon type="initials" hash={networkName} size={size * ICON_SIZE_MULTIPLIER} initialsOpts={initialsOpts} />
     </div>
-  );
-});
+  </div>
+));
