@@ -2,7 +2,6 @@ import React, { CSSProperties, memo, useMemo } from 'react';
 
 import clsx from 'clsx';
 
-import BrowseSrc from 'app/icons/base/browse.svg?url';
 import BinanceSmartChainIconSrc from 'app/icons/networks/bsc.svg?url';
 import EthereumIconSrc from 'app/icons/networks/ethereum.svg?url';
 import OptimismIconSrc from 'app/icons/networks/optimism.svg?url';
@@ -17,13 +16,14 @@ const logosRecord: Record<number, string> = {
 };
 
 interface EvmNetworkLogoProps {
+  networkName: string;
   chainId: number;
   size?: number;
   className?: string;
   style?: CSSProperties;
 }
 
-export const EvmNetworkLogo = memo<EvmNetworkLogoProps>(({ chainId, size = 24, className, style }) => {
+export const EvmNetworkLogo = memo<EvmNetworkLogoProps>(({ networkName, chainId, size = 24, className, style }) => {
   const source = useMemo(() => {
     if (logosRecord[chainId]) return logosRecord[chainId];
 
@@ -31,17 +31,43 @@ export const EvmNetworkLogo = memo<EvmNetworkLogoProps>(({ chainId, size = 24, c
 
     if (nativeAssetIcon) return nativeAssetIcon;
 
-    return BrowseSrc;
+    return undefined;
   }, [chainId, size]);
 
-  return (
+  return source ? (
     <img
       src={source}
-      alt={`Network icon of chainId: ${chainId}`}
+      alt={networkName}
       width={size}
       height={size}
       className={clsx('p-0.5 border border-grey-4 bg-white rounded-full', className)}
       style={style}
     />
+  ) : (
+    <NetworkLogoFallback networkName={networkName} size={size} />
+  );
+});
+
+const ICON_PADDING = 10;
+
+interface NetworkLogoFallbackProps {
+  networkName: string;
+  size?: number;
+  className?: string;
+}
+
+export const NetworkLogoFallback = memo<NetworkLogoFallbackProps>(({ networkName, size = 24, className }) => {
+  return (
+    <div
+      style={{ width: size, height: size }}
+      className={clsx('flex justify-center items-center p-0.5 border border-grey-4 bg-white rounded-full', className)}
+    >
+      <div
+        style={{ width: size - ICON_PADDING, height: size - ICON_PADDING }}
+        className="flex justify-center items-center bg-grey-1 rounded-full"
+      >
+        <span className="text-white text-font-medium-bold">{networkName[0]}</span>
+      </div>
+    </div>
   );
 });

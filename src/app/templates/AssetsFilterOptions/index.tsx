@@ -3,7 +3,7 @@ import React, { memo, useCallback, useMemo } from 'react';
 import { isEqual } from 'lodash';
 
 import { Divider, IconBase, ToggleSwitch } from 'app/atoms';
-import { EvmNetworkLogo } from 'app/atoms/EvmNetworkLogo';
+import { EvmNetworkLogo, NetworkLogoFallback } from 'app/atoms/NetworkLogo';
 import { TezosNetworkLogo } from 'app/atoms/NetworksLogos';
 import { ReactComponent as Browse } from 'app/icons/base/browse.svg';
 import { ReactComponent as CompactDown } from 'app/icons/base/compact_down.svg';
@@ -26,10 +26,13 @@ import { NetworksModal } from './NetworksModal';
 
 export const AssetsFilterOptions = memo(() => {
   const options = useTokensFilterOptionsSelector();
-
   const { filterChain, hideZeroBalance, groupByNetwork } = options;
 
   const [networksModalOpened, setNetworksModalOpen, setNetworksModalClosed] = useBooleanState(false);
+
+  const isNonDefaultOption = useMemo(() => !isEqual(options, DefaultTokensFilterOptions), [options]);
+
+  const handleResetAllClick = useCallback(() => dispatch(resetTokensFilterOptions()), []);
 
   const handleHideZeroBalanceChange = useCallback(
     (checked: boolean) => dispatch(setTokensHideZeroBalanceFilterOption(checked)),
@@ -39,10 +42,6 @@ export const AssetsFilterOptions = memo(() => {
     (checked: boolean) => dispatch(setTokensGroupByNetworkFilterOption(checked)),
     []
   );
-
-  const isNonDefaultOption = useMemo(() => !isEqual(options, DefaultTokensFilterOptions), [options]);
-
-  const handleResetAllClick = useCallback(() => dispatch(resetTokensFilterOptions()), []);
 
   return (
     <div>
@@ -108,22 +107,26 @@ const NetworkSelect = memo<NetworkSelectProps>(({ filterChain, onClick }) => {
     }
 
     if (filterChain.kind === TempleChainKind.Tezos) {
+      const networkName = tezosChains[filterChain.chainId].name;
+
       return (
         <>
           {filterChain.chainId === TEZOS_MAINNET_CHAIN_ID ? (
             <TezosNetworkLogo size={24} />
           ) : (
-            <IconBase Icon={Browse} size={16} className="mx-0.5" />
+            <NetworkLogoFallback networkName={networkName} />
           )}
-          <span className="text-font-medium-bold">{tezosChains[filterChain.chainId].name}</span>
+          <span className="text-font-medium-bold">{networkName}</span>
         </>
       );
     }
 
+    const networkName = evmChains[filterChain.chainId].name;
+
     return (
       <>
-        <EvmNetworkLogo chainId={filterChain.chainId} size={24} />
-        <span className="text-font-medium-bold">{evmChains[filterChain.chainId].name}</span>
+        <EvmNetworkLogo networkName={networkName} chainId={filterChain.chainId} size={24} />
+        <span className="text-font-medium-bold">{networkName}</span>
       </>
     );
   }, [filterChain, evmChains, tezosChains]);

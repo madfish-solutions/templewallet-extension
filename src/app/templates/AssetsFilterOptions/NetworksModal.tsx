@@ -1,8 +1,8 @@
 import React, { FC, memo, useEffect, useMemo, useState } from 'react';
 
 import { IconBase } from 'app/atoms';
-import { EvmNetworkLogo } from 'app/atoms/EvmNetworkLogo';
 import { IconButton } from 'app/atoms/IconButton';
+import { EvmNetworkLogo, NetworkLogoFallback } from 'app/atoms/NetworkLogo';
 import { TezosNetworkLogo } from 'app/atoms/NetworksLogos';
 import { PageModal } from 'app/atoms/PageModal';
 import { RadioButton } from 'app/atoms/RadioButton';
@@ -77,7 +77,7 @@ export const NetworksModal = memo<Props>(({ opened, onRequestClose }) => {
                   network.chainId === TEZOS_MAINNET_CHAIN_ID ? (
                     <TezosNetworkLogo size={36} />
                   ) : (
-                    <IconBase Icon={Browse} size={32} className="mx-0.5" />
+                    <NetworkLogoFallback networkName={network.name} size={36} />
                   )
                 }
                 name={network.name}
@@ -93,7 +93,7 @@ export const NetworksModal = memo<Props>(({ opened, onRequestClose }) => {
             <Network
               key={network.chainId}
               active={filterChain?.kind === TempleChainKind.EVM && filterChain.chainId === network.chainId}
-              icon={<EvmNetworkLogo chainId={network.chainId} size={36} />}
+              icon={<EvmNetworkLogo networkName={network.name} chainId={network.chainId} size={36} />}
               name={network.name}
               attractSelf={attractSelectedNetwork}
               onClick={() => dispatch(setTokensFilterChain({ kind: TempleChainKind.EVM, chainId: network.chainId }))}
