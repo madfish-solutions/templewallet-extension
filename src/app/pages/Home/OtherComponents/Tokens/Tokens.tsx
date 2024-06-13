@@ -34,6 +34,7 @@ import { EvmChain, useAccountAddressForEvm, useAccountAddressForTezos } from 'te
 import { TezosNetworkEssentials } from 'temple/networks';
 import { TempleChainKind } from 'temple/types';
 
+import { useBooleanState } from '../../../../../lib/ui/hooks';
 import { FilterButton } from '../../../../atoms/FilterButton';
 import { HomeSelectors } from '../../selectors';
 import { AssetsSelectors } from '../Assets.selectors';
@@ -83,7 +84,7 @@ interface EvmTokensTabProps {
 }
 
 const EvmTokensTab: FC<EvmTokensTabProps> = ({ network, publicKeyHash }) => {
-  const [filtersOpened, setFiltersOpened] = useState(false);
+  const [filtersOpened, _, setFiltersClosed, toggleFiltersOpened] = useBooleanState(false);
 
   const [isZeroBalancesHidden, setIsZeroBalancesHidden] = useLocalStorage(LOCAL_STORAGE_TOGGLE_KEY, false);
 
@@ -113,7 +114,7 @@ const EvmTokensTab: FC<EvmTokensTabProps> = ({ network, publicKeyHash }) => {
           testID={AssetsSelectors.searchAssetsInputTokens}
         />
 
-        <FilterButton active={filtersOpened} onClick={() => setFiltersOpened(prev => !prev)} />
+        <FilterButton active={filtersOpened} onClick={toggleFiltersOpened} />
 
         <Popper
           placement="bottom-end"
@@ -141,7 +142,7 @@ const EvmTokensTab: FC<EvmTokensTabProps> = ({ network, publicKeyHash }) => {
 
       <ContentContainer>
         {filtersOpened ? (
-          <AssetsFilterOptions />
+          <AssetsFilterOptions onRequestClose={setFiltersClosed} />
         ) : paginatedSlugs.length === 0 ? (
           buildEmptySection(isSyncing)
         ) : (

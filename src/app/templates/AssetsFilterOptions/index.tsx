@@ -1,6 +1,8 @@
-import React, { memo, useCallback, useMemo } from 'react';
+import React, { memo, useCallback, useMemo, useRef } from 'react';
 
+import { emptyFn } from '@rnw-community/shared';
 import { isEqual } from 'lodash';
+import useOnClickOutside from 'use-onclickoutside';
 
 import { Divider, IconBase, ToggleSwitch } from 'app/atoms';
 import { EvmNetworkLogo, NetworkLogoFallback } from 'app/atoms/NetworkLogo';
@@ -24,13 +26,21 @@ import { TempleChainKind } from 'temple/types';
 
 import { NetworksModal } from './NetworksModal';
 
-export const AssetsFilterOptions = memo(() => {
+interface AssetsFilterOptionsProps {
+  onRequestClose: EmptyFn;
+}
+
+export const AssetsFilterOptions = memo<AssetsFilterOptionsProps>(({ onRequestClose }) => {
   const options = useTokensFilterOptionsSelector();
   const { filterChain, hideZeroBalance, groupByNetwork } = options;
 
-  const [networksModalOpened, setNetworksModalOpen, setNetworksModalClosed] = useBooleanState(false);
+  const [networksModalOpened, setNetworksModalOpened, setNetworksModalClosed] = useBooleanState(false);
 
   const isNonDefaultOption = useMemo(() => !isEqual(options, DefaultTokensFilterOptions), [options]);
+
+  const containerRef = useRef(null);
+
+  useOnClickOutside(containerRef, networksModalOpened ? emptyFn : onRequestClose);
 
   const handleResetAllClick = useCallback(() => dispatch(resetTokensFilterOptions()), []);
 
@@ -44,7 +54,7 @@ export const AssetsFilterOptions = memo(() => {
   );
 
   return (
-    <div>
+    <div ref={containerRef}>
       <div className="flex justify-between items-center mb-2">
         <p className="text-font-description-bold">
           <T id="filterTokens" />
@@ -58,7 +68,7 @@ export const AssetsFilterOptions = memo(() => {
         )}
       </div>
 
-      <NetworkSelect filterChain={filterChain} onClick={setNetworksModalOpen} />
+      <NetworkSelect filterChain={filterChain} onClick={setNetworksModalOpened} />
 
       <div className="rounded-lg shadow-bottom border-0.5 border-transparent">
         <div className="flex justify-between items-center p-3">
