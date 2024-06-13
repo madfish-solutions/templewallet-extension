@@ -618,6 +618,7 @@ export class Vault {
         seed = deriveSeed(seed, derivationPath);
       }
 
+      // TODO: Loose chain from derivation, when importing accounts is reworked
       const chain = derivationPath && isEvmDerivationPath(derivationPath) ? TempleChainKind.EVM : TempleChainKind.Tezos;
       const privateKey = seedToPrivateKey(seed, chain);
       return this.importAccount(chain, privateKey);
