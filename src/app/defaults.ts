@@ -8,7 +8,7 @@ export class NotEnoughFundsError extends ArtificialError {}
 export class ZeroBalanceError extends NotEnoughFundsError {}
 export class ZeroTEZBalanceError extends NotEnoughFundsError {}
 
-export const ACCOUNT_OR_GROUP_NAME_PATTERN = /[^\s-].{0,16}$/;
+export const ACCOUNT_OR_GROUP_NAME_PATTERN = /^[^!@#$%^&*()_+\-=\]{};':"\\|,.<>?]{1,16}$/;
 
 export const PASSWORD_PATTERN = new RegExp(
   [

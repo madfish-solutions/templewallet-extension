@@ -1842,8 +1842,11 @@
   "noAssetsFound": {
     "message": "No assets found"
   },
-  "tokenNotFound": {
-    "message": "Token not found..."
+  "tokensNotFound": {
+    "message": "Tokens Not Found"
+  },
+  "notFound": {
+    "message": "Not Found"
   },
   "currencyNotFound": {
     "message": "Currency not found"
@@ -2108,6 +2111,9 @@
   },
   "clean": {
     "message": "Clean"
+  },
+  "clear": {
+    "message": "Clear"
   },
   "errorChangingAccountName": {
     "message": "An error occurred while changing account name"
@@ -3282,7 +3288,7 @@
   "notedSeedPhraseDown": {
     "message": "I’ve noted it down"
   },
-  "manualBackupWarning": {
+  "newMnemonicManualBackupWarning": {
     "message": "Note down your seed phrase and keep it safe. Write the words in order and keep them stored safely. $neverShare$ or $enterSeedPhrase$ it into any apps.",
     "placeholders": {
       "neverShare": {
@@ -3290,6 +3296,14 @@
       },
       "enterSeedPhrase": {
         "content": "$2"
+      }
+    }
+  },
+  "manualBackupWarning": {
+    "message": "$neverShare$ your seed phrase or enter it into any apps. It grants full access to your wallet.",
+    "placeholders": {
+      "neverShare": {
+        "content": "$1"
       }
     }
   },

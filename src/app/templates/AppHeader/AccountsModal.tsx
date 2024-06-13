@@ -6,6 +6,7 @@ import { Name } from 'app/atoms';
 import { AccLabel } from 'app/atoms/AccLabel';
 import { AccountAvatar } from 'app/atoms/AccountAvatar';
 import { AccountName } from 'app/atoms/AccountName';
+import { EmptyState } from 'app/atoms/EmptyState';
 import { IconButton } from 'app/atoms/IconButton';
 import { PageModal } from 'app/atoms/PageModal';
 import { ActionsButtonsBox } from 'app/atoms/PageModal/actions-buttons-box';
@@ -97,17 +98,23 @@ export const AccountsModal = memo<Props>(({ opened, onRequestClose }) => {
           onTopEdgeVisibilityChange={setTopEdgeIsVisible}
           topEdgeThreshold={4}
         >
-          {filteredGroups.map(group => (
-            <AccountsGroup
-              key={group.id}
-              title={group.name}
-              accounts={group.accounts}
-              currentAccountId={currentAccountId}
-              searchValue={searchValue}
-              attractSelectedAccount={attractSelectedAccount}
-              onAccountSelect={onRequestClose}
-            />
-          ))}
+          {filteredGroups.length === 0 ? (
+            <div className="w-full h-full flex items-center">
+              <EmptyState variant="searchUniversal" />
+            </div>
+          ) : (
+            filteredGroups.map(group => (
+              <AccountsGroup
+                key={group.id}
+                title={group.name}
+                accounts={group.accounts}
+                currentAccountId={currentAccountId}
+                searchValue={searchValue}
+                attractSelectedAccount={attractSelectedAccount}
+                onAccountSelect={onRequestClose}
+              />
+            ))
+          )}
         </ScrollView>
 
         <ActionsButtonsBox shouldCastShadow={!bottomEdgeIsVisible}>

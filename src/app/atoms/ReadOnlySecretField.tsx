@@ -66,7 +66,7 @@ export const ReadOnlySecretField: FC<ReadOnlySecretFieldProps> = ({
         <CopyButton
           text={covered ? '' : value}
           isSecret
-          className="text-secondary absolute right-3 bottom-3 flex text-font-description-bold items-center"
+          className="text-secondary absolute right-3 bottom-3 flex text-font-description-bold items-center px-1 py-0.5"
           onFocus={() => setCopyButtonFocused(true)}
           onBlur={() => setCopyButtonFocused(false)}
         >

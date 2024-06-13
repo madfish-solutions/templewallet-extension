@@ -9,11 +9,10 @@ interface ActionModalProps {
   onClose?: EmptyFn;
   children: JSX.Element | JSX.Element[];
   title: string;
-  overlayClassName?: string;
 }
 
-export const ActionModal = memo<ActionModalProps>(({ onClose, children, closable = true, title, overlayClassName }) => (
-  <CustomModal isOpen overlayClassName={overlayClassName} onRequestClose={onClose}>
+export const ActionModal = memo<ActionModalProps>(({ onClose, children, closable = true, title }) => (
+  <CustomModal isOpen overlayClassName="backdrop-blur-xs" onRequestClose={onClose}>
     <div className="relative p-3 border-b-0.5 border-lines w-modal">
       <h1 className="text-center text-font-regular-bold mx-9">{title}</h1>
       {closable && (

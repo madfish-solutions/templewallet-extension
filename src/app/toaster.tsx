@@ -1,4 +1,4 @@
-import React, { memo, useMemo } from 'react';
+import React, { memo, useEffect, useMemo, useRef } from 'react';
 
 import clsx from 'clsx';
 import toast, { Toaster, Toast, ToastIcon, ToastType } from 'react-hot-toast';
@@ -11,14 +11,27 @@ import { ReactComponent as WarningIcon } from 'app/icons/typed-msg/warning.svg';
 import { useToastsContainerBottomShiftSelector } from 'app/store/settings/selectors';
 import PortalToDocumentBody from 'lib/ui/Portal';
 
-export const toastSuccess = (title: string) => void toast.success(title);
+const MAX_TOASTS_COUNT = 3;
+const toastsIdsPool: string[] = [];
+
+const withToastsLimit = (toastFn: (title: string) => string) => (title: string) => {
+  if (toastsIdsPool.length >= MAX_TOASTS_COUNT) {
+    const toastsIdsToDismiss = toastsIdsPool.splice(0, toastsIdsPool.length - MAX_TOASTS_COUNT + 1);
+    toastsIdsToDismiss.forEach(toast.remove);
+  }
+  const newToastId = toastFn(title);
+  toastsIdsPool.push(newToastId);
+};
+
+export const toastSuccess = withToastsLimit(toast.success);
 // @ts-prune-ignore-next
-export const toastError = (title: string) => void toast.error(title);
+export const toastError = withToastsLimit(toast.error);
 // @ts-prune-ignore-next
-export const toastInfo = (title: string) => void toast(title);
+export const toastInfo = withToastsLimit(toast);
 // @ts-prune-ignore-next
-export const toastWarning = (title: string) =>
-  void toast.custom(toast => <CustomToastBar toast={{ ...toast, message: title }} customType="warning" />);
+export const toastWarning = withToastsLimit((title: string) =>
+  toast.custom(toast => <CustomToastBar toast={{ ...toast, message: title }} customType="warning" />)
+);
 
 export const ToasterProvider = memo(() => {
   const bottomShift = useToastsContainerBottomShiftSelector();
@@ -45,6 +58,17 @@ const TOAST_CLASSES: Partial<Record<ToastTypeExtended, string>> = {
 
 const CustomToastBar = memo<{ toast: Toast; customType?: ToastTypeExtended }>(({ toast, customType }) => {
   const type: ToastTypeExtended = customType || toast.type;
+
+  const prevToastVisibleRef = useRef(toast.visible);
+  useEffect(() => {
+    if (prevToastVisibleRef.current && !toast.visible) {
+      const toastIndex = toastsIdsPool.indexOf(toast.id);
+      if (toastIndex !== -1) {
+        toastsIdsPool.splice(toastIndex, 1);
+      }
+    }
+    prevToastVisibleRef.current = toast.visible;
+  }, [toast.id, toast.visible]);
 
   return (
     <div className={clsx('px-3 py-2.5 flex gap-x-1 items-center rounded-md shadow-bottom', TOAST_CLASSES[type])}>

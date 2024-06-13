@@ -24,7 +24,7 @@ export const ManualBackupModal = memo<ManualBackupModalProps>(({ mnemonic, onSuc
         shouldVerifySeedPhrase ? 'verifySeedPhrase' : isNewMnemonic ? 'backupYourSeedPhrase' : 'revealSeedPhrase'
       )}
       opened
-      shouldShowBackButton
+      shouldShowBackButton={isNewMnemonic}
       onGoBack={shouldVerifySeedPhrase ? goToManualBackup : onCancel}
       onRequestClose={onCancel}
     >

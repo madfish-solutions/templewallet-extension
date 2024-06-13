@@ -168,7 +168,8 @@ export const FormField = forwardRef<FormFieldElement, FormFieldProps>(
           [cleanable, copyable, hasRevealablePassword].filter(Boolean).length,
           extraLeftInnerWrapper === 'unset' ? false : Boolean(extraLeftInner),
           extraRightInnerWrapper === 'unset' ? false : Boolean(extraRightInner),
-          smallPaddings
+          smallPaddings,
+          textarea
         )
       }),
       [
@@ -180,7 +181,8 @@ export const FormField = forwardRef<FormFieldElement, FormFieldProps>(
         extraRightInnerWrapper,
         hasRevealablePassword,
         smallPaddings,
-        style
+        style,
+        textarea
       ]
     );
 
@@ -241,11 +243,11 @@ export const FormField = forwardRef<FormFieldElement, FormFieldProps>(
           <div
             className={clsx(
               'absolute flex justify-end gap-1 items-center',
-              textarea ? 'bottom-0' : 'inset-y-0',
+              textarea ? (smallPaddings ? 'bottom-2' : 'bottom-3') : 'inset-y-0',
               smallPaddings ? 'right-2' : 'right-3'
             )}
           >
-            {cleanable && <CleanButton size={16} onClick={onClean} />}
+            {cleanable && <CleanButton size={textarea ? 12 : 16} onClick={onClean} shouldShowText={textarea} />}
             {copyable && <Copyable value={String(value)} copy={copy} isSecret={type === 'password'} />}
             {hasRevealablePassword && RevealPasswordIcon}
           </div>
@@ -319,10 +321,11 @@ const buildHorizontalPaddingStyle = (
   buttonsCount: number,
   withExtraInnerLeft: boolean,
   withExtraInnerRight: boolean,
-  smallPaddings: boolean
+  smallPaddings: boolean,
+  textarea = false
 ) => {
   return {
-    paddingRight: withExtraInnerRight ? 128 : (smallPaddings ? 8 : 12) + buttonsCount * 28,
+    paddingRight: withExtraInnerRight ? 128 : (smallPaddings ? 8 : 12) + (textarea ? 0 : buttonsCount * 28),
     paddingLeft: withExtraInnerLeft ? 40 : smallPaddings ? 8 : 12
   };
 };

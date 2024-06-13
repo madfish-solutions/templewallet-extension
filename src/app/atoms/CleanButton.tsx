@@ -3,7 +3,7 @@ import React, { memo, useMemo } from 'react';
 import clsx from 'clsx';
 
 import { ReactComponent as CleanIcon } from 'app/icons/base/x_circle_fill.svg';
-import { t } from 'lib/i18n';
+import { T, t } from 'lib/i18n';
 import useTippy from 'lib/ui/useTippy';
 
 import { IconBase, Size } from './IconBase';
@@ -11,12 +11,13 @@ import { IconBase, Size } from './IconBase';
 interface Props {
   className?: string;
   size?: Size;
+  shouldShowText?: boolean;
   onClick: EmptyFn;
 }
 
 export const CLEAN_BUTTON_ID = 'CLEAN_BUTTON_ID';
 
-const CleanButton = memo<Props>(({ className, size = 12, onClick }) => {
+const CleanButton = memo<Props>(({ className, size = 12, shouldShowText, onClick }) => {
   const tippyProps = useMemo(
     () => ({
       trigger: 'mouseenter',
@@ -35,10 +36,15 @@ const CleanButton = memo<Props>(({ className, size = 12, onClick }) => {
       id={CLEAN_BUTTON_ID}
       ref={buttonRef}
       type="button"
-      className={clsx(className, 'flex items-center ease-in-out duration-200')}
+      className={clsx(className, 'flex items-center ease-in-out duration-200', shouldShowText && 'px-1 py-0.5')}
       tabIndex={-1}
       onClick={onClick}
     >
+      {shouldShowText && (
+        <span className="text-font-description-bold text-grey-1">
+          <T id="clear" />
+        </span>
+      )}
       <IconBase Icon={CleanIcon} size={size} className="text-grey-2" />
     </button>
   );

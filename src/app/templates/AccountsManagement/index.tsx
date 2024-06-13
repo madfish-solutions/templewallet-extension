@@ -36,7 +36,7 @@ interface AccountsManagementProps {
 export const AccountsManagement = memo<AccountsManagementProps>(({ setHeaderChildren }) => {
   const { createAccount } = useTempleClient();
   const customAlert = useAlert();
-  const allAccounts = useAllAccountsReactiveOnAddition();
+  const allAccounts = useAllAccountsReactiveOnAddition(false);
   useAllAccountsReactiveOnRemoval();
 
   const [searchValue, setSearchValue] = useState('');

@@ -48,7 +48,8 @@ import {
   buildEncryptAndSaveManyForAccount,
   privateKeyToTezosAccountCreds,
   privateKeyToEvmAccountCreds,
-  canRemoveAccounts
+  canRemoveAccounts,
+  isEvmDerivationPath
 } from './misc';
 import {
   encryptAndSaveMany,
@@ -617,15 +618,16 @@ export class Vault {
         seed = deriveSeed(seed, derivationPath);
       }
 
-      const privateKey = seedToPrivateKey(seed);
-      return this.importAccount(TempleChainKind.Tezos, privateKey);
+      const chain = derivationPath && isEvmDerivationPath(derivationPath) ? TempleChainKind.EVM : TempleChainKind.Tezos;
+      const privateKey = seedToPrivateKey(seed, chain);
+      return this.importAccount(chain, privateKey);
     });
   }
 
   async importFundraiserAccount(email: string, password: string, mnemonic: string) {
     return withError('Failed to import fundraiser account', async () => {
       const seed = Bip39.mnemonicToSeedSync(mnemonic, `${email}${password}`);
-      const privateKey = seedToPrivateKey(seed);
+      const privateKey = seedToPrivateKey(seed, TempleChainKind.Tezos);
       return this.importAccount(TempleChainKind.Tezos, privateKey);
     });
   }

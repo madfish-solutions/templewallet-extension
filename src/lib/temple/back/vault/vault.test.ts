@@ -562,6 +562,67 @@ describe('Vault tests', () => {
     });
   });
 
+  describe('should import an account by seed phrase', () => {
+    describe('Tezos accounts', () => {
+      it('should import the first account with password derivation', async () => {
+        await Vault.spawn(password, defaultMnemonic);
+        const vault = await Vault.setup(password);
+        const [, newAccount] = await vault.importMnemonicAccount(hdWallets[1].mnemonic, password);
+        expect(newAccount).toMatchObject({
+          type: TempleAccountType.Imported,
+          chain: TempleChainKind.Tezos,
+          address: 'tz1N8eG6d2d3kizZoCZS2xBt3J14t5PAWnCV'
+        });
+      });
+
+      it('should import an account by derivation path', async () => {
+        await Vault.spawn(password, defaultMnemonic);
+        const vault = await Vault.setup(password);
+        const [, newAccount] = await vault.importMnemonicAccount(hdWallets[1].mnemonic, undefined, "m/44'/1729'/1'/0'");
+        expect(newAccount).toMatchObject({
+          type: TempleAccountType.Imported,
+          chain: TempleChainKind.Tezos,
+          address: hdWallets[1].accounts[1].tezos.address
+        });
+      });
+
+      it('should import an account by derivation path and password', async () => {
+        await Vault.spawn(password, defaultMnemonic);
+        const vault = await Vault.setup(password);
+        const [, newAccount] = await vault.importMnemonicAccount(hdWallets[1].mnemonic, password, "m/44'/1729'/1'/0'");
+        expect(newAccount).toMatchObject({
+          type: TempleAccountType.Imported,
+          chain: TempleChainKind.Tezos,
+          address: 'tz1b8uyMJ3mo87LMtijUcjjP3xm1MzCihUi8'
+        });
+      });
+    });
+
+    describe('EVM accounts', () => {
+      it('should import an account if EVM derivation path is specified', async () => {
+        await Vault.spawn(password, defaultMnemonic);
+        const vault = await Vault.setup(password);
+        const [, newAccount] = await vault.importMnemonicAccount(hdWallets[1].mnemonic, undefined, "m/44'/60'/0'/0/1");
+        expect(newAccount).toMatchObject({
+          type: TempleAccountType.Imported,
+          chain: TempleChainKind.EVM,
+          address: hdWallets[1].accounts[1].evm.address
+        });
+      });
+
+      it('should import an account if EVM derivation path and password are specified', async () => {
+        await Vault.spawn(password, defaultMnemonic);
+        const vault = await Vault.setup(password);
+        const [, newAccount] = await vault.importMnemonicAccount(hdWallets[1].mnemonic, password, "m/44'/60'/0'/0/1");
+        expect(newAccount).toMatchObject({
+          type: TempleAccountType.Imported,
+          chain: TempleChainKind.EVM,
+          address: '0xe59EaA7f2f6425712a2b6556a0fbA00bca61F802'
+        });
+      });
+    });
+  });
+
   it('should import an account by Tezos private key', async () => {
     await Vault.spawn(password, defaultMnemonic);
     const vault = await Vault.setup(password);
