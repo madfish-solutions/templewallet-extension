@@ -10,8 +10,8 @@ import { useAccount, useNetwork, useStorage } from 'lib/temple/front';
 import { Redirect } from 'lib/woozie';
 
 import { EXOLIX_CONTACT_LINK } from './config';
-import { ExchangeDataInterface } from './exolix.interface';
 import { ExolixSelectors } from './Exolix.selectors';
+import { ExchangeDataInterface } from './exolix.types';
 
 const Exolix: FC = () => (
   <PageLayout

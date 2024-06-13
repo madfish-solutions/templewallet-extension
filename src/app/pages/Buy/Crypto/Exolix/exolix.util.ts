@@ -1,3 +1,4 @@
+import retry from 'async-retry';
 import axios from 'axios';
 
 import { CurrencyToken } from 'app/templates/TopUpInput';
@@ -9,16 +10,13 @@ import {
   ExchangeDataInterface,
   ExolixCurrenciesInterface,
   GetRateRequestData,
-  GetRateResponse,
-  GetRateResponseWithAmountTooLow
-} from './exolix.interface';
+  GetRateResponse
+} from './exolix.types';
 
 const API_KEY = EnvVars.TEMPLE_WALLET_EXOLIX_API_KEY;
 
 /** Due to legal restrictions */
-const MAX_DOLLAR_VALUE = 10000;
 const MIN_ASSET_AMOUNT = 0.00001;
-const AVG_COMISSION = 300;
 
 const api = axios.create({
   baseURL: 'https://exolix.com/api/v2',
@@ -57,31 +55,15 @@ export const getCurrencies = async () => {
 };
 
 const getCurrency = (page = 1) =>
-  api
-    .get<ExolixCurrenciesInterface>('/currencies', { params: { size: currenciesLimit, page, withNetworks: true } })
-    .then(r => r.data);
+  retry(
+    () =>
+      api
+        .get<ExolixCurrenciesInterface>('/currencies', { params: { size: currenciesLimit, page, withNetworks: true } })
+        .then(r => r.data),
+    { retries: 3, minTimeout: 250, maxTimeout: 1000 }
+  );
 
 export const getCurrenciesCount = () => api.get<ExolixCurrenciesInterface>('/currencies').then(r => r.data.count);
-
-const loadUSDTRate = async (coinTo: string, coinToNetwork: string) => {
-  const exchangeData = {
-    coinTo,
-    coinToNetwork,
-    coinFrom: 'USDT',
-    coinFromNetwork: 'ETH',
-    amount: 500
-  };
-
-  try {
-    const { rate } = await queryExchange(exchangeData);
-
-    return rate ?? 1;
-  } catch (error) {
-    console.error({ error });
-
-    return 1;
-  }
-};
 
 // executed only once per changed pair to determine min, max
 export const loadMinMaxFields = async (
@@ -91,17 +73,7 @@ export const loadMinMaxFields = async (
   outputAssetNetwork = 'XTZ'
 ) => {
   try {
-    const outputTokenPrice = await loadUSDTRate(outputAssetCode, outputAssetNetwork);
-
     const forwardExchangeData = {
-      coinTo: inputAssetCode,
-      coinToNetwork: inputAssetNetwork,
-      coinFrom: outputAssetCode,
-      coinFromNetwork: outputAssetNetwork,
-      amount: (MAX_DOLLAR_VALUE + AVG_COMISSION) / outputTokenPrice
-    };
-
-    const backwardExchangeData = {
       coinTo: outputAssetCode,
       coinToNetwork: outputAssetNetwork,
       coinFrom: inputAssetCode,
@@ -109,19 +81,36 @@ export const loadMinMaxFields = async (
       amount: MIN_ASSET_AMOUNT
     };
 
-    const { minAmount } = await queryExchange(backwardExchangeData);
+    const minAmountExchangeResponse = await queryExchange(forwardExchangeData);
 
+    if (!('minAmount' in minAmountExchangeResponse)) {
+      throw new Error('Failed to get minimal input amount');
+    }
+
+    let finalMinAmount = minAmountExchangeResponse.minAmount;
     // setting correct exchange amount
-    backwardExchangeData.amount = minAmount ?? 0;
+    forwardExchangeData.amount = finalMinAmount;
 
-    // correct maxAmount returns only if exchange amount is correct
-    const { maxAmount } = await queryExchange(backwardExchangeData);
+    let finalMaxAmount = 0;
 
-    // getting maxAmount for our own maximum dollar exchange amount
-    const { message, toAmount } = await queryExchange(forwardExchangeData);
+    for (let i = 0; i < 10; i++) {
+      const maxAmountExchangeResponse = await queryExchange(forwardExchangeData);
+
+      if ('maxAmount' in maxAmountExchangeResponse) {
+        finalMaxAmount = maxAmountExchangeResponse.maxAmount;
+        break;
+      }
+
+      finalMinAmount = maxAmountExchangeResponse.minAmount;
+      forwardExchangeData.amount = finalMinAmount;
+    }
+
+    if (finalMaxAmount === 0) {
+      throw new Error('Failed to get maximal input amount');
+    }
 
     // if there is a message than something went wrong with the estimation and some values may be incorrect
-    return { finalMinAmount: minAmount ?? 0, finalMaxAmount: (message === null ? toAmount : maxAmount) ?? 0 };
+    return { finalMinAmount, finalMaxAmount };
   } catch (error) {
     console.error({ error });
 
@@ -129,13 +118,13 @@ export const loadMinMaxFields = async (
   }
 };
 
-export const queryExchange = (data: GetRateRequestData) =>
+export const queryExchange = (data: GetRateRequestData): Promise<GetRateResponse> =>
   api.get<GetRateResponse>('/rate', { params: { ...data, rateType: 'fixed' } }).then(
     r => r.data,
     (error: unknown) => {
       if (axios.isAxiosError(error) && error.response && error.response.status === 422) {
         const data = error.response.data;
-        if (data && data.error == null) return data as GetRateResponseWithAmountTooLow;
+        if (data && data.error == null) return data;
       }
       console.error(error);
       throw error;

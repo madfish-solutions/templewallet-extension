@@ -15,8 +15,8 @@ import { useTypedSWR } from 'lib/swr';
 import { useAccount } from 'lib/temple/front';
 
 import { EXOLIX_PRIVICY_LINK, EXOLIX_TERMS_LINK, INITIAL_COIN_FROM, INITIAL_COIN_TO } from '../config';
-import { ExchangeDataInterface, ExchangeDataStatusEnum, OutputCurrencyInterface } from '../exolix.interface';
 import { ExolixSelectors } from '../Exolix.selectors';
+import { ExchangeDataInterface, ExchangeDataStatusEnum, OutputCurrencyInterface } from '../exolix.types';
 import { getCurrencies, loadMinMaxFields, queryExchange, submitExchange } from '../exolix.util';
 import { useCurrenciesCount } from '../hooks/useCurrenciesCount.hook';
 
@@ -89,20 +89,48 @@ const InitialStep: FC<Props> = ({ exchangeData, setExchangeData, setStep, isErro
     }
   };
 
-  const { data: ratesData } = useTypedSWR(['exolix/api/rate', coinFrom, coinTo, amount], () =>
-    queryExchange({
+  const { data: ratesData } = useTypedSWR(['exolix/api/rate', coinFrom, coinTo, debouncedAmount], async () => {
+    if (!debouncedAmount || debouncedAmount < (minAmount ?? 0) || debouncedAmount > (maxAmount ?? Infinity)) {
+      console.log('Preventing query', { debouncedAmount, minAmount, maxAmount });
+
+      return undefined;
+    }
+
+    return await queryExchange({
       coinFrom: coinFrom.code,
       coinFromNetwork: coinFrom.network.code,
-      amount: amount ?? 0,
+      amount: debouncedAmount ?? 0,
       coinTo: coinTo.code,
       coinToNetwork: coinTo.network.code
-    })
-  );
+    });
+  });
 
-  const { rate, toAmount } = ratesData || { rate: null, toAmount: 0 };
+  useEffect(() => {
+    if (!ratesData) {
+      return;
+    }
+
+    if ('minAmount' in ratesData) {
+      setMinAmount(ratesData.minAmount);
+    }
+
+    if ('maxAmount' in ratesData) {
+      setMaxAmount(ratesData.maxAmount);
+    }
+  }, [ratesData]);
+
+  const { rate, toAmount } = useMemo(
+    () =>
+      ratesData && 'rate' in ratesData
+        ? { rate: ratesData.rate, toAmount: ratesData.toAmount }
+        : { rate: null, toAmount: 0 },
+    [ratesData]
+  );
 
   useEffect(() => {
     (async () => {
+      setMinAmount(null);
+      setMaxAmount(null);
       const { finalMinAmount, finalMaxAmount } = await loadMinMaxFields(
         coinFrom.code,
         coinFrom.network?.code,

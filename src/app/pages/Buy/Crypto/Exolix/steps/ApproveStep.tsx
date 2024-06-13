@@ -14,8 +14,8 @@ import { AnalyticsEventCategory, useAnalytics } from 'lib/analytics';
 import { T } from 'lib/i18n';
 import useCopyToClipboard from 'lib/ui/useCopyToClipboard';
 
-import { ExchangeDataInterface, ExchangeDataStatusEnum } from '../exolix.interface';
 import { ExolixSelectors } from '../Exolix.selectors';
+import { ExchangeDataInterface, ExchangeDataStatusEnum } from '../exolix.types';
 import { getCoinCodeToDisplay, getExchangeData } from '../exolix.util';
 
 import WarningComponent from './WarningComponent';
