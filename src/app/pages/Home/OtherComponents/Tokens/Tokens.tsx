@@ -34,6 +34,7 @@ import { EvmChain, useAccountAddressForEvm, useAccountAddressForTezos } from 'te
 import { TezosNetworkEssentials } from 'temple/networks';
 import { TempleChainKind } from 'temple/types';
 
+import { FilterButton } from '../../../../atoms/FilterButton';
 import { HomeSelectors } from '../../selectors';
 import { AssetsSelectors } from '../Assets.selectors';
 
@@ -81,7 +82,9 @@ interface EvmTokensTabProps {
   chainSelectController: ChainSelectController;
 }
 
-const EvmTokensTab: FC<EvmTokensTabProps> = ({ network, publicKeyHash, chainSelectController }) => {
+const EvmTokensTab: FC<EvmTokensTabProps> = ({ network, publicKeyHash }) => {
+  const [filtersOpened, setFiltersOpened] = useState(false);
+
   const [isZeroBalancesHidden, setIsZeroBalancesHidden] = useLocalStorage(LOCAL_STORAGE_TOGGLE_KEY, false);
 
   const toggleHideZeroBalances = useCallback(
@@ -110,15 +113,7 @@ const EvmTokensTab: FC<EvmTokensTabProps> = ({ network, publicKeyHash, chainSele
           testID={AssetsSelectors.searchAssetsInputTokens}
         />
 
-        <Popper
-          placement="bottom-end"
-          strategy="fixed"
-          popup={props => <ChainsDropdown controller={chainSelectController} {...props} />}
-        >
-          {({ ref, opened, toggleOpened }) => (
-            <IconButton Icon={FiltersIcon} ref={ref} active={opened} onClick={toggleOpened} />
-          )}
-        </Popper>
+        <FilterButton active={filtersOpened} onClick={() => setFiltersOpened(prev => !prev)} />
 
         <Popper
           placement="bottom-end"
@@ -145,12 +140,13 @@ const EvmTokensTab: FC<EvmTokensTabProps> = ({ network, publicKeyHash, chainSele
       </StickyBar>
 
       <ContentContainer>
-        {paginatedSlugs.length === 0 ? (
+        {filtersOpened ? (
+          <AssetsFilterOptions />
+        ) : paginatedSlugs.length === 0 ? (
           buildEmptySection(isSyncing)
         ) : (
           <>
-            <AssetsFilterOptions />
-            {/*<SimpleInfiniteScroll loadNext={loadNext}>{contentElement}</SimpleInfiniteScroll>*/}
+            <SimpleInfiniteScroll loadNext={loadNext}>{contentElement}</SimpleInfiniteScroll>
             {isSyncing && <SyncSpinner className="mt-4" />}
           </>
         )}
