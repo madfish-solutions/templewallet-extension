@@ -38,14 +38,13 @@ export const useScrollEdgesVisibility = (
     [bottomEdgeThreshold, onBottomEdgeVisibilityChange, onTopEdgeVisibilityChange, ref, topEdgeThreshold]
   );
 
-  const resizeObserver = useMemo(() => new ResizeObserver(updateEdgesVisibility), [updateEdgesVisibility]);
-  const mutationObserver = useMemo(() => new MutationObserver(updateEdgesVisibility), [updateEdgesVisibility]);
-
   useEffect(() => {
     updateEdgesVisibility();
 
     const element = ref.current;
     if (element) {
+      const resizeObserver = new ResizeObserver(updateEdgesVisibility);
+      const mutationObserver = new MutationObserver(updateEdgesVisibility);
       resizeObserver.observe(element);
       mutationObserver.observe(element, { childList: true, subtree: true });
       element.addEventListener('scroll', updateEdgesVisibility);
@@ -58,5 +57,5 @@ export const useScrollEdgesVisibility = (
     }
 
     return undefined;
-  }, [mutationObserver, ref, resizeObserver, updateEdgesVisibility]);
+  }, [ref, updateEdgesVisibility]);
 };

@@ -247,7 +247,7 @@ export const FormField = forwardRef<FormFieldElement, FormFieldProps>(
               smallPaddings ? 'right-2' : 'right-3'
             )}
           >
-            {cleanable && <CleanButton size={textarea ? 12 : 16} onClick={onClean} shouldShowText={textarea} />}
+            {cleanable && <CleanButton size={textarea ? 12 : 16} onClick={onClean} showText={textarea} />}
             {copyable && <Copyable value={String(value)} copy={copy} isSecret={type === 'password'} />}
             {hasRevealablePassword && RevealPasswordIcon}
           </div>

@@ -11,13 +11,13 @@ import { IconBase, Size } from './IconBase';
 interface Props {
   className?: string;
   size?: Size;
-  shouldShowText?: boolean;
+  showText?: boolean;
   onClick: EmptyFn;
 }
 
 export const CLEAN_BUTTON_ID = 'CLEAN_BUTTON_ID';
 
-const CleanButton = memo<Props>(({ className, size = 12, shouldShowText, onClick }) => {
+const CleanButton = memo<Props>(({ className, size = 12, showText, onClick }) => {
   const tippyProps = useMemo(
     () => ({
       trigger: 'mouseenter',
@@ -36,11 +36,11 @@ const CleanButton = memo<Props>(({ className, size = 12, shouldShowText, onClick
       id={CLEAN_BUTTON_ID}
       ref={buttonRef}
       type="button"
-      className={clsx(className, 'flex items-center ease-in-out duration-200', shouldShowText && 'px-1 py-0.5')}
+      className={clsx(className, 'flex items-center ease-in-out duration-200', showText && 'px-1 py-0.5')}
       tabIndex={-1}
       onClick={onClick}
     >
-      {shouldShowText && (
+      {showText && (
         <span className="text-font-description-bold text-grey-1">
           <T id="clear" />
         </span>
