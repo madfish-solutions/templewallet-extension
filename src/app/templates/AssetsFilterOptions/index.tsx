@@ -1,6 +1,5 @@
-import React, { memo, useCallback, useMemo, useRef } from 'react';
+import React, { memo, RefObject, useCallback, useMemo, useRef } from 'react';
 
-import { emptyFn } from '@rnw-community/shared';
 import { isEqual } from 'lodash';
 import useOnClickOutside from 'use-onclickoutside';
 
@@ -10,6 +9,7 @@ import { TezosNetworkLogo } from 'app/atoms/NetworksLogos';
 import { ReactComponent as Browse } from 'app/icons/base/browse.svg';
 import { ReactComponent as CompactDown } from 'app/icons/base/compact_down.svg';
 import { ReactComponent as CleanIcon } from 'app/icons/base/x_circle_fill.svg';
+import { ContentContainer } from 'app/layouts/containers';
 import { dispatch } from 'app/store';
 import {
   resetTokensFilterOptions,
@@ -27,20 +27,31 @@ import { TempleChainKind } from 'temple/types';
 import { NetworksModal } from './NetworksModal';
 
 interface AssetsFilterOptionsProps {
+  filterButtonRef: RefObject<HTMLButtonElement>;
   onRequestClose: EmptyFn;
 }
 
-export const AssetsFilterOptions = memo<AssetsFilterOptionsProps>(({ onRequestClose }) => {
+export const AssetsFilterOptions = memo<AssetsFilterOptionsProps>(({ filterButtonRef, onRequestClose }) => {
   const options = useTokensFilterOptionsSelector();
   const { filterChain, hideZeroBalance, groupByNetwork } = options;
 
-  const [networksModalOpened, setNetworksModalOpened, setNetworksModalClosed] = useBooleanState(false);
+  const [networksModalOpened, setNetworksModalOpen, setNetworksModalClosed] = useBooleanState(false);
 
   const isNonDefaultOption = useMemo(() => !isEqual(options, DefaultTokensFilterOptions), [options]);
 
   const containerRef = useRef(null);
 
-  useOnClickOutside(containerRef, networksModalOpened ? emptyFn : onRequestClose);
+  useOnClickOutside(
+    containerRef,
+    networksModalOpened
+      ? null
+      : evt => {
+          // @ts-expect-error
+          if (!(filterButtonRef.current && filterButtonRef.current.contains(evt.target))) {
+            onRequestClose();
+          }
+        }
+  );
 
   const handleResetAllClick = useCallback(() => dispatch(resetTokensFilterOptions()), []);
 
@@ -54,7 +65,7 @@ export const AssetsFilterOptions = memo<AssetsFilterOptionsProps>(({ onRequestCl
   );
 
   return (
-    <div ref={containerRef}>
+    <ContentContainer ref={containerRef}>
       <div className="flex justify-between items-center mb-2">
         <p className="text-font-description-bold">
           <T id="filterTokens" />
@@ -68,7 +79,7 @@ export const AssetsFilterOptions = memo<AssetsFilterOptionsProps>(({ onRequestCl
         )}
       </div>
 
-      <NetworkSelect filterChain={filterChain} onClick={setNetworksModalOpened} />
+      <NetworkSelect filterChain={filterChain} onClick={setNetworksModalOpen} />
 
       <div className="rounded-lg shadow-bottom border-0.5 border-transparent">
         <div className="flex justify-between items-center p-3">
@@ -91,7 +102,7 @@ export const AssetsFilterOptions = memo<AssetsFilterOptionsProps>(({ onRequestCl
       </div>
 
       <NetworksModal opened={networksModalOpened} onRequestClose={setNetworksModalClosed} />
-    </div>
+    </ContentContainer>
   );
 });
 

@@ -105,6 +105,8 @@ const EvmTokensTab: FC<EvmTokensTabProps> = ({ network, publicKeyHash }) => {
 
   const stickyBarRef = useRef<HTMLDivElement>(null);
 
+  const filterButtonRef = useRef<HTMLButtonElement>(null);
+
   return (
     <>
       <StickyBar ref={stickyBarRef}>
@@ -114,7 +116,7 @@ const EvmTokensTab: FC<EvmTokensTabProps> = ({ network, publicKeyHash }) => {
           testID={AssetsSelectors.searchAssetsInputTokens}
         />
 
-        <FilterButton active={filtersOpened} onClick={toggleFiltersOpened} />
+        <FilterButton ref={filterButtonRef} active={filtersOpened} onClick={toggleFiltersOpened} />
 
         <Popper
           placement="bottom-end"
@@ -140,18 +142,20 @@ const EvmTokensTab: FC<EvmTokensTabProps> = ({ network, publicKeyHash }) => {
         </Popper>
       </StickyBar>
 
-      <ContentContainer>
-        {filtersOpened ? (
-          <AssetsFilterOptions onRequestClose={setFiltersClosed} />
-        ) : paginatedSlugs.length === 0 ? (
-          buildEmptySection(isSyncing)
-        ) : (
-          <>
-            <SimpleInfiniteScroll loadNext={loadNext}>{contentElement}</SimpleInfiniteScroll>
-            {isSyncing && <SyncSpinner className="mt-4" />}
-          </>
-        )}
-      </ContentContainer>
+      {filtersOpened ? (
+        <AssetsFilterOptions filterButtonRef={filterButtonRef} onRequestClose={setFiltersClosed} />
+      ) : (
+        <ContentContainer>
+          {paginatedSlugs.length === 0 ? (
+            buildEmptySection(isSyncing)
+          ) : (
+            <>
+              <SimpleInfiniteScroll loadNext={loadNext}>{contentElement}</SimpleInfiniteScroll>
+              {isSyncing && <SyncSpinner className="mt-4" />}
+            </>
+          )}
+        </ContentContainer>
+      )}
     </>
   );
 };

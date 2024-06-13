@@ -1,4 +1,4 @@
-import React, { memo, useMemo } from 'react';
+import React, { forwardRef, memo, useMemo } from 'react';
 
 import clsx from 'clsx';
 import { isEqual } from 'lodash';
@@ -18,24 +18,26 @@ interface FilterButtonProps {
   onClick?: EmptyFn;
 }
 
-export const FilterButton = memo<FilterButtonProps>(({ active, disabled, onClick }) => {
-  const options = useTokensFilterOptionsSelector();
+export const FilterButton = memo(
+  forwardRef<HTMLButtonElement, FilterButtonProps>(({ active, disabled, onClick }, ref) => {
+    const options = useTokensFilterOptionsSelector();
 
-  const isNonDefaultOption = useMemo(() => !isEqual(options, DefaultTokensFilterOptions), [options]);
+    const isNonDefaultOption = useMemo(() => !isEqual(options, DefaultTokensFilterOptions), [options]);
 
-  const colorClassName = useMemo(() => {
-    if (active) return clsx(ACTIVE_STYLED_BUTTON_COLORS_CLASSNAME, 'shadow-none');
+    const colorClassName = useMemo(() => {
+      if (active) return clsx(ACTIVE_STYLED_BUTTON_COLORS_CLASSNAME, 'shadow-none');
 
-    return 'bg-white text-primary shadow-bottom hover:bg-grey-4 hover:shadow-none hover:text-primary-hover';
-  }, [active]);
+      return 'bg-white text-primary shadow-bottom hover:bg-grey-4 hover:shadow-none hover:text-primary-hover';
+    }, [active]);
 
-  return (
-    <Button className={clsx('p-1 rounded-md', colorClassName)} disabled={disabled} onClick={onClick}>
-      <IconBase
-        size={16}
-        Icon={!active && isNonDefaultOption ? FilterOnIcon : FilterOffIcon}
-        className={clsx(!active && 'text-primary')}
-      />
-    </Button>
-  );
-});
+    return (
+      <Button ref={ref} onClickCapture={onClick} className={clsx('p-1 rounded-md', colorClassName)} disabled={disabled}>
+        <IconBase
+          size={16}
+          Icon={!active && isNonDefaultOption ? FilterOnIcon : FilterOffIcon}
+          className={clsx(!active && 'text-primary')}
+        />
+      </Button>
+    );
+  })
+);
