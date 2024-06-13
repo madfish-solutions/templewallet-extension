@@ -15,7 +15,6 @@ import {
 
 const API_KEY = EnvVars.TEMPLE_WALLET_EXOLIX_API_KEY;
 
-/** Due to legal restrictions */
 const MIN_ASSET_AMOUNT = 0.00001;
 
 const api = axios.create({
