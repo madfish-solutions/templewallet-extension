@@ -91,8 +91,6 @@ const InitialStep: FC<Props> = ({ exchangeData, setExchangeData, setStep, isErro
 
   const { data: ratesData } = useTypedSWR(['exolix/api/rate', coinFrom, coinTo, debouncedAmount], async () => {
     if (!debouncedAmount || debouncedAmount < (minAmount ?? 0) || debouncedAmount > (maxAmount ?? Infinity)) {
-      console.log('Preventing query', { debouncedAmount, minAmount, maxAmount });
-
       return undefined;
     }
 
