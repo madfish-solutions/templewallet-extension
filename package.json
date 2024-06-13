@@ -112,6 +112,7 @@
     "axios": "0.26.1",
     "bignumber.js": "9.1.0",
     "bip39": "3.0.4",
+    "braces": "^3.0.3",
     "bs58check": "2.1.2",
     "buffer": "5.6.0",
     "clean-webpack-plugin": "4.0.0",
