@@ -80,7 +80,10 @@ export const SetWalletPassword: FC<SetWalletPasswordProps> = ({
     },
     mode: 'onChange'
   });
+  const { password: passwordError, ...restErrors } = errors;
   const { isSubmitting: submitting, submitCount } = formState;
+  const wasSubmitted = submitCount > 0;
+  const shouldDisableSubmit = Object.keys(restErrors).length > 0 || (passwordError && wasSubmitted);
 
   const shouldUseKeystorePassword = watch('shouldUseKeystorePassword');
 
@@ -186,7 +189,7 @@ export const SetWalletPassword: FC<SetWalletPasswordProps> = ({
             type="password"
             name="password"
             placeholder="********"
-            errorCaption={errors.password?.message}
+            errorCaption={wasSubmitted ? errors.password?.message : undefined}
             testID={setWalletPasswordSelectors.passwordField}
           />
 
@@ -196,7 +199,7 @@ export const SetWalletPassword: FC<SetWalletPasswordProps> = ({
                 text={t(textI18nKey)}
                 key={key}
                 status={
-                  passwordValidation[key] ? 'success' : key === 'specialChar' || submitCount === 0 ? 'default' : 'error'
+                  passwordValidation[key] ? 'success' : key === 'specialChar' || !wasSubmitted ? 'default' : 'error'
                 }
               />
             ))}
@@ -292,6 +295,7 @@ export const SetWalletPassword: FC<SetWalletPasswordProps> = ({
       </FormCheckboxGroup>
 
       <FormSubmitButton
+        disabled={shouldDisableSubmit}
         loading={submitting}
         className="w-full"
         testID={ownMnemonic ? setWalletPasswordSelectors.importButton : setWalletPasswordSelectors.createButton}
