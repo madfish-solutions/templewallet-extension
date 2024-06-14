@@ -15,7 +15,10 @@ import {
 
 const API_KEY = EnvVars.TEMPLE_WALLET_EXOLIX_API_KEY;
 
+/** Due to legal restrictions */
+const MAX_DOLLAR_VALUE = 10000;
 const MIN_ASSET_AMOUNT = 0.00001;
+const AVG_COMISSION = 300;
 
 const api = axios.create({
   baseURL: 'https://exolix.com/api/v2',
@@ -64,6 +67,26 @@ const getCurrency = (page = 1) =>
 
 export const getCurrenciesCount = () => api.get<ExolixCurrenciesInterface>('/currencies').then(r => r.data.count);
 
+const loadUSDTRate = async (coinTo: string, coinToNetwork: string) => {
+  const exchangeData = {
+    coinTo,
+    coinToNetwork,
+    coinFrom: 'USDT',
+    coinFromNetwork: 'ETH',
+    amount: 500
+  };
+
+  try {
+    const result = await queryExchange(exchangeData);
+
+    return 'rate' in result ? result.rate : 1;
+  } catch (error) {
+    console.error({ error });
+
+    return 1;
+  }
+};
+
 // executed only once per changed pair to determine min, max
 export const loadMinMaxFields = async (
   inputAssetCode = 'BTC',
@@ -72,6 +95,16 @@ export const loadMinMaxFields = async (
   outputAssetNetwork = 'XTZ'
 ) => {
   try {
+    const outputTokenPrice = await loadUSDTRate(outputAssetCode, outputAssetNetwork);
+
+    const backwardExchangeData = {
+      coinTo: inputAssetCode,
+      coinToNetwork: inputAssetNetwork,
+      coinFrom: outputAssetCode,
+      coinFromNetwork: outputAssetNetwork,
+      amount: (MAX_DOLLAR_VALUE + AVG_COMISSION) / outputTokenPrice
+    };
+
     const forwardExchangeData = {
       coinTo: outputAssetCode,
       coinToNetwork: outputAssetNetwork,
@@ -90,13 +123,13 @@ export const loadMinMaxFields = async (
     // setting correct exchange amount
     forwardExchangeData.amount = finalMinAmount;
 
-    let finalMaxAmount = 0;
+    let maxAmount = 0;
 
     for (let i = 0; i < 10; i++) {
       const maxAmountExchangeResponse = await queryExchange(forwardExchangeData);
 
       if ('maxAmount' in maxAmountExchangeResponse) {
-        finalMaxAmount = maxAmountExchangeResponse.maxAmount;
+        maxAmount = maxAmountExchangeResponse.maxAmount;
         break;
       }
 
@@ -104,12 +137,17 @@ export const loadMinMaxFields = async (
       forwardExchangeData.amount = finalMinAmount;
     }
 
-    if (finalMaxAmount === 0) {
+    if (maxAmount === 0) {
       throw new Error('Failed to get maximal input amount');
     }
 
+    const backwardExchange = await queryExchange(backwardExchangeData);
+
     // if there is a message than something went wrong with the estimation and some values may be incorrect
-    return { finalMinAmount, finalMaxAmount };
+    return {
+      finalMinAmount,
+      finalMaxAmount: Math.min(maxAmount, backwardExchange.message == null ? backwardExchange.toAmount : Infinity)
+    };
   } catch (error) {
     console.error({ error });
 
