@@ -10,8 +10,8 @@ import { StyledButton } from 'app/atoms/StyledButton';
 import { ReactComponent as Browse } from 'app/icons/base/browse.svg';
 import { ReactComponent as PlusIcon } from 'app/icons/base/plus.svg';
 import { dispatch } from 'app/store';
-import { setTokensFilterChain } from 'app/store/assets-filter-options/actions';
-import { useTokensFilterOptionsSelector } from 'app/store/assets-filter-options/selectors';
+import { setAssetsFilterChain } from 'app/store/assets-filter-options/actions';
+import { useAssetsFilterOptionsSelector } from 'app/store/assets-filter-options/selectors';
 import { SearchBarField } from 'app/templates/SearchField';
 import { T, t } from 'lib/i18n';
 import { TEZOS_MAINNET_CHAIN_ID } from 'lib/temple/types';
@@ -28,7 +28,7 @@ interface Props {
 }
 
 export const NetworksModal = memo<Props>(({ opened, onRequestClose }) => {
-  const { filterChain } = useTokensFilterOptionsSelector();
+  const { filterChain } = useAssetsFilterOptionsSelector();
   const sortedNetworks = useSortedNetworks();
 
   const [searchValue, setSearchValue] = useState('');
@@ -63,7 +63,7 @@ export const NetworksModal = memo<Props>(({ opened, onRequestClose }) => {
                 icon={<IconBase Icon={Browse} className="text-primary mx-0.5" size={32} />}
                 name={t('allNetworks')}
                 attractSelf={attractSelectedNetwork}
-                onClick={() => dispatch(setTokensFilterChain(null))}
+                onClick={() => dispatch(setAssetsFilterChain(null))}
               />
             );
           }
@@ -83,7 +83,7 @@ export const NetworksModal = memo<Props>(({ opened, onRequestClose }) => {
                 name={network.name}
                 attractSelf={attractSelectedNetwork}
                 onClick={() =>
-                  dispatch(setTokensFilterChain({ kind: TempleChainKind.Tezos, chainId: network.chainId }))
+                  dispatch(setAssetsFilterChain({ kind: TempleChainKind.Tezos, chainId: network.chainId }))
                 }
               />
             );
@@ -96,7 +96,7 @@ export const NetworksModal = memo<Props>(({ opened, onRequestClose }) => {
               icon={<EvmNetworkLogo networkName={network.name} chainId={network.chainId} size={36} />}
               name={network.name}
               attractSelf={attractSelectedNetwork}
-              onClick={() => dispatch(setTokensFilterChain({ kind: TempleChainKind.EVM, chainId: network.chainId }))}
+              onClick={() => dispatch(setAssetsFilterChain({ kind: TempleChainKind.EVM, chainId: network.chainId }))}
             />
           );
         })}

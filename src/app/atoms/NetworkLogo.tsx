@@ -52,7 +52,7 @@ export const EvmNetworkLogo = memo<EvmNetworkLogoProps>(({ networkName, chainId,
 
 const ICON_CONTAINER_MULTIPLIER = 0.8;
 const ICON_SIZE_MULTIPLIER = 2;
-const initialsOpts: InitialsOpts = { backgroundColors: ['grey'], chars: 1 };
+const initialsOpts: InitialsOpts = { chars: 1 };
 
 interface NetworkLogoFallbackProps {
   networkName: string;

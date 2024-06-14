@@ -1,32 +1,36 @@
 import { createReducer } from '@reduxjs/toolkit';
 
 import {
-  setTokensFilterChain,
+  setAssetsFilterChain,
   setTokensHideZeroBalanceFilterOption,
   setTokensGroupByNetworkFilterOption,
-  resetTokensFilterOptions
+  resetTokensFilterOptions,
+  setCollectiblesBlurFilterOption,
+  setCollectiblesShowInfoFilterOption
 } from './actions';
-import {
-  AssetsFilterOptionsInitialState,
-  AssetsFilterOptionsStateInterface,
-  DefaultTokensFilterOptions
-} from './state';
+import { AssetsFilterOptionsInitialState, AssetsFilterOptionsStateInterface } from './state';
 
 export const assetsFilterOptionsReducer = createReducer<AssetsFilterOptionsStateInterface>(
   AssetsFilterOptionsInitialState,
   builder => {
-    builder.addCase(resetTokensFilterOptions, state => {
-      state.tokensOptions = DefaultTokensFilterOptions;
+    builder.addCase(resetTokensFilterOptions, () => AssetsFilterOptionsInitialState);
+
+    builder.addCase(setAssetsFilterChain, (state, { payload }) => {
+      state.filterChain = payload;
     });
-    builder.addCase(setTokensFilterChain, (state, { payload }) => {
-      state.tokensOptions.filterChain = payload;
-    });
+
     builder.addCase(setTokensHideZeroBalanceFilterOption, (state, { payload }) => {
-      console.log(payload, 'payload');
-      state.tokensOptions.hideZeroBalance = payload;
+      state.tokensListOptions.hideZeroBalance = payload;
     });
     builder.addCase(setTokensGroupByNetworkFilterOption, (state, { payload }) => {
-      state.tokensOptions.groupByNetwork = payload;
+      state.tokensListOptions.groupByNetwork = payload;
+    });
+
+    builder.addCase(setCollectiblesBlurFilterOption, (state, { payload }) => {
+      state.collectiblesListOptions.blur = payload;
+    });
+    builder.addCase(setCollectiblesShowInfoFilterOption, (state, { payload }) => {
+      state.collectiblesListOptions.showInfo = payload;
     });
   }
 );

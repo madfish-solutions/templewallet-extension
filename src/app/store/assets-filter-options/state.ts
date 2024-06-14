@@ -12,22 +12,26 @@ interface TezosChain {
 
 export type FilterChain = EvmChain | TezosChain | null;
 
-export const DefaultTokensFilterOptions: TokensFilterOptions = {
-  filterChain: null,
-  hideZeroBalance: false,
-  groupByNetwork: false
-};
-
-export interface TokensFilterOptions {
-  filterChain: FilterChain;
-  hideZeroBalance: boolean;
-  groupByNetwork: boolean;
-}
-
 export interface AssetsFilterOptionsStateInterface {
-  tokensOptions: TokensFilterOptions;
+  filterChain: FilterChain;
+  tokensListOptions: {
+    hideZeroBalance: boolean;
+    groupByNetwork: boolean;
+  };
+  collectiblesListOptions: {
+    blur: boolean;
+    showInfo: boolean;
+  };
 }
 
 export const AssetsFilterOptionsInitialState: AssetsFilterOptionsStateInterface = {
-  tokensOptions: DefaultTokensFilterOptions
+  filterChain: null,
+  tokensListOptions: {
+    hideZeroBalance: false,
+    groupByNetwork: false
+  },
+  collectiblesListOptions: {
+    blur: false,
+    showInfo: false
+  }
 };

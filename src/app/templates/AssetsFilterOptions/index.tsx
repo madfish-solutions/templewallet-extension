@@ -13,11 +13,13 @@ import { ContentContainer } from 'app/layouts/containers';
 import { dispatch } from 'app/store';
 import {
   resetTokensFilterOptions,
+  setCollectiblesBlurFilterOption,
+  setCollectiblesShowInfoFilterOption,
   setTokensGroupByNetworkFilterOption,
   setTokensHideZeroBalanceFilterOption
 } from 'app/store/assets-filter-options/actions';
-import { useTokensFilterOptionsSelector } from 'app/store/assets-filter-options/selectors';
-import { DefaultTokensFilterOptions, FilterChain } from 'app/store/assets-filter-options/state';
+import { useAssetsFilterOptionsSelector } from 'app/store/assets-filter-options/selectors';
+import { AssetsFilterOptionsInitialState, FilterChain } from 'app/store/assets-filter-options/state';
 import { T } from 'lib/i18n';
 import { TEZOS_MAINNET_CHAIN_ID } from 'lib/temple/types';
 import { useBooleanState } from 'lib/ui/hooks';
@@ -32,12 +34,12 @@ interface AssetsFilterOptionsProps {
 }
 
 export const AssetsFilterOptions = memo<AssetsFilterOptionsProps>(({ filterButtonRef, onRequestClose }) => {
-  const options = useTokensFilterOptionsSelector();
-  const { filterChain, hideZeroBalance, groupByNetwork } = options;
+  const options = useAssetsFilterOptionsSelector();
+  const { filterChain, tokensListOptions, collectiblesListOptions } = options;
 
   const [networksModalOpened, setNetworksModalOpen, setNetworksModalClosed] = useBooleanState(false);
 
-  const isNonDefaultOption = useMemo(() => !isEqual(options, DefaultTokensFilterOptions), [options]);
+  const isNonDefaultOption = useMemo(() => !isEqual(options, AssetsFilterOptionsInitialState), [options]);
 
   const containerRef = useRef(null);
 
@@ -55,20 +57,29 @@ export const AssetsFilterOptions = memo<AssetsFilterOptionsProps>(({ filterButto
 
   const handleResetAllClick = useCallback(() => dispatch(resetTokensFilterOptions()), []);
 
-  const handleHideZeroBalanceChange = useCallback(
+  const handleTokensHideZeroBalanceChange = useCallback(
     (checked: boolean) => dispatch(setTokensHideZeroBalanceFilterOption(checked)),
     []
   );
-  const handleGroupByNetworkChange = useCallback(
+  const handleTokensGroupByNetworkChange = useCallback(
     (checked: boolean) => dispatch(setTokensGroupByNetworkFilterOption(checked)),
+    []
+  );
+
+  const handleCollectiblesBlurChange = useCallback(
+    (checked: boolean) => dispatch(setCollectiblesBlurFilterOption(checked)),
+    []
+  );
+  const handleCollecytiblesShowInfoChange = useCallback(
+    (checked: boolean) => dispatch(setCollectiblesShowInfoFilterOption(checked)),
     []
   );
 
   return (
     <ContentContainer ref={containerRef}>
-      <div className="flex justify-between items-center mb-2">
+      <div className="flex justify-between items-center mt-1 mb-2">
         <p className="text-font-description-bold">
-          <T id="filterTokens" />
+          <T id="sortByNetwork" />
         </p>
 
         {isNonDefaultOption && (
@@ -81,13 +92,17 @@ export const AssetsFilterOptions = memo<AssetsFilterOptionsProps>(({ filterButto
 
       <NetworkSelect filterChain={filterChain} onClick={setNetworksModalOpen} />
 
+      <p className="text-font-description-bold mt-5 mb-2">
+        <T id="tokensList" />
+      </p>
+
       <div className="rounded-lg shadow-bottom border-0.5 border-transparent">
         <div className="flex justify-between items-center p-3">
           <span className="text-font-medium-bold">
             <T id="hideZeroBalance" />
           </span>
 
-          <ToggleSwitch checked={hideZeroBalance} onChange={handleHideZeroBalanceChange} />
+          <ToggleSwitch checked={tokensListOptions.hideZeroBalance} onChange={handleTokensHideZeroBalanceChange} />
         </div>
 
         <Divider style={{ height: '0.5px' }} />
@@ -97,7 +112,31 @@ export const AssetsFilterOptions = memo<AssetsFilterOptionsProps>(({ filterButto
             <T id="groupByNetwork" />
           </span>
 
-          <ToggleSwitch checked={groupByNetwork} onChange={handleGroupByNetworkChange} />
+          <ToggleSwitch checked={tokensListOptions.groupByNetwork} onChange={handleTokensGroupByNetworkChange} />
+        </div>
+      </div>
+
+      <p className="text-font-description-bold mt-5 mb-2">
+        <T id="collectiblesList" />
+      </p>
+
+      <div className="rounded-lg shadow-bottom border-0.5 border-transparent">
+        <div className="flex justify-between items-center p-3">
+          <span className="text-font-medium-bold">
+            <T id="blur" />
+          </span>
+
+          <ToggleSwitch checked={collectiblesListOptions.blur} onChange={handleCollectiblesBlurChange} />
+        </div>
+
+        <Divider style={{ height: '0.5px' }} />
+
+        <div className="flex justify-between items-center p-3">
+          <span className="text-font-medium-bold">
+            <T id="showInfo" />
+          </span>
+
+          <ToggleSwitch checked={collectiblesListOptions.showInfo} onChange={handleCollecytiblesShowInfoChange} />
         </div>
       </div>
 
@@ -154,7 +193,7 @@ const NetworkSelect = memo<NetworkSelectProps>(({ filterChain, onClick }) => {
 
   return (
     <div
-      className="cursor-pointer mb-4 flex justify-between items-center p-3 rounded-lg shadow-bottom border-0.5 border-transparent hover:border-lines"
+      className="cursor-pointer flex justify-between items-center p-3 rounded-lg shadow-bottom border-0.5 border-transparent hover:border-lines"
       onClick={onClick}
     >
       <div className="flex items-center gap-2">{children}</div>

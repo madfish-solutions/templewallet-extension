@@ -5,8 +5,8 @@ import { isEqual } from 'lodash';
 
 import { ReactComponent as FilterOffIcon } from 'app/icons/base/filteroff.svg';
 import { ReactComponent as FilterOnIcon } from 'app/icons/base/filteron.svg';
-import { useTokensFilterOptionsSelector } from 'app/store/assets-filter-options/selectors';
-import { DefaultTokensFilterOptions } from 'app/store/assets-filter-options/state';
+import { useAssetsFilterOptionsSelector } from 'app/store/assets-filter-options/selectors';
+import { AssetsFilterOptionsInitialState } from 'app/store/assets-filter-options/state';
 
 import { Button } from './Button';
 import { IconBase } from './IconBase';
@@ -20,9 +20,9 @@ interface FilterButtonProps {
 
 export const FilterButton = memo(
   forwardRef<HTMLButtonElement, FilterButtonProps>(({ active, disabled, onClick }, ref) => {
-    const options = useTokensFilterOptionsSelector();
+    const options = useAssetsFilterOptionsSelector();
 
-    const isNonDefaultOption = useMemo(() => !isEqual(options, DefaultTokensFilterOptions), [options]);
+    const isNonDefaultOption = useMemo(() => !isEqual(options, AssetsFilterOptionsInitialState), [options]);
 
     const colorClassName = useMemo(() => {
       if (active) return clsx(ACTIVE_STYLED_BUTTON_COLORS_CLASSNAME, 'shadow-none');

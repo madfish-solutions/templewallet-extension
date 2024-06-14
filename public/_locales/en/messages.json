@@ -2472,10 +2472,12 @@
   },
   "showInfo": { "message": "Show info" },
   "blur": { "message": "Blur" },
-  "filterTokens": { "message": "Filter Tokens" },
+  "sortByNetwork": { "message": "Sort by Network" },
   "resetAll": { "message": "Reset All" },
   "hideZeroBalance": { "message": "Hide 0 balance" },
   "groupByNetwork": { "message": "Group by Network" },
+  "tokensList": { "message": "Tokens List" },
+  "collectiblesList": { "message": "Collectibles List" },
   "recentDestinations": {
     "message": "Recent destinations"
   },
