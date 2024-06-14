@@ -173,8 +173,8 @@
       }
     }
   },
-  "clickOnBakerPrompt": {
-    "message": "点击您想委托资金的面包店。此列表由$link$提供技术支持。",
+  "recommendedBakersDescription": {
+    "message": "此列表由$link$提供技术支持",
     "placeholders": {
       "link": {
         "content": "$1"
@@ -845,7 +845,7 @@
   "delegation": {
     "message": "委托"
   },
-  "baker": {
+  "customBaker": {
     "message": "面包店"
   },
   "bakerInputDescription": {
@@ -863,7 +863,7 @@
   "unknownBakerDescription": {
     "message": "提供的地址对于我们而言不是面包店的地址！如需向其委托资金，请自担风险。"
   },
-  "delegateToRecommendedBakers": {
+  "recommendedBakers": {
     "message": "委托给推荐的面包店"
   },
   "sortBy": {

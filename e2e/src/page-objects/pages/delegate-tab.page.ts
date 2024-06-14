@@ -1,4 +1,5 @@
-import { BakingSectionSelectors } from '../../../../src/app/pages/Home/OtherComponents/BakingSection.selectors';
+import { BakingSectionSelectors } from 'src/app/pages/Home/OtherComponents/BakingSection/selectors';
+
 import { Page } from '../../classes/page.class';
 import { createPageElement } from '../../utils/search.utils';
 
