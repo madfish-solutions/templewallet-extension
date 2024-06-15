@@ -3,8 +3,11 @@ import { useMemo } from 'react';
 import { ChainIds } from '@taquito/taquito';
 import { isEqual, sortBy, uniqBy } from 'lodash';
 
-import { useRawEvmChainAccountTokensSelector } from 'app/store/evm/assets/selectors';
-import { useRawEvmChainAccountBalancesSelector } from 'app/store/evm/balances/selectors';
+import { useRawEvmAccountTokensSelector, useRawEvmChainAccountTokensSelector } from 'app/store/evm/assets/selectors';
+import {
+  useRawEvmAccountBalancesSelector,
+  useRawEvmChainAccountBalancesSelector
+} from 'app/store/evm/balances/selectors';
 import {
   useAllTokensSelector,
   useAccountTokensSelector,
@@ -14,9 +17,10 @@ import { isAccountAssetsStoreKeyOfSameChainIdAndDifferentAccount } from 'app/sto
 import { useAllAccountBalancesSelector } from 'app/store/tezos/balances/selectors';
 import { useMemoWithCompare } from 'lib/ui/hooks';
 
+import { useEnabledEvmChains } from '../../../temple/front';
 import { PREDEFINED_TOKENS_METADATA } from '../known-tokens';
 import type { AccountAsset } from '../types';
-import { tokenToSlug } from '../utils';
+import { toChainAssetSlug, tokenToSlug } from '../utils';
 
 import { isAssetStatusIdle, getAssetStatus } from './utils';
 
@@ -114,6 +118,37 @@ const useAccountTokens = (account: string, chainId: string) => {
   );
 };
 
+const useEvmAccountTokens = (account: HexString) => {
+  const enabledChains = useEnabledEvmChains();
+
+  const tokensRecord = useRawEvmAccountTokensSelector(account);
+  const balancesRecord = useRawEvmAccountBalancesSelector(account);
+
+  return useMemoWithCompare<AccountToken[]>(
+    () => {
+      let accountTokens: AccountToken[] = [];
+
+      for (const chain of enabledChains) {
+        const currentChainId = chain.chainId;
+        const chainTokensRecord = tokensRecord[currentChainId];
+
+        if (!chainTokensRecord) continue;
+
+        accountTokens = accountTokens.concat(
+          Object.entries(chainTokensRecord).map<AccountToken>(([slug, { status }]) => ({
+            slug: toChainAssetSlug(currentChainId, slug),
+            status: getAssetStatus(balancesRecord[currentChainId]?.[slug], status)
+          }))
+        );
+      }
+
+      return accountTokens;
+    },
+    [enabledChains, tokensRecord, balancesRecord],
+    isEqual
+  );
+};
+
 const useEvmChainAccountTokens = (account: HexString, chainId: number) => {
   const storedRaw = useRawEvmChainAccountTokensSelector(account, chainId);
   const balances = useRawEvmChainAccountBalancesSelector(account, chainId);
@@ -126,6 +161,15 @@ const useEvmChainAccountTokens = (account: HexString, chainId: number) => {
       })),
     [storedRaw, balances],
     isEqual
+  );
+};
+
+export const useEnabledEvmAccountTokensSlugs = (publicKeyHash: HexString) => {
+  const tokens = useEvmAccountTokens(publicKeyHash);
+
+  return useMemo(
+    () => tokens.reduce<string[]>((acc, { slug, status }) => (status === 'enabled' ? acc.concat(slug) : acc), []),
+    [tokens]
   );
 };
 

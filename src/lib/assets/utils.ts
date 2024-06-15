@@ -15,6 +15,10 @@ export const toTokenSlug = (contract: string, id: string | number = 0) => `${con
 
 export const fromAssetSlug = <T = string>(slug: string) => slug.split('_') as [contract: T, tokenId?: string];
 
+export const toChainAssetSlug = (chainId: number | string, assetSlug: string) => `${chainId}@${assetSlug}`;
+
+export const fromChainAssetSlug = <T = string>(slug: string) => slug.split('@') as [chainId: T, assetSlug: string];
+
 export const tokenToSlug = <T extends { address: string; id?: string | number }>({ address, id }: T) => {
   return toTokenSlug(address, id);
 };

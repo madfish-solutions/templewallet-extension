@@ -4,11 +4,14 @@ import { emptyFn } from '@rnw-community/shared';
 import BigNumber from 'bignumber.js';
 
 import { DeadEndBoundaryError } from 'app/ErrorBoundary';
-import { useRawEvmChainAccountBalancesSelector } from 'app/store/evm/balances/selectors';
+import {
+  useRawEvmAccountBalancesSelector,
+  useRawEvmChainAccountBalancesSelector
+} from 'app/store/evm/balances/selectors';
 import { useEvmBalancesLoadingSelector } from 'app/store/evm/selectors';
 import {
-  useEvmChainTokensMetadataSelector,
-  useEvmTokenMetadataSelector
+  useEvmTokenMetadataSelector,
+  useEvmTokensMetadataRecordSelector
 } from 'app/store/evm/tokens-metadata/selectors';
 import { useAllAccountBalancesSelector, useAllAccountBalancesEntitySelector } from 'app/store/tezos/balances/selectors';
 import { isSupportedChainId } from 'lib/apis/temple/endpoints/evm/api.utils';
@@ -30,14 +33,14 @@ import { isEvmNativeTokenSlug } from '../utils/evm.utils';
 
 import { fetchRawBalance as fetchRawBalanceFromBlockchain } from './fetch';
 
-export const useGetEvmTokenBalanceWithDecimals = (publicKeyHash: HexString, chainId: number) => {
-  const rawBalances = useRawEvmChainAccountBalancesSelector(publicKeyHash, chainId);
-  const tokensMetadata = useEvmChainTokensMetadataSelector(chainId);
+export const useGetEvmTokenBalanceWithDecimals = (publicKeyHash: HexString) => {
+  const rawBalances = useRawEvmAccountBalancesSelector(publicKeyHash);
+  const tokensMetadata = useEvmTokensMetadataRecordSelector();
 
   return useCallback(
-    (slug: string) => {
-      const rawBalance = rawBalances[slug] as string | undefined;
-      const metadata = tokensMetadata[slug] as EvmTokenMetadata | undefined;
+    (chainId: number, slug: string) => {
+      const rawBalance = rawBalances[chainId]?.[slug] as string | undefined;
+      const metadata = tokensMetadata[chainId]?.[slug] as EvmTokenMetadata | undefined;
 
       return rawBalance && metadata?.decimals ? atomsToTokens(new BigNumber(rawBalance), metadata.decimals) : undefined;
     },

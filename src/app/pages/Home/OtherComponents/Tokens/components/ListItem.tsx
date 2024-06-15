@@ -8,7 +8,7 @@ import { useEvmTokenBalance, useTezosAssetBalance } from 'lib/balances/hooks';
 import { getAssetName, getAssetSymbol } from 'lib/metadata';
 import { ZERO } from 'lib/utils/numbers';
 import { Link } from 'lib/woozie';
-import { EvmNetworkEssentials, TezosNetworkEssentials } from 'temple/networks';
+import { TezosNetworkEssentials } from 'temple/networks';
 import { TempleChainKind } from 'temple/types';
 
 import { AssetsSelectors } from '../../Assets.selectors';
@@ -88,13 +88,13 @@ export const TezosListItem = memo<TezosListItemProps>(({ network, publicKeyHash,
 });
 
 interface EvmListItemProps {
-  network: EvmNetworkEssentials;
+  chainId: number;
   publicKeyHash: HexString;
   assetSlug: string;
 }
 
-export const EvmListItem = memo<EvmListItemProps>(({ network, publicKeyHash, assetSlug }) => {
-  const { value: balance = ZERO, metadata } = useEvmTokenBalance(assetSlug, publicKeyHash, network.chainId);
+export const EvmListItem = memo<EvmListItemProps>(({ chainId, publicKeyHash, assetSlug }) => {
+  const { value: balance = ZERO, metadata } = useEvmTokenBalance(assetSlug, publicKeyHash, chainId);
 
   if (metadata == null) return null;
 
@@ -103,7 +103,7 @@ export const EvmListItem = memo<EvmListItemProps>(({ network, publicKeyHash, ass
 
   return (
     <Link
-      to={toExploreAssetLink(TempleChainKind.EVM, network.chainId, assetSlug)}
+      to={toExploreAssetLink(TempleChainKind.EVM, chainId, assetSlug)}
       className={classNames(
         'relative w-full overflow-hidden flex items-center px-4 py-3 rounded',
         'hover:bg-gray-200 text-gray-700 transition ease-in-out duration-200 focus:outline-none',
@@ -113,7 +113,7 @@ export const EvmListItem = memo<EvmListItemProps>(({ network, publicKeyHash, ass
       testIDProperties={{ key: assetSlug }}
       {...setAnotherSelector('name', assetName)}
     >
-      <EvmTokenIcon evmChainId={network.chainId} assetSlug={assetSlug} size={40} className="mr-2 flex-shrink-0" />
+      <EvmTokenIcon evmChainId={chainId} assetSlug={assetSlug} size={40} className="mr-2 flex-shrink-0" />
 
       <div className={classNames('w-full', styles.tokenInfoWidth)}>
         <div className="flex justify-between w-full mb-1">
@@ -130,7 +130,7 @@ export const EvmListItem = memo<EvmListItemProps>(({ network, publicKeyHash, ass
           <div className="text-xs font-normal text-gray-700 truncate flex-1">{assetName}</div>
           <FiatBalance
             evm
-            chainId={network.chainId}
+            chainId={chainId}
             assetSlug={assetSlug}
             value={balance}
             testID={AssetsSelectors.assetItemFiatBalanceButton}

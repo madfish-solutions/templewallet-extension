@@ -9,6 +9,8 @@ import { useTezosUsdToTokenRatesSelector } from 'app/store/tezos/currency/select
 import { useGetEvmTokenBalanceWithDecimals, useGetTezosTokenOrGasBalanceWithDecimals } from 'lib/balances/hooks';
 import { ZERO } from 'lib/utils/numbers';
 
+import { fromChainAssetSlug } from './utils';
+
 export const useTezosTokensSortPredicate = (publicKeyHash: string, tezosChainId: string) => {
   const getBalance = useGetTezosTokenOrGasBalanceWithDecimals(publicKeyHash, tezosChainId);
   const usdToTokenRates = useTezosUsdToTokenRatesSelector();
@@ -30,14 +32,38 @@ export const useTezosTokensSortPredicate = (publicKeyHash: string, tezosChainId:
   );
 };
 
-export const useEvmTokensSortPredicate = (publicKeyHash: HexString, chainId: number) => {
-  const getBalance = useGetEvmTokenBalanceWithDecimals(publicKeyHash, chainId);
+export const useEvmAccountTokensSortPredicate = (publicKeyHash: HexString) => {
+  const getBalance = useGetEvmTokenBalanceWithDecimals(publicKeyHash);
+  const usdToTokenRates = useEvmUsdToTokenRatesSelector();
+
+  return useCallback(
+    (aChainSlug: string, bChainSlug: string) => {
+      const [aChainId, aSlug] = fromChainAssetSlug<number>(aChainSlug);
+      const [bChainId, bSlug] = fromChainAssetSlug<number>(bChainSlug);
+
+      const aBalance = getBalance(aChainId, aSlug) ?? ZERO;
+      const bBalance = getBalance(bChainId, bSlug) ?? ZERO;
+      const aEquity = aBalance.multipliedBy(usdToTokenRates[aChainId]?.[aSlug] ?? ZERO);
+      const bEquity = bBalance.multipliedBy(usdToTokenRates[bChainId]?.[bSlug] ?? ZERO);
+
+      if (aEquity.isEqualTo(bEquity)) {
+        return bBalance.comparedTo(aBalance);
+      }
+
+      return bEquity.comparedTo(aEquity);
+    },
+    [getBalance, usdToTokenRates]
+  );
+};
+
+export const useEvmChainTokensSortPredicate = (publicKeyHash: HexString, chainId: number) => {
+  const getBalance = useGetEvmTokenBalanceWithDecimals(publicKeyHash);
   const usdToTokenRates = useEvmUsdToTokenRatesSelector();
 
   return useCallback(
     (aSlug: string, bSlug: string) => {
-      const aBalance = getBalance(aSlug) ?? ZERO;
-      const bBalance = getBalance(bSlug) ?? ZERO;
+      const aBalance = getBalance(chainId, aSlug) ?? ZERO;
+      const bBalance = getBalance(chainId, bSlug) ?? ZERO;
       const aEquity = aBalance.multipliedBy(usdToTokenRates[chainId]?.[aSlug] ?? ZERO);
       const bEquity = bBalance.multipliedBy(usdToTokenRates[chainId]?.[bSlug] ?? ZERO);
 

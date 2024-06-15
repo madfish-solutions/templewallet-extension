@@ -4,7 +4,7 @@ import { useDidUpdate } from 'lib/ui/hooks';
 
 const ITEMS_PER_PAGE = 30;
 
-export const useEvmAssetsPaginationLogic = (allSlugsSorted: string[], chainId: number) => {
+export const useEvmAssetsPaginationLogic = (allSlugsSorted: string[]) => {
   const [slugs, setSlugs] = useState<string[]>(() => allSlugsSorted.slice(0, ITEMS_PER_PAGE));
 
   const _load = useCallback(
@@ -18,7 +18,7 @@ export const useEvmAssetsPaginationLogic = (allSlugsSorted: string[], chainId: n
 
   useDidUpdate(() => {
     _load(ITEMS_PER_PAGE);
-  }, [allSlugsSorted, chainId]);
+  }, [allSlugsSorted]);
 
   const loadNext = useCallback(() => {
     if (slugs.length === allSlugsSorted.length) return;
