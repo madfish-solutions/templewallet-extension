@@ -1,0 +1,84 @@
+<!--
+  This page is not to be packaged with extension, but hosted remotely. (i.e. @ https://templewallet.com/adsterra-ads)
+  Serve locally by:
+  ```bash
+  yarn global add http-server
+  yarn serve-adsterra-ads
+  ```
+-->
+
+<!DOCTYPE html>
+<html lang="">
+
+<head>
+  <meta charset="utf-8" />
+  <!-- <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" /> -->
+  <title>Temple Wallet | Adsterra ads</title>
+
+  <!-- SCRIPTS -->
+
+  <!-- <script src="./index.js"></script> -->
+
+  <style>
+    body {
+      margin: 0;
+    }
+  </style>
+</head>
+
+<body>
+  <script type="text/javascript">
+    const usp = new URLSearchParams(window.location.search);
+    const placementId = usp.get('placementId');
+    const width = usp.get('width');
+    const height = usp.get('height');
+
+    //// # Method 1. Taken from the Dashboard https://beta.publishers.adsterra.com/websites
+
+    atOptions = {
+      'key' : placementId,
+      'format' : 'iframe',
+      'height' : 1, // Has no effect. <img> inside gets banner width anyway
+      'width' : 1, // Has no effect. <img> inside gets banner width anyway
+      'params' : {}
+    };
+
+    const script = document.createElement('script');
+    script.src = `https://www.topcreativeformat.com/${placementId}/invoke.js`;
+    script.onerror = event => {
+      console.error('Adsterra script error event:', event);
+    };
+    document.body.appendChild(script);
+
+    const adElemSelectorIFrame = `div#atContainer-${placementId}`;
+
+    let loaded = false;
+    const interval = setInterval(() => {
+      const adElem = document.querySelector('iframe')?.contentDocument?.querySelector(adElemSelectorIFrame);
+      if (!adElem) return;
+
+      clearInterval(interval);
+      loaded = true;
+      console.log('Adsterra ad loaded. ID:', placementId);
+    }, 300);
+
+    setTimeout(() => {
+      if (loaded) return;
+
+      console.error('Adsterra ad failed to load. ID:', placementId);
+      clearInterval(interval);
+    }, 15_000);
+
+    //// # Method 2 (also works). Taken from the docs https://help-publishers.adsterra.com/en/articles/5210780-adding-ads-to-a-static-html-site
+
+    // const iframe = document.createElement('iframe');
+    // iframe.src = `https://wizardunstablecommissioner.com/watchnew?key=${placementId}`;
+    // iframe.frameBorder = '0';
+    // iframe.scrolling = 'no';
+    // iframe.width = String(width); // <img> inside gets banner width anyway
+    // iframe.height = String(height); // <img> inside gets banner height anyway
+    // document.body.appendChild(iframe);
+  </script>
+</body>
+
+</html>
