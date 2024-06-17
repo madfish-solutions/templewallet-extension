@@ -1,4 +1,4 @@
-import React, { CSSProperties, memo, useMemo } from 'react';
+import React, { CSSProperties, forwardRef, memo, useMemo } from 'react';
 
 import clsx from 'clsx';
 
@@ -22,33 +22,42 @@ interface EvmNetworkLogoProps {
   chainId: number;
   size?: number;
   className?: string;
+  imgClassName?: string;
   style?: CSSProperties;
 }
 
-export const EvmNetworkLogo = memo<EvmNetworkLogoProps>(({ networkName, chainId, size = 24, className, style }) => {
-  const source = useMemo(() => {
-    if (logosRecord[chainId]) return logosRecord[chainId];
+export const EvmNetworkLogo = memo(
+  forwardRef<HTMLDivElement, EvmNetworkLogoProps>(
+    ({ networkName, chainId, size = 24, className, imgClassName, style }, ref) => {
+      const source = useMemo(() => {
+        if (logosRecord[chainId]) return logosRecord[chainId];
 
-    const nativeAssetIcon = getEvmNativeAssetIcon(chainId, size * 2);
+        const nativeAssetIcon = getEvmNativeAssetIcon(chainId, size * 2);
 
-    if (nativeAssetIcon) return nativeAssetIcon;
+        if (nativeAssetIcon) return nativeAssetIcon;
 
-    return undefined;
-  }, [chainId, size]);
+        return undefined;
+      }, [chainId, size]);
 
-  return source ? (
-    <img
-      src={source}
-      alt={networkName}
-      width={size}
-      height={size}
-      className={clsx('p-0.5 border border-grey-4 bg-white rounded-full', className)}
-      style={style}
-    />
-  ) : (
-    <NetworkLogoFallback networkName={networkName} size={size} />
-  );
-});
+      return (
+        <div ref={ref} className={className}>
+          {source ? (
+            <img
+              src={source}
+              alt={networkName}
+              width={size}
+              height={size}
+              className={clsx('border border-lines bg-white rounded-full', imgClassName)}
+              style={style}
+            />
+          ) : (
+            <NetworkLogoFallback networkName={networkName} size={size} />
+          )}
+        </div>
+      );
+    }
+  )
+);
 
 const ICON_CONTAINER_MULTIPLIER = 0.8;
 const ICON_SIZE_MULTIPLIER = 2;

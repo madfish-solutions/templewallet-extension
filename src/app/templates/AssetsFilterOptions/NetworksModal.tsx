@@ -93,7 +93,9 @@ export const NetworksModal = memo<Props>(({ opened, onRequestClose }) => {
             <Network
               key={network.chainId}
               active={filterChain?.kind === TempleChainKind.EVM && filterChain.chainId === network.chainId}
-              icon={<EvmNetworkLogo networkName={network.name} chainId={network.chainId} size={36} />}
+              icon={
+                <EvmNetworkLogo networkName={network.name} chainId={network.chainId} size={36} imgClassName="p-0.5" />
+              }
               name={network.name}
               attractSelf={attractSelectedNetwork}
               onClick={() => dispatch(setAssetsFilterChain({ kind: TempleChainKind.EVM, chainId: network.chainId }))}

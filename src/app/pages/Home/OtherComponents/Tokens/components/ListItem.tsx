@@ -2,7 +2,9 @@ import React, { memo, useMemo } from 'react';
 
 import classNames from 'clsx';
 
-import { TezosAssetIcon, EvmTokenIcon } from 'app/templates/AssetIcon';
+import { IconBase } from 'app/atoms';
+import { ReactComponent as CopyIcon } from 'app/icons/base/copy.svg';
+import { EvmTokenIconWithNetwork, TezosTokenIconWithNetwork } from 'app/templates/AssetIcon';
 import { setAnotherSelector } from 'lib/analytics';
 import { useEvmTokenBalance, useTezosAssetBalance } from 'lib/balances/hooks';
 import { getAssetName, getAssetSymbol } from 'lib/metadata';
@@ -32,9 +34,9 @@ export const TezosListItem = memo<TezosListItemProps>(({ network, publicKeyHash,
   const classNameMemo = useMemo(
     () =>
       classNames(
-        'relative block w-full overflow-hidden flex items-center px-4 py-3 rounded',
-        'hover:bg-gray-200 text-gray-700 transition ease-in-out duration-200 focus:outline-none',
-        active && 'focus:bg-gray-200'
+        'relative block w-full overflow-hidden flex items-center p-2 rounded-lg',
+        'hover:bg-secondary-low transition ease-in-out duration-200 focus:outline-none group',
+        active && 'focus:bg-secondary-low'
       ),
     [active]
   );
@@ -52,12 +54,12 @@ export const TezosListItem = memo<TezosListItemProps>(({ network, publicKeyHash,
       testIDProperties={{ key: assetSlug }}
       {...setAnotherSelector('name', assetName)}
     >
-      <TezosAssetIcon tezosChainId={network.chainId} assetSlug={assetSlug} size={40} className="mr-2 flex-shrink-0" />
+      <TezosTokenIconWithNetwork tezosChainId={network.chainId} assetSlug={assetSlug} className="mr-1 flex-shrink-0" />
 
       <div className={classNames('w-full', styles.tokenInfoWidth)}>
         <div className="flex justify-between w-full mb-1">
           <div className="flex items-center flex-initial">
-            <div className={styles['tokenSymbol']}>{assetSymbol}</div>
+            <div className="text-font-medium">{assetName}</div>
             <TokenTag
               network={network}
               tezPkh={publicKeyHash}
@@ -72,8 +74,18 @@ export const TezosListItem = memo<TezosListItemProps>(({ network, publicKeyHash,
             testIDProperties={{ assetSlug }}
           />
         </div>
-        <div className="flex justify-between w-full mb-1">
-          <div className="text-xs font-normal text-gray-700 truncate flex-1">{assetName}</div>
+        <div className="flex justify-between w-full">
+          <div
+            className="flex items-center flex-initial"
+            onClick={e => {
+              e.preventDefault();
+              e.stopPropagation();
+              window.navigator.clipboard.writeText(assetSymbol);
+            }}
+          >
+            <div className="flex text-font-description items-center text-grey-1 truncate flex-1">{assetSymbol}</div>
+            <IconBase Icon={CopyIcon} size={10} className="ml-0.5 text-secondary opacity-0 group-hover:opacity-100" />
+          </div>
           <FiatBalance
             chainId={network.chainId}
             assetSlug={assetSlug}
@@ -105,20 +117,20 @@ export const EvmListItem = memo<EvmListItemProps>(({ chainId, publicKeyHash, ass
     <Link
       to={toExploreAssetLink(TempleChainKind.EVM, chainId, assetSlug)}
       className={classNames(
-        'relative w-full overflow-hidden flex items-center px-4 py-3 rounded',
-        'hover:bg-gray-200 text-gray-700 transition ease-in-out duration-200 focus:outline-none',
-        'focus:bg-gray-200'
+        'relative w-full overflow-hidden flex items-center p-2 rounded-lg',
+        'hover:bg-secondary-low transition ease-in-out duration-200 focus:outline-none',
+        'focus:bg-secondary-low group'
       )}
       testID={AssetsSelectors.assetItemButton}
       testIDProperties={{ key: assetSlug }}
       {...setAnotherSelector('name', assetName)}
     >
-      <EvmTokenIcon evmChainId={chainId} assetSlug={assetSlug} size={40} className="mr-2 flex-shrink-0" />
+      <EvmTokenIconWithNetwork evmChainId={chainId} assetSlug={assetSlug} className="mr-1 flex-shrink-0" />
 
       <div className={classNames('w-full', styles.tokenInfoWidth)}>
         <div className="flex justify-between w-full mb-1">
           <div className="flex items-center flex-initial">
-            <div className={styles['tokenSymbol']}>{assetSymbol}</div>
+            <div className="text-font-medium">{assetName}</div>
           </div>
           <CryptoBalance
             value={balance}
@@ -126,8 +138,18 @@ export const EvmListItem = memo<EvmListItemProps>(({ chainId, publicKeyHash, ass
             testIDProperties={{ assetSlug }}
           />
         </div>
-        <div className="flex justify-between w-full mb-1">
-          <div className="text-xs font-normal text-gray-700 truncate flex-1">{assetName}</div>
+        <div className="flex justify-between w-full">
+          <div
+            className="flex items-center flex-initial"
+            onClick={e => {
+              e.preventDefault();
+              e.stopPropagation();
+              window.navigator.clipboard.writeText(assetSymbol);
+            }}
+          >
+            <div className="flex text-font-description items-center text-grey-1 truncate flex-1">{assetSymbol}</div>
+            <IconBase Icon={CopyIcon} size={10} className="ml-0.5 text-secondary opacity-0 group-hover:opacity-100" />
+          </div>
           <FiatBalance
             evm
             chainId={chainId}

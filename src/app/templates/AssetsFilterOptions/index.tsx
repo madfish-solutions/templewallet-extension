@@ -185,7 +185,7 @@ const NetworkSelect = memo<NetworkSelectProps>(({ filterChain, onClick }) => {
 
     return (
       <>
-        <EvmNetworkLogo networkName={networkName} chainId={filterChain.chainId} size={24} />
+        <EvmNetworkLogo networkName={networkName} chainId={filterChain.chainId} size={24} imgClassName="p-0.5" />
         <span className="text-font-medium-bold">{networkName}</span>
       </>
     );

@@ -2,7 +2,7 @@ import React, { memo } from 'react';
 
 import clsx from 'clsx';
 
-type Size = 12 | 16 | 24 | 32;
+type Size = 10 | 12 | 16 | 24 | 32;
 
 interface Props {
   /** SVG of the 16px icon base container */
@@ -21,6 +21,7 @@ export const IconBase = memo<Props>(({ size = 16, className, Icon, onClick }) =>
 
 /** Exact icons (icons' base containers) sizes */
 const CONTAINER_CLASSNAME: Record<Size, string> = {
+  10: 'h-4 w-4',
   12: 'h-4 w-4',
   16: 'h-6 w-6',
   24: 'h-6 w-6',
@@ -32,6 +33,7 @@ const buildScaleTransform = (scale: number) => `scale(${scale})`;
 
 /** Scale formula = (16_base / target_base) * (target_icon / 16_icon) */
 const SCALE_TRANSFORMS: Record<Size, string | undefined> = {
+  10: buildScaleTransform(COMMON_SCALE_FACTOR * (10 / 16)),
   12: buildScaleTransform(COMMON_SCALE_FACTOR * (12 / 16)),
   16: undefined, // Icon of size 16 comes with same sized container already
   24: buildScaleTransform(COMMON_SCALE_FACTOR * (20 / 24)),
