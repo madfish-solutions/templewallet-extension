@@ -12,9 +12,17 @@ interface Props {
   imageSrc?: string;
   fitImg?: boolean;
   className?: string;
+  isVisible?: boolean;
 }
 
-export const StaticCurrencyImage: FC<Props> = ({ currencyCode, isFiat, imageSrc, fitImg, className }) => {
+export const StaticCurrencyImage: FC<Props> = ({
+  currencyCode,
+  isFiat,
+  imageSrc,
+  fitImg,
+  className,
+  isVisible = true
+}) => {
   const [isFailed, setIsFailed] = useState(false);
 
   const conditionalStyle = useMemo(() => ({ display: isFailed ? 'none' : undefined }), [isFailed]);
@@ -46,10 +54,14 @@ export const StaticCurrencyImage: FC<Props> = ({ currencyCode, isFiat, imageSrc,
     return (
       <div className={classNames('flex justify-center items-center bg-gray-300', className)} style={style}>
         {/* eslint-disable-next-line jsx-a11y/alt-text */}
-        <img {...imgProps} width={21} height={15} />
+        {isVisible && <img {...imgProps} width={21} height={15} />}
       </div>
     );
 
-  // eslint-disable-next-line jsx-a11y/alt-text
-  return <img className={className} {...imgProps} style={style} />;
+  return isVisible ? (
+    // eslint-disable-next-line jsx-a11y/alt-text
+    <img className={className} {...imgProps} style={style} />
+  ) : (
+    <div className={className} style={style} />
+  );
 };

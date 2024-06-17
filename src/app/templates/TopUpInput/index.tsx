@@ -20,8 +20,8 @@ export type { CurrencyToken } from './types';
 
 const TWO_TOKENS_LENGTH = 2;
 
-const renderOptionContent = (currency: CurrencyBase, isSelected: boolean) => (
-  <CurrencyOption currency={currency} isSelected={isSelected} />
+const renderOptionContent = (currency: CurrencyBase, isSelected: boolean, isVisible: boolean) => (
+  <CurrencyOption currency={currency} isSelected={isSelected} isVisible={isVisible} />
 );
 
 export const TopUpInput = <C extends CurrencyBase>(_props: TopUpInputPropsGeneric<C>) => {
@@ -121,7 +121,8 @@ export const TopUpInput = <C extends CurrencyBase>(_props: TopUpInputPropsGeneri
             options: filteredCurrencies,
             noItemsText: emptyListPlaceholder,
             getKey: option => `${option.code}_${option.network?.code}`,
-            renderOptionContent: currCurrency => renderOptionContent(currCurrency, isEqual(currCurrency, currency)),
+            renderOptionContent: (currCurrency, isVisible) =>
+              renderOptionContent(currCurrency, isEqual(currCurrency, currency), isVisible),
             onOptionChange: newValue => onCurrencySelect?.(newValue)
           }}
           searchProps={{

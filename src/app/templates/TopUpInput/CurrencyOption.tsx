@@ -12,11 +12,12 @@ interface Props {
   isFiat?: boolean;
   currency: CurrencyBase;
   isSelected: boolean;
+  isVisible?: boolean;
   fitIcons?: boolean | ((currency: CurrencyBase) => boolean);
   style?: CSSProperties;
 }
 
-export const CurrencyOption: FC<Props> = ({ currency, isFiat, isSelected, fitIcons, style }) => (
+export const CurrencyOption: FC<Props> = ({ currency, isFiat, isSelected, fitIcons, style, isVisible = true }) => (
   <div
     className={classNames(
       'py-1.5 px-2 w-full flex items-center h-16',
@@ -27,6 +28,7 @@ export const CurrencyOption: FC<Props> = ({ currency, isFiat, isSelected, fitIco
     <StaticCurrencyImage
       currencyCode={currency.code}
       isFiat={isFiat}
+      isVisible={isVisible}
       imageSrc={currency.icon}
       fitImg={typeof fitIcons === 'function' ? fitIcons(currency) : fitIcons}
       className="mr-2"

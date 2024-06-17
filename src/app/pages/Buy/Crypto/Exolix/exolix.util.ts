@@ -95,17 +95,7 @@ export const loadMinMaxFields = async (
   outputAssetNetwork = 'XTZ'
 ) => {
   try {
-    const outputTokenPrice = await loadUSDTRate(outputAssetCode, outputAssetNetwork);
-
-    const backwardExchangeData = {
-      coinTo: inputAssetCode,
-      coinToNetwork: inputAssetNetwork,
-      coinFrom: outputAssetCode,
-      coinFromNetwork: outputAssetNetwork,
-      amount: (MAX_DOLLAR_VALUE + AVG_COMISSION) / outputTokenPrice
-    };
-
-    const forwardExchangeData = {
+    const exchangeData = {
       coinTo: outputAssetCode,
       coinToNetwork: outputAssetNetwork,
       coinFrom: inputAssetCode,
@@ -113,40 +103,55 @@ export const loadMinMaxFields = async (
       amount: MIN_ASSET_AMOUNT
     };
 
-    const minAmountExchangeResponse = await queryExchange(forwardExchangeData);
+    let minAmountExchangeResponse = await queryExchange(exchangeData);
 
+    // This is thrown when MIN_ASSET_AMOUNT is greater than maxAmount, which is unlikely to happen
     if (!('minAmount' in minAmountExchangeResponse)) {
       throw new Error('Failed to get minimal input amount');
     }
 
     let finalMinAmount = minAmountExchangeResponse.minAmount;
     // setting correct exchange amount
-    forwardExchangeData.amount = finalMinAmount;
+    exchangeData.amount = minAmountExchangeResponse.minAmount;
 
-    let maxAmount = 0;
+    if (!('maxAmount' in minAmountExchangeResponse)) {
+      for (let i = 0; i < 2; i++) {
+        // Getting maxAmount from the response for minimal exchange
+        minAmountExchangeResponse = await queryExchange(exchangeData);
 
-    for (let i = 0; i < 10; i++) {
-      const maxAmountExchangeResponse = await queryExchange(forwardExchangeData);
+        if ('maxAmount' in minAmountExchangeResponse) {
+          break;
+        }
 
-      if ('maxAmount' in maxAmountExchangeResponse) {
-        maxAmount = maxAmountExchangeResponse.maxAmount;
-        break;
+        // Preparing to try again with the new minimal amount
+        finalMinAmount = minAmountExchangeResponse.minAmount;
+        exchangeData.amount = minAmountExchangeResponse.minAmount;
       }
-
-      finalMinAmount = maxAmountExchangeResponse.minAmount;
-      forwardExchangeData.amount = finalMinAmount;
     }
 
-    if (maxAmount === 0) {
+    if (!('maxAmount' in minAmountExchangeResponse)) {
       throw new Error('Failed to get maximal input amount');
     }
 
-    const backwardExchange = await queryExchange(backwardExchangeData);
+    // Trying to get an input amount for an output of 10K USD worth by getting reverse exchange
+    const outputTokenPrice = await loadUSDTRate(outputAssetCode, outputAssetNetwork);
+    const backwardExchange = await queryExchange({
+      coinTo: inputAssetCode,
+      coinToNetwork: inputAssetNetwork,
+      coinFrom: outputAssetCode,
+      coinFromNetwork: outputAssetNetwork,
+      amount: (MAX_DOLLAR_VALUE + AVG_COMISSION) / outputTokenPrice
+    });
+    // Ignoring the invalid output of the backward exchange
+    const maxDollarValueMaxAmount =
+      backwardExchange.message == null && backwardExchange.toAmount >= finalMinAmount
+        ? backwardExchange.toAmount
+        : undefined;
 
-    // if there is a message than something went wrong with the estimation and some values may be incorrect
     return {
       finalMinAmount,
-      finalMaxAmount: Math.min(maxAmount, backwardExchange.message == null ? backwardExchange.toAmount : Infinity)
+      // Choosing the least of maxAmount from the first exchange and the output of backward exchange, if any
+      finalMaxAmount: Math.min(minAmountExchangeResponse.maxAmount, maxDollarValueMaxAmount ?? Infinity)
     };
   } catch (error) {
     console.error({ error });

@@ -1,4 +1,16 @@
-import React, { ChangeEventHandler, ReactNode, FC, Dispatch, SetStateAction, useMemo } from 'react';
+import React, {
+  ChangeEventHandler,
+  ReactNode,
+  FC,
+  Dispatch,
+  SetStateAction,
+  useMemo,
+  useRef,
+  useCallback,
+  RefObject,
+  useEffect,
+  useState
+} from 'react';
 
 import { isDefined } from '@rnw-community/shared';
 import classNames from 'clsx';
@@ -105,12 +117,79 @@ interface SelectOptionsPropsBase<Type> {
   optionsListClassName?: string;
   getKey: (option: Type) => string;
   onOptionChange: (newValue: Type) => void;
-  renderOptionContent: (option: Type) => ReactNode;
+  renderOptionContent: (option: Type, isVisible: boolean) => ReactNode;
 }
 interface SelectOptionsProps<Type> extends SelectOptionsPropsBase<Type> {
   opened: boolean;
   setOpened: Dispatch<SetStateAction<boolean>>;
 }
+
+interface SelectOptionProps<Type> {
+  option: Type;
+  onClick: SelectOptionsProps<Type>['onOptionChange'];
+  renderOptionContent: SelectOptionsProps<Type>['renderOptionContent'];
+  rootRef: RefObject<HTMLDivElement>;
+}
+
+const ELEMENT_VISIBLE_THRESHOLD = 0.5;
+
+const SelectOption = <Type extends unknown>({
+  option,
+  rootRef,
+  onClick,
+  renderOptionContent
+}: SelectOptionProps<Type>) => {
+  const [isVisible, setIsVisible] = useState(false);
+
+  const handleClick = useCallback(() => onClick(option), [onClick, option]);
+
+  const ref = useRef<HTMLLIElement>(null);
+
+  const updateVisibility = useCallback((rootElement: HTMLDivElement, element: HTMLLIElement) => {
+    const rootRect = rootElement.getBoundingClientRect();
+    const elementRect = element.getBoundingClientRect();
+
+    const intersectionY0 = Math.min(Math.max(rootRect.top, elementRect.y), rootRect.bottom);
+    const intersectionY1 = Math.min(Math.max(rootRect.top, elementRect.bottom), rootRect.bottom);
+
+    return (intersectionY1 - intersectionY0) / elementRect.height >= ELEMENT_VISIBLE_THRESHOLD;
+  }, []);
+
+  useEffect(() => {
+    const rootElement = rootRef.current;
+    const element = ref.current;
+
+    if (!rootElement || !element) {
+      return;
+    }
+
+    updateVisibility(rootElement, element);
+
+    const observer = new IntersectionObserver(
+      entries => {
+        const lastEntry = entries[entries.length - 1];
+
+        if (!lastEntry) {
+          return;
+        }
+
+        setIsVisible(lastEntry.isIntersecting);
+      },
+      { root: rootElement, threshold: ELEMENT_VISIBLE_THRESHOLD }
+    );
+    observer.observe(element);
+
+    return () => observer.disconnect();
+  }, [rootRef, updateVisibility]);
+
+  return (
+    <li ref={ref}>
+      <button className="w-full" disabled={(option as any).disabled} onClick={handleClick}>
+        {renderOptionContent(option, isVisible)}
+      </button>
+    </li>
+  );
+};
 
 const SelectOptions = <Type extends unknown>({
   opened,
@@ -128,6 +207,8 @@ const SelectOptions = <Type extends unknown>({
     setOpened(false);
   };
 
+  const rootRef = useRef<HTMLDivElement>(null);
+
   return (
     <DropdownWrapper
       opened={opened}
@@ -137,6 +218,7 @@ const SelectOptions = <Type extends unknown>({
         backgroundColor: 'white',
         borderColor: '#e2e8f0'
       }}
+      ref={rootRef}
     >
       {(options.length === 0 || isLoading) && (
         <div className="my-8 flex flex-col items-center justify-center text-gray-500">
@@ -152,11 +234,13 @@ const SelectOptions = <Type extends unknown>({
 
       <ul className={optionsListClassName}>
         {options.map(option => (
-          <li key={getKey(option)}>
-            <button className="w-full" disabled={(option as any).disabled} onClick={() => handleOptionClick(option)}>
-              {renderOptionContent(option)}
-            </button>
-          </li>
+          <SelectOption<Type>
+            key={getKey(option)}
+            option={option}
+            onClick={handleOptionClick}
+            renderOptionContent={renderOptionContent}
+            rootRef={rootRef}
+          />
         ))}
       </ul>
     </DropdownWrapper>
@@ -184,7 +268,7 @@ const SelectSearch: FC<SelectSearchProps> = ({
   return (
     <div
       className={classNames(
-        'w-full flex items-center transition ease-in-out duration-200 w-full border rounded-md border-orange-500 bg-gray-100 max-h-18',
+        'w-full flex items-center transition ease-in-out duration-200 border rounded-md border-orange-500 bg-gray-100 max-h-18',
         className
       )}
     >
