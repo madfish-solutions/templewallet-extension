@@ -7,8 +7,7 @@ import React, {
   useMemo,
   useRef,
   useCallback,
-  RefObject,
-  useState
+  RefObject
 } from 'react';
 
 import { isDefined } from '@rnw-community/shared';
@@ -23,7 +22,6 @@ import { AnalyticsEventCategory, TestIDProperty, setTestID, useAnalytics } from 
 import { t } from 'lib/i18n';
 import Popper from 'lib/ui/Popper';
 import { sameWidthModifiers } from 'lib/ui/same-width-modifiers';
-import { useIntersectionObserver } from 'lib/ui/use-intersection-observer';
 
 interface Props<T> extends TestIDProperty {
   DropdownFaceContent: ReactNode;
@@ -117,7 +115,7 @@ interface SelectOptionsPropsBase<Type> {
   optionsListClassName?: string;
   getKey: (option: Type) => string;
   onOptionChange: (newValue: Type) => void;
-  renderOptionContent: (option: Type, isVisible: boolean) => ReactNode;
+  renderOptionContent: (option: Type, scrollableRef: RefObject<HTMLDivElement>) => ReactNode;
 }
 interface SelectOptionsProps<Type> extends SelectOptionsPropsBase<Type> {
   opened: boolean;
@@ -128,29 +126,21 @@ interface SelectOptionProps<Type> {
   option: Type;
   onClick: SelectOptionsProps<Type>['onOptionChange'];
   renderOptionContent: SelectOptionsProps<Type>['renderOptionContent'];
-  rootRef: RefObject<HTMLDivElement>;
+  scrollableRef: RefObject<HTMLDivElement>;
 }
-
-const ELEMENT_VISIBLE_THRESHOLD = 0.5;
 
 const SelectOption = <Type extends unknown>({
   option,
-  rootRef,
+  scrollableRef,
   onClick,
   renderOptionContent
 }: SelectOptionProps<Type>) => {
-  const [isVisible, setIsVisible] = useState(false);
-
   const handleClick = useCallback(() => onClick(option), [onClick, option]);
 
-  const ref = useRef<HTMLLIElement>(null);
-
-  useIntersectionObserver(ref, setIsVisible, true, { threshold: ELEMENT_VISIBLE_THRESHOLD, root: rootRef.current });
-
   return (
-    <li ref={ref}>
+    <li>
       <button className="w-full" disabled={(option as any).disabled} onClick={handleClick}>
-        {renderOptionContent(option, isVisible)}
+        {renderOptionContent(option, scrollableRef)}
       </button>
     </li>
   );
@@ -204,7 +194,7 @@ const SelectOptions = <Type extends unknown>({
             option={option}
             onClick={handleOptionClick}
             renderOptionContent={renderOptionContent}
-            rootRef={rootRef}
+            scrollableRef={rootRef}
           />
         ))}
       </ul>
