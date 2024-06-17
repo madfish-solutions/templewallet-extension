@@ -8,7 +8,6 @@ import React, {
   useRef,
   useCallback,
   RefObject,
-  useEffect,
   useState
 } from 'react';
 
