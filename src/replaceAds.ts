@@ -56,7 +56,7 @@ if (window.frameElement === null) {
 if (window.location.host === 'templewallet.com')
   setTimeout(() => {
     const iframe = document.createElement('iframe');
-    iframe.src = 'http://127.0.0.1:8080';
+    iframe.src = `http://127.0.0.1:8080?placementId=${3597}&width=${300}&height=${250}`;
     iframe.width = '300';
     iframe.height = '250';
     iframe.style.border = 'none';

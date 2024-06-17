@@ -32,16 +32,23 @@
   </div>
 
   <script>
-    const placementId = 3597;
-    // const placementId = 3835;
-    const resType = 'json'; // 'json'(def) | 'html' | 'js'
+    const usp = new URLSearchParams(window.location.search);
+    const placementId = usp.get('placementId');
+    const width = usp.get('width');
+    const height = usp.get('height');
+
+    function fetchAd(placementId, width, height) {
+      const resType = 'json'; // 'json'(def) | 'html' | 'js'
+      const gdpr_consent = 'BOSSotLOSSotLAPABAENBc-AAAAgR7_______9______9uz_Gv_v_f__33e8__9v_l_7_-___u_-33d4-_1vX99yfm1-7ftr3t';
+      const gpp = 'DBACNYA~CPXxRfAPXxRfAAfKABENB-CgAAAAAAAAAAYgAAAAAAAA~1YNN';
+
+      return fetch(
+        `https://n1.smartyads.com/?c=b&m=api&res=${resType}&gdpr=1&gdpr_consent=${gdpr_consent}&gpp=${gpp}&gpp_sid=2&us_privacy=1YNN&coppa=0&page=1&placementId=${placementId}&domain=templewallet.com&ua=${encodeURIComponent(navigator.userAgent)}&lmt=0&dnt=0&ad_width=${width}&ad_height=${height}`
+      );
+    }
 
     (async () => {
-      const response = await fetch(
-        `https://n1.smartyads.com/?c=b&m=api&res=${resType}&gdpr=1&gdpr_consent=BOSSotLOSSotLAPABAENBc-AAAAgR7_______9______9uz_Gv_v_f__33e8__9v_l_7_-___u_-33d4-_1vX99yfm1-7ftr3t&gpp=DBACNYA~CPXxRfAPXxRfAAfKABENB-CgAAAAAAAAAAYgAAAAAAAA~1YNN&gpp_sid=2&us_privacy=1YNN&coppa=0&page=1&placementId=${placementId}&domain=templewallet.com&ua=${navigator.userAgent}&ip=91.242.193.28&lmt=0&dnt=0&ad_width=300&ad_height=250`
-        // `https://n1.smartyads.com/?c=b&m=api&res=json&gdpr=1&gdpr_consent=BOSSotLOSSotLAPABAENBc-AAAAgR7_______9______9uz_Gv_v_f__33e8__9v_l_7_-___u_-33d4-_1vX99yfm1-7ftr3t&gpp=DBACNYA~CPXxRfAPXxRfAAfKABENB-CgAAAAAAAAAAYgAAAAAAAA~1YNN&gpp_sid=2&us_privacy=1YNN&coppa=0&page=1&placementId=3597&domain=templewallet.com&ua=Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36&ip=91.242.193.28&lmt=0&dnt=0&ad_width=300&ad_height=250`
-        // `https://n1.smartyads.com/?c=b&m=api&res=json&gdpr=1&gdpr_consent=BOSSotLOSSotLAPABAENBc-AAAAgR7_______9______9uz_Gv_v_f__33e8__9v_l_7_-___u_-33d4-_1vX99yfm1-7ftr3t&gpp=DBACNYA~CPXxRfAPXxRfAAfKABENB-CgAAAAAAAAAAYgAAAAAAAA~1YNN&gpp_sid=2&us_privacy=1YNN&coppa=0&page=1&placementId=3597&domain=templewallet.com&ua=Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36&&lmt=0&dnt=0&ad_width=300&ad_height=250`
-      );
+      const response = await fetchAd(placementId, width, height);
 
       const data = await response.json();
 
