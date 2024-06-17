@@ -26,7 +26,7 @@ export const StaticCurrencyImage: FC<Props> = ({
   const [isFailed, setIsFailed] = useState(false);
   const [wasVisible, setWasVisible] = useState(isVisible);
 
-  useEffect(() => void (isVisible && !wasVisible && setWasVisible(true)), [isVisible, wasVisible]);
+  useEffect(() => void (isVisible && setWasVisible(true)), [isVisible]);
 
   const conditionalStyle = useMemo(() => ({ display: isFailed ? 'none' : undefined }), [isFailed]);
 
