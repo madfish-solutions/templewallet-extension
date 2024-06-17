@@ -1,5 +1,6 @@
 import React, { memo, ReactNode, useCallback, useEffect, useMemo, useState } from 'react';
 
+import { EmptyState } from 'app/atoms/EmptyState';
 import { useAllAccountsReactiveOnAddition, useAllAccountsReactiveOnRemoval } from 'app/hooks/use-all-accounts-reactive';
 import { t } from 'lib/i18n';
 import { useTempleClient } from 'lib/temple/front';
@@ -177,20 +178,25 @@ export const AccountsManagement = memo<AccountsManagementProps>(({ setHeaderChil
 
   return (
     <>
-      <div className="flex flex-col gap-y-4 -m-4 px-4 pb-4 overflow-y-auto">
-        {filteredGroups.map(group => (
-          <GroupView
-            group={group}
-            key={group.id}
-            searchValue={searchValue}
-            onDeleteClick={handleDeleteClick}
-            onRenameClick={handleRenameClick}
-            onRevealSeedPhraseClick={handleRevealSeedPhraseClick}
-            showAccountAlreadyExistsWarning={showAccountAlreadyExistsWarning}
-          />
-        ))}
-      </div>
-
+      {filteredGroups.length === 0 ? (
+        <div className="w-full h-full flex items-center">
+          <EmptyState variant="searchUniversal" />
+        </div>
+      ) : (
+        <div className="flex flex-col gap-y-4 -m-4 px-4 pb-4 overflow-y-auto">
+          {filteredGroups.map(group => (
+            <GroupView
+              group={group}
+              key={group.id}
+              searchValue={searchValue}
+              onDeleteClick={handleDeleteClick}
+              onRenameClick={handleRenameClick}
+              onRevealSeedPhraseClick={handleRevealSeedPhraseClick}
+              showAccountAlreadyExistsWarning={showAccountAlreadyExistsWarning}
+            />
+          ))}
+        </div>
+      )}
       {modal}
     </>
   );
