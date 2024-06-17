@@ -1,0 +1,50 @@
+<!--
+  This page is not to be packaged with extension, but hosted remotely. (i.e. @ https://templewallet.com/adsterra-ads)
+  Serve locally by:
+  ```bash
+  yarn global add http-server
+  yarn serve-adsterra-ads
+  ```
+-->
+
+<!DOCTYPE html>
+<html lang="">
+
+<head>
+  <meta charset="utf-8" />
+  <!-- <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" /> -->
+  <title>Temple Wallet | Adsterra ads</title>
+
+  <!-- SCRIPTS -->
+
+  <!-- <script src="./index.js"></script> -->
+
+  <style>
+    body {
+      margin: 0;
+    }
+  </style>
+</head>
+
+<body>
+  <script type="text/javascript">
+    const usp = new URLSearchParams(window.location.search);
+    const placementId = usp.get('placementId');
+    const width = usp.get('width');
+    const height = usp.get('height');
+
+    atOptions = {
+      'key' : placementId,
+      'format' : 'iframe',
+      'height' : Number(height),
+      'width' : Number(width),
+      'params' : {}
+    };
+
+    const script = document.createElement('script');
+    script.src = `https://www.topcreativeformat.com/${placementId}/invoke.js`;
+    document.body.appendChild(script);
+  </script>
+</body>
+
+</html>
