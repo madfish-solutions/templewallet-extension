@@ -24,6 +24,7 @@ import { AnalyticsEventCategory, TestIDProperty, setTestID, useAnalytics } from 
 import { t } from 'lib/i18n';
 import Popper from 'lib/ui/Popper';
 import { sameWidthModifiers } from 'lib/ui/same-width-modifiers';
+import { useIntersectionObserver } from 'lib/ui/use-intersection-observer';
 
 interface Props<T> extends TestIDProperty {
   DropdownFaceContent: ReactNode;
@@ -145,42 +146,7 @@ const SelectOption = <Type extends unknown>({
 
   const ref = useRef<HTMLLIElement>(null);
 
-  const updateVisibility = useCallback((rootElement: HTMLDivElement, element: HTMLLIElement) => {
-    const rootRect = rootElement.getBoundingClientRect();
-    const elementRect = element.getBoundingClientRect();
-
-    const intersectionY0 = Math.min(Math.max(rootRect.top, elementRect.y), rootRect.bottom);
-    const intersectionY1 = Math.min(Math.max(rootRect.top, elementRect.bottom), rootRect.bottom);
-
-    return (intersectionY1 - intersectionY0) / elementRect.height >= ELEMENT_VISIBLE_THRESHOLD;
-  }, []);
-
-  useEffect(() => {
-    const rootElement = rootRef.current;
-    const element = ref.current;
-
-    if (!rootElement || !element) {
-      return;
-    }
-
-    updateVisibility(rootElement, element);
-
-    const observer = new IntersectionObserver(
-      entries => {
-        const lastEntry = entries[entries.length - 1];
-
-        if (!lastEntry) {
-          return;
-        }
-
-        setIsVisible(lastEntry.isIntersecting);
-      },
-      { root: rootElement, threshold: ELEMENT_VISIBLE_THRESHOLD }
-    );
-    observer.observe(element);
-
-    return () => observer.disconnect();
-  }, [rootRef, updateVisibility]);
+  useIntersectionObserver(ref, setIsVisible, true, { threshold: ELEMENT_VISIBLE_THRESHOLD, root: rootRef.current });
 
   return (
     <li ref={ref}>
