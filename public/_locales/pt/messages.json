@@ -457,9 +457,6 @@
   "toBeConnectedWithDApp": {
     "message": "a estabelecer ligação ao dApp."
   },
-  "atLeast8Characters": {
-    "message": "Pelo menos 8 caracteres"
-  },
   "atLeast1Number": {
     "message": "Pelo menos 1 número"
   },

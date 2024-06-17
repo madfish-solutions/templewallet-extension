@@ -439,9 +439,6 @@
   "toBeConnectedWithDApp": {
     "message": "はdAppと接続予定。"
   },
-  "atLeast8Characters": {
-    "message": "8文字以上"
-  },
   "atLeast1Number": {
     "message": "数字1字以上"
   },

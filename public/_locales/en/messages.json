@@ -278,20 +278,17 @@
       }
     }
   },
-  "skipOnboarding": {
-    "message": "Skip Onboarding"
-  },
   "advancedUser": {
     "message": "I'm an advanced user"
   },
-  "analytics": {
-    "message": "Analytics"
+  "usageAnalytics": {
+    "message": "Usage Analytics"
   },
-  "analyticsCollecting": {
-    "message": "anonymous information collecting"
+  "anonymousAnalytics": {
+    "message": "Anonymous analytics"
   },
   "analyticsInputDescription": {
-    "message": "I agree to the $analyticsLink$",
+    "message": "I agree to the $analyticsLink$ collecting",
     "placeholders": {
       "analyticsLink": {
         "content": "$1"
@@ -564,17 +561,20 @@
   "requirements": {
     "message": "Requirements:"
   },
-  "atLeast8Characters": {
-    "message": "At least 8 characters - the more characters, the better."
+  "minEightCharacters": {
+    "message": "Min. 8 characters"
   },
-  "mixtureOfUppercaseAndLowercaseLetters": {
-    "message": "A mixture of both uppercase and lowercase letters."
+  "oneNumber": {
+    "message": "One Number"
   },
-  "mixtureOfLettersAndNumbers": {
-    "message": "A mixture of letters and numbers."
+  "oneLowerLetter": {
+    "message": "One lower letter"
   },
-  "atLeast1SpecialCharacter": {
-    "message": "Inclusion of at least one special character, e.g., ! @ # ? ] - (optional, recommended)."
+  "oneCapitalLetter": {
+    "message": "One Capital letter"
+  },
+  "specialCharacter": {
+    "message": "Special character"
   },
   "mnemonicWordsAmountConstraint": {
     "message": "Seed phrase must contain $number$ words",
@@ -3109,11 +3109,11 @@
   "selectedAccountCannotSignTx": { "message": "Selected account cannot sign transactions" },
   "attributes": { "message": "Attributes" },
   "properties": { "message": "Properties" },
-  "viewAds": {
-    "message": "View Ads"
+  "earnRewardsWithAds": {
+    "message": "Earn Rewards with Ads"
   },
-  "viewAdsDescription": {
-    "message": "I agree to share data(wallet address, IP) and get cashback at Temple Keys for viewing ads"
+  "earnRewardsWithAdsDescription": {
+    "message": "I agree to share my wallet address and IP to receive ads and rewards in TKEY token."
   },
   "dropdownNoItems": {
     "message": "No items"
