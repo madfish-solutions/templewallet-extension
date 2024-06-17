@@ -1,4 +1,4 @@
-import React, { FC, useMemo, useState } from 'react';
+import React, { FC, useEffect, useMemo, useState } from 'react';
 
 import classNames from 'clsx';
 
@@ -24,6 +24,9 @@ export const StaticCurrencyImage: FC<Props> = ({
   isVisible = true
 }) => {
   const [isFailed, setIsFailed] = useState(false);
+  const [wasVisible, setWasVisible] = useState(isVisible);
+
+  useEffect(() => void (isVisible && !wasVisible && setWasVisible(true)), [isVisible, wasVisible]);
 
   const conditionalStyle = useMemo(() => ({ display: isFailed ? 'none' : undefined }), [isFailed]);
 
@@ -54,11 +57,11 @@ export const StaticCurrencyImage: FC<Props> = ({
     return (
       <div className={classNames('flex justify-center items-center bg-gray-300', className)} style={style}>
         {/* eslint-disable-next-line jsx-a11y/alt-text */}
-        {isVisible && <img {...imgProps} width={21} height={15} />}
+        {wasVisible && <img {...imgProps} width={21} height={15} />}
       </div>
     );
 
-  return isVisible ? (
+  return wasVisible ? (
     // eslint-disable-next-line jsx-a11y/alt-text
     <img className={className} {...imgProps} style={style} />
   ) : (

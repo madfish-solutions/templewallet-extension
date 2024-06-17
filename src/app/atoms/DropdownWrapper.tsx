@@ -1,4 +1,4 @@
-import React, { FC, HTMLAttributes, forwardRef, useCallback, useRef, useState } from 'react';
+import React, { HTMLAttributes, forwardRef, useCallback, useRef, useState } from 'react';
 
 import classNames from 'clsx';
 import CSSTransition from 'react-transition-group/CSSTransition';
