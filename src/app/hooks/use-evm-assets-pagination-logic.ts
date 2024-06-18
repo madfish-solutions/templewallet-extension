@@ -1,10 +1,13 @@
 import { useCallback, useState } from 'react';
 
+import { useAssetsFilterOptionsSelector } from 'app/store/assets-filter-options/selectors';
 import { useDidUpdate } from 'lib/ui/hooks';
 
 const ITEMS_PER_PAGE = 30;
 
 export const useEvmAssetsPaginationLogic = (allSlugsSorted: string[]) => {
+  const { filterChain } = useAssetsFilterOptionsSelector();
+
   const [slugs, setSlugs] = useState<string[]>(() => allSlugsSorted.slice(0, ITEMS_PER_PAGE));
 
   const _load = useCallback(
@@ -18,7 +21,7 @@ export const useEvmAssetsPaginationLogic = (allSlugsSorted: string[]) => {
 
   useDidUpdate(() => {
     _load(ITEMS_PER_PAGE);
-  }, [allSlugsSorted]);
+  }, [allSlugsSorted, filterChain]);
 
   const loadNext = useCallback(() => {
     if (slugs.length === allSlugsSorted.length) return;

@@ -43,13 +43,23 @@ export const useGetTokenMetadata = () => {
   return useCallback<TokenMetadataGetter>(slug => allMeta[slug], [allMeta]);
 };
 
-export const useGetTokenOrGasMetadata = (tezosChainId: string) => {
+export const useGetChainTokenOrGasMetadata = (tezosChainId: string) => {
   const getTokenMetadata = useGetTokenMetadata();
 
   return useCallback(
     (slug: string): AssetMetadataBase | undefined =>
       isTezAsset(slug) ? getTezosGasMetadata(tezosChainId) : getTokenMetadata(slug),
     [getTokenMetadata, tezosChainId]
+  );
+};
+
+export const useGetTokenOrGasMetadata = () => {
+  const getTokenMetadata = useGetTokenMetadata();
+
+  return useCallback(
+    (chainId: string, slug: string): AssetMetadataBase | undefined =>
+      isTezAsset(slug) ? getTezosGasMetadata(chainId) : getTokenMetadata(slug),
+    [getTokenMetadata]
   );
 };
 
@@ -60,7 +70,7 @@ export const useGetCollectibleMetadata = () => {
 };
 
 export const useGetAssetMetadata = (tezosChainId: string) => {
-  const getTokenOrGasMetadata = useGetTokenOrGasMetadata(tezosChainId);
+  const getTokenOrGasMetadata = useGetChainTokenOrGasMetadata(tezosChainId);
   const getCollectibleMetadata = useGetCollectibleMetadata();
 
   return useCallback(

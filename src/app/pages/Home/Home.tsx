@@ -100,7 +100,7 @@ const Home = memo<HomeProps>(props => {
               case 'activity':
                 return <ActivityTab />;
               default:
-                return <TokensTab chainSelectController={chainSelectController} />;
+                return <TokensTab />;
             }
 
           return <AssetTab chainKind={chainKind} chainId={chainId} assetSlug={assetSlug} />;

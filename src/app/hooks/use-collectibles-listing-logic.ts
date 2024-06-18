@@ -5,7 +5,7 @@ import { useDebounce } from 'use-debounce';
 import { useEvmBalancesLoadingSelector, useEvmCollectiblesMetadataLoadingSelector } from 'app/store/evm/selectors';
 import { useAreAssetsLoading } from 'app/store/tezos/assets/selectors';
 import { useCollectiblesMetadataLoadingSelector } from 'app/store/tezos/collectibles-metadata/selectors';
-import { searchAssetsWithNoMeta } from 'lib/assets/search.utils';
+import { searchChainAssetsWithNoMeta } from 'lib/assets/search.utils';
 import { useCollectiblesMetadataPresenceCheck, useGetCollectibleMetadata } from 'lib/metadata';
 import { isSearchStringApplicable } from 'lib/utils/search-items';
 import { TezosNetworkEssentials } from 'temple/networks';
@@ -50,7 +50,7 @@ export const useCollectiblesListingLogic = (network: TezosNetworkEssentials, all
   const displayedSlugs = useMemo(
     () =>
       isInSearchMode
-        ? searchAssetsWithNoMeta(searchValueDebounced, allSlugsSorted, getCollectibleMeta, slug => slug)
+        ? searchChainAssetsWithNoMeta(searchValueDebounced, allSlugsSorted, getCollectibleMeta, slug => slug)
         : paginatedSlugs,
     [isInSearchMode, paginatedSlugs, searchValueDebounced, allSlugsSorted, getCollectibleMeta]
   );
@@ -66,8 +66,8 @@ export const useCollectiblesListingLogic = (network: TezosNetworkEssentials, all
   };
 };
 
-export const useEvmCollectiblesListingLogic = (allSlugsSorted: string[], chainId: number) => {
-  const { slugs: paginatedSlugs, loadNext } = useEvmAssetsPaginationLogic(allSlugsSorted, chainId);
+export const useEvmCollectiblesListingLogic = (allSlugsSorted: string[]) => {
+  const { slugs: paginatedSlugs, loadNext } = useEvmAssetsPaginationLogic(allSlugsSorted);
 
   const balancesLoading = useEvmBalancesLoadingSelector();
   const metadatasLoading = useEvmCollectiblesMetadataLoadingSelector();

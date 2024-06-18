@@ -6,13 +6,41 @@ import { useRawEvmChainAccountBalancesSelector } from 'app/store/evm/balances/se
 import { useEvmUsdToTokenRatesSelector } from 'app/store/evm/tokens-exchange-rates/selectors';
 import { useAllAccountBalancesSelector } from 'app/store/tezos/balances/selectors';
 import { useTezosUsdToTokenRatesSelector } from 'app/store/tezos/currency/selectors';
-import { useGetEvmTokenBalanceWithDecimals, useGetTezosTokenOrGasBalanceWithDecimals } from 'lib/balances/hooks';
+import {
+  useGetEvmTokenBalanceWithDecimals,
+  useGetTezosAccountTokenOrGasBalanceWithDecimals,
+  useGetTezosChainAccountTokenOrGasBalanceWithDecimals
+} from 'lib/balances/hooks';
 import { ZERO } from 'lib/utils/numbers';
 
 import { fromChainAssetSlug } from './utils';
 
-export const useTezosTokensSortPredicate = (publicKeyHash: string, tezosChainId: string) => {
-  const getBalance = useGetTezosTokenOrGasBalanceWithDecimals(publicKeyHash, tezosChainId);
+export const useTezosAccountTokensSortPredicate = (publicKeyHash: string) => {
+  const getBalance = useGetTezosAccountTokenOrGasBalanceWithDecimals(publicKeyHash);
+  const usdToTokenRates = useTezosUsdToTokenRatesSelector();
+
+  return useCallback(
+    (aChainSlug: string, bChainSlug: string) => {
+      const [aChainId, aSlug] = fromChainAssetSlug(aChainSlug);
+      const [bChainId, bSlug] = fromChainAssetSlug(bChainSlug);
+
+      const aBalance = getBalance(aChainId, aSlug) ?? ZERO;
+      const bBalance = getBalance(bChainId, bSlug) ?? ZERO;
+      const aEquity = aBalance.multipliedBy(usdToTokenRates[aSlug] ?? ZERO);
+      const bEquity = bBalance.multipliedBy(usdToTokenRates[bSlug] ?? ZERO);
+
+      if (aEquity.isEqualTo(bEquity)) {
+        return bBalance.comparedTo(aBalance);
+      }
+
+      return bEquity.comparedTo(aEquity);
+    },
+    [getBalance, usdToTokenRates]
+  );
+};
+
+export const useTezosChainAccountTokensSortPredicate = (publicKeyHash: string, tezosChainId: string) => {
+  const getBalance = useGetTezosChainAccountTokenOrGasBalanceWithDecimals(publicKeyHash, tezosChainId);
   const usdToTokenRates = useTezosUsdToTokenRatesSelector();
 
   return useCallback(

@@ -1,11 +1,11 @@
 import React, { memo, useMemo } from 'react';
 
 import { SyncSpinner } from 'app/atoms';
-import { useTezosTokensListingLogic } from 'app/hooks/use-tokens-listing-logic';
+import { useTezosChainAccountTokensListingLogic } from 'app/hooks/use-tokens-listing-logic';
 import { useAreAssetsLoading } from 'app/store/tezos/assets/selectors';
 import { useTokensMetadataLoadingSelector } from 'app/store/tezos/tokens-metadata/selectors';
 import { TEMPLE_TOKEN_SLUG } from 'lib/assets';
-import { useAllAvailableTokens } from 'lib/assets/hooks';
+import { useAllTezosAvailableTokens } from 'lib/assets/hooks';
 import { useGetTokenMetadata } from 'lib/metadata';
 import { isSearchStringApplicable } from 'lib/utils/search-items';
 
@@ -18,7 +18,7 @@ interface Props {
 }
 
 export const ManageTezosTokens = memo<Props>(({ tezosChainId, publicKeyHash }) => {
-  const tokens = useAllAvailableTokens(publicKeyHash, tezosChainId);
+  const tokens = useAllTezosAvailableTokens(publicKeyHash, tezosChainId);
 
   const managebleSlugs = useMemo(
     () => tokens.reduce<string[]>((acc, { slug }) => (slug === TEMPLE_TOKEN_SLUG ? acc : acc.concat(slug)), []),
@@ -29,7 +29,7 @@ export const ManageTezosTokens = memo<Props>(({ tezosChainId, publicKeyHash }) =
   const metadatasLoading = useTokensMetadataLoadingSelector();
   const isSyncing = assetsAreLoading || metadatasLoading;
 
-  const { filteredAssets, searchValue, setSearchValue } = useTezosTokensListingLogic(
+  const { filteredAssets, searchValue, setSearchValue } = useTezosChainAccountTokensListingLogic(
     tezosChainId,
     publicKeyHash,
     managebleSlugs,

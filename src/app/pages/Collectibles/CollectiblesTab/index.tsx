@@ -95,7 +95,7 @@ const EvmCollectiblesTab = memo<EvmCollectiblesTabProps>(({ network, publicKeyHa
     isEqual
   );
 
-  const { paginatedSlugs, isSyncing, loadNext } = useEvmCollectiblesListingLogic(allSlugsSorted, evmChainId);
+  const { paginatedSlugs, isSyncing, loadNext } = useEvmCollectiblesListingLogic(allSlugsSorted);
 
   const shouldScrollToTheBar = paginatedSlugs.length > 0;
 

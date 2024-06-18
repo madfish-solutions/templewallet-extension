@@ -23,7 +23,7 @@ interface AllNetworksTokensTabProps {
   accountEvmAddress: HexString;
 }
 
-export const AllNetworksTokensTab: FC<AllNetworksTokensTabProps> = ({ accountTezAddress, accountEvmAddress }) => {
+export const AllNetworksTokensTab: FC<AllNetworksTokensTabProps> = ({ accountEvmAddress }) => {
   const [filtersOpened, _, setFiltersClosed, toggleFiltersOpened] = useBooleanState(false);
 
   const { paginatedSlugs, isSyncing, loadNext } = useEvmAccountTokensListingLogic(accountEvmAddress);

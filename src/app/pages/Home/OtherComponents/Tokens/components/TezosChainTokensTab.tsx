@@ -5,7 +5,7 @@ import { FilterButton } from 'app/atoms/FilterButton';
 import { IconButton } from 'app/atoms/IconButton';
 import { DeadEndBoundaryError } from 'app/ErrorBoundary';
 import { useLoadPartnersPromo } from 'app/hooks/use-load-partners-promo';
-import { useTezosTokensListingLogic } from 'app/hooks/use-tokens-listing-logic';
+import { useTezosChainAccountTokensListingLogic } from 'app/hooks/use-tokens-listing-logic';
 import { ReactComponent as ManageIcon } from 'app/icons/base/manage.svg';
 import { ContentContainer, StickyBar } from 'app/layouts/containers';
 import { AssetsSelectors } from 'app/pages/Home/OtherComponents/Assets.selectors';
@@ -17,7 +17,7 @@ import { PartnersPromotion, PartnersPromotionVariant } from 'app/templates/partn
 import { SearchBarField } from 'app/templates/SearchField';
 import { OptimalPromoVariantEnum } from 'lib/apis/optimal';
 import { TEMPLE_TOKEN_SLUG, TEZ_TOKEN_SLUG } from 'lib/assets';
-import { useEnabledAccountTokensSlugs } from 'lib/assets/hooks';
+import { useTezosEnabledChainAccountTokensSlugs } from 'lib/assets/hooks';
 import { TEZOS_MAINNET_CHAIN_ID } from 'lib/temple/types';
 import { useBooleanState } from 'lib/ui/hooks';
 import { navigate } from 'lib/woozie';
@@ -47,7 +47,7 @@ export const TezosChainTokensTab: FC<TezosChainTokensTabProps> = ({ chainId, pub
   const metadatasLoading = useTokensMetadataLoadingSelector();
   const isSyncing = assetsAreLoading || metadatasLoading;
 
-  const slugs = useEnabledAccountTokensSlugs(publicKeyHash, chainId);
+  const slugs = useTezosEnabledChainAccountTokensSlugs(publicKeyHash, chainId);
 
   const leadingAssets = useMemo(
     () => (chainId === TEZOS_MAINNET_CHAIN_ID ? [TEZ_TOKEN_SLUG, TEMPLE_TOKEN_SLUG] : [TEZ_TOKEN_SLUG]),
@@ -56,7 +56,7 @@ export const TezosChainTokensTab: FC<TezosChainTokensTabProps> = ({ chainId, pub
 
   const mainnetTokensScamSlugsRecord = useMainnetTokensScamlistSelector();
 
-  const { filteredAssets, searchValue, setSearchValue } = useTezosTokensListingLogic(
+  const { filteredAssets, searchValue, setSearchValue } = useTezosChainAccountTokensListingLogic(
     chainId,
     publicKeyHash,
     slugs,

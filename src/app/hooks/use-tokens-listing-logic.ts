@@ -4,31 +4,121 @@ import { isDefined } from '@rnw-community/shared';
 import { isEqual } from 'lodash';
 import { useDebounce } from 'use-debounce';
 
-import { useAllAccountBalancesSelector } from 'app/store/tezos/balances/selectors';
-import { toTokenSlug } from 'lib/assets';
-import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
-import { searchAssetsWithNoMeta } from 'lib/assets/search.utils';
-import {
-  useEvmAccountTokensSortPredicate,
-  useEvmChainTokensSortPredicate,
-  useTezosTokensSortPredicate
-} from 'lib/assets/use-sorting';
-import { useGetTokenOrGasMetadata } from 'lib/metadata';
-import { useMemoWithCompare } from 'lib/ui/hooks';
-import { isSearchStringApplicable } from 'lib/utils/search-items';
-
-import { useEnabledEvmAccountTokensSlugs, useEnabledEvmChainAccountTokensSlugs } from '../../lib/assets/hooks/tokens';
-import { toChainAssetSlug } from '../../lib/assets/utils';
-import { useEnabledEvmChains } from '../../temple/front';
 import {
   useEvmBalancesLoadingSelector,
   useEvmTokensExchangeRatesLoadingSelector,
   useEvmTokensMetadataLoadingSelector
-} from '../store/evm/selectors';
+} from 'app/store/evm/selectors';
+import { useAllAccountBalancesSelector, useBalancesAtomicRecordSelector } from 'app/store/tezos/balances/selectors';
+import { getKeyForBalancesRecord } from 'app/store/tezos/balances/utils';
+import { toTokenSlug } from 'lib/assets';
+import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
+import { useEnabledEvmAccountTokensSlugs, useEnabledEvmChainAccountTokensSlugs } from 'lib/assets/hooks/tokens';
+import { searchAssetsWithNoMeta, searchChainAssetsWithNoMeta } from 'lib/assets/search.utils';
+import {
+  useEvmAccountTokensSortPredicate,
+  useEvmChainTokensSortPredicate,
+  useTezosAccountTokensSortPredicate,
+  useTezosChainAccountTokensSortPredicate
+} from 'lib/assets/use-sorting';
+import { fromChainAssetSlug, toChainAssetSlug } from 'lib/assets/utils';
+import { useGetChainTokenOrGasMetadata, useGetTokenOrGasMetadata } from 'lib/metadata';
+import { useMemoWithCompare } from 'lib/ui/hooks';
+import { isSearchStringApplicable } from 'lib/utils/search-items';
+import { useEnabledEvmChains } from 'temple/front';
 
 import { useEvmAssetsPaginationLogic } from './use-evm-assets-pagination-logic';
 
-export const useTezosTokensListingLogic = (
+export const useTezosAccountTokensListingLogic = (
+  publicKeyHash: string,
+  chainSlugs: string[],
+  filterZeroBalances = false,
+  leadingAssets?: string[],
+  leadingAssetsAreFilterable = false
+) => {
+  const nonLeadingAssets = useMemo(
+    () => (leadingAssets?.length ? chainSlugs.filter(slug => !leadingAssets.includes(slug)) : chainSlugs),
+    [chainSlugs, leadingAssets]
+  );
+
+  const balancesRecord = useBalancesAtomicRecordSelector();
+
+  const isNonZeroBalance = useCallback(
+    (chainSlug: string) => {
+      const [chainId, assetSlug] = fromChainAssetSlug<string>(chainSlug);
+      const key = getKeyForBalancesRecord(publicKeyHash, chainId);
+
+      const balance = balancesRecord[key]?.data[assetSlug];
+      return isDefined(balance) && balance !== '0';
+    },
+    [balancesRecord, publicKeyHash]
+  );
+
+  const sourceArray = useMemo(
+    () => (filterZeroBalances ? nonLeadingAssets.filter(isNonZeroBalance) : nonLeadingAssets),
+    [filterZeroBalances, nonLeadingAssets, isNonZeroBalance]
+  );
+
+  const [searchValue, setSearchValue] = useState('');
+  const [tokenId, setTokenId] = useState<number>();
+  const [searchValueDebounced] = useDebounce(tokenId ? toTokenSlug(searchValue, String(tokenId)) : searchValue, 300);
+
+  const assetsSortPredicate = useTezosAccountTokensSortPredicate(publicKeyHash);
+  const getMetadata = useGetTokenOrGasMetadata();
+
+  const getSlugWithChainId = useCallback((chainSlug: string) => {
+    const [chainId, assetSlug] = fromChainAssetSlug(chainSlug);
+
+    return { chainId, assetSlug };
+  }, []);
+
+  const searchedSlugs = useMemo(
+    () =>
+      isSearchStringApplicable(searchValueDebounced)
+        ? searchAssetsWithNoMeta(searchValueDebounced, sourceArray, getMetadata, getSlugWithChainId)
+        : [...sourceArray].sort(assetsSortPredicate),
+    [searchValueDebounced, sourceArray, getMetadata, getSlugWithChainId, assetsSortPredicate]
+  );
+
+  const filteredAssets = useMemoWithCompare(
+    () => {
+      if (!isDefined(leadingAssets) || !leadingAssets.length) return searchedSlugs;
+
+      const filteredLeadingSlugs =
+        leadingAssetsAreFilterable && filterZeroBalances ? leadingAssets.filter(isNonZeroBalance) : leadingAssets;
+
+      const searchedLeadingSlugs = searchAssetsWithNoMeta(
+        searchValueDebounced,
+        filteredLeadingSlugs,
+        getMetadata,
+        getSlugWithChainId
+      );
+
+      return searchedLeadingSlugs.length ? searchedLeadingSlugs.concat(searchedSlugs) : searchedSlugs;
+    },
+    [
+      leadingAssets,
+      leadingAssetsAreFilterable,
+      filterZeroBalances,
+      isNonZeroBalance,
+      searchedSlugs,
+      searchValueDebounced,
+      getMetadata,
+      getSlugWithChainId
+    ],
+    isEqual
+  );
+
+  return {
+    filteredAssets,
+    searchValue,
+    setSearchValue,
+    tokenId,
+    setTokenId
+  };
+};
+
+export const useTezosChainAccountTokensListingLogic = (
   tezosChainId: string,
   publicKeyHash: string,
   assetsSlugs: string[],
@@ -59,13 +149,13 @@ export const useTezosTokensListingLogic = (
   const [tokenId, setTokenId] = useState<number>();
   const [searchValueDebounced] = useDebounce(tokenId ? toTokenSlug(searchValue, String(tokenId)) : searchValue, 300);
 
-  const assetsSortPredicate = useTezosTokensSortPredicate(publicKeyHash, tezosChainId);
-  const getMetadata = useGetTokenOrGasMetadata(tezosChainId);
+  const assetsSortPredicate = useTezosChainAccountTokensSortPredicate(publicKeyHash, tezosChainId);
+  const getMetadata = useGetChainTokenOrGasMetadata(tezosChainId);
 
   const searchedSlugs = useMemo(
     () =>
       isSearchStringApplicable(searchValueDebounced)
-        ? searchAssetsWithNoMeta(searchValueDebounced, sourceArray, getMetadata, slug => slug)
+        ? searchChainAssetsWithNoMeta(searchValueDebounced, sourceArray, getMetadata, slug => slug)
         : [...sourceArray].sort(assetsSortPredicate),
     [searchValueDebounced, sourceArray, getMetadata, assetsSortPredicate]
   );
@@ -77,7 +167,7 @@ export const useTezosTokensListingLogic = (
       const filteredLeadingSlugs =
         leadingAssetsAreFilterable && filterZeroBalances ? leadingAssets.filter(isNonZeroBalance) : leadingAssets;
 
-      const searchedLeadingSlugs = searchAssetsWithNoMeta(
+      const searchedLeadingSlugs = searchChainAssetsWithNoMeta(
         searchValueDebounced,
         filteredLeadingSlugs,
         getMetadata,

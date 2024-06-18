@@ -4,16 +4,16 @@ import { isDefined } from '@rnw-community/shared';
 
 import { useSelector } from 'app/store/root-state.selector';
 import { TEZ_TOKEN_SLUG } from 'lib/assets';
-import { useEnabledAccountTokensSlugs } from 'lib/assets/hooks';
-import { useGetTezosTokenOrGasBalanceWithDecimals } from 'lib/balances/hooks';
+import { useTezosEnabledChainAccountTokensSlugs } from 'lib/assets/hooks';
+import { useGetTezosChainAccountTokenOrGasBalanceWithDecimals } from 'lib/balances/hooks';
 import { isTruthy } from 'lib/utils';
 import { ZERO } from 'lib/utils/numbers';
 
 /** Total balance in dollar value of displayed tokens, taken from store */
 export const useTotalBalance = (publicKeyHash: string, tezosChainId: string) => {
-  const tokensSlugs = useEnabledAccountTokensSlugs(publicKeyHash, tezosChainId);
+  const tokensSlugs = useTezosEnabledChainAccountTokensSlugs(publicKeyHash, tezosChainId);
 
-  const getBalance = useGetTezosTokenOrGasBalanceWithDecimals(publicKeyHash, tezosChainId);
+  const getBalance = useGetTezosChainAccountTokenOrGasBalanceWithDecimals(publicKeyHash, tezosChainId);
   const allUsdToTokenRates = useSelector(state => state.currency.usdToTokenRates.data);
 
   const slugs = useMemo(() => [TEZ_TOKEN_SLUG, ...tokensSlugs], [tokensSlugs]);

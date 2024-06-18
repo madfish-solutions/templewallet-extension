@@ -1,2 +1,2 @@
-export { useAllAvailableTokens, useEnabledAccountTokensSlugs } from './tokens';
+export { useAllTezosAvailableTokens, useTezosEnabledChainAccountTokensSlugs } from './tokens';
 export { useAccountCollectibles, useEnabledAccountCollectiblesSlugs } from './collectibles';
