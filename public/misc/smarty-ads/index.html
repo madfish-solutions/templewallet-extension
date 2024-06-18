@@ -20,8 +20,10 @@
   <!-- <script src="./index.js"></script> -->
 
   <style>
-    body {
+    html, body {
       margin: 0;
+      width: 100%;
+      height: 100%;
     }
 
     #ad-slot {
@@ -37,14 +39,16 @@
 
   <script>
     const usp = new URLSearchParams(window.location.search);
+    const type = usp.get('type');
     const placementId = usp.get('placementId');
     const width = usp.get('width');
     const height = usp.get('height');
 
-    async function fetchAdHtml(placementId, width, height) {
+    const gdpr_consent = 'BOSSotLOSSotLAPABAENBc-AAAAgR7_______9______9uz_Gv_v_f__33e8__9v_l_7_-___u_-33d4-_1vX99yfm1-7ftr3t';
+    const gpp = 'DBACNYA~CPXxRfAPXxRfAAfKABENB-CgAAAAAAAAAAYgAAAAAAAA~1YNN';
+
+    async function loadBanner(placementId, width, height) {
       const resType = 'json'; // Mandatory, despite what the manual says
-      const gdpr_consent = 'BOSSotLOSSotLAPABAENBc-AAAAgR7_______9______9uz_Gv_v_f__33e8__9v_l_7_-___u_-33d4-_1vX99yfm1-7ftr3t';
-      const gpp = 'DBACNYA~CPXxRfAPXxRfAAfKABENB-CgAAAAAAAAAAYgAAAAAAAA~1YNN';
 
       // `ad_width` & `ad_height` params have no effect
       const response = await fetch(
@@ -59,21 +63,95 @@
         deal: '';
       } */ = response.status === 204 ? null : await response.json();
 
-      console.log('SmartyAds data:', data);
+      console.info('SmartyAds banner data:', data);
 
       return data?.adm;
     }
 
-    fetchAdHtml(placementId, width, height).then(data => {
-      if (!data) return void console.error('SmartyAds returned no ad');
+    async function loadVideo(placementId, width, height) {
+      const resType = 'xml'; // Only valid option
 
-      document.getElementById('ad-slot').innerHTML = data;
+      // `wPlayer` & `hPlayer` params have no effect
+      const response = await fetch(
+        `https://n1.smartyads.com/?c=v&m=api&res=${resType}&gdpr=1&gdpr_consent=${gdpr_consent}&gpp=${gpp}&gpp_sid=2&us_privacy=1YNN&coppa=0&page=templewallet.com&placementId=${placementId}&domain=templewallet.com&ua=${encodeURIComponent(navigator.userAgent)}&lmt=0&dnt=0&wPlayer=${1}&hPlayer=${1}`
+      );
+
+      const data = response.status === 204 ? null : await response.text();
+
+      console.info('SmartyAds video data:', data);
+
+      return data;
+    }
+
+    if (type === 'video') loadVideo(placementId, width, height).then(xmlString => {
+        if (!xmlString) return void console.error('SmartyAds returned no video ad');
+
+        /** Example of XML:
+          <VAST version="3.0">
+            <Ad id="61364">
+              <InLine>
+                <AdSystem>Adsystem Example</AdSystem>
+                <AdTitle>VAST 3.0</AdTitle>
+                <Creatives>
+                  <Creative>
+                    <Linear>
+                      <MediaFiles>
+                        <MediaFile delivery="progressive" type="video/mp4" bitrate="500" width="400" height="300" scalable="true" maintainAspectRatio="true">
+                        <![CDATA[ https://library.smartyads.com/video/smarty_video.mp4 ]]>
+                        </MediaFile>
+                      </MediaFiles>
+                    </Linear>
+                  </Creative>
+                </Creatives>
+              </InLine>
+            </Ad>
+          </VAST>
+        */
+
+        const parser = new DOMParser();
+        /* May wanna look into lib: https://www.npmjs.com/package/@dailymotion/vast-client */
+        const xmlDoc = parser.parseFromString(xmlString, 'application/xml');
+
+        const mediaFileElement = xmlDoc.querySelector('MediaFile');
+        const videoURL = mediaFileElement.textContent.trim();
+        console.info('SmartyAds video URL:', videoURL);
+
+        const videoElement = document.createElement('video');
+        videoElement.controls = true;
+        // videoElement.width = mediaFileElement.getAttribute('width');
+        // videoElement.height = mediaFileElement.getAttribute('height');
+        // Parsed sizes (400x300) did not reflect an actual video size
+        videoElement.style.width = '100%';
+        videoElement.style.height = '100%';
+        videoElement.style.display = 'block';
+        videoElement.style.margin = 'auto';
+
+        const sourceElement = document.createElement('source');
+        sourceElement.src = videoURL;
+        sourceElement.type = mediaFileElement.getAttribute('type');
+
+        videoElement.appendChild(sourceElement);
+
+        document.getElementById('ad-slot').appendChild(videoElement);
+
+        /* In prod there might be a different condition */
+        if (videoURL.includes('/video/smarty_video.mp4')) console.warn('SmartyAds returned self-ad video');
+      }, error => {
+        console.error('SmartyAds failed to respond:', error);
+      }).catch(error => {
+        console.error('SmartyAds video parsing failed:', error);
+      });
+
+    else loadBanner(placementId, width, height).then(htmlString => {
+      if (!htmlString) return void console.error('SmartyAds returned no banner ad');
+
+      document.getElementById('ad-slot').innerHTML = htmlString;
 
       /* In prod there might be a different condition */
-      if (data.includes('/image/tst/')) console.warn('SmartyAds returned self-ad');
+      if (htmlString.includes('/image/tst/')) console.warn('SmartyAds returned self-ad banner');
     }, error => {
       console.error('SmartyAds failed to respond:', error);
-    })
+    });
   </script>
 </body>
 

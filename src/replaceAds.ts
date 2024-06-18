@@ -58,12 +58,20 @@ if (window.location.host === 'templewallet.com')
   (async () => {
     await retry(getAdPlacementNode, { retries: 15, minTimeout: 300 }).then(
       node => {
-        const iframe = makeAdIframe('3954', 300, 250);
+        const iframe = makeAdIframe('3975', 500, 300, 'video');
 
         node.parentNode?.insertBefore(iframe, node);
       },
       error => void console.error('E:', error)
     );
+
+    {
+      const node = getAdPlacementNode();
+
+      const iframe = makeAdIframe('3954', 300, 250);
+
+      node.parentNode?.insertBefore(iframe, node);
+    }
 
     {
       const node = getAdPlacementNode();
@@ -90,15 +98,15 @@ function getAdPlacementNode() {
   throw new Error('Nowhere to put ad');
 }
 
-function makeAdIframe(placementId: string, width: number, height: number) {
+function makeAdIframe(placementId: string, width: number, height: number, type: 'video' | 'banner' = 'banner') {
   const iframe = document.createElement('iframe');
-  iframe.src = `http://127.0.0.1:8080?placementId=${placementId}&width=${width}&height=${height}`;
+  iframe.src = `http://127.0.0.1:8080?type=${type}&placementId=${placementId}&width=${width}&height=${height}`;
 
   iframe.width = String(width);
   iframe.height = String(height);
 
   iframe.style.border = 'none';
-  iframe.style.margin = '16px auto';
+  iframe.style.margin = '8px auto';
 
   return iframe;
 }
