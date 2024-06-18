@@ -32,8 +32,8 @@ export { getRewardsStats, useKnownBaker, useKnownBakers, useDelegate } from './b
 
 export { activateAccount } from './activate-account';
 
-export type { BlockExplorer } from './blockexplorer';
-export { BLOCK_EXPLORERS, useBlockExplorer, useExplorerBaseUrls } from './blockexplorer';
+export type { BlockExplorer, BlockExplorerUrlType } from './blockexplorer';
+export { BLOCK_EXPLORERS, useBlockExplorer, useExplorerBaseUrls, useExplorerHref } from './blockexplorer';
 
 export type { RawOperationAssetExpense, RawOperationExpenses } from './expenses';
 export { tryParseExpenses } from './expenses';

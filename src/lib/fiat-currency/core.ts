@@ -7,6 +7,7 @@ import { BigNumber } from 'bignumber.js';
 import { useSelector } from 'app/store/root-state.selector';
 import { useStorage } from 'lib/temple/front';
 import { isTruthy } from 'lib/utils';
+import { ZERO } from 'lib/utils/numbers';
 
 import { FIAT_CURRENCIES } from './consts';
 import type { FiatCurrencyOption, CoingeckoFiatInterface } from './types';
@@ -45,7 +46,7 @@ export function useAssetFiatCurrencyPrice(slug: string): BigNumber {
   const usdToTokenRate = useAssetUSDPrice(slug);
 
   return useMemo(() => {
-    if (!isTruthy(usdToTokenRate) || !isTruthy(fiatToUsdRate)) return new BigNumber(0);
+    if (!isTruthy(usdToTokenRate) || !isTruthy(fiatToUsdRate)) return ZERO;
 
     return BigNumber(fiatToUsdRate).times(usdToTokenRate);
   }, [fiatToUsdRate, usdToTokenRate]);

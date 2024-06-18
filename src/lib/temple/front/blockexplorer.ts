@@ -109,6 +109,8 @@ export const BLOCK_EXPLORERS: BlockExplorer[] = [
 
 const BLOCK_EXPLORER_STORAGE_KEY = 'block_explorer';
 
+export type BlockExplorerUrlType = keyof BaseUrls;
+
 export function useBlockExplorer() {
   const [explorerId, setExplorerId] = useStorage<BlockExplorerId>(BLOCK_EXPLORER_STORAGE_KEY, 'tzkt');
   const explorer = useMemo(() => BLOCK_EXPLORERS.find(({ id }) => id === explorerId)!, [explorerId]);
@@ -130,4 +132,14 @@ export function useExplorerBaseUrls(): Partial<BaseUrls> {
 
     return {};
   }, [chainId, explorer]);
+}
+
+export function useExplorerHref(hash: string, type?: BlockExplorerUrlType) {
+  const urls = useExplorerBaseUrls();
+
+  return useMemo(() => {
+    const baseUrl = type && urls[type];
+
+    return baseUrl ? new URL(hash, baseUrl).href : null;
+  }, [urls, hash, type]);
 }

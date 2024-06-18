@@ -1,8 +1,9 @@
-import React, { FC, useMemo, useState } from 'react';
+import React, { FC, RefObject, useEffect, useMemo, useRef, useState } from 'react';
 
 import classNames from 'clsx';
 
 import { FIAT_FALLBACK_ICON_SRC, TOKEN_FALLBACK_ICON_SRC, TOKENS_ICONS_SRC } from 'lib/icons';
+import { useIntersectionObserver } from 'lib/ui/use-intersection-observer';
 
 const ROUNDING_STYLE = { borderRadius: '50%', width: 32, height: 32 };
 
@@ -12,10 +13,25 @@ interface Props {
   imageSrc?: string;
   fitImg?: boolean;
   className?: string;
+  scrollableRef?: RefObject<HTMLDivElement>;
 }
 
-export const StaticCurrencyImage: FC<Props> = ({ currencyCode, isFiat, imageSrc, fitImg, className }) => {
+export const StaticCurrencyImage: FC<Props> = ({
+  currencyCode,
+  isFiat,
+  imageSrc,
+  fitImg,
+  className,
+  scrollableRef
+}) => {
   const [isFailed, setIsFailed] = useState(false);
+
+  const [isVisible, setIsVisible] = useState(!scrollableRef);
+  const ref = useRef(null);
+  useIntersectionObserver(ref, setIsVisible, Boolean(scrollableRef), { threshold: 0.5, root: scrollableRef?.current });
+  const [wasVisible, setWasVisible] = useState(isVisible);
+
+  useEffect(() => void (isVisible && setWasVisible(true)), [isVisible]);
 
   const conditionalStyle = useMemo(() => ({ display: isFailed ? 'none' : undefined }), [isFailed]);
 
@@ -30,6 +46,7 @@ export const StaticCurrencyImage: FC<Props> = ({ currencyCode, isFiat, imageSrc,
         alt={currencyCode}
         className={className}
         style={ROUNDING_STYLE}
+        ref={ref}
       />
     );
 
@@ -44,12 +61,16 @@ export const StaticCurrencyImage: FC<Props> = ({ currencyCode, isFiat, imageSrc,
 
   if (fitImg && isTez === false)
     return (
-      <div className={classNames('flex justify-center items-center bg-gray-300', className)} style={style}>
+      <div className={classNames('flex justify-center items-center bg-gray-300', className)} style={style} ref={ref}>
         {/* eslint-disable-next-line jsx-a11y/alt-text */}
-        <img {...imgProps} width={21} height={15} />
+        {wasVisible && <img {...imgProps} width={21} height={15} />}
       </div>
     );
 
-  // eslint-disable-next-line jsx-a11y/alt-text
-  return <img className={className} {...imgProps} style={style} />;
+  return wasVisible ? (
+    // eslint-disable-next-line jsx-a11y/alt-text
+    <img className={className} {...imgProps} style={style} ref={ref} />
+  ) : (
+    <div className={className} style={style} ref={ref} />
+  );
 };

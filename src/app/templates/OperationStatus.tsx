@@ -12,13 +12,13 @@ import { useSafeState } from 'lib/ui/hooks';
 import { OpenInExplorerChip } from './OpenInExplorerChip';
 import { OperationStatusSelectors } from './OperationStatus.selectors';
 
-type OperationStatusProps = {
+interface OperationStatusProps {
   className?: string;
   closable?: boolean;
   onClose?: () => void;
   typeTitle: string;
   operation: WalletOperation;
-};
+}
 
 const OperationStatus: FC<OperationStatusProps> = ({ typeTitle, operation, className, closable, onClose }) => {
   const tezos = useTezos();

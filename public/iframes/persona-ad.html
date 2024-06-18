@@ -27,7 +27,8 @@
       }
 
       [data-test=persona-watermark] {
-        top: 0; /* Missing, needed explicit after img.style.display = 'block' */
+        /* If enabled, set `top: 0;` - missing, needed explicit after img.style.display = 'block' */
+        display: none; /* Disabling built-in label */
       }
 
       #loader {
