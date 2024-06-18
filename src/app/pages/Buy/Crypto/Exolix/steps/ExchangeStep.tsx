@@ -12,8 +12,8 @@ import ErrorComponent from 'app/pages/Buy/Crypto/Exolix/steps/ErrorComponent';
 import { getCurrentLocale, T } from 'lib/i18n';
 import useCopyToClipboard from 'lib/ui/useCopyToClipboard';
 
-import { ExchangeDataInterface, ExchangeDataStatusEnum } from '../exolix.interface';
 import { ExolixSelectors } from '../Exolix.selectors';
+import { ExchangeDataInterface, ExchangeDataStatusEnum } from '../exolix.types';
 import { getCoinCodeToDisplay } from '../exolix.util';
 
 type dateFormatOptionsValue = 'numeric' | '2-digit';

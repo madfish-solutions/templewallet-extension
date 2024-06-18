@@ -3058,6 +3058,12 @@
   "searchingTheBestRoute": {
     "message": "Searching the best route"
   },
+  "loadingExchangeRates": {
+    "message": "Loading exchange rates"
+  },
+  "submittingExchange": {
+    "message": "Submitting exchange"
+  },
   "noRoutesFound": {
     "message": "No routes found"
   },
