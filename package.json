@@ -222,7 +222,6 @@
   },
   "resolutions": {
     "react-dev-utils/fork-ts-checker-webpack-plugin": "^9",
-    "ws": "7.4.6",
     "tslib": "^2.4.0",
     "@types/react": "18.0.15",
     "@taquito/taquito": "19.0.2",
