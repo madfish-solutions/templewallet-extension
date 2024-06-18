@@ -9,11 +9,13 @@ import { useAssetsLoading } from './hooks/use-assets-loading';
 import { useAssetsMigrations } from './hooks/use-assets-migrations';
 import { useBalancesLoading } from './hooks/use-balances-loading';
 import { useCollectiblesDetailsLoading } from './hooks/use-collectibles-details-loading';
+import { useConversionTracking } from './hooks/use-conversion-tracking';
 import { useTokensApyLoading } from './hooks/use-load-tokens-apy.hook';
 import { useLongRefreshLoading } from './hooks/use-long-refresh-loading.hook';
 import { useMetadataLoading } from './hooks/use-metadata-loading';
 import { useMetadataRefresh } from './hooks/use-metadata-refresh';
 import { useStorageAnalytics } from './hooks/use-storage-analytics';
+import { useUserAnalyticsAndAdsSettings } from './hooks/use-user-analytics-and-ads-settings.hook';
 import { useUserIdAccountPkhSync } from './hooks/use-user-id-account-pkh-sync';
 
 export const WithDataLoading: FC<PropsWithChildren> = ({ children }) => {
@@ -36,7 +38,9 @@ export const WithDataLoading: FC<PropsWithChildren> = ({ children }) => {
     dispatch(loadSwapTokensAction.submit());
   }, []);
 
+  useUserAnalyticsAndAdsSettings();
   useStorageAnalytics();
+  useConversionTracking();
   useUserIdAccountPkhSync();
 
   return <>{children}</>;

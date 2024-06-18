@@ -1,33 +1,34 @@
-import React, { FC, useCallback, useLayoutEffect, useState } from 'react';
+import React, { FC, useCallback, useLayoutEffect, useMemo } from 'react';
 
 import classNames from 'clsx';
 import { Controller, useForm } from 'react-hook-form';
 import { useDispatch } from 'react-redux';
 
 import { FormCheckbox, FormField, FormSubmitButton, PASSWORD_ERROR_CAPTION } from 'app/atoms';
-import {
-  formatMnemonic,
-  lettersNumbersMixtureRegx,
-  PASSWORD_PATTERN,
-  specialCharacterRegx,
-  uppercaseLowercaseMixtureRegx
-} from 'app/defaults';
+import { FormCheckboxGroup } from 'app/atoms/FormCheckboxGroup';
+import { ValidationLabel } from 'app/atoms/ValidationLabel';
+import { formatMnemonic, PASSWORD_PATTERN, PasswordValidation, passwordValidationRegexes } from 'app/defaults';
 import { shouldShowNewsletterModalAction } from 'app/store/newsletter/newsletter-actions';
 import { togglePartnersPromotionAction } from 'app/store/partners-promotion/actions';
 import { setIsAnalyticsEnabledAction, setOnRampPossibilityAction } from 'app/store/settings/actions';
 import { AnalyticsEventCategory, TestIDProps, useAnalytics } from 'lib/analytics';
 import { WEBSITES_ANALYTICS_ENABLED } from 'lib/constants';
-import { T, t } from 'lib/i18n';
+import { T, TID, t } from 'lib/i18n';
 import { putToStorage } from 'lib/storage';
 import { useTempleClient } from 'lib/temple/front';
-import PasswordStrengthIndicator, { PasswordValidation } from 'lib/ui/PasswordStrengthIndicator';
 import { navigate } from 'lib/woozie';
 
 import { useOnboardingProgress } from '../../Onboarding/hooks/useOnboardingProgress.hook';
 
 import { setWalletPasswordSelectors } from './SetWalletPassword.selectors';
 
-const MIN_PASSWORD_LENGTH = 8;
+const validationsLabelsInputs: Array<{ textI18nKey: TID; key: keyof PasswordValidation }> = [
+  { textI18nKey: 'minEightCharacters', key: 'minChar' },
+  { textI18nKey: 'oneNumber', key: 'number' },
+  { textI18nKey: 'oneLowerLetter', key: 'lowerCase' },
+  { textI18nKey: 'oneCapitalLetter', key: 'upperCase' },
+  { textI18nKey: 'specialCharacter', key: 'specialChar' }
+];
 
 interface FormData extends TestIDProps {
   shouldUseKeystorePassword?: boolean;
@@ -35,8 +36,7 @@ interface FormData extends TestIDProps {
   repeatPassword?: string;
   termsAccepted: boolean;
   analytics?: boolean;
-  viewAds: boolean;
-  skipOnboarding?: boolean;
+  earnRewardsWithAds: boolean;
   testID?: string;
 }
 
@@ -72,31 +72,22 @@ export const SetWalletPassword: FC<SetWalletPasswordProps> = ({
 
   const isKeystorePasswordWeak = isImportFromKeystoreFile && !PASSWORD_PATTERN.test(keystorePassword!);
 
-  const [focused, setFocused] = useState(false);
-
   const { control, watch, register, handleSubmit, errors, triggerValidation, formState } = useForm<FormData>({
     defaultValues: {
       shouldUseKeystorePassword: !isKeystorePasswordWeak,
       analytics: true,
-      viewAds: true,
-      skipOnboarding: false
+      earnRewardsWithAds: true
     },
     mode: 'onChange'
   });
-  const submitting = formState.isSubmitting;
+  const { password: passwordError, ...restErrors } = errors;
+  const { isSubmitting: submitting, submitCount } = formState;
+  const wasSubmitted = submitCount > 0;
+  const shouldDisableSubmit = Object.keys(restErrors).length > 0 || (passwordError && wasSubmitted);
 
   const shouldUseKeystorePassword = watch('shouldUseKeystorePassword');
 
   const passwordValue = watch('password');
-
-  const isPasswordError = errors.password?.message === PASSWORD_ERROR_CAPTION;
-
-  const [passwordValidation, setPasswordValidation] = useState<PasswordValidation>({
-    minChar: false,
-    cases: false,
-    number: false,
-    specialChar: false
-  });
 
   useLayoutEffect(() => {
     if (formState.dirtyFields.has('repeatPassword')) {
@@ -104,15 +95,13 @@ export const SetWalletPassword: FC<SetWalletPasswordProps> = ({
     }
   }, [triggerValidation, formState.dirtyFields, passwordValue]);
 
-  const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement> | React.ChangeEvent<HTMLTextAreaElement>) => {
-    const tempValue = e.target.value;
-    setPasswordValidation({
-      minChar: tempValue.length >= MIN_PASSWORD_LENGTH,
-      cases: uppercaseLowercaseMixtureRegx.test(tempValue),
-      number: lettersNumbersMixtureRegx.test(tempValue),
-      specialChar: specialCharacterRegx.test(tempValue)
-    });
-  };
+  const passwordValidation = useMemo(
+    () =>
+      Object.fromEntries(
+        Object.entries(passwordValidationRegexes).map(([key, regex]) => [key, regex.test(passwordValue ?? '')])
+      ) as PasswordValidation,
+    [passwordValue]
+  );
 
   const onSubmit = useCallback(
     async (data: FormData) => {
@@ -126,23 +115,17 @@ export const SetWalletPassword: FC<SetWalletPasswordProps> = ({
         : data.password;
       try {
         const shouldEnableAnalytics = Boolean(data.analytics);
-        setAdsViewEnabled(data.viewAds);
+        const adsViewEnabled = data.earnRewardsWithAds;
+        setAdsViewEnabled(adsViewEnabled);
         setAnalyticsEnabled(shouldEnableAnalytics);
-        const shouldEnableWebsiteAnalytics = data.viewAds && shouldEnableAnalytics;
-        await putToStorage(WEBSITES_ANALYTICS_ENABLED, shouldEnableWebsiteAnalytics);
+        await putToStorage(WEBSITES_ANALYTICS_ENABLED, adsViewEnabled);
 
-        setOnboardingCompleted(data.skipOnboarding!);
+        await setOnboardingCompleted(true);
 
         const accountPkh = await registerWallet(password!, formatMnemonic(seedPhrase));
-        trackEvent(
-          data.skipOnboarding ? 'OnboardingSkipped' : 'OnboardingNotSkipped',
-          AnalyticsEventCategory.General,
-          undefined,
-          data.analytics
-        );
-        if (shouldEnableWebsiteAnalytics) {
-          trackEvent('AnalyticsAndAdsEnabled', AnalyticsEventCategory.General, { accountPkh }, data.analytics);
-        }
+        trackEvent('AnalyticsEnabled', AnalyticsEventCategory.General, { accountPkh }, shouldEnableAnalytics);
+        trackEvent('AdsEnabled', AnalyticsEventCategory.General, { accountPkh }, adsViewEnabled);
+
         navigate('/loading');
         !ownMnemonic && dispatch(setOnRampPossibilityAction(true));
         dispatch(shouldShowNewsletterModalAction(true));
@@ -170,7 +153,7 @@ export const SetWalletPassword: FC<SetWalletPasswordProps> = ({
 
   return (
     <form
-      className={classNames('w-full max-w-sm mx-auto my-8', ownMnemonic && 'pb-20')}
+      className={classNames('w-full max-w-sm mx-auto my-4', ownMnemonic && 'pb-20')}
       onSubmit={handleSubmit(onSubmit)}
     >
       {ownMnemonic && isImportFromKeystoreFile && (
@@ -180,14 +163,6 @@ export const SetWalletPassword: FC<SetWalletPasswordProps> = ({
             name="shouldUseKeystorePassword"
             as={FormCheckbox}
             label={t('useKeystorePassword')}
-            onClick={() =>
-              setPasswordValidation({
-                minChar: false,
-                cases: false,
-                number: false,
-                specialChar: false
-              })
-            }
             testID={setWalletPasswordSelectors.useFilePasswordCheckBox}
           />
           {shouldUseKeystorePassword && isKeystorePasswordWeak && (
@@ -214,22 +189,21 @@ export const SetWalletPassword: FC<SetWalletPasswordProps> = ({
             type="password"
             name="password"
             placeholder="********"
-            errorCaption={errors.password?.message}
-            onFocus={() => setFocused(true)}
-            onChange={handlePasswordChange}
+            errorCaption={wasSubmitted ? errors.password?.message : undefined}
             testID={setWalletPasswordSelectors.passwordField}
           />
 
-          {passwordValidation && (
-            <>
-              {isPasswordError && (
-                <PasswordStrengthIndicator validation={passwordValidation} isPasswordError={isPasswordError} />
-              )}
-              {!isPasswordError && focused && (
-                <PasswordStrengthIndicator validation={passwordValidation} isPasswordError={isPasswordError} />
-              )}
-            </>
-          )}
+          <div className="flex flex-wrap gap-x-1 gap-y-2">
+            {validationsLabelsInputs.map(({ textI18nKey, key }) => (
+              <ValidationLabel
+                text={t(textI18nKey)}
+                key={key}
+                status={
+                  passwordValidation[key] ? 'success' : key === 'specialChar' || !wasSubmitted ? 'default' : 'error'
+                }
+              />
+            ))}
+          </div>
 
           <FormField
             ref={register({
@@ -243,91 +217,85 @@ export const SetWalletPassword: FC<SetWalletPasswordProps> = ({
             name="repeatPassword"
             placeholder="********"
             errorCaption={errors.repeatPassword?.message}
-            containerClassName="my-6"
+            containerClassName="mt-6 mb-8"
             testID={setWalletPasswordSelectors.repeatPasswordField}
           />
         </>
       )}
 
-      <Controller
-        control={control}
-        name="analytics"
-        as={FormCheckbox}
-        label={t('analytics')}
-        labelDescription={
-          <T
-            id="analyticsInputDescription"
-            substitutions={[
-              <a
-                href="https://templewallet.com/analytics-collecting"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="underline text-secondary"
-              >
-                <T id="analyticsCollecting" key="analyticsLink" />
-              </a>
-            ]}
-          />
-        }
-        containerClassName="mb-4"
-        testID={setWalletPasswordSelectors.analyticsCheckBox}
-      />
+      <FormCheckboxGroup className="mb-4">
+        <Controller
+          basic
+          control={control}
+          name="analytics"
+          as={FormCheckbox}
+          label={t('usageAnalytics')}
+          labelDescription={
+            <T
+              id="analyticsInputDescription"
+              substitutions={[
+                <a
+                  href="https://templewallet.com/analytics-collecting"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="underline text-secondary"
+                >
+                  <T id="anonymousAnalytics" key="analyticsLink" />
+                </a>
+              ]}
+            />
+          }
+          testID={setWalletPasswordSelectors.analyticsCheckBox}
+        />
 
-      <Controller
-        control={control}
-        name="viewAds"
-        as={FormCheckbox}
-        label={t('viewAds')}
-        labelDescription={<T id="viewAdsDescription" />}
-        containerClassName="mb-4"
-        testID={setWalletPasswordSelectors.viewAdsCheckBox}
-      />
+        <Controller
+          basic
+          control={control}
+          name="earnRewardsWithAds"
+          as={FormCheckbox}
+          label={t('earnRewardsWithAds')}
+          labelDescription={<T id="earnRewardsWithAdsDescription" />}
+          testID={setWalletPasswordSelectors.viewAdsCheckBox}
+        />
+      </FormCheckboxGroup>
 
-      <Controller
-        control={control}
-        name="skipOnboarding"
-        as={p => <FormCheckbox {...p} testID={setWalletPasswordSelectors.skipOnboardingCheckbox} />}
-        label={t('skipOnboarding')}
-        labelDescription={t('advancedUser')}
-        containerClassName="mb-4"
-        testID={setWalletPasswordSelectors.skipOnboardingCheckbox}
-      />
-
-      <FormCheckbox
-        ref={register({
-          validate: val => val || t('confirmTermsError')
-        })}
-        errorCaption={errors.termsAccepted?.message}
-        name="termsAccepted"
-        label={t('acceptTerms')}
-        testID={setWalletPasswordSelectors.acceptTermsCheckbox}
-        labelDescription={
-          <T
-            id="acceptTermsInputDescription"
-            substitutions={[
-              <a
-                href="https://templewallet.com/terms"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="underline text-secondary"
-              >
-                <T id="termsOfUsage" key="termsLink" />
-              </a>,
-              <a
-                href="https://templewallet.com/privacy"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="underline text-secondary"
-              >
-                <T id="privacyPolicy" key="privacyPolicyLink" />
-              </a>
-            ]}
-          />
-        }
-        containerClassName="mb-8"
-      />
+      <FormCheckboxGroup isError={Boolean(errors.termsAccepted)} className="mb-8">
+        <FormCheckbox
+          basic
+          ref={register({
+            validate: val => val || t('confirmTermsError')
+          })}
+          name="termsAccepted"
+          label={t('acceptTerms')}
+          testID={setWalletPasswordSelectors.acceptTermsCheckbox}
+          labelDescription={
+            <T
+              id="acceptTermsInputDescription"
+              substitutions={[
+                <a
+                  href="https://templewallet.com/terms"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="underline text-secondary"
+                >
+                  <T id="termsOfUsage" key="termsLink" />
+                </a>,
+                <a
+                  href="https://templewallet.com/privacy"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="underline text-secondary"
+                >
+                  <T id="privacyPolicy" key="privacyPolicyLink" />
+                </a>
+              ]}
+            />
+          }
+        />
+      </FormCheckboxGroup>
 
       <FormSubmitButton
+        disabled={shouldDisableSubmit}
         loading={submitting}
         className="w-full"
         testID={ownMnemonic ? setWalletPasswordSelectors.importButton : setWalletPasswordSelectors.createButton}

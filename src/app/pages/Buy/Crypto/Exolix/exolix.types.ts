@@ -50,22 +50,34 @@ export interface GetRateRequestData {
   amount: number;
 }
 
-export interface GetRateResponse {
+interface GetRateResponseWithAmountTooLow {
+  fromAmount: number;
   toAmount: number;
+  message: string;
   minAmount: number;
-  maxAmount: number;
-  rate: number;
-  withdrawMin: number;
-  message: null;
 }
 
-export interface GetRateResponseWithAmountTooLow {
+interface GetRateResponseWithAmountTooHigh {
+  fromAmount: number;
   toAmount: number;
-  minAmount: number;
-  maxAmount: number;
-  rate: null;
   message: string;
+  maxAmount: number;
 }
+
+interface GetRateSuccessResponse {
+  fromAmount: number;
+  toAmount: number;
+  rate: number;
+  message: null;
+  minAmount: number;
+  withdrawMin: number;
+  maxAmount: number;
+}
+
+export type GetRateResponse =
+  | GetRateResponseWithAmountTooLow
+  | GetRateResponseWithAmountTooHigh
+  | GetRateSuccessResponse;
 
 export interface OutputCurrencyInterface extends CurrencyToken {
   slug?: string;

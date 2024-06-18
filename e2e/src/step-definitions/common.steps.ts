@@ -46,7 +46,6 @@ Given(/I have imported an existing account/, { timeout: LONG_TIMEOUT }, async ()
   await Pages.SetWallet.passwordField.type(BrowserContext.password);
   await Pages.SetWallet.repeatPasswordField.type(BrowserContext.password);
   await Pages.SetWallet.analyticsCheckbox.click();
-  await Pages.SetWallet.skipOnboarding.click();
   await Pages.SetWallet.acceptTerms.click();
   await Pages.SetWallet.importButton.click();
 

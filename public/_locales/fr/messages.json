@@ -173,8 +173,8 @@
       }
     }
   },
-  "clickOnBakerPrompt": {
-    "message": "Cliquez sur le Baker auquel vous voulez déléguer des fonds. Cette liste est alimentée par $link$.",
+  "recommendedBakersDescription": {
+    "message": "Cette liste est alimentée par $link$",
     "placeholders": {
       "link": {
         "content": "$1"
@@ -438,9 +438,6 @@
   },
   "toBeConnectedWithDApp": {
     "message": "à connecter à une application décentralisée."
-  },
-  "atLeast8Characters": {
-    "message": "Au moins 8 caractères"
   },
   "atLeast1Number": {
     "message": "Au moins 1 chiffre"
@@ -845,7 +842,7 @@
   "delegation": {
     "message": "Délégation"
   },
-  "baker": {
+  "customBaker": {
     "message": "Baker"
   },
   "bakerInputDescription": {
@@ -863,7 +860,7 @@
   "unknownBakerDescription": {
     "message": "Nous ne connaissons pas l'adresse fournie en tant que baker ! Ne lui déléguez vos fonds qu'à vos risques et périls."
   },
-  "delegateToRecommendedBakers": {
+  "recommendedBakers": {
     "message": "Déléguer aux bakers recommandés"
   },
   "sortBy": {

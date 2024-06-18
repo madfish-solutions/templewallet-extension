@@ -14,8 +14,8 @@ import { AnalyticsEventCategory, useAnalytics } from 'lib/analytics';
 import { T } from 'lib/i18n';
 import useCopyToClipboard from 'lib/ui/useCopyToClipboard';
 
-import { ExchangeDataInterface, ExchangeDataStatusEnum } from '../exolix.interface';
 import { ExolixSelectors } from '../Exolix.selectors';
+import { ExchangeDataInterface, ExchangeDataStatusEnum } from '../exolix.types';
 import { getCoinCodeToDisplay, getExchangeData } from '../exolix.util';
 
 import WarningComponent from './WarningComponent';
@@ -91,7 +91,7 @@ const ApproveStep: FC<Props> = ({ exchangeData, setExchangeData, setStep, isErro
 
           <WarningComponent amountAttention />
 
-          <Divider style={{ marginBottom: '1.5rem', marginTop: '2rem' }} />
+          <Divider className="mt-8 mb-6" />
 
           <div className="flex justify-between items-baseline">
             <p className="text-gray-600 text-xs">
@@ -178,7 +178,7 @@ const ApproveStep: FC<Props> = ({ exchangeData, setExchangeData, setStep, isErro
             </>
           )}
 
-          <Divider style={{ marginTop: '2.5rem' }} />
+          <Divider className="mt-10" />
 
           <div className="flex justify-between items-baseline mt-4 mb-12">
             <p className="text-gray-600 text-xs">

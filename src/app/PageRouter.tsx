@@ -30,6 +30,7 @@ import { Notifications, NotificationsItem } from 'lib/notifications/components';
 import { useTempleClient } from 'lib/temple/front';
 import * as Woozie from 'lib/woozie';
 
+import { StakingPage } from './pages/Staking';
 import { WithDataLoading } from './WithDataLoading';
 
 interface RouteContext {
@@ -83,6 +84,7 @@ const ROUTE_MAP = Woozie.createMap<RouteContext>([
   ['/send/:assetSlug?', onlyReady(({ assetSlug }) => <Send assetSlug={assetSlug} />)],
   ['/swap', onlyReady(() => <Swap />)],
   ['/delegate', onlyReady(() => <Delegate />)],
+  ['/staking', onlyReady(() => <StakingPage />)],
   ['/dapps', onlyReady(() => <DApps />)],
   ['/manage-assets/:assetType?', onlyReady(({ assetType }) => <ManageAssets assetType={assetType!} />)],
   ['/collectible/:assetSlug?', onlyReady(({ assetSlug }) => <CollectiblePage assetSlug={assetSlug!} />)],

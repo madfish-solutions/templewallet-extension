@@ -187,8 +187,8 @@
       }
     }
   },
-  "clickOnBakerPrompt": {
-    "message": "Клацніть на Пекаря, якому ви хочете делегувати кошти. Дякуємо $link$ за цей список.",
+  "recommendedBakersDescription": {
+    "message": "Дякуємо $link$ за цей список.",
     "placeholders": {
       "link": {
         "content": "$1"
@@ -207,7 +207,7 @@
     }
   },
   "acceptTermsInputDescription": {
-    "message": "Я прочитав і погоджуюсь\nthe $termsOfUsageLink$ та $privacyPolicyLink$",
+    "message": "Я прочитав і погоджуюсь з $termsOfUsageLink$ та $privacyPolicyLink$",
     "placeholders": {
       "termsOfUsageLink": {
         "content": "$1"
@@ -455,9 +455,6 @@
   },
   "toBeConnectedWithDApp": {
     "message": "для зв’язку з dApp."
-  },
-  "atLeast8Characters": {
-    "message": "Щонайменше 8 символів"
   },
   "atLeast1Number": {
     "message": "Щонайменше 1 цифра"
@@ -865,7 +862,7 @@
   "delegation": {
     "message": "Делегування"
   },
-  "baker": {
+  "customBaker": {
     "message": "Пекар"
   },
   "bakerInputDescription": {
@@ -883,7 +880,7 @@
   "unknownBakerDescription": {
     "message": "Надана адреса нам не відома як адреса Пекаря! Делегуйте йому кошти лише на власний ризик."
   },
-  "delegateToRecommendedBakers": {
+  "recommendedBakers": {
     "message": "Делегуйте до рекомендованих Пекарів"
   },
   "sortBy": {

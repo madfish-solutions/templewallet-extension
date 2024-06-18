@@ -10,11 +10,13 @@ export interface SettingsState {
   isAnalyticsEnabled: boolean;
   balanceMode: BalanceMode;
   isOnRampPossibility: boolean;
+  isConversionTracked: boolean;
 }
 
 export const settingsInitialState: SettingsState = {
   userId: nanoid(),
-  isAnalyticsEnabled: true,
+  isAnalyticsEnabled: false,
   balanceMode: BalanceMode.Fiat,
-  isOnRampPossibility: false
+  isOnRampPossibility: false,
+  isConversionTracked: false
 };
