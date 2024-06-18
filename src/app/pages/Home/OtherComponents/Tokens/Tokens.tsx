@@ -1,6 +1,8 @@
-import React, { memo } from 'react';
+import React, { memo, useEffect } from 'react';
 
 import { ContentContainer } from 'app/layouts/containers';
+import { dispatch } from 'app/store';
+import { setAssetsFilterChain } from 'app/store/assets-filter-options/actions';
 import { useAssetsFilterOptionsSelector } from 'app/store/assets-filter-options/selectors';
 import { UNDER_DEVELOPMENT_MSG } from 'temple/evm/under_dev_msg';
 import { useAccountAddressForEvm, useAccountAddressForTezos } from 'temple/front';
@@ -24,11 +26,9 @@ export const TokensTab = memo(() => {
   const isOnlyTezAccount = Boolean(accountTezAddress && !accountEvmAddress);
   const isOnlyEvmAccount = Boolean(!accountTezAddress && accountEvmAddress);
 
-  if (isTezosFilter && isOnlyEvmAccount)
-    return <div>This acc dont support Tezos assets, pls check your network filter</div>;
-
-  if (isEvmFilter && isOnlyTezAccount)
-    return <div>This acc dont support EVM assets, pls check your network filter</div>;
+  useEffect(() => {
+    if ((isTezosFilter && isOnlyEvmAccount) || (isEvmFilter && isOnlyTezAccount)) dispatch(setAssetsFilterChain(null));
+  }, [filterChain, accountTezAddress, accountEvmAddress]);
 
   if (isTezosFilter && accountTezAddress)
     return <TezosChainTokensTab chainId={filterChain.chainId} publicKeyHash={accountTezAddress} />;
