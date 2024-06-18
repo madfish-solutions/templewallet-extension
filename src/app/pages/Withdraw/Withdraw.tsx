@@ -20,11 +20,6 @@ export const Withdraw: FC = () => {
   }, []);
 
   return (
-    <TabsPageLayout
-      tabs={tabs}
-      icon={<WithdrawGreyIcon />}
-      title={t('withdraw')}
-      description={t('withdrawDescription')}
-    />
+    <TabsPageLayout tabs={tabs} Icon={WithdrawGreyIcon} title={t('withdraw')} description={t('withdrawDescription')} />
   );
 };

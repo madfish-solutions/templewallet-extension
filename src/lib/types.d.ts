@@ -15,3 +15,5 @@ type StringRecord<T = string> = Record<string, T>;
 interface PropsWithChildren {
   children: import('react').ReactNode;
 }
+
+type PropsWithClassName<P = unknown> = P & { className?: string };

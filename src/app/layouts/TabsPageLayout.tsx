@@ -1,8 +1,7 @@
-import React, { FC, ReactNode, Suspense, useMemo } from 'react';
+import React, { ComponentType, ReactNode, Suspense, memo, useMemo } from 'react';
 
-import classNames from 'clsx';
+import clsx from 'clsx';
 
-import { PageTitle } from 'app/atoms/PageTitle';
 import Spinner from 'app/atoms/Spinner/Spinner';
 import { useTabSlug } from 'app/atoms/useTabSlug';
 import { TestIDProperty } from 'lib/analytics';
@@ -15,18 +14,19 @@ import PageLayout from './PageLayout';
 
 export interface TabInterface extends Required<TestIDProperty> {
   slug: string;
-  title: string;
-  Component: FC;
+  title: React.ReactNode;
+  Component: ComponentType;
+  disabled?: boolean;
 }
 
 interface Props {
   tabs: TabInterface[];
-  icon: JSX.Element;
+  Icon?: React.ComponentType;
   title: string;
-  description: string;
+  description?: string;
 }
 
-export const TabsPageLayout: FC<Props> = ({ tabs, icon, title, description }) => {
+export const TabsPageLayout = memo<Props>(({ tabs, Icon, title, description }) => {
   const { fullPage } = useAppEnv();
   const tabSlug = useTabSlug();
 
@@ -36,31 +36,29 @@ export const TabsPageLayout: FC<Props> = ({ tabs, icon, title, description }) =>
   }, [tabSlug, tabs]);
 
   return (
-    <PageLayout pageTitle={<PageTitle icon={icon} title={title} />}>
-      <div className="text-center my-3 text-gray-700 max-w-lg m-auto">{description}</div>
-      <div className={classNames('-mx-4', fullPage && 'rounded-t-md')}>
-        <div
-          className="border-gray-300"
-          style={{
-            borderBottomWidth: 1
-          }}
-        >
-          <div className="w-full max-w-sm mx-auto mt-6 flex items-center justify-center">
+    <PageLayout pageTitle={<PageTitle Icon={Icon} title={title} />}>
+      {description && <div className="text-center mt-3 mb-6 text-gray-700 max-w-lg m-auto">{description}</div>}
+
+      <div className={clsx('mt-2 -mx-4', fullPage && 'rounded-t-md')}>
+        <div className="border-b border-gray-300">
+          <div className="w-full max-w-sm mx-auto flex items-center justify-center">
             {tabs.map(tab => {
               const active = slug === tab.slug;
 
               return (
                 <Link
                   key={tab.slug}
-                  to={lctn => ({ ...lctn, search: `?tab=${tab.slug}` })}
+                  to={lctn => (tab.disabled ? lctn : { ...lctn, search: `?tab=${tab.slug}` })}
                   replace
-                  className={classNames(
-                    'flex1 w-full text-center cursor-pointer pb-2',
-                    'border-b-2 text-gray-700 text-lg truncate',
+                  className={clsx(
+                    'w-full pb-2 border-b-2 text-ulg leading-5 text-center truncate',
                     tabs.length === 1 && 'mx-20',
                     active
                       ? 'border-primary-orange text-primary-orange'
-                      : 'border-transparent hover:text-primary-orange',
+                      : clsx(
+                          'border-transparent',
+                          tab.disabled ? 'text-gray-350' : 'text-gray-500 hover:text-primary-orange'
+                        ),
                     'transition ease-in-out duration-300'
                   )}
                   testID={tab.testID}
@@ -73,26 +71,39 @@ export const TabsPageLayout: FC<Props> = ({ tabs, icon, title, description }) =>
         </div>
 
         <div className="mx-4 mb-4 mt-6">
-          <SuspenseContainer whileMessage="displaying tab">{Component && <Component />}</SuspenseContainer>
+          <SuspenseContainer Component={Component} whileMessage="displaying tab" />
         </div>
       </div>
     </PageLayout>
   );
-};
+});
 
-interface SuspenseContainerProps extends PropsWithChildren {
+interface PageTitleProps {
+  Icon?: React.ComponentType;
+  title: string;
+}
+
+const PageTitle = memo<PageTitleProps>(({ Icon, title }) => (
+  <div className="flex items-center gap-x-1">
+    {Icon && <Icon />}
+    <span className="font-normal text-sm">{title}</span>
+  </div>
+));
+
+interface SuspenseContainerProps {
+  Component: ComponentType;
   whileMessage: string;
   fallback?: ReactNode;
 }
 
-const SuspenseContainer: FC<SuspenseContainerProps> = ({ whileMessage, fallback = <SpinnerSection />, children }) => (
+const SuspenseContainer = memo<SuspenseContainerProps>(({ whileMessage, fallback = <SpinnerSection />, Component }) => (
   <ErrorBoundary whileMessage={whileMessage}>
-    <Suspense fallback={fallback}>{children}</Suspense>
+    <Suspense fallback={fallback}>{Component && <Component />}</Suspense>
   </ErrorBoundary>
-);
+));
 
-const SpinnerSection: FC = () => (
+const SpinnerSection = memo(() => (
   <div className="flex justify-center my-12">
     <Spinner theme="gray" className="w-20" />
   </div>
-);
+));

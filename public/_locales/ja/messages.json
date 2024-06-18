@@ -173,8 +173,8 @@
       }
     }
   },
-  "clickOnBakerPrompt": {
-    "message": "資金を委任したいベーカーをクリックしてください。このリストは$link$によって提供されています。",
+  "recommendedBakersDescription": {
+    "message": "このリストは$link$によって提供されています",
     "placeholders": {
       "link": {
         "content": "$1"
@@ -438,9 +438,6 @@
   },
   "toBeConnectedWithDApp": {
     "message": "はdAppと接続予定。"
-  },
-  "atLeast8Characters": {
-    "message": "8文字以上"
   },
   "atLeast1Number": {
     "message": "数字1字以上"
@@ -841,7 +838,7 @@
   "delegation": {
     "message": "委任"
   },
-  "baker": {
+  "customBaker": {
     "message": "ベーカー"
   },
   "bakerInputDescription": {
@@ -859,7 +856,7 @@
   "unknownBakerDescription": {
     "message": "提供されたアドレスは、ベーカーとして知られていません！資金は自己責任でのみ委任してください。"
   },
-  "delegateToRecommendedBakers": {
+  "recommendedBakers": {
     "message": "推奨ベーカーに委任"
   },
   "sortBy": {

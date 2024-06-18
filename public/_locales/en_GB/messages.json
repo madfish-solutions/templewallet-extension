@@ -187,8 +187,8 @@
       }
     }
   },
-  "clickOnBakerPrompt": {
-    "message": "Click on the Baker you want to delegate funds to. This list is powered by $link$.",
+  "recommendedBakersDescription": {
+    "message": "This list is powered by $link$",
     "placeholders": {
       "link": {
         "content": "$1"
@@ -452,9 +452,6 @@
   },
   "toBeConnectedWithDApp": {
     "message": "to be connected with dApp."
-  },
-  "atLeast8Characters": {
-    "message": "At least 8 characters"
   },
   "atLeast1Number": {
     "message": "At least 1 number"
@@ -876,8 +873,8 @@
   "delegation": {
     "message": "Delegation"
   },
-  "baker": {
-    "message": "Baker"
+  "customBaker": {
+    "message": "Custom Baker"
   },
   "bakerInputDescription": {
     "message": "Address of a registered baker."
@@ -894,7 +891,7 @@
   "unknownBakerDescription": {
     "message": "Provided address is not known to us as a baker! Only delegate funds to it at your own risk."
   },
-  "delegateToRecommendedBakers": {
+  "recommendedBakers": {
     "message": "Delegate to Recommended Bakers"
   },
   "sortBy": {
@@ -1799,11 +1796,5 @@
   },
   "unknownError": {
     "message": "Unknown error"
-  },
-  "viewAds": {
-    "message": "View Ads"
-  },
-  "viewAdsDescription": {
-    "message": "I agree to share data(wallet address, IP) and get cashback at Temple Keys for viewing ads"
   }
 }

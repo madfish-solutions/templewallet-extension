@@ -15,7 +15,7 @@ export interface SettingsState {
 
 export const settingsInitialState: SettingsState = {
   userId: nanoid(),
-  isAnalyticsEnabled: true,
+  isAnalyticsEnabled: false,
   balanceMode: BalanceMode.Fiat,
   isOnRampPossibility: false,
   isConversionTracked: false

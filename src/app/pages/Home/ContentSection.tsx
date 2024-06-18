@@ -9,7 +9,7 @@ import ErrorBoundary from 'app/ErrorBoundary';
 import { ToolbarElement } from 'app/layouts/PageLayout';
 import { ActivityComponent } from 'app/templates/activity/Activity';
 import AssetInfo from 'app/templates/AssetInfo';
-import { TabsBar } from 'app/templates/TabBar';
+import { TabInterface, TabsBar } from 'app/templates/TabBar';
 import { isTezAsset } from 'lib/assets';
 import { t, TID } from 'lib/i18n';
 
@@ -26,9 +26,8 @@ type Props = {
 
 type TabName = 'tokens' | 'collectibles' | 'activity' | 'delegation' | 'info';
 
-interface TabData {
+interface TabData extends TabInterface {
   name: TabName;
-  titleI18nKey: TID;
   Component: FC;
   testID: string;
   whileMessageI18nKey?: TID;
@@ -88,7 +87,7 @@ export const ContentSection = memo<Props>(({ assetSlug, className }) => {
         activity,
         {
           name: 'delegation',
-          titleI18nKey: 'delegate',
+          titleI18nKey: 'delegateAndStake',
           Component: BakingSection,
           testID: HomeSelectors.delegationTab,
           whileMessageI18nKey: 'delegationInfoWhileMessage'

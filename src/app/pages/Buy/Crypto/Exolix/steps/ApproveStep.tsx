@@ -91,7 +91,7 @@ const ApproveStep: FC<Props> = ({ exchangeData, setExchangeData, setStep, isErro
 
           <WarningComponent amountAttention />
 
-          <Divider style={{ marginBottom: '1.5rem', marginTop: '2rem' }} />
+          <Divider className="mt-8 mb-6" />
 
           <div className="flex justify-between items-baseline">
             <p className="text-gray-600 text-xs">
@@ -178,7 +178,7 @@ const ApproveStep: FC<Props> = ({ exchangeData, setExchangeData, setStep, isErro
             </>
           )}
 
-          <Divider style={{ marginTop: '2.5rem' }} />
+          <Divider className="mt-10" />
 
           <div className="flex justify-between items-baseline mt-4 mb-12">
             <p className="text-gray-600 text-xs">

@@ -176,7 +176,7 @@ const InitialStep: FC<Props> = ({ exchangeData, setExchangeData, setStep, isErro
 
       <WarningComponent currency={coinFrom} />
 
-      <Divider style={{ marginBottom: '10px' }} />
+      <Divider className="mb-2.5" />
 
       <TopUpInput
         amount={amount}
@@ -210,7 +210,7 @@ const InitialStep: FC<Props> = ({ exchangeData, setExchangeData, setStep, isErro
         onCurrencySelect={setCoinTo}
       />
 
-      <Divider style={{ marginTop: '40px', marginBottom: '20px' }} />
+      <Divider className="mt-10 mb-5" />
 
       <div className={classNames('flex justify-between', Number(rate) < 0 ? 'text-red-700' : 'text-gray-600')}>
         <p className={styles['exchangeTitle']}>
