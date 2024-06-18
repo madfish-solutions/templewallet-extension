@@ -3,12 +3,12 @@ import React, { FC, memo, useMemo } from 'react';
 import { Button, IconBase } from 'app/atoms';
 import { ReactComponent as DeleteIcon } from 'app/icons/base/delete.svg';
 import { ReactComponent as EditIcon } from 'app/icons/base/edit.svg';
+import { ReactComponent as ImportedIcon } from 'app/icons/base/imported.svg';
 import { ReactComponent as MenuCircleIcon } from 'app/icons/base/menu_circle.svg';
 import { ReactComponent as AddIcon } from 'app/icons/base/plus_circle.svg';
 import { ReactComponent as RevealEyeIcon } from 'app/icons/base/reveal.svg';
-import { ReactComponent as DownloadIcon } from 'app/icons/monochrome/download.svg';
 import { ACCOUNT_EXISTS_SHOWN_WARNINGS_STORAGE_KEY } from 'lib/constants';
-import { T } from 'lib/i18n';
+import { t } from 'lib/i18n';
 import { useStorage, useTempleClient } from 'lib/temple/front';
 import { DisplayedGroup, StoredAccount, TempleAccountType } from 'lib/temple/types';
 import { useAlert } from 'lib/ui';
@@ -18,6 +18,7 @@ import { navigate } from 'lib/woozie';
 import { useHDGroups } from 'temple/front';
 
 import { AccountsAction, AccountsActionsDropdown } from './actions-dropdown';
+import { AccountsManagementSelectors } from './selectors';
 
 export interface GroupActionsPopperProps {
   group: DisplayedGroup;
@@ -51,7 +52,7 @@ const GroupActionsDropdown = memo<PopperRenderProps & GroupActionsPopperProps>(
         return [
           {
             key: 'add-account',
-            children: 'Add Account',
+            children: t('addAccount'),
             Icon: AddIcon,
             onClick: async () => {
               try {
@@ -74,27 +75,31 @@ const GroupActionsDropdown = memo<PopperRenderProps & GroupActionsPopperProps>(
                   description: e.message
                 });
               }
-            }
+            },
+            testID: AccountsManagementSelectors.addGroupAccount
           },
           {
             key: 'rename-wallet',
-            children: 'Rename Wallet',
+            children: t('renameWallet'),
             Icon: EditIcon,
-            onClick: () => onRenameClick(group)
+            onClick: () => onRenameClick(group),
+            testID: AccountsManagementSelectors.renameWallet
           },
           {
             key: 'reveal-seed-phrase',
-            children: <T id="revealSeedPhrase" />,
+            children: t('revealSeedPhrase'),
             Icon: RevealEyeIcon,
-            onClick: () => onRevealSeedPhraseClick(group)
+            onClick: () => onRevealSeedPhraseClick(group),
+            testID: AccountsManagementSelectors.revealSeedPhrase
           },
           hdGroups.length > 1 && {
             key: 'delete-wallet',
-            children: 'Delete Wallet',
+            children: t('deleteWallet'),
             className: 'text-error',
             Icon: DeleteIcon,
             danger: true,
-            onClick: () => onDeleteClick(group)
+            onClick: () => onDeleteClick(group),
+            testID: AccountsManagementSelectors.deleteWallet
           }
         ].filter(isTruthy);
       }
@@ -117,17 +122,19 @@ const GroupActionsDropdown = memo<PopperRenderProps & GroupActionsPopperProps>(
       return [
         {
           key: 'import',
-          children: <T id={group.type === TempleAccountType.Imported ? 'importAccount' : 'createAccount'} />,
-          Icon: DownloadIcon,
-          onClick: () => navigate(importActionUrl)
+          children: t(group.type === TempleAccountType.Imported ? 'importAccount' : 'createAccount'),
+          Icon: ImportedIcon,
+          onClick: () => navigate(importActionUrl),
+          testID: AccountsManagementSelectors.importAccount
         },
         {
           key: 'delete-group',
-          children: <T id="delete" />,
+          children: t('delete'),
           className: 'text-error',
           Icon: DeleteIcon,
           danger: true,
-          onClick: () => onDeleteClick(group)
+          onClick: () => onDeleteClick(group),
+          testID: AccountsManagementSelectors.deleteGroup
         }
       ];
     }, [
@@ -163,7 +170,12 @@ export const GroupActionsPopper: FC<GroupActionsPopperProps> = ({ group, ...rest
     popup={props => <GroupActionsDropdown group={group} {...restPopperProps} {...props} />}
   >
     {({ ref, toggleOpened }) => (
-      <Button ref={ref} onClick={toggleOpened}>
+      <Button
+        ref={ref}
+        onClick={toggleOpened}
+        testID={AccountsManagementSelectors.groupActionsButton}
+        testIDProperties={{ groupType: group.type }}
+      >
         <IconBase Icon={MenuCircleIcon} size={16} className="text-secondary" />
       </Button>
     )}

@@ -5,27 +5,29 @@ import { ActionsButtonsBox } from 'app/atoms/PageModal/actions-buttons-box';
 import { ScrollView } from 'app/atoms/PageModal/scroll-view';
 import { ReadOnlySecretField } from 'app/atoms/ReadOnlySecretField';
 import { StyledButton } from 'app/atoms/StyledButton';
-import { T } from 'lib/i18n';
+import { T, TID } from 'lib/i18n';
 
 import { ManualBackupModalSelectors } from './selectors';
 
 interface MnemonicViewProps {
   mnemonic: string;
+  isNewMnemonic: boolean;
+  onCancel?: EmptyFn;
   onConfirm: EmptyFn;
 }
 
-export const MnemonicView = memo<MnemonicViewProps>(({ mnemonic, onConfirm }) => {
+export const MnemonicView = memo<MnemonicViewProps>(({ mnemonic, isNewMnemonic, onCancel, onConfirm }) => {
   const [bottomEdgeIsVisible, setBottomEdgeIsVisible] = useState(true);
 
-  const manualBackupSubstitutions = useMemo(
-    () =>
-      ['neverShareSeedPhrase' as const, 'enterSeedPhrase' as const].map(i18nKey => (
-        <span className="font-semibold" key={i18nKey}>
-          <T id={i18nKey} />
-        </span>
-      )),
-    []
-  );
+  const manualBackupSubstitutions = useMemo(() => {
+    const i18nKeys: TID[] = isNewMnemonic ? ['neverShare', 'enterSeedPhrase'] : ['neverShare'];
+
+    return i18nKeys.map(i18nKey => (
+      <span className="font-semibold" key={i18nKey}>
+        <T id={i18nKey} />
+      </span>
+    ));
+  }, [isNewMnemonic]);
 
   return (
     <>
@@ -33,22 +35,39 @@ export const MnemonicView = memo<MnemonicViewProps>(({ mnemonic, onConfirm }) =>
         <Alert
           className="mb-4"
           type="warning"
-          description={<T id="manualBackupWarning" substitutions={manualBackupSubstitutions} />}
+          description={
+            <T
+              id={isNewMnemonic ? 'newMnemonicManualBackupWarning' : 'manualBackupWarning'}
+              substitutions={manualBackupSubstitutions}
+            />
+          }
         />
 
         <ReadOnlySecretField value={mnemonic} label="newRevealSeedPhraseLabel" description={null} />
       </ScrollView>
 
       <ActionsButtonsBox shouldCastShadow={!bottomEdgeIsVisible}>
-        <StyledButton
-          className="w-full"
-          size="L"
-          color="primary"
-          onClick={onConfirm}
-          testID={ManualBackupModalSelectors.notedDownButton}
-        >
-          <T id="notedSeedPhraseDown" />
-        </StyledButton>
+        {isNewMnemonic ? (
+          <StyledButton
+            className="w-full"
+            size="L"
+            color="primary"
+            onClick={onConfirm}
+            testID={ManualBackupModalSelectors.notedDownButton}
+          >
+            <T id="notedSeedPhraseDown" />
+          </StyledButton>
+        ) : (
+          <StyledButton
+            className="w-full"
+            size="L"
+            color="primary-low"
+            onClick={onCancel}
+            testID={ManualBackupModalSelectors.cancelButton}
+          >
+            <T id="cancel" />
+          </StyledButton>
+        )}
       </ActionsButtonsBox>
     </>
   );

@@ -4,6 +4,7 @@ import clsx from 'clsx';
 import { throttle } from 'lodash';
 import { useDispatch } from 'react-redux';
 
+import { useAppEnv } from 'app/env';
 import { setToastsContainerBottomShiftAction } from 'app/store/settings/actions';
 
 interface ActionsButtonsBoxProps extends HTMLAttributes<HTMLDivElement> {
@@ -14,6 +15,7 @@ interface ActionsButtonsBoxProps extends HTMLAttributes<HTMLDivElement> {
 export const ActionsButtonsBox = memo<ActionsButtonsBoxProps>(
   ({ className, shouldCastShadow, flexDirection = 'col', ...restProps }) => {
     const dispatch = useDispatch();
+    const { popup } = useAppEnv();
 
     useEffect(() => {
       return () => void dispatch(setToastsContainerBottomShiftAction(0));
@@ -25,10 +27,10 @@ export const ActionsButtonsBox = memo<ActionsButtonsBoxProps>(
           const borderBoxSize = entries.map(entry => entry.borderBoxSize?.[0]).filter(Boolean)[0];
 
           if (borderBoxSize) {
-            dispatch(setToastsContainerBottomShiftAction(borderBoxSize.blockSize));
+            dispatch(setToastsContainerBottomShiftAction(borderBoxSize.blockSize - (popup ? 16 : 0)));
           }
         }, 100),
-      [dispatch]
+      [dispatch, popup]
     );
 
     const resizeObserver = useMemo(() => new ResizeObserver(handleResize), [handleResize]);
@@ -49,7 +51,7 @@ export const ActionsButtonsBox = memo<ActionsButtonsBoxProps>(
         className={clsx(
           'p-4 pb-6 flex bg-white',
           `flex-${flexDirection}`,
-          shouldCastShadow && 'shadow-bottom overflow-y-visible',
+          shouldCastShadow && 'shadow-bottom border-t-0.5 border-lines overflow-y-visible',
           className
         )}
         ref={rootRef}

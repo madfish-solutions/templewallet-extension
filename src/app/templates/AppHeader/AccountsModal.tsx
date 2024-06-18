@@ -2,9 +2,11 @@ import React, { memo, useCallback, useEffect, useMemo, useState } from 'react';
 
 import clsx from 'clsx';
 
-import { Identicon, Name } from 'app/atoms';
+import { Name } from 'app/atoms';
 import { AccLabel } from 'app/atoms/AccLabel';
+import { AccountAvatar } from 'app/atoms/AccountAvatar';
 import { AccountName } from 'app/atoms/AccountName';
+import { EmptyState } from 'app/atoms/EmptyState';
 import { IconButton } from 'app/atoms/IconButton';
 import { PageModal } from 'app/atoms/PageModal';
 import { ActionsButtonsBox } from 'app/atoms/PageModal/actions-buttons-box';
@@ -25,6 +27,8 @@ import { useSetAccountId } from 'temple/front/ready';
 
 import { CreateHDWalletModal } from '../CreateHDWalletModal';
 
+import { AccountsModalSelectors } from './selectors';
+
 interface Props {
   opened: boolean;
   onRequestClose: EmptyFn;
@@ -36,6 +40,8 @@ export const AccountsModal = memo<Props>(({ opened, onRequestClose }) => {
 
   const [searchValue, setSearchValue] = useState('');
   const [shouldShowCreateWalletFlow, setShouldShowCreateWalletFlow] = useState(false);
+  const [topEdgeIsVisible, setTopEdgeIsVisible] = useState(true);
+  const [bottomEdgeIsVisible, setBottomEdgeIsVisible] = useState(true);
 
   useAllAccountsReactiveOnAddition();
   useShortcutAccountSelectModalIsOpened(onRequestClose);
@@ -61,30 +67,63 @@ export const AccountsModal = memo<Props>(({ opened, onRequestClose }) => {
       {shouldShowCreateWalletFlow && <CreateHDWalletModal onEnd={onCreateWalletFlowEnd} />}
 
       <PageModal title="My Accounts" opened={opened} onRequestClose={onRequestClose}>
-        <div className="flex gap-x-2 p-4">
-          <SearchBarField value={searchValue} onValueChange={setSearchValue} />
+        <div
+          className={clsx(
+            'flex gap-x-2 p-4',
+            !topEdgeIsVisible && 'shadow-bottom border-b-0.5 border-lines overflow-y-visible'
+          )}
+        >
+          <SearchBarField
+            value={searchValue}
+            onValueChange={setSearchValue}
+            testID={AccountsModalSelectors.searchField}
+          />
 
-          <IconButton Icon={SettingsIcon} color="blue" onClick={() => void navigate('settings/accounts-management')} />
+          <IconButton
+            Icon={SettingsIcon}
+            color="blue"
+            onClick={() => navigate('settings/accounts-management')}
+            testID={AccountsModalSelectors.accountsManagementButton}
+          />
 
-          <NewWalletActionsPopper startWalletCreation={startWalletCreation} />
+          <NewWalletActionsPopper
+            startWalletCreation={startWalletCreation}
+            testID={AccountsModalSelectors.newWalletActionsButton}
+          />
         </div>
 
-        <ScrollView>
-          {filteredGroups.map(group => (
-            <AccountsGroup
-              key={group.id}
-              title={group.name}
-              accounts={group.accounts}
-              currentAccountId={currentAccountId}
-              searchValue={searchValue}
-              attractSelectedAccount={attractSelectedAccount}
-              onAccountSelect={onRequestClose}
-            />
-          ))}
+        <ScrollView
+          onBottomEdgeVisibilityChange={setBottomEdgeIsVisible}
+          bottomEdgeThreshold={16}
+          onTopEdgeVisibilityChange={setTopEdgeIsVisible}
+          topEdgeThreshold={4}
+        >
+          {filteredGroups.length === 0 ? (
+            <div className="w-full h-full flex items-center">
+              <EmptyState variant="searchUniversal" />
+            </div>
+          ) : (
+            filteredGroups.map(group => (
+              <AccountsGroup
+                key={group.id}
+                title={group.name}
+                accounts={group.accounts}
+                currentAccountId={currentAccountId}
+                searchValue={searchValue}
+                attractSelectedAccount={attractSelectedAccount}
+                onAccountSelect={onRequestClose}
+              />
+            ))
+          )}
         </ScrollView>
 
-        <ActionsButtonsBox>
-          <StyledButton size="L" color="primary-low" onClick={onRequestClose}>
+        <ActionsButtonsBox shouldCastShadow={!bottomEdgeIsVisible}>
+          <StyledButton
+            size="L"
+            color="primary-low"
+            onClick={onRequestClose}
+            testID={AccountsModalSelectors.cancelButton}
+          >
             Cancel
           </StyledButton>
         </ActionsButtonsBox>
@@ -157,9 +196,7 @@ const AccountOfGroup = memo<AccountOfGroupProps>(({ account, isCurrent, searchVa
       onClick={onClick}
     >
       <div className="flex gap-x-1">
-        <div className="flex p-px rounded-md border border-grey-3">
-          <Identicon type="bottts" hash={account.id} size={28} className="rounded-sm" />
-        </div>
+        <AccountAvatar seed={account.id} size={32} borderColor="gray" />
 
         <AccountName account={account} searchValue={searchValue} smaller />
 

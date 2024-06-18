@@ -13,6 +13,8 @@ import { useTempleClient } from 'lib/temple/front';
 import { StoredAccount, TempleAccountType } from 'lib/temple/types';
 import { useAllAccounts } from 'temple/front';
 
+import { AccountSettingsSelectors } from './selectors';
+
 interface RemoveAccountModalProps {
   account: StoredAccount;
   onClose: EmptyFn;
@@ -61,7 +63,12 @@ export const RemoveAccountModal = memo<RemoveAccountModalProps>(({ account, onCl
             />
           </ActionModalBodyContainer>
           <ActionModalButtonsContainer>
-            <ActionModalButton className="bg-primary-low text-primary" onClick={onClose} type="button">
+            <ActionModalButton
+              color="primary-low"
+              onClick={onClose}
+              type="button"
+              testID={AccountSettingsSelectors.cancelButton}
+            >
               <T id="cancel" />
             </ActionModalButton>
           </ActionModalButtonsContainer>
@@ -77,22 +84,29 @@ export const RemoveAccountModal = memo<RemoveAccountModalProps>(({ account, onCl
               placeholder="********"
               errorCaption={errors.password?.message}
               containerClassName="mb-1"
+              testID={AccountSettingsSelectors.passwordInput}
             />
-            <span className="text-font-description text-gray-600 w-full text-center">
+            <span className="text-font-description text-grey-1 w-full text-center">
               This will remove the account from this list and delete all data associated with it.
             </span>
           </ActionModalBodyContainer>
           <ActionModalButtonsContainer>
             <ActionModalButton
-              className="bg-primary-low text-primary"
+              color="primary-low"
               disabled={submitting}
               onClick={onClose}
               type="button"
+              testID={AccountSettingsSelectors.cancelButton}
             >
               <T id="cancel" />
             </ActionModalButton>
 
-            <ActionModalButton className="bg-error text-white" disabled={submitting} type="submit">
+            <ActionModalButton
+              color="red"
+              disabled={submitting}
+              type="submit"
+              testID={AccountSettingsSelectors.confirmRemoveAccountButton}
+            >
               <T id="remove" />
             </ActionModalButton>
           </ActionModalButtonsContainer>

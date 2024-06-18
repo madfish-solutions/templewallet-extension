@@ -1,4 +1,4 @@
-import React, { memo, ReactNode, useCallback, useMemo, useRef } from 'react';
+import React, { memo, PropsWithChildren, ReactNode, useCallback, useMemo, useRef } from 'react';
 
 import clsx from 'clsx';
 
@@ -20,46 +20,61 @@ export interface DefaultHeaderProps {
 
 const HEADER_IS_STICKY = true;
 
-export const DefaultHeader = memo<DefaultHeaderProps>(({ pageTitle, step, setStep, headerRightElem }) => {
-  const { historyPosition, pathname } = useLocation();
+export const DefaultHeader = memo<PropsWithChildren<DefaultHeaderProps>>(
+  ({ children, pageTitle, step, setStep, headerRightElem }) => {
+    const { historyPosition, pathname } = useLocation();
 
-  const inHome = pathname === '/';
-  const canNavBack = historyPosition > 0 || !inHome;
+    const inHome = pathname === '/';
+    const canNavBack = historyPosition > 0 || !inHome;
 
-  const onBackClick = useCallback(() => {
-    if (step && step > 0) return void setStep?.(step - 1);
+    const onBackClick = useCallback(() => {
+      if (step && step > 0) return void setStep?.(step - 1);
 
-    if (canNavBack) return void goBack();
+      if (canNavBack) return void goBack();
 
-    navigate('/', HistoryAction.Replace);
-  }, [setStep, step, canNavBack]);
+      navigate('/', HistoryAction.Replace);
+    }, [setStep, step, canNavBack]);
 
-  const rootRef = useRef<HTMLDivElement>(null);
+    const rootRef = useRef<HTMLDivElement>(null);
 
-  const sticked = useStickyObservation(rootRef, HEADER_IS_STICKY);
+    const sticked = useStickyObservation(rootRef, HEADER_IS_STICKY);
 
-  const className = useMemo(
-    () =>
-      clsx(
-        HEADER_IS_STICKY && 'sticky z-header -top-px',
-        'flex items-center p-4 min-h-14 bg-white overflow-hidden',
-        sticked ? 'shadow' : 'rounded-t-inherit border-b border-lines',
-        'ease-in-out duration-300'
-      ),
-    [sticked]
-  );
+    const hasChildren = !!children;
 
-  return (
-    <div ref={rootRef} className={className}>
-      <div className="flex-1 flex items-center">
-        <Button className="block" onClick={onBackClick} testID={PageLayoutSelectors.backButton}>
-          <IconBase Icon={ChevronLeftIcon} className="text-grey-1" />
-        </Button>
+    const rootClassName = useMemo(
+      () =>
+        clsx(
+          HEADER_IS_STICKY && 'sticky z-header -top-px',
+          'flex flex-col',
+          sticked && 'shadow',
+          !sticked && 'rounded-t-inherit',
+          !sticked && !hasChildren && 'border-b-0.5 border-lines',
+          'ease-in-out duration-300'
+        ),
+      [sticked, hasChildren]
+    );
+
+    return (
+      <div ref={rootRef} className={rootClassName}>
+        <div
+          className={clsx(
+            'flex items-center p-4 min-h-14 bg-white overflow-hidden',
+            hasChildren && 'border-b-0.5 border-lines'
+          )}
+        >
+          <div className="flex-1 flex items-center">
+            <Button className="block" onClick={onBackClick} testID={PageLayoutSelectors.backButton}>
+              <IconBase Icon={ChevronLeftIcon} className="text-grey-1" />
+            </Button>
+          </div>
+
+          {pageTitle && <div className="flex items-center text-center text-font-medium-bold truncate">{pageTitle}</div>}
+
+          <div className="flex-1 flex items-center justify-end">{headerRightElem}</div>
+        </div>
+
+        {children}
       </div>
-
-      {pageTitle && <div className="flex items-center text-center text-font-medium-bold truncate">{pageTitle}</div>}
-
-      <div className="flex-1 flex items-center justify-end">{headerRightElem}</div>
-    </div>
-  );
-});
+    );
+  }
+);

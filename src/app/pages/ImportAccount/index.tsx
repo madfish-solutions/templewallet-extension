@@ -1,8 +1,8 @@
 import React, { FC, useMemo } from 'react';
 
-import { TabSwitcher } from 'app/atoms';
+import { IconBase, TabSwitcher } from 'app/atoms';
 import { useAllAccountsReactiveOnAddition } from 'app/hooks/use-all-accounts-reactive';
-import { ReactComponent as DownloadIcon } from 'app/icons/monochrome/download.svg';
+import { ReactComponent as ImportedIcon } from 'app/icons/base/imported.svg';
 import PageLayout from 'app/layouts/PageLayout';
 import { TID, T } from 'lib/i18n';
 
@@ -36,7 +36,7 @@ const ImportAccount: FC<ImportAccountProps> = ({ tabSlug }) => {
     <PageLayout
       pageTitle={
         <>
-          <DownloadIcon className="w-auto h-4 mr-1 stroke-current" />
+          <IconBase size={12} className="mr-1" Icon={ImportedIcon} />
           <span className="capitalize">
             <T id="importAccount" />
           </span>

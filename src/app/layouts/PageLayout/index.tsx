@@ -1,4 +1,4 @@
-import React, { FC } from 'react';
+import React, { ComponentType, FC, ReactNode, useRef } from 'react';
 
 import clsx from 'clsx';
 
@@ -7,6 +7,7 @@ import DocBg from 'app/a11y/DocBg';
 import Spinner from 'app/atoms/Spinner/Spinner';
 import { SuspenseContainer } from 'app/atoms/SuspenseContainer';
 import { useAppEnv } from 'app/env';
+import { useScrollEdgesVisibility } from 'app/hooks/use-scroll-edges-visibility';
 import { AdvertisingOverlay } from 'app/templates/advertising/advertising-overlay/advertising-overlay';
 import { SHOULD_BACKUP_MNEMONIC_STORAGE_KEY } from 'lib/constants';
 import { useStorage, useTempleClient } from 'lib/temple/front';
@@ -27,16 +28,31 @@ import { OnRampOverlay } from './OnRampOverlay/OnRampOverlay';
 import { ScrollRestorer } from './ScrollRestorer';
 import { ShortcutAccountSwitchOverlay } from './ShortcutAccountSwitchOverlay';
 
-export interface PageLayoutProps extends DefaultHeaderProps {
+interface ScrollEdgesVisibilityProps {
+  onBottomEdgeVisibilityChange?: SyncFn<boolean>;
+  bottomEdgeThreshold?: number;
+  onTopEdgeVisibilityChange?: SyncFn<boolean>;
+  topEdgeThreshold?: number;
+}
+
+export interface PageLayoutProps extends DefaultHeaderProps, ScrollEdgesVisibilityProps {
   /** With this given, header props are ignored */
-  Header?: React.ComponentType;
+  Header?: ComponentType;
   contentPadding?: boolean;
+  paperClassName?: string;
+  headerChildren?: ReactNode;
 }
 
 const PageLayout: FC<PropsWithChildren<PageLayoutProps>> = ({
   Header,
   children,
   contentPadding = true,
+  paperClassName,
+  headerChildren,
+  onBottomEdgeVisibilityChange,
+  bottomEdgeThreshold,
+  onTopEdgeVisibilityChange,
+  topEdgeThreshold,
   ...headerProps
 }) => {
   const { fullPage } = useAppEnv();
@@ -48,8 +64,14 @@ const PageLayout: FC<PropsWithChildren<PageLayoutProps>> = ({
       <DocBg bgClassName="bg-secondary-low" />
 
       <div id={APP_CONTENT_WRAP_DOM_ID} className={clsx(fullPage && 'pt-9 pb-8')}>
-        <ContentPaper>
-          {Header ? <Header /> : <DefaultHeader {...headerProps} />}
+        <ContentPaper
+          className={paperClassName}
+          onBottomEdgeVisibilityChange={onBottomEdgeVisibilityChange}
+          bottomEdgeThreshold={bottomEdgeThreshold}
+          onTopEdgeVisibilityChange={onTopEdgeVisibilityChange}
+          topEdgeThreshold={topEdgeThreshold}
+        >
+          {Header ? <Header /> : <DefaultHeader {...headerProps}>{headerChildren}</DefaultHeader>}
 
           <div className={clsx('flex-1 flex flex-col', contentPadding && 'p-4 pb-15')}>
             <SuspenseContainer errorMessage="displaying this page">{children}</SuspenseContainer>
@@ -78,17 +100,37 @@ const PageLayout: FC<PropsWithChildren<PageLayoutProps>> = ({
 
 export default PageLayout;
 
-const ContentPaper: FC<PropsWithChildren> = ({ children }) => {
+type ContentPaperProps = PropsWithChildren<{ className?: string } & ScrollEdgesVisibilityProps>;
+
+const ContentPaper: FC<ContentPaperProps> = ({
+  children,
+  className,
+  bottomEdgeThreshold,
+  topEdgeThreshold,
+  onBottomEdgeVisibilityChange,
+  onTopEdgeVisibilityChange
+}) => {
   const appEnv = useAppEnv();
+  const rootRef = useRef<HTMLDivElement>(null);
+
+  useScrollEdgesVisibility(
+    rootRef,
+    onBottomEdgeVisibilityChange,
+    bottomEdgeThreshold,
+    onTopEdgeVisibilityChange,
+    topEdgeThreshold
+  );
 
   return (
     <ContentPaperNode
+      ref={rootRef}
       id={APP_CONTENT_PAPER_DOM_ID}
       className={clsx(
         LAYOUT_CONTAINER_CLASSNAME,
         'relative flex flex-col bg-white',
         !SCROLL_DOCUMENT && 'overflow-y-auto',
-        appEnv.fullPage && 'min-h-80 rounded-md shadow-bottom'
+        appEnv.fullPage && 'min-h-80 rounded-md shadow-bottom',
+        className
       )}
     >
       {children}

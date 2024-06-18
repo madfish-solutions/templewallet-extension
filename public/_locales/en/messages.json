@@ -11,6 +11,9 @@
   "createAccount": {
     "message": "Create account"
   },
+  "renameWallet": {
+    "message": "Rename wallet"
+  },
   "addAccount": {
     "message": "Add account"
   },
@@ -547,6 +550,9 @@
   "importedAccountsRemoveWarning": {
     "message": "Backup private keys before deleting to avoid permanent loss. You can anytime restore your accounts by importing the private keys."
   },
+  "deleteWallet": {
+    "message": "Delete wallet"
+  },
   "deleteWalletPasswordLabel": {
     "message": "Enter the password to delete wallet"
   },
@@ -992,6 +998,24 @@
   "accountsManagementDescription": {
     "message": "Use this section to create, edit, and delete accounts."
   },
+  "editAccount": {
+    "message": "Edit Account"
+  },
+  "editAccountName": {
+    "message": "Edit Account Name"
+  },
+  "editName": {
+    "message": "Edit Name"
+  },
+  "displayAccount": {
+    "message": "Display"
+  },
+  "enterPasswordToRevealPrivateKey": {
+    "message": "Enter your password to reveal private key"
+  },
+  "selectNetworkToReveal": {
+    "message": "Select Network to reveal"
+  },
   "about": {
     "message": "About"
   },
@@ -1021,6 +1045,9 @@
   },
   "importWalletUsingSeedPhrase": {
     "message": "Import Wallet using Seed Phrase"
+  },
+  "ledgerConnect": {
+    "message": "Ledger connect"
   },
   "connectLedger": {
     "message": "Connect Ledger",
@@ -1815,8 +1842,11 @@
   "noAssetsFound": {
     "message": "No assets found"
   },
-  "tokenNotFound": {
-    "message": "Token not found..."
+  "tokensNotFound": {
+    "message": "Tokens Not Found"
+  },
+  "notFound": {
+    "message": "Not Found"
   },
   "currencyNotFound": {
     "message": "Currency not found"
@@ -2081,6 +2111,9 @@
   },
   "clean": {
     "message": "Clean"
+  },
+  "clear": {
+    "message": "Clear"
   },
   "errorChangingAccountName": {
     "message": "An error occurred while changing account name"
@@ -3255,10 +3288,10 @@
   "notedSeedPhraseDown": {
     "message": "I’ve noted it down"
   },
-  "manualBackupWarning": {
-    "message": "Note down your seed phrase and keep it safe. Write the words in order and keep them stored safely. $neverShareSeedPhrase$ or $enterSeedPhrase$ it into any apps.",
+  "newMnemonicManualBackupWarning": {
+    "message": "Note down your seed phrase and keep it safe. Write the words in order and keep them stored safely. $neverShare$ or $enterSeedPhrase$ it into any apps.",
     "placeholders": {
-      "neverShareSeedPhrase": {
+      "neverShare": {
         "content": "$1"
       },
       "enterSeedPhrase": {
@@ -3266,8 +3299,24 @@
       }
     }
   },
-  "neverShareSeedPhrase": {
+  "manualBackupWarning": {
+    "message": "$neverShare$ your seed phrase or enter it into any apps. It grants full access to your wallet.",
+    "placeholders": {
+      "neverShare": {
+        "content": "$1"
+      }
+    }
+  },
+  "neverShare": {
     "message": "Never share"
+  },
+  "privateKeyWarning": {
+    "message": "$neverShare$ your private key or enter it into any apps. It grants full access to your wallet.",
+    "placeholders": {
+      "neverShare": {
+        "content": "$1"
+      }
+    }
   },
   "enterSeedPhrase": {
     "message": "enter"
@@ -3301,5 +3350,62 @@
   },
   "enterYourPassword": {
     "message": "Enter your password"
+  },
+  "accounts_one": {
+    "message": "$amount$ account",
+    "description": "For plural forms",
+    "placeholders": {
+      "amount": {
+        "content": "$1"
+      }
+    }
+  },
+  "accounts_zero": {
+    "message": "$amount$ accounts",
+    "description": "For plural forms",
+    "placeholders": {
+      "amount": {
+        "content": "$1"
+      }
+    }
+  },
+  "accounts_two": {
+    "message": "$amount$ accounts",
+    "description": "For plural forms",
+    "placeholders": {
+      "amount": {
+        "content": "$1"
+      }
+    }
+  },
+  "accounts_few": {
+    "message": "$amount$ accounts",
+    "description": "For plural forms",
+    "placeholders": {
+      "amount": {
+        "content": "$1"
+      }
+    }
+  },
+  "accounts_many": {
+    "message": "$amount$ accounts",
+    "description": "For plural forms",
+    "placeholders": {
+      "amount": {
+        "content": "$1"
+      }
+    }
+  },
+  "accounts_other": {
+    "message": "$amount$ accounts",
+    "description": "For plural forms",
+    "placeholders": {
+      "amount": {
+        "content": "$1"
+      }
+    }
+  },
+  "confirmAccess": {
+    "message": "Confirm Access"
   }
 }

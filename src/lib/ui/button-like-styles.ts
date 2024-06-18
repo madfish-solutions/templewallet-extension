@@ -31,7 +31,7 @@ export function getStyledButtonColorsClassNames(color: StyledButtonColor, active
     case 'secondary-low':
       return 'bg-secondary-low hover:bg-secondary-hover-low text-secondary hover:text-secondary-hover';
     case 'red':
-      return 'bg-red hover:bg-red-hover text-white';
+      return 'bg-error hover:bg-error-hover text-white';
     case 'red-low':
       return 'bg-error-low hover:bg-error-hover-low text-error hover:text-error-hover';
   }

@@ -13,6 +13,8 @@ import { T, t } from 'lib/i18n';
 import { useTempleClient } from 'lib/temple/front';
 import { StoredAccount } from 'lib/temple/types';
 
+import { AccountSettingsSelectors } from './selectors';
+
 interface EditAccountNameModalProps {
   account: StoredAccount;
   onClose: EmptyFn;
@@ -42,7 +44,7 @@ export const EditAccountNameModal = memo<EditAccountNameModalProps>(({ account, 
   const submitting = formState.isSubmitting;
 
   return (
-    <ActionModal title="Edit Account Name" onClose={onClose}>
+    <ActionModal title={t('editAccountName')} onClose={onClose}>
       <form onSubmit={handleSubmit(onSubmit)}>
         <ActionModalBodyContainer>
           <FormField
@@ -54,25 +56,33 @@ export const EditAccountNameModal = memo<EditAccountNameModalProps>(({ account, 
               }
             })}
             label={t('accountNameInputLabel')}
+            labelContainerClassName="text-grey-2"
             id="rename-account-input"
             type="text"
             name="name"
             placeholder={account.name}
             errorCaption={errors.name?.message}
             containerClassName="mb-1"
+            testID={AccountSettingsSelectors.accountNameInput}
           />
         </ActionModalBodyContainer>
         <ActionModalButtonsContainer>
           <ActionModalButton
-            className="bg-primary-low text-primary"
+            color="primary-low"
             disabled={submitting}
             onClick={onClose}
             type="button"
+            testID={AccountSettingsSelectors.cancelButton}
           >
             <T id="cancel" />
           </ActionModalButton>
 
-          <ActionModalButton className="bg-primary text-white" disabled={submitting} type="submit">
+          <ActionModalButton
+            color="primary"
+            disabled={submitting}
+            type="submit"
+            testID={AccountSettingsSelectors.saveAccountNameButton}
+          >
             <T id="save" />
           </ActionModalButton>
         </ActionModalButtonsContainer>

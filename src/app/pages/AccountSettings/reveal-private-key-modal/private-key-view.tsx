@@ -1,42 +1,43 @@
 import React, { memo } from 'react';
 
 import { Alert } from 'app/atoms';
-import { ActionModalBodyContainer, ActionModalButton, ActionModalButtonsContainer } from 'app/atoms/action-modal';
 import { ReadOnlySecretField } from 'app/atoms/ReadOnlySecretField';
 import { T } from 'lib/i18n';
 import { TempleChainTitle } from 'temple/types';
 
-import { PrivateKeyPayload } from './types';
+import { AccountSettingsSelectors } from '../selectors';
+import { PrivateKeyPayload } from '../types';
 
 interface PrivateKeyViewProps {
   privateKey: PrivateKeyPayload;
-  onClose: EmptyFn;
 }
 
-export const PrivateKeyView = memo<PrivateKeyViewProps>(({ privateKey, onClose }) => (
+export const PrivateKeyView = memo<PrivateKeyViewProps>(({ privateKey }) => (
   <>
-    <ActionModalBodyContainer>
-      <Alert
-        type="warning"
-        description={
-          <p className="text-font-description text-gray-900">
-            <span className="font-semibold">Never share</span> your private key or enter it into any apps. It grants
-            full access to your account.
-          </p>
-        }
-      />
+    <Alert
+      type="warning"
+      className="my-4"
+      description={
+        <p className="text-font-description">
+          <T
+            id="privateKeyWarning"
+            substitutions={[
+              <span className="font-semibold" key="neverShare">
+                <T id="neverShare" />
+              </span>
+            ]}
+          />
+        </p>
+      }
+    />
 
-      <ReadOnlySecretField
-        value={privateKey.privateKey}
-        label="newRevealPrivateKeyLabel"
-        labelSubstitutions={TempleChainTitle[privateKey.chain]}
-        description={null}
-      />
-    </ActionModalBodyContainer>
-    <ActionModalButtonsContainer>
-      <ActionModalButton className="bg-primary-low text-primary" onClick={onClose} type="button">
-        <T id="cancel" />
-      </ActionModalButton>
-    </ActionModalButtonsContainer>
+    <ReadOnlySecretField
+      value={privateKey.privateKey}
+      label="newRevealPrivateKeyLabel"
+      labelSubstitutions={TempleChainTitle[privateKey.chain]}
+      description={null}
+      testID={AccountSettingsSelectors.privateKeyField}
+      secretCoverTestId={AccountSettingsSelectors.privateKeyFieldCover}
+    />
   </>
 ));

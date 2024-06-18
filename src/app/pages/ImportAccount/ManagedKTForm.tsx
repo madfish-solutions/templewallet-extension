@@ -3,6 +3,7 @@ import React, { FC, memo, ReactNode, useCallback, useMemo, useRef, useState } fr
 import { Controller, useForm } from 'react-hook-form';
 
 import { Alert, FormSubmitButton, NoSpaceField, Identicon, Name, Money, AccountTypeBadge } from 'app/atoms';
+import { AccountAvatar } from 'app/atoms/AccountAvatar';
 import Balance from 'app/templates/Balance';
 import { useChainSelectController, ChainSelectSection } from 'app/templates/ChainSelect';
 import CustomSelect, { OptionRenderProps } from 'app/templates/CustomSelect';
@@ -190,7 +191,7 @@ const ManagedKTFormContent: FC<{ network: TezosNetworkEssentials }> = ({ network
           filledAccount ? (
             <div className="flex flex-wrap items-center">
               <Identicon
-                type="bottts"
+                type="botttsneutral"
                 hash={filledAccount.address}
                 size={14}
                 className="flex-shrink-0 shadow-xs opacity-75"
@@ -267,9 +268,9 @@ interface ContractOptionRenderProps extends OptionRenderProps<TzktRelatedContrac
   network: TezosNetworkEssentials;
 }
 
-const ContractIcon: FC<OptionRenderProps<TzktRelatedContract, string>> = props => {
-  return <Identicon type="bottts" hash={props.item.address} size={32} className="flex-shrink-0 shadow-xs" />;
-};
+const ContractIcon: FC<OptionRenderProps<TzktRelatedContract, string>> = props => (
+  <AccountAvatar seed={props.item.address} size={32} className="flex-shrink-0" />
+);
 
 const ContractOptionContent: FC<ContractOptionRenderProps> = props => {
   const { item } = props;

@@ -1872,5 +1872,59 @@
   },
   "dropdownNoItems": {
     "message": "Нічого не знайдено"
+  },
+  "accounts_one": {
+    "message": "$amount$ аккаунт",
+    "description": "For plural forms",
+    "placeholders": {
+      "amount": {
+        "content": "$1"
+      }
+    }
+  },
+  "accounts_zero": {
+    "message": "$amount$ аккаунтів",
+    "description": "For plural forms",
+    "placeholders": {
+      "amount": {
+        "content": "$1"
+      }
+    }
+  },
+  "accounts_two": {
+    "message": "$amount$ аккаунти",
+    "description": "For plural forms",
+    "placeholders": {
+      "amount": {
+        "content": "$1"
+      }
+    }
+  },
+  "accounts_few": {
+    "message": "$amount$ аккаунти",
+    "description": "For plural forms",
+    "placeholders": {
+      "amount": {
+        "content": "$1"
+      }
+    }
+  },
+  "accounts_many": {
+    "message": "$amount$ аккаунтів",
+    "description": "For plural forms",
+    "placeholders": {
+      "amount": {
+        "content": "$1"
+      }
+    }
+  },
+  "accounts_other": {
+    "message": "$amount$ аккаунтів",
+    "description": "For plural forms",
+    "placeholders": {
+      "amount": {
+        "content": "$1"
+      }
+    }
   }
 }

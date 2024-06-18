@@ -4,10 +4,10 @@ import { ButtonLikeStylingProps, useStyledButtonOrLinkProps } from 'lib/ui/butto
 
 import { Button, ButtonProps } from './Button';
 
-export const StyledButton = React.forwardRef<HTMLButtonElement, ButtonProps & ButtonLikeStylingProps>(
-  (inputProps, ref) => {
-    const buttonProps = useStyledButtonOrLinkProps(inputProps);
+export interface StyledButtonProps extends Omit<ButtonProps, 'color'>, ButtonLikeStylingProps {}
 
-    return <Button ref={ref} {...buttonProps} />;
-  }
-);
+export const StyledButton = React.forwardRef<HTMLButtonElement, StyledButtonProps>((inputProps, ref) => {
+  const buttonProps = useStyledButtonOrLinkProps(inputProps);
+
+  return <Button ref={ref} {...buttonProps} />;
+});

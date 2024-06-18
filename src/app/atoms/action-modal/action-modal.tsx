@@ -1,24 +1,23 @@
 import React, { memo } from 'react';
 
-import { Button } from 'app/atoms';
+import { Button, IconBase } from 'app/atoms';
 import CustomModal from 'app/atoms/CustomModal';
-import { ReactComponent as CloseIcon } from 'app/icons/close.svg';
+import { ReactComponent as XIcon } from 'app/icons/base/x.svg';
 
 interface ActionModalProps {
   closable?: boolean;
   onClose?: EmptyFn;
   children: JSX.Element | JSX.Element[];
   title: string;
-  overlayClassName?: string;
 }
 
-export const ActionModal = memo<ActionModalProps>(({ onClose, children, closable = true, title, overlayClassName }) => (
-  <CustomModal isOpen overlayClassName={overlayClassName} onRequestClose={onClose}>
-    <div className="relative p-3 border-b-0.5 border-gray-300 w-modal">
+export const ActionModal = memo<ActionModalProps>(({ onClose, children, closable = true, title }) => (
+  <CustomModal isOpen overlayClassName="backdrop-blur-xs" onRequestClose={onClose}>
+    <div className="relative p-3 border-b-0.5 border-lines w-modal">
       <h1 className="text-center text-font-regular-bold mx-9">{title}</h1>
       {closable && (
         <Button className="absolute top-3 right-3" onClick={onClose}>
-          <CloseIcon className="w-6 h-auto text-gray-600 stroke-current" />
+          <IconBase Icon={XIcon} size={16} className="text-grey-2" />
         </Button>
       )}
     </div>

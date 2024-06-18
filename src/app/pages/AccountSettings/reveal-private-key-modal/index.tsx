@@ -1,35 +1,47 @@
-import React, { memo, useState } from 'react';
+import React, { memo, useCallback, useState } from 'react';
 
-import { ActionModal } from 'app/atoms/action-modal';
-import { t } from 'lib/i18n';
-import { StoredAccount } from 'lib/temple/types';
-import { useVanishingState } from 'lib/ui/hooks';
+import { PageModal } from 'app/atoms/PageModal';
+import { ActionsButtonsBox } from 'app/atoms/PageModal/actions-buttons-box';
+import { ScrollView } from 'app/atoms/PageModal/scroll-view';
+import { StyledButton } from 'app/atoms/StyledButton';
+import { T, t } from 'lib/i18n';
+
+import { AccountSettingsSelectors } from '../selectors';
+import { PrivateKeyPayload } from '../types';
 
 import { ChainSelection } from './chain-selection';
 import { PrivateKeyView } from './private-key-view';
-import { RevealPrivateKeysForm } from './reveal-private-keys-form';
-import { PrivateKeyPayload } from './types';
-
 interface RevealPrivateKeyModalProps {
-  account: StoredAccount;
+  privateKeys: PrivateKeyPayload[];
   onClose: EmptyFn;
 }
 
-export const RevealPrivateKeyModal = memo<RevealPrivateKeyModalProps>(({ account, onClose }) => {
-  const [privateKeys, setPrivateKeys] = useVanishingState<PrivateKeyPayload[]>(30_000);
+export const RevealPrivateKeyModal = memo<RevealPrivateKeyModalProps>(({ privateKeys, onClose }) => {
   const [selectedPrivateKey, setSelectedPrivateKey] = useState<PrivateKeyPayload | null>(null);
+  const [bottomEdgeVisible, setBottomEdgeVisible] = useState(true);
+
+  const unselectPrivateKey = useCallback(() => setSelectedPrivateKey(null), []);
 
   return (
-    <ActionModal title={t('revealPrivateKey')} onClose={onClose}>
-      {privateKeys ? (
-        selectedPrivateKey ? (
-          <PrivateKeyView privateKey={selectedPrivateKey!} onClose={onClose} />
+    <PageModal
+      title={t('revealPrivateKey')}
+      onRequestClose={onClose}
+      opened
+      shouldShowBackButton={Boolean(selectedPrivateKey)}
+      onGoBack={unselectPrivateKey}
+    >
+      <ScrollView onBottomEdgeVisibilityChange={setBottomEdgeVisible} bottomEdgeThreshold={16}>
+        {selectedPrivateKey ? (
+          <PrivateKeyView privateKey={selectedPrivateKey} />
         ) : (
-          <ChainSelection privateKeys={privateKeys} onSelect={setSelectedPrivateKey} onClose={onClose} />
-        )
-      ) : (
-        <RevealPrivateKeysForm onReveal={setPrivateKeys} account={account} />
-      )}
-    </ActionModal>
+          <ChainSelection privateKeys={privateKeys} onSelect={setSelectedPrivateKey} />
+        )}
+      </ScrollView>
+      <ActionsButtonsBox shouldCastShadow={!bottomEdgeVisible}>
+        <StyledButton onClick={onClose} color="primary-low" size="L" testID={AccountSettingsSelectors.cancelButton}>
+          <T id="cancel" />
+        </StyledButton>
+      </ActionsButtonsBox>
+    </PageModal>
   );
 });

@@ -41,7 +41,7 @@ module.exports = {
       outline: '0 0 0 3px rgba(237, 137, 54, 0.5)',
       none: 'none',
       //
-      'bottom': '0px 2px 8px 0px #00000014',
+      'bottom': '0px 2px 8px 0px rgba(0, 0, 0, 0.08)',
       'content-inset': 'inset 0px 10px 8px -8px #00000014',
       'drop': '0px 2px 4px 0px #00000040'
     },
@@ -274,6 +274,7 @@ module.exports = {
       gap: theme => theme('spacing'),
 
       borderRadius: {
+        0.75: '0.1875rem', // 3px
         1.25: '0.3125rem', // 5px
         2.5: '0.625rem', // 10px
         circle: '50%',

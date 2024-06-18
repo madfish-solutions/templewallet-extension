@@ -36,7 +36,7 @@ export const ActionListItem = memo<ActionListItemProps>(
         <>
           {Icon && <IconBase Icon={Icon} size={16} className={danger ? 'text-error' : 'text-secondary'} />}
 
-          {children}
+          {typeof children === 'string' ? <span className="capitalize">{children}</span> : children}
         </>
       )
     };

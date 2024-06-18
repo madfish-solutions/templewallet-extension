@@ -1,5 +1,6 @@
-import React, { FC, useLayoutEffect, useRef } from 'react';
+import React, { forwardRef, useLayoutEffect, useRef } from 'react';
 
+import { combineRefs } from 'lib/ui/utils';
 import * as Woozie from 'lib/woozie';
 
 interface Props extends React.HTMLAttributes<HTMLDivElement> {}
@@ -7,10 +8,10 @@ interface Props extends React.HTMLAttributes<HTMLDivElement> {}
 let SCROLL_RESTORATION = new Map<string, number>();
 const MEMOIZED_SCROLLS_LIMIT = 10;
 
-export const ScrollRestorer: FC<PropsWithChildren<Props>> = props => {
+export const ScrollRestorer = forwardRef<HTMLDivElement, PropsWithChildren<Props>>((props, ref) => {
   const { trigger, href } = Woozie.useLocation();
 
-  const ref = useRef<HTMLDivElement>(null);
+  const localRef = useRef<HTMLDivElement>(null);
 
   useLayoutEffect(() => {
     // Only 'popstate' to location restores scroll position
@@ -24,15 +25,15 @@ export const ScrollRestorer: FC<PropsWithChildren<Props>> = props => {
       SCROLL_RESTORATION = new Map(slicedArray);
     }
 
-    if (!ref.current) return;
+    if (!localRef.current) return;
 
     const scrollTop = SCROLL_RESTORATION.get(href);
     if (scrollTop == null) return;
-    ref.current.scrollTop = scrollTop;
+    localRef.current.scrollTop = scrollTop;
   }, [trigger, href]);
 
-  return <div ref={ref} onScroll={onScroll} {...props} />;
-};
+  return <div ref={combineRefs(localRef, ref)} onScroll={onScroll} {...props} />;
+});
 
 function onScroll(event: React.UIEvent<HTMLDivElement>) {
   SCROLL_RESTORATION.set(window.location.href, event.currentTarget.scrollTop);

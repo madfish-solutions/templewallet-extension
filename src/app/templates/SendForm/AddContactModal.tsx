@@ -3,8 +3,8 @@ import React, { FC, useCallback } from 'react';
 import { useForm } from 'react-hook-form';
 
 import { FormField, FormSubmitButton, FormSecondaryButton } from 'app/atoms';
+import { AccountAvatar } from 'app/atoms/AccountAvatar';
 import HashShortView from 'app/atoms/HashShortView';
-import Identicon from 'app/atoms/Identicon';
 import ModalWithTitle from 'app/templates/ModalWithTitle';
 import { T, t } from 'lib/i18n';
 import { useContactsActions } from 'lib/temple/front';
@@ -59,7 +59,7 @@ const AddContactModal: FC<AddContactModalProps> = ({ address, onClose }) => {
       <form onSubmit={handleSubmit(onAddContactSubmit)}>
         <div className="mb-8">
           <div className="mb-4 flex items-stretch border rounded-md p-2">
-            <Identicon type="bottts" hash={address ?? ''} size={32} className="flex-shrink-0 shadow-xs" />
+            <AccountAvatar seed={address ?? ''} size={32} className="flex-shrink-0" />
 
             <div className="ml-3 flex-1 flex items-center">
               <span className="text-base text-gray-700">

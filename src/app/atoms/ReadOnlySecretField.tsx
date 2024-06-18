@@ -7,7 +7,7 @@ import { setTestID, TestIDProperty } from 'lib/analytics';
 import { TID, T } from 'lib/i18n';
 import { selectNodeContent } from 'lib/ui/content-selection';
 
-import CopyButton from './CopyButton';
+import { CopyButton } from './CopyButton';
 import { FieldLabel } from './FieldLabel';
 import { FORM_FIELD_CLASS_NAME } from './FormField';
 import { IconBase } from './IconBase';
@@ -33,7 +33,9 @@ export const ReadOnlySecretField: FC<ReadOnlySecretFieldProps> = ({
   const [copyButtonFocused, setCopyButtonFocused] = useState(false);
   const fieldRef = useRef<HTMLParagraphElement>(null);
 
-  const onSecretCoverClick = useCallback(() => void fieldRef.current?.focus(), []);
+  const onSecretCoverClick = useCallback(() => {
+    fieldRef.current?.focus();
+  }, []);
 
   const covered = !focused && !copyButtonFocused;
 
@@ -54,8 +56,8 @@ export const ReadOnlySecretField: FC<ReadOnlySecretFieldProps> = ({
           ref={fieldRef}
           tabIndex={0}
           className={clsx(FORM_FIELD_CLASS_NAME, 'h-40 break-words py-3 px-4 overflow-y-auto border-input-low')}
-          onFocus={() => void setFocused(true)}
-          onBlur={() => void setFocused(false)}
+          onFocus={() => setFocused(true)}
+          onBlur={() => setFocused(false)}
           {...setTestID(testID)}
         >
           {covered ? '' : value}
@@ -64,12 +66,9 @@ export const ReadOnlySecretField: FC<ReadOnlySecretFieldProps> = ({
         <CopyButton
           text={covered ? '' : value}
           isSecret
-          className={clsx(
-            'text-secondary absolute right-3 bottom-3 flex text-font-description-bold items-center',
-            'bg-transparent hover:bg-transparent'
-          )}
-          onFocus={() => void setCopyButtonFocused(true)}
-          onBlur={() => void setCopyButtonFocused(false)}
+          className="text-secondary absolute right-3 bottom-3 flex text-font-description-bold items-center px-1 py-0.5"
+          onFocus={() => setCopyButtonFocused(true)}
+          onBlur={() => setCopyButtonFocused(false)}
         >
           <span>
             <T id="copyMnemonic" />

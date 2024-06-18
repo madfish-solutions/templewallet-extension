@@ -2,19 +2,23 @@ import React, { memo } from 'react';
 
 import clsx from 'clsx';
 
-import { Button, ButtonProps } from 'app/atoms/Button';
+import { StyledButton, StyledButtonProps } from '../StyledButton';
 
-type ActionModalButtonProps = Pick<ButtonProps, 'className' | 'disabled' | 'onClick' | 'type' | 'children'>;
+type ActionModalButtonProps = PropsWithChildren<
+  Pick<StyledButtonProps, 'className' | 'disabled' | 'onClick' | 'type' | 'color' | 'testID' | 'testIDProperties'>
+>;
 
-const modalActionButtonClassName = 'flex-1 p-2 text-center text-font-regular-bold rounded-lg';
-
-export const ActionModalButton = memo<ActionModalButtonProps>(({ className, disabled, onClick, type, children }) => (
-  <Button
-    disabled={disabled}
-    className={clsx(modalActionButtonClassName, className, disabled && 'opacity-75 pointer-events-none')}
-    onClick={onClick}
-    type={type}
-  >
-    {children}
-  </Button>
-));
+export const ActionModalButton = memo<ActionModalButtonProps>(
+  ({ className, color, disabled, onClick, type, children }) => (
+    <StyledButton
+      size="L"
+      color={color}
+      disabled={disabled}
+      className={clsx('flex-1', className)}
+      onClick={onClick}
+      type={type}
+    >
+      {children}
+    </StyledButton>
+  )
+);

@@ -3,7 +3,8 @@ import React, { RefObject, useMemo } from 'react';
 import { emptyFn, isDefined } from '@rnw-community/shared';
 import clsx from 'clsx';
 
-import { Name, Button, HashShortView, Money, Identicon } from 'app/atoms';
+import { Name, Button, HashShortView, Money } from 'app/atoms';
+import { AccountAvatar } from 'app/atoms/AccountAvatar';
 import AccountTypeBadge from 'app/atoms/AccountTypeBadge';
 import { SearchHighlightText } from 'app/atoms/SearchHighlightText';
 import Balance from 'app/templates/Balance';
@@ -71,7 +72,7 @@ export const AccountItem: React.FC<AccountItemProps> = ({
       testID={ShortcutAccountSwitchSelectors.accountItemButton}
       testIDProperties={{ accountTypeEnum: account.type }}
     >
-      <Identicon type="bottts" hash={account.id} size={46} className="flex-shrink-0 shadow-xs-white" />
+      <AccountAvatar seed={account.id} size={60} className="flex-shrink-0" />
 
       <div style={{ marginLeft: '10px' }} className="flex flex-col items-start">
         <Name className="text-font-medium font-medium">
