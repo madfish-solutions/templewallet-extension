@@ -218,7 +218,6 @@
     "source-map": "^0.7.4"
   },
   "resolutions": {
-    "ws": "7.4.6",
     "tslib": "^2.4.0",
     "@types/react": "18.0.15",
     "@taquito/taquito": "20.0.0",
