@@ -37,6 +37,7 @@ const InitialStep: FC<Props> = ({ exchangeData, setExchangeData, setStep, isErro
   const [coinFrom, setCoinFrom] = useState<OutputCurrencyInterface>(INITIAL_COIN_FROM);
   const [coinTo, setCoinTo] = useState<OutputCurrencyInterface>(INITIAL_COIN_TO);
 
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [amount, setAmount] = useState<number | undefined>();
   const [minAmount, setMinAmount] = useState<number | nullish>();
   const [maxAmount, setMaxAmount] = useState<number | nullish>();
@@ -67,6 +68,7 @@ const InitialStep: FC<Props> = ({ exchangeData, setExchangeData, setStep, isErro
 
   const submitExchangeHandler = async () => {
     try {
+      setIsSubmitting(true);
       const data = await submitExchange({
         coinFrom: coinFrom.code,
         networkFrom: coinFrom.network.code,
@@ -86,22 +88,27 @@ const InitialStep: FC<Props> = ({ exchangeData, setExchangeData, setStep, isErro
       }
     } catch (e) {
       setIsError(true);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
-  const { data: ratesData } = useTypedSWR(['exolix/api/rate', coinFrom, coinTo, debouncedAmount], async () => {
-    if (!debouncedAmount || debouncedAmount < (minAmount ?? 0) || debouncedAmount > (maxAmount ?? Infinity)) {
-      return undefined;
-    }
+  const { data: ratesData, isValidating: isRatesLoading } = useTypedSWR(
+    ['exolix/api/rate', coinFrom, coinTo, debouncedAmount],
+    async () => {
+      if (!debouncedAmount || debouncedAmount < (minAmount ?? 0) || debouncedAmount > (maxAmount ?? Infinity)) {
+        return undefined;
+      }
 
-    return await queryExchange({
-      coinFrom: coinFrom.code,
-      coinFromNetwork: coinFrom.network.code,
-      amount: debouncedAmount ?? 0,
-      coinTo: coinTo.code,
-      coinToNetwork: coinTo.network.code
-    });
-  });
+      return await queryExchange({
+        coinFrom: coinFrom.code,
+        coinFromNetwork: coinFrom.network.code,
+        amount: debouncedAmount ?? 0,
+        coinTo: coinTo.code,
+        coinToNetwork: coinTo.network.code
+      });
+    }
+  );
 
   useEffect(() => {
     if (!ratesData) {
@@ -227,11 +234,13 @@ const InitialStep: FC<Props> = ({ exchangeData, setExchangeData, setStep, isErro
           padding: '10px 2rem',
           background: '#4299e1'
         }}
+        loading={isSubmitting || isRatesLoading}
+        keepChildrenWhenLoading
         onClick={submitExchangeHandler}
         disabled={proceedForbidden}
         testID={ExolixSelectors.topupFirstStepSubmitButton}
       >
-        <T id={'topUp'} />
+        <T id={isSubmitting ? 'submittingExchange' : isRatesLoading ? 'loadingExchangeRates' : 'topUp'} />
       </FormSubmitButton>
 
       <p className={styles['privacyAndPolicy']}>
