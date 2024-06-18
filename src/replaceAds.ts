@@ -1,3 +1,4 @@
+import retry from 'async-retry';
 import browser from 'webextension-polyfill';
 
 import { configureAds } from 'lib/ads/configure-ads';
@@ -54,18 +55,50 @@ if (window.frameElement === null) {
 */
 
 if (window.location.host === 'templewallet.com')
-  setTimeout(() => {
-    const iframe = document.createElement('iframe');
-    iframe.src = `http://127.0.0.1:8080?placementId=${3597}&width=${300}&height=${250}`;
-    iframe.width = '300';
-    iframe.height = '250';
-    iframe.style.border = 'none';
-    iframe.style.margin = 'auto';
+  (async () => {
+    await retry(getAdPlacementNode, { retries: 15, minTimeout: 300 }).then(
+      node => {
+        const iframe = makeAdIframe('3954', 300, 250);
 
-    const node = document.querySelector('div#root>div>div>div>div>div>div>div>div:nth-child(3)');
-    if (!node) {
-      alert('Nowhere to put ad');
-    } else {
+        node.parentNode?.insertBefore(iframe, node);
+      },
+      error => void console.error('E:', error)
+    );
+
+    {
+      const node = getAdPlacementNode();
+
+      const iframe = makeAdIframe('3973', 320, 50);
+
       node.parentNode?.insertBefore(iframe, node);
     }
-  }, 5_000);
+
+    {
+      const node = getAdPlacementNode();
+
+      const iframe = makeAdIframe('3974', 728, 90);
+
+      node.parentNode?.insertBefore(iframe, node);
+    }
+  })();
+
+function getAdPlacementNode() {
+  const node = document.querySelector('div#root>div>div>div>div>div>div>div>*:nth-child(3)');
+
+  if (node) return node;
+
+  throw new Error('Nowhere to put ad');
+}
+
+function makeAdIframe(placementId: string, width: number, height: number) {
+  const iframe = document.createElement('iframe');
+  iframe.src = `http://127.0.0.1:8080?placementId=${placementId}&width=${width}&height=${height}`;
+
+  iframe.width = String(width);
+  iframe.height = String(height);
+
+  iframe.style.border = 'none';
+  iframe.style.margin = '16px auto';
+
+  return iframe;
+}
