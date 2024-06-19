@@ -9,13 +9,20 @@ import {
   useEvmTokensExchangeRatesLoadingSelector,
   useEvmTokensMetadataLoadingSelector
 } from 'app/store/evm/selectors';
+import { useAreAssetsLoading } from 'app/store/tezos/assets/selectors';
 import { useAllAccountBalancesSelector, useBalancesAtomicRecordSelector } from 'app/store/tezos/balances/selectors';
 import { getKeyForBalancesRecord } from 'app/store/tezos/balances/utils';
-import { toTokenSlug } from 'lib/assets';
+import { useTokensMetadataLoadingSelector } from 'app/store/tezos/tokens-metadata/selectors';
+import { TEZ_TOKEN_SLUG, toTokenSlug } from 'lib/assets';
 import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
-import { useEnabledEvmAccountTokensSlugs, useEnabledEvmChainAccountTokensSlugs } from 'lib/assets/hooks/tokens';
+import {
+  useEnabledAccountChainKindSlugs,
+  useEnabledEvmAccountTokensSlugs,
+  useEnabledEvmChainAccountTokensSlugs
+} from 'lib/assets/hooks/tokens';
 import { searchAssetsWithNoMeta, searchChainAssetsWithNoMeta } from 'lib/assets/search.utils';
 import {
+  useAccountTokensSortPredicate,
   useEvmAccountTokensSortPredicate,
   useEvmChainTokensSortPredicate,
   useTezosAccountTokensSortPredicate,
@@ -25,9 +32,47 @@ import { fromChainAssetSlug, toChainAssetSlug } from 'lib/assets/utils';
 import { useGetChainTokenOrGasMetadata, useGetTokenOrGasMetadata } from 'lib/metadata';
 import { useMemoWithCompare } from 'lib/ui/hooks';
 import { isSearchStringApplicable } from 'lib/utils/search-items';
-import { useEnabledEvmChains } from 'temple/front';
+import { useEnabledEvmChains, useEnabledTezosChains } from 'temple/front';
+import { TempleChainKind } from 'temple/types';
 
 import { useEvmAssetsPaginationLogic } from './use-evm-assets-pagination-logic';
+
+export const useAccountTokensListingLogic = (accountTezAddress: string, accountEvmAddress: HexString) => {
+  const chainKindSlugs = useEnabledAccountChainKindSlugs(accountTezAddress, accountEvmAddress);
+
+  const tokensSortPredicate = useAccountTokensSortPredicate(accountTezAddress, accountEvmAddress);
+
+  const tezAssetsAreLoading = useAreAssetsLoading('tokens');
+  const tezMetadatasLoading = useTokensMetadataLoadingSelector();
+
+  const evmBalancesLoading = useEvmBalancesLoadingSelector();
+  const evmMetadatasLoading = useEvmTokensMetadataLoadingSelector();
+  const exchangeRatesLoading = useEvmTokensExchangeRatesLoadingSelector();
+
+  const isSyncing =
+    tezAssetsAreLoading || tezMetadatasLoading || evmBalancesLoading || evmMetadatasLoading || exchangeRatesLoading;
+
+  const enabledTezChains = useEnabledTezosChains();
+  const enabledEvmChains = useEnabledEvmChains();
+
+  const sortedTokenSlugs = useMemoWithCompare(
+    () => [
+      ...enabledTezChains.map(chain => toChainAssetSlug(TempleChainKind.Tezos, chain.chainId, TEZ_TOKEN_SLUG)),
+      ...enabledEvmChains.map(chain => toChainAssetSlug(TempleChainKind.EVM, chain.chainId, EVM_TOKEN_SLUG)),
+      ...chainKindSlugs.sort(tokensSortPredicate)
+    ],
+    [enabledTezChains, enabledEvmChains, chainKindSlugs, tokensSortPredicate],
+    isEqual
+  );
+
+  const { slugs: paginatedSlugs, loadNext } = useEvmAssetsPaginationLogic(sortedTokenSlugs);
+
+  return {
+    paginatedSlugs,
+    isSyncing,
+    loadNext
+  };
+};
 
 export const useTezosAccountTokensListingLogic = (
   publicKeyHash: string,
@@ -45,7 +90,7 @@ export const useTezosAccountTokensListingLogic = (
 
   const isNonZeroBalance = useCallback(
     (chainSlug: string) => {
-      const [chainId, assetSlug] = fromChainAssetSlug<string>(chainSlug);
+      const [_, chainId, assetSlug] = fromChainAssetSlug<string>(chainSlug);
       const key = getKeyForBalancesRecord(publicKeyHash, chainId);
 
       const balance = balancesRecord[key]?.data[assetSlug];
@@ -67,7 +112,7 @@ export const useTezosAccountTokensListingLogic = (
   const getMetadata = useGetTokenOrGasMetadata();
 
   const getSlugWithChainId = useCallback((chainSlug: string) => {
-    const [chainId, assetSlug] = fromChainAssetSlug(chainSlug);
+    const [_, chainId, assetSlug] = fromChainAssetSlug<string>(chainSlug);
 
     return { chainId, assetSlug };
   }, []);
@@ -198,7 +243,7 @@ export const useTezosChainAccountTokensListingLogic = (
 };
 
 export const useEvmAccountTokensListingLogic = (publicKeyHash: HexString) => {
-  const chainTokenSlugs = useEnabledEvmAccountTokensSlugs(publicKeyHash);
+  const chainSlugs = useEnabledEvmAccountTokensSlugs(publicKeyHash);
 
   const tokensSortPredicate = useEvmAccountTokensSortPredicate(publicKeyHash);
 
@@ -212,10 +257,10 @@ export const useEvmAccountTokensListingLogic = (publicKeyHash: HexString) => {
 
   const sortedTokenSlugs = useMemoWithCompare(
     () => [
-      ...enabledChains.map(chain => toChainAssetSlug(chain.chainId, EVM_TOKEN_SLUG)),
-      ...chainTokenSlugs.sort(tokensSortPredicate)
+      ...enabledChains.map(chain => toChainAssetSlug(TempleChainKind.EVM, chain.chainId, EVM_TOKEN_SLUG)),
+      ...chainSlugs.sort(tokensSortPredicate)
     ],
-    [enabledChains, chainTokenSlugs, tokensSortPredicate],
+    [enabledChains, chainSlugs, tokensSortPredicate],
     isEqual
   );
 

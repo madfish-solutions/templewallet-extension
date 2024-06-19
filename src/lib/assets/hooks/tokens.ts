@@ -21,13 +21,14 @@ import { useAllAccountBalancesSelector, useBalancesAtomicRecordSelector } from '
 import { getKeyForBalancesRecord } from 'app/store/tezos/balances/utils';
 import { useMemoWithCompare } from 'lib/ui/hooks';
 import { useEnabledEvmChains, useEnabledTezosChains } from 'temple/front';
+import { TempleChainKind } from 'temple/types';
 
 import { EMPTY_FROZEN_OBJ } from '../../utils';
 import { PREDEFINED_TOKENS_METADATA } from '../known-tokens';
 import type { AccountAsset } from '../types';
 import { toChainAssetSlug, tokenToSlug } from '../utils';
 
-import { isAssetStatusIdle, getAssetStatus } from './utils';
+import { getAssetStatus, isAssetStatusIdle } from './utils';
 
 interface AccountToken extends AccountAsset {
   chainId: string | number;
@@ -66,13 +67,35 @@ export const useAllTezosAvailableTokens = (account: string, chainId: string) => 
   }, [tokens, allTokensStored, account, chainId]);
 };
 
+export const useEnabledAccountChainKindSlugs = (accountTezAddress: string, accountEvmAddress: HexString) => {
+  const tezTokens = useTezosAccountTokens(accountTezAddress);
+  const evmTokens = useEvmAccountTokens(accountEvmAddress);
+
+  return useMemo(
+    () => [
+      ...tezTokens.reduce<string[]>(
+        (acc, { slug, status, chainId }) =>
+          status === 'enabled' ? acc.concat(toChainAssetSlug(TempleChainKind.Tezos, chainId, slug)) : acc,
+        []
+      ),
+      ...evmTokens.reduce<string[]>(
+        (acc, { slug, status, chainId }) =>
+          status === 'enabled' ? acc.concat(toChainAssetSlug(TempleChainKind.EVM, chainId, slug)) : acc,
+        []
+      )
+    ],
+    [tezTokens, evmTokens]
+  );
+};
+
 export const useTezosEnabledAccountTokensSlugs = (publicKeyHash: string) => {
   const tokens = useTezosAccountTokens(publicKeyHash);
 
   return useMemo(
     () =>
       tokens.reduce<string[]>(
-        (acc, { slug, status, chainId }) => (status === 'enabled' ? acc.concat(toChainAssetSlug(chainId, slug)) : acc),
+        (acc, { slug, status, chainId }) =>
+          status === 'enabled' ? acc.concat(toChainAssetSlug(TempleChainKind.Tezos, chainId, slug)) : acc,
         []
       ),
     [tokens]
@@ -151,7 +174,7 @@ const useTezosAccountTokens = (account: string) => {
       const concatenated: AccountToken[] = predefined.concat(stored).concat(whitelisted);
 
       return sortBy(
-        uniqBy(concatenated, ({ chainId, slug }) => toChainAssetSlug(chainId, slug)),
+        uniqBy(concatenated, ({ chainId, slug }) => toChainAssetSlug(TempleChainKind.Tezos, chainId, slug)),
         TOKENS_SORT_ITERATEES
       );
     },
@@ -269,7 +292,8 @@ export const useEnabledEvmAccountTokensSlugs = (publicKeyHash: HexString) => {
   return useMemo(
     () =>
       tokens.reduce<string[]>(
-        (acc, { slug, status, chainId }) => (status === 'enabled' ? acc.concat(toChainAssetSlug(chainId, slug)) : acc),
+        (acc, { slug, status, chainId }) =>
+          status === 'enabled' ? acc.concat(toChainAssetSlug(TempleChainKind.EVM, chainId, slug)) : acc,
         []
       ),
     [tokens]

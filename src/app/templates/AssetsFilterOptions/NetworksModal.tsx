@@ -106,7 +106,7 @@ export const NetworksModal = memo<Props>(({ opened, onRequestClose }) => {
 
       <div className="p-4 pb-6 flex flex-col bg-white">
         <StyledButton size="L" color="primary-low" onClick={onRequestClose}>
-          Cancel
+          <T id="close" />
         </StyledButton>
       </div>
     </PageModal>

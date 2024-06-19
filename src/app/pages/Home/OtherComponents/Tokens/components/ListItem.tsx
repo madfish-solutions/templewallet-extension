@@ -24,7 +24,7 @@ interface TezosListItemProps {
   network: TezosNetworkEssentials;
   publicKeyHash: string;
   assetSlug: string;
-  active: boolean;
+  active?: boolean;
   scam?: boolean;
 }
 

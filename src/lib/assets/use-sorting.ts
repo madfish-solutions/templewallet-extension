@@ -12,8 +12,53 @@ import {
   useGetTezosChainAccountTokenOrGasBalanceWithDecimals
 } from 'lib/balances/hooks';
 import { ZERO } from 'lib/utils/numbers';
+import { TempleChainKind } from 'temple/types';
 
 import { fromChainAssetSlug } from './utils';
+
+export const useAccountTokensSortPredicate = (accountTezAddress: string, accountEvmAddress: HexString) => {
+  const getTezBalance = useGetTezosAccountTokenOrGasBalanceWithDecimals(accountTezAddress);
+  const tezUsdToTokenRates = useTezosUsdToTokenRatesSelector();
+
+  const getEvmBalance = useGetEvmTokenBalanceWithDecimals(accountEvmAddress);
+  const evmUsdToTokenRates = useEvmUsdToTokenRatesSelector();
+
+  return useCallback(
+    (aChainAssetSlug: string, bChainAssetSlug: string) => {
+      const [aChainKind, aChainId, aSlug] = fromChainAssetSlug(aChainAssetSlug);
+      const [bChainKind, bChainId, bSlug] = fromChainAssetSlug(bChainAssetSlug);
+
+      const aBalance =
+        (aChainKind === TempleChainKind.Tezos
+          ? getTezBalance(aChainId as string, aSlug)
+          : getEvmBalance(Number(aChainId), aSlug)) ?? ZERO;
+
+      const bBalance =
+        (bChainKind === TempleChainKind.Tezos
+          ? getTezBalance(bChainId as string, bSlug)
+          : getEvmBalance(Number(bChainId), bSlug)) ?? ZERO;
+
+      const aEquity = aBalance.multipliedBy(
+        (aChainKind === TempleChainKind.Tezos
+          ? tezUsdToTokenRates[aSlug]
+          : evmUsdToTokenRates[Number(aChainId)]?.[aSlug]) ?? ZERO
+      );
+
+      const bEquity = bBalance.multipliedBy(
+        (bChainKind === TempleChainKind.Tezos
+          ? tezUsdToTokenRates[bSlug]
+          : evmUsdToTokenRates[Number(bChainId)]?.[bSlug]) ?? ZERO
+      );
+
+      if (aEquity.isEqualTo(bEquity)) {
+        return bBalance.comparedTo(aBalance);
+      }
+
+      return bEquity.comparedTo(aEquity);
+    },
+    [getTezBalance, getEvmBalance, tezUsdToTokenRates, evmUsdToTokenRates]
+  );
+};
 
 export const useTezosAccountTokensSortPredicate = (publicKeyHash: string) => {
   const getBalance = useGetTezosAccountTokenOrGasBalanceWithDecimals(publicKeyHash);
@@ -21,8 +66,8 @@ export const useTezosAccountTokensSortPredicate = (publicKeyHash: string) => {
 
   return useCallback(
     (aChainSlug: string, bChainSlug: string) => {
-      const [aChainId, aSlug] = fromChainAssetSlug(aChainSlug);
-      const [bChainId, bSlug] = fromChainAssetSlug(bChainSlug);
+      const [_, aChainId, aSlug] = fromChainAssetSlug<string>(aChainSlug);
+      const [_2, bChainId, bSlug] = fromChainAssetSlug<string>(bChainSlug);
 
       const aBalance = getBalance(aChainId, aSlug) ?? ZERO;
       const bBalance = getBalance(bChainId, bSlug) ?? ZERO;
@@ -65,9 +110,9 @@ export const useEvmAccountTokensSortPredicate = (publicKeyHash: HexString) => {
   const usdToTokenRates = useEvmUsdToTokenRatesSelector();
 
   return useCallback(
-    (aChainSlug: string, bChainSlug: string) => {
-      const [aChainId, aSlug] = fromChainAssetSlug<number>(aChainSlug);
-      const [bChainId, bSlug] = fromChainAssetSlug<number>(bChainSlug);
+    (aChainAssetSlug: string, bChainAssetSlug: string) => {
+      const [_, aChainId, aSlug] = fromChainAssetSlug<number>(aChainAssetSlug);
+      const [_2, bChainId, bSlug] = fromChainAssetSlug<number>(bChainAssetSlug);
 
       const aBalance = getBalance(aChainId, aSlug) ?? ZERO;
       const bBalance = getBalance(bChainId, bSlug) ?? ZERO;

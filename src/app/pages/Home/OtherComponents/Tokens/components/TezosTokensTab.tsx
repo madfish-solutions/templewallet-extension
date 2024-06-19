@@ -50,10 +50,12 @@ export const TezosTokensTab: FC<TezosTokensTabProps> = ({ publicKeyHash }) => {
   const enabledChains = useEnabledTezosChains();
 
   const leadingAssets = useMemo(() => {
-    const nativeChainSlugs = enabledChains.map(chain => toChainAssetSlug(chain.chainId, TEZ_TOKEN_SLUG));
+    const nativeChainSlugs = enabledChains.map(chain =>
+      toChainAssetSlug(TempleChainKind.Tezos, chain.chainId, TEZ_TOKEN_SLUG)
+    );
 
     return !filterChain || filterChain.chainId === TEZOS_MAINNET_CHAIN_ID
-      ? [...nativeChainSlugs, toChainAssetSlug(TEZOS_MAINNET_CHAIN_ID, TEMPLE_TOKEN_SLUG)]
+      ? [...nativeChainSlugs, toChainAssetSlug(TempleChainKind.Tezos, TEZOS_MAINNET_CHAIN_ID, TEMPLE_TOKEN_SLUG)]
       : nativeChainSlugs;
   }, [enabledChains, filterChain]);
 
@@ -74,7 +76,7 @@ export const TezosTokensTab: FC<TezosTokensTabProps> = ({ publicKeyHash }) => {
 
   const tokensView = useMemo<JSX.Element[]>(() => {
     const tokensJsx = filteredAssets.map(chainSlug => {
-      const [chainId, assetSlug] = fromChainAssetSlug(chainSlug);
+      const [_, chainId, assetSlug] = fromChainAssetSlug<string>(chainSlug);
 
       return (
         <TezosListItem
@@ -120,7 +122,7 @@ export const TezosTokensTab: FC<TezosTokensTabProps> = ({ publicKeyHash }) => {
   useEffect(() => {
     if (!activeChainAssetSlug) return;
 
-    const [chainId, activeAssetSlug] = fromChainAssetSlug(activeChainAssetSlug);
+    const [_, chainId, activeAssetSlug] = fromChainAssetSlug<string>(activeChainAssetSlug);
 
     const handleKeyup = (evt: KeyboardEvent) => {
       switch (evt.key) {

@@ -6,7 +6,7 @@ import { SyncSpinner } from 'app/atoms';
 import { FilterButton } from 'app/atoms/FilterButton';
 import { IconButton } from 'app/atoms/IconButton';
 import { SimpleInfiniteScroll } from 'app/atoms/SimpleInfiniteScroll';
-import { useEvmAccountTokensListingLogic } from 'app/hooks/use-tokens-listing-logic';
+import { useAccountTokensListingLogic } from 'app/hooks/use-tokens-listing-logic';
 import { ReactComponent as ManageIcon } from 'app/icons/base/manage.svg';
 import { ContentContainer, StickyBar } from 'app/layouts/containers';
 import { AssetsSelectors } from 'app/pages/Home/OtherComponents/Assets.selectors';
@@ -14,28 +14,50 @@ import { AssetsFilterOptions } from 'app/templates/AssetsFilterOptions';
 import { SearchBarField } from 'app/templates/SearchField';
 import { fromChainAssetSlug } from 'lib/assets/utils';
 import { useBooleanState } from 'lib/ui/hooks';
+import { useAllTezosChains } from 'temple/front';
+import { TempleChainKind } from 'temple/types';
 
 import { EmptySection } from './EmptySection';
-import { EvmListItem } from './ListItem';
+import { EvmListItem, TezosListItem } from './ListItem';
 
 interface AllNetworksTokensTabProps {
   accountTezAddress: string;
   accountEvmAddress: HexString;
 }
 
-export const AllNetworksTokensTab: FC<AllNetworksTokensTabProps> = ({ accountEvmAddress }) => {
+export const AllNetworksTokensTab: FC<AllNetworksTokensTabProps> = ({ accountTezAddress, accountEvmAddress }) => {
   const [filtersOpened, _, setFiltersClosed, toggleFiltersOpened] = useBooleanState(false);
 
-  const { paginatedSlugs, isSyncing, loadNext } = useEvmAccountTokensListingLogic(accountEvmAddress);
+  const { paginatedSlugs, isSyncing, loadNext } = useAccountTokensListingLogic(accountTezAddress, accountEvmAddress);
+
+  const tezosChains = useAllTezosChains();
 
   const contentElement = useMemo(
     () =>
-      paginatedSlugs.map(chainSlug => {
-        const [chainId, slug] = fromChainAssetSlug<number>(chainSlug);
+      paginatedSlugs.map(chainKindSlug => {
+        const [chainKind, chainId, assetSlug] = fromChainAssetSlug(chainKindSlug);
 
-        return <EvmListItem key={chainSlug} chainId={chainId} assetSlug={slug} publicKeyHash={accountEvmAddress} />;
+        if (chainKind === TempleChainKind.Tezos) {
+          return (
+            <TezosListItem
+              network={tezosChains[chainId]}
+              key={chainKindSlug}
+              publicKeyHash={accountTezAddress}
+              assetSlug={assetSlug}
+            />
+          );
+        }
+
+        return (
+          <EvmListItem
+            key={chainKindSlug}
+            chainId={chainId as number}
+            assetSlug={assetSlug}
+            publicKeyHash={accountEvmAddress}
+          />
+        );
       }),
-    [paginatedSlugs]
+    [paginatedSlugs, tezosChains]
   );
 
   const stickyBarRef = useRef<HTMLDivElement>(null);

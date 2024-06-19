@@ -30,9 +30,9 @@ export const EvmTokensTab: FC<EvmTokensTabProps> = ({ publicKeyHash }) => {
   const contentElement = useMemo(
     () =>
       paginatedSlugs.map(chainSlug => {
-        const [chainId, slug] = fromChainAssetSlug<number>(chainSlug);
+        const [_, chainId, slug] = fromChainAssetSlug<number>(chainSlug);
 
-        return <EvmListItem key={slug} chainId={chainId} assetSlug={slug} publicKeyHash={publicKeyHash} />;
+        return <EvmListItem key={chainSlug} chainId={chainId} assetSlug={slug} publicKeyHash={publicKeyHash} />;
       }),
     [paginatedSlugs]
   );

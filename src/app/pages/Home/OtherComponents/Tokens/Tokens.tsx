@@ -37,7 +37,7 @@ export const TokensTab = memo(() => {
     return <EvmChainTokensTab chainId={filterChain.chainId} publicKeyHash={accountEvmAddress} />;
 
   if (!filterChain && accountTezAddress && accountEvmAddress)
-    return <AllNetworksTokensTab accountTezAddress={accountEvmAddress} accountEvmAddress={accountEvmAddress} />;
+    return <AllNetworksTokensTab accountTezAddress={accountTezAddress} accountEvmAddress={accountEvmAddress} />;
 
   if (!filterChain && accountTezAddress) return <TezosTokensTab publicKeyHash={accountTezAddress} />;
 
