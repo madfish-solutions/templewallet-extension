@@ -1,5 +1,6 @@
 import React, { memo, useEffect } from 'react';
 
+import { useAssetsFilterOptionsState } from 'app/hooks/use-assets-filter-options';
 import { ContentContainer } from 'app/layouts/containers';
 import { dispatch } from 'app/store';
 import { setAssetsFilterChain } from 'app/store/assets-filter-options/actions';
@@ -11,10 +12,12 @@ import { TempleChainKind } from 'temple/types';
 import { AllNetworksTokensTab } from './components/AllNetworksTokensTab';
 import { EvmChainTokensTab } from './components/EvmChainTokensTab';
 import { EvmTokensTab } from './components/EvmTokensTab';
+import { Filters } from './components/Filters';
 import { TezosChainTokensTab } from './components/TezosChainTokensTab';
 import { TezosTokensTab } from './components/TezosTokensTab';
 
 export const TokensTab = memo(() => {
+  const { filtersOpened } = useAssetsFilterOptionsState();
   const { filterChain } = useAssetsFilterOptionsSelector();
 
   const accountTezAddress = useAccountAddressForTezos();
@@ -29,6 +32,8 @@ export const TokensTab = memo(() => {
   useEffect(() => {
     if ((isTezosFilter && isOnlyEvmAccount) || (isEvmFilter && isOnlyTezAccount)) dispatch(setAssetsFilterChain(null));
   }, [filterChain, accountTezAddress, accountEvmAddress]);
+
+  if (filtersOpened) return <Filters />;
 
   if (isTezosFilter && accountTezAddress)
     return <TezosChainTokensTab chainId={filterChain.chainId} publicKeyHash={accountTezAddress} />;

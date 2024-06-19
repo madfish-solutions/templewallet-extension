@@ -4,6 +4,7 @@ import { SyncSpinner } from 'app/atoms';
 import { FilterButton } from 'app/atoms/FilterButton';
 import { IconButton } from 'app/atoms/IconButton';
 import { DeadEndBoundaryError } from 'app/ErrorBoundary';
+import { useAssetsFilterOptionsState } from 'app/hooks/use-assets-filter-options';
 import { useLoadPartnersPromo } from 'app/hooks/use-load-partners-promo';
 import { useTezosChainAccountTokensListingLogic } from 'app/hooks/use-tokens-listing-logic';
 import { ReactComponent as ManageIcon } from 'app/icons/base/manage.svg';
@@ -12,14 +13,12 @@ import { AssetsSelectors } from 'app/pages/Home/OtherComponents/Assets.selectors
 import { useAssetsFilterOptionsSelector } from 'app/store/assets-filter-options/selectors';
 import { useAreAssetsLoading, useMainnetTokensScamlistSelector } from 'app/store/tezos/assets/selectors';
 import { useTokensMetadataLoadingSelector } from 'app/store/tezos/tokens-metadata/selectors';
-import { AssetsFilterOptions } from 'app/templates/AssetsFilterOptions';
 import { PartnersPromotion, PartnersPromotionVariant } from 'app/templates/partners-promotion';
 import { SearchBarField } from 'app/templates/SearchField';
 import { OptimalPromoVariantEnum } from 'lib/apis/optimal';
 import { TEMPLE_TOKEN_SLUG, TEZ_TOKEN_SLUG } from 'lib/assets';
 import { useTezosEnabledChainAccountTokensSlugs } from 'lib/assets/hooks';
 import { TEZOS_MAINNET_CHAIN_ID } from 'lib/temple/types';
-import { useBooleanState } from 'lib/ui/hooks';
 import { navigate } from 'lib/woozie';
 import { useTezosChainByChainId } from 'temple/front';
 import { TempleChainKind } from 'temple/types';
@@ -41,7 +40,7 @@ export const TezosChainTokensTab: FC<TezosChainTokensTabProps> = ({ chainId, pub
   if (!network) throw new DeadEndBoundaryError();
 
   const { tokensListOptions } = useAssetsFilterOptionsSelector();
-  const [filtersOpened, _, setFiltersClosed, toggleFiltersOpened] = useBooleanState(false);
+  const { filtersOpened, toggleFiltersOpened } = useAssetsFilterOptionsState();
 
   const assetsAreLoading = useAreAssetsLoading('tokens');
   const metadatasLoading = useTokensMetadataLoadingSelector();
@@ -155,22 +154,18 @@ export const TezosChainTokensTab: FC<TezosChainTokensTabProps> = ({ chainId, pub
         <IconButton Icon={ManageIcon} />
       </StickyBar>
 
-      {filtersOpened ? (
-        <AssetsFilterOptions filterButtonRef={filterButtonRef} onRequestClose={setFiltersClosed} />
-      ) : (
-        <ContentContainer>
-          <UpdateAppBanner stickyBarRef={stickyBarRef} />
+      <ContentContainer>
+        <UpdateAppBanner stickyBarRef={stickyBarRef} />
 
-          {filteredAssets.length === 0 ? (
-            <EmptySection isSyncing={isSyncing} searchValueExist={searchValueExist} />
-          ) : (
-            <>
-              <>{tokensView}</>
-              {isSyncing && <SyncSpinner className="mt-4" />}
-            </>
-          )}
-        </ContentContainer>
-      )}
+        {filteredAssets.length === 0 ? (
+          <EmptySection isSyncing={isSyncing} searchValueExist={searchValueExist} />
+        ) : (
+          <>
+            <>{tokensView}</>
+            {isSyncing && <SyncSpinner className="mt-4" />}
+          </>
+        )}
+      </ContentContainer>
     </>
   );
 };
