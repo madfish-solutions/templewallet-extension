@@ -28,7 +28,7 @@ export { TEZOS_METADATA };
 
 export const getTezosGasMetadata = (chainId: string) => (isTezosDcpChainId(chainId) ? FILM_METADATA : TEZOS_METADATA);
 
-export const useAssetMetadata = (slug: string, tezosChainId: string): AssetMetadataBase | undefined => {
+export const useTezosAssetMetadata = (slug: string, tezosChainId: string): AssetMetadataBase | undefined => {
   const tokenMetadata = useTokenMetadataSelector(slug);
   const collectibleMetadata = useCollectibleMetadataSelector(slug);
 

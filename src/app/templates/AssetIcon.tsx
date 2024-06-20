@@ -6,7 +6,7 @@ import Identicon from 'app/atoms/Identicon';
 import { EvmNetworkLogo, NetworkLogoFallback } from 'app/atoms/NetworkLogo';
 import { ReactComponent as CollectiblePlaceholder } from 'app/icons/collectible-placeholder.svg';
 import { useEvmTokenMetadataSelector } from 'app/store/evm/tokens-metadata/selectors';
-import { AssetMetadataBase, getAssetSymbol, isCollectible, useAssetMetadata } from 'lib/metadata';
+import { AssetMetadataBase, getAssetSymbol, isCollectible, useTezosAssetMetadata } from 'lib/metadata';
 import { EvmTokenMetadata } from 'lib/metadata/types';
 import useTippy, { UseTippyOptions } from 'lib/ui/useTippy';
 import { isEvmNativeTokenSlug } from 'lib/utils/evm.utils';
@@ -23,7 +23,7 @@ interface TezosAssetIconProps extends Omit<AssetImageBaseProps, 'sources' | 'met
 }
 
 export const TezosAssetIcon = memo<TezosAssetIconProps>(({ tezosChainId, className, style, ...props }) => {
-  const metadata = useAssetMetadata(props.assetSlug, tezosChainId);
+  const metadata = useTezosAssetMetadata(props.assetSlug, tezosChainId);
 
   return (
     <div className={clsx('flex items-center justify-center', className)} style={style}>
@@ -74,7 +74,7 @@ interface TezosTokenIconWithNetworkProps
 export const TezosTokenIconWithNetwork = memo<TezosTokenIconWithNetworkProps>(
   ({ tezosChainId, className, style, ...props }) => {
     const network = useTezosChainByChainId(tezosChainId);
-    const metadata = useAssetMetadata(props.assetSlug, tezosChainId);
+    const metadata = useTezosAssetMetadata(props.assetSlug, tezosChainId);
 
     const tippyProps = useMemo<UseTippyOptions>(
       () => ({

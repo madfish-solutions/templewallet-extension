@@ -4,8 +4,6 @@ import { isDefined } from '@rnw-community/shared';
 import clsx from 'clsx';
 
 import Money from 'app/atoms/Money';
-import { useAppEnv } from 'app/env';
-import { useEvmCollectibleMetadataSelector } from 'app/store/evm/collectibles-metadata/selectors';
 import { useBalanceSelector } from 'app/store/tezos/balances/selectors';
 import {
   useAllCollectiblesDetailsLoadingSelector,
@@ -14,6 +12,7 @@ import {
 import { useCollectibleMetadataSelector } from 'app/store/tezos/collectibles-metadata/selectors';
 import { setAnotherSelector, setTestID } from 'lib/analytics';
 import { objktCurrencies } from 'lib/apis/objkt';
+import { useEvmCollectibleBalance } from 'lib/balances/hooks';
 import { T } from 'lib/i18n';
 import { getAssetName } from 'lib/metadata';
 import { atomsToTokens } from 'lib/temple/helpers';
@@ -24,8 +23,11 @@ import { CollectibleItemImage, EvmCollectibleItemImage } from './CollectibleItem
 import { CollectibleTabSelectors } from './selectors';
 import { toCollectibleLink } from './utils';
 
-const POPUP_ITEM_SIZE = 104;
-const FULLPAGE_ITEM_SIZE = 112;
+// Fixed sizes to improve large grid performance
+const ImgContainerStyle = { width: 112, height: 112 };
+const ImgWithDetailsContainerStyle = { width: 112, height: 152 };
+const ImgStyle = { width: 110, height: 110 };
+const DetailsStyle = { width: 112, height: 40 };
 
 interface TezosCollectibleItemProps {
   assetSlug: string;
@@ -38,12 +40,16 @@ interface TezosCollectibleItemProps {
 
 export const TezosCollectibleItem = memo<TezosCollectibleItemProps>(
   ({ assetSlug, accountPkh, tezosChainId, adultBlur, areDetailsShown, hideWithoutMeta }) => {
-    const { popup } = useAppEnv();
     const metadata = useCollectibleMetadataSelector(assetSlug);
     const wrapperElemRef = useRef<HTMLDivElement>(null);
     const balanceAtomic = useBalanceSelector(accountPkh, tezosChainId, assetSlug);
 
     const decimals = metadata?.decimals;
+
+    const imgContainerStyles = useMemo(
+      () => (areDetailsShown ? ImgWithDetailsContainerStyle : ImgContainerStyle),
+      [areDetailsShown]
+    );
 
     const balance = useMemo(
       () => (isDefined(decimals) && balanceAtomic ? atomsToTokens(balanceAtomic, decimals) : null),
@@ -65,27 +71,6 @@ export const TezosCollectibleItem = memo<TezosCollectibleItemProps>(
       return { floorPrice: atomsToTokens(floorPrice, currency.decimals).toString(), symbol: currency.symbol };
     }, [details?.listing]);
 
-    // Fixed sizes to improve large grid performance
-    const [style, imgWrapStyle] = useMemo(() => {
-      const size = popup ? POPUP_ITEM_SIZE : FULLPAGE_ITEM_SIZE;
-
-      const style = popup
-        ? {
-            width: size,
-            height: areDetailsShown ? size + 27 : size
-          }
-        : {
-            width: size,
-            height: areDetailsShown ? size + 46 : size
-          };
-
-      const imgWrapStyle = {
-        height: size - 2
-      };
-
-      return [style, imgWrapStyle];
-    }, [areDetailsShown, popup]);
-
     if (hideWithoutMeta && !metadata) return null;
 
     const assetName = getAssetName(metadata);
@@ -94,17 +79,17 @@ export const TezosCollectibleItem = memo<TezosCollectibleItemProps>(
       <Link
         to={toCollectibleLink(TempleChainKind.Tezos, tezosChainId, assetSlug)}
         className="flex flex-col border border-gray-300 rounded-lg overflow-hidden"
-        style={style}
+        style={imgContainerStyles}
         testID={CollectibleTabSelectors.collectibleItem}
         testIDProperties={{ assetSlug: assetSlug }}
       >
         <div
           ref={wrapperElemRef}
+          style={ImgStyle}
           className={clsx(
             'relative flex items-center justify-center bg-blue-50 rounded-lg overflow-hidden hover:opacity-70',
             areDetailsShown && 'border-b border-gray-300'
           )}
-          style={imgWrapStyle}
           title={assetName}
         >
           <CollectibleItemImage
@@ -124,10 +109,10 @@ export const TezosCollectibleItem = memo<TezosCollectibleItemProps>(
         </div>
 
         {areDetailsShown && (
-          <div className="mt-1 mx-1.5">
+          <div style={DetailsStyle} className="pt-1 px-1.5">
             <h5 className="text-sm leading-5 text-gray-910 truncate">{assetName}</h5>
             <div
-              className="mt-1 text-xxxs leading-3 text-gray-600"
+              className="mt-0.5 text-xxxs leading-3 text-gray-600"
               {...setTestID(CollectibleTabSelectors.collectibleName)}
               {...setAnotherSelector('name', assetName)}
             >
@@ -140,7 +125,7 @@ export const TezosCollectibleItem = memo<TezosCollectibleItemProps>(
                   <Money shortened smallFractionFont={false} tooltip={true}>
                     {listing.floorPrice}
                   </Money>
-                  <span> {listing.symbol}</span>
+                  <span>{listing.symbol}</span>
                 </>
               ) : (
                 '-'
@@ -156,48 +141,64 @@ export const TezosCollectibleItem = memo<TezosCollectibleItemProps>(
 interface EvmCollectibleItemProps {
   assetSlug: string;
   evmChainId: number;
+  accountPkh: HexString;
+  showDetails?: boolean;
 }
 
-export const EvmCollectibleItem = memo<EvmCollectibleItemProps>(({ assetSlug, evmChainId }) => {
-  const { popup } = useAppEnv();
-  const metadata = useEvmCollectibleMetadataSelector(evmChainId, assetSlug);
+export const EvmCollectibleItem = memo<EvmCollectibleItemProps>(
+  ({ assetSlug, evmChainId, accountPkh, showDetails = false }) => {
+    const { rawValue: balance = '0', metadata } = useEvmCollectibleBalance(assetSlug, accountPkh, evmChainId);
 
-  const [style, imgWrapStyle] = useMemo(() => {
-    const size = popup ? POPUP_ITEM_SIZE : FULLPAGE_ITEM_SIZE;
+    const imgContainerStyles = useMemo(
+      () => (showDetails ? ImgWithDetailsContainerStyle : ImgContainerStyle),
+      [showDetails]
+    );
 
-    const style = {
-      width: size,
-      height: size
-    };
+    if (!metadata) return null;
 
-    const imgWrapStyle = {
-      height: size - 2
-    };
+    const assetName = getAssetName(metadata);
 
-    return [style, imgWrapStyle];
-  }, [popup]);
+    const truncatedBalance = useMemo(() => (balance.length > 6 ? `${balance.slice(0, 6)}...` : balance), [balance]);
 
-  if (!metadata) return null;
-
-  const assetName = metadata.name;
-
-  return (
-    <Link
-      to={toCollectibleLink(TempleChainKind.EVM, evmChainId, assetSlug)}
-      className="flex flex-col border border-gray-300 rounded-lg overflow-hidden"
-      style={style}
-      testID={CollectibleTabSelectors.collectibleItem}
-      testIDProperties={{ assetSlug: assetSlug }}
-    >
-      <div
-        className={clsx(
-          'relative flex items-center justify-center bg-blue-50 rounded-lg overflow-hidden hover:opacity-70'
-        )}
-        style={imgWrapStyle}
-        title={assetName}
+    return (
+      <Link
+        to={toCollectibleLink(TempleChainKind.EVM, evmChainId, assetSlug)}
+        className="flex flex-col border border-gray-300 rounded-lg overflow-hidden"
+        style={imgContainerStyles}
+        testID={CollectibleTabSelectors.collectibleItem}
+        testIDProperties={{ assetSlug: assetSlug }}
       >
-        <EvmCollectibleItemImage metadata={metadata} />
-      </div>
-    </Link>
-  );
-});
+        <div
+          className={clsx(
+            'relative flex items-center justify-center bg-blue-50 rounded-lg overflow-hidden hover:opacity-70'
+          )}
+          style={ImgStyle}
+          title={assetName}
+        >
+          <EvmCollectibleItemImage metadata={metadata} />
+
+          {showDetails && (
+            <div className="absolute bottom-1.5 left-1.5 text-xxxs text-white leading-none p-1 bg-black bg-opacity-60 rounded">
+              {truncatedBalance}×
+            </div>
+          )}
+        </div>
+
+        {showDetails && (
+          <div style={DetailsStyle} className="pt-1 px-1.5">
+            <h5 className="text-sm leading-5 text-gray-910 truncate">{assetName}</h5>
+            <div
+              className="mt-0.5 text-xxxs leading-3 text-gray-600"
+              {...setTestID(CollectibleTabSelectors.collectibleName)}
+              {...setAnotherSelector('name', assetName)}
+            >
+              <span {...setTestID(CollectibleTabSelectors.floorPrice)}>
+                <T id="floorPrice" />:{' -'}
+              </span>
+            </div>
+          </div>
+        )}
+      </Link>
+    );
+  }
+);

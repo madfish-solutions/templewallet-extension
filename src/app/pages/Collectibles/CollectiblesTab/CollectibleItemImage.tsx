@@ -1,14 +1,12 @@
-import React, { memo, useMemo, useState } from 'react';
+import React, { memo, useMemo } from 'react';
 
 import { isDefined } from '@rnw-community/shared';
-import { debounce } from 'lodash';
 
 import { useCollectibleIsAdultSelector } from 'app/store/tezos/collectibles/selectors';
 import { buildCollectibleImagesStack, buildEvmCollectibleIconSources } from 'lib/images-uri';
 import type { TokenMetadata } from 'lib/metadata';
 import { EvmCollectibleMetadata } from 'lib/metadata/types';
 import { ImageStacked } from 'lib/ui/ImageStacked';
-import { useIntersectionByOffsetObserver } from 'lib/ui/use-intersection-observer';
 
 import { CollectibleBlur } from '../components/CollectibleBlur';
 import { CollectibleImageFallback } from '../components/CollectibleImageFallback';
@@ -23,40 +21,33 @@ interface Props {
   containerElemRef: React.RefObject<Element>;
 }
 
-export const CollectibleItemImage = memo<Props>(
-  ({ assetSlug, metadata, adultBlur, areDetailsLoading, mime, containerElemRef }) => {
-    const isAdultContent = useCollectibleIsAdultSelector(assetSlug);
-    const isAdultFlagLoading = areDetailsLoading && !isDefined(isAdultContent);
-    const shouldShowBlur = isAdultContent && adultBlur;
+export const CollectibleItemImage = memo<Props>(({ assetSlug, metadata, adultBlur, areDetailsLoading, mime }) => {
+  const isAdultContent = useCollectibleIsAdultSelector(assetSlug);
+  const isAdultFlagLoading = areDetailsLoading && !isDefined(isAdultContent);
+  const shouldShowBlur = isAdultContent && adultBlur;
 
-    const sources = useMemo(() => (metadata ? buildCollectibleImagesStack(metadata) : []), [metadata]);
+  const sources = useMemo(() => (metadata ? buildCollectibleImagesStack(metadata) : []), [metadata]);
 
-    const isAudioCollectible = useMemo(() => Boolean(mime && mime.startsWith('audio')), [mime]);
+  const isAudioCollectible = useMemo(() => Boolean(mime && mime.startsWith('audio')), [mime]);
 
-    const [isInViewport, setIsInViewport] = useState(false);
-    const handleIntersection = useMemo(() => debounce(setIsInViewport, 500), []);
-
-    useIntersectionByOffsetObserver(containerElemRef, handleIntersection, 800);
-
-    return (
-      <div className={isInViewport ? 'contents' : 'hidden'}>
-        {isAdultFlagLoading ? (
-          <CollectibleImageLoader />
-        ) : shouldShowBlur ? (
-          <CollectibleBlur />
-        ) : (
-          <ImageStacked
-            sources={sources}
-            loading="lazy"
-            className="max-w-full max-h-full object-contain"
-            loader={<CollectibleImageLoader />}
-            fallback={<CollectibleImageFallback isAudioCollectible={isAudioCollectible} />}
-          />
-        )}
-      </div>
-    );
-  }
-);
+  return (
+    <>
+      {isAdultFlagLoading ? (
+        <CollectibleImageLoader />
+      ) : shouldShowBlur ? (
+        <CollectibleBlur />
+      ) : (
+        <ImageStacked
+          sources={sources}
+          loading="lazy"
+          className="max-w-full max-h-full object-contain"
+          loader={<CollectibleImageLoader />}
+          fallback={<CollectibleImageFallback isAudioCollectible={isAudioCollectible} />}
+        />
+      )}
+    </>
+  );
+});
 
 interface EvmCollectibleItemImageProps {
   metadata: EvmCollectibleMetadata;

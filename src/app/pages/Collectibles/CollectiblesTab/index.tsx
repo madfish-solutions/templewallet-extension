@@ -105,11 +105,11 @@ const EvmCollectiblesTab = memo<EvmCollectiblesTabProps>(({ network, publicKeyHa
     () => (
       <div className="grid grid-cols-3 gap-2">
         {paginatedSlugs.map(slug => (
-          <EvmCollectibleItem key={slug} assetSlug={slug} evmChainId={evmChainId} />
+          <EvmCollectibleItem key={slug} assetSlug={slug} evmChainId={evmChainId} accountPkh={publicKeyHash} />
         ))}
       </div>
     ),
-    [paginatedSlugs, evmChainId]
+    [paginatedSlugs, evmChainId, publicKeyHash]
   );
 
   const renderManageDropdown = useCallback<PopperPopup>(
@@ -142,11 +142,7 @@ const EvmCollectiblesTab = memo<EvmCollectiblesTabProps>(({ network, publicKeyHa
   return (
     <>
       <StickyBar ref={stickyBarRef}>
-        <SearchBarField
-          value="Not working yet"
-          onValueChange={emptyFn}
-          testID={AssetsSelectors.searchAssetsInputCollectibles}
-        />
+        <SearchBarField value="" onValueChange={emptyFn} testID={AssetsSelectors.searchAssetsInputCollectibles} />
 
         <Popper
           placement="bottom-end"

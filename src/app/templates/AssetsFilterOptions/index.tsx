@@ -10,6 +10,7 @@ import { ReactComponent as Browse } from 'app/icons/base/browse.svg';
 import { ReactComponent as CompactDown } from 'app/icons/base/compact_down.svg';
 import { ReactComponent as CleanIcon } from 'app/icons/base/x_circle_fill.svg';
 import { ContentContainer } from 'app/layouts/containers';
+import { useContentPaperRef } from 'app/layouts/PageLayout';
 import { dispatch } from 'app/store';
 import {
   resetTokensFilterOptions,
@@ -25,8 +26,6 @@ import { TEZOS_MAINNET_CHAIN_ID } from 'lib/temple/types';
 import { useBooleanState } from 'lib/ui/hooks';
 import { useAllEvmChains, useAllTezosChains } from 'temple/front';
 import { TempleChainKind } from 'temple/types';
-
-import { useContentPaperRef } from '../../layouts/PageLayout';
 
 import { NetworksModal } from './NetworksModal';
 

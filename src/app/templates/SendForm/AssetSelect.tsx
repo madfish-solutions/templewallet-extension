@@ -10,7 +10,7 @@ import InFiat from 'app/templates/InFiat';
 import { setTestID, setAnotherSelector, TestIDProperty } from 'lib/analytics';
 import { searchChainAssetsWithNoMeta } from 'lib/assets/search.utils';
 import { T, t } from 'lib/i18n';
-import { useAssetMetadata, getAssetSymbol, useGetAssetMetadata } from 'lib/metadata';
+import { useTezosAssetMetadata, getAssetSymbol, useGetAssetMetadata } from 'lib/metadata';
 import { TezosNetworkEssentials } from 'temple/networks';
 
 import { AssetItemContent } from '../AssetItemContent';
@@ -109,7 +109,7 @@ interface AssetFieldContentProps extends TestIDProperty {
 }
 
 const AssetFieldContent = memo<AssetFieldContentProps>(({ network, slug, publicKeyHash, testID }) => {
-  const metadata = useAssetMetadata(slug, network.chainId);
+  const metadata = useTezosAssetMetadata(slug, network.chainId);
 
   return (
     <div className="flex items-center" {...setTestID(testID)} {...setAnotherSelector('slug', slug)}>

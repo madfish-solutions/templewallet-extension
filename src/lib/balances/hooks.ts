@@ -21,7 +21,7 @@ import {
 import { isSupportedChainId } from 'lib/apis/temple/endpoints/evm/api.utils';
 import { isKnownChainId } from 'lib/apis/tzkt';
 import { fetchEvmRawBalance as fetchEvmRawBalanceFromBlockchain } from 'lib/evm/on-chain/balance';
-import { useAssetMetadata, useGetChainTokenOrGasMetadata, useGetTokenOrGasMetadata } from 'lib/metadata';
+import { useTezosAssetMetadata, useGetChainTokenOrGasMetadata, useGetTokenOrGasMetadata } from 'lib/metadata';
 import { EvmTokenMetadata } from 'lib/metadata/types';
 import { useTypedSWR } from 'lib/swr';
 import { atomsToTokens } from 'lib/temple/helpers';
@@ -31,6 +31,7 @@ import { useEvmChainByChainId } from 'temple/front/chains';
 import { TezosNetworkEssentials } from 'temple/networks';
 import { getReadOnlyTezos } from 'temple/tezos';
 
+import { useEvmCollectibleMetadataSelector } from '../../app/store/evm/collectibles-metadata/selectors';
 import { getKeyForBalancesRecord } from '../../app/store/tezos/balances/utils';
 import { EvmAssetStandard } from '../evm/types';
 import { EVM_BALANCES_SYNC_INTERVAL } from '../fixed-times';
@@ -149,7 +150,7 @@ export function useTezosAssetRawBalance(
 
 export function useTezosAssetBalance(assetSlug: string, address: string, network: TezosNetworkEssentials) {
   const { value: rawValue, isSyncing, error, refresh } = useTezosAssetRawBalance(assetSlug, address, network);
-  const assetMetadata = useAssetMetadata(assetSlug, network.chainId);
+  const assetMetadata = useTezosAssetMetadata(assetSlug, network.chainId);
 
   const value = useMemo(
     () => (rawValue && assetMetadata ? atomsToTokens(new BigNumber(rawValue), assetMetadata.decimals) : undefined),
@@ -239,6 +240,21 @@ export function useEvmTokenBalance(assetSlug: string, address: HexString, evmCha
     () => (rawValue && metadata?.decimals ? atomsToTokens(new BigNumber(rawValue), metadata.decimals) : undefined),
     [rawValue, metadata]
   );
+
+  return { rawValue, value, isSyncing, error, refresh, metadata };
+}
+
+export function useEvmCollectibleBalance(assetSlug: string, address: HexString, evmChainId: number) {
+  const metadata = useEvmCollectibleMetadataSelector(evmChainId, assetSlug);
+
+  const {
+    value: rawValue,
+    isSyncing,
+    error,
+    refresh
+  } = useEvmAssetRawBalance(assetSlug, address, evmChainId, metadata?.standard);
+
+  const value = useMemo(() => (rawValue ? new BigNumber(rawValue) : undefined), [rawValue]);
 
   return { rawValue, value, isSyncing, error, refresh, metadata };
 }

@@ -15,7 +15,12 @@ import { setTestID, useFormAnalytics } from 'lib/analytics';
 import { TEZ_TOKEN_SLUG } from 'lib/assets';
 import { useTezosAssetBalance } from 'lib/balances';
 import { T, t, toLocalFormat } from 'lib/i18n';
-import { useAssetMetadata, useGetAssetMetadata, AssetMetadataBase, useTokensMetadataPresenceCheck } from 'lib/metadata';
+import {
+  useTezosAssetMetadata,
+  useGetAssetMetadata,
+  AssetMetadataBase,
+  useTokensMetadataPresenceCheck
+} from 'lib/metadata';
 import { useAvailableRoute3TokensSlugs } from 'lib/route3/assets';
 
 import { AssetOption } from './AssetsMenu/AssetOption';
@@ -53,7 +58,7 @@ export const SwapFormInput: FC<SwapFormInputProps> = ({
   const isTezosSlug = assetSlug === 'tez';
   const assetSlugWithFallback = assetSlug ?? 'tez';
 
-  const assetMetadataWithFallback = useAssetMetadata(assetSlugWithFallback, network.chainId)!;
+  const assetMetadataWithFallback = useTezosAssetMetadata(assetSlugWithFallback, network.chainId)!;
   const assetMetadata = useMemo(
     () => (assetSlug ? assetMetadataWithFallback : EMPTY_BASE_METADATA),
     [assetSlug, assetMetadataWithFallback]
