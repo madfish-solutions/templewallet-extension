@@ -9,6 +9,7 @@ import { useSelector } from 'app/store/root-state.selector';
 import { useTezosUsdToTokenRatesSelector } from 'app/store/tezos/currency/selectors';
 import { useStorage } from 'lib/temple/front';
 import { isTruthy } from 'lib/utils';
+import { ZERO } from 'lib/utils/numbers';
 
 import { FIAT_CURRENCIES } from './consts';
 import type { FiatCurrencyOption, CoingeckoFiatInterface } from './types';
@@ -47,7 +48,7 @@ export function useAssetFiatCurrencyPrice(slug: string, chainId: number | string
   const usdToTokenRate = useAssetUSDPrice(slug, chainId, evm);
 
   return useMemo(() => {
-    if (!isTruthy(usdToTokenRate) || !isTruthy(fiatToUsdRate)) return new BigNumber(0);
+    if (!isTruthy(usdToTokenRate) || !isTruthy(fiatToUsdRate)) return ZERO;
 
     return BigNumber(fiatToUsdRate).times(usdToTokenRate);
   }, [fiatToUsdRate, usdToTokenRate]);

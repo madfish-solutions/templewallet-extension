@@ -7,8 +7,8 @@ import { Controller, useForm } from 'react-hook-form';
 import { Alert, FormField, FormSubmitButton } from 'app/atoms';
 import ConfirmLedgerOverlay from 'app/atoms/ConfirmLedgerOverlay';
 import { useAllAccountsReactiveOnAddition } from 'app/hooks/use-all-accounts-reactive';
-import { ReactComponent as OkIcon } from 'app/icons/base/ok.svg';
 import { ReactComponent as LinkIcon } from 'app/icons/monochrome/link.svg';
+import { ReactComponent as OkIcon } from 'app/icons/ok.svg';
 import PageLayout from 'app/layouts/PageLayout';
 import { useFormAnalytics } from 'lib/analytics';
 import { DEFAULT_TEZOS_DERIVATION_PATH } from 'lib/constants';
@@ -255,15 +255,15 @@ const ConnectLedger: FC = () => {
 
 export default ConnectLedger;
 
-type TypeSelectOption<T extends string | number> = {
+interface TypeSelectOption<T extends string | number> {
   type: T;
   name: string;
-};
-type TypeSelectProps<T extends string | number> = {
+}
+interface TypeSelectProps<T extends string | number> {
   options: TypeSelectOption<T>[];
   value?: T;
   onChange: (value: T) => void;
-};
+}
 
 const TypeSelect = <T extends string | number>(props: TypeSelectProps<T>) => {
   const { options, value, onChange } = props;
@@ -288,12 +288,12 @@ const TypeSelect = <T extends string | number>(props: TypeSelectProps<T>) => {
   );
 };
 
-type TypeSelectItemProps<T extends string | number> = {
+interface TypeSelectItemProps<T extends string | number> {
   option: TypeSelectOption<T>;
   onSelect: (value: T) => void;
   selected: boolean;
   last: boolean;
-};
+}
 
 const TypeSelectItem = <T extends string | number>(props: TypeSelectItemProps<T>) => {
   const { option, onSelect, selected, last } = props;

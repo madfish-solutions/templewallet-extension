@@ -2,7 +2,7 @@ import { useEffect, useRef } from 'react';
 
 import { getExchangeData } from 'app/pages/Buy/Crypto/Exolix/exolix.util';
 
-import { ExchangeDataInterface } from '../exolix.interface';
+import { ExchangeDataInterface } from '../exolix.types';
 
 const useTopUpUpdate = (
   exchangeData: ExchangeDataInterface | null,

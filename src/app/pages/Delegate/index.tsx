@@ -3,13 +3,14 @@ import React, { memo, useMemo } from 'react';
 import { DeadEndBoundaryError, ErrorBoundaryContent } from 'app/ErrorBoundary';
 import { ReactComponent as DiamondIcon } from 'app/icons/diamond.svg';
 import PageLayout, { SpinnerSection } from 'app/layouts/PageLayout';
-import DelegateForm from 'app/templates/DelegateForm';
 import { TEZ_TOKEN_SLUG } from 'lib/assets';
 import { useTezosAssetBalance } from 'lib/balances';
 import { T } from 'lib/i18n';
 import { ZERO } from 'lib/utils/numbers';
 import { getAccountForTezos } from 'temple/accounts';
 import { useAccount, useTezosChainByChainId } from 'temple/front';
+
+import DelegateForm from './DelegateForm';
 
 interface Props {
   tezosChainId: string;

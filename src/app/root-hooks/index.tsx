@@ -3,10 +3,12 @@ import React, { memo, useEffect } from 'react';
 import { useAdvertisingLoading } from 'app/hooks/use-advertising.hook';
 import { useAssetsMigrations } from 'app/hooks/use-assets-migrations';
 import { useCollectiblesDetailsLoading } from 'app/hooks/use-collectibles-details-loading';
+import { useConversionTracking } from 'app/hooks/use-conversion-tracking';
 import { useTokensApyLoading } from 'app/hooks/use-load-tokens-apy.hook';
 import { useLongRefreshLoading } from 'app/hooks/use-long-refresh-loading.hook';
 import { useMetadataRefresh } from 'app/hooks/use-metadata-refresh';
 import { useStorageAnalytics } from 'app/hooks/use-storage-analytics';
+import { useUserAnalyticsAndAdsSettings } from 'app/hooks/use-user-analytics-and-ads-settings.hook';
 import { useUserIdAccountPkhSync } from 'app/hooks/use-user-id-account-pkh-sync';
 import { dispatch } from 'app/store';
 import { loadSwapDexesAction, loadSwapTokensAction } from 'app/store/swap/actions';
@@ -47,7 +49,9 @@ const AppReadyRootHooks = memo(() => {
     dispatch(loadSwapTokensAction.submit());
   }, []);
 
+  useUserAnalyticsAndAdsSettings();
   useStorageAnalytics();
+  useConversionTracking();
 
   useChainIDsCheck();
   useUserIdAccountPkhSync();

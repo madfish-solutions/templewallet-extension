@@ -11,6 +11,7 @@ interface FormSecondaryButtonProps extends ButtonProps {
   loading?: boolean;
   small?: boolean;
   slim?: boolean;
+  unsetHeight?: boolean;
   rounder?: boolean;
 }
 
@@ -19,6 +20,7 @@ export const FormSecondaryButton: FC<FormSecondaryButtonProps> = ({
   loading,
   small,
   slim = small,
+  unsetHeight,
   rounder,
   type = 'button',
   disabled,
@@ -34,14 +36,14 @@ export const FormSecondaryButton: FC<FormSecondaryButtonProps> = ({
         'transition duration-200 ease-in-out',
         rounder ? 'rounded-md' : 'rounded',
         small ? 'px-6 text-sm' : 'px-8 text-base',
-        slim ? 'h-9 py-1.5' : 'h-12 py-2',
+        !unsetHeight && (slim ? 'h-9 py-1.5' : 'h-12 py-2'),
         disabled ? 'text-gray-350 border-gray-350' : 'text-primary-orange border-primary-orange',
         loading || disabled
           ? 'opacity-75 shadow-inner cursor-default'
           : 'opacity-90 hover:opacity-100 shadow-sm hover:shadow focus:shadow',
         className
       ),
-    [disabled, loading, className, small, slim, rounder]
+    [disabled, loading, className, small, slim, unsetHeight, rounder]
   );
 
   return (
