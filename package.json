@@ -28,7 +28,8 @@
     "lint:fix": "prettier \"./**/*\" --write --ignore-unknown",
     "clear:lint": "rimraf node_modules/.cache/.eslintcache",
     "find-deadcode": "ts-prune --error",
-    "audit-deps": "node ./audit-deps.js"
+    "audit-deps": "node ./audit-deps.js",
+    "serve-smarty-ads": "http-server ./public/misc/smarty-ads -c-1 -p 8080"
   },
   "engines": {
     "node": ">=18"
