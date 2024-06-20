@@ -358,7 +358,7 @@ const ManageButtonDropdown: FC<ManageButtonDropdownProps> = ({
           testID={AssetsSelectors.dropdownShowInfoCheckbox}
         />
         <span className="text-sm text-gray-600 ml-2 leading-5">
-          <T id="showInfo" />
+          <T id="showDetails" />
         </span>
       </label>
 
@@ -372,7 +372,7 @@ const ManageButtonDropdown: FC<ManageButtonDropdownProps> = ({
           testID={AssetsSelectors.dropdownBlurCheckbox}
         />
         <span className="text-sm text-gray-600 ml-2 leading-5">
-          <T id="blur" />
+          <T id="blurSensitiveContent" />
         </span>
       </label>
     </DropdownWrapper>

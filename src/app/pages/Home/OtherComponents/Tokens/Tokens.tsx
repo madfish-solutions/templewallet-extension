@@ -1,4 +1,4 @@
-import React, { memo, useEffect } from 'react';
+import React, { memo, useEffect, useState } from 'react';
 
 import { useAssetsFilterOptionsState } from 'app/hooks/use-assets-filter-options';
 import { ContentContainer } from 'app/layouts/containers';
@@ -12,7 +12,6 @@ import { TempleChainKind } from 'temple/types';
 import { AllNetworksTokensTab } from './components/AllNetworksTokensTab';
 import { EvmChainTokensTab } from './components/EvmChainTokensTab';
 import { EvmTokensTab } from './components/EvmTokensTab';
-import { Filters } from './components/Filters';
 import { TezosChainTokensTab } from './components/TezosChainTokensTab';
 import { TezosTokensTab } from './components/TezosTokensTab';
 
@@ -20,33 +19,40 @@ export const TokensTab = memo(() => {
   const { filtersOpened } = useAssetsFilterOptionsState();
   const { filterChain } = useAssetsFilterOptionsSelector();
 
+  const [localFilterChain, setLocalFilterChain] = useState(filterChain);
+
   const accountTezAddress = useAccountAddressForTezos();
   const accountEvmAddress = useAccountAddressForEvm();
 
-  const isTezosFilter = filterChain?.kind === TempleChainKind.Tezos;
-  const isEvmFilter = filterChain?.kind === TempleChainKind.EVM;
+  const isTezosFilter = localFilterChain?.kind === TempleChainKind.Tezos;
+  const isEvmFilter = localFilterChain?.kind === TempleChainKind.EVM;
 
   const isOnlyTezAccount = Boolean(accountTezAddress && !accountEvmAddress);
   const isOnlyEvmAccount = Boolean(!accountTezAddress && accountEvmAddress);
 
   useEffect(() => {
-    if ((isTezosFilter && isOnlyEvmAccount) || (isEvmFilter && isOnlyTezAccount)) dispatch(setAssetsFilterChain(null));
+    if ((isTezosFilter && isOnlyEvmAccount) || (isEvmFilter && isOnlyTezAccount)) {
+      dispatch(setAssetsFilterChain(null));
+      setLocalFilterChain(null);
+    }
   }, [filterChain, accountTezAddress, accountEvmAddress]);
 
-  if (filtersOpened) return <Filters />;
+  useEffect(() => {
+    if (!filtersOpened) setLocalFilterChain(filterChain);
+  }, [filtersOpened]);
 
   if (isTezosFilter && accountTezAddress)
-    return <TezosChainTokensTab chainId={filterChain.chainId} publicKeyHash={accountTezAddress} />;
+    return <TezosChainTokensTab chainId={localFilterChain.chainId} publicKeyHash={accountTezAddress} />;
 
   if (isEvmFilter && accountEvmAddress)
-    return <EvmChainTokensTab chainId={filterChain.chainId} publicKeyHash={accountEvmAddress} />;
+    return <EvmChainTokensTab chainId={localFilterChain.chainId} publicKeyHash={accountEvmAddress} />;
 
-  if (!filterChain && accountTezAddress && accountEvmAddress)
+  if (!localFilterChain && accountTezAddress && accountEvmAddress)
     return <AllNetworksTokensTab accountTezAddress={accountTezAddress} accountEvmAddress={accountEvmAddress} />;
 
-  if (!filterChain && accountTezAddress) return <TezosTokensTab publicKeyHash={accountTezAddress} />;
+  if (!localFilterChain && accountTezAddress) return <TezosTokensTab publicKeyHash={accountTezAddress} />;
 
-  if (!filterChain && accountEvmAddress) return <EvmTokensTab publicKeyHash={accountEvmAddress} />;
+  if (!localFilterChain && accountEvmAddress) return <EvmTokensTab publicKeyHash={accountEvmAddress} />;
 
   return <ContentContainer className="mt-3">{UNDER_DEVELOPMENT_MSG}</ContentContainer>;
 });

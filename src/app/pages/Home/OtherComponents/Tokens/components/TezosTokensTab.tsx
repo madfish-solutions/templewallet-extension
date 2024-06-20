@@ -12,6 +12,7 @@ import { AssetsSelectors } from 'app/pages/Home/OtherComponents/Assets.selectors
 import { useAssetsFilterOptionsSelector } from 'app/store/assets-filter-options/selectors';
 import { useAreAssetsLoading, useMainnetTokensScamlistSelector } from 'app/store/tezos/assets/selectors';
 import { useTokensMetadataLoadingSelector } from 'app/store/tezos/tokens-metadata/selectors';
+import { AssetsFilterOptions } from 'app/templates/AssetsFilterOptions';
 import { PartnersPromotion, PartnersPromotionVariant } from 'app/templates/partners-promotion';
 import { SearchBarField } from 'app/templates/SearchField';
 import { OptimalPromoVariantEnum } from 'lib/apis/optimal';
@@ -35,7 +36,7 @@ interface TezosTokensTabProps {
 
 export const TezosTokensTab: FC<TezosTokensTabProps> = ({ publicKeyHash }) => {
   const { filterChain, tokensListOptions } = useAssetsFilterOptionsSelector();
-  const { filtersOpened, toggleFiltersOpened } = useAssetsFilterOptionsState();
+  const { filtersOpened, setFiltersClosed, toggleFiltersOpened } = useAssetsFilterOptionsState();
 
   const assetsAreLoading = useAreAssetsLoading('tokens');
   const metadatasLoading = useTokensMetadataLoadingSelector();
@@ -162,18 +163,22 @@ export const TezosTokensTab: FC<TezosTokensTabProps> = ({ publicKeyHash }) => {
         <IconButton Icon={ManageIcon} />
       </StickyBar>
 
-      <ContentContainer>
-        <UpdateAppBanner stickyBarRef={stickyBarRef} />
+      {filtersOpened ? (
+        <AssetsFilterOptions filterButtonRef={filterButtonRef} onRequestClose={setFiltersClosed} />
+      ) : (
+        <ContentContainer>
+          <UpdateAppBanner stickyBarRef={stickyBarRef} />
 
-        {filteredAssets.length === 0 ? (
-          <EmptySection isSyncing={isSyncing} />
-        ) : (
-          <>
-            <>{tokensView}</>
-            {isSyncing && <SyncSpinner className="mt-4" />}
-          </>
-        )}
-      </ContentContainer>
+          {filteredAssets.length === 0 ? (
+            <EmptySection isSyncing={isSyncing} />
+          ) : (
+            <>
+              <>{tokensView}</>
+              {isSyncing && <SyncSpinner className="mt-4" />}
+            </>
+          )}
+        </ContentContainer>
+      )}
     </>
   );
 };

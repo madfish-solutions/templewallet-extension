@@ -26,6 +26,8 @@ import { useBooleanState } from 'lib/ui/hooks';
 import { useAllEvmChains, useAllTezosChains } from 'temple/front';
 import { TempleChainKind } from 'temple/types';
 
+import { useContentPaperRef } from '../../layouts/PageLayout';
+
 import { NetworksModal } from './NetworksModal';
 
 interface AssetsFilterOptionsProps {
@@ -42,6 +44,7 @@ export const AssetsFilterOptions = memo<AssetsFilterOptionsProps>(({ filterButto
   const isNonDefaultOption = useMemo(() => !isEqual(options, AssetsFilterOptionsInitialState), [options]);
 
   const containerRef = useRef(null);
+  const contentPaperRef = useContentPaperRef();
 
   useOnClickOutside(
     containerRef,
@@ -49,7 +52,13 @@ export const AssetsFilterOptions = memo<AssetsFilterOptionsProps>(({ filterButto
       ? null
       : evt => {
           // @ts-expect-error
-          if (!(filterButtonRef.current && filterButtonRef.current.contains(evt.target))) {
+          const isFilterButtonClick = Boolean(filterButtonRef.current && filterButtonRef.current.contains(evt.target));
+          const isInsideContentClick = Boolean(
+            // @ts-expect-error
+            contentPaperRef.current && contentPaperRef.current.contains(evt.target)
+          );
+
+          if (!isFilterButtonClick && isInsideContentClick) {
             onRequestClose();
           }
         }
@@ -79,7 +88,7 @@ export const AssetsFilterOptions = memo<AssetsFilterOptionsProps>(({ filterButto
     <ContentContainer ref={containerRef}>
       <div className="flex justify-between items-center mt-1 mb-2">
         <p className="text-font-description-bold">
-          <T id="sortByNetwork" />
+          <T id="filterByNetwork" />
         </p>
 
         {isNonDefaultOption && (
@@ -117,13 +126,13 @@ export const AssetsFilterOptions = memo<AssetsFilterOptionsProps>(({ filterButto
       </div>
 
       <p className="text-font-description-bold mt-5 mb-2">
-        <T id="collectiblesList" />
+        <T id="collectiblesView" />
       </p>
 
       <div className="rounded-lg shadow-bottom border-0.5 border-transparent">
         <div className="flex justify-between items-center p-3">
           <span className="text-font-medium-bold">
-            <T id="blur" />
+            <T id="blurSensitiveContent" />
           </span>
 
           <ToggleSwitch checked={collectiblesListOptions.blur} onChange={handleCollectiblesBlurChange} />
@@ -133,7 +142,7 @@ export const AssetsFilterOptions = memo<AssetsFilterOptionsProps>(({ filterButto
 
         <div className="flex justify-between items-center p-3">
           <span className="text-font-medium-bold">
-            <T id="showInfo" />
+            <T id="showDetails" />
           </span>
 
           <ToggleSwitch checked={collectiblesListOptions.showInfo} onChange={handleCollecytiblesShowInfoChange} />

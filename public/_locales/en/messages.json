@@ -2470,14 +2470,14 @@
     "message": "less",
     "description": "Show less"
   },
-  "showInfo": { "message": "Show info" },
-  "blur": { "message": "Blur" },
-  "sortByNetwork": { "message": "Sort by Network" },
+  "showDetails": { "message": "Show details" },
+  "blurSensitiveContent": { "message": "Blur sensitive content" },
+  "filterByNetwork": { "message": "Filter by network" },
   "resetAll": { "message": "Reset All" },
   "hideZeroBalance": { "message": "Hide 0 balance" },
-  "groupByNetwork": { "message": "Group by Network" },
-  "tokensList": { "message": "Tokens List" },
-  "collectiblesList": { "message": "Collectibles List" },
+  "groupByNetwork": { "message": "Group by network" },
+  "tokensList": { "message": "Tokens list" },
+  "collectiblesView": { "message": "Collectibles view" },
   "recentDestinations": {
     "message": "Recent destinations"
   },
