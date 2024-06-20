@@ -177,7 +177,7 @@ interface EvmCollectibleItemProps {
 }
 
 export const EvmCollectibleItem = memo<EvmCollectibleItemProps>(
-  ({ assetSlug, evmChainId, accountPkh, showDetails = true }) => {
+  ({ assetSlug, evmChainId, accountPkh, showDetails = false }) => {
     const { rawValue: balance = '0', metadata } = useEvmCollectibleBalance(assetSlug, accountPkh, evmChainId);
 
     const truncatedBalance = useMemo(() => (balance.length > 6 ? `${balance.slice(0, 6)}...` : balance), [balance]);
