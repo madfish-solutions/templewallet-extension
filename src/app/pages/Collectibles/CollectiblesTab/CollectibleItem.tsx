@@ -4,6 +4,8 @@ import { isDefined } from '@rnw-community/shared';
 import clsx from 'clsx';
 
 import Money from 'app/atoms/Money';
+import { EvmNetworkLogo, NetworkLogoFallback } from 'app/atoms/NetworkLogo';
+import { TezosNetworkLogo } from 'app/atoms/NetworksLogos';
 import { useBalanceSelector } from 'app/store/tezos/balances/selectors';
 import {
   useAllCollectiblesDetailsLoadingSelector,
@@ -16,7 +18,10 @@ import { useEvmCollectibleBalance } from 'lib/balances/hooks';
 import { T } from 'lib/i18n';
 import { getAssetName } from 'lib/metadata';
 import { atomsToTokens } from 'lib/temple/helpers';
+import { TEZOS_MAINNET_CHAIN_ID } from 'lib/temple/types';
+import useTippy, { UseTippyOptions } from 'lib/ui/useTippy';
 import { Link } from 'lib/woozie';
+import { useEvmChainByChainId, useTezosChainByChainId } from 'temple/front/chains';
 import { TempleChainKind } from 'temple/types';
 
 import { CollectibleItemImage, EvmCollectibleItemImage } from './CollectibleItemImage';
@@ -28,6 +33,7 @@ const ImgContainerStyle = { width: 112, height: 112 };
 const ImgWithDetailsContainerStyle = { width: 112, height: 152 };
 const ImgStyle = { width: 110, height: 110 };
 const DetailsStyle = { width: 112, height: 40 };
+const NETWORK_IMAGE_DEFAULT_SIZE = 16;
 
 interface TezosCollectibleItemProps {
   assetSlug: string;
@@ -43,6 +49,21 @@ export const TezosCollectibleItem = memo<TezosCollectibleItemProps>(
     const metadata = useCollectibleMetadataSelector(assetSlug);
     const wrapperElemRef = useRef<HTMLDivElement>(null);
     const balanceAtomic = useBalanceSelector(accountPkh, tezosChainId, assetSlug);
+
+    const network = useTezosChainByChainId(tezosChainId);
+
+    const tippyProps = useMemo<UseTippyOptions>(
+      () => ({
+        trigger: 'mouseenter',
+        hideOnClick: false,
+        content: network?.name ?? 'Unknown Network',
+        animation: 'shift-away-subtle',
+        placement: 'bottom-start'
+      }),
+      [network]
+    );
+
+    const networkIconRef = useTippy<HTMLDivElement>(tippyProps);
 
     const decimals = metadata?.decimals;
 
@@ -101,11 +122,21 @@ export const TezosCollectibleItem = memo<TezosCollectibleItemProps>(
             containerElemRef={wrapperElemRef}
           />
 
-          {areDetailsShown && balance ? (
+          {areDetailsShown && balance && (
             <div className="absolute bottom-1.5 left-1.5 text-xxxs text-white leading-none p-1 bg-black bg-opacity-60 rounded">
               {balance.toFixed()}×
             </div>
-          ) : null}
+          )}
+
+          {network && (
+            <div ref={networkIconRef} className="absolute bottom-1 right-1">
+              {network.chainId === TEZOS_MAINNET_CHAIN_ID ? (
+                <TezosNetworkLogo size={NETWORK_IMAGE_DEFAULT_SIZE} />
+              ) : (
+                <NetworkLogoFallback networkName={network.name} size={NETWORK_IMAGE_DEFAULT_SIZE} />
+              )}
+            </div>
+          )}
         </div>
 
         {areDetailsShown && (
@@ -146,8 +177,25 @@ interface EvmCollectibleItemProps {
 }
 
 export const EvmCollectibleItem = memo<EvmCollectibleItemProps>(
-  ({ assetSlug, evmChainId, accountPkh, showDetails = false }) => {
+  ({ assetSlug, evmChainId, accountPkh, showDetails = true }) => {
     const { rawValue: balance = '0', metadata } = useEvmCollectibleBalance(assetSlug, accountPkh, evmChainId);
+
+    const truncatedBalance = useMemo(() => (balance.length > 6 ? `${balance.slice(0, 6)}...` : balance), [balance]);
+
+    const network = useEvmChainByChainId(evmChainId);
+
+    const tippyProps = useMemo<UseTippyOptions>(
+      () => ({
+        trigger: 'mouseenter',
+        hideOnClick: false,
+        content: network?.name ?? 'Unknown Network',
+        animation: 'shift-away-subtle',
+        placement: 'bottom-start'
+      }),
+      [network]
+    );
+
+    const networkIconRef = useTippy<HTMLDivElement>(tippyProps);
 
     const imgContainerStyles = useMemo(
       () => (showDetails ? ImgWithDetailsContainerStyle : ImgContainerStyle),
@@ -157,8 +205,6 @@ export const EvmCollectibleItem = memo<EvmCollectibleItemProps>(
     if (!metadata) return null;
 
     const assetName = getAssetName(metadata);
-
-    const truncatedBalance = useMemo(() => (balance.length > 6 ? `${balance.slice(0, 6)}...` : balance), [balance]);
 
     return (
       <Link
@@ -181,6 +227,16 @@ export const EvmCollectibleItem = memo<EvmCollectibleItemProps>(
             <div className="absolute bottom-1.5 left-1.5 text-xxxs text-white leading-none p-1 bg-black bg-opacity-60 rounded">
               {truncatedBalance}×
             </div>
+          )}
+
+          {network && (
+            <EvmNetworkLogo
+              ref={networkIconRef}
+              className="absolute bottom-1 right-1"
+              networkName={network.name}
+              chainId={network.chainId}
+              size={NETWORK_IMAGE_DEFAULT_SIZE}
+            />
           )}
         </div>
 
