@@ -104,6 +104,7 @@
     "@types/w3c-web-hid": "^1.0.3",
     "@types/webextension-polyfill": "^0.9.1",
     "@types/webpack": "^5",
+    "@types/ws": "^7.4.6",
     "@vespaiach/axios-fetch-adapter": "^0.3.1",
     "assert": "1.5.0",
     "async-mutex": "^0.4.0",
