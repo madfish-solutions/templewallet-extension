@@ -12,7 +12,7 @@ export const ONE_SECOND = 1000;
 
 export const RETRY_OPTIONS = {
   minTimeout: 300,
-  maxRetryTime: SHORT_TIMEOUT
+  maxRetryTime: VERY_SHORT_TIMEOUT
 };
 
 export function sleep(ms: number) {
