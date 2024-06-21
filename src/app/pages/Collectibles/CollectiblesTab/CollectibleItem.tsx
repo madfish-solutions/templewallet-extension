@@ -58,7 +58,7 @@ export const TezosCollectibleItem = memo<TezosCollectibleItemProps>(
         hideOnClick: false,
         content: network?.name ?? 'Unknown Network',
         animation: 'shift-away-subtle',
-        placement: 'bottom-start'
+        placement: 'bottom'
       }),
       [network]
     );
@@ -111,7 +111,6 @@ export const TezosCollectibleItem = memo<TezosCollectibleItemProps>(
             'relative flex items-center justify-center bg-blue-50 rounded-lg overflow-hidden hover:opacity-70',
             areDetailsShown && 'border-b border-gray-300'
           )}
-          title={assetName}
         >
           <CollectibleItemImage
             assetSlug={assetSlug}
@@ -190,7 +189,7 @@ export const EvmCollectibleItem = memo<EvmCollectibleItemProps>(
         hideOnClick: false,
         content: network?.name ?? 'Unknown Network',
         animation: 'shift-away-subtle',
-        placement: 'bottom-start'
+        placement: 'bottom'
       }),
       [network]
     );
@@ -219,7 +218,6 @@ export const EvmCollectibleItem = memo<EvmCollectibleItemProps>(
             'relative flex items-center justify-center bg-blue-50 rounded-lg overflow-hidden hover:opacity-70'
           )}
           style={ImgStyle}
-          title={assetName}
         >
           <EvmCollectibleItemImage metadata={metadata} />
 

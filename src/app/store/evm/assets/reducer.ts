@@ -1,7 +1,7 @@
 import { createReducer } from '@reduxjs/toolkit';
 import { getAddress } from 'viem';
 
-import { NATIVE_TOKEN_INDEX } from 'lib/apis/temple/endpoints/evm/api.utils';
+import { isNativeTokenAddress } from 'lib/apis/temple/endpoints/evm/api.utils';
 import { toTokenSlug } from 'lib/assets';
 import { isPositiveCollectibleBalance, isPositiveTokenBalance } from 'lib/utils/evm.utils';
 
@@ -35,7 +35,7 @@ export const evmAssetsReducer = createReducer<EvmAssetsStateInterface>(EvmAssets
         continue;
       }
 
-      if (i === NATIVE_TOKEN_INDEX || !isPositiveTokenBalance(item)) continue;
+      if (isNativeTokenAddress(chainId, item.contract_address) || !isPositiveTokenBalance(item)) continue;
 
       const slug = toTokenSlug(contractAddress);
 
