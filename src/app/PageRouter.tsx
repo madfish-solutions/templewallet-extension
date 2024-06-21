@@ -30,6 +30,7 @@ import { useTempleClient } from 'lib/temple/front';
 import * as Woozie from 'lib/woozie';
 
 import { Market } from './pages/Market';
+import { StakingPage } from './pages/Staking';
 
 interface RouteContext {
   popup: boolean;
@@ -74,8 +75,10 @@ const ROUTE_MAP = Woozie.createMap<RouteContext>([
   ['/loading', (_p, ctx) => (ctx.ready ? <Woozie.Redirect to={'/'} /> : <RootSuspenseFallback />)],
   ['/', (_p, ctx) => (ctx.ready ? <Home /> : <Welcome />)],
   [
-    '/explore/:tezosChainId?/:assetSlug?',
-    onlyReady(({ tezosChainId, assetSlug }) => <Home tezosChainId={tezosChainId} assetSlug={assetSlug} />)
+    '/explore/:chainKind?/:chainId?/:assetSlug?',
+    onlyReady(({ chainKind, chainId, assetSlug }) => (
+      <Home chainKind={chainKind} chainId={chainId} assetSlug={assetSlug} />
+    ))
   ],
   ['/create-wallet', onlyNotReady(() => <CreateWallet />)],
   ['/create-another-wallet', onlyReady(() => <CreateAnotherWallet />)],
@@ -88,11 +91,14 @@ const ROUTE_MAP = Woozie.createMap<RouteContext>([
   ],
   ['/swap', onlyReady(() => <Swap />)],
   ['/delegate/:tezosChainId', onlyReady(({ tezosChainId }) => <Delegate tezosChainId={tezosChainId!} />)],
+  ['/staking/:tezosChainId', onlyReady(({ tezosChainId }) => <StakingPage tezosChainId={tezosChainId!} />)],
   ['/dapps', onlyReady(() => <DApps />)],
   ['/manage-assets/:assetType?', onlyReady(({ assetType }) => <ManageAssets assetType={assetType!} />)],
   [
-    '/collectible/:tezosChainId/:assetSlug?',
-    onlyReady(({ tezosChainId, assetSlug }) => <CollectiblePage tezosChainId={tezosChainId!} assetSlug={assetSlug!} />)
+    '/collectible/:chainKind?/:chainId?/:assetSlug?',
+    onlyReady(({ chainKind, chainId, assetSlug }) => (
+      <CollectiblePage chainKind={chainKind!} chainId={chainId!} assetSlug={assetSlug!} />
+    ))
   ],
   ['/add-asset', onlyReady(onlyInFullPage(() => <AddAsset />))],
   ['/settings/:tabSlug?', onlyReady(({ tabSlug }) => <Settings tabSlug={tabSlug} />)],

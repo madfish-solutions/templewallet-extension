@@ -6,16 +6,16 @@ import { notificationsEpics } from 'lib/notifications';
 
 import { abTestingEpics } from './ab-testing/epics';
 import { advertisingEpics } from './advertising/epics';
-import { assetsEpics } from './assets/epics';
-import { balancesEpics } from './balances/epics';
 import { buyWithCreditCardEpics } from './buy-with-credit-card/epics';
-import { collectiblesEpics } from './collectibles/epics';
-import { collectiblesMetadataEpics } from './collectibles-metadata/epics';
-import { currencyEpics } from './currency/epics';
 import { partnersPromotionEpics } from './partners-promotion/epics';
 import type { RootState } from './root-state.type';
 import { swapEpics } from './swap/epics';
-import { tokensMetadataEpics } from './tokens-metadata/epics';
+import { assetsEpics } from './tezos/assets/epics';
+import { balancesEpics } from './tezos/balances/epics';
+import { collectiblesEpics } from './tezos/collectibles/epics';
+import { collectiblesMetadataEpics } from './tezos/collectibles-metadata/epics';
+import { currencyEpics } from './tezos/currency/epics';
+import { tokensMetadataEpics } from './tezos/tokens-metadata/epics';
 
 const allEpics = combineEpics(
   currencyEpics,

@@ -12,7 +12,7 @@ import { TezosNetworkEssentials } from 'temple/networks';
 
 interface Props extends TestIDProps {
   address: string;
-  tezosNetwork?: TezosNetworkEssentials;
+  tezosNetwork?: TezosNetworkEssentials | null;
   className?: string;
   small?: boolean;
   modeSwitchTestId?: string;

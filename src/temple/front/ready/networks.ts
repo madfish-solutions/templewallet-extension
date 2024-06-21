@@ -1,6 +1,11 @@
 import { useMemo } from 'react';
 
+import * as ViemChains from 'viem/chains';
+
+import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
 import { EVM_CHAINS_SPECS_STORAGE_KEY, TEZOS_CHAINS_SPECS_STORAGE_KEY } from 'lib/constants';
+import { EvmAssetStandard } from 'lib/evm/types';
+import { EvmNativeTokenMetadata } from 'lib/metadata/types';
 import { useStorage } from 'lib/temple/front/storage';
 import { TEZOS_MAINNET_CHAIN_ID } from 'lib/temple/types';
 import { EMPTY_FROZEN_OBJ } from 'lib/utils';
@@ -93,11 +98,12 @@ export function useReadyTempleEvmNetworks(customEvmNetworks: StoredEvmNetwork[])
 
     for (const [chainId, networks] of rpcByChainId) {
       const specs = evmChainsSpecs[chainId];
-      const currency = specs?.currency ?? DEFAULT_EVM_CURRENCY;
-      // TODO: if (!currency) continue; // Without default one, with defaults by chain IDs
 
       const activeRpcId = specs?.activeRpcId;
       const activeRpc = (activeRpcId && networks.find(n => n.id === activeRpcId)) || networks[0];
+
+      const currency: EvmNativeTokenMetadata = getCurrency(chainId, specs?.currency);
+
       const { rpcBaseURL } = activeRpc;
 
       const defaultRpc = EVM_DEFAULT_NETWORKS.find(n => n.chainId === chainId);
@@ -107,9 +113,9 @@ export function useReadyTempleEvmNetworks(customEvmNetworks: StoredEvmNetwork[])
         kind: TempleChainKind.EVM,
         chainId,
         rpcBaseURL,
+        currency,
         name,
         nameI18nKey,
-        currency,
         rpc: activeRpc,
         allRpcs: networks,
         disabled: chainId === 1 ? false : specs?.disabled
@@ -126,3 +132,19 @@ export function useReadyTempleEvmNetworks(customEvmNetworks: StoredEvmNetwork[])
     enabledEvmChains
   };
 }
+
+const getCurrency = (chainId: number, specsCurrency?: EvmNativeTokenMetadata): EvmNativeTokenMetadata => {
+  if (specsCurrency) return specsCurrency;
+
+  const viemChain = Object.values(ViemChains).find(chain => chain.id === chainId);
+
+  if (viemChain) {
+    return {
+      standard: EvmAssetStandard.NATIVE,
+      address: EVM_TOKEN_SLUG,
+      ...viemChain.nativeCurrency
+    };
+  }
+
+  return DEFAULT_EVM_CURRENCY;
+};

@@ -1,24 +1,27 @@
 import React, { FC, memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
-import { SyncSpinner, Divider, Checkbox } from 'app/atoms';
+import { emptyFn } from '@rnw-community/shared';
+
+import { Checkbox, Divider, SyncSpinner } from 'app/atoms';
 import DropdownWrapper from 'app/atoms/DropdownWrapper';
 import { IconButton } from 'app/atoms/IconButton';
+import { SimpleInfiniteScroll } from 'app/atoms/SimpleInfiniteScroll';
 import { useLoadPartnersPromo } from 'app/hooks/use-load-partners-promo';
-import { useTokensListingLogic } from 'app/hooks/use-tokens-listing-logic';
+import { useEvmTokensListingLogic, useTezosTokensListingLogic } from 'app/hooks/use-tokens-listing-logic';
 import { ReactComponent as FiltersIcon } from 'app/icons/base/filteroff.svg';
 import { ReactComponent as SearchIcon } from 'app/icons/base/search.svg';
 import { ReactComponent as EditingIcon } from 'app/icons/editing.svg';
 import { ContentContainer, StickyBar } from 'app/layouts/containers';
-import { useAreAssetsLoading, useMainnetTokensScamlistSelector } from 'app/store/assets/selectors';
-import { useTokensMetadataLoadingSelector } from 'app/store/tokens-metadata/selectors';
-import { useChainSelectController, ChainSelect, ChainsDropdown } from 'app/templates/ChainSelect';
+import { useAreAssetsLoading, useMainnetTokensScamlistSelector } from 'app/store/tezos/assets/selectors';
+import { useTokensMetadataLoadingSelector } from 'app/store/tezos/tokens-metadata/selectors';
+import { ChainsDropdown } from 'app/templates/ChainSelect';
 import { ChainSelectController } from 'app/templates/ChainSelect/controller';
 import { ButtonForManageDropdown } from 'app/templates/ManageDropdown';
 import { PartnersPromotion, PartnersPromotionVariant } from 'app/templates/partners-promotion';
 import { SearchBarField } from 'app/templates/SearchField';
 import { setTestID } from 'lib/analytics';
 import { OptimalPromoVariantEnum } from 'lib/apis/optimal';
-import { TEZ_TOKEN_SLUG, TEMPLE_TOKEN_SLUG } from 'lib/assets';
+import { TEMPLE_TOKEN_SLUG, TEZ_TOKEN_SLUG } from 'lib/assets';
 import { useEnabledAccountTokensSlugs } from 'lib/assets/hooks';
 import { T, t } from 'lib/i18n';
 import { TEZOS_MAINNET_CHAIN_ID } from 'lib/temple/types';
@@ -26,24 +29,29 @@ import { useLocalStorage } from 'lib/ui/local-storage';
 import Popper, { PopperRenderProps } from 'lib/ui/Popper';
 import { Link, navigate } from 'lib/woozie';
 import { UNDER_DEVELOPMENT_MSG } from 'temple/evm/under_dev_msg';
-import { useAccountAddressForTezos } from 'temple/front';
+import { EvmChain, useAccountAddressForEvm, useAccountAddressForTezos } from 'temple/front';
 import { TezosNetworkEssentials } from 'temple/networks';
+import { TempleChainKind } from 'temple/types';
 
 import { HomeSelectors } from '../../selectors';
 import { AssetsSelectors } from '../Assets.selectors';
 
-import { ListItem } from './components/ListItem';
+import { EvmListItem, TezosListItem } from './components/ListItem';
 import { UpdateAppBanner } from './components/UpdateAppBanner';
 import { toExploreAssetLink } from './utils';
 
 const LOCAL_STORAGE_TOGGLE_KEY = 'tokens-list:hide-zero-balances';
 const svgIconClassName = 'w-4 h-4 stroke-current fill-current text-gray-600';
 
-export const TokensTab = memo(() => {
-  const chainSelectController = useChainSelectController();
+interface TokensTabProps {
+  chainSelectController: ChainSelectController;
+}
+
+export const TokensTab = memo<TokensTabProps>(({ chainSelectController }) => {
   const network = chainSelectController.value;
 
   const accountTezAddress = useAccountAddressForTezos();
+  const accountEvmAddress = useAccountAddressForEvm();
 
   if (network.kind === 'tezos' && accountTezAddress)
     return (
@@ -54,18 +62,100 @@ export const TokensTab = memo(() => {
       />
     );
 
+  if (network.kind === 'evm' && accountEvmAddress)
+    return (
+      <EvmTokensTab network={network} publicKeyHash={accountEvmAddress} chainSelectController={chainSelectController} />
+    );
+
   return (
     <ContentContainer className="mt-3">
-      <div className="flex items-center mb-4">
-        <div className="flex-1 text-xl">Change network:</div>
-
-        <ChainSelect controller={chainSelectController} />
-      </div>
-
-      <span className="text-center">{UNDER_DEVELOPMENT_MSG}</span>
+      <div className="text-center py-3">{UNDER_DEVELOPMENT_MSG}</div>
     </ContentContainer>
   );
 });
+
+interface EvmTokensTabProps {
+  network: EvmChain;
+  publicKeyHash: HexString;
+  chainSelectController: ChainSelectController;
+}
+
+const EvmTokensTab: FC<EvmTokensTabProps> = ({ network, publicKeyHash, chainSelectController }) => {
+  const [isZeroBalancesHidden, setIsZeroBalancesHidden] = useLocalStorage(LOCAL_STORAGE_TOGGLE_KEY, false);
+
+  const toggleHideZeroBalances = useCallback(
+    () => void setIsZeroBalancesHidden(val => !val),
+    [setIsZeroBalancesHidden]
+  );
+
+  const { paginatedSlugs, isSyncing, loadNext } = useEvmTokensListingLogic(publicKeyHash, network.chainId);
+
+  const contentElement = useMemo(
+    () =>
+      paginatedSlugs.map(slug => (
+        <EvmListItem key={slug} assetSlug={slug} publicKeyHash={publicKeyHash} network={network} />
+      )),
+    [paginatedSlugs]
+  );
+
+  const stickyBarRef = useRef<HTMLDivElement>(null);
+
+  return (
+    <>
+      <StickyBar ref={stickyBarRef}>
+        <SearchBarField
+          value="Not working yet"
+          onValueChange={emptyFn}
+          testID={AssetsSelectors.searchAssetsInputTokens}
+        />
+
+        <Popper
+          placement="bottom-end"
+          strategy="fixed"
+          popup={props => <ChainsDropdown controller={chainSelectController} {...props} />}
+        >
+          {({ ref, opened, toggleOpened }) => (
+            <IconButton Icon={FiltersIcon} ref={ref} active={opened} onClick={toggleOpened} />
+          )}
+        </Popper>
+
+        <Popper
+          placement="bottom-end"
+          strategy="fixed"
+          popup={props => (
+            <ManageButtonDropdown
+              {...props}
+              isZeroBalancesHidden={isZeroBalancesHidden}
+              toggleHideZeroBalances={toggleHideZeroBalances}
+            />
+          )}
+        >
+          {({ ref, opened, toggleOpened }) => (
+            <ButtonForManageDropdown
+              ref={ref}
+              opened={opened}
+              tooltip={t('manageAssetsList')}
+              onClick={toggleOpened}
+              testID={AssetsSelectors.manageButton}
+              testIDProperties={{ listOf: 'Tokens' }}
+            />
+          )}
+        </Popper>
+      </StickyBar>
+
+      <ContentContainer>
+        {paginatedSlugs.length === 0 ? (
+          buildEmptySection(isSyncing)
+        ) : (
+          <>
+            <SimpleInfiniteScroll loadNext={loadNext}>{contentElement}</SimpleInfiniteScroll>
+            {isSyncing && <SyncSpinner className="mt-4" />}
+          </>
+        )}
+      </ContentContainer>
+    </>
+  );
+};
 
 interface TezosTokensTabProps {
   network: TezosNetworkEssentials;
@@ -96,7 +186,7 @@ const TezosTokensTab: FC<TezosTokensTabProps> = ({ network, publicKeyHash, chain
 
   const mainnetTokensScamSlugsRecord = useMainnetTokensScamlistSelector();
 
-  const { filteredAssets, searchValue, setSearchValue } = useTokensListingLogic(
+  const { filteredAssets, searchValue, setSearchValue } = useTezosTokensListingLogic(
     chainId,
     publicKeyHash,
     slugs,
@@ -114,7 +204,7 @@ const TezosTokensTab: FC<TezosTokensTabProps> = ({ network, publicKeyHash, chain
 
   const tokensView = useMemo<JSX.Element[]>(() => {
     const tokensJsx = filteredAssets.map(assetSlug => (
-      <ListItem
+      <TezosListItem
         network={network}
         key={assetSlug}
         publicKeyHash={publicKeyHash}
@@ -159,7 +249,7 @@ const TezosTokensTab: FC<TezosTokensTabProps> = ({ network, publicKeyHash, chain
     const handleKeyup = (evt: KeyboardEvent) => {
       switch (evt.key) {
         case 'Enter':
-          navigate(toExploreAssetLink(chainId, activeAssetSlug));
+          navigate(toExploreAssetLink(TempleChainKind.Tezos, chainId, activeAssetSlug));
           break;
 
         case 'ArrowDown':
@@ -227,31 +317,13 @@ const TezosTokensTab: FC<TezosTokensTabProps> = ({ network, publicKeyHash, chain
         <UpdateAppBanner stickyBarRef={stickyBarRef} />
 
         {filteredAssets.length === 0 ? (
-          <div className="my-8 flex flex-col items-center justify-center text-gray-500">
-            <p className="mb-2 flex items-center justify-center text-gray-600 text-base font-light">
-              {searchValueExist && <SearchIcon className="w-5 h-auto mr-1 stroke-current fill-current" />}
-
-              <span {...setTestID(HomeSelectors.emptyStateText)}>
-                <T id="noAssetsFound" />
-              </span>
-            </p>
-
-            <p className="text-center text-xs font-light">
-              <T
-                id="ifYouDontSeeYourAsset"
-                substitutions={[
-                  <b>
-                    <T id="manage" />
-                  </b>
-                ]}
-              />
-            </p>
-          </div>
+          buildEmptySection(isSyncing, searchValueExist)
         ) : (
-          tokensView
+          <>
+            <>{tokensView}</>
+            {isSyncing && <SyncSpinner className="mt-4" />}
+          </>
         )}
-
-        {isSyncing && <SyncSpinner className="mt-4" />}
       </ContentContainer>
     </>
   );
@@ -303,3 +375,29 @@ const ManageButtonDropdown: FC<ManageButtonDropdownProps> = ({
     </DropdownWrapper>
   );
 };
+
+const buildEmptySection = (isSyncing: boolean, searchValueExist?: boolean) =>
+  isSyncing ? (
+    <SyncSpinner className="mt-6" />
+  ) : (
+    <div className="my-8 flex flex-col items-center justify-center text-gray-500">
+      <p className="mb-2 flex items-center justify-center text-gray-600 text-base font-light">
+        {searchValueExist && <SearchIcon className="w-5 h-auto mr-1 stroke-current fill-current" />}
+
+        <span {...setTestID(HomeSelectors.emptyStateText)}>
+          <T id="noAssetsFound" />
+        </span>
+      </p>
+
+      <p className="text-center text-xs font-light">
+        <T
+          id="ifYouDontSeeYourAsset"
+          substitutions={[
+            <b>
+              <T id="manage" />
+            </b>
+          ]}
+        />
+      </p>
+    </div>
+  );

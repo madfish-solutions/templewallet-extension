@@ -1,7 +1,7 @@
 import { isEqual } from 'lodash';
 
 import { dispatch } from 'app/store';
-import { loadCollectiblesDetailsActions } from 'app/store/collectibles/actions';
+import { loadCollectiblesDetailsActions } from 'app/store/tezos/collectibles/actions';
 import { useAccountCollectibles } from 'lib/assets/hooks';
 import { COLLECTIBLES_DETAILS_SYNC_INTERVAL } from 'lib/fixed-times';
 import { TEZOS_MAINNET_CHAIN_ID } from 'lib/temple/types';

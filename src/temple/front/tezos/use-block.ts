@@ -45,7 +45,9 @@ export const useTezosBlockLevel = (rpcUrl: string) => {
 
     const subscription = tezos.stream.subscribeBlock('head');
 
-    subscription.on('data', block => setBlockLevel(block.header.level));
+    subscription.on('data', block => {
+      setBlockLevel(block.header.level);
+    });
 
     return () => subscription.close();
   }, [rpcUrl]);

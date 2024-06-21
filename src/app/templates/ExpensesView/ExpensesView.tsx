@@ -163,7 +163,7 @@ const ExpensesView: FC<ExpensesViewProps> = ({
                 </div>
 
                 <InFiat
-                  tezosChainId={tezosNetwork.chainId}
+                  chainId={tezosNetwork.chainId}
                   assetSlug={TEZ_TOKEN_SLUG}
                   volume={value}
                   roundingMode={BigNumber.ROUND_UP}
@@ -473,7 +473,7 @@ const OperationVolumeDisplay = memo<OperationVolumeDisplayProps>(({ tezosChainId
       </span>
 
       {expense?.assetSlug && (
-        <InFiat volume={finalVolume || 0} tezosChainId={tezosChainId} assetSlug={expense.assetSlug}>
+        <InFiat volume={finalVolume || 0} chainId={tezosChainId} assetSlug={expense.assetSlug}>
           {({ balance, symbol }) => (
             <div className="text-xs text-gray-500 ml-1 flex items-baseline">
               ({balance}

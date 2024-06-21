@@ -8,7 +8,7 @@ import { fetchApyFromYupana$ } from 'lib/apis/yupana';
 import { KNOWN_TOKENS_SLUGS } from 'lib/assets/known-tokens';
 import { getReadOnlyTezos } from 'temple/tezos';
 
-import { ExchangeRateRecord } from '../currency/state';
+import { ExchangeRateRecord } from '../tezos/currency/state';
 
 export const fetchKUSDApy$ = () => {
   const slug = KNOWN_TOKENS_SLUGS.KUSD;

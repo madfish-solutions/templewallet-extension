@@ -1,27 +1,33 @@
-import React, { memo, useRef, useMemo } from 'react';
+import React, { memo, useMemo, useRef } from 'react';
 
 import { isDefined } from '@rnw-community/shared';
 import clsx from 'clsx';
 
 import Money from 'app/atoms/Money';
 import { useAppEnv } from 'app/env';
-import { useBalanceSelector } from 'app/store/balances/selectors';
+import { useEvmCollectibleMetadataSelector } from 'app/store/evm/collectibles-metadata/selectors';
+import { useBalanceSelector } from 'app/store/tezos/balances/selectors';
 import {
   useAllCollectiblesDetailsLoadingSelector,
   useCollectibleDetailsSelector
-} from 'app/store/collectibles/selectors';
-import { useCollectibleMetadataSelector } from 'app/store/collectibles-metadata/selectors';
+} from 'app/store/tezos/collectibles/selectors';
+import { useCollectibleMetadataSelector } from 'app/store/tezos/collectibles-metadata/selectors';
 import { setAnotherSelector, setTestID } from 'lib/analytics';
 import { objktCurrencies } from 'lib/apis/objkt';
 import { T } from 'lib/i18n';
 import { getAssetName } from 'lib/metadata';
 import { atomsToTokens } from 'lib/temple/helpers';
 import { Link } from 'lib/woozie';
+import { TempleChainKind } from 'temple/types';
 
-import { CollectibleItemImage } from './CollectibleItemImage';
+import { CollectibleItemImage, EvmCollectibleItemImage } from './CollectibleItemImage';
 import { CollectibleTabSelectors } from './selectors';
+import { toCollectibleLink } from './utils';
 
-interface Props {
+const POPUP_ITEM_SIZE = 104;
+const FULLPAGE_ITEM_SIZE = 112;
+
+interface TezosCollectibleItemProps {
   assetSlug: string;
   accountPkh: string;
   tezosChainId: string;
@@ -30,7 +36,7 @@ interface Props {
   hideWithoutMeta?: boolean;
 }
 
-export const CollectibleItem = memo<Props>(
+export const TezosCollectibleItem = memo<TezosCollectibleItemProps>(
   ({ assetSlug, accountPkh, tezosChainId, adultBlur, areDetailsShown, hideWithoutMeta }) => {
     const { popup } = useAppEnv();
     const metadata = useCollectibleMetadataSelector(assetSlug);
@@ -61,7 +67,7 @@ export const CollectibleItem = memo<Props>(
 
     // Fixed sizes to improve large grid performance
     const [style, imgWrapStyle] = useMemo(() => {
-      const size = popup ? 104 : 112;
+      const size = popup ? POPUP_ITEM_SIZE : FULLPAGE_ITEM_SIZE;
 
       const style = popup
         ? {
@@ -86,7 +92,7 @@ export const CollectibleItem = memo<Props>(
 
     return (
       <Link
-        to={`/collectible/${tezosChainId}/${assetSlug}`}
+        to={toCollectibleLink(TempleChainKind.Tezos, tezosChainId, assetSlug)}
         className="flex flex-col border border-gray-300 rounded-lg overflow-hidden"
         style={style}
         testID={CollectibleTabSelectors.collectibleItem}
@@ -146,3 +152,52 @@ export const CollectibleItem = memo<Props>(
     );
   }
 );
+
+interface EvmCollectibleItemProps {
+  assetSlug: string;
+  evmChainId: number;
+}
+
+export const EvmCollectibleItem = memo<EvmCollectibleItemProps>(({ assetSlug, evmChainId }) => {
+  const { popup } = useAppEnv();
+  const metadata = useEvmCollectibleMetadataSelector(evmChainId, assetSlug);
+
+  const [style, imgWrapStyle] = useMemo(() => {
+    const size = popup ? POPUP_ITEM_SIZE : FULLPAGE_ITEM_SIZE;
+
+    const style = {
+      width: size,
+      height: size
+    };
+
+    const imgWrapStyle = {
+      height: size - 2
+    };
+
+    return [style, imgWrapStyle];
+  }, [popup]);
+
+  if (!metadata) return null;
+
+  const assetName = metadata.name;
+
+  return (
+    <Link
+      to={toCollectibleLink(TempleChainKind.EVM, evmChainId, assetSlug)}
+      className="flex flex-col border border-gray-300 rounded-lg overflow-hidden"
+      style={style}
+      testID={CollectibleTabSelectors.collectibleItem}
+      testIDProperties={{ assetSlug: assetSlug }}
+    >
+      <div
+        className={clsx(
+          'relative flex items-center justify-center bg-blue-50 rounded-lg overflow-hidden hover:opacity-70'
+        )}
+        style={imgWrapStyle}
+        title={assetName}
+      >
+        <EvmCollectibleItemImage metadata={metadata} />
+      </div>
+    </Link>
+  );
+});

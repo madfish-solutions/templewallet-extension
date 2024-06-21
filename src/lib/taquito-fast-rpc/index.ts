@@ -166,6 +166,29 @@ export class FastRpcClient extends RpcClient {
     promise: true
   });
 
+  async getDelegateActiveStakingParameters(bakerPkh: string, opts?: RPCOptions) {
+    opts = await this.withLatestBlock(opts);
+    const block = opts?.block ?? 'head';
+
+    return this.httpBackend.createRequest<DelegateActiveStakingParameters | nullish>({
+      url: this.createURL(
+        `/chains/${this.chain}/blocks/${block}/context/delegates/${bakerPkh}/active_staking_parameters`
+      ),
+      method: 'GET'
+    });
+  }
+
+  async getDelegateLimitOfStakingOverBakingIsPositive(bakerPkh: string, opts?: RPCOptions) {
+    const params = await this.getDelegateActiveStakingParameters(bakerPkh, opts);
+    if (!params) return false;
+
+    for (const [key, val] of Object.entries(params)) {
+      if (key.startsWith('limit_of_staking_over_baking')) return !val;
+    }
+
+    return false;
+  }
+
   async getBigMapExpr(id: string, expr: string, opts?: RPCOptions) {
     opts = await this.withLatestBlock(opts);
     return this.getBigMapExprMemo(id, expr, opts);
@@ -273,3 +296,12 @@ function onlyOncePerExec<T>(factory: () => Promise<T>) {
       worker = null;
     }));
 }
+
+/**
+ * Whitnessed `string` tail to be
+ * - `_millionth`
+ * - `_billionth`
+ */
+type DelegateActiveStakingParameters = {
+  [key in `edge_of_baking_over_staking${string}` | `limit_of_staking_over_baking${string}`]: number | nullish;
+};

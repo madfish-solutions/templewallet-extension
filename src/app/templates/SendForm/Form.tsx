@@ -26,14 +26,14 @@ import { Controller, FieldError, useForm } from 'react-hook-form';
 
 import { NoSpaceField } from 'app/atoms';
 import AssetField from 'app/atoms/AssetField';
+import { ConvertedInputAssetAmount } from 'app/atoms/ConvertedInputAssetAmount';
 import Identicon from 'app/atoms/Identicon';
 import Money from 'app/atoms/Money';
 import { ArtificialError, NotEnoughFundsError, ZeroBalanceError, ZeroTEZBalanceError } from 'app/defaults';
 import { useAppEnv } from 'app/env';
 import { ReactComponent as ChevronDownIcon } from 'app/icons/chevron-down.svg';
 import { ReactComponent as ChevronUpIcon } from 'app/icons/chevron-up.svg';
-import Balance from 'app/templates/Balance';
-import InFiat from 'app/templates/InFiat';
+import { TezosBalance } from 'app/templates/Balance';
 import { useFormAnalytics } from 'lib/analytics';
 import { isTezAsset, TEZ_TOKEN_SLUG, toPenny } from 'lib/assets';
 import { toTransferParams } from 'lib/assets/contract.utils';
@@ -41,7 +41,7 @@ import { useTezosAssetBalance } from 'lib/balances';
 import { useAssetFiatCurrencyPrice, useFiatCurrency } from 'lib/fiat-currency';
 import { TEZOS_BLOCK_DURATION } from 'lib/fixed-times';
 import { toLocalFixed, T, t } from 'lib/i18n';
-import { AssetMetadataBase, useAssetMetadata, getAssetSymbol } from 'lib/metadata';
+import { useAssetMetadata, getAssetSymbol } from 'lib/metadata';
 import { transferImplicit, transferToContract } from 'lib/michelson';
 import { useTypedSWR } from 'lib/swr';
 import { loadContract } from 'lib/temple/contract';
@@ -88,7 +88,7 @@ export const Form: FC<Props> = ({ account, network, assetSlug, setOperation, onA
   const { registerBackHandler } = useAppEnv();
 
   const assetMetadata = useAssetMetadata(assetSlug, network.chainId);
-  const assetPrice = useAssetFiatCurrencyPrice(assetSlug);
+  const assetPrice = useAssetFiatCurrencyPrice(assetSlug, network.chainId);
 
   const assetSymbol = useMemo(() => getAssetSymbol(assetMetadata), [assetMetadata]);
 
@@ -474,7 +474,7 @@ export const Form: FC<Props> = ({ account, network, assetSlug, setOperation, onA
                 className="flex-shrink-0 shadow-xs opacity-75"
               />
               <div className="ml-1 mr-px font-normal">{filledContact.name}</div> (
-              <Balance network={network} assetSlug={assetSlug} address={filledContact.address}>
+              <TezosBalance network={network} assetSlug={assetSlug} address={filledContact.address}>
                 {bal => (
                   <span className="text-xs leading-none flex items-baseline">
                     <Money>{bal}</Money>{' '}
@@ -483,7 +483,7 @@ export const Form: FC<Props> = ({ account, network, assetSlug, setOperation, onA
                     </span>
                   </span>
                 )}
-              </Balance>
+              </TezosBalance>
               )
             </div>
           ) : (
@@ -561,14 +561,15 @@ export const Form: FC<Props> = ({ account, network, assetSlug, setOperation, onA
                 {shoudUseFiat ? <span className="pr-px">{selectedFiatCurrency.symbol}</span> : null}
                 {toLocalFixed(maxAmount)}
               </button>
-              <TokenToFiat
-                tezosChainId={network.chainId}
-                amountValue={amountValue}
-                assetMetadata={assetMetadata}
-                shoudUseFiat={shoudUseFiat}
-                assetSlug={assetSlug}
-                toAssetAmount={toAssetAmount}
-              />
+              {amountValue ? (
+                <ConvertedInputAssetAmount
+                  tezosChainId={network.chainId}
+                  assetSlug={assetSlug}
+                  assetMetadata={assetMetadata}
+                  amountValue={shoudUseFiat ? toAssetAmount(amountValue) : amountValue}
+                  toFiat={!shoudUseFiat}
+                />
+              ) : null}
             </>
           )
         }
@@ -598,57 +599,6 @@ export const Form: FC<Props> = ({ account, network, assetSlug, setOperation, onA
         />
       )}
     </form>
-  );
-};
-
-interface TokenToFiatProps {
-  tezosChainId: string;
-  amountValue: string;
-  assetMetadata: AssetMetadataBase | nullish;
-  shoudUseFiat: boolean;
-  assetSlug: string;
-  toAssetAmount: (fiatAmount: BigNumber.Value) => string;
-}
-
-const TokenToFiat: React.FC<TokenToFiatProps> = ({
-  tezosChainId,
-  amountValue,
-  assetMetadata,
-  shoudUseFiat,
-  assetSlug,
-  toAssetAmount
-}) => {
-  if (!amountValue) return null;
-
-  return (
-    <>
-      <br />
-      {shoudUseFiat ? (
-        <div className="mt-1 -mb-3">
-          <span className="mr-1">≈</span>
-          <span className="font-normal text-gray-700 mr-1">{toAssetAmount(amountValue)}</span>{' '}
-          <T id="inAsset" substitutions={getAssetSymbol(assetMetadata, true)} />
-        </div>
-      ) : (
-        <InFiat
-          tezosChainId={tezosChainId}
-          assetSlug={assetSlug}
-          volume={amountValue}
-          roundingMode={BigNumber.ROUND_FLOOR}
-        >
-          {({ balance, symbol }) => (
-            <div className="mt-1 -mb-3 flex items-baseline">
-              <span className="mr-1">≈</span>
-              <span className="font-normal text-gray-700 mr-1 flex items-baseline">
-                {balance}
-                <span className="pr-px">{symbol}</span>
-              </span>{' '}
-              <T id="inFiat" />
-            </div>
-          )}
-        </InFiat>
-      )}
-    </>
   );
 };
 

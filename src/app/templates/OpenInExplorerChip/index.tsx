@@ -1,8 +1,8 @@
-import React, { FC } from 'react';
+import React, { FC, memo } from 'react';
 
 import { ExternalLinkChip, ExternalLinkChipProps } from 'app/atoms/ExternalLinkChip';
 import { t } from 'lib/i18n';
-import { useTezosBlockExplorerUrl } from 'temple/front/block-explorers';
+import { useExplorerHref } from 'temple/front/block-explorers';
 
 import { OpenInExplorerChipSelectors } from './selectors';
 
@@ -11,19 +11,18 @@ interface Props extends Omit<ExternalLinkChipProps, 'href'> {
   hash: string;
 }
 
-export const OpenInExplorerChip: FC<Props> = ({ tezosChainId, hash, tooltip = t('viewOnBlockExplorer'), ...props }) => {
-  const explorerBaseUrl = useTezosBlockExplorerUrl(tezosChainId);
-  if (!explorerBaseUrl) return null;
+export const OpenInExplorerChip: FC<Props> = ({ tezosChainId, hash, tooltip, ...props }) => {
+  const href = useExplorerHref(tezosChainId, hash);
 
-  const href = new URL(hash, explorerBaseUrl).href;
-
-  return (
-    <ExternalLinkChip
-      {...props}
-      href={href}
-      arrowIcon
-      tooltip={tooltip}
-      testID={OpenInExplorerChipSelectors.viewOnBlockExplorerLink}
-    />
-  );
+  return href ? <OpenInExplorerChipBase {...props} href={href} tooltip={tooltip} /> : null;
 };
+
+export const OpenInExplorerChipBase = memo<ExternalLinkChipProps>(({ href, tooltip, ...props }) => (
+  <ExternalLinkChip
+    {...props}
+    href={href}
+    arrowIcon
+    tooltip={tooltip ?? t('viewOnBlockExplorer')}
+    testID={OpenInExplorerChipSelectors.viewOnBlockExplorerLink}
+  />
+));

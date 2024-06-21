@@ -15,7 +15,7 @@ import { BuySelectors } from '../Buy/Buy.selectors';
 import { BuyPageOption } from './BuyPageOption';
 
 export const Market = memo(() => {
-  const tabs = useMemo<TabInterface[]>(() => {
+  const tabs = useMemo<NonEmptyArray<TabInterface>>(() => {
     return [
       {
         slug: 'buy',

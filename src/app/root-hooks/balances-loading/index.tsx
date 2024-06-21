@@ -3,8 +3,8 @@ import React, { memo, useCallback, useEffect, useRef } from 'react';
 import { isDefined } from '@rnw-community/shared';
 
 import { dispatch } from 'app/store';
-import { loadGasBalanceActions, loadAssetsBalancesActions } from 'app/store/balances/actions';
-import { useBalancesErrorSelector, useBalancesLoadingSelector } from 'app/store/balances/selectors';
+import { loadGasBalanceActions, loadAssetsBalancesActions } from 'app/store/tezos/balances/actions';
+import { useBalancesErrorSelector, useBalancesLoadingSelector } from 'app/store/tezos/balances/selectors';
 import { TzktApiChainId, isKnownChainId } from 'lib/apis/tzkt';
 import { useDidUpdate, useMemoWithCompare } from 'lib/ui/hooks';
 import { isTruthy } from 'lib/utils';

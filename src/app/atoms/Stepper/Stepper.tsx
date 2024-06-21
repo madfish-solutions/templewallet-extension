@@ -3,7 +3,7 @@ import React, { FC } from 'react';
 import classNames from 'clsx';
 
 import styles from 'app/atoms/Stepper/Stepper.module.css';
-import { ReactComponent as OkIcon } from 'app/icons/base/ok.svg';
+import { ReactComponent as OkIcon } from 'app/icons/ok.svg';
 
 interface Props {
   style: React.CSSProperties;
