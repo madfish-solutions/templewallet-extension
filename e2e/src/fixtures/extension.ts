@@ -13,13 +13,6 @@ export const test = base.extend<{
   extensionId: async ({ context }, use) => {
     if (EXTENSION_ID) return void (await use(EXTENSION_ID));
 
-    /*
-    // for manifest v2:
-    let [background] = context.backgroundPages()
-    if (!background)
-      background = await context.waitForEvent('backgroundpage')
-    */
-
     // for manifest v3:
     let [background] = context.serviceWorkers();
     if (!background) background = await context.waitForEvent('serviceworker');

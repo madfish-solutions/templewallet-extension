@@ -8,7 +8,7 @@ import { E2eMessageType } from 'src/lib/e2e/types';
 import { CustomBrowserContext } from '../classes/browser-context.class';
 import { test, openBrowser, browser, EXTENSION_ID } from './extension';
 import { WITH_EXTENSION_RESET } from '../utils/env.utils';
-import { RETRY_OPTIONS } from '../utils/timing.utils';
+import { RETRY_OPTIONS, sleep } from "../utils/timing.utils";
 
 let EXTENSION_URL: string | undefined;
 
@@ -56,6 +56,7 @@ async function beforeAll() {
   // With reset active, all scenarios, but 1st, will not have extension page open on its own.
   if (WITH_EXTENSION_RESET && lastPage.url() !== EXTENSION_URL) {
     CustomBrowserContext.page = await CustomBrowserContext.browser.newPage();
+    await sleep(2000)
     await CustomBrowserContext.page.goto(EXTENSION_URL);
   }
 }
