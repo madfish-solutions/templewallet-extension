@@ -56,8 +56,9 @@ async function beforeAll() {
   // With reset active, all scenarios, but 1st, will not have extension page open on its own.
   if (WITH_EXTENSION_RESET && lastPage.url() !== EXTENSION_URL) {
     CustomBrowserContext.page = await CustomBrowserContext.browser.newPage();
-    await sleep(2000)
-    await CustomBrowserContext.page.goto(EXTENSION_URL);
+    await retry(async () => {
+      await CustomBrowserContext.page.goto(EXTENSION_URL as string);
+    }, RETRY_OPTIONS)
   }
 }
 
