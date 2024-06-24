@@ -1,6 +1,6 @@
 import { createReducer } from '@reduxjs/toolkit';
 
-import { setIsAnalyticsEnabledAction, setOnRampPossibilityAction } from './actions';
+import { setConversionTrackedAction, setIsAnalyticsEnabledAction, setOnRampPossibilityAction } from './actions';
 import { SettingsState, settingsInitialState } from './state';
 
 export const settingsReducer = createReducer<SettingsState>(settingsInitialState, builder => {
@@ -10,5 +10,9 @@ export const settingsReducer = createReducer<SettingsState>(settingsInitialState
 
   builder.addCase(setOnRampPossibilityAction, (state, { payload }) => {
     state.isOnRampPossibility = payload;
+  });
+
+  builder.addCase(setConversionTrackedAction, state => {
+    state.isConversionTracked = true;
   });
 });

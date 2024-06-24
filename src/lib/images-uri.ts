@@ -3,8 +3,14 @@ import { uniq } from 'lodash';
 import type { TokenMetadata } from 'lib/metadata';
 import { isTruthy } from 'lib/utils';
 
+import { EvmAssetStandard } from './evm/types';
+import { EvmCollectibleMetadata, EvmTokenMetadata } from './metadata/types';
+
 type TcInfraMediaSize = 'small' | 'medium' | 'large' | 'raw';
 type ObjktMediaTail = 'display' | 'artifact' | 'thumb288';
+
+const COMPRESSES_TOKEN_ICON_SIZE = 80;
+const COMPRESSES_COLLECTIBLE_ICON_SIZE = 250;
 
 const IPFS_PROTOCOL = 'ipfs://';
 const IPFS_GATE = 'https://cloudflare-ipfs.com/ipfs';
@@ -161,4 +167,87 @@ const buildIpfsMediaUriByInfo = (
   }
 
   return;
+};
+
+const chainIdsChainNamesRecord: Record<number, string> = {
+  1: 'ethereum',
+  11155111: 'sepolia',
+  137: 'polygon',
+  80001: 'polygonmumbai',
+  56: 'smartchain',
+  97: 'bnbt',
+  43114: 'avalanchex',
+  43113: 'avalanchecfuji',
+  10: 'optimism',
+  42170: 'arbitrumnova',
+  1313161554: 'aurora',
+  81457: 'blast',
+  168587773: 'blastsepolia',
+  288: 'boba',
+  42220: 'celo',
+  61: 'classic',
+  25: 'cronos',
+  2000: 'dogechain',
+  250: 'fantom',
+  314: 'filecoin',
+  1666600000: 'harmony',
+  13371: 'immutablezkevm',
+  2222: 'kavaevm',
+  8217: 'klaytn',
+  59144: 'linea',
+  957: 'lyra',
+  169: 'manta',
+  5000: 'mantle',
+  1088: 'metis',
+  34443: 'mode',
+  1284: 'moonbeam',
+  7700: 'nativecanto',
+  204: 'opbnb',
+  11297108109: 'palm',
+  424: 'pgn',
+  1101: 'polygonzkevm',
+  369: 'pulsechain',
+  1380012617: 'rari',
+  1918988905: 'raritestnet',
+  17001: 'redstoneholesky',
+  534352: 'scroll',
+  100: 'xdai',
+  324: 'zksync'
+};
+
+const getCompressedImageUrl = (imageUrl: string, size: number) =>
+  `https://img.templewallet.com/insecure/fill/${size}/${size}/ce/0/plain/${imageUrl}`;
+
+const getEvmCustomChainIconUrl = (chainId: number, metadata: EvmTokenMetadata) => {
+  const chainName = chainIdsChainNamesRecord[chainId];
+
+  if (!chainName) return null;
+
+  const baseUrl = 'https://raw.githubusercontent.com/rainbow-me/assets/master/blockchains/';
+
+  return metadata.standard === EvmAssetStandard.NATIVE
+    ? `${baseUrl}${chainName}/info/logo.png`
+    : `${baseUrl}${chainName}/assets/${metadata.address}/logo.png`;
+};
+
+export const buildEvmTokenIconSources = (metadata: EvmTokenMetadata, chainId?: number) => {
+  if (!chainId) return [];
+
+  const mainFallback = getEvmCustomChainIconUrl(chainId, metadata);
+
+  return mainFallback ? [getCompressedImageUrl(mainFallback, COMPRESSES_TOKEN_ICON_SIZE)] : [];
+};
+
+export const buildEvmCollectibleIconSources = (metadata: EvmCollectibleMetadata) =>
+  metadata.image ? [getCompressedImageUrl(metadata.image, COMPRESSES_COLLECTIBLE_ICON_SIZE), metadata.image] : [];
+
+export const buildMetadataLinkFromUri = (uri?: string) => {
+  if (!uri) return undefined;
+
+  if (uri.startsWith(IPFS_PROTOCOL)) {
+    const uriInfo = getMediaUriInfo(uri);
+    return buildIpfsMediaUriByInfo(uriInfo, 'small', false);
+  } else {
+    return uri;
+  }
 };

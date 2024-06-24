@@ -1,7 +1,7 @@
 import { PlaywrightTestConfig } from '@playwright/test';
 
 const config: PlaywrightTestConfig = {
-  fullyParallel: true,
+  fullyParallel: false,
   testDir: './src',
   workers: 1,
   use: {

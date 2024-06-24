@@ -104,8 +104,13 @@ export function registerNewWallet(password: string, mnemonic?: string) {
 }
 
 export async function lock() {
+  if (!(await Vault.isExist())) {
+    return;
+  }
+
   if (!store.getState().inited) initLocked = true;
   if (BACKGROUND_IS_WORKER) await Vault.forgetSession();
+
   return withInited(() => {
     locked();
   });

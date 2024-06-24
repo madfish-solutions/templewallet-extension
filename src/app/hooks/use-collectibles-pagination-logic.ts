@@ -1,8 +1,8 @@
 import { useCallback, useMemo, useState } from 'react';
 
 import { dispatch } from 'app/store';
-import { putCollectiblesMetadataAction } from 'app/store/collectibles-metadata/actions';
-import { useAllCollectiblesMetadataSelector } from 'app/store/collectibles-metadata/selectors';
+import { putCollectiblesMetadataAction } from 'app/store/tezos/collectibles-metadata/actions';
+import { useAllCollectiblesMetadataSelector } from 'app/store/tezos/collectibles-metadata/selectors';
 import { loadTokensMetadata } from 'lib/metadata/fetch';
 import { useDidMount, useDidUpdate } from 'lib/ui/hooks';
 import { setNavigateSearchParams } from 'lib/woozie';

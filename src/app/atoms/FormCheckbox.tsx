@@ -1,11 +1,12 @@
 import React, { forwardRef, ReactNode, useCallback } from 'react';
 
-import classNames from 'clsx';
+import clsx from 'clsx';
 
 import Checkbox, { CheckboxProps } from 'app/atoms/Checkbox';
 import { AnalyticsEventCategory, setTestID, useAnalytics } from 'lib/analytics';
 
 export interface FormCheckboxProps extends CheckboxProps {
+  basic?: boolean;
   label?: ReactNode;
   labelDescription?: ReactNode;
   errorCaption?: ReactNode;
@@ -16,6 +17,7 @@ export interface FormCheckboxProps extends CheckboxProps {
 export const FormCheckbox = forwardRef<HTMLInputElement, FormCheckboxProps>(
   (
     {
+      basic,
       label,
       labelDescription,
       errorCaption,
@@ -40,12 +42,11 @@ export const FormCheckbox = forwardRef<HTMLInputElement, FormCheckboxProps>(
     );
 
     return (
-      <div className={classNames('flex flex-col', containerClassName)}>
+      <div className={clsx('flex flex-col', containerClassName)}>
         <label
-          className={classNames(
-            'flex items-center mb-2 p-4',
-            'bg-gray-100 border-2 border-gray-300',
-            'rounded-md overflow-hidden cursor-pointer',
+          className={clsx(
+            !basic && 'mb-2 p-4 bg-gray-100 border-2 border-gray-300 rounded-md overflow-hidden',
+            'flex items-center cursor-pointer',
             labelClassName
           )}
           {...setTestID(testID)}
@@ -56,7 +57,7 @@ export const FormCheckbox = forwardRef<HTMLInputElement, FormCheckboxProps>(
             <div className="ml-4 leading-tight flex flex-col">
               <span className="text-sm font-semibold text-gray-700">{label}</span>
 
-              {labelDescription && <span className="mt-1 text-xs font-light text-gray-600">{labelDescription}</span>}
+              {labelDescription && <span className="mt-0.5 text-xs font-light text-gray-600">{labelDescription}</span>}
             </div>
           )}
         </label>

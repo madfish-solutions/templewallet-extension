@@ -173,8 +173,8 @@
       }
     }
   },
-  "clickOnBakerPrompt": {
-    "message": "點擊您想要委託資金的烘焙師。此清單由 $link$ 提供。",
+  "recommendedBakersDescription": {
+    "message": "此清單由 $link$ 提供",
     "placeholders": {
       "link": {
         "content": "$1"
@@ -435,9 +435,6 @@
   },
   "toBeConnectedWithDApp": {
     "message": "與分散式應用程式連結。"
-  },
-  "atLeast8Characters": {
-    "message": "至少 8 個字元"
   },
   "atLeast1Number": {
     "message": "至少 1 個數字"
@@ -842,7 +839,7 @@
   "delegation": {
     "message": "委託"
   },
-  "baker": {
+  "customBaker": {
     "message": "烘焙師"
   },
   "bakerInputDescription": {
@@ -860,7 +857,7 @@
   "unknownBakerDescription": {
     "message": "所提供的地址並不是我們已知的烘焙師！若向此地址委託資金，您須自行承擔風險。"
   },
-  "delegateToRecommendedBakers": {
+  "recommendedBakers": {
     "message": "委託給推薦的烘焙師"
   },
   "sortBy": {

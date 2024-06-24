@@ -16,6 +16,14 @@ export function useTezosBlockExplorerUrl(chainId: string) {
   }, [explorersStored, chainId]);
 }
 
+export function useExplorerHref(chainId: string, hash: string) {
+  const baseUrl = useTezosBlockExplorerUrl(chainId);
+
+  return useMemo(() => {
+    return baseUrl ? new URL(hash, baseUrl).href : null;
+  }, [baseUrl, hash]);
+}
+
 export interface TezosBlockExplorer {
   id: TezosBlockExplorerKnownId;
   name: string;

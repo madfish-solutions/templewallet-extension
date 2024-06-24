@@ -1,8 +1,7 @@
-import React, { FC, useMemo } from 'react';
+import React, { ComponentType, memo, useMemo } from 'react';
 
-import classNames from 'clsx';
+import clsx from 'clsx';
 
-import { PageTitle } from 'app/atoms/PageTitle';
 import { SuspenseContainer } from 'app/atoms/SuspenseContainer';
 import { useLocationSearchParamValue } from 'app/hooks/use-location';
 import { TestIDProperty } from 'lib/analytics';
@@ -12,18 +11,19 @@ import PageLayout from './PageLayout';
 
 export interface TabInterface extends TestIDProperty {
   slug: string;
-  title: string;
-  Component: FC;
+  title: React.ReactNode;
+  Component: ComponentType;
+  disabled?: boolean;
   description?: string;
 }
 
 interface Props {
-  tabs: TabInterface[];
-  Icon: ImportedSVGComponent;
+  tabs: NonEmptyArray<TabInterface>;
+  Icon?: ImportedSVGComponent;
   title: string;
 }
 
-export const TabsPageLayout: FC<Props> = ({ tabs, Icon, title }) => {
+export const TabsPageLayout = memo<Props>(({ tabs, Icon, title }) => {
   const tabSlug = useLocationSearchParamValue('tab');
 
   const { slug, Component, description } = useMemo(() => {
@@ -40,13 +40,17 @@ export const TabsPageLayout: FC<Props> = ({ tabs, Icon, title }) => {
           return (
             <Link
               key={tab.slug}
-              to={lctn => ({ ...lctn, search: `?tab=${tab.slug}` })}
+              to={lctn => (tab.disabled ? lctn : { ...lctn, search: `?tab=${tab.slug}` })}
               replace
-              className={classNames(
-                'flex-1 w-full text-center cursor-pointer pb-2',
-                'border-b-2 text-gray-700 text-lg truncate',
+              className={clsx(
+                'w-full pb-2 border-b-2 text-ulg leading-5 text-center truncate',
                 tabs.length === 1 && 'mx-20',
-                active ? 'border-primary-orange text-primary-orange' : 'border-transparent hover:text-primary-orange',
+                active
+                  ? 'border-primary-orange text-primary-orange'
+                  : clsx(
+                      'border-transparent',
+                      tab.disabled ? 'text-gray-350' : 'text-gray-500 hover:text-primary-orange'
+                    ),
                 'transition ease-in-out duration-300'
               )}
               testID={tab.testID}
@@ -60,8 +64,22 @@ export const TabsPageLayout: FC<Props> = ({ tabs, Icon, title }) => {
       <div className="flex flex-col px-4 pt-6 pb-15">
         <div className="mb-4 text-center text-grey-2">{description}</div>
 
-        <SuspenseContainer errorMessage="displaying tab">{Component && <Component />}</SuspenseContainer>
+        <SuspenseContainer errorMessage="displaying tab">
+          <Component />
+        </SuspenseContainer>
       </div>
     </PageLayout>
   );
-};
+});
+
+interface PageTitleProps {
+  Icon?: React.ComponentType;
+  title: string;
+}
+
+const PageTitle = memo<PageTitleProps>(({ Icon, title }) => (
+  <div className="flex items-center gap-x-1">
+    {Icon && <Icon />}
+    <span className="font-normal text-sm">{title}</span>
+  </div>
+));

@@ -6,7 +6,7 @@ export type TippyInstance = Instance<Props>;
 
 export type UseTippyOptions = Partial<Props>;
 
-export default function useTippy<T extends HTMLElement>(props: UseTippyOptions) {
+export default function useTippy<T extends Element>(props: UseTippyOptions) {
   const targetRef = useRef<T>(null);
   const instanceRef = useRef<Instance<Props>>();
 

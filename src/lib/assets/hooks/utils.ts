@@ -1,4 +1,4 @@
-import type { StoredAssetStatus } from 'app/store/assets/state';
+import type { StoredAssetStatus } from 'app/store/tezos/assets/state';
 
 export const isAssetStatusIdle = (storedStatus?: StoredAssetStatus): storedStatus is undefined | 'idle' =>
   !storedStatus || storedStatus === 'idle';

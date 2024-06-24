@@ -4,15 +4,25 @@ import { isDefined } from '@rnw-community/shared';
 import { isEqual } from 'lodash';
 import { useDebounce } from 'use-debounce';
 
-import { useAllAccountBalancesSelector } from 'app/store/balances/selectors';
+import { useAllAccountBalancesSelector } from 'app/store/tezos/balances/selectors';
 import { toTokenSlug } from 'lib/assets';
+import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
 import { searchAssetsWithNoMeta } from 'lib/assets/search.utils';
-import { useTokensSortPredicate } from 'lib/assets/use-sorting';
+import { useEvmTokensSortPredicate, useTezosTokensSortPredicate } from 'lib/assets/use-sorting';
 import { useGetTokenOrGasMetadata } from 'lib/metadata';
 import { useMemoWithCompare } from 'lib/ui/hooks';
 import { isSearchStringApplicable } from 'lib/utils/search-items';
 
-export const useTokensListingLogic = (
+import { useEnabledEvmChainAccountTokensSlugs } from '../../lib/assets/hooks/tokens';
+import {
+  useEvmBalancesLoadingSelector,
+  useEvmTokensExchangeRatesLoadingSelector,
+  useEvmTokensMetadataLoadingSelector
+} from '../store/evm/selectors';
+
+import { useEvmAssetsPaginationLogic } from './use-evm-assets-pagination-logic';
+
+export const useTezosTokensListingLogic = (
   tezosChainId: string,
   publicKeyHash: string,
   assetsSlugs: string[],
@@ -43,7 +53,7 @@ export const useTokensListingLogic = (
   const [tokenId, setTokenId] = useState<number>();
   const [searchValueDebounced] = useDebounce(tokenId ? toTokenSlug(searchValue, String(tokenId)) : searchValue, 300);
 
-  const assetsSortPredicate = useTokensSortPredicate(publicKeyHash, tezosChainId);
+  const assetsSortPredicate = useTezosTokensSortPredicate(publicKeyHash, tezosChainId);
   const getMetadata = useGetTokenOrGasMetadata(tezosChainId);
 
   const searchedSlugs = useMemo(
@@ -88,5 +98,31 @@ export const useTokensListingLogic = (
     setSearchValue,
     tokenId,
     setTokenId
+  };
+};
+
+export const useEvmTokensListingLogic = (publicKeyHash: HexString, chainId: number) => {
+  const tokenSlugs = useEnabledEvmChainAccountTokensSlugs(publicKeyHash, chainId);
+
+  const tokensSortPredicate = useEvmTokensSortPredicate(publicKeyHash, chainId);
+
+  const balancesLoading = useEvmBalancesLoadingSelector();
+  const isMetadataLoading = useEvmTokensMetadataLoadingSelector();
+  const exchangeRatesLoading = useEvmTokensExchangeRatesLoadingSelector();
+
+  const isSyncing = balancesLoading || isMetadataLoading || exchangeRatesLoading;
+
+  const sortedTokenSlugs = useMemoWithCompare(
+    () => [EVM_TOKEN_SLUG, ...tokenSlugs.sort(tokensSortPredicate)],
+    [tokenSlugs, tokensSortPredicate],
+    isEqual
+  );
+
+  const { slugs: paginatedSlugs, loadNext } = useEvmAssetsPaginationLogic(sortedTokenSlugs, chainId);
+
+  return {
+    paginatedSlugs,
+    isSyncing,
+    loadNext
   };
 };

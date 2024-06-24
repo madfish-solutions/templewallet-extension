@@ -19,25 +19,29 @@ export const CryptoBalance = memo<CryptoBalanceProps>(({ value, testID, testIDPr
 ));
 
 interface FiatBalanceProps extends CryptoBalanceProps {
-  tezosChainId: string;
+  chainId: number | string;
   assetSlug: string;
+  evm?: boolean;
 }
 
-export const FiatBalance = memo<FiatBalanceProps>(({ tezosChainId, assetSlug, value, testID, testIDProperties }) => (
-  <InFiat
-    tezosChainId={tezosChainId}
-    assetSlug={assetSlug}
-    volume={value}
-    smallFractionFont={false}
-    testID={testID}
-    testIDProperties={testIDProperties}
-  >
-    {({ balance, symbol }) => (
-      <div className="ml-1 font-normal text-gray-500 text-xs flex items-center text-right truncate text-right">
-        <span className="mr-1">≈</span>
-        {balance}
-        <span className="ml-1">{symbol}</span>
-      </div>
-    )}
-  </InFiat>
-));
+export const FiatBalance = memo<FiatBalanceProps>(
+  ({ evm = false, chainId, assetSlug, value, testID, testIDProperties }) => (
+    <InFiat
+      evm={evm}
+      chainId={chainId}
+      assetSlug={assetSlug}
+      volume={value}
+      smallFractionFont={false}
+      testID={testID}
+      testIDProperties={testIDProperties}
+    >
+      {({ balance, symbol }) => (
+        <div className="ml-1 font-normal text-gray-500 text-xs flex items-center truncate text-right">
+          <span className="mr-1">≈</span>
+          {balance}
+          <span className="ml-1">{symbol}</span>
+        </div>
+      )}
+    </InFiat>
+  )
+);

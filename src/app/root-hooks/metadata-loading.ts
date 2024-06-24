@@ -1,10 +1,10 @@
 import { memo, useEffect, useRef } from 'react';
 
 import { dispatch } from 'app/store';
-import { useAllTokensSelector } from 'app/store/assets/selectors';
-import { getAccountAssetsStoreKey } from 'app/store/assets/utils';
-import { putTokensMetadataAction, setTokensMetadataLoadingAction } from 'app/store/tokens-metadata/actions';
-import { useTokensMetadataLoadingSelector } from 'app/store/tokens-metadata/selectors';
+import { useAllTokensSelector } from 'app/store/tezos/assets/selectors';
+import { getAccountAssetsStoreKey } from 'app/store/tezos/assets/utils';
+import { putTokensMetadataAction, setTokensMetadataLoadingAction } from 'app/store/tezos/tokens-metadata/actions';
+import { useTokensMetadataLoadingSelector } from 'app/store/tezos/tokens-metadata/selectors';
 import { useGetTokenMetadata } from 'lib/metadata';
 import { loadTokensMetadata } from 'lib/metadata/fetch';
 import { useEnabledTezosChains } from 'temple/front';

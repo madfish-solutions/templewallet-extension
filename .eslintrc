@@ -95,6 +95,7 @@
     "@typescript-eslint/ban-types": "warn",
     "@typescript-eslint/no-dynamic-delete": "off",
     "@typescript-eslint/prefer-literal-enum-member": "off",
+    "@typescript-eslint/no-unnecessary-boolean-literal-compare": "off",
 
     "react/prop-types": "off",
     "react/display-name": "off",

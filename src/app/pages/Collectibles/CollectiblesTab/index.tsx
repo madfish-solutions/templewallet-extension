@@ -1,5 +1,6 @@
 import React, { FC, memo, useCallback, useMemo } from 'react';
 
+import { emptyFn } from '@rnw-community/shared';
 import { isEqual } from 'lodash';
 
 import { SyncSpinner } from 'app/atoms';
@@ -9,7 +10,7 @@ import DropdownWrapper from 'app/atoms/DropdownWrapper';
 import { IconButton } from 'app/atoms/IconButton';
 import { ScrollBackUpButton } from 'app/atoms/ScrollBackUpButton';
 import { SimpleInfiniteScroll } from 'app/atoms/SimpleInfiniteScroll';
-import { useCollectiblesListingLogic } from 'app/hooks/use-collectibles-listing-logic';
+import { useCollectiblesListingLogic, useEvmCollectiblesListingLogic } from 'app/hooks/use-collectibles-listing-logic';
 import { ReactComponent as FiltersIcon } from 'app/icons/base/filteroff.svg';
 import { ReactComponent as EditingIcon } from 'app/icons/editing.svg';
 import { ContentContainer, StickyBar } from 'app/layouts/containers';
@@ -18,14 +19,15 @@ import {
   LOCAL_STORAGE_SHOW_INFO_TOGGLE_KEY
 } from 'app/pages/Collectibles/constants';
 import { AssetsSelectors } from 'app/pages/Home/OtherComponents/Assets.selectors';
-import { ChainsDropdown, ChainSelect, useChainSelectController } from 'app/templates/ChainSelect';
+import { ChainsDropdown } from 'app/templates/ChainSelect';
 import { ChainSelectController } from 'app/templates/ChainSelect/controller';
 import { ButtonForManageDropdown } from 'app/templates/ManageDropdown';
 import { SearchBarField } from 'app/templates/SearchField';
 import { setTestID } from 'lib/analytics';
 import { useEnabledAccountCollectiblesSlugs } from 'lib/assets/hooks';
+import { useEnabledEvmChainAccountCollectiblesSlugs } from 'lib/assets/hooks/collectibles';
 import { AssetTypesEnum } from 'lib/assets/types';
-import { useCollectiblesSortPredicate } from 'lib/assets/use-sorting';
+import { useEvmCollectiblesSortPredicate, useTezosCollectiblesSortPredicate } from 'lib/assets/use-sorting';
 import { T, t } from 'lib/i18n';
 import { useMemoWithCompare } from 'lib/ui/hooks';
 import { useLocalStorage } from 'lib/ui/local-storage';
@@ -33,17 +35,21 @@ import Popper, { PopperChildren, PopperPopup, PopperRenderProps } from 'lib/ui/P
 import { useScrollIntoView } from 'lib/ui/use-scroll-into-view';
 import { Link } from 'lib/woozie';
 import { UNDER_DEVELOPMENT_MSG } from 'temple/evm/under_dev_msg';
-import { useAccountAddressForTezos } from 'temple/front';
-import { TezosNetworkEssentials } from 'temple/networks';
+import { useAccountAddressForEvm, useAccountAddressForTezos } from 'temple/front';
+import { EvmNetworkEssentials, TezosNetworkEssentials } from 'temple/networks';
 
-import { CollectibleItem } from './CollectibleItem';
+import { EvmCollectibleItem, TezosCollectibleItem } from './CollectibleItem';
 import { CollectibleTabSelectors } from './selectors';
 
-export const CollectiblesTab = memo(() => {
-  const chainSelectController = useChainSelectController();
+interface CollectiblesTabProps {
+  chainSelectController: ChainSelectController;
+}
+
+export const CollectiblesTab = memo<CollectiblesTabProps>(({ chainSelectController }) => {
   const network = chainSelectController.value;
 
   const accountTezAddress = useAccountAddressForTezos();
+  const accountEvmAddress = useAccountAddressForEvm();
 
   if (network.kind === 'tezos' && accountTezAddress)
     return (
@@ -54,16 +60,123 @@ export const CollectiblesTab = memo(() => {
       />
     );
 
+  if (network.kind === 'evm' && accountEvmAddress)
+    return (
+      <EvmCollectiblesTab
+        network={network}
+        publicKeyHash={accountEvmAddress}
+        chainSelectController={chainSelectController}
+      />
+    );
+
   return (
     <ContentContainer className="mt-3">
-      <div className="flex items-center mb-4">
-        <div className="flex-1 text-xl">Change network:</div>
-
-        <ChainSelect controller={chainSelectController} />
-      </div>
-
-      <span className="text-center">{UNDER_DEVELOPMENT_MSG}</span>
+      <div className="text-center py-3">{UNDER_DEVELOPMENT_MSG}</div>
     </ContentContainer>
+  );
+});
+
+interface EvmCollectiblesTabProps {
+  network: EvmNetworkEssentials;
+  publicKeyHash: HexString;
+  chainSelectController: ChainSelectController;
+}
+
+const EvmCollectiblesTab = memo<EvmCollectiblesTabProps>(({ network, publicKeyHash, chainSelectController }) => {
+  const { chainId: evmChainId } = network;
+
+  const allSlugs = useEnabledEvmChainAccountCollectiblesSlugs(publicKeyHash, evmChainId);
+
+  const assetsSortPredicate = useEvmCollectiblesSortPredicate(publicKeyHash, evmChainId);
+
+  const allSlugsSorted = useMemoWithCompare(
+    () => [...allSlugs].sort(assetsSortPredicate),
+    [allSlugs, assetsSortPredicate],
+    isEqual
+  );
+
+  const { paginatedSlugs, isSyncing, loadNext } = useEvmCollectiblesListingLogic(allSlugsSorted, evmChainId);
+
+  const shouldScrollToTheBar = paginatedSlugs.length > 0;
+
+  const stickyBarRef = useScrollIntoView<HTMLDivElement>(shouldScrollToTheBar, { behavior: 'smooth' });
+
+  const contentElement = useMemo(
+    () => (
+      <div className="grid grid-cols-3 gap-2">
+        {paginatedSlugs.map(slug => (
+          <EvmCollectibleItem key={slug} assetSlug={slug} evmChainId={evmChainId} />
+        ))}
+      </div>
+    ),
+    [paginatedSlugs, evmChainId]
+  );
+
+  const renderManageDropdown = useCallback<PopperPopup>(
+    props => (
+      <ManageButtonDropdown
+        {...props}
+        areDetailsShown={false}
+        adultBlur={false}
+        toggleDetailsShown={emptyFn}
+        toggleAdultBlur={emptyFn}
+      />
+    ),
+    []
+  );
+
+  const renderManageButton = useCallback<PopperChildren>(
+    ({ ref, opened, toggleOpened }) => (
+      <ButtonForManageDropdown
+        ref={ref}
+        opened={opened}
+        tooltip={t('manageAssetsList')}
+        onClick={toggleOpened}
+        testID={AssetsSelectors.manageButton}
+        testIDProperties={{ listOf: 'Collectibles' }}
+      />
+    ),
+    []
+  );
+
+  return (
+    <>
+      <StickyBar ref={stickyBarRef}>
+        <SearchBarField
+          value="Not working yet"
+          onValueChange={emptyFn}
+          testID={AssetsSelectors.searchAssetsInputCollectibles}
+        />
+
+        <Popper
+          placement="bottom-end"
+          strategy="fixed"
+          popup={props => <ChainsDropdown controller={chainSelectController} {...props} />}
+        >
+          {({ ref, opened, toggleOpened }) => (
+            <IconButton Icon={FiltersIcon} ref={ref} active={opened} onClick={toggleOpened} />
+          )}
+        </Popper>
+
+        <Popper placement="bottom-end" strategy="fixed" popup={renderManageDropdown}>
+          {renderManageButton}
+        </Popper>
+      </StickyBar>
+
+      <ContentContainer>
+        {paginatedSlugs.length === 0 ? (
+          buildEmptySection(isSyncing)
+        ) : (
+          <>
+            <SimpleInfiniteScroll loadNext={loadNext}>{contentElement}</SimpleInfiniteScroll>
+
+            <ScrollBackUpButton />
+
+            {isSyncing && <SyncSpinner className="mt-6" />}
+          </>
+        )}
+      </ContentContainer>
+    </>
   );
 });
 
@@ -84,7 +197,7 @@ const TezosCollectiblesTab = memo<TezosCollectiblesTabProps>(({ network, publicK
 
   const allSlugs = useEnabledAccountCollectiblesSlugs(publicKeyHash, tezosChainId);
 
-  const assetsSortPredicate = useCollectiblesSortPredicate(publicKeyHash, tezosChainId);
+  const assetsSortPredicate = useTezosCollectiblesSortPredicate(publicKeyHash, tezosChainId);
 
   const allSlugsSorted = useMemoWithCompare(
     () => [...allSlugs].sort(assetsSortPredicate),
@@ -103,7 +216,7 @@ const TezosCollectiblesTab = memo<TezosCollectiblesTabProps>(({ network, publicK
     () => (
       <div className="grid grid-cols-3 gap-2">
         {displayedSlugs.map(slug => (
-          <CollectibleItem
+          <TezosCollectibleItem
             key={slug}
             assetSlug={slug}
             accountPkh={publicKeyHash}
