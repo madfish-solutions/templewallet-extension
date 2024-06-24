@@ -4,11 +4,6 @@ const config: PlaywrightTestConfig = {
   fullyParallel: false,
   testDir: './src',
   workers: 1,
-  use: {
-    screenshot: 'only-on-failure',
-    video: 'retain-on-failure',
-    trace: 'retain-on-failure'
-  },
   projects: [
     {
       name: 'chromium',

@@ -5,10 +5,10 @@
 import retry from 'async-retry';
 import { E2eMessageType } from 'src/lib/e2e/types';
 
-import { CustomBrowserContext } from './classes/browser-context.class';
-import { test, openBrowser, browser, EXTENSION_ID } from './fixtures/extension';
-import { WITH_EXTENSION_RESET } from './utils/env.utils';
-import { RETRY_OPTIONS } from './utils/timing.utils';
+import { CustomBrowserContext } from '../classes/browser-context.class';
+import { test, openBrowser, browser, EXTENSION_ID } from './extension';
+import { WITH_EXTENSION_RESET } from '../utils/env.utils';
+import { RETRY_OPTIONS } from '../utils/timing.utils';
 
 let EXTENSION_URL: string | undefined;
 
@@ -70,6 +70,8 @@ async function afterAll() {
     // [ Extension reload ]
 
     await CustomBrowserContext.page.evaluate(() => chrome.runtime.reload()).catch(() => void 0);
+
+    await CustomBrowserContext.page.video()?.saveAs('test-results/video-result.webm')
 
     await retry(() => {
       if (!CustomBrowserContext.page.isClosed()) throw new Error('Failed to reset extension');

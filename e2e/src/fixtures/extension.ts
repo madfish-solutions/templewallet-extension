@@ -40,7 +40,8 @@ export async function openBrowser() {
 
   browser = await chromium.launchPersistentContext('', {
     headless: false,
-    args: [`--disable-extensions-except=${pathToExtension}`, `--load-extension=${pathToExtension}`]
+    args: [`--disable-extensions-except=${pathToExtension}`, `--load-extension=${pathToExtension}`],
+    recordVideo: { dir: 'test-results/' }
   });
 
   return browser;
