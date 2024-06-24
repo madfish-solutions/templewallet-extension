@@ -12,11 +12,9 @@ describeScenario('Import Wallet 2', () => {
 
     await Pages.SetWallet.passwordField.fill(envVars.DEFAULT_PASSWORD);
     await Pages.SetWallet.repeatPasswordField.fill(envVars.DEFAULT_PASSWORD);
+
     await Pages.SetWallet.acceptTerms.click();
     await Pages.SetWallet.importButton.click();
-
-    await Pages.ImportExistingWallet.enterSeedPhrase(envVars.DEFAULT_HD_ACCOUNT_SEED_PHRASE);
-
 
     await Pages.NewsletterModal.closeButton.click();
   });
