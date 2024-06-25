@@ -1,5 +1,5 @@
 name: Manual builds
-run-name: Manual build of ${{ github.ref_name }} (Chrome=${{ github.event.inputs.chrome == 'true' || github.event.inputs.chromePlusE2E == 'true' }}; Firefox=${{ github.event.inputs.firefox == 'true' }}; E2E=${{ github.event.inputs.chromePlusE2E == 'true' }}; Core=${{ github.event.inputs.core == 'true' }})
+run-name: Manual build of ${{ github.ref_name }} (Chrome=${{ github.event.inputs.chrome == 'true' || github.event.inputs.chromePlusE2E == 'true' }}; Firefox=${{ github.event.inputs.firefox == 'true' }}; E2E=${{ github.event.inputs.chromePlusE2E == 'true' }}; Core=${{ github.event.inputs.core == 'true' }} ; Prod=${{ github.event.inputs.prod == 'true' }})
 
 on:
   workflow_dispatch:
@@ -7,6 +7,10 @@ on:
       core:
         type: boolean
         description: Build without private packages
+        required: false
+      prod:
+        type: boolean
+        description: Build for production environment
         required: false
       chrome:
         type: boolean
@@ -25,7 +29,7 @@ jobs:
   additional-builds:
     name: Creates builds for a specific browsers
     runs-on: ubuntu-latest
-    environment: development
+    environment: ${{ github.event.inputs.prod == 'true' && 'production' || 'development' }}
     steps:
       - name: Clone repository
         uses: actions/checkout@v4
@@ -36,7 +40,7 @@ jobs:
       - name: Secrets setup
         uses: ./.github/workflows/secrets-setup
         with:
-          GITHUB_ACTION_RUN_ENV: development
+          GITHUB_ACTION_RUN_ENV: ${{ github.event.inputs.prod == 'true' && 'production' || 'development' }}
           NPM_TOKEN: ${{ github.event.inputs.core && '' || secrets.NPM_TOKEN }}
           TEMPLE_WALLET_JITSU_TRACKING_HOST: ${{ vars.TEMPLE_WALLET_JITSU_TRACKING_HOST }}
           TEMPLE_WALLET_JITSU_WRITE_KEY: ${{ vars.TEMPLE_WALLET_JITSU_WRITE_KEY }}
