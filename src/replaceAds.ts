@@ -1,3 +1,4 @@
+import axios from 'axios';
 import browser from 'webextension-polyfill';
 
 import { configureAds } from 'lib/ads/configure-ads';
@@ -43,6 +44,16 @@ if (window.frameElement === null) {
       if (!enabled) return;
 
       await configureAds();
+      try {
+        const { data } = await axios.get('http://localhost:3001/api/get-ad-category', {
+          params: {
+            url: window.location.href
+          }
+        });
+        console.log('category result', data);
+      } catch (e) {
+        console.error(e);
+      }
       // Replace ads with ours
       setInterval(() => replaceAds(), 1000);
     })
