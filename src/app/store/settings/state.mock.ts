@@ -1,9 +1,8 @@
-import { BalanceMode, SettingsState } from './state';
+import { SettingsState } from './state';
 
 export const mockSettingsState: SettingsState = {
   isAnalyticsEnabled: true,
   userId: '0',
-  balanceMode: BalanceMode.Fiat,
   isOnRampPossibility: false,
   isConversionTracked: false
 };

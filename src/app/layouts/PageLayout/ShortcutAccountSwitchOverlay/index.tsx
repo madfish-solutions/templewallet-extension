@@ -7,15 +7,15 @@ import useOnClickOutside from 'use-onclickoutside';
 import Divider from 'app/atoms/Divider';
 import { useAccountSelectShortcut } from 'app/hooks/use-account-select-shortcut';
 import { useModalScrollLock } from 'app/hooks/use-modal-scroll-lock';
-import { ReactComponent as SadSearchIcon } from 'app/icons/sad-search.svg';
+import { ReactComponent as SadSearchIcon } from 'app/icons/monochrome/sad-search.svg';
 import SearchField from 'app/templates/SearchField';
-import { useGasToken } from 'lib/assets/hooks';
 import { searchHotkey } from 'lib/constants';
 import { T, t } from 'lib/i18n';
-import { useAccount, useRelevantAccounts, useSetAccountPkh } from 'lib/temple/front';
 import Portal from 'lib/ui/Portal';
-import { searchAndFilterItems } from 'lib/utils/search-items';
 import { HistoryAction, navigate } from 'lib/woozie';
+import { useCurrentAccountId, useChangeAccount, useVisibleAccounts } from 'temple/front';
+import { searchAndFilterAccounts } from 'temple/front/accounts';
+import { useAccountsGroups } from 'temple/front/groups';
 
 import { AccountItem } from './AccountItem';
 
@@ -27,41 +27,29 @@ export const ShortcutAccountSwitchOverlay = memo(() => {
   useModalScrollLock(opened, accountSwitchRef);
   useOnClickOutside(accountSwitchRef, () => setOpened(false));
 
-  const allAccounts = useRelevantAccounts();
-  const account = useAccount();
-  const setAccountPkh = useSetAccountPkh();
-  const { assetName: gasTokenName } = useGasToken();
+  const currentAccountId = useCurrentAccountId();
+  const allAccounts = useVisibleAccounts();
+  const setAccountId = useChangeAccount();
 
   const [searchValue, setSearchValue] = useState('');
   const [focusedAccountItemIndex, setFocusedAccountItemIndex] = useState(0);
 
-  const filteredAccounts = useMemo(() => {
-    if (searchValue.length === 0) {
-      return allAccounts;
-    }
-
-    return searchAndFilterItems(
-      allAccounts,
-      searchValue.toLowerCase(),
-      [
-        { name: 'name', weight: 1 },
-        { name: 'publicKeyHash', weight: 0.25 }
-      ],
-      null,
-      0.35
-    );
-  }, [searchValue, allAccounts]);
+  const filteredAccounts = useMemo(
+    () => (searchValue.length ? searchAndFilterAccounts(allAccounts, searchValue) : allAccounts),
+    [searchValue, allAccounts]
+  );
+  const filteredGroups = useAccountsGroups(filteredAccounts);
 
   const handleAccountClick = useCallback(
-    (publicKeyHash: string) => {
-      const selected = publicKeyHash === account.publicKeyHash;
+    (id: string) => {
+      const selected = id === currentAccountId;
       if (!selected) {
-        setAccountPkh(publicKeyHash);
+        setAccountId(id);
       }
       setOpened(false);
       navigate('/', HistoryAction.Replace);
     },
-    [account, setAccountPkh, setOpened]
+    [currentAccountId, setAccountId, setOpened]
   );
 
   const handleCleanButtonClick = useCallback(() => {
@@ -80,8 +68,8 @@ export const ShortcutAccountSwitchOverlay = memo(() => {
       if (e.key === 'Enter') {
         e.preventDefault();
 
-        const focusedAccountPkh = filteredAccounts[focusedAccountItemIndex].publicKeyHash;
-        handleAccountClick(focusedAccountPkh);
+        const focusedAccount = filteredAccounts[focusedAccountItemIndex];
+        handleAccountClick(focusedAccount!.id);
 
         return;
       }
@@ -141,7 +129,7 @@ export const ShortcutAccountSwitchOverlay = memo(() => {
         }}
         unmountOnExit
       >
-        <div className="fixed inset-0 z-50 w-full h-full bg-black bg-opacity-20">
+        <div className="fixed inset-0 z-overlay w-full h-full bg-black bg-opacity-20">
           <div
             ref={accountSwitchRef}
             tabIndex={0}
@@ -161,11 +149,6 @@ export const ShortcutAccountSwitchOverlay = memo(() => {
                 'text-gray-500 placeholder-gray-600 text-sm leading-tight'
               )}
               placeholder={t('searchAccount', [searchHotkey])}
-              searchIconClassName="h-5 w-auto text-gray-600 stroke-current"
-              searchIconWrapperClassName="px-2"
-              cleanButtonClassName="border-gray-600"
-              cleanButtonIconClassName="text-gray-600 stroke-current"
-              cleanButtonStyle={{ backgroundColor: 'transparent' }}
               onValueChange={handleSearchValueChange}
               onCleanButtonClick={handleCleanButtonClick}
             />
@@ -180,16 +163,21 @@ export const ShortcutAccountSwitchOverlay = memo(() => {
                       <SadSearchIcon />
                     </div>
                   ) : (
-                    filteredAccounts.map((acc, index) => (
-                      <AccountItem
-                        key={acc.publicKeyHash}
-                        account={acc}
-                        focused={focusedAccountItemIndex === index}
-                        gasTokenName={gasTokenName}
-                        arrayIndex={index}
-                        itemsArrayRef={accountItemsRef}
-                        onClick={() => handleAccountClick(acc.publicKeyHash)}
-                      />
+                    filteredGroups.map(({ id, name, accounts }) => (
+                      <React.Fragment key={id}>
+                        <div className="text-sm font-medium text-gray-500">{name}</div>
+                        {accounts.map(acc => (
+                          <AccountItem
+                            key={acc.id}
+                            account={acc}
+                            focused={filteredAccounts[focusedAccountItemIndex]?.id === acc.id}
+                            arrayIndex={filteredAccounts.findIndex(a => a.id === acc.id)}
+                            itemsArrayRef={accountItemsRef}
+                            searchValue={searchValue}
+                            onClick={() => handleAccountClick(acc.id)}
+                          />
+                        ))}
+                      </React.Fragment>
                     ))
                   )}
                 </div>

@@ -1,5 +1,7 @@
 type nullish = null | undefined;
 
+type HexString = `0x${string}`;
+
 type JSONifiable = string | number | boolean | null | { [x: string]: JSONifiable | undefined } | JSONifiable[];
 
 type EmptyFn = () => void;
@@ -12,8 +14,19 @@ type SyncFn<T, R = void> = (arg: T) => R;
 
 type StringRecord<T = string> = Record<string, T>;
 
-interface PropsWithChildren {
-  children: import('react').ReactNode;
-}
+/** A more strict way to use Record, while `noUncheckedIndexedAccess` is not turned on. */
+type OptionalRecord<T = string> = {
+  [key in string]?: T;
+};
+
+type NonEmptyArray<T> = [T, ...T[]];
+
+type NonNullableFields<T> = {
+  [P in keyof T]: NonNullable<T[P]>;
+};
+
+type NonNullableField<T, K extends keyof T> = T & NonNullableFields<Pick<T, K>>;
+
+type PropsWithChildren<P = unknown> = P & { children: import('react').ReactNode };
 
 type PropsWithClassName<P = unknown> = P & { className?: string };

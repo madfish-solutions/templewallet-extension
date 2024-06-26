@@ -22,16 +22,19 @@ export const CreateWallet: FC = () => {
   return (
     <PageLayout pageTitle={t('createWallet')}>
       <LockedWalletExists locked={locked} />
+
       {!backupCompleted && (
         <Template title={t('backupNewSeedPhrase')}>
           <NewSeedBackup seedPhrase={seedPhrase} onBackupComplete={() => setBackupCompleted(true)} />
         </Template>
       )}
+
       {backupCompleted && !verificationCompleted && (
         <Template title={t('verifySeedPhrase')}>
           <NewSeedVerify seedPhrase={seedPhrase} onVerificationComplete={() => setVerificationCompleted(true)} />
         </Template>
       )}
+
       {backupCompleted && verificationCompleted && <SetWalletPassword seedPhrase={seedPhrase} />}
     </PageLayout>
   );

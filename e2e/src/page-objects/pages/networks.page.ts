@@ -1,10 +1,7 @@
-import retry from 'async-retry';
-import { CustomNetworkSettingsSelectors } from 'src/app/templates/CustomNetworkSettings/CustomNetworkSettingsSelectors';
-
-import { RETRY_OPTIONS, VERY_SHORT_TIMEOUT } from 'e2e/src/utils/timing.utils';
+import { NetworkSettingsSelectors as CustomNetworkSettingsSelectors } from 'src/app/pages/Settings/Networks/selectors';
 
 import { Page } from '../../classes/page.class';
-import { createPageElement, findElement } from '../../utils/search.utils';
+import { createPageElement } from '../../utils/search.utils';
 
 export class NetworksPage extends Page {
   networkItem = createPageElement(CustomNetworkSettingsSelectors.networkItem);
@@ -18,41 +15,5 @@ export class NetworksPage extends Page {
     await this.nameInput.waitForDisplayed();
     await this.RPCbaseURLinput.waitForDisplayed();
     await this.addNetworkButton.waitForDisplayed();
-  }
-
-  async isCustomNetworkAdded(url: string) {
-    await findElement(
-      CustomNetworkSettingsSelectors.networkItem,
-      { url },
-      VERY_SHORT_TIMEOUT,
-      `The custom network with address: '${url}' not found`
-    );
-
-    const deleteCustomNetworkButton = await findElement(
-      CustomNetworkSettingsSelectors.deleteCustomNetworkButton,
-      { url },
-      VERY_SHORT_TIMEOUT,
-      `The delete custom network button related to address: '${url}' not found`
-    );
-
-    return deleteCustomNetworkButton;
-  }
-
-  async clickDeleteCustomNetwork(url: string) {
-    const customNetworkDeleteBtn = await this.isCustomNetworkAdded(url);
-    await customNetworkDeleteBtn.click();
-  }
-
-  async isCustomNetworkDeleted(url: string) {
-    await retry(
-      () =>
-        this.isCustomNetworkAdded(url).then(
-          () => {
-            throw new Error(`The custom network '${url}' not deleted`);
-          },
-          () => undefined
-        ),
-      RETRY_OPTIONS
-    );
   }
 }

@@ -7,7 +7,7 @@ import { FormField } from 'app/atoms';
 import CopyButton from 'app/atoms/CopyButton';
 import Divider from 'app/atoms/Divider';
 import HashShortView from 'app/atoms/HashShortView';
-import { ReactComponent as CopyIcon } from 'app/icons/copy.svg';
+import { ReactComponent as CopyIcon } from 'app/icons/monochrome/copy.svg';
 import useTopUpUpdate from 'app/pages/Buy/Crypto/Exolix/hooks/useTopUpUpdate.hook';
 import ErrorComponent from 'app/pages/Buy/Crypto/Exolix/steps/ErrorComponent';
 import { AnalyticsEventCategory, useAnalytics } from 'lib/analytics';
@@ -130,7 +130,7 @@ const ApproveStep: FC<Props> = ({ exchangeData, setExchangeData, setStep, isErro
               <CopyButton text={exchangeData.id} type="link" testID={ExolixSelectors.topupSecondStepCopyButton}>
                 <CopyIcon
                   style={{ verticalAlign: 'inherit' }}
-                  className="h-4 ml-1 w-auto inline stroke-orange stroke-2"
+                  className="h-4 ml-1 w-auto inline stroke-orange-500 stroke-2"
                   onClick={() => copy()}
                 />
               </CopyButton>
@@ -195,7 +195,7 @@ const ApproveStep: FC<Props> = ({ exchangeData, setExchangeData, setStep, isErro
                 trackEvent(ExolixSelectors.topupSecondStepCancelButton, AnalyticsEventCategory.ButtonPress);
                 setStep(0);
               }}
-              className="font inter font-medium text-red-700 text-sm mb-8 inline-block cursor-pointer inline-block w-auto"
+              className="font inter font-medium text-red-700 text-sm mb-8 inline-block cursor-pointer w-auto"
             >
               <T id={'cancel'} />
             </p>

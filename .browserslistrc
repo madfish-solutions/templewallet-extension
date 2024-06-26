@@ -1,8 +1,7 @@
 [production]
 chrome >= 103
 firefox >= 52
-opera >= 36
-safari >= 14
+opera >= 70
 
 [development]
 last 1 chrome version

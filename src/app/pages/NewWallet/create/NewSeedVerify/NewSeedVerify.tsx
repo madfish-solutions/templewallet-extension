@@ -88,28 +88,26 @@ export const NewSeedVerify: FC<NewSeedVerifyProps> = ({ seedPhrase, onVerificati
   );
 
   return (
-    <div className="w-full max-w-md mx-auto my-8">
-      <form className="w-full mt-8" onSubmit={handleSubmit(onVerificationComplete)}>
-        <h3 className="mt-2 mb-8 text-gray-600 text-xl font-light text-center">
-          <T id="verifySeedPhraseDescription" />
-        </h3>
+    <form className="flex flex-col" onSubmit={handleSubmit(onVerificationComplete)}>
+      <h3 className="mt-2 mb-8 text-gray-600 text-xl font-light text-center">
+        <T id="verifySeedPhraseDescription" />
+      </h3>
 
-        <div className="flex flex-col">
-          {wordsToCheckPositions.map((indexToFill, i) => (
-            <WordsRow
-              key={i}
-              allWords={words}
-              indexToFill={indexToFill}
-              onFill={isPresent => handleFill(indexToFill, isPresent)}
-            />
-          ))}
-        </div>
+      <div className="flex flex-col">
+        {wordsToCheckPositions.map((indexToFill, i) => (
+          <WordsRow
+            key={i}
+            allWords={words}
+            indexToFill={indexToFill}
+            onFill={isPresent => handleFill(indexToFill, isPresent)}
+          />
+        ))}
+      </div>
 
-        <FormSubmitButton disabled={!filled} className="w-96 my-2 mx-auto" testID={NewSeedVerifySelectors.nextButton}>
-          <T id="next" />
-        </FormSubmitButton>
-      </form>
-    </div>
+      <FormSubmitButton disabled={!filled} testID={NewSeedVerifySelectors.nextButton}>
+        <T id="next" />
+      </FormSubmitButton>
+    </form>
   );
 };
 

@@ -1,43 +1,31 @@
-import React, { FC, InputHTMLAttributes, useCallback, useRef, useState } from 'react';
+import React, { FC, InputHTMLAttributes, memo, useCallback, useRef, useState } from 'react';
 
 import { emptyFn } from '@rnw-community/shared';
-import classNames from 'clsx';
+import clsx from 'clsx';
 
+import { IconBase } from 'app/atoms';
 import CleanButton, { CLEAN_BUTTON_ID } from 'app/atoms/CleanButton';
-import { ReactComponent as SearchIcon } from 'app/icons/search.svg';
+import { ReactComponent as SearchIcon } from 'app/icons/base/search.svg';
 import { setTestID, TestIDProps } from 'lib/analytics';
 
-export interface SearchFieldProps extends InputHTMLAttributes<HTMLInputElement>, TestIDProps {
+interface Props extends InputHTMLAttributes<HTMLInputElement>, TestIDProps {
   value: string;
   onValueChange: (value: string) => void;
   bottomOffset?: string;
   containerClassName?: string;
-  searchIconClassName?: string;
-  searchIconWrapperClassName?: string;
-  cleanButtonClassName?: string;
-  cleanButtonIconClassName?: string;
-  searchIconStyle?: React.CSSProperties;
-  cleanButtonStyle?: React.CSSProperties;
-  cleanButtonIconStyle?: React.CSSProperties;
   onCleanButtonClick?: () => void;
 }
 
-const SearchField: FC<SearchFieldProps> = ({
+const SearchField: FC<Props> = ({
   bottomOffset = '0.45rem',
   className,
   containerClassName,
   value,
+  placeholder,
   onValueChange,
   onFocus = emptyFn,
   onBlur = emptyFn,
   onCleanButtonClick = emptyFn,
-  searchIconClassName,
-  searchIconWrapperClassName,
-  cleanButtonClassName,
-  searchIconStyle,
-  cleanButtonIconClassName,
-  cleanButtonStyle,
-  cleanButtonIconStyle,
   testID,
   ...rest
 }) => {
@@ -83,45 +71,52 @@ const SearchField: FC<SearchFieldProps> = ({
     onCleanButtonClick();
   }, [onCleanButtonClick, onValueChange, value]);
 
+  const notEmpty = Boolean(focused || value);
+
   return (
-    <div className={classNames('w-full flex flex-col', containerClassName)}>
-      <div className="relative flex items-stretch">
-        <input
-          ref={inputRef}
-          type="text"
-          className={classNames('appearance-none w-full py-2 pl-8 pr-8 text-sm leading-tight', className)}
-          value={value}
-          spellCheck={false}
-          autoComplete="off"
-          onFocus={handleFocus}
-          onBlur={handleBlur}
-          onChange={handleChange}
-          {...setTestID(testID)}
-          {...rest}
-        />
+    <div className={clsx('group relative', containerClassName)}>
+      <input
+        ref={inputRef}
+        type="text"
+        className={clsx('appearance-none w-full py-2 px-8 text-font-description', className)}
+        value={value}
+        spellCheck={false}
+        autoComplete="off"
+        placeholder={focused ? undefined : placeholder}
+        onFocus={handleFocus}
+        onBlur={handleBlur}
+        onChange={handleChange}
+        {...setTestID(testID)}
+        {...rest}
+      />
 
-        <div
-          className={classNames(
-            'absolute left-0 top-0 bottom-0 flex items-center pointer-events-none',
-            searchIconWrapperClassName
-          )}
-        >
-          <SearchIcon style={searchIconStyle} className={classNames('stroke-current', searchIconClassName)} />
-        </div>
-
-        {focused && (
-          <CleanButton
-            bottomOffset={bottomOffset}
-            className={cleanButtonClassName}
-            iconClassName={cleanButtonIconClassName}
-            style={cleanButtonStyle}
-            iconStyle={cleanButtonIconStyle}
-            onClick={handleClean}
-          />
+      <IconBase
+        Icon={SearchIcon}
+        size={12}
+        className={clsx(
+          'group-hover:text-primary absolute left-3 top-2 pointer-events-none',
+          notEmpty ? 'text-primary' : 'text-grey-1'
         )}
-      </div>
+      />
+
+      {notEmpty && <CleanButton onClick={handleClean} />}
     </div>
   );
 };
 
 export default SearchField;
+
+export const SearchBarField = memo<Props>(({ className, containerClassName, value, ...rest }) => (
+  <SearchField
+    value={value}
+    className={clsx(
+      'bg-input-low rounded-lg',
+      'placeholder-grey-1 hover:placeholder-text caret-primary',
+      'transition ease-in-out duration-200',
+      className
+    )}
+    containerClassName={clsx('flex-1 mr-2', containerClassName)}
+    placeholder="Search"
+    {...rest}
+  />
+));

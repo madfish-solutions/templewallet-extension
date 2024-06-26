@@ -2,6 +2,8 @@ import React, { memo, PropsWithChildren, useCallback, useState } from 'react';
 
 import InfiniteScroll from 'react-infinite-scroll-component';
 
+import { APP_CONTENT_PAPER_DOM_ID, SCROLL_DOCUMENT } from 'app/layouts/containers';
+
 interface Props {
   loadNext: EmptyFn;
 }
@@ -29,6 +31,7 @@ export const SimpleInfiniteScroll = memo<PropsWithChildren<Props>>(({ loadNext, 
       // `InfiniteScroll`'s loader conditions r not suited here
       loader={null}
       scrollThreshold="600px"
+      scrollableTarget={SCROLL_DOCUMENT ? undefined : APP_CONTENT_PAPER_DOM_ID}
     >
       {children}
     </InfiniteScroll>

@@ -11,9 +11,9 @@ import { delay } from 'lib/utils';
 
 import { SyncSettingsSelectors } from './SyncSettings.selectors';
 
-type FormData = {
+interface FormData {
   password: string;
-};
+}
 
 const SyncSettings: FC = () => {
   const { generateSyncPayload } = useTempleClient();

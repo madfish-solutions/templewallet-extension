@@ -53,7 +53,7 @@ export const SeedLengthSelect: FC<SeedLengthSelectProps> = ({ options, currentOp
   return (
     <div
       ref={selectRef}
-      className={classNames('absolute right-0 z-10 text-gray-700 border-2 rounded-md bg-white cursor-pointer')}
+      className={classNames('absolute right-0 z-1 text-gray-700 border-2 rounded-md bg-white cursor-pointer')}
     >
       <div className={classNames('flex flex-row justify-around p-2')} onClick={() => setIsOpen(!isOpen)}>
         <span style={{ fontSize: 13 }} {...setTestID(ImportAccountSelectors.mnemonicDropDownButton)}>

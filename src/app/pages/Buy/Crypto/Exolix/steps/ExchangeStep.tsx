@@ -6,7 +6,7 @@ import { FormSubmitButton } from 'app/atoms';
 import CopyButton from 'app/atoms/CopyButton';
 import Divider from 'app/atoms/Divider';
 import HashShortView from 'app/atoms/HashShortView';
-import { ReactComponent as CopyIcon } from 'app/icons/copy.svg';
+import { ReactComponent as CopyIcon } from 'app/icons/monochrome/copy.svg';
 import useTopUpUpdate from 'app/pages/Buy/Crypto/Exolix/hooks/useTopUpUpdate.hook';
 import ErrorComponent from 'app/pages/Buy/Crypto/Exolix/steps/ErrorComponent';
 import { getCurrentLocale, T } from 'lib/i18n';
@@ -119,7 +119,7 @@ const ExchangeStep: FC<Props> = ({ exchangeData, setExchangeData, setStep, step,
                   >
                     <CopyIcon
                       style={{ verticalAlign: 'inherit' }}
-                      className={classNames('h-4 ml-1 w-auto inline', 'stroke-orange stroke-2')}
+                      className={classNames('h-4 ml-1 w-auto inline', 'stroke-orange-500 stroke-2')}
                       onClick={() => copy()}
                     />
                   </CopyButton>
@@ -185,7 +185,7 @@ const ExchangeStep: FC<Props> = ({ exchangeData, setExchangeData, setStep, step,
               <CopyButton text={exchangeData.id} type="link">
                 <CopyIcon
                   style={{ verticalAlign: 'inherit' }}
-                  className={classNames('h-4 ml-1 w-auto inline', 'stroke-orange stroke-2')}
+                  className={classNames('h-4 ml-1 w-auto inline', 'stroke-orange-500 stroke-2')}
                   onClick={() => copy()}
                 />
               </CopyButton>

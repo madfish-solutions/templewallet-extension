@@ -1,12 +1,15 @@
-import React, { memo } from 'react';
+import React, { FC, memo } from 'react';
 
 import { ReactComponent as ControlCentreIcon } from 'app/icons/control-centre.svg';
 import PageLayout from 'app/layouts/PageLayout';
+import { useChainSelectController, ChainSelectSection } from 'app/templates/ChainSelect';
 import { AssetTypesEnum } from 'lib/assets/types';
 import { T } from 'lib/i18n';
+import { UNDER_DEVELOPMENT_MSG } from 'temple/evm/under_dev_msg';
+import { useAccountAddressForTezos } from 'temple/front';
 
-import { ManageCollectibles } from './ManageCollectibles';
-import { ManageTokens } from './ManageTokens';
+import { ManageTezosCollectibles } from './ManageCollectibles';
+import { ManageTezosTokens } from './ManageTokens';
 
 interface Props {
   assetType: string;
@@ -14,6 +17,7 @@ interface Props {
 
 const ManageAssets = memo<Props>(({ assetType }) => {
   const ofCollectibles = assetType === AssetTypesEnum.Collectibles;
+  const accountTezAddress = useAccountAddressForTezos();
 
   return (
     <PageLayout
@@ -24,9 +28,33 @@ const ManageAssets = memo<Props>(({ assetType }) => {
         </>
       }
     >
-      {ofCollectibles ? <ManageCollectibles /> : <ManageTokens />}
+      <ManageAssetsForChain ofCollectibles={ofCollectibles} accountTezAddress={accountTezAddress} />
     </PageLayout>
   );
 });
+
+interface ManageAssetsForChainProps {
+  ofCollectibles: boolean;
+  accountTezAddress?: string;
+}
+
+const ManageAssetsForChain: FC<ManageAssetsForChainProps> = ({ ofCollectibles, accountTezAddress }) => {
+  const chainSelectController = useChainSelectController();
+  const network = chainSelectController.value;
+
+  return (
+    <>
+      <ChainSelectSection controller={chainSelectController} />
+
+      {network.kind !== 'tezos' || !accountTezAddress ? (
+        <div className="text-center">{UNDER_DEVELOPMENT_MSG}</div>
+      ) : ofCollectibles ? (
+        <ManageTezosCollectibles network={network} publicKeyHash={accountTezAddress} />
+      ) : (
+        <ManageTezosTokens tezosChainId={network.chainId} publicKeyHash={accountTezAddress} />
+      )}
+    </>
+  );
+};
 
 export default ManageAssets;

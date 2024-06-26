@@ -5,6 +5,9 @@ export { createEntity } from './entity.utils';
 
 export { mockPersistedState } from './state.utils';
 
-export { toLatestValue } from './epics.utils';
+export {
+  // ts-prune-ignore-next
+  toLatestValue
+} from './epics.utils';
 
 export { storageConfig, createTransformsBeforePersist, createTransformsBeforeHydrate } from './persist.utils';

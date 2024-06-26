@@ -13,21 +13,22 @@ import { Activity, buildOperStack, buildMoneyDiffs } from 'lib/temple/activity-n
 
 interface Props {
   activity: Activity;
+  tezosChainId: string;
   address: string;
 }
 
-export const ActivityItem = memo<Props>(({ activity, address }) => {
+export const ActivityItem = memo<Props>(({ tezosChainId, activity, address }) => {
   const { hash, addedAt, status } = activity;
 
   const operStack = useMemo(() => buildOperStack(activity, address), [activity, address]);
   const moneyDiffs = useMemo(() => buildMoneyDiffs(activity), [activity]);
 
   return (
-    <div className={classNames('my-3')}>
+    <div className="my-3">
       <div className="w-full flex items-center">
         <HashChip hash={hash} firstCharsCount={10} lastCharsCount={7} small className="mr-2" />
 
-        <OpenInExplorerChip hash={hash} className="mr-2" small />
+        <OpenInExplorerChip tezosChainId={tezosChainId} hash={hash} className="mr-2" small />
 
         <div className={classNames('flex-1', 'h-px', 'bg-gray-200')} />
       </div>
@@ -38,8 +39,8 @@ export const ActivityItem = memo<Props>(({ activity, address }) => {
 
           <ActivityItemStatusComp activity={activity} />
 
-          <Time
-            children={() => (
+          <Time>
+            {() => (
               <span className="text-xs font-light text-gray-500">
                 {formatDistanceToNow(new Date(addedAt), {
                   includeSeconds: true,
@@ -48,14 +49,20 @@ export const ActivityItem = memo<Props>(({ activity, address }) => {
                 })}
               </span>
             )}
-          />
+          </Time>
         </div>
 
         <div className="flex-1" />
 
         <div className="flex flex-col flex-shrink-0 pt-2">
           {moneyDiffs.map(({ assetSlug, diff }, i) => (
-            <MoneyDiffView key={i} assetId={assetSlug} diff={diff} pending={status === 'pending'} />
+            <MoneyDiffView
+              key={i}
+              tezosChainId={tezosChainId}
+              assetId={assetSlug}
+              diff={diff}
+              pending={status === 'pending'}
+            />
           ))}
         </div>
       </div>

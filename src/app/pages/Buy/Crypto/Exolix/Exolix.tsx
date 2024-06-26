@@ -1,4 +1,4 @@
-import React, { FC, useState } from 'react';
+import React, { memo, useState } from 'react';
 
 import { Anchor, Stepper } from 'app/atoms';
 import PageLayout from 'app/layouts/PageLayout';
@@ -6,30 +6,45 @@ import ApproveStep from 'app/pages/Buy/Crypto/Exolix/steps/ApproveStep';
 import ExchangeStep from 'app/pages/Buy/Crypto/Exolix/steps/ExchangeStep';
 import InitialStep from 'app/pages/Buy/Crypto/Exolix/steps/InitialStep';
 import { T, t } from 'lib/i18n';
-import { useAccount, useNetwork, useStorage } from 'lib/temple/front';
-import { Redirect } from 'lib/woozie';
+import { useStorage } from 'lib/temple/front';
+import { UNDER_DEVELOPMENT_MSG } from 'temple/evm/under_dev_msg';
+import { useAccountAddressForTezos } from 'temple/front';
 
 import { EXOLIX_CONTACT_LINK } from './config';
 import { ExolixSelectors } from './Exolix.selectors';
 import { ExchangeDataInterface } from './exolix.types';
 
-const Exolix: FC = () => (
-  <PageLayout
-    pageTitle={
-      <div className="font-medium text-sm">
-        <T id="buyWithCrypto" />
-      </div>
-    }
-  >
-    <BuyCryptoContent />
-  </PageLayout>
-);
+/**
+ * Note: Feature is only available on Tezos Mainnet.
+ * TODO: Highlight in UI/UX
+ */
+const Exolix = memo(() => {
+  const publicKeyHash = useAccountAddressForTezos();
+
+  return (
+    <PageLayout
+      pageTitle={
+        <div className="font-medium text-sm">
+          <T id="buyWithCrypto" />
+        </div>
+      }
+    >
+      {publicKeyHash ? (
+        <BuyCryptoContent publicKeyHash={publicKeyHash} />
+      ) : (
+        <div className="pb-8 text-center max-w-sm mx-auto">{UNDER_DEVELOPMENT_MSG}</div>
+      )}
+    </PageLayout>
+  );
+});
 
 export default Exolix;
 
-const BuyCryptoContent: FC = () => {
-  const network = useNetwork();
-  const { publicKeyHash } = useAccount();
+interface BuyCryptoContentProps {
+  publicKeyHash: string;
+}
+
+const BuyCryptoContent = memo<BuyCryptoContentProps>(({ publicKeyHash }) => {
   const [step, setStep] = useStorage<number>(`topup_step_state_${publicKeyHash}`, 0);
   const [isError, setIsError] = useState(false);
   const [exchangeData, setExchangeData] = useStorage<ExchangeDataInterface | null>(
@@ -42,10 +57,6 @@ const BuyCryptoContent: FC = () => {
     3: ExolixSelectors.topupThirdStepSupportButton
   };
 
-  if (network.type !== 'main') {
-    return <Redirect to={'/'} />;
-  }
-
   const steps = (stepWord => [`${stepWord} 1`, `${stepWord} 2`, `${stepWord} 3`, `${stepWord} 4`])(t('step'));
 
   return (
@@ -53,6 +64,7 @@ const BuyCryptoContent: FC = () => {
       <Stepper style={{ marginTop: 8 }} steps={steps} currentStep={step} />
       {step === 0 && (
         <InitialStep
+          publicKeyHash={publicKeyHash}
           isError={isError}
           setIsError={setIsError}
           exchangeData={exchangeData}
@@ -95,4 +107,4 @@ const BuyCryptoContent: FC = () => {
       </p>
     </div>
   );
-};
+});

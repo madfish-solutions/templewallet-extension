@@ -46,7 +46,13 @@ const Identicon: FC<IdenticonProps> = ({ type = 'jdenticon', hash, size = 100, c
               fontSize: estimateOptimalFontSize(hash.slice(0, MAX_INITIALS_LENGTH).length)
             }
           : basicOpts;
-      const imgSrc = icons[type].create(hash, opts);
+
+      let imgSrc: string;
+      try {
+        imgSrc = icons[type].create(hash, opts);
+      } catch {
+        imgSrc = icons[type].create('???', opts);
+      }
 
       const bi = `url('${imgSrc}')`;
       cache.set(key, bi);

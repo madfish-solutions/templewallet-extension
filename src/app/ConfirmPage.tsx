@@ -1,4 +1,6 @@
-import React, { FC, Fragment, memo, Suspense, useCallback, useMemo, useState } from 'react';
+import React, { FC, Fragment, memo, useCallback, useMemo, useState } from 'react';
+
+import clsx from 'clsx';
 
 import { Alert, FormSubmitButton, FormSecondaryButton } from 'app/atoms';
 import AccountTypeBadge from 'app/atoms/AccountTypeBadge';
@@ -9,56 +11,60 @@ import Money from 'app/atoms/Money';
 import Name from 'app/atoms/Name';
 import Spinner from 'app/atoms/Spinner/Spinner';
 import SubTitle from 'app/atoms/SubTitle';
-import ErrorBoundary from 'app/ErrorBoundary';
-import ContentContainer from 'app/layouts/ContentContainer';
+import { SuspenseContainer } from 'app/atoms/SuspenseContainer';
+import { LAYOUT_CONTAINER_CLASSNAME } from 'app/layouts/containers';
 import Unlock from 'app/pages/Unlock/Unlock';
 import AccountBanner from 'app/templates/AccountBanner';
-import Balance from 'app/templates/Balance';
+import { TezosBalance } from 'app/templates/Balance';
 import ConnectBanner from 'app/templates/ConnectBanner';
 import CustomSelect, { OptionRenderProps } from 'app/templates/CustomSelect';
 import DAppLogo from 'app/templates/DAppLogo';
 import { ModifyFeeAndLimit } from 'app/templates/ExpensesView/ExpensesView';
 import NetworkBanner from 'app/templates/NetworkBanner';
 import OperationView from 'app/templates/OperationView';
-import { CustomRpcContext } from 'lib/analytics';
-import { useGasToken } from 'lib/assets/hooks';
+import { CustomTezosChainIdContext } from 'lib/analytics';
 import { T, t } from 'lib/i18n';
+import { getTezosGasMetadata } from 'lib/metadata';
 import { useRetryableSWR } from 'lib/swr';
-import { useTempleClient, useAccount, useRelevantAccounts, useChainIdValue } from 'lib/temple/front';
-import { TempleAccountType, TempleDAppPayload, TempleAccount, TempleChainId } from 'lib/temple/types';
+import { useTempleClient } from 'lib/temple/front/client';
+import { TempleAccountType, TempleDAppPayload } from 'lib/temple/types';
 import { useSafeState } from 'lib/ui/hooks';
-import { delay } from 'lib/utils';
+import { delay, isTruthy } from 'lib/utils';
 import { useLocation } from 'lib/woozie';
+import { AccountForTezos, getAccountForTezos, isAccountOfActableType } from 'temple/accounts';
+import { useAccountForTezos, useAllAccounts, useTezosChainIdLoadingValue } from 'temple/front';
+import { TezosNetworkEssentials } from 'temple/networks';
 
 import { ConfirmPageSelectors } from './ConfirmPage.selectors';
 
-const ConfirmPage: FC = () => {
+const ConfirmPage = memo(() => {
   const { ready } = useTempleClient();
 
   if (ready)
     return (
-      <ContentContainer padding={false} className="min-h-screen flex flex-col items-center justify-center">
-        <ErrorBoundary whileMessage={t('fetchingConfirmationDetails')}>
-          <Suspense
-            fallback={
-              <div className="flex items-center justify-center h-screen">
-                <div>
-                  <Spinner theme="primary" className="w-20" />
-                </div>
+      <div className={clsx(LAYOUT_CONTAINER_CLASSNAME, 'min-h-screen flex flex-col items-center justify-center')}>
+        <SuspenseContainer
+          errorMessage={t('fetchingConfirmationDetails')}
+          loader={
+            <div className="flex items-center justify-center h-screen">
+              <div>
+                <Spinner theme="primary" className="w-20" />
               </div>
-            }
-          >
-            <ConfirmDAppForm />
-          </Suspense>
-        </ErrorBoundary>
-      </ContentContainer>
+            </div>
+          }
+        >
+          <ConfirmDAppForm />
+        </SuspenseContainer>
+      </div>
     );
 
   return <Unlock canImportNew={false} />;
-};
+});
 
 interface PayloadContentProps {
+  tezosNetwork: TezosNetworkEssentials;
   accountPkhToConnect: string;
+  accounts: AccountForTezos[];
   setAccountPkhToConnect: (item: string) => void;
   payload: TempleDAppPayload;
   error?: any;
@@ -66,16 +72,15 @@ interface PayloadContentProps {
 }
 
 const PayloadContent: React.FC<PayloadContentProps> = ({
+  tezosNetwork,
   accountPkhToConnect,
+  accounts,
   setAccountPkhToConnect,
   payload,
   error,
   modifyFeeAndLimit
 }) => {
-  const allAccounts = useRelevantAccounts(false);
-  const AccountOptionContent = useMemo(() => AccountOptionContentHOC(payload.networkRpc), [payload.networkRpc]);
-  const chainId = useChainIdValue(payload.networkRpc, true)!;
-  const mainnet = chainId === TempleChainId.Mainnet;
+  const AccountOptionContent = useMemo(() => AccountOptionContentHOC(tezosNetwork), [tezosNetwork]);
 
   return payload.type === 'connect' ? (
     <div className="w-full flex flex-col">
@@ -89,10 +94,10 @@ const PayloadContent: React.FC<PayloadContentProps> = ({
         </span>
       </h2>
 
-      <CustomSelect<TempleAccount, string>
+      <CustomSelect<AccountForTezos, string>
         activeItemId={accountPkhToConnect}
         getItemId={getPkh}
-        items={allAccounts}
+        items={accounts}
         maxHeight="8rem"
         onSelect={setAccountPkhToConnect}
         OptionIcon={AccountIcon}
@@ -101,26 +106,33 @@ const PayloadContent: React.FC<PayloadContentProps> = ({
       />
     </div>
   ) : (
-    <OperationView
-      payload={payload}
-      error={error}
-      networkRpc={payload.networkRpc}
-      mainnet={mainnet}
-      modifyFeeAndLimit={modifyFeeAndLimit}
-    />
+    <OperationView tezosNetwork={tezosNetwork} payload={payload} error={error} modifyFeeAndLimit={modifyFeeAndLimit} />
   );
 };
 
 export default ConfirmPage;
 
-const getPkh = (account: TempleAccount) => account.publicKeyHash;
+const CONTAINER_STYLE = {
+  width: 380,
+  height: 610
+};
 
-const ConfirmDAppForm: FC = () => {
+const getPkh = (account: AccountForTezos) => account.address;
+
+const ConfirmDAppForm = memo(() => {
   const { getDAppPayload, confirmDAppPermission, confirmDAppOperation, confirmDAppSign } = useTempleClient();
-  const allAccounts = useRelevantAccounts(false);
-  const account = useAccount();
 
-  const [accountPkhToConnect, setAccountPkhToConnect] = useState(account.publicKeyHash);
+  const allAccountsStored = useAllAccounts();
+  const allAccounts = useMemo(
+    () => allAccountsStored.map(acc => (isAccountOfActableType(acc) ? getAccountForTezos(acc) : null)).filter(isTruthy),
+    [allAccountsStored]
+  );
+
+  const currentAccountForTezos = useAccountForTezos();
+
+  const [accountPkhToConnect, setAccountPkhToConnect] = useState(
+    () => currentAccountForTezos?.address || allAccounts[0]!.address
+  );
 
   const loc = useLocation();
   const id = useMemo(() => {
@@ -141,11 +153,18 @@ const ConfirmDAppForm: FC = () => {
   const payload = data!;
   const payloadError = data!.error;
 
-  const connectedAccount = useMemo(
-    () =>
-      allAccounts.find(a => a.publicKeyHash === (payload.type === 'connect' ? accountPkhToConnect : payload.sourcePkh)),
-    [payload, allAccounts, accountPkhToConnect]
+  const tezosChainId = useTezosChainIdLoadingValue(payload.networkRpc, true)!;
+
+  const tezosNetwork = useMemo(
+    () => ({ chainId: tezosChainId, rpcBaseURL: payload.networkRpc }),
+    [tezosChainId, payload.networkRpc]
   );
+
+  const connectedAccount = useMemo(() => {
+    const address = payload.type === 'connect' ? accountPkhToConnect : payload.sourcePkh;
+
+    return allAccounts.find(acc => acc.address === address);
+  }, [allAccounts, payload, accountPkhToConnect]);
 
   const onConfirm = useCallback(
     async (confimed: boolean, modifiedTotalFee?: number, modifiedStorageLimit?: number) => {
@@ -328,14 +347,8 @@ const ConfirmDAppForm: FC = () => {
   );
 
   return (
-    <CustomRpcContext.Provider value={payload.networkRpc}>
-      <div
-        className="relative bg-white rounded-md shadow-md overflow-y-auto flex flex-col"
-        style={{
-          width: 380,
-          height: 610
-        }}
-      >
+    <CustomTezosChainIdContext.Provider value={tezosChainId}>
+      <div className="relative bg-white rounded-md shadow-md overflow-y-auto flex flex-col" style={CONTAINER_STYLE}>
         <div className="flex flex-col items-center px-4 py-2">
           <SubTitle small className={payload.type === 'connect' ? 'mt-4 mb-6' : 'mt-4 mb-2'}>
             {content.title}
@@ -367,19 +380,21 @@ const ConfirmDAppForm: FC = () => {
             <>
               {payload.type !== 'connect' && connectedAccount && (
                 <AccountBanner
+                  tezosNetwork={tezosNetwork}
                   account={connectedAccount}
-                  networkRpc={payload.networkRpc}
-                  labelIndent="sm"
+                  smallLabelIndent
                   className="w-full mb-4"
                 />
               )}
 
-              <NetworkBanner rpc={payload.networkRpc} narrow={payload.type === 'connect'} />
+              <NetworkBanner network={tezosNetwork} narrow={payload.type === 'connect'} />
 
               <PayloadContent
+                tezosNetwork={tezosNetwork}
                 error={payloadError}
                 payload={payload}
                 accountPkhToConnect={accountPkhToConnect}
+                accounts={allAccounts}
                 setAccountPkhToConnect={setAccountPkhToConnect}
                 modifyFeeAndLimit={modifyFeeAndLimit}
               />
@@ -419,40 +434,40 @@ const ConfirmDAppForm: FC = () => {
 
         <ConfirmLedgerOverlay displayed={confirming && connectedAccount?.type === TempleAccountType.Ledger} />
       </div>
-    </CustomRpcContext.Provider>
+    </CustomTezosChainIdContext.Provider>
   );
-};
+});
 
-const AccountIcon: FC<OptionRenderProps<TempleAccount>> = ({ item }) => (
-  <Identicon type="bottts" hash={item.publicKeyHash} size={32} className="flex-shrink-0 shadow-xs" />
+const AccountIcon: FC<OptionRenderProps<AccountForTezos>> = ({ item }) => (
+  <Identicon type="bottts" hash={item.id} size={32} className="flex-shrink-0 shadow-xs" />
 );
 
-const AccountOptionContentHOC = (networkRpc: string) =>
-  memo<OptionRenderProps<TempleAccount>>(({ item: acc }) => {
-    const { assetName } = useGasToken(networkRpc);
+const AccountOptionContentHOC = (tezosNetwork: TezosNetworkEssentials) =>
+  memo<OptionRenderProps<AccountForTezos>>(({ item: acc }) => {
+    const { symbol } = getTezosGasMetadata(tezosNetwork.chainId);
 
     return (
       <>
         <div className="flex flex-wrap items-center">
           <Name className="text-sm font-medium leading-tight">{acc.name}</Name>
-          <AccountTypeBadge account={acc} />
+          <AccountTypeBadge accountType={acc.type} />
         </div>
 
         <div className="flex flex-wrap items-center mt-1">
           <div className="text-xs leading-none text-gray-700">
-            <HashShortView hash={acc.publicKeyHash} />
+            <HashShortView hash={acc.address} />
           </div>
 
-          <Balance address={acc.publicKeyHash} networkRpc={networkRpc}>
+          <TezosBalance network={tezosNetwork} address={acc.address}>
             {bal => (
               <div className="ml-2 text-xs leading-none flex items-baseline text-gray-600">
                 <Money>{bal}</Money>
                 <span className="ml-1" style={{ fontSize: '0.75em' }}>
-                  {assetName}
+                  {symbol}
                 </span>
               </div>
             )}
-          </Balance>
+          </TezosBalance>
         </div>
       </>
     );

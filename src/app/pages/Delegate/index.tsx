@@ -1,19 +1,30 @@
-import React, { memo } from 'react';
+import React, { memo, useMemo } from 'react';
 
-import { ErrorBoundaryContent } from 'app/ErrorBoundary';
+import { DeadEndBoundaryError, ErrorBoundaryContent } from 'app/ErrorBoundary';
 import { ReactComponent as DiamondIcon } from 'app/icons/diamond.svg';
 import PageLayout, { SpinnerSection } from 'app/layouts/PageLayout';
-import DelegateForm from 'app/pages/Delegate/DelegateForm';
 import { TEZ_TOKEN_SLUG } from 'lib/assets';
-import { useBalance } from 'lib/balances';
+import { useTezosAssetBalance } from 'lib/balances';
 import { T } from 'lib/i18n';
-import { useAccount } from 'lib/temple/front';
 import { ZERO } from 'lib/utils/numbers';
+import { getAccountForTezos } from 'temple/accounts';
+import { useAccount, useTezosChainByChainId } from 'temple/front';
 
-const Delegate = memo(() => {
-  const { publicKeyHash } = useAccount();
+import DelegateForm from './DelegateForm';
 
-  const gasBalance = useBalance(TEZ_TOKEN_SLUG, publicKeyHash);
+interface Props {
+  tezosChainId: string;
+}
+
+const Delegate = memo<Props>(({ tezosChainId }) => {
+  const currentAccount = useAccount();
+
+  const account = useMemo(() => getAccountForTezos(currentAccount), [currentAccount]);
+  const chain = useTezosChainByChainId(tezosChainId);
+
+  if (!chain || !account) throw new DeadEndBoundaryError();
+
+  const gasBalance = useTezosAssetBalance(TEZ_TOKEN_SLUG, account.address, chain);
 
   const isLoading = !gasBalance.value && gasBalance.isSyncing;
 
@@ -32,7 +43,7 @@ const Delegate = memo(() => {
       ) : (
         <div className="py-4">
           <div className="w-full max-w-sm mx-auto">
-            <DelegateForm balance={gasBalance.value ?? ZERO} />
+            <DelegateForm network={chain} account={account} balance={gasBalance.value ?? ZERO} />
           </div>
         </div>
       )}

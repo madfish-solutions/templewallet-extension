@@ -1,48 +1,176 @@
-import React, { FC, memo, useCallback, useEffect, useMemo, useState } from 'react';
+import React, { FC, memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
-import { ChainIds } from '@taquito/taquito';
-import clsx from 'clsx';
+import { emptyFn } from '@rnw-community/shared';
 
-import { SyncSpinner, Divider, Checkbox } from 'app/atoms';
+import { Checkbox, Divider, SyncSpinner } from 'app/atoms';
 import DropdownWrapper from 'app/atoms/DropdownWrapper';
-import { useAppEnv } from 'app/env';
+import { IconButton } from 'app/atoms/IconButton';
+import { SimpleInfiniteScroll } from 'app/atoms/SimpleInfiniteScroll';
 import { useLoadPartnersPromo } from 'app/hooks/use-load-partners-promo';
-import { useTokensListingLogic } from 'app/hooks/use-tokens-listing-logic';
+import { useEvmTokensListingLogic, useTezosTokensListingLogic } from 'app/hooks/use-tokens-listing-logic';
+import { ReactComponent as FiltersIcon } from 'app/icons/base/filteroff.svg';
+import { ReactComponent as SearchIcon } from 'app/icons/base/search.svg';
 import { ReactComponent as EditingIcon } from 'app/icons/editing.svg';
-import { ReactComponent as SearchIcon } from 'app/icons/search.svg';
-import { useAreAssetsLoading, useMainnetTokensScamlistSelector } from 'app/store/assets/selectors';
+import { ContentContainer, StickyBar } from 'app/layouts/containers';
+import { useAreAssetsLoading, useMainnetTokensScamlistSelector } from 'app/store/tezos/assets/selectors';
+import { useTokensMetadataLoadingSelector } from 'app/store/tezos/tokens-metadata/selectors';
+import { ChainsDropdown } from 'app/templates/ChainSelect';
+import { ChainSelectController } from 'app/templates/ChainSelect/controller';
 import { ButtonForManageDropdown } from 'app/templates/ManageDropdown';
 import { PartnersPromotion, PartnersPromotionVariant } from 'app/templates/partners-promotion';
-import SearchAssetField from 'app/templates/SearchAssetField';
+import { SearchBarField } from 'app/templates/SearchField';
 import { setTestID } from 'lib/analytics';
 import { OptimalPromoVariantEnum } from 'lib/apis/optimal';
-import { TEZ_TOKEN_SLUG, TEMPLE_TOKEN_SLUG } from 'lib/assets';
+import { TEMPLE_TOKEN_SLUG, TEZ_TOKEN_SLUG } from 'lib/assets';
 import { useEnabledAccountTokensSlugs } from 'lib/assets/hooks';
 import { T, t } from 'lib/i18n';
-import { useAccount, useChainId } from 'lib/temple/front';
+import { TEZOS_MAINNET_CHAIN_ID } from 'lib/temple/types';
 import { useLocalStorage } from 'lib/ui/local-storage';
 import Popper, { PopperRenderProps } from 'lib/ui/Popper';
 import { Link, navigate } from 'lib/woozie';
+import { UNDER_DEVELOPMENT_MSG } from 'temple/evm/under_dev_msg';
+import { EvmChain, useAccountAddressForEvm, useAccountAddressForTezos } from 'temple/front';
+import { TezosNetworkEssentials } from 'temple/networks';
+import { TempleChainKind } from 'temple/types';
 
-import { HomeSelectors } from '../../Home.selectors';
+import { HomeSelectors } from '../../selectors';
 import { AssetsSelectors } from '../Assets.selectors';
 
-import { ListItem } from './components/ListItem';
+import { EvmListItem, TezosListItem } from './components/ListItem';
 import { UpdateAppBanner } from './components/UpdateAppBanner';
 import { toExploreAssetLink } from './utils';
 
 const LOCAL_STORAGE_TOGGLE_KEY = 'tokens-list:hide-zero-balances';
 const svgIconClassName = 'w-4 h-4 stroke-current fill-current text-gray-600';
 
-export const TokensTab = memo(() => {
-  const chainId = useChainId(true)!;
-  const { publicKeyHash } = useAccount();
+interface TokensTabProps {
+  chainSelectController: ChainSelectController;
+}
 
-  const { popup } = useAppEnv();
+export const TokensTab = memo<TokensTabProps>(({ chainSelectController }) => {
+  const network = chainSelectController.value;
 
-  const isSyncing = useAreAssetsLoading('tokens');
+  const accountTezAddress = useAccountAddressForTezos();
+  const accountEvmAddress = useAccountAddressForEvm();
 
-  const slugs = useEnabledAccountTokensSlugs();
+  if (network.kind === 'tezos' && accountTezAddress)
+    return (
+      <TezosTokensTab
+        network={network}
+        publicKeyHash={accountTezAddress}
+        chainSelectController={chainSelectController}
+      />
+    );
+
+  if (network.kind === 'evm' && accountEvmAddress)
+    return (
+      <EvmTokensTab network={network} publicKeyHash={accountEvmAddress} chainSelectController={chainSelectController} />
+    );
+
+  return (
+    <ContentContainer className="mt-3">
+      <div className="text-center py-3">{UNDER_DEVELOPMENT_MSG}</div>
+    </ContentContainer>
+  );
+});
+
+interface EvmTokensTabProps {
+  network: EvmChain;
+  publicKeyHash: HexString;
+  chainSelectController: ChainSelectController;
+}
+
+const EvmTokensTab: FC<EvmTokensTabProps> = ({ network, publicKeyHash, chainSelectController }) => {
+  const [isZeroBalancesHidden, setIsZeroBalancesHidden] = useLocalStorage(LOCAL_STORAGE_TOGGLE_KEY, false);
+
+  const toggleHideZeroBalances = useCallback(
+    () => void setIsZeroBalancesHidden(val => !val),
+    [setIsZeroBalancesHidden]
+  );
+
+  const { paginatedSlugs, isSyncing, loadNext } = useEvmTokensListingLogic(publicKeyHash, network.chainId);
+
+  const contentElement = useMemo(
+    () =>
+      paginatedSlugs.map(slug => (
+        <EvmListItem key={slug} assetSlug={slug} publicKeyHash={publicKeyHash} network={network} />
+      )),
+    [paginatedSlugs]
+  );
+
+  const stickyBarRef = useRef<HTMLDivElement>(null);
+
+  return (
+    <>
+      <StickyBar ref={stickyBarRef}>
+        <SearchBarField
+          value="Not working yet"
+          onValueChange={emptyFn}
+          testID={AssetsSelectors.searchAssetsInputTokens}
+        />
+
+        <Popper
+          placement="bottom-end"
+          strategy="fixed"
+          popup={props => <ChainsDropdown controller={chainSelectController} {...props} />}
+        >
+          {({ ref, opened, toggleOpened }) => (
+            <IconButton Icon={FiltersIcon} ref={ref} active={opened} onClick={toggleOpened} />
+          )}
+        </Popper>
+
+        <Popper
+          placement="bottom-end"
+          strategy="fixed"
+          popup={props => (
+            <ManageButtonDropdown
+              {...props}
+              isZeroBalancesHidden={isZeroBalancesHidden}
+              toggleHideZeroBalances={toggleHideZeroBalances}
+            />
+          )}
+        >
+          {({ ref, opened, toggleOpened }) => (
+            <ButtonForManageDropdown
+              ref={ref}
+              opened={opened}
+              tooltip={t('manageAssetsList')}
+              onClick={toggleOpened}
+              testID={AssetsSelectors.manageButton}
+              testIDProperties={{ listOf: 'Tokens' }}
+            />
+          )}
+        </Popper>
+      </StickyBar>
+
+      <ContentContainer>
+        {paginatedSlugs.length === 0 ? (
+          buildEmptySection(isSyncing)
+        ) : (
+          <>
+            <SimpleInfiniteScroll loadNext={loadNext}>{contentElement}</SimpleInfiniteScroll>
+            {isSyncing && <SyncSpinner className="mt-4" />}
+          </>
+        )}
+      </ContentContainer>
+    </>
+  );
+};
+
+interface TezosTokensTabProps {
+  network: TezosNetworkEssentials;
+  publicKeyHash: string;
+  chainSelectController: ChainSelectController;
+}
+
+const TezosTokensTab: FC<TezosTokensTabProps> = ({ network, publicKeyHash, chainSelectController }) => {
+  const chainId = network.chainId;
+
+  const assetsAreLoading = useAreAssetsLoading('tokens');
+  const metadatasLoading = useTokensMetadataLoadingSelector();
+  const isSyncing = assetsAreLoading || metadatasLoading;
+
+  const slugs = useEnabledAccountTokensSlugs(publicKeyHash, chainId);
 
   const [isZeroBalancesHidden, setIsZeroBalancesHidden] = useLocalStorage(LOCAL_STORAGE_TOGGLE_KEY, false);
 
@@ -52,13 +180,15 @@ export const TokensTab = memo(() => {
   );
 
   const leadingAssets = useMemo(
-    () => (chainId === ChainIds.MAINNET ? [TEZ_TOKEN_SLUG, TEMPLE_TOKEN_SLUG] : [TEZ_TOKEN_SLUG]),
+    () => (chainId === TEZOS_MAINNET_CHAIN_ID ? [TEZ_TOKEN_SLUG, TEMPLE_TOKEN_SLUG] : [TEZ_TOKEN_SLUG]),
     [chainId]
   );
 
   const mainnetTokensScamSlugsRecord = useMainnetTokensScamlistSelector();
 
-  const { filteredAssets, searchValue, setSearchValue } = useTokensListingLogic(
+  const { filteredAssets, searchValue, setSearchValue } = useTezosTokensListingLogic(
+    chainId,
+    publicKeyHash,
     slugs,
     isZeroBalancesHidden,
     leadingAssets
@@ -74,7 +204,8 @@ export const TokensTab = memo(() => {
 
   const tokensView = useMemo<JSX.Element[]>(() => {
     const tokensJsx = filteredAssets.map(assetSlug => (
-      <ListItem
+      <TezosListItem
+        network={network}
         key={assetSlug}
         publicKeyHash={publicKeyHash}
         assetSlug={assetSlug}
@@ -99,7 +230,7 @@ export const TokensTab = memo(() => {
     }
 
     return tokensJsx;
-  }, [filteredAssets, activeAssetSlug, publicKeyHash, mainnetTokensScamSlugsRecord]);
+  }, [network, filteredAssets, activeAssetSlug, publicKeyHash, mainnetTokensScamSlugsRecord]);
 
   useLoadPartnersPromo(OptimalPromoVariantEnum.Token);
 
@@ -118,7 +249,7 @@ export const TokensTab = memo(() => {
     const handleKeyup = (evt: KeyboardEvent) => {
       switch (evt.key) {
         case 'Enter':
-          navigate(toExploreAssetLink(activeAssetSlug));
+          navigate(toExploreAssetLink(TempleChainKind.Tezos, chainId, activeAssetSlug));
           break;
 
         case 'ArrowDown':
@@ -133,19 +264,30 @@ export const TokensTab = memo(() => {
 
     window.addEventListener('keyup', handleKeyup);
     return () => window.removeEventListener('keyup', handleKeyup);
-  }, [activeAssetSlug, setActiveIndex]);
+  }, [activeAssetSlug, chainId, setActiveIndex]);
+
+  const stickyBarRef = useRef<HTMLDivElement>(null);
 
   return (
-    <div className="w-full max-w-sm mx-auto">
-      <div className={clsx('my-3 w-full flex', popup && 'px-4')}>
-        <SearchAssetField
+    <>
+      <StickyBar ref={stickyBarRef}>
+        <SearchBarField
           value={searchValue}
           onValueChange={setSearchValue}
           onFocus={handleSearchFieldFocus}
           onBlur={handleSearchFieldBlur}
-          containerClassName="mr-2"
           testID={AssetsSelectors.searchAssetsInputTokens}
         />
+
+        <Popper
+          placement="bottom-end"
+          strategy="fixed"
+          popup={props => <ChainsDropdown controller={chainSelectController} {...props} />}
+        >
+          {({ ref, opened, toggleOpened }) => (
+            <IconButton Icon={FiltersIcon} ref={ref} active={opened} onClick={toggleOpened} />
+          )}
+        </Popper>
 
         <Popper
           placement="bottom-end"
@@ -169,41 +311,23 @@ export const TokensTab = memo(() => {
             />
           )}
         </Popper>
-      </div>
+      </StickyBar>
 
-      <UpdateAppBanner popup={popup} />
+      <ContentContainer>
+        <UpdateAppBanner stickyBarRef={stickyBarRef} />
 
-      {filteredAssets.length === 0 ? (
-        <div className="my-8 flex flex-col items-center justify-center text-gray-500">
-          <p className="mb-2 flex items-center justify-center text-gray-600 text-base font-light">
-            {searchValueExist && <SearchIcon className="w-5 h-auto mr-1 stroke-current" />}
-
-            <span {...setTestID(HomeSelectors.emptyStateText)}>
-              <T id="noAssetsFound" />
-            </span>
-          </p>
-
-          <p className="text-center text-xs font-light">
-            <T
-              id="ifYouDontSeeYourAsset"
-              substitutions={[
-                <b>
-                  <T id="manage" />
-                </b>
-              ]}
-            />
-          </p>
-        </div>
-      ) : (
-        <div className="flex flex-col w-full overflow-hidden rounded-md text-gray-700 text-sm leading-tight">
-          {tokensView}
-        </div>
-      )}
-
-      {isSyncing && <SyncSpinner className="mt-4" />}
-    </div>
+        {filteredAssets.length === 0 ? (
+          buildEmptySection(isSyncing, searchValueExist)
+        ) : (
+          <>
+            <>{tokensView}</>
+            {isSyncing && <SyncSpinner className="mt-4" />}
+          </>
+        )}
+      </ContentContainer>
+    </>
   );
-});
+};
 
 interface ManageButtonDropdownProps extends PopperRenderProps {
   isZeroBalancesHidden: boolean;
@@ -220,7 +344,7 @@ const ManageButtonDropdown: FC<ManageButtonDropdownProps> = ({
   return (
     <DropdownWrapper
       opened={opened}
-      className="origin-top-right p-2 flex flex-col min-w-40"
+      className="origin-top-right mt-1 p-2 flex flex-col min-w-40"
       style={{ border: 'unset', marginTop: '0.25rem' }}
     >
       <Link
@@ -251,3 +375,29 @@ const ManageButtonDropdown: FC<ManageButtonDropdownProps> = ({
     </DropdownWrapper>
   );
 };
+
+const buildEmptySection = (isSyncing: boolean, searchValueExist?: boolean) =>
+  isSyncing ? (
+    <SyncSpinner className="mt-6" />
+  ) : (
+    <div className="my-8 flex flex-col items-center justify-center text-gray-500">
+      <p className="mb-2 flex items-center justify-center text-gray-600 text-base font-light">
+        {searchValueExist && <SearchIcon className="w-5 h-auto mr-1 stroke-current fill-current" />}
+
+        <span {...setTestID(HomeSelectors.emptyStateText)}>
+          <T id="noAssetsFound" />
+        </span>
+      </p>
+
+      <p className="text-center text-xs font-light">
+        <T
+          id="ifYouDontSeeYourAsset"
+          substitutions={[
+            <b>
+              <T id="manage" />
+            </b>
+          ]}
+        />
+      </p>
+    </div>
+  );

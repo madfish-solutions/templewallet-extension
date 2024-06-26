@@ -3,7 +3,8 @@ import BigNumber from 'bignumber.js';
 
 import type { AssetMetadataBase } from 'lib/metadata';
 import { loadContract } from 'lib/temple/contract';
-import { isValidContractAddress, tokensToAtoms } from 'lib/temple/helpers';
+import { tokensToAtoms } from 'lib/temple/helpers';
+import { isValidTezosContractAddress } from 'lib/tezos';
 
 import { detectTokenStandard } from './standards';
 import type { Asset } from './types';
@@ -73,7 +74,7 @@ export const fromAssetSlugWithStandardDetect = async (tezos: TezosToolkit, slug:
 
   const [contractAddress, tokenIdStr] = fromAssetSlug(slug);
 
-  if (!isValidContractAddress(contractAddress)) {
+  if (!isValidTezosContractAddress(contractAddress)) {
     throw new Error('Invalid contract address');
   }
 
