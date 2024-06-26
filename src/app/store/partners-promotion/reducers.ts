@@ -44,7 +44,7 @@ export const partnersPromotionPersistedReducer = persistReducer<PartnersPromotio
   {
     key: 'root.partnersPromotion',
     ...storageConfig,
-    stateReconciler: hardSet
+    stateReconciler: hardSet // (!) Do not use with `blacklist` - props become optional by type
   },
   partnersPromotionReducer
 );
