@@ -2,7 +2,11 @@ import React, { memo, useCallback, useLayoutEffect, useMemo } from 'react';
 
 import { isDefined } from '@rnw-community/shared';
 
-import { SimpleSegmentControl } from 'app/atoms/SimpleSegmentControl';
+import {
+  AssetsSegmentControl,
+  AssetsSegmentControlRefContext,
+  useAssetsSegmentControlRef
+} from 'app/atoms/AssetsSegmentControl';
 import { SuspenseContainer } from 'app/atoms/SuspenseContainer';
 import { useAppEnv } from 'app/env';
 import { useLocationSearchParamValue } from 'app/hooks/use-location';
@@ -32,6 +36,8 @@ const Home = memo<HomeProps>(props => {
   const tabSlug = useLocationSearchParamValue('tab');
   const { onboardingCompleted } = useOnboardingProgress();
   const { search } = useLocation();
+
+  const assetsSegmentControlRef = useAssetsSegmentControlRef();
 
   const mainnetTokensScamSlugsRecord = useMainnetTokensScamlistSelector();
   const showScamTokenAlert = isDefined(assetSlug) && mainnetTokensScamSlugsRecord[assetSlug];
@@ -75,31 +81,31 @@ const Home = memo<HomeProps>(props => {
         <ActionButtonsBar {...props} />
 
         {!assetSlug && (
-          <SimpleSegmentControl
-            firstTitle="Tokens"
-            secondTitle="Collectibles"
-            activeSecond={tabSlug === 'collectibles'}
+          <AssetsSegmentControl
+            tabSlug={tabSlug}
             className="mt-6"
-            onFirstClick={onTokensTabClick}
-            onSecondClick={onCollectiblesTabClick}
+            onTokensTabClick={onTokensTabClick}
+            onCollectiblesTabClick={onCollectiblesTabClick}
           />
         )}
       </div>
 
       <SuspenseContainer key={`${chainId}/${assetSlug}`}>
-        {(() => {
-          if (!chainKind || !chainId || !assetSlug)
-            switch (tabSlug) {
-              case 'collectibles':
-                return <CollectiblesTab />;
-              case 'activity':
-                return <ActivityTab />;
-              default:
-                return <TokensTab />;
-            }
+        <AssetsSegmentControlRefContext.Provider value={assetsSegmentControlRef}>
+          {(() => {
+            if (!chainKind || !chainId || !assetSlug)
+              switch (tabSlug) {
+                case 'collectibles':
+                  return <CollectiblesTab />;
+                case 'activity':
+                  return <ActivityTab />;
+                default:
+                  return <TokensTab />;
+              }
 
-          return <AssetTab chainKind={chainKind} chainId={chainId} assetSlug={assetSlug} />;
-        })()}
+            return <AssetTab chainKind={chainKind} chainId={chainId} assetSlug={assetSlug} />;
+          })()}
+        </AssetsSegmentControlRefContext.Provider>
       </SuspenseContainer>
     </PageLayout>
   );

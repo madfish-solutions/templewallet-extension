@@ -4,6 +4,7 @@ import { isEqual } from 'lodash';
 import useOnClickOutside from 'use-onclickoutside';
 
 import { Divider, IconBase, ToggleSwitch } from 'app/atoms';
+import { useAssetsSegmentControlRef } from 'app/atoms/AssetsSegmentControl';
 import { EvmNetworkLogo, NetworkLogoFallback } from 'app/atoms/NetworkLogo';
 import { TezosNetworkLogo } from 'app/atoms/NetworksLogos';
 import { ReactComponent as Browse } from 'app/icons/base/browse.svg';
@@ -44,20 +45,22 @@ export const AssetsFilterOptions = memo<AssetsFilterOptionsProps>(({ filterButto
 
   const containerRef = useRef(null);
   const contentPaperRef = useContentPaperRef();
+  const assetsSegmentControlRef = useAssetsSegmentControlRef();
 
   useOnClickOutside(
     containerRef,
     networksModalOpened
       ? null
       : evt => {
-          // @ts-expect-error
-          const isFilterButtonClick = Boolean(filterButtonRef.current && filterButtonRef.current.contains(evt.target));
-          const isInsideContentClick = Boolean(
-            // @ts-expect-error
-            contentPaperRef.current && contentPaperRef.current.contains(evt.target)
-          );
+          const evtTarget = evt.target as Node;
 
-          if (!isFilterButtonClick && isInsideContentClick) {
+          const isFilterButtonClick = Boolean(filterButtonRef.current && filterButtonRef.current.contains(evtTarget));
+          const isSegmentControlClick = Boolean(
+            assetsSegmentControlRef.current && assetsSegmentControlRef.current.contains(evtTarget)
+          );
+          const isInsideContentClick = Boolean(contentPaperRef.current && contentPaperRef.current.contains(evtTarget));
+
+          if (!isFilterButtonClick && !isSegmentControlClick && isInsideContentClick) {
             onRequestClose();
           }
         }
