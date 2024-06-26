@@ -1,7 +1,5 @@
 import React, { memo, useMemo, useRef } from 'react';
 
-import { emptyFn } from '@rnw-community/shared';
-
 import { SyncSpinner } from 'app/atoms';
 import { FilterButton } from 'app/atoms/FilterButton';
 import { IconButton } from 'app/atoms/IconButton';
@@ -11,10 +9,12 @@ import { useAccountTokensListingLogic } from 'app/hooks/use-tokens-listing-logic
 import { ReactComponent as ManageIcon } from 'app/icons/base/manage.svg';
 import { ContentContainer, StickyBar } from 'app/layouts/containers';
 import { AssetsSelectors } from 'app/pages/Home/OtherComponents/Assets.selectors';
+import { useTokensListOptionsSelector } from 'app/store/assets-filter-options/selectors';
 import { AssetsFilterOptions } from 'app/templates/AssetsFilterOptions';
 import { SearchBarField } from 'app/templates/SearchField';
-import { fromChainAssetSlug } from 'lib/assets/utils';
-import { useAllTezosChains } from 'temple/front';
+import { EVM_TOKEN_SLUG, TEZ_TOKEN_SLUG } from 'lib/assets/defaults';
+import { fromChainAssetSlug, toChainAssetSlug } from 'lib/assets/utils';
+import { useAllTezosChains, useEnabledEvmChains, useEnabledTezosChains } from 'temple/front';
 import { TempleChainKind } from 'temple/types';
 
 import { EmptySection } from './EmptySection';
@@ -26,11 +26,30 @@ interface MultiChainTokensTabProps {
 }
 
 export const MultiChainTokensTab = memo<MultiChainTokensTabProps>(({ accountTezAddress, accountEvmAddress }) => {
+  const { hideZeroBalance } = useTokensListOptionsSelector();
+
   const { filtersOpened, setFiltersClosed, toggleFiltersOpened } = useAssetsFilterOptionsState();
 
-  const { paginatedSlugs, isSyncing, loadNext } = useAccountTokensListingLogic(accountTezAddress, accountEvmAddress);
-
   const tezosChains = useAllTezosChains();
+
+  const enabledTezChains = useEnabledTezosChains();
+  const enabledEvmChains = useEnabledEvmChains();
+
+  const leadingAssets = useMemo(
+    () => [
+      ...enabledTezChains.map(chain => toChainAssetSlug(TempleChainKind.Tezos, chain.chainId, TEZ_TOKEN_SLUG)),
+      ...enabledEvmChains.map(chain => toChainAssetSlug(TempleChainKind.EVM, chain.chainId, EVM_TOKEN_SLUG))
+    ],
+    [enabledTezChains, enabledEvmChains]
+  );
+
+  const { paginatedSlugs, isSyncing, loadNext, searchValue, setSearchValue } = useAccountTokensListingLogic(
+    accountTezAddress,
+    accountEvmAddress,
+    hideZeroBalance,
+    leadingAssets,
+    true
+  );
 
   const contentElement = useMemo(
     () =>
@@ -66,7 +85,11 @@ export const MultiChainTokensTab = memo<MultiChainTokensTabProps>(({ accountTezA
   return (
     <>
       <StickyBar ref={stickyBarRef}>
-        <SearchBarField value="" onValueChange={emptyFn} testID={AssetsSelectors.searchAssetsInputTokens} />
+        <SearchBarField
+          value={searchValue}
+          onValueChange={setSearchValue}
+          testID={AssetsSelectors.searchAssetsInputTokens}
+        />
 
         <FilterButton ref={filterButtonRef} active={filtersOpened} onClick={toggleFiltersOpened} />
 

@@ -8,7 +8,7 @@ import { TezosAssetIcon } from 'app/templates/AssetIcon';
 import { TezosBalance } from 'app/templates/Balance';
 import InFiat from 'app/templates/InFiat';
 import { setTestID, setAnotherSelector, TestIDProperty } from 'lib/analytics';
-import { searchChainAssetsWithNoMeta } from 'lib/assets/search.utils';
+import { searchTezosChainAssetsWithNoMeta } from 'lib/assets/search.utils';
 import { T, t } from 'lib/i18n';
 import { useTezosAssetMetadata, getAssetSymbol, useGetAssetMetadata } from 'lib/metadata';
 import { TezosNetworkEssentials } from 'temple/networks';
@@ -40,7 +40,7 @@ const AssetSelect = memo<Props>(({ network, accountPkh, value, slugs, onChange, 
   const [searchStringDebounced] = useDebounce(searchString, 300);
 
   const searchItems = useCallback(
-    (searchString: string) => searchChainAssetsWithNoMeta(searchString, slugs, getAssetMetadata, s => s),
+    (searchString: string) => searchTezosChainAssetsWithNoMeta(searchString, slugs, getAssetMetadata, s => s),
     [slugs, getAssetMetadata]
   );
 

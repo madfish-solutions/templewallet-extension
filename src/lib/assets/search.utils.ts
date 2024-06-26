@@ -1,9 +1,12 @@
 import { AssetMetadataBase } from 'lib/metadata';
 import { searchAndFilterItems } from 'lib/utils/search-items';
 
-import { fromAssetSlug } from './utils';
+import { TempleChainKind } from '../../temple/types';
+import { EvmTokenMetadata } from '../metadata/types';
 
-export function searchChainAssetsWithNoMeta<T>(
+import { fromAssetSlug, fromChainAssetSlug } from './utils';
+
+export function searchTezosChainAssetsWithNoMeta<T>(
   searchValue: string,
   assets: T[],
   getMetadata: (slug: string) => AssetMetadataBase | undefined,
@@ -43,7 +46,7 @@ export function searchChainAssetsWithNoMeta<T>(
   );
 }
 
-export function searchAssetsWithNoMeta<T>(
+export function searchTezosAssetsWithNoMeta<T>(
   searchValue: string,
   assets: T[],
   getChainMetadata: (chainId: string, slug: string) => AssetMetadataBase | undefined,
@@ -72,6 +75,133 @@ export function searchAssetsWithNoMeta<T>(
       const { chainId, assetSlug } = getSlugWithChainId(asset);
       const [contract, tokenId] = fromAssetSlug(assetSlug);
       const metadata = getChainMetadata(chainId, assetSlug);
+
+      return {
+        contract,
+        tokenId,
+        symbol: metadata?.symbol,
+        name: metadata?.name
+      };
+    }
+  );
+}
+
+export function searchEvmAssetsWithNoMeta<T>(
+  searchValue: string,
+  assets: T[],
+  getChainMetadata: (chainId: number, slug: string) => EvmTokenMetadata | undefined,
+  getSlugWithChainId: (asset: T) => { chainId: number; assetSlug: string }
+) {
+  const trimmedSearchValue = searchValue.trim();
+
+  if (trimmedSearchValue.search(/^[A-Za-z0-9]+_\d*$/) === 0)
+    return assets.filter(asset => getSlugWithChainId(asset).assetSlug.startsWith(trimmedSearchValue));
+
+  return searchAndFilterItems(
+    assets,
+    searchValue,
+    Number.isInteger(Number(searchValue)) && !searchValue.startsWith('0x')
+      ? [
+          { name: 'tokenId', weight: 1 },
+          { name: 'symbol', weight: 0.75 },
+          { name: 'name', weight: 0.5 }
+        ]
+      : [
+          { name: 'symbol', weight: 1 },
+          { name: 'name', weight: 0.5 },
+          { name: 'contract', weight: 0.1 }
+        ],
+    asset => {
+      const { chainId, assetSlug } = getSlugWithChainId(asset);
+      const [contract, tokenId] = fromAssetSlug(assetSlug);
+      const metadata = getChainMetadata(chainId, assetSlug);
+
+      return {
+        contract,
+        tokenId,
+        symbol: metadata?.symbol,
+        name: metadata?.name
+      };
+    }
+  );
+}
+
+export function searchAssetsWithNoMeta<T>(
+  searchValue: string,
+  assets: T[],
+  getTezMetadata: (chainId: string, slug: string) => AssetMetadataBase | undefined,
+  getEvmMetadata: (chainId: number, slug: string) => EvmTokenMetadata | undefined,
+  getChainSlug: (asset: T) => string,
+  getSlug: (asset: T) => string
+) {
+  const trimmedSearchValue = searchValue.trim();
+
+  if (trimmedSearchValue.search(/^[A-Za-z0-9]+_\d*$/) === 0)
+    return assets.filter(asset => getSlug(asset).startsWith(trimmedSearchValue));
+
+  return searchAndFilterItems(
+    assets,
+    searchValue,
+    Number.isInteger(Number(searchValue)) && !searchValue.startsWith('0x')
+      ? [
+          { name: 'tokenId', weight: 1 },
+          { name: 'symbol', weight: 0.75 },
+          { name: 'name', weight: 0.5 }
+        ]
+      : [
+          { name: 'symbol', weight: 1 },
+          { name: 'name', weight: 0.5 },
+          { name: 'contract', weight: 0.1 }
+        ],
+    asset => {
+      const chainSlug = getChainSlug(asset);
+
+      const [chainKind, chainId, slug] = fromChainAssetSlug(chainSlug);
+      const [contract, tokenId] = fromAssetSlug(slug);
+      const metadata =
+        chainKind === TempleChainKind.Tezos
+          ? getTezMetadata(chainId as string, slug)
+          : getEvmMetadata(chainId as number, slug);
+
+      return {
+        contract,
+        tokenId,
+        symbol: metadata?.symbol,
+        name: metadata?.name
+      };
+    }
+  );
+}
+
+export function searchEvmChainAssetsWithNoMeta<T>(
+  searchValue: string,
+  assets: T[],
+  getMetadata: (slug: string) => EvmTokenMetadata | undefined,
+  getSlug: (asset: T) => string
+) {
+  const trimmedSearchValue = searchValue.trim();
+
+  if (trimmedSearchValue.search(/^[A-Za-z0-9]+_\d*$/) === 0)
+    return assets.filter(asset => getSlug(asset).startsWith(trimmedSearchValue));
+
+  return searchAndFilterItems(
+    assets,
+    searchValue,
+    Number.isInteger(Number(searchValue)) && !searchValue.startsWith('0x')
+      ? [
+          { name: 'tokenId', weight: 1 },
+          { name: 'symbol', weight: 0.75 },
+          { name: 'name', weight: 0.5 }
+        ]
+      : [
+          { name: 'symbol', weight: 1 },
+          { name: 'name', weight: 0.5 },
+          { name: 'contract', weight: 0.1 }
+        ],
+    asset => {
+      const slug = getSlug(asset);
+      const [contract, tokenId] = fromAssetSlug(slug);
+      const metadata = getMetadata(slug);
 
       return {
         contract,

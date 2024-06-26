@@ -1,7 +1,5 @@
 import React, { FC, useMemo, useRef } from 'react';
 
-import { emptyFn } from '@rnw-community/shared';
-
 import { SyncSpinner } from 'app/atoms';
 import { FilterButton } from 'app/atoms/FilterButton';
 import { IconButton } from 'app/atoms/IconButton';
@@ -11,8 +9,10 @@ import { useEvmChainAccountTokensListingLogic } from 'app/hooks/use-tokens-listi
 import { ReactComponent as ManageIcon } from 'app/icons/base/manage.svg';
 import { ContentContainer, StickyBar } from 'app/layouts/containers';
 import { AssetsSelectors } from 'app/pages/Home/OtherComponents/Assets.selectors';
+import { useTokensListOptionsSelector } from 'app/store/assets-filter-options/selectors';
 import { AssetsFilterOptions } from 'app/templates/AssetsFilterOptions';
 import { SearchBarField } from 'app/templates/SearchField';
+import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
 
 import { EmptySection } from './EmptySection';
 import { EvmListItem } from './ListItem';
@@ -23,9 +23,18 @@ interface EvmChainTokensTabProps {
 }
 
 export const EvmChainTokensTab: FC<EvmChainTokensTabProps> = ({ chainId, publicKeyHash }) => {
+  const { hideZeroBalance } = useTokensListOptionsSelector();
+
   const { filtersOpened, setFiltersClosed, toggleFiltersOpened } = useAssetsFilterOptionsState();
 
-  const { paginatedSlugs, isSyncing, loadNext } = useEvmChainAccountTokensListingLogic(publicKeyHash, chainId);
+  const leadingAssets = useMemo(() => [EVM_TOKEN_SLUG], []);
+
+  const { paginatedSlugs, isSyncing, loadNext, searchValue, setSearchValue } = useEvmChainAccountTokensListingLogic(
+    publicKeyHash,
+    chainId,
+    hideZeroBalance,
+    leadingAssets
+  );
 
   const contentElement = useMemo(
     () =>
@@ -41,7 +50,11 @@ export const EvmChainTokensTab: FC<EvmChainTokensTabProps> = ({ chainId, publicK
   return (
     <>
       <StickyBar ref={stickyBarRef}>
-        <SearchBarField value="" onValueChange={emptyFn} testID={AssetsSelectors.searchAssetsInputTokens} />
+        <SearchBarField
+          value={searchValue}
+          onValueChange={setSearchValue}
+          testID={AssetsSelectors.searchAssetsInputTokens}
+        />
 
         <FilterButton ref={filterButtonRef} active={filtersOpened} onClick={toggleFiltersOpened} />
 
