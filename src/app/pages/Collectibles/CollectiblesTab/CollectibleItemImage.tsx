@@ -3,9 +3,10 @@ import React, { memo, useMemo, useState } from 'react';
 import { isDefined } from '@rnw-community/shared';
 import { debounce } from 'lodash';
 
-import { useCollectibleIsAdultSelector } from 'app/store/collectibles/selectors';
-import { buildCollectibleImagesStack } from 'lib/images-uri';
+import { useCollectibleIsAdultSelector } from 'app/store/tezos/collectibles/selectors';
+import { buildCollectibleImagesStack, buildEvmCollectibleIconSources } from 'lib/images-uri';
 import type { TokenMetadata } from 'lib/metadata';
+import { EvmCollectibleMetadata } from 'lib/metadata/types';
 import { ImageStacked } from 'lib/ui/ImageStacked';
 import { useIntersectionByOffsetObserver } from 'lib/ui/use-intersection-observer';
 
@@ -56,3 +57,21 @@ export const CollectibleItemImage = memo<Props>(
     );
   }
 );
+
+interface EvmCollectibleItemImageProps {
+  metadata: EvmCollectibleMetadata;
+}
+
+export const EvmCollectibleItemImage = memo<EvmCollectibleItemImageProps>(({ metadata }) => {
+  const sources = useMemo(() => buildEvmCollectibleIconSources(metadata), [metadata]);
+
+  return (
+    <ImageStacked
+      sources={sources}
+      loading="lazy"
+      className="max-w-full max-h-full object-contain"
+      loader={<CollectibleImageLoader />}
+      fallback={<CollectibleImageFallback />}
+    />
+  );
+});

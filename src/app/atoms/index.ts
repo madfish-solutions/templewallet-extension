@@ -2,6 +2,8 @@ export { Alert } from './Alert';
 
 export { CaptionAlert } from './CaptionAlert';
 
+export { default as Divider } from './Divider';
+
 export { Anchor } from './Anchor';
 
 export { Button } from './Button';
@@ -50,8 +52,6 @@ export { TabSwitcher } from './TabSwitcher';
 export { Stepper } from './Stepper/Stepper';
 
 export { DataPlaceholder } from './DataPlaceholder';
-
-export { default as ABContainer } from './ABContainer';
 
 export { PageTitle } from './PageTitle';
 

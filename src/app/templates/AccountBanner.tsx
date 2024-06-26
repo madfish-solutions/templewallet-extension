@@ -6,7 +6,7 @@ import { AccountAvatar } from 'app/atoms/AccountAvatar';
 import AccountTypeBadge from 'app/atoms/AccountTypeBadge';
 import Money from 'app/atoms/Money';
 import Name from 'app/atoms/Name';
-import Balance from 'app/templates/Balance';
+import { TezosBalance } from 'app/templates/Balance';
 import { t } from 'lib/i18n';
 import { getTezosGasMetadata } from 'lib/metadata';
 import { StoredAccount } from 'lib/temple/types';
@@ -64,7 +64,7 @@ const AccountBanner = memo<Props>(({ tezosNetwork, account, className, label, sm
               <AccountBannerAddress address={tezosAddress} />
 
               {tezosNetwork && (
-                <Balance network={tezosNetwork} address={tezosAddress}>
+                <TezosBalance network={tezosNetwork} address={tezosAddress}>
                   {bal => (
                     <div className="ml-2 text-font-description leading-none flex items-baseline text-gray-600">
                       <Money>{bal}</Money>
@@ -73,7 +73,7 @@ const AccountBanner = memo<Props>(({ tezosNetwork, account, className, label, sm
                       </span>
                     </div>
                   )}
-                </Balance>
+                </TezosBalance>
               )}
             </div>
           )}

@@ -11,8 +11,8 @@ import { UNDER_DEVELOPMENT_MSG } from 'temple/evm/under_dev_msg';
 import { useAccountAddressForTezos } from 'temple/front';
 
 import { EXOLIX_CONTACT_LINK } from './config';
-import { ExchangeDataInterface } from './exolix.interface';
 import { ExolixSelectors } from './Exolix.selectors';
+import { ExchangeDataInterface } from './exolix.types';
 
 /**
  * Note: Feature is only available on Tezos Mainnet.

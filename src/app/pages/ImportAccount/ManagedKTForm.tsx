@@ -4,7 +4,7 @@ import { Controller, useForm } from 'react-hook-form';
 
 import { Alert, FormSubmitButton, NoSpaceField, Identicon, Name, Money, AccountTypeBadge } from 'app/atoms';
 import { AccountAvatar } from 'app/atoms/AccountAvatar';
-import Balance from 'app/templates/Balance';
+import { TezosBalance } from 'app/templates/Balance';
 import { useChainSelectController, ChainSelectSection } from 'app/templates/ChainSelect';
 import CustomSelect, { OptionRenderProps } from 'app/templates/CustomSelect';
 import { useFormAnalytics } from 'lib/analytics';
@@ -199,13 +199,13 @@ const ManagedKTFormContent: FC<{ network: TezosNetworkEssentials }> = ({ network
               <div className="ml-1 mr-px font-normal">
                 <T id="contract" />
               </div>{' '}
-              <Balance network={network} assetSlug="tez" address={filledAccount.address}>
+              <TezosBalance network={network} assetSlug="tez" address={filledAccount.address}>
                 {bal => (
                   <span className="text-xs leading-none">
                     <Money>{bal}</Money> <span style={{ fontSize: '0.75em' }}>{TEZOS_SYMBOL}</span>
                   </span>
                 )}
-              </Balance>
+              </TezosBalance>
             </div>
           ) : (
             t('contractAddressInputDescription')
@@ -300,13 +300,13 @@ const ContractOptionContent: FC<ContractOptionRenderProps> = props => {
           })()}
         </div>
 
-        <Balance network={props.network} assetSlug="tez" address={item.address}>
+        <TezosBalance network={props.network} assetSlug="tez" address={item.address}>
           {bal => (
             <div className="ml-2 text-xs leading-none text-gray-600">
               <Money>{bal}</Money> <span style={{ fontSize: '0.75em' }}>tez</span>
             </div>
           )}
-        </Balance>
+        </TezosBalance>
       </div>
     </>
   );

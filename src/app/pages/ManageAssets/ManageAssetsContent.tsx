@@ -5,7 +5,7 @@ import clsx from 'clsx';
 import { CaptionAlert } from 'app/atoms';
 import { ReactComponent as AddIcon } from 'app/icons/add-to-list.svg';
 import { dispatch } from 'app/store';
-import { setTokenStatusAction, setCollectibleStatusAction } from 'app/store/assets/actions';
+import { setCollectibleStatusAction, setTokenStatusAction } from 'app/store/tezos/assets/actions';
 import { SearchBarField } from 'app/templates/SearchField';
 import { AccountAsset } from 'lib/assets/types';
 import { t, T } from 'lib/i18n';

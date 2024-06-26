@@ -4,7 +4,7 @@ import { isDefined } from '@rnw-community/shared';
 import classNames from 'clsx';
 import { useDebounce } from 'use-debounce';
 
-import { FormSubmitButton, Lines } from 'app/atoms';
+import { FormSubmitButton, Divider } from 'app/atoms';
 import styles from 'app/pages/Buy/Crypto/Exolix/Exolix.module.css';
 import ErrorComponent from 'app/pages/Buy/Crypto/Exolix/steps/ErrorComponent';
 import WarningComponent from 'app/pages/Buy/Crypto/Exolix/steps/WarningComponent';
@@ -13,8 +13,8 @@ import { T, t } from 'lib/i18n';
 import { useTypedSWR } from 'lib/swr';
 
 import { EXOLIX_PRIVICY_LINK, EXOLIX_TERMS_LINK, INITIAL_COIN_FROM, INITIAL_COIN_TO } from '../config';
-import { ExchangeDataInterface, ExchangeDataStatusEnum, OutputCurrencyInterface } from '../exolix.interface';
 import { ExolixSelectors } from '../Exolix.selectors';
+import { ExchangeDataInterface, ExchangeDataStatusEnum, OutputCurrencyInterface } from '../exolix.types';
 import { getCurrencies, loadMinMaxFields, queryExchange, submitExchange } from '../exolix.util';
 import { useCurrenciesCount } from '../hooks/useCurrenciesCount.hook';
 
@@ -34,6 +34,7 @@ const InitialStep: FC<Props> = ({ publicKeyHash, exchangeData, setExchangeData, 
   const [coinFrom, setCoinFrom] = useState<OutputCurrencyInterface>(INITIAL_COIN_FROM);
   const [coinTo, setCoinTo] = useState<OutputCurrencyInterface>(INITIAL_COIN_TO);
 
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [amount, setAmount] = useState<number | undefined>();
   const [minAmount, setMinAmount] = useState<number | nullish>();
   const [maxAmount, setMaxAmount] = useState<number | nullish>();
@@ -64,6 +65,7 @@ const InitialStep: FC<Props> = ({ publicKeyHash, exchangeData, setExchangeData, 
 
   const submitExchangeHandler = async () => {
     try {
+      setIsSubmitting(true);
       const data = await submitExchange({
         coinFrom: coinFrom.code,
         networkFrom: coinFrom.network.code,
@@ -83,23 +85,54 @@ const InitialStep: FC<Props> = ({ publicKeyHash, exchangeData, setExchangeData, 
       }
     } catch (e) {
       setIsError(true);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
-  const { data: ratesData } = useTypedSWR(['exolix/api/rate', coinFrom, coinTo, amount], () =>
-    queryExchange({
-      coinFrom: coinFrom.code,
-      coinFromNetwork: coinFrom.network.code,
-      amount: amount ?? 0,
-      coinTo: coinTo.code,
-      coinToNetwork: coinTo.network.code
-    })
+  const { data: ratesData, isValidating: isRatesLoading } = useTypedSWR(
+    ['exolix/api/rate', coinFrom, coinTo, debouncedAmount],
+    async () => {
+      if (!debouncedAmount || debouncedAmount < (minAmount ?? 0) || debouncedAmount > (maxAmount ?? Infinity)) {
+        return undefined;
+      }
+
+      return await queryExchange({
+        coinFrom: coinFrom.code,
+        coinFromNetwork: coinFrom.network.code,
+        amount: debouncedAmount ?? 0,
+        coinTo: coinTo.code,
+        coinToNetwork: coinTo.network.code
+      });
+    }
   );
 
-  const { rate, toAmount } = ratesData || { rate: null, toAmount: 0 };
+  useEffect(() => {
+    if (!ratesData) {
+      return;
+    }
+
+    if ('minAmount' in ratesData) {
+      setMinAmount(ratesData.minAmount);
+    }
+
+    if ('maxAmount' in ratesData) {
+      setMaxAmount(ratesData.maxAmount);
+    }
+  }, [ratesData]);
+
+  const { rate, toAmount } = useMemo(
+    () =>
+      ratesData && 'rate' in ratesData
+        ? { rate: ratesData.rate, toAmount: ratesData.toAmount }
+        : { rate: null, toAmount: 0 },
+    [ratesData]
+  );
 
   useEffect(() => {
     (async () => {
+      setMinAmount(null);
+      setMaxAmount(null);
       const { finalMinAmount, finalMaxAmount } = await loadMinMaxFields(
         coinFrom.code,
         coinFrom.network?.code,
@@ -147,7 +180,7 @@ const InitialStep: FC<Props> = ({ publicKeyHash, exchangeData, setExchangeData, 
 
       <WarningComponent currency={coinFrom} />
 
-      <Lines className="mb-2.5" />
+      <Divider className="mb-2.5" />
 
       <TopUpInput
         amount={amount}
@@ -181,7 +214,7 @@ const InitialStep: FC<Props> = ({ publicKeyHash, exchangeData, setExchangeData, 
         onCurrencySelect={setCoinTo}
       />
 
-      <Lines className="mt-10 mb-5" />
+      <Divider className="mt-10 mb-5" />
 
       <div className={classNames('flex justify-between', Number(rate) < 0 ? 'text-red-700' : 'text-gray-600')}>
         <p className={styles['exchangeTitle']}>
@@ -198,11 +231,13 @@ const InitialStep: FC<Props> = ({ publicKeyHash, exchangeData, setExchangeData, 
           padding: '10px 2rem',
           background: '#4299e1'
         }}
+        loading={isSubmitting || isRatesLoading}
+        keepChildrenWhenLoading
         onClick={submitExchangeHandler}
         disabled={proceedForbidden}
         testID={ExolixSelectors.topupFirstStepSubmitButton}
       >
-        <T id={'topUp'} />
+        <T id={isSubmitting ? 'submittingExchange' : isRatesLoading ? 'loadingExchangeRates' : 'topUp'} />
       </FormSubmitButton>
 
       <p className={styles['privacyAndPolicy']}>

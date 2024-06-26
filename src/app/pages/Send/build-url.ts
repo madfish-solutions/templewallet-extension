@@ -1,12 +1,14 @@
-export const buildSendPagePath = (tezosChainId?: string | nullish, assetSlug?: string | nullish) => {
+export const buildSendPagePath = (
+  chainKind?: string | nullish,
+  chainId?: string | nullish,
+  assetSlug?: string | nullish
+) => {
+  const pathElements = [chainKind, chainId, assetSlug];
   let url = '/send';
 
-  if (tezosChainId) {
-    url += `/${tezosChainId}`;
-
-    if (assetSlug) {
-      url += `/${assetSlug}`;
-    }
+  for (const pathEl of pathElements) {
+    if (pathEl) url += `/${pathEl}`;
+    else break;
   }
 
   return url;

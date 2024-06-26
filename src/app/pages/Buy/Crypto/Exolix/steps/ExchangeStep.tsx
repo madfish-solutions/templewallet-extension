@@ -2,7 +2,7 @@ import React, { FC, useEffect, useState } from 'react';
 
 import classNames from 'clsx';
 
-import { FormSubmitButton, Lines } from 'app/atoms';
+import { FormSubmitButton, Divider } from 'app/atoms';
 import HashShortView from 'app/atoms/HashShortView';
 import OldStyleCopyButton from 'app/atoms/OldStyleCopyButton';
 import { ReactComponent as CopyIcon } from 'app/icons/monochrome/copy.svg';
@@ -11,8 +11,8 @@ import ErrorComponent from 'app/pages/Buy/Crypto/Exolix/steps/ErrorComponent';
 import { getCurrentLocale, T } from 'lib/i18n';
 import useCopyToClipboard from 'lib/ui/useCopyToClipboard';
 
-import { ExchangeDataInterface, ExchangeDataStatusEnum } from '../exolix.interface';
 import { ExolixSelectors } from '../Exolix.selectors';
+import { ExchangeDataInterface, ExchangeDataStatusEnum } from '../exolix.types';
 import { getCoinCodeToDisplay } from '../exolix.util';
 
 type dateFormatOptionsValue = 'numeric' | '2-digit';
@@ -101,7 +101,8 @@ const ExchangeStep: FC<Props> = ({ exchangeData, setExchangeData, setStep, step,
             />
           ) : (
             <>
-              <Lines className="mt-9" />
+              <Divider className="mt-9" />
+
               <div className="flex justify-between items-baseline mt-4">
                 <p className="text-gray-600 text-xs">
                   <T id={'transactionId'} />
@@ -155,7 +156,8 @@ const ExchangeStep: FC<Props> = ({ exchangeData, setExchangeData, setStep, step,
                   <HashShortView hash={exchangeData.withdrawalAddress} />
                 </p>
               </div>
-              <Lines className="mt-4 mb-12" />
+
+              <Divider className="mt-4 mb-12" />
             </>
           )}
         </>
@@ -170,7 +172,9 @@ const ExchangeStep: FC<Props> = ({ exchangeData, setExchangeData, setStep, step,
               <T id={'completedDescription'} />
             </p>
           </div>
-          <Lines className="mt-9" />
+
+          <Divider className="mt-9" />
+
           <div className="flex justify-between items-baseline mt-4">
             <p className="text-gray-600 text-xs">
               <T id={'transactionId'} />
@@ -249,7 +253,9 @@ const ExchangeStep: FC<Props> = ({ exchangeData, setExchangeData, setStep, step,
               <HashShortView hash={exchangeData.depositAddress} />
             </p>
           </div>
-          <Lines className="mt-4 mb-10" />
+
+          <Divider className="mt-4 mb-10" />
+
           <FormSubmitButton
             className="w-full justify-center border-none mt-6 mb-12"
             style={{

@@ -3,7 +3,7 @@ import React, { FC, useEffect } from 'react';
 import Countdown from 'react-countdown';
 import { QRCode } from 'react-qr-svg';
 
-import { FormField, Lines } from 'app/atoms';
+import { FormField, Divider } from 'app/atoms';
 import HashShortView from 'app/atoms/HashShortView';
 import OldStyleCopyButton from 'app/atoms/OldStyleCopyButton';
 import { ReactComponent as CopyIcon } from 'app/icons/monochrome/copy.svg';
@@ -13,8 +13,8 @@ import { AnalyticsEventCategory, useAnalytics } from 'lib/analytics';
 import { T } from 'lib/i18n';
 import useCopyToClipboard from 'lib/ui/useCopyToClipboard';
 
-import { ExchangeDataInterface, ExchangeDataStatusEnum } from '../exolix.interface';
 import { ExolixSelectors } from '../Exolix.selectors';
+import { ExchangeDataInterface, ExchangeDataStatusEnum } from '../exolix.types';
 import { getCoinCodeToDisplay, getExchangeData } from '../exolix.util';
 
 import WarningComponent from './WarningComponent';
@@ -90,7 +90,7 @@ const ApproveStep: FC<Props> = ({ exchangeData, setExchangeData, setStep, isErro
 
           <WarningComponent amountAttention />
 
-          <Lines className="mb-6 mt-8" />
+          <Divider className="mt-8 mb-6" />
 
           <div className="flex justify-between items-baseline">
             <p className="text-gray-600 text-xs">
@@ -177,7 +177,7 @@ const ApproveStep: FC<Props> = ({ exchangeData, setExchangeData, setStep, isErro
             </>
           )}
 
-          <Lines className="mt-10" />
+          <Divider className="mt-10" />
 
           <div className="flex justify-between items-baseline mt-4 mb-12">
             <p className="text-gray-600 text-xs">

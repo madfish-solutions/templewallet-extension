@@ -4,7 +4,6 @@ import classNames from 'clsx';
 
 import { IconBase } from 'app/atoms';
 import { ReactComponent as AppsIcon } from 'app/icons/apps.svg';
-import { ReactComponent as OkIcon } from 'app/icons/base/ok.svg';
 import { ReactComponent as SettingsIcon } from 'app/icons/base/settings.svg';
 import { ReactComponent as ContactBookIcon } from 'app/icons/monochrome/contact-book.svg';
 import { ReactComponent as ExtensionIcon } from 'app/icons/monochrome/extension.svg';
@@ -14,6 +13,7 @@ import { ReactComponent as PeopleIcon } from 'app/icons/monochrome/people.svg';
 import { ReactComponent as SignalAltIcon } from 'app/icons/monochrome/signal-alt.svg';
 import { ReactComponent as StickerIcon } from 'app/icons/monochrome/sticker.svg';
 import { ReactComponent as SyncIcon } from 'app/icons/monochrome/sync.svg';
+import { ReactComponent as OkIcon } from 'app/icons/ok.svg';
 import PageLayout from 'app/layouts/PageLayout';
 import About from 'app/templates/About/About';
 import { AccountsManagement } from 'app/templates/AccountsManagement';
@@ -30,9 +30,9 @@ import { Link } from 'lib/woozie';
 import NetworksSettings from './Networks';
 import { SettingsSelectors } from './Settings.selectors';
 
-type SettingsProps = {
+interface SettingsProps {
   tabSlug?: string | null;
-};
+}
 
 interface Tab {
   slug: string;

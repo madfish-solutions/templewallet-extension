@@ -11,7 +11,7 @@ import { useStorage } from 'lib/temple/front';
 import { COLORS } from 'lib/ui/colors';
 import { useConfirm } from 'lib/ui/dialog';
 import { EMPTY_FROZEN_OBJ } from 'lib/utils';
-import { loadEvmChainInfo } from 'temple/evm';
+import { EvmChainInfo, loadEvmChainInfo } from 'temple/evm';
 import { EvmChain, getNetworkTitle, useAllEvmChains, useTempleNetworksActions } from 'temple/front';
 import { EvmChainSpecs } from 'temple/front/chains';
 import { EVM_DEFAULT_NETWORKS } from 'temple/networks';
@@ -50,11 +50,9 @@ export const EvmChainsSettings = memo(() => {
       if (submitting) return;
       clearError();
 
-      let chainId: number;
+      let chainInfo: EvmChainInfo;
       try {
-        const info = await loadEvmChainInfo(rpcBaseURL);
-
-        chainId = info.chainId;
+        chainInfo = await loadEvmChainInfo(rpcBaseURL);
       } catch (error) {
         console.error(error);
 
@@ -69,7 +67,7 @@ export const EvmChainsSettings = memo(() => {
         await addEvmNetwork({
           id: rpcBaseURL,
           chain: TempleChainKind.EVM,
-          chainId,
+          chainId: chainInfo.chainId,
           rpcBaseURL,
           name,
           color

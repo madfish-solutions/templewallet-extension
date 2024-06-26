@@ -21,4 +21,12 @@ type OptionalRecord<T = string> = {
 
 type NonEmptyArray<T> = [T, ...T[]];
 
+type NonNullableFields<T> = {
+  [P in keyof T]: NonNullable<T[P]>;
+};
+
+type NonNullableField<T, K extends keyof T> = T & NonNullableFields<Pick<T, K>>;
+
 type PropsWithChildren<P = unknown> = P & { children: import('react').ReactNode };
+
+type PropsWithClassName<P = unknown> = P & { className?: string };

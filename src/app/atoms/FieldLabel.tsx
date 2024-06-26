@@ -11,19 +11,12 @@ interface Props {
   id?: string;
 }
 
-export const FieldLabel: React.FC<Props> = ({
-  label,
-  className,
-  labelContainerClassName,
-  description,
-  warning,
-  id
-}) => (
+export const FieldLabel: React.FC<Props> = ({ label, className, description, warning, id }) => (
   <label className={clsx(className, 'text-font-description flex flex-col')} htmlFor={id}>
-    <span className={clsx('font-semibold', labelContainerClassName)}>{label}</span>
+    <div className="font-semibold">{label}</div>
 
-    {description && <span className="mt-1 text-grey-1">{description}</span>}
+    {description && <div className="mt-1 text-grey-1">{description}</div>}
 
-    {warning && <span className="mt-1 font-medium text-error">{warning}</span>}
+    {warning && <div className="mt-1 font-medium text-error">{warning}</div>}
   </label>
 );

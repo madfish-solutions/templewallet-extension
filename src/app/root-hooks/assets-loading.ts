@@ -5,14 +5,14 @@ import {
   setAssetsIsLoadingAction,
   addAccountTokensAction,
   addAccountCollectiblesAction
-} from 'app/store/assets/actions';
-import { useAreAssetsLoading } from 'app/store/assets/selectors';
-import { putTokensBalancesAction } from 'app/store/balances/actions';
-import { fixBalances } from 'app/store/balances/utils';
-import { putCollectiblesMetadataAction } from 'app/store/collectibles-metadata/actions';
-import { useAllCollectiblesMetadataSelector } from 'app/store/collectibles-metadata/selectors';
-import { putTokensMetadataAction } from 'app/store/tokens-metadata/actions';
-import { useAllTokensMetadataSelector } from 'app/store/tokens-metadata/selectors';
+} from 'app/store/tezos/assets/actions';
+import { useAreAssetsLoading } from 'app/store/tezos/assets/selectors';
+import { putTokensBalancesAction } from 'app/store/tezos/balances/actions';
+import { fixBalances } from 'app/store/tezos/balances/utils';
+import { putCollectiblesMetadataAction } from 'app/store/tezos/collectibles-metadata/actions';
+import { useAllCollectiblesMetadataSelector } from 'app/store/tezos/collectibles-metadata/selectors';
+import { putTokensMetadataAction } from 'app/store/tezos/tokens-metadata/actions';
+import { useAllTokensMetadataSelector } from 'app/store/tezos/tokens-metadata/selectors';
 import { isKnownChainId } from 'lib/apis/tzkt';
 import { loadAccountCollectibles, loadAccountTokens } from 'lib/assets/fetching';
 import { ASSETS_SYNC_INTERVAL } from 'lib/fixed-times';

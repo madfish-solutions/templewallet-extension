@@ -4,21 +4,25 @@ import clsx from 'clsx';
 
 import { Identicon } from 'app/atoms';
 import { ReactComponent as CollectiblePlaceholder } from 'app/icons/collectible-placeholder.svg';
+import { useEvmTokenMetadataSelector } from 'app/store/evm/tokens-metadata/selectors';
 import { AssetMetadataBase, getAssetSymbol, isCollectible, useAssetMetadata } from 'lib/metadata';
+import { EvmTokenMetadata } from 'lib/metadata/types';
+import { isEvmNativeTokenSlug } from 'lib/utils/evm.utils';
+import { useEvmChainByChainId } from 'temple/front/chains';
 
-import { AssetImage, AssetImageProps } from './AssetImage';
+import { TezosAssetImage, AssetImageBaseProps, EvmAssetImage } from './AssetImage';
 
-interface Props extends Omit<AssetImageProps, 'metadata' | 'loader' | 'fallback'> {
+interface TezosAssetIconProps extends Omit<AssetImageBaseProps, 'sources' | 'metadata' | 'loader' | 'fallback'> {
   tezosChainId: string;
   assetSlug: string;
 }
 
-export const AssetIcon: FC<Props> = memo<Props>(({ tezosChainId, className, style, ...props }) => {
+export const TezosAssetIcon = memo<TezosAssetIconProps>(({ tezosChainId, className, style, ...props }) => {
   const metadata = useAssetMetadata(props.assetSlug, tezosChainId);
 
   return (
     <div className={clsx('flex items-center justify-center', className)} style={style}>
-      <AssetImage
+      <TezosAssetImage
         {...props}
         metadata={metadata}
         loader={<AssetIconPlaceholder metadata={metadata} size={props.size} />}
@@ -28,8 +32,32 @@ export const AssetIcon: FC<Props> = memo<Props>(({ tezosChainId, className, styl
   );
 });
 
+interface EvmAssetIconProps extends Omit<AssetImageBaseProps, 'sources' | 'metadata' | 'loader' | 'fallback'> {
+  evmChainId: number;
+  assetSlug: string;
+}
+
+export const EvmTokenIcon = memo<EvmAssetIconProps>(({ evmChainId, assetSlug, className, style, ...props }) => {
+  const network = useEvmChainByChainId(evmChainId);
+  const tokenMetadata = useEvmTokenMetadataSelector(evmChainId, assetSlug);
+
+  const metadata = isEvmNativeTokenSlug(assetSlug) ? network?.currency : tokenMetadata;
+
+  return (
+    <div className={clsx('flex items-center justify-center', className)} style={style}>
+      <EvmAssetImage
+        {...props}
+        evmChainId={evmChainId}
+        metadata={metadata}
+        loader={<AssetIconPlaceholder metadata={metadata} size={props.size} />}
+        fallback={<AssetIconPlaceholder metadata={metadata} size={props.size} />}
+      />
+    </div>
+  );
+});
+
 interface PlaceholderProps {
-  metadata: AssetMetadataBase | nullish;
+  metadata: EvmTokenMetadata | AssetMetadataBase | nullish;
   size?: number;
 }
 

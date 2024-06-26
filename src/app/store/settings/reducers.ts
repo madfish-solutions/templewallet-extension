@@ -4,6 +4,7 @@ import { persistReducer } from 'redux-persist';
 import { storageConfig } from 'lib/store';
 
 import {
+  setConversionTrackedAction,
   setIsAnalyticsEnabledAction,
   setOnRampPossibilityAction,
   setToastsContainerBottomShiftAction
@@ -17,6 +18,10 @@ const settingsReducer = createReducer<SettingsState>(settingsInitialState, build
 
   builder.addCase(setOnRampPossibilityAction, (state, { payload }) => {
     state.isOnRampPossibility = payload;
+  });
+
+  builder.addCase(setConversionTrackedAction, state => {
+    state.isConversionTracked = true;
   });
 
   builder.addCase(setToastsContainerBottomShiftAction, (state, { payload }) => {

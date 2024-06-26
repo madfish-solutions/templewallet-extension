@@ -1,4 +1,7 @@
+import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
+import { EvmAssetStandard } from 'lib/evm/types';
 import type { TID } from 'lib/i18n';
+import { EvmNativeTokenMetadata } from 'lib/metadata/types';
 import { TempleTezosChainId } from 'lib/temple/types';
 
 import { TempleChainKind } from './types';
@@ -8,7 +11,6 @@ export interface TezosNetworkEssentials {
   chainId: string;
 }
 
-// ts-prune-ignore-next
 export interface EvmNetworkEssentials {
   rpcBaseURL: string;
   chainId: number;
@@ -125,51 +127,109 @@ export interface StoredEvmNetwork extends NetworkBase {
   chainId: number;
 }
 
-export interface EvmNativeCurrency {
-  name: string;
-  symbol: string;
-  decimals: number;
-}
-
-export const DEFAULT_EVM_CURRENCY: EvmNativeCurrency = { name: 'Ether', symbol: 'ETH', decimals: 18 };
+export const DEFAULT_EVM_CURRENCY: EvmNativeTokenMetadata = {
+  standard: EvmAssetStandard.NATIVE,
+  address: EVM_TOKEN_SLUG,
+  name: 'Ether',
+  symbol: 'ETH',
+  decimals: 18
+};
 
 /** (!) Never remove Mainnet */
 export const EVM_DEFAULT_NETWORKS: NonEmptyArray<StoredEvmNetwork> = [
   {
-    id: 'mainnet',
+    id: 'eth-mainnet',
     name: 'Ethereum Mainnet',
     chain: TempleChainKind.EVM,
     chainId: 1,
     rpcBaseURL: 'https://cloudflare-eth.com',
-    color: '#83b300',
+    color: '#0036fc',
     default: true
   },
   {
-    id: 'optimism',
+    id: 'matic-mainnet',
+    name: 'Polygon Mainnet',
+    chain: TempleChainKind.EVM,
+    chainId: 137,
+    rpcBaseURL: 'https://polygon-rpc.com',
+    color: '#725ae8',
+    default: true
+  },
+  {
+    id: 'bsc-mainnet',
+    name: 'BSC Mainnet',
+    chain: TempleChainKind.EVM,
+    chainId: 56,
+    rpcBaseURL: 'https://binance.llamarpc.com',
+    description: 'Binance Smart Chain Mainnet',
+    color: '#f5d300',
+    default: true
+  },
+  {
+    id: 'avalanche-mainnet',
+    name: 'Avalanche Mainnet',
+    chain: TempleChainKind.EVM,
+    chainId: 43114,
+    rpcBaseURL: 'https://avalanche.drpc.org',
+    color: '#ff5959',
+    default: true
+  },
+  {
+    id: 'optimism-mainnet',
     name: 'OP Mainnet',
     chain: TempleChainKind.EVM,
     chainId: 10,
     rpcBaseURL: 'https://mainnet.optimism.io',
     description: 'Optimism Mainnet',
-    color: '#48bb78',
+    color: '#fc0000',
     default: true
   },
   {
-    id: 'arbitrum',
-    name: 'Arbitrum One',
+    id: 'eth-sepolia',
+    name: 'Ethereum Sepolia',
     chain: TempleChainKind.EVM,
-    chainId: 42_161,
-    rpcBaseURL: 'https://arb1.arbitrum.io/rpc',
-    color: '#047857',
+    chainId: 11155111,
+    rpcBaseURL: 'https://ethereum-sepolia-rpc.publicnode.com',
+    color: '#010b79',
     default: true
   },
   {
-    id: 'polygon',
-    name: 'Polygon',
+    id: 'matic-mumbai',
+    name: 'Polygon Mumbai',
     chain: TempleChainKind.EVM,
-    chainId: 137,
-    rpcBaseURL: 'https://polygon-rpc.com',
-    color: '#34D399',
+    chainId: 80001,
+    rpcBaseURL: 'https://polygon-mumbai.gateway.tenderly.co',
+    color: '#392f77',
+    default: true
+  },
+  {
+    id: 'bsc-testnet',
+    name: 'BSC Testnet',
+    chain: TempleChainKind.EVM,
+    chainId: 97,
+    rpcBaseURL: 'https://bsc-testnet-rpc.publicnode.com',
+    description: 'Binance Smart Chain Testnet',
+    color: '#867000',
+    default: true
+  },
+  {
+    id: 'avalanche-testnet',
+    name: 'Avalanche Fuji',
+    chain: TempleChainKind.EVM,
+    chainId: 43113,
+    rpcBaseURL: 'https://endpoints.omniatech.io/v1/avax/fuji/public',
+    description: 'Avalanche Testnet',
+    color: '#812e2e',
+    default: true
+  },
+  {
+    id: 'optimism-sepolia',
+    name: 'OP Sepolia',
+    chain: TempleChainKind.EVM,
+    chainId: 11155420,
+    rpcBaseURL: 'https://endpoints.omniatech.io/v1/op/sepolia/public',
+    description: 'Optimism Testnet',
+    color: '#fc0000',
     default: true
   }
 ];
