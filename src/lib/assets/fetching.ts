@@ -2,7 +2,7 @@ import memoizee from 'memoizee';
 
 import { isKnownChainId, fetchTokensMetadata as fetchTokensMetadataOnAPI } from 'lib/apis/temple';
 import { TzktApiChainId, fetchTzktAccountAssets } from 'lib/apis/tzkt';
-import type { TzktAccountAsset } from 'lib/apis/tzkt/types';
+import { TzktAccountAssetSelectedParams } from 'lib/apis/tzkt/api';
 import { toTokenSlug } from 'lib/assets';
 import { FetchedMetadataRecord, fetchTokensMetadata } from 'lib/metadata/fetch';
 import { MetadataMap } from 'lib/metadata/types';
@@ -45,7 +45,7 @@ const fetchTzktAccountUnknownAssets = memoizee(
 );
 
 const finishTokensLoading = async (
-  data: TzktAccountAsset[],
+  data: TzktAccountAssetSelectedParams[],
   rpcUrl: string,
   knownMeta: MetadataMap,
   fungibleByMetaCheck = false
@@ -76,14 +76,14 @@ const finishTokensLoading = async (
     }
 
     slugs.push(slug);
-    balances[slug] = asset.balance;
+    balances[slug] = asset[2];
     if (metadataOfNew) newMeta[slug] = metadataOfNew;
   }
 
   return { slugs, balances, newMeta };
 };
 
-const finishCollectiblesLoadingWithMeta = async (data: TzktAccountAsset[]) => {
+const finishCollectiblesLoadingWithMeta = async (data: TzktAccountAssetSelectedParams[]) => {
   const slugs: string[] = [];
   const balances: StringRecord = {};
 
@@ -91,14 +91,14 @@ const finishCollectiblesLoadingWithMeta = async (data: TzktAccountAsset[]) => {
     const slug = tzktAssetToTokenSlug(asset);
 
     slugs.push(slug);
-    balances[slug] = asset.balance;
+    balances[slug] = asset[2];
   }
 
   return { slugs, balances };
 };
 
 const finishCollectiblesLoadingWithoutMeta = async (
-  data: TzktAccountAsset[],
+  data: TzktAccountAssetSelectedParams[],
   knownMeta: MetadataMap,
   chainId: string
 ) => {
@@ -129,7 +129,7 @@ const finishCollectiblesLoadingWithoutMeta = async (
     if (metadataOfNew) newMeta[slug] = metadataOfNew;
 
     slugs.push(slug);
-    balances[slug] = asset.balance;
+    balances[slug] = asset[2];
   }
 
   return { slugs, balances, newMeta };
@@ -147,4 +147,4 @@ const mergeLoadedAssetsData = (data1: LoadedAssetsData, data2: LoadedAssetsData)
   newMeta: { ...data1.newMeta, ...data2.newMeta }
 });
 
-const tzktAssetToTokenSlug = ({ token }: TzktAccountAsset) => toTokenSlug(token.contract.address, token.tokenId);
+const tzktAssetToTokenSlug = (data: TzktAccountAssetSelectedParams) => toTokenSlug(data[0], data[1]);
