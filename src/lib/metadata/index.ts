@@ -15,7 +15,9 @@ import {
 } from 'app/store/tezos/tokens-metadata/selectors';
 import { METADATA_API_LOAD_CHUNK_SIZE } from 'lib/apis/temple';
 import { isTezAsset } from 'lib/assets';
+import { fromChainAssetSlug } from 'lib/assets/utils';
 import { isTruthy } from 'lib/utils';
+import { useAllTezosChains } from 'temple/front';
 import { isTezosDcpChainId } from 'temple/networks';
 
 import { TEZOS_METADATA, FILM_METADATA } from './defaults';
@@ -82,24 +84,31 @@ export const useGetAssetMetadata = (tezosChainId: string) => {
 /**
  * @param slugsToCheck // Memoize
  */
-export const useTokensMetadataPresenceCheck = (rpcBaseURL: string, slugsToCheck?: string[]) => {
+export const useTezosTokensMetadataPresenceCheck = (rpcBaseURL: string, slugsToCheck?: string[]) => {
   const metadataLoading = useTokensMetadataLoadingSelector();
   const getMetadata = useGetTokenMetadata();
 
-  useAssetsMetadataPresenceCheck(rpcBaseURL, false, metadataLoading, getMetadata, slugsToCheck);
+  useTezosChainAssetsMetadataPresenceCheck(rpcBaseURL, false, metadataLoading, getMetadata, slugsToCheck);
 };
 
 /**
  * @param slugsToCheck // Memoize
  */
-export const useCollectiblesMetadataPresenceCheck = (rpcBaseURL: string, slugsToCheck?: string[]) => {
+export const useTezosChainCollectiblesMetadataPresenceCheck = (rpcBaseURL: string, slugsToCheck?: string[]) => {
   const metadataLoading = useCollectiblesMetadataLoadingSelector();
   const getMetadata = useGetCollectibleMetadata();
 
-  useAssetsMetadataPresenceCheck(rpcBaseURL, true, metadataLoading, getMetadata, slugsToCheck);
+  useTezosChainAssetsMetadataPresenceCheck(rpcBaseURL, true, metadataLoading, getMetadata, slugsToCheck);
 };
 
-const useAssetsMetadataPresenceCheck = (
+export const useTezosCollectiblesMetadataPresenceCheck = (chainSlugsToCheck?: string[]) => {
+  const metadataLoading = useCollectiblesMetadataLoadingSelector();
+  const getMetadata = useGetCollectibleMetadata();
+
+  useTezosAssetsMetadataPresenceCheck(true, metadataLoading, getMetadata, chainSlugsToCheck);
+};
+
+const useTezosChainAssetsMetadataPresenceCheck = (
   rpcBaseURL: string,
   ofCollectibles: boolean,
   metadataLoading: boolean,
@@ -132,4 +141,58 @@ const useAssetsMetadataPresenceCheck = (
       );
     }
   }, [ofCollectibles, slugsToCheck, getMetadata, metadataLoading, rpcBaseURL]);
+};
+
+const useTezosAssetsMetadataPresenceCheck = (
+  ofCollectibles: boolean,
+  metadataLoading: boolean,
+  getMetadata: TokenMetadataGetter,
+  chainSlugsToCheck?: string[]
+) => {
+  const tezosChains = useAllTezosChains();
+
+  const checkedRef = useRef<string[]>([]);
+
+  useEffect(() => {
+    if (metadataLoading || !chainSlugsToCheck?.length) return;
+
+    const missingChunk = chainSlugsToCheck
+      .filter(chainSlug => {
+        const [_, _2, slug] = fromChainAssetSlug<string>(chainSlug);
+
+        return (
+          !isTezAsset(slug) &&
+          !isTruthy(getMetadata(slug)) &&
+          // In case fetched metadata is `null` & won't save
+          !checkedRef.current.includes(slug)
+        );
+      })
+      .slice(0, METADATA_API_LOAD_CHUNK_SIZE);
+
+    if (missingChunk.length > 0) {
+      checkedRef.current = [...checkedRef.current, ...missingChunk];
+
+      const chainIdToMissingSlugsRecord = missingChunk.reduce<Record<string, string[]>>((acc, chainSlug) => {
+        const [_, chainId, slug] = fromChainAssetSlug<string>(chainSlug);
+
+        if (acc[chainId]) acc[chainId].push(slug);
+        else acc[chainId] = [slug];
+
+        return acc;
+      }, {});
+
+      for (const chainId of Object.keys(chainIdToMissingSlugsRecord)) {
+        const rpcBaseURL = tezosChains[chainId]?.rpcBaseURL;
+
+        if (!rpcBaseURL) continue;
+
+        dispatch(
+          (ofCollectibles ? loadCollectiblesMetadataAction : loadTokensMetadataAction)({
+            rpcUrl: rpcBaseURL,
+            slugs: chainIdToMissingSlugsRecord[chainId]
+          })
+        );
+      }
+    }
+  }, [ofCollectibles, getMetadata, metadataLoading, chainSlugsToCheck, tezosChains]);
 };

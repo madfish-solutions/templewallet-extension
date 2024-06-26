@@ -10,7 +10,7 @@ import { useTezosChainAccountTokensListingLogic } from 'app/hooks/use-tokens-lis
 import { ReactComponent as ManageIcon } from 'app/icons/base/manage.svg';
 import { ContentContainer, StickyBar } from 'app/layouts/containers';
 import { AssetsSelectors } from 'app/pages/Home/OtherComponents/Assets.selectors';
-import { useAssetsFilterOptionsSelector } from 'app/store/assets-filter-options/selectors';
+import { useTokensListOptionsSelector } from 'app/store/assets-filter-options/selectors';
 import { useAreAssetsLoading, useMainnetTokensScamlistSelector } from 'app/store/tezos/assets/selectors';
 import { useTokensMetadataLoadingSelector } from 'app/store/tezos/tokens-metadata/selectors';
 import { AssetsFilterOptions } from 'app/templates/AssetsFilterOptions';
@@ -40,7 +40,7 @@ export const TezosChainTokensTab: FC<TezosChainTokensTabProps> = ({ chainId, pub
 
   if (!network) throw new DeadEndBoundaryError();
 
-  const { tokensListOptions } = useAssetsFilterOptionsSelector();
+  const { hideZeroBalance } = useTokensListOptionsSelector();
   const { filtersOpened, setFiltersClosed, toggleFiltersOpened } = useAssetsFilterOptionsState();
 
   const assetsAreLoading = useAreAssetsLoading('tokens');
@@ -60,7 +60,7 @@ export const TezosChainTokensTab: FC<TezosChainTokensTabProps> = ({ chainId, pub
     chainId,
     publicKeyHash,
     slugs,
-    tokensListOptions.hideZeroBalance,
+    hideZeroBalance,
     leadingAssets
   );
 

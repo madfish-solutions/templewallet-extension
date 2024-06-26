@@ -19,7 +19,7 @@ import {
   useTezosAssetMetadata,
   useGetAssetMetadata,
   AssetMetadataBase,
-  useTokensMetadataPresenceCheck
+  useTezosTokensMetadataPresenceCheck
 } from 'lib/metadata';
 import { useAvailableRoute3TokensSlugs } from 'lib/route3/assets';
 
@@ -76,7 +76,7 @@ export const SwapFormInput: FC<SwapFormInputProps> = ({
     LEADING_ASSETS
   );
 
-  useTokensMetadataPresenceCheck(network.rpcBaseURL, route3tokensSlugs);
+  useTezosTokensMetadataPresenceCheck(network.rpcBaseURL, route3tokensSlugs);
 
   const maxAmount = useMemo(() => {
     if (!assetSlug) {

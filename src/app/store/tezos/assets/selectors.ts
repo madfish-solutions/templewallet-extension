@@ -11,6 +11,8 @@ export const useAllTokensSelector = () => useSelector(state => state.assets.toke
 export const useChainAccountTokensSelector = (account: string, chainId: string) =>
   useSelector(state => state.assets.tokens.data[getAccountAssetsStoreKey(account, chainId)] ?? EMPTY_FROZEN_OBJ);
 
+export const useAllCollectiblesSelector = () => useSelector(state => state.assets.collectibles.data);
+
 export const useAccountCollectiblesSelector = (account: string, chainId: string) =>
   useSelector(state => state.assets.collectibles.data[getAccountAssetsStoreKey(account, chainId)] ?? EMPTY_FROZEN_OBJ);
 

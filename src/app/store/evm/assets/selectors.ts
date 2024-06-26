@@ -17,6 +17,9 @@ export const useRawEvmChainAccountTokensSelector = (
 
 export const useEvmStoredCollectiblesRecordSelector = () => useSelector(state => state.evmAssets.collectibles);
 
+export const useRawEvmAccountCollectiblesSelector = (publicKeyHash: HexString): ChainIdTokenSlugsAssetsRecord =>
+  useSelector(state => state.evmAssets.collectibles[publicKeyHash]) ?? EMPTY_FROZEN_OBJ;
+
 export const useRawEvmChainAccountCollectiblesSelector = (
   publicKeyHash: HexString,
   chainId: number

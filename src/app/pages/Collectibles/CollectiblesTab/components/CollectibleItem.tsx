@@ -24,9 +24,10 @@ import { Link } from 'lib/woozie';
 import { useEvmChainByChainId, useTezosChainByChainId } from 'temple/front/chains';
 import { TempleChainKind } from 'temple/types';
 
+import { CollectibleTabSelectors } from '../selectors';
+import { toCollectibleLink } from '../utils';
+
 import { CollectibleItemImage, EvmCollectibleItemImage } from './CollectibleItemImage';
-import { CollectibleTabSelectors } from './selectors';
-import { toCollectibleLink } from './utils';
 
 // Fixed sizes to improve large grid performance
 const ImgContainerStyle = { width: 112, height: 112 };

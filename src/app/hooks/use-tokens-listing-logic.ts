@@ -16,7 +16,7 @@ import { useTokensMetadataLoadingSelector } from 'app/store/tezos/tokens-metadat
 import { TEZ_TOKEN_SLUG, toTokenSlug } from 'lib/assets';
 import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
 import {
-  useEnabledAccountChainKindSlugs,
+  useEnabledAccountChainTokensSlugs,
   useEnabledEvmAccountTokensSlugs,
   useEnabledEvmChainAccountTokensSlugs
 } from 'lib/assets/hooks/tokens';
@@ -38,7 +38,7 @@ import { TempleChainKind } from 'temple/types';
 import { useEvmAssetsPaginationLogic } from './use-evm-assets-pagination-logic';
 
 export const useAccountTokensListingLogic = (accountTezAddress: string, accountEvmAddress: HexString) => {
-  const chainKindSlugs = useEnabledAccountChainKindSlugs(accountTezAddress, accountEvmAddress);
+  const chainTokensSlugs = useEnabledAccountChainTokensSlugs(accountTezAddress, accountEvmAddress);
 
   const tokensSortPredicate = useAccountTokensSortPredicate(accountTezAddress, accountEvmAddress);
 
@@ -59,9 +59,9 @@ export const useAccountTokensListingLogic = (accountTezAddress: string, accountE
     () => [
       ...enabledTezChains.map(chain => toChainAssetSlug(TempleChainKind.Tezos, chain.chainId, TEZ_TOKEN_SLUG)),
       ...enabledEvmChains.map(chain => toChainAssetSlug(TempleChainKind.EVM, chain.chainId, EVM_TOKEN_SLUG)),
-      ...chainKindSlugs.sort(tokensSortPredicate)
+      ...chainTokensSlugs.sort(tokensSortPredicate)
     ],
-    [enabledTezChains, enabledEvmChains, chainKindSlugs, tokensSortPredicate],
+    [enabledTezChains, enabledEvmChains, chainTokensSlugs, tokensSortPredicate],
     isEqual
   );
 

@@ -1,4 +1,4 @@
-import React, { FC, useMemo, useRef } from 'react';
+import React, { memo, useMemo, useRef } from 'react';
 
 import { emptyFn } from '@rnw-community/shared';
 
@@ -20,12 +20,12 @@ import { TempleChainKind } from 'temple/types';
 import { EmptySection } from './EmptySection';
 import { EvmListItem, TezosListItem } from './ListItem';
 
-interface AllNetworksTokensTabProps {
+interface MultiChainTokensTabProps {
   accountTezAddress: string;
   accountEvmAddress: HexString;
 }
 
-export const AllNetworksTokensTab: FC<AllNetworksTokensTabProps> = ({ accountTezAddress, accountEvmAddress }) => {
+export const MultiChainTokensTab = memo<MultiChainTokensTabProps>(({ accountTezAddress, accountEvmAddress }) => {
   const { filtersOpened, setFiltersClosed, toggleFiltersOpened } = useAssetsFilterOptionsState();
 
   const { paginatedSlugs, isSyncing, loadNext } = useAccountTokensListingLogic(accountTezAddress, accountEvmAddress);
@@ -89,4 +89,4 @@ export const AllNetworksTokensTab: FC<AllNetworksTokensTabProps> = ({ accountTez
       )}
     </>
   );
-};
+});

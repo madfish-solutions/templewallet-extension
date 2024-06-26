@@ -67,7 +67,7 @@ export const useAllTezosAvailableTokens = (account: string, chainId: string) => 
   }, [tokens, allTokensStored, account, chainId]);
 };
 
-export const useEnabledAccountChainKindSlugs = (accountTezAddress: string, accountEvmAddress: HexString) => {
+export const useEnabledAccountChainTokensSlugs = (accountTezAddress: string, accountEvmAddress: HexString) => {
   const tezTokens = useTezosAccountTokens(accountTezAddress);
   const evmTokens = useEvmAccountTokens(accountEvmAddress);
 

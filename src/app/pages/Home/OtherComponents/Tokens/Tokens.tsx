@@ -9,9 +9,9 @@ import { UNDER_DEVELOPMENT_MSG } from 'temple/evm/under_dev_msg';
 import { useAccountAddressForEvm, useAccountAddressForTezos } from 'temple/front';
 import { TempleChainKind } from 'temple/types';
 
-import { AllNetworksTokensTab } from './components/AllNetworksTokensTab';
 import { EvmChainTokensTab } from './components/EvmChainTokensTab';
 import { EvmTokensTab } from './components/EvmTokensTab';
+import { MultiChainTokensTab } from './components/MultiChainTokensTab';
 import { TezosChainTokensTab } from './components/TezosChainTokensTab';
 import { TezosTokensTab } from './components/TezosTokensTab';
 
@@ -48,7 +48,7 @@ export const TokensTab = memo(() => {
     return <EvmChainTokensTab chainId={localFilterChain.chainId} publicKeyHash={accountEvmAddress} />;
 
   if (!localFilterChain && accountTezAddress && accountEvmAddress)
-    return <AllNetworksTokensTab accountTezAddress={accountTezAddress} accountEvmAddress={accountEvmAddress} />;
+    return <MultiChainTokensTab accountTezAddress={accountTezAddress} accountEvmAddress={accountEvmAddress} />;
 
   if (!localFilterChain && accountTezAddress) return <TezosTokensTab publicKeyHash={accountTezAddress} />;
 
