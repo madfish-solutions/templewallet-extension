@@ -2,10 +2,17 @@ import { useCallback, useMemo, useState } from 'react';
 
 import { useDebounce } from 'use-debounce';
 
+import { useEvmCollectiblesMetadataRecordSelector } from 'app/store/evm/collectibles-metadata/selectors';
 import { useEvmBalancesLoadingSelector, useEvmCollectiblesMetadataLoadingSelector } from 'app/store/evm/selectors';
 import { useAreAssetsLoading } from 'app/store/tezos/assets/selectors';
 import { useCollectiblesMetadataLoadingSelector } from 'app/store/tezos/collectibles-metadata/selectors';
-import { searchTezosAssetsWithNoMeta, searchTezosChainAssetsWithNoMeta } from 'lib/assets/search.utils';
+import {
+  searchAssetsWithNoMeta,
+  searchEvmAssetsWithNoMeta,
+  searchEvmChainAssetsWithNoMeta,
+  searchTezosAssetsWithNoMeta,
+  searchTezosChainAssetsWithNoMeta
+} from 'lib/assets/search.utils';
 import { fromChainAssetSlug } from 'lib/assets/utils';
 import {
   useTezosChainCollectiblesMetadataPresenceCheck,
@@ -21,6 +28,62 @@ import {
   useTezosChainCollectiblesPaginationLogic
 } from './use-collectibles-pagination-logic';
 import { useEvmAssetsPaginationLogic } from './use-evm-assets-pagination-logic';
+
+const getSlugWithChainId = <T>(chainSlug: string) => {
+  const [_, chainId, assetSlug] = fromChainAssetSlug<T>(chainSlug);
+
+  return { chainId, assetSlug };
+};
+
+const getSlugFromChainSlug = (chainSlug: string) => getSlugWithChainId(chainSlug).assetSlug;
+
+export const useAccountCollectiblesListingLogic = (allChainSlugsSorted: string[]) => {
+  const { slugs: paginatedSlugs, loadNext } = useEvmAssetsPaginationLogic(allChainSlugsSorted);
+
+  const evmMetadata = useEvmCollectiblesMetadataRecordSelector();
+
+  const tezAssetsLoading = useAreAssetsLoading('collectibles');
+  const tezMetadatasLoading = useCollectiblesMetadataLoadingSelector();
+
+  const evmBalancesLoading = useEvmBalancesLoadingSelector();
+  const EvmMetadatasLoading = useEvmCollectiblesMetadataLoadingSelector();
+
+  const isSyncing = tezAssetsLoading || tezMetadatasLoading || evmBalancesLoading || EvmMetadatasLoading;
+
+  const [searchValue, setSearchValue] = useState('');
+  const [searchValueDebounced] = useDebounce(searchValue, 500);
+
+  const isInSearchMode = isSearchStringApplicable(searchValueDebounced);
+
+  const getTezMetadata = useGetCollectibleMetadata();
+
+  const getEvmMetadata = useCallback((chainId: number, slug: string) => evmMetadata[chainId]?.[slug], [evmMetadata]);
+
+  const displayedSlugs = useMemo(
+    () =>
+      isInSearchMode
+        ? searchAssetsWithNoMeta(
+            searchValueDebounced,
+            allChainSlugsSorted,
+            (_, slug) => getTezMetadata(slug),
+            getEvmMetadata,
+            slug => slug,
+            getSlugFromChainSlug
+          )
+        : paginatedSlugs,
+    [isInSearchMode, searchValueDebounced, allChainSlugsSorted, getTezMetadata, getEvmMetadata, paginatedSlugs]
+  );
+
+  return {
+    isInSearchMode,
+    displayedSlugs,
+    paginatedSlugs,
+    isSyncing,
+    loadNext,
+    searchValue,
+    setSearchValue
+  };
+};
 
 export const useTezosAccountCollectiblesListingLogic = (allChainSlugsSorted: string[]) => {
   const {
@@ -139,35 +202,72 @@ export const useTezosChainCollectiblesListingLogic = (network: TezosNetworkEssen
   };
 };
 
-export const useEvmCollectiblesListingLogic = (allSlugsSorted: string[]) => {
-  const { slugs: paginatedSlugs, loadNext } = useEvmAssetsPaginationLogic(allSlugsSorted);
+export const useEvmAccountCollectiblesListingLogic = (allChainSlugsSorted: string[]) => {
+  const { slugs: paginatedSlugs, loadNext } = useEvmAssetsPaginationLogic(allChainSlugsSorted);
+
+  const metadata = useEvmCollectiblesMetadataRecordSelector();
 
   const balancesLoading = useEvmBalancesLoadingSelector();
   const metadatasLoading = useEvmCollectiblesMetadataLoadingSelector();
 
   const isSyncing = balancesLoading || metadatasLoading;
 
+  const [searchValue, setSearchValue] = useState('');
+  const [searchValueDebounced] = useDebounce(searchValue, 500);
+
+  const isInSearchMode = isSearchStringApplicable(searchValueDebounced);
+
+  const getMetadata = useCallback((chainId: number, slug: string) => metadata[chainId]?.[slug], [metadata]);
+
+  const displayedSlugs = useMemo(
+    () =>
+      isInSearchMode
+        ? searchEvmAssetsWithNoMeta(searchValueDebounced, allChainSlugsSorted, getMetadata, getSlugWithChainId)
+        : paginatedSlugs,
+    [isInSearchMode, paginatedSlugs, searchValueDebounced, allChainSlugsSorted, getMetadata]
+  );
+
   return {
+    displayedSlugs,
     paginatedSlugs,
     isSyncing,
-    loadNext
+    loadNext,
+    searchValue,
+    setSearchValue
   };
 };
 
-export const useAccountCollectiblesListingLogic = (allChainSlugsSorted: string[]) => {
-  const { slugs: paginatedSlugs, loadNext } = useEvmAssetsPaginationLogic(allChainSlugsSorted);
+export const useEvmChainCollectiblesListingLogic = (allSlugsSorted: string[], chainId: number) => {
+  const { slugs: paginatedSlugs, loadNext } = useEvmAssetsPaginationLogic(allSlugsSorted);
 
-  const tezAssetsLoading = useAreAssetsLoading('collectibles');
-  const tezMetadatasLoading = useCollectiblesMetadataLoadingSelector();
+  const metadata = useEvmCollectiblesMetadataRecordSelector();
 
-  const evmBalancesLoading = useEvmBalancesLoadingSelector();
-  const EvmMetadatasLoading = useEvmCollectiblesMetadataLoadingSelector();
+  const balancesLoading = useEvmBalancesLoadingSelector();
+  const metadatasLoading = useEvmCollectiblesMetadataLoadingSelector();
 
-  const isSyncing = tezAssetsLoading || tezMetadatasLoading || evmBalancesLoading || EvmMetadatasLoading;
+  const isSyncing = balancesLoading || metadatasLoading;
+
+  const [searchValue, setSearchValue] = useState('');
+  const [searchValueDebounced] = useDebounce(searchValue, 500);
+
+  const isInSearchMode = isSearchStringApplicable(searchValueDebounced);
+
+  const getMetadata = useCallback((slug: string) => metadata[chainId]?.[slug], [metadata, chainId]);
+
+  const displayedSlugs = useMemo(
+    () =>
+      isInSearchMode
+        ? searchEvmChainAssetsWithNoMeta(searchValueDebounced, allSlugsSorted, getMetadata, slug => slug)
+        : paginatedSlugs,
+    [isInSearchMode, paginatedSlugs, searchValueDebounced, allSlugsSorted, getMetadata]
+  );
 
   return {
+    displayedSlugs,
     paginatedSlugs,
     isSyncing,
-    loadNext
+    loadNext,
+    searchValue,
+    setSearchValue
   };
 };

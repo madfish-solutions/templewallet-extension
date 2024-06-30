@@ -1,6 +1,5 @@
 import React, { memo, useMemo, useRef } from 'react';
 
-import { emptyFn } from '@rnw-community/shared';
 import { isEqual } from 'lodash';
 
 import { SyncSpinner } from 'app/atoms';
@@ -47,12 +46,13 @@ export const MultiChainCollectiblesTab = memo<MultiChainCollectiblesTabProps>(
       isEqual
     );
 
-    const { paginatedSlugs, isSyncing, loadNext } = useAccountCollectiblesListingLogic(allChainSlugsSorted);
+    const { isInSearchMode, displayedSlugs, paginatedSlugs, isSyncing, loadNext, searchValue, setSearchValue } =
+      useAccountCollectiblesListingLogic(allChainSlugsSorted);
 
     const contentElement = useMemo(
       () => (
         <div className="grid grid-cols-3 gap-2">
-          {paginatedSlugs.map(chainSlug => {
+          {displayedSlugs.map(chainSlug => {
             const [chainKind, chainId, slug] = fromChainAssetSlug(chainSlug);
 
             if (chainKind === TempleChainKind.Tezos) {
@@ -64,6 +64,7 @@ export const MultiChainCollectiblesTab = memo<MultiChainCollectiblesTabProps>(
                   tezosChainId={chainId as string}
                   adultBlur={blur}
                   areDetailsShown={showInfo}
+                  hideWithoutMeta={isInSearchMode}
                 />
               );
             }
@@ -80,7 +81,7 @@ export const MultiChainCollectiblesTab = memo<MultiChainCollectiblesTabProps>(
           })}
         </div>
       ),
-      [accountEvmAddress, accountTezAddress, blur, paginatedSlugs, showInfo]
+      [isInSearchMode, accountEvmAddress, accountTezAddress, blur, displayedSlugs, showInfo]
     );
 
     const shouldScrollToTheBar = paginatedSlugs.length > 0;
@@ -91,7 +92,11 @@ export const MultiChainCollectiblesTab = memo<MultiChainCollectiblesTabProps>(
     return (
       <>
         <StickyBar ref={stickyBarRef}>
-          <SearchBarField value="" onValueChange={emptyFn} testID={AssetsSelectors.searchAssetsInputTokens} />
+          <SearchBarField
+            value={searchValue}
+            onValueChange={setSearchValue}
+            testID={AssetsSelectors.searchAssetsInputTokens}
+          />
 
           <FilterButton ref={filterButtonRef} active={filtersOpened} onClick={toggleFiltersOpened} />
 
@@ -102,7 +107,7 @@ export const MultiChainCollectiblesTab = memo<MultiChainCollectiblesTabProps>(
           <AssetsFilterOptions filterButtonRef={filterButtonRef} onRequestClose={setFiltersClosed} />
         ) : (
           <ContentContainer>
-            {paginatedSlugs.length === 0 ? (
+            {displayedSlugs.length === 0 ? (
               <EmptySection isSyncing={isSyncing} />
             ) : (
               <>

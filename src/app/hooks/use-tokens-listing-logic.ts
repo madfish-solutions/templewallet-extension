@@ -44,6 +44,7 @@ import { useGetChainTokenOrGasMetadata, useGetTokenOrGasMetadata } from 'lib/met
 import { useMemoWithCompare } from 'lib/ui/hooks';
 import { isSearchStringApplicable } from 'lib/utils/search-items';
 import { useAllEvmChains } from 'temple/front';
+import { useEvmChainByChainId } from 'temple/front/chains';
 import { TempleChainKind } from 'temple/types';
 
 import { useEvmAssetsPaginationLogic } from './use-evm-assets-pagination-logic';
@@ -471,7 +472,7 @@ export const useEvmChainAccountTokensListingLogic = (
     [tokenSlugs, leadingAssetsSlugs]
   );
 
-  const evmChains = useAllEvmChains();
+  const chain = useEvmChainByChainId(chainId);
   const balances = useRawEvmChainAccountBalancesSelector(publicKeyHash, chainId);
   const metadata = useEvmTokensMetadataRecordSelector();
 
@@ -486,12 +487,12 @@ export const useEvmChainAccountTokensListingLogic = (
   const getMetadata = useCallback(
     (slug: string) => {
       if (slug === EVM_TOKEN_SLUG) {
-        return evmChains[chainId]?.currency;
+        return chain?.currency;
       }
 
       return metadata[chainId]?.[slug];
     },
-    [evmChains, metadata, chainId]
+    [chain, metadata, chainId]
   );
 
   const sourceArray = useMemo(

@@ -1,6 +1,5 @@
 import React, { memo, useMemo, useRef } from 'react';
 
-import { emptyFn } from '@rnw-community/shared';
 import { isEqual } from 'lodash';
 
 import { SyncSpinner } from 'app/atoms';
@@ -9,7 +8,7 @@ import { IconButton } from 'app/atoms/IconButton';
 import { ScrollBackUpButton } from 'app/atoms/ScrollBackUpButton';
 import { SimpleInfiniteScroll } from 'app/atoms/SimpleInfiniteScroll';
 import { useAssetsFilterOptionsState } from 'app/hooks/use-assets-filter-options';
-import { useEvmCollectiblesListingLogic } from 'app/hooks/use-collectibles-listing-logic';
+import { useEvmChainCollectiblesListingLogic } from 'app/hooks/use-collectibles-listing-logic';
 import { ReactComponent as ManageIcon } from 'app/icons/base/manage.svg';
 import { ContentContainer, StickyBar } from 'app/layouts/containers';
 import { AssetsSelectors } from 'app/pages/Home/OtherComponents/Assets.selectors';
@@ -43,12 +42,13 @@ export const EvmChainCollectiblesTab = memo<EvmChainCollectiblesTabProps>(({ cha
     isEqual
   );
 
-  const { paginatedSlugs, isSyncing, loadNext } = useEvmCollectiblesListingLogic(allSlugsSorted);
+  const { displayedSlugs, paginatedSlugs, isSyncing, loadNext, searchValue, setSearchValue } =
+    useEvmChainCollectiblesListingLogic(allSlugsSorted, chainId);
 
   const contentElement = useMemo(
     () => (
       <div className="grid grid-cols-3 gap-2">
-        {paginatedSlugs.map(slug => (
+        {displayedSlugs.map(slug => (
           <EvmCollectibleItem
             key={slug}
             assetSlug={slug}
@@ -59,7 +59,7 @@ export const EvmChainCollectiblesTab = memo<EvmChainCollectiblesTabProps>(({ cha
         ))}
       </div>
     ),
-    [paginatedSlugs, chainId, publicKeyHash, showInfo]
+    [displayedSlugs, chainId, publicKeyHash, showInfo]
   );
 
   const shouldScrollToTheBar = paginatedSlugs.length > 0;
@@ -70,7 +70,11 @@ export const EvmChainCollectiblesTab = memo<EvmChainCollectiblesTabProps>(({ cha
   return (
     <>
       <StickyBar ref={stickyBarRef}>
-        <SearchBarField value="" onValueChange={emptyFn} testID={AssetsSelectors.searchAssetsInputTokens} />
+        <SearchBarField
+          value={searchValue}
+          onValueChange={setSearchValue}
+          testID={AssetsSelectors.searchAssetsInputTokens}
+        />
 
         <FilterButton ref={filterButtonRef} active={filtersOpened} onClick={toggleFiltersOpened} />
 
@@ -81,7 +85,7 @@ export const EvmChainCollectiblesTab = memo<EvmChainCollectiblesTabProps>(({ cha
         <AssetsFilterOptions filterButtonRef={filterButtonRef} onRequestClose={setFiltersClosed} />
       ) : (
         <ContentContainer>
-          {paginatedSlugs.length === 0 ? (
+          {displayedSlugs.length === 0 ? (
             <EmptySection isSyncing={isSyncing} />
           ) : (
             <>
