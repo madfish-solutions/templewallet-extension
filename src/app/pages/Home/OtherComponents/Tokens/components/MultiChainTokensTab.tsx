@@ -1,5 +1,7 @@
 import React, { memo, useMemo, useRef } from 'react';
 
+import clsx from 'clsx';
+
 import { SyncSpinner } from 'app/atoms';
 import { FilterButton } from 'app/atoms/FilterButton';
 import { IconButton } from 'app/atoms/IconButton';
@@ -13,7 +15,7 @@ import { useTokensListOptionsSelector } from 'app/store/assets-filter-options/se
 import { AssetsFilterOptions } from 'app/templates/AssetsFilterOptions';
 import { SearchBarField } from 'app/templates/SearchField';
 import { EVM_TOKEN_SLUG, TEZ_TOKEN_SLUG } from 'lib/assets/defaults';
-import { fromChainAssetSlug, toChainAssetSlug } from 'lib/assets/utils';
+import { CHAIN_SLUG_SEPARATOR, fromChainAssetSlug, toChainAssetSlug } from 'lib/assets/utils';
 import { useAllTezosChains, useEnabledEvmChains, useEnabledTezosChains } from 'temple/front';
 import { TempleChainKind } from 'temple/types';
 
@@ -26,7 +28,7 @@ interface MultiChainTokensTabProps {
 }
 
 export const MultiChainTokensTab = memo<MultiChainTokensTabProps>(({ accountTezAddress, accountEvmAddress }) => {
-  const { hideZeroBalance } = useTokensListOptionsSelector();
+  const { hideZeroBalance, groupByNetwork } = useTokensListOptionsSelector();
 
   const { filtersOpened, setFiltersClosed, toggleFiltersOpened } = useAssetsFilterOptionsState();
 
@@ -47,20 +49,25 @@ export const MultiChainTokensTab = memo<MultiChainTokensTabProps>(({ accountTezA
     accountTezAddress,
     accountEvmAddress,
     hideZeroBalance,
+    groupByNetwork,
     leadingAssets,
     true
   );
 
   const contentElement = useMemo(
     () =>
-      paginatedSlugs.map(chainKindSlug => {
-        const [chainKind, chainId, assetSlug] = fromChainAssetSlug(chainKindSlug);
+      paginatedSlugs.map((chainSlug, index) => {
+        if (!chainSlug.includes(CHAIN_SLUG_SEPARATOR)) {
+          return <div className={clsx('mb-0.5 p-1 text-font-description-bold', index > 0 && 'mt-4')}>{chainSlug}</div>;
+        }
+
+        const [chainKind, chainId, assetSlug] = fromChainAssetSlug(chainSlug);
 
         if (chainKind === TempleChainKind.Tezos) {
           return (
             <TezosListItem
               network={tezosChains[chainId]}
-              key={chainKindSlug}
+              key={chainSlug}
               publicKeyHash={accountTezAddress}
               assetSlug={assetSlug}
             />
@@ -69,7 +76,7 @@ export const MultiChainTokensTab = memo<MultiChainTokensTabProps>(({ accountTezA
 
         return (
           <EvmListItem
-            key={chainKindSlug}
+            key={chainSlug}
             chainId={chainId as number}
             assetSlug={assetSlug}
             publicKeyHash={accountEvmAddress}

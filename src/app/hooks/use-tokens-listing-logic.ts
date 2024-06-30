@@ -1,7 +1,7 @@
 import { useCallback, useMemo, useState } from 'react';
 
 import { isDefined } from '@rnw-community/shared';
-import { isEqual } from 'lodash';
+import { groupBy, isEqual } from 'lodash';
 import { useDebounce } from 'use-debounce';
 
 import {
@@ -43,11 +43,13 @@ import { fromChainAssetSlug } from 'lib/assets/utils';
 import { useGetChainTokenOrGasMetadata, useGetTokenOrGasMetadata } from 'lib/metadata';
 import { useMemoWithCompare } from 'lib/ui/hooks';
 import { isSearchStringApplicable } from 'lib/utils/search-items';
-import { useAllEvmChains } from 'temple/front';
+import { EvmChain, TezosChain, useAllEvmChains, useAllTezosChains } from 'temple/front';
 import { useEvmChainByChainId } from 'temple/front/chains';
 import { TempleChainKind } from 'temple/types';
 
 import { useEvmAssetsPaginationLogic } from './use-evm-assets-pagination-logic';
+
+const getChainName = (chain?: TezosChain | EvmChain) => chain?.name ?? 'Unknown chain';
 
 const getSlugWithChainId = <T>(chainSlug: string) => {
   const [_, chainId, assetSlug] = fromChainAssetSlug<T>(chainSlug);
@@ -61,6 +63,7 @@ export const useAccountTokensListingLogic = (
   accountTezAddress: string,
   accountEvmAddress: HexString,
   filterZeroBalances = false,
+  groupByNetwork = false,
   leadingAssetsChainSlugs?: string[],
   leadingAssetsAreFilterable = false
 ) => {
@@ -89,6 +92,7 @@ export const useAccountTokensListingLogic = (
   const tezBalances = useBalancesAtomicRecordSelector();
   const evmBalances = useRawEvmAccountBalancesSelector(accountEvmAddress);
 
+  const tezosChains = useAllTezosChains();
   const evmChains = useAllEvmChains();
   const evmMetadata = useEvmTokensMetadataRecordSelector();
 
@@ -174,7 +178,24 @@ export const useAccountTokensListingLogic = (
     isEqual
   );
 
-  const { slugs: paginatedSlugs, loadNext } = useEvmAssetsPaginationLogic(filteredAssets);
+  const groupedAssets = useMemo(() => {
+    if (!groupByNetwork) return filteredAssets;
+
+    const chainNameSlugsRecord = groupBy(filteredAssets, chainSlug => {
+      const [chainKind, chainId] = fromChainAssetSlug(chainSlug);
+
+      return getChainName(
+        chainKind === TempleChainKind.Tezos ? tezosChains[chainId as string] : evmChains[chainId as number]
+      );
+    });
+
+    return Object.keys(chainNameSlugsRecord).reduce<string[]>(
+      (acc, key) => acc.concat(key, chainNameSlugsRecord[key]),
+      []
+    );
+  }, [filteredAssets, groupByNetwork]);
+
+  const { slugs: paginatedSlugs, loadNext } = useEvmAssetsPaginationLogic(groupedAssets);
 
   return {
     paginatedSlugs,
@@ -189,6 +210,7 @@ export const useTezosAccountTokensListingLogic = (
   publicKeyHash: string,
   chainSlugs: string[],
   filterZeroBalances = false,
+  groupByNetwork = false,
   leadingAssets?: string[],
   leadingAssetsAreFilterable = false
 ) => {
@@ -197,6 +219,7 @@ export const useTezosAccountTokensListingLogic = (
     [chainSlugs, leadingAssets]
   );
 
+  const tezosChains = useAllTezosChains();
   const balancesRecord = useBalancesAtomicRecordSelector();
 
   const isNonZeroBalance = useCallback(
@@ -258,8 +281,23 @@ export const useTezosAccountTokensListingLogic = (
     isEqual
   );
 
+  const groupedAssets = useMemo(() => {
+    if (!groupByNetwork) return filteredAssets;
+
+    const chainNameSlugsRecord = groupBy(filteredAssets, chainSlug => {
+      const [_, chainId] = fromChainAssetSlug<string>(chainSlug);
+
+      return getChainName(tezosChains[chainId]);
+    });
+
+    return Object.keys(chainNameSlugsRecord).reduce<string[]>(
+      (acc, key) => acc.concat(key, chainNameSlugsRecord[key]),
+      []
+    );
+  }, [filteredAssets, groupByNetwork]);
+
   return {
-    filteredAssets,
+    filteredAssets: groupedAssets,
     searchValue,
     setSearchValue,
     tokenId,
@@ -349,6 +387,7 @@ export const useTezosChainAccountTokensListingLogic = (
 export const useEvmAccountTokensListingLogic = (
   publicKeyHash: HexString,
   filterZeroBalances = false,
+  groupByNetwork = false,
   leadingAssetsChainSlugs?: string[],
   leadingAssetsAreFilterable = false
 ) => {
@@ -439,7 +478,22 @@ export const useEvmAccountTokensListingLogic = (
     isEqual
   );
 
-  const { slugs: paginatedSlugs, loadNext } = useEvmAssetsPaginationLogic(filteredAssets);
+  const groupedAssets = useMemo(() => {
+    if (!groupByNetwork) return filteredAssets;
+
+    const chainNameSlugsRecord = groupBy(filteredAssets, chainSlug => {
+      const [_, chainId] = fromChainAssetSlug<number>(chainSlug);
+
+      return getChainName(evmChains[chainId]);
+    });
+
+    return Object.keys(chainNameSlugsRecord).reduce<string[]>(
+      (acc, key) => acc.concat(key, chainNameSlugsRecord[key]),
+      []
+    );
+  }, [filteredAssets, groupByNetwork]);
+
+  const { slugs: paginatedSlugs, loadNext } = useEvmAssetsPaginationLogic(groupedAssets);
 
   return {
     paginatedSlugs,

@@ -1,5 +1,7 @@
 import React, { FC, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
+import clsx from 'clsx';
+
 import { SyncSpinner } from 'app/atoms';
 import { FilterButton } from 'app/atoms/FilterButton';
 import { IconButton } from 'app/atoms/IconButton';
@@ -18,7 +20,7 @@ import { SearchBarField } from 'app/templates/SearchField';
 import { OptimalPromoVariantEnum } from 'lib/apis/optimal';
 import { TEMPLE_TOKEN_SLUG, TEZ_TOKEN_SLUG } from 'lib/assets';
 import { useTezosEnabledAccountTokensSlugs } from 'lib/assets/hooks/tokens';
-import { fromChainAssetSlug, toChainAssetSlug } from 'lib/assets/utils';
+import { CHAIN_SLUG_SEPARATOR, fromChainAssetSlug, toChainAssetSlug } from 'lib/assets/utils';
 import { TEZOS_MAINNET_CHAIN_ID } from 'lib/temple/types';
 import { navigate } from 'lib/woozie';
 import { useAllTezosChains, useEnabledTezosChains } from 'temple/front';
@@ -63,6 +65,7 @@ export const TezosTokensTab: FC<TezosTokensTabProps> = ({ publicKeyHash }) => {
     publicKeyHash,
     chainSlugs,
     tokensListOptions.hideZeroBalance,
+    tokensListOptions.groupByNetwork,
     leadingAssets
   );
 
@@ -75,7 +78,11 @@ export const TezosTokensTab: FC<TezosTokensTabProps> = ({ publicKeyHash }) => {
   }, [filteredAssets, searchFocused, searchValueExist, activeIndex]);
 
   const tokensView = useMemo<JSX.Element[]>(() => {
-    const tokensJsx = filteredAssets.map(chainSlug => {
+    const tokensJsx = filteredAssets.map((chainSlug, index) => {
+      if (!chainSlug.includes(CHAIN_SLUG_SEPARATOR)) {
+        return <div className={clsx('mb-0.5 p-1 text-font-description-bold', index > 0 && 'mt-4')}>{chainSlug}</div>;
+      }
+
       const [_, chainId, assetSlug] = fromChainAssetSlug<string>(chainSlug);
 
       return (

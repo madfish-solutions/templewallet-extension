@@ -1,5 +1,7 @@
 import React, { FC, useMemo, useRef } from 'react';
 
+import clsx from 'clsx';
+
 import { SyncSpinner } from 'app/atoms';
 import { FilterButton } from 'app/atoms/FilterButton';
 import { IconButton } from 'app/atoms/IconButton';
@@ -13,7 +15,7 @@ import { useTokensListOptionsSelector } from 'app/store/assets-filter-options/se
 import { AssetsFilterOptions } from 'app/templates/AssetsFilterOptions';
 import { SearchBarField } from 'app/templates/SearchField';
 import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
-import { fromChainAssetSlug, toChainAssetSlug } from 'lib/assets/utils';
+import { CHAIN_SLUG_SEPARATOR, fromChainAssetSlug, toChainAssetSlug } from 'lib/assets/utils';
 import { useEnabledEvmChains } from 'temple/front';
 import { TempleChainKind } from 'temple/types';
 
@@ -25,7 +27,7 @@ interface EvmTokensTabProps {
 }
 
 export const EvmTokensTab: FC<EvmTokensTabProps> = ({ publicKeyHash }) => {
-  const { hideZeroBalance } = useTokensListOptionsSelector();
+  const { hideZeroBalance, groupByNetwork } = useTokensListOptionsSelector();
 
   const { filtersOpened, setFiltersClosed, toggleFiltersOpened } = useAssetsFilterOptionsState();
 
@@ -39,13 +41,18 @@ export const EvmTokensTab: FC<EvmTokensTabProps> = ({ publicKeyHash }) => {
   const { paginatedSlugs, isSyncing, loadNext, searchValue, setSearchValue } = useEvmAccountTokensListingLogic(
     publicKeyHash,
     hideZeroBalance,
+    groupByNetwork,
     leadingAssets,
     true
   );
 
   const contentElement = useMemo(
     () =>
-      paginatedSlugs.map(chainSlug => {
+      paginatedSlugs.map((chainSlug, index) => {
+        if (!chainSlug.includes(CHAIN_SLUG_SEPARATOR)) {
+          return <div className={clsx('mb-0.5 p-1 text-font-description-bold', index > 0 && 'mt-4')}>{chainSlug}</div>;
+        }
+
         const [_, chainId, slug] = fromChainAssetSlug<number>(chainSlug);
 
         return <EvmListItem key={chainSlug} chainId={chainId} assetSlug={slug} publicKeyHash={publicKeyHash} />;
