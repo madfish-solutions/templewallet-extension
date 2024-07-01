@@ -7,16 +7,18 @@ import { ReadOnlySecretField } from 'app/atoms/ReadOnlySecretField';
 import { StyledButton } from 'app/atoms/StyledButton';
 import { T, TID } from 'lib/i18n';
 
+import { TestIDProps } from '../../../lib/analytics';
+
 import { ManualBackupModalSelectors } from './selectors';
 
-interface MnemonicViewProps {
+interface MnemonicViewProps extends TestIDProps {
   mnemonic: string;
   isNewMnemonic: boolean;
   onCancel?: EmptyFn;
   onConfirm: EmptyFn;
 }
 
-export const MnemonicView = memo<MnemonicViewProps>(({ mnemonic, isNewMnemonic, onCancel, onConfirm }) => {
+export const MnemonicView = memo<MnemonicViewProps>(({ mnemonic, isNewMnemonic, onCancel, onConfirm, testID }) => {
   const [bottomEdgeIsVisible, setBottomEdgeIsVisible] = useState(true);
 
   const manualBackupSubstitutions = useMemo(() => {
@@ -31,7 +33,12 @@ export const MnemonicView = memo<MnemonicViewProps>(({ mnemonic, isNewMnemonic, 
 
   return (
     <>
-      <ScrollView className="py-4" bottomEdgeThreshold={16} onBottomEdgeVisibilityChange={setBottomEdgeIsVisible}>
+      <ScrollView
+        className="py-4"
+        bottomEdgeThreshold={16}
+        onBottomEdgeVisibilityChange={setBottomEdgeIsVisible}
+        testID={'what is this????'}
+      >
         <Alert
           className="mb-4"
           type="warning"
@@ -43,7 +50,7 @@ export const MnemonicView = memo<MnemonicViewProps>(({ mnemonic, isNewMnemonic, 
           }
         />
 
-        <ReadOnlySecretField value={mnemonic} label="newRevealSeedPhraseLabel" description={null} />
+        <ReadOnlySecretField value={mnemonic} label="newRevealSeedPhraseLabel" description={null} testID={'lalala'} />
       </ScrollView>
 
       <ActionsButtonsBox shouldCastShadow={!bottomEdgeIsVisible}>

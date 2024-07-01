@@ -36,6 +36,7 @@ export const ManualBackupModal = memo<ManualBackupModalProps>(({ mnemonic, onSuc
           isNewMnemonic={isNewMnemonic}
           onCancel={onCancel}
           onConfirm={goToVerifySeedPhrase}
+          testID={'vlad'}
         />
       )}
     </PageModal>

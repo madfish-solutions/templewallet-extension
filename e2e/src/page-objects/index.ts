@@ -6,6 +6,7 @@ import { ConfirmationModalPage } from '../page-objects/pages/confirmation-modal.
 import { GeneralSettingsPage } from '../page-objects/pages/general-settings.page';
 import { ManageAssetsCollectiblesPage } from '../page-objects/pages/manage-assets-collectibles.page';
 import { ManageAssetsTokensPage } from '../page-objects/pages/manage-assets-tokens.page';
+import { ManualBackupModalPage } from '../page-objects/pages/manual-backup-modal.page';
 import { NetworksPage } from '../page-objects/pages/networks.page';
 import { NewsletterModalPage } from '../page-objects/pages/newsletter-modal.page';
 import { NotificationContentPage } from '../page-objects/pages/notification-content.page';
@@ -50,5 +51,6 @@ export const Pages = {
   CollectiblesTabPage: new CollectiblesTabPage(),
   NotificationsList: new NotificationsListPage(),
   NotificationContent: new NotificationContentPage(),
-  GeneralSettings: new GeneralSettingsPage()
+  GeneralSettings: new GeneralSettingsPage(),
+  ManualBackupModal: new ManualBackupModalPage()
 };
