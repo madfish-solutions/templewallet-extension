@@ -9,8 +9,7 @@ import { Button } from 'app/atoms';
 import Spinner from 'app/atoms/Spinner/Spinner';
 import { useAppEnv } from 'app/env';
 import { ReactComponent as CloseIcon } from 'app/icons/close.svg';
-import ContentContainer from 'app/layouts/ContentContainer';
-import { useOnboardingProgress } from 'app/pages/Onboarding/hooks/useOnboardingProgress.hook';
+import { LAYOUT_CONTAINER_CLASSNAME } from 'app/layouts/containers';
 import { shouldShowNewsletterModalAction } from 'app/store/newsletter/newsletter-actions';
 import { useShouldShowNewsletterModalSelector } from 'app/store/newsletter/newsletter-selectors';
 import { useOnRampPossibilitySelector } from 'app/store/settings/selectors';
@@ -18,6 +17,7 @@ import { setTestID } from 'lib/analytics';
 import { newsletterApi } from 'lib/apis/newsletter';
 import { useYupValidationResolver } from 'lib/form/use-yup-validation-resolver';
 import { T, t } from 'lib/i18n/react';
+import { useTempleClient } from 'lib/temple/front';
 import { useLocation } from 'lib/woozie';
 
 import NewsletterImage from './NewsletterImage.png';
@@ -38,7 +38,7 @@ export const NewsletterOverlay: FC = () => {
   const { popup } = useAppEnv();
   const { pathname } = useLocation();
 
-  const { onboardingCompleted } = useOnboardingProgress();
+  const { ready } = useTempleClient();
   const shouldShowNewsletterModal = useShouldShowNewsletterModalSelector();
   const isOnRampPossibility = useOnRampPossibilitySelector();
 
@@ -87,17 +87,17 @@ export const NewsletterOverlay: FC = () => {
     return 'Subscribe';
   }, [successSubscribing, isLoading]);
 
-  if (!shouldShowNewsletterModal || !onboardingCompleted || isOnRampPossibility || pathname !== HOME_PAGE_PATH)
-    return null;
+  // TODO: remove 'ready' condition and add 'onboardingCompleted' condition when onboarding is reimplemented
+  if (!shouldShowNewsletterModal || !ready || isOnRampPossibility || pathname !== HOME_PAGE_PATH) return null;
 
   return (
     <>
-      <div className="fixed left-0 right-0 top-0 bottom-0 opacity-20 bg-gray-700 z-40"></div>
+      <div className="fixed inset-0 z-overlay-promo opacity-20 bg-gray-700"></div>
+
       <form onSubmit={handleSubmit(onSubmit)}>
-        <ContentContainer
-          className={classNames('fixed z-40 overflow-y-scroll', popupClassName)}
+        <div
+          className={classNames(LAYOUT_CONTAINER_CLASSNAME, 'fixed z-overlay-promo overflow-y-scroll', popupClassName)}
           style={{ maxWidth: '37.5rem', maxHeight: 'calc(100vh - 50px)' }}
-          padding={false}
         >
           <div
             className={classNames(
@@ -153,7 +153,7 @@ export const NewsletterOverlay: FC = () => {
               </button>
             </div>
           </div>
-        </ContentContainer>
+        </div>
       </form>
     </>
   );

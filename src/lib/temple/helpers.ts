@@ -1,26 +1,8 @@
-import { ManagerKeyResponse } from '@taquito/rpc';
-import { MichelCodecPacker } from '@taquito/taquito';
-import { validateAddress, ValidationResult } from '@taquito/utils';
 import BigNumber from 'bignumber.js';
-import memoizee from 'memoizee';
 
-import { FastRpcClient } from 'lib/taquito-fast-rpc';
+import { TempleChainKind } from 'temple/types';
 
-import { TempleAccount, TempleAccountType } from './types';
-
-export const loadFastRpcClient = memoizee((rpc: string) => new FastRpcClient(rpc), { max: 5 });
-
-export const michelEncoder = new MichelCodecPacker();
-
-export function loadChainId(rpcUrl: string) {
-  const rpc = loadFastRpcClient(rpcUrl);
-
-  return rpc.getChainId();
-}
-
-export function hasManager(manager: ManagerKeyResponse) {
-  return manager && typeof manager === 'object' ? !!manager.key : !!manager;
-}
+import { StoredAccount, StoredHDAccount, TempleAccountType, WalletSpecs } from './types';
 
 export function usdToAssetAmount(
   usd?: BigNumber,
@@ -53,16 +35,6 @@ export function tokensToAtoms(x: BigNumber.Value, decimals: number) {
   return new BigNumber(x).times(10 ** decimals).integerValue();
 }
 
-export function isAddressValid(address: string) {
-  return validateAddress(address) === ValidationResult.VALID;
-}
-
-export function isKTAddress(address: string) {
-  return address?.startsWith('KT');
-}
-
-export const isValidContractAddress = (address: string) => isAddressValid(address) && isKTAddress(address);
-
 export function formatOpParamsBeforeSend(params: any) {
   if (params.kind === 'origination' && params.script) {
     const newParams = { ...params, ...params.script };
@@ -74,5 +46,86 @@ export function formatOpParamsBeforeSend(params: any) {
   return params;
 }
 
-export const isAccountOfActableType = (account: TempleAccount) =>
-  !(account.type === TempleAccountType.WatchOnly || account.type === TempleAccountType.ManagedKT);
+export function toExcelColumnName(n: number) {
+  let dividend = n + 1;
+  let columnName = '';
+  let modulo;
+
+  while (dividend > 0) {
+    modulo = (dividend - 1) % 26;
+    columnName = String.fromCharCode(65 + modulo) + columnName;
+    dividend = Math.floor((dividend - modulo) / 26);
+  }
+
+  return columnName;
+}
+
+export function getSameGroupAccounts(
+  allAccounts: StoredAccount[],
+  accountType: TempleAccountType.HD,
+  groupId: string
+): StoredHDAccount[];
+export function getSameGroupAccounts(
+  allAccounts: StoredAccount[],
+  accountType: TempleAccountType,
+  groupId?: string
+): StoredAccount[];
+export function getSameGroupAccounts(allAccounts: StoredAccount[], accountType: TempleAccountType, groupId?: string) {
+  return allAccounts.filter(
+    acc => acc.type === accountType && (acc.type !== TempleAccountType.HD || acc.walletId === groupId)
+  );
+}
+
+async function pickUniqueName(
+  startIndex: number,
+  getNameCandidate: (i: number) => string | Promise<string>,
+  isUnique: (name: string) => boolean
+) {
+  for (let i = startIndex; ; i++) {
+    const nameCandidate = await getNameCandidate(i);
+    if (isUnique(nameCandidate)) {
+      return nameCandidate;
+    }
+  }
+}
+
+export function isNameCollision(
+  allAccounts: StoredAccount[],
+  accountType: TempleAccountType,
+  name: string,
+  walletId?: string
+) {
+  return getSameGroupAccounts(allAccounts, accountType, walletId).some(acc => acc.name === name);
+}
+
+export async function fetchNewAccountName(
+  allAccounts: StoredAccount[],
+  newAccountType: TempleAccountType,
+  getNameCandidate: (i: number) => string | Promise<string>,
+  newAccountWalletId?: string
+) {
+  const sameGroupAccounts = getSameGroupAccounts(allAccounts, newAccountType, newAccountWalletId);
+
+  return await pickUniqueName(
+    sameGroupAccounts.length + 1,
+    getNameCandidate,
+    name => !isNameCollision(allAccounts, newAccountType, name, newAccountWalletId)
+  );
+}
+
+export async function fetchNewGroupName(
+  walletsSpecs: StringRecord<WalletSpecs>,
+  getNameCandidate: (i: number) => Promise<string>
+) {
+  const groupsNames = Object.values(walletsSpecs).map(spec => spec.name);
+
+  return await pickUniqueName(groupsNames.length, getNameCandidate, name => !groupsNames.includes(name));
+}
+
+export function getDerivationPath(chainName: TempleChainKind, index: number) {
+  if (chainName === TempleChainKind.EVM) {
+    return `m/44'/60'/0'/0/${index}`;
+  }
+
+  return `m/44'/1729'/${index}'/0'`;
+}

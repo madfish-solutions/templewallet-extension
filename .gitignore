@@ -19,6 +19,7 @@ node_modules/
 .DS_Store
 /.idea
 .vscode
+.npmrc
 
 npm-debug.log*
 yarn-debug.log*

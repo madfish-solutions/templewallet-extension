@@ -2,28 +2,23 @@ import { useMemo, useState } from 'react';
 
 import { useDebounce } from 'use-debounce';
 
-import { useAreAssetsLoading } from 'app/store/assets/selectors';
-import { useCollectiblesMetadataLoadingSelector } from 'app/store/collectibles-metadata/selectors';
+import { useEvmBalancesLoadingSelector, useEvmCollectiblesMetadataLoadingSelector } from 'app/store/evm/selectors';
+import { useAreAssetsLoading } from 'app/store/tezos/assets/selectors';
+import { useCollectiblesMetadataLoadingSelector } from 'app/store/tezos/collectibles-metadata/selectors';
 import { searchAssetsWithNoMeta } from 'lib/assets/search.utils';
 import { useCollectiblesMetadataPresenceCheck, useGetCollectibleMetadata } from 'lib/metadata';
 import { isSearchStringApplicable } from 'lib/utils/search-items';
-import { createLocationState } from 'lib/woozie/location';
+import { TezosNetworkEssentials } from 'temple/networks';
 
 import { ITEMS_PER_PAGE, useCollectiblesPaginationLogic } from './use-collectibles-pagination-logic';
+import { useEvmAssetsPaginationLogic } from './use-evm-assets-pagination-logic';
 
-export const useCollectiblesListingLogic = (allSlugsSorted: string[]) => {
-  const initialAmount = useMemo(() => {
-    const { search } = createLocationState();
-    const usp = new URLSearchParams(search);
-    const amount = usp.get('amount');
-    return amount ? Number(amount) : 0;
-  }, []);
-
+export const useCollectiblesListingLogic = (network: TezosNetworkEssentials, allSlugsSorted: string[]) => {
   const {
     slugs: paginatedSlugs,
     isLoading: pageIsLoading,
     loadNext
-  } = useCollectiblesPaginationLogic(allSlugsSorted, initialAmount);
+  } = useCollectiblesPaginationLogic(allSlugsSorted, network.rpcBaseURL);
 
   const assetsAreLoading = useAreAssetsLoading('collectibles');
   const metadatasLoading = useCollectiblesMetadataLoadingSelector();
@@ -48,7 +43,7 @@ export const useCollectiblesListingLogic = (allSlugsSorted: string[]) => {
     return pageIsLoading ? undefined : allSlugsSorted.slice(paginatedSlugs.length + ITEMS_PER_PAGE * 2);
   }, [isInSearchMode, pageIsLoading, allSlugsSorted, paginatedSlugs.length]);
 
-  useCollectiblesMetadataPresenceCheck(metaToCheckAndLoad);
+  useCollectiblesMetadataPresenceCheck(network.rpcBaseURL, metaToCheckAndLoad);
 
   const getCollectibleMeta = useGetCollectibleMetadata();
 
@@ -68,5 +63,20 @@ export const useCollectiblesListingLogic = (allSlugsSorted: string[]) => {
     loadNext,
     searchValue,
     setSearchValue
+  };
+};
+
+export const useEvmCollectiblesListingLogic = (allSlugsSorted: string[], chainId: number) => {
+  const { slugs: paginatedSlugs, loadNext } = useEvmAssetsPaginationLogic(allSlugsSorted, chainId);
+
+  const balancesLoading = useEvmBalancesLoadingSelector();
+  const metadatasLoading = useEvmCollectiblesMetadataLoadingSelector();
+
+  const isSyncing = balancesLoading || metadatasLoading;
+
+  return {
+    paginatedSlugs,
+    isSyncing,
+    loadNext
   };
 };

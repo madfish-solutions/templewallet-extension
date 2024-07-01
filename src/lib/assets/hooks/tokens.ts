@@ -3,14 +3,15 @@ import { useMemo } from 'react';
 import { ChainIds } from '@taquito/taquito';
 import { isEqual, sortBy, uniqBy } from 'lodash';
 
+import { useRawEvmChainAccountTokensSelector } from 'app/store/evm/assets/selectors';
+import { useRawEvmChainAccountBalancesSelector } from 'app/store/evm/balances/selectors';
 import {
   useAllTokensSelector,
   useAccountTokensSelector,
   useMainnetTokensWhitelistSelector
-} from 'app/store/assets/selectors';
-import { isAccountAssetsStoreKeyOfSameChainIdAndDifferentAccount } from 'app/store/assets/utils';
-import { useAllAccountBalancesSelector } from 'app/store/balances/selectors';
-import { useAccount, useChainId } from 'lib/temple/front';
+} from 'app/store/tezos/assets/selectors';
+import { isAccountAssetsStoreKeyOfSameChainIdAndDifferentAccount } from 'app/store/tezos/assets/utils';
+import { useAllAccountBalancesSelector } from 'app/store/tezos/balances/selectors';
 import { useMemoWithCompare } from 'lib/ui/hooks';
 
 import { PREDEFINED_TOKENS_METADATA } from '../known-tokens';
@@ -55,10 +56,7 @@ export const useAllAvailableTokens = (account: string, chainId: string) => {
   }, [tokens, allTokensStored, account, chainId]);
 };
 
-export const useEnabledAccountTokensSlugs = () => {
-  const chainId = useChainId(true)!;
-  const { publicKeyHash } = useAccount();
-
+export const useEnabledAccountTokensSlugs = (publicKeyHash: string, chainId: string) => {
   const tokens = useAccountTokens(publicKeyHash, chainId);
 
   return useMemo(
@@ -113,6 +111,30 @@ const useAccountTokens = (account: string, chainId: string) => {
     },
     [chainId, storedRaw, whitelistSlugs, balances],
     isEqual
+  );
+};
+
+const useEvmChainAccountTokens = (account: HexString, chainId: number) => {
+  const storedRaw = useRawEvmChainAccountTokensSelector(account, chainId);
+  const balances = useRawEvmChainAccountBalancesSelector(account, chainId);
+
+  return useMemoWithCompare<AccountToken[]>(
+    () =>
+      Object.entries(storedRaw).map<AccountToken>(([slug, { status }]) => ({
+        slug,
+        status: getAssetStatus(balances[slug], status)
+      })),
+    [storedRaw, balances],
+    isEqual
+  );
+};
+
+export const useEnabledEvmChainAccountTokensSlugs = (publicKeyHash: HexString, chainId: number) => {
+  const tokens = useEvmChainAccountTokens(publicKeyHash, chainId);
+
+  return useMemo(
+    () => tokens.reduce<string[]>((acc, { slug, status }) => (status === 'enabled' ? acc.concat(slug) : acc), []),
+    [tokens]
   );
 };
 

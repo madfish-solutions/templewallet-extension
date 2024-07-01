@@ -1,11 +1,11 @@
 import React, { ComponentProps, FC, HTMLAttributes } from 'react';
 
-import CopyButton, { CopyButtonProps } from './CopyButton';
 import HashShortView from './HashShortView';
+import OldStyleCopyButton, { OldStyleCopyButtonProps } from './OldStyleCopyButton';
 
 type HashChipProps = HTMLAttributes<HTMLButtonElement> &
   ComponentProps<typeof HashShortView> &
-  Pick<CopyButtonProps, 'small' | 'type' | 'bgShade' | 'rounded' | 'textShade'>;
+  Pick<OldStyleCopyButtonProps, 'small' | 'type' | 'bgShade' | 'rounded' | 'textShade'>;
 
 export const HashChip: FC<HashChipProps> = ({
   hash,
@@ -16,12 +16,12 @@ export const HashChip: FC<HashChipProps> = ({
   type = 'button',
   ...rest
 }) => (
-  <CopyButton text={hash} type={type} {...rest}>
+  <OldStyleCopyButton text={hash} type={type} {...rest}>
     <HashShortView
       hash={hash}
       trimAfter={trimAfter}
       firstCharsCount={firstCharsCount}
       lastCharsCount={lastCharsCount}
     />
-  </CopyButton>
+  </OldStyleCopyButton>
 );

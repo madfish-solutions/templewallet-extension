@@ -14,18 +14,19 @@ import { ReactComponent as YoutubeIcon } from 'app/icons/delegationYt.svg';
 import { ReactComponent as ClockRepeatIcon } from 'app/icons/history.svg';
 import { ReactComponent as StockUpIcon } from 'app/icons/stock-up.svg';
 import { ReactComponent as ClockIcon } from 'app/icons/time.svg';
-import { useGasToken } from 'lib/assets/hooks';
 import { T } from 'lib/i18n';
+import { isTezosDcpChainId } from 'temple/networks';
 
 import { BakingSectionSelectors } from './selectors';
 
 interface Props {
+  chainId: string;
   noPreviousHistory: boolean;
   cannotDelegate: boolean;
 }
 
-export const NotBakingBanner = memo<Props>(({ noPreviousHistory, cannotDelegate }) => {
-  const { isDcpNetwork } = useGasToken();
+export const NotBakingBanner = memo<Props>(({ chainId, noPreviousHistory, cannotDelegate }) => {
+  const isDcpNetwork = isTezosDcpChainId(chainId);
   const { fullPage } = useAppEnv();
 
   if (isDcpNetwork)

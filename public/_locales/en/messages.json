@@ -1,6 +1,6 @@
 {
   "appName": {
-    "message": "Temple - Tezos Wallet"
+    "message": "Temple Wallet"
   },
   "showIncomingTransactions": {
     "message": "Show Incoming Transactions"
@@ -10,6 +10,23 @@
   },
   "createAccount": {
     "message": "Create account"
+  },
+  "renameWallet": {
+    "message": "Rename wallet"
+  },
+  "addAccount": {
+    "message": "Add account"
+  },
+  "accountAlreadyExistsWarning": {
+    "message": "Please note that some accounts from $walletName$ already exist as $oldAccountGroupName$. The next accounts in this group will be added while considering the existing ones.",
+    "placeholders": {
+      "walletName": {
+        "content": "$1"
+      },
+      "oldAccountGroupName": {
+        "content": "$2"
+      }
+    }
   },
   "importAccount": {
     "message": "Import account"
@@ -27,7 +44,7 @@
     "message": "Open new tab"
   },
   "maximiseView": {
-    "message": "Maximize view"
+    "message": "View Full Screen"
   },
   "selectFile": {
     "message": "Select file"
@@ -284,11 +301,14 @@
   "usageAnalytics": {
     "message": "Usage Analytics"
   },
+  "analyticsCollecting": {
+    "message": "anonymous information collecting"
+  },
   "anonymousAnalytics": {
     "message": "Anonymous analytics"
   },
   "analyticsInputDescription": {
-    "message": "I agree to the $analyticsLink$ collecting",
+    "message": "By pressing this button you are agreeing to the $analyticsLink$",
     "placeholders": {
       "analyticsLink": {
         "content": "$1"
@@ -482,8 +502,16 @@
   "alert": {
     "message": "Alert"
   },
-  "accountNameInputTitle": {
+  "accountOrGroupNameInputTitle": {
     "message": "1-16 characters, no special"
+  },
+  "hdWalletDefaultName": {
+    "message": "Wallet $groupLetter$",
+    "placeholders": {
+      "groupLetter": {
+        "content": "$1"
+      }
+    }
   },
   "defaultAccountName": {
     "message": "Account $accountNumber$",
@@ -511,7 +539,45 @@
     }
   },
   "accountsToRemoveConstraint": {
-    "message": "Hierarchical Deterministic accounts cannot be removed."
+    "message": "The only Hierarchical Deterministic account cannot be removed."
+  },
+  "walletsToRemoveConstraint": {
+    "message": "The only HD wallet cannot be removed."
+  },
+  "hdWalletRemoveWarning": {
+    "message": "Backup wallet before deleting to avoid permanent loss. You can anytime restore your wallet by importing the seed phrase."
+  },
+  "importedAccountsRemoveWarning": {
+    "message": "Backup private keys before deleting to avoid permanent loss. You can anytime restore your accounts by importing the private keys."
+  },
+  "deleteWallet": {
+    "message": "Delete wallet"
+  },
+  "deleteWalletPasswordLabel": {
+    "message": "Enter the password to delete wallet"
+  },
+  "walletNameInputLabel": {
+    "message": "Enter your wallet name"
+  },
+  "accountNameInputLabel": {
+    "message": "Enter Account Name"
+  },
+  "newRevealSeedPhraseLabel": {
+    "message": "Here you can reveal your seed phrase"
+  },
+  "revealSeedPhrasePasswordLabel": {
+    "message": "Enter your password to reveal seed phrase"
+  },
+  "walletFromMnemonic": {
+    "message": "Wallet from Seed Phrase"
+  },
+  "newRevealPrivateKeyLabel": {
+    "message": "Here you can reveal your $chainName$ private key",
+    "placeholders": {
+      "chainName": {
+        "content": "$1"
+      }
+    }
   },
   "doNotSharePrivateKey": {
     "message": "<b>DO NOT share</b> this set of chars with anyone! It can be used to steal your current account."
@@ -561,6 +627,24 @@
   "requirements": {
     "message": "Requirements:"
   },
+  "eightCharacters": {
+    "message": "8 characters"
+  },
+  "atLeastOneNumber": {
+    "message": "At least one number"
+  },
+  "specialCharacter": {
+    "message": "Special character"
+  },
+  "atLeastOneLowercase": {
+    "message": "At least one lowercase letter"
+  },
+  "atLeastOneCapital": {
+    "message": "At least one capital letter"
+  },
+  "atLeast8Characters": {
+    "message": "At least 8 characters - the more characters, the better."
+  },
   "minEightCharacters": {
     "message": "Min. 8 characters"
   },
@@ -572,9 +656,6 @@
   },
   "oneCapitalLetter": {
     "message": "One Capital letter"
-  },
-  "specialCharacter": {
-    "message": "Special character"
   },
   "mnemonicWordsAmountConstraint": {
     "message": "Seed phrase must contain $number$ words",
@@ -699,6 +780,12 @@
   "createNewWallet": {
     "message": "Create a new Wallet"
   },
+  "welcomeQuote": {
+    "message": "“The only function of economic forecasting is\nto make astrology look more respectable.”"
+  },
+  "welcomeQuoteAuthor": {
+    "message": "© John Kenneth Galbraith"
+  },
   "createNewWalletDescription": {
     "message": "New to Temple Wallet? Let's set it up! This will create a new wallet and seed phrase"
   },
@@ -768,7 +855,7 @@
     "message": "The Secret key of the Account you want to import."
   },
   "privateKeyInputPlaceholder": {
-    "message": "e.g. edsk3wfiPMu..."
+    "message": "e.g. edsk3wfiPMu... | 0xL4mp3Ty..."
   },
   "password": {
     "message": "Password"
@@ -835,9 +922,15 @@
     "message": "Processing..."
   },
   "importWallet": {
-    "message": "Import Your Wallet"
+    "message": "Import Wallet"
   },
   "createWallet": {
+    "message": "Create Wallet"
+  },
+  "importYourWallet": {
+    "message": "Import Your Wallet"
+  },
+  "createYourWallet": {
     "message": "Create Your Wallet"
   },
   "errorImportingKukaiWallet": {
@@ -876,6 +969,9 @@
   "revealPrivateKeyDescription": {
     "message": "Also known as \"Export Account\", reveals private key for your selected account."
   },
+  "revealPrivateKeyPasswordLabel": {
+    "message": "Enter your password to reveal private key"
+  },
   "revealSeedPhrase": {
     "message": "Reveal Seed Phrase"
   },
@@ -904,6 +1000,30 @@
   },
   "removeAccountDescription": {
     "message": "Use this section to remove your selected account. Only imported accounts can be removed."
+  },
+  "accountsManagement": {
+    "message": "Accounts management"
+  },
+  "accountsManagementDescription": {
+    "message": "Use this section to create, edit, and delete accounts."
+  },
+  "editAccount": {
+    "message": "Edit Account"
+  },
+  "editAccountName": {
+    "message": "Edit Account Name"
+  },
+  "editName": {
+    "message": "Edit Name"
+  },
+  "displayAccount": {
+    "message": "Display"
+  },
+  "enterPasswordToRevealPrivateKey": {
+    "message": "Enter your password to reveal private key"
+  },
+  "selectNetworkToReveal": {
+    "message": "Select Network to reveal"
   },
   "about": {
     "message": "About"
@@ -935,9 +1055,18 @@
   "importWalletUsingSeedPhrase": {
     "message": "Import Wallet using Seed Phrase"
   },
+  "ledgerConnect": {
+    "message": "Ledger connect"
+  },
   "connectLedger": {
     "message": "Connect Ledger",
     "description": "Ledger = https://www.ledger.com/"
+  },
+  "continueWithGoogleDrive": {
+    "message": "Continue with Google Drive"
+  },
+  "or": {
+    "message": "or"
   },
   "importExistingWallet": {
     "message": "Import existing Wallet"
@@ -1719,8 +1848,11 @@
   "noAssetsFound": {
     "message": "No assets found"
   },
-  "tokenNotFound": {
-    "message": "Token not found..."
+  "tokensNotFound": {
+    "message": "Tokens Not Found"
+  },
+  "notFound": {
+    "message": "Not Found"
   },
   "currencyNotFound": {
     "message": "Currency not found"
@@ -1764,8 +1896,17 @@
   "watchOnlyAccount": {
     "message": "Watch-only"
   },
+  "hdAccount": {
+    "message": "HD"
+  },
   "disabledForWatchOnlyAccount": {
     "message": "Disabled for watch-only account"
+  },
+  "importedGroupLabel": {
+    "message": "Integrated"
+  },
+  "ledgerGroupLabel": {
+    "message": "Hardware"
   },
   "activationOperationType": {
     "message": "Activation"
@@ -1977,6 +2118,9 @@
   "clean": {
     "message": "Clean"
   },
+  "clear": {
+    "message": "Clear"
+  },
   "errorChangingAccountName": {
     "message": "An error occurred while changing account name"
   },
@@ -2172,6 +2316,9 @@
   },
   "social": {
     "message": "Social"
+  },
+  "market": {
+    "message": "Market"
   },
   "marketplace": {
     "message": "Marketplace"
@@ -2781,9 +2928,6 @@
   "topUpCrypto": {
     "message": "Crypto"
   },
-  "topUpDebit": {
-    "message": "Debit/Credit Card"
-  },
   "overdueTransaction": {
     "message": "Transaction is overdue"
   },
@@ -2815,6 +2959,20 @@
   },
   "sellDetailsDescription": {
     "message": "Sell TEZ to fiat. Get fiat to Visa, Mastercard cards."
+  },
+  "twTermsAndPrivacyLinks": {
+    "message": "By pressing $buttonContent$ you agree with the $termsOfUse$ and $privacyPolicy$",
+    "placeholders": {
+      "buttonContent": {
+        "content": "$1"
+      },
+      "termsOfUse": {
+        "content": "$2"
+      },
+      "privacyPolicy": {
+        "content": "$3"
+      }
+    }
   },
   "privacyAndPolicyLinks": {
     "message": "By clicking $buttonContent$ you agree with \n$termsOfUse$ and $privacyPolicy$",
@@ -3119,9 +3277,147 @@
     "message": "Earn Rewards with Ads"
   },
   "earnRewardsWithAdsDescription": {
-    "message": "I agree to share my wallet address and IP to receive ads and rewards in TKEY token."
+    "message": "By enabling this checkbox, you agree to share your wallet address and IP to receive ads and rewards in TKEY token."
   },
   "dropdownNoItems": {
     "message": "No items"
+  },
+  "backupYourWallet": {
+    "message": "Backup your wallet"
+  },
+  "backupWalletDescription": {
+    "message": "Save access to your wallet using backup"
+  },
+  "useGoogleDrive": {
+    "message": "Use Google Drive"
+  },
+  "backupManually": {
+    "message": "Backup Manually"
+  },
+  "backupYourSeedPhrase": {
+    "message": "Backup your Seed Phrase"
+  },
+  "notedSeedPhraseDown": {
+    "message": "I’ve noted it down"
+  },
+  "newMnemonicManualBackupWarning": {
+    "message": "Note down your seed phrase and keep it safe. Write the words in order and keep them stored safely. $neverShare$ or $enterSeedPhrase$ it into any apps.",
+    "placeholders": {
+      "neverShare": {
+        "content": "$1"
+      },
+      "enterSeedPhrase": {
+        "content": "$2"
+      }
+    }
+  },
+  "manualBackupWarning": {
+    "message": "$neverShare$ your seed phrase or enter it into any apps. It grants full access to your wallet.",
+    "placeholders": {
+      "neverShare": {
+        "content": "$1"
+      }
+    }
+  },
+  "neverShare": {
+    "message": "Never share"
+  },
+  "privateKeyWarning": {
+    "message": "$neverShare$ your private key or enter it into any apps. It grants full access to your wallet.",
+    "placeholders": {
+      "neverShare": {
+        "content": "$1"
+      }
+    }
+  },
+  "enterSeedPhrase": {
+    "message": "enter"
+  },
+  "copyMnemonic": {
+    "message": "Copy"
+  },
+  "verifySeedPhraseInputTitle": {
+    "message": "Fill the fields to verify your seed backup"
+  },
+  "verifySeedPhraseInputDescription": {
+    "message": "Arrange words correctly in the order your seed phrase display them"
+  },
+  "wordsBoxLabel": {
+    "message": "Pick the words you need"
+  },
+  "verifySeedPhraseError": {
+    "message": "Wrong combination. Try again."
+  },
+  "backupSuccessful": {
+    "message": "You successfully backed up your wallet"
+  },
+  "walletCreatedSuccessfully": {
+    "message": "Wallet has been created successfully"
+  },
+  "failedToLoadMnemonic": {
+    "message": "Failed to load mnemonic to backup, please try again"
+  },
+  "createPassword": {
+    "message": "Create Password"
+  },
+  "enterYourPassword": {
+    "message": "Enter your password"
+  },
+  "accounts_one": {
+    "message": "$amount$ account",
+    "description": "For plural forms",
+    "placeholders": {
+      "amount": {
+        "content": "$1"
+      }
+    }
+  },
+  "accounts_zero": {
+    "message": "$amount$ accounts",
+    "description": "For plural forms",
+    "placeholders": {
+      "amount": {
+        "content": "$1"
+      }
+    }
+  },
+  "accounts_two": {
+    "message": "$amount$ accounts",
+    "description": "For plural forms",
+    "placeholders": {
+      "amount": {
+        "content": "$1"
+      }
+    }
+  },
+  "accounts_few": {
+    "message": "$amount$ accounts",
+    "description": "For plural forms",
+    "placeholders": {
+      "amount": {
+        "content": "$1"
+      }
+    }
+  },
+  "accounts_many": {
+    "message": "$amount$ accounts",
+    "description": "For plural forms",
+    "placeholders": {
+      "amount": {
+        "content": "$1"
+      }
+    }
+  },
+  "accounts_other": {
+    "message": "$amount$ accounts",
+    "description": "For plural forms",
+    "placeholders": {
+      "amount": {
+        "content": "$1"
+      }
+    }
+  },
+  "confirmAccess": {
+    "message": "Confirm Access"
   }
 }

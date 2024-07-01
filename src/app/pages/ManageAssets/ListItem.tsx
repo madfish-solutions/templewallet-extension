@@ -5,21 +5,22 @@ import clsx from 'clsx';
 import Checkbox from 'app/atoms/Checkbox';
 import { ReactComponent as CloseIcon } from 'app/icons/close.svg';
 import { ManageAssetsSelectors } from 'app/pages/ManageAssets/selectors';
-import { AssetIcon } from 'app/templates/AssetIcon';
+import { TezosAssetIcon } from 'app/templates/AssetIcon';
 import { setAnotherSelector, setTestID } from 'lib/analytics';
 import { t } from 'lib/i18n';
 import { getAssetName, getAssetSymbol, AssetMetadataBase } from 'lib/metadata';
 
-type Props = {
+interface Props {
+  tezosChainId: string;
   assetSlug: string;
   metadata?: AssetMetadataBase;
   last: boolean;
   checked: boolean;
   onToggle: (slug: string, newState: boolean) => void;
   onRemove: (slug: string) => void;
-};
+}
 
-export const ListItem = memo<Props>(({ assetSlug, metadata, last, checked, onToggle, onRemove }) => {
+export const ListItem = memo<Props>(({ tezosChainId, assetSlug, metadata, last, checked, onToggle, onRemove }) => {
   const onCheckboxChange = useCallback((checked: boolean) => void onToggle(assetSlug, !checked), [assetSlug, onToggle]);
 
   const onRemoveBtnClick = useCallback<React.MouseEventHandler<HTMLDivElement>>(
@@ -42,7 +43,7 @@ export const ListItem = memo<Props>(({ assetSlug, metadata, last, checked, onTog
       {...setTestID(ManageAssetsSelectors.assetItem)}
       {...setAnotherSelector('slug', assetSlug)}
     >
-      <AssetIcon assetSlug={assetSlug} size={32} className="mr-3 flex-shrink-0" />
+      <TezosAssetIcon tezosChainId={tezosChainId} assetSlug={assetSlug} size={32} className="mr-3 flex-shrink-0" />
 
       <div className="flex items-center max-w-56">
         <div className="flex flex-col items-start w-full">

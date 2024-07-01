@@ -18,6 +18,7 @@ import { useUserIdSelector } from 'app/store/settings/selectors';
 import { TopUpInput } from 'app/templates/TopUpInput';
 import { createAliceBobOrder } from 'lib/apis/temple';
 import { t, T } from 'lib/i18n/react';
+import { TezosNetworkEssentials } from 'temple/networks';
 
 import { CardNumberInput } from '../components/CardNumberInput';
 import { useCardNumberInput } from '../components/use-card-number-input.hook';
@@ -26,8 +27,13 @@ import { StepProps } from './step.props';
 
 const NOT_UKRAINIAN_CARD_ERROR_MESSAGE = 'Ukrainian bank card is required.';
 
-export const InitialStep = memo<Omit<StepProps, 'orderInfo'>>(
-  ({ isApiError, setOrderInfo, setStep, setIsApiError }) => {
+interface Props extends Omit<StepProps, 'orderInfo'> {
+  network: TezosNetworkEssentials;
+  publicKeyHash: string;
+}
+
+export const InitialStep = memo<Props>(
+  ({ network, publicKeyHash, isApiError, setOrderInfo, setStep, setIsApiError }) => {
     const userId = useUserIdSelector();
 
     const [orderIsProcessing, setOrderIsProcessing] = useState(false);
@@ -41,7 +47,14 @@ export const InitialStep = memo<Omit<StepProps, 'orderInfo'>>(
     const { currencies, isCurrenciesLoading } = useOutputCurrencies(setIsApiError, outputCurrency, setOutputCurrency);
 
     const { tezBalanceLoading, isMinAmountError, isMaxAmountError, isInsufficientTezBalanceError, disabledProceed } =
-      useDisabledProceed(inputAmount, outputCurrency?.minAmount, outputCurrency?.maxAmount, true);
+      useDisabledProceed(
+        network,
+        publicKeyHash,
+        inputAmount,
+        outputCurrency?.minAmount,
+        outputCurrency?.maxAmount,
+        true
+      );
 
     const isFormValid = useMemo(
       () => !disabledProceed && !isApiError && cardNumberInput.isValid && cardNumberInput.isTouched,
@@ -152,7 +165,7 @@ export const InitialStep = memo<Omit<StepProps, 'orderInfo'>>(
             <span className="text-xl text-gray-900">
               <T id="toCard" />
             </span>
-            <span className="inline-flex items-center font-inter text-xs font-normal text-orange-500">
+            <span className="inline-flex items-center font-inter text-font-description font-normal text-orange-500">
               <AlertIcon className="mr-1 stroke-current" />
               <T id="onlyForCountryBankingCards" substitutions={[outputCurrency.name.split(' ')[0]]} />
             </span>

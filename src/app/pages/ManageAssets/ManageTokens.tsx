@@ -1,23 +1,24 @@
 import React, { memo, useMemo } from 'react';
 
 import { SyncSpinner } from 'app/atoms';
-import { useTokensListingLogic } from 'app/hooks/use-tokens-listing-logic';
-import { useAreAssetsLoading } from 'app/store/assets/selectors';
-import { useTokensMetadataLoadingSelector } from 'app/store/tokens-metadata/selectors';
+import { useTezosTokensListingLogic } from 'app/hooks/use-tokens-listing-logic';
+import { useAreAssetsLoading } from 'app/store/tezos/assets/selectors';
+import { useTokensMetadataLoadingSelector } from 'app/store/tezos/tokens-metadata/selectors';
 import { TEMPLE_TOKEN_SLUG } from 'lib/assets';
 import { useAllAvailableTokens } from 'lib/assets/hooks';
 import { useGetTokenMetadata } from 'lib/metadata';
-import { useAccount, useChainId } from 'lib/temple/front';
 import { isSearchStringApplicable } from 'lib/utils/search-items';
 
 import { AssetsPlaceholder } from './AssetsPlaceholder';
 import { ManageAssetsContent, ManageAssetsContentList } from './ManageAssetsContent';
 
-export const ManageTokens = memo(() => {
-  const chainId = useChainId(true)!;
-  const { publicKeyHash } = useAccount();
+interface Props {
+  tezosChainId: string;
+  publicKeyHash: string;
+}
 
-  const tokens = useAllAvailableTokens(publicKeyHash, chainId);
+export const ManageTezosTokens = memo<Props>(({ tezosChainId, publicKeyHash }) => {
+  const tokens = useAllAvailableTokens(publicKeyHash, tezosChainId);
 
   const managebleSlugs = useMemo(
     () => tokens.reduce<string[]>((acc, { slug }) => (slug === TEMPLE_TOKEN_SLUG ? acc : acc.concat(slug)), []),
@@ -28,7 +29,12 @@ export const ManageTokens = memo(() => {
   const metadatasLoading = useTokensMetadataLoadingSelector();
   const isSyncing = assetsAreLoading || metadatasLoading;
 
-  const { filteredAssets, searchValue, setSearchValue } = useTokensListingLogic(managebleSlugs, false);
+  const { filteredAssets, searchValue, setSearchValue } = useTezosTokensListingLogic(
+    tezosChainId,
+    publicKeyHash,
+    managebleSlugs,
+    false
+  );
 
   const isInSearchMode = isSearchStringApplicable(searchValue);
 
@@ -45,7 +51,12 @@ export const ManageTokens = memo(() => {
         <AssetsPlaceholder isInSearchMode={isInSearchMode} isLoading={isSyncing} />
       ) : (
         <>
-          <ManageAssetsContentList assets={displayedAssets} getMetadata={getMetadata} />
+          <ManageAssetsContentList
+            tezosChainId={tezosChainId}
+            publicKeyHash={publicKeyHash}
+            assets={displayedAssets}
+            getMetadata={getMetadata}
+          />
 
           {isSyncing && <SyncSpinner className="mt-6" />}
         </>

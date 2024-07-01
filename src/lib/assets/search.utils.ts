@@ -1,6 +1,5 @@
 import { isTezAsset } from 'lib/assets';
-import { TEZOS_METADATA } from 'lib/metadata/defaults';
-import type { AssetMetadataBase } from 'lib/metadata/types';
+import { AssetMetadataBase, TEZOS_METADATA } from 'lib/metadata';
 import { searchAndFilterItems } from 'lib/utils/search-items';
 
 import { fromAssetSlug } from './utils';

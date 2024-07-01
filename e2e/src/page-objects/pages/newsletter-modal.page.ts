@@ -8,8 +8,8 @@ export class NewsletterModalPage extends Page {
   emailInput = createPageElement(NewsletterOverlaySelectors.emailInput);
   subscribeButton = createPageElement(NewsletterOverlaySelectors.subscribeButton);
 
-  async isVisible(timeout?: number) {
-    await this.closeButton.waitForDisplayed(timeout);
+  async isVisible() {
+    await this.closeButton.waitForDisplayed();
     await this.emailInput.waitForDisplayed();
     await this.subscribeButton.waitForDisplayed();
   }

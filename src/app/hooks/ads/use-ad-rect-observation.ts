@@ -6,11 +6,11 @@ import { useIntersectionObserver } from 'lib/ui/use-intersection-observer';
 export const useAdRectObservation = (elemRef: RefObject<Element>, onAdRectSeen: EmptyFn, checkAdTrigger: boolean) =>
   useIntersectionObserver(
     elemRef,
-    isIntersecting => {
-      if (isIntersecting) onAdRectSeen();
+    entry => {
+      if (entry.isIntersecting) onAdRectSeen();
     },
-    checkAdTrigger,
     {
       threshold: AD_SEEN_THRESHOLD
-    }
+    },
+    checkAdTrigger
   );

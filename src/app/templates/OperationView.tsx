@@ -13,21 +13,17 @@ import { TEZ_TOKEN_SLUG, toTokenSlug } from 'lib/assets';
 import { T, t } from 'lib/i18n';
 import { tryParseExpenses } from 'lib/temple/front';
 import { TempleDAppOperationsPayload, TempleDAppSignPayload } from 'lib/temple/types';
+import { TezosNetworkEssentials } from 'temple/networks';
 
-type OperationViewProps = {
+interface OperationViewProps {
+  tezosNetwork: TezosNetworkEssentials;
   payload: TempleDAppOperationsPayload | TempleDAppSignPayload;
   networkRpc?: string;
-  mainnet?: boolean;
   error?: any;
   modifyFeeAndLimit?: ModifyFeeAndLimit;
-};
+}
 
-const OperationView: FC<OperationViewProps> = ({
-  payload,
-  error: payloadError,
-  mainnet = false,
-  modifyFeeAndLimit
-}) => {
+const OperationView: FC<OperationViewProps> = ({ tezosNetwork, payload, error: payloadError, modifyFeeAndLimit }) => {
   const contentToParse = useMemo(() => {
     switch (payload.type) {
       case 'confirm_operations':
@@ -125,7 +121,7 @@ const OperationView: FC<OperationViewProps> = ({
         />
 
         <div className={classNames(spFormat.key !== 'preview' && 'hidden')}>
-          <ExpensesView error={payloadError} expenses={expensesData} />
+          <ExpensesView tezosNetwork={tezosNetwork} error={payloadError} expenses={expensesData} />
         </div>
       </div>
     );
@@ -175,10 +171,10 @@ const OperationView: FC<OperationViewProps> = ({
 
         <div className={classNames(spFormat.key !== 'preview' && 'hidden')}>
           <ExpensesView
+            tezosNetwork={tezosNetwork}
             expenses={expensesData}
             estimates={payload.estimates}
             modifyFeeAndLimit={modifyFeeAndLimit}
-            mainnet={mainnet}
             error={payloadError}
           />
         </div>

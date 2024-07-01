@@ -7,33 +7,30 @@ export default function useCopyToClipboard<T extends HTMLInputElement | HTMLText
 
   const [copied, setCopied] = useState(false);
 
-  const copiedTimeoutRef = useRef<number>();
   useEffect(() => {
-    if (copied) {
-      copiedTimeoutRef.current = window.setTimeout(() => {
-        setCopied(false);
-        const textarea = fieldRef.current;
-        if (textarea && document.activeElement === textarea) {
-          textarea.blur();
-        }
-      }, copyDelay);
-    }
+    if (!copied) return;
 
-    return () => {
-      clearTimeout(copiedTimeoutRef.current);
-    };
+    const timeout = window.setTimeout(() => {
+      setCopied(false);
+      const textarea = fieldRef.current;
+      if (textarea && document.activeElement === textarea) {
+        textarea.blur();
+      }
+    }, copyDelay);
+
+    return () => void window.clearTimeout(timeout);
   }, [copied, setCopied, copyDelay]);
 
   const copy = useCallback(() => {
     if (copied) return;
 
     const textarea = fieldRef.current;
-    if (textarea) {
-      textarea.focus();
-      textarea.select();
-      document.execCommand('copy');
-      setCopied(true);
-    }
+    if (!textarea) return;
+
+    textarea.focus();
+    textarea.select();
+    navigator.clipboard.writeText(textarea.value);
+    setCopied(true);
   }, [copied, setCopied]);
 
   return { fieldRef, copied, setCopied, copy };

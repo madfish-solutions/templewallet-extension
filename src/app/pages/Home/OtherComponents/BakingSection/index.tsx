@@ -5,24 +5,35 @@ import clsx from 'clsx';
 
 import Spinner from 'app/atoms/Spinner/Spinner';
 import { useAppEnv } from 'app/env';
+import { DeadEndBoundaryError } from 'app/ErrorBoundary';
 import BakingHistoryItem from 'app/pages/Home/OtherComponents/BakingSection/HistoryItem';
 import { getDelegatorRewards, isKnownChainId } from 'lib/apis/tzkt';
 import { useRetryableSWR } from 'lib/swr';
-import { useAccount, useChainId, useDelegate } from 'lib/temple/front';
+import { useDelegate } from 'lib/temple/front';
 import { TempleAccountType } from 'lib/temple/types';
+import { useAccountForTezos, useTezosChainByChainId } from 'temple/front';
 
 import { BakerBannerWithStake } from './BakerBannerWithStake';
 import { NotBakingBanner } from './NotBakingBanner';
 import { reduceFunction, RewardsPerEventHistoryItem } from './utils';
 
-const BakingSection = memo(() => {
-  const acc = useAccount();
-  const cannotDelegate = acc.type === TempleAccountType.WatchOnly;
-  const chainId = useChainId(true);
+interface Props {
+  tezosChainId: string;
+}
+
+const BakingSection = memo<Props>(({ tezosChainId }) => {
+  const network = useTezosChainByChainId(tezosChainId);
+  const account = useAccountForTezos();
+
+  if (!network || !account) throw new DeadEndBoundaryError();
+
+  const accountPkh = account.address;
+  const { chainId } = network;
+  const cannotDelegate = account.type === TempleAccountType.WatchOnly;
 
   const { popup } = useAppEnv();
 
-  const { data: myBakerPkh } = useDelegate(acc.publicKeyHash, true, false);
+  const { data: myBakerPkh } = useDelegate(accountPkh, network, true, false);
 
   const getBakingHistory = useCallback(
     async ([, accountPkh, , chainId]: [string, string, string | nullish, string | nullish]) => {
@@ -40,7 +51,7 @@ const BakingSection = memo(() => {
   );
 
   const { data: bakingHistory, isValidating: loadingBakingHistory } = useRetryableSWR(
-    ['baking-history', acc.publicKeyHash, myBakerPkh, chainId],
+    ['baking-history', accountPkh, myBakerPkh, chainId],
     getBakingHistory,
     { suspense: true, revalidateOnFocus: false, revalidateOnReconnect: false }
   );
@@ -111,9 +122,14 @@ const BakingSection = memo(() => {
   return (
     <div className={clsx('pt-4 pb-12 flex flex-col max-w-sm mx-auto', popup && 'px-5')}>
       {myBakerPkh ? (
-        <BakerBannerWithStake bakerPkh={myBakerPkh} cannotDelegate={cannotDelegate} />
+        <BakerBannerWithStake
+          network={network}
+          accountPkh={accountPkh}
+          bakerPkh={myBakerPkh}
+          cannotDelegate={cannotDelegate}
+        />
       ) : (
-        <NotBakingBanner noPreviousHistory={noPreviousHistory} cannotDelegate={cannotDelegate} />
+        <NotBakingBanner chainId={chainId} noPreviousHistory={noPreviousHistory} cannotDelegate={cannotDelegate} />
       )}
 
       {loadingBakingHistory && (
@@ -128,6 +144,7 @@ const BakingSection = memo(() => {
 
           {bakingHistory.map((historyItem, index) => (
             <BakingHistoryItem
+              tezosChainId={tezosChainId}
               currentCycle={currentCycle}
               key={`${historyItem.cycle},${historyItem.baker.address}`}
               content={historyItem}

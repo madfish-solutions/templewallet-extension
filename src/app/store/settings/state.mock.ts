@@ -1,9 +1,11 @@
-import { BalanceMode, SettingsState } from './state';
+import { mockPersistedState } from 'lib/store';
 
-export const mockSettingsState: SettingsState = {
+import { SettingsState } from './state';
+
+export const mockSettingsState = mockPersistedState<SettingsState>({
   isAnalyticsEnabled: true,
   userId: '0',
-  balanceMode: BalanceMode.Fiat,
   isOnRampPossibility: false,
-  isConversionTracked: false
-};
+  isConversionTracked: false,
+  toastsContainerBottomShift: 0
+});

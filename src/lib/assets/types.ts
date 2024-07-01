@@ -1,4 +1,4 @@
-import type { StoredAssetStatus } from 'app/store/assets/state';
+import type { StoredAssetStatus } from 'app/store/tezos/assets/state';
 
 import type { TEZ_TOKEN_SLUG } from './index';
 

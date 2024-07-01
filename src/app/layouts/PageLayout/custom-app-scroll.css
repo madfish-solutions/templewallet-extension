@@ -1,0 +1,7 @@
+body, #root, #app-content-wrap {
+  height: 100%;
+}
+
+#app-content-wrap {
+  display: flex;
+}

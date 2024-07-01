@@ -3,7 +3,7 @@ import memoizee from 'memoizee';
 
 export const loadContract = memoizee(fetchContract, {
   promise: true,
-  max: 100
+  max: 25
 });
 
 function fetchContract(tezos: TezosToolkit, address: string, walletAPI = true) {

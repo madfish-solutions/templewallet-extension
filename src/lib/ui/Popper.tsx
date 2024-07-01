@@ -128,7 +128,7 @@ const Popper = memo<PopperProps>(({ popup, children, fallbackPlacementsEnabled =
       {triggerNode}
 
       <Portal>
-        <div ref={popupRef} className="z-40" style={style}>
+        <div ref={popupRef} className="z-dropdown" style={style}>
           {popupNode}
         </div>
       </Portal>

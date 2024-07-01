@@ -33,7 +33,7 @@ export const ImportFromSeedPhrase: FC<ImportFromSeedPhraseProps> = ({
   }, [seedPhrase, seedError, setIsSeedEntered, numberOfWords]);
 
   return (
-    <form className="w-full mx-auto my-8 px-12 pb-8" onSubmit={handleSubmit(onSubmit)}>
+    <form onSubmit={handleSubmit(onSubmit)}>
       <SeedPhraseInput
         isFirstAccount
         submitted={formState.submitCount !== 0}
@@ -46,7 +46,7 @@ export const ImportFromSeedPhrase: FC<ImportFromSeedPhraseProps> = ({
         setNumberOfWords={setNumberOfWords}
       />
 
-      <FormSubmitButton className="w-96 mb-2 mx-auto" testID={ImportFromSeedPhraseSelectors.nextButton}>
+      <FormSubmitButton className="w-full" testID={ImportFromSeedPhraseSelectors.nextButton}>
         <T id="next" />
       </FormSubmitButton>
     </form>

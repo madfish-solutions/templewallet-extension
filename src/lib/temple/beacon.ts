@@ -21,6 +21,8 @@ import {
 import memoizee from 'memoizee';
 import browser from 'webextension-polyfill';
 
+import { APP_TITLE } from 'lib/constants';
+
 interface AppMetadata {
   senderId: string;
   name: string;
@@ -228,7 +230,7 @@ export function formatOpParams(op: any) {
  */
 export const PAIRING_RESPONSE_BASE: Partial<PostMessagePairingResponse> = {
   type: MessageType.HandshakeResponse,
-  name: 'Temple - Tezos Wallet',
+  name: APP_TITLE,
   icon: 'https://templewallet.com/logo.png',
   appUrl: browser.runtime.getURL('fullpage.html')
 };

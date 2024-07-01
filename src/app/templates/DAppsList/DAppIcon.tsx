@@ -21,7 +21,7 @@ export const DAppIcon: React.FC<DAppIconProps> = ({ name, logo, className }) => 
   return (
     <div
       className={classNames(
-        'bg-white border border-gray-300 rounded-2xl flex justify-center items-center p-4',
+        'bg-white border border-gray-300 rounded-xl flex justify-center items-center p-4',
         !popup && 'w-20 h-20',
         className
       )}
@@ -29,7 +29,7 @@ export const DAppIcon: React.FC<DAppIconProps> = ({ name, logo, className }) => 
     >
       <ImageStacked
         sources={sources}
-        className="rounded-2xl"
+        className="rounded-xl"
         alt={name}
         loader={fallbackElement}
         fallback={fallbackElement}

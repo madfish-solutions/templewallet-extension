@@ -5,20 +5,21 @@ import { DelegateButton, RedelegateButton } from 'app/atoms/BakingButtons';
 import { useIsStakingNotSupported, useManagableTezosStakeInfo } from 'app/hooks/use-baking-hooks';
 import { BakerBanner } from 'app/templates/BakerBanner';
 import { T } from 'lib/i18n';
-import { useGasTokenMetadata } from 'lib/metadata';
-import { useAccountPkh, useNetwork } from 'lib/temple/front';
+import { getTezosGasMetadata } from 'lib/metadata';
+import { TezosNetworkEssentials } from 'temple/networks';
 
 import { BakingSectionSelectors } from './selectors';
 
 interface Props {
+  network: TezosNetworkEssentials;
+  accountPkh: string;
   bakerPkh: string;
   cannotDelegate: boolean;
 }
 
-export const BakerBannerWithStake = memo<Props>(({ bakerPkh, cannotDelegate }) => {
-  const accountPkh = useAccountPkh();
-  const { rpcBaseURL } = useNetwork();
-  const { symbol } = useGasTokenMetadata();
+export const BakerBannerWithStake = memo<Props>(({ network, accountPkh, bakerPkh, cannotDelegate }) => {
+  const { rpcBaseURL } = network;
+  const { symbol } = getTezosGasMetadata(network.chainId);
 
   const isNotSupportedSwr = useIsStakingNotSupported(rpcBaseURL, bakerPkh);
 
@@ -49,7 +50,7 @@ export const BakerBannerWithStake = memo<Props>(({ bakerPkh, cannotDelegate }) =
 
     return () => (
       <DelegateButton
-        to={`/staking?tab=${shouldManage ? 'my-stake' : 'new-stake'}`}
+        to={`/staking/${network.chainId}?tab=${shouldManage ? 'my-stake' : 'new-stake'}`}
         small
         flashing={!shouldManage}
         disabled={cannotDelegate}
@@ -64,7 +65,15 @@ export const BakerBannerWithStake = memo<Props>(({ bakerPkh, cannotDelegate }) =
         )}
       </DelegateButton>
     );
-  }, [isLoading, cannotDelegate, stakingIsNotSupported, shouldManage, symbol]);
+  }, [isLoading, cannotDelegate, stakingIsNotSupported, shouldManage, symbol, network.chainId]);
 
-  return <BakerBanner bakerPkh={bakerPkh} HeaderRight={BakerBannerHeaderRight} ActionButton={StakeOrManageButton} />;
+  return (
+    <BakerBanner
+      network={network}
+      accountPkh={accountPkh}
+      bakerPkh={bakerPkh}
+      HeaderRight={BakerBannerHeaderRight}
+      ActionButton={StakeOrManageButton}
+    />
+  );
 });
