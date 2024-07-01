@@ -1,4 +1,4 @@
-import React, { memo, RefObject, useCallback, useMemo, useRef } from 'react';
+import React, { memo, RefObject, useCallback, useEffect, useMemo, useRef } from 'react';
 
 import { isEqual } from 'lodash';
 import useOnClickOutside from 'use-onclickoutside';
@@ -46,6 +46,10 @@ export const AssetsFilterOptions = memo<AssetsFilterOptionsProps>(({ filterButto
   const containerRef = useRef(null);
   const contentPaperRef = useContentPaperRef();
   const assetsSegmentControlRef = useAssetsSegmentControlRef();
+
+  useEffect(() => {
+    if (filterChain) dispatch(setTokensGroupByNetworkFilterOption(false));
+  }, [filterChain]);
 
   useOnClickOutside(
     containerRef,
@@ -123,7 +127,11 @@ export const AssetsFilterOptions = memo<AssetsFilterOptionsProps>(({ filterButto
             <T id="groupByNetwork" />
           </span>
 
-          <ToggleSwitch checked={tokensListOptions.groupByNetwork} onChange={handleTokensGroupByNetworkChange} />
+          <ToggleSwitch
+            checked={tokensListOptions.groupByNetwork}
+            disabled={Boolean(filterChain)}
+            onChange={handleTokensGroupByNetworkChange}
+          />
         </div>
       </div>
 

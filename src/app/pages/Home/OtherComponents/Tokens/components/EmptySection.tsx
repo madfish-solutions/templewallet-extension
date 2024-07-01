@@ -1,39 +1,30 @@
 import React, { memo } from 'react';
 
-import { SyncSpinner } from 'app/atoms';
-import { ReactComponent as SearchIcon } from 'app/icons/base/search.svg';
-import { HomeSelectors } from 'app/pages/Home/selectors';
-import { setTestID } from 'lib/analytics';
+import { Button, IconBase, SyncSpinner } from 'app/atoms';
+import { ReactComponent as AddIcon } from 'app/icons/base/plus_circle.svg';
+import { ReactComponent as EmptySearchIcon } from 'app/icons/search_empty.svg';
 import { T } from 'lib/i18n';
 
 interface EmptySectionProps {
   isSyncing?: boolean;
-  searchValueExist?: boolean;
 }
 
-export const EmptySection = memo<EmptySectionProps>(({ isSyncing = false, searchValueExist }) =>
-  isSyncing ? (
-    <SyncSpinner className="mt-6" />
+export const EmptySection = memo<EmptySectionProps>(({ isSyncing = false }) => {
+  return isSyncing ? (
+    <SyncSpinner className="mt-5" />
   ) : (
-    <div className="my-8 flex flex-col items-center justify-center text-gray-500">
-      <p className="mb-2 flex items-center justify-center text-gray-600 text-base font-light">
-        {searchValueExist && <SearchIcon className="w-5 h-auto mr-1 stroke-current fill-current" />}
+    <div className="flex flex-col items-center">
+      <div className="mt-5 mb-9 py-7 flex flex-col items-center justify-center text-grey-2">
+        <EmptySearchIcon />
 
-        <span {...setTestID(HomeSelectors.emptyStateText)}>
-          <T id="noAssetsFound" />
-        </span>
-      </p>
-
-      <p className="text-center text-xs font-light">
-        <T
-          id="ifYouDontSeeYourAsset"
-          substitutions={[
-            <b>
-              <T id="manage" />
-            </b>
-          ]}
-        />
-      </p>
+        <p className="mt-2 text-center text-font-medium-bold">
+          <T id="tokensNotFound" />
+        </p>
+      </div>
+      <Button className="w-fit flex flex-row px-2 py-1 bg-secondary-low rounded-md text-font-description-bold text-secondary">
+        <IconBase Icon={AddIcon} size={12} className="stroke-current" />
+        <T id="addCustomToken" />
+      </Button>
     </div>
-  )
-);
+  );
+});

@@ -1785,6 +1785,12 @@
   "tokenNotFound": {
     "message": "Token not found..."
   },
+  "tokensNotFound": {
+    "message": "Tokens Not Found"
+  },
+  "addCustomToken": {
+    "message": "Add Custom Token"
+  },
   "currencyNotFound": {
     "message": "Currency not found"
   },
