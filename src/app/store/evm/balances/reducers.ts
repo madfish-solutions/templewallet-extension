@@ -11,6 +11,10 @@ export const evmBalancesReducer = createReducer<EvmBalancesStateInterface>(EvmBa
     if (!balancesAtomic[publicKeyHash]) balancesAtomic[publicKeyHash] = {};
     const accountBalances = balancesAtomic[publicKeyHash];
 
-    accountBalances[chainId] = Object.assign({}, accountBalances[chainId] ?? {}, getTokenSlugBalanceRecord(data.items));
+    accountBalances[chainId] = Object.assign(
+      {},
+      accountBalances[chainId] ?? {},
+      getTokenSlugBalanceRecord(data.items, chainId)
+    );
   });
 });

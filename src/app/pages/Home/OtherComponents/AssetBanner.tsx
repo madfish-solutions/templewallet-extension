@@ -8,7 +8,7 @@ import { TezosAssetIcon, EvmTokenIcon } from 'app/templates/AssetIcon';
 import { EvmBalance, TezosBalance } from 'app/templates/Balance';
 import InFiat from 'app/templates/InFiat';
 import { setAnotherSelector, setTestID } from 'lib/analytics';
-import { getAssetName, getAssetSymbol, useAssetMetadata } from 'lib/metadata';
+import { getAssetName, getAssetSymbol, useTezosAssetMetadata } from 'lib/metadata';
 import { isEvmNativeTokenSlug } from 'lib/utils/evm.utils';
 import { useAccountAddressForEvm, useAccountAddressForTezos, useTezosChainByChainId } from 'temple/front';
 import { useEvmChainByChainId } from 'temple/front/chains';
@@ -41,7 +41,7 @@ const TezosAssetBanner = memo<TezosAssetBannerProps>(({ tezosChainId, assetSlug 
 
   if (!accountTezAddress || !network) throw new DeadEndBoundaryError();
 
-  const assetMetadata = useAssetMetadata(assetSlug, tezosChainId);
+  const assetMetadata = useTezosAssetMetadata(assetSlug, tezosChainId);
   const assetName = getAssetName(assetMetadata);
   const assetSymbol = getAssetSymbol(assetMetadata);
 

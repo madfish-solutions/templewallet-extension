@@ -1785,6 +1785,12 @@
   "tokenNotFound": {
     "message": "Token not found..."
   },
+  "tokensNotFound": {
+    "message": "Tokens Not Found"
+  },
+  "addCustomToken": {
+    "message": "Add Custom Token"
+  },
   "currencyNotFound": {
     "message": "Currency not found"
   },
@@ -2470,9 +2476,14 @@
     "message": "less",
     "description": "Show less"
   },
-  "showInfo": { "message": "Show info" },
-  "blur": { "message": "Blur" },
+  "showDetails": { "message": "Show details" },
+  "blurSensitiveContent": { "message": "Blur sensitive content" },
+  "filterByNetwork": { "message": "Filter by network" },
+  "resetAll": { "message": "Reset All" },
   "hideZeroBalance": { "message": "Hide 0 balance" },
+  "groupByNetwork": { "message": "Group by network" },
+  "tokensList": { "message": "Tokens list" },
+  "collectiblesView": { "message": "Collectibles view" },
   "recentDestinations": {
     "message": "Recent destinations"
   },
@@ -3189,5 +3200,8 @@
   },
   "dropdownNoItems": {
     "message": "No items"
+  },
+  "allNetworks": {
+    "message": "All Networks"
   }
 }

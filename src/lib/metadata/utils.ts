@@ -12,7 +12,7 @@ export function getAssetSymbol(metadata: EvmTokenMetadata | AssetMetadataBase | 
 }
 
 export function getAssetName(metadata: EvmTokenMetadata | AssetMetadataBase | nullish) {
-  return metadata ? metadata.name : 'Unknown Token';
+  return metadata?.name ? metadata.name : 'Unknown Token';
 }
 
 /** Empty string for `artifactUri` counts */

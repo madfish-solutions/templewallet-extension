@@ -8,9 +8,9 @@ import { TezosAssetIcon } from 'app/templates/AssetIcon';
 import { TezosBalance } from 'app/templates/Balance';
 import InFiat from 'app/templates/InFiat';
 import { setTestID, setAnotherSelector, TestIDProperty } from 'lib/analytics';
-import { searchAssetsWithNoMeta } from 'lib/assets/search.utils';
+import { searchTezosChainAssetsWithNoMeta } from 'lib/assets/search.utils';
 import { T, t } from 'lib/i18n';
-import { useAssetMetadata, getAssetSymbol, useGetAssetMetadata } from 'lib/metadata';
+import { useTezosAssetMetadata, getAssetSymbol, useGetAssetMetadata } from 'lib/metadata';
 import { TezosNetworkEssentials } from 'temple/networks';
 
 import { AssetItemContent } from '../AssetItemContent';
@@ -40,7 +40,7 @@ const AssetSelect = memo<Props>(({ network, accountPkh, value, slugs, onChange, 
   const [searchStringDebounced] = useDebounce(searchString, 300);
 
   const searchItems = useCallback(
-    (searchString: string) => searchAssetsWithNoMeta(searchString, slugs, getAssetMetadata, s => s),
+    (searchString: string) => searchTezosChainAssetsWithNoMeta(searchString, slugs, getAssetMetadata, s => s),
     [slugs, getAssetMetadata]
   );
 
@@ -109,7 +109,7 @@ interface AssetFieldContentProps extends TestIDProperty {
 }
 
 const AssetFieldContent = memo<AssetFieldContentProps>(({ network, slug, publicKeyHash, testID }) => {
-  const metadata = useAssetMetadata(slug, network.chainId);
+  const metadata = useTezosAssetMetadata(slug, network.chainId);
 
   return (
     <div className="flex items-center" {...setTestID(testID)} {...setAnotherSelector('slug', slug)}>

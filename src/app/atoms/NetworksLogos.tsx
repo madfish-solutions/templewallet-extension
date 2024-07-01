@@ -8,7 +8,19 @@ import OptimismIconSrc from 'app/icons/networks/optimism.svg?url';
 import PolygonIconSrc from 'app/icons/networks/polygon.svg?url';
 import TezosIconSrc from 'app/icons/networks/tezos.svg?url';
 
-export const TezosNetworkLogo = memo(() => <NetworkLogoBase src={TezosIconSrc} alt="Tezos" />);
+interface NetworkLogoBaseProps {
+  src: string;
+  alt: string;
+  size?: number;
+  className?: string;
+  style?: React.CSSProperties;
+}
+
+type TezosNetworkLogoProps = Omit<NetworkLogoBaseProps, 'src' | 'alt'>;
+
+export const TezosNetworkLogo = memo<TezosNetworkLogoProps>(props => (
+  <NetworkLogoBase src={TezosIconSrc} alt="Tezos" {...props} />
+));
 
 export const EvmNetworksLogos: FC = () => (
   <div className="flex">
@@ -19,19 +31,12 @@ export const EvmNetworksLogos: FC = () => (
   </div>
 );
 
-interface NetworkLogoBaseProps {
-  src: string;
-  alt: string;
-  className?: string;
-  style?: React.CSSProperties;
-}
-
-const NetworkLogoBase = memo<NetworkLogoBaseProps>(({ src, alt, className, style }) => (
+const NetworkLogoBase = memo<NetworkLogoBaseProps>(({ src, alt, size = 24, className, style }) => (
   <img
     src={src}
     alt={alt}
-    width={24}
-    height={24}
+    width={size}
+    height={size}
     className={clsx('p-0.5 border border-grey-4 bg-white rounded-full', className)}
     style={style}
   />

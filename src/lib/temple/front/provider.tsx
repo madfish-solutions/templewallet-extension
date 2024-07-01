@@ -1,6 +1,7 @@
 import React, { FC, useMemo } from 'react';
 
 import { ShortcutAccountSelectStateProvider } from 'app/hooks/use-account-select-shortcut';
+import { AssetsFilterOptionsStateProvider } from 'app/hooks/use-assets-filter-options';
 import { usePushNotifications } from 'app/hooks/use-push-notifications';
 import { CustomTezosChainIdContext } from 'lib/analytics';
 import { ReadyTempleProvider } from 'temple/front/ready';
@@ -26,7 +27,9 @@ const ConditionalReadyTemple: FC<PropsWithChildren> = ({ children }) => {
     () =>
       ready ? (
         <ReadyTempleProvider>
-          <ShortcutAccountSelectStateProvider>{children}</ShortcutAccountSelectStateProvider>
+          <AssetsFilterOptionsStateProvider>
+            <ShortcutAccountSelectStateProvider>{children}</ShortcutAccountSelectStateProvider>
+          </AssetsFilterOptionsStateProvider>
         </ReadyTempleProvider>
       ) : (
         <>{children}</>

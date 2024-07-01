@@ -10,7 +10,7 @@ import { useEvmTokenMetadataSelector } from 'app/store/evm/tokens-metadata/selec
 import { isFA2Token, isTezAsset } from 'lib/assets';
 import { fromAssetSlugWithStandardDetect } from 'lib/assets/contract.utils';
 import { T } from 'lib/i18n';
-import { getAssetSymbol, useAssetMetadata } from 'lib/metadata';
+import { getAssetSymbol, useTezosAssetMetadata } from 'lib/metadata';
 import { useRetryableSWR } from 'lib/swr';
 import useCopyToClipboard from 'lib/ui/useCopyToClipboard';
 import { isEvmNativeTokenSlug } from 'lib/utils/evm.utils';
@@ -95,7 +95,7 @@ const TezosAssetInfoContent: FC<TezosAssetInfoContentProps> = ({ network, assetS
   );
   const asset = data!;
 
-  const metadata = useAssetMetadata(assetSlug, network.chainId);
+  const metadata = useTezosAssetMetadata(assetSlug, network.chainId);
 
   return (
     <div className={classNames(popup && 'mx-4')}>

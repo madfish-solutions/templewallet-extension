@@ -3,7 +3,7 @@ import React, { FC } from 'react';
 import Money from 'app/atoms/Money';
 import { TezosBalance } from 'app/templates/Balance';
 import InFiat from 'app/templates/InFiat';
-import { AssetMetadataBase, useAssetMetadata, getAssetName, getAssetSymbol } from 'lib/metadata';
+import { AssetMetadataBase, useTezosAssetMetadata, getAssetName, getAssetSymbol } from 'lib/metadata';
 import { TezosNetworkEssentials } from 'temple/networks';
 
 interface Props {
@@ -29,7 +29,7 @@ interface AssetItemContentWithUseMetaProps {
 }
 
 const AssetItemContentWithUseMeta: FC<AssetItemContentWithUseMetaProps> = ({ network, slug, publicKeyHash }) => {
-  const metadata = useAssetMetadata(slug, network.chainId);
+  const metadata = useTezosAssetMetadata(slug, network.chainId);
 
   return <AssetItemContentComponent network={network} slug={slug} metadata={metadata} publicKeyHash={publicKeyHash} />;
 };

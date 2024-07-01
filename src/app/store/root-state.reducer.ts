@@ -4,6 +4,7 @@ import { notificationsReducer } from 'lib/notifications';
 
 import { abTestingReducer } from './ab-testing/reducers';
 import { advertisingReducer } from './advertising/reducers';
+import { assetsFilterOptionsReducer } from './assets-filter-options/reducer';
 import { buyWithCreditCardReducer } from './buy-with-credit-card/reducers';
 import { dAppsReducer } from './d-apps/reducers';
 import { evmAssetsReducer } from './evm/assets/reducer';
@@ -44,7 +45,8 @@ const rootStateReducersMap = {
   evmBalances: evmBalancesReducer,
   evmTokensMetadata: evmTokensMetadataReducer,
   evmTokensExchangeRates: evmTokensExchangeRatesReducer,
-  evmCollectiblesMetadata: evmCollectiblesMetadataReducer
+  evmCollectiblesMetadata: evmCollectiblesMetadataReducer,
+  assetsFilterOptions: assetsFilterOptionsReducer
 };
 
 export const rootReducer = combineReducers(rootStateReducersMap);
