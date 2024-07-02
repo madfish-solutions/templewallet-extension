@@ -18,6 +18,7 @@ describeScenario('Create new wallet', () => {
     await Pages.BackupOptionsModal.isVisible();
     await Pages.BackupOptionsModal.manualBackupButton.click();
 
+    await Pages.ManualBackupModal.isVisible('Backup');
     await Pages.ManualBackupModal.protectedMask.focus();
     await Pages.ManualBackupModal.protectedMask.click();
 
