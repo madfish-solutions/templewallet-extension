@@ -1,14 +1,18 @@
 import React, { CSSProperties, FC, memo, ReactNode } from 'react';
 
 import clsx from 'clsx';
-import { useDispatch } from 'react-redux';
 
 import { Button } from 'app/atoms';
 import { useAppEnv } from 'app/env';
 import { ReactComponent as ExIcon } from 'app/icons/x.svg';
 import ContentContainer from 'app/layouts/ContentContainer';
-import { shouldShowNewsletterModalAction } from 'app/store/newsletter/newsletter-actions';
+import { dispatch } from 'app/store';
+import { togglePartnersPromotionAction } from 'app/store/partners-promotion/actions';
+import { useShouldShowPartnersPromoSelector } from 'app/store/partners-promotion/selectors';
+import { setPendingReactivateAdsAction } from 'app/store/settings/actions';
+import { useIsPendingReactivateAdsSelector } from 'app/store/settings/selectors';
 import { EmojiInlineIcon } from 'lib/icons/emoji';
+import { useDidMount } from 'lib/ui/hooks';
 
 import bgPopupImgSrc from './bg-popup.png';
 import bgImgSrc from './bg.png';
@@ -17,18 +21,26 @@ import { ReactivateAdsOverlaySelectors } from './selectors';
 import tkeyImgSrc from './tkey.png';
 
 export const ReactivateAdsOverlay = memo(() => {
-  const dispatch = useDispatch();
   const { popup } = useAppEnv();
 
-  const close = () => void dispatch(shouldShowNewsletterModalAction(false));
+  const shouldShowPartnersPromo = useShouldShowPartnersPromoSelector();
+  const isPendingReactivateAds = useIsPendingReactivateAdsSelector();
+
+  const close = () => void dispatch(setPendingReactivateAdsAction(false));
+
+  const reactivate = () => {
+    dispatch(togglePartnersPromotionAction(true));
+    dispatch(setPendingReactivateAdsAction(false));
+  };
+
+  useDidMount(() => {
+    if (isPendingReactivateAds === null) dispatch(setPendingReactivateAdsAction(!shouldShowPartnersPromo));
+  });
+
+  if (shouldShowPartnersPromo || isPendingReactivateAds !== true) return null;
 
   return (
-    <div
-      className={clsx(
-        'fixed z-40 flex flex-col items-center justify-center inset-0 bg-gray-700 bg-opacity-20',
-        popup && 'h-full'
-      )}
-    >
+    <div className="fixed inset-0 z-40 flex flex-col items-center justify-center bg-gray-700 bg-opacity-20">
       <ContentContainer className={clsx('overflow-y-scroll py-4', popup ? 'h-full px-4' : 'px-5')} padding={false}>
         <div
           className={clsx(
@@ -45,10 +57,7 @@ export const ReactivateAdsOverlay = memo(() => {
             <ExIcon className="h-4 w-4 text-gray-600 stroke-current" />
           </Button>
 
-          <div
-            className="relative px-6 text-orange-500 font-bold text-center"
-            style={{ fontSize: popup ? 36 : 58, lineHeight: 1.2 }}
-          >
+          <div className="relative px-6">
             <img
               src={popup ? bgPopupImgSrc : bgImgSrc}
               alt="bg"
@@ -56,7 +65,12 @@ export const ReactivateAdsOverlay = memo(() => {
               style={popup ? { left: 0, top: -46 } : { translate: '-50% 0' }}
             />
 
-            <span className="relative">Use Wallet and Earn TKEY</span>
+            <span
+              className="relative text-orange-500 font-bold text-center"
+              style={{ fontSize: popup ? 36 : 58, lineHeight: 1.2 }}
+            >
+              Use Wallet and Earn TKEY
+            </span>
 
             <img
               src={tkeyImgSrc}
@@ -115,6 +129,7 @@ export const ReactivateAdsOverlay = memo(() => {
               'relative h-12 flex items-center justify-center font-semibold rounded-md text-base px-4 py-3 bg-orange-500 text-white',
               popup ? 'mx-6' : 'w-80'
             )}
+            onClick={reactivate}
             testID={ReactivateAdsOverlaySelectors.reactivateButton}
           >
             Earn Rewards with Ads
@@ -149,7 +164,10 @@ const MotivationPoint: FC<MotivationPointProps> = ({ title, description, positio
   else if (position === 3) className += popup ? ' mr-9' : ' self-center';
 
   const style: CSSProperties = { borderRadius: 10 };
-  if (!popup && middle) style.margin = '-33px 0 26px';
+  if (middle) {
+    if (popup) style.minWidth = 156;
+    else style.margin = '-33px 0 26px';
+  }
 
   return (
     <div className={className} style={style}>
@@ -168,7 +186,7 @@ const MotivationPoint: FC<MotivationPointProps> = ({ title, description, positio
         </div>
       )}
 
-      <span className="text-sm leading-none text-blue-500 font-bold">{title}</span>
+      <span className={clsx('text-sm leading-none text-blue-500 font-bold', popup && 'text-center')}>{title}</span>
 
       {!popup && <p className="text-xxxs leading-3 text-blue-750">{description}</p>}
     </div>

@@ -5,5 +5,6 @@ export const mockSettingsState: SettingsState = {
   userId: '0',
   balanceMode: BalanceMode.Fiat,
   isOnRampPossibility: false,
-  isConversionTracked: false
+  isConversionTracked: false,
+  pendingReactivateAds: null
 };
