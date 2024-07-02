@@ -1,4 +1,4 @@
-import React, { CSSProperties, FC, memo, ReactNode } from 'react';
+import React, { CSSProperties, FC, memo, ReactNode, useCallback, useMemo } from 'react';
 
 import clsx from 'clsx';
 
@@ -26,22 +26,24 @@ interface Props {
 
 export const ReactivateAdsOverlay = memo<Props>(({ onClose }) => {
   const { popup } = useAppEnv();
-  const ignorePending = Boolean(onClose);
+  const forcedModal = !onClose;
 
   const shouldShowPartnersPromo = useShouldShowPartnersPromoSelector();
   const isPendingReactivateAds = useIsPendingReactivateAdsSelector();
 
   const close = onClose ?? (() => void dispatch(setPendingReactivateAdsAction(false)));
 
-  const reactivate = () => {
+  const reactivate = useCallback(() => {
     dispatch(togglePartnersPromotionAction(true));
     dispatch(setPendingReactivateAdsAction(false));
     onClose?.();
-  };
+  }, [onClose]);
+
+  const btnTestIDProperties = useMemo(() => ({ forcedModal }), [forcedModal]);
 
   if (shouldShowPartnersPromo) return null;
 
-  if (!ignorePending && !isPendingReactivateAds) return null;
+  if (forcedModal && !isPendingReactivateAds) return null;
 
   return (
     <div className="fixed inset-0 z-40 flex flex-col items-center justify-center bg-gray-700 bg-opacity-20">
@@ -52,7 +54,11 @@ export const ReactivateAdsOverlay = memo<Props>(({ onClose }) => {
             popup ? 'h-full pt-14 pb-6' : 'items-center px-8 pt-11 pb-6'
           )}
         >
-          <OverlayCloseButton testID={ReactivateAdsOverlaySelectors.closeButton} onClick={close} />
+          <OverlayCloseButton
+            testID={ReactivateAdsOverlaySelectors.closeButton}
+            testIDProperties={btnTestIDProperties}
+            onClick={close}
+          />
 
           <div className="relative px-6">
             <img
@@ -125,7 +131,8 @@ export const ReactivateAdsOverlay = memo<Props>(({ onClose }) => {
             className={popup ? 'mx-6' : 'w-80'}
             rounder
             onClick={reactivate}
-            testID={ReactivateAdsOverlaySelectors.reactivateButton}
+            testID={ReactivateAdsOverlaySelectors.enableAdsButton}
+            testIDProperties={btnTestIDProperties}
           >
             Earn Rewards with Ads
           </FormSubmitButton>

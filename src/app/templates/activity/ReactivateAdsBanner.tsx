@@ -8,6 +8,7 @@ import { ReactivateAdsOverlay } from 'app/layouts/PageLayout/ReactivateAdsOverla
 import { useSafeState } from 'lib/ui/hooks';
 
 import bgImageSrc from './reactivate-ads-banner-bg.png';
+import { ActivitySelectors } from './selectors';
 
 export const ReactivateAdsBanner = memo(() => {
   const [modalOpened, setModalOpened] = useSafeState(false);
@@ -42,6 +43,7 @@ export const ReactivateAdsBanner = memo(() => {
             'min-w-20 rounded-lg text-xs leading-none px-4 py-2 text-white',
             buildFormSubmitButtonCommonClassName()
           )}
+          testID={ActivitySelectors.reactivateAdsBannerViewBtn}
         >
           View
         </Button>
