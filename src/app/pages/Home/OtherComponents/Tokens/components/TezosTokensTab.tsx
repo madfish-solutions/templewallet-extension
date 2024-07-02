@@ -173,11 +173,11 @@ export const TezosTokensTab: FC<TezosTokensTabProps> = ({ publicKeyHash }) => {
       {filtersOpened ? (
         <AssetsFilterOptions filterButtonRef={filterButtonRef} onRequestClose={setFiltersClosed} />
       ) : (
-        <ContentContainer>
+        <ContentContainer padding={filteredAssets.length > 0}>
           <UpdateAppBanner stickyBarRef={stickyBarRef} />
 
           {filteredAssets.length === 0 ? (
-            <EmptySection isSyncing={isSyncing} />
+            <EmptySection />
           ) : (
             <>
               <>{tokensView}</>

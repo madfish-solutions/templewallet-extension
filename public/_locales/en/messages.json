@@ -477,6 +477,12 @@
   "iconURL": {
     "message": "Icon URL"
   },
+  "optional": {
+    "message": "Optional"
+  },
+  "tokenInfo": {
+    "message": "Token Info"
+  },
   "optionalComment": {
     "message": "(optional)"
   },
@@ -1785,11 +1791,14 @@
   "tokenNotFound": {
     "message": "Token not found..."
   },
-  "tokensNotFound": {
-    "message": "Tokens Not Found"
+  "notFound": {
+    "message": "Not Found"
   },
   "addCustomToken": {
     "message": "Add Custom Token"
+  },
+  "tokenAddress": {
+    "message": "Token address"
   },
   "currencyNotFound": {
     "message": "Currency not found"

@@ -1,6 +1,6 @@
-import { EvmChain, TezosChain } from 'temple/front';
+type SearchNetwork = string | { name: string };
 
-export const searchAndFilterNetworks = (networks: (string | EvmChain | TezosChain)[], searchValue: string) => {
+export const searchAndFilterNetworks = <T extends SearchNetwork>(networks: T[], searchValue: string) => {
   const preparedSearchValue = searchValue.trim().toLowerCase();
 
   return networks.filter(network => {

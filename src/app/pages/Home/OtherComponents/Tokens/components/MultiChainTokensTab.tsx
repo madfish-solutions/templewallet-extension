@@ -106,9 +106,9 @@ export const MultiChainTokensTab = memo<MultiChainTokensTabProps>(({ accountTezA
       {filtersOpened ? (
         <AssetsFilterOptions filterButtonRef={filterButtonRef} onRequestClose={setFiltersClosed} />
       ) : (
-        <ContentContainer>
+        <ContentContainer padding={paginatedSlugs.length > 0}>
           {paginatedSlugs.length === 0 ? (
-            <EmptySection isSyncing={isSyncing} />
+            <EmptySection />
           ) : (
             <>
               <SimpleInfiniteScroll loadNext={loadNext}>{contentElement}</SimpleInfiniteScroll>

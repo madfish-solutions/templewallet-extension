@@ -17,6 +17,7 @@ import { T, t } from 'lib/i18n';
 import { TEZOS_MAINNET_CHAIN_ID } from 'lib/temple/types';
 import { useScrollIntoViewOnMount } from 'lib/ui/use-scroll-into-view';
 import { navigate } from 'lib/woozie';
+import { EvmChain, TezosChain } from 'temple/front';
 import { TempleChainKind } from 'temple/types';
 
 import { useSortedNetworks } from './hooks/use-sorted-networks';
@@ -36,7 +37,10 @@ export const NetworksModal = memo<Props>(({ opened, onRequestClose }) => {
   const [attractSelectedNetwork, setAttractSelectedNetwork] = useState(true);
 
   const filteredNetworks = useMemo(
-    () => (searchValue.length ? searchAndFilterNetworks(sortedNetworks, searchValue) : sortedNetworks),
+    () =>
+      searchValue.length
+        ? searchAndFilterNetworks<string | EvmChain | TezosChain>(sortedNetworks, searchValue)
+        : sortedNetworks,
     [searchValue, sortedNetworks]
   );
 

@@ -111,3 +111,17 @@ button,
 .animate-fade-in {
   animation: fade-in 2s ease-in-out infinite;
 }
+
+/* Hide Arrows From Input Number */
+@layer base {
+  /* Chrome, Safari, Edge, Opera */
+  input[type="number"]::-webkit-inner-spin-button,
+  input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+  /* Firefox */
+  input[type="number"] {
+    -moz-appearance: textfield;
+  }
+}

@@ -9,7 +9,7 @@ import React, {
   useState
 } from 'react';
 
-import classNames from 'clsx';
+import clsx from 'clsx';
 
 import CleanButton from 'app/atoms/CleanButton';
 import CopyButton from 'app/atoms/CopyButton';
@@ -147,7 +147,7 @@ export const FormField = forwardRef<FormFieldElement, FormFieldProps>(
 
     return (
       <div
-        className={classNames('w-full flex flex-col', containerClassName)}
+        className={clsx('w-full flex flex-col', containerClassName)}
         style={containerStyle}
         {...setTestID(testIDs?.inputSection)}
       >
@@ -157,10 +157,10 @@ export const FormField = forwardRef<FormFieldElement, FormFieldProps>(
 
         {extraSection}
 
-        <div className={classNames('relative flex items-stretch', fieldWrapperBottomMargin && 'mb-2')}>
+        <div className={clsx('relative flex items-stretch', fieldWrapperBottomMargin && 'mb-2')}>
           <Field
             ref={combineRefs(ref, spareRef)}
-            className={classNames(
+            className={clsx(
               FORM_FIELD_CLASS_NAME,
               smallPaddings ? 'py-2 pl-2' : 'py-3 pl-4',
               buildPaddingRightClassName(
@@ -200,11 +200,9 @@ export const FormField = forwardRef<FormFieldElement, FormFieldProps>(
   }
 );
 
-export const FORM_FIELD_CLASS_NAME = classNames(
-  'appearance-none w-full border-2 rounded-md bg-gray-100',
-  'focus:border-primary-orange focus:bg-transparent focus:outline-none focus:shadow-outline',
-  'transition ease-in-out duration-200',
-  'text-gray-700 text-lg leading-tight placeholder-alphagray'
+export const FORM_FIELD_CLASS_NAME = clsx(
+  'appearance-none w-full rounded-lg bg-input-low caret-primary focus:outline-none',
+  'transition ease-in-out duration-200 text-font-regular placeholder-grey-2 hover:placeholder-grey-1'
 );
 
 interface ExtraInnerProps {
@@ -216,7 +214,7 @@ const ExtraInner: React.FC<ExtraInnerProps> = ({ useDefaultWrapper, innerCompone
   if (useDefaultWrapper)
     return (
       <div
-        className={classNames(
+        className={clsx(
           'absolute flex items-center justify-end inset-y-0 right-0 w-32',
           'opacity-50 pointer-events-none'
         )}

@@ -47,7 +47,7 @@ export const fetchEvmAssetMetadataFromChain = async (network: EvmChain, assetSlu
   }
 };
 
-const fetchEvmTokenMetadataFromChain = async (network: EvmChain, tokenSlug: string) => {
+export const fetchEvmTokenMetadataFromChain = async (network: EvmChain, tokenSlug: string) => {
   const [contractAddress] = fromAssetSlug<HexString>(tokenSlug);
 
   const publicClient = getReadOnlyEvmForNetwork(network);

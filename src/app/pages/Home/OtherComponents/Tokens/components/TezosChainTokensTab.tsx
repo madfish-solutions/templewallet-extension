@@ -158,11 +158,11 @@ export const TezosChainTokensTab: FC<TezosChainTokensTabProps> = ({ chainId, pub
       {filtersOpened ? (
         <AssetsFilterOptions filterButtonRef={filterButtonRef} onRequestClose={setFiltersClosed} />
       ) : (
-        <ContentContainer>
+        <ContentContainer padding={filteredAssets.length > 0}>
           <UpdateAppBanner stickyBarRef={stickyBarRef} />
 
           {filteredAssets.length === 0 ? (
-            <EmptySection isSyncing={isSyncing} searchValueExist={searchValueExist} />
+            <EmptySection />
           ) : (
             <>
               <>{tokensView}</>

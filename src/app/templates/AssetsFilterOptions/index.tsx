@@ -85,14 +85,14 @@ export const AssetsFilterOptions = memo<AssetsFilterOptionsProps>(({ filterButto
     (checked: boolean) => dispatch(setCollectiblesBlurFilterOption(checked)),
     []
   );
-  const handleCollecytiblesShowInfoChange = useCallback(
+  const handleCollectiblesShowInfoChange = useCallback(
     (checked: boolean) => dispatch(setCollectiblesShowInfoFilterOption(checked)),
     []
   );
 
   return (
     <ContentContainer ref={containerRef}>
-      <div className="flex justify-between items-center mt-1 mb-2">
+      <div className="flex justify-between items-center pt-1 pb-2 pl-1">
         <p className="text-font-description-bold">
           <T id="filterByNetwork" />
         </p>
@@ -107,7 +107,7 @@ export const AssetsFilterOptions = memo<AssetsFilterOptionsProps>(({ filterButto
 
       <NetworkSelect filterChain={filterChain} onClick={setNetworksModalOpen} />
 
-      <p className="text-font-description-bold mt-5 mb-2">
+      <p className="text-font-description-bold mt-4 pt-1 pb-2 pl-1">
         <T id="tokensList" />
       </p>
 
@@ -135,7 +135,7 @@ export const AssetsFilterOptions = memo<AssetsFilterOptionsProps>(({ filterButto
         </div>
       </div>
 
-      <p className="text-font-description-bold mt-5 mb-2">
+      <p className="text-font-description-bold mt-4 pt-1 pb-2 pl-1">
         <T id="collectiblesView" />
       </p>
 
@@ -155,7 +155,7 @@ export const AssetsFilterOptions = memo<AssetsFilterOptionsProps>(({ filterButto
             <T id="showDetails" />
           </span>
 
-          <ToggleSwitch checked={collectiblesListOptions.showInfo} onChange={handleCollecytiblesShowInfoChange} />
+          <ToggleSwitch checked={collectiblesListOptions.showInfo} onChange={handleCollectiblesShowInfoChange} />
         </div>
       </div>
 
