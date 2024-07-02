@@ -8,7 +8,6 @@ import { FormCheckbox, FormField, FormSubmitButton, PASSWORD_ERROR_CAPTION } fro
 import { FormCheckboxGroup } from 'app/atoms/FormCheckboxGroup';
 import { ValidationLabel } from 'app/atoms/ValidationLabel';
 import { formatMnemonic, PASSWORD_PATTERN, PasswordValidation, passwordValidationRegexes } from 'app/defaults';
-import { shouldShowNewsletterModalAction } from 'app/store/newsletter/newsletter-actions';
 import { togglePartnersPromotionAction } from 'app/store/partners-promotion/actions';
 import { setIsAnalyticsEnabledAction, setOnRampPossibilityAction } from 'app/store/settings/actions';
 import { AnalyticsEventCategory, TestIDProps, useAnalytics } from 'lib/analytics';
@@ -127,8 +126,8 @@ export const SetWalletPassword: FC<SetWalletPasswordProps> = ({
         trackEvent('AdsEnabled', AnalyticsEventCategory.General, { accountPkh }, adsViewEnabled);
 
         navigate('/loading');
+
         !ownMnemonic && dispatch(setOnRampPossibilityAction(true));
-        dispatch(shouldShowNewsletterModalAction(true));
       } catch (err: any) {
         console.error(err);
 

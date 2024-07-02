@@ -1,18 +1,22 @@
 import React, { FC, useMemo } from 'react';
 
+import Icon_HeartEyes_1f60d from './heart-eyes-1f60d.png';
 import Icon_PartyPopper_1f389 from './party-popper-1f389.png';
+import Icon_Smirk_1f60f from './smirk-1f60f.png';
 
 interface Props extends React.ImgHTMLAttributes<HTMLImageElement> {
   name: keyof typeof KnownEmojies;
 }
 
 export const EmojiInlineIcon: FC<Props> = ({ name, style, ...props }) => {
-  const styleMemo = useMemo(() => ({ display: 'inline-block', height: '1em', ...style }), [style]);
+  const styleMemo = useMemo(() => ({ display: 'inline', verticalAlign: 'text-top', height: '1em', ...style }), [style]);
 
   // eslint-disable-next-line jsx-a11y/alt-text
-  return <img {...props} src={KnownEmojies[name]} style={styleMemo} />;
+  return <img alt={name} {...props} src={KnownEmojies[name]} style={styleMemo} />;
 };
 
 const KnownEmojies = {
-  'party-popper-1f389': Icon_PartyPopper_1f389
+  'party-popper-1f389': Icon_PartyPopper_1f389,
+  'heart-eyes-1f60d': Icon_HeartEyes_1f60d,
+  'smirk-1f60f': Icon_Smirk_1f60f
 };

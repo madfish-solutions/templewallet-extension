@@ -33,6 +33,7 @@ import ConfirmationOverlay from './PageLayout/ConfirmationOverlay';
 import Header from './PageLayout/Header';
 import { NewsletterOverlay } from './PageLayout/NewsletterOverlay/NewsletterOverlay';
 import { OnRampOverlay } from './PageLayout/OnRampOverlay/OnRampOverlay';
+import { ReactivateAdsOverlay } from './PageLayout/ReactivateAdsOverlay';
 import { ShortcutAccountSwitchOverlay } from './PageLayout/ShortcutAccountSwitchOverlay';
 import { PageLayoutSelectors } from './PageLayout.selectors';
 
@@ -67,6 +68,7 @@ const PageLayout: FC<PageLayoutProps> = ({ children, contentContainerStyle, ...t
       <ChangelogOverlay />
       <OnRampOverlay />
       <NewsletterOverlay />
+      <ReactivateAdsOverlay />
       {ready && <ShortcutAccountSwitchOverlay />}
     </>
   );

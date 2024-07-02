@@ -9,3 +9,5 @@ export const useBalanceModeSelector = () => useSelector(({ settings }) => settin
 export const useOnRampPossibilitySelector = () => useSelector(({ settings }) => settings.isOnRampPossibility);
 
 export const useIsConversionTrackedSelector = () => useSelector(({ settings }) => settings.isConversionTracked);
+
+export const useIsPendingReactivateAdsSelector = () => useSelector(({ settings }) => settings.pendingReactivateAds);

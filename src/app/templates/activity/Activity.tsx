@@ -7,12 +7,15 @@ import { SyncSpinner } from 'app/atoms';
 import { useAppEnv } from 'app/env';
 import { useLoadPartnersPromo } from 'app/hooks/use-load-partners-promo';
 import { ReactComponent as LayersIcon } from 'app/icons/layers.svg';
+import { useShouldShowPartnersPromoSelector } from 'app/store/partners-promotion/selectors';
 import { PartnersPromotion, PartnersPromotionVariant } from 'app/templates/partners-promotion';
+import { TEMPLE_TOKEN_SLUG } from 'lib/assets';
 import { T } from 'lib/i18n/react';
 import useActivities from 'lib/temple/activity-new/hook';
 import { useAccount } from 'lib/temple/front';
 
 import { ActivityItem } from './ActivityItem';
+import { ReactivateAdsBanner } from './ReactivateAdsBanner';
 
 const INITIAL_NUMBER = 30;
 const LOAD_STEP = 30;
@@ -28,20 +31,22 @@ export const ActivityComponent: React.FC<Props> = ({ assetSlug }) => {
 
   const { publicKeyHash: accountAddress } = useAccount();
 
+  const shouldShowPartnersPromo = useShouldShowPartnersPromoSelector();
   useLoadPartnersPromo();
 
   const promotion = useMemo(() => {
-    const promotionId = `promo-activity-${assetSlug ?? 'all'}`;
+    if (shouldShowPartnersPromo)
+      return (
+        <PartnersPromotion
+          id={`promo-activity-${assetSlug ?? 'all'}`}
+          variant={PartnersPromotionVariant.Image}
+          pageName="Activity"
+          withPersonaProvider
+        />
+      );
 
-    return (
-      <PartnersPromotion
-        id={promotionId}
-        variant={PartnersPromotionVariant.Image}
-        pageName="Activity"
-        withPersonaProvider
-      />
-    );
-  }, [assetSlug]);
+    return assetSlug === TEMPLE_TOKEN_SLUG ? <ReactivateAdsBanner /> : null;
+  }, [shouldShowPartnersPromo, assetSlug]);
 
   if (activities.length === 0 && !loading && reachedTheEnd) {
     return (
