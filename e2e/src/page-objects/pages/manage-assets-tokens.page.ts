@@ -8,6 +8,7 @@ export class ManageAssetsTokensPage extends Page {
   searchAssetsInput = createPageElement(ManageAssetsSelectors.searchAssetsInput);
   assetItem = createPageElement(ManageAssetsSelectors.assetItem);
   deleteAssetButton = createPageElement(ManageAssetsSelectors.deleteAssetButton);
+  deleteAssetButton = createPageElement(ManageAssetsSelectors.deleteAssetButton);
 
   async isVisible() {
     await this.addAssetButton.waitForDisplayed();

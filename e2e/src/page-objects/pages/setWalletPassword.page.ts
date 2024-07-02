@@ -9,11 +9,13 @@ export class setWalletPage extends Page {
   analyticsCheckbox = createPageElement(setWalletPasswordSelectors.analyticsCheckBox);
   acceptTerms = createPageElement(setWalletPasswordSelectors.acceptTermsCheckbox);
   importButton = createPageElement(setWalletPasswordSelectors.importButton);
+  createButton = createPageElement(setWalletPasswordSelectors.createButton);
 
   async isVisible() {
     await this.passwordField.waitForDisplayed();
     await this.repeatPasswordField.waitForDisplayed();
     await this.analyticsCheckbox.waitForDisplayed();
     await this.acceptTerms.waitForDisplayed();
+    await this.createButton.waitForDisplayed();
   }
 }

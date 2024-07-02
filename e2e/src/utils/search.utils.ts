@@ -45,6 +45,11 @@ export class PageElement {
     });
   }
 
+  async focus(timeout?: number) {
+    const element = await this.findElement();
+    return await element.focus({ timeout: timeout });
+  }
+
   async waitForDisplayed() {
     return this.findElement();
   }

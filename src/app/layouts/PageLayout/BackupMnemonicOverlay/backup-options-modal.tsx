@@ -24,7 +24,13 @@ export const BackupOptionsModal = memo<BackupOptionsModalProps>(({ onSelect }) =
         <span className="text-font-regular-bold">{t('useGoogleDrive')}</span>
       </SocialButton>
 
-      <StyledButton className="w-full flex justify-center gap-0.5" size="L" color="primary" onClick={onSelect}>
+      <StyledButton
+        className="w-full flex justify-center gap-0.5"
+        size="L"
+        color="primary"
+        onClick={onSelect}
+        testID={BackupOptionsModalSelectors.manualBackupButton}
+      >
         <IconBase Icon={DocumentsIcon} size={16} />
         <span className="text-font-regular-bold">{t('backupManually')}</span>
       </StyledButton>

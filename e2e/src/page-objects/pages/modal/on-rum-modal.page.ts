@@ -1,7 +1,7 @@
 import { OnRampOverlaySelectors } from 'src/app/layouts/PageLayout/OnRampOverlay/OnRampOverlay.selectors';
 
-import { Page } from '../../classes/page.class';
-import { createPageElement } from '../../utils/search.utils';
+import { Page } from '../../../classes/page.class';
+import { createPageElement } from '../../../utils/search.utils';
 
 export class OnRumModalPage extends Page {
   closeButton = createPageElement(OnRampOverlaySelectors.closeButton);

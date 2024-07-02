@@ -7,6 +7,9 @@ import { FieldLabel } from 'app/atoms/FieldLabel';
 import { ReactComponent as XCircleFillIcon } from 'app/icons/base/x_circle_fill.svg';
 import { T } from 'lib/i18n';
 
+import { setTestID } from '../../../../lib/analytics';
+import { ManualBackupModalSelectors } from '../selectors';
+
 import { WordInput } from './word-input';
 import { WordsBoxItem, WordsBoxItemData } from './words-box-item';
 
@@ -37,6 +40,7 @@ export const VerifySeedPhraseInput = memo<VerifySeedPhraseInputProps>(
             'relative grid grid-cols-2 rounded-lg p-1.5 bg-grey-4 mb-1 gap-2',
             error && 'border border-error'
           )}
+          {...setTestID('second1')}
         >
           {wordsIndices.map((wordIndex, inputIndex) => (
             <WordInput
@@ -44,6 +48,7 @@ export const VerifySeedPhraseInput = memo<VerifySeedPhraseInputProps>(
               wordIndex={wordIndex}
               active={activeInputIndex === inputIndex}
               value={value[inputIndex]?.word ?? ''}
+              testID={'word input hz'}
             />
           ))}
           <Button className="absolute right-1.5 bottom-1.5 text-grey-3" onClick={handleClear}>
@@ -59,6 +64,7 @@ export const VerifySeedPhraseInput = memo<VerifySeedPhraseInputProps>(
               data={item}
               selected={value.some(selectedItem => item.index === selectedItem.index)}
               onSelect={handleWordSelect}
+              testID={ManualBackupModalSelectors.seedWordButton}
             />
           ))}
         </div>
