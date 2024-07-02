@@ -2,9 +2,8 @@ import React, { CSSProperties, FC, memo, ReactNode } from 'react';
 
 import clsx from 'clsx';
 
-import { Button } from 'app/atoms';
+import { FormSubmitButton } from 'app/atoms';
 import { useAppEnv } from 'app/env';
-import { ReactComponent as ExIcon } from 'app/icons/x.svg';
 import ContentContainer from 'app/layouts/ContentContainer';
 import { dispatch } from 'app/store';
 import { togglePartnersPromotionAction } from 'app/store/partners-promotion/actions';
@@ -12,6 +11,8 @@ import { useShouldShowPartnersPromoSelector } from 'app/store/partners-promotion
 import { setPendingReactivateAdsAction } from 'app/store/settings/actions';
 import { useIsPendingReactivateAdsSelector } from 'app/store/settings/selectors';
 import { EmojiInlineIcon } from 'lib/icons/emoji';
+
+import { OverlayCloseButton } from '../OverlayCloseButton';
 
 import bgPopupImgSrc from './bg-popup.png';
 import bgImgSrc from './bg.png';
@@ -51,14 +52,7 @@ export const ReactivateAdsOverlay = memo<Props>(({ onClose }) => {
             popup ? 'h-full pt-14 pb-6' : 'items-center px-8 pt-11 pb-6'
           )}
         >
-          <Button
-            type="button"
-            className="absolute top-3 right-3 p-2 flex items-center bg-gray-200 rounded hover:opacity-90"
-            onClick={close}
-            testID={ReactivateAdsOverlaySelectors.closeButton}
-          >
-            <ExIcon className="h-4 w-4 text-gray-600 stroke-current" />
-          </Button>
+          <OverlayCloseButton testID={ReactivateAdsOverlaySelectors.closeButton} onClick={close} />
 
           <div className="relative px-6">
             <img
@@ -126,17 +120,15 @@ export const ReactivateAdsOverlay = memo<Props>(({ onClose }) => {
             />
           </div>
 
-          <Button
+          <FormSubmitButton
             type="button"
-            className={clsx(
-              'relative h-12 flex items-center justify-center font-semibold rounded-md text-base px-4 py-3 bg-orange-500 text-white',
-              popup ? 'mx-6' : 'w-80'
-            )}
+            className={popup ? 'mx-6' : 'w-80'}
+            rounder
             onClick={reactivate}
             testID={ReactivateAdsOverlaySelectors.reactivateButton}
           >
             Earn Rewards with Ads
-          </Button>
+          </FormSubmitButton>
 
           <p className="mt-3 text-center text-gray-600 text-xxxs leading-4 whitespace-pre-line">
             By participating you agree to share your wallet address{popup ? '\n' : ' '}and IP{popup ? ' ' : '\n'}to
