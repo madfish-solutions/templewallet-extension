@@ -19,20 +19,28 @@ import { ReactComponent as CloseAdIcon } from './close-ad.svg';
 import { ReactivateAdsOverlaySelectors } from './selectors';
 import tkeyImgSrc from './tkey.png';
 
-export const ReactivateAdsOverlay = memo(() => {
+interface Props {
+  onClose?: EmptyFn;
+}
+
+export const ReactivateAdsOverlay = memo<Props>(({ onClose }) => {
   const { popup } = useAppEnv();
+  const ignorePending = Boolean(onClose);
 
   const shouldShowPartnersPromo = useShouldShowPartnersPromoSelector();
   const isPendingReactivateAds = useIsPendingReactivateAdsSelector();
 
-  const close = () => void dispatch(setPendingReactivateAdsAction(false));
+  const close = onClose ?? (() => void dispatch(setPendingReactivateAdsAction(false)));
 
   const reactivate = () => {
     dispatch(togglePartnersPromotionAction(true));
     dispatch(setPendingReactivateAdsAction(false));
+    onClose?.();
   };
 
-  if (shouldShowPartnersPromo || !isPendingReactivateAds) return null;
+  if (shouldShowPartnersPromo) return null;
+
+  if (!ignorePending && !isPendingReactivateAds) return null;
 
   return (
     <div className="fixed inset-0 z-40 flex flex-col items-center justify-center bg-gray-700 bg-opacity-20">
@@ -60,12 +68,12 @@ export const ReactivateAdsOverlay = memo(() => {
               style={popup ? { left: 0, top: -46 } : { translate: '-50% 0' }}
             />
 
-            <span
+            <div
               className="relative text-orange-500 font-bold text-center"
               style={{ fontSize: popup ? 36 : 58, lineHeight: 1.2 }}
             >
               Use Wallet and Earn TKEY
-            </span>
+            </div>
 
             <img
               src={tkeyImgSrc}
