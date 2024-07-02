@@ -8,13 +8,8 @@ import { FormCheckbox, FormField, FormSubmitButton, PASSWORD_ERROR_CAPTION } fro
 import { FormCheckboxGroup } from 'app/atoms/FormCheckboxGroup';
 import { ValidationLabel } from 'app/atoms/ValidationLabel';
 import { formatMnemonic, PASSWORD_PATTERN, PasswordValidation, passwordValidationRegexes } from 'app/defaults';
-import { shouldShowNewsletterModalAction } from 'app/store/newsletter/newsletter-actions';
 import { togglePartnersPromotionAction } from 'app/store/partners-promotion/actions';
-import {
-  setIsAnalyticsEnabledAction,
-  setOnRampPossibilityAction,
-  setPendingReactivateAdsAction
-} from 'app/store/settings/actions';
+import { setIsAnalyticsEnabledAction, setOnRampPossibilityAction } from 'app/store/settings/actions';
 import { AnalyticsEventCategory, TestIDProps, useAnalytics } from 'lib/analytics';
 import { WEBSITES_ANALYTICS_ENABLED } from 'lib/constants';
 import { T, TID, t } from 'lib/i18n';
@@ -133,8 +128,6 @@ export const SetWalletPassword: FC<SetWalletPasswordProps> = ({
         navigate('/loading');
 
         !ownMnemonic && dispatch(setOnRampPossibilityAction(true));
-        dispatch(shouldShowNewsletterModalAction(true));
-        dispatch(setPendingReactivateAdsAction(false));
       } catch (err: any) {
         console.error(err);
 

@@ -1,9 +1,10 @@
+import { cloneDeep } from 'lodash';
 import type { MigrationManifest, PersistedState } from 'redux-persist';
 
 import { toTokenSlug } from 'lib/assets';
 import { isCollectible } from 'lib/metadata';
 
-import { collectiblesMetadataInitialStateClone } from './collectibles-metadata/state';
+import { collectiblesMetadataInitialState } from './collectibles-metadata/state';
 import type { RootState } from './root-state.type';
 
 import type { SLICES_BLACKLIST } from './index';
@@ -25,7 +26,9 @@ export const MIGRATIONS: MigrationManifest = {
     // `collectiblesMetadata` slice data is absent. Setting initial value here.
     // It is safe as it is blacklisted & won't be persisted in this (root) slice.
     // @ts-expect-error // Due to the absence of `_persist` property yet
-    const collectiblesMetadata = (typedPersistedState.collectiblesMetadata = collectiblesMetadataInitialStateClone);
+    const collectiblesMetadata = (typedPersistedState.collectiblesMetadata =
+      /** Cannot use initial value during migrations - object is frozen & forbids mutations. */
+      cloneDeep(collectiblesMetadataInitialState));
 
     for (const slug of Object.keys(allTokensMetadata)) {
       const metadata = allTokensMetadata[slug];
@@ -57,9 +60,26 @@ export const MIGRATIONS: MigrationManifest = {
       }
     }
 
-    return {
+    const newState: TypedPersistedRootState = {
       ...typedPersistedState,
       tokensMetadata: { ...typedPersistedState.tokensMetadata, metadataRecord: allTokensMetadata }
     };
+
+    return newState;
+  },
+
+  '3': (persistedState: PersistedState) => {
+    if (!persistedState) return persistedState;
+    const typedPersistedState = persistedState as TypedPersistedRootState;
+
+    const newState: TypedPersistedRootState = {
+      ...typedPersistedState,
+      settings: {
+        ...typedPersistedState.settings,
+        pendingReactivateAds: !typedPersistedState.partnersPromotion.shouldShowPromotion
+      }
+    };
+
+    return newState;
   }
 };

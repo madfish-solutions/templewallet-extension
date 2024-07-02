@@ -6,5 +6,5 @@ export const mockSettingsState: SettingsState = {
   balanceMode: BalanceMode.Fiat,
   isOnRampPossibility: false,
   isConversionTracked: false,
-  pendingReactivateAds: null
+  pendingReactivateAds: false
 };

@@ -12,7 +12,6 @@ import { useShouldShowPartnersPromoSelector } from 'app/store/partners-promotion
 import { setPendingReactivateAdsAction } from 'app/store/settings/actions';
 import { useIsPendingReactivateAdsSelector } from 'app/store/settings/selectors';
 import { EmojiInlineIcon } from 'lib/icons/emoji';
-import { useDidMount } from 'lib/ui/hooks';
 
 import bgPopupImgSrc from './bg-popup.png';
 import bgImgSrc from './bg.png';
@@ -33,11 +32,7 @@ export const ReactivateAdsOverlay = memo(() => {
     dispatch(setPendingReactivateAdsAction(false));
   };
 
-  useDidMount(() => {
-    if (isPendingReactivateAds === null) dispatch(setPendingReactivateAdsAction(!shouldShowPartnersPromo));
-  });
-
-  if (shouldShowPartnersPromo || isPendingReactivateAds !== true) return null;
+  if (shouldShowPartnersPromo || !isPendingReactivateAds) return null;
 
   return (
     <div className="fixed inset-0 z-40 flex flex-col items-center justify-center bg-gray-700 bg-opacity-20">
