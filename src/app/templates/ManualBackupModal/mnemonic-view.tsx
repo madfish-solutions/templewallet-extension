@@ -50,7 +50,12 @@ export const MnemonicView = memo<MnemonicViewProps>(({ mnemonic, isNewMnemonic, 
           }
         />
 
-        <ReadOnlySecretField value={mnemonic} label="newRevealSeedPhraseLabel" description={null} testID={'lalala'} />
+        <ReadOnlySecretField
+          value={mnemonic}
+          label="newRevealSeedPhraseLabel"
+          description={null}
+          testID={ManualBackupModalSelectors.protectedMask}
+        />
       </ScrollView>
 
       <ActionsButtonsBox shouldCastShadow={!bottomEdgeIsVisible}>

@@ -1,0 +1,55 @@
+import { ManualBackupModalSelectors } from 'src/app/templates/ManualBackupModal/selectors';
+
+import { CustomBrowserContext } from 'e2e/src/classes/browser-context.class';
+
+import { Page } from '../../../classes/page.class';
+import { createPageElement, findElements } from '../../../utils/search.utils';
+
+export class ManualBackupModalPage extends Page {
+  confirmButton = createPageElement(ManualBackupModalSelectors.confirmButton);
+  cancelButton = createPageElement(ManualBackupModalSelectors.cancelButton);
+  notedDownButton = createPageElement(ManualBackupModalSelectors.notedDownButton);
+  protectedMask = createPageElement(ManualBackupModalSelectors.protectedMask);
+  wordIndex = createPageElement(ManualBackupModalSelectors.wordIndex);
+  seedWordButton = createPageElement(ManualBackupModalSelectors.seedWordButton);
+
+  async isVisible(modalPage: string) {
+    if (modalPage == 'Backup') {
+      await this.notedDownButton.waitForDisplayed();
+      await this.protectedMask.waitForDisplayed();
+    }
+
+    if (modalPage == 'Verify') {
+      await this.confirmButton.waitForDisplayed();
+      await this.cancelButton.waitForDisplayed();
+      await this.wordIndex.waitForDisplayed();
+      await this.seedWordButton.waitForDisplayed();
+    }
+  }
+
+  async verifyMnemonic() {
+    const seedValueArray = CustomBrowserContext.SEED_PHRASE?.split(' ');
+
+    const wordsButtonArray = await findElements(ManualBackupModalSelectors.seedWordButton);
+
+    const wordsIndexArray = await findElements(ManualBackupModalSelectors.wordIndex);
+
+    for (let wordIndex = 0; wordIndex < wordsButtonArray.length; wordIndex++) {
+      const wordIndexValue = await wordsIndexArray[wordIndex].textContent().then((text: string) => {
+        return Number(text.replace('.', ''));
+      });
+
+      for (let wordIndex = 1; wordIndex < seedValueArray.length * wordsButtonArray.length; wordIndex++) {
+        if (wordIndex === wordIndexValue) {
+          for (let seedWordIndex = 0; seedWordIndex < wordsButtonArray.length; seedWordIndex++) {
+            const seedWordButtonValue = wordsButtonArray[seedWordIndex];
+
+            if ((await seedWordButtonValue.textContent()) == seedValueArray[wordIndexValue - 1]) {
+              await seedWordButtonValue.click();
+            }
+          }
+        }
+      }
+    }
+  }
+}
