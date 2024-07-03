@@ -34,7 +34,8 @@ export class ManualBackupModalPage extends Page {
     const wordsIndexArray = await findElements(ManualBackupModalSelectors.wordIndex);
 
     for (let wordIndex = 0; wordIndex < wordsButtonArray.length; wordIndex++) {
-      const wordIndexValue = await wordsIndexArray[wordIndex].textContent().then((text: string) => {
+      const wordIndexValue = await wordsIndexArray[wordIndex].textContent().then((text: string | null) => {
+        if (text === null) throw new Error('word index is null');
         return Number(text.replace('.', ''));
       });
 
