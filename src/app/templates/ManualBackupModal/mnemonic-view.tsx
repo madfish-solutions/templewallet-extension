@@ -18,7 +18,7 @@ interface MnemonicViewProps extends TestIDProps {
   onConfirm: EmptyFn;
 }
 
-export const MnemonicView = memo<MnemonicViewProps>(({ mnemonic, isNewMnemonic, onCancel, onConfirm, testID }) => {
+export const MnemonicView = memo<MnemonicViewProps>(({ mnemonic, isNewMnemonic, onCancel, onConfirm }) => {
   const [bottomEdgeIsVisible, setBottomEdgeIsVisible] = useState(true);
 
   const manualBackupSubstitutions = useMemo(() => {

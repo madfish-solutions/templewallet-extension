@@ -66,7 +66,7 @@ const Welcome = memo(() => {
             className="w-full flex justify-center gap-0.5"
             size="L"
             color="secondary"
-            testID={WelcomeSelectors.continueWithGoogleDrive}
+            testID={WelcomeSelectors.importExistingWallet}
             to="/import-wallet"
           >
             <IconBase Icon={ImportedIcon} size={16} />

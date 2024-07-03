@@ -1,6 +1,9 @@
 import { Locator } from '@playwright/test';
+import { ElementHandle } from 'playwright';
 
 import { CustomBrowserContext } from '../classes/browser-context.class';
+
+import { SHORT_TIMEOUT } from './timing.utils';
 
 const buildTestIDSelector = (testID: string) => `[data-testid="${testID}"]`;
 
@@ -18,12 +21,19 @@ export const findElementBySelector = async (selectors: string) => {
   return element;
 };
 
-export const findElements = async (testID: string) => {
+export const findElements = async (testID: string, count?: number) => {
   const selector = buildTestIDSelector(testID);
 
   const elements = await CustomBrowserContext.page.$$(selector);
 
   if (!elements.length) throw new Error(`None of "${testID}" elements were found`);
+  if (count) {
+    const elements = await CustomBrowserContext.page.$$(selector);
+    const elementsCount = elements.length;
+
+    if (elementsCount !== count)
+      throw new Error(`There are ${elements.length} '${testID}' elements, but expected ${count}`);
+  }
 
   return elements;
 };
@@ -45,32 +55,42 @@ export class PageElement {
     });
   }
 
+  async findElements(count?: number, errorTitle?: string): Promise<ElementHandle<SVGElement | HTMLElement>[]> {
+    return findElements(this.selector, count).catch(error => {
+      if (errorTitle && error instanceof Error) {
+        error.message = `${errorTitle}\n` + error.message;
+      }
+      throw error;
+    });
+  }
+
+  async waitForDisplayed(timeout?: number, state?: 'attached' | 'detached' | 'visible' | 'hidden' | undefined) {
+    const element = await this.findElement();
+    return element.waitFor({ timeout: timeout || SHORT_TIMEOUT, state: state });
+  }
+
+  async click(clickCount?: number, delay?: number) {
+    const element = await this.findElement();
+    return await element.click({ clickCount: clickCount, delay: delay });
+  }
+
   async focus(timeout?: number) {
     const element = await this.findElement();
     return await element.focus({ timeout: timeout });
   }
 
-  async waitForDisplayed() {
-    return this.findElement();
+  async fill(text: string, force?: boolean, noWaitAfter?: boolean, timeout?: number) {
+    const element = await this.findElement();
+    return await element.fill(text, { force: force, noWaitAfter: noWaitAfter, timeout: timeout });
   }
 
-  async click() {
+  async getText(timeout?: number) {
     const element = await this.findElement();
-    return await element.click();
+    return await element.textContent({ timeout: timeout });
   }
 
-  async fill(text: string) {
+  async getValue(timeout?: number) {
     const element = await this.findElement();
-    return await element.fill(text);
-  }
-
-  async getText() {
-    const element = await this.findElement();
-    return await element.textContent();
-  }
-
-  async getValue() {
-    const element = await this.findElement();
-    return await element.innerText();
+    return await element.innerText({ timeout: timeout });
   }
 }

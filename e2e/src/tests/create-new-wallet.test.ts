@@ -1,5 +1,4 @@
-import { CustomBrowserContext } from 'e2e/src/classes/browser-context.class';
-
+import { CustomBrowserContext } from '../classes/browser-context.class';
 import { test } from '../fixtures/extension';
 import { describeScenario } from '../fixtures/hooks';
 import { Pages } from '../page-objects';
@@ -7,7 +6,6 @@ import { envVars } from '../utils/env.utils';
 
 describeScenario('Create new wallet', () => {
   test('Create new wallet: positive', { tag: '@create' }, async () => {
-    await Pages.Welcome.isVisible();
     await Pages.Welcome.createNewWalletButton.waitForDisplayed();
     await Pages.Welcome.createNewWalletButton.click();
 

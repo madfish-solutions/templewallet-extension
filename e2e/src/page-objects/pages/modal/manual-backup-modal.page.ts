@@ -1,7 +1,6 @@
 import { ManualBackupModalSelectors } from 'src/app/templates/ManualBackupModal/selectors';
 
-import { CustomBrowserContext } from 'e2e/src/classes/browser-context.class';
-
+import { CustomBrowserContext } from '../../../classes/browser-context.class';
 import { Page } from '../../../classes/page.class';
 import { createPageElement, findElements } from '../../../utils/search.utils';
 
@@ -22,8 +21,8 @@ export class ManualBackupModalPage extends Page {
     if (modalPage == 'Verify') {
       await this.confirmButton.waitForDisplayed();
       await this.cancelButton.waitForDisplayed();
-      await this.wordIndex.waitForDisplayed();
-      await this.seedWordButton.waitForDisplayed();
+      await this.wordIndex.findElements(3);
+      await this.seedWordButton.findElements(3);
     }
   }
 
