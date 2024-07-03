@@ -17,6 +17,7 @@ import { newsletterApi } from 'lib/apis/newsletter';
 import { useYupValidationResolver } from 'lib/form/use-yup-validation-resolver';
 import { t } from 'lib/i18n/react';
 import { useLocation } from 'lib/woozie';
+import { HOME_PAGE_PATH } from 'lib/woozie/config';
 
 import { OverlayCloseButton } from '../OverlayCloseButton';
 
@@ -30,8 +31,6 @@ interface FormValues {
 const validationSchema = object().shape({
   email: string().required('Required field').email('Must be a valid email')
 });
-
-const HOME_PAGE_PATH = '/';
 
 export const NewsletterOverlay: FC = () => {
   const dispatch = useDispatch();

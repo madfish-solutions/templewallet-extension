@@ -72,11 +72,15 @@ export const MIGRATIONS: MigrationManifest = {
     if (!persistedState) return persistedState;
     const typedPersistedState = persistedState as TypedPersistedRootState;
 
+    /* Our best (synchronous) way to know, if user already has started using wallet */
+    const usedWalletBefore = localStorage.getItem('onboarding') === 'true';
+    const adsAreDisabled = !typedPersistedState.partnersPromotion.shouldShowPromotion;
+
     const newState: TypedPersistedRootState = {
       ...typedPersistedState,
       settings: {
         ...typedPersistedState.settings,
-        pendingReactivateAds: !typedPersistedState.partnersPromotion.shouldShowPromotion
+        pendingReactivateAds: usedWalletBefore && adsAreDisabled
       }
     };
 

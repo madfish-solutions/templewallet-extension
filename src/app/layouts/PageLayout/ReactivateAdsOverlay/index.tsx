@@ -5,12 +5,16 @@ import clsx from 'clsx';
 import { FormSubmitButton } from 'app/atoms';
 import { useAppEnv } from 'app/env';
 import ContentContainer from 'app/layouts/ContentContainer';
+import { useOnboardingProgress } from 'app/pages/Onboarding/hooks/useOnboardingProgress.hook';
 import { dispatch } from 'app/store';
+import { useShouldShowNewsletterModalSelector } from 'app/store/newsletter/newsletter-selectors';
 import { togglePartnersPromotionAction } from 'app/store/partners-promotion/actions';
 import { useShouldShowPartnersPromoSelector } from 'app/store/partners-promotion/selectors';
 import { setPendingReactivateAdsAction } from 'app/store/settings/actions';
-import { useIsPendingReactivateAdsSelector } from 'app/store/settings/selectors';
+import { useIsPendingReactivateAdsSelector, useOnRampPossibilitySelector } from 'app/store/settings/selectors';
 import { EmojiInlineIcon } from 'lib/icons/emoji';
+import { useLocation } from 'lib/woozie';
+import { HOME_PAGE_PATH } from 'lib/woozie/config';
 
 import { OverlayCloseButton } from '../OverlayCloseButton';
 
@@ -31,6 +35,11 @@ export const ReactivateAdsOverlay = memo<Props>(({ onClose }) => {
   const shouldShowPartnersPromo = useShouldShowPartnersPromoSelector();
   const isPendingReactivateAds = useIsPendingReactivateAdsSelector();
 
+  const { onboardingCompleted } = useOnboardingProgress();
+  const shouldShowNewsletterModal = useShouldShowNewsletterModalSelector();
+  const isOnRampPossibility = useOnRampPossibilitySelector();
+  const { pathname } = useLocation();
+
   const close = onClose ?? (() => void dispatch(setPendingReactivateAdsAction(false)));
 
   const reactivate = useCallback(() => {
@@ -41,9 +50,19 @@ export const ReactivateAdsOverlay = memo<Props>(({ onClose }) => {
 
   const btnTestIDProperties = useMemo(() => ({ forcedModal }), [forcedModal]);
 
+  // Never showing if ads are enabled
   if (shouldShowPartnersPromo) return null;
 
-  if (forcedModal && !isPendingReactivateAds) return null;
+  if (
+    forcedModal &&
+    // Forced showing if pending & no other overlay is opened
+    (!isPendingReactivateAds ||
+      !onboardingCompleted ||
+      shouldShowNewsletterModal ||
+      isOnRampPossibility ||
+      pathname !== HOME_PAGE_PATH)
+  )
+    return null;
 
   return (
     <div className="fixed inset-0 z-40 flex flex-col items-center justify-center bg-gray-700 bg-opacity-20">
