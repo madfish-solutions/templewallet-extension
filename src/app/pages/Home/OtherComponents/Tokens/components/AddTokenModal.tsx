@@ -1,6 +1,5 @@
 import React, { FC, memo, ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
-import { isDefined } from '@rnw-community/shared';
 import { ContractAbstraction, ContractProvider, Wallet } from '@taquito/taquito';
 import clsx from 'clsx';
 import { useForm } from 'react-hook-form';
@@ -21,6 +20,7 @@ import { dispatch } from 'app/store';
 import { putNewEvmTokenAction } from 'app/store/evm/assets/actions';
 import { putEvmTokensMetadataAction } from 'app/store/evm/tokens-metadata/actions';
 import { putCollectiblesAsIsAction, putTokensAsIsAction } from 'app/store/tezos/assets/actions';
+import { putCollectiblesMetadataAction } from 'app/store/tezos/collectibles-metadata/actions';
 import { putTokensMetadataAction } from 'app/store/tezos/tokens-metadata/actions';
 import { searchAndFilterNetworks } from 'app/templates/AssetsFilterOptions/utils/search-and-filter-networks';
 import { SearchBarField } from 'app/templates/SearchField';
@@ -61,8 +61,6 @@ import {
 import { validateTezosContractAddress } from 'temple/front/tezos';
 import { getReadOnlyTezos } from 'temple/tezos';
 import { TempleChainKind } from 'temple/types';
-
-import { putCollectiblesMetadataAction } from '../../../../../store/tezos/collectibles-metadata/actions';
 
 type SelectedChain = EvmChain | TezosChain;
 
@@ -404,7 +402,7 @@ const AddTokenForm = memo<AddTokenPageProps>(({ selectedChain, onNetworkSelectCl
               name="id"
               id="token-id"
               placeholder="0"
-              cleanable={isDefined(tokenIdWithoutFallback)}
+              cleanable={Boolean(tokenIdWithoutFallback) || tokenIdWithoutFallback === 0}
               onClean={cleanTokenId}
               errorCaption={errors.id?.message}
               containerClassName="mb-6"
