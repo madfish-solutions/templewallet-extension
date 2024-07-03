@@ -97,8 +97,7 @@ export const ReactivateAdsOverlay = memo<Props>(({ onClose }) => {
               position={1}
               popup={popup}
               title="Act With Temple"
-              description={`Receive or send tokens, swap
-                and explore blockchain.`}
+              description={`Receive or send tokens, swap\nand explore blockchain.`}
             />
 
             <MotivationPoint
@@ -109,8 +108,7 @@ export const ReactivateAdsOverlay = memo<Props>(({ onClose }) => {
                   Watch Ads <EmojiInlineIcon name="heart-eyes-1f60d" />
                 </>
               }
-              description={`Familiar experience, now with
-                growth of TKEY balance.`}
+              description={`Familiar experience, now with\ngrowth of TKEY balance.`}
             />
 
             <MotivationPoint
@@ -121,8 +119,7 @@ export const ReactivateAdsOverlay = memo<Props>(({ onClose }) => {
                   Enjoy The Rewards <EmojiInlineIcon name="smirk-1f60f" />
                 </>
               }
-              description={`Up to 70,000 TKEY dropped to users.
-                Join the next distribution!`}
+              description={`Up to 70,000 TKEY dropped to users.\nJoin the next distribution!`}
             />
           </div>
 
