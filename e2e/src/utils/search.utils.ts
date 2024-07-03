@@ -32,7 +32,7 @@ export const findElements = async (testID: string, count?: number) => {
     const elementsCount = elements.length;
 
     if (elementsCount !== count)
-      throw new Error(`There are ${elements.length} '${testID}' elements, but expected ${count} elements`);
+      throw new Error(`There are ${elements.length} "${testID}" elements, but expected ${count} elements`);
   }
 
   return elements;
