@@ -5,7 +5,7 @@ import { Pages } from '../page-objects';
 import { envVars } from '../utils/env.utils';
 
 describeScenario('Create new wallet', () => {
-  test('Create new wallet: positive', { tag: '@create' }, async () => {
+  test('Create new wallet: positive', { tag: '@create-wallet' }, async () => {
     await Pages.Welcome.createNewWalletButton.waitForDisplayed();
     await Pages.Welcome.createNewWalletButton.click();
 
