@@ -30,7 +30,7 @@ export const ReactivateAdsBanner = memo(() => {
       {modalOpened && <ReactivateAdsOverlay onClose={onModalClose} />}
 
       <div className="w-full flex items-center px-6 py-3 rounded-lg" style={style}>
-        <div className="flex-grow text-left text-sm font-semibold font-gray-910" style={{ lineHeight: 1.2 }}>
+        <div className="flex-grow text-left text-sm font-semibold text-gray-910" style={{ lineHeight: 1.2 }}>
           Familiar Experience, With
           <br />
           Growth Of TKEY Balance!
