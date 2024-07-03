@@ -2,7 +2,7 @@ import React, { memo } from 'react';
 
 import clsx from 'clsx';
 
-type Size = 10 | 12 | 16 | 24 | 32;
+export type Size = 10 | 12 | 16 | 24 | 32;
 
 interface Props {
   /** SVG of the 16px icon base container */

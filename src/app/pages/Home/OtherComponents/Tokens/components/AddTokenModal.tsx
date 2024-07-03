@@ -1,6 +1,6 @@
 import React, { FC, memo, ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
-import { EmptyFn } from '@rnw-community/shared';
+import { isDefined } from '@rnw-community/shared';
 import { ContractAbstraction, ContractProvider, Wallet } from '@taquito/taquito';
 import clsx from 'clsx';
 import { useForm } from 'react-hook-form';
@@ -20,7 +20,7 @@ import { ReactComponent as PlusIcon } from 'app/icons/base/plus.svg';
 import { dispatch } from 'app/store';
 import { putNewEvmTokenAction } from 'app/store/evm/assets/actions';
 import { putEvmTokensMetadataAction } from 'app/store/evm/tokens-metadata/actions';
-import { putTokensAsIsAction } from 'app/store/tezos/assets/actions';
+import { putCollectiblesAsIsAction, putTokensAsIsAction } from 'app/store/tezos/assets/actions';
 import { putTokensMetadataAction } from 'app/store/tezos/tokens-metadata/actions';
 import { searchAndFilterNetworks } from 'app/templates/AssetsFilterOptions/utils/search-and-filter-networks';
 import { SearchBarField } from 'app/templates/SearchField';
@@ -36,7 +36,7 @@ import {
 } from 'lib/assets/standards';
 import { fetchEvmTokenMetadataFromChain } from 'lib/evm/on-chain/metadata';
 import { t, T } from 'lib/i18n';
-import { TokenMetadata } from 'lib/metadata';
+import { isCollectible, TokenMetadata } from 'lib/metadata';
 import { fetchOneTokenMetadata } from 'lib/metadata/fetch';
 import { TokenMetadataNotFoundError } from 'lib/metadata/on-chain';
 import { EvmTokenMetadata } from 'lib/metadata/types';
@@ -61,6 +61,8 @@ import {
 import { validateTezosContractAddress } from 'temple/front/tezos';
 import { getReadOnlyTezos } from 'temple/tezos';
 import { TempleChainKind } from 'temple/types';
+
+import { putCollectiblesMetadataAction } from '../../../../../store/tezos/collectibles-metadata/actions';
 
 type SelectedChain = EvmChain | TezosChain;
 
@@ -153,7 +155,8 @@ const AddTokenForm = memo<AddTokenPageProps>(({ selectedChain, onNetworkSelectCl
     });
 
   const contractAddress = watch('address') || '';
-  const tokenId = watch('id') || 0;
+  const tokenIdWithoutFallback = watch('id');
+  const tokenId = tokenIdWithoutFallback || 0;
 
   const formValid = useMemo(() => {
     if (isTezosChainSelected) return validateTezosContractAddress(contractAddress) === true && tokenId >= 0;
@@ -261,6 +264,10 @@ const AddTokenForm = memo<AddTokenPageProps>(({ selectedChain, onNetworkSelectCl
     triggerValidation('address');
   }, [setValue, triggerValidation]);
 
+  const cleanTokenId = useCallback(() => {
+    setValue('id', undefined);
+  }, [setValue]);
+
   const onSubmit = useCallback(
     async ({ address, id }: FormData) => {
       if (formState.isSubmitting) return;
@@ -273,10 +280,10 @@ const AddTokenForm = memo<AddTokenPageProps>(({ selectedChain, onNetworkSelectCl
           const tokenSlug = toTokenSlug(address, id || 0);
 
           const baseMetadata = {
-            symbol: tezMetadataRef.current?.symbol ?? '???',
+            ...tezMetadataRef.current,
             name: tezMetadataRef.current?.name ?? 'Unknown Token',
-            decimals: tezMetadataRef.current?.decimals ?? 0,
-            thumbnailUri: tezMetadataRef.current?.thumbnailUri
+            symbol: tezMetadataRef.current?.symbol ?? '???',
+            decimals: tezMetadataRef.current?.decimals ?? 0
           };
 
           const tokenMetadata: TokenMetadata = {
@@ -285,8 +292,11 @@ const AddTokenForm = memo<AddTokenPageProps>(({ selectedChain, onNetworkSelectCl
             id: String(tokenId)
           };
 
+          const assetIsCollectible = isCollectible(tokenMetadata);
+
           const actionPayload = { records: { [tokenSlug]: tokenMetadata } };
-          dispatch(putTokensMetadataAction(actionPayload));
+          if (assetIsCollectible) dispatch(putCollectiblesMetadataAction(actionPayload));
+          else dispatch(putTokensMetadataAction(actionPayload));
 
           const asset = {
             chainId: selectedChain.chainId,
@@ -295,13 +305,11 @@ const AddTokenForm = memo<AddTokenPageProps>(({ selectedChain, onNetworkSelectCl
             status: 'enabled' as const
           };
 
-          console.log(asset, 'asset');
-
-          dispatch(putTokensAsIsAction([asset]));
+          dispatch(assetIsCollectible ? putCollectiblesAsIsAction([asset]) : putTokensAsIsAction([asset]));
 
           formAnalytics.trackSubmitSuccess();
 
-          toastSuccess('Token Added');
+          toastSuccess(assetIsCollectible ? 'NFT Added' : 'Token Added');
 
           onCanselClick();
         } else {
@@ -396,6 +404,8 @@ const AddTokenForm = memo<AddTokenPageProps>(({ selectedChain, onNetworkSelectCl
               name="id"
               id="token-id"
               placeholder="0"
+              cleanable={isDefined(tokenIdWithoutFallback)}
+              onClean={cleanTokenId}
               errorCaption={errors.id?.message}
               containerClassName="mb-6"
             />
