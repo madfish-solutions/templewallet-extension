@@ -2,7 +2,7 @@ import { EMPTY_FROZEN_OBJ } from 'lib/utils';
 
 import { useSelector } from '../../root-state.selector';
 
-import { AssetSlugStoredAssetRecord, ChainIdTokenSlugsAssetsRecord } from './state';
+import { AssetSlugStoredAssetRecord, ChainIdTokenSlugsAssetsRecord, StoredEvmAsset } from './state';
 
 export const useEvmStoredTokensRecordSelector = () => useSelector(state => state.evmAssets.tokens);
 
@@ -15,6 +15,12 @@ export const useRawEvmChainAccountTokensSelector = (
 ): AssetSlugStoredAssetRecord =>
   useSelector(state => state.evmAssets.tokens[publicKeyHash]?.[chainId]) ?? EMPTY_FROZEN_OBJ;
 
+export const useStoredEvmTokenSelector = (
+  publicKeyHash: HexString,
+  chainId: number,
+  assetSlug: string
+): StoredEvmAsset | undefined => useRawEvmChainAccountTokensSelector(publicKeyHash, chainId)[assetSlug];
+
 export const useEvmStoredCollectiblesRecordSelector = () => useSelector(state => state.evmAssets.collectibles);
 
 export const useRawEvmAccountCollectiblesSelector = (publicKeyHash: HexString): ChainIdTokenSlugsAssetsRecord =>
@@ -25,3 +31,9 @@ export const useRawEvmChainAccountCollectiblesSelector = (
   chainId: number
 ): AssetSlugStoredAssetRecord =>
   useSelector(state => state.evmAssets.collectibles[publicKeyHash]?.[chainId]) ?? EMPTY_FROZEN_OBJ;
+
+export const useStoredEvmCollectibleSelector = (
+  publicKeyHash: HexString,
+  chainId: number,
+  assetSlug: string
+): StoredEvmAsset | undefined => useRawEvmChainAccountCollectiblesSelector(publicKeyHash, chainId)[assetSlug];

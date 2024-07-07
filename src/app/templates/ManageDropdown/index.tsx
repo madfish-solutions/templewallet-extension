@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { IconButton } from 'app/atoms/IconButton';
+import { StayActiveIconButton } from 'app/atoms/IconButton';
 import { ReactComponent as ManageIcon } from 'app/icons/base/manage.svg';
 import { TestIDProps } from 'lib/analytics';
 
@@ -12,7 +12,7 @@ interface ButtonForManageDropdownProps extends TestIDProps {
 
 export const ButtonForManageDropdown = React.forwardRef<HTMLButtonElement, ButtonForManageDropdownProps>(
   ({ opened, tooltip, testID, testIDProperties, onClick }, popperRef) => (
-    <IconButton
+    <StayActiveIconButton
       ref={popperRef}
       Icon={ManageIcon}
       active={opened}

@@ -4,9 +4,9 @@ import clsx from 'clsx';
 
 import { SyncSpinner } from 'app/atoms';
 import { FilterButton } from 'app/atoms/FilterButton';
-import { IconButton } from 'app/atoms/IconButton';
+import { StayActiveIconButton } from 'app/atoms/IconButton';
 import { SimpleInfiniteScroll } from 'app/atoms/SimpleInfiniteScroll';
-import { useAssetsFilterOptionsState } from 'app/hooks/use-assets-filter-options';
+import { useAssetsFilterOptionsState } from 'app/hooks/use-assets-filter-options-state';
 import { useEvmAccountTokensListingLogic } from 'app/hooks/use-tokens-listing-logic';
 import { ReactComponent as ManageIcon } from 'app/icons/base/manage.svg';
 import { ContentContainer, StickyBar } from 'app/layouts/containers';
@@ -74,7 +74,7 @@ export const EvmTokensTab: FC<EvmTokensTabProps> = ({ publicKeyHash }) => {
 
         <FilterButton ref={filterButtonRef} active={filtersOpened} onClick={toggleFiltersOpened} />
 
-        <IconButton Icon={ManageIcon} />
+        <StayActiveIconButton Icon={ManageIcon} />
       </StickyBar>
 
       {filtersOpened ? (

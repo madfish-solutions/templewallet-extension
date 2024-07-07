@@ -4,8 +4,8 @@ import clsx from 'clsx';
 
 import { SyncSpinner } from 'app/atoms';
 import { FilterButton } from 'app/atoms/FilterButton';
-import { IconButton } from 'app/atoms/IconButton';
-import { useAssetsFilterOptionsState } from 'app/hooks/use-assets-filter-options';
+import { StayActiveIconButton } from 'app/atoms/IconButton';
+import { useAssetsFilterOptionsState } from 'app/hooks/use-assets-filter-options-state';
 import { useLoadPartnersPromo } from 'app/hooks/use-load-partners-promo';
 import { useTezosAccountTokensListingLogic } from 'app/hooks/use-tokens-listing-logic';
 import { ReactComponent as ManageIcon } from 'app/icons/base/manage.svg';
@@ -167,7 +167,7 @@ export const TezosTokensTab: FC<TezosTokensTabProps> = ({ publicKeyHash }) => {
 
         <FilterButton ref={filterButtonRef} active={filtersOpened} onClick={toggleFiltersOpened} />
 
-        <IconButton Icon={ManageIcon} />
+        <StayActiveIconButton Icon={ManageIcon} />
       </StickyBar>
 
       {filtersOpened ? (

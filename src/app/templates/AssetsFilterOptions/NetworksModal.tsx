@@ -1,7 +1,7 @@
 import React, { FC, memo, useEffect, useMemo, useState } from 'react';
 
 import { IconBase } from 'app/atoms';
-import { IconButton } from 'app/atoms/IconButton';
+import { StayActiveIconButton } from 'app/atoms/IconButton';
 import { EvmNetworkLogo, NetworkLogoFallback } from 'app/atoms/NetworkLogo';
 import { TezosNetworkLogo } from 'app/atoms/NetworksLogos';
 import { PageModal } from 'app/atoms/PageModal';
@@ -54,7 +54,7 @@ export const NetworksModal = memo<Props>(({ opened, onRequestClose }) => {
       <div className="flex gap-x-2 p-4">
         <SearchBarField value={searchValue} onValueChange={setSearchValue} />
 
-        <IconButton Icon={PlusIcon} color="blue" onClick={() => void navigate('settings/networks')} />
+        <StayActiveIconButton Icon={PlusIcon} color="blue" onClick={() => void navigate('settings/networks')} />
       </div>
 
       <div className="px-4 flex-1 flex flex-col overflow-y-auto">

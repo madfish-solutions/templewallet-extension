@@ -4,7 +4,7 @@ import { WhitelistResponseToken } from 'lib/apis/temple';
 import { TzktApiChainId } from 'lib/apis/tzkt';
 import { createActions } from 'lib/store';
 
-import type { AccountAssetForStore, StoredAsset } from './state';
+import type { TezosAccountAssetForStore, StoredTezosAsset } from './state';
 
 interface LoadAssetsPayload {
   /** PKH */
@@ -26,13 +26,13 @@ export const setAssetsIsLoadingAction = createAction<{
   resetError?: true;
 }>('assets/SET_ASSETS_IS_LOADING');
 
-type SetAssetStatusPayload = AccountAssetForStore;
+type SetAssetStatusPayload = TezosAccountAssetForStore;
 
 export const setTokenStatusAction = createAction<SetAssetStatusPayload>('assets/SET_TOKEN_STATUS');
 
 export const setCollectibleStatusAction = createAction<SetAssetStatusPayload>('assets/SET_COLLECTIBLE_STATUS');
 
-export type AssetToPut = AccountAssetForStore & StoredAsset;
+export type AssetToPut = TezosAccountAssetForStore & StoredTezosAsset;
 
 export const addAccountTokensAction = createAction<LoadAssetsPayload & { slugs: string[] }>(
   'assets/ADD_ACCOUNT_TOKENS'

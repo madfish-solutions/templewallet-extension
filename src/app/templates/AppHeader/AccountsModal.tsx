@@ -5,7 +5,7 @@ import clsx from 'clsx';
 import { Identicon, Name } from 'app/atoms';
 import { AccLabel } from 'app/atoms/AccLabel';
 import { AccountName } from 'app/atoms/AccountName';
-import { IconButton } from 'app/atoms/IconButton';
+import { StayActiveIconButton } from 'app/atoms/IconButton';
 import { PageModal } from 'app/atoms/PageModal';
 import { RadioButton } from 'app/atoms/RadioButton';
 import { StyledButton } from 'app/atoms/StyledButton';
@@ -51,7 +51,11 @@ export const AccountsModal = memo<Props>(({ opened, onRequestClose }) => {
       <div className="flex gap-x-2 p-4">
         <SearchBarField value={searchValue} onValueChange={setSearchValue} />
 
-        <IconButton Icon={SettingsIcon} color="blue" onClick={() => void navigate('settings/accounts-management')} />
+        <StayActiveIconButton
+          Icon={SettingsIcon}
+          color="blue"
+          onClick={() => void navigate('settings/accounts-management')}
+        />
 
         <NewWalletActionsPopper />
       </div>

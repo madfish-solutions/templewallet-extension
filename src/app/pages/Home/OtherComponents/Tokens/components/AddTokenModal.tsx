@@ -7,7 +7,7 @@ import { useDebouncedCallback } from 'use-debounce';
 import { getAddress } from 'viem';
 
 import { Alert, FormField, IconBase, NoSpaceField } from 'app/atoms';
-import { IconButton } from 'app/atoms/IconButton';
+import { StayActiveIconButton } from 'app/atoms/IconButton';
 import { EvmNetworkLogo, NetworkLogoFallback } from 'app/atoms/NetworkLogo';
 import { TezosNetworkLogo } from 'app/atoms/NetworksLogos';
 import { PageModal } from 'app/atoms/PageModal';
@@ -524,7 +524,7 @@ const SelectNetworkPage: FC<SelectNetworkPageProps> = ({ selectedChain, setSelec
       <div className="flex gap-x-2 p-4">
         <SearchBarField value={searchValue} onValueChange={setSearchValue} />
 
-        <IconButton Icon={PlusIcon} color="blue" onClick={() => void navigate('settings/networks')} />
+        <StayActiveIconButton Icon={PlusIcon} color="blue" onClick={() => void navigate('settings/networks')} />
       </div>
 
       <div className="px-4 flex-1 flex flex-col overflow-y-auto">

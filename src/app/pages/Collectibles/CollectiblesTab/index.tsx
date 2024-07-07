@@ -1,6 +1,6 @@
 import React, { memo, useEffect, useState } from 'react';
 
-import { useAssetsFilterOptionsState } from 'app/hooks/use-assets-filter-options';
+import { useAssetsFilterOptionsState } from 'app/hooks/use-assets-filter-options-state';
 import { ContentContainer } from 'app/layouts/containers';
 import { dispatch } from 'app/store';
 import { setAssetsFilterChain } from 'app/store/assets-filter-options/actions';

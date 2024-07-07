@@ -5,7 +5,13 @@ import { isNativeTokenAddress } from 'lib/apis/temple/endpoints/evm/api.utils';
 import { toTokenSlug } from 'lib/assets';
 import { isPositiveCollectibleBalance, isPositiveTokenBalance } from 'lib/utils/evm.utils';
 
-import { processLoadedEvmAssetsAction, putNewEvmCollectibleAction, putNewEvmTokenAction } from './actions';
+import {
+  processLoadedEvmAssetsAction,
+  putNewEvmCollectibleAction,
+  putNewEvmTokenAction,
+  setEvmCollectibleStatusAction,
+  setEvmTokenStatusAction
+} from './actions';
 import { EvmAssetsInitialState, EvmAssetsStateInterface } from './state';
 import { getChainRecords } from './utils';
 
@@ -42,6 +48,24 @@ export const evmAssetsReducer = createReducer<EvmAssetsStateInterface>(EvmAssets
       const stored = chainTokens[slug];
       if (!stored) chainTokens[slug] = { status: 'idle' };
     }
+  });
+
+  builder.addCase(setEvmTokenStatusAction, ({ tokens }, { payload }) => {
+    const { account, chainId, slug, status } = payload;
+
+    const chainTokens = getChainRecords(tokens, account, chainId);
+    const token = chainTokens[slug];
+
+    if (token) token.status = status;
+  });
+
+  builder.addCase(setEvmCollectibleStatusAction, ({ collectibles }, { payload }) => {
+    const { account, chainId, slug, status } = payload;
+
+    const chainCollectibles = getChainRecords(collectibles, account, chainId);
+    const collectible = chainCollectibles[slug];
+
+    if (collectible) collectible.status = status;
   });
 
   builder.addCase(putNewEvmTokenAction, ({ tokens }, { payload }) => {

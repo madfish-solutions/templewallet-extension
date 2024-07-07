@@ -4,10 +4,10 @@ import { isEqual } from 'lodash';
 
 import { SyncSpinner } from 'app/atoms';
 import { FilterButton } from 'app/atoms/FilterButton';
-import { IconButton } from 'app/atoms/IconButton';
+import { StayActiveIconButton } from 'app/atoms/IconButton';
 import { ScrollBackUpButton } from 'app/atoms/ScrollBackUpButton';
 import { SimpleInfiniteScroll } from 'app/atoms/SimpleInfiniteScroll';
-import { useAssetsFilterOptionsState } from 'app/hooks/use-assets-filter-options';
+import { useAssetsFilterOptionsState } from 'app/hooks/use-assets-filter-options-state';
 import { useTezosAccountCollectiblesListingLogic } from 'app/hooks/use-collectibles-listing-logic';
 import { ReactComponent as ManageIcon } from 'app/icons/base/manage.svg';
 import { ContentContainer, StickyBar } from 'app/layouts/containers';
@@ -84,7 +84,7 @@ export const TezosCollectiblesTab = memo<TezosCollectiblesTabProps>(({ publicKey
 
         <FilterButton ref={filterButtonRef} active={filtersOpened} onClick={toggleFiltersOpened} />
 
-        <IconButton Icon={ManageIcon} />
+        <StayActiveIconButton Icon={ManageIcon} />
       </StickyBar>
 
       {filtersOpened ? (

@@ -2,7 +2,7 @@ import React, { FC, memo } from 'react';
 
 import { ActionListItem } from 'app/atoms/ActionListItem';
 import { ActionsDropdownPopup } from 'app/atoms/ActionsDropdown';
-import { IconButton } from 'app/atoms/IconButton';
+import { StayActiveIconButton } from 'app/atoms/IconButton';
 import { ReactComponent as AddAccIcon } from 'app/icons/base/add_acc.svg';
 import { ReactComponent as ImportedIcon } from 'app/icons/base/imported.svg';
 import { ReactComponent as LedgerIcon } from 'app/icons/base/ledger2.svg';
@@ -34,7 +34,7 @@ const NewWalletActionsDropdown = memo<PopperRenderProps>(({ opened }) => (
 export const NewWalletActionsPopper: FC = () => (
   <Popper placement="bottom-end" strategy="fixed" popup={props => <NewWalletActionsDropdown {...props} />}>
     {({ ref, opened, toggleOpened }) => (
-      <IconButton Icon={PlusIcon} color="blue" ref={ref} active={opened} onClick={toggleOpened} />
+      <StayActiveIconButton Icon={PlusIcon} color="blue" ref={ref} active={opened} onClick={toggleOpened} />
     )}
   </Popper>
 );

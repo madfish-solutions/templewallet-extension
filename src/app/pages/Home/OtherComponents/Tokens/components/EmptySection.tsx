@@ -13,8 +13,8 @@ export const EmptySection = memo(() => {
 
   return (
     <>
-      <div className="flex flex-col items-center">
-        <div className="my-9 py-7 flex flex-col items-center justify-center text-grey-2">
+      <div className="w-full h-full flex flex-col items-center">
+        <div className="flex-1 py-7 flex flex-col items-center justify-center text-grey-2">
           <EmptySearchIcon />
 
           <p className="mt-2 text-center text-font-medium-bold">
@@ -22,7 +22,7 @@ export const EmptySection = memo(() => {
           </p>
         </div>
         <Button
-          className="w-fit flex flex-row px-2 py-1 bg-secondary-low rounded-md text-font-description-bold text-secondary"
+          className="w-fit flex flex-row mb-8 px-2 py-1 bg-secondary-low rounded-md text-font-description-bold text-secondary"
           onClick={setAddTokenModalOpen}
         >
           <IconBase Icon={AddIcon} size={12} className="stroke-current" />

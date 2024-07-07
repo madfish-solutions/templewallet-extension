@@ -47,10 +47,6 @@ export const AssetsFilterOptions = memo<AssetsFilterOptionsProps>(({ filterButto
   const contentPaperRef = useContentPaperRef();
   const assetsSegmentControlRef = useAssetsSegmentControlRef();
 
-  useEffect(() => {
-    if (filterChain) dispatch(setTokensGroupByNetworkFilterOption(false));
-  }, [filterChain]);
-
   useOnClickOutside(
     containerRef,
     networksModalOpened
@@ -69,6 +65,10 @@ export const AssetsFilterOptions = memo<AssetsFilterOptionsProps>(({ filterButto
           }
         }
   );
+
+  useEffect(() => {
+    if (filterChain) dispatch(setTokensGroupByNetworkFilterOption(false));
+  }, [filterChain]);
 
   const handleResetAllClick = useCallback(() => dispatch(resetTokensFilterOptions()), []);
 

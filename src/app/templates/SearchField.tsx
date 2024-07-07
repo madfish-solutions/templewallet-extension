@@ -1,4 +1,4 @@
-import React, { FC, InputHTMLAttributes, memo, useCallback, useRef, useState } from 'react';
+import React, { forwardRef, InputHTMLAttributes, memo, useCallback, useRef, useState } from 'react';
 
 import { emptyFn } from '@rnw-community/shared';
 import clsx from 'clsx';
@@ -7,6 +7,7 @@ import { IconBase } from 'app/atoms';
 import CleanButton, { CLEAN_BUTTON_ID } from 'app/atoms/CleanButton';
 import { ReactComponent as SearchIcon } from 'app/icons/base/search.svg';
 import { setTestID, TestIDProps } from 'lib/analytics';
+import { combineRefs } from 'lib/ui/utils';
 
 interface Props extends InputHTMLAttributes<HTMLInputElement>, TestIDProps {
   value: string;
@@ -16,107 +17,115 @@ interface Props extends InputHTMLAttributes<HTMLInputElement>, TestIDProps {
   onCleanButtonClick?: () => void;
 }
 
-const SearchField: FC<Props> = ({
-  bottomOffset = '0.45rem',
-  className,
-  containerClassName,
-  value,
-  placeholder,
-  onValueChange,
-  onFocus = emptyFn,
-  onBlur = emptyFn,
-  onCleanButtonClick = emptyFn,
-  testID,
-  ...rest
-}) => {
-  const inputRef = useRef<HTMLInputElement | null>(null);
-  const [focused, setFocused] = useState(false);
-
-  const handleChange = useCallback(
-    (evt: React.ChangeEvent<HTMLInputElement>) => {
-      onValueChange(evt.target.value);
+const SearchField = forwardRef<HTMLInputElement, Props>(
+  (
+    {
+      bottomOffset = '0.45rem',
+      className,
+      containerClassName,
+      value,
+      placeholder,
+      onValueChange,
+      onFocus = emptyFn,
+      onBlur = emptyFn,
+      onCleanButtonClick = emptyFn,
+      testID,
+      ...rest
     },
-    [onValueChange]
-  );
+    ref
+  ) => {
+    const inputLocalRef = useRef<HTMLInputElement | null>(null);
+    const [focused, setFocused] = useState(false);
 
-  const handleFocus = useCallback(
-    (evt: React.FocusEvent<HTMLInputElement>) => {
-      setFocused(true);
-      onFocus(evt);
-    },
-    [onFocus]
-  );
+    const handleChange = useCallback(
+      (evt: React.ChangeEvent<HTMLInputElement>) => {
+        onValueChange(evt.target.value);
+      },
+      [onValueChange]
+    );
 
-  const handleBlur = useCallback(
-    (evt: React.FocusEvent<HTMLInputElement>) => {
-      if (evt.relatedTarget?.id === CLEAN_BUTTON_ID) {
-        return;
+    const handleFocus = useCallback(
+      (evt: React.FocusEvent<HTMLInputElement>) => {
+        setFocused(true);
+        onFocus(evt);
+      },
+      [onFocus]
+    );
+
+    const handleBlur = useCallback(
+      (evt: React.FocusEvent<HTMLInputElement>) => {
+        if (evt.relatedTarget?.id === CLEAN_BUTTON_ID) {
+          return;
+        }
+
+        setFocused(false);
+        onBlur(evt);
+      },
+      [onBlur]
+    );
+
+    const handleClean = useCallback(() => {
+      if (value) {
+        inputLocalRef.current?.focus();
+        onValueChange('');
+      } else {
+        inputLocalRef.current?.blur();
+        setFocused(false);
       }
 
-      setFocused(false);
-      onBlur(evt);
-    },
-    [onBlur]
-  );
+      onCleanButtonClick();
+    }, [onCleanButtonClick, onValueChange, value]);
 
-  const handleClean = useCallback(() => {
-    if (value) {
-      inputRef.current?.focus();
-      onValueChange('');
-    } else {
-      inputRef.current?.blur();
-      setFocused(false);
-    }
+    const notEmpty = Boolean(focused || value);
 
-    onCleanButtonClick();
-  }, [onCleanButtonClick, onValueChange, value]);
+    return (
+      <div className={clsx('group relative', containerClassName)}>
+        <input
+          ref={combineRefs(inputLocalRef, ref)}
+          type="text"
+          className={clsx('appearance-none w-full py-2 px-8 text-font-description', className)}
+          value={value}
+          spellCheck={false}
+          autoComplete="off"
+          placeholder={focused ? undefined : placeholder}
+          onFocus={handleFocus}
+          onBlur={handleBlur}
+          onChange={handleChange}
+          {...setTestID(testID)}
+          {...rest}
+        />
 
-  const notEmpty = Boolean(focused || value);
+        <IconBase
+          Icon={SearchIcon}
+          size={12}
+          className={clsx(
+            'group-hover:text-primary absolute left-3 top-2 pointer-events-none',
+            notEmpty ? 'text-primary' : 'text-grey-1'
+          )}
+        />
 
-  return (
-    <div className={clsx('group relative', containerClassName)}>
-      <input
-        ref={inputRef}
-        type="text"
-        className={clsx('appearance-none w-full py-2 px-8 text-font-description', className)}
-        value={value}
-        spellCheck={false}
-        autoComplete="off"
-        placeholder={focused ? undefined : placeholder}
-        onFocus={handleFocus}
-        onBlur={handleBlur}
-        onChange={handleChange}
-        {...setTestID(testID)}
-        {...rest}
-      />
-
-      <IconBase
-        Icon={SearchIcon}
-        size={12}
-        className={clsx(
-          'group-hover:text-primary absolute left-3 top-2 pointer-events-none',
-          notEmpty ? 'text-primary' : 'text-grey-1'
-        )}
-      />
-
-      {notEmpty && <CleanButton className="absolute right-3 bottom-2" onClick={handleClean} />}
-    </div>
-  );
-};
+        {notEmpty && <CleanButton className="absolute right-3 bottom-2" onClick={handleClean} />}
+      </div>
+    );
+  }
+);
 
 export default SearchField;
 
-export const SearchBarField = memo<Props>(({ className, containerClassName, value, ...rest }) => (
-  <SearchField
-    value={value}
-    className={clsx(
-      'bg-input-low rounded-lg',
-      'placeholder-grey-1 hover:placeholder-text caret-primary',
-      'transition ease-in-out duration-200',
-      className
-    )}
-    containerClassName={clsx('flex-1 mr-2', containerClassName)}
-    placeholder="Search"
-    {...rest}
-  />
-));
+export const SearchBarField = memo(
+  forwardRef<HTMLInputElement, Props>(({ className, containerClassName, value, ...rest }, ref) => (
+    <SearchField
+      ref={ref}
+      value={value}
+      className={clsx(
+        'bg-input-low rounded-lg',
+        'placeholder-grey-1 hover:placeholder-text caret-primary',
+        'transition ease-in-out duration-200',
+        className
+      )}
+      containerClassName={clsx('flex-1 mr-2', containerClassName)}
+      placeholder="Search"
+      {...rest}
+    />
+  ))
+);
