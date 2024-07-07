@@ -152,15 +152,7 @@ const AccountDropdown: FC<AccountDropdownProps> = ({ opened, setOpened }) => {
   }, [opened, searchValue]);
 
   return (
-    <DropdownWrapper
-      opened={opened}
-      design="dark"
-      className="origin-top-right p-2 w-64"
-      style={{
-        transform: 'translate(3.25rem, 3.25rem)',
-        pointerEvents: 'all'
-      }}
-    >
+    <DropdownWrapper opened={opened} design="dark" className="origin-top-right p-2 w-64">
       <div className="flex items-center mb-2">
         <h3 className="flex items-center text-sm text-white opacity-20">
           <T id="accounts" />
