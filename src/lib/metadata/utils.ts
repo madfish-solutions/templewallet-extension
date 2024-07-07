@@ -3,7 +3,13 @@ import { isString, pick } from 'lodash';
 import type { TokenMetadataResponse, WhitelistResponseToken } from 'lib/apis/temple';
 import { TEZOS_SYMBOL } from 'lib/assets';
 
-import { AssetMetadataBase, TokenMetadata, TezosTokenStandardsEnum, EvmTokenMetadata } from './types';
+import {
+  AssetMetadataBase,
+  TokenMetadata,
+  TezosTokenStandardsEnum,
+  EvmTokenMetadata,
+  EvmCollectibleMetadata
+} from './types';
 
 export function getAssetSymbol(metadata: EvmTokenMetadata | AssetMetadataBase | nullish, short = false) {
   if (!metadata || !metadata.symbol) return '???';
@@ -11,8 +17,16 @@ export function getAssetSymbol(metadata: EvmTokenMetadata | AssetMetadataBase | 
   return metadata.symbol === 'tez' ? TEZOS_SYMBOL : metadata.symbol.substring(0, 5);
 }
 
-export function getAssetName(metadata: EvmTokenMetadata | AssetMetadataBase | nullish) {
+export function getTokenName(metadata: EvmTokenMetadata | AssetMetadataBase | nullish) {
   return metadata?.name ? metadata.name : 'Unknown Token';
+}
+
+export function getCollectibleName(metadata: EvmCollectibleMetadata | nullish) {
+  return metadata?.collectibleName ? metadata.collectibleName : 'Unknown Collectible';
+}
+
+export function getCollectionName(metadata: EvmCollectibleMetadata | nullish) {
+  return metadata?.name ? metadata.name : 'Unknown Collection';
 }
 
 /** Empty string for `artifactUri` counts */

@@ -1,24 +1,34 @@
-import React, { memo, useMemo, useRef } from 'react';
+import React, { memo, useCallback, useMemo, useRef } from 'react';
 
 import { isDefined } from '@rnw-community/shared';
 import clsx from 'clsx';
 
+import { IconBase, ToggleSwitch } from 'app/atoms';
 import Money from 'app/atoms/Money';
 import { EvmNetworkLogo, NetworkLogoFallback } from 'app/atoms/NetworkLogo';
 import { TezosNetworkLogo } from 'app/atoms/NetworksLogos';
+import { ReactComponent as DeleteIcon } from 'app/icons/base/delete.svg';
+import { dispatch } from 'app/store';
+import { setEvmCollectibleStatusAction } from 'app/store/evm/assets/actions';
+import { useStoredEvmCollectibleSelector } from 'app/store/evm/assets/selectors';
 import { useBalanceSelector } from 'app/store/tezos/balances/selectors';
 import {
   useAllCollectiblesDetailsLoadingSelector,
   useCollectibleDetailsSelector
 } from 'app/store/tezos/collectibles/selectors';
 import { useCollectibleMetadataSelector } from 'app/store/tezos/collectibles-metadata/selectors';
+import { DeleteAssetModal } from 'app/templates/remove-asset-modal/delete-asset-modal';
 import { setAnotherSelector, setTestID } from 'lib/analytics';
 import { objktCurrencies } from 'lib/apis/objkt';
+import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
+import { getAssetStatus } from 'lib/assets/hooks/utils';
 import { useEvmCollectibleBalance } from 'lib/balances/hooks';
 import { T } from 'lib/i18n';
-import { getAssetName } from 'lib/metadata';
+import { getTokenName } from 'lib/metadata';
+import { getCollectibleName, getCollectionName } from 'lib/metadata/utils';
 import { atomsToTokens } from 'lib/temple/helpers';
 import { TEZOS_MAINNET_CHAIN_ID } from 'lib/temple/types';
+import { useBooleanState } from 'lib/ui/hooks';
 import useTippy, { UseTippyOptions } from 'lib/ui/useTippy';
 import { Link } from 'lib/woozie';
 import { useEvmChainByChainId, useTezosChainByChainId } from 'temple/front/chains';
@@ -33,6 +43,7 @@ import { CollectibleItemImage, EvmCollectibleItemImage } from './CollectibleItem
 const ImgContainerStyle = { width: 112, height: 112 };
 const ImgWithDetailsContainerStyle = { width: 112, height: 152 };
 const ImgStyle = { width: 110, height: 110 };
+const manageImgStyle = { width: 42, height: 42 };
 const DetailsStyle = { width: 112, height: 40 };
 const NETWORK_IMAGE_DEFAULT_SIZE = 16;
 
@@ -95,7 +106,7 @@ export const TezosCollectibleItem = memo<TezosCollectibleItemProps>(
 
     if (hideWithoutMeta && !metadata) return null;
 
-    const assetName = getAssetName(metadata);
+    const assetName = getTokenName(metadata);
 
     return (
       <Link
@@ -174,11 +185,45 @@ interface EvmCollectibleItemProps {
   evmChainId: number;
   accountPkh: HexString;
   showDetails?: boolean;
+  manageActive?: boolean;
 }
 
 export const EvmCollectibleItem = memo<EvmCollectibleItemProps>(
-  ({ assetSlug, evmChainId, accountPkh, showDetails = false }) => {
+  ({ assetSlug, evmChainId, accountPkh, showDetails = false, manageActive = false }) => {
     const { rawValue: balance = '0', metadata } = useEvmCollectibleBalance(assetSlug, accountPkh, evmChainId);
+
+    const storedToken = useStoredEvmCollectibleSelector(accountPkh, evmChainId, assetSlug);
+
+    const checked = getAssetStatus(balance, storedToken?.status) === 'enabled';
+    const isNativeToken = assetSlug === EVM_TOKEN_SLUG;
+
+    const [deleteModalOpened, setDeleteModalOpened, setDeleteModalClosed] = useBooleanState(false);
+
+    const deleteItem = useCallback(
+      () =>
+        void dispatch(
+          setEvmCollectibleStatusAction({
+            account: accountPkh,
+            chainId: evmChainId,
+            slug: assetSlug,
+            status: 'removed'
+          })
+        ),
+      [assetSlug, evmChainId, accountPkh]
+    );
+
+    const toggleTokenStatus = useCallback(
+      () =>
+        void dispatch(
+          setEvmCollectibleStatusAction({
+            account: accountPkh,
+            chainId: evmChainId,
+            slug: assetSlug,
+            status: checked ? 'disabled' : 'enabled'
+          })
+        ),
+      [checked, assetSlug, evmChainId, accountPkh]
+    );
 
     const truncatedBalance = useMemo(() => (balance.length > 6 ? `${balance.slice(0, 6)}...` : balance), [balance]);
 
@@ -204,9 +249,61 @@ export const EvmCollectibleItem = memo<EvmCollectibleItemProps>(
 
     if (!metadata) return null;
 
-    const assetName = getAssetName(metadata);
+    const assetName = getCollectibleName(metadata);
+    const collectionName = getCollectionName(metadata);
 
-    return (
+    return manageActive ? (
+      <>
+        <div
+          className={clsx(
+            'flex flex-row items-center justify-between w-full overflow-hidden p-2 rounded-lg',
+            'hover:bg-secondary-low transition ease-in-out duration-200 focus:outline-none',
+            'focus:bg-secondary-low'
+          )}
+        >
+          <div className="flex flex-row items-center gap-x-1.5">
+            <div
+              className={clsx(
+                'relative flex items-center justify-center bg-blue-50 rounded-lg overflow-hidden hover:opacity-70'
+              )}
+              style={manageImgStyle}
+            >
+              <EvmCollectibleItemImage metadata={metadata} />
+
+              {network && (
+                <EvmNetworkLogo
+                  ref={networkIconRef}
+                  className="absolute bottom-0.5 right-0.5"
+                  networkName={network.name}
+                  chainId={network.chainId}
+                  size={NETWORK_IMAGE_DEFAULT_SIZE}
+                />
+              )}
+            </div>
+
+            <div className="flex flex-col truncate max-w-40">
+              <div className="text-font-medium mb-1">{assetName}</div>
+              <div className="flex text-font-description items-center text-grey-1 flex-1">{collectionName}</div>
+            </div>
+          </div>
+
+          <div className="flex flex-row gap-x-2">
+            <IconBase
+              Icon={DeleteIcon}
+              size={16}
+              className={isNativeToken ? 'text-disable' : 'cursor-pointer text-primary'}
+              onClick={isNativeToken ? undefined : setDeleteModalOpened}
+            />
+            <ToggleSwitch
+              checked={isNativeToken ? true : checked}
+              disabled={assetSlug === EVM_TOKEN_SLUG}
+              onChange={toggleTokenStatus}
+            />
+          </div>
+        </div>
+        {deleteModalOpened && <DeleteAssetModal onClose={setDeleteModalClosed} onDelete={deleteItem} />}
+      </>
+    ) : (
       <Link
         to={toCollectibleLink(TempleChainKind.EVM, evmChainId, assetSlug)}
         className="flex flex-col border border-gray-300 rounded-lg overflow-hidden"

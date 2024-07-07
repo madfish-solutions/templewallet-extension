@@ -14,7 +14,7 @@ import { setAnotherSelector } from 'lib/analytics';
 import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
 import { getAssetStatus } from 'lib/assets/hooks/utils';
 import { useEvmTokenBalance, useTezosAssetBalance } from 'lib/balances/hooks';
-import { getAssetName, getAssetSymbol } from 'lib/metadata';
+import { getTokenName, getAssetSymbol } from 'lib/metadata';
 import { useBooleanState } from 'lib/ui/hooks';
 import { ZERO } from 'lib/utils/numbers';
 import { Link } from 'lib/woozie';
@@ -52,7 +52,7 @@ export const TezosListItem = memo<TezosListItemProps>(({ network, publicKeyHash,
   if (metadata == null) return null;
 
   const assetSymbol = getAssetSymbol(metadata);
-  const assetName = getAssetName(metadata);
+  const assetName = getTokenName(metadata);
 
   return (
     <Link
@@ -123,8 +123,6 @@ export const EvmListItem = memo<EvmListItemProps>(({ chainId, publicKeyHash, ass
 
   const [deleteModalOpened, setDeleteModalOpened, setDeleteModalClosed] = useBooleanState(false);
 
-  const LinkOrDiv = useMemo(() => (manageActive ? 'div' : Link), [manageActive]);
-
   const deleteItem = useCallback(
     () =>
       void dispatch(
@@ -154,72 +152,82 @@ export const EvmListItem = memo<EvmListItemProps>(({ chainId, publicKeyHash, ass
   if (metadata == null) return null;
 
   const assetSymbol = getAssetSymbol(metadata);
-  const assetName = getAssetName(metadata);
+  const assetName = getTokenName(metadata);
 
-  return (
+  return manageActive ? (
     <>
-      <LinkOrDiv
-        to={toExploreAssetLink(TempleChainKind.EVM, chainId, assetSlug)}
+      <div
         className={clsx(
           'relative w-full overflow-hidden flex items-center p-2 rounded-lg',
           'hover:bg-secondary-low transition ease-in-out duration-200 focus:outline-none',
-          'focus:bg-secondary-low group'
+          'focus:bg-secondary-low'
         )}
-        testID={AssetsSelectors.assetItemButton}
-        testIDProperties={{ key: assetSlug }}
-        {...setAnotherSelector('name', assetName)}
       >
         <EvmTokenIconWithNetwork evmChainId={chainId} assetSlug={assetSlug} className="mr-1 flex-shrink-0" />
 
         <div className={clsx('w-full', styles.tokenInfoWidth)}>
-          {manageActive ? (
-            <div className="flex items-center justify-between w-full">
-              <div>
-                <div className="text-font-medium mb-1">{assetSymbol}</div>
-                <div className="flex text-font-description items-center text-grey-1 truncate flex-1">{assetName}</div>
-              </div>
-              <div className="flex flex-row gap-x-2">
-                <IconBase
-                  Icon={DeleteIcon}
-                  size={16}
-                  className={isNativeToken ? 'text-disable' : 'cursor-pointer text-primary'}
-                  onClick={isNativeToken ? undefined : setDeleteModalOpened}
-                />
-                <ToggleSwitch
-                  checked={isNativeToken ? true : checked}
-                  disabled={assetSlug === EVM_TOKEN_SLUG}
-                  onChange={toggleTokenStatus}
-                />
-              </div>
+          <div className="flex items-center justify-between w-full">
+            <div className="truncate max-w-36">
+              <div className="text-font-medium mb-1">{assetSymbol}</div>
+              <div className="flex text-font-description items-center text-grey-1 flex-1">{assetName}</div>
             </div>
-          ) : (
-            <>
-              <div className="flex justify-between w-full mb-1">
-                <div className="flex items-center flex-initial">
-                  <div className="text-font-medium">{assetSymbol}</div>
-                </div>
-                <CryptoBalance
-                  value={balance}
-                  testID={AssetsSelectors.assetItemCryptoBalanceButton}
-                  testIDProperties={{ assetSlug }}
-                />
-              </div>
-              <div className="flex justify-between w-full">
-                <div className="flex text-font-description items-center text-grey-1 truncate flex-1">{assetName}</div>
-                <FiatBalance
-                  evm
-                  chainId={chainId}
-                  assetSlug={assetSlug}
-                  value={balance}
-                  testID={AssetsSelectors.assetItemFiatBalanceButton}
-                  testIDProperties={{ assetSlug }}
-                />
-              </div>
-            </>
-          )}
+            <div className="flex flex-row gap-x-2">
+              <IconBase
+                Icon={DeleteIcon}
+                size={16}
+                className={isNativeToken ? 'text-disable' : 'cursor-pointer text-primary'}
+                onClick={isNativeToken ? undefined : setDeleteModalOpened}
+              />
+              <ToggleSwitch
+                checked={isNativeToken ? true : checked}
+                disabled={assetSlug === EVM_TOKEN_SLUG}
+                onChange={toggleTokenStatus}
+              />
+            </div>
+          </div>
         </div>
-      </LinkOrDiv>
+      </div>
       {deleteModalOpened && <DeleteAssetModal onClose={setDeleteModalClosed} onDelete={deleteItem} />}
     </>
+  ) : (
+    <Link
+      to={toExploreAssetLink(TempleChainKind.EVM, chainId, assetSlug)}
+      className={clsx(
+        'relative w-full overflow-hidden flex items-center p-2 rounded-lg',
+        'hover:bg-secondary-low transition ease-in-out duration-200 focus:outline-none',
+        'focus:bg-secondary-low group'
+      )}
+      testID={AssetsSelectors.assetItemButton}
+      testIDProperties={{ key: assetSlug }}
+      {...setAnotherSelector('name', assetName)}
+    >
+      <EvmTokenIconWithNetwork evmChainId={chainId} assetSlug={assetSlug} className="mr-1 flex-shrink-0" />
+
+      <div className={clsx('w-full', styles.tokenInfoWidth)}>
+        <div className="flex justify-between w-full mb-1">
+          <div className="flex items-center flex-initial">
+            <div className="text-font-medium truncate max-w-36">{assetSymbol}</div>
+          </div>
+          <CryptoBalance
+            value={balance}
+            testID={AssetsSelectors.assetItemCryptoBalanceButton}
+            testIDProperties={{ assetSlug }}
+          />
+        </div>
+        <div className="flex justify-between w-full">
+          <div className="flex text-font-description items-center text-grey-1 truncate max-w-36 flex-1">
+            {assetName}
+          </div>
+          <FiatBalance
+            evm
+            chainId={chainId}
+            assetSlug={assetSlug}
+            value={balance}
+            testID={AssetsSelectors.assetItemFiatBalanceButton}
+            testIDProperties={{ assetSlug }}
+          />
+        </div>
+      </div>
+    </Link>
   );
 });

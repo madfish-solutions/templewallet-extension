@@ -3,7 +3,7 @@ import React, { FC } from 'react';
 import Money from 'app/atoms/Money';
 import { TezosBalance } from 'app/templates/Balance';
 import InFiat from 'app/templates/InFiat';
-import { AssetMetadataBase, useTezosAssetMetadata, getAssetName, getAssetSymbol } from 'lib/metadata';
+import { AssetMetadataBase, useTezosAssetMetadata, getTokenName, getAssetSymbol } from 'lib/metadata';
 import { TezosNetworkEssentials } from 'temple/networks';
 
 interface Props {
@@ -47,7 +47,7 @@ const AssetItemContentComponent: FC<AssetItemContentComponentProps> = ({
   <>
     <div className="flex flex-col items-start mr-2 leading-none">
       <span className="text-gray-910 text-lg mb-2">{getAssetSymbol(metadata)}</span>
-      <span className="text-gray-600 text-xs">{getAssetName(metadata)}</span>
+      <span className="text-gray-600 text-xs">{getTokenName(metadata)}</span>
     </div>
 
     <div className="flex-1 flex flex-col items-end text-right leading-none">

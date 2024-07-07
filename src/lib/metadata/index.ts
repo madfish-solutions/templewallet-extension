@@ -24,7 +24,7 @@ import { TEZOS_METADATA, FILM_METADATA } from './defaults';
 import { AssetMetadataBase, TokenMetadata } from './types';
 
 export type { AssetMetadataBase, TokenMetadata } from './types';
-export { isCollectible, isCollectibleTokenMetadata, getAssetSymbol, getAssetName } from './utils';
+export { isCollectible, isCollectibleTokenMetadata, getAssetSymbol, getTokenName } from './utils';
 
 export { TEZOS_METADATA };
 

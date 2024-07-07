@@ -23,7 +23,7 @@ import { fromAssetSlug } from 'lib/assets';
 import { TEZOS_BLOCK_DURATION } from 'lib/fixed-times';
 import { t, T } from 'lib/i18n';
 import { buildTokenImagesStack } from 'lib/images-uri';
-import { getAssetName } from 'lib/metadata';
+import { getTokenName } from 'lib/metadata';
 import { useRetryableSWR } from 'lib/swr';
 import { atomsToTokens } from 'lib/temple/helpers';
 import { TempleAccountType } from 'lib/temple/types';
@@ -180,7 +180,7 @@ const TezosCollectiblePage = memo<TezosCollectiblePageProps>(({ tezosChainId, as
 
   const areDetailsLoading = areAnyCollectiblesDetailsLoading && details === undefined;
 
-  const collectibleName = getAssetName(metadata);
+  const collectibleName = getTokenName(metadata);
 
   const collection = useMemo(
     () =>

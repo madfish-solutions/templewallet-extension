@@ -8,7 +8,7 @@ import { ManageAssetsSelectors } from 'app/pages/ManageAssets/selectors';
 import { TezosAssetIcon } from 'app/templates/AssetIcon';
 import { setAnotherSelector, setTestID } from 'lib/analytics';
 import { t } from 'lib/i18n';
-import { getAssetName, getAssetSymbol, AssetMetadataBase } from 'lib/metadata';
+import { getTokenName, getAssetSymbol, AssetMetadataBase } from 'lib/metadata';
 
 interface Props {
   tezosChainId: string;
@@ -47,7 +47,7 @@ export const ListItem = memo<Props>(({ tezosChainId, assetSlug, metadata, last, 
 
       <div className="flex items-center max-w-56">
         <div className="flex flex-col items-start w-full">
-          <div className="text-sm font-normal text-gray-700 truncate w-full m-b-0.5">{getAssetName(metadata)}</div>
+          <div className="text-sm font-normal text-gray-700 truncate w-full m-b-0.5">{getTokenName(metadata)}</div>
 
           <div className="text-xs font-light text-gray-600 truncate w-full">{getAssetSymbol(metadata)}</div>
         </div>
