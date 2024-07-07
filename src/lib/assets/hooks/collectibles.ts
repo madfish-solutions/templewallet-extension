@@ -8,7 +8,7 @@ import {
   useRawEvmAccountBalancesSelector,
   useRawEvmChainAccountBalancesSelector
 } from 'app/store/evm/balances/selectors';
-import { useAccountCollectiblesSelector, useAllCollectiblesSelector } from 'app/store/tezos/assets/selectors';
+import { useChainAccountCollectiblesSelector, useAllCollectiblesSelector } from 'app/store/tezos/assets/selectors';
 import { getAccountAssetsStoreKey } from 'app/store/tezos/assets/utils';
 import { useAllAccountBalancesSelector, useBalancesAtomicRecordSelector } from 'app/store/tezos/balances/selectors';
 import { getKeyForBalancesRecord } from 'app/store/tezos/balances/utils';
@@ -89,7 +89,7 @@ export const useEnabledAccountChainCollectiblesSlugs = (accountTezAddress: strin
 };
 
 export const useTezosChainAccountCollectibles = (account: string, chainId: string) => {
-  const stored = useAccountCollectiblesSelector(account, chainId);
+  const stored = useChainAccountCollectiblesSelector(account, chainId);
 
   const balances = useAllAccountBalancesSelector(account, chainId);
 

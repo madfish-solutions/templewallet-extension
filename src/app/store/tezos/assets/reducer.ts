@@ -6,8 +6,8 @@ import { storageConfig, createTransformsBeforePersist } from 'lib/store';
 
 import {
   loadTokensWhitelistActions,
-  setTokenStatusAction,
-  setCollectibleStatusAction,
+  setTezosTokenStatusAction,
+  setTezosCollectibleStatusAction,
   putTokensAsIsAction,
   putCollectiblesAsIsAction,
   loadTokensScamlistActions,
@@ -25,7 +25,7 @@ const assetsReducer = createReducer<SliceState>(initialState, builder => {
     if (payload.resetError) delete assets.error;
   });
 
-  builder.addCase(setTokenStatusAction, (state, { payload: { account, chainId, slug, status } }) => {
+  builder.addCase(setTezosTokenStatusAction, (state, { payload: { account, chainId, slug, status } }) => {
     const records = state.tokens.data;
     const key = getAccountAssetsStoreKey(account, chainId);
     const token = records[key]?.[slug];
@@ -33,7 +33,7 @@ const assetsReducer = createReducer<SliceState>(initialState, builder => {
     if (token) token.status = status;
   });
 
-  builder.addCase(setCollectibleStatusAction, (state, { payload: { account, chainId, slug, status } }) => {
+  builder.addCase(setTezosCollectibleStatusAction, (state, { payload: { account, chainId, slug, status } }) => {
     const records = state.collectibles.data;
     const key = getAccountAssetsStoreKey(account, chainId);
     const collectible = records[key]?.[slug];

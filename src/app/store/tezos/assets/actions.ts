@@ -28,9 +28,9 @@ export const setAssetsIsLoadingAction = createAction<{
 
 type SetAssetStatusPayload = TezosAccountAssetForStore;
 
-export const setTokenStatusAction = createAction<SetAssetStatusPayload>('assets/SET_TOKEN_STATUS');
+export const setTezosTokenStatusAction = createAction<SetAssetStatusPayload>('assets/SET_TOKEN_STATUS');
 
-export const setCollectibleStatusAction = createAction<SetAssetStatusPayload>('assets/SET_COLLECTIBLE_STATUS');
+export const setTezosCollectibleStatusAction = createAction<SetAssetStatusPayload>('assets/SET_COLLECTIBLE_STATUS');
 
 export type AssetToPut = TezosAccountAssetForStore & StoredTezosAsset;
 

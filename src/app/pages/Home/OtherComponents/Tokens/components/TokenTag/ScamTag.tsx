@@ -5,7 +5,7 @@ import clsx from 'clsx';
 import { Button } from 'app/atoms/Button';
 import { AssetsSelectors } from 'app/pages/Home/OtherComponents/Assets.selectors';
 import { dispatch } from 'app/store';
-import { setTokenStatusAction } from 'app/store/tezos/assets/actions';
+import { setTezosTokenStatusAction } from 'app/store/tezos/assets/actions';
 import { t, T } from 'lib/i18n';
 import { useConfirm } from 'lib/ui/dialog';
 
@@ -32,7 +32,7 @@ export const ScamTag = memo<Props>(({ assetSlug, tezPkh, tezosChainId }) => {
 
         if (confirmed)
           dispatch(
-            setTokenStatusAction({
+            setTezosTokenStatusAction({
               account: tezPkh,
               chainId: tezosChainId,
               slug,

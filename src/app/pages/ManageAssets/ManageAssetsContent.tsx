@@ -5,7 +5,7 @@ import clsx from 'clsx';
 import { CaptionAlert } from 'app/atoms';
 import { ReactComponent as AddIcon } from 'app/icons/add-to-list.svg';
 import { dispatch } from 'app/store';
-import { setCollectibleStatusAction, setTokenStatusAction } from 'app/store/tezos/assets/actions';
+import { setTezosCollectibleStatusAction, setTezosTokenStatusAction } from 'app/store/tezos/assets/actions';
 import { SearchBarField } from 'app/templates/SearchField';
 import { AccountAsset } from 'lib/assets/types';
 import { t, T } from 'lib/i18n';
@@ -76,7 +76,7 @@ export const ManageAssetsContentList = memo<ManageAssetsContentListProps>(
 
           if (confirmed)
             dispatch(
-              (ofCollectibles ? setCollectibleStatusAction : setTokenStatusAction)({
+              (ofCollectibles ? setTezosCollectibleStatusAction : setTezosTokenStatusAction)({
                 account: publicKeyHash,
                 chainId,
                 slug,
@@ -94,7 +94,7 @@ export const ManageAssetsContentList = memo<ManageAssetsContentListProps>(
     const toggleTokenStatus = useCallback(
       (slug: string, toDisable: boolean) =>
         void dispatch(
-          (ofCollectibles ? setCollectibleStatusAction : setTokenStatusAction)({
+          (ofCollectibles ? setTezosCollectibleStatusAction : setTezosTokenStatusAction)({
             account: publicKeyHash,
             chainId,
             slug,

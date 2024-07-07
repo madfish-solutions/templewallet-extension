@@ -1,12 +1,16 @@
 import React, { FC, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
-import { SyncSpinner } from 'app/atoms';
+import useOnClickOutside from 'use-onclickoutside';
+
+import { IconBase, SyncSpinner } from 'app/atoms';
 import { FilterButton } from 'app/atoms/FilterButton';
-import { StayActiveIconButton } from 'app/atoms/IconButton';
+import { IconButton } from 'app/atoms/IconButton';
 import { DeadEndBoundaryError } from 'app/ErrorBoundary';
 import { useAssetsFilterOptionsState } from 'app/hooks/use-assets-filter-options-state';
 import { useLoadPartnersPromo } from 'app/hooks/use-load-partners-promo';
+import { useManageAssetsState } from 'app/hooks/use-manage-assets-state';
 import { useTezosChainAccountTokensListingLogic } from 'app/hooks/use-tokens-listing-logic';
+import { ReactComponent as InfoFillIcon } from 'app/icons/base/InfoFill.svg';
 import { ReactComponent as ManageIcon } from 'app/icons/base/manage.svg';
 import { ContentContainer, StickyBar } from 'app/layouts/containers';
 import { AssetsSelectors } from 'app/pages/Home/OtherComponents/Assets.selectors';
@@ -24,6 +28,9 @@ import { navigate } from 'lib/woozie';
 import { useTezosChainByChainId } from 'temple/front';
 import { TempleChainKind } from 'temple/types';
 
+import { T } from '../../../../../../lib/i18n';
+import { useAssetsSegmentControlRef } from '../../../../../atoms/AssetsSegmentControl';
+import { useContentPaperRef } from '../../../../../layouts/PageLayout';
 import { toExploreAssetLink } from '../utils';
 
 import { EmptySection } from './EmptySection';
@@ -41,7 +48,9 @@ export const TezosChainTokensTab: FC<TezosChainTokensTabProps> = ({ chainId, pub
   if (!network) throw new DeadEndBoundaryError();
 
   const { hideZeroBalance } = useTokensListOptionsSelector();
+
   const { filtersOpened, setFiltersClosed, toggleFiltersOpened } = useAssetsFilterOptionsState();
+  const { manageActive, setManageInactive, toggleManageActive } = useManageAssetsState();
 
   const assetsAreLoading = useAreAssetsLoading('tokens');
   const metadatasLoading = useTokensMetadataLoadingSelector();
@@ -81,6 +90,7 @@ export const TezosChainTokensTab: FC<TezosChainTokensTabProps> = ({ chainId, pub
         assetSlug={assetSlug}
         scam={mainnetTokensScamSlugsRecord[assetSlug]}
         active={activeAssetSlug ? assetSlug === activeAssetSlug : false}
+        manageActive={manageActive}
       />
     ));
 
@@ -100,7 +110,7 @@ export const TezosChainTokensTab: FC<TezosChainTokensTabProps> = ({ chainId, pub
     }
 
     return tokensJsx;
-  }, [network, filteredAssets, activeAssetSlug, publicKeyHash, mainnetTokensScamSlugsRecord]);
+  }, [network, filteredAssets, activeAssetSlug, publicKeyHash, mainnetTokensScamSlugsRecord, manageActive]);
 
   useLoadPartnersPromo(OptimalPromoVariantEnum.Token);
 
@@ -138,11 +148,38 @@ export const TezosChainTokensTab: FC<TezosChainTokensTabProps> = ({ chainId, pub
 
   const stickyBarRef = useRef<HTMLDivElement>(null);
   const filterButtonRef = useRef<HTMLButtonElement>(null);
+  const manageButtonRef = useRef<HTMLButtonElement>(null);
+  const searchInputRef = useRef<HTMLInputElement>(null);
+
+  const containerRef = useRef(null);
+  const contentPaperRef = useContentPaperRef();
+  const assetsSegmentControlRef = useAssetsSegmentControlRef();
+
+  useOnClickOutside(
+    containerRef,
+    manageActive
+      ? evt => {
+          const evtTarget = evt.target as Node;
+
+          const isManageButtonClick = Boolean(manageButtonRef.current && manageButtonRef.current.contains(evtTarget));
+          const isSearchInputClick = Boolean(searchInputRef.current && searchInputRef.current.contains(evtTarget));
+          const isSegmentControlClick = Boolean(
+            assetsSegmentControlRef.current && assetsSegmentControlRef.current.contains(evtTarget)
+          );
+          const isInsideContentClick = Boolean(contentPaperRef.current && contentPaperRef.current.contains(evtTarget));
+
+          if (!isSearchInputClick && !isManageButtonClick && !isSegmentControlClick && isInsideContentClick) {
+            setManageInactive();
+          }
+        }
+      : null
+  );
 
   return (
     <>
       <StickyBar ref={stickyBarRef}>
         <SearchBarField
+          ref={searchInputRef}
           value={searchValue}
           onValueChange={setSearchValue}
           onFocus={handleSearchFieldFocus}
@@ -152,19 +189,27 @@ export const TezosChainTokensTab: FC<TezosChainTokensTabProps> = ({ chainId, pub
 
         <FilterButton ref={filterButtonRef} active={filtersOpened} onClick={toggleFiltersOpened} />
 
-        <StayActiveIconButton Icon={ManageIcon} />
+        <IconButton ref={manageButtonRef} Icon={ManageIcon} active={manageActive} onClick={toggleManageActive} />
       </StickyBar>
 
       {filtersOpened ? (
         <AssetsFilterOptions filterButtonRef={filterButtonRef} onRequestClose={setFiltersClosed} />
       ) : (
-        <ContentContainer padding={filteredAssets.length > 0}>
-          <UpdateAppBanner stickyBarRef={stickyBarRef} />
+        <ContentContainer ref={containerRef} padding={filteredAssets.length > 0}>
+          {!manageActive && <UpdateAppBanner stickyBarRef={stickyBarRef} />}
 
           {filteredAssets.length === 0 ? (
             <EmptySection />
           ) : (
             <>
+              {manageActive && (
+                <div className="flex flex-row bg-secondary-low p-3 mb-4 gap-x-1 rounded-md">
+                  <IconBase Icon={InfoFillIcon} size={24} className="text-secondary" />
+                  <p className="text-font-description">
+                    <T id="manageAssetsSearchTip" />
+                  </p>
+                </div>
+              )}
               <>{tokensView}</>
               {isSyncing && <SyncSpinner className="mt-4" />}
             </>

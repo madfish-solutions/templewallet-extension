@@ -63,7 +63,7 @@ export const EvmChainCollectiblesTab = memo<EvmChainCollectiblesTabProps>(({ cha
             evmChainId={chainId}
             accountPkh={publicKeyHash}
             showDetails={showInfo}
-            manageActive={manageActive}
+            manageActive
           />
         ))
       ) : (
