@@ -81,7 +81,7 @@ export class PageElement {
 
   async getText(timeout?: number) {
     const element = await this.findElement();
-    return await element.textContent({ timeout: timeout });
+    return await element.textContent({ timeout });
   }
 
   async getValue(timeout?: number) {
