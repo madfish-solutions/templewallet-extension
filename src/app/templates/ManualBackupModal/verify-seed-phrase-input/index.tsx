@@ -47,7 +47,6 @@ export const VerifySeedPhraseInput = memo<VerifySeedPhraseInputProps>(
               wordIndex={wordIndex}
               active={activeInputIndex === inputIndex}
               value={value[inputIndex]?.word ?? ''}
-              testID={'word input hz'}
             />
           ))}
           <Button className="absolute right-1.5 bottom-1.5 text-grey-3" onClick={handleClear}>
