@@ -25,6 +25,6 @@ export const WordInput = memo<WordInputProps>(({ wordIndex, active, value, testI
     }
     value={value}
     readOnly
-    testID={testID || ''}
+    testID={testID}
   />
 ));
