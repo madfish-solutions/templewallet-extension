@@ -4,7 +4,7 @@ import clsx from 'clsx';
 
 import { useScrollEdgesVisibility } from 'app/hooks/use-scroll-edges-visibility';
 
-import { setTestID, TestIDProps } from '../../../lib/analytics';
+import { setTestID, TestIDProps } from 'lib/analytics';
 
 interface ScrollViewProps extends HTMLAttributes<HTMLDivElement>, TestIDProps {
   onBottomEdgeVisibilityChange?: SyncFn<boolean>;
