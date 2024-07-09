@@ -76,7 +76,7 @@ export class PageElement {
 
   async fill(text: string, force?: boolean, noWaitAfter?: boolean, timeout?: number) {
     const element = await this.findElement();
-    return await element.fill(text, { force: force, noWaitAfter: noWaitAfter, timeout: timeout });
+    return await element.fill(text, { force, noWaitAfter, timeout });
   }
 
   async getText(timeout?: number) {
