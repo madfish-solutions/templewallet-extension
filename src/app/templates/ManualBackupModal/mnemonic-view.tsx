@@ -7,7 +7,7 @@ import { ReadOnlySecretField } from 'app/atoms/ReadOnlySecretField';
 import { StyledButton } from 'app/atoms/StyledButton';
 import { T, TID } from 'lib/i18n';
 
-import { TestIDProps } from '../../../lib/analytics';
+import { TestIDProps } from 'lib/analytics';
 
 import { ManualBackupModalSelectors } from './selectors';
 
