@@ -8,12 +8,13 @@ import { useAppEnv } from 'app/env';
 import { ReactComponent as ChevronLeftIcon } from 'app/icons/base/chevron_left.svg';
 import { ReactComponent as ExIcon } from 'app/icons/base/x.svg';
 import { LAYOUT_CONTAINER_CLASSNAME } from 'app/layouts/containers';
+import { TestIDProps } from 'lib/analytics';
 
 import { IconBase } from '../IconBase';
 
 import ModStyles from './styles.module.css';
 
-interface Props {
+interface Props extends TestIDProps {
   title: string;
   opened: boolean;
   shouldShowBackButton?: boolean;
@@ -22,7 +23,7 @@ interface Props {
 }
 
 export const PageModal = memo<PropsWithChildren<Props>>(
-  ({ title, opened, shouldShowBackButton, onRequestClose, onGoBack, children }) => {
+  ({ title, opened, shouldShowBackButton, onRequestClose, onGoBack, children, testID }) => {
     const { fullPage } = useAppEnv();
 
     return (
@@ -49,6 +50,7 @@ export const PageModal = memo<PropsWithChildren<Props>>(
         }}
         appElement={document.getElementById('root')!}
         onRequestClose={onRequestClose}
+        testId={testID}
       >
         <div className="flex items-center p-4 border-b border-lines">
           <div className="w-12">
