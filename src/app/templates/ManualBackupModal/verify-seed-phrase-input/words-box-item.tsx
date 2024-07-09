@@ -2,7 +2,7 @@ import React, { memo, useCallback } from 'react';
 
 import { StyledButton } from 'app/atoms/StyledButton';
 
-import { TestIDProps } from '../../../../lib/analytics';
+import { TestIDProps } from 'lib/analytics';
 
 export interface WordsBoxItemData {
   index: number;
