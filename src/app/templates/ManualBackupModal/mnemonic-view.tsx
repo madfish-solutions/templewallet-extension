@@ -37,7 +37,6 @@ export const MnemonicView = memo<MnemonicViewProps>(({ mnemonic, isNewMnemonic, 
         className="py-4"
         bottomEdgeThreshold={16}
         onBottomEdgeVisibilityChange={setBottomEdgeIsVisible}
-        testID={'what is this????'}
       >
         <Alert
           className="mb-4"
