@@ -27,13 +27,8 @@ export const findElements = async (testID: string, count?: number) => {
   const elements = await CustomBrowserContext.page.$$(selector);
 
   if (!elements.length) throw new Error(`None of "${testID}" elements were found`);
-  if (count) {
-    const elements = await CustomBrowserContext.page.$$(selector);
-    const elementsCount = elements.length;
-
-    if (elementsCount !== count)
-      throw new Error(`There are ${elements.length} '${testID}' elements, but expected ${count} elements`);
-  }
+  if (count && elements.length !== count)
+    throw new Error(`Expected ${count} '${testID}' elements, but got ${elements.length}`);
 
   return elements;
 };
