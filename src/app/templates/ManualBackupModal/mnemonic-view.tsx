@@ -5,9 +5,8 @@ import { ActionsButtonsBox } from 'app/atoms/PageModal/actions-buttons-box';
 import { ScrollView } from 'app/atoms/PageModal/scroll-view';
 import { ReadOnlySecretField } from 'app/atoms/ReadOnlySecretField';
 import { StyledButton } from 'app/atoms/StyledButton';
-import { T, TID } from 'lib/i18n';
-
 import { TestIDProps } from 'lib/analytics';
+import { T, TID } from 'lib/i18n';
 
 import { ManualBackupModalSelectors } from './selectors';
 
@@ -33,11 +32,7 @@ export const MnemonicView = memo<MnemonicViewProps>(({ mnemonic, isNewMnemonic, 
 
   return (
     <>
-      <ScrollView
-        className="py-4"
-        bottomEdgeThreshold={16}
-        onBottomEdgeVisibilityChange={setBottomEdgeIsVisible}
-      >
+      <ScrollView className="py-4" bottomEdgeThreshold={16} onBottomEdgeVisibilityChange={setBottomEdgeIsVisible}>
         <Alert
           className="mb-4"
           type="warning"

@@ -1,7 +1,6 @@
 import React, { memo, useCallback } from 'react';
 
 import { StyledButton } from 'app/atoms/StyledButton';
-
 import { TestIDProps } from 'lib/analytics';
 
 export interface WordsBoxItemData {
@@ -25,7 +24,7 @@ export const WordsBoxItem = memo<WordsBoxItemProps>(({ data, selected, onSelect,
       disabled={selected}
       size="M"
       onClick={handleClick}
-      testID={testID || ''}
+      testID={testID}
     >
       {data.word}
     </StyledButton>
