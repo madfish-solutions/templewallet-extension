@@ -40,7 +40,6 @@ export const VerifySeedPhraseInput = memo<VerifySeedPhraseInputProps>(
             'relative grid grid-cols-2 rounded-lg p-1.5 bg-grey-4 mb-1 gap-2',
             error && 'border border-error'
           )}
-          {...setTestID('second1')}
         >
           {wordsIndices.map((wordIndex, inputIndex) => (
             <WordInput
