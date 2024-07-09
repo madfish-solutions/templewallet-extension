@@ -59,9 +59,9 @@ export class PageElement {
     });
   }
 
-  async waitForDisplayed(timeout?: number, state?: 'attached' | 'detached' | 'visible' | 'hidden' | undefined) {
+  async waitForDisplayed(timeout = SHORT_TIMEOUT, state?: 'attached' | 'detached' | 'visible' | 'hidden') {
     const element = await this.findElement();
-    return element.waitFor({ timeout: timeout || SHORT_TIMEOUT, state: state });
+    return element.waitFor({ timeout, state });
   }
 
   async click(clickCount?: number, delay?: number) {
