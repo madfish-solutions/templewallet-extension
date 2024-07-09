@@ -7,7 +7,7 @@ import { FieldLabel } from 'app/atoms/FieldLabel';
 import { ReactComponent as XCircleFillIcon } from 'app/icons/base/x_circle_fill.svg';
 import { T } from 'lib/i18n';
 
-import { setTestID } from '../../../../lib/analytics';
+import { setTestID } from 'lib/analytics';
 import { ManualBackupModalSelectors } from '../selectors';
 
 import { WordInput } from './word-input';
