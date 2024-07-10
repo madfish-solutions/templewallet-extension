@@ -185,6 +185,12 @@ export const TezosListItem = memo<TezosListItemProps>(
   }
 );
 
+const containerClassName = clsx(
+  'relative w-full overflow-hidden flex items-center p-2 rounded-lg',
+  'hover:bg-secondary-low transition ease-in-out duration-200 focus:outline-none',
+  'focus:bg-secondary-low'
+);
+
 interface EvmListItemProps {
   chainId: number;
   publicKeyHash: HexString;
@@ -234,13 +240,7 @@ export const EvmListItem = memo<EvmListItemProps>(({ chainId, publicKeyHash, ass
 
   return manageActive ? (
     <>
-      <div
-        className={clsx(
-          'relative w-full overflow-hidden flex items-center p-2 rounded-lg',
-          'hover:bg-secondary-low transition ease-in-out duration-200 focus:outline-none',
-          'focus:bg-secondary-low'
-        )}
-      >
+      <div className={containerClassName}>
         <EvmTokenIconWithNetwork evmChainId={chainId} assetSlug={assetSlug} className="mr-1 flex-shrink-0" />
 
         <div className={clsx('w-full', styles.tokenInfoWidth)}>
@@ -270,11 +270,7 @@ export const EvmListItem = memo<EvmListItemProps>(({ chainId, publicKeyHash, ass
   ) : (
     <Link
       to={toExploreAssetLink(TempleChainKind.EVM, chainId, assetSlug)}
-      className={clsx(
-        'relative w-full overflow-hidden flex items-center p-2 rounded-lg',
-        'hover:bg-secondary-low transition ease-in-out duration-200 focus:outline-none',
-        'focus:bg-secondary-low group'
-      )}
+      className={containerClassName}
       testID={AssetsSelectors.assetItemButton}
       testIDProperties={{ key: assetSlug }}
       {...setAnotherSelector('name', assetName)}

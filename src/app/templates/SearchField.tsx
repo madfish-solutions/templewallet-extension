@@ -7,7 +7,6 @@ import { IconBase } from 'app/atoms';
 import CleanButton, { CLEAN_BUTTON_ID } from 'app/atoms/CleanButton';
 import { ReactComponent as SearchIcon } from 'app/icons/base/search.svg';
 import { setTestID, TestIDProps } from 'lib/analytics';
-import { combineRefs } from 'lib/ui/utils';
 
 interface Props extends InputHTMLAttributes<HTMLInputElement>, TestIDProps {
   value: string;
@@ -17,7 +16,7 @@ interface Props extends InputHTMLAttributes<HTMLInputElement>, TestIDProps {
   onCleanButtonClick?: () => void;
 }
 
-const SearchField = forwardRef<HTMLInputElement, Props>(
+const SearchField = forwardRef<HTMLDivElement, Props>(
   (
     {
       bottomOffset = '0.45rem',
@@ -79,9 +78,9 @@ const SearchField = forwardRef<HTMLInputElement, Props>(
     const notEmpty = Boolean(focused || value);
 
     return (
-      <div className={clsx('group relative', containerClassName)}>
+      <div ref={ref} className={clsx('group relative', containerClassName)}>
         <input
-          ref={combineRefs(inputLocalRef, ref)}
+          ref={inputLocalRef}
           type="text"
           className={clsx('appearance-none w-full py-2 px-8 text-font-description', className)}
           value={value}
@@ -113,7 +112,7 @@ const SearchField = forwardRef<HTMLInputElement, Props>(
 export default SearchField;
 
 export const SearchBarField = memo(
-  forwardRef<HTMLInputElement, Props>(({ className, containerClassName, value, ...rest }, ref) => (
+  forwardRef<HTMLDivElement, Props>(({ className, containerClassName, value, ...rest }, ref) => (
     <SearchField
       ref={ref}
       value={value}

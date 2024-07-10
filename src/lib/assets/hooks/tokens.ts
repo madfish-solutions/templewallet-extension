@@ -300,11 +300,34 @@ export const useEnabledEvmAccountTokensSlugs = (publicKeyHash: HexString) => {
   );
 };
 
+export const useAllEvmAccountTokensSlugs = (publicKeyHash: HexString) => {
+  const tokens = useEvmAccountTokens(publicKeyHash);
+
+  return useMemo(
+    () =>
+      tokens.reduce<string[]>(
+        (acc, { slug, status, chainId }) =>
+          status !== 'removed' ? acc.concat(toChainAssetSlug(TempleChainKind.EVM, chainId, slug)) : acc,
+        []
+      ),
+    [tokens]
+  );
+};
+
 export const useEnabledEvmChainAccountTokensSlugs = (publicKeyHash: HexString, chainId: number) => {
   const tokens = useEvmChainAccountTokens(publicKeyHash, chainId);
 
   return useMemo(
     () => tokens.reduce<string[]>((acc, { slug, status }) => (status === 'enabled' ? acc.concat(slug) : acc), []),
+    [tokens]
+  );
+};
+
+export const useAllEvmChainAccountTokensSlugs = (publicKeyHash: HexString, chainId: number) => {
+  const tokens = useEvmChainAccountTokens(publicKeyHash, chainId);
+
+  return useMemo(
+    () => tokens.reduce<string[]>((acc, { slug, status }) => (status !== 'removed' ? acc.concat(slug) : acc), []),
     [tokens]
   );
 };

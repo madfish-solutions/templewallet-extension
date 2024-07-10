@@ -4,6 +4,8 @@ export {
   useTezosEnabledAccountTokensSlugs,
   useEnabledEvmAccountTokensSlugs,
   useEnabledEvmChainAccountTokensSlugs,
+  useAllEvmChainAccountTokensSlugs,
+  useAllEvmAccountTokensSlugs,
   useEnabledAccountChainTokensSlugs
 } from './tokens';
 export {

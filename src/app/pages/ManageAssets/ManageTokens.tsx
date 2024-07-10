@@ -1,7 +1,7 @@
 import React, { memo, useMemo } from 'react';
 
 import { SyncSpinner } from 'app/atoms';
-import { useTezosChainAccountTokensListingLogic } from 'app/hooks/use-tokens-listing-logic';
+import { useTezosChainAccountTokensListingLogic } from 'app/hooks/tokens-listing-logic/use-tezos-chain-account-tokens-listing-logic';
 import { useAreAssetsLoading } from 'app/store/tezos/assets/selectors';
 import { useTokensMetadataLoadingSelector } from 'app/store/tezos/tokens-metadata/selectors';
 import { TEMPLE_TOKEN_SLUG } from 'lib/assets';

@@ -7,9 +7,9 @@ import { useAssetsSegmentControlRef } from 'app/atoms/AssetsSegmentControl';
 import { FilterButton } from 'app/atoms/FilterButton';
 import { IconButton } from 'app/atoms/IconButton';
 import { SimpleInfiniteScroll } from 'app/atoms/SimpleInfiniteScroll';
+import { useEvmChainAccountTokensListingLogic } from 'app/hooks/tokens-listing-logic/use-evm-chain-account-tokens-listing-logic';
 import { useAssetsFilterOptionsState } from 'app/hooks/use-assets-filter-options-state';
 import { useManageAssetsState } from 'app/hooks/use-manage-assets-state';
-import { useEvmChainAccountTokensListingLogic } from 'app/hooks/use-tokens-listing-logic';
 import { ReactComponent as InfoFillIcon } from 'app/icons/base/InfoFill.svg';
 import { ReactComponent as ManageIcon } from 'app/icons/base/manage.svg';
 import { ContentContainer, StickyBar } from 'app/layouts/containers';
@@ -41,7 +41,8 @@ export const EvmChainTokensTab: FC<EvmChainTokensTabProps> = ({ chainId, publicK
     publicKeyHash,
     chainId,
     hideZeroBalance,
-    leadingAssets
+    leadingAssets,
+    manageActive
   );
 
   const contentElement = useMemo(
@@ -61,7 +62,7 @@ export const EvmChainTokensTab: FC<EvmChainTokensTabProps> = ({ chainId, publicK
   const stickyBarRef = useRef<HTMLDivElement>(null);
   const filterButtonRef = useRef<HTMLButtonElement>(null);
   const manageButtonRef = useRef<HTMLButtonElement>(null);
-  const searchInputRef = useRef<HTMLInputElement>(null);
+  const searchInputContainerRef = useRef<HTMLInputElement>(null);
 
   const containerRef = useRef(null);
   const contentPaperRef = useContentPaperRef();
@@ -74,7 +75,9 @@ export const EvmChainTokensTab: FC<EvmChainTokensTabProps> = ({ chainId, publicK
           const evtTarget = evt.target as Node;
 
           const isManageButtonClick = Boolean(manageButtonRef.current && manageButtonRef.current.contains(evtTarget));
-          const isSearchInputClick = Boolean(searchInputRef.current && searchInputRef.current.contains(evtTarget));
+          const isSearchInputClick = Boolean(
+            searchInputContainerRef.current && searchInputContainerRef.current.contains(evtTarget)
+          );
           const isSegmentControlClick = Boolean(
             assetsSegmentControlRef.current && assetsSegmentControlRef.current.contains(evtTarget)
           );
@@ -91,7 +94,7 @@ export const EvmChainTokensTab: FC<EvmChainTokensTabProps> = ({ chainId, publicK
     <>
       <StickyBar ref={stickyBarRef}>
         <SearchBarField
-          ref={searchInputRef}
+          ref={searchInputContainerRef}
           value={searchValue}
           onValueChange={setSearchValue}
           testID={AssetsSelectors.searchAssetsInputTokens}
