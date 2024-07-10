@@ -1,23 +1,16 @@
 import React, { memo } from 'react';
 
-import { SyncSpinner } from 'app/atoms';
-import { setTestID } from 'lib/analytics';
+import { ReactComponent as EmptySearchIcon } from 'app/icons/search_empty.svg';
 import { T } from 'lib/i18n';
 
-import { CollectibleTabSelectors } from '../selectors';
+export const EmptySection = memo(() => (
+  <div className="w-full h-full flex flex-col items-center">
+    <div className="flex-1 py-7 flex flex-col items-center justify-center text-grey-2">
+      <EmptySearchIcon />
 
-interface EmptySectionProps {
-  isSyncing?: boolean;
-}
-
-export const EmptySection = memo<EmptySectionProps>(({ isSyncing = false }) =>
-  isSyncing ? (
-    <SyncSpinner className="mt-6" />
-  ) : (
-    <div className="border rounded border-gray-200">
-      <p className={'text-gray-600 text-center text-xs py-6'} {...setTestID(CollectibleTabSelectors.emptyStateText)}>
-        <T id="zeroCollectibleText" />
+      <p className="mt-2 text-center text-font-medium-bold">
+        <T id="notFound" />
       </p>
     </div>
-  )
-);
+  </div>
+));

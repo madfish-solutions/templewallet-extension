@@ -11,7 +11,6 @@ import { ScrollBackUpButton } from 'app/atoms/ScrollBackUpButton';
 import { SimpleInfiniteScroll } from 'app/atoms/SimpleInfiniteScroll';
 import { DeadEndBoundaryError } from 'app/ErrorBoundary';
 import { useAssetsFilterOptionsState } from 'app/hooks/use-assets-filter-options-state';
-import { useTezosChainCollectiblesListingLogic } from 'app/hooks/use-collectibles-listing-logic';
 import { useManageAssetsState } from 'app/hooks/use-manage-assets-state';
 import { ReactComponent as InfoFillIcon } from 'app/icons/base/InfoFill.svg';
 import { ReactComponent as ManageIcon } from 'app/icons/base/manage.svg';
@@ -26,6 +25,8 @@ import { useTezosChainCollectiblesSortPredicate } from 'lib/assets/use-sorting';
 import { T } from 'lib/i18n';
 import { useMemoWithCompare } from 'lib/ui/hooks';
 import { useTezosChainByChainId } from 'temple/front';
+
+import { useTezosChainCollectiblesListingLogic } from '../../../../hooks/collectibles-listing-logic/use-tezos-chain-collectibles-listing-logic';
 
 import { TezosCollectibleItem } from './CollectibleItem';
 import { EmptySection } from './EmptySection';
@@ -138,7 +139,7 @@ export const TezosChainCollectiblesTab = memo<TezosChainCollectiblesTabProps>(({
       ) : (
         <ContentContainer ref={searchInputRef}>
           {displayedSlugs.length === 0 ? (
-            <EmptySection isSyncing={isSyncing} />
+            <EmptySection />
           ) : (
             <>
               {isInSearchMode ? (

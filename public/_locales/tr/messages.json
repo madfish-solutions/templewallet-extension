@@ -2217,9 +2217,6 @@
   "deleteCollectibleConfirm": {
     "message": "Bu koleksiyonluğu silmek istediğinizden emin misiniz?"
   },
-  "zeroCollectibleText": {
-    "message": "Henüz koleksiyonluğunuz yok!\nŞimdi bir tane edinmek için iyi bir zaman"
-  },
   "min": {
     "message": "En az:"
   },

@@ -6,7 +6,7 @@ import { useDidUpdate } from 'lib/ui/hooks';
 const ITEMS_PER_PAGE = 30;
 const VISIBLE_ITEMS_COUNT = 8;
 
-export const useEvmAssetsPaginationLogic = (sortedSlugs: string[]) => {
+export const useSimpleAssetsPaginationLogic = (sortedSlugs: string[]) => {
   const { filterChain } = useAssetsFilterOptionsSelector();
 
   const [slugs, setSlugs] = useState<string[]>(() => sortedSlugs.slice(0, ITEMS_PER_PAGE));

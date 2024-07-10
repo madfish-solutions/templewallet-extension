@@ -3058,9 +3058,6 @@
   "deleteCollectibleConfirm": {
     "message": "Are you sure you want to delete this collectible?"
   },
-  "zeroCollectibleText": {
-    "message": "You don’t have collectibles yet!\nGood time to get one of them"
-  },
   "min": {
     "message": "Min:"
   },

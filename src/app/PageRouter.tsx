@@ -12,7 +12,6 @@ import DApps from 'app/pages/DApps';
 import Delegate from 'app/pages/Delegate';
 import Home from 'app/pages/Home/Home';
 import ImportAccount from 'app/pages/ImportAccount';
-import ManageAssets from 'app/pages/ManageAssets';
 import { CreateAnotherWallet } from 'app/pages/NewWallet/CreateAnotherWallet';
 import { CreateWallet } from 'app/pages/NewWallet/CreateWallet';
 import { ImportWallet } from 'app/pages/NewWallet/ImportWallet';
@@ -91,7 +90,6 @@ const ROUTE_MAP = Woozie.createMap<RouteContext>([
   ['/swap', onlyReady(() => <Swap />)],
   ['/delegate/:tezosChainId', onlyReady(({ tezosChainId }) => <Delegate tezosChainId={tezosChainId!} />)],
   ['/dapps', onlyReady(() => <DApps />)],
-  ['/manage-assets/:assetType?', onlyReady(({ assetType }) => <ManageAssets assetType={assetType!} />)],
   [
     '/collectible/:chainKind?/:chainId?/:assetSlug?',
     onlyReady(({ chainKind, chainId, assetSlug }) => (

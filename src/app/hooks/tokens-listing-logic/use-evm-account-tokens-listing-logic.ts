@@ -13,14 +13,14 @@ import {
 import { useEvmTokensMetadataRecordSelector } from 'app/store/evm/tokens-metadata/selectors';
 import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
 import { useAllEvmAccountTokensSlugs, useEnabledEvmAccountTokensSlugs } from 'lib/assets/hooks';
-import { searchEvmAssetsWithNoMeta } from 'lib/assets/search.utils';
+import { searchEvmTokensWithNoMeta } from 'lib/assets/search.utils';
 import { useEvmAccountTokensSortPredicate } from 'lib/assets/use-sorting';
 import { fromChainAssetSlug } from 'lib/assets/utils';
 import { useMemoWithCompare } from 'lib/ui/hooks';
 import { isSearchStringApplicable } from 'lib/utils/search-items';
 import { useAllEvmChains } from 'temple/front';
 
-import { useEvmAssetsPaginationLogic } from '../use-evm-assets-pagination-logic';
+import { useSimpleAssetsPaginationLogic } from '../use-simple-assets-pagination-logic';
 
 import { getChainName, getSlugWithChainId } from './utils';
 
@@ -91,21 +91,30 @@ export const useEvmAccountTokensListingLogic = (
   const [searchValue, setSearchValue] = useState('');
   const [searchValueDebounced] = useDebounce(searchValue, 300);
 
+  const isInSearchMode = isSearchStringApplicable(searchValueDebounced);
+
   const searchedLeadingChainSlugs = useMemo(() => {
     if (!isDefined(leadingAssetsChainSlugs) || !leadingAssetsChainSlugs.length) return [];
 
-    return isSearchStringApplicable(searchValueDebounced)
-      ? searchEvmAssetsWithNoMeta(searchValueDebounced, leadingAssetsChainSlugs, getMetadata, getSlugWithChainId)
+    return isInSearchMode
+      ? searchEvmTokensWithNoMeta(searchValueDebounced, leadingAssetsChainSlugs, getMetadata, getSlugWithChainId)
       : leadingAssetsChainSlugs;
-  }, [getMetadata, leadingAssetsChainSlugs, searchValueDebounced]);
+  }, [getMetadata, isInSearchMode, leadingAssetsChainSlugs, searchValueDebounced]);
 
   const filteredAssets = useMemo(() => {
-    const searchedChainSlugs = isSearchStringApplicable(searchValueDebounced)
-      ? searchEvmAssetsWithNoMeta(searchValueDebounced, enabledSourceArray, getMetadata, getSlugWithChainId)
+    const searchedChainSlugs = isInSearchMode
+      ? searchEvmTokensWithNoMeta(searchValueDebounced, enabledSourceArray, getMetadata, getSlugWithChainId)
       : [...enabledSourceArray].sort(tokensSortPredicate);
 
     return searchedLeadingChainSlugs.length ? searchedLeadingChainSlugs.concat(searchedChainSlugs) : searchedChainSlugs;
-  }, [searchValueDebounced, enabledSourceArray, getMetadata, tokensSortPredicate, searchedLeadingChainSlugs]);
+  }, [
+    isInSearchMode,
+    searchValueDebounced,
+    enabledSourceArray,
+    getMetadata,
+    tokensSortPredicate,
+    searchedLeadingChainSlugs
+  ]);
 
   const groupedAssets = useMemo(() => {
     if (!groupByNetwork || manageActive) return filteredAssets;
@@ -147,8 +156,8 @@ export const useEvmAccountTokensListingLogic = (
         ...allNonLeadingChainSlugsRef.current
       ]).filter(slug => allNonLeadingChainSlugs.includes(slug));
 
-      const allNonLeadingSearchedSlugs = isSearchStringApplicable(searchValueDebounced)
-        ? searchEvmAssetsWithNoMeta(searchValueDebounced, allUniqNonLeadingSlugs, getMetadata, getSlugWithChainId)
+      const allNonLeadingSearchedSlugs = isInSearchMode
+        ? searchEvmTokensWithNoMeta(searchValueDebounced, allUniqNonLeadingSlugs, getMetadata, getSlugWithChainId)
         : allUniqNonLeadingSlugs;
 
       return searchedLeadingChainSlugs.length
@@ -158,6 +167,7 @@ export const useEvmAccountTokensListingLogic = (
     [
       manageActive,
       groupedAssets,
+      isInSearchMode,
       searchValueDebounced,
       getMetadata,
       searchedLeadingChainSlugs,
@@ -166,7 +176,7 @@ export const useEvmAccountTokensListingLogic = (
     isEqual
   );
 
-  const { slugs: paginatedSlugs, loadNext } = useEvmAssetsPaginationLogic(manageableTokenSlugs);
+  const { slugs: paginatedSlugs, loadNext } = useSimpleAssetsPaginationLogic(manageableTokenSlugs);
 
   return {
     paginatedSlugs,

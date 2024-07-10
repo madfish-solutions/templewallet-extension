@@ -1,6 +1,5 @@
 import React, { memo, useMemo, useRef } from 'react';
 
-import { isEqual } from 'lodash';
 import useOnClickOutside from 'use-onclickoutside';
 
 import { IconBase, SyncSpinner } from 'app/atoms';
@@ -9,8 +8,8 @@ import { FilterButton } from 'app/atoms/FilterButton';
 import { IconButton } from 'app/atoms/IconButton';
 import { ScrollBackUpButton } from 'app/atoms/ScrollBackUpButton';
 import { SimpleInfiniteScroll } from 'app/atoms/SimpleInfiniteScroll';
+import { useEvmChainCollectiblesListingLogic } from 'app/hooks/collectibles-listing-logic/use-evm-chain-collectibles-listing-logic';
 import { useAssetsFilterOptionsState } from 'app/hooks/use-assets-filter-options-state';
-import { useEvmChainCollectiblesListingLogic } from 'app/hooks/use-collectibles-listing-logic';
 import { useManageAssetsState } from 'app/hooks/use-manage-assets-state';
 import { ReactComponent as InfoFillIcon } from 'app/icons/base/InfoFill.svg';
 import { ReactComponent as ManageIcon } from 'app/icons/base/manage.svg';
@@ -20,10 +19,7 @@ import { AssetsSelectors } from 'app/pages/Home/OtherComponents/Assets.selectors
 import { useCollectiblesListOptionsSelector } from 'app/store/assets-filter-options/selectors';
 import { AssetsFilterOptions } from 'app/templates/AssetsFilterOptions';
 import { SearchBarField } from 'app/templates/SearchField';
-import { useEnabledEvmChainAccountCollectiblesSlugs } from 'lib/assets/hooks/collectibles';
-import { useEvmChainCollectiblesSortPredicate } from 'lib/assets/use-sorting';
 import { T } from 'lib/i18n';
-import { useMemoWithCompare } from 'lib/ui/hooks';
 
 import { EvmCollectibleItem } from './CollectibleItem';
 import { EmptySection } from './EmptySection';
@@ -38,48 +34,30 @@ export const EvmChainCollectiblesTab = memo<EvmChainCollectiblesTabProps>(({ cha
   const { filtersOpened, setFiltersClosed, toggleFiltersOpened } = useAssetsFilterOptionsState();
   const { manageActive, setManageInactive, toggleManageActive } = useManageAssetsState();
 
-  const allSlugs = useEnabledEvmChainAccountCollectiblesSlugs(publicKeyHash, chainId);
-
-  const assetsSortPredicate = useEvmChainCollectiblesSortPredicate(publicKeyHash, chainId);
-
-  const allSlugsSorted = useMemoWithCompare(
-    () => [...allSlugs].sort(assetsSortPredicate),
-    [allSlugs, assetsSortPredicate],
-    isEqual
+  const { paginatedSlugs, isSyncing, loadNext, searchValue, setSearchValue } = useEvmChainCollectiblesListingLogic(
+    publicKeyHash,
+    chainId,
+    manageActive
   );
 
-  const { displayedSlugs, isSyncing, loadNext, searchValue, setSearchValue } = useEvmChainCollectiblesListingLogic(
-    allSlugsSorted,
-    chainId
+  const list = useMemo(
+    () =>
+      paginatedSlugs.map(slug => (
+        <EvmCollectibleItem
+          key={slug}
+          assetSlug={slug}
+          evmChainId={chainId}
+          accountPkh={publicKeyHash}
+          showDetails={showInfo}
+          manageActive={manageActive}
+        />
+      )),
+    [chainId, manageActive, paginatedSlugs, publicKeyHash, showInfo]
   );
 
   const contentElement = useMemo(
-    () =>
-      manageActive ? (
-        displayedSlugs.map(slug => (
-          <EvmCollectibleItem
-            key={slug}
-            assetSlug={slug}
-            evmChainId={chainId}
-            accountPkh={publicKeyHash}
-            showDetails={showInfo}
-            manageActive
-          />
-        ))
-      ) : (
-        <div className="grid grid-cols-3 gap-2">
-          {displayedSlugs.map(slug => (
-            <EvmCollectibleItem
-              key={slug}
-              assetSlug={slug}
-              evmChainId={chainId}
-              accountPkh={publicKeyHash}
-              showDetails={showInfo}
-            />
-          ))}
-        </div>
-      ),
-    [manageActive, displayedSlugs, chainId, publicKeyHash, showInfo]
+    () => (manageActive ? list : <div className="grid grid-cols-3 gap-2">{list}</div>),
+    [manageActive, list]
   );
 
   const stickyBarRef = useRef<HTMLDivElement>(null);
@@ -130,8 +108,8 @@ export const EvmChainCollectiblesTab = memo<EvmChainCollectiblesTabProps>(({ cha
         <AssetsFilterOptions filterButtonRef={filterButtonRef} onRequestClose={setFiltersClosed} />
       ) : (
         <ContentContainer ref={containerRef}>
-          {displayedSlugs.length === 0 ? (
-            <EmptySection isSyncing={isSyncing} />
+          {paginatedSlugs.length === 0 ? (
+            <EmptySection />
           ) : (
             <>
               {manageActive && (

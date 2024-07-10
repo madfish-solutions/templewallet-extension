@@ -12,6 +12,8 @@ export {
   useTezosEnabledChainAccountCollectiblesSlugs,
   useTezosEnabledAccountCollectiblesSlugs,
   useEnabledEvmAccountCollectiblesSlugs,
+  useAllEvmAccountCollectiblesSlugs,
   useEnabledEvmChainAccountCollectiblesSlugs,
+  useAllEvmChainAccountCollectiblesSlugs,
   useTezosChainAccountCollectibles
 } from './collectibles';

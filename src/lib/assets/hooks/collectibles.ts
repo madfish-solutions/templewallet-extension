@@ -218,11 +218,34 @@ export const useEnabledEvmAccountCollectiblesSlugs = (publicKeyHash: HexString) 
   );
 };
 
+export const useAllEvmAccountCollectiblesSlugs = (publicKeyHash: HexString) => {
+  const collectibles = useEvmAccountCollectibles(publicKeyHash);
+
+  return useMemo(
+    () =>
+      collectibles.reduce<string[]>(
+        (acc, { slug, status, chainId }) =>
+          status !== 'removed' ? acc.concat(toChainAssetSlug(TempleChainKind.EVM, chainId, slug)) : acc,
+        []
+      ),
+    [collectibles]
+  );
+};
+
 export const useEnabledEvmChainAccountCollectiblesSlugs = (publicKeyHash: HexString, evmChainId: number) => {
   const collectibles = useEvmChainAccountCollectibles(publicKeyHash, evmChainId);
 
   return useMemo(
     () => collectibles.reduce<string[]>((acc, { slug, status }) => (status === 'enabled' ? acc.concat(slug) : acc), []),
+    [collectibles]
+  );
+};
+
+export const useAllEvmChainAccountCollectiblesSlugs = (publicKeyHash: HexString, evmChainId: number) => {
+  const collectibles = useEvmChainAccountCollectibles(publicKeyHash, evmChainId);
+
+  return useMemo(
+    () => collectibles.reduce<string[]>((acc, { slug, status }) => (status !== 'removed' ? acc.concat(slug) : acc), []),
     [collectibles]
   );
 };

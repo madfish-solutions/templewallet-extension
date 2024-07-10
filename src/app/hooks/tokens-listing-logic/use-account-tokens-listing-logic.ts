@@ -26,7 +26,7 @@ import { isSearchStringApplicable } from 'lib/utils/search-items';
 import { useAllEvmChains, useAllTezosChains } from 'temple/front';
 import { TempleChainKind } from 'temple/types';
 
-import { useEvmAssetsPaginationLogic } from '../use-evm-assets-pagination-logic';
+import { useSimpleAssetsPaginationLogic } from '../use-simple-assets-pagination-logic';
 
 import { getChainName, getSlugFromChainSlug } from './utils';
 
@@ -166,7 +166,7 @@ export const useAccountTokensListingLogic = (
     );
   }, [filteredAssets, groupByNetwork]);
 
-  const { slugs: paginatedSlugs, loadNext } = useEvmAssetsPaginationLogic(groupedAssets);
+  const { slugs: paginatedSlugs, loadNext } = useSimpleAssetsPaginationLogic(groupedAssets);
 
   return {
     paginatedSlugs,

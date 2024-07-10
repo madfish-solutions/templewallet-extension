@@ -9,8 +9,8 @@ import { FilterButton } from 'app/atoms/FilterButton';
 import { IconButton } from 'app/atoms/IconButton';
 import { ScrollBackUpButton } from 'app/atoms/ScrollBackUpButton';
 import { SimpleInfiniteScroll } from 'app/atoms/SimpleInfiniteScroll';
+import { useTezosAccountCollectiblesListingLogic } from 'app/hooks/collectibles-listing-logic/use-tezos-account-collectibles-listing-logic';
 import { useAssetsFilterOptionsState } from 'app/hooks/use-assets-filter-options-state';
-import { useTezosAccountCollectiblesListingLogic } from 'app/hooks/use-collectibles-listing-logic';
 import { useManageAssetsState } from 'app/hooks/use-manage-assets-state';
 import { ReactComponent as InfoFillIcon } from 'app/icons/base/InfoFill.svg';
 import { ReactComponent as ManageIcon } from 'app/icons/base/manage.svg';
@@ -141,7 +141,7 @@ export const TezosCollectiblesTab = memo<TezosCollectiblesTabProps>(({ publicKey
       ) : (
         <ContentContainer ref={containerRef}>
           {displayedSlugs.length === 0 ? (
-            <EmptySection isSyncing={isSyncing} />
+            <EmptySection />
           ) : (
             <>
               {isInSearchMode ? (
