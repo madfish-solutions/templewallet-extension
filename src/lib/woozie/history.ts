@@ -2,7 +2,7 @@ import { useLayoutEffect } from 'react';
 
 import useForceUpdate from 'use-force-update';
 
-import { USE_LOCATION_HASH_AS_URL } from './config';
+import { HOME_PAGE_PATH, USE_LOCATION_HASH_AS_URL } from './config';
 
 export enum HistoryAction {
   Pop = 'popstate',
@@ -58,7 +58,7 @@ export function goBack() {
   go(-1);
 }
 
-export function createUrl(pathname: string = '/', search: string = '', hash: string = ''): string {
+export function createUrl(pathname: string = HOME_PAGE_PATH, search: string = '', hash: string = ''): string {
   if (search && !search.startsWith('?')) {
     search = `?${search}`;
   }

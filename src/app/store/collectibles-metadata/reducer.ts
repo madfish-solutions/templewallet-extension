@@ -1,7 +1,6 @@
 import { createReducer } from '@reduxjs/toolkit';
 import { enableMapSet } from 'immer';
 import { persistReducer } from 'redux-persist';
-import hardSet from 'redux-persist/lib/stateReconciler/hardSet';
 
 import { tokenToSlug, fromAssetSlug } from 'lib/assets';
 import { TokenMetadata } from 'lib/metadata';
@@ -48,7 +47,6 @@ export const collectiblesMetadataPersistedReducer = persistReducer<SliceState>(
   {
     key: 'root.collectiblesMetadata',
     ...storageConfig,
-    stateReconciler: hardSet,
     blacklist: ['isLoading'] as (keyof SliceState)[],
     transforms: [
       /*
