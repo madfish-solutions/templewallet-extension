@@ -12,7 +12,7 @@ import { useStoredTezosTokenSelector } from 'app/store/tezos/assets/selectors';
 import { EvmTokenIconWithNetwork, TezosTokenIconWithNetwork } from 'app/templates/AssetIcon';
 import { DeleteAssetModal } from 'app/templates/remove-asset-modal/delete-asset-modal';
 import { setAnotherSelector } from 'lib/analytics';
-import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
+import { EVM_TOKEN_SLUG, TEZ_TOKEN_SLUG } from 'lib/assets/defaults';
 import { getAssetStatus } from 'lib/assets/hooks/utils';
 import { useEvmTokenBalance, useTezosAssetBalance } from 'lib/balances/hooks';
 import { getTokenName, getAssetSymbol } from 'lib/metadata';
@@ -59,8 +59,8 @@ export const TezosListItem = memo<TezosListItemProps>(
 
     const storedToken = useStoredTezosTokenSelector(publicKeyHash, chainId, assetSlug);
 
-    const checked = getAssetStatus(rawValue, storedToken?.status) === 'enabled';
-    const isNativeToken = assetSlug === EVM_TOKEN_SLUG;
+    const checked = getAssetStatus(rawValue, storedToken?.status, assetSlug) === 'enabled';
+    const isNativeToken = assetSlug === TEZ_TOKEN_SLUG;
 
     const [deleteModalOpened, setDeleteModalOpened, setDeleteModalClosed] = useBooleanState(false);
 
@@ -125,7 +125,7 @@ export const TezosListItem = memo<TezosListItemProps>(
                 />
                 <ToggleSwitch
                   checked={isNativeToken ? true : checked}
-                  disabled={assetSlug === EVM_TOKEN_SLUG}
+                  disabled={isNativeToken}
                   onChange={toggleTokenStatus}
                 />
               </div>
@@ -258,7 +258,7 @@ export const EvmListItem = memo<EvmListItemProps>(({ chainId, publicKeyHash, ass
               />
               <ToggleSwitch
                 checked={isNativeToken ? true : checked}
-                disabled={assetSlug === EVM_TOKEN_SLUG}
+                disabled={isNativeToken}
                 onChange={toggleTokenStatus}
               />
             </div>

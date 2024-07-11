@@ -98,8 +98,8 @@ export const useEvmAccountTokensListingLogic = (
 
     return isInSearchMode
       ? searchEvmTokensWithNoMeta(searchValueDebounced, leadingAssetsChainSlugs, getMetadata, getSlugWithChainId)
-      : leadingAssetsChainSlugs;
-  }, [getMetadata, isInSearchMode, leadingAssetsChainSlugs, searchValueDebounced]);
+      : [...leadingAssetsChainSlugs].sort(tokensSortPredicate);
+  }, [getMetadata, isInSearchMode, leadingAssetsChainSlugs, searchValueDebounced, tokensSortPredicate]);
 
   const filteredAssets = useMemo(() => {
     const searchedChainSlugs = isInSearchMode

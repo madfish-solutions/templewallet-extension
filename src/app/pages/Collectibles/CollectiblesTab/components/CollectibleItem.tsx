@@ -22,7 +22,6 @@ import { useCollectibleMetadataSelector } from 'app/store/tezos/collectibles-met
 import { DeleteAssetModal } from 'app/templates/remove-asset-modal/delete-asset-modal';
 import { setAnotherSelector, setTestID } from 'lib/analytics';
 import { objktCurrencies } from 'lib/apis/objkt';
-import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
 import { getAssetStatus } from 'lib/assets/hooks/utils';
 import { useEvmCollectibleBalance } from 'lib/balances/hooks';
 import { T } from 'lib/i18n';
@@ -196,7 +195,7 @@ export const TezosCollectibleItem = memo<TezosCollectibleItemProps>(
               className="cursor-pointer text-primary"
               onClick={setDeleteModalOpened}
             />
-            <ToggleSwitch checked={checked} disabled={assetSlug === EVM_TOKEN_SLUG} onChange={toggleTokenStatus} />
+            <ToggleSwitch checked={checked} onChange={toggleTokenStatus} />
           </div>
         </div>
         {deleteModalOpened && <DeleteAssetModal onClose={setDeleteModalClosed} onDelete={deleteItem} />}
@@ -386,7 +385,7 @@ export const EvmCollectibleItem = memo<EvmCollectibleItemProps>(
               className="cursor-pointer text-primary"
               onClick={setDeleteModalOpened}
             />
-            <ToggleSwitch checked={checked} disabled={assetSlug === EVM_TOKEN_SLUG} onChange={toggleTokenStatus} />
+            <ToggleSwitch checked={checked} onChange={toggleTokenStatus} />
           </div>
         </div>
         {deleteModalOpened && <DeleteAssetModal onClose={setDeleteModalClosed} onDelete={deleteItem} />}

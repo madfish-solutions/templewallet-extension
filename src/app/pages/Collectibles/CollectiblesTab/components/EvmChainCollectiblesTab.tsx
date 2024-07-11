@@ -40,24 +40,22 @@ export const EvmChainCollectiblesTab = memo<EvmChainCollectiblesTabProps>(({ cha
     manageActive
   );
 
-  const list = useMemo(
-    () =>
-      paginatedSlugs.map(slug => (
-        <EvmCollectibleItem
-          key={slug}
-          assetSlug={slug}
-          evmChainId={chainId}
-          accountPkh={publicKeyHash}
-          showDetails={showInfo}
-          manageActive={manageActive}
-        />
-      )),
-    [chainId, manageActive, paginatedSlugs, publicKeyHash, showInfo]
-  );
-
   const contentElement = useMemo(
-    () => (manageActive ? list : <div className="grid grid-cols-3 gap-2">{list}</div>),
-    [manageActive, list]
+    () => (
+      <div className={manageActive ? undefined : 'grid grid-cols-3 gap-2'}>
+        {paginatedSlugs.map(slug => (
+          <EvmCollectibleItem
+            key={slug}
+            assetSlug={slug}
+            evmChainId={chainId}
+            accountPkh={publicKeyHash}
+            showDetails={showInfo}
+            manageActive={manageActive}
+          />
+        ))}
+      </div>
+    ),
+    [chainId, manageActive, paginatedSlugs, publicKeyHash, showInfo]
   );
 
   const stickyBarRef = useRef<HTMLDivElement>(null);

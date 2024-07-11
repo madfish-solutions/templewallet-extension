@@ -1,6 +1,5 @@
 import React, { memo, useMemo, useRef } from 'react';
 
-import { isEqual } from 'lodash';
 import useOnClickOutside from 'use-onclickoutside';
 
 import { IconBase, SyncSpinner } from 'app/atoms';
@@ -20,11 +19,8 @@ import { AssetsSelectors } from 'app/pages/Home/OtherComponents/Assets.selectors
 import { useCollectiblesListOptionsSelector } from 'app/store/assets-filter-options/selectors';
 import { AssetsFilterOptions } from 'app/templates/AssetsFilterOptions';
 import { SearchBarField } from 'app/templates/SearchField';
-import { useEnabledAccountChainCollectiblesSlugs } from 'lib/assets/hooks/collectibles';
-import { useAccountCollectiblesSortPredicate } from 'lib/assets/use-sorting';
 import { fromChainAssetSlug } from 'lib/assets/utils';
 import { T } from 'lib/i18n';
-import { useMemoWithCompare } from 'lib/ui/hooks';
 import { TempleChainKind } from 'temple/types';
 
 import { EvmCollectibleItem, TezosCollectibleItem } from './CollectibleItem';
@@ -42,23 +38,13 @@ export const MultiChainCollectiblesTab = memo<MultiChainCollectiblesTabProps>(
     const { filtersOpened, setFiltersClosed, toggleFiltersOpened } = useAssetsFilterOptionsState();
     const { manageActive, setManageInactive, toggleManageActive } = useManageAssetsState();
 
-    const allChainSlugs = useEnabledAccountChainCollectiblesSlugs(accountTezAddress, accountEvmAddress);
-
-    const assetsSortPredicate = useAccountCollectiblesSortPredicate(accountTezAddress, accountEvmAddress);
-
-    const allChainSlugsSorted = useMemoWithCompare(
-      () => [...allChainSlugs].sort(assetsSortPredicate),
-      [allChainSlugs, assetsSortPredicate],
-      isEqual
-    );
-
-    const { isInSearchMode, displayedSlugs, isSyncing, loadNext, searchValue, setSearchValue } =
-      useAccountCollectiblesListingLogic(allChainSlugsSorted);
+    const { isInSearchMode, paginatedSlugs, isSyncing, loadNext, searchValue, setSearchValue } =
+      useAccountCollectiblesListingLogic(accountTezAddress, accountEvmAddress, manageActive);
 
     const contentElement = useMemo(
-      () =>
-        manageActive ? (
-          displayedSlugs.map(chainSlug => {
+      () => (
+        <div className={manageActive ? undefined : 'grid grid-cols-3 gap-2'}>
+          {paginatedSlugs.map(chainSlug => {
             const [chainKind, chainId, slug] = fromChainAssetSlug(chainSlug);
 
             if (chainKind === TempleChainKind.Tezos) {
@@ -71,7 +57,7 @@ export const MultiChainCollectiblesTab = memo<MultiChainCollectiblesTabProps>(
                   adultBlur={blur}
                   areDetailsShown={showInfo}
                   hideWithoutMeta={isInSearchMode}
-                  manageActive
+                  manageActive={manageActive}
                 />
               );
             }
@@ -83,42 +69,13 @@ export const MultiChainCollectiblesTab = memo<MultiChainCollectiblesTabProps>(
                 evmChainId={chainId as number}
                 accountPkh={accountEvmAddress}
                 showDetails={showInfo}
-                manageActive
+                manageActive={manageActive}
               />
             );
-          })
-        ) : (
-          <div className="grid grid-cols-3 gap-2">
-            {displayedSlugs.map(chainSlug => {
-              const [chainKind, chainId, slug] = fromChainAssetSlug(chainSlug);
-
-              if (chainKind === TempleChainKind.Tezos) {
-                return (
-                  <TezosCollectibleItem
-                    key={chainSlug}
-                    assetSlug={slug}
-                    accountPkh={accountTezAddress}
-                    tezosChainId={chainId as string}
-                    adultBlur={blur}
-                    areDetailsShown={showInfo}
-                    hideWithoutMeta={isInSearchMode}
-                  />
-                );
-              }
-
-              return (
-                <EvmCollectibleItem
-                  key={chainSlug}
-                  assetSlug={slug}
-                  evmChainId={chainId as number}
-                  accountPkh={accountEvmAddress}
-                  showDetails={showInfo}
-                />
-              );
-            })}
-          </div>
-        ),
-      [isInSearchMode, accountEvmAddress, accountTezAddress, blur, displayedSlugs, showInfo, manageActive]
+          })}
+        </div>
+      ),
+      [isInSearchMode, accountEvmAddress, accountTezAddress, blur, paginatedSlugs, showInfo, manageActive]
     );
 
     const stickyBarRef = useRef<HTMLDivElement>(null);
@@ -171,7 +128,7 @@ export const MultiChainCollectiblesTab = memo<MultiChainCollectiblesTabProps>(
           <AssetsFilterOptions filterButtonRef={filterButtonRef} onRequestClose={setFiltersClosed} />
         ) : (
           <ContentContainer ref={containerRef}>
-            {displayedSlugs.length === 0 ? (
+            {paginatedSlugs.length === 0 ? (
               <EmptySection />
             ) : (
               <>

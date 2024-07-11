@@ -58,15 +58,13 @@ export const MultiChainTokensTab = memo<MultiChainTokensTabProps>(({ accountTezA
     hideZeroBalance,
     groupByNetwork,
     leadingAssets,
-    true
+    manageActive
   );
 
   const contentElement = useMemo(
     () =>
       paginatedSlugs.map((chainSlug, index) => {
         if (!chainSlug.includes(CHAIN_SLUG_SEPARATOR)) {
-          if (manageActive) return null;
-
           return (
             <div key={chainSlug} className={clsx('mb-0.5 p-1 text-font-description-bold', index > 0 && 'mt-4')}>
               {chainSlug}

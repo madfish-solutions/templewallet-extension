@@ -26,13 +26,14 @@ import { EvmTokenMetadata } from 'lib/metadata/types';
 import { useTypedSWR } from 'lib/swr';
 import { atomsToTokens } from 'lib/temple/helpers';
 import { useInterval } from 'lib/ui/hooks';
-import { useAccountAddressForEvm, useAccountAddressForTezos, useOnTezosBlock } from 'temple/front';
+import { useAccountAddressForEvm, useAccountAddressForTezos, useAllEvmChains, useOnTezosBlock } from 'temple/front';
 import { useEvmChainByChainId } from 'temple/front/chains';
 import { TezosNetworkEssentials } from 'temple/networks';
 import { getReadOnlyTezos } from 'temple/tezos';
 
 import { useEvmCollectibleMetadataSelector } from '../../app/store/evm/collectibles-metadata/selectors';
 import { getKeyForBalancesRecord } from '../../app/store/tezos/balances/utils';
+import { EVM_TOKEN_SLUG } from '../assets/defaults';
 import { EvmAssetStandard } from '../evm/types';
 import { EVM_BALANCES_SYNC_INTERVAL } from '../fixed-times';
 import { isEvmNativeTokenSlug } from '../utils/evm.utils';
@@ -40,17 +41,21 @@ import { isEvmNativeTokenSlug } from '../utils/evm.utils';
 import { fetchRawBalance as fetchRawBalanceFromBlockchain } from './fetch';
 
 export const useGetEvmTokenBalanceWithDecimals = (publicKeyHash: HexString) => {
+  const evmChains = useAllEvmChains();
   const rawBalances = useRawEvmAccountBalancesSelector(publicKeyHash);
   const tokensMetadata = useEvmTokensMetadataRecordSelector();
 
   return useCallback(
     (chainId: number, slug: string) => {
       const rawBalance = rawBalances[chainId]?.[slug] as string | undefined;
-      const metadata = tokensMetadata[chainId]?.[slug] as EvmTokenMetadata | undefined;
+      const metadata =
+        slug === EVM_TOKEN_SLUG
+          ? evmChains[chainId]?.currency
+          : (tokensMetadata[chainId]?.[slug] as EvmTokenMetadata | undefined);
 
       return rawBalance && metadata?.decimals ? atomsToTokens(new BigNumber(rawBalance), metadata.decimals) : undefined;
     },
-    [rawBalances, tokensMetadata]
+    [evmChains, rawBalances, tokensMetadata]
   );
 };
 
@@ -67,7 +72,7 @@ export const useGetTezosAccountTokenOrGasBalanceWithDecimals = (publicKeyHash: s
 
       return rawBalance && metadata ? atomsToTokens(new BigNumber(rawBalance), metadata.decimals) : undefined;
     },
-    [balancesAtomicRecord, getChainMetadata]
+    [balancesAtomicRecord, getChainMetadata, publicKeyHash]
   );
 };
 

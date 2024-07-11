@@ -1,12 +1,12 @@
 import { dispatch } from 'app/store';
 import { loadCollectiblesDetailsActions } from 'app/store/tezos/collectibles/actions';
-import { useTezosEnabledChainAccountCollectiblesSlugs } from 'lib/assets/hooks';
+import { useEnabledTezosChainAccountCollectiblesSlugs } from 'lib/assets/hooks';
 import { COLLECTIBLES_DETAILS_SYNC_INTERVAL } from 'lib/fixed-times';
 import { TEZOS_MAINNET_CHAIN_ID } from 'lib/temple/types';
 import { useInterval } from 'lib/ui/hooks';
 
 export const useCollectiblesDetailsLoading = (publicKeyHash: string) => {
-  const slugs = useTezosEnabledChainAccountCollectiblesSlugs(publicKeyHash, TEZOS_MAINNET_CHAIN_ID);
+  const slugs = useEnabledTezosChainAccountCollectiblesSlugs(publicKeyHash, TEZOS_MAINNET_CHAIN_ID);
 
   useInterval(
     () => {

@@ -1,4 +1,4 @@
-import React, { FC, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { FC, useMemo, useRef } from 'react';
 
 import clsx from 'clsx';
 import useOnClickOutside from 'use-onclickoutside';
@@ -7,6 +7,7 @@ import { IconBase, SyncSpinner } from 'app/atoms';
 import { useAssetsSegmentControlRef } from 'app/atoms/AssetsSegmentControl';
 import { FilterButton } from 'app/atoms/FilterButton';
 import { IconButton } from 'app/atoms/IconButton';
+import { SimpleInfiniteScroll } from 'app/atoms/SimpleInfiniteScroll';
 import { useTezosAccountTokensListingLogic } from 'app/hooks/tokens-listing-logic/use-tezos-account-tokens-listing-logic';
 import { useAssetsFilterOptionsState } from 'app/hooks/use-assets-filter-options-state';
 import { useLoadPartnersPromo } from 'app/hooks/use-load-partners-promo';
@@ -16,23 +17,17 @@ import { ReactComponent as ManageIcon } from 'app/icons/base/manage.svg';
 import { ContentContainer, StickyBar } from 'app/layouts/containers';
 import { useContentPaperRef } from 'app/layouts/PageLayout';
 import { AssetsSelectors } from 'app/pages/Home/OtherComponents/Assets.selectors';
-import { useAssetsFilterOptionsSelector } from 'app/store/assets-filter-options/selectors';
-import { useAreAssetsLoading, useMainnetTokensScamlistSelector } from 'app/store/tezos/assets/selectors';
-import { useTokensMetadataLoadingSelector } from 'app/store/tezos/tokens-metadata/selectors';
+import { useTokensListOptionsSelector } from 'app/store/assets-filter-options/selectors';
+import { useMainnetTokensScamlistSelector } from 'app/store/tezos/assets/selectors';
 import { AssetsFilterOptions } from 'app/templates/AssetsFilterOptions';
 import { PartnersPromotion, PartnersPromotionVariant } from 'app/templates/partners-promotion';
 import { SearchBarField } from 'app/templates/SearchField';
 import { OptimalPromoVariantEnum } from 'lib/apis/optimal';
-import { TEMPLE_TOKEN_SLUG, TEZ_TOKEN_SLUG } from 'lib/assets';
-import { useTezosEnabledAccountTokensSlugs } from 'lib/assets/hooks/tokens';
+import { TEZ_TOKEN_SLUG } from 'lib/assets';
 import { CHAIN_SLUG_SEPARATOR, fromChainAssetSlug, toChainAssetSlug } from 'lib/assets/utils';
 import { T } from 'lib/i18n';
-import { TEZOS_MAINNET_CHAIN_ID } from 'lib/temple/types';
-import { navigate } from 'lib/woozie';
 import { useAllTezosChains, useEnabledTezosChains } from 'temple/front';
 import { TempleChainKind } from 'temple/types';
-
-import { toExploreAssetLink } from '../utils';
 
 import { EmptySection } from './EmptySection';
 import { TezosListItem } from './ListItem';
@@ -43,52 +38,31 @@ interface TezosTokensTabProps {
 }
 
 export const TezosTokensTab: FC<TezosTokensTabProps> = ({ publicKeyHash }) => {
-  const { filterChain, tokensListOptions } = useAssetsFilterOptionsSelector();
+  const { hideZeroBalance, groupByNetwork } = useTokensListOptionsSelector();
   const { filtersOpened, setFiltersClosed, toggleFiltersOpened } = useAssetsFilterOptionsState();
   const { manageActive, setManageInactive, toggleManageActive } = useManageAssetsState();
-
-  const assetsAreLoading = useAreAssetsLoading('tokens');
-  const metadatasLoading = useTokensMetadataLoadingSelector();
-  const isSyncing = assetsAreLoading || metadatasLoading;
-
-  const chainSlugs = useTezosEnabledAccountTokensSlugs(publicKeyHash);
 
   const mainnetTokensScamSlugsRecord = useMainnetTokensScamlistSelector();
 
   const tezosChains = useAllTezosChains();
   const enabledChains = useEnabledTezosChains();
 
-  const leadingAssets = useMemo(() => {
-    const nativeChainSlugs = enabledChains.map(chain =>
-      toChainAssetSlug(TempleChainKind.Tezos, chain.chainId, TEZ_TOKEN_SLUG)
-    );
-
-    return !filterChain || filterChain.chainId === TEZOS_MAINNET_CHAIN_ID
-      ? [...nativeChainSlugs, toChainAssetSlug(TempleChainKind.Tezos, TEZOS_MAINNET_CHAIN_ID, TEMPLE_TOKEN_SLUG)]
-      : nativeChainSlugs;
-  }, [enabledChains, filterChain]);
-
-  const { filteredAssets, searchValue, setSearchValue } = useTezosAccountTokensListingLogic(
-    publicKeyHash,
-    chainSlugs,
-    tokensListOptions.hideZeroBalance,
-    tokensListOptions.groupByNetwork,
-    leadingAssets
+  const leadingAssets = useMemo(
+    () => enabledChains.map(chain => toChainAssetSlug(TempleChainKind.Tezos, chain.chainId, TEZ_TOKEN_SLUG)),
+    [enabledChains]
   );
 
-  const [searchFocused, setSearchFocused] = useState(false);
-  const [activeIndex, setActiveIndex] = useState(0);
-  const searchValueExist = useMemo(() => Boolean(searchValue), [searchValue]);
-
-  const activeChainAssetSlug = useMemo(() => {
-    return searchFocused && searchValueExist && filteredAssets[activeIndex] ? filteredAssets[activeIndex] : null;
-  }, [filteredAssets, searchFocused, searchValueExist, activeIndex]);
+  const { paginatedSlugs, isSyncing, loadNext, searchValue, setSearchValue } = useTezosAccountTokensListingLogic(
+    publicKeyHash,
+    hideZeroBalance,
+    groupByNetwork,
+    leadingAssets,
+    manageActive
+  );
 
   const tokensView = useMemo(() => {
-    const tokensJsx = filteredAssets.map((chainSlug, index) => {
+    const tokensJsx = paginatedSlugs.map((chainSlug, index) => {
       if (!chainSlug.includes(CHAIN_SLUG_SEPARATOR)) {
-        if (manageActive) return null;
-
         return (
           <div key={chainSlug} className={clsx('mb-0.5 p-1 text-font-description-bold', index > 0 && 'mt-4')}>
             {chainSlug}
@@ -105,7 +79,6 @@ export const TezosTokensTab: FC<TezosTokensTabProps> = ({ publicKeyHash }) => {
           publicKeyHash={publicKeyHash}
           assetSlug={assetSlug}
           scam={mainnetTokensScamSlugsRecord[assetSlug]}
-          active={activeChainAssetSlug ? chainSlug === activeChainAssetSlug : false}
           manageActive={manageActive}
         />
       );
@@ -120,50 +93,16 @@ export const TezosTokensTab: FC<TezosTokensTabProps> = ({ publicKeyHash }) => {
       />
     );
 
-    if (filteredAssets.length < 5) {
+    if (paginatedSlugs.length < 5) {
       tokensJsx.push(promoJsx);
     } else {
       tokensJsx.splice(1, 0, promoJsx);
     }
 
     return tokensJsx;
-  }, [filteredAssets, tezosChains, publicKeyHash, mainnetTokensScamSlugsRecord, activeChainAssetSlug, manageActive]);
+  }, [paginatedSlugs, tezosChains, publicKeyHash, mainnetTokensScamSlugsRecord, manageActive]);
 
   useLoadPartnersPromo(OptimalPromoVariantEnum.Token);
-
-  useEffect(() => {
-    if (activeIndex !== 0 && activeIndex >= filteredAssets.length) {
-      setActiveIndex(0);
-    }
-  }, [activeIndex, filteredAssets.length]);
-
-  const handleSearchFieldFocus = useCallback(() => void setSearchFocused(true), [setSearchFocused]);
-  const handleSearchFieldBlur = useCallback(() => void setSearchFocused(false), [setSearchFocused]);
-
-  useEffect(() => {
-    if (!activeChainAssetSlug) return;
-
-    const [_, chainId, activeAssetSlug] = fromChainAssetSlug<string>(activeChainAssetSlug);
-
-    const handleKeyup = (evt: KeyboardEvent) => {
-      switch (evt.key) {
-        case 'Enter':
-          navigate(toExploreAssetLink(TempleChainKind.Tezos, chainId, activeAssetSlug));
-          break;
-
-        case 'ArrowDown':
-          setActiveIndex(i => i + 1);
-          break;
-
-        case 'ArrowUp':
-          setActiveIndex(i => (i > 0 ? i - 1 : 0));
-          break;
-      }
-    };
-
-    window.addEventListener('keyup', handleKeyup);
-    return () => window.removeEventListener('keyup', handleKeyup);
-  }, [activeChainAssetSlug, setActiveIndex]);
 
   const stickyBarRef = useRef<HTMLDivElement>(null);
   const filterButtonRef = useRef<HTMLButtonElement>(null);
@@ -203,8 +142,6 @@ export const TezosTokensTab: FC<TezosTokensTabProps> = ({ publicKeyHash }) => {
           ref={searchInputContainerRef}
           value={searchValue}
           onValueChange={setSearchValue}
-          onFocus={handleSearchFieldFocus}
-          onBlur={handleSearchFieldBlur}
           testID={AssetsSelectors.searchAssetsInputTokens}
         />
 
@@ -216,10 +153,10 @@ export const TezosTokensTab: FC<TezosTokensTabProps> = ({ publicKeyHash }) => {
       {filtersOpened ? (
         <AssetsFilterOptions filterButtonRef={filterButtonRef} onRequestClose={setFiltersClosed} />
       ) : (
-        <ContentContainer ref={containerRef} padding={filteredAssets.length > 0}>
+        <ContentContainer ref={containerRef} padding={paginatedSlugs.length > 0}>
           {!manageActive && <UpdateAppBanner stickyBarRef={stickyBarRef} />}
 
-          {filteredAssets.length === 0 ? (
+          {paginatedSlugs.length === 0 ? (
             <EmptySection />
           ) : (
             <>
@@ -231,7 +168,7 @@ export const TezosTokensTab: FC<TezosTokensTabProps> = ({ publicKeyHash }) => {
                   </p>
                 </div>
               )}
-              <>{tokensView}</>
+              <SimpleInfiniteScroll loadNext={loadNext}>{tokensView}</SimpleInfiniteScroll>
               {isSyncing && <SyncSpinner className="mt-4" />}
             </>
           )}

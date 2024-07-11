@@ -6,7 +6,7 @@ import { isEqual } from 'lodash';
 import OperationStatus from 'app/templates/OperationStatus';
 import { AnalyticsEventCategory, useAnalytics } from 'lib/analytics';
 import { TEZ_TOKEN_SLUG } from 'lib/assets';
-import { useTezosEnabledChainAccountTokensSlugs } from 'lib/assets/hooks';
+import { useEnabledTezosChainAccountTokenSlugs } from 'lib/assets/hooks';
 import { useTezosChainAccountTokensSortPredicate } from 'lib/assets/use-sorting';
 import { t } from 'lib/i18n';
 import { useMemoWithCompare, useSafeState } from 'lib/ui/hooks';
@@ -31,7 +31,7 @@ const SendForm = memo<Props>(({ network, tezosAccount, assetSlug = TEZ_TOKEN_SLU
   const tezosChainId = network.chainId;
   const publicKeyHash = tezosAccount.address;
 
-  const tokensSlugs = useTezosEnabledChainAccountTokensSlugs(publicKeyHash, tezosChainId);
+  const tokensSlugs = useEnabledTezosChainAccountTokenSlugs(publicKeyHash, tezosChainId);
 
   const tokensSortPredicate = useTezosChainAccountTokensSortPredicate(publicKeyHash, tezosChainId);
 

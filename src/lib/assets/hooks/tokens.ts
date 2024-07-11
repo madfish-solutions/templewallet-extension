@@ -13,10 +13,7 @@ import {
   useChainAccountTokensSelector,
   useMainnetTokensWhitelistSelector
 } from 'app/store/tezos/assets/selectors';
-import {
-  getAccountAssetsStoreKey,
-  isAccountAssetsStoreKeyOfSameChainIdAndDifferentAccount
-} from 'app/store/tezos/assets/utils';
+import { getAccountAssetsStoreKey } from 'app/store/tezos/assets/utils';
 import { useAllAccountBalancesSelector, useBalancesAtomicRecordSelector } from 'app/store/tezos/balances/selectors';
 import { getKeyForBalancesRecord } from 'app/store/tezos/balances/utils';
 import { useMemoWithCompare } from 'lib/ui/hooks';
@@ -34,38 +31,6 @@ interface AccountToken extends AccountAsset {
   chainId: string | number;
   predefined?: boolean;
 }
-
-export const useAllTezosAvailableTokens = (account: string, chainId: string) => {
-  const tokens = useTezosChainAccountTokens(account, chainId);
-  const allTokensStored = useAllTokensSelector();
-
-  return useMemo(() => {
-    const remainedTokens: AccountToken[] = [];
-    const removedSlugs: string[] = [];
-
-    for (const token of tokens) {
-      if (token.status === 'removed') removedSlugs.push(token.slug);
-      else remainedTokens.push(token);
-    }
-
-    const otherAccountsTokens: AccountToken[] = [];
-    for (const [key, record] of Object.entries(allTokensStored)) {
-      if (isAccountAssetsStoreKeyOfSameChainIdAndDifferentAccount(key, account, chainId))
-        for (const [slug, asset] of Object.entries(record)) {
-          if (asset.status !== 'removed' && !removedSlugs.includes(slug))
-            otherAccountsTokens.push({ slug, status: 'disabled', chainId });
-        }
-    }
-
-    // Keep this order to preserve correct statuses & flags
-    const concatenated = remainedTokens.concat(otherAccountsTokens);
-
-    return sortBy(
-      uniqBy(concatenated, t => t.slug),
-      TOKENS_SORT_ITERATEES
-    );
-  }, [tokens, allTokensStored, account, chainId]);
-};
 
 export const useEnabledAccountChainTokensSlugs = (accountTezAddress: string, accountEvmAddress: HexString) => {
   const tezTokens = useTezosAccountTokens(accountTezAddress);
@@ -88,7 +53,28 @@ export const useEnabledAccountChainTokensSlugs = (accountTezAddress: string, acc
   );
 };
 
-export const useTezosEnabledAccountTokensSlugs = (publicKeyHash: string) => {
+export const useAllAccountChainTokensSlugs = (accountTezAddress: string, accountEvmAddress: HexString) => {
+  const tezTokens = useTezosAccountTokens(accountTezAddress);
+  const evmTokens = useEvmAccountTokens(accountEvmAddress);
+
+  return useMemo(
+    () => [
+      ...tezTokens.reduce<string[]>(
+        (acc, { slug, status, chainId }) =>
+          status !== 'removed' ? acc.concat(toChainAssetSlug(TempleChainKind.Tezos, chainId, slug)) : acc,
+        []
+      ),
+      ...evmTokens.reduce<string[]>(
+        (acc, { slug, status, chainId }) =>
+          status !== 'removed' ? acc.concat(toChainAssetSlug(TempleChainKind.EVM, chainId, slug)) : acc,
+        []
+      )
+    ],
+    [tezTokens, evmTokens]
+  );
+};
+
+export const useEnabledTezosAccountTokensSlugs = (publicKeyHash: string) => {
   const tokens = useTezosAccountTokens(publicKeyHash);
 
   return useMemo(
@@ -102,11 +88,34 @@ export const useTezosEnabledAccountTokensSlugs = (publicKeyHash: string) => {
   );
 };
 
-export const useTezosEnabledChainAccountTokensSlugs = (publicKeyHash: string, chainId: string) => {
+export const useAllTezosAccountTokensSlugs = (publicKeyHash: string) => {
+  const tokens = useTezosAccountTokens(publicKeyHash);
+
+  return useMemo(
+    () =>
+      tokens.reduce<string[]>(
+        (acc, { slug, status, chainId }) =>
+          status !== 'removed' ? acc.concat(toChainAssetSlug(TempleChainKind.Tezos, chainId, slug)) : acc,
+        []
+      ),
+    [tokens]
+  );
+};
+
+export const useEnabledTezosChainAccountTokenSlugs = (publicKeyHash: string, chainId: string) => {
   const tokens = useTezosChainAccountTokens(publicKeyHash, chainId);
 
   return useMemo(
     () => tokens.reduce<string[]>((acc, { slug, status }) => (status === 'enabled' ? acc.concat(slug) : acc), []),
+    [tokens]
+  );
+};
+
+export const useAllTezosChainAccountTokenSlugs = (publicKeyHash: string, chainId: string) => {
+  const tokens = useTezosChainAccountTokens(publicKeyHash, chainId);
+
+  return useMemo(
+    () => tokens.reduce<string[]>((acc, { slug, status }) => (status !== 'removed' ? acc.concat(slug) : acc), []),
     [tokens]
   );
 };

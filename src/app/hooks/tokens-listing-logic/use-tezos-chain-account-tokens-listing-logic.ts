@@ -1,31 +1,54 @@
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { isDefined } from '@rnw-community/shared';
-import { isEqual } from 'lodash';
+import { isEqual, uniq } from 'lodash';
 import { useDebounce } from 'use-debounce';
 
+import { useAreAssetsLoading } from 'app/store/tezos/assets/selectors';
 import { useAllAccountBalancesSelector } from 'app/store/tezos/balances/selectors';
-import { toTokenSlug } from 'lib/assets';
+import { useTokensMetadataLoadingSelector } from 'app/store/tezos/tokens-metadata/selectors';
+import { useEnabledTezosChainAccountTokenSlugs } from 'lib/assets/hooks';
+import { useAllTezosChainAccountTokenSlugs } from 'lib/assets/hooks/tokens';
 import { searchTezosChainAssetsWithNoMeta } from 'lib/assets/search.utils';
 import { useTezosChainAccountTokensSortPredicate } from 'lib/assets/use-sorting';
 import { useGetChainTokenOrGasMetadata } from 'lib/metadata';
 import { useMemoWithCompare } from 'lib/ui/hooks';
 import { isSearchStringApplicable } from 'lib/utils/search-items';
 
+import { useSimpleAssetsPaginationLogic } from '../use-simple-assets-pagination-logic';
+
 export const useTezosChainAccountTokensListingLogic = (
-  tezosChainId: string,
   publicKeyHash: string,
-  assetsSlugs: string[],
+  chainId: string,
   filterZeroBalances = false,
-  leadingAssets?: string[],
-  leadingAssetsAreFilterable = false
+  leadingAssetsSlugs?: string[],
+  manageActive = false
 ) => {
-  const nonLeadingAssets = useMemo(
-    () => (leadingAssets?.length ? assetsSlugs.filter(slug => !leadingAssets.includes(slug)) : assetsSlugs),
-    [assetsSlugs, leadingAssets]
+  const tokensSortPredicate = useTezosChainAccountTokensSortPredicate(publicKeyHash, chainId);
+
+  const enabledTokenSlugs = useEnabledTezosChainAccountTokenSlugs(publicKeyHash, chainId);
+  const allTokenSlugs = useAllTezosChainAccountTokenSlugs(publicKeyHash, chainId);
+
+  const assetsAreLoading = useAreAssetsLoading('tokens');
+  const metadatasLoading = useTokensMetadataLoadingSelector();
+  const isSyncing = assetsAreLoading || metadatasLoading;
+
+  const enabledNonLeadingSlugs = useMemo(
+    () =>
+      leadingAssetsSlugs?.length
+        ? enabledTokenSlugs.filter(slug => !leadingAssetsSlugs.includes(slug))
+        : enabledTokenSlugs,
+    [enabledTokenSlugs, leadingAssetsSlugs]
   );
 
-  const balances = useAllAccountBalancesSelector(publicKeyHash, tezosChainId);
+  const allNonLeadingSlugs = useMemo(
+    () =>
+      leadingAssetsSlugs?.length ? allTokenSlugs.filter(slug => !leadingAssetsSlugs.includes(slug)) : allTokenSlugs,
+    [allTokenSlugs, leadingAssetsSlugs]
+  );
+
+  const balances = useAllAccountBalancesSelector(publicKeyHash, chainId);
+
   const isNonZeroBalance = useCallback(
     (slug: string) => {
       const balance = balances[slug];
@@ -34,59 +57,93 @@ export const useTezosChainAccountTokensListingLogic = (
     [balances]
   );
 
-  const sourceArray = useMemo(
-    () => (filterZeroBalances ? nonLeadingAssets.filter(isNonZeroBalance) : nonLeadingAssets),
-    [filterZeroBalances, nonLeadingAssets, isNonZeroBalance]
+  const enabledSourceArray = useMemo(
+    () => (filterZeroBalances ? enabledNonLeadingSlugs.filter(isNonZeroBalance) : enabledNonLeadingSlugs),
+    [filterZeroBalances, enabledNonLeadingSlugs, isNonZeroBalance]
   );
+
+  const getMetadata = useGetChainTokenOrGasMetadata(chainId);
 
   const [searchValue, setSearchValue] = useState('');
-  const [tokenId, setTokenId] = useState<number>();
-  const [searchValueDebounced] = useDebounce(tokenId ? toTokenSlug(searchValue, String(tokenId)) : searchValue, 300);
+  const [searchValueDebounced] = useDebounce(searchValue, 300);
 
-  const assetsSortPredicate = useTezosChainAccountTokensSortPredicate(publicKeyHash, tezosChainId);
-  const getMetadata = useGetChainTokenOrGasMetadata(tezosChainId);
+  const isInSearchMode = isSearchStringApplicable(searchValueDebounced);
 
-  const searchedSlugs = useMemo(
-    () =>
-      isSearchStringApplicable(searchValueDebounced)
-        ? searchTezosChainAssetsWithNoMeta(searchValueDebounced, sourceArray, getMetadata, slug => slug)
-        : [...sourceArray].sort(assetsSortPredicate),
-    [searchValueDebounced, sourceArray, getMetadata, assetsSortPredicate]
+  const searchedLeadingSlugs = useMemo(() => {
+    if (!isDefined(leadingAssetsSlugs) || !leadingAssetsSlugs.length) return [];
+
+    return isInSearchMode
+      ? searchTezosChainAssetsWithNoMeta(searchValueDebounced, leadingAssetsSlugs, getMetadata, slug => slug)
+      : leadingAssetsSlugs;
+  }, [getMetadata, isInSearchMode, leadingAssetsSlugs, searchValueDebounced]);
+
+  const filteredSlugs = useMemo(() => {
+    const enabledSearchedSlugs = isInSearchMode
+      ? searchTezosChainAssetsWithNoMeta(searchValueDebounced, enabledSourceArray, getMetadata, slug => slug)
+      : [...enabledSourceArray].sort(tokensSortPredicate);
+
+    return searchedLeadingSlugs.length ? searchedLeadingSlugs.concat(enabledSearchedSlugs) : enabledSearchedSlugs;
+  }, [
+    enabledSourceArray,
+    getMetadata,
+    isInSearchMode,
+    searchValueDebounced,
+    searchedLeadingSlugs,
+    tokensSortPredicate
+  ]);
+
+  const enabledNonLeadingSlugsSorted = useMemo(
+    () => enabledNonLeadingSlugs.sort(tokensSortPredicate),
+    [enabledNonLeadingSlugs, tokensSortPredicate]
   );
 
-  const filteredAssets = useMemoWithCompare(
+  const allNonLeadingAssetsRef = useRef(allNonLeadingSlugs);
+  const enabledNonLeadingSlugsSortedRef = useRef(enabledNonLeadingSlugsSorted);
+
+  useEffect(() => {
+    // keeping the same tokens order while manage is active
+    if (!manageActive) {
+      allNonLeadingAssetsRef.current = allNonLeadingSlugs;
+      enabledNonLeadingSlugsSortedRef.current = enabledNonLeadingSlugsSorted;
+    }
+  }, [manageActive, allNonLeadingSlugs, enabledNonLeadingSlugsSorted]);
+
+  const manageableTokenSlugs = useMemoWithCompare(
     () => {
-      if (!isDefined(leadingAssets) || !leadingAssets.length) return searchedSlugs;
+      if (!manageActive) return filteredSlugs;
 
-      const filteredLeadingSlugs =
-        leadingAssetsAreFilterable && filterZeroBalances ? leadingAssets.filter(isNonZeroBalance) : leadingAssets;
+      const allUniqNonLeadingSlugs = uniq([
+        ...enabledNonLeadingSlugsSortedRef.current,
+        ...allNonLeadingAssetsRef.current
+      ]).filter(slug => allNonLeadingSlugs.includes(slug));
 
-      const searchedLeadingSlugs = searchTezosChainAssetsWithNoMeta(
-        searchValueDebounced,
-        filteredLeadingSlugs,
-        getMetadata,
-        slug => slug
-      );
+      const allNonLeadingSearchedSlugs = isInSearchMode
+        ? searchTezosChainAssetsWithNoMeta(searchValueDebounced, allUniqNonLeadingSlugs, getMetadata, slug => slug)
+        : allUniqNonLeadingSlugs;
 
-      return searchedLeadingSlugs.length ? searchedLeadingSlugs.concat(searchedSlugs) : searchedSlugs;
+      return searchedLeadingSlugs.length
+        ? searchedLeadingSlugs.concat(allNonLeadingSearchedSlugs)
+        : allNonLeadingSearchedSlugs;
     },
     [
-      leadingAssets,
-      leadingAssetsAreFilterable,
-      filterZeroBalances,
-      isNonZeroBalance,
-      searchedSlugs,
+      manageActive,
+      filteredSlugs,
+      isInSearchMode,
       searchValueDebounced,
-      getMetadata
+      getMetadata,
+      searchedLeadingSlugs,
+      allNonLeadingSlugs
     ],
     isEqual
   );
 
+  const { slugs: paginatedSlugs, loadNext } = useSimpleAssetsPaginationLogic(manageableTokenSlugs);
+
   return {
-    filteredAssets,
+    paginatedSlugs,
+    isSyncing,
+    loadNext,
     searchValue,
-    setSearchValue,
-    tokenId,
-    setTokenId
+    setSearchValue
   };
 };

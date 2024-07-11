@@ -1,6 +1,5 @@
 import React, { memo, useMemo, useRef } from 'react';
 
-import { isEqual } from 'lodash';
 import useOnClickOutside from 'use-onclickoutside';
 
 import { IconBase, SyncSpinner } from 'app/atoms';
@@ -10,6 +9,7 @@ import { IconButton } from 'app/atoms/IconButton';
 import { ScrollBackUpButton } from 'app/atoms/ScrollBackUpButton';
 import { SimpleInfiniteScroll } from 'app/atoms/SimpleInfiniteScroll';
 import { DeadEndBoundaryError } from 'app/ErrorBoundary';
+import { useTezosChainCollectiblesListingLogic } from 'app/hooks/collectibles-listing-logic/use-tezos-chain-collectibles-listing-logic';
 import { useAssetsFilterOptionsState } from 'app/hooks/use-assets-filter-options-state';
 import { useManageAssetsState } from 'app/hooks/use-manage-assets-state';
 import { ReactComponent as InfoFillIcon } from 'app/icons/base/InfoFill.svg';
@@ -20,13 +20,8 @@ import { AssetsSelectors } from 'app/pages/Home/OtherComponents/Assets.selectors
 import { useCollectiblesListOptionsSelector } from 'app/store/assets-filter-options/selectors';
 import { AssetsFilterOptions } from 'app/templates/AssetsFilterOptions';
 import { SearchBarField } from 'app/templates/SearchField';
-import { useTezosEnabledChainAccountCollectiblesSlugs } from 'lib/assets/hooks';
-import { useTezosChainCollectiblesSortPredicate } from 'lib/assets/use-sorting';
 import { T } from 'lib/i18n';
-import { useMemoWithCompare } from 'lib/ui/hooks';
 import { useTezosChainByChainId } from 'temple/front';
-
-import { useTezosChainCollectiblesListingLogic } from '../../../../hooks/collectibles-listing-logic/use-tezos-chain-collectibles-listing-logic';
 
 import { TezosCollectibleItem } from './CollectibleItem';
 import { EmptySection } from './EmptySection';
@@ -45,23 +40,13 @@ export const TezosChainCollectiblesTab = memo<TezosChainCollectiblesTabProps>(({
   const { filtersOpened, setFiltersClosed, toggleFiltersOpened } = useAssetsFilterOptionsState();
   const { manageActive, setManageInactive, toggleManageActive } = useManageAssetsState();
 
-  const allSlugs = useTezosEnabledChainAccountCollectiblesSlugs(publicKeyHash, chainId);
-
-  const assetsSortPredicate = useTezosChainCollectiblesSortPredicate(publicKeyHash, chainId);
-
-  const allSlugsSorted = useMemoWithCompare(
-    () => [...allSlugs].sort(assetsSortPredicate),
-    [allSlugs, assetsSortPredicate],
-    isEqual
-  );
-
-  const { isInSearchMode, displayedSlugs, isSyncing, loadNext, searchValue, setSearchValue } =
-    useTezosChainCollectiblesListingLogic(network, allSlugsSorted);
+  const { isInSearchMode, paginatedSlugs, isSyncing, loadNext, searchValue, setSearchValue } =
+    useTezosChainCollectiblesListingLogic(publicKeyHash, network, manageActive);
 
   const contentElement = useMemo(
-    () =>
-      manageActive ? (
-        displayedSlugs.map(slug => (
+    () => (
+      <div className={manageActive ? undefined : 'grid grid-cols-3 gap-2'}>
+        {paginatedSlugs.map(slug => (
           <TezosCollectibleItem
             key={slug}
             assetSlug={slug}
@@ -70,25 +55,12 @@ export const TezosChainCollectiblesTab = memo<TezosChainCollectiblesTabProps>(({
             adultBlur={blur}
             areDetailsShown={showInfo}
             hideWithoutMeta={isInSearchMode}
-            manageActive
+            manageActive={manageActive}
           />
-        ))
-      ) : (
-        <div className="grid grid-cols-3 gap-2">
-          {displayedSlugs.map(slug => (
-            <TezosCollectibleItem
-              key={slug}
-              assetSlug={slug}
-              accountPkh={publicKeyHash}
-              tezosChainId={chainId}
-              adultBlur={blur}
-              areDetailsShown={showInfo}
-              hideWithoutMeta={isInSearchMode}
-            />
-          ))}
-        </div>
-      ),
-    [displayedSlugs, publicKeyHash, chainId, blur, showInfo, isInSearchMode, manageActive]
+        ))}
+      </div>
+    ),
+    [paginatedSlugs, publicKeyHash, chainId, blur, showInfo, isInSearchMode, manageActive]
   );
 
   const stickyBarRef = useRef<HTMLDivElement>(null);
@@ -138,7 +110,7 @@ export const TezosChainCollectiblesTab = memo<TezosChainCollectiblesTabProps>(({
         <AssetsFilterOptions filterButtonRef={filterButtonRef} onRequestClose={setFiltersClosed} />
       ) : (
         <ContentContainer ref={searchInputRef}>
-          {displayedSlugs.length === 0 ? (
+          {paginatedSlugs.length === 0 ? (
             <EmptySection />
           ) : (
             <>

@@ -1,7 +1,6 @@
 export {
-  useAllTezosAvailableTokens,
-  useTezosEnabledChainAccountTokensSlugs,
-  useTezosEnabledAccountTokensSlugs,
+  useEnabledTezosChainAccountTokenSlugs,
+  useEnabledTezosAccountTokensSlugs,
   useEnabledEvmAccountTokensSlugs,
   useEnabledEvmChainAccountTokensSlugs,
   useAllEvmChainAccountTokensSlugs,
@@ -9,8 +8,8 @@ export {
   useEnabledAccountChainTokensSlugs
 } from './tokens';
 export {
-  useTezosEnabledChainAccountCollectiblesSlugs,
-  useTezosEnabledAccountCollectiblesSlugs,
+  useEnabledTezosChainAccountCollectiblesSlugs,
+  useEnabledTezosAccountCollectiblesSlugs,
   useEnabledEvmAccountCollectiblesSlugs,
   useAllEvmAccountCollectiblesSlugs,
   useEnabledEvmChainAccountCollectiblesSlugs,

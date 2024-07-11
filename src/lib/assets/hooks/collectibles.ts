@@ -1,5 +1,7 @@
 import { useMemo } from 'react';
 
+import { isEqual } from 'lodash';
+
 import {
   useRawEvmAccountCollectiblesSelector,
   useRawEvmChainAccountCollectiblesSelector
@@ -88,6 +90,27 @@ export const useEnabledAccountChainCollectiblesSlugs = (accountTezAddress: strin
   );
 };
 
+export const useAllAccountChainCollectiblesSlugs = (accountTezAddress: string, accountEvmAddress: HexString) => {
+  const tezCollectibles = useTezosAccountCollectibles(accountTezAddress);
+  const evmCollectilbes = useEvmAccountCollectibles(accountEvmAddress);
+
+  return useMemo(
+    () => [
+      ...tezCollectibles.reduce<string[]>(
+        (acc, { slug, status, chainId }) =>
+          status !== 'removed' ? acc.concat(toChainAssetSlug(TempleChainKind.Tezos, chainId, slug)) : acc,
+        []
+      ),
+      ...evmCollectilbes.reduce<string[]>(
+        (acc, { slug, status, chainId }) =>
+          status !== 'removed' ? acc.concat(toChainAssetSlug(TempleChainKind.EVM, chainId, slug)) : acc,
+        []
+      )
+    ],
+    [tezCollectibles, evmCollectilbes]
+  );
+};
+
 export const useTezosChainAccountCollectibles = (account: string, chainId: string) => {
   const stored = useChainAccountCollectiblesSelector(account, chainId);
 
@@ -115,7 +138,7 @@ export const useTezosChainAccountCollectibles = (account: string, chainId: strin
   );
 };
 
-export const useTezosEnabledAccountCollectiblesSlugs = (publicKeyHash: string) => {
+export const useEnabledTezosAccountCollectiblesSlugs = (publicKeyHash: string) => {
   const collectibles = useTezosAccountCollectibles(publicKeyHash);
 
   return useMemo(
@@ -129,11 +152,34 @@ export const useTezosEnabledAccountCollectiblesSlugs = (publicKeyHash: string) =
   );
 };
 
-export const useTezosEnabledChainAccountCollectiblesSlugs = (publicKeyHash: string, chainId: string) => {
+export const useAllTezosAccountCollectiblesSlugs = (publicKeyHash: string) => {
+  const collectibles = useTezosAccountCollectibles(publicKeyHash);
+
+  return useMemo(
+    () =>
+      collectibles.reduce<string[]>(
+        (acc, { slug, status, chainId }) =>
+          status !== 'removed' ? acc.concat(toChainAssetSlug(TempleChainKind.Tezos, chainId, slug)) : acc,
+        []
+      ),
+    [collectibles]
+  );
+};
+
+export const useEnabledTezosChainAccountCollectiblesSlugs = (publicKeyHash: string, chainId: string) => {
   const collectibles = useTezosChainAccountCollectibles(publicKeyHash, chainId);
 
   return useMemo(
     () => collectibles.reduce<string[]>((acc, { slug, status }) => (status === 'enabled' ? acc.concat(slug) : acc), []),
+    [collectibles]
+  );
+};
+
+export const useAllTezosChainAccountCollectiblesSlugs = (publicKeyHash: string, chainId: string) => {
+  const collectibles = useTezosChainAccountCollectibles(publicKeyHash, chainId);
+
+  return useMemo(
+    () => collectibles.reduce<string[]>((acc, { slug, status }) => (status !== 'removed' ? acc.concat(slug) : acc), []),
     [collectibles]
   );
 };
@@ -167,14 +213,7 @@ const useEvmAccountCollectibles = (account: HexString) => {
       return accountCollectibles;
     },
     [enabledChains, collectiblesRecord, balancesRecord],
-    (prev, next) => {
-      if (prev.length !== next.length) return false;
-
-      return next.every((item, i) => {
-        const prevItem = prev[i]!;
-        return item.slug === prevItem.slug && item.status === prevItem.status;
-      });
-    }
+    isEqual
   );
 };
 

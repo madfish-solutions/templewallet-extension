@@ -18,12 +18,14 @@ import { ZERO } from 'lib/utils/numbers';
 import { TempleChainKind } from 'temple/types';
 
 import { getKeyForBalancesRecord } from '../../app/store/tezos/balances/utils';
+import { TEZOS_MAINNET_CHAIN_ID } from '../temple/types';
+import { EMPTY_FROZEN_OBJ } from '../utils';
 
 import { fromChainAssetSlug } from './utils';
 
 export const useAccountTokensSortPredicate = (accountTezAddress: string, accountEvmAddress: HexString) => {
   const getTezBalance = useGetTezosAccountTokenOrGasBalanceWithDecimals(accountTezAddress);
-  const tezUsdToTokenRates = useTezosUsdToTokenRatesSelector();
+  const tezMainnetUsdToTokenRates = useTezosUsdToTokenRatesSelector();
 
   const getEvmBalance = useGetEvmTokenBalanceWithDecimals(accountEvmAddress);
   const evmUsdToTokenRates = useEvmUsdToTokenRatesSelector();
@@ -43,17 +45,23 @@ export const useAccountTokensSortPredicate = (accountTezAddress: string, account
           ? getTezBalance(bChainId as string, bSlug)
           : getEvmBalance(Number(bChainId), bSlug)) ?? ZERO;
 
-      const aEquity = aBalance.multipliedBy(
+      const aRate =
         (aChainKind === TempleChainKind.Tezos
-          ? tezUsdToTokenRates[aSlug]
-          : evmUsdToTokenRates[Number(aChainId)]?.[aSlug]) ?? ZERO
-      );
+          ? aChainId === TEZOS_MAINNET_CHAIN_ID
+            ? tezMainnetUsdToTokenRates[aSlug]
+            : ZERO
+          : evmUsdToTokenRates[Number(aChainId)]?.[aSlug]) ?? ZERO;
 
-      const bEquity = bBalance.multipliedBy(
+      const bRate =
         (bChainKind === TempleChainKind.Tezos
-          ? tezUsdToTokenRates[bSlug]
-          : evmUsdToTokenRates[Number(bChainId)]?.[bSlug]) ?? ZERO
-      );
+          ? bChainId === TEZOS_MAINNET_CHAIN_ID
+            ? tezMainnetUsdToTokenRates[bSlug]
+            : ZERO
+          : evmUsdToTokenRates[Number(bChainId)]?.[bSlug]) ?? ZERO;
+
+      const aEquity = aBalance.multipliedBy(aRate);
+
+      const bEquity = bBalance.multipliedBy(bRate);
 
       if (aEquity.isEqualTo(bEquity)) {
         return bBalance.comparedTo(aBalance);
@@ -61,13 +69,13 @@ export const useAccountTokensSortPredicate = (accountTezAddress: string, account
 
       return bEquity.comparedTo(aEquity);
     },
-    [getTezBalance, getEvmBalance, tezUsdToTokenRates, evmUsdToTokenRates]
+    [getTezBalance, getEvmBalance, tezMainnetUsdToTokenRates, evmUsdToTokenRates]
   );
 };
 
 export const useTezosAccountTokensSortPredicate = (publicKeyHash: string) => {
   const getBalance = useGetTezosAccountTokenOrGasBalanceWithDecimals(publicKeyHash);
-  const usdToTokenRates = useTezosUsdToTokenRatesSelector();
+  const mainnetUsdToTokenRates = useTezosUsdToTokenRatesSelector();
 
   return useCallback(
     (aChainSlug: string, bChainSlug: string) => {
@@ -76,8 +84,12 @@ export const useTezosAccountTokensSortPredicate = (publicKeyHash: string) => {
 
       const aBalance = getBalance(aChainId, aSlug) ?? ZERO;
       const bBalance = getBalance(bChainId, bSlug) ?? ZERO;
-      const aEquity = aBalance.multipliedBy(usdToTokenRates[aSlug] ?? ZERO);
-      const bEquity = bBalance.multipliedBy(usdToTokenRates[bSlug] ?? ZERO);
+
+      const aRate = aChainId === TEZOS_MAINNET_CHAIN_ID ? mainnetUsdToTokenRates[aSlug] : ZERO;
+      const bRate = bChainId === TEZOS_MAINNET_CHAIN_ID ? mainnetUsdToTokenRates[bSlug] : ZERO;
+
+      const aEquity = aBalance.multipliedBy(aRate);
+      const bEquity = bBalance.multipliedBy(bRate);
 
       if (aEquity.isEqualTo(bEquity)) {
         return bBalance.comparedTo(aBalance);
@@ -85,20 +97,23 @@ export const useTezosAccountTokensSortPredicate = (publicKeyHash: string) => {
 
       return bEquity.comparedTo(aEquity);
     },
-    [getBalance, usdToTokenRates]
+    [getBalance, mainnetUsdToTokenRates]
   );
 };
 
 export const useTezosChainAccountTokensSortPredicate = (publicKeyHash: string, tezosChainId: string) => {
   const getBalance = useGetTezosChainAccountTokenOrGasBalanceWithDecimals(publicKeyHash, tezosChainId);
-  const usdToTokenRates = useTezosUsdToTokenRatesSelector();
+  const mainnetUsdToTokenRates = useTezosUsdToTokenRatesSelector();
 
   return useCallback(
     (aSlug: string, bSlug: string) => {
       const aBalance = getBalance(aSlug) ?? ZERO;
       const bBalance = getBalance(bSlug) ?? ZERO;
-      const aEquity = aBalance.multipliedBy(usdToTokenRates[aSlug] ?? ZERO);
-      const bEquity = bBalance.multipliedBy(usdToTokenRates[bSlug] ?? ZERO);
+
+      const rates = tezosChainId === TEZOS_MAINNET_CHAIN_ID ? mainnetUsdToTokenRates : EMPTY_FROZEN_OBJ;
+
+      const aEquity = aBalance.multipliedBy(rates[aSlug] ?? ZERO);
+      const bEquity = bBalance.multipliedBy(rates[bSlug] ?? ZERO);
 
       if (aEquity.isEqualTo(bEquity)) {
         return bBalance.comparedTo(aBalance);
@@ -106,7 +121,7 @@ export const useTezosChainAccountTokensSortPredicate = (publicKeyHash: string, t
 
       return bEquity.comparedTo(aEquity);
     },
-    [getBalance, usdToTokenRates]
+    [getBalance, mainnetUsdToTokenRates]
   );
 };
 
