@@ -2,23 +2,26 @@ import { useCallback } from 'react';
 
 import { BigNumber } from 'bignumber.js';
 
+import { useTezosUsdToTokenRatesSelector } from 'app/store/currency/selectors';
 import {
   useRawEvmAccountBalancesSelector,
   useRawEvmChainAccountBalancesSelector
 } from 'app/store/evm/balances/selectors';
-import { useEvmUsdToTokenRatesSelector } from 'app/store/evm/tokens-exchange-rates/selectors';
+import {
+  useEvmChainUsdToTokenRatesSelector,
+  useEvmUsdToTokenRatesSelector
+} from 'app/store/evm/tokens-exchange-rates/selectors';
 import { useAllAccountBalancesSelector, useBalancesAtomicRecordSelector } from 'app/store/tezos/balances/selectors';
-import { useTezosUsdToTokenRatesSelector } from 'app/store/tezos/currency/selectors';
+import { getKeyForBalancesRecord } from 'app/store/tezos/balances/utils';
 import {
   useGetEvmTokenBalanceWithDecimals,
   useGetTezosAccountTokenOrGasBalanceWithDecimals,
   useGetTezosChainAccountTokenOrGasBalanceWithDecimals
 } from 'lib/balances/hooks';
+import { TEZOS_MAINNET_CHAIN_ID } from 'lib/temple/types';
 import { ZERO } from 'lib/utils/numbers';
 import { TempleChainKind } from 'temple/types';
 
-import { getKeyForBalancesRecord } from '../../app/store/tezos/balances/utils';
-import { TEZOS_MAINNET_CHAIN_ID } from '../temple/types';
 import { EMPTY_FROZEN_OBJ } from '../utils';
 
 import { fromChainAssetSlug } from './utils';
@@ -151,14 +154,14 @@ export const useEvmAccountTokensSortPredicate = (publicKeyHash: HexString) => {
 
 export const useEvmChainTokensSortPredicate = (publicKeyHash: HexString, chainId: number) => {
   const getBalance = useGetEvmTokenBalanceWithDecimals(publicKeyHash);
-  const usdToTokenRates = useEvmUsdToTokenRatesSelector();
+  const usdToTokenRates = useEvmChainUsdToTokenRatesSelector(chainId);
 
   return useCallback(
     (aSlug: string, bSlug: string) => {
       const aBalance = getBalance(chainId, aSlug) ?? ZERO;
       const bBalance = getBalance(chainId, bSlug) ?? ZERO;
-      const aEquity = aBalance.multipliedBy(usdToTokenRates[chainId]?.[aSlug] ?? ZERO);
-      const bEquity = bBalance.multipliedBy(usdToTokenRates[chainId]?.[bSlug] ?? ZERO);
+      const aEquity = aBalance.multipliedBy(usdToTokenRates[aSlug] ?? ZERO);
+      const bEquity = bBalance.multipliedBy(usdToTokenRates[bSlug] ?? ZERO);
 
       if (aEquity.isEqualTo(bEquity)) {
         return bBalance.comparedTo(aBalance);

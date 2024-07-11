@@ -1,11 +1,9 @@
 import React, { memo, useEffect, useState } from 'react';
 
 import { useAssetsFilterOptionsState } from 'app/hooks/use-assets-filter-options-state';
-import { ContentContainer } from 'app/layouts/containers';
 import { dispatch } from 'app/store';
 import { setAssetsFilterChain } from 'app/store/assets-filter-options/actions';
 import { useAssetsFilterOptionsSelector } from 'app/store/assets-filter-options/selectors';
-import { UNDER_DEVELOPMENT_MSG } from 'temple/evm/under_dev_msg';
 import { useAccountAddressForEvm, useAccountAddressForTezos } from 'temple/front';
 import { TempleChainKind } from 'temple/types';
 
@@ -54,5 +52,5 @@ export const TokensTab = memo(() => {
 
   if (!localFilterChain && accountEvmAddress) return <EvmTokensTab publicKeyHash={accountEvmAddress} />;
 
-  return <ContentContainer className="mt-3">{UNDER_DEVELOPMENT_MSG}</ContentContainer>;
+  return null;
 });

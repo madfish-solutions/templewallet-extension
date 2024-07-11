@@ -12,7 +12,7 @@ import {
 } from 'app/store/evm/selectors';
 import { useEvmTokensMetadataRecordSelector } from 'app/store/evm/tokens-metadata/selectors';
 import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
-import { useAllEvmAccountTokensSlugs, useEnabledEvmAccountTokensSlugs } from 'lib/assets/hooks';
+import { useAllEvmAccountTokenSlugs, useEnabledEvmAccountTokenSlugs } from 'lib/assets/hooks';
 import { searchEvmTokensWithNoMeta } from 'lib/assets/search.utils';
 import { useEvmAccountTokensSortPredicate } from 'lib/assets/use-sorting';
 import { fromChainAssetSlug } from 'lib/assets/utils';
@@ -31,8 +31,8 @@ export const useEvmAccountTokensListingLogic = (
   leadingAssetsChainSlugs?: string[],
   manageActive = false
 ) => {
-  const enabledChainSlugs = useEnabledEvmAccountTokensSlugs(publicKeyHash);
-  const allChainSlugs = useAllEvmAccountTokensSlugs(publicKeyHash);
+  const enabledChainSlugs = useEnabledEvmAccountTokenSlugs(publicKeyHash);
+  const allChainSlugs = useAllEvmAccountTokenSlugs(publicKeyHash);
 
   const tokensSortPredicate = useEvmAccountTokensSortPredicate(publicKeyHash);
 

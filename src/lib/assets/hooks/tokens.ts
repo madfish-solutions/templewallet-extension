@@ -32,7 +32,7 @@ interface AccountToken extends AccountAsset {
   predefined?: boolean;
 }
 
-export const useEnabledAccountChainTokensSlugs = (accountTezAddress: string, accountEvmAddress: HexString) => {
+export const useEnabledAccountChainTokenSlugs = (accountTezAddress: string, accountEvmAddress: HexString) => {
   const tezTokens = useTezosAccountTokens(accountTezAddress);
   const evmTokens = useEvmAccountTokens(accountEvmAddress);
 
@@ -295,7 +295,7 @@ const useEvmChainAccountTokens = (account: HexString, chainId: number) => {
   );
 };
 
-export const useEnabledEvmAccountTokensSlugs = (publicKeyHash: HexString) => {
+export const useEnabledEvmAccountTokenSlugs = (publicKeyHash: HexString) => {
   const tokens = useEvmAccountTokens(publicKeyHash);
 
   return useMemo(
@@ -309,7 +309,7 @@ export const useEnabledEvmAccountTokensSlugs = (publicKeyHash: HexString) => {
   );
 };
 
-export const useAllEvmAccountTokensSlugs = (publicKeyHash: HexString) => {
+export const useAllEvmAccountTokenSlugs = (publicKeyHash: HexString) => {
   const tokens = useEvmAccountTokens(publicKeyHash);
 
   return useMemo(
@@ -323,7 +323,7 @@ export const useAllEvmAccountTokensSlugs = (publicKeyHash: HexString) => {
   );
 };
 
-export const useEnabledEvmChainAccountTokensSlugs = (publicKeyHash: HexString, chainId: number) => {
+export const useEnabledEvmChainAccountTokenSlugs = (publicKeyHash: HexString, chainId: number) => {
   const tokens = useEvmChainAccountTokens(publicKeyHash, chainId);
 
   return useMemo(
@@ -332,7 +332,7 @@ export const useEnabledEvmChainAccountTokensSlugs = (publicKeyHash: HexString, c
   );
 };
 
-export const useAllEvmChainAccountTokensSlugs = (publicKeyHash: HexString, chainId: number) => {
+export const useAllEvmChainAccountTokenSlugs = (publicKeyHash: HexString, chainId: number) => {
   const tokens = useEvmChainAccountTokens(publicKeyHash, chainId);
 
   return useMemo(

@@ -6,6 +6,7 @@ import { abTestingReducer } from './ab-testing/reducers';
 import { advertisingReducer } from './advertising/reducers';
 import { assetsFilterOptionsReducer } from './assets-filter-options/reducer';
 import { buyWithCreditCardReducer } from './buy-with-credit-card/reducers';
+import { currencyReducer } from './currency/reducers';
 import { dAppsReducer } from './d-apps/reducers';
 import { evmAssetsReducer } from './evm/assets/reducer';
 import { evmBalancesReducer } from './evm/balances/reducers';
@@ -21,7 +22,6 @@ import { assetsPersistedReducer } from './tezos/assets/reducer';
 import { balancesReducer } from './tezos/balances/reducers';
 import { collectiblesPersistedReducer } from './tezos/collectibles/reducer';
 import { collectiblesMetadataPersistedReducer } from './tezos/collectibles-metadata/reducer';
-import { currencyReducer } from './tezos/currency/reducers';
 import { tokensMetadataReducer } from './tezos/tokens-metadata/reducers';
 
 const rootStateReducersMap = {

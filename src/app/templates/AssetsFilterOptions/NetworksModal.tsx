@@ -1,23 +1,25 @@
 import React, { FC, memo, useEffect, useMemo, useState } from 'react';
 
 import { IconBase } from 'app/atoms';
-import { StayActiveIconButton } from 'app/atoms/IconButton';
+import { IconButton } from 'app/atoms/IconButton';
 import { EvmNetworkLogo, NetworkLogoFallback } from 'app/atoms/NetworkLogo';
 import { TezosNetworkLogo } from 'app/atoms/NetworksLogos';
 import { PageModal } from 'app/atoms/PageModal';
 import { RadioButton } from 'app/atoms/RadioButton';
 import { StyledButton } from 'app/atoms/StyledButton';
+import { TotalEquity } from 'app/atoms/TotalEquity';
 import { ReactComponent as Browse } from 'app/icons/base/browse.svg';
 import { ReactComponent as PlusIcon } from 'app/icons/base/plus.svg';
 import { dispatch } from 'app/store';
 import { setAssetsFilterChain } from 'app/store/assets-filter-options/actions';
 import { useAssetsFilterOptionsSelector } from 'app/store/assets-filter-options/selectors';
+import { FilterChain } from 'app/store/assets-filter-options/state';
 import { SearchBarField } from 'app/templates/SearchField';
 import { T, t } from 'lib/i18n';
 import { TEZOS_MAINNET_CHAIN_ID } from 'lib/temple/types';
 import { useScrollIntoViewOnMount } from 'lib/ui/use-scroll-into-view';
 import { navigate } from 'lib/woozie';
-import { EvmChain, TezosChain } from 'temple/front';
+import { EvmChain, TezosChain, useAccount } from 'temple/front';
 import { TempleChainKind } from 'temple/types';
 
 import { useSortedNetworks } from './hooks/use-sorted-networks';
@@ -54,7 +56,7 @@ export const NetworksModal = memo<Props>(({ opened, onRequestClose }) => {
       <div className="flex gap-x-2 p-4">
         <SearchBarField value={searchValue} onValueChange={setSearchValue} />
 
-        <StayActiveIconButton Icon={PlusIcon} color="blue" onClick={() => void navigate('settings/networks')} />
+        <IconButton Icon={PlusIcon} color="blue" onClick={() => void navigate('settings/networks')} />
       </div>
 
       <div className="px-4 flex-1 flex flex-col overflow-y-auto">
@@ -66,6 +68,7 @@ export const NetworksModal = memo<Props>(({ opened, onRequestClose }) => {
                 active={!filterChain}
                 icon={<IconBase Icon={Browse} className="text-primary mx-0.5" size={32} />}
                 name={t('allNetworks')}
+                balanceFilterChain={null}
                 attractSelf={attractSelectedNetwork}
                 onClick={() => dispatch(setAssetsFilterChain(null))}
               />
@@ -85,6 +88,7 @@ export const NetworksModal = memo<Props>(({ opened, onRequestClose }) => {
                   )
                 }
                 name={network.name}
+                balanceFilterChain={network}
                 attractSelf={attractSelectedNetwork}
                 onClick={() =>
                   dispatch(setAssetsFilterChain({ kind: TempleChainKind.Tezos, chainId: network.chainId }))
@@ -101,6 +105,7 @@ export const NetworksModal = memo<Props>(({ opened, onRequestClose }) => {
                 <EvmNetworkLogo networkName={network.name} chainId={network.chainId} size={36} imgClassName="p-0.5" />
               }
               name={network.name}
+              balanceFilterChain={network}
               attractSelf={attractSelectedNetwork}
               onClick={() => dispatch(setAssetsFilterChain({ kind: TempleChainKind.EVM, chainId: network.chainId }))}
             />
@@ -122,11 +127,14 @@ interface NetworkProps {
   icon: JSX.Element;
   name: string;
   attractSelf: boolean;
+  balanceFilterChain: FilterChain;
   onClick: EmptyFn;
 }
 
-const Network: FC<NetworkProps> = ({ active, icon, name, attractSelf, onClick }) => {
+const Network: FC<NetworkProps> = ({ active, icon, name, balanceFilterChain, attractSelf, onClick }) => {
   const elemRef = useScrollIntoViewOnMount<HTMLDivElement>(active && attractSelf);
+
+  const account = useAccount();
 
   return (
     <div
@@ -139,7 +147,7 @@ const Network: FC<NetworkProps> = ({ active, icon, name, attractSelf, onClick })
         <div className="flex flex-col">
           <span className="text-font-medium-bold">{name}</span>
           <span className="text-grey-1 text-font-description">
-            <T id="balance" />: 0$
+            <T id="balance" />: <TotalEquity account={account} filterChain={balanceFilterChain} currency="fiat" />
           </span>
         </div>
       </div>

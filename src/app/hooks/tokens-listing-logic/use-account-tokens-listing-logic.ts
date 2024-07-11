@@ -16,7 +16,7 @@ import { useBalancesAtomicRecordSelector } from 'app/store/tezos/balances/select
 import { getKeyForBalancesRecord } from 'app/store/tezos/balances/utils';
 import { useTokensMetadataLoadingSelector } from 'app/store/tezos/tokens-metadata/selectors';
 import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
-import { useAllAccountChainTokensSlugs, useEnabledAccountChainTokensSlugs } from 'lib/assets/hooks/tokens';
+import { useAllAccountChainTokensSlugs, useEnabledAccountChainTokenSlugs } from 'lib/assets/hooks/tokens';
 import { searchAssetsWithNoMeta } from 'lib/assets/search.utils';
 import { useAccountTokensSortPredicate } from 'lib/assets/use-sorting';
 import { fromChainAssetSlug } from 'lib/assets/utils';
@@ -38,7 +38,7 @@ export const useAccountTokensListingLogic = (
   leadingAssetsChainSlugs?: string[],
   manageActive = false
 ) => {
-  const enabledChainSlugs = useEnabledAccountChainTokensSlugs(accountTezAddress, accountEvmAddress);
+  const enabledChainSlugs = useEnabledAccountChainTokenSlugs(accountTezAddress, accountEvmAddress);
   const allChainSlugs = useAllAccountChainTokensSlugs(accountTezAddress, accountEvmAddress);
 
   const tokensSortPredicate = useAccountTokensSortPredicate(accountTezAddress, accountEvmAddress);

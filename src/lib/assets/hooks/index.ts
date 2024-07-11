@@ -1,11 +1,11 @@
 export {
   useEnabledTezosChainAccountTokenSlugs,
   useEnabledTezosAccountTokensSlugs,
-  useEnabledEvmAccountTokensSlugs,
-  useEnabledEvmChainAccountTokensSlugs,
-  useAllEvmChainAccountTokensSlugs,
-  useAllEvmAccountTokensSlugs,
-  useEnabledAccountChainTokensSlugs
+  useEnabledEvmAccountTokenSlugs,
+  useEnabledEvmChainAccountTokenSlugs,
+  useAllEvmChainAccountTokenSlugs,
+  useAllEvmAccountTokenSlugs,
+  useEnabledAccountChainTokenSlugs
 } from './tokens';
 export {
   useEnabledTezosChainAccountCollectiblesSlugs,

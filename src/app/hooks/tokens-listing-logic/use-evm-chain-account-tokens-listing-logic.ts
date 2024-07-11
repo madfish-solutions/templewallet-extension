@@ -12,7 +12,7 @@ import {
 } from 'app/store/evm/selectors';
 import { useEvmTokensMetadataRecordSelector } from 'app/store/evm/tokens-metadata/selectors';
 import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
-import { useAllEvmChainAccountTokensSlugs, useEnabledEvmChainAccountTokensSlugs } from 'lib/assets/hooks';
+import { useAllEvmChainAccountTokenSlugs, useEnabledEvmChainAccountTokenSlugs } from 'lib/assets/hooks';
 import { searchEvmChainTokensWithNoMeta } from 'lib/assets/search.utils';
 import { useEvmChainTokensSortPredicate } from 'lib/assets/use-sorting';
 import { useMemoWithCompare } from 'lib/ui/hooks';
@@ -30,8 +30,8 @@ export const useEvmChainAccountTokensListingLogic = (
 ) => {
   const tokensSortPredicate = useEvmChainTokensSortPredicate(publicKeyHash, chainId);
 
-  const enabledTokenSlugs = useEnabledEvmChainAccountTokensSlugs(publicKeyHash, chainId);
-  const allTokenSlugs = useAllEvmChainAccountTokensSlugs(publicKeyHash, chainId);
+  const enabledTokenSlugs = useEnabledEvmChainAccountTokenSlugs(publicKeyHash, chainId);
+  const allTokenSlugs = useAllEvmChainAccountTokenSlugs(publicKeyHash, chainId);
 
   const balances = useRawEvmChainAccountBalancesSelector(publicKeyHash, chainId);
 

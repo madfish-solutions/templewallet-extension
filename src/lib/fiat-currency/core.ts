@@ -4,9 +4,9 @@ import { isDefined } from '@rnw-community/shared';
 import axios from 'axios';
 import { BigNumber } from 'bignumber.js';
 
+import { useTezosUsdToTokenRatesSelector } from 'app/store/currency/selectors';
 import { useEvmUsdToTokenRatesSelector } from 'app/store/evm/tokens-exchange-rates/selectors';
 import { useSelector } from 'app/store/root-state.selector';
-import { useTezosUsdToTokenRatesSelector } from 'app/store/tezos/currency/selectors';
 import { useStorage } from 'lib/temple/front';
 import { isTruthy } from 'lib/utils';
 

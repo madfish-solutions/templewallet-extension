@@ -2,19 +2,19 @@ import { useMemo } from 'react';
 
 import { isDefined } from '@rnw-community/shared';
 
-import { useSelector } from 'app/store/root-state.selector';
+import { useTezosUsdToTokenRatesSelector } from 'app/store/currency/selectors';
 import { TEZ_TOKEN_SLUG } from 'lib/assets';
 import { useEnabledTezosChainAccountTokenSlugs } from 'lib/assets/hooks';
 import { useGetTezosChainAccountTokenOrGasBalanceWithDecimals } from 'lib/balances/hooks';
+import { TEZOS_MAINNET_CHAIN_ID } from 'lib/temple/types';
 import { isTruthy } from 'lib/utils';
 import { ZERO } from 'lib/utils/numbers';
 
-/** Total balance in dollar value of displayed tokens, taken from store */
-export const useTotalBalance = (publicKeyHash: string, tezosChainId: string) => {
-  const tokensSlugs = useEnabledTezosChainAccountTokenSlugs(publicKeyHash, tezosChainId);
+export const useTezosTotalBalance = (publicKeyHash: string) => {
+  const tokensSlugs = useEnabledTezosChainAccountTokenSlugs(publicKeyHash, TEZOS_MAINNET_CHAIN_ID);
 
-  const getBalance = useGetTezosChainAccountTokenOrGasBalanceWithDecimals(publicKeyHash, tezosChainId);
-  const allUsdToTokenRates = useSelector(state => state.currency.usdToTokenRates.data);
+  const getBalance = useGetTezosChainAccountTokenOrGasBalanceWithDecimals(publicKeyHash, TEZOS_MAINNET_CHAIN_ID);
+  const allUsdToTokenRates = useTezosUsdToTokenRatesSelector();
 
   const slugs = useMemo(() => [TEZ_TOKEN_SLUG, ...tokensSlugs], [tokensSlugs]);
 
@@ -24,7 +24,7 @@ export const useTotalBalance = (publicKeyHash: string, tezosChainId: string) => 
     for (const slug of slugs) {
       const balance = getBalance(slug);
       const usdToTokenRate = allUsdToTokenRates[slug];
-      const tokenDollarValue = isDefined(balance) && isTruthy(usdToTokenRate) ? balance.times(usdToTokenRate) : 0;
+      const tokenDollarValue = isDefined(balance) && isTruthy(usdToTokenRate) ? balance.times(usdToTokenRate) : ZERO;
       dollarValue = dollarValue.plus(tokenDollarValue);
     }
 
