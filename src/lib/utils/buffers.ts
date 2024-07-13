@@ -28,3 +28,19 @@ export const stringToArrayBuffer = (str: string) => {
 export const uInt8ArrayToString = (ui8a: Uint8Array) => new TextDecoder('utf-8').decode(ui8a);
 
 export const stringToUInt8Array = (str: string) => new TextEncoder().encode(str);
+
+/** Same as
+ * ```
+ * import { Buffer } from 'buffer';
+ *
+ * Buffer.from(
+ *   stringToUInt8Array(value)
+ * ).toString('hex')
+ * ```
+ */
+export function stringToHex(value: string) {
+  const buffer = stringToUInt8Array(value);
+  const hexArray = Array.from(buffer, byte => byte.toString(16).padStart(2, '0'));
+
+  return hexArray.reduce((acc, curr) => acc + curr, '');
+}

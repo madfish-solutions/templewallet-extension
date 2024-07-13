@@ -14,6 +14,7 @@ import {
   setOnRampPossibilityAction,
   setPendingReactivateAdsAction
 } from 'app/store/settings/actions';
+import { performLinkingOfAdsImpressions } from 'lib/ads/link-ads';
 import { AnalyticsEventCategory, TestIDProps, useAnalytics } from 'lib/analytics';
 import { WEBSITES_ANALYTICS_ENABLED } from 'lib/constants';
 import { T, TID, t } from 'lib/i18n';
@@ -126,6 +127,7 @@ export const SetWalletPassword: FC<SetWalletPasswordProps> = ({
         await setOnboardingCompleted(true);
 
         const accountPkh = await registerWallet(password!, formatMnemonic(seedPhrase));
+        performLinkingOfAdsImpressions(accountPkh); // TODO: Re-run on launch if failed here
         trackEvent('AnalyticsEnabled', AnalyticsEventCategory.General, { accountPkh }, shouldEnableAnalytics);
         trackEvent('AdsEnabled', AnalyticsEventCategory.General, { accountPkh }, adsViewEnabled);
 
