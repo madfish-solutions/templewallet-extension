@@ -1,8 +1,8 @@
-import { fetchFromStorage, putToStorage, removeFromStorage } from 'lib/storage';
+import { fetchFromStorage, putToStorage } from 'lib/storage';
 
 const storageKey = 'APP_INSTALL_IDENTITY';
 
-export interface AppInstallIdentity {
+interface AppInstallIdentity {
   version: string;
   /** TODO: Encrypt? How? Via password, provided by some private package? */
   privateKey: string;
@@ -15,5 +15,3 @@ export const getStoredAppInstallIdentity = () => fetchFromStorage<AppInstallIden
 
 export const putStoredAppInstallIdentity = (value: AppInstallIdentity) =>
   putToStorage<AppInstallIdentity>(storageKey, value);
-
-export const removeStoredAppInstallIdentity = () => removeFromStorage(storageKey);

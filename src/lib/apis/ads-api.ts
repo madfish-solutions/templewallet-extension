@@ -3,7 +3,7 @@ import axios from 'axios';
 
 import { EnvVars } from 'lib/env';
 
-export const axiosClient = axios.create({
+const axiosClient = axios.create({
   baseURL: EnvVars.TEMPLE_ADS_API_URL,
   adapter: axiosFetchAdapter
 });

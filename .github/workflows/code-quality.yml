@@ -5,6 +5,7 @@ on:
     branches:
       - master
       - development
+      - 'TW-[0-9]+-epic-**'
 
 jobs:
   pull-request-check:
