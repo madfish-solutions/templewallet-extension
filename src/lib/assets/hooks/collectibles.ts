@@ -111,7 +111,7 @@ export const useAllAccountChainCollectiblesSlugs = (accountTezAddress: string, a
   );
 };
 
-export const useTezosChainAccountCollectibles = (account: string, chainId: string) => {
+const useTezosChainAccountCollectibles = (account: string, chainId: string) => {
   const stored = useChainAccountCollectiblesSelector(account, chainId);
 
   const balances = useAllAccountBalancesSelector(account, chainId);

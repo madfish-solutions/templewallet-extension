@@ -3,7 +3,6 @@ import React, { memo, useLayoutEffect, useMemo } from 'react';
 import RootSuspenseFallback from 'app/a11y/RootSuspenseFallback';
 import { OpenInFullPage, useAppEnv } from 'app/env';
 import { AccountSettings } from 'app/pages/AccountSettings';
-import AddAsset from 'app/pages/AddAsset/AddAsset';
 import Exolix from 'app/pages/Buy/Crypto/Exolix/Exolix';
 import { BuyWithCreditCard } from 'app/pages/BuyWithCreditCard/BuyWithCreditCard';
 import CollectiblePage from 'app/pages/Collectibles/CollectiblePage';
@@ -96,7 +95,6 @@ const ROUTE_MAP = Woozie.createMap<RouteContext>([
       <CollectiblePage chainKind={chainKind!} chainId={chainId!} assetSlug={assetSlug!} />
     ))
   ],
-  ['/add-asset', onlyReady(onlyInFullPage(() => <AddAsset />))],
   ['/settings/:tabSlug?', onlyReady(({ tabSlug }) => <Settings tabSlug={tabSlug} />)],
   ['/market', onlyReady(onlyInFullPage(() => <Market />))],
   ['/buy/crypto/exolix', onlyReady(onlyInFullPage(() => <Exolix />))],

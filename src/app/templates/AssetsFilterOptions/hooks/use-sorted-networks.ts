@@ -9,7 +9,7 @@ import {
   useEnabledTezosChains
 } from 'temple/front';
 
-export const ALL_NETWORKS = 'All Networks';
+const ALL_NETWORKS = 'All Networks';
 
 export const useSortedNetworks = (): Array<string | TezosChain | EvmChain> => {
   const accountTezAddress = useAccountAddressForTezos();

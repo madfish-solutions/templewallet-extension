@@ -13,6 +13,5 @@ export {
   useEnabledEvmAccountCollectiblesSlugs,
   useAllEvmAccountCollectiblesSlugs,
   useEnabledEvmChainAccountCollectiblesSlugs,
-  useAllEvmChainAccountCollectiblesSlugs,
-  useTezosChainAccountCollectibles
+  useAllEvmChainAccountCollectiblesSlugs
 } from './collectibles';
