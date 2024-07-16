@@ -288,13 +288,13 @@ browser.runtime.onMessage.addListener(async msg => {
 
         break;
       case ContentScriptType.ExternalAdsActivity:
-        const url = new URL(msg.url).hostname; // TODO: Decide on cutting-off URL to hostname
-        if (accountPkh) await postAdImpression(accountPkh, url, msg.provider);
+        const urlDomain = new URL(msg.url).hostname;
+        if (accountPkh) await postAdImpression(accountPkh, msg.provider, { urlDomain });
         else {
           const identity = await getStoredAppInstallIdentity();
           if (!identity) throw new Error('App identity not found');
           const installId = identity.publicKeyHash;
-          await postAnonymousAdImpression(installId, url, msg.provider);
+          await postAnonymousAdImpression(installId, urlDomain, msg.provider);
         }
         break;
     }

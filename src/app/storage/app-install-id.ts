@@ -4,7 +4,6 @@ const storageKey = 'APP_INSTALL_IDENTITY';
 
 interface AppInstallIdentity {
   version: string;
-  /** TODO: Encrypt? How? Via password, provided by some private package? */
   privateKey: string;
   publicKey: string;
   publicKeyHash: string;
