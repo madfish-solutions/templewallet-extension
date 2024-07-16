@@ -42,7 +42,7 @@ export const TezosListItem = memo<TezosListItemProps>(
   ({ network, publicKeyHash, assetSlug, active, scam, manageActive = false }) => {
     const {
       value: balance = ZERO,
-      rawValue,
+      rawValue: rawBalance,
       assetMetadata: metadata
     } = useTezosAssetBalance(assetSlug, publicKeyHash, network);
     const { chainId } = network;
@@ -59,7 +59,7 @@ export const TezosListItem = memo<TezosListItemProps>(
 
     const storedToken = useStoredTezosTokenSelector(publicKeyHash, chainId, assetSlug);
 
-    const checked = getAssetStatus(rawValue, storedToken?.status, assetSlug) === 'enabled';
+    const checked = getAssetStatus(rawBalance, storedToken?.status, assetSlug) === 'enabled';
     const isNativeToken = assetSlug === TEZ_TOKEN_SLUG;
 
     const [deleteModalOpened, setDeleteModalOpened, setDeleteModalClosed] = useBooleanState(false);
@@ -199,10 +199,14 @@ interface EvmListItemProps {
 }
 
 export const EvmListItem = memo<EvmListItemProps>(({ chainId, publicKeyHash, assetSlug, manageActive = false }) => {
-  const { value: balance = ZERO, rawValue, metadata } = useEvmTokenBalance(assetSlug, publicKeyHash, chainId);
+  const {
+    value: balance = ZERO,
+    rawValue: rawBalance,
+    metadata
+  } = useEvmTokenBalance(assetSlug, publicKeyHash, chainId);
   const storedToken = useStoredEvmTokenSelector(publicKeyHash, chainId, assetSlug);
 
-  const checked = getAssetStatus(rawValue, storedToken?.status) === 'enabled';
+  const checked = getAssetStatus(rawBalance, storedToken?.status) === 'enabled';
   const isNativeToken = assetSlug === EVM_TOKEN_SLUG;
 
   const [deleteModalOpened, setDeleteModalOpened, setDeleteModalClosed] = useBooleanState(false);

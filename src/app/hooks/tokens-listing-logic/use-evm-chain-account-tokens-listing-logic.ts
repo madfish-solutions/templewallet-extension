@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { isDefined } from '@rnw-community/shared';
-import { isEqual, uniq } from 'lodash';
+import { isEqual } from 'lodash';
 import { useDebounce } from 'use-debounce';
 
 import { useRawEvmChainAccountBalancesSelector } from 'app/store/evm/balances/selectors';
@@ -115,29 +115,38 @@ export const useEvmChainAccountTokensListingLogic = (
     [enabledNonLeadingSlugs, tokensSortPredicate]
   );
 
-  const allNonLeadingAssetsRef = useRef(allNonLeadingSlugs);
+  const allNonLeadingSlugsRef = useRef(allNonLeadingSlugs);
   const enabledNonLeadingSlugsSortedRef = useRef(enabledNonLeadingSlugsSorted);
 
   useEffect(() => {
     // keeping the same tokens order while manage is active
     if (!manageActive) {
-      allNonLeadingAssetsRef.current = allNonLeadingSlugs;
+      allNonLeadingSlugsRef.current = allNonLeadingSlugs;
       enabledNonLeadingSlugsSortedRef.current = enabledNonLeadingSlugsSorted;
     }
   }, [manageActive, allNonLeadingSlugs, enabledNonLeadingSlugsSorted]);
 
-  const manageableTokenSlugs = useMemoWithCompare(
+  const manageableSlugs = useMemoWithCompare(
     () => {
       if (!manageActive) return filteredSlugs;
 
-      const allUniqNonLeadingSlugs = uniq([
-        ...enabledNonLeadingSlugsSortedRef.current,
-        ...allNonLeadingAssetsRef.current
-      ]).filter(slug => allNonLeadingSlugs.includes(slug));
+      const allNonLeadingSlugsSet = new Set(allNonLeadingSlugs);
+      const allUniqNonLeadingSlugsSet = new Set(
+        enabledNonLeadingSlugsSortedRef.current.concat(allNonLeadingSlugsRef.current)
+      );
+
+      const allUniqNonLeadingSlugsWithoutDeleted = Array.from(allUniqNonLeadingSlugsSet).filter(slug =>
+        allNonLeadingSlugsSet.has(slug)
+      );
 
       const allNonLeadingSearchedSlugs = isInSearchMode
-        ? searchEvmChainTokensWithNoMeta(searchValueDebounced, allUniqNonLeadingSlugs, getMetadata, slug => slug)
-        : allUniqNonLeadingSlugs;
+        ? searchEvmChainTokensWithNoMeta(
+            searchValueDebounced,
+            allUniqNonLeadingSlugsWithoutDeleted,
+            getMetadata,
+            slug => slug
+          )
+        : allUniqNonLeadingSlugsWithoutDeleted;
 
       return searchedLeadingSlugs.length
         ? searchedLeadingSlugs.concat(allNonLeadingSearchedSlugs)
@@ -155,7 +164,7 @@ export const useEvmChainAccountTokensListingLogic = (
     isEqual
   );
 
-  const { slugs: paginatedSlugs, loadNext } = useSimpleAssetsPaginationLogic(manageableTokenSlugs);
+  const { slugs: paginatedSlugs, loadNext } = useSimpleAssetsPaginationLogic(manageableSlugs);
 
   return {
     paginatedSlugs,

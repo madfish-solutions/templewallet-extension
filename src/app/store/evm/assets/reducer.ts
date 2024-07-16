@@ -57,6 +57,7 @@ export const evmAssetsReducer = createReducer<EvmAssetsStateInterface>(EvmAssets
     const token = chainTokens[slug];
 
     if (token) token.status = status;
+    else chainTokens[slug] = { status };
   });
 
   builder.addCase(setEvmCollectibleStatusAction, ({ collectibles }, { payload }) => {
@@ -66,6 +67,7 @@ export const evmAssetsReducer = createReducer<EvmAssetsStateInterface>(EvmAssets
     const collectible = chainCollectibles[slug];
 
     if (collectible) collectible.status = status;
+    else chainCollectibles[slug] = { status };
   });
 
   builder.addCase(putNewEvmTokenAction, ({ tokens }, { payload }) => {

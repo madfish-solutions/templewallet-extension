@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
-import { isEqual, uniq } from 'lodash';
+import { isEqual } from 'lodash';
 import { useDebounce } from 'use-debounce';
 
 import { useEvmCollectiblesMetadataRecordSelector } from 'app/store/evm/collectibles-metadata/selectors';
@@ -58,23 +58,29 @@ export const useEvmChainCollectiblesListingLogic = (
     }
   }, [manageActive, allSlugs, enabledSlugsSorted]);
 
-  const manageableTokenSlugs = useMemoWithCompare(
+  const manageableSlugs = useMemoWithCompare(
     () => {
       if (!manageActive) return enabledSearchedSlugs;
 
-      const allUniqSlugs = uniq([...enabledSlugsSortedRef.current, ...allSlugsRef.current]).filter(slug =>
-        allSlugs.includes(slug)
-      );
+      const allSlugsSet = new Set(allSlugs);
+      const allUniqSlugsSet = new Set(enabledSlugsSortedRef.current.concat(allSlugsRef.current));
+
+      const allUniqSlugsWithoutDeleted = Array.from(allUniqSlugsSet).filter(slug => allSlugsSet.has(slug));
 
       return isInSearchMode
-        ? searchEvmChainCollectiblesWithNoMeta(searchValueDebounced, allUniqSlugs, getMetadata, slug => slug)
-        : allUniqSlugs;
+        ? searchEvmChainCollectiblesWithNoMeta(
+            searchValueDebounced,
+            allUniqSlugsWithoutDeleted,
+            getMetadata,
+            slug => slug
+          )
+        : allUniqSlugsWithoutDeleted;
     },
     [manageActive, enabledSearchedSlugs, isInSearchMode, searchValueDebounced, getMetadata, allSlugs],
     isEqual
   );
 
-  const { slugs: paginatedSlugs, loadNext } = useSimpleAssetsPaginationLogic(manageableTokenSlugs);
+  const { slugs: paginatedSlugs, loadNext } = useSimpleAssetsPaginationLogic(manageableSlugs);
 
   return {
     paginatedSlugs,

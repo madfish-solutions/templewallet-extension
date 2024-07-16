@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
-import { isEqual, uniq } from 'lodash';
+import { isEqual } from 'lodash';
 import { useDebounce } from 'use-debounce';
 
 import { useEvmCollectiblesMetadataRecordSelector } from 'app/store/evm/collectibles-metadata/selectors';
@@ -78,24 +78,27 @@ export const useAccountCollectiblesListingLogic = (
     }
   }, [manageActive, allChainSlugs, enabledSlugsSorted]);
 
-  const manageableTokenSlugs = useMemoWithCompare(
+  const manageableSlugs = useMemoWithCompare(
     () => {
       if (!manageActive) return enabledSearchedSlugs;
 
-      const allUniqChainSlugs = uniq([...enabledChainSlugsSortedRef.current, ...allChainSlugsRef.current]).filter(
-        chainSlug => allChainSlugs.includes(chainSlug)
+      const allChainSlugsSet = new Set(allChainSlugs);
+      const allUniqChainSlugsSet = new Set(enabledChainSlugsSortedRef.current.concat(allChainSlugsRef.current));
+
+      const allUniqChainSlugsWithoutDeleted = Array.from(allUniqChainSlugsSet).filter(chainSlug =>
+        allChainSlugsSet.has(chainSlug)
       );
 
       return isInSearchMode
         ? searchAssetsWithNoMeta(
             searchValueDebounced,
-            allUniqChainSlugs,
+            allUniqChainSlugsWithoutDeleted,
             (_, slug) => getTezMetadata(slug),
             getEvmMetadata,
             slug => slug,
             getSlugFromChainSlug
           )
-        : allUniqChainSlugs;
+        : allUniqChainSlugsWithoutDeleted;
     },
     [
       manageActive,
@@ -109,7 +112,7 @@ export const useAccountCollectiblesListingLogic = (
     isEqual
   );
 
-  const { slugs: paginatedSlugs, loadNext } = useSimpleAssetsPaginationLogic(manageableTokenSlugs);
+  const { slugs: paginatedSlugs, loadNext } = useSimpleAssetsPaginationLogic(manageableSlugs);
 
   return {
     isInSearchMode,

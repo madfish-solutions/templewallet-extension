@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { isDefined } from '@rnw-community/shared';
-import { groupBy, isEqual, uniq } from 'lodash';
+import { groupBy, isEqual } from 'lodash';
 import { useDebounce } from 'use-debounce';
 
 import { useRawEvmAccountBalancesSelector } from 'app/store/evm/balances/selectors';
@@ -147,18 +147,27 @@ export const useEvmAccountTokensListingLogic = (
     }
   }, [manageActive, allNonLeadingChainSlugs, enabledNonLeadingChainSlugsSorted]);
 
-  const manageableTokenSlugs = useMemoWithCompare(
+  const manageableChainSlugs = useMemoWithCompare(
     () => {
       if (!manageActive) return groupedAssets;
 
-      const allUniqNonLeadingSlugs = uniq([
-        ...enabledNonLeadingChainSlugsSortedRef.current,
-        ...allNonLeadingChainSlugsRef.current
-      ]).filter(slug => allNonLeadingChainSlugs.includes(slug));
+      const allNonLeadingSlugsSet = new Set(allNonLeadingChainSlugs);
+      const allUniqNonLeadingSlugsSet = new Set(
+        enabledNonLeadingChainSlugsSortedRef.current.concat(allNonLeadingChainSlugsRef.current)
+      );
+
+      const allUniqNonLeadingSlugsWithoutDeleted = Array.from(allUniqNonLeadingSlugsSet).filter(slug =>
+        allNonLeadingSlugsSet.has(slug)
+      );
 
       const allNonLeadingSearchedSlugs = isInSearchMode
-        ? searchEvmTokensWithNoMeta(searchValueDebounced, allUniqNonLeadingSlugs, getMetadata, getSlugWithChainId)
-        : allUniqNonLeadingSlugs;
+        ? searchEvmTokensWithNoMeta(
+            searchValueDebounced,
+            allUniqNonLeadingSlugsWithoutDeleted,
+            getMetadata,
+            getSlugWithChainId
+          )
+        : allUniqNonLeadingSlugsWithoutDeleted;
 
       return searchedLeadingChainSlugs.length
         ? searchedLeadingChainSlugs.concat(allNonLeadingSearchedSlugs)
@@ -176,7 +185,7 @@ export const useEvmAccountTokensListingLogic = (
     isEqual
   );
 
-  const { slugs: paginatedSlugs, loadNext } = useSimpleAssetsPaginationLogic(manageableTokenSlugs);
+  const { slugs: paginatedSlugs, loadNext } = useSimpleAssetsPaginationLogic(manageableChainSlugs);
 
   return {
     paginatedSlugs,

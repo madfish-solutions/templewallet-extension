@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 
-import { isEqual, uniq } from 'lodash';
+import { isEqual } from 'lodash';
 import { useDebounce } from 'use-debounce';
 
 import { useAreAssetsLoading } from 'app/store/tezos/assets/selectors';
@@ -59,17 +59,18 @@ export const useTezosChainCollectiblesListingLogic = (
     }
   }, [manageActive, allSlugs, enabledSlugsSorted]);
 
-  const manageableTokenSlugs = useMemoWithCompare(
+  const manageableSlugs = useMemoWithCompare(
     () => {
       if (!manageActive) return enabledSearchedSlugs;
 
-      const allUniqSlugs = uniq([...enabledSlugsSortedRef.current, ...allSlugsRef.current]).filter(slug =>
-        allSlugs.includes(slug)
-      );
+      const allSlugsSet = new Set(allSlugs);
+      const allUniqSlugsSet = new Set(enabledSlugsSortedRef.current.concat(allSlugsRef.current));
+
+      const allUniqSlugsWithoutDeleted = Array.from(allUniqSlugsSet).filter(slug => allSlugsSet.has(slug));
 
       return isInSearchMode
-        ? searchTezosChainAssetsWithNoMeta(searchValueDebounced, allUniqSlugs, getMetadata, slug => slug)
-        : allUniqSlugs;
+        ? searchTezosChainAssetsWithNoMeta(searchValueDebounced, allUniqSlugsWithoutDeleted, getMetadata, slug => slug)
+        : allUniqSlugsWithoutDeleted;
     },
     [manageActive, enabledSearchedSlugs, isInSearchMode, searchValueDebounced, getMetadata, allSlugs],
     isEqual
@@ -79,7 +80,7 @@ export const useTezosChainCollectiblesListingLogic = (
     slugs: paginatedSlugs,
     isLoading: pageIsLoading,
     loadNext
-  } = useTezosChainCollectiblesPaginationLogic(manageableTokenSlugs, network.rpcBaseURL);
+  } = useTezosChainCollectiblesPaginationLogic(manageableSlugs, network.rpcBaseURL);
 
   const metaToCheckAndLoad = useMemo(() => {
     // Search is not paginated. This is how all needed meta is loaded

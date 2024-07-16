@@ -33,71 +33,43 @@ interface AccountToken extends AccountAsset {
 }
 
 export const useEnabledAccountChainTokenSlugs = (accountTezAddress: string, accountEvmAddress: HexString) => {
-  const tezTokens = useTezosAccountTokens(accountTezAddress);
-  const evmTokens = useEvmAccountTokens(accountEvmAddress);
+  const tezTokens = useEnabledTezosAccountTokenSlugs(accountTezAddress);
+  const evmTokens = useEnabledEvmAccountTokenSlugs(accountEvmAddress);
 
-  return useMemo(
-    () => [
-      ...tezTokens.reduce<string[]>(
-        (acc, { slug, status, chainId }) =>
-          status === 'enabled' ? acc.concat(toChainAssetSlug(TempleChainKind.Tezos, chainId, slug)) : acc,
-        []
-      ),
-      ...evmTokens.reduce<string[]>(
-        (acc, { slug, status, chainId }) =>
-          status === 'enabled' ? acc.concat(toChainAssetSlug(TempleChainKind.EVM, chainId, slug)) : acc,
-        []
-      )
-    ],
-    [tezTokens, evmTokens]
-  );
+  return useMemo(() => [...tezTokens, ...evmTokens], [tezTokens, evmTokens]);
 };
 
 export const useAllAccountChainTokensSlugs = (accountTezAddress: string, accountEvmAddress: HexString) => {
-  const tezTokens = useTezosAccountTokens(accountTezAddress);
-  const evmTokens = useEvmAccountTokens(accountEvmAddress);
+  const tezTokens = useAllTezosAccountTokenSlugs(accountTezAddress);
+  const evmTokens = useAllEvmAccountTokenSlugs(accountEvmAddress);
 
-  return useMemo(
-    () => [
-      ...tezTokens.reduce<string[]>(
-        (acc, { slug, status, chainId }) =>
-          status !== 'removed' ? acc.concat(toChainAssetSlug(TempleChainKind.Tezos, chainId, slug)) : acc,
-        []
-      ),
-      ...evmTokens.reduce<string[]>(
-        (acc, { slug, status, chainId }) =>
-          status !== 'removed' ? acc.concat(toChainAssetSlug(TempleChainKind.EVM, chainId, slug)) : acc,
-        []
-      )
-    ],
-    [tezTokens, evmTokens]
-  );
+  return useMemo(() => [...tezTokens, ...evmTokens], [tezTokens, evmTokens]);
 };
 
-export const useEnabledTezosAccountTokensSlugs = (publicKeyHash: string) => {
+export const useEnabledTezosAccountTokenSlugs = (publicKeyHash: string) => {
   const tokens = useTezosAccountTokens(publicKeyHash);
 
   return useMemo(
     () =>
-      tokens.reduce<string[]>(
-        (acc, { slug, status, chainId }) =>
-          status === 'enabled' ? acc.concat(toChainAssetSlug(TempleChainKind.Tezos, chainId, slug)) : acc,
-        []
-      ),
+      tokens.reduce<string[]>((acc, { slug, status, chainId }) => {
+        if (status === 'enabled') acc.push(toChainAssetSlug(TempleChainKind.Tezos, chainId, slug));
+
+        return acc;
+      }, []),
     [tokens]
   );
 };
 
-export const useAllTezosAccountTokensSlugs = (publicKeyHash: string) => {
+export const useAllTezosAccountTokenSlugs = (publicKeyHash: string) => {
   const tokens = useTezosAccountTokens(publicKeyHash);
 
   return useMemo(
     () =>
-      tokens.reduce<string[]>(
-        (acc, { slug, status, chainId }) =>
-          status !== 'removed' ? acc.concat(toChainAssetSlug(TempleChainKind.Tezos, chainId, slug)) : acc,
-        []
-      ),
+      tokens.reduce<string[]>((acc, { slug, status, chainId }) => {
+        if (status !== 'removed') acc.push(toChainAssetSlug(TempleChainKind.Tezos, chainId, slug));
+
+        return acc;
+      }, []),
     [tokens]
   );
 };
@@ -106,7 +78,12 @@ export const useEnabledTezosChainAccountTokenSlugs = (publicKeyHash: string, cha
   const tokens = useTezosChainAccountTokens(publicKeyHash, chainId);
 
   return useMemo(
-    () => tokens.reduce<string[]>((acc, { slug, status }) => (status === 'enabled' ? acc.concat(slug) : acc), []),
+    () =>
+      tokens.reduce<string[]>((acc, { slug, status }) => {
+        if (status === 'enabled') acc.push(slug);
+
+        return acc;
+      }, []),
     [tokens]
   );
 };
@@ -115,7 +92,12 @@ export const useAllTezosChainAccountTokenSlugs = (publicKeyHash: string, chainId
   const tokens = useTezosChainAccountTokens(publicKeyHash, chainId);
 
   return useMemo(
-    () => tokens.reduce<string[]>((acc, { slug, status }) => (status !== 'removed' ? acc.concat(slug) : acc), []),
+    () =>
+      tokens.reduce<string[]>((acc, { slug, status }) => {
+        if (status !== 'removed') acc.push(slug);
+
+        return acc;
+      }, []),
     [tokens]
   );
 };
@@ -290,7 +272,7 @@ const useEvmChainAccountTokens = (account: HexString, chainId: number) => {
         status: getAssetStatus(balances[slug], status),
         chainId
       })),
-    [storedRaw, balances],
+    [storedRaw, balances, chainId],
     isEqual
   );
 };
@@ -300,11 +282,11 @@ export const useEnabledEvmAccountTokenSlugs = (publicKeyHash: HexString) => {
 
   return useMemo(
     () =>
-      tokens.reduce<string[]>(
-        (acc, { slug, status, chainId }) =>
-          status === 'enabled' ? acc.concat(toChainAssetSlug(TempleChainKind.EVM, chainId, slug)) : acc,
-        []
-      ),
+      tokens.reduce<string[]>((acc, { slug, status, chainId }) => {
+        if (status === 'enabled') acc.push(toChainAssetSlug(TempleChainKind.EVM, chainId, slug));
+
+        return acc;
+      }, []),
     [tokens]
   );
 };
@@ -314,11 +296,11 @@ export const useAllEvmAccountTokenSlugs = (publicKeyHash: HexString) => {
 
   return useMemo(
     () =>
-      tokens.reduce<string[]>(
-        (acc, { slug, status, chainId }) =>
-          status !== 'removed' ? acc.concat(toChainAssetSlug(TempleChainKind.EVM, chainId, slug)) : acc,
-        []
-      ),
+      tokens.reduce<string[]>((acc, { slug, status, chainId }) => {
+        if (status !== 'removed') acc.push(toChainAssetSlug(TempleChainKind.EVM, chainId, slug));
+
+        return acc;
+      }, []),
     [tokens]
   );
 };
@@ -327,7 +309,12 @@ export const useEnabledEvmChainAccountTokenSlugs = (publicKeyHash: HexString, ch
   const tokens = useEvmChainAccountTokens(publicKeyHash, chainId);
 
   return useMemo(
-    () => tokens.reduce<string[]>((acc, { slug, status }) => (status === 'enabled' ? acc.concat(slug) : acc), []),
+    () =>
+      tokens.reduce<string[]>((acc, { slug, status }) => {
+        if (status === 'enabled') acc.push(slug);
+
+        return acc;
+      }, []),
     [tokens]
   );
 };
@@ -336,7 +323,12 @@ export const useAllEvmChainAccountTokenSlugs = (publicKeyHash: HexString, chainI
   const tokens = useEvmChainAccountTokens(publicKeyHash, chainId);
 
   return useMemo(
-    () => tokens.reduce<string[]>((acc, { slug, status }) => (status !== 'removed' ? acc.concat(slug) : acc), []),
+    () =>
+      tokens.reduce<string[]>((acc, { slug, status }) => {
+        if (status !== 'removed') acc.push(slug);
+
+        return acc;
+      }, []),
     [tokens]
   );
 };

@@ -20,7 +20,7 @@ export const toTokenSlug = (contract: string, id: string | number = 0) => `${con
 export const fromAssetSlug = <T = string>(slug: string) => slug.split('_') as [contract: T, tokenId?: string];
 
 export const toChainAssetSlug = (chainKind: TempleChainKind, chainId: number | string, assetSlug: string) =>
-  chainKind + CHAIN_SLUG_SEPARATOR + chainId + CHAIN_SLUG_SEPARATOR + assetSlug;
+  `${chainKind}${CHAIN_SLUG_SEPARATOR}${chainId}${CHAIN_SLUG_SEPARATOR}${assetSlug}`;
 
 export const fromChainAssetSlug = <T = string | number>(chainAssetSlug: string): [string, T, string] => {
   const [chainKind, chainId, assetSlug] = chainAssetSlug.split(CHAIN_SLUG_SEPARATOR);
