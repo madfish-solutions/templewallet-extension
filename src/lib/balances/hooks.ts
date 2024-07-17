@@ -53,7 +53,7 @@ export const useGetEvmTokenBalanceWithDecimals = (publicKeyHash: HexString) => {
           ? evmChains[chainId]?.currency
           : (tokensMetadata[chainId]?.[slug] as EvmTokenMetadata | undefined);
 
-      return rawBalance && metadata?.decimals ? atomsToTokens(new BigNumber(rawBalance), metadata.decimals) : undefined;
+      return rawBalance && metadata?.decimals ? atomsToTokens(rawBalance, metadata.decimals) : undefined;
     },
     [evmChains, rawBalances, tokensMetadata]
   );
@@ -70,7 +70,7 @@ export const useGetTezosAccountTokenOrGasBalanceWithDecimals = (publicKeyHash: s
       const rawBalance = balancesAtomicRecord[key]?.data[slug] as string | undefined;
       const metadata = getChainMetadata(chainId, slug);
 
-      return rawBalance && metadata ? atomsToTokens(new BigNumber(rawBalance), metadata.decimals) : undefined;
+      return rawBalance && metadata ? atomsToTokens(rawBalance, metadata.decimals) : undefined;
     },
     [balancesAtomicRecord, getChainMetadata, publicKeyHash]
   );
@@ -85,7 +85,7 @@ export const useGetTezosChainAccountTokenOrGasBalanceWithDecimals = (publicKeyHa
       const rawBalance = rawBalances[slug] as string | undefined;
       const metadata = getMetadata(slug);
 
-      return rawBalance && metadata ? atomsToTokens(new BigNumber(rawBalance), metadata.decimals) : undefined;
+      return rawBalance && metadata ? atomsToTokens(rawBalance, metadata.decimals) : undefined;
     },
     [rawBalances, getMetadata]
   );
