@@ -10,6 +10,7 @@ import { StyledButton } from 'app/atoms/StyledButton';
 import { TotalEquity } from 'app/atoms/TotalEquity';
 import { ReactComponent as Browse } from 'app/icons/base/browse.svg';
 import { ReactComponent as PlusIcon } from 'app/icons/base/plus.svg';
+import { ReactComponent as EmptySearchIcon } from 'app/icons/search_empty.svg';
 import { dispatch } from 'app/store';
 import { setAssetsFilterChain } from 'app/store/assets-filter-options/actions';
 import { useAssetsFilterOptionsSelector } from 'app/store/assets-filter-options/selectors';
@@ -60,6 +61,18 @@ export const NetworksModal = memo<Props>(({ opened, onRequestClose }) => {
       </div>
 
       <div className="px-4 flex-1 flex flex-col overflow-y-auto">
+        {filteredNetworks.length === 0 && (
+          <div className="w-full h-full flex flex-col items-center">
+            <div className="flex-1 py-7 flex flex-col items-center justify-center text-grey-2">
+              <EmptySearchIcon />
+
+              <p className="mt-2 text-center text-font-medium-bold">
+                <T id="notFound" />
+              </p>
+            </div>
+          </div>
+        )}
+
         {filteredNetworks.map(network => {
           if (typeof network === 'string') {
             return (

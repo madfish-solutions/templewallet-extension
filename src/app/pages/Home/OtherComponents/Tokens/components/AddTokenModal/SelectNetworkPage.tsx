@@ -6,6 +6,7 @@ import { TezosNetworkLogo } from 'app/atoms/NetworksLogos';
 import { RadioButton } from 'app/atoms/RadioButton';
 import { StyledButton } from 'app/atoms/StyledButton';
 import { ReactComponent as PlusIcon } from 'app/icons/base/plus.svg';
+import { ReactComponent as EmptySearchIcon } from 'app/icons/search_empty.svg';
 import { searchAndFilterNetworks } from 'app/templates/AssetsFilterOptions/utils/search-and-filter-networks';
 import { SearchBarField } from 'app/templates/SearchField';
 import { T } from 'lib/i18n';
@@ -58,6 +59,18 @@ export const SelectNetworkPage: FC<SelectNetworkPageProps> = ({ selectedChain, s
       </div>
 
       <div className="px-4 flex-1 flex flex-col overflow-y-auto">
+        {filteredNetworks.length === 0 && (
+          <div className="w-full h-full flex flex-col items-center">
+            <div className="flex-1 py-7 flex flex-col items-center justify-center text-grey-2">
+              <EmptySearchIcon />
+
+              <p className="mt-2 text-center text-font-medium-bold">
+                <T id="notFound" />
+              </p>
+            </div>
+          </div>
+        )}
+
         {filteredNetworks.map(network => {
           if (network.kind === TempleChainKind.Tezos) {
             return (
