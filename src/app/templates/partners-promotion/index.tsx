@@ -71,13 +71,10 @@ export const PartnersPromotion = memo<PartnersPromotionProps>(({ variant, id, pa
   const handleAdRectSeen = useCallback(() => {
     if (isAnalyticsSentRef.current) return;
 
-    postAdImpression(adsViewerAddress, AdsProviderTitle[providerName], {
-      pageName,
-      variant: providerName === 'Persona' ? PartnersPromotionVariant.Image : variant
-    });
+    postAdImpression(adsViewerAddress, AdsProviderTitle[providerName], { pageName });
 
     isAnalyticsSentRef.current = true;
-  }, [providerName, pageName, adsViewerAddress, variant]);
+  }, [providerName, pageName, adsViewerAddress]);
 
   const handleClosePartnersPromoClick = useCallback<MouseEventHandler<HTMLButtonElement>>(
     e => {

@@ -6,7 +6,10 @@ import { stringToHex } from 'lib/utils';
 
 export async function performLinkingOfAdsImpressions(accountPkh: string) {
   const identity = await getStoredAppInstallIdentity();
-  if (!identity) throw new Error('App identity not found');
+  if (!identity) {
+    console.warn('App identity not found');
+    return;
+  }
 
   const {
     privateKey,

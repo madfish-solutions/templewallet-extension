@@ -19,8 +19,7 @@ import PackageJSON from '../package.json';
 
 browser.runtime.onInstalled.addListener(({ reason }) => {
   if (reason === 'install') {
-    openFullPage();
-    prepareAppIdentity();
+    prepareAppIdentity().finally(openFullPage);
     return;
   }
 

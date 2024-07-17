@@ -17,8 +17,6 @@ interface ImpressionDetails {
   urlDomain?: string;
   /** For internal */
   pageName?: string;
-  /** For internal */
-  variant?: string;
 }
 
 export async function postAdImpression(
