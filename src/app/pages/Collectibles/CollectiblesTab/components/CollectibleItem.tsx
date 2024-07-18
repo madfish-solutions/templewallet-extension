@@ -192,7 +192,7 @@ export const TezosCollectibleItem = memo<TezosCollectibleItemProps>(
             <IconBase
               Icon={DeleteIcon}
               size={16}
-              className="cursor-pointer text-primary"
+              className="cursor-pointer text-error"
               onClick={setDeleteModalOpened}
             />
             <ToggleSwitch checked={checked} onChange={toggleTokenStatus} />
@@ -382,7 +382,7 @@ export const EvmCollectibleItem = memo<EvmCollectibleItemProps>(
             <IconBase
               Icon={DeleteIcon}
               size={16}
-              className="cursor-pointer text-primary"
+              className="cursor-pointer text-error"
               onClick={setDeleteModalOpened}
             />
             <ToggleSwitch checked={checked} onChange={toggleTokenStatus} />

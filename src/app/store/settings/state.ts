@@ -6,10 +6,12 @@ export interface SettingsState {
   isOnRampPossibility: boolean;
   /** @deprecated */
   balanceMode?: 'fiat' | 'gas';
+  toastsContainerBottomShift: number;
 }
 
 export const settingsInitialState: SettingsState = {
   userId: nanoid(),
   isAnalyticsEnabled: true,
-  isOnRampPossibility: false
+  isOnRampPossibility: false,
+  toastsContainerBottomShift: 0
 };

@@ -8,6 +8,7 @@ import { ReactComponent as ErrorIcon } from 'app/icons/typed-msg/error.svg';
 import { ReactComponent as InfoIcon } from 'app/icons/typed-msg/info.svg';
 import { ReactComponent as SuccessIcon } from 'app/icons/typed-msg/success.svg';
 import { ReactComponent as WarningIcon } from 'app/icons/typed-msg/warning.svg';
+import { useToastsContainerBottomShiftSelector } from 'app/store/settings/selectors';
 import PortalToDocumentBody from 'lib/ui/Portal';
 
 const MAX_TOASTS_COUNT = 3;
@@ -44,8 +45,9 @@ export const toastWarning = withToastsLimit((title: string, textBold?: boolean) 
 );
 
 export const ToasterProvider = memo(() => {
+  const bottomShift = useToastsContainerBottomShiftSelector();
   const { popup } = useAppEnv();
-  const toastsContainerStyle = useMemo(() => ({ bottom: popup ? 32 : 64 }), [popup]);
+  const toastsContainerStyle = useMemo(() => ({ bottom: (popup ? 32 : 64) + bottomShift }), [bottomShift, popup]);
 
   return (
     <PortalToDocumentBody>

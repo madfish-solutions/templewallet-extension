@@ -27,11 +27,11 @@ export type SelectedChain = EvmChain | TezosChain;
 
 interface SelectNetworkPageProps {
   selectedChain: EvmChain | TezosChain;
-  setSelectedChain: React.Dispatch<React.SetStateAction<SelectedChain>>;
+  onNetworkSelect: (chain: SelectedChain) => void;
   onCloseClick: EmptyFn;
 }
 
-export const SelectNetworkPage: FC<SelectNetworkPageProps> = ({ selectedChain, setSelectedChain, onCloseClick }) => {
+export const SelectNetworkPage: FC<SelectNetworkPageProps> = ({ selectedChain, onNetworkSelect, onCloseClick }) => {
   const accountTezAddress = useAccountAddressForTezos();
   const accountEvmAddress = useAccountAddressForEvm();
 
@@ -86,7 +86,7 @@ export const SelectNetworkPage: FC<SelectNetworkPageProps> = ({ selectedChain, s
                 }
                 name={network.name}
                 attractSelf
-                onClick={() => setSelectedChain(network)}
+                onClick={() => onNetworkSelect(network)}
               />
             );
           }
@@ -100,7 +100,7 @@ export const SelectNetworkPage: FC<SelectNetworkPageProps> = ({ selectedChain, s
               }
               name={network.name}
               attractSelf
-              onClick={() => setSelectedChain(network)}
+              onClick={() => onNetworkSelect(network)}
             />
           );
         })}

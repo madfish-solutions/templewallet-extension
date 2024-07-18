@@ -16,7 +16,7 @@ import { evmTokensExchangeRatesReducer } from './evm/tokens-exchange-rates/reduc
 import { evmTokensMetadataReducer } from './evm/tokens-metadata/reducers';
 import { newsletterReducers } from './newsletter/newsletter-reducers';
 import { partnersPromotionPersistedReducer } from './partners-promotion/reducers';
-import { settingsReducer } from './settings/reducers';
+import { settingsPersistedReducer } from './settings/reducers';
 import { swapReducer } from './swap/reducers';
 import { assetsPersistedReducer } from './tezos/assets/reducer';
 import { balancesReducer } from './tezos/balances/reducers';
@@ -25,7 +25,7 @@ import { collectiblesMetadataPersistedReducer } from './tezos/collectibles-metad
 import { tokensMetadataReducer } from './tezos/tokens-metadata/reducers';
 
 const rootStateReducersMap = {
-  settings: settingsReducer,
+  settings: settingsPersistedReducer,
   advertising: advertisingReducer,
   currency: currencyReducer,
   notifications: notificationsReducer,

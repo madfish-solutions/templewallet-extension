@@ -7,6 +7,7 @@ import { useDebouncedCallback } from 'use-debounce';
 import { getAddress, isAddress } from 'viem';
 
 import { FormField, NoSpaceField } from 'app/atoms';
+import { ActionsButtonsBox } from 'app/atoms/PageModal/actions-buttons-box';
 import Spinner from 'app/atoms/Spinner/Spinner';
 import { StyledButton } from 'app/atoms/StyledButton';
 import { dispatch } from 'app/store';
@@ -45,6 +46,8 @@ import { validateEvmContractAddress } from 'temple/front/evm/helpers';
 import { validateTezosContractAddress } from 'temple/front/tezos';
 import { getReadOnlyTezos } from 'temple/tezos';
 import { TempleChainKind } from 'temple/types';
+
+import { setToastsContainerBottomShiftAction } from '../../../../../../store/settings/actions';
 
 import { NetworkSelect } from './NetworkSelect';
 import { TokenInfo } from './TokenInfo';
@@ -106,6 +109,8 @@ export const AddTokenForm = memo<AddTokenPageProps>(({ selectedChain, onNetworkS
   const tokenId = tokenIdWithoutFallback || 0;
 
   const formValid = useMemo(() => {
+    if (!contractAddress) return false;
+
     if (isTezosChainSelected) return validateTezosContractAddress(contractAddress) === true && tokenId >= 0;
 
     return isAddress(contractAddress);
@@ -114,7 +119,11 @@ export const AddTokenForm = memo<AddTokenPageProps>(({ selectedChain, onNetworkS
   const [{ processing, bottomSectionVisible, tokenValidationError, tokenDataError }, setState] =
     useSafeState(INITIAL_STATE);
 
-  const isAddButtonDisabled = tokenValidationError || tokenDataError || (formState.dirty && !formState.isValid);
+  const isAddButtonDisabled =
+    tokenValidationError ||
+    tokenDataError ||
+    (formState.isSubmitted && !formState.dirty) ||
+    (formState.dirty && !formValid);
 
   const attemptRef = useRef(0);
   const tezMetadataRef = useRef<RequiredTokenMetadataResponse>();
@@ -248,12 +257,8 @@ export const AddTokenForm = memo<AddTokenPageProps>(({ selectedChain, onNetworkS
           };
 
           dispatch(assetIsCollectible ? putCollectiblesAsIsAction([asset]) : putTokensAsIsAction([asset]));
-
-          formAnalytics.trackSubmitSuccess();
-
+          dispatch(setToastsContainerBottomShiftAction(0));
           toastSuccess(assetIsCollectible ? 'NFT Added' : 'Token Added');
-
-          close();
         } else {
           if (!evmMetadataRef.current) throw new Error('Oops, Something went wrong!');
 
@@ -272,13 +277,12 @@ export const AddTokenForm = memo<AddTokenPageProps>(({ selectedChain, onNetworkS
               records: { [tokenSlug]: evmMetadataRef.current }
             })
           );
-
-          formAnalytics.trackSubmitSuccess();
-
+          dispatch(setToastsContainerBottomShiftAction(0));
           toastSuccess('Token Added');
-
-          close();
         }
+
+        formAnalytics.trackSubmitSuccess();
+        close();
       } catch (err: any) {
         console.error(err);
 
@@ -375,14 +379,14 @@ export const AddTokenForm = memo<AddTokenPageProps>(({ selectedChain, onNetworkS
           />
         </div>
       </div>
-      <div className="flex flex-row gap-x-2.5 p-4 pb-6 bg-white">
+      <ActionsButtonsBox flexDirection="row" className="gap-x-2.5">
         <StyledButton size="L" className="w-full" color="primary-low" onClick={close}>
           <T id="cancel" />
         </StyledButton>
         <StyledButton disabled={isAddButtonDisabled} type="submit" size="L" className="w-full" color="primary">
           <T id="add" />
         </StyledButton>
-      </div>
+      </ActionsButtonsBox>
     </form>
   );
 });

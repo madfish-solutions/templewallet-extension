@@ -1,4 +1,4 @@
-import React, { memo, useMemo, useState } from 'react';
+import React, { memo, useCallback, useMemo, useState } from 'react';
 
 import { PageModal } from 'app/atoms/PageModal';
 import { useBooleanState } from 'lib/ui/hooks';
@@ -34,6 +34,14 @@ export const AddTokenModal = memo<Props>(({ opened, onRequestClose }) => {
   const [isNetworkSelectOpened, setNetworkSelectOpened, setNetworkSelectClosed] = useBooleanState(false);
   const [selectedChain, setSelectedChain] = useState<SelectedChain>(defaultSelectedChain);
 
+  const handleNetworkSelect = useCallback(
+    (chain: SelectedChain) => {
+      setSelectedChain(chain);
+      setNetworkSelectClosed();
+    },
+    [setNetworkSelectClosed]
+  );
+
   return (
     <PageModal
       title={isNetworkSelectOpened ? 'Select Network' : 'Add Custom Token'}
@@ -44,7 +52,7 @@ export const AddTokenModal = memo<Props>(({ opened, onRequestClose }) => {
       {isNetworkSelectOpened ? (
         <SelectNetworkPage
           selectedChain={selectedChain}
-          setSelectedChain={setSelectedChain}
+          onNetworkSelect={handleNetworkSelect}
           onCloseClick={setNetworkSelectClosed}
         />
       ) : (

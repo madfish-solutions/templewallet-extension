@@ -120,7 +120,7 @@ export const TezosListItem = memo<TezosListItemProps>(
                 <IconBase
                   Icon={DeleteIcon}
                   size={16}
-                  className={isNativeToken ? 'text-disable' : 'cursor-pointer text-primary'}
+                  className={isNativeToken ? 'text-disable' : 'cursor-pointer text-error'}
                   onClick={isNativeToken ? undefined : setDeleteModalOpened}
                 />
                 <ToggleSwitch
@@ -257,7 +257,7 @@ export const EvmListItem = memo<EvmListItemProps>(({ chainId, publicKeyHash, ass
               <IconBase
                 Icon={DeleteIcon}
                 size={16}
-                className={isNativeToken ? 'text-disable' : 'cursor-pointer text-primary'}
+                className={isNativeToken ? 'text-disable' : 'cursor-pointer text-error'}
                 onClick={isNativeToken ? undefined : setDeleteModalOpened}
               />
               <ToggleSwitch
