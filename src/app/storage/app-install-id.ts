@@ -7,7 +7,7 @@ interface AppInstallIdentity {
   privateKey: string;
   publicKey: string;
   publicKeyHash: string;
-  ts: number;
+  ts: string;
 }
 
 export const getStoredAppInstallIdentity = () => fetchFromStorage<AppInstallIdentity>(storageKey);

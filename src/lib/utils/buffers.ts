@@ -33,14 +33,11 @@ export const stringToUInt8Array = (str: string) => new TextEncoder().encode(str)
  * ```
  * import { Buffer } from 'buffer';
  *
- * Buffer.from(
- *   stringToUInt8Array(value)
- * ).toString('hex')
+ * Buffer.from(ui8a).toString('hex')
  * ```
  */
-export function stringToHex(value: string) {
-  const buffer = stringToUInt8Array(value);
-  const hexArray = Array.from(buffer, byte => byte.toString(16).padStart(2, '0'));
+export function ui8aToHex(ui8a: Uint8Array) {
+  const hexArray = Array.from(ui8a, byte => byte.toString(16).padStart(2, '0'));
 
   return hexArray.reduce((acc, curr) => acc + curr, '');
 }

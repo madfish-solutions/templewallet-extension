@@ -1,7 +1,5 @@
 import { initializeApp } from '@firebase/app';
 import { getMessaging } from '@firebase/messaging/sw';
-import { InMemorySigner } from '@taquito/signer';
-import { generateMnemonic } from 'bip39';
 import browser from 'webextension-polyfill';
 
 import 'lib/keep-bg-worker-alive/background';
@@ -14,6 +12,7 @@ import {
 import { updateRulesStorage } from 'lib/ads/update-rules-storage';
 import { EnvVars } from 'lib/env';
 import { start } from 'lib/temple/back/main';
+import { generateKeyPair } from 'lib/utils/ecdsa';
 
 import PackageJSON from '../package.json';
 
@@ -64,20 +63,15 @@ getMessaging(firebase);
 updateRulesStorage();
 
 async function prepareAppIdentity() {
-  const mnemonic = generateMnemonic(128);
-  const signer = InMemorySigner.fromMnemonic({ mnemonic });
+  const { privateKey, publicKey, publicKeyHash } = await generateKeyPair();
 
-  const privateKey = await signer.secretKey();
-  const publicKey = await signer.publicKey();
-  const publicKeyHash = await signer.publicKeyHash();
-
-  const ts = Date.now();
+  const ts = new Date().toISOString();
 
   await putStoredAppInstallIdentity({
     version: PackageJSON.version,
     privateKey,
     publicKey,
-    publicKeyHash,
+    publicKeyHash: publicKeyHash.slice(0, 16),
     ts
   });
 }
