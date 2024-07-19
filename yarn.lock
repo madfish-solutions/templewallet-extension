@@ -3617,8 +3617,10 @@
   dependencies:
     nanoid "^3.1.25"
 
-"@temple-wallet/extension-ads@../templewallet-extension-ads":
-  version "6.3.2"
+"@temple-wallet/extension-ads@^7.0.0":
+  version "7.0.0"
+  resolved "https://registry.yarnpkg.com/@temple-wallet/extension-ads/-/extension-ads-7.0.0.tgz#f783febff55b9833eec9a853940a289ed8c7c142"
+  integrity sha512-NN2k9U+Jj3p2PO2lupv4Ciw8M6EPm3ywKR2x2MvWzfpxZHaAAqnOwC8mM2c3VL1C4Cvo9cQfs6khqcEfYSITgg==
   dependencies:
     "@vespaiach/axios-fetch-adapter" "^0.3.1"
     axios "^1.6.7"
