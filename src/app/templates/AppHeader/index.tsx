@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useMemo } from 'react';
+import React, { memo } from 'react';
 
 import clsx from 'clsx';
 
