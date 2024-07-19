@@ -4,7 +4,7 @@ import { useAssetsFilterOptionsSelector } from 'app/store/assets-filter-options/
 import { useDidUpdate } from 'lib/ui/hooks';
 
 const ITEMS_PER_PAGE = 30;
-const MIN_INITIALLY_VISIBLE_ITEMS_COUNT = 8;
+const MIN_INITIALLY_VISIBLE_ITEMS_COUNT = 10;
 
 export const useSimpleAssetsPaginationLogic = (sortedSlugs: string[]) => {
   const { filterChain } = useAssetsFilterOptionsSelector();
