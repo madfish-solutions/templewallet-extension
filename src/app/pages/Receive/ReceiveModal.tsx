@@ -9,7 +9,6 @@ import {
 } from 'app/atoms/action-modal';
 import { EvmNetworksLogos, TezosNetworkLogo } from 'app/atoms/NetworksLogos';
 import { T, t } from 'lib/i18n';
-import { getIdenticonUri } from 'lib/temple/front';
 import { TempleChainKind, TempleChainTitle } from 'temple/types';
 
 import { ReceivePayload } from './types';
@@ -23,7 +22,7 @@ export const ReceiveModal = memo<ReceiveModalProps>(({ address, chainKind, onClo
     <ActionModal title={t('networkAddress', TempleChainTitle[chainKind])} closable onClose={onClose}>
       <ActionModalBodyContainer className="items-center">
         <div className="mb-4 rounded-lg shadow-center overflow-hidden p-4">
-          <QRCode size={188} data={address} imageUri={getIdenticonUri(address, 64, 'botttsneutral', { radius: 16 })} />
+          <QRCode size={188} data={address} />
         </div>
         <div className="mb-3">
           {chainKind === TempleChainKind.Tezos ? <TezosNetworkLogo size={9} /> : <EvmNetworksLogos size={9} />}
