@@ -1,16 +1,12 @@
 import axiosFetchAdapter from '@vespaiach/axios-fetch-adapter';
 import axios from 'axios';
 
-import { EnvVars } from 'lib/env';
-
-import PackageJSON from '../../../package.json';
+import { APP_VERSION, EnvVars } from 'lib/env';
 
 const axiosClient = axios.create({
   baseURL: EnvVars.TEMPLE_ADS_API_URL,
   adapter: axiosFetchAdapter
 });
-
-const appVersion = PackageJSON.version;
 
 interface ImpressionDetails {
   /** For external */
@@ -24,13 +20,19 @@ export async function postAdImpression(
   provider: string,
   { urlDomain, pageName }: ImpressionDetails
 ) {
-  await axiosClient.post('/impression', { accountPkh, urlDomain, pageName, provider, appVersion });
+  await axiosClient.post('/impression', {
+    accountPkh,
+    urlDomain,
+    pageName,
+    provider,
+    appVersion: APP_VERSION
+  });
 }
 
 export async function postAnonymousAdImpression(installId: string, urlDomain: string, provider: string) {
-  await axiosClient.post('/impression', { installId, urlDomain, provider, appVersion });
+  await axiosClient.post('/impression', { installId, urlDomain, provider, appVersion: APP_VERSION });
 }
 
 export async function postLinkAdsImpressions(accountPkh: string, installId: string, signature: string) {
-  await axiosClient.post('/link-impressions', { accountPkh, installId, signature, appVersion });
+  await axiosClient.post('/link-impressions', { accountPkh, installId, signature, appVersion: APP_VERSION });
 }

@@ -1,4 +1,4 @@
-import { ui8aToHex } from './buffers';
+import { stringToUInt8Array } from './buffers';
 
 export async function generateKeyPair() {
   const keyPair = await crypto.subtle.generateKey(
@@ -10,22 +10,20 @@ export async function generateKeyPair() {
     ['sign', 'verify']
   );
 
-  const publicKeyJwk = await crypto.subtle.exportKey('jwk', keyPair.publicKey!);
-  const privateKeyJwk = await crypto.subtle.exportKey('jwk', keyPair.privateKey!);
+  const publicKeyBuffer = await crypto.subtle.exportKey('spki', keyPair.publicKey!);
+  const privateKeyBuffer = await crypto.subtle.exportKey('pkcs8', keyPair.privateKey!);
 
-  const publicKey = JSON.stringify(publicKeyJwk);
-  const privateKey = JSON.stringify(privateKeyJwk);
+  const publicKey = Buffer.from(publicKeyBuffer).toString('hex');
+  const privateKey = Buffer.from(privateKeyBuffer).toString('hex');
   const publicKeyHash = await hashPublicKey(publicKey);
-
-  console.log('KEY:', 0, publicKeyHash);
 
   return { publicKey, privateKey, publicKeyHash };
 }
 
-function importKey(jwk: string, isPrivate: boolean) {
+function importKey(keyHex: string, isPrivate: boolean) {
   return crypto.subtle.importKey(
-    'jwk',
-    JSON.parse(jwk),
+    isPrivate ? 'pkcs8' : 'spki',
+    Buffer.from(keyHex, 'hex'),
     {
       name: 'ECDSA',
       namedCurve: 'P-256'
@@ -35,8 +33,8 @@ function importKey(jwk: string, isPrivate: boolean) {
   );
 }
 
-export async function signData(privateKeyJwk: string, message: string) {
-  const privateKey = await importKey(privateKeyJwk, true);
+export async function signData(privateKeyHex: string, message: string) {
+  const privateKey = await importKey(privateKeyHex, true);
   const encoder = new TextEncoder();
   const messageBytes = encoder.encode(message);
 
@@ -52,10 +50,9 @@ export async function signData(privateKeyJwk: string, message: string) {
   return Buffer.from(signature).toString('base64');
 }
 
-async function hashPublicKey(publicKeyJwk: string) {
-  const encoder = new TextEncoder();
-  const publicKeyBytes = encoder.encode(publicKeyJwk);
+async function hashPublicKey(publicKey: string) {
+  const publicKeyBytes = stringToUInt8Array(publicKey);
   const hashBuffer = await crypto.subtle.digest('SHA-256', publicKeyBytes);
 
-  return ui8aToHex(new Uint8Array(hashBuffer));
+  return Buffer.from(hashBuffer).toString('hex');
 }

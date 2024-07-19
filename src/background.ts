@@ -71,7 +71,7 @@ async function prepareAppIdentity() {
     version: PackageJSON.version,
     privateKey,
     publicKey,
-    publicKeyHash: publicKeyHash.slice(0, 16),
+    publicKeyHash: publicKeyHash.slice(0, 32),
     ts
   });
 }
