@@ -33,7 +33,10 @@ export const useTezosAccountCollectiblesListingLogic = (publicKeyHash: string, m
 
   const getMetadata = useGetCollectibleMetadata();
 
-  const enabledSlugsSorted = useMemo(() => enabledChainSlugs.sort(sortPredicate), [enabledChainSlugs, sortPredicate]);
+  const enabledSlugsSorted = useMemo(
+    () => [...enabledChainSlugs].sort(sortPredicate),
+    [enabledChainSlugs, sortPredicate]
+  );
 
   const enabledSearchedSlugs = useMemo(
     () =>

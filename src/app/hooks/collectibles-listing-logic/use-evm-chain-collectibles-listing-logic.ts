@@ -37,7 +37,7 @@ export const useEvmChainCollectiblesListingLogic = (
 
   const getMetadata = useCallback((slug: string) => metadata[chainId]?.[slug], [metadata, chainId]);
 
-  const enabledSlugsSorted = useMemo(() => enabledSlugs.sort(sortPredicate), [enabledSlugs, sortPredicate]);
+  const enabledSlugsSorted = useMemo(() => [...enabledSlugs].sort(sortPredicate), [enabledSlugs, sortPredicate]);
 
   const enabledSearchedSlugs = useMemo(
     () =>

@@ -15,10 +15,11 @@ import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
 import { useAllEvmAccountTokenSlugs, useEnabledEvmAccountTokenSlugs } from 'lib/assets/hooks';
 import { searchEvmTokensWithNoMeta } from 'lib/assets/search.utils';
 import { useEvmAccountTokensSortPredicate } from 'lib/assets/use-sorting';
-import { fromChainAssetSlug } from 'lib/assets/utils';
+import { fromChainAssetSlug, toChainAssetSlug } from 'lib/assets/utils';
 import { useMemoWithCompare } from 'lib/ui/hooks';
 import { isSearchStringApplicable } from 'lib/utils/search-items';
-import { useAllEvmChains } from 'temple/front';
+import { useAllEvmChains, useEnabledEvmChains } from 'temple/front';
+import { TempleChainKind } from 'temple/types';
 
 import { useSimpleAssetsPaginationLogic } from '../use-simple-assets-pagination-logic';
 
@@ -28,11 +29,26 @@ export const useEvmAccountTokensListingLogic = (
   publicKeyHash: HexString,
   filterZeroBalances = false,
   groupByNetwork = false,
-  leadingAssetsChainSlugs?: string[],
   manageActive = false
 ) => {
-  const enabledChainSlugs = useEnabledEvmAccountTokenSlugs(publicKeyHash);
-  const allChainSlugs = useAllEvmAccountTokenSlugs(publicKeyHash);
+  const enabledStoredChainSlugs = useEnabledEvmAccountTokenSlugs(publicKeyHash);
+  const allStoredChainSlugs = useAllEvmAccountTokenSlugs(publicKeyHash);
+
+  const enabledChains = useEnabledEvmChains();
+
+  const nativeChainSlugs = useMemo(
+    () => enabledChains.map(chain => toChainAssetSlug(TempleChainKind.EVM, chain.chainId, EVM_TOKEN_SLUG)),
+    [enabledChains]
+  );
+
+  const enabledChainSlugs = useMemo(
+    () => nativeChainSlugs.concat(enabledStoredChainSlugs),
+    [nativeChainSlugs, enabledStoredChainSlugs]
+  );
+  const allChainSlugs = useMemo(
+    () => nativeChainSlugs.concat(allStoredChainSlugs),
+    [nativeChainSlugs, allStoredChainSlugs]
+  );
 
   const tokensSortPredicate = useEvmAccountTokensSortPredicate(publicKeyHash);
 
@@ -42,23 +58,7 @@ export const useEvmAccountTokensListingLogic = (
 
   const isSyncing = balancesLoading || isMetadataLoading || exchangeRatesLoading;
 
-  const enabledNonLeadingChainSlugs = useMemo(
-    () =>
-      leadingAssetsChainSlugs?.length
-        ? enabledChainSlugs.filter(slug => !leadingAssetsChainSlugs.includes(slug))
-        : enabledChainSlugs,
-    [enabledChainSlugs, leadingAssetsChainSlugs]
-  );
-
-  const allNonLeadingChainSlugs = useMemo(
-    () =>
-      leadingAssetsChainSlugs?.length
-        ? allChainSlugs.filter(slug => !leadingAssetsChainSlugs.includes(slug))
-        : allChainSlugs,
-    [allChainSlugs, leadingAssetsChainSlugs]
-  );
-
-  const evmChains = useAllEvmChains();
+  const allEvmChains = useAllEvmChains();
   const balances = useRawEvmAccountBalancesSelector(publicKeyHash);
   const metadata = useEvmTokensMetadataRecordSelector();
 
@@ -75,17 +75,12 @@ export const useEvmAccountTokensListingLogic = (
   const getMetadata = useCallback(
     (chainId: number, slug: string) => {
       if (slug === EVM_TOKEN_SLUG) {
-        return evmChains[chainId]?.currency;
+        return allEvmChains[chainId]?.currency;
       }
 
       return metadata[chainId]?.[slug];
     },
-    [evmChains, metadata]
-  );
-
-  const enabledSourceArray = useMemo(
-    () => (filterZeroBalances ? enabledNonLeadingChainSlugs.filter(isNonZeroBalance) : enabledNonLeadingChainSlugs),
-    [filterZeroBalances, enabledNonLeadingChainSlugs, isNonZeroBalance]
+    [allEvmChains, metadata]
   );
 
   const [searchValue, setSearchValue] = useState('');
@@ -93,95 +88,71 @@ export const useEvmAccountTokensListingLogic = (
 
   const isInSearchMode = isSearchStringApplicable(searchValueDebounced);
 
-  const searchedLeadingChainSlugs = useMemo(() => {
-    if (!isDefined(leadingAssetsChainSlugs) || !leadingAssetsChainSlugs.length) return [];
+  const enabledSourceArray = useMemo(
+    () => (filterZeroBalances ? enabledChainSlugs.filter(isNonZeroBalance) : enabledChainSlugs),
+    [filterZeroBalances, enabledChainSlugs, isNonZeroBalance]
+  );
 
-    return isInSearchMode
-      ? searchEvmTokensWithNoMeta(searchValueDebounced, leadingAssetsChainSlugs, getMetadata, getSlugWithChainId)
-      : [...leadingAssetsChainSlugs].sort(tokensSortPredicate);
-  }, [getMetadata, isInSearchMode, leadingAssetsChainSlugs, searchValueDebounced, tokensSortPredicate]);
+  const sortedEnabledChainSlugs = useMemo(
+    () => [...enabledSourceArray].sort(tokensSortPredicate),
+    [enabledSourceArray, tokensSortPredicate]
+  );
 
-  const filteredAssets = useMemo(() => {
-    const searchedChainSlugs = isInSearchMode
-      ? searchEvmTokensWithNoMeta(searchValueDebounced, enabledSourceArray, getMetadata, getSlugWithChainId)
-      : [...enabledSourceArray].sort(tokensSortPredicate);
-
-    return searchedLeadingChainSlugs.length ? searchedLeadingChainSlugs.concat(searchedChainSlugs) : searchedChainSlugs;
-  }, [
-    isInSearchMode,
-    searchValueDebounced,
-    enabledSourceArray,
-    getMetadata,
-    tokensSortPredicate,
-    searchedLeadingChainSlugs
-  ]);
+  const searchedEnabledChainSlugs = useMemo(
+    () =>
+      isInSearchMode
+        ? searchEvmTokensWithNoMeta(searchValueDebounced, sortedEnabledChainSlugs, getMetadata, getSlugWithChainId)
+        : sortedEnabledChainSlugs,
+    [isInSearchMode, searchValueDebounced, getMetadata, sortedEnabledChainSlugs]
+  );
 
   const groupedAssets = useMemo(() => {
-    if (!groupByNetwork || manageActive) return filteredAssets;
+    if (!groupByNetwork || manageActive) return searchedEnabledChainSlugs;
 
-    const chainNameSlugsRecord = groupBy(filteredAssets, chainSlug => {
+    const chainNameSlugsRecord = groupBy(searchedEnabledChainSlugs, chainSlug => {
       const [_, chainId] = fromChainAssetSlug<number>(chainSlug);
 
-      return getChainName(evmChains[chainId]);
+      return getChainName(allEvmChains[chainId]);
     });
 
     return Object.keys(chainNameSlugsRecord).reduce<string[]>(
       (acc, key) => acc.concat(key, chainNameSlugsRecord[key]),
       []
     );
-  }, [manageActive, evmChains, filteredAssets, groupByNetwork]);
+  }, [manageActive, allEvmChains, searchedEnabledChainSlugs, groupByNetwork]);
 
-  const enabledNonLeadingChainSlugsSorted = useMemo(
-    () => enabledNonLeadingChainSlugs.sort(tokensSortPredicate),
-    [enabledNonLeadingChainSlugs, tokensSortPredicate]
-  );
-
-  const allNonLeadingChainSlugsRef = useRef(allNonLeadingChainSlugs);
-  const enabledNonLeadingChainSlugsSortedRef = useRef(enabledNonLeadingChainSlugsSorted);
+  const allChainSlugsRef = useRef(allChainSlugs);
+  const sortedEnabledChainSlugsRef = useRef(sortedEnabledChainSlugs);
 
   useEffect(() => {
     // keeping the same tokens order while manage is active
     if (!manageActive) {
-      allNonLeadingChainSlugsRef.current = allNonLeadingChainSlugs;
-      enabledNonLeadingChainSlugsSortedRef.current = enabledNonLeadingChainSlugsSorted;
+      allChainSlugsRef.current = allChainSlugs;
+      sortedEnabledChainSlugsRef.current = sortedEnabledChainSlugs;
     }
-  }, [manageActive, allNonLeadingChainSlugs, enabledNonLeadingChainSlugsSorted]);
+  }, [manageActive, allChainSlugs, sortedEnabledChainSlugs]);
 
   const manageableChainSlugs = useMemoWithCompare(
     () => {
       if (!manageActive) return groupedAssets;
 
-      const allNonLeadingSlugsSet = new Set(allNonLeadingChainSlugs);
-      const allUniqNonLeadingSlugsSet = new Set(
-        enabledNonLeadingChainSlugsSortedRef.current.concat(allNonLeadingChainSlugsRef.current)
+      const allChainSlugsSet = new Set(allChainSlugs);
+      const allUniqChainSlugsSet = new Set(sortedEnabledChainSlugsRef.current.concat(allChainSlugsRef.current));
+
+      const allUniqChainSlugsWithoutDeleted = Array.from(allUniqChainSlugsSet).filter(slug =>
+        allChainSlugsSet.has(slug)
       );
 
-      const allUniqNonLeadingSlugsWithoutDeleted = Array.from(allUniqNonLeadingSlugsSet).filter(slug =>
-        allNonLeadingSlugsSet.has(slug)
-      );
-
-      const allNonLeadingSearchedSlugs = isInSearchMode
+      return isInSearchMode
         ? searchEvmTokensWithNoMeta(
             searchValueDebounced,
-            allUniqNonLeadingSlugsWithoutDeleted,
+            allUniqChainSlugsWithoutDeleted,
             getMetadata,
             getSlugWithChainId
           )
-        : allUniqNonLeadingSlugsWithoutDeleted;
-
-      return searchedLeadingChainSlugs.length
-        ? searchedLeadingChainSlugs.concat(allNonLeadingSearchedSlugs)
-        : allNonLeadingSearchedSlugs;
+        : allUniqChainSlugsWithoutDeleted;
     },
-    [
-      manageActive,
-      groupedAssets,
-      isInSearchMode,
-      searchValueDebounced,
-      getMetadata,
-      searchedLeadingChainSlugs,
-      allNonLeadingChainSlugs
-    ],
+    [manageActive, groupedAssets, isInSearchMode, searchValueDebounced, getMetadata, allChainSlugs],
     isEqual
   );
 

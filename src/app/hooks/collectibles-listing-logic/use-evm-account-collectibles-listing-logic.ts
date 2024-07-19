@@ -35,7 +35,10 @@ export const useEvmAccountCollectiblesListingLogic = (publicKeyHash: HexString, 
 
   const getMetadata = useCallback((chainId: number, slug: string) => metadata[chainId]?.[slug], [metadata]);
 
-  const enabledSlugsSorted = useMemo(() => enabledChainSlugs.sort(sortPredicate), [enabledChainSlugs, sortPredicate]);
+  const enabledSlugsSorted = useMemo(
+    () => [...enabledChainSlugs].sort(sortPredicate),
+    [enabledChainSlugs, sortPredicate]
+  );
 
   const enabledSearchedSlugs = useMemo(
     () =>

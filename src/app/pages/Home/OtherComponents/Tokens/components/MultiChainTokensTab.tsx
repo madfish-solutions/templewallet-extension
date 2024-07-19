@@ -19,10 +19,9 @@ import { AssetsSelectors } from 'app/pages/Home/OtherComponents/Assets.selectors
 import { useTokensListOptionsSelector } from 'app/store/assets-filter-options/selectors';
 import { AssetsFilterOptions } from 'app/templates/AssetsFilterOptions';
 import { SearchBarField } from 'app/templates/SearchField';
-import { EVM_TOKEN_SLUG, TEZ_TOKEN_SLUG } from 'lib/assets/defaults';
-import { CHAIN_SLUG_SEPARATOR, fromChainAssetSlug, toChainAssetSlug } from 'lib/assets/utils';
+import { CHAIN_SLUG_SEPARATOR, fromChainAssetSlug } from 'lib/assets/utils';
 import { T } from 'lib/i18n';
-import { useAllTezosChains, useEnabledEvmChains, useEnabledTezosChains } from 'temple/front';
+import { useAllTezosChains } from 'temple/front';
 import { TempleChainKind } from 'temple/types';
 
 import { EmptySection } from './EmptySection';
@@ -41,23 +40,11 @@ export const MultiChainTokensTab = memo<MultiChainTokensTabProps>(({ accountTezA
 
   const tezosChains = useAllTezosChains();
 
-  const enabledTezChains = useEnabledTezosChains();
-  const enabledEvmChains = useEnabledEvmChains();
-
-  const leadingAssets = useMemo(
-    () => [
-      ...enabledTezChains.map(chain => toChainAssetSlug(TempleChainKind.Tezos, chain.chainId, TEZ_TOKEN_SLUG)),
-      ...enabledEvmChains.map(chain => toChainAssetSlug(TempleChainKind.EVM, chain.chainId, EVM_TOKEN_SLUG))
-    ],
-    [enabledTezChains, enabledEvmChains]
-  );
-
   const { paginatedSlugs, isSyncing, loadNext, searchValue, setSearchValue } = useAccountTokensListingLogic(
     accountTezAddress,
     accountEvmAddress,
     hideZeroBalance,
     groupByNetwork,
-    leadingAssets,
     manageActive
   );
 

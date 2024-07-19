@@ -6,6 +6,7 @@ import { IconBase, SyncSpinner } from 'app/atoms';
 import { useAssetsSegmentControlRef } from 'app/atoms/AssetsSegmentControl';
 import { FilterButton } from 'app/atoms/FilterButton';
 import { IconButton } from 'app/atoms/IconButton';
+import { SimpleInfiniteScroll } from 'app/atoms/SimpleInfiniteScroll';
 import { DeadEndBoundaryError } from 'app/ErrorBoundary';
 import { useTezosChainAccountTokensListingLogic } from 'app/hooks/tokens-listing-logic/use-tezos-chain-account-tokens-listing-logic';
 import { useAssetsFilterOptionsState } from 'app/hooks/use-assets-filter-options-state';
@@ -22,12 +23,10 @@ import { AssetsFilterOptions } from 'app/templates/AssetsFilterOptions';
 import { PartnersPromotion, PartnersPromotionVariant } from 'app/templates/partners-promotion';
 import { SearchBarField } from 'app/templates/SearchField';
 import { OptimalPromoVariantEnum } from 'lib/apis/optimal';
-import { TEMPLE_TOKEN_SLUG, TEZ_TOKEN_SLUG } from 'lib/assets';
+import { TEMPLE_TOKEN_SLUG } from 'lib/assets';
 import { T } from 'lib/i18n';
 import { TEZOS_MAINNET_CHAIN_ID } from 'lib/temple/types';
 import { useTezosChainByChainId } from 'temple/front';
-
-import { SimpleInfiniteScroll } from '../../../../../atoms/SimpleInfiniteScroll';
 
 import { EmptySection } from './EmptySection';
 import { TezosListItem } from './ListItem';
@@ -48,10 +47,7 @@ export const TezosChainTokensTab: FC<TezosChainTokensTabProps> = ({ chainId, pub
   const { filtersOpened, setFiltersClosed, toggleFiltersOpened } = useAssetsFilterOptionsState();
   const { manageActive, setManageInactive, toggleManageActive } = useManageAssetsState();
 
-  const leadingAssets = useMemo(
-    () => (chainId === TEZOS_MAINNET_CHAIN_ID ? [TEZ_TOKEN_SLUG, TEMPLE_TOKEN_SLUG] : [TEZ_TOKEN_SLUG]),
-    [chainId]
-  );
+  const leadingAssets = useMemo(() => (chainId === TEZOS_MAINNET_CHAIN_ID ? [TEMPLE_TOKEN_SLUG] : []), [chainId]);
 
   const mainnetTokensScamSlugsRecord = useMainnetTokensScamlistSelector();
 

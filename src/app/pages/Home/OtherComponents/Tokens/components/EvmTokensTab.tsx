@@ -19,11 +19,8 @@ import { AssetsSelectors } from 'app/pages/Home/OtherComponents/Assets.selectors
 import { useTokensListOptionsSelector } from 'app/store/assets-filter-options/selectors';
 import { AssetsFilterOptions } from 'app/templates/AssetsFilterOptions';
 import { SearchBarField } from 'app/templates/SearchField';
-import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
-import { CHAIN_SLUG_SEPARATOR, fromChainAssetSlug, toChainAssetSlug } from 'lib/assets/utils';
+import { CHAIN_SLUG_SEPARATOR, fromChainAssetSlug } from 'lib/assets/utils';
 import { T } from 'lib/i18n';
-import { useEnabledEvmChains } from 'temple/front';
-import { TempleChainKind } from 'temple/types';
 
 import { EmptySection } from './EmptySection';
 import { EvmListItem } from './ListItem';
@@ -38,18 +35,10 @@ export const EvmTokensTab: FC<EvmTokensTabProps> = ({ publicKeyHash }) => {
   const { filtersOpened, setFiltersClosed, toggleFiltersOpened } = useAssetsFilterOptionsState();
   const { manageActive, setManageInactive, toggleManageActive } = useManageAssetsState();
 
-  const enabledChains = useEnabledEvmChains();
-
-  const leadingAssets = useMemo(
-    () => enabledChains.map(chain => toChainAssetSlug(TempleChainKind.EVM, chain.chainId, EVM_TOKEN_SLUG)),
-    [enabledChains]
-  );
-
   const { paginatedSlugs, isSyncing, loadNext, searchValue, setSearchValue } = useEvmAccountTokensListingLogic(
     publicKeyHash,
     hideZeroBalance,
     groupByNetwork,
-    leadingAssets,
     manageActive
   );
 

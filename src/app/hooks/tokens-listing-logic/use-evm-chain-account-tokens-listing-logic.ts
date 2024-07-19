@@ -25,13 +25,15 @@ export const useEvmChainAccountTokensListingLogic = (
   publicKeyHash: HexString,
   chainId: number,
   filterZeroBalances = false,
-  leadingAssetsSlugs?: string[],
   manageActive = false
 ) => {
   const tokensSortPredicate = useEvmChainTokensSortPredicate(publicKeyHash, chainId);
 
-  const enabledTokenSlugs = useEnabledEvmChainAccountTokenSlugs(publicKeyHash, chainId);
-  const allTokenSlugs = useAllEvmChainAccountTokenSlugs(publicKeyHash, chainId);
+  const enabledStoredTokenSlugs = useEnabledEvmChainAccountTokenSlugs(publicKeyHash, chainId);
+  const allStoredTokenSlugs = useAllEvmChainAccountTokenSlugs(publicKeyHash, chainId);
+
+  const enabledTokenSlugs = useMemo(() => [EVM_TOKEN_SLUG, ...enabledStoredTokenSlugs], [enabledStoredTokenSlugs]);
+  const allTokenSlugs = useMemo(() => [EVM_TOKEN_SLUG, ...allStoredTokenSlugs], [allStoredTokenSlugs]);
 
   const balances = useRawEvmChainAccountBalancesSelector(publicKeyHash, chainId);
 
@@ -44,31 +46,12 @@ export const useEvmChainAccountTokensListingLogic = (
   const chain = useEvmChainByChainId(chainId);
   const metadata = useEvmTokensMetadataRecordSelector();
 
-  const enabledNonLeadingSlugs = useMemo(
-    () =>
-      leadingAssetsSlugs?.length
-        ? enabledTokenSlugs.filter(slug => !leadingAssetsSlugs.includes(slug))
-        : enabledTokenSlugs,
-    [enabledTokenSlugs, leadingAssetsSlugs]
-  );
-
-  const allNonLeadingSlugs = useMemo(
-    () =>
-      leadingAssetsSlugs?.length ? allTokenSlugs.filter(slug => !leadingAssetsSlugs.includes(slug)) : allTokenSlugs,
-    [allTokenSlugs, leadingAssetsSlugs]
-  );
-
   const isNonZeroBalance = useCallback(
     (slug: string) => {
       const balance = balances[slug];
       return isDefined(balance) && balance !== '0';
     },
     [balances]
-  );
-
-  const enabledSourceArray = useMemo(
-    () => (filterZeroBalances ? enabledNonLeadingSlugs.filter(isNonZeroBalance) : enabledNonLeadingSlugs),
-    [filterZeroBalances, enabledNonLeadingSlugs, isNonZeroBalance]
   );
 
   const getMetadata = useCallback(
@@ -87,80 +70,49 @@ export const useEvmChainAccountTokensListingLogic = (
 
   const isInSearchMode = isSearchStringApplicable(searchValueDebounced);
 
-  const searchedLeadingSlugs = useMemo(() => {
-    if (!isDefined(leadingAssetsSlugs) || !leadingAssetsSlugs.length) return [];
-
-    return isInSearchMode
-      ? searchEvmChainTokensWithNoMeta(searchValueDebounced, leadingAssetsSlugs, getMetadata, slug => slug)
-      : leadingAssetsSlugs;
-  }, [getMetadata, isInSearchMode, leadingAssetsSlugs, searchValueDebounced]);
-
-  const filteredSlugs = useMemo(() => {
-    const enabledSearchedSlugs = isInSearchMode
-      ? searchEvmChainTokensWithNoMeta(searchValueDebounced, enabledSourceArray, getMetadata, slug => slug)
-      : [...enabledSourceArray].sort(tokensSortPredicate);
-
-    return searchedLeadingSlugs.length ? searchedLeadingSlugs.concat(enabledSearchedSlugs) : enabledSearchedSlugs;
-  }, [
-    enabledSourceArray,
-    getMetadata,
-    isInSearchMode,
-    searchValueDebounced,
-    searchedLeadingSlugs,
-    tokensSortPredicate
-  ]);
-
-  const enabledNonLeadingSlugsSorted = useMemo(
-    () => enabledNonLeadingSlugs.sort(tokensSortPredicate),
-    [enabledNonLeadingSlugs, tokensSortPredicate]
+  const enabledSourceArray = useMemo(
+    () => (filterZeroBalances ? enabledTokenSlugs.filter(isNonZeroBalance) : enabledTokenSlugs),
+    [filterZeroBalances, enabledTokenSlugs, isNonZeroBalance]
   );
 
-  const allNonLeadingSlugsRef = useRef(allNonLeadingSlugs);
-  const enabledNonLeadingSlugsSortedRef = useRef(enabledNonLeadingSlugsSorted);
+  const sortedEnabledSlugs = useMemo(
+    () => [...enabledSourceArray].sort(tokensSortPredicate),
+    [enabledSourceArray, tokensSortPredicate]
+  );
+
+  const searchedEnabledSlugs = useMemo(
+    () =>
+      isInSearchMode
+        ? searchEvmChainTokensWithNoMeta(searchValueDebounced, sortedEnabledSlugs, getMetadata, slug => slug)
+        : sortedEnabledSlugs,
+    [sortedEnabledSlugs, getMetadata, isInSearchMode, searchValueDebounced]
+  );
+
+  const allTokenSlugsRef = useRef(allTokenSlugs);
+  const sortedEnabledSlugsRef = useRef(sortedEnabledSlugs);
 
   useEffect(() => {
     // keeping the same tokens order while manage is active
     if (!manageActive) {
-      allNonLeadingSlugsRef.current = allNonLeadingSlugs;
-      enabledNonLeadingSlugsSortedRef.current = enabledNonLeadingSlugsSorted;
+      allTokenSlugsRef.current = allTokenSlugs;
+      sortedEnabledSlugsRef.current = sortedEnabledSlugs;
     }
-  }, [manageActive, allNonLeadingSlugs, enabledNonLeadingSlugsSorted]);
+  }, [manageActive, allTokenSlugs, sortedEnabledSlugs]);
 
   const manageableSlugs = useMemoWithCompare(
     () => {
-      if (!manageActive) return filteredSlugs;
+      if (!manageActive) return searchedEnabledSlugs;
 
-      const allNonLeadingSlugsSet = new Set(allNonLeadingSlugs);
-      const allUniqNonLeadingSlugsSet = new Set(
-        enabledNonLeadingSlugsSortedRef.current.concat(allNonLeadingSlugsRef.current)
-      );
+      const allTokenSlugsSet = new Set(allTokenSlugs);
+      const allUniqTokenSlugsSet = new Set(sortedEnabledSlugsRef.current.concat(allTokenSlugsRef.current));
 
-      const allUniqNonLeadingSlugsWithoutDeleted = Array.from(allUniqNonLeadingSlugsSet).filter(slug =>
-        allNonLeadingSlugsSet.has(slug)
-      );
+      const allUniqSlugsWithoutDeleted = Array.from(allUniqTokenSlugsSet).filter(slug => allTokenSlugsSet.has(slug));
 
-      const allNonLeadingSearchedSlugs = isInSearchMode
-        ? searchEvmChainTokensWithNoMeta(
-            searchValueDebounced,
-            allUniqNonLeadingSlugsWithoutDeleted,
-            getMetadata,
-            slug => slug
-          )
-        : allUniqNonLeadingSlugsWithoutDeleted;
-
-      return searchedLeadingSlugs.length
-        ? searchedLeadingSlugs.concat(allNonLeadingSearchedSlugs)
-        : allNonLeadingSearchedSlugs;
+      return isInSearchMode
+        ? searchEvmChainTokensWithNoMeta(searchValueDebounced, allUniqSlugsWithoutDeleted, getMetadata, slug => slug)
+        : allUniqSlugsWithoutDeleted;
     },
-    [
-      manageActive,
-      filteredSlugs,
-      isInSearchMode,
-      searchValueDebounced,
-      getMetadata,
-      searchedLeadingSlugs,
-      allNonLeadingSlugs
-    ],
+    [manageActive, searchedEnabledSlugs, isInSearchMode, searchValueDebounced, getMetadata, allTokenSlugs],
     isEqual
   );
 

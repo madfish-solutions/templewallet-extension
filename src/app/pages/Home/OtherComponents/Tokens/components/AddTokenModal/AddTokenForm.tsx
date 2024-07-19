@@ -13,6 +13,7 @@ import { StyledButton } from 'app/atoms/StyledButton';
 import { dispatch } from 'app/store';
 import { putNewEvmTokenAction } from 'app/store/evm/assets/actions';
 import { putEvmTokensMetadataAction } from 'app/store/evm/tokens-metadata/actions';
+import { setToastsContainerBottomShiftAction } from 'app/store/settings/actions';
 import { putCollectiblesAsIsAction, putTokensAsIsAction } from 'app/store/tezos/assets/actions';
 import { putCollectiblesMetadataAction } from 'app/store/tezos/collectibles-metadata/actions';
 import { putTokensMetadataAction } from 'app/store/tezos/tokens-metadata/actions';
@@ -46,8 +47,6 @@ import { validateEvmContractAddress } from 'temple/front/evm/helpers';
 import { validateTezosContractAddress } from 'temple/front/tezos';
 import { getReadOnlyTezos } from 'temple/tezos';
 import { TempleChainKind } from 'temple/types';
-
-import { setToastsContainerBottomShiftAction } from '../../../../../../store/settings/actions';
 
 import { NetworkSelect } from './NetworkSelect';
 import { TokenInfo } from './TokenInfo';

@@ -38,7 +38,7 @@ export const useTezosChainCollectiblesListingLogic = (
 
   const getMetadata = useGetCollectibleMetadata();
 
-  const enabledSlugsSorted = useMemo(() => enabledSlugs.sort(sortPredicate), [enabledSlugs, sortPredicate]);
+  const enabledSlugsSorted = useMemo(() => [...enabledSlugs].sort(sortPredicate), [enabledSlugs, sortPredicate]);
 
   const enabledSearchedSlugs = useMemo(
     () =>

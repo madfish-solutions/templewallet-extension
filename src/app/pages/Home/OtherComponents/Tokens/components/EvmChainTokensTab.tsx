@@ -18,7 +18,6 @@ import { AssetsSelectors } from 'app/pages/Home/OtherComponents/Assets.selectors
 import { useTokensListOptionsSelector } from 'app/store/assets-filter-options/selectors';
 import { AssetsFilterOptions } from 'app/templates/AssetsFilterOptions';
 import { SearchBarField } from 'app/templates/SearchField';
-import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
 import { T } from 'lib/i18n';
 
 import { EmptySection } from './EmptySection';
@@ -35,13 +34,10 @@ export const EvmChainTokensTab: FC<EvmChainTokensTabProps> = ({ chainId, publicK
   const { filtersOpened, setFiltersClosed, toggleFiltersOpened } = useAssetsFilterOptionsState();
   const { manageActive, setManageInactive, toggleManageActive } = useManageAssetsState();
 
-  const leadingAssets = useMemo(() => [EVM_TOKEN_SLUG], []);
-
   const { paginatedSlugs, isSyncing, loadNext, searchValue, setSearchValue } = useEvmChainAccountTokensListingLogic(
     publicKeyHash,
     chainId,
     hideZeroBalance,
-    leadingAssets,
     manageActive
   );
 

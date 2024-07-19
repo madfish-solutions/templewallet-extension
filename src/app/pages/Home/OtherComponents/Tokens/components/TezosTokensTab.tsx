@@ -23,11 +23,9 @@ import { AssetsFilterOptions } from 'app/templates/AssetsFilterOptions';
 import { PartnersPromotion, PartnersPromotionVariant } from 'app/templates/partners-promotion';
 import { SearchBarField } from 'app/templates/SearchField';
 import { OptimalPromoVariantEnum } from 'lib/apis/optimal';
-import { TEZ_TOKEN_SLUG } from 'lib/assets';
-import { CHAIN_SLUG_SEPARATOR, fromChainAssetSlug, toChainAssetSlug } from 'lib/assets/utils';
+import { CHAIN_SLUG_SEPARATOR, fromChainAssetSlug } from 'lib/assets/utils';
 import { T } from 'lib/i18n';
-import { useAllTezosChains, useEnabledTezosChains } from 'temple/front';
-import { TempleChainKind } from 'temple/types';
+import { useAllTezosChains } from 'temple/front';
 
 import { EmptySection } from './EmptySection';
 import { TezosListItem } from './ListItem';
@@ -45,18 +43,11 @@ export const TezosTokensTab: FC<TezosTokensTabProps> = ({ publicKeyHash }) => {
   const mainnetTokensScamSlugsRecord = useMainnetTokensScamlistSelector();
 
   const tezosChains = useAllTezosChains();
-  const enabledChains = useEnabledTezosChains();
-
-  const leadingAssets = useMemo(
-    () => enabledChains.map(chain => toChainAssetSlug(TempleChainKind.Tezos, chain.chainId, TEZ_TOKEN_SLUG)),
-    [enabledChains]
-  );
 
   const { paginatedSlugs, isSyncing, loadNext, searchValue, setSearchValue } = useTezosAccountTokensListingLogic(
     publicKeyHash,
     hideZeroBalance,
     groupByNetwork,
-    leadingAssets,
     manageActive
   );
 
