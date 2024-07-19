@@ -56,3 +56,5 @@ export { DataPlaceholder } from './DataPlaceholder';
 export { PageTitle } from './PageTitle';
 
 export { default as AccountTypeBadge } from './AccountTypeBadge';
+
+export { QRCode } from './QRCode';

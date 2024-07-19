@@ -11,6 +11,6 @@ export const PageTitle = memo<Props>(({ Icon, title }) => (
   <>
     {Icon && <IconBase Icon={Icon} />}
 
-    <span className="ml-1">{title}</span>
+    <span className="ml-1 text-font-regular-bold">{title}</span>
   </>
 ));

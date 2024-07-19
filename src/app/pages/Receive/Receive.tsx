@@ -1,28 +1,32 @@
-import React, { memo } from 'react';
+import React, { memo, useCallback, useState } from 'react';
 
 import classNames from 'clsx';
-import { QRCode } from 'react-qr-svg';
 
-import { FormField, PageTitle } from 'app/atoms';
-import { ReactComponent as QRIcon } from 'app/icons/base/qr_code.svg';
+import { FormField, PageTitle, QRCode } from 'app/atoms';
+import { useModalOpenSearchParams } from 'app/hooks/use-modal-open-search-params';
 import { ReactComponent as GlobeIcon } from 'app/icons/globe.svg';
 import { ReactComponent as HashIcon } from 'app/icons/hash.svg';
 import { ReactComponent as CopyIcon } from 'app/icons/monochrome/copy.svg';
 import PageLayout from 'app/layouts/PageLayout';
-import { useChainSelectController, ChainSelectSection } from 'app/templates/ChainSelect';
+import { AccountsModal } from 'app/templates/AppHeader/AccountsModal';
 import ViewsSwitcher, { ViewsSwitcherProps } from 'app/templates/ViewsSwitcher/ViewsSwitcher';
 import { setTestID } from 'lib/analytics';
 import { T, t } from 'lib/i18n';
+import { getIdenticonUri } from 'lib/temple/front';
 import { useSafeState } from 'lib/ui/hooks';
 import useCopyToClipboard from 'lib/ui/useCopyToClipboard';
-import { UNDER_DEVELOPMENT_MSG } from 'temple/evm/under_dev_msg';
-import { useAccountAddressForEvm, useAccountAddressForTezos } from 'temple/front';
+import { useAccount, useAccountAddressForEvm, useAccountAddressForTezos } from 'temple/front';
 import { useTezosDomainNameByAddress } from 'temple/front/tezos';
 import { TezosNetworkEssentials } from 'temple/networks';
+import { TempleChainKind } from 'temple/types';
 
+import { AccountDropdownHeader } from './AccountDropdownHeader';
+import { NetworkCard } from './NetworkCard';
 import { ReceiveSelectors } from './Receive.selectors';
+import { ReceiveModal } from './ReceiveModal';
+import { ReceivePayload } from './types';
 
-const ADDRESS_FIELD_VIEWS = [
+/* const ADDRESS_FIELD_VIEWS = [
   {
     Icon: GlobeIcon,
     key: 'domain',
@@ -33,33 +37,42 @@ const ADDRESS_FIELD_VIEWS = [
     key: 'hash',
     name: t('hash')
   }
-];
+]; */
 
-const Receive = memo(() => {
+export const Receive = memo(() => {
+  const account = useAccount();
   const tezosAddress = useAccountAddressForTezos();
   const evmAddress = useAccountAddressForEvm();
+  const {
+    isOpen: accountsModalIsOpen,
+    openModal: openAccountsModal,
+    closeModal: closeAccountsModal
+  } = useModalOpenSearchParams('accountsModal');
+  const [receivePayload, setReceivePayload] = useState<ReceivePayload | null>(null);
 
-  const chainSelectController = useChainSelectController();
-  const network = chainSelectController.value;
+  const resetReceivePayload = useCallback(() => setReceivePayload(null), []);
 
   return (
-    <PageLayout pageTitle={<PageTitle Icon={QRIcon} title={t('receive')} />}>
-      <>
-        <ChainSelectSection controller={chainSelectController} />
-
-        {network.kind === 'tezos' && tezosAddress ? (
-          <ReceiveContent labelTitle="Tezos address" address={tezosAddress} />
-        ) : evmAddress ? (
-          <ReceiveContent labelTitle="EVM address" address={evmAddress} />
-        ) : (
-          <div className="text-center">{UNDER_DEVELOPMENT_MSG}</div>
+    <PageLayout pageTitle={<PageTitle title={t('receive')} />} paperClassName="!bg-background">
+      <AccountsModal opened={accountsModalIsOpen} onRequestClose={closeAccountsModal} />
+      <AccountDropdownHeader className="mb-5" account={account} onClick={openAccountsModal} />
+      {receivePayload && <ReceiveModal onClose={resetReceivePayload} {...receivePayload} />}
+      <span className="text-font-description-bold">
+        <T id="networkToReceive" />
+      </span>
+      <div className="mt-3 flex flex-col gap-y-3">
+        {evmAddress && (
+          <NetworkCard address={evmAddress} chainKind={TempleChainKind.EVM} onQRClick={setReceivePayload} />
         )}
-      </>
+        {tezosAddress && (
+          <NetworkCard address={tezosAddress} chainKind={TempleChainKind.Tezos} onQRClick={setReceivePayload} />
+        )}
+      </div>
     </PageLayout>
   );
 });
 
-interface ReceiveContentProps {
+/* interface ReceiveContentProps {
   address: string;
   labelTitle: string;
   tezosNetwork?: TezosNetworkEssentials;
@@ -120,8 +133,8 @@ const ReceiveContent = memo<ReceiveContentProps>(({ address, labelTitle, tezosNe
           </span>
         </div>
 
-        <div className="mb-4 p-1 bg-gray-100 border-2 border-gray-300 rounded" style={{ maxWidth: '60%' }}>
-          <QRCode bgColor="#f7fafc" fgColor="#000000" level="Q" style={{ width: '100%' }} value={address} />
+        <div className="mb-4 p-1 bg-gray-100 border-2 border-gray-300 rounded">
+          <QRCode size={220} data={address} imageUri={getIdenticonUri(address, 64, 'botttsneutral', { radius: 16 })} />
         </div>
       </div>
     </>
@@ -143,4 +156,4 @@ const AddressFieldExtraSection = memo<AddressFieldExtraSectionProps>(props => {
       <ViewsSwitcher activeItem={activeView} items={ADDRESS_FIELD_VIEWS} onChange={onSwitch} />
     </div>
   );
-});
+}); */
