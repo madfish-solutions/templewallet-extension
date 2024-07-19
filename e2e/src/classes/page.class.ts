@@ -1,7 +1,7 @@
 import { CustomBrowserContext } from './browser-context.class';
 
 export abstract class Page {
-  abstract isVisible(timeout?: number): void;
+  abstract isVisible(...args: any[]): void;
 
   scrollTo(topPositionPx: number) {
     return CustomBrowserContext.page.evaluate(top => {

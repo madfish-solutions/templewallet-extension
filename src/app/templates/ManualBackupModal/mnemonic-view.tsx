@@ -5,11 +5,12 @@ import { ActionsButtonsBox } from 'app/atoms/PageModal/actions-buttons-box';
 import { ScrollView } from 'app/atoms/PageModal/scroll-view';
 import { ReadOnlySecretField } from 'app/atoms/ReadOnlySecretField';
 import { StyledButton } from 'app/atoms/StyledButton';
+import { TestIDProps } from 'lib/analytics';
 import { T, TID } from 'lib/i18n';
 
 import { ManualBackupModalSelectors } from './selectors';
 
-interface MnemonicViewProps {
+interface MnemonicViewProps extends TestIDProps {
   mnemonic: string;
   isNewMnemonic: boolean;
   onCancel?: EmptyFn;
@@ -43,7 +44,12 @@ export const MnemonicView = memo<MnemonicViewProps>(({ mnemonic, isNewMnemonic, 
           }
         />
 
-        <ReadOnlySecretField value={mnemonic} label="newRevealSeedPhraseLabel" description={null} />
+        <ReadOnlySecretField
+          value={mnemonic}
+          label="newRevealSeedPhraseLabel"
+          description={null}
+          testID={ManualBackupModalSelectors.protectedMask}
+        />
       </ScrollView>
 
       <ActionsButtonsBox shouldCastShadow={!bottomEdgeIsVisible}>

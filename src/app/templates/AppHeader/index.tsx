@@ -11,9 +11,10 @@ import { ReactComponent as BurgerIcon } from 'app/icons/base/menu.svg';
 import Popper from 'lib/ui/Popper';
 import { useAccount } from 'temple/front';
 
+import { HomeSelectors } from '../../pages/Home/selectors';
+
 import { AccountsModal } from './AccountsModal';
 import MenuDropdown from './MenuDropdown';
-import { AppHeaderSelectors } from './selectors';
 
 export const AppHeader = memo(() => {
   const account = useAccount();
@@ -30,7 +31,7 @@ export const AppHeader = memo(() => {
         seed={account.id}
         size={32}
         onClick={openAccountsModal}
-        testID={AppHeaderSelectors.accountIcon}
+        testID={HomeSelectors.accountIcon}
         elementType="button"
       />
 
@@ -50,7 +51,7 @@ export const AppHeader = memo(() => {
               opened && 'text-secondary-hover bg-secondary-hover-low'
             )}
             onClick={toggleOpened}
-            testID={AppHeaderSelectors.menuIcon}
+            testID={HomeSelectors.accountMenuButton}
           >
             <IconBase Icon={BurgerIcon} size={16} />
           </Button>

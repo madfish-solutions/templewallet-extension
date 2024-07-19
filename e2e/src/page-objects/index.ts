@@ -4,13 +4,13 @@ import { CollectiblePage } from '../page-objects/pages/collectible.page';
 import { CollectiblesTabPage } from '../page-objects/pages/CollectiblesTab.page';
 import { ConfirmationModalPage } from '../page-objects/pages/confirmation-modal.page';
 import { GeneralSettingsPage } from '../page-objects/pages/general-settings.page';
+import { HomePage } from '../page-objects/pages/home.page';
 import { ManageAssetsCollectiblesPage } from '../page-objects/pages/manage-assets-collectibles.page';
 import { ManageAssetsTokensPage } from '../page-objects/pages/manage-assets-tokens.page';
+import { BackupOptionsModalPage } from '../page-objects/pages/modal/backup-options-modal.page';
 import { NetworksPage } from '../page-objects/pages/networks.page';
-import { NewsletterModalPage } from '../page-objects/pages/newsletter-modal.page';
 import { NotificationContentPage } from '../page-objects/pages/notification-content.page';
 import { NotificationsListPage } from '../page-objects/pages/notifications-list.page';
-import { OnRumModalPage } from '../page-objects/pages/on-rum-modal.page';
 import { SwapPage } from '../page-objects/pages/swap.page';
 
 import { OperationStatusAlert } from './pages/alerts/operation-status.alert';
@@ -18,6 +18,9 @@ import { DelegateFormPage } from './pages/delegate-form.page';
 import { DelegateTab } from './pages/delegate-tab.page';
 import { ImportExistingWalletPage } from './pages/importing-existing-wallet.page';
 import { InternalConfirmationPage } from './pages/internal-confirmation.page';
+import { ManualBackupModalPage } from './pages/modal/manual-backup-modal.page';
+import { NewsletterModalPage } from './pages/modal/newsletter-modal.page';
+import { OnRumModalPage } from './pages/modal/on-rum-modal.page';
 import { RevealSecretsPage } from './pages/reveal-secrets.page';
 import { SendPage } from './pages/send.page';
 import { SettingsPage } from './pages/settings.page';
@@ -50,5 +53,8 @@ export const Pages = {
   CollectiblesTabPage: new CollectiblesTabPage(),
   NotificationsList: new NotificationsListPage(),
   NotificationContent: new NotificationContentPage(),
-  GeneralSettings: new GeneralSettingsPage()
+  GeneralSettings: new GeneralSettingsPage(),
+  ManualBackupModal: new ManualBackupModalPage(),
+  BackupOptionsModal: new BackupOptionsModalPage(),
+  Home: new HomePage()
 };

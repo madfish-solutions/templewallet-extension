@@ -7,6 +7,8 @@ import { FieldLabel } from 'app/atoms/FieldLabel';
 import { ReactComponent as XCircleFillIcon } from 'app/icons/base/x_circle_fill.svg';
 import { T } from 'lib/i18n';
 
+import { ManualBackupModalSelectors } from '../selectors';
+
 import { WordInput } from './word-input';
 import { WordsBoxItem, WordsBoxItemData } from './words-box-item';
 
@@ -59,6 +61,7 @@ export const VerifySeedPhraseInput = memo<VerifySeedPhraseInputProps>(
               data={item}
               selected={value.some(selectedItem => item.index === selectedItem.index)}
               onSelect={handleWordSelect}
+              testID={ManualBackupModalSelectors.seedWordButton}
             />
           ))}
         </div>
