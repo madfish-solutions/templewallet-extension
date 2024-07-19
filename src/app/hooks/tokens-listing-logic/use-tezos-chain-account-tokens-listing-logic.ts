@@ -61,7 +61,7 @@ export const useTezosChainAccountTokensListingLogic = (
     [balances]
   );
 
-  const enabledSourceArray = useMemo(
+  const filteredNonLeadingSlugs = useMemo(
     () => (filterZeroBalances ? enabledNonLeadingSlugs.filter(isNonZeroBalance) : enabledNonLeadingSlugs),
     [filterZeroBalances, enabledNonLeadingSlugs, isNonZeroBalance]
   );
@@ -83,25 +83,19 @@ export const useTezosChainAccountTokensListingLogic = (
       : filteredLeadingSlugs;
   }, [leadingAssetsSlugs, filterZeroBalances, isNonZeroBalance, isInSearchMode, searchValueDebounced, getMetadata]);
 
-  const filteredSlugs = useMemo(() => {
+  // should sort only on initial mount
+  const enabledNonLeadingSlugsSorted = useMemo(
+    () => [...filteredNonLeadingSlugs].sort(tokensSortPredicate),
+    [filteredNonLeadingSlugs]
+  );
+
+  const searchedNonLeadingSlugs = useMemo(() => {
     const enabledSearchedSlugs = isInSearchMode
-      ? searchTezosChainAssetsWithNoMeta(searchValueDebounced, enabledSourceArray, getMetadata, slug => slug)
-      : [...enabledSourceArray].sort(tokensSortPredicate);
+      ? searchTezosChainAssetsWithNoMeta(searchValueDebounced, enabledNonLeadingSlugsSorted, getMetadata, slug => slug)
+      : enabledNonLeadingSlugsSorted;
 
     return searchedLeadingSlugs.length ? searchedLeadingSlugs.concat(enabledSearchedSlugs) : enabledSearchedSlugs;
-  }, [
-    enabledSourceArray,
-    getMetadata,
-    isInSearchMode,
-    searchValueDebounced,
-    searchedLeadingSlugs,
-    tokensSortPredicate
-  ]);
-
-  const enabledNonLeadingSlugsSorted = useMemo(
-    () => [...enabledNonLeadingSlugs].sort(tokensSortPredicate),
-    [enabledNonLeadingSlugs, tokensSortPredicate]
-  );
+  }, [enabledNonLeadingSlugsSorted, getMetadata, isInSearchMode, searchValueDebounced, searchedLeadingSlugs]);
 
   const allNonLeadingSlugsRef = useRef(allNonLeadingSlugs);
   const enabledNonLeadingSlugsSortedRef = useRef(enabledNonLeadingSlugsSorted);
@@ -116,7 +110,7 @@ export const useTezosChainAccountTokensListingLogic = (
 
   const manageableSlugs = useMemoWithCompare(
     () => {
-      if (!manageActive) return filteredSlugs;
+      if (!manageActive) return searchedNonLeadingSlugs;
 
       const allNonLeadingSlugsSet = new Set(allNonLeadingSlugs);
       const allUniqNonLeadingSlugsSet = new Set(
@@ -142,7 +136,7 @@ export const useTezosChainAccountTokensListingLogic = (
     },
     [
       manageActive,
-      filteredSlugs,
+      searchedNonLeadingSlugs,
       isInSearchMode,
       searchValueDebounced,
       getMetadata,

@@ -88,14 +88,15 @@ export const useEvmAccountTokensListingLogic = (
 
   const isInSearchMode = isSearchStringApplicable(searchValueDebounced);
 
-  const enabledSourceArray = useMemo(
+  const filteredEnabledChainSlugs = useMemo(
     () => (filterZeroBalances ? enabledChainSlugs.filter(isNonZeroBalance) : enabledChainSlugs),
     [filterZeroBalances, enabledChainSlugs, isNonZeroBalance]
   );
 
+  // should sort only on initial mount
   const sortedEnabledChainSlugs = useMemo(
-    () => [...enabledSourceArray].sort(tokensSortPredicate),
-    [enabledSourceArray, tokensSortPredicate]
+    () => [...filteredEnabledChainSlugs].sort(tokensSortPredicate),
+    [filteredEnabledChainSlugs]
   );
 
   const searchedEnabledChainSlugs = useMemo(

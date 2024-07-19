@@ -50,24 +50,22 @@ export const useAccountCollectiblesListingLogic = (
 
   const getEvmMetadata = useCallback((chainId: number, slug: string) => evmMetadata[chainId]?.[slug], [evmMetadata]);
 
-  const enabledSlugsSorted = useMemo(
-    () => [...enabledChainSlugs].sort(sortPredicate),
-    [enabledChainSlugs, sortPredicate]
-  );
+  // should sort only on initial mount
+  const enabledSlugsSorted = useMemo(() => [...enabledChainSlugs].sort(sortPredicate), [enabledChainSlugs]);
 
   const enabledSearchedSlugs = useMemo(
     () =>
       isInSearchMode
         ? searchAssetsWithNoMeta(
             searchValueDebounced,
-            enabledChainSlugs,
+            enabledSlugsSorted,
             (_, slug) => getTezMetadata(slug),
             getEvmMetadata,
             slug => slug,
             getSlugFromChainSlug
           )
         : enabledSlugsSorted,
-    [isInSearchMode, searchValueDebounced, enabledChainSlugs, getEvmMetadata, enabledSlugsSorted, getTezMetadata]
+    [isInSearchMode, searchValueDebounced, getEvmMetadata, enabledSlugsSorted, getTezMetadata]
   );
 
   const allChainSlugsRef = useRef(allChainSlugs);

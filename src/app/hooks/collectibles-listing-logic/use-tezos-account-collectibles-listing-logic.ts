@@ -33,17 +33,15 @@ export const useTezosAccountCollectiblesListingLogic = (publicKeyHash: string, m
 
   const getMetadata = useGetCollectibleMetadata();
 
-  const enabledSlugsSorted = useMemo(
-    () => [...enabledChainSlugs].sort(sortPredicate),
-    [enabledChainSlugs, sortPredicate]
-  );
+  // should sort only on initial mount
+  const enabledSlugsSorted = useMemo(() => [...enabledChainSlugs].sort(sortPredicate), [enabledChainSlugs]);
 
   const enabledSearchedSlugs = useMemo(
     () =>
       isInSearchMode
-        ? searchTezosAssetsWithNoMeta(searchValueDebounced, enabledChainSlugs, getMetadata, getSlugWithChainId)
+        ? searchTezosAssetsWithNoMeta(searchValueDebounced, enabledSlugsSorted, getMetadata, getSlugWithChainId)
         : enabledSlugsSorted,
-    [isInSearchMode, searchValueDebounced, enabledChainSlugs, getMetadata, enabledSlugsSorted]
+    [isInSearchMode, searchValueDebounced, getMetadata, enabledSlugsSorted]
   );
 
   const allChainSlugsRef = useRef(allChainSlugs);

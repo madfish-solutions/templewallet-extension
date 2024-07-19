@@ -37,14 +37,15 @@ export const useEvmChainCollectiblesListingLogic = (
 
   const getMetadata = useCallback((slug: string) => metadata[chainId]?.[slug], [metadata, chainId]);
 
-  const enabledSlugsSorted = useMemo(() => [...enabledSlugs].sort(sortPredicate), [enabledSlugs, sortPredicate]);
+  // should sort only on initial mount
+  const enabledSlugsSorted = useMemo(() => [...enabledSlugs].sort(sortPredicate), [enabledSlugs]);
 
   const enabledSearchedSlugs = useMemo(
     () =>
       isInSearchMode
-        ? searchEvmChainCollectiblesWithNoMeta(searchValueDebounced, enabledSlugs, getMetadata, slug => slug)
+        ? searchEvmChainCollectiblesWithNoMeta(searchValueDebounced, enabledSlugsSorted, getMetadata, slug => slug)
         : enabledSlugsSorted,
-    [isInSearchMode, searchValueDebounced, enabledSlugs, getMetadata, enabledSlugsSorted]
+    [isInSearchMode, searchValueDebounced, getMetadata, enabledSlugsSorted]
   );
 
   const allSlugsRef = useRef(allSlugs);
