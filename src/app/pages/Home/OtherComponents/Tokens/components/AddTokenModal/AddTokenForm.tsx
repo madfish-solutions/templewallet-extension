@@ -83,15 +83,15 @@ interface FormData {
 }
 
 interface AddTokenPageProps {
-  selectedChain: EvmChain | TezosChain;
+  selectedNetwork: EvmChain | TezosChain;
   onNetworkSelectClick: EmptyFn;
   close: EmptyFn;
 }
 
-export const AddTokenForm = memo<AddTokenPageProps>(({ selectedChain, onNetworkSelectClick, close }) => {
+export const AddTokenForm = memo<AddTokenPageProps>(({ selectedNetwork, onNetworkSelectClick, close }) => {
   const formAnalytics = useFormAnalytics('AddAsset');
 
-  const isTezosChainSelected = selectedChain.kind === TempleChainKind.Tezos;
+  const isTezosChainSelected = selectedNetwork.kind === TempleChainKind.Tezos;
 
   const accountTezAddress = useAccountAddressForTezos();
   const accountEvmAddress = useAccountAddressForEvm();
@@ -141,7 +141,7 @@ export const AddTokenForm = memo<AddTokenPageProps>(({ selectedChain, onNetworkS
 
     try {
       if (isTezosChainSelected) {
-        const rpcBaseURL = tezosChains[selectedChain.chainId]?.rpcBaseURL;
+        const rpcBaseURL = tezosChains[selectedNetwork.chainId]?.rpcBaseURL;
 
         const tezos = getReadOnlyTezos(rpcBaseURL);
 
@@ -170,7 +170,7 @@ export const AddTokenForm = memo<AddTokenPageProps>(({ selectedChain, onNetworkS
       } else {
         const tokenSlug = toTokenSlug(getAddress(contractAddress), 0);
 
-        const metadata = await fetchEvmTokenMetadataFromChain(selectedChain, tokenSlug);
+        const metadata = await fetchEvmTokenMetadataFromChain(selectedNetwork, tokenSlug);
 
         if (!metadata || !metadata.name || !metadata.symbol)
           throw new TokenMetadataNotFoundError('Failed to load token metadata');
@@ -194,7 +194,7 @@ export const AddTokenForm = memo<AddTokenPageProps>(({ selectedChain, onNetworkS
         processing: false
       }));
     }
-  }, [formValid, isTezosChainSelected, tezosChains, selectedChain, tokenId, contractAddress]);
+  }, [formValid, isTezosChainSelected, tezosChains, selectedNetwork, tokenId, contractAddress]);
 
   const loadMetadata = useDebouncedCallback(loadMetadataPure, 500);
 
@@ -211,7 +211,7 @@ export const AddTokenForm = memo<AddTokenPageProps>(({ selectedChain, onNetworkS
       setState(INITIAL_STATE);
       attemptRef.current++;
     }
-  }, [formValid, selectedChain, contractAddress, tokenId, clearError]);
+  }, [formValid, selectedNetwork, contractAddress, tokenId, clearError]);
 
   const cleanContractAddress = useCallback(() => {
     setValue('address', '');
@@ -249,7 +249,7 @@ export const AddTokenForm = memo<AddTokenPageProps>(({ selectedChain, onNetworkS
           else dispatch(putTokensMetadataAction(actionPayload));
 
           const asset = {
-            chainId: selectedChain.chainId,
+            chainId: selectedNetwork.chainId,
             account: accountTezAddress!,
             slug: tokenSlug,
             status: 'enabled' as const
@@ -266,13 +266,13 @@ export const AddTokenForm = memo<AddTokenPageProps>(({ selectedChain, onNetworkS
           dispatch(
             putNewEvmTokenAction({
               publicKeyHash: accountEvmAddress!,
-              chainId: selectedChain.chainId,
+              chainId: selectedNetwork.chainId,
               assetSlug: tokenSlug
             })
           );
           dispatch(
             putEvmTokensMetadataAction({
-              chainId: selectedChain.chainId,
+              chainId: selectedNetwork.chainId,
               records: { [tokenSlug]: evmMetadataRef.current }
             })
           );
@@ -296,7 +296,7 @@ export const AddTokenForm = memo<AddTokenPageProps>(({ selectedChain, onNetworkS
       isTezosChainSelected,
       contractAddress,
       tokenId,
-      selectedChain.chainId,
+      selectedNetwork.chainId,
       accountTezAddress,
       close,
       accountEvmAddress
@@ -309,7 +309,7 @@ export const AddTokenForm = memo<AddTokenPageProps>(({ selectedChain, onNetworkS
         <p className="mt-4 pt-1 pb-2 pl-1 text-font-description-bold">
           <T id="network" />
         </p>
-        <NetworkSelectButton selectedChain={selectedChain} onClick={onNetworkSelectClick} />
+        <NetworkSelectButton selectedChain={selectedNetwork} onClick={onNetworkSelectClick} />
         <p className="mt-6 pt-1 pb-2 pl-1 text-font-description-bold">
           <T id="tokenAddress" />
         </p>

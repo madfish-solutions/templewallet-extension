@@ -1,4 +1,4 @@
-import React, { FC, useMemo, useState } from 'react';
+import React, { FC, useCallback, useMemo, useState } from 'react';
 
 import { useDebounce } from 'use-debounce';
 
@@ -19,15 +19,15 @@ import {
   useEnabledTezosChains
 } from 'temple/front';
 
-export type SelectedChain = EvmChain | TezosChain;
+type Network = EvmChain | TezosChain;
 
 interface SelectNetworkPageProps {
-  selectedChain: EvmChain | TezosChain;
-  onNetworkSelect: (chain: SelectedChain) => void;
+  selectedNetwork: Network;
+  onNetworkSelect: (network: Network) => void;
   onCloseClick: EmptyFn;
 }
 
-export const SelectNetworkPage: FC<SelectNetworkPageProps> = ({ selectedChain, onNetworkSelect, onCloseClick }) => {
+export const SelectNetworkPage: FC<SelectNetworkPageProps> = ({ selectedNetwork, onNetworkSelect, onCloseClick }) => {
   const accountTezAddress = useAccountAddressForTezos();
   const accountEvmAddress = useAccountAddressForEvm();
 
@@ -45,9 +45,18 @@ export const SelectNetworkPage: FC<SelectNetworkPageProps> = ({ selectedChain, o
   const filteredNetworks = useMemo(
     () =>
       searchValueDebounced.length
-        ? searchAndFilterNetworksByName<SelectedChain>(sortedNetworks, searchValueDebounced)
+        ? searchAndFilterNetworksByName<Network>(sortedNetworks, searchValueDebounced)
         : sortedNetworks,
     [searchValueDebounced, sortedNetworks]
+  );
+
+  const handleNetworkSelect = useCallback(
+    (network: Network | string) => {
+      if (typeof network === 'string') return;
+
+      onNetworkSelect(network);
+    },
+    [onNetworkSelect]
   );
 
   return (
@@ -65,9 +74,10 @@ export const SelectNetworkPage: FC<SelectNetworkPageProps> = ({ selectedChain, o
           <Network
             key={network.chainId}
             network={network}
-            activeNetwork={selectedChain}
+            activeNetwork={selectedNetwork}
             attractSelf
-            onClick={() => onNetworkSelect(network)}
+            iconSize={24}
+            onClick={handleNetworkSelect}
           />
         ))}
       </div>

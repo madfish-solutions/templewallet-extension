@@ -3,6 +3,8 @@ import React, { memo, useCallback, useMemo, useState } from 'react';
 import { PageModal } from 'app/atoms/PageModal';
 import { useBooleanState } from 'lib/ui/hooks';
 import {
+  EvmChain,
+  TezosChain,
   useAccountAddressForEvm,
   useAccountAddressForTezos,
   useEthereumMainnetChain,
@@ -10,7 +12,9 @@ import {
 } from 'temple/front';
 
 import { AddTokenForm } from './AddTokenForm';
-import { SelectedChain, SelectNetworkPage } from './SelectNetworkPage';
+import { SelectNetworkPage } from './SelectNetworkPage';
+
+type Network = EvmChain | TezosChain;
 
 interface Props {
   opened: boolean;
@@ -24,7 +28,7 @@ export const AddTokenModal = memo<Props>(({ opened, onRequestClose }) => {
   const tezosMainnetChain = useTezosMainnetChain();
   const ethMainnetChain = useEthereumMainnetChain();
 
-  const defaultSelectedChain = useMemo(() => {
+  const defaultSelectedNetwork = useMemo(() => {
     if (accountTezAddress && accountEvmAddress) return tezosMainnetChain;
     if (accountTezAddress) return tezosMainnetChain;
 
@@ -32,11 +36,11 @@ export const AddTokenModal = memo<Props>(({ opened, onRequestClose }) => {
   }, [accountEvmAddress, accountTezAddress, ethMainnetChain, tezosMainnetChain]);
 
   const [isNetworkSelectOpened, setNetworkSelectOpened, setNetworkSelectClosed] = useBooleanState(false);
-  const [selectedChain, setSelectedChain] = useState<SelectedChain>(defaultSelectedChain);
+  const [selectedNetwork, setSelectedNetwork] = useState<Network>(defaultSelectedNetwork);
 
   const handleNetworkSelect = useCallback(
-    (chain: SelectedChain) => {
-      setSelectedChain(chain);
+    (network: Network) => {
+      setSelectedNetwork(network);
       setNetworkSelectClosed();
     },
     [setNetworkSelectClosed]
@@ -51,13 +55,13 @@ export const AddTokenModal = memo<Props>(({ opened, onRequestClose }) => {
     >
       {isNetworkSelectOpened ? (
         <SelectNetworkPage
-          selectedChain={selectedChain}
+          selectedNetwork={selectedNetwork}
           onNetworkSelect={handleNetworkSelect}
           onCloseClick={setNetworkSelectClosed}
         />
       ) : (
         <AddTokenForm
-          selectedChain={selectedChain}
+          selectedNetwork={selectedNetwork}
           onNetworkSelectClick={setNetworkSelectOpened}
           close={onRequestClose}
         />

@@ -3,6 +3,7 @@ import React, { FC, memo, useCallback, useEffect, useMemo, useState } from 'reac
 import { useDebounce } from 'use-debounce';
 
 import { IconBase } from 'app/atoms';
+import { Size } from 'app/atoms/IconBase';
 import { IconButton } from 'app/atoms/IconButton';
 import { EvmNetworkLogo, TezosNetworkLogo } from 'app/atoms/NetworkLogo';
 import { PageModal } from 'app/atoms/PageModal';
@@ -116,10 +117,18 @@ interface NetworkProps {
   activeNetwork: FilterChain;
   attractSelf?: boolean;
   showBalance?: boolean;
+  iconSize?: Size;
   onClick?: (network: Network) => void;
 }
 
-export const Network: FC<NetworkProps> = ({ network, activeNetwork, attractSelf, showBalance = false, onClick }) => {
+export const Network: FC<NetworkProps> = ({
+  network,
+  activeNetwork,
+  attractSelf,
+  showBalance = false,
+  iconSize = 32,
+  onClick
+}) => {
   const isAllNetworks = typeof network === 'string';
 
   const active = isAllNetworks ? activeNetwork === null : network?.chainId === activeNetwork?.chainId;
@@ -129,18 +138,20 @@ export const Network: FC<NetworkProps> = ({ network, activeNetwork, attractSelf,
   const account = useAccount();
 
   const Icon = useMemo(() => {
-    if (isAllNetworks) return <IconBase Icon={Browse} className="text-primary mx-0.5" size={32} />;
+    if (isAllNetworks) return <IconBase Icon={Browse} className="text-primary mx-0.5" size={iconSize} />;
 
     if (network?.kind === TempleChainKind.Tezos)
-      return <TezosNetworkLogo networkName={network.name} chainId={network.chainId} size={36} />;
+      return <TezosNetworkLogo networkName={network.name} chainId={network.chainId} size={iconSize} />;
 
     if (network?.kind === TempleChainKind.EVM)
-      return <EvmNetworkLogo networkName={network.name} chainId={network.chainId} size={36} imgClassName="p-0.5" />;
+      return (
+        <EvmNetworkLogo networkName={network.name} chainId={network.chainId} size={iconSize} imgClassName="p-0.5" />
+      );
 
     return null;
-  }, [isAllNetworks, network]);
+  }, [isAllNetworks, network, iconSize]);
 
-  const handleClick = useCallback(() => onClick?.(network), [network]);
+  const handleClick = useCallback(() => onClick?.(network), [network, onClick]);
 
   return (
     <div
