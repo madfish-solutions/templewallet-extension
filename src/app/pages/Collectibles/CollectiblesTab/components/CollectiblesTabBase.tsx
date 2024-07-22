@@ -4,6 +4,7 @@ import { SyncSpinner } from 'app/atoms';
 import { FilterButton } from 'app/atoms/FilterButton';
 import { IconButton } from 'app/atoms/IconButton';
 import { ManageActiveTip } from 'app/atoms/ManageActiveTip';
+import { ScrollBackUpButton } from 'app/atoms/ScrollBackUpButton';
 import { SimpleInfiniteScroll } from 'app/atoms/SimpleInfiniteScroll';
 import { useAssetsFilterOptionsState } from 'app/hooks/use-assets-filter-options-state';
 import { useManageAssetsClickOutsideLogic } from 'app/hooks/use-manage-assets-click-outside-logic';
@@ -15,24 +16,25 @@ import { AssetsFilterOptions } from 'app/templates/AssetsFilterOptions';
 import { SearchBarField } from 'app/templates/SearchField';
 
 import { EmptySection } from './EmptySection';
-import { UpdateAppBanner } from './UpdateAppBanner';
 
-interface TokensTabBaseProps {
-  tokensView: JSX.Element[];
-  tokensCount: number;
+interface CollectiblesTabBaseProps {
+  contentElement: JSX.Element;
+  collectiblesCount: number;
   searchValue: string;
   loadNextPage: EmptyFn;
   onSearchValueChange: (value: string) => void;
   isSyncing: boolean;
+  isInSearchMode?: boolean;
 }
 
-export const TokensTabBase: FC<TokensTabBaseProps> = ({
-  tokensView,
-  tokensCount,
+export const CollectiblesTabBase: FC<CollectiblesTabBaseProps> = ({
+  contentElement,
+  collectiblesCount,
   searchValue,
   loadNextPage,
   onSearchValueChange,
-  isSyncing
+  isSyncing,
+  isInSearchMode = false
 }) => {
   const { manageActive, toggleManageActive } = useManageAssetsState();
   const { filtersOpened, setFiltersClosed, toggleFiltersOpened } = useAssetsFilterOptionsState();
@@ -58,16 +60,23 @@ export const TokensTabBase: FC<TokensTabBaseProps> = ({
       {filtersOpened ? (
         <AssetsFilterOptions filterButtonRef={filterButtonRef} onRequestClose={setFiltersClosed} />
       ) : (
-        <ContentContainer ref={containerRef} padding={tokensCount > 0}>
-          {!manageActive && <UpdateAppBanner stickyBarRef={stickyBarRef} />}
-
-          {tokensCount === 0 ? (
+        <ContentContainer ref={containerRef}>
+          {collectiblesCount === 0 ? (
             <EmptySection />
           ) : (
             <>
-              {manageActive && <ManageActiveTip />}
-              <SimpleInfiniteScroll loadNext={loadNextPage}>{tokensView}</SimpleInfiniteScroll>
-              {isSyncing && <SyncSpinner className="mt-4" />}
+              {isInSearchMode ? (
+                contentElement
+              ) : (
+                <>
+                  {manageActive && <ManageActiveTip />}
+                  <SimpleInfiniteScroll loadNext={loadNextPage}>{contentElement}</SimpleInfiniteScroll>
+                </>
+              )}
+
+              <ScrollBackUpButton />
+
+              {isSyncing && <SyncSpinner className="mt-6" />}
             </>
           )}
         </ContentContainer>
