@@ -51,21 +51,18 @@ const Welcome: FC = () => {
   return (
     <div
       className={classNames(
-        'min-h-screen',
         'w-full max-w-screen-md mx-auto',
-        'px-4',
-        'flex flex-col items-center justify-center'
+        'min-h-screen flex flex-col items-center justify-center',
+        'px-4 pt-4 pb-36'
       )}
     >
-      <div className={classNames('-mt-32 mb-6', 'text-2xl text-gray-600 font-light')}>
+      <div className="mb-6 text-2xl text-gray-600 font-light">
         <T id="welcomeTo" />
       </div>
 
-      <div className="flex items-center mb-8">
-        <Logo hasTitle style={{ height: 70 }} />
-      </div>
+      <Logo hasTitle style={{ height: 70 }} />
 
-      <div className={classNames('w-full', 'my-4', 'flex items-stretch')}>
+      <div className={classNames('w-full mt-8 mb-4 flex items-stretch')}>
         {SIGNS.map(({ key, linkTo, filled, Icon, titleI18nKey, descriptionI18nKey, testID }) => (
           <div key={key} className={classNames('w-1/2', 'p-4')}>
             <Link
@@ -81,40 +78,30 @@ const Welcome: FC = () => {
               )}
               testID={testID}
             >
-              <div className={classNames('absolute inset-0', 'p-1')}>
+              <div className="absolute inset-0 p-1">
                 <div
                   className={classNames(
-                    'w-full h-full',
+                    'w-full h-full py-4 px-6',
                     'overflow-hidden rounded-md',
-                    'px-10 py-4',
-                    'flex flex-col',
+                    'flex flex-col justify-center',
                     filled ? 'text-white' : 'shadow-inner bg-primary-orange-lighter text-primary-orange',
                     'text-shadow-black-orange'
                   )}
                 >
-                  <div className={classNames('flex-1', 'flex flex-col items-center justify-end')}>
-                    <Icon className="transform scale-125 stroke-current" />
-                  </div>
+                  <Icon className="self-center transform scale-125 stroke-current" />
 
-                  <T id={titleI18nKey}>
-                    {message => <h1 className="pb-1 text-xl font-semibold text-center">{message}</h1>}
-                  </T>
+                  <h1 className="text-xl font-semibold text-center">
+                    <T id={titleI18nKey} />
+                  </h1>
 
-                  <div className="flex-1">
-                    <T id={descriptionI18nKey}>
-                      {message => (
-                        <p
-                          className={classNames(
-                            'my-1 text-center',
-                            'text-xs',
-                            filled ? 'text-primary-orange-lighter' : 'text-primary-orange'
-                          )}
-                        >
-                          {message}
-                        </p>
-                      )}
-                    </T>
-                  </div>
+                  <p
+                    className={classNames(
+                      'mt-2 text-center text-xs',
+                      filled ? 'text-primary-orange-lighter' : 'text-primary-orange'
+                    )}
+                  >
+                    <T id={descriptionI18nKey} />
+                  </p>
                 </div>
               </div>
             </Link>
