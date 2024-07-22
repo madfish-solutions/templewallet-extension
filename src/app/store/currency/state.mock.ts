@@ -4,5 +4,6 @@ import { CurrencyState } from './state';
 
 export const mockCurrencyState: CurrencyState = {
   usdToTokenRates: createEntity({}),
-  fiatToTezosRates: createEntity({})
+  fiatToTezosRates: createEntity({}),
+  btcToUsdRate: createEntity(null)
 };

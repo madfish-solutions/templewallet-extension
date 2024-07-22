@@ -2,7 +2,7 @@ import React, { memo, useMemo } from 'react';
 
 import BigNumber from 'bignumber.js';
 
-import { useBtcUsdToTokenRateSelector, useTezUsdToTokenRateSelector } from 'app/store/currency/selectors';
+import { useBtcToUsdRateSelector, useTezUsdToTokenRateSelector } from 'app/store/currency/selectors';
 import { useEthUsdToTokenRateSelector } from 'app/store/evm/tokens-exchange-rates/selectors';
 import { useFiatCurrency, useFiatToUsdRate } from 'lib/fiat-currency';
 import { TEZOS_METADATA } from 'lib/metadata';
@@ -78,7 +78,7 @@ const InTez = memo<{ amountInDollar: string }>(({ amountInDollar }) => {
 });
 
 const InBtc = memo<{ amountInDollar: string }>(({ amountInDollar }) => {
-  const bitcoinToUsdRate = useBtcUsdToTokenRateSelector();
+  const bitcoinToUsdRate = useBtcToUsdRateSelector();
 
   const amountInBtc = useMemo(
     () =>

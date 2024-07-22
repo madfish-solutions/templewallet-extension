@@ -1,7 +1,5 @@
 import { TEZ_TOKEN_SLUG, toTokenSlug } from 'lib/assets';
 
-import { BTC_TOKEN_SLUG } from '../../../assets/defaults';
-
 import { templeWalletApi } from './templewallet.api';
 
 interface GetExchangeRatesResponseItem {
@@ -15,14 +13,14 @@ export const fetchUsdToTokenRates = () =>
     const prices: StringRecord = {};
 
     for (const { tokenAddress, tokenId, exchangeRate } of data) {
-      if (tokenAddress === TEZ_TOKEN_SLUG) {
-        prices[TEZ_TOKEN_SLUG] = exchangeRate;
-      } else if (tokenAddress === BTC_TOKEN_SLUG) {
-        prices[BTC_TOKEN_SLUG] = exchangeRate;
-      } else {
+      if (tokenAddress) {
         prices[toTokenSlug(tokenAddress, tokenId)] = exchangeRate;
+      } else {
+        prices[TEZ_TOKEN_SLUG] = exchangeRate;
       }
     }
 
     return prices;
   });
+
+export const fetchBtcToUsdRateRate = () => templeWalletApi.get<number>('/exchange-rates/btc').then(({ data }) => data);
