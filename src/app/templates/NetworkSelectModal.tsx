@@ -72,8 +72,11 @@ export const NetworkSelectModal = memo<Props>(({ opened, selectedNetwork, onRequ
   }, [opened, searchValueDebounced]);
 
   const handleNetworkSelect = useCallback(
-    (network: Network) => dispatch(setAssetsFilterChain(typeof network === 'string' ? null : network)),
-    []
+    (network: Network) => {
+      dispatch(setAssetsFilterChain(typeof network === 'string' ? null : network));
+      onRequestClose();
+    },
+    [onRequestClose]
   );
 
   return (
