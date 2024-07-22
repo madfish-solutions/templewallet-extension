@@ -3,13 +3,12 @@ import { useCallback, useMemo, useState } from 'react';
 import { dispatch } from 'app/store';
 import { putCollectiblesMetadataAction } from 'app/store/tezos/collectibles-metadata/actions';
 import { useAllCollectiblesMetadataSelector } from 'app/store/tezos/collectibles-metadata/selectors';
+import { fromChainAssetSlug } from 'lib/assets/utils';
 import { loadTokensMetadata } from 'lib/metadata/fetch';
 import { useDidMount, useDidUpdate } from 'lib/ui/hooks';
 import { setNavigateSearchParams } from 'lib/woozie';
 import { createLocationState } from 'lib/woozie/location';
-
-import { fromChainAssetSlug } from '../../lib/assets/utils';
-import { useAllTezosChains } from '../../temple/front';
+import { useAllTezosChains } from 'temple/front';
 
 export const ITEMS_PER_PAGE = 30;
 
