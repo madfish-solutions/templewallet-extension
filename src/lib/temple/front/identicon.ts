@@ -32,12 +32,22 @@ export const getIdenticonUri = memoizee(
   { max: 1024, normalizer: ([hash, size, type, options]) => JSON.stringify([hash, size, type, options]) }
 );
 
+/**
+ * Dicebear renders letters in a viewbox of 100x100 with a font size that is returned by this function. Let's ensure
+ * that the label with the horizontal padding of 5 and at most 5 characters fits into a circle of radius 50 but
+ * the font size is not greater than 50. According to the Pythagorean theorem, the font size should be equal to the
+ * root of the equation, where MENLO_LETTER_RATIO is the ratio of the width of a letter to its height in Menlo font:
+ * (HORIZONTAL_PADDING + n * x * MENLO_LETTER_RATIO / 2) ** 2 + (x / 2) ** 2 = (BOX_SIZE / 2) ** 2.
+ * Menlo font is monospace, letter width is 1233 units, and the letter height is 2048 units.
+ * We should take the positive root of the equation and round it to floor. However, it is greater than 50
+ * for 1 or 2 characters.
+ */
+const precalculatedFontSizes = new Map<number, number>([
+  [3, 44],
+  [4, 34],
+  [5, 28]
+]);
+
 function estimateOptimalFontSize(length: number) {
-  const initialsLength = Math.min(length, MAX_INITIALS_LENGTH);
-  if (initialsLength > 2) {
-    const n = initialsLength;
-    const multiplier = Math.sqrt(10000 / ((32 * n + 4 * (n - 1)) ** 2 + 36 ** 2));
-    return Math.floor(DEFAULT_FONT_SIZE * multiplier);
-  }
-  return DEFAULT_FONT_SIZE;
+  return precalculatedFontSizes.get(Math.min(length, MAX_INITIALS_LENGTH)) ?? DEFAULT_FONT_SIZE;
 }
