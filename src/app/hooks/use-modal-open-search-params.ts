@@ -1,6 +1,6 @@
 import { useCallback, useMemo } from 'react';
 
-import { navigate, useLocation } from 'lib/woozie';
+import { HistoryAction, navigate, useLocation } from 'lib/woozie';
 
 export const useModalOpenSearchParams = (paramName: string) => {
   const { search, pathname } = useLocation();
@@ -18,7 +18,7 @@ export const useModalOpenSearchParams = (paramName: string) => {
         newUsp.delete(paramName);
       }
 
-      navigate({ search: newUsp.toString(), pathname });
+      navigate({ search: newUsp.toString(), pathname }, HistoryAction.Replace);
     },
     [search, pathname, paramName]
   );
