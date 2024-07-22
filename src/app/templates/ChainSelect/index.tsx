@@ -15,8 +15,6 @@ import { ChainSelectController } from './controller';
 
 export { useChainSelectController } from './controller';
 
-export { ChainsDropdown };
-
 interface Props {
   controller: ChainSelectController;
 }

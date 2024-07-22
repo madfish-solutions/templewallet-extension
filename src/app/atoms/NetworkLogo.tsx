@@ -7,8 +7,10 @@ import EthereumIconSrc from 'app/icons/networks/ethereum.svg?url';
 import OptimismIconSrc from 'app/icons/networks/optimism.svg?url';
 import PolygonIconSrc from 'app/icons/networks/polygon.svg?url';
 import { getEvmNativeAssetIcon } from 'lib/images-uri';
+import { TEZOS_MAINNET_CHAIN_ID } from 'lib/temple/types';
 
 import Identicon, { InitialsOpts } from './Identicon';
+import { TezNetworkLogo } from './NetworksLogos';
 
 const logosRecord: Record<number, string> = {
   1: EthereumIconSrc,
@@ -16,6 +18,20 @@ const logosRecord: Record<number, string> = {
   137: PolygonIconSrc,
   10: OptimismIconSrc
 };
+
+interface TezosNetworkLogoProps {
+  networkName: string;
+  chainId: string;
+  size?: number;
+}
+
+export const TezosNetworkLogo = memo<TezosNetworkLogoProps>(({ networkName, chainId, size = 24 }) =>
+  chainId === TEZOS_MAINNET_CHAIN_ID ? (
+    <TezNetworkLogo size={size} />
+  ) : (
+    <NetworkLogoFallback networkName={networkName} size={size} />
+  )
+);
 
 interface EvmNetworkLogoProps {
   networkName: string;

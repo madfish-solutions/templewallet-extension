@@ -11,11 +11,6 @@ export interface TezosNetworkEssentials {
   chainId: string;
 }
 
-export interface EvmNetworkEssentials {
-  rpcBaseURL: string;
-  chainId: number;
-}
-
 export interface NetworkBase {
   chain: TempleChainKind;
   id: string;

@@ -37,7 +37,7 @@ export const useTezosAssetMetadata = (slug: string, tezosChainId: string): Asset
   return isTezAsset(slug) ? getTezosGasMetadata(tezosChainId) : tokenMetadata || collectibleMetadata;
 };
 
-export type TokenMetadataGetter = (slug: string) => TokenMetadata | undefined;
+type TokenMetadataGetter = (slug: string) => TokenMetadata | undefined;
 
 export const useGetTokenMetadata = () => {
   const allMeta = useAllTokensMetadataSelector();

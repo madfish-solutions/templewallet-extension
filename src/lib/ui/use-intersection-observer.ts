@@ -28,14 +28,3 @@ export const useIntersectionObserver = (
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [predicate]);
 };
-
-export const useIntersectionByOffsetObserver = (
-  elemRef: RefObject<Element>,
-  callback: (intersecting: boolean) => void,
-  verticalOffset = 0,
-  root: Document | Element | null = document
-) =>
-  useIntersectionObserver(elemRef, entry => void callback(entry.isIntersecting), {
-    root,
-    rootMargin: verticalOffset ? `${verticalOffset}px 0px ${verticalOffset}px 0px` : '0px'
-  });

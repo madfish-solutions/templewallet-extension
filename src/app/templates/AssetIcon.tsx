@@ -13,7 +13,7 @@ import { isEvmNativeTokenSlug } from 'lib/utils/evm.utils';
 import { useEvmChainByChainId, useTezosChainByChainId } from 'temple/front/chains';
 
 import { TEZOS_MAINNET_CHAIN_ID } from '../../lib/temple/types';
-import { TezosNetworkLogo } from '../atoms/NetworksLogos';
+import { TezNetworkLogo } from '../atoms/NetworksLogos';
 
 import { TezosAssetImage, AssetImageBaseProps, EvmAssetImage } from './AssetImage';
 
@@ -105,7 +105,7 @@ export const TezosTokenIconWithNetwork = memo<TezosTokenIconWithNetworkProps>(
         {network && (
           <div ref={networkIconRef} className="absolute bottom-0 right-0">
             {network.chainId === TEZOS_MAINNET_CHAIN_ID ? (
-              <TezosNetworkLogo size={NETWORK_IMAGE_DEFAULT_SIZE} />
+              <TezNetworkLogo size={NETWORK_IMAGE_DEFAULT_SIZE} />
             ) : (
               <NetworkLogoFallback networkName={network.name} size={NETWORK_IMAGE_DEFAULT_SIZE} />
             )}

@@ -14,7 +14,7 @@ import { getAccountAddressForEvm, getAccountAddressForTezos } from 'temple/accou
 import { TempleChainKind, TempleChainTitle } from 'temple/types';
 
 import { ActionListItem } from './ActionListItem';
-import { EvmNetworksLogos, TezosNetworkLogo } from './NetworksLogos';
+import { EvmNetworksLogos, TezNetworkLogo } from './NetworksLogos';
 import { SearchHighlightText } from './SearchHighlightText';
 
 interface Props {
@@ -103,6 +103,6 @@ const CopyAddressButton = memo<CopyAddressButtonProps>(({ chain, address, onCopy
       </span>
     </div>
 
-    {chain === 'tezos' ? <TezosNetworkLogo /> : <EvmNetworksLogos />}
+    {chain === 'tezos' ? <TezNetworkLogo /> : <EvmNetworksLogos />}
   </ActionListItem>
 ));

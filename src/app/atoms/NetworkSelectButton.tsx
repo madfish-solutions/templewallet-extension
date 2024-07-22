@@ -1,35 +1,41 @@
 import React, { memo, useMemo } from 'react';
 
 import { IconBase } from 'app/atoms';
-import { EvmNetworkLogo, NetworkLogoFallback } from 'app/atoms/NetworkLogo';
-import { TezosNetworkLogo } from 'app/atoms/NetworksLogos';
+import { EvmNetworkLogo, TezosNetworkLogo } from 'app/atoms/NetworkLogo';
+import { ReactComponent as Browse } from 'app/icons/base/browse.svg';
 import { ReactComponent as CompactDown } from 'app/icons/base/compact_down.svg';
-import { TEZOS_MAINNET_CHAIN_ID } from 'lib/temple/types';
+import { FilterChain } from 'app/store/assets-filter-options/state';
+import { T } from 'lib/i18n';
 import { useAllEvmChains, useAllTezosChains } from 'temple/front';
 import { TempleChainKind } from 'temple/types';
 
-import { SelectedChain } from './SelectNetworkPage';
-
 interface NetworkSelectProps {
-  selectedChain: SelectedChain;
+  selectedChain: FilterChain;
   onClick: EmptyFn;
 }
 
-export const NetworkSelect = memo<NetworkSelectProps>(({ selectedChain, onClick }) => {
+export const NetworkSelectButton = memo<NetworkSelectProps>(({ selectedChain, onClick }) => {
   const tezosChains = useAllTezosChains();
   const evmChains = useAllEvmChains();
 
   const children: JSX.Element = useMemo(() => {
+    if (!selectedChain) {
+      return (
+        <>
+          <IconBase Icon={Browse} className="text-primary" size={16} />
+          <span className="text-font-medium-bold">
+            <T id="allNetworks" />
+          </span>
+        </>
+      );
+    }
+
     if (selectedChain.kind === TempleChainKind.Tezos) {
       const networkName = tezosChains[selectedChain.chainId].name;
 
       return (
         <>
-          {selectedChain.chainId === TEZOS_MAINNET_CHAIN_ID ? (
-            <TezosNetworkLogo size={24} />
-          ) : (
-            <NetworkLogoFallback networkName={networkName} />
-          )}
+          <TezosNetworkLogo networkName={networkName} chainId={selectedChain.chainId} />
           <span className="text-font-medium-bold">{networkName}</span>
         </>
       );

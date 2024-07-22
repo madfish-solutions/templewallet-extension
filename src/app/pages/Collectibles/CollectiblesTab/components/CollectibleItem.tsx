@@ -6,7 +6,7 @@ import clsx from 'clsx';
 import { IconBase, ToggleSwitch } from 'app/atoms';
 import Money from 'app/atoms/Money';
 import { EvmNetworkLogo, NetworkLogoFallback } from 'app/atoms/NetworkLogo';
-import { TezosNetworkLogo } from 'app/atoms/NetworksLogos';
+import { TezNetworkLogo } from 'app/atoms/NetworksLogos';
 import { ReactComponent as DeleteIcon } from 'app/icons/base/delete.svg';
 import { dispatch } from 'app/store';
 import { setEvmCollectibleStatusAction } from 'app/store/evm/assets/actions';
@@ -174,7 +174,7 @@ export const TezosCollectibleItem = memo<TezosCollectibleItemProps>(
               {network && (
                 <div ref={networkIconRef} className="absolute bottom-0.5 right-0.5">
                   {network.chainId === TEZOS_MAINNET_CHAIN_ID ? (
-                    <TezosNetworkLogo size={NETWORK_IMAGE_DEFAULT_SIZE} />
+                    <TezNetworkLogo size={NETWORK_IMAGE_DEFAULT_SIZE} />
                   ) : (
                     <NetworkLogoFallback networkName={network.name} size={NETWORK_IMAGE_DEFAULT_SIZE} />
                   )}
@@ -234,7 +234,7 @@ export const TezosCollectibleItem = memo<TezosCollectibleItemProps>(
           {network && (
             <div ref={networkIconRef} className="absolute bottom-1 right-1">
               {network.chainId === TEZOS_MAINNET_CHAIN_ID ? (
-                <TezosNetworkLogo size={NETWORK_IMAGE_DEFAULT_SIZE} />
+                <TezNetworkLogo size={NETWORK_IMAGE_DEFAULT_SIZE} />
               ) : (
                 <NetworkLogoFallback networkName={network.name} size={NETWORK_IMAGE_DEFAULT_SIZE} />
               )}

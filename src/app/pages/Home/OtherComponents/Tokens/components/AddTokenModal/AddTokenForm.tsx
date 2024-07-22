@@ -7,6 +7,7 @@ import { useDebouncedCallback } from 'use-debounce';
 import { getAddress, isAddress } from 'viem';
 
 import { FormField, NoSpaceField } from 'app/atoms';
+import { NetworkSelectButton } from 'app/atoms/NetworkSelectButton';
 import { ActionsButtonsBox } from 'app/atoms/PageModal/actions-buttons-box';
 import Spinner from 'app/atoms/Spinner/Spinner';
 import { StyledButton } from 'app/atoms/StyledButton';
@@ -48,7 +49,6 @@ import { validateTezosContractAddress } from 'temple/front/tezos';
 import { getReadOnlyTezos } from 'temple/tezos';
 import { TempleChainKind } from 'temple/types';
 
-import { NetworkSelect } from './NetworkSelect';
 import { TokenInfo } from './TokenInfo';
 
 type ComponentState = {
@@ -309,7 +309,7 @@ export const AddTokenForm = memo<AddTokenPageProps>(({ selectedChain, onNetworkS
         <p className="mt-4 pt-1 pb-2 pl-1 text-font-description-bold">
           <T id="network" />
         </p>
-        <NetworkSelect selectedChain={selectedChain} onClick={onNetworkSelectClick} />
+        <NetworkSelectButton selectedChain={selectedChain} onClick={onNetworkSelectClick} />
         <p className="mt-6 pt-1 pb-2 pl-1 text-font-description-bold">
           <T id="tokenAddress" />
         </p>

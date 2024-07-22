@@ -1,14 +1,11 @@
-import React, { memo, RefObject, useCallback, useEffect, useMemo, useRef } from 'react';
+import React, { FC, memo, RefObject, useCallback, useEffect, useMemo, useRef } from 'react';
 
 import { isEqual } from 'lodash';
 import useOnClickOutside from 'use-onclickoutside';
 
 import { Divider, IconBase, ToggleSwitch } from 'app/atoms';
 import { useAssetsSegmentControlRef } from 'app/atoms/AssetsSegmentControl';
-import { EvmNetworkLogo, NetworkLogoFallback } from 'app/atoms/NetworkLogo';
-import { TezosNetworkLogo } from 'app/atoms/NetworksLogos';
-import { ReactComponent as Browse } from 'app/icons/base/browse.svg';
-import { ReactComponent as CompactDown } from 'app/icons/base/compact_down.svg';
+import { NetworkSelectButton } from 'app/atoms/NetworkSelectButton';
 import { ReactComponent as CleanIcon } from 'app/icons/base/x_circle_fill.svg';
 import { ContentContainer } from 'app/layouts/containers';
 import { useContentPaperRef } from 'app/layouts/PageLayout';
@@ -21,14 +18,10 @@ import {
   setTokensHideZeroBalanceFilterOption
 } from 'app/store/assets-filter-options/actions';
 import { useAssetsFilterOptionsSelector } from 'app/store/assets-filter-options/selectors';
-import { AssetsFilterOptionsInitialState, FilterChain } from 'app/store/assets-filter-options/state';
-import { T } from 'lib/i18n';
-import { TEZOS_MAINNET_CHAIN_ID } from 'lib/temple/types';
+import { AssetsFilterOptionsInitialState } from 'app/store/assets-filter-options/state';
+import { NetworkSelectModal } from 'app/templates/NetworkSelectModal';
+import { T, TID } from 'lib/i18n';
 import { useBooleanState } from 'lib/ui/hooks';
-import { useAllEvmChains, useAllTezosChains } from 'temple/front';
-import { TempleChainKind } from 'temple/types';
-
-import { NetworksModal } from './NetworksModal';
 
 interface AssetsFilterOptionsProps {
   filterButtonRef: RefObject<HTMLButtonElement>;
@@ -105,13 +98,9 @@ export const AssetsFilterOptions = memo<AssetsFilterOptionsProps>(({ filterButto
         )}
       </div>
 
-      <NetworkSelect filterChain={filterChain} onClick={setNetworksModalOpen} />
+      <NetworkSelectButton selectedChain={filterChain} onClick={setNetworksModalOpen} />
 
-      <p className="text-font-description-bold mt-4 pt-1 pb-2 pl-1">
-        <T id="tokensList" />
-      </p>
-
-      <div className="rounded-lg shadow-bottom border-0.5 border-transparent">
+      <TogglesContainer labelTitle="tokensList">
         <div className="flex justify-between items-center p-3">
           <span className="text-font-medium-bold">
             <T id="hideZeroBalance" />
@@ -133,13 +122,9 @@ export const AssetsFilterOptions = memo<AssetsFilterOptionsProps>(({ filterButto
             onChange={handleTokensGroupByNetworkChange}
           />
         </div>
-      </div>
+      </TogglesContainer>
 
-      <p className="text-font-description-bold mt-4 pt-1 pb-2 pl-1">
-        <T id="collectiblesView" />
-      </p>
-
-      <div className="rounded-lg shadow-bottom border-0.5 border-transparent">
+      <TogglesContainer labelTitle="collectiblesView">
         <div className="flex justify-between items-center p-3">
           <span className="text-font-medium-bold">
             <T id="blurSensitiveContent" />
@@ -157,66 +142,27 @@ export const AssetsFilterOptions = memo<AssetsFilterOptionsProps>(({ filterButto
 
           <ToggleSwitch checked={collectiblesListOptions.showInfo} onChange={handleCollectiblesShowInfoChange} />
         </div>
-      </div>
+      </TogglesContainer>
 
-      <NetworksModal opened={networksModalOpened} onRequestClose={setNetworksModalClosed} />
+      <NetworkSelectModal
+        opened={networksModalOpened}
+        selectedNetwork={filterChain}
+        onRequestClose={setNetworksModalClosed}
+      />
     </ContentContainer>
   );
 });
 
-interface NetworkSelectProps {
-  filterChain: FilterChain;
-  onClick: EmptyFn;
+interface TogglesContainerProps extends PropsWithChildren {
+  labelTitle: TID;
 }
 
-const NetworkSelect = memo<NetworkSelectProps>(({ filterChain, onClick }) => {
-  const tezosChains = useAllTezosChains();
-  const evmChains = useAllEvmChains();
+const TogglesContainer: FC<TogglesContainerProps> = ({ labelTitle, children }) => (
+  <>
+    <p className="text-font-description-bold mt-4 pt-1 pb-2 pl-1">
+      <T id={labelTitle} />
+    </p>
 
-  const children: JSX.Element = useMemo(() => {
-    if (!filterChain) {
-      return (
-        <>
-          <IconBase Icon={Browse} className="text-primary" size={16} />
-          <span className="text-font-medium-bold">
-            <T id="allNetworks" />
-          </span>
-        </>
-      );
-    }
-
-    if (filterChain.kind === TempleChainKind.Tezos) {
-      const networkName = tezosChains[filterChain.chainId].name;
-
-      return (
-        <>
-          {filterChain.chainId === TEZOS_MAINNET_CHAIN_ID ? (
-            <TezosNetworkLogo size={24} />
-          ) : (
-            <NetworkLogoFallback networkName={networkName} />
-          )}
-          <span className="text-font-medium-bold">{networkName}</span>
-        </>
-      );
-    }
-
-    const networkName = evmChains[filterChain.chainId].name;
-
-    return (
-      <>
-        <EvmNetworkLogo networkName={networkName} chainId={filterChain.chainId} size={24} imgClassName="p-0.5" />
-        <span className="text-font-medium-bold">{networkName}</span>
-      </>
-    );
-  }, [filterChain, evmChains, tezosChains]);
-
-  return (
-    <div
-      className="cursor-pointer flex justify-between items-center p-3 rounded-lg shadow-bottom border-0.5 border-transparent hover:border-lines"
-      onClick={onClick}
-    >
-      <div className="flex items-center gap-2">{children}</div>
-      <IconBase Icon={CompactDown} className="text-primary" size={16} />
-    </div>
-  );
-});
+    <div className="rounded-lg shadow-bottom border-0.5 border-transparent">{children}</div>
+  </>
+);

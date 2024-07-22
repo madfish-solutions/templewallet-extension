@@ -8,14 +8,6 @@ import { EvmNativeTokenMetadata } from 'lib/metadata/types';
 import { EvmChain } from 'temple/front';
 import { MAX_MEMOIZED_TOOLKITS } from 'temple/misc';
 
-export const getReadOnlyEvm = memoizee(
-  (rpcUrl: string) =>
-    createPublicClient({
-      transport: http(rpcUrl)
-    }),
-  { max: MAX_MEMOIZED_TOOLKITS }
-);
-
 export const getReadOnlyEvmForNetwork = memoizee(
   (network: EvmChain) =>
     createPublicClient({

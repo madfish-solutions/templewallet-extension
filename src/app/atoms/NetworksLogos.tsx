@@ -18,7 +18,7 @@ interface NetworkLogoBaseProps {
 
 type TezosNetworkLogoProps = Omit<NetworkLogoBaseProps, 'src' | 'alt'>;
 
-export const TezosNetworkLogo = memo<TezosNetworkLogoProps>(props => (
+export const TezNetworkLogo = memo<TezosNetworkLogoProps>(props => (
   <NetworkLogoBase src={TezosIconSrc} alt="Tezos" {...props} />
 ));
 
