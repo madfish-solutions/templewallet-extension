@@ -27,7 +27,7 @@ export const AccountItem: React.FC<AccountItemProps> = ({ account, selected, gas
   const classNameMemo = useMemo(
     () =>
       classNames(
-        'block w-full p-2 flex items-center',
+        'w-full p-2 flex items-center',
         'text-white text-shadow-black overflow-hidden',
         'transition ease-in-out duration-200',
         selected && 'shadow',
@@ -58,7 +58,7 @@ export const AccountItem: React.FC<AccountItemProps> = ({ account, selected, gas
           <HashShortView hash={publicKeyHash} />
         </div>
 
-        <div className="flex flex-wrap items-center">
+        <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
           <Balance address={publicKeyHash}>
             {bal => (
               <span className="text-xs leading-tight flex items-baseline text-gray-500">
