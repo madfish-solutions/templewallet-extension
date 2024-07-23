@@ -5,10 +5,10 @@ import useOnClickOutside from 'use-onclickoutside';
 import { useAssetsSegmentControlRef } from 'app/atoms/AssetsSegmentControl';
 import { useContentPaperRef } from 'app/layouts/PageLayout';
 
-import { useManageAssetsState } from './use-manage-assets-state';
+import { useAssetsViewState } from './use-assets-view-state';
 
 export const useManageAssetsClickOutsideLogic = () => {
-  const { manageActive, setManageInactive } = useManageAssetsState();
+  const { manageActive, setManageInactive } = useAssetsViewState();
 
   const stickyBarRef = useRef<HTMLDivElement>(null);
   const filterButtonRef = useRef<HTMLButtonElement>(null);

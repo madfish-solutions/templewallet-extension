@@ -1,8 +1,8 @@
 import React, { FC, useMemo } from 'react';
 
 import { useEvmChainAccountTokensListingLogic } from 'app/hooks/tokens-listing-logic/use-evm-chain-account-tokens-listing-logic';
+import { useAssetsViewState } from 'app/hooks/use-assets-view-state';
 import { useLoadPartnersPromo } from 'app/hooks/use-load-partners-promo';
-import { useManageAssetsState } from 'app/hooks/use-manage-assets-state';
 import { useTokensListOptionsSelector } from 'app/store/assets-filter-options/selectors';
 import { PartnersPromotion, PartnersPromotionVariant } from 'app/templates/partners-promotion';
 import { OptimalPromoVariantEnum } from 'lib/apis/optimal';
@@ -18,7 +18,7 @@ interface EvmChainTokensTabProps {
 export const EvmChainTokensTab: FC<EvmChainTokensTabProps> = ({ chainId, publicKeyHash }) => {
   const { hideZeroBalance } = useTokensListOptionsSelector();
 
-  const { manageActive } = useManageAssetsState();
+  const { manageActive } = useAssetsViewState();
 
   const { paginatedSlugs, isSyncing, loadNext, searchValue, setSearchValue } = useEvmChainAccountTokensListingLogic(
     publicKeyHash,

@@ -1,7 +1,7 @@
 import React, { memo, useMemo } from 'react';
 
 import { useTezosAccountCollectiblesListingLogic } from 'app/hooks/collectibles-listing-logic/use-tezos-account-collectibles-listing-logic';
-import { useManageAssetsState } from 'app/hooks/use-manage-assets-state';
+import { useAssetsViewState } from 'app/hooks/use-assets-view-state';
 import { useCollectiblesListOptionsSelector } from 'app/store/assets-filter-options/selectors';
 import { fromChainAssetSlug } from 'lib/assets/utils';
 
@@ -14,7 +14,7 @@ interface TezosCollectiblesTabProps {
 
 export const TezosCollectiblesTab = memo<TezosCollectiblesTabProps>(({ publicKeyHash }) => {
   const { blur, showInfo } = useCollectiblesListOptionsSelector();
-  const { manageActive } = useManageAssetsState();
+  const { manageActive } = useAssetsViewState();
 
   const { isInSearchMode, paginatedSlugs, isSyncing, loadNext, searchValue, setSearchValue } =
     useTezosAccountCollectiblesListingLogic(publicKeyHash, manageActive);

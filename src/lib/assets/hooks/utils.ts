@@ -1,9 +1,8 @@
 import { isDefined } from '@rnw-community/shared';
 
 import type { StoredAssetStatus } from 'app/store/tezos/assets/state';
-
-import { isTruthy } from '../../utils';
-import { ALL_PREDEFINED_METADATAS_RECORD } from '../known-tokens';
+import { ALL_PREDEFINED_METADATAS_RECORD } from 'lib/assets/known-tokens';
+import { isTruthy } from 'lib/utils';
 
 const isPredefinedAsset = (assetSlug?: string) =>
   isTruthy(assetSlug) && isDefined(ALL_PREDEFINED_METADATAS_RECORD[assetSlug]);

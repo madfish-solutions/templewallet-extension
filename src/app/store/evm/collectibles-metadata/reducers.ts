@@ -1,7 +1,9 @@
 import { createReducer } from '@reduxjs/toolkit';
+import { persistReducer } from 'redux-persist';
 import { getAddress } from 'viem';
 
 import { toTokenSlug } from 'lib/assets';
+import { storageConfig } from 'lib/store';
 import { isProperCollectibleMetadata } from 'lib/utils/evm.utils';
 
 import { processLoadedEvmCollectiblesMetadataAction, putEvmCollectiblesMetadataAction } from './actions';
@@ -10,7 +12,7 @@ import { buildEvmCollectibleMetadataFromFetched } from './utils';
 
 // TODO: figure out how to get rid of unused metadata
 
-export const evmCollectiblesMetadataReducer = createReducer<EvmCollectiblesMetadataState>(
+const evmCollectiblesMetadataReducer = createReducer<EvmCollectiblesMetadataState>(
   evmCollectiblesMetadataInitialState,
   builder => {
     builder.addCase(processLoadedEvmCollectiblesMetadataAction, ({ metadataRecord }, { payload }) => {
@@ -49,4 +51,12 @@ export const evmCollectiblesMetadataReducer = createReducer<EvmCollectiblesMetad
       }
     });
   }
+);
+
+export const evmCollectiblesMetadataPersistedReducer = persistReducer(
+  {
+    key: 'root.evmCollectiblesMetadata',
+    ...storageConfig
+  },
+  evmCollectiblesMetadataReducer
 );

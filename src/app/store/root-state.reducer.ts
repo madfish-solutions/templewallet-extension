@@ -6,14 +6,14 @@ import { abTestingReducer } from './ab-testing/reducers';
 import { advertisingReducer } from './advertising/reducers';
 import { assetsFilterOptionsReducer } from './assets-filter-options/reducer';
 import { buyWithCreditCardReducer } from './buy-with-credit-card/reducers';
-import { currencyReducer } from './currency/reducers';
+import { currencyPersistedReducer } from './currency/reducers';
 import { dAppsReducer } from './d-apps/reducers';
-import { evmAssetsReducer } from './evm/assets/reducer';
+import { evmAssetsPersistedReducer } from './evm/assets/reducer';
 import { evmBalancesReducer } from './evm/balances/reducers';
-import { evmCollectiblesMetadataReducer } from './evm/collectibles-metadata/reducers';
+import { evmCollectiblesMetadataPersistedReducer } from './evm/collectibles-metadata/reducers';
 import { evmLoadingReducer } from './evm/reducer';
-import { evmTokensExchangeRatesReducer } from './evm/tokens-exchange-rates/reducers';
-import { evmTokensMetadataReducer } from './evm/tokens-metadata/reducers';
+import { evmTokensExchangeRatesPersistedReducer } from './evm/tokens-exchange-rates/reducers';
+import { evmTokensMetadataPersistedReducer } from './evm/tokens-metadata/reducers';
 import { newsletterReducers } from './newsletter/newsletter-reducers';
 import { partnersPromotionPersistedReducer } from './partners-promotion/reducers';
 import { settingsPersistedReducer } from './settings/reducers';
@@ -27,7 +27,7 @@ import { tokensMetadataReducer } from './tezos/tokens-metadata/reducers';
 const rootStateReducersMap = {
   settings: settingsPersistedReducer,
   advertising: advertisingReducer,
-  currency: currencyReducer,
+  currency: currencyPersistedReducer,
   notifications: notificationsReducer,
   dApps: dAppsReducer,
   swap: swapReducer,
@@ -41,11 +41,11 @@ const rootStateReducersMap = {
   collectibles: collectiblesPersistedReducer,
   newsletter: newsletterReducers,
   evmLoading: evmLoadingReducer,
-  evmAssets: evmAssetsReducer,
+  evmAssets: evmAssetsPersistedReducer,
   evmBalances: evmBalancesReducer,
-  evmTokensMetadata: evmTokensMetadataReducer,
-  evmTokensExchangeRates: evmTokensExchangeRatesReducer,
-  evmCollectiblesMetadata: evmCollectiblesMetadataReducer,
+  evmTokensMetadata: evmTokensMetadataPersistedReducer,
+  evmTokensExchangeRates: evmTokensExchangeRatesPersistedReducer,
+  evmCollectiblesMetadata: evmCollectiblesMetadataPersistedReducer,
   assetsFilterOptions: assetsFilterOptionsReducer
 };
 

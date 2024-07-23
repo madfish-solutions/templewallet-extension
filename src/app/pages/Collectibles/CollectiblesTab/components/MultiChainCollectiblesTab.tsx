@@ -1,7 +1,7 @@
 import React, { memo, useMemo } from 'react';
 
 import { useAccountCollectiblesListingLogic } from 'app/hooks/collectibles-listing-logic/use-account-collectibles-listing-logic';
-import { useManageAssetsState } from 'app/hooks/use-manage-assets-state';
+import { useAssetsViewState } from 'app/hooks/use-assets-view-state';
 import { useCollectiblesListOptionsSelector } from 'app/store/assets-filter-options/selectors';
 import { fromChainAssetSlug } from 'lib/assets/utils';
 import { TempleChainKind } from 'temple/types';
@@ -18,7 +18,7 @@ export const MultiChainCollectiblesTab = memo<MultiChainCollectiblesTabProps>(
   ({ accountTezAddress, accountEvmAddress }) => {
     const { blur, showInfo } = useCollectiblesListOptionsSelector();
 
-    const { manageActive } = useManageAssetsState();
+    const { manageActive } = useAssetsViewState();
 
     const { isInSearchMode, paginatedSlugs, isSyncing, loadNext, searchValue, setSearchValue } =
       useAccountCollectiblesListingLogic(accountTezAddress, accountEvmAddress, manageActive);

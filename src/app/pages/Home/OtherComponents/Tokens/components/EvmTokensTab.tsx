@@ -3,8 +3,8 @@ import React, { FC, useMemo } from 'react';
 import clsx from 'clsx';
 
 import { useEvmAccountTokensListingLogic } from 'app/hooks/tokens-listing-logic/use-evm-account-tokens-listing-logic';
+import { useAssetsViewState } from 'app/hooks/use-assets-view-state';
 import { useLoadPartnersPromo } from 'app/hooks/use-load-partners-promo';
-import { useManageAssetsState } from 'app/hooks/use-manage-assets-state';
 import { useTokensListOptionsSelector } from 'app/store/assets-filter-options/selectors';
 import { PartnersPromotion, PartnersPromotionVariant } from 'app/templates/partners-promotion';
 import { OptimalPromoVariantEnum } from 'lib/apis/optimal';
@@ -20,7 +20,7 @@ interface EvmTokensTabProps {
 export const EvmTokensTab: FC<EvmTokensTabProps> = ({ publicKeyHash }) => {
   const { hideZeroBalance, groupByNetwork } = useTokensListOptionsSelector();
 
-  const { manageActive } = useManageAssetsState();
+  const { manageActive } = useAssetsViewState();
 
   const { paginatedSlugs, isSyncing, loadNext, searchValue, setSearchValue } = useEvmAccountTokensListingLogic(
     publicKeyHash,

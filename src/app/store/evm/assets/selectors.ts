@@ -1,6 +1,5 @@
+import { useSelector } from 'app/store/root-state.selector';
 import { EMPTY_FROZEN_OBJ } from 'lib/utils';
-
-import { useSelector } from '../../root-state.selector';
 
 import { AssetSlugStoredAssetRecord, ChainIdTokenSlugsAssetsRecord, StoredEvmAsset } from './state';
 
@@ -19,7 +18,7 @@ export const useStoredEvmTokenSelector = (
   publicKeyHash: HexString,
   chainId: number,
   assetSlug: string
-): StoredEvmAsset | undefined => useRawEvmChainAccountTokensSelector(publicKeyHash, chainId)[assetSlug];
+): StoredEvmAsset | undefined => useSelector(state => state.evmAssets.tokens[publicKeyHash]?.[chainId]?.[assetSlug]);
 
 export const useEvmStoredCollectiblesRecordSelector = () => useSelector(state => state.evmAssets.collectibles);
 
@@ -36,4 +35,5 @@ export const useStoredEvmCollectibleSelector = (
   publicKeyHash: HexString,
   chainId: number,
   assetSlug: string
-): StoredEvmAsset | undefined => useRawEvmChainAccountCollectiblesSelector(publicKeyHash, chainId)[assetSlug];
+): StoredEvmAsset | undefined =>
+  useSelector(state => state.evmAssets.collectibles[publicKeyHash]?.[chainId]?.[assetSlug]);

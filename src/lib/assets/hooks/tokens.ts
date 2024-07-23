@@ -16,14 +16,13 @@ import {
 import { getAccountAssetsStoreKey } from 'app/store/tezos/assets/utils';
 import { useAllAccountBalancesSelector, useBalancesAtomicRecordSelector } from 'app/store/tezos/balances/selectors';
 import { getKeyForBalancesRecord } from 'app/store/tezos/balances/utils';
+import { PREDEFINED_TOKENS_METADATA } from 'lib/assets/known-tokens';
+import type { AccountAsset } from 'lib/assets/types';
+import { toChainAssetSlug, tokenToSlug } from 'lib/assets/utils';
 import { useMemoWithCompare } from 'lib/ui/hooks';
+import { EMPTY_FROZEN_OBJ } from 'lib/utils';
 import { useEnabledEvmChains, useEnabledTezosChains } from 'temple/front';
 import { TempleChainKind } from 'temple/types';
-
-import { EMPTY_FROZEN_OBJ } from '../../utils';
-import { PREDEFINED_TOKENS_METADATA } from '../known-tokens';
-import type { AccountAsset } from '../types';
-import { toChainAssetSlug, tokenToSlug } from '../utils';
 
 import { getAssetStatus, isAssetStatusIdle } from './utils';
 

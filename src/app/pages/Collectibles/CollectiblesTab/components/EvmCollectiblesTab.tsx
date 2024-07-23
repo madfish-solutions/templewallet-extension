@@ -1,7 +1,7 @@
 import React, { memo, useMemo } from 'react';
 
 import { useEvmAccountCollectiblesListingLogic } from 'app/hooks/collectibles-listing-logic/use-evm-account-collectibles-listing-logic';
-import { useManageAssetsState } from 'app/hooks/use-manage-assets-state';
+import { useAssetsViewState } from 'app/hooks/use-assets-view-state';
 import { useCollectiblesListOptionsSelector } from 'app/store/assets-filter-options/selectors';
 import { fromChainAssetSlug } from 'lib/assets/utils';
 
@@ -14,7 +14,7 @@ interface EvmCollectiblesTabProps {
 
 export const EvmCollectiblesTab = memo<EvmCollectiblesTabProps>(({ publicKeyHash }) => {
   const { showInfo } = useCollectiblesListOptionsSelector();
-  const { manageActive } = useManageAssetsState();
+  const { manageActive } = useAssetsViewState();
 
   const { paginatedSlugs, isSyncing, loadNext, searchValue, setSearchValue } = useEvmAccountCollectiblesListingLogic(
     publicKeyHash,

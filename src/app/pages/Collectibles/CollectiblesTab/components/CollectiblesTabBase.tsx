@@ -6,9 +6,8 @@ import { IconButton } from 'app/atoms/IconButton';
 import { ManageActiveTip } from 'app/atoms/ManageActiveTip';
 import { ScrollBackUpButton } from 'app/atoms/ScrollBackUpButton';
 import { SimpleInfiniteScroll } from 'app/atoms/SimpleInfiniteScroll';
-import { useAssetsFilterOptionsState } from 'app/hooks/use-assets-filter-options-state';
+import { useAssetsViewState } from 'app/hooks/use-assets-view-state';
 import { useManageAssetsClickOutsideLogic } from 'app/hooks/use-manage-assets-click-outside-logic';
-import { useManageAssetsState } from 'app/hooks/use-manage-assets-state';
 import { ReactComponent as ManageIcon } from 'app/icons/base/manage.svg';
 import { ContentContainer, StickyBar } from 'app/layouts/containers';
 import { AssetsSelectors } from 'app/pages/Home/OtherComponents/Assets.selectors';
@@ -36,8 +35,8 @@ export const CollectiblesTabBase: FC<CollectiblesTabBaseProps> = ({
   isSyncing,
   isInSearchMode = false
 }) => {
-  const { manageActive, toggleManageActive } = useManageAssetsState();
-  const { filtersOpened, setFiltersClosed, toggleFiltersOpened } = useAssetsFilterOptionsState();
+  const { manageActive, toggleManageActive, filtersOpened, setFiltersClosed, toggleFiltersOpened } =
+    useAssetsViewState();
 
   const { stickyBarRef, filterButtonRef, manageButtonRef, searchInputContainerRef, containerRef } =
     useManageAssetsClickOutsideLogic();

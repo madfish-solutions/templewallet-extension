@@ -8,6 +8,7 @@ import {
   useRawEvmAccountBalancesSelector,
   useRawEvmChainAccountBalancesSelector
 } from 'app/store/evm/balances/selectors';
+import { useEvmCollectibleMetadataSelector } from 'app/store/evm/collectibles-metadata/selectors';
 import { useEvmBalancesLoadingSelector } from 'app/store/evm/selectors';
 import {
   useEvmTokenMetadataSelector,
@@ -18,25 +19,23 @@ import {
   useAllAccountBalancesEntitySelector,
   useBalancesAtomicRecordSelector
 } from 'app/store/tezos/balances/selectors';
+import { getKeyForBalancesRecord } from 'app/store/tezos/balances/utils';
 import { isSupportedChainId } from 'lib/apis/temple/endpoints/evm/api.utils';
 import { isKnownChainId } from 'lib/apis/tzkt';
+import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
 import { fetchEvmRawBalance as fetchEvmRawBalanceFromBlockchain } from 'lib/evm/on-chain/balance';
+import { EvmAssetStandard } from 'lib/evm/types';
+import { EVM_BALANCES_SYNC_INTERVAL } from 'lib/fixed-times';
 import { useTezosAssetMetadata, useGetChainTokenOrGasMetadata, useGetTokenOrGasMetadata } from 'lib/metadata';
 import { EvmTokenMetadata } from 'lib/metadata/types';
 import { useTypedSWR } from 'lib/swr';
 import { atomsToTokens } from 'lib/temple/helpers';
 import { useInterval } from 'lib/ui/hooks';
+import { isEvmNativeTokenSlug } from 'lib/utils/evm.utils';
 import { useAccountAddressForEvm, useAccountAddressForTezos, useAllEvmChains, useOnTezosBlock } from 'temple/front';
 import { useEvmChainByChainId } from 'temple/front/chains';
 import { TezosNetworkEssentials } from 'temple/networks';
 import { getReadOnlyTezos } from 'temple/tezos';
-
-import { useEvmCollectibleMetadataSelector } from '../../app/store/evm/collectibles-metadata/selectors';
-import { getKeyForBalancesRecord } from '../../app/store/tezos/balances/utils';
-import { EVM_TOKEN_SLUG } from '../assets/defaults';
-import { EvmAssetStandard } from '../evm/types';
-import { EVM_BALANCES_SYNC_INTERVAL } from '../fixed-times';
-import { isEvmNativeTokenSlug } from '../utils/evm.utils';
 
 import { fetchRawBalance as fetchRawBalanceFromBlockchain } from './fetch';
 
@@ -48,12 +47,15 @@ export const useGetEvmTokenBalanceWithDecimals = (publicKeyHash: HexString) => {
   return useCallback(
     (chainId: number, slug: string) => {
       const rawBalance = rawBalances[chainId]?.[slug] as string | undefined;
+
+      if (!rawBalance) return;
+
       const metadata =
         slug === EVM_TOKEN_SLUG
           ? evmChains[chainId]?.currency
           : (tokensMetadata[chainId]?.[slug] as EvmTokenMetadata | undefined);
 
-      return rawBalance && metadata?.decimals ? atomsToTokens(rawBalance, metadata.decimals) : undefined;
+      return metadata?.decimals ? atomsToTokens(rawBalance, metadata.decimals) : undefined;
     },
     [evmChains, rawBalances, tokensMetadata]
   );
@@ -68,9 +70,12 @@ export const useGetTezosAccountTokenOrGasBalanceWithDecimals = (publicKeyHash: s
       const key = getKeyForBalancesRecord(publicKeyHash, chainId);
 
       const rawBalance = balancesAtomicRecord[key]?.data[slug] as string | undefined;
+
+      if (!rawBalance) return;
+
       const metadata = getChainMetadata(chainId, slug);
 
-      return rawBalance && metadata ? atomsToTokens(rawBalance, metadata.decimals) : undefined;
+      return metadata?.decimals ? atomsToTokens(rawBalance, metadata.decimals) : undefined;
     },
     [balancesAtomicRecord, getChainMetadata, publicKeyHash]
   );
@@ -83,9 +88,12 @@ export const useGetTezosChainAccountTokenOrGasBalanceWithDecimals = (publicKeyHa
   return useCallback(
     (slug: string) => {
       const rawBalance = rawBalances[slug] as string | undefined;
+
+      if (!rawBalance) return;
+
       const metadata = getMetadata(slug);
 
-      return rawBalance && metadata ? atomsToTokens(rawBalance, metadata.decimals) : undefined;
+      return metadata?.decimals ? atomsToTokens(rawBalance, metadata.decimals) : undefined;
     },
     [rawBalances, getMetadata]
   );

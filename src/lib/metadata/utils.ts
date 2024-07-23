@@ -18,15 +18,15 @@ export function getAssetSymbol(metadata: EvmTokenMetadata | AssetMetadataBase | 
 }
 
 export function getTokenName(metadata: EvmTokenMetadata | AssetMetadataBase | nullish) {
-  return metadata?.name ? metadata.name : 'Unknown Token';
+  return metadata?.name || 'Unknown Token';
 }
 
 export function getCollectibleName(metadata: EvmCollectibleMetadata | nullish) {
-  return metadata?.collectibleName ? metadata.collectibleName : 'Unknown Collectible';
+  return metadata?.collectibleName || 'Unknown Collectible';
 }
 
 export function getCollectionName(metadata: EvmCollectibleMetadata | nullish) {
-  return metadata?.name ? metadata.name : 'Unknown Collection';
+  return metadata?.name || 'Unknown Collection';
 }
 
 /** Empty string for `artifactUri` counts */

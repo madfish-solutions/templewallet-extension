@@ -1,11 +1,12 @@
 import { createReducer } from '@reduxjs/toolkit';
+import { persistReducer } from 'redux-persist';
 
-import { createEntity } from 'lib/store';
+import { createEntity, storageConfig } from 'lib/store';
 
 import { loadExchangeRates } from './actions';
 import { currencyInitialState, CurrencyState } from './state';
 
-export const currencyReducer = createReducer<CurrencyState>(currencyInitialState, builder => {
+const currencyReducer = createReducer<CurrencyState>(currencyInitialState, builder => {
   builder.addCase(loadExchangeRates.submit, state => ({
     ...state,
     usdToTokenRates: createEntity(state.usdToTokenRates.data, true),
@@ -25,3 +26,11 @@ export const currencyReducer = createReducer<CurrencyState>(currencyInitialState
     btcToUsdRate: createEntity(state.btcToUsdRate.data, false, payload)
   }));
 });
+
+export const currencyPersistedReducer = persistReducer(
+  {
+    key: 'root.currency',
+    ...storageConfig
+  },
+  currencyReducer
+);

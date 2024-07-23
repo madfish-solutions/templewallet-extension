@@ -1,6 +1,5 @@
+import { useSelector } from 'app/store/root-state.selector';
 import { EvmTokenMetadata } from 'lib/metadata/types';
-
-import { useSelector } from '../../root-state.selector';
 
 export const useEvmTokensMetadataRecordSelector = () =>
   useSelector(({ evmTokensMetadata }) => evmTokensMetadata.metadataRecord);

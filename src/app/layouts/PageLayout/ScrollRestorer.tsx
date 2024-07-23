@@ -1,4 +1,4 @@
-import React, { FC, forwardRef, useImperativeHandle, useLayoutEffect, useRef } from 'react';
+import React, { forwardRef, useImperativeHandle, useLayoutEffect, useRef } from 'react';
 
 import * as Woozie from 'lib/woozie';
 
@@ -7,7 +7,7 @@ interface Props extends React.HTMLAttributes<HTMLDivElement> {}
 let SCROLL_RESTORATION = new Map<string, number>();
 const MEMOIZED_SCROLLS_LIMIT = 10;
 
-export const ScrollRestorer: FC<PropsWithChildren<Props>> = forwardRef<HTMLDivElement, Props>((props, ref) => {
+export const ScrollRestorer = forwardRef<HTMLDivElement, PropsWithChildren<Props>>((props, ref) => {
   const { trigger, href } = Woozie.useLocation();
 
   const localRef = useRef<HTMLDivElement>(null);

@@ -1,8 +1,10 @@
 import { createReducer } from '@reduxjs/toolkit';
+import { persistReducer } from 'redux-persist';
 import { getAddress } from 'viem';
 
 import { isNativeTokenAddress } from 'lib/apis/temple/endpoints/evm/api.utils';
 import { toTokenSlug } from 'lib/assets';
+import { storageConfig } from 'lib/store';
 import { isPositiveCollectibleBalance, isPositiveTokenBalance } from 'lib/utils/evm.utils';
 
 import {
@@ -15,7 +17,7 @@ import {
 import { EvmAssetsInitialState, EvmAssetsStateInterface } from './state';
 import { getChainRecords } from './utils';
 
-export const evmAssetsReducer = createReducer<EvmAssetsStateInterface>(EvmAssetsInitialState, builder => {
+const evmAssetsReducer = createReducer<EvmAssetsStateInterface>(EvmAssetsInitialState, builder => {
   builder.addCase(processLoadedEvmAssetsAction, ({ tokens, collectibles }, { payload }) => {
     const { publicKeyHash, chainId, data } = payload;
 
@@ -75,7 +77,7 @@ export const evmAssetsReducer = createReducer<EvmAssetsStateInterface>(EvmAssets
 
     const chainTokens = getChainRecords(tokens, publicKeyHash, chainId);
 
-    chainTokens[assetSlug] = { status: 'enabled' };
+    chainTokens[assetSlug] = { status: 'enabled', manual: true };
   });
 
   builder.addCase(putNewEvmCollectibleAction, ({ collectibles }, { payload }) => {
@@ -83,6 +85,14 @@ export const evmAssetsReducer = createReducer<EvmAssetsStateInterface>(EvmAssets
 
     const chainCollectibles = getChainRecords(collectibles, publicKeyHash, chainId);
 
-    chainCollectibles[assetSlug] = { status: 'enabled' };
+    chainCollectibles[assetSlug] = { status: 'enabled', manual: true };
   });
 });
+
+export const evmAssetsPersistedReducer = persistReducer(
+  {
+    key: 'root.evmAssets',
+    ...storageConfig
+  },
+  evmAssetsReducer
+);

@@ -2,7 +2,7 @@ import React, { FC, useCallback, useMemo, useState } from 'react';
 
 import { useDebounce } from 'use-debounce';
 
-import { StayActiveIconButton } from 'app/atoms/IconButton';
+import { IconButton } from 'app/atoms/IconButton';
 import { StyledButton } from 'app/atoms/StyledButton';
 import { ReactComponent as PlusIcon } from 'app/icons/base/plus.svg';
 import { EmptyNetworksSearch } from 'app/templates/EmptyNetworksSearch';
@@ -64,7 +64,7 @@ export const SelectNetworkPage: FC<SelectNetworkPageProps> = ({ selectedNetwork,
       <div className="flex gap-x-2 p-4">
         <SearchBarField value={searchValue} onValueChange={setSearchValue} />
 
-        <StayActiveIconButton Icon={PlusIcon} color="blue" onClick={() => void navigate('settings/networks')} />
+        <IconButton Icon={PlusIcon} color="blue" onClick={() => void navigate('settings/networks')} />
       </div>
 
       <div className="px-4 flex-1 flex flex-col overflow-y-auto">

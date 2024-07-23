@@ -4,16 +4,15 @@ import clsx from 'clsx';
 
 import Identicon from 'app/atoms/Identicon';
 import { EvmNetworkLogo, NetworkLogoFallback } from 'app/atoms/NetworkLogo';
+import { TezNetworkLogo } from 'app/atoms/NetworksLogos';
 import { ReactComponent as CollectiblePlaceholder } from 'app/icons/collectible-placeholder.svg';
 import { useEvmTokenMetadataSelector } from 'app/store/evm/tokens-metadata/selectors';
 import { AssetMetadataBase, getAssetSymbol, isCollectible, useTezosAssetMetadata } from 'lib/metadata';
 import { EvmTokenMetadata } from 'lib/metadata/types';
+import { TEZOS_MAINNET_CHAIN_ID } from 'lib/temple/types';
 import useTippy, { UseTippyOptions } from 'lib/ui/useTippy';
 import { isEvmNativeTokenSlug } from 'lib/utils/evm.utils';
 import { useEvmChainByChainId, useTezosChainByChainId } from 'temple/front/chains';
-
-import { TEZOS_MAINNET_CHAIN_ID } from '../../lib/temple/types';
-import { TezNetworkLogo } from '../atoms/NetworksLogos';
 
 import { TezosAssetImage, AssetImageBaseProps, EvmAssetImage } from './AssetImage';
 

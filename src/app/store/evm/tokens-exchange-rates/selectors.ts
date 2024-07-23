@@ -1,8 +1,7 @@
+import { useSelector } from 'app/store/root-state.selector';
 import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
 import { ETHEREUM_MAINNET_CHAIN_ID } from 'lib/temple/types';
 import { EMPTY_FROZEN_OBJ } from 'lib/utils';
-
-import { useSelector } from '../../root-state.selector';
 
 export const useEvmUsdToTokenRatesSelector = () =>
   useSelector(({ evmTokensExchangeRates }) => evmTokensExchangeRates.usdToTokenRates);

@@ -57,7 +57,7 @@ export const PageModal = memo<PropsWithChildren<Props>>(({ title, opened, onRequ
           <div className="w-12" />
         )}
 
-        <div className="flex-1 text-center text-base leading-5 font-semibold">{title}</div>
+        <div className="flex-1 text-center text-font-regular-bold">{title}</div>
 
         <div className="w-12 flex justify-end">
           <IconBase Icon={ExIcon} size={16} className="text-grey-2 cursor-pointer" onClick={onRequestClose} />

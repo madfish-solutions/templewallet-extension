@@ -1,6 +1,5 @@
+import { useSelector } from 'app/store/root-state.selector';
 import { EMPTY_FROZEN_OBJ } from 'lib/utils';
-
-import { useSelector } from '../../root-state.selector';
 
 import { AssetSlugBalanceRecord, ChainIdTokenSlugsBalancesRecord } from './state';
 

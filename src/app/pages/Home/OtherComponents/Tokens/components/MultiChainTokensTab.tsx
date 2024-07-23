@@ -3,8 +3,8 @@ import React, { memo, useMemo } from 'react';
 import clsx from 'clsx';
 
 import { useAccountTokensListingLogic } from 'app/hooks/tokens-listing-logic/use-account-tokens-listing-logic';
+import { useAssetsViewState } from 'app/hooks/use-assets-view-state';
 import { useLoadPartnersPromo } from 'app/hooks/use-load-partners-promo';
-import { useManageAssetsState } from 'app/hooks/use-manage-assets-state';
 import { useTokensListOptionsSelector } from 'app/store/assets-filter-options/selectors';
 import { PartnersPromotion, PartnersPromotionVariant } from 'app/templates/partners-promotion';
 import { OptimalPromoVariantEnum } from 'lib/apis/optimal';
@@ -23,7 +23,7 @@ interface MultiChainTokensTabProps {
 export const MultiChainTokensTab = memo<MultiChainTokensTabProps>(({ accountTezAddress, accountEvmAddress }) => {
   const { hideZeroBalance, groupByNetwork } = useTokensListOptionsSelector();
 
-  const { manageActive } = useManageAssetsState();
+  const { manageActive } = useAssetsViewState();
 
   const tezosChains = useAllTezosChains();
 

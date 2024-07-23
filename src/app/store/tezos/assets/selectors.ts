@@ -1,6 +1,5 @@
+import { useSelector } from 'app/store/root-state.selector';
 import { EMPTY_FROZEN_OBJ } from 'lib/utils';
-
-import { useSelector } from '../../root-state.selector';
 
 import { StoredTezosAsset } from './state';
 import { getAccountAssetsStoreKey } from './utils';
@@ -16,7 +15,8 @@ export const useStoredTezosTokenSelector = (
   account: string,
   chainId: string,
   assetSlug: string
-): StoredTezosAsset | undefined => useChainAccountTokensSelector(account, chainId)[assetSlug];
+): StoredTezosAsset | undefined =>
+  useSelector(state => state.assets.tokens.data[getAccountAssetsStoreKey(account, chainId)]?.[assetSlug]);
 
 export const useAllCollectiblesSelector = () => useSelector(state => state.assets.collectibles.data);
 
@@ -27,7 +27,8 @@ export const useStoredTezosCollectibleSelector = (
   account: string,
   chainId: string,
   assetSlug: string
-): StoredTezosAsset | undefined => useChainAccountCollectiblesSelector(account, chainId)[assetSlug];
+): StoredTezosAsset | undefined =>
+  useSelector(state => state.assets.collectibles.data[getAccountAssetsStoreKey(account, chainId)]?.[assetSlug]);
 
 export const useAreAssetsLoading = (type: AssetsType) => useSelector(state => state.assets[type].isLoading);
 

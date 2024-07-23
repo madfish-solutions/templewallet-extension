@@ -3,8 +3,8 @@ import React, { FC, useMemo } from 'react';
 import clsx from 'clsx';
 
 import { useTezosAccountTokensListingLogic } from 'app/hooks/tokens-listing-logic/use-tezos-account-tokens-listing-logic';
+import { useAssetsViewState } from 'app/hooks/use-assets-view-state';
 import { useLoadPartnersPromo } from 'app/hooks/use-load-partners-promo';
-import { useManageAssetsState } from 'app/hooks/use-manage-assets-state';
 import { useTokensListOptionsSelector } from 'app/store/assets-filter-options/selectors';
 import { useMainnetTokensScamlistSelector } from 'app/store/tezos/assets/selectors';
 import { PartnersPromotion, PartnersPromotionVariant } from 'app/templates/partners-promotion';
@@ -22,7 +22,7 @@ interface TezosTokensTabProps {
 export const TezosTokensTab: FC<TezosTokensTabProps> = ({ publicKeyHash }) => {
   const { hideZeroBalance, groupByNetwork } = useTokensListOptionsSelector();
 
-  const { manageActive } = useManageAssetsState();
+  const { manageActive } = useAssetsViewState();
 
   const mainnetTokensScamSlugsRecord = useMainnetTokensScamlistSelector();
 
