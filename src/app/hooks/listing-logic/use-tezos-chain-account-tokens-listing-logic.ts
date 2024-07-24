@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 
 import { isDefined } from '@rnw-community/shared';
 import { isEqual } from 'lodash';
@@ -17,6 +17,8 @@ import { useMemoWithCompare } from 'lib/ui/hooks';
 import { isSearchStringApplicable } from 'lib/utils/search-items';
 
 import { useSimpleAssetsPaginationLogic } from '../use-simple-assets-pagination-logic';
+
+import { useManageableSlugs } from './use-manageable-slugs';
 
 export const useTezosChainAccountTokensListingLogic = (
   publicKeyHash: string,
@@ -73,80 +75,51 @@ export const useTezosChainAccountTokensListingLogic = (
 
   const isInSearchMode = isSearchStringApplicable(searchValueDebounced);
 
+  const search = useCallback(
+    (slugs: string[]) => searchTezosChainAssetsWithNoMeta(searchValueDebounced, slugs, getMetadata, slug => slug),
+    [getMetadata, searchValueDebounced]
+  );
+
   const searchedLeadingSlugs = useMemo(() => {
     if (!isDefined(leadingAssetsSlugs) || !leadingAssetsSlugs.length) return [];
 
     const filteredLeadingSlugs = filterZeroBalances ? leadingAssetsSlugs.filter(isNonZeroBalance) : leadingAssetsSlugs;
 
-    return isInSearchMode
-      ? searchTezosChainAssetsWithNoMeta(searchValueDebounced, filteredLeadingSlugs, getMetadata, slug => slug)
-      : filteredLeadingSlugs;
-  }, [leadingAssetsSlugs, filterZeroBalances, isNonZeroBalance, isInSearchMode, searchValueDebounced, getMetadata]);
+    return isInSearchMode ? search(filteredLeadingSlugs) : filteredLeadingSlugs;
+  }, [leadingAssetsSlugs, filterZeroBalances, isNonZeroBalance, isInSearchMode, search]);
 
-  // should sort only on initial mount
+  // shouldn't resort on balances change
   const enabledNonLeadingSlugsSorted = useMemo(
     () => [...filteredNonLeadingSlugs].sort(tokensSortPredicate),
     [filteredNonLeadingSlugs]
   );
 
   const searchedNonLeadingSlugs = useMemo(() => {
-    const enabledSearchedSlugs = isInSearchMode
-      ? searchTezosChainAssetsWithNoMeta(searchValueDebounced, enabledNonLeadingSlugsSorted, getMetadata, slug => slug)
-      : enabledNonLeadingSlugsSorted;
+    const enabledSearchedSlugs = isInSearchMode ? search(enabledNonLeadingSlugsSorted) : enabledNonLeadingSlugsSorted;
 
     return searchedLeadingSlugs.length ? searchedLeadingSlugs.concat(enabledSearchedSlugs) : enabledSearchedSlugs;
-  }, [enabledNonLeadingSlugsSorted, getMetadata, isInSearchMode, searchValueDebounced, searchedLeadingSlugs]);
+  }, [enabledNonLeadingSlugsSorted, isInSearchMode, search, searchedLeadingSlugs]);
 
-  const allNonLeadingSlugsRef = useRef(allNonLeadingSlugs);
-  const enabledNonLeadingSlugsSortedRef = useRef(enabledNonLeadingSlugsSorted);
+  const manageableSlugs = useManageableSlugs(
+    manageActive,
+    allNonLeadingSlugs,
+    enabledNonLeadingSlugsSorted,
+    searchedNonLeadingSlugs
+  );
 
-  useEffect(() => {
-    // keeping the same tokens order while manage is active
-    if (!manageActive) {
-      allNonLeadingSlugsRef.current = allNonLeadingSlugs;
-      enabledNonLeadingSlugsSortedRef.current = enabledNonLeadingSlugsSorted;
-    }
-  }, [manageActive, allNonLeadingSlugs, enabledNonLeadingSlugsSorted]);
-
-  const manageableSlugs = useMemoWithCompare(
+  const searchedManageableSlugs = useMemoWithCompare(
     () => {
-      if (!manageActive) return searchedNonLeadingSlugs;
-
-      const allNonLeadingSlugsSet = new Set(allNonLeadingSlugs);
-      const allUniqNonLeadingSlugsSet = new Set(
-        enabledNonLeadingSlugsSortedRef.current.concat(allNonLeadingSlugsRef.current)
-      );
-
-      const allUniqNonLeadingSlugsWithoutDeleted = Array.from(allUniqNonLeadingSlugsSet).filter(slug =>
-        allNonLeadingSlugsSet.has(slug)
-      );
-
-      const allNonLeadingSearchedSlugs = isInSearchMode
-        ? searchTezosChainAssetsWithNoMeta(
-            searchValueDebounced,
-            allUniqNonLeadingSlugsWithoutDeleted,
-            getMetadata,
-            slug => slug
-          )
-        : allUniqNonLeadingSlugsWithoutDeleted;
+      const allNonLeadingSearchedSlugs = isInSearchMode ? search(manageableSlugs) : manageableSlugs;
 
       return searchedLeadingSlugs.length
         ? searchedLeadingSlugs.concat(allNonLeadingSearchedSlugs)
         : allNonLeadingSearchedSlugs;
     },
-    [
-      manageActive,
-      searchedNonLeadingSlugs,
-      isInSearchMode,
-      searchValueDebounced,
-      getMetadata,
-      searchedLeadingSlugs,
-      allNonLeadingSlugs
-    ],
+    [isInSearchMode, search, manageableSlugs, searchedLeadingSlugs],
     isEqual
   );
 
-  const { slugs: paginatedSlugs, loadNext } = useSimpleAssetsPaginationLogic(manageableSlugs);
+  const { slugs: paginatedSlugs, loadNext } = useSimpleAssetsPaginationLogic(searchedManageableSlugs);
 
   return {
     paginatedSlugs,

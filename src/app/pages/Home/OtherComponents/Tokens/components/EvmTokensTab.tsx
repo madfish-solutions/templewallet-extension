@@ -2,13 +2,15 @@ import React, { FC, useMemo } from 'react';
 
 import clsx from 'clsx';
 
-import { useEvmAccountTokensListingLogic } from 'app/hooks/tokens-listing-logic/use-evm-account-tokens-listing-logic';
+import { useEvmAccountTokensListingLogic } from 'app/hooks/listing-logic/use-evm-account-tokens-listing-logic';
 import { useAssetsViewState } from 'app/hooks/use-assets-view-state';
 import { useLoadPartnersPromo } from 'app/hooks/use-load-partners-promo';
 import { useTokensListOptionsSelector } from 'app/store/assets-filter-options/selectors';
 import { PartnersPromotion, PartnersPromotionVariant } from 'app/templates/partners-promotion';
 import { OptimalPromoVariantEnum } from 'lib/apis/optimal';
 import { CHAIN_SLUG_SEPARATOR, fromChainAssetSlug } from 'lib/assets/utils';
+
+import { getTokensViewWithPromo } from '../utils';
 
 import { EvmListItem } from './ListItem';
 import { TokensTabBase } from './TokensTabBase';
@@ -63,14 +65,8 @@ export const EvmTokensTab: FC<EvmTokensTabProps> = ({ publicKeyHash }) => {
       />
     );
 
-    if (paginatedSlugs.length < 5) {
-      tokensJsx.push(promoJsx);
-    } else {
-      tokensJsx.splice(2, 0, promoJsx);
-    }
-
-    return tokensJsx;
-  }, [paginatedSlugs, manageActive]);
+    return getTokensViewWithPromo(tokensJsx, promoJsx, paginatedSlugs.length);
+  }, [paginatedSlugs, manageActive, publicKeyHash]);
 
   useLoadPartnersPromo(OptimalPromoVariantEnum.Token);
 

@@ -36,7 +36,6 @@ import { TokenMetadataNotFoundError } from 'lib/metadata/on-chain';
 import { EvmTokenMetadata } from 'lib/metadata/types';
 import { loadContract } from 'lib/temple/contract';
 import { useSafeState } from 'lib/ui/hooks';
-import { delay } from 'lib/utils';
 import {
   EvmChain,
   TezosChain,
@@ -182,8 +181,6 @@ export const AddTokenForm = memo<AddTokenPageProps>(({ selectedNetwork, onNetwor
     } catch (err: any) {
       console.error(err);
 
-      await delay();
-
       stateToSet = errorHandler(err, contractAddress);
     }
 
@@ -227,6 +224,9 @@ export const AddTokenForm = memo<AddTokenPageProps>(({ selectedNetwork, onNetwor
       if (formState.isSubmitting) return;
 
       formAnalytics.trackSubmit();
+
+      let assetIsCollectible = false;
+
       try {
         if (isTezosChainSelected) {
           if (!tezMetadataRef.current) throw new Error('Oops, Something went wrong!');
@@ -242,7 +242,7 @@ export const AddTokenForm = memo<AddTokenPageProps>(({ selectedNetwork, onNetwor
             id: String(tokenId)
           };
 
-          const assetIsCollectible = isCollectible(tokenMetadata);
+          assetIsCollectible = isCollectible(tokenMetadata);
 
           const actionPayload = { records: { [tokenSlug]: tokenMetadata } };
           if (assetIsCollectible) dispatch(putCollectiblesMetadataAction(actionPayload));
@@ -256,8 +256,6 @@ export const AddTokenForm = memo<AddTokenPageProps>(({ selectedNetwork, onNetwor
           };
 
           dispatch(assetIsCollectible ? putCollectiblesAsIsAction([asset]) : putTokensAsIsAction([asset]));
-          dispatch(setToastsContainerBottomShiftAction(0));
-          toastSuccess(assetIsCollectible ? 'NFT Added' : 'Token Added');
         } else {
           if (!evmMetadataRef.current) throw new Error('Oops, Something went wrong!');
 
@@ -276,9 +274,10 @@ export const AddTokenForm = memo<AddTokenPageProps>(({ selectedNetwork, onNetwor
               records: { [tokenSlug]: evmMetadataRef.current }
             })
           );
-          dispatch(setToastsContainerBottomShiftAction(0));
-          toastSuccess('Token Added');
         }
+
+        dispatch(setToastsContainerBottomShiftAction(0));
+        toastSuccess(assetIsCollectible ? 'NFT Added' : 'Token Added');
 
         formAnalytics.trackSubmitSuccess();
         close();

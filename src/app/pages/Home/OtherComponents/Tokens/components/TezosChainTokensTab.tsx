@@ -1,7 +1,7 @@
 import React, { FC, useMemo } from 'react';
 
 import { DeadEndBoundaryError } from 'app/ErrorBoundary';
-import { useTezosChainAccountTokensListingLogic } from 'app/hooks/tokens-listing-logic/use-tezos-chain-account-tokens-listing-logic';
+import { useTezosChainAccountTokensListingLogic } from 'app/hooks/listing-logic/use-tezos-chain-account-tokens-listing-logic';
 import { useAssetsViewState } from 'app/hooks/use-assets-view-state';
 import { useLoadPartnersPromo } from 'app/hooks/use-load-partners-promo';
 import { useTokensListOptionsSelector } from 'app/store/assets-filter-options/selectors';
@@ -11,6 +11,8 @@ import { OptimalPromoVariantEnum } from 'lib/apis/optimal';
 import { TEMPLE_TOKEN_SLUG } from 'lib/assets';
 import { TEZOS_MAINNET_CHAIN_ID } from 'lib/temple/types';
 import { useTezosChainByChainId } from 'temple/front';
+
+import { getTokensViewWithPromo } from '../utils';
 
 import { TezosListItem } from './ListItem';
 import { TokensTabBase } from './TokensTabBase';
@@ -64,13 +66,7 @@ export const TezosChainTokensTab: FC<TezosChainTokensTabProps> = ({ chainId, pub
       />
     );
 
-    if (paginatedSlugs.length < 5) {
-      tokensJsx.push(promoJsx);
-    } else {
-      tokensJsx.splice(2, 0, promoJsx);
-    }
-
-    return tokensJsx;
+    return getTokensViewWithPromo(tokensJsx, promoJsx, paginatedSlugs.length);
   }, [network, paginatedSlugs, publicKeyHash, mainnetTokensScamSlugsRecord, manageActive]);
 
   useLoadPartnersPromo(OptimalPromoVariantEnum.Token);

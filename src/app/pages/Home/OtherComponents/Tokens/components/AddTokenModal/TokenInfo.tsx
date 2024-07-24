@@ -13,27 +13,26 @@ export const TokenInfo = memo<TokenInfoProps>(({ name, decimals, symbol }) => (
     <p className="p-1 text-font-description-bold text-grey-2">
       <T id="tokenInfo" />
     </p>
-    <div className="w-full">
-      <div className="py-2 flex flex-row justify-between items-center border-b-0.5 border-lines">
-        <p className="p-1 text-font-description text-grey-1">
-          <T id="name" />
-        </p>
-        <p className="p-1 text-font-description-bold">{name}</p>
-      </div>
 
-      <div className="py-2 flex flex-row justify-between items-center border-b-0.5 border-lines">
-        <p className="p-1 text-font-description text-grey-1">
-          <T id="decimals" />
-        </p>
-        <p className="p-1 text-font-description-bold">{decimals}</p>
-      </div>
+    <div className="py-2 flex flex-row justify-between items-center border-b-0.5 border-lines">
+      <p className="p-1 text-font-description text-grey-1">
+        <T id="name" />
+      </p>
+      <p className="p-1 text-font-description-bold">{name}</p>
+    </div>
 
-      <div className="py-2 flex flex-row justify-between items-center">
-        <p className="p-1 text-font-description text-grey-1">
-          <T id="symbol" />
-        </p>
-        <p className="p-1 text-font-description-bold">{symbol}</p>
-      </div>
+    <div className="py-2 flex flex-row justify-between items-center border-b-0.5 border-lines">
+      <p className="p-1 text-font-description text-grey-1">
+        <T id="decimals" />
+      </p>
+      <p className="p-1 text-font-description-bold">{decimals}</p>
+    </div>
+
+    <div className="py-2 flex flex-row justify-between items-center">
+      <p className="p-1 text-font-description text-grey-1">
+        <T id="symbol" />
+      </p>
+      <p className="p-1 text-font-description-bold">{symbol}</p>
     </div>
   </div>
 ));

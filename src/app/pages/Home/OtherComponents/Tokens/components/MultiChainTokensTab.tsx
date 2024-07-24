@@ -2,7 +2,7 @@ import React, { memo, useMemo } from 'react';
 
 import clsx from 'clsx';
 
-import { useAccountTokensListingLogic } from 'app/hooks/tokens-listing-logic/use-account-tokens-listing-logic';
+import { useAccountTokensListingLogic } from 'app/hooks/listing-logic/use-account-tokens-listing-logic';
 import { useAssetsViewState } from 'app/hooks/use-assets-view-state';
 import { useLoadPartnersPromo } from 'app/hooks/use-load-partners-promo';
 import { useTokensListOptionsSelector } from 'app/store/assets-filter-options/selectors';
@@ -11,6 +11,8 @@ import { OptimalPromoVariantEnum } from 'lib/apis/optimal';
 import { CHAIN_SLUG_SEPARATOR, fromChainAssetSlug } from 'lib/assets/utils';
 import { useAllTezosChains } from 'temple/front';
 import { TempleChainKind } from 'temple/types';
+
+import { getTokensViewWithPromo } from '../utils';
 
 import { EvmListItem, TezosListItem } from './ListItem';
 import { TokensTabBase } from './TokensTabBase';
@@ -81,14 +83,8 @@ export const MultiChainTokensTab = memo<MultiChainTokensTabProps>(({ accountTezA
       />
     );
 
-    if (paginatedSlugs.length < 5) {
-      tokensJsx.push(promoJsx);
-    } else {
-      tokensJsx.splice(2, 0, promoJsx);
-    }
-
-    return tokensJsx;
-  }, [paginatedSlugs, tezosChains, manageActive]);
+    return getTokensViewWithPromo(tokensJsx, promoJsx, paginatedSlugs.length);
+  }, [paginatedSlugs, manageActive, accountEvmAddress, tezosChains, accountTezAddress]);
 
   useLoadPartnersPromo(OptimalPromoVariantEnum.Token);
 

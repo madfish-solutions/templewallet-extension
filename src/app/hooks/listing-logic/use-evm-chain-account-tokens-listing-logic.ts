@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 
 import { isDefined } from '@rnw-community/shared';
 import { isEqual } from 'lodash';
@@ -20,6 +20,8 @@ import { isSearchStringApplicable } from 'lib/utils/search-items';
 import { useEvmChainByChainId } from 'temple/front/chains';
 
 import { useSimpleAssetsPaginationLogic } from '../use-simple-assets-pagination-logic';
+
+import { useManageableSlugs } from './use-manageable-slugs';
 
 export const useEvmChainAccountTokensListingLogic = (
   publicKeyHash: HexString,
@@ -49,6 +51,7 @@ export const useEvmChainAccountTokensListingLogic = (
   const isNonZeroBalance = useCallback(
     (slug: string) => {
       const balance = balances[slug];
+
       return isDefined(balance) && balance !== '0';
     },
     [balances]
@@ -56,9 +59,7 @@ export const useEvmChainAccountTokensListingLogic = (
 
   const getMetadata = useCallback(
     (slug: string) => {
-      if (slug === EVM_TOKEN_SLUG) {
-        return chain?.currency;
-      }
+      if (slug === EVM_TOKEN_SLUG) return chain?.currency;
 
       return metadata[chainId]?.[slug];
     },
@@ -70,51 +71,33 @@ export const useEvmChainAccountTokensListingLogic = (
 
   const isInSearchMode = isSearchStringApplicable(searchValueDebounced);
 
+  const search = useCallback(
+    (slugs: string[]) => searchEvmChainTokensWithNoMeta(searchValueDebounced, slugs, getMetadata, slug => slug),
+    [getMetadata, searchValueDebounced]
+  );
+
   const filteredEnabledSlugs = useMemo(
     () => (filterZeroBalances ? enabledTokenSlugs.filter(isNonZeroBalance) : enabledTokenSlugs),
     [filterZeroBalances, enabledTokenSlugs, isNonZeroBalance]
   );
 
-  // should sort only on initial mount
+  // shouldn't resort on balances change
   const sortedEnabledSlugs = useMemo(() => [...filteredEnabledSlugs].sort(tokensSortPredicate), [filteredEnabledSlugs]);
 
   const searchedEnabledSlugs = useMemo(
-    () =>
-      isInSearchMode
-        ? searchEvmChainTokensWithNoMeta(searchValueDebounced, sortedEnabledSlugs, getMetadata, slug => slug)
-        : sortedEnabledSlugs,
-    [sortedEnabledSlugs, getMetadata, isInSearchMode, searchValueDebounced]
+    () => (isInSearchMode ? search(sortedEnabledSlugs) : sortedEnabledSlugs),
+    [isInSearchMode, search, sortedEnabledSlugs]
   );
 
-  const allTokenSlugsRef = useRef(allTokenSlugs);
-  const sortedEnabledSlugsRef = useRef(sortedEnabledSlugs);
+  const manageableSlugs = useManageableSlugs(manageActive, allTokenSlugs, sortedEnabledSlugs, searchedEnabledSlugs);
 
-  useEffect(() => {
-    // keeping the same tokens order while manage is active
-    if (!manageActive) {
-      allTokenSlugsRef.current = allTokenSlugs;
-      sortedEnabledSlugsRef.current = sortedEnabledSlugs;
-    }
-  }, [manageActive, allTokenSlugs, sortedEnabledSlugs]);
-
-  const manageableSlugs = useMemoWithCompare(
-    () => {
-      if (!manageActive) return searchedEnabledSlugs;
-
-      const allTokenSlugsSet = new Set(allTokenSlugs);
-      const allUniqTokenSlugsSet = new Set(sortedEnabledSlugsRef.current.concat(allTokenSlugsRef.current));
-
-      const allUniqSlugsWithoutDeleted = Array.from(allUniqTokenSlugsSet).filter(slug => allTokenSlugsSet.has(slug));
-
-      return isInSearchMode
-        ? searchEvmChainTokensWithNoMeta(searchValueDebounced, allUniqSlugsWithoutDeleted, getMetadata, slug => slug)
-        : allUniqSlugsWithoutDeleted;
-    },
-    [manageActive, searchedEnabledSlugs, isInSearchMode, searchValueDebounced, getMetadata, allTokenSlugs],
+  const searchedManageableSlugs = useMemoWithCompare(
+    () => (isInSearchMode ? search(manageableSlugs) : manageableSlugs),
+    [isInSearchMode, search, manageableSlugs],
     isEqual
   );
 
-  const { slugs: paginatedSlugs, loadNext } = useSimpleAssetsPaginationLogic(manageableSlugs);
+  const { slugs: paginatedSlugs, loadNext } = useSimpleAssetsPaginationLogic(searchedManageableSlugs);
 
   return {
     paginatedSlugs,

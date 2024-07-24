@@ -50,11 +50,9 @@ export const useEnabledTezosAccountTokenSlugs = (publicKeyHash: string) => {
 
   return useMemo(
     () =>
-      tokens.reduce<string[]>((acc, { slug, status, chainId }) => {
-        if (status === 'enabled') acc.push(toChainAssetSlug(TempleChainKind.Tezos, chainId, slug));
-
-        return acc;
-      }, []),
+      tokens
+        .filter(({ status }) => status === 'enabled')
+        .map(({ chainId, slug }) => toChainAssetSlug(TempleChainKind.Tezos, chainId, slug)),
     [tokens]
   );
 };
@@ -64,11 +62,9 @@ export const useAllTezosAccountTokenSlugs = (publicKeyHash: string) => {
 
   return useMemo(
     () =>
-      tokens.reduce<string[]>((acc, { slug, status, chainId }) => {
-        if (status !== 'removed') acc.push(toChainAssetSlug(TempleChainKind.Tezos, chainId, slug));
-
-        return acc;
-      }, []),
+      tokens
+        .filter(({ status }) => status !== 'removed')
+        .map(({ chainId, slug }) => toChainAssetSlug(TempleChainKind.Tezos, chainId, slug)),
     [tokens]
   );
 };
@@ -76,29 +72,13 @@ export const useAllTezosAccountTokenSlugs = (publicKeyHash: string) => {
 export const useEnabledTezosChainAccountTokenSlugs = (publicKeyHash: string, chainId: string) => {
   const tokens = useTezosChainAccountTokens(publicKeyHash, chainId);
 
-  return useMemo(
-    () =>
-      tokens.reduce<string[]>((acc, { slug, status }) => {
-        if (status === 'enabled') acc.push(slug);
-
-        return acc;
-      }, []),
-    [tokens]
-  );
+  return useMemo(() => tokens.filter(({ status }) => status === 'enabled').map(({ slug }) => slug), [tokens]);
 };
 
 export const useAllTezosChainAccountTokenSlugs = (publicKeyHash: string, chainId: string) => {
   const tokens = useTezosChainAccountTokens(publicKeyHash, chainId);
 
-  return useMemo(
-    () =>
-      tokens.reduce<string[]>((acc, { slug, status }) => {
-        if (status !== 'removed') acc.push(slug);
-
-        return acc;
-      }, []),
-    [tokens]
-  );
+  return useMemo(() => tokens.filter(({ status }) => status !== 'removed').map(({ slug }) => slug), [tokens]);
 };
 
 const useTezosAccountTokens = (account: string) => {
@@ -281,11 +261,9 @@ export const useEnabledEvmAccountTokenSlugs = (publicKeyHash: HexString) => {
 
   return useMemo(
     () =>
-      tokens.reduce<string[]>((acc, { slug, status, chainId }) => {
-        if (status === 'enabled') acc.push(toChainAssetSlug(TempleChainKind.EVM, chainId, slug));
-
-        return acc;
-      }, []),
+      tokens
+        .filter(({ status }) => status === 'enabled')
+        .map(({ chainId, slug }) => toChainAssetSlug(TempleChainKind.EVM, chainId, slug)),
     [tokens]
   );
 };
@@ -295,11 +273,9 @@ export const useAllEvmAccountTokenSlugs = (publicKeyHash: HexString) => {
 
   return useMemo(
     () =>
-      tokens.reduce<string[]>((acc, { slug, status, chainId }) => {
-        if (status !== 'removed') acc.push(toChainAssetSlug(TempleChainKind.EVM, chainId, slug));
-
-        return acc;
-      }, []),
+      tokens
+        .filter(({ status }) => status !== 'removed')
+        .map(({ chainId, slug }) => toChainAssetSlug(TempleChainKind.EVM, chainId, slug)),
     [tokens]
   );
 };
@@ -307,29 +283,13 @@ export const useAllEvmAccountTokenSlugs = (publicKeyHash: HexString) => {
 export const useEnabledEvmChainAccountTokenSlugs = (publicKeyHash: HexString, chainId: number) => {
   const tokens = useEvmChainAccountTokens(publicKeyHash, chainId);
 
-  return useMemo(
-    () =>
-      tokens.reduce<string[]>((acc, { slug, status }) => {
-        if (status === 'enabled') acc.push(slug);
-
-        return acc;
-      }, []),
-    [tokens]
-  );
+  return useMemo(() => tokens.filter(({ status }) => status === 'enabled').map(({ slug }) => slug), [tokens]);
 };
 
 export const useAllEvmChainAccountTokenSlugs = (publicKeyHash: HexString, chainId: number) => {
   const tokens = useEvmChainAccountTokens(publicKeyHash, chainId);
 
-  return useMemo(
-    () =>
-      tokens.reduce<string[]>((acc, { slug, status }) => {
-        if (status !== 'removed') acc.push(slug);
-
-        return acc;
-      }, []),
-    [tokens]
-  );
+  return useMemo(() => tokens.filter(({ status }) => status !== 'removed').map(({ slug }) => slug), [tokens]);
 };
 
 const useWhitelistSlugs = (chainId: string) => {

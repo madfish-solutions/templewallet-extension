@@ -1,6 +1,6 @@
 import React, { memo, useMemo } from 'react';
 
-import { useTezosAccountCollectiblesListingLogic } from 'app/hooks/collectibles-listing-logic/use-tezos-account-collectibles-listing-logic';
+import { useTezosAccountCollectiblesListingLogic } from 'app/hooks/listing-logic/use-tezos-account-collectibles-listing-logic';
 import { useAssetsViewState } from 'app/hooks/use-assets-view-state';
 import { useCollectiblesListOptionsSelector } from 'app/store/assets-filter-options/selectors';
 import { fromChainAssetSlug } from 'lib/assets/utils';

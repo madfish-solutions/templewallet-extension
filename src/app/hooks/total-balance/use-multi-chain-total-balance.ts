@@ -1,7 +1,5 @@
 import { useMemo } from 'react';
 
-import { isDefined } from '@rnw-community/shared';
-
 import { useTezosUsdToTokenRatesSelector } from 'app/store/currency/selectors';
 import { useEvmUsdToTokenRatesSelector } from 'app/store/evm/tokens-exchange-rates/selectors';
 import { EVM_TOKEN_SLUG, TEZ_TOKEN_SLUG } from 'lib/assets/defaults';
@@ -9,10 +7,10 @@ import { useEnabledAccountChainTokenSlugs } from 'lib/assets/hooks';
 import { fromChainAssetSlug, toChainAssetSlug } from 'lib/assets/utils';
 import { useGetEvmTokenBalanceWithDecimals, useGetTezosAccountTokenOrGasBalanceWithDecimals } from 'lib/balances/hooks';
 import { TEZOS_MAINNET_CHAIN_ID } from 'lib/temple/types';
-import { isTruthy } from 'lib/utils';
-import { ZERO } from 'lib/utils/numbers';
 import { useEnabledEvmChains, useEnabledTezosChains } from 'temple/front';
 import { TempleChainKind } from 'temple/types';
+
+import { calculateTotalDollarValue } from './utils';
 
 export const useMultiChainTotalBalance = (accountTezAddress: string, accountEvmAddress: HexString) => {
   const enabledChainSlugs = useEnabledAccountChainTokenSlugs(accountTezAddress, accountEvmAddress);
@@ -35,28 +33,27 @@ export const useMultiChainTotalBalance = (accountTezAddress: string, accountEvmA
     [enabledChainSlugs, enabledEvmChains, enabledTezChains]
   );
 
-  return useMemo(() => {
-    let dollarValue = ZERO;
+  return useMemo(
+    () =>
+      calculateTotalDollarValue(
+        chainSlugs,
+        chainSlug => {
+          const [chainKind, chainId, slug] = fromChainAssetSlug(chainSlug);
 
-    for (const chainSlug of chainSlugs) {
-      const [chainKind, chainId, slug] = fromChainAssetSlug(chainSlug);
+          return chainKind === TempleChainKind.Tezos
+            ? getTezBalance(chainId as string, slug)
+            : getEvmBalance(Number(chainId), slug);
+        },
+        chainSlug => {
+          const [chainKind, chainId, slug] = fromChainAssetSlug(chainSlug);
 
-      const balance =
-        (chainKind === TempleChainKind.Tezos
-          ? getTezBalance(chainId as string, slug)
-          : getEvmBalance(Number(chainId), slug)) ?? ZERO;
-
-      const usdToTokenRate =
-        (chainKind === TempleChainKind.Tezos
-          ? chainId === TEZOS_MAINNET_CHAIN_ID
-            ? tezMainnetUsdToTokenRates[slug]
-            : ZERO
-          : evmUsdToTokenRates[Number(chainId)]?.[slug]) ?? ZERO;
-
-      const tokenDollarValue = isDefined(balance) && isTruthy(usdToTokenRate) ? balance.times(usdToTokenRate) : ZERO;
-      dollarValue = dollarValue.plus(tokenDollarValue);
-    }
-
-    return dollarValue.toString();
-  }, [chainSlugs, evmUsdToTokenRates, getEvmBalance, getTezBalance, tezMainnetUsdToTokenRates]);
+          return chainKind === TempleChainKind.Tezos
+            ? chainId === TEZOS_MAINNET_CHAIN_ID
+              ? tezMainnetUsdToTokenRates[slug]
+              : undefined
+            : evmUsdToTokenRates[Number(chainId)]?.[slug];
+        }
+      ),
+    [chainSlugs, evmUsdToTokenRates, getEvmBalance, getTezBalance, tezMainnetUsdToTokenRates]
+  );
 };

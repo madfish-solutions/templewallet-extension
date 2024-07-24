@@ -23,7 +23,6 @@ import { TezosNetworkEssentials } from 'temple/networks';
 import { TempleChainKind } from 'temple/types';
 
 import { AssetsSelectors } from '../../Assets.selectors';
-import styles from '../Tokens.module.css';
 import { toExploreAssetLink } from '../utils';
 
 import { CryptoBalance, FiatBalance } from './Balance';
@@ -110,25 +109,23 @@ export const TezosListItem = memo<TezosListItemProps>(
             className="mr-1 flex-shrink-0"
           />
 
-          <div className={clsx('w-full', styles.tokenInfoWidth)}>
-            <div className="flex items-center justify-between w-full">
-              <div className="truncate max-w-36">
-                <div className="text-font-medium mb-1">{assetSymbol}</div>
-                <div className="flex text-font-description items-center text-grey-1 flex-1">{assetName}</div>
-              </div>
-              <div className="flex flex-row gap-x-2">
-                <IconBase
-                  Icon={DeleteIcon}
-                  size={16}
-                  className={isNativeToken ? 'text-disable' : 'cursor-pointer text-error'}
-                  onClick={isNativeToken ? undefined : setDeleteModalOpened}
-                />
-                <ToggleSwitch
-                  checked={isNativeToken ? true : checked}
-                  disabled={isNativeToken}
-                  onChange={toggleTokenStatus}
-                />
-              </div>
+          <div className="flex-grow flex items-center justify-between">
+            <div className="truncate max-w-36">
+              <div className="text-font-medium mb-1">{assetSymbol}</div>
+              <div className="flex text-font-description items-center text-grey-1 flex-1">{assetName}</div>
+            </div>
+            <div className="flex flex-row gap-x-2">
+              <IconBase
+                Icon={DeleteIcon}
+                size={16}
+                className={isNativeToken ? 'text-disable' : 'cursor-pointer text-error'}
+                onClick={isNativeToken ? undefined : setDeleteModalOpened}
+              />
+              <ToggleSwitch
+                checked={isNativeToken ? true : checked}
+                disabled={isNativeToken}
+                onChange={toggleTokenStatus}
+              />
             </div>
           </div>
         </div>
@@ -148,8 +145,8 @@ export const TezosListItem = memo<TezosListItemProps>(
           className="mr-1 flex-shrink-0"
         />
 
-        <div className={clsx('w-full', styles.tokenInfoWidth)}>
-          <div className="flex justify-between w-full mb-1">
+        <div className="flex-grow">
+          <div className="flex justify-between mb-1">
             <div className="flex items-center flex-initial">
               <div className="text-font-medium truncate max-w-36">{assetSymbol}</div>
               <TokenTag
@@ -166,7 +163,7 @@ export const TezosListItem = memo<TezosListItemProps>(
               testIDProperties={{ assetSlug }}
             />
           </div>
-          <div className="flex justify-between w-full">
+          <div className="flex justify-between">
             <div className="flex text-font-description items-center text-grey-1 truncate max-w-36 flex-1">
               {assetName}
             </div>
@@ -247,25 +244,23 @@ export const EvmListItem = memo<EvmListItemProps>(({ chainId, publicKeyHash, ass
       <div className={containerClassName}>
         <EvmTokenIconWithNetwork evmChainId={chainId} assetSlug={assetSlug} className="mr-1 flex-shrink-0" />
 
-        <div className={clsx('w-full', styles.tokenInfoWidth)}>
-          <div className="flex items-center justify-between w-full">
-            <div className="truncate max-w-36">
-              <div className="text-font-medium mb-1">{assetSymbol}</div>
-              <div className="flex text-font-description items-center text-grey-1 flex-1">{assetName}</div>
-            </div>
-            <div className="flex flex-row gap-x-2">
-              <IconBase
-                Icon={DeleteIcon}
-                size={16}
-                className={isNativeToken ? 'text-disable' : 'cursor-pointer text-error'}
-                onClick={isNativeToken ? undefined : setDeleteModalOpened}
-              />
-              <ToggleSwitch
-                checked={isNativeToken ? true : checked}
-                disabled={isNativeToken}
-                onChange={toggleTokenStatus}
-              />
-            </div>
+        <div className="flex-grow flex items-center justify-between">
+          <div className="truncate max-w-36">
+            <div className="text-font-medium mb-1">{assetSymbol}</div>
+            <div className="flex text-font-description items-center text-grey-1 flex-1">{assetName}</div>
+          </div>
+          <div className="flex flex-row gap-x-2">
+            <IconBase
+              Icon={DeleteIcon}
+              size={16}
+              className={isNativeToken ? 'text-disable' : 'cursor-pointer text-error'}
+              onClick={isNativeToken ? undefined : setDeleteModalOpened}
+            />
+            <ToggleSwitch
+              checked={isNativeToken ? true : checked}
+              disabled={isNativeToken}
+              onChange={toggleTokenStatus}
+            />
           </div>
         </div>
       </div>
@@ -281,8 +276,8 @@ export const EvmListItem = memo<EvmListItemProps>(({ chainId, publicKeyHash, ass
     >
       <EvmTokenIconWithNetwork evmChainId={chainId} assetSlug={assetSlug} className="mr-1 flex-shrink-0" />
 
-      <div className={clsx('w-full', styles.tokenInfoWidth)}>
-        <div className="flex justify-between w-full mb-1">
+      <div className="flex-grow">
+        <div className="flex justify-between mb-1">
           <div className="text-font-medium truncate max-w-36">{assetSymbol}</div>
 
           <CryptoBalance
@@ -291,7 +286,7 @@ export const EvmListItem = memo<EvmListItemProps>(({ chainId, publicKeyHash, ass
             testIDProperties={{ assetSlug }}
           />
         </div>
-        <div className="flex justify-between w-full">
+        <div className="flex justify-between">
           <div className="flex text-font-description items-center text-grey-1 truncate max-w-36 flex-1">
             {assetName}
           </div>

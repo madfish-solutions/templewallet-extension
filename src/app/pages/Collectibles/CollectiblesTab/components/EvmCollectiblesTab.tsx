@@ -1,6 +1,6 @@
 import React, { memo, useMemo } from 'react';
 
-import { useEvmAccountCollectiblesListingLogic } from 'app/hooks/collectibles-listing-logic/use-evm-account-collectibles-listing-logic';
+import { useEvmAccountCollectiblesListingLogic } from 'app/hooks/listing-logic/use-evm-account-collectibles-listing-logic';
 import { useAssetsViewState } from 'app/hooks/use-assets-view-state';
 import { useCollectiblesListOptionsSelector } from 'app/store/assets-filter-options/selectors';
 import { fromChainAssetSlug } from 'lib/assets/utils';

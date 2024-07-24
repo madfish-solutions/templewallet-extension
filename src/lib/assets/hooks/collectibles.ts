@@ -14,13 +14,12 @@ import { useChainAccountCollectiblesSelector, useAllCollectiblesSelector } from 
 import { getAccountAssetsStoreKey } from 'app/store/tezos/assets/utils';
 import { useAllAccountBalancesSelector, useBalancesAtomicRecordSelector } from 'app/store/tezos/balances/selectors';
 import { getKeyForBalancesRecord } from 'app/store/tezos/balances/utils';
+import type { AccountAsset } from 'lib/assets/types';
+import { toChainAssetSlug } from 'lib/assets/utils';
 import { useMemoWithCompare } from 'lib/ui/hooks';
+import { EMPTY_FROZEN_OBJ } from 'lib/utils';
 import { useEnabledEvmChains, useEnabledTezosChains } from 'temple/front';
 import { TempleChainKind } from 'temple/types';
-
-import { EMPTY_FROZEN_OBJ } from '../../utils';
-import type { AccountAsset } from '../types';
-import { toChainAssetSlug } from '../utils';
 
 import { getAssetStatus } from './utils';
 
@@ -101,11 +100,9 @@ export const useEnabledTezosAccountCollectiblesSlugs = (publicKeyHash: string) =
 
   return useMemo(
     () =>
-      collectibles.reduce<string[]>((acc, { slug, status, chainId }) => {
-        if (status === 'enabled') acc.push(toChainAssetSlug(TempleChainKind.Tezos, chainId, slug));
-
-        return acc;
-      }, []),
+      collectibles
+        .filter(({ status }) => status === 'enabled')
+        .map(({ chainId, slug }) => toChainAssetSlug(TempleChainKind.Tezos, chainId, slug)),
     [collectibles]
   );
 };
@@ -115,11 +112,9 @@ export const useAllTezosAccountCollectiblesSlugs = (publicKeyHash: string) => {
 
   return useMemo(
     () =>
-      collectibles.reduce<string[]>((acc, { slug, status, chainId }) => {
-        if (status !== 'removed') acc.push(toChainAssetSlug(TempleChainKind.Tezos, chainId, slug));
-
-        return acc;
-      }, []),
+      collectibles
+        .filter(({ status }) => status !== 'removed')
+        .map(({ chainId, slug }) => toChainAssetSlug(TempleChainKind.Tezos, chainId, slug)),
     [collectibles]
   );
 };
@@ -128,12 +123,7 @@ export const useEnabledTezosChainAccountCollectiblesSlugs = (publicKeyHash: stri
   const collectibles = useTezosChainAccountCollectibles(publicKeyHash, chainId);
 
   return useMemo(
-    () =>
-      collectibles.reduce<string[]>((acc, { slug, status }) => {
-        if (status === 'enabled') acc.push(slug);
-
-        return acc;
-      }, []),
+    () => collectibles.filter(({ status }) => status === 'enabled').map(({ slug }) => slug),
     [collectibles]
   );
 };
@@ -142,12 +132,7 @@ export const useAllTezosChainAccountCollectiblesSlugs = (publicKeyHash: string, 
   const collectibles = useTezosChainAccountCollectibles(publicKeyHash, chainId);
 
   return useMemo(
-    () =>
-      collectibles.reduce<string[]>((acc, { slug, status }) => {
-        if (status !== 'removed') acc.push(slug);
-
-        return acc;
-      }, []),
+    () => collectibles.filter(({ status }) => status !== 'removed').map(({ slug }) => slug),
     [collectibles]
   );
 };
@@ -209,11 +194,9 @@ export const useEnabledEvmAccountCollectiblesSlugs = (publicKeyHash: HexString) 
 
   return useMemo(
     () =>
-      collectibles.reduce<string[]>((acc, { slug, status, chainId }) => {
-        if (status === 'enabled') acc.push(toChainAssetSlug(TempleChainKind.EVM, chainId, slug));
-
-        return acc;
-      }, []),
+      collectibles
+        .filter(({ status }) => status === 'enabled')
+        .map(({ chainId, slug }) => toChainAssetSlug(TempleChainKind.EVM, chainId, slug)),
     [collectibles]
   );
 };
@@ -223,11 +206,9 @@ export const useAllEvmAccountCollectiblesSlugs = (publicKeyHash: HexString) => {
 
   return useMemo(
     () =>
-      collectibles.reduce<string[]>((acc, { slug, status, chainId }) => {
-        if (status !== 'removed') acc.push(toChainAssetSlug(TempleChainKind.EVM, chainId, slug));
-
-        return acc;
-      }, []),
+      collectibles
+        .filter(({ status }) => status !== 'removed')
+        .map(({ chainId, slug }) => toChainAssetSlug(TempleChainKind.EVM, chainId, slug)),
     [collectibles]
   );
 };
@@ -236,12 +217,7 @@ export const useEnabledEvmChainAccountCollectiblesSlugs = (publicKeyHash: HexStr
   const collectibles = useEvmChainAccountCollectibles(publicKeyHash, evmChainId);
 
   return useMemo(
-    () =>
-      collectibles.reduce<string[]>((acc, { slug, status }) => {
-        if (status === 'enabled') acc.push(slug);
-
-        return acc;
-      }, []),
+    () => collectibles.filter(({ status }) => status === 'enabled').map(({ slug }) => slug),
     [collectibles]
   );
 };
@@ -250,12 +226,7 @@ export const useAllEvmChainAccountCollectiblesSlugs = (publicKeyHash: HexString,
   const collectibles = useEvmChainAccountCollectibles(publicKeyHash, evmChainId);
 
   return useMemo(
-    () =>
-      collectibles.reduce<string[]>((acc, { slug, status }) => {
-        if (status !== 'removed') acc.push(slug);
-
-        return acc;
-      }, []),
+    () => collectibles.filter(({ status }) => status !== 'removed').map(({ slug }) => slug),
     [collectibles]
   );
 };

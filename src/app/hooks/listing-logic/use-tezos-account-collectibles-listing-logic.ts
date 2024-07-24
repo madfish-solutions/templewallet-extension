@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 
 import { isEqual } from 'lodash';
 import { useDebounce } from 'use-debounce';
@@ -15,6 +15,7 @@ import { isSearchStringApplicable } from 'lib/utils/search-items';
 
 import { ITEMS_PER_PAGE, useTezosAccountCollectiblesPaginationLogic } from '../use-collectibles-pagination-logic';
 
+import { useManageableSlugs } from './use-manageable-slugs';
 import { getSlugWithChainId } from './utils';
 
 export const useTezosAccountCollectiblesListingLogic = (publicKeyHash: string, manageActive = false) => {
@@ -33,49 +34,29 @@ export const useTezosAccountCollectiblesListingLogic = (publicKeyHash: string, m
 
   const getMetadata = useGetCollectibleMetadata();
 
-  // should sort only on initial mount
+  const search = useCallback(
+    (slugs: string[]) => searchTezosAssetsWithNoMeta(searchValueDebounced, slugs, getMetadata, getSlugWithChainId),
+    [getMetadata, searchValueDebounced]
+  );
+
+  // shouldn't resort on balances change
   const enabledSlugsSorted = useMemo(() => [...enabledChainSlugs].sort(sortPredicate), [enabledChainSlugs]);
 
   const enabledSearchedSlugs = useMemo(
-    () =>
-      isInSearchMode
-        ? searchTezosAssetsWithNoMeta(searchValueDebounced, enabledSlugsSorted, getMetadata, getSlugWithChainId)
-        : enabledSlugsSorted,
-    [isInSearchMode, searchValueDebounced, getMetadata, enabledSlugsSorted]
+    () => (isInSearchMode ? search(enabledSlugsSorted) : enabledSlugsSorted),
+    [isInSearchMode, search, enabledSlugsSorted]
   );
 
-  const allChainSlugsRef = useRef(allChainSlugs);
-  const enabledChainSlugsSortedRef = useRef(enabledSlugsSorted);
+  const manageableChainSlugs = useManageableSlugs(
+    manageActive,
+    allChainSlugs,
+    enabledSlugsSorted,
+    enabledSearchedSlugs
+  );
 
-  useEffect(() => {
-    // keeping the same tokens order while manage is active
-    if (!manageActive) {
-      allChainSlugsRef.current = allChainSlugs;
-      enabledChainSlugsSortedRef.current = enabledSlugsSorted;
-    }
-  }, [manageActive, allChainSlugs, enabledSlugsSorted]);
-
-  const manageableSlugs = useMemoWithCompare(
-    () => {
-      if (!manageActive) return enabledSearchedSlugs;
-
-      const allChainSlugsSet = new Set(allChainSlugs);
-      const allUniqChainSlugsSet = new Set(enabledChainSlugsSortedRef.current.concat(allChainSlugsRef.current));
-
-      const allUniqChainSlugsWithoutDeleted = Array.from(allUniqChainSlugsSet).filter(chainSlug =>
-        allChainSlugsSet.has(chainSlug)
-      );
-
-      return isInSearchMode
-        ? searchTezosAssetsWithNoMeta(
-            searchValueDebounced,
-            allUniqChainSlugsWithoutDeleted,
-            getMetadata,
-            getSlugWithChainId
-          )
-        : allUniqChainSlugsWithoutDeleted;
-    },
-    [manageActive, enabledSearchedSlugs, isInSearchMode, searchValueDebounced, getMetadata, allChainSlugs],
+  const searchedManageableSlugs = useMemoWithCompare(
+    () => (isInSearchMode ? search(manageableChainSlugs) : manageableChainSlugs),
+    [isInSearchMode, search, manageableChainSlugs],
     isEqual
   );
 
@@ -83,7 +64,7 @@ export const useTezosAccountCollectiblesListingLogic = (publicKeyHash: string, m
     slugs: paginatedSlugs,
     isLoading: pageIsLoading,
     loadNext
-  } = useTezosAccountCollectiblesPaginationLogic(manageableSlugs);
+  } = useTezosAccountCollectiblesPaginationLogic(searchedManageableSlugs);
 
   const isSyncing = isInSearchMode ? assetsAreLoading || metadatasLoading : assetsAreLoading || pageIsLoading;
 

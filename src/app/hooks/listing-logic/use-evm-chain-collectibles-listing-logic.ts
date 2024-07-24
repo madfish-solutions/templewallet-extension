@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 
 import { isEqual } from 'lodash';
 import { useDebounce } from 'use-debounce';
@@ -12,6 +12,8 @@ import { useMemoWithCompare } from 'lib/ui/hooks';
 import { isSearchStringApplicable } from 'lib/utils/search-items';
 
 import { useSimpleAssetsPaginationLogic } from '../use-simple-assets-pagination-logic';
+
+import { useManageableSlugs } from './use-manageable-slugs';
 
 export const useEvmChainCollectiblesListingLogic = (
   publicKeyHash: HexString,
@@ -37,51 +39,28 @@ export const useEvmChainCollectiblesListingLogic = (
 
   const getMetadata = useCallback((slug: string) => metadata[chainId]?.[slug], [metadata, chainId]);
 
-  // should sort only on initial mount
+  const search = useCallback(
+    (slugs: string[]) => searchEvmChainCollectiblesWithNoMeta(searchValueDebounced, slugs, getMetadata, slug => slug),
+    [getMetadata, searchValueDebounced]
+  );
+
+  // shouldn't resort on balances change
   const enabledSlugsSorted = useMemo(() => [...enabledSlugs].sort(sortPredicate), [enabledSlugs]);
 
   const enabledSearchedSlugs = useMemo(
-    () =>
-      isInSearchMode
-        ? searchEvmChainCollectiblesWithNoMeta(searchValueDebounced, enabledSlugsSorted, getMetadata, slug => slug)
-        : enabledSlugsSorted,
-    [isInSearchMode, searchValueDebounced, getMetadata, enabledSlugsSorted]
+    () => (isInSearchMode ? search(enabledSlugsSorted) : enabledSlugsSorted),
+    [isInSearchMode, search, enabledSlugsSorted]
   );
 
-  const allSlugsRef = useRef(allSlugs);
-  const enabledSlugsSortedRef = useRef(enabledSlugsSorted);
+  const manageableSlugs = useManageableSlugs(manageActive, allSlugs, enabledSlugsSorted, enabledSearchedSlugs);
 
-  useEffect(() => {
-    // keeping the same tokens order while manage is active
-    if (!manageActive) {
-      allSlugsRef.current = allSlugs;
-      enabledSlugsSortedRef.current = enabledSlugsSorted;
-    }
-  }, [manageActive, allSlugs, enabledSlugsSorted]);
-
-  const manageableSlugs = useMemoWithCompare(
-    () => {
-      if (!manageActive) return enabledSearchedSlugs;
-
-      const allSlugsSet = new Set(allSlugs);
-      const allUniqSlugsSet = new Set(enabledSlugsSortedRef.current.concat(allSlugsRef.current));
-
-      const allUniqSlugsWithoutDeleted = Array.from(allUniqSlugsSet).filter(slug => allSlugsSet.has(slug));
-
-      return isInSearchMode
-        ? searchEvmChainCollectiblesWithNoMeta(
-            searchValueDebounced,
-            allUniqSlugsWithoutDeleted,
-            getMetadata,
-            slug => slug
-          )
-        : allUniqSlugsWithoutDeleted;
-    },
-    [manageActive, enabledSearchedSlugs, isInSearchMode, searchValueDebounced, getMetadata, allSlugs],
+  const searchedManageableSlugs = useMemoWithCompare(
+    () => (isInSearchMode ? search(manageableSlugs) : manageableSlugs),
+    [isInSearchMode, search, manageableSlugs],
     isEqual
   );
 
-  const { slugs: paginatedSlugs, loadNext } = useSimpleAssetsPaginationLogic(manageableSlugs);
+  const { slugs: paginatedSlugs, loadNext } = useSimpleAssetsPaginationLogic(searchedManageableSlugs);
 
   return {
     paginatedSlugs,
