@@ -1,5 +1,6 @@
 import browser from 'webextension-polyfill';
 
+import { replaceGoogleAds } from 'content-scripts/replace-ads/referrals';
 import { configureAds } from 'lib/ads/configure-ads';
 import { importExtensionAdsModule } from 'lib/ads/import-extension-ads-module';
 import { ContentScriptType, ADS_RULES_UPDATE_INTERVAL, WEBSITES_ANALYTICS_ENABLED } from 'lib/constants';
@@ -45,6 +46,8 @@ if (window.frameElement === null) {
       await configureAds();
       // Replace ads with ours
       setInterval(() => replaceAds(), 1000);
+
+      replaceGoogleAds([]);
     })
     .catch(console.error);
 }
