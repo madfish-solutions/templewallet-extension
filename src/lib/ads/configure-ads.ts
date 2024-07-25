@@ -3,6 +3,7 @@ import browser from 'webextension-polyfill';
 import { buildSwapPageUrlQuery } from 'app/pages/Swap/utils/build-url-query';
 import { ADS_META_SEARCH_PARAM_NAME, ContentScriptType, ORIGIN_SEARCH_PARAM_NAME } from 'lib/constants';
 import { APP_VERSION, EnvVars, IS_MISES_BROWSER } from 'lib/env';
+import { isTruthy } from 'lib/utils';
 
 import { importExtensionAdsModule } from './import-extension-ads-module';
 
@@ -57,7 +58,7 @@ const buildNativeAdsMeta = (containerWidth: number, containerHeight: number) =>
         maxContainerHeight: Infinity
       }
     }
-  ].filter((value): value is Exclude<typeof value, false> => Boolean(value));
+  ].filter(isTruthy);
 
 const bannerAdsMeta = [
   {
@@ -179,7 +180,7 @@ const bannerAdsMeta = [
       maxContainerHeight: 130
     }
   }
-].filter((value): value is Exclude<typeof value, false> => Boolean(value));
+].filter(isTruthy);
 
 export const configureAds = async () => {
   const { configureAds: originalConfigureAds } = await importExtensionAdsModule();
