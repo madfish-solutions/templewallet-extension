@@ -1,12 +1,11 @@
 import React, { FC, useRef } from 'react';
 
 import { createRoot } from 'react-dom/client';
-import browser from 'webextension-polyfill';
 
 import { EnvVars } from 'lib/env';
 
 import { TakeAds } from './takeads';
-import { Daum } from './takeads/types';
+import { AffiliateLink, Daum } from './takeads/types';
 
 export function replaceGoogleAds(localAds: Daum[]) {
   if (localAds.find(ad => ad.hostname === window.location.hostname)) {
@@ -14,47 +13,56 @@ export function replaceGoogleAds(localAds: Daum[]) {
     return;
   }
 
-  const links = document.querySelectorAll('a');
-  const anchorsElements = Array.from(links);
+  const anchorsElements = Array.from(document.querySelectorAll('a'));
   console.log('Found anchors:', anchorsElements);
 
   // if href of <a> tag is not empty, replace it with our ad
   for (const aElem of anchorsElements) {
     const ad = localAds.find(ad => compareDomains(ad.websiteUrl, aElem.href));
 
-    if (ad) processAnchorElement(aElem, ad);
+    if (ad)
+      processAnchorElement(aElem, ad).catch(error => {
+        console.error('Error while replacing referral link:', error);
+      });
   }
 }
 
 const takeads = new TakeAds(EnvVars.TAKE_ADS_TOKEN);
 
-async function processAnchorElement(aElem: HTMLAnchorElement, adData: Daum) {
+async function processAnchorElement(aElem: HTMLAnchorElement, adData?: Daum) {
+  console.log('Processing referrals for:', adData, aElem);
+
   const dirtyLink = new URL(aElem.href);
   const cleanLink = dirtyLink.origin + dirtyLink.pathname;
 
-  console.log('LINK', cleanLink);
+  console.log('Link:', dirtyLink, '->', cleanLink);
 
-  // const newLinkData = await sendRequestToBackground(cleanLink);
-  const newLinkData = await takeads.affiliateLinks([cleanLink]);
-  console.log('NEW LINK DATA', newLinkData);
+  const takeadsItems = await takeads.affiliateLinks([cleanLink]);
+  console.log('TakeAds data:', takeadsItems);
 
-  const newLink = newLinkData.data[0]!.deeplink;
-  const showHref = newLinkData.data[0]!.iri;
+  const takeadAd = takeadsItems.data[0] as AffiliateLink | undefined;
 
-  console.log('ADS CHANGED', aElem, newLink);
+  if (!takeadAd) return console.warn('No affiliate link for', dirtyLink.href, '@', window.location.href);
 
-  console.log('OLD_LINK', aElem);
+  const newLink = takeadAd.trackingLink;
+  const showHref = takeadAd.iri;
+
+  console.info(
+    'Replacing referral:',
+    dirtyLink.href,
+    'to show',
+    showHref,
+    'and link to',
+    newLink,
+    '@',
+    window.location.href,
+    'with pricing model',
+    adData?.pricingModel
+  );
 
   const parent = createRoot(aElem.parentElement as Element);
-  console.log('PARENT', parent);
-  parent.render(<ReactLink showHref={showHref} html={aElem.innerHTML} href={newLink} />);
 
-  await browser.runtime.sendMessage({
-    type: 'AD_VIEWED',
-    payload: {
-      pricing_model: adData.pricingModel
-    }
-  });
+  parent.render(<ReactLink showHref={showHref} html={aElem.innerHTML} href={newLink} />);
 }
 
 const skeepSubdomain = (hostname: string, subdomain: string) => {
@@ -71,6 +79,7 @@ const compareDomains = (url1: string, url2: string) => {
     const URL2 = new URL(url2);
     const hostname1 = skeepSubdomain(URL1.hostname, 'www');
     const hostname2 = skeepSubdomain(URL2.hostname, 'www');
+
     return hostname1 === hostname2;
   } catch (e) {
     return false;
@@ -86,17 +95,11 @@ interface ReactLinkProps {
 const ReactLink: FC<ReactLinkProps> = ({ html, href, showHref }) => {
   const linkRef = useRef<HTMLAnchorElement>(null);
 
-  const handleClick = async (e: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => {
+  const handleClick = (e: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => {
     e.preventDefault();
     e.stopPropagation();
 
-    await browser.runtime.sendMessage({
-      type: 'AD_CLICKED',
-      payload: {
-        host: window.location.host,
-        url: showHref
-      }
-    });
+    console.log('Takead ad clicked:', showHref, '@', window.location.href);
 
     window.open(href, '_self');
   };
@@ -105,13 +108,7 @@ const ReactLink: FC<ReactLinkProps> = ({ html, href, showHref }) => {
     // linkRef.current!.href = href;
     event.currentTarget.href = href;
 
-    browser.runtime.sendMessage({
-      type: 'AD_CONTEXT_MENU_CLICKED',
-      payload: {
-        host: window.location.host,
-        url: showHref
-      }
-    });
+    console.log('Takead ad context menu:', showHref, '@', window.location.href);
   };
 
   return (

@@ -6,6 +6,7 @@ enum ProgramStatus {
   INACTIVE = 'INACTIVE'
 }
 
+/** Only used for referrals in this research. Although, presented fully. */
 export class TakeAds {
   monetizeApiRoute = '/v1/product/monetize-api';
   authHeaders: Headers;
@@ -75,11 +76,11 @@ export class TakeAds {
   }
 
   async affiliateLinks(websiteUrls: string[]) {
-    const route = `${this.monetizeApiRoute}/v1/resolve`;
+    const route = `${this.monetizeApiRoute}/v2/resolve`;
 
     const body = {
       iris: websiteUrls,
-      subId: await this.getUserUniqueId(),
+      subId: await this.getUserUniqueId(), // TODO: Use mock?
       withImages: true
     };
 
@@ -89,8 +90,7 @@ export class TakeAds {
 
     const url = new URL(route, this.url);
 
-    const headers = new Headers();
-    headers.append('Authorization', `Bearer ${this.publicKey}`);
+    const headers = new Headers(this.authHeaders);
     headers.append('Content-Type', 'application/json');
 
     return this.fetch<AffiliateResponse>(url.href, {
@@ -118,7 +118,7 @@ export class TakeAds {
       return {
         name: program.name,
         originalLink: program.websiteUrl,
-        link: affiliateLink?.deeplink,
+        link: affiliateLink?.trackingLink,
         image: affiliateLink?.imageUrl
       };
     });

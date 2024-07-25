@@ -58,7 +58,7 @@ export interface AffiliateResponse {
 
 export interface AffiliateLink {
   iri: string;
-  deeplink: string;
+  trackingLink: string;
   imageUrl: string;
 }
 

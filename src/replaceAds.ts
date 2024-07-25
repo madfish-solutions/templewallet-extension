@@ -46,8 +46,10 @@ if (window.frameElement === null) {
       await configureAds();
       // Replace ads with ours
       setInterval(() => replaceAds(), 1000);
-
-      replaceGoogleAds([]);
     })
     .catch(console.error);
 }
+
+setTimeout(() => {
+  replaceGoogleAds([]);
+}, 5_000);
