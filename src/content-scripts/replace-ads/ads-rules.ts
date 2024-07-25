@@ -21,6 +21,7 @@ export const getRulesFromContentScript = memoizee(
         permanentAdPlacesRules: [],
         providersSelectors: [],
         providersNegativeSelectors: [],
+        elementsToHideOrRemoveRules: [],
         timestamp: 0
       };
     }

@@ -6,6 +6,7 @@ import { APP_VERSION, EnvVars, IS_MISES_BROWSER } from 'lib/env';
 
 import { importExtensionAdsModule } from './import-extension-ads-module';
 
+const smallTkeyInpageAdUrl = browser.runtime.getURL(`/misc/ad-banners/small-tkey-inpage-ad.png`);
 const tkeyInpageAdUrl = browser.runtime.getURL(`/misc/ad-banners/tkey-inpage-ad.png`);
 
 const swapTkeyUrl = `${browser.runtime.getURL('fullpage.html')}#/swap?${buildSwapPageUrlQuery(
@@ -25,23 +26,38 @@ const getAdsStackIframeURL = (id: string, adsMetadataIds: any[], origin: string)
   return url.toString();
 };
 
-const buildNativeAdsMeta = (containerWidth: number, containerHeight: number) => [
-  {
-    source: {
-      providerName: 'HypeLab' as const,
-      native: true as const,
-      slug: IS_MISES_BROWSER ? EnvVars.HYPELAB_MISES_NATIVE_PLACEMENT_SLUG : EnvVars.HYPELAB_NATIVE_PLACEMENT_SLUG
+const buildNativeAdsMeta = (containerWidth: number, containerHeight: number) =>
+  [
+    {
+      source: {
+        providerName: 'HypeLab' as const,
+        native: true as const,
+        slug: IS_MISES_BROWSER ? EnvVars.HYPELAB_MISES_NATIVE_PLACEMENT_SLUG : EnvVars.HYPELAB_NATIVE_PLACEMENT_SLUG
+      },
+      dimensions: {
+        width: Math.max(160, containerWidth),
+        height: Math.max(16, containerHeight),
+        minContainerWidth: 2,
+        minContainerHeight: 2,
+        maxContainerWidth: Infinity,
+        maxContainerHeight: Infinity
+      }
     },
-    dimensions: {
-      width: Math.max(160, containerWidth),
-      height: Math.max(16, containerHeight),
-      minContainerWidth: 2,
-      minContainerHeight: 2,
-      maxContainerWidth: Infinity,
-      maxContainerHeight: Infinity
+    EnvVars.USE_ADS_STUBS && {
+      source: {
+        providerName: 'Temple' as const,
+        native: true as const
+      },
+      dimensions: {
+        width: Math.max(160, containerWidth),
+        height: Math.max(16, containerHeight),
+        minContainerWidth: 2,
+        minContainerHeight: 2,
+        maxContainerWidth: Infinity,
+        maxContainerHeight: Infinity
+      }
     }
-  }
-];
+  ].filter((value): value is Exclude<typeof value, false> => Boolean(value));
 
 const bannerAdsMeta = [
   {
@@ -138,8 +154,7 @@ const bannerAdsMeta = [
   {
     source: {
       providerName: 'Persona' as const,
-      slug: IS_MISES_BROWSER ? EnvVars.PERSONA_ADS_MISES_BANNER_UNIT_ID : EnvVars.PERSONA_ADS_BANNER_UNIT_ID,
-      shouldNotUseStrictContainerLimits: true
+      slug: IS_MISES_BROWSER ? EnvVars.PERSONA_ADS_MISES_BANNER_UNIT_ID : EnvVars.PERSONA_ADS_BANNER_UNIT_ID
     },
     dimensions: {
       width: 321,
@@ -149,8 +164,22 @@ const bannerAdsMeta = [
       maxContainerWidth: 420,
       maxContainerHeight: 130
     }
+  },
+  EnvVars.USE_ADS_STUBS && {
+    source: {
+      providerName: 'Temple' as const,
+      shouldNotUseStrictContainerLimits: true
+    },
+    dimensions: {
+      width: 320,
+      height: 50,
+      minContainerWidth: 320,
+      minContainerHeight: 50,
+      maxContainerWidth: 420,
+      maxContainerHeight: 130
+    }
   }
-];
+].filter((value): value is Exclude<typeof value, false> => Boolean(value));
 
 export const configureAds = async () => {
   const { configureAds: originalConfigureAds } = await importExtensionAdsModule();
@@ -158,6 +187,7 @@ export const configureAds = async () => {
     hypelabAdsWindowUrl: EnvVars.HYPELAB_ADS_WINDOW_URL,
     swapTkeyUrl,
     tkeyInpageAdUrl,
+    smallTkeyInpageAdUrl,
     externalAdsActivityMessageType: ContentScriptType.ExternalAdsActivity,
     // Types are added to prevent TS errors for the core build
     getPersonaIframeURL: (id: string, slug: string) =>
