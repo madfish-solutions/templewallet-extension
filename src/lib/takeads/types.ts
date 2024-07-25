@@ -38,17 +38,17 @@ export interface Meta {
 }
 
 export interface Daum {
-  id: string;
-  name: string;
+  // id: string;
+  // name: string;
   websiteUrl: string;
-  imageUrl: string;
-  countryCodes: string[];
-  languageCodes: never[];
-  avgCommission?: number;
-  updatedAt: string;
+  // imageUrl: string;
+  // countryCodes: string[];
+  // languageCodes: never[];
+  // avgCommission?: number;
+  // updatedAt: string;
   hostname: string;
-  programStatus: string;
-  merchantId: number;
+  // programStatus: string;
+  // merchantId: number;
   pricingModel: string;
 }
 

@@ -6,7 +6,11 @@ enum ProgramStatus {
   INACTIVE = 'INACTIVE'
 }
 
-/** Only used for referrals in this research. Although, presented fully. */
+/**
+ * Only used for referrals in this research. Although, presented fully from source.
+ *
+ * See API docs: https://docs.takeads.com/
+ */
 export class TakeAds {
   monetizeApiRoute = '/v1/product/monetize-api';
   authHeaders: Headers;
@@ -19,6 +23,7 @@ export class TakeAds {
     this.url = new URL(baseUrl);
   }
 
+  /*
   getPrograms({
     next,
     limit,
@@ -50,7 +55,9 @@ export class TakeAds {
       headers: this.authHeaders
     });
   }
+  */
 
+  /*
   async getUserCountryCode() {
     // Make a request to the ipapi.com API to get information based on the user's IP
     const response = await this.fetch<IpApi>('https://ipapi.co/json/');
@@ -60,7 +67,9 @@ export class TakeAds {
 
     return countryCode;
   }
+  */
 
+  /*
   async getLocalPrograms() {
     const countryCode = await this.getUserCountryCode();
 
@@ -74,13 +83,15 @@ export class TakeAds {
 
     return localPrograms;
   }
+  */
 
   async affiliateLinks(websiteUrls: string[]) {
     const route = `${this.monetizeApiRoute}/v2/resolve`;
 
     const body = {
       iris: websiteUrls,
-      subId: await this.getUserUniqueId(), // TODO: Use mock?
+      // subId: await this.getUserUniqueId(),
+      subId: 'product_page', // Taken from example in docs
       withImages: true
     };
 
@@ -96,6 +107,7 @@ export class TakeAds {
     });
   }
 
+  /*
   async getLocalAdVariants(data: Daum[]): Promise<Array<Advertisement>> {
     const websiteUrls = data.map(program => program.websiteUrl);
 
@@ -119,6 +131,7 @@ export class TakeAds {
       };
     });
   }
+  */
 
   async getUserUniqueId() {
     return await userIdService.getUserId();

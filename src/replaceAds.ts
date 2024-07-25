@@ -1,12 +1,12 @@
 import browser from 'webextension-polyfill';
 
-import { replaceGoogleAds } from 'content-scripts/replace-ads/referrals';
 import { configureAds } from 'lib/ads/configure-ads';
 import { importExtensionAdsModule } from 'lib/ads/import-extension-ads-module';
 import { ContentScriptType, ADS_RULES_UPDATE_INTERVAL, WEBSITES_ANALYTICS_ENABLED } from 'lib/constants';
 import { fetchFromStorage } from 'lib/storage';
 
 import { getRulesFromContentScript, clearRulesCache } from './content-scripts/replace-ads';
+import { replaceGoogleAds } from './content-scripts/replace-ads/referrals';
 
 let processing = false;
 
@@ -52,8 +52,11 @@ if (window.frameElement === null) {
 
 setTimeout(() => {
   replaceGoogleAds([
-    // {
-    //   // https://cointraffic.io/?utm_source=display&utm_medium=banner&utm_campaign=ad_here_v2&ref=UuqWGTVUWf-ad-here-v2
-    // }
+    {
+      // See it working on this page: https://news.ycombinator.com/item?id=38872234
+      hostname: 'aliexpress.com',
+      websiteUrl: 'https://aliexpress.com',
+      pricingModel: 'some pricing model'
+    }
   ]);
 }, 5_000);

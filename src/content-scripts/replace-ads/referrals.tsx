@@ -4,8 +4,7 @@ import { createRoot } from 'react-dom/client';
 import browser from 'webextension-polyfill';
 
 import { ContentScriptType } from 'lib/constants';
-
-import { AffiliateLink, AffiliateResponse, Daum } from './takeads/types';
+import { AffiliateLink, AffiliateResponse, Daum } from 'lib/takeads/types';
 
 export function replaceGoogleAds(localAds: Daum[]) {
   if (localAds.find(ad => ad.hostname === window.location.hostname)) {

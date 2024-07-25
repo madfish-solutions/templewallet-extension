@@ -1,11 +1,11 @@
 import browser, { Runtime } from 'webextension-polyfill';
 
-import { TakeAds } from 'content-scripts/replace-ads/referrals/takeads';
 import { updateRulesStorage } from 'lib/ads/update-rules-storage';
 import { ADS_VIEWER_ADDRESS_STORAGE_KEY, ANALYTICS_USER_ID_STORAGE_KEY, ContentScriptType } from 'lib/constants';
 import { E2eMessageType } from 'lib/e2e/types';
 import { BACKGROUND_IS_WORKER, EnvVars } from 'lib/env';
 import { fetchFromStorage } from 'lib/storage';
+import { TakeAds } from 'lib/takeads';
 import { encodeMessage, encryptMessage, getSenderId, MessageType, Response } from 'lib/temple/beacon';
 import { clearAsyncStorages } from 'lib/temple/reset';
 import { TempleMessageType, TempleRequest, TempleResponse } from 'lib/temple/types';
