@@ -1022,6 +1022,31 @@
   "enterPasswordToRevealPrivateKey": {
     "message": "Enter your password to reveal private key"
   },
+  "networkToReceive": {
+    "message": "Network to receive"
+  },
+  "networkAddress": {
+    "message": "$network$ Address",
+    "placeholders": {
+      "network": {
+        "content": "$1"
+      }
+    }
+  },
+  "sendOnlySomeNetworkTokens": {
+    "message": "Send only $network$ network tokens to this address",
+    "placeholders": {
+      "network": {
+        "content": "$1"
+      }
+    }
+  },
+  "evmReceiveTooltip": {
+    "message": "Use this address to receive tokens\nand NFTs on Ethereum, BNB Smart Chain,\nArbitrum, Optimism and other EVM\ncompatible networks."
+  },
+  "tezosReceiveTooltip": {
+    "message": "Use this address to receive tokens\nand NFTs only on Tezos network."
+  },
   "selectNetworkToReveal": {
     "message": "Select Network to reveal"
   },

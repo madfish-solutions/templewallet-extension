@@ -1,146 +1,47 @@
-import React, { memo } from 'react';
+import React, { memo, useCallback, useState } from 'react';
 
-import classNames from 'clsx';
-import { QRCode } from 'react-qr-svg';
-
-import { FormField, PageTitle } from 'app/atoms';
-import { ReactComponent as QRIcon } from 'app/icons/base/qr_code.svg';
-import { ReactComponent as GlobeIcon } from 'app/icons/globe.svg';
-import { ReactComponent as HashIcon } from 'app/icons/hash.svg';
-import { ReactComponent as CopyIcon } from 'app/icons/monochrome/copy.svg';
+import { PageTitle } from 'app/atoms';
+import { useModalOpenSearchParams } from 'app/hooks/use-modal-open-search-params';
 import PageLayout from 'app/layouts/PageLayout';
-import { useChainSelectController, ChainSelectSection } from 'app/templates/ChainSelect';
-import ViewsSwitcher, { ViewsSwitcherProps } from 'app/templates/ViewsSwitcher/ViewsSwitcher';
-import { setTestID } from 'lib/analytics';
+import { AccountsModal } from 'app/templates/AppHeader/AccountsModal';
 import { T, t } from 'lib/i18n';
-import { useSafeState } from 'lib/ui/hooks';
-import useCopyToClipboard from 'lib/ui/useCopyToClipboard';
-import { UNDER_DEVELOPMENT_MSG } from 'temple/evm/under_dev_msg';
-import { useAccountAddressForEvm, useAccountAddressForTezos } from 'temple/front';
-import { useTezosDomainNameByAddress } from 'temple/front/tezos';
-import { TezosNetworkEssentials } from 'temple/networks';
+import { useAccount, useAccountAddressForEvm, useAccountAddressForTezos } from 'temple/front';
+import { TempleChainKind } from 'temple/types';
 
-import { ReceiveSelectors } from './Receive.selectors';
+import { AccountDropdownHeader } from './AccountDropdownHeader';
+import { NetworkCard } from './NetworkCard';
+import { ReceiveModal } from './ReceiveModal';
+import { ReceivePayload } from './types';
 
-const ADDRESS_FIELD_VIEWS = [
-  {
-    Icon: GlobeIcon,
-    key: 'domain',
-    name: t('domain')
-  },
-  {
-    Icon: HashIcon,
-    key: 'hash',
-    name: t('hash')
-  }
-];
-
-const Receive = memo(() => {
+export const Receive = memo(() => {
+  const account = useAccount();
   const tezosAddress = useAccountAddressForTezos();
   const evmAddress = useAccountAddressForEvm();
+  const {
+    isOpen: accountsModalIsOpen,
+    openModal: openAccountsModal,
+    closeModal: closeAccountsModal
+  } = useModalOpenSearchParams('accountsModal');
+  const [receivePayload, setReceivePayload] = useState<ReceivePayload | null>(null);
 
-  const chainSelectController = useChainSelectController();
-  const network = chainSelectController.value;
-
-  return (
-    <PageLayout pageTitle={<PageTitle Icon={QRIcon} title={t('receive')} />}>
-      <>
-        <ChainSelectSection controller={chainSelectController} />
-
-        {network.kind === 'tezos' && tezosAddress ? (
-          <ReceiveContent labelTitle="Tezos address" address={tezosAddress} />
-        ) : evmAddress ? (
-          <ReceiveContent labelTitle="EVM address" address={evmAddress} />
-        ) : (
-          <div className="text-center">{UNDER_DEVELOPMENT_MSG}</div>
-        )}
-      </>
-    </PageLayout>
-  );
-});
-
-interface ReceiveContentProps {
-  address: string;
-  labelTitle: string;
-  tezosNetwork?: TezosNetworkEssentials;
-}
-
-const ReceiveContent = memo<ReceiveContentProps>(({ address, labelTitle, tezosNetwork }) => {
-  const { fieldRef, copy, copied } = useCopyToClipboard();
-  const [activeView, setActiveView] = useSafeState(ADDRESS_FIELD_VIEWS[1]);
-
-  const { data: reverseName } = useTezosDomainNameByAddress(address, tezosNetwork);
+  const resetReceivePayload = useCallback(() => setReceivePayload(null), []);
 
   return (
-    <>
-      <FormField
-        extraSection={reverseName && <AddressFieldExtraSection activeView={activeView} onSwitch={setActiveView} />}
-        textarea
-        rows={2}
-        ref={fieldRef}
-        id="receive-address"
-        label={labelTitle}
-        labelDescription={t('accountAddressLabel')}
-        value={activeView.key === 'hash' || !reverseName ? address : reverseName}
-        size={36}
-        spellCheck={false}
-        readOnly
-        style={{
-          resize: 'none'
-        }}
-        testID={ReceiveSelectors.addressValue}
-      />
-
-      <button
-        type="button"
-        className={classNames(
-          'flex items-center justify-center mx-auto mb-6 py-1 px-2 w-40',
-          'border rounded border-primary-orange bg-primary-orange shadow-sm',
-          'text-sm font-semibold text-primary-orange-lighter text-shadow-black-orange',
-          'opacity-90 hover:opacity-100 focus:opacity-100 hover:shadow focus:shadow',
-          'transition duration-300 ease-in-out'
+    <PageLayout pageTitle={<PageTitle title={t('receive')} />} paperClassName="!bg-background">
+      <AccountsModal opened={accountsModalIsOpen} onRequestClose={closeAccountsModal} />
+      <AccountDropdownHeader className="mb-5" account={account} onClick={openAccountsModal} />
+      {receivePayload && <ReceiveModal onClose={resetReceivePayload} {...receivePayload} />}
+      <span className="text-font-description-bold">
+        <T id="networkToReceive" />
+      </span>
+      <div className="mt-3 flex flex-col gap-y-3">
+        {evmAddress && (
+          <NetworkCard address={evmAddress} chainKind={TempleChainKind.EVM} onQRClick={setReceivePayload} />
         )}
-        onClick={copy}
-        {...setTestID(ReceiveSelectors.copyToClipboardButton)}
-      >
-        {copied ? (
-          <T id="copiedAddress" />
-        ) : (
-          <>
-            <CopyIcon className="mr-1 h-4 w-auto stroke-current stroke-2" />
-            <T id="copyAddressToClipboard" />
-          </>
+        {tezosAddress && (
+          <NetworkCard address={tezosAddress} chainKind={TempleChainKind.Tezos} onQRClick={setReceivePayload} />
         )}
-      </button>
-
-      <div className="flex flex-col items-center">
-        <div className="mb-2 leading-tight text-center">
-          <span className="text-sm font-semibold text-gray-700">
-            <T id="qrCode" />
-          </span>
-        </div>
-
-        <div className="mb-4 p-1 bg-gray-100 border-2 border-gray-300 rounded" style={{ maxWidth: '60%' }}>
-          <QRCode bgColor="#f7fafc" fgColor="#000000" level="Q" style={{ width: '100%' }} value={address} />
-        </div>
       </div>
-    </>
-  );
-});
-
-export default Receive;
-
-type AddressFieldExtraSectionProps = {
-  activeView: ViewsSwitcherProps['activeItem'];
-  onSwitch: ViewsSwitcherProps['onChange'];
-};
-
-const AddressFieldExtraSection = memo<AddressFieldExtraSectionProps>(props => {
-  const { activeView, onSwitch } = props;
-
-  return (
-    <div className="mb-2 flex justify-end">
-      <ViewsSwitcher activeItem={activeView} items={ADDRESS_FIELD_VIEWS} onChange={onSwitch} />
-    </div>
+    </PageLayout>
   );
 });

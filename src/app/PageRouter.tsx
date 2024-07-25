@@ -15,7 +15,7 @@ import ImportAccount from 'app/pages/ImportAccount';
 import ManageAssets from 'app/pages/ManageAssets';
 import { ImportWallet } from 'app/pages/NewWallet/ImportWallet';
 import AttentionPage from 'app/pages/Onboarding/pages/AttentionPage';
-import Receive from 'app/pages/Receive/Receive';
+import { Receive } from 'app/pages/Receive/Receive';
 import Send from 'app/pages/Send';
 import Settings from 'app/pages/Settings/Settings';
 import { Swap } from 'app/pages/Swap/Swap';

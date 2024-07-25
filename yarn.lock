@@ -10777,10 +10777,22 @@ pvutils@latest:
   resolved "https://registry.yarnpkg.com/pvutils/-/pvutils-1.0.17.tgz#ade3c74dfe7178944fe44806626bd2e249d996bf"
   integrity sha512-wLHYUQxWaXVQvKnwIDWFVKDJku9XDCvyhhxoq8dc5MFdIlRenyPI9eSfEtcvgHgD7FlvCyGAlWgOzRnZD99GZQ==
 
+qr-code-styling-2@^1.5.5:
+  version "1.5.5"
+  resolved "https://registry.yarnpkg.com/qr-code-styling-2/-/qr-code-styling-2-1.5.5.tgz#2b01440636bbb9b8b4d93d9a05e1bbee5d3cd028"
+  integrity sha512-KboFlsuZ0E+UX+6zHzB9Y6TTyRpZ9u/LI5MNOcLk+IXl7H1cV8obFipAQ4Txrdm97fbe0UQh//T+S9IUsyitwA==
+  dependencies:
+    qrcode-generator "^1.4.4"
+
 qr.js@0.0.0:
   version "0.0.0"
   resolved "https://registry.yarnpkg.com/qr.js/-/qr.js-0.0.0.tgz#cace86386f59a0db8050fa90d9b6b0e88a1e364f"
   integrity sha1-ys6GOG9ZoNuAUPqQ2baw6IoeNk8=
+
+qrcode-generator@^1.4.4:
+  version "1.4.4"
+  resolved "https://registry.yarnpkg.com/qrcode-generator/-/qrcode-generator-1.4.4.tgz#63f771224854759329a99048806a53ed278740e7"
+  integrity sha512-HM7yY8O2ilqhmULxGMpcHSF1EhJJ9yBj8gvDEuZ6M+KGJ0YY2hKpnXvRD+hZPLrDVck3ExIGhmPtSdcjC+guuw==
 
 qrcode-svg@^1.1.0:
   version "1.1.0"

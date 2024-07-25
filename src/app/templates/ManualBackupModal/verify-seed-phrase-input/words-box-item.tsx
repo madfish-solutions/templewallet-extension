@@ -1,5 +1,7 @@
 import React, { memo, useCallback } from 'react';
 
+import clsx from 'clsx';
+
 import { StyledButton } from 'app/atoms/StyledButton';
 import { TestIDProps } from 'lib/analytics';
 
@@ -19,7 +21,7 @@ export const WordsBoxItem = memo<WordsBoxItemProps>(({ data, selected, onSelect,
 
   return (
     <StyledButton
-      className="flex-1 font-normal py-2"
+      className={clsx('flex-1 font-normal py-2', selected && '!text-grey-1')}
       color="secondary"
       disabled={selected}
       size="M"
