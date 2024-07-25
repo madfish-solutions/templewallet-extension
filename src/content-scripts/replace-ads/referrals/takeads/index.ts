@@ -84,10 +84,6 @@ export class TakeAds {
       withImages: true
     };
 
-    console.log({ body });
-
-    console.log(JSON.stringify(body));
-
     const url = new URL(route, this.url);
 
     const headers = new Headers(this.authHeaders);

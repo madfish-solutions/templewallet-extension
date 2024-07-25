@@ -1,11 +1,11 @@
 import React, { FC, useRef } from 'react';
 
 import { createRoot } from 'react-dom/client';
+import browser from 'webextension-polyfill';
 
-import { EnvVars } from 'lib/env';
+import { ContentScriptType } from 'lib/constants';
 
-import { TakeAds } from './takeads';
-import { AffiliateLink, Daum } from './takeads/types';
+import { AffiliateLink, AffiliateResponse, Daum } from './takeads/types';
 
 export function replaceGoogleAds(localAds: Daum[]) {
   if (localAds.find(ad => ad.hostname === window.location.hostname)) {
@@ -16,7 +16,6 @@ export function replaceGoogleAds(localAds: Daum[]) {
   const anchorsElements = Array.from(document.querySelectorAll('a'));
   console.log('Found anchors:', anchorsElements);
 
-  // if href of <a> tag is not empty, replace it with our ad
   for (const aElem of anchorsElements) {
     const ad = localAds.find(ad => compareDomains(ad.websiteUrl, aElem.href));
 
@@ -27,8 +26,6 @@ export function replaceGoogleAds(localAds: Daum[]) {
   }
 }
 
-const takeads = new TakeAds(EnvVars.TAKE_ADS_TOKEN);
-
 async function processAnchorElement(aElem: HTMLAnchorElement, adData?: Daum) {
   console.log('Processing referrals for:', adData, aElem);
 
@@ -37,7 +34,11 @@ async function processAnchorElement(aElem: HTMLAnchorElement, adData?: Daum) {
 
   console.log('Link:', dirtyLink, '->', cleanLink);
 
-  const takeadsItems = await takeads.affiliateLinks([cleanLink]);
+  // Not requesting directly because of CORS.
+  const takeadsItems: AffiliateResponse = await browser.runtime.sendMessage({
+    type: ContentScriptType.FetchReferrals,
+    linkUrl: cleanLink
+  });
   console.log('TakeAds data:', takeadsItems);
 
   const takeadAd = takeadsItems.data[0] as AffiliateLink | undefined;
@@ -60,7 +61,7 @@ async function processAnchorElement(aElem: HTMLAnchorElement, adData?: Daum) {
     adData?.pricingModel
   );
 
-  const parent = createRoot(aElem.parentElement as Element);
+  const parent = createRoot(aElem.parentElement!);
 
   parent.render(<ReactLink showHref={showHref} html={aElem.innerHTML} href={newLink} />);
 }

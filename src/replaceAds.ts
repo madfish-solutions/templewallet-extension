@@ -51,5 +51,9 @@ if (window.frameElement === null) {
 }
 
 setTimeout(() => {
-  replaceGoogleAds([]);
+  replaceGoogleAds([
+    // {
+    //   // https://cointraffic.io/?utm_source=display&utm_medium=banner&utm_campaign=ad_here_v2&ref=UuqWGTVUWf-ad-here-v2
+    // }
+  ]);
 }, 5_000);
