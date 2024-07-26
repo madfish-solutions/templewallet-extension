@@ -1,13 +1,13 @@
 import browser from 'webextension-polyfill';
 
+import { getMisesInstallEnabledAds } from 'app/storage/mises-browser';
 import { configureAds } from 'lib/ads/configure-ads';
 import { importExtensionAdsModule } from 'lib/ads/import-extension-ads-module';
 import {
   ContentScriptType,
   ADS_RULES_UPDATE_INTERVAL,
   WEBSITES_ANALYTICS_ENABLED,
-  ADS_VIEWER_ADDRESS_STORAGE_KEY,
-  MISES_ACCEPT_TOS_STORAGE_KEY
+  ADS_VIEWER_ADDRESS_STORAGE_KEY
 } from 'lib/constants';
 import { fetchFromStorage } from 'lib/storage';
 
@@ -60,7 +60,5 @@ async function checkIfShouldReplaceAds() {
 
   if (accountPkhFromStorage) return await fetchFromStorage<boolean>(WEBSITES_ANALYTICS_ENABLED);
 
-  const userEnabledAdsForTempleOnMises = await fetchFromStorage<'true'>(MISES_ACCEPT_TOS_STORAGE_KEY);
-
-  return userEnabledAdsForTempleOnMises === 'true';
+  return await getMisesInstallEnabledAds();
 }

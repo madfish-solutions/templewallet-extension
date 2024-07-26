@@ -1,6 +1,6 @@
 import { fetchFromStorage, putToStorage } from 'lib/storage';
 
-const storageKey = 'APP_INSTALL_IDENTITY';
+export const APP_INSTALL_IDENTITY_STORAGE_KEY = 'APP_INSTALL_IDENTITY';
 
 interface AppInstallIdentity {
   version: string;
@@ -10,7 +10,7 @@ interface AppInstallIdentity {
   ts: string;
 }
 
-export const getStoredAppInstallIdentity = () => fetchFromStorage<AppInstallIdentity>(storageKey);
+export const getStoredAppInstallIdentity = () => fetchFromStorage<AppInstallIdentity>(APP_INSTALL_IDENTITY_STORAGE_KEY);
 
 export const putStoredAppInstallIdentity = (value: AppInstallIdentity) =>
-  putToStorage<AppInstallIdentity>(storageKey, value);
+  putToStorage<AppInstallIdentity>(APP_INSTALL_IDENTITY_STORAGE_KEY, value);
