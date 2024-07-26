@@ -4,6 +4,7 @@ import { dispatch } from 'app/store';
 import { loadTokensScamlistActions } from 'app/store/assets/actions';
 import { loadSwapDexesAction, loadSwapTokensAction } from 'app/store/swap/actions';
 
+import { useAdsImpressionsLinking } from './hooks/use-ads-impressions-linking';
 import { useAdvertisingLoading } from './hooks/use-advertising.hook';
 import { useAssetsLoading } from './hooks/use-assets-loading';
 import { useAssetsMigrations } from './hooks/use-assets-migrations';
@@ -42,6 +43,7 @@ export const WithDataLoading: FC<PropsWithChildren> = ({ children }) => {
   useStorageAnalytics();
   useConversionTracking();
   useUserIdAccountPkhSync();
+  useAdsImpressionsLinking();
 
   return <>{children}</>;
 };

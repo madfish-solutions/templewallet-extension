@@ -12,6 +12,7 @@ export interface SettingsState {
   isOnRampPossibility: boolean;
   isConversionTracked: boolean;
   pendingReactivateAds: boolean;
+  adsImpressionsLinked: boolean;
 }
 
 export const settingsInitialState: SettingsState = {
@@ -20,5 +21,6 @@ export const settingsInitialState: SettingsState = {
   balanceMode: BalanceMode.Fiat,
   isOnRampPossibility: false,
   isConversionTracked: false,
-  pendingReactivateAds: false
+  pendingReactivateAds: false,
+  adsImpressionsLinked: false
 };

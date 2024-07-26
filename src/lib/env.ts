@@ -4,7 +4,7 @@ export const APP_VERSION = PackageJSON.version;
 
 /** Only Mises browser among supported vendors counts as a mobile platform */
 // @ts-expect-error
-export const IS_MISES_BROWSER = navigator.userAgentData?.mobile ?? false;
+export const IS_MISES_BROWSER = Boolean(navigator.userAgentData?.mobile);
 
 export const IS_DEV_ENV = process.env.NODE_ENV === 'development';
 
@@ -17,6 +17,7 @@ export const BACKGROUND_IS_WORKER = process.env.BACKGROUND_IS_WORKER === 'true';
 export const EnvVars = {
   TEMPLE_WALLET_API_URL: process.env.TEMPLE_WALLET_API_URL!,
   TEMPLE_WALLET_DEXES_API_URL: process.env.TEMPLE_WALLET_DEXES_API_URL!,
+  TEMPLE_ADS_API_URL: process.env.TEMPLE_ADS_API_URL!,
   TEMPLE_WALLET_JITSU_TRACKING_HOST: process.env.TEMPLE_WALLET_JITSU_TRACKING_HOST!,
   TEMPLE_WALLET_JITSU_WRITE_KEY: process.env.TEMPLE_WALLET_JITSU_WRITE_KEY!,
   TEMPLE_WALLET_EXOLIX_API_KEY: process.env.TEMPLE_WALLET_EXOLIX_API_KEY!,

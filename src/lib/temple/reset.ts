@@ -1,3 +1,4 @@
+import { getStoredAppInstallIdentity, putStoredAppInstallIdentity } from 'app/storage/app-install-id';
 import { browser } from 'lib/browser';
 import * as Repo from 'lib/temple/repo';
 
@@ -9,7 +10,9 @@ export async function clearAllStorages() {
 export async function clearAsyncStorages() {
   await Repo.db.delete();
   await Repo.db.open();
+  const appIdentity = await getStoredAppInstallIdentity();
   await browser.storage.local.clear();
+  if (appIdentity) putStoredAppInstallIdentity(appIdentity);
   await browser.storage.session?.clear();
 }
 
