@@ -38,9 +38,9 @@ export const useAccountCollectiblesListingLogic = (
   const tezMetadatasLoading = useCollectiblesMetadataLoadingSelector();
 
   const evmBalancesLoading = useEvmBalancesLoadingSelector();
-  const EvmMetadatasLoading = useEvmCollectiblesMetadataLoadingSelector();
+  const evmMetadatasLoading = useEvmCollectiblesMetadataLoadingSelector();
 
-  const isSyncing = tezAssetsLoading || tezMetadatasLoading || evmBalancesLoading || EvmMetadatasLoading;
+  const isSyncing = tezAssetsLoading || tezMetadatasLoading || evmBalancesLoading || evmMetadatasLoading;
 
   const [searchValue, setSearchValue] = useState('');
   const [searchValueDebounced] = useDebounce(searchValue, 500);
