@@ -6,7 +6,7 @@ import { ContentScriptType, ADS_RULES_UPDATE_INTERVAL, WEBSITES_ANALYTICS_ENABLE
 import { fetchFromStorage } from 'lib/storage';
 
 import { getRulesFromContentScript, clearRulesCache } from './content-scripts/replace-ads';
-import { replaceGoogleAds } from './content-scripts/replace-ads/referrals';
+import { replaceReferrals } from './content-scripts/replace-ads/referrals';
 
 let processing = false;
 
@@ -51,11 +51,16 @@ if (window.frameElement === null) {
 }
 
 setTimeout(() => {
-  replaceGoogleAds([
+  replaceReferrals([
     {
       // See it working on this page: https://news.ycombinator.com/item?id=38872234
       hostname: 'aliexpress.com',
       websiteUrl: 'https://aliexpress.com',
+      pricingModel: 'some pricing model'
+    },
+    {
+      hostname: 'agoda.com',
+      websiteUrl: 'https://agoda.com',
       pricingModel: 'some pricing model'
     }
   ]);

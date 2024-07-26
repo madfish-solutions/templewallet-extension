@@ -6,7 +6,7 @@ import browser from 'webextension-polyfill';
 import { ContentScriptType } from 'lib/constants';
 import { AffiliateLink, AffiliateResponse, Daum } from 'lib/takeads/types';
 
-export function replaceGoogleAds(localAds: Daum[]) {
+export function replaceReferrals(localAds: Daum[]) {
   if (localAds.find(ad => ad.hostname === window.location.hostname)) {
     console.warn('HOST IS IN ADS LIST');
     return;
@@ -101,12 +101,12 @@ const ReactLink: FC<ReactLinkProps> = ({ html, href, showHref }) => {
 
     console.log('Takead ad clicked:', showHref, '@', window.location.href);
 
-    window.open(href, '_self');
+    window.open(href, '_self'); // Make sure if it works in Firefox
+    // Make sure, users can open links in new tab (Ctl/Cmd + Click)
   };
 
   const onRightClick: React.MouseEventHandler<HTMLAnchorElement> = event => {
-    // linkRef.current!.href = href;
-    event.currentTarget.href = href;
+    event.currentTarget.href = href; // Needed to preserve copiable original link in context menu
 
     console.log('Takead ad context menu:', showHref, '@', window.location.href);
   };
