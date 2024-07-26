@@ -1,7 +1,8 @@
 export enum ContentScriptType {
   ExternalLinksActivity = 'ExternalLinksActivity',
   ExternalAdsActivity = 'ExternalAdsActivity',
-  UpdateAdsRules = 'UpdateAdsRules'
+  UpdateAdsRules = 'UpdateAdsRules',
+  FetchReferrals = 'FetchReferrals'
 }
 
 export const ORIGIN_SEARCH_PARAM_NAME = 'o';

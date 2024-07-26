@@ -3,8 +3,9 @@ import browser, { Runtime } from 'webextension-polyfill';
 import { updateRulesStorage } from 'lib/ads/update-rules-storage';
 import { ADS_VIEWER_ADDRESS_STORAGE_KEY, ANALYTICS_USER_ID_STORAGE_KEY, ContentScriptType } from 'lib/constants';
 import { E2eMessageType } from 'lib/e2e/types';
-import { BACKGROUND_IS_WORKER } from 'lib/env';
+import { BACKGROUND_IS_WORKER, EnvVars } from 'lib/env';
 import { fetchFromStorage } from 'lib/storage';
+import { TakeAds } from 'lib/takeads';
 import { encodeMessage, encryptMessage, getSenderId, MessageType, Response } from 'lib/temple/beacon';
 import { clearAsyncStorages } from 'lib/temple/reset';
 import { TempleMessageType, TempleRequest, TempleResponse } from 'lib/temple/types';
@@ -303,6 +304,10 @@ browser.runtime.onMessage.addListener(async msg => {
           rpc: undefined
         });
         break;
+
+      case ContentScriptType.FetchReferrals: {
+        return await takeads.affiliateLinks([msg.linkUrl]);
+      }
     }
   } catch (e) {
     console.error(e);
@@ -310,3 +315,8 @@ browser.runtime.onMessage.addListener(async msg => {
 
   return;
 });
+
+const takeads = new TakeAds(
+  EnvVars.TAKE_ADS_TOKEN,
+  'product_page' // Taken from example in API Swagger
+);
