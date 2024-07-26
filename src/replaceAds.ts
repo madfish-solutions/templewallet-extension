@@ -6,9 +6,9 @@ import {
   ContentScriptType,
   ADS_RULES_UPDATE_INTERVAL,
   WEBSITES_ANALYTICS_ENABLED,
-  ADS_VIEWER_ADDRESS_STORAGE_KEY
+  ADS_VIEWER_ADDRESS_STORAGE_KEY,
+  MISES_ACCEPT_TOS_STORAGE_KEY
 } from 'lib/constants';
-import { IS_MISES_BROWSER } from 'lib/env';
 import { fetchFromStorage } from 'lib/storage';
 
 import { getRulesFromContentScript, clearRulesCache } from './content-scripts/replace-ads';
@@ -60,5 +60,7 @@ async function checkIfShouldReplaceAds() {
 
   if (accountPkhFromStorage) return await fetchFromStorage<boolean>(WEBSITES_ANALYTICS_ENABLED);
 
-  return IS_MISES_BROWSER;
+  const userEnabledAdsForTempleOnMises = await fetchFromStorage<'true'>(MISES_ACCEPT_TOS_STORAGE_KEY);
+
+  return userEnabledAdsForTempleOnMises === 'true';
 }

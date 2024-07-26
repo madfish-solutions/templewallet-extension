@@ -4,6 +4,8 @@ export enum ContentScriptType {
   UpdateAdsRules = 'UpdateAdsRules'
 }
 
+export const MISES_ACCEPT_TOS_STORAGE_KEY = 'MISES_ACCEPT_TOS';
+
 export const ORIGIN_SEARCH_PARAM_NAME = 'o';
 
 export const ADS_META_SEARCH_PARAM_NAME = 'ads-meta';

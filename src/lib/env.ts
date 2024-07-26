@@ -2,7 +2,11 @@ import PackageJSON from '../../package.json';
 
 export const APP_VERSION = PackageJSON.version;
 
-/** Only Mises browser among supported vendors counts as a mobile platform */
+/**
+ * Only Mises browser among supported vendors counts as a mobile platform
+ *
+ * `navigator.userAgentData.brands.find(b => b.brand === 'Mises')` will be available in future versions.
+ */
 // @ts-expect-error
 export const IS_MISES_BROWSER = Boolean(navigator.userAgentData?.mobile);
 
