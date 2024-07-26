@@ -1,5 +1,4 @@
 import { Advertisement, AffiliateLink, AffiliateResponse, Daum, IpApi, TakeAdsResponse } from './types';
-import { userIdService } from './user-id';
 
 enum ProgramStatus {
   ACTIVE = 'ACTIVE',
@@ -16,7 +15,7 @@ export class TakeAds {
   authHeaders: Headers;
   url: URL;
 
-  constructor(private publicKey: string, baseUrl: string = 'https://api.takeads.com') {
+  constructor(private publicKey: string, private subId: string, baseUrl: string = 'https://api.takeads.com') {
     this.authHeaders = new Headers();
     this.authHeaders.append('Authorization', `Bearer ${this.publicKey}`);
 
@@ -90,8 +89,7 @@ export class TakeAds {
 
     const body = {
       iris: websiteUrls,
-      // subId: await this.getUserUniqueId(),
-      subId: 'product_page', // Taken from example in docs
+      subId: this.subId,
       withImages: true
     };
 
@@ -132,10 +130,6 @@ export class TakeAds {
     });
   }
   */
-
-  async getUserUniqueId() {
-    return await userIdService.getUserId();
-  }
 
   private fetch<T>(...args: Parameters<typeof fetch>): Promise<T> {
     return fetch(...args).then(res => res.json()) as Promise<T>;

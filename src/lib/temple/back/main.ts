@@ -316,4 +316,7 @@ browser.runtime.onMessage.addListener(async msg => {
   return;
 });
 
-const takeads = new TakeAds(EnvVars.TAKE_ADS_TOKEN);
+const takeads = new TakeAds(
+  EnvVars.TAKE_ADS_TOKEN,
+  'product_page' // Taken from example in API Swagger
+);
