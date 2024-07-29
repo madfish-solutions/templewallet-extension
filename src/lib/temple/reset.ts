@@ -1,4 +1,5 @@
-import { getStoredAppInstallIdentity, putStoredAppInstallIdentity } from 'app/storage/app-install-id';
+import { APP_INSTALL_IDENTITY_STORAGE_KEY } from 'app/storage/app-install-id';
+import { MISES_INSTALL_ENABLED_ADS_STORAGE_KEY } from 'app/storage/mises-browser';
 import { browser } from 'lib/browser';
 import * as Repo from 'lib/temple/repo';
 
@@ -10,9 +11,12 @@ export async function clearAllStorages() {
 export async function clearAsyncStorages() {
   await Repo.db.delete();
   await Repo.db.open();
-  const appIdentity = await getStoredAppInstallIdentity();
+  const keptRecord = await browser.storage.local.get([
+    APP_INSTALL_IDENTITY_STORAGE_KEY,
+    MISES_INSTALL_ENABLED_ADS_STORAGE_KEY
+  ]);
   await browser.storage.local.clear();
-  if (appIdentity) putStoredAppInstallIdentity(appIdentity);
+  await browser.storage.local.set(keptRecord);
   await browser.storage.session?.clear();
 }
 

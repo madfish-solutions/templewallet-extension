@@ -1,5 +1,6 @@
 import browser from 'webextension-polyfill';
 
+import { getMisesInstallEnabledAds } from 'app/storage/mises-browser';
 import { configureAds } from 'lib/ads/configure-ads';
 import { importExtensionAdsModule } from 'lib/ads/import-extension-ads-module';
 import {
@@ -8,7 +9,6 @@ import {
   WEBSITES_ANALYTICS_ENABLED,
   ADS_VIEWER_ADDRESS_STORAGE_KEY
 } from 'lib/constants';
-import { IS_MISES_BROWSER } from 'lib/env';
 import { fetchFromStorage } from 'lib/storage';
 
 import { getRulesFromContentScript, clearRulesCache } from './content-scripts/replace-ads';
@@ -60,5 +60,5 @@ async function checkIfShouldReplaceAds() {
 
   if (accountPkhFromStorage) return await fetchFromStorage<boolean>(WEBSITES_ANALYTICS_ENABLED);
 
-  return IS_MISES_BROWSER;
+  return await getMisesInstallEnabledAds();
 }
