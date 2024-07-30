@@ -10,14 +10,17 @@ import { DeadEndBoundaryError } from 'app/ErrorBoundary';
 import { useLoadPartnersPromo } from 'app/hooks/use-load-partners-promo';
 import { ReactComponent as LayersIcon } from 'app/icons/layers.svg';
 import { ContentContainer } from 'app/layouts/containers';
+import { useShouldShowPartnersPromoSelector } from 'app/store/partners-promotion/selectors';
 import { useChainSelectController, ChainSelectSection } from 'app/templates/ChainSelect';
 import { PartnersPromotion, PartnersPromotionVariant } from 'app/templates/partners-promotion';
+import { TEMPLE_TOKEN_SLUG } from 'lib/assets';
 import { t, T } from 'lib/i18n/react';
 import useTezosActivities from 'lib/temple/activity-new/hook';
 import { UNDER_DEVELOPMENT_MSG } from 'temple/evm/under_dev_msg';
 import { useAccountAddressForTezos, useTezosChainByChainId } from 'temple/front';
 
 import { ActivityItem } from './ActivityItem';
+import { ReactivateAdsBanner } from './ReactivateAdsBanner';
 
 const INITIAL_NUMBER = 30;
 const LOAD_STEP = 30;
@@ -73,29 +76,31 @@ const TezosActivity: FC<TezosActivityProps> = ({ tezosChainId, assetSlug }) => {
 
   const { popup } = useAppEnv();
 
+  const shouldShowPartnersPromo = useShouldShowPartnersPromoSelector();
   useLoadPartnersPromo();
 
   const promotion = useMemo(() => {
-    const promotionId = `promo-activity-${assetSlug ?? 'all'}`;
+    if (shouldShowPartnersPromo)
+      return (
+        <PartnersPromotion
+          id={`promo-activity-${assetSlug ?? 'all'}`}
+          variant={PartnersPromotionVariant.Image}
+          pageName="Activity"
+          withPersonaProvider
+        />
+      );
 
-    return (
-      <PartnersPromotion
-        id={promotionId}
-        variant={PartnersPromotionVariant.Image}
-        pageName="Activity"
-        withPersonaProvider
-      />
-    );
-  }, [assetSlug]);
+    return assetSlug === TEMPLE_TOKEN_SLUG ? <ReactivateAdsBanner /> : null;
+  }, [shouldShowPartnersPromo, assetSlug]);
 
   if (activities.length === 0 && !loading && reachedTheEnd) {
     return (
-      <div className={clsx('mt-3 mb-12 text-gray-500', 'flex flex-col items-center justify-center')}>
-        <div className="w-full flex justify-center mb-6">{promotion}</div>
+      <div className={clsx('flex flex-col items-center justify-center pt-3 pb-12 text-gray-500', popup && 'px-4')}>
+        {promotion}
 
-        <LayersIcon className="w-16 h-auto mb-2 stroke-current" />
+        <LayersIcon className="self-center mt-6 w-16 h-auto stroke-current" />
 
-        <h3 className="text-sm font-light text-center" style={{ maxWidth: '20rem' }}>
+        <h3 className="mt-2 text-sm font-light text-center">
           <T id="noOperationsFound" />
         </h3>
       </div>
@@ -110,8 +115,8 @@ const TezosActivity: FC<TezosActivityProps> = ({ tezosChainId, assetSlug }) => {
   const onScroll = loading || reachedTheEnd ? undefined : buildOnScroll(loadNext);
 
   return (
-    <div className={clsx('my-3 flex flex-col', popup && 'mx-4')}>
-      <div className="w-full mb-4 flex justify-center">{promotion}</div>
+    <div className={clsx('flex flex-col gap-y-4 py-3', popup && 'px-4')}>
+      {promotion}
 
       <InfiniteScroll
         dataLength={activities.length}

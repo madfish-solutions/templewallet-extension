@@ -7,7 +7,8 @@ import {
   setIsAnalyticsEnabledAction,
   setOnRampPossibilityAction,
   setConversionTrackedAction,
-  setToastsContainerBottomShiftAction
+  setToastsContainerBottomShiftAction,
+  setPendingReactivateAdsAction
 } from './actions';
 import { SettingsState, settingsInitialState } from './state';
 
@@ -26,6 +27,10 @@ const settingsReducer = createReducer<SettingsState>(settingsInitialState, build
 
   builder.addCase(setToastsContainerBottomShiftAction, (state, { payload }) => {
     state.toastsContainerBottomShift = payload;
+  });
+
+  builder.addCase(setPendingReactivateAdsAction, (state, { payload }) => {
+    state.pendingReactivateAds = payload;
   });
 });
 
