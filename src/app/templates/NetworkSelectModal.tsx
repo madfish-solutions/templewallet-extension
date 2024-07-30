@@ -3,6 +3,7 @@ import React, { FC, memo, useCallback, useEffect, useMemo, useState } from 'reac
 import { useDebounce } from 'use-debounce';
 
 import { IconBase } from 'app/atoms';
+import { EmptyState } from 'app/atoms/EmptyState';
 import { Size } from 'app/atoms/IconBase';
 import { IconButton } from 'app/atoms/IconButton';
 import { EvmNetworkLogo, TezosNetworkLogo } from 'app/atoms/NetworkLogo';
@@ -29,8 +30,6 @@ import {
   useEnabledTezosChains
 } from 'temple/front';
 import { TempleChainKind } from 'temple/types';
-
-import { EmptyNetworksSearch } from './EmptyNetworksSearch';
 
 const ALL_NETWORKS = 'All Networks';
 
@@ -85,11 +84,11 @@ export const NetworkSelectModal = memo<Props>(({ opened, selectedNetwork, onRequ
       <div className="flex gap-x-2 p-4">
         <SearchBarField value={searchValue} onValueChange={setSearchValue} />
 
-        <IconButton Icon={PlusIcon} color="blue" onClick={() => void navigate('settings/networks')} />
+        <IconButton Icon={PlusIcon} color="blue" onClick={() => navigate('settings/networks')} />
       </div>
 
       <div className="px-4 flex-1 flex flex-col overflow-y-auto">
-        {filteredNetworks.length === 0 && <EmptyNetworksSearch />}
+        {filteredNetworks.length === 0 && <EmptyState />}
 
         {filteredNetworks.map(network => (
           <Network
@@ -131,7 +130,7 @@ export const Network: FC<NetworkProps> = ({
 }) => {
   const isAllNetworks = typeof network === 'string';
 
-  const active = isAllNetworks ? activeNetwork === null : network?.chainId === activeNetwork?.chainId;
+  const active = isAllNetworks ? activeNetwork === null : network.chainId === activeNetwork?.chainId;
 
   const elemRef = useScrollIntoViewOnMount<HTMLDivElement>(active && attractSelf);
 
@@ -140,10 +139,10 @@ export const Network: FC<NetworkProps> = ({
   const Icon = useMemo(() => {
     if (isAllNetworks) return <IconBase Icon={Browse} className="text-primary mx-0.5" size={iconSize} />;
 
-    if (network?.kind === TempleChainKind.Tezos)
+    if (network.kind === TempleChainKind.Tezos)
       return <TezosNetworkLogo networkName={network.name} chainId={network.chainId} size={iconSize} />;
 
-    if (network?.kind === TempleChainKind.EVM)
+    if (network.kind === TempleChainKind.EVM)
       return (
         <EvmNetworkLogo networkName={network.name} chainId={network.chainId} size={iconSize} imgClassName="p-0.5" />
       );

@@ -13,7 +13,10 @@
     <title>Temple Wallet</title>
   </head>
 
-  <body class="bg-document">
-    <div id="root" ></div>
+  <body
+    class="bg-document"
+    <% if (process.env.TARGET_BROWSER === "firefox") { %> style="width: 384px"<% } %>
+  >
+    <div id="root"></div>
   </body>
 </html>

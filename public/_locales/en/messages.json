@@ -1794,8 +1794,11 @@
   "noAssetsFound": {
     "message": "No assets found"
   },
-  "tokenNotFound": {
-    "message": "Token not found..."
+  "notFound": {
+    "message": "Not Found"
+  },
+  "tokensNotFound": {
+    "message": "Tokens Not Found"
   },
   "notFound": {
     "message": "Not Found"

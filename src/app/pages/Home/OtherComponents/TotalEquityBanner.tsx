@@ -22,7 +22,7 @@ export const TotalEquityBanner = memo(() => {
   return (
     <div className="flex flex-col gap-y-0.5">
       <div className="text-font-description text-grey-1">
-        <T id="totalBalance" />
+        <T id="totalEquityValue" />
       </div>
 
       <div className="flex items-center gap-x-1 text-font-num-bold-24">

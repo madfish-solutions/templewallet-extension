@@ -5,6 +5,7 @@ import clsx from 'clsx';
 import { Identicon, Name } from 'app/atoms';
 import { AccLabel } from 'app/atoms/AccLabel';
 import { AccountName } from 'app/atoms/AccountName';
+import { EmptyState } from 'app/atoms/EmptyState';
 import { IconButton } from 'app/atoms/IconButton';
 import { PageModal } from 'app/atoms/PageModal';
 import { RadioButton } from 'app/atoms/RadioButton';
@@ -57,17 +58,21 @@ export const AccountsModal = memo<Props>(({ opened, onRequestClose }) => {
       </div>
 
       <div className="px-4 flex-1 flex flex-col overflow-y-auto">
-        {filteredGroups.map(group => (
-          <AccountsGroup
-            key={group.id}
-            title={group.name}
-            accounts={group.accounts}
-            currentAccountId={currentAccountId}
-            searchValue={searchValue}
-            attractSelectedAccount={attractSelectedAccount}
-            onAccountSelect={onRequestClose}
-          />
-        ))}
+        {filteredGroups.length ? (
+          filteredGroups.map(group => (
+            <AccountsGroup
+              key={group.id}
+              title={group.name}
+              accounts={group.accounts}
+              currentAccountId={currentAccountId}
+              searchValue={searchValue}
+              attractSelectedAccount={attractSelectedAccount}
+              onAccountSelect={onRequestClose}
+            />
+          ))
+        ) : (
+          <EmptyState />
+        )}
       </div>
 
       <div className="p-4 pb-6 flex flex-col bg-white">

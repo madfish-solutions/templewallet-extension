@@ -1,8 +1,8 @@
 import React, { memo } from 'react';
 
 import { Button, IconBase } from 'app/atoms';
+import { EmptyState } from 'app/atoms/EmptyState';
 import { ReactComponent as AddIcon } from 'app/icons/base/plus_circle.svg';
-import { ReactComponent as EmptySearchIcon } from 'app/icons/search_empty.svg';
 import { T } from 'lib/i18n';
 import { useBooleanState } from 'lib/ui/hooks';
 
@@ -14,13 +14,8 @@ export const EmptySection = memo(() => {
   return (
     <>
       <div className="w-full h-full flex flex-col items-center">
-        <div className="flex-1 py-7 flex flex-col items-center justify-center text-grey-2">
-          <EmptySearchIcon />
+        <EmptyState />
 
-          <p className="mt-2 text-center text-font-medium-bold">
-            <T id="notFound" />
-          </p>
-        </div>
         <Button
           className="w-fit flex flex-row mb-8 px-2 py-1 bg-secondary-low rounded-md text-font-description-bold text-secondary"
           onClick={setAddTokenModalOpen}

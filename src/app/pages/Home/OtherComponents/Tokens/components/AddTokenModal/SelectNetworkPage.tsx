@@ -2,10 +2,10 @@ import React, { FC, useCallback, useMemo, useState } from 'react';
 
 import { useDebounce } from 'use-debounce';
 
+import { EmptyState } from 'app/atoms/EmptyState';
 import { IconButton } from 'app/atoms/IconButton';
 import { StyledButton } from 'app/atoms/StyledButton';
 import { ReactComponent as PlusIcon } from 'app/icons/base/plus.svg';
-import { EmptyNetworksSearch } from 'app/templates/EmptyNetworksSearch';
 import { Network } from 'app/templates/NetworkSelectModal';
 import { SearchBarField } from 'app/templates/SearchField';
 import { T } from 'lib/i18n';
@@ -64,11 +64,11 @@ export const SelectNetworkPage: FC<SelectNetworkPageProps> = ({ selectedNetwork,
       <div className="flex gap-x-2 p-4">
         <SearchBarField value={searchValue} onValueChange={setSearchValue} />
 
-        <IconButton Icon={PlusIcon} color="blue" onClick={() => void navigate('settings/networks')} />
+        <IconButton Icon={PlusIcon} color="blue" onClick={() => navigate('settings/networks')} />
       </div>
 
       <div className="px-4 flex-1 flex flex-col overflow-y-auto">
-        {filteredNetworks.length === 0 && <EmptyNetworksSearch />}
+        {filteredNetworks.length === 0 && <EmptyState />}
 
         {filteredNetworks.map(network => (
           <Network
