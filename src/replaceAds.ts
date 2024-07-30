@@ -23,6 +23,9 @@ const replaceAds = async () => {
     }
 
     const adsActions = await getAdsActions(adsRules);
+    if (adsActions.length > 0) {
+      Promise.resolve(['toofta1', adsActions]).then(console.log);
+    }
 
     const adsActionsResult = await executeAdsActions(adsActions);
     adsActionsResult.forEach(
