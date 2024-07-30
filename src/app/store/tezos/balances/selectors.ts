@@ -5,6 +5,8 @@ import { useSelector } from '../../root-state.selector';
 
 import { getKeyForBalancesRecord } from './utils';
 
+export const useBalancesAtomicRecordSelector = () => useSelector(state => state.balances.balancesAtomic);
+
 export const useAllAccountBalancesEntitySelector = (
   publicKeyHash: string,
   chainId: string

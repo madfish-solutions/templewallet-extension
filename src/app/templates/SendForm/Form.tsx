@@ -41,7 +41,7 @@ import { useTezosAssetBalance } from 'lib/balances';
 import { useAssetFiatCurrencyPrice, useFiatCurrency } from 'lib/fiat-currency';
 import { TEZOS_BLOCK_DURATION } from 'lib/fixed-times';
 import { toLocalFixed, T, t } from 'lib/i18n';
-import { useAssetMetadata, getAssetSymbol } from 'lib/metadata';
+import { useTezosAssetMetadata, getAssetSymbol } from 'lib/metadata';
 import { transferImplicit, transferToContract } from 'lib/michelson';
 import { useTypedSWR } from 'lib/swr';
 import { loadContract } from 'lib/temple/contract';
@@ -87,7 +87,7 @@ interface Props {
 export const Form: FC<Props> = ({ account, network, assetSlug, setOperation, onAddContactRequested }) => {
   const { registerBackHandler } = useAppEnv();
 
-  const assetMetadata = useAssetMetadata(assetSlug, network.chainId);
+  const assetMetadata = useTezosAssetMetadata(assetSlug, network.chainId);
   const assetPrice = useAssetFiatCurrencyPrice(assetSlug, network.chainId);
 
   const assetSymbol = useMemo(() => getAssetSymbol(assetMetadata), [assetMetadata]);
@@ -441,7 +441,7 @@ export const Form: FC<Props> = ({ account, network, assetSlug, setOperation, onA
           <NoSpaceField
             ref={toFieldRef}
             onFocus={handleToFieldFocus}
-            extraInner={
+            extraRightInner={
               <InnerDropDownComponentGuard
                 contacts={allContactsWithoutCurrent}
                 opened={isContactsDropdownOpen}
@@ -449,7 +449,7 @@ export const Form: FC<Props> = ({ account, network, assetSlug, setOperation, onA
                 searchTerm={toValue}
               />
             }
-            extraInnerWrapper="unset"
+            extraRightInnerWrapper="unset"
           />
         }
         control={control}

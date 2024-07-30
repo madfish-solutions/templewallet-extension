@@ -7,3 +7,6 @@ export const useAnalyticsEnabledSelector = () => useSelector(({ settings }) => s
 export const useOnRampPossibilitySelector = () => useSelector(({ settings }) => settings.isOnRampPossibility);
 
 export const useIsConversionTrackedSelector = () => useSelector(({ settings }) => settings.isConversionTracked);
+
+export const useToastsContainerBottomShiftSelector = () =>
+  useSelector(({ settings }) => settings.toastsContainerBottomShift);

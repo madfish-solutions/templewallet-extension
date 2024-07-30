@@ -6,8 +6,8 @@ import { storageConfig, createTransformsBeforePersist } from 'lib/store';
 
 import {
   loadTokensWhitelistActions,
-  setTokenStatusAction,
-  setCollectibleStatusAction,
+  setTezosTokenStatusAction,
+  setTezosCollectibleStatusAction,
   putTokensAsIsAction,
   putCollectiblesAsIsAction,
   loadTokensScamlistActions,
@@ -25,20 +25,26 @@ const assetsReducer = createReducer<SliceState>(initialState, builder => {
     if (payload.resetError) delete assets.error;
   });
 
-  builder.addCase(setTokenStatusAction, (state, { payload: { account, chainId, slug, status } }) => {
+  builder.addCase(setTezosTokenStatusAction, (state, { payload: { account, chainId, slug, status } }) => {
     const records = state.tokens.data;
     const key = getAccountAssetsStoreKey(account, chainId);
-    const token = records[key]?.[slug];
+
+    if (!records[key]) records[key] = {};
+    const token = records[key][slug];
 
     if (token) token.status = status;
+    else records[key][slug] = { status };
   });
 
-  builder.addCase(setCollectibleStatusAction, (state, { payload: { account, chainId, slug, status } }) => {
+  builder.addCase(setTezosCollectibleStatusAction, (state, { payload: { account, chainId, slug, status } }) => {
     const records = state.collectibles.data;
     const key = getAccountAssetsStoreKey(account, chainId);
-    const collectible = records[key]?.[slug];
+
+    if (!records[key]) records[key] = {};
+    const collectible = records[key][slug];
 
     if (collectible) collectible.status = status;
+    else records[key][slug] = { status };
   });
 
   builder.addCase(addAccountTokensAction, (state, { payload: { account, chainId, slugs } }) => {

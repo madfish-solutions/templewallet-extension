@@ -7,7 +7,7 @@ import {
   CUSTOM_NETWORKS_SNAPSHOT_STORAGE_KEY,
   WALLETS_SPECS_STORAGE_KEY
 } from 'lib/constants';
-import { moveValueInStorage, fetchFromStorage, putToStorage, removeFromStorage } from 'lib/storage';
+import { moveValueInStorage, putToStorage, removeFromStorage } from 'lib/storage';
 import * as Passworder from 'lib/temple/passworder';
 import { StoredAccount, TempleAccountType, TempleContact, TempleSettings, WalletSpecs } from 'lib/temple/types';
 import { isTruthy } from 'lib/utils';

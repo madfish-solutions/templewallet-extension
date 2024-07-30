@@ -1,9 +1,17 @@
 import { createReducer } from '@reduxjs/toolkit';
+import { persistReducer } from 'redux-persist';
 
-import { setConversionTrackedAction, setIsAnalyticsEnabledAction, setOnRampPossibilityAction } from './actions';
+import { storageConfig } from 'lib/store';
+
+import {
+  setIsAnalyticsEnabledAction,
+  setOnRampPossibilityAction,
+  setConversionTrackedAction,
+  setToastsContainerBottomShiftAction
+} from './actions';
 import { SettingsState, settingsInitialState } from './state';
 
-export const settingsReducer = createReducer<SettingsState>(settingsInitialState, builder => {
+const settingsReducer = createReducer<SettingsState>(settingsInitialState, builder => {
   builder.addCase(setIsAnalyticsEnabledAction, (state, { payload }) => {
     state.isAnalyticsEnabled = payload;
   });
@@ -15,4 +23,17 @@ export const settingsReducer = createReducer<SettingsState>(settingsInitialState
   builder.addCase(setConversionTrackedAction, state => {
     state.isConversionTracked = true;
   });
+
+  builder.addCase(setToastsContainerBottomShiftAction, (state, { payload }) => {
+    state.toastsContainerBottomShift = payload;
+  });
 });
+
+export const settingsPersistedReducer = persistReducer(
+  {
+    key: 'root.settings',
+    ...storageConfig,
+    blacklist: ['toastsContainerBottomShift']
+  },
+  settingsReducer
+);

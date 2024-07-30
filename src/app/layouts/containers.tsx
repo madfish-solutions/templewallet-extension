@@ -1,4 +1,4 @@
-import React, { FC, useRef, useState } from 'react';
+import React, { forwardRef, useRef, useState } from 'react';
 
 import clsx from 'clsx';
 
@@ -19,12 +19,19 @@ interface ContentContainerProps extends PropsWithChildren {
   className?: string;
 }
 
-export const ContentContainer: FC<ContentContainerProps> = ({ padding = true, className, children }) => (
-  <div
-    className={clsx('flex-1 flex flex-col bg-background shadow-content-inset', padding && 'px-4 pt-4 pb-15', className)}
-  >
-    {children}
-  </div>
+export const ContentContainer = forwardRef<HTMLDivElement, ContentContainerProps>(
+  ({ padding = true, className, children }, ref) => (
+    <div
+      ref={ref}
+      className={clsx(
+        'flex-1 flex flex-col bg-background shadow-content-inset',
+        padding && 'px-4 pt-4 pb-15',
+        className
+      )}
+    >
+      {children}
+    </div>
+  )
 );
 
 interface StickyBarProps extends PropsWithChildren {

@@ -3,7 +3,7 @@ import { createEntity, LoadableEntityState } from 'lib/store';
 /** 'idle' for disabled unless balance is positive */
 export type StoredAssetStatus = 'idle' | 'enabled' | 'disabled' | 'removed';
 
-export interface AccountAssetForStore {
+export interface TezosAccountAssetForStore {
   slug: string;
   chainId: string;
   /** PKH */
@@ -11,13 +11,13 @@ export interface AccountAssetForStore {
   status: StoredAssetStatus;
 }
 
-export interface StoredAsset {
+export interface StoredTezosAsset {
   status: StoredAssetStatus;
   /** `true` if manually added by user */
   manual?: boolean;
 }
 
-type AccountAssetsRecord = StringRecord<StoredAsset>;
+type AccountAssetsRecord = StringRecord<StoredTezosAsset>;
 type StoredAssetsRecords = StringRecord<AccountAssetsRecord>;
 
 export interface SliceState {

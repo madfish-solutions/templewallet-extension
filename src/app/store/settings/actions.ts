@@ -5,3 +5,5 @@ export const setIsAnalyticsEnabledAction = createAction<boolean>('settings/SET_I
 export const setOnRampPossibilityAction = createAction<boolean>('settings/SET_ON_RAMP_POSSIBILITY_ACTION');
 
 export const setConversionTrackedAction = createAction<void>('settings/SET_CONVERSION_TRACKED');
+
+export const setToastsContainerBottomShiftAction = createAction<number>('settings/SET_TOASTS_CONTAINER_BOTTOM_SHIFT');
