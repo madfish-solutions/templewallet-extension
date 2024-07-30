@@ -197,44 +197,45 @@ export const MIGRATIONS = [
 
     const settings = await fetchAndDecryptOne<TempleSettings>(settingsStrgKey, passKey).catch(() => null);
 
+    type LegacyStoredTezosNetwork = Omit<StoredTezosNetwork, 'chain'>;
+
     if (settings) {
-      settings.customTezosNetworks = settings.customNetworks;
+      settings.customTezosNetworks = []; // No custom networks till we can get chain IDs for them
       delete settings.customNetworks;
       toEncryptAndSave.push([settingsStrgKey, settings]);
     }
 
     // Taking a chance to migrate the list of manually-added user's Tezos networks (with chain IDs).
-    // (!) Internet connection would have be available during this.
-    fetchFromStorage<Omit<StoredTezosNetwork, 'chain'>[]>(CUSTOM_NETWORKS_SNAPSHOT_STORAGE_KEY).then(
-      async customTezosNetworks => {
-        if (!customTezosNetworks) return;
+    // (!) Internet connection would have to be available during this.
+    if (settings?.customNetworks?.length)
+      Promise.all(
+        settings.customNetworks.map((network: LegacyStoredTezosNetwork) =>
+          loadTezosChainId(network.rpcBaseURL, 30_000)
+            .then<StoredTezosNetwork>(chainId => {
+              delete network.type;
+              return { ...network, chain: TempleChainKind.Tezos, chainId };
+            })
+            .catch(err => {
+              console.error(err);
+              return null;
+            })
+        )
+      ).then(networks => {
+        const migratedNetworks = networks.filter(isTruthy);
+        if (!migratedNetworks.length) return;
 
-        const migratedNetworks: StoredTezosNetwork[] = await Promise.all(
-          customTezosNetworks.map(network =>
-            loadTezosChainId(network.rpcBaseURL, 30_000)
-              .then(chainId => {
-                delete network.type;
-                return { ...network, chain: TempleChainKind.Tezos as const, chainId };
-              })
-              .catch(err => {
-                console.error(err);
-                return null;
-              })
-          )
-        ).then(migratedNetworks => migratedNetworks.filter(isTruthy));
+        putToStorage<StoredTezosNetwork[]>(CUSTOM_TEZOS_NETWORKS_STORAGE_KEY, migratedNetworks);
 
-        removeFromStorage(CUSTOM_NETWORKS_SNAPSHOT_STORAGE_KEY);
+        const newSettings: typeof settings = { ...settings, customTezosNetworks: migratedNetworks };
 
-        if (migratedNetworks.length)
-          putToStorage<StoredTezosNetwork[]>(CUSTOM_TEZOS_NETWORKS_STORAGE_KEY, migratedNetworks);
-      }
-    );
+        return encryptAndSaveMany([[settingsStrgKey, newSettings]], passKey);
+      });
 
     await encryptAndSaveMany(toEncryptAndSave, passKey);
 
     /* CLEAN-UP */
 
-    removeFromStorage(['network_id', 'tokens_base_metadata', 'block_explorer']);
+    removeFromStorage(['network_id', 'tokens_base_metadata', 'block_explorer', CUSTOM_NETWORKS_SNAPSHOT_STORAGE_KEY]);
 
     console.log('VAULT.MIGRATIONS: EVM migration finished');
   }
