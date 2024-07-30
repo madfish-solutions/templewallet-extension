@@ -40,7 +40,7 @@ const TezosAssetTab = memo<AssetTabProps>(({ chainId, assetSlug }) =>
 
 const TEZOS_GAS_TABS: TabsBarTabInterface[] = [
   { name: 'activity', titleI18nKey: 'activity' },
-  { name: 'delegation', titleI18nKey: 'delegate' }
+  { name: 'delegation', titleI18nKey: 'delegateAndStake' }
 ];
 
 const TezosGasTab = memo<{ tezosChainId: string }>(({ tezosChainId }) => {

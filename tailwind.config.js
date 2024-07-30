@@ -146,7 +146,8 @@ module.exports = {
         'primary-orange-light': '#fbd38d',
         'primary-orange-dark': '#c05621',
         'primary-orange-lighter': '#fffaf0',
-        'primary-orange-darker': '#7b341e'
+        'primary-orange-darker': '#7b341e',
+        'accent-blue': '#1373E4',
       },
 
       fontSize: {
@@ -158,6 +159,7 @@ module.exports = {
       },
 
       spacing: {
+        '0.5px': '0.5px',
         13: '3.25rem',
         13.5: '3.375rem',
         15: '3.75rem',
@@ -167,6 +169,10 @@ module.exports = {
         63: '15.75rem',
         82: '20.5rem',
         88: '22rem'
+      },
+
+      opacity: {
+        15: '0.15'
       },
 
       width: theme => theme('spacing'),

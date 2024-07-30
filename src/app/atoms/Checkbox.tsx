@@ -2,7 +2,7 @@ import React, { forwardRef, InputHTMLAttributes, useCallback, useEffect, useMemo
 
 import clsx from 'clsx';
 
-import { ReactComponent as OkIcon } from 'app/icons/base/ok.svg';
+import { ReactComponent as OkIcon } from 'app/icons/checkbox-ok.svg';
 import { TestIDProps, setTestID, useAnalytics, AnalyticsEventCategory } from 'lib/analytics';
 import { blurHandler, checkedHandler, focusHandler } from 'lib/ui/inputHandlers';
 
@@ -36,9 +36,9 @@ const Checkbox = forwardRef<HTMLInputElement, Props>((props, ref) => {
         (() => {
           switch (true) {
             case localChecked:
-              return 'border-primary-orange-dark';
-            case localFocused:
               return 'border-primary-orange';
+            case localFocused:
+              return 'border-primary-orange-focused';
             case errored:
               return 'border-red-400';
             default:
@@ -46,7 +46,7 @@ const Checkbox = forwardRef<HTMLInputElement, Props>((props, ref) => {
           }
         })(),
         disabled && 'opacity-75 pointer-events-none',
-        overrideClassNames || 'h-6 w-6 rounded-md'
+        overrideClassNames ?? 'h-6 w-6 rounded'
       ),
     [localChecked, localFocused, disabled, overrideClassNames, errored]
   );
@@ -65,9 +65,7 @@ const Checkbox = forwardRef<HTMLInputElement, Props>((props, ref) => {
         onBlur={handleBlur}
       />
 
-      <OkIcon
-        className={clsx('h-4/6 w-4/6 stroke-2 stroke-current pointer-events-none', localChecked ? 'block' : 'hidden')}
-      />
+      <OkIcon className={clsx('h-4/6 w-4/6 stroke-current pointer-events-none', localChecked ? 'block' : 'hidden')} />
     </div>
   );
 });

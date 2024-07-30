@@ -6,6 +6,7 @@ import { storageConfig } from 'lib/store';
 import {
   setIsAnalyticsEnabledAction,
   setOnRampPossibilityAction,
+  setConversionTrackedAction,
   setToastsContainerBottomShiftAction
 } from './actions';
 import { SettingsState, settingsInitialState } from './state';
@@ -17,6 +18,10 @@ const settingsReducer = createReducer<SettingsState>(settingsInitialState, build
 
   builder.addCase(setOnRampPossibilityAction, (state, { payload }) => {
     state.isOnRampPossibility = payload;
+  });
+
+  builder.addCase(setConversionTrackedAction, state => {
+    state.isConversionTracked = true;
   });
 
   builder.addCase(setToastsContainerBottomShiftAction, (state, { payload }) => {

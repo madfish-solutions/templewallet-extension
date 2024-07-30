@@ -132,7 +132,10 @@ const TZKT_MAX_QUERY_ITEMS_LIMIT = 10_000;
 export function fetchTzktAccountAssets(account: string, chainId: string, fungible: boolean | null) {
   if (!isKnownChainId(chainId)) return Promise.resolve([]);
 
-  const recurse = async (accum: TzktAccountAsset[], offset: number): Promise<TzktAccountAsset[]> => {
+  const recurse = async (
+    accum: TzktAccountAssetSelectedParams[],
+    offset: number
+  ): Promise<TzktAccountAssetSelectedParams[]> => {
     const data = await fetchTzktAccountAssetsPage(account, chainId, offset, fungible);
 
     if (!data.length) return accum;
@@ -146,13 +149,19 @@ export function fetchTzktAccountAssets(account: string, chainId: string, fungibl
   return recurse([], 0);
 }
 
+export type TzktAccountAssetSelectedParams = [
+  contractAddress: TzktAccountAsset['token']['contract']['address'],
+  tokenId: TzktAccountAsset['token']['tokenId'],
+  balance: TzktAccountAsset['balance']
+];
+
 const fetchTzktAccountAssetsPage = (
   account: string,
   chainId: TzktApiChainId,
   offset?: number,
   fungible: boolean | null = null
 ) =>
-  fetchGet<TzktAccountAsset[]>(chainId, '/tokens/balances', {
+  fetchGet<TzktAccountAssetSelectedParams[]>(chainId, '/tokens/balances', {
     account,
     limit: TZKT_MAX_QUERY_ITEMS_LIMIT,
     offset,
@@ -162,7 +171,8 @@ const fetchTzktAccountAssetsPage = (
       : {
           'token.metadata.artifactUri.null': fungible
         }),
-    'sort.desc': 'balance'
+    'sort.desc': 'balance',
+    'select.values': 'token.contract.address,token.tokenId,balance'
   });
 
 export async function refetchOnce429<R>(fetcher: () => Promise<R>, delayAroundInMS = 1000) {

@@ -262,8 +262,8 @@
       }
     }
   },
-  "clickOnBakerPrompt": {
-    "message": "Click on the Baker you want to delegate funds to. This list is powered by $link$.",
+  "recommendedBakersDescription": {
+    "message": "This list is powered by $link$",
     "placeholders": {
       "link": {
         "content": "$1"
@@ -292,20 +292,17 @@
       }
     }
   },
-  "skipOnboarding": {
-    "message": "Skip Onboarding"
-  },
   "advancedUser": {
     "message": "I'm an advanced user"
   },
-  "analytics": {
-    "message": "Analytics"
+  "usageAnalytics": {
+    "message": "Usage Analytics"
   },
-  "analyticsCollecting": {
-    "message": "anonymous information collecting"
+  "anonymousAnalytics": {
+    "message": "Anonymous analytics"
   },
   "analyticsInputDescription": {
-    "message": "I agree to the $analyticsLink$",
+    "message": "I agree to the $analyticsLink$ collecting",
     "placeholders": {
       "analyticsLink": {
         "content": "$1"
@@ -322,7 +319,7 @@
     "message": "Delegated to:"
   },
   "dcpDelegatingMotivation": {
-    "message": "Delegating your funds to producers is a great way of earning interest on your balance"
+    "message": "Delegating your funds to producers is a great way of\nearning interest on your balance"
   },
   "delegatingMotivation": {
     "message": "Delegating your funds to bakers is a great way of earning interest on your balance"
@@ -630,17 +627,20 @@
   "requirements": {
     "message": "Requirements:"
   },
-  "atLeast8Characters": {
-    "message": "At least 8 characters - the more characters, the better."
+  "minEightCharacters": {
+    "message": "Min. 8 characters"
   },
-  "mixtureOfUppercaseAndLowercaseLetters": {
-    "message": "A mixture of both uppercase and lowercase letters."
+  "oneNumber": {
+    "message": "One Number"
   },
-  "mixtureOfLettersAndNumbers": {
-    "message": "A mixture of letters and numbers."
+  "oneLowerLetter": {
+    "message": "One lower letter"
   },
-  "atLeast1SpecialCharacter": {
-    "message": "Inclusion of at least one special character, e.g., ! @ # ? ] - (optional, recommended)."
+  "oneCapitalLetter": {
+    "message": "One Capital letter"
+  },
+  "specialCharacter": {
+    "message": "Special character"
   },
   "mnemonicWordsAmountConstraint": {
     "message": "Seed phrase must contain $number$ words",
@@ -770,6 +770,12 @@
   },
   "delegate": {
     "message": "Delegate"
+  },
+  "stake": {
+    "message": "Stake"
+  },
+  "delegateAndStake": {
+    "message": "Delegate & Stake"
   },
   "notDelegated": {
     "message": "Not delegated"
@@ -1156,31 +1162,25 @@
     "message": "How to Delegate XTZ"
   },
   "delegationComunity": {
-    "message": "In case you have any questions, write them in our communities"
+    "message": "In case you have any questions, write them\nin our communities"
   },
   "delegationPointsHead1": {
-    "message": "Earn 5.6% interest"
+    "message": "Earn"
   },
   "delegationPointsHead2": {
-    "message": "on your Tezos"
-  },
-  "delegationPointsHead3": {
-    "message": "annualy from Baking rewards"
+    "message": "on your Tezos annualy from\nBaking & Stake rewards"
   },
   "delegationPoint1": {
-    "message": "Your first reward in Tezos will be paid approximately in 36 days."
+    "message": "First reward in Tezos will be paid approximately in 36 days."
   },
   "delegationPoint2": {
-    "message": "Then, you receive a reward every 3 days."
+    "message": "Receive rewards every 3 days."
   },
   "delegationPoint3": {
-    "message": "Earn rate varies over time. Check the current rate in your Wallet."
+    "message": "Earn rate varies over time.\nCheck the current rate in Wallet."
   },
-  "delegationPoint4": {
-    "message": "Your Tezos tokens are never locked. Send anytime!"
-  },
-  "baker": {
-    "message": "Baker"
+  "customBaker": {
+    "message": "Custom Baker"
   },
   "bakerInputDescription": {
     "message": "Address of a registered baker."
@@ -1206,8 +1206,8 @@
   "unknownBakerDescription": {
     "message": "Provided address is not known to us as a baker! Only delegate funds to it at your own risk."
   },
-  "delegateToRecommendedBakers": {
-    "message": "Delegate to Recommended Bakers"
+  "recommendedBakers": {
+    "message": "Recommended Bakers"
   },
   "sortBy": {
     "message": "Sort by"
@@ -1565,6 +1565,9 @@
   },
   "amount": {
     "message": "Amount"
+  },
+  "minAmount": {
+    "message": "Min Amount"
   },
   "availableToSend": {
     "message": "Available to send(max):"
@@ -3150,6 +3153,12 @@
   "searchingTheBestRoute": {
     "message": "Searching the best route"
   },
+  "loadingExchangeRates": {
+    "message": "Loading exchange rates"
+  },
+  "submittingExchange": {
+    "message": "Submitting exchange"
+  },
   "noRoutesFound": {
     "message": "No routes found"
   },
@@ -3201,11 +3210,11 @@
   "selectedAccountCannotSignTx": { "message": "Selected account cannot sign transactions" },
   "attributes": { "message": "Attributes" },
   "properties": { "message": "Properties" },
-  "viewAds": {
-    "message": "View Ads"
+  "earnRewardsWithAds": {
+    "message": "Earn Rewards with Ads"
   },
-  "viewAdsDescription": {
-    "message": "I agree to share data(wallet address, IP) and get cashback at Temple Keys for viewing ads"
+  "earnRewardsWithAdsDescription": {
+    "message": "I agree to share my wallet address and IP to receive ads and rewards in TKEY token."
   },
   "dropdownNoItems": {
     "message": "No items"

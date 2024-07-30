@@ -7,8 +7,8 @@ import { AnalyticsEventCategory, TestIDProps, useAnalytics } from 'lib/analytics
 import { T } from 'lib/i18n';
 import useCopyToClipboard from 'lib/ui/useCopyToClipboard';
 
-import { ExchangeDataInterface } from '../exolix.interface';
 import { ExolixSelectors } from '../Exolix.selectors';
+import { ExchangeDataInterface } from '../exolix.types';
 
 interface Props extends TestIDProps {
   exchangeData: ExchangeDataInterface | null;

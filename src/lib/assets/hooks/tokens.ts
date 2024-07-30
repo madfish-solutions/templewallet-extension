@@ -102,7 +102,7 @@ const useTezosAccountTokens = (account: string) => {
         const balancesKey = getKeyForBalancesRecord(account, chainId);
 
         const storedRaw = storedRecord[assetsKey] ?? EMPTY_FROZEN_OBJ;
-        const balances = balancesRecord[balancesKey]?.data ?? EMPTY_FROZEN_OBJ;
+        const balances = balancesRecord[balancesKey].data ?? EMPTY_FROZEN_OBJ;
 
         // 1. Stored
         stored = stored.concat(
@@ -120,7 +120,7 @@ const useTezosAccountTokens = (account: string) => {
           predefinedMetadata
             ? predefinedMetadata.map<AccountToken>(metadata => {
                 const slug = tokenToSlug(metadata);
-                const storedStatus = storedRaw[slug]?.status;
+                const storedStatus = storedRaw[slug].status;
                 const status = isAssetStatusIdle(storedStatus) ? 'enabled' : storedStatus;
 
                 return { slug, status, predefined: true, chainId };
@@ -180,7 +180,7 @@ const useTezosChainAccountTokens = (account: string, chainId: string) => {
       const predefined = predefinedMetadata
         ? predefinedMetadata.map<AccountToken>(metadata => {
             const slug = tokenToSlug(metadata);
-            const storedStatus = storedRaw[slug]?.status;
+            const storedStatus = storedRaw[slug].status;
             const status = isAssetStatusIdle(storedStatus) ? 'enabled' : storedStatus;
 
             return { slug, status, predefined: true, chainId };
@@ -227,7 +227,7 @@ const useEvmAccountTokens = (account: HexString) => {
         accountTokens = accountTokens.concat(
           Object.entries(chainTokensRecord).map<AccountToken>(([slug, { status }]) => ({
             slug,
-            status: getAssetStatus(balancesRecord[chainId]?.[slug], status),
+            status: getAssetStatus(balancesRecord[chainId][slug], status),
             chainId
           }))
         );

@@ -22,32 +22,6 @@ export const fetchEvmCollectiblesMetadataFromChain = async (network: EvmChain, c
     handleFetchedMetadata<EvmCollectibleMetadata | undefined>(fetchedMetadata, collectibleSlugs)
   );
 
-// ts-prune-ignore-next
-export const fetchEvmAssetMetadataFromChain = async (network: EvmChain, assetSlug: string) => {
-  const [contractAddress, tokenIdStr] = fromAssetSlug<HexString>(assetSlug);
-
-  const tokenId = BigInt(tokenIdStr ?? 0);
-
-  const publicClient = getReadOnlyEvmForNetwork(network);
-
-  const standard = await detectEvmTokenStandard(network, assetSlug);
-
-  try {
-    switch (standard) {
-      case EvmAssetStandard.ERC1155:
-        return await getERC1155Metadata(publicClient, contractAddress, tokenId);
-      case EvmAssetStandard.ERC721:
-        return await getERC721Metadata(publicClient, contractAddress, tokenId);
-      default:
-        return await getERC20Metadata(publicClient, contractAddress);
-    }
-  } catch {
-    console.error(`ChainId: ${network.chainId}. Failed to get metadata for: ${assetSlug}.`);
-
-    return undefined;
-  }
-};
-
 export const fetchEvmTokenMetadataFromChain = async (network: EvmChain, tokenSlug: string) => {
   const [contractAddress] = fromAssetSlug<HexString>(tokenSlug);
 

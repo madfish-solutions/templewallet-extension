@@ -18,6 +18,7 @@ export interface StoredEvmAsset {
 type PublicKeyHash = HexString;
 
 export type AssetSlugStoredAssetRecord = Record<string, StoredEvmAsset>;
+
 export type ChainIdTokenSlugsAssetsRecord = Record<number, AssetSlugStoredAssetRecord>;
 
 export type EvmStoredAssetsRecords = Record<PublicKeyHash, ChainIdTokenSlugsAssetsRecord>;

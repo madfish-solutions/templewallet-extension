@@ -109,7 +109,7 @@ export const AssetsFilterOptions = memo<AssetsFilterOptionsProps>(({ filterButto
           <ToggleSwitch checked={tokensListOptions.hideZeroBalance} onChange={handleTokensHideZeroBalanceChange} />
         </div>
 
-        <Divider style={{ height: '0.5px' }} />
+        <Divider thinest />
 
         <div className="flex justify-between items-center p-3">
           <span className="text-font-medium-bold">
@@ -133,7 +133,7 @@ export const AssetsFilterOptions = memo<AssetsFilterOptionsProps>(({ filterButto
           <ToggleSwitch checked={collectiblesListOptions.blur} onChange={handleCollectiblesBlurChange} />
         </div>
 
-        <Divider style={{ height: '0.5px' }} />
+        <Divider thinest />
 
         <div className="flex justify-between items-center p-3">
           <span className="text-font-medium-bold">

@@ -1,4 +1,5 @@
-import { OperationStatusSelectors } from '../../../../../src/app/templates/OperationStatus.selectors';
+import { OperationStatusSelectors } from 'src/app/templates/OperationStatus.selectors';
+
 import { Page } from '../../../classes/page.class';
 import { createPageElement } from '../../../utils/search.utils';
 

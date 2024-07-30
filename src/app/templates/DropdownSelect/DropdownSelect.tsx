@@ -1,4 +1,14 @@
-import React, { ChangeEventHandler, ReactNode, FC, Dispatch, SetStateAction, useMemo } from 'react';
+import React, {
+  ChangeEventHandler,
+  ReactNode,
+  FC,
+  Dispatch,
+  SetStateAction,
+  useMemo,
+  useRef,
+  useCallback,
+  RefObject
+} from 'react';
 
 import { isDefined } from '@rnw-community/shared';
 import classNames from 'clsx';
@@ -99,18 +109,37 @@ export const DropdownSelect = <T,>({
   );
 };
 interface SelectOptionsPropsBase<Type> {
-  options: Array<Type>;
+  options: Type[];
   noItemsText: ReactNode;
   isLoading?: boolean;
   optionsListClassName?: string;
   getKey: (option: Type) => string;
   onOptionChange: (newValue: Type) => void;
-  renderOptionContent: (option: Type) => ReactNode;
+  renderOptionContent: (option: Type, scrollableRef: RefObject<HTMLDivElement>) => ReactNode;
 }
 interface SelectOptionsProps<Type> extends SelectOptionsPropsBase<Type> {
   opened: boolean;
   setOpened: Dispatch<SetStateAction<boolean>>;
 }
+
+interface SelectOptionProps<Type> {
+  option: Type;
+  onClick: SelectOptionsProps<Type>['onOptionChange'];
+  renderOptionContent: SelectOptionsProps<Type>['renderOptionContent'];
+  scrollableRef: RefObject<HTMLDivElement>;
+}
+
+const SelectOption = <Type,>({ option, scrollableRef, onClick, renderOptionContent }: SelectOptionProps<Type>) => {
+  const handleClick = useCallback(() => onClick(option), [onClick, option]);
+
+  return (
+    <li>
+      <button className="w-full" disabled={(option as any).disabled} onClick={handleClick}>
+        {renderOptionContent(option, scrollableRef)}
+      </button>
+    </li>
+  );
+};
 
 const SelectOptions = <Type,>({
   opened,
@@ -128,6 +157,8 @@ const SelectOptions = <Type,>({
     setOpened(false);
   };
 
+  const rootRef = useRef<HTMLDivElement>(null);
+
   return (
     <DropdownWrapper
       opened={opened}
@@ -137,6 +168,7 @@ const SelectOptions = <Type,>({
         backgroundColor: 'white',
         borderColor: '#e2e8f0'
       }}
+      ref={rootRef}
     >
       {(options.length === 0 || isLoading) && (
         <div className="my-8 flex flex-col items-center justify-center text-gray-500">
@@ -152,11 +184,13 @@ const SelectOptions = <Type,>({
 
       <ul className={optionsListClassName}>
         {options.map(option => (
-          <li key={getKey(option)}>
-            <button className="w-full" disabled={(option as any).disabled} onClick={() => handleOptionClick(option)}>
-              {renderOptionContent(option)}
-            </button>
-          </li>
+          <SelectOption<Type>
+            key={getKey(option)}
+            option={option}
+            onClick={handleOptionClick}
+            renderOptionContent={renderOptionContent}
+            scrollableRef={rootRef}
+          />
         ))}
       </ul>
     </DropdownWrapper>
@@ -184,7 +218,7 @@ const SelectSearch: FC<SelectSearchProps> = ({
   return (
     <div
       className={classNames(
-        'w-full flex items-center transition ease-in-out duration-200 w-full border rounded-md border-orange-500 bg-gray-100 max-h-18',
+        'w-full flex items-center transition ease-in-out duration-200 border rounded-md border-orange-500 bg-gray-100 max-h-18',
         className
       )}
     >

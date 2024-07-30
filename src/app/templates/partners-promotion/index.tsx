@@ -72,12 +72,17 @@ export const PartnersPromotion = memo<PartnersPromotionProps>(({ variant, id, pa
   const handleAdRectSeen = useCallback(() => {
     if (isAnalyticsSentRef.current) return;
 
-    trackEvent('Internal Ads Activity', AnalyticsEventCategory.General, {
-      variant: providerName === 'Persona' ? PartnersPromotionVariant.Image : variant,
-      page: pageName,
-      provider: AdsProviderTitle[providerName],
-      accountPkh: adsViewerAddress
-    });
+    trackEvent(
+      'Internal Ads Activity',
+      AnalyticsEventCategory.General,
+      {
+        variant: providerName === 'Persona' ? PartnersPromotionVariant.Image : variant,
+        page: pageName,
+        provider: AdsProviderTitle[providerName],
+        accountPkh: adsViewerAddress
+      },
+      true
+    );
     isAnalyticsSentRef.current = true;
   }, [providerName, pageName, adsViewerAddress, variant, trackEvent]);
 

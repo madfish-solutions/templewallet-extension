@@ -12,6 +12,7 @@ interface FormSubmitButtonProps extends ButtonProps {
   loading?: boolean;
   small?: boolean;
   slim?: boolean;
+  unsetHeight?: boolean;
   rounder?: boolean;
 }
 
@@ -20,6 +21,7 @@ export const FormSubmitButton: FC<FormSubmitButtonProps> = ({
   keepChildrenWhenLoading,
   small,
   slim = small,
+  unsetHeight,
   rounder,
   disabled,
   className,
@@ -34,14 +36,14 @@ export const FormSubmitButton: FC<FormSubmitButtonProps> = ({
         'transition duration-200 ease-in-out',
         rounder ? 'rounded-md' : 'rounded',
         small ? 'px-6 text-sm' : 'px-8 text-base leading-5',
-        slim ? 'h-9 py-1.5' : 'h-12 py-2',
+        !unsetHeight && (slim ? 'h-9 py-1.5' : 'h-12 py-2'),
         disabled ? 'bg-gray-400 border-gray-400' : 'bg-primary-orange border-primary-orange',
         loading || disabled
           ? 'opacity-75 pointer-events-none'
           : 'opacity-90 hover:opacity-100 focus:opacity-100 shadow-sm hover:shadow focus:shadow',
         className
       ),
-    [disabled, loading, className, small, slim, rounder]
+    [disabled, loading, className, small, slim, unsetHeight, rounder]
   );
 
   const otherProps = useMemo(() => (loading ? setAnotherSelector('loading', '') : null), [loading]);

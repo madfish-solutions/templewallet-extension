@@ -28,6 +28,7 @@ import { useTempleClient } from 'lib/temple/front';
 import * as Woozie from 'lib/woozie';
 
 import { Market } from './pages/Market';
+import { StakingPage } from './pages/Staking';
 
 interface RouteContext {
   popup: boolean;
@@ -88,6 +89,7 @@ const ROUTE_MAP = Woozie.createMap<RouteContext>([
   ],
   ['/swap', onlyReady(() => <Swap />)],
   ['/delegate/:tezosChainId', onlyReady(({ tezosChainId }) => <Delegate tezosChainId={tezosChainId!} />)],
+  ['/staking/:tezosChainId', onlyReady(({ tezosChainId }) => <StakingPage tezosChainId={tezosChainId!} />)],
   ['/dapps', onlyReady(() => <DApps />)],
   [
     '/collectible/:chainKind?/:chainId?/:assetSlug?',

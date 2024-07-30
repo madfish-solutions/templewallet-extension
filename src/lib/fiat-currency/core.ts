@@ -9,6 +9,7 @@ import { useEvmUsdToTokenRatesSelector } from 'app/store/evm/tokens-exchange-rat
 import { useSelector } from 'app/store/root-state.selector';
 import { useStorage } from 'lib/temple/front';
 import { isTruthy } from 'lib/utils';
+import { ZERO } from 'lib/utils/numbers';
 
 import { FIAT_CURRENCIES } from './consts';
 import type { FiatCurrencyOption, CoingeckoFiatInterface } from './types';
@@ -21,7 +22,7 @@ function useAssetUSDPrice(slug: string, chainId: number | string, evm = false) {
 
   return useMemo(() => {
     const rateStr =
-      evm && typeof chainId === 'number' ? evmUsdToTokenRates[chainId]?.[slug] ?? 0 : tezosUsdToTokenRates[slug];
+      evm && typeof chainId === 'number' ? evmUsdToTokenRates[chainId][slug] ?? 0 : tezosUsdToTokenRates[slug];
     return rateStr ? Number(rateStr) : undefined;
   }, [evm, chainId, evmUsdToTokenRates, slug, tezosUsdToTokenRates]);
 }
@@ -36,7 +37,7 @@ export const useFiatToUsdRate = () => {
     if (!isDefined(fiatRates)) return;
 
     const fiatRate = fiatRates[selectedFiatCurrencyName.toLowerCase()] ?? 1;
-    const usdRate = fiatRates['usd'] ?? 1;
+    const usdRate = fiatRates.usd ?? 1;
 
     return fiatRate / usdRate;
   }, [fiatRates, selectedFiatCurrencyName]);
@@ -47,7 +48,7 @@ export function useAssetFiatCurrencyPrice(slug: string, chainId: number | string
   const usdToTokenRate = useAssetUSDPrice(slug, chainId, evm);
 
   return useMemo(() => {
-    if (!isTruthy(usdToTokenRate) || !isTruthy(fiatToUsdRate)) return new BigNumber(0);
+    if (!isTruthy(usdToTokenRate) || !isTruthy(fiatToUsdRate)) return ZERO;
 
     return BigNumber(fiatToUsdRate).times(usdToTokenRate);
   }, [fiatToUsdRate, usdToTokenRate]);

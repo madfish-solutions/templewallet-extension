@@ -60,7 +60,7 @@ export const buildTokenMetadataFromWhitelist = ({
   address: contractAddress,
   id: fa2TokenId ? String(fa2TokenId) : '0',
   decimals: metadata.decimals,
-  symbol: metadata.symbol ?? metadata.name?.substring(0, 8) ?? '???',
+  symbol: metadata.symbol ?? metadata.name.substring(0, 8) ?? '???',
   name: metadata.name ?? metadata.symbol ?? 'Unknown Token',
   thumbnailUri: metadata.thumbnailUri,
   standard: type === 'FA12' ? TezosTokenStandardsEnum.Fa12 : TezosTokenStandardsEnum.Fa2
