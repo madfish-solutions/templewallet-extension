@@ -213,20 +213,20 @@ export const useAllEvmAccountCollectiblesSlugs = (publicKeyHash: HexString) => {
   );
 };
 
+export const useEnabledEvmChainAccountCollectiblesSlugs = (publicKeyHash: HexString, evmChainId: number) => {
+  const collectibles = useEvmChainAccountCollectibles(publicKeyHash, evmChainId);
+
+  return useMemo(
+    () => collectibles.filter(({ status }) => status === 'enabled').map(({ slug }) => slug),
+    [collectibles]
+  );
+};
+
 export const useAllEvmChainAccountCollectiblesSlugs = (publicKeyHash: HexString, evmChainId: number) => {
   const collectibles = useEvmChainAccountCollectibles(publicKeyHash, evmChainId);
 
   return useMemo(
     () => collectibles.filter(({ status }) => status !== 'removed').map(({ slug }) => slug),
-    [collectibles]
-  );
-};
-
-export const useEnabledEvmChainAccountCollectiblesSlugs = (publicKeyHash: HexString, evmChainId: number) => {
-  const collectibles = useEvmChainAccountCollectibles(publicKeyHash, evmChainId);
-
-  return useMemo(
-    () => collectibles.reduce<string[]>((acc, { slug, status }) => (status === 'enabled' ? acc.concat(slug) : acc), []),
     [collectibles]
   );
 };

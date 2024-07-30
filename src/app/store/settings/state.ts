@@ -12,7 +12,7 @@ export interface SettingsState {
 
 export const settingsInitialState: SettingsState = {
   userId: nanoid(),
-  isAnalyticsEnabled: true,
+  isAnalyticsEnabled: false,
   isOnRampPossibility: false,
   isConversionTracked: false,
   toastsContainerBottomShift: 0

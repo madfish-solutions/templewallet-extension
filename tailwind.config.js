@@ -146,8 +146,7 @@ module.exports = {
         'primary-orange-light': '#fbd38d',
         'primary-orange-dark': '#c05621',
         'primary-orange-lighter': '#fffaf0',
-        'primary-orange-darker': '#7b341e',
-        'accent-blue': '#1373E4',
+        'primary-orange-darker': '#7b341e'
       },
 
       fontSize: {
