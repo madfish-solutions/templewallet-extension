@@ -1,4 +1,4 @@
-import React, { FC } from 'react';
+import React, { createContext, FC, RefObject, useContext, useRef } from 'react';
 
 import clsx from 'clsx';
 
@@ -66,23 +66,33 @@ const PageLayout: FC<PropsWithChildren<PageLayoutProps>> = ({
 
 export default PageLayout;
 
+const ContentPaperRefContext = createContext<RefObject<HTMLDivElement>>({
+  current: null
+});
+export const useContentPaperRef = () => useContext(ContentPaperRefContext);
+
 const ContentPaper: FC<PropsWithChildren> = ({ children }) => {
   const appEnv = useAppEnv();
 
-  return (
-    <ContentPaperNode
-      id={APP_CONTENT_PAPER_DOM_ID}
-      className={clsx(
-        LAYOUT_CONTAINER_CLASSNAME,
-        'relative flex flex-col bg-white',
-        !SCROLL_DOCUMENT && 'overflow-y-auto',
-        appEnv.fullPage && 'min-h-80 rounded-md shadow-bottom'
-      )}
-    >
-      {children}
+  const ref = useRef<HTMLDivElement>(null);
 
-      <ContentFader />
-    </ContentPaperNode>
+  return (
+    <ContentPaperRefContext.Provider value={ref}>
+      <ContentPaperNode
+        ref={ref}
+        id={APP_CONTENT_PAPER_DOM_ID}
+        className={clsx(
+          LAYOUT_CONTAINER_CLASSNAME,
+          'relative flex flex-col bg-white',
+          !SCROLL_DOCUMENT && 'overflow-y-auto',
+          appEnv.fullPage && 'min-h-80 rounded-md shadow-bottom'
+        )}
+      >
+        {children}
+
+        <ContentFader />
+      </ContentPaperNode>
+    </ContentPaperRefContext.Provider>
   );
 };
 

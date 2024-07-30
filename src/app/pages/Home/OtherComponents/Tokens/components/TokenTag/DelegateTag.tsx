@@ -19,7 +19,7 @@ interface Props {
 }
 
 export const DelegateTezosTag = memo<Props>(({ network, pkh }) => {
-  const { data: myBakerPkh } = useDelegate(pkh, network);
+  const { data: myBakerPkh } = useDelegate(pkh, network, false);
   const { trackEvent } = useAnalytics();
 
   const handleTagClick = useCallback(

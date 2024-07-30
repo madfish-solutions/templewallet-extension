@@ -474,6 +474,15 @@
   "iconURL": {
     "message": "Icon URL"
   },
+  "optional": {
+    "message": "Optional"
+  },
+  "tokenInfo": {
+    "message": "Token Info"
+  },
+  "manageAssetsSearchTip": {
+    "message": "To add an assets, enter the contract address into the search line"
+  },
   "optionalComment": {
     "message": "(optional)"
   },
@@ -1788,6 +1797,15 @@
   "tokenNotFound": {
     "message": "Token not found..."
   },
+  "notFound": {
+    "message": "Not Found"
+  },
+  "addCustomToken": {
+    "message": "Add Custom Token"
+  },
+  "tokenAddress": {
+    "message": "Token address"
+  },
   "currencyNotFound": {
     "message": "Currency not found"
   },
@@ -2473,9 +2491,14 @@
     "message": "less",
     "description": "Show less"
   },
-  "showInfo": { "message": "Show info" },
-  "blur": { "message": "Blur" },
+  "showDetails": { "message": "Show details" },
+  "blurSensitiveContent": { "message": "Blur sensitive content" },
+  "filterByNetwork": { "message": "Filter by network" },
+  "resetAll": { "message": "Reset All" },
   "hideZeroBalance": { "message": "Hide 0 balance" },
+  "groupByNetwork": { "message": "Group by network" },
+  "tokensList": { "message": "Tokens list" },
+  "collectiblesView": { "message": "Collectibles view" },
   "recentDestinations": {
     "message": "Recent destinations"
   },
@@ -3038,9 +3061,6 @@
   "deleteCollectibleConfirm": {
     "message": "Are you sure you want to delete this collectible?"
   },
-  "zeroCollectibleText": {
-    "message": "You don’t have collectibles yet!\nGood time to get one of them"
-  },
   "min": {
     "message": "Min:"
   },
@@ -3198,5 +3218,8 @@
   },
   "dropdownNoItems": {
     "message": "No items"
+  },
+  "allNetworks": {
+    "message": "All Networks"
   }
 }

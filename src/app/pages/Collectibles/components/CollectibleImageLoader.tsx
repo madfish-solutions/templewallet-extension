@@ -10,7 +10,7 @@ interface Props {
 }
 
 export const CollectibleImageLoader: FC<Props> = ({ large = false, className }) => (
-  <div className={clsx('w-full h-full flex items-center justify-center', className)}>
+  <div className={clsx('w-full aspect-square flex items-center justify-center', className)}>
     <Spinner theme="dark-gray" className={large ? 'w-10' : 'w-8'} />
   </div>
 );

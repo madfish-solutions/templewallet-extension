@@ -1,7 +1,9 @@
 import browser from 'webextension-polyfill';
 
 const DEPRECATED_KEYS = [
-  'detailed_asset_metadata_' // `detailed_asset_metadata_${slug}`
+  'detailed_asset_metadata_', // `detailed_asset_metadata_${slug}`
+  'collectibles-grid:show-items-details',
+  'collectibles:adult-blur'
 ];
 
 export async function fetchFromStorage<T = any>(key: string): Promise<T | null> {

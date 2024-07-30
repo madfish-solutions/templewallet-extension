@@ -18,21 +18,21 @@ export function usdToAssetAmount(
 export function tzToMutez(tz: BigNumber.Value) {
   const bigNum = new BigNumber(tz);
   if (bigNum.isNaN()) return bigNum;
-  return bigNum.times(10 ** 6).integerValue();
+  return bigNum.shiftedBy(6).integerValue();
 }
 
 export function mutezToTz(mutez: BigNumber.Value) {
   const bigNum = new BigNumber(mutez);
   if (bigNum.isNaN()) return bigNum;
-  return bigNum.integerValue().div(10 ** 6);
+  return bigNum.integerValue().shiftedBy(-6);
 }
 
 export function atomsToTokens(x: BigNumber.Value, decimals: number) {
-  return new BigNumber(x).integerValue().div(new BigNumber(10).pow(decimals));
+  return new BigNumber(x).integerValue().shiftedBy(-decimals);
 }
 
 export function tokensToAtoms(x: BigNumber.Value, decimals: number) {
-  return new BigNumber(x).times(10 ** decimals).integerValue();
+  return new BigNumber(x).shiftedBy(decimals).integerValue();
 }
 
 export function formatOpParamsBeforeSend(params: any) {

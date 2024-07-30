@@ -215,18 +215,30 @@ const chainIdsChainNamesRecord: Record<number, string> = {
   324: 'zksync'
 };
 
+const baseUrl = 'https://raw.githubusercontent.com/rainbow-me/assets/master/blockchains/';
+
 const getCompressedImageUrl = (imageUrl: string, size: number) =>
   `https://img.templewallet.com/insecure/fill/${size}/${size}/ce/0/plain/${imageUrl}`;
+
+export const getEvmNativeAssetIcon = (chainId: number, size?: number) => {
+  const chainName = chainIdsChainNamesRecord[chainId];
+
+  if (!chainName) return null;
+
+  const imageUrl = `${baseUrl}${chainName}/info/logo.png`;
+
+  if (size) return getCompressedImageUrl(imageUrl, size);
+
+  return imageUrl;
+};
 
 const getEvmCustomChainIconUrl = (chainId: number, metadata: EvmTokenMetadata) => {
   const chainName = chainIdsChainNamesRecord[chainId];
 
   if (!chainName) return null;
 
-  const baseUrl = 'https://raw.githubusercontent.com/rainbow-me/assets/master/blockchains/';
-
   return metadata.standard === EvmAssetStandard.NATIVE
-    ? `${baseUrl}${chainName}/info/logo.png`
+    ? getEvmNativeAssetIcon(chainId)
     : `${baseUrl}${chainName}/assets/${metadata.address}/logo.png`;
 };
 

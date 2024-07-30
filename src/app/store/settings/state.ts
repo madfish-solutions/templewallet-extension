@@ -7,11 +7,13 @@ export interface SettingsState {
   isConversionTracked: boolean;
   /** @deprecated */
   balanceMode?: 'fiat' | 'gas';
+  toastsContainerBottomShift: number;
 }
 
 export const settingsInitialState: SettingsState = {
   userId: nanoid(),
   isAnalyticsEnabled: false,
   isOnRampPossibility: false,
-  isConversionTracked: false
+  isConversionTracked: false,
+  toastsContainerBottomShift: 0
 };

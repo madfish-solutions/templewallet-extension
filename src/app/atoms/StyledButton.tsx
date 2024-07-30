@@ -15,14 +15,19 @@ interface Props extends ButtonProps {
 }
 
 export const StyledButton = React.forwardRef<HTMLButtonElement, Props>(
-  ({ size, color, active, disabled, ...otherProps }, ref) => {
+  ({ size, color, active, disabled, className, ...otherProps }, ref) => {
     const colorClassName = useMemo(
       () => getStyledButtonColorsClassNames(color, active, disabled),
       [active, disabled, color]
     );
 
     return (
-      <Button ref={ref} className={clsx(SIZE_CLASSNAME[size], colorClassName)} disabled={disabled} {...otherProps} />
+      <Button
+        ref={ref}
+        className={clsx(SIZE_CLASSNAME[size], colorClassName, className)}
+        disabled={disabled}
+        {...otherProps}
+      />
     );
   }
 );

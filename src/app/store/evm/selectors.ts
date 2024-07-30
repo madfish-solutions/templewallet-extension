@@ -1,4 +1,4 @@
-import { useSelector } from '../root-state.selector';
+import { useSelector } from 'app/store/root-state.selector';
 
 export const useEvmBalancesLoadingSelector = () => useSelector(state => state.evmLoading.balancesLoading);
 

@@ -6,7 +6,7 @@ import classNames from 'clsx';
 import Money from 'app/atoms/Money';
 import { useAppEnv } from 'app/env';
 import InFiat from 'app/templates/InFiat';
-import { useAssetMetadata, getAssetSymbol } from 'lib/metadata';
+import { useTezosAssetMetadata, getAssetSymbol } from 'lib/metadata';
 
 interface Props {
   tezosChainId: string;
@@ -18,7 +18,7 @@ interface Props {
 
 export const MoneyDiffView = memo<Props>(({ tezosChainId, assetId: assetSlug, diff, pending = false, className }) => {
   const { popup } = useAppEnv();
-  const metadata = useAssetMetadata(assetSlug, tezosChainId);
+  const metadata = useTezosAssetMetadata(assetSlug, tezosChainId);
 
   const diffBN = useMemo(() => new BigNumber(diff).div(metadata ? 10 ** metadata.decimals : 1), [diff, metadata]);
 
