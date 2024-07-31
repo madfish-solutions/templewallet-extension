@@ -5,7 +5,7 @@ import clsx from 'clsx';
 import { IconBase } from 'app/atoms';
 import { CopyButton } from 'app/atoms/CopyButton';
 import { IconButton } from 'app/atoms/IconButton';
-import { EvmNetworksLogos, TezosNetworkLogo } from 'app/atoms/NetworksLogos';
+import { EvmNetworksLogos, TezNetworkLogo } from 'app/atoms/NetworksLogos';
 import { useRichFormatTooltip } from 'app/hooks/use-rich-format-tooltip';
 import { ReactComponent as CopyIcon } from 'app/icons/base/copy.svg';
 import { ReactComponent as QRCodeIcon } from 'app/icons/base/qr_code.svg';
@@ -55,7 +55,7 @@ export const NetworkCard: FC<NetworkCardProps> = ({ address, chainKind, onQRClic
       <div className="flex gap-x-2">
         <span className="text-font-regular-bold">{TempleChainTitle[chainKind]}</span>
         <div ref={tooltipWrapperRef}>
-          {chainKind === TempleChainKind.Tezos ? <TezosNetworkLogo /> : <EvmNetworksLogos />}
+          {chainKind === TempleChainKind.Tezos ? <TezNetworkLogo /> : <EvmNetworksLogos />}
         </div>
       </div>
 
