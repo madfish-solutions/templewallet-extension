@@ -17,8 +17,7 @@ const DEFAULT_FONT_FAMILIES = [
 const FONTS_FAMILIES = {
   Inter: ["'Inter'", ...DEFAULT_FONT_FAMILIES],
   Rubik: ["'Rubik'", "'Inter'", ...DEFAULT_FONT_FAMILIES]
-}
-
+};
 
 module.exports = {
   content: ['./public/**/*.{html,js,mjs}', './src/**/*.{js,jsx,ts,tsx}'],
@@ -44,12 +43,12 @@ module.exports = {
       'bottom': '0px 2px 8px 0px rgba(0, 0, 0, 0.08)',
       center: '0px 0px 8px 0px #00000014',
       'content-inset': 'inset 0px 10px 8px -8px #00000014',
-      'drop': '0px 2px 4px 0px #00000040'
+      drop: '0px 2px 4px 0px #00000040'
     },
 
     fontFamily: {
       inter: FONTS_FAMILIES.Inter,
-      rubik: FONTS_FAMILIES.Rubik,
+      rubik: FONTS_FAMILIES.Rubik
     },
 
     // # EXTENDING DEFAULTS:
@@ -84,19 +83,19 @@ module.exports = {
         },
         orange: {
           100: '#fffaf0',
-          500: '#ed8936',
+          500: '#ed8936'
         },
         yellow: {
           100: '#fffff0',
           400: '#f6e05e',
           600: '#d69e2e',
-          700: '#b7791f',
+          700: '#b7791f'
         },
         green: {
           100: '#f0fff4',
           400: '#68d391',
           500: '#48bb78',
-          700: '#2f855a',
+          700: '#2f855a'
         },
         blue: {
           50: '#e8f1fd',
@@ -113,31 +112,31 @@ module.exports = {
           600: '#5a67d8'
         },
 
-        'document': '#F4F4F4',
+        document: '#F4F4F4',
         /** Set in :root. Use in special cases by name */
-        'text': '#151618',
-        'background': '#fbfbfb',
-        'lines': '#E4E4E4',
-        'disable': '#DDDDDD',
+        text: '#151618',
+        background: '#fbfbfb',
+        lines: '#E4E4E4',
+        disable: '#DDDDDD',
         //
         'grey-1': '#707070',
         'grey-2': '#AEAEB2',
         'grey-3': '#C2C2C8',
         'grey-4': '#F4F4F4',
         //
-        'primary': '#FF5B00',
+        primary: '#FF5B00',
         'primary-hover': '#E85300',
         'primary-low': '#FAEAE1',
         'primary-hover-low': '#F7E1D5',
         //
-        'secondary': '#1373E4',
+        secondary: '#1373E4',
         'secondary-hover': '#1062C2',
         'secondary-low': '#E3ECF8',
         'secondary-hover-low': '#D7E3F2',
         //
         'success': '#34CC4E',
         'success-low': '#E6F5E9',
-        'error': '#FF3B30',
+        error: '#FF3B30',
         'error-hover': '#D93229',
         'error-low': '#FAE7E6',
         'error-hover-low': '#EFD4D2',
@@ -153,8 +152,7 @@ module.exports = {
         'primary-orange-light': '#fbd38d',
         'primary-orange-dark': '#c05621',
         'primary-orange-lighter': '#fffaf0',
-        'primary-orange-darker': '#7b341e',
-        'accent-blue': '#1373E4',
+        'primary-orange-darker': '#7b341e'
       },
 
       fontSize: {
@@ -162,7 +160,7 @@ module.exports = {
         xxs: '0.6875rem',
         '2xs': '0.8125rem',
         ulg: '1.0625rem',
-        '2xl-plus': ['2rem', { lineHeight: '3rem' }],
+        '2xl-plus': ['2rem', { lineHeight: '3rem' }]
       },
 
       spacing: {
@@ -173,7 +171,9 @@ module.exports = {
         18: '4.5rem',
         25: '6.25rem',
         29: '7.25rem',
-        63: '15.75rem'
+        63: '15.75rem',
+        82: '20.5rem',
+        88: '22rem'
       },
 
       opacity: {
@@ -262,14 +262,14 @@ module.exports = {
 
       zIndex: {
         1: 1,
-        'header': 50,
-        'sticky': 100,
+        header: 50,
+        sticky: 100,
         'content-fade': 200,
         'overlay-promo': 300,
-        'overlay': 400,
+        overlay: 400,
         'overlay-confirm': 500,
         'modal-page': 600,
-        'dropdown': 800,
+        dropdown: 800,
         'modal-dialog': 1000
       },
 

@@ -22,6 +22,7 @@ export const fetchEvmCollectiblesMetadataFromChain = async (network: EvmChain, c
     handleFetchedMetadata<EvmCollectibleMetadata | undefined>(fetchedMetadata, collectibleSlugs)
   );
 
+// ts-prune-ignore-next
 export const fetchEvmAssetMetadataFromChain = async (network: EvmChain, assetSlug: string) => {
   const [contractAddress, tokenIdStr] = fromAssetSlug<HexString>(assetSlug);
 
@@ -47,7 +48,7 @@ export const fetchEvmAssetMetadataFromChain = async (network: EvmChain, assetSlu
   }
 };
 
-const fetchEvmTokenMetadataFromChain = async (network: EvmChain, tokenSlug: string) => {
+export const fetchEvmTokenMetadataFromChain = async (network: EvmChain, tokenSlug: string) => {
   const [contractAddress] = fromAssetSlug<HexString>(tokenSlug);
 
   const publicClient = getReadOnlyEvmForNetwork(network);

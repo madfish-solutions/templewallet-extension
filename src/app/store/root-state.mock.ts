@@ -2,7 +2,9 @@ import { mockNotificationsState } from 'lib/notifications';
 
 import { mockABTestingState } from './ab-testing/state.mock';
 import { mockAdvertisingState } from './advertising/state.mock';
+import { mockAssetsFilterOptionsState } from './assets-filter-options/state.mock';
 import { mockBuyWithCreditCardState } from './buy-with-credit-card/state.mock';
+import { mockCurrencyState } from './currency/state.mock';
 import { mockDAppsState } from './d-apps/state.mock';
 import { mockEvmAssetsState } from './evm/assets/state.mock';
 import { mockEvmBalancesState } from './evm/balances/state.mock';
@@ -19,7 +21,6 @@ import { mockAssetsState } from './tezos/assets/state.mock';
 import { mockBalancesState } from './tezos/balances/state.mock';
 import { mockCollectiblesState } from './tezos/collectibles/state.mock';
 import { mockCollectiblesMetadataState } from './tezos/collectibles-metadata/state.mock';
-import { mockCurrencyState } from './tezos/currency/state.mock';
 import { mockTokensMetadataState } from './tezos/tokens-metadata/state.mock';
 
 // ts-prune-ignore-next
@@ -44,5 +45,6 @@ export const mockRootState: RootState = {
   evmBalances: mockEvmBalancesState,
   evmTokensMetadata: mockEvmTokensMetadataState,
   evmCollectiblesMetadata: mockEvmCollectiblesMetadataState,
-  evmTokensExchangeRates: mockEvmTokensExchangeRatesState
+  evmTokensExchangeRates: mockEvmTokensExchangeRatesState,
+  assetsFilterOptions: mockAssetsFilterOptionsState
 };

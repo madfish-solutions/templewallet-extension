@@ -1,5 +1,5 @@
 export { Alert } from './Alert';
-
+// ts-prune-ignore-next
 export { CaptionAlert } from './CaptionAlert';
 
 export { default as Divider } from './Divider';

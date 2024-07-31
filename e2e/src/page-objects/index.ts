@@ -1,12 +1,9 @@
-import { AddAssetPage } from '../page-objects/pages/add-asset.page';
 import { AddressBookPage } from '../page-objects/pages/address-book.page';
 import { CollectiblePage } from '../page-objects/pages/collectible.page';
 import { CollectiblesTabPage } from '../page-objects/pages/CollectiblesTab.page';
 import { ConfirmationModalPage } from '../page-objects/pages/confirmation-modal.page';
 import { GeneralSettingsPage } from '../page-objects/pages/general-settings.page';
 import { HomePage } from '../page-objects/pages/home.page';
-import { ManageAssetsCollectiblesPage } from '../page-objects/pages/manage-assets-collectibles.page';
-import { ManageAssetsTokensPage } from '../page-objects/pages/manage-assets-tokens.page';
 import { BackupOptionsModalPage } from '../page-objects/pages/modal/backup-options-modal.page';
 import { NetworksPage } from '../page-objects/pages/networks.page';
 import { NotificationContentPage } from '../page-objects/pages/notification-content.page';
@@ -46,9 +43,6 @@ export const Pages = {
   AddressBook: new AddressBookPage(),
   ConfirmationModal: new ConfirmationModalPage(),
   Networks: new NetworksPage(),
-  ManageAssetsCollectibles: new ManageAssetsCollectiblesPage(),
-  ManageAssetsTokens: new ManageAssetsTokensPage(),
-  AddAsset: new AddAssetPage(),
   CollectiblePage: new CollectiblePage(),
   CollectiblesTabPage: new CollectiblesTabPage(),
   NotificationsList: new NotificationsListPage(),

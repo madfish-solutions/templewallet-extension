@@ -5,7 +5,7 @@ import { AccLabel } from 'app/atoms/AccLabel';
 import { AccountAvatar } from 'app/atoms/AccountAvatar';
 import { AccountName } from 'app/atoms/AccountName';
 import { CopyButton } from 'app/atoms/CopyButton';
-import { EvmNetworksLogos, TezosNetworkLogo } from 'app/atoms/NetworksLogos';
+import { EvmNetworksLogos, TezNetworkLogo } from 'app/atoms/NetworksLogos';
 import { ActionsButtonsBox } from 'app/atoms/PageModal/actions-buttons-box';
 import { StyledButton } from 'app/atoms/StyledButton';
 import { TotalEquity } from 'app/atoms/TotalEquity';
@@ -202,7 +202,7 @@ export const AccountSettings = memo<AccountSettingsProps>(({ id }) => {
                 testID={AccountSettingsSelectors.derivationPathButton}
                 testIDProperties={{ chainName }}
               >
-                {chainName === 'tezos' ? <TezosNetworkLogo /> : <EvmNetworksLogos />}
+                {chainName === 'tezos' ? <TezNetworkLogo /> : <EvmNetworksLogos />}
               </SettingsCell>
             ))}
           </div>

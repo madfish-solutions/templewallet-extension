@@ -3,7 +3,6 @@ import React, { memo, useLayoutEffect, useMemo } from 'react';
 import RootSuspenseFallback from 'app/a11y/RootSuspenseFallback';
 import { OpenInFullPage, useAppEnv } from 'app/env';
 import { AccountSettings } from 'app/pages/AccountSettings';
-import AddAsset from 'app/pages/AddAsset/AddAsset';
 import Exolix from 'app/pages/Buy/Crypto/Exolix/Exolix';
 import { BuyWithCreditCard } from 'app/pages/BuyWithCreditCard/BuyWithCreditCard';
 import CollectiblePage from 'app/pages/Collectibles/CollectiblePage';
@@ -12,7 +11,6 @@ import DApps from 'app/pages/DApps';
 import Delegate from 'app/pages/Delegate';
 import Home from 'app/pages/Home/Home';
 import ImportAccount from 'app/pages/ImportAccount';
-import ManageAssets from 'app/pages/ManageAssets';
 import { ImportWallet } from 'app/pages/NewWallet/ImportWallet';
 import AttentionPage from 'app/pages/Onboarding/pages/AttentionPage';
 import { Receive } from 'app/pages/Receive/Receive';
@@ -89,14 +87,12 @@ const ROUTE_MAP = Woozie.createMap<RouteContext>([
   ['/delegate/:tezosChainId', onlyReady(({ tezosChainId }) => <Delegate tezosChainId={tezosChainId!} />)],
   ['/staking/:tezosChainId', onlyReady(({ tezosChainId }) => <StakingPage tezosChainId={tezosChainId!} />)],
   ['/dapps', onlyReady(() => <DApps />)],
-  ['/manage-assets/:assetType?', onlyReady(({ assetType }) => <ManageAssets assetType={assetType!} />)],
   [
     '/collectible/:chainKind?/:chainId?/:assetSlug?',
     onlyReady(({ chainKind, chainId, assetSlug }) => (
       <CollectiblePage chainKind={chainKind!} chainId={chainId!} assetSlug={assetSlug!} />
     ))
   ],
-  ['/add-asset', onlyReady(onlyInFullPage(() => <AddAsset />))],
   ['/settings/:tabSlug?', onlyReady(({ tabSlug }) => <Settings tabSlug={tabSlug} />)],
   ['/market', onlyReady(onlyInFullPage(() => <Market />))],
   ['/buy/crypto/exolix', onlyReady(onlyInFullPage(() => <Exolix />))],

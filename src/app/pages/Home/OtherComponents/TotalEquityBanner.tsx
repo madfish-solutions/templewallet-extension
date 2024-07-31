@@ -3,8 +3,10 @@ import React, { FC, memo, useCallback } from 'react';
 import { Button, IconBase } from 'app/atoms';
 import { ActionListItem } from 'app/atoms/ActionListItem';
 import { ActionsDropdownPopup } from 'app/atoms/ActionsDropdown';
-import { EquityCurrency, TotalEquity } from 'app/atoms/TotalEquity';
+import { TotalEquity } from 'app/atoms/TotalEquity';
+import { EquityCurrency } from 'app/atoms/TotalEquity/types';
 import { ReactComponent as CompactDownIcon } from 'app/icons/base/compact_down.svg';
+import { useAssetsFilterOptionsSelector } from 'app/store/assets-filter-options/selectors';
 import { useFiatCurrency } from 'lib/fiat-currency';
 import { T } from 'lib/i18n';
 import { usePassiveStorage } from 'lib/temple/front/storage';
@@ -12,19 +14,20 @@ import Popper, { PopperRenderProps } from 'lib/ui/Popper';
 import { useAccount } from 'temple/front';
 
 export const TotalEquityBanner = memo(() => {
-  const [equityCurrency, setEquityCurrency] = usePassiveStorage<EquityCurrency>('TOTAL_EQUITY_CURRENCY', 'fiat');
-
+  const { filterChain } = useAssetsFilterOptionsSelector();
   const account = useAccount();
+
+  const [equityCurrency, setEquityCurrency] = usePassiveStorage<EquityCurrency>('TOTAL_EQUITY_CURRENCY', 'fiat');
 
   return (
     <div className="flex flex-col gap-y-0.5">
       <div className="text-font-description text-grey-1">
-        <T id="totalBalance" />
+        <T id="totalEquityValue" />
       </div>
 
       <div className="flex items-center gap-x-1 text-font-num-bold-24">
         <div>
-          <TotalEquity account={account} currency={equityCurrency} />
+          <TotalEquity account={account} filterChain={filterChain} currency={equityCurrency} />
         </div>
 
         <Popper

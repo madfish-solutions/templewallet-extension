@@ -1,4 +1,4 @@
-import React, { ComponentType, FC, ReactNode, useRef } from 'react';
+import React, { ComponentType, createContext, FC, ReactNode, RefObject, useContext, useRef } from 'react';
 
 import clsx from 'clsx';
 
@@ -25,6 +25,7 @@ import ConfirmationOverlay from './ConfirmationOverlay';
 import { DefaultHeader, DefaultHeaderProps } from './DefaultHeader';
 import { NewsletterOverlay } from './NewsletterOverlay/NewsletterOverlay';
 import { OnRampOverlay } from './OnRampOverlay/OnRampOverlay';
+import { ReactivateAdsOverlay } from './ReactivateAdsOverlay';
 import { ScrollRestorer } from './ScrollRestorer';
 import { ShortcutAccountSwitchOverlay } from './ShortcutAccountSwitchOverlay';
 
@@ -86,6 +87,7 @@ const PageLayout: FC<PropsWithChildren<PageLayoutProps>> = ({
         <>
           <OnRampOverlay />
           <NewsletterOverlay />
+          <ReactivateAdsOverlay />
         </>
       )}
       {ready && (
@@ -99,6 +101,11 @@ const PageLayout: FC<PropsWithChildren<PageLayoutProps>> = ({
 };
 
 export default PageLayout;
+
+const ContentPaperRefContext = createContext<RefObject<HTMLDivElement>>({
+  current: null
+});
+export const useContentPaperRef = () => useContext(ContentPaperRefContext);
 
 type ContentPaperProps = PropsWithChildren<{ className?: string } & ScrollEdgesVisibilityProps>;
 
@@ -122,21 +129,23 @@ const ContentPaper: FC<ContentPaperProps> = ({
   );
 
   return (
-    <ContentPaperNode
-      ref={rootRef}
-      id={APP_CONTENT_PAPER_DOM_ID}
-      className={clsx(
-        LAYOUT_CONTAINER_CLASSNAME,
-        'relative flex flex-col bg-white',
-        !SCROLL_DOCUMENT && 'overflow-y-auto',
-        appEnv.fullPage && 'min-h-80 rounded-md shadow-bottom',
-        className
-      )}
-    >
-      {children}
+    <ContentPaperRefContext.Provider value={rootRef}>
+      <ContentPaperNode
+        ref={rootRef}
+        id={APP_CONTENT_PAPER_DOM_ID}
+        className={clsx(
+          LAYOUT_CONTAINER_CLASSNAME,
+          'relative flex flex-col bg-white',
+          !SCROLL_DOCUMENT && 'overflow-y-auto',
+          appEnv.fullPage && 'min-h-80 rounded-md shadow-bottom',
+          className
+        )}
+      >
+        {children}
 
-      <ContentFader />
-    </ContentPaperNode>
+        <ContentFader />
+      </ContentPaperNode>
+    </ContentPaperRefContext.Provider>
   );
 };
 

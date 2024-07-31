@@ -2214,9 +2214,6 @@
   "deleteCollectibleConfirm": {
     "message": "Tem a certeza de que pretende eliminar este colecionável?"
   },
-  "zeroCollectibleText": {
-    "message": "Ainda não tem colecionáveis!\nÉ uma boa altura para obter um"
-  },
   "min": {
     "message": "Min.:"
   },

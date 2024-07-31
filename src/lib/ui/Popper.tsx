@@ -29,8 +29,8 @@ interface PopperAnchorProps extends PopperRenderProps {
   ref: RefObject<HTMLButtonElement>;
 }
 
-export type PopperPopup = RenderProp<PopperRenderProps>;
-export type PopperChildren = RenderProp<PopperAnchorProps>;
+type PopperPopup = RenderProp<PopperRenderProps>;
+type PopperChildren = RenderProp<PopperAnchorProps>;
 
 type PopperProps = Partial<Options> & {
   popup: PopperPopup;

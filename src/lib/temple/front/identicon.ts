@@ -7,30 +7,42 @@ import * as firstLetters from 'lib/first-letters';
 
 export type IdenticonType = 'jdenticon' | 'botttsneutral' | 'initials';
 
+export type IdenticonOptions<T extends IdenticonType> = T extends 'jdenticon'
+  ? Omit<Options, 'size' | 'seed'>
+  : T extends 'botttsneutral'
+  ? Omit<botttsNeutral.Options & Options, 'size' | 'seed'>
+  : Omit<firstLetters.Options & Options, 'size' | 'seed'>;
+
 const MAX_INITIALS_LENGTH = 5;
 const DEFAULT_FONT_SIZE = 50;
 
-export const getIdenticonUri = memoizee(
-  (hash: string, size: number, type: NonNullable<IdenticonType>, options: Omit<Options, 'size' | 'seed'> = {}) => {
-    switch (type) {
-      case 'jdenticon':
-        // TODO: implement options interpretation for jdenticon
-        return `data:image/svg+xml,${encodeURIComponent(jdenticon.toSvg(hash, size))}`;
-      case 'botttsneutral':
-        return createAvatar(botttsNeutral, { seed: hash, size, ...options }).toDataUriSync();
-      default:
-        return createAvatar(firstLetters, {
-          seed: hash,
-          size,
-          fontFamily: ['Menlo', 'Monaco', 'monospace'],
-          fontSize: estimateOptimalFontSize(hash.length),
-          chars: MAX_INITIALS_LENGTH,
-          ...options
-        }).toDataUriSync();
-    }
-  },
-  { max: 1024, normalizer: ([hash, size, type, options]) => JSON.stringify([hash, size, type, options]) }
-);
+function internalGetIdenticonUri<T extends IdenticonType>(
+  hash: string,
+  size: number,
+  type: T,
+  options?: IdenticonOptions<T>
+) {
+  switch (type) {
+    case 'jdenticon':
+      // TODO: implement options interpretation for jdenticon
+      return `data:image/svg+xml,${encodeURIComponent(jdenticon.toSvg(hash, size))}`;
+    case 'botttsneutral':
+      return createAvatar(botttsNeutral, { seed: hash, size, ...options }).toDataUriSync();
+    default:
+      return createAvatar(firstLetters, {
+        seed: hash,
+        size,
+        fontFamily: ['Menlo', 'Monaco', 'monospace'],
+        fontSize: estimateOptimalFontSize(hash.length),
+        ...options
+      }).toDataUriSync();
+  }
+}
+
+export const getIdenticonUri = memoizee(internalGetIdenticonUri, {
+  max: 1024,
+  normalizer: ([hash, size, type, options]) => JSON.stringify([hash, size, type, options])
+});
 
 /**
  * Dicebear renders letters in a viewbox of 100x100 with a font size that is returned by this function. Let's ensure

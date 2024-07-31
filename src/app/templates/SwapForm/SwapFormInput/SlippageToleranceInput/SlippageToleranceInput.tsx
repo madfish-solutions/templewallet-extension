@@ -98,6 +98,7 @@ export const SlippageToleranceInput = forwardRef<HTMLInputElement, Props>(({ nam
               %
             </span>
           }
+          extraLeftInnerWrapper="none"
           extraRightInnerWrapper="none"
           assetDecimals={2}
           onChange={handleCustomPercentageChange}

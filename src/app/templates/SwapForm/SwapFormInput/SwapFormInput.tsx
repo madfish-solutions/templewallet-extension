@@ -6,7 +6,7 @@ import classNames from 'clsx';
 
 import AssetField from 'app/atoms/AssetField';
 import Money from 'app/atoms/Money';
-import { useTezosTokensListingLogic } from 'app/hooks/use-tokens-listing-logic';
+import { useTokensListingLogicForSwapInput } from 'app/hooks/use-tokens-listing-logic-for-swap-input';
 import { TezosAssetIcon } from 'app/templates/AssetIcon';
 import { DropdownSelect } from 'app/templates/DropdownSelect/DropdownSelect';
 import InFiat from 'app/templates/InFiat';
@@ -15,7 +15,12 @@ import { setTestID, useFormAnalytics } from 'lib/analytics';
 import { TEZ_TOKEN_SLUG } from 'lib/assets';
 import { useTezosAssetBalance } from 'lib/balances';
 import { T, t, toLocalFormat } from 'lib/i18n';
-import { useAssetMetadata, useGetAssetMetadata, AssetMetadataBase, useTokensMetadataPresenceCheck } from 'lib/metadata';
+import {
+  useTezosAssetMetadata,
+  useGetAssetMetadata,
+  AssetMetadataBase,
+  useTezosTokensMetadataPresenceCheck
+} from 'lib/metadata';
 import { useAvailableRoute3TokensSlugs } from 'lib/route3/assets';
 
 import { AssetOption } from './AssetsMenu/AssetOption';
@@ -53,7 +58,7 @@ export const SwapFormInput: FC<SwapFormInputProps> = ({
   const isTezosSlug = assetSlug === 'tez';
   const assetSlugWithFallback = assetSlug ?? 'tez';
 
-  const assetMetadataWithFallback = useAssetMetadata(assetSlugWithFallback, network.chainId)!;
+  const assetMetadataWithFallback = useTezosAssetMetadata(assetSlugWithFallback, network.chainId)!;
   const assetMetadata = useMemo(
     () => (assetSlug ? assetMetadataWithFallback : EMPTY_BASE_METADATA),
     [assetSlug, assetMetadataWithFallback]
@@ -63,7 +68,7 @@ export const SwapFormInput: FC<SwapFormInputProps> = ({
   const { value: balance } = useTezosAssetBalance(assetSlugWithFallback, publicKeyHash, network);
 
   const { isLoading, route3tokensSlugs } = useAvailableRoute3TokensSlugs();
-  const { filteredAssets, searchValue, setSearchValue, setTokenId } = useTezosTokensListingLogic(
+  const { filteredAssets, searchValue, setSearchValue, setTokenId } = useTokensListingLogicForSwapInput(
     network.chainId,
     publicKeyHash,
     route3tokensSlugs,
@@ -71,7 +76,7 @@ export const SwapFormInput: FC<SwapFormInputProps> = ({
     LEADING_ASSETS
   );
 
-  useTokensMetadataPresenceCheck(network.rpcBaseURL, route3tokensSlugs);
+  useTezosTokensMetadataPresenceCheck(network.rpcBaseURL, route3tokensSlugs);
 
   const maxAmount = useMemo(() => {
     if (!assetSlug) {

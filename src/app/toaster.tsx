@@ -14,23 +14,34 @@ import PortalToDocumentBody from 'lib/ui/Portal';
 const MAX_TOASTS_COUNT = 3;
 const toastsIdsPool: string[] = [];
 
-const withToastsLimit = (toastFn: (title: string) => string) => (title: string) => {
-  if (toastsIdsPool.length >= MAX_TOASTS_COUNT) {
-    const toastsIdsToDismiss = toastsIdsPool.splice(0, toastsIdsPool.length - MAX_TOASTS_COUNT + 1);
-    toastsIdsToDismiss.forEach(toast.remove);
-  }
-  const newToastId = toastFn(title);
-  toastsIdsPool.push(newToastId);
-};
+const withToastsLimit =
+  (toastFn: (title: string, textBold?: boolean) => string) => (title: string, textBold?: boolean) => {
+    if (toastsIdsPool.length >= MAX_TOASTS_COUNT) {
+      const toastsIdsToDismiss = toastsIdsPool.splice(0, toastsIdsPool.length - MAX_TOASTS_COUNT + 1);
+      toastsIdsToDismiss.forEach(toast.remove);
+    }
+    const newToastId = toastFn(title, textBold);
+    toastsIdsPool.push(newToastId);
+  };
 
-export const toastSuccess = withToastsLimit(toast.success);
+export const toastSuccess = withToastsLimit((title: string, textBold?: boolean) =>
+  toast.custom(toast => (
+    <CustomToastBar toast={{ ...toast, message: title }} customType="success" textBold={textBold} />
+  ))
+);
 // @ts-prune-ignore-next
-export const toastError = withToastsLimit(toast.error);
+export const toastError = withToastsLimit((title: string, textBold?: boolean) =>
+  toast.custom(toast => <CustomToastBar toast={{ ...toast, message: title }} customType="error" textBold={textBold} />)
+);
 // @ts-prune-ignore-next
-export const toastInfo = withToastsLimit(toast);
+export const toastInfo = withToastsLimit((title: string, textBold?: boolean) =>
+  toast.custom(toast => <CustomToastBar toast={{ ...toast, message: title }} customType="blank" textBold={textBold} />)
+);
 // @ts-prune-ignore-next
-export const toastWarning = withToastsLimit((title: string) =>
-  toast.custom(toast => <CustomToastBar toast={{ ...toast, message: title }} customType="warning" />)
+export const toastWarning = withToastsLimit((title: string, textBold?: boolean) =>
+  toast.custom(toast => (
+    <CustomToastBar toast={{ ...toast, message: title }} customType="warning" textBold={textBold} />
+  ))
 );
 
 export const ToasterProvider = memo(() => {
@@ -56,32 +67,36 @@ const TOAST_CLASSES: Partial<Record<ToastTypeExtended, string>> = {
   warning: 'bg-warning-low'
 };
 
-const CustomToastBar = memo<{ toast: Toast; customType?: ToastTypeExtended }>(({ toast, customType }) => {
-  const type: ToastTypeExtended = customType || toast.type;
+const CustomToastBar = memo<{ toast: Toast; customType?: ToastTypeExtended; textBold?: boolean }>(
+  ({ toast, customType, textBold = true }) => {
+    const type: ToastTypeExtended = customType || toast.type;
 
-  const prevToastVisibleRef = useRef(toast.visible);
-  useEffect(() => {
-    if (prevToastVisibleRef.current && !toast.visible) {
-      const toastIndex = toastsIdsPool.indexOf(toast.id);
-      if (toastIndex !== -1) {
-        toastsIdsPool.splice(toastIndex, 1);
+    const prevToastVisibleRef = useRef(toast.visible);
+    useEffect(() => {
+      if (prevToastVisibleRef.current && !toast.visible) {
+        const toastIndex = toastsIdsPool.indexOf(toast.id);
+        if (toastIndex !== -1) {
+          toastsIdsPool.splice(toastIndex, 1);
+        }
       }
-    }
-    prevToastVisibleRef.current = toast.visible;
-  }, [toast.id, toast.visible]);
+      prevToastVisibleRef.current = toast.visible;
+    }, [toast.id, toast.visible]);
 
-  return (
-    <div className={clsx('px-3 py-2.5 flex gap-x-1 items-center rounded-md shadow-bottom', TOAST_CLASSES[type])}>
-      <CustomToastIcon toast={toast} type={type} />
+    return (
+      <div className={clsx('px-3 py-2.5 flex gap-x-1 rounded-md shadow-bottom max-w-82', TOAST_CLASSES[type])}>
+        <CustomToastIcon toast={toast} type={type} />
 
-      {typeof toast.message === 'function' ? (
-        toast.message(toast)
-      ) : (
-        <span className="text-font-description-bold">{toast.message}</span>
-      )}
-    </div>
-  );
-});
+        {typeof toast.message === 'function' ? (
+          toast.message(toast)
+        ) : (
+          <span className={clsx('self-center', textBold ? 'text-font-description-bold' : 'text-font-description')}>
+            {toast.message}
+          </span>
+        )}
+      </div>
+    );
+  }
+);
 
 const CustomToastIcon = memo<{ toast: Toast; type: ToastTypeExtended }>(({ toast, type }) => {
   switch (type) {
