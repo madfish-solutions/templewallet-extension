@@ -22,6 +22,7 @@ import ConfirmationOverlay from './ConfirmationOverlay';
 import { DefaultHeader, DefaultHeaderProps } from './DefaultHeader';
 import { NewsletterOverlay } from './NewsletterOverlay/NewsletterOverlay';
 import { OnRampOverlay } from './OnRampOverlay/OnRampOverlay';
+import { ReactivateAdsOverlay } from './ReactivateAdsOverlay';
 import { ScrollRestorer } from './ScrollRestorer';
 import { ShortcutAccountSwitchOverlay } from './ShortcutAccountSwitchOverlay';
 
@@ -59,6 +60,7 @@ const PageLayout: FC<PropsWithChildren<PageLayoutProps>> = ({
       <ChangelogOverlay />
       <OnRampOverlay />
       <NewsletterOverlay />
+      <ReactivateAdsOverlay />
       {ready && <ShortcutAccountSwitchOverlay />}
     </>
   );

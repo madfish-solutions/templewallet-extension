@@ -8,5 +8,7 @@ export const useOnRampPossibilitySelector = () => useSelector(({ settings }) => 
 
 export const useIsConversionTrackedSelector = () => useSelector(({ settings }) => settings.isConversionTracked);
 
+export const useIsPendingReactivateAdsSelector = () => useSelector(({ settings }) => settings.pendingReactivateAds);
+
 export const useToastsContainerBottomShiftSelector = () =>
   useSelector(({ settings }) => settings.toastsContainerBottomShift);

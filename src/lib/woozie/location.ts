@@ -1,6 +1,6 @@
 import constate from 'constate';
 
-import { USE_LOCATION_HASH_AS_URL } from './config';
+import { HOME_PAGE_PATH, USE_LOCATION_HASH_AS_URL } from './config';
 import { HistoryAction, PatchedHistory, useHistory } from './history';
 
 interface LocationState {
@@ -60,7 +60,7 @@ export function createLocationState(): LocationState {
     hostname,
     href,
     origin,
-    pathname: pathname || '/',
+    pathname: pathname || HOME_PAGE_PATH,
     port,
     protocol,
     search

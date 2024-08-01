@@ -2,10 +2,9 @@ import React, { FC, useMemo } from 'react';
 
 import classNames from 'clsx';
 
-import { Anchor, Button } from 'app/atoms';
+import { Anchor } from 'app/atoms';
 import { useAppEnv } from 'app/env';
 import { ReactComponent as ArrowRightIcon } from 'app/icons/arrow-right.svg';
-import { ReactComponent as CloseIcon } from 'app/icons/close.svg';
 import { ReactComponent as SmileWithDollarIcon } from 'app/icons/smile-with-dollar.svg';
 import { ReactComponent as SmileWithGlassesIcon } from 'app/icons/smile-with-glasses.svg';
 import { ReactComponent as SmileIcon } from 'app/icons/smile.svg';
@@ -16,6 +15,8 @@ import { setOnRampPossibilityAction } from 'app/store/settings/actions';
 import { useOnRampPossibilitySelector } from 'app/store/settings/selectors';
 import { T } from 'lib/i18n/react';
 import { useAccountAddressForTezos } from 'temple/front';
+
+import { OverlayCloseButton } from '../OverlayCloseButton';
 
 import OnRampOverlayBgPopupImg from './assets/on-ramp-overlay-bg-popup.png';
 import OnRampOverlayBgImg from './assets/on-ramp-overlay-bg.png';
@@ -54,24 +55,12 @@ export const OnRampOverlay: FC = () => {
             backgroundImage: `url(${popup ? OnRampOverlayBgPopupImg : OnRampOverlayBgImg})`
           }}
         >
-          <Button
-            className={classNames(
-              'w-24 h-9 uppercase bg-blue-500',
-              'font-inter text-white',
-              'text-sm font-medium rounded',
-              'flex flex-row justify-center items-center self-end',
-              'hover:opacity-90 relative'
-            )}
-            style={{ top: '-0.75rem', right: '-0.75rem' }}
-            onClick={close}
-            testID={OnRampOverlaySelectors.closeButton}
-          >
-            <T id="close" />
-            <CloseIcon className="ml-2 h-4 w-auto stroke-current stroke-2" />
-          </Button>
+          <OverlayCloseButton testID={OnRampOverlaySelectors.closeButton} onClick={close} />
+
           <h1 className="font-inter font-normal text-gray-910 mt-25" style={{ fontSize: '1.438rem' }}>
             <T id="jumpInTezos" />
           </h1>
+
           <p
             className={classNames('font-inter font-normal text-gray-700 mt-4', !popup && 'px-10')}
             style={{ fontSize: '1.063rem' }}
@@ -85,6 +74,7 @@ export const OnRampOverlay: FC = () => {
               ]}
             />
           </p>
+
           <div className={classNames('flex flex-row justify-between mt-8', !popup && 'px-14')}>
             <OnRampSmileButton
               href={getWertLink(publicKeyHash, 50)}
@@ -110,6 +100,7 @@ export const OnRampOverlay: FC = () => {
               testID={OnRampOverlaySelectors.twoHundredDollarButton}
             />
           </div>
+
           <Anchor
             href={getWertLink(publicKeyHash)}
             className={classNames(
@@ -126,6 +117,7 @@ export const OnRampOverlay: FC = () => {
             <T id="customAmount" />
             <ArrowRightIcon className="ml-2 h-3 w-auto stroke-current stroke-2" />
           </Anchor>
+
           <p
             className={classNames(
               'font-inter font-normal mt-auto px-5 text-xs text-gray-600',
