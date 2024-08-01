@@ -1,6 +1,6 @@
-import { BalancesResponse, ChainID, NftAddressBalanceNftResponse } from 'lib/apis/temple/endpoints/evm/api.interfaces';
-
 import { templeWalletApi } from '../templewallet.api';
+
+import { BalancesResponse, ChainID, NftAddressBalanceNftResponse } from './api.interfaces';
 
 export const getEvmBalances = (walletAddress: string, chainId: ChainID) =>
   buildEvmRequest<BalancesResponse>('/balances', walletAddress, chainId);

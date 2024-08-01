@@ -5,10 +5,12 @@ import classNames from 'clsx';
 import { Button } from 'app/atoms/Button';
 import { HomeSelectors } from 'app/pages/Home/selectors';
 import { AnalyticsEventCategory, useAnalytics } from 'lib/analytics';
+import { TEZ_TOKEN_SLUG } from 'lib/assets';
 import { T } from 'lib/i18n';
 import { useDelegate } from 'lib/temple/front';
 import { navigate } from 'lib/woozie';
 import { TezosNetworkEssentials } from 'temple/networks';
+import { TempleChainKind } from 'temple/types';
 
 import { AssetsSelectors } from '../../../Assets.selectors';
 import modStyles from '../../Tokens.module.css';
@@ -27,7 +29,7 @@ export const DelegateTezosTag = memo<Props>(({ network, pkh }) => {
       e.preventDefault();
       e.stopPropagation();
       trackEvent(HomeSelectors.delegateButton, AnalyticsEventCategory.ButtonPress);
-      navigate(`/explore/${network.chainId}/tez/?tab=delegation`);
+      navigate(`/explore/${TempleChainKind.Tezos}/${network.chainId}/${TEZ_TOKEN_SLUG}/?tab=delegation`);
     },
     [network.chainId, trackEvent]
   );
