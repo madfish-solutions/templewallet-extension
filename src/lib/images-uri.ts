@@ -173,7 +173,6 @@ const chainIdsChainNamesRecord: Record<number, string> = {
   1: 'ethereum',
   11155111: 'sepolia',
   137: 'polygon',
-  80001: 'polygonmumbai',
   56: 'smartchain',
   97: 'bnbt',
   43114: 'avalanchex',

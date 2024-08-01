@@ -75,7 +75,7 @@ export const OnRampOverlay: FC = () => {
             />
           </p>
 
-          <div className={classNames('flex flex-row justify-between mt-8', !popup && 'px-14')}>
+          <div className="flex flex-row justify-between mt-8 gap-x-2">
             <OnRampSmileButton
               href={getWertLink(publicKeyHash, 50)}
               SmileIcon={SmileIcon}
@@ -87,8 +87,7 @@ export const OnRampOverlay: FC = () => {
               href={getWertLink(publicKeyHash, 100)}
               SmileIcon={SmileWithGlassesIcon}
               amount={100}
-              className="hover:shadow hover:opacity-90 hover:bg-orange-500 bg-orange-500"
-              titleClassName="text-primary-white"
+              accentColors
               onClick={close}
               testID={OnRampOverlaySelectors.oneHundredDollarButton}
             />
@@ -118,12 +117,7 @@ export const OnRampOverlay: FC = () => {
             <ArrowRightIcon className="ml-2 h-3 w-auto stroke-current stroke-2" />
           </Anchor>
 
-          <p
-            className={classNames(
-              'font-inter font-normal mt-auto px-5 text-xs text-gray-600',
-              popup ? 'mt-29' : 'pt-29'
-            )}
-          >
+          <p className={classNames('font-inter font-normal mt-auto text-xs text-gray-600', popup ? 'mt-29' : 'pt-29')}>
             <T id="thirdParty" />
           </p>
         </div>
