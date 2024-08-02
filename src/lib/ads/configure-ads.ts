@@ -55,8 +55,8 @@ const bannerAdsMeta: AdMetadata[] = [
     dimensions: {
       width: 970,
       height: 250,
-      minContainerWidth: 970,
-      minContainerHeight: 250,
+      minContainerWidth: 969,
+      minContainerHeight: 249,
       maxContainerWidth: Infinity,
       maxContainerHeight: 500
     }
@@ -71,8 +71,8 @@ const bannerAdsMeta: AdMetadata[] = [
     dimensions: {
       width: 970,
       height: 90,
-      minContainerWidth: 970,
-      minContainerHeight: 90,
+      minContainerWidth: 969,
+      minContainerHeight: 89,
       maxContainerWidth: Infinity,
       maxContainerHeight: 300
     }
@@ -87,8 +87,8 @@ const bannerAdsMeta: AdMetadata[] = [
     dimensions: {
       width: 728,
       height: 90,
-      minContainerWidth: 728,
-      minContainerHeight: 90,
+      minContainerWidth: 727,
+      minContainerHeight: 89,
       maxContainerWidth: Infinity,
       maxContainerHeight: 300
     }
@@ -103,8 +103,8 @@ const bannerAdsMeta: AdMetadata[] = [
     dimensions: {
       width: 300,
       height: 600,
-      minContainerWidth: 300,
-      minContainerHeight: 600,
+      minContainerWidth: 299,
+      minContainerHeight: 599,
       maxContainerWidth: 600,
       maxContainerHeight: Infinity
     }
@@ -119,8 +119,8 @@ const bannerAdsMeta: AdMetadata[] = [
     dimensions: {
       width: 160,
       height: 600,
-      minContainerWidth: 160,
-      minContainerHeight: 600,
+      minContainerWidth: 159,
+      minContainerHeight: 599,
       maxContainerWidth: 360,
       maxContainerHeight: Infinity
     }
@@ -135,8 +135,8 @@ const bannerAdsMeta: AdMetadata[] = [
     dimensions: {
       width: 336,
       height: 280,
-      minContainerWidth: 336,
-      minContainerHeight: 280,
+      minContainerWidth: 335,
+      minContainerHeight: 279,
       maxContainerWidth: 728,
       maxContainerHeight: 480
     }
@@ -151,8 +151,8 @@ const bannerAdsMeta: AdMetadata[] = [
     dimensions: {
       width: 300,
       height: 250,
-      minContainerWidth: 300,
-      minContainerHeight: 250,
+      minContainerWidth: 299,
+      minContainerHeight: 249,
       maxContainerWidth: 700,
       maxContainerHeight: 500
     }
@@ -167,9 +167,9 @@ const bannerAdsMeta: AdMetadata[] = [
     dimensions: {
       width: 320,
       height: 100,
-      minContainerWidth: 320,
-      minContainerHeight: 100,
-      maxContainerWidth: 480,
+      minContainerWidth: 319,
+      minContainerHeight: 99,
+      maxContainerWidth: 420,
       maxContainerHeight: 200
     }
   },
@@ -184,8 +184,8 @@ const bannerAdsMeta: AdMetadata[] = [
     dimensions: {
       width: 320,
       height: 50,
-      minContainerWidth: 320,
-      minContainerHeight: 50,
+      minContainerWidth: 319,
+      minContainerHeight: 49,
       maxContainerWidth: 420,
       maxContainerHeight: 130
     }
@@ -199,8 +199,8 @@ const bannerAdsMeta: AdMetadata[] = [
     dimensions: {
       width: 728,
       height: 90,
-      minContainerWidth: 728,
-      minContainerHeight: 90,
+      minContainerWidth: 727,
+      minContainerHeight: 89,
       maxContainerWidth: Infinity,
       maxContainerHeight: 300
     }
@@ -213,8 +213,8 @@ const bannerAdsMeta: AdMetadata[] = [
     dimensions: {
       width: 728,
       height: 90,
-      minContainerWidth: 728,
-      minContainerHeight: 90,
+      minContainerWidth: 727,
+      minContainerHeight: 89,
       maxContainerWidth: Infinity,
       maxContainerHeight: 300
     }
@@ -227,8 +227,8 @@ const bannerAdsMeta: AdMetadata[] = [
     dimensions: {
       width: 600,
       height: 160,
-      minContainerWidth: 600,
-      minContainerHeight: 160,
+      minContainerWidth: 599,
+      minContainerHeight: 159,
       maxContainerWidth: 800,
       maxContainerHeight: 300
     }
@@ -242,8 +242,8 @@ const bannerAdsMeta: AdMetadata[] = [
     dimensions: {
       width: 300,
       height: 250,
-      minContainerWidth: 300,
-      minContainerHeight: 250,
+      minContainerWidth: 299,
+      minContainerHeight: 249,
       maxContainerWidth: 700,
       maxContainerHeight: 500
     }
@@ -256,8 +256,8 @@ const bannerAdsMeta: AdMetadata[] = [
     dimensions: {
       width: 300,
       height: 250,
-      minContainerWidth: 300,
-      minContainerHeight: 250,
+      minContainerWidth: 299,
+      minContainerHeight: 249,
       maxContainerWidth: 700,
       maxContainerHeight: 500
     }
@@ -272,8 +272,8 @@ const bannerAdsMeta: AdMetadata[] = [
     dimensions: {
       width: 320,
       height: 50,
-      minContainerWidth: 320,
-      minContainerHeight: 50,
+      minContainerWidth: 319,
+      minContainerHeight: 49,
       maxContainerWidth: 420,
       maxContainerHeight: 130
     }
@@ -287,8 +287,8 @@ const bannerAdsMeta: AdMetadata[] = [
     dimensions: {
       width: 321,
       height: 101,
-      minContainerWidth: 321,
-      minContainerHeight: 101,
+      minContainerWidth: 319,
+      minContainerHeight: 99,
       maxContainerWidth: 420,
       maxContainerHeight: 130
     }
@@ -298,13 +298,11 @@ const bannerAdsMeta: AdMetadata[] = [
 export const configureAds = async () => {
   const { configureAds: originalConfigureAds } = await importExtensionAdsModule();
   originalConfigureAds({
-    hypelabAdsWindowUrl: EnvVars.HYPELAB_ADS_WINDOW_URL,
+    adsTwWindowUrl: EnvVars.HYPELAB_ADS_WINDOW_URL,
     swapTkeyUrl,
     tkeyInpageAdUrl,
     externalAdsActivityMessageType: ContentScriptType.ExternalAdsActivity,
-    // Types are added to prevent TS errors for the core build
-    getPersonaIframeURL: (id: string, slug: string) =>
-      browser.runtime.getURL(`iframes/persona-ad.html?id=${id}&slug=${slug}`),
+    personaIframePath: browser.runtime.getURL('iframes/persona-ad.html'),
     getAdsStackIframeURL,
     buildNativeAdsMeta,
     bannerAdsMeta,
