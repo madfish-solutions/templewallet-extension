@@ -11,6 +11,7 @@ import CssMinimizerPlugin from 'css-minimizer-webpack-plugin';
 import HtmlWebpackPlugin from 'html-webpack-plugin';
 import MiniCssExtractPlugin from 'mini-css-extract-plugin';
 import * as Path from 'path';
+import WebPack from 'webpack';
 import ExtensionReloaderMV3BadlyTyped, {
   ExtensionReloader as ExtensionReloaderMV3Type
 } from 'webpack-ext-reloader-mv3';
@@ -27,9 +28,10 @@ import {
   RELOADER_PORTS,
   MAX_JS_CHUNK_SIZE_IN_BYTES
 } from './webpack/env';
-import usePagesLiveReload from './webpack/live-reload';
 import { buildManifest } from './webpack/manifest';
 import { PATHS, IFRAMES } from './webpack/paths';
+import { CheckUnusedFilesPlugin } from './webpack/plugins/check-unused';
+import usePagesLiveReload from './webpack/plugins/live-reload';
 import { isTruthy } from './webpack/utils';
 
 const ExtensionReloaderMV3 = ExtensionReloaderMV3BadlyTyped as ExtensionReloaderMV3Type;
@@ -140,9 +142,12 @@ const mainConfig = (() => {
         ]
       }),
 
-      new SaveRemoteFilePlugin([
+      /** TODO: Type def */
+      new (SaveRemoteFilePlugin as any)([
         { url: 'https://api.hypelab.com/v1/scripts/hp-sdk.js?v=0', filepath: 'scripts/hypelab.embed.js', hash: false }
       ]),
+
+      new CheckUnusedFilesPlugin(['src/**/*.svg'], PRODUCTION_ENV),
 
       new CreateFileWebpack({
         path: PATHS.OUTPUT,
@@ -232,6 +237,10 @@ const backgroundConfig = (() => {
       new WebpackBar({
         name: 'Temple Wallet | Background',
         color: '#ed8936'
+      }),
+
+      new WebPack.NormalModuleReplacementPlugin(/^react$/, () => {
+        throw new Error('React is not allowed in BG script');
       }),
 
       new CleanWebpackPlugin({

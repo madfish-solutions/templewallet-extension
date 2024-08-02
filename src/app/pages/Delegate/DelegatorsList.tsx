@@ -1,4 +1,4 @@
-import React, { FC, useMemo } from 'react';
+import React, { FC, memo, useMemo } from 'react';
 
 import clsx from 'clsx';
 
@@ -16,11 +16,15 @@ import { DelegateFormSelectors } from './selectors';
 
 const SORT_BAKERS_BY_KEY = 'sort_bakers_by';
 
-export const KnownDelegatorsList: React.FC<{ setValue: any; triggerValidation: any }> = ({
-  setValue,
-  triggerValidation
-}) => {
-  const knownBakers = useKnownBakers();
+interface Props {
+  tezosChainId: string;
+  accountPkh: string;
+  setValue: any;
+  triggerValidation: any;
+}
+
+export const KnownDelegatorsList = memo<Props>(({ tezosChainId, accountPkh, setValue, triggerValidation }) => {
+  const knownBakers = useKnownBakers(tezosChainId);
   const { search } = useLocation();
   const testGroupName = useUserTestingGroupNameSelector();
 
@@ -136,7 +140,7 @@ export const KnownDelegatorsList: React.FC<{ setValue: any; triggerValidation: a
             <Link
               key={key}
               to={{
-                pathname: '/delegate',
+                pathname: `/delegate/${tezosChainId}`,
                 search: `${SORT_BAKERS_BY_KEY}=${key}`
               }}
               replace
@@ -190,6 +194,8 @@ export const KnownDelegatorsList: React.FC<{ setValue: any; triggerValidation: a
               testIDProperties={{ bakerAddress: baker.address, abTestingCategory: testGroupName }}
             >
               <BakerCard
+                tezosChainId={tezosChainId}
+                accountPkh={accountPkh}
                 bakerPkh={baker.address}
                 hideAddress
                 showBakerTag
@@ -202,6 +208,6 @@ export const KnownDelegatorsList: React.FC<{ setValue: any; triggerValidation: a
       </div>
     </div>
   );
-};
+});
 
 const BakerBannerHeaderRight: FC = () => <ChevronRightIcon className="h-6 w-6 stroke-current text-gray-500" />;

@@ -6,18 +6,19 @@ import classNames from 'clsx';
 import Money from 'app/atoms/Money';
 import { useAppEnv } from 'app/env';
 import InFiat from 'app/templates/InFiat';
-import { useAssetMetadata, getAssetSymbol } from 'lib/metadata';
+import { useTezosAssetMetadata, getAssetSymbol } from 'lib/metadata';
 
 interface Props {
+  tezosChainId: string;
   assetId: string;
   diff: string;
   pending?: boolean;
   className?: string;
 }
 
-export const MoneyDiffView = memo<Props>(({ assetId: assetSlug, diff, pending = false, className }) => {
+export const MoneyDiffView = memo<Props>(({ tezosChainId, assetId: assetSlug, diff, pending = false, className }) => {
   const { popup } = useAppEnv();
-  const metadata = useAssetMetadata(assetSlug);
+  const metadata = useTezosAssetMetadata(assetSlug, tezosChainId);
 
   const diffBN = useMemo(() => new BigNumber(diff).div(metadata ? 10 ** metadata.decimals : 1), [diff, metadata]);
 
@@ -35,7 +36,7 @@ export const MoneyDiffView = memo<Props>(({ assetId: assetSlug, diff, pending = 
       </div>
 
       {assetSlug && (
-        <InFiat volume={diffBN.abs()} assetSlug={assetSlug}>
+        <InFiat volume={diffBN.abs()} chainId={tezosChainId} assetSlug={assetSlug}>
           {({ balance, symbol }) => (
             <div className="text-xs text-gray-500 ml-1 flex">
               {balance}

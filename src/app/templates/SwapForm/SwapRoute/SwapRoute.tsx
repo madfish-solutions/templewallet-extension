@@ -112,6 +112,7 @@ export const SwapRoute = memo<Props>(
             </span>
           </span>
         </p>
+
         {shouldShowRoute && (
           <div className="flex flex-row items-center my-2">
             {isLbInput && <LbPoolPart isLbOutput={false} amount={input} totalChains={totalChains} />}

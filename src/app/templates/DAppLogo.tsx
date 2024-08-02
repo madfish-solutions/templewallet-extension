@@ -2,7 +2,7 @@ import React, { CSSProperties, memo, useCallback, useMemo, useState } from 'reac
 
 import classNames from 'clsx';
 
-import Identicon from 'app/atoms/Identicon';
+import { Identicon } from 'app/atoms';
 
 type DAppLogoProps = {
   origin: string;
@@ -24,7 +24,13 @@ const DAppLogo = memo<DAppLogoProps>(({ origin, size, icon, className, style }) 
       <img src={faviconSrc} alt={origin} style={{ width: size, height: size }} onError={handleFaviconError} />
     </div>
   ) : (
-    <Identicon hash={origin} size={size} className={classNames('shadow-xs', className)} style={style} />
+    <Identicon
+      type="jdenticon"
+      hash={origin}
+      size={size}
+      className={classNames('shadow-xs', className)}
+      style={style}
+    />
   );
 });
 

@@ -2,75 +2,118 @@ import { useCallback, useMemo } from 'react';
 
 import { emptyFn } from '@rnw-community/shared';
 import BigNumber from 'bignumber.js';
-import memoizee from 'memoizee';
 
-import { useAllAccountBalancesSelector, useAllBalancesSelector } from 'app/store/balances/selectors';
-import { getKeyForBalancesRecord } from 'app/store/balances/utils';
-import { isKnownChainId } from 'lib/apis/tzkt';
-import { useAssetMetadata, useGetTokenOrGasMetadata } from 'lib/metadata';
-import { useTypedSWR } from 'lib/swr';
+import { DeadEndBoundaryError } from 'app/ErrorBoundary';
 import {
-  useTezos,
-  useAccount,
-  useChainId,
-  ReactiveTezosToolkit,
-  useChainIdLoading,
-  useOnBlock
-} from 'lib/temple/front';
-import { michelEncoder, loadFastRpcClient, atomsToTokens } from 'lib/temple/helpers';
+  useRawEvmAccountBalancesSelector,
+  useRawEvmChainAccountBalancesSelector
+} from 'app/store/evm/balances/selectors';
+import { useEvmCollectibleMetadataSelector } from 'app/store/evm/collectibles-metadata/selectors';
+import { useEvmBalancesLoadingSelector } from 'app/store/evm/selectors';
+import {
+  useEvmTokenMetadataSelector,
+  useEvmTokensMetadataRecordSelector
+} from 'app/store/evm/tokens-metadata/selectors';
+import {
+  useAllAccountBalancesSelector,
+  useAllAccountBalancesEntitySelector,
+  useBalancesAtomicRecordSelector
+} from 'app/store/tezos/balances/selectors';
+import { getKeyForBalancesRecord } from 'app/store/tezos/balances/utils';
+import { isSupportedChainId } from 'lib/apis/temple/endpoints/evm/api.utils';
+import { isKnownChainId } from 'lib/apis/tzkt';
+import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
+import { fetchEvmRawBalance as fetchEvmRawBalanceFromBlockchain } from 'lib/evm/on-chain/balance';
+import { EvmAssetStandard } from 'lib/evm/types';
+import { EVM_BALANCES_SYNC_INTERVAL } from 'lib/fixed-times';
+import { useTezosAssetMetadata, useGetChainTokenOrGasMetadata, useGetTokenOrGasMetadata } from 'lib/metadata';
+import { EvmTokenMetadata } from 'lib/metadata/types';
+import { useTypedSWR } from 'lib/swr';
+import { atomsToTokens } from 'lib/temple/helpers';
+import { useInterval } from 'lib/ui/hooks';
+import { isEvmNativeTokenSlug } from 'lib/utils/evm.utils';
+import { useAccountAddressForEvm, useAccountAddressForTezos, useAllEvmChains, useOnTezosBlock } from 'temple/front';
+import { useEvmChainByChainId } from 'temple/front/chains';
+import { TezosNetworkEssentials } from 'temple/networks';
+import { getReadOnlyTezos } from 'temple/tezos';
 
 import { fetchRawBalance as fetchRawBalanceFromBlockchain } from './fetch';
-import { getBalanceSWRKey } from './utils';
 
-export const useCurrentAccountBalances = () => {
-  const { publicKeyHash } = useAccount();
-  const chainId = useChainId(true)!;
+export const useGetEvmTokenBalanceWithDecimals = (publicKeyHash: HexString) => {
+  const evmChains = useAllEvmChains();
+  const rawBalances = useRawEvmAccountBalancesSelector(publicKeyHash);
+  const tokensMetadata = useEvmTokensMetadataRecordSelector();
 
-  return useAllAccountBalancesSelector(publicKeyHash, chainId);
+  return useCallback(
+    (chainId: number, slug: string) => {
+      const rawBalance = rawBalances[chainId]?.[slug] as string | undefined;
+
+      if (!rawBalance) return;
+
+      const metadata =
+        slug === EVM_TOKEN_SLUG
+          ? evmChains[chainId]?.currency
+          : (tokensMetadata[chainId]?.[slug] as EvmTokenMetadata | undefined);
+
+      return metadata?.decimals ? atomsToTokens(rawBalance, metadata.decimals) : undefined;
+    },
+    [evmChains, rawBalances, tokensMetadata]
+  );
 };
 
-export const useGetCurrentAccountTokenOrGasBalanceWithDecimals = () => {
-  const rawBalances = useCurrentAccountBalances();
-  const getMetadata = useGetTokenOrGasMetadata();
+export const useGetTezosAccountTokenOrGasBalanceWithDecimals = (publicKeyHash: string) => {
+  const balancesAtomicRecord = useBalancesAtomicRecordSelector();
+  const getChainMetadata = useGetTokenOrGasMetadata();
+
+  return useCallback(
+    (chainId: string, slug: string) => {
+      const key = getKeyForBalancesRecord(publicKeyHash, chainId);
+
+      const rawBalance = balancesAtomicRecord[key]?.data[slug] as string | undefined;
+
+      if (!rawBalance) return;
+
+      const metadata = getChainMetadata(chainId, slug);
+
+      return metadata?.decimals ? atomsToTokens(rawBalance, metadata.decimals) : undefined;
+    },
+    [balancesAtomicRecord, getChainMetadata, publicKeyHash]
+  );
+};
+
+export const useGetTezosChainAccountTokenOrGasBalanceWithDecimals = (publicKeyHash: string, tezosChainId: string) => {
+  const rawBalances = useAllAccountBalancesSelector(publicKeyHash, tezosChainId);
+  const getMetadata = useGetChainTokenOrGasMetadata(tezosChainId);
 
   return useCallback(
     (slug: string) => {
       const rawBalance = rawBalances[slug] as string | undefined;
+
+      if (!rawBalance) return;
+
       const metadata = getMetadata(slug);
 
-      return rawBalance && metadata ? atomsToTokens(new BigNumber(rawBalance), metadata.decimals) : undefined;
+      return metadata?.decimals ? atomsToTokens(rawBalance, metadata.decimals) : undefined;
     },
     [rawBalances, getMetadata]
   );
 };
 
-export function useRawBalance(
+export function useTezosAssetRawBalance(
   assetSlug: string,
   address: string,
-  networkRpc?: string
+  network: TezosNetworkEssentials
 ): {
   value: string | undefined;
   isSyncing: boolean;
   error?: unknown;
   refresh: EmptyFn;
 } {
-  const { publicKeyHash: currentAccountAddress } = useAccount();
-  const nativeTezos = useTezos();
-  const nativeRpcUrl = useMemo(() => nativeTezos.rpc.getRpcUrl(), [nativeTezos]);
+  const currentAccountAddress = useAccountAddressForTezos();
 
-  const rpcUrl = networkRpc ?? nativeRpcUrl;
+  const { chainId, rpcBaseURL } = network;
 
-  const chainIdSwrRes = useChainIdLoading(rpcUrl);
-  const chainId = chainIdSwrRes.data;
-
-  const allBalances = useAllBalancesSelector();
-  const balances = useMemo(() => {
-    if (!chainId) return null;
-
-    const key = getKeyForBalancesRecord(address, chainId);
-
-    return allBalances[key];
-  }, [allBalances, chainId, address]);
+  const balances = useAllAccountBalancesEntitySelector(address, chainId);
 
   /** Only using store for currently selected account - most used case
    * and with a refresh mechanism in useBalancesLoading hook.
@@ -79,12 +122,12 @@ export function useRawBalance(
    */
   const usingStore = address === currentAccountAddress && isKnownChainId(chainId);
 
-  const tezos = useMemo(() => (networkRpc ? buildTezosToolkit(networkRpc) : nativeTezos), [networkRpc, nativeTezos]);
-
   const onChainBalanceSwrRes = useTypedSWR(
-    getBalanceSWRKey(tezos, assetSlug, address),
+    ['balance', rpcBaseURL, assetSlug, address],
     () => {
-      if (!chainId || usingStore) return;
+      if (usingStore) return;
+
+      const tezos = getReadOnlyTezos(rpcBaseURL);
 
       return fetchRawBalanceFromBlockchain(tezos, assetSlug, address).then(res => res.toString());
     },
@@ -94,18 +137,9 @@ export function useRawBalance(
     }
   );
 
-  const refreshChainId = useCallback(() => chainIdSwrRes.mutate(), [chainIdSwrRes.mutate]);
   const refreshBalanceOnChain = useCallback(() => void onChainBalanceSwrRes.mutate(), [onChainBalanceSwrRes.mutate]);
 
-  useOnBlock(refreshBalanceOnChain, tezos, !chainId || usingStore);
-
-  if (!chainId)
-    return {
-      value: undefined,
-      isSyncing: chainIdSwrRes.isValidating,
-      error: chainIdSwrRes.error,
-      refresh: refreshChainId
-    };
+  useOnTezosBlock(rpcBaseURL, refreshBalanceOnChain, usingStore);
 
   if (usingStore)
     return {
@@ -127,9 +161,9 @@ export function useRawBalance(
   };
 }
 
-export function useBalance(assetSlug: string, address: string, networkRpc?: string) {
-  const { value: rawValue, isSyncing, error, refresh } = useRawBalance(assetSlug, address, networkRpc);
-  const assetMetadata = useAssetMetadata(assetSlug);
+export function useTezosAssetBalance(assetSlug: string, address: string, network: TezosNetworkEssentials) {
+  const { value: rawValue, isSyncing, error, refresh } = useTezosAssetRawBalance(assetSlug, address, network);
+  const assetMetadata = useTezosAssetMetadata(assetSlug, network.chainId);
 
   const value = useMemo(
     () => (rawValue && assetMetadata ? atomsToTokens(new BigNumber(rawValue), assetMetadata.decimals) : undefined),
@@ -139,14 +173,101 @@ export function useBalance(assetSlug: string, address: string, networkRpc?: stri
   return { rawValue, value, isSyncing, error, refresh, assetMetadata };
 }
 
-const buildTezosToolkit = memoizee(
-  (rpcUrl: string) => {
-    const t = new ReactiveTezosToolkit(loadFastRpcClient(rpcUrl), rpcUrl);
-    t.setPackerProvider(michelEncoder);
-    return t;
-  },
-  {
-    max: 15,
-    maxAge: 5 * 60_000
-  }
-);
+function useEvmAssetRawBalance(
+  assetSlug: string,
+  address: HexString,
+  evmChainId: number,
+  assetStandard?: EvmAssetStandard
+): {
+  value: string | undefined;
+  isSyncing: boolean;
+  error?: unknown;
+  refresh: EmptyFn;
+} {
+  const currentAccountAddress = useAccountAddressForEvm();
+  const network = useEvmChainByChainId(evmChainId);
+
+  if (!network || !currentAccountAddress) throw new DeadEndBoundaryError();
+
+  const { chainId, rpcBaseURL } = network;
+
+  const balances = useRawEvmChainAccountBalancesSelector(address, network.chainId);
+  const balancesLoading = useEvmBalancesLoadingSelector();
+
+  const usingStore = address === currentAccountAddress && isSupportedChainId(chainId);
+
+  const onChainBalanceSwrRes = useTypedSWR(
+    ['evm-balance', rpcBaseURL, assetSlug, address],
+    () => {
+      if (usingStore) return;
+
+      return fetchEvmRawBalanceFromBlockchain(network, assetSlug, address, assetStandard).then(res => res.toString());
+    },
+    {
+      revalidateOnFocus: false,
+      dedupingInterval: 20000
+    }
+  );
+
+  const refreshBalanceOnChain = useCallback(() => void onChainBalanceSwrRes.mutate(), [onChainBalanceSwrRes.mutate]);
+
+  useInterval(
+    () => {
+      if (usingStore) return;
+
+      refreshBalanceOnChain();
+    },
+    [usingStore, refreshBalanceOnChain],
+    EVM_BALANCES_SYNC_INTERVAL
+  );
+
+  if (usingStore)
+    return {
+      value: balances?.[assetSlug],
+      isSyncing: balancesLoading,
+      refresh: emptyFn
+    };
+
+  return {
+    value: onChainBalanceSwrRes.data,
+    isSyncing: onChainBalanceSwrRes.isValidating,
+    error: onChainBalanceSwrRes.error,
+    refresh: refreshBalanceOnChain
+  };
+}
+
+export function useEvmTokenBalance(assetSlug: string, address: HexString, evmChainId: number) {
+  const chain = useEvmChainByChainId(evmChainId);
+  const tokenMetadata = useEvmTokenMetadataSelector(evmChainId, assetSlug);
+
+  const metadata = isEvmNativeTokenSlug(assetSlug) ? chain?.currency : tokenMetadata;
+
+  const {
+    value: rawValue,
+    isSyncing,
+    error,
+    refresh
+  } = useEvmAssetRawBalance(assetSlug, address, evmChainId, metadata?.standard);
+
+  const value = useMemo(
+    () => (rawValue && metadata?.decimals ? atomsToTokens(new BigNumber(rawValue), metadata.decimals) : undefined),
+    [rawValue, metadata]
+  );
+
+  return { rawValue, value, isSyncing, error, refresh, metadata };
+}
+
+export function useEvmCollectibleBalance(assetSlug: string, address: HexString, evmChainId: number) {
+  const metadata = useEvmCollectibleMetadataSelector(evmChainId, assetSlug);
+
+  const {
+    value: rawValue,
+    isSyncing,
+    error,
+    refresh
+  } = useEvmAssetRawBalance(assetSlug, address, evmChainId, metadata?.standard);
+
+  const value = useMemo(() => (rawValue ? new BigNumber(rawValue) : undefined), [rawValue]);
+
+  return { rawValue, value, isSyncing, error, refresh, metadata };
+}

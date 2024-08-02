@@ -44,7 +44,10 @@ export class FastRpcClient extends RpcClient {
     return result;
   }
 
-  /** Cache storage (localStorage) is not available in BG worker. */
+  /**
+   * Cache storage (localStorage) is not available in BG worker.
+   * TODO: Consider switching storage.
+   */
   getChainIdMemo = memoizee(() => retry(() => super.getChainId(), { retries: 2 }), {
     maxAge: MEMOIZE_MAX_AGE,
     promise: true

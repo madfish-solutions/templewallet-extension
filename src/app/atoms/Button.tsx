@@ -8,7 +8,7 @@ export type ButtonProps = React.PropsWithRef<
   TestIDProps;
 
 export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ testID, testIDProperties, onClick, ...props }, ref) => {
+  ({ testID, testIDProperties, onClick, type = 'button', ...props }, ref) => {
     const { trackEvent } = useAnalytics();
 
     const handleClick = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
@@ -17,6 +17,6 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       return onClick?.(e);
     };
 
-    return <button ref={ref} onClick={handleClick} {...props} {...setTestID(testID)} />;
+    return <button ref={ref} type={type} onClick={handleClick} {...props} {...setTestID(testID)} />;
   }
 );

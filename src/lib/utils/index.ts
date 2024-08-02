@@ -6,6 +6,9 @@ export { arrayBufferToString, stringToArrayBuffer, uInt8ArrayToString, stringToU
 /** From lodash */
 type Truthy<T> = T extends null | undefined | void | false | '' | 0 | 0n ? never : T;
 
+export const EMPTY_FROZEN_OBJ: StringRecord<never> = {};
+Object.freeze(EMPTY_FROZEN_OBJ);
+
 export const isTruthy = <T>(value: T): value is Truthy<T> => Boolean(value);
 
 /** With strict equality check (i.e. `===`) */
@@ -34,6 +37,12 @@ export const fifoResolve = <A extends unknown[], T>(fn: (...args: A) => Promise<
 const DEFAULT_DELAY = 300;
 
 export const delay = (ms = DEFAULT_DELAY) => new Promise(res => setTimeout(res, ms));
+
+export const rejectOnTimeout = <R>(promise: Promise<R>, timeout: number, timeoutRejectValue: unknown) =>
+  Promise.race([
+    promise,
+    new Promise((_, reject) => setTimeout(() => reject(timeoutRejectValue), timeout))
+  ]) as Promise<R>;
 
 class AssertionError extends Error {
   constructor(message?: string, public actual?: any) {

@@ -4,9 +4,12 @@ dotenv.config();
 
 export const getEnv = (key: string) => process.env[key] ?? '';
 
+/**
+ * Set `false` to run scenarios without wallet reset. Through browser re-opening.
+ */
+export const WITH_EXTENSION_RESET = true;
+
 export const envVars = {
-  TEMPLE_WALLET_API_URL: getEnv('TEMPLE_WALLET_API_URL'),
-  // [E2E]
   DEFAULT_HD_ACCOUNT_SEED_PHRASE: getEnv('DEFAULT_HD_ACCOUNT_SEED_PHRASE'),
   DEFAULT_HD_ACCOUNT_FIRST_PRIVATE_KEY: getEnv('DEFAULT_HD_ACCOUNT_FIRST_PRIVATE_KEY'),
   DEFAULT_HD_ACCOUNT_FIRST_PUBLIC_KEY_HASH: getEnv('DEFAULT_HD_ACCOUNT_FIRST_PUBLIC_KEY_HASH'),

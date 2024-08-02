@@ -5,21 +5,19 @@ import clsx from 'clsx';
 import { Button } from 'app/atoms/Button';
 import { AssetsSelectors } from 'app/pages/Home/OtherComponents/Assets.selectors';
 import { dispatch } from 'app/store';
-import { setTokenStatusAction } from 'app/store/assets/actions';
+import { setTezosTokenStatusAction } from 'app/store/tezos/assets/actions';
 import { t, T } from 'lib/i18n';
-import { useAccount, useChainId } from 'lib/temple/front';
 import { useConfirm } from 'lib/ui/dialog';
 
 import modStyles from '../../Tokens.module.css';
 
 interface Props {
   assetSlug: string;
+  tezPkh: string;
+  tezosChainId: string;
 }
 
-export const ScamTag = memo<Props>(({ assetSlug }) => {
-  const chainId = useChainId(true)!;
-  const { publicKeyHash } = useAccount();
-
+export const ScamTag = memo<Props>(({ assetSlug, tezPkh, tezosChainId }) => {
   const confirm = useConfirm();
 
   const removeToken = useCallback(
@@ -34,9 +32,9 @@ export const ScamTag = memo<Props>(({ assetSlug }) => {
 
         if (confirmed)
           dispatch(
-            setTokenStatusAction({
-              account: publicKeyHash,
-              chainId,
+            setTezosTokenStatusAction({
+              account: tezPkh,
+              chainId: tezosChainId,
               slug,
               status: 'removed'
             })
@@ -46,7 +44,7 @@ export const ScamTag = memo<Props>(({ assetSlug }) => {
         alert(err.message);
       }
     },
-    [chainId, publicKeyHash, confirm]
+    [tezPkh, tezosChainId, confirm]
   );
 
   const handleClick = useCallback(

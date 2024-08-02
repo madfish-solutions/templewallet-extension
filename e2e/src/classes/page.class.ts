@@ -1,10 +1,10 @@
-import { BrowserContext } from 'e2e/src/classes/browser-context.class';
+import { CustomBrowserContext } from './browser-context.class';
 
 export abstract class Page {
-  abstract isVisible(timeout?: number): void;
+  abstract isVisible(...args: any[]): void;
 
   scrollTo(topPositionPx: number) {
-    return BrowserContext.page.evaluate(top => {
+    return CustomBrowserContext.page.evaluate(top => {
       if (top <= 0 && window.pageYOffset === 0) return Promise.resolve(false);
 
       window.scrollTo({ top, behavior: 'smooth' });

@@ -74,7 +74,7 @@ const PaymentProviderDropdownFaceContent: FC<PaymentProviderDropdownFaceContentP
           />
         </>
       ) : (
-        <span className="font-medium text-sm leading-tight text-gray-500">
+        <span className="font-medium text-font-medium leading-tight text-gray-500">
           <T id="selectPaymentProvider" />
         </span>
       )}

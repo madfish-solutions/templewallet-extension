@@ -1,8 +1,7 @@
 import { ImportFromSeedPhraseSelectors } from 'src/app/pages/NewWallet/import/ImportSeedPhrase/ImportFromSeedPhrase.selectors';
 
-import { clearDataFromCurrentInput } from 'e2e/src/utils/input-data.utils';
-
 import { Page } from '../../classes/page.class';
+import { clearDataFromCurrentInput } from '../../utils/input-data.utils';
 import { createPageElement, findElements } from '../../utils/search.utils';
 
 export class ImportExistingWalletPage extends Page {
@@ -22,7 +21,7 @@ export class ImportExistingWalletPage extends Page {
       const word = wordsArray[i];
       const input = wordsInputs[i];
 
-      await input.type(word);
+      await input.fill(word);
     }
   }
 

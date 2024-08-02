@@ -45,7 +45,7 @@ export const SeedLengthOption: FC<Props> = memo(({ option, selectedOption, onCli
           onChange={handleChange}
           className={styles.input}
         />
-        <span className="text-sm">{option}</span>
+        <span className="text-font-medium">{option}</span>
       </label>
     </li>
   );

@@ -4,15 +4,13 @@ import { isDefined } from '@rnw-community/shared';
 import classNames from 'clsx';
 import { useDebounce } from 'use-debounce';
 
-import { FormSubmitButton } from 'app/atoms';
-import Divider from 'app/atoms/Divider';
+import { FormSubmitButton, Divider } from 'app/atoms';
 import styles from 'app/pages/Buy/Crypto/Exolix/Exolix.module.css';
 import ErrorComponent from 'app/pages/Buy/Crypto/Exolix/steps/ErrorComponent';
 import WarningComponent from 'app/pages/Buy/Crypto/Exolix/steps/WarningComponent';
 import { TopUpInput } from 'app/templates/TopUpInput';
 import { T, t } from 'lib/i18n';
 import { useTypedSWR } from 'lib/swr';
-import { useAccount } from 'lib/temple/front';
 
 import { EXOLIX_PRIVICY_LINK, EXOLIX_TERMS_LINK, INITIAL_COIN_FROM, INITIAL_COIN_TO } from '../config';
 import { ExolixSelectors } from '../Exolix.selectors';
@@ -24,6 +22,7 @@ const VALUE_PLACEHOLDER = '---';
 const EXOLIX_DECIMALS = 8;
 
 interface Props {
+  publicKeyHash: string;
   exchangeData: ExchangeDataInterface | null;
   setExchangeData: (exchangeData: ExchangeDataInterface | null) => void;
   setStep: (step: number) => void;
@@ -31,9 +30,7 @@ interface Props {
   setIsError: (error: boolean) => void;
 }
 
-const InitialStep: FC<Props> = ({ exchangeData, setExchangeData, setStep, isError, setIsError }) => {
-  const { publicKeyHash } = useAccount();
-
+const InitialStep: FC<Props> = ({ publicKeyHash, exchangeData, setExchangeData, setStep, isError, setIsError }) => {
   const [coinFrom, setCoinFrom] = useState<OutputCurrencyInterface>(INITIAL_COIN_FROM);
   const [coinTo, setCoinTo] = useState<OutputCurrencyInterface>(INITIAL_COIN_TO);
 
@@ -247,11 +244,11 @@ const InitialStep: FC<Props> = ({ exchangeData, setExchangeData, setStep, isErro
         <T
           id="privacyAndPolicyLinks"
           substitutions={[
-            <T id={'topUp'} />,
-            <a className={styles['link']} rel="noreferrer" href={EXOLIX_TERMS_LINK} target="_blank">
+            <T id={'topUp'} key="buttonContent" />,
+            <a className={styles['link']} rel="noreferrer" href={EXOLIX_TERMS_LINK} target="_blank" key="termsOfUse">
               <T id={'termsOfUse'} />
             </a>,
-            <a className={styles['link']} rel="noreferrer" href={EXOLIX_PRIVICY_LINK} target="_blank">
+            <a className={styles['link']} rel="noreferrer" href={EXOLIX_PRIVICY_LINK} target="_blank" key="privacy">
               <T id={'privacyPolicy'} />
             </a>
           ]}

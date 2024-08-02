@@ -2,9 +2,9 @@ import React, { ComponentProps, FC } from 'react';
 
 import classNames from 'clsx';
 
+import { AccountAvatar } from 'app/atoms/AccountAvatar';
 import { Button } from 'app/atoms/Button';
 import HashShortView from 'app/atoms/HashShortView';
-import Identicon from 'app/atoms/Identicon';
 import Name from 'app/atoms/Name';
 import { setAnotherSelector, setTestID } from 'lib/analytics';
 import { T } from 'lib/i18n';
@@ -34,7 +34,7 @@ const ContactsDropdownItem: FC<ContactsDropdownItemProps> = ({ contact, active, 
       tabIndex={-1}
       {...rest}
     >
-      <Identicon type="bottts" hash={contact.address} size={32} className="flex-shrink-0 shadow-xs" />
+      <AccountAvatar seed={contact.address} size={32} className="flex-shrink-0" />
 
       <div className="ml-3 flex flex-1 w-full">
         <div className="flex flex-col justify-between flex-1">

@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
 
-import { useDispatch } from 'react-redux';
 import { forkJoin } from 'rxjs';
 
-import { useUsdToTokenRatesSelector } from 'app/store/currency/selectors';
+import { dispatch } from 'app/store';
+import { useTezosUsdToTokenRatesSelector } from 'app/store/currency/selectors';
 import { loadTokensApyActions } from 'app/store/d-apps/actions';
 import {
   fetchKUSDApy$,
@@ -13,35 +13,28 @@ import {
   fetchUUSDCApr$,
   fetchYOUApr$
 } from 'app/store/d-apps/utils';
-import { useChainId, useTezos } from 'lib/temple/front';
-import { TempleChainId } from 'lib/temple/types';
+import { useTezosMainnetChain } from 'temple/front';
 
 export const useTokensApyLoading = () => {
-  const dispatch = useDispatch();
-  const tezos = useTezos();
-  const chainId = useChainId(true)!;
-  const usdToTokenRates = useUsdToTokenRatesSelector();
+  const { rpcBaseURL } = useTezosMainnetChain();
+  const usdToTokenRates = useTezosUsdToTokenRatesSelector();
 
   const [tokensApy, setTokensApy] = useState({});
 
   useEffect(() => {
-    if (chainId === TempleChainId.Mainnet) {
-      const subscription = forkJoin([
-        fetchTzBtcApy$(),
-        fetchKUSDApy$(),
-        fetchUSDTApy$(),
-        fetchUUSDCApr$(tezos),
-        fetchUBTCApr$(tezos),
-        fetchYOUApr$(tezos, usdToTokenRates)
-      ]).subscribe(responses => {
-        setTokensApy(Object.assign({}, ...responses));
-      });
+    const subscription = forkJoin([
+      fetchTzBtcApy$(),
+      fetchKUSDApy$(),
+      fetchUSDTApy$(),
+      fetchUUSDCApr$(rpcBaseURL),
+      fetchUBTCApr$(rpcBaseURL),
+      fetchYOUApr$(rpcBaseURL, usdToTokenRates)
+    ]).subscribe(responses => {
+      setTokensApy(Object.assign({}, ...responses));
+    });
 
-      return () => subscription.unsubscribe();
-    }
-
-    return;
-  }, [chainId, usdToTokenRates, tezos]);
+    return () => subscription.unsubscribe();
+  }, [usdToTokenRates, rpcBaseURL]);
 
   useEffect(() => {
     dispatch(loadTokensApyActions.success(tokensApy));

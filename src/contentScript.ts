@@ -1,7 +1,7 @@
 import { TemplePageMessage, TemplePageMessageType } from '@temple-wallet/dapp/dist/types';
 import browser from 'webextension-polyfill';
 
-import { ContentScriptType, WEBSITES_ANALYTICS_ENABLED } from 'lib/constants';
+import { APP_TITLE, ContentScriptType, WEBSITES_ANALYTICS_ENABLED } from 'lib/constants';
 import { serealizeError } from 'lib/intercom/helpers';
 import { TempleMessageType, TempleResponse } from 'lib/temple/types';
 
@@ -70,7 +70,7 @@ if (window.frameElement === null) {
 
 const SENDER = {
   id: browser.runtime.id,
-  name: 'Temple - Tezos Wallet',
+  name: APP_TITLE,
   iconUrl: 'https://templewallet.com/logo.png'
 };
 

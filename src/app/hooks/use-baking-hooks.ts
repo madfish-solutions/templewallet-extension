@@ -4,7 +4,7 @@ import memoizee from 'memoizee';
 
 import { BAKING_STAKE_SYNC_INTERVAL } from 'lib/fixed-times';
 import { useRetryableSWR } from 'lib/swr';
-import { loadFastRpcClient } from 'lib/temple/helpers';
+import { getTezosFastRpcClient } from 'temple/tezos';
 
 const COMMON_SWR_KEY = 'BAKING';
 const COMMON_SWR_OPTIONS = {
@@ -16,7 +16,7 @@ export const useStakedAmount = (rpcUrl: string, accountPkh: string) =>
   useRetryableSWR(
     [COMMON_SWR_KEY, 'get-staked', rpcUrl, accountPkh],
     () =>
-      loadFastRpcClient(rpcUrl)
+      getTezosFastRpcClient(rpcUrl)
         .getStakedBalance(accountPkh)
         .catch(error => processIsStakingNotSupportedEndpointError(error, null)),
     COMMON_SWR_OPTIONS
@@ -26,7 +26,7 @@ export const useUnstakeRequests = (rpcUrl: string, accountPkh: string, suspense?
   useRetryableSWR(
     [COMMON_SWR_KEY, 'get-unstake-requests', rpcUrl, accountPkh],
     () =>
-      loadFastRpcClient(rpcUrl)
+      getTezosFastRpcClient(rpcUrl)
         .getUnstakeRequests(accountPkh)
         .catch(error => processIsStakingNotSupportedEndpointError(error, null)),
     { ...COMMON_SWR_OPTIONS, suspense }
@@ -58,7 +58,7 @@ export const useStakingCyclesInfo = (rpcUrl: string) =>
 
 const getCyclesInfo = memoizee(
   async (rpcUrl: string): Promise<StakingCyclesInfo | null> => {
-    const rpc = loadFastRpcClient(rpcUrl);
+    const rpc = getTezosFastRpcClient(rpcUrl);
 
     const { blocks_per_cycle, consensus_rights_delay, max_slashing_period, minimal_block_delay } =
       await rpc.getConstants();
@@ -76,7 +76,7 @@ export const useBlockLevelInfo = (rpcUrl: string) => {
   const { data } = useRetryableSWR(
     [COMMON_SWR_KEY, 'get-level-info', rpcUrl],
     () =>
-      loadFastRpcClient(rpcUrl)
+      getTezosFastRpcClient(rpcUrl)
         .getBlockMetadata()
         .then(m => m.level_info),
     COMMON_SWR_OPTIONS
@@ -98,7 +98,7 @@ export const useIsStakingNotSupported = (rpcUrl: string, bakerPkh: string | null
 
 const getIsStakingNotSupportedByChain = memoizee(
   async (rpcUrl: string) => {
-    const rpc = loadFastRpcClient(rpcUrl);
+    const rpc = getTezosFastRpcClient(rpcUrl);
 
     let launchCycle: number | null;
     try {
@@ -119,7 +119,7 @@ const getIsStakingNotSupportedByChain = memoizee(
 
 const getIsStakingNotSupportedByBaker = memoizee(
   (rpcUrl: string, bakerPkh: string) =>
-    loadFastRpcClient(rpcUrl)
+    getTezosFastRpcClient(rpcUrl)
       .getDelegateLimitOfStakingOverBakingIsPositive(bakerPkh)
       .catch(error => processIsStakingNotSupportedEndpointError(error, true)),
   { promise: true, normalizer: ([rpcUrl, bakerPkh]) => `${bakerPkh}@${rpcUrl}` }

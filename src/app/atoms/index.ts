@@ -1,6 +1,8 @@
-export { default as Divider } from './Divider';
-
 export { Alert } from './Alert';
+// ts-prune-ignore-next
+export { CaptionAlert } from './CaptionAlert';
+
+export { default as Divider } from './Divider';
 
 export { Anchor } from './Anchor';
 
@@ -12,11 +14,15 @@ export { default as Money } from './Money';
 
 export { default as Name } from './Name';
 
-export { default as Identicon } from './Identicon';
+export { Identicon } from './Identicon';
+
+export { IconBase } from './IconBase';
 
 export { default as HashShortView } from './HashShortView';
 
 export { HashChip } from './HashChip';
+
+export { Lines } from './Lines';
 
 export { ExternalLinkChip } from './ExternalLinkChip';
 
@@ -28,6 +34,7 @@ export { FileInput } from './FileInput';
 export { PASSWORD_ERROR_CAPTION, FormField } from './FormField';
 
 export { default as Checkbox } from './Checkbox';
+export { ToggleSwitch } from './ToggleSwitch';
 
 export { FormSubmitButton } from './FormSubmitButton';
 
@@ -47,3 +54,7 @@ export { Stepper } from './Stepper/Stepper';
 export { DataPlaceholder } from './DataPlaceholder';
 
 export { PageTitle } from './PageTitle';
+
+export { default as AccountTypeBadge } from './AccountTypeBadge';
+
+export { QRCode } from './QRCode';

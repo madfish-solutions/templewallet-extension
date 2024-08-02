@@ -16,8 +16,8 @@ import classNames from 'clsx';
 import AssetField from 'app/atoms/AssetField';
 import DropdownWrapper from 'app/atoms/DropdownWrapper';
 import Spinner from 'app/atoms/Spinner/Spinner';
+import { ReactComponent as SearchIcon } from 'app/icons/base/search.svg';
 import { ReactComponent as ChevronDownIcon } from 'app/icons/chevron-down.svg';
-import { ReactComponent as SearchIcon } from 'app/icons/search.svg';
 import { AnalyticsEventCategory, TestIDProperty, setTestID, useAnalytics } from 'lib/analytics';
 import { t } from 'lib/i18n';
 import Popper from 'lib/ui/Popper';
@@ -33,7 +33,7 @@ interface Props<T> extends TestIDProperty {
   optionsProps: SelectOptionsPropsBase<T>;
 }
 
-export const DropdownSelect = <T extends unknown>({
+export const DropdownSelect = <T,>({
   Input,
   singleToken = false,
   searchProps,
@@ -109,7 +109,7 @@ export const DropdownSelect = <T extends unknown>({
   );
 };
 interface SelectOptionsPropsBase<Type> {
-  options: Array<Type>;
+  options: Type[];
   noItemsText: ReactNode;
   isLoading?: boolean;
   optionsListClassName?: string;
@@ -129,12 +129,7 @@ interface SelectOptionProps<Type> {
   scrollableRef: RefObject<HTMLDivElement>;
 }
 
-const SelectOption = <Type extends unknown>({
-  option,
-  scrollableRef,
-  onClick,
-  renderOptionContent
-}: SelectOptionProps<Type>) => {
+const SelectOption = <Type,>({ option, scrollableRef, onClick, renderOptionContent }: SelectOptionProps<Type>) => {
   const handleClick = useCallback(() => onClick(option), [onClick, option]);
 
   return (
@@ -146,7 +141,7 @@ const SelectOption = <Type extends unknown>({
   );
 };
 
-const SelectOptions = <Type extends unknown>({
+const SelectOptions = <Type,>({
   opened,
   options,
   noItemsText,
@@ -167,7 +162,7 @@ const SelectOptions = <Type extends unknown>({
   return (
     <DropdownWrapper
       opened={opened}
-      className="origin-top overflow-x-hidden overflow-y-auto"
+      className="origin-top mt-2 overflow-x-hidden overflow-y-auto"
       style={{
         maxHeight: '15.125rem',
         backgroundColor: 'white',

@@ -1,3 +1,3 @@
 import { createContext } from 'react';
 
-export const CustomRpcContext = createContext<string | undefined>(undefined);
+export const CustomTezosChainIdContext = createContext<string | undefined>(undefined);

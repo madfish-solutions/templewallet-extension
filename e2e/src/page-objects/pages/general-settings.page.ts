@@ -8,8 +8,6 @@ export class GeneralSettingsPage extends Page {
   languageDropDown = createPageElement(SettingsGeneralSelectors.languageDropDown);
   currencyItem = createPageElement(SettingsGeneralSelectors.currencyItem);
   currenctyDropDown = createPageElement(SettingsGeneralSelectors.currenctyDropDown);
-  blockExplorerItem = createPageElement(SettingsGeneralSelectors.blockExplorerItem);
-  blockExplorerDropDown = createPageElement(SettingsGeneralSelectors.blockExplorerDropDown);
   popUpCheckBox = createPageElement(SettingsGeneralSelectors.popUpCheckBox);
   extensionLockUpCheckBox = createPageElement(SettingsGeneralSelectors.extensionLockUpCheckBox);
   anonymousAnalyticsCheckBox = createPageElement(SettingsGeneralSelectors.anonymousAnalyticsCheckBox);
@@ -19,7 +17,6 @@ export class GeneralSettingsPage extends Page {
   async isVisible() {
     await this.languageDropDown.waitForDisplayed();
     await this.currenctyDropDown.waitForDisplayed();
-    await this.blockExplorerDropDown.waitForDisplayed();
     await this.popUpCheckBox.waitForDisplayed();
     await this.extensionLockUpCheckBox.waitForDisplayed();
     await this.anonymousAnalyticsCheckBox.waitForDisplayed();

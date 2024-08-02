@@ -8,17 +8,17 @@ import { Link } from 'lib/woozie';
 
 interface Props {
   activeTabName: string;
-  tabs: TabInterface[];
+  tabs: TabsBarTabInterface[];
   withOutline?: boolean;
 }
 
-export interface TabInterface extends TestIDProps {
+export interface TabsBarTabInterface extends TestIDProps {
   name: string;
   titleI18nKey: TID;
 }
 
 export const TabsBar = React.forwardRef<HTMLDivElement, Props>(({ activeTabName, tabs, withOutline }, ref) => (
-  <div ref={ref} className="w-full max-w-sm mx-auto flex items-center justify-center">
+  <div ref={ref} className="flex items-center justify-center">
     {tabs.map(tab => (
       <TabButton key={tab.name} active={tab.name === activeTabName} withOutline={withOutline} {...tab} />
     ))}
