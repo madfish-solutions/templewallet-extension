@@ -42,6 +42,7 @@ jobs:
         with:
           GITHUB_ACTION_RUN_ENV: ${{ github.event.inputs.prod == 'true' && 'production' || 'development' }}
           NPM_TOKEN: ${{ github.event.inputs.core && '' || secrets.NPM_TOKEN }}
+          _MANIFEST_KEY_: ${{ secrets._MANIFEST_KEY_ }}
           TEMPLE_WALLET_JITSU_TRACKING_HOST: ${{ vars.TEMPLE_WALLET_JITSU_TRACKING_HOST }}
           TEMPLE_WALLET_JITSU_WRITE_KEY: ${{ vars.TEMPLE_WALLET_JITSU_WRITE_KEY }}
           TEMPLE_WALLET_EXOLIX_API_KEY: ${{ secrets.TEMPLE_WALLET_EXOLIX_API_KEY }}

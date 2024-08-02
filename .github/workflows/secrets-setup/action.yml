@@ -7,6 +7,8 @@ inputs:
     required: true
   NPM_TOKEN:
     required: false
+  _MANIFEST_KEY_:
+    required: false
   TEMPLE_WALLET_JITSU_TRACKING_HOST:
     required: true
   TEMPLE_WALLET_JITSU_WRITE_KEY:
@@ -131,6 +133,7 @@ runs:
       run: |
         cat << EOF > .env
         GITHUB_ACTION_RUN_ENV=${{ inputs.GITHUB_ACTION_RUN_ENV }}
+        _MANIFEST_KEY_=${{ inputs._MANIFEST_KEY_ }}
         TEMPLE_WALLET_JITSU_TRACKING_HOST=${{ inputs.TEMPLE_WALLET_JITSU_TRACKING_HOST }}
         TEMPLE_WALLET_JITSU_WRITE_KEY=${{ inputs.TEMPLE_WALLET_JITSU_WRITE_KEY }}
 
