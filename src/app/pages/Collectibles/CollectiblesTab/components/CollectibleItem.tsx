@@ -338,8 +338,6 @@ export const EvmCollectibleItem = memo<EvmCollectibleItemProps>(
       [showDetails]
     );
 
-    if (!metadata) return null;
-
     const assetName = getCollectibleName(metadata);
     const collectionName = getCollectionName(metadata);
 
@@ -359,7 +357,7 @@ export const EvmCollectibleItem = memo<EvmCollectibleItemProps>(
               )}
               style={manageImgStyle}
             >
-              <EvmCollectibleItemImage metadata={metadata} />
+              {metadata && <EvmCollectibleItemImage metadata={metadata} />}
 
               {network && (
                 <EvmNetworkLogo
@@ -404,7 +402,7 @@ export const EvmCollectibleItem = memo<EvmCollectibleItemProps>(
           )}
           style={ImgStyle}
         >
-          <EvmCollectibleItemImage metadata={metadata} />
+          {metadata && <EvmCollectibleItemImage metadata={metadata} />}
 
           {showDetails && (
             <div className="absolute bottom-1.5 left-1.5 text-xxxs text-white leading-none p-1 bg-black bg-opacity-60 rounded">

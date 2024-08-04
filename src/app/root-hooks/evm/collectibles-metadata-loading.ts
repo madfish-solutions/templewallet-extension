@@ -27,7 +27,7 @@ export const AppEvmCollectiblesMetadataLoading = memo<{ publicKeyHash: HexString
     if (isLoading) return;
 
     Promise.allSettled(
-      evmChains.map(chain => {
+      evmChains.map(async chain => {
         const { chainId } = chain;
 
         const currentAccountCollectibles = storedCollectiblesRecord[publicKeyHash];
@@ -45,11 +45,14 @@ export const AppEvmCollectiblesMetadataLoading = memo<{ publicKeyHash: HexString
 
         dispatch(setEvmCollectiblesMetadataLoading(true));
 
-        if (isSupportedChainId(chainId)) {
-          return getEvmCollectiblesMetadata(publicKeyHash, chainId).then(data => {
-            dispatch(processLoadedEvmCollectiblesMetadataAction({ chainId, data }));
-          });
-        }
+        if (isSupportedChainId(chainId))
+          try {
+            return await getEvmCollectiblesMetadata(publicKeyHash, chainId).then(data => {
+              dispatch(processLoadedEvmCollectiblesMetadataAction({ chainId, data }));
+            });
+          } catch {
+            // Supported by the API chains might fall off. Happened with Eth Sepolia testnet (chain ID: 11155111)
+          }
 
         return fetchEvmCollectiblesMetadataFromChain(chain, slugsWithoutMeta).then(
           fetchedMetadata => void dispatch(putEvmCollectiblesMetadataAction({ chainId, records: fetchedMetadata })),
