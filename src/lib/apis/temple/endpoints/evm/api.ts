@@ -5,7 +5,7 @@ import { BalancesResponse, ChainID, NftAddressBalanceNftResponse } from './api.i
 export const getEvmBalances = (walletAddress: string, chainId: ChainID) =>
   buildEvmRequest<BalancesResponse>('/balances', walletAddress, chainId);
 
-// Response also contains exchange rates
+/** Response also contains exchange rates */
 export const getEvmTokensMetadata = (walletAddress: string, chainId: ChainID) =>
   buildEvmRequest<BalancesResponse>('/tokens-metadata', walletAddress, chainId);
 

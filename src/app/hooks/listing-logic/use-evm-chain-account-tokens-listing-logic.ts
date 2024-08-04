@@ -6,7 +6,7 @@ import { useDebounce } from 'use-debounce';
 
 import { useRawEvmChainAccountBalancesSelector } from 'app/store/evm/balances/selectors';
 import {
-  useEvmBalancesLoadingSelector,
+  useEvmChainBalancesLoadingSelector,
   useEvmTokensExchangeRatesLoadingSelector,
   useEvmTokensMetadataLoadingSelector
 } from 'app/store/evm/selectors';
@@ -39,7 +39,7 @@ export const useEvmChainAccountTokensListingLogic = (
 
   const balances = useRawEvmChainAccountBalancesSelector(publicKeyHash, chainId);
 
-  const balancesLoading = useEvmBalancesLoadingSelector();
+  const balancesLoading = useEvmChainBalancesLoadingSelector(chainId);
   const isMetadataLoading = useEvmTokensMetadataLoadingSelector();
   const exchangeRatesLoading = useEvmTokensExchangeRatesLoadingSelector();
 

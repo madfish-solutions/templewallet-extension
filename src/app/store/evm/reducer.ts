@@ -1,7 +1,7 @@
 import { createReducer } from '@reduxjs/toolkit';
 
 import {
-  setEvmBalancesLoading,
+  setEvmBalancesLoadingState,
   setEvmTokensMetadataLoading,
   setEvmCollectiblesMetadataLoading,
   setEvmTokensExchangeRatesLoading
@@ -9,8 +9,8 @@ import {
 import { EvmLoadingInitialState, EvmLoadingStateInterface } from './state';
 
 export const evmLoadingReducer = createReducer<EvmLoadingStateInterface>(EvmLoadingInitialState, builder => {
-  builder.addCase(setEvmBalancesLoading, (state, { payload }) => {
-    state.balancesLoading = payload;
+  builder.addCase(setEvmBalancesLoadingState, (state, { payload: { chainId, ...stateForChain } }) => {
+    state.balances[chainId] = stateForChain;
   });
 
   builder.addCase(setEvmTokensMetadataLoading, (state, { payload }) => {

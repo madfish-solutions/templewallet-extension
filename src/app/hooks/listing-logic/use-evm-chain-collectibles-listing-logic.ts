@@ -4,7 +4,7 @@ import { isEqual } from 'lodash';
 import { useDebounce } from 'use-debounce';
 
 import { useEvmCollectiblesMetadataRecordSelector } from 'app/store/evm/collectibles-metadata/selectors';
-import { useEvmBalancesLoadingSelector, useEvmCollectiblesMetadataLoadingSelector } from 'app/store/evm/selectors';
+import { useEvmChainBalancesLoadingSelector, useEvmCollectiblesMetadataLoadingSelector } from 'app/store/evm/selectors';
 import { useAllEvmChainAccountCollectiblesSlugs, useEnabledEvmChainAccountCollectiblesSlugs } from 'lib/assets/hooks';
 import { searchEvmChainCollectiblesWithNoMeta } from 'lib/assets/search.utils';
 import { useEvmChainCollectiblesSortPredicate } from 'lib/assets/use-sorting';
@@ -27,7 +27,7 @@ export const useEvmChainCollectiblesListingLogic = (
 
   const metadata = useEvmCollectiblesMetadataRecordSelector();
 
-  const balancesLoading = useEvmBalancesLoadingSelector();
+  const balancesLoading = useEvmChainBalancesLoadingSelector(chainId);
   const metadatasLoading = useEvmCollectiblesMetadataLoadingSelector();
 
   const isSyncing = balancesLoading || metadatasLoading;

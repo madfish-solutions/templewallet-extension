@@ -4,7 +4,7 @@ import { isEqual } from 'lodash';
 import { useDebounce } from 'use-debounce';
 
 import { useEvmCollectiblesMetadataRecordSelector } from 'app/store/evm/collectibles-metadata/selectors';
-import { useEvmBalancesLoadingSelector, useEvmCollectiblesMetadataLoadingSelector } from 'app/store/evm/selectors';
+import { useEvmCollectiblesMetadataLoadingSelector } from 'app/store/evm/selectors';
 import { useAreAssetsLoading } from 'app/store/tezos/assets/selectors';
 import { useCollectiblesMetadataLoadingSelector } from 'app/store/tezos/collectibles-metadata/selectors';
 import {
@@ -19,6 +19,7 @@ import { isSearchStringApplicable } from 'lib/utils/search-items';
 
 import { useSimpleAssetsPaginationLogic } from '../use-simple-assets-pagination-logic';
 
+import { useEvmBalancesAreLoading } from './use-evm-balances-loading-state';
 import { useManageableSlugs } from './use-manageable-slugs';
 import { getSlugFromChainSlug } from './utils';
 
@@ -37,7 +38,7 @@ export const useAccountCollectiblesListingLogic = (
   const tezAssetsLoading = useAreAssetsLoading('collectibles');
   const tezMetadatasLoading = useCollectiblesMetadataLoadingSelector();
 
-  const evmBalancesLoading = useEvmBalancesLoadingSelector();
+  const evmBalancesLoading = useEvmBalancesAreLoading();
   const evmMetadatasLoading = useEvmCollectiblesMetadataLoadingSelector();
 
   const isSyncing = tezAssetsLoading || tezMetadatasLoading || evmBalancesLoading || evmMetadatasLoading;

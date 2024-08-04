@@ -1,15 +1,12 @@
 import { useCallback, useMemo } from 'react';
 
-import { emptyFn } from '@rnw-community/shared';
+import { emptyFn, isDefined } from '@rnw-community/shared';
 import BigNumber from 'bignumber.js';
 
 import { DeadEndBoundaryError } from 'app/ErrorBoundary';
-import {
-  useRawEvmAccountBalancesSelector,
-  useRawEvmChainAccountBalancesSelector
-} from 'app/store/evm/balances/selectors';
+import { useRawEvmAccountBalancesSelector, useRawEvmAssetBalanceSelector } from 'app/store/evm/balances/selectors';
 import { useEvmCollectibleMetadataSelector } from 'app/store/evm/collectibles-metadata/selectors';
-import { useEvmBalancesLoadingSelector } from 'app/store/evm/selectors';
+import { useEvmBalancesLoadingStateSelector } from 'app/store/evm/selectors';
 import {
   useEvmTokenMetadataSelector,
   useEvmTokensMetadataRecordSelector
@@ -123,7 +120,7 @@ export function useTezosAssetRawBalance(
   const usingStore = address === currentAccountAddress && isKnownChainId(chainId);
 
   const onChainBalanceSwrRes = useTypedSWR(
-    ['balance', rpcBaseURL, assetSlug, address],
+    ['tez-asset-raw-balance', rpcBaseURL, assetSlug, address],
     () => {
       if (usingStore) return;
 
@@ -187,17 +184,21 @@ function useEvmAssetRawBalance(
   const currentAccountAddress = useAccountAddressForEvm();
   const network = useEvmChainByChainId(evmChainId);
 
-  if (!network || !currentAccountAddress) throw new DeadEndBoundaryError();
+  if (!network || !currentAccountAddress) throw new DeadEndBoundaryError(); // TODO: Remove. Dangerous on such a micro level. Better user sees zero balance on some token than no tokens list at all.
 
   const { chainId, rpcBaseURL } = network;
 
-  const balances = useRawEvmChainAccountBalancesSelector(address, network.chainId);
-  const balancesLoading = useEvmBalancesLoadingSelector();
+  const storedBalance = useRawEvmAssetBalanceSelector(address, network.chainId, assetSlug);
+  const storedLoadingState = useEvmBalancesLoadingStateSelector(chainId);
+  const storedError = isDefined(storedLoadingState?.error);
 
-  const usingStore = address === currentAccountAddress && isSupportedChainId(chainId);
+  const usingStore = useMemo(
+    () => address === currentAccountAddress && isSupportedChainId(chainId) && !storedError,
+    [storedError, address, currentAccountAddress, chainId]
+  );
 
   const onChainBalanceSwrRes = useTypedSWR(
-    ['evm-balance', rpcBaseURL, assetSlug, address],
+    ['evm-asset-raw-balance', rpcBaseURL, assetSlug, address],
     () => {
       if (usingStore) return;
 
@@ -223,8 +224,8 @@ function useEvmAssetRawBalance(
 
   if (usingStore)
     return {
-      value: balances?.[assetSlug],
-      isSyncing: balancesLoading,
+      value: storedBalance,
+      isSyncing: storedLoadingState?.isLoading ?? false,
       refresh: emptyFn
     };
 

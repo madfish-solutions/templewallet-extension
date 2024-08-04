@@ -4,7 +4,7 @@ import { isEqual } from 'lodash';
 import { useDebounce } from 'use-debounce';
 
 import { useEvmCollectiblesMetadataRecordSelector } from 'app/store/evm/collectibles-metadata/selectors';
-import { useEvmBalancesLoadingSelector, useEvmCollectiblesMetadataLoadingSelector } from 'app/store/evm/selectors';
+import { useEvmCollectiblesMetadataLoadingSelector } from 'app/store/evm/selectors';
 import { useAllEvmAccountCollectiblesSlugs, useEnabledEvmAccountCollectiblesSlugs } from 'lib/assets/hooks';
 import { searchEvmCollectiblesWithNoMeta } from 'lib/assets/search.utils';
 import { useEvmAccountCollectiblesSortPredicate } from 'lib/assets/use-sorting';
@@ -13,6 +13,7 @@ import { isSearchStringApplicable } from 'lib/utils/search-items';
 
 import { useSimpleAssetsPaginationLogic } from '../use-simple-assets-pagination-logic';
 
+import { useEvmBalancesAreLoading } from './use-evm-balances-loading-state';
 import { useManageableSlugs } from './use-manageable-slugs';
 import { getSlugWithChainId } from './utils';
 
@@ -24,7 +25,7 @@ export const useEvmAccountCollectiblesListingLogic = (publicKeyHash: HexString, 
 
   const metadata = useEvmCollectiblesMetadataRecordSelector();
 
-  const balancesLoading = useEvmBalancesLoadingSelector();
+  const balancesLoading = useEvmBalancesAreLoading();
   const metadatasLoading = useEvmCollectiblesMetadataLoadingSelector();
 
   const isSyncing = balancesLoading || metadatasLoading;

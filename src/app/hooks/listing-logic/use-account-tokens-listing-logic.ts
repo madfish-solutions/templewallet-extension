@@ -5,11 +5,7 @@ import { isEqual } from 'lodash';
 import { useDebounce } from 'use-debounce';
 
 import { useRawEvmAccountBalancesSelector } from 'app/store/evm/balances/selectors';
-import {
-  useEvmBalancesLoadingSelector,
-  useEvmTokensExchangeRatesLoadingSelector,
-  useEvmTokensMetadataLoadingSelector
-} from 'app/store/evm/selectors';
+import { useEvmTokensExchangeRatesLoadingSelector, useEvmTokensMetadataLoadingSelector } from 'app/store/evm/selectors';
 import { useEvmTokensMetadataRecordSelector } from 'app/store/evm/tokens-metadata/selectors';
 import { useAreAssetsLoading } from 'app/store/tezos/assets/selectors';
 import { useBalancesAtomicRecordSelector } from 'app/store/tezos/balances/selectors';
@@ -28,6 +24,7 @@ import { TempleChainKind } from 'temple/types';
 
 import { useSimpleAssetsPaginationLogic } from '../use-simple-assets-pagination-logic';
 
+import { useEvmBalancesAreLoading } from './use-evm-balances-loading-state';
 import { useGroupedSlugs } from './use-grouped-slugs';
 import { useManageableSlugs } from './use-manageable-slugs';
 import { getSlugFromChainSlug } from './utils';
@@ -67,7 +64,7 @@ export const useAccountTokensListingLogic = (
   const tezAssetsAreLoading = useAreAssetsLoading('tokens');
   const tezMetadatasLoading = useTokensMetadataLoadingSelector();
 
-  const evmBalancesLoading = useEvmBalancesLoadingSelector();
+  const evmBalancesLoading = useEvmBalancesAreLoading();
   const evmMetadatasLoading = useEvmTokensMetadataLoadingSelector();
   const exchangeRatesLoading = useEvmTokensExchangeRatesLoadingSelector();
 

@@ -5,11 +5,7 @@ import { isEqual } from 'lodash';
 import { useDebounce } from 'use-debounce';
 
 import { useRawEvmAccountBalancesSelector } from 'app/store/evm/balances/selectors';
-import {
-  useEvmBalancesLoadingSelector,
-  useEvmTokensExchangeRatesLoadingSelector,
-  useEvmTokensMetadataLoadingSelector
-} from 'app/store/evm/selectors';
+import { useEvmTokensExchangeRatesLoadingSelector, useEvmTokensMetadataLoadingSelector } from 'app/store/evm/selectors';
 import { useEvmTokensMetadataRecordSelector } from 'app/store/evm/tokens-metadata/selectors';
 import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
 import { useAllEvmAccountTokenSlugs, useEnabledEvmAccountTokenSlugs } from 'lib/assets/hooks';
@@ -23,6 +19,7 @@ import { TempleChainKind } from 'temple/types';
 
 import { useSimpleAssetsPaginationLogic } from '../use-simple-assets-pagination-logic';
 
+import { useEvmBalancesAreLoading } from './use-evm-balances-loading-state';
 import { useGroupedSlugs } from './use-grouped-slugs';
 import { useManageableSlugs } from './use-manageable-slugs';
 import { getSlugWithChainId } from './utils';
@@ -54,7 +51,7 @@ export const useEvmAccountTokensListingLogic = (
 
   const tokensSortPredicate = useEvmAccountTokensSortPredicate(publicKeyHash);
 
-  const balancesLoading = useEvmBalancesLoadingSelector();
+  const balancesLoading = useEvmBalancesAreLoading();
   const isMetadataLoading = useEvmTokensMetadataLoadingSelector();
   const exchangeRatesLoading = useEvmTokensExchangeRatesLoadingSelector();
 
