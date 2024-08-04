@@ -45,7 +45,7 @@ export const useTezosChainCollectiblesListingLogic = (
     [getMetadata, searchValueDebounced]
   );
 
-  // shouldn't resort on balances change
+  // shouldn't resort on balances change // TODO: Doesn't work as expected. `enabledSlugs` depends on balances too.
   const enabledSlugsSorted = useMemo(() => [...enabledSlugs].sort(sortPredicate), [enabledSlugs]);
 
   const enabledSearchedSlugs = useMemo(

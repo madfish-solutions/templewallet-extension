@@ -1,7 +1,6 @@
 import { useCallback, useMemo, useState } from 'react';
 
 import { isDefined } from '@rnw-community/shared';
-import { isEqual } from 'lodash';
 import { useDebounce } from 'use-debounce';
 
 import { useAreAssetsLoading } from 'app/store/tezos/assets/selectors';
@@ -81,20 +80,20 @@ export const useTezosChainAccountTokensListingLogic = (
   );
 
   const searchedLeadingSlugs = useMemo(() => {
-    if (!isDefined(leadingAssetsSlugs) || !leadingAssetsSlugs.length) return [];
+    if (!leadingAssetsSlugs?.length) return [];
 
     const filteredLeadingSlugs = filterZeroBalances ? leadingAssetsSlugs.filter(isNonZeroBalance) : leadingAssetsSlugs;
 
     return isInSearchMode ? search(filteredLeadingSlugs) : filteredLeadingSlugs;
   }, [leadingAssetsSlugs, filterZeroBalances, isNonZeroBalance, isInSearchMode, search]);
 
-  // shouldn't resort on balances change
+  // shouldn't resort on balances change // TODO: Doesn't work as expected. `filteredNonLeadingSlugs` depends on balances too.
   const enabledNonLeadingSlugsSorted = useMemo(
     () => [...filteredNonLeadingSlugs].sort(tokensSortPredicate),
     [filteredNonLeadingSlugs]
   );
 
-  const searchedNonLeadingSlugs = useMemo(() => {
+  const searchedSlugs = useMemo(() => {
     const enabledSearchedSlugs = isInSearchMode ? search(enabledNonLeadingSlugsSorted) : enabledNonLeadingSlugsSorted;
 
     return searchedLeadingSlugs.length ? searchedLeadingSlugs.concat(enabledSearchedSlugs) : enabledSearchedSlugs;
@@ -104,19 +103,12 @@ export const useTezosChainAccountTokensListingLogic = (
     manageActive,
     allNonLeadingSlugs,
     enabledNonLeadingSlugsSorted,
-    searchedNonLeadingSlugs
+    searchedSlugs
   );
 
   const searchedManageableSlugs = useMemoWithCompare(
-    () => {
-      const allNonLeadingSearchedSlugs = isInSearchMode ? search(manageableSlugs) : manageableSlugs;
-
-      return searchedLeadingSlugs.length
-        ? searchedLeadingSlugs.concat(allNonLeadingSearchedSlugs)
-        : allNonLeadingSearchedSlugs;
-    },
-    [isInSearchMode, search, manageableSlugs, searchedLeadingSlugs],
-    isEqual
+    () => (isInSearchMode ? search(manageableSlugs) : manageableSlugs),
+    [isInSearchMode, search, manageableSlugs]
   );
 
   const { slugs: paginatedSlugs, loadNext } = useSimpleAssetsPaginationLogic(searchedManageableSlugs);
