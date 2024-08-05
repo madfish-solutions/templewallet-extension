@@ -1,3 +1,4 @@
+import axios from 'axios';
 import browser from 'webextension-polyfill';
 
 import { getMisesInstallEnabledAds } from 'app/storage/mises-browser';
@@ -49,6 +50,16 @@ if (window.frameElement === null) {
       if (!shouldReplace) return;
 
       await configureAds();
+      try {
+        const { data } = await axios.get('http://localhost:3001/api/get-ad-category', {
+          params: {
+            url: window.location.href
+          }
+        });
+        console.log('category result', data);
+      } catch (e) {
+        console.error(e);
+      }
       // Replace ads with ours
       setInterval(() => replaceAds(), 1000);
     })
