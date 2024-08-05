@@ -1,6 +1,6 @@
 import React, { memo, useCallback, useMemo } from 'react';
 
-import classNames from 'clsx';
+import clsx from 'clsx';
 
 import { Button } from 'app/atoms/Button';
 import { HomeSelectors } from 'app/pages/Home/selectors';
@@ -34,34 +34,27 @@ export const DelegateTezosTag = memo<Props>(({ network, pkh }) => {
     [network.chainId, trackEvent]
   );
 
-  const NotDelegatedButton = useMemo(
-    () => (
-      <Button
-        onClick={handleTagClick}
-        className={classNames('uppercase ml-2 px-1.5 py-1 bg-secondary hover:bg-secondary-hover', modStyles.tagBase)}
-        testID={AssetsSelectors.assetItemDelegateButton}
-      >
-        <T id="notDelegated" />
-      </Button>
-    ),
-    [handleTagClick]
+  return useMemo(
+    () =>
+      myBakerPkh ? (
+        <Button
+          onClick={handleTagClick}
+          className={clsx(COMMON_CLASS_NAMES, 'inline-flex items-center')}
+          testID={AssetsSelectors.assetItemApyButton}
+        >
+          APY: 5.6%
+        </Button>
+      ) : (
+        <Button
+          onClick={handleTagClick}
+          className={clsx(COMMON_CLASS_NAMES, 'uppercase')}
+          testID={AssetsSelectors.assetItemDelegateButton}
+        >
+          <T id="notDelegated" />
+        </Button>
+      ),
+    [handleTagClick, myBakerPkh]
   );
-
-  const TezosDelegated = useMemo(
-    () => (
-      <Button
-        onClick={handleTagClick}
-        className={classNames(
-          'inline-flex items-center px-1.5 ml-2 py-1 bg-secondary hover:bg-secondary-hover',
-          modStyles.tagBase
-        )}
-        testID={AssetsSelectors.assetItemApyButton}
-      >
-        APY: 5.6%
-      </Button>
-    ),
-    [handleTagClick]
-  );
-
-  return myBakerPkh ? TezosDelegated : NotDelegatedButton;
 });
+
+const COMMON_CLASS_NAMES = clsx('flex-shrink-0 px-1.5 py-1 bg-secondary hover:bg-secondary-hover', modStyles.tagBase);
