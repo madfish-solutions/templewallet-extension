@@ -3617,16 +3617,17 @@
   dependencies:
     nanoid "^3.1.25"
 
-"@temple-wallet/extension-ads@^6.3.2":
-  version "6.3.2"
-  resolved "https://registry.yarnpkg.com/@temple-wallet/extension-ads/-/extension-ads-6.3.2.tgz#ed404ff82dbeb3f15e93572d2d8275312e9157d8"
-  integrity sha512-45Lflim8Mwgy0EYNcW5KkmBw+odReQS5EJQFtSqoH4kbs2ZcLn9AMSBy/mPEAktRmBfKZ7y+8hC8lN6tLDS0/A==
+"@temple-wallet/extension-ads@^7.1.0":
+  version "7.1.0"
+  resolved "https://registry.yarnpkg.com/@temple-wallet/extension-ads/-/extension-ads-7.1.0.tgz#b72bc7bb51192e84ca7614a08fc0f85a3415a8e5"
+  integrity sha512-/cQ4KP8Xze1rtHVDu1ydvlZBxwc2OkNs5NDsBIukUXBP86yJ7skl6dcYQEyGF1fgzt1HOuYjHwuM0+i55W821Q==
   dependencies:
     "@vespaiach/axios-fetch-adapter" "^0.3.1"
     axios "^1.6.7"
     crypto-js "^4.2.0"
     lodash "^4.17.21"
     nanoid "^5.0.6"
+    semver "^7.6.2"
     webextension-polyfill "^0.10.0"
 
 "@temple-wallet/jest-webextension-mock@^4.1.0":
@@ -12166,6 +12167,11 @@ semver@^6.0.0, semver@^6.1.1, semver@^6.1.2, semver@^6.3.0, semver@^6.3.1:
   version "6.3.1"
   resolved "https://registry.yarnpkg.com/semver/-/semver-6.3.1.tgz#556d2ef8689146e46dcea4bfdd095f3434dffcb4"
   integrity sha512-BR7VvDCVHO+q2xBEWskxS6DJE1qRnb7DxzUrogb71CWoSficBxYsiAGd+Kl0mmq/MprG9yArRkyrQxTO6XjMzA==
+
+semver@^7.6.2:
+  version "7.6.2"
+  resolved "https://registry.yarnpkg.com/semver/-/semver-7.6.2.tgz#1e3b34759f896e8f14d6134732ce798aeb0c6e13"
+  integrity sha512-FNAIBWCx9qcRhoHcgcJ0gvU7SN1lYU2ZXuSfl04bSC5OpvDHFyJCjdNHomPXxjQlCBU67YW64PzY7/VIEH7F2w==
 
 serialize-javascript@^6.0.0, serialize-javascript@^6.0.1:
   version "6.0.1"
