@@ -44,8 +44,7 @@ export const useEvmChainCollectiblesListingLogic = (
     [getMetadata, searchValueDebounced]
   );
 
-  // shouldn't resort on balances change
-  const enabledSlugsSorted = useMemo(() => [...enabledSlugs].sort(sortPredicate), [enabledSlugs]);
+  const enabledSlugsSorted = useMemo(() => [...enabledSlugs].sort(sortPredicate), [enabledSlugs, sortPredicate]);
 
   const enabledSearchedSlugs = useMemo(
     () => (isInSearchMode ? search(enabledSlugsSorted) : enabledSlugsSorted),

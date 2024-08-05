@@ -42,8 +42,10 @@ export const useEvmAccountCollectiblesListingLogic = (publicKeyHash: HexString, 
     [getMetadata, searchValueDebounced]
   );
 
-  // shouldn't resort on balances change
-  const enabledSlugsSorted = useMemo(() => [...enabledChainSlugs].sort(sortPredicate), [enabledChainSlugs]);
+  const enabledSlugsSorted = useMemo(
+    () => [...enabledChainSlugs].sort(sortPredicate),
+    [enabledChainSlugs, sortPredicate]
+  );
 
   const enabledSearchedSlugs = useMemo(
     () => (isInSearchMode ? search(enabledSlugsSorted) : enabledSlugsSorted),

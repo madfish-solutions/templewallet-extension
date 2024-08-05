@@ -87,10 +87,9 @@ export const useTezosChainAccountTokensListingLogic = (
     return isInSearchMode ? search(filteredLeadingSlugs) : filteredLeadingSlugs;
   }, [leadingAssetsSlugs, filterZeroBalances, isNonZeroBalance, isInSearchMode, search]);
 
-  // shouldn't resort on balances change // TODO: Doesn't work as expected. `filteredNonLeadingSlugs` depends on balances too.
   const enabledNonLeadingSlugsSorted = useMemo(
     () => [...filteredNonLeadingSlugs].sort(tokensSortPredicate),
-    [filteredNonLeadingSlugs]
+    [filteredNonLeadingSlugs, tokensSortPredicate]
   );
 
   const searchedSlugs = useMemo(() => {

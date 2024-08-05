@@ -4,7 +4,11 @@ import { emptyFn, isDefined } from '@rnw-community/shared';
 import BigNumber from 'bignumber.js';
 
 import { DeadEndBoundaryError } from 'app/ErrorBoundary';
-import { useRawEvmAccountBalancesSelector, useRawEvmAssetBalanceSelector } from 'app/store/evm/balances/selectors';
+import {
+  useRawEvmAccountBalancesSelector,
+  useRawEvmChainAccountBalancesSelector,
+  useRawEvmAssetBalanceSelector
+} from 'app/store/evm/balances/selectors';
 import { useEvmCollectibleMetadataSelector } from 'app/store/evm/collectibles-metadata/selectors';
 import { useEvmBalancesLoadingStateSelector } from 'app/store/evm/selectors';
 import {
@@ -37,9 +41,8 @@ import { getReadOnlyTezos } from 'temple/tezos';
 import { fetchRawBalance as fetchRawBalanceFromBlockchain } from './fetch';
 
 export const useGetEvmTokenBalanceWithDecimals = (publicKeyHash: HexString) => {
-  const evmChains = useAllEvmChains();
   const rawBalances = useRawEvmAccountBalancesSelector(publicKeyHash);
-  const tokensMetadata = useEvmTokensMetadataRecordSelector();
+  const getMetadata = useGetEvmGasOrTokenMetadata();
 
   return useCallback(
     (chainId: number, slug: string) => {
@@ -47,14 +50,42 @@ export const useGetEvmTokenBalanceWithDecimals = (publicKeyHash: HexString) => {
 
       if (!rawBalance) return;
 
-      const metadata =
-        slug === EVM_TOKEN_SLUG
-          ? evmChains[chainId]?.currency
-          : (tokensMetadata[chainId]?.[slug] as EvmTokenMetadata | undefined);
+      const metadata = getMetadata(chainId, slug);
 
       return metadata?.decimals ? atomsToTokens(rawBalance, metadata.decimals) : undefined;
     },
-    [evmChains, rawBalances, tokensMetadata]
+    [rawBalances, getMetadata]
+  );
+};
+
+export const useGetEvmChainTokenBalanceWithDecimals = (publicKeyHash: HexString, chainId: number) => {
+  const rawBalances = useRawEvmChainAccountBalancesSelector(publicKeyHash, chainId);
+  const getMetadata = useGetEvmGasOrTokenMetadata();
+
+  return useCallback(
+    (slug: string) => {
+      const rawBalance = rawBalances[slug] as string | undefined;
+
+      if (!rawBalance) return;
+
+      const metadata = getMetadata(chainId, slug);
+
+      return metadata?.decimals ? atomsToTokens(rawBalance, metadata.decimals) : undefined;
+    },
+    [rawBalances, chainId, getMetadata]
+  );
+};
+
+const useGetEvmGasOrTokenMetadata = () => {
+  const evmChains = useAllEvmChains();
+  const tokensMetadata = useEvmTokensMetadataRecordSelector();
+
+  return useCallback(
+    (chainId: number, slug: string) =>
+      slug === EVM_TOKEN_SLUG
+        ? evmChains[chainId]?.currency
+        : (tokensMetadata[chainId]?.[slug] as EvmTokenMetadata | undefined),
+    [tokensMetadata, evmChains]
   );
 };
 

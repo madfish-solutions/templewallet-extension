@@ -81,8 +81,10 @@ export const useEvmChainAccountTokensListingLogic = (
     [filterZeroBalances, enabledTokenSlugs, isNonZeroBalance]
   );
 
-  // shouldn't resort on balances change // TODO: Doesn't work as expected. `filteredEnabledSlugs` depends on balances too.
-  const sortedEnabledSlugs = useMemo(() => [...filteredEnabledSlugs].sort(tokensSortPredicate), [filteredEnabledSlugs]);
+  const sortedEnabledSlugs = useMemo(
+    () => [...filteredEnabledSlugs].sort(tokensSortPredicate),
+    [filteredEnabledSlugs, tokensSortPredicate]
+  );
 
   const searchedEnabledSlugs = useMemo(
     () => (isInSearchMode ? search(sortedEnabledSlugs) : sortedEnabledSlugs),
