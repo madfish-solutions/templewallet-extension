@@ -49,10 +49,24 @@ export const ImportSeedForm = memo<ImportSeedFormProps>(({ next, onCancel }) => 
         />
       </ScrollView>
       <ActionsButtonsBox flexDirection="row" className="gap-x-2.5" shouldCastShadow={!bottomEdgeIsVisible}>
-        <StyledButton size="L" className="w-full" color="primary-low" type="button" onClick={onCancel}>
+        <StyledButton
+          size="L"
+          className="w-full"
+          color="primary-low"
+          type="button"
+          onClick={onCancel}
+          testID={ImportSeedFormSelectors.cancelButton}
+        >
           <T id="cancel" />
         </StyledButton>
-        <StyledButton disabled={Boolean(seedError)} type="submit" size="L" className="w-full" color="primary">
+        <StyledButton
+          disabled={Boolean(seedError)}
+          type="submit"
+          size="L"
+          className="w-full"
+          color="primary"
+          testID={ImportSeedFormSelectors.nextButton}
+        >
           <T id="next" />
         </StyledButton>
       </ActionsButtonsBox>

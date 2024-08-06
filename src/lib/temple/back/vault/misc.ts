@@ -77,7 +77,7 @@ export function concatAccount(current: StoredAccount[], newOne: StoredAccount) {
   return [...current, newOne];
 }
 
-type NewAccountName = 'defaultAccountName' | 'defaultManagedKTAccountName' | 'defaultWatchOnlyAccountName';
+type NewAccountName = 'defaultAccountName' | 'defaultWatchOnlyAccountName';
 
 export async function fetchNewAccountName(
   allAccounts: StoredAccount[],

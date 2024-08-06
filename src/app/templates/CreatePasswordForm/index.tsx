@@ -129,7 +129,10 @@ export const CreatePasswordForm = memo<CreatePasswordFormProps>(({ seedPhrase: s
     ]
   );
 
-  const buttonNameI18nKey = seedPhraseToImport ? 'importWallet' : 'createWallet';
+  const submitButtonNameI18nKey = seedPhraseToImport ? 'importWallet' : 'createWallet';
+  const submitButtonTestID = seedPhraseToImport
+    ? createPasswordSelectors.importButton
+    : createPasswordSelectors.createButton;
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="flex-1 flex flex-col max-h-full">
@@ -223,7 +226,7 @@ export const CreatePasswordForm = memo<CreatePasswordFormProps>(({ seedPhrase: s
             id="twTermsAndPrivacyLinks"
             substitutions={[
               <span key="buttonContent">
-                <T id={buttonNameI18nKey} />
+                <T id={submitButtonNameI18nKey} />
               </span>,
               <a
                 href={TEMPLE_TERMS_LINK}
@@ -248,14 +251,8 @@ export const CreatePasswordForm = memo<CreatePasswordFormProps>(({ seedPhrase: s
         </span>
       </ScrollView>
       <ActionsButtonsBox shouldCastShadow={!bottomEdgeIsVisible}>
-        <StyledButton
-          size="L"
-          color="primary"
-          type="submit"
-          disabled={submitting}
-          testID={createPasswordSelectors.createButton}
-        >
-          <T id={buttonNameI18nKey} />
+        <StyledButton size="L" color="primary" type="submit" disabled={submitting} testID={submitButtonTestID}>
+          <T id={submitButtonNameI18nKey} />
         </StyledButton>
       </ActionsButtonsBox>
     </form>

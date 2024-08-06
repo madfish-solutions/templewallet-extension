@@ -17,12 +17,6 @@
   "importAccount": {
     "message": "Import account"
   },
-  "faucetFileTitle": {
-    "message": "Faucet File"
-  },
-  "faucetFile": {
-    "message": "Faucet file"
-  },
   "settings": {
     "message": "Settings"
   },
@@ -248,12 +242,6 @@
     "message": "Use CoinSwitch",
     "description": "CoinSwitch = https://coinswitch.co/"
   },
-  "tezosFaucet": {
-    "message": "Tezos Faucet"
-  },
-  "tezosFaucetAlpha": {
-    "message": "Tezos Faucet (Alpha)"
-  },
   "depositToWallet": {
     "message": "Deposit to your wallet"
   },
@@ -382,15 +370,6 @@
   },
   "defaultAccountName": {
     "message": "Account $accountNumber$",
-    "placeholders": {
-      "accountNumber": {
-        "content": "$1"
-      }
-    }
-  },
-  "defaultManagedKTAccountName": {
-    "message": "Managed KT $accountNumber$",
-    "description": "KT not translated",
     "placeholders": {
       "accountNumber": {
         "content": "$1"
@@ -598,9 +577,6 @@
   "mnemonic": {
     "message": "Mnemonic"
   },
-  "fundraiser": {
-    "message": "Fundraiser"
-  },
   "privateKeyInputDescription": {
     "message": "The Secret key of the Account you want to import."
   },
@@ -657,14 +633,6 @@
   "smthWentWrong": {
     "message": "Something went wrong"
   },
-  "faucetFileInputPrompt": {
-    "message": "Drag & drop a file or select it manually by clicking on the area below. You can download it from $link$.",
-    "placeholders": {
-      "link": {
-        "content": "$1"
-      }
-    }
-  },
   "processing": {
     "message": "Processing..."
   },
@@ -702,12 +670,6 @@
   "networksDescription": {
     "message": "In this section you can add or delete custom Tezos networks.",
     "description": "Tezos = blockchain name (https://tezos.com/)"
-  },
-  "activateAccount": {
-    "message": "Activate Account"
-  },
-  "activateAccountDescription": {
-    "message": "It may be necessary for ICO/Fundraiser or testnet faucet accounts."
   },
   "removeAccount": {
     "message": "Remove Account"
@@ -750,7 +712,7 @@
     "message": "Import existing Wallet"
   },
   "importExistingWalletDescription": {
-    "message": "Already have a wallet? Import it using your seed phrase or encrypted keystore file"
+    "message": "Already have a wallet? Import it using your seed phrase"
   },
   "links": {
     "message": "Links"
@@ -769,33 +731,6 @@
   },
   "contact": {
     "message": "Contact"
-  },
-  "accountAlreadyActivated": {
-    "message": "Your Account already activated."
-  },
-  "accountActivated": {
-    "message": "Your account successfully activated!"
-  },
-  "failureSecretMayBeInvalid": {
-    "message": "Failed. This may happen because provided Secret is invalid"
-  },
-  "accountToBeActivated": {
-    "message": "Account to be activated."
-  },
-  "ifYouWantToActivateAnotherAccount": {
-    "message": "If you want to activate another account - please, select it in the top-right dropdown."
-  },
-  "activateAccountSecret": {
-    "message": "Secret"
-  },
-  "activateAccountSecretDescription": {
-    "message": "'secret' field from Fundraiser Account or Faucet"
-  },
-  "activateAccountSecretPlaceholder": {
-    "message": "e.g. n4hs7sd3..."
-  },
-  "activate": {
-    "message": "Activate"
   },
   "minimalFeeDescription": {
     "message": "Minimal"
@@ -1408,9 +1343,6 @@
   "disabledForWatchOnlyAccount": {
     "message": "Disabled for watch-only account"
   },
-  "activationOperationType": {
-    "message": "Activation"
-  },
   "youAreNotContractManager": {
     "message": "You are not a contract manager"
   },
@@ -1422,9 +1354,6 @@
   },
   "contractAddressInputPlaceholder": {
     "message": "e.g. KT1a9w1S7hN5s..."
-  },
-  "addKnownManagedContract": {
-    "message": "Add known Managed contract"
   },
   "clickOnContractToImport": {
     "message": "Click on Contract you want to import."
@@ -1471,9 +1400,6 @@
   "popupSettingsDescription": {
     "message": "Here you can configure the popup which appears on plugin's icon click in extensions panel."
   },
-  "managedContract": {
-    "message": "Managed Contract"
-  },
   "referredByTokenContractNotFound": {
     "message": "Contract $address$, which is referred by token contract to, was not found.",
     "placeholders": {
@@ -1498,9 +1424,6 @@
         "content": "$1"
       }
     }
-  },
-  "invalidManagedContract": {
-    "message": "Invalid managed contract"
   },
   "someMethodNotDefinedInContract": {
     "message": "'$name$' method isn't defined in contract.",
@@ -1665,15 +1588,6 @@
   },
   "invalidJsonInput": {
     "message": "Invalid JSON"
-  },
-  "notFaucetJson": {
-    "message": "Not a faucet JSON"
-  },
-  "faucetJson": {
-    "message": "Faucet JSON"
-  },
-  "faucetJsonDescription": {
-    "message": "You can paste JSON here instead of adding file"
   },
   "unknownErrorFromRPC": {
     "message": "Failed to send request to $url$. Invalid request provided or RPC node is temporarily unreachable.",

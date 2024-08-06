@@ -14,12 +14,6 @@
   "createAccount": {
     "message": "创建一个帐户"
   },
-  "faucetFileTitle": {
-    "message": "Faucet文件"
-  },
-  "faucetFile": {
-    "message": "Faucet文件"
-  },
   "settings": {
     "message": "设置"
   },
@@ -234,12 +228,6 @@
     "message": "使用CoinSwitch",
     "description": "CoinSwitch = https://coinswitch.co/"
   },
-  "tezosFaucet": {
-    "message": "Tezos Faucet"
-  },
-  "tezosFaucetAlpha": {
-    "message": "Tezos Faucet (Alpha)"
-  },
   "depositToWallet": {
     "message": "存入您的钱包"
   },
@@ -368,15 +356,6 @@
   },
   "defaultAccountName": {
     "message": "账户$accountNumber$",
-    "placeholders": {
-      "accountNumber": {
-        "content": "$1"
-      }
-    }
-  },
-  "defaultManagedKTAccountName": {
-    "message": "有人管理的KT$accountNumber$",
-    "description": "KT not translated",
     "placeholders": {
       "accountNumber": {
         "content": "$1"
@@ -570,9 +549,6 @@
   "mnemonic": {
     "message": "助记符"
   },
-  "fundraiser": {
-    "message": "资金筹集活动"
-  },
   "privateKeyInputDescription": {
     "message": "您要导入的账户的密钥。"
   },
@@ -629,14 +605,6 @@
   "smthWentWrong": {
     "message": "出错了"
   },
-  "faucetFileInputPrompt": {
-    "message": "拖放一个文件或点击下方区域来手动选择。您可以从$link$下载下来。",
-    "placeholders": {
-      "link": {
-        "content": "$1"
-      }
-    }
-  },
   "processing": {
     "message": "正在处理…"
   },
@@ -674,12 +642,6 @@
   "networksDescription": {
     "message": "在此处，您可以添加或删除自定义Tezos网络。",
     "description": "Tezos = blockchain name (https://tezos.com/)"
-  },
-  "activateAccount": {
-    "message": "激活账户"
-  },
-  "activateAccountDescription": {
-    "message": "这对于ICO/资金筹集活动或Testnet Faucet账户可能是必要的。"
   },
   "removeAccount": {
     "message": "移除账户"
@@ -735,33 +697,6 @@
   },
   "contact": {
     "message": "联系方式"
-  },
-  "accountAlreadyActivated": {
-    "message": "您的账户已激活。"
-  },
-  "accountActivated": {
-    "message": "您的账户已成功激活！"
-  },
-  "failureSecretMayBeInvalid": {
-    "message": "失败。发生这种情况可能是因为提供的密钥无效"
-  },
-  "accountToBeActivated": {
-    "message": "账户待激活。"
-  },
-  "ifYouWantToActivateAnotherAccount": {
-    "message": "如需激活其他账户——请在右上角下拉菜单中选择。"
-  },
-  "activateAccountSecret": {
-    "message": "密钥"
-  },
-  "activateAccountSecretDescription": {
-    "message": "来自资金筹集账户或Faucet的“secret”字段"
-  },
-  "activateAccountSecretPlaceholder": {
-    "message": "例如：n4hs7sd3..."
-  },
-  "activate": {
-    "message": "激活"
   },
   "minimalFeeDescription": {
     "message": "最小"
@@ -1368,9 +1303,6 @@
   "disabledForWatchOnlyAccount": {
     "message": "已为仅供查看账户禁用"
   },
-  "activationOperationType": {
-    "message": "激活"
-  },
   "youAreNotContractManager": {
     "message": "您不是合约管理员"
   },
@@ -1382,9 +1314,6 @@
   },
   "contractAddressInputPlaceholder": {
     "message": "例如：KT1a9w1S7hN5s..."
-  },
-  "addKnownManagedContract": {
-    "message": "添加已知的有人管理的合约"
   },
   "clickOnContractToImport": {
     "message": "点击要导入的合约。"
@@ -1431,9 +1360,6 @@
   "popupSettingsDescription": {
     "message": "在此处，您可以配置出现在插件的图标点击扩展面板上的弹窗。"
   },
-  "managedContract": {
-    "message": "有人管理的合约"
-  },
   "referredByTokenContractNotFound": {
     "message": "代币合约中引用的合约$address$未找到。",
     "placeholders": {
@@ -1458,9 +1384,6 @@
         "content": "$1"
       }
     }
-  },
-  "invalidManagedContract": {
-    "message": "该有人管理的合约是无效的"
   },
   "someMethodNotDefinedInContract": {
     "message": "“$name$”方式未在合约中定义。",
@@ -1625,14 +1548,5 @@
   },
   "invalidJsonInput": {
     "message": "JSON无效"
-  },
-  "notFaucetJson": {
-    "message": "不是Faucet JSON"
-  },
-  "faucetJson": {
-    "message": "Faucet JSON"
-  },
-  "faucetJsonDescription": {
-    "message": "您可以通过在此粘贴JSON来代替添加文件"
   }
 }

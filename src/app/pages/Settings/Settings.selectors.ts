@@ -6,7 +6,6 @@ export enum SettingsSelectors {
   revealSeedPhraseButton = 'Settings/Reveal Seed Phrase Button',
   dAppsButton = 'Settings/DApps Button',
   networksButton = 'Settings/Networks Button',
-  activateAccountButton = 'Settings/Activate Account Button',
   removeAccountButton = 'Settings/Remove Account Button',
   aboutButton = 'Settings/About Button',
   accountsManagementButton = 'Settings/Accounts Management Button'

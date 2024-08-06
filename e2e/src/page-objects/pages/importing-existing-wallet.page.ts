@@ -1,12 +1,12 @@
-import { ImportFromSeedPhraseSelectors } from 'src/app/pages/NewWallet/import/ImportSeedPhrase/ImportFromSeedPhrase.selectors';
+import { ImportSeedFormSelectors } from 'src/app/templates/ImportSeedForm/selectors';
 
 import { Page } from '../../classes/page.class';
 import { clearDataFromCurrentInput } from '../../utils/input-data.utils';
 import { createPageElement, findElements } from '../../utils/search.utils';
 
 export class ImportExistingWalletPage extends Page {
-  nextButton = createPageElement(ImportFromSeedPhraseSelectors.nextButton);
-  wordInput = createPageElement(ImportFromSeedPhraseSelectors.wordInput);
+  nextButton = createPageElement(ImportSeedFormSelectors.nextButton);
+  wordInput = createPageElement(ImportSeedFormSelectors.wordInput);
 
   async isVisible() {
     await this.nextButton.waitForDisplayed();
@@ -15,7 +15,7 @@ export class ImportExistingWalletPage extends Page {
 
   async enterSeedPhrase(seedPhrase: string) {
     const wordsArray = seedPhrase.split(' ');
-    const wordsInputs = await findElements(ImportFromSeedPhraseSelectors.wordInput);
+    const wordsInputs = await findElements(ImportSeedFormSelectors.wordInput);
 
     for (let i = 0; i < wordsArray.length; i++) {
       const word = wordsArray[i];
@@ -26,7 +26,7 @@ export class ImportExistingWalletPage extends Page {
   }
 
   async clearSeedPhrase() {
-    const wordsInputs = await findElements(ImportFromSeedPhraseSelectors.wordInput);
+    const wordsInputs = await findElements(ImportSeedFormSelectors.wordInput);
 
     for (let i = 0; i < wordsInputs.length; i++) {
       const input = wordsInputs[i];

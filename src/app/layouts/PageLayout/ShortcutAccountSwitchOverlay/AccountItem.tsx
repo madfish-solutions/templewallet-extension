@@ -3,9 +3,8 @@ import React, { RefObject, useMemo } from 'react';
 import { emptyFn, isDefined } from '@rnw-community/shared';
 import clsx from 'clsx';
 
-import { Name, Button, HashShortView, Money } from 'app/atoms';
+import { AccountTypeBadge, Name, Button, HashShortView, Money } from 'app/atoms';
 import { AccountAvatar } from 'app/atoms/AccountAvatar';
-import AccountTypeBadge from 'app/atoms/AccountTypeBadge';
 import { SearchHighlightText } from 'app/atoms/SearchHighlightText';
 import { TezosBalance } from 'app/templates/Balance';
 import { setAnotherSelector, setTestID } from 'lib/analytics';

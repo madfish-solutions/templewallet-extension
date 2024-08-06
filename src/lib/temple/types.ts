@@ -247,10 +247,6 @@ export enum TempleMessageType {
   ImportAccountResponse = 'TEMPLE_IMPORT_ACCOUNT_RESPONSE',
   ImportMnemonicAccountRequest = 'TEMPLE_IMPORT_MNEMONIC_ACCOUNT_REQUEST',
   ImportMnemonicAccountResponse = 'TEMPLE_IMPORT_MNEMONIC_ACCOUNT_RESPONSE',
-  ImportFundraiserAccountRequest = 'TEMPLE_IMPORT_FUNDRAISER_ACCOUNT_REQUEST',
-  ImportFundraiserAccountResponse = 'TEMPLE_IMPORT_FUNDRAISER_ACCOUNT_RESPONSE',
-  ImportManagedKTAccountRequest = 'TEMPLE_IMPORT_MANAGED_KT_ACCOUNT_REQUEST',
-  ImportManagedKTAccountResponse = 'TEMPLE_IMPORT_MANAGED_KT_ACCOUNT_RESPONSE',
   ImportWatchOnlyAccountRequest = 'TEMPLE_IMPORT_WATCH_ONLY_ACCOUNT_REQUEST',
   ImportWatchOnlyAccountResponse = 'TEMPLE_IMPORT_WATCH_ONLY_ACCOUNT_RESPONSE',
   CreateLedgerAccountRequest = 'TEMPLE_CREATE_LEDGER_ACCOUNT_REQUEST',
@@ -311,8 +307,6 @@ export type TempleRequest =
   | TempleEditAccountRequest
   | TempleImportAccountRequest
   | TempleImportMnemonicAccountRequest
-  | TempleImportFundraiserAccountRequest
-  | TempleImportManagedKTAccountRequest
   | TempleImportWatchOnlyAccountRequest
   | TempleCreateLedgerAccountRequest
   | TempleOperationsRequest
@@ -349,8 +343,6 @@ export type TempleResponse =
   | TempleEditAccountResponse
   | TempleImportAccountResponse
   | TempleImportMnemonicAccountResponse
-  | TempleImportFundraiserAccountResponse
-  | TempleImportManagedKTAccountResponse
   | TempleImportWatchOnlyAccountResponse
   | TempleCreateLedgerAccountResponse
   | TempleOperationsResponse
@@ -553,28 +545,6 @@ interface TempleImportMnemonicAccountRequest extends TempleMessageBase {
 
 interface TempleImportMnemonicAccountResponse extends TempleMessageBase {
   type: TempleMessageType.ImportMnemonicAccountResponse;
-}
-
-interface TempleImportFundraiserAccountRequest extends TempleMessageBase {
-  type: TempleMessageType.ImportFundraiserAccountRequest;
-  email: string;
-  password: string;
-  mnemonic: string;
-}
-
-interface TempleImportFundraiserAccountResponse extends TempleMessageBase {
-  type: TempleMessageType.ImportFundraiserAccountResponse;
-}
-
-interface TempleImportManagedKTAccountRequest extends TempleMessageBase {
-  type: TempleMessageType.ImportManagedKTAccountRequest;
-  address: string;
-  chainId: string;
-  owner: string;
-}
-
-interface TempleImportManagedKTAccountResponse extends TempleMessageBase {
-  type: TempleMessageType.ImportManagedKTAccountResponse;
 }
 
 interface TempleImportWatchOnlyAccountRequest extends TempleMessageBase {

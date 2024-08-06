@@ -14,12 +14,6 @@
   "createAccount": {
     "message": "アカウントを作成"
   },
-  "faucetFileTitle": {
-    "message": "フォーセットファイル"
-  },
-  "faucetFile": {
-    "message": "フォーセットファイル"
-  },
   "settings": {
     "message": "設定"
   },
@@ -234,12 +228,6 @@
     "message": "CoinSwitchを使用",
     "description": "CoinSwitch = https://coinswitch.co/"
   },
-  "tezosFaucet": {
-    "message": "テゾスフォーセット"
-  },
-  "tezosFaucetAlpha": {
-    "message": "テゾスフォーセット（アルファ）"
-  },
   "depositToWallet": {
     "message": "自分のウォレットに入金"
   },
@@ -368,15 +356,6 @@
   },
   "defaultAccountName": {
     "message": "アカウント、$accountNumber$",
-    "placeholders": {
-      "accountNumber": {
-        "content": "$1"
-      }
-    }
-  },
-  "defaultManagedKTAccountName": {
-    "message": "管理されたKT $accountNumber$",
-    "description": "KT not translated",
     "placeholders": {
       "accountNumber": {
         "content": "$1"
@@ -566,9 +545,6 @@
   "mnemonic": {
     "message": "ニーモニック"
   },
-  "fundraiser": {
-    "message": "ファンドレイザー"
-  },
   "privateKeyInputDescription": {
     "message": "インポートするアカウントの秘密鍵。"
   },
@@ -625,14 +601,6 @@
   "smthWentWrong": {
     "message": "不具合が発生しました"
   },
-  "faucetFileInputPrompt": {
-    "message": "ファイルをドラッグ＆ドロップするか、下の領域をクリックして手動で選択してください。$link$からダウンロードできます。",
-    "placeholders": {
-      "link": {
-        "content": "$1"
-      }
-    }
-  },
   "processing": {
     "message": "処理中..."
   },
@@ -670,12 +638,6 @@
   "networksDescription": {
     "message": "このセクションでは、カスタムテゾスネットワークの追加や削除を行うことができます。",
     "description": "Tezos = blockchain name (https://tezos.com/)"
-  },
-  "activateAccount": {
-    "message": "アカウントをアクティベート"
-  },
-  "activateAccountDescription": {
-    "message": "ICO/ファンドレイザーやテストネットフォーセットアカウントに必要な場合があります。"
   },
   "removeAccount": {
     "message": "アカウントを削除"
@@ -731,33 +693,6 @@
   },
   "contact": {
     "message": "お問合せ"
-  },
-  "accountAlreadyActivated": {
-    "message": "アカウントはすでにアクティベートされています。"
-  },
-  "accountActivated": {
-    "message": "アカウントのアクティベートに成功しました！"
-  },
-  "failureSecretMayBeInvalid": {
-    "message": "失敗しました。提供された秘密が無効であるために発生した可能性があります。"
-  },
-  "accountToBeActivated": {
-    "message": "アクティベートするアカウント。"
-  },
-  "ifYouWantToActivateAnotherAccount": {
-    "message": "別のアカウントを有効にしたい場合は、右上のドロップダウンから選択してください。"
-  },
-  "activateAccountSecret": {
-    "message": "秘密"
-  },
-  "activateAccountSecretDescription": {
-    "message": "ファンドレイザーアカウントまたはフォーセットの「秘密」フィールド"
-  },
-  "activateAccountSecretPlaceholder": {
-    "message": "例: n4hs7sd3..."
-  },
-  "activate": {
-    "message": "アクティベート"
   },
   "minimalFeeDescription": {
     "message": "最少"
@@ -1364,9 +1299,6 @@
   "disabledForWatchOnlyAccount": {
     "message": "監視専用アカウントには無効"
   },
-  "activationOperationType": {
-    "message": "アクティベーション"
-  },
   "youAreNotContractManager": {
     "message": "あなたはコントラクトマネージャーではありません"
   },
@@ -1378,9 +1310,6 @@
   },
   "contractAddressInputPlaceholder": {
     "message": "例: KT1a9w1S7hN5s..."
-  },
-  "addKnownManagedContract": {
-    "message": "既知の管理されたコントラクトを追加"
   },
   "clickOnContractToImport": {
     "message": "インポートしたいコントラクトをクリック"
@@ -1427,9 +1356,6 @@
   "popupSettingsDescription": {
     "message": "ここでは、拡張機能パネルのプラグインのアイコンをクリックすると表示されるポップアップを設定します。"
   },
-  "managedContract": {
-    "message": "管理されたコントラクト"
-  },
   "referredByTokenContractNotFound": {
     "message": "トークンコントラクトで参照されるコントラクト、$address$は見つかりませんでした。",
     "placeholders": {
@@ -1454,9 +1380,6 @@
         "content": "$1"
       }
     }
-  },
-  "invalidManagedContract": {
-    "message": "管理されたコントラクトが無効です"
   },
   "someMethodNotDefinedInContract": {
     "message": "「$name$」メソッドはコントラクトで定義されていません。",
@@ -1621,14 +1544,5 @@
   },
   "invalidJsonInput": {
     "message": "無効なJSON"
-  },
-  "notFaucetJson": {
-    "message": "フォーセットのJSONではありません"
-  },
-  "faucetJson": {
-    "message": "フォーセットのJSON"
-  },
-  "faucetJsonDescription": {
-    "message": "ファイルを追加する代わりに、ここにJSONを貼り付けることができます。"
   }
 }

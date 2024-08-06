@@ -13,11 +13,9 @@ import { ReactComponent as PeopleIcon } from 'app/icons/monochrome/people.svg';
 import { ReactComponent as SignalAltIcon } from 'app/icons/monochrome/signal-alt.svg';
 import { ReactComponent as StickerIcon } from 'app/icons/monochrome/sticker.svg';
 import { ReactComponent as SyncIcon } from 'app/icons/monochrome/sync.svg';
-import { ReactComponent as OkIcon } from 'app/icons/ok.svg';
 import PageLayout from 'app/layouts/PageLayout';
 import About from 'app/templates/About/About';
 import { AccountsManagement } from 'app/templates/AccountsManagement';
-import ActivateAccount from 'app/templates/ActivateAccount/ActivateAccount';
 import AddressBook from 'app/templates/AddressBook/AddressBook';
 import DAppSettings from 'app/templates/DAppSettings/DAppSettings';
 import HelpAndCommunity from 'app/templates/HelpAndCommunity';
@@ -107,15 +105,6 @@ const TABS: Tab[] = [
     color: '#F6C90E',
     descriptionI18nKey: 'networksDescription',
     testID: SettingsSelectors.networksButton
-  },
-  {
-    slug: 'activate-account',
-    titleI18nKey: 'activateAccount',
-    Icon: OkIcon,
-    Component: ActivateAccount,
-    color: 'rgb(131, 179, 0)',
-    descriptionI18nKey: 'activateAccountDescription',
-    testID: SettingsSelectors.activateAccountButton
   },
   {
     slug: 'accounts-management',
