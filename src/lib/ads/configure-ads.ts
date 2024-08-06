@@ -3,10 +3,12 @@ import browser from 'webextension-polyfill';
 
 import { buildSwapPageUrlQuery } from 'app/pages/Swap/utils/build-url-query';
 import { ADS_META_SEARCH_PARAM_NAME, ContentScriptType, ORIGIN_SEARCH_PARAM_NAME } from 'lib/constants';
-import { APP_VERSION, EnvVars } from 'lib/env';
+import { APP_VERSION, EnvVars, IS_MISES_BROWSER } from 'lib/env';
+import { isTruthy } from 'lib/utils';
 
 import { importExtensionAdsModule } from './import-extension-ads-module';
 
+const smallTkeyInpageAdUrl = browser.runtime.getURL(`/misc/ad-banners/small-tkey-inpage-ad.png`);
 const tkeyInpageAdUrl = browser.runtime.getURL(`/misc/ad-banners/tkey-inpage-ad.png`);
 
 const swapTkeyUrl = `${browser.runtime.getURL('fullpage.html')}#/swap?${buildSwapPageUrlQuery(
@@ -26,25 +28,41 @@ const getAdsStackIframeURL = (id: string, adsMetadataIds: any[], origin: string)
   return url.toString();
 };
 
-const buildNativeAdsMeta = (containerWidth: number, containerHeight: number) => [
-  {
-    source: {
-      providerName: 'HypeLab' as const,
-      native: true as const,
-      slug: EnvVars.HYPELAB_NATIVE_PLACEMENT_SLUG
+const buildNativeAdsMeta = (containerWidth: number, containerHeight: number) =>
+  [
+    {
+      source: {
+        providerName: 'HypeLab' as const,
+        native: true as const,
+        slug: IS_MISES_BROWSER ? EnvVars.HYPELAB_MISES_NATIVE_PLACEMENT_SLUG : EnvVars.HYPELAB_NATIVE_PLACEMENT_SLUG
+      },
+      dimensions: {
+        width: Math.max(160, containerWidth),
+        height: Math.max(16, containerHeight),
+        minContainerWidth: 2,
+        minContainerHeight: 2,
+        maxContainerWidth: Infinity,
+        maxContainerHeight: Infinity
+      }
     },
-    dimensions: {
-      width: Math.max(160, containerWidth),
-      height: Math.max(16, containerHeight),
-      minContainerWidth: 2,
-      minContainerHeight: 2,
-      maxContainerWidth: Infinity,
-      maxContainerHeight: Infinity
+    EnvVars.USE_ADS_STUBS && {
+      source: {
+        providerName: 'Temple' as const,
+        slug: '',
+        native: true as const
+      },
+      dimensions: {
+        width: Math.max(160, containerWidth),
+        height: Math.max(16, containerHeight),
+        minContainerWidth: 2,
+        minContainerHeight: 2,
+        maxContainerWidth: Infinity,
+        maxContainerHeight: Infinity
+      }
     }
-  }
-];
+  ].filter(isTruthy);
 
-const bannerAdsMeta: AdMetadata[] = [
+const bannerAdsMetaBase: (false | AdMetadata)[] = [
   {
     source: {
       providerName: 'SmartyAds',
@@ -222,7 +240,9 @@ const bannerAdsMeta: AdMetadata[] = [
   {
     source: {
       providerName: 'Persona',
-      slug: EnvVars.PERSONA_ADS_MEDIUM_BANNER_UNIT_ID
+      slug: IS_MISES_BROWSER
+        ? EnvVars.PERSONA_ADS_MISES_MEDIUM_BANNER_UNIT_ID
+        : EnvVars.PERSONA_ADS_MEDIUM_BANNER_UNIT_ID
     },
     dimensions: {
       width: 600,
@@ -237,7 +257,7 @@ const bannerAdsMeta: AdMetadata[] = [
     source: {
       providerName: 'HypeLab',
       native: false,
-      slug: EnvVars.HYPELAB_HIGH_PLACEMENT_SLUG
+      slug: IS_MISES_BROWSER ? EnvVars.HYPELAB_MISES_HIGH_PLACEMENT_SLUG : EnvVars.HYPELAB_HIGH_PLACEMENT_SLUG
     },
     dimensions: {
       width: 300,
@@ -251,7 +271,9 @@ const bannerAdsMeta: AdMetadata[] = [
   {
     source: {
       providerName: 'Persona',
-      slug: EnvVars.PERSONA_ADS_SQUARISH_BANNER_UNIT_ID
+      slug: IS_MISES_BROWSER
+        ? EnvVars.PERSONA_ADS_MISES_SQUARISH_BANNER_UNIT_ID
+        : EnvVars.PERSONA_ADS_SQUARISH_BANNER_UNIT_ID
     },
     dimensions: {
       width: 300,
@@ -266,7 +288,7 @@ const bannerAdsMeta: AdMetadata[] = [
     source: {
       providerName: 'HypeLab',
       native: false,
-      slug: EnvVars.HYPELAB_SMALL_PLACEMENT_SLUG,
+      slug: IS_MISES_BROWSER ? EnvVars.HYPELAB_MISES_SMALL_PLACEMENT_SLUG : EnvVars.HYPELAB_SMALL_PLACEMENT_SLUG,
       shouldNotUseStrictContainerLimits: true
     },
     dimensions: {
@@ -281,7 +303,7 @@ const bannerAdsMeta: AdMetadata[] = [
   {
     source: {
       providerName: 'Persona',
-      slug: EnvVars.PERSONA_ADS_BANNER_UNIT_ID,
+      slug: IS_MISES_BROWSER ? EnvVars.PERSONA_ADS_MISES_BANNER_UNIT_ID : EnvVars.PERSONA_ADS_BANNER_UNIT_ID,
       shouldNotUseStrictContainerLimits: true
     },
     dimensions: {
@@ -289,6 +311,21 @@ const bannerAdsMeta: AdMetadata[] = [
       height: 101,
       minContainerWidth: 319,
       minContainerHeight: 99,
+      maxContainerWidth: 420,
+      maxContainerHeight: 130
+    }
+  },
+  EnvVars.USE_ADS_STUBS && {
+    source: {
+      providerName: 'Temple',
+      slug: '',
+      shouldNotUseStrictContainerLimits: true
+    },
+    dimensions: {
+      width: 320,
+      height: 50,
+      minContainerWidth: 320,
+      minContainerHeight: 50,
       maxContainerWidth: 420,
       maxContainerHeight: 130
     }
@@ -301,13 +338,14 @@ export const configureAds = async () => {
     adsTwWindowUrl: EnvVars.HYPELAB_ADS_WINDOW_URL,
     swapTkeyUrl,
     tkeyInpageAdUrl,
+    smallTkeyInpageAdUrl,
     externalAdsActivityMessageType: ContentScriptType.ExternalAdsActivity,
     personaIframePath: browser.runtime.getURL('iframes/persona-ad.html'),
     getAdsStackIframeURL,
     buildNativeAdsMeta,
-    bannerAdsMeta,
+    bannerAdsMeta: bannerAdsMetaBase.filter(isTruthy),
     extVersion: APP_VERSION,
     templePassphrase: EnvVars.TEMPLE_ADS_ORIGIN_PASSPHRASE,
-    isMisesBrowser: false
+    isMisesBrowser: IS_MISES_BROWSER
   });
 };

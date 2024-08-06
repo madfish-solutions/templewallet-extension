@@ -1,4 +1,4 @@
-import React, { FC, useMemo } from 'react';
+import React, { memo } from 'react';
 
 import classNames from 'clsx';
 import { useDispatch } from 'react-redux';
@@ -24,32 +24,26 @@ import { OnRampOverlaySelectors } from './OnRampOverlay.selectors';
 import { OnRampSmileButton } from './OnRampSmileButton/OnRampSmileButton';
 import { getWertLink } from './utils/getWertLink.util';
 
-export const OnRampOverlay: FC = () => {
+export const OnRampOverlay = memo(() => {
   const dispatch = useDispatch();
   const { publicKeyHash } = useAccount();
   const { popup } = useAppEnv();
   const isOnRampPossibility = useOnRampPossibilitySelector();
   const { onboardingCompleted } = useOnboardingProgress();
 
-  const popupClassName = useMemo(
-    () => (popup ? 'inset-0 p-4' : 'top-1/2 left-1/2 transform -translate-y-1/2 -translate-x-1/2'),
-    [popup]
-  );
   const close = () => void dispatch(setOnRampPossibilityAction(false));
 
   if (!isOnRampPossibility || !onboardingCompleted) return null;
 
   return (
-    <>
-      <div className="fixed left-0 right-0 top-0 bottom-0 opacity-20 bg-gray-700 z-50"></div>
+    <div className="fixed inset-0 z-40 flex flex-col items-center justify-center bg-gray-700 bg-opacity-20">
       <ContentContainer
-        className={classNames('fixed z-50 overflow-y-auto', popupClassName)}
-        style={{ maxWidth: '37.5rem', maxHeight: popup ? undefined : 'calc(100vh - 50px)' }}
+        className={classNames('overflow-y-scroll py-4', popup ? 'h-full px-4' : 'px-5')}
         padding={false}
       >
         <div
           className={classNames(
-            'flex flex-col text-center bg-white shadow-lg bg-no-repeat rounded-md p-6',
+            'relative flex flex-col text-center bg-white shadow-lg bg-no-repeat rounded-md p-6',
             popup && 'h-full'
           )}
           style={{
@@ -129,6 +123,6 @@ export const OnRampOverlay: FC = () => {
           </p>
         </div>
       </ContentContainer>
-    </>
+    </div>
   );
-};
+});

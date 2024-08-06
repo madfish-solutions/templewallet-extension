@@ -23,6 +23,7 @@ import ContentContainer from 'app/layouts/ContentContainer';
 import { useOnboardingProgress } from 'app/pages/Onboarding/hooks/useOnboardingProgress.hook';
 import { AdvertisingBanner } from 'app/templates/advertising/advertising-banner/advertising-banner';
 import { AdvertisingOverlay } from 'app/templates/advertising/advertising-overlay/advertising-overlay';
+import { IS_MISES_BROWSER } from 'lib/env';
 import { T } from 'lib/i18n';
 import { NotificationsBell } from 'lib/notifications/components/bell';
 import { useTempleClient } from 'lib/temple/front';
@@ -47,7 +48,13 @@ const PageLayout: FC<PageLayoutProps> = ({ children, contentContainerStyle, ...t
 
   return (
     <>
-      <DocBg bgClassName="bg-primary-orange" />
+      {
+        /*
+          Mises browser has an issue with <html>'s height - not reaching 100% no matter what CSS,
+          unless it is expanded by content. We at least won't color it to not highlight that.
+        */
+        !IS_MISES_BROWSER && <DocBg bgClassName="bg-primary-orange" />
+      }
 
       <div className={clsx(fullPage && 'pb-20', 'relative')}>
         <Header />
