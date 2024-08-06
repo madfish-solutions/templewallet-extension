@@ -212,7 +212,7 @@ const bannerAdsMetaBase: (false | AdMetadata)[] = [
     source: {
       providerName: 'HypeLab',
       native: false,
-      slug: EnvVars.HYPELAB_WIDE_PLACEMENT_SLUG
+      slug: IS_MISES_BROWSER ? EnvVars.HYPELAB_MISES_WIDE_PLACEMENT_SLUG : EnvVars.HYPELAB_WIDE_PLACEMENT_SLUG
     },
     dimensions: {
       width: 728,
