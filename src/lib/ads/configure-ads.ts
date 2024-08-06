@@ -1,4 +1,3 @@
-import { AdMetadata } from '@temple-wallet/extension-ads';
 import browser from 'webextension-polyfill';
 
 import { buildSwapPageUrlQuery } from 'app/pages/Swap/utils/build-url-query';
@@ -62,10 +61,10 @@ const buildNativeAdsMeta = (containerWidth: number, containerHeight: number) =>
     }
   ].filter(isTruthy);
 
-const bannerAdsMetaBase: (false | AdMetadata)[] = [
+const bannerAdsMetaBase = [
   {
     source: {
-      providerName: 'SmartyAds',
+      providerName: 'SmartyAds' as const,
       native: false,
       slug: EnvVars.SMARTY_970_250_PLACEMENT_ID,
       categories: ['other']
@@ -81,7 +80,7 @@ const bannerAdsMetaBase: (false | AdMetadata)[] = [
   },
   {
     source: {
-      providerName: 'SmartyAds',
+      providerName: 'SmartyAds' as const,
       native: false,
       slug: EnvVars.SMARTY_970_90_PLACEMENT_ID,
       categories: ['other']
@@ -97,7 +96,7 @@ const bannerAdsMetaBase: (false | AdMetadata)[] = [
   },
   {
     source: {
-      providerName: 'SmartyAds',
+      providerName: 'SmartyAds' as const,
       native: false,
       slug: EnvVars.SMARTY_728_90_PLACEMENT_ID,
       categories: ['other']
@@ -113,7 +112,7 @@ const bannerAdsMetaBase: (false | AdMetadata)[] = [
   },
   {
     source: {
-      providerName: 'SmartyAds',
+      providerName: 'SmartyAds' as const,
       native: false,
       slug: EnvVars.SMARTY_300_600_PLACEMENT_ID,
       categories: ['other']
@@ -129,7 +128,7 @@ const bannerAdsMetaBase: (false | AdMetadata)[] = [
   },
   {
     source: {
-      providerName: 'SmartyAds',
+      providerName: 'SmartyAds' as const,
       native: false,
       slug: EnvVars.SMARTY_160_600_PLACEMENT_ID,
       categories: ['other']
@@ -145,7 +144,7 @@ const bannerAdsMetaBase: (false | AdMetadata)[] = [
   },
   {
     source: {
-      providerName: 'SmartyAds',
+      providerName: 'SmartyAds' as const,
       native: false,
       slug: EnvVars.SMARTY_336_280_PLACEMENT_ID,
       categories: ['other']
@@ -161,7 +160,7 @@ const bannerAdsMetaBase: (false | AdMetadata)[] = [
   },
   {
     source: {
-      providerName: 'SmartyAds',
+      providerName: 'SmartyAds' as const,
       native: false,
       slug: EnvVars.SMARTY_300_250_PLACEMENT_ID,
       categories: ['other']
@@ -177,7 +176,7 @@ const bannerAdsMetaBase: (false | AdMetadata)[] = [
   },
   {
     source: {
-      providerName: 'SmartyAds',
+      providerName: 'SmartyAds' as const,
       native: false,
       slug: EnvVars.SMARTY_320_100_PLACEMENT_ID,
       categories: ['other']
@@ -193,7 +192,7 @@ const bannerAdsMetaBase: (false | AdMetadata)[] = [
   },
   {
     source: {
-      providerName: 'SmartyAds',
+      providerName: 'SmartyAds' as const,
       native: false,
       slug: EnvVars.SMARTY_320_50_PLACEMENT_ID,
       categories: ['other'],
@@ -210,7 +209,7 @@ const bannerAdsMetaBase: (false | AdMetadata)[] = [
   },
   {
     source: {
-      providerName: 'HypeLab',
+      providerName: 'HypeLab' as const,
       native: false,
       slug: IS_MISES_BROWSER ? EnvVars.HYPELAB_MISES_WIDE_PLACEMENT_SLUG : EnvVars.HYPELAB_WIDE_PLACEMENT_SLUG
     },
@@ -225,7 +224,7 @@ const bannerAdsMetaBase: (false | AdMetadata)[] = [
   },
   {
     source: {
-      providerName: 'Temple',
+      providerName: 'Temple' as const,
       slug: ''
     },
     dimensions: {
@@ -239,7 +238,7 @@ const bannerAdsMetaBase: (false | AdMetadata)[] = [
   },
   {
     source: {
-      providerName: 'Persona',
+      providerName: 'Persona' as const,
       slug: IS_MISES_BROWSER
         ? EnvVars.PERSONA_ADS_MISES_MEDIUM_BANNER_UNIT_ID
         : EnvVars.PERSONA_ADS_MEDIUM_BANNER_UNIT_ID
@@ -255,7 +254,7 @@ const bannerAdsMetaBase: (false | AdMetadata)[] = [
   },
   {
     source: {
-      providerName: 'HypeLab',
+      providerName: 'HypeLab' as const,
       native: false,
       slug: IS_MISES_BROWSER ? EnvVars.HYPELAB_MISES_HIGH_PLACEMENT_SLUG : EnvVars.HYPELAB_HIGH_PLACEMENT_SLUG
     },
@@ -270,7 +269,7 @@ const bannerAdsMetaBase: (false | AdMetadata)[] = [
   },
   {
     source: {
-      providerName: 'Persona',
+      providerName: 'Persona' as const,
       slug: IS_MISES_BROWSER
         ? EnvVars.PERSONA_ADS_MISES_SQUARISH_BANNER_UNIT_ID
         : EnvVars.PERSONA_ADS_SQUARISH_BANNER_UNIT_ID
@@ -286,7 +285,7 @@ const bannerAdsMetaBase: (false | AdMetadata)[] = [
   },
   {
     source: {
-      providerName: 'HypeLab',
+      providerName: 'HypeLab' as const,
       native: false,
       slug: IS_MISES_BROWSER ? EnvVars.HYPELAB_MISES_SMALL_PLACEMENT_SLUG : EnvVars.HYPELAB_SMALL_PLACEMENT_SLUG,
       shouldNotUseStrictContainerLimits: true
@@ -302,7 +301,7 @@ const bannerAdsMetaBase: (false | AdMetadata)[] = [
   },
   {
     source: {
-      providerName: 'Persona',
+      providerName: 'Persona' as const,
       slug: IS_MISES_BROWSER ? EnvVars.PERSONA_ADS_MISES_BANNER_UNIT_ID : EnvVars.PERSONA_ADS_BANNER_UNIT_ID,
       shouldNotUseStrictContainerLimits: true
     },
@@ -317,7 +316,7 @@ const bannerAdsMetaBase: (false | AdMetadata)[] = [
   },
   EnvVars.USE_ADS_STUBS && {
     source: {
-      providerName: 'Temple',
+      providerName: 'Temple' as const,
       slug: '',
       shouldNotUseStrictContainerLimits: true
     },
