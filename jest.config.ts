@@ -4,7 +4,7 @@
  */
 
 const config = {
-  testMatch: [ "**/__tests__/**/*.[jt]s?(x)", "src/?(*.)+(spec|test).[jt]s?(x)" ],
+  testMatch: [ "**/__tests__/**/*.[jt]s?(x)", "**/*.@(spec|test).[jt]s?(x)", "!**/e2e/**" ],
   coverageProvider: 'v8',
   // To have Jest respect `baseUrl`:
   moduleDirectories: ['node_modules', 'src'],

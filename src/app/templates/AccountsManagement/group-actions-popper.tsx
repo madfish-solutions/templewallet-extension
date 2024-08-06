@@ -104,6 +104,20 @@ const GroupActionsDropdown = memo<PopperRenderProps & GroupActionsPopperProps>(
         ].filter(isTruthy);
       }
 
+      if (group.type === TempleAccountType.ManagedKT) {
+        return [
+          {
+            key: 'delete-group',
+            children: t('delete'),
+            className: 'text-error',
+            Icon: DeleteIcon,
+            danger: true,
+            onClick: () => onDeleteClick(group),
+            testID: AccountsManagementSelectors.deleteGroup
+          }
+        ];
+      }
+
       let importActionUrl;
       switch (group.type) {
         case TempleAccountType.Imported:
@@ -111,9 +125,6 @@ const GroupActionsDropdown = memo<PopperRenderProps & GroupActionsPopperProps>(
           break;
         case TempleAccountType.Ledger:
           importActionUrl = '/connect-ledger';
-          break;
-        case TempleAccountType.ManagedKT:
-          importActionUrl = '/import-account/managed-kt';
           break;
         default:
           importActionUrl = '/import-account/watch-only';

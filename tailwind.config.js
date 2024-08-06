@@ -141,6 +141,7 @@ module.exports = {
         'error-low': '#FAE7E6',
         'error-hover-low': '#EFD4D2',
         'warning-low': '#FAF6E1',
+        'warning': '#FFD600',
         //
         /** Originally 'input' */
         'input-low': '#F0F0F0',

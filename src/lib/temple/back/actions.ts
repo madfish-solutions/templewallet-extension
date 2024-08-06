@@ -211,20 +211,6 @@ export function importMnemonicAccount(mnemonic: string, password?: string, deriv
   });
 }
 
-export function importFundraiserAccount(email: string, password: string, mnemonic: string) {
-  return withUnlocked(async ({ vault }) => {
-    const updatedAccounts = await vault.importFundraiserAccount(email, password, mnemonic);
-    accountsUpdated(updatedAccounts);
-  });
-}
-
-export function importManagedKTAccount(address: string, chainId: string, owner: string) {
-  return withUnlocked(async ({ vault }) => {
-    const updatedAccounts = await vault.importManagedKTAccount(address, chainId, owner);
-    accountsUpdated(updatedAccounts);
-  });
-}
-
 export function importWatchOnlyAccount(chain: TempleChainKind, address: string, chainId?: string) {
   return withUnlocked(async ({ vault }) => {
     const updatedAccounts = await vault.importWatchOnlyAccount(chain, address, chainId);

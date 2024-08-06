@@ -1,14 +1,14 @@
-import React, { useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 
 import { isDefined } from '@rnw-community/shared';
 
 import { t } from 'lib/i18n';
+import { useFocusHandlers } from 'lib/ui/hooks/use-focus-handlers';
 
 export const useCardNumberInput = (isFormSubmitted: boolean) => {
   const [value, setValue] = useState('');
   const [customError, setCustomError] = useState<string | undefined>(undefined);
 
-  const [isFocused, setIsFocused] = useState(false);
   const [isTouched, setIsTouched] = useState(false);
 
   const error = useMemo(() => {
@@ -39,11 +39,9 @@ export const useCardNumberInput = (isFormSubmitted: boolean) => {
     setCustomError(undefined);
     setValue(event.target.value);
   };
-  const onBlur = () => {
-    setIsFocused(false);
-    setIsTouched(true);
-  };
-  const onFocus = () => setIsFocused(true);
+
+  const touchField = useCallback(() => setIsTouched(true), []);
+  const { isFocused, onFocus, onBlur } = useFocusHandlers(undefined, touchField);
 
   return {
     value,

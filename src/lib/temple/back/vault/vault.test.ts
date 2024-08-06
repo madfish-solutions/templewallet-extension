@@ -649,52 +649,6 @@ describe('Vault tests', () => {
     });
   });
 
-  it('should import a fundraiser account', async () => {
-    await Vault.spawn(password, defaultMnemonic);
-    const vault = await Vault.setup(password);
-    const [, fundraiserAccount] = await vault.importFundraiserAccount(
-      'rtphpwty.yohjelcp@tezos.example.org',
-      'HMYlTEu0EF',
-      [
-        'zone',
-        'cheese',
-        'venture',
-        'sad',
-        'marriage',
-        'attitude',
-        'borrow',
-        'limit',
-        'country',
-        'agent',
-        'away',
-        'raven',
-        'nerve',
-        'laptop',
-        'oven'
-      ].join(' ')
-    );
-    expect(fundraiserAccount).toMatchObject({
-      type: TempleAccountType.Imported,
-      chain: TempleChainKind.Tezos,
-      address: 'tz1ZfrERcALBwmAqwonRXYVQBDT9BjNjBHJu'
-    });
-  });
-
-  it('should import a managed KT account', async () => {
-    await Vault.spawn(password, defaultMnemonic);
-    const vault = await Vault.setup(password);
-    const accounts = await vault.fetchAccounts();
-    const owner = getAccountAddressForTezos(accounts[0])!;
-    const [, newAccount] = await vault.importManagedKTAccount(mockManagedContractAddress, 'NetXdQprcVkpaWU', owner);
-    expect(newAccount).toMatchObject({
-      type: TempleAccountType.ManagedKT,
-      name: 'Translated<defaultManagedKTAccountName, "1">',
-      tezosAddress: mockManagedContractAddress,
-      chainId: 'NetXdQprcVkpaWU',
-      owner
-    });
-  });
-
   it('should import a watch-only account', async () => {
     await Vault.spawn(password, defaultMnemonic);
     const vault = await Vault.setup(password);
@@ -797,22 +751,11 @@ describe('Vault tests', () => {
     await vault.importAccount(TempleChainKind.Tezos, hdWallets[0].accounts[1].tezos.privateKey);
     await vault.importAccount(TempleChainKind.EVM, hdWallets[0].accounts[1].evm.privateKey);
     await vault.importWatchOnlyAccount(TempleChainKind.Tezos, hdWallets[0].accounts[2].tezos.address);
-    await vault.importManagedKTAccount(
-      mockManagedContractAddress,
-      'NetXdQprcVkpaWU',
-      hdWallets[0].accounts[0].tezos.address
-    );
     const accountsBeforeDeletion = await vault.fetchAccounts();
     const accountsWithoutImported = await Vault.removeAccountsByType(TempleAccountType.Imported, password);
-    expect(accountsWithoutImported).toEqual([
-      accountsBeforeDeletion[0],
-      accountsBeforeDeletion[3],
-      accountsBeforeDeletion[4]
-    ]);
+    expect(accountsWithoutImported).toEqual([accountsBeforeDeletion[0], accountsBeforeDeletion[3]]);
     const accountsWithoutWatchOnly = await Vault.removeAccountsByType(TempleAccountType.WatchOnly, password);
-    expect(accountsWithoutWatchOnly).toEqual([accountsBeforeDeletion[0], accountsBeforeDeletion[4]]);
-    const accountsWithoutManagedKT = await Vault.removeAccountsByType(TempleAccountType.ManagedKT, password);
-    expect(accountsWithoutManagedKT).toEqual([accountsBeforeDeletion[0]]);
+    expect(accountsWithoutWatchOnly).toEqual([accountsBeforeDeletion[0]]);
   });
 
   it('should fetch all HD groups', async () => {

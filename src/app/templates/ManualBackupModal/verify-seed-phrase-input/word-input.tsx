@@ -15,13 +15,16 @@ interface WordInputProps extends TestIDProps {
 
 export const WordInput = memo<WordInputProps>(({ wordIndex, active, value, testID }) => (
   <FormField
-    className={clsx('text-font-medium rounded-md', active && 'border border-secondary')}
+    className={clsx('!text-font-medium rounded-md', active && 'border border-secondary')}
     fieldWrapperBottomMargin={false}
     smallPaddings
+    extraLeftInnerWrapper="none"
     extraLeftInner={
-      <span className="text-font-medium text-grey-2" {...setTestID(ManualBackupModalSelectors.wordIndex)}>
-        {wordIndex + 1}.
-      </span>
+      <div className="absolute flex items-center inset-y-0 pointer-events-none ml-2">
+        <span className="text-font-medium text-grey-2" {...setTestID(ManualBackupModalSelectors.wordIndex)}>
+          {wordIndex + 1}.
+        </span>
+      </div>
     }
     value={value}
     readOnly

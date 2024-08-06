@@ -2,14 +2,14 @@ import { useCallback, useMemo } from 'react';
 
 import { HistoryAction, navigate, useLocation } from 'lib/woozie';
 
-export const useModalOpenSearchParams = (paramName: string) => {
+export const useSearchParamsBoolean = (paramName: string) => {
   const { search, pathname } = useLocation();
-  const isOpen = useMemo(() => {
+  const value = useMemo(() => {
     const usp = new URLSearchParams(search);
 
     return Boolean(usp.get(paramName));
   }, [paramName, search]);
-  const setModalState = useCallback(
+  const setValue = useCallback(
     (newState: boolean) => {
       const newUsp = new URLSearchParams(search);
       if (newState) {
@@ -22,8 +22,8 @@ export const useModalOpenSearchParams = (paramName: string) => {
     },
     [search, pathname, paramName]
   );
-  const openModal = useCallback(() => setModalState(true), [setModalState]);
-  const closeModal = useCallback(() => setModalState(false), [setModalState]);
+  const setTrue = useCallback(() => setValue(true), [setValue]);
+  const setFalse = useCallback(() => setValue(false), [setValue]);
 
-  return { isOpen, openModal, closeModal };
+  return { value, setTrue, setFalse };
 };

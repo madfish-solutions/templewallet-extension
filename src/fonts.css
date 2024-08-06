@@ -18,6 +18,10 @@
   @apply text-sm;
 }
 
+.\!text-font-medium {
+  @apply text-sm !important;
+}
+
 .text-font-regular {
   @apply text-base;
 }

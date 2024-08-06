@@ -17,7 +17,8 @@ import OldStyleCopyButton from 'app/atoms/OldStyleCopyButton';
 import { ReactComponent as CopyIcon } from 'app/icons/monochrome/copy.svg';
 import { setTestID, TestIDProperty } from 'lib/analytics';
 import { useDidUpdate } from 'lib/ui/hooks';
-import { blurHandler, focusHandler, inputChangeHandler } from 'lib/ui/inputHandlers';
+import { useFocusHandlers } from 'lib/ui/hooks/use-focus-handlers';
+import { inputChangeHandler } from 'lib/ui/inputHandlers';
 import { useBlurElementOnTimeout } from 'lib/ui/use-blur-on-timeout';
 import useCopyToClipboard from 'lib/ui/useCopyToClipboard';
 import { combineRefs } from 'lib/ui/utils';
@@ -42,6 +43,8 @@ export interface FormFieldProps extends TestIDProperty, Omit<FormFieldAttrs, 'ty
   labelWarning?: ReactNode;
   errorCaption?: ReactNode;
   shouldShowErrorCaption?: boolean;
+  warningCaption?: ReactNode;
+  shouldShowWarningCaption?: boolean;
   containerClassName?: string;
   labelContainerClassName?: string;
   containerStyle?: React.CSSProperties;
@@ -87,6 +90,8 @@ export const FormField = forwardRef<FormFieldElement, FormFieldProps>(
       labelWarning,
       errorCaption,
       shouldShowErrorCaption = true,
+      warningCaption,
+      shouldShowWarningCaption = true,
       containerClassName,
       labelContainerClassName,
       textarea,
@@ -133,7 +138,7 @@ export const FormField = forwardRef<FormFieldElement, FormFieldProps>(
     const [localValue, setLocalValue] = useState(value ?? defaultValue ?? '');
     useDidUpdate(() => setLocalValue(value ?? ''), [value]);
 
-    const [focused, setFocused] = useState(false);
+    const { isFocused: focused, onFocus: handleFocus, onBlur: handleBlur } = useFocusHandlers(onFocus, onBlur);
 
     const handleChange = useCallback(
       (e: React.ChangeEvent<FormFieldElement>) => {
@@ -141,12 +146,6 @@ export const FormField = forwardRef<FormFieldElement, FormFieldProps>(
       },
       [onChange, setLocalValue]
     );
-
-    const handleFocus = useCallback(
-      (e: React.FocusEvent) => focusHandler(e, onFocus, setFocused),
-      [onFocus, setFocused]
-    );
-    const handleBlur = useCallback((e: React.FocusEvent) => blurHandler(e, onBlur, setFocused), [onBlur, setFocused]);
 
     const secretCovered = useMemo(
       () => Boolean(secret && localValue !== '' && !focused),
@@ -210,6 +209,7 @@ export const FormField = forwardRef<FormFieldElement, FormFieldProps>(
             innerComponent={extraLeftInner}
             useDefaultWrapper={extraLeftInnerWrapper === 'default'}
             position="left"
+            smallPaddings={smallPaddings}
           />
 
           <Field
@@ -217,7 +217,7 @@ export const FormField = forwardRef<FormFieldElement, FormFieldProps>(
             className={clsx(
               FORM_FIELD_CLASS_NAME,
               smallPaddings ? 'py-2 pl-2' : 'p-3',
-              errorCaption ? 'border-error' : 'border-input-low',
+              errorCaption ? 'border-error' : warningCaption ? 'border-warning' : 'border-input-low',
               className
             )}
             style={fieldStyle}
@@ -238,6 +238,7 @@ export const FormField = forwardRef<FormFieldElement, FormFieldProps>(
             innerComponent={extraRightInner}
             useDefaultWrapper={extraRightInnerWrapper === 'default'}
             position="right"
+            smallPaddings={smallPaddings}
           />
 
           <div
@@ -270,18 +271,20 @@ interface ExtraInnerProps {
   innerComponent: React.ReactNode;
   useDefaultWrapper: boolean;
   position: 'left' | 'right';
+  smallPaddings: boolean;
 }
 
-const ExtraInner: React.FC<ExtraInnerProps> = ({ useDefaultWrapper, innerComponent, position }) => {
+const ExtraInner: React.FC<ExtraInnerProps> = ({ useDefaultWrapper, innerComponent, position, smallPaddings }) => {
   if (useDefaultWrapper)
     return (
       <div
         className={clsx(
           'absolute flex items-center inset-y-0 pointer-events-none',
-          position === 'right' ? 'justify-end right-0 w-32 opacity-50' : 'justify-start left-0 w-10'
+          position === 'left' && (smallPaddings ? 'w-8' : 'w-10'),
+          position === 'right' ? 'justify-end right-0 w-32 opacity-50' : 'justify-start left-0'
         )}
       >
-        <div className="mx-4 text-lg font-light text-gray-900">{innerComponent}</div>
+        <div className={clsx(smallPaddings ? 'mx-2' : 'mx-4', 'text-lg')}>{innerComponent}</div>
       </div>
     );
   return <>{innerComponent}</>;
@@ -326,6 +329,6 @@ const buildHorizontalPaddingStyle = (
 ) => {
   return {
     paddingRight: withExtraInnerRight ? 128 : (smallPaddings ? 8 : 12) + (textarea ? 0 : buttonsCount * 28),
-    paddingLeft: withExtraInnerLeft ? 40 : smallPaddings ? 8 : 12
+    paddingLeft: withExtraInnerLeft ? (smallPaddings ? 32 : 40) : smallPaddings ? 8 : 12
   };
 };

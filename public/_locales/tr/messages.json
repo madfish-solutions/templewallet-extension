@@ -14,12 +14,6 @@
   "importAccount": {
     "message": "Hesabı içe aktar"
   },
-  "faucetFileTitle": {
-    "message": "Faucet (Musluk) Dosyası"
-  },
-  "faucetFile": {
-    "message": "Faucet (Musluk) dosyası"
-  },
   "settings": {
     "message": "Ayarlar"
   },
@@ -237,12 +231,6 @@
     "message": "CoinSwitch Kullan",
     "description": "CoinSwitch = https://coinswitch.co/"
   },
-  "tezosFaucet": {
-    "message": "Tezos Faucet"
-  },
-  "tezosFaucetAlpha": {
-    "message": "Tezos Faucet (Alfa)"
-  },
   "depositToWallet": {
     "message": "Cüzdana yükleme yap"
   },
@@ -386,15 +374,6 @@
   },
   "defaultAccountName": {
     "message": "Hesap $accountNumber$",
-    "placeholders": {
-      "accountNumber": {
-        "content": "$1"
-      }
-    }
-  },
-  "defaultManagedKTAccountName": {
-    "message": "Yönetilen KT $accountNumber$",
-    "description": "KT not translated",
     "placeholders": {
       "accountNumber": {
         "content": "$1"
@@ -588,9 +567,6 @@
   "mnemonic": {
     "message": "Anımsatıcı ifade"
   },
-  "fundraiser": {
-    "message": "Fon toplama"
-  },
   "privateKeyInputDescription": {
     "message": "İçe aktarmak istediğiniz Hesabın Gizli anahtarı."
   },
@@ -647,14 +623,6 @@
   "smthWentWrong": {
     "message": "Bir hata oluştu"
   },
-  "faucetFileInputPrompt": {
-    "message": "Bir dosyayı sürükleyip bırakın ya da aşağıdaki alana tıklayarak manuel olarak seçin. $link$ adresinden indirebilirsiniz.",
-    "placeholders": {
-      "link": {
-        "content": "$1"
-      }
-    }
-  },
   "processing": {
     "message": "İşleniyor..."
   },
@@ -710,12 +678,6 @@
   "networksDescription": {
     "message": "Bu bölümde, özel Tezos ağları ekleyebilir ya da silebilirsiniz.",
     "description": "Tezos = blockchain name (https://tezos.com/)"
-  },
-  "activateAccount": {
-    "message": "Hesabı Etkinleştir"
-  },
-  "activateAccountDescription": {
-    "message": "ICO/Fon Toplama ya da testnet musluk hesapları için gerekli olabilir."
   },
   "removeAccount": {
     "message": "Hesabı Kaldır"
@@ -774,33 +736,6 @@
   },
   "contact": {
     "message": "İletişim"
-  },
-  "accountAlreadyActivated": {
-    "message": "Hesabınız zaten etkinleştirildi."
-  },
-  "accountActivated": {
-    "message": "Hesabınız başarılı şekilde etkinleştirildi!"
-  },
-  "failureSecretMayBeInvalid": {
-    "message": "Başarısız. Bunun nedeni sağladığınız Gizli Anahtarın geçersiz olması olabilir."
-  },
-  "accountToBeActivated": {
-    "message": "Hesap etkinleştirilecek."
-  },
-  "ifYouWantToActivateAnotherAccount": {
-    "message": "Başka bir hesabı etkinleştirmek istiyorsanız lütfen sağ üst açılır menüden seçin."
-  },
-  "activateAccountSecret": {
-    "message": "Gizli Anahtar"
-  },
-  "activateAccountSecretDescription": {
-    "message": "Fon Toplama Hesabı ya da Musluk'ta 'gizli anahtar' alanı"
-  },
-  "activateAccountSecretPlaceholder": {
-    "message": "ör. n4hs7sd3..."
-  },
-  "activate": {
-    "message": "Etkinleştir"
   },
   "minimalFeeDescription": {
     "message": "En az"
@@ -1035,24 +970,6 @@
   },
   "file": {
     "message": "Dosya"
-  },
-  "keystoreFile": {
-    "message": "Anahtar Deposu Dosyası"
-  },
-  "keystoreFileFieldDescription": {
-    "message": "Şifreli bir anahtar deposu dosyasından (.tez) cüzdanınızı içe aktarın."
-  },
-  "filePassword": {
-    "message": "Dosya Parolası"
-  },
-  "filePasswordInputDescription": {
-    "message": "Lütfen anahtar deposu dosyası için bir parola girin"
-  },
-  "fileInputPrompt": {
-    "message": "Bir dosya seçin veya buraya sürükleyin"
-  },
-  "useKeystorePassword": {
-    "message": "Uzantı parolası olarak Dosya Parolasını kullanın"
   },
   "create": {
     "message": "Oluştur"
@@ -1469,9 +1386,6 @@
   "disabledForWatchOnlyAccount": {
     "message": "Salt izlenir hesap için devre dışı bırakıldı"
   },
-  "activationOperationType": {
-    "message": "Aktivasyon"
-  },
   "youAreNotContractManager": {
     "message": "Sözleşme yöneticisi değilsiniz"
   },
@@ -1483,9 +1397,6 @@
   },
   "contractAddressInputPlaceholder": {
     "message": "ör. KT1a9w1S7hN5s..."
-  },
-  "addKnownManagedContract": {
-    "message": "Bilinen Yönetilen sözleşme ekle"
   },
   "clickOnContractToImport": {
     "message": "İçe aktarmak istediğiniz Sözleşmeye tıklayın."
@@ -1538,9 +1449,6 @@
   "analyticsSettingsDescription": {
     "message": "Burada, ürünü iyileştirmemize yardımcı olacak anonim analizler göndermeyi yapılandırabilirsiniz."
   },
-  "managedContract": {
-    "message": "Yönetilen Sözleşme"
-  },
   "referredByTokenContractNotFound": {
     "message": "Token sözleşmesinin başvurduğu sözleşme $address$ bulunamadı.",
     "placeholders": {
@@ -1565,9 +1473,6 @@
         "content": "$1"
       }
     }
-  },
-  "invalidManagedContract": {
-    "message": "Geçersiz yönetilen sözleşme"
   },
   "someMethodNotDefinedInContract": {
     "message": "'$name$' yöntemi sözleşmede tanımlı değil.",
@@ -1735,15 +1640,6 @@
   },
   "invalidJsonInput": {
     "message": "Geçersiz JSON"
-  },
-  "notFaucetJson": {
-    "message": "Musluk JSON'u değil"
-  },
-  "faucetJson": {
-    "message": "Musluk JSON'u"
-  },
-  "faucetJsonDescription": {
-    "message": "Dosya eklemek yerine buraya JSON'u yapıştırabilirsiniz"
   },
   "unknownErrorFromRPC": {
     "message": "İstek $url$ adresine gönderilemedi. İstek geçersiz ya da RPC düğümüne geçici olarak erişilemiyor.",

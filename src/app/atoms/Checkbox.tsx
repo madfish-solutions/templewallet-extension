@@ -4,7 +4,8 @@ import clsx from 'clsx';
 
 import { ReactComponent as OkIcon } from 'app/icons/checkbox-ok.svg';
 import { TestIDProps, setTestID, useAnalytics, AnalyticsEventCategory } from 'lib/analytics';
-import { blurHandler, checkedHandler, focusHandler } from 'lib/ui/inputHandlers';
+import { useFocusHandlers } from 'lib/ui/hooks/use-focus-handlers';
+import { checkedHandler } from 'lib/ui/inputHandlers';
 
 export interface CheckboxProps
   extends TestIDProps,
@@ -91,19 +92,7 @@ export const useCheckboxHooks = ({ checked, onChange, onFocus, onBlur, testID, t
     [onChange, setLocalChecked, trackEvent, testID, testIDProperties]
   );
 
-  /**
-   * Focus handling
-   */
-  const [localFocused, setLocalFocused] = useState(false);
-
-  const handleFocus = useCallback(
-    (e: React.FocusEvent<HTMLInputElement>) => focusHandler(e, onFocus!, setLocalFocused),
-    [onFocus, setLocalFocused]
-  );
-  const handleBlur = useCallback(
-    (e: React.FocusEvent<HTMLInputElement>) => blurHandler(e, onBlur!, setLocalFocused),
-    [onBlur, setLocalFocused]
-  );
+  const { isFocused: localFocused, onFocus: handleFocus, onBlur: handleBlur } = useFocusHandlers(onFocus, onBlur);
 
   return { localChecked, localFocused, handleChange, handleFocus, handleBlur };
 };

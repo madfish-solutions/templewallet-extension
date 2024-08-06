@@ -16,11 +16,9 @@ export const useRichFormatTooltip = <T extends HTMLElement>(
     }),
     [props, wrapperFactory]
   );
+  const root = useMemo(() => createRoot(tippyProps.content), [tippyProps.content]);
 
-  useEffect(() => {
-    const root = createRoot(tippyProps.content);
-    root.render(content);
-  }, [tippyProps.content, content]);
+  useEffect(() => root.render(content), [root, content]);
 
   return useTippy<T>(tippyProps);
 };
