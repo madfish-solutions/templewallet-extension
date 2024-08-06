@@ -3,16 +3,21 @@ import React, { memo, useCallback, useState } from 'react';
 import { IconBase } from 'app/atoms';
 import { Lines } from 'app/atoms/Lines';
 import { Logo } from 'app/atoms/Logo';
+import { PageModal } from 'app/atoms/PageModal';
 import { SocialButton } from 'app/atoms/SocialButton';
 import { StyledButton } from 'app/atoms/StyledButton';
-import { StyledButtonLikeLink } from 'app/atoms/StyledButtonLikeLink';
+import { SuspenseContainer } from 'app/atoms/SuspenseContainer';
 import { useABTestingLoading } from 'app/hooks/use-ab-testing-loading';
+import { useSearchParamsBoolean } from 'app/hooks/use-modal-open-search-params';
 import { ReactComponent as GoogleDriveIcon } from 'app/icons/base/google_drive.svg';
 import { ReactComponent as ImportedIcon } from 'app/icons/base/imported.svg';
 import { ReactComponent as PlusIcon } from 'app/icons/base/plus.svg';
 import PageLayout from 'app/layouts/PageLayout';
-import { CreatePasswordModal } from 'app/templates/CreatePasswordModal';
-import { T } from 'lib/i18n';
+import { CreatePasswordForm } from 'app/templates/CreatePasswordForm';
+import { ImportSeedForm } from 'app/templates/ImportSeedForm';
+import { t, T } from 'lib/i18n';
+import { useBooleanState } from 'lib/ui/hooks';
+import { goBack, useLocation } from 'lib/woozie';
 
 import { WelcomeSelectors } from './Welcome.selectors';
 
@@ -20,14 +25,54 @@ const EmptyHeader = () => null;
 
 const Welcome = memo(() => {
   useABTestingLoading();
+  const { historyPosition } = useLocation();
 
-  const [shouldShowPasswordModal, setShouldShowPasswordModal] = useState(false);
-  const handleCreateNewWalletClick = useCallback(() => setShouldShowPasswordModal(true), []);
-  const handleRequestClose = useCallback(() => setShouldShowPasswordModal(false), []);
+  const { value: isImport, setTrue: switchToImport, setFalse: cancelImport } = useSearchParamsBoolean('import');
+
+  const [seedPhrase, setSeedPhrase] = useState<string | undefined>();
+
+  const [shouldShowPasswordForm, showPasswordForm, hidePasswordForm] = useBooleanState(false);
+
+  const handleSeedPhraseSubmit = useCallback(
+    (seed: string) => {
+      setSeedPhrase(seed);
+      showPasswordForm();
+    },
+    [showPasswordForm]
+  );
+
+  const closeModal = useCallback(() => {
+    if (historyPosition === 0) {
+      setSeedPhrase(undefined);
+      hidePasswordForm();
+      cancelImport();
+    } else {
+      goBack();
+    }
+  }, [cancelImport, hidePasswordForm, historyPosition]);
+
+  const handleGoBack = useCallback(
+    () => void (shouldShowPasswordForm && hidePasswordForm()),
+    [hidePasswordForm, shouldShowPasswordForm]
+  );
 
   return (
     <PageLayout Header={EmptyHeader} contentPadding={false}>
-      <CreatePasswordModal opened={shouldShowPasswordModal} onRequestClose={handleRequestClose} />
+      <PageModal
+        title={t(shouldShowPasswordForm ? 'createPassword' : 'importExistingWallet')}
+        opened={shouldShowPasswordForm || isImport}
+        shouldShowBackButton={shouldShowPasswordForm && isImport}
+        onRequestClose={closeModal}
+        onGoBack={handleGoBack}
+      >
+        <SuspenseContainer>
+          {isImport && !shouldShowPasswordForm ? (
+            <ImportSeedForm next={handleSeedPhraseSubmit} onCancel={closeModal} />
+          ) : (
+            <CreatePasswordForm seedPhrase={seedPhrase} />
+          )}
+        </SuspenseContainer>
+      </PageModal>
 
       <div className="flex-1 flex flex-col px-4 pb-8 h-full">
         <div className="flex-1 flex flex-col justify-center items-center">
@@ -55,25 +100,25 @@ const Welcome = memo(() => {
             size="L"
             color="primary"
             testID={WelcomeSelectors.createNewWallet}
-            onClick={handleCreateNewWalletClick}
+            onClick={showPasswordForm}
           >
             <IconBase Icon={PlusIcon} size={16} />
             <span>
               <T id="createNewWallet" />
             </span>
           </StyledButton>
-          <StyledButtonLikeLink
+          <StyledButton
             className="w-full flex justify-center gap-0.5"
             size="L"
             color="secondary"
             testID={WelcomeSelectors.importExistingWallet}
-            to="/import-wallet"
+            onClick={switchToImport}
           >
             <IconBase Icon={ImportedIcon} size={16} />
             <span>
               <T id="importExistingWallet" />
             </span>
-          </StyledButtonLikeLink>
+          </StyledButton>
         </div>
       </div>
     </PageLayout>

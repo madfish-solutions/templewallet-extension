@@ -6,7 +6,7 @@ export enum ImportAccountSelectors {
 
   mnemonicWordInput = 'Import Account(Mnemonic)/Mnemonic Word Input',
   mnemonicDropDownButton = 'Import (Account/Wallet)/Mnemonic Drop Down Button',
-  mnemonicWordsRadioButton = 'Import (Account/Wallet)/Mnemonic Words Radio Button',
+  mnemonicWordsOption = 'Import (Account/Wallet)/Mnemonic Words Option',
   defaultAccountButton = 'Import Account(Mnemonic)/Default Account (the first one) Button',
   customDerivationPathButton = 'Import Account(Mnemonic)/Custom Derivation Path Button',
   customDerivationPathInput = 'Import Account(Mnemonic)/Custom Derivation Path Input',
@@ -23,7 +23,10 @@ export enum ImportAccountSelectors {
   fundraiserImportButton = 'Import Account(Fundraiser)/Import Button',
 
   managedContractInput = 'Import Account(ManagedKT)/Managed Contract Input',
-  managedKTImportButton = 'Import Account(ManagedKT)/Import Account Button'
+  managedKTImportButton = 'Import Account(ManagedKT)/Import Account Button',
+
+  ClearSeedPhraseButton = 'Import Account/Clear Seed Phrase Button',
+  PasteSeedPhraseButton = 'Import Account/Paste Seed Phrase Button'
 }
 
 export enum ImportAccountFormType {

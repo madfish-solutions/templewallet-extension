@@ -3,6 +3,7 @@ import React, { ComponentProps, forwardRef, ReactNode, useCallback, useEffect, u
 import BigNumber from 'bignumber.js';
 
 import { FormField } from 'app/atoms';
+import { useFocusHandlers } from 'lib/ui/hooks/use-focus-handlers';
 
 interface AssetFieldProps extends Omit<ComponentProps<typeof FormField>, 'onChange'> {
   value?: number | string;
@@ -31,13 +32,14 @@ const AssetField = forwardRef<HTMLInputElement, AssetFieldProps>(
     const valueStr = useMemo(() => (value === undefined ? '' : new BigNumber(value).toFixed()), [value]);
 
     const [localValue, setLocalValue] = useState(valueStr);
-    const [focused, setFocused] = useState(false);
+
+    const { isFocused, onFocus: handleFocus, onBlur: handleBlur } = useFocusHandlers(onFocus, onBlur);
 
     useEffect(() => {
-      if (!focused) {
+      if (!isFocused) {
         setLocalValue(valueStr);
       }
-    }, [setLocalValue, focused, valueStr]);
+    }, [setLocalValue, isFocused, valueStr]);
 
     const handleChange = useCallback(
       (evt: React.ChangeEvent<HTMLInputElement> & React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -57,32 +59,6 @@ const AssetField = forwardRef<HTMLInputElement, AssetFieldProps>(
         }
       },
       [assetDecimals, setLocalValue, min, max, onChange]
-    );
-
-    const handleFocus = useCallback(
-      (evt: React.FocusEvent<HTMLInputElement> & React.FocusEvent<HTMLTextAreaElement>) => {
-        setFocused(true);
-        if (onFocus) {
-          onFocus(evt);
-          if (evt.defaultPrevented) {
-            return;
-          }
-        }
-      },
-      [setFocused, onFocus]
-    );
-
-    const handleBlur = useCallback(
-      (evt: React.FocusEvent<HTMLInputElement> & React.FocusEvent<HTMLTextAreaElement>) => {
-        setFocused(false);
-        if (onBlur) {
-          onBlur(evt);
-          if (evt.defaultPrevented) {
-            return;
-          }
-        }
-      },
-      [setFocused, onBlur]
     );
 
     return (

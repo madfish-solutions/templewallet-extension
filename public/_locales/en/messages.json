@@ -694,8 +694,8 @@
   "seedPhraseAttention": {
     "message": "We don't track your derivation path on imported accounts"
   },
-  "seedPhraseTip": {
-    "message": "You can paste your entire secret Seed phrase into any field"
+  "seedPhraseLength": {
+    "message": "Seed phrase length"
   },
   "oops": {
     "message": "Oops!"
@@ -938,6 +938,12 @@
   },
   "importYourWallet": {
     "message": "Import Your Wallet"
+  },
+  "importSeedPhrase": {
+    "message": "Import Seed Phrase"
+  },
+  "mySeedPhraseIs": {
+    "message": "My seed phrase is"
   },
   "createYourWallet": {
     "message": "Create Your Wallet"
@@ -1347,6 +1353,60 @@
   },
   "cycles_other": {
     "message": "$amount$ cycles",
+    "description": "For plural forms",
+    "placeholders": {
+      "amount": {
+        "content": "$1"
+      }
+    }
+  },
+  "words_one": {
+    "message": "$amount$ word",
+    "description": "For plural forms",
+    "placeholders": {
+      "amount": {
+        "content": "$1"
+      }
+    }
+  },
+  "words_zero": {
+    "message": "$amount$ words",
+    "description": "For plural forms",
+    "placeholders": {
+      "amount": {
+        "content": "$1"
+      }
+    }
+  },
+  "words_two": {
+    "message": "$amount$ words",
+    "description": "For plural forms",
+    "placeholders": {
+      "amount": {
+        "content": "$1"
+      }
+    }
+  },
+  "words_few": {
+    "message": "$amount$ words",
+    "description": "For plural forms",
+    "placeholders": {
+      "amount": {
+        "content": "$1"
+      }
+    }
+  },
+  "words_many": {
+    "message": "$amount$ words",
+    "description": "For plural forms",
+    "placeholders": {
+      "amount": {
+        "content": "$1"
+      }
+    }
+  },
+  "words_other": {
+    "message": "$amount$ words",
     "description": "For plural forms",
     "placeholders": {
       "amount": {
@@ -2160,6 +2220,9 @@
   },
   "clear": {
     "message": "Clear"
+  },
+  "paste": {
+    "message": "Paste"
   },
   "errorChangingAccountName": {
     "message": "An error occurred while changing account name"
@@ -3392,6 +3455,9 @@
   },
   "backupSuccessful": {
     "message": "You successfully backed up your wallet"
+  },
+  "importSuccessful": {
+    "message": "You successfully imported your wallet"
   },
   "walletCreatedSuccessfully": {
     "message": "Wallet has been created successfully"

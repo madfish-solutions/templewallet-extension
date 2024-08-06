@@ -466,7 +466,7 @@
     "message": "Щонайменше 1 велика літера"
   },
   "mnemonicWordsAmountConstraint": {
-    "message": "12, 15, 18, 21 or 24 слів англійською"
+    "message": "12, 15, 18, 21 або 24 слів англійською"
   },
   "mnemonicSpacingConstraint": {
     "message": "Кожне слово відокремлюється одним пробілом"
@@ -1853,6 +1853,60 @@
   },
   "slots_many": {
     "message": "$amount$ слотів",
+    "description": "For plural forms",
+    "placeholders": {
+      "amount": {
+        "content": "$1"
+      }
+    }
+  },
+  "words_one": {
+    "message": "$amount$ слово",
+    "description": "For plural forms",
+    "placeholders": {
+      "amount": {
+        "content": "$1"
+      }
+    }
+  },
+  "words_zero": {
+    "message": "$amount$ слів",
+    "description": "For plural forms",
+    "placeholders": {
+      "amount": {
+        "content": "$1"
+      }
+    }
+  },
+  "words_two": {
+    "message": "$amount$ слова",
+    "description": "For plural forms",
+    "placeholders": {
+      "amount": {
+        "content": "$1"
+      }
+    }
+  },
+  "words_few": {
+    "message": "$amount$ слова",
+    "description": "For plural forms",
+    "placeholders": {
+      "amount": {
+        "content": "$1"
+      }
+    }
+  },
+  "words_many": {
+    "message": "$amount$ слів",
+    "description": "For plural forms",
+    "placeholders": {
+      "amount": {
+        "content": "$1"
+      }
+    }
+  },
+  "words_other": {
+    "message": "$amount$ слів",
     "description": "For plural forms",
     "placeholders": {
       "amount": {
