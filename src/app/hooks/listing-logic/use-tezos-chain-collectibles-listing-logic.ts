@@ -1,12 +1,10 @@
 import { useCallback, useMemo, useState } from 'react';
 
-import { isEqual } from 'lodash';
 import { useDebounce } from 'use-debounce';
 
 import { useAreAssetsLoading } from 'app/store/tezos/assets/selectors';
 import { useCollectiblesMetadataLoadingSelector } from 'app/store/tezos/collectibles-metadata/selectors';
-import { useEnabledTezosChainAccountCollectiblesSlugs } from 'lib/assets/hooks';
-import { useAllTezosChainAccountCollectiblesSlugs } from 'lib/assets/hooks/collectibles';
+import { useTezosChainAccountCollectibles } from 'lib/assets/hooks/collectibles';
 import { searchTezosChainAssetsWithNoMeta } from 'lib/assets/search.utils';
 import { useTezosChainCollectiblesSortPredicate } from 'lib/assets/use-sorting';
 import { useTezosChainCollectiblesMetadataPresenceCheck, useGetCollectibleMetadata } from 'lib/metadata';
@@ -27,8 +25,14 @@ export const useTezosChainCollectiblesListingLogic = (
 
   const sortPredicate = useTezosChainCollectiblesSortPredicate(publicKeyHash, chainId);
 
-  const enabledSlugs = useEnabledTezosChainAccountCollectiblesSlugs(publicKeyHash, chainId);
-  const allSlugs = useAllTezosChainAccountCollectiblesSlugs(publicKeyHash, chainId);
+  const allChainAccountCollectibles = useTezosChainAccountCollectibles(publicKeyHash, chainId);
+
+  const allSlugs = useMemo(() => allChainAccountCollectibles.map(({ slug }) => slug), [allChainAccountCollectibles]);
+
+  const enabledSlugs = useMemo(
+    () => allChainAccountCollectibles.filter(({ status }) => status === 'enabled').map(({ slug }) => slug),
+    [allChainAccountCollectibles]
+  );
 
   const assetsAreLoading = useAreAssetsLoading('collectibles');
   const metadatasLoading = useCollectiblesMetadataLoadingSelector();
@@ -56,8 +60,7 @@ export const useTezosChainCollectiblesListingLogic = (
 
   const searchedManageableSlugs = useMemoWithCompare(
     () => (isInSearchMode ? search(manageableSlugs) : manageableSlugs),
-    [isInSearchMode, search, manageableSlugs],
-    isEqual
+    [isInSearchMode, search, manageableSlugs]
   );
 
   const {

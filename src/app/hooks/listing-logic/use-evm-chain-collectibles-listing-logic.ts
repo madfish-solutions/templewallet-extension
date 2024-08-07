@@ -5,7 +5,7 @@ import { useDebounce } from 'use-debounce';
 
 import { useEvmCollectiblesMetadataRecordSelector } from 'app/store/evm/collectibles-metadata/selectors';
 import { useEvmChainBalancesLoadingSelector, useEvmCollectiblesMetadataLoadingSelector } from 'app/store/evm/selectors';
-import { useAllEvmChainAccountCollectiblesSlugs, useEnabledEvmChainAccountCollectiblesSlugs } from 'lib/assets/hooks';
+import { useEvmChainAccountCollectibles } from 'lib/assets/hooks/collectibles';
 import { searchEvmChainCollectiblesWithNoMeta } from 'lib/assets/search.utils';
 import { useEvmChainCollectiblesSortPredicate } from 'lib/assets/use-sorting';
 import { useMemoWithCompare } from 'lib/ui/hooks';
@@ -22,8 +22,14 @@ export const useEvmChainCollectiblesListingLogic = (
 ) => {
   const sortPredicate = useEvmChainCollectiblesSortPredicate(publicKeyHash, chainId);
 
-  const enabledSlugs = useEnabledEvmChainAccountCollectiblesSlugs(publicKeyHash, chainId);
-  const allSlugs = useAllEvmChainAccountCollectiblesSlugs(publicKeyHash, chainId);
+  const allChainAccountCollectibles = useEvmChainAccountCollectibles(publicKeyHash, chainId);
+
+  const allSlugs = useMemo(() => allChainAccountCollectibles.map(({ slug }) => slug), [allChainAccountCollectibles]);
+
+  const enabledSlugs = useMemo(
+    () => allChainAccountCollectibles.filter(({ status }) => status === 'enabled').map(({ slug }) => slug),
+    [allChainAccountCollectibles]
+  );
 
   const metadata = useEvmCollectiblesMetadataRecordSelector();
 

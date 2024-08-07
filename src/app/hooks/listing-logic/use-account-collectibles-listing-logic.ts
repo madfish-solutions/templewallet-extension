@@ -7,15 +7,14 @@ import { useEvmCollectiblesMetadataRecordSelector } from 'app/store/evm/collecti
 import { useEvmCollectiblesMetadataLoadingSelector } from 'app/store/evm/selectors';
 import { useAreAssetsLoading } from 'app/store/tezos/assets/selectors';
 import { useCollectiblesMetadataLoadingSelector } from 'app/store/tezos/collectibles-metadata/selectors';
-import {
-  useAllAccountChainCollectiblesSlugs,
-  useEnabledAccountChainCollectiblesSlugs
-} from 'lib/assets/hooks/collectibles';
+import { useEvmAccountCollectibles, useTezosAccountCollectibles } from 'lib/assets/hooks/collectibles';
 import { searchAssetsWithNoMeta } from 'lib/assets/search.utils';
 import { useAccountCollectiblesSortPredicate } from 'lib/assets/use-sorting';
+import { toChainAssetSlug } from 'lib/assets/utils';
 import { useGetCollectibleMetadata } from 'lib/metadata';
 import { useMemoWithCompare } from 'lib/ui/hooks';
 import { isSearchStringApplicable } from 'lib/utils/search-items';
+import { TempleChainKind } from 'temple/types';
 
 import { useSimpleAssetsPaginationLogic } from '../use-simple-assets-pagination-logic';
 
@@ -30,8 +29,28 @@ export const useAccountCollectiblesListingLogic = (
 ) => {
   const sortPredicate = useAccountCollectiblesSortPredicate(accountTezAddress, accountEvmAddress);
 
-  const enabledChainSlugs = useEnabledAccountChainCollectiblesSlugs(accountTezAddress, accountEvmAddress);
-  const allChainSlugs = useAllAccountChainCollectiblesSlugs(accountTezAddress, accountEvmAddress);
+  const tezCollectibles = useTezosAccountCollectibles(accountTezAddress);
+  const evmCollectibles = useEvmAccountCollectibles(accountEvmAddress);
+
+  const allChainSlugs = useMemo(
+    () => [
+      ...tezCollectibles.map(({ chainId, slug }) => toChainAssetSlug(TempleChainKind.Tezos, chainId, slug)),
+      ...evmCollectibles.map(({ chainId, slug }) => toChainAssetSlug(TempleChainKind.EVM, chainId, slug))
+    ],
+    [tezCollectibles, evmCollectibles]
+  );
+
+  const enabledChainSlugs = useMemo(
+    () => [
+      ...tezCollectibles
+        .filter(({ status }) => status === 'enabled')
+        .map(({ chainId, slug }) => toChainAssetSlug(TempleChainKind.Tezos, chainId, slug)),
+      ...evmCollectibles
+        .filter(({ status }) => status === 'enabled')
+        .map(({ chainId, slug }) => toChainAssetSlug(TempleChainKind.EVM, chainId, slug))
+    ],
+    [tezCollectibles, evmCollectibles]
+  );
 
   const evmMetadata = useEvmCollectiblesMetadataRecordSelector();
 
