@@ -1,6 +1,5 @@
 export {
   useEnabledTezosChainAccountTokenSlugs,
-  useEnabledTezosAccountTokenSlugs,
   useEnabledEvmAccountTokenSlugs,
   useEnabledEvmChainAccountTokenSlugs,
   useAllEvmChainAccountTokenSlugs,

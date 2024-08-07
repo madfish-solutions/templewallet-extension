@@ -1,3 +1,5 @@
+import { useMemo } from 'react';
+
 import {
   useRawEvmAccountCollectiblesSelector,
   useRawEvmChainAccountCollectiblesSelector
@@ -59,7 +61,7 @@ export const useTezosChainAccountCollectibles = (account: string, chainId: strin
 
   const balances = useAllAccountBalancesSelector(account, chainId);
 
-  return useMemoWithCompare<AccountCollectible[]>(() => {
+  return useMemo<AccountCollectible[]>(() => {
     const result: AccountCollectible[] = [];
 
     for (const [slug, { status }] of Object.entries(stored)) {

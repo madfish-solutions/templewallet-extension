@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 
 import { ChainIds } from '@taquito/taquito';
-import { isEqual, sortBy, uniqBy } from 'lodash';
+import { sortBy, uniqBy } from 'lodash';
 
 import { useRawEvmAccountTokensSelector, useRawEvmChainAccountTokensSelector } from 'app/store/evm/assets/selectors';
 import {
@@ -45,10 +45,10 @@ export const useAllAccountChainTokensSlugs = (accountTezAddress: string, account
   return useMemo(() => [...tezTokens, ...evmTokens], [tezTokens, evmTokens]);
 };
 
-export const useEnabledTezosAccountTokenSlugs = (publicKeyHash: string) => {
+const useEnabledTezosAccountTokenSlugs = (publicKeyHash: string) => {
   const tokens = useTezosAccountTokens(publicKeyHash);
 
-  return useMemo(
+  return useMemoWithCompare(
     () =>
       tokens
         .filter(({ status }) => status === 'enabled')
@@ -57,10 +57,10 @@ export const useEnabledTezosAccountTokenSlugs = (publicKeyHash: string) => {
   );
 };
 
-export const useAllTezosAccountTokenSlugs = (publicKeyHash: string) => {
+const useAllTezosAccountTokenSlugs = (publicKeyHash: string) => {
   const tokens = useTezosAccountTokens(publicKeyHash);
 
-  return useMemo(
+  return useMemoWithCompare(
     () =>
       tokens
         .filter(({ status }) => status !== 'removed')
@@ -72,16 +72,13 @@ export const useAllTezosAccountTokenSlugs = (publicKeyHash: string) => {
 export const useEnabledTezosChainAccountTokenSlugs = (publicKeyHash: string, chainId: string) => {
   const tokens = useTezosChainAccountTokens(publicKeyHash, chainId);
 
-  return useMemo(() => tokens.filter(({ status }) => status === 'enabled').map(({ slug }) => slug), [tokens]);
+  return useMemoWithCompare(
+    () => tokens.filter(({ status }) => status === 'enabled').map(({ slug }) => slug),
+    [tokens]
+  );
 };
 
-export const useAllTezosChainAccountTokenSlugs = (publicKeyHash: string, chainId: string) => {
-  const tokens = useTezosChainAccountTokens(publicKeyHash, chainId);
-
-  return useMemo(() => tokens.filter(({ status }) => status !== 'removed').map(({ slug }) => slug), [tokens]);
-};
-
-const useTezosAccountTokens = (account: string) => {
+export const useTezosAccountTokens = (account: string) => {
   const storedRecord = useAllTokensSelector();
   const enabledChains = useEnabledTezosChains();
 
@@ -89,68 +86,64 @@ const useTezosAccountTokens = (account: string) => {
 
   const balancesRecord = useBalancesAtomicRecordSelector();
 
-  return useMemoWithCompare<AccountToken[]>(
-    () => {
-      let predefined: AccountToken[] = [];
-      let stored: AccountToken[] = [];
-      let whitelisted: AccountToken[] = [];
+  return useMemo<AccountToken[]>(() => {
+    let predefined: AccountToken[] = [];
+    let stored: AccountToken[] = [];
+    let whitelisted: AccountToken[] = [];
 
-      for (const chain of enabledChains) {
-        const chainId = chain.chainId;
+    for (const chain of enabledChains) {
+      const chainId = chain.chainId;
 
-        const assetsKey = getAccountAssetsStoreKey(account, chainId);
-        const balancesKey = getKeyForBalancesRecord(account, chainId);
+      const assetsKey = getAccountAssetsStoreKey(account, chainId);
+      const balancesKey = getKeyForBalancesRecord(account, chainId);
 
-        const storedRaw = storedRecord[assetsKey] ?? EMPTY_FROZEN_OBJ;
-        const balances = balancesRecord[balancesKey]?.data ?? EMPTY_FROZEN_OBJ;
+      const storedRaw = storedRecord[assetsKey] ?? EMPTY_FROZEN_OBJ;
+      const balances = balancesRecord[balancesKey]?.data ?? EMPTY_FROZEN_OBJ;
 
-        // 1. Stored
-        stored = stored.concat(
-          Object.entries(storedRaw).map<AccountToken>(([slug, { status }]) => ({
-            slug,
-            status: getAssetStatus(balances[slug], status),
-            chainId
-          }))
-        );
-
-        // 2. Predefined
-        const predefinedMetadata = PREDEFINED_TOKENS_METADATA[chain.chainId];
-
-        predefined = predefined.concat(
-          predefinedMetadata
-            ? predefinedMetadata.map<AccountToken>(metadata => {
-                const slug = tokenToSlug(metadata);
-                const storedStatus = storedRaw[slug]?.status;
-                const status = isAssetStatusIdle(storedStatus) ? 'enabled' : storedStatus;
-
-                return { slug, status, predefined: true, chainId };
-              })
-            : []
-        );
-
-        // 3. Whitelisted
-        whitelisted = whitelisted.concat(
-          chain.chainId === ChainIds.MAINNET
-            ? mainnetWhitelist.map<AccountToken>(slug => ({
-                slug,
-                status: getAssetStatus(balances[slug]),
-                chainId
-              }))
-            : []
-        );
-      }
-
-      // Keep this order to preserve correct statuses & flags
-      const concatenated: AccountToken[] = predefined.concat(stored).concat(whitelisted);
-
-      return sortBy(
-        uniqBy(concatenated, ({ chainId, slug }) => toChainAssetSlug(TempleChainKind.Tezos, chainId, slug)),
-        TOKENS_SORT_ITERATEES
+      // 1. Stored
+      stored = stored.concat(
+        Object.entries(storedRaw).map<AccountToken>(([slug, { status }]) => ({
+          slug,
+          status: getAssetStatus(balances[slug], status),
+          chainId
+        }))
       );
-    },
-    [enabledChains, account, storedRecord, balancesRecord, mainnetWhitelist],
-    isEqual
-  );
+
+      // 2. Predefined
+      const predefinedMetadata = PREDEFINED_TOKENS_METADATA[chain.chainId];
+
+      predefined = predefined.concat(
+        predefinedMetadata
+          ? predefinedMetadata.map<AccountToken>(metadata => {
+              const slug = tokenToSlug(metadata);
+              const storedStatus = storedRaw[slug]?.status;
+              const status = isAssetStatusIdle(storedStatus) ? 'enabled' : storedStatus;
+
+              return { slug, status, predefined: true, chainId };
+            })
+          : []
+      );
+
+      // 3. Whitelisted
+      whitelisted = whitelisted.concat(
+        chain.chainId === ChainIds.MAINNET
+          ? mainnetWhitelist.map<AccountToken>(slug => ({
+              slug,
+              status: getAssetStatus(balances[slug]),
+              chainId
+            }))
+          : []
+      );
+    }
+
+    // Keep this order to preserve correct statuses & flags
+    const concatenated: AccountToken[] = predefined.concat(stored).concat(whitelisted);
+
+    return sortBy(
+      uniqBy(concatenated, ({ chainId, slug }) => toChainAssetSlug(TempleChainKind.Tezos, chainId, slug)),
+      TOKENS_SORT_ITERATEES
+    );
+  }, [enabledChains, account, storedRecord, balancesRecord, mainnetWhitelist]);
 };
 
 /**
@@ -159,52 +152,48 @@ const useTezosAccountTokens = (account: string) => {
  */
 const TOKENS_SORT_ITERATEES: (keyof AccountToken)[] = ['predefined', 'slug'];
 
-const useTezosChainAccountTokens = (account: string, chainId: string) => {
+export const useTezosChainAccountTokens = (account: string, chainId: string) => {
   const storedRaw = useChainAccountTokensSelector(account, chainId);
   const whitelistSlugs = useWhitelistSlugs(chainId);
 
   const balances = useAllAccountBalancesSelector(account, chainId);
 
-  return useMemoWithCompare<AccountToken[]>(
-    () => {
-      // 1. Stored
-      const stored = Object.entries(storedRaw).map<AccountToken>(([slug, { status }]) => ({
-        slug,
-        status: getAssetStatus(balances[slug], status),
-        chainId
-      }));
+  return useMemo<AccountToken[]>(() => {
+    // 1. Stored
+    const stored = Object.entries(storedRaw).map<AccountToken>(([slug, { status }]) => ({
+      slug,
+      status: getAssetStatus(balances[slug], status),
+      chainId
+    }));
 
-      // 2. Predefined
-      const predefinedMetadata = PREDEFINED_TOKENS_METADATA[chainId];
+    // 2. Predefined
+    const predefinedMetadata = PREDEFINED_TOKENS_METADATA[chainId];
 
-      const predefined = predefinedMetadata
-        ? predefinedMetadata.map<AccountToken>(metadata => {
-            const slug = tokenToSlug(metadata);
-            const storedStatus = storedRaw[slug]?.status;
-            const status = isAssetStatusIdle(storedStatus) ? 'enabled' : storedStatus;
+    const predefined = predefinedMetadata
+      ? predefinedMetadata.map<AccountToken>(metadata => {
+          const slug = tokenToSlug(metadata);
+          const storedStatus = storedRaw[slug]?.status;
+          const status = isAssetStatusIdle(storedStatus) ? 'enabled' : storedStatus;
 
-            return { slug, status, predefined: true, chainId };
-          })
-        : [];
+          return { slug, status, predefined: true, chainId };
+        })
+      : [];
 
-      // 3. Whitelisted
-      const whitelisted = whitelistSlugs.map<AccountToken>(slug => ({
-        slug,
-        status: getAssetStatus(balances[slug]),
-        chainId
-      }));
+    // 3. Whitelisted
+    const whitelisted = whitelistSlugs.map<AccountToken>(slug => ({
+      slug,
+      status: getAssetStatus(balances[slug]),
+      chainId
+    }));
 
-      // Keep this order to preserve correct statuses & flags
-      const concatenated: AccountToken[] = predefined.concat(stored).concat(whitelisted);
+    // Keep this order to preserve correct statuses & flags
+    const concatenated: AccountToken[] = predefined.concat(stored).concat(whitelisted);
 
-      return sortBy(
-        uniqBy(concatenated, t => t.slug),
-        TOKENS_SORT_ITERATEES
-      );
-    },
-    [chainId, storedRaw, whitelistSlugs, balances],
-    isEqual
-  );
+    return sortBy(
+      uniqBy(concatenated, t => t.slug),
+      TOKENS_SORT_ITERATEES
+    );
+  }, [chainId, storedRaw, whitelistSlugs, balances]);
 };
 
 const useEvmAccountTokens = (account: HexString) => {
@@ -213,31 +202,27 @@ const useEvmAccountTokens = (account: HexString) => {
   const tokensRecord = useRawEvmAccountTokensSelector(account);
   const balancesRecord = useRawEvmAccountBalancesSelector(account);
 
-  return useMemoWithCompare<AccountToken[]>(
-    () => {
-      let accountTokens: AccountToken[] = [];
+  return useMemo<AccountToken[]>(() => {
+    let accountTokens: AccountToken[] = [];
 
-      for (const chain of enabledChains) {
-        const chainId = chain.chainId;
+    for (const chain of enabledChains) {
+      const chainId = chain.chainId;
 
-        const chainTokensRecord = tokensRecord[chainId];
+      const chainTokensRecord = tokensRecord[chainId];
 
-        if (!chainTokensRecord) continue;
+      if (!chainTokensRecord) continue;
 
-        accountTokens = accountTokens.concat(
-          Object.entries(chainTokensRecord).map<AccountToken>(([slug, { status }]) => ({
-            slug,
-            status: getAssetStatus(balancesRecord[chainId]?.[slug], status),
-            chainId
-          }))
-        );
-      }
+      accountTokens = accountTokens.concat(
+        Object.entries(chainTokensRecord).map<AccountToken>(([slug, { status }]) => ({
+          slug,
+          status: getAssetStatus(balancesRecord[chainId]?.[slug], status),
+          chainId
+        }))
+      );
+    }
 
-      return accountTokens;
-    },
-    [enabledChains, tokensRecord, balancesRecord],
-    isEqual
-  );
+    return accountTokens;
+  }, [enabledChains, tokensRecord, balancesRecord]);
 };
 
 const useEvmChainAccountTokens = (account: HexString, chainId: number) => {
@@ -251,15 +236,14 @@ const useEvmChainAccountTokens = (account: HexString, chainId: number) => {
         status: getAssetStatus(balances[slug], status),
         chainId
       })),
-    [storedRaw, balances, chainId],
-    isEqual
+    [storedRaw, balances, chainId]
   );
 };
 
 export const useEnabledEvmAccountTokenSlugs = (publicKeyHash: HexString) => {
   const tokens = useEvmAccountTokens(publicKeyHash);
 
-  return useMemo(
+  return useMemoWithCompare(
     () =>
       tokens
         .filter(({ status }) => status === 'enabled')
@@ -271,7 +255,7 @@ export const useEnabledEvmAccountTokenSlugs = (publicKeyHash: HexString) => {
 export const useAllEvmAccountTokenSlugs = (publicKeyHash: HexString) => {
   const tokens = useEvmAccountTokens(publicKeyHash);
 
-  return useMemo(
+  return useMemoWithCompare(
     () =>
       tokens
         .filter(({ status }) => status !== 'removed')

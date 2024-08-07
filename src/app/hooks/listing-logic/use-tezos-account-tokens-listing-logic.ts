@@ -9,8 +9,7 @@ import { useBalancesAtomicRecordSelector } from 'app/store/tezos/balances/select
 import { getKeyForBalancesRecord } from 'app/store/tezos/balances/utils';
 import { useTokensMetadataLoadingSelector } from 'app/store/tezos/tokens-metadata/selectors';
 import { TEZ_TOKEN_SLUG } from 'lib/assets';
-import { useEnabledTezosAccountTokenSlugs } from 'lib/assets/hooks';
-import { useAllTezosAccountTokenSlugs } from 'lib/assets/hooks/tokens';
+import { useTezosAccountTokens } from 'lib/assets/hooks/tokens';
 import { searchTezosAssetsWithNoMeta } from 'lib/assets/search.utils';
 import { useTezosAccountTokensSortPredicate } from 'lib/assets/use-sorting';
 import { fromChainAssetSlug, toChainAssetSlug } from 'lib/assets/utils';
@@ -34,8 +33,23 @@ export const useTezosAccountTokensListingLogic = (
 ) => {
   const tokensSortPredicate = useTezosAccountTokensSortPredicate(publicKeyHash);
 
-  const enabledStoredChainSlugs = useEnabledTezosAccountTokenSlugs(publicKeyHash);
-  const allStoredChainSlugs = useAllTezosAccountTokenSlugs(publicKeyHash);
+  const tokens = useTezosAccountTokens(publicKeyHash);
+
+  const allStoredChainSlugs = useMemoWithCompare(
+    () =>
+      tokens
+        .filter(({ status }) => status !== 'removed')
+        .map(({ chainId, slug }) => toChainAssetSlug(TempleChainKind.Tezos, chainId, slug)),
+    [tokens]
+  );
+
+  const enabledStoredChainSlugs = useMemoWithCompare(
+    () =>
+      tokens
+        .filter(({ status }) => status === 'enabled')
+        .map(({ chainId, slug }) => toChainAssetSlug(TempleChainKind.Tezos, chainId, slug)),
+    [tokens]
+  );
 
   const enabledChains = useEnabledTezosChains();
 

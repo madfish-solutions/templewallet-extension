@@ -27,9 +27,12 @@ export const useTezosChainCollectiblesListingLogic = (
 
   const allChainAccountCollectibles = useTezosChainAccountCollectibles(publicKeyHash, chainId);
 
-  const allSlugs = useMemo(() => allChainAccountCollectibles.map(({ slug }) => slug), [allChainAccountCollectibles]);
+  const allSlugs = useMemoWithCompare(
+    () => allChainAccountCollectibles.map(({ slug }) => slug),
+    [allChainAccountCollectibles]
+  );
 
-  const enabledSlugs = useMemo(
+  const enabledSlugs = useMemoWithCompare(
     () => allChainAccountCollectibles.filter(({ status }) => status === 'enabled').map(({ slug }) => slug),
     [allChainAccountCollectibles]
   );
