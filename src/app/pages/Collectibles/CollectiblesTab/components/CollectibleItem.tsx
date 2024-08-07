@@ -149,14 +149,8 @@ export const TezosCollectibleItem = memo<TezosCollectibleItemProps>(
 
     return manageActive ? (
       <>
-        <div
-          className={clsx(
-            'flex flex-row items-center justify-between w-full overflow-hidden p-2 rounded-lg',
-            'hover:bg-secondary-low transition ease-in-out duration-200 focus:outline-none',
-            'focus:bg-secondary-low'
-          )}
-        >
-          <div className="flex flex-row items-center gap-x-1.5">
+        <div className={MANAGE_ACTIVE_ITEM_CLASSNAME}>
+          <div className="flex items-center gap-x-1.5">
             <div
               ref={wrapperElemRef}
               style={manageImgStyle}
@@ -188,7 +182,7 @@ export const TezosCollectibleItem = memo<TezosCollectibleItemProps>(
             </div>
           </div>
 
-          <div className="flex flex-row gap-x-2">
+          <div className="flex gap-x-2">
             <IconBase
               Icon={DeleteIcon}
               size={16}
@@ -278,10 +272,11 @@ interface EvmCollectibleItemProps {
   accountPkh: HexString;
   showDetails?: boolean;
   manageActive?: boolean;
+  hideWithoutMeta?: boolean;
 }
 
 export const EvmCollectibleItem = memo<EvmCollectibleItemProps>(
-  ({ assetSlug, evmChainId, accountPkh, showDetails = false, manageActive = false }) => {
+  ({ assetSlug, evmChainId, accountPkh, showDetails = false, manageActive = false, hideWithoutMeta }) => {
     const { rawValue: balance = '0', metadata } = useEvmCollectibleBalance(assetSlug, accountPkh, evmChainId);
 
     const storedToken = useStoredEvmCollectibleSelector(accountPkh, evmChainId, assetSlug);
@@ -341,16 +336,12 @@ export const EvmCollectibleItem = memo<EvmCollectibleItemProps>(
     const assetName = getCollectibleName(metadata);
     const collectionName = getCollectionName(metadata);
 
+    if (hideWithoutMeta && !metadata) return null;
+
     return manageActive ? (
       <>
-        <div
-          className={clsx(
-            'flex flex-row items-center justify-between w-full overflow-hidden p-2 rounded-lg',
-            'hover:bg-secondary-low transition ease-in-out duration-200 focus:outline-none',
-            'focus:bg-secondary-low'
-          )}
-        >
-          <div className="flex flex-row items-center gap-x-1.5">
+        <div className={MANAGE_ACTIVE_ITEM_CLASSNAME}>
+          <div className="flex items-center gap-x-1.5">
             <div
               className={clsx(
                 'relative flex items-center justify-center bg-blue-50 rounded-lg overflow-hidden hover:opacity-70'
@@ -376,7 +367,7 @@ export const EvmCollectibleItem = memo<EvmCollectibleItemProps>(
             </div>
           </div>
 
-          <div className="flex flex-row gap-x-2">
+          <div className="flex gap-x-2">
             <IconBase
               Icon={DeleteIcon}
               size={16}
@@ -438,4 +429,10 @@ export const EvmCollectibleItem = memo<EvmCollectibleItemProps>(
       </Link>
     );
   }
+);
+
+const MANAGE_ACTIVE_ITEM_CLASSNAME = clsx(
+  'flex items-center justify-between w-full overflow-hidden p-2 rounded-lg',
+  'hover:bg-secondary-low transition ease-in-out duration-200 focus:outline-none',
+  'focus:bg-secondary-low'
 );

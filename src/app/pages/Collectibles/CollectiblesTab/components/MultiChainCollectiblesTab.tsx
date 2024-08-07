@@ -20,8 +20,11 @@ export const MultiChainCollectiblesTab = memo<MultiChainCollectiblesTabProps>(
 
     const { manageActive } = useAssetsViewState();
 
-    const { isInSearchMode, paginatedSlugs, isSyncing, loadNext, searchValue, setSearchValue } =
-      useAccountCollectiblesListingLogic(accountTezAddress, accountEvmAddress, manageActive);
+    const { paginatedSlugs, isSyncing, loadNext, searchValue, setSearchValue } = useAccountCollectiblesListingLogic(
+      accountTezAddress,
+      accountEvmAddress,
+      manageActive
+    );
 
     const contentElement = useMemo(
       () => (
@@ -38,7 +41,7 @@ export const MultiChainCollectiblesTab = memo<MultiChainCollectiblesTabProps>(
                   tezosChainId={chainId as string}
                   adultBlur={blur}
                   areDetailsShown={showInfo}
-                  hideWithoutMeta={isInSearchMode}
+                  hideWithoutMeta={true} // ={isInSearchMode} when pagination is implemented
                   manageActive={manageActive}
                 />
               );
@@ -51,13 +54,14 @@ export const MultiChainCollectiblesTab = memo<MultiChainCollectiblesTabProps>(
                 evmChainId={chainId as number}
                 accountPkh={accountEvmAddress}
                 showDetails={showInfo}
+                hideWithoutMeta={true} // ={isInSearchMode} when pagination is implemented
                 manageActive={manageActive}
               />
             );
           })}
         </div>
       ),
-      [isInSearchMode, accountEvmAddress, accountTezAddress, blur, paginatedSlugs, showInfo, manageActive]
+      [accountEvmAddress, accountTezAddress, blur, paginatedSlugs, showInfo, manageActive]
     );
 
     return (

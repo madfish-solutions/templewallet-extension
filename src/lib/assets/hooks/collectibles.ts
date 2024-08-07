@@ -28,7 +28,7 @@ export const useTezosAccountCollectibles = (account: string) => {
   const storedRecord = useAllCollectiblesSelector();
   const balancesRecord = useBalancesAtomicRecordSelector();
 
-  return useMemoWithCompare<AccountCollectible[]>(() => {
+  return useMemo<AccountCollectible[]>(() => {
     let accountCollectibles: AccountCollectible[] = [];
 
     for (const chain of enabledChains) {
@@ -81,7 +81,7 @@ export const useEvmAccountCollectibles = (account: HexString) => {
   const collectiblesRecord = useRawEvmAccountCollectiblesSelector(account);
   const balancesRecord = useRawEvmAccountBalancesSelector(account);
 
-  return useMemoWithCompare<AccountCollectible[]>(() => {
+  return useMemo<AccountCollectible[]>(() => {
     let accountCollectibles: AccountCollectible[] = [];
 
     for (const chain of enabledChains) {

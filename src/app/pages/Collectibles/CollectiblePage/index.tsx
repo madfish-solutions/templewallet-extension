@@ -257,8 +257,6 @@ const TezosCollectiblePage = memo<TezosCollectiblePageProps>(({ tezosChainId, as
     return tab ?? tabs[0]!;
   }, [tabs, tabNameInUrl]);
 
-  console.log('M:', metadata);
-
   return (
     <PageLayout
       pageTitle={

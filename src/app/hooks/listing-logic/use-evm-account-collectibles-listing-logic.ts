@@ -24,12 +24,12 @@ export const useEvmAccountCollectiblesListingLogic = (publicKeyHash: HexString, 
 
   const allAccountCollectibles = useEvmAccountCollectibles(publicKeyHash);
 
-  const allChainSlugs = useMemo(
+  const allChainSlugs = useMemoWithCompare(
     () => allAccountCollectibles.map(({ chainId, slug }) => toChainAssetSlug(TempleChainKind.EVM, chainId, slug)),
     [allAccountCollectibles]
   );
 
-  const enabledChainSlugs = useMemo(
+  const enabledChainSlugs = useMemoWithCompare(
     () =>
       allAccountCollectibles
         .filter(({ status }) => status === 'enabled')

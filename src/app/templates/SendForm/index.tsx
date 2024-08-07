@@ -1,7 +1,6 @@
 import React, { memo, Suspense, useCallback, useMemo, useState } from 'react';
 
 import type { WalletOperation } from '@taquito/taquito';
-import { isEqual } from 'lodash';
 
 import OperationStatus from 'app/templates/OperationStatus';
 import { AnalyticsEventCategory, useAnalytics } from 'lib/analytics';
@@ -35,19 +34,15 @@ const SendForm = memo<Props>(({ network, tezosAccount, assetSlug = TEZ_TOKEN_SLU
 
   const tokensSortPredicate = useTezosChainAccountTokensSortPredicate(publicKeyHash, tezosChainId);
 
-  const assetsSlugs = useMemoWithCompare<string[]>(
-    () => {
-      const sortedSlugs = Array.from(tokensSlugs).sort(tokensSortPredicate);
+  const assetsSlugs = useMemoWithCompare<string[]>(() => {
+    const sortedSlugs = Array.from(tokensSlugs).sort(tokensSortPredicate);
 
-      if (!assetSlug || assetSlug === TEZ_TOKEN_SLUG) return [TEZ_TOKEN_SLUG, ...sortedSlugs];
+    if (!assetSlug || assetSlug === TEZ_TOKEN_SLUG) return [TEZ_TOKEN_SLUG, ...sortedSlugs];
 
-      return sortedSlugs.some(s => s === assetSlug)
-        ? [TEZ_TOKEN_SLUG, ...sortedSlugs]
-        : [TEZ_TOKEN_SLUG, assetSlug, ...sortedSlugs];
-    },
-    [tokensSortPredicate, tokensSlugs, assetSlug],
-    isEqual
-  );
+    return sortedSlugs.some(s => s === assetSlug)
+      ? [TEZ_TOKEN_SLUG, ...sortedSlugs]
+      : [TEZ_TOKEN_SLUG, assetSlug, ...sortedSlugs];
+  }, [tokensSortPredicate, tokensSlugs, assetSlug]);
 
   const selectedAsset = assetSlug ?? TEZ_TOKEN_SLUG;
 
