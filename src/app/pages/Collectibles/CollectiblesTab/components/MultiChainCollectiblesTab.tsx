@@ -66,13 +66,14 @@ export const MultiChainCollectiblesTab = memo<MultiChainCollectiblesTabProps>(
 
     return (
       <CollectiblesTabBase
-        contentElement={contentElement}
         collectiblesCount={paginatedSlugs.length}
         searchValue={searchValue}
         loadNextPage={loadNext}
         onSearchValueChange={setSearchValue}
         isSyncing={isSyncing}
-      />
+      >
+        {contentElement}
+      </CollectiblesTabBase>
     );
   }
 );

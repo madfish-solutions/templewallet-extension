@@ -1,7 +1,6 @@
 import { useCallback, useMemo, useState } from 'react';
 
 import { isDefined } from '@rnw-community/shared';
-import { isEqual } from 'lodash';
 import { useDebounce } from 'use-debounce';
 
 import { useRawEvmAccountBalancesSelector } from 'app/store/evm/balances/selectors';
@@ -113,8 +112,7 @@ export const useEvmAccountTokensListingLogic = (
 
   const searchedManageableChainSlugs = useMemoWithCompare(
     () => (isInSearchMode ? search(manageableChainSlugs) : manageableChainSlugs),
-    [isInSearchMode, search, manageableChainSlugs],
-    isEqual
+    [isInSearchMode, search, manageableChainSlugs]
   );
 
   const { slugs: paginatedSlugs, loadNext } = useSimpleAssetsPaginationLogic(searchedManageableChainSlugs);

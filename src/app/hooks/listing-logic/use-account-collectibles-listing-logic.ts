@@ -1,6 +1,5 @@
 import { useCallback, useMemo, useState } from 'react';
 
-import { isEqual } from 'lodash';
 import { useDebounce } from 'use-debounce';
 
 import { useEvmCollectiblesMetadataRecordSelector } from 'app/store/evm/collectibles-metadata/selectors';
@@ -105,8 +104,7 @@ export const useAccountCollectiblesListingLogic = (
 
   const searchedManageableSlugs = useMemoWithCompare(
     () => (isInSearchMode ? search(manageableChainSlugs) : manageableChainSlugs),
-    [isInSearchMode, search, manageableChainSlugs],
-    isEqual
+    [isInSearchMode, search, manageableChainSlugs]
   );
 
   const { slugs: paginatedSlugs, loadNext } = useSimpleAssetsPaginationLogic(searchedManageableSlugs);

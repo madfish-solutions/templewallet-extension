@@ -16,7 +16,6 @@ import { AssetsFilterOptions } from 'app/templates/AssetsFilterOptions';
 import { SearchBarField } from 'app/templates/SearchField';
 
 interface CollectiblesTabBaseProps {
-  contentElement: JSX.Element;
   collectiblesCount: number;
   searchValue: string;
   loadNextPage: EmptyFn;
@@ -25,14 +24,14 @@ interface CollectiblesTabBaseProps {
   isInSearchMode?: boolean;
 }
 
-export const CollectiblesTabBase: FC<CollectiblesTabBaseProps> = ({
-  contentElement,
+export const CollectiblesTabBase: FC<PropsWithChildren<CollectiblesTabBaseProps>> = ({
   collectiblesCount,
   searchValue,
   loadNextPage,
   onSearchValueChange,
   isSyncing,
-  isInSearchMode = false
+  isInSearchMode = false,
+  children
 }) => {
   const { manageActive, toggleManageActive, filtersOpened, setFiltersClosed, toggleFiltersOpened } =
     useAssetsViewState();
@@ -64,11 +63,11 @@ export const CollectiblesTabBase: FC<CollectiblesTabBaseProps> = ({
           ) : (
             <>
               {isInSearchMode ? (
-                contentElement
+                children
               ) : (
                 <>
                   {manageActive && <ManageActiveTip />}
-                  <SimpleInfiniteScroll loadNext={loadNextPage}>{contentElement}</SimpleInfiniteScroll>
+                  <SimpleInfiniteScroll loadNext={loadNextPage}>{children}</SimpleInfiniteScroll>
                 </>
               )}
 

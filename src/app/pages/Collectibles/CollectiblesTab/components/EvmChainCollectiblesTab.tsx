@@ -42,12 +42,13 @@ export const EvmChainCollectiblesTab = memo<EvmChainCollectiblesTabProps>(({ cha
 
   return (
     <CollectiblesTabBase
-      contentElement={contentElement}
       collectiblesCount={paginatedSlugs.length}
       searchValue={searchValue}
       loadNextPage={loadNext}
       onSearchValueChange={setSearchValue}
       isSyncing={isSyncing}
-    />
+    >
+      {contentElement}
+    </CollectiblesTabBase>
   );
 });

@@ -1,42 +1,18 @@
-import { useCallback, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 
-import { isEqual } from 'lodash';
 import { useDebounce } from 'use-debounce';
 
 import { useAreAssetsLoading } from 'app/store/tezos/assets/selectors';
 import { useCollectiblesMetadataLoadingSelector } from 'app/store/tezos/collectibles-metadata/selectors';
-import { useTezosAccountCollectibles } from 'lib/assets/hooks/collectibles';
 import { searchTezosAssetsWithNoMeta } from 'lib/assets/search.utils';
-import { useTezosAccountCollectiblesSortPredicate } from 'lib/assets/use-sorting';
-import { toChainAssetSlug } from 'lib/assets/utils';
 import { useGetCollectibleMetadata, useTezosCollectiblesMetadataPresenceCheck } from 'lib/metadata';
-import { useMemoWithCompare } from 'lib/ui/hooks';
 import { isSearchStringApplicable } from 'lib/utils/search-items';
-import { TempleChainKind } from 'temple/types';
 
 import { ITEMS_PER_PAGE, useTezosAccountCollectiblesPaginationLogic } from '../use-collectibles-pagination-logic';
 
-import { useManageableSlugs } from './use-manageable-slugs';
 import { getSlugWithChainId } from './utils';
 
-export const useTezosAccountCollectiblesListingLogic = (publicKeyHash: string, manageActive = false) => {
-  const sortPredicate = useTezosAccountCollectiblesSortPredicate(publicKeyHash);
-
-  const allAccountCollectibles = useTezosAccountCollectibles(publicKeyHash);
-
-  const allChainSlugs = useMemo(
-    () => allAccountCollectibles.map(({ chainId, slug }) => toChainAssetSlug(TempleChainKind.Tezos, chainId, slug)),
-    [allAccountCollectibles]
-  );
-
-  const enabledChainSlugs = useMemo(
-    () =>
-      allAccountCollectibles
-        .filter(({ status }) => status === 'enabled')
-        .map(({ chainId, slug }) => toChainAssetSlug(TempleChainKind.Tezos, chainId, slug)),
-    [allAccountCollectibles]
-  );
-
+export const useTezosAccountCollectiblesListingLogic = (allSlugsSorted: string[]) => {
   const assetsAreLoading = useAreAssetsLoading('collectibles');
   const metadatasLoading = useCollectiblesMetadataLoadingSelector();
 
@@ -45,41 +21,32 @@ export const useTezosAccountCollectiblesListingLogic = (publicKeyHash: string, m
 
   const isInSearchMode = isSearchStringApplicable(searchValueDebounced);
 
-  const getMetadata = useGetCollectibleMetadata();
-
-  const search = useCallback(
-    (slugs: string[]) => searchTezosAssetsWithNoMeta(searchValueDebounced, slugs, getMetadata, getSlugWithChainId),
-    [getMetadata, searchValueDebounced]
-  );
-
-  const enabledSlugsSorted = useMemo(
-    () => [...enabledChainSlugs].sort(sortPredicate),
-    [enabledChainSlugs, sortPredicate]
-  );
-
-  const enabledSearchedSlugs = useMemo(
-    () => (isInSearchMode ? search(enabledSlugsSorted) : enabledSlugsSorted),
-    [isInSearchMode, search, enabledSlugsSorted]
-  );
-
-  const manageableChainSlugs = useManageableSlugs(
-    manageActive,
-    allChainSlugs,
-    enabledSlugsSorted,
-    enabledSearchedSlugs
-  );
-
-  const searchedManageableSlugs = useMemoWithCompare(
-    () => (isInSearchMode ? search(manageableChainSlugs) : manageableChainSlugs),
-    [isInSearchMode, search, manageableChainSlugs],
-    isEqual
-  );
-
   const {
     slugs: paginatedSlugs,
     isLoading: pageIsLoading,
     loadNext
-  } = useTezosAccountCollectiblesPaginationLogic(searchedManageableSlugs);
+  } = useTezosAccountCollectiblesPaginationLogic(allSlugsSorted);
+
+  const metaToCheckAndLoad = useMemo(() => {
+    // Search is not paginated. This is how all needed meta is loaded
+    if (isInSearchMode) return allSlugsSorted;
+
+    // In pagination, loading meta for the following pages in advance,
+    // while not required in current page
+    return pageIsLoading ? undefined : allSlugsSorted.slice(paginatedSlugs.length + ITEMS_PER_PAGE * 2);
+  }, [isInSearchMode, pageIsLoading, allSlugsSorted, paginatedSlugs.length]);
+
+  useTezosCollectiblesMetadataPresenceCheck(metaToCheckAndLoad);
+
+  const getCollectibleMetadata = useGetCollectibleMetadata();
+
+  const displayedSlugs = useMemo(
+    () =>
+      isInSearchMode
+        ? searchTezosAssetsWithNoMeta(searchValueDebounced, allSlugsSorted, getCollectibleMetadata, getSlugWithChainId)
+        : paginatedSlugs,
+    [paginatedSlugs, allSlugsSorted, isInSearchMode, searchValueDebounced, getCollectibleMetadata]
+  );
 
   const isSyncing = isInSearchMode ? assetsAreLoading || metadatasLoading : assetsAreLoading || pageIsLoading;
 
@@ -87,20 +54,9 @@ export const useTezosAccountCollectiblesListingLogic = (publicKeyHash: string, m
   // of `isSyncing === false`. Debouncing to preserve `true` for a while.
   const [isSyncingDebounced] = useDebounce(isSyncing, 500);
 
-  const metaToCheckAndLoad = useMemo(() => {
-    // Search is not paginated. This is how all needed meta is loaded
-    if (isInSearchMode) return enabledChainSlugs;
-
-    // In pagination, loading meta for the following pages in advance,
-    // while not required in current page
-    return pageIsLoading ? undefined : enabledChainSlugs.slice(paginatedSlugs.length + ITEMS_PER_PAGE * 2);
-  }, [isInSearchMode, pageIsLoading, enabledChainSlugs, paginatedSlugs.length]);
-
-  useTezosCollectiblesMetadataPresenceCheck(metaToCheckAndLoad);
-
   return {
     isInSearchMode,
-    paginatedSlugs,
+    displayedSlugs,
     isSyncing: isSyncing || isSyncingDebounced,
     loadNext,
     searchValue,

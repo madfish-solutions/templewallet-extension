@@ -147,54 +147,58 @@ export const TezosCollectibleItem = memo<TezosCollectibleItemProps>(
 
     const assetName = getTokenName(metadata);
 
-    return manageActive ? (
-      <>
-        <div className={MANAGE_ACTIVE_ITEM_CLASSNAME}>
-          <div className="flex items-center gap-x-1.5">
-            <div
-              ref={wrapperElemRef}
-              style={manageImgStyle}
-              className="relative flex items-center justify-center bg-blue-50 rounded-lg overflow-hidden hover:opacity-70"
-            >
-              <CollectibleItemImage
-                assetSlug={assetSlug}
-                metadata={metadata}
-                adultBlur={adultBlur}
-                areDetailsLoading={areDetailsLoading && details === undefined}
-                mime={details?.mime}
-                containerElemRef={wrapperElemRef}
+    if (manageActive)
+      return (
+        <>
+          <div className={MANAGE_ACTIVE_ITEM_CLASSNAME}>
+            <div className="flex items-center gap-x-1.5">
+              <div
+                ref={wrapperElemRef}
+                style={manageImgStyle}
+                className="relative flex items-center justify-center bg-blue-50 rounded-lg overflow-hidden hover:opacity-70"
+              >
+                <CollectibleItemImage
+                  assetSlug={assetSlug}
+                  metadata={metadata}
+                  adultBlur={adultBlur}
+                  areDetailsLoading={areDetailsLoading && details === undefined}
+                  mime={details?.mime}
+                  containerElemRef={wrapperElemRef}
+                />
+
+                {network && (
+                  <div ref={networkIconRef} className="absolute bottom-0.5 right-0.5">
+                    {network.chainId === TEZOS_MAINNET_CHAIN_ID ? (
+                      <TezNetworkLogo size={NETWORK_IMAGE_DEFAULT_SIZE} />
+                    ) : (
+                      <NetworkLogoFallback networkName={network.name} size={NETWORK_IMAGE_DEFAULT_SIZE} />
+                    )}
+                  </div>
+                )}
+              </div>
+
+              <div className="flex flex-col truncate max-w-40">
+                <div className="text-font-medium mb-1">{assetName}</div>
+                <div className="flex text-font-description items-center text-grey-1 flex-1">{collectionName}</div>
+              </div>
+            </div>
+
+            <div className="flex gap-x-2">
+              <IconBase
+                Icon={DeleteIcon}
+                size={16}
+                className="cursor-pointer text-error"
+                onClick={setDeleteModalOpened}
               />
-
-              {network && (
-                <div ref={networkIconRef} className="absolute bottom-0.5 right-0.5">
-                  {network.chainId === TEZOS_MAINNET_CHAIN_ID ? (
-                    <TezNetworkLogo size={NETWORK_IMAGE_DEFAULT_SIZE} />
-                  ) : (
-                    <NetworkLogoFallback networkName={network.name} size={NETWORK_IMAGE_DEFAULT_SIZE} />
-                  )}
-                </div>
-              )}
-            </div>
-
-            <div className="flex flex-col truncate max-w-40">
-              <div className="text-font-medium mb-1">{assetName}</div>
-              <div className="flex text-font-description items-center text-grey-1 flex-1">{collectionName}</div>
+              <ToggleSwitch checked={checked} onChange={toggleTokenStatus} />
             </div>
           </div>
 
-          <div className="flex gap-x-2">
-            <IconBase
-              Icon={DeleteIcon}
-              size={16}
-              className="cursor-pointer text-error"
-              onClick={setDeleteModalOpened}
-            />
-            <ToggleSwitch checked={checked} onChange={toggleTokenStatus} />
-          </div>
-        </div>
-        {deleteModalOpened && <DeleteAssetModal onClose={setDeleteModalClosed} onDelete={deleteItem} />}
-      </>
-    ) : (
+          {deleteModalOpened && <DeleteAssetModal onClose={setDeleteModalClosed} onDelete={deleteItem} />}
+        </>
+      );
+
+    return (
       <Link
         to={toCollectibleLink(TempleChainKind.Tezos, tezosChainId, assetSlug)}
         className="flex flex-col border border-gray-300 rounded-lg overflow-hidden"
@@ -338,48 +342,51 @@ export const EvmCollectibleItem = memo<EvmCollectibleItemProps>(
 
     if (hideWithoutMeta && !metadata) return null;
 
-    return manageActive ? (
-      <>
-        <div className={MANAGE_ACTIVE_ITEM_CLASSNAME}>
-          <div className="flex items-center gap-x-1.5">
-            <div
-              className={clsx(
-                'relative flex items-center justify-center bg-blue-50 rounded-lg overflow-hidden hover:opacity-70'
-              )}
-              style={manageImgStyle}
-            >
-              {metadata && <EvmCollectibleItemImage metadata={metadata} />}
+    if (manageActive)
+      return (
+        <>
+          <div className={MANAGE_ACTIVE_ITEM_CLASSNAME}>
+            <div className="flex items-center gap-x-1.5">
+              <div
+                className={clsx(
+                  'relative flex items-center justify-center bg-blue-50 rounded-lg overflow-hidden hover:opacity-70'
+                )}
+                style={manageImgStyle}
+              >
+                {metadata && <EvmCollectibleItemImage metadata={metadata} />}
 
-              {network && (
-                <EvmNetworkLogo
-                  ref={networkIconRef}
-                  className="absolute bottom-0.5 right-0.5"
-                  networkName={network.name}
-                  chainId={network.chainId}
-                  size={NETWORK_IMAGE_DEFAULT_SIZE}
-                />
-              )}
+                {network && (
+                  <EvmNetworkLogo
+                    ref={networkIconRef}
+                    className="absolute bottom-0.5 right-0.5"
+                    networkName={network.name}
+                    chainId={network.chainId}
+                    size={NETWORK_IMAGE_DEFAULT_SIZE}
+                  />
+                )}
+              </div>
+
+              <div className="flex flex-col truncate max-w-40">
+                <div className="text-font-medium mb-1">{assetName}</div>
+                <div className="flex text-font-description items-center text-grey-1 flex-1">{collectionName}</div>
+              </div>
             </div>
 
-            <div className="flex flex-col truncate max-w-40">
-              <div className="text-font-medium mb-1">{assetName}</div>
-              <div className="flex text-font-description items-center text-grey-1 flex-1">{collectionName}</div>
+            <div className="flex gap-x-2">
+              <IconBase
+                Icon={DeleteIcon}
+                size={16}
+                className="cursor-pointer text-error"
+                onClick={setDeleteModalOpened}
+              />
+              <ToggleSwitch checked={checked} onChange={toggleTokenStatus} />
             </div>
           </div>
+          {deleteModalOpened && <DeleteAssetModal onClose={setDeleteModalClosed} onDelete={deleteItem} />}
+        </>
+      );
 
-          <div className="flex gap-x-2">
-            <IconBase
-              Icon={DeleteIcon}
-              size={16}
-              className="cursor-pointer text-error"
-              onClick={setDeleteModalOpened}
-            />
-            <ToggleSwitch checked={checked} onChange={toggleTokenStatus} />
-          </div>
-        </div>
-        {deleteModalOpened && <DeleteAssetModal onClose={setDeleteModalClosed} onDelete={deleteItem} />}
-      </>
-    ) : (
+    return (
       <Link
         to={toCollectibleLink(TempleChainKind.EVM, evmChainId, assetSlug)}
         className="flex flex-col border border-gray-300 rounded-lg overflow-hidden"
