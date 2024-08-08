@@ -37,6 +37,8 @@ export const TezosChainTokensTab = memo<Props>(({ chainId, publicKeyHash }) => {
 
   const { manageActive } = useAssetsViewState();
 
+  useLoadPartnersPromo(OptimalPromoVariantEnum.Token);
+
   if (manageActive) return <TabContentWithManageActive publicKeyHash={publicKeyHash} network={network} />;
 
   return <TabContent publicKeyHash={publicKeyHash} network={network} />;
@@ -59,7 +61,7 @@ const TabContent: FC<TabContentProps> = ({ publicKeyHash, network }) => {
     chainId
   );
 
-  const tokensView = useMemo<JSX.Element[]>(() => {
+  const tokensView = useMemo(() => {
     const tokensJsx = displayedSlugs.map(assetSlug => (
       <TezosListItem
         key={assetSlug}
@@ -82,8 +84,6 @@ const TabContent: FC<TabContentProps> = ({ publicKeyHash, network }) => {
 
     return getTokensViewWithPromo(tokensJsx, promoJsx, displayedSlugs.length);
   }, [network, displayedSlugs, publicKeyHash, mainnetTokensScamSlugsRecord]);
-
-  useLoadPartnersPromo(OptimalPromoVariantEnum.Token);
 
   return (
     <TokensTabBase
@@ -135,8 +135,6 @@ const TabContentWithManageActive: FC<TabContentProps> = ({ publicKeyHash, networ
       )),
     [network, displayedSlugs, publicKeyHash, mainnetTokensScamSlugsRecord]
   );
-
-  useLoadPartnersPromo(OptimalPromoVariantEnum.Token);
 
   return (
     <TokensTabBase
