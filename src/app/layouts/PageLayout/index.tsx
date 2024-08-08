@@ -8,6 +8,7 @@ import Spinner from 'app/atoms/Spinner/Spinner';
 import { SuspenseContainer } from 'app/atoms/SuspenseContainer';
 import { useAppEnv } from 'app/env';
 import { AdvertisingOverlay } from 'app/templates/advertising/advertising-overlay/advertising-overlay';
+import { IS_MISES_BROWSER } from 'lib/env';
 import { useTempleClient } from 'lib/temple/front';
 
 import {
@@ -43,7 +44,13 @@ const PageLayout: FC<PropsWithChildren<PageLayoutProps>> = ({
 
   return (
     <>
-      <DocBg bgClassName="bg-secondary-low" />
+      {
+        /*
+          Mises browser has an issue with <html>'s height - not reaching 100% no matter what CSS,
+          unless it is expanded by content. We at least won't color it to not highlight that.
+        */
+        !IS_MISES_BROWSER && <DocBg bgClassName="bg-secondary-low" />
+      }
 
       <div id={APP_CONTENT_WRAP_DOM_ID} className={clsx(fullPage && 'pt-9 pb-8')}>
         <ContentPaper>

@@ -1,4 +1,4 @@
-import React, { FC, useMemo } from 'react';
+import React, { memo } from 'react';
 
 import classNames from 'clsx';
 
@@ -24,35 +24,27 @@ import { OnRampOverlaySelectors } from './OnRampOverlay.selectors';
 import { OnRampSmileButton } from './OnRampSmileButton/OnRampSmileButton';
 import { getWertLink } from './utils/getWertLink.util';
 
-export const OnRampOverlay: FC = () => {
+export const OnRampOverlay = memo(() => {
   const publicKeyHash = useAccountAddressForTezos();
   const { popup } = useAppEnv();
   const isOnRampPossibility = useOnRampPossibilitySelector();
   const { onboardingCompleted } = useOnboardingProgress();
 
-  const popupClassName = useMemo(
-    () => (popup ? 'inset-0 p-4' : 'top-1/2 left-1/2 transform -translate-y-1/2 -translate-x-1/2'),
-    [popup]
-  );
   const close = () => void dispatch(setOnRampPossibilityAction(false));
 
   if (!isOnRampPossibility || !onboardingCompleted || !publicKeyHash) return null;
 
   return (
-    <>
-      <div className="fixed inset-0 opacity-20 bg-gray-700 z-overlay-promo"></div>
-
-      <div
-        className={classNames(LAYOUT_CONTAINER_CLASSNAME, 'fixed z-overlay-promo overflow-y-auto', popupClassName)}
-        style={{ maxWidth: '37.5rem', maxHeight: popup ? undefined : 'calc(100vh - 50px)' }}
-      >
+    <div className="fixed inset-0 z-overlay-promo flex flex-col items-center justify-center bg-gray-700 bg-opacity-20">
+      <div className={classNames(LAYOUT_CONTAINER_CLASSNAME, 'overflow-y-scroll py-4', popup && 'h-full px-4')}>
         <div
           className={classNames(
-            'flex flex-col text-center bg-white shadow-lg bg-no-repeat rounded-md p-6',
-            popup && 'h-full'
+            'relative flex flex-col text-center bg-white shadow-lg bg-no-repeat rounded-md p-6',
+            popup && 'h-full bg-contain'
           )}
           style={{
-            backgroundImage: `url(${popup ? OnRampOverlayBgPopupImg : OnRampOverlayBgImg})`
+            backgroundImage: `url(${popup ? OnRampOverlayBgPopupImg : OnRampOverlayBgImg})`,
+            backgroundPositionX: 'center'
           }}
         >
           <OverlayCloseButton testID={OnRampOverlaySelectors.closeButton} onClick={close} />
@@ -118,16 +110,11 @@ export const OnRampOverlay: FC = () => {
             <ArrowRightIcon className="ml-2 h-3 w-auto stroke-current stroke-2" />
           </Anchor>
 
-          <p
-            className={classNames(
-              'font-inter font-normal mt-auto px-5 text-xs text-gray-600',
-              popup ? 'mt-29' : 'pt-29'
-            )}
-          >
+          <p className={classNames('font-inter font-normal mt-auto text-xs text-gray-600', popup ? 'mt-29' : 'pt-29')}>
             <T id="thirdParty" />
           </p>
         </div>
       </div>
-    </>
+    </div>
   );
-};
+});
