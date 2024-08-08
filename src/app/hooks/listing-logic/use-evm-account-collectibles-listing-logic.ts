@@ -80,6 +80,7 @@ export const useEvmAccountCollectiblesListingLogic = (publicKeyHash: HexString, 
   const { slugs: paginatedSlugs, loadNext } = useSimpleAssetsPaginationLogic(searchedManageableSlugs);
 
   return {
+    isInSearchMode,
     paginatedSlugs,
     isSyncing,
     loadNext,

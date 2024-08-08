@@ -79,12 +79,13 @@ export const TezosTokensTab: FC<TezosTokensTabProps> = ({ publicKeyHash }) => {
 
   return (
     <TokensTabBase
-      tokensView={tokensView}
       tokensCount={paginatedSlugs.length}
       searchValue={searchValue}
       loadNextPage={loadNext}
       onSearchValueChange={setSearchValue}
       isSyncing={isSyncing}
-    />
+    >
+      {tokensView}
+    </TokensTabBase>
   );
 };

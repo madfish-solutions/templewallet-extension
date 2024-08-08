@@ -38,7 +38,14 @@ export const usePreservedOrderSlugsToManage = (enabledSlugsSorted: string[], all
 
     // Sorting with respect to previous order every time
     const newResult = prevResult.length
-      ? newConcated.sort((a, b) => prevResult.indexOf(a) - prevResult.indexOf(b))
+      ? newConcated.sort((a, b) => {
+          const ai = prevResult.indexOf(a);
+          const bi = prevResult.indexOf(b);
+
+          if (ai === -1 || bi === -1) return 0; // Only needed for performance
+
+          return ai - bi;
+        })
       : newConcated;
 
     prevResultRef.current = newResult;

@@ -66,6 +66,7 @@ export const useEvmChainCollectiblesListingLogic = (
   const { slugs: paginatedSlugs, loadNext } = useSimpleAssetsPaginationLogic(searchedManageableSlugs);
 
   return {
+    isInSearchMode,
     paginatedSlugs,
     isSyncing,
     loadNext,

@@ -72,12 +72,13 @@ export const EvmTokensTab: FC<EvmTokensTabProps> = ({ publicKeyHash }) => {
 
   return (
     <TokensTabBase
-      tokensView={tokensView}
       tokensCount={paginatedSlugs.length}
       searchValue={searchValue}
       loadNextPage={loadNext}
       onSearchValueChange={setSearchValue}
       isSyncing={isSyncing}
-    />
+    >
+      {tokensView}
+    </TokensTabBase>
   );
 };

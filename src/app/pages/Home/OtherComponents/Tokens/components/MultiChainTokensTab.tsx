@@ -90,12 +90,13 @@ export const MultiChainTokensTab = memo<MultiChainTokensTabProps>(({ accountTezA
 
   return (
     <TokensTabBase
-      tokensView={tokensView}
       tokensCount={paginatedSlugs.length}
       searchValue={searchValue}
       loadNextPage={loadNext}
       onSearchValueChange={setSearchValue}
       isSyncing={isSyncing}
-    />
+    >
+      {tokensView}
+    </TokensTabBase>
   );
 });

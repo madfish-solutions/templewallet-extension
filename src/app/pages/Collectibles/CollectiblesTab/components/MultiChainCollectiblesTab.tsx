@@ -20,11 +20,8 @@ export const MultiChainCollectiblesTab = memo<MultiChainCollectiblesTabProps>(
 
     const { manageActive } = useAssetsViewState();
 
-    const { paginatedSlugs, isSyncing, loadNext, searchValue, setSearchValue } = useAccountCollectiblesListingLogic(
-      accountTezAddress,
-      accountEvmAddress,
-      manageActive
-    );
+    const { isInSearchMode, paginatedSlugs, isSyncing, loadNext, searchValue, setSearchValue } =
+      useAccountCollectiblesListingLogic(accountTezAddress, accountEvmAddress, manageActive);
 
     const contentElement = useMemo(
       () => (
@@ -71,6 +68,7 @@ export const MultiChainCollectiblesTab = memo<MultiChainCollectiblesTabProps>(
         loadNextPage={loadNext}
         onSearchValueChange={setSearchValue}
         isSyncing={isSyncing}
+        isInSearchMode={isInSearchMode}
       >
         {contentElement}
       </CollectiblesTabBase>
