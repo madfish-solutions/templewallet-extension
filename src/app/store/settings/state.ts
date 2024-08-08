@@ -6,6 +6,7 @@ export interface SettingsState {
   isOnRampPossibility: boolean;
   isConversionTracked: boolean;
   pendingReactivateAds: boolean;
+  adsImpressionsLinked: boolean;
   toastsContainerBottomShift: number;
   /** @deprecated */
   balanceMode?: 'fiat' | 'gas';
@@ -17,5 +18,6 @@ export const settingsInitialState: SettingsState = {
   isOnRampPossibility: false,
   isConversionTracked: false,
   pendingReactivateAds: false,
+  adsImpressionsLinked: false,
   toastsContainerBottomShift: 0
 };
