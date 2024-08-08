@@ -1,6 +1,6 @@
 {
   "appName": {
-    "message": "Temple - Tezos Wallet"
+    "message": "Temple Wallet"
   },
   "showIncomingTransactions": {
     "message": "Eingehende Transaktionen anzeigen"
@@ -381,7 +381,7 @@
   "alert": {
     "message": "Alarm"
   },
-  "accountNameInputTitle": {
+  "accountOrGroupNameInputTitle": {
     "message": "1-16 Zeichen, keine Sonderzeichen"
   },
   "defaultAccountName": {
@@ -408,9 +408,6 @@
         "content": "$1"
       }
     }
-  },
-  "accountsToRemoveConstraint": {
-    "message": "Hierarchische deterministische Konten können nicht entfernt werden."
   },
   "doNotSharePrivateKey": {
     "message": "<b>Teilen Sie diese Zeichensätze NICHT mit anderen</b>! Sie können verwendet werden, um Ihr aktuelles Konto zu stehlen."
@@ -598,7 +595,7 @@
     "message": "Der geheime Schlüssel des Kontos, das Sie importieren möchten."
   },
   "privateKeyInputPlaceholder": {
-    "message": "z. B. edsk3wfiPMu..."
+    "message": "z. B. edsk3wfiPMu... | 0xL4mp3Ty..."
   },
   "password": {
     "message": "Passwort"
@@ -2216,9 +2213,6 @@
   },
   "deleteCollectibleConfirm": {
     "message": "Möchten Sie dieses Sammlerstück wirklich löschen?"
-  },
-  "zeroCollectibleText": {
-    "message": "Sie haben noch keine Sammlerstücke!\nGuter Zeitpunkt, um eins zu erhalten"
   },
   "min": {
     "message": "Min:"

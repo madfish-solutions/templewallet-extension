@@ -2,17 +2,17 @@ import React, { FC, memo } from 'react';
 
 import { ExternalLinkChip, ExternalLinkChipProps } from 'app/atoms/ExternalLinkChip';
 import { t } from 'lib/i18n';
-import { BlockExplorerUrlType, useExplorerHref } from 'lib/temple/front';
+import { useExplorerHref } from 'temple/front/block-explorers';
 
 import { OpenInExplorerChipSelectors } from './selectors';
 
 interface Props extends Omit<ExternalLinkChipProps, 'href'> {
+  tezosChainId: string;
   hash: string;
-  type?: BlockExplorerUrlType;
 }
 
-export const OpenInExplorerChip: FC<Props> = ({ hash, type = 'transaction', tooltip, ...props }) => {
-  const href = useExplorerHref(hash, type);
+export const OpenInExplorerChip: FC<Props> = ({ tezosChainId, hash, tooltip, ...props }) => {
+  const href = useExplorerHref(tezosChainId, hash);
 
   return href ? <OpenInExplorerChipBase {...props} href={href} tooltip={tooltip} /> : null;
 };

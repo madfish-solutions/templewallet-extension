@@ -1,16 +1,23 @@
 import React, { FC, HTMLAttributes, useMemo } from 'react';
 
 import Avatars from '@dicebear/avatars';
+import { ColorCollection } from '@dicebear/avatars/lib/types';
 import botttsSprites from '@dicebear/avatars-bottts-sprites';
 import jdenticonSpirtes from '@dicebear/avatars-jdenticon-sprites';
 import classNames from 'clsx';
 
 import initialsSprites from 'lib/avatars-initials-sprites';
 
+export interface InitialsOpts {
+  backgroundColors?: Array<keyof ColorCollection>;
+  chars?: number;
+}
+
 type IdenticonProps = HTMLAttributes<HTMLDivElement> & {
   type?: 'jdenticon' | 'bottts' | 'initials';
   hash: string;
   size?: number;
+  initialsOpts?: InitialsOpts;
 };
 
 const MAX_INITIALS_LENGTH = 5;
@@ -24,7 +31,15 @@ const icons: Record<NonNullable<IdenticonProps['type']>, Avatars<{}>> = {
   initials: new Avatars(initialsSprites)
 };
 
-const Identicon: FC<IdenticonProps> = ({ type = 'jdenticon', hash, size = 100, className, style = {}, ...rest }) => {
+const Identicon: FC<IdenticonProps> = ({
+  type = 'jdenticon',
+  hash,
+  size = 100,
+  initialsOpts,
+  className,
+  style = {},
+  ...rest
+}) => {
   const backgroundImage = useMemo(() => {
     const key = `${type}_${hash}_${size}`;
     if (cache.has(key)) {
@@ -43,10 +58,17 @@ const Identicon: FC<IdenticonProps> = ({ type = 'jdenticon', hash, size = 100, c
               ...basicOpts,
               chars: MAX_INITIALS_LENGTH,
               radius: 50,
-              fontSize: estimateOptimalFontSize(hash.slice(0, MAX_INITIALS_LENGTH).length)
+              fontSize: estimateOptimalFontSize(hash.slice(0, MAX_INITIALS_LENGTH).length),
+              ...initialsOpts
             }
           : basicOpts;
-      const imgSrc = icons[type].create(hash, opts);
+
+      let imgSrc: string;
+      try {
+        imgSrc = icons[type].create(hash, opts);
+      } catch {
+        imgSrc = icons[type].create('???', opts);
+      }
 
       const bi = `url('${imgSrc}')`;
       cache.set(key, bi);

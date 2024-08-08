@@ -1,7 +1,6 @@
 import { createStore, createEvent } from 'effector';
 
-import { NETWORKS } from 'lib/temple/networks';
-import { TempleState, TempleStatus, TempleAccount, TempleSettings } from 'lib/temple/types';
+import { TempleState, TempleStatus, StoredAccount, TempleSettings } from 'lib/temple/types';
 
 import { Vault } from './vault';
 
@@ -14,11 +13,10 @@ interface UnlockedStoreState extends StoreState {
   vault: Vault;
 }
 
-export function toFront({ status, accounts, networks, settings }: StoreState): TempleState {
+export function toFront({ status, accounts, settings }: StoreState): TempleState {
   return {
     status,
     accounts,
-    networks,
     settings
   };
 }
@@ -33,11 +31,11 @@ export const locked = createEvent('Locked');
 
 export const unlocked = createEvent<{
   vault: Vault;
-  accounts: TempleAccount[];
+  accounts: StoredAccount[];
   settings: TempleSettings;
 }>('Unlocked');
 
-export const accountsUpdated = createEvent<TempleAccount[]>('Accounts updated');
+export const accountsUpdated = createEvent<StoredAccount[]>('Accounts updated');
 
 export const settingsUpdated = createEvent<TempleSettings>('Settings updated');
 
@@ -50,14 +48,12 @@ export const store = createStore<StoreState>({
   vault: null,
   status: TempleStatus.Idle,
   accounts: [],
-  networks: [],
   settings: null
 })
   .on(inited, (state, vaultExist) => ({
     ...state,
     inited: true,
-    status: vaultExist ? TempleStatus.Locked : TempleStatus.Idle,
-    networks: NETWORKS
+    status: vaultExist ? TempleStatus.Locked : TempleStatus.Idle
   }))
   .on(locked, () => ({
     // Attention!
@@ -69,7 +65,6 @@ export const store = createStore<StoreState>({
     vault: null,
     status: TempleStatus.Locked,
     accounts: [],
-    networks: NETWORKS,
     settings: null
   }))
   .on(unlocked, (state, { vault, accounts, settings }) => ({

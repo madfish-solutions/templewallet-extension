@@ -14,24 +14,25 @@ import { ReactComponent as YoutubeIcon } from 'app/icons/delegationYt.svg';
 import { ReactComponent as ClockRepeatIcon } from 'app/icons/history.svg';
 import { ReactComponent as StockUpIcon } from 'app/icons/stock-up.svg';
 import { ReactComponent as ClockIcon } from 'app/icons/time.svg';
-import { useGasToken } from 'lib/assets/hooks';
 import { T } from 'lib/i18n';
+import { isTezosDcpChainId } from 'temple/networks';
 
 import { BakingSectionSelectors } from './selectors';
 
 interface Props {
+  chainId: string;
   noPreviousHistory: boolean;
   cannotDelegate: boolean;
 }
 
-export const NotBakingBanner = memo<Props>(({ noPreviousHistory, cannotDelegate }) => {
-  const { isDcpNetwork } = useGasToken();
+export const NotBakingBanner = memo<Props>(({ chainId, noPreviousHistory, cannotDelegate }) => {
+  const isDcpNetwork = isTezosDcpChainId(chainId);
   const { fullPage } = useAppEnv();
 
   if (isDcpNetwork)
     return (
       <>
-        <DelegateIcon className="self-center w-8 h-8 stroke-current fill-current text-accent-blue" />
+        <DelegateIcon className="self-center w-8 h-8 stroke-current fill-current text-secondary" />
 
         <p className="mt-1 mb-6 text-sm font-light text-center">
           <T id="dcpDelegatingMotivation" />
@@ -51,7 +52,7 @@ export const NotBakingBanner = memo<Props>(({ noPreviousHistory, cannotDelegate 
   return (
     <>
       <h3 className="mb-6 font-semibold text-center" style={TITLE_STYLE}>
-        <span className="text-accent-blue">
+        <span className="text-secondary">
           <T id="delegationPointsHead1" />
         </span>{' '}
         <T id="delegationPointsHead2" />
@@ -126,7 +127,7 @@ const DelegateMotivationPoint: React.FC<{
   fullPage: boolean;
 }> = ({ Icon, textNode, fullPage }) => (
   <li className={clsx('flex items-center gap-x-4', fullPage && 'px-7')}>
-    <Icon className="flex-shrink-0 w-6 h-6 stroke-current fill-current text-accent-blue" style={{ strokeWidth: 1.5 }} />
+    <Icon className="flex-shrink-0 w-6 h-6 stroke-current fill-current text-secondary" style={{ strokeWidth: 1.5 }} />
 
     <p className="flex-1 text-sm text-gray-700">{textNode}</p>
   </li>

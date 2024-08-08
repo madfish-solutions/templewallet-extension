@@ -4,6 +4,7 @@ import { ReactComponent as LogoTitle } from 'app/misc/logo-title.svg';
 import { ReactComponent as WhiteLogoTitle } from 'app/misc/logo-white-title.svg';
 import { ReactComponent as WhiteLogo } from 'app/misc/logo-white.svg';
 import { ReactComponent as PlainLogo } from 'app/misc/logo.svg';
+import { APP_TITLE } from 'lib/constants';
 
 type LogoProps = SVGProps<SVGSVGElement> & {
   hasTitle?: boolean;
@@ -18,7 +19,7 @@ const Logo = memo<LogoProps>(({ hasTitle, white, style = {}, ...rest }) => {
 
   return (
     <Component
-      title="Temple - Tezos Wallet"
+      title={APP_TITLE}
       style={{
         height: 40,
         width: 'auto',

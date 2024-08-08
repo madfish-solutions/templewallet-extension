@@ -1,8 +1,16 @@
-/**
- * Inter UI font
- */
+@import './fonts.css';
 
-@import '~inter-ui/inter.css';
+:root {
+  color: #151618;
+}
+
+html {
+  height: 100%;
+}
+
+body {
+  min-height: 100%;
+}
 
 * {
   font-variant-ligatures: none;
@@ -26,36 +34,6 @@
 
 .tippy-content {
   white-space: pre-line;
-}
-
-/**
- * React Modal
- */
-
-.ReactModal__Overlay {
-  opacity: 0;
-  transition: opacity 200ms ease-in-out;
-}
-
-.ReactModal__Content {
-  transform: scale(0.75);
-  transition: transform 200ms ease-in-out;
-}
-
-.ReactModal__Overlay--after-open {
-  opacity: 1;
-}
-
-.ReactModal__Overlay--before-close {
-  opacity: 0;
-}
-
-.ReactModal__Overlay--after-open .ReactModal__Content {
-  transform: scale(1);
-}
-
-.ReactModal__Overlay--before-close .ReactModal__Content {
-  transform: scale(0.75);
 }
 
 /**
@@ -132,4 +110,18 @@ button,
 
 .animate-fade-in {
   animation: fade-in 2s ease-in-out infinite;
+}
+
+/* Hide Arrows From Input Number */
+@layer base {
+  /* Chrome, Safari, Edge, Opera */
+  input[type="number"]::-webkit-inner-spin-button,
+  input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+  /* Firefox */
+  input[type="number"] {
+    -moz-appearance: textfield;
+  }
 }

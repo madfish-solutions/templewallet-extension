@@ -3,30 +3,37 @@ import React, { memo, Suspense, useCallback, useMemo, useState } from 'react';
 import type { WalletOperation } from '@taquito/taquito';
 import { isEqual } from 'lodash';
 
-import AssetSelect from 'app/templates/AssetSelect';
 import OperationStatus from 'app/templates/OperationStatus';
 import { AnalyticsEventCategory, useAnalytics } from 'lib/analytics';
 import { TEZ_TOKEN_SLUG } from 'lib/assets';
-import { useEnabledAccountTokensSlugs } from 'lib/assets/hooks';
-import { useTokensSortPredicate } from 'lib/assets/use-sorting';
+import { useEnabledTezosChainAccountTokenSlugs } from 'lib/assets/hooks';
+import { useTezosChainAccountTokensSortPredicate } from 'lib/assets/use-sorting';
 import { t } from 'lib/i18n';
-import { useTezos } from 'lib/temple/front';
 import { useMemoWithCompare, useSafeState } from 'lib/ui/hooks';
 import { HistoryAction, navigate } from 'lib/woozie';
+import { AccountForTezos } from 'temple/accounts';
+import { TezosNetworkEssentials } from 'temple/networks';
+import { makeTezosClientId } from 'temple/tezos';
 
 import AddContactModal from './AddContactModal';
+import AssetSelect from './AssetSelect';
 import { Form } from './Form';
 import { SendFormSelectors } from './selectors';
 import { SpinnerSection } from './SpinnerSection';
 
-type Props = {
+interface Props {
+  network: TezosNetworkEssentials;
+  tezosAccount: AccountForTezos;
   assetSlug?: string | null;
-};
+}
 
-const SendForm = memo<Props>(({ assetSlug = TEZ_TOKEN_SLUG }) => {
-  const tokensSlugs = useEnabledAccountTokensSlugs();
+const SendForm = memo<Props>(({ network, tezosAccount, assetSlug = TEZ_TOKEN_SLUG }) => {
+  const tezosChainId = network.chainId;
+  const publicKeyHash = tezosAccount.address;
 
-  const tokensSortPredicate = useTokensSortPredicate();
+  const tokensSlugs = useEnabledTezosChainAccountTokenSlugs(publicKeyHash, tezosChainId);
+
+  const tokensSortPredicate = useTezosChainAccountTokensSortPredicate(publicKeyHash, tezosChainId);
 
   const assetsSlugs = useMemoWithCompare<string[]>(
     () => {
@@ -44,17 +51,19 @@ const SendForm = memo<Props>(({ assetSlug = TEZ_TOKEN_SLUG }) => {
 
   const selectedAsset = assetSlug ?? TEZ_TOKEN_SLUG;
 
-  const tezos = useTezos();
-  const [operation, setOperation] = useSafeState<WalletOperation | null>(null, tezos.checksum);
+  const [operation, setOperation] = useSafeState<WalletOperation | null>(
+    null,
+    makeTezosClientId(network.rpcBaseURL, tezosAccount.address)
+  );
   const [addContactModalAddress, setAddContactModalAddress] = useState<string | null>(null);
   const { trackEvent } = useAnalytics();
 
   const handleAssetChange = useCallback(
     (aSlug: string) => {
       trackEvent(SendFormSelectors.assetItemButton, AnalyticsEventCategory.ButtonPress);
-      navigate(`/send/${aSlug}`, HistoryAction.Replace);
+      navigate(`/send/${tezosChainId}/${aSlug}`, HistoryAction.Replace);
     },
-    [trackEvent]
+    [tezosChainId, trackEvent]
   );
 
   const handleAddContactRequested = useCallback(
@@ -79,9 +88,13 @@ const SendForm = memo<Props>(({ assetSlug = TEZ_TOKEN_SLUG }) => {
 
   return (
     <>
-      {operation && <OperationStatus typeTitle={t('transaction')} operation={operation} className="mb-8" />}
+      {operation && (
+        <OperationStatus network={network} typeTitle={t('transaction')} operation={operation} className="mb-8" />
+      )}
 
       <AssetSelect
+        network={network}
+        accountPkh={publicKeyHash}
         value={selectedAsset}
         slugs={assetsSlugs}
         onChange={handleAssetChange}
@@ -90,7 +103,13 @@ const SendForm = memo<Props>(({ assetSlug = TEZ_TOKEN_SLUG }) => {
       />
 
       <Suspense fallback={<SpinnerSection />}>
-        <Form assetSlug={selectedAsset} setOperation={setOperation} onAddContactRequested={handleAddContactRequested} />
+        <Form
+          account={tezosAccount}
+          network={network}
+          assetSlug={selectedAsset}
+          setOperation={setOperation}
+          onAddContactRequested={handleAddContactRequested}
+        />
       </Suspense>
 
       <AddContactModal address={addContactModalAddress} onClose={closeContactModal} />

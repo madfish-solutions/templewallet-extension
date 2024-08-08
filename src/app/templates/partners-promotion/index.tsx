@@ -110,6 +110,7 @@ export const PartnersPromotion = memo<PartnersPromotionProps>(({ variant, id, pa
           case 'Optimal':
             return (
               <OptimalPromotion
+                accountPkh={adsViewerAddress}
                 variant={variant}
                 isVisible={adIsReady}
                 pageName={pageName}
@@ -122,6 +123,7 @@ export const PartnersPromotion = memo<PartnersPromotionProps>(({ variant, id, pa
           case 'HypeLab':
             return (
               <HypelabPromotion
+                accountPkh={adsViewerAddress}
                 variant={variant}
                 isVisible={adIsReady}
                 pageName={pageName}
@@ -134,6 +136,7 @@ export const PartnersPromotion = memo<PartnersPromotionProps>(({ variant, id, pa
           case 'Persona':
             return (
               <PersonaPromotion
+                accountPkh={adsViewerAddress}
                 id={id}
                 isVisible={adIsReady}
                 pageName={pageName}
@@ -150,7 +153,7 @@ export const PartnersPromotion = memo<PartnersPromotionProps>(({ variant, id, pa
         <div
           className={clsx(
             'absolute top-0 left-0 w-full h-full bg-gray-100 flex justify-center items-center',
-            !popup && 'rounded-xl'
+            !popup && 'rounded-2.5'
           )}
         >
           <Spinner theme="dark-gray" className="w-6" />

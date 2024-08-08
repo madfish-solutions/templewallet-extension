@@ -3,13 +3,19 @@ import { useCallback, useEffect, useRef } from 'react';
 import { isDefined } from '@rnw-community/shared';
 
 import { AnalyticsEventCategory, useAnalytics } from 'lib/analytics';
-import { isDomainNameValid, useTezosDomainsClient, validateRecipient } from 'lib/temple/front';
+import { validateRecipient } from 'lib/temple/front';
 import { otherNetworks } from 'lib/temple/front/other-networks';
+import { isTezosDomainsNameValid, getTezosDomainsClient } from 'temple/front/tezos';
+import { TezosNetworkEssentials } from 'temple/networks';
 
-export const useAddressFieldAnalytics = (value: string, addressFromNetworkEventName: string) => {
+export const useAddressFieldAnalytics = (
+  network: TezosNetworkEssentials,
+  value: string,
+  addressFromNetworkEventName: string
+) => {
   const analytics = useAnalytics();
   const valueRef = useRef(value);
-  const domainsClient = useTezosDomainsClient();
+  const domainsClient = getTezosDomainsClient(network.chainId, network.rpcBaseURL);
 
   const trackNetworkEvent = useCallback(
     (networkSlug?: string) =>
@@ -32,7 +38,7 @@ export const useAddressFieldAnalytics = (value: string, addressFromNetworkEventN
       .then(result => {
         if (
           result === false ||
-          (result === true && domainsClient.isSupported && isDomainNameValid(value, domainsClient))
+          (result === true && domainsClient.isSupported && isTezosDomainsNameValid(value, domainsClient))
         ) {
           return;
         }

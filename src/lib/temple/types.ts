@@ -2,7 +2,8 @@ import type { DerivationType } from '@taquito/ledger-signer';
 import type { Estimate } from '@taquito/taquito';
 import type { TempleDAppMetadata, TempleDAppNetwork } from '@temple-wallet/dapp/dist/types';
 
-import type { TID } from 'lib/i18n/types';
+import type { StoredEvmNetwork, StoredTezosNetwork } from 'temple/networks';
+import type { TempleChainKind } from 'temple/types';
 
 import type {
   TempleSendPageEventRequest,
@@ -11,16 +12,7 @@ import type {
   TempleSendTrackEventResponse
 } from './analytics-types';
 
-type NonEmptyArray<T> = [T, ...T[]];
-
 export { DerivationType };
-
-export interface ReadyTempleState extends TempleState {
-  status: TempleStatus.Ready;
-  accounts: NonEmptyArray<TempleAccount>;
-  networks: NonEmptyArray<TempleNetwork>;
-  settings: TempleSettings;
-}
 
 export interface TempleDAppSession {
   network: TempleDAppNetwork;
@@ -29,26 +21,26 @@ export interface TempleDAppSession {
   publicKey: string;
 }
 
+export interface WalletSpecs {
+  name: string;
+}
+
 export interface TempleState {
   status: TempleStatus;
-  accounts: TempleAccount[];
-  networks: TempleNetwork[];
+  accounts: StoredAccount[];
   settings: TempleSettings | null;
 }
 
-export enum TempleChainId {
-  Mainnet = 'NetXdQprcVkpaWU',
+export const TEZOS_MAINNET_CHAIN_ID = 'NetXdQprcVkpaWU';
+export const ETHEREUM_MAINNET_CHAIN_ID = 1;
+
+export enum TempleTezosChainId {
+  Mainnet = TEZOS_MAINNET_CHAIN_ID,
   Ghostnet = 'NetXnHfVqm9iesp',
-  Monday = 'NetXaqtQ8b5nihx',
   Mumbai = 'NetXgbcrNtXD2yA',
   Nairobi = 'NetXyuzvDo2Ugzb',
-  Daily = 'NetXxkAx4woPLyu',
   Dcp = 'NetXooyhiru73tk',
-  DcpTest = 'NetXX7Tz1sK8JTa'
-}
-
-export function isKnownChainId(chainId: string): chainId is TempleChainId {
-  return Object.values(TempleChainId).includes(chainId as TempleChainId);
+  DcpTest = 'NetXZb3Lz8FsrZx'
 }
 
 export enum TempleStatus {
@@ -57,45 +49,55 @@ export enum TempleStatus {
   Ready
 }
 
-export type TempleAccount =
-  | TempleHDAccount
-  | TempleImportedAccount
-  | TempleLedgerAccount
-  | TempleManagedKTAccount
-  | TempleWatchOnlyAccount;
+export type StoredAccount =
+  | StoredHDAccount
+  | StoredImportedAccount
+  | StoredLedgerAccount
+  | StoredManagedKTAccount
+  | StoredWatchOnlyAccount;
 
-interface TempleLedgerAccount extends TempleAccountBase {
+interface StoredLedgerAccount extends StoredAccountBase {
   type: TempleAccountType.Ledger;
+  tezosAddress: string;
   derivationPath: string;
 }
 
-interface TempleImportedAccount extends TempleAccountBase {
+interface StoredImportedAccount extends StoredAccountBase {
   type: TempleAccountType.Imported;
+  chain: TempleChainKind;
+  address: string;
 }
 
-interface TempleHDAccount extends TempleAccountBase {
+export interface StoredHDAccount extends StoredAccountBase {
   type: TempleAccountType.HD;
   hdIndex: number;
+  tezosAddress: string;
+  evmAddress: string;
+  walletId: string;
 }
 
-interface TempleManagedKTAccount extends TempleAccountBase {
+interface StoredManagedKTAccount extends StoredAccountBase {
   type: TempleAccountType.ManagedKT;
+  tezosAddress: string;
   chainId: string;
   owner: string;
 }
 
-interface TempleWatchOnlyAccount extends TempleAccountBase {
+interface StoredWatchOnlyAccount extends StoredAccountBase {
   type: TempleAccountType.WatchOnly;
+  chain: TempleChainKind;
+  address: string;
+  /** For contract addresses */
   chainId?: string;
 }
 
-interface TempleAccountBase {
+export interface StoredAccountBase {
+  id: string;
   type: TempleAccountType;
   name: string;
-  publicKeyHash: string;
-  hdIndex?: number;
   derivationPath?: string;
   derivationType?: DerivationType;
+  hidden?: boolean;
 }
 
 export enum TempleAccountType {
@@ -106,34 +108,19 @@ export enum TempleAccountType {
   WatchOnly
 }
 
-interface TempleNetworkBase {
+export interface DisplayedGroup {
   id: string;
-  name?: string;
-  nameI18nKey?: TID;
-  description: string;
-  descriptionI18nKey?: string;
-  type: TempleNetworkType;
-  rpcBaseURL: string;
-  color: string;
-  disabled: boolean;
-  hidden?: boolean;
+  name: string;
+  accounts: StoredAccount[];
+  type: TempleAccountType;
 }
 
-export type TempleNetwork = TempleNetworkBase &
-  (
-    | {
-        nameI18nKey: TID;
-      }
-    | {
-        name: string;
-      }
-  );
-
-export type TempleNetworkType = 'main' | 'test' | 'dcp';
-
 export interface TempleSettings {
-  customNetworks?: TempleNetwork[];
+  customTezosNetworks?: StoredTezosNetwork[];
+  customEvmNetworks?: StoredEvmNetwork[];
   contacts?: TempleContact[];
+  /** @deprecated */
+  customNetworks?: StoredTezosNetwork[];
 }
 
 export enum TempleSharedStorageKey {
@@ -158,6 +145,7 @@ export interface TempleContact {
 interface TempleConfirmationPayloadBase {
   type: string;
   sourcePkh: string;
+  networkRpc: string;
 }
 
 interface TempleSignConfirmationPayload extends TempleConfirmationPayloadBase {
@@ -168,7 +156,6 @@ interface TempleSignConfirmationPayload extends TempleConfirmationPayloadBase {
 
 interface TempleOpsConfirmationPayload extends TempleConfirmationPayloadBase {
   type: 'operations';
-  networkRpc: string;
   opParams: any[];
   bytesToSign?: string;
   rawToSign?: any;
@@ -237,6 +224,8 @@ export enum TempleMessageType {
   UnlockResponse = 'TEMPLE_UNLOCK_RESPONSE',
   LockRequest = 'TEMPLE_LOCK_REQUEST',
   LockResponse = 'TEMPLE_LOCK_RESPONSE',
+  FindFreeHDAccountIndexRequest = 'TEMPLE_FIND_FREE_HD_ACCOUNT_INDEX_REQUEST',
+  FindFreeHDAccountIndexResponse = 'TEMPLE_FIND_FREE_HD_ACCOUNT_INDEX_RESPONSE',
   CreateAccountRequest = 'TEMPLE_CREATE_ACCOUNT_REQUEST',
   CreateAccountResponse = 'TEMPLE_CREATE_ACCOUNT_RESPONSE',
   RevealPublicKeyRequest = 'TEMPLE_REVEAL_PUBLIC_KEY_REQUEST',
@@ -251,6 +240,8 @@ export enum TempleMessageType {
   RemoveAccountResponse = 'TEMPLE_REMOVE_ACCOUNT_RESPONSE',
   EditAccountRequest = 'TEMPLE_EDIT_ACCOUNT_REQUEST',
   EditAccountResponse = 'TEMPLE_EDIT_ACCOUNT_RESPONSE',
+  SetAccountHiddenRequest = 'TEMPLE_SET_ACCOUNT_HIDDEN_REQUEST',
+  SetAccountHiddenResponse = 'TEMPLE_SET_ACCOUNT_HIDDEN_RESPONSE',
   ImportAccountRequest = 'TEMPLE_IMPORT_ACCOUNT_REQUEST',
   ImportAccountResponse = 'TEMPLE_IMPORT_ACCOUNT_RESPONSE',
   ImportMnemonicAccountRequest = 'TEMPLE_IMPORT_MNEMONIC_ACCOUNT_REQUEST',
@@ -265,6 +256,12 @@ export enum TempleMessageType {
   CreateLedgerAccountResponse = 'TEMPLE_CREATE_LEDGER_ACCOUNT_RESPONSE',
   UpdateSettingsRequest = 'TEMPLE_UPDATE_SETTINGS_REQUEST',
   UpdateSettingsResponse = 'TEMPLE_UPDATE_SETTINGS_RESPONSE',
+  RemoveHdWalletRequest = 'TEMPLE_REMOVE_HD_WALLET_REQUEST',
+  RemoveHdWalletResponse = 'TEMPLE_REMOVE_HD_WALLET_RESPONSE',
+  RemoveAccountsByTypeRequest = 'TEMPLE_REMOVE_ACCOUNTS_BY_TYPE_REQUEST',
+  RemoveAccountsByTypeResponse = 'TEMPLE_REMOVE_ACCOUNTS_BY_TYPE_RESPONSE',
+  CreateOrImportWalletRequest = 'TEMPLE_CREATE_OR_IMPORT_WALLET_REQUEST',
+  CreateOrImportWalletResponse = 'TEMPLE_CREATE_OR_IMPORT_WALLET_RESPONSE',
   OperationsRequest = 'TEMPLE_OPERATIONS_REQUEST',
   OperationsResponse = 'TEMPLE_OPERATIONS_RESPONSE',
   SignRequest = 'TEMPLE_SIGN_REQUEST',
@@ -303,11 +300,13 @@ export type TempleRequest =
   | TempleNewWalletRequest
   | TempleUnlockRequest
   | TempleLockRequest
+  | TempleFreeHDAccountIndexRequest
   | TempleCreateAccountRequest
   | TempleRevealPublicKeyRequest
   | TempleRevealPrivateKeyRequest
   | TempleRevealMnemonicRequest
   | TempleGenerateSyncPayloadRequest
+  | TempleSetAccountHiddenRequest
   | TempleEditAccountRequest
   | TempleImportAccountRequest
   | TempleImportMnemonicAccountRequest
@@ -319,6 +318,9 @@ export type TempleRequest =
   | TempleSignRequest
   | TempleConfirmationRequest
   | TempleRemoveAccountRequest
+  | TempleRemoveHdWalletRequest
+  | TempleRemoveAccountsByTypeRequest
+  | TempleCreateOrImportWalletRequest
   | TemplePageRequest
   | TempleDAppGetPayloadRequest
   | TempleDAppPermConfirmationRequest
@@ -336,11 +338,13 @@ export type TempleResponse =
   | TempleNewWalletResponse
   | TempleUnlockResponse
   | TempleLockResponse
+  | TempleFreeHDAccountIndexResponse
   | TempleCreateAccountResponse
   | TempleRevealPublicKeyResponse
   | TempleRevealPrivateKeyResponse
   | TempleRevealMnemonicResponse
   | TempleGenerateSyncPayloadResponse
+  | TempleSetAccountHiddenResponse
   | TempleEditAccountResponse
   | TempleImportAccountResponse
   | TempleImportMnemonicAccountResponse
@@ -352,6 +356,9 @@ export type TempleResponse =
   | TempleSignResponse
   | TempleConfirmationResponse
   | TempleRemoveAccountResponse
+  | TempleRemoveHdWalletResponse
+  | TempleRemoveAccountsByTypeResponse
+  | TempleCreateOrImportWalletResponse
   | TemplePageResponse
   | TempleDAppGetPayloadResponse
   | TempleDAppPermConfirmationResponse
@@ -431,9 +438,22 @@ interface TempleLockResponse extends TempleMessageBase {
   type: TempleMessageType.LockResponse;
 }
 
+interface TempleFreeHDAccountIndexRequest extends TempleMessageBase {
+  type: TempleMessageType.FindFreeHDAccountIndexRequest;
+  walletId: string;
+}
+
+interface TempleFreeHDAccountIndexResponse extends TempleMessageBase {
+  type: TempleMessageType.FindFreeHDAccountIndexResponse;
+  hdIndex: number;
+  firstSkippedAccount: StoredAccount | undefined;
+}
+
 interface TempleCreateAccountRequest extends TempleMessageBase {
   type: TempleMessageType.CreateAccountRequest;
+  walletId: string;
   name?: string;
+  hdIndex?: number;
 }
 
 interface TempleCreateAccountResponse extends TempleMessageBase {
@@ -442,7 +462,7 @@ interface TempleCreateAccountResponse extends TempleMessageBase {
 
 interface TempleRevealPublicKeyRequest extends TempleMessageBase {
   type: TempleMessageType.RevealPublicKeyRequest;
-  accountPublicKeyHash: string;
+  accountAddress: string;
 }
 
 interface TempleRevealPublicKeyResponse extends TempleMessageBase {
@@ -452,7 +472,7 @@ interface TempleRevealPublicKeyResponse extends TempleMessageBase {
 
 interface TempleRevealPrivateKeyRequest extends TempleMessageBase {
   type: TempleMessageType.RevealPrivateKeyRequest;
-  accountPublicKeyHash: string;
+  address: string;
   password: string;
 }
 
@@ -463,6 +483,7 @@ interface TempleRevealPrivateKeyResponse extends TempleMessageBase {
 
 interface TempleRevealMnemonicRequest extends TempleMessageBase {
   type: TempleMessageType.RevealMnemonicRequest;
+  walletId: string;
   password: string;
 }
 
@@ -483,7 +504,7 @@ interface TempleGenerateSyncPayloadResponse extends TempleMessageBase {
 
 interface TempleRemoveAccountRequest extends TempleMessageBase {
   type: TempleMessageType.RemoveAccountRequest;
-  accountPublicKeyHash: string;
+  id: string;
   password: string;
 }
 
@@ -493,7 +514,7 @@ interface TempleRemoveAccountResponse extends TempleMessageBase {
 
 interface TempleEditAccountRequest extends TempleMessageBase {
   type: TempleMessageType.EditAccountRequest;
-  accountPublicKeyHash: string;
+  id: string;
   name: string;
 }
 
@@ -501,8 +522,19 @@ interface TempleEditAccountResponse extends TempleMessageBase {
   type: TempleMessageType.EditAccountResponse;
 }
 
+interface TempleSetAccountHiddenRequest extends TempleMessageBase {
+  type: TempleMessageType.SetAccountHiddenRequest;
+  id: string;
+  value: boolean;
+}
+
+interface TempleSetAccountHiddenResponse extends TempleMessageBase {
+  type: TempleMessageType.SetAccountHiddenResponse;
+}
+
 interface TempleImportAccountRequest extends TempleMessageBase {
   type: TempleMessageType.ImportAccountRequest;
+  chain: TempleChainKind;
   privateKey: string;
   encPassword?: string;
 }
@@ -547,6 +579,7 @@ interface TempleImportManagedKTAccountResponse extends TempleMessageBase {
 interface TempleImportWatchOnlyAccountRequest extends TempleMessageBase {
   type: TempleMessageType.ImportWatchOnlyAccountRequest;
   address: string;
+  chain: TempleChainKind;
   chainId?: string;
 }
 
@@ -574,6 +607,35 @@ interface TempleUpdateSettingsResponse extends TempleMessageBase {
   type: TempleMessageType.UpdateSettingsResponse;
 }
 
+interface TempleRemoveHdWalletRequest extends TempleMessageBase {
+  type: TempleMessageType.RemoveHdWalletRequest;
+  id: string;
+  password: string;
+}
+
+interface TempleRemoveHdWalletResponse extends TempleMessageBase {
+  type: TempleMessageType.RemoveHdWalletResponse;
+}
+
+interface TempleRemoveAccountsByTypeRequest extends TempleMessageBase {
+  type: TempleMessageType.RemoveAccountsByTypeRequest;
+  accountsType: Exclude<TempleAccountType, TempleAccountType.HD>;
+  password: string;
+}
+
+interface TempleRemoveAccountsByTypeResponse extends TempleMessageBase {
+  type: TempleMessageType.RemoveAccountsByTypeResponse;
+}
+
+interface TempleCreateOrImportWalletRequest extends TempleMessageBase {
+  type: TempleMessageType.CreateOrImportWalletRequest;
+  mnemonic?: string;
+}
+
+interface TempleCreateOrImportWalletResponse extends TempleMessageBase {
+  type: TempleMessageType.CreateOrImportWalletResponse;
+}
+
 interface TempleOperationsRequest extends TempleMessageBase {
   type: TempleMessageType.OperationsRequest;
   id: string;
@@ -591,6 +653,7 @@ interface TempleSignRequest extends TempleMessageBase {
   type: TempleMessageType.SignRequest;
   id: string;
   sourcePkh: string;
+  networkRpc: string;
   bytes: string;
   watermark?: string;
 }

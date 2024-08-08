@@ -1,18 +1,17 @@
-import React, { FC, useEffect, useMemo, useRef } from 'react';
+import React, { FC, useMemo } from 'react';
 
 import { TabSwitcher } from 'app/atoms';
-import { ReactComponent as DownloadIcon } from 'app/icons/download.svg';
+import { useAllAccountsReactiveOnAddition } from 'app/hooks/use-all-accounts-reactive';
+import { ReactComponent as DownloadIcon } from 'app/icons/monochrome/download.svg';
 import PageLayout from 'app/layouts/PageLayout';
 import { TID, T } from 'lib/i18n';
-import { useSetAccountPkh, useAllAccounts, useNetwork } from 'lib/temple/front';
-import { isTruthy } from 'lib/utils';
-import { navigate } from 'lib/woozie';
 
 import { ByFundraiserForm } from './ByFundraiserForm';
 import { ByMnemonicForm } from './ByMnemonicForm';
 import { ByPrivateKeyForm } from './ByPrivateKeyForm';
 import { FromFaucetForm } from './FromFaucetForm';
 import { ManagedKTForm } from './ManagedKTForm';
+import { WalletFromMnemonicForm } from './wallet-from-mnemonic-form';
 import { WatchOnlyForm } from './WatchOnlyForm';
 
 type ImportAccountProps = {
@@ -26,73 +25,12 @@ interface ImportTabDescriptor {
 }
 
 const ImportAccount: FC<ImportAccountProps> = ({ tabSlug }) => {
-  const network = useNetwork();
-  const allAccounts = useAllAccounts();
-  const setAccountPkh = useSetAccountPkh();
-
-  const prevAccLengthRef = useRef(allAccounts.length);
-  const prevNetworkRef = useRef(network);
-
-  useEffect(() => {
-    const accLength = allAccounts.length;
-    if (prevAccLengthRef.current < accLength) {
-      setAccountPkh(allAccounts[accLength - 1].publicKeyHash);
-      navigate('/');
-    }
-    prevAccLengthRef.current = accLength;
-  }, [allAccounts, setAccountPkh]);
-
-  const allTabs = useMemo(() => {
-    const unfiltered: (ImportTabDescriptor | null)[] = [
-      {
-        slug: 'private-key',
-        i18nKey: 'privateKey',
-        Form: ByPrivateKeyForm
-      },
-      {
-        slug: 'mnemonic',
-        i18nKey: 'mnemonic',
-        Form: ByMnemonicForm
-      },
-      {
-        slug: 'fundraiser',
-        i18nKey: 'fundraiser',
-        Form: ByFundraiserForm
-      },
-      network.type !== 'main'
-        ? {
-            slug: 'faucet',
-            i18nKey: 'faucetFileTitle',
-            Form: FromFaucetForm
-          }
-        : null,
-      {
-        slug: 'managed-kt',
-        i18nKey: 'managedKTAccount',
-        Form: ManagedKTForm
-      },
-      {
-        slug: 'watch-only',
-        i18nKey: 'watchOnlyAccount',
-        Form: WatchOnlyForm
-      }
-    ];
-
-    return unfiltered.filter(isTruthy);
-  }, [network.type]);
+  useAllAccountsReactiveOnAddition();
 
   const { slug, Form } = useMemo(() => {
-    const tab = tabSlug ? allTabs.find(currentTab => currentTab.slug === tabSlug) : null;
-    return tab ?? allTabs[0];
-  }, [allTabs, tabSlug]);
-
-  useEffect(() => {
-    const prevNetworkType = prevNetworkRef.current.type;
-    prevNetworkRef.current = network;
-    if (prevNetworkType !== 'main' && network.type === 'main' && slug === 'faucet') {
-      navigate(`/import-account/private-key`);
-    }
-  }, [network, slug]);
+    const tab = tabSlug ? ALL_TABS.find(currentTab => currentTab.slug === tabSlug) : null;
+    return tab ?? ALL_TABS[0];
+  }, [tabSlug]);
 
   return (
     <PageLayout
@@ -106,7 +44,7 @@ const ImportAccount: FC<ImportAccountProps> = ({ tabSlug }) => {
       }
     >
       <div className="py-4">
-        <TabSwitcher className="mb-4" tabs={allTabs} activeTabSlug={slug} urlPrefix="/import-account" />
+        <TabSwitcher className="mb-4" tabs={ALL_TABS} activeTabSlug={slug} urlPrefix="/import-account" />
 
         <Form />
       </div>
@@ -115,3 +53,41 @@ const ImportAccount: FC<ImportAccountProps> = ({ tabSlug }) => {
 };
 
 export default ImportAccount;
+
+const ALL_TABS: ImportTabDescriptor[] = [
+  {
+    slug: 'private-key',
+    i18nKey: 'privateKey',
+    Form: ByPrivateKeyForm
+  },
+  {
+    slug: 'mnemonic',
+    i18nKey: 'mnemonic',
+    Form: ByMnemonicForm
+  },
+  {
+    slug: 'fundraiser',
+    i18nKey: 'fundraiser',
+    Form: ByFundraiserForm
+  },
+  {
+    slug: 'wallet-from-mnemonic',
+    i18nKey: 'walletFromMnemonic',
+    Form: WalletFromMnemonicForm
+  },
+  {
+    slug: 'faucet',
+    i18nKey: 'faucetFileTitle',
+    Form: FromFaucetForm
+  },
+  {
+    slug: 'managed-kt',
+    i18nKey: 'managedKTAccount',
+    Form: ManagedKTForm
+  },
+  {
+    slug: 'watch-only',
+    i18nKey: 'watchOnlyAccount',
+    Form: WatchOnlyForm
+  }
+];

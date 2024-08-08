@@ -7,7 +7,7 @@ import { object, string } from 'yup';
 
 import Spinner from 'app/atoms/Spinner/Spinner';
 import { useAppEnv } from 'app/env';
-import ContentContainer from 'app/layouts/ContentContainer';
+import { LAYOUT_CONTAINER_CLASSNAME } from 'app/layouts/containers';
 import { useOnboardingProgress } from 'app/pages/Onboarding/hooks/useOnboardingProgress.hook';
 import { shouldShowNewsletterModalAction } from 'app/store/newsletter/newsletter-actions';
 import { useShouldShowNewsletterModalSelector } from 'app/store/newsletter/newsletter-selectors';
@@ -85,18 +85,14 @@ export const NewsletterOverlay = memo(() => {
     return null;
 
   return (
-    <div className="fixed inset-0 z-40 flex flex-col items-center justify-center bg-gray-700 bg-opacity-20">
-      <ContentContainer
-        className={classNames('overflow-y-scroll py-4', popup ? 'h-full px-4' : 'px-5')}
-        padding={false}
-      >
+    <div className="fixed inset-0 z-overlay-promo flex flex-col items-center justify-center bg-gray-700 bg-opacity-20">
+      <div className={classNames(LAYOUT_CONTAINER_CLASSNAME, 'overflow-y-scroll py-4', popup && 'h-full px-4')}>
         <form
           onSubmit={handleSubmit(onSubmit)}
           className={classNames(
             'relative flex flex-col justify-center text-center bg-orange-100 shadow-lg bg-no-repeat rounded-md',
-            popup ? 'p-4' : 'px-13 py-18'
+            popup ? 'p-4 h-full' : 'px-8 py-18'
           )}
-          style={{ height: popup ? '100%' : '700px' }}
         >
           <OverlayCloseButton testID={NewsletterOverlaySelectors.closeButton} onClick={close} />
 
@@ -136,7 +132,7 @@ export const NewsletterOverlay = memo(() => {
             </button>
           </div>
         </form>
-      </ContentContainer>
+      </div>
     </div>
   );
 });

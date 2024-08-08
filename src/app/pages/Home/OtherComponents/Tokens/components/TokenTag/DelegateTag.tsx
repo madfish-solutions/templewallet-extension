@@ -3,18 +3,23 @@ import React, { memo, useCallback, useMemo } from 'react';
 import classNames from 'clsx';
 
 import { Button } from 'app/atoms/Button';
-import { HomeSelectors } from 'app/pages/Home/Home.selectors';
+import { HomeSelectors } from 'app/pages/Home/selectors';
 import { AnalyticsEventCategory, useAnalytics } from 'lib/analytics';
 import { T } from 'lib/i18n';
-import { useAccount, useDelegate } from 'lib/temple/front';
+import { useDelegate } from 'lib/temple/front';
 import { navigate } from 'lib/woozie';
+import { TezosNetworkEssentials } from 'temple/networks';
 
 import { AssetsSelectors } from '../../../Assets.selectors';
 import modStyles from '../../Tokens.module.css';
 
-export const DelegateTezosTag = memo(() => {
-  const acc = useAccount();
-  const { data: myBakerPkh } = useDelegate(acc.publicKeyHash);
+interface Props {
+  network: TezosNetworkEssentials;
+  pkh: string;
+}
+
+export const DelegateTezosTag = memo<Props>(({ network, pkh }) => {
+  const { data: myBakerPkh } = useDelegate(pkh, network, false);
   const { trackEvent } = useAnalytics();
 
   const handleTagClick = useCallback(
@@ -22,16 +27,16 @@ export const DelegateTezosTag = memo(() => {
       e.preventDefault();
       e.stopPropagation();
       trackEvent(HomeSelectors.delegateButton, AnalyticsEventCategory.ButtonPress);
-      navigate('/explore/tez/?tab=delegation');
+      navigate(`/explore/${network.chainId}/tez/?tab=delegation`);
     },
-    [trackEvent]
+    [network.chainId, trackEvent]
   );
 
   const NotDelegatedButton = useMemo(
     () => (
       <Button
         onClick={handleTagClick}
-        className={classNames('uppercase ml-2 px-1.5 py-1', modStyles.tagBase, modStyles.delegateTag)}
+        className={classNames('uppercase ml-2 px-1.5 py-1 bg-secondary hover:bg-secondary-hover', modStyles.tagBase)}
         testID={AssetsSelectors.assetItemDelegateButton}
       >
         <T id="notDelegated" />
@@ -44,7 +49,10 @@ export const DelegateTezosTag = memo(() => {
     () => (
       <Button
         onClick={handleTagClick}
-        className={classNames('inline-flex items-center px-1.5 ml-2 py-1', modStyles.tagBase, modStyles.delegateTag)}
+        className={classNames(
+          'inline-flex items-center px-1.5 ml-2 py-1 bg-secondary hover:bg-secondary-hover',
+          modStyles.tagBase
+        )}
         testID={AssetsSelectors.assetItemApyButton}
       >
         APY: 5.6%

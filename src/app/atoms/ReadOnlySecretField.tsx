@@ -12,6 +12,7 @@ import { SecretCover } from './SecretCover';
 
 interface ReadOnlySecretFieldProps extends TestIDProperty {
   label: TID;
+  labelSubstitutions?: any;
   description: React.ReactNode;
   value: string;
   secretCoverTestId?: string;
@@ -20,6 +21,7 @@ interface ReadOnlySecretFieldProps extends TestIDProperty {
 export const ReadOnlySecretField: FC<ReadOnlySecretFieldProps> = ({
   value,
   label,
+  labelSubstitutions,
   description,
   testID,
   secretCoverTestId
@@ -37,7 +39,11 @@ export const ReadOnlySecretField: FC<ReadOnlySecretFieldProps> = ({
 
   return (
     <div className="w-full flex flex-col">
-      <FieldLabel label={<T id={label} />} description={description} className="mb-4" />
+      <FieldLabel
+        label={<T id={label} substitutions={labelSubstitutions} />}
+        description={description}
+        className="mb-4"
+      />
 
       <div className="relative flex items-stretch">
         <p

@@ -1,5 +1,8 @@
 import browser from 'webextension-polyfill';
 
+import { getAccountAddressForTezos } from 'temple/accounts';
+import { TempleChainKind } from 'temple/types';
+
 import { TempleAccountType, TempleStatus } from '../types';
 
 import { accountsUpdated, inited as initEvent, locked, settingsUpdated, store, unlocked } from './store';
@@ -13,12 +16,11 @@ describe('Store tests', () => {
   });
 
   it('Initial store values', () => {
-    const { inited, vault, status, accounts, networks, settings } = store.getState();
+    const { inited, vault, status, accounts, settings } = store.getState();
     expect(inited).toBeFalsy();
     expect(vault).toBeNull();
     expect(status).toBe(TempleStatus.Idle);
     expect(accounts).toEqual([]);
-    expect(networks).toEqual([]);
     expect(settings).toBeNull();
   });
   it('Inited event', () => {
@@ -45,16 +47,18 @@ describe('Store tests', () => {
   it('Accounts updated event', () => {
     accountsUpdated([
       {
+        id: 'testId',
         name: 'testName',
         type: TempleAccountType.Imported,
-        publicKeyHash: 'testHashKey'
+        chain: TempleChainKind.Tezos,
+        address: 'testHashKey'
       }
     ]);
     const { accounts } = store.getState();
-    const { name, type, publicKeyHash } = accounts[0];
+    const { name, type } = accounts[0];
     expect(name).toBe('testName');
     expect(type).toBe(TempleAccountType.Imported);
-    expect(publicKeyHash).toBe('testHashKey');
+    expect(getAccountAddressForTezos(accounts[0])).toBe('testHashKey');
   });
   it('Settings updated event', () => {
     settingsUpdated({});

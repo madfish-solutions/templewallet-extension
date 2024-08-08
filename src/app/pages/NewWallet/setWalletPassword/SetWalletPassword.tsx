@@ -1,6 +1,5 @@
 import React, { FC, useCallback, useLayoutEffect, useMemo } from 'react';
 
-import classNames from 'clsx';
 import { Controller, useForm } from 'react-hook-form';
 import { useDispatch } from 'react-redux';
 
@@ -157,10 +156,7 @@ export const SetWalletPassword: FC<SetWalletPasswordProps> = ({
   );
 
   return (
-    <form
-      className={classNames('w-full max-w-sm mx-auto my-4', ownMnemonic && 'pb-20')}
-      onSubmit={handleSubmit(onSubmit)}
-    >
+    <form className={ownMnemonic ? 'pb-20' : undefined} onSubmit={handleSubmit(onSubmit)}>
       {ownMnemonic && isImportFromKeystoreFile && (
         <div className="w-full mb-6 mt-8">
           <Controller

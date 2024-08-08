@@ -11,8 +11,8 @@ import { ReactComponent as ChevronUpIcon } from 'app/icons/chevron-up.svg';
 import { TEZ_TOKEN_SLUG } from 'lib/assets';
 import { useFiatCurrency } from 'lib/fiat-currency';
 import { t, toLocalFixed } from 'lib/i18n';
-import { TEZOS_METADATA, useGasTokenMetadata } from 'lib/metadata';
-import { useNetwork } from 'lib/temple/front';
+import { TEZOS_METADATA, getTezosGasMetadata } from 'lib/metadata';
+import { TEZOS_MAINNET_CHAIN_ID } from 'lib/temple/types';
 import { useDidUpdate } from 'lib/ui/hooks';
 
 export interface FormData {
@@ -20,6 +20,7 @@ export interface FormData {
 }
 
 interface Props extends FormContextValues<FormData> {
+  tezosChainId: string;
   forUnstake?: boolean;
   inFiat: boolean;
   maxAmountInTezos: BigNumber | null;
@@ -30,6 +31,7 @@ interface Props extends FormContextValues<FormData> {
 }
 
 export const StakeAmountField: FC<Props> = ({
+  tezosChainId,
   forUnstake,
   inFiat,
   maxAmountInTezos,
@@ -39,14 +41,13 @@ export const StakeAmountField: FC<Props> = ({
   setInFiat,
   ...form
 }) => {
-  const network = useNetwork();
-  const { symbol, decimals } = useGasTokenMetadata();
+  const { symbol, decimals } = getTezosGasMetadata(tezosChainId);
 
   const { errors, control, setValue, triggerValidation, getValues, watch } = form;
 
   const amountValue = watch('amount');
 
-  const canEnterInFiat = network.type === 'main' && assetPrice.gt(0);
+  const canEnterInFiat = tezosChainId === TEZOS_MAINNET_CHAIN_ID && assetPrice.gt(0);
 
   useDidUpdate(() => {
     if (!canEnterInFiat) setInFiat(false);
@@ -149,6 +150,7 @@ export const StakeAmountField: FC<Props> = ({
 
         {amountValue ? (
           <ConvertedInputAssetAmount
+            tezosChainId={tezosChainId}
             assetSlug={TEZ_TOKEN_SLUG}
             assetMetadata={TEZOS_METADATA}
             amountValue={inFiat ? convertFiatToAssetAmount(amountValue, assetPrice, decimals) : amountValue}

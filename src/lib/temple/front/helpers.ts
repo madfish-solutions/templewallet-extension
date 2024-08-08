@@ -1,5 +1,4 @@
 import { getMessage } from 'lib/i18n';
-import { isAddressValid, isKTAddress } from 'lib/temple/helpers';
 import { isTruthy } from 'lib/utils';
 
 export function validateDerivationPath(p: string) {
@@ -22,17 +21,4 @@ export function validateDerivationPath(p: string) {
   }
 
   return true;
-}
-
-export function validateContractAddress(value: any) {
-  switch (false) {
-    case isAddressValid(value):
-      return getMessage('invalidAddress');
-
-    case isKTAddress(value):
-      return getMessage('onlyKTContractAddressAllowed');
-
-    default:
-      return true;
-  }
 }

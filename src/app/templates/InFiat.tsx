@@ -6,43 +6,49 @@ import BigNumber from 'bignumber.js';
 import Money from 'app/atoms/Money';
 import { TestIDProps } from 'lib/analytics';
 import { useAssetFiatCurrencyPrice, useFiatCurrency } from 'lib/fiat-currency';
-import { useNetwork } from 'lib/temple/front';
+import { TEZOS_MAINNET_CHAIN_ID } from 'lib/temple/types';
 
 interface OutputProps {
   balance: ReactNode;
   symbol: string;
 }
 
-interface InFiatProps extends TestIDProps {
+interface Props extends TestIDProps {
   volume: BigNumber | number | string;
-  assetSlug?: string;
+  chainId: number | string;
+  assetSlug: string;
   children: (output: OutputProps) => ReactElement;
   roundingMode?: BigNumber.RoundingMode;
   shortened?: boolean;
   smallFractionFont?: boolean;
-  mainnet?: boolean;
   showCents?: boolean;
+  evm?: boolean;
 }
 
-const InFiat: FC<InFiatProps> = ({
+const InFiat: FC<Props> = props => {
+  // TODO: show fiat value only for mainnet chains
+  if (!props.evm && props.chainId !== TEZOS_MAINNET_CHAIN_ID) return null;
+
+  return <InFiatContent {...props} />;
+};
+
+export default InFiat;
+
+const InFiatContent: FC<Props> = ({
+  evm,
+  chainId,
   volume,
   assetSlug,
   children,
   roundingMode,
   shortened,
   smallFractionFont,
-  mainnet,
   showCents = true,
   testID,
   testIDProperties
 }) => {
-  const price = useAssetFiatCurrencyPrice(assetSlug ?? 'tez');
+  const price = useAssetFiatCurrencyPrice(assetSlug, chainId, evm);
   const { selectedFiatCurrency } = useFiatCurrency();
-  const walletNetwork = useNetwork();
-
-  if (mainnet === undefined) {
-    mainnet = walletNetwork.type === 'main';
-  }
 
   const roundedInFiat = useMemo(() => {
     if (!isDefined(price)) return new BigNumber(0);
@@ -56,7 +62,7 @@ const InFiat: FC<InFiatProps> = ({
 
   const cryptoDecimals = showCents ? undefined : 0;
 
-  return mainnet && isDefined(price)
+  return isDefined(price)
     ? children({
         balance: (
           <Money
@@ -75,5 +81,3 @@ const InFiat: FC<InFiatProps> = ({
       })
     : null;
 };
-
-export default InFiat;

@@ -4,12 +4,12 @@ import classNames from 'clsx';
 
 import { setTestID, TestIDProps } from 'lib/analytics';
 
-type NameProps = HTMLAttributes<HTMLDivElement> & TestIDProps;
+interface NameProps extends HTMLAttributes<HTMLDivElement>, TestIDProps {}
 
 const Name: FC<NameProps> = ({ className, style = {}, testID, ...rest }) => (
   <div
-    className={classNames('whitespace-nowrap overflow-x-auto truncate no-scrollbar', className)}
-    style={{ maxWidth: '12rem', ...style }}
+    className={classNames('max-w-48 whitespace-nowrap overflow-x-auto truncate no-scrollbar', className)}
+    style={style}
     {...setTestID(testID)}
     {...rest}
   />

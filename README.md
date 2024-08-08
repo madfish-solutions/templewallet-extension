@@ -1,4 +1,4 @@
-# Temple - Tezos Wallet
+# Temple Wallet
 
 Cryptocurrency wallet for [Tezos blockchain](https://tezos.com) as Web Extension for your Browser.<br>
 Providing ability to manage NFT, tez tokens and interact with dApps.

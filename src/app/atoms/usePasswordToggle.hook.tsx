@@ -1,14 +1,11 @@
 import React, { useCallback, useMemo, useState } from 'react';
 
-import clsx from 'clsx';
-
 import { ReactComponent as EyeClosedBold } from 'app/icons/eye-closed-bold.svg';
 import { ReactComponent as EyeOpenBold } from 'app/icons/eye-open-bold.svg';
 import { USER_ACTION_TIMEOUT } from 'lib/fixed-times';
 import { useDidUpdate, useTimeout } from 'lib/ui/hooks';
 
 const usePasswordToggle = (
-  smallPaddings: boolean,
   id?: string,
   onReveal?: EmptyFn,
   revealRef?: unknown,
@@ -30,7 +27,6 @@ const usePasswordToggle = (
         id={buttonId}
         type="button"
         tabIndex={1}
-        className={clsx('absolute inset-y-0', smallPaddings ? 'right-2' : 'right-3')}
         onClick={() => {
           if (!visible) {
             onReveal?.();
@@ -42,7 +38,7 @@ const usePasswordToggle = (
         {visible ? <EyeClosedBold /> : <EyeOpenBold />}
       </button>
     ),
-    [smallPaddings, handleBlur, visible, onReveal]
+    [handleBlur, visible, onReveal]
   );
 
   const inputType = visible ? 'text' : 'password';

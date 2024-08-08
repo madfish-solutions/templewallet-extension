@@ -3,21 +3,22 @@ import { useMemo } from 'react';
 import BigNumber from 'bignumber.js';
 
 import { TEZ_TOKEN_SLUG } from 'lib/assets';
-import { useBalance } from 'lib/balances';
-import { useAccount } from 'lib/temple/front';
+import { useTezosAssetBalance } from 'lib/balances';
+import { TezosNetworkEssentials } from 'temple/networks';
 
 export const useDisabledProceed = (
+  network: TezosNetworkEssentials,
+  publicKeyHash: string,
   inputAmount: number | undefined,
   minExchangeAmount = 0,
   maxExchangeAmount = 0,
   isWithdraw = false
 ) => {
-  const { publicKeyHash } = useAccount();
   const {
     value: tezBalance,
     isSyncing: tezBalanceSyncing,
     error: tezBalanceError
-  } = useBalance(TEZ_TOKEN_SLUG, publicKeyHash);
+  } = useTezosAssetBalance(TEZ_TOKEN_SLUG, publicKeyHash, network);
 
   const tezBalanceLoading = useMemo(() => !tezBalance && tezBalanceSyncing, [tezBalance, tezBalanceSyncing]);
 

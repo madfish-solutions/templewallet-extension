@@ -2,10 +2,10 @@ import { cloneDeep } from 'lodash';
 import type { MigrationManifest, PersistedState } from 'redux-persist';
 
 import { toTokenSlug } from 'lib/assets';
-import { isCollectible } from 'lib/metadata';
+import { isCollectible } from 'lib/metadata/utils';
 
-import { collectiblesMetadataInitialState } from './collectibles-metadata/state';
 import type { RootState } from './root-state.type';
+import { collectiblesMetadataInitialState } from './tezos/collectibles-metadata/state';
 
 import type { SLICES_BLACKLIST } from './index';
 
@@ -15,7 +15,7 @@ type MakePropertiesOptional<T, K extends keyof T> = {
 
 /** Blacklisted slices are not rehydrated */
 type TypedPersistedRootState = Exclude<PersistedState, undefined> &
-  MakePropertiesOptional<RootState, typeof SLICES_BLACKLIST[number]>;
+  MakePropertiesOptional<RootState, (typeof SLICES_BLACKLIST)[number]>;
 
 export const MIGRATIONS: MigrationManifest = {
   '2': (persistedState: PersistedState) => {
