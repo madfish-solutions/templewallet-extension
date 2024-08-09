@@ -1,14 +1,12 @@
-import { useMemo, useState } from 'react';
-
-import { useDebounce } from 'use-debounce';
-
 import { useAreAssetsLoading } from 'app/store/tezos/assets/selectors';
 import { useTokensMetadataLoadingSelector } from 'app/store/tezos/tokens-metadata/selectors';
 import { searchTezosChainAssetsWithNoMeta } from 'lib/assets/search.utils';
 import { useGetChainTokenOrGasMetadata } from 'lib/metadata';
-import { isSearchStringApplicable } from 'lib/utils/search-items';
+import { useMemoWithCompare } from 'lib/ui/hooks';
 
 import { useSimpleAssetsPaginationLogic } from '../use-simple-assets-pagination-logic';
+
+import { useCommonAssetsListingLogic } from './utils';
 
 export const useTezosChainAccountTokensListingLogic = (allSlugsSorted: string[], chainId: string) => {
   const { slugs: paginatedSlugs, loadNext } = useSimpleAssetsPaginationLogic(allSlugsSorted);
@@ -16,14 +14,13 @@ export const useTezosChainAccountTokensListingLogic = (allSlugsSorted: string[],
   const assetsAreLoading = useAreAssetsLoading('tokens');
   const metadatasLoading = useTokensMetadataLoadingSelector();
 
-  const [searchValue, setSearchValue] = useState('');
-  const [searchValueDebounced] = useDebounce(searchValue, 300);
-
-  const isInSearchMode = isSearchStringApplicable(searchValueDebounced);
+  const { searchValue, searchValueDebounced, setSearchValue, isInSearchMode, isSyncing } = useCommonAssetsListingLogic(
+    assetsAreLoading || metadatasLoading
+  );
 
   const getTokenMetadata = useGetChainTokenOrGasMetadata(chainId);
 
-  const displayedSlugs = useMemo(
+  const displayedSlugs = useMemoWithCompare(
     () =>
       isInSearchMode
         ? searchTezosChainAssetsWithNoMeta(searchValueDebounced, allSlugsSorted, getTokenMetadata, slug => slug)
@@ -31,13 +28,10 @@ export const useTezosChainAccountTokensListingLogic = (allSlugsSorted: string[],
     [isInSearchMode, paginatedSlugs, allSlugsSorted, getTokenMetadata, searchValueDebounced]
   );
 
-  const isSyncing = assetsAreLoading || metadatasLoading;
-  const [isSyncingDebounced] = useDebounce(isSyncing, 500);
-
   return {
     isInSearchMode,
     displayedSlugs,
-    isSyncing: isSyncing || isSyncingDebounced,
+    isSyncing,
     loadNext,
     searchValue,
     setSearchValue

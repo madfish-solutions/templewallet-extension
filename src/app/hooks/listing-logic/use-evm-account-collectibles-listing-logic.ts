@@ -1,6 +1,4 @@
-import { useCallback, useMemo, useState } from 'react';
-
-import { useDebounce } from 'use-debounce';
+import { useCallback, useMemo } from 'react';
 
 import { useEvmCollectiblesMetadataRecordSelector } from 'app/store/evm/collectibles-metadata/selectors';
 import { useEvmCollectiblesMetadataLoadingSelector } from 'app/store/evm/selectors';
@@ -9,14 +7,13 @@ import { searchEvmCollectiblesWithNoMeta } from 'lib/assets/search.utils';
 import { useEvmAccountCollectiblesSortPredicate } from 'lib/assets/use-sorting';
 import { toChainAssetSlug } from 'lib/assets/utils';
 import { useMemoWithCompare } from 'lib/ui/hooks';
-import { isSearchStringApplicable } from 'lib/utils/search-items';
 import { TempleChainKind } from 'temple/types';
 
 import { useSimpleAssetsPaginationLogic } from '../use-simple-assets-pagination-logic';
 
 import { useEvmBalancesAreLoading } from './use-evm-balances-loading-state';
 import { useManageableSlugs } from './use-manageable-slugs';
-import { getSlugWithChainId } from './utils';
+import { getSlugWithChainId, useCommonAssetsListingLogic } from './utils';
 
 export const useEvmAccountCollectiblesListingLogic = (publicKeyHash: HexString, manageActive = false) => {
   const sortPredicate = useEvmAccountCollectiblesSortPredicate(publicKeyHash);
@@ -41,12 +38,9 @@ export const useEvmAccountCollectiblesListingLogic = (publicKeyHash: HexString, 
   const balancesLoading = useEvmBalancesAreLoading();
   const metadatasLoading = useEvmCollectiblesMetadataLoadingSelector();
 
-  const isSyncing = balancesLoading || metadatasLoading;
-
-  const [searchValue, setSearchValue] = useState('');
-  const [searchValueDebounced] = useDebounce(searchValue, 500);
-
-  const isInSearchMode = isSearchStringApplicable(searchValueDebounced);
+  const { searchValue, searchValueDebounced, setSearchValue, isInSearchMode, isSyncing } = useCommonAssetsListingLogic(
+    balancesLoading || metadatasLoading
+  );
 
   const getMetadata = useCallback((chainId: number, slug: string) => metadata[chainId]?.[slug], [metadata]);
 

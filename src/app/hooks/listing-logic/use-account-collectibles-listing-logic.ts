@@ -1,6 +1,4 @@
-import { useCallback, useMemo, useState } from 'react';
-
-import { useDebounce } from 'use-debounce';
+import { useCallback, useMemo } from 'react';
 
 import { useEvmCollectiblesMetadataRecordSelector } from 'app/store/evm/collectibles-metadata/selectors';
 import { useEvmCollectiblesMetadataLoadingSelector } from 'app/store/evm/selectors';
@@ -12,14 +10,13 @@ import { useAccountCollectiblesSortPredicate } from 'lib/assets/use-sorting';
 import { toChainAssetSlug } from 'lib/assets/utils';
 import { useGetCollectibleMetadata, useTezosCollectiblesMetadataPresenceCheck } from 'lib/metadata';
 import { useMemoWithCompare } from 'lib/ui/hooks';
-import { isSearchStringApplicable } from 'lib/utils/search-items';
 import { TempleChainKind } from 'temple/types';
 
 import { useSimpleAssetsPaginationLogic } from '../use-simple-assets-pagination-logic';
 
 import { useEvmBalancesAreLoading } from './use-evm-balances-loading-state';
 import { useManageableSlugs } from './use-manageable-slugs';
-import { getSlugFromChainSlug } from './utils';
+import { getSlugFromChainSlug, useCommonAssetsListingLogic } from './utils';
 
 export const useAccountCollectiblesListingLogic = (
   accountTezAddress: string,
@@ -66,10 +63,9 @@ export const useAccountCollectiblesListingLogic = (
   const evmBalancesLoading = useEvmBalancesAreLoading();
   const evmMetadatasLoading = useEvmCollectiblesMetadataLoadingSelector();
 
-  const [searchValue, setSearchValue] = useState('');
-  const [searchValueDebounced] = useDebounce(searchValue, 500);
-
-  const isInSearchMode = isSearchStringApplicable(searchValueDebounced);
+  const { searchValue, searchValueDebounced, setSearchValue, isInSearchMode, isSyncing } = useCommonAssetsListingLogic(
+    tezAssetsLoading || tezMetadatasLoading || evmBalancesLoading || evmMetadatasLoading
+  );
 
   const getTezMetadata = useGetCollectibleMetadata();
 
@@ -108,8 +104,6 @@ export const useAccountCollectiblesListingLogic = (
   const { slugs: paginatedSlugs, loadNext } = useSimpleAssetsPaginationLogic(searchedManageableSlugs);
 
   useTezosCollectiblesMetadataPresenceCheck(tezEnabledCollectiblesChainsSlugs);
-
-  const isSyncing = tezAssetsLoading || tezMetadatasLoading || evmBalancesLoading || evmMetadatasLoading;
 
   return {
     isInSearchMode,

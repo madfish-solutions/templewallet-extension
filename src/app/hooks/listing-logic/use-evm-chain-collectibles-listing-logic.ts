@@ -1,6 +1,4 @@
-import { useCallback, useMemo, useState } from 'react';
-
-import { useDebounce } from 'use-debounce';
+import { useCallback, useMemo } from 'react';
 
 import { useEvmCollectiblesMetadataRecordSelector } from 'app/store/evm/collectibles-metadata/selectors';
 import { useEvmChainBalancesLoadingSelector, useEvmCollectiblesMetadataLoadingSelector } from 'app/store/evm/selectors';
@@ -8,11 +6,11 @@ import { useEvmChainAccountCollectibles } from 'lib/assets/hooks/collectibles';
 import { searchEvmChainCollectiblesWithNoMeta } from 'lib/assets/search.utils';
 import { useEvmChainCollectiblesSortPredicate } from 'lib/assets/use-sorting';
 import { useMemoWithCompare } from 'lib/ui/hooks';
-import { isSearchStringApplicable } from 'lib/utils/search-items';
 
 import { useSimpleAssetsPaginationLogic } from '../use-simple-assets-pagination-logic';
 
 import { useManageableSlugs } from './use-manageable-slugs';
+import { useCommonAssetsListingLogic } from './utils';
 
 export const useEvmChainCollectiblesListingLogic = (
   publicKeyHash: HexString,
@@ -35,12 +33,9 @@ export const useEvmChainCollectiblesListingLogic = (
   const balancesLoading = useEvmChainBalancesLoadingSelector(chainId);
   const metadatasLoading = useEvmCollectiblesMetadataLoadingSelector();
 
-  const isSyncing = balancesLoading || metadatasLoading;
-
-  const [searchValue, setSearchValue] = useState('');
-  const [searchValueDebounced] = useDebounce(searchValue, 500);
-
-  const isInSearchMode = isSearchStringApplicable(searchValueDebounced);
+  const { searchValue, searchValueDebounced, setSearchValue, isInSearchMode, isSyncing } = useCommonAssetsListingLogic(
+    balancesLoading || metadatasLoading
+  );
 
   const getMetadata = useCallback((slug: string) => metadata[chainId]?.[slug], [metadata, chainId]);
 

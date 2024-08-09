@@ -1,7 +1,6 @@
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useMemo } from 'react';
 
 import { isDefined } from '@rnw-community/shared';
-import { useDebounce } from 'use-debounce';
 
 import { useRawEvmChainAccountBalancesSelector } from 'app/store/evm/balances/selectors';
 import {
@@ -15,12 +14,12 @@ import { useEvmChainAccountTokens } from 'lib/assets/hooks/tokens';
 import { searchEvmChainTokensWithNoMeta } from 'lib/assets/search.utils';
 import { useEvmChainTokensSortPredicate } from 'lib/assets/use-sorting';
 import { useMemoWithCompare } from 'lib/ui/hooks';
-import { isSearchStringApplicable } from 'lib/utils/search-items';
 import { useEvmChainByChainId } from 'temple/front/chains';
 
 import { useSimpleAssetsPaginationLogic } from '../use-simple-assets-pagination-logic';
 
 import { useManageableSlugs } from './use-manageable-slugs';
+import { useCommonAssetsListingLogic } from './utils';
 
 export const useEvmChainAccountTokensListingLogic = (
   publicKeyHash: HexString,
@@ -51,7 +50,9 @@ export const useEvmChainAccountTokensListingLogic = (
   const isMetadataLoading = useEvmTokensMetadataLoadingSelector();
   const exchangeRatesLoading = useEvmTokensExchangeRatesLoadingSelector();
 
-  const isSyncing = balancesLoading || isMetadataLoading || exchangeRatesLoading;
+  const { searchValue, searchValueDebounced, setSearchValue, isInSearchMode, isSyncing } = useCommonAssetsListingLogic(
+    balancesLoading || isMetadataLoading || exchangeRatesLoading
+  );
 
   const chain = useEvmChainByChainId(chainId);
   const metadata = useEvmTokensMetadataRecordSelector();
@@ -73,11 +74,6 @@ export const useEvmChainAccountTokensListingLogic = (
     },
     [chain, metadata, chainId]
   );
-
-  const [searchValue, setSearchValue] = useState('');
-  const [searchValueDebounced] = useDebounce(searchValue, 300);
-
-  const isInSearchMode = isSearchStringApplicable(searchValueDebounced);
 
   const search = useCallback(
     (slugs: string[]) => searchEvmChainTokensWithNoMeta(searchValueDebounced, slugs, getMetadata, slug => slug),

@@ -1,7 +1,6 @@
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useMemo } from 'react';
 
 import { isDefined } from '@rnw-community/shared';
-import { useDebounce } from 'use-debounce';
 
 import { useRawEvmAccountBalancesSelector } from 'app/store/evm/balances/selectors';
 import { useEvmTokensExchangeRatesLoadingSelector, useEvmTokensMetadataLoadingSelector } from 'app/store/evm/selectors';
@@ -17,7 +16,6 @@ import { useAccountTokensSortPredicate } from 'lib/assets/use-sorting';
 import { fromChainAssetSlug, toChainAssetSlug } from 'lib/assets/utils';
 import { useGetTokenOrGasMetadata } from 'lib/metadata';
 import { useMemoWithCompare } from 'lib/ui/hooks';
-import { isSearchStringApplicable } from 'lib/utils/search-items';
 import { useAllEvmChains, useEnabledEvmChains, useEnabledTezosChains } from 'temple/front';
 import { TempleChainKind } from 'temple/types';
 
@@ -26,7 +24,7 @@ import { useSimpleAssetsPaginationLogic } from '../use-simple-assets-pagination-
 import { useEvmBalancesAreLoading } from './use-evm-balances-loading-state';
 import { useGroupedSlugs } from './use-grouped-slugs';
 import { useManageableSlugs } from './use-manageable-slugs';
-import { getSlugFromChainSlug } from './utils';
+import { getSlugFromChainSlug, useCommonAssetsListingLogic } from './utils';
 
 export const useAccountTokensListingLogic = (
   accountTezAddress: string,
@@ -67,14 +65,15 @@ export const useAccountTokensListingLogic = (
   const evmMetadatasLoading = useEvmTokensMetadataLoadingSelector();
   const exchangeRatesLoading = useEvmTokensExchangeRatesLoadingSelector();
 
-  const isSyncing =
-    tezAssetsAreLoading || tezMetadatasLoading || evmBalancesLoading || evmMetadatasLoading || exchangeRatesLoading;
-
   const tezBalances = useBalancesAtomicRecordSelector();
   const evmBalances = useRawEvmAccountBalancesSelector(accountEvmAddress);
 
   const evmChains = useAllEvmChains();
   const evmMetadata = useEvmTokensMetadataRecordSelector();
+
+  const { searchValue, searchValueDebounced, setSearchValue, isInSearchMode, isSyncing } = useCommonAssetsListingLogic(
+    tezAssetsAreLoading || tezMetadatasLoading || evmBalancesLoading || evmMetadatasLoading || exchangeRatesLoading
+  );
 
   const isNonZeroBalance = useCallback(
     (chainSlug: string) => {
@@ -99,11 +98,6 @@ export const useAccountTokensListingLogic = (
     },
     [evmChains, evmMetadata]
   );
-
-  const [searchValue, setSearchValue] = useState('');
-  const [searchValueDebounced] = useDebounce(searchValue, 300);
-
-  const isInSearchMode = isSearchStringApplicable(searchValueDebounced);
 
   const search = useCallback(
     (slugs: string[]) =>
