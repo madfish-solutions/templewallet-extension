@@ -20,7 +20,18 @@ fetchFromStorage<string>(ADS_VIEWER_ADDRESS_STORAGE_KEY)
     );
   })
   .then(
-    () => void postMessage({ type: 'ready' }),
+    () => {
+      const container = document.getElementById(CONTAINER_ID)!;
+      const adHref = container.querySelector('a')?.href;
+      const adImage = container.querySelector('img');
+      const { width, height } = container.children[0]?.getBoundingClientRect() ?? { width: 0, height: 0 };
+      const creativeSet = adImage ? { image: { url: adImage.src, width, height } } : undefined;
+      postMessage({
+        type: 'ready',
+        id,
+        ad: adHref || creativeSet ? { cta_url: adHref, creative_set: creativeSet } : undefined
+      });
+    },
     error => {
       console.error(error);
       postMessage({ type: 'error', reason: String(error) });

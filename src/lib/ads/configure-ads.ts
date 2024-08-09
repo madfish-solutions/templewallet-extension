@@ -47,6 +47,7 @@ const buildNativeAdsMeta = (containerWidth: number, containerHeight: number) =>
     EnvVars.USE_ADS_STUBS && {
       source: {
         providerName: 'Temple' as const,
+        slug: '',
         native: true as const
       },
       dimensions: {
@@ -60,7 +61,152 @@ const buildNativeAdsMeta = (containerWidth: number, containerHeight: number) =>
     }
   ].filter(isTruthy);
 
-const bannerAdsMeta = [
+const bannerAdsMetaBase = [
+  {
+    source: {
+      providerName: 'SmartyAds' as const,
+      native: false,
+      slug: EnvVars.SMARTY_970_250_PLACEMENT_ID,
+      categories: ['other']
+    },
+    dimensions: {
+      width: 970,
+      height: 250,
+      minContainerWidth: 969,
+      minContainerHeight: 249,
+      maxContainerWidth: Infinity,
+      maxContainerHeight: 500
+    }
+  },
+  {
+    source: {
+      providerName: 'SmartyAds' as const,
+      native: false,
+      slug: EnvVars.SMARTY_970_90_PLACEMENT_ID,
+      categories: ['other']
+    },
+    dimensions: {
+      width: 970,
+      height: 90,
+      minContainerWidth: 969,
+      minContainerHeight: 89,
+      maxContainerWidth: Infinity,
+      maxContainerHeight: 300
+    }
+  },
+  {
+    source: {
+      providerName: 'SmartyAds' as const,
+      native: false,
+      slug: EnvVars.SMARTY_728_90_PLACEMENT_ID,
+      categories: ['other']
+    },
+    dimensions: {
+      width: 728,
+      height: 90,
+      minContainerWidth: 727,
+      minContainerHeight: 89,
+      maxContainerWidth: Infinity,
+      maxContainerHeight: 300
+    }
+  },
+  {
+    source: {
+      providerName: 'SmartyAds' as const,
+      native: false,
+      slug: EnvVars.SMARTY_300_600_PLACEMENT_ID,
+      categories: ['other']
+    },
+    dimensions: {
+      width: 300,
+      height: 600,
+      minContainerWidth: 299,
+      minContainerHeight: 599,
+      maxContainerWidth: 600,
+      maxContainerHeight: Infinity
+    }
+  },
+  {
+    source: {
+      providerName: 'SmartyAds' as const,
+      native: false,
+      slug: EnvVars.SMARTY_160_600_PLACEMENT_ID,
+      categories: ['other']
+    },
+    dimensions: {
+      width: 160,
+      height: 600,
+      minContainerWidth: 159,
+      minContainerHeight: 599,
+      maxContainerWidth: 360,
+      maxContainerHeight: Infinity
+    }
+  },
+  {
+    source: {
+      providerName: 'SmartyAds' as const,
+      native: false,
+      slug: EnvVars.SMARTY_336_280_PLACEMENT_ID,
+      categories: ['other']
+    },
+    dimensions: {
+      width: 336,
+      height: 280,
+      minContainerWidth: 335,
+      minContainerHeight: 279,
+      maxContainerWidth: 728,
+      maxContainerHeight: 480
+    }
+  },
+  {
+    source: {
+      providerName: 'SmartyAds' as const,
+      native: false,
+      slug: EnvVars.SMARTY_300_250_PLACEMENT_ID,
+      categories: ['other']
+    },
+    dimensions: {
+      width: 300,
+      height: 250,
+      minContainerWidth: 299,
+      minContainerHeight: 249,
+      maxContainerWidth: 700,
+      maxContainerHeight: Infinity
+    }
+  },
+  {
+    source: {
+      providerName: 'SmartyAds' as const,
+      native: false,
+      slug: EnvVars.SMARTY_320_100_PLACEMENT_ID,
+      categories: ['other']
+    },
+    dimensions: {
+      width: 320,
+      height: 100,
+      minContainerWidth: 319,
+      minContainerHeight: 99,
+      maxContainerWidth: 420,
+      maxContainerHeight: 200
+    }
+  },
+  {
+    source: {
+      providerName: 'SmartyAds' as const,
+      native: false,
+      slug: EnvVars.SMARTY_320_50_PLACEMENT_ID,
+      categories: ['other'],
+      shouldNotUseStrictContainerLimits: true
+    },
+    dimensions: {
+      width: 320,
+      height: 50,
+      minContainerWidth: 319,
+      minContainerHeight: 49,
+      maxContainerWidth: 420,
+      maxContainerHeight: 130
+    }
+  },
   {
     source: {
       providerName: 'HypeLab' as const,
@@ -70,21 +216,22 @@ const bannerAdsMeta = [
     dimensions: {
       width: 728,
       height: 90,
-      minContainerWidth: 728,
-      minContainerHeight: 90,
+      minContainerWidth: 727,
+      minContainerHeight: 89,
       maxContainerWidth: Infinity,
       maxContainerHeight: 300
     }
   },
   {
     source: {
-      providerName: 'Temple' as const
+      providerName: 'Temple' as const,
+      slug: ''
     },
     dimensions: {
       width: 728,
       height: 90,
-      minContainerWidth: 728,
-      minContainerHeight: 90,
+      minContainerWidth: 727,
+      minContainerHeight: 89,
       maxContainerWidth: Infinity,
       maxContainerHeight: 300
     }
@@ -99,8 +246,8 @@ const bannerAdsMeta = [
     dimensions: {
       width: 600,
       height: 160,
-      minContainerWidth: 600,
-      minContainerHeight: 160,
+      minContainerWidth: 599,
+      minContainerHeight: 159,
       maxContainerWidth: 800,
       maxContainerHeight: 300
     }
@@ -114,8 +261,8 @@ const bannerAdsMeta = [
     dimensions: {
       width: 300,
       height: 250,
-      minContainerWidth: 300,
-      minContainerHeight: 250,
+      minContainerWidth: 299,
+      minContainerHeight: 249,
       maxContainerWidth: 700,
       maxContainerHeight: Infinity
     }
@@ -130,10 +277,10 @@ const bannerAdsMeta = [
     dimensions: {
       width: 300,
       height: 250,
-      minContainerWidth: 300,
-      minContainerHeight: 250,
+      minContainerWidth: 299,
+      minContainerHeight: 249,
       maxContainerWidth: 700,
-      maxContainerHeight: Infinity
+      maxContainerHeight: 500
     }
   },
   {
@@ -146,8 +293,8 @@ const bannerAdsMeta = [
     dimensions: {
       width: 320,
       height: 50,
-      minContainerWidth: 320,
-      minContainerHeight: 50,
+      minContainerWidth: 319,
+      minContainerHeight: 49,
       maxContainerWidth: 420,
       maxContainerHeight: 130
     }
@@ -160,8 +307,8 @@ const bannerAdsMeta = [
     dimensions: {
       width: 321,
       height: 101,
-      minContainerWidth: 321,
-      minContainerHeight: 101,
+      minContainerWidth: 319,
+      minContainerHeight: 99,
       maxContainerWidth: 420,
       maxContainerHeight: 130
     }
@@ -169,33 +316,32 @@ const bannerAdsMeta = [
   EnvVars.USE_ADS_STUBS && {
     source: {
       providerName: 'Temple' as const,
+      slug: '',
       shouldNotUseStrictContainerLimits: true
     },
     dimensions: {
       width: 320,
       height: 50,
-      minContainerWidth: 320,
-      minContainerHeight: 50,
+      minContainerWidth: 319,
+      minContainerHeight: 49,
       maxContainerWidth: 420,
       maxContainerHeight: 130
     }
   }
-].filter(isTruthy);
+];
 
 export const configureAds = async () => {
   const { configureAds: originalConfigureAds } = await importExtensionAdsModule();
   originalConfigureAds({
-    hypelabAdsWindowUrl: EnvVars.HYPELAB_ADS_WINDOW_URL,
+    adsTwWindowUrl: EnvVars.HYPELAB_ADS_WINDOW_URL,
     swapTkeyUrl,
     tkeyInpageAdUrl,
     smallTkeyInpageAdUrl,
     externalAdsActivityMessageType: ContentScriptType.ExternalAdsActivity,
-    // Types are added to prevent TS errors for the core build
-    getPersonaIframeURL: (id: string, slug: string) =>
-      browser.runtime.getURL(`iframes/persona-ad.html?id=${id}&slug=${slug}`),
+    personaIframePath: browser.runtime.getURL('iframes/persona-ad.html'),
     getAdsStackIframeURL,
     buildNativeAdsMeta,
-    bannerAdsMeta,
+    bannerAdsMeta: bannerAdsMetaBase.filter(isTruthy),
     extVersion: APP_VERSION,
     templePassphrase: EnvVars.TEMPLE_ADS_ORIGIN_PASSPHRASE,
     isMisesBrowser: IS_MISES_BROWSER
