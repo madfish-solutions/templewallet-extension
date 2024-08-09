@@ -302,8 +302,7 @@ const bannerAdsMetaBase = [
   {
     source: {
       providerName: 'Persona' as const,
-      slug: IS_MISES_BROWSER ? EnvVars.PERSONA_ADS_MISES_BANNER_UNIT_ID : EnvVars.PERSONA_ADS_BANNER_UNIT_ID,
-      shouldNotUseStrictContainerLimits: true
+      slug: IS_MISES_BROWSER ? EnvVars.PERSONA_ADS_MISES_BANNER_UNIT_ID : EnvVars.PERSONA_ADS_BANNER_UNIT_ID
     },
     dimensions: {
       width: 321,
