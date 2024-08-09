@@ -171,7 +171,7 @@ const bannerAdsMetaBase = [
       minContainerWidth: 299,
       minContainerHeight: 249,
       maxContainerWidth: 700,
-      maxContainerHeight: 500
+      maxContainerHeight: Infinity
     }
   },
   {
@@ -264,7 +264,7 @@ const bannerAdsMetaBase = [
       minContainerWidth: 299,
       minContainerHeight: 249,
       maxContainerWidth: 700,
-      maxContainerHeight: 500
+      maxContainerHeight: Infinity
     }
   },
   {
@@ -323,8 +323,8 @@ const bannerAdsMetaBase = [
     dimensions: {
       width: 320,
       height: 50,
-      minContainerWidth: 320,
-      minContainerHeight: 50,
+      minContainerWidth: 319,
+      minContainerHeight: 49,
       maxContainerWidth: 420,
       maxContainerHeight: 130
     }
