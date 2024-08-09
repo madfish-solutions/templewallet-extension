@@ -113,7 +113,7 @@ const TabContentBase = memo<TabContentBaseProps>(({ publicKeyHash, allSlugsSorte
 
     if (groupedSlugs)
       return groupedSlugs.map(([chainId, chainSlugs], gi) => (
-        <div key={chainId} className="contents">
+        <React.Fragment key={chainId}>
           <div key={chainId} className={clsx('mb-0.5 p-1 text-font-description-bold', gi > 0 && 'mt-4')}>
             {tezosChains[chainId]?.name ?? 'Unknown chain'}
           </div>
@@ -125,7 +125,7 @@ const TabContentBase = memo<TabContentBaseProps>(({ publicKeyHash, allSlugsSorte
 
             return getTokensViewWithPromo(tokensJsx, promoJsx);
           })()}
-        </div>
+        </React.Fragment>
       ));
 
     const tokensJsx = buildTokensJsxArray(displayedSlugs);

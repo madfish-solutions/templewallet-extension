@@ -11,7 +11,7 @@ import {
 } from 'app/store/evm/selectors';
 import { useEvmTokensMetadataRecordSelector } from 'app/store/evm/tokens-metadata/selectors';
 import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
-import { useAllEvmChainAccountTokenSlugs, useEnabledEvmChainAccountTokenSlugs } from 'lib/assets/hooks';
+import { useEvmChainAccountTokens } from 'lib/assets/hooks/tokens';
 import { searchEvmChainTokensWithNoMeta } from 'lib/assets/search.utils';
 import { useEvmChainTokensSortPredicate } from 'lib/assets/use-sorting';
 import { useMemoWithCompare } from 'lib/ui/hooks';
@@ -30,8 +30,17 @@ export const useEvmChainAccountTokensListingLogic = (
 ) => {
   const tokensSortPredicate = useEvmChainTokensSortPredicate(publicKeyHash, chainId);
 
-  const enabledStoredTokenSlugs = useEnabledEvmChainAccountTokenSlugs(publicKeyHash, chainId);
-  const allStoredTokenSlugs = useAllEvmChainAccountTokenSlugs(publicKeyHash, chainId);
+  const tokens = useEvmChainAccountTokens(publicKeyHash, chainId);
+
+  const enabledStoredTokenSlugs = useMemo(
+    () => tokens.filter(({ status }) => status === 'enabled').map(({ slug }) => slug),
+    [tokens]
+  );
+
+  const allStoredTokenSlugs = useMemo(
+    () => tokens.filter(({ status }) => status !== 'removed').map(({ slug }) => slug),
+    [tokens]
+  );
 
   const enabledTokenSlugs = useMemo(() => [EVM_TOKEN_SLUG, ...enabledStoredTokenSlugs], [enabledStoredTokenSlugs]);
   const allTokenSlugs = useMemo(() => [EVM_TOKEN_SLUG, ...allStoredTokenSlugs], [allStoredTokenSlugs]);

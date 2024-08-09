@@ -196,7 +196,7 @@ export const useTezosChainAccountTokens = (account: string, chainId: string) => 
   }, [chainId, storedRaw, whitelistSlugs, balances]);
 };
 
-const useEvmAccountTokens = (account: HexString) => {
+export const useEvmAccountTokens = (account: HexString) => {
   const enabledChains = useEnabledEvmChains();
 
   const tokensRecord = useRawEvmAccountTokensSelector(account);
@@ -225,7 +225,7 @@ const useEvmAccountTokens = (account: HexString) => {
   }, [enabledChains, tokensRecord, balancesRecord]);
 };
 
-const useEvmChainAccountTokens = (account: HexString, chainId: number) => {
+export const useEvmChainAccountTokens = (account: HexString, chainId: number) => {
   const storedRaw = useRawEvmChainAccountTokensSelector(account, chainId);
   const balances = useRawEvmChainAccountBalancesSelector(account, chainId);
 
@@ -252,7 +252,7 @@ export const useEnabledEvmAccountTokenSlugs = (publicKeyHash: HexString) => {
   );
 };
 
-export const useAllEvmAccountTokenSlugs = (publicKeyHash: HexString) => {
+const useAllEvmAccountTokenSlugs = (publicKeyHash: HexString) => {
   const tokens = useEvmAccountTokens(publicKeyHash);
 
   return useMemoWithCompare(
@@ -268,12 +268,6 @@ export const useEnabledEvmChainAccountTokenSlugs = (publicKeyHash: HexString, ch
   const tokens = useEvmChainAccountTokens(publicKeyHash, chainId);
 
   return useMemo(() => tokens.filter(({ status }) => status === 'enabled').map(({ slug }) => slug), [tokens]);
-};
-
-export const useAllEvmChainAccountTokenSlugs = (publicKeyHash: HexString, chainId: number) => {
-  const tokens = useEvmChainAccountTokens(publicKeyHash, chainId);
-
-  return useMemo(() => tokens.filter(({ status }) => status !== 'removed').map(({ slug }) => slug), [tokens]);
 };
 
 const useWhitelistSlugs = (chainId: string) => {

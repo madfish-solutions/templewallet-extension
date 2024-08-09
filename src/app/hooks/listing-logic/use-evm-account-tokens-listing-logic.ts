@@ -1,125 +1,55 @@
 import { useCallback, useMemo, useState } from 'react';
 
-import { isDefined } from '@rnw-community/shared';
 import { useDebounce } from 'use-debounce';
 
-import { useRawEvmAccountBalancesSelector } from 'app/store/evm/balances/selectors';
 import { useEvmTokensExchangeRatesLoadingSelector, useEvmTokensMetadataLoadingSelector } from 'app/store/evm/selectors';
 import { useEvmTokensMetadataRecordSelector } from 'app/store/evm/tokens-metadata/selectors';
 import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
-import { useAllEvmAccountTokenSlugs, useEnabledEvmAccountTokenSlugs } from 'lib/assets/hooks';
 import { searchEvmTokensWithNoMeta } from 'lib/assets/search.utils';
-import { useEvmAccountTokensSortPredicate } from 'lib/assets/use-sorting';
-import { fromChainAssetSlug, toChainAssetSlug } from 'lib/assets/utils';
-import { useMemoWithCompare } from 'lib/ui/hooks';
 import { isSearchStringApplicable } from 'lib/utils/search-items';
-import { useAllEvmChains, useEnabledEvmChains } from 'temple/front';
-import { TempleChainKind } from 'temple/types';
+import { useAllEvmChains } from 'temple/front';
 
 import { useSimpleAssetsPaginationLogic } from '../use-simple-assets-pagination-logic';
 
 import { useEvmBalancesAreLoading } from './use-evm-balances-loading-state';
-import { useGroupedSlugs } from './use-grouped-slugs';
-import { useManageableSlugs } from './use-manageable-slugs';
 import { getSlugWithChainId } from './utils';
 
-export const useEvmAccountTokensListingLogic = (
-  publicKeyHash: HexString,
-  filterZeroBalances = false,
-  groupByNetwork = false,
-  manageActive = false
-) => {
-  const enabledStoredChainSlugs = useEnabledEvmAccountTokenSlugs(publicKeyHash);
-  const allStoredChainSlugs = useAllEvmAccountTokenSlugs(publicKeyHash);
-
-  const enabledChains = useEnabledEvmChains();
-
-  const nativeChainSlugs = useMemo(
-    () => enabledChains.map(chain => toChainAssetSlug(TempleChainKind.EVM, chain.chainId, EVM_TOKEN_SLUG)),
-    [enabledChains]
-  );
-
-  const enabledChainSlugs = useMemo(
-    () => nativeChainSlugs.concat(enabledStoredChainSlugs),
-    [nativeChainSlugs, enabledStoredChainSlugs]
-  );
-  const allChainSlugs = useMemo(
-    () => nativeChainSlugs.concat(allStoredChainSlugs),
-    [nativeChainSlugs, allStoredChainSlugs]
-  );
-
-  const tokensSortPredicate = useEvmAccountTokensSortPredicate(publicKeyHash);
-
-  const balancesLoading = useEvmBalancesAreLoading();
-  const isMetadataLoading = useEvmTokensMetadataLoadingSelector();
-  const exchangeRatesLoading = useEvmTokensExchangeRatesLoadingSelector();
-
-  const isSyncing = balancesLoading || isMetadataLoading || exchangeRatesLoading;
-
-  const allEvmChains = useAllEvmChains();
-  const balances = useRawEvmAccountBalancesSelector(publicKeyHash);
-  const metadata = useEvmTokensMetadataRecordSelector();
-
-  const isNonZeroBalance = useCallback(
-    (chainSlug: string) => {
-      const [_, chainId, slug] = fromChainAssetSlug<number>(chainSlug);
-
-      const balance = balances[chainId]?.[slug];
-      return isDefined(balance) && balance !== '0';
-    },
-    [balances]
-  );
-
-  const getMetadata = useCallback(
-    (chainId: number, slug: string) => {
-      if (slug === EVM_TOKEN_SLUG) {
-        return allEvmChains[chainId]?.currency;
-      }
-
-      return metadata[chainId]?.[slug];
-    },
-    [allEvmChains, metadata]
-  );
+export const useEvmAccountTokensListingLogic = (allSlugsSorted: string[]) => {
+  const { slugs: paginatedSlugs, loadNext } = useSimpleAssetsPaginationLogic(allSlugsSorted);
 
   const [searchValue, setSearchValue] = useState('');
   const [searchValueDebounced] = useDebounce(searchValue, 300);
 
   const isInSearchMode = isSearchStringApplicable(searchValueDebounced);
 
-  const search = useCallback(
-    (slugs: string[]) => searchEvmTokensWithNoMeta(searchValueDebounced, slugs, getMetadata, getSlugWithChainId),
-    [getMetadata, searchValueDebounced]
+  const balancesLoading = useEvmBalancesAreLoading();
+  const isMetadataLoading = useEvmTokensMetadataLoadingSelector();
+  const exchangeRatesLoading = useEvmTokensExchangeRatesLoadingSelector();
+
+  const allEvmChains = useAllEvmChains();
+  const metadata = useEvmTokensMetadataRecordSelector();
+
+  const getMetadata = useCallback(
+    (chainId: number, slug: string) =>
+      slug === EVM_TOKEN_SLUG ? allEvmChains[chainId]?.currency : metadata[chainId]?.[slug],
+    [allEvmChains, metadata]
   );
 
-  const filteredEnabledChainSlugs = useMemo(
-    () => (filterZeroBalances ? enabledChainSlugs.filter(isNonZeroBalance) : enabledChainSlugs),
-    [filterZeroBalances, enabledChainSlugs, isNonZeroBalance]
+  const displayedSlugs = useMemo(
+    () =>
+      isInSearchMode
+        ? searchEvmTokensWithNoMeta(searchValueDebounced, allSlugsSorted, getMetadata, getSlugWithChainId)
+        : paginatedSlugs,
+    [isInSearchMode, paginatedSlugs, allSlugsSorted, searchValueDebounced, getMetadata]
   );
 
-  const sortedEnabledChainSlugs = useMemo(
-    () => [...filteredEnabledChainSlugs].sort(tokensSortPredicate),
-    [filteredEnabledChainSlugs, tokensSortPredicate]
-  );
-
-  const searchedEnabledChainSlugs = useMemo(
-    () => (isInSearchMode ? search(sortedEnabledChainSlugs) : sortedEnabledChainSlugs),
-    [isInSearchMode, search, sortedEnabledChainSlugs]
-  );
-
-  const groupedAssets = useGroupedSlugs(groupByNetwork, manageActive, searchedEnabledChainSlugs);
-
-  const manageableChainSlugs = useManageableSlugs(manageActive, allChainSlugs, sortedEnabledChainSlugs, groupedAssets);
-
-  const searchedManageableChainSlugs = useMemoWithCompare(
-    () => (isInSearchMode ? search(manageableChainSlugs) : manageableChainSlugs),
-    [isInSearchMode, search, manageableChainSlugs]
-  );
-
-  const { slugs: paginatedSlugs, loadNext } = useSimpleAssetsPaginationLogic(searchedManageableChainSlugs);
+  const isSyncing = balancesLoading || isMetadataLoading || exchangeRatesLoading;
+  const [isSyncingDebounced] = useDebounce(isSyncing, 500);
 
   return {
-    paginatedSlugs,
-    isSyncing,
+    isInSearchMode,
+    displayedSlugs,
+    isSyncing: isSyncing || isSyncingDebounced,
     loadNext,
     searchValue,
     setSearchValue
