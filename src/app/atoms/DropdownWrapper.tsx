@@ -1,11 +1,10 @@
-import React, { forwardRef, HTMLAttributes, useRef, useState } from 'react';
+import React, { forwardRef, HTMLAttributes, useImperativeHandle, useRef, useState } from 'react';
 
 import clsx from 'clsx';
 import CSSTransition from 'react-transition-group/CSSTransition';
 
 import { useDidUpdate } from 'lib/ui/hooks';
 import { PORTAL_EVENTS_LEAK_GUARD } from 'lib/ui/Portal';
-import { combineRefs } from 'lib/ui/utils';
 
 interface Props extends HTMLAttributes<HTMLDivElement> {
   opened: boolean;
@@ -27,8 +26,8 @@ type Design = keyof typeof DESIGN_CLASS_NAMES;
 const DropdownWrapper = forwardRef<HTMLDivElement, Props>(
   ({ opened, design = 'light', scaleAnimation = true, className, style = {}, ...rest }, ref) => {
     // Recommended: https://reactcommunity.org/react-transition-group/transition#Transition-prop-nodeRef
-    const nodeRef = useRef(null);
-    const summaryRef = combineRefs(ref, nodeRef);
+    const localRef = useRef<HTMLDivElement>(null);
+    useImperativeHandle(ref, () => localRef.current!);
 
     const [key, setKey] = useState(0);
 
@@ -42,7 +41,7 @@ const DropdownWrapper = forwardRef<HTMLDivElement, Props>(
 
     return (
       <CSSTransition
-        nodeRef={summaryRef}
+        nodeRef={localRef}
         key={key}
         in={opened}
         timeout={ANIMATION_DURATION}
@@ -55,7 +54,7 @@ const DropdownWrapper = forwardRef<HTMLDivElement, Props>(
         unmountOnExit
       >
         <div
-          ref={summaryRef}
+          ref={localRef}
           className={clsx(
             'rounded-md overflow-hidden',
             process.env.TARGET_BROWSER === 'firefox' && 'grayscale-firefox-fix',

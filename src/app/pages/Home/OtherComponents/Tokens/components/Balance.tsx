@@ -11,7 +11,7 @@ interface CryptoBalanceProps extends TestIDProps {
 }
 
 export const CryptoBalance = memo<CryptoBalanceProps>(({ value, testID, testIDProperties }) => (
-  <div className="truncate text-font-num-14 text-right ml-4 flex-1 flex justify-end">
+  <div className="shrink-0 text-font-num-14">
     <Money smallFractionFont={false} testID={testID} testIDProperties={testIDProperties}>
       {value}
     </Money>
@@ -36,7 +36,7 @@ export const FiatBalance = memo<FiatBalanceProps>(
       testIDProperties={testIDProperties}
     >
       {({ balance, symbol }) => (
-        <div className="ml-1 text-font-num-12 text-grey-1 flex items-center truncate text-right">
+        <div className="shrink-0 text-font-num-12 text-grey-1">
           {balance}
           <span className="ml-1">{symbol}</span>
         </div>

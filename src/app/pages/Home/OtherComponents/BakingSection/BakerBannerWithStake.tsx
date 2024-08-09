@@ -18,7 +18,7 @@ interface Props {
 }
 
 export const BakerBannerWithStake = memo<Props>(({ network, accountPkh, bakerPkh, cannotDelegate }) => {
-  const { rpcBaseURL } = network;
+  const { chainId, rpcBaseURL } = network;
   const { symbol } = getTezosGasMetadata(network.chainId);
 
   const isNotSupportedSwr = useIsStakingNotSupported(rpcBaseURL, bakerPkh);
@@ -31,12 +31,13 @@ export const BakerBannerWithStake = memo<Props>(({ network, accountPkh, bakerPkh
   const BakerBannerHeaderRight = useCallback<FC<{ staked: number }>>(
     ({ staked }) => (
       <RedelegateButton
+        chainId={chainId}
         disabled={cannotDelegate}
         staked={staked > 0}
         testID={BakingSectionSelectors.reDelegateButton}
       />
     ),
-    [cannotDelegate]
+    [cannotDelegate, chainId]
   );
 
   const stakingIsNotSupported = isNotSupportedSwr.data;

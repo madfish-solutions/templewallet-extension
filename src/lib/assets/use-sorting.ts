@@ -14,6 +14,7 @@ import {
 import { useAllAccountBalancesSelector, useBalancesAtomicRecordSelector } from 'app/store/tezos/balances/selectors';
 import { getKeyForBalancesRecord } from 'app/store/tezos/balances/utils';
 import {
+  useGetEvmChainTokenBalanceWithDecimals,
   useGetEvmTokenBalanceWithDecimals,
   useGetTezosAccountTokenOrGasBalanceWithDecimals,
   useGetTezosChainAccountTokenOrGasBalanceWithDecimals
@@ -153,13 +154,13 @@ export const useEvmAccountTokensSortPredicate = (publicKeyHash: HexString) => {
 };
 
 export const useEvmChainTokensSortPredicate = (publicKeyHash: HexString, chainId: number) => {
-  const getBalance = useGetEvmTokenBalanceWithDecimals(publicKeyHash);
+  const getBalance = useGetEvmChainTokenBalanceWithDecimals(publicKeyHash, chainId);
   const usdToTokenRates = useEvmChainUsdToTokenRatesSelector(chainId);
 
   return useCallback(
     (aSlug: string, bSlug: string) => {
-      const aBalance = getBalance(chainId, aSlug) ?? ZERO;
-      const bBalance = getBalance(chainId, bSlug) ?? ZERO;
+      const aBalance = getBalance(aSlug) ?? ZERO;
+      const bBalance = getBalance(bSlug) ?? ZERO;
       const aEquity = aBalance.multipliedBy(usdToTokenRates[aSlug] ?? ZERO);
       const bEquity = bBalance.multipliedBy(usdToTokenRates[bSlug] ?? ZERO);
 
@@ -169,7 +170,7 @@ export const useEvmChainTokensSortPredicate = (publicKeyHash: HexString, chainId
 
       return bEquity.comparedTo(aEquity);
     },
-    [chainId, getBalance, usdToTokenRates]
+    [getBalance, usdToTokenRates]
   );
 };
 

@@ -70,11 +70,12 @@ export const StakeButton = memo<StakeButtonProps>(({ type, disabled, loading, te
 });
 
 interface RedelegateButtonProps extends TestIDProperty {
+  chainId: string;
   disabled: boolean;
   staked: boolean;
 }
 
-export const RedelegateButton = memo<RedelegateButtonProps>(({ disabled, staked, testID }) => {
+export const RedelegateButton = memo<RedelegateButtonProps>(({ chainId, disabled, staked, testID }) => {
   const className = useMemo(
     () =>
       clsx(
@@ -92,38 +93,44 @@ export const RedelegateButton = memo<RedelegateButtonProps>(({ disabled, staked,
       </CannotDelegateButton>
     );
 
-  if (staked) return <RedelegateButtonWithConfirmation className={className} testID={testID} />;
+  if (staked) return <RedelegateButtonWithConfirmation chainId={chainId} className={className} testID={testID} />;
 
   return (
-    <Link to="/delegate" className={className} testID={testID}>
+    <Link to={`/delegate/${chainId}`} className={className} testID={testID}>
       <T id="reDelegate" />
     </Link>
   );
 });
 
-const RedelegateButtonWithConfirmation = memo<PropsWithClassName<TestIDProperty>>(({ className, testID }) => {
-  const customConfirm = useConfirm();
+interface RedelegateButtonWithConfirmationProps extends PropsWithClassName<TestIDProperty> {
+  chainId: string;
+}
 
-  const onClick = useCallback(
-    () =>
-      customConfirm({
-        title: 'You have active staking',
-        description:
-          'After re-delegation, your active stake with current baker will be requested to unstake. New stake will be available after the unstake cooldown period ends.',
-        comfirmButtonText: `${t('reDelegate')} & Unstake`,
-        stretchButtons: true
-      }).then(confirmed => {
-        if (confirmed) navigate('/delegate');
-      }),
-    [customConfirm]
-  );
+const RedelegateButtonWithConfirmation = memo<RedelegateButtonWithConfirmationProps>(
+  ({ chainId, className, testID }) => {
+    const customConfirm = useConfirm();
 
-  return (
-    <Button className={className} testID={testID} onClick={onClick}>
-      <T id="reDelegate" />
-    </Button>
-  );
-});
+    const onClick = useCallback(
+      () =>
+        customConfirm({
+          title: 'You have active staking',
+          description:
+            'After re-delegation, your active stake with current baker will be requested to unstake. New stake will be available after the unstake cooldown period ends.',
+          comfirmButtonText: `${t('reDelegate')} & Unstake`,
+          stretchButtons: true
+        }).then(confirmed => {
+          if (confirmed) navigate(`/delegate/${chainId}`);
+        }),
+      [customConfirm, chainId]
+    );
+
+    return (
+      <Button className={className} testID={testID} onClick={onClick}>
+        <T id="reDelegate" />
+      </Button>
+    );
+  }
+);
 
 const COMMON_BUTTON_CLASSNAMES = clsx(
   'flex items-center justify-center p-2 leading-none rounded-md',

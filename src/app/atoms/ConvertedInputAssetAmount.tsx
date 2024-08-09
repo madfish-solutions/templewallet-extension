@@ -20,7 +20,7 @@ export const ConvertedInputAssetAmount = memo<Props>(
       return (
         <InFiat chainId={tezosChainId} assetSlug={assetSlug} volume={amountValue} roundingMode={BigNumber.ROUND_FLOOR}>
           {({ balance, symbol }) => (
-            <div className="-mb-3 flex">
+            <div className="-mb-1 flex">
               <span className="mr-1">≈</span>
               <span className="font-normal text-gray-700 mr-1 flex items-baseline">
                 {balance}

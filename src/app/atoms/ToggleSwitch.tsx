@@ -18,6 +18,7 @@ export const ToggleSwitch = forwardRef<HTMLInputElement, Props>((props, ref) => 
   const containerClassName = useMemo(
     () =>
       clsx(
+        'shrink-0',
         small ? 'h-4 w-8 p-px rounded-md' : 'h-6 w-12 p-0.5 rounded-lg',
         disabled ? 'bg-disable' : localChecked ? (small ? 'bg-secondary' : 'bg-primary') : 'bg-lines',
         !disabled && 'cursor-pointer',

@@ -1,12 +1,14 @@
+import type { LoadableState } from 'lib/store/entity.utils';
+
 export interface EvmLoadingStateInterface {
-  balancesLoading: boolean;
+  balances: Record<number, LoadableState>;
   tokensMetadataLoading: boolean;
   collectiblesMetadataLoading: boolean;
   tokensExchangeRatesLoading: boolean;
 }
 
 export const EvmLoadingInitialState: EvmLoadingStateInterface = {
-  balancesLoading: false,
+  balances: {},
   tokensMetadataLoading: false,
   collectiblesMetadataLoading: false,
   tokensExchangeRatesLoading: false

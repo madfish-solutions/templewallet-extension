@@ -11,6 +11,7 @@ import { useInterval, useMemoWithCompare } from 'lib/ui/hooks';
 import { isTruthy } from 'lib/utils';
 import { useEnabledEvmChains } from 'temple/front';
 
+/** Note: Rates are updated only for the given account's tokens */
 export const AppEvmTokensExchangeRatesLoading = memo<{ publicKeyHash: HexString }>(({ publicKeyHash }) => {
   const evmChains = useEnabledEvmChains();
   const isLoading = useEvmTokensExchangeRatesLoadingSelector();

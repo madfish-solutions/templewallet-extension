@@ -25,8 +25,9 @@ export function searchAndFilterItems<T, P extends null | ((item: T) => any)>(
     threshold
   });
 
-  const result = fuse.search(searchString);
+  const result = fuse.search(searchString); // Goes in the order of relevance
 
+  // Not using `{ item } => item`, since they are values of `searchable`, not `items`
   return result.map(({ refIndex }) => items[refIndex]!);
 }
 

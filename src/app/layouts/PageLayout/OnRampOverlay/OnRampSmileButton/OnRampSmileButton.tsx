@@ -10,8 +10,7 @@ interface OnRumpSmileButtonProps extends TestIDProps {
   href: string;
   SmileIcon: FunctionComponent<SVGProps<SVGSVGElement>>;
   amount: number;
-  className?: string;
-  titleClassName?: string;
+  accentColors?: boolean;
   onClick?: () => void;
 }
 
@@ -19,8 +18,7 @@ export const OnRampSmileButton: FC<OnRumpSmileButtonProps> = ({
   href,
   SmileIcon,
   amount,
-  className,
-  titleClassName,
+  accentColors,
   onClick,
   testID
 }) => {
@@ -32,11 +30,10 @@ export const OnRampSmileButton: FC<OnRumpSmileButtonProps> = ({
       className={classNames(
         'flex flex-col',
         'justify-center items-center',
-        'bg-white rounded-lg',
-        'shadow-md hover:bg-gray-100',
+        'rounded-lg shadow-md',
         'transition ease-in-out duration-200',
         'cursor-pointer',
-        className
+        accentColors ? 'hover:shadow hover:opacity-90 hover:bg-orange-500 bg-orange-500' : 'bg-white hover:bg-gray-100'
       )}
       style={{ height: '5.438rem', width: popup ? '5.5rem' : '8.75rem' }}
       onClick={onClick}
@@ -44,7 +41,7 @@ export const OnRampSmileButton: FC<OnRumpSmileButtonProps> = ({
     >
       <SmileIcon className="w-7 h-auto" />
       <p
-        className={classNames('font-inter font-semibold text-orange-500 mt-1', titleClassName)}
+        className={classNames('font-inter font-semibold mt-1', accentColors ? 'text-primary-white' : 'text-orange-500')}
         style={{ fontSize: '1.188rem' }}
       >
         {amount}$

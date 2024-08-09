@@ -7,13 +7,13 @@ export const useRawEvmAccountBalancesSelector = (publicKeyHash: HexString): Chai
   useSelector(state => state.evmBalances.balancesAtomic[publicKeyHash]) ?? EMPTY_FROZEN_OBJ;
 
 export const useRawEvmChainAccountBalancesSelector = (
-  publicKeyHash: HexString,
+  accountAddress: HexString,
   chainId: number
 ): AssetSlugBalanceRecord =>
-  useSelector(state => state.evmBalances.balancesAtomic[publicKeyHash]?.[chainId]) ?? EMPTY_FROZEN_OBJ;
+  useSelector(state => state.evmBalances.balancesAtomic[accountAddress]?.[chainId]) ?? EMPTY_FROZEN_OBJ;
 
 export const useRawEvmAssetBalanceSelector = (
-  publicKeyHash: HexString,
+  accountAddress: HexString,
   chainId: number,
   assetSlug: string
-): string | undefined => useSelector(state => state.evmBalances.balancesAtomic[publicKeyHash]?.[chainId])?.[assetSlug];
+): string | undefined => useSelector(state => state.evmBalances.balancesAtomic[accountAddress]?.[chainId])?.[assetSlug];
