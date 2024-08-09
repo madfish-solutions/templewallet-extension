@@ -39,7 +39,7 @@ export const EvmTokensTab = memo<Props>(({ publicKeyHash }) => {
   return <TabContent publicKeyHash={publicKeyHash} />;
 });
 
-const TabContent: FC<{ publicKeyHash: HexString }> = ({ publicKeyHash }) => {
+const TabContent: FC<Props> = ({ publicKeyHash }) => {
   const { hideZeroBalance, groupByNetwork } = useTokensListOptionsSelector();
 
   const { enabledChainSlugsSorted } = useEnabledSlugsSorted(publicKeyHash, hideZeroBalance);
@@ -54,7 +54,7 @@ const TabContent: FC<{ publicKeyHash: HexString }> = ({ publicKeyHash }) => {
   );
 };
 
-const TabContentWithManageActive: FC<{ publicKeyHash: HexString }> = ({ publicKeyHash }) => {
+const TabContentWithManageActive: FC<Props> = ({ publicKeyHash }) => {
   const { hideZeroBalance, groupByNetwork } = useTokensListOptionsSelector();
 
   const { enabledChainSlugsSorted, tokens, tokensSortPredicate } = useEnabledSlugsSorted(
@@ -83,12 +83,14 @@ const TabContentWithManageActive: FC<{ publicKeyHash: HexString }> = ({ publicKe
   );
 };
 
-const TabContentBase: FC<{
+interface TabContentBaseProps {
   publicKeyHash: HexString;
   allSlugsSorted: string[];
   groupByNetwork: boolean;
   manageActive: boolean;
-}> = ({ publicKeyHash, allSlugsSorted, groupByNetwork, manageActive }) => {
+}
+
+const TabContentBase: FC<TabContentBaseProps> = ({ publicKeyHash, allSlugsSorted, groupByNetwork, manageActive }) => {
   const evmChains = useAllEvmChains();
 
   const { displayedSlugs, isSyncing, loadNext, searchValue, setSearchValue } =
@@ -109,7 +111,7 @@ const TabContentBase: FC<{
     if (groupedSlugs)
       return groupedSlugs.map(([chainId, chainSlugs], gi) => (
         <React.Fragment key={chainId}>
-          <div key={chainId} className={clsx('mb-0.5 p-1 text-font-description-bold', gi > 0 && 'mt-4')}>
+          <div className={clsx('mb-0.5 p-1 text-font-description-bold', gi > 0 && 'mt-4')}>
             {evmChains[chainId]?.name ?? 'Unknown chain'}
           </div>
 

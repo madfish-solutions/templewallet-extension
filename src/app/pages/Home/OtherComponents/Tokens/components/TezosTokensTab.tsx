@@ -114,7 +114,7 @@ const TabContentBase = memo<TabContentBaseProps>(({ publicKeyHash, allSlugsSorte
     if (groupedSlugs)
       return groupedSlugs.map(([chainId, chainSlugs], gi) => (
         <React.Fragment key={chainId}>
-          <div key={chainId} className={clsx('mb-0.5 p-1 text-font-description-bold', gi > 0 && 'mt-4')}>
+          <div className={clsx('mb-0.5 p-1 text-font-description-bold', gi > 0 && 'mt-4')}>
             {tezosChains[chainId]?.name ?? 'Unknown chain'}
           </div>
 
