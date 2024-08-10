@@ -6,6 +6,8 @@ export const toExploreAssetLink = (chainKind: TempleChainKind, chainId: number |
   `/explore/${chainKind}/${chainId}/${assetSlug}`;
 
 export const getTokensViewWithPromo = (tokensJsx: ReactNode[], promoJsx: ReactNode, slugsCount = tokensJsx.length) => {
+  if (!promoJsx) return tokensJsx;
+
   if (slugsCount < 5) {
     tokensJsx.push(promoJsx);
   } else {

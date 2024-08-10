@@ -28,11 +28,11 @@ export const useManageableSlugs = (
   }, [manageActive, manageInactiveSlugs, allSlugs]);
 };
 
-export const usePreservedOrderSlugsToManage = (enabledSlugsSorted: string[], allSlugsSorted: string[]) => {
+export const usePreservedOrderSlugsToManage = (enabledSlugsSorted: string[], otherSlugsSorted: string[]) => {
   const prevResultRef = useRef<string[]>([]);
 
   return useMemo(() => {
-    const newConcated = Array.from(new Set(enabledSlugsSorted.concat(allSlugsSorted)));
+    const newConcated = Array.from(new Set(enabledSlugsSorted.concat(otherSlugsSorted)));
 
     const prevResult = prevResultRef.current;
 
@@ -51,5 +51,5 @@ export const usePreservedOrderSlugsToManage = (enabledSlugsSorted: string[], all
     prevResultRef.current = newResult;
 
     return newResult;
-  }, [enabledSlugsSorted, allSlugsSorted]);
+  }, [enabledSlugsSorted, otherSlugsSorted]);
 };

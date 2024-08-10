@@ -18,6 +18,7 @@ export const fromAssetSlug = <T = string>(slug: string) => slug.split('_') as [c
 export const toChainAssetSlug = (chainKind: TempleChainKind, chainId: number | string, assetSlug: string) =>
   `${chainKind}${CHAIN_SLUG_SEPARATOR}${chainId}${CHAIN_SLUG_SEPARATOR}${assetSlug}`;
 
+/** @deprecated Use `parseChainAssetSlug` */
 export const fromChainAssetSlug = <T = string | number>(
   chainAssetSlug: string
 ): [chainKind: string, chainId: T, assetSlug: string] => {
@@ -27,6 +28,34 @@ export const fromChainAssetSlug = <T = string | number>(
 
   return [chainKind, convertedChainId, assetSlug];
 };
+
+export function parseChainAssetSlug(
+  chainAssetSlug: string,
+  chainKind: TempleChainKind.EVM
+): [chainKind: TempleChainKind.EVM, chainId: number, assetSlug: string];
+export function parseChainAssetSlug(
+  chainAssetSlug: string,
+  chainKind: TempleChainKind.Tezos
+): [chainKind: TempleChainKind.Tezos, chainId: string, assetSlug: string];
+export function parseChainAssetSlug(
+  chainAssetSlug: string
+):
+  | [chainKind: TempleChainKind.EVM, chainId: number, assetSlug: string]
+  | [chainKind: TempleChainKind.Tezos, chainId: string, assetSlug: string];
+export function parseChainAssetSlug(chainAssetSlug: string, chainKind?: TempleChainKind) {
+  const [_chainKind, chainId = '', assetSlug = ''] = chainAssetSlug.split(CHAIN_SLUG_SEPARATOR);
+
+  switch (chainKind) {
+    case TempleChainKind.EVM:
+      return [TempleChainKind.EVM, Number(chainId), assetSlug];
+    case TempleChainKind.Tezos:
+      return [TempleChainKind.Tezos, chainId, assetSlug];
+    default:
+      if (_chainKind === TempleChainKind.EVM) return [TempleChainKind.EVM, Number(chainId), assetSlug];
+
+      return [TempleChainKind.Tezos, chainId, assetSlug];
+  }
+}
 
 export const tokenToSlug = <T extends { address: string; id?: string | number }>({ address, id }: T) => {
   return toTokenSlug(address, id);
