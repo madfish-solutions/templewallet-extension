@@ -2,13 +2,37 @@ import { useMemo } from 'react';
 
 import { useAreAssetsLoading } from 'app/store/tezos/assets/selectors';
 import { useCollectiblesMetadataLoadingSelector } from 'app/store/tezos/collectibles-metadata/selectors';
+import { useTezosChainAccountCollectibles } from 'lib/assets/hooks/collectibles';
 import { searchTezosChainAssetsWithNoMeta } from 'lib/assets/search.utils';
+import { useTezosChainCollectiblesSortPredicate } from 'lib/assets/use-sorting';
 import { useTezosChainCollectiblesMetadataPresenceCheck, useGetCollectibleMetadata } from 'lib/metadata';
+import { useMemoWithCompare } from 'lib/ui/hooks';
 import { TezosNetworkEssentials } from 'temple/networks';
 
 import { ITEMS_PER_PAGE, useTezosChainCollectiblesPaginationLogic } from '../use-collectibles-pagination-logic';
 
 import { useCommonAssetsListingLogic } from './utils';
+
+export const useTezosChainCollectiblesForListing = (publicKeyHash: string, chainId: string) => {
+  const sortPredicate = useTezosChainCollectiblesSortPredicate(publicKeyHash, chainId);
+
+  const allChainAccountCollectibles = useTezosChainAccountCollectibles(publicKeyHash, chainId);
+
+  const enabledSlugsSorted = useMemoWithCompare(
+    () =>
+      allChainAccountCollectibles
+        .filter(({ status }) => status === 'enabled')
+        .map(({ slug }) => slug)
+        .sort(sortPredicate),
+    [allChainAccountCollectibles, sortPredicate]
+  );
+
+  return {
+    enabledSlugsSorted,
+    allChainAccountCollectibles,
+    sortPredicate
+  };
+};
 
 export const useTezosChainCollectiblesListingLogic = (allSlugsSorted: string[], network: TezosNetworkEssentials) => {
   const {

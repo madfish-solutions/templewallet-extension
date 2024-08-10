@@ -1,25 +1,22 @@
-import React, { FC, memo, useCallback, useMemo } from 'react';
+import React, { FC, memo, useMemo } from 'react';
 
-import { isDefined } from '@rnw-community/shared';
 import clsx from 'clsx';
 
 import { useChainsSlugsGrouping } from 'app/hooks/listing-logic/use-grouped-slugs';
 import { usePreservedOrderSlugsToManage } from 'app/hooks/listing-logic/use-manageable-slugs';
-import { useTezosAccountTokensListingLogic } from 'app/hooks/listing-logic/use-tezos-account-tokens-listing-logic';
+import {
+  useTezosAccountTokensForListing,
+  useTezosAccountTokensListingLogic
+} from 'app/hooks/listing-logic/use-tezos-account-tokens-listing-logic';
 import { useAssetsViewState } from 'app/hooks/use-assets-view-state';
 import { useLoadPartnersPromo } from 'app/hooks/use-load-partners-promo';
 import { useTokensListOptionsSelector } from 'app/store/assets-filter-options/selectors';
 import { useMainnetTokensScamlistSelector } from 'app/store/tezos/assets/selectors';
-import { useBalancesAtomicRecordSelector } from 'app/store/tezos/balances/selectors';
-import { getKeyForBalancesRecord } from 'app/store/tezos/balances/utils';
 import { PartnersPromotion, PartnersPromotionVariant } from 'app/templates/partners-promotion';
 import { OptimalPromoVariantEnum } from 'lib/apis/optimal';
-import { TEZ_TOKEN_SLUG } from 'lib/assets';
-import { useTezosAccountTokens } from 'lib/assets/hooks/tokens';
-import { useTezosAccountTokensSortPredicate } from 'lib/assets/use-sorting';
 import { fromChainAssetSlug, toChainAssetSlug } from 'lib/assets/utils';
 import { useMemoWithCompare } from 'lib/ui/hooks';
-import { useAllTezosChains, useEnabledTezosChains } from 'temple/front';
+import { useAllTezosChains } from 'temple/front';
 import { TempleChainKind } from 'temple/types';
 
 import { getTokensViewWithPromo } from '../utils';
@@ -44,7 +41,7 @@ export const TezosTokensTab = memo<Props>(({ publicKeyHash }) => {
 const TabContent: FC<Props> = ({ publicKeyHash }) => {
   const { hideZeroBalance, groupByNetwork } = useTokensListOptionsSelector();
 
-  const { enabledChainsSlugsSorted } = useEnabledSortedSlugs(publicKeyHash, hideZeroBalance);
+  const { enabledChainsSlugsSorted } = useTezosAccountTokensForListing(publicKeyHash, hideZeroBalance);
 
   return (
     <TabContentBase
@@ -59,7 +56,7 @@ const TabContent: FC<Props> = ({ publicKeyHash }) => {
 const TabContentWithManageActive: FC<Props> = ({ publicKeyHash }) => {
   const { hideZeroBalance, groupByNetwork } = useTokensListOptionsSelector();
 
-  const { enabledChainsSlugsSorted, tokens, tokensSortPredicate } = useEnabledSortedSlugs(
+  const { enabledChainsSlugsSorted, tokens, tokensSortPredicate } = useTezosAccountTokensForListing(
     publicKeyHash,
     hideZeroBalance
   );
@@ -162,51 +159,3 @@ const TabContentBase = memo<TabContentBaseProps>(({ publicKeyHash, allSlugsSorte
     </TokensTabBase>
   );
 });
-
-const useEnabledSortedSlugs = (publicKeyHash: string, filterZeroBalances: boolean) => {
-  const tokensSortPredicate = useTezosAccountTokensSortPredicate(publicKeyHash);
-
-  const tokens = useTezosAccountTokens(publicKeyHash);
-
-  const enabledStoredChainSlugs = useMemo(
-    () =>
-      tokens
-        .filter(({ status }) => status === 'enabled')
-        .map(({ chainId, slug }) => toChainAssetSlug(TempleChainKind.Tezos, chainId, slug)),
-    [tokens]
-  );
-
-  const enabledChains = useEnabledTezosChains();
-
-  const gasSlugs = useMemo(
-    () => enabledChains.map(chain => toChainAssetSlug(TempleChainKind.Tezos, chain.chainId, TEZ_TOKEN_SLUG)),
-    [enabledChains]
-  );
-
-  const balancesRecord = useBalancesAtomicRecordSelector();
-
-  const isNonZeroBalance = useCallback(
-    (chainSlug: string) => {
-      const [_, chainId, assetSlug] = fromChainAssetSlug<string>(chainSlug);
-      const key = getKeyForBalancesRecord(publicKeyHash, chainId);
-
-      const balance = balancesRecord[key]?.data[assetSlug];
-      return isDefined(balance) && balance !== '0';
-    },
-    [balancesRecord, publicKeyHash]
-  );
-
-  const enabledChainsSlugsSorted = useMemoWithCompare(() => {
-    const enabledSlugs = gasSlugs.concat(enabledStoredChainSlugs);
-
-    const enabledSlugsFiltered = filterZeroBalances ? enabledSlugs.filter(isNonZeroBalance) : enabledSlugs;
-
-    return enabledSlugsFiltered.sort(tokensSortPredicate);
-  }, [enabledStoredChainSlugs, isNonZeroBalance, tokensSortPredicate, gasSlugs, filterZeroBalances]);
-
-  return {
-    enabledChainsSlugsSorted,
-    tokens,
-    tokensSortPredicate
-  };
-};

@@ -1,15 +1,65 @@
 import { useCallback, useMemo } from 'react';
 
+import { isDefined } from '@rnw-community/shared';
+
+import { useRawEvmAccountBalancesSelector } from 'app/store/evm/balances/selectors';
 import { useEvmTokensExchangeRatesLoadingSelector, useEvmTokensMetadataLoadingSelector } from 'app/store/evm/selectors';
 import { useEvmTokensMetadataRecordSelector } from 'app/store/evm/tokens-metadata/selectors';
 import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
+import { useEvmAccountTokens } from 'lib/assets/hooks/tokens';
 import { searchEvmTokensWithNoMeta } from 'lib/assets/search.utils';
-import { useAllEvmChains } from 'temple/front';
+import { useEvmAccountTokensSortPredicate } from 'lib/assets/use-sorting';
+import { fromChainAssetSlug, toChainAssetSlug } from 'lib/assets/utils';
+import { useMemoWithCompare } from 'lib/ui/hooks';
+import { useAllEvmChains, useEnabledEvmChains } from 'temple/front';
+import { TempleChainKind } from 'temple/types';
 
 import { useSimpleAssetsPaginationLogic } from '../use-simple-assets-pagination-logic';
 
 import { useEvmBalancesAreLoading } from './use-evm-balances-loading-state';
 import { getSlugWithChainId, useCommonAssetsListingLogic } from './utils';
+
+export const useEvmAccountTokensForListing = (publicKeyHash: HexString, filterZeroBalances: boolean) => {
+  const tokens = useEvmAccountTokens(publicKeyHash);
+
+  const enabledChains = useEnabledEvmChains();
+
+  const tokensSortPredicate = useEvmAccountTokensSortPredicate(publicKeyHash);
+
+  const balances = useRawEvmAccountBalancesSelector(publicKeyHash);
+
+  const isNonZeroBalance = useCallback(
+    (chainSlug: string) => {
+      const [_, chainId, slug] = fromChainAssetSlug<number>(chainSlug);
+
+      const balance = balances[chainId]?.[slug];
+      return isDefined(balance) && balance !== '0';
+    },
+    [balances]
+  );
+
+  const enabledSlugs = useMemo(() => {
+    const gasSlugs = enabledChains.map(chain => toChainAssetSlug(TempleChainKind.EVM, chain.chainId, EVM_TOKEN_SLUG));
+
+    const enabledTokensSlugs = tokens
+      .filter(({ status }) => status === 'enabled')
+      .map(({ chainId, slug }) => toChainAssetSlug(TempleChainKind.EVM, chainId, slug));
+
+    return gasSlugs.concat(enabledTokensSlugs);
+  }, [tokens, enabledChains]);
+
+  const enabledChainSlugsSorted = useMemoWithCompare(() => {
+    const temp3 = filterZeroBalances ? enabledSlugs.filter(isNonZeroBalance) : enabledSlugs;
+
+    return temp3.sort(tokensSortPredicate);
+  }, [enabledSlugs, isNonZeroBalance, tokensSortPredicate, filterZeroBalances]);
+
+  return {
+    enabledChainSlugsSorted,
+    tokens,
+    tokensSortPredicate
+  };
+};
 
 export const useEvmAccountTokensListingLogic = (allSlugsSorted: string[]) => {
   const { slugs: paginatedSlugs, loadNext } = useSimpleAssetsPaginationLogic(allSlugsSorted);

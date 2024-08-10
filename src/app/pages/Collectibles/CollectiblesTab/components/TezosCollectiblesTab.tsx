@@ -1,12 +1,13 @@
 import React, { FC, memo, useMemo } from 'react';
 
 import { usePreservedOrderSlugsToManage } from 'app/hooks/listing-logic/use-manageable-slugs';
-import { useTezosAccountCollectiblesListingLogic } from 'app/hooks/listing-logic/use-tezos-account-collectibles-listing-logic';
+import {
+  useTezosAccountCollectiblesForListing,
+  useTezosAccountCollectiblesListingLogic
+} from 'app/hooks/listing-logic/use-tezos-account-collectibles-listing-logic';
 import { useAssetsViewState } from 'app/hooks/use-assets-view-state';
 import { useCollectiblesListOptionsSelector } from 'app/store/assets-filter-options/selectors';
-import { useTezosAccountCollectibles } from 'lib/assets/hooks/collectibles';
-import { useTezosAccountCollectiblesSortPredicate } from 'lib/assets/use-sorting';
-import { fromChainAssetSlug, toChainAssetSlug } from 'lib/assets/utils';
+import { parseChainAssetSlug, toChainAssetSlug } from 'lib/assets/utils';
 import { useMemoWithCompare } from 'lib/ui/hooks';
 import { TempleChainKind } from 'temple/types';
 
@@ -28,7 +29,7 @@ export const TezosCollectiblesTab = memo<Props>(({ publicKeyHash }) => {
 const TabContent: FC<Props> = ({ publicKeyHash }) => {
   const { blur, showInfo } = useCollectiblesListOptionsSelector();
 
-  const { enabledChainSlugsSorted } = useEnabledSlugsSorted(publicKeyHash);
+  const { enabledChainSlugsSorted } = useTezosAccountCollectiblesForListing(publicKeyHash);
 
   const { isInSearchMode, displayedSlugs, isSyncing, loadNext, searchValue, setSearchValue } =
     useTezosAccountCollectiblesListingLogic(enabledChainSlugsSorted);
@@ -37,7 +38,7 @@ const TabContent: FC<Props> = ({ publicKeyHash }) => {
     () => (
       <div className="grid grid-cols-3 gap-2">
         {displayedSlugs.map(chainSlug => {
-          const [_, chainId, slug] = fromChainAssetSlug<string>(chainSlug);
+          const [_, chainId, slug] = parseChainAssetSlug(chainSlug, TempleChainKind.Tezos);
 
           return (
             <TezosCollectibleItem
@@ -74,7 +75,8 @@ const TabContent: FC<Props> = ({ publicKeyHash }) => {
 const TabContentWithManageActive: FC<Props> = ({ publicKeyHash }) => {
   const { blur, showInfo } = useCollectiblesListOptionsSelector();
 
-  const { enabledChainSlugsSorted, allAccountCollectibles, sortPredicate } = useEnabledSlugsSorted(publicKeyHash);
+  const { enabledChainSlugsSorted, allAccountCollectibles, sortPredicate } =
+    useTezosAccountCollectiblesForListing(publicKeyHash);
 
   const allChainSlugsSorted = useMemoWithCompare(
     () =>
@@ -93,7 +95,7 @@ const TabContentWithManageActive: FC<Props> = ({ publicKeyHash }) => {
     () => (
       <div>
         {displayedSlugs.map(chainSlug => {
-          const [_, chainId, slug] = fromChainAssetSlug<string>(chainSlug);
+          const [_, chainId, slug] = parseChainAssetSlug(chainSlug, TempleChainKind.Tezos);
 
           return (
             <TezosCollectibleItem
@@ -125,25 +127,4 @@ const TabContentWithManageActive: FC<Props> = ({ publicKeyHash }) => {
       {contentElement}
     </CollectiblesTabBase>
   );
-};
-
-const useEnabledSlugsSorted = (publicKeyHash: string) => {
-  const sortPredicate = useTezosAccountCollectiblesSortPredicate(publicKeyHash);
-
-  const allAccountCollectibles = useTezosAccountCollectibles(publicKeyHash);
-
-  const enabledChainSlugsSorted = useMemoWithCompare(
-    () =>
-      allAccountCollectibles
-        .filter(({ status }) => status === 'enabled')
-        .map(({ chainId, slug }) => toChainAssetSlug(TempleChainKind.Tezos, chainId, slug))
-        .sort(sortPredicate),
-    [allAccountCollectibles, sortPredicate]
-  );
-
-  return {
-    enabledChainSlugsSorted,
-    allAccountCollectibles,
-    sortPredicate
-  };
 };
