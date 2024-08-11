@@ -1,7 +1,6 @@
 import React, { FC } from 'react';
 
 import { SyncSpinner } from 'app/atoms';
-import { EmptyState } from 'app/atoms/EmptyState';
 import { FilterButton } from 'app/atoms/FilterButton';
 import { IconButton } from 'app/atoms/IconButton';
 import { ManageActiveTip } from 'app/atoms/ManageActiveTip';
@@ -12,6 +11,7 @@ import { useManageAssetsClickOutsideLogic } from 'app/hooks/use-manage-assets-cl
 import { ReactComponent as ManageIcon } from 'app/icons/base/manage.svg';
 import { ContentContainer, StickyBar } from 'app/layouts/containers';
 import { AssetsSelectors } from 'app/pages/Home/OtherComponents/Assets.selectors';
+import { EmptySection } from 'app/pages/Home/OtherComponents/Tokens/components/EmptySection';
 import { AssetsFilterOptions } from 'app/templates/AssetsFilterOptions';
 import { SearchBarField } from 'app/templates/SearchField';
 
@@ -57,9 +57,9 @@ export const CollectiblesTabBase: FC<PropsWithChildren<CollectiblesTabBaseProps>
       {filtersOpened ? (
         <AssetsFilterOptions filterButtonRef={filterButtonRef} onRequestClose={setFiltersClosed} />
       ) : (
-        <ContentContainer ref={containerRef}>
+        <ContentContainer ref={containerRef} padding={collectiblesCount > 0}>
           {collectiblesCount === 0 ? (
-            <EmptyState />
+            <EmptySection />
           ) : (
             <>
               {isInSearchMode ? (
