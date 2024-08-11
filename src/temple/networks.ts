@@ -189,6 +189,15 @@ export const EVM_DEFAULT_NETWORKS: NonEmptyArray<StoredEvmNetwork> = [
     default: true
   },
   {
+    id: 'polygon-amoy',
+    name: 'Polygon Amoy',
+    chain: TempleChainKind.EVM,
+    chainId: 80002,
+    rpcBaseURL: 'https://rpc-amoy.polygon.technology',
+    color: '#392f77',
+    default: true
+  },
+  {
     id: 'bsc-testnet',
     name: 'BSC Testnet',
     chain: TempleChainKind.EVM,

@@ -13,7 +13,6 @@ import { getAccountAssetsStoreKey } from 'app/store/tezos/assets/utils';
 import { useAllAccountBalancesSelector, useBalancesAtomicRecordSelector } from 'app/store/tezos/balances/selectors';
 import { getKeyForBalancesRecord } from 'app/store/tezos/balances/utils';
 import type { AccountAsset } from 'lib/assets/types';
-import { useMemoWithCompare } from 'lib/ui/hooks';
 import { EMPTY_FROZEN_OBJ } from 'lib/utils';
 import { useEnabledEvmChains, useEnabledTezosChains } from 'temple/front';
 
@@ -61,15 +60,17 @@ export const useTezosChainAccountCollectibles = (account: string, chainId: strin
 
   const balances = useAllAccountBalancesSelector(account, chainId);
 
-  return useMemo<AccountCollectible[]>(() => {
-    const result: AccountCollectible[] = [];
-
-    for (const [slug, { status }] of Object.entries(stored)) {
-      if (status !== 'removed') result.push({ slug, status: getAssetStatus(balances[slug], status), chainId });
-    }
-
-    return result;
-  }, [stored, balances, chainId]);
+  return useMemo(
+    () =>
+      Object.entries(stored)
+        .filter(([, asset]) => asset.status !== 'removed')
+        .map<AccountCollectible>(([slug, { status }]) => ({
+          slug,
+          status: getAssetStatus(balances[slug], status),
+          chainId
+        })),
+    [stored, balances, chainId]
+  );
 };
 
 /**
@@ -111,13 +112,15 @@ export const useEvmChainAccountCollectibles = (account: HexString, chainId: numb
   const stored = useRawEvmChainAccountCollectiblesSelector(account, chainId);
   const balances = useRawEvmChainAccountBalancesSelector(account, chainId);
 
-  return useMemoWithCompare<AccountCollectible[]>(() => {
-    const result: AccountCollectible[] = [];
-
-    for (const [slug, { status }] of Object.entries(stored)) {
-      if (status !== 'removed') result.push({ slug, status: getAssetStatus(balances[slug], status), chainId });
-    }
-
-    return result;
-  }, [stored, balances, chainId]);
+  return useMemo(
+    () =>
+      Object.entries(stored)
+        .filter(([, asset]) => asset.status !== 'removed')
+        .map<AccountCollectible>(([slug, { status }]) => ({
+          slug,
+          status: getAssetStatus(balances[slug], status),
+          chainId
+        })),
+    [stored, balances, chainId]
+  );
 };

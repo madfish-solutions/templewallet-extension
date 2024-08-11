@@ -21,7 +21,10 @@ export const useEvmChainCollectiblesListingLogic = (
 
   const allChainAccountCollectibles = useEvmChainAccountCollectibles(publicKeyHash, chainId);
 
-  const allSlugs = useMemo(() => allChainAccountCollectibles.map(({ slug }) => slug), [allChainAccountCollectibles]);
+  const allSlugs = useMemoWithCompare(
+    () => allChainAccountCollectibles.map(({ slug }) => slug),
+    [allChainAccountCollectibles]
+  );
 
   const enabledSlugs = useMemo(
     () => allChainAccountCollectibles.filter(({ status }) => status === 'enabled').map(({ slug }) => slug),
@@ -44,7 +47,10 @@ export const useEvmChainCollectiblesListingLogic = (
     [getMetadata, searchValueDebounced]
   );
 
-  const enabledSlugsSorted = useMemo(() => [...enabledSlugs].sort(sortPredicate), [enabledSlugs, sortPredicate]);
+  const enabledSlugsSorted = useMemoWithCompare(
+    () => [...enabledSlugs].sort(sortPredicate),
+    [enabledSlugs, sortPredicate]
+  );
 
   const enabledSearchedSlugs = useMemo(
     () => (isInSearchMode ? search(enabledSlugsSorted) : enabledSlugsSorted),
