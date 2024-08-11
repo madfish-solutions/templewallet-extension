@@ -6,8 +6,8 @@ import {
   useEvmAccountTokensForListing,
   useEvmAccountTokensListingLogic
 } from 'app/hooks/listing-logic/use-evm-account-tokens-listing-logic';
-import { useChainsSlugsGrouping } from 'app/hooks/listing-logic/use-grouped-slugs';
 import { usePreservedOrderSlugsToManage } from 'app/hooks/listing-logic/use-manageable-slugs';
+import { useChainsSlugsGrouping } from 'app/hooks/listing-logic/use-slugs-grouping';
 import { useAssetsViewState } from 'app/hooks/use-assets-view-state';
 import { useLoadPartnersPromo } from 'app/hooks/use-load-partners-promo';
 import { useTokensListOptionsSelector } from 'app/store/assets-filter-options/selectors';

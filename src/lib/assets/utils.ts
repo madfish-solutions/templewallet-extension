@@ -7,7 +7,7 @@ import { TempleChainKind } from 'temple/types';
 import { TEZ_TOKEN_SLUG, TEZOS_SYMBOL, TEZOS_DCP_SYMBOL } from './defaults';
 import type { Asset, FA2Token } from './types';
 
-export const CHAIN_SLUG_SEPARATOR = ':';
+const CHAIN_SLUG_SEPARATOR = ':';
 
 export const getTezosGasSymbol = (chainId: string) => (isTezosDcpChainId(chainId) ? TEZOS_DCP_SYMBOL : TEZOS_SYMBOL);
 

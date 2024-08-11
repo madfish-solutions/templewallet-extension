@@ -2,8 +2,8 @@ import React, { FC, memo, useMemo } from 'react';
 
 import clsx from 'clsx';
 
-import { useChainsSlugsGrouping } from 'app/hooks/listing-logic/use-grouped-slugs';
 import { usePreservedOrderSlugsToManage } from 'app/hooks/listing-logic/use-manageable-slugs';
+import { useChainsSlugsGrouping } from 'app/hooks/listing-logic/use-slugs-grouping';
 import {
   useTezosAccountTokensForListing,
   useTezosAccountTokensListingLogic
