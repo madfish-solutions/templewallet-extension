@@ -84,7 +84,7 @@ interface TabContentBaseProps {
   manageActive: boolean;
 }
 
-const TabContentBase: FC<TabContentBaseProps> = ({ allSlugsSorted, publicKeyHash, chainId, manageActive }) => {
+const TabContentBase = memo<TabContentBaseProps>(({ allSlugsSorted, publicKeyHash, chainId, manageActive }) => {
   const { displayedSlugs, isSyncing, loadNext, searchValue, setSearchValue } = useEvmChainAccountTokensListingLogic(
     allSlugsSorted,
     chainId
@@ -126,4 +126,4 @@ const TabContentBase: FC<TabContentBaseProps> = ({ allSlugsSorted, publicKeyHash
       {tokensView}
     </TokensTabBase>
   );
-};
+});

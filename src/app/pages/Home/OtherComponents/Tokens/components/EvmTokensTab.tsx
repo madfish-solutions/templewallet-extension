@@ -88,7 +88,7 @@ interface TabContentBaseProps {
   manageActive: boolean;
 }
 
-const TabContentBase: FC<TabContentBaseProps> = ({ publicKeyHash, allSlugsSorted, groupByNetwork, manageActive }) => {
+const TabContentBase = memo<TabContentBaseProps>(({ publicKeyHash, allSlugsSorted, groupByNetwork, manageActive }) => {
   const { displayedSlugs, isSyncing, loadNext, searchValue, setSearchValue } =
     useEvmAccountTokensListingLogic(allSlugsSorted);
 
@@ -155,4 +155,4 @@ const TabContentBase: FC<TabContentBaseProps> = ({ publicKeyHash, allSlugsSorted
       {tokensView}
     </TokensTabBase>
   );
-};
+});
