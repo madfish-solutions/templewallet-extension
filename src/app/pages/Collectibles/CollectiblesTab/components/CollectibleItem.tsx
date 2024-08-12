@@ -11,6 +11,8 @@ import { ReactComponent as DeleteIcon } from 'app/icons/base/delete.svg';
 import { dispatch } from 'app/store';
 import { setEvmCollectibleStatusAction } from 'app/store/evm/assets/actions';
 import { useStoredEvmCollectibleSelector } from 'app/store/evm/assets/selectors';
+import { useRawEvmAssetBalanceSelector } from 'app/store/evm/balances/selectors';
+import { useEvmCollectibleMetadataSelector } from 'app/store/evm/collectibles-metadata/selectors';
 import { setTezosCollectibleStatusAction } from 'app/store/tezos/assets/actions';
 import { useStoredTezosCollectibleSelector } from 'app/store/tezos/assets/selectors';
 import { useBalanceSelector } from 'app/store/tezos/balances/selectors';
@@ -23,7 +25,6 @@ import { DeleteAssetModal } from 'app/templates/remove-asset-modal/delete-asset-
 import { setAnotherSelector, setTestID } from 'lib/analytics';
 import { objktCurrencies } from 'lib/apis/objkt';
 import { getAssetStatus } from 'lib/assets/hooks/utils';
-import { useEvmCollectibleBalance } from 'lib/balances/hooks';
 import { T } from 'lib/i18n';
 import { getTokenName } from 'lib/metadata';
 import { getCollectibleName, getCollectionName } from 'lib/metadata/utils';
@@ -281,7 +282,9 @@ interface EvmCollectibleItemProps {
 
 export const EvmCollectibleItem = memo<EvmCollectibleItemProps>(
   ({ assetSlug, evmChainId, accountPkh, showDetails = false, manageActive = false, hideWithoutMeta }) => {
-    const { rawValue: balance = '0', metadata } = useEvmCollectibleBalance(assetSlug, accountPkh, evmChainId);
+    const metadata = useEvmCollectibleMetadataSelector(evmChainId, assetSlug);
+    const balanceAtomic = useRawEvmAssetBalanceSelector(accountPkh, evmChainId, assetSlug);
+    const balance = balanceAtomic ?? '0';
 
     const storedToken = useStoredEvmCollectibleSelector(accountPkh, evmChainId, assetSlug);
 

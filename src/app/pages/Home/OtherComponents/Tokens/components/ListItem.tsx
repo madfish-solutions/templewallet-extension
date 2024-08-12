@@ -19,7 +19,7 @@ import { getTokenName, getAssetSymbol } from 'lib/metadata';
 import { useBooleanState } from 'lib/ui/hooks';
 import { ZERO } from 'lib/utils/numbers';
 import { Link } from 'lib/woozie';
-import { TezosNetworkEssentials } from 'temple/networks';
+import { EvmNetworkEssentials, TezosNetworkEssentials } from 'temple/networks';
 import { TempleChainKind } from 'temple/types';
 
 import { AssetsSelectors } from '../../Assets.selectors';
@@ -172,18 +172,20 @@ const LIST_ITEM_CLASSNAME = clsx(
 );
 
 interface EvmListItemProps {
-  chainId: number;
+  network: EvmNetworkEssentials;
   publicKeyHash: HexString;
   assetSlug: string;
   manageActive?: boolean;
 }
 
-export const EvmListItem = memo<EvmListItemProps>(({ chainId, publicKeyHash, assetSlug, manageActive = false }) => {
+export const EvmListItem = memo<EvmListItemProps>(({ network, publicKeyHash, assetSlug, manageActive = false }) => {
+  const { chainId } = network;
+
   const {
     value: balance = ZERO,
     rawValue: rawBalance,
     metadata
-  } = useEvmTokenBalance(assetSlug, publicKeyHash, chainId);
+  } = useEvmTokenBalance(assetSlug, publicKeyHash, network);
   const storedToken = useStoredEvmTokenSelector(publicKeyHash, chainId, assetSlug);
 
   const checked = getAssetStatus(rawBalance, storedToken?.status) === 'enabled';

@@ -36,13 +36,16 @@ export const usePreservedOrderSlugsToManage = (enabledSlugsSorted: string[], oth
 
     const prevResult = prevResultRef.current;
 
+    // Only needed for performance to not `prevResult.indexOf` multiple times
+    const indexMap = new Map<string, number>(prevResult.map((slug, index) => [slug, index]));
+
     // Sorting with respect to previous order every time
     const newResult = prevResult.length
       ? newConcated.sort((a, b) => {
-          const ai = prevResult.indexOf(a);
-          const bi = prevResult.indexOf(b);
+          const ai = indexMap.get(a);
+          const bi = indexMap.get(b);
 
-          if (ai === -1 || bi === -1) return 0; // Only needed for performance
+          if (ai == null || bi == null) return 0;
 
           return ai - bi;
         })

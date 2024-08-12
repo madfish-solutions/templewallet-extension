@@ -166,7 +166,7 @@ const TabContentBase = memo<TabContentBaseProps>(
           return (
             <EvmListItem
               key={chainSlug}
-              chainId={chainId}
+              network={evmChains[chainId]!}
               assetSlug={assetSlug}
               publicKeyHash={accountEvmAddress}
               manageActive={manageActive}

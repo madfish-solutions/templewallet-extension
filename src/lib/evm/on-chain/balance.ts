@@ -4,15 +4,15 @@ import { parseAbi } from 'viem';
 import { fromAssetSlug } from 'lib/assets';
 import { isEvmNativeTokenSlug } from 'lib/utils/evm.utils';
 import { ONE, ZERO } from 'lib/utils/numbers';
-import { getReadOnlyEvmForNetwork } from 'temple/evm';
-import { EvmChain } from 'temple/front';
+import { getReadOnlyEvm } from 'temple/evm';
+import { EvmNetworkEssentials } from 'temple/networks';
 
 import { EvmAssetStandard } from '../types';
 
 import { detectEvmTokenStandard } from './utils/common.utils';
 
 export const fetchEvmRawBalance = async (
-  network: EvmChain,
+  network: EvmNetworkEssentials,
   assetSlug: string,
   account: HexString,
   assetStandard?: EvmAssetStandard
@@ -25,14 +25,14 @@ export const fetchEvmRawBalance = async (
 
   const tokenId = BigInt(tokenIdStr ?? 0);
 
-  const publicClient = getReadOnlyEvmForNetwork(network);
+  const publicClient = getReadOnlyEvm(network.rpcBaseURL);
 
   let standard: EvmAssetStandard | undefined;
 
   if (assetStandard) {
     standard = assetStandard;
   } else {
-    standard = await detectEvmTokenStandard(network, assetSlug);
+    standard = await detectEvmTokenStandard(network.rpcBaseURL, assetSlug);
   }
 
   try {
@@ -73,15 +73,15 @@ export const fetchEvmRawBalance = async (
   }
 };
 
-const fetchEvmNativeBalance = async (address: HexString, network: EvmChain) => {
-  const publicClient = getReadOnlyEvmForNetwork(network);
+const fetchEvmNativeBalance = async (address: HexString, network: EvmNetworkEssentials) => {
+  const publicClient = getReadOnlyEvm(network.rpcBaseURL);
 
   try {
     const fetchedBalance = await publicClient.getBalance({ address });
 
     return new BigNumber(fetchedBalance.toString());
-  } catch {
-    console.error('Failed to fetch native balance for: ', network.name);
+  } catch (err) {
+    console.error(`Failed to fetch native balance for ${network.chainId}`, err);
 
     return ZERO;
   }

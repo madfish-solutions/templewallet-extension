@@ -1,5 +1,6 @@
 import React, { FC, memo, useMemo } from 'react';
 
+import { DeadEndBoundaryError } from 'app/ErrorBoundary';
 import {
   useEvmChainAccountTokensForListing,
   useEvmChainAccountTokensListingLogic
@@ -11,6 +12,8 @@ import { useTokensListOptionsSelector } from 'app/store/assets-filter-options/se
 import { PartnersPromotion, PartnersPromotionVariant } from 'app/templates/partners-promotion';
 import { OptimalPromoVariantEnum } from 'lib/apis/optimal';
 import { useMemoWithCompare } from 'lib/ui/hooks';
+import { useEvmChainByChainId } from 'temple/front/chains';
+import { EvmNetworkEssentials } from 'temple/networks';
 
 import { getTokensViewWithPromo } from '../utils';
 
@@ -23,36 +26,45 @@ interface Props {
 }
 
 export const EvmChainTokensTab = memo<Props>(({ chainId, publicKeyHash }) => {
+  const network = useEvmChainByChainId(chainId);
+
+  if (!network) throw new DeadEndBoundaryError();
+
   const { manageActive } = useAssetsViewState();
 
   useLoadPartnersPromo(OptimalPromoVariantEnum.Token);
 
-  if (manageActive) return <TabContentWithManageActive publicKeyHash={publicKeyHash} chainId={chainId} />;
+  if (manageActive) return <TabContentWithManageActive publicKeyHash={publicKeyHash} network={network} />;
 
-  return <TabContent publicKeyHash={publicKeyHash} chainId={chainId} />;
+  return <TabContent publicKeyHash={publicKeyHash} network={network} />;
 });
 
-const TabContent: FC<Props> = ({ publicKeyHash, chainId }) => {
+interface TabContentProps {
+  publicKeyHash: HexString;
+  network: EvmNetworkEssentials;
+}
+
+const TabContent: FC<TabContentProps> = ({ publicKeyHash, network }) => {
   const { hideZeroBalance } = useTokensListOptionsSelector();
 
-  const { enabledSlugsSorted } = useEvmChainAccountTokensForListing(publicKeyHash, chainId, hideZeroBalance);
+  const { enabledSlugsSorted } = useEvmChainAccountTokensForListing(publicKeyHash, network.chainId, hideZeroBalance);
 
   return (
     <TabContentBase
       allSlugsSorted={enabledSlugsSorted}
       publicKeyHash={publicKeyHash}
-      chainId={chainId}
+      network={network}
       manageActive={false}
     />
   );
 };
 
-const TabContentWithManageActive: FC<Props> = ({ publicKeyHash, chainId }) => {
+const TabContentWithManageActive: FC<TabContentProps> = ({ publicKeyHash, network }) => {
   const { hideZeroBalance } = useTokensListOptionsSelector();
 
   const { enabledSlugsSorted, tokens, tokensSortPredicate } = useEvmChainAccountTokensForListing(
     publicKeyHash,
-    chainId,
+    network.chainId,
     hideZeroBalance
   );
 
@@ -71,7 +83,7 @@ const TabContentWithManageActive: FC<Props> = ({ publicKeyHash, chainId }) => {
     <TabContentBase
       allSlugsSorted={allSlugsSorted}
       publicKeyHash={publicKeyHash}
-      chainId={chainId}
+      network={network}
       manageActive={true}
     />
   );
@@ -80,14 +92,14 @@ const TabContentWithManageActive: FC<Props> = ({ publicKeyHash, chainId }) => {
 interface TabContentBaseProps {
   allSlugsSorted: string[];
   publicKeyHash: HexString;
-  chainId: number;
+  network: EvmNetworkEssentials;
   manageActive: boolean;
 }
 
-const TabContentBase = memo<TabContentBaseProps>(({ allSlugsSorted, publicKeyHash, chainId, manageActive }) => {
+const TabContentBase = memo<TabContentBaseProps>(({ allSlugsSorted, publicKeyHash, network, manageActive }) => {
   const { displayedSlugs, isSyncing, loadNext, searchValue, setSearchValue } = useEvmChainAccountTokensListingLogic(
     allSlugsSorted,
-    chainId
+    network.chainId
   );
 
   const tokensView = useMemo(() => {
@@ -96,7 +108,7 @@ const TabContentBase = memo<TabContentBaseProps>(({ allSlugsSorted, publicKeyHas
         key={slug}
         assetSlug={slug}
         publicKeyHash={publicKeyHash}
-        chainId={chainId}
+        network={network}
         manageActive={manageActive}
       />
     ));
@@ -113,7 +125,7 @@ const TabContentBase = memo<TabContentBaseProps>(({ allSlugsSorted, publicKeyHas
     );
 
     return getTokensViewWithPromo(tokensJsx, promoJsx);
-  }, [displayedSlugs, manageActive, chainId, publicKeyHash]);
+  }, [displayedSlugs, manageActive, network, publicKeyHash]);
 
   return (
     <TokensTabBase

@@ -49,9 +49,9 @@ export const useEvmAccountTokensForListing = (publicKeyHash: HexString, filterZe
   }, [tokens, enabledChains]);
 
   const enabledChainSlugsSorted = useMemoWithCompare(() => {
-    const temp3 = filterZeroBalances ? enabledSlugs.filter(isNonZeroBalance) : enabledSlugs;
+    const enabledSlugsFiltered = filterZeroBalances ? enabledSlugs.filter(isNonZeroBalance) : enabledSlugs;
 
-    return temp3.sort(tokensSortPredicate);
+    return enabledSlugsFiltered.sort(tokensSortPredicate);
   }, [enabledSlugs, isNonZeroBalance, tokensSortPredicate, filterZeroBalances]);
 
   return {
