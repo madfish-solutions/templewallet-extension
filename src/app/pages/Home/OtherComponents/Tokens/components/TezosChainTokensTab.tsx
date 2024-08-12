@@ -1,50 +1,112 @@
-import React, { FC, useMemo } from 'react';
+import React, { FC, memo, useMemo } from 'react';
 
 import { DeadEndBoundaryError } from 'app/ErrorBoundary';
-import { useTezosChainAccountTokensListingLogic } from 'app/hooks/listing-logic/use-tezos-chain-account-tokens-listing-logic';
+import { usePreservedOrderSlugsToManage } from 'app/hooks/listing-logic/use-manageable-slugs';
+import {
+  useTezosChainAccountTokensForListing,
+  useTezosChainAccountTokensListingLogic
+} from 'app/hooks/listing-logic/use-tezos-chain-account-tokens-listing-logic';
 import { useAssetsViewState } from 'app/hooks/use-assets-view-state';
 import { useLoadPartnersPromo } from 'app/hooks/use-load-partners-promo';
-import { useTokensListOptionsSelector } from 'app/store/assets-filter-options/selectors';
 import { useMainnetTokensScamlistSelector } from 'app/store/tezos/assets/selectors';
 import { PartnersPromotion, PartnersPromotionVariant } from 'app/templates/partners-promotion';
 import { OptimalPromoVariantEnum } from 'lib/apis/optimal';
-import { TEMPLE_TOKEN_SLUG } from 'lib/assets';
-import { TEZOS_MAINNET_CHAIN_ID } from 'lib/temple/types';
+import { useMemoWithCompare } from 'lib/ui/hooks';
 import { useTezosChainByChainId } from 'temple/front';
+import { TezosNetworkEssentials } from 'temple/networks';
 
 import { getTokensViewWithPromo } from '../utils';
 
 import { TezosListItem } from './ListItem';
 import { TokensTabBase } from './TokensTabBase';
 
-interface TezosChainTokensTabProps {
+interface Props {
   chainId: string;
   publicKeyHash: string;
 }
 
-export const TezosChainTokensTab: FC<TezosChainTokensTabProps> = ({ chainId, publicKeyHash }) => {
+export const TezosChainTokensTab = memo<Props>(({ chainId, publicKeyHash }) => {
   const network = useTezosChainByChainId(chainId);
 
   if (!network) throw new DeadEndBoundaryError();
 
-  const { hideZeroBalance } = useTokensListOptionsSelector();
-
   const { manageActive } = useAssetsViewState();
 
-  const leadingAssets = useMemo(() => (chainId === TEZOS_MAINNET_CHAIN_ID ? [TEMPLE_TOKEN_SLUG] : []), [chainId]);
+  useLoadPartnersPromo(OptimalPromoVariantEnum.Token);
+
+  if (manageActive) return <TabContentWithManageActive publicKeyHash={publicKeyHash} network={network} />;
+
+  return <TabContent publicKeyHash={publicKeyHash} network={network} />;
+});
+
+interface TabContentProps {
+  publicKeyHash: string;
+  network: TezosNetworkEssentials;
+}
+
+const TabContent: FC<TabContentProps> = ({ publicKeyHash, network }) => {
+  const { chainId } = network;
+
+  const { enabledTokenSlugsSorted } = useTezosChainAccountTokensForListing(publicKeyHash, chainId);
+
+  return (
+    <TabContentBase
+      network={network}
+      publicKeyHash={publicKeyHash}
+      allSlugsSorted={enabledTokenSlugsSorted}
+      manageActive={false}
+    />
+  );
+};
+
+const TabContentWithManageActive: FC<TabContentProps> = ({ publicKeyHash, network }) => {
+  const { chainId } = network;
+
+  const { enabledTokenSlugsSorted, tokens, tokensSortPredicate } = useTezosChainAccountTokensForListing(
+    publicKeyHash,
+    chainId
+  );
+
+  const allTokensSlugsSorted = useMemoWithCompare(
+    () =>
+      tokens
+        .filter(({ status }) => status !== 'removed')
+        .map(({ slug }) => slug)
+        .sort(tokensSortPredicate),
+    [tokens, tokensSortPredicate]
+  );
+
+  const allSlugsSorted = usePreservedOrderSlugsToManage(enabledTokenSlugsSorted, allTokensSlugsSorted);
+
+  return (
+    <TabContentBase
+      network={network}
+      publicKeyHash={publicKeyHash}
+      allSlugsSorted={allSlugsSorted}
+      manageActive={true}
+    />
+  );
+};
+
+interface TabContentBaseProps {
+  network: TezosNetworkEssentials;
+  publicKeyHash: string;
+  allSlugsSorted: string[];
+  manageActive: boolean;
+}
+
+const TabContentBase = memo<TabContentBaseProps>(({ allSlugsSorted, network, publicKeyHash, manageActive }) => {
+  const { chainId } = network;
+
+  const { displayedSlugs, isSyncing, loadNext, searchValue, setSearchValue } = useTezosChainAccountTokensListingLogic(
+    allSlugsSorted,
+    chainId
+  );
 
   const mainnetTokensScamSlugsRecord = useMainnetTokensScamlistSelector();
 
-  const { paginatedSlugs, isSyncing, loadNext, searchValue, setSearchValue } = useTezosChainAccountTokensListingLogic(
-    publicKeyHash,
-    chainId,
-    hideZeroBalance,
-    leadingAssets,
-    manageActive
-  );
-
-  const tokensView = useMemo<JSX.Element[]>(() => {
-    const tokensJsx = paginatedSlugs.map(assetSlug => (
+  const tokensView = useMemo(() => {
+    const tokensJsx = displayedSlugs.map(assetSlug => (
       <TezosListItem
         key={assetSlug}
         network={network}
@@ -66,19 +128,18 @@ export const TezosChainTokensTab: FC<TezosChainTokensTabProps> = ({ chainId, pub
       />
     );
 
-    return getTokensViewWithPromo(tokensJsx, promoJsx, paginatedSlugs.length);
-  }, [network, paginatedSlugs, publicKeyHash, mainnetTokensScamSlugsRecord, manageActive]);
-
-  useLoadPartnersPromo(OptimalPromoVariantEnum.Token);
+    return getTokensViewWithPromo(tokensJsx, promoJsx);
+  }, [network, displayedSlugs, publicKeyHash, mainnetTokensScamSlugsRecord, manageActive]);
 
   return (
     <TokensTabBase
-      tokensView={tokensView}
-      tokensCount={paginatedSlugs.length}
+      tokensCount={displayedSlugs.length}
       searchValue={searchValue}
       loadNextPage={loadNext}
       onSearchValueChange={setSearchValue}
       isSyncing={isSyncing}
-    />
+    >
+      {tokensView}
+    </TokensTabBase>
   );
-};
+});

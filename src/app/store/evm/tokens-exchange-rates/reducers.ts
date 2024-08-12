@@ -1,11 +1,14 @@
 import { createReducer } from '@reduxjs/toolkit';
+import { isDefined } from '@rnw-community/shared';
 import { persistReducer } from 'redux-persist';
+import { getAddress } from 'viem';
 
+import { toTokenSlug } from 'lib/assets';
+import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
 import { storageConfig } from 'lib/store';
 
 import { processLoadedEvmExchangeRatesAction } from './actions';
 import { evmTokensExchangeRatesInitialState, EvmTokensExchangeRateState } from './state';
-import { getTokenSlugExchangeRateRecord } from './utils';
 
 const evmTokensExchangeRatesReducer = createReducer<EvmTokensExchangeRateState>(
   evmTokensExchangeRatesInitialState,
@@ -13,11 +16,19 @@ const evmTokensExchangeRatesReducer = createReducer<EvmTokensExchangeRateState>(
     builder.addCase(processLoadedEvmExchangeRatesAction, ({ usdToTokenRates }, { payload }) => {
       const { chainId, data } = payload;
 
-      usdToTokenRates[chainId] = Object.assign(
-        {},
-        usdToTokenRates[chainId] ?? {},
-        getTokenSlugExchangeRateRecord(data.items)
-      );
+      if (!usdToTokenRates[chainId]) usdToTokenRates[chainId] = {};
+      const records = usdToTokenRates[chainId];
+
+      for (const item of data.items) {
+        if (!isDefined(item.quote_rate)) {
+          // delete records[slug]; // Consider discarding old rates in the future (for ghost tokens)
+          continue;
+        }
+
+        const slug = item.native_token ? EVM_TOKEN_SLUG : toTokenSlug(getAddress(item.contract_address));
+
+        records[slug] = item.quote_rate;
+      }
     });
   }
 );

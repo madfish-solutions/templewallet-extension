@@ -8,7 +8,7 @@ import { isPositiveTokenBalance } from 'lib/utils/evm.utils';
 
 import { processLoadedEvmTokensMetadataAction, putEvmTokensMetadataAction } from './actions';
 import { evmTokensMetadataInitialState, EvmTokensMetadataState } from './state';
-import { buildEvmTokenMetadataFromFetched } from './utils';
+import { buildEvmTokenMetadataFromFetched, isValidFetchedEvmMetadata } from './utils';
 
 // TODO: figure out how to get rid of unused metadata
 
@@ -24,10 +24,11 @@ const evmTokensMetadataReducer = createReducer<EvmTokensMetadataState>(evmTokens
     for (const item of items) {
       if (item.native_token || !isPositiveTokenBalance(item)) continue;
 
-      const slug = toTokenSlug(getAddress(item.contract_address));
+      const contractAddress = getAddress(item.contract_address);
+      const slug = toTokenSlug(contractAddress);
 
-      const stored = chainTokensMetadata[slug];
-      if (!stored) chainTokensMetadata[slug] = buildEvmTokenMetadataFromFetched(item);
+      if (!chainTokensMetadata[slug] && isValidFetchedEvmMetadata(item))
+        chainTokensMetadata[slug] = buildEvmTokenMetadataFromFetched(item, contractAddress);
     }
   });
 

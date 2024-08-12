@@ -71,7 +71,7 @@ const TezosAssetBanner = memo<TezosAssetBannerProps>(({ tezosChainId, assetSlug 
         <TezosBalance network={network} address={accountTezAddress} assetSlug={assetSlug}>
           {balance => (
             <div className="flex flex-col">
-              <div className="flex text-2xl">
+              <div className="flex text-2xl flex-wrap">
                 <Money smallFractionFont={false} fiat>
                   {balance}
                 </Money>
@@ -132,10 +132,10 @@ const EvmAssetBanner = memo<EvmAssetBannerProps>(({ evmChainId, assetSlug }) => 
       </div>
 
       <div className="flex items-center text-2xl">
-        <EvmBalance chainId={network.chainId} address={accountEvmAddress} assetSlug={assetSlug}>
+        <EvmBalance network={network} address={accountEvmAddress} assetSlug={assetSlug}>
           {balance => (
             <div className="flex flex-col">
-              <div className="flex text-2xl">
+              <div className="flex text-2xl flex-wrap">
                 <Money smallFractionFont={false}>{balance}</Money>
                 <span className="ml-1">{assetSymbol}</span>
               </div>

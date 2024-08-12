@@ -17,7 +17,6 @@ import { EmptySection } from './EmptySection';
 import { UpdateAppBanner } from './UpdateAppBanner';
 
 interface TokensTabBaseProps {
-  tokensView: JSX.Element[];
   tokensCount: number;
   searchValue: string;
   loadNextPage: EmptyFn;
@@ -25,13 +24,13 @@ interface TokensTabBaseProps {
   isSyncing: boolean;
 }
 
-export const TokensTabBase: FC<TokensTabBaseProps> = ({
-  tokensView,
+export const TokensTabBase: FC<PropsWithChildren<TokensTabBaseProps>> = ({
   tokensCount,
   searchValue,
   loadNextPage,
   onSearchValueChange,
-  isSyncing
+  isSyncing,
+  children
 }) => {
   const { manageActive, toggleManageActive, filtersOpened, setFiltersClosed, toggleFiltersOpened } =
     useAssetsViewState();
@@ -65,7 +64,7 @@ export const TokensTabBase: FC<TokensTabBaseProps> = ({
           ) : (
             <>
               {manageActive && <ManageActiveTip />}
-              <SimpleInfiniteScroll loadNext={loadNextPage}>{tokensView}</SimpleInfiniteScroll>
+              <SimpleInfiniteScroll loadNext={loadNextPage}>{children}</SimpleInfiniteScroll>
               {isSyncing && <SyncSpinner className="mt-4" />}
             </>
           )}

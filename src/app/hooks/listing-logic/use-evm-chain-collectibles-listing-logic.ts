@@ -1,19 +1,16 @@
-import { useCallback, useMemo, useState } from 'react';
-
-import { isEqual } from 'lodash';
-import { useDebounce } from 'use-debounce';
+import { useCallback, useMemo } from 'react';
 
 import { useEvmCollectiblesMetadataRecordSelector } from 'app/store/evm/collectibles-metadata/selectors';
-import { useEvmBalancesLoadingSelector, useEvmCollectiblesMetadataLoadingSelector } from 'app/store/evm/selectors';
-import { useAllEvmChainAccountCollectiblesSlugs, useEnabledEvmChainAccountCollectiblesSlugs } from 'lib/assets/hooks';
+import { useEvmChainBalancesLoadingSelector, useEvmCollectiblesMetadataLoadingSelector } from 'app/store/evm/selectors';
+import { useEvmChainAccountCollectibles } from 'lib/assets/hooks/collectibles';
 import { searchEvmChainCollectiblesWithNoMeta } from 'lib/assets/search.utils';
 import { useEvmChainCollectiblesSortPredicate } from 'lib/assets/use-sorting';
 import { useMemoWithCompare } from 'lib/ui/hooks';
-import { isSearchStringApplicable } from 'lib/utils/search-items';
 
 import { useSimpleAssetsPaginationLogic } from '../use-simple-assets-pagination-logic';
 
 import { useManageableSlugs } from './use-manageable-slugs';
+import { useCommonAssetsListingLogic } from './utils';
 
 export const useEvmChainCollectiblesListingLogic = (
   publicKeyHash: HexString,
@@ -22,20 +19,26 @@ export const useEvmChainCollectiblesListingLogic = (
 ) => {
   const sortPredicate = useEvmChainCollectiblesSortPredicate(publicKeyHash, chainId);
 
-  const enabledSlugs = useEnabledEvmChainAccountCollectiblesSlugs(publicKeyHash, chainId);
-  const allSlugs = useAllEvmChainAccountCollectiblesSlugs(publicKeyHash, chainId);
+  const allChainAccountCollectibles = useEvmChainAccountCollectibles(publicKeyHash, chainId);
+
+  const allSlugs = useMemoWithCompare(
+    () => allChainAccountCollectibles.map(({ slug }) => slug),
+    [allChainAccountCollectibles]
+  );
+
+  const enabledSlugs = useMemo(
+    () => allChainAccountCollectibles.filter(({ status }) => status === 'enabled').map(({ slug }) => slug),
+    [allChainAccountCollectibles]
+  );
 
   const metadata = useEvmCollectiblesMetadataRecordSelector();
 
-  const balancesLoading = useEvmBalancesLoadingSelector();
+  const balancesLoading = useEvmChainBalancesLoadingSelector(chainId);
   const metadatasLoading = useEvmCollectiblesMetadataLoadingSelector();
 
-  const isSyncing = balancesLoading || metadatasLoading;
-
-  const [searchValue, setSearchValue] = useState('');
-  const [searchValueDebounced] = useDebounce(searchValue, 500);
-
-  const isInSearchMode = isSearchStringApplicable(searchValueDebounced);
+  const { searchValue, searchValueDebounced, setSearchValue, isInSearchMode, isSyncing } = useCommonAssetsListingLogic(
+    balancesLoading || metadatasLoading
+  );
 
   const getMetadata = useCallback((slug: string) => metadata[chainId]?.[slug], [metadata, chainId]);
 
@@ -44,8 +47,10 @@ export const useEvmChainCollectiblesListingLogic = (
     [getMetadata, searchValueDebounced]
   );
 
-  // shouldn't resort on balances change
-  const enabledSlugsSorted = useMemo(() => [...enabledSlugs].sort(sortPredicate), [enabledSlugs]);
+  const enabledSlugsSorted = useMemoWithCompare(
+    () => [...enabledSlugs].sort(sortPredicate),
+    [enabledSlugs, sortPredicate]
+  );
 
   const enabledSearchedSlugs = useMemo(
     () => (isInSearchMode ? search(enabledSlugsSorted) : enabledSlugsSorted),
@@ -56,13 +61,13 @@ export const useEvmChainCollectiblesListingLogic = (
 
   const searchedManageableSlugs = useMemoWithCompare(
     () => (isInSearchMode ? search(manageableSlugs) : manageableSlugs),
-    [isInSearchMode, search, manageableSlugs],
-    isEqual
+    [isInSearchMode, search, manageableSlugs]
   );
 
   const { slugs: paginatedSlugs, loadNext } = useSimpleAssetsPaginationLogic(searchedManageableSlugs);
 
   return {
+    isInSearchMode,
     paginatedSlugs,
     isSyncing,
     loadNext,

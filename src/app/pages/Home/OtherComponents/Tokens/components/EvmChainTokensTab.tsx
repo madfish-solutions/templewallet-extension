@@ -1,41 +1,114 @@
-import React, { FC, useMemo } from 'react';
+import React, { FC, memo, useMemo } from 'react';
 
-import { useEvmChainAccountTokensListingLogic } from 'app/hooks/listing-logic/use-evm-chain-account-tokens-listing-logic';
+import { DeadEndBoundaryError } from 'app/ErrorBoundary';
+import {
+  useEvmChainAccountTokensForListing,
+  useEvmChainAccountTokensListingLogic
+} from 'app/hooks/listing-logic/use-evm-chain-account-tokens-listing-logic';
+import { usePreservedOrderSlugsToManage } from 'app/hooks/listing-logic/use-manageable-slugs';
 import { useAssetsViewState } from 'app/hooks/use-assets-view-state';
 import { useLoadPartnersPromo } from 'app/hooks/use-load-partners-promo';
 import { useTokensListOptionsSelector } from 'app/store/assets-filter-options/selectors';
 import { PartnersPromotion, PartnersPromotionVariant } from 'app/templates/partners-promotion';
 import { OptimalPromoVariantEnum } from 'lib/apis/optimal';
+import { useMemoWithCompare } from 'lib/ui/hooks';
+import { useEvmChainByChainId } from 'temple/front/chains';
+import { EvmNetworkEssentials } from 'temple/networks';
 
 import { getTokensViewWithPromo } from '../utils';
 
 import { EvmListItem } from './ListItem';
 import { TokensTabBase } from './TokensTabBase';
 
-interface EvmChainTokensTabProps {
+interface Props {
   chainId: number;
   publicKeyHash: HexString;
 }
 
-export const EvmChainTokensTab: FC<EvmChainTokensTabProps> = ({ chainId, publicKeyHash }) => {
-  const { hideZeroBalance } = useTokensListOptionsSelector();
+export const EvmChainTokensTab = memo<Props>(({ chainId, publicKeyHash }) => {
+  const network = useEvmChainByChainId(chainId);
+
+  if (!network) throw new DeadEndBoundaryError();
 
   const { manageActive } = useAssetsViewState();
 
-  const { paginatedSlugs, isSyncing, loadNext, searchValue, setSearchValue } = useEvmChainAccountTokensListingLogic(
+  useLoadPartnersPromo(OptimalPromoVariantEnum.Token);
+
+  if (manageActive) return <TabContentWithManageActive publicKeyHash={publicKeyHash} network={network} />;
+
+  return <TabContent publicKeyHash={publicKeyHash} network={network} />;
+});
+
+interface TabContentProps {
+  publicKeyHash: HexString;
+  network: EvmNetworkEssentials;
+}
+
+const TabContent: FC<TabContentProps> = ({ publicKeyHash, network }) => {
+  const { hideZeroBalance } = useTokensListOptionsSelector();
+
+  const { enabledSlugsSorted } = useEvmChainAccountTokensForListing(publicKeyHash, network.chainId, hideZeroBalance);
+
+  return (
+    <TabContentBase
+      allSlugsSorted={enabledSlugsSorted}
+      publicKeyHash={publicKeyHash}
+      network={network}
+      manageActive={false}
+    />
+  );
+};
+
+const TabContentWithManageActive: FC<TabContentProps> = ({ publicKeyHash, network }) => {
+  const { hideZeroBalance } = useTokensListOptionsSelector();
+
+  const { enabledSlugsSorted, tokens, tokensSortPredicate } = useEvmChainAccountTokensForListing(
     publicKeyHash,
-    chainId,
-    hideZeroBalance,
-    manageActive
+    network.chainId,
+    hideZeroBalance
+  );
+
+  const allStoredSlugsSorted = useMemoWithCompare(
+    () =>
+      tokens
+        .filter(({ status }) => status !== 'removed')
+        .map(({ slug }) => slug)
+        .sort(tokensSortPredicate),
+    [tokens, tokensSortPredicate]
+  );
+
+  const allSlugsSorted = usePreservedOrderSlugsToManage(enabledSlugsSorted, allStoredSlugsSorted);
+
+  return (
+    <TabContentBase
+      allSlugsSorted={allSlugsSorted}
+      publicKeyHash={publicKeyHash}
+      network={network}
+      manageActive={true}
+    />
+  );
+};
+
+interface TabContentBaseProps {
+  allSlugsSorted: string[];
+  publicKeyHash: HexString;
+  network: EvmNetworkEssentials;
+  manageActive: boolean;
+}
+
+const TabContentBase = memo<TabContentBaseProps>(({ allSlugsSorted, publicKeyHash, network, manageActive }) => {
+  const { displayedSlugs, isSyncing, loadNext, searchValue, setSearchValue } = useEvmChainAccountTokensListingLogic(
+    allSlugsSorted,
+    network.chainId
   );
 
   const tokensView = useMemo(() => {
-    const tokensJsx = paginatedSlugs.map(slug => (
+    const tokensJsx = displayedSlugs.map(slug => (
       <EvmListItem
         key={slug}
         assetSlug={slug}
         publicKeyHash={publicKeyHash}
-        chainId={chainId}
+        network={network}
         manageActive={manageActive}
       />
     ));
@@ -51,19 +124,18 @@ export const EvmChainTokensTab: FC<EvmChainTokensTabProps> = ({ chainId, publicK
       />
     );
 
-    return getTokensViewWithPromo(tokensJsx, promoJsx, paginatedSlugs.length);
-  }, [paginatedSlugs, manageActive]);
-
-  useLoadPartnersPromo(OptimalPromoVariantEnum.Token);
+    return getTokensViewWithPromo(tokensJsx, promoJsx);
+  }, [displayedSlugs, manageActive, network, publicKeyHash]);
 
   return (
     <TokensTabBase
-      tokensView={tokensView}
-      tokensCount={paginatedSlugs.length}
+      tokensCount={displayedSlugs.length}
       searchValue={searchValue}
       loadNextPage={loadNext}
       onSearchValueChange={setSearchValue}
       isSyncing={isSyncing}
-    />
+    >
+      {tokensView}
+    </TokensTabBase>
   );
-};
+});
