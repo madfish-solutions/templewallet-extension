@@ -10,10 +10,11 @@ import { OneOfChains } from 'temple/front';
 import { AddTokenModal } from './AddTokenModal';
 
 interface Props {
+  forCollectibles: boolean;
   network?: OneOfChains;
 }
 
-export const EmptySection = memo<Props>(({ network }) => {
+export const EmptySection = memo<Props>(({ forCollectibles, network }) => {
   const [addTokenModalOpened, setAddTokenModalOpen, setAddTokenModalClosed] = useBooleanState(false);
 
   return (
@@ -30,7 +31,12 @@ export const EmptySection = memo<Props>(({ network }) => {
         </Button>
       </div>
 
-      <AddTokenModal opened={addTokenModalOpened} onRequestClose={setAddTokenModalClosed} initialNetwork={network} />
+      <AddTokenModal
+        forCollectible={forCollectibles}
+        opened={addTokenModalOpened}
+        onRequestClose={setAddTokenModalClosed}
+        initialNetwork={network}
+      />
     </>
   );
 });

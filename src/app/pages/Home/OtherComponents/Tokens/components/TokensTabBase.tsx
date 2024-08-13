@@ -63,7 +63,7 @@ export const TokensTabBase: FC<PropsWithChildren<TokensTabBaseProps>> = ({
           {!manageActive && <UpdateAppBanner stickyBarRef={stickyBarRef} />}
 
           {tokensCount === 0 ? (
-            <EmptySection network={network} />
+            <EmptySection forCollectibles={false} network={network} />
           ) : (
             <>
               {manageActive && <ManageActiveTip />}

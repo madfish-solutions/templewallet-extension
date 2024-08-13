@@ -8,12 +8,13 @@ import { AddTokenForm } from './AddTokenForm';
 import { SelectNetworkPage } from './SelectNetworkPage';
 
 interface Props {
+  forCollectible: boolean;
   opened: boolean;
   onRequestClose: EmptyFn;
   initialNetwork?: OneOfChains;
 }
 
-export const AddTokenModal = memo<Props>(({ opened, onRequestClose, initialNetwork }) => {
+export const AddTokenModal = memo<Props>(({ forCollectible, opened, onRequestClose, initialNetwork }) => {
   const accountTezAddress = useAccountAddressForTezos();
 
   const tezosMainnetChain = useTezosMainnetChain();
@@ -51,6 +52,7 @@ export const AddTokenModal = memo<Props>(({ opened, onRequestClose, initialNetwo
         />
       ) : (
         <AddTokenForm
+          forCollectible={forCollectible}
           selectedNetwork={selectedNetwork}
           onNetworkSelectClick={setNetworkSelectOpened}
           close={onRequestClose}

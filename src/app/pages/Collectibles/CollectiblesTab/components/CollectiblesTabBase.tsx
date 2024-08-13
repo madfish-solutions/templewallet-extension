@@ -62,7 +62,7 @@ export const CollectiblesTabBase: FC<PropsWithChildren<CollectiblesTabBaseProps>
       ) : (
         <ContentContainer ref={containerRef} padding={collectiblesCount > 0}>
           {collectiblesCount === 0 ? (
-            <EmptySection network={network} />
+            <EmptySection forCollectibles={true} network={network} />
           ) : (
             <>
               {isInSearchMode ? (
