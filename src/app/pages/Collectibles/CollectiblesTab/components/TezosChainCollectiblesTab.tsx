@@ -93,7 +93,7 @@ const TabContentBase = memo<TabContentBaseProps>(({ network, publicKeyHash, allS
 
   const contentElement = useMemo(
     () => (
-      <div className="grid grid-cols-3 gap-2">
+      <div className={manageActive ? undefined : 'grid grid-cols-3 gap-2'}>
         {displayedSlugs.map(slug => (
           <TezosCollectibleItem
             key={slug}
@@ -102,13 +102,12 @@ const TabContentBase = memo<TabContentBaseProps>(({ network, publicKeyHash, allS
             tezosChainId={chainId}
             adultBlur={blur}
             areDetailsShown={showInfo}
-            hideWithoutMeta={isInSearchMode}
             manageActive={manageActive}
           />
         ))}
       </div>
     ),
-    [displayedSlugs, publicKeyHash, chainId, blur, showInfo, isInSearchMode, manageActive]
+    [displayedSlugs, publicKeyHash, chainId, blur, showInfo, manageActive]
   );
 
   return (

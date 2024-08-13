@@ -38,7 +38,6 @@ export const MultiChainCollectiblesTab = memo<MultiChainCollectiblesTabProps>(
                   tezosChainId={chainId as string}
                   adultBlur={blur}
                   areDetailsShown={showInfo}
-                  hideWithoutMeta={true} // ={isInSearchMode} when pagination is implemented
                   manageActive={manageActive}
                 />
               );
@@ -51,7 +50,6 @@ export const MultiChainCollectiblesTab = memo<MultiChainCollectiblesTabProps>(
                 evmChainId={chainId as number}
                 accountPkh={accountEvmAddress}
                 showDetails={showInfo}
-                hideWithoutMeta={true} // ={isInSearchMode} when pagination is implemented
                 manageActive={manageActive}
               />
             );

@@ -27,54 +27,12 @@ export const TezosCollectiblesTab = memo<Props>(({ publicKeyHash }) => {
 });
 
 const TabContent: FC<Props> = ({ publicKeyHash }) => {
-  const { blur, showInfo } = useCollectiblesListOptionsSelector();
-
   const { enabledChainSlugsSorted } = useTezosAccountCollectiblesForListing(publicKeyHash);
 
-  const { isInSearchMode, displayedSlugs, isSyncing, loadNext, searchValue, setSearchValue } =
-    useTezosAccountCollectiblesListingLogic(enabledChainSlugsSorted);
-
-  const contentElement = useMemo(
-    () => (
-      <div className="grid grid-cols-3 gap-2">
-        {displayedSlugs.map(chainSlug => {
-          const [_, chainId, slug] = parseChainAssetSlug(chainSlug, TempleChainKind.Tezos);
-
-          return (
-            <TezosCollectibleItem
-              key={chainSlug}
-              assetSlug={slug}
-              accountPkh={publicKeyHash}
-              tezosChainId={chainId}
-              adultBlur={blur}
-              areDetailsShown={showInfo}
-              hideWithoutMeta={isInSearchMode}
-              manageActive={false}
-            />
-          );
-        })}
-      </div>
-    ),
-    [displayedSlugs, publicKeyHash, blur, showInfo, isInSearchMode]
-  );
-
-  return (
-    <CollectiblesTabBase
-      collectiblesCount={displayedSlugs.length}
-      searchValue={searchValue}
-      loadNextPage={loadNext}
-      onSearchValueChange={setSearchValue}
-      isSyncing={isSyncing}
-      isInSearchMode={isInSearchMode}
-    >
-      {contentElement}
-    </CollectiblesTabBase>
-  );
+  return <TabContentBase publicKeyHash={publicKeyHash} allSlugsSorted={enabledChainSlugsSorted} manageActive={false} />;
 };
 
 const TabContentWithManageActive: FC<Props> = ({ publicKeyHash }) => {
-  const { blur, showInfo } = useCollectiblesListOptionsSelector();
-
   const { enabledChainSlugsSorted, allAccountCollectibles, sortPredicate } =
     useTezosAccountCollectiblesForListing(publicKeyHash);
 
@@ -86,14 +44,26 @@ const TabContentWithManageActive: FC<Props> = ({ publicKeyHash }) => {
     [allAccountCollectibles, sortPredicate]
   );
 
-  const slugsSorted = usePreservedOrderSlugsToManage(enabledChainSlugsSorted, allChainSlugsSorted);
+  const allSlugsSorted = usePreservedOrderSlugsToManage(enabledChainSlugsSorted, allChainSlugsSorted);
 
+  return <TabContentBase publicKeyHash={publicKeyHash} allSlugsSorted={allSlugsSorted} manageActive={true} />;
+};
+
+interface TabContentBaseProps {
+  publicKeyHash: string;
+  allSlugsSorted: string[];
+  manageActive: boolean;
+}
+
+const TabContentBase = memo<TabContentBaseProps>(({ publicKeyHash, allSlugsSorted, manageActive }) => {
   const { isInSearchMode, displayedSlugs, isSyncing, loadNext, searchValue, setSearchValue } =
-    useTezosAccountCollectiblesListingLogic(slugsSorted);
+    useTezosAccountCollectiblesListingLogic(allSlugsSorted);
+
+  const { blur, showInfo } = useCollectiblesListOptionsSelector();
 
   const contentElement = useMemo(
     () => (
-      <div>
+      <div className={manageActive ? undefined : 'grid grid-cols-3 gap-2'}>
         {displayedSlugs.map(chainSlug => {
           const [_, chainId, slug] = parseChainAssetSlug(chainSlug, TempleChainKind.Tezos);
 
@@ -105,14 +75,13 @@ const TabContentWithManageActive: FC<Props> = ({ publicKeyHash }) => {
               tezosChainId={chainId}
               adultBlur={blur}
               areDetailsShown={showInfo}
-              hideWithoutMeta={isInSearchMode}
-              manageActive={true}
+              manageActive={manageActive}
             />
           );
         })}
       </div>
     ),
-    [displayedSlugs, publicKeyHash, blur, showInfo, isInSearchMode]
+    [displayedSlugs, publicKeyHash, blur, showInfo, manageActive]
   );
 
   return (
@@ -127,4 +96,4 @@ const TabContentWithManageActive: FC<Props> = ({ publicKeyHash }) => {
       {contentElement}
     </CollectiblesTabBase>
   );
-};
+});
