@@ -3,6 +3,7 @@ import React, { memo, useMemo } from 'react';
 import { useEvmChainCollectiblesListingLogic } from 'app/hooks/listing-logic/use-evm-chain-collectibles-listing-logic';
 import { useAssetsViewState } from 'app/hooks/use-assets-view-state';
 import { useCollectiblesListOptionsSelector } from 'app/store/assets-filter-options/selectors';
+import { useEvmChainByChainId } from 'temple/front/chains';
 
 import { EvmCollectibleItem } from './CollectibleItem';
 import { CollectiblesTabBase } from './CollectiblesTabBase';
@@ -13,6 +14,8 @@ interface EvmChainCollectiblesTabProps {
 }
 
 export const EvmChainCollectiblesTab = memo<EvmChainCollectiblesTabProps>(({ chainId, publicKeyHash }) => {
+  const network = useEvmChainByChainId(chainId);
+
   const { showInfo } = useCollectiblesListOptionsSelector();
   const { manageActive } = useAssetsViewState();
 
@@ -45,6 +48,7 @@ export const EvmChainCollectiblesTab = memo<EvmChainCollectiblesTabProps>(({ cha
       onSearchValueChange={setSearchValue}
       isSyncing={isSyncing}
       isInSearchMode={isInSearchMode}
+      network={network}
     >
       {contentElement}
     </CollectiblesTabBase>

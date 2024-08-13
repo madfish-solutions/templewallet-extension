@@ -12,6 +12,7 @@ import { ContentContainer, StickyBar } from 'app/layouts/containers';
 import { AssetsSelectors } from 'app/pages/Home/OtherComponents/Assets.selectors';
 import { AssetsFilterOptions } from 'app/templates/AssetsFilterOptions';
 import { SearchBarField } from 'app/templates/SearchField';
+import { OneOfChains } from 'temple/front';
 
 import { EmptySection } from './EmptySection';
 import { UpdateAppBanner } from './UpdateAppBanner';
@@ -22,6 +23,7 @@ interface TokensTabBaseProps {
   loadNextPage: EmptyFn;
   onSearchValueChange: (value: string) => void;
   isSyncing: boolean;
+  network?: OneOfChains;
 }
 
 export const TokensTabBase: FC<PropsWithChildren<TokensTabBaseProps>> = ({
@@ -30,6 +32,7 @@ export const TokensTabBase: FC<PropsWithChildren<TokensTabBaseProps>> = ({
   loadNextPage,
   onSearchValueChange,
   isSyncing,
+  network,
   children
 }) => {
   const { manageActive, toggleManageActive, filtersOpened, setFiltersClosed, toggleFiltersOpened } =
@@ -60,7 +63,7 @@ export const TokensTabBase: FC<PropsWithChildren<TokensTabBaseProps>> = ({
           {!manageActive && <UpdateAppBanner stickyBarRef={stickyBarRef} />}
 
           {tokensCount === 0 ? (
-            <EmptySection />
+            <EmptySection network={network} />
           ) : (
             <>
               {manageActive && <ManageActiveTip />}

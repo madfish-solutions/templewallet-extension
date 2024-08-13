@@ -9,6 +9,7 @@ import { useAssetsViewState } from 'app/hooks/use-assets-view-state';
 import { useCollectiblesListOptionsSelector } from 'app/store/assets-filter-options/selectors';
 import { parseChainAssetSlug, toChainAssetSlug } from 'lib/assets/utils';
 import { useMemoWithCompare } from 'lib/ui/hooks';
+import { useTezosMainnetChain } from 'temple/front';
 import { TempleChainKind } from 'temple/types';
 
 import { TezosCollectibleItem } from './CollectibleItem';
@@ -56,6 +57,8 @@ interface TabContentBaseProps {
 }
 
 const TabContentBase = memo<TabContentBaseProps>(({ publicKeyHash, allSlugsSorted, manageActive }) => {
+  const mainnetChain = useTezosMainnetChain();
+
   const { isInSearchMode, displayedSlugs, isSyncing, loadNext, searchValue, setSearchValue } =
     useTezosAccountCollectiblesListingLogic(allSlugsSorted);
 
@@ -92,6 +95,7 @@ const TabContentBase = memo<TabContentBaseProps>(({ publicKeyHash, allSlugsSorte
       onSearchValueChange={setSearchValue}
       isSyncing={isSyncing}
       isInSearchMode={isInSearchMode}
+      network={mainnetChain}
     >
       {contentElement}
     </CollectiblesTabBase>

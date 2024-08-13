@@ -1,45 +1,35 @@
-import React, { memo, useCallback, useMemo, useState } from 'react';
+import React, { memo, useCallback, useState } from 'react';
 
 import { PageModal } from 'app/atoms/PageModal';
 import { useBooleanState } from 'lib/ui/hooks';
-import {
-  EvmChain,
-  TezosChain,
-  useAccountAddressForEvm,
-  useAccountAddressForTezos,
-  useEthereumMainnetChain,
-  useTezosMainnetChain
-} from 'temple/front';
+import { OneOfChains, useAccountAddressForTezos, useEthereumMainnetChain, useTezosMainnetChain } from 'temple/front';
 
 import { AddTokenForm } from './AddTokenForm';
 import { SelectNetworkPage } from './SelectNetworkPage';
 
-type Network = EvmChain | TezosChain;
-
 interface Props {
   opened: boolean;
   onRequestClose: EmptyFn;
+  initialNetwork?: OneOfChains;
 }
 
-export const AddTokenModal = memo<Props>(({ opened, onRequestClose }) => {
+export const AddTokenModal = memo<Props>(({ opened, onRequestClose, initialNetwork }) => {
   const accountTezAddress = useAccountAddressForTezos();
-  const accountEvmAddress = useAccountAddressForEvm();
 
   const tezosMainnetChain = useTezosMainnetChain();
   const ethMainnetChain = useEthereumMainnetChain();
 
-  const defaultSelectedNetwork = useMemo(() => {
-    if (accountTezAddress && accountEvmAddress) return tezosMainnetChain;
+  const [isNetworkSelectOpened, setNetworkSelectOpened, setNetworkSelectClosed] = useBooleanState(false);
+  const [selectedNetwork, setSelectedNetwork] = useState<OneOfChains>(() => {
+    if (initialNetwork) return initialNetwork;
+
     if (accountTezAddress) return tezosMainnetChain;
 
     return ethMainnetChain;
-  }, [accountEvmAddress, accountTezAddress, ethMainnetChain, tezosMainnetChain]);
-
-  const [isNetworkSelectOpened, setNetworkSelectOpened, setNetworkSelectClosed] = useBooleanState(false);
-  const [selectedNetwork, setSelectedNetwork] = useState<Network>(defaultSelectedNetwork);
+  });
 
   const handleNetworkSelect = useCallback(
-    (network: Network) => {
+    (network: OneOfChains) => {
       setSelectedNetwork(network);
       setNetworkSelectClosed();
     },

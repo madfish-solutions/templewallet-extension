@@ -15,7 +15,7 @@ import { PartnersPromotion, PartnersPromotionVariant } from 'app/templates/partn
 import { OptimalPromoVariantEnum } from 'lib/apis/optimal';
 import { fromChainAssetSlug, toChainAssetSlug } from 'lib/assets/utils';
 import { useMemoWithCompare } from 'lib/ui/hooks';
-import { useAllEvmChains } from 'temple/front';
+import { useAllEvmChains, useEthereumMainnetChain } from 'temple/front';
 import { TempleChainKind } from 'temple/types';
 
 import { getTokensViewWithPromo } from '../utils';
@@ -94,6 +94,7 @@ const TabContentBase = memo<TabContentBaseProps>(({ publicKeyHash, allSlugsSorte
 
   const groupedSlugs = useChainsSlugsGrouping<number>(displayedSlugs, groupByNetwork);
 
+  const mainnetChain = useEthereumMainnetChain();
   const evmChains = useAllEvmChains();
 
   const tokensView = useMemo(() => {
@@ -151,6 +152,7 @@ const TabContentBase = memo<TabContentBaseProps>(({ publicKeyHash, allSlugsSorte
       loadNextPage={loadNext}
       onSearchValueChange={setSearchValue}
       isSyncing={isSyncing}
+      network={mainnetChain}
     >
       {tokensView}
     </TokensTabBase>

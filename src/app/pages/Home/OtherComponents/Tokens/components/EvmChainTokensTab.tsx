@@ -12,8 +12,7 @@ import { useTokensListOptionsSelector } from 'app/store/assets-filter-options/se
 import { PartnersPromotion, PartnersPromotionVariant } from 'app/templates/partners-promotion';
 import { OptimalPromoVariantEnum } from 'lib/apis/optimal';
 import { useMemoWithCompare } from 'lib/ui/hooks';
-import { useEvmChainByChainId } from 'temple/front/chains';
-import { EvmNetworkEssentials } from 'temple/networks';
+import { EvmChain, useEvmChainByChainId } from 'temple/front/chains';
 
 import { getTokensViewWithPromo } from '../utils';
 
@@ -41,7 +40,7 @@ export const EvmChainTokensTab = memo<Props>(({ chainId, publicKeyHash }) => {
 
 interface TabContentProps {
   publicKeyHash: HexString;
-  network: EvmNetworkEssentials;
+  network: EvmChain;
 }
 
 const TabContent: FC<TabContentProps> = ({ publicKeyHash, network }) => {
@@ -92,7 +91,7 @@ const TabContentWithManageActive: FC<TabContentProps> = ({ publicKeyHash, networ
 interface TabContentBaseProps {
   allSlugsSorted: string[];
   publicKeyHash: HexString;
-  network: EvmNetworkEssentials;
+  network: EvmChain;
   manageActive: boolean;
 }
 
@@ -134,6 +133,7 @@ const TabContentBase = memo<TabContentBaseProps>(({ allSlugsSorted, publicKeyHas
       loadNextPage={loadNext}
       onSearchValueChange={setSearchValue}
       isSyncing={isSyncing}
+      network={network}
     >
       {tokensView}
     </TokensTabBase>
