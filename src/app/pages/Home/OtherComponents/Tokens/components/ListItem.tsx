@@ -120,7 +120,7 @@ export const TezosListItem = memo<TezosListItemProps>(
 
     return (
       <Link
-        to={toExploreAssetLink(TempleChainKind.Tezos, network.chainId, assetSlug)}
+        to={toExploreAssetLink(false, TempleChainKind.Tezos, network.chainId, assetSlug)}
         className={classNameMemo}
         testID={AssetsSelectors.assetItemButton}
         testIDProperties={{ key: assetSlug }}
@@ -260,7 +260,7 @@ export const EvmListItem = memo<EvmListItemProps>(({ network, publicKeyHash, ass
 
   return (
     <Link
-      to={toExploreAssetLink(TempleChainKind.EVM, chainId, assetSlug)}
+      to={toExploreAssetLink(false, TempleChainKind.EVM, chainId, assetSlug)}
       className={classNameMemo}
       testID={AssetsSelectors.assetItemButton}
       testIDProperties={{ key: assetSlug }}

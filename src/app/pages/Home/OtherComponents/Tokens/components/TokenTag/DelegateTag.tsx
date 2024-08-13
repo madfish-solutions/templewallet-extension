@@ -14,6 +14,7 @@ import { TempleChainKind } from 'temple/types';
 
 import { AssetsSelectors } from '../../../Assets.selectors';
 import modStyles from '../../Tokens.module.css';
+import { toExploreAssetLink } from '../../utils';
 
 interface Props {
   network: TezosNetworkEssentials;
@@ -29,7 +30,10 @@ export const DelegateTezosTag = memo<Props>(({ network, pkh }) => {
       e.preventDefault();
       e.stopPropagation();
       trackEvent(HomeSelectors.delegateButton, AnalyticsEventCategory.ButtonPress);
-      navigate(`/explore/${TempleChainKind.Tezos}/${network.chainId}/${TEZ_TOKEN_SLUG}/?tab=delegation`);
+      navigate({
+        pathname: toExploreAssetLink(false, TempleChainKind.Tezos, network.chainId, TEZ_TOKEN_SLUG),
+        search: 'tab=delegation'
+      });
     },
     [network.chainId, trackEvent]
   );

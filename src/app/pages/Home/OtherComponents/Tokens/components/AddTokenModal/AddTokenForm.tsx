@@ -37,11 +37,14 @@ import { TokenMetadataNotFoundError } from 'lib/metadata/on-chain';
 import { EvmTokenMetadata } from 'lib/metadata/types';
 import { loadContract } from 'lib/temple/contract';
 import { useSafeState } from 'lib/ui/hooks';
+import { navigate } from 'lib/woozie';
 import { OneOfChains, useAccountAddressForEvm, useAccountAddressForTezos, useAllTezosChains } from 'temple/front';
 import { validateEvmContractAddress } from 'temple/front/evm/helpers';
 import { validateTezosContractAddress } from 'temple/front/tezos';
 import { getReadOnlyTezos } from 'temple/tezos';
 import { TempleChainKind } from 'temple/types';
+
+import { toExploreAssetLink } from '../../utils';
 
 import { TokenInfo } from './TokenInfo';
 
@@ -234,12 +237,13 @@ export const AddTokenForm = memo<AddTokenPageProps>(
         formAnalytics.trackSubmit();
 
         let assetIsCollectible = false;
+        let tokenSlug: string;
 
         try {
           if (isTezosChainSelected) {
             if (!tezMetadataRef.current) throw new Error('Oops, Something went wrong!');
 
-            const tokenSlug = toTokenSlug(address, id);
+            tokenSlug = toTokenSlug(address, id);
 
             const decimals = tezMetadataRef.current?.decimals;
 
@@ -267,7 +271,7 @@ export const AddTokenForm = memo<AddTokenPageProps>(
           } else {
             if (!evmMetadataRef.current) throw new Error('Oops, Something went wrong!');
 
-            const tokenSlug = toTokenSlug(getAddress(contractAddress), id);
+            tokenSlug = toTokenSlug(getAddress(contractAddress), id);
 
             dispatch(
               (forCollectible ? putNewEvmCollectibleAction : putNewEvmTokenAction)({
@@ -297,6 +301,14 @@ export const AddTokenForm = memo<AddTokenPageProps>(
           toastSuccess(assetIsCollectible ? 'NFT Added' : 'Token Added');
 
           formAnalytics.trackSubmitSuccess();
+
+          setTimeout(
+            () =>
+              // Queueing navigation to let redux state mutate prior to it.
+              navigate(toExploreAssetLink(forCollectible, selectedNetwork.kind, selectedNetwork.chainId, tokenSlug)),
+            0
+          );
+
           close();
         } catch (err: any) {
           console.error(err);
@@ -316,6 +328,7 @@ export const AddTokenForm = memo<AddTokenPageProps>(
         accountTezAddress,
         close,
         accountEvmAddress,
+        selectedNetwork.kind,
         forCollectible
       ]
     );
