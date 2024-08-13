@@ -47,17 +47,15 @@ const TezosAssetBanner = memo<TezosAssetBannerProps>(({ tezosChainId, assetSlug 
 
   return (
     <>
-      <div className="flex justify-between items-center my-3">
-        <div className="flex items-center">
-          <TezosAssetIcon tezosChainId={network.chainId} assetSlug={assetSlug} size={24} className="flex-shrink-0" />
+      <div className="flex items-center gap-x-2 my-3">
+        <TezosAssetIcon tezosChainId={network.chainId} assetSlug={assetSlug} size={24} className="flex-shrink-0" />
 
-          <div
-            className="text-sm font-normal text-gray-700 truncate flex-1 ml-2"
-            {...setTestID(TokenPageSelectors.tokenName)}
-            {...setAnotherSelector('name', assetName)}
-          >
-            {assetName}
-          </div>
+        <div
+          className="flex-grow text-sm font-normal text-gray-700 truncate"
+          {...setTestID(TokenPageSelectors.tokenName)}
+          {...setAnotherSelector('name', assetName)}
+        >
+          {assetName}
         </div>
 
         <AddressChip
@@ -115,17 +113,15 @@ const EvmAssetBanner = memo<EvmAssetBannerProps>(({ evmChainId, assetSlug }) => 
 
   return (
     <>
-      <div className="flex justify-between items-center my-3">
-        <div className="flex items-center">
-          <EvmTokenIcon evmChainId={network.chainId} assetSlug={assetSlug} size={24} className="flex-shrink-0" />
+      <div className="flex items-center gap-x-2 my-3">
+        <EvmTokenIcon evmChainId={network.chainId} assetSlug={assetSlug} size={24} className="flex-shrink-0" />
 
-          <div
-            className="text-sm font-normal text-gray-700 truncate flex-1 ml-2"
-            {...setTestID(TokenPageSelectors.tokenName)}
-            {...setAnotherSelector('name', assetName)}
-          >
-            {assetName}
-          </div>
+        <div
+          className="flex-grow text-sm font-normal text-gray-700 truncate"
+          {...setTestID(TokenPageSelectors.tokenName)}
+          {...setAnotherSelector('name', assetName)}
+        >
+          {assetName}
         </div>
 
         <AddressChip address={accountEvmAddress} modeSwitchTestId={HomeSelectors.addressModeSwitchButton} />

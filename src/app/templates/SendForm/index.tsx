@@ -2,6 +2,7 @@ import React, { memo, Suspense, useCallback, useMemo, useState } from 'react';
 
 import type { WalletOperation } from '@taquito/taquito';
 
+import { buildSendPagePath } from 'app/pages/Send/build-url';
 import OperationStatus from 'app/templates/OperationStatus';
 import { AnalyticsEventCategory, useAnalytics } from 'lib/analytics';
 import { TEZ_TOKEN_SLUG } from 'lib/assets';
@@ -13,6 +14,7 @@ import { HistoryAction, navigate } from 'lib/woozie';
 import { AccountForTezos } from 'temple/accounts';
 import { TezosNetworkEssentials } from 'temple/networks';
 import { makeTezosClientId } from 'temple/tezos';
+import { TempleChainKind } from 'temple/types';
 
 import AddContactModal from './AddContactModal';
 import AssetSelect from './AssetSelect';
@@ -56,7 +58,7 @@ const SendForm = memo<Props>(({ network, tezosAccount, assetSlug = TEZ_TOKEN_SLU
   const handleAssetChange = useCallback(
     (aSlug: string) => {
       trackEvent(SendFormSelectors.assetItemButton, AnalyticsEventCategory.ButtonPress);
-      navigate(`/send/${tezosChainId}/${aSlug}`, HistoryAction.Replace);
+      navigate(buildSendPagePath(TempleChainKind.Tezos, tezosChainId, aSlug), HistoryAction.Replace);
     },
     [tezosChainId, trackEvent]
   );
