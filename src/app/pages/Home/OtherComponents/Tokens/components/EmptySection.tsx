@@ -5,10 +5,16 @@ import { EmptyState } from 'app/atoms/EmptyState';
 import { ReactComponent as AddIcon } from 'app/icons/base/plus_circle.svg';
 import { T } from 'lib/i18n';
 import { useBooleanState } from 'lib/ui/hooks';
+import { OneOfChains } from 'temple/front';
 
 import { AddTokenModal } from './AddTokenModal';
 
-export const EmptySection = memo(() => {
+interface Props {
+  forCollectibles: boolean;
+  network?: OneOfChains;
+}
+
+export const EmptySection = memo<Props>(({ forCollectibles, network }) => {
   const [addTokenModalOpened, setAddTokenModalOpen, setAddTokenModalClosed] = useBooleanState(false);
 
   return (
@@ -25,7 +31,12 @@ export const EmptySection = memo(() => {
         </Button>
       </div>
 
-      <AddTokenModal opened={addTokenModalOpened} onRequestClose={setAddTokenModalClosed} />
+      <AddTokenModal
+        forCollectible={forCollectibles}
+        opened={addTokenModalOpened}
+        onRequestClose={setAddTokenModalClosed}
+        initialNetwork={network}
+      />
     </>
   );
 });

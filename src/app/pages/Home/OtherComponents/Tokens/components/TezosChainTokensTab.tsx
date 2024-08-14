@@ -12,8 +12,7 @@ import { useMainnetTokensScamlistSelector } from 'app/store/tezos/assets/selecto
 import { PartnersPromotion, PartnersPromotionVariant } from 'app/templates/partners-promotion';
 import { OptimalPromoVariantEnum } from 'lib/apis/optimal';
 import { useMemoWithCompare } from 'lib/ui/hooks';
-import { useTezosChainByChainId } from 'temple/front';
-import { TezosNetworkEssentials } from 'temple/networks';
+import { TezosChain, useTezosChainByChainId } from 'temple/front';
 
 import { getTokensViewWithPromo } from '../utils';
 
@@ -41,7 +40,7 @@ export const TezosChainTokensTab = memo<Props>(({ chainId, publicKeyHash }) => {
 
 interface TabContentProps {
   publicKeyHash: string;
-  network: TezosNetworkEssentials;
+  network: TezosChain;
 }
 
 const TabContent: FC<TabContentProps> = ({ publicKeyHash, network }) => {
@@ -89,7 +88,7 @@ const TabContentWithManageActive: FC<TabContentProps> = ({ publicKeyHash, networ
 };
 
 interface TabContentBaseProps {
-  network: TezosNetworkEssentials;
+  network: TezosChain;
   publicKeyHash: string;
   allSlugsSorted: string[];
   manageActive: boolean;
@@ -138,6 +137,7 @@ const TabContentBase = memo<TabContentBaseProps>(({ allSlugsSorted, network, pub
       loadNextPage={loadNext}
       onSearchValueChange={setSearchValue}
       isSyncing={isSyncing}
+      network={network}
     >
       {tokensView}
     </TokensTabBase>

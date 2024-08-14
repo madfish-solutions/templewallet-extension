@@ -13,11 +13,11 @@ export const processLoadedEvmCollectiblesMetadataAction =
     'evm/collectible-metadata/PROCESS_LOADED_COLLECTIBLES_METADATA_ACTION'
   );
 
-interface putEvmCollectiblesMetadataActionActionPayload {
+interface PutEvmCollectiblesMetadataActionActionPayload {
   chainId: number;
-  records: Record<string, EvmCollectibleMetadata | undefined>;
+  records: StringRecord<EvmCollectibleMetadata | undefined>;
 }
 
-export const putEvmCollectiblesMetadataAction = createAction<putEvmCollectiblesMetadataActionActionPayload>(
+export const putEvmCollectiblesMetadataAction = createAction<PutEvmCollectiblesMetadataActionActionPayload>(
   'evm/collectible-metadata/PUT_COLLECTIBLES_METADATA_ACTION'
 );

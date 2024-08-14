@@ -65,7 +65,7 @@ export const fetchEvmTokenMetadataFromChain = async (network: EvmNetworkEssentia
   }
 };
 
-const fetchEvmCollectibleMetadataFromChain = async (network: EvmNetworkEssentials, collectibleSlug: string) => {
+export const fetchEvmCollectibleMetadataFromChain = async (network: EvmNetworkEssentials, collectibleSlug: string) => {
   const [contractAddress, tokenIdStr] = fromAssetSlug<HexString>(collectibleSlug);
 
   const tokenId = BigInt(tokenIdStr ?? 0);
@@ -88,8 +88,8 @@ const fetchEvmCollectibleMetadataFromChain = async (network: EvmNetworkEssential
         return undefined;
       }
     }
-  } catch {
-    console.error(`ChainId: ${network.chainId}. Failed to get metadata for: ${collectibleSlug}.`);
+  } catch (error) {
+    console.error(`ChainId: ${network.chainId}. Failed to get metadata for: ${collectibleSlug}.`, error);
 
     return undefined;
   }

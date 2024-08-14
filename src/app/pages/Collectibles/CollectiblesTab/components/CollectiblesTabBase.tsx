@@ -14,6 +14,7 @@ import { AssetsSelectors } from 'app/pages/Home/OtherComponents/Assets.selectors
 import { EmptySection } from 'app/pages/Home/OtherComponents/Tokens/components/EmptySection';
 import { AssetsFilterOptions } from 'app/templates/AssetsFilterOptions';
 import { SearchBarField } from 'app/templates/SearchField';
+import { OneOfChains } from 'temple/front';
 
 interface CollectiblesTabBaseProps {
   collectiblesCount: number;
@@ -22,6 +23,7 @@ interface CollectiblesTabBaseProps {
   onSearchValueChange: (value: string) => void;
   isSyncing: boolean;
   isInSearchMode?: boolean;
+  network?: OneOfChains;
 }
 
 export const CollectiblesTabBase: FC<PropsWithChildren<CollectiblesTabBaseProps>> = ({
@@ -31,6 +33,7 @@ export const CollectiblesTabBase: FC<PropsWithChildren<CollectiblesTabBaseProps>
   onSearchValueChange,
   isSyncing,
   isInSearchMode = false,
+  network,
   children
 }) => {
   const { manageActive, toggleManageActive, filtersOpened, setFiltersClosed, toggleFiltersOpened } =
@@ -59,7 +62,7 @@ export const CollectiblesTabBase: FC<PropsWithChildren<CollectiblesTabBaseProps>
       ) : (
         <ContentContainer ref={containerRef} padding={collectiblesCount > 0}>
           {collectiblesCount === 0 ? (
-            <EmptySection />
+            <EmptySection forCollectibles={true} network={network} />
           ) : (
             <>
               {isInSearchMode ? (
