@@ -167,7 +167,7 @@ export const AddTokenForm = memo<AddTokenPageProps>(
 
           stateToSet = { bottomSectionVisible: true };
         } else {
-          const tokenSlug = toTokenSlug(getAddress(contractAddress), 0);
+          const tokenSlug = toTokenSlug(getAddress(contractAddress), tokenId);
 
           const metadata = await (forCollectible
             ? fetchEvmCollectibleMetadataFromChain
@@ -363,34 +363,33 @@ export const AddTokenForm = memo<AddTokenPageProps>(
             className="resize-none"
           />
 
-          {isTezosChainSelected ||
-            (forCollectible && (
-              <>
-                <div className="mt-6 pt-1 pb-2 px-1 flex flex-row justify-between items-center">
-                  <p className="text-font-description-bold">
-                    <T id="tokenId" />
-                  </p>
-                  <p className="text-grey-2 text-font-description">
-                    <T id="optional" />
-                  </p>
-                </div>
+          {(forCollectible || isTezosChainSelected) && (
+            <>
+              <div className="mt-6 pt-1 pb-2 px-1 flex flex-row justify-between items-center">
+                <p className="text-font-description-bold">
+                  <T id="tokenId" />
+                </p>
+                <p className="text-grey-2 text-font-description">
+                  <T id="optional" />
+                </p>
+              </div>
 
-                <FormField
-                  ref={register({
-                    min: { value: 0, message: t('nonNegativeIntMessage') }
-                  })}
-                  min={0}
-                  type="number"
-                  name="id"
-                  id="token-id"
-                  placeholder="0"
-                  cleanable={Boolean(tokenIdWithoutFallback) || tokenIdWithoutFallback === '0'}
-                  onClean={cleanTokenId}
-                  errorCaption={errors.id?.message}
-                  containerClassName="mb-6"
-                />
-              </>
-            ))}
+              <FormField
+                ref={register({
+                  min: { value: 0, message: t('nonNegativeIntMessage') }
+                })}
+                min={0}
+                type="number"
+                name="id"
+                id="token-id"
+                placeholder="0"
+                cleanable={Boolean(tokenIdWithoutFallback) || tokenIdWithoutFallback === '0'}
+                onClean={cleanTokenId}
+                errorCaption={errors.id?.message}
+                containerClassName="mb-6"
+              />
+            </>
+          )}
 
           {processing && (
             <div className="my-8 flex items-center justify-center pb-4">
