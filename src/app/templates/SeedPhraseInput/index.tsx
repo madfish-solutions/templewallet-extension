@@ -238,4 +238,4 @@ export const SeedPhraseInput: FC<SeedPhraseInputProps> = ({
   );
 };
 
-export const isSeedPhraseFilled = (seedPhrase: string) => seedPhrase && !seedPhrase.split(' ').includes('');
+export const isSeedPhraseFilled = (seedPhrase: string) => Boolean(seedPhrase) && !seedPhrase.split(' ').includes('');

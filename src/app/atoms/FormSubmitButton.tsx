@@ -45,7 +45,7 @@ export const FormSubmitButton: FC<FormSubmitButtonProps> = ({
   const otherProps = useMemo(() => (loading ? setAnotherSelector('loading', '') : null), [loading]);
 
   return (
-    <Button className={classNameMemo} disabled={disabled} {...rest} {...otherProps}>
+    <Button type="submit" className={classNameMemo} disabled={disabled} {...rest} {...otherProps}>
       {loading && <Spinner theme="white" className={small ? 'w-8' : 'w-12'} />}
 
       {loading ? keepChildrenWhenLoading && children : children}

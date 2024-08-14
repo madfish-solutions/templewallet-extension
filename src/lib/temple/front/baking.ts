@@ -1,5 +1,6 @@
 import { useCallback, useMemo } from 'react';
 
+import { ChainIds } from '@taquito/taquito';
 import retry from 'async-retry';
 import BigNumber from 'bignumber.js';
 import useSWR, { unstable_serialize, useSWRConfig } from 'swr';
@@ -14,31 +15,39 @@ import {
 import { getAccountStatsFromTzkt, isKnownChainId, TzktRewardsEntry, TzktAccountType } from 'lib/apis/tzkt';
 import { t } from 'lib/i18n';
 import { useRetryableSWR } from 'lib/swr';
-import type { ReactiveTezosToolkit } from 'lib/temple/front';
 import { getOnlineStatus } from 'lib/ui/get-online-status';
-
-import { useChainId, useNetwork, useTezos } from './ready';
+import { TezosNetworkEssentials } from 'temple/networks';
+import { getReadOnlyTezos } from 'temple/tezos';
 
 function getDelegateCacheKey(
-  tezos: ReactiveTezosToolkit,
+  rpcUrl: string,
   address: string,
   chainId: string | nullish,
   shouldPreventErrorPropagation: boolean
 ) {
-  return unstable_serialize(['delegate', tezos.checksum, address, chainId, shouldPreventErrorPropagation]);
+  return ['delegate', rpcUrl, address, chainId, shouldPreventErrorPropagation];
 }
 
-export function useDelegate(address: string, suspense = true, shouldPreventErrorPropagation = true) {
-  const tezos = useTezos();
-  const chainId = useChainId(suspense);
+export function useDelegate(
+  address: string,
+  network: TezosNetworkEssentials,
+  suspense = true,
+  shouldPreventErrorPropagation = true
+) {
+  const { rpcBaseURL, chainId } = network;
+
   const { cache: swrCache } = useSWRConfig();
 
   const resetDelegateCache = useCallback(() => {
-    swrCache.delete(getDelegateCacheKey(tezos, address, chainId, shouldPreventErrorPropagation));
-  }, [address, tezos, chainId, swrCache, shouldPreventErrorPropagation]);
+    swrCache.delete(
+      unstable_serialize(getDelegateCacheKey(rpcBaseURL, address, chainId, shouldPreventErrorPropagation))
+    );
+  }, [address, rpcBaseURL, chainId, swrCache, shouldPreventErrorPropagation]);
 
   const getDelegate = useCallback(async () => {
     try {
+      const tezos = getReadOnlyTezos(rpcBaseURL);
+
       return await retry(
         async () => {
           const freshChainId = chainId ?? (await tezos.rpc.getChainId());
@@ -72,9 +81,9 @@ export function useDelegate(address: string, suspense = true, shouldPreventError
         resetDelegateCache
       );
     }
-  }, [chainId, tezos, address, shouldPreventErrorPropagation, resetDelegateCache]);
+  }, [chainId, rpcBaseURL, address, shouldPreventErrorPropagation, resetDelegateCache]);
 
-  return useSWR(['delegate', tezos.checksum, address, chainId, shouldPreventErrorPropagation], getDelegate, {
+  return useSWR(getDelegateCacheKey(rpcBaseURL, address, chainId, shouldPreventErrorPropagation), getDelegate, {
     dedupingInterval: 20_000,
     suspense
   });
@@ -128,8 +137,9 @@ const defaultRewardConfigHistory = [
   }
 ];
 
-export function useKnownBaker(address: string | null, suspense = true) {
-  const net = useNetwork();
+export function useKnownBaker(address: string | null, chainId: string, suspense = true) {
+  const isMainnet = chainId === ChainIds.MAINNET;
+
   const fetchBaker = useCallback(async (): Promise<Baker | null> => {
     if (!address) return null;
     try {
@@ -173,16 +183,18 @@ export function useKnownBaker(address: string | null, suspense = true) {
       return null;
     }
   }, [address]);
-  return useRetryableSWR(net.type === 'main' && address ? ['baker', address] : null, fetchBaker, {
+
+  return useRetryableSWR(isMainnet && address ? ['baker', address] : null, fetchBaker, {
     refreshInterval: 120_000,
     dedupingInterval: 60_000,
     suspense
   });
 }
 
-export function useKnownBakers(suspense = true) {
-  const net = useNetwork();
-  const { data: bakers } = useRetryableSWR(net.type === 'main' ? 'all-bakers' : null, getAllBakersBakingBad, {
+export function useKnownBakers(chainId: string, suspense = true) {
+  const isMainnet = chainId === ChainIds.MAINNET;
+
+  const { data: bakers } = useRetryableSWR(isMainnet ? 'all-bakers' : null, getAllBakersBakingBad, {
     refreshInterval: 120_000,
     dedupingInterval: 60_000,
     suspense

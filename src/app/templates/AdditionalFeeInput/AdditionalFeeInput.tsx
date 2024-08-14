@@ -18,25 +18,24 @@ import { Controller, ControllerProps, EventFunction, FieldError } from 'react-ho
 import AssetField from 'app/atoms/AssetField';
 import Money from 'app/atoms/Money';
 import Name from 'app/atoms/Name';
+import { ReactComponent as SettingsIcon } from 'app/icons/base/settings.svg';
 import { ReactComponent as CoffeeIcon } from 'app/icons/coffee.svg';
 import { ReactComponent as CupIcon } from 'app/icons/cup.svg';
 import { ReactComponent as RocketIcon } from 'app/icons/rocket.svg';
-import { ReactComponent as SettingsIcon } from 'app/icons/settings.svg';
 import CustomSelect, { OptionRenderProps } from 'app/templates/CustomSelect';
 import { AnalyticsEventCategory, useAnalytics } from 'lib/analytics';
-import { useGasToken } from 'lib/assets/hooks';
 import { TID, toLocalFixed, T, t } from 'lib/i18n';
 
 import { AdditionalFeeInputSelectors } from './AdditionalFeeInput.selectors';
 
 type AssetFieldProps = typeof AssetField extends ForwardRefExoticComponent<infer T> ? T : never;
 
-type AdditionalFeeInputProps = Pick<ControllerProps<ComponentType>, 'name' | 'control' | 'onChange'> & {
-  assetSymbol: string;
+interface AdditionalFeeInputProps extends Pick<ControllerProps<ComponentType>, 'name' | 'control' | 'onChange'> {
+  gasSymbol: string;
   baseFee?: BigNumber | Error;
   error?: FieldError;
   id: string;
-};
+}
 
 type FeeOption = {
   Icon?: FunctionComponent<SVGProps<SVGSVGElement>>;
@@ -76,7 +75,7 @@ const feeOptions: FeeOption[] = [
 const getFeeOptionId = (option: FeeOption) => option.type;
 
 const AdditionalFeeInput: FC<AdditionalFeeInputProps> = props => {
-  const { assetSymbol, baseFee, control, id, name, onChange } = props;
+  const { gasSymbol, baseFee, control, id, name, onChange } = props;
   const { trackEvent } = useAnalytics();
 
   const customFeeInputRef = useRef<HTMLInputElement>(null);
@@ -98,7 +97,7 @@ const AdditionalFeeInput: FC<AdditionalFeeInputProps> = props => {
       customFeeInputRef={customFeeInputRef}
       onChange={handleChange}
       id={id}
-      assetSymbol={assetSymbol}
+      gasSymbol={gasSymbol}
       onFocus={focusCustomFeeInput}
       label={t('additionalFee')}
       labelDescription={
@@ -120,9 +119,10 @@ const AdditionalFeeInput: FC<AdditionalFeeInputProps> = props => {
 
 export default AdditionalFeeInput;
 
-type AdditionalFeeInputContentProps = AssetFieldProps & {
+interface AdditionalFeeInputContentProps extends AssetFieldProps {
+  gasSymbol: string;
   customFeeInputRef: MutableRefObject<HTMLInputElement | null>;
-};
+}
 
 const AdditionalFeeInputContent: FC<AdditionalFeeInputContentProps> = props => {
   const {
@@ -130,7 +130,7 @@ const AdditionalFeeInputContent: FC<AdditionalFeeInputContentProps> = props => {
     containerClassName,
     customFeeInputRef,
     onChange,
-    assetSymbol,
+    gasSymbol,
     id,
     label,
     labelDescription,
@@ -174,7 +174,7 @@ const AdditionalFeeInputContent: FC<AdditionalFeeInputContentProps> = props => {
           onSelect={handlePresetSelected}
           padding="0.2rem 0.375rem 0.2rem 0.375rem"
           OptionIcon={FeeOptionIcon}
-          OptionContent={FeeOptionContent}
+          OptionContent={({ item }) => <FeeOptionContent item={item} gasSymbol={gasSymbol} />}
         />
 
         <AssetField
@@ -182,7 +182,7 @@ const AdditionalFeeInputContent: FC<AdditionalFeeInputContentProps> = props => {
           id={id}
           onChange={onChange}
           ref={customFeeInputRef}
-          assetSymbol={assetSymbol}
+          assetSymbol={gasSymbol}
           value={value}
           {...restProps}
         />
@@ -199,25 +199,26 @@ const FeeOptionIcon: FC<OptionRenderProps<FeeOption>> = ({ item: { Icon } }) => 
   return <div style={{ width: 24, height: 24 }} />;
 };
 
-const FeeOptionContent: FC<OptionRenderProps<FeeOption>> = ({ item: { descriptionI18nKey, amount } }) => {
-  const { metadata } = useGasToken();
+interface FeeOptionContentProps {
+  item: FeeOption;
+  gasSymbol: string;
+}
 
+const FeeOptionContent: FC<FeeOptionContentProps> = ({ item: { descriptionI18nKey, amount }, gasSymbol }) => {
   return (
-    <>
-      <div className="flex flex-wrap items-center">
-        <Name className="w-16 text-sm font-medium leading-tight text-left">
-          <T id={descriptionI18nKey} />
-        </Name>
+    <div className="flex flex-wrap items-center">
+      <Name className="w-16 text-sm font-medium leading-tight text-left">
+        <T id={descriptionI18nKey} />
+      </Name>
 
-        {amount && (
-          <div className="ml-2 leading-none text-gray-600 flex items-baseline">
-            <Money cryptoDecimals={5}>{amount}</Money>{' '}
-            <span className="ml-1" style={{ fontSize: '0.75em' }}>
-              {metadata.symbol}
-            </span>
-          </div>
-        )}
-      </div>
-    </>
+      {amount && (
+        <div className="ml-2 leading-none text-gray-600 flex items-baseline">
+          <Money cryptoDecimals={5}>{amount}</Money>{' '}
+          <span className="ml-1" style={{ fontSize: '0.75em' }}>
+            {gasSymbol}
+          </span>
+        </div>
+      )}
+    </div>
   );
 };

@@ -29,8 +29,8 @@ interface PopperAnchorProps extends PopperRenderProps {
   ref: RefObject<HTMLButtonElement>;
 }
 
-export type PopperPopup = RenderProp<PopperRenderProps>;
-export type PopperChildren = RenderProp<PopperAnchorProps>;
+type PopperPopup = RenderProp<PopperRenderProps>;
+type PopperChildren = RenderProp<PopperAnchorProps>;
 
 type PopperProps = Partial<Options> & {
   popup: PopperPopup;
@@ -128,7 +128,7 @@ const Popper = memo<PopperProps>(({ popup, children, fallbackPlacementsEnabled =
       {triggerNode}
 
       <Portal>
-        <div ref={popupRef} className="z-40" style={style}>
+        <div ref={popupRef} className="z-dropdown" style={style}>
           {popupNode}
         </div>
       </Portal>

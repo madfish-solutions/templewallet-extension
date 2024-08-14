@@ -1,23 +1,27 @@
 import React, { RefObject, useMemo } from 'react';
 
 import { emptyFn, isDefined } from '@rnw-community/shared';
-import classNames from 'clsx';
+import clsx from 'clsx';
 
 import { Name, Button, HashShortView, Money, Identicon } from 'app/atoms';
 import AccountTypeBadge from 'app/atoms/AccountTypeBadge';
-import Balance from 'app/templates/Balance';
+import { SearchHighlightText } from 'app/atoms/SearchHighlightText';
+import { TezosBalance } from 'app/templates/Balance';
 import { setAnotherSelector, setTestID } from 'lib/analytics';
-import { TempleAccount } from 'lib/temple/types';
+import { StoredAccount } from 'lib/temple/types';
 import { useScrollIntoView } from 'lib/ui/use-scroll-into-view';
+import { combineRefs } from 'lib/ui/utils';
+import { getAccountAddressForEvm, getAccountAddressForTezos } from 'temple/accounts';
+import { useTezosMainnetChain } from 'temple/front';
 
 import { ShortcutAccountSwitchSelectors } from './selectors';
 
 const scrollIntoViewOptions: ScrollIntoViewOptions = { block: 'end', behavior: 'smooth' };
 
 interface AccountItemProps {
-  account: TempleAccount;
+  account: StoredAccount;
   focused: boolean;
-  gasTokenName: string;
+  searchValue: string;
   arrayIndex?: number;
   itemsArrayRef?: RefObject<Array<HTMLButtonElement | null>>;
   onClick?: () => void;
@@ -26,18 +30,25 @@ interface AccountItemProps {
 export const AccountItem: React.FC<AccountItemProps> = ({
   account,
   focused,
-  gasTokenName,
   onClick = emptyFn,
   arrayIndex,
-  itemsArrayRef
+  itemsArrayRef,
+  searchValue
 }) => {
-  const { name, publicKeyHash, type } = account;
+  const tezosMainnetChain = useTezosMainnetChain();
+
+  const [accountTezAddress, displayAddress] = useMemo(() => {
+    const tezAddress = getAccountAddressForTezos(account);
+    const displayAddress = (tezAddress || getAccountAddressForEvm(account))!;
+
+    return [tezAddress, displayAddress];
+  }, [account]);
 
   const elemRef = useScrollIntoView<HTMLButtonElement>(focused, scrollIntoViewOptions);
 
   const classNameMemo = useMemo(
     () =>
-      classNames(
+      clsx(
         'block w-full p-2 flex items-center rounded-lg',
         'text-white text-shadow-black overflow-hidden',
         'transition ease-in-out duration-200',
@@ -50,45 +61,50 @@ export const AccountItem: React.FC<AccountItemProps> = ({
 
   return (
     <Button
-      ref={el => {
-        elemRef.current = el;
-
+      ref={combineRefs(elemRef, el => {
         if (isDefined(arrayIndex) && itemsArrayRef?.current) {
           itemsArrayRef.current[arrayIndex] = el;
         }
-      }}
+      })}
       className={classNameMemo}
       onClick={onClick}
       testID={ShortcutAccountSwitchSelectors.accountItemButton}
-      testIDProperties={{ accountTypeEnum: type }}
+      testIDProperties={{ accountTypeEnum: account.type }}
     >
-      <Identicon type="bottts" hash={publicKeyHash} size={46} className="flex-shrink-0 shadow-xs-white" />
+      <Identicon type="bottts" hash={account.id} size={46} className="flex-shrink-0 shadow-xs-white" />
 
       <div style={{ marginLeft: '10px' }} className="flex flex-col items-start">
-        <Name className="text-sm font-medium">{name}</Name>
+        <Name className="text-sm font-medium">
+          <SearchHighlightText searchValue={searchValue}>{account.name}</SearchHighlightText>
+        </Name>
 
         <div
-          className="text-xs text-gray-500"
+          className={clsx(
+            'text-xs',
+            searchValue === displayAddress ? 'bg-marker-highlight text-gray-900' : 'text-gray-500'
+          )}
           {...setTestID(ShortcutAccountSwitchSelectors.accountAddressValue)}
-          {...setAnotherSelector('hash', publicKeyHash)}
+          {...setAnotherSelector('hash', displayAddress)}
         >
-          <HashShortView hash={publicKeyHash} />
+          <HashShortView hash={displayAddress} />
         </div>
 
         <div className="flex flex-wrap items-end">
-          <Balance address={publicKeyHash}>
-            {bal => (
-              <span className="text-xs leading-tight flex items-baseline text-gray-500">
-                <Money smallFractionFont={false} tooltip={false}>
-                  {bal}
-                </Money>
+          {accountTezAddress && (
+            <TezosBalance network={tezosMainnetChain} address={accountTezAddress}>
+              {bal => (
+                <span className="text-xs leading-tight flex items-baseline text-gray-500">
+                  <Money smallFractionFont={false} tooltip={false}>
+                    {bal}
+                  </Money>
 
-                <span className="ml-1">{gasTokenName.toUpperCase()}</span>
-              </span>
-            )}
-          </Balance>
+                  <span className="ml-1">TEZ</span>
+                </span>
+              )}
+            </TezosBalance>
+          )}
 
-          <AccountTypeBadge account={account} darkTheme />
+          <AccountTypeBadge accountType={account.type} darkTheme />
         </div>
       </div>
     </Button>

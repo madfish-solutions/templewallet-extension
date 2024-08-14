@@ -9,7 +9,7 @@ import { BACKGROUND_IS_WORKER } from 'lib/env';
 import { fetchFromStorage } from 'lib/storage';
 import { encodeMessage, encryptMessage, getSenderId, MessageType, Response } from 'lib/temple/beacon';
 import { clearAsyncStorages } from 'lib/temple/reset';
-import { TempleMessageType, TempleRequest, TempleResponse } from 'lib/temple/types';
+import { StoredHDAccount, TempleMessageType, TempleRequest, TempleResponse } from 'lib/temple/types';
 import { getTrackedCashbackServiceDomain, getTrackedUrl } from 'lib/utils/url-track/url-track.utils';
 
 import * as Actions from './actions';
@@ -65,26 +65,33 @@ const processRequest = async (req: TempleRequest, port: Runtime.Port): Promise<T
       await Actions.lock();
       return { type: TempleMessageType.LockResponse };
 
+    case TempleMessageType.FindFreeHDAccountIndexRequest:
+      const responsePayload = await Actions.findFreeHDAccountIndex(req.walletId);
+      return {
+        type: TempleMessageType.FindFreeHDAccountIndexResponse,
+        ...responsePayload
+      };
+
     case TempleMessageType.CreateAccountRequest:
-      await Actions.createHDAccount(req.name);
+      await Actions.createHDAccount(req.walletId, req.name, req.hdIndex);
       return { type: TempleMessageType.CreateAccountResponse };
 
     case TempleMessageType.RevealPublicKeyRequest:
-      const publicKey = await Actions.revealPublicKey(req.accountPublicKeyHash);
+      const publicKey = await Actions.revealPublicKey(req.accountAddress);
       return {
         type: TempleMessageType.RevealPublicKeyResponse,
         publicKey
       };
 
     case TempleMessageType.RevealPrivateKeyRequest:
-      const privateKey = await Actions.revealPrivateKey(req.accountPublicKeyHash, req.password);
+      const privateKey = await Actions.revealPrivateKey(req.address, req.password);
       return {
         type: TempleMessageType.RevealPrivateKeyResponse,
         privateKey
       };
 
     case TempleMessageType.RevealMnemonicRequest:
-      const mnemonic = await Actions.revealMnemonic(req.password);
+      const mnemonic = await Actions.revealMnemonic(req.walletId, req.password);
       return {
         type: TempleMessageType.RevealMnemonicResponse,
         mnemonic
@@ -98,19 +105,25 @@ const processRequest = async (req: TempleRequest, port: Runtime.Port): Promise<T
       };
 
     case TempleMessageType.RemoveAccountRequest:
-      await Actions.removeAccount(req.accountPublicKeyHash, req.password);
+      await Actions.removeAccount(req.id, req.password);
       return {
         type: TempleMessageType.RemoveAccountResponse
       };
 
     case TempleMessageType.EditAccountRequest:
-      await Actions.editAccount(req.accountPublicKeyHash, req.name);
+      await Actions.editAccount(req.id, req.name);
       return {
         type: TempleMessageType.EditAccountResponse
       };
 
+    case TempleMessageType.SetAccountHiddenRequest:
+      await Actions.setAccountHidden(req.id, req.value);
+      return {
+        type: TempleMessageType.SetAccountHiddenResponse
+      };
+
     case TempleMessageType.ImportAccountRequest:
-      await Actions.importAccount(req.privateKey, req.encPassword);
+      await Actions.importAccount(req.chain, req.privateKey, req.encPassword);
       return {
         type: TempleMessageType.ImportAccountResponse
       };
@@ -134,7 +147,7 @@ const processRequest = async (req: TempleRequest, port: Runtime.Port): Promise<T
       };
 
     case TempleMessageType.ImportWatchOnlyAccountRequest:
-      await Actions.importWatchOnlyAccount(req.address, req.chainId);
+      await Actions.importWatchOnlyAccount(req.chain, req.address, req.chainId);
       return {
         type: TempleMessageType.ImportWatchOnlyAccountResponse
       };
@@ -151,6 +164,24 @@ const processRequest = async (req: TempleRequest, port: Runtime.Port): Promise<T
         type: TempleMessageType.UpdateSettingsResponse
       };
 
+    case TempleMessageType.RemoveHdWalletRequest:
+      await Actions.removeHdWallet(req.id, req.password);
+      return {
+        type: TempleMessageType.RemoveHdWalletResponse
+      };
+
+    case TempleMessageType.RemoveAccountsByTypeRequest:
+      await Actions.removeAccountsByType(req.accountsType, req.password);
+      return {
+        type: TempleMessageType.RemoveAccountsByTypeResponse
+      };
+
+    case TempleMessageType.CreateOrImportWalletRequest:
+      await Actions.createOrImportWallet(req.mnemonic);
+      return {
+        type: TempleMessageType.CreateOrImportWalletResponse
+      };
+
     case TempleMessageType.OperationsRequest:
       const { opHash } = await Actions.sendOperations(port, req.id, req.sourcePkh, req.networkRpc, req.opParams);
       return {
@@ -159,7 +190,7 @@ const processRequest = async (req: TempleRequest, port: Runtime.Port): Promise<T
       };
 
     case TempleMessageType.SignRequest:
-      const result = await Actions.sign(port, req.id, req.sourcePkh, req.bytes, req.watermark);
+      const result = await Actions.sign(port, req.id, req.sourcePkh, req.networkRpc, req.bytes, req.watermark);
       return {
         type: TempleMessageType.SignResponse,
         result
@@ -248,31 +279,16 @@ const processRequest = async (req: TempleRequest, port: Runtime.Port): Promise<T
   }
 };
 
-const getAdsViewerPkh = async (): Promise<string | undefined> => {
-  const accountPkhFromStorage = await fetchFromStorage<string>(ADS_VIEWER_ADDRESS_STORAGE_KEY);
-
-  if (accountPkhFromStorage) {
-    return accountPkhFromStorage;
-  }
-
-  const frontState = await Actions.getFrontState();
-
-  return frontState.accounts[0]?.publicKeyHash;
-};
-
 browser.runtime.onMessage.addListener(async msg => {
   try {
     switch (msg?.type) {
       case ContentScriptType.UpdateAdsRules:
         await updateRulesStorage();
         return;
+
       case E2eMessageType.ResetRequest:
         return clearAsyncStorages().then(() => ({ type: E2eMessageType.ResetResponse }));
-    }
 
-    const accountPkh = await getAdsViewerPkh();
-
-    switch (msg?.type) {
       case ContentScriptType.ExternalLinksActivity:
         const trackedCashbackServiceDomain = getTrackedCashbackServiceDomain(msg.url);
 
@@ -283,12 +299,16 @@ browser.runtime.onMessage.addListener(async msg => {
         const trackedUrl = getTrackedUrl(msg.url);
 
         if (trackedUrl) {
+          const accountPkh = await getAdsViewerPkh();
           await Analytics.client.track('External links activity', { url: trackedUrl, accountPkh });
         }
 
         break;
+
       case ContentScriptType.ExternalAdsActivity:
         const urlDomain = new URL(msg.url).hostname;
+        const accountPkh = await getAdsViewerPkh();
+
         if (accountPkh) await postAdImpression(accountPkh, msg.provider, { urlDomain });
         else {
           const identity = await getStoredAppInstallIdentity();
@@ -304,3 +324,15 @@ browser.runtime.onMessage.addListener(async msg => {
 
   return;
 });
+
+async function getAdsViewerPkh() {
+  const accountPkhFromStorage = await fetchFromStorage<string>(ADS_VIEWER_ADDRESS_STORAGE_KEY);
+
+  if (accountPkhFromStorage) {
+    return accountPkhFromStorage;
+  }
+
+  const frontState = await Actions.getFrontState();
+
+  return (frontState.accounts[0] as StoredHDAccount | undefined)?.tezosAddress;
+}

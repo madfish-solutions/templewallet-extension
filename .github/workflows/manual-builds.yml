@@ -133,7 +133,7 @@ jobs:
         uses: adrey/slack-file-upload-action@master
         with:
           token: ${{ secrets.SLACK_E2E_VIDEO_UPLOADER_TOKEN }}
-          path: e2e/video-rep/test-runs.mp4
+          path: e2e/test-results/video-result.webm
           channel: temple-test-runs
           initial_comment: <https://github.com/madfish-solutions/templewallet-extension/pull/${{ github.event.number }}|${{ github.event.pull_request.title }}>  (Run <https://github.com/madfish-solutions/templewallet-extension/actions/runs/${{ github.run_id }}|№${{ github.run_number }}>)
 

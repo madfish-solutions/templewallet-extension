@@ -12,22 +12,25 @@ import OperationStatus from 'app/templates/OperationStatus';
 import { StakeAmountField, FormData, convertFiatToAssetAmount } from 'app/templates/StakeAmountInput';
 import { useFormAnalytics } from 'lib/analytics';
 import { TEZ_TOKEN_SLUG } from 'lib/assets';
-import { useBalance } from 'lib/balances';
+import { useTezosAssetBalance } from 'lib/balances';
 import { useAssetFiatCurrencyPrice } from 'lib/fiat-currency';
 import { t } from 'lib/i18n';
-import { useGasTokenMetadata } from 'lib/metadata';
-import { useAccount, useDelegate, useKnownBaker, useTezos } from 'lib/temple/front';
-import { TempleAccountType } from 'lib/temple/types';
+import { getTezosGasMetadata } from 'lib/metadata';
+import { useDelegate, useKnownBaker } from 'lib/temple/front';
 import { useSafeState } from 'lib/ui/hooks';
+import { getTezosToolkitWithSigner } from 'temple/front';
+import { TezosNetworkEssentials } from 'temple/networks';
 
-export const NewStakeTab = memo(() => {
-  const acc = useAccount();
-  const cannotDelegate = acc.type === TempleAccountType.WatchOnly;
+interface Props {
+  accountPkh: string;
+  network: TezosNetworkEssentials;
+  cannotDelegate: boolean;
+}
 
-  const tezos = useTezos();
-  const rpcUrl = tezos.rpc.getRpcUrl();
+export const NewStakeTab = memo<Props>(({ accountPkh, network, cannotDelegate }) => {
+  const { rpcBaseURL, chainId } = network;
 
-  const { value: balance } = useBalance(TEZ_TOKEN_SLUG, acc.publicKeyHash);
+  const { value: balance } = useTezosAssetBalance(TEZ_TOKEN_SLUG, accountPkh, network);
 
   const maxAmountInTezos = useMemo(() => {
     if (!balance) return null;
@@ -35,15 +38,15 @@ export const NewStakeTab = memo(() => {
     return BigNumber.max(balance.minus(MINIMAL_FEE), 0);
   }, [balance]);
 
-  const { data: myBakerPkh } = useDelegate(acc.publicKeyHash, true, false);
-  const { data: knownBaker } = useKnownBaker(myBakerPkh || null, false);
+  const { data: myBakerPkh } = useDelegate(accountPkh, network, true, false);
+  const { data: knownBaker } = useKnownBaker(myBakerPkh || null, chainId, false);
   const knownBakerName = knownBaker?.name;
 
-  const [operation, setOperation] = useSafeState<WalletOperation | null>(null, tezos.checksum);
+  const [operation, setOperation] = useSafeState<WalletOperation | null>(null, `${accountPkh}@${chainId}`);
   const [submitting, setSubmitting] = useState(false);
 
-  const { data: stakingIsNotSupported } = useIsStakingNotSupported(rpcUrl, myBakerPkh);
-  const requestsSwr = useUnstakeRequests(rpcUrl, acc.publicKeyHash, true);
+  const { data: stakingIsNotSupported } = useIsStakingNotSupported(rpcBaseURL, myBakerPkh);
+  const requestsSwr = useUnstakeRequests(rpcBaseURL, accountPkh, true);
 
   const pendingRequestsForAnotherBaker = useMemo(() => {
     if (!myBakerPkh || !requestsSwr.data) return false;
@@ -63,9 +66,9 @@ export const NewStakeTab = memo(() => {
 
   const [inFiat, setInFiat] = useState(false);
 
-  const assetPrice = useAssetFiatCurrencyPrice(TEZ_TOKEN_SLUG);
+  const assetPrice = useAssetFiatCurrencyPrice(TEZ_TOKEN_SLUG, chainId);
 
-  const { decimals } = useGasTokenMetadata();
+  const { decimals } = getTezosGasMetadata(chainId);
 
   const onSubmit = useCallback(
     ({ amount }: FormData) => {
@@ -78,6 +81,8 @@ export const NewStakeTab = memo(() => {
       };
 
       setSubmitting(true);
+
+      const tezos = getTezosToolkitWithSigner(rpcBaseURL, accountPkh);
 
       tezos.wallet
         .stake({ amount: inputAmount })
@@ -96,7 +101,18 @@ export const NewStakeTab = memo(() => {
         )
         .finally(() => setSubmitting(false));
     },
-    [tezos, setOperation, reset, trackSubmitSuccess, trackSubmitFail, inFiat, assetPrice, knownBakerName, decimals]
+    [
+      setOperation,
+      reset,
+      trackSubmitSuccess,
+      trackSubmitFail,
+      inFiat,
+      assetPrice,
+      rpcBaseURL,
+      accountPkh,
+      knownBakerName,
+      decimals
+    ]
   );
 
   const alertElement = useMemo(() => {
@@ -126,23 +142,28 @@ export const NewStakeTab = memo(() => {
   const disableSubmit = disableInput || errorsInForm;
 
   return (
-    <div className="mx-auto max-w-sm flex flex-col gap-y-8 pb-4">
-      {operation && <OperationStatus typeTitle={t('stake')} operation={operation} />}
+    <div className="flex flex-col gap-y-8 pb-4">
+      {operation && <OperationStatus typeTitle={t('stake')} network={network} operation={operation} />}
 
       {alertElement}
 
       <div className="flex flex-col gap-y-4">
         <span className="text-base font-medium text-blue-750">Current Baker</span>
 
-        {myBakerPkh ? <BakerBanner bakerPkh={myBakerPkh} /> : <div className={BAKER_BANNER_CLASSNAME}>---</div>}
+        {myBakerPkh ? (
+          <BakerBanner network={network} accountPkh={accountPkh} bakerPkh={myBakerPkh} />
+        ) : (
+          <div className={BAKER_BANNER_CLASSNAME}>---</div>
+        )}
       </div>
 
       <form className="flex flex-col gap-y-4" onSubmit={handleSubmit(onSubmit)}>
         <StakeAmountField
+          tezosChainId={chainId}
           inFiat={inFiat}
           maxAmountInTezos={maxAmountInTezos}
           assetPrice={assetPrice}
-          accountPkh={acc.publicKeyHash}
+          accountPkh={accountPkh}
           setInFiat={setInFiat}
           disabled={disableInput}
           {...form}

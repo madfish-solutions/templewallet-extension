@@ -1,6 +1,7 @@
 import React, { FC } from 'react';
 
 import { Anchor } from 'app/atoms/Anchor';
+import { DonationBanner } from 'app/atoms/DonationBanner/DonationBanner';
 import Logo from 'app/atoms/Logo';
 import SubTitle from 'app/atoms/SubTitle';
 import { EnvVars } from 'lib/env';
@@ -73,7 +74,7 @@ const About: FC = () => (
       </div>
     </div>
 
-    <p className="mt-6 text-base font-light text-gray-600">
+    <p className="my-6 text-base font-light text-gray-600">
       <T
         id="madeWithLove"
         substitutions={[
@@ -93,7 +94,9 @@ const About: FC = () => (
       />
     </p>
 
-    <SubTitle className="mt-10 mb-2">
+    <DonationBanner />
+
+    <SubTitle className="mt-6 mb-2">
       <T id="links" />
     </SubTitle>
 

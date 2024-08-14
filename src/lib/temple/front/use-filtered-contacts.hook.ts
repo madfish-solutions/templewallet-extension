@@ -1,25 +1,36 @@
 import { useEffect, useMemo } from 'react';
 
-import { isEqual } from 'lodash';
-
+import { isTezosContractAddress } from 'lib/tezos';
 import { useMemoWithCompare } from 'lib/ui/hooks';
+import { isTruthy } from 'lib/utils';
+import { getAccountForTezos } from 'temple/accounts';
+import { useAllAccounts, useSettings } from 'temple/front/ready';
 
-import { TempleContact } from '../types';
+import type { TempleContact } from '../types';
 
 import { useTempleClient } from './client';
-import { useRelevantAccounts, useSettings } from './ready';
 
 export function useFilteredContacts() {
+  const { updateSettings } = useTempleClient();
   const { contacts } = useSettings();
 
-  const accounts = useRelevantAccounts();
+  const accounts = useAllAccounts();
+
   const accountContacts = useMemo<TempleContact[]>(
     () =>
-      accounts.map(acc => ({
-        address: acc.publicKeyHash,
-        name: acc.name,
-        accountInWallet: true
-      })),
+      accounts
+        .map(acc => {
+          const tezosAccount = getAccountForTezos(acc);
+
+          return tezosAccount && !isTezosContractAddress(tezosAccount.address)
+            ? {
+                address: tezosAccount.address,
+                name: tezosAccount.name,
+                accountInWallet: true
+              }
+            : null;
+        })
+        .filter(isTruthy),
     [accounts]
   );
 
@@ -28,13 +39,11 @@ export function useFilteredContacts() {
       contacts
         ? contacts.filter(({ address }) => !accountContacts.some(accContact => address === accContact.address))
         : [],
-    [contacts, accountContacts],
-    isEqual
+    [contacts, accountContacts]
   );
 
   const allContacts = useMemo(() => [...filteredContacts, ...accountContacts], [filteredContacts, accountContacts]);
 
-  const { updateSettings } = useTempleClient();
   useEffect(() => {
     if (contacts && contacts.length !== filteredContacts.length) updateSettings({ contacts: filteredContacts });
   }, [contacts, filteredContacts, updateSettings]);

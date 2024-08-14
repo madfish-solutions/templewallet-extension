@@ -363,7 +363,7 @@
   "alert": {
     "message": "提示"
   },
-  "accountNameInputTitle": {
+  "accountOrGroupNameInputTitle": {
     "message": "1-16个字符，无特殊字符"
   },
   "defaultAccountName": {
@@ -390,9 +390,6 @@
         "content": "$1"
       }
     }
-  },
-  "accountsToRemoveConstraint": {
-    "message": "分层确定性账户无法移除。"
   },
   "doNotSharePrivateKey": {
     "message": "<b>切勿分享</b>此组字符给任何人！它可用于窃取您当前的账户。"
@@ -580,7 +577,7 @@
     "message": "您要导入的账户的密钥。"
   },
   "privateKeyInputPlaceholder": {
-    "message": "例如：edsk3wfiPMu..."
+    "message": "例如：edsk3wfiPMu... | 0xL4mp3Ty..."
   },
   "password": {
     "message": "密码"

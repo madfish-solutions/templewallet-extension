@@ -32,7 +32,7 @@ export const SwapRouteItem: FC<Props> = ({ chain, baseInput, baseOutput, shouldS
           const aToken = hop.forward ? dex?.token1 : dex?.token2;
           const bToken = hop.forward ? dex?.token2 : dex?.token1;
 
-          return <HopItem className="z-10" key={index} dex={dex} aToken={aToken} bToken={bToken} />;
+          return <HopItem className="z-1" key={index} dex={dex} aToken={aToken} bToken={bToken} />;
         })}
       </div>
 

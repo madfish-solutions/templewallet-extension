@@ -3,7 +3,6 @@ import React, { FC, useCallback, useEffect, useMemo } from 'react';
 import { localForger } from '@taquito/local-forging';
 import BigNumber from 'bignumber.js';
 import classNames from 'clsx';
-import { useDispatch } from 'react-redux';
 
 import { Alert, FormSubmitButton, FormSecondaryButton } from 'app/atoms';
 import ConfirmLedgerOverlay from 'app/atoms/ConfirmLedgerOverlay';
@@ -13,6 +12,7 @@ import { useAppEnv } from 'app/env';
 import { ReactComponent as CodeAltIcon } from 'app/icons/code-alt.svg';
 import { ReactComponent as EyeIcon } from 'app/icons/eye.svg';
 import { ReactComponent as HashIcon } from 'app/icons/hash.svg';
+import { dispatch } from 'app/store';
 import { setOnRampPossibilityAction } from 'app/store/settings/actions';
 import AccountBanner from 'app/templates/AccountBanner';
 import ExpensesView, { ModifyFeeAndLimit } from 'app/templates/ExpensesView/ExpensesView';
@@ -22,13 +22,15 @@ import RawPayloadView from 'app/templates/RawPayloadView';
 import ViewsSwitcher from 'app/templates/ViewsSwitcher/ViewsSwitcher';
 import { ViewsSwitcherItemProps } from 'app/templates/ViewsSwitcher/ViewsSwitcherItem';
 import { TEZ_TOKEN_SLUG, toTokenSlug } from 'lib/assets';
-import { useRawBalance } from 'lib/balances';
+import { useTezosAssetRawBalance } from 'lib/balances';
 import { T, t } from 'lib/i18n';
 import { useRetryableSWR } from 'lib/swr';
-import { useChainIdValue, useNetwork, useRelevantAccounts, tryParseExpenses } from 'lib/temple/front';
-import { TempleAccountType, TempleChainId, TempleConfirmationPayload } from 'lib/temple/types';
+import { tryParseExpenses } from 'lib/temple/front';
+import { TempleAccountType, TempleConfirmationPayload } from 'lib/temple/types';
 import { useSafeState } from 'lib/ui/hooks';
 import { isTruthy } from 'lib/utils';
+import { findAccountForTezos } from 'temple/accounts';
+import { useTezosChainIdLoadingValue, useRelevantAccounts } from 'temple/front';
 
 import { InternalConfirmationSelectors } from './InternalConfirmation.selectors';
 
@@ -41,9 +43,7 @@ type InternalConfiramtionProps = {
 const MIN_GAS_FEE = 0;
 
 const InternalConfirmation: FC<InternalConfiramtionProps> = ({ payload, onConfirm, error: payloadError }) => {
-  const { rpcBaseURL: currentNetworkRpc } = useNetwork();
   const { popup } = useAppEnv();
-  const dispatch = useDispatch();
 
   const getContentToParse = useCallback(async () => {
     switch (payload.type) {
@@ -63,20 +63,24 @@ const InternalConfirmation: FC<InternalConfiramtionProps> = ({ payload, onConfir
   }, [payload]);
   const { data: contentToParse } = useRetryableSWR(['content-to-parse'], getContentToParse, { suspense: true });
 
-  const networkRpc = payload.type === 'operations' ? payload.networkRpc : currentNetworkRpc;
+  const networkRpc = payload.networkRpc;
 
-  const chainId = useChainIdValue(networkRpc, true)!;
-  const mainnet = chainId === TempleChainId.Mainnet;
+  // TODO: `payload.chainId`
+  const tezosChainId = useTezosChainIdLoadingValue(networkRpc, true)!;
 
-  const allAccounts = useRelevantAccounts();
+  const tezosNetwork = useMemo(() => ({ chainId: tezosChainId, rpcBaseURL: networkRpc }), [tezosChainId, networkRpc]);
+
+  const relevantAccounts = useRelevantAccounts(tezosChainId);
   const account = useMemo(
-    () => allAccounts.find(a => a.publicKeyHash === payload.sourcePkh)!,
-    [allAccounts, payload.sourcePkh]
+    () => findAccountForTezos(relevantAccounts, payload.sourcePkh)!,
+    [relevantAccounts, payload.sourcePkh]
   );
+
   const rawExpensesData = useMemo(
-    () => tryParseExpenses(contentToParse!, account.publicKeyHash),
-    [contentToParse, account.publicKeyHash]
+    () => tryParseExpenses(contentToParse!, account.address),
+    [contentToParse, account.address]
   );
+
   const expensesData = useMemo(() => {
     return rawExpensesData.map(({ expenses, ...restProps }) => ({
       expenses: expenses.map(({ tokenAddress, tokenId, ...restProps }) => ({
@@ -87,7 +91,7 @@ const InternalConfirmation: FC<InternalConfiramtionProps> = ({ payload, onConfir
     }));
   }, [rawExpensesData]);
 
-  const { value: tezBalance } = useRawBalance(TEZ_TOKEN_SLUG, account.publicKeyHash);
+  const { value: tezBalance } = useTezosAssetRawBalance(TEZ_TOKEN_SLUG, account.address, tezosNetwork);
 
   const totalTransactionCost = useMemo(() => {
     if (payload.type === 'operations') {
@@ -104,7 +108,7 @@ const InternalConfirmation: FC<InternalConfiramtionProps> = ({ payload, onConfir
     if (tezBalance && new BigNumber(tezBalance).isLessThanOrEqualTo(totalTransactionCost)) {
       dispatch(setOnRampPossibilityAction(true));
     }
-  }, [dispatch, tezBalance, totalTransactionCost]);
+  }, [tezBalance, totalTransactionCost]);
 
   const signPayloadFormats: ViewsSwitcherItemProps[] = useMemo(() => {
     if (payload.type === 'operations') {
@@ -260,9 +264,9 @@ const InternalConfirmation: FC<InternalConfiramtionProps> = ({ payload, onConfir
             />
           ) : (
             <>
-              <AccountBanner account={account} labelIndent="sm" className="w-full mb-4" />
+              <AccountBanner account={account} className="w-full mb-4" smallLabelIndent />
 
-              <NetworkBanner rpc={payload.type === 'operations' ? payload.networkRpc : currentNetworkRpc} />
+              <NetworkBanner network={tezosNetwork} />
 
               {signPayloadFormats.length > 1 && (
                 <div className="w-full flex justify-end mb-3 items-center">
@@ -304,11 +308,11 @@ const InternalConfirmation: FC<InternalConfiramtionProps> = ({ payload, onConfir
 
               {spFormat.key === 'preview' && (
                 <ExpensesView
+                  tezosNetwork={tezosNetwork}
                   expenses={expensesData}
                   error={payloadError}
                   estimates={payload.type === 'operations' ? payload.estimates : undefined}
                   modifyFeeAndLimit={modifyFeeAndLimit}
-                  mainnet={mainnet}
                   gasFeeError={gasFeeError}
                 />
               )}

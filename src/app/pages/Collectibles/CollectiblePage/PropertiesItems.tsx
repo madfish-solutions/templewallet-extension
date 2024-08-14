@@ -3,24 +3,32 @@ import React, { memo, useMemo } from 'react';
 import BigNumber from 'bignumber.js';
 
 import { HashChip, ExternalLinkChip } from 'app/atoms';
-import type { CollectibleDetails } from 'app/store/collectibles/state';
+import { useRawEvmAssetBalanceSelector } from 'app/store/evm/balances/selectors';
+import type { CollectibleDetails } from 'app/store/tezos/collectibles/state';
 import { fromFa2TokenSlug } from 'lib/assets/utils';
-import { useBalance } from 'lib/balances';
+import { useTezosAssetBalance } from 'lib/balances';
 import { formatDate } from 'lib/i18n';
-import { useExplorerBaseUrls } from 'lib/temple/front';
+import { EvmCollectibleMetadata } from 'lib/metadata/types';
+import { useTezosBlockExplorerUrl } from 'temple/front/block-explorers';
+import { TezosNetworkEssentials } from 'temple/networks';
+
+const itemClassName = 'flex flex-col gap-y-2 p-3 border border-gray-300 rounded-md';
+const itemTitleClassName = 'text-xs text-gray-600 leading-5';
+const itemValueClassName = 'text-base font-semibold leading-5 break-words';
 
 interface PropertiesItemsProps {
+  network: TezosNetworkEssentials;
   assetSlug: string;
   accountPkh: string;
   details?: CollectibleDetails | null;
 }
 
-export const PropertiesItems = memo<PropertiesItemsProps>(({ assetSlug, accountPkh, details }) => {
+export const PropertiesItems = memo<PropertiesItemsProps>(({ network, assetSlug, accountPkh, details }) => {
   const { contract, id } = fromFa2TokenSlug(assetSlug);
 
-  const { value: balance } = useBalance(assetSlug, accountPkh);
+  const { value: balance } = useTezosAssetBalance(assetSlug, accountPkh, network);
 
-  const { transaction: explorerBaseUrl } = useExplorerBaseUrls();
+  const explorerBaseUrl = useTezosBlockExplorerUrl(network.chainId);
   const exploreContractUrl = useMemo(
     () => (explorerBaseUrl ? new URL(contract, explorerBaseUrl).href : null),
     [explorerBaseUrl, contract]
@@ -39,10 +47,6 @@ export const PropertiesItems = memo<PropertiesItemsProps>(({ assetSlug, accountP
 
     return `${royalties.toString()}%`;
   }, [details]);
-
-  const itemClassName = 'flex flex-col gap-y-2 p-3 border border-gray-300 rounded-md';
-  const itemTitleClassName = 'text-xs text-gray-600 leading-5';
-  const itemValueClassName = 'text-base font-semibold leading-5 break-words';
 
   return (
     <>
@@ -95,6 +99,46 @@ export const PropertiesItems = memo<PropertiesItemsProps>(({ assetSlug, accountP
       <div className={itemClassName}>
         <h6 className={itemTitleClassName}>Token id</h6>
         <span className={itemValueClassName}>{id.toString()}</span>
+      </div>
+    </>
+  );
+});
+
+interface EvmPropertiesItemsProps {
+  accountPkh: HexString;
+  assetSlug: string;
+  evmChainId: number;
+  metadata?: EvmCollectibleMetadata;
+}
+
+export const EvmPropertiesItems = memo<EvmPropertiesItemsProps>(({ accountPkh, evmChainId, assetSlug, metadata }) => {
+  const rawBalance = useRawEvmAssetBalanceSelector(accountPkh, evmChainId, assetSlug);
+
+  if (!metadata) return null;
+
+  return (
+    <>
+      <div className={itemClassName}>
+        <h6 className={itemTitleClassName}>Owned</h6>
+        <span className={itemValueClassName}>{rawBalance ?? '-'}</span>
+      </div>
+
+      <div className={itemClassName}>
+        <h6 className={itemTitleClassName}>Contract</h6>
+        <div className="flex gap-x-1.5">
+          <HashChip
+            hash={metadata.address}
+            firstCharsCount={5}
+            lastCharsCount={5}
+            className="tracking-tighter"
+            rounded="base"
+          />
+        </div>
+      </div>
+
+      <div className={itemClassName}>
+        <h6 className={itemTitleClassName}>Token id</h6>
+        <span className={itemValueClassName}>{metadata.tokenId}</span>
       </div>
     </>
   );

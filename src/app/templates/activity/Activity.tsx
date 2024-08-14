@@ -1,18 +1,23 @@
-import React, { useMemo } from 'react';
+import React, { memo, FC, useMemo } from 'react';
 
 import clsx from 'clsx';
 import InfiniteScroll from 'react-infinite-scroll-component';
 
 import { SyncSpinner } from 'app/atoms';
+import { SuspenseContainer } from 'app/atoms/SuspenseContainer';
 import { useAppEnv } from 'app/env';
+import { DeadEndBoundaryError } from 'app/ErrorBoundary';
 import { useLoadPartnersPromo } from 'app/hooks/use-load-partners-promo';
 import { ReactComponent as LayersIcon } from 'app/icons/layers.svg';
+import { ContentContainer } from 'app/layouts/containers';
 import { useShouldShowPartnersPromoSelector } from 'app/store/partners-promotion/selectors';
+import { useChainSelectController, ChainSelectSection } from 'app/templates/ChainSelect';
 import { PartnersPromotion, PartnersPromotionVariant } from 'app/templates/partners-promotion';
 import { TEMPLE_TOKEN_SLUG } from 'lib/assets';
-import { T } from 'lib/i18n/react';
-import useActivities from 'lib/temple/activity-new/hook';
-import { useAccount } from 'lib/temple/front';
+import { t, T } from 'lib/i18n/react';
+import useTezosActivities from 'lib/temple/activity-new/hook';
+import { UNDER_DEVELOPMENT_MSG } from 'temple/evm/under_dev_msg';
+import { useAccountAddressForTezos, useTezosChainByChainId } from 'temple/front';
 
 import { ActivityItem } from './ActivityItem';
 import { ReactivateAdsBanner } from './ReactivateAdsBanner';
@@ -21,15 +26,55 @@ const INITIAL_NUMBER = 30;
 const LOAD_STEP = 30;
 
 interface Props {
+  tezosChainId?: string;
   assetSlug?: string;
 }
 
-export const ActivityComponent: React.FC<Props> = ({ assetSlug }) => {
-  const { loading, reachedTheEnd, list: activities, loadMore } = useActivities(INITIAL_NUMBER, assetSlug);
+export const ActivityTab = memo<Props>(({ tezosChainId, assetSlug }) => (
+  <SuspenseContainer errorMessage={t('operationHistoryWhileMessage')}>
+    {tezosChainId ? <TezosActivity tezosChainId={tezosChainId} assetSlug={assetSlug} /> : <ActivityWithChainSelect />}
+  </SuspenseContainer>
+));
+
+const ActivityWithChainSelect = memo(() => {
+  const chainSelectController = useChainSelectController();
+  const network = chainSelectController.value;
+
+  return (
+    <>
+      <div className="h-3" />
+
+      <ContentContainer>
+        <ChainSelectSection controller={chainSelectController} />
+
+        {network.kind === 'tezos' ? (
+          <TezosActivity tezosChainId={network.chainId} />
+        ) : (
+          <div className="py-3 text-center">{UNDER_DEVELOPMENT_MSG}</div>
+        )}
+      </ContentContainer>
+    </>
+  );
+});
+
+interface TezosActivityProps {
+  tezosChainId: string;
+  assetSlug?: string;
+}
+
+const TezosActivity: FC<TezosActivityProps> = ({ tezosChainId, assetSlug }) => {
+  const network = useTezosChainByChainId(tezosChainId);
+  const accountAddress = useAccountAddressForTezos();
+  if (!network || !accountAddress) throw new DeadEndBoundaryError();
+
+  const {
+    loading,
+    reachedTheEnd,
+    list: activities,
+    loadMore
+  } = useTezosActivities(network, accountAddress, INITIAL_NUMBER, assetSlug);
 
   const { popup } = useAppEnv();
-
-  const { publicKeyHash: accountAddress } = useAccount();
 
   const shouldShowPartnersPromo = useShouldShowPartnersPromoSelector();
   useLoadPartnersPromo();
@@ -50,9 +95,7 @@ export const ActivityComponent: React.FC<Props> = ({ assetSlug }) => {
 
   if (activities.length === 0 && !loading && reachedTheEnd) {
     return (
-      <div
-        className={clsx('w-full max-w-sm mx-auto flex flex-col items-center pt-3 pb-12 text-gray-500', popup && 'px-4')}
-      >
+      <div className={clsx('flex flex-col items-center justify-center pt-3 pb-12 text-gray-500', popup && 'px-4')}>
         {promotion}
 
         <LayersIcon className="self-center mt-6 w-16 h-auto stroke-current" />
@@ -72,7 +115,7 @@ export const ActivityComponent: React.FC<Props> = ({ assetSlug }) => {
   const onScroll = loading || reachedTheEnd ? undefined : buildOnScroll(loadNext);
 
   return (
-    <div className={clsx('w-full max-w-sm mx-auto flex flex-col gap-y-4 py-3', popup && 'px-4')}>
+    <div className={clsx('flex flex-col gap-y-4 py-3', popup && 'px-4')}>
       {promotion}
 
       <InfiniteScroll
@@ -83,7 +126,12 @@ export const ActivityComponent: React.FC<Props> = ({ assetSlug }) => {
         onScroll={onScroll}
       >
         {activities.map(activity => (
-          <ActivityItem key={activity.hash} address={accountAddress} activity={activity} />
+          <ActivityItem
+            key={activity.hash}
+            activity={activity}
+            tezosChainId={network.chainId}
+            address={accountAddress}
+          />
         ))}
       </InfiniteScroll>
     </div>

@@ -6,6 +6,7 @@ export enum PartnersPromotionVariant {
 }
 
 export interface SingleProviderPromotionProps {
+  accountPkh: string;
   variant: PartnersPromotionVariant;
   isVisible: boolean;
   pageName: string;

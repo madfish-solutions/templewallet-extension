@@ -1,25 +1,37 @@
 import React, { memo, useMemo } from 'react';
 
+import { DeadEndBoundaryError } from 'app/ErrorBoundary';
 import { useManagableTezosStakeInfo } from 'app/hooks/use-baking-hooks';
 import { TabInterface, TabsPageLayout } from 'app/layouts/TabsPageLayout';
-import { useAccountPkh, useNetwork } from 'lib/temple/front';
+import { TempleAccountType } from 'lib/temple/types';
+import { useAccountForTezos, useTezosChainByChainId } from 'temple/front';
 
 import { MyStakeTab } from './MyStake';
 import { NewStakeTab } from './NewStake';
 import { StakingPageSelectors } from './selectors';
 
-export const StakingPage = memo(() => {
-  const accountPkh = useAccountPkh();
-  const { rpcBaseURL } = useNetwork();
+interface Props {
+  tezosChainId: string;
+}
+
+export const StakingPage = memo<Props>(({ tezosChainId }) => {
+  const account = useAccountForTezos();
+  const network = useTezosChainByChainId(tezosChainId);
+
+  if (!network || !account) throw new DeadEndBoundaryError();
+
+  const accountPkh = account.address;
+  const rpcBaseURL = network.rpcBaseURL;
+  const cannotDelegate = account.type === TempleAccountType.WatchOnly;
 
   const { mayManage, requestsN } = useManagableTezosStakeInfo(rpcBaseURL, accountPkh);
 
-  const tabs = useMemo<TabInterface[]>(
+  const tabs = useMemo<NonEmptyArray<TabInterface>>(
     () => [
       {
         slug: 'new-stake',
         title: 'New stake',
-        Component: NewStakeTab,
+        Component: () => <NewStakeTab accountPkh={accountPkh} network={network} cannotDelegate={cannotDelegate} />,
         testID: StakingPageSelectors.newStakeTab
       },
       {
@@ -38,11 +50,11 @@ export const StakingPage = memo(() => {
             )}
           </div>
         ),
-        Component: MyStakeTab,
+        Component: () => <MyStakeTab accountPkh={accountPkh} network={network} cannotDelegate={cannotDelegate} />,
         testID: StakingPageSelectors.myStakeTab
       }
     ],
-    [mayManage, requestsN]
+    [mayManage, requestsN, network, cannotDelegate, accountPkh]
   );
 
   return <TabsPageLayout title="Tezos Staking" tabs={tabs} />;

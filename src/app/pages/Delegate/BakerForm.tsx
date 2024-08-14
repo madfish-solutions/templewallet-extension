@@ -12,10 +12,11 @@ import { useUserTestingGroupNameSelector } from 'app/store/ab-testing/selectors'
 import AdditionalFeeInput from 'app/templates/AdditionalFeeInput/AdditionalFeeInput';
 import { BakerCard, BAKER_BANNER_CLASSNAME } from 'app/templates/BakerBanner';
 import { ABTestGroup } from 'lib/apis/temple';
-import { useGasToken } from 'lib/assets/hooks';
+import { TEZOS_SYMBOL, getTezosGasSymbol } from 'lib/assets';
 import { T, t } from 'lib/i18n';
 import { HELP_UKRAINE_BAKER_ADDRESS, RECOMMENDED_BAKER_ADDRESS } from 'lib/known-bakers';
-import { Baker, useNetwork } from 'lib/temple/front';
+import { Baker } from 'lib/temple/front';
+import { TEZOS_MAINNET_CHAIN_ID } from 'lib/temple/types';
 
 import { KnownDelegatorsList } from './DelegatorsList';
 import { UnchangedError, UnregisteredDelegateError } from './errors';
@@ -27,6 +28,8 @@ interface FormData {
 }
 
 export interface BakerFormProps {
+  tezosChainId: string;
+  accountPkh: string;
   baker: Baker | null | undefined;
   toFilled: boolean | '';
   balance: BigNumber;
@@ -44,6 +47,8 @@ export interface BakerFormProps {
 }
 
 export const BakerForm: React.FC<BakerFormProps> = ({
+  tezosChainId,
+  accountPkh,
   baker,
   balance,
   submitError,
@@ -60,7 +65,6 @@ export const BakerForm: React.FC<BakerFormProps> = ({
   formState
 }) => {
   const testGroupName = useUserTestingGroupNameSelector();
-  const assetSymbol = 'ꜩ';
   const estimateFallbackDisplayed = toFilled && !baseFee && (estimating || bakerValidating);
 
   const bakerTestMessage = useMemo(() => {
@@ -86,7 +90,15 @@ export const BakerForm: React.FC<BakerFormProps> = ({
   const restFormDisplayed = Boolean(toFilled && (baseFee || estimationError));
   const tzError = submitError || estimationError;
 
-  if (!restFormDisplayed) return <KnownDelegatorsList setValue={setValue} triggerValidation={triggerValidation} />;
+  if (!restFormDisplayed)
+    return (
+      <KnownDelegatorsList
+        tezosChainId={tezosChainId}
+        accountPkh={accountPkh}
+        setValue={setValue}
+        triggerValidation={triggerValidation}
+      />
+    );
 
   return (
     <>
@@ -99,15 +111,23 @@ export const BakerForm: React.FC<BakerFormProps> = ({
         />
       )}
 
-      <BakerBannerComponent balanceNum={balance.toNumber()} baker={baker} tzError={tzError} />
+      <BakerBannerComponent
+        tezosChainId={tezosChainId}
+        accountPkh={accountPkh}
+        balanceNum={balance.toNumber()}
+        baker={baker}
+        tzError={tzError}
+      />
 
-      {tzError && <DelegateErrorAlert type={submitError ? 'submit' : 'estimation'} error={tzError} />}
+      {tzError && (
+        <DelegateErrorAlert type={submitError ? 'submit' : 'estimation'} error={tzError} tezosChainId={tezosChainId} />
+      )}
 
       <AdditionalFeeInput
         name="fee"
         control={control}
         onChange={handleFeeFieldChange}
-        assetSymbol={assetSymbol}
+        gasSymbol={TEZOS_SYMBOL}
         baseFee={baseFee}
         error={errors.fee}
         id="delegate-fee"
@@ -128,50 +148,65 @@ export const BakerForm: React.FC<BakerFormProps> = ({
 };
 
 interface BakerBannerComponentProps {
+  tezosChainId: string;
+  accountPkh: string;
   balanceNum: number;
   baker: Baker | null | undefined;
   tzError: any;
 }
 
-const BakerBannerComponent = React.memo<BakerBannerComponentProps>(({ balanceNum, tzError, baker }) => {
-  const net = useNetwork();
-  const { symbol } = useGasToken();
+const BakerBannerComponent = React.memo<BakerBannerComponentProps>(
+  ({ tezosChainId, accountPkh, balanceNum, tzError, baker }) => {
+    const isMainnet = tezosChainId === TEZOS_MAINNET_CHAIN_ID;
+    const symbol = getTezosGasSymbol(tezosChainId);
 
-  return baker ? (
-    <>
-      <BakerCard bakerPkh={baker.address} hideAddress showBakerTag className={clsx(BAKER_BANNER_CLASSNAME, 'mb-6')} />
-
-      {!tzError && baker.minDelegation > balanceNum && (
-        <Alert
-          type="warning"
-          title={t('minDelegationAmountTitle')}
-          description={
-            <T
-              id="minDelegationAmountDescription"
-              substitutions={[
-                <span className="font-normal" key="minDelegationsAmount">
-                  <Money>{baker.minDelegation}</Money> <span style={{ fontSize: '0.75em' }}>{symbol}</span>
-                </span>
-              ]}
-            />
-          }
-          className="mb-6"
+    return baker ? (
+      <>
+        <BakerCard
+          tezosChainId={tezosChainId}
+          accountPkh={accountPkh}
+          bakerPkh={baker.address}
+          hideAddress
+          showBakerTag
+          className={clsx(BAKER_BANNER_CLASSNAME, 'mb-6')}
         />
-      )}
-    </>
-  ) : !tzError && net.type === 'main' ? (
-    <Alert type="warning" title={t('unknownBakerTitle')} description={t('unknownBakerDescription')} className="mb-6" />
-  ) : null;
-});
+
+        {!tzError && baker.minDelegation > balanceNum && (
+          <Alert
+            type="warning"
+            title={t('minDelegationAmountTitle')}
+            description={
+              <T
+                id="minDelegationAmountDescription"
+                substitutions={[
+                  <span className="font-normal" key="minDelegationsAmount">
+                    <Money>{baker.minDelegation}</Money> <span style={{ fontSize: '0.75em' }}>{symbol}</span>
+                  </span>
+                ]}
+              />
+            }
+            className="mb-6"
+          />
+        )}
+      </>
+    ) : !tzError && isMainnet ? (
+      <Alert
+        type="warning"
+        title={t('unknownBakerTitle')}
+        description={t('unknownBakerDescription')}
+        className="mb-6"
+      />
+    ) : null;
+  }
+);
 
 interface DelegateErrorAlertProps {
   type: 'submit' | 'estimation';
   error: Error;
+  tezosChainId: string;
 }
 
-const DelegateErrorAlert: FC<DelegateErrorAlertProps> = ({ type, error }) => {
-  const { symbol } = useGasToken();
-
+const DelegateErrorAlert: FC<DelegateErrorAlertProps> = ({ type, error, tezosChainId }) => {
   return (
     <Alert
       type={type === 'submit' ? 'error' : 'warning'}
@@ -215,7 +250,7 @@ const DelegateErrorAlert: FC<DelegateErrorAlertProps> = ({ type, error }) => {
 
                 <ul className="mt-1 ml-2 text-xs list-disc list-inside">
                   <li>
-                    <T id="minimalFeeGreaterThanBalanceVerbose" substitutions={symbol} />
+                    <T id="minimalFeeGreaterThanBalanceVerbose" substitutions={getTezosGasSymbol(tezosChainId)} />
                   </li>
 
                   <li>

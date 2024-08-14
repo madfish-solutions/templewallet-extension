@@ -3,7 +3,7 @@ import React, { FC, useMemo } from 'react';
 import classNames from 'clsx';
 
 import { ReactComponent as Separator } from 'app/icons/separator.svg';
-import { AssetImage } from 'app/templates/AssetImage';
+import { TezosAssetImage } from 'app/templates/AssetImage';
 import { SIRS_TOKEN_METADATA } from 'lib/assets/known-tokens';
 import useTippy from 'lib/ui/useTippy';
 
@@ -49,11 +49,11 @@ export const LbPoolPart: FC<Props> = ({ amount, isLbOutput, totalChains }) => {
         </div>
 
         <div
-          className="flex items-center p-1 border border-gray-400 rounded-lg bg-white z-10"
+          className="flex items-center p-1 border border-gray-400 rounded-lg bg-white z-1"
           style={advancedLbPoolItemStyles}
         >
           <div ref={dexInfoDivRef}>
-            <AssetImage metadata={SIRS_TOKEN_METADATA} size={20} />
+            <TezosAssetImage metadata={SIRS_TOKEN_METADATA} size={20} />
           </div>
         </div>
       </div>

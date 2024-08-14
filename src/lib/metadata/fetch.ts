@@ -1,4 +1,3 @@
-import { TezosToolkit } from '@taquito/taquito';
 import { pick } from 'lodash';
 
 import {
@@ -8,6 +7,7 @@ import {
   isKnownChainId
 } from 'lib/apis/temple';
 import { fromAssetSlug } from 'lib/assets';
+import { getReadOnlyTezos } from 'temple/tezos';
 
 import { TokenMetadataOnChain, fetchTokenMetadata as fetchTokenMetadataOnChain } from './on-chain';
 
@@ -16,7 +16,7 @@ export const fetchOneTokenMetadata = async (
   address: string,
   id: string
 ): Promise<TokenMetadataResponse | undefined> => {
-  const tezos = new TezosToolkit(rpcUrl);
+  const tezos = getReadOnlyTezos(rpcUrl);
   const chainId = await tezos.rpc.getChainId();
 
   if (isKnownChainId(chainId)) {
@@ -28,10 +28,13 @@ export const fetchOneTokenMetadata = async (
   return chainTokenMetadataToBase(metadataOnChain) || undefined;
 };
 
-const fetchTokensMetadata = async (rpcUrl: string, slugs: string[]): Promise<(TokenMetadataResponse | null)[]> => {
+export const fetchTokensMetadata = async (
+  rpcUrl: string,
+  slugs: string[]
+): Promise<(TokenMetadataResponse | null)[]> => {
   if (slugs.length === 0) return [];
 
-  const tezos = new TezosToolkit(rpcUrl);
+  const tezos = getReadOnlyTezos(rpcUrl);
   const chainId = await tezos.rpc.getChainId();
 
   if (isKnownChainId(chainId)) {

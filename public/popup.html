@@ -2,7 +2,7 @@
 <html
   lang=""
   class="no-scrollbar<% if (process.env.TARGET_BROWSER === "firefox") { %> overflow-x-hidden<% } %>"
-  style="width: 360px; height: 604px;"
+  style="width: 384px; height: 600px;"
 >
   <head>
     <meta charset="utf-8" />
@@ -10,9 +10,13 @@
       name="viewport"
       content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
     />
-    <title>Temple - Tezos Wallet</title>
+    <title>Temple Wallet</title>
   </head>
-  <body class="bg-white" style="width: 360px; min-height: calc(100vh + 1px);">
+
+  <body
+    class="bg-document"
+    <% if (process.env.TARGET_BROWSER === "firefox") { %> style="width: 384px"<% } %>
+  >
     <div id="root"></div>
   </body>
 </html>

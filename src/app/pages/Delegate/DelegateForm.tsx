@@ -10,26 +10,21 @@ import { useAppEnv } from 'app/env';
 import OperationStatus from 'app/templates/OperationStatus';
 import { useFormAnalytics } from 'lib/analytics';
 import { submitDelegation } from 'lib/apis/everstake';
-import { BLOCK_DURATION } from 'lib/fixed-times';
+import { TEZOS_BLOCK_DURATION } from 'lib/fixed-times';
 import { TID, t } from 'lib/i18n';
 import { RECOMMENDED_BAKER_ADDRESS } from 'lib/known-bakers';
 import { setDelegate } from 'lib/michelson';
 import { useTypedSWR } from 'lib/swr';
 import { loadContract } from 'lib/temple/contract';
-import {
-  isDomainNameValid,
-  useAccount,
-  useKnownBaker,
-  useNetwork,
-  useTezos,
-  useTezosDomainsClient,
-  validateDelegate
-} from 'lib/temple/front';
-import { useTezosAddressByDomainName } from 'lib/temple/front/tzdns';
-import { hasManager, isAddressValid, isKTAddress, mutezToTz, tzToMutez } from 'lib/temple/helpers';
-import { TempleAccountType } from 'lib/temple/types';
+import { useKnownBaker, validateDelegate } from 'lib/temple/front';
+import { mutezToTz, tzToMutez } from 'lib/temple/helpers';
+import { isTezosContractAddress, isValidTezosAddress, tezosManagerKeyHasManager } from 'lib/tezos';
 import { useSafeState } from 'lib/ui/hooks';
 import { fifoResolve } from 'lib/utils';
+import { AccountForTezos } from 'temple/accounts';
+import { getTezosToolkitWithSigner } from 'temple/front';
+import { getTezosDomainsClient, isTezosDomainsNameValid, useTezosAddressByDomainName } from 'temple/front/tezos';
+import { isTezosDcpChainId, TezosNetworkEssentials } from 'temple/networks';
 
 import { BakerForm, BakerFormProps } from './BakerForm';
 import { UnchangedError, UnregisteredDelegateError } from './errors';
@@ -44,22 +39,24 @@ interface FormData {
 }
 
 interface Props {
+  network: TezosNetworkEssentials;
+  account: AccountForTezos;
   balance: BigNumber;
 }
 
-const DelegateForm = memo<Props>(({ balance }) => {
+const DelegateForm = memo<Props>(({ network, account, balance }) => {
   const { registerBackHandler } = useAppEnv();
   const formAnalytics = useFormAnalytics('DelegateForm');
-  const network = useNetwork();
-  const isDcpNetwork = network.type === 'dcp';
 
-  const acc = useAccount();
-  const tezos = useTezos();
+  const isDcpNetwork = isTezosDcpChainId(network.chainId);
 
-  const accountPkh = acc.publicKeyHash;
+  const { rpcBaseURL: rpcUrl, chainId: tezosChainId } = network;
+  const ownerAddress = account.ownerAddress;
+  const accountPkh = account.address;
+  const tezos = getTezosToolkitWithSigner(rpcUrl, ownerAddress || accountPkh);
 
   const balanceNum = balance.toNumber();
-  const domainsClient = useTezosDomainsClient();
+  const domainsClient = getTezosDomainsClient(network.chainId, network.rpcBaseURL);
   const canUseDomainNames = domainsClient.isSupported;
 
   /**
@@ -75,12 +72,12 @@ const DelegateForm = memo<Props>(({ balance }) => {
 
   const toValue = watch('to');
 
-  const toFilledWithAddress = useMemo(() => Boolean(toValue && isAddressValid(toValue)), [toValue]);
+  const toFilledWithAddress = useMemo(() => Boolean(toValue && isValidTezosAddress(toValue)), [toValue]);
   const toFilledWithDomain = useMemo(
-    () => toValue && isDomainNameValid(toValue, domainsClient),
+    () => toValue && isTezosDomainsNameValid(toValue, domainsClient),
     [toValue, domainsClient]
   );
-  const { data: resolvedAddress } = useTezosAddressByDomainName(toValue);
+  const { data: resolvedAddress } = useTezosAddressByDomainName(toValue, network);
 
   const toFieldRef = useRef<HTMLTextAreaElement>(null);
 
@@ -92,7 +89,7 @@ const DelegateForm = memo<Props>(({ balance }) => {
   const toResolved = useMemo(() => resolvedAddress || toValue, [resolvedAddress, toValue]);
 
   const getEstimation = useCallback(async () => {
-    if (acc.type === TempleAccountType.ManagedKT) {
+    if (ownerAddress) {
       const contract = await loadContract(tezos, accountPkh);
       const transferParams = contract.methods.do(setDelegate(toResolved)).toTransferParams();
       return tezos.estimate.transfer(transferParams);
@@ -102,7 +99,7 @@ const DelegateForm = memo<Props>(({ balance }) => {
         delegate: toResolved
       } as DelegateParams);
     }
-  }, [tezos, accountPkh, acc.type, toResolved]);
+  }, [tezos, accountPkh, ownerAddress, toResolved]);
 
   const cleanToField = useCallback(() => {
     setValue('to', '');
@@ -124,12 +121,10 @@ const DelegateForm = memo<Props>(({ balance }) => {
       if (balance.isZero()) throw new ZeroBalanceError();
 
       const estmtn = await getEstimation();
-      const manager = await tezos.rpc.getManagerKey(
-        acc.type === TempleAccountType.ManagedKT ? acc.owner : acc.publicKeyHash
-      );
+      const manager = await tezos.rpc.getManagerKey(ownerAddress || accountPkh);
 
       let baseFee = mutezToTz(estmtn.burnFeeMutez + estmtn.suggestedFeeMutez);
-      if (!hasManager(manager) && acc.type !== TempleAccountType.ManagedKT) {
+      if (!tezosManagerKeyHasManager(manager) && !ownerAddress) {
         baseFee = baseFee.plus(mutezToTz(DEFAULT_FEE.REVEAL));
       }
 
@@ -156,25 +151,25 @@ const DelegateForm = memo<Props>(({ balance }) => {
           throw err;
       }
     }
-  }, [balance, tezos, getEstimation, acc]);
+  }, [balance, tezos, getEstimation, accountPkh, ownerAddress]);
 
   const {
     data: baseFee,
     error: estimateBaseFeeError,
     isValidating: estimating
   } = useTypedSWR(
-    () => (toFilled ? ['delegate-base-fee', tezos.checksum, accountPkh, toResolved] : null),
+    () => (toFilled ? ['delegate-base-fee', tezos.clientId, accountPkh, toResolved] : null),
     estimateBaseFee,
     {
       shouldRetryOnError: false,
       focusThrottleInterval: 10_000,
-      dedupingInterval: BLOCK_DURATION
+      dedupingInterval: TEZOS_BLOCK_DURATION
     }
   );
   const baseFeeError = baseFee instanceof Error ? baseFee : estimateBaseFeeError;
   const estimationError = !estimating ? baseFeeError : null;
 
-  const { data: baker, isValidating: bakerValidating } = useKnownBaker(toResolved || null, false);
+  const { data: baker, isValidating: bakerValidating } = useKnownBaker(toResolved || null, tezosChainId, false);
 
   const maxAddFee = useMemo(() => {
     if (baseFee instanceof BigNumber) {
@@ -193,8 +188,8 @@ const DelegateForm = memo<Props>(({ balance }) => {
     [maxAddFee]
   );
 
-  const [submitError, setSubmitError] = useSafeState<ReactNode>(null, `${tezos.checksum}_${toResolved}`);
-  const [operation, setOperation] = useSafeState<any>(null, tezos.checksum);
+  const [submitError, setSubmitError] = useSafeState<ReactNode>(null, `${tezos.clientId}_${toResolved}`);
+  const [operation, setOperation] = useSafeState<any>(null, tezos.clientId);
 
   const onSubmit = useCallback(
     async ({ fee: feeVal }: FormData) => {
@@ -212,8 +207,8 @@ const DelegateForm = memo<Props>(({ balance }) => {
         const fee = addFee.plus(estmtn.suggestedFeeMutez).toNumber();
         let op: WalletOperation | TransactionOperation;
         let opHash = '';
-        if (acc.type === TempleAccountType.ManagedKT) {
-          const contract = await loadContract(tezos, acc.publicKeyHash);
+        if (ownerAddress) {
+          const contract = await loadContract(tezos, accountPkh);
           op = await contract.methods.do(setDelegate(to)).send({ amount: 0 });
         } else {
           op = await tezos.wallet
@@ -248,7 +243,7 @@ const DelegateForm = memo<Props>(({ balance }) => {
       }
     },
     [
-      acc,
+      ownerAddress,
       formState.isSubmitting,
       tezos,
       accountPkh,
@@ -263,7 +258,9 @@ const DelegateForm = memo<Props>(({ balance }) => {
 
   return (
     <>
-      {operation && <OperationStatus typeTitle={t('delegation')} operation={operation} className="mb-8" />}
+      {operation && (
+        <OperationStatus network={network} typeTitle={t('delegation')} operation={operation} className="mb-8" />
+      )}
 
       <form onSubmit={handleSubmit(onSubmit)}>
         <Controller
@@ -304,6 +301,8 @@ const DelegateForm = memo<Props>(({ balance }) => {
         )}
 
         <BakerForm
+          tezosChainId={tezosChainId}
+          accountPkh={accountPkh}
           baker={baker}
           balance={balance}
           submitError={submitError}
@@ -328,13 +327,13 @@ export default DelegateForm;
 
 function validateAddress(value: string) {
   switch (false) {
-    case value?.length > 0:
+    case value.length > 0:
       return true;
 
-    case isAddressValid(value):
+    case isValidTezosAddress(value):
       return 'invalidAddress';
 
-    case !isKTAddress(value):
+    case !isTezosContractAddress(value):
       return 'unableToDelegateToKTAddress';
 
     default:

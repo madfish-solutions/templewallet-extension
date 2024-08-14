@@ -9,12 +9,12 @@ import { ReactComponent as OkIcon } from 'app/icons/ok.svg';
 import DAppLogo from 'app/templates/DAppLogo';
 import { DappMetadata } from 'lib/temple/types';
 
-type ConnectBannerProps = {
+interface ConnectBannerProps {
   type: 'connect' | 'confirm_operations';
   origin: string;
   appMeta: DappMetadata;
   className?: string;
-};
+}
 
 const ConnectBanner: FC<ConnectBannerProps> = ({ type, origin, appMeta, className }) => {
   const Icon = type === 'connect' ? OkIcon : LayersIcon;

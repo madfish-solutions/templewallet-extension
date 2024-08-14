@@ -9,22 +9,19 @@ import { useStakedAmount } from 'app/hooks/use-baking-hooks';
 import { BakingSectionSelectors } from 'app/pages/Home/OtherComponents/BakingSection/selectors';
 import { toLocalFormat, T, toLocalFixed } from 'lib/i18n';
 import { HELP_UKRAINE_BAKER_ADDRESS, RECOMMENDED_BAKER_ADDRESS } from 'lib/known-bakers';
-import { useGasTokenMetadata } from 'lib/metadata';
-import {
-  useRelevantAccounts,
-  useAccount,
-  useNetwork,
-  useKnownBaker,
-  useOnBlock,
-  useAccountPkh,
-  useExplorerHref
-} from 'lib/temple/front';
+import { getTezosGasMetadata } from 'lib/metadata';
+import { useKnownBaker } from 'lib/temple/front';
 import { atomsToTokens } from 'lib/temple/helpers';
-import { TempleAccount } from 'lib/temple/types';
+import { AccountForTezos, findAccountForTezos } from 'temple/accounts';
+import { useAllAccounts, useOnTezosBlock } from 'temple/front';
+import { useExplorerHref } from 'temple/front/block-explorers';
+import { TezosNetworkEssentials } from 'temple/networks';
 
 import { OpenInExplorerChip, OpenInExplorerChipBase } from './OpenInExplorerChip';
 
 interface Props {
+  tezosChainId: string;
+  accountPkh: string;
   bakerPkh: string;
   hideAddress?: boolean;
   showBakerTag?: boolean;
@@ -32,93 +29,95 @@ interface Props {
   HeaderRight?: React.ComponentType;
 }
 
-export const BakerCard = memo<Props>(({ bakerPkh, hideAddress, showBakerTag, className, HeaderRight }) => {
-  const allAccounts = useRelevantAccounts();
-  const account = useAccount();
-  const { fullPage } = useAppEnv();
-  const { data: baker } = useKnownBaker(bakerPkh);
-  const { symbol } = useGasTokenMetadata();
+export const BakerCard = memo<Props>(
+  ({ tezosChainId, accountPkh, bakerPkh, hideAddress, showBakerTag, className, HeaderRight }) => {
+    const allAccounts = useAllAccounts();
+    const { fullPage } = useAppEnv();
+    const { data: baker } = useKnownBaker(bakerPkh, tezosChainId);
+    const { symbol } = getTezosGasMetadata(tezosChainId);
 
-  const bakerAcc = useMemo(
-    () => allAccounts.find(acc => acc.publicKeyHash === bakerPkh) ?? null,
-    [allAccounts, bakerPkh]
-  );
+    const bakerAcc = useMemo(() => findAccountForTezos(allAccounts, bakerPkh), [allAccounts, bakerPkh]);
 
-  const isRecommendedBaker = bakerPkh === RECOMMENDED_BAKER_ADDRESS;
-  const isHelpUkraineBaker = bakerPkh === HELP_UKRAINE_BAKER_ADDRESS;
-  const withBakerTag = showBakerTag && (isRecommendedBaker || isHelpUkraineBaker);
+    const isRecommendedBaker = bakerPkh === RECOMMENDED_BAKER_ADDRESS;
+    const isHelpUkraineBaker = bakerPkh === HELP_UKRAINE_BAKER_ADDRESS;
+    const withBakerTag = showBakerTag && (isRecommendedBaker || isHelpUkraineBaker);
 
-  if (!baker)
+    if (!baker)
+      return (
+        <BakerHeader HeaderRight={HeaderRight} className={className}>
+          <Identicon type="bottts" hash={bakerPkh} size={32} className="self-start flex-shrink-0 shadow-xs" />
+
+          {bakerAcc ? (
+            <BakerName>
+              <SelfBakerNameValue bakerAcc={bakerAcc} accountPkh={accountPkh} />
+            </BakerName>
+          ) : (
+            <UnknownBakerName bakerPkh={bakerPkh} />
+          )}
+        </BakerHeader>
+      );
+
     return (
-      <BakerHeader HeaderRight={HeaderRight} className={className}>
-        <Identicon type="bottts" hash={bakerPkh} size={32} className="self-start flex-shrink-0 shadow-xs" />
+      <div className={clsx('flex flex-col gap-y-4 text-gray-700', className)}>
+        <BakerHeader HeaderRight={HeaderRight}>
+          <img src={baker.logo} alt={baker.name} className="flex-shrink-0 w-8 h-8 bg-white rounded shadow-xs" />
 
-        {bakerAcc ? (
-          <BakerName>
-            <SelfBakerNameValue bakerAcc={bakerAcc} accountPkh={account.publicKeyHash} />
-          </BakerName>
-        ) : (
-          <UnknownBakerName bakerPkh={bakerPkh} />
-        )}
-      </BakerHeader>
-    );
+          <BakerName>{baker.name}</BakerName>
 
-  return (
-    <div className={clsx('flex flex-col gap-y-4 text-gray-700', className)}>
-      <BakerHeader HeaderRight={HeaderRight}>
-        <img src={baker.logo} alt={baker.name} className="flex-shrink-0 w-8 h-8 bg-white rounded shadow-xs" />
+          {withBakerTag && <BakerTag recommended={isRecommendedBaker} />}
 
-        <BakerName>{baker.name}</BakerName>
+          {!hideAddress && (
+            <OpenInExplorerChip tezosChainId={tezosChainId} hash={baker.address} small alternativeDesign />
+          )}
+        </BakerHeader>
 
-        {withBakerTag && <BakerTag recommended={isRecommendedBaker} />}
+        <div
+          className={clsx(
+            'flex flex-wrap items-center text-left text-xs leading-5 whitespace-nowrap text-gray-500',
+            fullPage ? 'gap-x-8' : 'justify-between'
+          )}
+        >
+          <div className="flex flex-col gap-y-1">
+            <T id="staking" />:
+            <span className="font-medium leading-none text-blue-750">
+              <Money>{(baker.stakingBalance / 1000).toFixed(0)}</Money>K
+            </span>
+          </div>
 
-        {!hideAddress && <OpenInExplorerChip hash={baker.address} type="account" small alternativeDesign />}
-      </BakerHeader>
+          <div className="flex flex-col gap-y-1">
+            <T id="space" />:
+            <span className="font-medium leading-none text-blue-750">
+              <Money>{(baker.freeSpace / 1000).toFixed(0)}</Money>K
+            </span>
+          </div>
 
-      <div
-        className={clsx(
-          'flex flex-wrap items-center text-left text-xs leading-5 whitespace-nowrap text-gray-500',
-          fullPage ? 'gap-x-8' : 'justify-between'
-        )}
-      >
-        <div className="flex flex-col gap-y-1">
-          <T id="staking" />:
-          <span className="font-medium leading-none text-blue-750">
-            <Money>{(baker.stakingBalance / 1000).toFixed(0)}</Money>K
-          </span>
-        </div>
+          <div className="flex flex-col gap-y-1">
+            <T id="fee" />:
+            <span className="font-medium leading-none text-blue-750">
+              {toLocalFormat(new BigNumber(baker.fee).times(100), {
+                decimalPlaces: 2
+              })}
+              %
+            </span>
+          </div>
 
-        <div className="flex flex-col gap-y-1">
-          <T id="space" />:
-          <span className="font-medium leading-none text-blue-750">
-            <Money>{(baker.freeSpace / 1000).toFixed(0)}</Money>K
-          </span>
-        </div>
-
-        <div className="flex flex-col gap-y-1">
-          <T id="fee" />:
-          <span className="font-medium leading-none text-blue-750">
-            {toLocalFormat(new BigNumber(baker.fee).times(100), {
-              decimalPlaces: 2
-            })}
-            %
-          </span>
-        </div>
-
-        <div className="flex flex-col gap-y-1">
-          <T id="minAmount" />:
-          <span className="font-medium leading-none text-blue-750">
-            <Money smallFractionFont={false}>{baker.minDelegation}</Money> {symbol}
-          </span>
+          <div className="flex flex-col gap-y-1">
+            <T id="minAmount" />:
+            <span className="font-medium leading-none text-blue-750">
+              <Money smallFractionFont={false}>{baker.minDelegation}</Money> {symbol}
+            </span>
+          </div>
         </div>
       </div>
-    </div>
-  );
-});
+    );
+  }
+);
 
 export const BAKER_BANNER_CLASSNAME = 'p-4 rounded-lg border';
 
 interface BakerBannerProps {
+  network: TezosNetworkEssentials;
+  accountPkh: string;
   bakerPkh: string;
   ActionButton?: React.ComponentType<PropComponentProps>;
   HeaderRight?: React.ComponentType<PropComponentProps>;
@@ -130,58 +129,64 @@ interface PropComponentProps {
   staked: number;
 }
 
-export const BakerBanner = memo<BakerBannerProps>(({ bakerPkh, ActionButton, HeaderRight, allowDisplayZeroStake }) => {
-  const accountPkh = useAccountPkh();
-  const { rpcBaseURL } = useNetwork();
+export const BakerBanner = memo<BakerBannerProps>(
+  ({ network, accountPkh, bakerPkh, ActionButton, HeaderRight, allowDisplayZeroStake }) => {
+    const { rpcBaseURL, chainId } = network;
 
-  const { data: stakedData, mutate } = useStakedAmount(rpcBaseURL, accountPkh);
+    const { data: stakedData, mutate } = useStakedAmount(rpcBaseURL, accountPkh);
 
-  useOnBlock(() => void mutate());
+    useOnTezosBlock(rpcBaseURL, () => void mutate());
 
-  const { symbol, decimals } = useGasTokenMetadata();
+    const { symbol, decimals } = getTezosGasMetadata(chainId);
 
-  const [staked, stakedAtomic] = useMemo(() => {
-    const staked = stakedData && stakedData.gt(0) ? atomsToTokens(stakedData, decimals) : null;
-    const stakedAtomic = stakedData?.toNumber() || 0;
+    const [staked, stakedAtomic] = useMemo(() => {
+      const staked = stakedData && stakedData.gt(0) ? atomsToTokens(stakedData, decimals) : null;
+      const stakedAtomic = stakedData?.toNumber() || 0;
 
-    return [staked, stakedAtomic] as const;
-  }, [stakedData, decimals]);
+      return [staked, stakedAtomic] as const;
+    }, [stakedData, decimals]);
 
-  const displayingStaked = allowDisplayZeroStake || staked?.gt(0);
+    const displayingStaked = allowDisplayZeroStake || staked?.gt(0);
 
-  const HeaderRightWithProps = useMemo<FC | undefined>(
-    () => HeaderRight && (() => <HeaderRight staked={stakedAtomic} />),
-    [HeaderRight, stakedAtomic]
-  );
+    const HeaderRightWithProps = useMemo<FC | undefined>(
+      () => HeaderRight && (() => <HeaderRight staked={stakedAtomic} />),
+      [HeaderRight, stakedAtomic]
+    );
 
-  return (
-    <div className={clsx(BAKER_BANNER_CLASSNAME, 'flex flex-col gap-y-4')}>
-      <BakerCard bakerPkh={bakerPkh} HeaderRight={HeaderRightWithProps} />
+    return (
+      <div className={clsx(BAKER_BANNER_CLASSNAME, 'flex flex-col gap-y-4')}>
+        <BakerCard
+          tezosChainId={chainId}
+          accountPkh={accountPkh}
+          bakerPkh={bakerPkh}
+          HeaderRight={HeaderRightWithProps}
+        />
 
-      {(ActionButton || displayingStaked) && <Divider />}
+        {(ActionButton || displayingStaked) && <Divider />}
 
-      {displayingStaked && (
-        <div className="text-sm text-blue-750">
-          <span className="mr-1">Staked:</span>
+        {displayingStaked && (
+          <div className="text-sm text-blue-750">
+            <span className="mr-1">Staked:</span>
 
-          <span className="font-semibold">
-            {staked ? (
-              <Money smallFractionFont={false} cryptoDecimals={decimals}>
-                {staked}
-              </Money>
-            ) : (
-              toLocalFixed(0, 2)
-            )}
+            <span className="font-semibold">
+              {staked ? (
+                <Money smallFractionFont={false} cryptoDecimals={decimals}>
+                  {staked}
+                </Money>
+              ) : (
+                toLocalFixed(0, 2)
+              )}
 
-            {' ' + symbol}
-          </span>
-        </div>
-      )}
+              {' ' + symbol}
+            </span>
+          </div>
+        )}
 
-      {ActionButton && <ActionButton staked={stakedAtomic} />}
-    </div>
-  );
-});
+        {ActionButton && <ActionButton staked={stakedAtomic} />}
+      </div>
+    );
+  }
+);
 
 interface BakerHeaderProps extends PropsWithChildren {
   className?: string;
@@ -203,13 +208,13 @@ const BakerName: React.FC<PropsWithChildren> = ({ children }) => (
 );
 
 const SelfBakerNameValue: React.FC<{
-  bakerAcc: TempleAccount;
+  bakerAcc: AccountForTezos;
   accountPkh: string;
 }> = ({ bakerAcc, accountPkh }) => (
   <>
     {bakerAcc.name}
 
-    {bakerAcc.publicKeyHash === accountPkh && (
+    {bakerAcc.address === accountPkh && (
       <>
         {' '}
         <span className="font-light opacity-75">

@@ -381,7 +381,7 @@
   "alert": {
     "message": "Alerta"
   },
-  "accountNameInputTitle": {
+  "accountOrGroupNameInputTitle": {
     "message": "1-16 carateres, nenhum especial"
   },
   "defaultAccountName": {
@@ -408,9 +408,6 @@
         "content": "$1"
       }
     }
-  },
-  "accountsToRemoveConstraint": {
-    "message": "Não é possível remover contas determinísticas hierárquicas."
   },
   "doNotSharePrivateKey": {
     "message": "<b>NÃO partilhe</b> este conjunto de caracteres com ninguém! Pode ser utilizado para roubar a sua conta corrente."
@@ -598,7 +595,7 @@
     "message": "A chave secreta da conta que pretende importar."
   },
   "privateKeyInputPlaceholder": {
-    "message": "por exemplo, edsk3wfiPMu..."
+    "message": "por exemplo, edsk3wfiPMu... | 0xL4mp3Ty..."
   },
   "password": {
     "message": "Palavra-passe"
@@ -2216,9 +2213,6 @@
   },
   "deleteCollectibleConfirm": {
     "message": "Tem a certeza de que pretende eliminar este colecionável?"
-  },
-  "zeroCollectibleText": {
-    "message": "Ainda não tem colecionáveis!\nÉ uma boa altura para obter um"
   },
   "min": {
     "message": "Min.:"

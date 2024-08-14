@@ -363,7 +363,7 @@
   "alert": {
     "message": "警告"
   },
-  "accountNameInputTitle": {
+  "accountOrGroupNameInputTitle": {
     "message": "1-16 個字元，無特殊字元"
   },
   "defaultAccountName": {
@@ -390,9 +390,6 @@
         "content": "$1"
       }
     }
-  },
-  "accountsToRemoveConstraint": {
-    "message": "分層確定性帳戶無法移除。"
   },
   "doNotSharePrivateKey": {
     "message": "<b>請勿</b>向任何人分享這組字元！他人可使用此組字元竊取您目前的帳戶。"
@@ -580,7 +577,7 @@
     "message": "您要匯入的帳戶的秘密金鑰。"
   },
   "privateKeyInputPlaceholder": {
-    "message": "例如 edsk3wfiPMu..."
+    "message": "例如 edsk3wfiPMu... | 0xL4mp3Ty..."
   },
   "password": {
     "message": "密碼"

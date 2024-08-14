@@ -17,14 +17,16 @@ import { ReactComponent as ShieldOkIcon } from 'app/icons/shield-ok.svg';
 import { ReactComponent as TimeIcon } from 'app/icons/time.svg';
 import { OpenInExplorerChip } from 'app/templates/OpenInExplorerChip';
 import { TzktRewardsEntry } from 'lib/apis/tzkt';
-import { useGasToken } from 'lib/assets/hooks';
+import { getTezosGasSymbol } from 'lib/assets';
 import { getPluralKey, toLocalFormat, T } from 'lib/i18n';
 import { getRewardsStats, useKnownBaker } from 'lib/temple/front';
 import { mutezToTz } from 'lib/temple/helpers';
+import { isTezosDcpChainId } from 'temple/networks';
 
 import ModStyles from './styles.module.css';
 
 type BakingHistoryItemProps = {
+  tezosChainId: string;
   content: TzktRewardsEntry;
   currentCycle?: number;
 } & Record<
@@ -37,6 +39,7 @@ type BakingHistoryItemProps = {
 
 const BakingHistoryItem = memo<BakingHistoryItemProps>(
   ({
+    tezosChainId,
     content,
     currentCycle,
     fallbackRewardPerEndorsement,
@@ -59,10 +62,11 @@ const BakingHistoryItem = memo<BakingHistoryItemProps>(
       missedEndorsements
     } = content;
 
-    const { data: bakerDetails } = useKnownBaker(baker.address);
+    const { data: bakerDetails } = useKnownBaker(baker.address, tezosChainId);
     const [showDetails, setShowDetails] = useState(false);
 
-    const { isDcpNetwork, symbol } = useGasToken();
+    const isDcpNetwork = isTezosDcpChainId(tezosChainId);
+    const symbol = getTezosGasSymbol(tezosChainId);
 
     const toggleShowDetails = useCallback(() => setShowDetails(prevValue => !prevValue), []);
 
@@ -344,7 +348,7 @@ const BakingHistoryItem = memo<BakingHistoryItemProps>(
             <div className="mt-1 flex">
               <HashChip bgShade={200} rounded="base" className="mr-1" hash={baker.address} small textShade={700} />
 
-              <OpenInExplorerChip hash={baker.address} type="account" small alternativeDesign />
+              <OpenInExplorerChip tezosChainId={tezosChainId} hash={baker.address} small alternativeDesign />
             </div>
 
             <div className="mt-2 flex flex-col gap-y-2">

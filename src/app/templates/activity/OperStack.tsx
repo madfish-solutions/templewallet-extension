@@ -43,7 +43,7 @@ export const OperStack = memo<Props>(({ operStack, className }) => {
             className={classNames('flex items-center', 'text-blue-600 opacity-75 hover:underline', 'leading-none')}
             onClick={() => setExpanded(e => !e)}
           >
-            <ExpandIcon className={classNames('mr-1 h-3 w-auto', 'stroke-2 stroke-current')} />
+            <ExpandIcon className="mr-1 h-3 w-auto stroke-2 stroke-current text-gray-500" />
             <T id={expanded ? 'less' : 'more'} />
           </button>
         </div>

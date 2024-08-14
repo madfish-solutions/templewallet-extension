@@ -1,22 +1,25 @@
-import React, { FC, ReactNode, useCallback, useMemo, useRef, useState } from 'react';
+import React, { FC, memo, ReactNode, useCallback, useMemo, useRef, useState } from 'react';
 
 import { Controller, useForm } from 'react-hook-form';
 
-import { Alert, FormSubmitButton, NoSpaceField } from 'app/atoms';
-import AccountTypeBadge from 'app/atoms/AccountTypeBadge';
-import Identicon from 'app/atoms/Identicon';
-import Money from 'app/atoms/Money';
-import Name from 'app/atoms/Name';
-import Balance from 'app/templates/Balance';
+import { Alert, FormSubmitButton, NoSpaceField, Identicon, Name, Money, AccountTypeBadge } from 'app/atoms';
+import { TezosBalance } from 'app/templates/Balance';
+import { useChainSelectController, ChainSelectSection } from 'app/templates/ChainSelect';
 import CustomSelect, { OptionRenderProps } from 'app/templates/CustomSelect';
 import { useFormAnalytics } from 'lib/analytics';
 import { getOneUserContracts, TzktRelatedContract, isKnownChainId } from 'lib/apis/tzkt';
+import { TEZOS_SYMBOL } from 'lib/assets';
 import { T, t } from 'lib/i18n';
 import { useRetryableSWR } from 'lib/swr';
-import { useRelevantAccounts, useTezos, useTempleClient, useChainId } from 'lib/temple/front';
-import { isAddressValid } from 'lib/temple/helpers';
+import { useTempleClient } from 'lib/temple/front';
 import { TempleAccountType } from 'lib/temple/types';
-import { delay } from 'lib/utils';
+import { isValidTezosAddress } from 'lib/tezos';
+import { isTruthy } from 'lib/utils';
+import { getAccountForTezos } from 'temple/accounts';
+import { UNDER_DEVELOPMENT_MSG } from 'temple/evm/under_dev_msg';
+import { useRelevantAccounts } from 'temple/front';
+import { TezosNetworkEssentials } from 'temple/networks';
+import { getReadOnlyTezos } from 'temple/tezos';
 
 import { ImportAccountSelectors, ImportAccountFormType } from './selectors';
 
@@ -26,28 +29,51 @@ type ImportKTAccountFormData = {
 
 const getContractAddress = (contract: TzktRelatedContract) => contract.address;
 
-export const ManagedKTForm: FC = () => {
-  const accounts = useRelevantAccounts();
-  const tezos = useTezos();
+export const ManagedKTForm = memo(() => {
+  const chainSelectController = useChainSelectController();
+  const network = chainSelectController.value;
+
+  return (
+    <>
+      <ChainSelectSection controller={chainSelectController} />
+
+      {network.kind === 'tezos' ? (
+        <ManagedKTFormContent network={network} />
+      ) : (
+        <div className="mt-8 text-center">{UNDER_DEVELOPMENT_MSG}</div>
+      )}
+    </>
+  );
+});
+
+const ManagedKTFormContent: FC<{ network: TezosNetworkEssentials }> = ({ network }) => {
   const { importKTManagedAccount } = useTempleClient();
+
+  const { chainId, rpcBaseURL } = network;
+
+  const relevantAccounts = useRelevantAccounts(chainId);
+  const tezosAccounts = useMemo(
+    () => relevantAccounts.map(acc => getAccountForTezos(acc)).filter(isTruthy),
+    [relevantAccounts]
+  );
+
   const formAnalytics = useFormAnalytics(ImportAccountFormType.ManagedKT);
-  const chainId = useChainId(true);
 
   const [error, setError] = useState<ReactNode>(null);
 
   const queryKey = useMemo(
     () => [
       'get-accounts-contracts',
-      chainId!,
-      ...accounts.filter(({ type }) => type !== TempleAccountType.ManagedKT).map(({ publicKeyHash }) => publicKeyHash)
+      chainId,
+      ...tezosAccounts.filter(({ type }) => type !== TempleAccountType.ManagedKT).map(acc => acc.address)
     ],
-    [accounts, chainId]
+    [tezosAccounts, chainId]
   );
   const { data: usersContracts = [] } = useRetryableSWR(queryKey, getUsersContracts, {});
 
   const remainingUsersContracts = useMemo(() => {
-    return usersContracts.filter(({ address }) => !accounts.some(({ publicKeyHash }) => publicKeyHash === address));
-  }, [accounts, usersContracts]);
+    return usersContracts.filter(({ address }) => !tezosAccounts.some(acc => acc.address === address));
+  }, [tezosAccounts, usersContracts]);
 
   const { watch, handleSubmit, errors, control, formState, setValue, triggerValidation } =
     useForm<ImportKTAccountFormData>({
@@ -64,20 +90,20 @@ export const ManagedKTForm: FC = () => {
         case value?.length > 0:
           return true;
 
-        case isAddressValid(value):
+        case isValidTezosAddress(value):
           return t('invalidAddress');
 
         case value.startsWith('KT'):
           return t('notContractAddress');
 
-        case accounts.every(({ publicKeyHash }) => publicKeyHash !== value):
+        case tezosAccounts.every(acc => acc.address !== value):
           return t('contractAlreadyImported');
 
         default:
           return true;
       }
     },
-    [accounts]
+    [tezosAccounts]
   );
 
   const contractAddress = watch('contractAddress');
@@ -87,7 +113,7 @@ export const ManagedKTForm: FC = () => {
   }, [setValue, triggerValidation]);
 
   const contractAddressFilled = useMemo(
-    () => Boolean(contractAddress && isAddressValid(contractAddress)),
+    () => Boolean(contractAddress && isValidTezosAddress(contractAddress)),
     [contractAddress]
   );
 
@@ -105,31 +131,31 @@ export const ManagedKTForm: FC = () => {
       formAnalytics.trackSubmit();
       setError(null);
       try {
+        const tezos = getReadOnlyTezos(rpcBaseURL);
+
         const contract = await tezos.contract.at(address);
         const owner = await contract.storage();
         if (typeof owner !== 'string') {
           throw new Error(t('invalidManagedContract'));
         }
 
-        if (!accounts.some(({ publicKeyHash }) => publicKeyHash === owner)) {
+        if (!tezosAccounts.some(acc => acc.address === owner)) {
           throw new Error(t('youAreNotContractManager'));
         }
 
-        const chain = await tezos.rpc.getChainId();
-        await importKTManagedAccount(address, chain, owner);
+        const chainId = await tezos.rpc.getChainId();
+        await importKTManagedAccount(address, chainId, owner);
 
         formAnalytics.trackSubmitSuccess();
       } catch (err: any) {
-        formAnalytics.trackSubmitFail();
-
         console.error(err);
 
-        // Human delay
-        await delay();
+        formAnalytics.trackSubmitFail();
+
         setError(err.message);
       }
     },
-    [formState, tezos, accounts, importKTManagedAccount, formAnalytics]
+    [formState, rpcBaseURL, tezosAccounts, importKTManagedAccount, formAnalytics]
   );
 
   const handleKnownContractSelect = useCallback(
@@ -141,7 +167,7 @@ export const ManagedKTForm: FC = () => {
   );
 
   return (
-    <form className="w-full max-w-sm mx-auto my-8" onSubmit={handleSubmit(onSubmit)}>
+    <form onSubmit={handleSubmit(onSubmit)}>
       {error && <Alert type="error" title="Error" description={error} autoFocus className="mb-6" />}
 
       <Controller
@@ -172,13 +198,13 @@ export const ManagedKTForm: FC = () => {
               <div className="ml-1 mr-px font-normal">
                 <T id="contract" />
               </div>{' '}
-              <Balance assetSlug="tez" address={filledAccount.address}>
+              <TezosBalance network={network} assetSlug="tez" address={filledAccount.address}>
                 {bal => (
                   <span className="text-xs leading-none">
-                    <Money>{bal}</Money> <span style={{ fontSize: '0.75em' }}>ꜩ</span>
+                    <Money>{bal}</Money> <span style={{ fontSize: '0.75em' }}>{TEZOS_SYMBOL}</span>
                   </span>
                 )}
-              </Balance>
+              </TezosBalance>
             </div>
           ) : (
             t('contractAddressInputDescription')
@@ -215,7 +241,7 @@ export const ManagedKTForm: FC = () => {
             maxHeight="11rem"
             onSelect={handleKnownContractSelect}
             OptionIcon={ContractIcon}
-            OptionContent={ContractOptionContent}
+            OptionContent={props => <ContractOptionContent {...props} network={network} />}
           />
         </div>
       )}
@@ -237,9 +263,11 @@ const getUsersContracts = async ([, chainId, ...accounts]: string[]) => {
   );
 };
 
-type ContractOptionRenderProps = OptionRenderProps<TzktRelatedContract, string>;
+interface ContractOptionRenderProps extends OptionRenderProps<TzktRelatedContract, string> {
+  network: TezosNetworkEssentials;
+}
 
-const ContractIcon: FC<ContractOptionRenderProps> = props => {
+const ContractIcon: FC<OptionRenderProps<TzktRelatedContract, string>> = props => {
   return <Identicon type="bottts" hash={props.item.address} size={32} className="flex-shrink-0 shadow-xs" />;
 };
 
@@ -253,7 +281,7 @@ const ContractOptionContent: FC<ContractOptionRenderProps> = props => {
           <T id="contract" />
         </Name>
 
-        <AccountTypeBadge account={{ type: TempleAccountType.ManagedKT }} />
+        <AccountTypeBadge accountType={TempleAccountType.ManagedKT} />
       </div>
 
       <div className="flex flex-wrap items-center mt-1">
@@ -271,13 +299,13 @@ const ContractOptionContent: FC<ContractOptionRenderProps> = props => {
           })()}
         </div>
 
-        <Balance assetSlug="tez" address={item.address}>
+        <TezosBalance network={props.network} assetSlug="tez" address={item.address}>
           {bal => (
             <div className="ml-2 text-xs leading-none text-gray-600">
               <Money>{bal}</Money> <span style={{ fontSize: '0.75em' }}>tez</span>
             </div>
           )}
-        </Balance>
+        </TezosBalance>
       </div>
     </>
   );

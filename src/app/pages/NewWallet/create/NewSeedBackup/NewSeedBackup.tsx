@@ -22,7 +22,7 @@ export const NewSeedBackup: FC<NewSeedBackupProps> = ({ seedPhrase, onBackupComp
   const submitting = formState.isSubmitting;
 
   return (
-    <div className="w-full max-w-sm mx-auto my-8">
+    <>
       <Alert
         title={''}
         description={
@@ -64,6 +64,6 @@ export const NewSeedBackup: FC<NewSeedBackupProps> = ({ seedPhrase, onBackupComp
           <T id="next" />
         </FormSubmitButton>
       </form>
-    </div>
+    </>
   );
 };

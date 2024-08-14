@@ -1,4 +1,4 @@
-import React, { FC, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { isDefined } from '@rnw-community/shared';
 import { TransferParams } from '@taquito/taquito';
@@ -6,15 +6,12 @@ import { BatchWalletOperation } from '@taquito/taquito/dist/types/wallet/batch-o
 import BigNumber from 'bignumber.js';
 import classNames from 'clsx';
 import { Controller, useForm } from 'react-hook-form';
-import { useDispatch } from 'react-redux';
 
 import { Alert, FormSubmitButton } from 'app/atoms';
-import { useBlockLevel } from 'app/hooks/use-block-level.hook';
-import { useSwap } from 'app/hooks/use-swap';
 import { ReactComponent as InfoIcon } from 'app/icons/info.svg';
 import { ReactComponent as ToggleIcon } from 'app/icons/toggle.svg';
 import { buildSwapPageUrlQuery } from 'app/pages/Swap/utils/build-url-query';
-import { useSelector } from 'app/store';
+import { dispatch, useSelector } from 'app/store';
 import { loadSwapParamsAction, resetSwapParamsAction } from 'app/store/swap/actions';
 import { useSwapParamsSelector, useSwapTokenSelector, useSwapTokensSelector } from 'app/store/swap/selectors';
 import OperationStatus from 'app/templates/OperationStatus';
@@ -23,7 +20,7 @@ import { fetchRoute3SwapParams } from 'lib/apis/route3/fetch-route3-swap-params'
 import { TEZ_TOKEN_SLUG } from 'lib/assets';
 import { KNOWN_TOKENS_SLUGS } from 'lib/assets/known-tokens';
 import { T, t } from 'lib/i18n';
-import { useAssetMetadata, useGetAssetMetadata } from 'lib/metadata';
+import { useTezosAssetMetadata, useGetAssetMetadata } from 'lib/metadata';
 import {
   BURN_ADDREESS,
   MAX_ROUTING_FEE_CHAINS,
@@ -37,8 +34,8 @@ import { isLiquidityBakingParamsResponse } from 'lib/route3/interfaces';
 import { getPercentageRatio } from 'lib/route3/utils/get-percentage-ratio';
 import { getRoute3TokenBySlug } from 'lib/route3/utils/get-route3-token-by-slug';
 import { ROUTING_FEE_PERCENT, SWAP_CASHBACK_PERCENT } from 'lib/swap-router/config';
-import { useAccount, useTezos } from 'lib/temple/front';
 import { atomsToTokens, tokensToAtoms } from 'lib/temple/helpers';
+import { TEZOS_MAINNET_CHAIN_ID } from 'lib/temple/types';
 import useTippy from 'lib/ui/useTippy';
 import { ZERO } from 'lib/utils/numbers';
 import { parseTransferParamsToParamsWithKind } from 'lib/utils/parse-transfer-params';
@@ -48,6 +45,7 @@ import {
   getRoutingFeeTransferParams
 } from 'lib/utils/swap.utils';
 import { HistoryAction, navigate } from 'lib/woozie';
+import { getTezosToolkitWithSigner, useTezosBlockLevel, useTezosMainnetChain } from 'temple/front';
 
 import { SwapExchangeRate } from './SwapExchangeRate/SwapExchangeRate';
 import { SwapFormValue, SwapInputValue, useSwapFormDefaultValue } from './SwapForm.form';
@@ -59,17 +57,23 @@ import { slippageToleranceInputValidationFn } from './SwapFormInput/SlippageTole
 import { SwapFormInput } from './SwapFormInput/SwapFormInput';
 import { SwapMinimumReceived } from './SwapMinimumReceived/SwapMinimumReceived';
 import { SwapRoute } from './SwapRoute/SwapRoute';
+import { useGetSwapTransferParams } from './use-swap-params';
 
-export const SwapForm: FC = () => {
-  const dispatch = useDispatch();
-  const tezos = useTezos();
-  const blockLevel = useBlockLevel();
-  const { publicKeyHash } = useAccount();
-  const getSwapParams = useSwap();
+interface Props {
+  publicKeyHash: string;
+}
+
+export const SwapForm = memo<Props>(({ publicKeyHash }) => {
+  const network = useTezosMainnetChain();
+  const tezos = getTezosToolkitWithSigner(network.rpcBaseURL, publicKeyHash);
+
+  const blockLevel = useTezosBlockLevel(network.rpcBaseURL);
+
+  const getSwapParams = useGetSwapTransferParams(tezos, publicKeyHash);
   const { data: route3Tokens } = useSwapTokensSelector();
   const swapParams = useSwapParamsSelector();
   const allUsdToTokenRates = useSelector(state => state.currency.usdToTokenRates.data);
-  const getTokenMetadata = useGetAssetMetadata();
+  const getTokenMetadata = useGetAssetMetadata(TEZOS_MAINNET_CHAIN_ID);
   const prevOutputRef = useRef(swapParams.data.output);
 
   const formAnalytics = useFormAnalytics('SwapForm');
@@ -90,8 +94,8 @@ export const SwapForm: FC = () => {
   const fromRoute3Token = useSwapTokenSelector(inputValue.assetSlug ?? '');
   const toRoute3Token = useSwapTokenSelector(outputValue.assetSlug ?? '');
 
-  const inputAssetMetadata = useAssetMetadata(inputValue.assetSlug ?? TEZ_TOKEN_SLUG)!;
-  const outputAssetMetadata = useAssetMetadata(outputValue.assetSlug ?? TEZ_TOKEN_SLUG)!;
+  const inputAssetMetadata = useTezosAssetMetadata(inputValue.assetSlug ?? TEZ_TOKEN_SLUG, TEZOS_MAINNET_CHAIN_ID)!;
+  const outputAssetMetadata = useTezosAssetMetadata(outputValue.assetSlug ?? TEZ_TOKEN_SLUG, TEZOS_MAINNET_CHAIN_ID)!;
 
   const [error, setError] = useState<Error>();
   const [operation, setOperation] = useState<BatchWalletOperation>();
@@ -365,6 +369,7 @@ export const SwapForm: FC = () => {
       formAnalytics.trackSubmitSuccess(analyticsProperties);
       setOperation(batchOperation);
     } catch (err: any) {
+      console.error(err);
       if (err.message !== 'Declined') {
         setError(err);
       }
@@ -445,6 +450,7 @@ export const SwapForm: FC = () => {
 
       {operation && (
         <OperationStatus
+          network={network}
           className="mb-8"
           closable
           typeTitle={t('swapNoun')}
@@ -454,10 +460,11 @@ export const SwapForm: FC = () => {
       )}
 
       <SwapFormInput
+        network={network}
+        publicKeyHash={publicKeyHash}
         name="input"
         value={inputValue}
-        // @ts-expect-error
-        error={errors.input?.message}
+        error={errors.input?.message as string}
         label={<T id="from" />}
         onChange={handleInputChange}
         testIDs={{
@@ -476,11 +483,12 @@ export const SwapForm: FC = () => {
       </div>
 
       <SwapFormInput
+        network={network}
+        publicKeyHash={publicKeyHash}
         className="mb-6"
         name="output"
         value={outputValue}
-        // @ts-expect-error
-        error={errors.output?.message}
+        error={errors.output?.message as string}
         label={<T id="toAsset" />}
         amountInputDisabled={true}
         onChange={handleOutputChange}
@@ -602,4 +610,4 @@ export const SwapForm: FC = () => {
       </p>
     </form>
   );
-};
+});

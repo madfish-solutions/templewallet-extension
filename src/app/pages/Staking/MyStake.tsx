@@ -8,27 +8,29 @@ import Spinner from 'app/atoms/Spinner/Spinner';
 import { useBlockLevelInfo, useStakingCyclesInfo, useUnstakeRequests } from 'app/hooks/use-baking-hooks';
 import { ReactComponent as AlertCircleIcon } from 'app/icons/alert-circle.svg';
 import { BakerBanner, BAKER_BANNER_CLASSNAME } from 'app/templates/BakerBanner';
-import { useAccount, useChainId, useDelegate, useNetwork, useTezos } from 'lib/temple/front';
-import { confirmOperation } from 'lib/temple/operation';
-import { TempleAccountType } from 'lib/temple/types';
+import { useDelegate } from 'lib/temple/front';
 import useTippy from 'lib/ui/useTippy';
+import { getTezosToolkitWithSigner } from 'temple/front';
+import { TezosNetworkEssentials } from 'temple/networks';
+import { confirmTezosOperation, getReadOnlyTezos } from 'temple/tezos';
 
 import { AMOUNT_COLUMN_STYLE, RequestItem, UnstakeRequest } from './RequestItem';
 import { RequestUnstakeModal } from './RequestUnstakeModal';
 
-export const MyStakeTab = memo(() => {
-  const acc = useAccount();
-  const cannotDelegate = acc.type === TempleAccountType.WatchOnly;
+interface Props {
+  accountPkh: string;
+  network: TezosNetworkEssentials;
+  cannotDelegate: boolean;
+}
 
-  const tezos = useTezos();
-  const { rpcBaseURL } = useNetwork();
-  const chainId = useChainId(false);
+export const MyStakeTab = memo<Props>(({ accountPkh, network, cannotDelegate }) => {
+  const { rpcBaseURL, chainId } = network;
 
   const [requestingUnstake, setRequestingUnstake] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const toggleUnstakeModal = useCallback(() => setRequestingUnstake(val => !val), []);
 
-  const { data: myBakerPkh } = useDelegate(acc.publicKeyHash, true, false);
+  const { data: myBakerPkh } = useDelegate(accountPkh, network, true, false);
 
   const { data: cyclesInfo } = useStakingCyclesInfo(rpcBaseURL);
 
@@ -38,9 +40,9 @@ export const MyStakeTab = memo(() => {
     data: requests,
     mutate: updateRequests,
     isLoading: requestsAreLoading
-  } = useUnstakeRequests(rpcBaseURL, acc.publicKeyHash, true);
+  } = useUnstakeRequests(rpcBaseURL, accountPkh, true);
 
-  const pendingRequests = requests?.unfinalizable?.requests;
+  const pendingRequests = requests?.unfinalizable.requests;
   const readyRequests = requests?.finalizable;
 
   /** Priority is to show baker with user's stake in this page's banner */
@@ -81,25 +83,30 @@ export const MyStakeTab = memo(() => {
     (opHash?: string) => {
       toggleUnstakeModal();
 
-      if (opHash) confirmOperation(tezos, opHash).then(() => void updateRequests());
+      if (opHash) {
+        const tezos = getReadOnlyTezos(rpcBaseURL);
+        confirmTezosOperation(tezos, opHash).then(() => void updateRequests());
+      }
     },
-    [toggleUnstakeModal, updateRequests, tezos]
+    [toggleUnstakeModal, updateRequests, rpcBaseURL]
   );
 
   const finalizeUnstake = useCallback(() => {
     setSubmitting(true);
+
+    const tezos = getTezosToolkitWithSigner(rpcBaseURL, accountPkh);
 
     tezos.wallet
       .finalizeUnstake({ amount: 0 })
       .send()
       .then(
         oper => {
-          confirmOperation(tezos, oper.opHash).then(() => void updateRequests());
+          confirmTezosOperation(tezos, oper.opHash).then(() => void updateRequests());
         },
-        err => void console.error(err)
+        err => console.error(err)
       )
       .finally(() => setSubmitting(false));
-  }, [tezos, updateRequests]);
+  }, [updateRequests, rpcBaseURL, accountPkh]);
 
   const cyclesLookupUrl = chainId ? CYCLES_LOOKUP_URLS[chainId] : undefined;
 
@@ -113,14 +120,22 @@ export const MyStakeTab = memo(() => {
 
   return (
     <>
-      {requestingUnstake && <RequestUnstakeModal onDone={onRequestUnstakeDone} />}
+      {requestingUnstake && (
+        <RequestUnstakeModal accountPkh={accountPkh} network={network} onDone={onRequestUnstakeDone} />
+      )}
 
-      <div className="mx-auto max-w-sm flex flex-col gap-y-8">
+      <div className="flex flex-col gap-y-8">
         <div className="flex flex-col gap-y-4">
           <span className="text-base font-medium text-blue-750">Current Staking</span>
 
           {bakerPkh && (
-            <BakerBanner bakerPkh={bakerPkh} allowDisplayZeroStake ActionButton={RequestUnstakeButtonLocal} />
+            <BakerBanner
+              network={network}
+              accountPkh={accountPkh}
+              bakerPkh={bakerPkh}
+              allowDisplayZeroStake
+              ActionButton={RequestUnstakeButtonLocal}
+            />
           )}
         </div>
 

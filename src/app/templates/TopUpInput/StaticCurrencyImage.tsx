@@ -28,7 +28,12 @@ export const StaticCurrencyImage: FC<Props> = ({
 
   const [isVisible, setIsVisible] = useState(!scrollableRef);
   const ref = useRef(null);
-  useIntersectionObserver(ref, setIsVisible, Boolean(scrollableRef), { threshold: 0.5, root: scrollableRef?.current });
+  useIntersectionObserver(
+    ref,
+    entry => setIsVisible(entry.isIntersecting),
+    { threshold: 0.5, root: scrollableRef?.current },
+    Boolean(scrollableRef)
+  );
   const [wasVisible, setWasVisible] = useState(isVisible);
 
   useEffect(() => void (isVisible && setWasVisible(true)), [isVisible]);

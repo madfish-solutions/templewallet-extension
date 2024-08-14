@@ -1,6 +1,6 @@
 {
   "appName": {
-    "message": "Temple - Tezos Wallet"
+    "message": "Temple Wallet"
   },
   "showIncomingTransactions": {
     "message": "Gelen İşlemleri Göster"
@@ -381,7 +381,7 @@
   "alert": {
     "message": "Uyarı"
   },
-  "accountNameInputTitle": {
+  "accountOrGroupNameInputTitle": {
     "message": "1-16 karakter, özel karakter yok"
   },
   "defaultAccountName": {
@@ -408,9 +408,6 @@
         "content": "$1"
       }
     }
-  },
-  "accountsToRemoveConstraint": {
-    "message": "Hiyerarşik Belirleyici hesaplar kaldırılamıyor."
   },
   "doNotSharePrivateKey": {
     "message": "Bu karakter dizisini kimseyle <b>PAYLAŞMAYIN</b>! Mevcut hesabınızı çalmak için kullanılabilir."
@@ -598,7 +595,7 @@
     "message": "İçe aktarmak istediğiniz Hesabın Gizli anahtarı."
   },
   "privateKeyInputPlaceholder": {
-    "message": "ör. edsk3wfiPMu..."
+    "message": "ör. edsk3wfiPMu... | 0xL4mp3Ty..."
   },
   "password": {
     "message": "Parola"
@@ -2216,9 +2213,6 @@
   },
   "deleteCollectibleConfirm": {
     "message": "Bu koleksiyonluğu silmek istediğinizden emin misiniz?"
-  },
-  "zeroCollectibleText": {
-    "message": "Henüz koleksiyonluğunuz yok!\nŞimdi bir tane edinmek için iyi bir zaman"
   },
   "min": {
     "message": "En az:"

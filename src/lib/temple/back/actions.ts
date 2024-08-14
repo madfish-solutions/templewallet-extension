@@ -9,18 +9,22 @@ import {
 } from '@temple-wallet/dapp/dist/types';
 import browser, { Runtime } from 'webextension-polyfill';
 
+import { CUSTOM_TEZOS_NETWORKS_STORAGE_KEY } from 'lib/constants';
 import { BACKGROUND_IS_WORKER } from 'lib/env';
+import { putToStorage } from 'lib/storage';
 import { addLocalOperation } from 'lib/temple/activity';
 import * as Beacon from 'lib/temple/beacon';
-import { loadChainId } from 'lib/temple/helpers';
 import {
   TempleState,
   TempleMessageType,
   TempleRequest,
   TempleSettings,
-  TempleSharedStorageKey
+  TempleSharedStorageKey,
+  TempleAccountType
 } from 'lib/temple/types';
 import { createQueue, delay } from 'lib/utils';
+import { loadTezosChainId } from 'temple/tezos';
+import { TempleChainKind } from 'temple/types';
 
 import {
   getCurrentPermission,
@@ -47,7 +51,7 @@ import {
 } from './store';
 import { Vault } from './vault';
 
-const ACCOUNT_NAME_PATTERN = /^.{0,16}$/;
+const ACCOUNT_OR_GROUP_NAME_PATTERN = /^.{0,16}$/;
 const AUTODECLINE_AFTER = 60_000;
 const BEACON_ID = `temple_wallet_${browser.runtime.id}`;
 let initLocked = false;
@@ -133,58 +137,69 @@ export async function unlockFromSession() {
   });
 }
 
-export function createHDAccount(name?: string) {
+export function findFreeHDAccountIndex(walletId: string) {
+  return withUnlocked(({ vault }) => vault.findFreeHDAccountIndex(walletId));
+}
+
+export function createHDAccount(walletId: string, name?: string, hdIndex?: number) {
   return withUnlocked(async ({ vault }) => {
     if (name) {
       name = name.trim();
-      if (!ACCOUNT_NAME_PATTERN.test(name)) {
+      if (!ACCOUNT_OR_GROUP_NAME_PATTERN.test(name)) {
         throw new Error('Invalid name. It should be: 1-16 characters, without special');
       }
     }
 
-    const updatedAccounts = await vault.createHDAccount(name);
+    const updatedAccounts = await vault.createHDAccount(walletId, name, hdIndex);
     accountsUpdated(updatedAccounts);
   });
 }
 
-export function revealMnemonic(password: string) {
-  return withUnlocked(() => Vault.revealMnemonic(password));
+export function revealMnemonic(walletId: string, password: string) {
+  return withUnlocked(() => Vault.revealMnemonic(walletId, password));
 }
 
 export function generateSyncPayload(password: string) {
   return withUnlocked(() => Vault.generateSyncPayload(password));
 }
 
-export function revealPrivateKey(accPublicKeyHash: string, password: string) {
-  return withUnlocked(() => Vault.revealPrivateKey(accPublicKeyHash, password));
+export function revealPrivateKey(address: string, password: string) {
+  return withUnlocked(() => Vault.revealPrivateKey(address, password));
 }
 
-export function revealPublicKey(accPublicKeyHash: string) {
-  return withUnlocked(({ vault }) => vault.revealPublicKey(accPublicKeyHash));
+export function revealPublicKey(accountAddress: string) {
+  return withUnlocked(({ vault }) => vault.revealPublicKey(accountAddress));
 }
 
-export function removeAccount(accPublicKeyHash: string, password: string) {
+export function removeAccount(id: string, password: string) {
   return withUnlocked(async () => {
-    const updatedAccounts = await Vault.removeAccount(accPublicKeyHash, password);
+    const { newAccounts } = await Vault.removeAccount(id, password);
+    accountsUpdated(newAccounts);
+  });
+}
+
+export function setAccountHidden(id: string, value: boolean) {
+  return withUnlocked(async ({ vault }) => {
+    const updatedAccounts = await vault.setAccountHidden(id, value);
     accountsUpdated(updatedAccounts);
   });
 }
 
-export function editAccount(accPublicKeyHash: string, name: string) {
+export function editAccount(id: string, name: string) {
   return withUnlocked(async ({ vault }) => {
     name = name.trim();
-    if (!ACCOUNT_NAME_PATTERN.test(name)) {
+    if (!ACCOUNT_OR_GROUP_NAME_PATTERN.test(name)) {
       throw new Error('Invalid name. It should be: 1-16 characters, without special');
     }
 
-    const updatedAccounts = await vault.editAccountName(accPublicKeyHash, name);
+    const updatedAccounts = await vault.editAccountName(id, name);
     accountsUpdated(updatedAccounts);
   });
 }
 
-export function importAccount(privateKey: string, encPassword?: string) {
+export function importAccount(chain: TempleChainKind, privateKey: string, encPassword?: string) {
   return withUnlocked(async ({ vault }) => {
-    const updatedAccounts = await vault.importAccount(privateKey, encPassword);
+    const updatedAccounts = await vault.importAccount(chain, privateKey, encPassword);
     accountsUpdated(updatedAccounts);
   });
 }
@@ -210,9 +225,9 @@ export function importManagedKTAccount(address: string, chainId: string, owner: 
   });
 }
 
-export function importWatchOnlyAccount(address: string, chainId?: string) {
+export function importWatchOnlyAccount(chain: TempleChainKind, address: string, chainId?: string) {
   return withUnlocked(async ({ vault }) => {
-    const updatedAccounts = await vault.importWatchOnlyAccount(address, chainId);
+    const updatedAccounts = await vault.importWatchOnlyAccount(chain, address, chainId);
     accountsUpdated(updatedAccounts);
   });
 }
@@ -227,8 +242,31 @@ export function createLedgerAccount(name: string, derivationPath?: string, deriv
 export function updateSettings(settings: Partial<TempleSettings>) {
   return withUnlocked(async ({ vault }) => {
     const updatedSettings = await vault.updateSettings(settings);
-    createCustomNetworksSnapshot(updatedSettings);
+
+    putToStorage(CUSTOM_TEZOS_NETWORKS_STORAGE_KEY, updatedSettings.customTezosNetworks);
+
     settingsUpdated(updatedSettings);
+  });
+}
+
+export function removeHdWallet(id: string, password: string) {
+  return withUnlocked(async () => {
+    const { newAccounts } = await Vault.removeHdWallet(id, password);
+    accountsUpdated(newAccounts);
+  });
+}
+
+export function removeAccountsByType(type: Exclude<TempleAccountType, TempleAccountType.HD>, password: string) {
+  return withUnlocked(async () => {
+    const newAccounts = await Vault.removeAccountsByType(type, password);
+    accountsUpdated(newAccounts);
+  });
+}
+
+export function createOrImportWallet(mnemonic?: string) {
+  return withUnlocked(async ({ vault }) => {
+    const { newAccounts } = await vault.createOrImportWallet(mnemonic);
+    accountsUpdated(newAccounts);
   });
 }
 
@@ -256,7 +294,7 @@ export function sendOperations(
       sourcePublicKey
     });
     if (dryRunResult && dryRunResult.result) {
-      opParams = (dryRunResult.result as any).opParams;
+      opParams = dryRunResult.result.opParams;
     }
 
     return new Promise((resolve, reject) =>
@@ -342,13 +380,20 @@ const promisableUnlock = async (
 
 const safeAddLocalOperation = async (networkRpc: string, op: any) => {
   try {
-    const chainId = await loadChainId(networkRpc);
+    const chainId = await loadTezosChainId(networkRpc);
     await addLocalOperation(chainId, op.hash, op.results);
   } catch {}
   return undefined;
 };
 
-export function sign(port: Runtime.Port, id: string, sourcePkh: string, bytes: string, watermark?: string) {
+export function sign(
+  port: Runtime.Port,
+  id: string,
+  sourcePkh: string,
+  networkRpc: string,
+  bytes: string,
+  watermark?: string
+) {
   return withUnlocked(
     () =>
       new Promise(async (resolve, reject) => {
@@ -358,6 +403,7 @@ export function sign(port: Runtime.Port, id: string, sourcePkh: string, bytes: s
           payload: {
             type: 'sign',
             sourcePkh,
+            networkRpc,
             bytes,
             watermark
           }
@@ -579,7 +625,7 @@ const getTempleReq = (req: Beacon.Request): TempleDAppRequest | void => {
 
       return {
         type: TempleDAppMessageType.PermissionRequest,
-        network: network as any,
+        network: network,
         appMeta: req.appMetadata,
         force: true
       };
@@ -622,7 +668,7 @@ const formatTempleReq = async (
           return {
             ...resBase,
             type: Beacon.MessageType.PermissionResponse,
-            publicKey: (templeRes as any).publicKey,
+            publicKey: templeRes.publicKey,
             network: (req as Beacon.PermissionRequest).network,
             scopes: [Beacon.PermissionScope.OPERATION_REQUEST, Beacon.PermissionScope.SIGN]
           };
@@ -653,16 +699,6 @@ const formatTempleReq = async (
 
   throw new Error(Beacon.ErrorType.UNKNOWN_ERROR);
 };
-
-async function createCustomNetworksSnapshot(settings: TempleSettings) {
-  try {
-    if (settings.customNetworks) {
-      await browser.storage.local.set({
-        custom_networks_snapshot: settings.customNetworks
-      });
-    }
-  } catch {}
-}
 
 function getErrorData(err: any) {
   return err instanceof TezosOperationError ? err.errors.map(({ contract_code, ...rest }: any) => rest) : undefined;

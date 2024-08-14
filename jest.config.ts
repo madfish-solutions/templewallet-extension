@@ -4,11 +4,10 @@
  */
 
 const config = {
+  testMatch: [ "**/__tests__/**/*.[jt]s?(x)", "src/?(*.)+(spec|test).[jt]s?(x)" ],
   coverageProvider: 'v8',
-  moduleNameMapper: {
-    '^app/(.*)$': '<rootDir>/src/app/$1',
-    '^lib/(.*)$': '<rootDir>/src/lib/$1'
-  },
+  // To have Jest respect `baseUrl`:
+  moduleDirectories: ['node_modules', 'src'],
   testEnvironment: 'jsdom',
   transform: {
     '.+\\.ts$': 'ts-jest',

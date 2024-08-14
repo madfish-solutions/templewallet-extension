@@ -1,4 +1,4 @@
-import React, { FC, ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { FC, ReactNode, useCallback, useMemo, useState } from 'react';
 
 import { DerivationType } from '@taquito/ledger-signer';
 import classNames from 'clsx';
@@ -6,26 +6,28 @@ import { Controller, useForm } from 'react-hook-form';
 
 import { Alert, FormField, FormSubmitButton } from 'app/atoms';
 import ConfirmLedgerOverlay from 'app/atoms/ConfirmLedgerOverlay';
-import { DEFAULT_DERIVATION_PATH } from 'app/defaults';
-import { ReactComponent as LinkIcon } from 'app/icons/link.svg';
+import { useAllAccountsReactiveOnAddition } from 'app/hooks/use-all-accounts-reactive';
+import { ReactComponent as LinkIcon } from 'app/icons/monochrome/link.svg';
 import { ReactComponent as OkIcon } from 'app/icons/ok.svg';
 import PageLayout from 'app/layouts/PageLayout';
 import { useFormAnalytics } from 'lib/analytics';
+import { DEFAULT_TEZOS_DERIVATION_PATH } from 'lib/constants';
 import { T, t } from 'lib/i18n';
 import { getLedgerTransportType } from 'lib/ledger/helpers';
-import { useAllAccounts, useSetAccountPkh, useTempleClient, validateDerivationPath } from 'lib/temple/front';
+import { useTempleClient, validateDerivationPath } from 'lib/temple/front';
+import { getDerivationPath } from 'lib/temple/helpers';
 import { TempleAccountType } from 'lib/temple/types';
 import { delay } from 'lib/utils';
-import { navigate } from 'lib/woozie';
+import { TempleChainKind } from 'temple/types';
 
 import { ConnectLedgerSelectors } from './ConnectLedger.selectors';
 
-type FormData = {
+interface FormData {
   name: string;
   customDerivationPath: string;
   derivationType?: DerivationType;
   accountNumber?: number;
-};
+}
 
 const DERIVATION_PATHS = [
   {
@@ -61,28 +63,18 @@ const LEDGER_USB_VENDOR_ID = '0x2c97';
 
 const ConnectLedger: FC = () => {
   const { createLedgerAccount } = useTempleClient();
-  const allAccounts = useAllAccounts();
-  const setAccountPkh = useSetAccountPkh();
   const formAnalytics = useFormAnalytics('ConnectLedger');
+
+  const allAccounts = useAllAccountsReactiveOnAddition();
 
   const allLedgers = useMemo(() => allAccounts.filter(acc => acc.type === TempleAccountType.Ledger), [allAccounts]);
 
   const defaultName = useMemo(() => t('defaultLedgerName', String(allLedgers.length + 1)), [allLedgers.length]);
 
-  const prevAccLengthRef = useRef(allAccounts.length);
-  useEffect(() => {
-    const accLength = allAccounts.length;
-    if (prevAccLengthRef.current < accLength) {
-      setAccountPkh(allAccounts[accLength - 1].publicKeyHash);
-      navigate('/');
-    }
-    prevAccLengthRef.current = accLength;
-  }, [allAccounts, setAccountPkh]);
-
   const { control, register, handleSubmit, errors, formState } = useForm<FormData>({
     defaultValues: {
       name: defaultName,
-      customDerivationPath: DEFAULT_DERIVATION_PATH,
+      customDerivationPath: DEFAULT_TEZOS_DERIVATION_PATH,
       accountNumber: 1,
       derivationType: DerivationType.ED25519
     }
@@ -130,7 +122,7 @@ const ConnectLedger: FC = () => {
         await createLedgerAccount(
           name,
           derivationType,
-          customDerivationPath ?? (accountNumber && `m/44'/1729'/${accountNumber - 1}'/0'`)
+          customDerivationPath ?? (accountNumber && getDerivationPath(TempleChainKind.Tezos, accountNumber - 1))
         );
 
         formAnalytics.trackSubmitSuccess();
@@ -205,7 +197,7 @@ const ConnectLedger: FC = () => {
                 </span>
 
                 <span className="mt-1 text-xs font-light text-gray-600 max-w-9/10">
-                  <T id="defaultDerivationPathLabel" substitutions={[<b>44'/1729'/0'/0'</b>]} />
+                  <T id="defaultDerivationPathLabel" substitutions={[<b>{DEFAULT_TEZOS_DERIVATION_PATH}</b>]} />
                   <br />
                   <T id="clickOnCustomDerivationPath" />
                 </span>
@@ -263,15 +255,15 @@ const ConnectLedger: FC = () => {
 
 export default ConnectLedger;
 
-type TypeSelectOption<T extends string | number> = {
+interface TypeSelectOption<T extends string | number> {
   type: T;
   name: string;
-};
-type TypeSelectProps<T extends string | number> = {
+}
+interface TypeSelectProps<T extends string | number> {
   options: TypeSelectOption<T>[];
   value?: T;
   onChange: (value: T) => void;
-};
+}
 
 const TypeSelect = <T extends string | number>(props: TypeSelectProps<T>) => {
   const { options, value, onChange } = props;
@@ -296,12 +288,12 @@ const TypeSelect = <T extends string | number>(props: TypeSelectProps<T>) => {
   );
 };
 
-type TypeSelectItemProps<T extends string | number> = {
+interface TypeSelectItemProps<T extends string | number> {
   option: TypeSelectOption<T>;
   onSelect: (value: T) => void;
   selected: boolean;
   last: boolean;
-};
+}
 
 const TypeSelectItem = <T extends string | number>(props: TypeSelectItemProps<T>) => {
   const { option, onSelect, selected, last } = props;

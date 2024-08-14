@@ -1,15 +1,15 @@
-import React, { FC, useCallback, useLayoutEffect } from 'react';
+import React, { memo, useCallback, useLayoutEffect } from 'react';
 
-import classNames from 'clsx';
 import CSSTransition from 'react-transition-group/CSSTransition';
 
 import DocBg from 'app/a11y/DocBg';
 import InternalConfirmation from 'app/templates/InternalConfirmation';
 import { useTempleClient } from 'lib/temple/front';
 import Portal from 'lib/ui/Portal';
+import { resetPendingConfirmationId } from 'temple/front/pending-confirm';
 
-const ConfirmationOverlay: FC = () => {
-  const { confirmation, resetConfirmation, confirmInternal } = useTempleClient();
+const ConfirmationOverlay = memo(() => {
+  const { confirmation, confirmInternal } = useTempleClient();
   const displayed = Boolean(confirmation);
 
   useLayoutEffect(() => {
@@ -31,14 +31,14 @@ const ConfirmationOverlay: FC = () => {
       if (confirmation) {
         await confirmInternal(confirmation.id, confirmed, modifiedTotalFee, modifiedStorageLimit);
       }
-      resetConfirmation();
+      resetPendingConfirmationId();
     },
-    [confirmation, confirmInternal, resetConfirmation]
+    [confirmation, confirmInternal]
   );
 
   return (
     <>
-      {displayed && <DocBg bgClassName="bg-primary-white" />}
+      {displayed && <DocBg bgClassName="bg-secondary-low" />}
 
       <Portal>
         <CSSTransition
@@ -46,12 +46,12 @@ const ConfirmationOverlay: FC = () => {
           timeout={200}
           classNames={{
             enter: 'opacity-0',
-            enterActive: classNames('opacity-100', 'transition ease-out duration-200'),
-            exit: classNames('opacity-0', 'transition ease-in duration-200')
+            enterActive: 'opacity-100 transition ease-out duration-200',
+            exit: 'opacity-0 transition ease-in duration-200'
           }}
           unmountOnExit
         >
-          <div className="fixed inset-0 z-50 overflow-y-auto bg-primary-white">
+          <div className="fixed inset-0 z-overlay-confirm overflow-y-auto bg-primary-white">
             {confirmation && (
               <InternalConfirmation
                 payload={confirmation.payload}
@@ -64,6 +64,6 @@ const ConfirmationOverlay: FC = () => {
       </Portal>
     </>
   );
-};
+});
 
 export default ConfirmationOverlay;

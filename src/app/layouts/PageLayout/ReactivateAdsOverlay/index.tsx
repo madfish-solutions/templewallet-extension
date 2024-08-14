@@ -4,7 +4,6 @@ import clsx from 'clsx';
 
 import { FormSubmitButton } from 'app/atoms';
 import { useAppEnv } from 'app/env';
-import ContentContainer from 'app/layouts/ContentContainer';
 import { useOnboardingProgress } from 'app/pages/Onboarding/hooks/useOnboardingProgress.hook';
 import { dispatch } from 'app/store';
 import { useShouldShowNewsletterModalSelector } from 'app/store/newsletter/newsletter-selectors';
@@ -65,8 +64,8 @@ export const ReactivateAdsOverlay = memo<Props>(({ onClose }) => {
     return null;
 
   return (
-    <div className="fixed inset-0 z-40 flex flex-col items-center justify-center bg-gray-700 bg-opacity-20">
-      <ContentContainer className={clsx('overflow-y-scroll py-4', popup ? 'h-full px-4' : 'px-5')} padding={false}>
+    <div className="fixed inset-0 z-overlay-promo flex flex-col items-center justify-center bg-gray-700 bg-opacity-20">
+      <div className={clsx('w-full max-w-screen-sm mx-auto overflow-y-scroll py-4', popup ? 'h-full px-4' : 'px-5')}>
         <div
           className={clsx(
             'relative flex flex-col bg-white shadow-lg rounded-md overflow-x-hidden',
@@ -158,7 +157,7 @@ export const ReactivateAdsOverlay = memo<Props>(({ onClose }) => {
             receive ads and rewards in TKEY token
           </p>
         </div>
-      </ContentContainer>
+      </div>
     </div>
   );
 });

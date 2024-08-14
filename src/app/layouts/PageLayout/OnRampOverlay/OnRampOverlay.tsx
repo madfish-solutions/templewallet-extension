@@ -1,7 +1,6 @@
 import React, { memo } from 'react';
 
 import classNames from 'clsx';
-import { useDispatch } from 'react-redux';
 
 import { Anchor } from 'app/atoms';
 import { useAppEnv } from 'app/env';
@@ -9,12 +8,13 @@ import { ReactComponent as ArrowRightIcon } from 'app/icons/arrow-right.svg';
 import { ReactComponent as SmileWithDollarIcon } from 'app/icons/smile-with-dollar.svg';
 import { ReactComponent as SmileWithGlassesIcon } from 'app/icons/smile-with-glasses.svg';
 import { ReactComponent as SmileIcon } from 'app/icons/smile.svg';
-import ContentContainer from 'app/layouts/ContentContainer';
+import { LAYOUT_CONTAINER_CLASSNAME } from 'app/layouts/containers';
 import { useOnboardingProgress } from 'app/pages/Onboarding/hooks/useOnboardingProgress.hook';
+import { dispatch } from 'app/store';
 import { setOnRampPossibilityAction } from 'app/store/settings/actions';
 import { useOnRampPossibilitySelector } from 'app/store/settings/selectors';
 import { T } from 'lib/i18n/react';
-import { useAccount } from 'lib/temple/front';
+import { useAccountAddressForTezos } from 'temple/front';
 
 import { OverlayCloseButton } from '../OverlayCloseButton';
 
@@ -25,29 +25,26 @@ import { OnRampSmileButton } from './OnRampSmileButton/OnRampSmileButton';
 import { getWertLink } from './utils/getWertLink.util';
 
 export const OnRampOverlay = memo(() => {
-  const dispatch = useDispatch();
-  const { publicKeyHash } = useAccount();
+  const publicKeyHash = useAccountAddressForTezos();
   const { popup } = useAppEnv();
   const isOnRampPossibility = useOnRampPossibilitySelector();
   const { onboardingCompleted } = useOnboardingProgress();
 
   const close = () => void dispatch(setOnRampPossibilityAction(false));
 
-  if (!isOnRampPossibility || !onboardingCompleted) return null;
+  if (!isOnRampPossibility || !onboardingCompleted || !publicKeyHash) return null;
 
   return (
-    <div className="fixed inset-0 z-40 flex flex-col items-center justify-center bg-gray-700 bg-opacity-20">
-      <ContentContainer
-        className={classNames('overflow-y-scroll py-4', popup ? 'h-full px-4' : 'px-5')}
-        padding={false}
-      >
+    <div className="fixed inset-0 z-overlay-promo flex flex-col items-center justify-center bg-gray-700 bg-opacity-20">
+      <div className={classNames(LAYOUT_CONTAINER_CLASSNAME, 'overflow-y-scroll py-4', popup && 'h-full px-4')}>
         <div
           className={classNames(
             'relative flex flex-col text-center bg-white shadow-lg bg-no-repeat rounded-md p-6',
-            popup && 'h-full'
+            popup && 'h-full bg-contain'
           )}
           style={{
-            backgroundImage: `url(${popup ? OnRampOverlayBgPopupImg : OnRampOverlayBgImg})`
+            backgroundImage: `url(${popup ? OnRampOverlayBgPopupImg : OnRampOverlayBgImg})`,
+            backgroundPositionX: 'center'
           }}
         >
           <OverlayCloseButton testID={OnRampOverlaySelectors.closeButton} onClick={close} />
@@ -70,7 +67,7 @@ export const OnRampOverlay = memo(() => {
             />
           </p>
 
-          <div className={classNames('flex flex-row justify-between mt-8', !popup && 'px-14')}>
+          <div className="flex flex-row justify-between mt-8 gap-x-2">
             <OnRampSmileButton
               href={getWertLink(publicKeyHash, 50)}
               SmileIcon={SmileIcon}
@@ -82,8 +79,7 @@ export const OnRampOverlay = memo(() => {
               href={getWertLink(publicKeyHash, 100)}
               SmileIcon={SmileWithGlassesIcon}
               amount={100}
-              className="hover:shadow hover:opacity-90 hover:bg-orange-500 bg-orange-500"
-              titleClassName="text-primary-white"
+              accentColors
               onClick={close}
               testID={OnRampOverlaySelectors.oneHundredDollarButton}
             />
@@ -113,16 +109,11 @@ export const OnRampOverlay = memo(() => {
             <ArrowRightIcon className="ml-2 h-3 w-auto stroke-current stroke-2" />
           </Anchor>
 
-          <p
-            className={classNames(
-              'font-inter font-normal mt-auto px-5 text-xs text-gray-600',
-              popup ? 'mt-29' : 'pt-29'
-            )}
-          >
+          <p className={classNames('font-inter font-normal mt-auto text-xs text-gray-600', popup ? 'mt-29' : 'pt-29')}>
             <T id="thirdParty" />
           </p>
         </div>
-      </ContentContainer>
+      </div>
     </div>
   );
 });

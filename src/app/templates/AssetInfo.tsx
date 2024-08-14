@@ -1,35 +1,101 @@
-import React, { ComponentProps, FC } from 'react';
+import React, { ComponentProps, FC, memo } from 'react';
 
 import BigNumber from 'bignumber.js';
 import classNames from 'clsx';
 
 import { FormField } from 'app/atoms';
 import { useAppEnv } from 'app/env';
-import { ReactComponent as CopyIcon } from 'app/icons/copy.svg';
+import { ReactComponent as CopyIcon } from 'app/icons/monochrome/copy.svg';
+import { useEvmTokenMetadataSelector } from 'app/store/evm/tokens-metadata/selectors';
 import { isFA2Token, isTezAsset } from 'lib/assets';
 import { fromAssetSlugWithStandardDetect } from 'lib/assets/contract.utils';
 import { T } from 'lib/i18n';
-import { getAssetSymbol, useAssetMetadata } from 'lib/metadata';
+import { getAssetSymbol, useTezosAssetMetadata } from 'lib/metadata';
 import { useRetryableSWR } from 'lib/swr';
-import { useTezos } from 'lib/temple/front';
 import useCopyToClipboard from 'lib/ui/useCopyToClipboard';
+import { isEvmNativeTokenSlug } from 'lib/utils/evm.utils';
+import { useTezosChainByChainId } from 'temple/front';
+import { useEvmChainByChainId } from 'temple/front/chains';
+import { TezosNetworkEssentials } from 'temple/networks';
+import { getReadOnlyTezos } from 'temple/tezos';
+import { TempleChainKind } from 'temple/types';
 
-type AssetInfoProps = {
+interface Props {
+  chainKind: string;
+  chainId: string;
   assetSlug: string;
+}
+
+const AssetInfo = memo<Props>(({ chainKind, chainId, assetSlug }) => {
+  const network = useTezosChainByChainId(chainId);
+
+  return chainKind === TempleChainKind.Tezos && network ? (
+    <TezosAssetInfoContent network={network} assetSlug={assetSlug} />
+  ) : (
+    <EvmAssetInfoContent chainId={Number(chainId)} assetSlug={assetSlug} />
+  );
+});
+
+export default AssetInfo;
+
+interface EvmAssetInfoContentProps {
+  chainId: number;
+  assetSlug: string;
+}
+
+const EvmAssetInfoContent: FC<EvmAssetInfoContentProps> = ({ chainId, assetSlug }) => {
+  const { popup } = useAppEnv();
+  const network = useEvmChainByChainId(chainId);
+  const tokenMetadata = useEvmTokenMetadataSelector(chainId, assetSlug);
+
+  const isNative = isEvmNativeTokenSlug(assetSlug);
+
+  const metadata = isNative ? network?.currency : tokenMetadata;
+
+  if (!metadata) return null;
+
+  return (
+    <div className={classNames(popup && 'mx-4')}>
+      <div className="w-full max-w-sm mx-auto">
+        {!isNative && (
+          <InfoField
+            textarea
+            rows={2}
+            id="contract-address"
+            label={<T id="contract" />}
+            labelDescription={<T id="addressOfTokenContract" substitutions={[getAssetSymbol(metadata)]} />}
+            value={metadata.address}
+            size={36}
+            style={{
+              resize: 'none'
+            }}
+          />
+        )}
+
+        {metadata && <InfoField id="token-decimals" label={<T id="decimals" />} value={metadata.decimals} />}
+      </div>
+    </div>
+  );
 };
 
-const AssetInfo: FC<AssetInfoProps> = ({ assetSlug }) => {
-  const { popup } = useAppEnv();
-  const tezos = useTezos();
-  const asset = useRetryableSWR(
-    ['asset', assetSlug, tezos.checksum],
-    () => fromAssetSlugWithStandardDetect(tezos, assetSlug),
-    {
-      suspense: true
-    }
-  ).data!;
+interface TezosAssetInfoContentProps {
+  network: TezosNetworkEssentials;
+  assetSlug: string;
+}
 
-  const metadata = useAssetMetadata(assetSlug);
+const TezosAssetInfoContent: FC<TezosAssetInfoContentProps> = ({ network, assetSlug }) => {
+  const { popup } = useAppEnv();
+
+  const rpcUrl = network.rpcBaseURL;
+
+  const { data } = useRetryableSWR(
+    ['asset', assetSlug, rpcUrl],
+    () => fromAssetSlugWithStandardDetect(getReadOnlyTezos(rpcUrl), assetSlug),
+    { suspense: true }
+  );
+  const asset = data!;
+
+  const metadata = useTezosAssetMetadata(assetSlug, network.chainId);
 
   return (
     <div className={classNames(popup && 'mx-4')}>
@@ -58,8 +124,6 @@ const AssetInfo: FC<AssetInfoProps> = ({ assetSlug }) => {
     </div>
   );
 };
-
-export default AssetInfo;
 
 type InfoFieldProps = ComponentProps<typeof FormField>;
 

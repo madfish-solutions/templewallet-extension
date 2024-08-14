@@ -1,0 +1,34 @@
+/*
+  (!) Definition order influences precedence. Keep the order.
+
+  Library applies them at the same time for some states,
+  while precedence has to take place.
+*/
+
+/* Overlay */
+
+.overlayBase {
+  opacity: 0;
+}
+
+.overlayOpened {
+  opacity: unset;
+}
+
+.overlayClosed {
+  opacity: 0;
+}
+
+/* Content */
+
+.base {
+  scale: 75%;
+}
+
+.opened {
+  scale: unset;
+}
+
+.closed {
+  scale: 75%;
+}

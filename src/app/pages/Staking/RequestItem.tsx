@@ -6,7 +6,7 @@ import BigNumber from 'bignumber.js';
 import { Money } from 'app/atoms';
 import { StakingCyclesInfo } from 'app/hooks/use-baking-hooks';
 import { OpenInExplorerChipBase } from 'app/templates/OpenInExplorerChip';
-import { BLOCK_DURATION } from 'lib/fixed-times';
+import { TEZOS_BLOCK_DURATION } from 'lib/fixed-times';
 import { TEZOS_METADATA } from 'lib/metadata';
 import { atomsToTokens } from 'lib/temple/helpers';
 
@@ -66,7 +66,7 @@ const UnfinalizableRequestItem = memo<UnfinalizableRequestItemProps>(
 
       const blocksLeft = blocks_per_cycle * fullCyclesLeft + blocksLeftInCurrentCycle;
 
-      const blockDuration = minimal_block_delay?.toNumber() ?? BLOCK_DURATION / 1000;
+      const blockDuration = minimal_block_delay?.toNumber() ?? TEZOS_BLOCK_DURATION / 1000;
       const secondsLeft = blocksLeft * blockDuration;
 
       return Math.round(secondsLeft / 3600);

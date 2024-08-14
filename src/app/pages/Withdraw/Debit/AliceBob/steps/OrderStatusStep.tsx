@@ -5,7 +5,7 @@ import classNames from 'clsx';
 import { FormSubmitButton } from 'app/atoms';
 import CopyButton from 'app/atoms/CopyButton';
 import Divider from 'app/atoms/Divider';
-import { ReactComponent as CopyIcon } from 'app/icons/copy.svg';
+import { ReactComponent as CopyIcon } from 'app/icons/monochrome/copy.svg';
 import { WithdrawSelectors } from 'app/pages/Withdraw/Withdraw.selectors';
 import { AliceBobOrderStatus } from 'lib/apis/temple';
 import { T, TID } from 'lib/i18n';
@@ -59,7 +59,7 @@ export const OrderStatusStep: FC<StepProps> = ({ orderInfo, setStep, setOrderInf
         <span className="flex flex-row justify-center">
           <p className="text-gray-910">{truncatedOrderId}</p>
           <CopyButton text={orderId} type="link">
-            <CopyIcon className="h-4 ml-1 w-auto stroke-orange stroke-2" onClick={copy} />
+            <CopyIcon className="h-4 ml-1 w-auto stroke-orange-500 stroke-2" onClick={copy} />
           </CopyButton>
         </span>
       </div>

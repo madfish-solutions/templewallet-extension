@@ -24,9 +24,9 @@ interface UnlockProps {
   canImportNew?: boolean;
 }
 
-type FormData = {
+interface FormData {
   password: string;
-};
+}
 
 const SUBMIT_ERROR_TYPE = 'submit-error';
 const LOCK_TIME = 2 * USER_ACTION_TIMEOUT;
