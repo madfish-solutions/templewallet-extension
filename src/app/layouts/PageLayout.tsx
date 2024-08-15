@@ -16,6 +16,7 @@ import DocBg from 'app/a11y/DocBg';
 import { Button } from 'app/atoms/Button';
 import { DonationBanner } from 'app/atoms/DonationBanner/DonationBanner';
 import Spinner from 'app/atoms/Spinner/Spinner';
+import { TempleTapButton } from 'app/atoms/TempleTapButton';
 import { useAppEnv } from 'app/env';
 import ErrorBoundary from 'app/ErrorBoundary';
 import { ReactComponent as ChevronLeftIcon } from 'app/icons/chevron-left.svg';
@@ -28,8 +29,6 @@ import { T } from 'lib/i18n';
 import { NotificationsBell } from 'lib/notifications/components/bell';
 import { useTempleClient } from 'lib/temple/front';
 import { goBack, HistoryAction, navigate, useLocation } from 'lib/woozie';
-
-import { TempleTapButton } from '../atoms/TempleTapButton';
 
 import { ChangelogOverlay } from './PageLayout/ChangelogOverlay/ChangelogOverlay';
 import ConfirmationOverlay from './PageLayout/ConfirmationOverlay';

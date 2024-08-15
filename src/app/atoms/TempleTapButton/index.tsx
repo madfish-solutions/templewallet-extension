@@ -7,6 +7,7 @@ import { useAppEnv } from 'app/env';
 
 import TempleTapFullpageBg from './assets/temple-tap-fullpage-bg.png';
 import TempleTapPopupBg from './assets/temple-tap-popup-bg.png';
+import { TempleTapSelectors } from './selectors';
 import styles from './styles.module.css';
 
 export const TempleTapButton = memo(() => {
@@ -16,7 +17,7 @@ export const TempleTapButton = memo(() => {
     <Anchor
       className="flex items-center justify-center mr-5 relative"
       href="https://t.me/temple_tap_bot"
-      testID="Temple Tap"
+      testID={TempleTapSelectors.templeTapButtonPress}
       treatAsButton
     >
       <div className="overflow-hidden rounded relative">

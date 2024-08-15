@@ -60,7 +60,7 @@ const Home = memo<Props>(({ assetSlug }) => {
           </span>
         ) : null
       }
-      attention
+      attention={true}
       adShow
     >
       {fullPage && (
