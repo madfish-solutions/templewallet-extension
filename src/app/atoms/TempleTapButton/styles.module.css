@@ -1,0 +1,30 @@
+@keyframes pickaxeAnimation {
+  0% { background-image: url('./assets/pickaxe-frame-1.png'); }
+  8% { background-image: url('./assets/pickaxe-frame-2.png'); }
+  16% { background-image: url('./assets/pickaxe-frame-3.png'); }
+  24% { background-image: url('./assets/pickaxe-frame-4.png'); }
+  32% { background-image: url('./assets/pickaxe-frame-5.png'); }
+  40% { background-image: url('./assets/pickaxe-frame-1.png'); }
+  100% { background-image: url('./assets/pickaxe-frame-1.png'); }
+}
+
+.pickaxe {
+  width: 36px;
+  height: 36px;
+  background-size: contain;
+  animation: pickaxeAnimation 3s ease-out infinite;
+}
+
+@keyframes goldShineAnimation {
+  0% { background-image: url('./assets/gold-shine-frame-1.png'); }
+  25% { background-image: url('./assets/gold-shine-frame-2.png'); }
+  50% { background-image: url('./assets/gold-shine-frame-1.png'); }
+  100% { background-image: url('./assets/gold-shine-frame-1.png'); }
+}
+
+.goldShine {
+  width: 85px;
+  height: 64px;
+  background-size: contain;
+  animation: goldShineAnimation 3s linear infinite;
+}

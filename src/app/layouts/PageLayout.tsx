@@ -29,6 +29,8 @@ import { NotificationsBell } from 'lib/notifications/components/bell';
 import { useTempleClient } from 'lib/temple/front';
 import { goBack, HistoryAction, navigate, useLocation } from 'lib/woozie';
 
+import { TempleTapButton } from '../atoms/TempleTapButton';
+
 import { ChangelogOverlay } from './PageLayout/ChangelogOverlay/ChangelogOverlay';
 import ConfirmationOverlay from './PageLayout/ConfirmationOverlay';
 import Header from './PageLayout/Header';
@@ -235,6 +237,7 @@ const Toolbar: FC<ToolbarProps> = ({
       {attention && (
         <div className="flex items-center content-end absolute right-0">
           <AdvertisingBanner />
+          <TempleTapButton />
           <NotificationsBell />
         </div>
       )}
