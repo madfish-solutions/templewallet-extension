@@ -1,11 +1,13 @@
+import memoizee from 'memoizee';
 import browser, { Runtime } from 'webextension-polyfill';
 
 import { getStoredAppInstallIdentity } from 'app/storage/app-install-id';
 import { updateRulesStorage } from 'lib/ads/update-rules-storage';
-import { postAdImpression, postAnonymousAdImpression } from 'lib/apis/ads-api';
+import { fetchReferralsSupportedDomains, postAdImpression, postAnonymousAdImpression } from 'lib/apis/ads-api';
+import { TakeAds } from 'lib/apis/takeads';
 import { ADS_VIEWER_ADDRESS_STORAGE_KEY, ContentScriptType } from 'lib/constants';
 import { E2eMessageType } from 'lib/e2e/types';
-import { BACKGROUND_IS_WORKER } from 'lib/env';
+import { BACKGROUND_IS_WORKER, EnvVars } from 'lib/env';
 import { fetchFromStorage } from 'lib/storage';
 import { encodeMessage, encryptMessage, getSenderId, MessageType, Response } from 'lib/temple/beacon';
 import { clearAsyncStorages } from 'lib/temple/reset';
@@ -297,10 +299,26 @@ browser.runtime.onMessage.addListener(async msg => {
           await postAnonymousAdImpression(installId, urlDomain, msg.provider);
         }
         break;
+
+      case ContentScriptType.FetchReferralsSupportedDomains: {
+        return await getReferralsSupportedDomains();
+      }
+
+      case ContentScriptType.FetchReferrals: {
+        return await takeads.affiliateLinks(msg.links);
+      }
     }
   } catch (e) {
     console.error(e);
   }
 
   return;
+});
+
+const takeads = new TakeAds(EnvVars.TAKE_ADS_TOKEN);
+
+const getReferralsSupportedDomains = memoizee(fetchReferralsSupportedDomains, {
+  promise: true,
+  max: 1,
+  maxAge: 5 * 60_000
 });

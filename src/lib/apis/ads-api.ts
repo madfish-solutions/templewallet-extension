@@ -36,3 +36,9 @@ export async function postAnonymousAdImpression(installId: string, urlDomain: st
 export async function postLinkAdsImpressions(accountPkh: string, installId: string, signature: string) {
   await axiosClient.post('/link-impressions', { accountPkh, installId, signature, appVersion: APP_VERSION });
 }
+
+export async function fetchReferralsSupportedDomains() {
+  const res = await axiosClient.get<string[]>('/takeads/referrals/supported-domains');
+
+  return res.data;
+}

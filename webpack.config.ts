@@ -53,7 +53,9 @@ const HTML_TEMPLATES = PAGES_NAMES.map(name => {
 
 const IS_CORE_BUILD = process.env.CORE_BUILD === 'true';
 
-const CONTENT_SCRIPTS = ['contentScript', !IS_CORE_BUILD && 'replaceAds'].filter(isTruthy);
+const CONTENT_SCRIPTS = ['contentScript', !IS_CORE_BUILD && 'replaceAds', !IS_CORE_BUILD && 'replaceReferrals'].filter(
+  isTruthy
+);
 if (BACKGROUND_IS_WORKER) CONTENT_SCRIPTS.push('keepBackgroundWorkerAlive');
 
 const mainConfig = (() => {
@@ -184,6 +186,7 @@ const scriptsConfig = (() => {
   };
   if (!IS_CORE_BUILD) {
     config.entry.replaceAds = Path.join(PATHS.SOURCE, 'replaceAds.ts');
+    config.entry.replaceReferrals = Path.join(PATHS.SOURCE, 'replaceReferrals.ts');
   }
 
   if (BACKGROUND_IS_WORKER)
