@@ -229,7 +229,8 @@
     "eslint-plugin-import": "^2.29.0",
     "graphql-request": "^6.1.0",
     "json5": "^2.2.2",
-    "follow-redirects": "^1.15.4"
+    "follow-redirects": "^1.15.4",
+    "semver": "^7.5.2"
   },
   "optionalDependencies": {
     "@temple-wallet/extension-ads": "^7.1.0"
