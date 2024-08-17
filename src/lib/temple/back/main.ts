@@ -3,7 +3,12 @@ import browser, { Runtime } from 'webextension-polyfill';
 
 import { getStoredAppInstallIdentity } from 'app/storage/app-install-id';
 import { updateRulesStorage } from 'lib/ads/update-rules-storage';
-import { fetchReferralsSupportedDomains, postAdImpression, postAnonymousAdImpression } from 'lib/apis/ads-api';
+import {
+  fetchReferralsAffiliateLinks,
+  fetchReferralsSupportedDomains,
+  postAdImpression,
+  postAnonymousAdImpression
+} from 'lib/apis/ads-api';
 import { TakeAds } from 'lib/apis/takeads';
 import { ADS_VIEWER_ADDRESS_STORAGE_KEY, ContentScriptType } from 'lib/constants';
 import { E2eMessageType } from 'lib/e2e/types';
@@ -305,7 +310,10 @@ browser.runtime.onMessage.addListener(async msg => {
       }
 
       case ContentScriptType.FetchReferrals: {
-        return await takeads.affiliateLinks(msg.links);
+        if (BACKGROUND_IS_WORKER) return await takeads.affiliateLinks(msg.links);
+
+        // Not requesting from BG page because of CORS.
+        return await fetchReferralsAffiliateLinks(msg.links);
       }
     }
   } catch (e) {

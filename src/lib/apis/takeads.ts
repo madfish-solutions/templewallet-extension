@@ -1,4 +1,3 @@
-import axiosFetchAdapter from '@vespaiach/axios-fetch-adapter';
 import axios, { AxiosInstance } from 'axios';
 
 /**
@@ -7,20 +6,19 @@ import axios, { AxiosInstance } from 'axios';
 export class TakeAds {
   private axios: AxiosInstance;
 
-  constructor(private publicKey: string, private subId?: string, readonly apiUrl: string = 'https://api.takeads.com') {
+  constructor(private publicKey: string, readonly apiUrl: string = 'https://api.takeads.com') {
     this.axios = axios.create({
       baseURL: apiUrl,
       headers: {
         Authorization: `Bearer ${this.publicKey}`
-      },
-      adapter: axiosFetchAdapter
+      }
     });
   }
 
-  async affiliateLinks(websiteUrls: string[]) {
+  async affiliateLinks(websiteUrls: string[], subId?: string) {
     const response = await this.axios.put<AffiliateResponse>('/v1/product/monetize-api/v2/resolve', {
       iris: websiteUrls,
-      subId: this.subId,
+      subId,
       withImages: false
     });
 

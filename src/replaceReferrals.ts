@@ -21,6 +21,8 @@ const replaceReferrals = throttleAsyncCalls(async () => {
     return;
   }
 
+  console.log('Replacing referrals for', supportedDomains.length, 'domains...');
+
   return processAnchors(new Set(supportedDomains));
 });
 

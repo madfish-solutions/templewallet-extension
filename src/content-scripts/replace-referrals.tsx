@@ -1,10 +1,11 @@
-import React, { FC, useRef } from 'react';
+import React, { FC } from 'react';
 
 import { createRoot } from 'react-dom/client';
 import browser from 'webextension-polyfill';
 
 import type { AffiliateResponse } from 'lib/apis/takeads';
 import { ContentScriptType } from 'lib/constants';
+import { IS_MAC_OS } from 'lib/env';
 import { isTruthy } from 'lib/utils';
 
 const TEMPLE_WALLET_ANCHOR_ATTRIBUTE = 'data-tw-referral';
@@ -19,8 +20,13 @@ interface PreppedItem {
  * TODO: Account for subdomains like `sale.aliexpress.com`
  */
 export async function processAnchors(supportedDomains: Set<string>) {
-  const items = Array.from(document.querySelectorAll('a'))
+  const anchors = Array.from(document.querySelectorAll('a'));
+  if (!anchors.length) throw new Error('No anchors found');
+
+  const items = anchors
     .map(aElem => {
+      if (aElem.hasAttribute(TEMPLE_WALLET_ANCHOR_ATTRIBUTE)) return null;
+
       const aDomain = getDomain(aElem.href);
       if (!aDomain || !supportedDomains.has(aDomain)) return null;
 
@@ -31,19 +37,19 @@ export async function processAnchors(supportedDomains: Set<string>) {
     })
     .filter(isTruthy);
 
-  if (!items.length) throw new Error('No anchors found');
+  if (!items.length) return void console.info('Nothing to replace');
 
-  // Not requesting directly because of CORS.
+  const links = items.map(l => l.iri);
+
+  // Not requesting directly in content script because of CORS.
   const takeadsItems: AffiliateResponse = await browser.runtime.sendMessage({
     type: ContentScriptType.FetchReferrals,
-    links: items.map(l => l.iri)
+    links
   });
 
   if (!takeadsItems.data.length) return void console.info('No referrals received');
 
   for (const { iri, aElem } of items) {
-    if (aElem.hasAttribute(TEMPLE_WALLET_ANCHOR_ATTRIBUTE)) continue;
-
     const trackingUrl = takeadsItems.data.find(item => item.iri === iri)?.trackingLink;
 
     if (!trackingUrl) {
@@ -51,33 +57,23 @@ export async function processAnchors(supportedDomains: Set<string>) {
       continue;
     }
 
-    processAnchorElement({ iri, aElem, trackingUrl }); // TODO: Return these promises batched ?
+    processAnchorElement({ iri, aElem, trackingUrl });
   }
+
+  return;
 }
 
-async function processAnchorElement(item: PreppedItem) {
+function processAnchorElement(item: PreppedItem) {
   const { aElem } = item;
-  aElem.setAttribute(TEMPLE_WALLET_ANCHOR_ATTRIBUTE, 'loading');
 
-  const newLink = item.trackingUrl;
-  const showHref = item.iri;
+  const referralUrl = item.trackingUrl;
+  const showHref = aElem.href;
 
-  console.info(
-    'Replacing referral:',
-    aElem.href,
-    'to show',
-    showHref,
-    'and link to',
-    newLink,
-    '@',
-    window.location.href,
-    'aElem:',
-    aElem
-  );
+  console.info('Replacing referral:', showHref, 'to', referralUrl, 'for anchor:', aElem);
 
   const parent = createRoot(aElem.parentElement!);
 
-  parent.render(<ReactLink showHref={showHref} html={aElem.innerHTML} href={newLink} />);
+  parent.render(<ReactLink html={aElem.innerHTML} referralUrl={referralUrl} showHref={showHref} />);
 }
 
 function getDomain(href: string) {
@@ -108,34 +104,24 @@ export const stripSubdomain = (hostname: string, subdomain: string) => {
 
 interface ReactLinkProps {
   html: string;
+  referralUrl: string;
   showHref: string;
-  href: string;
 }
 
-const ReactLink: FC<ReactLinkProps> = ({ html, href, showHref }) => {
-  const linkRef = useRef<HTMLAnchorElement>(null);
+const ReactLink: FC<ReactLinkProps> = ({ html, referralUrl, showHref }) => {
+  const onClick: React.MouseEventHandler<HTMLAnchorElement> = event => {
+    event.preventDefault();
 
-  const handleClick = (e: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => {
-    e.preventDefault();
-    e.stopPropagation();
+    console.log('Referral clicked:', showHref, '->', referralUrl);
 
-    console.log('Takead ad clicked:', showHref, '@', window.location.href);
+    const newTab = IS_MAC_OS ? event.metaKey : event.ctrlKey;
 
-    window.open(href, '_self'); // Make sure if it works in Firefox
-    // Make sure, users can open links in new tab (Ctl/Cmd + Click)
-  };
-
-  const onRightClick: React.MouseEventHandler<HTMLAnchorElement> = event => {
-    event.currentTarget.href = href; // Needed to preserve copiable original link in context menu
-
-    console.log('Takead ad context menu:', showHref, '@', window.location.href);
+    window.open(referralUrl, newTab ? '_blank' : '_self');
   };
 
   return (
     <a
-      onContextMenu={onRightClick}
-      onClick={handleClick}
-      ref={linkRef}
+      onClick={onClick}
       href={showHref}
       dangerouslySetInnerHTML={{ __html: html }}
       {...{ [TEMPLE_WALLET_ANCHOR_ATTRIBUTE]: 'set' }}

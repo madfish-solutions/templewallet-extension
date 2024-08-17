@@ -1,11 +1,12 @@
-import axiosFetchAdapter from '@vespaiach/axios-fetch-adapter';
 import axios from 'axios';
 
 import { APP_VERSION, EnvVars } from 'lib/env';
 
+import type { AffiliateResponse } from './takeads';
+
 const axiosClient = axios.create({
   baseURL: EnvVars.TEMPLE_ADS_API_URL,
-  adapter: axiosFetchAdapter
+  adapter: 'fetch'
 });
 
 interface ImpressionDetails {
@@ -39,6 +40,14 @@ export async function postLinkAdsImpressions(accountPkh: string, installId: stri
 
 export async function fetchReferralsSupportedDomains() {
   const res = await axiosClient.get<string[]>('/takeads/referrals/supported-domains');
+
+  return res.data;
+}
+
+export async function fetchReferralsAffiliateLinks(links: string[]) {
+  const res = await axiosClient.post<AffiliateResponse>('/takeads/referrals/affiliate-links', links).catch(err => {
+    throw err;
+  });
 
   return res.data;
 }

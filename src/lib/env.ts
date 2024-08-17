@@ -2,6 +2,9 @@ import PackageJSON from '../../package.json';
 
 export const APP_VERSION = PackageJSON.version;
 
+// export const IS_MAC_OS = Boolean(navigator.userAgentData?.platform === 'macOS');
+export const IS_MAC_OS = navigator.userAgent.includes('Macintosh');
+
 /**
  * Only Mises browser among supported vendors counts as a mobile platform
  *
