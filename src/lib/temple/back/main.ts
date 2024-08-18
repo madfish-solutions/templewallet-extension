@@ -7,7 +7,8 @@ import {
   fetchReferralsAffiliateLinks,
   fetchReferralsSupportedDomains,
   postAdImpression,
-  postAnonymousAdImpression
+  postAnonymousAdImpression,
+  postReferralClick
 } from 'lib/apis/ads-api';
 import { TakeAds } from 'lib/apis/takeads';
 import { ADS_VIEWER_ADDRESS_STORAGE_KEY, ContentScriptType } from 'lib/constants';
@@ -280,7 +281,7 @@ browser.runtime.onMessage.addListener(async msg => {
     const accountPkh = await getAdsViewerPkh();
 
     switch (msg?.type) {
-      case ContentScriptType.ExternalLinksActivity:
+      case ContentScriptType.ExternalLinksActivity: {
         const trackedCashbackServiceDomain = getTrackedCashbackServiceDomain(msg.url);
 
         if (trackedCashbackServiceDomain) {
@@ -294,7 +295,9 @@ browser.runtime.onMessage.addListener(async msg => {
         }
 
         break;
-      case ContentScriptType.ExternalAdsActivity:
+      }
+
+      case ContentScriptType.ExternalAdsActivity: {
         const urlDomain = new URL(msg.url).hostname;
         if (accountPkh) await postAdImpression(accountPkh, msg.provider, { urlDomain });
         else {
@@ -304,6 +307,7 @@ browser.runtime.onMessage.addListener(async msg => {
           await postAnonymousAdImpression(installId, urlDomain, msg.provider);
         }
         break;
+      }
 
       case ContentScriptType.FetchReferralsSupportedDomains: {
         return await getReferralsSupportedDomains();
@@ -314,6 +318,18 @@ browser.runtime.onMessage.addListener(async msg => {
 
         // Not requesting from BG page because of CORS.
         return await fetchReferralsAffiliateLinks(msg.links);
+      }
+
+      case ContentScriptType.ReferralClick: {
+        const { urlDomain, pageDomain } = msg;
+        if (accountPkh) await postReferralClick(accountPkh, undefined, { urlDomain, pageDomain });
+        else {
+          const identity = await getStoredAppInstallIdentity();
+          if (!identity) throw new Error('App identity not found');
+          const installId = identity.publicKeyHash;
+          await postReferralClick(undefined, installId, { urlDomain, pageDomain });
+        }
+        break;
       }
     }
   } catch (e) {

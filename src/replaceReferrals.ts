@@ -1,8 +1,6 @@
-import { processAnchors, stripSubdomain } from 'content-scripts/replace-referrals';
+import { PAGE_DOMAIN, processAnchors } from 'content-scripts/replace-referrals';
 import { browser } from 'lib/browser';
 import { ContentScriptType } from 'lib/constants';
-
-const THIS_DOMAIN = stripSubdomain(window.location.hostname, 'www');
 
 const replaceReferrals = throttleAsyncCalls(async () => {
   const supportedDomains: string[] = await browser.runtime.sendMessage({
@@ -15,13 +13,13 @@ const replaceReferrals = throttleAsyncCalls(async () => {
     return;
   }
 
-  if (supportedDomains.some(d => d === THIS_DOMAIN)) {
+  if (supportedDomains.some(d => d === PAGE_DOMAIN)) {
     console.warn('Host should not be of supported referral');
     clearInterval(interval);
     return;
   }
 
-  console.log('Replacing referrals for', supportedDomains.length, 'domains...');
+  console.log('Replacing referrals for', supportedDomains.length, 'domains ...');
 
   return processAnchors(new Set(supportedDomains));
 });
