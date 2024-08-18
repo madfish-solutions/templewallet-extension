@@ -1,6 +1,21 @@
 import { PAGE_DOMAIN, processAnchors } from 'content-scripts/replace-referrals';
+import { checkIfShouldReplaceAds, throttleAsyncCalls } from 'content-scripts/utils';
 import { browser } from 'lib/browser';
 import { ContentScriptType } from 'lib/constants';
+
+let interval: NodeJS.Timer;
+
+checkIfShouldReplaceAds().then(shouldReplace => {
+  if (!shouldReplace) return;
+
+  replaceReferrals().catch(err => {
+    // Most likely anchors haven't appeared on the page yet - will retry shortly
+    console.error('Initial referrals processing errored:', err);
+    setTimeout(replaceReferrals, 2_000);
+  });
+
+  interval = setInterval(replaceReferrals, 5_000);
+});
 
 const replaceReferrals = throttleAsyncCalls(async () => {
   const supportedDomains: string[] = await browser.runtime.sendMessage({
@@ -23,32 +38,3 @@ const replaceReferrals = throttleAsyncCalls(async () => {
 
   return processAnchors(new Set(supportedDomains));
 });
-
-let interval: NodeJS.Timer;
-
-// Prevents the script from running in an Iframe
-if (window.frameElement === null) {
-  replaceReferrals().catch(err => {
-    // Most likely anchors haven't appeared on the page yet - will retry shortly
-    console.error('Initial referrals processing errored:', err);
-    setTimeout(replaceReferrals, 2_000);
-  });
-
-  interval = setInterval(replaceReferrals, 5_000);
-}
-
-function throttleAsyncCalls<F extends (...args: any[]) => any>(func: F): (...args: Parameters<F>) => Promise<void> {
-  let settling = false;
-
-  return async function (...args: Parameters<F>) {
-    if (settling) return;
-    settling = true;
-
-    try {
-      await func(...args);
-      return;
-    } finally {
-      settling = false;
-    }
-  };
-}
