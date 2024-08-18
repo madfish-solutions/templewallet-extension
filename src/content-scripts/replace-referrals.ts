@@ -1,6 +1,3 @@
-import React, { FC } from 'react';
-
-import { createRoot } from 'react-dom/client';
 import browser from 'webextension-polyfill';
 
 import type { AffiliateResponse } from 'lib/apis/takeads';
@@ -11,9 +8,6 @@ import { isTruthy } from 'lib/utils';
 export const PAGE_DOMAIN = stripSubdomain(window.location.hostname, 'www');
 const TEMPLE_WALLET_ANCHOR_ATTRIBUTE = 'data-tw-referral';
 
-/**
- * TODO: Account for subdomains like `sale.aliexpress.com`
- */
 export async function processAnchors(supportedDomains: Set<string>) {
   const anchors = Array.from(document.querySelectorAll('a'));
   if (!anchors.length) throw new Error('No anchors found');
@@ -74,11 +68,23 @@ function processAnchorElement(item: PreppedItem) {
 
   console.info('Replacing referral:', showHref, 'to', referralUrl, 'for anchor:', aElem);
 
-  const parent = createRoot(aElem.parentElement!);
+  aElem.setAttribute(TEMPLE_WALLET_ANCHOR_ATTRIBUTE, 'set');
 
-  parent.render(
-    <ReactLink html={aElem.innerHTML} referralUrl={referralUrl} showHref={showHref} urlDomain={urlDomain} />
-  );
+  aElem.onclick = event => {
+    event.preventDefault();
+
+    console.log('Referral clicked:', showHref, '->', referralUrl);
+
+    browser.runtime.sendMessage({
+      type: ContentScriptType.ReferralClick,
+      urlDomain,
+      pageDomain: PAGE_DOMAIN
+    });
+
+    const newTab = IS_MAC_OS ? event.metaKey : event.ctrlKey;
+
+    window.open(referralUrl, newTab ? '_blank' : '_self');
+  };
 }
 
 function getDomain(href: string) {
@@ -106,37 +112,3 @@ function stripSubdomain(hostname: string, subdomain: string) {
 
   return hostname;
 }
-
-interface ReactLinkProps {
-  html: string;
-  referralUrl: string;
-  showHref: string;
-  urlDomain: string;
-}
-
-const ReactLink: FC<ReactLinkProps> = ({ html, referralUrl, showHref, urlDomain }) => {
-  const onClick: React.MouseEventHandler<HTMLAnchorElement> = event => {
-    event.preventDefault();
-
-    console.log('Referral clicked:', showHref, '->', referralUrl);
-
-    browser.runtime.sendMessage({
-      type: ContentScriptType.ReferralClick,
-      urlDomain,
-      pageDomain: PAGE_DOMAIN
-    });
-
-    const newTab = IS_MAC_OS ? event.metaKey : event.ctrlKey;
-
-    window.open(referralUrl, newTab ? '_blank' : '_self');
-  };
-
-  return (
-    <a
-      onClick={onClick}
-      href={showHref}
-      dangerouslySetInnerHTML={{ __html: html }}
-      {...{ [TEMPLE_WALLET_ANCHOR_ATTRIBUTE]: 'set' }}
-    />
-  );
-};
