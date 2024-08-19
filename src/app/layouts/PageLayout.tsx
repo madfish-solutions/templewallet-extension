@@ -193,7 +193,7 @@ const Toolbar: FC<ToolbarProps> = ({
         // The top value needs to be -1px or the element will never intersect
         // with the top of the browser window
         // (thus never triggering the intersection observer).
-        TOOLBAR_IS_STICKY && 'sticky z-20 -top-px',
+        TOOLBAR_IS_STICKY && 'sticky z-40 -top-px',
         'flex items-center py-2 px-4 min-h-11',
         fullPage && !sticked && 'rounded-t',
         sticked ? 'shadow' : 'shadow-sm',
