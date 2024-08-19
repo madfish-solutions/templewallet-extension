@@ -1,5 +1,5 @@
-import { PAGE_DOMAIN, processAnchors } from 'content-scripts/replace-referrals';
 import { checkIfShouldReplaceAds, throttleAsyncCalls } from 'content-scripts/utils';
+import { importExtensionAdsReferralsModule } from 'lib/ads/import-extension-ads-module';
 import { browser } from 'lib/browser';
 import { ContentScriptType } from 'lib/constants';
 
@@ -18,6 +18,8 @@ checkIfShouldReplaceAds().then(shouldReplace => {
 });
 
 const replaceReferrals = throttleAsyncCalls(async () => {
+  const { CURRENT_PAGE_DOMAIN, processAnchors } = await importExtensionAdsReferralsModule();
+
   const supportedDomains: string[] = await browser.runtime.sendMessage({
     type: ContentScriptType.FetchReferralsSupportedDomains
   });
@@ -28,7 +30,7 @@ const replaceReferrals = throttleAsyncCalls(async () => {
     return;
   }
 
-  if (supportedDomains.some(d => d === PAGE_DOMAIN)) {
+  if (supportedDomains.some(d => d === CURRENT_PAGE_DOMAIN)) {
     console.warn('Host should not be of supported referral');
     clearInterval(interval);
     return;
@@ -36,5 +38,5 @@ const replaceReferrals = throttleAsyncCalls(async () => {
 
   console.log('Replacing referrals for', supportedDomains.length, 'domains ...');
 
-  return processAnchors(new Set(supportedDomains));
+  return processAnchors(new Set(supportedDomains), ContentScriptType);
 });

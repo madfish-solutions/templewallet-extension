@@ -2,8 +2,6 @@ import axios from 'axios';
 
 import { APP_VERSION, EnvVars } from 'lib/env';
 
-import type { AffiliateResponse } from './takeads';
-
 const axiosClient = axios.create({
   baseURL: EnvVars.TEMPLE_ADS_API_URL,
   adapter: 'fetch'
@@ -76,9 +74,20 @@ export async function fetchReferralsSupportedDomains() {
 }
 
 export async function fetchReferralsAffiliateLinks(links: string[]) {
-  const res = await axiosClient.post<AffiliateResponse>('/takeads/referrals/affiliate-links', links).catch(err => {
-    throw err;
-  });
+  const res = await axiosClient
+    .post<TekeadsAffiliateResponse>('/takeads/referrals/affiliate-links', links)
+    .catch(err => {
+      throw err;
+    });
 
   return res.data;
+}
+
+interface TekeadsAffiliateResponse {
+  data: AffiliateLink[];
+}
+interface AffiliateLink {
+  iri: string;
+  trackingLink: string;
+  imageUrl: string | null;
 }

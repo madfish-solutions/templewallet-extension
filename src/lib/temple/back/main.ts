@@ -2,6 +2,7 @@ import memoizee from 'memoizee';
 import browser, { Runtime } from 'webextension-polyfill';
 
 import { getStoredAppInstallIdentity } from 'app/storage/app-install-id';
+import { importExtensionAdsReferralsModule } from 'lib/ads/import-extension-ads-module';
 import { updateRulesStorage } from 'lib/ads/update-rules-storage';
 import {
   fetchReferralsAffiliateLinks,
@@ -10,7 +11,6 @@ import {
   postAnonymousAdImpression,
   postReferralClick
 } from 'lib/apis/ads-api';
-import { TakeAds } from 'lib/apis/takeads';
 import { ADS_VIEWER_ADDRESS_STORAGE_KEY, ContentScriptType } from 'lib/constants';
 import { E2eMessageType } from 'lib/e2e/types';
 import { BACKGROUND_IS_WORKER, EnvVars } from 'lib/env';
@@ -314,7 +314,11 @@ browser.runtime.onMessage.addListener(async msg => {
       }
 
       case ContentScriptType.FetchReferrals: {
-        if (BACKGROUND_IS_WORKER) return await takeads.affiliateLinks(msg.links);
+        if (BACKGROUND_IS_WORKER) {
+          const { buildTakeadsClient } = await importExtensionAdsReferralsModule();
+          const takeads = buildTakeadsClient(EnvVars.TAKE_ADS_TOKEN);
+          return await takeads.affiliateLinks(msg.links);
+        }
 
         // Not requesting from BG page because of CORS.
         return await fetchReferralsAffiliateLinks(msg.links);
@@ -338,8 +342,6 @@ browser.runtime.onMessage.addListener(async msg => {
 
   return;
 });
-
-const takeads = new TakeAds(EnvVars.TAKE_ADS_TOKEN);
 
 const getReferralsSupportedDomains = memoizee(fetchReferralsSupportedDomains, {
   promise: true,
