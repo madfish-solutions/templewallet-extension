@@ -11,11 +11,6 @@ export interface TezosNetworkEssentials {
   chainId: string;
 }
 
-export interface EvmNetworkEssentials {
-  rpcBaseURL: string;
-  chainId: number;
-}
-
 export interface NetworkBase {
   chain: TempleChainKind;
   id: string;
@@ -160,7 +155,7 @@ export const EVM_DEFAULT_NETWORKS: NonEmptyArray<StoredEvmNetwork> = [
     name: 'BSC Mainnet',
     chain: TempleChainKind.EVM,
     chainId: 56,
-    rpcBaseURL: 'https://binance.llamarpc.com',
+    rpcBaseURL: 'https://bsc-rpc.publicnode.com',
     description: 'Binance Smart Chain Mainnet',
     color: '#f5d300',
     default: true

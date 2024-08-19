@@ -165,6 +165,7 @@
     "postcss-preset-env": "^9",
     "prettier": "^2.7.1",
     "process": "^0.11.10",
+    "qr-code-styling-2": "^1.5.5",
     "qs": "^6.11.1",
     "react": "18.2.0",
     "react-collapse": "5.1.1",
@@ -235,6 +236,6 @@
     "follow-redirects": "^1.15.4"
   },
   "optionalDependencies": {
-    "@temple-wallet/extension-ads": "^6.1.0"
+    "@temple-wallet/extension-ads": "^6.3.2"
   }
 }

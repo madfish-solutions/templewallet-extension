@@ -4,10 +4,11 @@ import { persistReducer } from 'redux-persist';
 import { storageConfig } from 'lib/store';
 
 import {
-  setConversionTrackedAction,
   setIsAnalyticsEnabledAction,
   setOnRampPossibilityAction,
-  setToastsContainerBottomShiftAction
+  setConversionTrackedAction,
+  setToastsContainerBottomShiftAction,
+  setPendingReactivateAdsAction
 } from './actions';
 import { SettingsState, settingsInitialState } from './state';
 
@@ -26,6 +27,10 @@ const settingsReducer = createReducer<SettingsState>(settingsInitialState, build
 
   builder.addCase(setToastsContainerBottomShiftAction, (state, { payload }) => {
     state.toastsContainerBottomShift = payload;
+  });
+
+  builder.addCase(setPendingReactivateAdsAction, (state, { payload }) => {
+    state.pendingReactivateAds = payload;
   });
 });
 

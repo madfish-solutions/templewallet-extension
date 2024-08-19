@@ -5,10 +5,8 @@ import { useForm } from 'react-hook-form';
 import { useDispatch } from 'react-redux';
 import { object, string } from 'yup';
 
-import { Button } from 'app/atoms';
 import Spinner from 'app/atoms/Spinner/Spinner';
 import { useAppEnv } from 'app/env';
-import { ReactComponent as CloseIcon } from 'app/icons/close.svg';
 import { LAYOUT_CONTAINER_CLASSNAME } from 'app/layouts/containers';
 import { shouldShowNewsletterModalAction } from 'app/store/newsletter/newsletter-actions';
 import { useShouldShowNewsletterModalSelector } from 'app/store/newsletter/newsletter-selectors';
@@ -16,9 +14,12 @@ import { useOnRampPossibilitySelector } from 'app/store/settings/selectors';
 import { setTestID } from 'lib/analytics';
 import { newsletterApi } from 'lib/apis/newsletter';
 import { useYupValidationResolver } from 'lib/form/use-yup-validation-resolver';
-import { T, t } from 'lib/i18n/react';
+import { T } from 'lib/i18n/react';
 import { useTempleClient } from 'lib/temple/front';
 import { useLocation } from 'lib/woozie';
+import { HOME_PAGE_PATH } from 'lib/woozie/config';
+
+import { OverlayCloseButton } from '../OverlayCloseButton';
 
 import NewsletterImage from './NewsletterImage.png';
 import { NewsletterOverlaySelectors } from './NewsletterOverlay.selectors';
@@ -30,8 +31,6 @@ interface FormValues {
 const validationSchema = object().shape({
   email: string().required('Required field').email('Must be a valid email')
 });
-
-const HOME_PAGE_PATH = '/';
 
 export const NewsletterOverlay: FC = () => {
   const dispatch = useDispatch();
@@ -58,7 +57,7 @@ export const NewsletterOverlay: FC = () => {
     () => (popup ? 'inset-0 p-4' : 'top-1/2 left-1/2 transform -translate-y-1/2 -translate-x-1/2'),
     [popup]
   );
-  const closeButtonClassName = useMemo(() => (popup ? 'top-8 right-8' : 'top-4 right-4'), [popup]);
+
   const close = () => void dispatch(shouldShowNewsletterModalAction(false));
 
   const onSubmit = () => {
@@ -106,30 +105,24 @@ export const NewsletterOverlay: FC = () => {
             )}
             style={{ height: popup ? '100%' : '700px' }}
           >
-            <Button
-              className={classNames(
-                'absolute w-24 h-9 uppercase bg-blue-500',
-                'font-inter text-white',
-                'text-sm font-medium rounded',
-                'flex flex-row justify-center items-center self-end',
-                'hover:opacity-90',
-                closeButtonClassName
-              )}
-              onClick={close}
-              testID={NewsletterOverlaySelectors.closeButton}
-            >
-              <T id="close" />
-              <CloseIcon className="ml-2 h-4 w-auto stroke-current stroke-2" />
-            </Button>
+            <OverlayCloseButton testID={NewsletterOverlaySelectors.closeButton} onClick={close} />
+
             <img
               src={NewsletterImage}
               style={{ maxHeight: '375px', maxWidth: '496px' }}
               className="mb-4"
               alt="Newsletter"
             />
+
             <div className="flex flex-col w-full max-w-sm mx-auto">
-              <h1 className="mb-1 font-inter text-base text-gray-910 text-left">{t('subscribeToNewsletter')}</h1>
-              <span className="mb-1 text-xs text-left text-gray-600">{t('keepLatestNews')}</span>
+              <h1 className="mb-1 font-inter text-base text-gray-910 text-left">
+                <T id="subscribeToNewsletter" />
+              </h1>
+
+              <span className="mb-1 text-xs text-left text-gray-600">
+                <T id="keepLatestNews" />
+              </span>
+
               <div className="w-full mb-4">
                 <input
                   ref={register()}
@@ -140,6 +133,7 @@ export const NewsletterOverlay: FC = () => {
                 />
                 {!isValid && <div className="mt-1 text-xs text-left text-red-700">{errors.email?.message}</div>}
               </div>
+
               <button
                 disabled={!isValid}
                 type="submit"

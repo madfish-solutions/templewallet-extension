@@ -7,7 +7,9 @@ export enum HomeSelectors {
   delegationTab = 'Home/Delegation Tab',
   delegateButton = 'Home/Delegate Button',
   addressModeSwitchButton = 'Home/Address Mode Switch Button',
-  emptyStateText = 'Home/Empty State Text'
+  emptyStateText = 'Home/Empty State Text',
+  accountIcon = 'Home/Account Icon',
+  accountMenuButton = 'Home/Menu Button'
 }
 
 export enum TokenPageSelectors {

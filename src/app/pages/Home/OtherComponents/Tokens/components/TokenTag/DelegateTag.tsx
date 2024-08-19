@@ -19,7 +19,7 @@ interface Props {
 }
 
 export const DelegateTezosTag = memo<Props>(({ network, pkh }) => {
-  const { data: myBakerPkh } = useDelegate(pkh, network);
+  const { data: myBakerPkh } = useDelegate(pkh, network, false);
   const { trackEvent } = useAnalytics();
 
   const handleTagClick = useCallback(
@@ -36,7 +36,7 @@ export const DelegateTezosTag = memo<Props>(({ network, pkh }) => {
     () => (
       <Button
         onClick={handleTagClick}
-        className={classNames('uppercase ml-2 px-1.5 py-1', modStyles.tagBase, modStyles.delegateTag)}
+        className={classNames('uppercase ml-2 px-1.5 py-1 bg-secondary hover:bg-secondary-hover', modStyles.tagBase)}
         testID={AssetsSelectors.assetItemDelegateButton}
       >
         <T id="notDelegated" />
@@ -49,7 +49,10 @@ export const DelegateTezosTag = memo<Props>(({ network, pkh }) => {
     () => (
       <Button
         onClick={handleTagClick}
-        className={classNames('inline-flex items-center px-1.5 ml-2 py-1', modStyles.tagBase, modStyles.delegateTag)}
+        className={classNames(
+          'inline-flex items-center px-1.5 ml-2 py-1 bg-secondary hover:bg-secondary-hover',
+          modStyles.tagBase
+        )}
         testID={AssetsSelectors.assetItemApyButton}
       >
         APY: 5.6%

@@ -2,6 +2,8 @@ import { createAction } from '@reduxjs/toolkit';
 
 import { BalancesResponse } from 'lib/apis/temple/endpoints/evm/api.interfaces';
 
+import { EvmAccountAssetForStore } from './state';
+
 interface processLoadedEvmAssetsActionPayload {
   publicKeyHash: HexString;
   chainId: number;
@@ -23,3 +25,9 @@ export const putNewEvmTokenAction = createAction<putNewEvmAssetActionPayload>('e
 export const putNewEvmCollectibleAction = createAction<putNewEvmAssetActionPayload>(
   'evm/assets/PUT_NEW_COLLECTIBLE_ACTION'
 );
+
+type SetAssetStatusPayload = EvmAccountAssetForStore;
+
+export const setEvmTokenStatusAction = createAction<SetAssetStatusPayload>('evm/assets/SET_TOKEN_STATUS');
+
+export const setEvmCollectibleStatusAction = createAction<SetAssetStatusPayload>('evm/assets/SET_COLLECTIBLE_STATUS');

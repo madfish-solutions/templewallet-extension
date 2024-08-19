@@ -2,17 +2,19 @@ import React, { memo, useCallback, useLayoutEffect, useMemo } from 'react';
 
 import { isDefined } from '@rnw-community/shared';
 
-import { SimpleSegmentControl } from 'app/atoms/SimpleSegmentControl';
+import {
+  AssetsSegmentControl,
+  AssetsSegmentControlRefContext,
+  useAssetsSegmentControlRef
+} from 'app/atoms/AssetsSegmentControl';
 import { SuspenseContainer } from 'app/atoms/SuspenseContainer';
 import { useAppEnv } from 'app/env';
 import { useLocationSearchParamValue } from 'app/hooks/use-location';
-import { useNetworkUpdate } from 'app/hooks/use-network-update';
 import PageLayout, { PageLayoutProps } from 'app/layouts/PageLayout';
 import { useMainnetTokensScamlistSelector } from 'app/store/tezos/assets/selectors';
 import { ActivityTab } from 'app/templates/activity/Activity';
 import { AdvertisingBanner } from 'app/templates/advertising/advertising-banner/advertising-banner';
 import { AppHeader } from 'app/templates/AppHeader';
-import { useChainSelectController } from 'app/templates/ChainSelect';
 import { HistoryAction, navigate, useLocation } from 'lib/woozie';
 
 import { CollectiblesTab } from '../Collectibles/CollectiblesTab';
@@ -35,8 +37,7 @@ const Home = memo<HomeProps>(props => {
   const { onboardingCompleted } = useOnboardingProgress();
   const { search } = useLocation();
 
-  const chainSelectController = useChainSelectController();
-  useNetworkUpdate(chainSelectController);
+  const assetsSegmentControlRef = useAssetsSegmentControlRef();
 
   const mainnetTokensScamSlugsRecord = useMainnetTokensScamlistSelector();
   const showScamTokenAlert = isDefined(assetSlug) && mainnetTokensScamSlugsRecord[assetSlug];
@@ -80,31 +81,31 @@ const Home = memo<HomeProps>(props => {
         <ActionButtonsBar {...props} />
 
         {!assetSlug && (
-          <SimpleSegmentControl
-            firstTitle="Tokens"
-            secondTitle="Collectibles"
-            activeSecond={tabSlug === 'collectibles'}
+          <AssetsSegmentControl
+            tabSlug={tabSlug}
             className="mt-6"
-            onFirstClick={onTokensTabClick}
-            onSecondClick={onCollectiblesTabClick}
+            onTokensTabClick={onTokensTabClick}
+            onCollectiblesTabClick={onCollectiblesTabClick}
           />
         )}
       </div>
 
       <SuspenseContainer key={`${chainId}/${assetSlug}`}>
-        {(() => {
-          if (!chainKind || !chainId || !assetSlug)
-            switch (tabSlug) {
-              case 'collectibles':
-                return <CollectiblesTab chainSelectController={chainSelectController} />;
-              case 'activity':
-                return <ActivityTab />;
-              default:
-                return <TokensTab chainSelectController={chainSelectController} />;
-            }
+        <AssetsSegmentControlRefContext.Provider value={assetsSegmentControlRef}>
+          {(() => {
+            if (!chainKind || !chainId || !assetSlug)
+              switch (tabSlug) {
+                case 'collectibles':
+                  return <CollectiblesTab />;
+                case 'activity':
+                  return <ActivityTab />;
+                default:
+                  return <TokensTab />;
+              }
 
-          return <AssetTab chainKind={chainKind} chainId={chainId} assetSlug={assetSlug} />;
-        })()}
+            return <AssetTab chainKind={chainKind} chainId={chainId} assetSlug={assetSlug} />;
+          })()}
+        </AssetsSegmentControlRefContext.Provider>
       </SuspenseContainer>
     </PageLayout>
   );

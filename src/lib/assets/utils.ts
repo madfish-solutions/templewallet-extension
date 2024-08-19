@@ -2,15 +2,31 @@ import BigNumber from 'bignumber.js';
 
 import type { AssetMetadataBase } from 'lib/metadata';
 import { isTezosDcpChainId } from 'temple/networks';
+import { TempleChainKind } from 'temple/types';
 
 import { TEZ_TOKEN_SLUG, TEZOS_SYMBOL, TEZOS_DCP_SYMBOL } from './defaults';
 import type { Asset, FA2Token } from './types';
+
+export const CHAIN_SLUG_SEPARATOR = ':';
 
 export const getTezosGasSymbol = (chainId: string) => (isTezosDcpChainId(chainId) ? TEZOS_DCP_SYMBOL : TEZOS_SYMBOL);
 
 export const toTokenSlug = (contract: string, id: string | number = 0) => `${contract}_${id}`;
 
 export const fromAssetSlug = <T = string>(slug: string) => slug.split('_') as [contract: T, tokenId?: string];
+
+export const toChainAssetSlug = (chainKind: TempleChainKind, chainId: number | string, assetSlug: string) =>
+  `${chainKind}${CHAIN_SLUG_SEPARATOR}${chainId}${CHAIN_SLUG_SEPARATOR}${assetSlug}`;
+
+export const fromChainAssetSlug = <T = string | number>(
+  chainAssetSlug: string
+): [chainKind: string, chainId: T, assetSlug: string] => {
+  const [chainKind, chainId = '', assetSlug = ''] = chainAssetSlug.split(CHAIN_SLUG_SEPARATOR);
+
+  const convertedChainId = (chainKind === TempleChainKind.Tezos ? chainId : Number(chainId)) as unknown as T;
+
+  return [chainKind, convertedChainId, assetSlug];
+};
 
 export const tokenToSlug = <T extends { address: string; id?: string | number }>({ address, id }: T) => {
   return toTokenSlug(address, id);

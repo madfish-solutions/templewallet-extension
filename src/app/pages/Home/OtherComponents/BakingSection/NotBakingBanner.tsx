@@ -32,7 +32,7 @@ export const NotBakingBanner = memo<Props>(({ chainId, noPreviousHistory, cannot
   if (isDcpNetwork)
     return (
       <>
-        <DelegateIcon className="self-center w-8 h-8 stroke-current fill-current text-accent-blue" />
+        <DelegateIcon className="self-center w-8 h-8 stroke-current fill-current text-secondary" />
 
         <p className="mt-1 mb-6 text-sm font-light text-center">
           <T id="dcpDelegatingMotivation" />
@@ -52,7 +52,7 @@ export const NotBakingBanner = memo<Props>(({ chainId, noPreviousHistory, cannot
   return (
     <>
       <h3 className="mb-6 font-semibold text-center" style={TITLE_STYLE}>
-        <span className="text-accent-blue">
+        <span className="text-secondary">
           <T id="delegationPointsHead1" />
         </span>{' '}
         <T id="delegationPointsHead2" />
@@ -127,7 +127,7 @@ const DelegateMotivationPoint: React.FC<{
   fullPage: boolean;
 }> = ({ Icon, textNode, fullPage }) => (
   <li className={clsx('flex items-center gap-x-4', fullPage && 'px-7')}>
-    <Icon className="flex-shrink-0 w-6 h-6 stroke-current fill-current text-accent-blue" style={{ strokeWidth: 1.5 }} />
+    <Icon className="flex-shrink-0 w-6 h-6 stroke-current fill-current text-secondary" style={{ strokeWidth: 1.5 }} />
 
     <p className="flex-1 text-sm text-gray-700">{textNode}</p>
   </li>

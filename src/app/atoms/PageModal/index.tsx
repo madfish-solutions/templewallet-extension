@@ -8,6 +8,7 @@ import { useAppEnv } from 'app/env';
 import { ReactComponent as ChevronLeftIcon } from 'app/icons/base/chevron_left.svg';
 import { ReactComponent as ExIcon } from 'app/icons/base/x.svg';
 import { LAYOUT_CONTAINER_CLASSNAME } from 'app/layouts/containers';
+import { TestIDProps } from 'lib/analytics';
 
 import { TestIDProps } from '../../../lib/analytics';
 import { IconBase } from '../IconBase';
@@ -59,7 +60,7 @@ export const PageModal = memo<PropsWithChildren<Props>>(
             )}
           </div>
 
-          <div className="flex-1 text-center text-font-medium-bold leading-5">{title}</div>
+          <div className="flex-1 text-center text-font-regular-bold">{title}</div>
 
           <div className="w-12 flex justify-end">
             <IconBase Icon={ExIcon} size={16} className="text-grey-2 cursor-pointer" onClick={onRequestClose} />

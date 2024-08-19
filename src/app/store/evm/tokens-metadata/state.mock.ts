@@ -1,5 +1,7 @@
+import { mockPersistedState } from 'lib/store';
+
 import { EvmTokensMetadataState } from './state';
 
-export const mockEvmTokensMetadataState: EvmTokensMetadataState = {
+export const mockEvmTokensMetadataState = mockPersistedState<EvmTokensMetadataState>({
   metadataRecord: {}
-};
+});

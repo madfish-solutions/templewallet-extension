@@ -1,7 +1,15 @@
 /** 'idle' for disabled unless balance is positive */
 type StoredAssetStatus = 'idle' | 'enabled' | 'disabled' | 'removed';
 
-interface StoredAsset {
+export interface EvmAccountAssetForStore {
+  slug: string;
+  chainId: number;
+  /** PKH */
+  account: HexString;
+  status: StoredAssetStatus;
+}
+
+export interface StoredEvmAsset {
   status: StoredAssetStatus;
   /** `true` if manually added by user */
   manual?: boolean;
@@ -9,10 +17,11 @@ interface StoredAsset {
 
 type PublicKeyHash = HexString;
 
-export type AssetSlugStoredAssetRecord = Record<string, StoredAsset>;
-type ChainIdTokenSlugsRecord = Record<number, AssetSlugStoredAssetRecord>;
+export type AssetSlugStoredAssetRecord = Record<string, StoredEvmAsset>;
 
-export type EvmStoredAssetsRecords = Record<PublicKeyHash, ChainIdTokenSlugsRecord>;
+export type ChainIdTokenSlugsAssetsRecord = Record<number, AssetSlugStoredAssetRecord>;
+
+export type EvmStoredAssetsRecords = Record<PublicKeyHash, ChainIdTokenSlugsAssetsRecord>;
 
 export interface EvmAssetsStateInterface {
   tokens: EvmStoredAssetsRecords;

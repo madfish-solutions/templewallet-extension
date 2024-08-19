@@ -2214,9 +2214,6 @@
   "deleteCollectibleConfirm": {
     "message": "Möchten Sie dieses Sammlerstück wirklich löschen?"
   },
-  "zeroCollectibleText": {
-    "message": "Sie haben noch keine Sammlerstücke!\nGuter Zeitpunkt, um eins zu erhalten"
-  },
   "min": {
     "message": "Min:"
   },

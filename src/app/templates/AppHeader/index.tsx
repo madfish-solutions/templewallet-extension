@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useMemo } from 'react';
+import React, { memo } from 'react';
 
 import clsx from 'clsx';
 
@@ -6,51 +6,36 @@ import { IconBase } from 'app/atoms';
 import { AccountAvatar } from 'app/atoms/AccountAvatar';
 import { AccountName } from 'app/atoms/AccountName';
 import { Button } from 'app/atoms/Button';
+import { useModalOpenSearchParams } from 'app/hooks/use-modal-open-search-params';
 import { ReactComponent as BurgerIcon } from 'app/icons/base/menu.svg';
 import Popper from 'lib/ui/Popper';
-import { navigate, useLocation } from 'lib/woozie';
 import { useAccount } from 'temple/front';
+
+import { HomeSelectors } from '../../pages/Home/selectors';
 
 import { AccountsModal } from './AccountsModal';
 import MenuDropdown from './MenuDropdown';
-import { AppHeaderSelectors } from './selectors';
 
 export const AppHeader = memo(() => {
-  const { search, pathname } = useLocation();
   const account = useAccount();
 
-  const accountsModalOpened = useMemo(() => {
-    const usp = new URLSearchParams(search);
-
-    return Boolean(usp.get('accountsModal'));
-  }, [search]);
-  const setAccountsModalState = useCallback(
-    (newState: boolean) => {
-      const newUsp = new URLSearchParams(search);
-      if (newState) {
-        newUsp.set('accountsModal', 'true');
-      } else {
-        newUsp.delete('accountsModal');
-      }
-
-      navigate({ search: newUsp.toString(), pathname });
-    },
-    [search, pathname]
-  );
-  const setAccountsModalOpen = useCallback(() => setAccountsModalState(true), [setAccountsModalState]);
-  const setAccountsModalClosed = useCallback(() => setAccountsModalState(false), [setAccountsModalState]);
+  const {
+    isOpen: accountsModalIsOpen,
+    openModal: openAccountsModal,
+    closeModal: closeAccountsModal
+  } = useModalOpenSearchParams('accountsModal');
 
   return (
     <div className="relative z-header flex items-center py-3 px-4 gap-x-1 rounded-t-inherit">
       <AccountAvatar
         seed={account.id}
         size={32}
-        onClick={setAccountsModalOpen}
-        testID={AppHeaderSelectors.accountIcon}
+        onClick={openAccountsModal}
+        testID={HomeSelectors.accountIcon}
         elementType="button"
       />
 
-      <AccountsModal opened={accountsModalOpened} onRequestClose={setAccountsModalClosed} />
+      <AccountsModal opened={accountsModalIsOpen} onRequestClose={closeAccountsModal} />
 
       <AccountName account={account} />
 
@@ -66,7 +51,7 @@ export const AppHeader = memo(() => {
               opened && 'text-secondary-hover bg-secondary-hover-low'
             )}
             onClick={toggleOpened}
-            testID={AppHeaderSelectors.menuIcon}
+            testID={HomeSelectors.accountMenuButton}
           >
             <IconBase Icon={BurgerIcon} size={16} />
           </Button>

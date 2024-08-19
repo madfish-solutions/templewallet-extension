@@ -3,8 +3,7 @@ import React, { HTMLAttributes, memo, useRef } from 'react';
 import clsx from 'clsx';
 
 import { useScrollEdgesVisibility } from 'app/hooks/use-scroll-edges-visibility';
-
-import { setTestID, TestIDProps } from '../../../lib/analytics';
+import { setTestID, TestIDProps } from 'lib/analytics';
 
 interface ScrollViewProps extends HTMLAttributes<HTMLDivElement>, TestIDProps {
   onBottomEdgeVisibilityChange?: SyncFn<boolean>;
@@ -15,14 +14,14 @@ interface ScrollViewProps extends HTMLAttributes<HTMLDivElement>, TestIDProps {
 
 export const ScrollView = memo<ScrollViewProps>(
   ({
-    className,
-    onBottomEdgeVisibilityChange,
-    bottomEdgeThreshold,
-    onTopEdgeVisibilityChange,
-    topEdgeThreshold,
-    testID,
-    ...restProps
-  }) => {
+     className,
+     onBottomEdgeVisibilityChange,
+     bottomEdgeThreshold,
+     onTopEdgeVisibilityChange,
+     topEdgeThreshold,
+     testID,
+     ...restProps
+   }) => {
     const rootRef = useRef<HTMLDivElement>(null);
 
     useScrollEdgesVisibility(

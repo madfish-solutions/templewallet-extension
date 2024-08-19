@@ -3,8 +3,8 @@ import React, { memo } from 'react';
 import clsx from 'clsx';
 
 import { FormField } from 'app/atoms';
+import { setTestID, TestIDProps } from 'lib/analytics';
 
-import { setTestID, TestIDProps } from '../../../../lib/analytics';
 import { ManualBackupModalSelectors } from '../selectors';
 
 interface WordInputProps extends TestIDProps {
@@ -25,6 +25,6 @@ export const WordInput = memo<WordInputProps>(({ wordIndex, active, value, testI
     }
     value={value}
     readOnly
-    testID={testID || ''}
+    testID={testID}
   />
 ));

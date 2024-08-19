@@ -2,7 +2,6 @@ import React, { forwardRef, memo, useMemo } from 'react';
 
 import clsx from 'clsx';
 
-import { TestIDProps } from 'lib/analytics';
 import {
   StyledButtonColor,
   ACTIVE_STYLED_BUTTON_COLORS_CLASSNAME,
@@ -11,23 +10,20 @@ import {
 import useTippy from 'lib/ui/useTippy';
 import { combineRefs } from 'lib/ui/utils';
 
-import { Button } from './Button';
+import { Button, ButtonProps } from './Button';
 import { IconBase } from './IconBase';
 
 type Color = 'blue' | 'orange' | 'red';
 
-interface Props extends TestIDProps {
+interface IconButtonProps extends ButtonProps {
   Icon: ImportedSVGComponent;
   color?: Color;
   active?: boolean;
   tooltip?: string;
-  onClick?: EmptyFn;
 }
 
 export const IconButton = memo(
-  forwardRef<HTMLButtonElement, Props>(({ Icon, color, active, tooltip, onClick, testID, testIDProperties }, ref) => {
-    const disabled = !onClick;
-
+  forwardRef<HTMLButtonElement, IconButtonProps>(({ Icon, color, active, tooltip, ...rest }, ref) => {
     const tippyProps = useMemo(
       () => ({
         trigger: tooltip ? 'mouseenter' : '__SOME_INVALID_VALUE__',
@@ -51,14 +47,7 @@ export const IconButton = memo(
     }, [active, color]);
 
     return (
-      <Button
-        ref={finalRef}
-        className={clsx('p-1 rounded-md', colorClassName)}
-        disabled={disabled || active}
-        onClick={onClick}
-        testID={testID}
-        testIDProperties={testIDProperties}
-      >
+      <Button ref={finalRef} className={clsx('p-1 rounded-md', colorClassName)} {...rest}>
         <IconBase size={16} Icon={Icon} />
       </Button>
     );

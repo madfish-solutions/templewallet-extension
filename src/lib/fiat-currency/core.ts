@@ -4,9 +4,9 @@ import { isDefined } from '@rnw-community/shared';
 import axios from 'axios';
 import { BigNumber } from 'bignumber.js';
 
+import { useTezosUsdToTokenRatesSelector } from 'app/store/currency/selectors';
 import { useEvmUsdToTokenRatesSelector } from 'app/store/evm/tokens-exchange-rates/selectors';
 import { useSelector } from 'app/store/root-state.selector';
-import { useTezosUsdToTokenRatesSelector } from 'app/store/tezos/currency/selectors';
 import { useStorage } from 'lib/temple/front';
 import { isTruthy } from 'lib/utils';
 import { ZERO } from 'lib/utils/numbers';
@@ -22,7 +22,7 @@ function useAssetUSDPrice(slug: string, chainId: number | string, evm = false) {
 
   return useMemo(() => {
     const rateStr =
-      evm && typeof chainId === 'number' ? evmUsdToTokenRates[chainId]?.[slug] ?? 0 : tezosUsdToTokenRates[slug];
+      evm && typeof chainId === 'number' ? evmUsdToTokenRates[chainId][slug] ?? 0 : tezosUsdToTokenRates[slug];
     return rateStr ? Number(rateStr) : undefined;
   }, [evm, chainId, evmUsdToTokenRates, slug, tezosUsdToTokenRates]);
 }
@@ -37,7 +37,7 @@ export const useFiatToUsdRate = () => {
     if (!isDefined(fiatRates)) return;
 
     const fiatRate = fiatRates[selectedFiatCurrencyName.toLowerCase()] ?? 1;
-    const usdRate = fiatRates['usd'] ?? 1;
+    const usdRate = fiatRates.usd ?? 1;
 
     return fiatRate / usdRate;
   }, [fiatRates, selectedFiatCurrencyName]);

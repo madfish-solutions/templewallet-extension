@@ -1,4 +1,4 @@
-import React, { forwardRef, useLayoutEffect, useRef } from 'react';
+import React, { forwardRef, useImperativeHandle, useLayoutEffect, useRef } from 'react';
 
 import { combineRefs } from 'lib/ui/utils';
 import * as Woozie from 'lib/woozie';
@@ -12,6 +12,7 @@ export const ScrollRestorer = forwardRef<HTMLDivElement, PropsWithChildren<Props
   const { trigger, href } = Woozie.useLocation();
 
   const localRef = useRef<HTMLDivElement>(null);
+  useImperativeHandle(ref, () => localRef.current!);
 
   useLayoutEffect(() => {
     // Only 'popstate' to location restores scroll position

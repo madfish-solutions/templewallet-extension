@@ -1,7 +1,7 @@
 import React, { memo, useCallback } from 'react';
 
 import { Button, HashShortView } from 'app/atoms';
-import { EvmNetworksLogos, TezosNetworkLogo } from 'app/atoms/NetworksLogos';
+import { EvmNetworksLogos, TezNetworkLogo } from 'app/atoms/NetworksLogos';
 import { T } from 'lib/i18n';
 import { TempleChainTitle } from 'temple/types';
 
@@ -49,7 +49,7 @@ const ChainOption = memo<ChainOptionProps>(({ onSelect, privateKey }) => {
           <HashShortView hash={address} />
         </p>
       </div>
-      {chain === 'tezos' ? <TezosNetworkLogo size={9} /> : <EvmNetworksLogos size={9} />}
+      {chain === 'tezos' ? <TezNetworkLogo size={36} /> : <EvmNetworksLogos size={36} />}
     </Button>
   );
 });

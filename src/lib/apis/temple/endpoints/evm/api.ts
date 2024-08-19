@@ -14,7 +14,7 @@ export const getEvmCollectiblesMetadata = (walletAddress: string, chainId: Chain
 
 const buildEvmRequest = <T>(url: string, walletAddress: string, chainId: ChainID) =>
   templeWalletApi
-    .get<T>(`evm/${url}`, {
+    .get<T>(`evm${url}`, {
       params: { walletAddress, chainId }
     })
     .then(

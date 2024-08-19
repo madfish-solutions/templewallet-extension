@@ -1,4 +1,4 @@
-import React, { memo } from 'react';
+import React, { forwardRef, memo } from 'react';
 
 import clsx from 'clsx';
 
@@ -13,10 +13,10 @@ interface Props {
   onSecondClick: EmptyFn;
 }
 
-export const SimpleSegmentControl = memo<Props>(
-  ({ firstTitle, secondTitle, activeSecond, className, onFirstClick, onSecondClick }) => {
-    return (
-      <div className={clsx('p-0.5 rounded-md bg-lines', className)}>
+export const SimpleSegmentControl = memo(
+  forwardRef<HTMLDivElement, Props>(
+    ({ firstTitle, secondTitle, activeSecond, className, onFirstClick, onSecondClick }, ref) => (
+      <div ref={ref} className={clsx('p-0.5 rounded-md bg-lines', className)}>
         <div className="w-full flex gap-x-0.5 relative">
           {/* Slider */}
           <div
@@ -43,6 +43,6 @@ export const SimpleSegmentControl = memo<Props>(
           </Button>
         </div>
       </div>
-    );
-  }
+    )
+  )
 );

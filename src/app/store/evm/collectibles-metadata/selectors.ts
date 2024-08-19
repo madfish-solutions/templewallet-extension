@@ -1,6 +1,5 @@
+import { useSelector } from 'app/store/root-state.selector';
 import { EvmCollectibleMetadata } from 'lib/metadata/types';
-
-import { useSelector } from '../../root-state.selector';
 
 export const useEvmCollectiblesMetadataRecordSelector = () =>
   useSelector(({ evmCollectiblesMetadata }) => evmCollectiblesMetadata.metadataRecord);
