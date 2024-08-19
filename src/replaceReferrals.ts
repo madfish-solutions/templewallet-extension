@@ -18,7 +18,7 @@ checkIfShouldReplaceAds().then(shouldReplace => {
 });
 
 const replaceReferrals = throttleAsyncCalls(async () => {
-  const { CURRENT_PAGE_DOMAIN, processAnchors } = await importExtensionAdsReferralsModule();
+  const { getCurrentPageDomain, processAnchors } = await importExtensionAdsReferralsModule();
 
   const supportedDomains: string[] = await browser.runtime.sendMessage({
     type: ContentScriptType.FetchReferralsSupportedDomains
@@ -30,7 +30,9 @@ const replaceReferrals = throttleAsyncCalls(async () => {
     return;
   }
 
-  if (supportedDomains.some(d => d === CURRENT_PAGE_DOMAIN)) {
+  const currentPageDomain = getCurrentPageDomain();
+
+  if (supportedDomains.some(d => d === currentPageDomain)) {
     console.warn('Host should not be of supported referral');
     clearInterval(interval);
     return;

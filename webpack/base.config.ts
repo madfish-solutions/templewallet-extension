@@ -151,7 +151,7 @@ export const buildBaseConfig = (): WebPack.Configuration & Pick<WebPack.WebpackO
           // Process any JS outside of the app with Babel.
           // Unlike the application JS, we only compile the standard ES features.
           {
-            test: /\.(js|mjs)$/,
+            test: /\.(js|mjs|cjs)$/,
             exclude: /@babel(?:\/|\\{1,2})runtime/,
             loader: require.resolve('babel-loader'),
             options: {
@@ -212,7 +212,7 @@ export const buildBaseConfig = (): WebPack.Configuration & Pick<WebPack.WebpackO
             // its runtime that would otherwise be processed through "file" loader.
             // Also exclude `html` and `json` extensions so they get processed
             // by webpacks internal loaders.
-            exclude: [/\.(js|mjs|jsx|ts|tsx)$/, /\.html$/, /\.json$/]
+            exclude: [/\.(js|mjs|cjs|jsx|ts|tsx)$/, /\.html$/, /\.json$/]
           }
           // ** STOP ** Are you adding a new loader?
           // Make sure to add the new loader(s) before the "file" loader.
