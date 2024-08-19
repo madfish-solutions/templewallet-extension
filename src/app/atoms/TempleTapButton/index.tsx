@@ -1,7 +1,5 @@
 import React, { memo } from 'react';
 
-import clsx from 'clsx';
-
 import { Anchor } from 'app/atoms/Anchor';
 import { useAppEnv } from 'app/env';
 
@@ -22,10 +20,10 @@ export const TempleTapButton = memo(() => {
     >
       <div className="overflow-hidden rounded relative">
         <img alt="temple tap bg" className="w-auto h-7" src={popup ? TempleTapPopupBg : TempleTapFullpageBg} />
-        <div className={clsx(styles.goldShine, 'absolute -bottom-7 -right-7')} />
+        <div className={styles.goldShine} />
       </div>
 
-      <div className={clsx(styles.pickaxe, 'absolute -bottom-2 -right-5')} />
+      <div className={styles.pickaxe} />
     </Anchor>
   );
 });
