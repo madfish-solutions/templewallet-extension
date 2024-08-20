@@ -239,7 +239,7 @@ export const buildBaseConfig = (): WebPack.Configuration & Pick<WebPack.WebpackO
     }),
     IS_CORE_BUILD &&
       new WebPack.IgnorePlugin({
-        resourceRegExp: /^@temple-wallet\/extension-ads$/
+        resourceRegExp: /^@temple-wallet\/extension-ads(\/.+)?$/
       }),
 
     new ModuleNotFoundPlugin(PATHS.SOURCE),

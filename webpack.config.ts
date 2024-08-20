@@ -26,7 +26,8 @@ import {
   MANIFEST_VERSION,
   BACKGROUND_IS_WORKER,
   RELOADER_PORTS,
-  MAX_JS_CHUNK_SIZE_IN_BYTES
+  MAX_JS_CHUNK_SIZE_IN_BYTES,
+  IS_CORE_BUILD
 } from './webpack/env';
 import usePagesLiveReload from './webpack/live-reload';
 import { buildManifest } from './webpack/manifest';
@@ -50,8 +51,6 @@ const HTML_TEMPLATES = PAGES_NAMES.map(name => {
     return { name, filename: `iframes/${filename}`, path };
   })
 );
-
-const IS_CORE_BUILD = process.env.CORE_BUILD === 'true';
 
 const CONTENT_SCRIPTS = ['contentScript', !IS_CORE_BUILD && 'replaceAds', !IS_CORE_BUILD && 'replaceReferrals'].filter(
   isTruthy
