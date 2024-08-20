@@ -177,8 +177,14 @@ const mainConfig = (() => {
 const scriptsConfig = (() => {
   const config = buildBaseConfig();
 
-  // Required for dynamic imports `import()`
-  config.output!.chunkFormat = 'module';
+  config.output!.chunkFormat =
+    TARGET_BROWSER === 'firefox'
+      ? /* Dynamic imports do not work in Firefox for Content Scripts.
+         * See: https://bugzilla.mozilla.org/show_bug.cgi?id=1536094
+         * Neither chunks loading method seem to work.
+         */
+        false
+      : 'module'; // Required for dynamic imports `import()`
 
   config.entry = {
     contentScript: Path.join(PATHS.SOURCE, 'contentScript.ts')
