@@ -3451,7 +3451,7 @@
     "@svgr/plugin-jsx" "^6.4.0"
     "@svgr/plugin-svgo" "^6.3.1"
 
-"@taquito/beacon-wallet@20.0.0", "@taquito/beacon-wallet@^19.0.2":
+"@taquito/beacon-wallet@20.0.0":
   version "20.0.0"
   resolved "https://registry.yarnpkg.com/@taquito/beacon-wallet/-/beacon-wallet-20.0.0.tgz#5a8eaaaa440a9897ed2dc0177df337da4ecacc5a"
   integrity sha512-Ks2iPaanQHRUI+nYReAVZod3s9knLAZwLShrrR9oH/QKxPRtm568ojckQ1iZmOC0VTII/l89F+fkGbCRLSBLIA==
@@ -3460,7 +3460,7 @@
     "@taquito/core" "^20.0.0"
     "@taquito/taquito" "^20.0.0"
 
-"@taquito/contracts-library@20.0.0", "@taquito/contracts-library@^19.0.2":
+"@taquito/contracts-library@20.0.0":
   version "20.0.0"
   resolved "https://registry.yarnpkg.com/@taquito/contracts-library/-/contracts-library-20.0.0.tgz#ffa3c93706e7b2b6e3d7ccf637b4c4b5629ade8a"
   integrity sha512-x8YPg4C/FupehA7YW/YX79OPTeA27APrIt1GA+4UE+Yc7UcQ78maKOolLqX4LSdzSDmDSUkBarTeEIRNd8OY/Q==
@@ -3555,7 +3555,7 @@
     pbkdf2 "^3.1.2"
     typedarray-to-buffer "^4.0.0"
 
-"@taquito/taquito@20.0.0", "@taquito/taquito@^19.0.2", "@taquito/taquito@^20.0.0":
+"@taquito/taquito@20.0.0", "@taquito/taquito@^20.0.0":
   version "20.0.0"
   resolved "https://registry.yarnpkg.com/@taquito/taquito/-/taquito-20.0.0.tgz#221eb2c5b261fa08d0c736e4db75ce9250d73da2"
   integrity sha512-iA53YlMdElAb919vhS7UswjHFumiDGOB6IE1vAh5dOLdPvK8L6uDlSXU6Aaz/nQyTJGe6I6RusjXEoMVnZUe2g==
@@ -3580,7 +3580,7 @@
     "@taquito/taquito" "^20.0.0"
     "@taquito/tzip16" "^20.0.0"
 
-"@taquito/tzip16@20.0.0", "@taquito/tzip16@^19.0.2", "@taquito/tzip16@^20.0.0":
+"@taquito/tzip16@20.0.0", "@taquito/tzip16@^20.0.0":
   version "20.0.0"
   resolved "https://registry.yarnpkg.com/@taquito/tzip16/-/tzip16-20.0.0.tgz#6bedf7b0f1adc1269bb7edc83fafaf552a8c6e8a"
   integrity sha512-aCisyUga0wnBj8uTGYEZ1OiAEgrGdmM3fFltYe2/0xTda3eoO146XGQrxR3BvcHTB7BiJeZOwmZByvJ6Lel0tg==
@@ -3617,13 +3617,12 @@
   dependencies:
     nanoid "^3.1.25"
 
-"@temple-wallet/extension-ads@8.1.0-dev.2":
-  version "8.1.0-dev.2"
-  resolved "https://registry.yarnpkg.com/@temple-wallet/extension-ads/-/extension-ads-8.1.0-dev.2.tgz#832bf058777ef2dd8763bda07e546dd0073dffea"
-  integrity sha512-STyQ5WHxR2256RaL7JixEVJWn7+rOCCR9bXGurtA0mpvNHFi/1Lh+Tv6+feC8/RxbMvWf/Q5U4vhMkpTM51DhA==
+"@temple-wallet/extension-ads@8.1.0-dev.3":
+  version "8.1.0-dev.3"
+  resolved "https://registry.yarnpkg.com/@temple-wallet/extension-ads/-/extension-ads-8.1.0-dev.3.tgz#fd78ac02773d1497f67468d5c98cefe62c4cbbff"
+  integrity sha512-cufr8Qdx5JLDWZNeEYfFkDNQ8u+44OZbjFl9tYLbmvoSR25V6trgCGpSJ0S7MObwABoHwrb5UEscbfU1DorVXQ==
   dependencies:
-    "@vespaiach/axios-fetch-adapter" "^0.3.1"
-    axios "^1.6.7"
+    axios "^1.7.4"
     crypto-js "^4.2.0"
     lodash "^4.17.21"
     nanoid "^5.0.6"
@@ -3635,12 +3634,12 @@
   resolved "https://registry.yarnpkg.com/@temple-wallet/jest-webextension-mock/-/jest-webextension-mock-4.1.0.tgz#6834acd98297eb1c76b85a2585a0584ff5578e8f"
   integrity sha512-1D/3WpaJS9rk5SENnFB1RZ3oeYkrfDvCV4qyIYjAD6uWe6RHVzcGxQ8UPtSQ/MRrcqjT95q2VwDNxek+9z6+yw==
 
-"@temple-wallet/save-remote-file-webpack-plugin@^1.1.2":
-  version "1.1.2"
-  resolved "https://registry.yarnpkg.com/@temple-wallet/save-remote-file-webpack-plugin/-/save-remote-file-webpack-plugin-1.1.2.tgz#7eba65d1913b9528ca6f53c988829103048ca9a6"
-  integrity sha512-PGHYZ/bsUHhEQFmaVnY1+3Eu5xT12sNQOaVMAXmRk/fUIviELZcyc+UMFeunKwWxGga0sY93ZjW4wc0Yu0qVQA==
+"@temple-wallet/save-remote-file-webpack-plugin@^1.1.3":
+  version "1.1.3"
+  resolved "https://registry.yarnpkg.com/@temple-wallet/save-remote-file-webpack-plugin/-/save-remote-file-webpack-plugin-1.1.3.tgz#b73cccb8520be180229b8d7a99938168b29a55be"
+  integrity sha512-uqZmddQnwpZ9XgROzM9sGoKW2TfUlv+5XV8NdPQBYRR5yePzdWXbQWM4iDHWAVeScy5Vd2E6IgL6uqESEpngKw==
   dependencies:
-    axios "^1.6.7"
+    axios "^1.7.4"
 
 "@temple-wallet/wallet-address-validator@^0.4.3":
   version "0.4.3"
@@ -3652,17 +3651,17 @@
     crc "^3.8.0"
     jssha "2.3.1"
 
-"@temple-wallet/youves-sdk@^0.0.9":
-  version "0.0.9"
-  resolved "https://registry.yarnpkg.com/@temple-wallet/youves-sdk/-/youves-sdk-0.0.9.tgz#ab581e05826c5020238b880abbbe0d7f3628cf48"
-  integrity sha512-gEUG78e8AtyWZmy6n5pUKH/1iJAIMM9ZFhpUOOlYZy9ucjLbau+/lSr2DDnU4khDCrtfSkxy6G6fLzXp5Vszzg==
+"@temple-wallet/youves-sdk@^0.0.10":
+  version "0.0.10"
+  resolved "https://registry.yarnpkg.com/@temple-wallet/youves-sdk/-/youves-sdk-0.0.10.tgz#daaa492907fdcf0761b2f74175b61202b7f97f82"
+  integrity sha512-kmO5Hw0xlggKnkh1P7+F0tljnBwinfRfWj06EQB58mNkl/IZGg9r06efCPSHApuFohvr4D6YGnwh2vvCrB3Zbw==
   dependencies:
-    "@taquito/beacon-wallet" "^19.0.2"
-    "@taquito/contracts-library" "^19.0.2"
-    "@taquito/taquito" "^19.0.2"
-    "@taquito/tzip16" "^19.0.2"
-    axios "^0.24.0"
-    bignumber.js "^9.0.2"
+    "@taquito/beacon-wallet" "20.0.0"
+    "@taquito/contracts-library" "20.0.0"
+    "@taquito/taquito" "20.0.0"
+    "@taquito/tzip16" "20.0.0"
+    axios "^1.7.4"
+    bignumber.js "^9.1.0"
     graphql "^15.5.1"
     graphql-request "^3.5.0"
 
@@ -4549,11 +4548,6 @@
     "@typescript-eslint/types" "5.62.0"
     eslint-visitor-keys "^3.3.0"
 
-"@vespaiach/axios-fetch-adapter@^0.3.1":
-  version "0.3.1"
-  resolved "https://registry.yarnpkg.com/@vespaiach/axios-fetch-adapter/-/axios-fetch-adapter-0.3.1.tgz#b0c08167bec9cc558f578a1b9ccff52ead1cf1cb"
-  integrity sha512-+1F52VWXmQHSRFSv4/H0wtnxfvjRMPK5531e880MIjypPdUSX6QZuoDgEVeCE1vjhzDdxCVX7rOqkub7StEUwQ==
-
 "@walletconnect/core@2.11.2":
   version "2.11.2"
   resolved "https://registry.yarnpkg.com/@walletconnect/core/-/core-2.11.2.tgz#35286be92c645fa461fecc0dfe25de9f076fca8f"
@@ -5362,26 +5356,28 @@ axe-core@=4.7.0:
   resolved "https://registry.yarnpkg.com/axe-core/-/axe-core-4.7.0.tgz#34ba5a48a8b564f67e103f0aa5768d76e15bbbbf"
   integrity sha512-M0JtH+hlOL5pLQwHOLNYZaXuhqmvS8oExsqB1SBYgA4Dk7u/xx+YdGHXaK5pyUfed5mYXdlYiphWq3G8cRi5JQ==
 
-axios@0.26.1, axios@^0.26.1:
+axios@^0.26.1:
   version "0.26.1"
   resolved "https://registry.yarnpkg.com/axios/-/axios-0.26.1.tgz#1ede41c51fcf51bbbd6fd43669caaa4f0495aaa9"
   integrity sha512-fPwcX4EvnSHuInCMItEhAGnaSEXRBjtzh9fOtsE6E1G6p7vl7edEeZe11QHf18+6+9gR5PbKV/sGKNaD8YaMeA==
   dependencies:
     follow-redirects "^1.14.8"
 
-axios@^0.24.0:
-  version "0.24.0"
-  resolved "https://registry.yarnpkg.com/axios/-/axios-0.24.0.tgz#804e6fa1e4b9c5288501dd9dff56a7a0940d20d6"
-  integrity sha512-Q6cWsys88HoPgAaFAVUb0WpPk0O8iTeisR9IMqy9G8AbO4NlpVknrnQS03zzF9PGAWgO3cgletO3VjV/P7VztA==
-  dependencies:
-    follow-redirects "^1.14.4"
-
-axios@^1.6.2, axios@^1.6.7:
+axios@^1.6.2:
   version "1.6.7"
   resolved "https://registry.yarnpkg.com/axios/-/axios-1.6.7.tgz#7b48c2e27c96f9c68a2f8f31e2ab19f59b06b0a7"
   integrity sha512-/hDJGff6/c7u0hDkvkGxR/oy6CbCs8ziCsC7SqmhjfozqiJGc8Z11wrv9z9lYfY4K8l+H9TpjcMDX0xOZmx+RA==
   dependencies:
     follow-redirects "^1.15.4"
+    form-data "^4.0.0"
+    proxy-from-env "^1.1.0"
+
+axios@^1.7.4:
+  version "1.7.4"
+  resolved "https://registry.yarnpkg.com/axios/-/axios-1.7.4.tgz#4c8ded1b43683c8dd362973c393f3ede24052aa2"
+  integrity sha512-DukmaFRnY6AzAALSH4J2M3k6PkaC+MfaAGdEERRWcC9q3/TWQwLpHR8ZRLKTdQ3aBDL64EdluRDjJqKw+BPZEw==
+  dependencies:
+    follow-redirects "^1.15.6"
     form-data "^4.0.0"
     proxy-from-env "^1.1.0"
 
@@ -5586,7 +5582,7 @@ big.js@^5.2.2:
   resolved "https://registry.yarnpkg.com/big.js/-/big.js-5.2.2.tgz#65f0af382f578bcdc742bd9c281e9cb2d7768328"
   integrity sha512-vyL2OymJxmarO8gxMr0mhChsO9QGwhynfuu4+MHTAW6czfq9humCB7rKpUjDd9YUiDPU4mzpyupFSvOClAwbmQ==
 
-bignumber.js@9.1.0, bignumber.js@^9.0.2, bignumber.js@^9.1.0, bignumber.js@^9.1.2:
+bignumber.js@9.1.0, bignumber.js@^9.1.0, bignumber.js@^9.1.2:
   version "9.1.0"
   resolved "https://registry.yarnpkg.com/bignumber.js/-/bignumber.js-9.1.0.tgz#8d340146107fe3a6cb8d40699643c302e8773b62"
   integrity sha512-4LwHK4nfDOraBCtst+wOWIHbu1vhvAPJK8g8nROd4iuc3PSEjWif/qwbkh8jwCJz6yDBvtU4KPynETgrfh7y3A==
@@ -7746,7 +7742,7 @@ flux@^4.0.1:
     fbemitter "^3.0.0"
     fbjs "^3.0.1"
 
-follow-redirects@^1.0.0, follow-redirects@^1.14.4, follow-redirects@^1.14.8, follow-redirects@^1.15.4:
+follow-redirects@^1.0.0, follow-redirects@^1.14.8, follow-redirects@^1.15.4, follow-redirects@^1.15.6:
   version "1.15.5"
   resolved "https://registry.yarnpkg.com/follow-redirects/-/follow-redirects-1.15.5.tgz#54d4d6d062c0fa7d9d17feb008461550e3ba8020"
   integrity sha512-vSFWUON1B+yAw1VN4xMfxgn5fTUiaOzAJCKBwIIgT/+7CuGy9+r+5gITvP62j3RmaD5Ph65UaERdOSRGUzZtgw==

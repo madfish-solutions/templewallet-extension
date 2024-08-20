@@ -49,7 +49,7 @@ const api = axios.create();
 api.interceptors.response.use(
   res => res,
   err => {
-    const message = (err as AxiosError).response?.data?.message;
+    const message = (err as AxiosError)?.message;
     console.error(`Failed when querying Tzkt API: ${message}`, err);
     throw err;
   }

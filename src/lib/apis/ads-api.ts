@@ -1,11 +1,10 @@
-import axiosFetchAdapter from '@vespaiach/axios-fetch-adapter';
 import axios from 'axios';
 
 import { APP_VERSION, EnvVars } from 'lib/env';
 
 const axiosClient = axios.create({
   baseURL: EnvVars.TEMPLE_ADS_API_URL,
-  adapter: axiosFetchAdapter
+  adapter: 'fetch'
 });
 
 interface ImpressionDetails {
