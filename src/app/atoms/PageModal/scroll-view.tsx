@@ -14,14 +14,14 @@ interface ScrollViewProps extends HTMLAttributes<HTMLDivElement>, TestIDProps {
 
 export const ScrollView = memo<ScrollViewProps>(
   ({
-     className,
-     onBottomEdgeVisibilityChange,
-     bottomEdgeThreshold,
-     onTopEdgeVisibilityChange,
-     topEdgeThreshold,
-     testID,
-     ...restProps
-   }) => {
+    className,
+    onBottomEdgeVisibilityChange,
+    bottomEdgeThreshold,
+    onTopEdgeVisibilityChange,
+    topEdgeThreshold,
+    testID,
+    ...restProps
+  }) => {
     const rootRef = useRef<HTMLDivElement>(null);
 
     useScrollEdgesVisibility(

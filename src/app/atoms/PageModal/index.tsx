@@ -10,7 +10,6 @@ import { ReactComponent as ExIcon } from 'app/icons/base/x.svg';
 import { LAYOUT_CONTAINER_CLASSNAME } from 'app/layouts/containers';
 import { TestIDProps } from 'lib/analytics';
 
-import { TestIDProps } from '../../../lib/analytics';
 import { IconBase } from '../IconBase';
 
 import ModStyles from './styles.module.css';

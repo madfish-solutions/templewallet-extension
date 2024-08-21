@@ -89,3 +89,9 @@ export class PageElement {
     return await element.innerText({ timeout });
   }
 }
+
+export const getElementText = async (selector: string) => {
+  const element = await findElement(selector);
+
+  return await element.textContent();
+};

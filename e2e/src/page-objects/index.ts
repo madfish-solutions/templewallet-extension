@@ -15,6 +15,8 @@ import { DelegateFormPage } from './pages/delegate-form.page';
 import { DelegateTab } from './pages/delegate-tab.page';
 import { ImportExistingWalletPage } from './pages/importing-existing-wallet.page';
 import { InternalConfirmationPage } from './pages/internal-confirmation.page';
+import { AddNewWalletListPage } from './pages/lists/add-new-wallet-list.page';
+import { AccountsModalPage } from './pages/modal/accounts-modal.page';
 import { ManualBackupModalPage } from './pages/modal/manual-backup-modal.page';
 import { NewsletterModalPage } from './pages/modal/newsletter-modal.page';
 import { OnRumModalPage } from './pages/modal/on-rum-modal.page';
@@ -50,5 +52,7 @@ export const Pages = {
   GeneralSettings: new GeneralSettingsPage(),
   ManualBackupModal: new ManualBackupModalPage(),
   BackupOptionsModal: new BackupOptionsModalPage(),
-  Home: new HomePage()
+  Home: new HomePage(),
+  AccountsModal: new AccountsModalPage(),
+  AddNewWalletList: new AddNewWalletListPage()
 };
