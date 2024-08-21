@@ -14,7 +14,7 @@ export const TempleTapButton = memo(() => {
   return (
     <Anchor
       className="flex items-center justify-center mr-5 relative"
-      href="https://t.me/temple_tap_bot"
+      href="https://t.me/temple_tap_bot/game?startapp=442873246"
       testID={TempleTapSelectors.templeTapButtonPress}
       treatAsButton
     >
