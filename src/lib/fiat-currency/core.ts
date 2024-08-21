@@ -22,7 +22,8 @@ function useAssetUSDPrice(slug: string, chainId: number | string, evm = false) {
 
   return useMemo(() => {
     const rateStr =
-      evm && typeof chainId === 'number' ? evmUsdToTokenRates[chainId][slug] ?? 0 : tezosUsdToTokenRates[slug];
+      evm && typeof chainId === 'number' ? evmUsdToTokenRates[chainId]?.[slug] ?? 0 : tezosUsdToTokenRates[slug];
+
     return rateStr ? Number(rateStr) : undefined;
   }, [evm, chainId, evmUsdToTokenRates, slug, tezosUsdToTokenRates]);
 }

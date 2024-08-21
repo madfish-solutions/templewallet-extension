@@ -5,7 +5,11 @@ exec('yarn audit --level high', (error, stdout, stderr) => {
     console.log(stdout);
 
     if (stdout.includes('High') || stdout.includes('Critical')) {
-      throw new Error('Audit failed');
+      const countHigh = stdout.match(/Severity: .* (\d+) High/)?.[1];
+      const countCritical = stdout.match(/Severity: .* (\d+) Critical/)?.[1];
+      const count = (countHigh ? Number(countHigh) : 0) + (countCritical ? Number(countCritical) : 0);
+
+      throw new Error(`Audit failed with ${count} vulnerabilities`);
     }
   }
 });

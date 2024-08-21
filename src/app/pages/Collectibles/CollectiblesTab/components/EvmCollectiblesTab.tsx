@@ -4,6 +4,7 @@ import { useEvmAccountCollectiblesListingLogic } from 'app/hooks/listing-logic/u
 import { useAssetsViewState } from 'app/hooks/use-assets-view-state';
 import { useCollectiblesListOptionsSelector } from 'app/store/assets-filter-options/selectors';
 import { fromChainAssetSlug } from 'lib/assets/utils';
+import { useEthereumMainnetChain } from 'temple/front';
 
 import { EvmCollectibleItem } from './CollectibleItem';
 import { CollectiblesTabBase } from './CollectiblesTabBase';
@@ -13,13 +14,13 @@ interface EvmCollectiblesTabProps {
 }
 
 export const EvmCollectiblesTab = memo<EvmCollectiblesTabProps>(({ publicKeyHash }) => {
+  const mainnetChain = useEthereumMainnetChain();
+
   const { showInfo } = useCollectiblesListOptionsSelector();
   const { manageActive } = useAssetsViewState();
 
-  const { paginatedSlugs, isSyncing, loadNext, searchValue, setSearchValue } = useEvmAccountCollectiblesListingLogic(
-    publicKeyHash,
-    manageActive
-  );
+  const { isInSearchMode, paginatedSlugs, isSyncing, loadNext, searchValue, setSearchValue } =
+    useEvmAccountCollectiblesListingLogic(publicKeyHash, manageActive);
 
   const contentElement = useMemo(
     () => (
@@ -45,12 +46,15 @@ export const EvmCollectiblesTab = memo<EvmCollectiblesTabProps>(({ publicKeyHash
 
   return (
     <CollectiblesTabBase
-      contentElement={contentElement}
       collectiblesCount={paginatedSlugs.length}
       searchValue={searchValue}
       loadNextPage={loadNext}
       onSearchValueChange={setSearchValue}
       isSyncing={isSyncing}
-    />
+      isInSearchMode={isInSearchMode}
+      network={mainnetChain}
+    >
+      {contentElement}
+    </CollectiblesTabBase>
   );
 });

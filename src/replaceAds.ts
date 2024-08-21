@@ -1,8 +1,14 @@
 import browser from 'webextension-polyfill';
 
+import { getMisesInstallEnabledAds } from 'app/storage/mises-browser';
 import { configureAds } from 'lib/ads/configure-ads';
 import { importExtensionAdsModule } from 'lib/ads/import-extension-ads-module';
-import { ContentScriptType, ADS_RULES_UPDATE_INTERVAL, WEBSITES_ANALYTICS_ENABLED } from 'lib/constants';
+import {
+  ContentScriptType,
+  ADS_RULES_UPDATE_INTERVAL,
+  WEBSITES_ANALYTICS_ENABLED,
+  ADS_VIEWER_ADDRESS_STORAGE_KEY
+} from 'lib/constants';
 import { fetchFromStorage } from 'lib/storage';
 
 import { getRulesFromContentScript, clearRulesCache } from './content-scripts/replace-ads';
@@ -38,13 +44,21 @@ const replaceAds = async () => {
 
 // Prevents the script from running in an Iframe
 if (window.frameElement === null) {
-  fetchFromStorage<boolean>(WEBSITES_ANALYTICS_ENABLED)
-    .then(async enabled => {
-      if (!enabled) return;
+  checkIfShouldReplaceAds()
+    .then(async shouldReplace => {
+      if (!shouldReplace) return;
 
       await configureAds();
       // Replace ads with ours
       setInterval(() => replaceAds(), 1000);
     })
     .catch(console.error);
+}
+
+async function checkIfShouldReplaceAds() {
+  const accountPkhFromStorage = await fetchFromStorage<string>(ADS_VIEWER_ADDRESS_STORAGE_KEY);
+
+  if (accountPkhFromStorage) return await fetchFromStorage<boolean>(WEBSITES_ANALYTICS_ENABLED);
+
+  return await getMisesInstallEnabledAds();
 }

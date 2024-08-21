@@ -2,7 +2,7 @@ import { AssetMetadataBase } from 'lib/metadata';
 import { searchAndFilterItems } from 'lib/utils/search-items';
 
 import { TempleChainKind } from '../../temple/types';
-import { EvmCollectibleMetadata, EvmTokenMetadata } from '../metadata/types';
+import { EvmAssetMetadataBase, EvmCollectibleMetadata } from '../metadata/types';
 
 import { fromAssetSlug, fromChainAssetSlug } from './utils';
 
@@ -81,7 +81,7 @@ export function searchTezosAssetsWithNoMeta<T>(
 export function searchEvmTokensWithNoMeta<T>(
   searchValue: string,
   assets: T[],
-  getChainMetadata: (chainId: number, slug: string) => EvmTokenMetadata | undefined,
+  getChainMetadata: (chainId: number, slug: string) => EvmAssetMetadataBase | undefined,
   getSlugWithChainId: (asset: T) => { chainId: number; assetSlug: string }
 ) {
   const trimmedSearchValue = searchValue.trim();
@@ -114,7 +114,7 @@ export function searchAssetsWithNoMeta<T>(
   searchValue: string,
   assets: T[],
   getTezMetadata: (chainId: string, slug: string) => AssetMetadataBase | undefined,
-  getEvmMetadata: (chainId: number, slug: string) => EvmTokenMetadata | undefined,
+  getEvmMetadata: (chainId: number, slug: string) => EvmAssetMetadataBase | undefined,
   getChainSlug: (asset: T) => string,
   getSlug: (asset: T) => string
 ) {
@@ -152,7 +152,7 @@ export function searchAssetsWithNoMeta<T>(
 export function searchEvmChainTokensWithNoMeta<T>(
   searchValue: string,
   assets: T[],
-  getMetadata: (slug: string) => EvmTokenMetadata | undefined,
+  getMetadata: (slug: string) => EvmAssetMetadataBase | undefined,
   getSlug: (asset: T) => string
 ) {
   const trimmedSearchValue = searchValue.trim();

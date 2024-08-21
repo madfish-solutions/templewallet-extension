@@ -30,7 +30,7 @@ export const useTezosChainCollectiblesPaginationLogic = (allSlugsSorted: string[
     // Attempt to have initial items show-up without loader
     const initialSlugs = allSlugsSorted.slice(0, ITEMS_PER_PAGE);
     const firstAbsentMetaI = initialSlugs.findIndex(slug => !allMeta.get(slug));
-    return firstAbsentMetaI === -1 ? initialSlugs : initialSlugs.slice(0, firstAbsentMetaI + 1);
+    return firstAbsentMetaI === -1 ? initialSlugs : initialSlugs.slice(0, firstAbsentMetaI);
   });
 
   const initialIsLoading = initialAmountParam ? false : Boolean(allSlugsSorted.length);
@@ -110,7 +110,7 @@ export const useTezosAccountCollectiblesPaginationLogic = (allChainSlugsSorted: 
     // Attempt to have initial items show-up without loader
     const initialSlugs = allChainSlugsSorted.slice(0, ITEMS_PER_PAGE);
     const firstAbsentMetaI = initialSlugs.findIndex(slug => !allMeta.get(slug));
-    return firstAbsentMetaI === -1 ? initialSlugs : initialSlugs.slice(0, firstAbsentMetaI + 1);
+    return firstAbsentMetaI === -1 ? initialSlugs : initialSlugs.slice(0, firstAbsentMetaI);
   });
 
   const initialIsLoading = initialAmountParam ? false : Boolean(allChainSlugsSorted.length);

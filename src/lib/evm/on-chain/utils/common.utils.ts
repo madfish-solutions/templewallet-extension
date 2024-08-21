@@ -1,20 +1,19 @@
 import { parseAbi } from 'viem';
 
 import { fromAssetSlug } from 'lib/assets';
-import { getReadOnlyEvmForNetwork } from 'temple/evm';
-import { EvmChain } from 'temple/front';
+import { getReadOnlyEvm } from 'temple/evm';
 
 import { ContractInterfaceId, EvmAssetStandard } from '../../types';
 
 const supportsInterfaceAbi = parseAbi(['function supportsInterface(bytes4 interfaceID) external view returns (bool)']);
 
 export const detectEvmTokenStandard = async (
-  network: EvmChain,
+  rpcBaseUrl: string,
   assetSlug: string
 ): Promise<EvmAssetStandard | undefined> => {
   const [contractAddress] = fromAssetSlug<HexString>(assetSlug);
 
-  const publicClient = getReadOnlyEvmForNetwork(network);
+  const publicClient = getReadOnlyEvm(rpcBaseUrl);
 
   try {
     const isERC721Supported = await publicClient.readContract({
