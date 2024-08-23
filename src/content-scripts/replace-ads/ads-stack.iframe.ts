@@ -7,10 +7,6 @@ const id = usp.get('id');
 const origin = usp.get(ORIGIN_SEARCH_PARAM_NAME) ?? window.location.href;
 const adsMetadataIds = usp.getAll(ADS_META_SEARCH_PARAM_NAME).map(value => JSON.parse(value));
 
-if (adsMetadataIds.every(id => typeof id === 'number')) {
-  document.body.style.backgroundColor = '#F2F2F2';
-}
-
 configureAds()
   .then(() => importExtensionAdsModule())
   .then(({ renderAdsStack }) => renderAdsStack(id ?? '', adsMetadataIds, origin))
