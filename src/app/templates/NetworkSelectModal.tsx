@@ -22,6 +22,7 @@ import { useScrollIntoViewOnMount } from 'lib/ui/use-scroll-into-view';
 import { navigate } from 'lib/woozie';
 import {
   EvmChain,
+  OneOfChains,
   TezosChain,
   useAccount,
   useAccountAddressForEvm,
@@ -33,7 +34,7 @@ import { TempleChainKind } from 'temple/types';
 
 const ALL_NETWORKS = 'All Networks';
 
-type Network = TezosChain | EvmChain | string;
+type Network = OneOfChains | string;
 
 interface Props {
   opened: boolean;

@@ -5,29 +5,14 @@ import type * as ViemChainsModuleType from 'viem/chains';
 import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
 import { EvmAssetStandard } from 'lib/evm/types';
 import { EvmNativeTokenMetadata } from 'lib/metadata/types';
-import { EvmChain } from 'temple/front';
 import { MAX_MEMOIZED_TOOLKITS } from 'temple/misc';
 
-export const getReadOnlyEvmForNetwork = memoizee(
-  (network: EvmChain) =>
+export const getReadOnlyEvm = memoizee(
+  (rpcUrl: string) =>
     createPublicClient({
-      chain: {
-        id: network.chainId,
-        name: network.name,
-        nativeCurrency: network.currency,
-        rpcUrls: {
-          default: {
-            http: [network.rpcBaseURL]
-          }
-        }
-      },
-      transport: http()
+      transport: http(rpcUrl)
     }),
-  {
-    max: MAX_MEMOIZED_TOOLKITS,
-    normalizer: ([{ chainId, name, rpcBaseURL, currency }]) =>
-      `${rpcBaseURL}${chainId}${name}${JSON.stringify(currency)}`
-  }
+  { max: MAX_MEMOIZED_TOOLKITS }
 );
 
 export interface EvmChainInfo {

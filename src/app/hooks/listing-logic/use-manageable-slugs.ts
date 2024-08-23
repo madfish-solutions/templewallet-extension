@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef } from 'react';
 
+/** @deprecated Use `usePreservedOrderSlugsToManage` */
 export const useManageableSlugs = (
   manageActive: boolean,
   allSlugs: string[],
@@ -25,4 +26,33 @@ export const useManageableSlugs = (
 
     return Array.from(allUniqTokenSlugsSet).filter(slug => allTokenSlugsSet.has(slug));
   }, [manageActive, manageInactiveSlugs, allSlugs]);
+};
+
+export const usePreservedOrderSlugsToManage = (enabledSlugsSorted: string[], otherSlugsSorted: string[]) => {
+  const prevResultRef = useRef<string[]>([]);
+
+  return useMemo(() => {
+    const newConcated = Array.from(new Set(enabledSlugsSorted.concat(otherSlugsSorted)));
+
+    const prevResult = prevResultRef.current;
+
+    // Only needed for performance to not `prevResult.indexOf` multiple times
+    const indexMap = new Map<string, number>(prevResult.map((slug, index) => [slug, index]));
+
+    // Sorting with respect to previous order every time
+    const newResult = prevResult.length
+      ? newConcated.sort((a, b) => {
+          const ai = indexMap.get(a);
+          const bi = indexMap.get(b);
+
+          if (ai == null || bi == null) return 0;
+
+          return ai - bi;
+        })
+      : newConcated;
+
+    prevResultRef.current = newResult;
+
+    return newResult;
+  }, [enabledSlugsSorted, otherSlugsSorted]);
 };

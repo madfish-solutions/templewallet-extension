@@ -1,5 +1,4 @@
 import { Mutex } from 'async-mutex';
-import { noop } from 'lodash';
 
 export { arrayBufferToString, stringToArrayBuffer, uInt8ArrayToString, stringToUInt8Array } from './buffers';
 
@@ -8,6 +7,9 @@ type Truthy<T> = T extends null | undefined | void | false | '' | 0 | 0n ? never
 
 export const EMPTY_FROZEN_OBJ: StringRecord<never> = {};
 Object.freeze(EMPTY_FROZEN_OBJ);
+
+/** From lodash */
+function noop() {}
 
 export const isTruthy = <T>(value: T): value is Truthy<T> => Boolean(value);
 

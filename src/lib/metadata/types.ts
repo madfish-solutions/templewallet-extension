@@ -30,7 +30,7 @@ export type MetadataRecords = Record<string, TokenMetadata>;
  */
 export type MetadataMap = Map<string, TokenMetadata>;
 
-export interface EvmTokenMetadata {
+export interface EvmAssetMetadataBase {
   address: typeof EVM_TOKEN_SLUG | HexString;
   standard?: EvmAssetStandard;
   /** contract name (for nft contract refers to collection name) */
@@ -41,12 +41,17 @@ export interface EvmTokenMetadata {
   decimals?: number;
 }
 
-export interface EvmNativeTokenMetadata extends Required<EvmTokenMetadata> {
+export interface EvmTokenMetadata extends EvmAssetMetadataBase {
+  standard: EvmAssetStandard.ERC20;
+  address: HexString;
+}
+
+export interface EvmNativeTokenMetadata extends Required<EvmAssetMetadataBase> {
   standard: EvmAssetStandard.NATIVE;
   address: typeof EVM_TOKEN_SLUG;
 }
 
-export interface EvmCollectibleMetadata extends EvmTokenMetadata {
+export interface EvmCollectibleMetadata extends EvmAssetMetadataBase {
   tokenId: string;
   metadataUri?: string;
   image?: string;

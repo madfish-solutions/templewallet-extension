@@ -38,7 +38,6 @@ export const MultiChainCollectiblesTab = memo<MultiChainCollectiblesTabProps>(
                   tezosChainId={chainId as string}
                   adultBlur={blur}
                   areDetailsShown={showInfo}
-                  hideWithoutMeta={isInSearchMode}
                   manageActive={manageActive}
                 />
               );
@@ -57,18 +56,20 @@ export const MultiChainCollectiblesTab = memo<MultiChainCollectiblesTabProps>(
           })}
         </div>
       ),
-      [isInSearchMode, accountEvmAddress, accountTezAddress, blur, paginatedSlugs, showInfo, manageActive]
+      [accountEvmAddress, accountTezAddress, blur, paginatedSlugs, showInfo, manageActive]
     );
 
     return (
       <CollectiblesTabBase
-        contentElement={contentElement}
         collectiblesCount={paginatedSlugs.length}
         searchValue={searchValue}
         loadNextPage={loadNext}
         onSearchValueChange={setSearchValue}
         isSyncing={isSyncing}
-      />
+        isInSearchMode={isInSearchMode}
+      >
+        {contentElement}
+      </CollectiblesTabBase>
     );
   }
 );

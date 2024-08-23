@@ -71,7 +71,7 @@ export const TokenApyTag: FC<Props> = ({ slug, symbol }) => {
       onClick={params.onClick}
       testID={AssetsSelectors.assetItemApyButton}
       testIDProperties={{ slug, symbol, apyRate: params.rate }}
-      className={classNames('ml-2 p-1', modStyles.tagBase, TAGS_CLASSNAME_RECORD[slug])}
+      className={classNames('flex-shrink-0 p-1', modStyles.tagBase, TAGS_CLASSNAME_RECORD[slug])}
     >
       {params.label}: {params.displayRate}%
     </Button>

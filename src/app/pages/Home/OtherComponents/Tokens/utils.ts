@@ -1,9 +1,17 @@
+import type { ReactNode } from 'react';
+
 import { TempleChainKind } from 'temple/types';
 
-export const toExploreAssetLink = (chainKind: TempleChainKind, chainId: number | string, assetSlug: string) =>
-  `/explore/${chainKind}/${chainId}/${assetSlug}`;
+export const toExploreAssetLink = (
+  isCollectible: boolean,
+  chainKind: TempleChainKind,
+  chainId: number | string,
+  assetSlug: string
+) => `/${isCollectible ? 'collectible' : 'explore'}/${chainKind}/${chainId}/${assetSlug}`;
 
-export const getTokensViewWithPromo = (tokensJsx: JSX.Element[], promoJsx: JSX.Element, slugsCount: number) => {
+export const getTokensViewWithPromo = (tokensJsx: ReactNode[], promoJsx: ReactNode, slugsCount = tokensJsx.length) => {
+  if (!promoJsx) return tokensJsx;
+
   if (slugsCount < 5) {
     tokensJsx.push(promoJsx);
   } else {

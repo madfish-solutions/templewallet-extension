@@ -12,7 +12,7 @@ export const useSimpleAssetsPaginationLogic = (sortedSlugs: string[]) => {
   const [slugs, setSlugs] = useState<string[]>(() => sortedSlugs.slice(0, ITEMS_PER_PAGE));
 
   const _load = useCallback(
-    async (size: number) => {
+    (size: number) => {
       const nextSlugs = sortedSlugs.slice(0, size);
 
       setSlugs(nextSlugs);
@@ -23,7 +23,7 @@ export const useSimpleAssetsPaginationLogic = (sortedSlugs: string[]) => {
   useDidUpdate(() => {
     if (slugs.length < MIN_INITIALLY_VISIBLE_ITEMS_COUNT) _load(ITEMS_PER_PAGE);
     else if (slugs.length) _load(slugs.length);
-  }, [sortedSlugs]);
+  }, [_load]);
 
   useDidUpdate(() => {
     _load(ITEMS_PER_PAGE);

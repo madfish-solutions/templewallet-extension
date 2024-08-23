@@ -142,7 +142,7 @@ export const NewStakeTab = memo<Props>(({ accountPkh, network, cannotDelegate })
   const disableSubmit = disableInput || errorsInForm;
 
   return (
-    <div className="mx-auto max-w-sm flex flex-col gap-y-8 pb-4">
+    <div className="flex flex-col gap-y-8 pb-4">
       {operation && <OperationStatus typeTitle={t('stake')} network={network} operation={operation} />}
 
       {alertElement}

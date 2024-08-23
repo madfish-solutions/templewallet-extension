@@ -1,5 +1,7 @@
 type ChainId = number;
-export type TokenSlugExchangeRateRecord = StringRecord<number>;
+
+type TokenSlugExchangeRateRecord = StringRecord<number>;
+
 type EvmTokensExchangeRateRecord = Record<ChainId, TokenSlugExchangeRateRecord>;
 
 export interface EvmTokensExchangeRateState {

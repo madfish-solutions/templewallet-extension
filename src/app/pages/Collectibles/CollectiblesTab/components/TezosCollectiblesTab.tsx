@@ -1,29 +1,74 @@
-import React, { memo, useMemo } from 'react';
+import React, { FC, memo, useMemo } from 'react';
 
-import { useTezosAccountCollectiblesListingLogic } from 'app/hooks/listing-logic/use-tezos-account-collectibles-listing-logic';
+import { usePreservedOrderSlugsToManage } from 'app/hooks/listing-logic/use-manageable-slugs';
+import {
+  useTezosAccountCollectiblesForListing,
+  useTezosAccountCollectiblesListingLogic
+} from 'app/hooks/listing-logic/use-tezos-account-collectibles-listing-logic';
 import { useAssetsViewState } from 'app/hooks/use-assets-view-state';
 import { useCollectiblesListOptionsSelector } from 'app/store/assets-filter-options/selectors';
-import { fromChainAssetSlug } from 'lib/assets/utils';
+import { parseChainAssetSlug, toChainAssetSlug } from 'lib/assets/utils';
+import { useMemoWithCompare } from 'lib/ui/hooks';
+import { useTezosMainnetChain } from 'temple/front';
+import { TempleChainKind } from 'temple/types';
 
 import { TezosCollectibleItem } from './CollectibleItem';
 import { CollectiblesTabBase } from './CollectiblesTabBase';
 
-interface TezosCollectiblesTabProps {
+interface Props {
   publicKeyHash: string;
 }
 
-export const TezosCollectiblesTab = memo<TezosCollectiblesTabProps>(({ publicKeyHash }) => {
-  const { blur, showInfo } = useCollectiblesListOptionsSelector();
+export const TezosCollectiblesTab = memo<Props>(({ publicKeyHash }) => {
   const { manageActive } = useAssetsViewState();
 
-  const { isInSearchMode, paginatedSlugs, isSyncing, loadNext, searchValue, setSearchValue } =
-    useTezosAccountCollectiblesListingLogic(publicKeyHash, manageActive);
+  if (manageActive) return <TabContentWithManageActive publicKeyHash={publicKeyHash} />;
+
+  return <TabContent publicKeyHash={publicKeyHash} />;
+});
+
+const TabContent: FC<Props> = ({ publicKeyHash }) => {
+  const { enabledChainSlugsSorted } = useTezosAccountCollectiblesForListing(publicKeyHash);
+
+  return <TabContentBase publicKeyHash={publicKeyHash} allSlugsSorted={enabledChainSlugsSorted} manageActive={false} />;
+};
+
+const TabContentWithManageActive: FC<Props> = ({ publicKeyHash }) => {
+  const { enabledChainSlugsSorted, allAccountCollectibles, sortPredicate } =
+    useTezosAccountCollectiblesForListing(publicKeyHash);
+
+  const allChainSlugsSorted = useMemoWithCompare(
+    () =>
+      allAccountCollectibles
+        .map(({ chainId, slug }) => toChainAssetSlug(TempleChainKind.Tezos, chainId, slug))
+        .sort(sortPredicate),
+    [allAccountCollectibles, sortPredicate]
+  );
+
+  const allSlugsSorted = usePreservedOrderSlugsToManage(enabledChainSlugsSorted, allChainSlugsSorted);
+
+  return <TabContentBase publicKeyHash={publicKeyHash} allSlugsSorted={allSlugsSorted} manageActive={true} />;
+};
+
+interface TabContentBaseProps {
+  publicKeyHash: string;
+  allSlugsSorted: string[];
+  manageActive: boolean;
+}
+
+const TabContentBase = memo<TabContentBaseProps>(({ publicKeyHash, allSlugsSorted, manageActive }) => {
+  const mainnetChain = useTezosMainnetChain();
+
+  const { isInSearchMode, displayedSlugs, isSyncing, loadNext, searchValue, setSearchValue } =
+    useTezosAccountCollectiblesListingLogic(allSlugsSorted);
+
+  const { blur, showInfo } = useCollectiblesListOptionsSelector();
 
   const contentElement = useMemo(
     () => (
       <div className={manageActive ? undefined : 'grid grid-cols-3 gap-2'}>
-        {paginatedSlugs.map(chainSlug => {
-          const [_, chainId, slug] = fromChainAssetSlug<string>(chainSlug);
+        {displayedSlugs.map(chainSlug => {
+          const [_, chainId, slug] = parseChainAssetSlug(chainSlug, TempleChainKind.Tezos);
 
           return (
             <TezosCollectibleItem
@@ -33,25 +78,26 @@ export const TezosCollectiblesTab = memo<TezosCollectiblesTabProps>(({ publicKey
               tezosChainId={chainId}
               adultBlur={blur}
               areDetailsShown={showInfo}
-              hideWithoutMeta={isInSearchMode}
               manageActive={manageActive}
             />
           );
         })}
       </div>
     ),
-    [paginatedSlugs, publicKeyHash, blur, showInfo, isInSearchMode, manageActive]
+    [displayedSlugs, publicKeyHash, blur, showInfo, manageActive]
   );
 
   return (
     <CollectiblesTabBase
-      contentElement={contentElement}
-      collectiblesCount={paginatedSlugs.length}
+      collectiblesCount={displayedSlugs.length}
       searchValue={searchValue}
       loadNextPage={loadNext}
       onSearchValueChange={setSearchValue}
       isSyncing={isSyncing}
       isInSearchMode={isInSearchMode}
-    />
+      network={mainnetChain}
+    >
+      {contentElement}
+    </CollectiblesTabBase>
   );
 });
