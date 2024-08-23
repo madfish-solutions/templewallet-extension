@@ -10,11 +10,11 @@ export const APP_VERSION = PackageJSON.version;
 // @ts-expect-error
 export const IS_MISES_BROWSER = Boolean(navigator.userAgentData?.mobile);
 
-export const IS_DEV_ENV = false; // process.env.NODE_ENV === 'development';
+export const IS_DEV_ENV = process.env.NODE_ENV === 'development';
 
-// const IS_DEV_GITHUB_ACTION_RUN_ENV = process.env.GITHUB_ACTION_RUN_ENV === 'development';
+const IS_DEV_GITHUB_ACTION_RUN_ENV = process.env.GITHUB_ACTION_RUN_ENV === 'development';
 
-export const IS_STAGE_ENV = false; // IS_DEV_ENV || IS_DEV_GITHUB_ACTION_RUN_ENV;
+export const IS_STAGE_ENV = IS_DEV_ENV || IS_DEV_GITHUB_ACTION_RUN_ENV;
 
 export const BACKGROUND_IS_WORKER = process.env.BACKGROUND_IS_WORKER === 'true';
 
