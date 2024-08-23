@@ -330,7 +330,7 @@
     "message": "圖示網址"
   },
   "optionalComment": {
-    "message": "(自選)"
+    "message": "自選"
   },
   "iconURLInputDescription": {
     "message": "代幣標誌的影像網址。"
@@ -549,17 +549,8 @@
   "mnemonic": {
     "message": "助記詞"
   },
-  "privateKeyInputDescription": {
-    "message": "您要匯入的帳戶的秘密金鑰。"
-  },
-  "privateKeyInputPlaceholder": {
-    "message": "例如 edsk3wfiPMu... | 0xL4mp3Ty..."
-  },
   "password": {
     "message": "密碼"
-  },
-  "isPrivateKeyEncrypted": {
-    "message": "您的私密金鑰為加密格式嗎？"
   },
   "customDerivationPath": {
     "message": "自訂衍生路徑"

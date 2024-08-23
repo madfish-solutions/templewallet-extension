@@ -330,7 +330,7 @@
     "message": "アイコンURL"
   },
   "optionalComment": {
-    "message": "（任意）"
+    "message": "任意"
   },
   "iconURLInputDescription": {
     "message": "トークンロゴ用画像URL"
@@ -545,17 +545,8 @@
   "mnemonic": {
     "message": "ニーモニック"
   },
-  "privateKeyInputDescription": {
-    "message": "インポートするアカウントの秘密鍵。"
-  },
-  "privateKeyInputPlaceholder": {
-    "message": "例: edsk3wfiPMu... | 0xL4mp3Ty..."
-  },
   "password": {
     "message": "パスワード"
-  },
-  "isPrivateKeyEncrypted": {
-    "message": "秘密鍵は暗号化されていますか？"
   },
   "customDerivationPath": {
     "message": "カスタム導出パス"

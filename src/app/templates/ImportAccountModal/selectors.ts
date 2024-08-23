@@ -1,5 +1,5 @@
 export enum ImportAccountSelectors {
-  tabSwitcher = 'Import Account/Tabs',
+  cancelButton = 'Import Account/Cancel Button',
 
   privateKeyInput = 'Import Account(Private Key)/Private Key Input',
   privateKeyImportButton = 'Import Account(Private Key)/Private Key Import Button',
@@ -18,7 +18,9 @@ export enum ImportAccountSelectors {
   watchOnlyImportButton = 'Import Account(Watch-Only)/Watch Only Import Button',
 
   ClearSeedPhraseButton = 'Import Account/Clear Seed Phrase Button',
-  PasteSeedPhraseButton = 'Import Account/Paste Seed Phrase Button'
+  PasteSeedPhraseButton = 'Import Account/Paste Seed Phrase Button',
+  PastePrivateKeyButton = 'Import Account/Paste Private Key Button',
+  PasteAddressButton = 'Import Account/Paste Address Button'
 }
 
 export enum ImportAccountFormType {

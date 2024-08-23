@@ -10,7 +10,6 @@ import ConnectLedger from 'app/pages/ConnectLedger/ConnectLedger';
 import DApps from 'app/pages/DApps';
 import Delegate from 'app/pages/Delegate';
 import Home from 'app/pages/Home/Home';
-import ImportAccount from 'app/pages/ImportAccount';
 import AttentionPage from 'app/pages/Onboarding/pages/AttentionPage';
 import { Receive } from 'app/pages/Receive/Receive';
 import Send from 'app/pages/Send';
@@ -75,7 +74,6 @@ const ROUTE_MAP = Woozie.createMap<RouteContext>([
       <Home chainKind={chainKind} chainId={chainId} assetSlug={assetSlug} />
     ))
   ],
-  ['/import-account/:tabSlug?', onlyReady(({ tabSlug }) => <ImportAccount tabSlug={tabSlug} />)],
   ['/connect-ledger', onlyReady(onlyInFullPage(() => <ConnectLedger />))],
   ['/receive', onlyReady(() => <Receive />)],
   [

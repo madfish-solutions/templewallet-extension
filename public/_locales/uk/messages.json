@@ -347,7 +347,7 @@
     "message": "Icon URL"
   },
   "optionalComment": {
-    "message": "(опціонально)"
+    "message": "Опціонально"
   },
   "iconURLInputDescription": {
     "message": "Посилання на зображення для логотипу токена."
@@ -569,17 +569,11 @@
   "mnemonic": {
     "message": "Мнємоніка"
   },
-  "privateKeyInputDescription": {
-    "message": "Секретний ключ аккаунту, який потрібно імпортувати."
-  },
   "privateKeyInputPlaceholder": {
-    "message": "наприклад edsk3wfiPMu... | 0xL4mp3Ty..."
+    "message": "Вставте або введіть приватний ключ"
   },
   "password": {
     "message": "Пароль"
-  },
-  "isPrivateKeyEncrypted": {
-    "message": "Ваш приватний ключ у зашифрованому форматі?"
   },
   "customDerivationPath": {
     "message": "Кастомна деривація"

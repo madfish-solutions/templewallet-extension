@@ -348,7 +348,7 @@
     "message": "URL do Ícone"
   },
   "optionalComment": {
-    "message": "(opcional)"
+    "message": "Opcional"
   },
   "iconURLInputDescription": {
     "message": "URL da imagem para logótipo do ativo."
@@ -567,17 +567,8 @@
   "mnemonic": {
     "message": "Mnemónica"
   },
-  "privateKeyInputDescription": {
-    "message": "A chave secreta da conta que pretende importar."
-  },
-  "privateKeyInputPlaceholder": {
-    "message": "por exemplo, edsk3wfiPMu... | 0xL4mp3Ty..."
-  },
   "password": {
     "message": "Palavra-passe"
-  },
-  "isPrivateKeyEncrypted": {
-    "message": "A sua chave privada está em formato encriptado?"
   },
   "customDerivationPath": {
     "message": "Caminho de derivação personalizado"

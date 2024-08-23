@@ -19,6 +19,7 @@ import { useAllAccountsReactiveOnAddition } from 'app/hooks/use-all-accounts-rea
 import { ReactComponent as SettingsIcon } from 'app/icons/base/settings.svg';
 import { NewWalletActionsPopper } from 'app/templates/NewWalletActionsPopper';
 import { SearchBarField } from 'app/templates/SearchField';
+import { T } from 'lib/i18n';
 import { StoredAccount } from 'lib/temple/types';
 import { useScrollIntoViewOnMount } from 'lib/ui/use-scroll-into-view';
 import { navigate } from 'lib/woozie';
@@ -26,6 +27,7 @@ import { searchAndFilterAccounts, useAccountsGroups, useCurrentAccountId, useVis
 import { useSetAccountId } from 'temple/front/ready';
 
 import { CreateHDWalletModal } from '../CreateHDWalletModal';
+import { ImportAccountModal, ImportOptionSlug } from '../ImportAccountModal';
 
 import { AccountsModalSelectors } from './selectors';
 
@@ -34,14 +36,21 @@ interface Props {
   onRequestClose: EmptyFn;
 }
 
+enum AccountsModalSubmodals {
+  CreateHDWallet = 'create-hd-wallet',
+  ImportAccount = 'import-account',
+  WatchOnly = 'watch-only'
+}
+
 export const AccountsModal = memo<Props>(({ opened, onRequestClose }) => {
   const allAccounts = useVisibleAccounts();
   const currentAccountId = useCurrentAccountId();
 
   const [searchValue, setSearchValue] = useState('');
-  const [shouldShowCreateWalletFlow, setShouldShowCreateWalletFlow] = useState(false);
   const [topEdgeIsVisible, setTopEdgeIsVisible] = useState(true);
   const [bottomEdgeIsVisible, setBottomEdgeIsVisible] = useState(true);
+  const [activeSubmodal, setActiveSubmodal] = useState<AccountsModalSubmodals | undefined>(undefined);
+  const [importOptionSlug, setImportOptionSlug] = useState<ImportOptionSlug | undefined>();
 
   useAllAccountsReactiveOnAddition();
   useShortcutAccountSelectModalIsOpened(onRequestClose);
@@ -59,12 +68,60 @@ export const AccountsModal = memo<Props>(({ opened, onRequestClose }) => {
     else if (!opened) setAttractSelectedAccount(true);
   }, [opened, searchValue]);
 
-  const startWalletCreation = useCallback(() => setShouldShowCreateWalletFlow(true), []);
-  const onCreateWalletFlowEnd = useCallback(() => setShouldShowCreateWalletFlow(false), []);
+  const closeSubmodal = useCallback(() => {
+    setActiveSubmodal(undefined);
+    setImportOptionSlug(undefined);
+  }, []);
+
+  const startWalletCreation = useCallback(() => setActiveSubmodal(AccountsModalSubmodals.CreateHDWallet), []);
+
+  const goToImportModal = useCallback(() => {
+    setActiveSubmodal(AccountsModalSubmodals.ImportAccount);
+    setImportOptionSlug(undefined);
+  }, []);
+  const goToWatchOnlyModal = useCallback(() => setActiveSubmodal(AccountsModalSubmodals.WatchOnly), []);
+  const handleSeedPhraseImportOptionSelect = useCallback(() => setImportOptionSlug('mnemonic'), []);
+  const handlePrivateKeyImportOptionSelect = useCallback(() => setImportOptionSlug('private-key'), []);
+
+  const submodal = useMemo(() => {
+    switch (activeSubmodal) {
+      case AccountsModalSubmodals.CreateHDWallet:
+        return <CreateHDWalletModal onEnd={closeSubmodal} />;
+      case AccountsModalSubmodals.ImportAccount:
+        return (
+          <ImportAccountModal
+            optionSlug={importOptionSlug}
+            shouldShowBackButton={!!importOptionSlug}
+            onGoBack={goToImportModal}
+            onRequestClose={closeSubmodal}
+            onSeedPhraseSelect={handleSeedPhraseImportOptionSelect}
+            onPrivateKeySelect={handlePrivateKeyImportOptionSelect}
+          />
+        );
+      case AccountsModalSubmodals.WatchOnly:
+        return (
+          <ImportAccountModal
+            optionSlug="watch-only"
+            shouldShowBackButton
+            onGoBack={closeSubmodal}
+            onRequestClose={closeSubmodal}
+          />
+        );
+      default:
+        return null;
+    }
+  }, [
+    activeSubmodal,
+    closeSubmodal,
+    goToImportModal,
+    handlePrivateKeyImportOptionSelect,
+    handleSeedPhraseImportOptionSelect,
+    importOptionSlug
+  ]);
 
   return (
     <>
-      {shouldShowCreateWalletFlow && <CreateHDWalletModal onEnd={onCreateWalletFlowEnd} />}
+      {submodal}
 
       <PageModal title="My Accounts" opened={opened} onRequestClose={onRequestClose}>
         <div
@@ -89,6 +146,8 @@ export const AccountsModal = memo<Props>(({ opened, onRequestClose }) => {
           <NewWalletActionsPopper
             startWalletCreation={startWalletCreation}
             testID={AccountsModalSelectors.newWalletActionsButton}
+            goToImportModal={goToImportModal}
+            goToWatchOnlyModal={goToWatchOnlyModal}
           />
         </div>
 
@@ -124,7 +183,7 @@ export const AccountsModal = memo<Props>(({ opened, onRequestClose }) => {
             onClick={onRequestClose}
             testID={AccountsModalSelectors.cancelButton}
           >
-            Cancel
+            <T id="cancel" />
           </StyledButton>
         </ActionsButtonsBox>
       </PageModal>

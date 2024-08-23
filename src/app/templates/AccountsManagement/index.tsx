@@ -10,6 +10,7 @@ import { searchAndFilterAccounts } from 'temple/front/accounts';
 import { useAccountsGroups } from 'temple/front/groups';
 
 import { CreateHDWalletModal } from '../CreateHDWalletModal';
+import { ImportAccountModal, ImportOptionSlug } from '../ImportAccountModal';
 import { ManualBackupModal } from '../ManualBackupModal';
 import { NewWalletActionsPopper } from '../NewWalletActionsPopper';
 import { SearchBarField } from '../SearchField';
@@ -27,7 +28,9 @@ enum AccountsManagementModal {
   RevealSeedPhrase = 'reveal-seed-phrase',
   DeleteWallet = 'delete-wallet',
   AccountAlreadyExistsWarning = 'account-already-exists-warning',
-  CreateHDWalletFlow = 'create-hd-wallet-flow'
+  CreateHDWalletFlow = 'create-hd-wallet-flow',
+  ImportAccount = 'import-account',
+  WatchOnly = 'watch-only'
 }
 
 interface AccountsManagementProps {
@@ -45,6 +48,7 @@ export const AccountsManagement = memo<AccountsManagementProps>(({ setHeaderChil
   const [selectedGroup, setSelectedGroup] = useState<DisplayedGroup | null>(null);
   const [activeModal, setActiveModal] = useState<AccountsManagementModal | null>(null);
   const [oldAccount, setOldAccount] = useState<StoredAccount | null>(null);
+  const [importOptionSlug, setImportOptionSlug] = useState<ImportOptionSlug | undefined>();
 
   const startWalletCreation = useCallback(() => setActiveModal(AccountsManagementModal.CreateHDWalletFlow), []);
   const onCreateWalletFlowEnd = useCallback(() => setActiveModal(null), []);
@@ -60,6 +64,7 @@ export const AccountsManagement = memo<AccountsManagementProps>(({ setHeaderChil
     setActiveModal(null);
     setSelectedGroup(null);
     setOldAccount(null);
+    setImportOptionSlug(undefined);
   }, []);
 
   const actionWithModalFactory = useCallback(
@@ -105,6 +110,14 @@ export const AccountsManagement = memo<AccountsManagementProps>(({ setHeaderChil
     }
   }, [createAccount, customAlert, selectedGroup]);
 
+  const goToImportModal = useCallback(() => {
+    setActiveModal(AccountsManagementModal.ImportAccount);
+    setImportOptionSlug(undefined);
+  }, []);
+  const goToWatchOnlyModal = useCallback(() => setActiveModal(AccountsManagementModal.WatchOnly), []);
+  const handleSeedPhraseImportOptionSelect = useCallback(() => setImportOptionSlug('mnemonic'), []);
+  const handlePrivateKeyImportOptionSelect = useCallback(() => setImportOptionSlug('private-key'), []);
+
   const modal = useMemo(() => {
     switch (activeModal) {
       case AccountsManagementModal.RenameWallet:
@@ -138,14 +151,38 @@ export const AccountsManagement = memo<AccountsManagementProps>(({ setHeaderChil
         );
       case AccountsManagementModal.CreateHDWalletFlow:
         return <CreateHDWalletModal onEnd={onCreateWalletFlowEnd} />;
+      case AccountsManagementModal.ImportAccount:
+        return (
+          <ImportAccountModal
+            optionSlug={importOptionSlug}
+            shouldShowBackButton={!!importOptionSlug}
+            onGoBack={goToImportModal}
+            onRequestClose={handleModalClose}
+            onSeedPhraseSelect={handleSeedPhraseImportOptionSelect}
+            onPrivateKeySelect={handlePrivateKeyImportOptionSelect}
+          />
+        );
+      case AccountsManagementModal.WatchOnly:
+        return (
+          <ImportAccountModal
+            optionSlug="watch-only"
+            shouldShowBackButton
+            onGoBack={handleModalClose}
+            onRequestClose={handleModalClose}
+          />
+        );
       default:
         return null;
     }
   }, [
     activeModal,
+    goToImportModal,
     handleAccountAlreadyExistsWarnClose,
     handleModalClose,
+    handlePrivateKeyImportOptionSelect,
     handleRevealSeedPhrase,
+    handleSeedPhraseImportOptionSelect,
+    importOptionSlug,
     oldAccount,
     onCreateWalletFlowEnd,
     seedPhraseToReveal,
@@ -165,15 +202,18 @@ export const AccountsManagement = memo<AccountsManagementProps>(({ setHeaderChil
         <NewWalletActionsPopper
           startWalletCreation={startWalletCreation}
           testID={AccountsManagementSelectors.newWalletActionsButton}
+          goToImportModal={goToImportModal}
+          goToWatchOnlyModal={goToWatchOnlyModal}
         />
       </div>
     ),
-    [searchValue, startWalletCreation]
+    [goToImportModal, goToWatchOnlyModal, searchValue, startWalletCreation]
   );
 
   useEffect(() => setHeaderChildren(headerChildren), [headerChildren, setHeaderChildren]);
   useEffect(() => {
     return () => setHeaderChildren(null);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
@@ -189,10 +229,12 @@ export const AccountsManagement = memo<AccountsManagementProps>(({ setHeaderChil
               group={group}
               key={group.id}
               searchValue={searchValue}
+              showAccountAlreadyExistsWarning={showAccountAlreadyExistsWarning}
               onDeleteClick={handleDeleteClick}
               onRenameClick={handleRenameClick}
               onRevealSeedPhraseClick={handleRevealSeedPhraseClick}
-              showAccountAlreadyExistsWarning={showAccountAlreadyExistsWarning}
+              goToImportModal={goToImportModal}
+              goToWatchOnlyModal={goToWatchOnlyModal}
             />
           ))}
         </div>

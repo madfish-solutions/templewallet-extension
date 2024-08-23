@@ -16,10 +16,12 @@ import { NewWalletActionsPopperSelectors } from './selectors';
 
 interface NewWalletActionsPopperProps extends TestIDProps {
   startWalletCreation: EmptyFn;
+  goToImportModal: EmptyFn;
+  goToWatchOnlyModal: EmptyFn;
 }
 
 const NewWalletActionsDropdown = memo<PopperRenderProps & NewWalletActionsPopperProps>(
-  ({ opened, setOpened, startWalletCreation }) => (
+  ({ opened, setOpened, startWalletCreation, goToImportModal, goToWatchOnlyModal }) => (
     <ActionsDropdownPopup title="Add New Wallet" opened={opened} style={{ minWidth: 154 }}>
       <ActionListItem
         Icon={AddAccIcon}
@@ -32,7 +34,8 @@ const NewWalletActionsDropdown = memo<PopperRenderProps & NewWalletActionsPopper
 
       <ActionListItem
         Icon={ImportedIcon}
-        linkTo="/import-account/wallet-from-mnemonic"
+        onClick={goToImportModal}
+        setOpened={setOpened}
         testID={NewWalletActionsPopperSelectors.importWallet}
       >
         <T id="importWallet" />
@@ -44,7 +47,8 @@ const NewWalletActionsDropdown = memo<PopperRenderProps & NewWalletActionsPopper
 
       <ActionListItem
         Icon={WatchIcon}
-        linkTo="/import-account/watch-only"
+        onClick={goToWatchOnlyModal}
+        setOpened={setOpened}
         testID={NewWalletActionsPopperSelectors.watchOnlyAccount}
       >
         <T id="watchOnlyAccount" />
@@ -53,11 +57,23 @@ const NewWalletActionsDropdown = memo<PopperRenderProps & NewWalletActionsPopper
   )
 );
 
-export const NewWalletActionsPopper: FC<NewWalletActionsPopperProps> = ({ startWalletCreation, ...testIDProps }) => (
+export const NewWalletActionsPopper: FC<NewWalletActionsPopperProps> = ({
+  startWalletCreation,
+  goToImportModal,
+  goToWatchOnlyModal,
+  ...testIDProps
+}) => (
   <Popper
     placement="bottom-end"
     strategy="fixed"
-    popup={popperProps => <NewWalletActionsDropdown {...popperProps} startWalletCreation={startWalletCreation} />}
+    popup={popperProps => (
+      <NewWalletActionsDropdown
+        {...popperProps}
+        goToImportModal={goToImportModal}
+        goToWatchOnlyModal={goToWatchOnlyModal}
+        startWalletCreation={startWalletCreation}
+      />
+    )}
   >
     {({ ref, opened, toggleOpened }) => (
       <IconButton Icon={PlusIcon} color="blue" ref={ref} active={opened} onClick={toggleOpened} {...testIDProps} />

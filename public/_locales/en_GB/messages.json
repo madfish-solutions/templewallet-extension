@@ -344,7 +344,7 @@
     "message": "Icon URL"
   },
   "optionalComment": {
-    "message": "(optional)"
+    "message": "Optional"
   },
   "iconURLInputDescription": {
     "message": "Image URL for asset logo."
@@ -577,17 +577,11 @@
   "mnemonic": {
     "message": "Mnemonic"
   },
-  "privateKeyInputDescription": {
-    "message": "The Secret key of the Account you want to import."
-  },
   "privateKeyInputPlaceholder": {
-    "message": "e.g. edsk3wfiPMu... | 0xL4mp3Ty..."
+    "message": "Paste or input your private key"
   },
   "password": {
     "message": "Password"
-  },
-  "isPrivateKeyEncrypted": {
-    "message": "Is your private key in encrypted format?"
   },
   "customDerivationPath": {
     "message": "Custom derivation path"

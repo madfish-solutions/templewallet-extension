@@ -44,8 +44,6 @@ export { SyncSpinner } from './SyncSpinner';
 
 export { NoSpaceField } from './NoSpaceField';
 
-export { TabSwitcher } from './TabSwitcher';
-
 export { Stepper } from './Stepper/Stepper';
 
 export { DataPlaceholder } from './DataPlaceholder';

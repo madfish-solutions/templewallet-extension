@@ -24,3 +24,5 @@ export const combineRefs = <E extends HTMLElement>(
 export const clearClipboard = () => {
   window.navigator.clipboard.writeText('');
 };
+
+export const readClipboard = () => window.navigator.clipboard.readText();

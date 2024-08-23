@@ -3,7 +3,7 @@ import React, { FC, memo, useCallback } from 'react';
 import { emptyFn } from '@rnw-community/shared';
 import clsx from 'clsx';
 
-import { ImportAccountSelectors } from 'app/pages/ImportAccount/selectors';
+import { ImportAccountSelectors } from 'app/templates/ImportAccountModal/selectors';
 import { setAnotherSelector, setTestID } from 'lib/analytics';
 
 interface Props {

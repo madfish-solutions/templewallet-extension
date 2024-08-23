@@ -330,7 +330,7 @@
     "message": "아이콘 URL"
   },
   "optionalComment": {
-    "message": "(선택)"
+    "message": "선택"
   },
   "iconURLInputDescription": {
     "message": "토큰 로고용 이미지 URL입니다."
@@ -545,17 +545,8 @@
   "mnemonic": {
     "message": "니모닉"
   },
-  "privateKeyInputDescription": {
-    "message": "불러오고자 하는 계정의 비밀 키입니다."
-  },
-  "privateKeyInputPlaceholder": {
-    "message": "예) edsk3wfiPMu... | 0xL4mp3Ty..."
-  },
   "password": {
     "message": "비밀번호"
-  },
-  "isPrivateKeyEncrypted": {
-    "message": "비공개 키가 암호화된 포맷으로 되어 있나요?"
   },
   "customDerivationPath": {
     "message": "맞춤형 도출 경로"

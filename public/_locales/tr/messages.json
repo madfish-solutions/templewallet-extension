@@ -348,7 +348,7 @@
     "message": "Simge URL'si"
   },
   "optionalComment": {
-    "message": "(isteğe bağlı)"
+    "message": "İsteğe bağlı"
   },
   "iconURLInputDescription": {
     "message": "Varlık logosu için görüntü URL'si."
@@ -567,17 +567,8 @@
   "mnemonic": {
     "message": "Anımsatıcı ifade"
   },
-  "privateKeyInputDescription": {
-    "message": "İçe aktarmak istediğiniz Hesabın Gizli anahtarı."
-  },
-  "privateKeyInputPlaceholder": {
-    "message": "ör. edsk3wfiPMu... | 0xL4mp3Ty..."
-  },
   "password": {
     "message": "Parola"
-  },
-  "isPrivateKeyEncrypted": {
-    "message": "Özel anahtarınız şifreli mi?"
   },
   "customDerivationPath": {
     "message": "Özel türev yolu"

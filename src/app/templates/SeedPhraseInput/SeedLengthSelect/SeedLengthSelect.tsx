@@ -5,7 +5,7 @@ import clsx from 'clsx';
 import { IconBase } from 'app/atoms';
 import { StyledButton } from 'app/atoms/StyledButton';
 import { ReactComponent as CompactDownIcon } from 'app/icons/base/compact_down.svg';
-import { ImportAccountSelectors } from 'app/pages/ImportAccount/selectors';
+import { ImportAccountSelectors } from 'app/templates/ImportAccountModal/selectors';
 import { T } from 'lib/i18n';
 import { useBooleanState } from 'lib/ui/hooks';
 

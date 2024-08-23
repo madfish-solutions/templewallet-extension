@@ -9,12 +9,11 @@ import { TextButton } from 'app/atoms/TextButton';
 import { formatMnemonic } from 'app/defaults';
 import { ReactComponent as PasteFillIcon } from 'app/icons/base/paste_fill.svg';
 import { ReactComponent as XCircleFillIcon } from 'app/icons/base/x_circle_fill.svg';
+import { ImportAccountSelectors } from 'app/templates/ImportAccountModal/selectors';
 import { setTestID, TestIDProperty } from 'lib/analytics';
 import { DEFAULT_SEED_PHRASE_WORDS_AMOUNT } from 'lib/constants';
 import { T, t } from 'lib/i18n';
-import { clearClipboard } from 'lib/ui/utils';
-
-import { ImportAccountSelectors } from '../../pages/ImportAccount/selectors';
+import { clearClipboard, readClipboard } from 'lib/ui/utils';
 
 import { SeedLengthSelect } from './SeedLengthSelect/SeedLengthSelect';
 import { SeedWordInput, SeedWordInputProps } from './SeedWordInput';
@@ -66,7 +65,7 @@ export const SeedPhraseInput: FC<SeedPhraseInputProps> = ({
       }
 
       if (newDraftSeed.some(word => word === '')) {
-        newSeedError = t('mnemonicWordsAmountConstraint', [numberOfWords]) as string;
+        newSeedError = t('mnemonicWordsAmountConstraint', [String(numberOfWords)]);
       }
 
       if (!validateMnemonic(formatMnemonic(joinedDraftSeed))) {
@@ -135,7 +134,13 @@ export const SeedPhraseInput: FC<SeedPhraseInputProps> = ({
   );
 
   const pasteMnemonic = useCallback(
-    () => window.navigator.clipboard.readText().then(onSeedPaste).catch(console.error),
+    () =>
+      readClipboard()
+        .then(value => {
+          onSeedPaste(value);
+          clearClipboard();
+        })
+        .catch(console.error),
     [onSeedPaste]
   );
 

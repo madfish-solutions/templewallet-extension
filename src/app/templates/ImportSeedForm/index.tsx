@@ -21,6 +21,7 @@ export const ImportSeedForm = memo<ImportSeedFormProps>(({ next, onCancel }) => 
   const [bottomEdgeIsVisible, setBottomEdgeIsVisible] = useState(true);
 
   const { handleSubmit, formState, reset } = useForm();
+  const wasSubmitted = formState.submitCount !== 0;
   const [seedPhrase, setSeedPhrase] = useState('');
   const [seedError, setSeedError] = useState('');
   const [numberOfWords, setNumberOfWords] = useState(DEFAULT_SEED_PHRASE_WORDS_AMOUNT);
@@ -38,7 +39,7 @@ export const ImportSeedForm = memo<ImportSeedFormProps>(({ next, onCancel }) => 
       <ScrollView className="pt-4 pb-6" bottomEdgeThreshold={24} onBottomEdgeVisibilityChange={setBottomEdgeIsVisible}>
         <SeedPhraseInput
           isFirstAccount
-          submitted={formState.submitCount !== 0}
+          submitted={wasSubmitted}
           seedError={seedError}
           onChange={setSeedPhrase}
           setSeedError={setSeedError}
@@ -60,7 +61,7 @@ export const ImportSeedForm = memo<ImportSeedFormProps>(({ next, onCancel }) => 
           <T id="cancel" />
         </StyledButton>
         <StyledButton
-          disabled={Boolean(seedError)}
+          disabled={Boolean(seedError) && wasSubmitted}
           type="submit"
           size="L"
           className="w-full"

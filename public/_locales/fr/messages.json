@@ -330,7 +330,7 @@
     "message": "URL d'icône"
   },
   "optionalComment": {
-    "message": "(facultatif)"
+    "message": "Facultatif"
   },
   "iconURLInputDescription": {
     "message": "URL d'image pour le logo du jeton."
@@ -549,17 +549,8 @@
   "mnemonic": {
     "message": "Mnémonique"
   },
-  "privateKeyInputDescription": {
-    "message": "La clé secrète du compte que vous voulez importer."
-  },
-  "privateKeyInputPlaceholder": {
-    "message": "p. ex. edsk3wfiPMu… or 0x3wfiPMu..."
-  },
   "password": {
     "message": "Mot de passe"
-  },
-  "isPrivateKeyEncrypted": {
-    "message": "Votre clé privée est-elle au format chiffré ?"
   },
   "customDerivationPath": {
     "message": "Chemin de dérivation personnalisée"

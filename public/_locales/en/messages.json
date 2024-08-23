@@ -475,7 +475,7 @@
     "message": "To add an assets, enter the contract address into the search line"
   },
   "optionalComment": {
-    "message": "(optional)"
+    "message": "Optional"
   },
   "iconURLInputDescription": {
     "message": "Image URL for asset logo."
@@ -833,17 +833,11 @@
   "mnemonic": {
     "message": "Mnemonic"
   },
-  "privateKeyInputDescription": {
-    "message": "The Secret key of the Account you want to import."
-  },
   "privateKeyInputPlaceholder": {
-    "message": "e.g. edsk3wfiPMu... | 0xL4mp3Ty..."
+    "message": "Paste or input your private key"
   },
   "password": {
     "message": "Password"
-  },
-  "isPrivateKeyEncrypted": {
-    "message": "Is your private key in encrypted format?"
   },
   "customDerivationPath": {
     "message": "Custom derivation path"
@@ -906,6 +900,21 @@
   },
   "importSeedPhrase": {
     "message": "Import Seed Phrase"
+  },
+  "seedPhraseOptionDescription": {
+    "message": "Import a wallet using your seed phrase backup"
+  },
+  "importPrivateKey": {
+    "message": "Import Private Key"
+  },
+  "privateKeyOptionDescription": {
+    "message": "Add a single account using your private key"
+  },
+  "typeOfImport": {
+    "message": "Type of import"
+  },
+  "typeOfImportDescription": {
+    "message": "Select how would you like to import account"
   },
   "mySeedPhraseIs": {
     "message": "My seed phrase is"
@@ -1618,6 +1627,15 @@
   "recipientInputPlaceholderWithDomain": {
     "message": "e.g. alice.tez or tz1a9w1S7hN5s...",
     "description": "alice.tez = domain like google.com"
+  },
+  "watchOnlyAddressInputPlaceholder": {
+    "message": "Tezos or EVM address"
+  },
+  "watchOnlyAddressInputDescription": {
+    "message": "Add an address or domain name you would like to watch."
+  },
+  "watchAddress": {
+    "message": "Watch address"
   },
   "tryingToTransferToYourself": {
     "message": "You're trying to transfer funds to yourself.\nPlease, ensure that it's exactly what you want."

@@ -330,7 +330,7 @@
     "message": "图标URL"
   },
   "optionalComment": {
-    "message": "（选填）"
+    "message": "选填"
   },
   "iconURLInputDescription": {
     "message": "代币标志图片URL。"
@@ -549,17 +549,8 @@
   "mnemonic": {
     "message": "助记符"
   },
-  "privateKeyInputDescription": {
-    "message": "您要导入的账户的密钥。"
-  },
-  "privateKeyInputPlaceholder": {
-    "message": "例如：edsk3wfiPMu... | 0xL4mp3Ty..."
-  },
   "password": {
     "message": "密码"
-  },
-  "isPrivateKeyEncrypted": {
-    "message": "您的私钥是加密格式的吗？"
   },
   "customDerivationPath": {
     "message": "自定义衍生路径"
