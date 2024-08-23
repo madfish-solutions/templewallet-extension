@@ -16,6 +16,7 @@ import DocBg from 'app/a11y/DocBg';
 import { Button } from 'app/atoms/Button';
 import { DonationBanner } from 'app/atoms/DonationBanner/DonationBanner';
 import Spinner from 'app/atoms/Spinner/Spinner';
+import { TempleTapButton } from 'app/atoms/TempleTapButton';
 import { useAppEnv } from 'app/env';
 import ErrorBoundary from 'app/ErrorBoundary';
 import { ReactComponent as ChevronLeftIcon } from 'app/icons/chevron-left.svg';
@@ -192,7 +193,7 @@ const Toolbar: FC<ToolbarProps> = ({
         // The top value needs to be -1px or the element will never intersect
         // with the top of the browser window
         // (thus never triggering the intersection observer).
-        TOOLBAR_IS_STICKY && 'sticky z-20 -top-px',
+        TOOLBAR_IS_STICKY && 'sticky z-40 -top-px',
         'flex items-center py-2 px-4 min-h-11',
         fullPage && !sticked && 'rounded-t',
         sticked ? 'shadow' : 'shadow-sm',
@@ -235,6 +236,7 @@ const Toolbar: FC<ToolbarProps> = ({
       {attention && (
         <div className="flex items-center content-end absolute right-0">
           <AdvertisingBanner />
+          <TempleTapButton />
           <NotificationsBell />
         </div>
       )}
