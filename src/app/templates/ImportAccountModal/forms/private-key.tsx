@@ -12,6 +12,7 @@ import { ReactComponent as PasteFillIcon } from 'app/icons/base/paste_fill.svg';
 import { useFormAnalytics } from 'lib/analytics';
 import { T, t } from 'lib/i18n';
 import { useTempleClient } from 'lib/temple/front';
+import { shouldDisableSubmitButton } from 'lib/ui/should-disable-submit-button';
 import { clearClipboard, readClipboard } from 'lib/ui/utils';
 import { TempleChainKind } from 'temple/types';
 
@@ -28,7 +29,7 @@ export const PrivateKeyForm = memo<ImportAccountFormProps>(({ onSuccess }) => {
   const formAnalytics = useFormAnalytics(ImportAccountFormType.PrivateKey);
 
   const { register, handleSubmit, errors, formState, watch, setValue, triggerValidation } =
-    useForm<ByPrivateKeyFormData>();
+    useForm<ByPrivateKeyFormData>({ mode: 'onChange' });
   const [bottomEdgeIsVisible, setBottomEdgeIsVisible] = useState(true);
   const [error, setError] = useState<ReactNode>(null);
 
@@ -63,9 +64,10 @@ export const PrivateKeyForm = memo<ImportAccountFormProps>(({ onSuccess }) => {
         .then(value => {
           setValue('privateKey', value);
           clearClipboard();
+          triggerValidation('privateKey');
         })
         .catch(console.error),
-    [setValue]
+    [setValue, triggerValidation]
   );
   const cleanPrivateKeyField = useCallback(() => {
     setValue('privateKey', '');
@@ -137,7 +139,7 @@ export const PrivateKeyForm = memo<ImportAccountFormProps>(({ onSuccess }) => {
         <StyledButton
           size="L"
           type="submit"
-          disabled={formState.isSubmitting}
+          disabled={shouldDisableSubmitButton(errors, formState)}
           testID={ImportAccountSelectors.privateKeyImportButton}
           color="primary"
         >

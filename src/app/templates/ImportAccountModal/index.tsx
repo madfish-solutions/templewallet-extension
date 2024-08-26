@@ -11,7 +11,6 @@ import { ReactComponent as KeyIcon } from 'app/icons/base/key.svg';
 import PageLayout from 'app/layouts/PageLayout';
 import { toastSuccess } from 'app/toaster';
 import { T, TID, t } from 'lib/i18n';
-import { navigate } from 'lib/woozie';
 
 import { MnemonicForm } from './forms/mnemonic';
 import { PrivateKeyForm } from './forms/private-key';
@@ -58,7 +57,6 @@ export const ImportAccountModal = memo<ImportAccountModalProps>(
 
     const handleSuccess = useCallback(() => {
       onRequestClose();
-      navigate('/');
       toastSuccess(t('importSuccessful'));
     }, [onRequestClose]);
 

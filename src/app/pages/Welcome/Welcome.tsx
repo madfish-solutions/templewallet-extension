@@ -8,7 +8,7 @@ import { SocialButton } from 'app/atoms/SocialButton';
 import { StyledButton } from 'app/atoms/StyledButton';
 import { SuspenseContainer } from 'app/atoms/SuspenseContainer';
 import { useABTestingLoading } from 'app/hooks/use-ab-testing-loading';
-import { useSearchParamsBoolean } from 'app/hooks/use-modal-open-search-params';
+import { useSearchParamsBoolean } from 'app/hooks/use-search-params-boolean';
 import { ReactComponent as GoogleDriveIcon } from 'app/icons/base/google_drive.svg';
 import { ReactComponent as ImportedIcon } from 'app/icons/base/imported.svg';
 import { ReactComponent as PlusIcon } from 'app/icons/base/plus.svg';

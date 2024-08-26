@@ -653,14 +653,6 @@
   "mnemonicWordsError": {
     "message": "Make sure the words spelled correctly"
   },
-  "seedInputNumberOfWords": {
-    "message": "My Seed phrase is $count$ words",
-    "placeholders": {
-      "count": {
-        "content": "$1"
-      }
-    }
-  },
   "justValidPreGeneratedMnemonic": {
     "message": "Invalid Seed Phrase"
   },

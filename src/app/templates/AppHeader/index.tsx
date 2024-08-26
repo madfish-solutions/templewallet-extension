@@ -6,7 +6,7 @@ import { IconBase } from 'app/atoms';
 import { AccountAvatar } from 'app/atoms/AccountAvatar';
 import { AccountName } from 'app/atoms/AccountName';
 import { Button } from 'app/atoms/Button';
-import { useSearchParamsBoolean } from 'app/hooks/use-modal-open-search-params';
+import { useSearchParamsBoolean } from 'app/hooks/use-search-params-boolean';
 import { ReactComponent as BurgerIcon } from 'app/icons/base/menu.svg';
 import Popper from 'lib/ui/Popper';
 import { useAccount } from 'temple/front';

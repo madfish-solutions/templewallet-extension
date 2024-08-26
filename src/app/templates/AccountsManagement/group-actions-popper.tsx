@@ -136,9 +136,9 @@ const GroupActionsDropdown = memo<PopperRenderProps & GroupActionsPopperProps>(
               key: 'import',
               children: t(group.type === TempleAccountType.Imported ? 'importAccount' : 'createAccount'),
               Icon: ImportedIcon,
-              onClick: () =>
+              onClick:
                 group.type === TempleAccountType.Ledger
-                  ? navigate('/connect-ledger')
+                  ? () => navigate('/connect-ledger')
                   : group.type === TempleAccountType.Imported
                   ? goToImportModal
                   : goToWatchOnlyModal,

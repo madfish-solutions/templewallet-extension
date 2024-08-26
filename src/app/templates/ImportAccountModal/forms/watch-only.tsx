@@ -2,6 +2,7 @@ import React, { memo, ReactNode, useCallback, useMemo, useState } from 'react';
 
 import { useForm } from 'react-hook-form';
 import * as Viem from 'viem';
+import { normalize } from 'viem/ens';
 
 import { FormField } from 'app/atoms';
 import { ActionsButtonsBox } from 'app/atoms/PageModal/actions-buttons-box';
@@ -14,18 +15,21 @@ import { dipdupNetworksChainIds, searchForTezosAccount } from 'lib/apis/dipdup-s
 import { T, t } from 'lib/i18n';
 import { useTempleClient, validateDelegate } from 'lib/temple/front';
 import { isValidTezosAddress, isTezosContractAddress } from 'lib/tezos';
+import { shouldDisableSubmitButton } from 'lib/ui/should-disable-submit-button';
 import { readClipboard } from 'lib/ui/utils';
 import { useEnabledTezosChains } from 'temple/front';
+import { useEvmAddressByDomainName } from 'temple/front/evm/helpers';
 import { getTezosDomainsClient, useTezosAddressByDomainName } from 'temple/front/tezos';
 import { TempleChainKind } from 'temple/types';
 
 import { ImportAccountSelectors, ImportAccountFormType } from '../selectors';
+import { ImportAccountFormProps } from '../types';
 
 interface WatchOnlyFormData {
   address: string;
 }
 
-export const WatchOnlyForm = memo(() => {
+export const WatchOnlyForm = memo<ImportAccountFormProps>(({ onSuccess }) => {
   const { importWatchOnlyAccount } = useTempleClient();
 
   const tezosChains = useEnabledTezosChains();
@@ -48,10 +52,11 @@ export const WatchOnlyForm = memo(() => {
   const addressValue = watch('address');
 
   const { data: tezAddressFromTzDomainName } = useTezosAddressByDomainName(addressValue);
+  const { data: evmAddressFromDomainName } = useEvmAddressByDomainName(addressValue);
 
   const resolvedAddress = useMemo(
-    () => tezAddressFromTzDomainName || addressValue,
-    [addressValue, tezAddressFromTzDomainName]
+    () => evmAddressFromDomainName || tezAddressFromTzDomainName || addressValue,
+    [addressValue, evmAddressFromDomainName, tezAddressFromTzDomainName]
   );
 
   const pasteAddress = useCallback(
@@ -93,6 +98,7 @@ export const WatchOnlyForm = memo(() => {
       await importWatchOnlyAccount(chain, finalAddress, tezosChainId);
 
       formAnalytics.trackSubmitSuccess({ chain });
+      onSuccess();
     } catch (err: any) {
       formAnalytics.trackSubmitFail({ chain });
 
@@ -100,7 +106,37 @@ export const WatchOnlyForm = memo(() => {
 
       setError(err.message);
     }
-  }, [resolvedAddress, formState.isSubmitting, setError, formAnalytics, importWatchOnlyAccount]);
+  }, [formState.isSubmitting, formAnalytics, resolvedAddress, importWatchOnlyAccount, onSuccess]);
+
+  const validateAddress = useCallback(
+    async (value: any) => {
+      let isNormalizableEns = false;
+      try {
+        if (value) {
+          normalize(value);
+          isNormalizableEns = true;
+        }
+        // eslint-disable-next-line no-empty
+      } catch {}
+
+      if (value && (Viem.isAddress(value) || isNormalizableEns)) return true;
+
+      const validationsResults = await Promise.allSettled(
+        domainsClients.map(client => validateDelegate(value, client))
+      );
+
+      if (validationsResults.some(result => result.status === 'fulfilled' && result.value === true)) {
+        return true;
+      }
+
+      const resultWithValidationError = validationsResults.find(
+        (result): result is PromiseFulfilledResult<string | boolean> => result.status === 'fulfilled'
+      );
+
+      return resultWithValidationError?.value ?? (validationsResults[0] as PromiseRejectedResult).reason.message;
+    },
+    [domainsClients]
+  );
 
   return (
     <form className="flex-1 flex flex-col max-h-full" onSubmit={handleSubmit(onSubmit)}>
@@ -110,25 +146,7 @@ export const WatchOnlyForm = memo(() => {
           rows={5}
           ref={register({
             required: t('required'),
-            validate: async (value: any) => {
-              if (value && Viem.isAddress(value)) return true;
-
-              const validationsResults = await Promise.allSettled(
-                domainsClients.map(client => validateDelegate(value, client))
-              );
-
-              if (validationsResults.some(result => result.status === 'fulfilled' && result.value === true)) {
-                return true;
-              }
-
-              const resultWithValidationError = validationsResults.find(
-                (result): result is PromiseFulfilledResult<string | boolean> => result.status === 'fulfilled'
-              );
-
-              return (
-                resultWithValidationError?.value ?? (validationsResults[0] as PromiseRejectedResult).reason?.message
-              );
-            }
+            validate: validateAddress
           })}
           type="text"
           name="address"
@@ -169,7 +187,7 @@ export const WatchOnlyForm = memo(() => {
         <StyledButton
           size="L"
           type="submit"
-          disabled={formState.isSubmitting}
+          disabled={shouldDisableSubmitButton(errors, formState)}
           testID={ImportAccountSelectors.privateKeyImportButton}
           color="primary"
         >

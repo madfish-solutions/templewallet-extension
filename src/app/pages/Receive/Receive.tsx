@@ -1,7 +1,7 @@
 import React, { memo, useCallback, useState } from 'react';
 
 import { PageTitle } from 'app/atoms';
-import { useSearchParamsBoolean } from 'app/hooks/use-modal-open-search-params';
+import { useSearchParamsBoolean } from 'app/hooks/use-search-params-boolean';
 import PageLayout from 'app/layouts/PageLayout';
 import { AccountsModal } from 'app/templates/AppHeader/AccountsModal';
 import { T, t } from 'lib/i18n';

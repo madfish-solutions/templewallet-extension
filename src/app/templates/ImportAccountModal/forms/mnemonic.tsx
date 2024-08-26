@@ -14,6 +14,7 @@ import { useFormAnalytics } from 'lib/analytics';
 import { DEFAULT_SEED_PHRASE_WORDS_AMOUNT, DEFAULT_TEZOS_DERIVATION_PATH } from 'lib/constants';
 import { t, T } from 'lib/i18n';
 import { useTempleClient, validateDerivationPath } from 'lib/temple/front';
+import { shouldDisableSubmitButton } from 'lib/ui/should-disable-submit-button';
 
 import { ImportAccountFormType, ImportAccountSelectors } from '../selectors';
 import { ImportAccountFormProps } from '../types';
@@ -35,7 +36,6 @@ export const MnemonicForm = memo<ImportAccountFormProps>(({ onSuccess, onCancel 
   const [error, setError] = useState<ReactNode>(null);
   const { errors, register, handleSubmit, formState, reset } = useForm<RestMnemonicFormData>({ defaultValues });
   const { isSubmitting, submitCount } = formState;
-  const wasSubmitted = submitCount > 0;
 
   const [bottomEdgeIsVisible, setBottomEdgeIsVisible] = useState(false);
 
@@ -91,7 +91,7 @@ export const MnemonicForm = memo<ImportAccountFormProps>(({ onSuccess, onCancel 
     <form className="flex-1 flex flex-col max-h-full" onSubmit={handleSubmit(onSubmit)}>
       <ScrollView className="py-4" bottomEdgeThreshold={16} onBottomEdgeVisibilityChange={setBottomEdgeIsVisible}>
         <SeedPhraseInput
-          submitted={wasSubmitted}
+          submitted={submitCount > 0}
           seedError={seedError || error}
           setSeedError={updateSeedError}
           onChange={setSeedPhrase}
@@ -108,10 +108,18 @@ export const MnemonicForm = memo<ImportAccountFormProps>(({ onSuccess, onCancel 
           })}
           name="derivationPath"
           id="derivationPath"
-          label={startCase(t('customDerivationPath'))}
+          labelContainerClassName="w-full flex justify-between items-center"
+          label={
+            <>
+              {startCase(t('customDerivationPath'))}
+              <span className="text-font-description font-normal text-grey-2">
+                <T id="optionalComment" />
+              </span>
+            </>
+          }
           placeholder={DEFAULT_TEZOS_DERIVATION_PATH}
           errorCaption={errors.derivationPath?.message}
-          containerClassName="mt-8"
+          containerClassName="mt-3"
           testID={ImportAccountSelectors.customDerivationPathInput}
         />
       </ScrollView>
@@ -130,7 +138,7 @@ export const MnemonicForm = memo<ImportAccountFormProps>(({ onSuccess, onCancel 
           className="w-full"
           size="L"
           color="primary"
-          disabled={isSubmitting || ((Object.keys(errors).length > 0 || Boolean(seedError)) && wasSubmitted)}
+          disabled={shouldDisableSubmitButton(errors, formState, seedError)}
           type="submit"
           testID={AccountsModalSelectors.nextButton}
         >

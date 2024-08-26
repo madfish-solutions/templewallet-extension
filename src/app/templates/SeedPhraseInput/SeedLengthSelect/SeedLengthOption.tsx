@@ -6,6 +6,8 @@ import clsx from 'clsx';
 import { ImportAccountSelectors } from 'app/templates/ImportAccountModal/selectors';
 import { setAnotherSelector, setTestID } from 'lib/analytics';
 
+import { getOptionLabel } from './get-option-label';
+
 interface Props {
   option: string;
   selectedOption: string;
@@ -26,7 +28,7 @@ export const SeedLengthOption: FC<Props> = memo(({ option, selectedOption, onCli
       {...setTestID(ImportAccountSelectors.mnemonicWordsOption)}
       {...setAnotherSelector('words', option)}
     >
-      {option}
+      {getOptionLabel(option)}
     </li>
   );
 });
