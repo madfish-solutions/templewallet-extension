@@ -67,6 +67,7 @@ jobs:
           SMARTY_320_100_PLACEMENT_ID: ${{ vars.SMARTY_320_100_PLACEMENT_ID }}
           SMARTY_300_600_PLACEMENT_ID: ${{ vars.SMARTY_300_600_PLACEMENT_ID }}
           TEMPLE_ADS_ORIGIN_PASSPHRASE: ${{ vars.TEMPLE_ADS_ORIGIN_PASSPHRASE }}
+          TAKE_ADS_TOKEN: ${{ secrets.TAKE_ADS_TOKEN }}
           CONVERSION_VERIFICATION_URL: ${{ vars.CONVERSION_VERIFICATION_URL }}
 
       - name: Install dependencies and code quality

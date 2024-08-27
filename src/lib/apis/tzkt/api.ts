@@ -44,7 +44,9 @@ export const createWsConnection = (chainId: string): TzktHubConnection | undefin
   return undefined;
 };
 
-const api = axios.create();
+const api = axios.create({
+  adapter: 'fetch'
+});
 
 api.interceptors.response.use(
   res => res,

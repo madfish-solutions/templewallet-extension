@@ -191,7 +191,7 @@ const buildManifestCommons = (vendor: string): Omit<Manifest.WebExtensionManifes
       !IS_CORE_BUILD && {
         matches: ['https://*/*', 'http://*/*'],
         exclude_matches: ['http://localhost/*'],
-        js: ['scripts/replaceAds.js'],
+        js: ['scripts/replaceAds.js', 'scripts/replaceReferrals.js'],
         run_at: 'document_start' as const,
         all_frames: false
       }

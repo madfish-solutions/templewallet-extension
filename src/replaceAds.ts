@@ -1,24 +1,22 @@
 import browser from 'webextension-polyfill';
 
-import { getMisesInstallEnabledAds } from 'app/storage/mises-browser';
+import { checkIfShouldReplaceAds, throttleAsyncCalls } from 'content-scripts/utils';
 import { configureAds } from 'lib/ads/configure-ads';
 import { importExtensionAdsModule } from 'lib/ads/import-extension-ads-module';
-import {
-  ContentScriptType,
-  ADS_RULES_UPDATE_INTERVAL,
-  WEBSITES_ANALYTICS_ENABLED,
-  ADS_VIEWER_ADDRESS_STORAGE_KEY
-} from 'lib/constants';
-import { fetchFromStorage } from 'lib/storage';
+import { ContentScriptType, ADS_RULES_UPDATE_INTERVAL } from 'lib/constants';
 
 import { getRulesFromContentScript, clearRulesCache } from './content-scripts/replace-ads';
 
-let processing = false;
+checkIfShouldReplaceAds().then(async shouldReplace => {
+  if (!shouldReplace) return;
 
-const replaceAds = async () => {
-  if (processing) return;
-  processing = true;
+  await configureAds();
 
+  // Replace ads with ours
+  setInterval(() => replaceAds(), 1000);
+});
+
+const replaceAds = throttleAsyncCalls(async () => {
   try {
     const { getAdsActions, executeAdsActions } = await importExtensionAdsModule();
     const adsRules = await getRulesFromContentScript(window.location);
@@ -38,27 +36,4 @@ const replaceAds = async () => {
   } catch (error) {
     console.error('Replacing Ads error:', error);
   }
-
-  processing = false;
-};
-
-// Prevents the script from running in an Iframe
-if (window.frameElement === null) {
-  checkIfShouldReplaceAds()
-    .then(async shouldReplace => {
-      if (!shouldReplace) return;
-
-      await configureAds();
-      // Replace ads with ours
-      setInterval(() => replaceAds(), 1000);
-    })
-    .catch(console.error);
-}
-
-async function checkIfShouldReplaceAds() {
-  const accountPkhFromStorage = await fetchFromStorage<string>(ADS_VIEWER_ADDRESS_STORAGE_KEY);
-
-  if (accountPkhFromStorage) return await fetchFromStorage<boolean>(WEBSITES_ANALYTICS_ENABLED);
-
-  return await getMisesInstallEnabledAds();
-}
+});
