@@ -4,9 +4,10 @@ import { persistReducer } from 'redux-persist';
 import { storageConfig } from 'lib/store';
 
 import {
+  setAdsImpressionsLinkedAction,
+  setConversionTrackedAction,
   setIsAnalyticsEnabledAction,
   setOnRampPossibilityAction,
-  setConversionTrackedAction,
   setToastsContainerBottomShiftAction,
   setPendingReactivateAdsAction
 } from './actions';
@@ -25,12 +26,16 @@ const settingsReducer = createReducer<SettingsState>(settingsInitialState, build
     state.isConversionTracked = true;
   });
 
-  builder.addCase(setToastsContainerBottomShiftAction, (state, { payload }) => {
-    state.toastsContainerBottomShift = payload;
-  });
-
   builder.addCase(setPendingReactivateAdsAction, (state, { payload }) => {
     state.pendingReactivateAds = payload;
+  });
+
+  builder.addCase(setAdsImpressionsLinkedAction, state => {
+    state.adsImpressionsLinked = true;
+  });
+
+  builder.addCase(setToastsContainerBottomShiftAction, (state, { payload }) => {
+    state.toastsContainerBottomShift = payload;
   });
 });
 

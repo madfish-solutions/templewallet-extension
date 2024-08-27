@@ -5,32 +5,35 @@ import { NftCollectionAttribute } from 'lib/apis/temple/endpoints/evm/api.interf
 import { fromAssetSlug } from 'lib/assets';
 import { buildMetadataLinkFromUri } from 'lib/images-uri';
 import { EvmCollectibleMetadata, EvmTokenMetadata } from 'lib/metadata/types';
-import { getReadOnlyEvmForNetwork } from 'temple/evm';
-import { EvmChain } from 'temple/front';
+import { getReadOnlyEvm } from 'temple/evm';
+import { EvmNetworkEssentials } from 'temple/networks';
 
 import { EvmAssetStandard } from '../types';
 
 import { detectEvmTokenStandard } from './utils/common.utils';
 
-export const fetchEvmTokensMetadataFromChain = async (network: EvmChain, tokenSlugs: string[]) =>
+export const fetchEvmTokensMetadataFromChain = async (network: EvmNetworkEssentials, tokenSlugs: string[]) =>
   Promise.all(tokenSlugs.map(slug => fetchEvmTokenMetadataFromChain(network, slug))).then(fetchedMetadata =>
     handleFetchedMetadata<EvmTokenMetadata | undefined>(fetchedMetadata, tokenSlugs)
   );
 
-export const fetchEvmCollectiblesMetadataFromChain = async (network: EvmChain, collectibleSlugs: string[]) =>
+export const fetchEvmCollectiblesMetadataFromChain = async (
+  network: EvmNetworkEssentials,
+  collectibleSlugs: string[]
+) =>
   Promise.all(collectibleSlugs.map(slug => fetchEvmCollectibleMetadataFromChain(network, slug))).then(fetchedMetadata =>
     handleFetchedMetadata<EvmCollectibleMetadata | undefined>(fetchedMetadata, collectibleSlugs)
   );
 
 // ts-prune-ignore-next
-export const fetchEvmAssetMetadataFromChain = async (network: EvmChain, assetSlug: string) => {
+export const fetchEvmAssetMetadataFromChain = async (network: EvmNetworkEssentials, assetSlug: string) => {
   const [contractAddress, tokenIdStr] = fromAssetSlug<HexString>(assetSlug);
 
   const tokenId = BigInt(tokenIdStr ?? 0);
 
-  const publicClient = getReadOnlyEvmForNetwork(network);
+  const publicClient = getReadOnlyEvm(network.rpcBaseURL);
 
-  const standard = await detectEvmTokenStandard(network, assetSlug);
+  const standard = await detectEvmTokenStandard(network.rpcBaseURL, assetSlug);
 
   try {
     switch (standard) {
@@ -48,10 +51,10 @@ export const fetchEvmAssetMetadataFromChain = async (network: EvmChain, assetSlu
   }
 };
 
-export const fetchEvmTokenMetadataFromChain = async (network: EvmChain, tokenSlug: string) => {
+export const fetchEvmTokenMetadataFromChain = async (network: EvmNetworkEssentials, tokenSlug: string) => {
   const [contractAddress] = fromAssetSlug<HexString>(tokenSlug);
 
-  const publicClient = getReadOnlyEvmForNetwork(network);
+  const publicClient = getReadOnlyEvm(network.rpcBaseURL);
 
   try {
     return await getERC20Metadata(publicClient, contractAddress);
@@ -62,14 +65,14 @@ export const fetchEvmTokenMetadataFromChain = async (network: EvmChain, tokenSlu
   }
 };
 
-const fetchEvmCollectibleMetadataFromChain = async (network: EvmChain, collectibleSlug: string) => {
+export const fetchEvmCollectibleMetadataFromChain = async (network: EvmNetworkEssentials, collectibleSlug: string) => {
   const [contractAddress, tokenIdStr] = fromAssetSlug<HexString>(collectibleSlug);
 
   const tokenId = BigInt(tokenIdStr ?? 0);
 
-  const publicClient = getReadOnlyEvmForNetwork(network);
+  const publicClient = getReadOnlyEvm(network.rpcBaseURL);
 
-  const standard = await detectEvmTokenStandard(network, collectibleSlug);
+  const standard = await detectEvmTokenStandard(network.rpcBaseURL, collectibleSlug);
 
   try {
     switch (standard) {
@@ -85,8 +88,8 @@ const fetchEvmCollectibleMetadataFromChain = async (network: EvmChain, collectib
         return undefined;
       }
     }
-  } catch {
-    console.error(`ChainId: ${network.chainId}. Failed to get metadata for: ${collectibleSlug}.`);
+  } catch (error) {
+    console.error(`ChainId: ${network.chainId}. Failed to get metadata for: ${collectibleSlug}.`, error);
 
     return undefined;
   }

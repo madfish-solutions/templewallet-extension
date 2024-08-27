@@ -2,13 +2,13 @@ import React, { FC, useMemo } from 'react';
 
 import { buildTokenImagesStack, buildCollectibleImagesStack, buildEvmTokenIconSources } from 'lib/images-uri';
 import { AssetMetadataBase, isCollectibleTokenMetadata } from 'lib/metadata';
-import { EvmTokenMetadata } from 'lib/metadata/types';
+import { EvmAssetMetadataBase } from 'lib/metadata/types';
 import { ImageStacked, ImageStackedProps } from 'lib/ui/ImageStacked';
 
 export interface AssetImageBaseProps
   extends Pick<ImageStackedProps, 'loader' | 'fallback' | 'className' | 'style' | 'onStackLoaded' | 'onStackFailed'> {
   sources: string[];
-  metadata?: EvmTokenMetadata | AssetMetadataBase;
+  metadata?: EvmAssetMetadataBase | AssetMetadataBase;
   size?: number;
 }
 
@@ -66,7 +66,7 @@ export const TezosAssetImage: FC<TezosAssetImageProps> = ({ metadata, fullViewCo
 };
 
 interface EvmAssetImageProps extends Omit<AssetImageBaseProps, 'sources'> {
-  metadata?: EvmTokenMetadata;
+  metadata?: EvmAssetMetadataBase;
   evmChainId?: number;
 }
 

@@ -1,7 +1,9 @@
 import browser, { Runtime } from 'webextension-polyfill';
 
+import { getStoredAppInstallIdentity } from 'app/storage/app-install-id';
 import { updateRulesStorage } from 'lib/ads/update-rules-storage';
-import { ADS_VIEWER_ADDRESS_STORAGE_KEY, ANALYTICS_USER_ID_STORAGE_KEY, ContentScriptType } from 'lib/constants';
+import { postAdImpression, postAnonymousAdImpression } from 'lib/apis/ads-api';
+import { ADS_VIEWER_ADDRESS_STORAGE_KEY, ContentScriptType } from 'lib/constants';
 import { E2eMessageType } from 'lib/e2e/types';
 import { BACKGROUND_IS_WORKER } from 'lib/env';
 import { fetchFromStorage } from 'lib/storage';
@@ -9,8 +11,6 @@ import { encodeMessage, encryptMessage, getSenderId, MessageType, Response } fro
 import { clearAsyncStorages } from 'lib/temple/reset';
 import { StoredHDAccount, TempleMessageType, TempleRequest, TempleResponse } from 'lib/temple/types';
 import { getTrackedCashbackServiceDomain, getTrackedUrl } from 'lib/utils/url-track/url-track.utils';
-
-import { AnalyticsEventCategory } from '../analytics-types';
 
 import * as Actions from './actions';
 import * as Analytics from './analytics';
@@ -306,15 +306,16 @@ browser.runtime.onMessage.addListener(async msg => {
         break;
 
       case ContentScriptType.ExternalAdsActivity:
-        const userId = await getAnalyticsUserId();
+        const urlDomain = new URL(msg.url).hostname;
         const accountPkh = await getAdsViewerPkh();
 
-        await Analytics.trackEvent({
-          category: AnalyticsEventCategory.General,
-          userId: userId ?? '',
-          event: 'External Ads Activity',
-          properties: { domain: new URL(msg.url).hostname, accountPkh, provider: msg.provider }
-        });
+        if (accountPkh) await postAdImpression(accountPkh, msg.provider, { urlDomain });
+        else {
+          const identity = await getStoredAppInstallIdentity();
+          if (!identity) throw new Error('App identity not found');
+          const installId = identity.publicKeyHash;
+          await postAnonymousAdImpression(installId, urlDomain, msg.provider);
+        }
         break;
     }
   } catch (e) {
@@ -335,5 +336,3 @@ async function getAdsViewerPkh() {
 
   return (frontState.accounts[0] as StoredHDAccount | undefined)?.tezosAddress;
 }
-
-const getAnalyticsUserId = () => fetchFromStorage<string>(ANALYTICS_USER_ID_STORAGE_KEY);

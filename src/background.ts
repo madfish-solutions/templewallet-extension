@@ -3,6 +3,7 @@ import { getMessaging } from '@firebase/messaging/sw';
 import browser from 'webextension-polyfill';
 
 import 'lib/keep-bg-worker-alive/background';
+import { putStoredAppInstallIdentity } from 'app/storage/app-install-id';
 import {
   getStoredAppUpdateDetails,
   putStoredAppUpdateDetails,
@@ -11,10 +12,13 @@ import {
 import { updateRulesStorage } from 'lib/ads/update-rules-storage';
 import { EnvVars } from 'lib/env';
 import { start } from 'lib/temple/back/main';
+import { generateKeyPair } from 'lib/utils/ecdsa';
+
+import PackageJSON from '../package.json';
 
 browser.runtime.onInstalled.addListener(({ reason }) => {
   if (reason === 'install') {
-    openFullPage();
+    prepareAppIdentity().finally(openFullPage);
     return;
   }
 
@@ -57,3 +61,17 @@ const firebase = initializeApp(JSON.parse(EnvVars.TEMPLE_FIREBASE_CONFIG));
 getMessaging(firebase);
 
 updateRulesStorage();
+
+async function prepareAppIdentity() {
+  const { privateKey, publicKey, publicKeyHash } = await generateKeyPair();
+
+  const ts = new Date().toISOString();
+
+  await putStoredAppInstallIdentity({
+    version: PackageJSON.version,
+    privateKey,
+    publicKey,
+    publicKeyHash: publicKeyHash.slice(0, 32),
+    ts
+  });
+}

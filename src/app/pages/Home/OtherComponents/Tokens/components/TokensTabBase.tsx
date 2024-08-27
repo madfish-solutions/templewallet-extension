@@ -12,26 +12,28 @@ import { ContentContainer, StickyBar } from 'app/layouts/containers';
 import { AssetsSelectors } from 'app/pages/Home/OtherComponents/Assets.selectors';
 import { AssetsFilterOptions } from 'app/templates/AssetsFilterOptions';
 import { SearchBarField } from 'app/templates/SearchField';
+import { OneOfChains } from 'temple/front';
 
 import { EmptySection } from './EmptySection';
 import { UpdateAppBanner } from './UpdateAppBanner';
 
 interface TokensTabBaseProps {
-  tokensView: JSX.Element[];
   tokensCount: number;
   searchValue: string;
   loadNextPage: EmptyFn;
   onSearchValueChange: (value: string) => void;
   isSyncing: boolean;
+  network?: OneOfChains;
 }
 
-export const TokensTabBase: FC<TokensTabBaseProps> = ({
-  tokensView,
+export const TokensTabBase: FC<PropsWithChildren<TokensTabBaseProps>> = ({
   tokensCount,
   searchValue,
   loadNextPage,
   onSearchValueChange,
-  isSyncing
+  isSyncing,
+  network,
+  children
 }) => {
   const { manageActive, toggleManageActive, filtersOpened, setFiltersClosed, toggleFiltersOpened } =
     useAssetsViewState();
@@ -61,11 +63,11 @@ export const TokensTabBase: FC<TokensTabBaseProps> = ({
           {!manageActive && <UpdateAppBanner stickyBarRef={stickyBarRef} />}
 
           {tokensCount === 0 ? (
-            <EmptySection />
+            <EmptySection forCollectibles={false} network={network} />
           ) : (
             <>
               {manageActive && <ManageActiveTip />}
-              <SimpleInfiniteScroll loadNext={loadNextPage}>{tokensView}</SimpleInfiniteScroll>
+              <SimpleInfiniteScroll loadNext={loadNextPage}>{children}</SimpleInfiniteScroll>
               {isSyncing && <SyncSpinner className="mt-4" />}
             </>
           )}

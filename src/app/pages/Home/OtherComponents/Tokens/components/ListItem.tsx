@@ -19,7 +19,7 @@ import { getTokenName, getAssetSymbol } from 'lib/metadata';
 import { useBooleanState } from 'lib/ui/hooks';
 import { ZERO } from 'lib/utils/numbers';
 import { Link } from 'lib/woozie';
-import { TezosNetworkEssentials } from 'temple/networks';
+import { EvmNetworkEssentials, TezosNetworkEssentials } from 'temple/networks';
 import { TempleChainKind } from 'temple/types';
 
 import { AssetsSelectors } from '../../Assets.selectors';
@@ -46,15 +46,7 @@ export const TezosListItem = memo<TezosListItemProps>(
     } = useTezosAssetBalance(assetSlug, publicKeyHash, network);
     const { chainId } = network;
 
-    const classNameMemo = useMemo(
-      () =>
-        clsx(
-          'relative block w-full overflow-hidden flex items-center p-2 rounded-lg',
-          'hover:bg-secondary-low transition ease-in-out duration-200 focus:outline-none group',
-          active && 'focus:bg-secondary-low'
-        ),
-      [active]
-    );
+    const classNameMemo = useMemo(() => clsx(LIST_ITEM_CLASSNAME, active && 'focus:bg-secondary-low'), [active]);
 
     const storedToken = useStoredTezosTokenSelector(publicKeyHash, chainId, assetSlug);
 
@@ -94,33 +86,26 @@ export const TezosListItem = memo<TezosListItemProps>(
     const assetSymbol = getAssetSymbol(metadata);
     const assetName = getTokenName(metadata);
 
-    return manageActive ? (
-      <>
-        <div
-          className={clsx(
-            'relative w-full overflow-hidden flex items-center p-2 rounded-lg',
-            'hover:bg-secondary-low transition ease-in-out duration-200 focus:outline-none',
-            'focus:bg-secondary-low'
-          )}
-        >
-          <TezosTokenIconWithNetwork
-            tezosChainId={network.chainId}
-            assetSlug={assetSlug}
-            className="mr-1 flex-shrink-0"
-          />
+    if (manageActive)
+      return (
+        <>
+          <div className={LIST_ITEM_CLASSNAME}>
+            <TezosTokenIconWithNetwork tezosChainId={network.chainId} assetSlug={assetSlug} className="shrink-0" />
 
-          <div className="flex-grow flex items-center justify-between">
-            <div className="truncate max-w-36">
-              <div className="text-font-medium mb-1">{assetSymbol}</div>
-              <div className="flex text-font-description items-center text-grey-1 flex-1">{assetName}</div>
-            </div>
-            <div className="flex flex-row gap-x-2">
+            <div className="flex-grow flex gap-x-2 items-center overflow-hidden">
+              <div className="flex-grow flex flex-col gap-y-1 overflow-hidden">
+                <div className="text-font-medium truncate">{assetSymbol}</div>
+
+                <div className="text-font-description items-center text-grey-1 truncate">{assetName}</div>
+              </div>
+
               <IconBase
                 Icon={DeleteIcon}
                 size={16}
-                className={isNativeToken ? 'text-disable' : 'cursor-pointer text-error'}
+                className={clsx('shrink-0', isNativeToken ? 'text-disable' : 'cursor-pointer text-error')}
                 onClick={isNativeToken ? undefined : setDeleteModalOpened}
               />
+
               <ToggleSwitch
                 checked={isNativeToken ? true : checked}
                 disabled={isNativeToken}
@@ -128,27 +113,26 @@ export const TezosListItem = memo<TezosListItemProps>(
               />
             </div>
           </div>
-        </div>
-        {deleteModalOpened && <DeleteAssetModal onClose={setDeleteModalClosed} onDelete={deleteItem} />}
-      </>
-    ) : (
+
+          {deleteModalOpened && <DeleteAssetModal onClose={setDeleteModalClosed} onDelete={deleteItem} />}
+        </>
+      );
+
+    return (
       <Link
-        to={toExploreAssetLink(TempleChainKind.Tezos, network.chainId, assetSlug)}
+        to={toExploreAssetLink(false, TempleChainKind.Tezos, network.chainId, assetSlug)}
         className={classNameMemo}
         testID={AssetsSelectors.assetItemButton}
         testIDProperties={{ key: assetSlug }}
         {...setAnotherSelector('name', assetName)}
       >
-        <TezosTokenIconWithNetwork
-          tezosChainId={network.chainId}
-          assetSlug={assetSlug}
-          className="mr-1 flex-shrink-0"
-        />
+        <TezosTokenIconWithNetwork tezosChainId={network.chainId} assetSlug={assetSlug} className="shrink-0" />
 
-        <div className="flex-grow">
-          <div className="flex justify-between mb-1">
-            <div className="flex items-center flex-initial">
-              <div className="text-font-medium truncate max-w-36">{assetSymbol}</div>
+        <div className="flex-grow flex flex-col gap-y-1 overflow-hidden">
+          <div className="flex gap-x-4">
+            <div className="flex items-center flex-grow gap-x-2 truncate">
+              <div className="text-font-medium truncate">{assetSymbol}</div>
+
               <TokenTag
                 network={network}
                 tezPkh={publicKeyHash}
@@ -157,16 +141,16 @@ export const TezosListItem = memo<TezosListItemProps>(
                 scam={scam}
               />
             </div>
+
             <CryptoBalance
               value={balance}
               testID={AssetsSelectors.assetItemCryptoBalanceButton}
               testIDProperties={{ assetSlug }}
             />
           </div>
-          <div className="flex justify-between">
-            <div className="flex text-font-description items-center text-grey-1 truncate max-w-36 flex-1">
-              {assetName}
-            </div>
+
+          <div className="flex gap-x-4">
+            <div className="self-center flex-grow text-font-description text-grey-1 truncate">{assetName}</div>
 
             <FiatBalance
               chainId={network.chainId}
@@ -182,25 +166,26 @@ export const TezosListItem = memo<TezosListItemProps>(
   }
 );
 
-const containerClassName = clsx(
-  'relative w-full overflow-hidden flex items-center p-2 rounded-lg',
-  'hover:bg-secondary-low transition ease-in-out duration-200 focus:outline-none',
-  'focus:bg-secondary-low'
+const LIST_ITEM_CLASSNAME = clsx(
+  'overflow-hidden flex items-center gap-x-1 p-2 rounded-lg',
+  'hover:bg-secondary-low transition ease-in-out duration-200 focus:outline-none'
 );
 
 interface EvmListItemProps {
-  chainId: number;
+  network: EvmNetworkEssentials;
   publicKeyHash: HexString;
   assetSlug: string;
   manageActive?: boolean;
 }
 
-export const EvmListItem = memo<EvmListItemProps>(({ chainId, publicKeyHash, assetSlug, manageActive = false }) => {
+export const EvmListItem = memo<EvmListItemProps>(({ network, publicKeyHash, assetSlug, manageActive = false }) => {
+  const { chainId } = network;
+
   const {
     value: balance = ZERO,
     rawValue: rawBalance,
     metadata
-  } = useEvmTokenBalance(assetSlug, publicKeyHash, chainId);
+  } = useEvmTokenBalance(assetSlug, publicKeyHash, network);
   const storedToken = useStoredEvmTokenSelector(publicKeyHash, chainId, assetSlug);
 
   const checked = getAssetStatus(rawBalance, storedToken?.status) === 'enabled';
@@ -234,28 +219,33 @@ export const EvmListItem = memo<EvmListItemProps>(({ chainId, publicKeyHash, ass
     [checked, assetSlug, chainId, publicKeyHash]
   );
 
+  const classNameMemo = useMemo(() => clsx(LIST_ITEM_CLASSNAME, 'focus:bg-secondary-low'), []);
+
   if (metadata == null) return null;
 
   const assetSymbol = getAssetSymbol(metadata);
   const assetName = getTokenName(metadata);
 
-  return manageActive ? (
-    <>
-      <div className={containerClassName}>
-        <EvmTokenIconWithNetwork evmChainId={chainId} assetSlug={assetSlug} className="mr-1 flex-shrink-0" />
+  if (manageActive)
+    return (
+      <>
+        <div className={classNameMemo}>
+          <EvmTokenIconWithNetwork evmChainId={chainId} assetSlug={assetSlug} className="shrink-0" />
 
-        <div className="flex-grow flex items-center justify-between">
-          <div className="truncate max-w-36">
-            <div className="text-font-medium mb-1">{assetSymbol}</div>
-            <div className="flex text-font-description items-center text-grey-1 flex-1">{assetName}</div>
-          </div>
-          <div className="flex flex-row gap-x-2">
+          <div className="flex-grow flex gap-x-2 items-center overflow-hidden">
+            <div className="flex-grow flex flex-col gap-y-1 overflow-hidden">
+              <div className="text-font-medium truncate">{assetSymbol}</div>
+
+              <div className="text-font-description items-center text-grey-1 truncate">{assetName}</div>
+            </div>
+
             <IconBase
               Icon={DeleteIcon}
               size={16}
-              className={isNativeToken ? 'text-disable' : 'cursor-pointer text-error'}
+              className={clsx('shrink-0', isNativeToken ? 'text-disable' : 'cursor-pointer text-error')}
               onClick={isNativeToken ? undefined : setDeleteModalOpened}
             />
+
             <ToggleSwitch
               checked={isNativeToken ? true : checked}
               disabled={isNativeToken}
@@ -263,22 +253,24 @@ export const EvmListItem = memo<EvmListItemProps>(({ chainId, publicKeyHash, ass
             />
           </div>
         </div>
-      </div>
-      {deleteModalOpened && <DeleteAssetModal onClose={setDeleteModalClosed} onDelete={deleteItem} />}
-    </>
-  ) : (
+
+        {deleteModalOpened && <DeleteAssetModal onClose={setDeleteModalClosed} onDelete={deleteItem} />}
+      </>
+    );
+
+  return (
     <Link
-      to={toExploreAssetLink(TempleChainKind.EVM, chainId, assetSlug)}
-      className={containerClassName}
+      to={toExploreAssetLink(false, TempleChainKind.EVM, chainId, assetSlug)}
+      className={classNameMemo}
       testID={AssetsSelectors.assetItemButton}
       testIDProperties={{ key: assetSlug }}
       {...setAnotherSelector('name', assetName)}
     >
-      <EvmTokenIconWithNetwork evmChainId={chainId} assetSlug={assetSlug} className="mr-1 flex-shrink-0" />
+      <EvmTokenIconWithNetwork evmChainId={chainId} assetSlug={assetSlug} className="shrink-0" />
 
-      <div className="flex-grow">
-        <div className="flex justify-between mb-1">
-          <div className="text-font-medium truncate max-w-36">{assetSymbol}</div>
+      <div className="flex-grow flex flex-col gap-y-1 overflow-hidden">
+        <div className="flex gap-x-4">
+          <div className="flex-grow text-font-medium truncate">{assetSymbol}</div>
 
           <CryptoBalance
             value={balance}
@@ -286,10 +278,10 @@ export const EvmListItem = memo<EvmListItemProps>(({ chainId, publicKeyHash, ass
             testIDProperties={{ assetSlug }}
           />
         </div>
-        <div className="flex justify-between">
-          <div className="flex text-font-description items-center text-grey-1 truncate max-w-36 flex-1">
-            {assetName}
-          </div>
+
+        <div className="flex gap-x-4">
+          <div className="self-center flex-grow text-font-description text-grey-1 truncate">{assetName}</div>
+
           <FiatBalance
             evm
             chainId={chainId}

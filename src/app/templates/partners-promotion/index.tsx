@@ -12,7 +12,7 @@ import {
   usePromotionHidingTimestampSelector
 } from 'app/store/partners-promotion/selectors';
 import { AdsProviderName, AdsProviderTitle } from 'lib/ads';
-import { AnalyticsEventCategory, useAnalytics } from 'lib/analytics';
+import { postAdImpression } from 'lib/apis/ads-api';
 import { AD_HIDING_TIMEOUT } from 'lib/constants';
 
 import { HypelabPromotion } from './components/hypelab-promotion';
@@ -40,7 +40,6 @@ const shouldBeHiddenTemporarily = (hiddenAt: number) => {
 export const PartnersPromotion = memo<PartnersPromotionProps>(({ variant, id, pageName, withPersonaProvider }) => {
   const isImageAd = variant === PartnersPromotionVariant.Image;
   const adsViewerAddress = useAdsViewerPkh();
-  const { trackEvent } = useAnalytics();
   const { popup } = useAppEnv();
   const dispatch = useDispatch();
   const hiddenAt = usePromotionHidingTimestampSelector(id);
@@ -72,19 +71,10 @@ export const PartnersPromotion = memo<PartnersPromotionProps>(({ variant, id, pa
   const handleAdRectSeen = useCallback(() => {
     if (isAnalyticsSentRef.current) return;
 
-    trackEvent(
-      'Internal Ads Activity',
-      AnalyticsEventCategory.General,
-      {
-        variant: providerName === 'Persona' ? PartnersPromotionVariant.Image : variant,
-        page: pageName,
-        provider: AdsProviderTitle[providerName],
-        accountPkh: adsViewerAddress
-      },
-      true
-    );
+    postAdImpression(adsViewerAddress, AdsProviderTitle[providerName], { pageName });
+
     isAnalyticsSentRef.current = true;
-  }, [providerName, pageName, adsViewerAddress, variant, trackEvent]);
+  }, [providerName, pageName, adsViewerAddress]);
 
   const handleClosePartnersPromoClick = useCallback<MouseEventHandler<HTMLButtonElement>>(
     e => {

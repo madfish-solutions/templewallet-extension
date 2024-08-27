@@ -1,5 +1,6 @@
 import React, { memo, useEffect } from 'react';
 
+import { useAdsImpressionsLinking } from 'app/hooks/use-ads-impressions-linking';
 import { useAdvertisingLoading } from 'app/hooks/use-advertising.hook';
 import { useAssetsMigrations } from 'app/hooks/use-assets-migrations';
 import { useCollectiblesDetailsLoading } from 'app/hooks/use-collectibles-details-loading';
@@ -52,6 +53,7 @@ const AppReadyRootHooks = memo(() => {
   useUserAnalyticsAndAdsSettings();
   useStorageAnalytics();
   useConversionTracking();
+  useAdsImpressionsLinking();
 
   useChainIDsCheck();
   useUserIdAccountPkhSync();

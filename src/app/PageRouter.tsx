@@ -80,7 +80,7 @@ const ROUTE_MAP = Woozie.createMap<RouteContext>([
   ['/connect-ledger', onlyReady(onlyInFullPage(() => <ConnectLedger />))],
   ['/receive', onlyReady(() => <Receive />)],
   [
-    '/send/:tezosChainId?/:assetSlug?',
+    '/send/:chainKind?/:tezosChainId?/:assetSlug?',
     onlyReady(({ tezosChainId, assetSlug }) => <Send tezosChainId={tezosChainId} assetSlug={assetSlug} />)
   ],
   ['/swap', onlyReady(() => <Swap />)],

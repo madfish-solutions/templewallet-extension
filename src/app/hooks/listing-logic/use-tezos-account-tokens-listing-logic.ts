@@ -1,61 +1,44 @@
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useMemo } from 'react';
 
 import { isDefined } from '@rnw-community/shared';
-import { isEqual } from 'lodash';
-import { useDebounce } from 'use-debounce';
 
 import { useAreAssetsLoading } from 'app/store/tezos/assets/selectors';
 import { useBalancesAtomicRecordSelector } from 'app/store/tezos/balances/selectors';
 import { getKeyForBalancesRecord } from 'app/store/tezos/balances/utils';
 import { useTokensMetadataLoadingSelector } from 'app/store/tezos/tokens-metadata/selectors';
 import { TEZ_TOKEN_SLUG } from 'lib/assets';
-import { useEnabledTezosAccountTokenSlugs } from 'lib/assets/hooks';
-import { useAllTezosAccountTokenSlugs } from 'lib/assets/hooks/tokens';
+import { useTezosAccountTokens } from 'lib/assets/hooks/tokens';
 import { searchTezosAssetsWithNoMeta } from 'lib/assets/search.utils';
 import { useTezosAccountTokensSortPredicate } from 'lib/assets/use-sorting';
 import { fromChainAssetSlug, toChainAssetSlug } from 'lib/assets/utils';
 import { useGetTokenOrGasMetadata } from 'lib/metadata';
 import { useMemoWithCompare } from 'lib/ui/hooks';
-import { isSearchStringApplicable } from 'lib/utils/search-items';
 import { useEnabledTezosChains } from 'temple/front';
 import { TempleChainKind } from 'temple/types';
 
 import { useSimpleAssetsPaginationLogic } from '../use-simple-assets-pagination-logic';
 
-import { useGroupedSlugs } from './use-grouped-slugs';
-import { useManageableSlugs } from './use-manageable-slugs';
-import { getSlugWithChainId } from './utils';
+import { getSlugWithChainId, useCommonAssetsListingLogic } from './utils';
 
-export const useTezosAccountTokensListingLogic = (
-  publicKeyHash: string,
-  filterZeroBalances = false,
-  groupByNetwork = false,
-  manageActive = false
-) => {
+export const useTezosAccountTokensForListing = (publicKeyHash: string, filterZeroBalances: boolean) => {
   const tokensSortPredicate = useTezosAccountTokensSortPredicate(publicKeyHash);
 
-  const enabledStoredChainSlugs = useEnabledTezosAccountTokenSlugs(publicKeyHash);
-  const allStoredChainSlugs = useAllTezosAccountTokenSlugs(publicKeyHash);
+  const tokens = useTezosAccountTokens(publicKeyHash);
+
+  const enabledStoredChainSlugs = useMemo(
+    () =>
+      tokens
+        .filter(({ status }) => status === 'enabled')
+        .map(({ chainId, slug }) => toChainAssetSlug(TempleChainKind.Tezos, chainId, slug)),
+    [tokens]
+  );
 
   const enabledChains = useEnabledTezosChains();
 
-  const nativeChainSlugs = useMemo(
+  const gasSlugs = useMemo(
     () => enabledChains.map(chain => toChainAssetSlug(TempleChainKind.Tezos, chain.chainId, TEZ_TOKEN_SLUG)),
     [enabledChains]
   );
-
-  const enabledChainSlugs = useMemo(
-    () => nativeChainSlugs.concat(enabledStoredChainSlugs),
-    [nativeChainSlugs, enabledStoredChainSlugs]
-  );
-  const allChainSlugs = useMemo(
-    () => nativeChainSlugs.concat(allStoredChainSlugs),
-    [nativeChainSlugs, allStoredChainSlugs]
-  );
-
-  const assetsAreLoading = useAreAssetsLoading('tokens');
-  const metadatasLoading = useTokensMetadataLoadingSelector();
-  const isSyncing = assetsAreLoading || metadatasLoading;
 
   const balancesRecord = useBalancesAtomicRecordSelector();
 
@@ -70,48 +53,44 @@ export const useTezosAccountTokensListingLogic = (
     [balancesRecord, publicKeyHash]
   );
 
-  const [searchValue, setSearchValue] = useState('');
-  const [searchValueDebounced] = useDebounce(searchValue, 300);
+  const enabledChainsSlugsSorted = useMemoWithCompare(() => {
+    const enabledSlugs = gasSlugs.concat(enabledStoredChainSlugs);
 
-  const isInSearchMode = isSearchStringApplicable(searchValueDebounced);
+    const enabledSlugsFiltered = filterZeroBalances ? enabledSlugs.filter(isNonZeroBalance) : enabledSlugs;
+
+    return enabledSlugsFiltered.sort(tokensSortPredicate);
+  }, [enabledStoredChainSlugs, isNonZeroBalance, tokensSortPredicate, gasSlugs, filterZeroBalances]);
+
+  return {
+    enabledChainsSlugsSorted,
+    tokens,
+    tokensSortPredicate
+  };
+};
+
+export const useTezosAccountTokensListingLogic = (allSlugsSorted: string[]) => {
+  const { slugs: paginatedSlugs, loadNext } = useSimpleAssetsPaginationLogic(allSlugsSorted);
+
+  const assetsAreLoading = useAreAssetsLoading('tokens');
+  const metadatasLoading = useTokensMetadataLoadingSelector();
+
+  const { searchValue, searchValueDebounced, setSearchValue, isInSearchMode, isSyncing } = useCommonAssetsListingLogic(
+    assetsAreLoading || metadatasLoading
+  );
 
   const getMetadata = useGetTokenOrGasMetadata();
 
-  const search = useCallback(
-    (slugs: string[]) => searchTezosAssetsWithNoMeta(searchValueDebounced, slugs, getMetadata, getSlugWithChainId),
-    [getMetadata, searchValueDebounced]
+  const displayedSlugs = useMemoWithCompare(
+    () =>
+      isInSearchMode
+        ? searchTezosAssetsWithNoMeta(searchValueDebounced, allSlugsSorted, getMetadata, getSlugWithChainId)
+        : paginatedSlugs,
+    [isInSearchMode, allSlugsSorted, paginatedSlugs, getMetadata, searchValueDebounced]
   );
-
-  const filteredEnabledChainSlugs = useMemo(
-    () => (filterZeroBalances ? enabledChainSlugs.filter(isNonZeroBalance) : enabledChainSlugs),
-    [filterZeroBalances, enabledChainSlugs, isNonZeroBalance]
-  );
-
-  // shouldn't resort on balances change
-  const sortedEnabledChainSlugs = useMemo(
-    () => [...filteredEnabledChainSlugs].sort(tokensSortPredicate),
-    [filteredEnabledChainSlugs]
-  );
-
-  const searchedEnabledChainSlugs = useMemo(
-    () => (isInSearchMode ? search(sortedEnabledChainSlugs) : sortedEnabledChainSlugs),
-    [isInSearchMode, search, sortedEnabledChainSlugs]
-  );
-
-  const groupedAssets = useGroupedSlugs(groupByNetwork, manageActive, searchedEnabledChainSlugs);
-
-  const manageableChainSlugs = useManageableSlugs(manageActive, allChainSlugs, sortedEnabledChainSlugs, groupedAssets);
-
-  const searchedManageableChainSlugs = useMemoWithCompare(
-    () => (isInSearchMode ? search(manageableChainSlugs) : manageableChainSlugs),
-    [isInSearchMode, search, manageableChainSlugs],
-    isEqual
-  );
-
-  const { slugs: paginatedSlugs, loadNext } = useSimpleAssetsPaginationLogic(searchedManageableChainSlugs);
 
   return {
-    paginatedSlugs,
+    isInSearchMode,
+    displayedSlugs,
     isSyncing,
     loadNext,
     searchValue,
