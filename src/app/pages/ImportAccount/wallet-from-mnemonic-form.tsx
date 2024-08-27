@@ -9,6 +9,7 @@ import { T, t } from 'lib/i18n';
 import { useTempleClient } from 'lib/temple/front';
 
 import { defaultNumberOfWords } from './constants';
+import { ImportAccountSelectors } from './selectors';
 
 export const WalletFromMnemonicForm = memo(() => {
   const { createOrImportWallet } = useTempleClient();
@@ -70,6 +71,7 @@ export const WalletFromMnemonicForm = memo(() => {
         reset={reset}
         numberOfWords={numberOfWords}
         setNumberOfWords={setNumberOfWords}
+        testID={ImportAccountSelectors.walletFromMnemonicWordInput}
       />
 
       <Button
@@ -79,6 +81,7 @@ export const WalletFromMnemonicForm = memo(() => {
           (isSubmitting || Boolean(error)) && 'opacity-75'
         )}
         onClick={handleSubmit}
+        testID={ImportAccountSelectors.walletFromMnemonicImportButton}
       >
         <T id="importYourWallet" />
       </Button>
