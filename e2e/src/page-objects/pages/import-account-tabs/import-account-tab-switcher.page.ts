@@ -1,3 +1,4 @@
+import { Locator } from '@playwright/test';
 import { ImportAccountSelectors } from 'src/app/pages/ImportAccount/selectors';
 
 import { Page } from '../../../classes/page.class';
@@ -13,7 +14,7 @@ export class ImportAccountTab extends Page {
     const tabElements = await findElements(ImportAccountSelectors.tabSwitcher);
 
     for (const tabElement of tabElements) {
-      const getTabValue = await getElementText(tabElement);
+      const getTabValue = await tabElement.textContent();
 
       if (getTabValue === tabName) {
         await tabElement.click();
