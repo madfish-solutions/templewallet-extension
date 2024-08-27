@@ -25,7 +25,6 @@ import { navigate } from 'lib/woozie';
 import { searchAndFilterAccounts, useAccountsGroups, useCurrentAccountId, useVisibleAccounts } from 'temple/front';
 import { useSetAccountId } from 'temple/front/ready';
 
-import { setTestID } from '../../../lib/analytics';
 import { CreateHDWalletModal } from '../CreateHDWalletModal';
 
 import { AccountsModalSelectors } from './selectors';
