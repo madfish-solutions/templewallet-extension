@@ -44,12 +44,14 @@ export const createWsConnection = (chainId: string): TzktHubConnection | undefin
   return undefined;
 };
 
-const api = axios.create();
+const api = axios.create({
+  adapter: 'fetch'
+});
 
 api.interceptors.response.use(
   res => res,
   err => {
-    const message = (err as AxiosError).response?.data?.message;
+    const message = (err as AxiosError)?.message;
     console.error(`Failed when querying Tzkt API: ${message}`, err);
     throw err;
   }

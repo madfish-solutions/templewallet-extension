@@ -56,5 +56,6 @@ export const EnvVars = {
   TEMPLE_ADS_ORIGIN_PASSPHRASE: process.env.TEMPLE_ADS_ORIGIN_PASSPHRASE!,
   CONVERSION_VERIFICATION_URL: process.env.CONVERSION_VERIFICATION_URL!,
   /** Whether ads stubs should be added if loading failed. Set it to `true` only for testing */
-  USE_ADS_STUBS: process.env.USE_ADS_STUBS === 'true'
+  USE_ADS_STUBS: process.env.USE_ADS_STUBS === 'true',
+  TAKE_ADS_TOKEN: process.env.TAKE_ADS_TOKEN!
 } as const;
