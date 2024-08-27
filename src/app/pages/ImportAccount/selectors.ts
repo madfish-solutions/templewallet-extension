@@ -23,7 +23,10 @@ export enum ImportAccountSelectors {
   fundraiserImportButton = 'Import Account(Fundraiser)/Import Button',
 
   managedContractInput = 'Import Account(ManagedKT)/Managed Contract Input',
-  managedKTImportButton = 'Import Account(ManagedKT)/Import Account Button'
+  managedKTImportButton = 'Import Account(ManagedKT)/Import Account Button',
+
+  walletFromMnemonicWordInput = 'Import Account(Mnemonic)/Wallet From Mnemonic Word Input',
+  walletFromMnemonicImportButton = 'Import Account(Mnemonic)/Wallet From Mnemonic Import Button'
 }
 
 export enum ImportAccountFormType {

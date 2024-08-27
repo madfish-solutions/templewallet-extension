@@ -13,6 +13,7 @@ import { SwapPage } from '../page-objects/pages/swap.page';
 import { OperationStatusAlert } from './pages/alerts/operation-status.alert';
 import { DelegateFormPage } from './pages/delegate-form.page';
 import { DelegateTab } from './pages/delegate-tab.page';
+import { ImportAccountMnemonicTab } from './pages/import-account-tabs/import-account-wallet-from-seed-tab.page';
 import { ImportExistingWalletPage } from './pages/importing-existing-wallet.page';
 import { InternalConfirmationPage } from './pages/internal-confirmation.page';
 import { AddNewWalletListPage } from './pages/lists/add-new-wallet-list.page';
@@ -54,5 +55,6 @@ export const Pages = {
   BackupOptionsModal: new BackupOptionsModalPage(),
   Home: new HomePage(),
   AccountsModal: new AccountsModalPage(),
-  AddNewWalletList: new AddNewWalletListPage()
+  AddNewWalletList: new AddNewWalletListPage(),
+  ImportAccountMnemonicTab: new ImportAccountMnemonicTab()
 };
