@@ -1,10 +1,9 @@
 import { uniq } from 'lodash';
 
-import type { TokenMetadata } from 'lib/metadata';
 import { isTruthy } from 'lib/utils';
 
 import { EvmAssetStandard } from './evm/types';
-import { EvmCollectibleMetadata, EvmTokenMetadata } from './metadata/types';
+import type { TokenMetadata, EvmAssetMetadataBase, EvmCollectibleMetadata } from './metadata/types';
 
 type TcInfraMediaSize = 'small' | 'medium' | 'large' | 'raw';
 type ObjktMediaTail = 'display' | 'artifact' | 'thumb288';
@@ -173,7 +172,6 @@ const chainIdsChainNamesRecord: Record<number, string> = {
   1: 'ethereum',
   11155111: 'sepolia',
   137: 'polygon',
-  80001: 'polygonmumbai',
   56: 'smartchain',
   97: 'bnbt',
   43114: 'avalanchex',
@@ -232,7 +230,7 @@ export const getEvmNativeAssetIcon = (chainId: number, size?: number) => {
   return imageUrl;
 };
 
-const getEvmCustomChainIconUrl = (chainId: number, metadata: EvmTokenMetadata) => {
+const getEvmCustomChainIconUrl = (chainId: number, metadata: EvmAssetMetadataBase) => {
   const chainName = chainIdsChainNamesRecord[chainId];
 
   if (!chainName) return null;
@@ -242,7 +240,7 @@ const getEvmCustomChainIconUrl = (chainId: number, metadata: EvmTokenMetadata) =
     : `${baseUrl}${chainName}/assets/${metadata.address}/logo.png`;
 };
 
-export const buildEvmTokenIconSources = (metadata: EvmTokenMetadata, chainId?: number) => {
+export const buildEvmTokenIconSources = (metadata: EvmAssetMetadataBase, chainId?: number) => {
   if (!chainId) return [];
 
   const mainFallback = getEvmCustomChainIconUrl(chainId, metadata);

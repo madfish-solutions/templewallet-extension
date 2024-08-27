@@ -124,7 +124,7 @@ export const MyStakeTab = memo<Props>(({ accountPkh, network, cannotDelegate }) 
         <RequestUnstakeModal accountPkh={accountPkh} network={network} onDone={onRequestUnstakeDone} />
       )}
 
-      <div className="mx-auto max-w-sm flex flex-col gap-y-8">
+      <div className="flex flex-col gap-y-8">
         <div className="flex flex-col gap-y-4">
           <span className="text-base font-medium text-blue-750">Current Staking</span>
 

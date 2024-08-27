@@ -1,10 +1,10 @@
 import { memo } from 'react';
 
 import { dispatch } from 'app/store';
-import { setEvmBalancesLoading } from 'app/store/evm/actions';
+import { setEvmBalancesLoadingState } from 'app/store/evm/actions';
 import { processLoadedEvmAssetsAction } from 'app/store/evm/assets/actions';
 import { processLoadedEvmAssetsBalancesAction } from 'app/store/evm/balances/actions';
-import { useEvmBalancesLoadingSelector } from 'app/store/evm/selectors';
+import { useAllEvmChainsBalancesLoadingStatesSelector } from 'app/store/evm/selectors';
 import { getEvmBalances } from 'lib/apis/temple/endpoints/evm/api';
 import { isSupportedChainId } from 'lib/apis/temple/endpoints/evm/api.utils';
 import { EVM_BALANCES_SYNC_INTERVAL } from 'lib/fixed-times';
@@ -14,7 +14,7 @@ import { useEnabledEvmChains } from 'temple/front';
 
 export const AppEvmBalancesLoading = memo<{ publicKeyHash: HexString }>(({ publicKeyHash }) => {
   const evmChains = useEnabledEvmChains();
-  const balancesLoading = useEvmBalancesLoadingSelector();
+  const loadingStates = useAllEvmChainsBalancesLoadingStatesSelector();
 
   const apiSupportedChainIds = useMemoWithCompare(
     () => evmChains.map(({ chainId }) => (isSupportedChainId(chainId) ? chainId : null)).filter(isTruthy),
@@ -23,18 +23,23 @@ export const AppEvmBalancesLoading = memo<{ publicKeyHash: HexString }>(({ publi
 
   useInterval(
     () => {
-      if (balancesLoading) return;
+      for (const chainId of apiSupportedChainIds) {
+        if (loadingStates[chainId]?.isLoading) continue;
 
-      dispatch(setEvmBalancesLoading(true));
+        dispatch(setEvmBalancesLoadingState({ chainId, isLoading: true }));
 
-      Promise.allSettled(
-        apiSupportedChainIds.map(async chainId => {
-          const data = await getEvmBalances(publicKeyHash, chainId);
-
-          dispatch(processLoadedEvmAssetsAction({ publicKeyHash, chainId, data }));
-          dispatch(processLoadedEvmAssetsBalancesAction({ publicKeyHash, chainId, data }));
-        })
-      ).then(() => void dispatch(setEvmBalancesLoading(false)));
+        getEvmBalances(publicKeyHash, chainId).then(
+          data => {
+            dispatch(processLoadedEvmAssetsAction({ publicKeyHash, chainId, data }));
+            dispatch(processLoadedEvmAssetsBalancesAction({ publicKeyHash, chainId, data }));
+            dispatch(setEvmBalancesLoadingState({ chainId, isLoading: false }));
+          },
+          error => {
+            console.error(error);
+            dispatch(setEvmBalancesLoadingState({ chainId, isLoading: false, error: String(error) }));
+          }
+        );
+      }
     },
     [apiSupportedChainIds, publicKeyHash],
     EVM_BALANCES_SYNC_INTERVAL

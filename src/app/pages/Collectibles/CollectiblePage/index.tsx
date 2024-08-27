@@ -7,6 +7,7 @@ import { FormSubmitButton, FormSecondaryButton, Spinner, Money, Alert } from 'ap
 import { DeadEndBoundaryError } from 'app/ErrorBoundary';
 import { useLocationSearchParamValue } from 'app/hooks/use-location';
 import PageLayout from 'app/layouts/PageLayout';
+import { buildSendPagePath } from 'app/pages/Send/build-url';
 import { useEvmCollectibleMetadataSelector } from 'app/store/evm/collectibles-metadata/selectors';
 import { loadCollectiblesDetailsActions } from 'app/store/tezos/collectibles/actions';
 import {
@@ -206,7 +207,7 @@ const TezosCollectiblePage = memo<TezosCollectiblePageProps>(({ tezosChainId, as
   } = useCollectibleSelling(assetSlug, publicKeyHash, rpcUrl, takableOffer);
 
   const onSendButtonClick = useCallback(
-    () => navigate(`/send/${tezosChainId}/${assetSlug}`),
+    () => navigate(buildSendPagePath(TempleChainKind.Tezos, tezosChainId, assetSlug)),
     [tezosChainId, assetSlug]
   );
 

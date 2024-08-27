@@ -1,15 +1,14 @@
 import { useCallback, useMemo } from 'react';
 
-import { emptyFn } from '@rnw-community/shared';
+import { emptyFn, isDefined } from '@rnw-community/shared';
 import BigNumber from 'bignumber.js';
 
-import { DeadEndBoundaryError } from 'app/ErrorBoundary';
 import {
   useRawEvmAccountBalancesSelector,
-  useRawEvmChainAccountBalancesSelector
+  useRawEvmChainAccountBalancesSelector,
+  useRawEvmAssetBalanceSelector
 } from 'app/store/evm/balances/selectors';
-import { useEvmCollectibleMetadataSelector } from 'app/store/evm/collectibles-metadata/selectors';
-import { useEvmBalancesLoadingSelector } from 'app/store/evm/selectors';
+import { useEvmBalancesLoadingStateSelector } from 'app/store/evm/selectors';
 import {
   useEvmTokenMetadataSelector,
   useEvmTokensMetadataRecordSelector
@@ -34,15 +33,14 @@ import { useInterval } from 'lib/ui/hooks';
 import { isEvmNativeTokenSlug } from 'lib/utils/evm.utils';
 import { useAccountAddressForEvm, useAccountAddressForTezos, useAllEvmChains, useOnTezosBlock } from 'temple/front';
 import { useEvmChainByChainId } from 'temple/front/chains';
-import { TezosNetworkEssentials } from 'temple/networks';
+import { EvmNetworkEssentials, TezosNetworkEssentials } from 'temple/networks';
 import { getReadOnlyTezos } from 'temple/tezos';
 
 import { fetchRawBalance as fetchRawBalanceFromBlockchain } from './fetch';
 
 export const useGetEvmTokenBalanceWithDecimals = (publicKeyHash: HexString) => {
-  const evmChains = useAllEvmChains();
   const rawBalances = useRawEvmAccountBalancesSelector(publicKeyHash);
-  const tokensMetadata = useEvmTokensMetadataRecordSelector();
+  const getMetadata = useGetEvmGasOrTokenMetadata();
 
   return useCallback(
     (chainId: number, slug: string) => {
@@ -50,14 +48,42 @@ export const useGetEvmTokenBalanceWithDecimals = (publicKeyHash: HexString) => {
 
       if (!rawBalance) return;
 
-      const metadata =
-        slug === EVM_TOKEN_SLUG
-          ? evmChains[chainId]?.currency
-          : (tokensMetadata[chainId]?.[slug] as EvmTokenMetadata | undefined);
+      const metadata = getMetadata(chainId, slug);
 
       return metadata?.decimals ? atomsToTokens(rawBalance, metadata.decimals) : undefined;
     },
-    [evmChains, rawBalances, tokensMetadata]
+    [rawBalances, getMetadata]
+  );
+};
+
+export const useGetEvmChainTokenBalanceWithDecimals = (publicKeyHash: HexString, chainId: number) => {
+  const rawBalances = useRawEvmChainAccountBalancesSelector(publicKeyHash, chainId);
+  const getMetadata = useGetEvmGasOrTokenMetadata();
+
+  return useCallback(
+    (slug: string) => {
+      const rawBalance = rawBalances[slug] as string | undefined;
+
+      if (!rawBalance) return;
+
+      const metadata = getMetadata(chainId, slug);
+
+      return metadata?.decimals ? atomsToTokens(rawBalance, metadata.decimals) : undefined;
+    },
+    [rawBalances, chainId, getMetadata]
+  );
+};
+
+const useGetEvmGasOrTokenMetadata = () => {
+  const evmChains = useAllEvmChains();
+  const tokensMetadata = useEvmTokensMetadataRecordSelector();
+
+  return useCallback(
+    (chainId: number, slug: string) =>
+      slug === EVM_TOKEN_SLUG
+        ? evmChains[chainId]?.currency
+        : (tokensMetadata[chainId]?.[slug] as EvmTokenMetadata | undefined),
+    [tokensMetadata, evmChains]
   );
 };
 
@@ -123,7 +149,7 @@ export function useTezosAssetRawBalance(
   const usingStore = address === currentAccountAddress && isKnownChainId(chainId);
 
   const onChainBalanceSwrRes = useTypedSWR(
-    ['balance', rpcBaseURL, assetSlug, address],
+    ['tez-asset-raw-balance', rpcBaseURL, assetSlug, address],
     () => {
       if (usingStore) return;
 
@@ -176,7 +202,7 @@ export function useTezosAssetBalance(assetSlug: string, address: string, network
 function useEvmAssetRawBalance(
   assetSlug: string,
   address: HexString,
-  evmChainId: number,
+  network: EvmNetworkEssentials,
   assetStandard?: EvmAssetStandard
 ): {
   value: string | undefined;
@@ -185,19 +211,20 @@ function useEvmAssetRawBalance(
   refresh: EmptyFn;
 } {
   const currentAccountAddress = useAccountAddressForEvm();
-  const network = useEvmChainByChainId(evmChainId);
-
-  if (!network || !currentAccountAddress) throw new DeadEndBoundaryError();
 
   const { chainId, rpcBaseURL } = network;
 
-  const balances = useRawEvmChainAccountBalancesSelector(address, network.chainId);
-  const balancesLoading = useEvmBalancesLoadingSelector();
+  const storedBalance = useRawEvmAssetBalanceSelector(address, network.chainId, assetSlug);
+  const storedLoadingState = useEvmBalancesLoadingStateSelector(chainId);
+  const storedError = isDefined(storedLoadingState?.error);
 
-  const usingStore = address === currentAccountAddress && isSupportedChainId(chainId);
+  const usingStore = useMemo(
+    () => address === currentAccountAddress && isSupportedChainId(chainId) && !storedError,
+    [storedError, address, currentAccountAddress, chainId]
+  );
 
   const onChainBalanceSwrRes = useTypedSWR(
-    ['evm-balance', rpcBaseURL, assetSlug, address],
+    ['evm-asset-raw-balance', rpcBaseURL, assetSlug, address],
     () => {
       if (usingStore) return;
 
@@ -223,8 +250,8 @@ function useEvmAssetRawBalance(
 
   if (usingStore)
     return {
-      value: balances?.[assetSlug],
-      isSyncing: balancesLoading,
+      value: storedBalance,
+      isSyncing: storedLoadingState?.isLoading ?? false,
       refresh: emptyFn
     };
 
@@ -236,9 +263,9 @@ function useEvmAssetRawBalance(
   };
 }
 
-export function useEvmTokenBalance(assetSlug: string, address: HexString, evmChainId: number) {
-  const chain = useEvmChainByChainId(evmChainId);
-  const tokenMetadata = useEvmTokenMetadataSelector(evmChainId, assetSlug);
+export function useEvmTokenBalance(assetSlug: string, address: HexString, network: EvmNetworkEssentials) {
+  const chain = useEvmChainByChainId(network.chainId);
+  const tokenMetadata = useEvmTokenMetadataSelector(network.chainId, assetSlug);
 
   const metadata = isEvmNativeTokenSlug(assetSlug) ? chain?.currency : tokenMetadata;
 
@@ -247,27 +274,12 @@ export function useEvmTokenBalance(assetSlug: string, address: HexString, evmCha
     isSyncing,
     error,
     refresh
-  } = useEvmAssetRawBalance(assetSlug, address, evmChainId, metadata?.standard);
+  } = useEvmAssetRawBalance(assetSlug, address, network, metadata?.standard);
 
   const value = useMemo(
     () => (rawValue && metadata?.decimals ? atomsToTokens(new BigNumber(rawValue), metadata.decimals) : undefined),
     [rawValue, metadata]
   );
-
-  return { rawValue, value, isSyncing, error, refresh, metadata };
-}
-
-export function useEvmCollectibleBalance(assetSlug: string, address: HexString, evmChainId: number) {
-  const metadata = useEvmCollectibleMetadataSelector(evmChainId, assetSlug);
-
-  const {
-    value: rawValue,
-    isSyncing,
-    error,
-    refresh
-  } = useEvmAssetRawBalance(assetSlug, address, evmChainId, metadata?.standard);
-
-  const value = useMemo(() => (rawValue ? new BigNumber(rawValue) : undefined), [rawValue]);
 
   return { rawValue, value, isSyncing, error, refresh, metadata };
 }

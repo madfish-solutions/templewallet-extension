@@ -11,6 +11,11 @@ export interface TezosNetworkEssentials {
   chainId: string;
 }
 
+export interface EvmNetworkEssentials {
+  rpcBaseURL: string;
+  chainId: number;
+}
+
 export interface NetworkBase {
   chain: TempleChainKind;
   id: string;
@@ -189,11 +194,11 @@ export const EVM_DEFAULT_NETWORKS: NonEmptyArray<StoredEvmNetwork> = [
     default: true
   },
   {
-    id: 'matic-mumbai',
-    name: 'Polygon Mumbai',
+    id: 'polygon-amoy',
+    name: 'Polygon Amoy',
     chain: TempleChainKind.EVM,
-    chainId: 80001,
-    rpcBaseURL: 'https://polygon-mumbai.gateway.tenderly.co',
+    chainId: 80002,
+    rpcBaseURL: 'https://rpc-amoy.polygon.technology',
     color: '#392f77',
     default: true
   },

@@ -8,5 +8,6 @@ export const mockSettingsState = mockPersistedState<SettingsState>({
   isOnRampPossibility: false,
   isConversionTracked: false,
   pendingReactivateAds: false,
+  adsImpressionsLinked: false,
   toastsContainerBottomShift: 0
 });

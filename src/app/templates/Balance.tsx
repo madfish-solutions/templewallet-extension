@@ -7,7 +7,7 @@ import CSSTransition from 'react-transition-group/CSSTransition';
 import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
 import { useTezosAssetBalance } from 'lib/balances';
 import { useEvmTokenBalance } from 'lib/balances/hooks';
-import { TezosNetworkEssentials } from 'temple/networks';
+import { EvmNetworkEssentials, TezosNetworkEssentials } from 'temple/networks';
 
 interface TezosBalanceProps {
   network: TezosNetworkEssentials;
@@ -39,13 +39,14 @@ export const TezosBalance: FC<TezosBalanceProps> = ({ network, address, children
 };
 
 interface EvmBalanceProps {
-  chainId: number;
+  network: EvmNetworkEssentials;
   address: HexString;
   children: (b: BigNumber) => ReactElement;
   assetSlug?: string;
 }
-export const EvmBalance: FC<EvmBalanceProps> = ({ chainId, address, children, assetSlug = EVM_TOKEN_SLUG }) => {
-  const { value: balance } = useEvmTokenBalance(assetSlug, address, chainId);
+
+export const EvmBalance: FC<EvmBalanceProps> = ({ network, address, children, assetSlug = EVM_TOKEN_SLUG }) => {
+  const { value: balance } = useEvmTokenBalance(assetSlug, address, network);
   const exists = balance !== undefined;
 
   const childNode = children(balance == null ? new BigNumber(0) : balance);
