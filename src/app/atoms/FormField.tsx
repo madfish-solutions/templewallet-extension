@@ -70,6 +70,8 @@ export interface FormFieldProps extends TestIDProperty, Omit<FormFieldAttrs, 'ty
     inputSection?: string;
     input?: string;
   };
+  rightSideComponent?: ReactNode;
+  underneathComponent?: ReactNode;
 }
 
 /**
@@ -106,6 +108,8 @@ export const FormField = forwardRef<FormFieldElement, FormFieldProps>(
       onClean,
       onReveal,
       className,
+      rightSideComponent,
+      underneathComponent,
       spellCheck = false,
       autoComplete = 'off',
       smallPaddings = false,
@@ -242,6 +246,7 @@ export const FormField = forwardRef<FormFieldElement, FormFieldProps>(
               smallPaddings ? 'right-2' : 'right-3'
             )}
           >
+            {rightSideComponent && rightSideComponent}
             {cleanable && <CleanButton size={16} onClick={handleCleanClick} />}
             {copyable && <Copyable value={String(value)} copy={copy} isSecret={type === 'password'} />}
             {hasRevealablePassword && RevealPasswordIcon}
@@ -251,6 +256,8 @@ export const FormField = forwardRef<FormFieldElement, FormFieldProps>(
         </div>
 
         {shouldShowErrorCaption && <ErrorCaption errorCaption={errorCaption} />}
+
+        {!errorCaption && underneathComponent}
       </div>
     );
   }

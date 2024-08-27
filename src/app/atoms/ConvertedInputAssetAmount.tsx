@@ -3,7 +3,6 @@ import React, { memo } from 'react';
 import BigNumber from 'bignumber.js';
 
 import InFiat from 'app/templates/InFiat';
-import { T } from 'lib/i18n';
 import { AssetMetadataBase, getAssetSymbol } from 'lib/metadata';
 
 interface Props {
@@ -18,25 +17,28 @@ export const ConvertedInputAssetAmount = memo<Props>(
   ({ tezosChainId, assetSlug, assetMetadata, amountValue, toFiat }) => {
     if (toFiat)
       return (
-        <InFiat chainId={tezosChainId} assetSlug={assetSlug} volume={amountValue} roundingMode={BigNumber.ROUND_FLOOR}>
+        <InFiat
+          chainId={tezosChainId}
+          assetSlug={assetSlug}
+          volume={amountValue}
+          smallFractionFont={false}
+          roundingMode={BigNumber.ROUND_FLOOR}
+        >
           {({ balance, symbol }) => (
-            <div className="-mb-1 flex">
-              <span className="mr-1">≈</span>
-              <span className="font-normal text-gray-700 mr-1 flex items-baseline">
-                {balance}
-                <span className="pr-px">{symbol}</span>
-              </span>{' '}
-              <T id="inFiat" />
+            <div className="flex items-baseline text-font-num-12 text-grey-1">
+              <span>≈</span>
+              <span className="mx-1">{balance}</span>
+              <span>{symbol}</span>
             </div>
           )}
         </InFiat>
       );
 
     return (
-      <div className="-mb-3 flex">
-        <span className="mr-1">≈</span>
-        <span className="font-normal text-gray-700 mr-1">{amountValue}</span>{' '}
-        <T id="inAsset" substitutions={getAssetSymbol(assetMetadata, true)} />
+      <div className="flex items-baseline text-font-num-12 text-grey-1">
+        <span>≈</span>
+        <span className="mx-1">{amountValue}</span>
+        <span>{getAssetSymbol(assetMetadata, true)}</span>
       </div>
     );
   }

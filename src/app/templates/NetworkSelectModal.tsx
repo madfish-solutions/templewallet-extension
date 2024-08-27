@@ -83,7 +83,7 @@ export const NetworkSelectModal = memo<Props>(({ opened, selectedNetwork, onRequ
   return (
     <PageModal title="Select Network" opened={opened} onRequestClose={onRequestClose}>
       <div className="flex gap-x-2 p-4">
-        <SearchBarField value={searchValue} onValueChange={setSearchValue} />
+        <SearchBarField value={searchValue} placeholder="Network name" onValueChange={setSearchValue} />
 
         <IconButton Icon={PlusIcon} color="blue" onClick={() => navigate('settings/networks')} />
       </div>

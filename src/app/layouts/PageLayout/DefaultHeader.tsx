@@ -43,7 +43,7 @@ export const DefaultHeader = memo<DefaultHeaderProps>(({ pageTitle, step, setSte
       clsx(
         HEADER_IS_STICKY && 'sticky z-header -top-px',
         'flex items-center p-4 min-h-14 bg-white overflow-hidden',
-        sticked ? 'shadow' : 'rounded-t-inherit border-b border-lines',
+        sticked ? 'shadow' : 'rounded-t-inherit border-b-0.5 border-lines',
         'ease-in-out duration-300'
       ),
     [sticked]
@@ -53,7 +53,7 @@ export const DefaultHeader = memo<DefaultHeaderProps>(({ pageTitle, step, setSte
     <div ref={rootRef} className={className}>
       <div className="flex-1 flex items-center">
         <Button className="block" onClick={onBackClick} testID={PageLayoutSelectors.backButton}>
-          <IconBase Icon={ChevronLeftIcon} className="text-grey-1" />
+          <IconBase Icon={ChevronLeftIcon} className="text-grey-2" />
         </Button>
       </div>
 

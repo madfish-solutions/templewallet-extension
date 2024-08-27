@@ -361,6 +361,9 @@
   "addAsset": {
     "message": "Add Asset"
   },
+  "available": {
+    "message": "Available"
+  },
   "contractNotAvailable": {
     "message": "The contract at this address is not available. Does it exist on this network?"
   },
@@ -1082,6 +1085,9 @@
   },
   "asset": {
     "message": "Asset"
+  },
+  "token": {
+    "message": "Token"
   },
   "selectAnotherAssetPrompt": {
     "message": "Click on area to select another asset or token."

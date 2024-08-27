@@ -31,12 +31,14 @@ export interface PageLayoutProps extends DefaultHeaderProps {
   /** With this given, header props are ignored */
   Header?: React.ComponentType;
   contentPadding?: boolean;
+  contentClassName?: string;
 }
 
 const PageLayout: FC<PropsWithChildren<PageLayoutProps>> = ({
   Header,
   children,
   contentPadding = true,
+  contentClassName,
   ...headerProps
 }) => {
   const { fullPage } = useAppEnv();
@@ -56,7 +58,7 @@ const PageLayout: FC<PropsWithChildren<PageLayoutProps>> = ({
         <ContentPaper>
           {Header ? <Header /> : <DefaultHeader {...headerProps} />}
 
-          <div className={clsx('flex-1 flex flex-col', contentPadding && 'p-4 pb-15')}>
+          <div className={clsx('flex-1 flex flex-col', contentPadding && 'p-4 pb-15', contentClassName)}>
             <SuspenseContainer errorMessage="displaying this page">{children}</SuspenseContainer>
           </div>
         </ContentPaper>

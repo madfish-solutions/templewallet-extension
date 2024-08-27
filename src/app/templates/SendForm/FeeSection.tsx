@@ -3,12 +3,11 @@ import React from 'react';
 import BigNumber from 'bignumber.js';
 import { FieldError } from 'react-hook-form';
 
-import { Alert, FormSubmitButton } from 'app/atoms';
+import { Alert } from 'app/atoms';
 import AdditionalFeeInput from 'app/templates/AdditionalFeeInput/AdditionalFeeInput';
 import { t, T } from 'lib/i18n';
 import { getTezosGasMetadata } from 'lib/metadata';
 
-import { SendFormSelectors } from './selectors';
 import SendErrorAlert from './SendErrorAlert';
 
 interface FeeComponentProps extends FeeAlertPropsBase {
@@ -50,14 +49,6 @@ export const FeeSection: React.FC<FeeComponentProps> = ({
         error={error}
         id="send-fee"
       />
-
-      <FormSubmitButton
-        loading={isSubmitting}
-        disabled={Boolean(estimationError)}
-        testID={SendFormSelectors.sendButton}
-      >
-        <T id="send" />
-      </FormSubmitButton>
     </>
   );
 };

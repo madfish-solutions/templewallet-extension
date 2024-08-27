@@ -1,5 +1,4 @@
 import React, {
-  Dispatch,
   FC,
   FocusEventHandler,
   useCallback,
@@ -21,19 +20,15 @@ import {
   ChainIds
 } from '@taquito/taquito';
 import BigNumber from 'bignumber.js';
-import classNames from 'clsx';
+import { isString } from 'lodash';
 import { Controller, FieldError, useForm } from 'react-hook-form';
 
-import { NoSpaceField } from 'app/atoms';
+import { Button, NoSpaceField } from 'app/atoms';
 import AssetField from 'app/atoms/AssetField';
 import { ConvertedInputAssetAmount } from 'app/atoms/ConvertedInputAssetAmount';
-import Identicon from 'app/atoms/Identicon';
-import Money from 'app/atoms/Money';
+import { StyledButton } from 'app/atoms/StyledButton';
 import { ArtificialError, NotEnoughFundsError, ZeroBalanceError, ZeroTEZBalanceError } from 'app/defaults';
 import { useAppEnv } from 'app/env';
-import { ReactComponent as ChevronDownIcon } from 'app/icons/chevron-down.svg';
-import { ReactComponent as ChevronUpIcon } from 'app/icons/chevron-up.svg';
-import { TezosBalance } from 'app/templates/Balance';
 import { useFormAnalytics } from 'lib/analytics';
 import { isTezAsset, TEZ_TOKEN_SLUG, toPenny } from 'lib/assets';
 import { toTransferParams } from 'lib/assets/contract.utils';
@@ -63,6 +58,7 @@ import { TezosNetworkEssentials } from 'temple/networks';
 
 import ContactsDropdown, { ContactsDropdownProps } from './ContactsDropdown';
 import { FeeSection } from './FeeSection';
+import { SelectAssetButton } from './SelectAssetButton';
 import { SendFormSelectors } from './selectors';
 import { SpinnerSection } from './SpinnerSection';
 import { useAddressFieldAnalytics } from './use-address-field-analytics';
@@ -80,11 +76,11 @@ interface Props {
   account: AccountForTezos;
   network: TezosNetworkEssentials;
   assetSlug: string;
-  setOperation: Dispatch<any>;
+  onSelectTokenClick: EmptyFn;
   onAddContactRequested: (address: string) => void;
 }
 
-export const Form: FC<Props> = ({ account, network, assetSlug, setOperation, onAddContactRequested }) => {
+export const Form: FC<Props> = ({ account, network, assetSlug, onSelectTokenClick, onAddContactRequested }) => {
   const { registerBackHandler } = useAppEnv();
 
   const assetMetadata = useTezosAssetMetadata(assetSlug, network.chainId);
@@ -100,12 +96,10 @@ export const Form: FC<Props> = ({ account, network, assetSlug, setOperation, onA
 
   const formAnalytics = useFormAnalytics('SendForm');
 
-  const canUseDomainNames = domainsClient.isSupported;
-
   const { value: balance = ZERO } = useTezosAssetBalance(assetSlug, accountPkh, network);
   const { value: tezBalance = ZERO } = useTezosAssetBalance(TEZ_TOKEN_SLUG, accountPkh, network);
 
-  const [shoudUseFiat, setShouldUseFiat] = useSafeState(false);
+  const [shouldUseFiat, setShouldUseFiat] = useSafeState(false);
 
   const canToggleFiat = network.chainId === ChainIds.MAINNET;
   const prevCanToggleFiat = useRef(canToggleFiat);
@@ -126,7 +120,7 @@ export const Form: FC<Props> = ({ account, network, assetSlug, setOperation, onA
     (evt: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
       evt.preventDefault();
 
-      const newShouldUseFiat = !shoudUseFiat;
+      const newShouldUseFiat = !shouldUseFiat;
       setShouldUseFiat(newShouldUseFiat);
       if (!getValues().amount) {
         return;
@@ -143,16 +137,16 @@ export const Form: FC<Props> = ({ account, network, assetSlug, setOperation, onA
         )
       );
     },
-    [setShouldUseFiat, shoudUseFiat, getValues, assetPrice, setValue]
+    [setShouldUseFiat, shouldUseFiat, getValues, assetPrice, setValue]
   );
 
   useEffect(() => {
-    if (!canToggleFiat && prevCanToggleFiat.current && shoudUseFiat) {
+    if (!canToggleFiat && prevCanToggleFiat.current && shouldUseFiat) {
       setShouldUseFiat(false);
       setValue('amount', undefined);
     }
     prevCanToggleFiat.current = canToggleFiat;
-  }, [setShouldUseFiat, canToggleFiat, shoudUseFiat, setValue]);
+  }, [setShouldUseFiat, canToggleFiat, shouldUseFiat, setValue]);
 
   const toValue = watch('to');
   const amountValue = watch('amount');
@@ -282,8 +276,8 @@ export const Form: FC<Props> = ({ account, network, assetSlug, setOperation, onA
       ? getMaxAmountToken(account.type, balance, baseFee, safeFeeValue)
       : balance;
 
-    return shoudUseFiat ? getMaxAmountFiat(assetPrice.toNumber(), maxAmountAsset) : maxAmountAsset;
-  }, [account, assetSlug, balance, baseFee, safeFeeValue, shoudUseFiat, assetPrice]);
+    return shouldUseFiat ? getMaxAmountFiat(assetPrice.toNumber(), maxAmountAsset) : maxAmountAsset;
+  }, [account, assetSlug, balance, baseFee, safeFeeValue, shouldUseFiat, assetPrice]);
 
   const validateAmount = useCallback(
     (v?: number) => {
@@ -338,7 +332,6 @@ export const Form: FC<Props> = ({ account, network, assetSlug, setOperation, onA
     async ({ amount, fee: feeVal }: FormData) => {
       if (formState.isSubmitting) return;
       setSubmitError(null);
-      setOperation(null);
 
       formAnalytics.trackSubmit();
 
@@ -352,7 +345,7 @@ export const Form: FC<Props> = ({ account, network, assetSlug, setOperation, onA
           const contract = await loadContract(tezos, accountPkh);
           op = await contract.methods.do(michelsonLambda(toResolved, tzToMutez(amount))).send({ amount: 0 });
         } else {
-          const actualAmount = shoudUseFiat ? toAssetAmount(amount) : amount;
+          const actualAmount = shouldUseFiat ? toAssetAmount(amount) : amount;
           const transferParams = await toTransferParams(
             tezos,
             assetSlug,
@@ -366,7 +359,7 @@ export const Form: FC<Props> = ({ account, network, assetSlug, setOperation, onA
           const fee = addFee.plus(estmtn.suggestedFeeMutez).toNumber();
           op = await tezos.wallet.transfer({ ...transferParams, fee }).send();
         }
-        setOperation(op);
+
         reset({ to: '', fee: RECOMMENDED_ADD_FEE });
 
         formAnalytics.trackSubmitSuccess();
@@ -389,10 +382,9 @@ export const Form: FC<Props> = ({ account, network, assetSlug, setOperation, onA
       assetSlug,
       assetMetadata,
       setSubmitError,
-      setOperation,
       reset,
       toResolved,
-      shoudUseFiat,
+      shouldUseFiat,
       toAssetAmount,
       formAnalytics
     ]
@@ -416,6 +408,11 @@ export const Form: FC<Props> = ({ account, network, assetSlug, setOperation, onA
     setToFieldFocused(true);
   }, [setToFieldFocused]);
 
+  const handleAmountClean = useCallback(() => {
+    setValue('amount', undefined);
+    triggerValidation('amount');
+  }, [setValue, triggerValidation]);
+
   const handleToFieldBlur = useCallback(() => {
     setToFieldFocused(false);
     onBlur();
@@ -428,177 +425,173 @@ export const Form: FC<Props> = ({ account, network, assetSlug, setOperation, onA
 
   const { selectedFiatCurrency } = useFiatCurrency();
 
-  const visibleAssetSymbol = shoudUseFiat ? selectedFiatCurrency.symbol : assetSymbol;
-  const assetDomainName = getAssetDomainName(canUseDomainNames);
-
   const isContactsDropdownOpen = getFilled(toFilled, toFieldFocused);
 
   return (
-    <form className="min-h-96" onSubmit={handleSubmit(onSubmit)}>
-      <Controller
-        name="to"
-        as={
-          <NoSpaceField
-            ref={toFieldRef}
-            onFocus={handleToFieldFocus}
-            extraRightInner={
-              <InnerDropDownComponentGuard
-                contacts={allContactsWithoutCurrent}
-                opened={isContactsDropdownOpen}
-                onSelect={handleAccountSelect}
-                searchTerm={toValue}
+    <>
+      <div className="flex-1 pt-4 px-4 flex flex-col overflow-y-auto">
+        <div className="text-font-description-bold mb-2">
+          <T id="token" />
+        </div>
+
+        <SelectAssetButton
+          network={network}
+          accountPkh={accountPkh}
+          selectedAssetSlug={assetSlug}
+          onClick={onSelectTokenClick}
+          className="mb-4"
+          testID={SendFormSelectors.selectAssetButton}
+        />
+
+        <form id="send-form" onSubmit={handleSubmit(onSubmit)}>
+          <Controller
+            name="amount"
+            control={control}
+            rules={{ validate: validateAmount }}
+            onChange={([v]) => v}
+            as={
+              <AssetField
+                ref={amountFieldRef}
+                onFocus={handleAmountFieldFocus}
+                assetDecimals={shouldUseFiat ? 2 : assetMetadata?.decimals ?? 0}
+                cleanable={isString(amountValue)}
+                rightSideComponent={
+                  !amountValue &&
+                  maxAmount && (
+                    <Button
+                      type="button"
+                      onClick={handleSetMaxAmount}
+                      className="text-font-description-bold text-white bg-primary rounded-md px-2 py-1"
+                    >
+                      <T id="max" />
+                    </Button>
+                  )
+                }
+                underneathComponent={
+                  <div className="flex justify-between mt-1">
+                    <span>
+                      {amountValue ? (
+                        <ConvertedInputAssetAmount
+                          tezosChainId={network.chainId}
+                          assetSlug={assetSlug}
+                          assetMetadata={assetMetadata}
+                          amountValue={shouldUseFiat ? toAssetAmount(amountValue) : amountValue}
+                          toFiat={!shouldUseFiat}
+                        />
+                      ) : null}
+                    </span>
+                    {canToggleFiat && amountValue && (
+                      <Button
+                        className="text-font-description-bold text-secondary px-1 py-0.5"
+                        onClick={handleFiatToggle}
+                      >
+                        Switch to {shouldUseFiat ? assetSymbol : selectedFiatCurrency.name}
+                      </Button>
+                    )}
+                  </div>
+                }
+                onClean={handleAmountClean}
+                label={t('amount')}
+                placeholder="0.00"
+                errorCaption={errors.amount?.message}
+                containerClassName="mb-8"
+                autoFocus={Boolean(maxAmount)}
+                testID={SendFormSelectors.amountInput}
               />
             }
-            extraRightInnerWrapper="unset"
           />
-        }
-        control={control}
-        rules={{
-          validate: (value: any) => validateRecipient(value, domainsClient)
-        }}
-        onChange={([v]) => v}
-        onBlur={handleToFieldBlur}
-        textarea
-        rows={2}
-        cleanable={Boolean(toValue)}
-        onClean={cleanToField}
-        id="send-to"
-        label={t('recipient')}
-        labelDescription={
-          filledContact ? (
-            <div className="flex flex-wrap items-baseline">
-              <Identicon
-                type="bottts"
-                hash={filledContact.address}
-                size={14}
-                className="flex-shrink-0 shadow-xs opacity-75"
+
+          <Controller
+            name="to"
+            as={
+              <NoSpaceField
+                ref={toFieldRef}
+                onFocus={handleToFieldFocus}
+                extraRightInner={
+                  <InnerDropDownComponentGuard
+                    contacts={allContactsWithoutCurrent}
+                    opened={isContactsDropdownOpen}
+                    onSelect={handleAccountSelect}
+                    searchTerm={toValue}
+                  />
+                }
+                extraRightInnerWrapper="unset"
               />
-              <div className="ml-1 mr-px font-normal">{filledContact.name}</div> (
-              <TezosBalance network={network} assetSlug={assetSlug} address={filledContact.address}>
-                {bal => (
-                  <span className="text-xs leading-none flex items-baseline">
-                    <Money>{bal}</Money>{' '}
-                    <span className="ml-1" style={{ fontSize: '0.75em' }}>
-                      {assetSymbol}
-                    </span>
-                  </span>
-                )}
-              </TezosBalance>
-              )
+            }
+            control={control}
+            rules={{
+              validate: (value: any) => validateRecipient(value, domainsClient)
+            }}
+            onChange={([v]) => v}
+            onBlur={handleToFieldBlur}
+            textarea
+            rows={3}
+            cleanable={Boolean(toValue)}
+            onClean={cleanToField}
+            id="send-to"
+            label={t('recipient')}
+            placeholder="Address or Domain name"
+            errorCaption={!toFieldFocused ? errors.to?.message : null}
+            style={{
+              resize: 'none'
+            }}
+            containerClassName="mb-4"
+            testID={SendFormSelectors.recipientInput}
+          />
+
+          {resolvedAddress && (
+            <div className="mb-4 -mt-3 text-xs font-light text-gray-600 flex flex-wrap items-center">
+              <span className="mr-1 whitespace-nowrap">{t('resolvedAddress')}:</span>
+              <span className="font-normal">{resolvedAddress}</span>
             </div>
-          ) : (
-            <T id={assetDomainName} substitutions={assetSymbol} />
-          )
-        }
-        placeholder={t(getDomainTextError(canUseDomainNames))}
-        errorCaption={!toFieldFocused ? errors.to?.message : null}
-        style={{
-          resize: 'none'
-        }}
-        containerClassName="mb-4"
-        testID={SendFormSelectors.recipientInput}
-      />
+          )}
 
-      {resolvedAddress && (
-        <div className="mb-4 -mt-3 text-xs font-light text-gray-600 flex flex-wrap items-center">
-          <span className="mr-1 whitespace-nowrap">{t('resolvedAddress')}:</span>
-          <span className="font-normal">{resolvedAddress}</span>
-        </div>
-      )}
-
-      {toFilled && !filledContact ? (
-        <div className="mb-4 -mt-3 text-xs font-light text-gray-600 flex flex-wrap items-center">
-          <button
-            type="button"
-            className="text-xs font-light text-gray-600 underline"
-            onClick={() => onAddContactRequested(toResolved)}
-          >
-            <T id="addThisAddressToContacts" />
-          </button>
-        </div>
-      ) : null}
-
-      <Controller
-        name="amount"
-        as={<AssetField ref={amountFieldRef} onFocus={handleAmountFieldFocus} />}
-        control={control}
-        rules={{
-          validate: validateAmount
-        }}
-        onChange={([v]) => v}
-        onFocus={() => amountFieldRef.current?.focus()}
-        id="send-amount"
-        assetSymbol={
-          canToggleFiat ? (
-            <button
-              type="button"
-              onClick={handleFiatToggle}
-              className={classNames(
-                'px-1 rounded-md flex items-center font-light',
-                'hover:bg-black hover:bg-opacity-5',
-                'trasition ease-in-out duration-200',
-                'cursor-pointer pointer-events-auto'
-              )}
-            >
-              {visibleAssetSymbol}
-              <div className="ml-1 h-4 flex flex-col justify-between">
-                <ChevronUpIcon className="h-2 w-auto stroke-current stroke-2" />
-                <ChevronDownIcon className="h-2 w-auto stroke-current stroke-2" />
-              </div>
-            </button>
-          ) : (
-            assetSymbol
-          )
-        }
-        assetDecimals={shoudUseFiat ? 2 : assetMetadata?.decimals ?? 0}
-        label={t('amount')}
-        labelDescription={
-          restFormDisplayed &&
-          maxAmount && (
-            <>
-              <T id="availableToSend" />{' '}
-              <button type="button" className="underline" onClick={handleSetMaxAmount}>
-                {shoudUseFiat ? <span className="pr-px">{selectedFiatCurrency.symbol}</span> : null}
-                {toLocalFixed(maxAmount)}
+          {toFilled && !filledContact ? (
+            <div className="mb-4 -mt-3 text-xs font-light text-gray-600 flex flex-wrap items-center">
+              <button
+                type="button"
+                className="text-xs font-light text-gray-600 underline"
+                onClick={() => onAddContactRequested(toResolved)}
+              >
+                <T id="addThisAddressToContacts" />
               </button>
-              {amountValue ? (
-                <ConvertedInputAssetAmount
-                  tezosChainId={network.chainId}
-                  assetSlug={assetSlug}
-                  assetMetadata={assetMetadata}
-                  amountValue={shoudUseFiat ? toAssetAmount(amountValue) : amountValue}
-                  toFiat={!shoudUseFiat}
-                />
-              ) : null}
-            </>
-          )
-        }
-        placeholder={t('amountPlaceholder')}
-        errorCaption={restFormDisplayed && errors.amount?.message}
-        containerClassName="mb-4"
-        autoFocus={Boolean(maxAmount)}
-        testID={SendFormSelectors.amountInput}
-      />
+            </div>
+          ) : null}
 
-      {estimateFallbackDisplayed ? (
-        <SpinnerSection />
-      ) : (
-        <FeeSection
-          accountPkh={accountPkh}
-          tezosChainId={network.chainId}
-          restFormDisplayed={restFormDisplayed}
-          submitError={submitError}
-          estimationError={estimationError}
-          toResolved={toResolved}
-          toFilledWithKTAddress={toFilledWithKTAddress}
-          control={control}
-          handleFeeFieldChange={handleFeeFieldChange}
-          baseFee={baseFee}
-          error={errors.fee}
-          isSubmitting={formState.isSubmitting}
-        />
-      )}
-    </form>
+          {estimateFallbackDisplayed ? (
+            <SpinnerSection />
+          ) : (
+            <FeeSection
+              accountPkh={accountPkh}
+              tezosChainId={network.chainId}
+              restFormDisplayed={restFormDisplayed}
+              submitError={submitError}
+              estimationError={estimationError}
+              toResolved={toResolved}
+              toFilledWithKTAddress={toFilledWithKTAddress}
+              control={control}
+              handleFeeFieldChange={handleFeeFieldChange}
+              baseFee={baseFee}
+              error={errors.fee}
+              isSubmitting={formState.isSubmitting}
+            />
+          )}
+        </form>
+      </div>
+
+      <div className="flex flex-col pt-4 px-4 pb-6">
+        <StyledButton
+          type="submit"
+          form="send-form"
+          size="L"
+          color="primary"
+          disabled={Boolean(estimationError) || !restFormDisplayed}
+          testID={SendFormSelectors.sendButton}
+        >
+          Review
+        </StyledButton>
+      </div>
+    </>
   );
 };
 
@@ -690,9 +683,3 @@ const InnerDropDownComponentGuard: React.FC<ContactsDropdownProps> = ({ contacts
 };
 
 const getFilled = (toFilled: boolean | '', toFieldFocused: boolean) => (!toFilled ? toFieldFocused : false);
-
-const getDomainTextError = (canUseDomainNames: boolean) =>
-  canUseDomainNames ? 'recipientInputPlaceholderWithDomain' : 'recipientInputPlaceholder';
-
-const getAssetDomainName = (canUseDomainNames: boolean) =>
-  canUseDomainNames ? 'tokensRecepientInputDescriptionWithDomain' : 'tokensRecepientInputDescription';

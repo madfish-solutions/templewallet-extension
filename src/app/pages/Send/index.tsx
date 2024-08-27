@@ -1,9 +1,8 @@
 import React, { memo } from 'react';
 
 import { PageTitle } from 'app/atoms';
-import { ReactComponent as SendIcon } from 'app/icons/base/send.svg';
 import PageLayout from 'app/layouts/PageLayout';
-import { useChainSelectController, ChainSelectSection } from 'app/templates/ChainSelect';
+import { useChainSelectController } from 'app/templates/ChainSelect';
 import SendForm from 'app/templates/SendForm';
 import { t } from 'lib/i18n';
 import { UNDER_DEVELOPMENT_MSG } from 'temple/evm/under_dev_msg';
@@ -25,10 +24,12 @@ const Send = memo<Props>(({ tezosChainId, assetSlug }) => {
     : chainSelectController.value;
 
   return (
-    <PageLayout pageTitle={<PageTitle Icon={SendIcon} title={t('send')} />}>
+    <PageLayout
+      pageTitle={<PageTitle title={t('send')} />}
+      contentPadding={false}
+      contentClassName="bg-background overflow-hidden"
+    >
       <>
-        {tezosChainId ? null : <ChainSelectSection controller={chainSelectController} />}
-
         {tezosAccount && network && network.kind === 'tezos' ? (
           <SendForm network={network} tezosAccount={tezosAccount} assetSlug={assetSlug} />
         ) : (
