@@ -10,25 +10,19 @@ import React, {
 } from 'react';
 
 import { ManagerKeyResponse } from '@taquito/rpc';
-import {
-  DEFAULT_FEE,
-  TransferParams,
-  Estimate,
-  TransactionWalletOperation,
-  TransactionOperation,
-  TezosToolkit,
-  ChainIds
-} from '@taquito/taquito';
+import { DEFAULT_FEE, TransferParams, Estimate, TezosToolkit, ChainIds } from '@taquito/taquito';
 import BigNumber from 'bignumber.js';
 import { isString } from 'lodash';
 import { Controller, FieldError, useForm } from 'react-hook-form';
 
-import { Button, NoSpaceField } from 'app/atoms';
+import { Button, IconBase, NoSpaceField } from 'app/atoms';
 import AssetField from 'app/atoms/AssetField';
 import { ConvertedInputAssetAmount } from 'app/atoms/ConvertedInputAssetAmount';
+import Identicon from 'app/atoms/Identicon';
 import { StyledButton } from 'app/atoms/StyledButton';
 import { ArtificialError, NotEnoughFundsError, ZeroBalanceError, ZeroTEZBalanceError } from 'app/defaults';
 import { useAppEnv } from 'app/env';
+import { ReactComponent as CompactDown } from 'app/icons/base/compact_down.svg';
 import { useFormAnalytics } from 'lib/analytics';
 import { isTezAsset, TEZ_TOKEN_SLUG, toPenny } from 'lib/assets';
 import { toTransferParams } from 'lib/assets/contract.utils';
@@ -46,6 +40,7 @@ import { TempleAccountType } from 'lib/temple/types';
 import { isValidTezosAddress, isTezosContractAddress, tezosManagerKeyHasManager } from 'lib/tezos';
 import { useSafeState } from 'lib/ui/hooks';
 import { useScrollIntoView } from 'lib/ui/use-scroll-into-view';
+import { readClipboard } from 'lib/ui/utils';
 import { ZERO } from 'lib/utils/numbers';
 import { AccountForTezos } from 'temple/accounts';
 import {
@@ -76,11 +71,19 @@ interface Props {
   account: AccountForTezos;
   network: TezosNetworkEssentials;
   assetSlug: string;
+  onSelectMyAccountClick: EmptyFn;
   onSelectTokenClick: EmptyFn;
   onAddContactRequested: (address: string) => void;
 }
 
-export const Form: FC<Props> = ({ account, network, assetSlug, onSelectTokenClick, onAddContactRequested }) => {
+export const Form: FC<Props> = ({
+  account,
+  network,
+  assetSlug,
+  onSelectTokenClick,
+  onSelectMyAccountClick,
+  onAddContactRequested
+}) => {
   const { registerBackHandler } = useAppEnv();
 
   const assetMetadata = useTezosAssetMetadata(assetSlug, network.chainId);
@@ -338,12 +341,11 @@ export const Form: FC<Props> = ({ account, network, assetSlug, onSelectTokenClic
       try {
         if (!assetMetadata) throw new Error('Metadata not found');
 
-        let op: TransactionWalletOperation | TransactionOperation;
         if (isTezosContractAddress(accountPkh)) {
           const michelsonLambda = isTezosContractAddress(toResolved) ? transferToContract : transferImplicit;
 
           const contract = await loadContract(tezos, accountPkh);
-          op = await contract.methods.do(michelsonLambda(toResolved, tzToMutez(amount))).send({ amount: 0 });
+          await contract.methods.do(michelsonLambda(toResolved, tzToMutez(amount))).send({ amount: 0 });
         } else {
           const actualAmount = shouldUseFiat ? toAssetAmount(amount) : amount;
           const transferParams = await toTransferParams(
@@ -357,7 +359,7 @@ export const Form: FC<Props> = ({ account, network, assetSlug, onSelectTokenClic
           const estmtn = await tezos.estimate.transfer(transferParams);
           const addFee = tzToMutez(feeVal ?? 0);
           const fee = addFee.plus(estmtn.suggestedFeeMutez).toNumber();
-          op = await tezos.wallet.transfer({ ...transferParams, fee }).send();
+          await tezos.wallet.transfer({ ...transferParams, fee }).send();
         }
 
         reset({ to: '', fee: RECOMMENDED_ADD_FEE });
@@ -427,6 +429,12 @@ export const Form: FC<Props> = ({ account, network, assetSlug, onSelectTokenClic
 
   const isContactsDropdownOpen = getFilled(toFilled, toFieldFocused);
 
+  const handlePasteButtonClick = useCallback(() => {
+    readClipboard()
+      .then(value => setValue('to', value))
+      .catch(console.error);
+  }, [setValue]);
+
   return (
     <>
       <div className="flex-1 pt-4 px-4 flex flex-col overflow-y-auto">
@@ -480,7 +488,7 @@ export const Form: FC<Props> = ({ account, network, assetSlug, onSelectTokenClic
                         />
                       ) : null}
                     </span>
-                    {canToggleFiat && amountValue && (
+                    {canToggleFiat && (
                       <Button
                         className="text-font-description-bold text-secondary px-1 py-0.5"
                         onClick={handleFiatToggle}
@@ -503,6 +511,9 @@ export const Form: FC<Props> = ({ account, network, assetSlug, onSelectTokenClic
 
           <Controller
             name="to"
+            control={control}
+            rules={{ validate: (value: any) => validateRecipient(value, domainsClient) }}
+            onChange={([v]) => v}
             as={
               <NoSpaceField
                 ref={toFieldRef}
@@ -516,28 +527,36 @@ export const Form: FC<Props> = ({ account, network, assetSlug, onSelectTokenClic
                   />
                 }
                 extraRightInnerWrapper="unset"
+                onBlur={handleToFieldBlur}
+                textarea
+                showPasteButton
+                rows={3}
+                cleanable={Boolean(toValue)}
+                onClean={cleanToField}
+                onPasteButtonClick={handlePasteButtonClick}
+                id="send-to"
+                label={t('recipient')}
+                placeholder="Address or Domain name"
+                errorCaption={!toFieldFocused ? errors.to?.message : null}
+                style={{ resize: 'none' }}
+                containerClassName="mb-4"
+                testID={SendFormSelectors.recipientInput}
               />
             }
-            control={control}
-            rules={{
-              validate: (value: any) => validateRecipient(value, domainsClient)
-            }}
-            onChange={([v]) => v}
-            onBlur={handleToFieldBlur}
-            textarea
-            rows={3}
-            cleanable={Boolean(toValue)}
-            onClean={cleanToField}
-            id="send-to"
-            label={t('recipient')}
-            placeholder="Address or Domain name"
-            errorCaption={!toFieldFocused ? errors.to?.message : null}
-            style={{
-              resize: 'none'
-            }}
-            containerClassName="mb-4"
-            testID={SendFormSelectors.recipientInput}
           />
+
+          <div
+            className="cursor-pointer flex justify-between items-center p-3 rounded-lg shadow-bottom border-0.5 border-transparent hover:border-lines"
+            onClick={onSelectMyAccountClick}
+          >
+            <div className="flex justify-center items-center gap-2">
+              <div className="flex p-px rounded-md border border-secondary">
+                <Identicon type="bottts" hash="selectaccount" size={20} />
+              </div>
+              <span className="text-font-medium-bold">Select My Account</span>
+            </div>
+            <IconBase Icon={CompactDown} className="text-primary" size={16} />
+          </div>
 
           {resolvedAddress && (
             <div className="mb-4 -mt-3 text-xs font-light text-gray-600 flex flex-wrap items-center">

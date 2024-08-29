@@ -13,6 +13,7 @@ import clsx from 'clsx';
 
 import CleanButton from 'app/atoms/CleanButton';
 import CopyButton from 'app/atoms/CopyButton';
+import { ReactComponent as PasteFillIcon } from 'app/icons/base/paste_fill.svg';
 import { ReactComponent as CopyIcon } from 'app/icons/monochrome/copy.svg';
 import { setTestID, TestIDProperty } from 'lib/analytics';
 import { useDidUpdate } from 'lib/ui/hooks';
@@ -21,8 +22,10 @@ import { useBlurElementOnTimeout } from 'lib/ui/use-blur-on-timeout';
 import useCopyToClipboard from 'lib/ui/useCopyToClipboard';
 import { combineRefs } from 'lib/ui/utils';
 
+import { Button } from './Button';
 import { ErrorCaptionSelectors } from './ErrorCaption.selectors';
 import { FieldLabel } from './FieldLabel';
+import { IconBase } from './IconBase';
 import { SecretCover } from './SecretCover';
 import usePasswordToggle from './usePasswordToggle.hook';
 
@@ -46,6 +49,8 @@ export interface FormFieldProps extends TestIDProperty, Omit<FormFieldAttrs, 'ty
   textarea?: boolean;
   /** `textarea=true` only */
   secret?: boolean;
+  /** `textarea=true` only */
+  showPasteButton?: boolean;
   /** `type='password'` only */
   revealForbidden?: boolean;
   /** `type='password'` only */
@@ -61,6 +66,7 @@ export interface FormFieldProps extends TestIDProperty, Omit<FormFieldAttrs, 'ty
   extraRightInner?: ReactNode;
   extraRightInnerWrapper?: InnerWrapperType;
   onClean?: EmptyFn;
+  onPasteButtonClick?: EmptyFn;
   onReveal?: EmptyFn;
   onBlur?: React.FocusEventHandler;
   smallPaddings?: boolean;
@@ -94,6 +100,7 @@ export const FormField = forwardRef<FormFieldElement, FormFieldProps>(
       shouldShowRevealWhenEmpty = false,
       revealRef,
       cleanable,
+      showPasteButton = false,
       extraLeftInner = null,
       extraLeftInnerWrapper = 'default',
       extraRightInner = null,
@@ -106,6 +113,7 @@ export const FormField = forwardRef<FormFieldElement, FormFieldProps>(
       onFocus,
       onBlur,
       onClean,
+      onPasteButtonClick,
       onReveal,
       className,
       rightSideComponent,
@@ -242,12 +250,26 @@ export const FormField = forwardRef<FormFieldElement, FormFieldProps>(
           <div
             className={clsx(
               'absolute flex justify-end gap-1 items-center',
-              textarea ? 'top-3' : 'inset-y-0',
+              textarea ? 'bottom-3' : 'inset-y-0',
               smallPaddings ? 'right-2' : 'right-3'
             )}
           >
             {rightSideComponent && rightSideComponent}
-            {cleanable && <CleanButton size={16} onClick={handleCleanClick} />}
+            {cleanable &&
+              (textarea ? (
+                <Button className="flex items-center text-grey-1" onClick={handleCleanClick}>
+                  <span className="text-font-description-bold">Clear</span>
+                  <CleanButton size={12} />
+                </Button>
+              ) : (
+                <CleanButton size={16} onClick={handleCleanClick} />
+              ))}
+            {textarea && !cleanable && showPasteButton && (
+              <Button className="flex items-center text-secondary" onClick={onPasteButtonClick}>
+                <span className="text-font-description-bold">Paste</span>
+                <IconBase Icon={PasteFillIcon} size={12} onClick={handleCleanClick} />
+              </Button>
+            )}
             {copyable && <Copyable value={String(value)} copy={copy} isSecret={type === 'password'} />}
             {hasRevealablePassword && RevealPasswordIcon}
           </div>

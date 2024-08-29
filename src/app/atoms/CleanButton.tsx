@@ -11,7 +11,7 @@ import { IconBase, Size } from './IconBase';
 interface Props {
   className?: string;
   size?: Size;
-  onClick: EmptyFn;
+  onClick?: EmptyFn;
 }
 
 export const CLEAN_BUTTON_ID = 'CLEAN_BUTTON_ID';

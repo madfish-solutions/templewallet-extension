@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useMemo } from 'react';
+import React, { memo, MouseEventHandler, useCallback, useMemo } from 'react';
 
 import clsx from 'clsx';
 
@@ -28,6 +28,11 @@ import { toExploreAssetLink } from '../utils';
 import { CryptoBalance, FiatBalance } from './Balance';
 import { TokenTag } from './TokenTag';
 
+const LIST_ITEM_CLASSNAME = clsx(
+  'flex items-center gap-x-1 p-2 rounded-lg',
+  'hover:bg-secondary-low transition ease-in-out duration-200 focus:outline-none'
+);
+
 interface TezosListItemProps {
   network: TezosNetworkEssentials;
   publicKeyHash: string;
@@ -35,10 +40,11 @@ interface TezosListItemProps {
   active?: boolean;
   scam?: boolean;
   manageActive?: boolean;
+  onClick?: MouseEventHandler<HTMLDivElement | HTMLAnchorElement>;
 }
 
 export const TezosListItem = memo<TezosListItemProps>(
-  ({ network, publicKeyHash, assetSlug, active, scam, manageActive = false }) => {
+  ({ network, publicKeyHash, assetSlug, active, scam, manageActive = false, onClick }) => {
     const {
       value: balance = ZERO,
       rawValue: rawBalance,
@@ -89,7 +95,7 @@ export const TezosListItem = memo<TezosListItemProps>(
     if (manageActive)
       return (
         <>
-          <div className={LIST_ITEM_CLASSNAME}>
+          <div className={LIST_ITEM_CLASSNAME} onClick={onClick}>
             <TezosTokenIconWithNetwork tezosChainId={network.chainId} assetSlug={assetSlug} className="shrink-0" />
 
             <div className="flex-grow flex gap-x-2 items-center overflow-hidden">
@@ -122,6 +128,7 @@ export const TezosListItem = memo<TezosListItemProps>(
       <Link
         to={toExploreAssetLink(false, TempleChainKind.Tezos, network.chainId, assetSlug)}
         className={classNameMemo}
+        onClick={onClick}
         testID={AssetsSelectors.assetItemButton}
         testIDProperties={{ key: assetSlug }}
         {...setAnotherSelector('name', assetName)}
@@ -164,11 +171,6 @@ export const TezosListItem = memo<TezosListItemProps>(
       </Link>
     );
   }
-);
-
-const LIST_ITEM_CLASSNAME = clsx(
-  'overflow-hidden flex items-center gap-x-1 p-2 rounded-lg',
-  'hover:bg-secondary-low transition ease-in-out duration-200 focus:outline-none'
 );
 
 interface EvmListItemProps {

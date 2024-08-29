@@ -1,4 +1,6 @@
-import React, { memo, useState } from 'react';
+import React, { memo, useMemo, useState } from 'react';
+
+import { useDebounce } from 'use-debounce';
 
 import { Button, IconBase } from 'app/atoms';
 import { ActionsDropdownPopup } from 'app/atoms/ActionsDropdown';
@@ -7,52 +9,78 @@ import { PageModal } from 'app/atoms/PageModal';
 import { StyledButton } from 'app/atoms/StyledButton';
 import { ReactComponent as Browse } from 'app/icons/base/browse.svg';
 import { ReactComponent as CompactDown } from 'app/icons/base/compact_down.svg';
+import { TezosListItem } from 'app/pages/Home/OtherComponents/Tokens/components/ListItem';
 import { SearchBarField } from 'app/templates/SearchField';
+import { searchTezosChainAssetsWithNoMeta } from 'lib/assets/search.utils';
 import { T } from 'lib/i18n';
+import { useGetChainTokenOrGasMetadata } from 'lib/metadata';
 import Popper, { PopperRenderProps } from 'lib/ui/Popper';
+import { TezosNetworkEssentials } from 'temple/networks';
 
 interface SelectTokenModalProps {
+  network: TezosNetworkEssentials;
+  publicKeyHash: string;
+  slugs: string[];
+  onAssetSelect: (slug: string) => void;
   opened: boolean;
   onRequestClose: EmptyFn;
 }
 
-export const SelectAssetModal = memo<SelectTokenModalProps>(({ opened, onRequestClose }) => {
-  const [searchValue, setSearchValue] = useState('');
-  //const [searchValueDebounced] = useDebounce(searchValue, 300);
+export const SelectAssetModal = memo<SelectTokenModalProps>(
+  ({ network, publicKeyHash, slugs, onAssetSelect, opened, onRequestClose }) => {
+    const [searchValue, setSearchValue] = useState('');
+    const [searchValueDebounced] = useDebounce(searchValue, 300);
 
-  // const searchItems = useCallback(
-  //   (searchString: string) => searchTezosChainAssetsWithNoMeta(searchString, slugs, getAssetMetadata, s => s),
-  //   [slugs, getAssetMetadata]
-  // );
+    const getAssetMetadata = useGetChainTokenOrGasMetadata(network.chainId);
 
-  return (
-    <PageModal title="Select Token" opened={opened} onRequestClose={onRequestClose}>
-      <div className="flex flex-col px-4 pt-4 pb-3">
-        <div className="flex justify-between items-center mb-1">
-          <span className="text-font-description-bold">Filter by network</span>
-          <FilterNetworkPopper />
+    const searchedSlugs = useMemo(
+      () => searchTezosChainAssetsWithNoMeta(searchValueDebounced, slugs, getAssetMetadata, s => s),
+      [slugs, getAssetMetadata, searchValueDebounced]
+    );
+
+    return (
+      <PageModal title="Select Token" opened={opened} onRequestClose={onRequestClose}>
+        <div className="flex flex-col px-4 pt-4 pb-3">
+          <div className="flex justify-between items-center mb-1">
+            <span className="text-font-description-bold">Filter by network</span>
+            <FilterNetworkPopper />
+          </div>
+
+          <SearchBarField
+            value={searchValue}
+            placeholder="Token name"
+            defaultRightMargin={false}
+            onValueChange={setSearchValue}
+          />
         </div>
 
-        <SearchBarField
-          value={searchValue}
-          placeholder="Token name"
-          defaultRightMargin={false}
-          onValueChange={setSearchValue}
-        />
-      </div>
+        <div className="px-4 flex-1 flex flex-col overflow-y-auto">
+          {searchedSlugs.length === 0 && <EmptyState />}
 
-      <div className="px-4 flex-1 flex flex-col overflow-y-auto">
-        <EmptyState />
-      </div>
+          {searchedSlugs.map(slug => (
+            <TezosListItem
+              key={slug}
+              network={network}
+              publicKeyHash={publicKeyHash}
+              assetSlug={slug}
+              onClick={e => {
+                e.preventDefault();
+                onAssetSelect(slug);
+                onRequestClose();
+              }}
+            />
+          ))}
+        </div>
 
-      <div className="p-4 pb-6 flex flex-col bg-white">
-        <StyledButton size="L" color="primary-low" onClick={onRequestClose}>
-          <T id="close" />
-        </StyledButton>
-      </div>
-    </PageModal>
-  );
-});
+        <div className="p-4 pb-6 flex flex-col bg-white">
+          <StyledButton size="L" color="primary-low" onClick={onRequestClose}>
+            <T id="close" />
+          </StyledButton>
+        </div>
+      </PageModal>
+    );
+  }
+);
 
 interface FilterOptionProps {
   title: string;

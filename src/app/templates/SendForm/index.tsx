@@ -7,6 +7,8 @@ import { useBooleanState, useMemoWithCompare } from 'lib/ui/hooks';
 import { AccountForTezos } from 'temple/accounts';
 import { TezosNetworkEssentials } from 'temple/networks';
 
+import { AccountsModal } from '../AppHeader/AccountsModal';
+
 import AddContactModal from './AddContactModal';
 import { Form } from './Form';
 import { SelectAssetModal } from './SelectAssetModal';
@@ -18,11 +20,12 @@ interface Props {
   assetSlug?: string | null;
 }
 
-const SendForm = memo<Props>(({ network, tezosAccount, assetSlug = TEZ_TOKEN_SLUG }) => {
+const SendForm = memo<Props>(({ network, tezosAccount, assetSlug }) => {
   const tezosChainId = network.chainId;
   const publicKeyHash = tezosAccount.address;
 
   const [selectTokenModalOpened, setSelectTokenModalOpen, setSelectTokenModalClosed] = useBooleanState(false);
+  const [accountsModalOpened, setAccountsModalOpen, setAccountsModalClosed] = useBooleanState(false);
 
   const tokensSlugs = useEnabledTezosChainAccountTokenSlugs(publicKeyHash, tezosChainId);
 
@@ -38,9 +41,11 @@ const SendForm = memo<Props>(({ network, tezosAccount, assetSlug = TEZ_TOKEN_SLU
       : [TEZ_TOKEN_SLUG, assetSlug, ...sortedSlugs];
   }, [tokensSortPredicate, tokensSlugs, assetSlug]);
 
-  const selectedAsset = assetSlug ?? TEZ_TOKEN_SLUG;
+  const [selectedAsset, setSelectedAsset] = useState(assetSlug ?? TEZ_TOKEN_SLUG);
 
   const [addContactModalAddress, setAddContactModalAddress] = useState<string | null>(null);
+
+  const handleAssetSelect = useCallback((slug: string) => setSelectedAsset(slug), []);
 
   const handleAddContactRequested = useCallback(
     (address: string) => {
@@ -61,11 +66,20 @@ const SendForm = memo<Props>(({ network, tezosAccount, assetSlug = TEZ_TOKEN_SLU
           network={network}
           assetSlug={selectedAsset}
           onSelectTokenClick={setSelectTokenModalOpen}
+          onSelectMyAccountClick={setAccountsModalOpen}
           onAddContactRequested={handleAddContactRequested}
         />
       </Suspense>
 
-      <SelectAssetModal opened={selectTokenModalOpened} onRequestClose={setSelectTokenModalClosed} />
+      <AccountsModal opened={accountsModalOpened} onRequestClose={setAccountsModalClosed} />
+      <SelectAssetModal
+        network={network}
+        publicKeyHash={publicKeyHash}
+        slugs={assetsSlugs}
+        onAssetSelect={handleAssetSelect}
+        opened={selectTokenModalOpened}
+        onRequestClose={setSelectTokenModalClosed}
+      />
       <AddContactModal address={addContactModalAddress} onClose={closeContactModal} />
     </>
   );
