@@ -43,7 +43,7 @@ export interface FormFieldProps extends TestIDProperty, Omit<FormFieldAttrs, 'ty
   labelWarning?: ReactNode;
   errorCaption?: ReactNode;
   shouldShowErrorCaption?: boolean;
-  warningCaption?: ReactNode;
+  warning?: boolean;
   containerClassName?: string;
   labelContainerClassName?: string;
   containerStyle?: React.CSSProperties;
@@ -90,7 +90,7 @@ export const FormField = forwardRef<FormFieldElement, FormFieldProps>(
       labelWarning,
       errorCaption,
       shouldShowErrorCaption = true,
-      warningCaption,
+      warning = false,
       containerClassName,
       labelContainerClassName,
       textarea,
@@ -217,7 +217,7 @@ export const FormField = forwardRef<FormFieldElement, FormFieldProps>(
             className={clsx(
               FORM_FIELD_CLASS_NAME,
               smallPaddings ? 'py-2 pl-2' : 'p-3',
-              errorCaption ? 'border-error' : warningCaption ? 'border-warning' : 'border-input-low',
+              errorCaption ? 'border-error' : warning ? 'border-warning' : 'border-input-low',
               className
             )}
             style={fieldStyle}

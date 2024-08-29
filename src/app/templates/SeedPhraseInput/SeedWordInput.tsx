@@ -71,7 +71,7 @@ export const SeedWordInput: FC<SeedWordInputProps> = ({
 
   const debouncedSetIsWordSpellingError = useMemo(() => debounce(setIsWordSpellingError, 200), []);
 
-  const warningCaption = (submitted && !value) || isWordSpellingError;
+  const warning = (submitted && !value) || isWordSpellingError;
 
   useEffect(() => {
     if (isWordSpellingError) {
@@ -211,6 +211,7 @@ export const SeedWordInput: FC<SeedWordInputProps> = ({
         ref={setInputRef}
         type="password"
         id={id.toString()}
+        warning={warning}
         onChange={onChange}
         onBlur={handleBlur}
         value={value}
