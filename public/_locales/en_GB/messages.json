@@ -352,9 +352,6 @@
   "invalidAddress": {
     "message": "Invalid address"
   },
-  "contractNotExistOnNetwork": {
-    "message": "This smart contract doesn't exist on current network"
-  },
   "onlyKTContractAddressAllowed": {
     "message": "Only KT... contract address allowed",
     "description": "KT not translated"

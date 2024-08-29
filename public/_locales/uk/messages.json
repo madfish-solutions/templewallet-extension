@@ -355,9 +355,6 @@
   "invalidAddress": {
     "message": "Невалідна адреса"
   },
-  "contractNotExistOnNetwork": {
-    "message": "Цей смарт контракт не існує на заданній мережі"
-  },
   "onlyKTContractAddressAllowed": {
     "message": "Тільки KT... адреси контрактів дозволені",
     "description": "KT not translated"

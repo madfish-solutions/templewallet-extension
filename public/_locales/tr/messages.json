@@ -356,9 +356,6 @@
   "invalidAddress": {
     "message": "Geçersiz adres"
   },
-  "contractNotExistOnNetwork": {
-    "message": "Bu akıllı sözleşme mevcut ağda yok"
-  },
   "onlyKTContractAddressAllowed": {
     "message": "Yalnızca KT... sözleşme adresine izin verilir",
     "description": "KT not translated"

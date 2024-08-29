@@ -31,21 +31,21 @@ interface ImportAccountModalProps {
 
 interface OptionContents {
   titleI18nKey: TID;
-  form: FC<ImportAccountFormProps>;
+  Form: FC<ImportAccountFormProps>;
 }
 
 const options: Record<ImportOptionSlug, OptionContents> = {
   'private-key': {
     titleI18nKey: 'importPrivateKey',
-    form: PrivateKeyForm
+    Form: PrivateKeyForm
   },
   mnemonic: {
     titleI18nKey: 'importSeedPhrase',
-    form: MnemonicForm
+    Form: MnemonicForm
   },
   'watch-only': {
     titleI18nKey: 'watchOnlyAccount',
-    form: WatchOnlyForm
+    Form: WatchOnlyForm
   }
 };
 
@@ -70,7 +70,7 @@ export const ImportAccountModal = memo<ImportAccountModalProps>(
           onGoBack={onGoBack}
         >
           {option ? (
-            <option.form onCancel={onGoBack} onSuccess={handleSuccess} />
+            <option.Form onCancel={onGoBack} onSuccess={handleSuccess} />
           ) : (
             <>
               <ScrollView className="flex flex-col gap-3 py-4">

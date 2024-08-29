@@ -338,9 +338,6 @@
   "invalidAddress": {
     "message": "地址无效"
   },
-  "contractNotExistOnNetwork": {
-    "message": "此智能合约不在当前网络上"
-  },
   "onlyKTContractAddressAllowed": {
     "message": "仅可使用KT……合约地址",
     "description": "KT not translated"

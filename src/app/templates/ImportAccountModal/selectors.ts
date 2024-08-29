@@ -17,10 +17,10 @@ export enum ImportAccountSelectors {
   watchOnlyInput = 'Import Account(Watch-Only)/Watch Only Input',
   watchOnlyImportButton = 'Import Account(Watch-Only)/Watch Only Import Button',
 
-  ClearSeedPhraseButton = 'Import Account/Clear Seed Phrase Button',
-  PasteSeedPhraseButton = 'Import Account/Paste Seed Phrase Button',
-  PastePrivateKeyButton = 'Import Account/Paste Private Key Button',
-  PasteAddressButton = 'Import Account/Paste Address Button'
+  clearSeedPhraseButton = 'Import Account/Clear Seed Phrase Button',
+  pasteSeedPhraseButton = 'Import Account/Paste Seed Phrase Button',
+  pastePrivateKeyButton = 'Import Account/Paste Private Key Button',
+  pasteAddressButton = 'Import Account/Paste Address Button'
 }
 
 export enum ImportAccountFormType {

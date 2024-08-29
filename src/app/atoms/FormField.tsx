@@ -44,7 +44,6 @@ export interface FormFieldProps extends TestIDProperty, Omit<FormFieldAttrs, 'ty
   errorCaption?: ReactNode;
   shouldShowErrorCaption?: boolean;
   warningCaption?: ReactNode;
-  shouldShowWarningCaption?: boolean;
   containerClassName?: string;
   labelContainerClassName?: string;
   containerStyle?: React.CSSProperties;
@@ -92,7 +91,6 @@ export const FormField = forwardRef<FormFieldElement, FormFieldProps>(
       errorCaption,
       shouldShowErrorCaption = true,
       warningCaption,
-      shouldShowWarningCaption = true,
       containerClassName,
       labelContainerClassName,
       textarea,

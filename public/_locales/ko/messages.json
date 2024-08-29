@@ -338,9 +338,6 @@
   "invalidAddress": {
     "message": "유효하지 않은 주소"
   },
-  "contractNotExistOnNetwork": {
-    "message": "이 스마트 계약은 현재 네트워크에 존재하지 않습니다"
-  },
   "onlyKTContractAddressAllowed": {
     "message": "KT... 계약 주소만 허용됨",
     "description": "KT not translated"

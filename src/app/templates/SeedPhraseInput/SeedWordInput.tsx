@@ -222,8 +222,6 @@ export const SeedWordInput: FC<SeedWordInputProps> = ({
         smallPaddings
         fieldWrapperBottomMargin={false}
         testID={testID}
-        warningCaption={warningCaption}
-        shouldShowWarningCaption={false}
         onKeyDown={handleInputKeyDown}
       />
       {showAutoComplete && autoCompleteVariants && autoCompleteVariants.length > 0 && (

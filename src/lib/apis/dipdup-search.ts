@@ -2,7 +2,6 @@ import axios from 'axios';
 
 import { TempleTezosChainId } from 'lib/temple/types';
 
-const dipdupSearchApi = axios.create({ baseURL: 'https://search.dipdup.net/v1/search' });
 const networksPriority = ['mainnet', 'ghostnet'];
 
 // 'parisnet' option is available too but it is dropped to decrease maintenance cost
@@ -28,7 +27,7 @@ interface TezosAccountSearchResponse {
 }
 
 export const searchForTezosAccount = async (address: string) => {
-  const { data } = await dipdupSearchApi.post<TezosAccountSearchResponse>('/', {
+  const { data } = await axios.post<TezosAccountSearchResponse>('https://search.dipdup.net/v1/search', {
     query: address,
     size: 10,
     offset: 0,

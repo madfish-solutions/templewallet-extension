@@ -17,9 +17,10 @@ import { useTempleClient, validateDelegate } from 'lib/temple/front';
 import { isValidTezosAddress, isTezosContractAddress } from 'lib/tezos';
 import { shouldDisableSubmitButton } from 'lib/ui/should-disable-submit-button';
 import { readClipboard } from 'lib/ui/utils';
-import { useEnabledTezosChains } from 'temple/front';
+import { TezosChain, useEnabledTezosChains } from 'temple/front';
 import { useEvmAddressByDomainName } from 'temple/front/evm/helpers';
 import { getTezosDomainsClient, useTezosAddressByDomainName } from 'temple/front/tezos';
+import { getReadOnlyTezos } from 'temple/tezos';
 import { TempleChainKind } from 'temple/types';
 
 import { ImportAccountSelectors, ImportAccountFormType } from '../selectors';
@@ -88,9 +89,11 @@ export const WatchOnlyForm = memo<ImportAccountFormProps>(({ onSuccess }) => {
       let tezosChainId: string | undefined;
 
       if (chain === TempleChainKind.Tezos && isTezosContractAddress(resolvedAddress)) {
-        const { items: contractDipdupEntries } = await searchForTezosAccount(resolvedAddress);
-        const networkName = contractDipdupEntries[0]?.body.Network;
-        tezosChainId = networkName && dipdupNetworksChainIds[networkName];
+        tezosChainId = await getTezosChainId(resolvedAddress, tezosChains);
+
+        if (!tezosChainId) {
+          throw new Error(t('contractNotExistOnKnownNetworks'));
+        }
       }
 
       const finalAddress = chain === TempleChainKind.Tezos ? resolvedAddress : Viem.getAddress(resolvedAddress);
@@ -106,7 +109,7 @@ export const WatchOnlyForm = memo<ImportAccountFormProps>(({ onSuccess }) => {
 
       setError(err.message);
     }
-  }, [formState.isSubmitting, formAnalytics, resolvedAddress, importWatchOnlyAccount, onSuccess]);
+  }, [formState.isSubmitting, formAnalytics, resolvedAddress, importWatchOnlyAccount, onSuccess, tezosChains]);
 
   const validateAddress = useCallback(
     async (value: any) => {
@@ -166,7 +169,7 @@ export const WatchOnlyForm = memo<ImportAccountFormProps>(({ onSuccess }) => {
                 color="blue"
                 Icon={PasteFillIcon}
                 onClick={pasteAddress}
-                testID={ImportAccountSelectors.PasteAddressButton}
+                testID={ImportAccountSelectors.pasteAddressButton}
               >
                 <T id="paste" />
               </TextButton>
@@ -197,6 +200,37 @@ export const WatchOnlyForm = memo<ImportAccountFormProps>(({ onSuccess }) => {
     </form>
   );
 });
+
+async function getTezosChainId(contractAddress: string, tezosChains: TezosChain[]) {
+  let dipdupSearchFailed = false;
+  try {
+    const { items: contractDipdupEntries } = await searchForTezosAccount(contractAddress);
+    const networkName = contractDipdupEntries[0]?.body.Network;
+    const dipdupChainId = networkName && dipdupNetworksChainIds[networkName];
+
+    if (dipdupChainId) {
+      return dipdupChainId;
+    }
+  } catch {
+    dipdupSearchFailed = true;
+  }
+
+  const rpcContractSearchResults = await Promise.allSettled(
+    tezosChains
+      .filter(({ chainId }) => dipdupSearchFailed || !Object.values(dipdupNetworksChainIds).includes(chainId))
+      .map(async ({ rpcBaseURL, chainId }) => {
+        const tezos = getReadOnlyTezos(rpcBaseURL);
+
+        await tezos.contract.at(contractAddress);
+
+        return chainId;
+      })
+  );
+
+  return rpcContractSearchResults.find(
+    (result): result is PromiseFulfilledResult<string> => result.status === 'fulfilled'
+  )?.value;
+}
 
 function getChainFromAddress(address: string) {
   if (isValidTezosAddress(address)) return TempleChainKind.Tezos;

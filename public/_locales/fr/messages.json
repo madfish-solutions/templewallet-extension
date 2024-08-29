@@ -338,9 +338,6 @@
   "invalidAddress": {
     "message": "Adresse invalide"
   },
-  "contractNotExistOnNetwork": {
-    "message": "Ce contrat intelligent n'existe pas sur le réseau actuel"
-  },
   "onlyKTContractAddressAllowed": {
     "message": "Seules les adresses de contrat KT… sont autorisées",
     "description": "KT not translated"

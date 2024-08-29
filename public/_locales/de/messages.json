@@ -356,9 +356,6 @@
   "invalidAddress": {
     "message": "Ungültige Adresse"
   },
-  "contractNotExistOnNetwork": {
-    "message": "Dieser Smart-Kontrakt existiert nicht im aktuellen Netzwerk"
-  },
   "onlyKTContractAddressAllowed": {
     "message": "Nur KT... Vertragsadresse erlaubt",
     "description": "KT not translated"

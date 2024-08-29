@@ -338,9 +338,6 @@
   "invalidAddress": {
     "message": "無效的地址"
   },
-  "contractNotExistOnNetwork": {
-    "message": "目前的網路上不存在此智慧合約"
-  },
   "onlyKTContractAddressAllowed": {
     "message": "僅允許 KT… 合約地址",
     "description": "KT not translated"

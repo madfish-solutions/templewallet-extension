@@ -104,7 +104,7 @@ export const PrivateKeyForm = memo<ImportAccountFormProps>(({ onSuccess }) => {
                 color="blue"
                 Icon={PasteFillIcon}
                 onClick={pastePrivateKey}
-                testID={ImportAccountSelectors.PastePrivateKeyButton}
+                testID={ImportAccountSelectors.pastePrivateKeyButton}
               >
                 <T id="paste" />
               </TextButton>

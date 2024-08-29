@@ -2,7 +2,6 @@ import React, { FC, useCallback, useRef, useState } from 'react';
 
 import { validateMnemonic } from 'bip39';
 import clsx from 'clsx';
-import { range } from 'lodash';
 
 import { FormFieldElement } from 'app/atoms/FormField';
 import { TextButton } from 'app/atoms/TextButton';
@@ -31,7 +30,7 @@ interface SeedPhraseInputProps extends TestIDProperty {
   setNumberOfWords: (n: number) => void;
 }
 
-const numberOfWordsOptions = range(12, 25, 3).map(value => String(value));
+const numberOfWordsOptions = ['12', '15', '18', '21', '24'];
 
 export const SeedPhraseInput: FC<SeedPhraseInputProps> = ({
   submitted,
@@ -140,7 +139,7 @@ export const SeedPhraseInput: FC<SeedPhraseInputProps> = ({
           onSeedPaste(value);
           clearClipboard();
         })
-        .catch(console.error),
+        .catch(error => console.error(error)),
     [onSeedPaste]
   );
 
@@ -231,7 +230,7 @@ export const SeedPhraseInput: FC<SeedPhraseInputProps> = ({
               color="grey"
               Icon={XCircleFillIcon}
               onClick={clearDraftSeed}
-              testID={ImportAccountSelectors.ClearSeedPhraseButton}
+              testID={ImportAccountSelectors.clearSeedPhraseButton}
             >
               <T id="clear" />
             </TextButton>
@@ -240,7 +239,7 @@ export const SeedPhraseInput: FC<SeedPhraseInputProps> = ({
               color="blue"
               Icon={PasteFillIcon}
               onClick={pasteMnemonic}
-              testID={ImportAccountSelectors.PasteSeedPhraseButton}
+              testID={ImportAccountSelectors.pasteSeedPhraseButton}
             >
               <T id="paste" />
             </TextButton>

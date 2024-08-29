@@ -1,4 +1,4 @@
-import React, { FC, useCallback, useEffect, useRef, useState } from 'react';
+import React, { FC, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import clsx from 'clsx';
 
@@ -53,6 +53,8 @@ export const SeedLengthSelect: FC<SeedLengthSelectProps> = ({ options, currentOp
     [close, onChange]
   );
 
+  const optionLabel = useMemo(() => getOptionLabel(selectedOption), [selectedOption]);
+
   return (
     <div ref={selectRef} className="relative">
       <StyledButton
@@ -63,7 +65,7 @@ export const SeedLengthSelect: FC<SeedLengthSelectProps> = ({ options, currentOp
         onClick={toggleOpen}
         testID={ImportAccountSelectors.mnemonicDropDownButton}
       >
-        <span>{getOptionLabel(selectedOption)}</span>
+        <span>{optionLabel}</span>
         <IconBase size={12} Icon={CompactDownIcon} />
       </StyledButton>
       <ul className={clsx(!isOpen && 'hidden', 'z-1 absolute right-0 top-7 bg-white shadow-bottom p-2 w-[154px]')}>

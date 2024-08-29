@@ -483,8 +483,8 @@
   "invalidAddress": {
     "message": "Invalid address"
   },
-  "contractNotExistOnNetwork": {
-    "message": "This smart contract doesn't exist on current network"
+  "contractNotExistOnKnownNetworks": {
+    "message": "This smart contract doesn't exist on known networks"
   },
   "onlyKTContractAddressAllowed": {
     "message": "Only KT... contract address allowed",

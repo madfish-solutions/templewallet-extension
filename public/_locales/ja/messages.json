@@ -338,9 +338,6 @@
   "invalidAddress": {
     "message": "無効なアドレス"
   },
-  "contractNotExistOnNetwork": {
-    "message": "このスマートコントラクトは現在のネットワークには存在しません"
-  },
   "onlyKTContractAddressAllowed": {
     "message": "KTのみ...コントラクトアドレス可",
     "description": "KT not translated"
