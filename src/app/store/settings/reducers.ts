@@ -2,10 +2,12 @@ import { createReducer } from '@reduxjs/toolkit';
 
 import {
   setAdsImpressionsLinkedAction,
+  setAcceptedTermsVersionAction,
   setConversionTrackedAction,
   setIsAnalyticsEnabledAction,
   setOnRampPossibilityAction,
   setPendingReactivateAdsAction,
+  setReferralLinksEnabledAction,
   toggleBalanceModeAction
 } from './actions';
 import { SettingsState, settingsInitialState } from './state';
@@ -33,5 +35,13 @@ export const settingsReducer = createReducer<SettingsState>(settingsInitialState
 
   builder.addCase(setAdsImpressionsLinkedAction, state => {
     state.adsImpressionsLinked = true;
+  });
+
+  builder.addCase(setAcceptedTermsVersionAction, (state, { payload }) => {
+    state.acceptedTermsVersion = payload;
+  });
+
+  builder.addCase(setReferralLinksEnabledAction, (state, { payload }) => {
+    state.referralLinksEnabled = payload;
   });
 });

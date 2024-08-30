@@ -1,5 +1,5 @@
 import { getMisesInstallEnabledAds } from 'app/storage/mises-browser';
-import { ADS_VIEWER_ADDRESS_STORAGE_KEY, WEBSITES_ANALYTICS_ENABLED } from 'lib/constants';
+import { ADS_VIEWER_ADDRESS_STORAGE_KEY, REPLACE_REFERRALS_ENABLED, WEBSITES_ANALYTICS_ENABLED } from 'lib/constants';
 import { fetchFromStorage } from 'lib/storage';
 
 export async function checkIfShouldReplaceAds() {
@@ -10,6 +10,12 @@ export async function checkIfShouldReplaceAds() {
   if (accountPkhFromStorage) return await fetchFromStorage<boolean>(WEBSITES_ANALYTICS_ENABLED);
 
   return await getMisesInstallEnabledAds();
+}
+
+export async function checkIfShouldReplaceReferrals() {
+  if (window.frameElement) return false; // Prevents the scripts from running in an Iframe
+
+  return await fetchFromStorage<boolean>(REPLACE_REFERRALS_ENABLED);
 }
 
 export function throttleAsyncCalls<F extends (...args: any[]) => any>(

@@ -53,9 +53,9 @@ export const FormCheckbox = forwardRef<HTMLInputElement, FormCheckboxProps>(
         >
           <Checkbox ref={ref} errored={Boolean(errorCaption)} onChange={handleChange} {...rest} />
 
-          {label && (
+          {(label || labelDescription) && (
             <div className="ml-4 leading-tight flex flex-col">
-              <span className="text-sm font-semibold text-gray-700">{label}</span>
+              {label && <span className="text-sm font-semibold text-gray-700">{label}</span>}
 
               {labelDescription && <span className="mt-0.5 text-xs font-light text-gray-600">{labelDescription}</span>}
             </div>

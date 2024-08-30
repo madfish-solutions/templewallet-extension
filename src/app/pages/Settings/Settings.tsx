@@ -1,7 +1,8 @@
 import React, { FC, useMemo } from 'react';
 
-import classNames from 'clsx';
+import clsx from 'clsx';
 
+import { ReactComponent as AdditionalIcon } from 'app/icons/additional.svg';
 import { ReactComponent as AppsIcon } from 'app/icons/apps.svg';
 import { ReactComponent as ContactBookIcon } from 'app/icons/contact-book.svg';
 import { ReactComponent as ExtensionIcon } from 'app/icons/extension.svg';
@@ -17,6 +18,7 @@ import PageLayout from 'app/layouts/PageLayout';
 import About from 'app/templates/About/About';
 import ActivateAccount from 'app/templates/ActivateAccount/ActivateAccount';
 import AddressBook from 'app/templates/AddressBook/AddressBook';
+import { AdvancedFeatures } from 'app/templates/AdvancedFeatures';
 import CustomNetworksSettings from 'app/templates/CustomNetworkSettings/CustomNetworksSettings';
 import DAppSettings from 'app/templates/DAppSettings/DAppSettings';
 import HelpAndCommunity from 'app/templates/HelpAndCommunity';
@@ -40,6 +42,7 @@ interface Tab {
   slug: string;
   titleI18nKey: TID;
   Icon: React.FC<React.SVGProps<SVGSVGElement>>;
+  fillIcon?: boolean;
   Component: React.FC;
   color: string;
   descriptionI18nKey: TID;
@@ -111,6 +114,16 @@ const TABS: Tab[] = [
     testID: SettingsSelectors.networksButton
   },
   {
+    slug: 'advanced-features',
+    titleI18nKey: 'advancedFeatures',
+    Icon: AdditionalIcon,
+    Component: AdvancedFeatures,
+    color: '#88E0E6',
+    fillIcon: true,
+    descriptionI18nKey: 'advancedFeaturesDescription',
+    testID: SettingsSelectors.advancedFeaturesButton
+  },
+  {
     slug: 'activate-account',
     titleI18nKey: 'activateAccount',
     Icon: OkIcon,
@@ -162,20 +175,17 @@ const Settings: FC<SettingsProps> = ({ tabSlug }) => {
       <div className="py-4">
         {activeTab && (
           <>
-            <h1
-              className={classNames(
-                'mb-2',
-                'flex items-center justify-center',
-                'text-2xl font-light text-gray-700 text-center'
-              )}
-            >
+            <h1 className="mb-2 flex items-center justify-center text-2xl font-light text-gray-700 text-center">
               {(() => {
                 const { Icon, color, titleI18nKey } = activeTab;
                 return (
                   <T id={titleI18nKey}>
                     {message => (
                       <>
-                        <Icon className="mr-2 h-8 w-auto stroke-current" style={{ stroke: color }} />
+                        <Icon
+                          className="mr-2 h-8 w-auto"
+                          style={activeTab.fillIcon ? { fill: color } : { stroke: color }}
+                        />
                         {message}
                       </>
                     )}
@@ -193,16 +203,16 @@ const Settings: FC<SettingsProps> = ({ tabSlug }) => {
             <activeTab.Component />
           ) : (
             <ul className="md:grid md:grid-cols-2 md:gap-x-8 md:gap-y-10">
-              {TABS.map(({ slug, titleI18nKey, descriptionI18nKey, Icon, color, testID }, i) => {
+              {TABS.map(({ fillIcon, slug, titleI18nKey, descriptionI18nKey, Icon, color, testID }, i) => {
                 const first = i === 0;
                 const linkTo = `/settings/${slug}`;
 
                 return (
-                  <Link to={linkTo} key={slug} className={classNames(!first && 'mt-10 md:mt-0 block')} testID={testID}>
+                  <Link to={linkTo} key={slug} className={clsx(!first && 'mt-10 md:mt-0 block')} testID={testID}>
                     <div className="flex">
                       <div className="ml-2 flex-shrink-0">
                         <div
-                          className={classNames(
+                          className={clsx(
                             'block',
                             'h-12 w-12',
                             'border-2 border-white border-opacity-25',
@@ -214,7 +224,7 @@ const Settings: FC<SettingsProps> = ({ tabSlug }) => {
                           )}
                           style={{ backgroundColor: color }}
                         >
-                          <Icon className="h-8 w-8 stroke-current" />
+                          <Icon className={clsx('h-8 w-8', fillIcon ? 'fill-current' : 'stroke-current')} />
                         </div>
                       </div>
 
@@ -222,7 +232,7 @@ const Settings: FC<SettingsProps> = ({ tabSlug }) => {
                         <T id={titleI18nKey}>
                           {message => (
                             <div
-                              className={classNames(
+                              className={clsx(
                                 'text-lg leading-6 font-medium',
                                 'filter-brightness-75',
                                 'hover:underline focus:underline',

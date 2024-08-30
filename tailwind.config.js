@@ -574,7 +574,8 @@ module.exports = {
         xxs: '0.6875rem',
         '2xs': '0.8125rem',
         ulg: '1.0625rem',
-        '2xl-plus': '1.75rem'
+        '2xl-plus': '1.75rem',
+        '4xl-plus': '2.5rem'
       },
       spacing: {
         '0.5px': '0.5px',
@@ -648,7 +649,9 @@ module.exports = {
         18: '4.5rem'
       },
       zIndex: {
-        1: '1'
+        1: '1',
+        25: '25',
+        45: '45'
       },
       space: (theme, { negative }) => ({
         ...theme('spacing'),

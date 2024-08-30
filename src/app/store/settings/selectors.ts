@@ -13,3 +13,7 @@ export const useIsConversionTrackedSelector = () => useSelector(({ settings }) =
 export const useIsPendingReactivateAdsSelector = () => useSelector(({ settings }) => settings.pendingReactivateAds);
 
 export const useIsAdsImpressionsLinkedSelector = () => useSelector(({ settings }) => settings.adsImpressionsLinked);
+
+export const useAcceptedTermsVersionSelector = () => useSelector(({ settings }) => settings.acceptedTermsVersion);
+
+export const useReferralLinksEnabledSelector = () => useSelector(({ settings }) => settings.referralLinksEnabled);

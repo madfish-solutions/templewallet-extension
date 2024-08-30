@@ -28,7 +28,10 @@ import { HomeSelectors } from '../../Home.selectors';
 import { AssetsSelectors } from '../Assets.selectors';
 
 import { ListItem } from './components/ListItem';
+import { TermsOfUseUpdatedBanner } from './components/TermsOfUseUpdateBanner';
+import { TermsOfUseUpdateOverlay } from './components/TermsOfUseUpdateOverlay';
 import { UpdateAppBanner } from './components/UpdateAppBanner';
+import { useUpdateApp } from './hooks/use-update-app';
 import { toExploreAssetLink } from './utils';
 
 const LOCAL_STORAGE_TOGGLE_KEY = 'tokens-list:hide-zero-balances';
@@ -57,6 +60,7 @@ export const TokensTab = memo(() => {
   );
 
   const mainnetTokensScamSlugsRecord = useMainnetTokensScamlistSelector();
+  const updateApp = useUpdateApp();
 
   const { filteredAssets, searchValue, setSearchValue } = useTokensListingLogic(
     slugs,
@@ -64,9 +68,13 @@ export const TokensTab = memo(() => {
     leadingAssets
   );
 
+  const [shouldShowTermsOfUseUpdateOverlay, setShouldShowTermsOfUseUpdateOverlay] = useState(false);
   const [searchFocused, setSearchFocused] = useState(false);
   const [activeIndex, setActiveIndex] = useState(0);
   const searchValueExist = useMemo(() => Boolean(searchValue), [searchValue]);
+
+  const showTermsOfUseUpdateOverlay = useCallback(() => void setShouldShowTermsOfUseUpdateOverlay(true), []);
+  const hideTermsOfUseUpdateOverlay = useCallback(() => void setShouldShowTermsOfUseUpdateOverlay(false), []);
 
   const activeAssetSlug = useMemo(() => {
     return searchFocused && searchValueExist && filteredAssets[activeIndex] ? filteredAssets[activeIndex] : null;
@@ -171,7 +179,11 @@ export const TokensTab = memo(() => {
         </Popper>
       </div>
 
-      <UpdateAppBanner popup={popup} />
+      {updateApp ? (
+        <UpdateAppBanner popup={popup} updateApp={updateApp} />
+      ) : (
+        <TermsOfUseUpdatedBanner popup={popup} onReviewClick={showTermsOfUseUpdateOverlay} />
+      )}
 
       {filteredAssets.length === 0 ? (
         <div className="my-8 flex flex-col items-center justify-center text-gray-500">
@@ -201,6 +213,7 @@ export const TokensTab = memo(() => {
       )}
 
       {isSyncing && <SyncSpinner className="mt-4" />}
+      {shouldShowTermsOfUseUpdateOverlay && <TermsOfUseUpdateOverlay onClose={hideTermsOfUseUpdateOverlay} />}
     </div>
   );
 });

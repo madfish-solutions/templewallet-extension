@@ -1,5 +1,6 @@
 import React, { FC, useCallback, useLayoutEffect, useMemo } from 'react';
 
+import type { ActionCreatorWithPayload } from '@reduxjs/toolkit';
 import classNames from 'clsx';
 import { Controller, useForm } from 'react-hook-form';
 import { useDispatch } from 'react-redux';
@@ -12,10 +13,18 @@ import { togglePartnersPromotionAction } from 'app/store/partners-promotion/acti
 import {
   setIsAnalyticsEnabledAction,
   setOnRampPossibilityAction,
-  setPendingReactivateAdsAction
+  setPendingReactivateAdsAction,
+  setAcceptedTermsVersionAction,
+  setReferralLinksEnabledAction
 } from 'app/store/settings/actions';
 import { AnalyticsEventCategory, TestIDProps, useAnalytics } from 'lib/analytics';
-import { WEBSITES_ANALYTICS_ENABLED } from 'lib/constants';
+import {
+  PRIVACY_POLICY_URL,
+  RECENT_TERMS_VERSION,
+  REPLACE_REFERRALS_ENABLED,
+  TERMS_OF_USE_URL,
+  WEBSITES_ANALYTICS_ENABLED
+} from 'lib/constants';
 import { T, TID, t } from 'lib/i18n';
 import { putToStorage } from 'lib/storage';
 import { useTempleClient } from 'lib/temple/front';
@@ -60,14 +69,25 @@ export const SetWalletPassword: FC<SetWalletPasswordProps> = ({
 
   const dispatch = useDispatch();
 
-  const setAnalyticsEnabled = useCallback(
-    (analyticsEnabled: boolean) => dispatch(setIsAnalyticsEnabledAction(analyticsEnabled)),
+  const dispatchBooleanActionFactory = useCallback(
+    (actionCreator: ActionCreatorWithPayload<boolean>) => {
+      return (value: boolean) => dispatch(actionCreator(value));
+    },
     [dispatch]
   );
-  const setAdsViewEnabled = useCallback(
-    (adsViewEnabled: boolean) => dispatch(togglePartnersPromotionAction(adsViewEnabled)),
-    [dispatch]
+  const setAnalyticsEnabled = useMemo(
+    () => dispatchBooleanActionFactory(setIsAnalyticsEnabledAction),
+    [dispatchBooleanActionFactory]
   );
+  const setAdsViewEnabled = useMemo(
+    () => dispatchBooleanActionFactory(togglePartnersPromotionAction),
+    [dispatchBooleanActionFactory]
+  );
+  const setReferralLinksEnabled = useMemo(
+    () => dispatchBooleanActionFactory(setReferralLinksEnabledAction),
+    [dispatchBooleanActionFactory]
+  );
+  const setTermsAccepted = useCallback(() => dispatch(setAcceptedTermsVersionAction(RECENT_TERMS_VERSION)), [dispatch]);
 
   const { setOnboardingCompleted } = useOnboardingProgress();
 
@@ -121,11 +141,15 @@ export const SetWalletPassword: FC<SetWalletPasswordProps> = ({
         const adsViewEnabled = data.earnRewardsWithAds;
         setAdsViewEnabled(adsViewEnabled);
         setAnalyticsEnabled(shouldEnableAnalytics);
-        await putToStorage(WEBSITES_ANALYTICS_ENABLED, adsViewEnabled);
+        setReferralLinksEnabled(true);
+        setTermsAccepted();
 
         await setOnboardingCompleted(true);
 
         const accountPkh = await registerWallet(password!, formatMnemonic(seedPhrase));
+        // registerWallet function clears async storages
+        await putToStorage(REPLACE_REFERRALS_ENABLED, true);
+        await putToStorage(WEBSITES_ANALYTICS_ENABLED, adsViewEnabled);
         trackEvent('AnalyticsEnabled', AnalyticsEventCategory.General, { accountPkh }, shouldEnableAnalytics);
         trackEvent('AdsEnabled', AnalyticsEventCategory.General, { accountPkh }, adsViewEnabled);
 
@@ -148,6 +172,8 @@ export const SetWalletPassword: FC<SetWalletPasswordProps> = ({
       keystorePassword,
       setAdsViewEnabled,
       setAnalyticsEnabled,
+      setReferralLinksEnabled,
+      setTermsAccepted,
       setOnboardingCompleted,
       registerWallet,
       seedPhrase,
@@ -278,7 +304,7 @@ export const SetWalletPassword: FC<SetWalletPasswordProps> = ({
               id="acceptTermsInputDescription"
               substitutions={[
                 <a
-                  href="https://templewallet.com/terms"
+                  href={TERMS_OF_USE_URL}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="underline text-secondary"
@@ -286,7 +312,7 @@ export const SetWalletPassword: FC<SetWalletPasswordProps> = ({
                   <T id="termsOfUsage" key="termsLink" />
                 </a>,
                 <a
-                  href="https://templewallet.com/privacy"
+                  href={PRIVACY_POLICY_URL}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="underline text-secondary"

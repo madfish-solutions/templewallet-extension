@@ -7,5 +7,7 @@ export const mockSettingsState: SettingsState = {
   isOnRampPossibility: false,
   isConversionTracked: false,
   pendingReactivateAds: false,
-  adsImpressionsLinked: false
+  adsImpressionsLinked: false,
+  acceptedTermsVersion: 0,
+  referralLinksEnabled: false
 };

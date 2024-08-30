@@ -13,6 +13,8 @@ export interface SettingsState {
   isConversionTracked: boolean;
   pendingReactivateAds: boolean;
   adsImpressionsLinked: boolean;
+  acceptedTermsVersion: number;
+  referralLinksEnabled: boolean;
 }
 
 export const settingsInitialState: SettingsState = {
@@ -22,5 +24,7 @@ export const settingsInitialState: SettingsState = {
   isOnRampPossibility: false,
   isConversionTracked: false,
   pendingReactivateAds: false,
-  adsImpressionsLinked: false
+  adsImpressionsLinked: false,
+  acceptedTermsVersion: 0,
+  referralLinksEnabled: false
 };
