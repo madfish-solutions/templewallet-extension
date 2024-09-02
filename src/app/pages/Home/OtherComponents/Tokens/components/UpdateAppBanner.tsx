@@ -2,8 +2,7 @@ import React, { memo, useMemo, useState } from 'react';
 
 import browser from 'webextension-polyfill';
 
-import { AppUpdateDetails } from 'app/storage/app-update';
-import { useStoredAppUpdateDetails } from 'app/storage/app-update/use-value.hook';
+import { AppUpdateDetails, useStoredAppUpdateDetails } from 'app/storage/app-update/use-value.hook';
 import { EmojiInlineIcon } from 'lib/icons/emoji';
 import { useDidMount } from 'lib/ui/hooks';
 
