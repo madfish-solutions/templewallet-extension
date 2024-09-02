@@ -1,3 +1,5 @@
+import memoizee from 'memoizee';
+
 const secureBrowserVersions: Record<string, number> = {
   Chrome: 93,
   Firefox: 88,
@@ -7,7 +9,7 @@ const secureBrowserVersions: Record<string, number> = {
   Safari: 12
 };
 
-const getBrowserInfo = () => {
+export const getBrowserInfo = memoizee(() => {
   const ua = navigator.userAgent;
   let tem,
     M = ua.match(/(opera|chrome|safari|firefox|msie|trident(?=\/))\/?\s*(\d+)/i) || [];
@@ -31,14 +33,14 @@ const getBrowserInfo = () => {
   }
 
   return { name: M[0], version: M[1] };
-};
-export const browserInfo = getBrowserInfo();
+});
 
 let browserVersionIsSafe: boolean | undefined;
 
 export const isBrowserVersionSafe = () => {
   if (browserVersionIsSafe != null) return browserVersionIsSafe;
 
+  const browserInfo = getBrowserInfo();
   if (secureBrowserVersions.hasOwnProperty(browserInfo.name)) {
     if (parseInt(browserInfo.version) >= secureBrowserVersions[browserInfo.name]) {
       return (browserVersionIsSafe = true);

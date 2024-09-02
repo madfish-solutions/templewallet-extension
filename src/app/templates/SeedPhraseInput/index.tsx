@@ -10,7 +10,7 @@ import { ReactComponent as PasteFillIcon } from 'app/icons/base/paste_fill.svg';
 import { ReactComponent as XCircleFillIcon } from 'app/icons/base/x_circle_fill.svg';
 import { ImportAccountSelectors } from 'app/templates/ImportAccountModal/selectors';
 import { setTestID, TestIDProperty } from 'lib/analytics';
-import { browserInfo } from 'lib/browser/info';
+import { getBrowserInfo } from 'lib/browser/info';
 import { DEFAULT_SEED_PHRASE_WORDS_AMOUNT } from 'lib/constants';
 import { T, t } from 'lib/i18n';
 import { readClipboard } from 'lib/ui/utils';
@@ -99,7 +99,7 @@ export const SeedPhraseInput: FC<SeedPhraseInputProps> = ({
   );
 
   const onSeedPaste = useCallback(
-    (rawSeed: string) => {
+    async (rawSeed: string) => {
       const parsedSeed = formatMnemonic(rawSeed);
       let newDraftSeed = parsedSeed.split(' ');
 
@@ -128,8 +128,8 @@ export const SeedPhraseInput: FC<SeedPhraseInputProps> = ({
 
       resetRevealRef();
       onSeedChange(newDraftSeed);
-      // Firefox allows using this API only immediately in an event handler
-      window.navigator.clipboard.writeText('').catch(error => console.error(error));
+      // Firefox allows using this API only immediately in an event handler, so this code is duplicated
+      return window.navigator.clipboard.writeText('').catch(error => console.error(error));
     },
     [numberOfWords, onSeedChange, pasteFailed, setPasteFailed, resetRevealRef, setNumberOfWords]
   );
@@ -137,9 +137,9 @@ export const SeedPhraseInput: FC<SeedPhraseInputProps> = ({
   const pasteMnemonic = useCallback(async () => {
     try {
       const value = await readClipboard();
-      onSeedPaste(value);
-      if (browserInfo.name === 'Firefox') {
-        // Firefox allows using this API only immediately in an event handler
+      await onSeedPaste(value);
+      if (getBrowserInfo().name === 'Firefox') {
+        // Firefox allows using this API only immediately in an event handler, so the same call in `onSeedPaste` fails
         return window.navigator.clipboard.writeText('');
       }
     } catch (error) {
