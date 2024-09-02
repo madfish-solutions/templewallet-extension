@@ -68,7 +68,7 @@ const buildManifestV3 = (vendor: string): Manifest.WebExtensionManifest => {
       }
     ],
 
-    permissions: PERMISSIONS, // vendor === 'firefox' ? FIREFOX_PERMISSIONS : PERMISSIONS,
+    permissions: PERMISSIONS,
     host_permissions: HOST_PERMISSIONS,
     optional_permissions: ['clipboardRead'],
 
@@ -94,7 +94,7 @@ const buildManifestV2 = (vendor: string): Manifest.WebExtensionManifest => {
 
     ...buildManifestCommons(vendor),
 
-    permissions: [...PERMISSIONS /* vendor === 'firefox' ? FIREFOX_PERMISSIONS : PERMISSIONS */, ...HOST_PERMISSIONS],
+    permissions: [...PERMISSIONS, ...HOST_PERMISSIONS],
     optional_permissions: ['clipboardRead'],
 
     /** `blob:` was added due to 3D-models not working in Firefox otherwise. See:
@@ -121,7 +121,6 @@ const buildManifestV2 = (vendor: string): Manifest.WebExtensionManifest => {
 
 const AUTHOR_URL = 'https://madfish.solutions';
 
-// const FIREFOX_PERMISSIONS = ['storage', 'unlimitedStorage', 'clipboardWrite', 'clipboardRead', 'activeTab'];
 const PERMISSIONS = ['storage', 'unlimitedStorage', 'clipboardWrite', 'activeTab'];
 
 const HOST_PERMISSIONS: string[] = ['http://localhost:8732/'];
