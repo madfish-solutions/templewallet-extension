@@ -128,7 +128,7 @@ export const SeedPhraseInput: FC<SeedPhraseInputProps> = ({
 
       resetRevealRef();
       onSeedChange(newDraftSeed);
-      // This logic is never moved into a separate function to keep the functionality in Firefox
+      // Firefox allows using this API only immediately in an event handler
       window.navigator.clipboard.writeText('').catch(error => console.error(error));
     },
     [numberOfWords, onSeedChange, pasteFailed, setPasteFailed, resetRevealRef, setNumberOfWords]
@@ -139,7 +139,7 @@ export const SeedPhraseInput: FC<SeedPhraseInputProps> = ({
       const value = await readClipboard();
       onSeedPaste(value);
       if (browserInfo.name === 'Firefox') {
-        // Clearing clipboard from `onSeedPaste` won't work in Firefox
+        // Firefox allows using this API only immediately in an event handler
         return window.navigator.clipboard.writeText('');
       }
     } catch (error) {
