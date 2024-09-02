@@ -44,7 +44,7 @@ export const TermsOfUseUpdateOverlay = memo<TermsOfUseUpdateOverlayProps>(({ onC
       <ContentContainer
         className={clsx('overflow-y-scroll p-4', popup ? 'w-full h-full' : 'max-h-full')}
         padding={false}
-        style={{ width: 632, maxWidth: 632 }}
+        style={{ width: popup ? undefined : 'fit-content' }}
       >
         <form
           onSubmit={handleSubmit(onSubmit)}
@@ -52,9 +52,9 @@ export const TermsOfUseUpdateOverlay = memo<TermsOfUseUpdateOverlayProps>(({ onC
             'relative flex flex-col justify-center items-center bg-white rounded-md p-6',
             popup && 'w-full min-h-full'
           )}
+          // TODO: change sizes in V2 or while making a layout for Mises
           style={{ width: popup ? undefined : 600 }}
         >
-          <OverlayCloseButton onClick={onClose} />
           <img
             src={popup ? IllustrationBgPopup : IllustrationBgFull}
             alt=""
@@ -123,6 +123,7 @@ export const TermsOfUseUpdateOverlay = memo<TermsOfUseUpdateOverlayProps>(({ onC
             <FormSubmitButton className="mt-3 w-full max-w-xs" disabled={Object.keys(errors).length > 0}>
               <T id="continue" />
             </FormSubmitButton>
+            <OverlayCloseButton onClick={onClose} />
           </div>
         </form>
       </ContentContainer>

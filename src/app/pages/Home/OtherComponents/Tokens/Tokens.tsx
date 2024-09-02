@@ -11,6 +11,7 @@ import { useTokensListingLogic } from 'app/hooks/use-tokens-listing-logic';
 import { ReactComponent as EditingIcon } from 'app/icons/editing.svg';
 import { ReactComponent as SearchIcon } from 'app/icons/search.svg';
 import { useAreAssetsLoading, useMainnetTokensScamlistSelector } from 'app/store/assets/selectors';
+import { useAcceptedTermsVersionSelector } from 'app/store/settings/selectors';
 import { ButtonForManageDropdown } from 'app/templates/ManageDropdown';
 import { PartnersPromotion, PartnersPromotionVariant } from 'app/templates/partners-promotion';
 import SearchAssetField from 'app/templates/SearchAssetField';
@@ -18,6 +19,7 @@ import { setTestID } from 'lib/analytics';
 import { OptimalPromoVariantEnum } from 'lib/apis/optimal';
 import { TEZ_TOKEN_SLUG, TEMPLE_TOKEN_SLUG } from 'lib/assets';
 import { useEnabledAccountTokensSlugs } from 'lib/assets/hooks';
+import { RECENT_TERMS_VERSION } from 'lib/constants';
 import { T, t } from 'lib/i18n';
 import { useAccount, useChainId } from 'lib/temple/front';
 import { useLocalStorage } from 'lib/ui/local-storage';
@@ -28,10 +30,9 @@ import { HomeSelectors } from '../../Home.selectors';
 import { AssetsSelectors } from '../Assets.selectors';
 
 import { ListItem } from './components/ListItem';
-import { TermsOfUseUpdatedBanner } from './components/TermsOfUseUpdateBanner';
+import { TermsOfUseUpdateBanner } from './components/TermsOfUseUpdateBanner';
 import { TermsOfUseUpdateOverlay } from './components/TermsOfUseUpdateOverlay';
 import { UpdateAppBanner } from './components/UpdateAppBanner';
-import { useUpdateApp } from './hooks/use-update-app';
 import { toExploreAssetLink } from './utils';
 
 const LOCAL_STORAGE_TOGGLE_KEY = 'tokens-list:hide-zero-balances';
@@ -60,7 +61,7 @@ export const TokensTab = memo(() => {
   );
 
   const mainnetTokensScamSlugsRecord = useMainnetTokensScamlistSelector();
-  const updateApp = useUpdateApp();
+  const acceptedTermsVersion = useAcceptedTermsVersionSelector();
 
   const { filteredAssets, searchValue, setSearchValue } = useTokensListingLogic(
     slugs,
@@ -179,10 +180,10 @@ export const TokensTab = memo(() => {
         </Popper>
       </div>
 
-      {updateApp ? (
-        <UpdateAppBanner popup={popup} updateApp={updateApp} />
+      {acceptedTermsVersion === RECENT_TERMS_VERSION ? (
+        <UpdateAppBanner popup={popup} />
       ) : (
-        <TermsOfUseUpdatedBanner popup={popup} onReviewClick={showTermsOfUseUpdateOverlay} />
+        <TermsOfUseUpdateBanner popup={popup} onReviewClick={showTermsOfUseUpdateOverlay} />
       )}
 
       {filteredAssets.length === 0 ? (
