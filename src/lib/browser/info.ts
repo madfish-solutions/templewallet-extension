@@ -32,13 +32,13 @@ const getBrowserInfo = () => {
 
   return { name: M[0], version: M[1] };
 };
+export const browserInfo = getBrowserInfo();
 
 let browserVersionIsSafe: boolean | undefined;
 
 export const isBrowserVersionSafe = () => {
   if (browserVersionIsSafe != null) return browserVersionIsSafe;
 
-  const browserInfo = getBrowserInfo();
   if (secureBrowserVersions.hasOwnProperty(browserInfo.name)) {
     if (parseInt(browserInfo.version) >= secureBrowserVersions[browserInfo.name]) {
       return (browserVersionIsSafe = true);

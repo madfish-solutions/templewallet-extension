@@ -11,7 +11,7 @@ import { formatMnemonic } from 'app/defaults';
 import { AccountsModalSelectors } from 'app/templates/AppHeader/selectors';
 import { isSeedPhraseFilled, SeedPhraseInput } from 'app/templates/SeedPhraseInput';
 import { useFormAnalytics } from 'lib/analytics';
-import { DEFAULT_SEED_PHRASE_WORDS_AMOUNT, DEFAULT_TEZOS_DERIVATION_PATH } from 'lib/constants';
+import { DEFAULT_EVM_DERIVATION_PATH, DEFAULT_SEED_PHRASE_WORDS_AMOUNT } from 'lib/constants';
 import { t, T } from 'lib/i18n';
 import { useTempleClient, validateDerivationPath } from 'lib/temple/front';
 import { shouldDisableSubmitButton } from 'lib/ui/should-disable-submit-button';
@@ -27,7 +27,7 @@ const defaultValues = {
   derivationPath: ''
 };
 
-export const MnemonicForm = memo<ImportAccountFormProps>(({ onSuccess, onCancel }) => {
+export const MnemonicForm = memo<ImportAccountFormProps>(({ onSuccess }) => {
   const { createOrImportWallet, importMnemonicAccount } = useTempleClient();
   const formAnalytics = useFormAnalytics(ImportAccountFormType.Mnemonic);
 
@@ -117,23 +117,14 @@ export const MnemonicForm = memo<ImportAccountFormProps>(({ onSuccess, onCancel 
               </span>
             </>
           }
-          placeholder={DEFAULT_TEZOS_DERIVATION_PATH}
+          placeholder={t('derivationPathExample2', DEFAULT_EVM_DERIVATION_PATH)}
           errorCaption={errors.derivationPath?.message}
           containerClassName="mt-3"
           testID={ImportAccountSelectors.customDerivationPathInput}
         />
       </ScrollView>
 
-      <ActionsButtonsBox shouldCastShadow={!bottomEdgeIsVisible} flexDirection="row" className="gap-2.5">
-        <StyledButton
-          className="w-full"
-          size="L"
-          color="primary-low"
-          onClick={onCancel}
-          testID={AccountsModalSelectors.cancelButton}
-        >
-          <T id="cancel" />
-        </StyledButton>
+      <ActionsButtonsBox shouldCastShadow={!bottomEdgeIsVisible}>
         <StyledButton
           className="w-full"
           size="L"

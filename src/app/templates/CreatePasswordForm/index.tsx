@@ -16,7 +16,12 @@ import { togglePartnersPromotionAction } from 'app/store/partners-promotion/acti
 import { setIsAnalyticsEnabledAction, setOnRampPossibilityAction } from 'app/store/settings/actions';
 import { toastError } from 'app/toaster';
 import { AnalyticsEventCategory, useAnalytics } from 'lib/analytics';
-import { SHOULD_BACKUP_MNEMONIC_STORAGE_KEY, WEBSITES_ANALYTICS_ENABLED } from 'lib/constants';
+import {
+  PRIVACY_POLICY_URL,
+  SHOULD_BACKUP_MNEMONIC_STORAGE_KEY,
+  TERMS_OF_USE_URL,
+  WEBSITES_ANALYTICS_ENABLED
+} from 'lib/constants';
 import { T, TID, t } from 'lib/i18n';
 import { putToStorage } from 'lib/storage';
 import { useStorage, useTempleClient } from 'lib/temple/front';
@@ -24,7 +29,6 @@ import { setMnemonicToBackup } from 'lib/temple/front/mnemonic-to-backup-keeper'
 import { SuccessfulImportToastContext } from 'lib/temple/front/successful-import-toast-context';
 import { navigate } from 'lib/woozie';
 
-import { TEMPLE_ANALYTICS_LINK, TEMPLE_PRIVACY_POLICY_LINK, TEMPLE_TERMS_LINK } from './config';
 import { createPasswordSelectors } from './selectors';
 
 interface FormData {
@@ -56,7 +60,7 @@ export const CreatePasswordForm = memo<CreatePasswordFormProps>(({ seedPhrase: s
 
   const dispatch = useDispatch();
 
-  const { control, watch, register, handleSubmit, errors, triggerValidation, formState } = useForm<FormData>({
+  const { control, watch, register, handleSubmit, errors, triggerValidation, formState, setValue } = useForm<FormData>({
     defaultValues: {
       analytics: true,
       getRewards: true
@@ -129,6 +133,9 @@ export const CreatePasswordForm = memo<CreatePasswordFormProps>(({ seedPhrase: s
     ]
   );
 
+  const cleanPassword = useCallback(async () => setValue('password', '', true), [setValue]);
+  const cleanRepeatPassword = useCallback(async () => setValue('repeatPassword', '', true), [setValue]);
+
   const submitButtonNameI18nKey = seedPhraseToImport ? 'importWallet' : 'createWallet';
   const submitButtonTestID = seedPhraseToImport
     ? createPasswordSelectors.importButton
@@ -158,6 +165,7 @@ export const CreatePasswordForm = memo<CreatePasswordFormProps>(({ seedPhrase: s
             containerClassName="mb-2"
             shouldShowRevealWhenEmpty
             testID={createPasswordSelectors.passwordField}
+            onClean={cleanPassword}
           />
           <div className="flex flex-wrap gap-1">
             {validationsLabelsInputs.map(({ textI18nKey, key }) => (
@@ -185,6 +193,7 @@ export const CreatePasswordForm = memo<CreatePasswordFormProps>(({ seedPhrase: s
             containerClassName="my-4"
             shouldShowRevealWhenEmpty
             testID={createPasswordSelectors.repeatPasswordField}
+            onClean={cleanRepeatPassword}
           />
         </div>
         <div className="w-full flex flex-col gap-3">
@@ -193,22 +202,7 @@ export const CreatePasswordForm = memo<CreatePasswordFormProps>(({ seedPhrase: s
             name="analytics"
             as={SettingsCheckbox}
             label={<T id="usageAnalytics" />}
-            tooltip={
-              <T
-                id="analyticsInputDescription"
-                substitutions={[
-                  <a
-                    href={TEMPLE_ANALYTICS_LINK}
-                    key="analyticsLink"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="underline text-secondary font-semibold"
-                  >
-                    <T id="analyticsCollecting" />
-                  </a>
-                ]}
-              />
-            }
+            tooltip={<T id="analyticsInputDescription" />}
             testID={createPasswordSelectors.analyticsCheckBox}
           />
 
@@ -229,7 +223,7 @@ export const CreatePasswordForm = memo<CreatePasswordFormProps>(({ seedPhrase: s
                 <T id={submitButtonNameI18nKey} />
               </span>,
               <a
-                href={TEMPLE_TERMS_LINK}
+                href={TERMS_OF_USE_URL}
                 key="termsLink"
                 target="_blank"
                 rel="noopener noreferrer"
@@ -238,7 +232,7 @@ export const CreatePasswordForm = memo<CreatePasswordFormProps>(({ seedPhrase: s
                 <T id="termsOfUsage" />
               </a>,
               <a
-                href={TEMPLE_PRIVACY_POLICY_LINK}
+                href={PRIVACY_POLICY_URL}
                 key="privacyPolicyLink"
                 target="_blank"
                 rel="noopener noreferrer"

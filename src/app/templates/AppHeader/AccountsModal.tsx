@@ -99,14 +99,7 @@ export const AccountsModal = memo<Props>(({ opened, onRequestClose }) => {
           />
         );
       case AccountsModalSubmodals.WatchOnly:
-        return (
-          <ImportAccountModal
-            optionSlug="watch-only"
-            shouldShowBackButton
-            onGoBack={closeSubmodal}
-            onRequestClose={closeSubmodal}
-          />
-        );
+        return <ImportAccountModal optionSlug="watch-only" onGoBack={closeSubmodal} onRequestClose={closeSubmodal} />;
       default:
         return null;
     }

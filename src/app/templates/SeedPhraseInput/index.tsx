@@ -10,9 +10,10 @@ import { ReactComponent as PasteFillIcon } from 'app/icons/base/paste_fill.svg';
 import { ReactComponent as XCircleFillIcon } from 'app/icons/base/x_circle_fill.svg';
 import { ImportAccountSelectors } from 'app/templates/ImportAccountModal/selectors';
 import { setTestID, TestIDProperty } from 'lib/analytics';
+import { browserInfo } from 'lib/browser/info';
 import { DEFAULT_SEED_PHRASE_WORDS_AMOUNT } from 'lib/constants';
 import { T, t } from 'lib/i18n';
-import { clearClipboard, readClipboard } from 'lib/ui/utils';
+import { readClipboard } from 'lib/ui/utils';
 
 import { SeedLengthSelect } from './SeedLengthSelect/SeedLengthSelect';
 import { SeedWordInput, SeedWordInputProps } from './SeedWordInput';
@@ -127,21 +128,24 @@ export const SeedPhraseInput: FC<SeedPhraseInputProps> = ({
 
       resetRevealRef();
       onSeedChange(newDraftSeed);
-      clearClipboard();
+      // This logic is never moved into a separate function to keep the functionality in Firefox
+      window.navigator.clipboard.writeText('').catch(error => console.error(error));
     },
     [numberOfWords, onSeedChange, pasteFailed, setPasteFailed, resetRevealRef, setNumberOfWords]
   );
 
-  const pasteMnemonic = useCallback(
-    () =>
-      readClipboard()
-        .then(value => {
-          onSeedPaste(value);
-          clearClipboard();
-        })
-        .catch(error => console.error(error)),
-    [onSeedPaste]
-  );
+  const pasteMnemonic = useCallback(async () => {
+    try {
+      const value = await readClipboard();
+      onSeedPaste(value);
+      if (browserInfo.name === 'Firefox') {
+        // Clearing clipboard from `onSeedPaste` won't work in Firefox
+        return window.navigator.clipboard.writeText('');
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  }, [onSeedPaste]);
 
   const onSeedWordPaste = useCallback<Defined<SeedWordInputProps['onPaste']>>(
     event => {

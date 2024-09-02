@@ -983,7 +983,12 @@
     "message": "m/44'/1729'/<계정 지수>'/0'"
   },
   "derivationPathExample2": {
-    "message": "예) m/44'/1729'/..."
+    "message": "예) $derivationPath$",
+    "placeholders": {
+      "derivationPath": {
+        "content": "$1"
+      }
+    }
   },
   "keepSeedPhraseSecret": {
     "message": "보안을 유지하세요."

@@ -47,8 +47,9 @@ export const WatchOnlyForm = memo<ImportAccountFormProps>(({ onSuccess }) => {
   const { watch, handleSubmit, errors, register, formState, setValue, triggerValidation } = useForm<WatchOnlyFormData>({
     mode: 'onChange'
   });
-  const [error, setError] = useState<ReactNode>(null);
+  const [submitError, setSubmitError] = useState<ReactNode>(null);
   const [bottomEdgeIsVisible, setBottomEdgeIsVisible] = useState(true);
+  const resetSubmitError = useCallback(() => setSubmitError(null), []);
 
   const addressValue = watch('address');
 
@@ -63,19 +64,23 @@ export const WatchOnlyForm = memo<ImportAccountFormProps>(({ onSuccess }) => {
   const pasteAddress = useCallback(
     async () =>
       readClipboard()
-        .then(newAddress => setValue('address', newAddress))
+        .then(newAddress => {
+          setValue('address', newAddress);
+          setSubmitError(null);
+        })
         .catch(console.error),
     [setValue]
   );
   const cleanAddressField = useCallback(() => {
     setValue('address', '');
+    setSubmitError(null);
     triggerValidation('address');
   }, [setValue, triggerValidation]);
 
   const onSubmit = useCallback(async () => {
     if (formState.isSubmitting) return;
 
-    setError(null);
+    setSubmitError(null);
 
     formAnalytics.trackSubmit();
     let chain: TempleChainKind | nullish;
@@ -107,7 +112,7 @@ export const WatchOnlyForm = memo<ImportAccountFormProps>(({ onSuccess }) => {
 
       console.error(err);
 
-      setError(err.message);
+      setSubmitError(err.message);
     }
   }, [formState.isSubmitting, formAnalytics, resolvedAddress, importWatchOnlyAccount, onSuccess, tezosChains]);
 
@@ -156,13 +161,14 @@ export const WatchOnlyForm = memo<ImportAccountFormProps>(({ onSuccess }) => {
           id="watch-address"
           label={t('address')}
           placeholder={t('watchOnlyAddressInputPlaceholder')}
-          errorCaption={errors.address?.message ?? error}
+          errorCaption={errors.address?.message ?? submitError}
           shouldShowErrorCaption
           className="resize-none"
           containerClassName="mb-8"
           cleanable={Boolean(addressValue)}
           labelDescription={t('watchOnlyAddressInputDescription')}
           onClean={cleanAddressField}
+          onChange={resetSubmitError}
           additonalActionButtons={
             addressValue ? null : (
               <TextButton
@@ -190,7 +196,7 @@ export const WatchOnlyForm = memo<ImportAccountFormProps>(({ onSuccess }) => {
         <StyledButton
           size="L"
           type="submit"
-          disabled={shouldDisableSubmitButton(errors, formState)}
+          disabled={shouldDisableSubmitButton(errors, formState, submitError)}
           testID={ImportAccountSelectors.privateKeyImportButton}
           color="primary"
         >

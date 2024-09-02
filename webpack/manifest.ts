@@ -68,8 +68,9 @@ const buildManifestV3 = (vendor: string): Manifest.WebExtensionManifest => {
       }
     ],
 
-    permissions: PERMISSIONS,
+    permissions: PERMISSIONS, // vendor === 'firefox' ? FIREFOX_PERMISSIONS : PERMISSIONS,
     host_permissions: HOST_PERMISSIONS,
+    optional_permissions: ['clipboardRead'],
 
     content_security_policy: {
       extension_pages: "script-src 'self' 'wasm-unsafe-eval'; object-src 'self'"
@@ -93,7 +94,8 @@ const buildManifestV2 = (vendor: string): Manifest.WebExtensionManifest => {
 
     ...buildManifestCommons(vendor),
 
-    permissions: [...PERMISSIONS, ...HOST_PERMISSIONS],
+    permissions: [...PERMISSIONS /* vendor === 'firefox' ? FIREFOX_PERMISSIONS : PERMISSIONS */, ...HOST_PERMISSIONS],
+    optional_permissions: ['clipboardRead'],
 
     /** `blob:` was added due to 3D-models not working in Firefox otherwise. See:
      * https://github.com/madfish-solutions/templewallet-extension/commit/7f170d058e9d628709f0da0759cfee44a0667480
@@ -119,6 +121,7 @@ const buildManifestV2 = (vendor: string): Manifest.WebExtensionManifest => {
 
 const AUTHOR_URL = 'https://madfish.solutions';
 
+// const FIREFOX_PERMISSIONS = ['storage', 'unlimitedStorage', 'clipboardWrite', 'clipboardRead', 'activeTab'];
 const PERMISSIONS = ['storage', 'unlimitedStorage', 'clipboardWrite', 'activeTab'];
 
 const HOST_PERMISSIONS: string[] = ['http://localhost:8732/'];

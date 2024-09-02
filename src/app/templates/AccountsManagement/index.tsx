@@ -170,12 +170,7 @@ export const AccountsManagement = memo<AccountsManagementProps>(({ setHeaderChil
         );
       case AccountsManagementModal.WatchOnly:
         return (
-          <ImportAccountModal
-            optionSlug="watch-only"
-            shouldShowBackButton
-            onGoBack={handleModalClose}
-            onRequestClose={handleModalClose}
-          />
+          <ImportAccountModal optionSlug="watch-only" onGoBack={handleModalClose} onRequestClose={handleModalClose} />
         );
       default:
         return null;

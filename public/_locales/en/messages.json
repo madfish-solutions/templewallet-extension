@@ -302,12 +302,7 @@
     "message": "Anonymous analytics"
   },
   "analyticsInputDescription": {
-    "message": "By pressing this button you are agreeing to the $analyticsLink$",
-    "placeholders": {
-      "analyticsLink": {
-        "content": "$1"
-      }
-    }
+    "message": "By enabling this checkbox, you help Temple improve products and services by allowing analytics of usage data."
   },
   "copiedTokenAddress": {
     "message": "Copied"
@@ -1569,7 +1564,12 @@
     "message": "m/44'/1729'/<account_index>'/0'"
   },
   "derivationPathExample2": {
-    "message": "e.g. m/44'/1729'/..."
+    "message": "e.g. $derivationPath$",
+    "placeholders": {
+      "derivationPath": {
+        "content": "$1"
+      }
+    }
   },
   "keepSeedPhraseSecret": {
     "message": "Keep it in secret."

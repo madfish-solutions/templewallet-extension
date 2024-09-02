@@ -31,14 +31,15 @@ export const PrivateKeyForm = memo<ImportAccountFormProps>(({ onSuccess }) => {
   const { register, handleSubmit, errors, formState, watch, setValue, triggerValidation } =
     useForm<ByPrivateKeyFormData>({ mode: 'onChange' });
   const [bottomEdgeIsVisible, setBottomEdgeIsVisible] = useState(true);
-  const [error, setError] = useState<ReactNode>(null);
+  const [submitError, setSubmitError] = useState<ReactNode>(null);
+  const resetSubmitError = useCallback(() => setSubmitError(null), []);
 
   const onSubmit = useCallback(
     async ({ privateKey, encPassword }: ByPrivateKeyFormData) => {
       if (formState.isSubmitting) return;
 
       formAnalytics.trackSubmit();
-      setError(null);
+      setSubmitError(null);
       let chain: TempleChainKind | undefined;
       try {
         const [finalPrivateKey, chain] = toPrivateKeyWithChain(privateKey.replace(/\s/g, ''));
@@ -52,7 +53,7 @@ export const PrivateKeyForm = memo<ImportAccountFormProps>(({ onSuccess }) => {
 
         console.error(err);
 
-        setError(err.message);
+        setSubmitError(err.message);
       }
     },
     [formState.isSubmitting, formAnalytics, importAccount, onSuccess]
@@ -63,7 +64,8 @@ export const PrivateKeyForm = memo<ImportAccountFormProps>(({ onSuccess }) => {
       readClipboard()
         .then(value => {
           setValue('privateKey', value);
-          clearClipboard();
+          window.navigator.clipboard.writeText('').catch(error => console.error(error));
+          setSubmitError(null);
           triggerValidation('privateKey');
         })
         .catch(console.error),
@@ -72,6 +74,7 @@ export const PrivateKeyForm = memo<ImportAccountFormProps>(({ onSuccess }) => {
   const cleanPrivateKeyField = useCallback(() => {
     setValue('privateKey', '');
     setValue('encPassword', undefined);
+    setSubmitError(null);
     triggerValidation('privateKey');
     triggerValidation('encPassword');
   }, [setValue, triggerValidation]);
@@ -92,12 +95,13 @@ export const PrivateKeyForm = memo<ImportAccountFormProps>(({ onSuccess }) => {
           id="importacc-privatekey"
           label={t('privateKey')}
           placeholder={t('privateKeyInputPlaceholder')}
-          errorCaption={errors.privateKey?.message ?? error}
+          errorCaption={errors.privateKey?.message ?? submitError}
           shouldShowErrorCaption
           className="resize-none"
           containerClassName="mb-8"
           cleanable={Boolean(keyValue)}
           onClean={cleanPrivateKeyField}
+          onChange={resetSubmitError}
           additonalActionButtons={
             keyValue ? null : (
               <TextButton
@@ -139,7 +143,7 @@ export const PrivateKeyForm = memo<ImportAccountFormProps>(({ onSuccess }) => {
         <StyledButton
           size="L"
           type="submit"
-          disabled={shouldDisableSubmitButton(errors, formState)}
+          disabled={shouldDisableSubmitButton(errors, formState, submitError)}
           testID={ImportAccountSelectors.privateKeyImportButton}
           color="primary"
         >

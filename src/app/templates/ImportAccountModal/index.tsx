@@ -70,7 +70,7 @@ export const ImportAccountModal = memo<ImportAccountModalProps>(
           onGoBack={onGoBack}
         >
           {option ? (
-            <option.Form onCancel={onGoBack} onSuccess={handleSuccess} />
+            <option.Form onSuccess={handleSuccess} />
           ) : (
             <>
               <ScrollView className="flex flex-col gap-3 py-4">
