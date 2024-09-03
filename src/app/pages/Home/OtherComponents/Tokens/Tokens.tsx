@@ -75,9 +75,6 @@ export const TokensTab = memo(() => {
   );
 
   const shouldShowTermsOfUseOverlay = useShouldShowTermsOfUseUpdateOverlaySelector();
-  /* const [shouldShowTermsOfUseUpdateOverlay, setShouldShowTermsOfUseUpdateOverlay] = useState(
-    showAgreementsCounter < MAX_SHOW_AGREEMENTS_COUNTER
-  ); */
   const [searchFocused, setSearchFocused] = useState(false);
   const [activeIndex, setActiveIndex] = useState(0);
   const searchValueExist = useMemo(() => Boolean(searchValue), [searchValue]);
