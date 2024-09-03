@@ -178,122 +178,126 @@ interface EvmListItemProps {
   publicKeyHash: HexString;
   assetSlug: string;
   manageActive?: boolean;
+  onClick?: MouseEventHandler<HTMLDivElement | HTMLAnchorElement>;
 }
 
-export const EvmListItem = memo<EvmListItemProps>(({ network, publicKeyHash, assetSlug, manageActive = false }) => {
-  const { chainId } = network;
+export const EvmListItem = memo<EvmListItemProps>(
+  ({ network, publicKeyHash, assetSlug, manageActive = false, onClick }) => {
+    const { chainId } = network;
 
-  const {
-    value: balance = ZERO,
-    rawValue: rawBalance,
-    metadata
-  } = useEvmTokenBalance(assetSlug, publicKeyHash, network);
-  const storedToken = useStoredEvmTokenSelector(publicKeyHash, chainId, assetSlug);
+    const {
+      value: balance = ZERO,
+      rawValue: rawBalance,
+      metadata
+    } = useEvmTokenBalance(assetSlug, publicKeyHash, network);
+    const storedToken = useStoredEvmTokenSelector(publicKeyHash, chainId, assetSlug);
 
-  const checked = getAssetStatus(rawBalance, storedToken?.status) === 'enabled';
-  const isNativeToken = assetSlug === EVM_TOKEN_SLUG;
+    const checked = getAssetStatus(rawBalance, storedToken?.status) === 'enabled';
+    const isNativeToken = assetSlug === EVM_TOKEN_SLUG;
 
-  const [deleteModalOpened, setDeleteModalOpened, setDeleteModalClosed] = useBooleanState(false);
+    const [deleteModalOpened, setDeleteModalOpened, setDeleteModalClosed] = useBooleanState(false);
 
-  const deleteItem = useCallback(
-    () =>
-      void dispatch(
-        setEvmTokenStatusAction({
-          account: publicKeyHash,
-          chainId,
-          slug: assetSlug,
-          status: 'removed'
-        })
-      ),
-    [assetSlug, chainId, publicKeyHash]
-  );
+    const deleteItem = useCallback(
+      () =>
+        void dispatch(
+          setEvmTokenStatusAction({
+            account: publicKeyHash,
+            chainId,
+            slug: assetSlug,
+            status: 'removed'
+          })
+        ),
+      [assetSlug, chainId, publicKeyHash]
+    );
 
-  const toggleTokenStatus = useCallback(
-    () =>
-      void dispatch(
-        setEvmTokenStatusAction({
-          account: publicKeyHash,
-          chainId,
-          slug: assetSlug,
-          status: checked ? 'disabled' : 'enabled'
-        })
-      ),
-    [checked, assetSlug, chainId, publicKeyHash]
-  );
+    const toggleTokenStatus = useCallback(
+      () =>
+        void dispatch(
+          setEvmTokenStatusAction({
+            account: publicKeyHash,
+            chainId,
+            slug: assetSlug,
+            status: checked ? 'disabled' : 'enabled'
+          })
+        ),
+      [checked, assetSlug, chainId, publicKeyHash]
+    );
 
-  const classNameMemo = useMemo(() => clsx(LIST_ITEM_CLASSNAME, 'focus:bg-secondary-low'), []);
+    const classNameMemo = useMemo(() => clsx(LIST_ITEM_CLASSNAME, 'focus:bg-secondary-low'), []);
 
-  if (metadata == null) return null;
+    if (metadata == null) return null;
 
-  const assetSymbol = getAssetSymbol(metadata);
-  const assetName = getTokenName(metadata);
+    const assetSymbol = getAssetSymbol(metadata);
+    const assetName = getTokenName(metadata);
 
-  if (manageActive)
-    return (
-      <>
-        <div className={classNameMemo}>
-          <EvmTokenIconWithNetwork evmChainId={chainId} assetSlug={assetSlug} className="shrink-0" />
+    if (manageActive)
+      return (
+        <>
+          <div className={classNameMemo} onClick={onClick}>
+            <EvmTokenIconWithNetwork evmChainId={chainId} assetSlug={assetSlug} className="shrink-0" />
 
-          <div className="flex-grow flex gap-x-2 items-center overflow-hidden">
-            <div className="flex-grow flex flex-col gap-y-1 overflow-hidden">
-              <div className="text-font-medium truncate">{assetSymbol}</div>
+            <div className="flex-grow flex gap-x-2 items-center overflow-hidden">
+              <div className="flex-grow flex flex-col gap-y-1 overflow-hidden">
+                <div className="text-font-medium truncate">{assetSymbol}</div>
 
-              <div className="text-font-description items-center text-grey-1 truncate">{assetName}</div>
+                <div className="text-font-description items-center text-grey-1 truncate">{assetName}</div>
+              </div>
+
+              <IconBase
+                Icon={DeleteIcon}
+                size={16}
+                className={clsx('shrink-0', isNativeToken ? 'text-disable' : 'cursor-pointer text-error')}
+                onClick={isNativeToken ? undefined : setDeleteModalOpened}
+              />
+
+              <ToggleSwitch
+                checked={isNativeToken ? true : checked}
+                disabled={isNativeToken}
+                onChange={toggleTokenStatus}
+              />
             </div>
+          </div>
 
-            <IconBase
-              Icon={DeleteIcon}
-              size={16}
-              className={clsx('shrink-0', isNativeToken ? 'text-disable' : 'cursor-pointer text-error')}
-              onClick={isNativeToken ? undefined : setDeleteModalOpened}
+          {deleteModalOpened && <DeleteAssetModal onClose={setDeleteModalClosed} onDelete={deleteItem} />}
+        </>
+      );
+
+    return (
+      <Link
+        to={toExploreAssetLink(false, TempleChainKind.EVM, chainId, assetSlug)}
+        className={classNameMemo}
+        onClick={onClick}
+        testID={AssetsSelectors.assetItemButton}
+        testIDProperties={{ key: assetSlug }}
+        {...setAnotherSelector('name', assetName)}
+      >
+        <EvmTokenIconWithNetwork evmChainId={chainId} assetSlug={assetSlug} className="shrink-0" />
+
+        <div className="flex-grow flex flex-col gap-y-1 overflow-hidden">
+          <div className="flex gap-x-4">
+            <div className="flex-grow text-font-medium truncate">{assetSymbol}</div>
+
+            <CryptoBalance
+              value={balance}
+              testID={AssetsSelectors.assetItemCryptoBalanceButton}
+              testIDProperties={{ assetSlug }}
             />
+          </div>
 
-            <ToggleSwitch
-              checked={isNativeToken ? true : checked}
-              disabled={isNativeToken}
-              onChange={toggleTokenStatus}
+          <div className="flex gap-x-4">
+            <div className="self-center flex-grow text-font-description text-grey-1 truncate">{assetName}</div>
+
+            <FiatBalance
+              evm
+              chainId={chainId}
+              assetSlug={assetSlug}
+              value={balance}
+              testID={AssetsSelectors.assetItemFiatBalanceButton}
+              testIDProperties={{ assetSlug }}
             />
           </div>
         </div>
-
-        {deleteModalOpened && <DeleteAssetModal onClose={setDeleteModalClosed} onDelete={deleteItem} />}
-      </>
+      </Link>
     );
-
-  return (
-    <Link
-      to={toExploreAssetLink(false, TempleChainKind.EVM, chainId, assetSlug)}
-      className={classNameMemo}
-      testID={AssetsSelectors.assetItemButton}
-      testIDProperties={{ key: assetSlug }}
-      {...setAnotherSelector('name', assetName)}
-    >
-      <EvmTokenIconWithNetwork evmChainId={chainId} assetSlug={assetSlug} className="shrink-0" />
-
-      <div className="flex-grow flex flex-col gap-y-1 overflow-hidden">
-        <div className="flex gap-x-4">
-          <div className="flex-grow text-font-medium truncate">{assetSymbol}</div>
-
-          <CryptoBalance
-            value={balance}
-            testID={AssetsSelectors.assetItemCryptoBalanceButton}
-            testIDProperties={{ assetSlug }}
-          />
-        </div>
-
-        <div className="flex gap-x-4">
-          <div className="self-center flex-grow text-font-description text-grey-1 truncate">{assetName}</div>
-
-          <FiatBalance
-            evm
-            chainId={chainId}
-            assetSlug={assetSlug}
-            value={balance}
-            testID={AssetsSelectors.assetItemFiatBalanceButton}
-            testIDProperties={{ assetSlug }}
-          />
-        </div>
-      </div>
-    </Link>
-  );
-});
+  }
+);

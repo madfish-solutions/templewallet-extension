@@ -22,6 +22,7 @@ import Identicon from 'app/atoms/Identicon';
 import { StyledButton } from 'app/atoms/StyledButton';
 import { ArtificialError, NotEnoughFundsError, ZeroBalanceError, ZeroTEZBalanceError } from 'app/defaults';
 import { useAppEnv } from 'app/env';
+import { DeadEndBoundaryError } from 'app/ErrorBoundary';
 import { ReactComponent as CompactDown } from 'app/icons/base/compact_down.svg';
 import { useFormAnalytics } from 'lib/analytics';
 import { isTezAsset, TEZ_TOKEN_SLUG, toPenny } from 'lib/assets';
@@ -43,13 +44,13 @@ import { useScrollIntoView } from 'lib/ui/use-scroll-into-view';
 import { readClipboard } from 'lib/ui/utils';
 import { ZERO } from 'lib/utils/numbers';
 import { AccountForTezos } from 'temple/accounts';
+import { useAccountForTezos, useTezosChainByChainId } from 'temple/front';
 import {
   isTezosDomainsNameValid,
   getTezosToolkitWithSigner,
   getTezosDomainsClient,
   useTezosAddressByDomainName
 } from 'temple/front/tezos';
-import { TezosNetworkEssentials } from 'temple/networks';
 
 import ContactsDropdown, { ContactsDropdownProps } from './ContactsDropdown';
 import { FeeSection } from './FeeSection';
@@ -68,26 +69,29 @@ const PENNY = 0.000001;
 const RECOMMENDED_ADD_FEE = 0.0001;
 
 interface Props {
-  account: AccountForTezos;
-  network: TezosNetworkEssentials;
+  chainId: string;
   assetSlug: string;
   onSelectMyAccountClick: EmptyFn;
-  onSelectTokenClick: EmptyFn;
+  onSelectAssetClick: EmptyFn;
   onAddContactRequested: (address: string) => void;
 }
 
-export const Form: FC<Props> = ({
-  account,
-  network,
+export const TezosForm: FC<Props> = ({
+  chainId,
   assetSlug,
-  onSelectTokenClick,
+  onSelectAssetClick,
   onSelectMyAccountClick,
   onAddContactRequested
 }) => {
+  const account = useAccountForTezos();
+  const network = useTezosChainByChainId(chainId);
+
+  if (!account || !network) throw new DeadEndBoundaryError();
+
   const { registerBackHandler } = useAppEnv();
 
-  const assetMetadata = useTezosAssetMetadata(assetSlug, network.chainId);
-  const assetPrice = useAssetFiatCurrencyPrice(assetSlug, network.chainId);
+  const assetMetadata = useTezosAssetMetadata(assetSlug, chainId);
+  const assetPrice = useAssetFiatCurrencyPrice(assetSlug, chainId);
 
   const assetSymbol = useMemo(() => getAssetSymbol(assetMetadata), [assetMetadata]);
 
@@ -443,10 +447,10 @@ export const Form: FC<Props> = ({
         </div>
 
         <SelectAssetButton
+          selectedAssetSlug={assetSlug}
           network={network}
           accountPkh={accountPkh}
-          selectedAssetSlug={assetSlug}
-          onClick={onSelectTokenClick}
+          onClick={onSelectAssetClick}
           className="mb-4"
           testID={SendFormSelectors.selectAssetButton}
         />

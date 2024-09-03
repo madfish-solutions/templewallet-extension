@@ -1,4 +1,4 @@
-import { SendFormSelectors } from 'src/app/templates/SendForm/selectors';
+import { SendFormSelectors } from 'src/app/pages/Send/SendForm/selectors';
 
 import { Page } from '../../classes/page.class';
 import { createPageElement } from '../../utils/search.utils';
