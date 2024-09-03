@@ -52,6 +52,7 @@ export const TezosChainAssetsList = memo<Props>(({ chainId, publicKeyHash, searc
           network={network}
           publicKeyHash={publicKeyHash}
           assetSlug={slug}
+          showTags={false}
           onClick={e => onAssetSelect(e, toChainAssetSlug(TempleChainKind.Tezos, chainId, slug))}
         />
       ))}

@@ -92,6 +92,7 @@ export const MultiChainAssetsList = memo<Props>(
                 key={chainSlug}
                 publicKeyHash={accountTezAddress}
                 assetSlug={assetSlug}
+                showTags={false}
                 onClick={e => onAssetSelect(e, chainSlug)}
               />
             );

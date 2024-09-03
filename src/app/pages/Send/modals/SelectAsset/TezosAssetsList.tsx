@@ -40,6 +40,7 @@ export const TezosAssetsList = memo<Props>(({ publicKeyHash, searchValue, onAsse
             key={chainSlug}
             publicKeyHash={publicKeyHash}
             assetSlug={assetSlug}
+            showTags={false}
             onClick={e => onAssetSelect(e, chainSlug)}
           />
         );

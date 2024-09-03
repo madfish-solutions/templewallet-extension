@@ -40,11 +40,12 @@ interface TezosListItemProps {
   active?: boolean;
   scam?: boolean;
   manageActive?: boolean;
+  showTags?: boolean;
   onClick?: MouseEventHandler<HTMLDivElement | HTMLAnchorElement>;
 }
 
 export const TezosListItem = memo<TezosListItemProps>(
-  ({ network, publicKeyHash, assetSlug, active, scam, manageActive = false, onClick }) => {
+  ({ network, publicKeyHash, assetSlug, active, scam, manageActive = false, showTags = true, onClick }) => {
     const {
       value: balance = ZERO,
       rawValue: rawBalance,
@@ -140,13 +141,15 @@ export const TezosListItem = memo<TezosListItemProps>(
             <div className="flex items-center flex-grow gap-x-2 truncate">
               <div className="text-font-medium truncate">{assetSymbol}</div>
 
-              <TokenTag
-                network={network}
-                tezPkh={publicKeyHash}
-                assetSlug={assetSlug}
-                assetSymbol={assetSymbol}
-                scam={scam}
-              />
+              {showTags && (
+                <TokenTag
+                  network={network}
+                  tezPkh={publicKeyHash}
+                  assetSlug={assetSlug}
+                  assetSymbol={assetSymbol}
+                  scam={scam}
+                />
+              )}
             </div>
 
             <CryptoBalance
