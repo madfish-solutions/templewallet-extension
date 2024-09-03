@@ -2,10 +2,11 @@ import React, { ChangeEvent, memo, useCallback } from 'react';
 
 import { useDispatch } from 'react-redux';
 
-import { setReferralLinksEnabledAction } from 'app/store/settings/actions';
+import { setAcceptedTermsVersionAction, setReferralLinksEnabledAction } from 'app/store/settings/actions';
 import { useAcceptedTermsVersionSelector, useReferralLinksEnabledSelector } from 'app/store/settings/selectors';
 import {
   PRIVACY_POLICY_URL,
+  RECENT_TERMS_VERSION,
   REPLACE_REFERRALS_ENABLED,
   TERMS_OF_USE_URL,
   TERMS_WITH_REFERRALS_VERSION
@@ -62,6 +63,7 @@ export const ReferralLinksSettings = memo(() => {
         }
       }
 
+      dispatch(setAcceptedTermsVersionAction(RECENT_TERMS_VERSION));
       dispatch(setReferralLinksEnabledAction(toChecked));
       putToStorage(REPLACE_REFERRALS_ENABLED, toChecked);
     },

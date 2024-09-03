@@ -2455,7 +2455,7 @@
     "message": "Pay attention: you can receive rewards in TKEY tokens for viewing ads in our wallet. If you disabled Ads, you can always activate it in the settings."
   },
   "enablePartnersPromotionConfirm": {
-    "message": "Support the development team and earn tokens by viewing ads inside the wallet."
+    "message": "Support the development team and earn TKEY tokens by viewing ads."
   },
   "enablePartnersPromotionDescriptionConfirm": {
     "message": "To enable this feature, we request your permission to trace your Wallet Address and IP address. You can always disable ads in the settings."
