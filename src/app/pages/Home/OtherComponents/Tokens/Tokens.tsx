@@ -10,8 +10,13 @@ import { useLoadPartnersPromo } from 'app/hooks/use-load-partners-promo';
 import { useTokensListingLogic } from 'app/hooks/use-tokens-listing-logic';
 import { ReactComponent as EditingIcon } from 'app/icons/editing.svg';
 import { ReactComponent as SearchIcon } from 'app/icons/search.svg';
+import { dispatch } from 'app/store';
 import { useAreAssetsLoading, useMainnetTokensScamlistSelector } from 'app/store/assets/selectors';
-import { useAcceptedTermsVersionSelector } from 'app/store/settings/selectors';
+import { setShouldShowTermsOfUseUpdateOverlayAction } from 'app/store/settings/actions';
+import {
+  useAcceptedTermsVersionSelector,
+  useShouldShowTermsOfUseUpdateOverlaySelector
+} from 'app/store/settings/selectors';
 import { ButtonForManageDropdown } from 'app/templates/ManageDropdown';
 import { PartnersPromotion, PartnersPromotionVariant } from 'app/templates/partners-promotion';
 import SearchAssetField from 'app/templates/SearchAssetField';
@@ -69,13 +74,19 @@ export const TokensTab = memo(() => {
     leadingAssets
   );
 
-  const [shouldShowTermsOfUseUpdateOverlay, setShouldShowTermsOfUseUpdateOverlay] = useState(false);
+  const shouldShowTermsOfUseOverlay = useShouldShowTermsOfUseUpdateOverlaySelector();
+  /* const [shouldShowTermsOfUseUpdateOverlay, setShouldShowTermsOfUseUpdateOverlay] = useState(
+    showAgreementsCounter < MAX_SHOW_AGREEMENTS_COUNTER
+  ); */
   const [searchFocused, setSearchFocused] = useState(false);
   const [activeIndex, setActiveIndex] = useState(0);
   const searchValueExist = useMemo(() => Boolean(searchValue), [searchValue]);
 
-  const showTermsOfUseUpdateOverlay = useCallback(() => void setShouldShowTermsOfUseUpdateOverlay(true), []);
-  const hideTermsOfUseUpdateOverlay = useCallback(() => void setShouldShowTermsOfUseUpdateOverlay(false), []);
+  const showTermsOfUseUpdateOverlay = useCallback(() => dispatch(setShouldShowTermsOfUseUpdateOverlayAction(true)), []);
+  const hideTermsOfUseUpdateOverlay = useCallback(
+    () => dispatch(setShouldShowTermsOfUseUpdateOverlayAction(false)),
+    []
+  );
 
   const activeAssetSlug = useMemo(() => {
     return searchFocused && searchValueExist && filteredAssets[activeIndex] ? filteredAssets[activeIndex] : null;
@@ -214,7 +225,7 @@ export const TokensTab = memo(() => {
       )}
 
       {isSyncing && <SyncSpinner className="mt-4" />}
-      {shouldShowTermsOfUseUpdateOverlay && <TermsOfUseUpdateOverlay onClose={hideTermsOfUseUpdateOverlay} />}
+      {shouldShowTermsOfUseOverlay && <TermsOfUseUpdateOverlay onClose={hideTermsOfUseUpdateOverlay} />}
     </div>
   );
 });

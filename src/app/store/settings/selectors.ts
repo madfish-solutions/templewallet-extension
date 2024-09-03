@@ -12,6 +12,11 @@ export const useIsConversionTrackedSelector = () => useSelector(({ settings }) =
 
 export const useIsPendingReactivateAdsSelector = () => useSelector(({ settings }) => settings.pendingReactivateAds);
 
+export const useShowAgreementsCounterSelector = () => useSelector(({ settings }) => settings.showAgreementsCounter);
+
+export const useShouldShowTermsOfUseUpdateOverlaySelector = () =>
+  useSelector(({ settings }) => settings.shouldShowTermsOfUseUpdateOverlay);
+
 export const useIsAdsImpressionsLinkedSelector = () => useSelector(({ settings }) => settings.adsImpressionsLinked);
 
 export const useAcceptedTermsVersionSelector = () => useSelector(({ settings }) => settings.acceptedTermsVersion);
