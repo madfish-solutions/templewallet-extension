@@ -23,8 +23,7 @@ export const combineRefs = <E extends HTMLElement>(
   };
 };
 
-/** Use it only as an immediate event handler */
-export const clearClipboard = async () => window.navigator.clipboard.writeText('');
+export const clearClipboard = async () => window.navigator.clipboard.writeText('').catch(error => console.error(error));
 
 export const readClipboard = async () => {
   const allowed = await browser.permissions.request({ permissions: ['clipboardRead'] });

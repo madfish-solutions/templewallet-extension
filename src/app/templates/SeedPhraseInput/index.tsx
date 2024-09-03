@@ -10,10 +10,9 @@ import { ReactComponent as PasteFillIcon } from 'app/icons/base/paste_fill.svg';
 import { ReactComponent as XCircleFillIcon } from 'app/icons/base/x_circle_fill.svg';
 import { ImportAccountSelectors } from 'app/templates/ImportAccountModal/selectors';
 import { setTestID, TestIDProperty } from 'lib/analytics';
-import { getBrowserInfo } from 'lib/browser/info';
 import { DEFAULT_SEED_PHRASE_WORDS_AMOUNT } from 'lib/constants';
 import { T, t } from 'lib/i18n';
-import { readClipboard } from 'lib/ui/utils';
+import { clearClipboard, readClipboard } from 'lib/ui/utils';
 
 import { SeedLengthSelect } from './SeedLengthSelect/SeedLengthSelect';
 import { SeedWordInput, SeedWordInputProps } from './SeedWordInput';
@@ -99,7 +98,7 @@ export const SeedPhraseInput: FC<SeedPhraseInputProps> = ({
   );
 
   const onSeedPaste = useCallback(
-    async (rawSeed: string) => {
+    (rawSeed: string) => {
       const parsedSeed = formatMnemonic(rawSeed);
       let newDraftSeed = parsedSeed.split(' ');
 
@@ -128,8 +127,8 @@ export const SeedPhraseInput: FC<SeedPhraseInputProps> = ({
 
       resetRevealRef();
       onSeedChange(newDraftSeed);
-      // Firefox allows using this API only immediately in an event handler, so this code is duplicated
-      return window.navigator.clipboard.writeText('').catch(error => console.error(error));
+
+      return clearClipboard();
     },
     [numberOfWords, onSeedChange, pasteFailed, setPasteFailed, resetRevealRef, setNumberOfWords]
   );
@@ -138,10 +137,6 @@ export const SeedPhraseInput: FC<SeedPhraseInputProps> = ({
     try {
       const value = await readClipboard();
       await onSeedPaste(value);
-      if (getBrowserInfo().name === 'Firefox') {
-        // Firefox allows using this API only immediately in an event handler, so the same call in `onSeedPaste` fails
-        return window.navigator.clipboard.writeText('');
-      }
     } catch (error) {
       console.error(error);
     }

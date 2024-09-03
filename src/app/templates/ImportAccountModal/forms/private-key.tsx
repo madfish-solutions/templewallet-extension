@@ -64,7 +64,7 @@ export const PrivateKeyForm = memo<ImportAccountFormProps>(({ onSuccess }) => {
       readClipboard()
         .then(value => {
           setValue('privateKey', value);
-          window.navigator.clipboard.writeText('').catch(error => console.error(error));
+          clearClipboard();
           setSubmitError(null);
           triggerValidation('privateKey');
         })
