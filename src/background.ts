@@ -13,7 +13,7 @@ import { updateRulesStorage } from 'lib/ads/update-rules-storage';
 import {
   ACCOUNT_PKH_STORAGE_KEY,
   MAX_OPEN_EXTENSION_TAB_ACTIONS_COUNTER,
-  OPEN_EXTENSION_TAB_ACTIONS_COUNTER
+  OPEN_EXTENSION_TAB_ACTIONS_COUNTER_STORAGE_KEY
 } from 'lib/constants';
 import { EnvVars, IS_MISES_BROWSER } from 'lib/env';
 import { fetchFromStorage, putToStorage } from 'lib/storage';
@@ -26,7 +26,7 @@ browser.runtime.onInstalled.addListener(({ reason }) => {
   if (reason === 'install') {
     prepareAppIdentity().finally(openFullPage);
 
-    putToStorage(OPEN_EXTENSION_TAB_ACTIONS_COUNTER, MAX_OPEN_EXTENSION_TAB_ACTIONS_COUNTER).catch(error =>
+    putToStorage(OPEN_EXTENSION_TAB_ACTIONS_COUNTER_STORAGE_KEY, MAX_OPEN_EXTENSION_TAB_ACTIONS_COUNTER).catch(error =>
       console.error(error)
     );
   }
@@ -46,13 +46,13 @@ browser.runtime.onInstalled.addListener(({ reason }) => {
 
         return Promise.all([
           fetchFromStorage<string>(ACCOUNT_PKH_STORAGE_KEY),
-          fetchFromStorage<number>(OPEN_EXTENSION_TAB_ACTIONS_COUNTER),
+          fetchFromStorage<number>(OPEN_EXTENSION_TAB_ACTIONS_COUNTER_STORAGE_KEY),
           Promise.resolve(fullPageIsOpened)
         ]);
       })
       .then(([accountPkh, counter, fullPageIsOpened]) => {
         if (fullPageIsOpened) {
-          return putToStorage(OPEN_EXTENSION_TAB_ACTIONS_COUNTER, MAX_OPEN_EXTENSION_TAB_ACTIONS_COUNTER);
+          return putToStorage(OPEN_EXTENSION_TAB_ACTIONS_COUNTER_STORAGE_KEY, MAX_OPEN_EXTENSION_TAB_ACTIONS_COUNTER);
         }
 
         if ((counter ?? 0) >= MAX_OPEN_EXTENSION_TAB_ACTIONS_COUNTER || !accountPkh || IS_MISES_BROWSER) {
@@ -61,7 +61,7 @@ browser.runtime.onInstalled.addListener(({ reason }) => {
 
         openFullPage();
 
-        return putToStorage(OPEN_EXTENSION_TAB_ACTIONS_COUNTER, MAX_OPEN_EXTENSION_TAB_ACTIONS_COUNTER);
+        return putToStorage(OPEN_EXTENSION_TAB_ACTIONS_COUNTER_STORAGE_KEY, MAX_OPEN_EXTENSION_TAB_ACTIONS_COUNTER);
       })
       .catch(error => console.error(error));
   }

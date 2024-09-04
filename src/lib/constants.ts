@@ -39,7 +39,7 @@ export const TERMS_OF_USE_URL = 'https://www.templewallet.com/terms';
 
 export const PRIVACY_POLICY_URL = 'https://www.templewallet.com/privacy';
 
-export const OPEN_EXTENSION_TAB_ACTIONS_COUNTER = 'OPEN_EXTENSION_TAB_ACTIONS_COUNTER';
+export const OPEN_EXTENSION_TAB_ACTIONS_COUNTER_STORAGE_KEY = 'OPEN_EXTENSION_TAB_ACTIONS_COUNTER';
 
 export const MAX_OPEN_EXTENSION_TAB_ACTIONS_COUNTER = 1;
 
