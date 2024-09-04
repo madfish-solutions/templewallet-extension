@@ -11,6 +11,7 @@ import { useTokensListingLogic } from 'app/hooks/use-tokens-listing-logic';
 import { ReactComponent as EditingIcon } from 'app/icons/editing.svg';
 import { ReactComponent as SearchIcon } from 'app/icons/search.svg';
 import { useAreAssetsLoading, useMainnetTokensScamlistSelector } from 'app/store/assets/selectors';
+import { useAcceptedTermsVersionSelector } from 'app/store/settings/selectors';
 import { ButtonForManageDropdown } from 'app/templates/ManageDropdown';
 import { PartnersPromotion, PartnersPromotionVariant } from 'app/templates/partners-promotion';
 import SearchAssetField from 'app/templates/SearchAssetField';
@@ -18,6 +19,7 @@ import { setTestID } from 'lib/analytics';
 import { OptimalPromoVariantEnum } from 'lib/apis/optimal';
 import { TEZ_TOKEN_SLUG, TEMPLE_TOKEN_SLUG } from 'lib/assets';
 import { useEnabledAccountTokensSlugs } from 'lib/assets/hooks';
+import { RECENT_TERMS_VERSION } from 'lib/constants';
 import { T, t } from 'lib/i18n';
 import { useAccount, useChainId } from 'lib/temple/front';
 import { useLocalStorage } from 'lib/ui/local-storage';
@@ -28,6 +30,8 @@ import { HomeSelectors } from '../../Home.selectors';
 import { AssetsSelectors } from '../Assets.selectors';
 
 import { ListItem } from './components/ListItem';
+import { TermsOfUseUpdateBanner } from './components/TermsOfUseUpdateBanner';
+import { TermsOfUseUpdateOverlay } from './components/TermsOfUseUpdateOverlay';
 import { UpdateAppBanner } from './components/UpdateAppBanner';
 import { toExploreAssetLink } from './utils';
 
@@ -57,6 +61,7 @@ export const TokensTab = memo(() => {
   );
 
   const mainnetTokensScamSlugsRecord = useMainnetTokensScamlistSelector();
+  const acceptedTermsVersion = useAcceptedTermsVersionSelector();
 
   const { filteredAssets, searchValue, setSearchValue } = useTokensListingLogic(
     slugs,
@@ -64,9 +69,13 @@ export const TokensTab = memo(() => {
     leadingAssets
   );
 
+  const [shouldShowTermsOfUseUpdateOverlay, setShouldShowTermsOfUseUpdateOverlay] = useState(false);
   const [searchFocused, setSearchFocused] = useState(false);
   const [activeIndex, setActiveIndex] = useState(0);
   const searchValueExist = useMemo(() => Boolean(searchValue), [searchValue]);
+
+  const showTermsOfUseUpdateOverlay = useCallback(() => void setShouldShowTermsOfUseUpdateOverlay(true), []);
+  const hideTermsOfUseUpdateOverlay = useCallback(() => void setShouldShowTermsOfUseUpdateOverlay(false), []);
 
   const activeAssetSlug = useMemo(() => {
     return searchFocused && searchValueExist && filteredAssets[activeIndex] ? filteredAssets[activeIndex] : null;
@@ -171,7 +180,11 @@ export const TokensTab = memo(() => {
         </Popper>
       </div>
 
-      <UpdateAppBanner popup={popup} />
+      {acceptedTermsVersion === RECENT_TERMS_VERSION ? (
+        <UpdateAppBanner popup={popup} />
+      ) : (
+        <TermsOfUseUpdateBanner popup={popup} onReviewClick={showTermsOfUseUpdateOverlay} />
+      )}
 
       {filteredAssets.length === 0 ? (
         <div className="my-8 flex flex-col items-center justify-center text-gray-500">
@@ -201,6 +214,7 @@ export const TokensTab = memo(() => {
       )}
 
       {isSyncing && <SyncSpinner className="mt-4" />}
+      {shouldShowTermsOfUseUpdateOverlay && <TermsOfUseUpdateOverlay onClose={hideTermsOfUseUpdateOverlay} />}
     </div>
   );
 });

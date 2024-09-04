@@ -4,11 +4,11 @@ import { getMessage } from './core';
 import { toList } from './helpers';
 import { TID, Substitutions } from './types';
 
-type ReactSubstitutions = ReactNode | ReactNode[];
+export type ReactSubstitutions = ReactNode | ReactNode[];
 
 export type TProps = {
   id: TID;
-  substitutions?: any;
+  substitutions?: ReactSubstitutions;
   children?: (m: ReactNode | string | null) => ReactElement;
 };
 

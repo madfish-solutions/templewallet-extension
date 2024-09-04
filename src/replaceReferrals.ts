@@ -1,11 +1,11 @@
-import { checkIfShouldReplaceAds, throttleAsyncCalls } from 'content-scripts/utils';
+import { checkIfShouldReplaceReferrals, throttleAsyncCalls } from 'content-scripts/utils';
 import { importExtensionAdsReferralsModule } from 'lib/ads/import-extension-ads-module';
 import { browser } from 'lib/browser';
 import { ContentScriptType } from 'lib/constants';
 
 let interval: NodeJS.Timer;
 
-checkIfShouldReplaceAds().then(shouldReplace => {
+checkIfShouldReplaceReferrals().then(shouldReplace => {
   if (!shouldReplace) return;
 
   replaceReferrals().catch(err => {

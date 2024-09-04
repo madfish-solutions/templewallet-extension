@@ -793,12 +793,6 @@
   "enable": {
     "message": "啟用"
   },
-  "enablePartnersPromotionConfirm": {
-    "message": "Support the development team and earn tokens by viewing ads inside the wallet."
-  },
-  "enablePartnersPromotionDescriptionConfirm": {
-    "message": "To enable this feature, we request your permission to trace your Wallet Address and IP address. You can always disable ads in the settings."
-  },
   "dAppsCheckmarkPrompt": {
     "message": "點擊勾號以 $action$ 分散式應用程式互動功能",
     "description": "DApps = Decentralized Applications",

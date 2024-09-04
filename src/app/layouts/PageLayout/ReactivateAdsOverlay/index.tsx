@@ -3,6 +3,7 @@ import React, { CSSProperties, FC, memo, ReactNode, useCallback, useMemo } from 
 import clsx from 'clsx';
 
 import { FormSubmitButton } from 'app/atoms';
+import { OverlayCloseButton } from 'app/atoms/OverlayCloseButton';
 import { useAppEnv } from 'app/env';
 import ContentContainer from 'app/layouts/ContentContainer';
 import { useOnboardingProgress } from 'app/pages/Onboarding/hooks/useOnboardingProgress.hook';
@@ -15,8 +16,6 @@ import { useIsPendingReactivateAdsSelector, useOnRampPossibilitySelector } from 
 import { EmojiInlineIcon } from 'lib/icons/emoji';
 import { useLocation } from 'lib/woozie';
 import { HOME_PAGE_PATH } from 'lib/woozie/config';
-
-import { OverlayCloseButton } from '../OverlayCloseButton';
 
 import bgPopupImgSrc from './bg-popup.png';
 import bgImgSrc from './bg.png';

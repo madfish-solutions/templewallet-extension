@@ -13,3 +13,7 @@ export const setConversionTrackedAction = createAction<void>('settings/SET_CONVE
 export const setPendingReactivateAdsAction = createAction<boolean>('settings/SET_PENDING_REACTIVATE_ADS');
 
 export const setAdsImpressionsLinkedAction = createAction('settings/SET_ADS_IMPRESSIONS_LINKED');
+
+export const setAcceptedTermsVersionAction = createAction<number>('settings/SET_TERMS_ACCEPTED_VERSION');
+
+export const setReferralLinksEnabledAction = createAction<boolean>('settings/SET_REFERRAL_LINKS_ENABLED');
