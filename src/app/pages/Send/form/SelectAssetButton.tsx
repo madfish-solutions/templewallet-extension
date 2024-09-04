@@ -24,30 +24,28 @@ interface SelectAssetButtonProps extends TestIDProperty {
 }
 
 export const SelectAssetButton = memo<SelectAssetButtonProps>(
-  ({ selectedAssetSlug, network, accountPkh, onClick, className, testID }) => {
-    return (
+  ({ selectedAssetSlug, network, accountPkh, onClick, className, testID }) => (
+    <div
+      className={clsx(
+        'cursor-pointer flex justify-between items-center py-1.5 px-3 rounded-lg shadow-bottom border-0.5 border-transparent hover:border-lines',
+        className
+      )}
+      onClick={onClick}
+    >
       <div
-        className={clsx(
-          'cursor-pointer flex justify-between items-center py-1.5 px-3 rounded-lg shadow-bottom border-0.5 border-transparent hover:border-lines',
-          className
-        )}
-        onClick={onClick}
+        className="flex justify-center items-center"
+        {...setTestID(testID)}
+        {...setAnotherSelector('slug', selectedAssetSlug)}
       >
-        <div
-          className="flex justify-center items-center"
-          {...setTestID(testID)}
-          {...setAnotherSelector('slug', selectedAssetSlug)}
-        >
-          {network.kind === TempleChainKind.Tezos ? (
-            <TezosContent network={network} accountPkh={accountPkh} assetSlug={selectedAssetSlug} />
-          ) : (
-            <EvmContent network={network} accountPkh={accountPkh as HexString} assetSlug={selectedAssetSlug} />
-          )}
-        </div>
-        <IconBase Icon={CompactDown} className="text-primary" size={16} />
+        {network.kind === TempleChainKind.Tezos ? (
+          <TezosContent network={network} accountPkh={accountPkh} assetSlug={selectedAssetSlug} />
+        ) : (
+          <EvmContent network={network} accountPkh={accountPkh as HexString} assetSlug={selectedAssetSlug} />
+        )}
       </div>
-    );
-  }
+      <IconBase Icon={CompactDown} className="text-primary" size={16} />
+    </div>
+  )
 );
 
 interface TezosContentProps {

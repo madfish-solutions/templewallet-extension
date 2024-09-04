@@ -88,8 +88,8 @@ export const MultiChainAssetsList = memo<Props>(
           if (chainKind === TempleChainKind.Tezos) {
             return (
               <TezosListItem
-                network={tezosChains[chainId]!}
                 key={chainSlug}
+                network={tezosChains[chainId]!}
                 publicKeyHash={accountTezAddress}
                 assetSlug={assetSlug}
                 showTags={false}

@@ -1,4 +1,4 @@
-import React, { memo, Suspense, useCallback, useMemo, useState } from 'react';
+import React, { memo, Suspense, useCallback, useState } from 'react';
 
 import { PageTitle } from 'app/atoms';
 import PageLayout from 'app/layouts/PageLayout';
@@ -26,7 +26,7 @@ const Send = memo<Props>(({ chainKind, chainId, assetSlug }) => {
   const accountEvmAddress = useAccountAddressForEvm();
   const { filterChain } = useAssetsFilterOptionsSelector();
 
-  const initialSelectedChainAssetSlug = useMemo(() => {
+  const [selectedChainAssetSlug, setSelectedChainAssetSlug] = useState(() => {
     if (chainKind && chainId && assetSlug) {
       return toChainAssetSlug(chainKind as TempleChainKind, chainId, assetSlug);
     }
@@ -44,9 +44,7 @@ const Send = memo<Props>(({ chainKind, chainId, assetSlug }) => {
     }
 
     return toChainAssetSlug(TempleChainKind.Tezos, TEZOS_MAINNET_CHAIN_ID, TEZ_TOKEN_SLUG);
-  }, [accountEvmAddress, assetSlug, chainId, chainKind, filterChain]);
-
-  const [selectedChainAssetSlug, setSelectedChainAssetSlug] = useState(initialSelectedChainAssetSlug);
+  });
 
   const [addContactModalAddress, setAddContactModalAddress] = useState<string | null>(null);
 
@@ -54,7 +52,13 @@ const Send = memo<Props>(({ chainKind, chainId, assetSlug }) => {
   // TODO: handle user address select
   const [_, setAccountsModalOpen, _2] = useBooleanState(false);
 
-  const handleAssetSelect = useCallback((slug: string) => setSelectedChainAssetSlug(slug), []);
+  const handleAssetSelect = useCallback(
+    (slug: string) => {
+      setSelectedChainAssetSlug(slug);
+      setSelectAssetModalClosed();
+    },
+    [setSelectAssetModalClosed]
+  );
 
   const handleAddContactRequested = useCallback(
     (address: string) => {

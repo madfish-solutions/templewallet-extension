@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useState, MouseEvent, useMemo } from 'react';
+import React, { memo, useCallback, useState, MouseEvent, useMemo, Suspense } from 'react';
 
 import { useDebounce } from 'use-debounce';
 
@@ -10,6 +10,7 @@ import { PageModal } from 'app/atoms/PageModal';
 import { StyledButton } from 'app/atoms/StyledButton';
 import { ReactComponent as Browse } from 'app/icons/base/browse.svg';
 import { ReactComponent as CompactDown } from 'app/icons/base/compact_down.svg';
+import { SpinnerSection } from 'app/pages/Send/form/SpinnerSection';
 import { useAssetsFilterOptionsSelector } from 'app/store/assets-filter-options/selectors';
 import { FilterChain } from 'app/store/assets-filter-options/state';
 import { SearchBarField } from 'app/templates/SearchField';
@@ -39,7 +40,6 @@ interface SelectTokenModalProps {
 }
 
 export const SelectAssetModal = memo<SelectTokenModalProps>(({ onAssetSelect, opened, onRequestClose }) => {
-  console.log(opened, 'opened');
   const [searchValue, setSearchValue] = useState('');
   const [searchValueDebounced] = useDebounce(searchValue, 300);
 
@@ -54,9 +54,8 @@ export const SelectAssetModal = memo<SelectTokenModalProps>(({ onAssetSelect, op
     (e: MouseEvent, chainSlug: string) => {
       e.preventDefault();
       onAssetSelect(chainSlug);
-      onRequestClose();
     },
-    [onAssetSelect, onRequestClose]
+    [onAssetSelect]
   );
 
   const AssetsList = useMemo(() => {
@@ -131,7 +130,9 @@ export const SelectAssetModal = memo<SelectTokenModalProps>(({ onAssetSelect, op
         />
       </div>
 
-      <div className="px-4 flex-1 flex flex-col overflow-y-auto">{AssetsList}</div>
+      <div className="px-4 flex-1 flex flex-col overflow-y-auto">
+        <Suspense fallback={<SpinnerSection />}>{AssetsList}</Suspense>
+      </div>
 
       <div className="p-4 pb-6 flex flex-col bg-white">
         <StyledButton size="L" color="primary-low" onClick={onRequestClose}>
