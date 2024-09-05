@@ -625,38 +625,6 @@ export class Vault {
     });
   }
 
-  async importFundraiserAccount(email: string, password: string, mnemonic: string) {
-    return withError('Failed to import fundraiser account', async () => {
-      const seed = Bip39.mnemonicToSeedSync(mnemonic, `${email}${password}`);
-      const privateKey = seedToPrivateKey(seed, TempleChainKind.Tezos);
-      return this.importAccount(TempleChainKind.Tezos, privateKey);
-    });
-  }
-
-  async importManagedKTAccount(address: string, chainId: string, owner: string) {
-    return withError('Failed to import Managed KT account', async () => {
-      const allAccounts = await this.fetchAccounts();
-      const newAccount: StoredAccount = {
-        id: nanoid(),
-        type: TempleAccountType.ManagedKT,
-        name: await fetchNewAccountName(
-          allAccounts,
-          TempleAccountType.ManagedKT,
-          undefined,
-          'defaultManagedKTAccountName'
-        ),
-        tezosAddress: address,
-        chainId,
-        owner
-      };
-      const newAllAccounts = concatAccount(allAccounts, newAccount);
-
-      await encryptAndSaveMany([[accountsStrgKey, newAllAccounts]], this.passKey);
-
-      return newAllAccounts;
-    });
-  }
-
   async importWatchOnlyAccount(chain: TempleChainKind, address: string, chainId?: string) {
     return withError('Failed to import Watch Only account', async () => {
       const allAccounts = await this.fetchAccounts();

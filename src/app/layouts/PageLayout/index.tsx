@@ -90,7 +90,7 @@ const PageLayout: FC<PropsWithChildren<PageLayoutProps>> = ({
       <AdvertisingOverlay />
       <ConfirmationOverlay />
       <ChangelogOverlay />
-      {!shouldBackupMnemonic && (
+      {!shouldBackupMnemonic && ready && (
         <>
           <OnRampOverlay />
           <NewsletterOverlay />

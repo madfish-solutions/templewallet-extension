@@ -2,8 +2,7 @@ import React, { FC, Fragment, memo, useCallback, useMemo, useState } from 'react
 
 import clsx from 'clsx';
 
-import { Alert, FormSubmitButton, FormSecondaryButton } from 'app/atoms';
-import AccountTypeBadge from 'app/atoms/AccountTypeBadge';
+import { AccountTypeBadge, Alert, FormSubmitButton, FormSecondaryButton } from 'app/atoms';
 import ConfirmLedgerOverlay from 'app/atoms/ConfirmLedgerOverlay';
 import HashShortView from 'app/atoms/HashShortView';
 import Money from 'app/atoms/Money';

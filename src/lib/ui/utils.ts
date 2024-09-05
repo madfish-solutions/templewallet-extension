@@ -1,5 +1,7 @@
 import { MutableRefObject, ForwardedRef } from 'react';
 
+import { browser } from 'lib/browser';
+
 /** For that the following is not allowed by Prettier:
  * ```tsx
  * <span />
@@ -21,6 +23,14 @@ export const combineRefs = <E extends HTMLElement>(
   };
 };
 
-export const clearClipboard = () => {
-  window.navigator.clipboard.writeText('');
+export const clearClipboard = async () => window.navigator.clipboard.writeText('').catch(error => console.error(error));
+
+export const readClipboard = async () => {
+  const allowed = await browser.permissions.request({ permissions: ['clipboardRead'] });
+
+  if (allowed) {
+    return window.navigator.clipboard.readText();
+  }
+
+  throw new Error('Clipboard read permission denied');
 };

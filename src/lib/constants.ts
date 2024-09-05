@@ -37,6 +37,10 @@ export const AD_SEEN_THRESHOLD = 0.5;
 
 export const HYPELAB_STUB_CAMPAIGN_SLUG = 'e55d2795d2';
 
+export const TERMS_OF_USE_URL = 'https://www.templewallet.com/terms';
+
+export const PRIVACY_POLICY_URL = 'https://www.templewallet.com/privacy';
+
 const isMacOS = /Mac OS/.test(navigator.userAgent);
 export const searchHotkey = ` (${isMacOS ? '⌘' : 'Ctrl + '}K)`;
 
@@ -48,8 +52,12 @@ export const ACCOUNT_NAME_COLLISION_ERR_MSG = 'An account with the same name alr
 
 export const DEFAULT_TEZOS_DERIVATION_PATH = "m/44'/1729'/0'/0'";
 
+export const DEFAULT_EVM_DERIVATION_PATH = "m/44'/60'/0'/0/0";
+
 export const WALLETS_SPECS_STORAGE_KEY = 'WALLETS_SPECS';
 
 export const ACCOUNT_EXISTS_SHOWN_WARNINGS_STORAGE_KEY = 'ACCOUNT_EXISTS_SHOWN_WARNINGS';
 
 export const SHOULD_BACKUP_MNEMONIC_STORAGE_KEY = 'SHOULD_BACKUP_MNEMONIC';
+
+export const DEFAULT_SEED_PHRASE_WORDS_AMOUNT = 12;

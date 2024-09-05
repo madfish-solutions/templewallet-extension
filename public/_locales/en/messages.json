@@ -31,12 +31,6 @@
   "importAccount": {
     "message": "Import account"
   },
-  "faucetFileTitle": {
-    "message": "Faucet File"
-  },
-  "faucetFile": {
-    "message": "Faucet file"
-  },
   "settings": {
     "message": "Settings"
   },
@@ -308,12 +302,7 @@
     "message": "Anonymous analytics"
   },
   "analyticsInputDescription": {
-    "message": "By pressing this button you are agreeing to the $analyticsLink$",
-    "placeholders": {
-      "analyticsLink": {
-        "content": "$1"
-      }
-    }
+    "message": "By enabling this checkbox, you help Temple improve products and services by allowing analytics of usage data."
   },
   "copiedTokenAddress": {
     "message": "Copied"
@@ -348,12 +337,6 @@
   "useCoinSwitch": {
     "message": "Use CoinSwitch",
     "description": "CoinSwitch = https://coinswitch.co/"
-  },
-  "tezosFaucet": {
-    "message": "Tezos Faucet"
-  },
-  "tezosFaucetAlpha": {
-    "message": "Tezos Faucet (Alpha)"
   },
   "depositToWallet": {
     "message": "Deposit to your wallet"
@@ -413,9 +396,6 @@
   },
   "cardNumberLengthValidation": {
     "message": "Card number should have a total of 16 digits"
-  },
-  "weakKeystorePassword": {
-    "message": "The \"keystore file\" password is too weak to use as an extension password. You need to set a new one."
   },
   "address": {
     "message": "Address"
@@ -490,7 +470,7 @@
     "message": "To add an assets, enter the contract address into the search line"
   },
   "optionalComment": {
-    "message": "(optional)"
+    "message": "Optional"
   },
   "iconURLInputDescription": {
     "message": "Image URL for asset logo."
@@ -498,8 +478,8 @@
   "invalidAddress": {
     "message": "Invalid address"
   },
-  "contractNotExistOnNetwork": {
-    "message": "This smart contract doesn't exist on current network"
+  "contractNotExistOnKnownNetworks": {
+    "message": "This smart contract doesn't exist on known networks"
   },
   "onlyKTContractAddressAllowed": {
     "message": "Only KT... contract address allowed",
@@ -524,15 +504,6 @@
   },
   "defaultAccountName": {
     "message": "Account $accountNumber$",
-    "placeholders": {
-      "accountNumber": {
-        "content": "$1"
-      }
-    }
-  },
-  "defaultManagedKTAccountName": {
-    "message": "Managed KT $accountNumber$",
-    "description": "KT not translated",
     "placeholders": {
       "accountNumber": {
         "content": "$1"
@@ -677,14 +648,6 @@
   "mnemonicWordsError": {
     "message": "Make sure the words spelled correctly"
   },
-  "seedInputNumberOfWords": {
-    "message": "My Seed phrase is $count$ words",
-    "placeholders": {
-      "count": {
-        "content": "$1"
-      }
-    }
-  },
   "justValidPreGeneratedMnemonic": {
     "message": "Invalid Seed Phrase"
   },
@@ -694,8 +657,8 @@
   "seedPhraseAttention": {
     "message": "We don't track your derivation path on imported accounts"
   },
-  "seedPhraseTip": {
-    "message": "You can paste your entire secret Seed phrase into any field"
+  "seedPhraseLength": {
+    "message": "Seed phrase length"
   },
   "oops": {
     "message": "Oops!"
@@ -857,20 +820,11 @@
   "mnemonic": {
     "message": "Mnemonic"
   },
-  "fundraiser": {
-    "message": "Fundraiser"
-  },
-  "privateKeyInputDescription": {
-    "message": "The Secret key of the Account you want to import."
-  },
   "privateKeyInputPlaceholder": {
-    "message": "e.g. edsk3wfiPMu... | 0xL4mp3Ty..."
+    "message": "Paste or input your private key"
   },
   "password": {
     "message": "Password"
-  },
-  "isPrivateKeyEncrypted": {
-    "message": "Is your private key in encrypted format?"
   },
   "customDerivationPath": {
     "message": "Custom derivation path"
@@ -919,14 +873,6 @@
   "smthWentWrong": {
     "message": "Something went wrong"
   },
-  "faucetFileInputPrompt": {
-    "message": "Drag & drop a file or select it manually by clicking on the area below. You can download it from $link$.",
-    "placeholders": {
-      "link": {
-        "content": "$1"
-      }
-    }
-  },
   "processing": {
     "message": "Processing..."
   },
@@ -938,6 +884,27 @@
   },
   "importYourWallet": {
     "message": "Import Your Wallet"
+  },
+  "importSeedPhrase": {
+    "message": "Import Seed Phrase"
+  },
+  "seedPhraseOptionDescription": {
+    "message": "Import a wallet using your seed phrase backup"
+  },
+  "importPrivateKey": {
+    "message": "Import Private Key"
+  },
+  "privateKeyOptionDescription": {
+    "message": "Add a single account using your private key"
+  },
+  "typeOfImport": {
+    "message": "Type of import"
+  },
+  "typeOfImportDescription": {
+    "message": "Select how would you like to import account"
+  },
+  "mySeedPhraseIs": {
+    "message": "My seed phrase is"
   },
   "createYourWallet": {
     "message": "Create Your Wallet"
@@ -997,12 +964,6 @@
   "networksDescription": {
     "message": "In this section you can add or delete custom Tezos networks.",
     "description": "Tezos = blockchain name (https://tezos.com/)"
-  },
-  "activateAccount": {
-    "message": "Activate Account"
-  },
-  "activateAccountDescription": {
-    "message": "It may be necessary for ICO/Fundraiser or testnet faucet accounts."
   },
   "removeAccount": {
     "message": "Remove Account"
@@ -1106,7 +1067,7 @@
     "message": "Import existing Wallet"
   },
   "importExistingWalletDescription": {
-    "message": "Already have a wallet? Import it using your seed phrase or encrypted keystore file"
+    "message": "Already have a wallet? Import it using your seed phrase"
   },
   "links": {
     "message": "Links"
@@ -1125,33 +1086,6 @@
   },
   "contact": {
     "message": "Contact"
-  },
-  "accountAlreadyActivated": {
-    "message": "Your Account already activated."
-  },
-  "accountActivated": {
-    "message": "Your account successfully activated!"
-  },
-  "failureSecretMayBeInvalid": {
-    "message": "Failed. This may happen because provided Secret is invalid"
-  },
-  "accountToBeActivated": {
-    "message": "Account to be activated."
-  },
-  "ifYouWantToActivateAnotherAccount": {
-    "message": "If you want to activate another account - please, select it in the top-right dropdown."
-  },
-  "activateAccountSecret": {
-    "message": "Secret"
-  },
-  "activateAccountSecretDescription": {
-    "message": "'secret' field from Fundraiser Account or Faucet"
-  },
-  "activateAccountSecretPlaceholder": {
-    "message": "e.g. n4hs7sd3..."
-  },
-  "activate": {
-    "message": "Activate"
   },
   "minimalFeeDescription": {
     "message": "Minimal"
@@ -1354,6 +1288,60 @@
       }
     }
   },
+  "words_one": {
+    "message": "$amount$ word",
+    "description": "For plural forms",
+    "placeholders": {
+      "amount": {
+        "content": "$1"
+      }
+    }
+  },
+  "words_zero": {
+    "message": "$amount$ words",
+    "description": "For plural forms",
+    "placeholders": {
+      "amount": {
+        "content": "$1"
+      }
+    }
+  },
+  "words_two": {
+    "message": "$amount$ words",
+    "description": "For plural forms",
+    "placeholders": {
+      "amount": {
+        "content": "$1"
+      }
+    }
+  },
+  "words_few": {
+    "message": "$amount$ words",
+    "description": "For plural forms",
+    "placeholders": {
+      "amount": {
+        "content": "$1"
+      }
+    }
+  },
+  "words_many": {
+    "message": "$amount$ words",
+    "description": "For plural forms",
+    "placeholders": {
+      "amount": {
+        "content": "$1"
+      }
+    }
+  },
+  "words_other": {
+    "message": "$amount$ words",
+    "description": "For plural forms",
+    "placeholders": {
+      "amount": {
+        "content": "$1"
+      }
+    }
+  },
   "insufficientTezBalance": {
     "message": "Insufficient TEZ balance"
   },
@@ -1479,24 +1467,6 @@
   "file": {
     "message": "File"
   },
-  "keystoreFile": {
-    "message": "Keystore File"
-  },
-  "keystoreFileFieldDescription": {
-    "message": "Import your wallet from an encrypted keystore file (.tez)."
-  },
-  "filePassword": {
-    "message": "File Password"
-  },
-  "filePasswordInputDescription": {
-    "message": "Please enter a password for keystore file"
-  },
-  "fileInputPrompt": {
-    "message": "Choose a file or drag it here"
-  },
-  "useKeystorePassword": {
-    "message": "Use File Password as Extension password"
-  },
   "create": {
     "message": "Create"
   },
@@ -1594,7 +1564,12 @@
     "message": "m/44'/1729'/<account_index>'/0'"
   },
   "derivationPathExample2": {
-    "message": "e.g. m/44'/1729'/..."
+    "message": "e.g. $derivationPath$",
+    "placeholders": {
+      "derivationPath": {
+        "content": "$1"
+      }
+    }
   },
   "keepSeedPhraseSecret": {
     "message": "Keep it in secret."
@@ -1644,6 +1619,15 @@
   "recipientInputPlaceholderWithDomain": {
     "message": "e.g. alice.tez or tz1a9w1S7hN5s...",
     "description": "alice.tez = domain like google.com"
+  },
+  "watchOnlyAddressInputPlaceholder": {
+    "message": "Tezos or EVM address"
+  },
+  "watchOnlyAddressInputDescription": {
+    "message": "Add an address or domain name you would like to watch."
+  },
+  "watchAddress": {
+    "message": "Watch address"
   },
   "tryingToTransferToYourself": {
     "message": "You're trying to transfer funds to yourself.\nPlease, ensure that it's exactly what you want."
@@ -1948,9 +1932,6 @@
   "ledgerGroupLabel": {
     "message": "Hardware"
   },
-  "activationOperationType": {
-    "message": "Activation"
-  },
   "youAreNotContractManager": {
     "message": "You are not a contract manager"
   },
@@ -1962,9 +1943,6 @@
   },
   "contractAddressInputPlaceholder": {
     "message": "e.g. KT1a9w1S7hN5s..."
-  },
-  "addKnownManagedContract": {
-    "message": "Add known Managed contract"
   },
   "clickOnContractToImport": {
     "message": "Click on Contract you want to import."
@@ -2017,9 +1995,6 @@
   "analyticsSettingsDescription": {
     "message": "Here you can configure sending of anonymous analytics that helps us to improve the product."
   },
-  "managedContract": {
-    "message": "Managed Contract"
-  },
   "referredByTokenContractNotFound": {
     "message": "Contract $address$, which is referred by token contract to, was not found.",
     "placeholders": {
@@ -2044,9 +2019,6 @@
         "content": "$1"
       }
     }
-  },
-  "invalidManagedContract": {
-    "message": "Invalid managed contract"
   },
   "someMethodNotDefinedInContract": {
     "message": "'$name$' method isn't defined in contract.",
@@ -2161,6 +2133,9 @@
   "clear": {
     "message": "Clear"
   },
+  "paste": {
+    "message": "Paste"
+  },
   "errorChangingAccountName": {
     "message": "An error occurred while changing account name"
   },
@@ -2234,15 +2209,6 @@
   },
   "invalidJsonInput": {
     "message": "Invalid JSON"
-  },
-  "notFaucetJson": {
-    "message": "Not a faucet JSON"
-  },
-  "faucetJson": {
-    "message": "Faucet JSON"
-  },
-  "faucetJsonDescription": {
-    "message": "You can paste JSON here instead of adding file"
   },
   "unknownErrorFromRPC": {
     "message": "Failed to send request to $url$. Invalid request provided or RPC node is temporarily unreachable.",
@@ -3392,6 +3358,9 @@
   },
   "backupSuccessful": {
     "message": "You successfully backed up your wallet"
+  },
+  "importSuccessful": {
+    "message": "You successfully imported your wallet"
   },
   "walletCreatedSuccessfully": {
     "message": "Wallet has been created successfully"

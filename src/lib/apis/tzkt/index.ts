@@ -1,7 +1,6 @@
 export type {
   TzktOperation,
   TzktTokenTransfer,
-  TzktRelatedContract,
   TzktRewardsEntry,
   TzktAlias,
   TzktOperationType,
@@ -22,7 +21,6 @@ export {
   createTzktWsConnection,
   getAccountStatsFromTzkt,
   getDelegatorRewards,
-  getOneUserContracts,
   fetchTzktAccountAssets,
   fetchTezosBalanceFromTzkt,
   fetchAllAssetsBalancesFromTzkt,

@@ -14,7 +14,6 @@ import {
   allInt32ParameterKeys,
   TzktGetRewardsParams,
   TzktGetRewardsResponse,
-  TzktRelatedContract,
   TzktAccount,
   TzktHubConnection
 } from './types';
@@ -103,9 +102,6 @@ type GetOperationsTransactionsParams = GetOperationsBaseParams & {
 
 export const fetchGetOperationsTransactions = (chainId: TzktApiChainId, params: GetOperationsTransactionsParams) =>
   fetchGet<TzktOperation[]>(chainId, `/operations/transactions`, params);
-
-export const getOneUserContracts = (chainId: TzktApiChainId, accountAddress: string) =>
-  fetchGet<TzktRelatedContract[]>(chainId, `/accounts/${accountAddress}/contracts`);
 
 export const getDelegatorRewards = (
   chainId: TzktApiChainId,

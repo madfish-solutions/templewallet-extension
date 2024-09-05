@@ -1,6 +1,6 @@
-import React, { memo, ReactNode, useCallback, useEffect, useMemo } from 'react';
+import React, { memo, ReactNode, useCallback } from 'react';
 
-import { createRoot } from 'react-dom/client';
+import clsx from 'clsx';
 
 import { useRichFormatTooltip } from 'app/hooks/use-rich-format-tooltip';
 import { ReactComponent as InfoFillIcon } from 'app/icons/base/InfoFill.svg';
@@ -24,7 +24,7 @@ const basicTooltipProps = {
 
 const tooltipWrapperFactory = () => {
   const element = document.createElement('div');
-  element.className = 'max-w-48';
+  element.className = 'max-w-52';
 
   return element;
 };
@@ -32,31 +32,6 @@ const tooltipWrapperFactory = () => {
 export const SettingsCheckbox = memo<SettingsCheckboxProps>(
   ({ label, tooltip, testID, testIDProperties, onChange, ...restProps }) => {
     const { trackEvent } = useAnalytics();
-
-    const tippyProps = useMemo(() => {
-      let content: HTMLDivElement | undefined;
-
-      if (tooltip) {
-        content = document.createElement('div');
-        content.className = 'max-w-48';
-      }
-
-      return {
-        trigger: 'mouseenter',
-        hideOnClick: false,
-        interactive: true,
-        content,
-        placement: 'bottom-end' as const,
-        animation: 'shift-away-subtle'
-      };
-    }, [tooltip]);
-
-    useEffect(() => {
-      if (tippyProps.content && tooltip) {
-        const root = createRoot(tippyProps.content);
-        root.render(tooltip);
-      }
-    }, [tippyProps.content, tooltip]);
 
     const infoIconWrapperRef = useRichFormatTooltip<HTMLDivElement>(basicTooltipProps, tooltipWrapperFactory, tooltip);
 
@@ -70,7 +45,12 @@ export const SettingsCheckbox = memo<SettingsCheckboxProps>(
     );
 
     return (
-      <div className="flex items-center p-3 rounded-lg bg-white shadow-bottom gap-2 border-0.5 border-transparent hover:border-lines">
+      <div
+        className={clsx(
+          'flex items-center p-3 rounded-lg bg-white shadow-bottom',
+          'gap-2 border-0.5 border-transparent hover:border-lines'
+        )}
+      >
         <label className="flex-1 flex items-center gap-2" {...setTestID(testID)}>
           <CheckboxV2 onChange={handleChange} {...restProps} />
           <span className="text-font-medium-bold">{label}</span>

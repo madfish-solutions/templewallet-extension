@@ -1,4 +1,4 @@
-import React, { FC, useState, useCallback, useRef, useEffect } from 'react';
+import React, { FC, useCallback, useRef, useEffect } from 'react';
 
 import clsx from 'clsx';
 
@@ -6,6 +6,7 @@ import { ReactComponent as CopyIcon } from 'app/icons/base/copy.svg';
 import { setTestID, TestIDProperty } from 'lib/analytics';
 import { TID, T } from 'lib/i18n';
 import { selectNodeContent } from 'lib/ui/content-selection';
+import { useFocusHandlers } from 'lib/ui/hooks/use-focus-handlers';
 
 import { CopyButton } from './CopyButton';
 import { FieldLabel } from './FieldLabel';
@@ -29,8 +30,13 @@ export const ReadOnlySecretField: FC<ReadOnlySecretFieldProps> = ({
   testID,
   secretCoverTestId
 }) => {
-  const [focused, setFocused] = useState(false);
-  const [copyButtonFocused, setCopyButtonFocused] = useState(false);
+  const { isFocused: focused, onFocus: handleFocus, onBlur: handleBlur } = useFocusHandlers();
+  const {
+    isFocused: copyButtonFocused,
+    onFocus: handleCopyButtonFocus,
+    onBlur: handleCopyButtonBlur
+  } = useFocusHandlers();
+
   const fieldRef = useRef<HTMLParagraphElement>(null);
 
   const onSecretCoverClick = useCallback(() => {
@@ -56,8 +62,8 @@ export const ReadOnlySecretField: FC<ReadOnlySecretFieldProps> = ({
           ref={fieldRef}
           tabIndex={0}
           className={clsx(FORM_FIELD_CLASS_NAME, 'h-40 break-words py-3 px-4 overflow-y-auto border-input-low')}
-          onFocus={() => setFocused(true)}
-          onBlur={() => setFocused(false)}
+          onFocus={handleFocus}
+          onBlur={handleBlur}
           {...setTestID(testID)}
         >
           {covered ? '' : value}
@@ -67,8 +73,8 @@ export const ReadOnlySecretField: FC<ReadOnlySecretFieldProps> = ({
           text={covered ? '' : value}
           isSecret
           className="text-secondary absolute right-3 bottom-3 flex text-font-description-bold items-center px-1 py-0.5"
-          onFocus={() => setCopyButtonFocused(true)}
-          onBlur={() => setCopyButtonFocused(false)}
+          onFocus={handleCopyButtonFocus}
+          onBlur={handleCopyButtonBlur}
         >
           <span>
             <T id="copyMnemonic" />

@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useLayoutEffect, useMemo } from 'react';
+import React, { memo, useCallback, useContext, useEffect, useLayoutEffect, useMemo } from 'react';
 
 import { isDefined } from '@rnw-community/shared';
 
@@ -15,6 +15,9 @@ import { useMainnetTokensScamlistSelector } from 'app/store/tezos/assets/selecto
 import { ActivityTab } from 'app/templates/activity/Activity';
 import { AdvertisingBanner } from 'app/templates/advertising/advertising-banner/advertising-banner';
 import { AppHeader } from 'app/templates/AppHeader';
+import { toastSuccess } from 'app/toaster';
+import { t } from 'lib/i18n';
+import { SuccessfulImportToastContext } from 'lib/temple/front/successful-import-toast-context';
 import { HistoryAction, navigate, useLocation } from 'lib/woozie';
 
 import { CollectiblesTab } from '../Collectibles/CollectiblesTab';
@@ -36,6 +39,15 @@ const Home = memo<HomeProps>(props => {
   const tabSlug = useLocationSearchParamValue('tab');
   const { onboardingCompleted } = useOnboardingProgress();
   const { search } = useLocation();
+
+  const [shouldShowImportToast, setShouldShowImportToast] = useContext(SuccessfulImportToastContext);
+
+  useEffect(() => {
+    if (shouldShowImportToast) {
+      setShouldShowImportToast(false);
+      toastSuccess(t('importSuccessful'));
+    }
+  }, [setShouldShowImportToast, shouldShowImportToast]);
 
   const assetsSegmentControlRef = useAssetsSegmentControlRef();
 

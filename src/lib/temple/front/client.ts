@@ -218,26 +218,6 @@ export const [TempleClientProvider, useTempleClient] = constate(() => {
     assertResponse(res.type === TempleMessageType.ImportMnemonicAccountResponse);
   }, []);
 
-  const importFundraiserAccount = useCallback(async (email: string, password: string, mnemonic: string) => {
-    const res = await request({
-      type: TempleMessageType.ImportFundraiserAccountRequest,
-      email,
-      password,
-      mnemonic
-    });
-    assertResponse(res.type === TempleMessageType.ImportFundraiserAccountResponse);
-  }, []);
-
-  const importKTManagedAccount = useCallback(async (address: string, chainId: string, owner: string) => {
-    const res = await request({
-      type: TempleMessageType.ImportManagedKTAccountRequest,
-      address,
-      chainId,
-      owner
-    });
-    assertResponse(res.type === TempleMessageType.ImportManagedKTAccountResponse);
-  }, []);
-
   const importWatchOnlyAccount = useCallback(async (chain: TempleChainKind, address: string, chainId?: string) => {
     const res = await request({
       type: TempleMessageType.ImportWatchOnlyAccountRequest,
@@ -415,8 +395,6 @@ export const [TempleClientProvider, useTempleClient] = constate(() => {
     editAccountName,
     importAccount,
     importMnemonicAccount,
-    importFundraiserAccount,
-    importKTManagedAccount,
     importWatchOnlyAccount,
     createLedgerAccount,
     updateSettings,

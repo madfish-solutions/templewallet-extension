@@ -28,9 +28,6 @@ export { ExternalLinkChip } from './ExternalLinkChip';
 
 export { default as SubTitle } from './SubTitle';
 
-export type { FileInputProps } from './FileInput';
-export { FileInput } from './FileInput';
-
 export { PASSWORD_ERROR_CAPTION, FormField } from './FormField';
 
 export { default as Checkbox } from './Checkbox';
@@ -46,8 +43,6 @@ export { FormCheckbox } from './FormCheckbox';
 export { SyncSpinner } from './SyncSpinner';
 
 export { NoSpaceField } from './NoSpaceField';
-
-export { TabSwitcher } from './TabSwitcher';
 
 export { Stepper } from './Stepper/Stepper';
 

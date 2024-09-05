@@ -1,4 +1,4 @@
-import React, { FC, memo, useMemo } from 'react';
+import React, { FC, memo, useCallback, useMemo } from 'react';
 
 import { Button, IconBase } from 'app/atoms';
 import { ReactComponent as DeleteIcon } from 'app/icons/base/delete.svg';
@@ -22,10 +22,12 @@ import { AccountsManagementSelectors } from './selectors';
 
 export interface GroupActionsPopperProps {
   group: DisplayedGroup;
-  onRenameClick: (group: DisplayedGroup) => void;
-  onRevealSeedPhraseClick: (group: DisplayedGroup) => void;
-  onDeleteClick: (group: DisplayedGroup) => void;
+  onRenameClick: SyncFn<DisplayedGroup>;
+  onRevealSeedPhraseClick: SyncFn<DisplayedGroup>;
+  onDeleteClick: SyncFn<DisplayedGroup>;
   showAccountAlreadyExistsWarning: (group: DisplayedGroup, oldAccount: StoredAccount) => void;
+  goToImportModal: EmptyFn;
+  goToWatchOnlyModal: EmptyFn;
 }
 
 const GroupActionsDropdown = memo<PopperRenderProps & GroupActionsPopperProps>(
@@ -37,7 +39,9 @@ const GroupActionsDropdown = memo<PopperRenderProps & GroupActionsPopperProps>(
     onRenameClick,
     onRevealSeedPhraseClick,
     onDeleteClick,
-    showAccountAlreadyExistsWarning
+    showAccountAlreadyExistsWarning,
+    goToImportModal,
+    goToWatchOnlyModal
   }) => {
     const { createAccount, findFreeHdIndex } = useTempleClient();
     const hdGroups = useHDGroups();
@@ -47,108 +51,119 @@ const GroupActionsDropdown = memo<PopperRenderProps & GroupActionsPopperProps>(
       {}
     );
 
-    const actions = useMemo<AccountsAction[]>(() => {
-      if (group.type === TempleAccountType.HD) {
-        return [
-          {
-            key: 'add-account',
-            children: t('addAccount'),
-            Icon: AddIcon,
-            onClick: async () => {
-              try {
-                const { firstSkippedAccount } = await findFreeHdIndex(group.id);
-                if (firstSkippedAccount && !accountExistsShownWarnings[group.id]) {
-                  showAccountAlreadyExistsWarning(group, firstSkippedAccount);
-                  setAccountExistsShownWarnings(prevState => ({
-                    ...Object.fromEntries(
-                      Object.entries(prevState).filter(([groupId]) => !hdGroups.some(({ id }) => id === groupId))
-                    ),
-                    [group.id]: true
-                  }));
-                } else {
-                  await createAccount(group.id);
-                }
-              } catch (e: any) {
-                console.error(e);
-                customAlert({
-                  title: 'Failed to create an account',
-                  description: e.message
-                });
-              }
-            },
-            testID: AccountsManagementSelectors.addGroupAccount
-          },
-          {
-            key: 'rename-wallet',
-            children: t('renameWallet'),
-            Icon: EditIcon,
-            onClick: () => onRenameClick(group),
-            testID: AccountsManagementSelectors.renameWallet
-          },
-          {
-            key: 'reveal-seed-phrase',
-            children: t('revealSeedPhrase'),
-            Icon: RevealEyeIcon,
-            onClick: () => onRevealSeedPhraseClick(group),
-            testID: AccountsManagementSelectors.revealSeedPhrase
-          },
-          hdGroups.length > 1 && {
-            key: 'delete-wallet',
-            children: t('deleteWallet'),
-            className: 'text-error',
-            Icon: DeleteIcon,
-            danger: true,
-            onClick: () => onDeleteClick(group),
-            testID: AccountsManagementSelectors.deleteWallet
-          }
-        ].filter(isTruthy);
-      }
-
-      let importActionUrl;
-      switch (group.type) {
-        case TempleAccountType.Imported:
-          importActionUrl = '/import-account/private-key';
-          break;
-        case TempleAccountType.Ledger:
-          importActionUrl = '/connect-ledger';
-          break;
-        case TempleAccountType.ManagedKT:
-          importActionUrl = '/import-account/managed-kt';
-          break;
-        default:
-          importActionUrl = '/import-account/watch-only';
-      }
-
-      return [
-        {
-          key: 'import',
-          children: t(group.type === TempleAccountType.Imported ? 'importAccount' : 'createAccount'),
-          Icon: ImportedIcon,
-          onClick: () => navigate(importActionUrl),
-          testID: AccountsManagementSelectors.importAccount
-        },
-        {
-          key: 'delete-group',
-          children: t('delete'),
-          className: 'text-error',
-          Icon: DeleteIcon,
-          danger: true,
-          onClick: () => onDeleteClick(group),
-          testID: AccountsManagementSelectors.deleteGroup
+    const addHdAccount = useCallback(async () => {
+      try {
+        const { firstSkippedAccount } = await findFreeHdIndex(group.id);
+        if (firstSkippedAccount && !accountExistsShownWarnings[group.id]) {
+          showAccountAlreadyExistsWarning(group, firstSkippedAccount);
+          setAccountExistsShownWarnings(prevState => ({
+            ...Object.fromEntries(
+              Object.entries(prevState).filter(([groupId]) => !hdGroups.some(({ id }) => id === groupId))
+            ),
+            [group.id]: true
+          }));
+        } else {
+          await createAccount(group.id);
         }
-      ];
+      } catch (e: any) {
+        console.error(e);
+        customAlert({
+          title: 'Failed to create an account',
+          description: e.message
+        });
+      }
     }, [
-      group,
-      hdGroups,
-      findFreeHdIndex,
       accountExistsShownWarnings,
-      showAccountAlreadyExistsWarning,
-      setAccountExistsShownWarnings,
       createAccount,
       customAlert,
+      findFreeHdIndex,
+      group,
+      hdGroups,
+      setAccountExistsShownWarnings,
+      showAccountAlreadyExistsWarning
+    ]);
+
+    const actions = useMemo<AccountsAction[]>(() => {
+      switch (group.type) {
+        case TempleAccountType.HD:
+          return [
+            {
+              key: 'add-account',
+              children: t('addAccount'),
+              Icon: AddIcon,
+              onClick: addHdAccount,
+              testID: AccountsManagementSelectors.addGroupAccount
+            },
+            {
+              key: 'rename-wallet',
+              children: t('renameWallet'),
+              Icon: EditIcon,
+              onClick: () => onRenameClick(group),
+              testID: AccountsManagementSelectors.renameWallet
+            },
+            {
+              key: 'reveal-seed-phrase',
+              children: t('revealSeedPhrase'),
+              Icon: RevealEyeIcon,
+              onClick: () => onRevealSeedPhraseClick(group),
+              testID: AccountsManagementSelectors.revealSeedPhrase
+            },
+            hdGroups.length > 1 && {
+              key: 'delete-wallet',
+              children: t('deleteWallet'),
+              className: 'text-error',
+              Icon: DeleteIcon,
+              danger: true,
+              onClick: () => onDeleteClick(group),
+              testID: AccountsManagementSelectors.deleteWallet
+            }
+          ].filter(isTruthy);
+        case TempleAccountType.ManagedKT:
+          return [
+            {
+              key: 'delete-group',
+              children: t('delete'),
+              className: 'text-error',
+              Icon: DeleteIcon,
+              danger: true,
+              onClick: () => onDeleteClick(group),
+              testID: AccountsManagementSelectors.deleteGroup
+            }
+          ];
+        default:
+          return [
+            {
+              key: 'import',
+              children: t(group.type === TempleAccountType.Imported ? 'importAccount' : 'createAccount'),
+              Icon: ImportedIcon,
+              onClick:
+                group.type === TempleAccountType.Ledger
+                  ? () => navigate('/connect-ledger')
+                  : group.type === TempleAccountType.Imported
+                  ? goToImportModal
+                  : goToWatchOnlyModal,
+              testID: AccountsManagementSelectors.importAccount
+            },
+            {
+              key: 'delete-group',
+              children: t('delete'),
+              className: 'text-error',
+              Icon: DeleteIcon,
+              danger: true,
+              onClick: () => onDeleteClick(group),
+              testID: AccountsManagementSelectors.deleteGroup
+            }
+          ];
+      }
+    }, [
+      group,
+      addHdAccount,
+      hdGroups.length,
       onRenameClick,
       onRevealSeedPhraseClick,
-      onDeleteClick
+      onDeleteClick,
+      goToImportModal,
+      goToWatchOnlyModal
     ]);
 
     return (

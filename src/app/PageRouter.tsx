@@ -10,8 +10,6 @@ import ConnectLedger from 'app/pages/ConnectLedger/ConnectLedger';
 import DApps from 'app/pages/DApps';
 import Delegate from 'app/pages/Delegate';
 import Home from 'app/pages/Home/Home';
-import ImportAccount from 'app/pages/ImportAccount';
-import { ImportWallet } from 'app/pages/NewWallet/ImportWallet';
 import AttentionPage from 'app/pages/Onboarding/pages/AttentionPage';
 import { Receive } from 'app/pages/Receive/Receive';
 import Send from 'app/pages/Send';
@@ -25,6 +23,7 @@ import { Notifications, NotificationsItem } from 'lib/notifications/components';
 import { useTempleClient } from 'lib/temple/front';
 import * as Woozie from 'lib/woozie';
 
+import { ImportWallet } from './pages/ImportWallet';
 import { Market } from './pages/Market';
 import { StakingPage } from './pages/Staking';
 
@@ -39,18 +38,17 @@ type RouteFactory = Woozie.ResolveResult<RouteContext>;
 
 const ROUTE_MAP = Woozie.createMap<RouteContext>([
   [
-    '/import-wallet/:tabSlug?',
-    (p, ctx) => {
-      switch (true) {
-        case ctx.ready:
-          return Woozie.SKIP;
-
-        case !ctx.fullPage:
-          return <OpenInFullPage />;
-
-        default:
-          return <ImportWallet key={p.tabSlug ?? ''} tabSlug={p.tabSlug ?? undefined} />;
+    '/import-wallet',
+    (_p, ctx) => {
+      if (ctx.ready) {
+        return Woozie.SKIP;
       }
+
+      if (!ctx.fullPage) {
+        return <OpenInFullPage />;
+      }
+
+      return <ImportWallet />;
     }
   ],
   [
@@ -76,7 +74,6 @@ const ROUTE_MAP = Woozie.createMap<RouteContext>([
       <Home chainKind={chainKind} chainId={chainId} assetSlug={assetSlug} />
     ))
   ],
-  ['/import-account/:tabSlug?', onlyReady(({ tabSlug }) => <ImportAccount tabSlug={tabSlug} />)],
   ['/connect-ledger', onlyReady(onlyInFullPage(() => <ConnectLedger />))],
   ['/receive', onlyReady(() => <Receive />)],
   [

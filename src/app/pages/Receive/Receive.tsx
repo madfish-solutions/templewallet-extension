@@ -1,7 +1,7 @@
 import React, { memo, useCallback, useState } from 'react';
 
 import { PageTitle } from 'app/atoms';
-import { useModalOpenSearchParams } from 'app/hooks/use-modal-open-search-params';
+import { useSearchParamsBoolean } from 'app/hooks/use-search-params-boolean';
 import PageLayout from 'app/layouts/PageLayout';
 import { AccountsModal } from 'app/templates/AppHeader/AccountsModal';
 import { T, t } from 'lib/i18n';
@@ -18,10 +18,10 @@ export const Receive = memo(() => {
   const tezosAddress = useAccountAddressForTezos();
   const evmAddress = useAccountAddressForEvm();
   const {
-    isOpen: accountsModalIsOpen,
-    openModal: openAccountsModal,
-    closeModal: closeAccountsModal
-  } = useModalOpenSearchParams('accountsModal');
+    value: accountsModalIsOpen,
+    setTrue: openAccountsModal,
+    setFalse: closeAccountsModal
+  } = useSearchParamsBoolean('accountsModal');
   const [receivePayload, setReceivePayload] = useState<ReceivePayload | null>(null);
 
   const resetReceivePayload = useCallback(() => setReceivePayload(null), []);

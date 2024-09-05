@@ -2,10 +2,8 @@ import React, { HTMLAttributes, memo, ReactNode, useMemo } from 'react';
 
 import classNames from 'clsx';
 
+import { AccountTypeBadge, Money, Name } from 'app/atoms';
 import { AccountAvatar } from 'app/atoms/AccountAvatar';
-import AccountTypeBadge from 'app/atoms/AccountTypeBadge';
-import Money from 'app/atoms/Money';
-import Name from 'app/atoms/Name';
 import { TezosBalance } from 'app/templates/Balance';
 import { t } from 'lib/i18n';
 import { getTezosGasMetadata } from 'lib/metadata';

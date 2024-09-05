@@ -6,7 +6,7 @@ import { IconBase } from 'app/atoms';
 import { AccountAvatar } from 'app/atoms/AccountAvatar';
 import { AccountName } from 'app/atoms/AccountName';
 import { Button } from 'app/atoms/Button';
-import { useModalOpenSearchParams } from 'app/hooks/use-modal-open-search-params';
+import { useSearchParamsBoolean } from 'app/hooks/use-search-params-boolean';
 import { ReactComponent as BurgerIcon } from 'app/icons/base/menu.svg';
 import Popper from 'lib/ui/Popper';
 import { useAccount } from 'temple/front';
@@ -20,10 +20,10 @@ export const AppHeader = memo(() => {
   const account = useAccount();
 
   const {
-    isOpen: accountsModalIsOpen,
-    openModal: openAccountsModal,
-    closeModal: closeAccountsModal
-  } = useModalOpenSearchParams('accountsModal');
+    value: accountsModalIsOpen,
+    setTrue: openAccountsModal,
+    setFalse: closeAccountsModal
+  } = useSearchParamsBoolean('accountsModal');
 
   return (
     <div className="relative z-header flex items-center py-3 px-4 gap-x-1 rounded-t-inherit">

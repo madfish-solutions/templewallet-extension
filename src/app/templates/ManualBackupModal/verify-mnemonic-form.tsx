@@ -14,12 +14,11 @@ import { WordsBoxItemData } from './verify-seed-phrase-input/words-box-item';
 interface VerifyMnemonicFormProps {
   mnemonic: string;
   onSuccess: EmptyFn;
-  onCancel: EmptyFn;
 }
 
 const WORDS_TO_VERIFY_COUNT = 3;
 
-export const VerifyMnemonicForm = memo<VerifyMnemonicFormProps>(({ mnemonic, onSuccess, onCancel }) => {
+export const VerifyMnemonicForm = memo<VerifyMnemonicFormProps>(({ mnemonic, onSuccess }) => {
   const [bottomEdgeIsVisible, setBottomEdgeIsVisible] = useState(true);
   const [isError, setIsError] = useState(false);
   const [inputValue, setInputValue] = useState<WordsBoxItemData[]>([]);
@@ -58,16 +57,7 @@ export const VerifyMnemonicForm = memo<VerifyMnemonicFormProps>(({ mnemonic, onS
         />
       </ScrollView>
 
-      <ActionsButtonsBox className="gap-2.5" flexDirection="row" shouldCastShadow={!bottomEdgeIsVisible}>
-        <StyledButton
-          size="L"
-          color="primary-low"
-          className="flex-1"
-          onClick={onCancel}
-          testID={ManualBackupModalSelectors.cancelButton}
-        >
-          <T id="cancel" />
-        </StyledButton>
+      <ActionsButtonsBox shouldCastShadow={!bottomEdgeIsVisible}>
         <StyledButton
           size="L"
           color="primary"

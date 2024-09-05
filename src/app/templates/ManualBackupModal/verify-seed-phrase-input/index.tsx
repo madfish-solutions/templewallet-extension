@@ -36,8 +36,8 @@ export const VerifySeedPhraseInput = memo<VerifySeedPhraseInputProps>(
         />
         <div
           className={clsx(
-            'relative grid grid-cols-2 rounded-lg p-1.5 bg-grey-4 mb-1 gap-2',
-            error && 'border border-error'
+            'relative grid grid-cols-2 rounded-lg p-1.5 bg-background mb-1 gap-2',
+            error ? 'border border-error' : 'border-0.5 border-grey-4'
           )}
         >
           {wordsIndices.map((wordIndex, inputIndex) => (
