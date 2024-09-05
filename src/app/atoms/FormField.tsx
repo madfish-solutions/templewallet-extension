@@ -254,8 +254,8 @@ export const FormField = forwardRef<FormFieldElement, FormFieldProps>(
               smallPaddings ? 'right-2' : 'right-3'
             )}
           >
-            {rightSideComponent && rightSideComponent}
             {cleanable && <CleanButton withText={textarea} size={textarea ? 12 : 16} onClick={handleCleanClick} />}
+            {rightSideComponent && rightSideComponent}
             {textarea && !cleanable && showPasteButton && (
               <Button className="flex items-center text-secondary" onClick={onPasteButtonClick}>
                 <span className="text-font-description-bold">Paste</span>

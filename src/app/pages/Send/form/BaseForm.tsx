@@ -6,12 +6,10 @@ import { isString } from 'lodash';
 import { Controller, OnSubmit, Validate } from 'react-hook-form';
 import { FormContextValues } from 'react-hook-form/dist/contextTypes';
 
-import { Button, IconBase, NoSpaceField } from 'app/atoms';
+import { Button, NoSpaceField } from 'app/atoms';
 import AssetField from 'app/atoms/AssetField';
 import { ConvertedInputAssetAmount } from 'app/atoms/ConvertedInputAssetAmount';
-import Identicon from 'app/atoms/Identicon';
 import { StyledButton } from 'app/atoms/StyledButton';
-import { ReactComponent as CompactDown } from 'app/icons/base/compact_down.svg';
 import { useFiatCurrency } from 'lib/fiat-currency';
 import { t, T } from 'lib/i18n';
 import { useSafeState } from 'lib/ui/hooks';
@@ -20,6 +18,7 @@ import { OneOfChains } from 'temple/front';
 import { TempleChainKind } from 'temple/types';
 
 import { SendFormData } from './interfaces';
+import { SelectAddressButton } from './SelectAddressButton';
 import { SelectAssetButton } from './SelectAssetButton';
 import { SendFormSelectors } from './selectors';
 
@@ -35,7 +34,7 @@ interface Props {
   validateRecipient: Validate;
   onSelectAssetClick: EmptyFn;
   onSubmit: OnSubmit<SendFormData>;
-  maxAmount?: BigNumber;
+  maxAmount: BigNumber;
 }
 
 export const BaseForm: FC<Props> = ({
@@ -168,16 +167,13 @@ export const BaseForm: FC<Props> = ({
                 assetDecimals={shouldUseFiat ? 2 : assetDecimals ?? 0}
                 cleanable={isString(amountValue)}
                 rightSideComponent={
-                  !amountValue &&
-                  maxAmount && (
-                    <Button
-                      type="button"
-                      onClick={handleSetMaxAmount}
-                      className="text-font-description-bold text-white bg-primary rounded-md px-2 py-1"
-                    >
-                      <T id="max" />
-                    </Button>
-                  )
+                  <Button
+                    type="button"
+                    onClick={handleSetMaxAmount}
+                    className="text-font-description-bold text-white bg-primary rounded-md px-2 py-1"
+                  >
+                    <T id="max" />
+                  </Button>
                 }
                 underneathComponent={
                   <div className="flex justify-between mt-1">
@@ -208,7 +204,6 @@ export const BaseForm: FC<Props> = ({
                 placeholder="0.00"
                 errorCaption={errors.amount?.message}
                 containerClassName="mb-8"
-                autoFocus={Boolean(maxAmount)}
                 testID={SendFormSelectors.amountInput}
               />
             }
@@ -242,18 +237,7 @@ export const BaseForm: FC<Props> = ({
             }
           />
 
-          <div
-            className="cursor-pointer flex justify-between items-center p-3 rounded-lg shadow-bottom border-0.5 border-transparent hover:border-lines"
-            //onClick={onSelectMyAccountClick}
-          >
-            <div className="flex justify-center items-center gap-2">
-              <div className="flex p-px rounded-md border border-secondary">
-                <Identicon type="bottts" hash="selectaccount" size={20} />
-              </div>
-              <span className="text-font-medium-bold">Select My Account</span>
-            </div>
-            <IconBase Icon={CompactDown} className="text-primary" size={16} />
-          </div>
+          <SelectAddressButton />
         </form>
       </div>
 
