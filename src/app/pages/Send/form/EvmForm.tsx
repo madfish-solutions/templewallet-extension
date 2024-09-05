@@ -1,17 +1,18 @@
-import React, { FC } from 'react';
+import React, { FC, useCallback, useMemo } from 'react';
 
-import { IconBase, NoSpaceField } from 'app/atoms';
-import AssetField from 'app/atoms/AssetField';
-import Identicon from 'app/atoms/Identicon';
-import { StyledButton } from 'app/atoms/StyledButton';
+import { useForm } from 'react-hook-form';
+
 import { DeadEndBoundaryError } from 'app/ErrorBoundary';
-import { ReactComponent as CompactDown } from 'app/icons/base/compact_down.svg';
-import { T, t } from 'lib/i18n';
+import { useEvmTokenMetadataSelector } from 'app/store/evm/tokens-metadata/selectors';
+import { useFormAnalytics } from 'lib/analytics';
+import { useAssetFiatCurrencyPrice } from 'lib/fiat-currency';
+import { getAssetSymbol } from 'lib/metadata';
+import { isEvmNativeTokenSlug } from 'lib/utils/evm.utils';
 import { useAccountForEvm } from 'temple/front';
 import { useEvmChainByChainId } from 'temple/front/chains';
 
-import { SelectAssetButton } from './SelectAssetButton';
-import { SendFormSelectors } from './selectors';
+import { BaseForm } from './BaseForm';
+import { SendFormData } from './interfaces';
 
 interface Props {
   chainId: number;
@@ -21,70 +22,62 @@ interface Props {
   onAddContactRequested: (address: string) => void;
 }
 
-export const EvmForm: FC<Props> = ({ chainId, assetSlug, onSelectAssetClick, onSelectMyAccountClick }) => {
+export const EvmForm: FC<Props> = ({ chainId, assetSlug, onSelectAssetClick }) => {
   const account = useAccountForEvm();
   const network = useEvmChainByChainId(chainId);
 
   if (!account || !network) throw new DeadEndBoundaryError();
 
+  const formAnalytics = useFormAnalytics('SendForm');
+
+  const storedMetadata = useEvmTokenMetadataSelector(network.chainId, assetSlug);
+  const assetMetadata = isEvmNativeTokenSlug(assetSlug) ? network?.currency : storedMetadata;
+
+  const assetSymbol = useMemo(() => getAssetSymbol(assetMetadata), [assetMetadata]);
+
+  const assetPrice = useAssetFiatCurrencyPrice(assetSlug, chainId, true);
+
   const accountPkh = account.address as HexString;
 
+  const form = useForm<SendFormData>({
+    mode: 'onChange'
+  });
+
+  const { formState, reset } = form;
+
+  const onSubmit = useCallback(async () => {
+    if (formState.isSubmitting) return;
+
+    formAnalytics.trackSubmit();
+
+    try {
+      reset({ to: '' });
+
+      formAnalytics.trackSubmitSuccess();
+    } catch (err: any) {
+      console.error(err);
+
+      formAnalytics.trackSubmitFail();
+
+      if (err?.message === 'Declined') {
+        return;
+      }
+    }
+  }, [formState.isSubmitting, reset, formAnalytics]);
+
   return (
-    <>
-      <div className="flex-1 pt-4 px-4 flex flex-col overflow-y-auto">
-        <div className="text-font-description-bold mb-2">
-          <T id="token" />
-        </div>
-
-        <SelectAssetButton
-          selectedAssetSlug={assetSlug}
-          network={network}
-          accountPkh={accountPkh}
-          onClick={onSelectAssetClick}
-          className="mb-4"
-          testID={SendFormSelectors.selectAssetButton}
-        />
-
-        <form id="send-form">
-          <AssetField
-            label={t('amount')}
-            placeholder="0.00"
-            containerClassName="mb-8"
-            testID={SendFormSelectors.amountInput}
-          />
-
-          <NoSpaceField
-            textarea
-            showPasteButton
-            rows={3}
-            id="send-to"
-            label={t('recipient')}
-            placeholder="Address or Domain name"
-            style={{ resize: 'none' }}
-            containerClassName="mb-4"
-            testID={SendFormSelectors.recipientInput}
-          />
-
-          <div
-            className="cursor-pointer flex justify-between items-center p-3 rounded-lg shadow-bottom border-0.5 border-transparent hover:border-lines"
-            onClick={onSelectMyAccountClick}
-          >
-            <div className="flex justify-center items-center gap-2">
-              <div className="flex p-px rounded-md border border-secondary">
-                <Identicon type="bottts" hash="selectaccount" size={20} />
-              </div>
-              <span className="text-font-medium-bold">Select My Account</span>
-            </div>
-            <IconBase Icon={CompactDown} className="text-primary" size={16} />
-          </div>
-        </form>
-      </div>
-
-      <div className="flex flex-col pt-4 px-4 pb-6">
-        <StyledButton type="submit" form="send-form" size="L" color="primary" testID={SendFormSelectors.sendButton}>
-          Review
-        </StyledButton>
-      </div>
-    </>
+    <BaseForm
+      form={form}
+      network={network}
+      accountPkh={accountPkh}
+      assetSlug={assetSlug}
+      assetSymbol={assetSymbol}
+      assetPrice={assetPrice}
+      assetDecimals={assetMetadata?.decimals ?? 0}
+      validateAmount={(value: string) => Boolean(value)}
+      validateRecipient={(value: string) => Boolean(value)}
+      onSelectAssetClick={onSelectAssetClick}
+      onSubmit={onSubmit}
+    />
   );
 };

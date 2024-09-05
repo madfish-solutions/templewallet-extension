@@ -3,26 +3,27 @@ import React, { memo } from 'react';
 import BigNumber from 'bignumber.js';
 
 import InFiat from 'app/templates/InFiat';
-import { AssetMetadataBase, getAssetSymbol } from 'lib/metadata';
 
 interface Props {
-  tezosChainId: string;
+  chainId: string | number;
   assetSlug: string;
-  assetMetadata?: AssetMetadataBase;
+  assetSymbol?: string;
   amountValue: string;
   toFiat: boolean;
+  evm?: boolean;
 }
 
 export const ConvertedInputAssetAmount = memo<Props>(
-  ({ tezosChainId, assetSlug, assetMetadata, amountValue, toFiat }) => {
+  ({ chainId, assetSlug, assetSymbol, amountValue, toFiat, evm }) => {
     if (toFiat)
       return (
         <InFiat
-          chainId={tezosChainId}
+          chainId={chainId}
           assetSlug={assetSlug}
           volume={amountValue}
           smallFractionFont={false}
           roundingMode={BigNumber.ROUND_FLOOR}
+          evm={evm}
         >
           {({ balance, symbol }) => (
             <div className="flex items-baseline text-font-num-12 text-grey-1">
@@ -38,7 +39,7 @@ export const ConvertedInputAssetAmount = memo<Props>(
       <div className="flex items-baseline text-font-num-12 text-grey-1">
         <span>≈</span>
         <span className="mx-1">{amountValue}</span>
-        <span>{getAssetSymbol(assetMetadata, true)}</span>
+        <span>{assetSymbol}</span>
       </div>
     );
   }
