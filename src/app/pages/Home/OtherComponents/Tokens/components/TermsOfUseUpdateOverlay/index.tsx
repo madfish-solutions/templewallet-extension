@@ -1,4 +1,4 @@
-import React, { memo, useCallback } from 'react';
+import React, { memo, useCallback, useEffect } from 'react';
 
 import clsx from 'clsx';
 import { useForm } from 'react-hook-form';
@@ -9,8 +9,13 @@ import { FormCheckboxGroup } from 'app/atoms/FormCheckboxGroup';
 import { OverlayCloseButton } from 'app/atoms/OverlayCloseButton';
 import { useAppEnv } from 'app/env';
 import ContentContainer from 'app/layouts/ContentContainer';
-import { setAcceptedTermsVersionAction } from 'app/store/settings/actions';
-import { PRIVACY_POLICY_URL, RECENT_TERMS_VERSION, TERMS_OF_USE_URL } from 'lib/constants';
+import { useShouldShowPartnersPromoSelector } from 'app/store/partners-promotion/selectors';
+import {
+  setAcceptedTermsVersionAction,
+  setReferralLinksEnabledAction,
+  setShowAgreementsCounterAction
+} from 'app/store/settings/actions';
+import { MAX_SHOW_AGREEMENTS_COUNTER, PRIVACY_POLICY_URL, RECENT_TERMS_VERSION, TERMS_OF_USE_URL } from 'lib/constants';
 import { t, T } from 'lib/i18n';
 
 import AdvancedFeaturesIllustration from './advanced-features-illustration.png';
@@ -29,15 +34,32 @@ interface TermsOfUseUpdateOverlayProps {
 export const TermsOfUseUpdateOverlay = memo<TermsOfUseUpdateOverlayProps>(({ onClose }) => {
   const { popup } = useAppEnv();
   const dispatch = useDispatch();
+  const shouldShowPartnersPromo = useShouldShowPartnersPromoSelector();
 
   const { handleSubmit, errors, register } = useForm<FormValues>({
     defaultValues: { termsAccepted: false }
   });
 
-  const onSubmit = useCallback(() => {
-    void dispatch(setAcceptedTermsVersionAction(RECENT_TERMS_VERSION));
+  const handleClose = useCallback(() => {
+    if (shouldShowPartnersPromo) {
+      dispatch(setShowAgreementsCounterAction(MAX_SHOW_AGREEMENTS_COUNTER));
+    }
     onClose();
-  }, [dispatch, onClose]);
+  }, [dispatch, onClose, shouldShowPartnersPromo]);
+
+  const onSubmit = useCallback(() => {
+    dispatch(setAcceptedTermsVersionAction(RECENT_TERMS_VERSION));
+    dispatch(setReferralLinksEnabledAction(true));
+    handleClose();
+  }, [dispatch, handleClose]);
+
+  useEffect(() => {
+    document.body.style.overflowY = 'hidden';
+
+    return () => {
+      document.body.style.overflowY = 'auto';
+    };
+  }, []);
 
   return (
     <div className="fixed inset-0 z-40 flex flex-col items-center justify-center bg-gray-700 bg-opacity-20">
@@ -123,7 +145,7 @@ export const TermsOfUseUpdateOverlay = memo<TermsOfUseUpdateOverlayProps>(({ onC
             <FormSubmitButton className="mt-3 w-full max-w-xs" disabled={Object.keys(errors).length > 0}>
               <T id="continue" />
             </FormSubmitButton>
-            <OverlayCloseButton onClick={onClose} />
+            <OverlayCloseButton onClick={handleClose} />
           </div>
         </form>
       </ContentContainer>

@@ -15,10 +15,13 @@ import {
   setOnRampPossibilityAction,
   setPendingReactivateAdsAction,
   setAcceptedTermsVersionAction,
-  setReferralLinksEnabledAction
+  setReferralLinksEnabledAction,
+  setShowAgreementsCounterAction,
+  setShouldShowTermsOfUseUpdateOverlayAction
 } from 'app/store/settings/actions';
 import { AnalyticsEventCategory, TestIDProps, useAnalytics } from 'lib/analytics';
 import {
+  MAX_SHOW_AGREEMENTS_COUNTER,
   PRIVACY_POLICY_URL,
   RECENT_TERMS_VERSION,
   REPLACE_REFERRALS_ENABLED,
@@ -158,6 +161,8 @@ export const SetWalletPassword: FC<SetWalletPasswordProps> = ({
         !ownMnemonic && dispatch(setOnRampPossibilityAction(true));
         // For those that had extension installed, but didn't create wallet
         dispatch(setPendingReactivateAdsAction(false));
+        dispatch(setShowAgreementsCounterAction(MAX_SHOW_AGREEMENTS_COUNTER));
+        dispatch(setShouldShowTermsOfUseUpdateOverlayAction(false));
       } catch (err: any) {
         console.error(err);
 

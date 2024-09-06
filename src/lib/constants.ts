@@ -39,5 +39,11 @@ export const TERMS_OF_USE_URL = 'https://www.templewallet.com/terms';
 
 export const PRIVACY_POLICY_URL = 'https://www.templewallet.com/privacy';
 
+export const OPEN_EXTENSION_TAB_ACTIONS_COUNTER_STORAGE_KEY = 'OPEN_EXTENSION_TAB_ACTIONS_COUNTER';
+
+export const MAX_OPEN_EXTENSION_TAB_ACTIONS_COUNTER = 1;
+
+export const MAX_SHOW_AGREEMENTS_COUNTER = 1;
+
 const isMacOS = /Mac OS/.test(navigator.userAgent);
 export const searchHotkey = ` (${isMacOS ? '⌘' : 'Ctrl + '}K)`;
