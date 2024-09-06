@@ -3,7 +3,7 @@ import PackageJSON from '../../package.json';
 export const APP_VERSION = PackageJSON.version;
 
 // @ts-expect-error
-export const IS_MISES_BROWSER = navigator.userAgentData?.brands.find(b => b.brand === 'Mises') ?? false;
+export const IS_MISES_BROWSER = Boolean(navigator.userAgentData?.brands?.find(b => b.brand === 'Mises'));
 
 export const IS_DEV_ENV = process.env.NODE_ENV === 'development';
 
