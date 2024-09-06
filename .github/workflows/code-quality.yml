@@ -79,7 +79,7 @@ jobs:
         run: yarn build:chrome
 
       - name: Upload artifact
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: chrome
           path: dist/chrome.zip
@@ -99,7 +99,7 @@ jobs:
         run: yarn build:chrome:core
 
       - name: Upload artifact
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: chrome_core
           path: dist/chrome.zip

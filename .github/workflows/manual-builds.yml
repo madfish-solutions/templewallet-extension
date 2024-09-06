@@ -125,7 +125,7 @@ jobs:
 
       - name: Upload Chrome artifact
         if: ${{ github.event.inputs.chrome == 'true' || github.event.inputs.chromePlusE2E == 'true' }}
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: chrome
           path: dist/chrome.zip
@@ -157,7 +157,7 @@ jobs:
 
       - name: Upload Firefox artifact
         if: ${{ github.event.inputs.firefox == 'true' }}
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: firefox
           path: dist/firefox.xpi

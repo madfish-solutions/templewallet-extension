@@ -1,4 +1,3 @@
-import { getMisesInstallEnabledAds } from 'app/storage/mises-browser';
 import { ADS_VIEWER_ADDRESS_STORAGE_KEY, REPLACE_REFERRALS_ENABLED, WEBSITES_ANALYTICS_ENABLED } from 'lib/constants';
 import { IS_MISES_BROWSER } from 'lib/env';
 import { fetchFromStorage } from 'lib/storage';
@@ -10,7 +9,7 @@ export async function checkIfShouldReplaceAds() {
 
   if (accountPkhFromStorage) return await fetchFromStorage<boolean>(WEBSITES_ANALYTICS_ENABLED);
 
-  return await getMisesInstallEnabledAds();
+  return IS_MISES_BROWSER;
 }
 
 export async function checkIfShouldReplaceReferrals() {
