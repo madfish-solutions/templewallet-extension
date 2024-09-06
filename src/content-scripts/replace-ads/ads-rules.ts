@@ -5,14 +5,14 @@ import { ALL_ADS_RULES_STORAGE_KEY, ADS_RULES_UPDATE_INTERVAL } from 'lib/consta
 import { fetchFromStorage } from 'lib/storage';
 
 export const getRulesFromStorage = memoizee(
-  async (location: Location) => {
+  async (locationOrHref: Location | string) => {
     try {
       const { transformRawRules } = await importExtensionAdsModule();
       const rulesStored = await fetchFromStorage(ALL_ADS_RULES_STORAGE_KEY);
 
       if (!rulesStored) throw new Error('No rules for ads found');
 
-      return transformRawRules(location, rulesStored);
+      return transformRawRules(locationOrHref, rulesStored);
     } catch (error) {
       console.error(error);
 
@@ -27,7 +27,11 @@ export const getRulesFromStorage = memoizee(
       };
     }
   },
-  { maxAge: ADS_RULES_UPDATE_INTERVAL, normalizer: ([location]) => location.href, promise: true }
+  {
+    maxAge: ADS_RULES_UPDATE_INTERVAL,
+    normalizer: ([locationOrHref]) => (typeof locationOrHref === 'string' ? locationOrHref : locationOrHref.href),
+    promise: true
+  }
 );
 
 export const clearRulesCache = () => getRulesFromStorage.clear();
