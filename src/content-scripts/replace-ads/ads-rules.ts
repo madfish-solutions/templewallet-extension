@@ -4,7 +4,7 @@ import { importExtensionAdsModule } from 'lib/ads/import-extension-ads-module';
 import { ALL_ADS_RULES_STORAGE_KEY, ADS_RULES_UPDATE_INTERVAL } from 'lib/constants';
 import { fetchFromStorage } from 'lib/storage';
 
-export const getRulesFromContentScript = memoizee(
+export const getRulesFromStorage = memoizee(
   async (location: Location) => {
     try {
       const { transformRawRules } = await importExtensionAdsModule();
@@ -22,6 +22,7 @@ export const getRulesFromContentScript = memoizee(
         providersSelectors: [],
         providersNegativeSelectors: [],
         elementsToHideOrRemoveRules: [],
+        blacklistedHypelabCampaignsSlugs: [],
         timestamp: 0
       };
     }
@@ -29,4 +30,4 @@ export const getRulesFromContentScript = memoizee(
   { maxAge: ADS_RULES_UPDATE_INTERVAL, normalizer: ([location]) => location.href, promise: true }
 );
 
-export const clearRulesCache = () => getRulesFromContentScript.clear();
+export const clearRulesCache = () => getRulesFromStorage.clear();

@@ -224,6 +224,21 @@ const bannerAdsMetaBase = [
   },
   {
     source: {
+      providerName: 'Persona' as const,
+      native: false,
+      slug: IS_MISES_BROWSER ? EnvVars.PERSONA_ADS_MISES_WIDE_BANNER_UNIT_ID : EnvVars.PERSONA_ADS_WIDE_BANNER_UNIT_ID
+    },
+    dimensions: {
+      width: 728,
+      height: 90,
+      minContainerWidth: 727,
+      minContainerHeight: 89,
+      maxContainerWidth: Infinity,
+      maxContainerHeight: 300
+    }
+  },
+  {
+    source: {
       providerName: 'Temple' as const,
       slug: ''
     },
@@ -280,7 +295,7 @@ const bannerAdsMetaBase = [
       minContainerWidth: 299,
       minContainerHeight: 249,
       maxContainerWidth: 700,
-      maxContainerHeight: 500
+      maxContainerHeight: Infinity
     }
   },
   {
