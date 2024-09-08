@@ -125,14 +125,12 @@ export const EvmForm: FC<Props> = ({ chainId, assetSlug, onSelectAssetClick }) =
 
     if (isEvmNativeTokenSlug(assetSlug)) {
       value = value.minus(new BigNumber(estimatedMaxFee ? formatEther(estimatedMaxFee) : 0));
-    } else {
-      value = value.div(new BigNumber(10).pow(assetDecimals)).decimalPlaces(assetDecimals, BigNumber.ROUND_DOWN);
     }
 
     if (value.lt(0)) return ZERO;
 
     return value;
-  }, [assetDecimals, assetSlug, balance, estimatedMaxFee]);
+  }, [assetSlug, balance, estimatedMaxFee]);
 
   const onSubmit = useCallback(async () => {
     if (formState.isSubmitting) return;
