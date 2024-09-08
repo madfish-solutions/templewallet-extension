@@ -289,6 +289,7 @@ export const TezosForm: FC<Props> = ({ chainId, assetSlug, onSelectAssetClick })
       assetSlug={assetSlug}
       assetSymbol={assetSymbol}
       assetPrice={assetPrice}
+      maxAmount={maxAmount}
       assetDecimals={assetMetadata?.decimals ?? 0}
       validateAmount={validateAmount}
       validateRecipient={(value: string) => validateRecipient(value, domainsClient)}
