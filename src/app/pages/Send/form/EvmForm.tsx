@@ -25,9 +25,7 @@ import { SendFormData } from './interfaces';
 interface Props {
   chainId: number;
   assetSlug: string;
-  onSelectMyAccountClick: EmptyFn;
   onSelectAssetClick: EmptyFn;
-  onAddContactRequested: (address: string) => void;
 }
 
 export const EvmForm: FC<Props> = ({ chainId, assetSlug, onSelectAssetClick }) => {
@@ -154,6 +152,7 @@ export const EvmForm: FC<Props> = ({ chainId, assetSlug, onSelectAssetClick }) =
 
   return (
     <BaseForm
+      evm
       form={form}
       network={network}
       accountPkh={accountPkh}

@@ -42,9 +42,7 @@ const RECOMMENDED_ADD_FEE = 0.0001;
 interface Props {
   chainId: string;
   assetSlug: string;
-  onSelectMyAccountClick: EmptyFn;
   onSelectAssetClick: EmptyFn;
-  onAddContactRequested: (address: string) => void;
 }
 
 export const TezosForm: FC<Props> = ({ chainId, assetSlug, onSelectAssetClick }) => {

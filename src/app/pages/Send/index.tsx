@@ -13,7 +13,6 @@ import { TempleChainKind } from 'temple/types';
 
 import { Form } from './form';
 import { SpinnerSection } from './form/SpinnerSection';
-import AddContactModal from './modals/AddContact';
 import { SelectAssetModal } from './modals/SelectAsset';
 
 interface Props {
@@ -46,11 +45,7 @@ const Send = memo<Props>(({ chainKind, chainId, assetSlug }) => {
     return toChainAssetSlug(TempleChainKind.Tezos, TEZOS_MAINNET_CHAIN_ID, TEZ_TOKEN_SLUG);
   });
 
-  const [addContactModalAddress, setAddContactModalAddress] = useState<string | null>(null);
-
   const [selectAssetModalOpened, setSelectAssetModalOpen, setSelectAssetModalClosed] = useBooleanState(false);
-  // TODO: handle user address select
-  const [_, setAccountsModalOpen, _2] = useBooleanState(false);
 
   const handleAssetSelect = useCallback(
     (slug: string) => {
@@ -60,17 +55,6 @@ const Send = memo<Props>(({ chainKind, chainId, assetSlug }) => {
     [setSelectAssetModalClosed]
   );
 
-  const handleAddContactRequested = useCallback(
-    (address: string) => {
-      setAddContactModalAddress(address);
-    },
-    [setAddContactModalAddress]
-  );
-
-  const closeContactModal = useCallback(() => {
-    setAddContactModalAddress(null);
-  }, [setAddContactModalAddress]);
-
   return (
     <PageLayout
       pageTitle={<PageTitle title={t('send')} />}
@@ -78,12 +62,7 @@ const Send = memo<Props>(({ chainKind, chainId, assetSlug }) => {
       contentClassName="bg-background overflow-hidden"
     >
       <Suspense fallback={<SpinnerSection />}>
-        <Form
-          selectedChainAssetSlug={selectedChainAssetSlug}
-          onSelectAssetClick={setSelectAssetModalOpen}
-          onSelectMyAccountClick={setAccountsModalOpen}
-          onAddContactRequested={handleAddContactRequested}
-        />
+        <Form selectedChainAssetSlug={selectedChainAssetSlug} onSelectAssetClick={setSelectAssetModalOpen} />
       </Suspense>
 
       <SelectAssetModal
@@ -91,7 +70,6 @@ const Send = memo<Props>(({ chainKind, chainId, assetSlug }) => {
         opened={selectAssetModalOpened}
         onRequestClose={setSelectAssetModalClosed}
       />
-      <AddContactModal address={addContactModalAddress} onClose={closeContactModal} />
     </PageLayout>
   );
 });

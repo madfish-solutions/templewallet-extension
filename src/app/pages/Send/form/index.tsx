@@ -8,9 +8,7 @@ import { TezosForm } from './TezosForm';
 
 interface Props {
   selectedChainAssetSlug: string;
-  onSelectMyAccountClick: EmptyFn;
   onSelectAssetClick: EmptyFn;
-  onAddContactRequested: (address: string) => void;
 }
 
 export const Form = memo<Props>(({ selectedChainAssetSlug, ...rest }) => {

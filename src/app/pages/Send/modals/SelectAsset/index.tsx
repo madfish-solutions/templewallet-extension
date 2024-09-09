@@ -136,7 +136,7 @@ export const SelectAssetModal = memo<SelectTokenModalProps>(({ onAssetSelect, op
 
       <div className="p-4 pb-6 flex flex-col bg-white">
         <StyledButton size="L" color="primary-low" onClick={onRequestClose}>
-          <T id="close" />
+          <T id="cancel" />
         </StyledButton>
       </div>
     </PageModal>

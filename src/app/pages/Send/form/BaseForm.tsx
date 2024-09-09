@@ -12,13 +12,15 @@ import { ConvertedInputAssetAmount } from 'app/atoms/ConvertedInputAssetAmount';
 import { StyledButton } from 'app/atoms/StyledButton';
 import { useFiatCurrency } from 'lib/fiat-currency';
 import { t, T } from 'lib/i18n';
-import { useSafeState } from 'lib/ui/hooks';
+import { useBooleanState, useSafeState } from 'lib/ui/hooks';
 import { readClipboard } from 'lib/ui/utils';
 import { OneOfChains } from 'temple/front';
 import { TempleChainKind } from 'temple/types';
 
+import { SelectAccountModal } from '../modals/SelectAccount';
+
 import { SendFormData } from './interfaces';
-import { SelectAddressButton } from './SelectAddressButton';
+import { SelectAccountButton } from './SelectAccountButton';
 import { SelectAssetButton } from './SelectAssetButton';
 import { SendFormSelectors } from './selectors';
 
@@ -35,6 +37,7 @@ interface Props {
   onSelectAssetClick: EmptyFn;
   onSubmit: OnSubmit<SendFormData>;
   maxAmount: BigNumber;
+  evm?: boolean;
 }
 
 export const BaseForm: FC<Props> = ({
@@ -49,8 +52,12 @@ export const BaseForm: FC<Props> = ({
   validateAmount,
   validateRecipient,
   onSelectAssetClick,
-  onSubmit
+  onSubmit,
+  evm
 }) => {
+  const [selectedRecipientAddress, setSelectedRecipientAddress] = useState('');
+  const [selectAccountModalOpened, setSelectAccountModalOpen, setSelectAccountModalClosed] = useBooleanState(false);
+
   const { watch, handleSubmit, errors, control, setValue, triggerValidation, getValues } = form;
 
   const toValue = watch('to');
@@ -136,6 +143,14 @@ export const BaseForm: FC<Props> = ({
       );
     },
     [setShouldUseFiat, shouldUseFiat, getValues, assetPrice, setValue]
+  );
+
+  const handleRecipientAddressSelect = useCallback(
+    (address: string) => {
+      setSelectedRecipientAddress(address);
+      setSelectAccountModalClosed();
+    },
+    [setSelectAccountModalClosed]
   );
 
   return (
@@ -237,7 +252,7 @@ export const BaseForm: FC<Props> = ({
             }
           />
 
-          <SelectAddressButton />
+          <SelectAccountButton value={selectedRecipientAddress} onClick={setSelectAccountModalOpen} />
         </form>
       </div>
 
@@ -246,6 +261,14 @@ export const BaseForm: FC<Props> = ({
           Review
         </StyledButton>
       </div>
+
+      <SelectAccountModal
+        selectedAccountAddress={selectedRecipientAddress}
+        onAccountSelect={handleRecipientAddressSelect}
+        opened={selectAccountModalOpened}
+        onRequestClose={setSelectAccountModalClosed}
+        evm={evm}
+      />
     </>
   );
 };
