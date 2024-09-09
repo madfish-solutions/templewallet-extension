@@ -1,14 +1,13 @@
 import React, { FC } from 'react';
 
-import AnalyticsSettings from 'app/templates/SettingsGeneral/Components/AnalyticsSettings';
-import BlockExplorerSelect from 'app/templates/SettingsGeneral/Components/BlockExplorerSelect';
-import FiatCurrencySelect from 'app/templates/SettingsGeneral/Components/FiatCurrencySelect';
-import LocaleSelect from 'app/templates/SettingsGeneral/Components/LocaleSelect';
-import LockUpSettings from 'app/templates/SettingsGeneral/Components/LockUpSettings';
-import PopupSettings from 'app/templates/SettingsGeneral/Components/PopupSettings';
 import { NotificationsSettings } from 'lib/notifications/components';
 
-import { PartnersPromotionSettings } from './Components/partners-promotion-settings';
+import AnalyticsSettings from './Components/AnalyticsSettings';
+import BlockExplorerSelect from './Components/BlockExplorerSelect';
+import FiatCurrencySelect from './Components/FiatCurrencySelect';
+import LocaleSelect from './Components/LocaleSelect';
+import LockUpSettings from './Components/LockUpSettings';
+import PopupSettings from './Components/PopupSettings';
 
 const GeneralSettings: FC = () => {
   return (
@@ -26,8 +25,6 @@ const GeneralSettings: FC = () => {
       <AnalyticsSettings />
 
       <NotificationsSettings />
-
-      <PartnersPromotionSettings />
     </div>
   );
 };

@@ -6,5 +6,5 @@ export { updateLocale, onInited } from './loading';
 
 export { toLocalFixed, toLocalFormat, toShortened, getPluralKey } from './numbers';
 
-export type { TProps } from './react';
+export type { TProps, ReactSubstitutions } from './react';
 export { t, T } from './react';

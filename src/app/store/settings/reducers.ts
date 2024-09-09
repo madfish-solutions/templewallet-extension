@@ -1,12 +1,18 @@
 import { createReducer } from '@reduxjs/toolkit';
 
+import { MAX_SHOW_AGREEMENTS_COUNTER } from 'lib/constants';
+
 import {
   setAdsImpressionsLinkedAction,
+  setAcceptedTermsVersionAction,
   setConversionTrackedAction,
   setIsAnalyticsEnabledAction,
   setOnRampPossibilityAction,
   setPendingReactivateAdsAction,
-  toggleBalanceModeAction
+  setShowAgreementsCounterAction,
+  setReferralLinksEnabledAction,
+  toggleBalanceModeAction,
+  setShouldShowTermsOfUseUpdateOverlayAction
 } from './actions';
 import { SettingsState, settingsInitialState } from './state';
 
@@ -31,7 +37,23 @@ export const settingsReducer = createReducer<SettingsState>(settingsInitialState
     state.pendingReactivateAds = payload;
   });
 
+  builder.addCase(setShowAgreementsCounterAction, state => {
+    state.showAgreementsCounter = MAX_SHOW_AGREEMENTS_COUNTER;
+  });
+
+  builder.addCase(setShouldShowTermsOfUseUpdateOverlayAction, (state, { payload }) => {
+    state.shouldShowTermsOfUseUpdateOverlay = payload;
+  });
+
   builder.addCase(setAdsImpressionsLinkedAction, state => {
     state.adsImpressionsLinked = true;
+  });
+
+  builder.addCase(setAcceptedTermsVersionAction, (state, { payload }) => {
+    state.acceptedTermsVersion = payload;
+  });
+
+  builder.addCase(setReferralLinksEnabledAction, (state, { payload }) => {
+    state.referralLinksEnabled = payload;
   });
 });

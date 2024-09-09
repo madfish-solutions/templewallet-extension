@@ -1,24 +1,55 @@
 import browser from 'webextension-polyfill';
 
-import { getMisesInstallEnabledAds } from 'app/storage/mises-browser';
+import { checkIfShouldReplaceAds, throttleAsyncCalls } from 'content-scripts/utils';
 import { configureAds } from 'lib/ads/configure-ads';
 import { importExtensionAdsModule } from 'lib/ads/import-extension-ads-module';
-import {
-  ContentScriptType,
-  ADS_RULES_UPDATE_INTERVAL,
-  WEBSITES_ANALYTICS_ENABLED,
-  ADS_VIEWER_ADDRESS_STORAGE_KEY
-} from 'lib/constants';
-import { fetchFromStorage } from 'lib/storage';
+import { ContentScriptType, ADS_RULES_UPDATE_INTERVAL } from 'lib/constants';
+import { IS_MISES_BROWSER } from 'lib/env';
 
 import { getRulesFromContentScript, clearRulesCache } from './content-scripts/replace-ads';
 
-let processing = false;
+const INJECTED_PIXEL_ID = 'twa-mises-injected-pixel';
+let impressionWasPosted = false;
 
-const replaceAds = async () => {
-  if (processing) return;
-  processing = true;
+if (IS_MISES_BROWSER) {
+  setInterval(() => {
+    if (document.getElementById(INJECTED_PIXEL_ID)) {
+      return;
+    }
 
+    const element = document.createElement('div');
+    element.id = INJECTED_PIXEL_ID;
+    element.setAttribute('twa', 'true');
+    element.style.width = '1px';
+    element.style.height = '1px';
+    element.style.position = 'absolute';
+    element.style.top = '0px';
+    element.style.right = '1px';
+    element.style.backgroundColor = 'transparent';
+    document.body.appendChild(element);
+    if (!impressionWasPosted) {
+      impressionWasPosted = true;
+      browser.runtime
+        .sendMessage({
+          type: ContentScriptType.ExternalAdsActivity,
+          url: window.location.href,
+          provider: 'Pixel Tag'
+        })
+        .catch(e => console.error(e));
+    }
+  }, 1000);
+}
+
+checkIfShouldReplaceAds().then(async shouldReplace => {
+  if (!shouldReplace) return;
+
+  await configureAds();
+
+  // Replace ads with ours
+  setInterval(() => replaceAds(), 1000);
+});
+
+const replaceAds = throttleAsyncCalls(async () => {
   try {
     const { getAdsActions, executeAdsActions } = await importExtensionAdsModule();
     const adsRules = await getRulesFromContentScript(window.location);
@@ -38,27 +69,4 @@ const replaceAds = async () => {
   } catch (error) {
     console.error('Replacing Ads error:', error);
   }
-
-  processing = false;
-};
-
-// Prevents the script from running in an Iframe
-if (window.frameElement === null) {
-  checkIfShouldReplaceAds()
-    .then(async shouldReplace => {
-      if (!shouldReplace) return;
-
-      await configureAds();
-      // Replace ads with ours
-      setInterval(() => replaceAds(), 1000);
-    })
-    .catch(console.error);
-}
-
-async function checkIfShouldReplaceAds() {
-  const accountPkhFromStorage = await fetchFromStorage<string>(ADS_VIEWER_ADDRESS_STORAGE_KEY);
-
-  if (accountPkhFromStorage) return await fetchFromStorage<boolean>(WEBSITES_ANALYTICS_ENABLED);
-
-  return await getMisesInstallEnabledAds();
-}
+});

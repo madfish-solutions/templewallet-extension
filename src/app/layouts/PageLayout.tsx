@@ -16,7 +16,6 @@ import DocBg from 'app/a11y/DocBg';
 import { Button } from 'app/atoms/Button';
 import { DonationBanner } from 'app/atoms/DonationBanner/DonationBanner';
 import Spinner from 'app/atoms/Spinner/Spinner';
-import { TempleTapButton } from 'app/atoms/TempleTapButton';
 import { useAppEnv } from 'app/env';
 import ErrorBoundary from 'app/ErrorBoundary';
 import { ReactComponent as ChevronLeftIcon } from 'app/icons/chevron-left.svg';
@@ -153,7 +152,7 @@ const Toolbar: FC<ToolbarProps> = ({
   const isBackButtonAvailable = canBack || canStepBack;
 
   const handleBack = () => {
-    if (canBack) {
+    if (historyPosition > 0) {
       return goBack();
     }
 
@@ -236,7 +235,6 @@ const Toolbar: FC<ToolbarProps> = ({
       {attention && (
         <div className="flex items-center content-end absolute right-0">
           <AdvertisingBanner />
-          <TempleTapButton />
           <NotificationsBell />
         </div>
       )}
