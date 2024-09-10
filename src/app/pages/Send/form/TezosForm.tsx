@@ -18,7 +18,7 @@ import { useTezosAssetMetadata, getAssetSymbol } from 'lib/metadata';
 import { transferImplicit, transferToContract } from 'lib/michelson';
 import { useTypedSWR } from 'lib/swr';
 import { loadContract } from 'lib/temple/contract';
-import { validateRecipient } from 'lib/temple/front';
+import { validateRecipient as validateAddress } from 'lib/temple/front';
 import { mutezToTz, tzToMutez } from 'lib/temple/helpers';
 import { TempleAccountType } from 'lib/temple/types';
 import { isValidTezosAddress, isTezosContractAddress, tezosManagerKeyHasManager } from 'lib/tezos';
@@ -209,14 +209,20 @@ export const TezosForm: FC<Props> = ({ chainId, assetSlug, onSelectAssetClick })
   }, [account, assetSlug, balance, baseFee, safeFeeValue, shouldUseFiat, assetPrice]);
 
   const validateAmount = useCallback(
-    (v?: number) => {
-      if (v === undefined) return t('required');
-      if (!isTezosContractAddress(toValue) && v === 0) {
-        return t('amountMustBePositive');
-      }
-      if (!maxAmount) return true;
-      const vBN = new BigNumber(v);
-      return vBN.isLessThanOrEqualTo(maxAmount) || t('maximalAmount', toLocalFixed(maxAmount));
+    (amount?: number) => {
+      if (amount === undefined) return t('required');
+      if (Boolean(toValue) && !isTezosContractAddress(toValue) && amount === 0) return t('amountMustBePositive');
+
+      return new BigNumber(amount).isLessThanOrEqualTo(maxAmount) || t('maximalAmount', toLocalFixed(maxAmount));
+    },
+    [maxAmount, toValue]
+  );
+
+  const validateRecipient = useCallback(
+    (address: string) => {
+      if (!address) return t('required');
+
+      return validateAddress(address, domainsClient);
     },
     [maxAmount, toValue]
   );
@@ -312,7 +318,7 @@ export const TezosForm: FC<Props> = ({ chainId, assetSlug, onSelectAssetClick })
       maxAmount={maxAmount}
       assetDecimals={assetMetadata?.decimals ?? 0}
       validateAmount={validateAmount}
-      validateRecipient={(value: string) => validateRecipient(value, domainsClient)}
+      validateRecipient={validateRecipient}
       onSelectAssetClick={onSelectAssetClick}
       isToFilledWithFamiliarAddress={isToFilledWithFamiliarAddress}
       onSubmit={onSubmit}

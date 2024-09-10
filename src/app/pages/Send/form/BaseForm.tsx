@@ -60,7 +60,7 @@ export const BaseForm: FC<Props> = ({
 }) => {
   const [selectAccountModalOpened, setSelectAccountModalOpen, setSelectAccountModalClosed] = useBooleanState(false);
 
-  const { watch, handleSubmit, errors, control, setValue, triggerValidation, getValues } = form;
+  const { watch, handleSubmit, errors, control, setValue, getValues } = form;
 
   const toValue = watch('to');
   const [toValueDebounced] = useDebounce(toValue, 300);
@@ -79,26 +79,17 @@ export const BaseForm: FC<Props> = ({
   const [toFieldFocused, setToFieldFocused] = useState(false);
 
   const handleSetMaxAmount = useCallback(() => {
-    if (maxAmount) {
-      setValue('amount', maxAmount.toString());
-      triggerValidation('amount');
-    }
-  }, [setValue, maxAmount, triggerValidation]);
+    if (maxAmount) setValue('amount', maxAmount.toString(), true);
+  }, [setValue, maxAmount]);
 
   const handleToFieldFocus = useCallback(() => {
     toFieldRef.current?.focus();
     setToFieldFocused(true);
   }, [setToFieldFocused]);
 
-  const handleToClean = useCallback(() => {
-    setValue('to', '');
-    triggerValidation('to');
-  }, [setValue, triggerValidation]);
+  const handleAmountClean = useCallback(() => setValue('amount', undefined, true), [setValue]);
 
-  const handleAmountClean = useCallback(() => {
-    setValue('amount', undefined);
-    triggerValidation('amount');
-  }, [setValue, triggerValidation]);
+  const handleToClean = useCallback(() => setValue('to', '', true), [setValue]);
 
   const handleAmountFieldFocus = useCallback<FocusEventHandler>(evt => {
     evt.preventDefault();
@@ -159,7 +150,7 @@ export const BaseForm: FC<Props> = ({
 
   const handleRecipientAddressSelect = useCallback(
     (address: string) => {
-      setValue('to', address);
+      setValue('to', address, true);
       setSelectAccountModalClosed();
     },
     [setSelectAccountModalClosed, setValue]
