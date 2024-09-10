@@ -1,3 +1,5 @@
+import { getAddress } from 'viem';
+
 import { BalanceItem, BalanceNftData, NftData } from 'lib/apis/temple/endpoints/evm/api.interfaces';
 import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
 
@@ -15,3 +17,13 @@ export const isProperCollectibleMetadata = (
   Boolean(data.token_id && data.token_url && data.external_data);
 
 export const isEvmNativeTokenSlug = (slug: string) => slug === EVM_TOKEN_SLUG;
+
+export function getEvmAddressSafe(value: string | nullish): HexString | null {
+  if (!value) return null;
+
+  try {
+    return getAddress(value);
+  } catch {
+    return null;
+  }
+}

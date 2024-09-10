@@ -16,11 +16,13 @@ import { PartnersPromotion, PartnersPromotionVariant } from 'app/templates/partn
 import { TEMPLE_TOKEN_SLUG } from 'lib/assets';
 import { t, T } from 'lib/i18n/react';
 import useTezosActivities from 'lib/temple/activity-new/hook';
-import { UNDER_DEVELOPMENT_MSG } from 'temple/evm/under_dev_msg';
 import { useAccountAddressForTezos, useTezosChainByChainId } from 'temple/front';
 
 import { ActivityItem } from './ActivityItem';
+import { EvmActivityTab } from './evm';
 import { ReactivateAdsBanner } from './ReactivateAdsBanner';
+
+export { EvmActivityTab };
 
 const INITIAL_NUMBER = 30;
 const LOAD_STEP = 30;
@@ -32,7 +34,11 @@ interface Props {
 
 export const ActivityTab = memo<Props>(({ tezosChainId, assetSlug }) => (
   <SuspenseContainer errorMessage={t('operationHistoryWhileMessage')}>
-    {tezosChainId ? <TezosActivity tezosChainId={tezosChainId} assetSlug={assetSlug} /> : <ActivityWithChainSelect />}
+    {tezosChainId ? (
+      <TezosActivityTab tezosChainId={tezosChainId} assetSlug={assetSlug} />
+    ) : (
+      <ActivityWithChainSelect />
+    )}
   </SuspenseContainer>
 ));
 
@@ -48,21 +54,21 @@ const ActivityWithChainSelect = memo(() => {
         <ChainSelectSection controller={chainSelectController} />
 
         {network.kind === 'tezos' ? (
-          <TezosActivity tezosChainId={network.chainId} />
+          <TezosActivityTab tezosChainId={network.chainId} />
         ) : (
-          <div className="py-3 text-center">{UNDER_DEVELOPMENT_MSG}</div>
+          <EvmActivityTab chainId={network.chainId} />
         )}
       </ContentContainer>
     </>
   );
 });
 
-interface TezosActivityProps {
+interface TezosActivityTabProps {
   tezosChainId: string;
   assetSlug?: string;
 }
 
-const TezosActivity: FC<TezosActivityProps> = ({ tezosChainId, assetSlug }) => {
+const TezosActivityTab: FC<TezosActivityTabProps> = ({ tezosChainId, assetSlug }) => {
   const network = useTezosChainByChainId(tezosChainId);
   const accountAddress = useAccountAddressForTezos();
   if (!network || !accountAddress) throw new DeadEndBoundaryError();

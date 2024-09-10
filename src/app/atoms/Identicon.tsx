@@ -27,13 +27,14 @@ export const Identicon = <T extends IdenticonType>({
     <div
       className={clsx(
         type === 'initials' ? 'bg-transparent' : 'bg-white',
-        'bg-no-repeat bg-center inline-block overflow-hidden',
+        'inline-block overflow-hidden',
+        'bg-no-repeat bg-center',
         className
       )}
-      style={style}
+      style={{ width: size, height: size, ...style }}
       {...rest}
     >
-      <img src={backgroundImage} alt="" style={{ width: size, height: size }} />
+      <img src={backgroundImage} alt="" className="w-full h-full" />
     </div>
   );
 };

@@ -1,6 +1,9 @@
 import { templeWalletApi } from '../templewallet.api';
 
 import { BalancesResponse, ChainID, NftAddressBalanceNftResponse } from './api.interfaces';
+import { GoldRushTransaction } from './types/transactions';
+
+export type { GoldRushTransaction };
 
 export const getEvmBalances = (walletAddress: string, chainId: ChainID) =>
   buildEvmRequest<BalancesResponse>('/balances', walletAddress, chainId);
@@ -12,10 +15,13 @@ export const getEvmTokensMetadata = (walletAddress: string, chainId: ChainID) =>
 export const getEvmCollectiblesMetadata = (walletAddress: string, chainId: ChainID) =>
   buildEvmRequest<NftAddressBalanceNftResponse>('/collectibles-metadata', walletAddress, chainId);
 
-const buildEvmRequest = <T>(url: string, walletAddress: string, chainId: ChainID) =>
+export const getEvmTransactions = (walletAddress: string, chainId: ChainID, page: number) =>
+  buildEvmRequest<{ items: GoldRushTransaction[] }>('/transactions', walletAddress, chainId, { page });
+
+const buildEvmRequest = <T>(url: string, walletAddress: string, chainId: ChainID, params?: object) =>
   templeWalletApi
     .get<T>(`evm${url}`, {
-      params: { walletAddress, chainId }
+      params: { ...params, walletAddress, chainId }
     })
     .then(
       res => res.data,

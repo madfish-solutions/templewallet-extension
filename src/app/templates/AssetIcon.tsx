@@ -1,16 +1,13 @@
-import React, { FC, memo, useMemo } from 'react';
+import React, { FC, memo } from 'react';
 
 import clsx from 'clsx';
 
 import { Identicon } from 'app/atoms';
-import { EvmNetworkLogo, NetworkLogoFallback } from 'app/atoms/NetworkLogo';
-import { TezNetworkLogo } from 'app/atoms/NetworksLogos';
+import { EvmNetworkLogo, NetworkLogoTooltipWrap, TezosNetworkLogo } from 'app/atoms/NetworkLogo';
 import { ReactComponent as CollectiblePlaceholder } from 'app/icons/collectible-placeholder.svg';
 import { useEvmTokenMetadataSelector } from 'app/store/evm/tokens-metadata/selectors';
 import { AssetMetadataBase, getAssetSymbol, isCollectible, useTezosAssetMetadata } from 'lib/metadata';
 import { EvmTokenMetadata } from 'lib/metadata/types';
-import { TEZOS_MAINNET_CHAIN_ID } from 'lib/temple/types';
-import useTippy, { UseTippyOptions } from 'lib/ui/useTippy';
 import { isEvmNativeTokenSlug } from 'lib/utils/evm.utils';
 import { useEvmChainByChainId, useTezosChainByChainId } from 'temple/front/chains';
 
@@ -75,19 +72,6 @@ export const TezosTokenIconWithNetwork = memo<TezosTokenIconWithNetworkProps>(
     const network = useTezosChainByChainId(tezosChainId);
     const metadata = useTezosAssetMetadata(props.assetSlug, tezosChainId);
 
-    const tippyProps = useMemo<UseTippyOptions>(
-      () => ({
-        trigger: 'mouseenter',
-        hideOnClick: false,
-        content: network?.name ?? 'Unknown Network',
-        animation: 'shift-away-subtle',
-        placement: 'bottom-start'
-      }),
-      [network]
-    );
-
-    const networkIconRef = useTippy<HTMLDivElement>(tippyProps);
-
     return (
       <div
         className={clsx('flex items-center justify-center relative', className)}
@@ -101,14 +85,11 @@ export const TezosTokenIconWithNetwork = memo<TezosTokenIconWithNetworkProps>(
           loader={<AssetIconPlaceholder metadata={metadata} size={ASSET_IMAGE_DEFAULT_SIZE} />}
           fallback={<AssetIconPlaceholder metadata={metadata} size={ASSET_IMAGE_DEFAULT_SIZE} />}
         />
+
         {network && (
-          <div ref={networkIconRef} className="absolute bottom-0 right-0">
-            {network.chainId === TEZOS_MAINNET_CHAIN_ID ? (
-              <TezNetworkLogo size={NETWORK_IMAGE_DEFAULT_SIZE} />
-            ) : (
-              <NetworkLogoFallback networkName={network.name} size={NETWORK_IMAGE_DEFAULT_SIZE} />
-            )}
-          </div>
+          <NetworkLogoTooltipWrap networkName={network.name} className="absolute bottom-0 right-0">
+            <TezosNetworkLogo size={NETWORK_IMAGE_DEFAULT_SIZE} chainId={network.chainId} networkName={network.name} />
+          </NetworkLogoTooltipWrap>
         )}
       </div>
     );
@@ -128,19 +109,6 @@ export const EvmTokenIconWithNetwork = memo<EvmTokenIconWithNetworkProps>(
 
     const metadata = isEvmNativeTokenSlug(assetSlug) ? network?.currency : tokenMetadata;
 
-    const tippyProps = useMemo<UseTippyOptions>(
-      () => ({
-        trigger: 'mouseenter',
-        hideOnClick: false,
-        content: network?.name ?? 'Unknown Network',
-        animation: 'shift-away-subtle',
-        placement: 'bottom-start'
-      }),
-      [network]
-    );
-
-    const networkIconRef = useTippy<HTMLDivElement>(tippyProps);
-
     return (
       <div
         className={clsx('flex items-center justify-center relative', className)}
@@ -155,14 +123,11 @@ export const EvmTokenIconWithNetwork = memo<EvmTokenIconWithNetworkProps>(
           loader={<AssetIconPlaceholder metadata={metadata} size={ASSET_IMAGE_DEFAULT_SIZE} />}
           fallback={<AssetIconPlaceholder metadata={metadata} size={ASSET_IMAGE_DEFAULT_SIZE} />}
         />
+
         {network && (
-          <EvmNetworkLogo
-            ref={networkIconRef}
-            className="absolute bottom-0 right-0"
-            networkName={network.name}
-            chainId={network.chainId}
-            size={NETWORK_IMAGE_DEFAULT_SIZE}
-          />
+          <NetworkLogoTooltipWrap networkName={network.name} className="absolute bottom-0 right-0">
+            <EvmNetworkLogo networkName={network.name} chainId={network.chainId} size={NETWORK_IMAGE_DEFAULT_SIZE} />
+          </NetworkLogoTooltipWrap>
         )}
       </div>
     );
