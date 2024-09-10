@@ -8,7 +8,7 @@ import { EmptyState } from 'app/atoms/EmptyState';
 import { PageModal } from 'app/atoms/PageModal';
 import { RadioButton } from 'app/atoms/RadioButton';
 import { StyledButton } from 'app/atoms/StyledButton';
-import { ReactComponent as CopyIcon } from 'app/icons/monochrome/copy.svg';
+import { ReactComponent as CopyIcon } from 'app/icons/base/copy.svg';
 import { SpinnerSection } from 'app/pages/Send/form/SpinnerSection';
 import { SearchBarField } from 'app/templates/SearchField';
 import { toastSuccess } from 'app/toaster';
@@ -220,8 +220,8 @@ const AccountOfGroup = memo<AccountOfGroupProps>(({ name, address, iconHash, isC
       ref={elemRef}
       className={clsx(
         'flex flex-row justify-between items-center p-3',
-        'rounded-lg shadow-bottom border',
-        isCurrent ? 'border-primary' : 'cursor-pointer group border-transparent hover:border-lines'
+        'rounded-lg shadow-bottom border group',
+        isCurrent ? 'border-primary' : 'cursor-pointer border-transparent hover:border-lines'
       )}
       onClick={onClick}
     >
@@ -247,16 +247,17 @@ interface AddressProps {
 
 const Address = memo<AddressProps>(({ address }) => (
   <div
-    className="flex flex-row items-center p-0.5"
-    onClick={() => {
+    className="flex flex-row items-center p-0.5 cursor-pointer"
+    onClick={e => {
+      e.stopPropagation();
       window.navigator.clipboard.writeText(address);
       toastSuccess('Address Copied');
     }}
   >
-    <span className="text-font-description text-grey-1 hover:text-secondary">
+    <span className="text-font-description text-grey-1 group-hover:text-secondary">
       <HashShortView hash={address} />
     </span>
-    <IconBase Icon={CopyIcon} size={12} className="ml-0.5 text-secondary hidden hover:block" />
+    <IconBase Icon={CopyIcon} size={12} className="ml-0.5 text-secondary hidden group-hover:block" />
   </div>
 ));
 
