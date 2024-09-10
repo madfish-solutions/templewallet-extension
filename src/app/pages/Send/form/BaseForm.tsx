@@ -5,6 +5,7 @@ import BigNumber from 'bignumber.js';
 import { isString } from 'lodash';
 import { Controller, OnSubmit, Validate } from 'react-hook-form';
 import { FormContextValues } from 'react-hook-form/dist/contextTypes';
+import { useDebounce } from 'use-debounce';
 
 import { Button, NoSpaceField } from 'app/atoms';
 import AssetField from 'app/atoms/AssetField';
@@ -20,7 +21,7 @@ import { TempleChainKind } from 'temple/types';
 import { SelectAccountModal } from '../modals/SelectAccount';
 
 import { SendFormData } from './interfaces';
-import { SelectAccountButton } from './SelectAccountButton';
+import { SELECT_ACCOUNT_BUTTON_ID, SelectAccountButton } from './SelectAccountButton';
 import { SelectAssetButton } from './SelectAssetButton';
 import { SendFormSelectors } from './selectors';
 
@@ -37,6 +38,7 @@ interface Props {
   onSelectAssetClick: EmptyFn;
   onSubmit: OnSubmit<SendFormData>;
   maxAmount: BigNumber;
+  isToFilledWithFamiliarAddress: boolean;
   evm?: boolean;
 }
 
@@ -53,14 +55,15 @@ export const BaseForm: FC<Props> = ({
   validateRecipient,
   onSelectAssetClick,
   onSubmit,
+  isToFilledWithFamiliarAddress,
   evm
 }) => {
-  const [selectedRecipientAddress, setSelectedRecipientAddress] = useState('');
   const [selectAccountModalOpened, setSelectAccountModalOpen, setSelectAccountModalClosed] = useBooleanState(false);
 
   const { watch, handleSubmit, errors, control, setValue, triggerValidation, getValues } = form;
 
   const toValue = watch('to');
+  const [toValueDebounced] = useDebounce(toValue, 300);
   const amountValue = watch('amount');
 
   //const { onBlur } = useAddressFieldAnalytics(network, toValue, 'RECIPIENT_NETWORK');
@@ -108,10 +111,19 @@ export const BaseForm: FC<Props> = ({
       .catch(console.error);
   }, [setValue]);
 
-  const handleToFieldBlur = useCallback(() => {
+  const handleToFieldBlur = useCallback<FocusEventHandler>(
+    e => {
+      if (e.relatedTarget?.id === SELECT_ACCOUNT_BUTTON_ID) return;
+
+      setToFieldFocused(false);
+    },
+    [setToFieldFocused]
+  );
+
+  const handleSelectRecipientButtonClick = useCallback(() => {
     setToFieldFocused(false);
-    //onBlur();
-  }, [setToFieldFocused]);
+    setSelectAccountModalOpen();
+  }, [setSelectAccountModalOpen]);
 
   const toAssetAmount = useCallback(
     (fiatAmount: BigNumber.Value) =>
@@ -147,10 +159,10 @@ export const BaseForm: FC<Props> = ({
 
   const handleRecipientAddressSelect = useCallback(
     (address: string) => {
-      setSelectedRecipientAddress(address);
+      setValue('to', address);
       setSelectAccountModalClosed();
     },
-    [setSelectAccountModalClosed]
+    [setSelectAccountModalClosed, setValue]
   );
 
   return (
@@ -192,8 +204,8 @@ export const BaseForm: FC<Props> = ({
                 }
                 underneathComponent={
                   <div className="flex justify-between mt-1">
-                    <span>
-                      {amountValue ? (
+                    <div className="max-w-40">
+                      {amountValue && (
                         <ConvertedInputAssetAmount
                           chainId={network.chainId}
                           assetSlug={assetSlug}
@@ -202,11 +214,11 @@ export const BaseForm: FC<Props> = ({
                           toFiat={!shouldUseFiat}
                           evm={network.kind === TempleChainKind.EVM}
                         />
-                      ) : null}
-                    </span>
+                      )}
+                    </div>
                     {canToggleFiat && (
                       <Button
-                        className="text-font-description-bold text-secondary px-1 py-0.5"
+                        className="text-font-description-bold text-secondary px-1 py-0.5 max-w-40 truncate"
                         onClick={handleFiatToggle}
                       >
                         Switch to {shouldUseFiat ? assetSymbol : selectedFiatCurrency.name}
@@ -252,7 +264,13 @@ export const BaseForm: FC<Props> = ({
             }
           />
 
-          <SelectAccountButton value={selectedRecipientAddress} onClick={setSelectAccountModalOpen} />
+          {(toFieldFocused || isToFilledWithFamiliarAddress) && (
+            <SelectAccountButton
+              value={toValueDebounced}
+              onClick={handleSelectRecipientButtonClick}
+              testID={SendFormSelectors.selectAccountButton}
+            />
+          )}
         </form>
       </div>
 
@@ -263,7 +281,7 @@ export const BaseForm: FC<Props> = ({
       </div>
 
       <SelectAccountModal
-        selectedAccountAddress={selectedRecipientAddress}
+        selectedAccountAddress={toValueDebounced}
         onAccountSelect={handleRecipientAddressSelect}
         opened={selectAccountModalOpened}
         onRequestClose={setSelectAccountModalClosed}

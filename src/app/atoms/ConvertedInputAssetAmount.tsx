@@ -39,7 +39,7 @@ export const ConvertedInputAssetAmount = memo<Props>(
       <div className="flex items-baseline text-font-num-12 text-grey-1">
         <span>≈</span>
         <span className="mx-1">{amountValue}</span>
-        <span>{assetSymbol}</span>
+        <span className="truncate">{assetSymbol}</span>
       </div>
     );
   }

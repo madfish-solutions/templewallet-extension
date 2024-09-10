@@ -24,8 +24,9 @@ import { TempleAccountType } from 'lib/temple/types';
 import { isValidTezosAddress, isTezosContractAddress, tezosManagerKeyHasManager } from 'lib/tezos';
 import { useSafeState } from 'lib/ui/hooks';
 import { ZERO } from 'lib/utils/numbers';
-import { AccountForTezos } from 'temple/accounts';
-import { useAccountForTezos, useTezosChainByChainId } from 'temple/front';
+import { AccountForTezos, getAccountAddressForTezos } from 'temple/accounts';
+import { useAccountForTezos, useTezosChainByChainId, useVisibleAccounts } from 'temple/front';
+import { useSettings } from 'temple/front/ready';
 import {
   isTezosDomainsNameValid,
   getTezosToolkitWithSigner,
@@ -50,6 +51,9 @@ export const TezosForm: FC<Props> = ({ chainId, assetSlug, onSelectAssetClick })
   const network = useTezosChainByChainId(chainId);
 
   if (!account || !network) throw new DeadEndBoundaryError();
+
+  const allAccounts = useVisibleAccounts();
+  const { contacts } = useSettings();
 
   const assetMetadata = useTezosAssetMetadata(assetSlug, chainId);
   const assetPrice = useAssetFiatCurrencyPrice(assetSlug, chainId);
@@ -105,6 +109,24 @@ export const TezosForm: FC<Props> = ({ chainId, assetSlug, onSelectAssetClick })
   );
 
   const toResolved = useMemo(() => resolvedAddress || toValue, [resolvedAddress, toValue]);
+
+  const isToFilledWithFamiliarAddress = useMemo(() => {
+    if (!toFilled) return false;
+
+    let value = false;
+
+    allAccounts.forEach(acc => {
+      const tezosAddress = getAccountAddressForTezos(acc);
+
+      if (tezosAddress === toResolved) value = true;
+    });
+
+    contacts?.forEach(contact => {
+      if (contact.address === toResolved) value = true;
+    });
+
+    return value;
+  }, [allAccounts, contacts, toFilled, toResolved]);
 
   const estimateBaseFee = useCallback(async () => {
     try {
@@ -177,7 +199,7 @@ export const TezosForm: FC<Props> = ({ chainId, assetSlug, onSelectAssetClick })
   const safeFeeValue = useMemo(() => (maxAddFee && feeValue > maxAddFee ? maxAddFee : feeValue), [maxAddFee, feeValue]);
 
   const maxAmount = useMemo(() => {
-    if (!(baseFee instanceof BigNumber)) return null;
+    if (!(baseFee instanceof BigNumber)) return balance;
 
     const maxAmountAsset = isTezAsset(assetSlug)
       ? getMaxAmountToken(account.type, balance, baseFee, safeFeeValue)
@@ -292,6 +314,7 @@ export const TezosForm: FC<Props> = ({ chainId, assetSlug, onSelectAssetClick })
       validateAmount={validateAmount}
       validateRecipient={(value: string) => validateRecipient(value, domainsClient)}
       onSelectAssetClick={onSelectAssetClick}
+      isToFilledWithFamiliarAddress={isToFilledWithFamiliarAddress}
       onSubmit={onSubmit}
     />
   );

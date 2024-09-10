@@ -2,7 +2,7 @@ import React, { memo } from 'react';
 
 import clsx from 'clsx';
 
-import { IconBase } from 'app/atoms';
+import { Button, IconBase } from 'app/atoms';
 import Money from 'app/atoms/Money';
 import { ReactComponent as CompactDown } from 'app/icons/base/compact_down.svg';
 import { useEvmTokenMetadataSelector } from 'app/store/evm/tokens-metadata/selectors';
@@ -25,7 +25,7 @@ interface SelectAssetButtonProps extends TestIDProperty {
 
 export const SelectAssetButton = memo<SelectAssetButtonProps>(
   ({ selectedAssetSlug, network, accountPkh, onClick, className, testID }) => (
-    <div
+    <Button
       className={clsx(
         'cursor-pointer flex justify-between items-center py-1.5 px-3 rounded-lg shadow-bottom border-0.5 border-transparent hover:border-lines',
         className
@@ -44,7 +44,7 @@ export const SelectAssetButton = memo<SelectAssetButtonProps>(
         )}
       </div>
       <IconBase Icon={CompactDown} className="text-primary" size={16} />
-    </div>
+    </Button>
   )
 );
 

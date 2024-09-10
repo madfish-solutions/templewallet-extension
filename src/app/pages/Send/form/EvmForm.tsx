@@ -14,10 +14,12 @@ import { getAssetSymbol } from 'lib/metadata';
 import { useTypedSWR } from 'lib/swr';
 import { isEvmNativeTokenSlug } from 'lib/utils/evm.utils';
 import { ZERO } from 'lib/utils/numbers';
+import { getAccountAddressForEvm } from 'temple/accounts';
 import { getReadOnlyEvm } from 'temple/evm';
-import { useAccountForEvm } from 'temple/front';
+import { useAccountForEvm, useVisibleAccounts } from 'temple/front';
 import { useEvmChainByChainId } from 'temple/front/chains';
 import { useEvmAddressByDomainName } from 'temple/front/evm/ens';
+import { useSettings } from 'temple/front/ready';
 
 import { BaseForm } from './BaseForm';
 import { SendFormData } from './interfaces';
@@ -33,6 +35,9 @@ export const EvmForm: FC<Props> = ({ chainId, assetSlug, onSelectAssetClick }) =
   const network = useEvmChainByChainId(chainId);
 
   if (!account || !network) throw new DeadEndBoundaryError();
+
+  const allAccounts = useVisibleAccounts();
+  const { contacts } = useSettings();
 
   const accountPkh = account.address as HexString;
 
@@ -74,6 +79,24 @@ export const EvmForm: FC<Props> = ({ chainId, assetSlug, onSelectAssetClick }) =
       return undefined;
     }
   }, [resolvedAddress, toValue]);
+
+  const isToFilledWithFamiliarAddress = useMemo(() => {
+    if (!toFilled) return false;
+
+    let value = false;
+
+    allAccounts.forEach(acc => {
+      const evmAddress = getAccountAddressForEvm(acc);
+
+      if (evmAddress === toResolved) value = true;
+    });
+
+    contacts?.forEach(contact => {
+      if (contact.address === toResolved) value = true;
+    });
+
+    return value;
+  }, [allAccounts, contacts, toFilled, toResolved]);
 
   const estimateMaxFee = useCallback(async () => {
     if (!toResolved) return;
@@ -164,6 +187,7 @@ export const EvmForm: FC<Props> = ({ chainId, assetSlug, onSelectAssetClick }) =
       validateAmount={(value: string) => Boolean(value)}
       validateRecipient={(value: string) => Boolean(value)}
       onSelectAssetClick={onSelectAssetClick}
+      isToFilledWithFamiliarAddress={isToFilledWithFamiliarAddress}
       onSubmit={onSubmit}
     />
   );
