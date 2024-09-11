@@ -14,7 +14,6 @@ export class GeneralSettingsPage extends Page {
   extensionLockUpCheckBox = createPageElement(SettingsGeneralSelectors.extensionLockUpCheckBox);
   anonymousAnalyticsCheckBox = createPageElement(SettingsGeneralSelectors.anonymousAnalyticsCheckBox);
   notificationCheckBox = createPageElement(SettingsGeneralSelectors.notificationCheckBox);
-  partnersPromotion = createPageElement(SettingsGeneralSelectors.partnersPromotion);
 
   async isVisible() {
     await this.languageDropDown.waitForDisplayed();
@@ -24,6 +23,5 @@ export class GeneralSettingsPage extends Page {
     await this.extensionLockUpCheckBox.waitForDisplayed();
     await this.anonymousAnalyticsCheckBox.waitForDisplayed();
     await this.notificationCheckBox.waitForDisplayed();
-    await this.partnersPromotion.waitForDisplayed();
   }
 }
