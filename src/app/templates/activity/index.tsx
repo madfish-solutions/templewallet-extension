@@ -2,23 +2,54 @@ import React, { FC, memo } from 'react';
 
 import clsx from 'clsx';
 
-import { Anchor, HashShortView, IconBase, SyncSpinner } from 'app/atoms';
+import { Anchor, HashShortView, IconBase, Money, SyncSpinner } from 'app/atoms';
 import { EmptyState } from 'app/atoms/EmptyState';
 import { EvmNetworkLogo, NetworkLogoTooltipWrap, TezosNetworkLogo } from 'app/atoms/NetworkLogo';
 import { DeadEndBoundaryError } from 'app/ErrorBoundary';
 import { ReactComponent as CompactDownIcon } from 'app/icons/base/compact_down.svg';
-import { ReactComponent as DocumentsIcon } from 'app/icons/base/documents.svg';
+import { ReactComponent as DocumentsSvg } from 'app/icons/base/documents.svg';
+import { ReactComponent as IncomeSvg } from 'app/icons/base/income.svg';
 import { ReactComponent as OutLinkIcon } from 'app/icons/base/outLink.svg';
+import { ReactComponent as SendSvg } from 'app/icons/base/send.svg';
+import { ReactComponent as SwapSvg } from 'app/icons/base/swap.svg';
+import { ContentContainer } from 'app/layouts/containers';
+import { useChainSelectController, ChainSelectSection } from 'app/templates/ChainSelect';
 import { getEvmTransactions, GoldRushTransaction } from 'lib/apis/temple/endpoints/evm';
+import { toTokenSlug } from 'lib/assets';
 import { t } from 'lib/i18n';
 import { useTypedSWR } from 'lib/swr';
+import { atomsToTokens } from 'lib/temple/helpers';
 import { useBooleanState } from 'lib/ui/hooks';
 import { getEvmAddressSafe } from 'lib/utils/evm.utils';
 import { useAccountAddressForEvm } from 'temple/front';
 import { OneOfChains, useEvmChainByChainId } from 'temple/front/chains';
 import { TempleChainKind } from 'temple/types';
 
-import { ReactComponent as InteractionsConnectorSvg } from '../interactions-connector.svg';
+import { ReactComponent as InteractionsConnectorSvg } from './interactions-connector.svg';
+import { TezosActivityTab } from './tezos';
+
+export { TezosActivityTab };
+
+export const ActivityWithChainSelect = memo(() => {
+  const chainSelectController = useChainSelectController();
+  const network = chainSelectController.value;
+
+  return (
+    <>
+      <div className="h-3" />
+
+      <ContentContainer>
+        <ChainSelectSection controller={chainSelectController} />
+
+        {network.kind === 'tezos' ? (
+          <TezosActivityTab tezosChainId={network.chainId} />
+        ) : (
+          <EvmActivityTab chainId={network.chainId} />
+        )}
+      </ContentContainer>
+    </>
+  );
+});
 
 interface EvmActivityTabProps {
   chainId: number;
@@ -76,30 +107,54 @@ function parseGoldRushTransaction(item: GoldRushTransaction, chainId: number, ac
         if (logEvent.decoded?.name === 'Approval') return ActivityKindEnum.approve;
 
         if (logEvent.decoded?.name === 'Transfer') {
-          if (getEvmAddressSafe(logEvent.decoded.params[0].value) === accountAddress) return ActivityKindEnum.send;
-          if (getEvmAddressSafe(logEvent.decoded.params[1].value) === accountAddress) return ActivityKindEnum.receive;
+          if (getEvmAddressSafe(logEvent.decoded.params[0]?.value) === accountAddress) return ActivityKindEnum.send;
+          if (getEvmAddressSafe(logEvent.decoded.params[1]?.value) === accountAddress) return ActivityKindEnum.receive;
         }
       }
 
       return ActivityKindEnum.interaction;
     })(),
     hash: item.tx_hash!,
-    operations: logEvents.map<EvmOperation>(logEvent => ({
-      kind: (() => {
+    operations: logEvents.map<EvmOperation>(logEvent => {
+      const kind: ActivityKindEnum = (() => {
         if (logEvent.decoded?.name === 'Approval') return ActivityKindEnum.approve;
 
         if (logEvent.decoded?.name === 'Transfer') {
-          if (getEvmAddressSafe(logEvent.decoded.params[0].value) === accountAddress) return ActivityKindEnum.send;
-          if (getEvmAddressSafe(logEvent.decoded.params[1].value) === accountAddress) return ActivityKindEnum.receive;
+          if (getEvmAddressSafe(logEvent.decoded.params[0]?.value) === accountAddress) return ActivityKindEnum.send;
+          if (getEvmAddressSafe(logEvent.decoded.params[1]?.value) === accountAddress) return ActivityKindEnum.receive;
         }
 
         return ActivityKindEnum.interaction;
-      })()
-    }))
+      })();
+
+      return {
+        kind,
+        asset: (() => {
+          if (kind !== ActivityKindEnum.send && kind !== ActivityKindEnum.receive) return;
+
+          const value: string = logEvent.decoded?.params[2]?.value ?? '0';
+          const decimals = logEvent.sender_contract_decimals;
+          const contractAddress = getEvmAddressSafe(logEvent.sender_address);
+          const nft = logEvent.decoded?.params[2]?.indexed ?? false;
+
+          if (!contractAddress || decimals == null) return;
+
+          return {
+            slug: toTokenSlug(contractAddress, nft ? value : undefined),
+            amount: nft ? '1' : kind === ActivityKindEnum.send ? `-${value}` : value,
+            decimals: nft ? 0 : decimals ?? 0,
+            symbol: logEvent.sender_contract_ticker_symbol ?? undefined,
+            nft
+          };
+        })()
+      };
+    })
   };
 }
 
 const ActivityComponent: FC<{ activity: Activity; chain: OneOfChains }> = ({ activity, chain }) => {
+  if (activity.chain !== TempleChainKind.EVM) throw new Error('Tezos activities in dev');
+
   const [expanded, , , toggleExpanded] = useBooleanState(false);
 
   const networkName = chain.nameI18nKey ? t(chain.nameI18nKey) : chain.name;
@@ -116,12 +171,12 @@ const ActivityComponent: FC<{ activity: Activity; chain: OneOfChains }> = ({ act
       />
     );
 
-  const operations = activity.operations;
+  const operations = activity.operations as EvmOperation[];
 
   return (
     <div className="flex flex-col">
       {operations.slice(0, 3).map((operation, i) => (
-        <>
+        <React.Fragment key={`${hash}-${i}`}>
           {i > 0 && <InteractionsConnector />}
 
           <ActivityItemBaseComponent
@@ -130,8 +185,9 @@ const ActivityComponent: FC<{ activity: Activity; chain: OneOfChains }> = ({ act
             hash={hash}
             chainId={chain.chainId}
             networkName={networkName}
+            asset={operation.asset}
           />
-        </>
+        </React.Fragment>
       ))}
 
       {operations.length > 3 ? (
@@ -147,17 +203,17 @@ const ActivityComponent: FC<{ activity: Activity; chain: OneOfChains }> = ({ act
 
           {expanded
             ? operations.slice(3).map((operation, j) => (
-                <>
+                <React.Fragment key={`${hash}-${j}`}>
                   {j > 0 && <InteractionsConnector />}
 
                   <ActivityItemBaseComponent
-                    key={`${hash}-${j}`}
                     kind={operation.kind}
                     hash={hash}
                     chainId={chain.chainId}
                     networkName={networkName}
+                    asset={operation.asset}
                   />
-                </>
+                </React.Fragment>
               ))
             : null}
         </>
@@ -177,15 +233,20 @@ interface ActivityItemBaseComponentProps {
   kind: ActivityKindEnum;
   hash: string;
   networkName: string;
+  asset?: {
+    amount: string;
+    decimals: number;
+    symbol?: string;
+  };
 }
 
-const ActivityItemBaseComponent: FC<ActivityItemBaseComponentProps> = ({ kind, hash, chainId, networkName }) => {
+const ActivityItemBaseComponent: FC<ActivityItemBaseComponentProps> = ({ kind, hash, chainId, networkName, asset }) => {
   return (
     <Anchor className="group flex gap-x-2 p-2 rounded-lg hover:bg-secondary-low">
       <div className="relative flex items-center justify-center w-10">
         <div className="w-full h-full flex items-center justify-center rounded-full bg-grey-4">
           {/* <img alt="asset" className="w-9 h-9" /> */}
-          <IconBase Icon={DocumentsIcon} size={16} className="text-grey-1" />
+          <IconBase Icon={ActivityKindIconSvg[kind]} size={16} className="text-grey-1" />
         </div>
 
         <NetworkLogoTooltipWrap networkName={networkName} className="absolute bottom-0 right-0">
@@ -201,7 +262,13 @@ const ActivityItemBaseComponent: FC<ActivityItemBaseComponentProps> = ({ kind, h
         <div className="flex gap-x-2 justify-between">
           <div className="text-font-medium">{ActivityKindTitle[kind]}</div>
 
-          <div className="text-font-num-14">-33 USDT</div>
+          {asset && (
+            <div className="text-font-num-14">
+              {asset.amount.startsWith('-') ? null : '+'}
+              <Money smallFractionFont={false}>{atomsToTokens(asset.amount, asset.decimals).toFixed(6)}</Money>{' '}
+              {asset.symbol || '???'}
+            </div>
+          )}
         </div>
 
         <div className="flex gap-x-2 justify-between text-font-num-12 text-grey-1">
@@ -234,6 +301,14 @@ const ActivityKindTitle: Record<ActivityKindEnum, string> = {
   [ActivityKindEnum.approve]: 'Approve'
 };
 
+const ActivityKindIconSvg: Record<ActivityKindEnum, ImportedSVGComponent> = {
+  [ActivityKindEnum.interaction]: DocumentsSvg,
+  [ActivityKindEnum.send]: SendSvg,
+  [ActivityKindEnum.receive]: IncomeSvg,
+  [ActivityKindEnum.swap]: SwapSvg,
+  [ActivityKindEnum.approve]: DocumentsSvg
+};
+
 type Activity = TezosActivity | EvmActivity;
 
 interface ActivityBase {
@@ -258,6 +333,14 @@ interface EvmActivity extends ActivityBase {
   operations: EvmOperation[];
 }
 
-interface EvmOperation {
-  kind: ActivityKindEnum;
+interface EvmOperation extends ActivityBase {
+  asset?: EvmActivityAsset;
+}
+
+interface EvmActivityAsset {
+  slug: string;
+  amount: string;
+  decimals: number;
+  nft?: boolean;
+  symbol?: string;
 }

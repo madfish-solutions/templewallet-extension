@@ -1,0 +1,8 @@
+- NFTs
+- Asset details (name, symbol, decimals) due to user's wallet set-up
+- `FAILED` // Look into `successful": false`
+- Block explorers href
+- Date grouping
+- Infinite scroll
+- New loader
+-

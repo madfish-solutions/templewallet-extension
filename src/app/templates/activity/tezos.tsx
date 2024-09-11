@@ -1,74 +1,31 @@
-import React, { memo, FC, useMemo } from 'react';
+import React, { memo, useMemo } from 'react';
 
 import clsx from 'clsx';
 import InfiniteScroll from 'react-infinite-scroll-component';
 
 import { SyncSpinner } from 'app/atoms';
-import { SuspenseContainer } from 'app/atoms/SuspenseContainer';
 import { useAppEnv } from 'app/env';
 import { DeadEndBoundaryError } from 'app/ErrorBoundary';
 import { useLoadPartnersPromo } from 'app/hooks/use-load-partners-promo';
 import { ReactComponent as LayersIcon } from 'app/icons/layers.svg';
-import { ContentContainer } from 'app/layouts/containers';
 import { useShouldShowPartnersPromoSelector } from 'app/store/partners-promotion/selectors';
-import { useChainSelectController, ChainSelectSection } from 'app/templates/ChainSelect';
 import { PartnersPromotion, PartnersPromotionVariant } from 'app/templates/partners-promotion';
 import { TEMPLE_TOKEN_SLUG } from 'lib/assets';
-import { t, T } from 'lib/i18n/react';
+import { T } from 'lib/i18n/react';
 import useTezosActivities from 'lib/temple/activity-new/hook';
 import { useAccountAddressForTezos, useTezosChainByChainId } from 'temple/front';
 
 import { ActivityItem } from './ActivityItem';
-import { EvmActivityTab } from './evm';
 import { ReactivateAdsBanner } from './ReactivateAdsBanner';
-
-export { EvmActivityTab };
 
 const INITIAL_NUMBER = 30;
 const LOAD_STEP = 30;
-
 interface Props {
-  tezosChainId?: string;
-  assetSlug?: string;
-}
-
-export const ActivityTab = memo<Props>(({ tezosChainId, assetSlug }) => (
-  <SuspenseContainer errorMessage={t('operationHistoryWhileMessage')}>
-    {tezosChainId ? (
-      <TezosActivityTab tezosChainId={tezosChainId} assetSlug={assetSlug} />
-    ) : (
-      <ActivityWithChainSelect />
-    )}
-  </SuspenseContainer>
-));
-
-const ActivityWithChainSelect = memo(() => {
-  const chainSelectController = useChainSelectController();
-  const network = chainSelectController.value;
-
-  return (
-    <>
-      <div className="h-3" />
-
-      <ContentContainer>
-        <ChainSelectSection controller={chainSelectController} />
-
-        {network.kind === 'tezos' ? (
-          <TezosActivityTab tezosChainId={network.chainId} />
-        ) : (
-          <EvmActivityTab chainId={network.chainId} />
-        )}
-      </ContentContainer>
-    </>
-  );
-});
-
-interface TezosActivityTabProps {
   tezosChainId: string;
   assetSlug?: string;
 }
 
-const TezosActivityTab: FC<TezosActivityTabProps> = ({ tezosChainId, assetSlug }) => {
+export const TezosActivityTab = memo<Props>(({ tezosChainId, assetSlug }) => {
   const network = useTezosChainByChainId(tezosChainId);
   const accountAddress = useAccountAddressForTezos();
   if (!network || !accountAddress) throw new DeadEndBoundaryError();
@@ -142,7 +99,7 @@ const TezosActivityTab: FC<TezosActivityTabProps> = ({ tezosChainId, assetSlug }
       </InfiniteScroll>
     </div>
   );
-};
+});
 
 /**
  * Build onscroll listener to trigger next loading, when fetching data resulted in error.
