@@ -16,44 +16,48 @@ import { TezosAssetImage, AssetImageBaseProps, EvmAssetImage } from './AssetImag
 interface TezosAssetIconProps extends Omit<AssetImageBaseProps, 'sources' | 'metadata' | 'loader' | 'fallback'> {
   tezosChainId: string;
   assetSlug: string;
+  Loader?: React.ComponentType;
+  Fallback?: React.ComponentType;
 }
 
-export const TezosAssetIcon = memo<TezosAssetIconProps>(({ tezosChainId, className, style, ...props }) => {
-  const metadata = useTezosAssetMetadata(props.assetSlug, tezosChainId);
+export const TezosAssetIcon = memo<TezosAssetIconProps>(
+  ({ tezosChainId, className, style, Loader, Fallback, ...props }) => {
+    const metadata = useTezosAssetMetadata(props.assetSlug, tezosChainId);
 
-  return (
-    <div className={clsx('flex items-center justify-center', className)} style={style}>
-      <TezosAssetImage
-        {...props}
-        metadata={metadata}
-        loader={<AssetIconPlaceholder metadata={metadata} size={props.size} />}
-        fallback={<AssetIconPlaceholder metadata={metadata} size={props.size} />}
-      />
-    </div>
-  );
-});
+    return (
+      <div className={clsx('flex items-center justify-center', className)} style={style}>
+        <TezosAssetImage
+          {...props}
+          metadata={metadata}
+          loader={Loader ? <Loader /> : <AssetIconPlaceholder metadata={metadata} size={props.size} />}
+          fallback={Fallback ? <Fallback /> : <AssetIconPlaceholder metadata={metadata} size={props.size} />}
+        />
+      </div>
+    );
+  }
+);
 
 interface EvmAssetIconProps extends Omit<AssetImageBaseProps, 'sources' | 'metadata' | 'loader' | 'fallback'> {
   evmChainId: number;
   assetSlug: string;
+  Loader?: React.ComponentType;
+  Fallback?: React.ComponentType;
 }
 
-export const EvmTokenIcon = memo<EvmAssetIconProps>(({ evmChainId, assetSlug, className, style, ...props }) => {
+export const EvmTokenIcon = memo<EvmAssetIconProps>(({ evmChainId, assetSlug, Loader, Fallback, ...props }) => {
   const network = useEvmChainByChainId(evmChainId);
   const tokenMetadata = useEvmTokenMetadataSelector(evmChainId, assetSlug);
 
   const metadata = isEvmNativeTokenSlug(assetSlug) ? network?.currency : tokenMetadata;
 
   return (
-    <div className={clsx('flex items-center justify-center', className)} style={style}>
-      <EvmAssetImage
-        {...props}
-        evmChainId={evmChainId}
-        metadata={metadata}
-        loader={<AssetIconPlaceholder metadata={metadata} size={props.size} />}
-        fallback={<AssetIconPlaceholder metadata={metadata} size={props.size} />}
-      />
-    </div>
+    <EvmAssetImage
+      {...props}
+      evmChainId={evmChainId}
+      metadata={metadata}
+      loader={Loader ? <Loader /> : <AssetIconPlaceholder metadata={metadata} size={props.size} />}
+      fallback={Fallback ? <Fallback /> : <AssetIconPlaceholder metadata={metadata} size={props.size} />}
+    />
   );
 });
 

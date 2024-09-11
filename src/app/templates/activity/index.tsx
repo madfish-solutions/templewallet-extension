@@ -2,31 +2,24 @@ import React, { FC, memo } from 'react';
 
 import clsx from 'clsx';
 
-import { Anchor, HashShortView, IconBase, Money, SyncSpinner } from 'app/atoms';
+import { IconBase, SyncSpinner } from 'app/atoms';
 import { EmptyState } from 'app/atoms/EmptyState';
-import { EvmNetworkLogo, NetworkLogoTooltipWrap, TezosNetworkLogo } from 'app/atoms/NetworkLogo';
 import { DeadEndBoundaryError } from 'app/ErrorBoundary';
 import { ReactComponent as CompactDownIcon } from 'app/icons/base/compact_down.svg';
-import { ReactComponent as DocumentsSvg } from 'app/icons/base/documents.svg';
-import { ReactComponent as IncomeSvg } from 'app/icons/base/income.svg';
-import { ReactComponent as OutLinkIcon } from 'app/icons/base/outLink.svg';
-import { ReactComponent as SendSvg } from 'app/icons/base/send.svg';
-import { ReactComponent as SwapSvg } from 'app/icons/base/swap.svg';
 import { ContentContainer } from 'app/layouts/containers';
 import { useChainSelectController, ChainSelectSection } from 'app/templates/ChainSelect';
-import { getEvmTransactions, GoldRushTransaction } from 'lib/apis/temple/endpoints/evm';
-import { toTokenSlug } from 'lib/assets';
+import { getEvmTransactions } from 'lib/apis/temple/endpoints/evm';
 import { t } from 'lib/i18n';
 import { useTypedSWR } from 'lib/swr';
-import { atomsToTokens } from 'lib/temple/helpers';
 import { useBooleanState } from 'lib/ui/hooks';
-import { getEvmAddressSafe } from 'lib/utils/evm.utils';
 import { useAccountAddressForEvm } from 'temple/front';
 import { OneOfChains, useEvmChainByChainId } from 'temple/front/chains';
 import { TempleChainKind } from 'temple/types';
 
+import { ActivityItemBaseComponent } from './ActivityItemBase';
 import { ReactComponent as InteractionsConnectorSvg } from './interactions-connector.svg';
 import { TezosActivityTab } from './tezos';
+import { Activity, ActivityKindEnum, EvmOperation, parseGoldRushTransaction } from './utils';
 
 export { TezosActivityTab };
 
@@ -92,66 +85,6 @@ export const EvmActivityTab: FC<EvmActivityTabProps> = ({ chainId, assetSlug }) 
   );
 };
 
-function parseGoldRushTransaction(item: GoldRushTransaction, chainId: number, accountAddress: string): EvmActivity {
-  const logEvents = item.log_events ?? [];
-
-  return {
-    chain: TempleChainKind.EVM,
-    chainId,
-    kind: (() => {
-      if (!logEvents.length) {
-        if (getEvmAddressSafe(item.from_address) === accountAddress) return ActivityKindEnum.send;
-        if (getEvmAddressSafe(item.to_address) === accountAddress) return ActivityKindEnum.receive;
-      } else if (logEvents.length === 1) {
-        const logEvent = logEvents[0]!;
-        if (logEvent.decoded?.name === 'Approval') return ActivityKindEnum.approve;
-
-        if (logEvent.decoded?.name === 'Transfer') {
-          if (getEvmAddressSafe(logEvent.decoded.params[0]?.value) === accountAddress) return ActivityKindEnum.send;
-          if (getEvmAddressSafe(logEvent.decoded.params[1]?.value) === accountAddress) return ActivityKindEnum.receive;
-        }
-      }
-
-      return ActivityKindEnum.interaction;
-    })(),
-    hash: item.tx_hash!,
-    operations: logEvents.map<EvmOperation>(logEvent => {
-      const kind: ActivityKindEnum = (() => {
-        if (logEvent.decoded?.name === 'Approval') return ActivityKindEnum.approve;
-
-        if (logEvent.decoded?.name === 'Transfer') {
-          if (getEvmAddressSafe(logEvent.decoded.params[0]?.value) === accountAddress) return ActivityKindEnum.send;
-          if (getEvmAddressSafe(logEvent.decoded.params[1]?.value) === accountAddress) return ActivityKindEnum.receive;
-        }
-
-        return ActivityKindEnum.interaction;
-      })();
-
-      return {
-        kind,
-        asset: (() => {
-          if (kind !== ActivityKindEnum.send && kind !== ActivityKindEnum.receive) return;
-
-          const value: string = logEvent.decoded?.params[2]?.value ?? '0';
-          const decimals = logEvent.sender_contract_decimals;
-          const contractAddress = getEvmAddressSafe(logEvent.sender_address);
-          const nft = logEvent.decoded?.params[2]?.indexed ?? false;
-
-          if (!contractAddress || decimals == null) return;
-
-          return {
-            slug: toTokenSlug(contractAddress, nft ? value : undefined),
-            amount: nft ? '1' : kind === ActivityKindEnum.send ? `-${value}` : value,
-            decimals: nft ? 0 : decimals ?? 0,
-            symbol: logEvent.sender_contract_ticker_symbol ?? undefined,
-            nft
-          };
-        })()
-      };
-    })
-  };
-}
-
 const ActivityComponent: FC<{ activity: Activity; chain: OneOfChains }> = ({ activity, chain }) => {
   if (activity.chain !== TempleChainKind.EVM) throw new Error('Tezos activities in dev');
 
@@ -168,6 +101,7 @@ const ActivityComponent: FC<{ activity: Activity; chain: OneOfChains }> = ({ act
         hash={activity.hash}
         chainId={chain.chainId}
         networkName={networkName}
+        asset={activity.asset}
       />
     );
 
@@ -227,120 +161,3 @@ const InteractionsConnector = memo(() => (
     <InteractionsConnectorSvg className="h-4 text-grey-3 fill-current stroke-current -translate-y-1/2" />
   </div>
 ));
-
-interface ActivityItemBaseComponentProps {
-  chainId: string | number;
-  kind: ActivityKindEnum;
-  hash: string;
-  networkName: string;
-  asset?: {
-    amount: string;
-    decimals: number;
-    symbol?: string;
-  };
-}
-
-const ActivityItemBaseComponent: FC<ActivityItemBaseComponentProps> = ({ kind, hash, chainId, networkName, asset }) => {
-  return (
-    <Anchor className="group flex gap-x-2 p-2 rounded-lg hover:bg-secondary-low">
-      <div className="relative flex items-center justify-center w-10">
-        <div className="w-full h-full flex items-center justify-center rounded-full bg-grey-4">
-          {/* <img alt="asset" className="w-9 h-9" /> */}
-          <IconBase Icon={ActivityKindIconSvg[kind]} size={16} className="text-grey-1" />
-        </div>
-
-        <NetworkLogoTooltipWrap networkName={networkName} className="absolute bottom-0 right-0">
-          {typeof chainId === 'number' ? (
-            <EvmNetworkLogo networkName={networkName} chainId={chainId} size={16} />
-          ) : (
-            <TezosNetworkLogo networkName={networkName} chainId={chainId} size={16} />
-          )}
-        </NetworkLogoTooltipWrap>
-      </div>
-
-      <div className="flex-grow flex flex-col gap-y-1">
-        <div className="flex gap-x-2 justify-between">
-          <div className="text-font-medium">{ActivityKindTitle[kind]}</div>
-
-          {asset && (
-            <div className="text-font-num-14">
-              {asset.amount.startsWith('-') ? null : '+'}
-              <Money smallFractionFont={false}>{atomsToTokens(asset.amount, asset.decimals).toFixed(6)}</Money>{' '}
-              {asset.symbol || '???'}
-            </div>
-          )}
-        </div>
-
-        <div className="flex gap-x-2 justify-between text-font-num-12 text-grey-1">
-          <div className="flex items-center gap-x-1 group-hover:text-secondary">
-            <HashShortView hash={hash} firstCharsCount={6} lastCharsCount={4} />
-
-            <IconBase Icon={OutLinkIcon} size={12} className="invisible group-hover:visible" />
-          </div>
-
-          <div>-12.00 $</div>
-        </div>
-      </div>
-    </Anchor>
-  );
-};
-
-enum ActivityKindEnum {
-  interaction,
-  send,
-  receive,
-  swap,
-  approve
-}
-
-const ActivityKindTitle: Record<ActivityKindEnum, string> = {
-  [ActivityKindEnum.interaction]: 'Interaction',
-  [ActivityKindEnum.send]: 'Send',
-  [ActivityKindEnum.receive]: 'Receive',
-  [ActivityKindEnum.swap]: 'Swap',
-  [ActivityKindEnum.approve]: 'Approve'
-};
-
-const ActivityKindIconSvg: Record<ActivityKindEnum, ImportedSVGComponent> = {
-  [ActivityKindEnum.interaction]: DocumentsSvg,
-  [ActivityKindEnum.send]: SendSvg,
-  [ActivityKindEnum.receive]: IncomeSvg,
-  [ActivityKindEnum.swap]: SwapSvg,
-  [ActivityKindEnum.approve]: DocumentsSvg
-};
-
-type Activity = TezosActivity | EvmActivity;
-
-interface ActivityBase {
-  kind: ActivityKindEnum;
-}
-
-interface TezosActivity extends ActivityBase {
-  chain: TempleChainKind.Tezos;
-  chainId: string;
-  hash: string;
-  operations: TezosOperation[];
-}
-
-interface TezosOperation {
-  kind: ActivityKindEnum;
-}
-
-interface EvmActivity extends ActivityBase {
-  chain: TempleChainKind.EVM;
-  chainId: number;
-  hash: string;
-  operations: EvmOperation[];
-}
-
-interface EvmOperation extends ActivityBase {
-  asset?: EvmActivityAsset;
-}
-
-interface EvmActivityAsset {
-  slug: string;
-  amount: string;
-  decimals: number;
-  nft?: boolean;
-  symbol?: string;
-}

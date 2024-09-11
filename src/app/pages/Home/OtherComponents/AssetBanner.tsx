@@ -114,7 +114,9 @@ const EvmAssetBanner = memo<EvmAssetBannerProps>(({ evmChainId, assetSlug }) => 
   return (
     <>
       <div className="flex items-center gap-x-2 my-3">
-        <EvmTokenIcon evmChainId={network.chainId} assetSlug={assetSlug} size={24} className="flex-shrink-0" />
+        <div className="shrink-0 flex items-center justify-center">
+          <EvmTokenIcon evmChainId={network.chainId} assetSlug={assetSlug} size={24} />
+        </div>
 
         <div
           className="flex-grow text-sm font-normal text-gray-700 truncate"

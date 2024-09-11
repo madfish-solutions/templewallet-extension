@@ -1,0 +1,131 @@
+import React, { FC, useCallback, useMemo } from 'react';
+
+import { Anchor, HashShortView, IconBase, Money } from 'app/atoms';
+import { EvmNetworkLogo, NetworkLogoTooltipWrap, TezosNetworkLogo } from 'app/atoms/NetworkLogo';
+import { ReactComponent as DocumentsSvg } from 'app/icons/base/documents.svg';
+import { ReactComponent as IncomeSvg } from 'app/icons/base/income.svg';
+import { ReactComponent as OutLinkIcon } from 'app/icons/base/outLink.svg';
+import { ReactComponent as SendSvg } from 'app/icons/base/send.svg';
+import { ReactComponent as SwapSvg } from 'app/icons/base/swap.svg';
+import { toEvmAssetSlug, toTezosAssetSlug } from 'lib/assets/utils';
+import { atomsToTokens } from 'lib/temple/helpers';
+
+import { EvmTokenIcon, TezosAssetIcon } from '../AssetIcon';
+
+import { ActivityKindEnum, InfinitySymbol } from './utils';
+
+interface Props {
+  chainId: string | number;
+  kind: ActivityKindEnum;
+  hash: string;
+  networkName: string;
+  asset?: AssetProp;
+}
+
+interface AssetProp {
+  contract: string;
+  tokenId?: string;
+  amount?: string | typeof InfinitySymbol;
+  decimals: number;
+  symbol?: string;
+}
+
+export const ActivityItemBaseComponent: FC<Props> = ({ kind, hash, chainId, networkName, asset }) => {
+  const amountJsx = useMemo(() => {
+    if (!asset) return null;
+
+    return (
+      <div className="text-font-num-14">
+        {asset.amount ? (
+          asset.amount === InfinitySymbol ? (
+            '∞ '
+          ) : (
+            <>
+              {asset.amount.startsWith('-') ? null : '+'}
+              <Money smallFractionFont={false}>{atomsToTokens(asset.amount, asset.decimals).toFixed(6)}</Money>{' '}
+            </>
+          )
+        ) : null}
+
+        {asset.symbol || '???'}
+      </div>
+    );
+  }, [asset]);
+
+  const IconFallback = useCallback<FC>(
+    () => (
+      <div className="w-full h-full flex items-center justify-center rounded-full bg-grey-4">
+        <IconBase Icon={ActivityKindIconSvg[kind]} size={16} className="text-grey-1" />
+      </div>
+    ),
+    [kind]
+  );
+
+  return (
+    <div className="group flex gap-x-2 p-2 rounded-lg hover:bg-secondary-low">
+      <div className="relative flex items-center justify-center w-10">
+        {asset ? (
+          typeof chainId === 'number' ? (
+            <EvmTokenIcon
+              evmChainId={chainId}
+              assetSlug={toEvmAssetSlug(asset.contract, asset.tokenId)}
+              className="rounded-full w-9 h-9"
+              Fallback={IconFallback}
+            />
+          ) : (
+            <TezosAssetIcon
+              tezosChainId={chainId}
+              assetSlug={toTezosAssetSlug(asset.contract, asset.tokenId)}
+              className="rounded-full w-9 h-9"
+              Fallback={IconFallback}
+            />
+          )
+        ) : (
+          <IconFallback />
+        )}
+
+        <NetworkLogoTooltipWrap networkName={networkName} className="absolute bottom-0 right-0">
+          {typeof chainId === 'number' ? (
+            <EvmNetworkLogo networkName={networkName} chainId={chainId} size={16} />
+          ) : (
+            <TezosNetworkLogo networkName={networkName} chainId={chainId} size={16} />
+          )}
+        </NetworkLogoTooltipWrap>
+      </div>
+
+      <div className="flex-grow flex flex-col gap-y-1">
+        <div className="flex gap-x-2 justify-between">
+          <div className="text-font-medium">{ActivityKindTitle[kind]}</div>
+
+          {amountJsx}
+        </div>
+
+        <div className="flex gap-x-2 justify-between text-font-num-12 text-grey-1">
+          <Anchor className="flex items-center gap-x-1 group-hover:text-secondary">
+            <HashShortView hash={hash} firstCharsCount={6} lastCharsCount={4} />
+
+            <IconBase Icon={OutLinkIcon} size={12} className="invisible group-hover:visible" />
+          </Anchor>
+
+          <div>-12.00 $</div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const ActivityKindTitle: Record<ActivityKindEnum, string> = {
+  [ActivityKindEnum.interaction]: 'Interaction',
+  [ActivityKindEnum.send]: 'Send',
+  [ActivityKindEnum.receive]: 'Receive',
+  [ActivityKindEnum.swap]: 'Swap',
+  [ActivityKindEnum.approve]: 'Approve'
+};
+
+const ActivityKindIconSvg: Record<ActivityKindEnum, ImportedSVGComponent> = {
+  [ActivityKindEnum.interaction]: DocumentsSvg,
+  [ActivityKindEnum.send]: SendSvg,
+  [ActivityKindEnum.receive]: IncomeSvg,
+  [ActivityKindEnum.swap]: SwapSvg,
+  [ActivityKindEnum.approve]: DocumentsSvg
+};
