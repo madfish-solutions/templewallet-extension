@@ -89,7 +89,7 @@ globalThis.addEventListener('notificationclick', event => {
   // @ts-expect-error
   event.notification.close();
   // @ts-expect-error
-  event.waitUntil(clients.openWindow(`${event.target.registration.scope}fullpage.html`));
+  event.waitUntil(clients.openWindow(`${event.target.registration.scope}fullpage.html#/notifications`));
 });
 
 const firebase = initializeApp(JSON.parse(EnvVars.TEMPLE_FIREBASE_CONFIG));
