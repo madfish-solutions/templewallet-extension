@@ -8,7 +8,6 @@ import { FormCheckbox, FormSubmitButton } from 'app/atoms';
 import { FormCheckboxGroup } from 'app/atoms/FormCheckboxGroup';
 import { OverlayCloseButton } from 'app/atoms/OverlayCloseButton';
 import { useAppEnv } from 'app/env';
-import ContentContainer from 'app/layouts/ContentContainer';
 import { useShouldShowPartnersPromoSelector } from 'app/store/partners-promotion/selectors';
 import {
   setAcceptedTermsVersionAction,
@@ -63,9 +62,8 @@ export const TermsOfUseUpdateOverlay = memo<TermsOfUseUpdateOverlayProps>(({ onC
 
   return (
     <div className="fixed inset-0 z-40 flex flex-col items-center justify-center bg-gray-700 bg-opacity-20">
-      <ContentContainer
-        className={clsx('overflow-y-scroll p-4', popup ? 'w-full h-full' : 'max-h-full')}
-        padding={false}
+      <div
+        className={clsx('w-full max-w-screen-sm mx-auto overflow-y-scroll p-4', popup ? 'w-full h-full' : 'max-h-full')}
         style={{ width: popup ? undefined : 'fit-content' }}
       >
         <form
@@ -148,7 +146,7 @@ export const TermsOfUseUpdateOverlay = memo<TermsOfUseUpdateOverlayProps>(({ onC
             <OverlayCloseButton onClick={handleClose} />
           </div>
         </form>
-      </ContentContainer>
+      </div>
     </div>
   );
 });

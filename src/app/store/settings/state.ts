@@ -3,11 +3,6 @@ import { nanoid } from '@reduxjs/toolkit';
 import { MAX_SHOW_AGREEMENTS_COUNTER, RECENT_TERMS_VERSION } from 'lib/constants';
 import { IS_MISES_BROWSER } from 'lib/env';
 
-export enum BalanceMode {
-  Fiat = 'fiat',
-  Gas = 'gas'
-}
-
 export interface SettingsState {
   userId: string;
   isAnalyticsEnabled: boolean;
