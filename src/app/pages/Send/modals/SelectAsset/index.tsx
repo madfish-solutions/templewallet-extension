@@ -28,6 +28,8 @@ import {
 } from 'temple/front';
 import { TempleChainKind } from 'temple/types';
 
+import { useScrollIntoViewOnMount } from '../../../../../lib/ui/use-scroll-into-view';
+
 import { EvmAssetsList } from './EvmAssetsList';
 import { EvmChainAssetsList } from './EvmChainAssetsList';
 import { MultiChainAssetsList } from './MultiChainAssetsList';
@@ -236,6 +238,8 @@ const FilterOption = memo<FilterOptionProps>(({ network, activeNetwork, iconSize
 
   const active = isAllNetworks ? activeNetwork === null : network.chainId === activeNetwork?.chainId;
 
+  const elemRef = useScrollIntoViewOnMount<HTMLDivElement>(active);
+
   const Icon = useMemo(() => {
     if (isAllNetworks) return <IconBase Icon={Browse} className="text-primary" size={16} />;
 
@@ -258,6 +262,7 @@ const FilterOption = memo<FilterOptionProps>(({ network, activeNetwork, iconSize
 
   return (
     <div
+      ref={elemRef}
       className={clsx(
         'flex justify-between items-center rounded-md p-2 text-font-description',
         active ? 'bg-grey-4' : 'cursor-pointer hover:bg-secondary-low'
