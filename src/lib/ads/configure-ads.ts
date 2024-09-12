@@ -299,20 +299,6 @@ const bannerAdsMetaBase: (AdMetadata | false)[] = [
   },
   {
     source: {
-      providerName: 'Persona' as const,
-      slug: IS_MISES_BROWSER ? EnvVars.PERSONA_ADS_MISES_BANNER_UNIT_ID : EnvVars.PERSONA_ADS_BANNER_UNIT_ID
-    },
-    dimensions: {
-      width: 321,
-      height: 101,
-      minContainerWidth: 319,
-      minContainerHeight: 99,
-      maxContainerWidth: 420,
-      maxContainerHeight: 130
-    }
-  },
-  {
-    source: {
       providerName: 'SmartyAds' as const,
       native: false,
       slug: EnvVars.SMARTY_320_50_PLACEMENT_ID,
@@ -340,6 +326,21 @@ const bannerAdsMetaBase: (AdMetadata | false)[] = [
       height: 50,
       minContainerWidth: 319,
       minContainerHeight: 49,
+      maxContainerWidth: 420,
+      maxContainerHeight: 130
+    }
+  },
+  {
+    source: {
+      providerName: 'Persona' as const,
+      slug: IS_MISES_BROWSER ? EnvVars.PERSONA_ADS_MISES_BANNER_UNIT_ID : EnvVars.PERSONA_ADS_BANNER_UNIT_ID,
+      shouldNotUseStrictContainerLimits: true
+    },
+    dimensions: {
+      width: 321,
+      height: 101,
+      minContainerWidth: 319,
+      minContainerHeight: 99,
       maxContainerWidth: 420,
       maxContainerHeight: 130
     }
