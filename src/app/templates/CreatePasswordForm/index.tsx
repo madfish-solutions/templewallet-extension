@@ -1,6 +1,5 @@
 import React, { memo, useCallback, useContext, useLayoutEffect, useMemo, useState } from 'react';
 
-import { ActionCreatorWithPayload } from '@reduxjs/toolkit';
 import { generateMnemonic } from 'bip39';
 import { Controller, useForm } from 'react-hook-form';
 import { useDispatch } from 'react-redux';
@@ -72,24 +71,6 @@ export const CreatePasswordForm = memo<CreatePasswordFormProps>(({ seedPhrase: s
 
   const dispatch = useDispatch();
 
-  const dispatchBooleanActionFactory = useCallback(
-    (actionCreator: ActionCreatorWithPayload<boolean>) => {
-      return (value: boolean) => dispatch(actionCreator(value));
-    },
-    [dispatch]
-  );
-  const setAnalyticsEnabled = useMemo(
-    () => dispatchBooleanActionFactory(setIsAnalyticsEnabledAction),
-    [dispatchBooleanActionFactory]
-  );
-  const setAdsViewEnabled = useMemo(
-    () => dispatchBooleanActionFactory(togglePartnersPromotionAction),
-    [dispatchBooleanActionFactory]
-  );
-  const setReferralLinksEnabled = useMemo(
-    () => dispatchBooleanActionFactory(setReferralLinksEnabledAction),
-    [dispatchBooleanActionFactory]
-  );
   const setTermsAccepted = useCallback(() => dispatch(setAcceptedTermsVersionAction(RECENT_TERMS_VERSION)), [dispatch]);
 
   const { control, watch, register, handleSubmit, errors, triggerValidation, formState, setValue } = useForm<FormData>({
@@ -133,7 +114,7 @@ export const CreatePasswordForm = memo<CreatePasswordFormProps>(({ seedPhrase: s
         dispatch(setIsAnalyticsEnabledAction(data.analytics));
         const shouldEnableWebsiteAnalytics = data.getRewards && data.analytics;
         await putToStorage(WEBSITES_ANALYTICS_ENABLED, shouldEnableWebsiteAnalytics);
-        setReferralLinksEnabled(true);
+        dispatch(setReferralLinksEnabledAction(true));
         setTermsAccepted();
 
         const accountPkh = await registerWallet(data.password!, formatMnemonic(seedPhrase));
@@ -169,7 +150,6 @@ export const CreatePasswordForm = memo<CreatePasswordFormProps>(({ seedPhrase: s
       registerWallet,
       seedPhrase,
       seedPhraseToImport,
-      setReferralLinksEnabled,
       setTermsAccepted,
       setOnboardingCompleted,
       setShouldBackupMnemonic,
