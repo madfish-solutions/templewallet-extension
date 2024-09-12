@@ -2,7 +2,7 @@ import React, { FC } from 'react';
 
 import { useDispatch } from 'react-redux';
 
-import { EnablingSetting } from 'app/templates/SettingsGeneral/Components/EnablingSetting';
+import { EnablingSetting } from 'app/templates/EnablingSetting';
 import { SettingsGeneralSelectors } from 'app/templates/SettingsGeneral/selectors';
 
 import { setIsNewsEnabledAction } from '../store/actions';
