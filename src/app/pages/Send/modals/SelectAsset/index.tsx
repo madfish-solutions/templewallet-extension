@@ -1,5 +1,6 @@
 import React, { memo, useCallback, useState, MouseEvent, useMemo, Suspense } from 'react';
 
+import clsx from 'clsx';
 import { useDebounce } from 'use-debounce';
 
 import { Button, IconBase } from 'app/atoms';
@@ -168,7 +169,9 @@ const FilterNetworkPopper = memo<FilterNetworkPopperProps>(({ selectedOption, on
     <Popper
       placement="bottom-end"
       strategy="fixed"
-      popup={popperProps => <FilterNetworkDropdown onOptionSelect={onOptionSelect} {...popperProps} />}
+      popup={popperProps => (
+        <FilterNetworkDropdown selectedOption={selectedOption} onOptionSelect={onOptionSelect} {...popperProps} />
+      )}
     >
       {({ ref, toggleOpened }) => (
         <Button
@@ -184,48 +187,54 @@ const FilterNetworkPopper = memo<FilterNetworkPopperProps>(({ selectedOption, on
   );
 });
 
-interface FilterNetworkDropdownProps extends Omit<FilterNetworkPopperProps, 'selectedOption'>, PopperRenderProps {}
+interface FilterNetworkDropdownProps extends FilterNetworkPopperProps, PopperRenderProps {}
 
-const FilterNetworkDropdown = memo<FilterNetworkDropdownProps>(({ opened, setOpened, onOptionSelect }) => {
-  const accountTezAddress = useAccountAddressForTezos();
-  const accountEvmAddress = useAccountAddressForEvm();
+const FilterNetworkDropdown = memo<FilterNetworkDropdownProps>(
+  ({ opened, setOpened, selectedOption, onOptionSelect }) => {
+    const accountTezAddress = useAccountAddressForTezos();
+    const accountEvmAddress = useAccountAddressForEvm();
 
-  const tezosChains = useEnabledTezosChains();
-  const evmChains = useEnabledEvmChains();
+    const tezosChains = useEnabledTezosChains();
+    const evmChains = useEnabledEvmChains();
 
-  const networks = useMemo(
-    () => [ALL_NETWORKS, ...(accountTezAddress ? tezosChains : []), ...(accountEvmAddress ? evmChains : [])],
-    [accountEvmAddress, accountTezAddress, evmChains, tezosChains]
-  );
+    const networks = useMemo(
+      () => [ALL_NETWORKS, ...(accountTezAddress ? tezosChains : []), ...(accountEvmAddress ? evmChains : [])],
+      [accountEvmAddress, accountTezAddress, evmChains, tezosChains]
+    );
 
-  return (
-    <ActionsDropdownPopup title="Select Network" opened={opened} style={{ minWidth: 196, maxHeight: 300 }}>
-      <div className="overflow-y-auto">
-        {networks.map(network => (
-          <FilterOption
-            key={typeof network === 'string' ? ALL_NETWORKS : network.chainId}
-            network={network}
-            onClick={() => {
-              onOptionSelect(typeof network === 'string' ? null : network);
-              setOpened(false);
-            }}
-          />
-        ))}
-      </div>
-    </ActionsDropdownPopup>
-  );
-});
+    return (
+      <ActionsDropdownPopup title="Select Network" opened={opened} style={{ minWidth: 196, maxHeight: 300 }}>
+        <div className="overflow-y-auto">
+          {networks.map(network => (
+            <FilterOption
+              key={typeof network === 'string' ? ALL_NETWORKS : network.chainId}
+              network={network}
+              activeNetwork={selectedOption}
+              onClick={() => {
+                onOptionSelect(typeof network === 'string' ? null : network);
+                setOpened(false);
+              }}
+            />
+          ))}
+        </div>
+      </ActionsDropdownPopup>
+    );
+  }
+);
 
 type Network = OneOfChains | string;
 
 interface FilterOptionProps {
   network: Network;
+  activeNetwork: FilterChain;
   iconSize?: Size;
   onClick?: EmptyFn;
 }
 
-const FilterOption = memo<FilterOptionProps>(({ network, iconSize = 24, onClick }) => {
+const FilterOption = memo<FilterOptionProps>(({ network, activeNetwork, iconSize = 24, onClick }) => {
   const isAllNetworks = typeof network === 'string';
+
+  const active = isAllNetworks ? activeNetwork === null : network.chainId === activeNetwork?.chainId;
 
   const Icon = useMemo(() => {
     if (isAllNetworks) return <IconBase Icon={Browse} className="text-primary" size={16} />;
@@ -241,10 +250,19 @@ const FilterOption = memo<FilterOptionProps>(({ network, iconSize = 24, onClick 
     return null;
   }, [isAllNetworks, network, iconSize]);
 
+  const handleClick = useCallback(() => {
+    if (active) return;
+
+    onClick?.();
+  }, [active, onClick]);
+
   return (
     <div
-      className="flex justify-between items-center rounded-md hover:bg-grey-4 p-2 text-font-description cursor-pointer"
-      onClick={onClick}
+      className={clsx(
+        'flex justify-between items-center rounded-md p-2 text-font-description',
+        active ? 'bg-grey-4' : 'cursor-pointer hover:bg-secondary-low'
+      )}
+      onClick={handleClick}
     >
       <span>{isAllNetworks ? ALL_NETWORKS : network.name}</span>
       {Icon}
