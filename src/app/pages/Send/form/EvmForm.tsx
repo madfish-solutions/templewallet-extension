@@ -2,14 +2,16 @@ import React, { FC, useCallback, useMemo } from 'react';
 
 import BigNumber from 'bignumber.js';
 import { isString } from 'lodash';
-import { useForm } from 'react-hook-form';
+import { useForm } from 'react-hook-form-v7';
 import { formatEther, getAddress, isAddress, parseEther } from 'viem';
 
 import { DeadEndBoundaryError } from 'app/ErrorBoundary';
 import { useEvmTokenMetadataSelector } from 'app/store/evm/tokens-metadata/selectors';
 import { useFormAnalytics } from 'lib/analytics';
+import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
 import { useEvmTokenBalance } from 'lib/balances/hooks';
 import { useAssetFiatCurrencyPrice } from 'lib/fiat-currency';
+import { t, toLocalFixed } from 'lib/i18n';
 import { getAssetSymbol } from 'lib/metadata';
 import { useTypedSWR } from 'lib/swr';
 import { isEvmNativeTokenSlug } from 'lib/utils/evm.utils';
@@ -44,7 +46,7 @@ export const EvmForm: FC<Props> = ({ chainId, assetSlug, onSelectAssetClick }) =
   const formAnalytics = useFormAnalytics('SendForm');
 
   const { value: balance = ZERO } = useEvmTokenBalance(assetSlug, accountPkh, network);
-  //const { value: nativeBalance = ZERO } = useEvmTokenBalance(EVM_TOKEN_SLUG, accountPkh, network);
+  const { value: nativeBalance = ZERO } = useEvmTokenBalance(EVM_TOKEN_SLUG, accountPkh, network);
 
   const storedMetadata = useEvmTokenMetadataSelector(network.chainId, assetSlug);
   const assetMetadata = isEvmNativeTokenSlug(assetSlug) ? network?.currency : storedMetadata;
@@ -56,7 +58,8 @@ export const EvmForm: FC<Props> = ({ chainId, assetSlug, onSelectAssetClick }) =
   const assetPrice = useAssetFiatCurrencyPrice(assetSlug, chainId, true);
 
   const form = useForm<SendFormData>({
-    mode: 'onChange'
+    mode: 'onSubmit',
+    reValidateMode: 'onChange'
   });
 
   const { watch, formState, reset } = form;
@@ -153,6 +156,25 @@ export const EvmForm: FC<Props> = ({ chainId, assetSlug, onSelectAssetClick }) =
     return value;
   }, [assetSlug, balance, estimatedMaxFee]);
 
+  const validateAmount = useCallback(
+    (amount: string) => {
+      if (!amount) return t('required');
+      if (Number(amount) === 0) return t('amountMustBePositive');
+
+      return new BigNumber(amount).isLessThanOrEqualTo(maxAmount) || t('maximalAmount', toLocalFixed(maxAmount));
+    },
+    [maxAmount]
+  );
+
+  const validateRecipient = useCallback(
+    (address: string) => {
+      if (!address) return t('required');
+
+      return isString(resolvedAddress) || isAddress(address) || t('invalidAddressOrDomain');
+    },
+    [resolvedAddress]
+  );
+
   const onSubmit = useCallback(async () => {
     if (formState.isSubmitting) return;
 
@@ -171,7 +193,7 @@ export const EvmForm: FC<Props> = ({ chainId, assetSlug, onSelectAssetClick }) =
         return;
       }
     }
-  }, [formState.isSubmitting, reset, formAnalytics]);
+  }, [formAnalytics, formState.isSubmitting, reset]);
 
   return (
     <BaseForm
@@ -184,8 +206,8 @@ export const EvmForm: FC<Props> = ({ chainId, assetSlug, onSelectAssetClick }) =
       assetPrice={assetPrice}
       maxAmount={maxAmount}
       assetDecimals={assetDecimals}
-      validateAmount={(value: string) => Boolean(value)}
-      validateRecipient={(value: string) => Boolean(value)}
+      validateAmount={validateAmount}
+      validateRecipient={validateRecipient}
       onSelectAssetClick={onSelectAssetClick}
       isToFilledWithFamiliarAddress={isToFilledWithFamiliarAddress}
       onSubmit={onSubmit}

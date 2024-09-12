@@ -28,7 +28,10 @@ const AssetField = forwardRef<HTMLInputElement, AssetFieldProps>(
     },
     ref
   ) => {
-    const valueStr = useMemo(() => (value === undefined ? '' : new BigNumber(value).toFixed()), [value]);
+    const valueStr = useMemo(
+      () => (value === undefined || value === '' ? '' : new BigNumber(value).toFixed()),
+      [value]
+    );
 
     const [localValue, setLocalValue] = useState(valueStr);
     const [focused, setFocused] = useState(false);

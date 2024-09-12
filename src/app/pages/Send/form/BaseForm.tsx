@@ -2,23 +2,21 @@ import React, { FC, FocusEventHandler, useCallback, useRef, useState } from 'rea
 
 import { ChainIds } from '@taquito/taquito';
 import BigNumber from 'bignumber.js';
-import { isString } from 'lodash';
-import { Controller, OnSubmit, Validate } from 'react-hook-form';
-import { FormContextValues } from 'react-hook-form/dist/contextTypes';
+import { Controller, SubmitHandler, Validate, UseFormReturn } from 'react-hook-form-v7';
 import { useDebounce } from 'use-debounce';
 
 import { Button, NoSpaceField } from 'app/atoms';
 import AssetField from 'app/atoms/AssetField';
 import { ConvertedInputAssetAmount } from 'app/atoms/ConvertedInputAssetAmount';
+import { ActionsButtonsBox } from 'app/atoms/PageModal/actions-buttons-box';
 import { StyledButton } from 'app/atoms/StyledButton';
+import { SelectAccountModal } from 'app/pages/Send/modals/SelectAccount';
 import { useFiatCurrency } from 'lib/fiat-currency';
 import { t, T } from 'lib/i18n';
 import { useBooleanState, useSafeState } from 'lib/ui/hooks';
 import { readClipboard } from 'lib/ui/utils';
 import { OneOfChains } from 'temple/front';
 import { TempleChainKind } from 'temple/types';
-
-import { SelectAccountModal } from '../modals/SelectAccount';
 
 import { SendFormData } from './interfaces';
 import { SELECT_ACCOUNT_BUTTON_ID, SelectAccountButton } from './SelectAccountButton';
@@ -32,11 +30,11 @@ interface Props {
   assetDecimals: number;
   network: OneOfChains;
   accountPkh: string | HexString;
-  form: FormContextValues<SendFormData>;
-  validateAmount: Validate;
-  validateRecipient: Validate;
+  form: UseFormReturn<SendFormData>;
+  validateAmount: Validate<string, SendFormData>;
+  validateRecipient: Validate<string, SendFormData>;
   onSelectAssetClick: EmptyFn;
-  onSubmit: OnSubmit<SendFormData>;
+  onSubmit: SubmitHandler<SendFormData>;
   maxAmount: BigNumber;
   isToFilledWithFamiliarAddress: boolean;
   evm?: boolean;
@@ -60,7 +58,10 @@ export const BaseForm: FC<Props> = ({
 }) => {
   const [selectAccountModalOpened, setSelectAccountModalOpen, setSelectAccountModalClosed] = useBooleanState(false);
 
-  const { watch, handleSubmit, errors, control, setValue, getValues } = form;
+  const { watch, handleSubmit, control, setValue, getValues, formState } = form;
+  const { isValid, isSubmitting, submitCount, errors } = formState;
+
+  const formSubmitted = submitCount > 0;
 
   const toValue = watch('to');
   const [toValueDebounced] = useDebounce(toValue, 300);
@@ -79,17 +80,23 @@ export const BaseForm: FC<Props> = ({
   const [toFieldFocused, setToFieldFocused] = useState(false);
 
   const handleSetMaxAmount = useCallback(() => {
-    if (maxAmount) setValue('amount', maxAmount.toString(), true);
-  }, [setValue, maxAmount]);
+    if (maxAmount) setValue('amount', maxAmount.toString(), { shouldValidate: formSubmitted });
+  }, [setValue, maxAmount, formSubmitted]);
 
   const handleToFieldFocus = useCallback(() => {
     toFieldRef.current?.focus();
     setToFieldFocused(true);
   }, [setToFieldFocused]);
 
-  const handleAmountClean = useCallback(() => setValue('amount', undefined, true), [setValue]);
+  const handleAmountClean = useCallback(
+    () => setValue('amount', '', { shouldValidate: formSubmitted }),
+    [setValue, formSubmitted]
+  );
 
-  const handleToClean = useCallback(() => setValue('to', '', true), [setValue]);
+  const handleToClean = useCallback(
+    () => setValue('to', '', { shouldValidate: formSubmitted }),
+    [setValue, formSubmitted]
+  );
 
   const handleAmountFieldFocus = useCallback<FocusEventHandler>(evt => {
     evt.preventDefault();
@@ -98,9 +105,9 @@ export const BaseForm: FC<Props> = ({
 
   const handlePasteButtonClick = useCallback(() => {
     readClipboard()
-      .then(value => setValue('to', value))
+      .then(value => setValue('to', value, { shouldValidate: formSubmitted }))
       .catch(console.error);
-  }, [setValue]);
+  }, [formSubmitted, setValue]);
 
   const handleToFieldBlur = useCallback<FocusEventHandler>(
     e => {
@@ -130,13 +137,16 @@ export const BaseForm: FC<Props> = ({
 
       const newShouldUseFiat = !shouldUseFiat;
       setShouldUseFiat(newShouldUseFiat);
-      if (!getValues().amount) {
-        return;
-      }
-      const amount = new BigNumber(getValues().amount);
+
+      const amount = getValues().amount;
+
+      if (!amount) return;
+
+      const amountBN = new BigNumber(amount);
+
       setValue(
         'amount',
-        (newShouldUseFiat ? amount.multipliedBy(assetPrice) : amount.div(assetPrice)).toFormat(
+        (newShouldUseFiat ? amountBN.multipliedBy(assetPrice) : amountBN.div(assetPrice)).toFormat(
           newShouldUseFiat ? 2 : 6,
           BigNumber.ROUND_FLOOR,
           {
@@ -150,10 +160,10 @@ export const BaseForm: FC<Props> = ({
 
   const handleRecipientAddressSelect = useCallback(
     (address: string) => {
-      setValue('to', address, true);
+      setValue('to', address, { shouldValidate: formSubmitted });
       setSelectAccountModalClosed();
     },
-    [setSelectAccountModalClosed, setValue]
+    [setSelectAccountModalClosed, setValue, formSubmitted]
   );
 
   return (
@@ -177,13 +187,14 @@ export const BaseForm: FC<Props> = ({
             name="amount"
             control={control}
             rules={{ validate: validateAmount }}
-            onChange={([v]) => v}
-            as={
+            render={({ field: { onChange, value } }) => (
               <AssetField
                 ref={amountFieldRef}
+                value={value}
                 onFocus={handleAmountFieldFocus}
+                onChange={onChange}
                 assetDecimals={shouldUseFiat ? 2 : assetDecimals ?? 0}
-                cleanable={isString(amountValue)}
+                cleanable={Boolean(amountValue)}
                 rightSideComponent={
                   <Button
                     type="button"
@@ -220,21 +231,22 @@ export const BaseForm: FC<Props> = ({
                 onClean={handleAmountClean}
                 label={t('amount')}
                 placeholder="0.00"
-                errorCaption={errors.amount?.message}
+                errorCaption={formSubmitted ? errors.amount?.message : null}
                 containerClassName="mb-8"
                 testID={SendFormSelectors.amountInput}
               />
-            }
+            )}
           />
 
           <Controller
             name="to"
             control={control}
             rules={{ validate: validateRecipient }}
-            onChange={([v]) => v}
-            as={
+            render={({ field: { onChange, value } }) => (
               <NoSpaceField
                 ref={toFieldRef}
+                value={value}
+                onChange={onChange}
                 onFocus={handleToFieldFocus}
                 extraRightInnerWrapper="unset"
                 onBlur={handleToFieldBlur}
@@ -247,12 +259,12 @@ export const BaseForm: FC<Props> = ({
                 id="send-to"
                 label={t('recipient')}
                 placeholder="Address or Domain name"
-                errorCaption={!toFieldFocused ? errors.to?.message : null}
+                errorCaption={!toFieldFocused && formSubmitted ? errors.to?.message : null}
                 style={{ resize: 'none' }}
                 containerClassName="mb-4"
                 testID={SendFormSelectors.recipientInput}
               />
-            }
+            )}
           />
 
           {(toFieldFocused || isToFilledWithFamiliarAddress) && (
@@ -265,11 +277,18 @@ export const BaseForm: FC<Props> = ({
         </form>
       </div>
 
-      <div className="flex flex-col pt-4 px-4 pb-6">
-        <StyledButton type="submit" form="send-form" size="L" color="primary" testID={SendFormSelectors.sendButton}>
+      <ActionsButtonsBox flexDirection="col" style={{ backgroundColor: '#FBFBFB' }}>
+        <StyledButton
+          type="submit"
+          form="send-form"
+          size="L"
+          color="primary"
+          disabled={(formSubmitted && !isValid) || isSubmitting}
+          testID={SendFormSelectors.sendButton}
+        >
           Review
         </StyledButton>
-      </div>
+      </ActionsButtonsBox>
 
       <SelectAccountModal
         selectedAccountAddress={toValueDebounced}

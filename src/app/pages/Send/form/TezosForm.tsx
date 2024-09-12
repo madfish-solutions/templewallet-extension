@@ -3,7 +3,7 @@ import React, { FC, useCallback, useEffect, useMemo, useRef } from 'react';
 import { ManagerKeyResponse } from '@taquito/rpc';
 import { getRevealFee, TransferParams, Estimate, TezosToolkit, ChainIds } from '@taquito/taquito';
 import BigNumber from 'bignumber.js';
-import { useForm } from 'react-hook-form';
+import { useForm } from 'react-hook-form-v7';
 
 import { ArtificialError, NotEnoughFundsError, ZeroBalanceError, ZeroTEZBalanceError } from 'app/defaults';
 import { DeadEndBoundaryError } from 'app/ErrorBoundary';
@@ -75,18 +75,19 @@ export const TezosForm: FC<Props> = ({ chainId, assetSlug, onSelectAssetClick })
   const prevCanToggleFiat = useRef(canToggleFiat);
 
   const form = useForm<SendFormData>({
-    mode: 'onChange',
+    mode: 'onSubmit',
+    reValidateMode: 'onChange',
     defaultValues: {
       fee: RECOMMENDED_ADD_FEE
     }
   });
 
-  const { watch, formState, setValue, triggerValidation, reset } = form;
+  const { watch, formState, setValue, trigger, reset } = form;
 
   useEffect(() => {
     if (!canToggleFiat && prevCanToggleFiat.current && shouldUseFiat) {
       setShouldUseFiat(false);
-      setValue('amount', undefined);
+      setValue('amount', '');
     }
     prevCanToggleFiat.current = canToggleFiat;
   }, [setShouldUseFiat, canToggleFiat, shouldUseFiat, setValue]);
@@ -209,9 +210,9 @@ export const TezosForm: FC<Props> = ({ chainId, assetSlug, onSelectAssetClick })
   }, [account, assetSlug, balance, baseFee, safeFeeValue, shouldUseFiat, assetPrice]);
 
   const validateAmount = useCallback(
-    (amount?: number) => {
-      if (amount === undefined) return t('required');
-      if (Boolean(toValue) && !isTezosContractAddress(toValue) && amount === 0) return t('amountMustBePositive');
+    (amount: string) => {
+      if (!amount) return t('required');
+      if (toValue && !isTezosContractAddress(toValue) && Number(amount) === 0) return t('amountMustBePositive');
 
       return new BigNumber(amount).isLessThanOrEqualTo(maxAmount) || t('maximalAmount', toLocalFixed(maxAmount));
     },
@@ -224,15 +225,15 @@ export const TezosForm: FC<Props> = ({ chainId, assetSlug, onSelectAssetClick })
 
       return validateAddress(address, domainsClient);
     },
-    [maxAmount, toValue]
+    [domainsClient]
   );
 
   const maxAmountStr = maxAmount?.toString();
   useEffect(() => {
-    if (formState.dirtyFields.has('amount')) {
-      triggerValidation('amount');
+    if (formState.dirtyFields.amount) {
+      trigger('amount');
     }
-  }, [formState.dirtyFields, triggerValidation, maxAmountStr]);
+  }, [formState.dirtyFields, trigger, maxAmountStr]);
 
   const [submitError, setSubmitError] = useSafeState<any>(null, `${tezos.clientId}_${toResolved}`);
 
@@ -249,6 +250,7 @@ export const TezosForm: FC<Props> = ({ chainId, assetSlug, onSelectAssetClick })
   const onSubmit = useCallback(
     async ({ amount, fee: feeVal }: SendFormData) => {
       if (formState.isSubmitting) return;
+
       setSubmitError(null);
 
       formAnalytics.trackSubmit();
@@ -294,16 +296,16 @@ export const TezosForm: FC<Props> = ({ chainId, assetSlug, onSelectAssetClick })
     },
     [
       accountPkh,
-      formState.isSubmitting,
-      tezos,
-      assetSlug,
       assetMetadata,
-      setSubmitError,
+      assetSlug,
+      formAnalytics,
+      formState.isSubmitting,
       reset,
-      toResolved,
+      setSubmitError,
       shouldUseFiat,
+      tezos,
       toAssetAmount,
-      formAnalytics
+      toResolved
     ]
   );
 

@@ -1,5 +1,5 @@
 export interface SendFormData {
-  to: string;
   amount: string;
+  to: string;
   fee: number;
 }
