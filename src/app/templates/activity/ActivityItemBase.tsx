@@ -11,7 +11,7 @@ import { FiatBalance } from 'app/pages/Home/OtherComponents/Tokens/components/Ba
 import { toEvmAssetSlug, toTezosAssetSlug } from 'lib/assets/utils';
 import { atomsToTokens } from 'lib/temple/helpers';
 
-import { EvmTokenIcon, TezosAssetIcon } from '../AssetIcon';
+import { EvmAssetIcon, TezosAssetIcon } from '../AssetIcon';
 
 import { ActivityKindEnum, InfinitySymbol } from './utils';
 
@@ -82,10 +82,10 @@ export const ActivityItemBaseComponent: FC<Props> = ({ kind, hash, chainId, netw
       <div className="relative self-center flex items-center justify-center w-10 h-10 overflow-hidden">
         {assetSlug ? (
           typeof chainId === 'number' ? (
-            <EvmTokenIcon
+            <EvmAssetIcon
               evmChainId={chainId}
               assetSlug={assetSlug}
-              className="rounded-full w-9 h-9"
+              className="w-9 h-9"
               extraSrc={asset?.iconURL}
               Fallback={IconFallback}
             />
@@ -93,7 +93,7 @@ export const ActivityItemBaseComponent: FC<Props> = ({ kind, hash, chainId, netw
             <TezosAssetIcon
               tezosChainId={chainId}
               assetSlug={assetSlug}
-              className="rounded-full w-9 h-9"
+              className="w-9 h-9"
               extraSrc={asset?.iconURL}
               Fallback={IconFallback}
             />

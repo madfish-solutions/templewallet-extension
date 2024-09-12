@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useRef } from 'react';
 
 import { dispatch } from 'app/store';
+import { useEvmCollectibleMetadataSelector } from 'app/store/evm/collectibles-metadata/selectors';
+import { useEvmTokenMetadataSelector } from 'app/store/evm/tokens-metadata/selectors';
 import { loadCollectiblesMetadataAction } from 'app/store/tezos/collectibles-metadata/actions';
 import {
   useAllCollectiblesMetadataSelector,
@@ -17,14 +19,16 @@ import { METADATA_API_LOAD_CHUNK_SIZE } from 'lib/apis/temple';
 import { isTezAsset } from 'lib/assets';
 import { fromChainAssetSlug } from 'lib/assets/utils';
 import { isTruthy } from 'lib/utils';
+import { isEvmNativeTokenSlug } from 'lib/utils/evm.utils';
 import { useAllTezosChains } from 'temple/front';
+import { useEvmChainByChainId } from 'temple/front/chains';
 import { isTezosDcpChainId } from 'temple/networks';
 
 import { TEZOS_METADATA, FILM_METADATA } from './defaults';
-import { AssetMetadataBase, TokenMetadata } from './types';
+import { AssetMetadataBase, EvmAssetMetadataBase, TokenMetadata } from './types';
 
 export type { AssetMetadataBase, TokenMetadata } from './types';
-export { isCollectible, isCollectibleTokenMetadata, getAssetSymbol, getTokenName } from './utils';
+export { isCollectible, isTezosCollectibleMetadata, getAssetSymbol, getTokenName } from './utils';
 
 export { TEZOS_METADATA };
 
@@ -35,6 +39,14 @@ export const useTezosAssetMetadata = (slug: string, tezosChainId: string): Asset
   const collectibleMetadata = useCollectibleMetadataSelector(slug);
 
   return isTezAsset(slug) ? getTezosGasMetadata(tezosChainId) : tokenMetadata || collectibleMetadata;
+};
+
+export const useEvmAssetMetadata = (slug: string, evmChainId: number): EvmAssetMetadataBase | undefined => {
+  const network = useEvmChainByChainId(evmChainId);
+  const tokenMetadata = useEvmTokenMetadataSelector(evmChainId, slug);
+  const collectibleMetadata = useEvmCollectibleMetadataSelector(evmChainId, slug);
+
+  return isEvmNativeTokenSlug(slug) ? network?.currency : tokenMetadata || collectibleMetadata;
 };
 
 type TokenMetadataGetter = (slug: string) => TokenMetadata | undefined;
