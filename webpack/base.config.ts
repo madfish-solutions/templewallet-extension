@@ -171,7 +171,7 @@ export const buildBaseConfig = (): WebPack.Configuration & Pick<WebPack.WebpackO
             // its runtime that would otherwise be processed through "file" loader.
             // Also exclude `html` and `json` extensions so they get processed
             // by webpacks internal loaders & `svg` extensions to be processed (as assets) differently (above).
-            exclude: [/\.(js|mjs|jsx|ts|tsx)$/, /\.html$/, /\.json$/, /\.svg$/]
+            exclude: [/\.(js|mjs|cjs|jsx|ts|tsx)$/, /\.html$/, /\.json$/, /\.svg$/]
           }
           // ** STOP ** Are you adding a new loader?
           // Make sure to add the new loader(s) before the "file" loader.
@@ -198,7 +198,7 @@ export const buildBaseConfig = (): WebPack.Configuration & Pick<WebPack.WebpackO
     }),
     IS_CORE_BUILD &&
       new WebPack.IgnorePlugin({
-        resourceRegExp: /^@temple-wallet\/extension-ads$/
+        resourceRegExp: /^@temple-wallet\/extension-ads(\/.+)?$/
       }),
 
     new ModuleNotFoundPlugin(PATHS.SOURCE),

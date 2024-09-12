@@ -740,10 +740,10 @@
     "message": "увімкнути"
   },
   "enablePartnersPromotionConfirm": {
-    "message": "Support the development team and earn tokens by viewing ads inside the wallet."
+    "message": "Підтримуйте команду розробників та заробляйте TKEY токени, переглядаючи рекламу."
   },
   "enablePartnersPromotionDescriptionConfirm": {
-    "message": "To enable this feature, we request your permission to trace your Wallet Address and IP address. You can always disable ads in the settings."
+    "message": "Ми просимо вашого дозволу відслідковувати вашу адресу гаманця та IP адресу, щоб активувати цю функціональність. Ви завжди зможете вимкнути рекламу в налаштуваннях."
   },
   "dAppsCheckmarkPrompt": {
     "message": "Клацніть на галочку щоб $action$ функцію взаємодію з DApp'ками",

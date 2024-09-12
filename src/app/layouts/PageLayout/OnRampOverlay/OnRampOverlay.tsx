@@ -3,6 +3,7 @@ import React, { memo } from 'react';
 import classNames from 'clsx';
 
 import { Anchor } from 'app/atoms';
+import { OverlayCloseButton } from 'app/atoms/OverlayCloseButton';
 import { useAppEnv } from 'app/env';
 import { ReactComponent as ArrowRightIcon } from 'app/icons/arrow-right.svg';
 import { ReactComponent as SmileWithDollarIcon } from 'app/icons/smile-with-dollar.svg';
@@ -15,8 +16,6 @@ import { setOnRampPossibilityAction } from 'app/store/settings/actions';
 import { useOnRampPossibilitySelector } from 'app/store/settings/selectors';
 import { T } from 'lib/i18n/react';
 import { useAccountAddressForTezos } from 'temple/front';
-
-import { OverlayCloseButton } from '../OverlayCloseButton';
 
 import OnRampOverlayBgPopupImg from './assets/on-ramp-overlay-bg-popup.png';
 import OnRampOverlayBgImg from './assets/on-ramp-overlay-bg.png';

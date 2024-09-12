@@ -30,12 +30,14 @@ export function isKnownChainId(chainId?: string | null): chainId is TzktApiChain
 export const createTzktWsConnection = (chainId: TzktApiChainId): TzktHubConnection | null =>
   isTezosDcpChainId(chainId) ? null : new HubConnectionBuilder().withUrl(`${TZKT_API_BASE_URLS[chainId]}/ws`).build();
 
-const api = axios.create();
+const api = axios.create({
+  adapter: 'fetch'
+});
 
 api.interceptors.response.use(
   res => res,
   err => {
-    const message = (err as AxiosError).response?.data?.message;
+    const message = (err as AxiosError)?.message;
     console.error(`Failed when querying Tzkt API: ${message}`, err);
     throw err;
   }

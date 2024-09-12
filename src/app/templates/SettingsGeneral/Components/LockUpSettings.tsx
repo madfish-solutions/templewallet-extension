@@ -1,10 +1,9 @@
 import React, { FC } from 'react';
 
+import { EnablingSetting } from 'app/templates/EnablingSetting';
 import { useIsLockUpEnabled } from 'lib/lock-up';
 
 import { SettingsGeneralSelectors } from '../selectors';
-
-import { EnablingSetting } from './EnablingSetting';
 
 const LockUpSettings: FC<{}> = () => {
   const [isLockUpEnabled, saveIsLockUpEnabled] = useIsLockUpEnabled();

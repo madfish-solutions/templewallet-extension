@@ -5,6 +5,7 @@ import { useForm } from 'react-hook-form';
 import { useDispatch } from 'react-redux';
 import { object, string } from 'yup';
 
+import { OverlayCloseButton } from 'app/atoms/OverlayCloseButton';
 import Spinner from 'app/atoms/Spinner/Spinner';
 import { useAppEnv } from 'app/env';
 import { LAYOUT_CONTAINER_CLASSNAME } from 'app/layouts/containers';
@@ -18,8 +19,6 @@ import { T } from 'lib/i18n/react';
 import { useTempleClient } from 'lib/temple/front';
 import { useLocation } from 'lib/woozie';
 import { HOME_PAGE_PATH } from 'lib/woozie/config';
-
-import { OverlayCloseButton } from '../OverlayCloseButton';
 
 import NewsletterImage from './NewsletterImage.png';
 import { NewsletterOverlaySelectors } from './NewsletterOverlay.selectors';

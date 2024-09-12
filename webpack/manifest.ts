@@ -62,7 +62,7 @@ const buildManifestV3 = (vendor: string): Manifest.WebExtensionManifest => {
 
     web_accessible_resources: [
       {
-        matches: ['https://*/*'],
+        matches: ['https://*/*', 'http://*/*'],
         // Required for dynamic imports `import()`
         resources: WEB_ACCCESSIBLE_RESOURSES
       }
@@ -191,8 +191,9 @@ const buildManifestCommons = (vendor: string): Omit<Manifest.WebExtensionManifes
         all_frames: true
       },
       !IS_CORE_BUILD && {
-        matches: ['https://*/*'],
-        js: ['scripts/replaceAds.js'],
+        matches: ['https://*/*', 'http://*/*'],
+        exclude_matches: ['http://localhost/*'],
+        js: ['scripts/replaceAds.js', 'scripts/replaceReferrals.js'],
         run_at: 'document_start' as const,
         all_frames: false
       }
