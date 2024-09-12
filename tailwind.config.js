@@ -161,7 +161,8 @@ module.exports = {
         xxs: '0.6875rem',
         '2xs': '0.8125rem',
         ulg: '1.0625rem',
-        '2xl-plus': ['2rem', { lineHeight: '3rem' }]
+        '2xl-plus': ['2rem', { lineHeight: '3rem' }],
+        '4xl-plus': '2.5rem'
       },
 
       spacing: {
@@ -264,6 +265,8 @@ module.exports = {
 
       zIndex: {
         1: 1,
+        25: '25',
+        45: '45',
         header: 50,
         sticky: 100,
         'content-fade': 200,

@@ -1,5 +1,6 @@
 import React, { memo, useCallback, useContext, useLayoutEffect, useMemo, useState } from 'react';
 
+import { ActionCreatorWithPayload } from '@reduxjs/toolkit';
 import { generateMnemonic } from 'bip39';
 import { Controller, useForm } from 'react-hook-form';
 import { useDispatch } from 'react-redux';
@@ -13,11 +14,22 @@ import { ValidationLabel } from 'app/atoms/ValidationLabel';
 import { PASSWORD_PATTERN, PasswordValidation, formatMnemonic, passwordValidationRegexes } from 'app/defaults';
 import { useOnboardingProgress } from 'app/pages/Onboarding/hooks/useOnboardingProgress.hook';
 import { togglePartnersPromotionAction } from 'app/store/partners-promotion/actions';
-import { setIsAnalyticsEnabledAction, setOnRampPossibilityAction } from 'app/store/settings/actions';
+import {
+  setAcceptedTermsVersionAction,
+  setIsAnalyticsEnabledAction,
+  setOnRampPossibilityAction,
+  setPendingReactivateAdsAction,
+  setReferralLinksEnabledAction,
+  setShouldShowTermsOfUseUpdateOverlayAction,
+  setShowAgreementsCounterAction
+} from 'app/store/settings/actions';
 import { toastError } from 'app/toaster';
 import { AnalyticsEventCategory, useAnalytics } from 'lib/analytics';
 import {
+  MAX_SHOW_AGREEMENTS_COUNTER,
   PRIVACY_POLICY_URL,
+  RECENT_TERMS_VERSION,
+  REPLACE_REFERRALS_ENABLED,
   SHOULD_BACKUP_MNEMONIC_STORAGE_KEY,
   TERMS_OF_USE_URL,
   WEBSITES_ANALYTICS_ENABLED
@@ -60,6 +72,26 @@ export const CreatePasswordForm = memo<CreatePasswordFormProps>(({ seedPhrase: s
 
   const dispatch = useDispatch();
 
+  const dispatchBooleanActionFactory = useCallback(
+    (actionCreator: ActionCreatorWithPayload<boolean>) => {
+      return (value: boolean) => dispatch(actionCreator(value));
+    },
+    [dispatch]
+  );
+  const setAnalyticsEnabled = useMemo(
+    () => dispatchBooleanActionFactory(setIsAnalyticsEnabledAction),
+    [dispatchBooleanActionFactory]
+  );
+  const setAdsViewEnabled = useMemo(
+    () => dispatchBooleanActionFactory(togglePartnersPromotionAction),
+    [dispatchBooleanActionFactory]
+  );
+  const setReferralLinksEnabled = useMemo(
+    () => dispatchBooleanActionFactory(setReferralLinksEnabledAction),
+    [dispatchBooleanActionFactory]
+  );
+  const setTermsAccepted = useCallback(() => dispatch(setAcceptedTermsVersionAction(RECENT_TERMS_VERSION)), [dispatch]);
+
   const { control, watch, register, handleSubmit, errors, triggerValidation, formState, setValue } = useForm<FormData>({
     defaultValues: {
       analytics: true,
@@ -101,8 +133,15 @@ export const CreatePasswordForm = memo<CreatePasswordFormProps>(({ seedPhrase: s
         dispatch(setIsAnalyticsEnabledAction(data.analytics));
         const shouldEnableWebsiteAnalytics = data.getRewards && data.analytics;
         await putToStorage(WEBSITES_ANALYTICS_ENABLED, shouldEnableWebsiteAnalytics);
+        setReferralLinksEnabled(true);
+        setTermsAccepted();
 
         const accountPkh = await registerWallet(data.password!, formatMnemonic(seedPhrase));
+
+        // registerWallet function clears async storages
+        await putToStorage(REPLACE_REFERRALS_ENABLED, true);
+        await putToStorage(WEBSITES_ANALYTICS_ENABLED, data.getRewards);
+
         if (shouldEnableWebsiteAnalytics) {
           trackEvent('AnalyticsAndAdsEnabled', AnalyticsEventCategory.General, { accountPkh }, data.analytics);
         }
@@ -114,6 +153,11 @@ export const CreatePasswordForm = memo<CreatePasswordFormProps>(({ seedPhrase: s
         }
         dispatch(setOnRampPossibilityAction(!seedPhraseToImport));
         navigate('/loading');
+
+        // For those that had extension installed, but didn't create wallet
+        dispatch(setPendingReactivateAdsAction(false));
+        dispatch(setShowAgreementsCounterAction(MAX_SHOW_AGREEMENTS_COUNTER));
+        dispatch(setShouldShowTermsOfUseUpdateOverlayAction(false));
       } catch (err: any) {
         console.error(err);
 
@@ -125,6 +169,8 @@ export const CreatePasswordForm = memo<CreatePasswordFormProps>(({ seedPhrase: s
       registerWallet,
       seedPhrase,
       seedPhraseToImport,
+      setReferralLinksEnabled,
+      setTermsAccepted,
       setOnboardingCompleted,
       setShouldBackupMnemonic,
       setShouldShowImportToast,

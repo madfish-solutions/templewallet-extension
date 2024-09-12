@@ -1,10 +1,9 @@
 import React, { FC, useCallback, useRef, useState } from 'react';
 
+import { EnablingSetting } from 'app/templates/EnablingSetting';
 import { isPopupModeEnabled, setPopupMode } from 'lib/popup-mode';
 
 import { SettingsGeneralSelectors } from '../selectors';
-
-import { EnablingSetting } from './EnablingSetting';
 
 const PopupSettings: FC<{}> = () => {
   const popupEnabled = isPopupModeEnabled();

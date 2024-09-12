@@ -14,8 +14,8 @@ import { AssetsFilterOptions } from 'app/templates/AssetsFilterOptions';
 import { SearchBarField } from 'app/templates/SearchField';
 import { OneOfChains } from 'temple/front';
 
+import { Banner } from './Banner';
 import { EmptySection } from './EmptySection';
-import { UpdateAppBanner } from './UpdateAppBanner';
 
 interface TokensTabBaseProps {
   tokensCount: number;
@@ -60,7 +60,7 @@ export const TokensTabBase: FC<PropsWithChildren<TokensTabBaseProps>> = ({
         <AssetsFilterOptions filterButtonRef={filterButtonRef} onRequestClose={setFiltersClosed} />
       ) : (
         <ContentContainer ref={containerRef} padding={tokensCount > 0}>
-          {!manageActive && <UpdateAppBanner stickyBarRef={stickyBarRef} />}
+          {manageActive ? null : <Banner stickyBarRef={stickyBarRef} />}
 
           {tokensCount === 0 ? (
             <EmptySection forCollectibles={false} network={network} />

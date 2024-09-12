@@ -1,8 +1,9 @@
 import React, { memo, ReactNode, useMemo, useState } from 'react';
 
-import classNames from 'clsx';
+import clsx from 'clsx';
 
 import { IconBase } from 'app/atoms';
+import { ReactComponent as AdditionalIcon } from 'app/icons/additional.svg';
 import { ReactComponent as AppsIcon } from 'app/icons/apps.svg';
 import { ReactComponent as SettingsIcon } from 'app/icons/base/settings.svg';
 import { ReactComponent as ContactBookIcon } from 'app/icons/monochrome/contact-book.svg';
@@ -17,6 +18,7 @@ import PageLayout from 'app/layouts/PageLayout';
 import About from 'app/templates/About/About';
 import { AccountsManagement } from 'app/templates/AccountsManagement';
 import AddressBook from 'app/templates/AddressBook/AddressBook';
+import { AdvancedFeatures } from 'app/templates/AdvancedFeatures';
 import DAppSettings from 'app/templates/DAppSettings/DAppSettings';
 import HelpAndCommunity from 'app/templates/HelpAndCommunity';
 import { RevealSeedPhrase, RevealPrivateKeys } from 'app/templates/RevealSecrets';
@@ -107,6 +109,15 @@ const TABS: Tab[] = [
     testID: SettingsSelectors.networksButton
   },
   {
+    slug: 'advanced-features',
+    titleI18nKey: 'advancedFeatures',
+    Icon: AdditionalIcon,
+    Component: AdvancedFeatures,
+    color: '#88E0E6',
+    descriptionI18nKey: 'advancedFeaturesDescription',
+    testID: SettingsSelectors.advancedFeaturesButton
+  },
+  {
     slug: 'accounts-management',
     titleI18nKey: 'accountsManagement',
     Icon: PeopleIcon,
@@ -162,11 +173,11 @@ const Settings = memo<SettingsProps>(({ tabSlug }) => {
               const linkTo = `/settings/${slug}`;
 
               return (
-                <Link to={linkTo} key={slug} className={classNames(!first && 'mt-10 block')} testID={testID}>
+                <Link to={linkTo} key={slug} className={clsx(!first && 'mt-10 block')} testID={testID}>
                   <div className="flex">
                     <div className="ml-2 flex-shrink-0">
                       <div
-                        className={classNames(
+                        className={clsx(
                           'block',
                           'h-12 w-12',
                           'border-2 border-white border-opacity-25',
@@ -186,7 +197,7 @@ const Settings = memo<SettingsProps>(({ tabSlug }) => {
                       <T id={titleI18nKey}>
                         {message => (
                           <div
-                            className={classNames(
+                            className={clsx(
                               'text-lg leading-6 font-medium',
                               'filter-brightness-75',
                               'hover:underline focus:underline',
