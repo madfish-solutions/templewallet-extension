@@ -6,18 +6,20 @@ import { EvmAssetMetadataBase } from 'lib/metadata/types';
 import { ImageStacked, ImageStackedProps } from 'lib/ui/ImageStacked';
 
 export interface AssetImageBaseProps
-  extends Pick<ImageStackedProps, 'loader' | 'fallback' | 'className' | 'style' | 'onStackLoaded' | 'onStackFailed'> {
+  extends Pick<
+    ImageStackedProps,
+    'loader' | 'fallback' | 'className' | 'style' | 'onStackLoaded' | 'onStackFailed' | 'alt'
+  > {
   sources: string[];
-  metadata?: EvmAssetMetadataBase | AssetMetadataBase;
   size?: number;
 }
 
 const AssetImageBase: FC<AssetImageBaseProps> = ({
   sources,
-  metadata,
   className,
   size,
   style,
+  alt,
   loader,
   fallback,
   onStackLoaded,
@@ -38,7 +40,7 @@ const AssetImageBase: FC<AssetImageBaseProps> = ({
       sources={sources}
       loader={loader}
       fallback={fallback}
-      alt={metadata?.name}
+      alt={alt}
       className={className}
       style={styleMemo}
       height={size}
@@ -52,29 +54,37 @@ const AssetImageBase: FC<AssetImageBaseProps> = ({
 interface TezosAssetImageProps extends Omit<AssetImageBaseProps, 'sources'> {
   metadata?: AssetMetadataBase;
   fullViewCollectible?: boolean;
+  extraSrc?: string;
 }
 
-export const TezosAssetImage: FC<TezosAssetImageProps> = ({ metadata, fullViewCollectible, ...rest }) => {
+export const TezosAssetImage: FC<TezosAssetImageProps> = ({ metadata, fullViewCollectible, extraSrc, ...rest }) => {
   const sources = useMemo(() => {
-    if (metadata && isCollectibleTokenMetadata(metadata))
-      return buildCollectibleImagesStack(metadata, fullViewCollectible);
+    const sources =
+      metadata && isCollectibleTokenMetadata(metadata)
+        ? buildCollectibleImagesStack(metadata, fullViewCollectible)
+        : buildTokenImagesStack(metadata?.thumbnailUri);
 
-    return buildTokenImagesStack(metadata?.thumbnailUri);
-  }, [metadata, fullViewCollectible]);
+    if (extraSrc) sources.push(extraSrc);
 
-  return <AssetImageBase sources={sources} metadata={metadata} {...rest} />;
+    return sources;
+  }, [metadata, fullViewCollectible, extraSrc]);
+
+  return <AssetImageBase sources={sources} alt={metadata?.name} {...rest} />;
 };
 
 interface EvmAssetImageProps extends Omit<AssetImageBaseProps, 'sources'> {
   metadata?: EvmAssetMetadataBase;
-  evmChainId?: number;
+  evmChainId: number;
+  extraSrc?: string;
 }
 
-export const EvmAssetImage: FC<EvmAssetImageProps> = ({ evmChainId, metadata, ...rest }) => {
-  const sources = useMemo(
-    () => (metadata ? buildEvmTokenIconSources(metadata, evmChainId) : []),
-    [evmChainId, metadata]
-  );
+export const EvmAssetImage: FC<EvmAssetImageProps> = ({ evmChainId, metadata, extraSrc, ...rest }) => {
+  const sources = useMemo(() => {
+    const sources = metadata ? buildEvmTokenIconSources(metadata, evmChainId) : [];
+    if (extraSrc) sources.push(extraSrc);
 
-  return <AssetImageBase sources={sources} metadata={metadata} {...rest} />;
+    return sources;
+  }, [evmChainId, metadata, extraSrc]);
+
+  return <AssetImageBase sources={sources} alt={metadata?.name} {...rest} />;
 };

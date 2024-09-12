@@ -16,12 +16,13 @@ import { TezosAssetImage, AssetImageBaseProps, EvmAssetImage } from './AssetImag
 interface TezosAssetIconProps extends Omit<AssetImageBaseProps, 'sources' | 'metadata' | 'loader' | 'fallback'> {
   tezosChainId: string;
   assetSlug: string;
+  extraSrc?: string;
   Loader?: React.ComponentType;
   Fallback?: React.ComponentType;
 }
 
 export const TezosAssetIcon = memo<TezosAssetIconProps>(
-  ({ tezosChainId, className, style, Loader, Fallback, ...props }) => {
+  ({ tezosChainId, className, style, extraSrc, Loader, Fallback, ...props }) => {
     const metadata = useTezosAssetMetadata(props.assetSlug, tezosChainId);
 
     return (
@@ -29,6 +30,7 @@ export const TezosAssetIcon = memo<TezosAssetIconProps>(
         <TezosAssetImage
           {...props}
           metadata={metadata}
+          extraSrc={extraSrc}
           loader={Loader ? <Loader /> : <AssetIconPlaceholder metadata={metadata} size={props.size} />}
           fallback={Fallback ? <Fallback /> : <AssetIconPlaceholder metadata={metadata} size={props.size} />}
         />
@@ -40,26 +42,30 @@ export const TezosAssetIcon = memo<TezosAssetIconProps>(
 interface EvmAssetIconProps extends Omit<AssetImageBaseProps, 'sources' | 'metadata' | 'loader' | 'fallback'> {
   evmChainId: number;
   assetSlug: string;
+  extraSrc?: string;
   Loader?: React.ComponentType;
   Fallback?: React.ComponentType;
 }
 
-export const EvmTokenIcon = memo<EvmAssetIconProps>(({ evmChainId, assetSlug, Loader, Fallback, ...props }) => {
-  const network = useEvmChainByChainId(evmChainId);
-  const tokenMetadata = useEvmTokenMetadataSelector(evmChainId, assetSlug);
+export const EvmTokenIcon = memo<EvmAssetIconProps>(
+  ({ evmChainId, assetSlug, extraSrc, Loader, Fallback, ...props }) => {
+    const network = useEvmChainByChainId(evmChainId);
+    const tokenMetadata = useEvmTokenMetadataSelector(evmChainId, assetSlug);
 
-  const metadata = isEvmNativeTokenSlug(assetSlug) ? network?.currency : tokenMetadata;
+    const metadata = isEvmNativeTokenSlug(assetSlug) ? network?.currency : tokenMetadata;
 
-  return (
-    <EvmAssetImage
-      {...props}
-      evmChainId={evmChainId}
-      metadata={metadata}
-      loader={Loader ? <Loader /> : <AssetIconPlaceholder metadata={metadata} size={props.size} />}
-      fallback={Fallback ? <Fallback /> : <AssetIconPlaceholder metadata={metadata} size={props.size} />}
-    />
-  );
-});
+    return (
+      <EvmAssetImage
+        {...props}
+        evmChainId={evmChainId}
+        metadata={metadata}
+        extraSrc={extraSrc}
+        loader={Loader ? <Loader /> : <AssetIconPlaceholder metadata={metadata} size={props.size} />}
+        fallback={Fallback ? <Fallback /> : <AssetIconPlaceholder metadata={metadata} size={props.size} />}
+      />
+    );
+  }
+);
 
 const ICON_DEFAULT_SIZE = 40;
 const ASSET_IMAGE_DEFAULT_SIZE = 30;

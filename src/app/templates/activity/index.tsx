@@ -92,16 +92,17 @@ const ActivityComponent: FC<{ activity: Activity; chain: OneOfChains }> = ({ act
 
   const networkName = chain.nameI18nKey ? t(chain.nameI18nKey) : chain.name;
 
-  const hash = activity.hash;
+  const { hash, blockExplorerUrl } = activity;
 
   if (activity.kind !== ActivityKindEnum.interaction || activity.operations.length <= 1)
     return (
       <ActivityItemBaseComponent
         kind={activity.kind}
-        hash={activity.hash}
+        hash={hash}
         chainId={chain.chainId}
         networkName={networkName}
         asset={activity.asset}
+        blockExplorerUrl={blockExplorerUrl}
       />
     );
 
@@ -120,6 +121,7 @@ const ActivityComponent: FC<{ activity: Activity; chain: OneOfChains }> = ({ act
             chainId={chain.chainId}
             networkName={networkName}
             asset={operation.asset}
+            blockExplorerUrl={blockExplorerUrl}
           />
         </React.Fragment>
       ))}
@@ -146,6 +148,7 @@ const ActivityComponent: FC<{ activity: Activity; chain: OneOfChains }> = ({ act
                     chainId={chain.chainId}
                     networkName={networkName}
                     asset={operation.asset}
+                    blockExplorerUrl={blockExplorerUrl}
                   />
                 </React.Fragment>
               ))

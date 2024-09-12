@@ -23,3 +23,5 @@
 - - Maybe make asset symbol clickable
 - Classification for operations. Same?
 - 'Show more/less' button logic
+- `TransferSingle` of ERC-1155
+-

@@ -32,6 +32,7 @@ interface EvmActivity extends ActivityBase {
   chain: TempleChainKind.EVM;
   chainId: number;
   hash: string;
+  blockExplorerUrl?: string;
   asset?: EvmActivityAsset;
   operations: EvmOperation[];
 }
@@ -47,6 +48,7 @@ interface EvmActivityAsset {
   decimals: number;
   nft?: boolean;
   symbol?: string;
+  iconURL?: string;
 }
 
 export const InfinitySymbol = Symbol('Infinity');
@@ -96,6 +98,7 @@ export function parseGoldRushTransaction(
     const toAddress = getEvmAddressSafe(logEvent.decoded.params[1]?.value);
     const contractAddress = getEvmAddressSafe(logEvent.sender_address);
     const decimals = logEvent.sender_contract_decimals;
+    const iconURL = logEvent.sender_logo_url ?? undefined;
 
     if (logEvent.decoded.name === 'Transfer') {
       const kind = (() => {
@@ -118,7 +121,8 @@ export function parseGoldRushTransaction(
         amount: nft ? '1' : kind === ActivityKindEnum.send ? `-${amountOrTokenId}` : amountOrTokenId,
         decimals: nft ? 0 : decimals ?? 0,
         symbol: logEvent.sender_contract_ticker_symbol ?? undefined,
-        nft
+        nft,
+        iconURL
       };
 
       return { kind, asset };
@@ -138,7 +142,8 @@ export function parseGoldRushTransaction(
         amount: nft ? '1' : undefined, // Often this amount is too large for non-NFTs
         decimals,
         symbol: logEvent.sender_contract_ticker_symbol ?? undefined,
-        nft
+        nft,
+        iconURL
       };
 
       return { kind, asset };
@@ -159,7 +164,8 @@ export function parseGoldRushTransaction(
         amount: InfinitySymbol,
         decimals,
         symbol: logEvent.sender_contract_ticker_symbol ?? undefined,
-        nft: true
+        nft: true,
+        iconURL
       };
 
       return { kind, asset };
@@ -173,6 +179,7 @@ export function parseGoldRushTransaction(
     chainId,
     kind,
     hash: item.tx_hash!,
+    blockExplorerUrl: item.explorers?.[0]?.url,
     asset,
     operations: logEvents.map<EvmOperation>(logEvent => {
       const kind: ActivityKindEnum = (() => {
@@ -185,6 +192,8 @@ export function parseGoldRushTransaction(
 
         return ActivityKindEnum.interaction;
       })();
+
+      const iconURL = logEvent.sender_logo_url ?? undefined;
 
       return {
         kind,
@@ -204,7 +213,8 @@ export function parseGoldRushTransaction(
             amount: nft ? '1' : kind === ActivityKindEnum.send ? `-${amountOrTokenId}` : amountOrTokenId,
             decimals,
             symbol: logEvent.sender_contract_ticker_symbol ?? undefined,
-            nft
+            nft,
+            iconURL
           };
         })()
       };

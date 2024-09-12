@@ -7,6 +7,7 @@ import { ReactComponent as IncomeSvg } from 'app/icons/base/income.svg';
 import { ReactComponent as OutLinkIcon } from 'app/icons/base/outLink.svg';
 import { ReactComponent as SendSvg } from 'app/icons/base/send.svg';
 import { ReactComponent as SwapSvg } from 'app/icons/base/swap.svg';
+import { FiatBalance } from 'app/pages/Home/OtherComponents/Tokens/components/Balance';
 import { toEvmAssetSlug, toTezosAssetSlug } from 'lib/assets/utils';
 import { atomsToTokens } from 'lib/temple/helpers';
 
@@ -20,6 +21,7 @@ interface Props {
   hash: string;
   networkName: string;
   asset?: AssetProp;
+  blockExplorerUrl?: string;
 }
 
 interface AssetProp {
@@ -28,13 +30,25 @@ interface AssetProp {
   amount?: string | typeof InfinitySymbol;
   decimals: number;
   symbol?: string;
+  iconURL?: string;
 }
 
-export const ActivityItemBaseComponent: FC<Props> = ({ kind, hash, chainId, networkName, asset }) => {
-  const amountJsx = useMemo(() => {
-    if (!asset) return null;
+export const ActivityItemBaseComponent: FC<Props> = ({ kind, hash, chainId, networkName, asset, blockExplorerUrl }) => {
+  const assetSlug = asset
+    ? typeof chainId === 'number'
+      ? toEvmAssetSlug(asset.contract, asset.tokenId)
+      : toTezosAssetSlug(asset.contract, asset.tokenId)
+    : null;
 
-    return (
+  const { amountForFiat, amountJsx } = useMemo(() => {
+    if (!asset) return {};
+
+    const amountForFiat =
+      typeof asset.amount === 'string' && (kind === ActivityKindEnum.receive || kind === ActivityKindEnum.send)
+        ? atomsToTokens(asset.amount, asset.decimals)
+        : null;
+
+    const amountJsx = (
       <div className="text-font-num-14">
         {asset.amount ? (
           asset.amount === InfinitySymbol ? (
@@ -42,7 +56,7 @@ export const ActivityItemBaseComponent: FC<Props> = ({ kind, hash, chainId, netw
           ) : (
             <>
               {asset.amount.startsWith('-') ? null : '+'}
-              <Money smallFractionFont={false}>{atomsToTokens(asset.amount, asset.decimals).toFixed(6)}</Money>{' '}
+              <Money smallFractionFont={false}>{atomsToTokens(asset.amount, asset.decimals)}</Money>{' '}
             </>
           )
         ) : null}
@@ -50,7 +64,9 @@ export const ActivityItemBaseComponent: FC<Props> = ({ kind, hash, chainId, netw
         {asset.symbol || '???'}
       </div>
     );
-  }, [asset]);
+
+    return { amountForFiat, amountJsx };
+  }, [asset, kind]);
 
   const IconFallback = useCallback<FC>(
     () => (
@@ -63,20 +79,22 @@ export const ActivityItemBaseComponent: FC<Props> = ({ kind, hash, chainId, netw
 
   return (
     <div className="group flex gap-x-2 p-2 rounded-lg hover:bg-secondary-low">
-      <div className="relative flex items-center justify-center w-10">
-        {asset ? (
+      <div className="relative self-center flex items-center justify-center w-10 h-10 overflow-hidden">
+        {assetSlug ? (
           typeof chainId === 'number' ? (
             <EvmTokenIcon
               evmChainId={chainId}
-              assetSlug={toEvmAssetSlug(asset.contract, asset.tokenId)}
+              assetSlug={assetSlug}
               className="rounded-full w-9 h-9"
+              extraSrc={asset?.iconURL}
               Fallback={IconFallback}
             />
           ) : (
             <TezosAssetIcon
               tezosChainId={chainId}
-              assetSlug={toTezosAssetSlug(asset.contract, asset.tokenId)}
+              assetSlug={assetSlug}
               className="rounded-full w-9 h-9"
+              extraSrc={asset?.iconURL}
               Fallback={IconFallback}
             />
           )
@@ -101,13 +119,28 @@ export const ActivityItemBaseComponent: FC<Props> = ({ kind, hash, chainId, netw
         </div>
 
         <div className="flex gap-x-2 justify-between text-font-num-12 text-grey-1">
-          <Anchor className="flex items-center gap-x-1 group-hover:text-secondary">
+          <Anchor
+            href={blockExplorerUrl}
+            target="_blank"
+            className="flex items-center gap-x-1 group-hover:text-secondary"
+          >
             <HashShortView hash={hash} firstCharsCount={6} lastCharsCount={4} />
 
             <IconBase Icon={OutLinkIcon} size={12} className="invisible group-hover:visible" />
           </Anchor>
 
-          <div>-12.00 $</div>
+          {amountForFiat && assetSlug ? (
+            <div className="shrink-0 flex">
+              {amountForFiat.isPositive() && '+'}
+
+              <FiatBalance
+                evm={typeof chainId === 'number'}
+                chainId={chainId}
+                assetSlug={assetSlug}
+                value={amountForFiat}
+              />
+            </div>
+          ) : null}
         </div>
       </div>
     </div>
