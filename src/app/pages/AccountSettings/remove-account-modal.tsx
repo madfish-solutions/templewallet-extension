@@ -49,7 +49,7 @@ export const RemoveAccountModal = memo<RemoveAccountModalProps>(({ account, onCl
   const submitting = formState.isSubmitting;
 
   return (
-    <ActionModal title={`Remove ${account.name}?`} closable={false}>
+    <ActionModal title={`Remove ${account.name}?`} hasCloseButton={false} onClose={onClose}>
       {shouldPreventDeletion ? (
         <>
           <ActionModalBodyContainer>

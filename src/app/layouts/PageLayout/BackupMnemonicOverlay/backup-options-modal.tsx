@@ -15,7 +15,7 @@ interface BackupOptionsModalProps {
 }
 
 export const BackupOptionsModal = memo<BackupOptionsModalProps>(({ onSelect }) => (
-  <ActionModal title={t('backupYourWallet')} closable={false}>
+  <ActionModal title={t('backupYourWallet')} hasCloseButton={false}>
     <div className="w-full flex flex-col items-center px-3 pt-2.5 pb-6 gap-3">
       <p className="py-1 text-font-description text-grey-1 text-center">{t('backupWalletDescription')}</p>
 

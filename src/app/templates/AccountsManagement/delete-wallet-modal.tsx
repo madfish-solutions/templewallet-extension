@@ -52,7 +52,7 @@ export const DeleteWalletModal = memo<DeleteWalletModalProps>(({ onClose, select
   const submitting = formState.isSubmitting;
 
   return (
-    <ActionModal title={`Delete ${selectedGroup.name}?`} closable={false}>
+    <ActionModal title={`Delete ${selectedGroup.name}?`} hasCloseButton={false} onClose={onClose}>
       {shouldPreventDeletion ? (
         <>
           <ActionModalBodyContainer>

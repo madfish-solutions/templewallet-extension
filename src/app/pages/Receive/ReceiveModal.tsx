@@ -14,7 +14,7 @@ interface ReceiveModalProps extends ReceivePayload {
 
 export const ReceiveModal = memo<ReceiveModalProps>(({ address, chainKind, onClose }) => {
   return (
-    <ActionModal title={t('networkAddress', TempleChainTitle[chainKind])} closable onClose={onClose}>
+    <ActionModal title={t('networkAddress', TempleChainTitle[chainKind])} hasCloseButton onClose={onClose}>
       <ActionModalBodyContainer className="items-center pb-4">
         <div className="mb-4 rounded-lg shadow-center overflow-hidden p-4">
           <QRCode size={188} data={address} />

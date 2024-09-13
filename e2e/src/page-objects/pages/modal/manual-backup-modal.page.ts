@@ -6,7 +6,6 @@ import { createPageElement, findElements } from '../../../utils/search.utils';
 
 export class ManualBackupModalPage extends Page {
   confirmButton = createPageElement(ManualBackupModalSelectors.confirmButton);
-  cancelButton = createPageElement(ManualBackupModalSelectors.cancelButton);
   notedDownButton = createPageElement(ManualBackupModalSelectors.notedDownButton);
   protectedMask = createPageElement(ManualBackupModalSelectors.protectedMask);
   wordIndex = createPageElement(ManualBackupModalSelectors.wordIndex);
@@ -20,7 +19,6 @@ export class ManualBackupModalPage extends Page {
 
     if (modalPage == 'Verify') {
       await this.confirmButton.waitForDisplayed();
-      await this.cancelButton.waitForDisplayed();
       await this.wordIndex.findElements(3);
       await this.seedWordButton.findElements(3);
     }
