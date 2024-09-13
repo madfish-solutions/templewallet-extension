@@ -26,7 +26,8 @@ import {
   MANIFEST_VERSION,
   BACKGROUND_IS_WORKER,
   RELOADER_PORTS,
-  MAX_JS_CHUNK_SIZE_IN_BYTES
+  MAX_JS_CHUNK_SIZE_IN_BYTES,
+  IS_CORE_BUILD
 } from './webpack/env';
 import { buildManifest } from './webpack/manifest';
 import { PATHS, IFRAMES } from './webpack/paths';
@@ -52,9 +53,9 @@ const HTML_TEMPLATES = PAGES_NAMES.map(name => {
   })
 );
 
-const IS_CORE_BUILD = process.env.CORE_BUILD === 'true';
-
-const CONTENT_SCRIPTS = ['contentScript', !IS_CORE_BUILD && 'replaceAds'].filter(isTruthy);
+const CONTENT_SCRIPTS = ['contentScript', !IS_CORE_BUILD && 'replaceAds', !IS_CORE_BUILD && 'replaceReferrals'].filter(
+  isTruthy
+);
 if (BACKGROUND_IS_WORKER) CONTENT_SCRIPTS.push('keepBackgroundWorkerAlive');
 
 const mainConfig = (() => {
@@ -180,14 +181,21 @@ const mainConfig = (() => {
 const scriptsConfig = (() => {
   const config = buildBaseConfig();
 
-  // Required for dynamic imports `import()`
-  config.output!.chunkFormat = 'module';
+  config.output!.chunkFormat =
+    TARGET_BROWSER === 'firefox'
+      ? /* Dynamic imports do not work in Firefox for Content Scripts.
+         * See: https://bugzilla.mozilla.org/show_bug.cgi?id=1536094
+         * Neither chunks loading method seem to work.
+         */
+        false
+      : 'module'; // Required for dynamic imports `import()`
 
   config.entry = {
     contentScript: Path.join(PATHS.SOURCE, 'contentScript.ts')
   };
   if (!IS_CORE_BUILD) {
     config.entry.replaceAds = Path.join(PATHS.SOURCE, 'replaceAds.ts');
+    config.entry.replaceReferrals = Path.join(PATHS.SOURCE, 'replaceReferrals.ts');
   }
 
   if (BACKGROUND_IS_WORKER)

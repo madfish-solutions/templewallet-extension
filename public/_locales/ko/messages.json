@@ -786,12 +786,6 @@
   "enable": {
     "message": "활성화"
   },
-  "enablePartnersPromotionConfirm": {
-    "message": "Support the development team and earn tokens by viewing ads inside the wallet."
-  },
-  "enablePartnersPromotionDescriptionConfirm": {
-    "message": "To enable this feature, we request your permission to trace your Wallet Address and IP address. You can always disable ads in the settings."
-  },
   "dAppsCheckmarkPrompt": {
     "message": "분산 앱 상호 소통 기능을 $action$하려면 체크표시를 클릭하세요",
     "description": "DApps = Decentralized Applications",

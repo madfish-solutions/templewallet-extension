@@ -4,6 +4,7 @@ import { Anchor } from 'app/atoms/Anchor';
 import { DonationBanner } from 'app/atoms/DonationBanner/DonationBanner';
 import Logo from 'app/atoms/Logo';
 import SubTitle from 'app/atoms/SubTitle';
+import { PRIVACY_POLICY_URL, TERMS_OF_USE_URL } from 'lib/constants';
 import { EnvVars } from 'lib/env';
 import { TID, T } from 'lib/i18n';
 
@@ -26,12 +27,12 @@ const LINKS: {
   },
   {
     key: 'privacyPolicy',
-    link: 'https://templewallet.com/privacy',
+    link: PRIVACY_POLICY_URL,
     testID: AboutSelectors.privacyPolicyLink
   },
   {
     key: 'termsOfUse',
-    link: 'https://templewallet.com/terms',
+    link: TERMS_OF_USE_URL,
     testID: AboutSelectors.termsOfUseLink
   },
   {

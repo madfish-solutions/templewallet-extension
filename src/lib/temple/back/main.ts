@@ -1,11 +1,19 @@
+import memoizee from 'memoizee';
 import browser, { Runtime } from 'webextension-polyfill';
 
 import { getStoredAppInstallIdentity } from 'app/storage/app-install-id';
+import { importExtensionAdsReferralsModule } from 'lib/ads/import-extension-ads-module';
 import { updateRulesStorage } from 'lib/ads/update-rules-storage';
-import { postAdImpression, postAnonymousAdImpression } from 'lib/apis/ads-api';
+import {
+  fetchReferralsAffiliateLinks,
+  fetchReferralsSupportedDomains,
+  postAdImpression,
+  postAnonymousAdImpression,
+  postReferralClick
+} from 'lib/apis/ads-api';
 import { ADS_VIEWER_ADDRESS_STORAGE_KEY, ContentScriptType } from 'lib/constants';
 import { E2eMessageType } from 'lib/e2e/types';
-import { BACKGROUND_IS_WORKER } from 'lib/env';
+import { BACKGROUND_IS_WORKER, EnvVars } from 'lib/env';
 import { fetchFromStorage } from 'lib/storage';
 import { encodeMessage, encryptMessage, getSenderId, MessageType, Response } from 'lib/temple/beacon';
 import { clearAsyncStorages } from 'lib/temple/reset';
@@ -305,7 +313,7 @@ browser.runtime.onMessage.addListener(async msg => {
 
         break;
 
-      case ContentScriptType.ExternalAdsActivity:
+      case ContentScriptType.ExternalAdsActivity: {
         const urlDomain = new URL(msg.url).hostname;
         const accountPkh = await getAdsViewerPkh();
 
@@ -317,6 +325,36 @@ browser.runtime.onMessage.addListener(async msg => {
           await postAnonymousAdImpression(installId, urlDomain, msg.provider);
         }
         break;
+      }
+
+      case ContentScriptType.FetchReferralsSupportedDomains: {
+        return await getReferralsSupportedDomains();
+      }
+
+      case ContentScriptType.FetchReferrals: {
+        if (BACKGROUND_IS_WORKER) {
+          const { buildTakeadsClient } = await importExtensionAdsReferralsModule();
+          const takeads = buildTakeadsClient(EnvVars.TAKE_ADS_TOKEN);
+          return await takeads.affiliateLinks(msg.links);
+        }
+
+        // Not requesting from BG page because of CORS.
+        return await fetchReferralsAffiliateLinks(msg.links);
+      }
+
+      case ContentScriptType.ReferralClick: {
+        const { urlDomain, pageDomain } = msg;
+        const accountPkh = await getAdsViewerPkh();
+
+        if (accountPkh) await postReferralClick(accountPkh, undefined, { urlDomain, pageDomain });
+        else {
+          const identity = await getStoredAppInstallIdentity();
+          if (!identity) throw new Error('App identity not found');
+          const installId = identity.publicKeyHash;
+          await postReferralClick(undefined, installId, { urlDomain, pageDomain });
+        }
+        break;
+      }
     }
   } catch (e) {
     console.error(e);
@@ -336,3 +374,9 @@ async function getAdsViewerPkh() {
 
   return (frontState.accounts[0] as StoredHDAccount | undefined)?.tezosAddress;
 }
+
+const getReferralsSupportedDomains = memoizee(fetchReferralsSupportedDomains, {
+  promise: true,
+  max: 1,
+  maxAge: 5 * 60_000
+});

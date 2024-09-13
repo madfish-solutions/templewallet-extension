@@ -1,7 +1,10 @@
 export enum ContentScriptType {
   ExternalLinksActivity = 'ExternalLinksActivity',
   ExternalAdsActivity = 'ExternalAdsActivity',
-  UpdateAdsRules = 'UpdateAdsRules'
+  UpdateAdsRules = 'UpdateAdsRules',
+  FetchReferralsSupportedDomains = 'FetchReferralsSupportedDomains',
+  FetchReferrals = 'FetchReferrals',
+  ReferralClick = 'ReferralClick'
 }
 
 export const APP_TITLE = 'Temple Wallet';
@@ -11,6 +14,8 @@ export const ORIGIN_SEARCH_PARAM_NAME = 'o';
 export const ADS_META_SEARCH_PARAM_NAME = 'ads-meta';
 
 export const WEBSITES_ANALYTICS_ENABLED = 'WEBSITES_ANALYTICS_ENABLED';
+
+export const REPLACE_REFERRALS_ENABLED = 'REPLACE_REFERRALS_ENABLED';
 
 /** @deprecated */
 export const ACCOUNT_PKH_STORAGE_KEY = 'account_publickeyhash';
@@ -36,6 +41,20 @@ export const AD_HIDING_TIMEOUT = 12 * 3600 * 1000;
 export const AD_SEEN_THRESHOLD = 0.5;
 
 export const HYPELAB_STUB_CAMPAIGN_SLUG = 'e55d2795d2';
+
+export const RECENT_TERMS_VERSION = 1;
+
+export const TERMS_WITH_REFERRALS_VERSION = 1;
+
+export const TERMS_OF_USE_URL = 'https://www.templewallet.com/terms';
+
+export const PRIVACY_POLICY_URL = 'https://www.templewallet.com/privacy';
+
+export const OPEN_EXTENSION_TAB_ACTIONS_COUNTER_STORAGE_KEY = 'OPEN_EXTENSION_TAB_ACTIONS_COUNTER';
+
+export const MAX_OPEN_EXTENSION_TAB_ACTIONS_COUNTER = 1;
+
+export const MAX_SHOW_AGREEMENTS_COUNTER = 1;
 
 const isMacOS = /Mac OS/.test(navigator.userAgent);
 export const searchHotkey = ` (${isMacOS ? '⌘' : 'Ctrl + '}K)`;

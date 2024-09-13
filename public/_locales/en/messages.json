@@ -58,6 +58,12 @@
     "message": "Authorized DApps",
     "description": "DApps = Decentralized Applications"
   },
+  "advancedFeatures": {
+    "message": "Advanced Features"
+  },
+  "advancedFeaturesDescription": {
+    "message": "In this section you can customize additional Temple extension features"
+  },
   "clickIconToResetPermissions": {
     "message": "Click on the X icon to reset permissions."
   },
@@ -2559,7 +2565,7 @@
     "message": "Pay attention: you can receive rewards in TKEY tokens for viewing ads in our wallet. If you disabled Ads, you can always activate it in the settings."
   },
   "enablePartnersPromotionConfirm": {
-    "message": "Support the development team and earn tokens by viewing ads inside the wallet."
+    "message": "Support the development team and earn TKEY tokens by viewing ads."
   },
   "enablePartnersPromotionDescriptionConfirm": {
     "message": "To enable this feature, we request your permission to trace your Wallet Address and IP address. You can always disable ads in the settings."
@@ -2770,6 +2776,12 @@
       }
     }
   },
+  "referralLinks": {
+    "message": "Referral Links"
+  },
+  "referralLinksDescription": {
+    "message": "Automatically receive referral links while order products and services at your favourite online stores."
+  },
   "totalEquityValue": {
     "message": "Total Equity Value"
   },
@@ -2795,6 +2807,38 @@
         "content": "$1"
       }
     }
+  },
+  "confirmEnableReferralLinksTitle": {
+    "message": "Do you want to enable referral links?"
+  },
+  "confirmEnableReferralLinksDescription": {
+    "message": "This feature requires new terms and policy agreement. To enable referral links, please review and agree to the new $termsOfUse$, $privacyPolicy$.",
+    "placeholders": {
+      "termsOfUse": {
+        "content": "$1"
+      },
+      "privacyPolicy": {
+        "content": "$2"
+      }
+    }
+  },
+  "agreeAndContinue": {
+    "message": "Agree & Continue"
+  },
+  "templeUpdate": {
+    "message": "Temple Update"
+  },
+  "templeWalletUpdate": {
+    "message": "Temple Wallet Update"
+  },
+  "templeUpdateDescription": {
+    "message": "Our Terms of Use, Privacy Policy have updated and we’ve added new section in settings for easier advanced features control. Please review and agree to the new terms to continue. "
+  },
+  "templeWalletUpdateDescription": {
+    "message": "Our Terms of Use and Privacy Policy have been updated. Please review the new terms and agree to ensure a smooth experience with your wallet."
+  },
+  "reviewUpdate": {
+    "message": "Review update"
   },
   "buyWithCrypto": {
     "message": "Buy with Crypto"

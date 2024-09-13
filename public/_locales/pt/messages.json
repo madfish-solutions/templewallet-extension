@@ -829,12 +829,6 @@
   "enable": {
     "message": "ativar"
   },
-  "enablePartnersPromotionConfirm": {
-    "message": "Support the development team and earn tokens by viewing ads inside the wallet."
-  },
-  "enablePartnersPromotionDescriptionConfirm": {
-    "message": "To enable this feature, we request your permission to trace your Wallet Address and IP address. You can always disable ads in the settings."
-  },
   "dAppsCheckmarkPrompt": {
     "message": "Clique na marca de verificação para $action$ da funcionalidade de interação DApps",
     "description": "DApps = Decentralized Applications",

@@ -2,13 +2,8 @@ import PackageJSON from '../../package.json';
 
 export const APP_VERSION = PackageJSON.version;
 
-/**
- * Only Mises browser among supported vendors counts as a mobile platform
- *
- * `navigator.userAgentData.brands.find(b => b.brand === 'Mises')` will be available in future versions.
- */
 // @ts-expect-error
-export const IS_MISES_BROWSER = Boolean(navigator.userAgentData?.mobile);
+export const IS_MISES_BROWSER = Boolean(navigator.userAgentData?.brands?.find(b => b.brand === 'Mises'));
 
 export const IS_DEV_ENV = process.env.NODE_ENV === 'development';
 
@@ -55,6 +50,16 @@ export const EnvVars = {
   PERSONA_ADS_SQUARISH_BANNER_UNIT_ID: process.env.PERSONA_ADS_SQUARISH_BANNER_UNIT_ID!,
   TEMPLE_ADS_ORIGIN_PASSPHRASE: process.env.TEMPLE_ADS_ORIGIN_PASSPHRASE!,
   CONVERSION_VERIFICATION_URL: process.env.CONVERSION_VERIFICATION_URL!,
+  SMARTY_300_250_PLACEMENT_ID: process.env.SMARTY_300_250_PLACEMENT_ID!,
+  SMARTY_320_50_PLACEMENT_ID: process.env.SMARTY_320_50_PLACEMENT_ID!,
+  SMARTY_728_90_PLACEMENT_ID: process.env.SMARTY_728_90_PLACEMENT_ID!,
+  SMARTY_970_90_PLACEMENT_ID: process.env.SMARTY_970_90_PLACEMENT_ID!,
+  SMARTY_336_280_PLACEMENT_ID: process.env.SMARTY_336_280_PLACEMENT_ID!,
+  SMARTY_160_600_PLACEMENT_ID: process.env.SMARTY_160_600_PLACEMENT_ID!,
+  SMARTY_970_250_PLACEMENT_ID: process.env.SMARTY_970_250_PLACEMENT_ID!,
+  SMARTY_320_100_PLACEMENT_ID: process.env.SMARTY_320_100_PLACEMENT_ID!,
+  SMARTY_300_600_PLACEMENT_ID: process.env.SMARTY_300_600_PLACEMENT_ID!,
   /** Whether ads stubs should be added if loading failed. Set it to `true` only for testing */
-  USE_ADS_STUBS: process.env.USE_ADS_STUBS === 'true'
+  USE_ADS_STUBS: process.env.USE_ADS_STUBS === 'true',
+  TAKE_ADS_TOKEN: process.env.TAKE_ADS_TOKEN!
 } as const;

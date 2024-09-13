@@ -10,7 +10,12 @@
       }
 
       #root {
-        display: contents;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100%;
+        z-index: 1;
+        position: relative;
       }
 
       #temple-label {
@@ -26,6 +31,7 @@
 
         translate: calc(100% - 18px);
         transition: translate 400ms ease-out;
+        z-index: 1;
       }
 
       #temple-label[active] {
