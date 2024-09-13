@@ -11,6 +11,7 @@ export {
   useAccountAddressForTezos,
   useAccountForTezos,
   useAccountAddressForEvm,
+  useAccountForEvm,
   useSetAccountId as useChangeAccount,
   //
   useHDGroups

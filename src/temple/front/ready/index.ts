@@ -22,8 +22,8 @@ export const [
   useAccount,
   useAccountAddressForTezos,
   useAccountForTezos,
-  useAccountAddressForEvm, // useAccountForEvm is below but not used
-  ,
+  useAccountAddressForEvm,
+  useAccountForEvm,
   useSetAccountId,
   //
   useSettings,

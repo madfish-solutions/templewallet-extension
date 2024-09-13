@@ -18,6 +18,7 @@ import { InternalConfirmationPage } from './pages/internal-confirmation.page';
 import { ManualBackupModalPage } from './pages/modal/manual-backup-modal.page';
 import { NewsletterModalPage } from './pages/modal/newsletter-modal.page';
 import { OnRumModalPage } from './pages/modal/on-rum-modal.page';
+import { RevealSecretsPage } from './pages/reveal-secrets.page';
 import { SendPage } from './pages/send.page';
 import { SettingsPage } from './pages/settings.page';
 import { setWalletPage } from './pages/setWalletPassword.page';
@@ -29,6 +30,7 @@ export const Pages = {
   ImportExistingWallet: new ImportExistingWalletPage(),
   SetWallet: new setWalletPage(),
   Settings: new SettingsPage(),
+  RevealSecrets: new RevealSecretsPage(),
   UnlockScreen: new UnlockScreenPage(),
   DelegateTab: new DelegateTab(),
   DelegateForm: new DelegateFormPage(),
