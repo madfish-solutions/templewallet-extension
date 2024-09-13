@@ -74,15 +74,6 @@ export const RenameWalletModal = memo<RenameWalletModalProps>(({ onClose, select
         </ActionModalBodyContainer>
         <ActionModalButtonsContainer>
           <ActionModalButton
-            color="primary-low"
-            disabled={submitting}
-            onClick={onClose}
-            testID={AccountsManagementSelectors.cancelButton}
-          >
-            <T id="cancel" />
-          </ActionModalButton>
-
-          <ActionModalButton
             color="primary"
             type="submit"
             disabled={submitting}

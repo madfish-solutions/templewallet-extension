@@ -27,10 +27,6 @@ export const DeleteAssetModal = memo<RemoveAssetModalProps>(({ onClose, onDelete
         </p>
       </ActionModalBodyContainer>
       <ActionModalButtonsContainer>
-        <ActionModalButton color="primary-low" onClick={onClose}>
-          <T id="cancel" />
-        </ActionModalButton>
-
         <ActionModalButton color="red" onClick={handleDelete}>
           <T id="delete" />
         </ActionModalButton>

@@ -3,6 +3,7 @@ import React, { memo, useRef, useCallback, useLayoutEffect } from 'react';
 import { OnSubmit, useForm } from 'react-hook-form';
 
 import { FormField, FormSubmitButton } from 'app/atoms';
+import { DEFAULT_PASSWORD_INPUT_PLACEHOLDER } from 'lib/constants';
 import { TID, T, t } from 'lib/i18n';
 
 import { RevealSecretsSelectors } from './RevealSecrets.selectors';
@@ -57,7 +58,7 @@ export const PasswordForRevealField = memo<Props>(({ labelDescriptionForName, on
         id="reveal-secret-password"
         type="password"
         name="password"
-        placeholder="********"
+        placeholder={DEFAULT_PASSWORD_INPUT_PLACEHOLDER}
         errorCaption={errors.password?.message}
         containerClassName="mb-4"
         onChange={() => clearError()}

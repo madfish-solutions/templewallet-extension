@@ -68,16 +68,6 @@ export const EditAccountNameModal = memo<EditAccountNameModalProps>(({ account, 
         </ActionModalBodyContainer>
         <ActionModalButtonsContainer>
           <ActionModalButton
-            color="primary-low"
-            disabled={submitting}
-            onClick={onClose}
-            type="button"
-            testID={AccountSettingsSelectors.cancelButton}
-          >
-            <T id="cancel" />
-          </ActionModalButton>
-
-          <ActionModalButton
             color="primary"
             disabled={submitting}
             type="submit"

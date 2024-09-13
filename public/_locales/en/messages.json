@@ -1664,6 +1664,9 @@
   "amountPlaceholder": {
     "message": "e.g. 123.45"
   },
+  "myAccounts": {
+    "message": "My Accounts"
+  },
   "sendToMyAccounts": {
     "message": "Send to My Accounts"
   },

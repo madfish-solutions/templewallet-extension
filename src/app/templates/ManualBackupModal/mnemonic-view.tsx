@@ -13,11 +13,10 @@ import { ManualBackupModalSelectors } from './selectors';
 interface MnemonicViewProps extends TestIDProps {
   mnemonic: string;
   isNewMnemonic: boolean;
-  onCancel?: EmptyFn;
   onConfirm: EmptyFn;
 }
 
-export const MnemonicView = memo<MnemonicViewProps>(({ mnemonic, isNewMnemonic, onCancel, onConfirm }) => {
+export const MnemonicView = memo<MnemonicViewProps>(({ mnemonic, isNewMnemonic, onConfirm }) => {
   const [bottomEdgeIsVisible, setBottomEdgeIsVisible] = useState(true);
 
   const manualBackupSubstitutions = useMemo(() => {
@@ -53,7 +52,7 @@ export const MnemonicView = memo<MnemonicViewProps>(({ mnemonic, isNewMnemonic, 
       </ScrollView>
 
       <ActionsButtonsBox shouldCastShadow={!bottomEdgeIsVisible}>
-        {isNewMnemonic ? (
+        {isNewMnemonic && (
           <StyledButton
             className="w-full"
             size="L"
@@ -62,16 +61,6 @@ export const MnemonicView = memo<MnemonicViewProps>(({ mnemonic, isNewMnemonic, 
             testID={ManualBackupModalSelectors.notedDownButton}
           >
             <T id="notedSeedPhraseDown" />
-          </StyledButton>
-        ) : (
-          <StyledButton
-            className="w-full"
-            size="L"
-            color="primary-low"
-            onClick={onCancel}
-            testID={ManualBackupModalSelectors.cancelButton}
-          >
-            <T id="cancel" />
           </StyledButton>
         )}
       </ActionsButtonsBox>

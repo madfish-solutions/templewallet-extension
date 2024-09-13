@@ -8,6 +8,7 @@ import {
   ActionModalButtonsContainer
 } from 'app/atoms/action-modal';
 import { useTempleBackendActionForm } from 'app/hooks/use-temple-backend-action-form';
+import { DEFAULT_PASSWORD_INPUT_PLACEHOLDER } from 'lib/constants';
 import { T, t } from 'lib/i18n';
 import { useTempleClient } from 'lib/temple/front';
 import { StoredAccount } from 'lib/temple/types';
@@ -70,7 +71,7 @@ export const ConfirmRevealPrivateKeyAccessModal = memo<ConfirmRevealPrivateKeyAc
               id="revealprivatekey-secret-password"
               type="password"
               name="password"
-              placeholder={t('password')}
+              placeholder={DEFAULT_PASSWORD_INPUT_PLACEHOLDER}
               errorCaption={errors.password?.message}
               containerClassName="mb-1"
               testID={AccountSettingsSelectors.passwordInput}

@@ -25,6 +25,7 @@ import {
 import { toastError } from 'app/toaster';
 import { AnalyticsEventCategory, useAnalytics } from 'lib/analytics';
 import {
+  DEFAULT_PASSWORD_INPUT_PLACEHOLDER,
   MAX_SHOW_AGREEMENTS_COUNTER,
   PRIVACY_POLICY_URL,
   RECENT_TERMS_VERSION,
@@ -183,7 +184,7 @@ export const CreatePasswordForm = memo<CreatePasswordFormProps>(({ seedPhrase: s
             id="newwallet-password"
             type="password"
             name="password"
-            placeholder="••••••••••"
+            placeholder={DEFAULT_PASSWORD_INPUT_PLACEHOLDER}
             errorCaption={errors.password?.message}
             shouldShowErrorCaption={false}
             fieldWrapperBottomMargin={false}
@@ -213,7 +214,7 @@ export const CreatePasswordForm = memo<CreatePasswordFormProps>(({ seedPhrase: s
             id="newwallet-repassword"
             type="password"
             name="repeatPassword"
-            placeholder="••••••••••"
+            placeholder={DEFAULT_PASSWORD_INPUT_PLACEHOLDER}
             errorCaption={errors.repeatPassword?.message}
             cleanable={repeatPasswordValue ? repeatPasswordValue.length > 0 : false}
             containerClassName="my-4"

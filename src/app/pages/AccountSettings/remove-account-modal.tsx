@@ -8,6 +8,7 @@ import {
   ActionModalButtonsContainer
 } from 'app/atoms/action-modal';
 import { useTempleBackendActionForm } from 'app/hooks/use-temple-backend-action-form';
+import { DEFAULT_PASSWORD_INPUT_PLACEHOLDER } from 'lib/constants';
 import { T, t } from 'lib/i18n';
 import { useTempleClient } from 'lib/temple/front';
 import { StoredAccount, TempleAccountType } from 'lib/temple/types';
@@ -48,7 +49,7 @@ export const RemoveAccountModal = memo<RemoveAccountModalProps>(({ account, onCl
   const submitting = formState.isSubmitting;
 
   return (
-    <ActionModal title={`Remove ${account.name}?`} onClose={onClose}>
+    <ActionModal title={`Remove ${account.name}?`} closable={false}>
       {shouldPreventDeletion ? (
         <>
           <ActionModalBodyContainer>
@@ -81,7 +82,7 @@ export const RemoveAccountModal = memo<RemoveAccountModalProps>(({ account, onCl
               id="removewallet-secret-password"
               type="password"
               name="password"
-              placeholder="********"
+              placeholder={DEFAULT_PASSWORD_INPUT_PLACEHOLDER}
               errorCaption={errors.password?.message}
               containerClassName="mb-1"
               testID={AccountSettingsSelectors.passwordInput}
