@@ -11,7 +11,7 @@ const CHAIN_SLUG_SEPARATOR = ':';
 
 export const getTezosGasSymbol = (chainId: string) => (isTezosDcpChainId(chainId) ? TEZOS_DCP_SYMBOL : TEZOS_SYMBOL);
 
-export const toTokenSlug = (contract: string, id: string | number = 0) => `${contract}_${id}`;
+export const toTokenSlug = (contract: string, id?: string | number) => `${contract}_${id || '0'}`;
 
 export const toTezosAssetSlug = (contract: string, id?: string) =>
   contract === TEZ_TOKEN_SLUG ? TEZ_TOKEN_SLUG : toTokenSlug(contract, id);

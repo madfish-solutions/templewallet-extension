@@ -174,6 +174,47 @@ export function parseGoldRushTransaction(
     return { kind: ActivityKindEnum.interaction };
   })();
 
+  const operations = logEvents.map<EvmOperation>(logEvent => {
+    const kind: ActivityKindEnum = (() => {
+      // if (logEvent.decoded?.name === 'Approval') return ActivityKindEnum.approve;
+
+      if (logEvent.decoded?.name === 'Transfer') {
+        if (getEvmAddressSafe(logEvent.decoded.params[0]?.value) === accountAddress) return ActivityKindEnum.send;
+        if (getEvmAddressSafe(logEvent.decoded.params[1]?.value) === accountAddress) return ActivityKindEnum.receive;
+      }
+
+      return ActivityKindEnum.interaction;
+    })();
+
+    const iconURL = logEvent.sender_logo_url ?? undefined;
+
+    return {
+      kind,
+      asset: (() => {
+        if (kind !== ActivityKindEnum.send && kind !== ActivityKindEnum.receive) return;
+
+        const amountOrTokenId: string = logEvent.decoded?.params[2]?.value ?? '0';
+        const decimals = logEvent.sender_contract_decimals;
+        const contractAddress = getEvmAddressSafe(logEvent.sender_address);
+        const nft = logEvent.decoded?.params[2]?.indexed ?? false;
+
+        if (!contractAddress || decimals == null) return;
+
+        const amount = nft ? '1' : amountOrTokenId;
+
+        return {
+          contract: contractAddress,
+          tokenId: nft ? amountOrTokenId : undefined,
+          amount: kind === ActivityKindEnum.send ? `-${amount}` : amount,
+          decimals,
+          symbol: logEvent.sender_contract_ticker_symbol ?? undefined,
+          nft,
+          iconURL
+        };
+      })()
+    };
+  });
+
   return {
     chain: TempleChainKind.EVM,
     chainId,
@@ -181,43 +222,6 @@ export function parseGoldRushTransaction(
     hash: item.tx_hash!,
     blockExplorerUrl: item.explorers?.[0]?.url,
     asset,
-    operations: logEvents.map<EvmOperation>(logEvent => {
-      const kind: ActivityKindEnum = (() => {
-        // if (logEvent.decoded?.name === 'Approval') return ActivityKindEnum.approve;
-
-        if (logEvent.decoded?.name === 'Transfer') {
-          if (getEvmAddressSafe(logEvent.decoded.params[0]?.value) === accountAddress) return ActivityKindEnum.send;
-          if (getEvmAddressSafe(logEvent.decoded.params[1]?.value) === accountAddress) return ActivityKindEnum.receive;
-        }
-
-        return ActivityKindEnum.interaction;
-      })();
-
-      const iconURL = logEvent.sender_logo_url ?? undefined;
-
-      return {
-        kind,
-        asset: (() => {
-          if (kind !== ActivityKindEnum.send && kind !== ActivityKindEnum.receive) return;
-
-          const amountOrTokenId: string = logEvent.decoded?.params[2]?.value ?? '0';
-          const decimals = logEvent.sender_contract_decimals;
-          const contractAddress = getEvmAddressSafe(logEvent.sender_address);
-          const nft = logEvent.decoded?.params[2]?.indexed ?? false;
-
-          if (!contractAddress || decimals == null) return;
-
-          return {
-            contract: contractAddress,
-            tokenId: nft ? amountOrTokenId : undefined,
-            amount: nft ? '1' : kind === ActivityKindEnum.send ? `-${amountOrTokenId}` : amountOrTokenId,
-            decimals,
-            symbol: logEvent.sender_contract_ticker_symbol ?? undefined,
-            nft,
-            iconURL
-          };
-        })()
-      };
-    })
+    operations
   };
 }

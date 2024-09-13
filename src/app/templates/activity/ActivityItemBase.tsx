@@ -49,7 +49,7 @@ export const ActivityItemBaseComponent: FC<Props> = ({ kind, hash, chainId, netw
         : null;
 
     const amountJsx = (
-      <div className="text-font-num-14">
+      <div className="text-font-num-14 truncate">
         {asset.amount ? (
           asset.amount === InfinitySymbol ? (
             '∞ '
@@ -78,8 +78,8 @@ export const ActivityItemBaseComponent: FC<Props> = ({ kind, hash, chainId, netw
   );
 
   return (
-    <div className="group flex gap-x-2 p-2 rounded-lg hover:bg-secondary-low">
-      <div className="relative self-center flex items-center justify-center w-10 h-10 overflow-hidden">
+    <div className="z-1 group flex gap-x-2 p-2 rounded-lg hover:bg-secondary-low">
+      <div className="relative shrink-0 self-center flex items-center justify-center w-10 h-10 overflow-hidden">
         {assetSlug ? (
           typeof chainId === 'number' ? (
             <EvmAssetIcon
@@ -111,7 +111,7 @@ export const ActivityItemBaseComponent: FC<Props> = ({ kind, hash, chainId, netw
         </NetworkLogoTooltipWrap>
       </div>
 
-      <div className="flex-grow flex flex-col gap-y-1">
+      <div className="flex-grow flex flex-col gap-y-1 overflow-hidden">
         <div className="flex gap-x-2 justify-between">
           <div className="text-font-medium">{ActivityKindTitle[kind]}</div>
 

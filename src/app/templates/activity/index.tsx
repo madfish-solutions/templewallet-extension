@@ -55,7 +55,7 @@ export const EvmActivityTab: FC<EvmActivityTabProps> = ({ chainId, assetSlug }) 
 
   if (!network || !accountAddress) throw new DeadEndBoundaryError();
 
-  const { data, isLoading: isSyncing } = useTypedSWR(['evm-activity-history', chainId], async () => {
+  const { data, isLoading: isSyncing } = useTypedSWR(['evm-activity-history', chainId, accountAddress], async () => {
     return await getEvmTransactions(accountAddress, chainId, 0);
   });
 
@@ -160,7 +160,7 @@ const ActivityComponent: FC<{ activity: Activity; chain: OneOfChains }> = ({ act
 };
 
 const InteractionsConnector = memo(() => (
-  <div className="h-0 overflow-visible pl-7">
+  <div className="z-0 h-0 overflow-visible pl-7">
     <InteractionsConnectorSvg className="h-4 text-grey-3 fill-current stroke-current -translate-y-1/2" />
   </div>
 ));
