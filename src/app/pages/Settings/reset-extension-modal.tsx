@@ -14,7 +14,7 @@ import { useTempleClient } from 'lib/temple/front';
 
 import { SettingsSelectors } from './Settings.selectors';
 
-export interface ResetExtensionModalProps {
+interface ResetExtensionModalProps {
   onClose: EmptyFn;
 }
 
