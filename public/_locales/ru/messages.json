@@ -17,9 +17,6 @@
   "maximiseView": {
     "message": "Maximise view"
   },
-  "authorizedDApps": {
-    "message": "Authorized DApps"
-  },
   "clickIconToResetPermissions": {
     "message": "Click on the X icon to reset permissions."
   },

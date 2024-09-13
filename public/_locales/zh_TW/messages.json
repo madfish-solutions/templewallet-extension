@@ -31,10 +31,6 @@
       }
     }
   },
-  "authorizedDApps": {
-    "message": "授權的分散式應用程式",
-    "description": "DApps = Decentralized Applications"
-  },
   "clickIconToResetPermissions": {
     "message": "點擊 X 圖示重新設定權限。"
   },
@@ -611,25 +607,15 @@
   "revealPrivateKey": {
     "message": "顯示私密金鑰"
   },
-  "revealPrivateKeyDescription": {
-    "message": "也稱為「匯出帳戶」，這會顯示所選取帳戶的私密金鑰。"
-  },
   "revealSeedPhrase": {
     "message": "顯示助記詞"
-  },
-  "revealSeedPhraseDescription": {
-    "message": "也稱為「匯出錢包」，您可能需要此助記詞，才能透過其他裝置存取您的錢包和帳戶。"
   },
   "dApps": {
     "message": "分散式應用程式",
     "description": "DApps = Decentralized Applications"
   },
-  "dAppsDescription": {
-    "message": "在此區段，您可以啟用與支援 Temple 錢包的分散式應用程式互動的能力。"
-  },
-  "networksDescription": {
-    "message": "在此區段，您可以新增或刪除自訂的 Tezos 網路。",
-    "description": "Tezos = blockchain name (https://tezos.com/)"
+  "activateAccount": {
+    "message": "啟用帳戶"
   },
   "removeAccount": {
     "message": "移除帳戶"
@@ -639,9 +625,6 @@
   },
   "about": {
     "message": "關於"
-  },
-  "aboutDescription": {
-    "message": "使用此區段檢視 Temple 錢包的元資料。"
   },
   "unlockWallet": {
     "message": "解鎖錢包"
@@ -1201,9 +1184,6 @@
   },
   "generalSettings": {
     "message": "一般"
-  },
-  "generalSettingsDescription": {
-    "message": "您可以在此管理語言偏好和顯示模式。"
   },
   "swapNoun": {
     "message": "交換"
