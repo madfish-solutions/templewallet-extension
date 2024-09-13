@@ -614,9 +614,6 @@
     "message": "DApp",
     "description": "DApps = Decentralized Applications"
   },
-  "activateAccount": {
-    "message": "激活账户"
-  },
   "removeAccount": {
     "message": "移除账户"
   },

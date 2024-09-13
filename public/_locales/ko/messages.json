@@ -610,9 +610,6 @@
     "message": "분산 앱",
     "description": "DApps = Decentralized Applications"
   },
-  "activateAccount": {
-    "message": "계정 활성화"
-  },
   "removeAccount": {
     "message": "계정 제거"
   },

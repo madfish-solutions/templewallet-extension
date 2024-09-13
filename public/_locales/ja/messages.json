@@ -610,9 +610,6 @@
     "message": "DApps",
     "description": "DApps = Decentralized Applications"
   },
-  "activateAccount": {
-    "message": "アカウントをアクティベート"
-  },
   "removeAccount": {
     "message": "アカウントを削除"
   },

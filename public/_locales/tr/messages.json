@@ -650,9 +650,6 @@
     "message": "DApps",
     "description": "DApps = Decentralized Applications"
   },
-  "activateAccount": {
-    "message": "Hesabı Etkinleştir"
-  },
   "removeAccount": {
     "message": "Hesabı Kaldır"
   },

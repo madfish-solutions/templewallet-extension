@@ -645,9 +645,6 @@
     "message": "DApps",
     "description": "DApps = Decentralized Applications"
   },
-  "activateAccount": {
-    "message": "Activate Account"
-  },
   "removeAccount": {
     "message": "Remove Account"
   },
