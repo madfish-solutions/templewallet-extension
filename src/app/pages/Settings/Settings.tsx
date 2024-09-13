@@ -5,9 +5,11 @@ import { AccountAvatar } from 'app/atoms/AccountAvatar';
 import { SettingsCell } from 'app/atoms/SettingsCell';
 import { SettingsCellGroup } from 'app/atoms/SettingsCellGroup';
 import { StyledButton } from 'app/atoms/StyledButton';
+import { ReactComponent as AdditionalFeaturesIcon } from 'app/icons/base/additional.svg';
 import { ReactComponent as AddressBookIcon } from 'app/icons/base/addressbook.svg';
 import { ReactComponent as BrowseIcon } from 'app/icons/base/browse.svg';
 import { ReactComponent as ChevronRightIcon } from 'app/icons/base/chevron_right.svg';
+import { ReactComponent as ExitIcon } from 'app/icons/base/exit.svg';
 import { ReactComponent as InfoIcon } from 'app/icons/base/info.svg';
 import { ReactComponent as LinkIcon } from 'app/icons/base/link.svg';
 import { ReactComponent as LockIcon } from 'app/icons/base/lock.svg';
@@ -17,14 +19,17 @@ import PageLayout from 'app/layouts/PageLayout';
 import About from 'app/templates/About/About';
 import { AccountsManagement } from 'app/templates/AccountsManagement';
 import AddressBook from 'app/templates/AddressBook/AddressBook';
+import { AdvancedFeatures } from 'app/templates/AdvancedFeatures';
 import DAppSettings from 'app/templates/DAppSettings/DAppSettings';
 import GeneralSettings from 'app/templates/SettingsGeneral';
 import SyncSettings from 'app/templates/Synchronization/SyncSettings';
 import { TID, T } from 'lib/i18n';
+import { useBooleanState } from 'lib/ui/hooks';
 import { Link } from 'lib/woozie';
 import { useAccount } from 'temple/front';
 
 import NetworksSettings from './Networks';
+import { ResetExtensionModal } from './reset-extension-modal';
 import { SettingsSelectors } from './Settings.selectors';
 
 interface SettingsProps {
@@ -94,7 +99,13 @@ const TABS_GROUPS: Tab[][] = [
       Component: DAppSettings,
       testID: SettingsSelectors.dAppsButton
     },
-    // TODO: Add 'Advanced Features' tab
+    {
+      slug: 'additional-settings',
+      titleI18nKey: 'additionalFeatures',
+      Icon: DefaultSettingsIconHOC(AdditionalFeaturesIcon),
+      Component: AdvancedFeatures,
+      testID: SettingsSelectors.advancedFeaturesButton
+    },
     {
       slug: 'synchronization',
       titleI18nKey: 'templeSync',
@@ -106,7 +117,7 @@ const TABS_GROUPS: Tab[][] = [
   [
     {
       slug: 'about',
-      titleI18nKey: 'about',
+      titleI18nKey: 'aboutAndSupport',
       Icon: DefaultSettingsIconHOC(InfoIcon),
       Component: About,
       testID: SettingsSelectors.aboutButton
@@ -118,6 +129,7 @@ const TABS = TABS_GROUPS.flat();
 const Settings = memo<SettingsProps>(({ tabSlug }) => {
   const activeTab = useMemo(() => TABS.find(t => t.slug === tabSlug) || null, [tabSlug]);
   const [headerChildren, setHeaderChildren] = useState<ReactNode>(null);
+  const [extensionModalOpened, openResetExtensionModal, closeResetExtensionModal] = useBooleanState(false);
 
   return (
     <PageLayout
@@ -125,6 +137,7 @@ const Settings = memo<SettingsProps>(({ tabSlug }) => {
       paperClassName="!bg-background"
       headerChildren={headerChildren}
     >
+      {extensionModalOpened && <ResetExtensionModal onClose={closeResetExtensionModal} />}
       {activeTab ? (
         <activeTab.Component setHeaderChildren={setHeaderChildren} />
       ) : (
@@ -148,8 +161,15 @@ const Settings = memo<SettingsProps>(({ tabSlug }) => {
           ))}
 
           <div className="mt-2 flex justify-center">
-            <StyledButton size="S" color="red-low">
+            <StyledButton
+              size="S"
+              color="red-low"
+              className="bg-transparent flex items-center !px-0 py-1 gap-0.5"
+              onClick={openResetExtensionModal}
+              testID={SettingsSelectors.resetExtensionButton}
+            >
               <T id="resetExtension" />
+              <IconBase size={12} Icon={ExitIcon} />
             </StyledButton>
           </div>
         </div>

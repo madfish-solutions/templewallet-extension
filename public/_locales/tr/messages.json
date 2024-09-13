@@ -659,9 +659,6 @@
   "removeAccountDescription": {
     "message": "Seçtiğiniz hesabı kaldırmak için bu bölümü kullanın. Yalnızca içe aktarılmış olan hesaplar kaldırılabilir."
   },
-  "about": {
-    "message": "Hakkında"
-  },
   "unlockWallet": {
     "message": "Cüzdan Kilidini Aç"
   },

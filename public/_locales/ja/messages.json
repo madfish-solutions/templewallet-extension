@@ -619,9 +619,6 @@
   "removeAccountDescription": {
     "message": "このセクションを使用して、選択したアカウントを削除します。インポートしたアカウントのみ削除することができます。"
   },
-  "about": {
-    "message": "概要"
-  },
   "unlockWallet": {
     "message": "ウォレットをアンロック"
   },

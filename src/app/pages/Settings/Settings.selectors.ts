@@ -10,5 +10,9 @@ export enum SettingsSelectors {
   aboutButton = 'Settings/About Button',
   accountsManagementButton = 'Settings/Accounts Management Button',
   advancedFeaturesButton = 'Settings/Advanced Features Button',
-  securityAndPrivacyButton = 'Settings/Security and Privacy Button'
+  securityAndPrivacyButton = 'Settings/Security and Privacy Button',
+  passwordInput = 'Settings/Password Input',
+  cancelResetExtensionButton = 'Settings/Cancel Reset Extension Button',
+  confirmResetExtensionButton = 'Settings/Confirm Reset Extension Button',
+  resetExtensionButton = 'Settings/Reset Extension Button'
 }

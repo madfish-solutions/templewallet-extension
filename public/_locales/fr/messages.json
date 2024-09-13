@@ -623,9 +623,6 @@
   "removeAccountDescription": {
     "message": "Utilisez cette section pour retirer votre compte sélectionné. Seuls les comptes importés peuvent être retirés."
   },
-  "about": {
-    "message": "À propos"
-  },
   "unlockWallet": {
     "message": "Déverrouiller le portefeuille"
   },

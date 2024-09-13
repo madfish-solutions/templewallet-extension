@@ -659,9 +659,6 @@
   "removeAccountDescription": {
     "message": "Utilize esta secção para remover a sua conta selecionada. Apenas as contas importadas podem ser removidas."
   },
-  "about": {
-    "message": "Sobre"
-  },
   "unlockWallet": {
     "message": "Desbloquear a Carteira"
   },

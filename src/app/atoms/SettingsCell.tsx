@@ -8,8 +8,8 @@ interface ComponentBase {
 }
 
 interface SettingsCellPropsBase<P extends ComponentBase = ComponentBase> {
-  isLast: boolean;
-  cellIcon: ReactNode;
+  isLast?: boolean;
+  cellIcon?: ReactNode;
   cellName: ReactNode;
   Component: 'div' | FC<P>;
 }
@@ -28,7 +28,7 @@ export const SettingsCell = <P extends ComponentBase>({
   className,
   cellIcon,
   cellName,
-  isLast,
+  isLast = true,
   children,
   Component,
   ...restProps

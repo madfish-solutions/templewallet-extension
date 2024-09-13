@@ -659,9 +659,6 @@
   "removeAccountDescription": {
     "message": "Verwenden Sie diesen Abschnitt, um Ihr ausgewähltes Konto zu entfernen. Nur importierte Konten können entfernt werden."
   },
-  "about": {
-    "message": "Über"
-  },
   "unlockWallet": {
     "message": "Die Wallet entsperren"
   },

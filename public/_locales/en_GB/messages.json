@@ -654,9 +654,6 @@
   "removeAccountDescription": {
     "message": "Use this section to remove your selected account. Only imported accounts can be removed."
   },
-  "about": {
-    "message": "About"
-  },
   "unlockWallet": {
     "message": "Unlock the Wallet"
   },

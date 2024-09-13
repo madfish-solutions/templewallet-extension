@@ -623,9 +623,6 @@
   "removeAccountDescription": {
     "message": "使用此區段移除您選取的帳戶。只能移除匯入的帳戶。"
   },
-  "about": {
-    "message": "關於"
-  },
   "unlockWallet": {
     "message": "解鎖錢包"
   },

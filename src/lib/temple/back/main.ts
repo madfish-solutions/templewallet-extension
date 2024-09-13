@@ -272,6 +272,12 @@ const processRequest = async (req: TempleRequest, port: Runtime.Port): Promise<T
         }
       }
       break;
+
+    case TempleMessageType.ResetExtensionRequest:
+      await Actions.resetExtension(req.password);
+      return {
+        type: TempleMessageType.ResetExtensionResponse
+      };
   }
 };
 

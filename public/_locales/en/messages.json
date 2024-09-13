@@ -55,12 +55,6 @@
     "message": "Connected Dapps",
     "description": "Dapps = Decentralized Applications"
   },
-  "advancedFeatures": {
-    "message": "Advanced Features"
-  },
-  "advancedFeaturesDescription": {
-    "message": "In this section you can customize additional Temple extension features"
-  },
   "clickIconToResetPermissions": {
     "message": "Click on the X icon to reset permissions."
   },
@@ -703,6 +697,18 @@
   "resetExtension": {
     "message": "Reset Extension"
   },
+  "resetExtensionModalTitle": {
+    "message": "Reset Extension?"
+  },
+  "resetExtensionModalDescription": {
+    "message": "Resetting will delete wallets, accounts and erase all data. Ensure your seed phrases and Private Keys are backed up to avoid permanent loss and recover access to assets later."
+  },
+  "resetPasswordInputLabel": {
+    "message": "Enter the password to confirm reset"
+  },
+  "reset": {
+    "message": "Reset"
+  },
   "resetExtensionConfirmation": {
     "message": "Are you sure you want to reset the Temple Wallet?\nAs a result, all your data will be deleted."
   },
@@ -1016,8 +1022,11 @@
   "selectNetworkToReveal": {
     "message": "Select Network to reveal"
   },
-  "about": {
-    "message": "About"
+  "additionalFeatures": {
+    "message": "Additional Features"
+  },
+  "aboutAndSupport": {
+    "message": "About & Support"
   },
   "info": {
     "message": "Info"

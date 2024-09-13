@@ -7,6 +7,8 @@ import { AccountName } from 'app/atoms/AccountName';
 import { CopyButton } from 'app/atoms/CopyButton';
 import { EvmNetworksLogos, TezNetworkLogo } from 'app/atoms/NetworksLogos';
 import { ActionsButtonsBox } from 'app/atoms/PageModal/actions-buttons-box';
+import { SettingsCell } from 'app/atoms/SettingsCell';
+import { SettingsCellGroup } from 'app/atoms/SettingsCellGroup';
 import { StyledButton } from 'app/atoms/StyledButton';
 import { TotalEquity } from 'app/atoms/TotalEquity';
 import { useAllAccountsReactiveOnRemoval } from 'app/hooks/use-all-accounts-reactive';
@@ -25,7 +27,6 @@ import { EditAccountNameModal } from './edit-account-name-modal';
 import { RemoveAccountModal } from './remove-account-modal';
 import { RevealPrivateKeyModal } from './reveal-private-key-modal';
 import { AccountSettingsSelectors } from './selectors';
-import { SettingsCell } from './settings-cell';
 import { PrivateKeyPayload } from './types';
 
 interface AccountSettingsProps {
@@ -158,33 +159,39 @@ export const AccountSettings = memo<AccountSettingsProps>(({ id }) => {
         </div>
 
         <div className="flex flex-col pt-0.5 pb-5 gap-3">
-          <SettingsCell cellName={<T id="displayAccount" />} Component="div">
-            <ToggleSwitch
-              checked={!account.hidden}
-              onChange={handleVisibilityChange}
-              disabled={shouldDisableVisibilityChange}
-              testID={AccountSettingsSelectors.visibilityToggle}
-            />
-          </SettingsCell>
+          <SettingsCellGroup>
+            <SettingsCell cellName={<T id="displayAccount" />} Component="div">
+              <ToggleSwitch
+                checked={!account.hidden}
+                onChange={handleVisibilityChange}
+                disabled={shouldDisableVisibilityChange}
+                testID={AccountSettingsSelectors.visibilityToggle}
+              />
+            </SettingsCell>
+          </SettingsCellGroup>
 
-          <SettingsCell
-            cellName={<T id="editName" />}
-            Component={Button}
-            onClick={openEditNameModal}
-            testID={AccountSettingsSelectors.editName}
-          >
-            <IconBase size={16} Icon={ChevronRightIcon} className="text-primary" />
-          </SettingsCell>
-
-          {(account.type === TempleAccountType.HD || account.type === TempleAccountType.Imported) && (
+          <SettingsCellGroup>
             <SettingsCell
-              cellName={<T id="revealPrivateKey" />}
+              cellName={<T id="editName" />}
               Component={Button}
-              onClick={openRevealPrivateKeyModal}
-              testID={AccountSettingsSelectors.revealPrivateKey}
+              onClick={openEditNameModal}
+              testID={AccountSettingsSelectors.editName}
             >
               <IconBase size={16} Icon={ChevronRightIcon} className="text-primary" />
             </SettingsCell>
+          </SettingsCellGroup>
+
+          {(account.type === TempleAccountType.HD || account.type === TempleAccountType.Imported) && (
+            <SettingsCellGroup>
+              <SettingsCell
+                cellName={<T id="revealPrivateKey" />}
+                Component={Button}
+                onClick={openRevealPrivateKeyModal}
+                testID={AccountSettingsSelectors.revealPrivateKey}
+              >
+                <IconBase size={16} Icon={ChevronRightIcon} className="text-primary" />
+              </SettingsCell>
+            </SettingsCellGroup>
           )}
         </div>
 
@@ -194,16 +201,17 @@ export const AccountSettings = memo<AccountSettingsProps>(({ id }) => {
               <T id="derivationPath" />
             </p>
             {derivationPaths.map(({ chainName, path }) => (
-              <SettingsCell
-                key={chainName}
-                cellName={path}
-                Component={CopyButton}
-                text={path}
-                testID={AccountSettingsSelectors.derivationPathButton}
-                testIDProperties={{ chainName }}
-              >
-                {chainName === 'tezos' ? <TezNetworkLogo /> : <EvmNetworksLogos />}
-              </SettingsCell>
+              <SettingsCellGroup key={chainName}>
+                <SettingsCell
+                  cellName={path}
+                  Component={CopyButton}
+                  text={path}
+                  testID={AccountSettingsSelectors.derivationPathButton}
+                  testIDProperties={{ chainName }}
+                >
+                  {chainName === 'tezos' ? <TezNetworkLogo /> : <EvmNetworksLogos />}
+                </SettingsCell>
+              </SettingsCellGroup>
             ))}
           </div>
         )}

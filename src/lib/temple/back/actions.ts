@@ -497,6 +497,10 @@ type ProcessedBeaconMessage = {
   encrypted?: boolean;
 };
 
+export function resetExtension(password: string) {
+  return withUnlocked(async () => Vault.reset(password));
+}
+
 export async function processBeacon(
   origin: string,
   msg: string,
