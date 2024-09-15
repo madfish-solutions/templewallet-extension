@@ -13,11 +13,7 @@ export enum ActivityKindEnum {
 
 export type Activity = TezosActivity | EvmActivity;
 
-interface ActivityBase {
-  kind: ActivityKindEnum;
-}
-
-interface TezosActivity extends ActivityBase {
+interface TezosActivity {
   chain: TempleChainKind.Tezos;
   chainId: string;
   hash: string;
@@ -28,16 +24,16 @@ interface TezosOperation {
   kind: ActivityKindEnum;
 }
 
-interface EvmActivity extends ActivityBase {
+interface EvmActivity {
   chain: TempleChainKind.EVM;
   chainId: number;
   hash: string;
   blockExplorerUrl?: string;
-  asset?: EvmActivityAsset;
   operations: EvmOperation[];
 }
 
-export interface EvmOperation extends ActivityBase {
+export interface EvmOperation {
+  kind: ActivityKindEnum;
   asset?: EvmActivityAsset;
 }
 
@@ -60,39 +56,8 @@ export function parseGoldRushTransaction(
 ): EvmActivity {
   const logEvents = item.log_events ?? [];
 
-  const { kind, asset } = ((): { kind: ActivityKindEnum; asset?: EvmActivityAsset } => {
-    if (!logEvents.length) {
-      const kind = (() => {
-        if (getEvmAddressSafe(item.from_address) === accountAddress) return ActivityKindEnum.send;
-        if (getEvmAddressSafe(item.to_address) === accountAddress) return ActivityKindEnum.receive;
-
-        return ActivityKindEnum.interaction;
-      })();
-
-      if (kind === ActivityKindEnum.interaction) return { kind };
-
-      const decimals = item.gas_metadata?.contract_decimals;
-      if (decimals == null) return { kind };
-
-      const value: string = item.value?.toString() ?? '0';
-
-      const nft = false;
-
-      const asset: EvmActivityAsset = {
-        contract: EVM_TOKEN_SLUG,
-        amount: nft ? '1' : kind === ActivityKindEnum.send ? `-${value}` : value,
-        decimals: nft ? 0 : decimals ?? 0,
-        symbol: item.gas_metadata?.contract_ticker_symbol
-      };
-
-      return { kind, asset };
-    }
-
-    if (logEvents.length !== 1) return { kind: ActivityKindEnum.interaction };
-
-    const logEvent = logEvents[0]!;
-
-    if (!logEvent.decoded) return { kind: ActivityKindEnum.interaction };
+  const operations = logEvents.map<EvmOperation>(logEvent => {
+    if (!logEvent.decoded?.params) return { kind: ActivityKindEnum.interaction };
 
     const fromAddress = getEvmAddressSafe(logEvent.decoded.params[0]?.value);
     const toAddress = getEvmAddressSafe(logEvent.decoded.params[1]?.value);
@@ -110,15 +75,17 @@ export function parseGoldRushTransaction(
 
       if (kind === ActivityKindEnum.interaction) return { kind };
 
+      if (!contractAddress || decimals == null) return { kind };
+
       const amountOrTokenId: string = logEvent.decoded.params[2]?.value ?? '0';
       const nft = logEvent.decoded.params[2]?.indexed ?? false;
 
-      if (!contractAddress || decimals == null) return { kind };
+      const amount = nft ? '1' : amountOrTokenId;
 
       const asset: EvmActivityAsset = {
         contract: contractAddress,
         tokenId: nft ? amountOrTokenId : undefined,
-        amount: nft ? '1' : kind === ActivityKindEnum.send ? `-${amountOrTokenId}` : amountOrTokenId,
+        amount: kind === ActivityKindEnum.send ? `-${amount}` : amount,
         decimals: nft ? 0 : decimals ?? 0,
         symbol: logEvent.sender_contract_ticker_symbol ?? undefined,
         nft,
@@ -172,56 +139,40 @@ export function parseGoldRushTransaction(
     }
 
     return { kind: ActivityKindEnum.interaction };
-  })();
+  });
 
-  const operations = logEvents.map<EvmOperation>(logEvent => {
-    const kind: ActivityKindEnum = (() => {
-      // if (logEvent.decoded?.name === 'Approval') return ActivityKindEnum.approve;
+  const gasOperation: EvmOperation | null = (() => {
+    const kind = (() => {
+      if (getEvmAddressSafe(item.from_address) === accountAddress) return ActivityKindEnum.send;
+      if (getEvmAddressSafe(item.to_address) === accountAddress) return ActivityKindEnum.receive;
 
-      if (logEvent.decoded?.name === 'Transfer') {
-        if (getEvmAddressSafe(logEvent.decoded.params[0]?.value) === accountAddress) return ActivityKindEnum.send;
-        if (getEvmAddressSafe(logEvent.decoded.params[1]?.value) === accountAddress) return ActivityKindEnum.receive;
-      }
-
-      return ActivityKindEnum.interaction;
+      return null;
     })();
 
-    const iconURL = logEvent.sender_logo_url ?? undefined;
+    if (!kind) return null;
 
-    return {
-      kind,
-      asset: (() => {
-        if (kind !== ActivityKindEnum.send && kind !== ActivityKindEnum.receive) return;
+    const decimals = item.gas_metadata?.contract_decimals;
+    if (decimals == null) return null;
 
-        const amountOrTokenId: string = logEvent.decoded?.params[2]?.value ?? '0';
-        const decimals = logEvent.sender_contract_decimals;
-        const contractAddress = getEvmAddressSafe(logEvent.sender_address);
-        const nft = logEvent.decoded?.params[2]?.indexed ?? false;
+    const value: string = item.value?.toString() ?? '0';
 
-        if (!contractAddress || decimals == null) return;
-
-        const amount = nft ? '1' : amountOrTokenId;
-
-        return {
-          contract: contractAddress,
-          tokenId: nft ? amountOrTokenId : undefined,
-          amount: kind === ActivityKindEnum.send ? `-${amount}` : amount,
-          decimals,
-          symbol: logEvent.sender_contract_ticker_symbol ?? undefined,
-          nft,
-          iconURL
-        };
-      })()
+    const asset: EvmActivityAsset = {
+      contract: EVM_TOKEN_SLUG,
+      amount: kind === ActivityKindEnum.send ? `-${value}` : value,
+      decimals: decimals ?? 0,
+      symbol: item.gas_metadata?.contract_ticker_symbol
     };
-  });
+
+    return { kind, asset };
+  })();
+
+  if (gasOperation) operations.unshift(gasOperation);
 
   return {
     chain: TempleChainKind.EVM,
     chainId,
-    kind,
     hash: item.tx_hash!,
     blockExplorerUrl: item.explorers?.[0]?.url,
-    asset,
     operations
   };
 }

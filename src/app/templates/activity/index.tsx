@@ -19,7 +19,7 @@ import { TempleChainKind } from 'temple/types';
 import { ActivityItemBaseComponent } from './ActivityItemBase';
 import { ReactComponent as InteractionsConnectorSvg } from './interactions-connector.svg';
 import { TezosActivityTab } from './tezos';
-import { Activity, ActivityKindEnum, EvmOperation, parseGoldRushTransaction } from './utils';
+import { Activity, EvmOperation, parseGoldRushTransaction } from './utils';
 
 export { TezosActivityTab };
 
@@ -93,18 +93,6 @@ const ActivityComponent: FC<{ activity: Activity; chain: OneOfChains }> = ({ act
   const networkName = chain.nameI18nKey ? t(chain.nameI18nKey) : chain.name;
 
   const { hash, blockExplorerUrl } = activity;
-
-  if (activity.kind !== ActivityKindEnum.interaction || activity.operations.length <= 1)
-    return (
-      <ActivityItemBaseComponent
-        kind={activity.kind}
-        hash={hash}
-        chainId={chain.chainId}
-        networkName={networkName}
-        asset={activity.asset}
-        blockExplorerUrl={blockExplorerUrl}
-      />
-    );
 
   const operations = activity.operations as EvmOperation[];
 
