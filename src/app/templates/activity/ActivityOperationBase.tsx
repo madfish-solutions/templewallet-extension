@@ -8,12 +8,11 @@ import { ReactComponent as OutLinkIcon } from 'app/icons/base/outLink.svg';
 import { ReactComponent as SendSvg } from 'app/icons/base/send.svg';
 import { ReactComponent as SwapSvg } from 'app/icons/base/swap.svg';
 import { FiatBalance } from 'app/pages/Home/OtherComponents/Tokens/components/Balance';
+import { ActivityKindEnum, InfinitySymbol } from 'lib/activity';
 import { toEvmAssetSlug, toTezosAssetSlug } from 'lib/assets/utils';
 import { atomsToTokens } from 'lib/temple/helpers';
 
 import { EvmAssetIcon, TezosAssetIcon } from '../AssetIcon';
-
-import { ActivityKindEnum, InfinitySymbol } from './utils';
 
 interface Props {
   chainId: string | number;
@@ -33,7 +32,14 @@ interface AssetProp {
   iconURL?: string;
 }
 
-export const ActivityItemBaseComponent: FC<Props> = ({ kind, hash, chainId, networkName, asset, blockExplorerUrl }) => {
+export const ActivityOperationBaseComponent: FC<Props> = ({
+  kind,
+  hash,
+  chainId,
+  networkName,
+  asset,
+  blockExplorerUrl
+}) => {
   const assetSlug = asset
     ? typeof chainId === 'number'
       ? toEvmAssetSlug(asset.contract, asset.tokenId)

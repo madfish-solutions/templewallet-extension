@@ -1,29 +1,25 @@
 import React, { FC, memo } from 'react';
 
-import clsx from 'clsx';
+import InfiniteScroll from 'react-infinite-scroll-component';
 
-import { IconBase, SyncSpinner } from 'app/atoms';
+import { SyncSpinner } from 'app/atoms';
 import { EmptyState } from 'app/atoms/EmptyState';
 import { DeadEndBoundaryError } from 'app/ErrorBoundary';
-import { ReactComponent as CompactDownIcon } from 'app/icons/base/compact_down.svg';
-import { ContentContainer } from 'app/layouts/containers';
+import { useLoadPartnersPromo } from 'app/hooks/use-load-partners-promo';
+import { APP_CONTENT_PAPER_DOM_ID, ContentContainer, SCROLL_DOCUMENT } from 'app/layouts/containers';
 import { useChainSelectController, ChainSelectSection } from 'app/templates/ChainSelect';
+import { EvmActivity, parseGoldRushTransaction } from 'lib/activity';
 import { getEvmTransactions } from 'lib/apis/temple/endpoints/evm';
-import { t } from 'lib/i18n';
+import { useGetEvmAssetMetadata } from 'lib/metadata';
 import { useTypedSWR } from 'lib/swr';
-import { useBooleanState } from 'lib/ui/hooks';
-import { useAccountAddressForEvm } from 'temple/front';
-import { OneOfChains, useEvmChainByChainId } from 'temple/front/chains';
-import { TempleChainKind } from 'temple/types';
+import useTezosActivities from 'lib/temple/activity-new/hook';
+import { useAccountAddressForEvm, useAccountAddressForTezos, useTezosChainByChainId } from 'temple/front';
+import { useEvmChainByChainId } from 'temple/front/chains';
 
-import { ActivityItemBaseComponent } from './ActivityItemBase';
-import { ReactComponent as InteractionsConnectorSvg } from './interactions-connector.svg';
-import { TezosActivityTab } from './tezos';
-import { Activity, EvmOperation, parseGoldRushTransaction } from './utils';
+import { TezosActivityComponent, EvmActivityComponent } from './Activity';
+import { ActivityTabContainer } from './ActivityTabContainer';
 
-export { TezosActivityTab };
-
-export const ActivityWithChainSelect = memo(() => {
+export const MultichainActivityTab = memo(() => {
   const chainSelectController = useChainSelectController();
   const network = chainSelectController.value;
 
@@ -34,13 +30,70 @@ export const ActivityWithChainSelect = memo(() => {
       <ContentContainer>
         <ChainSelectSection controller={chainSelectController} />
 
-        {network.kind === 'tezos' ? (
-          <TezosActivityTab tezosChainId={network.chainId} />
-        ) : (
-          <EvmActivityTab chainId={network.chainId} />
-        )}
+        <ActivityTabContainer chainId={network.chainId}>
+          {network.kind === 'tezos' ? (
+            <TezosActivityTab tezosChainId={network.chainId} />
+          ) : (
+            <EvmActivityTab chainId={network.chainId} />
+          )}
+        </ActivityTabContainer>
       </ContentContainer>
     </>
+  );
+});
+
+const INITIAL_NUMBER = 30;
+const LOAD_STEP = 30;
+
+interface TezosActivityTabProps {
+  tezosChainId: string;
+  assetSlug?: string;
+}
+
+export const TezosActivityTab = memo<TezosActivityTabProps>(({ tezosChainId, assetSlug }) => {
+  const network = useTezosChainByChainId(tezosChainId);
+  const accountAddress = useAccountAddressForTezos();
+
+  if (!network || !accountAddress) throw new DeadEndBoundaryError();
+
+  const {
+    loading,
+    reachedTheEnd,
+    list: activities,
+    loadMore
+  } = useTezosActivities(network, accountAddress, INITIAL_NUMBER, assetSlug);
+
+  useLoadPartnersPromo();
+
+  if (activities.length === 0 && !loading && reachedTheEnd) {
+    return <EmptyState />;
+  }
+
+  const retryInitialLoad = () => loadMore(INITIAL_NUMBER);
+  const loadMoreActivities = () => loadMore(LOAD_STEP);
+
+  const loadNext = activities.length === 0 ? retryInitialLoad : loadMoreActivities;
+
+  const onScroll = loading || reachedTheEnd ? undefined : buildOnScroll(loadNext);
+
+  return (
+    <InfiniteScroll
+      dataLength={activities.length}
+      hasMore={reachedTheEnd === false}
+      next={loadNext}
+      loader={loading && <SyncSpinner className="mt-4" />}
+      onScroll={onScroll}
+      scrollableTarget={SCROLL_DOCUMENT ? undefined : APP_CONTENT_PAPER_DOM_ID}
+    >
+      {activities.map(activity => (
+        <TezosActivityComponent
+          key={activity.hash}
+          activity={activity}
+          chain={network}
+          accountAddress={accountAddress}
+        />
+      ))}
+    </InfiniteScroll>
   );
 });
 
@@ -55,100 +108,52 @@ export const EvmActivityTab: FC<EvmActivityTabProps> = ({ chainId, assetSlug }) 
 
   if (!network || !accountAddress) throw new DeadEndBoundaryError();
 
-  const { data, isLoading: isSyncing } = useTypedSWR(['evm-activity-history', chainId, accountAddress], async () => {
-    return await getEvmTransactions(accountAddress, chainId, 0);
-  });
+  useLoadPartnersPromo();
 
-  console.log('Data:', data);
+  const getMetadata = useGetEvmAssetMetadata(chainId);
 
-  console.log(1, data?.items.length);
-  console.log(2, new Set(data?.items.map(item => item.tx_hash)).size);
+  const { data: activities = [], isLoading: isSyncing } = useTypedSWR(
+    ['evm-activity-history', chainId, accountAddress],
+    async () => {
+      const data = await getEvmTransactions(accountAddress, chainId, 0);
 
-  const activities = data?.items.map<Activity>(item => parseGoldRushTransaction(item, chainId, accountAddress)) ?? [];
+      console.log('Data:', data);
 
-  return (
-    <div className="flex flex-col">
-      {activities.length ? (
-        <>
-          {activities.map(activity => (
-            <ActivityComponent key={activity.hash} activity={activity} chain={network} />
-          ))}
+      console.log(1, data?.items.length);
+      console.log(2, new Set(data?.items.map(item => item.tx_hash)).size);
 
-          {isSyncing && <SyncSpinner className="mt-4" />}
-        </>
-      ) : isSyncing ? (
-        <SyncSpinner className="mt-4" />
-      ) : (
-        <EmptyState />
-      )}
-    </div>
+      const activities =
+        data?.items.map<EvmActivity>(item => parseGoldRushTransaction(item, chainId, accountAddress, getMetadata)) ??
+        [];
+
+      return activities;
+    }
   );
-};
 
-const ActivityComponent: FC<{ activity: Activity; chain: OneOfChains }> = ({ activity, chain }) => {
-  if (activity.chain !== TempleChainKind.EVM) throw new Error('Tezos activities in dev');
-
-  const [expanded, , , toggleExpanded] = useBooleanState(false);
-
-  const networkName = chain.nameI18nKey ? t(chain.nameI18nKey) : chain.name;
-
-  const { hash, blockExplorerUrl } = activity;
-
-  const operations = activity.operations as EvmOperation[];
-
-  return (
-    <div className="flex flex-col">
-      {operations.slice(0, 3).map((operation, i) => (
-        <React.Fragment key={`${hash}-${i}`}>
-          {i > 0 && <InteractionsConnector />}
-
-          <ActivityItemBaseComponent
-            key={`${hash}-${i}`}
-            kind={operation.kind}
-            hash={hash}
-            chainId={chain.chainId}
-            networkName={networkName}
-            asset={operation.asset}
-            blockExplorerUrl={blockExplorerUrl}
-          />
-        </React.Fragment>
+  return activities.length ? (
+    <>
+      {activities.map(activity => (
+        <EvmActivityComponent key={activity.hash} activity={activity} chain={network} />
       ))}
 
-      {operations.length > 3 ? (
-        <>
-          <button
-            className="ml-2 mt-1 mb-2 flex px-1 py-0.5 text-font-description-bold text-grey-1"
-            onClick={toggleExpanded}
-          >
-            <span>{expanded ? 'Show less' : 'Show more'}</span>
-
-            <IconBase Icon={CompactDownIcon} size={12} className={clsx('text-grey-2', expanded && 'rotate-180')} />
-          </button>
-
-          {expanded
-            ? operations.slice(3).map((operation, j) => (
-                <React.Fragment key={`${hash}-${j}`}>
-                  {j > 0 && <InteractionsConnector />}
-
-                  <ActivityItemBaseComponent
-                    kind={operation.kind}
-                    hash={hash}
-                    chainId={chain.chainId}
-                    networkName={networkName}
-                    asset={operation.asset}
-                    blockExplorerUrl={blockExplorerUrl}
-                  />
-                </React.Fragment>
-              ))
-            : null}
-        </>
-      ) : null}
-    </div>
+      {isSyncing && <SyncSpinner className="mt-4" />}
+    </>
+  ) : isSyncing ? (
+    <SyncSpinner className="mt-4" />
+  ) : (
+    <EmptyState />
   );
 };
 
-const InteractionsConnector = memo(() => (
-  <div className="z-0 h-0 overflow-visible pl-7">
-    <InteractionsConnectorSvg className="h-4 text-grey-3 fill-current stroke-current -translate-y-1/2" />
-  </div>
-));
+/**
+ * Build onscroll listener to trigger next loading, when fetching data resulted in error.
+ * `InfiniteScroll.props.next` won't be triggered in this case.
+ */
+const buildOnScroll =
+  (next: EmptyFn) =>
+  ({ target }: { target: EventTarget | null }) => {
+    const elem: HTMLElement =
+      target instanceof Document ? (target.scrollingElement! as HTMLElement) : (target as HTMLElement);
+    const atBottom = 0 === elem.offsetHeight - elem.clientHeight - elem.scrollTop;
+    if (atBottom) next();
+  };

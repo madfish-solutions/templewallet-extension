@@ -1,8 +1,14 @@
 import { useCallback, useEffect, useRef } from 'react';
 
 import { dispatch } from 'app/store';
-import { useEvmCollectibleMetadataSelector } from 'app/store/evm/collectibles-metadata/selectors';
-import { useEvmTokenMetadataSelector } from 'app/store/evm/tokens-metadata/selectors';
+import {
+  useEvmCollectibleMetadataSelector,
+  useEvmChainCollectiblesMetadataRecordSelector
+} from 'app/store/evm/collectibles-metadata/selectors';
+import {
+  useEvmTokenMetadataSelector,
+  useEvmChainTokensMetadataRecordSelector
+} from 'app/store/evm/tokens-metadata/selectors';
 import { loadCollectiblesMetadataAction } from 'app/store/tezos/collectibles-metadata/actions';
 import {
   useAllCollectiblesMetadataSelector,
@@ -25,7 +31,14 @@ import { useEvmChainByChainId } from 'temple/front/chains';
 import { isTezosDcpChainId } from 'temple/networks';
 
 import { TEZOS_METADATA, FILM_METADATA } from './defaults';
-import { AssetMetadataBase, EvmAssetMetadataBase, TokenMetadata } from './types';
+import {
+  AssetMetadataBase,
+  EvmAssetMetadataBase,
+  EvmCollectibleMetadata,
+  EvmNativeTokenMetadata,
+  EvmTokenMetadata,
+  TokenMetadata
+} from './types';
 
 export type { AssetMetadataBase, TokenMetadata } from './types';
 export { isCollectible, isTezosCollectibleMetadata, getAssetSymbol, getTokenName } from './utils';
@@ -48,6 +61,25 @@ export const useEvmAssetMetadata = (slug: string, evmChainId: number): EvmAssetM
 
   return isEvmNativeTokenSlug(slug) ? network?.currency : tokenMetadata || collectibleMetadata;
 };
+
+export const useGetEvmAssetMetadata = (chainId: number) => {
+  const network = useEvmChainByChainId(chainId);
+  const tokensMetadatas = useEvmChainTokensMetadataRecordSelector(chainId);
+  const collectiblesMetadatas = useEvmChainCollectiblesMetadataRecordSelector(chainId);
+
+  return useCallback<EvmAssetMetadataGetter>(
+    (slug: string) => {
+      if (isEvmNativeTokenSlug(slug)) return network?.currency;
+
+      return tokensMetadatas[slug] || collectiblesMetadatas[slug];
+    },
+    [tokensMetadatas, collectiblesMetadatas, network]
+  );
+};
+
+export type EvmAssetMetadataGetter = (
+  slug: string
+) => EvmNativeTokenMetadata | EvmTokenMetadata | EvmCollectibleMetadata | undefined;
 
 type TokenMetadataGetter = (slug: string) => TokenMetadata | undefined;
 

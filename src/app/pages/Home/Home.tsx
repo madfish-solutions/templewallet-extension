@@ -12,7 +12,7 @@ import { useAppEnv } from 'app/env';
 import { useLocationSearchParamValue } from 'app/hooks/use-location';
 import PageLayout, { PageLayoutProps } from 'app/layouts/PageLayout';
 import { useMainnetTokensScamlistSelector } from 'app/store/tezos/assets/selectors';
-import { ActivityWithChainSelect } from 'app/templates/activity';
+import { MultichainActivityTab } from 'app/templates/activity';
 import { AdvertisingBanner } from 'app/templates/advertising/advertising-banner/advertising-banner';
 import { AppHeader } from 'app/templates/AppHeader';
 import { toastSuccess } from 'app/toaster';
@@ -110,7 +110,7 @@ const Home = memo<HomeProps>(props => {
                 case 'collectibles':
                   return <CollectiblesTab />;
                 case 'activity':
-                  return <ActivityWithChainSelect />;
+                  return <MultichainActivityTab />;
                 default:
                   return <TokensTab />;
               }

@@ -4,6 +4,7 @@ import { SuspenseContainer } from 'app/atoms/SuspenseContainer';
 import { useLocationSearchParamValue } from 'app/hooks/use-location';
 import { ContentContainer } from 'app/layouts/containers';
 import { TezosActivityTab, EvmActivityTab } from 'app/templates/activity';
+import { ActivityTabContainer } from 'app/templates/activity/ActivityTabContainer';
 import AssetInfo from 'app/templates/AssetInfo';
 import { TabsBar, TabsBarTabInterface } from 'app/templates/TabBar';
 import { TEZ_TOKEN_SLUG, isTezAsset } from 'lib/assets';
@@ -52,9 +53,9 @@ const TezosGasTab = memo<{ tezosChainId: string }>(({ tezosChainId }) => {
       <TabsBar tabs={TEZOS_GAS_TABS} activeTabName={tabName} />
 
       {tabName === 'activity' ? (
-        <SuspenseContainer errorMessage={t('operationHistoryWhileMessage')}>
+        <ActivityTabContainer chainId={tezosChainId} assetSlug={TEZ_TOKEN_SLUG}>
           <TezosActivityTab tezosChainId={tezosChainId} assetSlug={TEZ_TOKEN_SLUG} />
-        </SuspenseContainer>
+        </ActivityTabContainer>
       ) : (
         <SuspenseContainer errorMessage={t('delegationInfoWhileMessage')}>
           <BakingSection tezosChainId={tezosChainId} />
@@ -78,9 +79,9 @@ const TezosTokenTab = memo<TezosAssetTabProps>(({ chainId, assetSlug }) => {
       <TabsBar tabs={TOKEN_TABS} activeTabName={tabName} />
 
       {tabName === 'activity' ? (
-        <SuspenseContainer errorMessage={t('operationHistoryWhileMessage')}>
+        <ActivityTabContainer chainId={chainId} assetSlug={assetSlug}>
           <TezosActivityTab tezosChainId={chainId} assetSlug={assetSlug} />
-        </SuspenseContainer>
+        </ActivityTabContainer>
       ) : (
         <AssetInfo chainKind={TempleChainKind.Tezos} chainId={chainId} assetSlug={assetSlug} />
       )}
@@ -95,18 +96,12 @@ interface EvmAssetTabProps {
 
 const EvmAssetTab: FC<EvmAssetTabProps> = ({ chainId, assetSlug }) =>
   isEvmNativeTokenSlug(assetSlug) ? (
-    <EvmGasTab chainId={chainId} />
+    <ActivityTabContainer chainId={chainId} assetSlug={EVM_TOKEN_SLUG}>
+      <EvmActivityTab chainId={chainId} assetSlug={EVM_TOKEN_SLUG} />
+    </ActivityTabContainer>
   ) : (
     <EvmTokenTab chainId={chainId} assetSlug={assetSlug} />
   );
-
-const EvmGasTab = memo<{ chainId: number }>(({ chainId }) => {
-  return (
-    <SuspenseContainer errorMessage={t('operationHistoryWhileMessage')}>
-      <EvmActivityTab chainId={chainId} assetSlug={TEZ_TOKEN_SLUG} />
-    </SuspenseContainer>
-  );
-});
 
 const EvmTokenTab = memo<EvmAssetTabProps>(({ chainId, assetSlug }) => {
   const tabSlug = useLocationSearchParamValue('tab');
@@ -117,9 +112,9 @@ const EvmTokenTab = memo<EvmAssetTabProps>(({ chainId, assetSlug }) => {
       <TabsBar tabs={TOKEN_TABS} activeTabName={tabName} />
 
       {tabName === 'activity' ? (
-        <SuspenseContainer errorMessage={t('operationHistoryWhileMessage')}>
-          <EvmActivityTab chainId={chainId} assetSlug={EVM_TOKEN_SLUG} />
-        </SuspenseContainer>
+        <ActivityTabContainer chainId={chainId} assetSlug={assetSlug}>
+          <EvmActivityTab chainId={chainId} assetSlug={assetSlug} />
+        </ActivityTabContainer>
       ) : (
         <AssetInfo chainKind={TempleChainKind.EVM} chainId={String(chainId)} assetSlug={assetSlug} />
       )}

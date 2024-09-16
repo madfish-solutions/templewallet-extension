@@ -17,20 +17,18 @@ export interface TezosAssetImageProps
   extends Omit<TezosAssetImageStackedProps, 'sources' | 'metadata' | 'loader' | 'fallback'> {
   tezosChainId: string;
   assetSlug: string;
-  extraSrc?: string;
   Loader?: Placeholder<TezosAssetImageProps, AssetMetadataBase>;
   Fallback?: Placeholder<TezosAssetImageProps, AssetMetadataBase>;
 }
 
 export const TezosAssetImage = memo<TezosAssetImageProps>(({ Loader, Fallback, ...props }) => {
-  const { tezosChainId, className, style, extraSrc, ...rest } = props;
+  const { tezosChainId, assetSlug, ...rest } = props;
 
-  const metadata = useTezosAssetMetadata(props.assetSlug, tezosChainId);
+  const metadata = useTezosAssetMetadata(assetSlug, tezosChainId);
 
   return (
     <TezosAssetImageStacked
       metadata={metadata}
-      extraSrc={extraSrc}
       loader={Loader ? <Loader {...props} metadata={metadata} /> : undefined}
       fallback={Fallback ? <Fallback {...props} metadata={metadata} /> : undefined}
       {...rest}
@@ -42,13 +40,12 @@ export interface EvmAssetImageProps
   extends Omit<EvmAssetImageStackedProps, 'sources' | 'metadata' | 'loader' | 'fallback'> {
   evmChainId: number;
   assetSlug: string;
-  extraSrc?: string;
   Loader?: Placeholder<EvmAssetImageProps, EvmAssetMetadataBase>;
   Fallback?: Placeholder<EvmAssetImageProps, EvmAssetMetadataBase>;
 }
 
 export const EvmAssetImage = memo<EvmAssetImageProps>(({ Loader, Fallback, ...props }) => {
-  const { evmChainId, assetSlug, extraSrc, ...rest } = props;
+  const { evmChainId, assetSlug, ...rest } = props;
 
   const metadata = useEvmAssetMetadata(assetSlug, evmChainId);
 
@@ -56,7 +53,6 @@ export const EvmAssetImage = memo<EvmAssetImageProps>(({ Loader, Fallback, ...pr
     <EvmAssetImageStacked
       evmChainId={evmChainId}
       metadata={metadata}
-      extraSrc={extraSrc}
       loader={Loader ? <Loader {...props} metadata={metadata} /> : undefined}
       fallback={Fallback ? <Fallback {...props} metadata={metadata} /> : undefined}
       {...rest}

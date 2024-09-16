@@ -1,5 +1,6 @@
 import BigNumber from 'bignumber.js';
 
+import { toTokenSlug } from 'lib/assets';
 import type { Activity } from 'lib/temple/activity-new';
 
 import { OperStackItemInterface, OperStackItemTypeEnum } from './types';
@@ -61,5 +62,3 @@ export function buildMoneyDiffs(activity: Activity) {
 }
 
 const isZero = (val: BigNumber.Value) => new BigNumber(val).isZero();
-
-const toTokenSlug = (contractAddress: string, tokenId: string | number = 0) => `${contractAddress}_${tokenId}`;

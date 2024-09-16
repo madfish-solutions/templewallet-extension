@@ -14,6 +14,7 @@ interface EmptyStateProps {
 export const EmptyState = memo<EmptyStateProps>(({ className, variant = 'universal' }) => (
   <div className={clsx(className, 'w-full py-7 flex flex-col items-center gap-2')}>
     {variant === 'universal' ? <SadUniversalIcon className="w-[92px]" /> : <SadSearchIcon className="w-[92px]" />}
+
     <span className="text-font-medium-bold text-grey-2">
       <T id={variant === 'tokenSearch' ? 'tokensNotFound' : 'notFound'} />
     </span>

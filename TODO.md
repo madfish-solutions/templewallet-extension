@@ -1,3 +1,4 @@
+- Prepare activities from TZKT in one parse
 - Approve amount
 - NFTs
 - Asset details (name, symbol, decimals) due to user's wallet set-up
