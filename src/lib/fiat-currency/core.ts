@@ -11,7 +11,7 @@ import { useStorage } from 'lib/temple/front';
 import { isTruthy } from 'lib/utils';
 import { ZERO } from 'lib/utils/numbers';
 
-import { FIAT_CURRENCIES } from './consts';
+import { FIAT_CURRENCIES_BASE } from './consts';
 import type { FiatCurrencyOption, CoingeckoFiatInterface } from './types';
 
 const FIAT_CURRENCY_STORAGE_KEY = 'fiat_currency';
@@ -58,9 +58,9 @@ export function useAssetFiatCurrencyPrice(slug: string, chainId: number | string
 export const useFiatCurrency = () => {
   const { data } = useSelector(state => state.currency.fiatToTezosRates);
 
-  const [selectedFiatCurrency, setSelectedFiatCurrency] = useStorage<FiatCurrencyOption>(
+  const [selectedFiatCurrency, setSelectedFiatCurrency] = useStorage<Omit<FiatCurrencyOption, 'fullname'>>(
     FIAT_CURRENCY_STORAGE_KEY,
-    FIAT_CURRENCIES[0]!
+    FIAT_CURRENCIES_BASE[0]!
   );
 
   return {
@@ -75,7 +75,7 @@ const coingeckoApi = axios.create({ baseURL: 'https://api.coingecko.com/api/v3/'
 export const fetchFiatToTezosRates = () =>
   coingeckoApi
     .get<CoingeckoFiatInterface>(
-      `/simple/price?ids=tezos&vs_currencies=${FIAT_CURRENCIES.map(({ apiLabel }) => apiLabel).join(',')}`
+      `/simple/price?ids=tezos&vs_currencies=${FIAT_CURRENCIES_BASE.map(({ apiLabel }) => apiLabel).join(',')}`
     )
     .then(({ data }) => {
       const mappedRates: Record<string, number> = {};

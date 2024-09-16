@@ -1219,7 +1219,7 @@
   "upload": {
     "message": "Upload"
   },
-  "languageAndCountry": {
+  "language": {
     "message": "Language"
   },
   "generalSettings": {

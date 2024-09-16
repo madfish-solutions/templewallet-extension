@@ -1799,7 +1799,7 @@
   "upload": {
     "message": "Upload"
   },
-  "languageAndCountry": {
+  "language": {
     "message": "Language"
   },
   "fiatCurrency": {
@@ -3464,5 +3464,107 @@
   },
   "allNetworks": {
     "message": "All Networks"
+  },
+  "enLangName": {
+    "message": "English"
+  },
+  "en_GBLangName": {
+    "message": "English ‒ United Kingdom"
+  },
+  "frLangName": {
+    "message": "French"
+  },
+  "deLangName": {
+    "message": "German"
+  },
+  "zh_CNLangName": {
+    "message": "Chinese ‒ Simplified"
+  },
+  "zh_TWLangName": {
+    "message": "Chinese ‒ Traditional"
+  },
+  "jaLangName": {
+    "message": "Japanese"
+  },
+  "koLangName": {
+    "message": "Korean"
+  },
+  "ukLangName": {
+    "message": "Ukrainian"
+  },
+  "trLangName": {
+    "message": "Turkish"
+  },
+  "ptLangName": {
+    "message": "Portuguese"
+  },
+  "usdName": {
+    "message": "United States Dollar"
+  },
+  "eurName": {
+    "message": "Euro"
+  },
+  "gbpName": {
+    "message": "British Pound"
+  },
+  "jpyName": {
+    "message": "Japanese Yen"
+  },
+  "audName": {
+    "message": "Australian Dollar"
+  },
+  "cadName": {
+    "message": "Canadian Dollar"
+  },
+  "chfName": {
+    "message": "Swiss Franc"
+  },
+  "cnyName": {
+    "message": "Chinese Yuan"
+  },
+  "dkkName": {
+    "message": "Danish Krone"
+  },
+  "hkdName": {
+    "message": "Hong Kong Dollar"
+  },
+  "idrName": {
+    "message": "Indonesian Rupiah"
+  },
+  "inrName": {
+    "message": "Indian Rupee"
+  },
+  "krwName": {
+    "message": "South Korean Won"
+  },
+  "mxnName": {
+    "message": "Mexican Peso"
+  },
+  "nzdName": {
+    "message": "New Zealand Dollar"
+  },
+  "plnName": {
+    "message": "Polish Zloty"
+  },
+  "sekName": {
+    "message": "Swedish Krona"
+  },
+  "sgdName": {
+    "message": "Singapore Dollar"
+  },
+  "thbName": {
+    "message": "Thai Baht"
+  },
+  "tryName": {
+    "message": "Turkish Lira"
+  },
+  "twdName": {
+    "message": "Taiwan Dollar"
+  },
+  "uahName": {
+    "message": "Ukrainian Hryvnia"
+  },
+  "zarName": {
+    "message": "South African Rand"
   }
 }

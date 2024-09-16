@@ -1169,7 +1169,7 @@
   "upload": {
     "message": "업로드"
   },
-  "languageAndCountry": {
+  "language": {
     "message": "언어"
   },
   "generalSettings": {

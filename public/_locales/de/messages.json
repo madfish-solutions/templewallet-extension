@@ -1245,7 +1245,7 @@
   "upload": {
     "message": "Hochladen"
   },
-  "languageAndCountry": {
+  "language": {
     "message": "Sprache"
   },
   "generalSettings": {

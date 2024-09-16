@@ -1,11 +1,18 @@
 // eslint-disable-next-line import/no-duplicates
 import formatDateFns from 'date-fns/format';
 // eslint-disable-next-line import/no-duplicates
-import { enUS, enGB, fr, zhCN, zhTW, ja, ko, uk, ru } from 'date-fns/locale';
+import { enUS, enGB, fr, zhCN, zhTW, ja, ko, uk } from 'date-fns/locale';
 import browser from 'webextension-polyfill';
 
 import cldrjsLocales from './cldrjs-locales.json';
-import { getNativeLocale, getDefaultLocale, areLocalesEqual, fetchLocaleMessages, applySubstitutions } from './helpers';
+import {
+  getNativeLocale,
+  getDefaultLocale,
+  areLocalesEqual,
+  fetchLocaleMessages,
+  applySubstitutions,
+  STORAGE_KEY
+} from './helpers';
 import { getSavedLocale } from './saving';
 import { FetchedLocaleMessages, Substitutions } from './types';
 
@@ -17,8 +24,7 @@ const dateFnsLocales: Record<string, Locale> = {
   zh_TW: zhTW,
   ja,
   ko,
-  uk,
-  ru
+  uk
 };
 
 let fetchedLocaleMessages: FetchedLocaleMessages = {
@@ -33,13 +39,27 @@ export async function init() {
   const deflt = getDefaultLocale();
   const native = getNativeLocale();
 
-  const [target, fallback] = await Promise.all([
-    !saved || areLocalesEqual(saved, native) ? null : fetchLocaleMessages(saved),
-    areLocalesEqual(deflt, native) || (saved && areLocalesEqual(deflt, saved)) ? null : fetchLocaleMessages(deflt)
-  ]);
+  try {
+    const [target, fallback] = await Promise.all([
+      !saved || areLocalesEqual(saved, native) ? null : fetchLocaleMessages(saved),
+      areLocalesEqual(deflt, native) || (saved && areLocalesEqual(deflt, saved)) ? null : fetchLocaleMessages(deflt)
+    ]);
 
-  fetchedLocaleMessages = { target, fallback };
-  cldrLocale = (cldrjsLocales as Record<string, any>)[getCurrentLocale()] || cldrjsLocales.en;
+    if (!target && !fallback) {
+      throw new Error('Failed to fetch locale messages');
+    }
+
+    fetchedLocaleMessages = { target, fallback };
+    cldrLocale = (cldrjsLocales as Record<string, any>)[getCurrentLocale()] || cldrjsLocales.en;
+  } catch (e) {
+    if (saved === deflt) {
+      throw e;
+    }
+
+    console.error('oy vey 1', e);
+    localStorage.setItem(STORAGE_KEY, deflt);
+    await init();
+  }
 }
 
 export function getMessage(messageName: string, substitutions?: Substitutions) {

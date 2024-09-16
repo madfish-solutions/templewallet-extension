@@ -1230,7 +1230,7 @@
   "upload": {
     "message": "Завантажити"
   },
-  "languageAndCountry": {
+  "language": {
     "message": "Мова"
   },
   "generalSettings": {
@@ -1865,5 +1865,107 @@
         "content": "$1"
       }
     }
+  },
+  "enLangName": {
+    "message": "Англійська"
+  },
+  "en_GBLangName": {
+    "message": "Англійська ‒ Велика Британія"
+  },
+  "frLangName": {
+    "message": "Французька"
+  },
+  "deLangName": {
+    "message": "Німецька"
+  },
+  "zh_CNLangName": {
+    "message": "Китайська ‒ Спрощена"
+  },
+  "zh_TWLangName": {
+    "message": "Китайська ‒ Традиційна"
+  },
+  "jaLangName": {
+    "message": "Японська"
+  },
+  "koLangName": {
+    "message": "Корейська"
+  },
+  "ukLangName": {
+    "message": "Українська"
+  },
+  "trLangName": {
+    "message": "Турецька"
+  },
+  "ptLangName": {
+    "message": "Португальська"
+  },
+  "usdName": {
+    "message": "Долар США"
+  },
+  "eurName": {
+    "message": "Євро"
+  },
+  "gbpName": {
+    "message": "Фунт стерлінгів"
+  },
+  "jpyName": {
+    "message": "Японська єна"
+  },
+  "audName": {
+    "message": "Австралійський долар"
+  },
+  "cadName": {
+    "message": "Канадський долар"
+  },
+  "chfName": {
+    "message": "Швейцарський франк"
+  },
+  "cnyName": {
+    "message": "Китайський юань"
+  },
+  "dkkName": {
+    "message": "Датська крона"
+  },
+  "hkdName": {
+    "message": "Гонконгський долар"
+  },
+  "idrName": {
+    "message": "Індонезійська рупія"
+  },
+  "inrName": {
+    "message": "Індійська рупія"
+  },
+  "krwName": {
+    "message": "Південнокорейська вона"
+  },
+  "mxnName": {
+    "message": "Мексиканське песо"
+  },
+  "nzdName": {
+    "message": "Новозеландський долар"
+  },
+  "plnName": {
+    "message": "Польський злотий"
+  },
+  "sekName": {
+    "message": "Шведська крона"
+  },
+  "sgdName": {
+    "message": "Сінгапурський долар"
+  },
+  "thbName": {
+    "message": "Тайський бат"
+  },
+  "tryName": {
+    "message": "Турецька ліра"
+  },
+  "twdName": {
+    "message": "Тайванський долар"
+  },
+  "uahName": {
+    "message": "Українська гривня"
+  },
+  "zarName": {
+    "message": "Південноафриканський ранд"
   }
 }

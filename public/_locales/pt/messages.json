@@ -1245,7 +1245,7 @@
   "upload": {
     "message": "Carregar"
   },
-  "languageAndCountry": {
+  "language": {
     "message": "Idioma"
   },
   "generalSettings": {

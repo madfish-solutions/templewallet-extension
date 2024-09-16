@@ -21,14 +21,14 @@ const Flag: FC<FlagProps> = props => {
   }
 
   return (
-    <div className={classNames('w-6 flex justify-center items-center', className)} style={{ height: '1.3125rem' }}>
+    <div className={classNames('w-6 h-6 flex justify-center items-center', className)}>
       {src ? (
         <>
-          <img alt={alt} className={classNames({ hidden: error })} src={src} onError={handleError} />
-          {error && <FlagStub className="w-6 h-auto" />}
+          <img alt={alt} className={classNames({ hidden: error }, 'w-5 h-auto')} src={src} onError={handleError} />
+          {error && <FlagStub className="w-5 h-auto" />}
         </>
       ) : (
-        <FlagStub className="w-6 h-auto" />
+        <FlagStub className="w-5 h-auto" />
       )}
     </div>
   );

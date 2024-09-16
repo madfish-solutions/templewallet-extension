@@ -1182,7 +1182,7 @@
   "upload": {
     "message": "Téléverser"
   },
-  "languageAndCountry": {
+  "language": {
     "message": "Langue"
   },
   "generalSettings": {
