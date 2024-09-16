@@ -23,7 +23,7 @@ import {
   toExcelColumnName
 } from 'lib/temple/helpers';
 import * as Passworder from 'lib/temple/passworder';
-import { clearAsyncStorages } from 'lib/temple/reset';
+import { clearAllStorages, clearAsyncStorages } from 'lib/temple/reset';
 import { StoredAccount, TempleAccountType, TempleSettings, WalletSpecs } from 'lib/temple/types';
 import { isTruthy } from 'lib/utils';
 import { getAccountAddressForChain, getAccountAddressForEvm, getAccountAddressForTezos } from 'temple/accounts';
@@ -381,7 +381,7 @@ export class Vault {
   static async reset(password: string) {
     await Vault.assertValidPassword(password);
     await Vault.forgetSession();
-    await clearAsyncStorages();
+    await clearAllStorages();
   }
 
   constructor(private passKey: CryptoKey) {}
