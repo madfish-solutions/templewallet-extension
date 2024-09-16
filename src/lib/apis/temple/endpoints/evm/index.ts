@@ -15,8 +15,10 @@ export const getEvmTokensMetadata = (walletAddress: string, chainId: ChainID) =>
 export const getEvmCollectiblesMetadata = (walletAddress: string, chainId: ChainID) =>
   buildEvmRequest<NftAddressBalanceNftResponse>('/collectibles-metadata', walletAddress, chainId);
 
-export const getEvmTransactions = (walletAddress: string, chainId: ChainID, page: number) =>
-  buildEvmRequest<{ items: GoldRushTransaction[] }>('/transactions', walletAddress, chainId, { page });
+export const getEvmTransactions = (walletAddress: string, chainId: ChainID, page?: number) =>
+  buildEvmRequest<{ items: GoldRushTransaction[]; current_page: number }>('/transactions', walletAddress, chainId, {
+    page
+  });
 
 const buildEvmRequest = <T>(url: string, walletAddress: string, chainId: ChainID, params?: object) =>
   templeWalletApi

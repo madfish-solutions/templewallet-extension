@@ -119,6 +119,10 @@ export function parseGoldRushTransaction(
   });
 
   const gasOperation: EvmOperation | null = (() => {
+    const value: string = item.value?.toString() ?? '0';
+
+    if (value === '0') return null;
+
     const kind = (() => {
       if (getEvmAddressSafe(item.from_address) === accountAddress) return ActivityKindEnum.send;
       if (getEvmAddressSafe(item.to_address) === accountAddress) return ActivityKindEnum.receive;
@@ -133,7 +137,6 @@ export function parseGoldRushTransaction(
 
     if (decimals == null) return null;
 
-    const value: string = item.value?.toString() ?? '0';
     const symbol = getAssetSymbol(metadata) || item.gas_metadata?.contract_ticker_symbol;
 
     const asset: EvmActivityAsset = {
