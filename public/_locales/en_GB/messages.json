@@ -1359,10 +1359,10 @@
     }
   },
   "popupSettings": {
-    "message": "Popup mode"
+    "message": "Pop-up mode"
   },
   "popupSettingsDescription": {
-    "message": "Here you can configure the popup which appears on plugin's icon click in extensions panel."
+    "message": "Here you can configure the pop-up which appears on plugin's icon click in extensions panel."
   },
   "referredByTokenContractNotFound": {
     "message": "Contract $address$, which is referred by token contract to, was not found.",

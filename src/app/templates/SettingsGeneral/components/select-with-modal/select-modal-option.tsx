@@ -12,6 +12,7 @@ export interface CellPartProps<T> {
 
 export interface SelectModalOptionProps<T> {
   option: T;
+  className?: string;
   isSelected: boolean;
   CellIcon: ComponentType<CellPartProps<T>>;
   CellName: ComponentType<CellPartProps<T>>;
@@ -22,6 +23,7 @@ export interface SelectModalOptionProps<T> {
 // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-constraint
 export const SelectModalOption = <T extends unknown>({
   option,
+  className,
   isSelected,
   CellIcon,
   CellName,
@@ -31,7 +33,7 @@ export const SelectModalOption = <T extends unknown>({
   const handleClick = useCallback(() => onSelect(option), [onSelect, option]);
 
   return (
-    <SettingsCellGroup>
+    <SettingsCellGroup className={className}>
       <SettingsCell
         Component={Button}
         cellIcon={<CellIcon option={option} />}

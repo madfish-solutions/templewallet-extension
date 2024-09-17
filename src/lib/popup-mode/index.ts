@@ -1,5 +1,5 @@
 const POPUP_MODE_STORAGE_KEY = 'popup_mode';
-const DEFAULT_POPUP_MODE = true;
+const DEFAULT_POPUP_MODE = false;
 
 export function setPopupMode(enabled: boolean) {
   localStorage.setItem(POPUP_MODE_STORAGE_KEY, String(enabled));
