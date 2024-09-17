@@ -371,6 +371,7 @@ export const [TempleClientProvider, useTempleClient] = constate(() => {
       password
     });
     assertResponse(res.type === TempleMessageType.ResetExtensionResponse);
+    localStorage.clear();
     browser.runtime.reload();
   }, []);
 
