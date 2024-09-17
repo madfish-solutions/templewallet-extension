@@ -701,7 +701,7 @@
     "message": "Reset Extension?"
   },
   "resetExtensionModalDescription": {
-    "message": "Resetting will delete wallets, accounts and erase all data. Ensure your seed phrases and Private Keys are backed up to avoid permanent loss and recover access to assets later."
+    "message": "Resetting will delete wallets, accounts and erase all data. Ensure your Seed Phrases and Private Keys are backed up to avoid permanent loss and recover access to assets later."
   },
   "resetPasswordInputLabel": {
     "message": "Enter the password to confirm reset"
