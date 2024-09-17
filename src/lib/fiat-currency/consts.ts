@@ -1,6 +1,6 @@
-import { FiatCurrenciesEnum, FiatCurrencyOption } from './types';
+import { FiatCurrenciesEnum, FiatCurrencyOptionBase } from './types';
 
-export const FIAT_CURRENCIES_BASE: Array<Omit<FiatCurrencyOption, 'fullname'>> = [
+export const FIAT_CURRENCIES_BASE: FiatCurrencyOptionBase[] = [
   {
     name: FiatCurrenciesEnum.USD,
     apiLabel: 'usd',

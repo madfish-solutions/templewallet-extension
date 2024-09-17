@@ -19,7 +19,6 @@ export const EnablingSetting = memo(({ title, enabled, description, onChange, te
     </SettingsCell>
     <SettingsCell
       Component="div"
-      isLast={true}
       cellName={<span className="text-grey-1 text-font-description font-normal">{description}</span>}
     >
       {null}

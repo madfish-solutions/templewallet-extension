@@ -1,9 +1,13 @@
 import React, { memo, useCallback, useMemo } from 'react';
 
 import { AnalyticsEventCategory, AnalyticsEventEnum, useAnalytics } from 'lib/analytics';
-import { FIAT_CURRENCIES_BASE, FiatCurrencyOption } from 'lib/fiat-currency';
-import { useFiatCurrency } from 'lib/fiat-currency/core';
-import { FiatCurrenciesEnum } from 'lib/fiat-currency/types';
+import {
+  FIAT_CURRENCIES_BASE,
+  FiatCurrencyOption,
+  FiatCurrenciesEnum,
+  FiatCurrencyOptionBase,
+  useFiatCurrency
+} from 'lib/fiat-currency';
 import { T, t } from 'lib/i18n';
 
 import { SettingsGeneralSelectors } from '../../selectors';
@@ -20,7 +24,7 @@ const currencyOptionKeyFn = ({ name }: FiatCurrencyOption) => name;
 
 const CellName = ({ option: { fullname } }: CellPartProps<FiatCurrencyOption>) => <span>{fullname}</span>;
 
-const makeOptionWithFullName = (option: Omit<FiatCurrencyOption, 'fullname'>) => {
+const makeOptionWithFullName = (option: FiatCurrencyOptionBase) => {
   const keyPrefix = option.name.toLowerCase() as Lowercase<FiatCurrenciesEnum>;
 
   return {

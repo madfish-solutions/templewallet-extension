@@ -12,7 +12,7 @@ import { isTruthy } from 'lib/utils';
 import { ZERO } from 'lib/utils/numbers';
 
 import { FIAT_CURRENCIES_BASE } from './consts';
-import type { FiatCurrencyOption, CoingeckoFiatInterface } from './types';
+import type { CoingeckoFiatInterface, FiatCurrencyOptionBase } from './types';
 
 const FIAT_CURRENCY_STORAGE_KEY = 'fiat_currency';
 
@@ -58,7 +58,7 @@ export function useAssetFiatCurrencyPrice(slug: string, chainId: number | string
 export const useFiatCurrency = () => {
   const { data } = useSelector(state => state.currency.fiatToTezosRates);
 
-  const [selectedFiatCurrency, setSelectedFiatCurrency] = useStorage<Omit<FiatCurrencyOption, 'fullname'>>(
+  const [selectedFiatCurrency, setSelectedFiatCurrency] = useStorage<FiatCurrencyOptionBase>(
     FIAT_CURRENCY_STORAGE_KEY,
     FIAT_CURRENCIES_BASE[0]!
   );

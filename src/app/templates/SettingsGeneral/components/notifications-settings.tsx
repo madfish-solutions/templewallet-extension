@@ -1,4 +1,4 @@
-import React, { memo } from 'react';
+import React, { memo, useCallback } from 'react';
 
 import { useDispatch } from 'react-redux';
 
@@ -14,7 +14,10 @@ export const NotificationsSettings = memo(() => {
   const dispatch = useDispatch();
   const isNewsEnabled = useIsNewsEnabledSelector();
 
-  const handleNewsNotificationsChange = (checked: boolean) => dispatch(setIsNewsEnabledAction(checked));
+  const handleNewsNotificationsChange = useCallback(
+    (checked: boolean) => dispatch(setIsNewsEnabledAction(checked)),
+    [dispatch]
+  );
 
   return (
     <EnablingSetting

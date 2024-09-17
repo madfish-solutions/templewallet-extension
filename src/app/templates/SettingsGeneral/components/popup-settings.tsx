@@ -7,7 +7,7 @@ import { SettingsGeneralSelectors } from '../selectors';
 
 import { EnablingSetting } from './enabling-setting';
 
-const PopupSettings = memo(() => {
+export const PopupSettings = memo(() => {
   const popupEnabled = isPopupModeEnabled();
   const changingRef = useRef(false);
 
@@ -30,5 +30,3 @@ const PopupSettings = memo(() => {
     />
   );
 });
-
-export default PopupSettings;

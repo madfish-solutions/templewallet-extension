@@ -14,8 +14,8 @@ export interface SelectModalProps<T, P extends null | SyncFn<T, any>>
   options: T[];
   value: T;
   searchKeys: Arguments<typeof searchAndFilterItems<T, P>>[2];
-  searchThreshold?: Arguments<typeof searchAndFilterItems<T, P>>[4];
-  searchPrepare?: Arguments<typeof searchAndFilterItems<T, P>>[3];
+  searchThreshold?: number;
+  searchPrepare?: P;
   keyFn: SyncFn<T, string | number>;
   onRequestClose: EmptyFn;
   itemTestID: string;
