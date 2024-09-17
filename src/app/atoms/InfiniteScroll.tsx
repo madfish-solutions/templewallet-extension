@@ -1,4 +1,4 @@
-import React, { FC, ReactNode } from 'react';
+import React, { FC, ReactNode, useEffect } from 'react';
 
 import ReactInfiniteScrollComponent from 'react-infinite-scroll-component';
 
@@ -21,19 +21,28 @@ export const InfiniteScroll: FC<Props> = ({
   reachedTheEnd,
   retryInitialLoad,
   loadMore,
-  loader = <SyncSpinner className="mt-4" />,
+  loader,
   children
 }) => {
   const loadNext = itemsLength ? loadMore : retryInitialLoad;
 
   const onScroll = isSyncing || reachedTheEnd ? undefined : buildOnScroll(loadNext);
 
+  useEffect(() => {
+    if (SCROLL_DOCUMENT || isSyncing || reachedTheEnd) return;
+
+    const scrollableElem = document.getElementById(APP_CONTENT_PAPER_DOM_ID);
+    if (!scrollableElem || scrollableElem.scrollTop) return;
+
+    if (scrollableElem.offsetHeight === scrollableElem.clientHeight) loadNext();
+  }, [isSyncing, reachedTheEnd]);
+
   return (
     <ReactInfiniteScrollComponent
       dataLength={itemsLength}
       hasMore={reachedTheEnd === false}
       next={loadNext}
-      loader={isSyncing && loader}
+      loader={isSyncing && (loader ?? <SyncSpinner className="mt-4" />)}
       onScroll={onScroll}
       scrollableTarget={SCROLL_DOCUMENT ? undefined : APP_CONTENT_PAPER_DOM_ID}
     >
@@ -51,6 +60,8 @@ const buildOnScroll =
   ({ target }: { target: EventTarget | null }) => {
     const elem: HTMLElement =
       target instanceof Document ? (target.scrollingElement! as HTMLElement) : (target as HTMLElement);
+
     const atBottom = 0 === elem.offsetHeight - elem.clientHeight - elem.scrollTop;
+
     if (atBottom) next();
   };
