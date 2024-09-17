@@ -56,7 +56,7 @@ export async function init() {
       throw e;
     }
 
-    console.error('oy vey 1', e);
+    console.error(e);
     localStorage.setItem(STORAGE_KEY, deflt);
     await init();
   }
