@@ -1,0 +1,5 @@
+@media (max-height: 24.24rem) {
+  .fullPageOverlay {
+    position: absolute !important;
+  }
+}
