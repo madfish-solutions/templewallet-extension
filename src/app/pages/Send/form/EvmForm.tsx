@@ -131,9 +131,9 @@ export const EvmForm: FC<Props> = ({ chainId, assetSlug, onSelectAssetClick }) =
   }, [accountPkh, assetSlug, network.rpcBaseURL, toResolved]);
 
   const {
-    data: estimatedMaxFee
-    //error: estimatedMaxFeeError,
-    //isValidating: estimatingMaxFee
+    data: estimatedMaxFee,
+    error: estimatedMaxFeeError,
+    isValidating: estimatingMaxFee
   } = useTypedSWR(
     () => (toFilled ? ['max-transaction-fee', chainId, assetSlug, accountPkh, toResolved] : null),
     estimateMaxFee,
@@ -205,6 +205,7 @@ export const EvmForm: FC<Props> = ({ chainId, assetSlug, onSelectAssetClick }) =
       assetSymbol={assetSymbol}
       assetPrice={assetPrice}
       maxAmount={maxAmount}
+      maxEstimating={estimatingMaxFee}
       assetDecimals={assetDecimals}
       validateAmount={validateAmount}
       validateRecipient={validateRecipient}

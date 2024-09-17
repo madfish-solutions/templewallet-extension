@@ -318,6 +318,7 @@ export const TezosForm: FC<Props> = ({ chainId, assetSlug, onSelectAssetClick })
       assetSymbol={assetSymbol}
       assetPrice={assetPrice}
       maxAmount={maxAmount}
+      maxEstimating={estimating}
       assetDecimals={assetMetadata?.decimals ?? 0}
       validateAmount={validateAmount}
       validateRecipient={validateRecipient}

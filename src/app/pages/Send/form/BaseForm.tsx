@@ -8,6 +8,7 @@ import { useDebounce } from 'use-debounce';
 import { Button, NoSpaceField } from 'app/atoms';
 import AssetField from 'app/atoms/AssetField';
 import { ConvertedInputAssetAmount } from 'app/atoms/ConvertedInputAssetAmount';
+import { Loader } from 'app/atoms/Loader';
 import { ActionsButtonsBox } from 'app/atoms/PageModal/actions-buttons-box';
 import { StyledButton } from 'app/atoms/StyledButton';
 import { SelectAccountModal } from 'app/pages/Send/modals/SelectAccount';
@@ -35,6 +36,7 @@ interface Props {
   validateRecipient: Validate<string, SendFormData>;
   onSelectAssetClick: EmptyFn;
   onSubmit: SubmitHandler<SendFormData>;
+  maxEstimating: boolean;
   maxAmount: BigNumber;
   isToFilledWithFamiliarAddress: boolean;
   evm?: boolean;
@@ -49,6 +51,7 @@ export const BaseForm: FC<Props> = ({
   assetPrice,
   assetDecimals,
   maxAmount,
+  maxEstimating,
   validateAmount,
   validateRecipient,
   onSelectAssetClick,
@@ -199,9 +202,11 @@ export const BaseForm: FC<Props> = ({
                   <Button
                     type="button"
                     onClick={handleSetMaxAmount}
-                    className="text-font-description-bold text-white bg-primary rounded-md px-2 py-1"
+                    disabled={maxEstimating}
+                    className="flex justify-center items-center text-font-description-bold text-white bg-primary rounded-md py-1"
+                    style={{ width: '41px' }}
                   >
-                    <T id="max" />
+                    {maxEstimating ? <Loader /> : <T id="max" />}
                   </Button>
                 }
                 underneathComponent={
