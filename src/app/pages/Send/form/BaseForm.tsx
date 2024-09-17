@@ -19,6 +19,8 @@ import { readClipboard } from 'lib/ui/utils';
 import { OneOfChains } from 'temple/front';
 import { TempleChainKind } from 'temple/types';
 
+import { ZERO } from '../../../../lib/utils/numbers';
+
 import { SendFormData } from './interfaces';
 import { SELECT_ACCOUNT_BUTTON_ID, SelectAccountButton } from './SelectAccountButton';
 import { SelectAssetButton } from './SelectAssetButton';
@@ -127,7 +129,7 @@ export const BaseForm: FC<Props> = ({
   }, [setSelectAccountModalOpen]);
 
   const toAssetAmount = useCallback(
-    (fiatAmount: BigNumber.Value) =>
+    (fiatAmount: BigNumber.Value = ZERO) =>
       new BigNumber(fiatAmount).dividedBy(assetPrice ?? 1).toFormat(assetDecimals ?? 0, BigNumber.ROUND_FLOOR, {
         decimalSeparator: '.'
       }),
@@ -212,16 +214,14 @@ export const BaseForm: FC<Props> = ({
                 underneathComponent={
                   <div className="flex justify-between mt-1">
                     <div className="max-w-40">
-                      {amountValue && (
-                        <ConvertedInputAssetAmount
-                          chainId={network.chainId}
-                          assetSlug={assetSlug}
-                          assetSymbol={assetSymbol}
-                          amountValue={shouldUseFiat ? toAssetAmount(amountValue) : amountValue}
-                          toFiat={!shouldUseFiat}
-                          evm={network.kind === TempleChainKind.EVM}
-                        />
-                      )}
+                      <ConvertedInputAssetAmount
+                        chainId={network.chainId}
+                        assetSlug={assetSlug}
+                        assetSymbol={assetSymbol}
+                        amountValue={shouldUseFiat ? toAssetAmount(amountValue) : amountValue || '0'}
+                        toFiat={!shouldUseFiat}
+                        evm={network.kind === TempleChainKind.EVM}
+                      />
                     </div>
                     {canToggleFiat && (
                       <Button
