@@ -7,7 +7,6 @@ import CustomModal from 'app/atoms/CustomModal';
 import { useAppEnv } from 'app/env';
 import { ReactComponent as CloseIcon } from 'app/icons/base/x.svg';
 import { LAYOUT_CONTAINER_CLASSNAME } from 'app/layouts/containers';
-// import { APP_CONTENT_PAPER_DOM_ID } from 'app/layouts/containers';
 
 import actionModalStyles from './action-modal.module.css';
 
@@ -19,14 +18,11 @@ interface ActionModalProps {
   className?: string;
 }
 
-// const parentSelector = () => document.getElementById(APP_CONTENT_PAPER_DOM_ID)!;
-
 export const ActionModal = memo<ActionModalProps>(({ onClose, children, hasCloseButton = true, title }) => {
   const { fullPage } = useAppEnv();
 
   return (
     <CustomModal
-      // parentSelector={parentSelector}
       isOpen
       className="rounded-lg"
       overlayClassName={clsx(
