@@ -5,14 +5,7 @@ import { enUS, enGB, fr, zhCN, zhTW, ja, ko, uk } from 'date-fns/locale';
 import browser from 'webextension-polyfill';
 
 import cldrjsLocales from './cldrjs-locales.json';
-import {
-  getNativeLocale,
-  getDefaultLocale,
-  areLocalesEqual,
-  fetchLocaleMessages,
-  applySubstitutions,
-  STORAGE_KEY
-} from './helpers';
+import { getNativeLocale, getDefaultLocale, areLocalesEqual, fetchLocaleMessages, applySubstitutions } from './helpers';
 import { getSavedLocale } from './saving';
 import { FetchedLocaleMessages, Substitutions } from './types';
 
@@ -39,27 +32,13 @@ export async function init() {
   const deflt = getDefaultLocale();
   const native = getNativeLocale();
 
-  try {
-    const [target, fallback] = await Promise.all([
-      !saved || areLocalesEqual(saved, native) ? null : fetchLocaleMessages(saved),
-      areLocalesEqual(deflt, native) || (saved && areLocalesEqual(deflt, saved)) ? null : fetchLocaleMessages(deflt)
-    ]);
+  const [target, fallback] = await Promise.all([
+    !saved || areLocalesEqual(saved, native) ? null : fetchLocaleMessages(saved),
+    areLocalesEqual(deflt, native) || (saved && areLocalesEqual(deflt, saved)) ? null : fetchLocaleMessages(deflt)
+  ]);
 
-    if (!target && !fallback) {
-      throw new Error('Failed to fetch locale messages');
-    }
-
-    fetchedLocaleMessages = { target, fallback };
-    cldrLocale = (cldrjsLocales as Record<string, any>)[getCurrentLocale()] || cldrjsLocales.en;
-  } catch (e) {
-    if (saved === deflt) {
-      throw e;
-    }
-
-    console.error(e);
-    localStorage.setItem(STORAGE_KEY, deflt);
-    await init();
-  }
+  fetchedLocaleMessages = { target, fallback };
+  cldrLocale = (cldrjsLocales as Record<string, any>)[getCurrentLocale()] || cldrjsLocales.en;
 }
 
 export function getMessage(messageName: string, substitutions?: Substitutions) {
