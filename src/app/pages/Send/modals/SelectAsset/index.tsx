@@ -1,10 +1,11 @@
-import React, { memo, useCallback, useState, MouseEvent, useMemo, Suspense } from 'react';
+import React, { memo, useCallback, useState, MouseEvent, useMemo, Suspense, useEffect } from 'react';
 
 import clsx from 'clsx';
 import { useDebounce } from 'use-debounce';
 
 import { Button, IconBase } from 'app/atoms';
 import { ActionsDropdownPopup } from 'app/atoms/ActionsDropdown';
+import { EmptyState } from 'app/atoms/EmptyState';
 import { Size } from 'app/atoms/IconBase';
 import { EvmNetworkLogo, TezosNetworkLogo } from 'app/atoms/NetworkLogo';
 import { PageModal } from 'app/atoms/PageModal';
@@ -17,6 +18,7 @@ import { FilterChain } from 'app/store/assets-filter-options/state';
 import { SearchBarField } from 'app/templates/SearchField';
 import { T } from 'lib/i18n';
 import Popper, { PopperRenderProps } from 'lib/ui/Popper';
+import { useScrollIntoViewOnMount } from 'lib/ui/use-scroll-into-view';
 import {
   OneOfChains,
   useAccountAddressForEvm,
@@ -27,8 +29,6 @@ import {
   useEnabledTezosChains
 } from 'temple/front';
 import { TempleChainKind } from 'temple/types';
-
-import { useScrollIntoViewOnMount } from '../../../../../lib/ui/use-scroll-into-view';
 
 import { EvmAssetsList } from './EvmAssetsList';
 import { EvmChainAssetsList } from './EvmChainAssetsList';
@@ -199,19 +199,43 @@ const FilterNetworkDropdown = memo<FilterNetworkDropdownProps>(
     const tezosChains = useEnabledTezosChains();
     const evmChains = useEnabledEvmChains();
 
+    const [searchValue, setSearchValue] = useState('');
+    const [searchValueDebounced] = useDebounce(searchValue, 300);
+
+    const [attractSelectedNetwork, setAttractSelectedNetwork] = useState(true);
+
+    useEffect(() => {
+      if (searchValueDebounced) setAttractSelectedNetwork(false);
+      else if (!opened) setAttractSelectedNetwork(true);
+    }, [opened, searchValueDebounced]);
+
     const networks = useMemo(
       () => [ALL_NETWORKS, ...(accountTezAddress ? tezosChains : []), ...(accountEvmAddress ? evmChains : [])],
       [accountEvmAddress, accountTezAddress, evmChains, tezosChains]
     );
 
+    const filteredNetworks = useMemo(
+      () =>
+        searchValueDebounced.length
+          ? searchAndFilterNetworksByName<string | OneOfChains>(networks, searchValueDebounced)
+          : networks,
+      [searchValueDebounced, networks]
+    );
+
     return (
-      <ActionsDropdownPopup title="Select Network" opened={opened} style={{ minWidth: 196, maxHeight: 300 }}>
-        <div className="overflow-y-auto">
-          {networks.map(network => (
+      <ActionsDropdownPopup title="Select Network" opened={opened} style={{ width: 196, height: 340 }}>
+        <div className="mb-1">
+          <SearchBarField value={searchValue} defaultRightMargin={false} onValueChange={setSearchValue} />
+        </div>
+        <div className="flex flex-col flex-grow overflow-y-auto">
+          {filteredNetworks.length === 0 && <EmptyState iconSize="small" showText={false} />}
+
+          {filteredNetworks.map(network => (
             <FilterOption
               key={typeof network === 'string' ? ALL_NETWORKS : network.chainId}
               network={network}
               activeNetwork={selectedOption}
+              attractSelf={attractSelectedNetwork}
               onClick={() => {
                 onOptionSelect(typeof network === 'string' ? null : network);
                 setOpened(false);
@@ -229,16 +253,17 @@ type Network = OneOfChains | string;
 interface FilterOptionProps {
   network: Network;
   activeNetwork: FilterChain;
+  attractSelf: boolean;
   iconSize?: Size;
   onClick?: EmptyFn;
 }
 
-const FilterOption = memo<FilterOptionProps>(({ network, activeNetwork, iconSize = 24, onClick }) => {
+const FilterOption = memo<FilterOptionProps>(({ network, activeNetwork, attractSelf, iconSize = 24, onClick }) => {
   const isAllNetworks = typeof network === 'string';
 
   const active = isAllNetworks ? activeNetwork === null : network.chainId === activeNetwork?.chainId;
 
-  const elemRef = useScrollIntoViewOnMount<HTMLDivElement>(active);
+  const elemRef = useScrollIntoViewOnMount<HTMLDivElement>(active && attractSelf);
 
   const Icon = useMemo(() => {
     if (isAllNetworks) return <IconBase Icon={Browse} className="text-primary" size={16} />;
@@ -274,3 +299,15 @@ const FilterOption = memo<FilterOptionProps>(({ network, activeNetwork, iconSize
     </div>
   );
 });
+
+type SearchNetwork = string | { name: string };
+
+const searchAndFilterNetworksByName = <T extends SearchNetwork>(networks: T[], searchValue: string) => {
+  const preparedSearchValue = searchValue.trim().toLowerCase();
+
+  return networks.filter(network => {
+    if (typeof network === 'string') return network.toLowerCase().includes(preparedSearchValue);
+
+    return network.name.toLowerCase().includes(preparedSearchValue);
+  });
+};
