@@ -1,8 +1,8 @@
-type Nullable<T> = {
-  [P in keyof T]: T[P] | null;
-};
+import { Nullable } from './utils';
 
-export type GoldRushTransaction = Nullable<{
+export type GoldRushTransaction = Nullable<Transaction>;
+
+interface Transaction {
   /** * The block signed timestamp in UTC. */
   block_signed_at: Date;
   /** * The height of the block. */
@@ -58,7 +58,7 @@ export type GoldRushTransaction = Nullable<{
   log_events: Nullable<LogEvent>[];
   /** * The details related to the safe transaction. */
   safe_details: Nullable<SafeDetails>[];
-}>;
+}
 
 interface NftSalesReport {
   /** * The offset is the position of the log entry within an event log. */

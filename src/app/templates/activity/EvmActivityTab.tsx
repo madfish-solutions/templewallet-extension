@@ -16,6 +16,7 @@ import { useAccountAddressForEvm } from 'temple/front';
 import { useEvmChainByChainId } from 'temple/front/chains';
 
 import { EvmActivityComponent } from './Activity';
+
 interface EvmActivityTabProps {
   chainId: number;
   assetSlug?: string;
@@ -32,7 +33,7 @@ export const EvmActivityTab: FC<EvmActivityTabProps> = ({ chainId, assetSlug }) 
   const [isLoading, setIsLoading] = useSafeState(true);
   const [reachedTheEnd, setReachedTheEnd] = useSafeState(false);
   const [activities, setActivities] = useSafeState<EvmActivity[]>([]);
-  const [currentPage, setCurrentPage] = useSafeState<number | undefined>(undefined);
+  const [nextPage, setNextPage] = useSafeState<number | nullish>(undefined);
 
   const { stop: stopLoading, stopAndBuildChecker } = useStopper();
 
@@ -43,24 +44,11 @@ export const EvmActivityTab: FC<EvmActivityTabProps> = ({ chainId, assetSlug }) 
 
     setIsLoading(true);
 
-    let newActivities: EvmActivity[], newPage: number;
+    let newActivities: EvmActivity[], newNextPage: number | null;
     try {
-      // const data = await getEvmTransactions(accountAddress, chainId, page);
-
-      // console.log('Data:', data);
-
-      // console.log(1, data?.items.length);
-      // console.log(2, new Set(data?.items.map(item => item.tx_hash)).size);
-
-      // newPage = data.current_page;
-
-      // newActivities = data.items.map<EvmActivity>(item =>
-      //   parseGoldRushTransaction(item, chainId, accountAddress, getMetadata)
-      // );
-
       const data = await getEvmAssetTransactions(accountAddress, chainId, getMetadata, assetSlug, page);
 
-      newPage = data.page;
+      newNextPage = data.nextPage;
       newActivities = data.activities;
 
       if (shouldStop()) return;
@@ -75,14 +63,14 @@ export const EvmActivityTab: FC<EvmActivityTabProps> = ({ chainId, assetSlug }) 
 
     setActivities(activities.concat(newActivities));
     setIsLoading(false);
-    setCurrentPage(newPage);
-    if (newPage <= 1 || newActivities.length === 0) setReachedTheEnd(true);
+    setNextPage(newNextPage);
+    if (newNextPage === null || newActivities.length === 0) setReachedTheEnd(true);
   };
 
   /** Loads more of older items */
   function loadMore() {
-    if (isLoading || reachedTheEnd) return;
-    loadActivities(activities, stopAndBuildChecker(), currentPage ? currentPage - 1 : undefined);
+    if (isLoading || reachedTheEnd || nextPage === null) return;
+    loadActivities(activities, stopAndBuildChecker(), nextPage);
   }
 
   useDidMount(() => {
@@ -126,22 +114,20 @@ async function getEvmAssetTransactions(
   page?: number
 ) {
   if (!assetSlug || assetSlug === EVM_TOKEN_SLUG) {
-    const { items, current_page } = await getEvmTransactions(walletAddress, chainId, page);
+    const { items, nextPage } = await getEvmTransactions(walletAddress, chainId, page);
 
     return {
       activities: items.map<EvmActivity>(item => parseGoldRushTransaction(item, chainId, walletAddress, getMetadata)),
-      page: current_page
+      nextPage
     };
   }
 
   const [contract, tokenId] = fromAssetSlug(assetSlug);
 
-  let nextPage = page;
+  let nextPage: number | nullish = page;
 
-  while (nextPage == null || nextPage > 0) {
+  while (nextPage !== null) {
     const data = await getEvmTransactions(walletAddress, chainId, nextPage);
-
-    const newPage = data.current_page;
 
     const activities = data.items
       .map<EvmActivity>(item => parseGoldRushTransaction(item, chainId, walletAddress, getMetadata))
@@ -151,10 +137,10 @@ async function getEvmAssetTransactions(
         )
       );
 
-    if (activities.length || newPage <= 1) return { activities, page: newPage };
+    if (activities.length) return { activities, nextPage: data.nextPage };
 
-    nextPage = newPage - 1;
+    nextPage = data.nextPage;
   }
 
-  return { page: 1, activities: [] };
+  return { nextPage: null, activities: [] };
 }
