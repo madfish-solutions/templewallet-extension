@@ -8,6 +8,7 @@ export interface OperationsGroup {
 export type ActivityStatus = TzktOperation['status'] | 'pending';
 
 export type ActivityMember = TzktAlias;
+
 export interface Activity {
   hash: string;
   /** ISO string */
@@ -30,14 +31,16 @@ export interface ActivityOperationBase extends PickedPropsFromTzktOperation {
 
 export interface ActivityTransactionOperation extends ActivityOperationBase {
   type: 'transaction';
-  destination: ActivityMember;
+  from: ActivityMember;
+  to: ActivityMember;
+  target: ActivityMember;
   entrypoint?: string;
   tokenId?: string;
 }
 
 export interface ActivityOtherOperation extends ActivityOperationBase {
   type: Exclude<TzktOperationType, 'transaction'>;
-  destination?: ActivityMember;
+  target?: ActivityMember;
 }
 
 export type ActivityOperation = ActivityTransactionOperation | ActivityOtherOperation;

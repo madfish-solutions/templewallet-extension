@@ -13,24 +13,24 @@ export function buildOperStack(activity: Activity, address: string) {
       if (isZero(oper.amountSigned)) {
         opStack.push({
           type: OperStackItemTypeEnum.Interaction,
-          with: oper.destination.address,
+          with: oper.target.address,
           entrypoint: oper.entrypoint
         });
-      } else if (oper.source.address === address) {
+      } else if (oper.from.address === address) {
         opStack.push({
           type: OperStackItemTypeEnum.TransferTo,
-          to: oper.destination.address
+          to: oper.to.address
         });
-      } else if (oper.destination.address === address) {
+      } else if (oper.to.address === address) {
         opStack.push({
           type: OperStackItemTypeEnum.TransferFrom,
-          from: oper.source.address
+          from: oper.from.address
         });
       }
-    } else if (oper.type === 'delegation' && oper.source.address === address && oper.destination) {
+    } else if (oper.type === 'delegation' && oper.source.address === address && oper.target) {
       opStack.push({
         type: OperStackItemTypeEnum.Delegation,
-        to: oper.destination.address
+        to: oper.target.address
       });
     } else {
       opStack.push({

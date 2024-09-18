@@ -25,17 +25,17 @@ export function formatLegacyTezosOperation(oper: LegacyActivityOperation, addres
         // entrypoint: oper.entrypoint
       };
 
-    if (oper.source.address === address) {
+    if (oper.from.address === address) {
       return {
         kind: ActivityKindEnum.send,
         subkind: OperStackItemTypeEnum.TransferTo
-        // to: oper.destination.address
+        // to: oper.to.address
       };
-    } else if (oper.destination.address === address) {
+    } else if (oper.to.address === address) {
       return {
         kind: ActivityKindEnum.receive,
         subkind: OperStackItemTypeEnum.TransferFrom
-        // from: oper.source.address
+        // from: oper.from.address
       };
     }
 
@@ -43,7 +43,7 @@ export function formatLegacyTezosOperation(oper: LegacyActivityOperation, addres
       kind: ActivityKindEnum.interaction,
       subkind: OperStackItemTypeEnum.Interaction
     };
-  } else if (oper.type === 'delegation' && oper.source.address === address && oper.destination) {
+  } else if (oper.type === 'delegation' && oper.source.address === address && oper.target) {
     return {
       kind: ActivityKindEnum.interaction,
       subkind: OperStackItemTypeEnum.Delegation
