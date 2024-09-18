@@ -27,8 +27,11 @@ export const ActionModal = memo<ActionModalProps>(({ onClose, children, hasClose
       className="rounded-lg"
       overlayClassName={clsx(
         'backdrop-blur-xs',
-        fullPage && actionModalStyles.fullPageOverlay,
-        fullPage && `top-9 bottom-8 min-h-80 rounded-md ${LAYOUT_CONTAINER_CLASSNAME}`
+        fullPage && [
+          'top-9 bottom-8 min-h-80 rounded-md',
+          actionModalStyles.fullPageOverlay,
+          LAYOUT_CONTAINER_CLASSNAME
+        ],
       )}
       onRequestClose={onClose}
     >
