@@ -32,6 +32,8 @@ export const TezosActivityComponent = memo<TezosActivityComponentProps>(({ activ
 
   const operations = activity.operations;
 
+  if (hash === 'oorAovoprUsZqr1HHYZ3RuLDitR8PqzM2t8GEzGmCGboKSFDMNX') console.log('O:', operations);
+
   return (
     <div className="flex flex-col">
       {operations.slice(0, 3).map((operation, i) => (

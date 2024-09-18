@@ -23,7 +23,6 @@ type PickedPropsFromTzktOperation = Pick<TzktOperation, 'id' | 'level'>;
 
 export interface ActivityOperationBase extends PickedPropsFromTzktOperation {
   contractAddress?: string;
-  source: ActivityMember;
   status: ActivityStatus;
   amountSigned: string;
   addedAt: string;
@@ -32,15 +31,16 @@ export interface ActivityOperationBase extends PickedPropsFromTzktOperation {
 export interface ActivityTransactionOperation extends ActivityOperationBase {
   type: 'transaction';
   from: ActivityMember;
-  to: ActivityMember;
-  target: ActivityMember;
+  to?: ActivityMember;
+  destination: ActivityMember;
   entrypoint?: string;
   tokenId?: string;
 }
 
 export interface ActivityOtherOperation extends ActivityOperationBase {
   type: Exclude<TzktOperationType, 'transaction'>;
-  target?: ActivityMember;
+  source: ActivityMember;
+  destination?: ActivityMember;
 }
 
 export type ActivityOperation = ActivityTransactionOperation | ActivityOtherOperation;

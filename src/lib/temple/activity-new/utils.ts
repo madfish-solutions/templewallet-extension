@@ -52,23 +52,24 @@ function reduceOneTzktOperation(operation: TzktOperation, address: string): Acti
     case 'delegation': {
       if (operation.sender.address !== address) return null;
 
-      const activityOperBase = buildActivityOperBase(operation, address, '0', operation.sender);
+      const activityOperBase = buildActivityOperBase(operation, '0', operation.sender.address === address);
       const activityOper: ActivityOtherOperation = {
         ...activityOperBase,
+        source: operation.sender,
         type: 'delegation'
       };
-      if (operation.newDelegate) activityOper.target = operation.newDelegate;
+      if (operation.newDelegate) activityOper.destination = operation.newDelegate;
       return activityOper;
     }
     case 'origination': {
-      const source = operation.sender;
       const amount = operation.contractBalance ? operation.contractBalance.toString() : '0';
-      const activityOperBase = buildActivityOperBase(operation, address, amount, source);
+      const activityOperBase = buildActivityOperBase(operation, amount, operation.sender.address === address);
       const activityOper: ActivityOtherOperation = {
         ...activityOperBase,
+        source: operation.sender,
         type: 'origination'
       };
-      if (operation.originatedContract) activityOper.target = operation.originatedContract;
+      if (operation.originatedContract) activityOper.destination = operation.originatedContract;
       return activityOper;
     }
     default:
@@ -84,16 +85,15 @@ function reduceOneTzktTransactionOperation(
     amount: string;
     from: ActivityMember;
     to?: ActivityMember;
-    source?: ActivityMember;
     contractAddress?: string;
     tokenId?: string;
   }) {
-    const { amount, from, to = operation.target, source = operation.sender, contractAddress, tokenId } = args;
-    const activityOperBase = buildActivityOperBase(operation, address, amount, source);
+    const { amount, from, to, contractAddress, tokenId } = args;
+    const activityOperBase = buildActivityOperBase(operation, amount, from.address === address);
     const activityOper: ActivityTransactionOperation = {
       ...activityOperBase,
       type: 'transaction',
-      target: operation.target,
+      destination: operation.target,
       from,
       to
     };
@@ -111,9 +111,10 @@ function reduceOneTzktTransactionOperation(
     if (operation.target.address !== address && operation.sender.address !== address) return null;
 
     const from = operation.sender;
+    const to = operation.target;
     const amount = String(operation.amount);
 
-    return _buildReturn({ amount, from });
+    return _buildReturn({ amount, from, to });
   } else if (isTzktOperParam_Fa2(parameter)) {
     const values = reduceParameterFa2Values(parameter.value, address);
     const firstVal = values[0];
@@ -123,12 +124,12 @@ function reduceOneTzktTransactionOperation(
     const contractAddress = operation.target.address;
     const amount = firstVal.amount;
     const tokenId = firstVal.tokenId;
-    const from = firstVal.from === address ? { ...operation.sender, address } : operation.sender;
-    const to = firstVal.toRelAddress ? { address } : operation.target;
+    const from = { ...operation.sender, address: firstVal.fromAddress };
+    const to = firstVal.isToRelAddress ? { address } : undefined;
 
-    return _buildReturn({ amount, from, to, source: from, contractAddress, tokenId });
+    return _buildReturn({ amount, from, to, contractAddress, tokenId });
   } else if (isTzktOperParam_Fa12(parameter)) {
-    if (parameter.entrypoint === 'approve') return null;
+    if (parameter.entrypoint === 'approve') return null; // TODO: Implement
 
     const from = { ...operation.sender };
     if (parameter.value.from === address) from.address = address;
@@ -137,45 +138,50 @@ function reduceOneTzktTransactionOperation(
 
     const contractAddress = operation.target.address;
     const amount = parameter.value.value;
+    const to = operation.target;
 
-    return _buildReturn({ amount, from, source: from, contractAddress });
+    return _buildReturn({ amount, from, to, contractAddress });
   } else if (isTzktOperParam_LiquidityBaking(parameter)) {
     const from = operation.sender;
+    const to = operation.target;
     const contractAddress = operation.target.address;
     const amount = parameter.value.quantity;
 
-    return _buildReturn({ amount, from, contractAddress });
+    return _buildReturn({ amount, from, to, contractAddress });
   } else {
     const from = operation.sender;
+    const to = operation.target;
     const amount = String(operation.amount);
 
-    return _buildReturn({ amount, from });
+    return _buildReturn({ amount, from, to });
   }
 }
 
-function buildActivityOperBase(operation: TzktOperation, address: string, amount: string, source: ActivityMember) {
+function buildActivityOperBase(operation: TzktOperation, amount: string, from: boolean) {
   const { id, level, timestamp: addedAt } = operation;
   const reducedOperation: ActivityOperationBase = {
     id,
     level,
-    source,
-    amountSigned: source.address === address ? `-${amount}` : amount,
+    amountSigned: from ? `-${amount}` : amount,
     status: stringToActivityStatus(operation.status),
     addedAt
   };
+
   return reducedOperation;
+}
+
+interface ReducedParameterFa2Values {
+  fromAddress: string;
+  isToRelAddress?: boolean;
+  amount: string;
+  tokenId: string;
 }
 
 /**
  * Items with zero cumulative amount value are filtered out
  */
 function reduceParameterFa2Values(values: ParameterFa2['value'], relAddress: string) {
-  const result: {
-    from: string;
-    toRelAddress?: boolean;
-    amount: string;
-    tokenId: string;
-  }[] = [];
+  const result: ReducedParameterFa2Values[] = [];
 
   for (const val of values) {
     /*
@@ -185,15 +191,15 @@ function reduceParameterFa2Values(values: ParameterFa2['value'], relAddress: str
     */
     const tokenId = val.txs[0]!.token_id;
 
-    const from = val.from_;
+    const fromAddress = val.from_;
 
-    if (val.from_ === relAddress) {
+    if (fromAddress === relAddress) {
       const amount = val.txs.reduce((acc, tx) => acc.plus(tx.amount), ZERO);
 
       if (amount.isZero()) continue;
 
       result.push({
-        from,
+        fromAddress,
         amount: amount.toFixed(),
         tokenId
       });
@@ -205,8 +211,8 @@ function reduceParameterFa2Values(values: ParameterFa2['value'], relAddress: str
 
     if (amount.isZero() === false)
       result.push({
-        from,
-        toRelAddress: true,
+        fromAddress,
+        isToRelAddress: true,
         amount: amount.toFixed(),
         tokenId
       });
