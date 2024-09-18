@@ -4,4 +4,4 @@ export { ActivityKindEnum, InfinitySymbol } from './types';
 
 export { parseGoldRushTransaction, parseGoldRushERC20Transfer } from './evm';
 
-export { formatLegacyTezosOperation } from './tezos';
+export { parseTezosPreActivityOperation } from './tezos';

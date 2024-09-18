@@ -11,16 +11,16 @@ import { ZERO } from 'lib/utils/numbers';
 
 import type {
   OperationsGroup,
-  ActivityStatus,
-  Activity,
-  ActivityOperationBase,
-  ActivityTransactionOperation,
-  ActivityOtherOperation,
-  ActivityOperation,
-  ActivityMember
+  TezosPreActivityStatus,
+  TezosPreActivity,
+  TezosPreActivityOperationBase,
+  TezosPreActivityTransactionOperation,
+  TezosPreActivityOtherOperation,
+  TezosPreActivityOperation,
+  OperationMember
 } from './types';
 
-export function operationsGroupToActivity({ hash, operations }: OperationsGroup, address: string): Activity {
+export function preparseTezosOperationsGroup({ hash, operations }: OperationsGroup, address: string): TezosPreActivity {
   const firstOperation = operations[0]!;
   const oldestTzktOperation = operations[operations.length - 1]!;
   const addedAt = firstOperation.timestamp;
@@ -36,7 +36,7 @@ export function operationsGroupToActivity({ hash, operations }: OperationsGroup,
   };
 }
 
-function reduceTzktOperations(operations: TzktOperation[], address: string): ActivityOperation[] {
+function reduceTzktOperations(operations: TzktOperation[], address: string): TezosPreActivityOperation[] {
   const reducedOperations = operations.map(op => reduceOneTzktOperation(op, address)).filter(isTruthy);
 
   return reducedOperations;
@@ -45,7 +45,7 @@ function reduceTzktOperations(operations: TzktOperation[], address: string): Act
 /**
  * (i) Does not mutate operation object
  */
-function reduceOneTzktOperation(operation: TzktOperation, address: string): ActivityOperation | null {
+function reduceOneTzktOperation(operation: TzktOperation, address: string): TezosPreActivityOperation | null {
   switch (operation.type) {
     case 'transaction':
       return reduceOneTzktTransactionOperation(address, operation);
@@ -53,7 +53,7 @@ function reduceOneTzktOperation(operation: TzktOperation, address: string): Acti
       if (operation.sender.address !== address) return null;
 
       const activityOperBase = buildActivityOperBase(operation, '0', operation.sender.address === address);
-      const activityOper: ActivityOtherOperation = {
+      const activityOper: TezosPreActivityOtherOperation = {
         ...activityOperBase,
         source: operation.sender,
         type: 'delegation'
@@ -64,7 +64,7 @@ function reduceOneTzktOperation(operation: TzktOperation, address: string): Acti
     case 'origination': {
       const amount = operation.contractBalance ? operation.contractBalance.toString() : '0';
       const activityOperBase = buildActivityOperBase(operation, amount, operation.sender.address === address);
-      const activityOper: ActivityOtherOperation = {
+      const activityOper: TezosPreActivityOtherOperation = {
         ...activityOperBase,
         source: operation.sender,
         type: 'origination'
@@ -80,17 +80,17 @@ function reduceOneTzktOperation(operation: TzktOperation, address: string): Acti
 function reduceOneTzktTransactionOperation(
   address: string,
   operation: TzktTransactionOperation
-): ActivityTransactionOperation | null {
+): TezosPreActivityTransactionOperation | null {
   function _buildReturn(args: {
     amount: string;
-    from: ActivityMember;
-    to?: ActivityMember;
+    from: OperationMember;
+    to?: OperationMember;
     contractAddress?: string;
     tokenId?: string;
   }) {
     const { amount, from, to, contractAddress, tokenId } = args;
     const activityOperBase = buildActivityOperBase(operation, amount, from.address === address);
-    const activityOper: ActivityTransactionOperation = {
+    const activityOper: TezosPreActivityTransactionOperation = {
       ...activityOperBase,
       type: 'transaction',
       destination: operation.target,
@@ -159,7 +159,7 @@ function reduceOneTzktTransactionOperation(
 
 function buildActivityOperBase(operation: TzktOperation, amount: string, from: boolean) {
   const { id, level, timestamp: addedAt } = operation;
-  const reducedOperation: ActivityOperationBase = {
+  const reducedOperation: TezosPreActivityOperationBase = {
     id,
     level,
     amountSigned: from ? `-${amount}` : amount,
@@ -221,13 +221,13 @@ function reduceParameterFa2Values(values: ParameterFa2['value'], relAddress: str
   return result;
 }
 
-function stringToActivityStatus(status: string): ActivityStatus {
-  if (['applied', 'backtracked', 'skipped', 'failed'].includes(status)) return status as ActivityStatus;
+function stringToActivityStatus(status: string): TezosPreActivityStatus {
+  if (['applied', 'backtracked', 'skipped', 'failed'].includes(status)) return status as TezosPreActivityStatus;
 
   return 'pending';
 }
 
-function deriveActivityStatus(items: { status: ActivityStatus }[]): ActivityStatus {
+function deriveActivityStatus(items: { status: TezosPreActivityStatus }[]): TezosPreActivityStatus {
   if (items.find(o => o.status === 'pending')) return 'pending';
   if (items.find(o => o.status === 'applied')) return 'applied';
   if (items.find(o => o.status === 'backtracked')) return 'backtracked';

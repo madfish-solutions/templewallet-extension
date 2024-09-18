@@ -1,4 +1,3 @@
-import { OperStackItemTypeEnum } from 'lib/temple/activity-new/types';
 import { TempleChainKind } from 'temple/types';
 
 export enum ActivityKindEnum {
@@ -21,8 +20,6 @@ export interface TezosActivity {
 
 export interface TezosOperation {
   kind: ActivityKindEnum;
-  /** @deprecated */
-  subkind?: OperStackItemTypeEnum;
   asset?: TezosActivityAsset;
 }
 

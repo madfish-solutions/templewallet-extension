@@ -6,7 +6,7 @@ import { IconBase } from 'app/atoms';
 import { ReactComponent as CompactDownIcon } from 'app/icons/base/compact_down.svg';
 import { Activity } from 'lib/activity';
 import { t } from 'lib/i18n';
-import { Activity as LegacyActivity } from 'lib/temple/activity-new';
+import { TezosPreActivity } from 'lib/temple/activity-new';
 import { useBooleanState } from 'lib/ui/hooks';
 import { useExplorerHref } from 'temple/front/block-explorers';
 import { EvmChain, TezosChain } from 'temple/front/chains';
@@ -16,7 +16,7 @@ import { ReactComponent as InteractionsConnectorSvg } from './interactions-conne
 import { TezosActivityOperationComponent } from './TezosActivityOperation';
 
 interface TezosActivityComponentProps {
-  activity: LegacyActivity;
+  activity: TezosPreActivity;
   chain: TezosChain;
   accountAddress: string;
 }

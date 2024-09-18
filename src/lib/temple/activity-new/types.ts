@@ -5,94 +5,42 @@ export interface OperationsGroup {
   operations: TzktOperation[];
 }
 
-export type ActivityStatus = TzktOperation['status'] | 'pending';
+export type TezosPreActivityStatus = TzktOperation['status'] | 'pending';
 
-export type ActivityMember = TzktAlias;
+export type OperationMember = TzktAlias;
 
-export interface Activity {
+export interface TezosPreActivity {
   hash: string;
   /** ISO string */
   addedAt: string;
-  status: ActivityStatus;
+  status: TezosPreActivityStatus;
   oldestTzktOperation: TzktOperation;
   /** Sorted new-to-old */
-  operations: ActivityOperation[];
+  operations: TezosPreActivityOperation[];
 }
 
 type PickedPropsFromTzktOperation = Pick<TzktOperation, 'id' | 'level'>;
 
-export interface ActivityOperationBase extends PickedPropsFromTzktOperation {
+export interface TezosPreActivityOperationBase extends PickedPropsFromTzktOperation {
   contractAddress?: string;
-  status: ActivityStatus;
+  status: TezosPreActivityStatus;
   amountSigned: string;
   addedAt: string;
 }
 
-export interface ActivityTransactionOperation extends ActivityOperationBase {
+export interface TezosPreActivityTransactionOperation extends TezosPreActivityOperationBase {
   type: 'transaction';
-  from: ActivityMember;
-  to?: ActivityMember;
-  destination: ActivityMember;
+  from: OperationMember;
+  to?: OperationMember;
+  destination: OperationMember;
   entrypoint?: string;
   tokenId?: string;
 }
 
-export interface ActivityOtherOperation extends ActivityOperationBase {
+export interface TezosPreActivityOtherOperation extends TezosPreActivityOperationBase {
   type: Exclude<TzktOperationType, 'transaction'>;
-  source: ActivityMember;
-  destination?: ActivityMember;
+  source: OperationMember;
+  destination?: OperationMember;
 }
 
-export type ActivityOperation = ActivityTransactionOperation | ActivityOtherOperation;
-
-export enum OperStackItemTypeEnum {
-  TransferTo,
-  TransferFrom,
-  Delegation,
-  Interaction,
-  Origination,
-  Other
-}
-
-export type OperStackItemInterface =
-  | TransferFromItem
-  | TransferToItem
-  | DelegationItem
-  | InteractionItem
-  | OriginationItem
-  | OtherItem;
-
-interface OperStackItemBase {
-  type: OperStackItemTypeEnum;
-}
-
-interface TransferFromItem extends OperStackItemBase {
-  type: OperStackItemTypeEnum.TransferFrom;
-  from: string;
-}
-
-interface TransferToItem extends OperStackItemBase {
-  type: OperStackItemTypeEnum.TransferTo;
-  to: string;
-}
-
-interface DelegationItem extends OperStackItemBase {
-  type: OperStackItemTypeEnum.Delegation;
-  to: string;
-}
-
-interface InteractionItem extends OperStackItemBase {
-  type: OperStackItemTypeEnum.Interaction;
-  with: string;
-  entrypoint?: string;
-}
-
-interface OriginationItem extends OperStackItemBase {
-  type: OperStackItemTypeEnum.Origination;
-  contract?: string;
-}
-
-interface OtherItem extends OperStackItemBase {
-  type: OperStackItemTypeEnum.Other;
-  name: TzktOperationType;
-}
+export type TezosPreActivityOperation = TezosPreActivityTransactionOperation | TezosPreActivityOtherOperation;

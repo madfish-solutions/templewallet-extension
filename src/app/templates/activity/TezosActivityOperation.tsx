@@ -1,17 +1,17 @@
 import React, { memo, useMemo } from 'react';
 
-import { ActivityKindEnum, TezosActivityAsset, TezosOperation, formatLegacyTezosOperation } from 'lib/activity';
+import { TezosOperation, parseTezosPreActivityOperation } from 'lib/activity';
 import { TEZ_TOKEN_SLUG } from 'lib/assets';
 import { toTezosAssetSlug } from 'lib/assets/utils';
-import { getAssetSymbol, isTezosCollectibleMetadata, useTezosAssetMetadata } from 'lib/metadata';
-import { ActivityOperation as LegacyActivityOperation } from 'lib/temple/activity-new/types';
+import { useTezosAssetMetadata } from 'lib/metadata';
+import { TezosPreActivityOperation } from 'lib/temple/activity-new/types';
 import { TezosChain } from 'temple/front';
 
 import { ActivityOperationBaseComponent } from './ActivityOperationBase';
 
 interface Props {
   hash: string;
-  operation: LegacyActivityOperation;
+  operation: TezosPreActivityOperation;
   chain: TezosChain;
   networkName: string;
   blockExplorerUrl: string | nullish;
@@ -27,27 +27,10 @@ export const TezosActivityOperationComponent = memo<Props>(
 
     const assetMetadata = useTezosAssetMetadata(assetSlug, chain.chainId);
 
-    const operation = useMemo<TezosOperation>(() => {
-      const operation = formatLegacyTezosOperation(legacyOperation, accountAddress);
-
-      if (!assetMetadata) return operation;
-
-      if (operation.kind === ActivityKindEnum.send || operation.kind === ActivityKindEnum.receive) {
-        const asset: TezosActivityAsset = {
-          contract: legacyOperation.contractAddress ?? TEZ_TOKEN_SLUG,
-          // @ts-expect-error
-          tokenId: legacyOperation.tokenId,
-          amount: legacyOperation.amountSigned,
-          decimals: assetMetadata.decimals,
-          nft: isTezosCollectibleMetadata(assetMetadata),
-          symbol: getAssetSymbol(assetMetadata, true)
-        };
-
-        operation.asset = asset;
-      }
-
-      return operation;
-    }, [assetMetadata, legacyOperation, accountAddress]);
+    const operation = useMemo<TezosOperation>(
+      () => parseTezosPreActivityOperation(legacyOperation, accountAddress, assetMetadata),
+      [assetMetadata, legacyOperation, accountAddress]
+    );
 
     return (
       <ActivityOperationBaseComponent

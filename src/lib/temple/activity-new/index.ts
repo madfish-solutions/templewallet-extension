@@ -1,3 +1,1 @@
-export type { Activity, ActivityOperation } from './types';
-
-export { buildOperStack, buildMoneyDiffs } from './helpers';
+export type { TezosPreActivity, TezosPreActivityOperation } from './types';

@@ -2,8 +2,9 @@ import { isKnownChainId } from 'lib/apis/tzkt/api';
 import { useDidMount, useDidUpdate, useSafeState, useStopper } from 'lib/ui/hooks';
 import { TezosNetworkEssentials } from 'temple/networks';
 
-import fetchActivities from './fetch';
-import type { Activity } from './types';
+import fetchTezosOperationsGroups from './fetch';
+import type { TezosPreActivity } from './types';
+import { preparseTezosOperationsGroup } from './utils';
 
 type TLoading = 'init' | 'more' | false;
 
@@ -16,12 +17,12 @@ export default function useTezosActivities(
   const { chainId, rpcBaseURL } = network;
 
   const [loading, setLoading] = useSafeState<TLoading>(isKnownChainId(chainId) && 'init');
-  const [activities, setActivities] = useSafeState<Activity[]>([]);
+  const [activities, setActivities] = useSafeState<TezosPreActivity[]>([]);
   const [reachedTheEnd, setReachedTheEnd] = useSafeState(false);
 
   const { stop: stopLoading, stopAndBuildChecker } = useStopper();
 
-  async function loadActivities(pseudoLimit: number, activities: Activity[], shouldStop: () => boolean) {
+  async function loadActivities(pseudoLimit: number, activities: TezosPreActivity[], shouldStop: () => boolean) {
     if (!isKnownChainId(chainId)) {
       setLoading(false);
       setReachedTheEnd(true);
@@ -31,9 +32,19 @@ export default function useTezosActivities(
     setLoading(activities.length ? 'more' : 'init');
     const lastActivity = activities[activities.length - 1];
 
-    let newActivities: Activity[];
+    let newActivities: TezosPreActivity[];
     try {
-      newActivities = await fetchActivities(chainId, rpcBaseURL, accountAddress, assetSlug, pseudoLimit, lastActivity);
+      const groups = await fetchTezosOperationsGroups(
+        chainId,
+        rpcBaseURL,
+        accountAddress,
+        assetSlug,
+        pseudoLimit,
+        lastActivity
+      );
+
+      newActivities = groups.map(group => preparseTezosOperationsGroup(group, accountAddress));
+
       if (shouldStop()) return;
     } catch (error) {
       if (shouldStop()) return;

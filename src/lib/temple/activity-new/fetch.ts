@@ -5,24 +5,26 @@ import { detectTokenStandard } from 'lib/assets/standards';
 import { filterUnique } from 'lib/utils';
 import { getReadOnlyTezos } from 'temple/tezos';
 
-import type { Activity, OperationsGroup } from './types';
-import { operationsGroupToActivity } from './utils';
+import type { OperationsGroup } from './types';
 
 const LIQUIDITY_BAKING_DEX_ADDRESS = 'KT1TxqZ8QtKvLu3V3JH7Gx58n7Co8pgtpQU5';
 
-export default async function fetchActivities(
+export interface TezosActivityOlderThan {
+  hash: string;
+  oldestTzktOperation: TzktOperation;
+}
+
+export default async function fetchTezosOperationsGroups(
   chainId: TzktApiChainId,
   rpcUrl: string,
   accountAddress: string,
   assetSlug: string | undefined,
   pseudoLimit: number,
-  olderThan?: Activity
-): Promise<Activity[]> {
+  olderThan?: TezosActivityOlderThan
+) {
   const operations = await fetchOperations(chainId, rpcUrl, accountAddress, assetSlug, pseudoLimit, olderThan);
 
-  const groups = await fetchOperGroupsForOperations(chainId, operations, olderThan);
-
-  return groups.map(group => operationsGroupToActivity(group, accountAddress));
+  return await fetchOperGroupsForOperations(chainId, operations, olderThan);
 }
 
 /**
@@ -37,7 +39,7 @@ async function fetchOperations(
   accAddress: string,
   assetSlug: string | undefined,
   pseudoLimit: number,
-  olderThan?: Activity
+  olderThan?: TezosActivityOlderThan
 ): Promise<TzktOperation[]> {
   if (assetSlug) {
     const [contractAddress, tokenId] = (assetSlug ?? '').split('_');
@@ -65,7 +67,7 @@ const fetchOperations_TEZ = (
   chainId: TzktApiChainId,
   accountAddress: string,
   pseudoLimit: number,
-  olderThan?: Activity
+  olderThan?: TezosActivityOlderThan
 ) =>
   TZKT.fetchGetOperationsTransactions(chainId, {
     'anyof.sender.target.initiator': accountAddress,
@@ -79,7 +81,7 @@ const fetchOperations_Contract = (
   chainId: TzktApiChainId,
   accountAddress: string,
   pseudoLimit: number,
-  olderThan?: Activity
+  olderThan?: TezosActivityOlderThan
 ) =>
   TZKT.fetchGetAccountOperations(chainId, accountAddress, {
     type: 'transaction',
@@ -95,7 +97,7 @@ const fetchOperations_Token_Fa_1_2 = (
   accountAddress: string,
   contractAddress: string,
   pseudoLimit: number,
-  olderThan?: Activity
+  olderThan?: TezosActivityOlderThan
 ) =>
   TZKT.fetchGetOperationsTransactions(chainId, {
     limit: pseudoLimit,
@@ -112,7 +114,7 @@ const fetchOperations_Token_Fa_2 = (
   contractAddress: string,
   tokenId = '0',
   pseudoLimit: number,
-  olderThan?: Activity
+  olderThan?: TezosActivityOlderThan
 ) =>
   TZKT.fetchGetOperationsTransactions(chainId, {
     limit: pseudoLimit,
@@ -130,7 +132,7 @@ async function fetchOperations_Any(
   chainId: TzktApiChainId,
   accountAddress: string,
   pseudoLimit: number,
-  olderThan?: Activity
+  olderThan?: TezosActivityOlderThan
 ) {
   const limit = pseudoLimit;
 
@@ -169,7 +171,7 @@ function fetchIncomingOperTransactions_Fa_1_2(
   chainId: TzktApiChainId,
   accountAddress: string,
   endLimitation: { limit: number } | { newerThen: string },
-  olderThan?: Activity
+  olderThan?: TezosActivityOlderThan
 ) {
   const bottomParams = 'limit' in endLimitation ? endLimitation : { 'timestamp.ge': endLimitation.newerThen };
 
@@ -189,7 +191,7 @@ function fetchIncomingOperTransactions_Fa_2(
   chainId: TzktApiChainId,
   accountAddress: string,
   endLimitation: { limit: number } | { newerThen: string },
-  olderThan?: Activity
+  olderThan?: TezosActivityOlderThan
 ) {
   const bottomParams = 'limit' in endLimitation ? endLimitation : { 'timestamp.ge': endLimitation.newerThen };
 
@@ -213,7 +215,7 @@ function fetchIncomingOperTransactions_Fa_2(
 async function fetchOperGroupsForOperations(
   chainId: TzktApiChainId,
   operations: TzktOperation[],
-  olderThan?: Activity
+  olderThan?: TezosActivityOlderThan
 ) {
   const uniqueHashes = filterUnique(operations.map(d => d.hash));
 
@@ -237,4 +239,6 @@ async function fetchOperGroupsForOperations(
  * > `{"code":400,"errors":{"lastId":"The value '331626822238208' is not valid."}}`
  * > when it's not true!
  */
-const buildOlderThanParam = (olderThan?: Activity) => ({ 'timestamp.lt': olderThan?.oldestTzktOperation?.timestamp });
+const buildOlderThanParam = (olderThan?: TezosActivityOlderThan) => ({
+  'timestamp.lt': olderThan?.oldestTzktOperation?.timestamp
+});
