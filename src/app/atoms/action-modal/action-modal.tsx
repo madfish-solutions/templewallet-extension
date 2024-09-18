@@ -31,7 +31,7 @@ export const ActionModal = memo<ActionModalProps>(({ onClose, children, hasClose
           'top-9 bottom-8 min-h-80 rounded-md',
           actionModalStyles.fullPageOverlay,
           LAYOUT_CONTAINER_CLASSNAME
-        ],
+        ]
       )}
       onRequestClose={onClose}
     >
