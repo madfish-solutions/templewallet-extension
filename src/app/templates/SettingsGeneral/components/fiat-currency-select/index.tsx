@@ -55,7 +55,7 @@ export const FiatCurrencySelect = memo(() => {
   return (
     <SelectWithModal
       className="mb-2"
-      title={<T id="fiatCurrency" />}
+      title={t('fiatCurrency')}
       options={options}
       value={value}
       searchKeys={searchKeys}

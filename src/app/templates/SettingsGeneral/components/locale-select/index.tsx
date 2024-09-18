@@ -1,7 +1,7 @@
 import React, { memo, useCallback, useMemo } from 'react';
 
 import { AnalyticsEventCategory, AnalyticsEventEnum, useAnalytics } from 'lib/analytics';
-import { T, getCurrentLocale, t, updateLocale } from 'lib/i18n';
+import { getCurrentLocale, t, updateLocale } from 'lib/i18n';
 
 import { SettingsGeneralSelectors } from '../../selectors';
 import { CellPartProps, SelectWithModal } from '../select-with-modal';
@@ -41,7 +41,7 @@ export const LocaleSelect = memo(() => {
 
   return (
     <SelectWithModal
-      title={<T id="language" />}
+      title={t('language')}
       options={options}
       value={value}
       searchKeys={searchKeys}

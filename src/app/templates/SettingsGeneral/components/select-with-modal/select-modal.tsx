@@ -6,13 +6,13 @@ import { EmptyState } from 'app/atoms/EmptyState';
 import { PageModal } from 'app/atoms/PageModal';
 import { ScrollView } from 'app/atoms/PageModal/scroll-view';
 import { SearchBarField } from 'app/templates/SearchField';
-import { t } from 'lib/i18n';
 import { searchAndFilterItems } from 'lib/utils/search-items';
 
 import { SelectModalOption, SelectModalOptionProps } from './select-modal-option';
 
 export interface SelectModalProps<T, P extends null | SyncFn<T, any>>
   extends Pick<SelectModalOptionProps<T>, 'CellIcon' | 'CellName' | 'onSelect'> {
+  title: string;
   opened: boolean;
   options: T[];
   value: T;
@@ -25,6 +25,7 @@ export interface SelectModalProps<T, P extends null | SyncFn<T, any>>
 }
 
 export const SelectModal = <T, P extends null | SyncFn<T, any>>({
+  title,
   opened,
   options,
   value,
@@ -47,7 +48,7 @@ export const SelectModal = <T, P extends null | SyncFn<T, any>>({
   );
 
   return (
-    <PageModal title={t('language')} opened={opened} onRequestClose={onRequestClose}>
+    <PageModal title={title} opened={opened} onRequestClose={onRequestClose}>
       <div className={clsx('p-4', !topEdgeIsVisible && 'shadow-bottom border-b-0.5 border-lines overflow-y-visible')}>
         <SearchBarField containerClassName="!mr-0" value={searchValue} onValueChange={setSearchValue} />
       </div>

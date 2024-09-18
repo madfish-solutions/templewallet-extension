@@ -1359,7 +1359,7 @@
     }
   },
   "popupSettings": {
-    "message": "Pop-up mode"
+    "message": "Pop-up Mode"
   },
   "popupSettingsDescription": {
     "message": "Here you can configure the pop-up which appears on plugin's icon click in extensions panel."

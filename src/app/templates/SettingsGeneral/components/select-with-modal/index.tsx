@@ -1,4 +1,4 @@
-import React, { ReactNode, useCallback } from 'react';
+import React, { useCallback } from 'react';
 
 import { Button, IconBase } from 'app/atoms';
 import { SettingsCell } from 'app/atoms/SettingsCell';
@@ -14,7 +14,6 @@ const NullComponent = () => null;
 interface SelectWithModalProps<T, P extends null | ((item: T) => any)>
   extends Omit<SelectModalProps<T, P>, 'opened' | 'onRequestClose' | 'CellIcon'> {
   CellIcon?: SelectModalProps<T, P>['CellIcon'];
-  title: ReactNode;
   testID: string;
   className?: string;
 }
@@ -59,6 +58,7 @@ export const SelectWithModal = <T, P extends null | ((item: T) => any)>({
 
       <SelectModal<T, P>
         {...restProps}
+        title={title}
         opened={selectModalOpened}
         value={value}
         CellIcon={CellIcon}
