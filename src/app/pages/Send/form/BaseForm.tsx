@@ -1,6 +1,5 @@
 import React, { FC, FocusEventHandler, useCallback, useMemo, useRef, useState } from 'react';
 
-import { ChainIds } from '@taquito/taquito';
 import BigNumber from 'bignumber.js';
 import { Controller, SubmitHandler, Validate, UseFormReturn } from 'react-hook-form-v7';
 import { useDebounce } from 'use-debounce';
@@ -14,7 +13,7 @@ import { StyledButton } from 'app/atoms/StyledButton';
 import { SelectAccountModal } from 'app/pages/Send/modals/SelectAccount';
 import { useFiatCurrency } from 'lib/fiat-currency';
 import { t, T } from 'lib/i18n';
-import { useBooleanState, useSafeState } from 'lib/ui/hooks';
+import { useBooleanState } from 'lib/ui/hooks';
 import { readClipboard } from 'lib/ui/utils';
 import { ZERO } from 'lib/utils/numbers';
 import { OneOfChains } from 'temple/front';
@@ -37,6 +36,9 @@ interface Props {
   validateAmount: Validate<string, SendFormData>;
   validateRecipient: Validate<string, SendFormData>;
   onSelectAssetClick: EmptyFn;
+  shouldUseFiat: boolean;
+  canToggleFiat: boolean;
+  setShouldUseFiat: (value: boolean) => void;
   onSubmit: SubmitHandler<SendFormData>;
   maxEstimating: boolean;
   maxAmount: BigNumber;
@@ -57,6 +59,9 @@ export const BaseForm: FC<Props> = ({
   validateAmount,
   validateRecipient,
   onSelectAssetClick,
+  shouldUseFiat,
+  canToggleFiat,
+  setShouldUseFiat,
   onSubmit,
   isToFilledWithFamiliarAddress,
   evm
@@ -79,14 +84,10 @@ export const BaseForm: FC<Props> = ({
   const amountFieldRef = useRef<HTMLInputElement>(null);
   const toFieldRef = useRef<HTMLTextAreaElement>(null);
 
-  const [shouldUseFiat, setShouldUseFiat] = useSafeState(false);
-
-  const canToggleFiat = network.chainId === ChainIds.MAINNET;
-
   const [toFieldFocused, setToFieldFocused] = useState(false);
 
   const floatingAssetSymbol = useMemo(
-    () => (shouldUseFiat ? selectedFiatCurrency.name : assetSymbol.slice(0, 5)),
+    () => (shouldUseFiat ? selectedFiatCurrency.name : assetSymbol.slice(0, 6)),
     [assetSymbol, selectedFiatCurrency.name, shouldUseFiat]
   );
 
