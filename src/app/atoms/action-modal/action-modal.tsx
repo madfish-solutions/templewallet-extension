@@ -6,7 +6,11 @@ import { Button, IconBase } from 'app/atoms';
 import CustomModal from 'app/atoms/CustomModal';
 import { useAppEnv } from 'app/env';
 import { ReactComponent as CloseIcon } from 'app/icons/base/x.svg';
-import { LAYOUT_CONTAINER_CLASSNAME } from 'app/layouts/containers';
+import {
+  FULL_PAGE_LAYOUT_CONTAINER_CLASSNAME,
+  FULL_PAGE_WRAP_OVERLAY_CLASSNAME,
+  LAYOUT_CONTAINER_CLASSNAME
+} from 'app/layouts/containers';
 
 import actionModalStyles from './action-modal.module.css';
 
@@ -28,9 +32,10 @@ export const ActionModal = memo<ActionModalProps>(({ onClose, children, hasClose
       overlayClassName={clsx(
         'backdrop-blur-xs',
         fullPage && [
-          'top-9 bottom-8 min-h-80 rounded-md',
+          FULL_PAGE_WRAP_OVERLAY_CLASSNAME,
           actionModalStyles.fullPageOverlay,
-          LAYOUT_CONTAINER_CLASSNAME
+          LAYOUT_CONTAINER_CLASSNAME,
+          FULL_PAGE_LAYOUT_CONTAINER_CLASSNAME
         ]
       )}
       onRequestClose={onClose}
