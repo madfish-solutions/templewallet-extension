@@ -17,7 +17,8 @@ import {
   SCROLL_DOCUMENT,
   APP_CONTENT_PAPER_DOM_ID,
   APP_CONTENT_WRAP_DOM_ID,
-  LAYOUT_CONTAINER_CLASSNAME
+  LAYOUT_CONTAINER_CLASSNAME,
+  FULL_PAGE_WRAP_CLASSNAME
 } from '../containers';
 
 import { BackupMnemonicOverlay } from './BackupMnemonicOverlay';
@@ -71,7 +72,7 @@ const PageLayout: FC<PropsWithChildren<PageLayoutProps>> = ({
         !IS_MISES_BROWSER && <DocBg bgClassName="bg-secondary-low" />
       }
 
-      <div id={APP_CONTENT_WRAP_DOM_ID} className={clsx(fullPage && 'pt-9 pb-8')}>
+      <div id={APP_CONTENT_WRAP_DOM_ID} className={clsx(fullPage && FULL_PAGE_WRAP_CLASSNAME)}>
         <ContentPaper
           className={paperClassName}
           onBottomEdgeVisibilityChange={onBottomEdgeVisibilityChange}
