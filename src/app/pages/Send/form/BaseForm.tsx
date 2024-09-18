@@ -1,4 +1,4 @@
-import React, { FC, FocusEventHandler, useCallback, useRef, useState } from 'react';
+import React, { FC, FocusEventHandler, useCallback, useMemo, useRef, useState } from 'react';
 
 import { ChainIds } from '@taquito/taquito';
 import BigNumber from 'bignumber.js';
@@ -24,6 +24,7 @@ import { SendFormData } from './interfaces';
 import { SELECT_ACCOUNT_BUTTON_ID, SelectAccountButton } from './SelectAccountButton';
 import { SelectAssetButton } from './SelectAssetButton';
 import { SendFormSelectors } from './selectors';
+import { useAddressFieldAnalytics } from './use-address-field-analytics';
 
 interface Props {
   assetSlug: string;
@@ -71,7 +72,8 @@ export const BaseForm: FC<Props> = ({
   const [toValueDebounced] = useDebounce(toValue, 300);
   const amountValue = watch('amount');
 
-  //const { onBlur } = useAddressFieldAnalytics(network, toValue, 'RECIPIENT_NETWORK');
+  useAddressFieldAnalytics(toValue, 'RECIPIENT_NETWORK');
+
   const { selectedFiatCurrency } = useFiatCurrency();
 
   const amountFieldRef = useRef<HTMLInputElement>(null);
@@ -82,6 +84,11 @@ export const BaseForm: FC<Props> = ({
   const canToggleFiat = network.chainId === ChainIds.MAINNET;
 
   const [toFieldFocused, setToFieldFocused] = useState(false);
+
+  const floatingAssetSymbol = useMemo(
+    () => (shouldUseFiat ? selectedFiatCurrency.name : assetSymbol.slice(0, 5)),
+    [assetSymbol, selectedFiatCurrency.name, shouldUseFiat]
+  );
 
   const handleSetMaxAmount = useCallback(() => {
     if (maxAmount) setValue('amount', maxAmount.toString(), { shouldValidate: formSubmitted });
@@ -113,14 +120,11 @@ export const BaseForm: FC<Props> = ({
       .catch(console.error);
   }, [formSubmitted, setValue]);
 
-  const handleToFieldBlur = useCallback<FocusEventHandler>(
-    e => {
-      if (e.relatedTarget?.id === SELECT_ACCOUNT_BUTTON_ID) return;
+  const handleToFieldBlur = useCallback<FocusEventHandler>(e => {
+    if (e.relatedTarget?.id === SELECT_ACCOUNT_BUTTON_ID) return;
 
-      setToFieldFocused(false);
-    },
-    [setToFieldFocused]
-  );
+    setToFieldFocused(false);
+  }, []);
 
   const handleSelectRecipientButtonClick = useCallback(() => {
     setToFieldFocused(false);
@@ -197,7 +201,7 @@ export const BaseForm: FC<Props> = ({
                 value={value}
                 onFocus={handleAmountFieldFocus}
                 onChange={onChange}
-                extraFloatingInner={shouldUseFiat ? selectedFiatCurrency.name : assetSymbol}
+                extraFloatingInner={floatingAssetSymbol}
                 assetDecimals={shouldUseFiat ? 2 : assetDecimals ?? 0}
                 cleanable={Boolean(amountValue)}
                 rightSideComponent={
@@ -235,7 +239,7 @@ export const BaseForm: FC<Props> = ({
                 }
                 onClean={handleAmountClean}
                 label={t('amount')}
-                placeholder={`0.00 ${shouldUseFiat ? selectedFiatCurrency.name : assetSymbol}`}
+                placeholder={`0.00 ${floatingAssetSymbol}`}
                 errorCaption={formSubmitted ? errors.amount?.message : null}
                 containerClassName="mb-8"
                 testID={SendFormSelectors.amountInput}
