@@ -6,7 +6,8 @@ import React, {
   useCallback,
   useMemo,
   useRef,
-  useState
+  useState,
+  useLayoutEffect
 } from 'react';
 
 import clsx from 'clsx';
@@ -78,6 +79,7 @@ export interface FormFieldProps extends TestIDProperty, Omit<FormFieldAttrs, 'ty
   };
   rightSideComponent?: ReactNode;
   underneathComponent?: ReactNode;
+  extraFloatingInner?: ReactNode;
 }
 
 /**
@@ -105,6 +107,7 @@ export const FormField = forwardRef<FormFieldElement, FormFieldProps>(
       extraLeftInnerWrapper = 'default',
       extraRightInner = null,
       extraRightInnerWrapper = 'default',
+      extraFloatingInner = null,
       id,
       type,
       value,
@@ -213,6 +216,8 @@ export const FormField = forwardRef<FormFieldElement, FormFieldProps>(
         {extraSection}
 
         <div className={clsx('relative flex items-stretch', fieldWrapperBottomMargin && 'mb-1')}>
+          <ExtraFloatingInner inputValue={value} innerComponent={extraFloatingInner} />
+
           <ExtraInner
             innerComponent={extraLeftInner}
             useDefaultWrapper={extraLeftInnerWrapper === 'default'}
@@ -281,6 +286,37 @@ export const FORM_FIELD_CLASS_NAME = clsx(
   'appearance-none w-full border rounded-lg bg-input-low caret-primary focus:outline-none',
   'transition ease-in-out duration-200 text-font-regular placeholder-grey-2 hover:placeholder-grey-1'
 );
+
+interface ExtraFloatingInnerProps {
+  inputValue?: string | number | readonly string[];
+  innerComponent?: React.ReactNode;
+}
+
+const ExtraFloatingInner: React.FC<ExtraFloatingInnerProps> = ({ inputValue, innerComponent }) => {
+  const measureTextWidthRef = useRef<HTMLDivElement>(null);
+  const [textWidth, setTextWidth] = useState(0);
+
+  useLayoutEffect(() => {
+    if (measureTextWidthRef.current) {
+      const width = measureTextWidthRef.current.clientWidth;
+      setTextWidth(width);
+    }
+  }, [inputValue]);
+
+  // input padding + textWidth + gap between text and innerComponent
+  const leftIndent = 12 + textWidth + 8;
+
+  return (
+    <>
+      <div ref={measureTextWidthRef} className="fixed bottom-0 right-0 text-font-regular invisible">
+        {inputValue}
+      </div>
+      <div className="absolute text-font-regular text-grey-2" style={{ top: 13, left: leftIndent }}>
+        {inputValue ? innerComponent : null}
+      </div>
+    </>
+  );
+};
 
 interface ExtraInnerProps {
   innerComponent: React.ReactNode;

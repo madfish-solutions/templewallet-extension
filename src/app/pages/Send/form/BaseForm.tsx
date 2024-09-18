@@ -16,10 +16,9 @@ import { useFiatCurrency } from 'lib/fiat-currency';
 import { t, T } from 'lib/i18n';
 import { useBooleanState, useSafeState } from 'lib/ui/hooks';
 import { readClipboard } from 'lib/ui/utils';
+import { ZERO } from 'lib/utils/numbers';
 import { OneOfChains } from 'temple/front';
 import { TempleChainKind } from 'temple/types';
-
-import { ZERO } from '../../../../lib/utils/numbers';
 
 import { SendFormData } from './interfaces';
 import { SELECT_ACCOUNT_BUTTON_ID, SelectAccountButton } from './SelectAccountButton';
@@ -198,6 +197,7 @@ export const BaseForm: FC<Props> = ({
                 value={value}
                 onFocus={handleAmountFieldFocus}
                 onChange={onChange}
+                extraFloatingInner={shouldUseFiat ? selectedFiatCurrency.name : assetSymbol}
                 assetDecimals={shouldUseFiat ? 2 : assetDecimals ?? 0}
                 cleanable={Boolean(amountValue)}
                 rightSideComponent={
@@ -235,7 +235,7 @@ export const BaseForm: FC<Props> = ({
                 }
                 onClean={handleAmountClean}
                 label={t('amount')}
-                placeholder="0.00"
+                placeholder={`0.00 ${shouldUseFiat ? selectedFiatCurrency.name : assetSymbol}`}
                 errorCaption={formSubmitted ? errors.amount?.message : null}
                 containerClassName="mb-8"
                 testID={SendFormSelectors.amountInput}
