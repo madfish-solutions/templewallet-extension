@@ -8,7 +8,7 @@ import {
   FiatCurrencyOptionBase,
   useFiatCurrency
 } from 'lib/fiat-currency';
-import { T, t } from 'lib/i18n';
+import { t } from 'lib/i18n';
 
 import { SettingsGeneralSelectors } from '../../selectors';
 import { CellPartProps, SelectWithModal } from '../select-with-modal';
