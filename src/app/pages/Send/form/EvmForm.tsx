@@ -8,12 +8,13 @@ import { formatEther, getAddress, isAddress, parseEther } from 'viem';
 import { DeadEndBoundaryError } from 'app/ErrorBoundary';
 import { useEvmTokenMetadataSelector } from 'app/store/evm/tokens-metadata/selectors';
 import { useFormAnalytics } from 'lib/analytics';
-import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
+//import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
 import { useEvmTokenBalance } from 'lib/balances/hooks';
 import { useAssetFiatCurrencyPrice } from 'lib/fiat-currency';
 import { t, toLocalFixed } from 'lib/i18n';
 import { getAssetSymbol } from 'lib/metadata';
 import { useTypedSWR } from 'lib/swr';
+import { useSafeState } from 'lib/ui/hooks';
 import { isEvmNativeTokenSlug } from 'lib/utils/evm.utils';
 import { ZERO } from 'lib/utils/numbers';
 import { getAccountAddressForEvm } from 'temple/accounts';
@@ -25,6 +26,7 @@ import { useSettings } from 'temple/front/ready';
 
 import { BaseForm } from './BaseForm';
 import { SendFormData } from './interfaces';
+import { getMaxAmountFiat } from './utils';
 
 interface Props {
   chainId: number;
@@ -46,7 +48,9 @@ export const EvmForm: FC<Props> = ({ chainId, assetSlug, onSelectAssetClick }) =
   const formAnalytics = useFormAnalytics('SendForm');
 
   const { value: balance = ZERO } = useEvmTokenBalance(assetSlug, accountPkh, network);
-  const { value: nativeBalance = ZERO } = useEvmTokenBalance(EVM_TOKEN_SLUG, accountPkh, network);
+  //const { value: nativeBalance = ZERO } = useEvmTokenBalance(EVM_TOKEN_SLUG, accountPkh, network);
+
+  const [shouldUseFiat, setShouldUseFiat] = useSafeState(false);
 
   const storedMetadata = useEvmTokenMetadataSelector(network.chainId, assetSlug);
   const assetMetadata = isEvmNativeTokenSlug(assetSlug) ? network?.currency : storedMetadata;
@@ -56,6 +60,8 @@ export const EvmForm: FC<Props> = ({ chainId, assetSlug, onSelectAssetClick }) =
   const assetSymbol = useMemo(() => getAssetSymbol(assetMetadata), [assetMetadata]);
 
   const assetPrice = useAssetFiatCurrencyPrice(assetSlug, chainId, true);
+
+  const canToggleFiat = assetPrice.gt(ZERO);
 
   const form = useForm<SendFormData>({
     mode: 'onSubmit',
@@ -130,11 +136,7 @@ export const EvmForm: FC<Props> = ({ chainId, assetSlug, onSelectAssetClick }) =
     }
   }, [accountPkh, assetSlug, network.rpcBaseURL, toResolved]);
 
-  const {
-    data: estimatedMaxFee,
-    error: estimatedMaxFeeError,
-    isValidating: estimatingMaxFee
-  } = useTypedSWR(
+  const { data: estimatedMaxFee, isValidating: estimatingMaxFee } = useTypedSWR(
     () => (toFilled ? ['max-transaction-fee', chainId, assetSlug, accountPkh, toResolved] : null),
     estimateMaxFee,
     {
@@ -145,16 +147,16 @@ export const EvmForm: FC<Props> = ({ chainId, assetSlug, onSelectAssetClick }) =
   );
 
   const maxAmount = useMemo(() => {
-    let value = balance;
-
-    if (isEvmNativeTokenSlug(assetSlug)) {
-      value = value.minus(new BigNumber(estimatedMaxFee ? formatEther(estimatedMaxFee) : 0));
+    if (!estimatedMaxFee) {
+      return shouldUseFiat ? getMaxAmountFiat(assetPrice.toNumber(), balance) : balance;
     }
 
-    if (value.lt(0)) return ZERO;
+    const maxAmountAsset = isEvmNativeTokenSlug(assetSlug)
+      ? balance.minus(new BigNumber(estimatedMaxFee ? formatEther(estimatedMaxFee) : 0))
+      : balance;
 
-    return value;
-  }, [assetSlug, balance, estimatedMaxFee]);
+    return shouldUseFiat ? getMaxAmountFiat(assetPrice.toNumber(), maxAmountAsset) : maxAmountAsset;
+  }, [estimatedMaxFee, assetSlug, balance, shouldUseFiat, assetPrice]);
 
   const validateAmount = useCallback(
     (amount: string) => {
@@ -207,6 +209,9 @@ export const EvmForm: FC<Props> = ({ chainId, assetSlug, onSelectAssetClick }) =
       maxAmount={maxAmount}
       maxEstimating={estimatingMaxFee}
       assetDecimals={assetDecimals}
+      canToggleFiat={canToggleFiat}
+      shouldUseFiat={shouldUseFiat}
+      setShouldUseFiat={setShouldUseFiat}
       validateAmount={validateAmount}
       validateRecipient={validateRecipient}
       onSelectAssetClick={onSelectAssetClick}
