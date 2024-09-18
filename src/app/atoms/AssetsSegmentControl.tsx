@@ -1,6 +1,6 @@
-import React, { createContext, memo, RefObject, useContext } from 'react';
+import React, { createContext, memo, RefObject, useCallback, useContext, useRef } from 'react';
 
-import { SimpleSegmentControl } from './SimpleSegmentControl';
+import SegmentedControl from './SegmentedControl';
 
 interface AssetsSegmentControlProps {
   tabSlug: string | null;
@@ -19,15 +19,33 @@ export const AssetsSegmentControl = memo<AssetsSegmentControlProps>(
   ({ tabSlug, onTokensTabClick, onCollectiblesTabClick, className }) => {
     const ref = useAssetsSegmentControlRef();
 
+    const setActiveSegment = useCallback(
+      (val: string) => {
+        if (val === 'tokens') onTokensTabClick();
+        else onCollectiblesTabClick();
+      },
+      [onTokensTabClick, onCollectiblesTabClick]
+    );
+
     return (
-      <SimpleSegmentControl
-        ref={ref}
-        firstTitle="Tokens"
-        secondTitle="Collectibles"
-        activeSecond={tabSlug === 'collectibles'}
+      <SegmentedControl
+        name="assets-segment-control"
+        setActiveSegment={setActiveSegment}
+        controlRef={ref}
         className={className}
-        onFirstClick={onTokensTabClick}
-        onSecondClick={onCollectiblesTabClick}
+        defaultIndex={!tabSlug || tabSlug === 'tokens' ? 0 : 1}
+        segments={[
+          {
+            label: 'Tokens',
+            value: 'tokens',
+            ref: useRef<HTMLDivElement>(null)
+          },
+          {
+            label: 'Collectibles',
+            value: 'collectibles',
+            ref: useRef<HTMLDivElement>(null)
+          }
+        ]}
       />
     );
   }

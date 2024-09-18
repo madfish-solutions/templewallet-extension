@@ -3,7 +3,7 @@ import React, { FC, useCallback, useMemo } from 'react';
 import BigNumber from 'bignumber.js';
 import { isString } from 'lodash';
 import { useForm } from 'react-hook-form-v7';
-import { formatEther, getAddress, isAddress, parseEther } from 'viem';
+import { formatEther, isAddress, parseEther } from 'viem';
 
 import { DeadEndBoundaryError } from 'app/ErrorBoundary';
 import { useEvmTokenMetadataSelector } from 'app/store/evm/tokens-metadata/selectors';
@@ -25,16 +25,17 @@ import { useEvmAddressByDomainName } from 'temple/front/evm/ens';
 import { useSettings } from 'temple/front/ready';
 
 import { BaseForm } from './BaseForm';
-import { SendFormData } from './interfaces';
+import { ConfirmData, SendFormData } from './interfaces';
 import { getMaxAmountFiat } from './utils';
 
 interface Props {
   chainId: number;
   assetSlug: string;
   onSelectAssetClick: EmptyFn;
+  onConfirm: (data: ConfirmData) => void;
 }
 
-export const EvmForm: FC<Props> = ({ chainId, assetSlug, onSelectAssetClick }) => {
+export const EvmForm: FC<Props> = ({ chainId, assetSlug, onSelectAssetClick, onConfirm }) => {
   const account = useAccountForEvm();
   const network = useEvmChainByChainId(chainId);
 
@@ -82,11 +83,7 @@ export const EvmForm: FC<Props> = ({ chainId, assetSlug, onSelectAssetClick }) =
   const toResolved = useMemo(() => {
     if (resolvedAddress) return resolvedAddress;
 
-    try {
-      return getAddress(toValue);
-    } catch {
-      return undefined;
-    }
+    return toValue;
   }, [resolvedAddress, toValue]);
 
   const isToFilledWithFamiliarAddress = useMemo(() => {
@@ -117,7 +114,7 @@ export const EvmForm: FC<Props> = ({ chainId, assetSlug, onSelectAssetClick }) =
       if (isEvmNativeTokenSlug(assetSlug)) {
         gasLimit = await publicClient.estimateGas({
           account: accountPkh,
-          to: toResolved,
+          to: toResolved as HexString,
           value: parseEther('1')
         });
       } else {
@@ -177,25 +174,42 @@ export const EvmForm: FC<Props> = ({ chainId, assetSlug, onSelectAssetClick }) =
     [resolvedAddress]
   );
 
-  const onSubmit = useCallback(async () => {
-    if (formState.isSubmitting) return;
+  const toAssetAmount = useCallback(
+    (fiatAmount: BigNumber.Value) =>
+      new BigNumber(fiatAmount)
+        .dividedBy(assetPrice ?? 1)
+        .toFormat(assetMetadata?.decimals ?? 0, BigNumber.ROUND_FLOOR, {
+          decimalSeparator: '.'
+        }),
+    [assetPrice, assetMetadata?.decimals]
+  );
 
-    formAnalytics.trackSubmit();
+  const onSubmit = useCallback(
+    async ({ amount }: SendFormData) => {
+      if (formState.isSubmitting) return;
 
-    try {
-      reset({ to: '' });
+      formAnalytics.trackSubmit();
 
-      formAnalytics.trackSubmitSuccess();
-    } catch (err: any) {
-      console.error(err);
+      try {
+        const actualAmount = shouldUseFiat ? toAssetAmount(amount) : amount;
 
-      formAnalytics.trackSubmitFail();
+        onConfirm({ amount: actualAmount, to: toResolved });
 
-      if (err?.message === 'Declined') {
-        return;
+        reset({ to: '' });
+
+        formAnalytics.trackSubmitSuccess();
+      } catch (err: any) {
+        console.error(err);
+
+        formAnalytics.trackSubmitFail();
+
+        if (err?.message === 'Declined') {
+          return;
+        }
       }
-    }
-  }, [formAnalytics, formState.isSubmitting, reset]);
+    },
+    [formAnalytics, formState.isSubmitting, reset]
+  );
 
   return (
     <BaseForm

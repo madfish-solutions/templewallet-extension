@@ -12,7 +12,9 @@ import { useAccountAddressForEvm } from 'temple/front';
 import { TempleChainKind } from 'temple/types';
 
 import { Form } from './form';
+import { ConfirmData } from './form/interfaces';
 import { SpinnerSection } from './form/SpinnerSection';
+import { ConfirmSendModal } from './modals/ConfirmSend';
 import { SelectAssetModal } from './modals/SelectAsset';
 
 interface Props {
@@ -46,6 +48,9 @@ const Send = memo<Props>(({ chainKind, chainId, assetSlug }) => {
   });
 
   const [selectAssetModalOpened, setSelectAssetModalOpen, setSelectAssetModalClosed] = useBooleanState(false);
+  const [confirmSendModalOpened, setConfirmSendModalOpen, setConfirmSendModalClosed] = useBooleanState(false);
+
+  const [confirmData, setConfirmData] = useState<ConfirmData>();
 
   const handleAssetSelect = useCallback(
     (slug: string) => {
@@ -55,6 +60,11 @@ const Send = memo<Props>(({ chainKind, chainId, assetSlug }) => {
     [setSelectAssetModalClosed]
   );
 
+  const handleConfirm = useCallback((data: ConfirmData) => {
+    setConfirmData(data);
+    setConfirmSendModalOpen();
+  }, []);
+
   return (
     <PageLayout
       pageTitle={<PageTitle title={t('send')} />}
@@ -62,7 +72,11 @@ const Send = memo<Props>(({ chainKind, chainId, assetSlug }) => {
       contentClassName="bg-background overflow-hidden"
     >
       <Suspense fallback={<SpinnerSection />}>
-        <Form selectedChainAssetSlug={selectedChainAssetSlug} onSelectAssetClick={setSelectAssetModalOpen} />
+        <Form
+          selectedChainAssetSlug={selectedChainAssetSlug}
+          onConfirm={handleConfirm}
+          onSelectAssetClick={setSelectAssetModalOpen}
+        />
       </Suspense>
 
       <SelectAssetModal
@@ -70,6 +84,7 @@ const Send = memo<Props>(({ chainKind, chainId, assetSlug }) => {
         opened={selectAssetModalOpened}
         onRequestClose={setSelectAssetModalClosed}
       />
+      <ConfirmSendModal opened={true} onRequestClose={setConfirmSendModalClosed} />
     </PageLayout>
   );
 });

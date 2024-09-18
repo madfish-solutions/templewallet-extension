@@ -15,11 +15,9 @@ import { useAssetFiatCurrencyPrice } from 'lib/fiat-currency';
 import { TEZOS_BLOCK_DURATION } from 'lib/fixed-times';
 import { toLocalFixed, t } from 'lib/i18n';
 import { useTezosAssetMetadata, getAssetSymbol } from 'lib/metadata';
-import { transferImplicit, transferToContract } from 'lib/michelson';
 import { useTypedSWR } from 'lib/swr';
-import { loadContract } from 'lib/temple/contract';
 import { validateRecipient as validateAddress } from 'lib/temple/front';
-import { mutezToTz, tzToMutez } from 'lib/temple/helpers';
+import { mutezToTz } from 'lib/temple/helpers';
 import { isValidTezosAddress, isTezosContractAddress, tezosManagerKeyHasManager } from 'lib/tezos';
 import { useSafeState } from 'lib/ui/hooks';
 import { ZERO } from 'lib/utils/numbers';
@@ -34,7 +32,7 @@ import {
 } from 'temple/front/tezos';
 
 import { BaseForm } from './BaseForm';
-import { SendFormData } from './interfaces';
+import { ConfirmData, SendFormData } from './interfaces';
 import { estimateTezosMaxFee, getBaseFeeError, getFeeError, getMaxAmountFiat, getTezosMaxAmountToken } from './utils';
 
 const PENNY = 0.000001;
@@ -44,9 +42,10 @@ interface Props {
   chainId: string;
   assetSlug: string;
   onSelectAssetClick: EmptyFn;
+  onConfirm: (data: ConfirmData) => void;
 }
 
-export const TezosForm: FC<Props> = ({ chainId, assetSlug, onSelectAssetClick }) => {
+export const TezosForm: FC<Props> = ({ chainId, assetSlug, onSelectAssetClick, onConfirm }) => {
   const account = useAccountForTezos();
   const network = useTezosChainByChainId(chainId);
 
@@ -246,26 +245,29 @@ export const TezosForm: FC<Props> = ({ chainId, assetSlug, onSelectAssetClick })
       try {
         if (!assetMetadata) throw new Error('Metadata not found');
 
-        if (isTezosContractAddress(accountPkh)) {
-          const michelsonLambda = isTezosContractAddress(toResolved) ? transferToContract : transferImplicit;
+        const actualAmount = shouldUseFiat ? toAssetAmount(amount) : amount;
 
-          const contract = await loadContract(tezos, accountPkh);
-          await contract.methodsObject.do(michelsonLambda(toResolved, tzToMutez(amount))).send({ amount: 0 });
-        } else {
-          const actualAmount = shouldUseFiat ? toAssetAmount(amount) : amount;
-          const transferParams = await toTransferParams(
-            tezos,
-            assetSlug,
-            assetMetadata,
-            accountPkh,
-            toResolved,
-            actualAmount
-          );
-          await tezos.estimate.transfer(transferParams);
-          //const fee = estmtn.suggestedFeeMutez;
-          // open confirmation modal
-          //await tezos.wallet.transfer({ ...transferParams, fee }).send();
-        }
+        onConfirm({ amount: actualAmount, to: toResolved });
+
+        // if (isTezosContractAddress(accountPkh)) {
+        //   const michelsonLambda = isTezosContractAddress(toResolved) ? transferToContract : transferImplicit;
+        //
+        //   const contract = await loadContract(tezos, accountPkh);
+        //   await contract.methodsObject.do(michelsonLambda(toResolved, tzToMutez(amount))).send({ amount: 0 });
+        // } else {
+        //   const actualAmount = shouldUseFiat ? toAssetAmount(amount) : amount;
+        //   const transferParams = await toTransferParams(
+        //     tezos,
+        //     assetSlug,
+        //     assetMetadata,
+        //     accountPkh,
+        //     toResolved,
+        //     actualAmount
+        //   );
+        //   const estmtn = await tezos.estimate.transfer(transferParams);
+        //   const fee = estmtn.suggestedFeeMutez;
+        //   await tezos.wallet.transfer({ ...transferParams, fee }).send();
+        // }
 
         reset({ amount: '', to: '' });
 
