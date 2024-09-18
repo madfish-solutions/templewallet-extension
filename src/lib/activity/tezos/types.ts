@@ -1,13 +1,13 @@
-import { TzktOperation, TzktAlias, TzktOperationType } from 'lib/apis/tzkt';
+import type { TzktOperation, TzktOperationType } from 'lib/apis/tzkt';
 
-export interface OperationsGroup {
+import type { OperationMember } from '../types';
+
+export interface TempleTzktOperationsGroup {
   hash: string;
   operations: TzktOperation[];
 }
 
 export type TezosPreActivityStatus = TzktOperation['status'] | 'pending';
-
-export type OperationMember = TzktAlias;
 
 export interface TezosPreActivity {
   hash: string;

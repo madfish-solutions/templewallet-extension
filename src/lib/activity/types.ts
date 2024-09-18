@@ -56,4 +56,9 @@ export interface EvmActivityAsset {
   iconURL?: string;
 }
 
+export interface OperationMember {
+  address: string;
+  alias?: string;
+}
+
 export const InfinitySymbol = Symbol('Infinity');

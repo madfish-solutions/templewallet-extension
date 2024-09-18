@@ -1,10 +1,10 @@
 import React, { memo, useMemo } from 'react';
 
 import { TezosOperation, parseTezosPreActivityOperation } from 'lib/activity';
+import { TezosPreActivityOperation } from 'lib/activity/tezos/types';
 import { TEZ_TOKEN_SLUG } from 'lib/assets';
 import { toTezosAssetSlug } from 'lib/assets/utils';
 import { useTezosAssetMetadata } from 'lib/metadata';
-import { TezosPreActivityOperation } from 'lib/temple/activity-new/types';
 import { TezosChain } from 'temple/front';
 
 import { ActivityOperationBaseComponent } from './ActivityOperationBase';

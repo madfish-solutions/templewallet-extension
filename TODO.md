@@ -1,3 +1,5 @@
+- Remove `lib/temple/activity`
+
 - Prepare activities from TZKT in one parse
 - Approve amount
 - NFTs

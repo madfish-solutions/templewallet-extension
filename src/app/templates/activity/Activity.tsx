@@ -5,8 +5,8 @@ import clsx from 'clsx';
 import { IconBase } from 'app/atoms';
 import { ReactComponent as CompactDownIcon } from 'app/icons/base/compact_down.svg';
 import { Activity } from 'lib/activity';
+import { TezosPreActivity } from 'lib/activity/tezos/types';
 import { t } from 'lib/i18n';
-import { TezosPreActivity } from 'lib/temple/activity-new';
 import { useBooleanState } from 'lib/ui/hooks';
 import { useExplorerHref } from 'temple/front/block-explorers';
 import { EvmChain, TezosChain } from 'temple/front/chains';
@@ -31,8 +31,6 @@ export const TezosActivityComponent = memo<TezosActivityComponentProps>(({ activ
   const blockExplorerUrl = useExplorerHref(chain.chainId, hash);
 
   const operations = activity.operations;
-
-  if (hash === 'oorAovoprUsZqr1HHYZ3RuLDitR8PqzM2t8GEzGmCGboKSFDMNX') console.log('O:', operations);
 
   return (
     <div className="flex flex-col">

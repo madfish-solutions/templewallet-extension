@@ -1,9 +1,11 @@
+import { TezosPreActivity, TezosPreActivityOperation } from 'lib/activity/tezos/types';
 import { TEZ_TOKEN_SLUG } from 'lib/assets';
 import { AssetMetadataBase, getAssetSymbol, isTezosCollectibleMetadata } from 'lib/metadata';
-import { TezosPreActivity, TezosPreActivityOperation } from 'lib/temple/activity-new';
 import { TempleChainKind } from 'temple/types';
 
-import { TezosActivity, ActivityKindEnum, TezosOperation, TezosActivityAsset } from './types';
+import { TezosActivity, ActivityKindEnum, TezosOperation, TezosActivityAsset } from '../types';
+
+export { preparseTezosOperationsGroup } from './pre-parse';
 
 export function formatLegacyTezosActivity(
   _activity: TezosPreActivity,

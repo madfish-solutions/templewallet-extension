@@ -9,18 +9,22 @@ import {
 import { isTruthy } from 'lib/utils';
 import { ZERO } from 'lib/utils/numbers';
 
+import { OperationMember } from '../types';
+
+import { TempleTzktOperationsGroup } from './types';
 import type {
-  OperationsGroup,
   TezosPreActivityStatus,
   TezosPreActivity,
   TezosPreActivityOperationBase,
   TezosPreActivityTransactionOperation,
   TezosPreActivityOtherOperation,
-  TezosPreActivityOperation,
-  OperationMember
+  TezosPreActivityOperation
 } from './types';
 
-export function preparseTezosOperationsGroup({ hash, operations }: OperationsGroup, address: string): TezosPreActivity {
+export function preparseTezosOperationsGroup(
+  { hash, operations }: TempleTzktOperationsGroup,
+  address: string
+): TezosPreActivity {
   const firstOperation = operations[0]!;
   const oldestTzktOperation = operations[operations.length - 1]!;
   const addedAt = firstOperation.timestamp;
