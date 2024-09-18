@@ -6,8 +6,8 @@ import { EmptyState } from 'app/atoms/EmptyState';
 import { InfiniteScroll } from 'app/atoms/InfiniteScroll';
 import { DeadEndBoundaryError } from 'app/ErrorBoundary';
 import { useLoadPartnersPromo } from 'app/hooks/use-load-partners-promo';
-import { EvmActivity, parseGoldRushTransaction } from 'lib/activity';
-import { getEvmTransactions } from 'lib/apis/temple/endpoints/evm';
+import { EvmActivity, parseGoldRushTransaction, parseGoldRushERC20Transfer } from 'lib/activity';
+import { getEvmERC20Transfers, getEvmTransactions } from 'lib/apis/temple/endpoints/evm';
 import { fromAssetSlug } from 'lib/assets';
 import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
 import { EvmAssetMetadataGetter, useGetEvmAssetMetadata } from 'lib/metadata';
@@ -122,25 +122,32 @@ async function getEvmAssetTransactions(
     };
   }
 
-  const [contract, tokenId] = fromAssetSlug(assetSlug);
+  const [contract] = fromAssetSlug(assetSlug);
 
-  let nextPage: number | nullish = page;
+  // let nextPage: number | nullish = page;
 
-  while (nextPage !== null) {
-    const data = await getEvmTransactions(walletAddress, chainId, nextPage);
+  // while (nextPage !== null) {
+  //   const data = await getEvmTransactions(walletAddress, chainId, nextPage);
 
-    const activities = data.items
-      .map<EvmActivity>(item => parseGoldRushTransaction(item, chainId, walletAddress, getMetadata))
-      .filter(a =>
-        a.operations.some(
-          ({ asset }) => asset && asset.contract === contract && (asset.tokenId == null || asset.tokenId === tokenId)
-        )
-      );
+  //   const activities = data.items
+  //     .map<EvmActivity>(item => parseGoldRushTransaction(item, chainId, walletAddress, getMetadata))
+  //     .filter(a =>
+  //       a.operations.some(
+  //         ({ asset }) => asset && asset.contract === contract && (asset.tokenId == null || asset.tokenId === tokenId)
+  //       )
+  //     );
 
-    if (activities.length) return { activities, nextPage: data.nextPage };
+  //   if (activities.length) return { activities, nextPage: data.nextPage };
 
-    nextPage = data.nextPage;
-  }
+  //   nextPage = data.nextPage;
+  // }
 
-  return { nextPage: null, activities: [] };
+  // return { nextPage: null, activities: [] };
+
+  const { items, nextPage } = await getEvmERC20Transfers(walletAddress, chainId, contract, page);
+
+  return {
+    activities: items.map<EvmActivity>(item => parseGoldRushERC20Transfer(item, chainId, walletAddress, getMetadata)),
+    nextPage
+  };
 }

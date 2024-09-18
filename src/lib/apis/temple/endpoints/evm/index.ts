@@ -1,10 +1,10 @@
 import { templeWalletApi } from '../templewallet.api';
 
 import { BalancesResponse, ChainID, NftAddressBalanceNftResponse } from './api.interfaces';
-import { Erc20TransfersResponse } from './types/erc20-transfers';
+import { Erc20TransfersResponse, GoldRushERC20Transfer } from './types/erc20-transfers';
 import { GoldRushTransaction } from './types/transactions';
 
-export type { GoldRushTransaction };
+export type { GoldRushTransaction, GoldRushERC20Transfer };
 
 export const getEvmBalances = (walletAddress: string, chainId: ChainID) =>
   buildEvmRequest<BalancesResponse>('/balances', walletAddress, chainId);

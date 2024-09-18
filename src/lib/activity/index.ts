@@ -2,6 +2,6 @@ export type { Activity, TezosActivity, EvmActivity, TezosOperation, TezosActivit
 
 export { ActivityKindEnum, InfinitySymbol } from './types';
 
-export { parseGoldRushTransaction } from './evm';
+export { parseGoldRushTransaction, parseGoldRushERC20Transfer } from './evm';
 
 export { formatLegacyTezosOperation } from './tezos';

@@ -17,14 +17,15 @@ export function formatLegacyTezosActivity(_activity: LegacyActivity, chainId: st
 
 export function formatLegacyTezosOperation(oper: LegacyActivityOperation, address: string): TezosOperation {
   if (oper.type === 'transaction') {
-    if (isZero(oper.amountSigned)) {
+    if (isZero(oper.amountSigned))
       return {
         kind: ActivityKindEnum.interaction,
         subkind: OperStackItemTypeEnum.Interaction
         // with: oper.destination.address,
         // entrypoint: oper.entrypoint
       };
-    } else if (oper.source.address === address) {
+
+    if (oper.source.address === address) {
       return {
         kind: ActivityKindEnum.send,
         subkind: OperStackItemTypeEnum.TransferTo

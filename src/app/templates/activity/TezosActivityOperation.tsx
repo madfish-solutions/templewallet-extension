@@ -29,7 +29,6 @@ export const TezosActivityOperationComponent = memo<Props>(
 
     const operation = useMemo<TezosOperation>(() => {
       const operation = formatLegacyTezosOperation(legacyOperation, accountAddress);
-      // console.log(hash, operation, legacyOperation);
 
       if (!assetMetadata) return operation;
 

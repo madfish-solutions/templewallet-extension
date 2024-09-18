@@ -1,4 +1,4 @@
-import { GoldRushTransaction } from 'lib/apis/temple/endpoints/evm';
+import { GoldRushERC20Transfer, GoldRushTransaction } from 'lib/apis/temple/endpoints/evm';
 import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
 import { toEvmAssetSlug } from 'lib/assets/utils';
 import { EvmAssetMetadataGetter, getAssetSymbol } from 'lib/metadata';
@@ -118,36 +118,7 @@ export function parseGoldRushTransaction(
     return { kind: ActivityKindEnum.interaction };
   });
 
-  const gasOperation: EvmOperation | null = (() => {
-    const value: string = item.value?.toString() ?? '0';
-
-    if (value === '0') return null;
-
-    const kind = (() => {
-      if (getEvmAddressSafe(item.from_address) === accountAddress) return ActivityKindEnum.send;
-      if (getEvmAddressSafe(item.to_address) === accountAddress) return ActivityKindEnum.receive;
-
-      return null;
-    })();
-
-    if (!kind) return null;
-
-    const metadata = getMetadata(EVM_TOKEN_SLUG);
-    const decimals = metadata?.decimals ?? item.gas_metadata?.contract_decimals;
-
-    if (decimals == null) return null;
-
-    const symbol = getAssetSymbol(metadata) || item.gas_metadata?.contract_ticker_symbol;
-
-    const asset: EvmActivityAsset = {
-      contract: EVM_TOKEN_SLUG,
-      amount: kind === ActivityKindEnum.send ? `-${value}` : value,
-      decimals,
-      symbol
-    };
-
-    return { kind, asset };
-  })();
+  const gasOperation = parseGasTransfer(item, accountAddress, getMetadata);
 
   if (gasOperation) operations.unshift(gasOperation);
 
@@ -158,4 +129,89 @@ export function parseGoldRushTransaction(
     blockExplorerUrl: item.explorers?.[0]?.url,
     operations
   };
+}
+
+export function parseGoldRushERC20Transfer(
+  item: GoldRushERC20Transfer,
+  chainId: number,
+  accountAddress: string,
+  getMetadata: EvmAssetMetadataGetter
+): EvmActivity {
+  const operations =
+    item.transfers?.map<EvmOperation>(transfer => {
+      const kind = transfer.transfer_type === 'IN' ? ActivityKindEnum.receive : ActivityKindEnum.send;
+
+      const contractAddress = getEvmAddressSafe(transfer.contract_address);
+
+      if (contractAddress == null) return { kind };
+
+      const slug = toEvmAssetSlug(contractAddress);
+      const metadata = getMetadata(slug);
+
+      const decimals = metadata?.decimals ?? transfer.contract_decimals;
+
+      if (decimals == null) return { kind: ActivityKindEnum.interaction };
+
+      const nft = false;
+      const amount = nft ? '1' : transfer.delta?.toString() ?? '0';
+      const symbol = getAssetSymbol(metadata) || transfer.contract_ticker_symbol || undefined;
+
+      const asset: EvmActivityAsset = {
+        contract: contractAddress,
+        amount: kind === ActivityKindEnum.send ? `-${amount}` : amount,
+        decimals,
+        symbol,
+        nft,
+        iconURL: transfer.logo_url ?? undefined
+      };
+
+      return { kind, asset };
+    }) ?? [];
+
+  const gasOperation = parseGasTransfer(item, accountAddress, getMetadata);
+
+  if (gasOperation) operations.unshift(gasOperation);
+
+  return {
+    chain: TempleChainKind.EVM,
+    chainId,
+    hash: item.tx_hash!,
+    blockExplorerUrl: item.transfers?.[0].explorers?.[0]?.url,
+    operations
+  };
+}
+
+function parseGasTransfer(
+  item: GoldRushTransaction | GoldRushERC20Transfer,
+  accountAddress: string,
+  getMetadata: EvmAssetMetadataGetter
+): EvmOperation | null {
+  const value: string = item.value?.toString() ?? '0';
+
+  if (value === '0') return null;
+
+  const kind = (() => {
+    if (getEvmAddressSafe(item.from_address) === accountAddress) return ActivityKindEnum.send;
+    if (getEvmAddressSafe(item.to_address) === accountAddress) return ActivityKindEnum.receive;
+
+    return null;
+  })();
+
+  if (!kind) return null;
+
+  const metadata = getMetadata(EVM_TOKEN_SLUG);
+  const decimals = metadata?.decimals ?? item.gas_metadata?.contract_decimals;
+
+  if (decimals == null) return null;
+
+  const symbol = getAssetSymbol(metadata) || item.gas_metadata?.contract_ticker_symbol;
+
+  const asset: EvmActivityAsset = {
+    contract: EVM_TOKEN_SLUG,
+    amount: kind === ActivityKindEnum.send ? `-${value}` : value,
+    decimals,
+    symbol
+  };
+
+  return { kind, asset };
 }

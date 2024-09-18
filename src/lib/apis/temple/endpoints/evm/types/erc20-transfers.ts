@@ -1,9 +1,11 @@
 import { Nullable } from './utils';
 
 export type Erc20TransfersResponse = Nullable<{
-  items: Nullable<BlockTransactionWithContractTransfers>[];
+  items: GoldRushERC20Transfer[];
   pagination: Pagination;
 }>;
+
+export type GoldRushERC20Transfer = Nullable<BlockTransactionWithContractTransfers>;
 
 interface Pagination {
   /** * True is there is another page. */
