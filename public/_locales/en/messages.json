@@ -1019,8 +1019,8 @@
   "selectNetworkToReveal": {
     "message": "Select Network to reveal"
   },
-  "additionalFeatures": {
-    "message": "Additional Features"
+  "advancedFeatures": {
+    "message": "Advanced Features"
   },
   "aboutAndSupport": {
     "message": "About & Support"

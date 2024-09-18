@@ -101,7 +101,7 @@ const TABS_GROUPS: Tab[][] = [
     },
     {
       slug: 'additional-settings',
-      titleI18nKey: 'additionalFeatures',
+      titleI18nKey: 'advancedFeatures',
       Icon: DefaultSettingsIconHOC(AdditionalFeaturesIcon),
       Component: AdvancedFeatures,
       testID: SettingsSelectors.advancedFeaturesButton
