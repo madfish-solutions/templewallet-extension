@@ -9,7 +9,6 @@ import { IconButton } from 'app/atoms/IconButton';
 import { EvmNetworkLogo, TezosNetworkLogo } from 'app/atoms/NetworkLogo';
 import { PageModal } from 'app/atoms/PageModal';
 import { RadioButton } from 'app/atoms/RadioButton';
-import { StyledButton } from 'app/atoms/StyledButton';
 import { TotalEquity } from 'app/atoms/TotalEquity';
 import { ReactComponent as Browse } from 'app/icons/base/browse.svg';
 import { ReactComponent as PlusIcon } from 'app/icons/base/plus.svg';
@@ -101,12 +100,6 @@ export const NetworkSelectModal = memo<Props>(({ opened, selectedNetwork, onRequ
             onClick={handleNetworkSelect}
           />
         ))}
-      </div>
-
-      <div className="p-4 pb-6 flex flex-col bg-white">
-        <StyledButton size="L" color="primary-low" onClick={onRequestClose}>
-          <T id="close" />
-        </StyledButton>
       </div>
     </PageModal>
   );

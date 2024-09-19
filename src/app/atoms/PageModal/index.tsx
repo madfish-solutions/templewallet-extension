@@ -20,16 +20,17 @@ interface Props extends TestIDProps {
   shouldShowBackButton?: boolean;
   onRequestClose: EmptyFn;
   onGoBack?: EmptyFn;
+  animated?: boolean;
 }
 
 export const PageModal = memo<PropsWithChildren<Props>>(
-  ({ title, opened, shouldShowBackButton, onRequestClose, onGoBack, children, testID }) => {
+  ({ title, opened, shouldShowBackButton, onRequestClose, onGoBack, children, testID, animated = true }) => {
     const { fullPage } = useAppEnv();
 
     return (
       <Modal
         isOpen={opened}
-        closeTimeoutMS={300}
+        closeTimeoutMS={animated ? 300 : undefined}
         htmlOpenClassName="overflow-hidden" // Disabling page scroll and/or bounce behind modal
         bodyOpenClassName={ACTIVATE_CONTENT_FADER_CLASSNAME}
         overlayClassName={{
@@ -43,7 +44,7 @@ export const PageModal = memo<PropsWithChildren<Props>>(
             'h-full flex flex-col bg-white overflow-hidden',
             fullPage ? 'rounded-lg' : 'rounded-t-lg',
             ModStyles.base,
-            'ease-out duration-300'
+            animated && 'ease-out duration-300'
           ),
           afterOpen: ModStyles.opened,
           beforeClose: ModStyles.closed

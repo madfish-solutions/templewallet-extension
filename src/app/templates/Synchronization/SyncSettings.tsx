@@ -4,6 +4,7 @@ import { OnSubmit, useForm } from 'react-hook-form';
 import { QRCode } from 'react-qr-svg';
 
 import { Alert, FormField, FormSubmitButton } from 'app/atoms';
+import { DEFAULT_PASSWORD_INPUT_PLACEHOLDER } from 'lib/constants';
 import { T, t } from 'lib/i18n';
 import { useTempleClient } from 'lib/temple/front';
 import { useVanishingState } from 'lib/ui/hooks';
@@ -99,7 +100,7 @@ const SyncSettings: FC = () => {
               id="reveal-secret-password"
               type="password"
               name="password"
-              placeholder="********"
+              placeholder={DEFAULT_PASSWORD_INPUT_PLACEHOLDER}
               errorCaption={errors.password?.message}
               containerClassName="mb-4"
               testID={SyncSettingsSelectors.passwordInput}

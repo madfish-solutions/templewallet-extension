@@ -9,17 +9,15 @@ import { AccountName } from 'app/atoms/AccountName';
 import { EmptyState } from 'app/atoms/EmptyState';
 import { IconButton } from 'app/atoms/IconButton';
 import { PageModal } from 'app/atoms/PageModal';
-import { ActionsButtonsBox } from 'app/atoms/PageModal/actions-buttons-box';
 import { ScrollView } from 'app/atoms/PageModal/scroll-view';
 import { RadioButton } from 'app/atoms/RadioButton';
-import { StyledButton } from 'app/atoms/StyledButton';
 import { TotalEquity } from 'app/atoms/TotalEquity';
 import { useShortcutAccountSelectModalIsOpened } from 'app/hooks/use-account-select-shortcut';
 import { useAllAccountsReactiveOnAddition } from 'app/hooks/use-all-accounts-reactive';
 import { ReactComponent as SettingsIcon } from 'app/icons/base/settings.svg';
 import { NewWalletActionsPopper } from 'app/templates/NewWalletActionsPopper';
 import { SearchBarField } from 'app/templates/SearchField';
-import { T } from 'lib/i18n';
+import { t } from 'lib/i18n';
 import { StoredAccount } from 'lib/temple/types';
 import { useScrollIntoViewOnMount } from 'lib/ui/use-scroll-into-view';
 import { navigate } from 'lib/woozie';
@@ -48,7 +46,6 @@ export const AccountsModal = memo<Props>(({ opened, onRequestClose }) => {
 
   const [searchValue, setSearchValue] = useState('');
   const [topEdgeIsVisible, setTopEdgeIsVisible] = useState(true);
-  const [bottomEdgeIsVisible, setBottomEdgeIsVisible] = useState(true);
   const [activeSubmodal, setActiveSubmodal] = useState<AccountsModalSubmodals | undefined>(undefined);
   const [importOptionSlug, setImportOptionSlug] = useState<ImportOptionSlug | undefined>();
 
@@ -73,6 +70,11 @@ export const AccountsModal = memo<Props>(({ opened, onRequestClose }) => {
     setImportOptionSlug(undefined);
   }, []);
 
+  const totalClose = useCallback(() => {
+    closeSubmodal();
+    onRequestClose();
+  }, [closeSubmodal, onRequestClose]);
+
   const startWalletCreation = useCallback(() => setActiveSubmodal(AccountsModalSubmodals.CreateHDWallet), []);
 
   const goToImportModal = useCallback(() => {
@@ -86,20 +88,36 @@ export const AccountsModal = memo<Props>(({ opened, onRequestClose }) => {
   const submodal = useMemo(() => {
     switch (activeSubmodal) {
       case AccountsModalSubmodals.CreateHDWallet:
-        return <CreateHDWalletModal onEnd={closeSubmodal} />;
+        return (
+          <CreateHDWalletModal
+            animated={false}
+            onSuccess={closeSubmodal}
+            onClose={totalClose}
+            onStartGoBack={closeSubmodal}
+          />
+        );
       case AccountsModalSubmodals.ImportAccount:
         return (
           <ImportAccountModal
+            animated={false}
             optionSlug={importOptionSlug}
-            shouldShowBackButton={!!importOptionSlug}
-            onGoBack={goToImportModal}
-            onRequestClose={closeSubmodal}
+            shouldShowBackButton
+            onGoBack={importOptionSlug ? goToImportModal : closeSubmodal}
+            onRequestClose={totalClose}
             onSeedPhraseSelect={handleSeedPhraseImportOptionSelect}
             onPrivateKeySelect={handlePrivateKeyImportOptionSelect}
           />
         );
       case AccountsModalSubmodals.WatchOnly:
-        return <ImportAccountModal optionSlug="watch-only" onGoBack={closeSubmodal} onRequestClose={closeSubmodal} />;
+        return (
+          <ImportAccountModal
+            animated={false}
+            optionSlug="watch-only"
+            shouldShowBackButton
+            onGoBack={closeSubmodal}
+            onRequestClose={totalClose}
+          />
+        );
       default:
         return null;
     }
@@ -109,14 +127,15 @@ export const AccountsModal = memo<Props>(({ opened, onRequestClose }) => {
     goToImportModal,
     handlePrivateKeyImportOptionSelect,
     handleSeedPhraseImportOptionSelect,
-    importOptionSlug
+    importOptionSlug,
+    totalClose
   ]);
 
   return (
     <>
       {submodal}
 
-      <PageModal title="My Accounts" opened={opened} onRequestClose={onRequestClose}>
+      <PageModal title={t('myAccounts')} opened={opened} onRequestClose={onRequestClose}>
         <div
           className={clsx(
             'flex gap-x-2 p-4',
@@ -144,12 +163,7 @@ export const AccountsModal = memo<Props>(({ opened, onRequestClose }) => {
           />
         </div>
 
-        <ScrollView
-          onBottomEdgeVisibilityChange={setBottomEdgeIsVisible}
-          bottomEdgeThreshold={16}
-          onTopEdgeVisibilityChange={setTopEdgeIsVisible}
-          topEdgeThreshold={4}
-        >
+        <ScrollView onTopEdgeVisibilityChange={setTopEdgeIsVisible} topEdgeThreshold={4}>
           {filteredGroups.length === 0 ? (
             <div className="w-full h-full flex items-center">
               <EmptyState variant="searchUniversal" />
@@ -168,17 +182,6 @@ export const AccountsModal = memo<Props>(({ opened, onRequestClose }) => {
             ))
           )}
         </ScrollView>
-
-        <ActionsButtonsBox shouldCastShadow={!bottomEdgeIsVisible}>
-          <StyledButton
-            size="L"
-            color="primary-low"
-            onClick={onRequestClose}
-            testID={AccountsModalSelectors.cancelButton}
-          >
-            <T id="cancel" />
-          </StyledButton>
-        </ActionsButtonsBox>
       </PageModal>
     </>
   );

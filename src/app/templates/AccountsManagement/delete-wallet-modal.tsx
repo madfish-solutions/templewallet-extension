@@ -8,6 +8,7 @@ import {
   ActionModalButtonsContainer
 } from 'app/atoms/action-modal';
 import { useTempleBackendActionForm } from 'app/hooks/use-temple-backend-action-form';
+import { DEFAULT_PASSWORD_INPUT_PLACEHOLDER } from 'lib/constants';
 import { T, TID, t } from 'lib/i18n';
 import { useTempleClient } from 'lib/temple/front';
 import { DisplayedGroup, TempleAccountType } from 'lib/temple/types';
@@ -51,7 +52,7 @@ export const DeleteWalletModal = memo<DeleteWalletModalProps>(({ onClose, select
   const submitting = formState.isSubmitting;
 
   return (
-    <ActionModal title={`Delete ${selectedGroup.name}?`} onClose={onClose}>
+    <ActionModal title={`Delete ${selectedGroup.name}?`} hasCloseButton={false} onClose={onClose}>
       {shouldPreventDeletion ? (
         <>
           <ActionModalBodyContainer>
@@ -93,7 +94,7 @@ export const DeleteWalletModal = memo<DeleteWalletModalProps>(({ onClose, select
               id="removewallet-secret-password"
               type="password"
               name="password"
-              placeholder={t('password')}
+              placeholder={DEFAULT_PASSWORD_INPUT_PLACEHOLDER}
               errorCaption={errors.password?.message}
               containerClassName="mb-1"
               testID={AccountsManagementSelectors.passwordInput}

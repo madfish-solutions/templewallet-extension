@@ -8,6 +8,7 @@ import {
   ActionModalButtonsContainer
 } from 'app/atoms/action-modal';
 import { useTempleBackendActionForm } from 'app/hooks/use-temple-backend-action-form';
+import { DEFAULT_PASSWORD_INPUT_PLACEHOLDER } from 'lib/constants';
 import { T, t } from 'lib/i18n';
 import { useTempleClient } from 'lib/temple/front';
 import { DisplayedGroup } from 'lib/temple/types';
@@ -53,7 +54,7 @@ export const ConfirmSeedPhraseAccessModal = memo<ConfirmSeedPhraseAccessModalPro
               id="revealseedphrase-secret-password"
               type="password"
               name="password"
-              placeholder={t('password')}
+              placeholder={DEFAULT_PASSWORD_INPUT_PLACEHOLDER}
               errorCaption={errors.password?.message}
               shouldShowRevealWhenEmpty
               containerClassName="mb-1"

@@ -52,7 +52,6 @@ export const AccountsManagement = memo<AccountsManagementProps>(({ setHeaderChil
   const [importOptionSlug, setImportOptionSlug] = useState<ImportOptionSlug | undefined>();
 
   const startWalletCreation = useCallback(() => setActiveModal(AccountsManagementModal.CreateHDWalletFlow), []);
-  const onCreateWalletFlowEnd = useCallback(() => setActiveModal(null), []);
 
   const filteredAccounts = useMemo(
     () => (searchValue.length ? searchAndFilterAccounts(allAccounts, searchValue) : allAccounts),
@@ -102,6 +101,7 @@ export const AccountsManagement = memo<AccountsManagementProps>(({ setHeaderChil
   const handleAccountAlreadyExistsWarnClose = useCallback(async () => {
     try {
       await createAccount(selectedGroup!.id);
+      handleModalClose();
     } catch (e: any) {
       console.error(e);
       customAlert({
@@ -109,7 +109,7 @@ export const AccountsManagement = memo<AccountsManagementProps>(({ setHeaderChil
         description: e.message
       });
     }
-  }, [createAccount, customAlert, selectedGroup]);
+  }, [createAccount, customAlert, handleModalClose, selectedGroup]);
 
   const goToImportWalletModal = useCallback(() => {
     setActiveModal(AccountsManagementModal.ImportWallet);
@@ -155,14 +155,14 @@ export const AccountsManagement = memo<AccountsManagementProps>(({ setHeaderChil
           />
         );
       case AccountsManagementModal.CreateHDWalletFlow:
-        return <CreateHDWalletModal onEnd={onCreateWalletFlowEnd} />;
+        return <CreateHDWalletModal onSuccess={handleModalClose} onClose={handleModalClose} />;
       case AccountsManagementModal.ImportWallet:
       case AccountsManagementModal.ImportAccount:
         return (
           <ImportAccountModal
             optionSlug={importOptionSlug}
             shouldShowBackButton={activeModal === AccountsManagementModal.ImportWallet && !!importOptionSlug}
-            onGoBack={goToImportWalletModal}
+            onGoBack={importOptionSlug ? goToImportWalletModal : handleModalClose}
             onRequestClose={handleModalClose}
             onSeedPhraseSelect={handleSeedPhraseImportOptionSelect}
             onPrivateKeySelect={handlePrivateKeyImportOptionSelect}
@@ -185,7 +185,6 @@ export const AccountsManagement = memo<AccountsManagementProps>(({ setHeaderChil
     handleSeedPhraseImportOptionSelect,
     importOptionSlug,
     oldAccount,
-    onCreateWalletFlowEnd,
     seedPhraseToReveal,
     selectedGroup
   ]);

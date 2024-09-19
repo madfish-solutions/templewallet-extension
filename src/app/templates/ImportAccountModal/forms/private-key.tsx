@@ -10,6 +10,7 @@ import { StyledButton } from 'app/atoms/StyledButton';
 import { TextButton } from 'app/atoms/TextButton';
 import { ReactComponent as PasteFillIcon } from 'app/icons/base/paste_fill.svg';
 import { useFormAnalytics } from 'lib/analytics';
+import { DEFAULT_PASSWORD_INPUT_PLACEHOLDER } from 'lib/constants';
 import { T, t } from 'lib/i18n';
 import { useTempleClient } from 'lib/temple/front';
 import { shouldDisableSubmitButton } from 'lib/ui/should-disable-submit-button';
@@ -133,7 +134,8 @@ export const PrivateKeyForm = memo<ImportAccountFormProps>(({ onSuccess }) => {
                 </span>
               </>
             }
-            placeholder="••••••••••"
+            onChange={resetSubmitError}
+            placeholder={DEFAULT_PASSWORD_INPUT_PLACEHOLDER}
             errorCaption={errors.encPassword?.message}
           />
         )}
