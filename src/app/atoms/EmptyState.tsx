@@ -1,26 +1,21 @@
-import React, { CSSProperties, memo } from 'react';
+import React, { memo } from 'react';
 
 import clsx from 'clsx';
 
-import { ReactComponent as SearchEmptyIcon } from 'app/icons/search_empty.svg';
-import { TID, T } from 'lib/i18n';
+import { ReactComponent as SadSearchIcon } from 'app/icons/monochrome/sad-search.svg';
+import { ReactComponent as SadUniversalIcon } from 'app/icons/monochrome/sad-universal.svg';
+import { T } from 'lib/i18n';
 
-interface Props {
+interface EmptyStateProps {
   className?: string;
-  textI18nKey?: TID;
+  variant: 'tokenSearch' | 'universal' | 'searchUniversal';
 }
 
-const ICON_STYLE: CSSProperties = {
-  width: 92,
-  height: 92
-};
-
-export const EmptyState = memo<Props>(({ className, textI18nKey = 'notFound' }) => (
-  <div className={clsx('flex-grow flex flex-col items-center justify-center gap-y-2 py-7 px-2.5', className)}>
-    <SearchEmptyIcon className="stroke-current fill-current text-grey-3" style={ICON_STYLE} />
-
+export const EmptyState = memo<EmptyStateProps>(({ className, variant }) => (
+  <div className={clsx(className, 'w-full py-7 flex flex-col items-center gap-2')}>
+    {variant === 'universal' ? <SadUniversalIcon className="w-[92px]" /> : <SadSearchIcon className="w-[92px]" />}
     <span className="text-font-medium-bold text-grey-2">
-      <T id={textI18nKey} />
+      <T id={variant === 'tokenSearch' ? 'tokensNotFound' : 'notFound'} />
     </span>
   </div>
 ));

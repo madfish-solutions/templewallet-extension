@@ -4,6 +4,7 @@ import memoizee from 'memoizee';
 
 import { useTypedSWR } from 'lib/swr';
 import { TEZOS_MAINNET_CHAIN_ID } from 'lib/temple/types';
+import { useEnabledTezosChains } from 'temple/front/ready';
 import { MAX_MEMOIZED_TOOLKITS } from 'temple/misc';
 import { TezosNetworkEssentials } from 'temple/networks';
 import { getReadOnlyTezos } from 'temple/tezos';
@@ -23,13 +24,24 @@ export function isTezosDomainsNameValid(name: string, client: TaquitoTezosDomain
   return client.validator.validateDomainName(name, { minLevel: 2 }) === DomainNameValidationResult.VALID;
 }
 
-export function useTezosAddressByDomainName(domainName: string, network: TezosNetworkEssentials | nullish) {
+export function useTezosAddressByDomainName(domainName: string, network?: TezosNetworkEssentials) {
+  const enabledTezosChains = useEnabledTezosChains();
+  const tezosChains = network ? [network] : enabledTezosChains;
+
   return useTypedSWR(
-    network ? ['tzdns-address', domainName, network.chainId, network.rpcBaseURL] : null,
-    () =>
-      network
-        ? getTezosDomainsClient(network.chainId, network.rpcBaseURL).resolver.resolveNameToAddress(domainName)
-        : null,
+    ['tzdns-address', domainName, ...tezosChains.map(({ rpcBaseURL, chainId }) => `${chainId}_${rpcBaseURL}`)],
+    async () => {
+      const results = await Promise.allSettled(
+        tezosChains.map(({ chainId, rpcBaseURL }) =>
+          getTezosDomainsClient(chainId, rpcBaseURL).resolver.resolveNameToAddress(domainName)
+        )
+      );
+
+      return (
+        results.find((result): result is PromiseFulfilledResult<string | null> => result.status === 'fulfilled')
+          ?.value ?? null
+      );
+    },
     {
       shouldRetryOnError: false,
       revalidateOnFocus: false

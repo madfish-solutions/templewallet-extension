@@ -8,14 +8,17 @@ import {
   ActionModalButtonsContainer
 } from 'app/atoms/action-modal';
 import { useTempleBackendActionForm } from 'app/hooks/use-temple-backend-action-form';
+import { DEFAULT_PASSWORD_INPUT_PLACEHOLDER } from 'lib/constants';
 import { T, t } from 'lib/i18n';
 import { useTempleClient } from 'lib/temple/front';
 import { StoredAccount, TempleAccountType } from 'lib/temple/types';
 import { useAllAccounts } from 'temple/front';
 
+import { AccountSettingsSelectors } from './selectors';
+
 interface RemoveAccountModalProps {
   account: StoredAccount;
-  onClose: () => void;
+  onClose: EmptyFn;
 }
 
 interface FormData {
@@ -46,7 +49,7 @@ export const RemoveAccountModal = memo<RemoveAccountModalProps>(({ account, onCl
   const submitting = formState.isSubmitting;
 
   return (
-    <ActionModal title={`Remove ${account.name}?`} onClose={onClose}>
+    <ActionModal title={`Remove ${account.name}?`} hasCloseButton={false} onClose={onClose}>
       {shouldPreventDeletion ? (
         <>
           <ActionModalBodyContainer>
@@ -61,7 +64,12 @@ export const RemoveAccountModal = memo<RemoveAccountModalProps>(({ account, onCl
             />
           </ActionModalBodyContainer>
           <ActionModalButtonsContainer>
-            <ActionModalButton className="bg-orange-200 text-orange-20" onClick={onClose} type="button">
+            <ActionModalButton
+              color="primary-low"
+              onClick={onClose}
+              type="button"
+              testID={AccountSettingsSelectors.cancelButton}
+            >
               <T id="cancel" />
             </ActionModalButton>
           </ActionModalButtonsContainer>
@@ -74,25 +82,32 @@ export const RemoveAccountModal = memo<RemoveAccountModalProps>(({ account, onCl
               id="removewallet-secret-password"
               type="password"
               name="password"
-              placeholder="********"
+              placeholder={DEFAULT_PASSWORD_INPUT_PLACEHOLDER}
               errorCaption={errors.password?.message}
               containerClassName="mb-1"
+              testID={AccountSettingsSelectors.passwordInput}
             />
-            <span className="text-xs leading-4 text-gray-600 w-full text-center">
+            <span className="text-font-description text-grey-1 w-full text-center">
               This will remove the account from this list and delete all data associated with it.
             </span>
           </ActionModalBodyContainer>
           <ActionModalButtonsContainer>
             <ActionModalButton
-              className="bg-orange-200 text-orange-20"
+              color="primary-low"
               disabled={submitting}
               onClick={onClose}
               type="button"
+              testID={AccountSettingsSelectors.cancelButton}
             >
               <T id="cancel" />
             </ActionModalButton>
 
-            <ActionModalButton className="bg-red-600 text-white" disabled={submitting} type="submit">
+            <ActionModalButton
+              color="red"
+              disabled={submitting}
+              type="submit"
+              testID={AccountSettingsSelectors.confirmRemoveAccountButton}
+            >
               <T id="remove" />
             </ActionModalButton>
           </ActionModalButtonsContainer>

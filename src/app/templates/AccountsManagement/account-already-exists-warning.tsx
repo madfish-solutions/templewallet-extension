@@ -11,10 +11,12 @@ import { DisplayedGroup, StoredAccount } from 'lib/temple/types';
 import { useHDGroups } from 'temple/front';
 import { getAllGroups } from 'temple/front/accounts-groups';
 
+import { AccountsManagementSelectors } from './selectors';
+
 interface AccountAlreadyExistsWarningProps {
   newAccountGroup: DisplayedGroup;
   oldAccount: StoredAccount;
-  onClose: () => void;
+  onClose: EmptyFn;
 }
 
 export const AccountAlreadyExistsWarning = memo<AccountAlreadyExistsWarningProps>(
@@ -23,14 +25,19 @@ export const AccountAlreadyExistsWarning = memo<AccountAlreadyExistsWarningProps
     const oldAccountGroupName = useMemo(() => getAllGroups(hdGroups, [oldAccount])[0].name, [hdGroups, oldAccount]);
 
     return (
-      <ActionModal title={t('addAccount')} onClose={onClose}>
+      <ActionModal title={t('addAccount')} hasCloseButton={false} onClose={onClose}>
         <ActionModalBodyContainer>
-          <span className="w-full text-center text-xs leading-4 text-gray-600">
+          <span className="w-full text-center text-font-description text-gray-600">
             {t('accountAlreadyExistsWarning', [newAccountGroup.name, oldAccountGroupName])}
           </span>
         </ActionModalBodyContainer>
         <ActionModalButtonsContainer>
-          <ActionModalButton className="bg-orange-20 text-white" type="button" onClick={onClose}>
+          <ActionModalButton
+            color="primary"
+            type="button"
+            onClick={onClose}
+            testID={AccountsManagementSelectors.gotItButton}
+          >
             Got it
           </ActionModalButton>
         </ActionModalButtonsContainer>

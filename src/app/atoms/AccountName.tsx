@@ -21,9 +21,10 @@ interface Props {
   account: StoredAccount;
   searchValue?: string;
   smaller?: boolean;
+  testID?: string;
 }
 
-export const AccountName = memo<Props>(({ account, searchValue, smaller }) => {
+export const AccountName = memo<Props>(({ account, searchValue, smaller, testID }) => {
   const accountTezosAddress = useMemo(() => getAccountAddressForTezos(account), [account]);
   const accountEvmAddress = useMemo(() => getAccountAddressForEvm(account), [account]);
 
@@ -64,6 +65,7 @@ export const AccountName = memo<Props>(({ account, searchValue, smaller }) => {
             event.stopPropagation();
             toggleOpened();
           }}
+          testID={testID}
         >
           <Name className="text-font-medium-bold">
             {searchValue ? (
@@ -73,7 +75,7 @@ export const AccountName = memo<Props>(({ account, searchValue, smaller }) => {
             )}
           </Name>
 
-          <IconBase Icon={CopyIcon} size={12} className="ml-1 text-secondary" />
+          <IconBase Icon={CopyIcon} size={12} className="text-secondary" />
         </Button>
       )}
     </Popper>

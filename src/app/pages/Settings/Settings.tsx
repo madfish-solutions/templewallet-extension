@@ -1,4 +1,4 @@
-import React, { FC, useMemo } from 'react';
+import React, { memo, ReactNode, useMemo, useState } from 'react';
 
 import clsx from 'clsx';
 
@@ -14,11 +14,9 @@ import { ReactComponent as PeopleIcon } from 'app/icons/monochrome/people.svg';
 import { ReactComponent as SignalAltIcon } from 'app/icons/monochrome/signal-alt.svg';
 import { ReactComponent as StickerIcon } from 'app/icons/monochrome/sticker.svg';
 import { ReactComponent as SyncIcon } from 'app/icons/monochrome/sync.svg';
-import { ReactComponent as OkIcon } from 'app/icons/ok.svg';
 import PageLayout from 'app/layouts/PageLayout';
 import About from 'app/templates/About/About';
 import { AccountsManagement } from 'app/templates/AccountsManagement';
-import ActivateAccount from 'app/templates/ActivateAccount/ActivateAccount';
 import AddressBook from 'app/templates/AddressBook/AddressBook';
 import { AdvancedFeatures } from 'app/templates/AdvancedFeatures';
 import DAppSettings from 'app/templates/DAppSettings/DAppSettings';
@@ -40,8 +38,7 @@ interface Tab {
   slug: string;
   titleI18nKey: TID;
   Icon: React.FC<React.SVGProps<SVGSVGElement>>;
-  fillIcon?: boolean;
-  Component: React.FC;
+  Component: React.FC<{ setHeaderChildren: (children: ReactNode) => void }>;
   color: string;
   descriptionI18nKey: TID;
   testID?: SettingsSelectors;
@@ -117,18 +114,8 @@ const TABS: Tab[] = [
     Icon: AdditionalIcon,
     Component: AdvancedFeatures,
     color: '#88E0E6',
-    fillIcon: true,
     descriptionI18nKey: 'advancedFeaturesDescription',
     testID: SettingsSelectors.advancedFeaturesButton
-  },
-  {
-    slug: 'activate-account',
-    titleI18nKey: 'activateAccount',
-    Icon: OkIcon,
-    Component: ActivateAccount,
-    color: 'rgb(131, 179, 0)',
-    descriptionI18nKey: 'activateAccountDescription',
-    testID: SettingsSelectors.activateAccountButton
   },
   {
     slug: 'accounts-management',
@@ -158,98 +145,84 @@ const TABS: Tab[] = [
   }
 ];
 
-const Settings: FC<SettingsProps> = ({ tabSlug }) => {
+const Settings = memo<SettingsProps>(({ tabSlug }) => {
   const activeTab = useMemo(() => TABS.find(t => t.slug === tabSlug) || null, [tabSlug]);
+  const [headerChildren, setHeaderChildren] = useState<ReactNode>(null);
 
   return (
     <PageLayout
+      contentPadding={false}
+      paperClassName={activeTab ? '!bg-background' : undefined}
       pageTitle={
         <>
-          <IconBase Icon={SettingsIcon} className="mr-1" />
-          <T id="settings" />
+          {!activeTab && <IconBase Icon={SettingsIcon} className="mr-1" />}
+          <span className="capitalize">
+            <T id={activeTab?.titleI18nKey ?? 'settings'} />
+          </span>
         </>
       }
+      headerChildren={headerChildren}
     >
-      {activeTab && (
-        <>
-          <h1 className="mb-2 flex items-center justify-center text-2xl font-light text-gray-700 text-center">
-            {(() => {
-              const { Icon, color, titleI18nKey } = activeTab;
+      <div className="flex-1 flex flex-col p-4">
+        {activeTab ? (
+          <activeTab.Component setHeaderChildren={setHeaderChildren} />
+        ) : (
+          <ul>
+            {TABS.map(({ slug, titleI18nKey, descriptionI18nKey, Icon, color, testID }, i) => {
+              const first = i === 0;
+              const linkTo = `/settings/${slug}`;
+
               return (
-                <T id={titleI18nKey}>
-                  {message => (
-                    <>
-                      <Icon className="mr-2 h-8 w-auto stroke-current" style={{ stroke: color }} />
-                      {message}
-                    </>
-                  )}
-                </T>
-              );
-            })()}
-          </h1>
+                <Link to={linkTo} key={slug} className={clsx(!first && 'mt-10 block')} testID={testID}>
+                  <div className="flex">
+                    <div className="ml-2 flex-shrink-0">
+                      <div
+                        className={clsx(
+                          'block',
+                          'h-12 w-12',
+                          'border-2 border-white border-opacity-25',
+                          'rounded-full',
+                          'flex items-center justify-center',
+                          'text-white',
+                          'transition ease-in-out duration-200',
+                          'opacity-90 hover:opacity-100 focus:opacity-100'
+                        )}
+                        style={{ backgroundColor: color }}
+                      >
+                        <Icon className="h-8 w-8 stroke-current fill-current text-white" />
+                      </div>
+                    </div>
 
-          <hr className="mb-6" />
-        </>
-      )}
+                    <div className="ml-4">
+                      <T id={titleI18nKey}>
+                        {message => (
+                          <div
+                            className={clsx(
+                              'text-lg leading-6 font-medium',
+                              'filter-brightness-75',
+                              'hover:underline focus:underline',
+                              'transition ease-in-out duration-200'
+                            )}
+                            style={{ color }}
+                          >
+                            {message}
+                          </div>
+                        )}
+                      </T>
 
-      {activeTab ? (
-        <activeTab.Component />
-      ) : (
-        <ul>
-          {TABS.map(({ slug, titleI18nKey, descriptionI18nKey, Icon, color, testID }, i) => {
-            const first = i === 0;
-            const linkTo = `/settings/${slug}`;
-
-            return (
-              <Link to={linkTo} key={slug} className={clsx(!first && 'mt-10 block')} testID={testID}>
-                <div className="flex">
-                  <div className="ml-2 flex-shrink-0">
-                    <div
-                      className={clsx(
-                        'block',
-                        'h-12 w-12',
-                        'border-2 border-white border-opacity-25',
-                        'rounded-full',
-                        'flex items-center justify-center',
-                        'text-white',
-                        'transition ease-in-out duration-200',
-                        'opacity-90 hover:opacity-100 focus:opacity-100'
-                      )}
-                      style={{ backgroundColor: color }}
-                    >
-                      <Icon className="h-8 w-8 stroke-current fill-current text-white" />
+                      <T id={descriptionI18nKey}>
+                        {message => <p className="mt-1 text-sm font-light leading-5 text-gray-600">{message}</p>}
+                      </T>
                     </div>
                   </div>
-
-                  <div className="ml-4">
-                    <T id={titleI18nKey}>
-                      {message => (
-                        <div
-                          className={clsx(
-                            'text-lg leading-6 font-medium',
-                            'filter-brightness-75',
-                            'hover:underline focus:underline',
-                            'transition ease-in-out duration-200'
-                          )}
-                          style={{ color }}
-                        >
-                          {message}
-                        </div>
-                      )}
-                    </T>
-
-                    <T id={descriptionI18nKey}>
-                      {message => <p className="mt-1 text-sm font-light leading-5 text-gray-600">{message}</p>}
-                    </T>
-                  </div>
-                </div>
-              </Link>
-            );
-          })}
-        </ul>
-      )}
+                </Link>
+              );
+            })}
+          </ul>
+        )}
+      </div>
     </PageLayout>
   );
-};
+});
 
 export default Settings;

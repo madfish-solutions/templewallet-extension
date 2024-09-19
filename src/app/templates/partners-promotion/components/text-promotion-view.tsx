@@ -83,7 +83,7 @@ export const TextPromotionView = memo<Props>(
                 <div
                   className={clsx(
                     'flex items-center bg-blue-600 rounded px-1.5 h-4',
-                    'text-white text-xxxs font-medium leading-none'
+                    'text-white text-font-small font-medium leading-none'
                   )}
                 >
                   AD

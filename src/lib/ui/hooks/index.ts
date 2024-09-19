@@ -16,4 +16,4 @@ export { useMemoWithCompare } from './useMemoWithCompare';
 
 export { useVanishingState } from './useVanishingState';
 
-export { useBooleanState } from './useBooleanState';
+export { useBooleanState } from './use-boolean-state';

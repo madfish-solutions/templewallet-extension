@@ -32,7 +32,7 @@ const Onboarding: FC = () => {
           <Button
             className={clsx(
               'flex items-center px-4 py-2 rounded',
-              'text-sm font-semibold leading-none text-gray-600 text-shadow-black',
+              'text-font-medium-bold leading-none text-gray-600 text-shadow-black',
               'opacity-90 hover:opacity-100 hover:bg-black hover:bg-opacity-5',
               'transition duration-300 ease-in-out'
             )}

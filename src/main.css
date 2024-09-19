@@ -2,6 +2,7 @@
 
 :root {
   color: #151618;
+  --tippy-arrow-offset: 1px;
 }
 
 html {
@@ -32,7 +33,71 @@ body {
 @import '~tippy.js/dist/tippy.css';
 @import '~tippy.js/animations/shift-away-subtle.css';
 
+.tippy-box {
+  background-color: black;
+  border-radius: 4px;
+  font-size: 10px;
+  line-height: 12px;
+}
+
+.tippy-box[data-placement^='top'] > .tippy-arrow {
+  bottom: var(--tippy-arrow-offset);
+}
+
+.tippy-box[data-placement^='top'] > .tippy-arrow:before {
+  bottom: calc(-16px + var(--tippy-arrow-offset));
+  left: 0;
+  border-width: 0;
+  transform-origin: center;
+  transform: rotate(180deg);
+}
+
+.tippy-box[data-placement^='bottom'] > .tippy-arrow {
+  top: var(--tippy-arrow-offset);
+}
+
+.tippy-box[data-placement^='bottom'] > .tippy-arrow:before {
+  top: calc(-16px + var(--tippy-arrow-offset));
+  left: 0;
+  border-width: 0;
+}
+
+.tippy-box[data-placement^='left'] > .tippy-arrow {
+  right: var(--tippy-arrow-offset);
+}
+
+.tippy-box[data-placement^='left'] > .tippy-arrow:before {
+  border-width: 0;
+  right: calc(-16px + var(--tippy-arrow-offset));
+  transform-origin: center;
+  transform: rotate(90deg);
+}
+
+.tippy-box[data-placement^='right'] > .tippy-arrow {
+  left: var(--tippy-arrow-offset);
+}
+
+.tippy-box[data-placement^='right'] > .tippy-arrow:before {
+  left: calc(-16px + var(--tippy-arrow-offset));
+  border-width: 0;
+  transform-origin: center;
+  transform: rotate(-90deg);
+}
+
+.tippy-box[data-inertia][data-state='visible'] {
+  transition-timing-function: cubic-bezier(0.54, 1.5, 0.38, 1.11);
+}
+
+.tippy-arrow:before {
+  content: '';
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  background: url('app/misc/tooltip-arrow.svg');
+}
+
 .tippy-content {
+  padding: 12px;
   white-space: pre-line;
 }
 
@@ -104,8 +169,13 @@ button,
 }
 
 @keyframes fade-in {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0; }
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
 }
 
 .animate-fade-in {

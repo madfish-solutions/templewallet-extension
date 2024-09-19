@@ -1,6 +1,6 @@
 import React, { memo, useCallback, useMemo } from 'react';
 
-import { Divider, ToggleSwitch } from 'app/atoms';
+import { Lines, ToggleSwitch } from 'app/atoms';
 import { ActionListItem, ActionListItemProps } from 'app/atoms/ActionListItem';
 import { ActionsDropdownPopup } from 'app/atoms/ActionsDropdown';
 import { openInFullPage, useAppEnv } from 'app/env';
@@ -87,7 +87,7 @@ const MenuDropdown = memo<PopperRenderProps>(({ opened, setOpened }) => {
         <ActionListItem {...action} key={action.key} />
       ))}
 
-      <Divider className="my-1.5" />
+      <Lines className="my-1.5" />
 
       <label className="py-2.5 px-2 flex items-center gap-x-1">
         <span className="flex-1 text-font-description">Testnet Mode</span>

@@ -113,9 +113,10 @@ const defaultMnemonic = hdWallets[0].mnemonic;
 
 const defaultCustomAccountName = 'Temple';
 const mockManagedContractAddress = 'KT19txYWjVo4yLvcGnnyiGc35CuX12Pc4krn';
+const defaultTestTimeout = 15000;
 
 describe('Vault tests', () => {
-  jest.setTimeout(15000);
+  jest.setTimeout(defaultTestTimeout);
 
   beforeEach(async () => {
     await browser.storage.local.clear();
@@ -128,11 +129,18 @@ describe('Vault tests', () => {
     });
   };
 
+  const expectRecentTimestampInMs = (value: number) => {
+    expect(value).toBeGreaterThan(Date.now() - defaultTestTimeout);
+    expect(value).toBeLessThanOrEqual(Date.now());
+  };
+
   it('init test', async () => {
     await Vault.spawn(password, defaultMnemonic);
     const vault = await Vault.setup(password);
     const walletsSpecs = await vault.fetchWalletsSpecs();
-    expect(Object.values(walletsSpecs)).toEqual([{ name: 'Translated<hdWalletDefaultName, "A">' }]);
+    const values = Object.values(walletsSpecs);
+    expectObjectArrayMatch(values, [{ name: 'Translated<hdWalletDefaultName, "A">' }]);
+    expectRecentTimestampInMs(values[0].createdAt);
     const firstGroupId = Object.keys(walletsSpecs)[0];
     const accounts = await vault.createHDAccount(firstGroupId, defaultCustomAccountName);
     expectObjectArrayMatch(accounts, [
@@ -554,6 +562,67 @@ describe('Vault tests', () => {
     });
   });
 
+  describe('should import an account by seed phrase', () => {
+    describe('Tezos accounts', () => {
+      it('should import the first account with password derivation', async () => {
+        await Vault.spawn(password, defaultMnemonic);
+        const vault = await Vault.setup(password);
+        const [, newAccount] = await vault.importMnemonicAccount(hdWallets[1].mnemonic, password);
+        expect(newAccount).toMatchObject({
+          type: TempleAccountType.Imported,
+          chain: TempleChainKind.Tezos,
+          address: 'tz1N8eG6d2d3kizZoCZS2xBt3J14t5PAWnCV'
+        });
+      });
+
+      it('should import an account by derivation path', async () => {
+        await Vault.spawn(password, defaultMnemonic);
+        const vault = await Vault.setup(password);
+        const [, newAccount] = await vault.importMnemonicAccount(hdWallets[1].mnemonic, undefined, "m/44'/1729'/1'/0'");
+        expect(newAccount).toMatchObject({
+          type: TempleAccountType.Imported,
+          chain: TempleChainKind.Tezos,
+          address: hdWallets[1].accounts[1].tezos.address
+        });
+      });
+
+      it('should import an account by derivation path and password', async () => {
+        await Vault.spawn(password, defaultMnemonic);
+        const vault = await Vault.setup(password);
+        const [, newAccount] = await vault.importMnemonicAccount(hdWallets[1].mnemonic, password, "m/44'/1729'/1'/0'");
+        expect(newAccount).toMatchObject({
+          type: TempleAccountType.Imported,
+          chain: TempleChainKind.Tezos,
+          address: 'tz1b8uyMJ3mo87LMtijUcjjP3xm1MzCihUi8'
+        });
+      });
+    });
+
+    describe('EVM accounts', () => {
+      it('should import an account if EVM derivation path is specified', async () => {
+        await Vault.spawn(password, defaultMnemonic);
+        const vault = await Vault.setup(password);
+        const [, newAccount] = await vault.importMnemonicAccount(hdWallets[1].mnemonic, undefined, "m/44'/60'/0'/0/1");
+        expect(newAccount).toMatchObject({
+          type: TempleAccountType.Imported,
+          chain: TempleChainKind.EVM,
+          address: hdWallets[1].accounts[1].evm.address
+        });
+      });
+
+      it('should import an account if EVM derivation path and password are specified', async () => {
+        await Vault.spawn(password, defaultMnemonic);
+        const vault = await Vault.setup(password);
+        const [, newAccount] = await vault.importMnemonicAccount(hdWallets[1].mnemonic, password, "m/44'/60'/0'/0/1");
+        expect(newAccount).toMatchObject({
+          type: TempleAccountType.Imported,
+          chain: TempleChainKind.EVM,
+          address: '0xe59EaA7f2f6425712a2b6556a0fbA00bca61F802'
+        });
+      });
+    });
+  });
+
   it('should import an account by Tezos private key', async () => {
     await Vault.spawn(password, defaultMnemonic);
     const vault = await Vault.setup(password);
@@ -577,52 +646,6 @@ describe('Vault tests', () => {
       type: TempleAccountType.Imported,
       chain: TempleChainKind.EVM,
       address: hdWallets[0].accounts[1].evm.address
-    });
-  });
-
-  it('should import a fundraiser account', async () => {
-    await Vault.spawn(password, defaultMnemonic);
-    const vault = await Vault.setup(password);
-    const [, fundraiserAccount] = await vault.importFundraiserAccount(
-      'rtphpwty.yohjelcp@tezos.example.org',
-      'HMYlTEu0EF',
-      [
-        'zone',
-        'cheese',
-        'venture',
-        'sad',
-        'marriage',
-        'attitude',
-        'borrow',
-        'limit',
-        'country',
-        'agent',
-        'away',
-        'raven',
-        'nerve',
-        'laptop',
-        'oven'
-      ].join(' ')
-    );
-    expect(fundraiserAccount).toMatchObject({
-      type: TempleAccountType.Imported,
-      chain: TempleChainKind.Tezos,
-      address: 'tz1ZfrERcALBwmAqwonRXYVQBDT9BjNjBHJu'
-    });
-  });
-
-  it('should import a managed KT account', async () => {
-    await Vault.spawn(password, defaultMnemonic);
-    const vault = await Vault.setup(password);
-    const accounts = await vault.fetchAccounts();
-    const owner = getAccountAddressForTezos(accounts[0])!;
-    const [, newAccount] = await vault.importManagedKTAccount(mockManagedContractAddress, 'NetXdQprcVkpaWU', owner);
-    expect(newAccount).toMatchObject({
-      type: TempleAccountType.ManagedKT,
-      name: 'Translated<defaultManagedKTAccountName, "1">',
-      tezosAddress: mockManagedContractAddress,
-      chainId: 'NetXdQprcVkpaWU',
-      owner
     });
   });
 
@@ -728,29 +751,20 @@ describe('Vault tests', () => {
     await vault.importAccount(TempleChainKind.Tezos, hdWallets[0].accounts[1].tezos.privateKey);
     await vault.importAccount(TempleChainKind.EVM, hdWallets[0].accounts[1].evm.privateKey);
     await vault.importWatchOnlyAccount(TempleChainKind.Tezos, hdWallets[0].accounts[2].tezos.address);
-    await vault.importManagedKTAccount(
-      mockManagedContractAddress,
-      'NetXdQprcVkpaWU',
-      hdWallets[0].accounts[0].tezos.address
-    );
     const accountsBeforeDeletion = await vault.fetchAccounts();
     const accountsWithoutImported = await Vault.removeAccountsByType(TempleAccountType.Imported, password);
-    expect(accountsWithoutImported).toEqual([
-      accountsBeforeDeletion[0],
-      accountsBeforeDeletion[3],
-      accountsBeforeDeletion[4]
-    ]);
+    expect(accountsWithoutImported).toEqual([accountsBeforeDeletion[0], accountsBeforeDeletion[3]]);
     const accountsWithoutWatchOnly = await Vault.removeAccountsByType(TempleAccountType.WatchOnly, password);
-    expect(accountsWithoutWatchOnly).toEqual([accountsBeforeDeletion[0], accountsBeforeDeletion[4]]);
-    const accountsWithoutManagedKT = await Vault.removeAccountsByType(TempleAccountType.ManagedKT, password);
-    expect(accountsWithoutManagedKT).toEqual([accountsBeforeDeletion[0]]);
+    expect(accountsWithoutWatchOnly).toEqual([accountsBeforeDeletion[0]]);
   });
 
   it('should fetch all HD groups', async () => {
     await Vault.spawn(password, defaultMnemonic);
     const vault = await Vault.setup(password);
-    const groupsNames = await vault.fetchWalletsSpecs();
-    expect(Object.values(groupsNames)).toEqual([{ name: 'Translated<hdWalletDefaultName, "A">' }]);
+    const walletsSpecs = await vault.fetchWalletsSpecs();
+    const values = Object.values(walletsSpecs);
+    expectObjectArrayMatch(values, [{ name: 'Translated<hdWalletDefaultName, "A">' }]);
+    expectRecentTimestampInMs(values[0].createdAt);
   });
 
   describe('createOrImportWallet', () => {
@@ -798,10 +812,13 @@ describe('Vault tests', () => {
         hdWallets[0].accounts[2].tezos.privateKey
       );
       const { newWalletsSpecs, newAccounts: accounts } = await vault.createOrImportWallet(hdWallets[1].mnemonic);
-      expect(Object.values(newWalletsSpecs)).toEqual([
+      const values = Object.values(newWalletsSpecs);
+      expectObjectArrayMatch(values, [
         { name: 'Translated<hdWalletDefaultName, "A">' },
         { name: 'Translated<hdWalletDefaultName, "B">' }
       ]);
+      expectRecentTimestampInMs(values[0].createdAt);
+      expectRecentTimestampInMs(values[1].createdAt);
       const [, secondHdWalletId] = Object.keys(newWalletsSpecs);
       expectObjectArrayMatch(accounts, [
         accountsBeforeReplacement[0],
@@ -840,7 +857,9 @@ describe('Vault tests', () => {
       const { newWalletsSpecs } = await vault.createOrImportWallet();
       const [, secondWalletId] = Object.keys(newWalletsSpecs);
       const newGroupsNames = await vault.editGroupName(secondWalletId, 'newName');
-      expect(newGroupsNames[secondWalletId]).toEqual({ name: 'newName' });
+      const { name, createdAt } = newGroupsNames[secondWalletId];
+      expect(name).toEqual('newName');
+      expectRecentTimestampInMs(createdAt);
     });
   });
 });

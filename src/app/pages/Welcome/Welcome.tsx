@@ -1,130 +1,128 @@
-import React, { ComponentProps, FC } from 'react';
+import React, { memo, useCallback, useState } from 'react';
 
-import classNames from 'clsx';
-
-import Logo from 'app/atoms/Logo';
+import { IconBase } from 'app/atoms';
+import { Lines } from 'app/atoms/Lines';
+import { Logo } from 'app/atoms/Logo';
+import { PageModal } from 'app/atoms/PageModal';
+import { SocialButton } from 'app/atoms/SocialButton';
+import { StyledButton } from 'app/atoms/StyledButton';
+import { SuspenseContainer } from 'app/atoms/SuspenseContainer';
 import { useABTestingLoading } from 'app/hooks/use-ab-testing-loading';
-import { ReactComponent as EntranceIcon } from 'app/icons/entrance.svg';
-import { ReactComponent as FolderAddIcon } from 'app/icons/folder-add.svg';
-import { ReactComponent as LedgerNanoIcon } from 'app/misc/ledger.svg';
-import { TestIDProps } from 'lib/analytics';
-import { TID, T } from 'lib/i18n';
-import { Link } from 'lib/woozie';
+import { useSearchParamsBoolean } from 'app/hooks/use-search-params-boolean';
+import { ReactComponent as GoogleDriveIcon } from 'app/icons/base/google_drive.svg';
+import { ReactComponent as ImportedIcon } from 'app/icons/base/imported.svg';
+import { ReactComponent as PlusIcon } from 'app/icons/base/plus.svg';
+import PageLayout from 'app/layouts/PageLayout';
+import { CreatePasswordForm } from 'app/templates/CreatePasswordForm';
+import { ImportSeedForm } from 'app/templates/ImportSeedForm';
+import { t, T } from 'lib/i18n';
+import { useBooleanState } from 'lib/ui/hooks';
+import { goBack, useLocation } from 'lib/woozie';
 
 import { WelcomeSelectors } from './Welcome.selectors';
 
-interface TSign extends TestIDProps {
-  key: string;
-  linkTo: string;
-  filled: boolean;
-  Icon: ImportedSVGComponent;
-  titleI18nKey: TID;
-  descriptionI18nKey: TID;
-}
+const EmptyHeader = () => null;
 
-const SIGNS: TSign[] = [
-  {
-    key: 'import',
-    linkTo: '/import-wallet',
-    filled: false,
-    Icon: ({ className, ...rest }: ComponentProps<typeof EntranceIcon>) => (
-      <EntranceIcon className={classNames('transform rotate-90', className)} {...rest} />
-    ),
-    titleI18nKey: 'importExistingWallet',
-    descriptionI18nKey: 'importExistingWalletDescription',
-    testID: WelcomeSelectors.importExistingWallet
-  },
-  {
-    key: 'create',
-    linkTo: '/create-wallet',
-    filled: true,
-    Icon: FolderAddIcon,
-    titleI18nKey: 'createNewWallet',
-    descriptionI18nKey: 'createNewWalletDescription',
-    testID: WelcomeSelectors.createNewWallet
-  }
-];
-
-const Welcome: FC = () => {
+const Welcome = memo(() => {
   useABTestingLoading();
+  const { historyPosition } = useLocation();
+
+  const { value: isImport, setTrue: switchToImport, setFalse: cancelImport } = useSearchParamsBoolean('import');
+
+  const [seedPhrase, setSeedPhrase] = useState<string | undefined>();
+
+  const [shouldShowPasswordForm, showPasswordForm, hidePasswordForm] = useBooleanState(false);
+
+  const handleSeedPhraseSubmit = useCallback(
+    (seed: string) => {
+      setSeedPhrase(seed);
+      showPasswordForm();
+    },
+    [showPasswordForm]
+  );
+
+  const closeModal = useCallback(() => {
+    if (historyPosition === 0) {
+      setSeedPhrase(undefined);
+      hidePasswordForm();
+      cancelImport();
+    } else {
+      goBack();
+    }
+  }, [cancelImport, hidePasswordForm, historyPosition]);
+
+  const handleGoBack = useCallback(
+    () => void (shouldShowPasswordForm && hidePasswordForm()),
+    [hidePasswordForm, shouldShowPasswordForm]
+  );
 
   return (
-    <div
-      className={classNames(
-        'w-full max-w-screen-md mx-auto',
-        'min-h-screen flex flex-col items-center justify-center',
-        'px-4 pt-4 pb-36'
-      )}
-    >
-      <div className="mb-6 text-2xl text-gray-600 font-light">
-        <T id="welcomeTo" />
+    <PageLayout Header={EmptyHeader} contentPadding={false}>
+      <PageModal
+        title={t(shouldShowPasswordForm ? 'createPassword' : 'importExistingWallet')}
+        opened={shouldShowPasswordForm || isImport}
+        shouldShowBackButton={shouldShowPasswordForm && isImport}
+        onRequestClose={closeModal}
+        onGoBack={handleGoBack}
+      >
+        <SuspenseContainer>
+          {isImport && !shouldShowPasswordForm ? (
+            <ImportSeedForm next={handleSeedPhraseSubmit} onCancel={closeModal} />
+          ) : (
+            <CreatePasswordForm seedPhrase={seedPhrase} />
+          )}
+        </SuspenseContainer>
+      </PageModal>
+
+      <div className="flex-1 flex flex-col px-4 pb-8 h-full">
+        <div className="flex-1 flex flex-col justify-center items-center">
+          <Logo type="icon-title" size={40} className="mb-6" />
+          <span className="text-font-description-bold text-center pb-3">
+            <T id="welcomeQuote" />
+          </span>
+          <span className="text-font-small text-center text-grey-1">
+            <T id="welcomeQuoteAuthor" />
+          </span>
+        </div>
+
+        <div className="flex flex-col gap-4">
+          <SocialButton className="w-full" testID={WelcomeSelectors.continueWithGoogleDrive}>
+            <GoogleDriveIcon className="h-8 w-auto" />
+            <span className="text-font-regular-bold">
+              <T id="continueWithGoogleDrive" />
+            </span>
+          </SocialButton>
+
+          <Lines type="or" />
+
+          <StyledButton
+            className="w-full flex justify-center gap-0.5"
+            size="L"
+            color="primary"
+            testID={WelcomeSelectors.createNewWallet}
+            onClick={showPasswordForm}
+          >
+            <IconBase Icon={PlusIcon} size={16} />
+            <span>
+              <T id="createNewWallet" />
+            </span>
+          </StyledButton>
+          <StyledButton
+            className="w-full flex justify-center gap-0.5"
+            size="L"
+            color="secondary"
+            testID={WelcomeSelectors.importExistingWallet}
+            onClick={switchToImport}
+          >
+            <IconBase Icon={ImportedIcon} size={16} />
+            <span>
+              <T id="importExistingWallet" />
+            </span>
+          </StyledButton>
+        </div>
       </div>
-
-      <Logo hasTitle style={{ height: 70 }} />
-
-      <div className={classNames('w-full mt-8 mb-4 flex items-stretch')}>
-        {SIGNS.map(({ key, linkTo, filled, Icon, titleI18nKey, descriptionI18nKey, testID }) => (
-          <div key={key} className={classNames('w-1/2', 'p-4')}>
-            <Link
-              to={linkTo}
-              className={classNames(
-                'relative block',
-                'w-full pb-2/3',
-                'bg-primary-orange',
-                'overflow-hidden rounded-lg',
-                'transition duration-300 ease-in-out',
-                'transform hover:scale-110 focus:scale-110',
-                'shadow-md hover:shadow-lg focus:shadow-lg'
-              )}
-              testID={testID}
-            >
-              <div className="absolute inset-0 p-1">
-                <div
-                  className={classNames(
-                    'w-full h-full py-4 px-6',
-                    'overflow-hidden rounded-md',
-                    'flex flex-col justify-center',
-                    filled ? 'text-white' : 'shadow-inner bg-primary-orange-lighter text-primary-orange',
-                    'text-shadow-black-orange'
-                  )}
-                >
-                  <Icon className="self-center transform scale-125 stroke-current" />
-
-                  <h1 className="text-xl font-semibold text-center">
-                    <T id={titleI18nKey} />
-                  </h1>
-
-                  <p
-                    className={classNames(
-                      'mt-2 text-center text-xs',
-                      filled ? 'text-primary-orange-lighter' : 'text-primary-orange'
-                    )}
-                  >
-                    <T id={descriptionI18nKey} />
-                  </p>
-                </div>
-              </div>
-            </Link>
-          </div>
-        ))}
-      </div>
-
-      <div className="mt-12 mb-4 text-base text-gray-600 font-light">
-        <p className="mb-2 text-lg">Create the Temple wallet account and you may:</p>
-
-        <p className="mb-1 flex items-center">
-          <span className="text-lg pr-2">•</span>work with your{' '}
-          <LedgerNanoIcon className="ml-2 mr-1" style={{ width: 'auto', height: '0.5rem' }} /> Ledger device
-        </p>
-        <p className="mb-1 flex items-center">
-          <span className="text-lg pr-2">•</span>send and receive any Tezos based tokens
-        </p>
-        <p className="mb-1 flex items-center">
-          <span className="text-lg pr-2">•</span>connect and interact with Tezos dApps
-        </p>
-      </div>
-    </div>
+    </PageLayout>
   );
-};
+});
 
 export default Welcome;

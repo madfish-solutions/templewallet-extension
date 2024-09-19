@@ -14,12 +14,6 @@
   "createAccount": {
     "message": "계정 만들기"
   },
-  "faucetFileTitle": {
-    "message": "수도꼭지 파일"
-  },
-  "faucetFile": {
-    "message": "수도꼭지 파일"
-  },
   "settings": {
     "message": "설정"
   },
@@ -234,12 +228,6 @@
     "message": "CoinSwitch 사용",
     "description": "CoinSwitch = https://coinswitch.co/"
   },
-  "tezosFaucet": {
-    "message": "테조스 수도꼭지"
-  },
-  "tezosFaucetAlpha": {
-    "message": "테조스 수도꼭지(알파)"
-  },
   "depositToWallet": {
     "message": "지갑에 입금"
   },
@@ -342,16 +330,13 @@
     "message": "아이콘 URL"
   },
   "optionalComment": {
-    "message": "(선택)"
+    "message": "선택"
   },
   "iconURLInputDescription": {
     "message": "토큰 로고용 이미지 URL입니다."
   },
   "invalidAddress": {
     "message": "유효하지 않은 주소"
-  },
-  "contractNotExistOnNetwork": {
-    "message": "이 스마트 계약은 현재 네트워크에 존재하지 않습니다"
   },
   "onlyKTContractAddressAllowed": {
     "message": "KT... 계약 주소만 허용됨",
@@ -368,15 +353,6 @@
   },
   "defaultAccountName": {
     "message": "계정 $계정수$",
-    "placeholders": {
-      "accountNumber": {
-        "content": "$1"
-      }
-    }
-  },
-  "defaultManagedKTAccountName": {
-    "message": "관리 대상 KT $계정수$",
-    "description": "KT not translated",
     "placeholders": {
       "accountNumber": {
         "content": "$1"
@@ -566,20 +542,8 @@
   "mnemonic": {
     "message": "니모닉"
   },
-  "fundraiser": {
-    "message": "펀드레이저"
-  },
-  "privateKeyInputDescription": {
-    "message": "불러오고자 하는 계정의 비밀 키입니다."
-  },
-  "privateKeyInputPlaceholder": {
-    "message": "예) edsk3wfiPMu... | 0xL4mp3Ty..."
-  },
   "password": {
     "message": "비밀번호"
-  },
-  "isPrivateKeyEncrypted": {
-    "message": "비공개 키가 암호화된 포맷으로 되어 있나요?"
   },
   "customDerivationPath": {
     "message": "맞춤형 도출 경로"
@@ -625,14 +589,6 @@
   "smthWentWrong": {
     "message": "문제가 발생했습니다"
   },
-  "faucetFileInputPrompt": {
-    "message": "파일을 드래그 및 드롭 하거나 아래 영역을 클릭하여 수동으로 선택하세요. $link$에서 다운로드 할 수 있습니다.",
-    "placeholders": {
-      "link": {
-        "content": "$1"
-      }
-    }
-  },
   "processing": {
     "message": "처리 중..."
   },
@@ -670,12 +626,6 @@
   "networksDescription": {
     "message": "이 섹션에서 맞춤형 테조스 네트워크를 추가하거나 삭제할 수 있습니다.",
     "description": "Tezos = blockchain name (https://tezos.com/)"
-  },
-  "activateAccount": {
-    "message": "계정 활성화"
-  },
-  "activateAccountDescription": {
-    "message": "ICO/펀드레이져 혹은 테스트네트 수도꼭지 계정은 이것이 필수입니다"
   },
   "removeAccount": {
     "message": "계정 제거"
@@ -731,33 +681,6 @@
   },
   "contact": {
     "message": "연락처"
-  },
-  "accountAlreadyActivated": {
-    "message": "계정이 이미 활성화되었습니다."
-  },
-  "accountActivated": {
-    "message": "계정 활성화 성공!"
-  },
-  "failureSecretMayBeInvalid": {
-    "message": "실패. 입력한 보안 정보가 유효하지 않을 때 발생할 수 있습니다"
-  },
-  "accountToBeActivated": {
-    "message": "활성화할 계정입니다."
-  },
-  "ifYouWantToActivateAnotherAccount": {
-    "message": "다른 계정을 활성화하고자 한다면 우측 상담 드롭다운에서 해당 계정을 선택하세요."
-  },
-  "activateAccountSecret": {
-    "message": "보안 정보"
-  },
-  "activateAccountSecretDescription": {
-    "message": "펀드레이져 계정 혹은 수도꼭지의 '보안' 필드"
-  },
-  "activateAccountSecretPlaceholder": {
-    "message": "예) n4hs7sd3..."
-  },
-  "activate": {
-    "message": "활성화"
   },
   "minimalFeeDescription": {
     "message": "최소"
@@ -1054,7 +977,12 @@
     "message": "m/44'/1729'/<계정 지수>'/0'"
   },
   "derivationPathExample2": {
-    "message": "예) m/44'/1729'/..."
+    "message": "예) $derivationPath$",
+    "placeholders": {
+      "derivationPath": {
+        "content": "$1"
+      }
+    }
   },
   "keepSeedPhraseSecret": {
     "message": "보안을 유지하세요."
@@ -1358,9 +1286,6 @@
   "disabledForWatchOnlyAccount": {
     "message": "보기 전용 계정에서는 비활성화됨"
   },
-  "activationOperationType": {
-    "message": "활성화"
-  },
   "youAreNotContractManager": {
     "message": "회원님은 계약 관리자가 아닙니다"
   },
@@ -1372,9 +1297,6 @@
   },
   "contractAddressInputPlaceholder": {
     "message": "예) KT1a9w1S7hN5s..."
-  },
-  "addKnownManagedContract": {
-    "message": "알려진 관리 계약 추가"
   },
   "clickOnContractToImport": {
     "message": "가져오고자 하는 계약서를 클릭하세요."
@@ -1421,9 +1343,6 @@
   "popupSettingsDescription": {
     "message": "익스텐션 패널의 플러그인 아이콘 클릭에 나타나는 팝업을 여기에서 설정할 수 있습니다."
   },
-  "managedContract": {
-    "message": "관리 대상 계약"
-  },
   "referredByTokenContractNotFound": {
     "message": "토큰 계약이 참조하는 계약 $address$를 찾을 수 없습니다.",
     "placeholders": {
@@ -1448,9 +1367,6 @@
         "content": "$1"
       }
     }
-  },
-  "invalidManagedContract": {
-    "message": "유효하지 않은 관리 계약"
   },
   "someMethodNotDefinedInContract": {
     "message": "'$name$' 방법은 계약에 명시되어 있지 않습니다.",
@@ -1615,14 +1531,5 @@
   },
   "invalidJsonInput": {
     "message": "유효하지 않은 JSON"
-  },
-  "notFaucetJson": {
-    "message": "수도꼭지 JSON이 아님"
-  },
-  "faucetJson": {
-    "message": "수도꼭지 JSON"
-  },
-  "faucetJsonDescription": {
-    "message": "파일 추가 대신 여기에 JSON을 붙여넣기 할 수 있습니다"
   }
 }

@@ -24,10 +24,9 @@ import BigNumber from 'bignumber.js';
 import classNames from 'clsx';
 import { Controller, FieldError, useForm } from 'react-hook-form';
 
-import { NoSpaceField } from 'app/atoms';
+import { Identicon, NoSpaceField } from 'app/atoms';
 import AssetField from 'app/atoms/AssetField';
 import { ConvertedInputAssetAmount } from 'app/atoms/ConvertedInputAssetAmount';
-import Identicon from 'app/atoms/Identicon';
 import Money from 'app/atoms/Money';
 import { ArtificialError, NotEnoughFundsError, ZeroBalanceError, ZeroTEZBalanceError } from 'app/defaults';
 import { useAppEnv } from 'app/env';
@@ -468,7 +467,7 @@ export const Form: FC<Props> = ({ account, network, assetSlug, setOperation, onA
           filledContact ? (
             <div className="flex flex-wrap items-baseline">
               <Identicon
-                type="bottts"
+                type="botttsneutral"
                 hash={filledContact.address}
                 size={14}
                 className="flex-shrink-0 shadow-xs opacity-75"

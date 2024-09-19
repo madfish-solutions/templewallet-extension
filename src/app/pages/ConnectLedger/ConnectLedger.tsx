@@ -230,7 +230,7 @@ const ConnectLedger: FC = () => {
                 name="customDerivationPath"
                 id="importacc-cdp"
                 label={t('customDerivationPath')}
-                placeholder={t('derivationPathExample2')}
+                placeholder={t('derivationPathExample2', DEFAULT_TEZOS_DERIVATION_PATH)}
                 errorCaption={errors.customDerivationPath?.message}
                 containerClassName="mb-6"
                 testID={ConnectLedgerSelectors.customDerivationPathInput}

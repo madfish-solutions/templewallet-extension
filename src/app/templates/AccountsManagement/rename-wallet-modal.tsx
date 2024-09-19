@@ -1,10 +1,12 @@
 import React, { memo, useCallback, useMemo } from 'react';
 
+import { startCase } from 'lodash';
+
 import { FormField } from 'app/atoms';
 import {
   ActionModal,
-  ActionModalButton,
   ActionModalBodyContainer,
+  ActionModalButton,
   ActionModalButtonsContainer
 } from 'app/atoms/action-modal';
 import { ACCOUNT_OR_GROUP_NAME_PATTERN } from 'app/defaults';
@@ -13,8 +15,10 @@ import { T, t } from 'lib/i18n';
 import { useTempleClient } from 'lib/temple/front';
 import { DisplayedGroup } from 'lib/temple/types';
 
+import { AccountsManagementSelectors } from './selectors';
+
 interface RenameWalletModalProps {
-  onClose: () => void;
+  onClose: EmptyFn;
   selectedGroup: DisplayedGroup;
 }
 
@@ -34,15 +38,17 @@ export const RenameWalletModal = memo<RenameWalletModalProps>(({ onClose, select
     [editHdGroupName, onClose, selectedGroup.id]
   );
 
-  const { register, handleSubmit, errors, formState, onSubmit } = useTempleBackendActionForm<FormData>(
+  const { register, handleSubmit, errors, formState, onSubmit, setValue } = useTempleBackendActionForm<FormData>(
     renameGroup,
     'name',
     { defaultValues: renameFormInitialValues }
   );
   const submitting = formState.isSubmitting;
 
+  const cleanWalletName = useCallback(() => setValue('name', ''), [setValue]);
+
   return (
-    <ActionModal title="Rename Wallet" onClose={onClose}>
+    <ActionModal title={startCase(t('renameWallet'))} onClose={onClose}>
       <form onSubmit={handleSubmit(onSubmit)}>
         <ActionModalBodyContainer>
           <FormField
@@ -53,26 +59,26 @@ export const RenameWalletModal = memo<RenameWalletModalProps>(({ onClose, select
                 message: t('accountOrGroupNameInputTitle')
               }
             })}
-            label={t('walletNameInputLabel')}
+            label={<T id="walletNameInputLabel" />}
+            labelContainerClassName="text-grey-2"
             id="rename-wallet-input"
             type="text"
             name="name"
             placeholder={selectedGroup.name}
             errorCaption={errors.name?.message}
-            containerClassName="mb-1"
+            containerClassName="mb-1.5"
+            cleanable
+            onClean={cleanWalletName}
+            testID={AccountsManagementSelectors.newWalletNameInput}
           />
         </ActionModalBodyContainer>
         <ActionModalButtonsContainer>
           <ActionModalButton
-            className="bg-orange-200 text-orange-20"
+            color="primary"
+            type="submit"
             disabled={submitting}
-            onClick={onClose}
-            type="button"
+            testID={AccountsManagementSelectors.saveNameButton}
           >
-            <T id="cancel" />
-          </ActionModalButton>
-
-          <ActionModalButton className="bg-orange-20 text-white" disabled={submitting} type="submit">
             <T id="save" />
           </ActionModalButton>
         </ActionModalButtonsContainer>

@@ -142,18 +142,6 @@ const processRequest = async (req: TempleRequest, port: Runtime.Port): Promise<T
         type: TempleMessageType.ImportMnemonicAccountResponse
       };
 
-    case TempleMessageType.ImportFundraiserAccountRequest:
-      await Actions.importFundraiserAccount(req.email, req.password, req.mnemonic);
-      return {
-        type: TempleMessageType.ImportFundraiserAccountResponse
-      };
-
-    case TempleMessageType.ImportManagedKTAccountRequest:
-      await Actions.importManagedKTAccount(req.address, req.chainId, req.owner);
-      return {
-        type: TempleMessageType.ImportManagedKTAccountResponse
-      };
-
     case TempleMessageType.ImportWatchOnlyAccountRequest:
       await Actions.importWatchOnlyAccount(req.chain, req.address, req.chainId);
       return {

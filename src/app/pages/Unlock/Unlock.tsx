@@ -10,9 +10,11 @@ import { getUserTestingGroupNameActions } from 'app/store/ab-testing/actions';
 import { useUserTestingGroupNameSelector } from 'app/store/ab-testing/selectors';
 import { useFormAnalytics } from 'lib/analytics';
 import { ABTestGroup } from 'lib/apis/temple';
+import { DEFAULT_PASSWORD_INPUT_PLACEHOLDER } from 'lib/constants';
 import { USER_ACTION_TIMEOUT } from 'lib/fixed-times';
 import { T, t } from 'lib/i18n';
 import { useTempleClient } from 'lib/temple/front';
+import { loadMnemonicToBackup } from 'lib/temple/front/mnemonic-to-backup-keeper';
 import { TempleSharedStorageKey } from 'lib/temple/types';
 import { useLocalStorage } from 'lib/ui/local-storage';
 import { delay } from 'lib/utils';
@@ -79,6 +81,7 @@ const Unlock: FC<UnlockProps> = ({ canImportNew = true }) => {
       try {
         if (attempt > LAST_ATTEMPT) await delay(Math.random() * 2000 + 1000);
         await unlock(password);
+        await loadMnemonicToBackup(password);
 
         formAnalytics.trackSubmitSuccess();
         setAttempt(1);
@@ -142,7 +145,7 @@ const Unlock: FC<UnlockProps> = ({ canImportNew = true }) => {
           id="unlock-password"
           type="password"
           name="password"
-          placeholder="********"
+          placeholder={DEFAULT_PASSWORD_INPUT_PLACEHOLDER}
           errorCaption={errors.password && errors.password.message}
           containerClassName="mb-4"
           autoFocus

@@ -189,7 +189,9 @@ export const MIGRATIONS = [
     });
 
     toEncryptAndSave.push([accountsStrgKey, newAccounts], [walletMnemonicStrgKey(walletId), mnemonic]);
-    await putToStorage<StringRecord<WalletSpecs>>(WALLETS_SPECS_STORAGE_KEY, { [walletId]: { name: hdWalletName } });
+    await putToStorage<StringRecord<WalletSpecs>>(WALLETS_SPECS_STORAGE_KEY, {
+      [walletId]: { name: hdWalletName, createdAt: Date.now() }
+    });
 
     moveValueInStorage(ACCOUNT_PKH_STORAGE_KEY, ADS_VIEWER_ADDRESS_STORAGE_KEY);
 

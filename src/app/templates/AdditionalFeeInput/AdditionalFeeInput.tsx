@@ -207,7 +207,7 @@ interface FeeOptionContentProps {
 const FeeOptionContent: FC<FeeOptionContentProps> = ({ item: { descriptionI18nKey, amount }, gasSymbol }) => {
   return (
     <div className="flex flex-wrap items-center">
-      <Name className="w-16 text-sm font-medium leading-tight text-left">
+      <Name className="w-16 text-font-medium font-medium leading-tight text-left">
         <T id={descriptionI18nKey} />
       </Name>
 

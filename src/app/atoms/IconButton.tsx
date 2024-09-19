@@ -2,16 +2,16 @@ import React, { forwardRef, memo, useMemo } from 'react';
 
 import clsx from 'clsx';
 
+import {
+  StyledButtonColor,
+  ACTIVE_STYLED_BUTTON_COLORS_CLASSNAME,
+  getStyledButtonColorsClassNames
+} from 'lib/ui/button-like-styles';
 import useTippy from 'lib/ui/useTippy';
 import { combineRefs } from 'lib/ui/utils';
 
 import { Button, ButtonProps } from './Button';
 import { IconBase } from './IconBase';
-import {
-  StyledButtonColor,
-  ACTIVE_STYLED_BUTTON_COLORS_CLASSNAME,
-  getStyledButtonColorsClassNames
-} from './StyledButton';
 
 type Color = 'blue' | 'orange' | 'red';
 

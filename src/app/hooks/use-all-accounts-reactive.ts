@@ -5,7 +5,7 @@ import { difference } from 'lodash';
 import { navigate } from 'lib/woozie';
 import { useAllAccounts, useChangeAccount } from 'temple/front';
 
-export const useAllAccountsReactiveOnAddition = () => {
+export const useAllAccountsReactiveOnAddition = (shouldRedirectToHome = true) => {
   const allAccounts = useAllAccounts();
   const setAccountId = useChangeAccount();
 
@@ -15,10 +15,12 @@ export const useAllAccountsReactiveOnAddition = () => {
     const newAccountsIds = allAccounts.map(a => a.id);
     if (difference(newAccountsIds, prevAccountsIds.current).length > 0) {
       setAccountId(allAccounts[allAccounts.length - 1].id);
-      navigate('/');
+      if (shouldRedirectToHome) {
+        navigate('/');
+      }
     }
     prevAccountsIds.current = newAccountsIds;
-  }, [allAccounts, setAccountId]);
+  }, [allAccounts, setAccountId, shouldRedirectToHome]);
 
   return allAccounts;
 };

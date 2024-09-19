@@ -2,28 +2,42 @@ import React, { memo, useCallback, useEffect, useMemo, useState } from 'react';
 
 import clsx from 'clsx';
 
-import { Identicon, Name } from 'app/atoms';
+import { Name } from 'app/atoms';
 import { AccLabel } from 'app/atoms/AccLabel';
+import { AccountAvatar } from 'app/atoms/AccountAvatar';
 import { AccountName } from 'app/atoms/AccountName';
 import { EmptyState } from 'app/atoms/EmptyState';
 import { IconButton } from 'app/atoms/IconButton';
 import { PageModal } from 'app/atoms/PageModal';
+import { ScrollView } from 'app/atoms/PageModal/scroll-view';
 import { RadioButton } from 'app/atoms/RadioButton';
-import { StyledButton } from 'app/atoms/StyledButton';
 import { TotalEquity } from 'app/atoms/TotalEquity';
 import { useShortcutAccountSelectModalIsOpened } from 'app/hooks/use-account-select-shortcut';
+import { useAllAccountsReactiveOnAddition } from 'app/hooks/use-all-accounts-reactive';
 import { ReactComponent as SettingsIcon } from 'app/icons/base/settings.svg';
 import { NewWalletActionsPopper } from 'app/templates/NewWalletActionsPopper';
 import { SearchBarField } from 'app/templates/SearchField';
+import { t } from 'lib/i18n';
 import { StoredAccount } from 'lib/temple/types';
 import { useScrollIntoViewOnMount } from 'lib/ui/use-scroll-into-view';
 import { navigate } from 'lib/woozie';
 import { searchAndFilterAccounts, useAccountsGroups, useCurrentAccountId, useVisibleAccounts } from 'temple/front';
 import { useSetAccountId } from 'temple/front/ready';
 
+import { CreateHDWalletModal } from '../CreateHDWalletModal';
+import { ImportAccountModal, ImportOptionSlug } from '../ImportAccountModal';
+
+import { AccountsModalSelectors } from './selectors';
+
 interface Props {
   opened: boolean;
   onRequestClose: EmptyFn;
+}
+
+enum AccountsModalSubmodals {
+  CreateHDWallet = 'create-hd-wallet',
+  ImportAccount = 'import-account',
+  WatchOnly = 'watch-only'
 }
 
 export const AccountsModal = memo<Props>(({ opened, onRequestClose }) => {
@@ -31,7 +45,11 @@ export const AccountsModal = memo<Props>(({ opened, onRequestClose }) => {
   const currentAccountId = useCurrentAccountId();
 
   const [searchValue, setSearchValue] = useState('');
+  const [topEdgeIsVisible, setTopEdgeIsVisible] = useState(true);
+  const [activeSubmodal, setActiveSubmodal] = useState<AccountsModalSubmodals | undefined>(undefined);
+  const [importOptionSlug, setImportOptionSlug] = useState<ImportOptionSlug | undefined>();
 
+  useAllAccountsReactiveOnAddition();
   useShortcutAccountSelectModalIsOpened(onRequestClose);
 
   const filteredAccounts = useMemo(
@@ -47,40 +65,125 @@ export const AccountsModal = memo<Props>(({ opened, onRequestClose }) => {
     else if (!opened) setAttractSelectedAccount(true);
   }, [opened, searchValue]);
 
+  const closeSubmodal = useCallback(() => {
+    setActiveSubmodal(undefined);
+    setImportOptionSlug(undefined);
+  }, []);
+
+  const totalClose = useCallback(() => {
+    closeSubmodal();
+    onRequestClose();
+  }, [closeSubmodal, onRequestClose]);
+
+  const startWalletCreation = useCallback(() => setActiveSubmodal(AccountsModalSubmodals.CreateHDWallet), []);
+
+  const goToImportModal = useCallback(() => {
+    setActiveSubmodal(AccountsModalSubmodals.ImportAccount);
+    setImportOptionSlug(undefined);
+  }, []);
+  const goToWatchOnlyModal = useCallback(() => setActiveSubmodal(AccountsModalSubmodals.WatchOnly), []);
+  const handleSeedPhraseImportOptionSelect = useCallback(() => setImportOptionSlug('mnemonic'), []);
+  const handlePrivateKeyImportOptionSelect = useCallback(() => setImportOptionSlug('private-key'), []);
+
+  const submodal = useMemo(() => {
+    switch (activeSubmodal) {
+      case AccountsModalSubmodals.CreateHDWallet:
+        return (
+          <CreateHDWalletModal
+            animated={false}
+            onSuccess={closeSubmodal}
+            onClose={totalClose}
+            onStartGoBack={closeSubmodal}
+          />
+        );
+      case AccountsModalSubmodals.ImportAccount:
+        return (
+          <ImportAccountModal
+            animated={false}
+            optionSlug={importOptionSlug}
+            shouldShowBackButton
+            onGoBack={importOptionSlug ? goToImportModal : closeSubmodal}
+            onRequestClose={totalClose}
+            onSeedPhraseSelect={handleSeedPhraseImportOptionSelect}
+            onPrivateKeySelect={handlePrivateKeyImportOptionSelect}
+          />
+        );
+      case AccountsModalSubmodals.WatchOnly:
+        return (
+          <ImportAccountModal
+            animated={false}
+            optionSlug="watch-only"
+            shouldShowBackButton
+            onGoBack={closeSubmodal}
+            onRequestClose={totalClose}
+          />
+        );
+      default:
+        return null;
+    }
+  }, [
+    activeSubmodal,
+    closeSubmodal,
+    goToImportModal,
+    handlePrivateKeyImportOptionSelect,
+    handleSeedPhraseImportOptionSelect,
+    importOptionSlug,
+    totalClose
+  ]);
+
   return (
-    <PageModal title="My Accounts" opened={opened} onRequestClose={onRequestClose}>
-      <div className="flex gap-x-2 p-4">
-        <SearchBarField value={searchValue} onValueChange={setSearchValue} />
+    <>
+      {submodal}
 
-        <IconButton Icon={SettingsIcon} color="blue" onClick={() => void navigate('settings/accounts-management')} />
+      <PageModal title={t('myAccounts')} opened={opened} onRequestClose={onRequestClose}>
+        <div
+          className={clsx(
+            'flex gap-x-2 p-4',
+            !topEdgeIsVisible && 'shadow-bottom border-b-0.5 border-lines overflow-y-visible'
+          )}
+        >
+          <SearchBarField
+            value={searchValue}
+            onValueChange={setSearchValue}
+            testID={AccountsModalSelectors.searchField}
+          />
 
-        <NewWalletActionsPopper />
-      </div>
+          <IconButton
+            Icon={SettingsIcon}
+            color="blue"
+            onClick={() => navigate('settings/accounts-management')}
+            testID={AccountsModalSelectors.accountsManagementButton}
+          />
 
-      <div className="px-4 flex-1 flex flex-col overflow-y-auto">
-        {filteredGroups.length ? (
-          filteredGroups.map(group => (
-            <AccountsGroup
-              key={group.id}
-              title={group.name}
-              accounts={group.accounts}
-              currentAccountId={currentAccountId}
-              searchValue={searchValue}
-              attractSelectedAccount={attractSelectedAccount}
-              onAccountSelect={onRequestClose}
-            />
-          ))
-        ) : (
-          <EmptyState />
-        )}
-      </div>
+          <NewWalletActionsPopper
+            startWalletCreation={startWalletCreation}
+            testID={AccountsModalSelectors.newWalletActionsButton}
+            goToImportModal={goToImportModal}
+            goToWatchOnlyModal={goToWatchOnlyModal}
+          />
+        </div>
 
-      <div className="p-4 pb-6 flex flex-col bg-white">
-        <StyledButton size="L" color="primary-low" onClick={onRequestClose}>
-          Cancel
-        </StyledButton>
-      </div>
-    </PageModal>
+        <ScrollView onTopEdgeVisibilityChange={setTopEdgeIsVisible} topEdgeThreshold={4}>
+          {filteredGroups.length === 0 ? (
+            <div className="w-full h-full flex items-center">
+              <EmptyState variant="searchUniversal" />
+            </div>
+          ) : (
+            filteredGroups.map(group => (
+              <AccountsGroup
+                key={group.id}
+                title={group.name}
+                accounts={group.accounts}
+                currentAccountId={currentAccountId}
+                searchValue={searchValue}
+                attractSelectedAccount={attractSelectedAccount}
+                onAccountSelect={onRequestClose}
+              />
+            ))
+          )}
+        </ScrollView>
+      </PageModal>
+    </>
   );
 });
 
@@ -148,9 +251,7 @@ const AccountOfGroup = memo<AccountOfGroupProps>(({ account, isCurrent, searchVa
       onClick={onClick}
     >
       <div className="flex gap-x-1">
-        <div className="flex p-px rounded-md border border-grey-3">
-          <Identicon type="bottts" hash={account.id} size={28} className="rounded-sm" />
-        </div>
+        <AccountAvatar seed={account.id} size={32} borderColor="gray" />
 
         <AccountName account={account} searchValue={searchValue} smaller />
 

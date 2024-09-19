@@ -2,7 +2,7 @@ import React, { memo } from 'react';
 
 import ViewsSwitcherItem, { ViewsSwitcherItemProps } from './ViewsSwitcherItem';
 
-export interface ViewsSwitcherProps {
+interface ViewsSwitcherProps {
   activeItem: ViewsSwitcherItemProps;
   items: ViewsSwitcherItemProps[];
   onChange: (item: ViewsSwitcherItemProps) => void;

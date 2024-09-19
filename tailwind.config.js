@@ -40,7 +40,8 @@ module.exports = {
       outline: '0 0 0 3px rgba(237, 137, 54, 0.5)',
       none: 'none',
       //
-      bottom: '0px 2px 8px 0px #00000014',
+      'bottom': '0px 2px 8px 0px rgba(0, 0, 0, 0.08)',
+      center: '0px 0px 8px 0px #00000014',
       'content-inset': 'inset 0px 10px 8px -8px #00000014',
       drop: '0px 2px 4px 0px #00000040'
     },
@@ -53,6 +54,10 @@ module.exports = {
     // # EXTENDING DEFAULTS:
 
     extend: {
+      blur: {
+        'xs': '2px'
+      },
+
       colors: {
         gray: {
           100: '#f7fafc',
@@ -129,12 +134,14 @@ module.exports = {
         'secondary-low': '#E3ECF8',
         'secondary-hover-low': '#D7E3F2',
         //
+        'success': '#34CC4E',
         'success-low': '#E6F5E9',
         error: '#FF3B30',
         'error-hover': '#D93229',
         'error-low': '#FAE7E6',
         'error-hover-low': '#EFD4D2',
         'warning-low': '#FAF6E1',
+        'warning': '#FFD600',
         //
         /** Originally 'input' */
         'input-low': '#F0F0F0',
@@ -166,6 +173,7 @@ module.exports = {
         18: '4.5rem',
         25: '6.25rem',
         29: '7.25rem',
+        52: '13rem',
         63: '15.75rem',
         82: '20.5rem',
         88: '22rem'
@@ -175,7 +183,10 @@ module.exports = {
         15: '0.15'
       },
 
-      width: theme => theme('spacing'),
+      width: theme => ({
+        ...theme('spacing'),
+        modal: '22rem'
+      }),
 
       minWidth: theme => theme('width'),
 
@@ -275,6 +286,7 @@ module.exports = {
       gap: theme => theme('spacing'),
 
       borderRadius: {
+        0.75: '0.1875rem', // 3px
         1.25: '0.3125rem', // 5px
         2.5: '0.625rem', // 10px
         circle: '50%',

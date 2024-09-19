@@ -4,11 +4,9 @@ import { useDebounce } from 'use-debounce';
 
 import { EmptyState } from 'app/atoms/EmptyState';
 import { IconButton } from 'app/atoms/IconButton';
-import { StyledButton } from 'app/atoms/StyledButton';
 import { ReactComponent as PlusIcon } from 'app/icons/base/plus.svg';
 import { Network } from 'app/templates/NetworkSelectModal';
 import { SearchBarField } from 'app/templates/SearchField';
-import { T } from 'lib/i18n';
 import { navigate } from 'lib/woozie';
 import {
   EvmChain,
@@ -24,10 +22,9 @@ type Network = EvmChain | TezosChain;
 interface SelectNetworkPageProps {
   selectedNetwork: Network;
   onNetworkSelect: (network: Network) => void;
-  onCloseClick: EmptyFn;
 }
 
-export const SelectNetworkPage: FC<SelectNetworkPageProps> = ({ selectedNetwork, onNetworkSelect, onCloseClick }) => {
+export const SelectNetworkPage: FC<SelectNetworkPageProps> = ({ selectedNetwork, onNetworkSelect }) => {
   const accountTezAddress = useAccountAddressForTezos();
   const accountEvmAddress = useAccountAddressForEvm();
 
@@ -68,7 +65,7 @@ export const SelectNetworkPage: FC<SelectNetworkPageProps> = ({ selectedNetwork,
       </div>
 
       <div className="px-4 flex-1 flex flex-col overflow-y-auto">
-        {filteredNetworks.length === 0 && <EmptyState />}
+        {filteredNetworks.length === 0 && <EmptyState variant="searchUniversal" />}
 
         {filteredNetworks.map(network => (
           <Network
@@ -80,12 +77,6 @@ export const SelectNetworkPage: FC<SelectNetworkPageProps> = ({ selectedNetwork,
             onClick={handleNetworkSelect}
           />
         ))}
-      </div>
-
-      <div className="p-4 pb-6 flex flex-col bg-white">
-        <StyledButton size="L" color="primary-low" onClick={onCloseClick}>
-          <T id="close" />
-        </StyledButton>
       </div>
     </>
   );

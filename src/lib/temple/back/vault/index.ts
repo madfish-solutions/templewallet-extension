@@ -48,7 +48,8 @@ import {
   buildEncryptAndSaveManyForAccount,
   privateKeyToTezosAccountCreds,
   privateKeyToEvmAccountCreds,
-  canRemoveAccounts
+  canRemoveAccounts,
+  isEvmDerivationPath
 } from './misc';
 import {
   encryptAndSaveMany,
@@ -154,7 +155,9 @@ export class Vault {
         ],
         passKey
       );
-      await savePlain<StringRecord<WalletSpecs>>(WALLETS_SPECS_STORAGE_KEY, { [walletId]: { name: walletName } });
+      await savePlain<StringRecord<WalletSpecs>>(WALLETS_SPECS_STORAGE_KEY, {
+        [walletId]: { name: walletName, createdAt: Date.now() }
+      });
       await savePlain(migrationLevelStrgKey, MIGRATIONS.length);
 
       return tezosAcc.address;
@@ -553,7 +556,10 @@ export class Vault {
       };
 
       const newAccounts = concatAccount(allAccounts, newAccount);
-      const newWalletsSpecs: StringRecord<WalletSpecs> = { ...walletsSpecs, [walletId]: { name: walletName } };
+      const newWalletsSpecs: StringRecord<WalletSpecs> = {
+        ...walletsSpecs,
+        [walletId]: { name: walletName, createdAt: Date.now() }
+      };
 
       await encryptAndSaveMany(
         [
@@ -612,40 +618,10 @@ export class Vault {
         seed = deriveSeed(seed, derivationPath);
       }
 
-      const privateKey = seedToPrivateKey(seed);
-      return this.importAccount(TempleChainKind.Tezos, privateKey);
-    });
-  }
-
-  async importFundraiserAccount(email: string, password: string, mnemonic: string) {
-    return withError('Failed to import fundraiser account', async () => {
-      const seed = Bip39.mnemonicToSeedSync(mnemonic, `${email}${password}`);
-      const privateKey = seedToPrivateKey(seed);
-      return this.importAccount(TempleChainKind.Tezos, privateKey);
-    });
-  }
-
-  async importManagedKTAccount(address: string, chainId: string, owner: string) {
-    return withError('Failed to import Managed KT account', async () => {
-      const allAccounts = await this.fetchAccounts();
-      const newAccount: StoredAccount = {
-        id: nanoid(),
-        type: TempleAccountType.ManagedKT,
-        name: await fetchNewAccountName(
-          allAccounts,
-          TempleAccountType.ManagedKT,
-          undefined,
-          'defaultManagedKTAccountName'
-        ),
-        tezosAddress: address,
-        chainId,
-        owner
-      };
-      const newAllAccounts = concatAccount(allAccounts, newAccount);
-
-      await encryptAndSaveMany([[accountsStrgKey, newAllAccounts]], this.passKey);
-
-      return newAllAccounts;
+      // TODO: Loose chain from derivation, when importing accounts is reworked
+      const chain = derivationPath && isEvmDerivationPath(derivationPath) ? TempleChainKind.EVM : TempleChainKind.Tezos;
+      const privateKey = seedToPrivateKey(seed, chain);
+      return this.importAccount(chain, privateKey);
     });
   }
 
@@ -767,7 +743,10 @@ export class Vault {
         throw new PublicError('Group with this name already exists');
       }
 
-      const newWalletsSpecs: StringRecord<WalletSpecs> = { ...walletsSpecs, [id]: { name } };
+      const newWalletsSpecs: StringRecord<WalletSpecs> = {
+        ...walletsSpecs,
+        [id]: { name, createdAt: walletsSpecs[id].createdAt }
+      };
       await savePlain<StringRecord<WalletSpecs>>(WALLETS_SPECS_STORAGE_KEY, newWalletsSpecs);
 
       return newWalletsSpecs;
