@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect, FC, RefObject, CSSProperties } from 'react';
+import React, { useRef, useState, useEffect, FC, RefObject, CSSProperties, MutableRefObject } from 'react';
 
 import clsx from 'clsx';
 
@@ -14,8 +14,9 @@ interface Props {
   name: string;
   segments: Segment[];
   setActiveSegment: (value: string, index: number) => void;
-  defaultIndex?: number;
   controlRef: RefObject<HTMLDivElement>;
+  defaultIndex?: number;
+  activeIndexRef?: MutableRefObject<number | null>;
   className?: string;
   style?: CSSProperties;
 }
@@ -25,12 +26,20 @@ const SegmentedControl: FC<Props> = ({
   segments,
   setActiveSegment,
   defaultIndex = 0,
+  activeIndexRef,
   controlRef,
   className,
   style
 }) => {
   const [activeIndex, setActiveIndex] = useState(defaultIndex);
   const componentReady = useRef<boolean>();
+
+  useEffect(() => {
+    if (activeIndexRef?.current) {
+      setActiveIndex(activeIndexRef.current);
+      activeIndexRef.current = null;
+    }
+  }, [activeIndexRef?.current]);
 
   // Determine when the component is "ready"
   useEffect(() => {

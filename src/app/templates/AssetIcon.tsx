@@ -62,7 +62,7 @@ export const EvmTokenIcon = memo<EvmAssetIconProps>(({ evmChainId, assetSlug, cl
 
 const ICON_DEFAULT_SIZE = 40;
 const ASSET_IMAGE_DEFAULT_SIZE = 30;
-const NETWORK_IMAGE_DEFAULT_SIZE = 16;
+export const NETWORK_IMAGE_DEFAULT_SIZE = 16;
 
 interface TezosTokenIconWithNetworkProps
   extends Omit<AssetImageBaseProps, 'sources' | 'metadata' | 'loader' | 'fallback' | 'size'> {

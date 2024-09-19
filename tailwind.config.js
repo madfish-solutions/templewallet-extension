@@ -129,11 +129,13 @@ module.exports = {
         'secondary-low': '#E3ECF8',
         'secondary-hover-low': '#D7E3F2',
         //
+        success: '#34CC4E',
         'success-low': '#E6F5E9',
         error: '#FF3B30',
         'error-hover': '#D93229',
         'error-low': '#FAE7E6',
         'error-hover-low': '#EFD4D2',
+        warning: '#FFD600',
         'warning-low': '#FAF6E1',
         //
         /** Originally 'input' */

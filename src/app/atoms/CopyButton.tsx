@@ -8,24 +8,26 @@ import useCopyToClipboard from 'lib/ui/useCopyToClipboard';
 import useTippy from 'lib/ui/useTippy';
 
 const TEXT_SHADES = {
+  100: 'text-secondary',
   500: 'text-gray-500',
   600: 'text-gray-600',
   700: 'text-gray-700'
 };
 
 const BG_SHADES = {
+  50: 'bg-secondary-low hover:bg-secondary-hover-low',
   100: 'bg-gray-100 hover:bg-gray-200',
   200: 'bg-gray-200 hover:bg-gray-300'
 };
 
 export type CopyButtonProps = HTMLAttributes<HTMLButtonElement> &
   TestIDProps & {
-    bgShade?: 100 | 200;
+    bgShade?: 50 | 100 | 200;
     rounded?: 'sm' | 'base';
     text: string;
     small?: boolean;
     type?: 'button' | 'link';
-    textShade?: 500 | 600 | 700;
+    textShade?: 100 | 500 | 600 | 700;
   };
 
 const CopyButton: FC<CopyButtonProps> = ({
@@ -72,7 +74,7 @@ const CopyButton: FC<CopyButtonProps> = ({
             'font-tnum leading-none select-none',
             'transition ease-in-out duration-300',
             rounded === 'base' ? 'rounded' : 'rounded-sm',
-            small ? 'text-xs p-1' : 'text-sm py-1 px-2',
+            small ? 'text-font-description p-1' : 'text-sm py-1 px-2',
             BG_SHADES[bgShade],
             TEXT_SHADES[textShade],
             className
