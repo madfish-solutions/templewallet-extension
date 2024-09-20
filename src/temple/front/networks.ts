@@ -36,6 +36,14 @@ export const useTempleNetworksActions = () => {
     [customTezosNetworks, updateSettings]
   );
 
+  const updateTezosNetwork = useCallback(
+    (networkId: string, newNetwork: StoredTezosNetwork) =>
+      updateSettings({
+        customTezosNetworks: customTezosNetworks.map(n => (n.id === networkId ? newNetwork : n))
+      }),
+    [customTezosNetworks, updateSettings]
+  );
+
   const removeTezosNetwork = useCallback(
     (networkId: string) =>
       updateSettings({
@@ -52,6 +60,14 @@ export const useTempleNetworksActions = () => {
     [customEvmNetworks, updateSettings]
   );
 
+  const updateEvmNetwork = useCallback(
+    (networkId: string, newNetwork: StoredEvmNetwork) =>
+      updateSettings({
+        customEvmNetworks: customEvmNetworks.map(n => (n.id === networkId ? newNetwork : n))
+      }),
+    [customEvmNetworks, updateSettings]
+  );
+
   const removeEvmNetwork = useCallback(
     (networkId: string) =>
       updateSettings({
@@ -64,8 +80,10 @@ export const useTempleNetworksActions = () => {
     customTezosNetworks,
     customEvmNetworks,
     addTezosNetwork,
+    updateTezosNetwork,
     removeTezosNetwork,
     addEvmNetwork,
+    updateEvmNetwork,
     removeEvmNetwork
   };
 };

@@ -28,7 +28,7 @@ export const ActivityItem = memo<Props>(({ tezosChainId, activity, address }) =>
       <div className="w-full flex items-center">
         <HashChip hash={hash} firstCharsCount={10} lastCharsCount={7} small className="mr-2" />
 
-        <OpenInExplorerChip tezosChainId={tezosChainId} hash={hash} className="mr-2" small />
+        <OpenInExplorerChip entityType="tx" tezosChainId={tezosChainId} hash={hash} className="mr-2" small />
 
         <div className={classNames('flex-1', 'h-px', 'bg-gray-200')} />
       </div>

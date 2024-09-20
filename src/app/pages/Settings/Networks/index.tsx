@@ -1,20 +1,120 @@
-import React, { memo } from 'react';
+import React, { memo, useCallback, useEffect, useMemo, useState } from 'react';
 
-import { Lines } from 'app/atoms';
+import { EmptyState } from 'app/atoms/EmptyState';
+import { t } from 'lib/i18n';
+import {
+  AdditionalChainsPropsContextProvider,
+  useAdditionalChainsPropsContext
+} from 'lib/temple/front/additional-chains-props-context';
+import { filterNetworksByName } from 'lib/ui/filter-networks-by-name';
+import { useBooleanState } from 'lib/ui/hooks';
+import { SettingsTabProps } from 'lib/ui/settings-tab-props';
+import { useAllEvmChains, useAllTezosChains } from 'temple/front';
+import { TempleChainKind, TempleChainTitle } from 'temple/types';
 
-import { EvmChainsSettings } from './EvmChains';
-import { TezosChainsSettings } from './TezosChains';
+import { ChainsGroupView } from './chains-group-view';
+import { FiltersBlock } from './filters-block';
 
-const NetworksSettings = memo(() => {
+interface ChainsFilters {
+  kind?: TempleChainKind;
+  isDefault?: boolean;
+}
+
+const NetworksSettingsBody = memo<SettingsTabProps>(({ setHeaderChildren }) => {
+  const tezosChainsRecord = useAllTezosChains();
+  const evmChainsRecord = useAllEvmChains();
+  const { isDefaultNetwork, isMainnet } = useAdditionalChainsPropsContext();
+
+  const [isMainnetTab, openMainnetTab, openTestnetTab] = useBooleanState(true);
+  // const [isAddNetworkModalOpen, openAddNetworkModal, closeAddNetworkModal] = useBooleanState(false);
+  const [searchValue, setSearchValue] = useState('');
+
+  const allChains = useMemo(
+    () => [...Object.values(tezosChainsRecord), ...Object.values(evmChainsRecord)],
+    [evmChainsRecord, tezosChainsRecord]
+  );
+  const matchingChains = useMemo(() => filterNetworksByName(allChains, searchValue), [allChains, searchValue]);
+
+  const pickChains = useCallback(
+    ({ kind, isDefault }: ChainsFilters) =>
+      matchingChains.filter(
+        chain =>
+          (!kind || chain.kind === kind) &&
+          (isDefault === undefined || isDefault === isDefaultNetwork(chain.kind, chain.chainId)) &&
+          isMainnetTab === isMainnet(chain.kind, chain.chainId)
+      ),
+    [isDefaultNetwork, isMainnet, isMainnetTab, matchingChains]
+  );
+
+  const chainsGroups = useMemo(() => {
+    const customChainsGroup = {
+      title: t('customNetworksGroup'),
+      chains: pickChains({ isDefault: false })
+    };
+
+    if (isMainnetTab) {
+      return [
+        {
+          title: t('defaultNetworksGroup'),
+          chains: pickChains({ isDefault: true })
+        },
+        customChainsGroup
+      ].filter(({ chains }) => chains.length > 0);
+    }
+
+    return [
+      {
+        title: TempleChainTitle[TempleChainKind.EVM],
+        chains: pickChains({ isDefault: true, kind: TempleChainKind.EVM })
+      },
+      {
+        title: TempleChainTitle[TempleChainKind.Tezos],
+        chains: pickChains({ isDefault: true, kind: TempleChainKind.Tezos })
+      },
+      customChainsGroup
+    ].filter(({ chains }) => chains.length > 0);
+  }, [isMainnetTab, pickChains]);
+
+  const handleAddNetworkClick = useCallback(() => console.log('add network'), []);
+
+  const headerChildren = useMemo(
+    () => (
+      <FiltersBlock
+        searchValue={searchValue}
+        isMainnetTab={isMainnetTab}
+        openMainnetTab={openMainnetTab}
+        openTestnetTab={openTestnetTab}
+        setSearchValue={setSearchValue}
+        onAddNetworkClick={handleAddNetworkClick}
+      />
+    ),
+    [handleAddNetworkClick, isMainnetTab, openMainnetTab, openTestnetTab, searchValue]
+  );
+  useEffect(() => setHeaderChildren(headerChildren), [headerChildren, setHeaderChildren]);
+  useEffect(() => {
+    return () => setHeaderChildren(null);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   return (
     <>
-      <TezosChainsSettings />
-
-      <Lines className="my-8" />
-
-      <EvmChainsSettings />
+      {chainsGroups.length === 0 ? (
+        <div className="w-full h-full flex items-center">
+          <EmptyState variant="searchUniversal" />
+        </div>
+      ) : (
+        <div className="flex flex-col gap-y-4 -m-4 px-4 pb-4 overflow-y-auto">
+          {chainsGroups.map((group, i) => (
+            <ChainsGroupView className={i === chainsGroups.length - 1 ? 'mb-4' : ''} key={group.title} group={group} />
+          ))}
+        </div>
+      )}
     </>
   );
 });
 
-export default NetworksSettings;
+export const NetworksSettings = memo<SettingsTabProps>(props => (
+  <AdditionalChainsPropsContextProvider>
+    <NetworksSettingsBody {...props} />
+  </AdditionalChainsPropsContextProvider>
+));

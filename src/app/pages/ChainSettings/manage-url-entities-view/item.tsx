@@ -1,0 +1,61 @@
+import React, { useCallback } from 'react';
+
+import clsx from 'clsx';
+
+import { Button, IconBase } from 'app/atoms';
+import { SettingsCell } from 'app/atoms/SettingsCell';
+import { ReactComponent as ChevronRightIcon } from 'app/icons/base/chevron_right.svg';
+import { setAnotherSelector } from 'lib/analytics';
+import { T } from 'lib/i18n';
+
+import { UrlEntityBase } from './types';
+
+interface ManageUrlEntitiesItemProps<T> {
+  item: T;
+  getEntityUrl: SyncFn<T, string>;
+  isActive: boolean;
+  onClick: SyncFn<T, void>;
+  testID: string;
+}
+
+export const ManageUrlEntitiesItem = <T extends UrlEntityBase>({
+  item,
+  isActive,
+  getEntityUrl,
+  onClick,
+  testID
+}: ManageUrlEntitiesItemProps<T>) => {
+  const handleClick = useCallback(() => onClick(item), [item, onClick]);
+
+  const url = getEntityUrl(item);
+
+  return (
+    <SettingsCell
+      Component={Button}
+      cellName={
+        <div className="flex flex-col gap-0.5 text-left font-normal">
+          <span className="text-font-description">{item.nameI18nKey ? <T id={item.nameI18nKey} /> : item.name}</span>
+          <span className="text-font-small text-grey-1">{url}</span>
+        </div>
+      }
+      className="hover:bg-secondary-low"
+      onClick={handleClick}
+      testID={testID}
+      {...setAnotherSelector('url', url)}
+    >
+      <div className="flex items-center gap-3">
+        {isActive && (
+          <span
+            className={clsx(
+              'bg-success-low border-0.5 border-success rounded px-1 py-0.5',
+              'text-success text-font-small-bold uppercase'
+            )}
+          >
+            <T id="active" />
+          </span>
+        )}
+        <IconBase Icon={ChevronRightIcon} className="text-primary" size={16} />
+      </div>
+    </SettingsCell>
+  );
+};

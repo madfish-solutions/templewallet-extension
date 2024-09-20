@@ -11,11 +11,25 @@ interface Props {
   className?: string;
   onFirstClick: EmptyFn;
   onSecondClick: EmptyFn;
+  firstButtonTestId?: string;
+  secondButtonTestId?: string;
 }
 
 export const SimpleSegmentControl = memo(
   forwardRef<HTMLDivElement, Props>(
-    ({ firstTitle, secondTitle, activeSecond, className, onFirstClick, onSecondClick }, ref) => (
+    (
+      {
+        firstTitle,
+        secondTitle,
+        activeSecond,
+        className,
+        onFirstClick,
+        onSecondClick,
+        firstButtonTestId,
+        secondButtonTestId
+      },
+      ref
+    ) => (
       <div ref={ref} className={clsx('p-0.5 rounded-md bg-lines', className)}>
         <div className="w-full flex gap-x-0.5 relative">
           {/* Slider */}
@@ -30,6 +44,7 @@ export const SimpleSegmentControl = memo(
             disabled={!activeSecond}
             className={clsx('flex-1 relative p-1 text-font-num-bold-12', !activeSecond && 'text-primary')}
             onClick={onFirstClick}
+            testID={firstButtonTestId}
           >
             {firstTitle}
           </Button>
@@ -38,6 +53,7 @@ export const SimpleSegmentControl = memo(
             disabled={activeSecond}
             className={clsx('flex-1 relative p-1 text-font-num-bold-12', activeSecond && 'text-primary')}
             onClick={onSecondClick}
+            testID={secondButtonTestId}
           >
             {secondTitle}
           </Button>
