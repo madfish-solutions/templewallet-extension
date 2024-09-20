@@ -4,21 +4,23 @@ import { PageModal } from 'app/atoms/PageModal';
 import { ActionsButtonsBox } from 'app/atoms/PageModal/actions-buttons-box';
 import SegmentedControl from 'app/atoms/SegmentedControl';
 import { StyledButton } from 'app/atoms/StyledButton';
-import { EvmTokenIconWithNetwork } from 'app/templates/AssetIcon';
+import { ConfirmData } from 'app/pages/Send/form/interfaces';
 import { T } from 'lib/i18n';
 
-import { CurrentAccount } from './CurrentAccount';
+import { CurrentAccount } from './components/CurrentAccount';
+import { Header } from './components/Header';
 import { AdvancedTab } from './tabs/Advanced';
 import { DetailsTab } from './tabs/Details';
 import { FeeTab } from './tabs/Fee';
 
 interface ConfirmSendModalProps {
-  //data?: ConfirmData;
   opened: boolean;
   onRequestClose: EmptyFn;
+  chainAssetSlug: string;
+  data: ConfirmData;
 }
 
-export const ConfirmSendModal: FC<ConfirmSendModalProps> = ({ opened, onRequestClose }) => {
+export const ConfirmSendModal: FC<ConfirmSendModalProps> = ({ opened, onRequestClose, chainAssetSlug, data }) => {
   const [tab, setTab] = useState('details');
 
   const activeIndexRef = useRef<number | null>(null);
@@ -31,11 +33,7 @@ export const ConfirmSendModal: FC<ConfirmSendModalProps> = ({ opened, onRequestC
   return (
     <PageModal title="Confirm Send" opened={opened} onRequestClose={onRequestClose}>
       <div className="px-4 flex flex-col flex-1 overflow-y-scroll">
-        <div className="flex flex-col justify-center items-center text-center my-4">
-          <EvmTokenIconWithNetwork evmChainId={1} assetSlug="eth" className="mb-2" />
-          <span className="text-font-num-bold-14">0.44443</span>
-          <span className="text-font-num-12 text-grey-1">12345.33$</span>
-        </div>
+        <Header chainAssetSlug={chainAssetSlug} amount={data.amount} />
 
         <CurrentAccount />
 
@@ -72,7 +70,15 @@ export const ConfirmSendModal: FC<ConfirmSendModalProps> = ({ opened, onRequestC
               case 'advanced':
                 return <AdvancedTab />;
               default:
-                return <DetailsTab goToFeeTab={goToFeeTab} />;
+                return (
+                  <DetailsTab
+                    chainAssetSlug={chainAssetSlug}
+                    recipientAddress={data.to}
+                    gasFee={data.fee}
+                    storageLimit={data.storageLimit}
+                    goToFeeTab={goToFeeTab}
+                  />
+                );
             }
           })()}
         </div>

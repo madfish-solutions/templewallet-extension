@@ -3,4 +3,7 @@ export interface SendFormData {
   to: string;
 }
 
-export interface ConfirmData extends SendFormData {}
+export interface ConfirmData extends SendFormData {
+  fee: string;
+  storageLimit?: string;
+}

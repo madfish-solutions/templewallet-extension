@@ -1,5 +1,7 @@
 import React, { memo, Suspense, useCallback, useState } from 'react';
 
+import { isDefined } from '@rnw-community/shared';
+
 import { PageTitle } from 'app/atoms';
 import PageLayout from 'app/layouts/PageLayout';
 import { useAssetsFilterOptionsSelector } from 'app/store/assets-filter-options/selectors';
@@ -48,9 +50,13 @@ const Send = memo<Props>(({ chainKind, chainId, assetSlug }) => {
   });
 
   const [selectAssetModalOpened, setSelectAssetModalOpen, setSelectAssetModalClosed] = useBooleanState(false);
-  const [confirmSendModalOpened, setConfirmSendModalOpen, setConfirmSendModalClosed] = useBooleanState(false);
+  const [confirmSendModalOpened, setConfirmSendModalOpen, setConfirmSendModalClosed] = useBooleanState(true);
 
-  const [confirmData, setConfirmData] = useState<ConfirmData>();
+  const [confirmData, setConfirmData] = useState<ConfirmData | null>({
+    amount: '0.44443',
+    to: '0xd8dA6BF26964aF9D7eEd9e03E5341524FSfrw1233',
+    fee: '0.0008'
+  });
 
   const handleAssetSelect = useCallback(
     (slug: string) => {
@@ -60,10 +66,13 @@ const Send = memo<Props>(({ chainKind, chainId, assetSlug }) => {
     [setSelectAssetModalClosed]
   );
 
-  const handleConfirm = useCallback((data: ConfirmData) => {
-    setConfirmData(data);
-    setConfirmSendModalOpen();
-  }, []);
+  const handleConfirm = useCallback(
+    (data: ConfirmData) => {
+      setConfirmData(data);
+      setConfirmSendModalOpen();
+    },
+    [setConfirmSendModalOpen]
+  );
 
   return (
     <PageLayout
@@ -84,7 +93,12 @@ const Send = memo<Props>(({ chainKind, chainId, assetSlug }) => {
         opened={selectAssetModalOpened}
         onRequestClose={setSelectAssetModalClosed}
       />
-      <ConfirmSendModal opened={true} onRequestClose={setConfirmSendModalClosed} />
+      <ConfirmSendModal
+        opened={confirmSendModalOpened && isDefined(confirmData)}
+        onRequestClose={setConfirmSendModalClosed}
+        chainAssetSlug={selectedChainAssetSlug}
+        data={confirmData!}
+      />
     </PageLayout>
   );
 });
