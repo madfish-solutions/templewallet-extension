@@ -22,6 +22,7 @@ export interface TezosPreActivity {
 type PickedPropsFromTzktOperation = Pick<TzktOperation, 'id' | 'level'>;
 
 export interface TezosPreActivityOperationBase extends PickedPropsFromTzktOperation {
+  sender: OperationMember;
   contractAddress?: string;
   status: TezosPreActivityStatus;
   amountSigned: string;
@@ -32,7 +33,8 @@ export interface TezosPreActivityTransactionOperation extends TezosPreActivityOp
   type: 'transaction';
   subtype?: 'transfer' | 'approve';
   from: OperationMember;
-  to?: OperationMember;
+  /** Optional - parser is not keeping all of `txs`'s `to_`s, reducing to total amount */
+  to: OperationMember[];
   destination: OperationMember;
   entrypoint?: string;
   tokenId?: string;
@@ -40,7 +42,6 @@ export interface TezosPreActivityTransactionOperation extends TezosPreActivityOp
 
 export interface TezosPreActivityOtherOperation extends TezosPreActivityOperationBase {
   type: Exclude<TzktOperationType, 'transaction'>;
-  source: OperationMember;
   destination?: OperationMember;
 }
 

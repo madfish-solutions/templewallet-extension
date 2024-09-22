@@ -60,7 +60,7 @@ function reduceOneTzktOperation(operation: TzktOperation, address: string): Tezo
       const activityOperBase = buildActivityOperBase(operation, '0', operation.sender.address === address);
       const activityOper: TezosPreActivityOtherOperation = {
         ...activityOperBase,
-        source: operation.sender,
+        sender: operation.sender,
         type: 'delegation'
       };
       if (operation.newDelegate) activityOper.destination = operation.newDelegate;
@@ -71,7 +71,7 @@ function reduceOneTzktOperation(operation: TzktOperation, address: string): Tezo
       const activityOperBase = buildActivityOperBase(operation, amount, operation.sender.address === address);
       const activityOper: TezosPreActivityOtherOperation = {
         ...activityOperBase,
-        source: operation.sender,
+        sender: operation.sender,
         type: 'origination'
       };
       if (operation.originatedContract) activityOper.destination = operation.originatedContract;
@@ -89,7 +89,7 @@ function reduceOneTzktTransactionOperation(
   function _buildReturn(args: {
     amount: string;
     from: OperationMember;
-    to?: OperationMember;
+    to: OperationMember | string[];
     contractAddress?: string;
     tokenId?: string;
     subtype?: TezosPreActivityTransactionOperation['subtype'];
@@ -108,7 +108,7 @@ function reduceOneTzktTransactionOperation(
       subtype,
       destination: operation.target,
       from,
-      to
+      to: Array.isArray(to) ? to.map(address => ({ address })) : [to]
     };
 
     if (contractAddress != null) activityOper.contractAddress = contractAddress;
@@ -138,7 +138,7 @@ function reduceOneTzktTransactionOperation(
     const amount = firstVal.amount;
     const tokenId = firstVal.tokenId;
     const from = { ...operation.sender, address: firstVal.fromAddress };
-    const to = firstVal.isToRelAddress ? { address } : undefined;
+    const to = firstVal.toAddresses;
 
     return _buildReturn({ amount, from, to, contractAddress, tokenId, subtype: 'transfer' });
   } else if (isTzktOperParam_Fa2_approve(parameter)) {
@@ -194,10 +194,11 @@ function reduceOneTzktTransactionOperation(
 }
 
 function buildActivityOperBase(operation: TzktOperation, amount: string, from: boolean) {
-  const { id, level, timestamp: addedAt } = operation;
+  const { id, level, sender, timestamp: addedAt } = operation;
   const reducedOperation: TezosPreActivityOperationBase = {
     id,
     level,
+    sender,
     amountSigned: from ? `-${amount}` : amount,
     status: stringToActivityStatus(operation.status),
     addedAt
@@ -208,7 +209,7 @@ function buildActivityOperBase(operation: TzktOperation, amount: string, from: b
 
 interface ReducedParameterFa2Values {
   fromAddress: string;
-  isToRelAddress?: boolean;
+  toAddresses: string[];
   amount: string;
   tokenId: string;
 }
@@ -230,12 +231,18 @@ function reduceParameterFa2TransferValues(values: ParameterFa2Transfer['value'],
     const fromAddress = val.from_;
 
     if (fromAddress === relAddress) {
-      const amount = val.txs.reduce((acc, tx) => acc.plus(tx.amount), ZERO);
+      let amount = ZERO;
+      const toAddresses = val.txs.map(tx => {
+        amount = amount.plus(tx.amount);
+
+        return tx.to_;
+      });
 
       if (amount.isZero()) continue;
 
       result.push({
         fromAddress,
+        toAddresses,
         amount: amount.toFixed(),
         tokenId
       });
@@ -248,7 +255,7 @@ function reduceParameterFa2TransferValues(values: ParameterFa2Transfer['value'],
     if (amount.isZero() === false)
       result.push({
         fromAddress,
-        isToRelAddress: true,
+        toAddresses: [relAddress], // Not interested in all the other `tx.to_`s at the moment
         amount: amount.toFixed(),
         tokenId
       });

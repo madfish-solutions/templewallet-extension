@@ -1,9 +1,11 @@
 import { TempleChainKind } from 'temple/types';
 
-export enum ActivityKindEnum {
+export enum ActivityOperKindEnum {
   interaction,
-  send,
-  receive,
+  transferFrom,
+  transferTo,
+  transferFrom_ToAccount,
+  transferTo_FromAccount,
   swap,
   approve
 }
@@ -19,7 +21,7 @@ export interface TezosActivity {
 }
 
 export interface TezosOperation {
-  kind: ActivityKindEnum;
+  kind: ActivityOperKindEnum;
   asset?: TezosActivityAsset;
 }
 
@@ -42,7 +44,7 @@ export interface EvmActivity {
 }
 
 export interface EvmOperation {
-  kind: ActivityKindEnum;
+  kind: ActivityOperKindEnum;
   asset?: EvmActivityAsset;
 }
 

@@ -8,7 +8,7 @@ import { ReactComponent as OutLinkIcon } from 'app/icons/base/outLink.svg';
 import { ReactComponent as SendSvg } from 'app/icons/base/send.svg';
 import { ReactComponent as SwapSvg } from 'app/icons/base/swap.svg';
 import { FiatBalance } from 'app/pages/Home/OtherComponents/Tokens/components/Balance';
-import { ActivityKindEnum, InfinitySymbol } from 'lib/activity';
+import { ActivityOperKindEnum, InfinitySymbol } from 'lib/activity';
 import { toEvmAssetSlug, toTezosAssetSlug } from 'lib/assets/utils';
 import { atomsToTokens } from 'lib/temple/helpers';
 
@@ -16,7 +16,7 @@ import { EvmAssetIcon, TezosAssetIcon } from '../AssetIcon';
 
 interface Props {
   chainId: string | number;
-  kind: ActivityKindEnum;
+  kind: ActivityOperKindEnum;
   hash: string;
   networkName: string;
   asset?: AssetProp;
@@ -50,7 +50,11 @@ export const ActivityOperationBaseComponent: FC<Props> = ({
     if (!asset) return {};
 
     const amountForFiat =
-      typeof asset.amount === 'string' && (kind === ActivityKindEnum.receive || kind === ActivityKindEnum.send)
+      typeof asset.amount === 'string' &&
+      (kind === ActivityOperKindEnum.transferTo_FromAccount ||
+        kind === ActivityOperKindEnum.transferFrom_ToAccount ||
+        kind === ActivityOperKindEnum.transferFrom ||
+        kind === ActivityOperKindEnum.transferTo)
         ? atomsToTokens(asset.amount, asset.decimals)
         : null;
 
@@ -61,7 +65,7 @@ export const ActivityOperationBaseComponent: FC<Props> = ({
             '∞ '
           ) : (
             <>
-              {kind === ActivityKindEnum.approve || asset.amount.startsWith('-') ? null : '+'}
+              {kind === ActivityOperKindEnum.approve || asset.amount.startsWith('-') ? null : '+'}
               <Money smallFractionFont={false}>{atomsToTokens(asset.amount, asset.decimals)}</Money>{' '}
             </>
           )
@@ -153,18 +157,22 @@ export const ActivityOperationBaseComponent: FC<Props> = ({
   );
 };
 
-const ActivityKindTitle: Record<ActivityKindEnum, string> = {
-  [ActivityKindEnum.interaction]: 'Interaction',
-  [ActivityKindEnum.send]: 'Send',
-  [ActivityKindEnum.receive]: 'Receive',
-  [ActivityKindEnum.swap]: 'Swap',
-  [ActivityKindEnum.approve]: 'Approve'
+const ActivityKindTitle: Record<ActivityOperKindEnum, string> = {
+  [ActivityOperKindEnum.interaction]: 'Interaction',
+  [ActivityOperKindEnum.transferFrom_ToAccount]: 'Send',
+  [ActivityOperKindEnum.transferTo_FromAccount]: 'Receive',
+  [ActivityOperKindEnum.transferFrom]: 'Transfer',
+  [ActivityOperKindEnum.transferTo]: 'Transfer',
+  [ActivityOperKindEnum.swap]: 'Swap',
+  [ActivityOperKindEnum.approve]: 'Approve'
 };
 
-const ActivityKindIconSvg: Record<ActivityKindEnum, ImportedSVGComponent> = {
-  [ActivityKindEnum.interaction]: DocumentsSvg,
-  [ActivityKindEnum.send]: SendSvg,
-  [ActivityKindEnum.receive]: IncomeSvg,
-  [ActivityKindEnum.swap]: SwapSvg,
-  [ActivityKindEnum.approve]: DocumentsSvg
+const ActivityKindIconSvg: Record<ActivityOperKindEnum, ImportedSVGComponent> = {
+  [ActivityOperKindEnum.interaction]: DocumentsSvg,
+  [ActivityOperKindEnum.transferFrom_ToAccount]: SendSvg,
+  [ActivityOperKindEnum.transferTo_FromAccount]: IncomeSvg,
+  [ActivityOperKindEnum.transferFrom]: DocumentsSvg,
+  [ActivityOperKindEnum.transferTo]: DocumentsSvg,
+  [ActivityOperKindEnum.swap]: SwapSvg,
+  [ActivityOperKindEnum.approve]: DocumentsSvg
 };

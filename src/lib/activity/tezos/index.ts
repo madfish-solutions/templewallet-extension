@@ -1,9 +1,10 @@
 import { TezosPreActivity, TezosPreActivityOperation } from 'lib/activity/tezos/types';
 import { TEZ_TOKEN_SLUG } from 'lib/assets';
 import { AssetMetadataBase, getAssetSymbol, isTezosCollectibleMetadata } from 'lib/metadata';
+import { isTezosContractAddress } from 'lib/tezos';
 import { TempleChainKind } from 'temple/types';
 
-import { TezosActivity, ActivityKindEnum, TezosOperation, TezosActivityAsset } from '../types';
+import { TezosActivity, ActivityOperKindEnum, TezosOperation, TezosActivityAsset } from '../types';
 
 export { preparseTezosOperationsGroup } from './pre-parse';
 
@@ -33,48 +34,45 @@ export function parseTezosPreActivityOperation(
     if (preOperation.type === 'transaction') {
       tokenId = preOperation.tokenId;
 
-      if (preOperation.subtype === 'approve') return { kind: ActivityKindEnum.approve };
+      if (preOperation.subtype === 'approve') return { kind: ActivityOperKindEnum.approve };
 
       if (isZero(preOperation.amountSigned))
         return {
-          kind: ActivityKindEnum.interaction
-          // subkind: OperStackItemTypeEnum.Interaction
+          kind: ActivityOperKindEnum.interaction
           // with: oper.destination.address,
           // entrypoint: oper.entrypoint
         };
 
-      if (preOperation.from.address === address) {
+      if (preOperation.from.address === address)
         return {
-          kind: ActivityKindEnum.send
-          // subkind: OperStackItemTypeEnum.TransferTo
-          // to: oper.to.address
+          kind:
+            preOperation.to.length === 1 && !isTezosContractAddress(preOperation.to[0].address)
+              ? ActivityOperKindEnum.transferFrom_ToAccount
+              : ActivityOperKindEnum.transferFrom
         };
-      } else if (preOperation.to?.address === address) {
+
+      if (preOperation.to.some(member => member.address === address))
         return {
-          kind: ActivityKindEnum.receive
-          // subkind: OperStackItemTypeEnum.TransferFrom
-          // from: oper.from.address
+          kind: isTezosContractAddress(preOperation.from.address)
+            ? ActivityOperKindEnum.transferTo
+            : ActivityOperKindEnum.transferTo_FromAccount
         };
-      }
 
       return {
-        kind: ActivityKindEnum.interaction
-        // subkind: OperStackItemTypeEnum.Interaction
+        kind: ActivityOperKindEnum.interaction
       };
-    } else if (
-      preOperation.type === 'delegation' &&
-      preOperation.source.address === address &&
-      preOperation.destination
-    ) {
+    }
+
+    if (preOperation.type === 'delegation' && preOperation.sender.address === address && preOperation.destination) {
       return {
-        kind: ActivityKindEnum.interaction
-        // subkind: OperStackItemTypeEnum.Delegation
+        kind: ActivityOperKindEnum.interaction
+        // subkind: ActivitySubKindEnum.Delegation
         // to: oper.destination.address
       };
     }
 
     return {
-      kind: ActivityKindEnum.interaction
+      kind: ActivityOperKindEnum.interaction
       // subkind: OperStackItemTypeEnum.Other
     };
   })();
@@ -82,9 +80,11 @@ export function parseTezosPreActivityOperation(
   if (!assetMetadata) return operationBase;
 
   if (
-    operationBase.kind === ActivityKindEnum.send ||
-    operationBase.kind === ActivityKindEnum.receive ||
-    operationBase.kind === ActivityKindEnum.approve
+    operationBase.kind === ActivityOperKindEnum.transferFrom_ToAccount ||
+    operationBase.kind === ActivityOperKindEnum.transferTo_FromAccount ||
+    operationBase.kind === ActivityOperKindEnum.transferFrom ||
+    operationBase.kind === ActivityOperKindEnum.transferTo ||
+    operationBase.kind === ActivityOperKindEnum.approve
   ) {
     const asset: TezosActivityAsset = {
       contract: preOperation.contractAddress ?? TEZ_TOKEN_SLUG,
