@@ -2,9 +2,10 @@ import { TzktOperation, TzktTransactionOperation } from 'lib/apis/tzkt';
 import {
   isTzktOperParam,
   isTzktOperParam_Fa12,
-  isTzktOperParam_Fa2,
+  isTzktOperParam_Fa2_approve,
+  isTzktOperParam_Fa2_transfer,
   isTzktOperParam_LiquidityBaking,
-  ParameterFa2
+  ParameterFa2Transfer
 } from 'lib/apis/tzkt/utils';
 import { isTruthy } from 'lib/utils';
 import { ZERO } from 'lib/utils/numbers';
@@ -91,12 +92,20 @@ function reduceOneTzktTransactionOperation(
     to?: OperationMember;
     contractAddress?: string;
     tokenId?: string;
+    subtype?: TezosPreActivityTransactionOperation['subtype'];
   }) {
-    const { amount, from, to, contractAddress, tokenId } = args;
-    const activityOperBase = buildActivityOperBase(operation, amount, from.address === address);
+    const { amount, from, to, contractAddress, tokenId, subtype } = args;
+
+    const activityOperBase = buildActivityOperBase(
+      operation,
+      amount,
+      subtype === 'approve' ? false : from.address === address
+    );
+
     const activityOper: TezosPreActivityTransactionOperation = {
       ...activityOperBase,
       type: 'transaction',
+      subtype,
       destination: operation.target,
       from,
       to
@@ -119,8 +128,8 @@ function reduceOneTzktTransactionOperation(
     const amount = String(operation.amount);
 
     return _buildReturn({ amount, from, to });
-  } else if (isTzktOperParam_Fa2(parameter)) {
-    const values = reduceParameterFa2Values(parameter.value, address);
+  } else if (isTzktOperParam_Fa2_transfer(parameter)) {
+    const values = reduceParameterFa2TransferValues(parameter.value, address);
     const firstVal = values[0];
     // (!) Here we abandon other but 1st non-zero-amount values
     if (firstVal == null) return null;
@@ -131,18 +140,41 @@ function reduceOneTzktTransactionOperation(
     const from = { ...operation.sender, address: firstVal.fromAddress };
     const to = firstVal.isToRelAddress ? { address } : undefined;
 
-    return _buildReturn({ amount, from, to, contractAddress, tokenId });
-  } else if (isTzktOperParam_Fa12(parameter)) {
-    if (parameter.entrypoint === 'approve') return null; // TODO: Implement
+    return _buildReturn({ amount, from, to, contractAddress, tokenId, subtype: 'transfer' });
+  } else if (isTzktOperParam_Fa2_approve(parameter)) {
+    const add_operator = parameter.value[0].add_operator;
 
-    const from = { ...operation.sender };
-    if (parameter.value.from === address) from.address = address;
-    else if (parameter.value.to === address) from.address = parameter.value.from;
-    else return null;
-
+    const from = operation.sender;
+    const to = { address: add_operator.operator };
+    const amount = String(operation.amount);
     const contractAddress = operation.target.address;
+    const tokenId = add_operator.token_id;
+
+    return _buildReturn({
+      amount,
+      from,
+      to,
+      subtype: 'approve',
+      contractAddress,
+      tokenId
+    });
+  } else if (isTzktOperParam_Fa12(parameter)) {
     const amount = parameter.value.value;
-    const to = operation.target;
+    const contractAddress = operation.target.address;
+
+    if (parameter.entrypoint === 'approve') {
+      if (amount === '0') return null;
+
+      const from = operation.sender;
+      const to = { address: parameter.value.spender };
+
+      return _buildReturn({ amount, from, to, contractAddress, subtype: 'approve' });
+    }
+
+    const from = { ...operation.sender, address: parameter.value.from };
+    const to = { address: parameter.value.to };
+
+    if (from.address !== address && to.address !== address) return null;
 
     return _buildReturn({ amount, from, to, contractAddress });
   } else if (isTzktOperParam_LiquidityBaking(parameter)) {
@@ -184,7 +216,7 @@ interface ReducedParameterFa2Values {
 /**
  * Items with zero cumulative amount value are filtered out
  */
-function reduceParameterFa2Values(values: ParameterFa2['value'], relAddress: string) {
+function reduceParameterFa2TransferValues(values: ParameterFa2Transfer['value'], relAddress: string) {
   const result: ReducedParameterFa2Values[] = [];
 
   for (const val of values) {

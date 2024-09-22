@@ -61,7 +61,7 @@ export const ActivityOperationBaseComponent: FC<Props> = ({
             '∞ '
           ) : (
             <>
-              {asset.amount.startsWith('-') ? null : '+'}
+              {kind === ActivityKindEnum.approve || asset.amount.startsWith('-') ? null : '+'}
               <Money smallFractionFont={false}>{atomsToTokens(asset.amount, asset.decimals)}</Money>{' '}
             </>
           )

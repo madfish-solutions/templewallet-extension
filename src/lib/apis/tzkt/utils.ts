@@ -3,16 +3,22 @@ import { TzktAccount } from './types';
 export const calcTzktAccountSpendableTezBalance = ({ balance, stakedBalance, unstakedBalance }: TzktAccount) =>
   ((balance ?? 0) - (stakedBalance ?? 0) - (unstakedBalance ?? 0)).toFixed();
 
-interface ParameterFa12 {
-  entrypoint: string;
-  value: ParameterFa12Value;
-}
-
-interface ParameterFa12Value {
-  to: string;
-  from: string;
-  value: string;
-}
+type ParameterFa12 =
+  | {
+      entrypoint: 'transfer';
+      value: {
+        to: string;
+        from: string;
+        value: string;
+      };
+    }
+  | {
+      entrypoint: 'approve';
+      value: {
+        spender: string;
+        value: string;
+      };
+    };
 
 interface Fa2Transaction {
   to_: string;
@@ -20,15 +26,30 @@ interface Fa2Transaction {
   token_id: string;
 }
 
-interface Fa2OpParams {
-  txs: Fa2Transaction[];
-  from_: string;
+interface ParameterFa2 {
+  entrypoint: string;
+  value: any[];
 }
 
-export interface ParameterFa2 {
+export interface ParameterFa2Transfer extends ParameterFa2 {
   entrypoint: string;
-  value: Fa2OpParams[];
+  value: {
+    txs: Fa2Transaction[];
+    from_: string;
+  }[];
 }
+
+export interface ParameterFa2Approve extends ParameterFa2 {
+  entrypoint: 'update_operators';
+  value: {
+    add_operator: {
+      operator: string;
+      owner: string;
+      token_id: string;
+    };
+  }[];
+}
+
 interface ParameterLiquidityBaking {
   entrypoint: string;
   value: {
@@ -49,9 +70,24 @@ export function isTzktOperParam(param: any): param is {
 export function isTzktOperParam_Fa12(param: any): param is ParameterFa12 {
   if (!isTzktOperParam(param)) return false;
   if (param.value == null) return false;
-  if (typeof param.value.to !== 'string') return false;
-  if (typeof param.value.from !== 'string') return false;
-  if (typeof param.value.value !== 'string') return false;
+
+  if (param.entrypoint === 'approve') {
+    if (typeof param.value.spender !== 'string') return false;
+    if (typeof param.value.value !== 'string') return false;
+  } else {
+    // 'transfer'
+    if (typeof param.value.to !== 'string') return false;
+    if (typeof param.value.from !== 'string') return false;
+    if (typeof param.value.value !== 'string') return false;
+  }
+
+  return true;
+}
+
+export function isTzktOperParam_Fa2(param: any): param is ParameterFa2 {
+  if (!isTzktOperParam(param)) return false;
+  if (!Array.isArray(param.value)) return false;
+  if (param.value[0] == null) return true;
 
   return true;
 }
@@ -60,9 +96,24 @@ export function isTzktOperParam_Fa12(param: any): param is ParameterFa12 {
  * (!) Might only refer to `param.entrypoint === 'transfer'` case
  * (?) So, would this check be enough?
  */
-export function isTzktOperParam_Fa2(param: any): param is ParameterFa2 {
-  if (!isTzktOperParam(param)) return false;
-  if (!Array.isArray(param.value)) return false;
+export function isTzktOperParam_Fa2_approve(param: any): param is ParameterFa2Approve {
+  if (!isTzktOperParam_Fa2(param)) return false;
+  const add_operator = param.value[0]?.add_operator;
+  if (add_operator == null) return false;
+
+  if (typeof add_operator.operator !== 'string') return false;
+  if (typeof add_operator.owner !== 'string') return false;
+  if (typeof add_operator.token_id !== 'string') return false;
+
+  return true;
+}
+
+/**
+ * (!) Might only refer to `param.entrypoint === 'transfer'` case
+ * (?) So, would this check be enough?
+ */
+export function isTzktOperParam_Fa2_transfer(param: any): param is ParameterFa2Transfer {
+  if (!isTzktOperParam_Fa2(param)) return false;
   let item = param.value[0];
   if (item == null) return true;
   if (typeof item.from_ !== 'string') return false;

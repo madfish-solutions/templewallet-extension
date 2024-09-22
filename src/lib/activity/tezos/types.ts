@@ -30,6 +30,7 @@ export interface TezosPreActivityOperationBase extends PickedPropsFromTzktOperat
 
 export interface TezosPreActivityTransactionOperation extends TezosPreActivityOperationBase {
   type: 'transaction';
+  subtype?: 'transfer' | 'approve';
   from: OperationMember;
   to?: OperationMember;
   destination: OperationMember;

@@ -33,6 +33,8 @@ export function parseTezosPreActivityOperation(
     if (preOperation.type === 'transaction') {
       tokenId = preOperation.tokenId;
 
+      if (preOperation.subtype === 'approve') return { kind: ActivityKindEnum.approve };
+
       if (isZero(preOperation.amountSigned))
         return {
           kind: ActivityKindEnum.interaction
@@ -79,7 +81,11 @@ export function parseTezosPreActivityOperation(
 
   if (!assetMetadata) return operationBase;
 
-  if (operationBase.kind === ActivityKindEnum.send || operationBase.kind === ActivityKindEnum.receive) {
+  if (
+    operationBase.kind === ActivityKindEnum.send ||
+    operationBase.kind === ActivityKindEnum.receive ||
+    operationBase.kind === ActivityKindEnum.approve
+  ) {
     const asset: TezosActivityAsset = {
       contract: preOperation.contractAddress ?? TEZ_TOKEN_SLUG,
       tokenId,
