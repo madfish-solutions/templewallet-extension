@@ -9,13 +9,16 @@ export interface TempleTzktOperationsGroup {
 
 export type TezosPreActivityStatus = TzktOperation['status'] | 'pending';
 
-export interface TezosPreActivity {
+export interface TezosActivityOlderThan {
   hash: string;
+  oldestTzktOperation: TzktOperation;
+}
+
+export interface TezosPreActivity extends TezosActivityOlderThan {
   /** ISO string */
   addedAt: string;
   status: TezosPreActivityStatus;
-  oldestTzktOperation: TzktOperation;
-  /** Sorted new-to-old */
+  /** Sorted old-to-new */
   operations: TezosPreActivityOperation[];
 }
 

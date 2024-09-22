@@ -5,14 +5,9 @@ import { detectTokenStandard } from 'lib/assets/standards';
 import { filterUnique } from 'lib/utils';
 import { getReadOnlyTezos } from 'temple/tezos';
 
-import type { TempleTzktOperationsGroup } from './types';
+import type { TempleTzktOperationsGroup, TezosActivityOlderThan } from './types';
 
 const LIQUIDITY_BAKING_DEX_ADDRESS = 'KT1TxqZ8QtKvLu3V3JH7Gx58n7Co8pgtpQU5';
-
-export interface TezosActivityOlderThan {
-  hash: string;
-  oldestTzktOperation: TzktOperation;
-}
 
 export default async function fetchTezosOperationsGroups(
   chainId: TzktApiChainId,
@@ -224,7 +219,7 @@ async function fetchOperGroupsForOperations(
   const groups: TempleTzktOperationsGroup[] = [];
   for (const hash of uniqueHashes) {
     const operations = await TZKT.refetchOnce429(() => TZKT.fetchGetOperationsByHash(chainId, hash), 1000);
-    operations.sort((b, a) => a.id - b.id);
+
     groups.push({
       hash,
       operations

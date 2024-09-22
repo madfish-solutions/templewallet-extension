@@ -23,28 +23,21 @@ import type {
 } from './types';
 
 export function preparseTezosOperationsGroup(
-  { hash, operations }: TempleTzktOperationsGroup,
+  { hash, operations: groupOperations }: TempleTzktOperationsGroup,
   address: string
 ): TezosPreActivity {
-  const firstOperation = operations[0]!;
-  const oldestTzktOperation = operations[operations.length - 1]!;
-  const addedAt = firstOperation.timestamp;
-  const activityOperations = reduceTzktOperations(operations, address);
-  const status = deriveActivityStatus(activityOperations);
+  const lastOperation = groupOperations[groupOperations.length - 1]!;
+  const addedAt = lastOperation.timestamp;
+  const operations = groupOperations.map(op => reduceOneTzktOperation(op, address)).filter(isTruthy);
+  const status = deriveActivityStatus(operations);
 
   return {
     hash,
     addedAt,
     status,
-    operations: activityOperations,
-    oldestTzktOperation
+    operations,
+    oldestTzktOperation: lastOperation
   };
-}
-
-function reduceTzktOperations(operations: TzktOperation[], address: string): TezosPreActivityOperation[] {
-  const reducedOperations = operations.map(op => reduceOneTzktOperation(op, address)).filter(isTruthy);
-
-  return reducedOperations;
 }
 
 /**
