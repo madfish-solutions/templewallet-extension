@@ -19,17 +19,17 @@ interface Props {
 }
 
 export const TezosActivityOperationComponent = memo<Props>(
-  ({ hash, operation: legacyOperation, chain, networkName, blockExplorerUrl, accountAddress }) => {
+  ({ hash, operation: preOperation, chain, networkName, blockExplorerUrl, accountAddress }) => {
     const assetSlug =
-      legacyOperation.type === 'transaction'
-        ? toTezosAssetSlug(legacyOperation.contractAddress ?? TEZ_TOKEN_SLUG, legacyOperation.tokenId)
+      preOperation.type === 'transaction'
+        ? toTezosAssetSlug(preOperation.contractAddress ?? TEZ_TOKEN_SLUG, preOperation.tokenId)
         : '';
 
     const assetMetadata = useTezosAssetMetadata(assetSlug, chain.chainId);
 
     const operation = useMemo<TezosOperation>(
-      () => parseTezosPreActivityOperation(legacyOperation, accountAddress, assetMetadata),
-      [assetMetadata, legacyOperation, accountAddress]
+      () => parseTezosPreActivityOperation(preOperation, accountAddress, assetMetadata),
+      [assetMetadata, preOperation, accountAddress]
     );
 
     return (

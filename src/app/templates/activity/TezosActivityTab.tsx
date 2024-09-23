@@ -12,7 +12,7 @@ import { useDidMount, useDidUpdate, useSafeState, useStopper } from 'lib/ui/hook
 import { useAccountAddressForTezos, useTezosChainByChainId } from 'temple/front';
 import { TezosNetworkEssentials } from 'temple/networks';
 
-import { TezosActivityComponent } from './Activity';
+import { TezosActivityComponent } from './ActivityItem';
 
 const INITIAL_NUMBER = 30;
 const LOAD_STEP = 30;

@@ -15,7 +15,7 @@ import { useDidMount, useDidUpdate, useSafeState, useStopper } from 'lib/ui/hook
 import { useAccountAddressForEvm } from 'temple/front';
 import { useEvmChainByChainId } from 'temple/front/chains';
 
-import { EvmActivityComponent } from './Activity';
+import { EvmActivityComponent } from './ActivityItem';
 
 interface EvmActivityTabProps {
   chainId: number;

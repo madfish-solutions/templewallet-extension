@@ -12,7 +12,7 @@ import { ActivityOperKindEnum, InfinitySymbol } from 'lib/activity';
 import { toEvmAssetSlug, toTezosAssetSlug } from 'lib/assets/utils';
 import { atomsToTokens } from 'lib/temple/helpers';
 
-import { EvmAssetIcon, TezosAssetIcon } from '../AssetIcon';
+import { EvmAssetIcon, TezosAssetIcon } from '../../AssetIcon';
 
 interface Props {
   chainId: string | number;
