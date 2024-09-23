@@ -53,7 +53,7 @@ export const PageModal = memo<PropsWithChildren<Props>>(
         onRequestClose={onRequestClose}
         testId={testID}
       >
-        <div className="flex items-center p-4 border-b border-lines">
+        <div className="flex items-center p-4 border-b-0.5 border-lines">
           <div className="w-12">
             {shouldShowBackButton && (
               <IconBase Icon={ChevronLeftIcon} size={16} className="text-grey-2 cursor-pointer" onClick={onGoBack} />

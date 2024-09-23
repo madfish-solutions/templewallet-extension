@@ -269,7 +269,7 @@ export const FormField = forwardRef<FormFieldElement, FormFieldProps>(
             {cleanable && <CleanButton showText={textarea} size={textarea ? 12 : 16} onClick={onClean} />}
             {rightSideComponent && rightSideComponent}
             {textarea && !cleanable && showPasteButton && (
-              <Button className="flex items-center text-secondary" onClick={onPasteButtonClick}>
+              <Button className="flex items-center text-secondary px-1 py-0.5" onClick={onPasteButtonClick}>
                 <span className="text-font-description-bold">Paste</span>
                 <IconBase Icon={PasteFillIcon} size={12} onClick={onClean} />
               </Button>
