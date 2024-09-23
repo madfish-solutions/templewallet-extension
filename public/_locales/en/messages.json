@@ -2221,6 +2221,9 @@
   "deleteRpc": {
     "message": "Delete RPC"
   },
+  "deleteBlockExplorer": {
+    "message": "Delete"
+  },
   "editSomeRpc": {
     "message": "Edit $name$ RPC",
     "placeholders": {

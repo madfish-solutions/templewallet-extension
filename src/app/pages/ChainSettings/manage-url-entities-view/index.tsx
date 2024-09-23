@@ -22,6 +22,7 @@ interface ManageUrlEntitiesViewProps<T> {
   activeI18nKey: TID;
   confirmDeleteTitleI18nKey: TID;
   confirmDeleteDescriptionI18nKey: TID;
+  deleteLabelI18nKey: TID;
   createModalTitle: string;
   urlInputPlaceholder: string;
   getEntityUrl: SyncFn<T, string>;
@@ -45,6 +46,7 @@ export const ManageUrlEntitiesView = <T extends UrlEntityBase>({
   activeI18nKey,
   confirmDeleteTitleI18nKey,
   confirmDeleteDescriptionI18nKey,
+  deleteLabelI18nKey,
   createModalTitle,
   urlInputPlaceholder,
   getIsEditable,
@@ -59,7 +61,6 @@ export const ManageUrlEntitiesView = <T extends UrlEntityBase>({
   activeSwitchTestID,
   activeCheckboxTestID
 }: ManageUrlEntitiesViewProps<T>) => {
-  const [prevActiveItemId, setPrevActiveItemId] = useState(activeItemId);
   const [entityToEdit, setEntityToEdit] = useState<T | null>(null);
   const [createModalOpen, openCreateModal, closeCreateModal] = useBooleanState(false);
 
@@ -72,26 +73,23 @@ export const ManageUrlEntitiesView = <T extends UrlEntityBase>({
     [entityToEdit, getEntityUrl, items]
   );
 
-  const closeEditModal = useCallback(() => {
-    setEntityToEdit(null);
-    setPrevActiveItemId(activeItemId);
-  }, [activeItemId]);
+  const closeEditModal = useCallback(() => setEntityToEdit(null), []);
 
   const handleRemoveConfirm = useCallback(() => {
     closeEditModal();
     removeEntity(entityToEdit!.id);
   }, [closeEditModal, entityToEdit, removeEntity]);
 
+  const defaultItemId = items[0].id;
   const handleActiveStateChange = useCallback(
     (newState: boolean) => {
       if (newState) {
         setActiveItemId(entityToEdit!.id);
-        setPrevActiveItemId(activeItemId);
       } else {
-        setActiveItemId(prevActiveItemId);
+        setActiveItemId(defaultItemId);
       }
     },
-    [activeItemId, entityToEdit, prevActiveItemId, setActiveItemId]
+    [defaultItemId, entityToEdit, setActiveItemId]
   );
 
   useEffect(() => {
@@ -138,9 +136,9 @@ export const ManageUrlEntitiesView = <T extends UrlEntityBase>({
           titleI18nKey={editModalTitleI18nKey}
           confirmDeleteTitleI18nKey={confirmDeleteTitleI18nKey}
           confirmDeleteDescriptionI18nKey={confirmDeleteDescriptionI18nKey}
+          deleteLabelI18nKey={deleteLabelI18nKey}
           urlInputPlaceholder={urlInputPlaceholder}
           isActive={entityToEdit.id === activeItemId}
-          canChangeActiveState={entityToEdit.id !== prevActiveItemId}
           isEditable={getIsEditable(entityToEdit)}
           isRemovable={getIsRemovable(entityToEdit)}
           entity={entityToEdit}

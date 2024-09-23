@@ -34,7 +34,6 @@ export interface EditUrlEntityModalFormValues {
 
 interface EditUrlEntityModalProps<T extends UrlEntityBase> {
   isActive: boolean;
-  canChangeActiveState: boolean;
   isEditable: boolean;
   isRemovable: boolean;
   entity: T;
@@ -45,6 +44,7 @@ interface EditUrlEntityModalProps<T extends UrlEntityBase> {
   titleI18nKey: TID;
   confirmDeleteTitleI18nKey: TID;
   confirmDeleteDescriptionI18nKey: TID;
+  deleteLabelI18nKey: TID;
   urlInputPlaceholder: string;
   onClose: EmptyFn;
   onActiveStateChange: SyncFn<boolean>;
@@ -55,7 +55,6 @@ interface EditUrlEntityModalProps<T extends UrlEntityBase> {
 
 export const EditUrlEntityModal = <T extends UrlEntityBase>({
   isActive,
-  canChangeActiveState,
   isEditable,
   isRemovable,
   entity,
@@ -66,6 +65,7 @@ export const EditUrlEntityModal = <T extends UrlEntityBase>({
   titleI18nKey,
   confirmDeleteTitleI18nKey,
   confirmDeleteDescriptionI18nKey,
+  deleteLabelI18nKey,
   urlInputPlaceholder,
   onClose,
   onActiveStateChange,
@@ -114,12 +114,7 @@ export const EditUrlEntityModal = <T extends UrlEntityBase>({
           >
             <SettingsCellGroup>
               <SettingsCell cellName={<T id={activeI18nKey} />} Component="div">
-                <ToggleSwitch
-                  checked={isActive}
-                  disabled={!canChangeActiveState}
-                  onChange={onActiveStateChange}
-                  testID={activeSwitchTestID}
-                />
+                <ToggleSwitch checked={isActive} onChange={onActiveStateChange} testID={activeSwitchTestID} />
               </SettingsCell>
             </SettingsCellGroup>
 
@@ -158,7 +153,7 @@ export const EditUrlEntityModal = <T extends UrlEntityBase>({
                   onClick={openRemoveModal}
                   testID={ChainSettingsSelectors.deleteButton}
                 >
-                  <T id="deleteRpc" />
+                  <T id={deleteLabelI18nKey} />
                   <IconBase size={12} Icon={DeleteIcon} />
                 </StyledButton>
               </div>

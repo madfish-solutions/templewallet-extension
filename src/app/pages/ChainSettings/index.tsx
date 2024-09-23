@@ -116,6 +116,7 @@ const ChainSettingsBody = memo<ChainSettingsProps>(props => {
           createModalTitle={t('addSomeRpc', chain.name)}
           confirmDeleteTitleI18nKey="confirmDeleteRpcTitle"
           confirmDeleteDescriptionI18nKey="confirmDeleteRpcDescription"
+          deleteLabelI18nKey="deleteRpc"
           urlInputPlaceholder="https://rpc.link"
           getIsEditable={isRpcEditable}
           getIsRemovable={isRpcRemovable}
@@ -138,6 +139,7 @@ const ChainSettingsBody = memo<ChainSettingsProps>(props => {
           editModalTitleI18nKey="editSomeBlockExplorer"
           createModalTitle={t('addSomeBlockExplorer', chain.name)}
           confirmDeleteTitleI18nKey="confirmDeleteBlockExplorerTitle"
+          deleteLabelI18nKey="deleteBlockExplorer"
           confirmDeleteDescriptionI18nKey="confirmDeleteBlockExplorerDescription"
           urlInputPlaceholder="https://explorer.link"
           getIsEditable={isExplorerEditable}
