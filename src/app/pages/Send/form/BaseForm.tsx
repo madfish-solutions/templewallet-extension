@@ -134,7 +134,7 @@ export const BaseForm: FC<Props> = ({
 
   const toAssetAmount = useCallback(
     (fiatAmount: BigNumber.Value = ZERO) =>
-      new BigNumber(fiatAmount).dividedBy(assetPrice ?? 1).toFormat(assetDecimals ?? 0, BigNumber.ROUND_FLOOR, {
+      new BigNumber(fiatAmount || '0').dividedBy(assetPrice ?? 1).toFormat(assetDecimals ?? 0, BigNumber.ROUND_FLOOR, {
         decimalSeparator: '.'
       }),
     [assetPrice, assetDecimals]
@@ -210,7 +210,7 @@ export const BaseForm: FC<Props> = ({
                     type="button"
                     onClick={handleSetMaxAmount}
                     disabled={maxEstimating}
-                    className="flex justify-center items-center text-font-description-bold text-white bg-primary rounded-md py-1"
+                    className="flex justify-center items-center text-font-description-bold text-white bg-primary hover:bg-primary-hover rounded-md py-1"
                     style={{ width: '41px' }}
                   >
                     {maxEstimating ? <Loader /> : <T id="max" />}
