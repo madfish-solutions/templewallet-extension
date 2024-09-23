@@ -48,7 +48,7 @@ export const EvmAssetsList = memo<Props>(({ publicKeyHash, searchValue, onAssetS
 
   return (
     <>
-      {searchedSlugs.length === 0 && <EmptyState variant="tokenSearch" />}
+      {searchedSlugs.length === 0 && <EmptyState variant="searchUniversal" />}
 
       {searchedSlugs.map(chainSlug => {
         const [_, chainId, assetSlug] = parseChainAssetSlug(chainSlug);

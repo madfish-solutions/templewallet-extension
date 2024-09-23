@@ -33,7 +33,7 @@ function internalGetIdenticonUri<T extends IdenticonType>(
         seed: hash,
         size,
         fontFamily: ['Menlo', 'Monaco', 'monospace'],
-        fontSize: estimateOptimalFontSize(hash.length),
+        fontSize: estimateOptimalFontSize((options as firstLetters.Options | undefined)?.chars || hash.length),
         ...options
       }).toDataUriSync();
   }

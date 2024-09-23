@@ -42,7 +42,7 @@ export const DetailsTab: FC<Props> = ({ chainAssetSlug, gasFee, storageLimit, re
         <p className="p-1 text-font-description text-grey-1">
           <T id="recipient" />
         </p>
-        <HashChip hash={recipientAddress} small rounded="base" />
+        <HashChip hash={recipientAddress} small rounded="base" textShade={100} bgShade={50} />
       </div>
 
       <div

@@ -80,7 +80,7 @@ export const MultiChainAssetsList = memo<Props>(
 
     return (
       <>
-        {searchedSlugs.length === 0 && <EmptyState variant="tokenSearch" />}
+        {searchedSlugs.length === 0 && <EmptyState variant="searchUniversal" />}
 
         {searchedSlugs.map(chainSlug => {
           const [chainKind, chainId, assetSlug] = parseChainAssetSlug(chainSlug);

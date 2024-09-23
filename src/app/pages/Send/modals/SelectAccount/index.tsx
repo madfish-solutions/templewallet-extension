@@ -3,7 +3,8 @@ import React, { memo, Suspense, useCallback, useEffect, useMemo, useState } from
 import clsx from 'clsx';
 import { useDebounce } from 'use-debounce';
 
-import { HashShortView, IconBase, Identicon, Name } from 'app/atoms';
+import { HashShortView, IconBase, Name } from 'app/atoms';
+import { AccountAvatar } from 'app/atoms/AccountAvatar';
 import { EmptyState } from 'app/atoms/EmptyState';
 import { PageModal } from 'app/atoms/PageModal';
 import { RadioButton } from 'app/atoms/RadioButton';
@@ -226,9 +227,7 @@ const AccountOfGroup = memo<AccountOfGroupProps>(({ name, address, iconHash, isC
       onClick={onClick}
     >
       <div className="flex flex-row items-center gap-x-1.5">
-        <div className="flex p-px rounded-md border border-grey-3">
-          <Identicon type="botttsneutral" hash={iconHash} size={28} className="rounded-sm" />
-        </div>
+        <AccountAvatar seed={iconHash} size={32} borderColor="gray" />
 
         <div className="flex flex-col">
           <span className="text-font-medium-bold">{name}</span>

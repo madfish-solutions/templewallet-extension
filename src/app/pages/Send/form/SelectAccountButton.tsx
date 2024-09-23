@@ -1,7 +1,7 @@
 import React, { memo, useMemo } from 'react';
 
 import { Button, IconBase } from 'app/atoms';
-import { Identicon } from 'app/atoms/Identicon';
+import { AccountAvatar } from 'app/atoms/AccountAvatar';
 import { ReactComponent as CompactDown } from 'app/icons/base/compact_down.svg';
 import { TestIDProperty } from 'lib/analytics';
 import { getAccountAddressForEvm, getAccountAddressForTezos } from 'temple/accounts';
@@ -55,13 +55,14 @@ export const SelectAccountButton = memo<Props>(({ value: selectedAccountAddress,
       onClick={onClick}
     >
       <div className="flex justify-center items-center gap-2">
-        <div className="flex p-px rounded border border-secondary">
-          {iconHash ? (
-            <Identicon type="botttsneutral" hash={iconHash} size={20} />
-          ) : (
+        {iconHash ? (
+          <AccountAvatar seed={iconHash} size={24} borderColor="secondary" />
+        ) : (
+          <div className="flex p-px rounded border border-secondary">
             <img src={DefaultAvatarImg} alt="default-avatar" className="w-5 h-5" />
-          )}
-        </div>
+          </div>
+        )}
+
         <span className="text-font-medium-bold">{title}</span>
       </div>
       <IconBase Icon={CompactDown} className="text-primary" size={16} />

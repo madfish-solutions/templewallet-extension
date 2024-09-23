@@ -89,7 +89,8 @@ export const NetworkLogoFallback = memo<NetworkLogoFallbackProps>(({ networkName
     <Identicon
       type="initials"
       size={size}
-      hash={networkName[0]}
+      hash={networkName}
+      options={{ chars: 1 }}
       className="flex justify-center items-center w-full h-full rounded-full"
     />
   </div>
