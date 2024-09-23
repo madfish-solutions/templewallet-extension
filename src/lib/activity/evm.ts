@@ -2,6 +2,7 @@ import { GoldRushERC20Transfer, GoldRushTransaction } from 'lib/apis/temple/endp
 import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
 import { toEvmAssetSlug } from 'lib/assets/utils';
 import { EvmAssetMetadataGetter, getAssetSymbol } from 'lib/metadata';
+import { isTruthy } from 'lib/utils';
 import { getEvmAddressSafe } from 'lib/utils/evm.utils';
 import { TempleChainKind } from 'temple/types';
 
@@ -15,117 +16,176 @@ export function parseGoldRushTransaction(
 ): EvmActivity {
   const logEvents = item.log_events ?? [];
 
-  const operations = logEvents.map<EvmOperation>(logEvent => {
-    if (!logEvent.decoded?.params) return { kind: ActivityOperKindEnum.interaction };
+  const operations = logEvents
+    .map<EvmOperation | null>(logEvent => {
+      if (!logEvent.decoded?.params) return { kind: ActivityOperKindEnum.interaction };
 
-    const contractAddress = getEvmAddressSafe(logEvent.sender_address);
-    const fromAddress = getEvmAddressSafe(logEvent.decoded.params[0]?.value);
-    const toAddress = getEvmAddressSafe(logEvent.decoded.params[1]?.value);
-    let decimals = logEvent.sender_contract_decimals;
-    const iconURL = logEvent.sender_logo_url ?? undefined;
+      const contractAddress = getEvmAddressSafe(logEvent.sender_address);
+      const _fromAddress = getEvmAddressSafe(logEvent.decoded.params[0]?.value);
+      const _toAddress = getEvmAddressSafe(logEvent.decoded.params[1]?.value);
+      let decimals = logEvent.sender_contract_decimals;
+      const iconURL = logEvent.sender_logo_url ?? undefined;
 
-    if (logEvent.decoded.name === 'Transfer') {
-      const kind = (() => {
-        if (toAddress === accountAddress) {
-          return item.to_address === logEvent.sender_address
-            ? ActivityOperKindEnum.transferTo_FromAccount
-            : ActivityOperKindEnum.transferTo;
-        }
+      if (logEvent.decoded.name === 'Transfer') {
+        const kind = (() => {
+          if (_toAddress === accountAddress) {
+            return item.to_address === logEvent.sender_address
+              ? ActivityOperKindEnum.transferTo_FromAccount
+              : ActivityOperKindEnum.transferTo;
+          }
 
-        if (fromAddress === accountAddress) {
-          return item.to_address === logEvent.sender_address
-            ? ActivityOperKindEnum.transferFrom_ToAccount
-            : ActivityOperKindEnum.transferFrom;
-        }
+          if (_fromAddress === accountAddress) {
+            return item.to_address === logEvent.sender_address
+              ? ActivityOperKindEnum.transferFrom_ToAccount
+              : ActivityOperKindEnum.transferFrom;
+          }
 
-        return ActivityOperKindEnum.interaction;
-      })();
+          return null;
+        })();
 
-      if (kind === ActivityOperKindEnum.interaction || !contractAddress) return { kind };
+        if (kind == null || !contractAddress) return { kind: ActivityOperKindEnum.interaction };
 
-      const amountOrTokenId: string = logEvent.decoded.params[2]?.value ?? '0';
-      const nft = logEvent.decoded.params[2]?.indexed ?? false;
-      const tokenId = nft ? amountOrTokenId : undefined;
+        const amountOrTokenId: string = logEvent.decoded.params[2]?.value ?? '0';
+        const nft = logEvent.decoded.params[2]?.indexed ?? false;
+        const tokenId = nft ? amountOrTokenId : undefined;
 
-      const slug = toEvmAssetSlug(contractAddress, tokenId);
-      const metadata = getMetadata(slug);
+        const slug = toEvmAssetSlug(contractAddress, tokenId);
+        const metadata = getMetadata(slug);
 
-      decimals = metadata?.decimals ?? decimals;
+        decimals = metadata?.decimals ?? decimals;
 
-      if (decimals == null) return { kind };
+        if (decimals == null) return { kind };
 
-      const amount = nft ? '1' : amountOrTokenId;
-      const symbol = getAssetSymbol(metadata) || logEvent.sender_contract_ticker_symbol || undefined;
+        const amount = nft ? '1' : amountOrTokenId;
+        const symbol = getAssetSymbol(metadata) || logEvent.sender_contract_ticker_symbol || undefined;
 
-      const asset: EvmActivityAsset = {
-        contract: contractAddress,
-        tokenId,
-        amount: kind === ActivityOperKindEnum.transferFrom_ToAccount ? `-${amount}` : amount,
-        decimals,
-        symbol,
-        nft,
-        iconURL
-      };
+        const asset: EvmActivityAsset = {
+          contract: contractAddress,
+          tokenId,
+          amount:
+            kind === ActivityOperKindEnum.transferFrom || kind === ActivityOperKindEnum.transferFrom_ToAccount
+              ? `-${amount}`
+              : amount,
+          decimals,
+          symbol,
+          nft,
+          iconURL
+        };
 
-      return { kind, asset };
-    }
+        return { kind, asset };
+      }
 
-    if (logEvent.decoded.name === 'Approval' && fromAddress === accountAddress) {
-      const kind = ActivityOperKindEnum.approve;
+      if (logEvent.decoded.name === 'TransferSingle') {
+        const fromAddress = getEvmAddressSafe(logEvent.decoded.params[1]?.value);
+        const toAddress = getEvmAddressSafe(logEvent.decoded.params[2]?.value);
 
-      if (!contractAddress) return { kind };
+        const kind = (() => {
+          if (toAddress === accountAddress) {
+            return item.to_address === logEvent.sender_address
+              ? ActivityOperKindEnum.transferTo_FromAccount
+              : ActivityOperKindEnum.transferTo;
+          }
 
-      const amountOrTokenId: string = logEvent.decoded.params[2]?.value ?? '0';
-      const nft = logEvent.decoded.params[2]?.indexed ?? false;
+          if (fromAddress === accountAddress) {
+            return item.to_address === logEvent.sender_address
+              ? ActivityOperKindEnum.transferFrom_ToAccount
+              : ActivityOperKindEnum.transferFrom;
+          }
 
-      const tokenId = nft ? amountOrTokenId : undefined;
+          return null;
+        })();
 
-      const slug = toEvmAssetSlug(contractAddress, tokenId);
-      const metadata = getMetadata(slug);
+        if (kind == null || !contractAddress) return null;
 
-      decimals = metadata?.decimals ?? decimals;
+        const tokenId = logEvent.decoded.params[3]?.value ?? '0';
 
-      if (decimals == null) return { kind };
+        const slug = toEvmAssetSlug(contractAddress, tokenId);
+        const metadata = getMetadata(slug);
 
-      const symbol = getAssetSymbol(metadata) || logEvent.sender_contract_ticker_symbol || undefined;
+        decimals = metadata?.decimals ?? decimals;
 
-      const asset: EvmActivityAsset = {
-        contract: contractAddress,
-        tokenId,
-        amount: nft ? '1' : undefined, // Often this amount is too large for non-NFTs
-        decimals,
-        symbol,
-        nft,
-        iconURL
-      };
+        if (decimals == null) return { kind };
 
-      return { kind, asset };
-    }
+        const amount = '1';
+        const symbol = getAssetSymbol(metadata) || logEvent.sender_contract_ticker_symbol || undefined;
 
-    if (
-      logEvent.decoded.name === 'ApprovalForAll' &&
-      // @ts-expect-error // `value` is not always `:string`
-      logEvent.decoded.params[2]?.value === true &&
-      fromAddress === accountAddress
-    ) {
-      const kind = ActivityOperKindEnum.approve;
+        const asset: EvmActivityAsset = {
+          contract: contractAddress,
+          tokenId,
+          amount:
+            kind === ActivityOperKindEnum.transferFrom || kind === ActivityOperKindEnum.transferFrom_ToAccount
+              ? `-${amount}`
+              : amount,
+          decimals,
+          symbol,
+          nft: true,
+          iconURL
+        };
 
-      if (!contractAddress || decimals == null) return { kind };
+        return { kind, asset };
+      }
 
-      const asset: EvmActivityAsset = {
-        contract: contractAddress,
-        amount: InfinitySymbol,
-        decimals: NaN,
-        symbol: logEvent.sender_contract_ticker_symbol ?? undefined,
-        nft: true,
-        iconURL
-      };
+      if (logEvent.decoded.name === 'Approval') {
+        if (_fromAddress !== accountAddress) return null;
 
-      return { kind, asset };
-    }
+        const kind = ActivityOperKindEnum.approve;
 
-    return { kind: ActivityOperKindEnum.interaction };
-  });
+        if (!contractAddress) return { kind };
+
+        const amountOrTokenId: string = logEvent.decoded.params[2]?.value ?? '0';
+        const nft = logEvent.decoded.params[2]?.indexed ?? false;
+
+        const tokenId = nft ? amountOrTokenId : undefined;
+
+        const slug = toEvmAssetSlug(contractAddress, tokenId);
+        const metadata = getMetadata(slug);
+
+        decimals = metadata?.decimals ?? decimals;
+
+        if (decimals == null) return { kind };
+
+        const symbol = getAssetSymbol(metadata) || logEvent.sender_contract_ticker_symbol || undefined;
+
+        const asset: EvmActivityAsset = {
+          contract: contractAddress,
+          tokenId,
+          amount: nft ? '1' : undefined, // Often this amount is too large for non-NFTs
+          decimals,
+          symbol,
+          nft,
+          iconURL
+        };
+
+        return { kind, asset };
+      }
+
+      if (logEvent.decoded.name === 'ApprovalForAll') {
+        if (
+          // @ts-expect-error // `value` is not always `:string`
+          logEvent.decoded.params[2]?.value !== true ||
+          _fromAddress !== accountAddress
+        )
+          return null;
+
+        const kind = ActivityOperKindEnum.approve;
+
+        if (!contractAddress) return { kind };
+
+        const asset: EvmActivityAsset = {
+          contract: contractAddress,
+          amount: InfinitySymbol,
+          decimals: NaN,
+          symbol: logEvent.sender_contract_ticker_symbol ?? undefined,
+          nft: true,
+          iconURL
+        };
+
+        return { kind, asset };
+      }
+
+      return { kind: ActivityOperKindEnum.interaction };
+    })
+    .filter(isTruthy);
 
   const gasOperation = parseGasTransfer(item, accountAddress, getMetadata);
 
@@ -178,7 +238,7 @@ export function parseGoldRushERC20Transfer(
       const asset: EvmActivityAsset = {
         contract: contractAddress,
         amount:
-          kind === ActivityOperKindEnum.transferFrom_ToAccount || kind === ActivityOperKindEnum.transferFrom
+          kind === ActivityOperKindEnum.transferFrom || kind === ActivityOperKindEnum.transferFrom_ToAccount
             ? `-${amount}`
             : amount,
         decimals,
