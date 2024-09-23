@@ -247,7 +247,7 @@ export const TezosForm: FC<Props> = ({ chainId, assetSlug, onSelectAssetClick, o
 
         const actualAmount = shouldUseFiat ? toAssetAmount(amount) : amount;
 
-        onConfirm({ amount: actualAmount, to: toResolved });
+        onConfirm({ amount: actualAmount, to: toResolved, fee: '' });
 
         // if (isTezosContractAddress(accountPkh)) {
         //   const michelsonLambda = isTezosContractAddress(toResolved) ? transferToContract : transferImplicit;

@@ -228,7 +228,7 @@ const FilterNetworkDropdown = memo<FilterNetworkDropdownProps>(
           <SearchBarField value={searchValue} defaultRightMargin={false} onValueChange={setSearchValue} />
         </div>
         <div className="flex flex-col flex-grow overflow-y-auto">
-          {filteredNetworks.length === 0 && <EmptyState iconSize="small" showText={false} />}
+          {filteredNetworks.length === 0 && <EmptyState variant="universal" />}
 
           {filteredNetworks.map(network => (
             <FilterOption

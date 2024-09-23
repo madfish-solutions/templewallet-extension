@@ -14,8 +14,8 @@ import clsx from 'clsx';
 import { noop } from 'lodash';
 
 import CleanButton from 'app/atoms/CleanButton';
-import { ReactComponent as PasteFillIcon } from 'app/icons/base/paste_fill.svg';
 import OldStyleCopyButton from 'app/atoms/OldStyleCopyButton';
+import { ReactComponent as PasteFillIcon } from 'app/icons/base/paste_fill.svg';
 import { ReactComponent as CopyIcon } from 'app/icons/monochrome/copy.svg';
 import { setTestID, TestIDProperty } from 'lib/analytics';
 import { useDidUpdate } from 'lib/ui/hooks';
@@ -266,12 +266,12 @@ export const FormField = forwardRef<FormFieldElement, FormFieldProps>(
             )}
           >
             {additonalActionButtons}
-            {cleanable && <CleanButton withText={textarea} size={textarea ? 12 : 16} onClick={handleCleanClick} />}
+            {cleanable && <CleanButton showText={textarea} size={textarea ? 12 : 16} onClick={onClean} />}
             {rightSideComponent && rightSideComponent}
             {textarea && !cleanable && showPasteButton && (
               <Button className="flex items-center text-secondary" onClick={onPasteButtonClick}>
                 <span className="text-font-description-bold">Paste</span>
-                <IconBase Icon={PasteFillIcon} size={12} onClick={handleCleanClick} />
+                <IconBase Icon={PasteFillIcon} size={12} onClick={onClean} />
               </Button>
             )}
             {copyable && <Copyable value={String(value)} copy={copy} isSecret={type === 'password'} />}

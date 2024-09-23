@@ -4,8 +4,8 @@ import classNames from 'clsx';
 import { useForm } from 'react-hook-form';
 import { isAddress } from 'viem';
 
+import { FormField, FormSubmitButton, HashChip, Name, SubTitle } from 'app/atoms';
 import { AccountAvatar } from 'app/atoms/AccountAvatar';
-import { FormField, FormSubmitButton, HashChip, Identicon, Name, SubTitle } from 'app/atoms';
 import { ReactComponent as CloseIcon } from 'app/icons/close.svg';
 import { ChainSelectSection, useChainSelectController } from 'app/templates/ChainSelect';
 import { setAnotherSelector, setTestID } from 'lib/analytics';

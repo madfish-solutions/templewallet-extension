@@ -193,7 +193,7 @@ export const EvmForm: FC<Props> = ({ chainId, assetSlug, onSelectAssetClick, onC
       try {
         const actualAmount = shouldUseFiat ? toAssetAmount(amount) : amount;
 
-        onConfirm({ amount: actualAmount, to: toResolved });
+        onConfirm({ amount: actualAmount, to: toResolved, fee: '' });
 
         reset({ to: '' });
 

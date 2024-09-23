@@ -112,7 +112,7 @@ export const SelectAccountModal = memo<Props>(
                 />
               </>
             ) : (
-              <EmptyState />
+              <EmptyState variant="universal" />
             )}
           </Suspense>
         </div>
@@ -227,7 +227,7 @@ const AccountOfGroup = memo<AccountOfGroupProps>(({ name, address, iconHash, isC
     >
       <div className="flex flex-row items-center gap-x-1.5">
         <div className="flex p-px rounded-md border border-grey-3">
-          <Identicon type="bottts" hash={iconHash} size={28} className="rounded-sm" />
+          <Identicon type="botttsneutral" hash={iconHash} size={28} className="rounded-sm" />
         </div>
 
         <div className="flex flex-col">

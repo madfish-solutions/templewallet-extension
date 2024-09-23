@@ -13,7 +13,7 @@ export const CurrentAccount = memo(() => {
     <div className="flex flex-col p-2 gap-y-1.5 rounded-lg shadow-bottom border border-transparent">
       <div className="flex gap-x-1">
         <div className="flex p-px rounded-md border border-grey-3">
-          <Identicon type="bottts" hash={account.id} size={28} className="rounded-sm" />
+          <Identicon type="botttsneutral" hash={account.id} size={28} className="rounded-sm" />
         </div>
 
         <AccountName account={account} smaller />
