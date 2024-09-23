@@ -28,13 +28,16 @@ export const InfiniteScroll: FC<Props> = ({
 
   const onScroll = isSyncing || reachedTheEnd ? undefined : buildOnScroll(loadNext);
 
+  // For when there are too few items to make initial scroll for loadMore:
   useEffect(() => {
     if (SCROLL_DOCUMENT || isSyncing || reachedTheEnd) return;
 
     const scrollableElem = document.getElementById(APP_CONTENT_PAPER_DOM_ID);
-    if (!scrollableElem || scrollableElem.scrollTop) return;
 
-    if (scrollableElem.offsetHeight === scrollableElem.clientHeight) loadNext();
+    if (!scrollableElem || scrollableElem.scrollTop || scrollableElem.scrollHeight > scrollableElem.clientHeight)
+      return;
+
+    if (isScrollAtTheEnd(scrollableElem)) loadNext();
   }, [isSyncing, reachedTheEnd]);
 
   return (
@@ -61,7 +64,10 @@ const buildOnScroll =
     const elem: HTMLElement =
       target instanceof Document ? (target.scrollingElement! as HTMLElement) : (target as HTMLElement);
 
-    const atBottom = 0 === elem.offsetHeight - elem.clientHeight - elem.scrollTop;
-
-    if (atBottom) next();
+    if (isScrollAtTheEnd(elem)) next();
   };
+
+function isScrollAtTheEnd(elem: Element) {
+  // return 0 === elem.offsetHeight - elem.clientHeight - elem.scrollTop;
+  return elem.scrollHeight === elem.clientHeight + elem.scrollTop;
+}
