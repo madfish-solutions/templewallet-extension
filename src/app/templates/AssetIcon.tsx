@@ -3,13 +3,11 @@ import React, { FC, memo, useMemo } from 'react';
 import clsx from 'clsx';
 
 import { Identicon } from 'app/atoms';
-import { EvmNetworkLogo, NetworkLogoFallback } from 'app/atoms/NetworkLogo';
-import { TezNetworkLogo } from 'app/atoms/NetworksLogos';
+import { EvmNetworkLogo, TezosNetworkLogo } from 'app/atoms/NetworkLogo';
 import { ReactComponent as CollectiblePlaceholder } from 'app/icons/collectible-placeholder.svg';
 import { useEvmTokenMetadataSelector } from 'app/store/evm/tokens-metadata/selectors';
 import { AssetMetadataBase, getAssetSymbol, isCollectible, useTezosAssetMetadata } from 'lib/metadata';
 import { EvmTokenMetadata } from 'lib/metadata/types';
-import { TEZOS_MAINNET_CHAIN_ID } from 'lib/temple/types';
 import useTippy, { UseTippyOptions } from 'lib/ui/useTippy';
 import { isEvmNativeTokenSlug } from 'lib/utils/evm.utils';
 import { useEvmChainByChainId, useTezosChainByChainId } from 'temple/front/chains';
@@ -62,7 +60,6 @@ export const EvmTokenIcon = memo<EvmAssetIconProps>(({ evmChainId, assetSlug, cl
 
 const ICON_DEFAULT_SIZE = 40;
 const ASSET_IMAGE_DEFAULT_SIZE = 30;
-export const NETWORK_IMAGE_DEFAULT_SIZE = 16;
 
 interface TezosTokenIconWithNetworkProps
   extends Omit<AssetImageBaseProps, 'sources' | 'metadata' | 'loader' | 'fallback' | 'size'> {
@@ -103,11 +100,7 @@ export const TezosTokenIconWithNetwork = memo<TezosTokenIconWithNetworkProps>(
         />
         {network && (
           <div ref={networkIconRef} className="absolute bottom-0 right-0">
-            {network.chainId === TEZOS_MAINNET_CHAIN_ID ? (
-              <TezNetworkLogo size={NETWORK_IMAGE_DEFAULT_SIZE} />
-            ) : (
-              <NetworkLogoFallback networkName={network.name} size={NETWORK_IMAGE_DEFAULT_SIZE} />
-            )}
+            <TezosNetworkLogo networkName={network.name} chainId={network.chainId} />
           </div>
         )}
       </div>
@@ -161,7 +154,6 @@ export const EvmTokenIconWithNetwork = memo<EvmTokenIconWithNetworkProps>(
             className="absolute bottom-0 right-0"
             networkName={network.name}
             chainId={network.chainId}
-            size={NETWORK_IMAGE_DEFAULT_SIZE}
           />
         )}
       </div>

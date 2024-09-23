@@ -5,7 +5,7 @@ import clsx from 'clsx';
 
 import { IconBase, ToggleSwitch } from 'app/atoms';
 import Money from 'app/atoms/Money';
-import { EvmNetworkLogo, NetworkLogoFallback } from 'app/atoms/NetworkLogo';
+import { EvmNetworkLogo, NetworkLogoFallback, TezosNetworkLogo } from 'app/atoms/NetworkLogo';
 import { TezNetworkLogo } from 'app/atoms/NetworksLogos';
 import { ReactComponent as DeleteIcon } from 'app/icons/base/delete.svg';
 import { dispatch } from 'app/store';
@@ -47,7 +47,6 @@ const ImgWithDetailsContainerStyle = { width: 112, height: 152 };
 const ImgStyle = { width: 110, height: 110 };
 const manageImgStyle = { width: 42, height: 42 };
 const DetailsStyle = { width: 112, height: 40 };
-const NETWORK_IMAGE_DEFAULT_SIZE = 16;
 
 interface TezosCollectibleItemProps {
   assetSlug: string;
@@ -170,9 +169,9 @@ export const TezosCollectibleItem = memo<TezosCollectibleItemProps>(
                 {network && (
                   <div ref={networkIconRef} className="absolute bottom-0.5 right-0.5">
                     {network.chainId === TEZOS_MAINNET_CHAIN_ID ? (
-                      <TezNetworkLogo size={NETWORK_IMAGE_DEFAULT_SIZE} />
+                      <TezNetworkLogo />
                     ) : (
-                      <NetworkLogoFallback networkName={network.name} size={NETWORK_IMAGE_DEFAULT_SIZE} />
+                      <NetworkLogoFallback networkName={network.name} />
                     )}
                   </div>
                 )}
@@ -232,11 +231,7 @@ export const TezosCollectibleItem = memo<TezosCollectibleItemProps>(
 
           {network && (
             <div ref={networkIconRef} className="absolute bottom-1 right-1">
-              {network.chainId === TEZOS_MAINNET_CHAIN_ID ? (
-                <TezNetworkLogo size={NETWORK_IMAGE_DEFAULT_SIZE} />
-              ) : (
-                <NetworkLogoFallback networkName={network.name} size={NETWORK_IMAGE_DEFAULT_SIZE} />
-              )}
+              <TezosNetworkLogo networkName={network.name} chainId={network.chainId} />
             </div>
           )}
         </div>
@@ -364,7 +359,6 @@ export const EvmCollectibleItem = memo<EvmCollectibleItemProps>(
                     className="absolute bottom-0.5 right-0.5"
                     networkName={network.name}
                     chainId={network.chainId}
-                    size={NETWORK_IMAGE_DEFAULT_SIZE}
                   />
                 )}
               </div>
@@ -417,7 +411,6 @@ export const EvmCollectibleItem = memo<EvmCollectibleItemProps>(
               className="absolute bottom-1 right-1"
               networkName={network.name}
               chainId={network.chainId}
-              size={NETWORK_IMAGE_DEFAULT_SIZE}
             />
           )}
         </div>

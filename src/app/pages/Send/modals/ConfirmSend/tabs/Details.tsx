@@ -6,7 +6,6 @@ import clsx from 'clsx';
 import { HashChip, IconBase } from 'app/atoms';
 import { EvmNetworkLogo, TezosNetworkLogo } from 'app/atoms/NetworkLogo';
 import { ReactComponent as ChevronRightIcon } from 'app/icons/base/chevron_right.svg';
-import { NETWORK_IMAGE_DEFAULT_SIZE } from 'app/templates/AssetIcon';
 import InFiat from 'app/templates/InFiat';
 import { parseChainAssetSlug } from 'lib/assets/utils';
 import { T } from 'lib/i18n';
@@ -81,7 +80,7 @@ const EvmNetworkInfo: FC<{ chainId: number }> = ({ chainId }) => {
   return (
     <>
       <span className="p-1 text-font-description-bold">{networkName}</span>
-      <EvmNetworkLogo networkName={networkName} chainId={chainId} size={NETWORK_IMAGE_DEFAULT_SIZE} />
+      <EvmNetworkLogo networkName={networkName} chainId={chainId} />
     </>
   );
 };
@@ -93,7 +92,7 @@ const TezosNetworkInfo: FC<{ chainId: string }> = ({ chainId }) => {
   return (
     <>
       <span className="p-1 text-font-description-bold">{networkName}</span>
-      <TezosNetworkLogo networkName={networkName} chainId={chainId} size={NETWORK_IMAGE_DEFAULT_SIZE} />
+      <TezosNetworkLogo networkName={networkName} chainId={chainId} />
     </>
   );
 };

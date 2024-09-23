@@ -25,7 +25,7 @@ interface TezosNetworkLogoProps {
   size?: number;
 }
 
-export const TezosNetworkLogo = memo<TezosNetworkLogoProps>(({ networkName, chainId, size = 24 }) =>
+export const TezosNetworkLogo = memo<TezosNetworkLogoProps>(({ networkName, chainId, size = 16 }) =>
   chainId === TEZOS_MAINNET_CHAIN_ID ? (
     <TezNetworkLogo size={size} />
   ) : (
@@ -44,7 +44,7 @@ interface EvmNetworkLogoProps {
 
 export const EvmNetworkLogo = memo(
   forwardRef<HTMLDivElement, EvmNetworkLogoProps>(
-    ({ networkName, chainId, size = 24, className, imgClassName, style }, ref) => {
+    ({ networkName, chainId, size = 16, className, imgClassName, style }, ref) => {
       const source = useMemo(() => {
         if (logosRecord[chainId]) return logosRecord[chainId];
 
@@ -75,26 +75,22 @@ export const EvmNetworkLogo = memo(
   )
 );
 
-const ICON_CONTAINER_MULTIPLIER = 0.8;
-const ICON_SIZE_MULTIPLIER = 2;
-const initialsOpts = { chars: 1 };
-
 interface NetworkLogoFallbackProps {
   networkName: string;
   size?: number;
   className?: string;
 }
 
-export const NetworkLogoFallback = memo<NetworkLogoFallbackProps>(({ networkName, size = 24, className }) => (
+export const NetworkLogoFallback = memo<NetworkLogoFallbackProps>(({ networkName, size = 16, className }) => (
   <div
-    style={{ width: size, height: size }}
-    className={clsx('flex justify-center items-center p-0.5 border border-grey-4 bg-white rounded-full', className)}
+    style={{ width: size, height: size, padding: size * 0.0625 }}
+    className={clsx('flex justify-center items-center border border-grey-4 bg-white rounded-full', className)}
   >
-    <div
-      style={{ width: size * ICON_CONTAINER_MULTIPLIER, height: size * ICON_CONTAINER_MULTIPLIER }}
-      className="flex justify-center items-center rounded-full overflow-clip"
-    >
-      <Identicon type="initials" hash={networkName} size={size * ICON_SIZE_MULTIPLIER} options={initialsOpts} />
-    </div>
+    <Identicon
+      type="initials"
+      size={size}
+      hash={networkName[0]}
+      className="flex justify-center items-center w-full h-full rounded-full"
+    />
   </div>
 ));
