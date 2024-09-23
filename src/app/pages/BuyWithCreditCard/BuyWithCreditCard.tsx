@@ -256,13 +256,13 @@ const BuyTezosWithCreditCard = memo<{ publicKeyHash: string }>(({ publicKeyHash 
           </FormSubmitButton>
 
           <div className="flex justify-between w-full">
-            <span className="text-xs text-[#aeaaae] leading-relaxed">
+            <span className="text-font-description text-[#aeaaae] leading-relaxed">
               <T id="exchangeRate" />:
             </span>
-            <span className="text-xs text-gray-600 leading-relaxed">{exchangeRateStr}</span>
+            <span className="text-font-description text-gray-600 leading-relaxed">{exchangeRateStr}</span>
           </div>
 
-          <span className="text-center text-xs text-gray-700 leading-relaxed">
+          <span className="text-center text-font-description text-gray-700 leading-relaxed">
             <T id="topUpDescription" />
           </span>
         </div>

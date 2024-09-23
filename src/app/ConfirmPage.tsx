@@ -2,11 +2,9 @@ import React, { FC, Fragment, memo, useCallback, useMemo, useState } from 'react
 
 import clsx from 'clsx';
 
-import { Alert, FormSubmitButton, FormSecondaryButton } from 'app/atoms';
-import AccountTypeBadge from 'app/atoms/AccountTypeBadge';
+import { AccountTypeBadge, Alert, FormSubmitButton, FormSecondaryButton } from 'app/atoms';
 import ConfirmLedgerOverlay from 'app/atoms/ConfirmLedgerOverlay';
 import HashShortView from 'app/atoms/HashShortView';
-import Identicon from 'app/atoms/Identicon';
 import Money from 'app/atoms/Money';
 import Name from 'app/atoms/Name';
 import Spinner from 'app/atoms/Spinner/Spinner';
@@ -35,6 +33,7 @@ import { AccountForTezos, getAccountForTezos, isAccountOfActableType } from 'tem
 import { useAccountForTezos, useAllAccounts, useTezosChainIdLoadingValue } from 'temple/front';
 import { TezosNetworkEssentials } from 'temple/networks';
 
+import { AccountAvatar } from './atoms/AccountAvatar';
 import { ConfirmPageSelectors } from './ConfirmPage.selectors';
 
 const ConfirmPage = memo(() => {
@@ -439,7 +438,7 @@ const ConfirmDAppForm = memo(() => {
 });
 
 const AccountIcon: FC<OptionRenderProps<AccountForTezos>> = ({ item }) => (
-  <Identicon type="bottts" hash={item.id} size={32} className="flex-shrink-0 shadow-xs" />
+  <AccountAvatar size={32} seed={item.id} className="flex-shrink-0" />
 );
 
 const AccountOptionContentHOC = (tezosNetwork: TezosNetworkEssentials) =>

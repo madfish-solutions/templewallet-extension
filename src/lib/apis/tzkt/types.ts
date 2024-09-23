@@ -9,8 +9,6 @@ export type TzktQuoteCurrency = 'None' | 'Btc' | 'Eur' | 'Usd' | 'Cny' | 'Jpy' |
 
 type TzktOperationStatus = 'applied' | 'failed' | 'backtracked' | 'skipped';
 
-type TzktContractType = 'delegator_contract' | 'smart_contract';
-
 export interface TzktAlias {
   alias?: string;
   address: string;
@@ -82,22 +80,6 @@ export type TzktOperation =
   | TzktTransactionOperation
   | TzktRevealOperation
   | TzktOriginationOperation;
-
-type TzktDelegateInfo = {
-  alias?: string;
-  address: string;
-  active: boolean;
-};
-
-export type TzktRelatedContract = {
-  kind: TzktContractType;
-  alias?: string;
-  address: string;
-  balance: number;
-  delegate?: TzktDelegateInfo;
-  creationLevel: number;
-  creationTime: string;
-};
 
 export const allInt32ParameterKeys = ['eq', 'ne', 'gt', 'ge', 'lt', 'le', 'in', 'ni'] as const;
 

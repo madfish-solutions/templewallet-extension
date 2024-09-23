@@ -20,7 +20,7 @@ export const EmptySection = memo<Props>(({ forCollectibles, network }) => {
   return (
     <>
       <div className="w-full h-full flex flex-col items-center">
-        <EmptyState />
+        <EmptyState variant="searchUniversal" />
 
         <Button
           className="w-fit flex flex-row mb-8 px-2 py-1 bg-secondary-low rounded-md text-font-description-bold text-secondary"

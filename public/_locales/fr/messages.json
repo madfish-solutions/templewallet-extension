@@ -14,12 +14,6 @@
   "createAccount": {
     "message": "Créer un compte"
   },
-  "faucetFileTitle": {
-    "message": "Fichier Faucet"
-  },
-  "faucetFile": {
-    "message": "Fichier Faucet"
-  },
   "settings": {
     "message": "Paramètres"
   },
@@ -234,12 +228,6 @@
     "message": "Utiliser CoinSwitch",
     "description": "CoinSwitch = https://coinswitch.co/"
   },
-  "tezosFaucet": {
-    "message": "Faucet Tezos"
-  },
-  "tezosFaucetAlpha": {
-    "message": "Faucet Tezos (Alpha)"
-  },
   "depositToWallet": {
     "message": "Dépôt dans votre portefeuille"
   },
@@ -342,16 +330,13 @@
     "message": "URL d'icône"
   },
   "optionalComment": {
-    "message": "(facultatif)"
+    "message": "Facultatif"
   },
   "iconURLInputDescription": {
     "message": "URL d'image pour le logo du jeton."
   },
   "invalidAddress": {
     "message": "Adresse invalide"
-  },
-  "contractNotExistOnNetwork": {
-    "message": "Ce contrat intelligent n'existe pas sur le réseau actuel"
   },
   "onlyKTContractAddressAllowed": {
     "message": "Seules les adresses de contrat KT… sont autorisées",
@@ -368,15 +353,6 @@
   },
   "defaultAccountName": {
     "message": "Compte $accountNumber$",
-    "placeholders": {
-      "accountNumber": {
-        "content": "$1"
-      }
-    }
-  },
-  "defaultManagedKTAccountName": {
-    "message": "$accountNumber$ KT géré",
-    "description": "KT not translated",
     "placeholders": {
       "accountNumber": {
         "content": "$1"
@@ -570,20 +546,8 @@
   "mnemonic": {
     "message": "Mnémonique"
   },
-  "fundraiser": {
-    "message": "Levée de fonds"
-  },
-  "privateKeyInputDescription": {
-    "message": "La clé secrète du compte que vous voulez importer."
-  },
-  "privateKeyInputPlaceholder": {
-    "message": "p. ex. edsk3wfiPMu… or 0x3wfiPMu..."
-  },
   "password": {
     "message": "Mot de passe"
-  },
-  "isPrivateKeyEncrypted": {
-    "message": "Votre clé privée est-elle au format chiffré ?"
   },
   "customDerivationPath": {
     "message": "Chemin de dérivation personnalisée"
@@ -629,14 +593,6 @@
   "smthWentWrong": {
     "message": "Quelque chose s'est mal passé"
   },
-  "faucetFileInputPrompt": {
-    "message": "Faites glisser et déposez un fichier ou sélectionnez-le manuellement en cliquant sur la zone ci-dessous. Vous pouvez le télécharger à partir de $link$.",
-    "placeholders": {
-      "link": {
-        "content": "$1"
-      }
-    }
-  },
   "processing": {
     "message": "Traitement…"
   },
@@ -674,12 +630,6 @@
   "networksDescription": {
     "message": "Dans cette section, vous pouvez ajouter ou supprimer des réseaux Tezos personnalisés.",
     "description": "Tezos = blockchain name (https://tezos.com/)"
-  },
-  "activateAccount": {
-    "message": "Activer le compte"
-  },
-  "activateAccountDescription": {
-    "message": "Cela pourrait être nécessaire pou les comptes ICO/levée de fond ou faucet testnet."
   },
   "removeAccount": {
     "message": "Retirer le compte"
@@ -735,33 +685,6 @@
   },
   "contact": {
     "message": "Contact"
-  },
-  "accountAlreadyActivated": {
-    "message": "Votre compte a déjà été activé."
-  },
-  "accountActivated": {
-    "message": "Votre compte a bien été activé !"
-  },
-  "failureSecretMayBeInvalid": {
-    "message": "Échec. Cela peut se produire si le Secret fourni est invalide"
-  },
-  "accountToBeActivated": {
-    "message": "Compte à activer."
-  },
-  "ifYouWantToActivateAnotherAccount": {
-    "message": "Si vous voulez activer un autre compte, veuillez le sélectionner dans le menu déroulant en haut à droite."
-  },
-  "activateAccountSecret": {
-    "message": "Secret"
-  },
-  "activateAccountSecretDescription": {
-    "message": "Champ « secret » du compte de levée de fonds ou du faucet"
-  },
-  "activateAccountSecretPlaceholder": {
-    "message": "p. ex. n4hs7sd3…"
-  },
-  "activate": {
-    "message": "Activer"
   },
   "minimalFeeDescription": {
     "message": "Minimum"
@@ -1067,7 +990,12 @@
     "message": "m/44'/1729'/<account_index>'/0'"
   },
   "derivationPathExample2": {
-    "message": "p. ex. m/44'/1729'/…"
+    "message": "p. ex. $derivationPath$",
+    "placeholders": {
+      "derivationPath": {
+        "content": "$1"
+      }
+    }
   },
   "keepSeedPhraseSecret": {
     "message": "Gardez-la secrète."
@@ -1371,9 +1299,6 @@
   "disabledForWatchOnlyAccount": {
     "message": "Désactivé(e) pour un compte « surveiller seulement »"
   },
-  "activationOperationType": {
-    "message": "Activation"
-  },
   "youAreNotContractManager": {
     "message": "Vous n'êtes un gestionnaire de contrat"
   },
@@ -1385,9 +1310,6 @@
   },
   "contractAddressInputPlaceholder": {
     "message": "p. ex. KT1a9w1S7hN5s…"
-  },
-  "addKnownManagedContract": {
-    "message": "Ajouter un contrat géré connu"
   },
   "clickOnContractToImport": {
     "message": "Cliquez sur le contrat que vous voulez importer."
@@ -1434,9 +1356,6 @@
   "popupSettingsDescription": {
     "message": "Vous pouvez configurer ici la pop-up qui apparaît en cliquant sur l'icône du plug-in dans le panneau des extensions."
   },
-  "managedContract": {
-    "message": "Contrat géré"
-  },
   "referredByTokenContractNotFound": {
     "message": "Le contrat $address$, renvoyé par le contrat du jeton, est introuvable.",
     "placeholders": {
@@ -1461,9 +1380,6 @@
         "content": "$1"
       }
     }
-  },
-  "invalidManagedContract": {
-    "message": "Contrat géré invalide"
   },
   "someMethodNotDefinedInContract": {
     "message": "La méthode « $name$ » n'est pas définie dans le contrat.",
@@ -1628,14 +1544,5 @@
   },
   "invalidJsonInput": {
     "message": "JSON invalide"
-  },
-  "notFaucetJson": {
-    "message": "N'est pas un JSON faucet"
-  },
-  "faucetJson": {
-    "message": "JSON faucet"
-  },
-  "faucetJsonDescription": {
-    "message": "Vous pouvez coller du JSON ici au lieu d'ajouter un fichier"
   }
 }

@@ -2,7 +2,7 @@ import React, { FC, memo, useMemo } from 'react';
 
 import clsx from 'clsx';
 
-import Identicon from 'app/atoms/Identicon';
+import { Identicon } from 'app/atoms';
 import { EvmNetworkLogo, NetworkLogoFallback } from 'app/atoms/NetworkLogo';
 import { TezNetworkLogo } from 'app/atoms/NetworksLogos';
 import { ReactComponent as CollectiblePlaceholder } from 'app/icons/collectible-placeholder.svg';
@@ -178,6 +178,6 @@ const AssetIconPlaceholder: FC<PlaceholderProps> = ({ metadata, size }) => {
   return metadata && isCollectible(metadata) ? (
     <CollectiblePlaceholder style={{ maxWidth: `${size}px`, width: '100%', height: '100%' }} />
   ) : (
-    <Identicon type="initials" hash={getAssetSymbol(metadata)} size={size} />
+    <Identicon type="initials" hash={getAssetSymbol(metadata)} size={size} className="rounded-full" />
   );
 };

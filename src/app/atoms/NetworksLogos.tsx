@@ -1,4 +1,4 @@
-import React, { FC, memo } from 'react';
+import React, { memo } from 'react';
 
 import clsx from 'clsx';
 
@@ -16,20 +16,20 @@ interface NetworkLogoBaseProps {
   style?: React.CSSProperties;
 }
 
-type TezosNetworkLogoProps = Omit<NetworkLogoBaseProps, 'src' | 'alt'>;
+type NetworkLogoProps = Omit<NetworkLogoBaseProps, 'src' | 'alt'>;
 
-export const TezNetworkLogo = memo<TezosNetworkLogoProps>(props => (
+export const TezNetworkLogo = memo<NetworkLogoProps>(props => (
   <NetworkLogoBase src={TezosIconSrc} alt="Tezos" {...props} />
 ));
 
-export const EvmNetworksLogos: FC = () => (
+export const EvmNetworksLogos = memo<NetworkLogoProps>(({ size = 24 }) => (
   <div className="flex">
-    <NetworkLogoBase src={OptimismIconSrc} alt="Optimism" />
-    <NetworkLogoBase src={PolygonIconSrc} alt="Polygon" className="-ml-3.5" />
-    <NetworkLogoBase src={BinanceSmartChainIconSrc} alt="BSC" className="-ml-3.5" />
-    <NetworkLogoBase src={EthereumIconSrc} alt="ETH" className="-ml-3.5" />
+    <NetworkLogoBase size={size} src={OptimismIconSrc} alt="Optimism" />
+    <NetworkLogoBase size={size} src={PolygonIconSrc} alt="Polygon" className="-ml-3.5" />
+    <NetworkLogoBase size={size} src={BinanceSmartChainIconSrc} alt="BSC" className="-ml-3.5" />
+    <NetworkLogoBase size={size} src={EthereumIconSrc} alt="ETH" className="-ml-3.5" />
   </div>
-);
+));
 
 const NetworkLogoBase = memo<NetworkLogoBaseProps>(({ src, alt, size = 24, className, style }) => (
   <img

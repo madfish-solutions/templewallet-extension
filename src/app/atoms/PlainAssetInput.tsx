@@ -2,6 +2,8 @@ import React, { FC, useCallback, useEffect, useMemo, useState } from 'react';
 
 import BigNumber from 'bignumber.js';
 
+import { useFocusHandlers } from 'lib/ui/hooks/use-focus-handlers';
+
 type PlainAssetInputProps = Omit<React.HTMLAttributes<HTMLInputElement>, 'onChange'> & {
   value?: number | string;
   min?: number;
@@ -23,7 +25,7 @@ const PlainAssetInput: FC<PlainAssetInputProps> = ({
   const valueStr = useMemo(() => (value === undefined ? '' : new BigNumber(value).toFixed()), [value]);
 
   const [localValue, setLocalValue] = useState(valueStr);
-  const [focused, setFocused] = useState(false);
+  const { isFocused: focused, onFocus: handleFocus, onBlur: handleBlur } = useFocusHandlers(onFocus, onBlur);
 
   useEffect(() => {
     if (!focused) {
@@ -49,32 +51,6 @@ const PlainAssetInput: FC<PlainAssetInputProps> = ({
       }
     },
     [assetDecimals, setLocalValue, min, max, onChange]
-  );
-
-  const handleFocus = useCallback(
-    (evt: React.FocusEvent<HTMLInputElement>) => {
-      setFocused(true);
-      if (onFocus) {
-        onFocus(evt);
-        if (evt.defaultPrevented) {
-          return;
-        }
-      }
-    },
-    [setFocused, onFocus]
-  );
-
-  const handleBlur = useCallback(
-    (evt: React.FocusEvent<HTMLInputElement>) => {
-      setFocused(false);
-      if (onBlur) {
-        onBlur(evt);
-        if (evt.defaultPrevented) {
-          return;
-        }
-      }
-    },
-    [setFocused, onBlur]
   );
 
   return (

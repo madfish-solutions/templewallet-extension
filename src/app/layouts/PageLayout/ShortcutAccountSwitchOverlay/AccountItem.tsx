@@ -3,8 +3,8 @@ import React, { RefObject, useMemo } from 'react';
 import { emptyFn, isDefined } from '@rnw-community/shared';
 import clsx from 'clsx';
 
-import { Name, Button, HashShortView, Money, Identicon } from 'app/atoms';
-import AccountTypeBadge from 'app/atoms/AccountTypeBadge';
+import { AccountTypeBadge, Name, Button, HashShortView, Money } from 'app/atoms';
+import { AccountAvatar } from 'app/atoms/AccountAvatar';
 import { SearchHighlightText } from 'app/atoms/SearchHighlightText';
 import { TezosBalance } from 'app/templates/Balance';
 import { setAnotherSelector, setTestID } from 'lib/analytics';
@@ -71,16 +71,16 @@ export const AccountItem: React.FC<AccountItemProps> = ({
       testID={ShortcutAccountSwitchSelectors.accountItemButton}
       testIDProperties={{ accountTypeEnum: account.type }}
     >
-      <Identicon type="bottts" hash={account.id} size={46} className="flex-shrink-0 shadow-xs-white" />
+      <AccountAvatar seed={account.id} size={60} className="flex-shrink-0" />
 
       <div style={{ marginLeft: '10px' }} className="flex flex-col items-start">
-        <Name className="text-sm font-medium">
+        <Name className="text-font-medium font-medium">
           <SearchHighlightText searchValue={searchValue}>{account.name}</SearchHighlightText>
         </Name>
 
         <div
           className={clsx(
-            'text-xs',
+            'text-font-description',
             searchValue === displayAddress ? 'bg-marker-highlight text-gray-900' : 'text-gray-500'
           )}
           {...setTestID(ShortcutAccountSwitchSelectors.accountAddressValue)}
@@ -93,7 +93,7 @@ export const AccountItem: React.FC<AccountItemProps> = ({
           {accountTezAddress && (
             <TezosBalance network={tezosMainnetChain} address={accountTezAddress}>
               {bal => (
-                <span className="text-xs leading-tight flex items-baseline text-gray-500">
+                <span className="text-font-description leading-tight flex items-baseline text-gray-500">
                   <Money smallFractionFont={false} tooltip={false}>
                     {bal}
                   </Money>

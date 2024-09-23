@@ -2,7 +2,7 @@ import React, { FC } from 'react';
 
 import { Anchor } from 'app/atoms/Anchor';
 import { DonationBanner } from 'app/atoms/DonationBanner/DonationBanner';
-import Logo from 'app/atoms/Logo';
+import { Logo } from 'app/atoms/Logo';
 import SubTitle from 'app/atoms/SubTitle';
 import { PRIVACY_POLICY_URL, TERMS_OF_USE_URL } from 'lib/constants';
 import { EnvVars } from 'lib/env';
@@ -45,7 +45,7 @@ const LINKS: {
 const About: FC = () => (
   <div className="flex flex-col items-center my-8">
     <div className="flex items-center justify-center">
-      <Logo style={{ height: 60 }} />
+      <Logo type="icon" size={60} className="my-1.5" />
 
       <div className="ml-4">
         <h4 className="text-xl font-semibold text-gray-700">
@@ -75,7 +75,7 @@ const About: FC = () => (
       </div>
     </div>
 
-    <p className="my-6 text-base font-light text-gray-600">
+    <p className="my-6 text-font-regular font-light text-gray-600">
       <T
         id="madeWithLove"
         substitutions={[

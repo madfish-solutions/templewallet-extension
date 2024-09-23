@@ -65,7 +65,7 @@ const DAppsList = () => {
 
   return (
     <div className={clsx('flex flex-col', popup && matchingDApps.length > 3 && 'pb-12')}>
-      <span className="self-center text-sm text-gray-600 mb-2">{t('promoted')}</span>
+      <span className="self-center text-font-medium text-gray-600 mb-2">{t('promoted')}</span>
 
       <div className={clsx(popup ? 'py-2 mb-4' : 'py-6 mb-6', 'rounded-lg bg-gray-100 flex justify-center')}>
         {featuredDApps.slice(0, 3).map(({ slug, name, logo, dappUrl }) => (

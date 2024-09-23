@@ -29,6 +29,11 @@ export const AddTokenModal = memo<Props>(({ forCollectible, opened, onRequestClo
     return ethMainnetChain;
   });
 
+  const totalClose = useCallback(() => {
+    setNetworkSelectClosed();
+    onRequestClose();
+  }, [onRequestClose, setNetworkSelectClosed]);
+
   const handleNetworkSelect = useCallback(
     (network: OneOfChains) => {
       setSelectedNetwork(network);
@@ -41,15 +46,12 @@ export const AddTokenModal = memo<Props>(({ forCollectible, opened, onRequestClo
     <PageModal
       title={isNetworkSelectOpened ? 'Select Network' : 'Add Custom Token'}
       opened={opened}
-      onBackClick={isNetworkSelectOpened ? setNetworkSelectClosed : undefined}
-      onRequestClose={onRequestClose}
+      shouldShowBackButton={isNetworkSelectOpened}
+      onGoBack={isNetworkSelectOpened ? setNetworkSelectClosed : undefined}
+      onRequestClose={totalClose}
     >
       {isNetworkSelectOpened ? (
-        <SelectNetworkPage
-          selectedNetwork={selectedNetwork}
-          onNetworkSelect={handleNetworkSelect}
-          onCloseClick={setNetworkSelectClosed}
-        />
+        <SelectNetworkPage selectedNetwork={selectedNetwork} onNetworkSelect={handleNetworkSelect} />
       ) : (
         <AddTokenForm
           forCollectible={forCollectible}

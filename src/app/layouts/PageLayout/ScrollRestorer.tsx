@@ -1,5 +1,6 @@
 import React, { forwardRef, useImperativeHandle, useLayoutEffect, useRef } from 'react';
 
+import { combineRefs } from 'lib/ui/utils';
 import * as Woozie from 'lib/woozie';
 
 interface Props extends React.HTMLAttributes<HTMLDivElement> {}
@@ -32,7 +33,7 @@ export const ScrollRestorer = forwardRef<HTMLDivElement, PropsWithChildren<Props
     localRef.current.scrollTop = scrollTop;
   }, [trigger, href]);
 
-  return <div ref={localRef} onScroll={onScroll} {...props} />;
+  return <div ref={combineRefs(localRef, ref)} onScroll={onScroll} {...props} />;
 });
 
 function onScroll(event: React.UIEvent<HTMLDivElement>) {

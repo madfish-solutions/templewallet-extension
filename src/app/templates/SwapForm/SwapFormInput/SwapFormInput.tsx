@@ -321,7 +321,7 @@ const SwapInputHeader = memo<SwapInputHeaderProps>(
             {selectedAssetBalanceStr && (
               <span
                 className={classNames(
-                  'text-sm mr-1 text-gray-700',
+                  'text-font-medium mr-1 text-gray-700',
                   Number(selectedAssetBalanceStr) === 0 && 'text-red-700'
                 )}
               >

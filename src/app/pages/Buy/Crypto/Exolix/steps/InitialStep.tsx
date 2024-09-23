@@ -4,8 +4,7 @@ import { isDefined } from '@rnw-community/shared';
 import classNames from 'clsx';
 import { useDebounce } from 'use-debounce';
 
-import { FormSubmitButton } from 'app/atoms';
-import Divider from 'app/atoms/Divider';
+import { FormSubmitButton, Divider } from 'app/atoms';
 import styles from 'app/pages/Buy/Crypto/Exolix/Exolix.module.css';
 import ErrorComponent from 'app/pages/Buy/Crypto/Exolix/steps/ErrorComponent';
 import WarningComponent from 'app/pages/Buy/Crypto/Exolix/steps/WarningComponent';
@@ -245,11 +244,11 @@ const InitialStep: FC<Props> = ({ publicKeyHash, exchangeData, setExchangeData, 
         <T
           id="privacyAndPolicyLinks"
           substitutions={[
-            <T id={'topUp'} />,
-            <a className={styles['link']} rel="noreferrer" href={EXOLIX_TERMS_LINK} target="_blank">
+            <T id={'topUp'} key="buttonContent" />,
+            <a className={styles['link']} rel="noreferrer" href={EXOLIX_TERMS_LINK} target="_blank" key="termsOfUse">
               <T id={'termsOfUse'} />
             </a>,
-            <a className={styles['link']} rel="noreferrer" href={EXOLIX_PRIVICY_LINK} target="_blank">
+            <a className={styles['link']} rel="noreferrer" href={EXOLIX_PRIVICY_LINK} target="_blank" key="privacy">
               <T id={'privacyPolicy'} />
             </a>
           ]}

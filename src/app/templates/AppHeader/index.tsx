@@ -3,33 +3,39 @@ import React, { memo } from 'react';
 import clsx from 'clsx';
 
 import { IconBase } from 'app/atoms';
+import { AccountAvatar } from 'app/atoms/AccountAvatar';
 import { AccountName } from 'app/atoms/AccountName';
 import { Button } from 'app/atoms/Button';
-import Identicon from 'app/atoms/Identicon';
+import { useSearchParamsBoolean } from 'app/hooks/use-search-params-boolean';
 import { ReactComponent as BurgerIcon } from 'app/icons/base/menu.svg';
-import { useBooleanState } from 'lib/ui/hooks';
 import Popper from 'lib/ui/Popper';
 import { useAccount } from 'temple/front';
 
+import { HomeSelectors } from '../../pages/Home/selectors';
+
 import { AccountsModal } from './AccountsModal';
 import MenuDropdown from './MenuDropdown';
-import { AppHeaderSelectors } from './selectors';
 
 export const AppHeader = memo(() => {
   const account = useAccount();
-  const [accountsModalOpened, setAccountsModalOpen, setAccountsModalClosed] = useBooleanState(false);
+
+  const {
+    value: accountsModalIsOpen,
+    setTrue: openAccountsModal,
+    setFalse: closeAccountsModal
+  } = useSearchParamsBoolean('accountsModal');
 
   return (
     <div className="relative z-header flex items-center py-3 px-4 gap-x-1 rounded-t-inherit">
-      <Button
-        className="flex p-px rounded-md border border-secondary hover:bg-secondary-low"
-        onClick={setAccountsModalOpen}
-        testID={AppHeaderSelectors.accountIcon}
-      >
-        <Identicon type="bottts" hash={account.id} size={28} className="rounded-sm" />
-      </Button>
+      <AccountAvatar
+        seed={account.id}
+        size={32}
+        onClick={openAccountsModal}
+        testID={HomeSelectors.accountIcon}
+        elementType="button"
+      />
 
-      <AccountsModal opened={accountsModalOpened} onRequestClose={setAccountsModalClosed} />
+      <AccountsModal opened={accountsModalIsOpen} onRequestClose={closeAccountsModal} />
 
       <AccountName account={account} />
 
@@ -45,7 +51,7 @@ export const AppHeader = memo(() => {
               opened && 'text-secondary-hover bg-secondary-hover-low'
             )}
             onClick={toggleOpened}
-            testID={AppHeaderSelectors.menuIcon}
+            testID={HomeSelectors.accountMenuButton}
           >
             <IconBase Icon={BurgerIcon} size={16} />
           </Button>

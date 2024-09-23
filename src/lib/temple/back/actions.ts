@@ -51,7 +51,7 @@ import {
 } from './store';
 import { Vault } from './vault';
 
-const ACCOUNT_OR_GROUP_NAME_PATTERN = /^.{0,16}$/;
+const ACCOUNT_OR_GROUP_NAME_PATTERN = /^.{1,16}$/;
 const AUTODECLINE_AFTER = 60_000;
 const BEACON_ID = `temple_wallet_${browser.runtime.id}`;
 let initLocked = false;
@@ -146,7 +146,7 @@ export function createHDAccount(walletId: string, name?: string, hdIndex?: numbe
     if (name) {
       name = name.trim();
       if (!ACCOUNT_OR_GROUP_NAME_PATTERN.test(name)) {
-        throw new Error('Invalid name. It should be: 1-16 characters, without special');
+        throw new Error('Invalid name. It should be 1-16 characters');
       }
     }
 
@@ -189,7 +189,7 @@ export function editAccount(id: string, name: string) {
   return withUnlocked(async ({ vault }) => {
     name = name.trim();
     if (!ACCOUNT_OR_GROUP_NAME_PATTERN.test(name)) {
-      throw new Error('Invalid name. It should be: 1-16 characters, without special');
+      throw new Error('Invalid name. It should be 1-16 characters');
     }
 
     const updatedAccounts = await vault.editAccountName(id, name);
@@ -207,20 +207,6 @@ export function importAccount(chain: TempleChainKind, privateKey: string, encPas
 export function importMnemonicAccount(mnemonic: string, password?: string, derivationPath?: string) {
   return withUnlocked(async ({ vault }) => {
     const updatedAccounts = await vault.importMnemonicAccount(mnemonic, password, derivationPath);
-    accountsUpdated(updatedAccounts);
-  });
-}
-
-export function importFundraiserAccount(email: string, password: string, mnemonic: string) {
-  return withUnlocked(async ({ vault }) => {
-    const updatedAccounts = await vault.importFundraiserAccount(email, password, mnemonic);
-    accountsUpdated(updatedAccounts);
-  });
-}
-
-export function importManagedKTAccount(address: string, chainId: string, owner: string) {
-  return withUnlocked(async ({ vault }) => {
-    const updatedAccounts = await vault.importManagedKTAccount(address, chainId, owner);
     accountsUpdated(updatedAccounts);
   });
 }

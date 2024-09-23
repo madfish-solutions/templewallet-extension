@@ -45,7 +45,7 @@ export const BakerCard = memo<Props>(
     if (!baker)
       return (
         <BakerHeader HeaderRight={HeaderRight} className={className}>
-          <Identicon type="bottts" hash={bakerPkh} size={32} className="self-start flex-shrink-0 shadow-xs" />
+          <Identicon type="botttsneutral" hash={bakerPkh} size={32} className="self-start flex-shrink-0 shadow-xs" />
 
           {bakerAcc ? (
             <BakerName>

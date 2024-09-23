@@ -15,8 +15,8 @@ const CustomModal: FC<CustomModalProps> = props => {
       appElement={document.getElementById('root')!}
       closeTimeoutMS={200}
       overlayClassName={classNames(
-        'fixed inset-0 z-45',
-        'bg-black bg-opacity-75',
+        'fixed inset-0 z-modal-page',
+        'bg-black bg-opacity-15',
         'flex items-center justify-center',
         'p-4',
         overlayClassName

@@ -412,11 +412,7 @@ export const AddTokenForm = memo<AddTokenPageProps>(
           </div>
         </div>
 
-        <ActionsButtonsBox flexDirection="row" className="gap-x-2.5">
-          <StyledButton size="L" className="w-full" color="primary-low" onClick={close}>
-            <T id="cancel" />
-          </StyledButton>
-
+        <ActionsButtonsBox>
           <StyledButton disabled={isAddButtonDisabled} type="submit" size="L" className="w-full" color="primary">
             <T id="add" />
           </StyledButton>

@@ -14,12 +14,6 @@
   "importAccount": {
     "message": "Імпортувати аккаунт"
   },
-  "faucetFileTitle": {
-    "message": "Faucet файл"
-  },
-  "faucetFile": {
-    "message": "Faucet файл"
-  },
   "settings": {
     "message": "Налаштування"
   },
@@ -248,12 +242,6 @@
     "message": "Використай CoinSwitch",
     "description": "CoinSwitch = https://coinswitch.co/"
   },
-  "tezosFaucet": {
-    "message": "Tezos Faucet"
-  },
-  "tezosFaucetAlpha": {
-    "message": "Tezos Faucet (Alpha)"
-  },
   "depositToWallet": {
     "message": "Поповнити гаманаць"
   },
@@ -359,16 +347,13 @@
     "message": "Icon URL"
   },
   "optionalComment": {
-    "message": "(опціонально)"
+    "message": "Опціонально"
   },
   "iconURLInputDescription": {
     "message": "Посилання на зображення для логотипу токена."
   },
   "invalidAddress": {
     "message": "Невалідна адреса"
-  },
-  "contractNotExistOnNetwork": {
-    "message": "Цей смарт контракт не існує на заданній мережі"
   },
   "onlyKTContractAddressAllowed": {
     "message": "Тільки KT... адреси контрактів дозволені",
@@ -385,15 +370,6 @@
   },
   "defaultAccountName": {
     "message": "Аккаунт $accountNumber$",
-    "placeholders": {
-      "accountNumber": {
-        "content": "$1"
-      }
-    }
-  },
-  "defaultManagedKTAccountName": {
-    "message": "KT $accountNumber$ адреси, якими ви володієте",
-    "description": "KT not translated",
     "placeholders": {
       "accountNumber": {
         "content": "$1"
@@ -466,7 +442,7 @@
     "message": "Щонайменше 1 велика літера"
   },
   "mnemonicWordsAmountConstraint": {
-    "message": "12, 15, 18, 21 or 24 слів англійською"
+    "message": "12, 15, 18, 21 або 24 слів англійською"
   },
   "mnemonicSpacingConstraint": {
     "message": "Кожне слово відокремлюється одним пробілом"
@@ -590,20 +566,11 @@
   "mnemonic": {
     "message": "Мнємоніка"
   },
-  "fundraiser": {
-    "message": "Fundraiser"
-  },
-  "privateKeyInputDescription": {
-    "message": "Секретний ключ аккаунту, який потрібно імпортувати."
-  },
   "privateKeyInputPlaceholder": {
-    "message": "наприклад edsk3wfiPMu... | 0xL4mp3Ty..."
+    "message": "Вставте або введіть приватний ключ"
   },
   "password": {
     "message": "Пароль"
-  },
-  "isPrivateKeyEncrypted": {
-    "message": "Ваш приватний ключ у зашифрованому форматі?"
   },
   "customDerivationPath": {
     "message": "Кастомна деривація"
@@ -649,14 +616,6 @@
   "smthWentWrong": {
     "message": "Халепа! Щось пішло не по плану"
   },
-  "faucetFileInputPrompt": {
-    "message": "Перетягни файл або вибери його мануально клікнувши на площу нижче. Ти можеш завантажити це тут $link$.",
-    "placeholders": {
-      "link": {
-        "content": "$1"
-      }
-    }
-  },
   "processing": {
     "message": "Обробка..."
   },
@@ -694,12 +653,6 @@
   "networksDescription": {
     "message": "У цій секції ти можеш додати або видалити кастомні Tezos мережі",
     "description": "Tezos = blockchain name (https://tezos.com/)"
-  },
-  "activateAccount": {
-    "message": "Активуйте аккаунт"
-  },
-  "activateAccountDescription": {
-    "message": "Це може бути обов'язковим для ICO/Fundraiser або тестнет аккаунту з faucet'у (крана)."
   },
   "removeAccount": {
     "message": "Видалити Аккаунт"
@@ -758,33 +711,6 @@
   },
   "contact": {
     "message": "Контакти"
-  },
-  "accountAlreadyActivated": {
-    "message": "Ваш аккаунт вже активовано."
-  },
-  "accountActivated": {
-    "message": "Ваш рахунок успішно активовано!"
-  },
-  "failureSecretMayBeInvalid": {
-    "message": "Помилка. Це може статися, оскільки наданий Secret недійсний"
-  },
-  "accountToBeActivated": {
-    "message": "Аккаунт, який потрібно активувати."
-  },
-  "ifYouWantToActivateAnotherAccount": {
-    "message": "Якщо ви хочете активувати інший аккаунт - будьте ласкаві, виберіть його у верхньому правому меню."
-  },
-  "activateAccountSecret": {
-    "message": "Secret"
-  },
-  "activateAccountSecretDescription": {
-    "message": "'secret' поле з Аккаунту Fundraiser`а або Faucet'а (крана)"
-  },
-  "activateAccountSecretPlaceholder": {
-    "message": "e.g. n4hs7sd3..."
-  },
-  "activate": {
-    "message": "Активувати"
   },
   "minimalFeeDescription": {
     "message": "Мінімально"
@@ -1108,7 +1034,12 @@
     "message": "m/44'/1729'/<account_index>'/0'"
   },
   "derivationPathExample2": {
-    "message": "e.g. m/44'/1729'/..."
+    "message": "наприклад, $derivationPath$",
+    "placeholders": {
+      "derivationPath": {
+        "content": "$1"
+      }
+    }
   },
   "keepSeedPhraseSecret": {
     "message": "Зберігайте в таємниці."
@@ -1409,9 +1340,6 @@
   "disabledForWatchOnlyAccount": {
     "message": "Вимкнено для аккаунтів лише для перегляду"
   },
-  "activationOperationType": {
-    "message": "Активація"
-  },
   "youAreNotContractManager": {
     "message": "Ви не менеджер цього контракту"
   },
@@ -1423,9 +1351,6 @@
   },
   "contractAddressInputPlaceholder": {
     "message": "e.g. KT1a9w1S7hN5s..."
-  },
-  "addKnownManagedContract": {
-    "message": "Додати відомий Керований контракт"
   },
   "clickOnContractToImport": {
     "message": "Клацніть на Контракт, який потрібно імпортувати."
@@ -1472,9 +1397,6 @@
   "popupSettingsDescription": {
     "message": "Тут ви можете налаштувати спливаюче вікно, яке з’являється при натисканні значка плагіна на панелі розширень."
   },
-  "managedContract": {
-    "message": "Керовані контракти"
-  },
   "referredByTokenContractNotFound": {
     "message": "Контракт $address$, на який посилається символічний контракт, не знайдено.",
     "placeholders": {
@@ -1499,9 +1421,6 @@
         "content": "$1"
       }
     }
-  },
-  "invalidManagedContract": {
-    "message": "Недійсний керований контракт"
   },
   "someMethodNotDefinedInContract": {
     "message": "'$name$' метод не визначений у контракті.",
@@ -1666,15 +1585,6 @@
   },
   "invalidJsonInput": {
     "message": "Невалідний JSON"
-  },
-  "notFaucetJson": {
-    "message": "JSON не з крану (faucet`у)"
-  },
-  "faucetJson": {
-    "message": "Faucet JSON"
-  },
-  "faucetJsonDescription": {
-    "message": "Можеш вставити JSON тут замість додавання файлу"
   },
   "unknownErrorFromRPC": {
     "message": "Не вдалося надіслати запит до $url$. Надано недійсний запит, або вузол RPC тимчасово недоступний.",
@@ -1860,6 +1770,60 @@
       }
     }
   },
+  "words_one": {
+    "message": "$amount$ слово",
+    "description": "For plural forms",
+    "placeholders": {
+      "amount": {
+        "content": "$1"
+      }
+    }
+  },
+  "words_zero": {
+    "message": "$amount$ слів",
+    "description": "For plural forms",
+    "placeholders": {
+      "amount": {
+        "content": "$1"
+      }
+    }
+  },
+  "words_two": {
+    "message": "$amount$ слова",
+    "description": "For plural forms",
+    "placeholders": {
+      "amount": {
+        "content": "$1"
+      }
+    }
+  },
+  "words_few": {
+    "message": "$amount$ слова",
+    "description": "For plural forms",
+    "placeholders": {
+      "amount": {
+        "content": "$1"
+      }
+    }
+  },
+  "words_many": {
+    "message": "$amount$ слів",
+    "description": "For plural forms",
+    "placeholders": {
+      "amount": {
+        "content": "$1"
+      }
+    }
+  },
+  "words_other": {
+    "message": "$amount$ слів",
+    "description": "For plural forms",
+    "placeholders": {
+      "amount": {
+        "content": "$1"
+      }
+    }
+  },
   "showInfo": { "message": "Деталі" },
   "hideZeroBalance": { "message": "Сховати нульові баланси" },
   "creator": { "message": "Автор:" },
@@ -1869,5 +1833,59 @@
   },
   "dropdownNoItems": {
     "message": "Нічого не знайдено"
+  },
+  "accounts_one": {
+    "message": "$amount$ аккаунт",
+    "description": "For plural forms",
+    "placeholders": {
+      "amount": {
+        "content": "$1"
+      }
+    }
+  },
+  "accounts_zero": {
+    "message": "$amount$ аккаунтів",
+    "description": "For plural forms",
+    "placeholders": {
+      "amount": {
+        "content": "$1"
+      }
+    }
+  },
+  "accounts_two": {
+    "message": "$amount$ аккаунти",
+    "description": "For plural forms",
+    "placeholders": {
+      "amount": {
+        "content": "$1"
+      }
+    }
+  },
+  "accounts_few": {
+    "message": "$amount$ аккаунти",
+    "description": "For plural forms",
+    "placeholders": {
+      "amount": {
+        "content": "$1"
+      }
+    }
+  },
+  "accounts_many": {
+    "message": "$amount$ аккаунтів",
+    "description": "For plural forms",
+    "placeholders": {
+      "amount": {
+        "content": "$1"
+      }
+    }
+  },
+  "accounts_other": {
+    "message": "$amount$ аккаунтів",
+    "description": "For plural forms",
+    "placeholders": {
+      "amount": {
+        "content": "$1"
+      }
+    }
   }
 }

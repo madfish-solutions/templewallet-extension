@@ -5,7 +5,7 @@ import clsx from 'clsx';
 import { Collapse } from 'react-collapse';
 
 import { Money, HashChip } from 'app/atoms';
-import Identicon from 'app/atoms/Identicon';
+import { AccountAvatar } from 'app/atoms/AccountAvatar';
 import { ReactComponent as BoxCrossedIcon } from 'app/icons/box-crossed.svg';
 import { ReactComponent as BoxIcon } from 'app/icons/box.svg';
 import { ReactComponent as ChevronDownIcon } from 'app/icons/chevron-down.svg';
@@ -334,7 +334,7 @@ const BakingHistoryItem = memo<BakingHistoryItemProps>(
                 alt={bakerDetails.name}
               />
             ) : (
-              <Identicon type="bottts" hash={baker.address} size={24} className="rounded-full" />
+              <AccountAvatar seed={baker.address} size={24} className="rounded-full" />
             )}
           </div>
 

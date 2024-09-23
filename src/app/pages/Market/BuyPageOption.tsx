@@ -1,6 +1,6 @@
 import React, { FC } from 'react';
 
-import Divider from 'app/atoms/Divider';
+import { Divider } from 'app/atoms';
 import { TestIDProps } from 'lib/analytics';
 import { Link } from 'lib/woozie';
 
@@ -17,7 +17,9 @@ export const BuyPageOption: FC<BuyPageOptionProps> = ({ Icon, title, to, ...test
     to={to}
   >
     <Icon />
+
     <Divider thinest />
+
     <span className="font-semibold text-gray-700 text-base leading-tight">{title}</span>
   </Link>
 );

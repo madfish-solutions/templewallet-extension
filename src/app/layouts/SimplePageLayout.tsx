@@ -3,7 +3,7 @@ import React, { FC, ReactNode } from 'react';
 import clsx from 'clsx';
 
 import DocBg from 'app/a11y/DocBg';
-import Logo from 'app/atoms/Logo';
+import { Logo } from 'app/atoms/Logo';
 import { useAppEnv } from 'app/env';
 
 import { LAYOUT_CONTAINER_CLASSNAME } from './containers';
@@ -28,7 +28,7 @@ const SimplePageLayout: FC<SimplePageLayoutProps> = ({ title, children }) => {
       >
         <div className="mt-12 mb-10 flex flex-col items-center justify-center">
           <div className="flex items-center">
-            <Logo hasTitle />
+            <Logo type="icon-title" className="my-1.5" />
           </div>
 
           <div className="mt-4 text-center text-2xl font-light leading-tight text-gray-700">{title}</div>

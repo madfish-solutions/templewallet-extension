@@ -3,10 +3,9 @@ import React, { FC, useEffect } from 'react';
 import Countdown from 'react-countdown';
 import { QRCode } from 'react-qr-svg';
 
-import { FormField } from 'app/atoms';
-import CopyButton from 'app/atoms/CopyButton';
-import Divider from 'app/atoms/Divider';
+import { FormField, Divider } from 'app/atoms';
 import HashShortView from 'app/atoms/HashShortView';
+import OldStyleCopyButton from 'app/atoms/OldStyleCopyButton';
 import { ReactComponent as CopyIcon } from 'app/icons/monochrome/copy.svg';
 import useTopUpUpdate from 'app/pages/Buy/Crypto/Exolix/hooks/useTopUpUpdate.hook';
 import ErrorComponent from 'app/pages/Buy/Crypto/Exolix/steps/ErrorComponent';
@@ -127,13 +126,13 @@ const ApproveStep: FC<Props> = ({ exchangeData, setExchangeData, setStep, isErro
             </p>
             <span>
               <p className="text-xs inline align-text-bottom text-gray-910">{exchangeData.id}</p>
-              <CopyButton text={exchangeData.id} type="link" testID={ExolixSelectors.topupSecondStepCopyButton}>
+              <OldStyleCopyButton text={exchangeData.id} type="link" testID={ExolixSelectors.topupSecondStepCopyButton}>
                 <CopyIcon
                   style={{ verticalAlign: 'inherit' }}
                   className="h-4 ml-1 w-auto inline stroke-orange-500 stroke-2"
                   onClick={() => copy()}
                 />
-              </CopyButton>
+              </OldStyleCopyButton>
             </span>
           </div>
 

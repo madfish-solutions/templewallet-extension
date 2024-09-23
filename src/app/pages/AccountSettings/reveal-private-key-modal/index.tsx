@@ -1,35 +1,38 @@
-import React, { memo, useState } from 'react';
+import React, { memo, useCallback, useState } from 'react';
 
-import { ActionModal } from 'app/atoms/action-modal';
+import { PageModal } from 'app/atoms/PageModal';
+import { ScrollView } from 'app/atoms/PageModal/scroll-view';
 import { t } from 'lib/i18n';
-import { StoredAccount } from 'lib/temple/types';
-import { useVanishingState } from 'lib/ui/hooks';
+
+import { PrivateKeyPayload } from '../types';
 
 import { ChainSelection } from './chain-selection';
 import { PrivateKeyView } from './private-key-view';
-import { RevealPrivateKeysForm } from './reveal-private-keys-form';
-import { PrivateKeyPayload } from './types';
-
 interface RevealPrivateKeyModalProps {
-  account: StoredAccount;
-  onClose: () => void;
+  privateKeys: PrivateKeyPayload[];
+  onClose: EmptyFn;
 }
 
-export const RevealPrivateKeyModal = memo<RevealPrivateKeyModalProps>(({ account, onClose }) => {
-  const [privateKeys, setPrivateKeys] = useVanishingState<PrivateKeyPayload[]>(30_000);
+export const RevealPrivateKeyModal = memo<RevealPrivateKeyModalProps>(({ privateKeys, onClose }) => {
   const [selectedPrivateKey, setSelectedPrivateKey] = useState<PrivateKeyPayload | null>(null);
 
+  const unselectPrivateKey = useCallback(() => setSelectedPrivateKey(null), []);
+
   return (
-    <ActionModal title={t('revealPrivateKey')} onClose={onClose}>
-      {privateKeys ? (
-        selectedPrivateKey ? (
-          <PrivateKeyView privateKey={selectedPrivateKey!} onClose={onClose} />
+    <PageModal
+      title={t('revealPrivateKey')}
+      onRequestClose={onClose}
+      opened
+      shouldShowBackButton={Boolean(selectedPrivateKey)}
+      onGoBack={unselectPrivateKey}
+    >
+      <ScrollView>
+        {selectedPrivateKey ? (
+          <PrivateKeyView privateKey={selectedPrivateKey} />
         ) : (
-          <ChainSelection privateKeys={privateKeys} onSelect={setSelectedPrivateKey} onClose={onClose} />
-        )
-      ) : (
-        <RevealPrivateKeysForm onReveal={setPrivateKeys} account={account} />
-      )}
-    </ActionModal>
+          <ChainSelection privateKeys={privateKeys} onSelect={setSelectedPrivateKey} />
+        )}
+      </ScrollView>
+    </PageModal>
   );
 });

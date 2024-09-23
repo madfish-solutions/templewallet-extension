@@ -9,7 +9,7 @@ import PolygonIconSrc from 'app/icons/networks/polygon.svg?url';
 import { getEvmNativeAssetIcon } from 'lib/images-uri';
 import { TEZOS_MAINNET_CHAIN_ID } from 'lib/temple/types';
 
-import Identicon, { InitialsOpts } from './Identicon';
+import { Identicon } from './Identicon';
 import { TezNetworkLogo } from './NetworksLogos';
 
 const logosRecord: Record<number, string> = {
@@ -77,7 +77,7 @@ export const EvmNetworkLogo = memo(
 
 const ICON_CONTAINER_MULTIPLIER = 0.8;
 const ICON_SIZE_MULTIPLIER = 2;
-const initialsOpts: InitialsOpts = { chars: 1 };
+const initialsOpts = { chars: 1 };
 
 interface NetworkLogoFallbackProps {
   networkName: string;
@@ -94,7 +94,7 @@ export const NetworkLogoFallback = memo<NetworkLogoFallbackProps>(({ networkName
       style={{ width: size * ICON_CONTAINER_MULTIPLIER, height: size * ICON_CONTAINER_MULTIPLIER }}
       className="flex justify-center items-center rounded-full overflow-clip"
     >
-      <Identicon type="initials" hash={networkName} size={size * ICON_SIZE_MULTIPLIER} initialsOpts={initialsOpts} />
+      <Identicon type="initials" hash={networkName} size={size * ICON_SIZE_MULTIPLIER} options={initialsOpts} />
     </div>
   </div>
 ));

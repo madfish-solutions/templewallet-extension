@@ -4,6 +4,7 @@ import classNames from 'clsx';
 import { useForm } from 'react-hook-form';
 import { isAddress } from 'viem';
 
+import { AccountAvatar } from 'app/atoms/AccountAvatar';
 import { FormField, FormSubmitButton, HashChip, Identicon, Name, SubTitle } from 'app/atoms';
 import { ReactComponent as CloseIcon } from 'app/icons/close.svg';
 import { ChainSelectSection, useChainSelectController } from 'app/templates/ChainSelect';
@@ -228,7 +229,7 @@ const AddNewContactForm: React.FC<{ className?: string }> = ({ className }) => {
 };
 
 const ContactIcon: React.FC<OptionRenderProps<TempleContact, string, ContactActions>> = ({ item }) => (
-  <Identicon type="bottts" hash={item.address} size={32} className="flex-shrink-0 shadow-xs" />
+  <AccountAvatar seed={item.address} size={32} className="flex-shrink-0" />
 );
 
 const ContactContent: React.FC<OptionRenderProps<TempleContact, string, ContactActions>> = ({ item, actions }) => (

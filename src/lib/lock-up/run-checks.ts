@@ -5,7 +5,9 @@
 
 import browser from 'webextension-polyfill';
 
+import { SHOULD_BACKUP_MNEMONIC_STORAGE_KEY } from 'lib/constants';
 import { WALLET_AUTOLOCK_TIME } from 'lib/fixed-times';
+import { fetchFromStorage } from 'lib/storage';
 import { TempleMessageType } from 'lib/temple/types';
 import { makeIntercomRequest, assertResponse } from 'temple/front/intercom-client';
 
@@ -18,11 +20,22 @@ const CLOSURE_STORAGE_KEY = 'last-page-closure-timestamp';
 
 const isSinglePageOpened = () => getOpenedTemplePagesN() === 1;
 
-// Locking if this page was first to open & lock time passed
+/* Locking if:
+  1. This page was first to open.
+  2. Lock time passed or mnemonic backup has to be done.
+*/
 
 if (getIsLockUpEnabled() && isSinglePageOpened()) {
   const closureTimestamp = Number(localStorage.getItem(CLOSURE_STORAGE_KEY));
-  if (closureTimestamp && Date.now() - closureTimestamp >= WALLET_AUTOLOCK_TIME) lock();
+  const shouldLockByTimeout = closureTimestamp && Date.now() - closureTimestamp >= WALLET_AUTOLOCK_TIME;
+  (async () => {
+    if (
+      shouldLockByTimeout ||
+      (await fetchFromStorage<boolean>(SHOULD_BACKUP_MNEMONIC_STORAGE_KEY).catch(() => false))
+    ) {
+      lock();
+    }
+  })();
 }
 
 // Saving last time, when all pages are closed

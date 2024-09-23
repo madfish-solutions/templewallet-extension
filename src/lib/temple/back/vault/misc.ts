@@ -77,7 +77,7 @@ export function concatAccount(current: StoredAccount[], newOne: StoredAccount) {
   return [...current, newOne];
 }
 
-type NewAccountName = 'defaultAccountName' | 'defaultManagedKTAccountName' | 'defaultWatchOnlyAccountName';
+type NewAccountName = 'defaultAccountName' | 'defaultWatchOnlyAccountName';
 
 export async function fetchNewAccountName(
   allAccounts: StoredAccount[],
@@ -108,7 +108,7 @@ interface AccountCreds {
 
 export async function mnemonicToTezosAccountCreds(mnemonic: string, hdIndex: number): Promise<AccountCreds> {
   const seed = Bip39.mnemonicToSeedSync(mnemonic);
-  const privateKey = seedToHDPrivateKey(seed, hdIndex);
+  const privateKey = seedToHDPrivateKey(seed, hdIndex, TempleChainKind.Tezos);
 
   const signer = await createMemorySigner(privateKey);
   const [publicKey, address] = await Promise.all([signer.publicKey(), signer.publicKeyHash()]);
@@ -160,19 +160,33 @@ export function createMemorySigner(privateKey: string, encPassword?: string) {
   return InMemorySigner.fromSecretKey(privateKey, encPassword);
 }
 
-function seedToHDPrivateKey(seed: Buffer, hdAccIndex: number) {
-  return seedToPrivateKey(deriveSeed(seed, getDerivationPath(TempleChainKind.Tezos, hdAccIndex)));
+function seedToHDPrivateKey(seed: Buffer, hdAccIndex: number, chain: TempleChainKind) {
+  return seedToPrivateKey(deriveSeed(seed, getDerivationPath(chain, hdAccIndex)), chain);
 }
 
-export function seedToPrivateKey(seed: Buffer) {
-  return TaquitoUtils.b58cencode(seed.slice(0, 32), TaquitoUtils.prefix.edsk2);
+export function seedToPrivateKey(seed: Buffer, chain: TempleChainKind) {
+  return chain === TempleChainKind.Tezos
+    ? TaquitoUtils.b58cencode(seed.slice(0, 32), TaquitoUtils.prefix.edsk2)
+    : toHex(seed);
+}
+
+export function isEvmDerivationPath(derivationPath: string): derivationPath is `m/44'/60'/${string}` {
+  return derivationPath.startsWith("m/44'/60'");
 }
 
 export function deriveSeed(seed: Buffer, derivationPath: string) {
   try {
-    const { key } = Ed25519.derivePath(derivationPath, seed.toString('hex'));
-    return key;
-  } catch (_err) {
+    if (isEvmDerivationPath(derivationPath)) {
+      const account = ViemAccounts.hdKeyToAccount(ViemAccounts.HDKey.fromMasterSeed(new Uint8Array(seed)), {
+        path: derivationPath
+      });
+
+      return Buffer.from(account.getHdKey().privateKey!);
+    }
+
+    return Ed25519.derivePath(derivationPath, seed.toString('hex')).key;
+  } catch (err) {
+    console.error(err);
     throw new PublicError('Invalid derivation path');
   }
 }

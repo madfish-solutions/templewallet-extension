@@ -51,7 +51,7 @@ const TezosAssetBanner = memo<TezosAssetBannerProps>(({ tezosChainId, assetSlug 
         <TezosAssetIcon tezosChainId={network.chainId} assetSlug={assetSlug} size={24} className="flex-shrink-0" />
 
         <div
-          className="flex-grow text-sm font-normal text-gray-700 truncate"
+          className="flex-grow text-font-medium font-normal text-gray-700 truncate"
           {...setTestID(TokenPageSelectors.tokenName)}
           {...setAnotherSelector('name', assetName)}
         >
@@ -78,7 +78,7 @@ const TezosAssetBanner = memo<TezosAssetBannerProps>(({ tezosChainId, assetSlug 
 
               <InFiat chainId={network.chainId} assetSlug={assetSlug} volume={balance} smallFractionFont={false}>
                 {({ balance, symbol }) => (
-                  <div className="mt-1 text-base leading-5 text-gray-500 flex">
+                  <div className="mt-1 text-font-regular leading-5 text-gray-500 flex">
                     <span className="mr-1">≈</span>
                     {balance}
                     <span className="ml-1">{symbol}</span>

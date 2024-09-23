@@ -39,7 +39,7 @@ export const NotBakingBanner = memo<Props>(({ chainId, noPreviousHistory, cannot
         </p>
 
         <DelegateButton
-          to="/delegate"
+          to={`/delegate/${chainId}`}
           disabled={cannotDelegate}
           flashing
           testID={BakingSectionSelectors.delegateAndStakeButton}
@@ -69,7 +69,7 @@ export const NotBakingBanner = memo<Props>(({ chainId, noPreviousHistory, cannot
       )}
 
       <DelegateButton
-        to="/delegate"
+        to={`/delegate/${chainId}`}
         disabled={cannotDelegate}
         flashing
         testID={BakingSectionSelectors.delegateAndStakeButton}
