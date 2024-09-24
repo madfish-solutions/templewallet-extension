@@ -1,9 +1,0 @@
-<svg viewBox="-60 -40 240 160" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-    <rect y="-40" x="-60" height="100%" fill="#fe0000" width="100%"/>
-    <rect y="-40" x="-60" height="50%" fill="#000095" width="50%"/>
-    <path id="a" fill="#fff" d="M8 0L0 30-8 0l8-30M0 8l30-8L0-8l-30 8"/>
-    <use xlink:href="#a" transform="rotate(30)"/>
-    <use xlink:href="#a" transform="rotate(60)"/>
-    <circle r="17" fill="#000095"/>
-    <circle r="15" fill="#fff"/>
-</svg>
