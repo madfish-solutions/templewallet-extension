@@ -34,10 +34,6 @@
       }
     }
   },
-  "authorizedDApps": {
-    "message": "Authorized DApps",
-    "description": "DApps = Decentralized Applications"
-  },
   "clickIconToResetPermissions": {
     "message": "Click on the X icon to reset permissions."
   },
@@ -642,37 +638,18 @@
   "revealPrivateKey": {
     "message": "Reveal Private Key"
   },
-  "revealPrivateKeyDescription": {
-    "message": "Also known as \"Export Account\", reveals private key for your selected account."
-  },
   "revealSeedPhrase": {
     "message": "Reveal Seed Phrase"
-  },
-  "revealSeedPhraseDescription": {
-    "message": "Also known as \"Export Wallet\", you may need this seed phrase to access your wallet and accounts on other devices."
   },
   "dApps": {
     "message": "DApps",
     "description": "DApps = Decentralized Applications"
-  },
-  "dAppsDescription": {
-    "message": "In this section you can enable ability to interact with decentralized applications that support Temple Wallet."
-  },
-  "networksDescription": {
-    "message": "In this section you can add or delete custom Tezos networks.",
-    "description": "Tezos = blockchain name (https://tezos.com/)"
   },
   "removeAccount": {
     "message": "Remove Account"
   },
   "removeAccountDescription": {
     "message": "Use this section to remove your selected account. Only imported accounts can be removed."
-  },
-  "about": {
-    "message": "About"
-  },
-  "aboutDescription": {
-    "message": "Use this section to view meta info about Temple Wallet."
   },
   "unlockWallet": {
     "message": "Unlock the Wallet"
@@ -1247,9 +1224,6 @@
   },
   "generalSettings": {
     "message": "General"
-  },
-  "generalSettingsDescription": {
-    "message": "Here you can manage languages preferences and display mode."
   },
   "swapNoun": {
     "message": "Swap"

@@ -31,9 +31,9 @@
       }
     }
   },
-  "authorizedDApps": {
-    "message": "Авторизовані Dapp`ки",
-    "description": "DApps = децентралізовані додатки"
+  "connectedDApps": {
+    "message": "Підключені Dapp`ки",
+    "description": "Dapps = децентралізовані додатки"
   },
   "clickIconToResetPermissions": {
     "message": "Натисни X іконку щоб скинути дозволи."
@@ -634,37 +634,18 @@
   "revealPrivateKey": {
     "message": "Розкрити приватний ключ"
   },
-  "revealPrivateKeyDescription": {
-    "message": "Також відоме як \"Export Account\", відкриває приватний ключ для вибраного облікового запису."
-  },
   "revealSeedPhrase": {
     "message": "Розкрийте Сід Фразу"
-  },
-  "revealSeedPhraseDescription": {
-    "message": "Також відоме як \"Export Wallet\", ця сід фраза може знадобитися для доступу до вашого гаманця та облікових записів на інших пристроях."
   },
   "dApps": {
     "message": "DApps",
     "description": "DApps = Decentralized Applications"
-  },
-  "dAppsDescription": {
-    "message": "У цьому розділі ви можете включити можливість взаємодії з децентралізованими додатками, які підтримують Temple Wallet."
-  },
-  "networksDescription": {
-    "message": "У цій секції ти можеш додати або видалити кастомні Tezos мережі",
-    "description": "Tezos = blockchain name (https://tezos.com/)"
   },
   "removeAccount": {
     "message": "Видалити Аккаунт"
   },
   "removeAccountDescription": {
     "message": "Використовуйте цей розділ, щоб видалити вибраний обліковий запис. Видалити можна лише імпортовані облікові записи."
-  },
-  "about": {
-    "message": "Додатково"
-  },
-  "aboutDescription": {
-    "message": "Використовуйте цей розділ, щоб переглянути метаінформацію про Temple Wallet."
   },
   "unlockWallet": {
     "message": "Розблокувати гаманець"
@@ -1254,9 +1235,6 @@
   },
   "generalSettings": {
     "message": "Загальне"
-  },
-  "generalSettingsDescription": {
-    "message": "Тут ви можете керувати налаштуваннями мови та режимом відображення."
   },
   "swapNoun": {
     "message": "Своп"

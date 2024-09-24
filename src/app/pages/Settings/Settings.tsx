@@ -1,33 +1,35 @@
-import React, { memo, ReactNode, useMemo, useState } from 'react';
-
-import clsx from 'clsx';
+import React, { FC, ReactNode, SetStateAction, memo, useMemo, useState } from 'react';
 
 import { IconBase } from 'app/atoms';
-import { ReactComponent as AdditionalIcon } from 'app/icons/additional.svg';
-import { ReactComponent as AppsIcon } from 'app/icons/apps.svg';
-import { ReactComponent as SettingsIcon } from 'app/icons/base/settings.svg';
-import { ReactComponent as ContactBookIcon } from 'app/icons/monochrome/contact-book.svg';
-import { ReactComponent as ExtensionIcon } from 'app/icons/monochrome/extension.svg';
-import { ReactComponent as HelpIcon } from 'app/icons/monochrome/help.svg';
-import { ReactComponent as KeyIcon } from 'app/icons/monochrome/key.svg';
-import { ReactComponent as PeopleIcon } from 'app/icons/monochrome/people.svg';
-import { ReactComponent as SignalAltIcon } from 'app/icons/monochrome/signal-alt.svg';
-import { ReactComponent as StickerIcon } from 'app/icons/monochrome/sticker.svg';
-import { ReactComponent as SyncIcon } from 'app/icons/monochrome/sync.svg';
+import { AccountAvatar } from 'app/atoms/AccountAvatar';
+import { SettingsCell } from 'app/atoms/SettingsCell';
+import { SettingsCellGroup } from 'app/atoms/SettingsCellGroup';
+import { StyledButton } from 'app/atoms/StyledButton';
+import { ReactComponent as AdditionalFeaturesIcon } from 'app/icons/base/additional.svg';
+import { ReactComponent as AddressBookIcon } from 'app/icons/base/addressbook.svg';
+import { ReactComponent as BrowseIcon } from 'app/icons/base/browse.svg';
+import { ReactComponent as ChevronRightIcon } from 'app/icons/base/chevron_right.svg';
+import { ReactComponent as ExitIcon } from 'app/icons/base/exit.svg';
+import { ReactComponent as InfoIcon } from 'app/icons/base/info.svg';
+import { ReactComponent as LinkIcon } from 'app/icons/base/link.svg';
+import { ReactComponent as LockIcon } from 'app/icons/base/lock.svg';
+import { ReactComponent as ManageIcon } from 'app/icons/base/manage.svg';
+import { ReactComponent as RefreshIcon } from 'app/icons/base/refresh.svg';
 import PageLayout from 'app/layouts/PageLayout';
 import About from 'app/templates/About/About';
 import { AccountsManagement } from 'app/templates/AccountsManagement';
 import AddressBook from 'app/templates/AddressBook/AddressBook';
 import { AdvancedFeatures } from 'app/templates/AdvancedFeatures';
 import DAppSettings from 'app/templates/DAppSettings/DAppSettings';
-import HelpAndCommunity from 'app/templates/HelpAndCommunity';
-import { RevealSeedPhrase, RevealPrivateKeys } from 'app/templates/RevealSecrets';
 import GeneralSettings from 'app/templates/SettingsGeneral';
 import SyncSettings from 'app/templates/Synchronization/SyncSettings';
 import { TID, T } from 'lib/i18n';
+import { useBooleanState } from 'lib/ui/hooks';
 import { Link } from 'lib/woozie';
+import { useAccount } from 'temple/front';
 
 import NetworksSettings from './Networks';
+import { ResetExtensionModal } from './reset-extension-modal';
 import { SettingsSelectors } from './Settings.selectors';
 
 interface SettingsProps {
@@ -37,190 +39,141 @@ interface SettingsProps {
 interface Tab {
   slug: string;
   titleI18nKey: TID;
-  Icon: React.FC<React.SVGProps<SVGSVGElement>>;
-  Component: React.FC<{ setHeaderChildren: (children: ReactNode) => void }>;
-  color: string;
-  descriptionI18nKey: TID;
+  Icon: FC;
+  Component: FC<{ setHeaderChildren: React.Dispatch<SetStateAction<ReactNode>> }>;
   testID?: SettingsSelectors;
 }
 
-const TABS: Tab[] = [
-  {
-    slug: 'general-settings',
-    titleI18nKey: 'generalSettings',
-    Icon: SettingsIcon,
-    Component: GeneralSettings,
-    color: '#667EEA',
-    descriptionI18nKey: 'generalSettingsDescription',
-    testID: SettingsSelectors.generalButton
-  },
-  {
-    slug: 'synchronization',
-    titleI18nKey: 'synchronization',
-    Icon: SyncIcon,
-    Component: SyncSettings,
-    color: '#7ED9A7',
-    descriptionI18nKey: 'synchronizationSettingsDescription',
-    testID: SettingsSelectors.synchronizationButton
-  },
-  {
-    slug: 'address-book',
-    titleI18nKey: 'addressBook',
-    Icon: ContactBookIcon,
-    Component: AddressBook,
-    color: '#d53f8c',
-    descriptionI18nKey: 'addressBookDescription',
-    testID: SettingsSelectors.addressBookButton
-  },
-  {
-    slug: 'reveal-private-key',
-    titleI18nKey: 'revealPrivateKey',
-    Icon: KeyIcon,
-    Component: RevealPrivateKeys,
-    color: '#3182CE',
-    descriptionI18nKey: 'revealPrivateKeyDescription',
-    testID: SettingsSelectors.revealPrivateKeyButton
-  },
-  {
-    slug: 'reveal-seed-phrase',
-    titleI18nKey: 'revealSeedPhrase',
-    Icon: StickerIcon,
-    Component: RevealSeedPhrase,
-    color: '#F6AD55',
-    descriptionI18nKey: 'revealSeedPhraseDescription',
-    testID: SettingsSelectors.revealSeedPhraseButton
-  },
-  {
-    slug: 'dapps',
-    titleI18nKey: 'authorizedDApps',
-    Icon: AppsIcon,
-    Component: DAppSettings,
-    color: '#9F7AEA',
-    descriptionI18nKey: 'dAppsDescription',
-    testID: SettingsSelectors.dAppsButton
-  },
-  {
-    slug: 'networks',
-    titleI18nKey: 'networks',
-    Icon: SignalAltIcon,
-    Component: NetworksSettings,
-    color: '#F6C90E',
-    descriptionI18nKey: 'networksDescription',
-    testID: SettingsSelectors.networksButton
-  },
-  {
-    slug: 'advanced-features',
-    titleI18nKey: 'advancedFeatures',
-    Icon: AdditionalIcon,
-    Component: AdvancedFeatures,
-    color: '#88E0E6',
-    descriptionI18nKey: 'advancedFeaturesDescription',
-    testID: SettingsSelectors.advancedFeaturesButton
-  },
-  {
-    slug: 'accounts-management',
-    titleI18nKey: 'accountsManagement',
-    Icon: PeopleIcon,
-    Component: AccountsManagement,
-    color: 'teal',
-    descriptionI18nKey: 'accountsManagementDescription',
-    testID: SettingsSelectors.accountsManagementButton
-  },
-  {
-    slug: 'about',
-    titleI18nKey: 'about',
-    Icon: ExtensionIcon,
-    Component: About,
-    color: '#A0AEC0',
-    descriptionI18nKey: 'aboutDescription',
-    testID: SettingsSelectors.aboutButton
-  },
-  {
-    slug: 'help-and-community',
-    titleI18nKey: 'helpAndCommunity',
-    Icon: HelpIcon,
-    Component: HelpAndCommunity,
-    color: '#38B2AC',
-    descriptionI18nKey: 'helpAndCommunityDescription'
-  }
+const DefaultSettingsIconHOC = (Icon: React.FC<React.SVGProps<SVGSVGElement>>) =>
+  memo(() => <IconBase size={16} Icon={Icon} className="text-primary" />);
+
+const TABS_GROUPS: Tab[][] = [
+  [
+    {
+      slug: 'accounts-management',
+      titleI18nKey: 'accountsManagement',
+      Icon: memo(() => {
+        const { id } = useAccount();
+
+        return <AccountAvatar size={24} seed={id} />;
+      }),
+      Component: AccountsManagement,
+      testID: SettingsSelectors.accountsManagementButton
+    }
+  ],
+  [
+    {
+      slug: 'general-settings',
+      titleI18nKey: 'generalSettings',
+      Icon: DefaultSettingsIconHOC(ManageIcon),
+      Component: GeneralSettings,
+      testID: SettingsSelectors.generalButton
+    },
+    {
+      slug: 'networks',
+      titleI18nKey: 'networks',
+      Icon: DefaultSettingsIconHOC(BrowseIcon),
+      Component: NetworksSettings,
+      testID: SettingsSelectors.networksButton
+    },
+    {
+      slug: 'security-and-privacy',
+      titleI18nKey: 'securityAndPrivacy',
+      Icon: DefaultSettingsIconHOC(LockIcon),
+      Component: () => <div>TODO: add some content</div>,
+      testID: SettingsSelectors.securityAndPrivacyButton
+    }
+  ],
+  [
+    {
+      slug: 'address-book',
+      titleI18nKey: 'addressBook',
+      Icon: DefaultSettingsIconHOC(AddressBookIcon),
+      Component: AddressBook,
+      testID: SettingsSelectors.addressBookButton
+    },
+    {
+      slug: 'dapps',
+      titleI18nKey: 'connectedDApps',
+      Icon: DefaultSettingsIconHOC(LinkIcon),
+      Component: DAppSettings,
+      testID: SettingsSelectors.dAppsButton
+    },
+    {
+      slug: 'additional-settings',
+      titleI18nKey: 'advancedFeatures',
+      Icon: DefaultSettingsIconHOC(AdditionalFeaturesIcon),
+      Component: AdvancedFeatures,
+      testID: SettingsSelectors.advancedFeaturesButton
+    },
+    {
+      slug: 'synchronization',
+      titleI18nKey: 'templeSync',
+      Icon: DefaultSettingsIconHOC(RefreshIcon),
+      Component: SyncSettings,
+      testID: SettingsSelectors.synchronizationButton
+    }
+  ],
+  [
+    {
+      slug: 'about',
+      titleI18nKey: 'aboutAndSupport',
+      Icon: DefaultSettingsIconHOC(InfoIcon),
+      Component: About,
+      testID: SettingsSelectors.aboutButton
+    }
+  ]
 ];
+const TABS = TABS_GROUPS.flat();
 
 const Settings = memo<SettingsProps>(({ tabSlug }) => {
   const activeTab = useMemo(() => TABS.find(t => t.slug === tabSlug) || null, [tabSlug]);
   const [headerChildren, setHeaderChildren] = useState<ReactNode>(null);
+  const [extensionModalOpened, openResetExtensionModal, closeResetExtensionModal] = useBooleanState(false);
 
   return (
     <PageLayout
-      contentPadding={false}
-      paperClassName={activeTab ? '!bg-background' : undefined}
-      pageTitle={
-        <>
-          {!activeTab && <IconBase Icon={SettingsIcon} className="mr-1" />}
-          <span className="capitalize">
-            <T id={activeTab?.titleI18nKey ?? 'settings'} />
-          </span>
-        </>
-      }
+      pageTitle={<T id={activeTab?.titleI18nKey ?? 'settings'} />}
+      paperClassName="!bg-background"
       headerChildren={headerChildren}
     >
-      <div className="flex-1 flex flex-col p-4">
-        {activeTab ? (
-          <activeTab.Component setHeaderChildren={setHeaderChildren} />
-        ) : (
-          <ul>
-            {TABS.map(({ slug, titleI18nKey, descriptionI18nKey, Icon, color, testID }, i) => {
-              const first = i === 0;
-              const linkTo = `/settings/${slug}`;
+      {extensionModalOpened && <ResetExtensionModal onClose={closeResetExtensionModal} />}
+      {activeTab ? (
+        <activeTab.Component setHeaderChildren={setHeaderChildren} />
+      ) : (
+        <div className="w-full flex flex-col gap-4">
+          {TABS_GROUPS.map((tabs, i) => (
+            <SettingsCellGroup key={i}>
+              {tabs.map(({ slug, titleI18nKey, Icon, testID }, j) => (
+                <SettingsCell
+                  Component={Link}
+                  to={`/settings/${slug}`}
+                  key={slug}
+                  cellIcon={<Icon />}
+                  cellName={<T id={titleI18nKey} />}
+                  isLast={j === tabs.length - 1}
+                  testID={testID}
+                >
+                  <IconBase size={16} Icon={ChevronRightIcon} className="text-primary" />
+                </SettingsCell>
+              ))}
+            </SettingsCellGroup>
+          ))}
 
-              return (
-                <Link to={linkTo} key={slug} className={clsx(!first && 'mt-10 block')} testID={testID}>
-                  <div className="flex">
-                    <div className="ml-2 flex-shrink-0">
-                      <div
-                        className={clsx(
-                          'block',
-                          'h-12 w-12',
-                          'border-2 border-white border-opacity-25',
-                          'rounded-full',
-                          'flex items-center justify-center',
-                          'text-white',
-                          'transition ease-in-out duration-200',
-                          'opacity-90 hover:opacity-100 focus:opacity-100'
-                        )}
-                        style={{ backgroundColor: color }}
-                      >
-                        <Icon className="h-8 w-8 stroke-current fill-current text-white" />
-                      </div>
-                    </div>
-
-                    <div className="ml-4">
-                      <T id={titleI18nKey}>
-                        {message => (
-                          <div
-                            className={clsx(
-                              'text-lg leading-6 font-medium',
-                              'filter-brightness-75',
-                              'hover:underline focus:underline',
-                              'transition ease-in-out duration-200'
-                            )}
-                            style={{ color }}
-                          >
-                            {message}
-                          </div>
-                        )}
-                      </T>
-
-                      <T id={descriptionI18nKey}>
-                        {message => <p className="mt-1 text-sm font-light leading-5 text-gray-600">{message}</p>}
-                      </T>
-                    </div>
-                  </div>
-                </Link>
-              );
-            })}
-          </ul>
-        )}
-      </div>
+          <div className="mt-2 flex justify-center">
+            <StyledButton
+              size="S"
+              color="red-low"
+              className="bg-transparent flex items-center !px-0 py-1 gap-0.5"
+              onClick={openResetExtensionModal}
+              testID={SettingsSelectors.resetExtensionButton}
+            >
+              <T id="resetExtension" />
+              <IconBase size={12} Icon={ExitIcon} />
+            </StyledButton>
+          </div>
+        </div>
+      )}
     </PageLayout>
   );
 });

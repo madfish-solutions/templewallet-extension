@@ -51,15 +51,9 @@
       }
     }
   },
-  "authorizedDApps": {
-    "message": "Authorized DApps",
-    "description": "DApps = Decentralized Applications"
-  },
-  "advancedFeatures": {
-    "message": "Advanced Features"
-  },
-  "advancedFeaturesDescription": {
-    "message": "In this section you can customize additional Temple extension features"
+  "connectedDApps": {
+    "message": "Connected Dapps",
+    "description": "Dapps = Decentralized Applications"
   },
   "clickIconToResetPermissions": {
     "message": "Click on the X icon to reset permissions."
@@ -703,6 +697,18 @@
   "resetExtension": {
     "message": "Reset Extension"
   },
+  "resetExtensionModalTitle": {
+    "message": "Reset Extension?"
+  },
+  "resetExtensionModalDescription": {
+    "message": "Resetting will delete wallets, accounts and erase all data. Ensure your Seed Phrases and Private Keys are backed up to avoid permanent loss and recover access to assets later."
+  },
+  "resetPasswordInputLabel": {
+    "message": "Enter the password to confirm reset"
+  },
+  "reset": {
+    "message": "Reset"
+  },
   "resetExtensionConfirmation": {
     "message": "Are you sure you want to reset the Temple Wallet?\nAs a result, all your data will be deleted."
   },
@@ -948,28 +954,15 @@
   "revealPrivateKey": {
     "message": "Reveal Private Key"
   },
-  "revealPrivateKeyDescription": {
-    "message": "Also known as \"Export Account\", reveals private key for your selected account."
-  },
   "revealPrivateKeyPasswordLabel": {
     "message": "Enter your password to reveal private key"
   },
   "revealSeedPhrase": {
     "message": "Reveal Seed Phrase"
   },
-  "revealSeedPhraseDescription": {
-    "message": "Also known as \"Export Wallet\", you may need this seed phrase to access your wallet and accounts on other devices."
-  },
   "dApps": {
     "message": "DApps",
     "description": "DApps = Decentralized Applications"
-  },
-  "dAppsDescription": {
-    "message": "In this section you can enable ability to interact with decentralized applications that support Temple Wallet."
-  },
-  "networksDescription": {
-    "message": "In this section you can add or delete custom Tezos networks.",
-    "description": "Tezos = blockchain name (https://tezos.com/)"
   },
   "removeAccount": {
     "message": "Remove Account"
@@ -980,8 +973,8 @@
   "accountsManagement": {
     "message": "Accounts management"
   },
-  "accountsManagementDescription": {
-    "message": "Use this section to create, edit, and delete accounts."
+  "securityAndPrivacy": {
+    "message": "Security & Privacy"
   },
   "editAccount": {
     "message": "Edit Account"
@@ -1026,14 +1019,14 @@
   "selectNetworkToReveal": {
     "message": "Select Network to reveal"
   },
-  "about": {
-    "message": "About"
+  "advancedFeatures": {
+    "message": "Advanced Features"
+  },
+  "aboutAndSupport": {
+    "message": "About & Support"
   },
   "info": {
     "message": "Info"
-  },
-  "aboutDescription": {
-    "message": "Use this section to view meta info about Temple Wallet."
   },
   "unlockWallet": {
     "message": "Unlock the Wallet"
@@ -1815,9 +1808,6 @@
   "generalSettings": {
     "message": "General"
   },
-  "generalSettingsDescription": {
-    "message": "Here you can manage languages preferences and display mode."
-  },
   "swapNoun": {
     "message": "Swap"
   },
@@ -2588,9 +2578,6 @@
   "addressBook": {
     "message": "Address Book"
   },
-  "addressBookDescription": {
-    "message": "Add, remove and manage your contacts."
-  },
   "addNewContact": {
     "message": "New contact"
   },
@@ -3206,11 +3193,8 @@
   "sync": {
     "message": "Sync"
   },
-  "synchronization": {
-    "message": "Synchronization"
-  },
-  "synchronizationSettingsDescription": {
-    "message": "Sync with Mobile Temple Wallet."
+  "templeSync": {
+    "message": "Temple Sync"
   },
   "syncSettingsTitle": {
     "message": "Sync with Mobile Temple Wallet"

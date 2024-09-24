@@ -31,10 +31,6 @@
       }
     }
   },
-  "authorizedDApps": {
-    "message": "Applications décentralisées autorisées",
-    "description": "DApps = Decentralized Applications"
-  },
   "clickIconToResetPermissions": {
     "message": "Cliquez sur l'icône X pour réinitialiser les permissions."
   },
@@ -611,37 +607,18 @@
   "revealPrivateKey": {
     "message": "Révéler la clé privée"
   },
-  "revealPrivateKeyDescription": {
-    "message": "Connu aussi comme « Exporter le compte », révèle la clé privée pour votre compte sélectionné."
-  },
   "revealSeedPhrase": {
     "message": "Révéler la phrase mnémonique"
-  },
-  "revealSeedPhraseDescription": {
-    "message": "Connu aussi comme « Exporter le compte », vous pourriez avoir besoin de cette phrase mnémonique pour accéder à votre portefeuille et vos comptes sur d'autres appareils."
   },
   "dApps": {
     "message": "Applications décentralisées",
     "description": "DApps = Decentralized Applications"
-  },
-  "dAppsDescription": {
-    "message": "Dans cette section, vous pouvez activer la possibilité d'interagir avec les applications décentralisées qui prennent en charge le portefeuille Temple."
-  },
-  "networksDescription": {
-    "message": "Dans cette section, vous pouvez ajouter ou supprimer des réseaux Tezos personnalisés.",
-    "description": "Tezos = blockchain name (https://tezos.com/)"
   },
   "removeAccount": {
     "message": "Retirer le compte"
   },
   "removeAccountDescription": {
     "message": "Utilisez cette section pour retirer votre compte sélectionné. Seuls les comptes importés peuvent être retirés."
-  },
-  "about": {
-    "message": "À propos"
-  },
-  "aboutDescription": {
-    "message": "Utilisez cette section pour afficher les méta-informations concernant le portefeuille Temple."
   },
   "unlockWallet": {
     "message": "Déverrouiller le portefeuille"
@@ -1210,9 +1187,6 @@
   },
   "generalSettings": {
     "message": "Général"
-  },
-  "generalSettingsDescription": {
-    "message": "Vous pouvez gérer ici les préférences de langue et le mode d'affichage."
   },
   "swapNoun": {
     "message": "Échanger"

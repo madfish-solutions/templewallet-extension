@@ -282,7 +282,9 @@ export enum TempleMessageType {
   SendTrackEventRequest = 'SEND_TRACK_EVENT_REQUEST',
   SendTrackEventResponse = 'SEND_TRACK_EVENT_RESPONSE',
   SendPageEventRequest = 'SEND_PAGE_EVENT_REQUEST',
-  SendPageEventResponse = 'SEND_PAGE_EVENT_RESPONSE'
+  SendPageEventResponse = 'SEND_PAGE_EVENT_RESPONSE',
+  ResetExtensionRequest = 'RESET_EXTENSION_REQUEST',
+  ResetExtensionResponse = 'RESET_EXTENSION_RESPONSE'
 }
 
 export type TempleNotification =
@@ -325,7 +327,8 @@ export type TempleRequest =
   | TempleGetAllDAppSessionsRequest
   | TempleRemoveDAppSessionRequest
   | TempleSendTrackEventRequest
-  | TempleSendPageEventRequest;
+  | TempleSendPageEventRequest
+  | TempleResetExtensionRequest;
 
 export type TempleResponse =
   | TempleGetStateResponse
@@ -361,7 +364,8 @@ export type TempleResponse =
   | TempleGetAllDAppSessionsResponse
   | TempleRemoveDAppSessionResponse
   | TempleSendTrackEventResponse
-  | TempleSendPageEventResponse;
+  | TempleSendPageEventResponse
+  | TempleResetExtensionResponse;
 
 export interface TempleMessageBase {
   type: TempleMessageType;
@@ -729,6 +733,15 @@ interface TempleRemoveDAppSessionRequest extends TempleMessageBase {
 interface TempleRemoveDAppSessionResponse extends TempleMessageBase {
   type: TempleMessageType.DAppRemoveSessionResponse;
   sessions: TempleDAppSessions;
+}
+
+interface TempleResetExtensionRequest extends TempleMessageBase {
+  type: TempleMessageType.ResetExtensionRequest;
+  password: string;
+}
+
+interface TempleResetExtensionResponse extends TempleMessageBase {
+  type: TempleMessageType.ResetExtensionResponse;
 }
 
 export type OperationsPreview = any[] | { branch: string; contents: any[] };

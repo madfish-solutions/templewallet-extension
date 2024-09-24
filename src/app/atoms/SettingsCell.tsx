@@ -8,6 +8,8 @@ interface ComponentBase {
 }
 
 interface SettingsCellPropsBase<P extends ComponentBase = ComponentBase> {
+  isLast?: boolean;
+  cellIcon?: ReactNode;
   cellName: ReactNode;
   Component: 'div' | FC<P>;
 }
@@ -24,20 +26,23 @@ type SettingsCellProps<P extends ComponentBase> = P extends { Component: 'div' }
 
 export const SettingsCell = <P extends ComponentBase>({
   className,
-  cellName: name,
+  cellIcon,
+  cellName,
+  isLast = true,
   children,
   Component,
   ...restProps
 }: SettingsCellProps<P>) => {
   return (
     <Component
-      className={clsx(
-        'flex justify-between items-center p-3 rounded-lg shadow-bottom border-0.5 border-transparent hover:border-lines',
-        className
-      )}
+      className={clsx('flex justify-between items-center p-3', !isLast && 'border-b-0.5 border-lines', className)}
       {...restProps}
     >
-      <span className="text-font-medium-bold">{name}</span>
+      <div className="flex items-center gap-2">
+        {cellIcon}
+
+        <span className="text-font-medium-bold">{cellName}</span>
+      </div>
 
       {children}
     </Component>

@@ -31,10 +31,6 @@
       }
     }
   },
-  "authorizedDApps": {
-    "message": "認証済みDApps",
-    "description": "DApps = Decentralized Applications"
-  },
   "clickIconToResetPermissions": {
     "message": "Xアイコンをクリックして権限をリセットします。"
   },
@@ -607,37 +603,18 @@
   "revealPrivateKey": {
     "message": "秘密鍵を表示"
   },
-  "revealPrivateKeyDescription": {
-    "message": "「アカウントのエクスポート」としても知られ、選択したアカウントの秘密鍵を表示します。"
-  },
   "revealSeedPhrase": {
     "message": "シードフレーズを表示"
-  },
-  "revealSeedPhraseDescription": {
-    "message": "「ウォレットのエクスポート」としても知られ、他のデバイスでウォレットやアカウントにアクセスするには、このシードフレーズが必要な場合があります。"
   },
   "dApps": {
     "message": "DApps",
     "description": "DApps = Decentralized Applications"
-  },
-  "dAppsDescription": {
-    "message": "このセクションでは、テンプルウォレットをサポートする分散型アプリケーションとのインタラクションを有効にすることができます。"
-  },
-  "networksDescription": {
-    "message": "このセクションでは、カスタムテゾスネットワークの追加や削除を行うことができます。",
-    "description": "Tezos = blockchain name (https://tezos.com/)"
   },
   "removeAccount": {
     "message": "アカウントを削除"
   },
   "removeAccountDescription": {
     "message": "このセクションを使用して、選択したアカウントを削除します。インポートしたアカウントのみ削除することができます。"
-  },
-  "about": {
-    "message": "概要"
-  },
-  "aboutDescription": {
-    "message": "テンプルウォレットのメタ情報を表示するには、このセクションを使用します。"
   },
   "unlockWallet": {
     "message": "ウォレットをアンロック"
@@ -1197,9 +1174,6 @@
   },
   "generalSettings": {
     "message": "一般"
-  },
-  "generalSettingsDescription": {
-    "message": "ここでは、言語設定や表示モードを管理することができます。"
   },
   "swapNoun": {
     "message": "スワップ"
