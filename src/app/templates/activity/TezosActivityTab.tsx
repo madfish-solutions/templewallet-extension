@@ -30,7 +30,7 @@ export const TezosActivityTab = memo<TezosActivityTabProps>(({ tezosChainId, ass
 
   useLoadPartnersPromo();
 
-  const { activities, isLoading, reachedTheEnd, loadMore } = useTezosActivities(
+  const { activities, isLoading, reachedTheEnd, loadMore } = useTezosActivitiesLoadingLogic(
     network,
     accountAddress,
     INITIAL_NUMBER,
@@ -64,7 +64,7 @@ export const TezosActivityTab = memo<TezosActivityTabProps>(({ tezosChainId, ass
 
 type TLoading = 'init' | 'more' | false;
 
-function useTezosActivities(
+function useTezosActivitiesLoadingLogic(
   network: TezosNetworkEssentials,
   accountAddress: string,
   initialPseudoLimit: number,

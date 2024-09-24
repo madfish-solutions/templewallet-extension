@@ -15,13 +15,16 @@ import { atomsToTokens } from 'lib/temple/helpers';
 
 import { EvmAssetIcon, TezosAssetIcon } from '../../AssetIcon';
 
+type Kind = ActivityOperKindEnum | 'bundle';
+
 interface Props {
   chainId: string | number;
-  kind: ActivityOperKindEnum | 'bundle';
+  kind: Kind;
   hash: string;
   networkName: string;
   asset?: ActivityItemBaseAssetProp;
   blockExplorerUrl?: string;
+  withoutAssetIcon?: boolean;
 }
 
 export interface ActivityItemBaseAssetProp {
@@ -39,7 +42,8 @@ export const ActivityOperationBaseComponent: FC<Props> = ({
   chainId,
   networkName,
   asset,
-  blockExplorerUrl
+  blockExplorerUrl,
+  withoutAssetIcon
 }) => {
   const assetSlug = asset
     ? typeof chainId === 'number'
@@ -87,26 +91,24 @@ export const ActivityOperationBaseComponent: FC<Props> = ({
   return (
     <div className="z-1 group flex gap-x-2 p-2 rounded-lg hover:bg-secondary-low">
       <div className="relative shrink-0 self-center flex items-center justify-center w-10 h-10 overflow-hidden">
-        {assetSlug ? (
-          typeof chainId === 'number' ? (
-            <EvmAssetIcon
-              evmChainId={chainId}
-              assetSlug={assetSlug}
-              className="w-9 h-9"
-              extraSrc={asset?.iconURL}
-              Fallback={IconFallback}
-            />
-          ) : (
-            <TezosAssetIcon
-              tezosChainId={chainId}
-              assetSlug={assetSlug}
-              className="w-9 h-9"
-              extraSrc={asset?.iconURL}
-              Fallback={IconFallback}
-            />
-          )
-        ) : (
+        {withoutAssetIcon || !assetSlug ? (
           <IconFallback />
+        ) : typeof chainId === 'number' ? (
+          <EvmAssetIcon
+            evmChainId={chainId}
+            assetSlug={assetSlug}
+            className="w-9 h-9"
+            extraSrc={asset?.iconURL}
+            Fallback={IconFallback}
+          />
+        ) : (
+          <TezosAssetIcon
+            tezosChainId={chainId}
+            assetSlug={assetSlug}
+            className="w-9 h-9"
+            extraSrc={asset?.iconURL}
+            Fallback={IconFallback}
+          />
         )}
 
         <NetworkLogoTooltipWrap networkName={networkName} className="absolute bottom-0 right-0">
@@ -154,7 +156,7 @@ export const ActivityOperationBaseComponent: FC<Props> = ({
   );
 };
 
-const ActivityKindTitle: Record<ActivityOperKindEnum | 'bundle', string> = {
+const ActivityKindTitle: Record<Kind, string> = {
   bundle: 'Bundle',
   [ActivityOperKindEnum.interaction]: 'Interaction',
   [ActivityOperKindEnum.transferFrom_ToAccount]: 'Send',
@@ -165,7 +167,7 @@ const ActivityKindTitle: Record<ActivityOperKindEnum | 'bundle', string> = {
   [ActivityOperKindEnum.approve]: 'Approve'
 };
 
-const ActivityKindIconSvg: Record<ActivityOperKindEnum | 'bundle', ImportedSVGComponent> = {
+const ActivityKindIconSvg: Record<Kind, ImportedSVGComponent> = {
   bundle: DocumentsSvg,
   [ActivityOperKindEnum.interaction]: DocumentsSvg,
   [ActivityOperKindEnum.transferFrom_ToAccount]: SendSvg,

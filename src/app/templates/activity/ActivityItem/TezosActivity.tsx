@@ -35,16 +35,15 @@ export const TezosActivityComponent = memo<Props>(({ activity, chain, accountAdd
 
   if (operations.length === 1)
     return (
-      <div className="flex flex-col">
-        <TezosActivityOperationComponent
-          hash={hash}
-          operation={operations[0]!}
-          chainId={chain.chainId}
-          networkName={networkName}
-          blockExplorerUrl={blockExplorerUrl}
-          accountAddress={accountAddress}
-        />
-      </div>
+      <TezosActivityOperationComponent
+        hash={hash}
+        operation={operations[0]!}
+        chainId={chain.chainId}
+        networkName={networkName}
+        blockExplorerUrl={blockExplorerUrl}
+        accountAddress={accountAddress}
+        withoutAssetIcon={Boolean(assetSlug)}
+      />
     );
 
   return (
@@ -131,6 +130,7 @@ const TezosActivityBatchComponent = memo<{
         networkName={networkName}
         asset={batchAsset}
         blockExplorerUrl={blockExplorerUrl}
+        withoutAssetIcon={Boolean(assetSlug)}
       />
 
       <button
