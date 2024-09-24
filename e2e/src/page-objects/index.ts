@@ -47,7 +47,7 @@ import { UnlockScreenPage } from './pages/unlock-screen.page';
 import { VerifyMnemonicPage } from './pages/verify-mnemonic.page';
 import { WelcomePage } from './pages/welcome.page';
 
-
+// TODO: add a page for advanced settings
 export const Pages = {
   Welcome: new WelcomePage(),
   ImportExistingWallet: new ImportExistingWalletPage(),

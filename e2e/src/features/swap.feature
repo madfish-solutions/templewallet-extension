@@ -4,8 +4,8 @@ Feature: Swap
   Scenario: As a user, i'd like to swap assets
     Given I have imported an existing account
     And I press Selected Network Button on the Header page
-    And I select Marigold Mainnet node in the networks drop-down list on the Header page
-    And I check that Marigold Mainnet node is selected correctly
+    And I select Tezos Mainnet node in the networks drop-down list on the Header page
+    And I check that Tezos Mainnet node is selected correctly
     And I press Swap Button on the Home page
 
     And I am on the Swap page

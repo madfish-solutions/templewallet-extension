@@ -1,15 +1,5 @@
 import { TempleChainId, TempleNetwork } from 'lib/temple/types';
 
-const formatDateToRPCFormat = (date: Date) => date.toLocaleDateString('en-GB').split('/').reverse().join('-');
-
-const getLastMonday = (date = new Date()) => {
-  const dateCopy = new Date(date.getTime() - 604800000);
-
-  const nextMonday = new Date(dateCopy.setDate(dateCopy.getDate() + ((7 - dateCopy.getDay() + 1) % 7 || 7)));
-
-  return formatDateToRPCFormat(nextMonday);
-};
-
 export const NETWORK_IDS = new Map<string, string>([
   [TempleChainId.Mainnet, 'mainnet'],
   [TempleChainId.Ghostnet, 'ghostnet'],
@@ -49,15 +39,6 @@ export const NETWORKS: TempleNetwork[] = [
     disabled: false
   },
   {
-    id: 'marigold-mainnet',
-    nameI18nKey: 'marigoldMainnet',
-    description: 'Marigold mainnet',
-    type: 'main',
-    rpcBaseURL: 'https://mainnet.tezos.marigold.dev',
-    color: '#48bb78',
-    disabled: false
-  },
-  {
     id: 'smartpy-mainnet',
     name: 'SmartPy Mainnet',
     description: 'SmartPy Mainnet',
@@ -83,24 +64,6 @@ export const NETWORKS: TempleNetwork[] = [
     type: 'test',
     rpcBaseURL: 'https://rpc.ghostnet.teztnets.com',
     color: '#131380',
-    disabled: false
-  },
-  {
-    id: 'monday',
-    name: 'MondayNet Testnet',
-    description: `MondayNet ${getLastMonday()}`,
-    type: 'test',
-    rpcBaseURL: `https://rpc.mondaynet-${getLastMonday()}.teztnets.xyz/`,
-    color: '#FBBF24',
-    disabled: false
-  },
-  {
-    id: 'daily',
-    name: 'DailyNet Testnet',
-    description: 'DailyNet',
-    type: 'test',
-    rpcBaseURL: `https://rpc.dailynet-${formatDateToRPCFormat(new Date())}.teztnets.xyz/`,
-    color: '#FBBF24',
     disabled: false
   },
   {
