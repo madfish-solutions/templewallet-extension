@@ -17,12 +17,12 @@ import { useEvmChainByChainId } from 'temple/front/chains';
 
 import { EvmActivityComponent } from './ActivityItem';
 
-interface EvmActivityTabProps {
+interface Props {
   chainId: number;
   assetSlug?: string;
 }
 
-export const EvmActivityTab: FC<EvmActivityTabProps> = ({ chainId, assetSlug }) => {
+export const EvmActivityList: FC<Props> = ({ chainId, assetSlug }) => {
   const network = useEvmChainByChainId(chainId);
   const accountAddress = useAccountAddressForEvm();
 

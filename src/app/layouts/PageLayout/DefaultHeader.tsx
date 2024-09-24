@@ -68,7 +68,9 @@ export const DefaultHeader = memo<PropsWithChildren<DefaultHeaderProps>>(
             </Button>
           </div>
 
-          {pageTitle && <div className="flex items-center text-center text-font-medium-bold truncate">{pageTitle}</div>}
+          {pageTitle && (
+            <div className="flex items-center text-center text-font-regular-bold truncate">{pageTitle}</div>
+          )}
 
           <div className="flex-1 flex items-center justify-end">{headerRightElem}</div>
         </div>

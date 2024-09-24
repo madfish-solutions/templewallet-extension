@@ -17,12 +17,12 @@ import { TezosActivityComponent } from './ActivityItem';
 const INITIAL_NUMBER = 30;
 const LOAD_STEP = 30;
 
-interface TezosActivityTabProps {
+interface Props {
   tezosChainId: string;
   assetSlug?: string;
 }
 
-export const TezosActivityTab = memo<TezosActivityTabProps>(({ tezosChainId, assetSlug }) => {
+export const TezosActivityList = memo<Props>(({ tezosChainId, assetSlug }) => {
   const network = useTezosChainByChainId(tezosChainId);
   const accountAddress = useAccountAddressForTezos();
 

@@ -3,8 +3,8 @@ import React, { FC, memo } from 'react';
 import { SuspenseContainer } from 'app/atoms/SuspenseContainer';
 import { useLocationSearchParamValue } from 'app/hooks/use-location';
 import { ContentContainer } from 'app/layouts/containers';
-import { TezosActivityTab, EvmActivityTab } from 'app/templates/activity';
-import { ActivityTabContainer } from 'app/templates/activity/ActivityTabContainer';
+import { TezosActivityList, EvmActivityList } from 'app/templates/activity';
+import { ActivityListContainer } from 'app/templates/activity/ActivityListContainer';
 import AssetInfo from 'app/templates/AssetInfo';
 import { TabsBar, TabsBarTabInterface } from 'app/templates/TabBar';
 import { TEZ_TOKEN_SLUG, isTezAsset } from 'lib/assets';
@@ -53,9 +53,9 @@ const TezosGasTab = memo<{ tezosChainId: string }>(({ tezosChainId }) => {
       <TabsBar tabs={TEZOS_GAS_TABS} activeTabName={tabName} />
 
       {tabName === 'activity' ? (
-        <ActivityTabContainer chainId={tezosChainId} assetSlug={TEZ_TOKEN_SLUG}>
-          <TezosActivityTab tezosChainId={tezosChainId} assetSlug={TEZ_TOKEN_SLUG} />
-        </ActivityTabContainer>
+        <ActivityListContainer chainId={tezosChainId} assetSlug={TEZ_TOKEN_SLUG}>
+          <TezosActivityList tezosChainId={tezosChainId} assetSlug={TEZ_TOKEN_SLUG} />
+        </ActivityListContainer>
       ) : (
         <SuspenseContainer errorMessage={t('delegationInfoWhileMessage')}>
           <BakingSection tezosChainId={tezosChainId} />
@@ -79,9 +79,9 @@ const TezosTokenTab = memo<TezosAssetTabProps>(({ chainId, assetSlug }) => {
       <TabsBar tabs={TOKEN_TABS} activeTabName={tabName} />
 
       {tabName === 'activity' ? (
-        <ActivityTabContainer chainId={chainId} assetSlug={assetSlug}>
-          <TezosActivityTab tezosChainId={chainId} assetSlug={assetSlug} />
-        </ActivityTabContainer>
+        <ActivityListContainer chainId={chainId} assetSlug={assetSlug}>
+          <TezosActivityList tezosChainId={chainId} assetSlug={assetSlug} />
+        </ActivityListContainer>
       ) : (
         <AssetInfo chainKind={TempleChainKind.Tezos} chainId={chainId} assetSlug={assetSlug} />
       )}
@@ -96,9 +96,9 @@ interface EvmAssetTabProps {
 
 const EvmAssetTab: FC<EvmAssetTabProps> = ({ chainId, assetSlug }) =>
   isEvmNativeTokenSlug(assetSlug) ? (
-    <ActivityTabContainer chainId={chainId} assetSlug={EVM_TOKEN_SLUG}>
-      <EvmActivityTab chainId={chainId} assetSlug={EVM_TOKEN_SLUG} />
-    </ActivityTabContainer>
+    <ActivityListContainer chainId={chainId} assetSlug={EVM_TOKEN_SLUG}>
+      <EvmActivityList chainId={chainId} assetSlug={EVM_TOKEN_SLUG} />
+    </ActivityListContainer>
   ) : (
     <EvmTokenTab chainId={chainId} assetSlug={assetSlug} />
   );
@@ -112,9 +112,9 @@ const EvmTokenTab = memo<EvmAssetTabProps>(({ chainId, assetSlug }) => {
       <TabsBar tabs={TOKEN_TABS} activeTabName={tabName} />
 
       {tabName === 'activity' ? (
-        <ActivityTabContainer chainId={chainId} assetSlug={assetSlug}>
-          <EvmActivityTab chainId={chainId} assetSlug={assetSlug} />
-        </ActivityTabContainer>
+        <ActivityListContainer chainId={chainId} assetSlug={assetSlug}>
+          <EvmActivityList chainId={chainId} assetSlug={assetSlug} />
+        </ActivityListContainer>
       ) : (
         <AssetInfo chainKind={TempleChainKind.EVM} chainId={String(chainId)} assetSlug={assetSlug} />
       )}

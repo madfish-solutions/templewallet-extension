@@ -152,7 +152,7 @@ const Settings = memo<SettingsProps>(({ tabSlug }) => {
   return (
     <PageLayout
       contentPadding={false}
-      paperClassName={activeTab ? '!bg-background' : undefined}
+      dimBg={Boolean(activeTab)}
       pageTitle={
         <>
           {!activeTab && <IconBase Icon={SettingsIcon} className="mr-1" />}

@@ -13,7 +13,7 @@ interface Props extends PropsWithChildren {
   assetSlug?: string;
 }
 
-export const ActivityTabContainer: FC<Props> = ({ children, chainId, assetSlug }) => {
+export const ActivityListContainer: FC<Props> = ({ children, chainId, assetSlug }) => {
   const shouldShowPartnersPromo = useShouldShowPartnersPromoSelector();
 
   const promotion = useMemo(() => {

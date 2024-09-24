@@ -12,7 +12,6 @@ import { useAppEnv } from 'app/env';
 import { useLocationSearchParamValue } from 'app/hooks/use-location';
 import PageLayout, { PageLayoutProps } from 'app/layouts/PageLayout';
 import { useMainnetTokensScamlistSelector } from 'app/store/tezos/assets/selectors';
-import { MultichainActivityTab } from 'app/templates/activity';
 import { AdvertisingBanner } from 'app/templates/advertising/advertising-banner/advertising-banner';
 import { AppHeader } from 'app/templates/AppHeader';
 import { toastSuccess } from 'app/toaster';
@@ -83,7 +82,7 @@ const Home = memo<HomeProps>(props => {
     <PageLayout {...pageProps} contentPadding={false}>
       {showScamTokenAlert && <ScamTokenAlert />}
 
-      <div className="flex flex-col pt-1 px-4">
+      <div className="flex flex-col pt-1 px-4 bg-white">
         {chainKind && chainId && assetSlug ? (
           <AssetBanner chainKind={chainKind} chainId={chainId} assetSlug={assetSlug} />
         ) : (
@@ -109,8 +108,6 @@ const Home = memo<HomeProps>(props => {
               switch (tabSlug) {
                 case 'collectibles':
                   return <CollectiblesTab />;
-                case 'activity':
-                  return <MultichainActivityTab />;
                 default:
                   return <TokensTab />;
               }
