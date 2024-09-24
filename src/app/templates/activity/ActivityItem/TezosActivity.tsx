@@ -1,15 +1,21 @@
-import React, { memo } from 'react';
+import React, { memo, useMemo } from 'react';
 
 import clsx from 'clsx';
 
 import { IconBase } from 'app/atoms';
 import { ReactComponent as CompactDownIcon } from 'app/icons/base/compact_down.svg';
+import { TezosActivityAsset, parseTezosPreActivityOperation } from 'lib/activity';
 import { TezosPreActivity } from 'lib/activity/tezos/types';
+import { isTransferActivityOperKind } from 'lib/activity/utils';
+import { toTezosAssetSlug } from 'lib/assets/utils';
 import { t } from 'lib/i18n';
-import { useBooleanState } from 'lib/ui/hooks';
+import { useGetChainTokenOrGasMetadata } from 'lib/metadata';
+import { useBooleanState, useMemoWithCompare } from 'lib/ui/hooks';
+import { ZERO } from 'lib/utils/numbers';
 import { useExplorerHref } from 'temple/front/block-explorers';
 import { TezosChain } from 'temple/front/chains';
 
+import { ActivityItemBaseAssetProp, ActivityOperationBaseComponent } from './ActivityOperationBase';
 import { InteractionsConnector } from './InteractionsConnector';
 import { TezosActivityOperationComponent } from './TezosActivityOperation';
 
@@ -17,65 +23,141 @@ interface Props {
   activity: TezosPreActivity;
   chain: TezosChain;
   accountAddress: string;
+  assetSlug?: string;
 }
 
-export const TezosActivityComponent = memo<Props>(({ activity, chain, accountAddress }) => {
-  const [expanded, , , toggleExpanded] = useBooleanState(false);
-
+export const TezosActivityComponent = memo<Props>(({ activity, chain, accountAddress, assetSlug }) => {
   const networkName = chain.nameI18nKey ? t(chain.nameI18nKey) : chain.name;
+
+  const { hash, operations } = activity;
+
+  const blockExplorerUrl = useExplorerHref(chain.chainId, hash) ?? undefined;
+
+  if (operations.length === 1)
+    return (
+      <div className="flex flex-col">
+        <TezosActivityOperationComponent
+          hash={hash}
+          operation={operations[0]!}
+          chainId={chain.chainId}
+          networkName={networkName}
+          blockExplorerUrl={blockExplorerUrl}
+          accountAddress={accountAddress}
+        />
+      </div>
+    );
+
+  return (
+    <TezosActivityBatchComponent
+      activity={activity}
+      chainId={chain.chainId}
+      assetSlug={assetSlug}
+      blockExplorerUrl={blockExplorerUrl}
+      accountAddress={accountAddress}
+      networkName={networkName}
+    />
+  );
+});
+
+const TezosActivityBatchComponent = memo<{
+  activity: TezosPreActivity;
+  chainId: string;
+  assetSlug?: string;
+  blockExplorerUrl?: string;
+  accountAddress: string;
+  networkName: string;
+}>(({ activity, chainId, assetSlug, blockExplorerUrl, accountAddress, networkName }) => {
+  const [expanded, , , toggleExpanded] = useBooleanState(false);
 
   const { hash } = activity;
 
-  const blockExplorerUrl = useExplorerHref(chain.chainId, hash);
+  const preOperations = activity.operations;
 
-  const operations = activity.operations;
+  const getMetadata = useGetChainTokenOrGasMetadata(chainId);
+
+  const operations = useMemoWithCompare(
+    () =>
+      preOperations.map(o => {
+        const slug = o.contract ? toTezosAssetSlug(o.contract, o.tokenId) : undefined;
+        return parseTezosPreActivityOperation(o, accountAddress, slug ? getMetadata(slug) : undefined);
+      }),
+    [preOperations, getMetadata, accountAddress]
+  );
+
+  const faceSlug = useMemo(() => {
+    if (assetSlug) return assetSlug;
+
+    for (const { kind, asset } of operations) {
+      if (typeof asset?.amount === 'string' && Number(asset.amount) !== 0 && isTransferActivityOperKind(kind))
+        return toTezosAssetSlug(asset.contract, asset.tokenId);
+    }
+
+    return;
+  }, [operations, assetSlug]);
+
+  const batchAsset = useMemo(() => {
+    if (!faceSlug) return;
+
+    let faceAsset: TezosActivityAsset | undefined;
+    let faceAmount = ZERO;
+
+    for (const { kind, asset } of operations) {
+      if (
+        typeof asset?.amount === 'string' &&
+        toTezosAssetSlug(asset.contract, asset.tokenId) === faceSlug &&
+        isTransferActivityOperKind(kind)
+      ) {
+        faceAmount = faceAmount.plus(asset.amount);
+        if (!faceAsset) faceAsset = asset;
+      }
+    }
+
+    if (!faceAsset) return;
+
+    const batchAsset: ActivityItemBaseAssetProp = {
+      ...faceAsset,
+      amount: faceAmount.toFixed()
+    };
+
+    return batchAsset;
+  }, [operations, faceSlug]);
 
   return (
     <div className="flex flex-col">
-      {operations.slice(0, 3).map((operation, i) => (
-        <React.Fragment key={`${hash}-${i}`}>
-          {i > 0 && <InteractionsConnector />}
+      <ActivityOperationBaseComponent
+        kind="bundle"
+        hash={hash}
+        chainId={chainId}
+        networkName={networkName}
+        asset={batchAsset}
+        blockExplorerUrl={blockExplorerUrl}
+      />
 
-          <TezosActivityOperationComponent
-            hash={hash}
-            operation={operation}
-            chain={chain}
-            networkName={networkName}
-            blockExplorerUrl={blockExplorerUrl}
-            accountAddress={accountAddress}
-          />
-        </React.Fragment>
-      ))}
+      <button
+        className="ml-2 mt-1 mb-2 flex px-1 py-0.5 text-font-description-bold text-grey-1"
+        onClick={toggleExpanded}
+      >
+        <span>{(expanded ? 'Hide all' : 'Show all') + ` (${operations.length})`}</span>
 
-      {operations.length > 3 ? (
-        <>
-          <button
-            className="ml-2 mt-1 mb-2 flex px-1 py-0.5 text-font-description-bold text-grey-1"
-            onClick={toggleExpanded}
-          >
-            <span>{expanded ? 'Show less' : 'Show more'}</span>
+        <IconBase Icon={CompactDownIcon} size={12} className={clsx('text-grey-2', expanded && 'rotate-180')} />
+      </button>
 
-            <IconBase Icon={CompactDownIcon} size={12} className={clsx('text-grey-2', expanded && 'rotate-180')} />
-          </button>
+      {expanded
+        ? operations.map((operation, j) => (
+            <React.Fragment key={`${hash}-${j}`}>
+              {j > 0 && <InteractionsConnector />}
 
-          {expanded
-            ? operations.slice(3).map((operation, j) => (
-                <React.Fragment key={`${hash}-${j}`}>
-                  {j > 0 && <InteractionsConnector />}
-
-                  <TezosActivityOperationComponent
-                    hash={hash}
-                    operation={operation}
-                    chain={chain}
-                    networkName={networkName}
-                    blockExplorerUrl={blockExplorerUrl}
-                    accountAddress={accountAddress}
-                  />
-                </React.Fragment>
-              ))
-            : null}
-        </>
-      ) : null}
+              <ActivityOperationBaseComponent
+                kind={operation.kind}
+                hash={hash}
+                chainId={chainId}
+                networkName={networkName}
+                asset={operation.asset}
+                blockExplorerUrl={blockExplorerUrl}
+              />
+            </React.Fragment>
+          ))
+        : null}
     </div>
   );
 });

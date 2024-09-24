@@ -26,7 +26,8 @@ type PickedPropsFromTzktOperation = Pick<TzktOperation, 'id' | 'level'>;
 
 export interface TezosPreActivityOperationBase extends PickedPropsFromTzktOperation {
   sender: OperationMember;
-  contractAddress?: string;
+  contract?: string;
+  tokenId?: string;
   status: TezosPreActivityStatus;
   amountSigned: string;
   addedAt: string;
@@ -40,7 +41,6 @@ export interface TezosPreActivityTransactionOperation extends TezosPreActivityOp
   to: OperationMember[];
   destination: OperationMember;
   entrypoint?: string;
-  tokenId?: string;
 }
 
 export interface TezosPreActivityOtherOperation extends TezosPreActivityOperationBase {

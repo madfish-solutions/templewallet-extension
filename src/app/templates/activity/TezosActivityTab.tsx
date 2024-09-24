@@ -30,12 +30,12 @@ export const TezosActivityTab = memo<TezosActivityTabProps>(({ tezosChainId, ass
 
   useLoadPartnersPromo();
 
-  const {
-    isLoading,
-    reachedTheEnd,
-    list: activities,
-    loadMore
-  } = useTezosActivities(network, accountAddress, INITIAL_NUMBER, assetSlug);
+  const { activities, isLoading, reachedTheEnd, loadMore } = useTezosActivities(
+    network,
+    accountAddress,
+    INITIAL_NUMBER,
+    assetSlug
+  );
 
   if (activities.length === 0 && !isLoading && reachedTheEnd) {
     return <EmptyState />;
@@ -55,6 +55,7 @@ export const TezosActivityTab = memo<TezosActivityTabProps>(({ tezosChainId, ass
           activity={activity}
           chain={network}
           accountAddress={accountAddress}
+          assetSlug={assetSlug}
         />
       ))}
     </InfiniteScroll>
@@ -137,7 +138,7 @@ function useTezosActivities(
   return {
     isLoading,
     reachedTheEnd,
-    list: activities,
+    activities,
     loadMore
   };
 }

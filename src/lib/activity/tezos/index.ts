@@ -1,10 +1,10 @@
 import { TezosPreActivity, TezosPreActivityOperation } from 'lib/activity/tezos/types';
-import { TEZ_TOKEN_SLUG } from 'lib/assets';
 import { AssetMetadataBase, getAssetSymbol, isTezosCollectibleMetadata } from 'lib/metadata';
 import { isTezosContractAddress } from 'lib/tezos';
 import { TempleChainKind } from 'temple/types';
 
 import { TezosActivity, ActivityOperKindEnum, TezosOperation, TezosActivityAsset } from '../types';
+import { isTransferActivityOperKind } from '../utils';
 
 export { preparseTezosOperationsGroup } from './pre-parse';
 
@@ -19,7 +19,8 @@ export function formatLegacyTezosActivity(
     hash,
     chain: TempleChainKind.Tezos,
     chainId,
-    operations: _activity.operations.map<TezosOperation>(oper => parseTezosPreActivityOperation(oper, address))
+    operations: _activity.operations.map<TezosOperation>(oper => parseTezosPreActivityOperation(oper, address)),
+    operationsCount: _activity.operations.length
   };
 }
 
@@ -36,7 +37,7 @@ export function parseTezosPreActivityOperation(
 
       if (preOperation.subtype === 'approve') return { kind: ActivityOperKindEnum.approve };
 
-      if (isZero(preOperation.amountSigned))
+      if (preOperation.subtype !== 'transfer' || isZero(preOperation.amountSigned))
         return {
           kind: ActivityOperKindEnum.interaction
           // with: oper.destination.address,
@@ -77,17 +78,11 @@ export function parseTezosPreActivityOperation(
     };
   })();
 
-  if (!assetMetadata) return operationBase;
+  if (!assetMetadata || !preOperation.contract) return operationBase;
 
-  if (
-    operationBase.kind === ActivityOperKindEnum.transferFrom_ToAccount ||
-    operationBase.kind === ActivityOperKindEnum.transferTo_FromAccount ||
-    operationBase.kind === ActivityOperKindEnum.transferFrom ||
-    operationBase.kind === ActivityOperKindEnum.transferTo ||
-    operationBase.kind === ActivityOperKindEnum.approve
-  ) {
+  if (isTransferActivityOperKind(operationBase.kind) || operationBase.kind === ActivityOperKindEnum.approve) {
     const asset: TezosActivityAsset = {
-      contract: preOperation.contractAddress ?? TEZ_TOKEN_SLUG,
+      contract: preOperation.contract,
       tokenId,
       amount: preOperation.amountSigned,
       decimals: assetMetadata.decimals,

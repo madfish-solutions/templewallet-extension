@@ -7,6 +7,7 @@ import {
   isTzktOperParam_LiquidityBaking,
   ParameterFa2Transfer
 } from 'lib/apis/tzkt/utils';
+import { TEZ_TOKEN_SLUG } from 'lib/assets';
 import { isTruthy } from 'lib/utils';
 import { ZERO } from 'lib/utils/numbers';
 
@@ -83,11 +84,11 @@ function reduceOneTzktTransactionOperation(
     amount: string;
     from: OperationMember;
     to: OperationMember | string[];
-    contractAddress?: string;
+    contract?: string;
     tokenId?: string;
     subtype?: TezosPreActivityTransactionOperation['subtype'];
   }) {
-    const { amount, from, to, contractAddress, tokenId, subtype } = args;
+    const { amount, from, to, contract, tokenId, subtype } = args;
 
     const activityOperBase = buildActivityOperBase(
       operation,
@@ -101,11 +102,11 @@ function reduceOneTzktTransactionOperation(
       subtype,
       destination: operation.target,
       from,
-      to: Array.isArray(to) ? to.map(address => ({ address })) : [to]
+      to: Array.isArray(to) ? to.map(address => ({ address })) : [to],
+      contract,
+      tokenId
     };
 
-    if (contractAddress != null) activityOper.contractAddress = contractAddress;
-    if (tokenId != null) activityOper.tokenId = tokenId;
     if (isTzktOperParam(operation.parameter)) activityOper.entrypoint = operation.parameter.entrypoint;
 
     return activityOper;
@@ -119,28 +120,29 @@ function reduceOneTzktTransactionOperation(
     const from = operation.sender;
     const to = operation.target;
     const amount = String(operation.amount);
+    const contract = TEZ_TOKEN_SLUG;
 
-    return _buildReturn({ amount, from, to });
+    return _buildReturn({ amount, from, to, contract, subtype: 'transfer' });
   } else if (isTzktOperParam_Fa2_transfer(parameter)) {
     const values = reduceParameterFa2TransferValues(parameter.value, address);
     const firstVal = values[0];
     // (!) Here we abandon other but 1st non-zero-amount values
     if (firstVal == null) return null;
 
-    const contractAddress = operation.target.address;
+    const contract = operation.target.address;
     const amount = firstVal.amount;
     const tokenId = firstVal.tokenId;
     const from = { ...operation.sender, address: firstVal.fromAddress };
     const to = firstVal.toAddresses;
 
-    return _buildReturn({ amount, from, to, contractAddress, tokenId, subtype: 'transfer' });
+    return _buildReturn({ amount, from, to, contract, tokenId, subtype: 'transfer' });
   } else if (isTzktOperParam_Fa2_approve(parameter)) {
     const add_operator = parameter.value[0].add_operator;
 
     const from = operation.sender;
     const to = { address: add_operator.operator };
     const amount = String(operation.amount);
-    const contractAddress = operation.target.address;
+    const contract = operation.target.address;
     const tokenId = add_operator.token_id;
 
     return _buildReturn({
@@ -148,12 +150,12 @@ function reduceOneTzktTransactionOperation(
       from,
       to,
       subtype: 'approve',
-      contractAddress,
+      contract,
       tokenId
     });
   } else if (isTzktOperParam_Fa12(parameter)) {
     const amount = parameter.value.value;
-    const contractAddress = operation.target.address;
+    const contract = operation.target.address;
 
     if (parameter.entrypoint === 'approve') {
       if (amount === '0') return null;
@@ -161,22 +163,22 @@ function reduceOneTzktTransactionOperation(
       const from = operation.sender;
       const to = { address: parameter.value.spender };
 
-      return _buildReturn({ amount, from, to, contractAddress, subtype: 'approve' });
+      return _buildReturn({ amount, from, to, contract, subtype: 'approve' });
     }
 
     const from = { ...operation.sender, address: parameter.value.from };
     const to = { address: parameter.value.to };
 
-    if (from.address !== address && to.address !== address) return null;
+    // if (from.address !== address && to.address !== address) return null;
 
-    return _buildReturn({ amount, from, to, contractAddress });
+    return _buildReturn({ amount, from, to, contract, subtype: 'transfer' });
   } else if (isTzktOperParam_LiquidityBaking(parameter)) {
     const from = operation.sender;
     const to = operation.target;
-    const contractAddress = operation.target.address;
+    const contract = operation.target.address;
     const amount = parameter.value.quantity;
 
-    return _buildReturn({ amount, from, to, contractAddress });
+    return _buildReturn({ amount, from, to, contract, subtype: 'transfer' });
   } else {
     const from = operation.sender;
     const to = operation.target;

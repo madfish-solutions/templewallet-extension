@@ -196,7 +196,8 @@ export function parseGoldRushTransaction(
     chainId,
     hash: item.tx_hash!,
     blockExplorerUrl: item.explorers?.[0]?.url,
-    operations
+    operations,
+    operationsCount: gasOperation ? logEvents.length + 1 : logEvents.length
   };
 }
 
@@ -206,49 +207,50 @@ export function parseGoldRushERC20Transfer(
   accountAddress: string,
   getMetadata: EvmAssetMetadataGetter
 ): EvmActivity {
-  const operations =
-    item.transfers?.map<EvmOperation>(transfer => {
-      const kind = (() => {
-        if (transfer.transfer_type === 'IN') {
-          return item.to_address === transfer.contract_address
-            ? ActivityOperKindEnum.transferTo_FromAccount
-            : ActivityOperKindEnum.transferTo;
-        }
+  const transfers = item.transfers ?? [];
 
+  const operations = transfers.map<EvmOperation>(transfer => {
+    const kind = (() => {
+      if (transfer.transfer_type === 'IN') {
         return item.to_address === transfer.contract_address
-          ? ActivityOperKindEnum.transferFrom_ToAccount
-          : ActivityOperKindEnum.transferFrom;
-      })();
+          ? ActivityOperKindEnum.transferTo_FromAccount
+          : ActivityOperKindEnum.transferTo;
+      }
 
-      const contractAddress = getEvmAddressSafe(transfer.contract_address);
+      return item.to_address === transfer.contract_address
+        ? ActivityOperKindEnum.transferFrom_ToAccount
+        : ActivityOperKindEnum.transferFrom;
+    })();
 
-      if (contractAddress == null) return { kind };
+    const contractAddress = getEvmAddressSafe(transfer.contract_address);
 
-      const slug = toEvmAssetSlug(contractAddress);
-      const metadata = getMetadata(slug);
+    if (contractAddress == null) return { kind };
 
-      const decimals = metadata?.decimals ?? transfer.contract_decimals;
+    const slug = toEvmAssetSlug(contractAddress);
+    const metadata = getMetadata(slug);
 
-      if (decimals == null) return { kind: ActivityOperKindEnum.interaction };
+    const decimals = metadata?.decimals ?? transfer.contract_decimals;
 
-      const nft = false;
-      const amount = nft ? '1' : transfer.delta?.toString() ?? '0';
-      const symbol = getAssetSymbol(metadata) || transfer.contract_ticker_symbol || undefined;
+    if (decimals == null) return { kind: ActivityOperKindEnum.interaction };
 
-      const asset: EvmActivityAsset = {
-        contract: contractAddress,
-        amount:
-          kind === ActivityOperKindEnum.transferFrom || kind === ActivityOperKindEnum.transferFrom_ToAccount
-            ? `-${amount}`
-            : amount,
-        decimals,
-        symbol,
-        nft,
-        iconURL: transfer.logo_url ?? undefined
-      };
+    const nft = false;
+    const amount = nft ? '1' : transfer.delta?.toString() ?? '0';
+    const symbol = getAssetSymbol(metadata) || transfer.contract_ticker_symbol || undefined;
 
-      return { kind, asset };
-    }) ?? [];
+    const asset: EvmActivityAsset = {
+      contract: contractAddress,
+      amount:
+        kind === ActivityOperKindEnum.transferFrom || kind === ActivityOperKindEnum.transferFrom_ToAccount
+          ? `-${amount}`
+          : amount,
+      decimals,
+      symbol,
+      nft,
+      iconURL: transfer.logo_url ?? undefined
+    };
+
+    return { kind, asset };
+  });
 
   const gasOperation = parseGasTransfer(item, accountAddress, getMetadata);
 
@@ -259,7 +261,8 @@ export function parseGoldRushERC20Transfer(
     chainId,
     hash: item.tx_hash!,
     blockExplorerUrl: item.transfers?.[0].explorers?.[0]?.url,
-    operations
+    operations,
+    operationsCount: gasOperation ? transfers.length + 1 : transfers.length
   };
 }
 
@@ -275,6 +278,7 @@ function parseGasTransfer(
   const kind = (() => {
     if (getEvmAddressSafe(item.from_address) === accountAddress) return ActivityOperKindEnum.transferFrom_ToAccount;
     if (getEvmAddressSafe(item.to_address) === accountAddress) return ActivityOperKindEnum.transferTo_FromAccount;
+    // TODO: Check for transfers to contracts
 
     return null;
   })();

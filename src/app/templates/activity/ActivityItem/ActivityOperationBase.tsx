@@ -9,6 +9,7 @@ import { ReactComponent as SendSvg } from 'app/icons/base/send.svg';
 import { ReactComponent as SwapSvg } from 'app/icons/base/swap.svg';
 import { FiatBalance } from 'app/pages/Home/OtherComponents/Tokens/components/Balance';
 import { ActivityOperKindEnum, InfinitySymbol } from 'lib/activity';
+import { isTransferActivityOperKind } from 'lib/activity/utils';
 import { toEvmAssetSlug, toTezosAssetSlug } from 'lib/assets/utils';
 import { atomsToTokens } from 'lib/temple/helpers';
 
@@ -16,14 +17,14 @@ import { EvmAssetIcon, TezosAssetIcon } from '../../AssetIcon';
 
 interface Props {
   chainId: string | number;
-  kind: ActivityOperKindEnum;
+  kind: ActivityOperKindEnum | 'bundle';
   hash: string;
   networkName: string;
-  asset?: AssetProp;
+  asset?: ActivityItemBaseAssetProp;
   blockExplorerUrl?: string;
 }
 
-interface AssetProp {
+export interface ActivityItemBaseAssetProp {
   contract: string;
   tokenId?: string;
   amount?: string | typeof InfinitySymbol;
@@ -50,11 +51,7 @@ export const ActivityOperationBaseComponent: FC<Props> = ({
     if (!asset) return {};
 
     const amountForFiat =
-      typeof asset.amount === 'string' &&
-      (kind === ActivityOperKindEnum.transferTo_FromAccount ||
-        kind === ActivityOperKindEnum.transferFrom_ToAccount ||
-        kind === ActivityOperKindEnum.transferFrom ||
-        kind === ActivityOperKindEnum.transferTo)
+      typeof asset.amount === 'string' && (kind === 'bundle' || isTransferActivityOperKind(kind))
         ? atomsToTokens(asset.amount, asset.decimals)
         : null;
 
@@ -157,7 +154,8 @@ export const ActivityOperationBaseComponent: FC<Props> = ({
   );
 };
 
-const ActivityKindTitle: Record<ActivityOperKindEnum, string> = {
+const ActivityKindTitle: Record<ActivityOperKindEnum | 'bundle', string> = {
+  bundle: 'Bundle',
   [ActivityOperKindEnum.interaction]: 'Interaction',
   [ActivityOperKindEnum.transferFrom_ToAccount]: 'Send',
   [ActivityOperKindEnum.transferTo_FromAccount]: 'Receive',
@@ -167,7 +165,8 @@ const ActivityKindTitle: Record<ActivityOperKindEnum, string> = {
   [ActivityOperKindEnum.approve]: 'Approve'
 };
 
-const ActivityKindIconSvg: Record<ActivityOperKindEnum, ImportedSVGComponent> = {
+const ActivityKindIconSvg: Record<ActivityOperKindEnum | 'bundle', ImportedSVGComponent> = {
+  bundle: DocumentsSvg,
   [ActivityOperKindEnum.interaction]: DocumentsSvg,
   [ActivityOperKindEnum.transferFrom_ToAccount]: SendSvg,
   [ActivityOperKindEnum.transferTo_FromAccount]: IncomeSvg,
