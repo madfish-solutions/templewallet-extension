@@ -1,12 +1,7 @@
 import React, { memo } from 'react';
 
 import { QRCode } from 'app/atoms';
-import {
-  ActionModal,
-  ActionModalBodyContainer,
-  ActionModalButton,
-  ActionModalButtonsContainer
-} from 'app/atoms/action-modal';
+import { ActionModal, ActionModalBodyContainer } from 'app/atoms/action-modal';
 import { EvmNetworksLogos, TezNetworkLogo } from 'app/atoms/NetworksLogos';
 import { T, t } from 'lib/i18n';
 import { TempleChainKind, TempleChainTitle } from 'temple/types';
@@ -19,8 +14,8 @@ interface ReceiveModalProps extends ReceivePayload {
 
 export const ReceiveModal = memo<ReceiveModalProps>(({ address, chainKind, onClose }) => {
   return (
-    <ActionModal title={t('networkAddress', TempleChainTitle[chainKind])} closable onClose={onClose}>
-      <ActionModalBodyContainer className="items-center">
+    <ActionModal title={t('networkAddress', TempleChainTitle[chainKind])} hasCloseButton onClose={onClose}>
+      <ActionModalBodyContainer className="items-center pb-4">
         <div className="mb-4 rounded-lg shadow-center overflow-hidden p-4">
           <QRCode size={188} data={address} />
         </div>
@@ -31,11 +26,6 @@ export const ReceiveModal = memo<ReceiveModalProps>(({ address, chainKind, onClo
           <T id="sendOnlySomeNetworkTokens" substitutions={[TempleChainTitle[chainKind]]} />
         </span>
       </ActionModalBodyContainer>
-      <ActionModalButtonsContainer>
-        <ActionModalButton color="primary-low" onClick={onClose}>
-          <T id="close" />
-        </ActionModalButton>
-      </ActionModalButtonsContainer>
     </ActionModal>
   );
 });

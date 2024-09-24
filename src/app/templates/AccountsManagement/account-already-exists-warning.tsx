@@ -25,7 +25,7 @@ export const AccountAlreadyExistsWarning = memo<AccountAlreadyExistsWarningProps
     const oldAccountGroupName = useMemo(() => getAllGroups(hdGroups, [oldAccount])[0].name, [hdGroups, oldAccount]);
 
     return (
-      <ActionModal title={t('addAccount')} onClose={onClose}>
+      <ActionModal title={t('addAccount')} hasCloseButton={false} onClose={onClose}>
         <ActionModalBodyContainer>
           <span className="w-full text-center text-font-description text-gray-600">
             {t('accountAlreadyExistsWarning', [newAccountGroup.name, oldAccountGroupName])}

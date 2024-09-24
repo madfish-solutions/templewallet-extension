@@ -17,7 +17,7 @@ interface ImportSeedFormProps {
   onCancel: EmptyFn;
 }
 
-export const ImportSeedForm = memo<ImportSeedFormProps>(({ next, onCancel }) => {
+export const ImportSeedForm = memo<ImportSeedFormProps>(({ next }) => {
   const [bottomEdgeIsVisible, setBottomEdgeIsVisible] = useState(true);
 
   const { handleSubmit, formState, reset } = useForm();
@@ -49,17 +49,7 @@ export const ImportSeedForm = memo<ImportSeedFormProps>(({ next, onCancel }) => 
           setNumberOfWords={setNumberOfWords}
         />
       </ScrollView>
-      <ActionsButtonsBox flexDirection="row" className="gap-x-2.5" shouldCastShadow={!bottomEdgeIsVisible}>
-        <StyledButton
-          size="L"
-          className="w-full"
-          color="primary-low"
-          type="button"
-          onClick={onCancel}
-          testID={ImportSeedFormSelectors.cancelButton}
-        >
-          <T id="cancel" />
-        </StyledButton>
+      <ActionsButtonsBox shouldCastShadow={!bottomEdgeIsVisible}>
         <StyledButton
           disabled={Boolean(seedError) && wasSubmitted}
           type="submit"

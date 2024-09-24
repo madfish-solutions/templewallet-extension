@@ -9,24 +9,38 @@ import { useTempleClient } from 'lib/temple/front';
 import { ManualBackupModal } from './ManualBackupModal';
 
 interface CreateHDWalletModalProps {
-  onEnd: EmptyFn;
+  animated?: boolean;
+  onSuccess: EmptyFn;
+  onClose: EmptyFn;
+  onStartGoBack?: EmptyFn;
 }
 
-export const CreateHDWalletModal = memo<CreateHDWalletModalProps>(({ onEnd }) => {
-  const mnemonic = useMemo(() => generateMnemonic(128), []);
-  const { createOrImportWallet } = useTempleClient();
+export const CreateHDWalletModal = memo<CreateHDWalletModalProps>(
+  ({ animated = true, onClose, onSuccess, onStartGoBack }) => {
+    const mnemonic = useMemo(() => generateMnemonic(128), []);
+    const { createOrImportWallet } = useTempleClient();
 
-  const createWallet = useCallback(async () => {
-    try {
-      await createOrImportWallet(mnemonic);
-      toastSuccess(t('walletCreatedSuccessfully'));
-      onEnd();
-    } catch (err: any) {
-      console.error(err);
+    const createWallet = useCallback(async () => {
+      try {
+        await createOrImportWallet(mnemonic);
+        toastSuccess(t('walletCreatedSuccessfully'));
+        onSuccess();
+      } catch (err: any) {
+        console.error(err);
 
-      toastError(err.message);
-    }
-  }, [createOrImportWallet, mnemonic, onEnd]);
+        toastError(err.message);
+      }
+    }, [createOrImportWallet, mnemonic, onSuccess]);
 
-  return <ManualBackupModal isNewMnemonic mnemonic={mnemonic} onCancel={onEnd} onSuccess={createWallet} />;
-});
+    return (
+      <ManualBackupModal
+        animated={animated}
+        isNewMnemonic
+        mnemonic={mnemonic}
+        onCancel={onClose}
+        onStartGoBack={onStartGoBack}
+        onSuccess={createWallet}
+      />
+    );
+  }
+);

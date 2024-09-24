@@ -10,33 +10,33 @@ import { VerifyMnemonicForm } from './verify-mnemonic-form';
 interface ManualBackupModalProps {
   mnemonic: string;
   isNewMnemonic: boolean;
+  animated?: boolean;
+  onStartGoBack?: EmptyFn;
   onSuccess: EmptyFn;
   onCancel: EmptyFn;
 }
 
-export const ManualBackupModal = memo<ManualBackupModalProps>(({ mnemonic, onSuccess, onCancel, isNewMnemonic }) => {
-  const [shouldVerifySeedPhrase, goToVerifySeedPhrase, goToManualBackup] = useBooleanState(false);
+export const ManualBackupModal = memo<ManualBackupModalProps>(
+  ({ mnemonic, isNewMnemonic, animated = true, onSuccess, onCancel, onStartGoBack }) => {
+    const [shouldVerifySeedPhrase, goToVerifySeedPhrase, goToManualBackup] = useBooleanState(false);
 
-  return (
-    <PageModal
-      title={t(
-        shouldVerifySeedPhrase ? 'verifySeedPhrase' : isNewMnemonic ? 'backupYourSeedPhrase' : 'revealSeedPhrase'
-      )}
-      opened
-      shouldShowBackButton={isNewMnemonic && shouldVerifySeedPhrase}
-      onGoBack={shouldVerifySeedPhrase ? goToManualBackup : onCancel}
-      onRequestClose={onCancel}
-    >
-      {shouldVerifySeedPhrase ? (
-        <VerifyMnemonicForm mnemonic={mnemonic} onSuccess={onSuccess} />
-      ) : (
-        <MnemonicView
-          mnemonic={mnemonic}
-          isNewMnemonic={isNewMnemonic}
-          onCancel={onCancel}
-          onConfirm={goToVerifySeedPhrase}
-        />
-      )}
-    </PageModal>
-  );
-});
+    return (
+      <PageModal
+        title={t(
+          shouldVerifySeedPhrase ? 'verifySeedPhrase' : isNewMnemonic ? 'backupYourSeedPhrase' : 'revealSeedPhrase'
+        )}
+        animated={animated}
+        opened
+        shouldShowBackButton={(isNewMnemonic && shouldVerifySeedPhrase) || Boolean(onStartGoBack)}
+        onGoBack={shouldVerifySeedPhrase ? goToManualBackup : onStartGoBack ?? onCancel}
+        onRequestClose={onCancel}
+      >
+        {shouldVerifySeedPhrase ? (
+          <VerifyMnemonicForm mnemonic={mnemonic} onSuccess={onSuccess} />
+        ) : (
+          <MnemonicView mnemonic={mnemonic} isNewMnemonic={isNewMnemonic} onConfirm={goToVerifySeedPhrase} />
+        )}
+      </PageModal>
+    );
+  }
+);

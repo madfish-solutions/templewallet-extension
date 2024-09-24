@@ -17,6 +17,7 @@ import { useTempleClient, validateDelegate } from 'lib/temple/front';
 import { isValidTezosAddress, isTezosContractAddress } from 'lib/tezos';
 import { shouldDisableSubmitButton } from 'lib/ui/should-disable-submit-button';
 import { readClipboard } from 'lib/ui/utils';
+import { fifoResolve } from 'lib/utils';
 import { TezosChain, useEnabledTezosChains } from 'temple/front';
 import { useEvmAddressByDomainName } from 'temple/front/evm/helpers';
 import { getTezosDomainsClient, useTezosAddressByDomainName } from 'temple/front/tezos';
@@ -61,21 +62,20 @@ export const WatchOnlyForm = memo<ImportAccountFormProps>(({ onSuccess }) => {
     [addressValue, evmAddressFromDomainName, tezAddressFromTzDomainName]
   );
 
-  const pasteAddress = useCallback(
-    async () =>
-      readClipboard()
-        .then(newAddress => {
-          setValue('address', newAddress);
-          setSubmitError(null);
-        })
-        .catch(console.error),
-    [setValue]
+  const handleArtificalAddressChange = useCallback(
+    (newValue: string) => {
+      setValue('address', newValue);
+      setSubmitError(null);
+      triggerValidation('address');
+    },
+    [setValue, triggerValidation]
   );
-  const cleanAddressField = useCallback(() => {
-    setValue('address', '');
-    setSubmitError(null);
-    triggerValidation('address');
-  }, [setValue, triggerValidation]);
+
+  const pasteAddress = useCallback(
+    async () => readClipboard().then(handleArtificalAddressChange).catch(console.error),
+    [handleArtificalAddressChange]
+  );
+  const cleanAddressField = useCallback(() => handleArtificalAddressChange(''), [handleArtificalAddressChange]);
 
   const onSubmit = useCallback(async () => {
     if (formState.isSubmitting) return;
@@ -116,33 +116,36 @@ export const WatchOnlyForm = memo<ImportAccountFormProps>(({ onSuccess }) => {
     }
   }, [formState.isSubmitting, formAnalytics, resolvedAddress, importWatchOnlyAccount, onSuccess, tezosChains]);
 
-  const validateAddress = useCallback(
-    async (value: any) => {
-      let isNormalizableEns = false;
-      try {
-        if (value) {
-          normalize(value);
-          isNormalizableEns = true;
+  const validateAddress = useMemo(
+    () =>
+      fifoResolve(async (value: any) => {
+        let isNormalizableEns = false;
+        try {
+          if (value) {
+            normalize(value);
+            isNormalizableEns = true;
+          }
+          // eslint-disable-next-line no-empty
+        } catch {}
+
+        if (value && (Viem.isAddress(value) || isNormalizableEns)) {
+          return true;
         }
-        // eslint-disable-next-line no-empty
-      } catch {}
 
-      if (value && (Viem.isAddress(value) || isNormalizableEns)) return true;
+        const validationsResults = await Promise.allSettled(
+          domainsClients.map(client => validateDelegate(value, client))
+        );
 
-      const validationsResults = await Promise.allSettled(
-        domainsClients.map(client => validateDelegate(value, client))
-      );
+        if (validationsResults.some(result => result.status === 'fulfilled' && result.value === true)) {
+          return true;
+        }
 
-      if (validationsResults.some(result => result.status === 'fulfilled' && result.value === true)) {
-        return true;
-      }
+        const resultWithValidationError = validationsResults.find(
+          (result): result is PromiseFulfilledResult<string | boolean> => result.status === 'fulfilled'
+        );
 
-      const resultWithValidationError = validationsResults.find(
-        (result): result is PromiseFulfilledResult<string | boolean> => result.status === 'fulfilled'
-      );
-
-      return resultWithValidationError?.value ?? (validationsResults[0] as PromiseRejectedResult).reason.message;
-    },
+        return resultWithValidationError?.value ?? (validationsResults[0] as PromiseRejectedResult).reason.message;
+      }),
     [domainsClients]
   );
 
