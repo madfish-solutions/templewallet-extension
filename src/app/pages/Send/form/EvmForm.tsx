@@ -8,7 +8,6 @@ import { formatEther, isAddress, parseEther } from 'viem';
 import { DeadEndBoundaryError } from 'app/ErrorBoundary';
 import { useEvmTokenMetadataSelector } from 'app/store/evm/tokens-metadata/selectors';
 import { useFormAnalytics } from 'lib/analytics';
-//import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
 import { useEvmTokenBalance } from 'lib/balances/hooks';
 import { useAssetFiatCurrencyPrice } from 'lib/fiat-currency';
 import { t, toLocalFixed } from 'lib/i18n';
@@ -25,14 +24,14 @@ import { useEvmAddressByDomainName } from 'temple/front/evm/ens';
 import { useSettings } from 'temple/front/ready';
 
 import { BaseForm } from './BaseForm';
-import { ConfirmData, SendFormData } from './interfaces';
+import { SendFormData } from './interfaces';
 import { getMaxAmountFiat } from './utils';
 
 interface Props {
   chainId: number;
   assetSlug: string;
   onSelectAssetClick: EmptyFn;
-  onConfirm: (data: ConfirmData) => void;
+  onConfirm: (data: SendFormData) => void;
 }
 
 export const EvmForm: FC<Props> = ({ chainId, assetSlug, onSelectAssetClick, onConfirm }) => {
@@ -49,7 +48,6 @@ export const EvmForm: FC<Props> = ({ chainId, assetSlug, onSelectAssetClick, onC
   const formAnalytics = useFormAnalytics('SendForm');
 
   const { value: balance = ZERO } = useEvmTokenBalance(assetSlug, accountPkh, network);
-  //const { value: nativeBalance = ZERO } = useEvmTokenBalance(EVM_TOKEN_SLUG, accountPkh, network);
 
   const [shouldUseFiat, setShouldUseFiat] = useSafeState(false);
 
@@ -190,25 +188,15 @@ export const EvmForm: FC<Props> = ({ chainId, assetSlug, onSelectAssetClick, onC
 
       formAnalytics.trackSubmit();
 
-      try {
-        const actualAmount = shouldUseFiat ? toAssetAmount(amount) : amount;
+      const actualAmount = shouldUseFiat ? toAssetAmount(amount) : amount;
 
-        onConfirm({ amount: actualAmount, to: toResolved, fee: '' });
+      onConfirm({ amount: actualAmount, to: toResolved });
 
-        reset({ to: '' });
+      reset({ to: '', amount: '' });
 
-        formAnalytics.trackSubmitSuccess();
-      } catch (err: any) {
-        console.error(err);
-
-        formAnalytics.trackSubmitFail();
-
-        if (err?.message === 'Declined') {
-          return;
-        }
-      }
+      formAnalytics.trackSubmitSuccess();
     },
-    [formAnalytics, formState.isSubmitting, reset]
+    [formAnalytics, formState.isSubmitting, onConfirm, reset, shouldUseFiat, toAssetAmount, toResolved]
   );
 
   return (

@@ -1,7 +1,5 @@
 import React, { memo, Suspense, useCallback, useState } from 'react';
 
-import { isDefined } from '@rnw-community/shared';
-
 import { PageTitle } from 'app/atoms';
 import PageLayout from 'app/layouts/PageLayout';
 import { useAssetsFilterOptionsSelector } from 'app/store/assets-filter-options/selectors';
@@ -14,7 +12,7 @@ import { useAccountAddressForEvm } from 'temple/front';
 import { TempleChainKind } from 'temple/types';
 
 import { Form } from './form';
-import { ConfirmData } from './form/interfaces';
+import { SendFormData } from './form/interfaces';
 import { SpinnerSection } from './form/SpinnerSection';
 import { ConfirmSendModal } from './modals/ConfirmSend';
 import { SelectAssetModal } from './modals/SelectAsset';
@@ -52,10 +50,9 @@ const Send = memo<Props>(({ chainKind, chainId, assetSlug }) => {
   const [selectAssetModalOpened, setSelectAssetModalOpen, setSelectAssetModalClosed] = useBooleanState(false);
   const [confirmSendModalOpened, setConfirmSendModalOpen, setConfirmSendModalClosed] = useBooleanState(true);
 
-  const [confirmData, setConfirmData] = useState<ConfirmData | null>({
-    amount: '0.44443',
-    to: '0xd8dA6BF26964aF9D7eEd9e03E5341524FSfrw1233',
-    fee: '0.0008'
+  const [confirmData, setConfirmData] = useState<SendFormData | null>({
+    amount: '0.0001',
+    to: '0x2b49e966ef7033db6DC6a721AeA368ebC1d15EC1'
   });
 
   const handleAssetSelect = useCallback(
@@ -67,7 +64,7 @@ const Send = memo<Props>(({ chainKind, chainId, assetSlug }) => {
   );
 
   const handleConfirm = useCallback(
-    (data: ConfirmData) => {
+    (data: SendFormData) => {
       setConfirmData(data);
       setConfirmSendModalOpen();
     },
@@ -94,10 +91,10 @@ const Send = memo<Props>(({ chainKind, chainId, assetSlug }) => {
         onRequestClose={setSelectAssetModalClosed}
       />
       <ConfirmSendModal
-        opened={confirmSendModalOpened && isDefined(confirmData)}
+        opened={confirmSendModalOpened}
         onRequestClose={setConfirmSendModalClosed}
-        chainAssetSlug={selectedChainAssetSlug}
-        data={confirmData!}
+        chainAssetSlug={'evm:11155111:eth'}
+        data={confirmData}
       />
     </PageLayout>
   );

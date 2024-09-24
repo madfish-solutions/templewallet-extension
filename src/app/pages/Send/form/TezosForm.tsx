@@ -32,7 +32,7 @@ import {
 } from 'temple/front/tezos';
 
 import { BaseForm } from './BaseForm';
-import { ConfirmData, SendFormData } from './interfaces';
+import { SendFormData } from './interfaces';
 import { estimateTezosMaxFee, getBaseFeeError, getFeeError, getMaxAmountFiat, getTezosMaxAmountToken } from './utils';
 
 const PENNY = 0.000001;
@@ -42,7 +42,7 @@ interface Props {
   chainId: string;
   assetSlug: string;
   onSelectAssetClick: EmptyFn;
-  onConfirm: (data: ConfirmData) => void;
+  onConfirm: (data: SendFormData) => void;
 }
 
 export const TezosForm: FC<Props> = ({ chainId, assetSlug, onSelectAssetClick, onConfirm }) => {
@@ -247,7 +247,7 @@ export const TezosForm: FC<Props> = ({ chainId, assetSlug, onSelectAssetClick, o
 
         const actualAmount = shouldUseFiat ? toAssetAmount(amount) : amount;
 
-        onConfirm({ amount: actualAmount, to: toResolved, fee: '' });
+        onConfirm({ amount: actualAmount, to: toResolved });
 
         // if (isTezosContractAddress(accountPkh)) {
         //   const michelsonLambda = isTezosContractAddress(toResolved) ? transferToContract : transferImplicit;
@@ -285,14 +285,13 @@ export const TezosForm: FC<Props> = ({ chainId, assetSlug, onSelectAssetClick, o
       }
     },
     [
-      accountPkh,
       assetMetadata,
-      assetSlug,
+      estimationError,
       formAnalytics,
       formState.isSubmitting,
+      onConfirm,
       reset,
       shouldUseFiat,
-      tezos,
       toAssetAmount,
       toResolved
     ]

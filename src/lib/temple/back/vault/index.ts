@@ -5,6 +5,9 @@ import { CompositeForger, RpcForger, Signer, TezosOperationError, TezosToolkit }
 import * as TaquitoUtils from '@taquito/utils';
 import * as Bip39 from 'bip39';
 import { nanoid } from 'nanoid';
+import { createWalletClient, http } from 'viem';
+import { privateKeyToAccount } from 'viem/accounts';
+import { sepolia } from 'viem/chains';
 import type * as WasmThemisPackageInterface from 'wasm-themis';
 
 import {
@@ -30,6 +33,7 @@ import { getAccountAddressForChain, getAccountAddressForEvm, getAccountAddressFo
 import { michelEncoder, getTezosFastRpcClient } from 'temple/tezos';
 import { TempleChainKind } from 'temple/types';
 
+import { EvmTxParams } from '../../../../temple/evm/types';
 import { createLedgerSigner } from '../ledger';
 import { PublicError } from '../PublicError';
 
@@ -829,6 +833,39 @@ export class Vault {
         const privateKey = await fetchAndDecryptOne<string>(accPrivKeyStrgKey(accPublicKeyHash), this.passKey);
         const signer = await createMemorySigner(privateKey);
         return { signer, cleanup: () => {} };
+    }
+  }
+
+  async sendEvmTransaction(accPublicKeyHash: string, txParams: EvmTxParams) {
+    console.log(txParams, 'txParams');
+
+    try {
+      const allAccounts = await this.fetchAccounts();
+      const acc = allAccounts.find(acc => getAccountAddressForEvm(acc) === accPublicKeyHash);
+      if (!acc) {
+        throw new PublicError('Account not found');
+      }
+
+      switch (acc.type) {
+        case TempleAccountType.WatchOnly:
+          throw new PublicError('Cannot sign Watch-only account');
+
+        default:
+          const privateKey = await fetchAndDecryptOne<string>(accPrivKeyStrgKey(accPublicKeyHash), this.passKey);
+          const account = privateKeyToAccount(privateKey as HexString);
+
+          const client = createWalletClient({
+            account,
+            chain: sepolia,
+            transport: http()
+          });
+
+          return await client.sendTransaction(txParams);
+      }
+    } catch (err: any) {
+      console.log(err);
+
+      throw new Error(`Failed to send operations. ${err.message}`);
     }
   }
 }

@@ -11,22 +11,26 @@ import { ReactComponent as WarningIcon } from 'app/icons/typed-msg/warning.svg';
 import { useToastsContainerBottomShiftSelector } from 'app/store/settings/selectors';
 import PortalToDocumentBody from 'lib/ui/Portal';
 
+// eslint-disable-next-line import/no-cycle
+import { HashChip } from './atoms';
+
 const MAX_TOASTS_COUNT = 3;
 const toastsIdsPool: string[] = [];
 
 const withToastsLimit =
-  (toastFn: (title: string, textBold?: boolean) => string) => (title: string, textBold?: boolean) => {
+  (toastFn: (title: string, textBold?: boolean, txHash?: string) => string) =>
+  (title: string, textBold?: boolean, txHash?: string) => {
     if (toastsIdsPool.length >= MAX_TOASTS_COUNT) {
       const toastsIdsToDismiss = toastsIdsPool.splice(0, toastsIdsPool.length - MAX_TOASTS_COUNT + 1);
       toastsIdsToDismiss.forEach(toast.remove);
     }
-    const newToastId = toastFn(title, textBold);
+    const newToastId = toastFn(title, textBold, txHash);
     toastsIdsPool.push(newToastId);
   };
 
-export const toastSuccess = withToastsLimit((title: string, textBold?: boolean) =>
+export const toastSuccess = withToastsLimit((title: string, textBold?: boolean, txHash?: string) =>
   toast.custom(toast => (
-    <CustomToastBar toast={{ ...toast, message: title }} customType="success" textBold={textBold} />
+    <CustomToastBar toast={{ ...toast, message: title }} customType="success" textBold={textBold} txHash={txHash} />
   ))
 );
 // @ts-prune-ignore-next
@@ -67,36 +71,43 @@ const TOAST_CLASSES: Partial<Record<ToastTypeExtended, string>> = {
   warning: 'bg-warning-low'
 };
 
-const CustomToastBar = memo<{ toast: Toast; customType?: ToastTypeExtended; textBold?: boolean }>(
-  ({ toast, customType, textBold = true }) => {
-    const type: ToastTypeExtended = customType || toast.type;
+interface CustomToastBarProps {
+  toast: Toast;
+  customType?: ToastTypeExtended;
+  textBold?: boolean;
+  txHash?: string;
+}
 
-    const prevToastVisibleRef = useRef(toast.visible);
-    useEffect(() => {
-      if (prevToastVisibleRef.current && !toast.visible) {
-        const toastIndex = toastsIdsPool.indexOf(toast.id);
-        if (toastIndex !== -1) {
-          toastsIdsPool.splice(toastIndex, 1);
-        }
+const CustomToastBar = memo<CustomToastBarProps>(({ toast, customType, textBold = true, txHash }) => {
+  const type: ToastTypeExtended = customType || toast.type;
+
+  const prevToastVisibleRef = useRef(toast.visible);
+  useEffect(() => {
+    if (prevToastVisibleRef.current && !toast.visible) {
+      const toastIndex = toastsIdsPool.indexOf(toast.id);
+      if (toastIndex !== -1) {
+        toastsIdsPool.splice(toastIndex, 1);
       }
-      prevToastVisibleRef.current = toast.visible;
-    }, [toast.id, toast.visible]);
+    }
+    prevToastVisibleRef.current = toast.visible;
+  }, [toast.id, toast.visible]);
 
-    return (
-      <div className={clsx('px-3 py-2.5 flex gap-x-1 rounded-md shadow-bottom max-w-82', TOAST_CLASSES[type])}>
-        <CustomToastIcon toast={toast} type={type} />
+  return (
+    <div className={clsx('px-3 py-2.5 flex gap-x-1 rounded-md shadow-bottom max-w-82', TOAST_CLASSES[type])}>
+      <CustomToastIcon toast={toast} type={type} />
 
-        {typeof toast.message === 'function' ? (
-          toast.message(toast)
-        ) : (
-          <span className={clsx('self-center', textBold ? 'text-font-description-bold' : 'text-font-description')}>
-            {toast.message}
-          </span>
-        )}
-      </div>
-    );
-  }
-);
+      {typeof toast.message === 'function' ? (
+        toast.message(toast)
+      ) : (
+        <span className={clsx('self-center', textBold ? 'text-font-description-bold' : 'text-font-description')}>
+          {toast.message}
+        </span>
+      )}
+
+      {txHash && <HashChip hash={txHash} small rounded="base" />}
+    </div>
+  );
+});
 
 const CustomToastIcon = memo<{ toast: Toast; type: ToastTypeExtended }>(({ toast, type }) => {
   switch (type) {

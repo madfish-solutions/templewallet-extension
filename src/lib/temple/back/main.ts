@@ -19,6 +19,7 @@ import { encodeMessage, encryptMessage, getSenderId, MessageType, Response } fro
 import { clearAsyncStorages } from 'lib/temple/reset';
 import { StoredHDAccount, TempleMessageType, TempleRequest, TempleResponse } from 'lib/temple/types';
 import { getTrackedCashbackServiceDomain, getTrackedUrl } from 'lib/utils/url-track/url-track.utils';
+import { fromSerializableEvmTxParams } from 'temple/evm/utils';
 
 import * as Actions from './actions';
 import * as Analytics from './analytics';
@@ -60,6 +61,10 @@ const processRequest = async (req: TempleRequest, port: Runtime.Port): Promise<T
         type: TempleMessageType.GetStateResponse,
         state
       };
+
+    case TempleMessageType.SendEvmTransactionRequest:
+      const txHash = await Actions.sendEvmTransaction(req.accountPkh, fromSerializableEvmTxParams(req.txParams));
+      return { type: TempleMessageType.SendEvmTransactionResponse, txHash };
 
     case TempleMessageType.NewWalletRequest:
       const accountPkh = await Actions.registerNewWallet(req.password, req.mnemonic);

@@ -23,6 +23,7 @@ import {
   TempleAccountType
 } from 'lib/temple/types';
 import { createQueue, delay } from 'lib/utils';
+import { EvmTxParams } from 'temple/evm/types';
 import { loadTezosChainId } from 'temple/tezos';
 import { TempleChainKind } from 'temple/types';
 
@@ -92,6 +93,12 @@ export async function isDAppEnabled() {
   ]);
 
   return bools.every(Boolean);
+}
+
+export function sendEvmTransaction(accountPkh: HexString, txParams: EvmTxParams) {
+  return withUnlocked(async ({ vault }) => {
+    return await vault.sendEvmTransaction(accountPkh, txParams);
+  });
 }
 
 export function registerNewWallet(password: string, mnemonic?: string) {

@@ -16,6 +16,8 @@ import {
   TempleAccountType,
   WalletSpecs
 } from 'lib/temple/types';
+import { EvmTxParams } from 'temple/evm/types';
+import { toSerializableEvmTxParams } from 'temple/evm/utils';
 import {
   intercomClient,
   makeIntercomRequest as request,
@@ -364,6 +366,17 @@ export const [TempleClientProvider, useTempleClient] = constate(() => {
     return res.sessions;
   }, []);
 
+  const sendEvmTransaction = useCallback(async (accountPkh: HexString, txParams: EvmTxParams) => {
+    const res = await request({
+      type: TempleMessageType.SendEvmTransactionRequest,
+      accountPkh,
+      txParams: toSerializableEvmTxParams(txParams)
+    });
+    assertResponse(res.type === TempleMessageType.SendEvmTransactionResponse);
+
+    return res.txHash;
+  }, []);
+
   return {
     state,
 
@@ -408,6 +421,7 @@ export const [TempleClientProvider, useTempleClient] = constate(() => {
     confirmDAppOperation,
     confirmDAppSign,
     getAllDAppSessions,
-    removeDAppSession
+    removeDAppSession,
+    sendEvmTransaction
   };
 });

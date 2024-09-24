@@ -3,7 +3,8 @@ import React, { FC, useMemo } from 'react';
 import BigNumber from 'bignumber.js';
 import clsx from 'clsx';
 
-import { HashChip, IconBase } from 'app/atoms';
+import { HashChip, IconBase, Spinner } from 'app/atoms';
+import Money from 'app/atoms/Money';
 import { EvmNetworkLogo, TezosNetworkLogo } from 'app/atoms/NetworkLogo';
 import { ReactComponent as ChevronRightIcon } from 'app/icons/base/chevron_right.svg';
 import InFiat from 'app/templates/InFiat';
@@ -16,15 +17,21 @@ const getNetworkName = (network: OneOfChains | null) => network?.name || 'Unknow
 
 interface Props {
   chainAssetSlug: string;
-  gasFee: string;
   recipientAddress: string;
+  estimatedFee: string;
   goToFeeTab: EmptyFn;
-  storageLimit?: string;
+  estimatingFee?: boolean;
 }
 
-export const DetailsTab: FC<Props> = ({ chainAssetSlug, gasFee, storageLimit, recipientAddress, goToFeeTab }) => {
+export const DetailsTab: FC<Props> = ({
+  chainAssetSlug,
+  recipientAddress,
+  estimatedFee,
+  estimatingFee = false,
+  goToFeeTab
+}) => {
   const [chainKind, chainId, assetSlug] = useMemo(() => parseChainAssetSlug(chainAssetSlug), [chainAssetSlug]);
-  console.log(chainKind, 'kind');
+
   const isEvm = chainKind === TempleChainKind.EVM;
 
   return (
@@ -45,17 +52,22 @@ export const DetailsTab: FC<Props> = ({ chainAssetSlug, gasFee, storageLimit, re
         <HashChip hash={recipientAddress} small rounded="base" textShade={100} bgShade={50} />
       </div>
 
-      <div
-        className={clsx('py-2 flex flex-row justify-between items-center', storageLimit && 'border-b-0.5 border-lines')}
-      >
+      <div className={clsx('py-2 flex flex-row justify-between items-center', !isEvm && 'border-b-0.5 border-lines')}>
         <p className="p-1 text-font-description text-grey-1">
           <T id="gasFee" />
         </p>
         <div className="flex flex-row items-center">
-          <FeesInfo chainId={chainId} assetSlug={assetSlug} isEvm={isEvm} amount={gasFee} goToFeeTab={goToFeeTab} />
+          <FeesInfo
+            chainId={chainId}
+            assetSlug={assetSlug}
+            isEvm={isEvm}
+            loading={estimatingFee}
+            amount={estimatedFee}
+            goToFeeTab={goToFeeTab}
+          />
         </div>
       </div>
-      {storageLimit && (
+      {!isEvm && (
         <div className="py-2 flex flex-row justify-between items-center">
           <p className="p-1 text-font-description text-grey-1">Storage Limit</p>
           <div className="flex flex-row items-center">
@@ -63,7 +75,8 @@ export const DetailsTab: FC<Props> = ({ chainAssetSlug, gasFee, storageLimit, re
               chainId={chainId}
               assetSlug={assetSlug}
               isEvm={isEvm}
-              amount={storageLimit}
+              loading={false}
+              amount={'0.001'}
               goToFeeTab={goToFeeTab}
             />
           </div>
@@ -103,30 +116,43 @@ interface FeesInfoProps {
   isEvm: boolean;
   amount: string;
   goToFeeTab: EmptyFn;
+  loading?: boolean;
 }
 
-const FeesInfo: FC<FeesInfoProps> = ({ chainId, assetSlug, isEvm, amount, goToFeeTab }) => (
-  <>
-    <div className="p-1 text-font-num-bold-12">
-      <InFiat
-        chainId={chainId}
-        assetSlug={assetSlug}
-        volume={amount}
-        smallFractionFont={false}
-        roundingMode={BigNumber.ROUND_FLOOR}
-        evm={isEvm}
-      >
-        {({ balance, symbol }) => (
-          <span className="pr-1 border-r-1.5 border-lines">
-            {symbol}
-            {balance}
-          </span>
-        )}
-      </InFiat>
-      <span className="pl-1 ">
-        {amount} {isEvm ? 'ETH' : 'TEZ'}
-      </span>
-    </div>
-    <IconBase Icon={ChevronRightIcon} className="text-primary cursor-pointer" onClick={goToFeeTab} />
-  </>
-);
+const FeesInfo: FC<FeesInfoProps> = ({ chainId, assetSlug, isEvm, loading, amount, goToFeeTab }) => {
+  if (loading)
+    return (
+      <div className="flex justify-center items-center w-25">
+        <Spinner theme="gray" className="w-8" />
+      </div>
+    );
+
+  return (
+    <>
+      <div className="p-1 text-font-num-bold-12">
+        <InFiat
+          chainId={chainId}
+          assetSlug={assetSlug}
+          volume={amount}
+          smallFractionFont={false}
+          roundingMode={BigNumber.ROUND_FLOOR}
+          evm={isEvm}
+        >
+          {({ balance, symbol }) => (
+            <span className="pr-1 border-r-1.5 border-lines">
+              {symbol}
+              {balance}
+            </span>
+          )}
+        </InFiat>
+        <span className="pl-1 ">
+          <Money cryptoDecimals={6} smallFractionFont={false} tooltipPlacement="bottom">
+            {amount}
+          </Money>{' '}
+          {isEvm ? 'ETH' : 'TEZ'}
+        </span>
+      </div>
+      <IconBase Icon={ChevronRightIcon} className="text-primary cursor-pointer" onClick={goToFeeTab} />
+    </>
+  );
+};
