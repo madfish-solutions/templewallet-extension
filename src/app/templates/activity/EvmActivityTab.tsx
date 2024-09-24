@@ -100,7 +100,7 @@ export const EvmActivityTab: FC<EvmActivityTabProps> = ({ chainId, assetSlug }) 
       loadMore={loadMore}
     >
       {activities.map(activity => (
-        <EvmActivityComponent key={activity.hash} activity={activity} chain={network} />
+        <EvmActivityComponent key={activity.hash} activity={activity} chain={network} assetSlug={assetSlug} />
       ))}
     </InfiniteScroll>
   );

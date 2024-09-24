@@ -58,106 +58,110 @@ export const TezosActivityComponent = memo<Props>(({ activity, chain, accountAdd
   );
 });
 
-const TezosActivityBatchComponent = memo<{
+interface BatchProps {
   activity: TezosPreActivity;
   chainId: string;
   assetSlug?: string;
   blockExplorerUrl?: string;
   accountAddress: string;
   networkName: string;
-}>(({ activity, chainId, assetSlug, blockExplorerUrl, accountAddress, networkName }) => {
-  const [expanded, , , toggleExpanded] = useBooleanState(false);
+}
 
-  const { hash } = activity;
+const TezosActivityBatchComponent = memo<BatchProps>(
+  ({ activity, chainId, assetSlug, blockExplorerUrl, accountAddress, networkName }) => {
+    const [expanded, , , toggleExpanded] = useBooleanState(false);
 
-  const preOperations = activity.operations;
+    const { hash } = activity;
 
-  const getMetadata = useGetChainTokenOrGasMetadata(chainId);
+    const preOperations = activity.operations;
 
-  const operations = useMemoWithCompare(
-    () =>
-      preOperations.map(o => {
-        const slug = o.contract ? toTezosAssetSlug(o.contract, o.tokenId) : undefined;
-        return parseTezosPreActivityOperation(o, accountAddress, slug ? getMetadata(slug) : undefined);
-      }),
-    [preOperations, getMetadata, accountAddress]
-  );
+    const getMetadata = useGetChainTokenOrGasMetadata(chainId);
 
-  const faceSlug = useMemo(() => {
-    if (assetSlug) return assetSlug;
+    const operations = useMemoWithCompare(
+      () =>
+        preOperations.map(o => {
+          const slug = o.contract ? toTezosAssetSlug(o.contract, o.tokenId) : undefined;
+          return parseTezosPreActivityOperation(o, accountAddress, slug ? getMetadata(slug) : undefined);
+        }),
+      [preOperations, getMetadata, accountAddress]
+    );
 
-    for (const { kind, asset } of operations) {
-      if (typeof asset?.amount === 'string' && Number(asset.amount) !== 0 && isTransferActivityOperKind(kind))
-        return toTezosAssetSlug(asset.contract, asset.tokenId);
-    }
+    const faceSlug = useMemo(() => {
+      if (assetSlug) return assetSlug;
 
-    return;
-  }, [operations, assetSlug]);
-
-  const batchAsset = useMemo(() => {
-    if (!faceSlug) return;
-
-    let faceAsset: TezosActivityAsset | undefined;
-    let faceAmount = ZERO;
-
-    for (const { kind, asset } of operations) {
-      if (
-        typeof asset?.amount === 'string' &&
-        toTezosAssetSlug(asset.contract, asset.tokenId) === faceSlug &&
-        isTransferActivityOperKind(kind)
-      ) {
-        faceAmount = faceAmount.plus(asset.amount);
-        if (!faceAsset) faceAsset = asset;
+      for (const { kind, asset } of operations) {
+        if (typeof asset?.amount === 'string' && Number(asset.amount) !== 0 && isTransferActivityOperKind(kind))
+          return toTezosAssetSlug(asset.contract, asset.tokenId);
       }
-    }
 
-    if (!faceAsset) return;
+      return;
+    }, [operations, assetSlug]);
 
-    const batchAsset: ActivityItemBaseAssetProp = {
-      ...faceAsset,
-      amount: faceAmount.toFixed()
-    };
+    const batchAsset = useMemo(() => {
+      if (!faceSlug) return;
 
-    return batchAsset;
-  }, [operations, faceSlug]);
+      let faceAsset: TezosActivityAsset | undefined;
+      let faceAmount = ZERO;
 
-  return (
-    <div className="flex flex-col">
-      <ActivityOperationBaseComponent
-        kind="bundle"
-        hash={hash}
-        chainId={chainId}
-        networkName={networkName}
-        asset={batchAsset}
-        blockExplorerUrl={blockExplorerUrl}
-        withoutAssetIcon={Boolean(assetSlug)}
-      />
+      for (const { kind, asset } of operations) {
+        if (
+          typeof asset?.amount === 'string' &&
+          toTezosAssetSlug(asset.contract, asset.tokenId) === faceSlug &&
+          isTransferActivityOperKind(kind)
+        ) {
+          faceAmount = faceAmount.plus(asset.amount);
+          if (!faceAsset) faceAsset = asset;
+        }
+      }
 
-      <button
-        className="ml-2 mt-1 mb-2 flex px-1 py-0.5 text-font-description-bold text-grey-1"
-        onClick={toggleExpanded}
-      >
-        <span>{(expanded ? 'Hide all' : 'Show all') + ` (${operations.length})`}</span>
+      if (!faceAsset) return;
 
-        <IconBase Icon={CompactDownIcon} size={12} className={clsx('text-grey-2', expanded && 'rotate-180')} />
-      </button>
+      const batchAsset: ActivityItemBaseAssetProp = {
+        ...faceAsset,
+        amount: faceAmount.toFixed()
+      };
 
-      {expanded
-        ? operations.map((operation, j) => (
-            <React.Fragment key={`${hash}-${j}`}>
-              {j > 0 && <InteractionsConnector />}
+      return batchAsset;
+    }, [operations, faceSlug]);
 
-              <ActivityOperationBaseComponent
-                kind={operation.kind}
-                hash={hash}
-                chainId={chainId}
-                networkName={networkName}
-                asset={operation.asset}
-                blockExplorerUrl={blockExplorerUrl}
-              />
-            </React.Fragment>
-          ))
-        : null}
-    </div>
-  );
-});
+    return (
+      <div className="flex flex-col">
+        <ActivityOperationBaseComponent
+          kind="bundle"
+          hash={hash}
+          chainId={chainId}
+          networkName={networkName}
+          asset={batchAsset}
+          blockExplorerUrl={blockExplorerUrl}
+          withoutAssetIcon={Boolean(assetSlug)}
+        />
+
+        <button
+          className="ml-2 mt-1 mb-2 flex px-1 py-0.5 text-font-description-bold text-grey-1"
+          onClick={toggleExpanded}
+        >
+          <span>{(expanded ? 'Hide all' : 'Show all') + ` (${operations.length})`}</span>
+
+          <IconBase Icon={CompactDownIcon} size={12} className={clsx('text-grey-2', expanded && 'rotate-180')} />
+        </button>
+
+        {expanded
+          ? operations.map((operation, j) => (
+              <React.Fragment key={`${hash}-${j}`}>
+                {j > 0 && <InteractionsConnector />}
+
+                <ActivityOperationBaseComponent
+                  kind={operation.kind}
+                  hash={hash}
+                  chainId={chainId}
+                  networkName={networkName}
+                  asset={operation.asset}
+                  blockExplorerUrl={blockExplorerUrl}
+                />
+              </React.Fragment>
+            ))
+          : null}
+      </div>
+    );
+  }
+);

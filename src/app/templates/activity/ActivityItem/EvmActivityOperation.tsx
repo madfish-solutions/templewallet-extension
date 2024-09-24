@@ -11,10 +11,11 @@ interface Props {
   chain: EvmChain;
   networkName: string;
   blockExplorerUrl?: string;
+  withoutAssetIcon?: boolean;
 }
 
 export const EvmActivityOperationComponent = memo<Props>(
-  ({ hash, operation, chain, networkName, blockExplorerUrl }) => {
+  ({ hash, operation, chain, networkName, blockExplorerUrl, withoutAssetIcon }) => {
     return (
       <ActivityOperationBaseComponent
         kind={operation.kind}
@@ -23,6 +24,7 @@ export const EvmActivityOperationComponent = memo<Props>(
         networkName={networkName}
         asset={operation.asset}
         blockExplorerUrl={blockExplorerUrl}
+        withoutAssetIcon={withoutAssetIcon}
       />
     );
   }

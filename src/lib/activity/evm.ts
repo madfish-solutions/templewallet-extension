@@ -187,7 +187,7 @@ export function parseGoldRushTransaction(
     })
     .filter(isTruthy);
 
-  const gasOperation = parseGasTransfer(item, accountAddress, getMetadata);
+  const gasOperation = parseGasTransfer(item, accountAddress, Boolean(logEvents.length), getMetadata);
 
   if (gasOperation) operations.unshift(gasOperation);
 
@@ -252,7 +252,7 @@ export function parseGoldRushERC20Transfer(
     return { kind, asset };
   });
 
-  const gasOperation = parseGasTransfer(item, accountAddress, getMetadata);
+  const gasOperation = parseGasTransfer(item, accountAddress, Boolean(transfers.length), getMetadata);
 
   if (gasOperation) operations.unshift(gasOperation);
 
@@ -269,6 +269,8 @@ export function parseGoldRushERC20Transfer(
 function parseGasTransfer(
   item: GoldRushTransaction | GoldRushERC20Transfer,
   accountAddress: string,
+  /** Only way to suspect transfering to a contract, not an account */
+  partOfBatch: boolean,
   getMetadata: EvmAssetMetadataGetter
 ): EvmOperation | null {
   const value: string = item.value?.toString() ?? '0';
@@ -276,9 +278,10 @@ function parseGasTransfer(
   if (value === '0') return null;
 
   const kind = (() => {
-    if (getEvmAddressSafe(item.from_address) === accountAddress) return ActivityOperKindEnum.transferFrom_ToAccount;
-    if (getEvmAddressSafe(item.to_address) === accountAddress) return ActivityOperKindEnum.transferTo_FromAccount;
-    // TODO: Check for transfers to contracts
+    if (getEvmAddressSafe(item.from_address) === accountAddress)
+      return partOfBatch ? ActivityOperKindEnum.transferFrom : ActivityOperKindEnum.transferFrom_ToAccount;
+    if (getEvmAddressSafe(item.to_address) === accountAddress)
+      return partOfBatch ? ActivityOperKindEnum.transferTo : ActivityOperKindEnum.transferTo_FromAccount;
 
     return null;
   })();
