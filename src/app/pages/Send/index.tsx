@@ -48,12 +48,13 @@ const Send = memo<Props>(({ chainKind, chainId, assetSlug }) => {
   });
 
   const [selectAssetModalOpened, setSelectAssetModalOpen, setSelectAssetModalClosed] = useBooleanState(false);
-  const [confirmSendModalOpened, setConfirmSendModalOpen, setConfirmSendModalClosed] = useBooleanState(true);
+  const [confirmSendModalOpened, setConfirmSendModalOpen, setConfirmSendModalClosed] = useBooleanState(false);
 
-  const [confirmData, setConfirmData] = useState<SendFormData | null>({
-    amount: '0.0001',
-    to: '0x2b49e966ef7033db6DC6a721AeA368ebC1d15EC1'
-  });
+  // {
+  //   amount: '0.0001',
+  //     to: '0x2b49e966ef7033db6DC6a721AeA368ebC1d15EC1'
+  // }
+  const [confirmData, setConfirmData] = useState<SendFormData | null>(null);
 
   const handleAssetSelect = useCallback(
     (slug: string) => {
@@ -93,7 +94,7 @@ const Send = memo<Props>(({ chainKind, chainId, assetSlug }) => {
       <ConfirmSendModal
         opened={confirmSendModalOpened}
         onRequestClose={setConfirmSendModalClosed}
-        chainAssetSlug={'evm:11155111:eth'}
+        chainAssetSlug={selectedChainAssetSlug}
         data={confirmData}
       />
     </PageLayout>

@@ -63,7 +63,11 @@ const processRequest = async (req: TempleRequest, port: Runtime.Port): Promise<T
       };
 
     case TempleMessageType.SendEvmTransactionRequest:
-      const txHash = await Actions.sendEvmTransaction(req.accountPkh, fromSerializableEvmTxParams(req.txParams));
+      const txHash = await Actions.sendEvmTransaction(
+        req.accountPkh,
+        req.network,
+        fromSerializableEvmTxParams(req.txParams)
+      );
       return { type: TempleMessageType.SendEvmTransactionResponse, txHash };
 
     case TempleMessageType.NewWalletRequest:

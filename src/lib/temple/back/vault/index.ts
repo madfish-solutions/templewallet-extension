@@ -7,7 +7,6 @@ import * as Bip39 from 'bip39';
 import { nanoid } from 'nanoid';
 import { createWalletClient, http } from 'viem';
 import { privateKeyToAccount } from 'viem/accounts';
-import { sepolia } from 'viem/chains';
 import type * as WasmThemisPackageInterface from 'wasm-themis';
 
 import {
@@ -30,10 +29,11 @@ import { clearAsyncStorages } from 'lib/temple/reset';
 import { StoredAccount, TempleAccountType, TempleSettings, WalletSpecs } from 'lib/temple/types';
 import { isTruthy } from 'lib/utils';
 import { getAccountAddressForChain, getAccountAddressForEvm, getAccountAddressForTezos } from 'temple/accounts';
+import { EvmTxParams } from 'temple/evm/types';
+import { EvmChain } from 'temple/front';
 import { michelEncoder, getTezosFastRpcClient } from 'temple/tezos';
 import { TempleChainKind } from 'temple/types';
 
-import { EvmTxParams } from '../../../../temple/evm/types';
 import { createLedgerSigner } from '../ledger';
 import { PublicError } from '../PublicError';
 
@@ -836,7 +836,7 @@ export class Vault {
     }
   }
 
-  async sendEvmTransaction(accPublicKeyHash: string, txParams: EvmTxParams) {
+  async sendEvmTransaction(accPublicKeyHash: string, network: EvmChain, txParams: EvmTxParams) {
     console.log(txParams, 'txParams');
 
     try {
@@ -856,7 +856,16 @@ export class Vault {
 
           const client = createWalletClient({
             account,
-            chain: sepolia,
+            chain: {
+              id: network.chainId,
+              name: network.name,
+              nativeCurrency: network.currency,
+              rpcUrls: {
+                default: {
+                  http: [network.rpcBaseURL]
+                }
+              }
+            },
             transport: http()
           });
 

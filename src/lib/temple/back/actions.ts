@@ -24,6 +24,7 @@ import {
 } from 'lib/temple/types';
 import { createQueue, delay } from 'lib/utils';
 import { EvmTxParams } from 'temple/evm/types';
+import { EvmChain } from 'temple/front';
 import { loadTezosChainId } from 'temple/tezos';
 import { TempleChainKind } from 'temple/types';
 
@@ -95,9 +96,9 @@ export async function isDAppEnabled() {
   return bools.every(Boolean);
 }
 
-export function sendEvmTransaction(accountPkh: HexString, txParams: EvmTxParams) {
+export function sendEvmTransaction(accountPkh: HexString, network: EvmChain, txParams: EvmTxParams) {
   return withUnlocked(async ({ vault }) => {
-    return await vault.sendEvmTransaction(accountPkh, txParams);
+    return await vault.sendEvmTransaction(accountPkh, network, txParams);
   });
 }
 

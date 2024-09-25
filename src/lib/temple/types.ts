@@ -2,7 +2,8 @@ import type { DerivationType } from '@taquito/ledger-signer';
 import type { Estimate } from '@taquito/taquito';
 import type { TempleDAppMetadata, TempleDAppNetwork } from '@temple-wallet/dapp/dist/types';
 
-import { SerializableEvmTxParams } from 'temple/evm/types';
+import type { SerializableEvmTxParams } from 'temple/evm/types';
+import type { EvmChain } from 'temple/front';
 import type { StoredEvmNetwork, StoredTezosNetwork } from 'temple/networks';
 import type { TempleChainKind } from 'temple/types';
 
@@ -654,6 +655,7 @@ interface TempleConfirmationResponse extends TempleMessageBase {
 interface TempleSendEvmTransactionRequest extends TempleMessageBase {
   type: TempleMessageType.SendEvmTransactionRequest;
   accountPkh: HexString;
+  network: EvmChain;
   txParams: SerializableEvmTxParams;
 }
 

@@ -255,7 +255,7 @@ const FullAmountTippy: FC<FullAmountTippyProps> = ({
   fullAmount,
   onClick,
   showAmountTooltip,
-  tooltipPlacement,
+  tooltipPlacement = 'top',
   enabled = true,
   testID,
   testIDProperties,

@@ -109,7 +109,7 @@ const Content: FC<ContentProps> = ({ chainAssetSlug, data, onRequestClose }) => 
     try {
       onRequestClose();
 
-      const txHash = await sendEvmTransaction(accountPkh, {
+      const txHash = await sendEvmTransaction(accountPkh, network, {
         to: to as HexString,
         amount: parseEther(amount),
         ...estimationData

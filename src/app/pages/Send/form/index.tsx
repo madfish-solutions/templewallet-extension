@@ -4,12 +4,12 @@ import { parseChainAssetSlug } from 'lib/assets/utils';
 import { TempleChainKind } from 'temple/types';
 
 import { EvmForm } from './EvmForm';
-import { ConfirmData } from './interfaces';
+import { SendFormData } from './interfaces';
 import { TezosForm } from './TezosForm';
 
 interface Props {
   selectedChainAssetSlug: string;
-  onConfirm: (data: ConfirmData) => void;
+  onConfirm: (data: SendFormData) => void;
   onSelectAssetClick: EmptyFn;
 }
 

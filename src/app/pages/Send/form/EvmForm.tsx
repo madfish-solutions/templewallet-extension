@@ -3,7 +3,7 @@ import React, { FC, useCallback, useMemo } from 'react';
 import BigNumber from 'bignumber.js';
 import { isString } from 'lodash';
 import { useForm } from 'react-hook-form-v7';
-import { formatEther, isAddress, parseEther } from 'viem';
+import { formatEther, isAddress } from 'viem';
 
 import { DeadEndBoundaryError } from 'app/ErrorBoundary';
 import { useEvmTokenMetadataSelector } from 'app/store/evm/tokens-metadata/selectors';
@@ -113,7 +113,7 @@ export const EvmForm: FC<Props> = ({ chainId, assetSlug, onSelectAssetClick, onC
         gasLimit = await publicClient.estimateGas({
           account: accountPkh,
           to: toResolved as HexString,
-          value: parseEther('1')
+          value: BigInt(1)
         });
       } else {
         // TODO: Write logic for other token standards
