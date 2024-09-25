@@ -62,21 +62,20 @@ export const WatchOnlyForm = memo<ImportAccountFormProps>(({ onSuccess }) => {
     [addressValue, evmAddressFromDomainName, tezAddressFromTzDomainName]
   );
 
-  const pasteAddress = useCallback(
-    async () =>
-      readClipboard()
-        .then(newAddress => {
-          setValue('address', newAddress);
-          setSubmitError(null);
-        })
-        .catch(console.error),
-    [setValue]
+  const handleArtificalAddressChange = useCallback(
+    (newValue: string) => {
+      setValue('address', newValue);
+      setSubmitError(null);
+      triggerValidation('address');
+    },
+    [setValue, triggerValidation]
   );
-  const cleanAddressField = useCallback(() => {
-    setValue('address', '');
-    setSubmitError(null);
-    triggerValidation('address');
-  }, [setValue, triggerValidation]);
+
+  const pasteAddress = useCallback(
+    async () => readClipboard().then(handleArtificalAddressChange).catch(console.error),
+    [handleArtificalAddressChange]
+  );
+  const cleanAddressField = useCallback(() => handleArtificalAddressChange(''), [handleArtificalAddressChange]);
 
   const onSubmit = useCallback(async () => {
     if (formState.isSubmitting) return;
