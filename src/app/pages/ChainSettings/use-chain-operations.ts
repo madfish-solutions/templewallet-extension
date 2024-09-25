@@ -31,6 +31,10 @@ export const useChainOperations = (chainKind: TempleChainKind, chainId: string) 
   } = useTempleNetworksActions();
   const { addBlockExplorer, replaceBlockExplorer, removeBlockExplorer, removeAllBlockExplorers } =
     useChainBlockExplorers(chainKind, chainId);
+  const activeRpcId = chain.rpc.id;
+  const defaultRpcId = chain.allRpcs[0].id;
+  const activeBlockExplorerId = chain.activeBlockExplorer?.id;
+  const defaultBlockExplorerId = chain.allBlockExplorers[0]?.id;
 
   const setChainEnabled = useCallback(
     (newValue: boolean) =>
@@ -112,9 +116,8 @@ export const useChainOperations = (chainKind: TempleChainKind, chainId: string) 
   );
 
   const updateRpc = useCallback(
-    async (rpc: StoredTezosNetwork | StoredEvmNetwork, values: EditUrlEntityModalFormValues) => {
-      const { name, url } = values;
-
+    async (rpc: StoredTezosNetwork | StoredEvmNetwork, { name, url, isActive }: EditUrlEntityModalFormValues) => {
+      const wasActive = rpc.id === activeRpcId;
       try {
         await assertRpcChainId(url);
       } catch (e) {
@@ -126,17 +129,30 @@ export const useChainOperations = (chainKind: TempleChainKind, chainId: string) 
         throw new Error(t('rpcDoesNotRespond'));
       }
 
-      if (rpc.chain === TempleChainKind.Tezos) {
-        return updateTezosNetwork(rpc.id, { ...rpc, name, rpcBaseURL: url });
-      }
+      const newRpcProps = { name, rpcBaseURL: url };
 
-      return updateEvmNetwork(rpc.id, { ...rpc, name, rpcBaseURL: url });
+      console.log('oy vey 1', wasActive, isActive, rpc.id, defaultRpcId);
+      await Promise.all([
+        rpc.chain === TempleChainKind.Tezos
+          ? updateTezosNetwork(rpc.id, { ...rpc, ...newRpcProps })
+          : updateEvmNetwork(rpc.id, { ...rpc, ...newRpcProps }),
+        !wasActive && isActive ? setActiveRpcId(rpc.id) : Promise.resolve(),
+        wasActive && !isActive ? setActiveRpcId(defaultRpcId) : Promise.resolve()
+      ]);
     },
-    [assertRpcChainId, updateEvmNetwork, updateTezosNetwork]
+    [activeRpcId, assertRpcChainId, defaultRpcId, setActiveRpcId, updateEvmNetwork, updateTezosNetwork]
   );
   const updateExplorer = useCallback(
-    ({ id }: BlockExplorer, { name, url }: EditUrlEntityModalFormValues) => replaceBlockExplorer({ id, name, url }),
-    [replaceBlockExplorer]
+    async ({ id }: BlockExplorer, { name, url, isActive }: EditUrlEntityModalFormValues) => {
+      const wasActive = id === activeBlockExplorerId;
+
+      await Promise.all([
+        replaceBlockExplorer({ id, name, url }),
+        !wasActive && isActive ? setActiveExplorerId(id) : Promise.resolve(),
+        wasActive && !isActive ? setActiveExplorerId(defaultBlockExplorerId) : Promise.resolve()
+      ]);
+    },
+    [activeBlockExplorerId, defaultBlockExplorerId, replaceBlockExplorer, setActiveExplorerId]
   );
 
   const removeRpc = useCallback(
@@ -144,22 +160,18 @@ export const useChainOperations = (chainKind: TempleChainKind, chainId: string) 
     [chainKind, removeEvmNetworks, removeTezosNetworks]
   );
 
-  const removeChain = useCallback(
-    () =>
-      Promise.all([
-        removeChainSpecs(),
-        removeAllBlockExplorers(),
-        (chainKind === TempleChainKind.Tezos ? removeTezosNetworks : removeEvmNetworks)(
-          chain.allRpcs.map(({ id }) => id)
-        )
-      ]),
-    [chain.allRpcs, chainKind, removeAllBlockExplorers, removeChainSpecs, removeEvmNetworks, removeTezosNetworks]
-  );
+  const removeChain = useCallback(() => {
+    const rpcIds = chain.allRpcs.map(({ id }) => id);
+
+    return Promise.all([
+      removeChainSpecs(),
+      removeAllBlockExplorers(),
+      chainKind === TempleChainKind.Tezos ? removeTezosNetworks(rpcIds) : removeEvmNetworks(rpcIds)
+    ]);
+  }, [chain.allRpcs, chainKind, removeAllBlockExplorers, removeChainSpecs, removeEvmNetworks, removeTezosNetworks]);
 
   return {
     setChainEnabled,
-    setActiveRpcId,
-    setActiveExplorerId,
     addRpc,
     addExplorer,
     updateRpc,

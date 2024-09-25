@@ -94,7 +94,7 @@ export const UrlInput = <K extends string, T extends Record<K, string>>({
         validate: value => (urlsToExclude.includes(value) ? t('mustBeUnique') : true)
       })}
       className={clsx(!isEditable && 'text-grey-1', 'resize-none')}
-      cleanable={Boolean(url)}
+      cleanable={Boolean(url) && (!textarea || isEditable)}
       onClean={clearUrl}
       additonalActionButtons={additionalActionButtons}
       name={name}

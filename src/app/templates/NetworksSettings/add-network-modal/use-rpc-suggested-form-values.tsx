@@ -66,6 +66,7 @@ export const useRpcSuggestedFormValues = (rpcUrl: string, rpcUrlsToExclude: stri
     () => rpcUrlsToExclude.reduce((acc, url) => acc + url + ' ', ''),
     [rpcUrlsToExclude]
   );
+
   return useSWR(['new-network-values-from-rpc', rpcUrlDebounced, rpcUrlsToExcludeKeyPart], getValuesFromRpcUrl, {
     suspense: false
   });

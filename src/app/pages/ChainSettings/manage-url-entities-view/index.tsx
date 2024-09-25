@@ -29,7 +29,6 @@ interface ManageUrlEntitiesViewProps<T> {
   getEntityUrl: SyncFn<T, string>;
   getIsEditable: SyncFn<T, boolean>;
   getIsRemovable: SyncFn<T, boolean>;
-  setActiveItemId: SyncFn<string, void>;
   createEntity: (values: CreateUrlEntityModalFormValues) => Promise<void>;
   updateEntity: (entity: T, values: EditUrlEntityModalFormValues) => Promise<void>;
   removeEntity: (id: string) => Promise<void>;
@@ -54,7 +53,6 @@ export const ManageUrlEntitiesView = <T extends UrlEntityBase>({
   getIsEditable,
   getIsRemovable,
   getEntityUrl,
-  setActiveItemId,
   createEntity,
   updateEntity,
   removeEntity,
@@ -81,18 +79,6 @@ export const ManageUrlEntitiesView = <T extends UrlEntityBase>({
     closeEditModal();
     removeEntity(entityToEdit!.id);
   }, [closeEditModal, entityToEdit, removeEntity]);
-
-  const defaultItemId = items[0]?.id;
-  const handleActiveStateChange = useCallback(
-    (newState: boolean) => {
-      if (newState) {
-        setActiveItemId(entityToEdit!.id);
-      } else {
-        setActiveItemId(defaultItemId);
-      }
-    },
-    [defaultItemId, entityToEdit, setActiveItemId]
-  );
 
   useEffect(() => {
     if (!entityToEdit) {
@@ -143,12 +129,14 @@ export const ManageUrlEntitiesView = <T extends UrlEntityBase>({
           isActive={entityToEdit.id === activeItemId}
           isEditable={getIsEditable(entityToEdit)}
           isRemovable={getIsRemovable(entityToEdit)}
+          canChangeActiveState={
+            items.length > 1 && (activeItemId !== entityToEdit.id || items.indexOf(entityToEdit) > 0)
+          }
           entity={entityToEdit}
           entityUrl={getEntityUrl(entityToEdit)}
           namesToExclude={namesToExclude}
           urlsToExclude={urlsToExclude}
           onClose={closeEditModal}
-          onActiveStateChange={handleActiveStateChange}
           onRemoveConfirm={handleRemoveConfirm}
           updateEntity={updateEntity}
           activeSwitchTestID={activeSwitchTestID}

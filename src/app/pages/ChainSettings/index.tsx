@@ -49,8 +49,6 @@ const ChainExistentSettings = memo<ChainExistentSettingsProps>(({ chain, bottomE
   const enabledTezChains = useEnabledTezosChains();
   const {
     setChainEnabled,
-    setActiveRpcId,
-    setActiveExplorerId,
     addRpc,
     addExplorer,
     updateRpc,
@@ -131,7 +129,6 @@ const ChainExistentSettings = memo<ChainExistentSettingsProps>(({ chain, bottomE
           getIsEditable={isRpcEditable}
           getIsRemovable={isRpcRemovable}
           getEntityUrl={rpcUrlFn}
-          setActiveItemId={setActiveRpcId}
           createEntity={addRpc}
           updateEntity={updateRpc}
           removeEntity={removeRpc}
@@ -156,7 +153,6 @@ const ChainExistentSettings = memo<ChainExistentSettingsProps>(({ chain, bottomE
           getIsEditable={isExplorerEditable}
           getIsRemovable={isExplorerRemovable}
           getEntityUrl={explorerUrlFn}
-          setActiveItemId={setActiveExplorerId}
           createEntity={addExplorer}
           updateEntity={updateExplorer}
           removeEntity={removeBlockExplorer}
@@ -213,6 +209,7 @@ export const ChainSettings = memo<ChainSettingsProps>(props => {
   const { chainId, chainKind } = props;
   const evmChains = useAllEvmChains();
   const tezChains = useAllTezosChains();
+  // `chain` may become `undefined` when the chain is being removed
   const chain: OneOfChains | undefined = chainKind === TempleChainKind.Tezos ? tezChains[chainId] : evmChains[chainId];
 
   const [pageTitle, setPageTitle] = useState(() => (chain?.nameI18nKey ? <T id={chain.nameI18nKey} /> : chain?.name));

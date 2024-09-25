@@ -30,12 +30,14 @@ import { UrlInput } from './url-input';
 export interface EditUrlEntityModalFormValues {
   name: string;
   url: string;
+  isActive: boolean;
 }
 
 interface EditUrlEntityModalProps<T extends UrlEntityBase> {
   isActive: boolean;
   isEditable: boolean;
   isRemovable: boolean;
+  canChangeActiveState: boolean;
   entity: T;
   entityUrl: string;
   namesToExclude: string[];
@@ -47,7 +49,6 @@ interface EditUrlEntityModalProps<T extends UrlEntityBase> {
   deleteLabelI18nKey: TID;
   urlInputPlaceholder: string;
   onClose: EmptyFn;
-  onActiveStateChange: SyncFn<boolean>;
   onRemoveConfirm: EmptyFn;
   updateEntity: (entity: T, values: EditUrlEntityModalFormValues) => Promise<void>;
   activeSwitchTestID: string;
@@ -57,6 +58,7 @@ export const EditUrlEntityModal = <T extends UrlEntityBase>({
   isActive,
   isEditable,
   isRemovable,
+  canChangeActiveState,
   entity,
   entityUrl,
   namesToExclude,
@@ -68,7 +70,6 @@ export const EditUrlEntityModal = <T extends UrlEntityBase>({
   deleteLabelI18nKey,
   urlInputPlaceholder,
   onClose,
-  onActiveStateChange,
   onRemoveConfirm,
   updateEntity,
   activeSwitchTestID
@@ -114,7 +115,13 @@ export const EditUrlEntityModal = <T extends UrlEntityBase>({
           >
             <SettingsCellGroup>
               <SettingsCell cellName={<T id={activeI18nKey} />} Component="div">
-                <ToggleSwitch checked={isActive} onChange={onActiveStateChange} testID={activeSwitchTestID} />
+                <ToggleSwitch
+                  ref={register()}
+                  disabled={!canChangeActiveState}
+                  name="isActive"
+                  checked={isActive}
+                  testID={activeSwitchTestID}
+                />
               </SettingsCell>
             </SettingsCellGroup>
 
@@ -152,6 +159,7 @@ export const EditUrlEntityModal = <T extends UrlEntityBase>({
                   className="bg-transparent flex items-center px-3 py-1 gap-0.5"
                   onClick={openRemoveModal}
                   testID={ChainSettingsSelectors.deleteButton}
+                  type="button"
                 >
                   <T id={deleteLabelI18nKey} />
                   <IconBase size={12} Icon={DeleteIcon} />
@@ -163,10 +171,9 @@ export const EditUrlEntityModal = <T extends UrlEntityBase>({
             <StyledButton
               size="L"
               color="primary"
-              type={isEditable ? 'submit' : 'button'}
+              type="submit"
               disabled={shouldDisableSubmitButton(errors, formState, [], submitError)}
               testID={ChainSettingsSelectors.saveButton}
-              onClick={isEditable ? undefined : onClose}
             >
               <T id="save" />
             </StyledButton>

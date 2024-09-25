@@ -127,18 +127,15 @@ export function useChainBlockExplorers(chainKind: TempleChainKind, chainId: stri
     [chainId, chainKind, genericRemoveBlockExplorers]
   );
 
-  const removeAllBlockExplorers = useCallback(() => {
-    console.log(
-      'fuflo1',
-      chainBlockExplorers.map(({ id }) => id)
-    );
-
-    return genericRemoveBlockExplorers(
-      chainKind,
-      chainId,
-      chainBlockExplorers.map(({ id }) => id)
-    );
-  }, [chainBlockExplorers, chainId, chainKind, genericRemoveBlockExplorers]);
+  const removeAllBlockExplorers = useCallback(
+    () =>
+      genericRemoveBlockExplorers(
+        chainKind,
+        chainId,
+        chainBlockExplorers.map(({ id }) => id)
+      ),
+    [chainBlockExplorers, chainId, chainKind, genericRemoveBlockExplorers]
+  );
 
   const activeBlockExplorer = useMemo<BlockExplorer | undefined>(
     () => chainBlockExplorers.find(({ id }) => id === activeBlockExplorerId) ?? chainBlockExplorers[0],
@@ -232,11 +229,6 @@ export const DEFAULT_BLOCK_EXPLORERS: Record<TempleChainKind, Record<string, Blo
         url: 'https://etherscan.io',
         id: 'etherscan-mainnet'
       }
-      /* {
-      name: 'Blockchair',
-      url: 'https://blockchair.com/ethereum',
-      id: 'blockchair-mainnet'
-    } */
     ],
     '137': [
       {

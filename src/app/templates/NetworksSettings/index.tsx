@@ -6,8 +6,6 @@ import { filterNetworksByName } from 'lib/ui/filter-networks-by-name';
 import { useBooleanState } from 'lib/ui/hooks';
 import { SettingsTabProps } from 'lib/ui/settings-tab-props';
 import { useAllEvmChains, useAllTezosChains } from 'temple/front';
-import { useBlockExplorers } from 'temple/front/block-explorers';
-import { useEvmChainsSpecs, useTezosChainsSpecs } from 'temple/front/chains-specs';
 import { TempleChainKind, TempleChainTitle } from 'temple/types';
 
 import { AddNetworkModal } from './add-network-modal';
@@ -22,10 +20,6 @@ interface ChainsFilters {
 export const NetworksSettings = memo<SettingsTabProps>(({ setHeaderChildren }) => {
   const tezosChainsRecord = useAllTezosChains();
   const evmChainsRecord = useAllEvmChains();
-  const [tezChainsSpecs] = useTezosChainsSpecs();
-  const [evmChainsSpecs] = useEvmChainsSpecs();
-  const { allBlockExplorers } = useBlockExplorers();
-  console.log('oy vey 1', { tezosChainsRecord, evmChainsRecord, tezChainsSpecs, evmChainsSpecs, allBlockExplorers });
 
   const [isMainnetTab, openMainnetTab, openTestnetTab] = useBooleanState(true);
   const [isAddNetworkModalOpen, openAddNetworkModal, closeAddNetworkModal] = useBooleanState(false);
