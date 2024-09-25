@@ -5,22 +5,32 @@ import { nanoid } from 'nanoid';
 import { ArtificialError } from 'app/defaults';
 import { t } from 'lib/i18n';
 import { COLORS } from 'lib/ui/colors';
-import { getReadOnlyEvm } from 'temple/evm';
-import { useTempleNetworksActions } from 'temple/front';
+import { loadEvmChainId } from 'temple/evm';
+import { OneOfChains, useAllEvmChains, useAllTezosChains, useTempleNetworksActions } from 'temple/front';
 import { BlockExplorer, useChainBlockExplorers } from 'temple/front/block-explorers';
 import { EvmChainSpecs, TezosChainSpecs, useChainSpecs } from 'temple/front/chains-specs';
 import { StoredEvmNetwork, StoredTezosNetwork } from 'temple/networks';
-import { getReadOnlyTezos } from 'temple/tezos';
+import { loadTezosChainId } from 'temple/tezos';
 import { TempleChainKind } from 'temple/types';
 
 import { CreateUrlEntityModalFormValues } from './manage-url-entities-view/create-modal';
 import { EditUrlEntityModalFormValues } from './manage-url-entities-view/edit-modal';
 
 export const useChainOperations = (chainKind: TempleChainKind, chainId: string) => {
-  const [, setChainSpecs] = useChainSpecs(chainKind, chainId);
-  const { addEvmNetwork, addTezosNetwork, updateEvmNetwork, updateTezosNetwork, removeEvmNetwork, removeTezosNetwork } =
-    useTempleNetworksActions();
-  const { addBlockExplorer, replaceBlockExplorer, removeBlockExplorer } = useChainBlockExplorers(chainKind, chainId);
+  const evmChains = useAllEvmChains();
+  const tezChains = useAllTezosChains();
+  const chain: OneOfChains = evmChains[chainId] ?? tezChains[chainId];
+  const [, setChainSpecs, removeChainSpecs] = useChainSpecs(chainKind, chainId);
+  const {
+    addEvmNetwork,
+    addTezosNetwork,
+    updateEvmNetwork,
+    updateTezosNetwork,
+    removeEvmNetworks,
+    removeTezosNetworks
+  } = useTempleNetworksActions();
+  const { addBlockExplorer, replaceBlockExplorer, removeBlockExplorer, removeAllBlockExplorers } =
+    useChainBlockExplorers(chainKind, chainId);
 
   const setChainEnabled = useCallback(
     (newValue: boolean) =>
@@ -42,34 +52,31 @@ export const useChainOperations = (chainKind: TempleChainKind, chainId: string) 
     [setChainSpecs]
   );
 
-  const getRpcChainId = useCallback(
-    (url: string) =>
-      chainKind === TempleChainKind.Tezos ? getReadOnlyTezos(url).rpc.getChainId() : getReadOnlyEvm(url).getChainId(),
-    [chainKind]
-  );
   const assertRpcChainId = useCallback(
     async (url: string) => {
-      const actualChainId = await getRpcChainId(url);
+      const actualChainId =
+        chainKind === TempleChainKind.Tezos ? await loadTezosChainId(url) : await loadEvmChainId(url);
 
       if (String(actualChainId) !== chainId) {
         throw new ArtificialError(t('rpcDoesNotMatchChain'));
       }
     },
-    [chainId, getRpcChainId]
+    [chainId, chainKind]
   );
 
   const addRpc = useCallback(
     async (values: CreateUrlEntityModalFormValues) => {
       const { name, url, isActive } = values;
 
-      const chainId = await getRpcChainId(url);
+      await assertRpcChainId(url);
+
       const rpcId = nanoid();
 
       if (chainKind === TempleChainKind.Tezos) {
         await addTezosNetwork({
           name,
           rpcBaseURL: url,
-          chainId: chainId as string,
+          chainId: String(chainId),
           chain: TempleChainKind.Tezos,
           id: rpcId,
           color: COLORS[Math.floor(Math.random() * COLORS.length)]
@@ -78,7 +85,7 @@ export const useChainOperations = (chainKind: TempleChainKind, chainId: string) 
         await addEvmNetwork({
           name,
           rpcBaseURL: url,
-          chainId: chainId as number,
+          chainId: Number(chainId),
           chain: TempleChainKind.EVM,
           id: rpcId,
           color: COLORS[Math.floor(Math.random() * COLORS.length)]
@@ -89,7 +96,7 @@ export const useChainOperations = (chainKind: TempleChainKind, chainId: string) 
         await setActiveRpcId(rpcId);
       }
     },
-    [addEvmNetwork, addTezosNetwork, chainKind, getRpcChainId, setActiveRpcId]
+    [addEvmNetwork, addTezosNetwork, assertRpcChainId, chainId, chainKind, setActiveRpcId]
   );
   const addExplorer = useCallback(
     async (values: CreateUrlEntityModalFormValues) => {
@@ -133,8 +140,20 @@ export const useChainOperations = (chainKind: TempleChainKind, chainId: string) 
   );
 
   const removeRpc = useCallback(
-    (id: string) => (chainKind === TempleChainKind.Tezos ? removeTezosNetwork(id) : removeEvmNetwork(id)),
-    [chainKind, removeEvmNetwork, removeTezosNetwork]
+    (id: string) => (chainKind === TempleChainKind.Tezos ? removeTezosNetworks([id]) : removeEvmNetworks([id])),
+    [chainKind, removeEvmNetworks, removeTezosNetworks]
+  );
+
+  const removeChain = useCallback(
+    () =>
+      Promise.all([
+        removeChainSpecs(),
+        removeAllBlockExplorers(),
+        (chainKind === TempleChainKind.Tezos ? removeTezosNetworks : removeEvmNetworks)(
+          chain.allRpcs.map(({ id }) => id)
+        )
+      ]),
+    [chain.allRpcs, chainKind, removeAllBlockExplorers, removeChainSpecs, removeEvmNetworks, removeTezosNetworks]
   );
 
   return {
@@ -146,6 +165,7 @@ export const useChainOperations = (chainKind: TempleChainKind, chainId: string) 
     updateRpc,
     updateExplorer,
     removeRpc,
-    removeBlockExplorer
+    removeBlockExplorer,
+    removeChain
   };
 };

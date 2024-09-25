@@ -2,16 +2,15 @@ import React, { memo, useCallback, useEffect, useMemo, useState } from 'react';
 
 import { EmptyState } from 'app/atoms/EmptyState';
 import { t } from 'lib/i18n';
-import {
-  AdditionalChainsPropsContextProvider,
-  useAdditionalChainsPropsContext
-} from 'lib/temple/front/additional-chains-props-context';
 import { filterNetworksByName } from 'lib/ui/filter-networks-by-name';
 import { useBooleanState } from 'lib/ui/hooks';
 import { SettingsTabProps } from 'lib/ui/settings-tab-props';
 import { useAllEvmChains, useAllTezosChains } from 'temple/front';
+import { useBlockExplorers } from 'temple/front/block-explorers';
+import { useEvmChainsSpecs, useTezosChainsSpecs } from 'temple/front/chains-specs';
 import { TempleChainKind, TempleChainTitle } from 'temple/types';
 
+import { AddNetworkModal } from './add-network-modal';
 import { ChainsGroupView } from './chains-group-view';
 import { FiltersBlock } from './filters-block';
 
@@ -20,13 +19,16 @@ interface ChainsFilters {
   isDefault?: boolean;
 }
 
-const NetworksSettingsBody = memo<SettingsTabProps>(({ setHeaderChildren }) => {
+export const NetworksSettings = memo<SettingsTabProps>(({ setHeaderChildren }) => {
   const tezosChainsRecord = useAllTezosChains();
   const evmChainsRecord = useAllEvmChains();
-  const { isDefaultNetwork, isMainnet } = useAdditionalChainsPropsContext();
+  const [tezChainsSpecs] = useTezosChainsSpecs();
+  const [evmChainsSpecs] = useEvmChainsSpecs();
+  const { allBlockExplorers } = useBlockExplorers();
+  console.log('oy vey 1', { tezosChainsRecord, evmChainsRecord, tezChainsSpecs, evmChainsSpecs, allBlockExplorers });
 
   const [isMainnetTab, openMainnetTab, openTestnetTab] = useBooleanState(true);
-  // const [isAddNetworkModalOpen, openAddNetworkModal, closeAddNetworkModal] = useBooleanState(false);
+  const [isAddNetworkModalOpen, openAddNetworkModal, closeAddNetworkModal] = useBooleanState(false);
   const [searchValue, setSearchValue] = useState('');
 
   const allChains = useMemo(
@@ -40,10 +42,10 @@ const NetworksSettingsBody = memo<SettingsTabProps>(({ setHeaderChildren }) => {
       matchingChains.filter(
         chain =>
           (!kind || chain.kind === kind) &&
-          (isDefault === undefined || isDefault === isDefaultNetwork(chain.kind, chain.chainId)) &&
-          isMainnetTab === isMainnet(chain.kind, chain.chainId)
+          (isDefault === undefined || isDefault === chain.default) &&
+          isMainnetTab === chain.mainnet
       ),
-    [isDefaultNetwork, isMainnet, isMainnetTab, matchingChains]
+    [isMainnetTab, matchingChains]
   );
 
   const chainsGroups = useMemo(() => {
@@ -75,8 +77,6 @@ const NetworksSettingsBody = memo<SettingsTabProps>(({ setHeaderChildren }) => {
     ].filter(({ chains }) => chains.length > 0);
   }, [isMainnetTab, pickChains]);
 
-  const handleAddNetworkClick = useCallback(() => console.log('add network'), []);
-
   const headerChildren = useMemo(
     () => (
       <FiltersBlock
@@ -85,10 +85,10 @@ const NetworksSettingsBody = memo<SettingsTabProps>(({ setHeaderChildren }) => {
         openMainnetTab={openMainnetTab}
         openTestnetTab={openTestnetTab}
         setSearchValue={setSearchValue}
-        onAddNetworkClick={handleAddNetworkClick}
+        onAddNetworkClick={openAddNetworkModal}
       />
     ),
-    [handleAddNetworkClick, isMainnetTab, openMainnetTab, openTestnetTab, searchValue]
+    [isMainnetTab, openAddNetworkModal, openMainnetTab, openTestnetTab, searchValue]
   );
   useEffect(() => setHeaderChildren(headerChildren), [headerChildren, setHeaderChildren]);
   useEffect(() => {
@@ -109,12 +109,7 @@ const NetworksSettingsBody = memo<SettingsTabProps>(({ setHeaderChildren }) => {
           ))}
         </div>
       )}
+      <AddNetworkModal isOpen={isAddNetworkModalOpen} onClose={closeAddNetworkModal} />
     </>
   );
 });
-
-export const NetworksSettings = memo<SettingsTabProps>(props => (
-  <AdditionalChainsPropsContextProvider>
-    <NetworksSettingsBody {...props} />
-  </AdditionalChainsPropsContextProvider>
-));

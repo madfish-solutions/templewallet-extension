@@ -14,6 +14,8 @@ export interface ChainBase {
   disabled?: boolean;
   allBlockExplorers: BlockExplorer[];
   activeBlockExplorer?: BlockExplorer;
+  mainnet: boolean;
+  default: boolean;
 }
 
 export interface TezosChain extends ChainBase {

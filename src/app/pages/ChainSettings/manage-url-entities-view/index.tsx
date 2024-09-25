@@ -23,6 +23,7 @@ interface ManageUrlEntitiesViewProps<T> {
   confirmDeleteTitleI18nKey: TID;
   confirmDeleteDescriptionI18nKey: TID;
   deleteLabelI18nKey: TID;
+  successfullyAddedMessageI18nKey: TID;
   createModalTitle: string;
   urlInputPlaceholder: string;
   getEntityUrl: SyncFn<T, string>;
@@ -47,6 +48,7 @@ export const ManageUrlEntitiesView = <T extends UrlEntityBase>({
   confirmDeleteTitleI18nKey,
   confirmDeleteDescriptionI18nKey,
   deleteLabelI18nKey,
+  successfullyAddedMessageI18nKey,
   createModalTitle,
   urlInputPlaceholder,
   getIsEditable,
@@ -80,7 +82,7 @@ export const ManageUrlEntitiesView = <T extends UrlEntityBase>({
     removeEntity(entityToEdit!.id);
   }, [closeEditModal, entityToEdit, removeEntity]);
 
-  const defaultItemId = items[0].id;
+  const defaultItemId = items[0]?.id;
   const handleActiveStateChange = useCallback(
     (newState: boolean) => {
       if (newState) {
@@ -156,6 +158,7 @@ export const ManageUrlEntitiesView = <T extends UrlEntityBase>({
       <CreateUrlEntityModal
         opened={createModalOpen}
         activeI18nKey={activeI18nKey}
+        successMessageI18nKey={successfullyAddedMessageI18nKey}
         title={createModalTitle}
         namesToExclude={namesToExclude}
         urlsToExclude={urlsToExclude}

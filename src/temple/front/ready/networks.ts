@@ -1,10 +1,10 @@
 import { useCallback, useMemo } from 'react';
 
-import * as ViemChains from 'viem/chains';
-
 import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
 import { EvmAssetStandard } from 'lib/evm/types';
 import { EvmNativeTokenMetadata } from 'lib/metadata/types';
+import { TempleTezosChainId } from 'lib/temple/types';
+import { getViemChainsList, getViemMainnetChainsIds } from 'temple/evm';
 import {
   DEFAULT_EVM_CURRENCY,
   EVM_DEFAULT_NETWORKS,
@@ -15,32 +15,48 @@ import {
 import { TempleChainKind } from 'temple/types';
 
 import { useBlockExplorers } from '../block-explorers';
-import type { EvmChain, TezosChain } from '../chains';
+import type { ChainBase, EvmChain, OneOfChains, TezosChain } from '../chains';
 import { EvmChainSpecs, TezosChainSpecs, useEvmChainsSpecs, useTezosChainsSpecs } from '../chains-specs';
 
-type Specs<T extends TezosChain | EvmChain> = T extends TezosChain ? TezosChainSpecs : EvmChainSpecs;
-type StoredNetwork<T extends TezosChain | EvmChain> = T extends TezosChain ? StoredTezosNetwork : StoredEvmNetwork;
-type ChainBaseProps<T extends TezosChain | EvmChain> = Pick<
-  T,
-  | 'chainId'
-  | 'rpcBaseURL'
-  | 'name'
-  | 'nameI18nKey'
-  | 'rpc'
-  | 'allRpcs'
-  | 'allBlockExplorers'
-  | 'activeBlockExplorer'
-  | 'disabled'
->;
+type Specs<T extends OneOfChains> = T extends TezosChain ? TezosChainSpecs : EvmChainSpecs;
+type StoredNetwork<T extends OneOfChains> = T extends TezosChain ? StoredTezosNetwork : StoredEvmNetwork;
+// This type works even worse if specified with omitting props of `T`
+type ChainBaseProps<T extends OneOfChains> = ChainBase & Pick<T, 'chainId' | 'rpc' | 'allRpcs'>;
 
-function useChains<T extends TezosChain | EvmChain>(
+function useMainnetChainsIds<T extends OneOfChains>(
+  chainKind: T['kind'],
+  chainsSpecs: OptionalRecord<Specs<T>>
+): Set<T['chainId']> {
+  return useMemo(() => {
+    if (chainKind === TempleChainKind.Tezos) {
+      return new Set([TempleTezosChainId.Mainnet, TempleTezosChainId.Dcp]);
+    }
+
+    const result = new Set<number>(getViemMainnetChainsIds());
+
+    for (const chainId in chainsSpecs) {
+      const isMainnet = chainsSpecs[chainId]?.mainnet;
+
+      if (isMainnet) {
+        result.add(Number(chainId));
+      } else if (isMainnet === false) {
+        result.delete(Number(chainId));
+      }
+    }
+
+    return result;
+  }, [chainKind, chainsSpecs]);
+}
+
+function useChains<T extends OneOfChains>(
   makeChain: (baseProps: ChainBaseProps<T>, specs?: Specs<T>) => T,
   chainsSpecs: OptionalRecord<Specs<T>>,
   networks: NonEmptyArray<StoredNetwork<T>>,
   defaultNetworks: NonEmptyArray<StoredNetwork<T>>,
-  chainKind: T extends TezosChain ? TempleChainKind.Tezos : TempleChainKind.EVM
+  chainKind: T['kind']
 ) {
   const { allBlockExplorers } = useBlockExplorers();
+  const mainnetChainsIds = useMainnetChainsIds(chainKind, chainsSpecs);
 
   const allChains = useMemo(() => {
     const rpcByChainId = new Map<T['chainId'], NonEmptyArray<StoredNetwork<T>>>();
@@ -60,7 +76,8 @@ function useChains<T extends TezosChain | EvmChain>(
       const { rpcBaseURL } = activeRpc;
 
       const defaultRpc = defaultNetworks.find(n => n.chainId === chainId);
-      const { name, nameI18nKey } = defaultRpc ?? activeRpc;
+      const { name: fallbackName, nameI18nKey } = defaultRpc ?? activeRpc;
+      const name = specs?.name ?? fallbackName;
       const chainBlockExplorers = allBlockExplorers[chainKind]?.[chainId] ?? [];
 
       const baseProps = {
@@ -73,14 +90,16 @@ function useChains<T extends TezosChain | EvmChain>(
         allRpcs: networks as T['allRpcs'],
         allBlockExplorers: chainBlockExplorers,
         activeBlockExplorer:
-          chainBlockExplorers.find(({ id }) => id === specs?.activeBlockExplorerId) ?? chainBlockExplorers[0]
+          chainBlockExplorers.find(({ id }) => id === specs?.activeBlockExplorerId) ?? chainBlockExplorers[0],
+        mainnet: mainnetChainsIds.has(chainId),
+        default: Boolean(defaultRpc)
       };
 
       chains[String(chainId)] = makeChain(baseProps, specs);
     }
 
     return chains;
-  }, [allBlockExplorers, chainKind, chainsSpecs, defaultNetworks, makeChain, networks]);
+  }, [allBlockExplorers, chainKind, chainsSpecs, defaultNetworks, mainnetChainsIds, makeChain, networks]);
 
   const enabledChains = useMemo(() => Object.values(allChains).filter(chain => !chain.disabled), [allChains]);
 
@@ -149,7 +168,7 @@ export function useReadyTempleEvmNetworks(customEvmNetworks: StoredEvmNetwork[])
 const getCurrency = (chainId: number, specsCurrency?: EvmNativeTokenMetadata): EvmNativeTokenMetadata => {
   if (specsCurrency) return specsCurrency;
 
-  const viemChain = Object.values(ViemChains).find(chain => chain.id === chainId);
+  const viemChain = getViemChainsList().find(chain => chain.id === chainId);
 
   if (viemChain) {
     return {

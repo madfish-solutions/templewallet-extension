@@ -2224,6 +2224,41 @@
   "deleteBlockExplorer": {
     "message": "Delete"
   },
+  "rpcAdded": {
+    "message": "RPC added"
+  },
+  "blockExplorerAdded": {
+    "message": "Block explorer added"
+  },
+  "invalidChainId": {
+    "message": "Invalid chain ID"
+  },
+  "chainId": {
+    "message": "Chain ID"
+  },
+  "chainIdTooltip": {
+    "message": "The chain ID is used for signing transactions. It must match the chain ID returned by the network."
+  },
+  "blockExplorerUrl": {
+    "message": "Block explorer URL"
+  },
+  "testnet": {
+    "message": "Testnet"
+  },
+  "removeNetwork": {
+    "message": "Remove Network"
+  },
+  "removeNetworkModalTitle": {
+    "message": "Remove $network$?",
+    "placeholders": {
+      "network": {
+        "content": "$1"
+      }
+    }
+  },
+  "removeNetworkModalDescription": {
+    "message": "You won’t be able to check the assets on this\nnetwork anymore."
+  },
   "editSomeRpc": {
     "message": "Edit $name$ RPC",
     "placeholders": {

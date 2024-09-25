@@ -1,17 +1,22 @@
-import React, { memo, useCallback, useMemo } from 'react';
+import React, { memo, useCallback, useEffect, useMemo, useState } from 'react';
 
 import { ToggleSwitch } from 'app/atoms';
+import {
+  ActionModal,
+  ActionModalBodyContainer,
+  ActionModalButton,
+  ActionModalButtonsContainer
+} from 'app/atoms/action-modal';
+import { ActionsButtonsBox } from 'app/atoms/PageModal/actions-buttons-box';
 import { SettingsCell } from 'app/atoms/SettingsCell';
 import { SettingsCellGroup } from 'app/atoms/SettingsCellGroup';
+import { StyledButton } from 'app/atoms/StyledButton';
 import PageLayout from 'app/layouts/PageLayout';
 import { T, t } from 'lib/i18n';
+import { useBooleanState } from 'lib/ui/hooks';
+import { HistoryAction, navigate } from 'lib/woozie';
 import {
-  AdditionalChainsPropsContextProvider,
-  useAdditionalChainsPropsContext
-} from 'lib/temple/front/additional-chains-props-context';
-import {
-  EvmChain,
-  TezosChain,
+  OneOfChains,
   useAllEvmChains,
   useAllTezosChains,
   useEnabledEvmChains,
@@ -30,17 +35,18 @@ interface ChainSettingsProps {
   chainId: string;
 }
 
+interface ChainExistentSettingsProps {
+  chain: OneOfChains;
+  bottomEdgeIsVisible: boolean;
+}
+
 const rpcUrlFn = (item: { rpcBaseURL: string }) => item.rpcBaseURL;
 const explorerUrlFn = (item: { url: string }) => item.url;
 
-const ChainSettingsBody = memo<ChainSettingsProps>(props => {
-  const { chainId, chainKind } = props;
-  const { isMainnet } = useAdditionalChainsPropsContext();
+const ChainExistentSettings = memo<ChainExistentSettingsProps>(({ chain, bottomEdgeIsVisible }) => {
+  const [removeChainModalIsOpen, openRemoveChainModal, closeRemoveChainModal] = useBooleanState(false);
   const enabledEvmChains = useEnabledEvmChains();
-  const evmChains = useAllEvmChains();
   const enabledTezChains = useEnabledTezosChains();
-  const tezChains = useAllTezosChains();
-  const chain: EvmChain | TezosChain = evmChains[chainId] ?? tezChains[chainId];
   const {
     setChainEnabled,
     setActiveRpcId,
@@ -50,8 +56,10 @@ const ChainSettingsBody = memo<ChainSettingsProps>(props => {
     updateRpc,
     updateExplorer,
     removeRpc,
-    removeBlockExplorer
-  } = useChainOperations(chainKind, chainId);
+    removeBlockExplorer,
+    removeChain
+  } = useChainOperations(chain.kind, String(chain.chainId));
+  const { kind: chainKind, chainId } = chain;
 
   const isRpcEditable = useCallback(
     (rpc: StoredEvmNetwork | StoredTezosNetwork) => {
@@ -64,7 +72,7 @@ const ChainSettingsBody = memo<ChainSettingsProps>(props => {
   );
   const isExplorerEditable = useCallback(
     (explorer: BlockExplorer) => {
-      const sameChainDefaultExplorers = DEFAULT_BLOCK_EXPLORERS[chainKind][chainId];
+      const sameChainDefaultExplorers = DEFAULT_BLOCK_EXPLORERS[chainKind]?.[chainId] ?? [];
 
       return !sameChainDefaultExplorers.some(e => e.id === explorer.id);
     },
@@ -79,22 +87,24 @@ const ChainSettingsBody = memo<ChainSettingsProps>(props => {
     [chain.allBlockExplorers.length, isExplorerEditable]
   );
 
-  const enabledMainnetChains = useMemo(
-    () => [...enabledEvmChains, ...enabledTezChains].filter(chain => isMainnet(chain.kind, chain.chainId)),
-    [enabledEvmChains, enabledTezChains, isMainnet]
+  const allEnabledChains = useMemo(
+    () => (enabledEvmChains as OneOfChains[]).concat(enabledTezChains),
+    [enabledEvmChains, enabledTezChains]
   );
-  const enabledTestnetChains = useMemo(
-    () => [...enabledEvmChains, ...enabledTezChains].filter(chain => !isMainnet(chain.kind, chain.chainId)),
-    [enabledEvmChains, enabledTezChains, isMainnet]
-  );
+  const enabledMainnetChains = useMemo(() => allEnabledChains.filter(chain => chain.mainnet), [allEnabledChains]);
+  const enabledTestnetChains = useMemo(() => allEnabledChains.filter(chain => !chain.mainnet), [allEnabledChains]);
+  const shouldPreventDisablingChain = (chain.mainnet ? enabledMainnetChains : enabledTestnetChains).length === 1;
 
-  const shouldPreventDisablingChain = isMainnet(chainKind, chainId)
-    ? enabledMainnetChains.length === 1
-    : enabledTestnetChains.length === 1;
+  const handleConfirmRemoveClick = useCallback(() => {
+    closeRemoveChainModal();
+    removeChain()
+      .then(() => navigate('/settings/networks', HistoryAction.Replace))
+      .catch(console.error);
+  }, [closeRemoveChainModal, removeChain]);
 
   return (
-    <PageLayout pageTitle={chain.nameI18nKey ? <T id={chain.nameI18nKey} /> : chain.name}>
-      <div className="flex flex-col gap-4">
+    <>
+      <div className="w-full h-full flex flex-col p-4 gap-4">
         <SettingsCellGroup>
           <SettingsCell cellName={<T id="networkEnabled" />} Component="div">
             <ToggleSwitch
@@ -102,7 +112,6 @@ const ChainSettingsBody = memo<ChainSettingsProps>(props => {
               disabled={!chain.disabled && shouldPreventDisablingChain}
               onChange={setChainEnabled}
               testID={ChainSettingsSelectors.networkEnabledSwitch}
-              testIDProperties={props}
             />
           </SettingsCell>
         </SettingsCellGroup>
@@ -117,6 +126,7 @@ const ChainSettingsBody = memo<ChainSettingsProps>(props => {
           confirmDeleteTitleI18nKey="confirmDeleteRpcTitle"
           confirmDeleteDescriptionI18nKey="confirmDeleteRpcDescription"
           deleteLabelI18nKey="deleteRpc"
+          successfullyAddedMessageI18nKey="rpcAdded"
           urlInputPlaceholder="https://rpc.link"
           getIsEditable={isRpcEditable}
           getIsRemovable={isRpcRemovable}
@@ -141,6 +151,7 @@ const ChainSettingsBody = memo<ChainSettingsProps>(props => {
           confirmDeleteTitleI18nKey="confirmDeleteBlockExplorerTitle"
           deleteLabelI18nKey="deleteBlockExplorer"
           confirmDeleteDescriptionI18nKey="confirmDeleteBlockExplorerDescription"
+          successfullyAddedMessageI18nKey="blockExplorerAdded"
           urlInputPlaceholder="https://explorer.link"
           getIsEditable={isExplorerEditable}
           getIsRemovable={isExplorerRemovable}
@@ -155,12 +166,70 @@ const ChainSettingsBody = memo<ChainSettingsProps>(props => {
           activeCheckboxTestID={ChainSettingsSelectors.activeExplorerCheckbox}
         />
       </div>
-    </PageLayout>
+      {!chain.default && (
+        <ActionsButtonsBox className="sticky left-0 bottom-0" shouldCastShadow={!bottomEdgeIsVisible}>
+          <StyledButton
+            size="L"
+            color="red-low"
+            onClick={openRemoveChainModal}
+            testID={ChainSettingsSelectors.removeNetworkButton}
+          >
+            <T id="removeNetwork" />
+          </StyledButton>
+        </ActionsButtonsBox>
+      )}
+      {removeChainModalIsOpen && (
+        <ActionModal title={t('removeNetworkModalTitle', chain.name)} hasCloseButton={false}>
+          <ActionModalBodyContainer>
+            <p className="text-center text-grey-1 text-font-description">
+              <T id="removeNetworkModalDescription" />
+            </p>
+          </ActionModalBodyContainer>
+          <ActionModalButtonsContainer>
+            <ActionModalButton
+              color="red-low"
+              onClick={closeRemoveChainModal}
+              testID={ChainSettingsSelectors.cancelRemoveNetworkButton}
+            >
+              <T id="cancel" />
+            </ActionModalButton>
+
+            <ActionModalButton
+              color="red"
+              onClick={handleConfirmRemoveClick}
+              testID={ChainSettingsSelectors.confirmRemoveNetworkButton}
+            >
+              <T id="remove" />
+            </ActionModalButton>
+          </ActionModalButtonsContainer>
+        </ActionModal>
+      )}
+    </>
   );
 });
 
-export const ChainSettings = memo<ChainSettingsProps>(props => (
-  <AdditionalChainsPropsContextProvider>
-    <ChainSettingsBody {...props} />
-  </AdditionalChainsPropsContextProvider>
-));
+export const ChainSettings = memo<ChainSettingsProps>(props => {
+  const [bottomEdgeIsVisible, setBottomEdgeIsVisible] = useState(true);
+  const { chainId, chainKind } = props;
+  const evmChains = useAllEvmChains();
+  const tezChains = useAllTezosChains();
+  const chain: OneOfChains | undefined = chainKind === TempleChainKind.Tezos ? tezChains[chainId] : evmChains[chainId];
+
+  const [pageTitle, setPageTitle] = useState(() => (chain?.nameI18nKey ? <T id={chain.nameI18nKey} /> : chain?.name));
+  useEffect(() => {
+    if (chain) {
+      setPageTitle(chain.nameI18nKey ? <T id={chain.nameI18nKey} /> : chain.name);
+    }
+  }, [chain]);
+
+  return (
+    <PageLayout
+      contentPadding={false}
+      pageTitle={pageTitle}
+      onBottomEdgeVisibilityChange={setBottomEdgeIsVisible}
+      bottomEdgeThreshold={16}
+    >
+      {chain ? <ChainExistentSettings chain={chain} bottomEdgeIsVisible={bottomEdgeIsVisible} /> : null}
+    </PageLayout>
+  );
+});

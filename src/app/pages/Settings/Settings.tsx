@@ -21,6 +21,7 @@ import { AccountsManagement } from 'app/templates/AccountsManagement';
 import AddressBook from 'app/templates/AddressBook/AddressBook';
 import { AdvancedFeatures } from 'app/templates/AdvancedFeatures';
 import DAppSettings from 'app/templates/DAppSettings/DAppSettings';
+import { NetworksSettings } from 'app/templates/NetworksSettings';
 import GeneralSettings from 'app/templates/SettingsGeneral';
 import SyncSettings from 'app/templates/Synchronization/SyncSettings';
 import { TID, T } from 'lib/i18n';
@@ -29,7 +30,6 @@ import { SettingsTabProps } from 'lib/ui/settings-tab-props';
 import { Link } from 'lib/woozie';
 import { useAccount } from 'temple/front';
 
-import { NetworksSettings } from './Networks';
 import { ResetExtensionModal } from './reset-extension-modal';
 import { SettingsSelectors } from './Settings.selectors';
 

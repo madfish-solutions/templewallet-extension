@@ -6,16 +6,17 @@ import { useStorage } from 'lib/temple/front/storage';
 import { EMPTY_FROZEN_OBJ } from 'lib/utils';
 import { TempleChainKind } from 'temple/types';
 
-export interface TezosChainSpecs {
+interface ChainSpecsBase {
   activeRpcId?: string;
   activeBlockExplorerId?: string;
   disabled?: boolean;
+  name?: string;
+  mainnet?: boolean;
 }
 
-export interface EvmChainSpecs {
-  activeRpcId?: string;
-  activeBlockExplorerId?: string;
-  disabled?: boolean;
+export interface TezosChainSpecs extends ChainSpecsBase {}
+
+export interface EvmChainSpecs extends ChainSpecsBase {
   currency?: EvmNativeTokenMetadata;
 }
 
@@ -53,6 +54,14 @@ export const useChainSpecs = (chainKind: TempleChainKind, chainId: string | numb
     },
     [chainId, chainKind, setEvmChainsSpecs, setTezosChainsSpecs]
   );
+  const removeChainSpecs = useCallback(() => {
+    switch (chainKind) {
+      case TempleChainKind.EVM:
+        return setEvmChainsSpecs(({ [chainId]: specsToRemove, ...rest }) => rest);
+      case TempleChainKind.Tezos:
+        return setTezosChainsSpecs(({ [chainId]: specsToRemove, ...rest }) => rest);
+    }
+  }, [chainId, chainKind, setEvmChainsSpecs, setTezosChainsSpecs]);
 
-  return [chainSpecs, setChainSpecs] as const;
+  return [chainSpecs, setChainSpecs, removeChainSpecs] as const;
 };

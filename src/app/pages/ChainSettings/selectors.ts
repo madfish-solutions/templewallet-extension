@@ -15,5 +15,7 @@ export enum ChainSettingsSelectors {
   confirmDeleteButton = 'Chain Settings/Confirm Delete Button',
   cancelDeleteButton = 'Chain Settings/Cancel Delete Button',
   pasteUrlButton = 'Chain Settings/Paste URL Button',
-  clearUrlButton = 'Chain Settings/Clear URL Button'
+  removeNetworkButton = 'Chain Settings/Remove Network Button',
+  cancelRemoveNetworkButton = 'Chain Settings/Cancel Remove Network Button',
+  confirmRemoveNetworkButton = 'Chain Settings/Confirm Remove Network Button'
 }

@@ -79,9 +79,11 @@ export function useBlockExplorers() {
     [getChainBlockExplorers, setChainBlockExplorers]
   );
 
-  const removeBlockExplorer = useCallback(
-    (chainKind: TempleChainKind, chainId: string | number, explorerId: string) => {
-      const newChainBlockExplorers = getChainBlockExplorers(chainKind, chainId).filter(({ id }) => id !== explorerId);
+  const removeBlockExplorers = useCallback(
+    (chainKind: TempleChainKind, chainId: string | number, explorersIds: string[]) => {
+      const newChainBlockExplorers = getChainBlockExplorers(chainKind, chainId).filter(
+        ({ id }) => !explorersIds.includes(id)
+      );
 
       return setChainBlockExplorers(chainKind, chainId, newChainBlockExplorers);
     },
@@ -92,7 +94,7 @@ export function useBlockExplorers() {
     allBlockExplorers,
     addBlockExplorer,
     replaceBlockExplorer,
-    removeBlockExplorer
+    removeBlockExplorers
   };
 }
 
@@ -100,7 +102,7 @@ export function useChainBlockExplorers(chainKind: TempleChainKind, chainId: stri
   const {
     allBlockExplorers,
     addBlockExplorer: genericAddBlockExplorer,
-    removeBlockExplorer: genericRemoveBlockExplorer,
+    removeBlockExplorers: genericRemoveBlockExplorers,
     replaceBlockExplorer: genericReplaceBlockExplorer
   } = useBlockExplorers();
   const [{ activeBlockExplorerId }] = useChainSpecs(chainKind, chainId);
@@ -121,9 +123,22 @@ export function useChainBlockExplorers(chainKind: TempleChainKind, chainId: stri
   );
 
   const removeBlockExplorer = useCallback(
-    (explorerId: string) => genericRemoveBlockExplorer(chainKind, chainId, explorerId),
-    [chainId, chainKind, genericRemoveBlockExplorer]
+    (explorerId: string) => genericRemoveBlockExplorers(chainKind, chainId, [explorerId]),
+    [chainId, chainKind, genericRemoveBlockExplorers]
   );
+
+  const removeAllBlockExplorers = useCallback(() => {
+    console.log(
+      'fuflo1',
+      chainBlockExplorers.map(({ id }) => id)
+    );
+
+    return genericRemoveBlockExplorers(
+      chainKind,
+      chainId,
+      chainBlockExplorers.map(({ id }) => id)
+    );
+  }, [chainBlockExplorers, chainId, chainKind, genericRemoveBlockExplorers]);
 
   const activeBlockExplorer = useMemo<BlockExplorer | undefined>(
     () => chainBlockExplorers.find(({ id }) => id === activeBlockExplorerId) ?? chainBlockExplorers[0],
@@ -135,6 +150,7 @@ export function useChainBlockExplorers(chainKind: TempleChainKind, chainId: stri
     activeBlockExplorer,
     addBlockExplorer,
     removeBlockExplorer,
+    removeAllBlockExplorers,
     replaceBlockExplorer
   };
 }

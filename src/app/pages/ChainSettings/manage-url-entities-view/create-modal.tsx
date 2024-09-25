@@ -8,7 +8,7 @@ import { ActionsButtonsBox } from 'app/atoms/PageModal/actions-buttons-box';
 import { ScrollView } from 'app/atoms/PageModal/scroll-view';
 import { SettingsCheckbox } from 'app/atoms/SettingsCheckbox';
 import { StyledButton } from 'app/atoms/StyledButton';
-import { toastError } from 'app/toaster';
+import { toastError, toastSuccess } from 'app/toaster';
 import { T, TID, t } from 'lib/i18n';
 import { shouldDisableSubmitButton } from 'lib/ui/should-disable-submit-button';
 
@@ -25,6 +25,7 @@ export interface CreateUrlEntityModalFormValues {
 interface CreateUrlEntityModalProps {
   opened: boolean;
   activeI18nKey: TID;
+  successMessageI18nKey: TID;
   title: string;
   urlInputPlaceholder: string;
   namesToExclude: string[];
@@ -38,6 +39,7 @@ export const CreateUrlEntityModal = memo(
   ({
     opened,
     activeI18nKey,
+    successMessageI18nKey,
     title,
     namesToExclude,
     urlsToExclude,
@@ -61,12 +63,13 @@ export const CreateUrlEntityModal = memo(
         try {
           await createEntity(values);
           onClose();
+          toastSuccess(t(successMessageI18nKey));
         } catch (error) {
           toastError(error instanceof Error ? error.message : String(error));
           setSubmitError(t('wrongAddress'));
         }
       },
-      [onClose, createEntity]
+      [createEntity, onClose, successMessageI18nKey]
     );
 
     return (
@@ -114,7 +117,7 @@ export const CreateUrlEntityModal = memo(
               size="L"
               color="primary"
               type="submit"
-              disabled={shouldDisableSubmitButton(errors, formState)}
+              disabled={shouldDisableSubmitButton(errors, formState, [], submitError)}
               testID={ChainSettingsSelectors.saveButton}
             >
               <T id="save" />
