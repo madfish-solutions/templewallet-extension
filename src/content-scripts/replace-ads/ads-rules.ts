@@ -4,15 +4,15 @@ import { importExtensionAdsModule } from 'lib/ads/import-extension-ads-module';
 import { ALL_ADS_RULES_STORAGE_KEY, ADS_RULES_UPDATE_INTERVAL } from 'lib/constants';
 import { fetchFromStorage } from 'lib/storage';
 
-export const getRulesFromContentScript = memoizee(
-  async (location: Location) => {
+export const getRulesFromStorage = memoizee(
+  async (locationOrHref: Location | string) => {
     try {
       const { transformRawRules } = await importExtensionAdsModule();
       const rulesStored = await fetchFromStorage(ALL_ADS_RULES_STORAGE_KEY);
 
       if (!rulesStored) throw new Error('No rules for ads found');
 
-      return transformRawRules(location, rulesStored);
+      return transformRawRules(locationOrHref, rulesStored);
     } catch (error) {
       console.error(error);
 
@@ -22,11 +22,16 @@ export const getRulesFromContentScript = memoizee(
         providersSelectors: [],
         providersNegativeSelectors: [],
         elementsToHideOrRemoveRules: [],
+        blacklistedHypelabCampaignsSlugs: [],
         timestamp: 0
       };
     }
   },
-  { maxAge: ADS_RULES_UPDATE_INTERVAL, normalizer: ([location]) => location.href, promise: true }
+  {
+    maxAge: ADS_RULES_UPDATE_INTERVAL,
+    normalizer: ([locationOrHref]) => (typeof locationOrHref === 'string' ? locationOrHref : locationOrHref.href),
+    promise: true
+  }
 );
 
-export const clearRulesCache = () => getRulesFromContentScript.clear();
+export const clearRulesCache = () => getRulesFromStorage.clear();
