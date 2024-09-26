@@ -3,7 +3,7 @@ import React, { memo, useCallback, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 
 import { FormField } from 'app/atoms';
-import { PageModal } from 'app/atoms/PageModal';
+import { CLOSE_ANIMATION_TIMEOUT, PageModal } from 'app/atoms/PageModal';
 import { ActionsButtonsBox } from 'app/atoms/PageModal/actions-buttons-box';
 import { ScrollView } from 'app/atoms/PageModal/scroll-view';
 import { SettingsCheckbox } from 'app/atoms/SettingsCheckbox';
@@ -53,27 +53,33 @@ export const CreateUrlEntityModal = memo(
     const formContextValues = useForm<CreateUrlEntityModalFormValues>({
       mode: 'onChange'
     });
-    const { control, register, handleSubmit, formState, errors } = formContextValues;
-    const isSubmitted = formState.submitCount > 0;
+    const { control, register, handleSubmit, formState, errors, reset } = formContextValues;
+    const { isSubmitting, submitCount } = formState;
+    const isSubmitted = submitCount > 0;
 
     const resetSubmitError = useCallback(() => setSubmitError(null), []);
+    const closeModal = useCallback(() => {
+      reset({ name: '', url: '', isActive: false });
+      resetSubmitError();
+      onClose();
+    }, [onClose, reset, resetSubmitError]);
 
     const onSubmit = useCallback(
       async (values: CreateUrlEntityModalFormValues) => {
         try {
           await createEntity(values);
-          onClose();
-          toastSuccess(t(successMessageI18nKey));
+          closeModal();
+          setTimeout(() => toastSuccess(t(successMessageI18nKey)), CLOSE_ANIMATION_TIMEOUT * 2);
         } catch (error) {
           toastError(error instanceof Error ? error.message : String(error));
           setSubmitError(t('wrongAddress'));
         }
       },
-      [createEntity, onClose, successMessageI18nKey]
+      [closeModal, createEntity, successMessageI18nKey]
     );
 
     return (
-      <PageModal opened={opened} onRequestClose={onClose} title={title}>
+      <PageModal opened={opened} onRequestClose={closeModal} title={title}>
         <form onSubmit={handleSubmit(onSubmit)} className="flex-1 flex flex-col max-h-full">
           <ScrollView
             className="pt-4 pb-6"
@@ -112,12 +118,18 @@ export const CreateUrlEntityModal = memo(
               testID={activeCheckboxTestID}
             />
           </ScrollView>
-          <ActionsButtonsBox shouldCastShadow={!bottomEdgeIsVisible}>
+          <ActionsButtonsBox shouldCastShadow={!bottomEdgeIsVisible} shouldChangeBottomShift={false}>
             <StyledButton
               size="L"
               color="primary"
               type="submit"
-              disabled={shouldDisableSubmitButton(errors, formState, [], submitError)}
+              loading={isSubmitting}
+              disabled={shouldDisableSubmitButton({
+                errors,
+                formState,
+                otherErrors: [submitError],
+                disableWhileSubmitting: false
+              })}
               testID={ChainSettingsSelectors.saveButton}
             >
               <T id="save" />

@@ -194,11 +194,6 @@ export const DEFAULT_BLOCK_EXPLORERS: Record<TempleChainKind, Record<string, Blo
         url: 'https://ghostnet.tzkt.io',
         id: 'tzkt-ghostnet'
       }
-      /* {
-      name: 'TzStats',
-      url: 'https://ghost.tzstats.com',
-      id: 'tzstats-ghostnet'
-    } */
     ],
     [TempleTezosChainId.Paris]: [
       {

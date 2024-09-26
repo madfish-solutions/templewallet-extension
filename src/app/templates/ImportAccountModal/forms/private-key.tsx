@@ -145,7 +145,7 @@ export const PrivateKeyForm = memo<ImportAccountFormProps>(({ onSuccess }) => {
         <StyledButton
           size="L"
           type="submit"
-          disabled={shouldDisableSubmitButton(errors, formState, [], submitError)}
+          disabled={shouldDisableSubmitButton({ errors, formState, otherErrors: [submitError] })}
           testID={ImportAccountSelectors.privateKeyImportButton}
           color="primary"
         >

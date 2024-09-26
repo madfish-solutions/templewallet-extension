@@ -29,6 +29,15 @@ interface AddNetworkModalProps {
   onClose: EmptyFn;
 }
 
+const defaultValues = {
+  name: '',
+  rpcUrl: '',
+  chainId: '',
+  symbol: '',
+  explorerUrl: '',
+  isTestnet: false
+};
+
 export const AddNetworkModal = memo<AddNetworkModalProps>(({ isOpen, onClose }) => {
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [bottomEdgeIsVisible, setBottomEdgeIsVisible] = useState(false);
@@ -61,18 +70,12 @@ export const AddNetworkModal = memo<AddNetworkModalProps>(({ isOpen, onClose }) 
 
   const formContextValues = useForm<AddNetworkFormValues>({
     mode: 'onChange',
-    defaultValues: {
-      name: '',
-      rpcUrl: '',
-      chainId: '',
-      symbol: '',
-      explorerUrl: '',
-      isTestnet: false
-    }
+    defaultValues
   });
   const { control, reset, formState, errors, register, setValue, watch, handleSubmit } = formContextValues;
   const { chainId, rpcUrl, symbol } = watch();
-  const isSubmitted = formState.submitCount > 0;
+  const { isSubmitting, submitCount } = formState;
+  const isSubmitted = submitCount > 0;
 
   const { data: suggestedFormValues, isLoading: suggestedFormValuesLoading } = useRpcSuggestedFormValues(
     rpcUrl,
@@ -90,7 +93,13 @@ export const AddNetworkModal = memo<AddNetworkModalProps>(({ isOpen, onClose }) 
     [setValue, suggestedFormValues]
   );
 
-  const onSubmit = useAddNetwork(setSubmitError, lastSelectedChain, onClose);
+  const resetSubmitError = useCallback(() => setSubmitError(null), []);
+  const closeModal = useCallback(() => {
+    reset(defaultValues);
+    resetSubmitError();
+    onClose();
+  }, [onClose, reset, resetSubmitError]);
+  const onSubmit = useAddNetwork(setSubmitError, lastSelectedChain, closeModal);
 
   const handleChainSelect = useCallback(
     (chain: ViemChain) => {
@@ -100,7 +109,6 @@ export const AddNetworkModal = memo<AddNetworkModalProps>(({ isOpen, onClose }) 
     [reset]
   );
 
-  const resetSubmitError = useCallback(() => setSubmitError(null), []);
   const makeClearFieldFn = useCallback(
     (name: Exclude<keyof AddNetworkFormValues, 'isTestnet'>) => () => setValue(name, '', true),
     [setValue]
@@ -124,7 +132,7 @@ export const AddNetworkModal = memo<AddNetworkModalProps>(({ isOpen, onClose }) 
   );
 
   return (
-    <PageModal opened={isOpen} onRequestClose={onClose} title={t('addNetwork')}>
+    <PageModal opened={isOpen} onRequestClose={closeModal} title={t('addNetwork')}>
       <form className="flex-1 flex flex-col max-h-full" onSubmit={handleSubmit(onSubmit)}>
         <ScrollView
           className="py-4 gap-4"
@@ -226,9 +234,14 @@ export const AddNetworkModal = memo<AddNetworkModalProps>(({ isOpen, onClose }) 
             className="w-full"
             size="L"
             color="primary"
-            disabled={
-              shouldDisableSubmitButton(errors, formState, ['rpcUrl'], submitError) || suggestedFormValuesLoading
-            }
+            disabled={shouldDisableSubmitButton({
+              errors,
+              formState,
+              errorsBeforeSubmitFields: ['rpcUrl'],
+              otherErrors: [submitError],
+              disableWhileSubmitting: false
+            })}
+            loading={suggestedFormValuesLoading || isSubmitting}
             type="submit"
             testID={NetworkSettingsSelectors.saveButton}
           >

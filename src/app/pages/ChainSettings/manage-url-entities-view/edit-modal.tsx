@@ -167,12 +167,12 @@ export const EditUrlEntityModal = <T extends UrlEntityBase>({
               </div>
             )}
           </ScrollView>
-          <ActionsButtonsBox shouldCastShadow={!bottomEdgeIsVisible}>
+          <ActionsButtonsBox shouldCastShadow={!bottomEdgeIsVisible} shouldChangeBottomShift={false}>
             <StyledButton
               size="L"
               color="primary"
               type="submit"
-              disabled={shouldDisableSubmitButton(errors, formState, [], submitError)}
+              disabled={shouldDisableSubmitButton({ errors, formState, otherErrors: [submitError] })}
               testID={ChainSettingsSelectors.saveButton}
             >
               <T id="save" />

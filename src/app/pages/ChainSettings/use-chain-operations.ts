@@ -58,8 +58,13 @@ export const useChainOperations = (chainKind: TempleChainKind, chainId: string) 
 
   const assertRpcChainId = useCallback(
     async (url: string) => {
-      const actualChainId =
-        chainKind === TempleChainKind.Tezos ? await loadTezosChainId(url) : await loadEvmChainId(url);
+      let actualChainId: string | number;
+
+      try {
+        actualChainId = chainKind === TempleChainKind.Tezos ? await loadTezosChainId(url) : await loadEvmChainId(url);
+      } catch (e) {
+        throw new Error(t('rpcDoesNotRespond'));
+      }
 
       if (String(actualChainId) !== chainId) {
         throw new ArtificialError(t('rpcDoesNotMatchChain'));
@@ -75,25 +80,17 @@ export const useChainOperations = (chainKind: TempleChainKind, chainId: string) 
       await assertRpcChainId(url);
 
       const rpcId = nanoid();
+      const commonRpcProps = {
+        name,
+        rpcBaseURL: url,
+        id: rpcId,
+        color: COLORS[Math.floor(Math.random() * COLORS.length)]
+      };
 
       if (chainKind === TempleChainKind.Tezos) {
-        await addTezosNetwork({
-          name,
-          rpcBaseURL: url,
-          chainId: String(chainId),
-          chain: TempleChainKind.Tezos,
-          id: rpcId,
-          color: COLORS[Math.floor(Math.random() * COLORS.length)]
-        });
+        await addTezosNetwork({ ...commonRpcProps, chainId: String(chainId), chain: TempleChainKind.Tezos });
       } else {
-        await addEvmNetwork({
-          name,
-          rpcBaseURL: url,
-          chainId: Number(chainId),
-          chain: TempleChainKind.EVM,
-          id: rpcId,
-          color: COLORS[Math.floor(Math.random() * COLORS.length)]
-        });
+        await addEvmNetwork({ ...commonRpcProps, chainId: Number(chainId), chain: TempleChainKind.EVM });
       }
 
       if (isActive) {
@@ -131,7 +128,6 @@ export const useChainOperations = (chainKind: TempleChainKind, chainId: string) 
 
       const newRpcProps = { name, rpcBaseURL: url };
 
-      console.log('oy vey 1', wasActive, isActive, rpc.id, defaultRpcId);
       await Promise.all([
         rpc.chain === TempleChainKind.Tezos
           ? updateTezosNetwork(rpc.id, { ...rpc, ...newRpcProps })

@@ -2,16 +2,25 @@ import { ReactNode } from 'react';
 
 import { FormContextValues } from 'react-hook-form';
 
-export const shouldDisableSubmitButton = (
-  errors: FormContextValues['errors'],
-  formState: FormContextValues['formState'],
-  errorsBeforeSubmitFields: string[],
-  ...otherErrors: ReactNode[]
-) => {
+interface DisableSubmitButtonConfig {
+  errors: FormContextValues['errors'];
+  formState: FormContextValues['formState'];
+  errorsBeforeSubmitFields?: string[];
+  otherErrors?: ReactNode[];
+  disableWhileSubmitting?: boolean;
+}
+
+export const shouldDisableSubmitButton = ({
+  errors,
+  formState,
+  errorsBeforeSubmitFields = [],
+  otherErrors = [],
+  disableWhileSubmitting = true
+}: DisableSubmitButtonConfig) => {
   const { isSubmitting, submitCount } = formState;
   const fieldsNamesWithErrors = Object.keys(errors);
 
-  if (isSubmitting) {
+  if (isSubmitting && disableWhileSubmitting) {
     return true;
   }
 

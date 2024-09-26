@@ -1,4 +1,4 @@
-import { startCase } from 'lodash';
+import { capitalize } from 'lodash';
 
 import { ViemChain } from './types';
 
@@ -13,11 +13,10 @@ export const makeFormValues = ({ name, rpcUrls, id, nativeCurrency, blockExplore
   isTestnet: testnet === true
 });
 
-export const generateEntityNameFromUrl = (url: string) =>
-  startCase(
-    new URL(url).hostname
-      .split(/[^a-z]/i)
-      .filter(Boolean)
-      .slice(0, -1)
-      .join(' ')
-  );
+const getEntityNameTokens = (input: string) => input.split(/[^a-z0-9]/i).filter(Boolean);
+
+export const generateEntityNameFromUrl = (url: string) => {
+  const { hostname, pathname } = new URL(url);
+
+  return getEntityNameTokens(hostname).slice(0, -1).concat(getEntityNameTokens(pathname)).map(capitalize).join(' ');
+};

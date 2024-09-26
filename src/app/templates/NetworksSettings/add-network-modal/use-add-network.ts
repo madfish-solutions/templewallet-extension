@@ -41,7 +41,7 @@ export const useAddNetwork = (
         }
       } catch (e) {
         toastError(e instanceof ArtificialError ? e.message : t('rpcDoesNotRespond'));
-        setSubmitError(e instanceof Error ? e.message : String(e));
+        setSubmitError(e instanceof ArtificialError ? e.message : t('wrongAddress'));
 
         return;
       }
