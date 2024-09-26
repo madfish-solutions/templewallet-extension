@@ -87,7 +87,7 @@ export const BaseForm: FC<Props> = ({
   const [toFieldFocused, setToFieldFocused] = useState(false);
 
   const floatingAssetSymbol = useMemo(
-    () => (shouldUseFiat ? selectedFiatCurrency.name : assetSymbol.slice(0, 6)),
+    () => (shouldUseFiat ? selectedFiatCurrency.name : assetSymbol.slice(0, 4)),
     [assetSymbol, selectedFiatCurrency.name, shouldUseFiat]
   );
 

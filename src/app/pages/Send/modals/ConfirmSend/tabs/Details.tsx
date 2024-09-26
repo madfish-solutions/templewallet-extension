@@ -3,13 +3,14 @@ import React, { FC, useMemo } from 'react';
 import BigNumber from 'bignumber.js';
 import clsx from 'clsx';
 
-import { HashChip, IconBase, Spinner } from 'app/atoms';
+import { HashChip, IconBase } from 'app/atoms';
 import Money from 'app/atoms/Money';
 import { EvmNetworkLogo, TezosNetworkLogo } from 'app/atoms/NetworkLogo';
 import { ReactComponent as ChevronRightIcon } from 'app/icons/base/chevron_right.svg';
 import InFiat from 'app/templates/InFiat';
 import { parseChainAssetSlug } from 'lib/assets/utils';
 import { T } from 'lib/i18n';
+import { getAssetSymbol } from 'lib/metadata';
 import { OneOfChains, useEvmChainByChainId, useTezosChainByChainId } from 'temple/front/chains';
 import { TempleChainKind } from 'temple/types';
 
@@ -20,16 +21,9 @@ interface Props {
   recipientAddress: string;
   estimatedFee: string;
   goToFeeTab: EmptyFn;
-  estimatingFee?: boolean;
 }
 
-export const DetailsTab: FC<Props> = ({
-  chainAssetSlug,
-  recipientAddress,
-  estimatedFee,
-  estimatingFee = false,
-  goToFeeTab
-}) => {
+export const DetailsTab: FC<Props> = ({ chainAssetSlug, recipientAddress, estimatedFee, goToFeeTab }) => {
   const [chainKind, chainId, assetSlug] = useMemo(() => parseChainAssetSlug(chainAssetSlug), [chainAssetSlug]);
 
   const isEvm = chainKind === TempleChainKind.EVM;
@@ -61,7 +55,6 @@ export const DetailsTab: FC<Props> = ({
             chainId={chainId}
             assetSlug={assetSlug}
             isEvm={isEvm}
-            loading={estimatingFee}
             amount={estimatedFee}
             goToFeeTab={goToFeeTab}
           />
@@ -71,14 +64,7 @@ export const DetailsTab: FC<Props> = ({
         <div className="py-2 flex flex-row justify-between items-center">
           <p className="p-1 text-font-description text-grey-1">Storage Limit</p>
           <div className="flex flex-row items-center">
-            <FeesInfo
-              chainId={chainId}
-              assetSlug={assetSlug}
-              isEvm={isEvm}
-              loading={false}
-              amount={'0.001'}
-              goToFeeTab={goToFeeTab}
-            />
+            <FeesInfo chainId={chainId} assetSlug={assetSlug} isEvm={isEvm} amount={'0.001'} goToFeeTab={goToFeeTab} />
           </div>
         </div>
       )}
@@ -116,16 +102,12 @@ interface FeesInfoProps {
   isEvm: boolean;
   amount: string;
   goToFeeTab: EmptyFn;
-  loading?: boolean;
 }
 
-const FeesInfo: FC<FeesInfoProps> = ({ chainId, assetSlug, isEvm, loading, amount, goToFeeTab }) => {
-  if (loading)
-    return (
-      <div className="flex justify-center items-center w-25">
-        <Spinner theme="gray" className="w-8" />
-      </div>
-    );
+const FeesInfo: FC<FeesInfoProps> = ({ chainId, assetSlug, isEvm, amount, goToFeeTab }) => {
+  const network = useEvmChainByChainId(chainId as number)!;
+
+  const nativeAssetSymbol = useMemo(() => getAssetSymbol(network?.currency), [network]);
 
   return (
     <>
@@ -149,7 +131,7 @@ const FeesInfo: FC<FeesInfoProps> = ({ chainId, assetSlug, isEvm, loading, amoun
           <Money cryptoDecimals={6} smallFractionFont={false} tooltipPlacement="bottom">
             {amount}
           </Money>{' '}
-          {isEvm ? 'ETH' : 'TEZ'}
+          {nativeAssetSymbol}
         </span>
       </div>
       <IconBase Icon={ChevronRightIcon} className="text-primary cursor-pointer" onClick={goToFeeTab} />

@@ -3,7 +3,7 @@ import { EvmTxParams, SerializableEvmTxParams } from './types';
 export function toSerializableEvmTxParams(txParams: EvmTxParams): SerializableEvmTxParams {
   return {
     to: txParams.to,
-    amount: txParams.amount.toString(),
+    value: txParams.value.toString(),
     gas: txParams.gas.toString(),
     maxFeePerGas: txParams.maxFeePerGas.toString(),
     maxPriorityFeePerGas: txParams.maxPriorityFeePerGas.toString()
@@ -13,7 +13,7 @@ export function toSerializableEvmTxParams(txParams: EvmTxParams): SerializableEv
 export function fromSerializableEvmTxParams(txParams: SerializableEvmTxParams): EvmTxParams {
   return {
     to: txParams.to,
-    amount: BigInt(txParams.amount),
+    value: BigInt(txParams.value),
     gas: BigInt(txParams.gas),
     maxFeePerGas: BigInt(txParams.maxFeePerGas),
     maxPriorityFeePerGas: BigInt(txParams.maxPriorityFeePerGas)

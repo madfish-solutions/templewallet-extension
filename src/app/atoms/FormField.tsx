@@ -14,6 +14,7 @@ import clsx from 'clsx';
 import { noop } from 'lodash';
 
 import CleanButton from 'app/atoms/CleanButton';
+// eslint-disable-next-line import/no-cycle
 import OldStyleCopyButton from 'app/atoms/OldStyleCopyButton';
 import { ReactComponent as PasteFillIcon } from 'app/icons/base/paste_fill.svg';
 import { ReactComponent as CopyIcon } from 'app/icons/monochrome/copy.svg';
@@ -182,6 +183,8 @@ export const FormField = forwardRef<FormFieldElement, FormFieldProps>(
           [cleanable, copyable, hasRevealablePassword].filter(Boolean).length,
           extraLeftInnerWrapper === 'unset' ? false : Boolean(extraLeftInner),
           extraRightInnerWrapper === 'unset' ? false : Boolean(extraRightInner),
+          Boolean(extraFloatingInner),
+          Boolean(rightSideComponent),
           smallPaddings,
           textarea
         )
@@ -194,6 +197,7 @@ export const FormField = forwardRef<FormFieldElement, FormFieldProps>(
         extraRightInner,
         extraRightInnerWrapper,
         hasRevealablePassword,
+        rightSideComponent,
         smallPaddings,
         style,
         textarea
@@ -299,23 +303,26 @@ interface ExtraFloatingInnerProps {
   innerComponent?: React.ReactNode;
 }
 
+// input padding + textWidth + gap between text and innerComponent
+const getLeftIndent = (textWidth: number) => 12 + textWidth + 8;
+
 const ExtraFloatingInner: React.FC<ExtraFloatingInnerProps> = ({ inputValue, innerComponent }) => {
   const measureTextWidthRef = useRef<HTMLDivElement>(null);
   const [textWidth, setTextWidth] = useState(0);
 
+  const leftIndent = getLeftIndent(textWidth);
+
   useLayoutEffect(() => {
     if (measureTextWidthRef.current) {
       const width = measureTextWidthRef.current.clientWidth;
-      setTextWidth(width);
+
+      if (getLeftIndent(width) < 226) setTextWidth(width);
     }
   }, [inputValue]);
 
-  // input padding + textWidth + gap between text and innerComponent
-  const leftIndent = 12 + textWidth + 8;
-
   return (
     <>
-      <div ref={measureTextWidthRef} className="fixed bottom-0 right-0 text-font-regular invisible">
+      <div ref={measureTextWidthRef} className="fixed bottom-0 right-0 text-font-regular">
         {inputValue}
       </div>
       <div className="absolute text-font-regular text-grey-2" style={{ top: 13, left: leftIndent }}>
@@ -382,11 +389,16 @@ const buildHorizontalPaddingStyle = (
   buttonsCount: number,
   withExtraInnerLeft: boolean,
   withExtraInnerRight: boolean,
+  withExtraFloatingInner: boolean,
+  withRightSideComponent: boolean,
   smallPaddings: boolean,
   textarea = false
 ) => {
   return {
-    paddingRight: withExtraInnerRight ? 128 : (smallPaddings ? 8 : 12) + (textarea ? 0 : buttonsCount * 28),
+    paddingRight:
+      withExtraInnerRight || withRightSideComponent
+        ? 128 + (withExtraFloatingInner ? 10 : 0)
+        : (smallPaddings ? 8 : 12) + (textarea ? 0 : buttonsCount * 28),
     paddingLeft: withExtraInnerLeft ? (smallPaddings ? 32 : 40) : smallPaddings ? 8 : 12
   };
 };

@@ -50,10 +50,6 @@ const Send = memo<Props>(({ chainKind, chainId, assetSlug }) => {
   const [selectAssetModalOpened, setSelectAssetModalOpen, setSelectAssetModalClosed] = useBooleanState(false);
   const [confirmSendModalOpened, setConfirmSendModalOpen, setConfirmSendModalClosed] = useBooleanState(false);
 
-  // {
-  //   amount: '0.0001',
-  //     to: '0x2b49e966ef7033db6DC6a721AeA368ebC1d15EC1'
-  // }
   const [confirmData, setConfirmData] = useState<SendFormData | null>(null);
 
   const handleAssetSelect = useCallback(

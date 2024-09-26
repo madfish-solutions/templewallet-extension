@@ -36,6 +36,16 @@ export const ConfirmSendModal: FC<ConfirmSendModalProps> = ({ opened, onRequestC
   </PageModal>
 );
 
+interface ModifiableEstimationData {
+  maxFeePerGas: bigint;
+  maxPriorityFeePerGas: bigint;
+}
+
+export interface EstimationData extends ModifiableEstimationData {
+  estimationFee: bigint;
+  gas: bigint;
+}
+
 interface ContentProps extends Omit<ConfirmSendModalProps, 'opened'> {
   data: SendFormData;
 }
@@ -86,6 +96,8 @@ const Content: FC<ContentProps> = ({ chainAssetSlug, data, onRequestClose }) => 
     }
   );
 
+  const [modifiedEstimationData, setModifiedEstimationData] = useState<ModifiableEstimationData | null>(null);
+
   const [tab, setTab] = useState('details');
 
   const activeIndexRef = useRef<number | null>(null);
@@ -111,8 +123,9 @@ const Content: FC<ContentProps> = ({ chainAssetSlug, data, onRequestClose }) => 
 
       const txHash = await sendEvmTransaction(accountPkh, network, {
         to: to as HexString,
-        amount: parseEther(amount),
-        ...estimationData
+        value: parseEther(amount),
+        ...estimationData,
+        ...(modifiedEstimationData ? modifiedEstimationData : {})
       });
       toastSuccess('Transaction Submitted. Hash: ', true, txHash);
     } catch (err: any) {
@@ -122,7 +135,17 @@ const Content: FC<ContentProps> = ({ chainAssetSlug, data, onRequestClose }) => 
     } finally {
       setIsConfirming(false);
     }
-  }, [accountPkh, amount, estimationData, isConfirming, onRequestClose, sendEvmTransaction, to]);
+  }, [
+    accountPkh,
+    amount,
+    estimationData,
+    isConfirming,
+    modifiedEstimationData,
+    network,
+    onRequestClose,
+    sendEvmTransaction,
+    to
+  ]);
 
   return (
     <>
@@ -160,7 +183,14 @@ const Content: FC<ContentProps> = ({ chainAssetSlug, data, onRequestClose }) => 
           {(() => {
             switch (tab) {
               case 'fee':
-                return <FeeTab />;
+                return (
+                  <FeeTab
+                    chainAssetSlug={chainAssetSlug}
+                    estimationData={estimationData!}
+                    estimating={estimatingFee}
+                    onOptionSelect={setModifiedEstimationData}
+                  />
+                );
               case 'advanced':
                 return <AdvancedTab />;
               default:
@@ -168,7 +198,6 @@ const Content: FC<ContentProps> = ({ chainAssetSlug, data, onRequestClose }) => 
                   <DetailsTab
                     chainAssetSlug={chainAssetSlug}
                     recipientAddress={to}
-                    estimatingFee={estimatingFee}
                     estimatedFee={estimationData ? formatEther(estimationData.estimatedFee) : '0'}
                     goToFeeTab={goToFeeTab}
                   />

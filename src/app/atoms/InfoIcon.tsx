@@ -18,9 +18,9 @@ export const InfoIcon = memo<Props>(({ infoContent, iconSize = 12 }) => {
       hideOnClick: false,
       content: t(infoContent),
       animation: 'shift-away-subtle',
-      placement: 'top' as const
+      placement: 'top-start' as const
     }),
-    []
+    [infoContent]
   );
 
   const iconRef = useTippy<HTMLDivElement>(tippyProps);

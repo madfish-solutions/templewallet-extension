@@ -35,8 +35,7 @@ import { BaseForm } from './BaseForm';
 import { SendFormData } from './interfaces';
 import { estimateTezosMaxFee, getBaseFeeError, getFeeError, getMaxAmountFiat, getTezosMaxAmountToken } from './utils';
 
-const PENNY = 0.000001;
-const RECOMMEDED_ADD_FEE = 0.0001;
+const RECOMMENDED_ADD_FEE = 0.0001;
 
 interface Props {
   chainId: string;
@@ -173,15 +172,9 @@ export const TezosForm: FC<Props> = ({ chainId, assetSlug, onSelectAssetClick, o
       dedupingInterval: TEZOS_BLOCK_DURATION
     }
   );
+
   const feeError = getBaseFeeError(baseFee, estimateBaseFeeError);
   const estimationError = getFeeError(estimating, feeError);
-
-  const maxAddFee = useMemo(() => {
-    if (baseFee instanceof BigNumber) {
-      return tezBalance?.minus(baseFee).minus(PENNY).toNumber();
-    }
-    return undefined;
-  }, [tezBalance, baseFee]);
 
   const maxAmount = useMemo(() => {
     if (!(baseFee instanceof BigNumber)) {
@@ -189,11 +182,11 @@ export const TezosForm: FC<Props> = ({ chainId, assetSlug, onSelectAssetClick, o
     }
 
     const maxAmountAsset = isTezAsset(assetSlug)
-      ? getTezosMaxAmountToken(account.type, balance, baseFee, maxAddFee || RECOMMEDED_ADD_FEE)
+      ? getTezosMaxAmountToken(account.type, balance, baseFee, RECOMMENDED_ADD_FEE)
       : balance;
 
     return shouldUseFiat ? getMaxAmountFiat(assetPrice.toNumber(), maxAmountAsset) : maxAmountAsset;
-  }, [baseFee, assetSlug, account.type, balance, maxAddFee, shouldUseFiat, assetPrice]);
+  }, [baseFee, assetSlug, account.type, balance, shouldUseFiat, assetPrice]);
 
   const validateAmount = useCallback(
     (amount: string) => {
