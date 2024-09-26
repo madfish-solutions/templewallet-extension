@@ -224,7 +224,11 @@ export const FormField = forwardRef<FormFieldElement, FormFieldProps>(
         {extraSection}
 
         <div className={clsx('relative flex items-stretch', fieldWrapperBottomMargin && 'mb-1')}>
-          <ExtraFloatingInner inputValue={value} innerComponent={extraFloatingInner} />
+          <ExtraFloatingInner
+            inputValue={value}
+            innerComponent={extraFloatingInner}
+            onClick={() => spareRef.current?.focus()}
+          />
 
           <ExtraInner
             innerComponent={extraLeftInner}
@@ -301,12 +305,13 @@ export const FORM_FIELD_CLASS_NAME = clsx(
 interface ExtraFloatingInnerProps {
   inputValue?: string | number | readonly string[];
   innerComponent?: React.ReactNode;
+  onClick?: EmptyFn;
 }
 
 // input padding + textWidth + gap between text and innerComponent
 const getLeftIndent = (textWidth: number) => 12 + textWidth + 8;
 
-const ExtraFloatingInner: React.FC<ExtraFloatingInnerProps> = ({ inputValue, innerComponent }) => {
+const ExtraFloatingInner: React.FC<ExtraFloatingInnerProps> = ({ inputValue, innerComponent, onClick }) => {
   const measureTextWidthRef = useRef<HTMLDivElement>(null);
   const [textWidth, setTextWidth] = useState(0);
 
@@ -322,10 +327,10 @@ const ExtraFloatingInner: React.FC<ExtraFloatingInnerProps> = ({ inputValue, inn
 
   return (
     <>
-      <div ref={measureTextWidthRef} className="fixed bottom-0 right-0 text-font-regular">
+      <div ref={measureTextWidthRef} className="fixed bottom-0 right-0 text-font-regular invisible">
         {inputValue}
       </div>
-      <div className="absolute text-font-regular text-grey-2" style={{ top: 13, left: leftIndent }}>
+      <div onClick={onClick} className="absolute text-font-regular text-grey-2" style={{ top: 13, left: leftIndent }}>
         {inputValue ? innerComponent : null}
       </div>
     </>

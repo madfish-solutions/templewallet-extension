@@ -20,6 +20,7 @@ import { useEvmChainByChainId } from 'temple/front/chains';
 import { CurrentAccount } from './components/CurrentAccount';
 import { Header } from './components/Header';
 import { AdvancedTab } from './tabs/Advanced';
+import { OptionLabel } from './tabs/components/FeeOptions';
 import { DetailsTab } from './tabs/Details';
 import { FeeTab } from './tabs/Fee';
 
@@ -36,13 +37,13 @@ export const ConfirmSendModal: FC<ConfirmSendModalProps> = ({ opened, onRequestC
   </PageModal>
 );
 
-interface ModifiableEstimationData {
+export interface ModifiableEstimationData {
+  estimatedFee: bigint;
   maxFeePerGas: bigint;
   maxPriorityFeePerGas: bigint;
 }
 
 export interface EstimationData extends ModifiableEstimationData {
-  estimationFee: bigint;
   gas: bigint;
 }
 
@@ -86,7 +87,7 @@ const Content: FC<ContentProps> = ({ chainAssetSlug, data, onRequestClose }) => 
     }
   }, [accountPkh, assetSlug, amount, to, network.rpcBaseURL]);
 
-  const { data: estimationData, isValidating: estimatingFee } = useTypedSWR(
+  const { data: estimationData } = useTypedSWR(
     ['evm-transaction-fee', chainId, assetSlug, accountPkh, to],
     estimateFee,
     {
@@ -96,6 +97,7 @@ const Content: FC<ContentProps> = ({ chainAssetSlug, data, onRequestClose }) => 
     }
   );
 
+  const [selectedFeeOption, setSelectedFeeOption] = useState<OptionLabel>('mid');
   const [modifiedEstimationData, setModifiedEstimationData] = useState<ModifiableEstimationData | null>(null);
 
   const [tab, setTab] = useState('details');
@@ -105,6 +107,11 @@ const Content: FC<ContentProps> = ({ chainAssetSlug, data, onRequestClose }) => 
   const goToFeeTab = useCallback(() => {
     activeIndexRef.current = 1;
     setTab('fee');
+  }, []);
+
+  const handleFeeOptionSelect = useCallback((label: OptionLabel, option: ModifiableEstimationData) => {
+    setSelectedFeeOption(label);
+    setModifiedEstimationData(option);
   }, []);
 
   const handleConfirm = useCallback(async () => {
@@ -180,30 +187,34 @@ const Content: FC<ContentProps> = ({ chainAssetSlug, data, onRequestClose }) => 
         />
 
         <div className="flex-1 flex flex-col">
-          {(() => {
-            switch (tab) {
-              case 'fee':
-                return (
-                  <FeeTab
-                    chainAssetSlug={chainAssetSlug}
-                    estimationData={estimationData!}
-                    estimating={estimatingFee}
-                    onOptionSelect={setModifiedEstimationData}
-                  />
-                );
-              case 'advanced':
-                return <AdvancedTab />;
-              default:
-                return (
-                  <DetailsTab
-                    chainAssetSlug={chainAssetSlug}
-                    recipientAddress={to}
-                    estimatedFee={estimationData ? formatEther(estimationData.estimatedFee) : '0'}
-                    goToFeeTab={goToFeeTab}
-                  />
-                );
-            }
-          })()}
+          {estimationData
+            ? (() => {
+                switch (tab) {
+                  case 'fee':
+                    return (
+                      <FeeTab
+                        chainAssetSlug={chainAssetSlug}
+                        estimationData={estimationData}
+                        selectedOption={selectedFeeOption}
+                        onOptionSelect={handleFeeOptionSelect}
+                      />
+                    );
+                  case 'advanced':
+                    return <AdvancedTab />;
+                  default:
+                    return (
+                      <DetailsTab
+                        chainAssetSlug={chainAssetSlug}
+                        recipientAddress={to}
+                        estimatedFee={formatEther(
+                          modifiedEstimationData ? modifiedEstimationData.estimatedFee : estimationData?.estimatedFee
+                        )}
+                        goToFeeTab={goToFeeTab}
+                      />
+                    );
+                }
+              })()
+            : null}
         </div>
       </div>
       <ActionsButtonsBox flexDirection="row" className="gap-x-2.5">

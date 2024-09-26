@@ -1,35 +1,38 @@
-import React, { FC, useCallback, useMemo, useState } from 'react';
+import React, { FC, useCallback, useMemo } from 'react';
 
-import { formatEther } from 'viem';
+import { formatEther, parseEther } from 'viem';
 
 import { FormField } from 'app/atoms';
 import { T } from 'lib/i18n';
 import { getGasPriceStep } from 'temple/evm/utils';
 
-import type { EstimationData } from '../index';
+import type { EstimationData, ModifiableEstimationData } from '../index';
 
 import { FeeOptions, OptionLabel } from './components/FeeOptions';
 
 interface Props {
   chainAssetSlug: string;
   estimationData: EstimationData;
-  onOptionSelect: (option: { maxFeePerGas: bigint; maxPriorityFeePerGas: bigint }) => void;
+  selectedOption: OptionLabel;
+  onOptionSelect: (label: OptionLabel, option: ModifiableEstimationData) => void;
 }
 
-export const FeeTab: FC<Props> = ({ chainAssetSlug, estimationData, onOptionSelect }) => {
-  const [selectedOption, setSelectedOption] = useState<OptionLabel>('mid');
-
-  const { maxFeePerGas: averageGasPrice, gas, maxPriorityFeePerGas } = estimationData;
+export const FeeTab: FC<Props> = ({ chainAssetSlug, estimationData, selectedOption, onOptionSelect }) => {
+  const { maxFeePerGas, gas, maxPriorityFeePerGas } = estimationData;
 
   const gasPriceOptions = useMemo(() => {
-    const step = getGasPriceStep(averageGasPrice);
+    const maxFeeStep = getGasPriceStep(maxFeePerGas);
+    const maxPriorityFeeStep = getGasPriceStep(maxPriorityFeePerGas);
 
     return {
-      slow: { maxFeePerGas: averageGasPrice - step, maxPriorityFeePerGas: maxPriorityFeePerGas - step },
-      mid: { maxFeePerGas: averageGasPrice, maxPriorityFeePerGas },
-      fast: { maxFeePerGas: averageGasPrice + step, maxPriorityFeePerGas: maxPriorityFeePerGas + step }
+      slow: {
+        maxFeePerGas: maxFeePerGas - maxFeeStep,
+        maxPriorityFeePerGas: maxPriorityFeePerGas - maxPriorityFeeStep
+      },
+      mid: { maxFeePerGas: maxFeePerGas, maxPriorityFeePerGas },
+      fast: { maxFeePerGas: maxFeePerGas + maxFeeStep, maxPriorityFeePerGas: maxPriorityFeePerGas + maxPriorityFeeStep }
     };
-  }, [averageGasPrice, maxPriorityFeePerGas]);
+  }, [maxFeePerGas, maxPriorityFeePerGas]);
 
   const estimatedFeeOptions = useMemo(
     () => ({
@@ -41,11 +44,12 @@ export const FeeTab: FC<Props> = ({ chainAssetSlug, estimationData, onOptionSele
   );
 
   const handleOptionClick = useCallback(
-    (option: OptionLabel) => {
-      setSelectedOption(option);
-      onOptionSelect(gasPriceOptions[option]);
-    },
-    [gasPriceOptions, onOptionSelect]
+    (option: OptionLabel) =>
+      void onOptionSelect(option, {
+        estimatedFee: parseEther(estimatedFeeOptions[option]),
+        ...gasPriceOptions[option]
+      }),
+    [estimatedFeeOptions, gasPriceOptions, onOptionSelect]
   );
 
   return (

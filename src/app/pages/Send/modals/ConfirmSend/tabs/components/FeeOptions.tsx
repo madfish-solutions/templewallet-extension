@@ -9,6 +9,8 @@ import MiddleIconSrc from 'app/icons/fee-options/middle.svg?url';
 import SlowIconSrc from 'app/icons/fee-options/slow.svg?url';
 import InFiat from 'app/templates/InFiat';
 import { parseChainAssetSlug } from 'lib/assets/utils';
+import { getAssetSymbol } from 'lib/metadata';
+import { useEvmChainByChainId } from 'temple/front/chains';
 import { TempleChainKind } from 'temple/types';
 
 export type OptionLabel = 'slow' | 'mid' | 'fast';
@@ -71,6 +73,10 @@ interface OptionProps {
 }
 
 const Option: FC<OptionProps> = ({ isEvm, chainId, assetSlug, active, option, amount, onClick }) => {
+  const network = useEvmChainByChainId(chainId as number)!;
+
+  const nativeAssetSymbol = useMemo(() => getAssetSymbol(network?.currency), [network]);
+
   return (
     <div
       className={clsx(
@@ -103,10 +109,14 @@ const Option: FC<OptionProps> = ({ isEvm, chainId, assetSlug, active, option, am
           )}
         </InFiat>
         <span className="text-font-description text-grey-2">
-          <Money cryptoDecimals={6} smallFractionFont={false} tooltipPlacement="bottom">
+          <Money
+            cryptoDecimals={nativeAssetSymbol.length > 4 ? 5 : 6}
+            smallFractionFont={false}
+            tooltipPlacement="bottom"
+          >
             {amount}
           </Money>{' '}
-          {isEvm ? 'ETH' : 'TEZ'}
+          {nativeAssetSymbol}
         </span>
       </div>
     </div>
