@@ -1,5 +1,6 @@
 import React, { FC, memo, useCallback, useEffect, useMemo, useState } from 'react';
 
+import { pick } from 'lodash';
 import { useDebounce } from 'use-debounce';
 
 import { IconBase } from 'app/atoms';
@@ -33,8 +34,6 @@ import { TempleChainKind } from 'temple/types';
 
 const ALL_NETWORKS = 'All Networks';
 
-type Network = OneOfChains | string;
-
 interface Props {
   opened: boolean;
   selectedNetwork: FilterChain;
@@ -42,6 +41,32 @@ interface Props {
 }
 
 export const NetworkSelectModal = memo<Props>(({ opened, selectedNetwork, onRequestClose }) => {
+  const handleNetworkSelect = useCallback(
+    (network: OneOfChains | null) => {
+      dispatch(setAssetsFilterChain(network));
+      onRequestClose();
+    },
+    [onRequestClose]
+  );
+
+  return (
+    <PageModal title="Select Network" opened={opened} contentPadding onRequestClose={onRequestClose}>
+      <NetworkSelectModalContent
+        opened={opened}
+        selectedNetwork={selectedNetwork}
+        handleNetworkSelect={handleNetworkSelect}
+      />
+    </PageModal>
+  );
+});
+
+interface ContentProps {
+  opened: boolean;
+  selectedNetwork: FilterChain;
+  handleNetworkSelect: (chain: OneOfChains | null) => void;
+}
+
+export const NetworkSelectModalContent = memo<ContentProps>(({ opened, selectedNetwork, handleNetworkSelect }) => {
   const accountTezAddress = useAccountAddressForTezos();
   const accountEvmAddress = useAccountAddressForEvm();
 
@@ -71,23 +96,22 @@ export const NetworkSelectModal = memo<Props>(({ opened, selectedNetwork, onRequ
     else if (!opened) setAttractSelectedNetwork(true);
   }, [opened, searchValueDebounced]);
 
-  const handleNetworkSelect = useCallback(
-    (network: Network) => {
-      dispatch(setAssetsFilterChain(typeof network === 'string' ? null : network));
-      onRequestClose();
+  const onNetworkSelect = useCallback(
+    (network: OneOfChains | string) => {
+      handleNetworkSelect(typeof network === 'string' ? null : network);
     },
-    [onRequestClose]
+    [handleNetworkSelect]
   );
 
   return (
-    <PageModal title="Select Network" opened={opened} onRequestClose={onRequestClose}>
-      <div className="flex gap-x-2 p-4">
+    <>
+      <div className="flex gap-x-2">
         <SearchBarField value={searchValue} onValueChange={setSearchValue} />
 
         <IconButton Icon={PlusIcon} color="blue" onClick={() => navigate('settings/networks')} />
       </div>
 
-      <div className="px-4 flex-1 flex flex-col overflow-y-auto">
+      <div className="mt-4 flex-grow flex flex-col overflow-y-auto">
         {filteredNetworks.length === 0 && <EmptyState variant="searchUniversal" />}
 
         {filteredNetworks.map(network => (
@@ -97,21 +121,21 @@ export const NetworkSelectModal = memo<Props>(({ opened, selectedNetwork, onRequ
             activeNetwork={selectedNetwork}
             attractSelf={attractSelectedNetwork}
             showBalance
-            onClick={handleNetworkSelect}
+            onClick={onNetworkSelect}
           />
         ))}
       </div>
-    </PageModal>
+    </>
   );
 });
 
 interface NetworkProps {
-  network: Network;
+  network: OneOfChains | string;
   activeNetwork: FilterChain;
   attractSelf?: boolean;
   showBalance?: boolean;
   iconSize?: Size;
-  onClick?: (network: Network) => void;
+  onClick?: (network: OneOfChains | string) => void;
 }
 
 export const Network: FC<NetworkProps> = ({
@@ -154,8 +178,10 @@ export const Network: FC<NetworkProps> = ({
     >
       <div className="flex items-center gap-x-2">
         {Icon}
+
         <div className="flex flex-col">
           <span className="text-font-medium-bold">{isAllNetworks ? ALL_NETWORKS : network.name}</span>
+
           {showBalance && (
             <span className="text-grey-1 text-font-description">
               <T id="balance" />:{' '}
@@ -164,6 +190,7 @@ export const Network: FC<NetworkProps> = ({
           )}
         </div>
       </div>
+
       <RadioButton active={active} className={active ? undefined : 'opacity-0 group-hover:opacity-100'} />
     </div>
   );

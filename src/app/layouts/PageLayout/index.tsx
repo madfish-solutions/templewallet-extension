@@ -2,7 +2,7 @@ import React, { ComponentType, createContext, FC, ReactNode, RefObject, useConte
 
 import clsx from 'clsx';
 
-import { ContentFader } from 'app/a11y/ContentFader';
+import { FADABLE_CONTENT_CLASSNAME } from 'app/a11y/content-fader';
 import DocBg from 'app/a11y/DocBg';
 import Spinner from 'app/atoms/Spinner/Spinner';
 import { SuspenseContainer } from 'app/atoms/SuspenseContainer';
@@ -143,6 +143,7 @@ const ContentPaper: FC<ContentPaperProps> = ({
         id={APP_CONTENT_PAPER_DOM_ID}
         className={clsx(
           LAYOUT_CONTAINER_CLASSNAME,
+          FADABLE_CONTENT_CLASSNAME,
           'relative flex flex-col bg-white',
           !SCROLL_DOCUMENT && 'overflow-y-auto',
           appEnv.fullPage && 'min-h-80 rounded-md shadow-bottom',
@@ -150,8 +151,6 @@ const ContentPaper: FC<ContentPaperProps> = ({
         )}
       >
         {children}
-
-        <ContentFader />
       </ContentPaperNode>
     </ContentPaperRefContext.Provider>
   );

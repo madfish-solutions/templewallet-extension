@@ -3,6 +3,7 @@ import React, { memo, useMemo } from 'react';
 import clsx from 'clsx';
 
 import { IconBase } from 'app/atoms';
+import { PageModal } from 'app/atoms/PageModal';
 import { ReactComponent as CompactDownIcon } from 'app/icons/base/compact_down.svg';
 import { TezosActivityAsset, parseTezosPreActivityOperation } from 'lib/activity';
 import { TezosPreActivity } from 'lib/activity/tezos/types';
@@ -145,8 +146,9 @@ const TezosActivityBatchComponent = memo<BatchProps>(
           <IconBase Icon={CompactDownIcon} size={12} className={clsx('text-grey-2', expanded && 'rotate-180')} />
         </button>
 
-        {expanded
-          ? operations.map((operation, j) => (
+        <PageModal title="Bundle" opened={expanded} onRequestClose={toggleExpanded}>
+          <div className="flex-grow flex flex-col overflow-y-auto p-4 pb-15">
+            {operations.map((operation, j) => (
               <React.Fragment key={`${hash}-${j}`}>
                 {j > 0 && <InteractionsConnector />}
 
@@ -159,8 +161,9 @@ const TezosActivityBatchComponent = memo<BatchProps>(
                   blockExplorerUrl={blockExplorerUrl}
                 />
               </React.Fragment>
-            ))
-          : null}
+            ))}
+          </div>
+        </PageModal>
       </div>
     );
   }

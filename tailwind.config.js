@@ -269,7 +269,6 @@ module.exports = {
         45: '45',
         header: 50,
         sticky: 100,
-        'content-fade': 200,
         'overlay-promo': 300,
         overlay: 400,
         'overlay-confirm': 500,

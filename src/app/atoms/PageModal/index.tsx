@@ -3,7 +3,7 @@ import React, { PropsWithChildren, memo } from 'react';
 import clsx from 'clsx';
 import Modal from 'react-modal';
 
-import { ACTIVATE_CONTENT_FADER_CLASSNAME } from 'app/a11y/ContentFader';
+import { ACTIVATE_CONTENT_FADER_CLASSNAME } from 'app/a11y/content-fader';
 import { useAppEnv } from 'app/env';
 import { ReactComponent as ChevronLeftIcon } from 'app/icons/base/chevron_left.svg';
 import { ReactComponent as ExIcon } from 'app/icons/base/x.svg';
@@ -11,6 +11,7 @@ import { LAYOUT_CONTAINER_CLASSNAME } from 'app/layouts/containers';
 import { TestIDProps } from 'lib/analytics';
 
 import { IconBase } from '../IconBase';
+import { SuspenseContainer } from '../SuspenseContainer';
 
 import ModStyles from './styles.module.css';
 
@@ -21,10 +22,21 @@ interface Props extends TestIDProps {
   onRequestClose: EmptyFn;
   onGoBack?: EmptyFn;
   animated?: boolean;
+  contentPadding?: boolean;
 }
 
 export const PageModal = memo<PropsWithChildren<Props>>(
-  ({ title, opened, shouldShowBackButton, onRequestClose, onGoBack, children, testID, animated = true }) => {
+  ({
+    title,
+    opened,
+    shouldShowBackButton,
+    onRequestClose,
+    onGoBack,
+    children,
+    testID,
+    animated = true,
+    contentPadding = false
+  }) => {
     const { fullPage } = useAppEnv();
 
     return (
@@ -67,7 +79,9 @@ export const PageModal = memo<PropsWithChildren<Props>>(
           </div>
         </div>
 
-        <div className="flex-1 flex flex-col overflow-hidden">{children}</div>
+        <div className={clsx('flex-1 flex flex-col overflow-hidden', contentPadding && 'p-4')}>
+          <SuspenseContainer>{children}</SuspenseContainer>
+        </div>
       </Modal>
     );
   }
