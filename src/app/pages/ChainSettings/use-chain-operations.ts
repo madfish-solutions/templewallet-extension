@@ -16,7 +16,7 @@ import { TempleChainKind } from 'temple/types';
 import { CreateUrlEntityModalFormValues } from './manage-url-entities-view/create-modal';
 import { EditUrlEntityModalFormValues } from './manage-url-entities-view/edit-modal';
 
-export const useChainOperations = (chainKind: TempleChainKind, chainId: string) => {
+export const useChainOperations = (chainKind: TempleChainKind, chainId: string | number) => {
   const evmChains = useAllEvmChains();
   const tezChains = useAllTezosChains();
   const chain: OneOfChains = evmChains[chainId] ?? tezChains[chainId];
@@ -66,7 +66,7 @@ export const useChainOperations = (chainKind: TempleChainKind, chainId: string) 
         throw new Error(t('rpcDoesNotRespond'));
       }
 
-      if (String(actualChainId) !== chainId) {
+      if (actualChainId !== chainId) {
         throw new ArtificialError(t('rpcDoesNotMatchChain'));
       }
     },

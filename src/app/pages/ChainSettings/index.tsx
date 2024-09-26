@@ -22,8 +22,8 @@ import {
   useEnabledEvmChains,
   useEnabledTezosChains
 } from 'temple/front';
-import { BlockExplorer, DEFAULT_BLOCK_EXPLORERS } from 'temple/front/block-explorers';
-import { EVM_DEFAULT_NETWORKS, StoredEvmNetwork, StoredTezosNetwork, TEZOS_DEFAULT_NETWORKS } from 'temple/networks';
+import { BlockExplorer } from 'temple/front/block-explorers';
+import { StoredEvmNetwork, StoredTezosNetwork } from 'temple/networks';
 import { TempleChainKind } from 'temple/types';
 
 import { ManageUrlEntitiesView } from './manage-url-entities-view';
@@ -47,6 +47,7 @@ const ChainExistentSettings = memo<ChainExistentSettingsProps>(({ chain, bottomE
   const [removeChainModalIsOpen, openRemoveChainModal, closeRemoveChainModal] = useBooleanState(false);
   const enabledEvmChains = useEnabledEvmChains();
   const enabledTezChains = useEnabledTezosChains();
+  const { kind: chainKind, chainId } = chain;
   const {
     setChainEnabled,
     addRpc,
@@ -56,35 +57,7 @@ const ChainExistentSettings = memo<ChainExistentSettingsProps>(({ chain, bottomE
     removeRpc,
     removeBlockExplorer,
     removeChain
-  } = useChainOperations(chain.kind, String(chain.chainId));
-  const { kind: chainKind, chainId } = chain;
-
-  const isRpcEditable = useCallback(
-    (rpc: StoredEvmNetwork | StoredTezosNetwork) => {
-      const sameKindDefaultNetworks =
-        chainKind === TempleChainKind.Tezos ? TEZOS_DEFAULT_NETWORKS : EVM_DEFAULT_NETWORKS;
-
-      return !sameKindDefaultNetworks.some(n => n.id === rpc.id);
-    },
-    [chainKind]
-  );
-  const isExplorerEditable = useCallback(
-    (explorer: BlockExplorer) => {
-      const sameChainDefaultExplorers = DEFAULT_BLOCK_EXPLORERS[chainKind]?.[chainId] ?? [];
-
-      return !sameChainDefaultExplorers.some(e => e.id === explorer.id);
-    },
-    [chainId, chainKind]
-  );
-  const isRpcRemovable = useCallback(
-    (rpc: StoredEvmNetwork | StoredTezosNetwork) => isRpcEditable(rpc) && chain.allRpcs.length > 1,
-    [chain.allRpcs.length, isRpcEditable]
-  );
-  const isExplorerRemovable = useCallback(
-    (explorer: BlockExplorer) => isExplorerEditable(explorer) && chain.allBlockExplorers.length > 1,
-    [chain.allBlockExplorers.length, isExplorerEditable]
-  );
-
+  } = useChainOperations(chainKind, chainId);
   const allEnabledChains = useMemo(
     () => (enabledEvmChains as OneOfChains[]).concat(enabledTezChains),
     [enabledEvmChains, enabledTezChains]
@@ -126,8 +99,6 @@ const ChainExistentSettings = memo<ChainExistentSettingsProps>(({ chain, bottomE
           deleteLabelI18nKey="deleteRpc"
           successfullyAddedMessageI18nKey="rpcAdded"
           urlInputPlaceholder="https://rpc.link"
-          getIsEditable={isRpcEditable}
-          getIsRemovable={isRpcRemovable}
           getEntityUrl={rpcUrlFn}
           createEntity={addRpc}
           updateEntity={updateRpc}
@@ -150,8 +121,6 @@ const ChainExistentSettings = memo<ChainExistentSettingsProps>(({ chain, bottomE
           confirmDeleteDescriptionI18nKey="confirmDeleteBlockExplorerDescription"
           successfullyAddedMessageI18nKey="blockExplorerAdded"
           urlInputPlaceholder="https://explorer.link"
-          getIsEditable={isExplorerEditable}
-          getIsRemovable={isExplorerRemovable}
           getEntityUrl={explorerUrlFn}
           createEntity={addExplorer}
           updateEntity={updateExplorer}

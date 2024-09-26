@@ -27,8 +27,6 @@ interface ManageUrlEntitiesViewProps<T> {
   createModalTitle: string;
   urlInputPlaceholder: string;
   getEntityUrl: SyncFn<T, string>;
-  getIsEditable: SyncFn<T, boolean>;
-  getIsRemovable: SyncFn<T, boolean>;
   createEntity: (values: CreateUrlEntityModalFormValues) => Promise<void>;
   updateEntity: (entity: T, values: EditUrlEntityModalFormValues) => Promise<void>;
   removeEntity: (id: string) => Promise<void>;
@@ -50,8 +48,6 @@ export const ManageUrlEntitiesView = <T extends UrlEntityBase>({
   successfullyAddedMessageI18nKey,
   createModalTitle,
   urlInputPlaceholder,
-  getIsEditable,
-  getIsRemovable,
   getEntityUrl,
   createEntity,
   updateEntity,
@@ -127,8 +123,8 @@ export const ManageUrlEntitiesView = <T extends UrlEntityBase>({
           deleteLabelI18nKey={deleteLabelI18nKey}
           urlInputPlaceholder={urlInputPlaceholder}
           isActive={entityToEdit.id === activeItemId}
-          isEditable={getIsEditable(entityToEdit)}
-          isRemovable={getIsRemovable(entityToEdit)}
+          isEditable={!entityToEdit.default}
+          isRemovable={!entityToEdit.default && items.length > 1}
           canChangeActiveState={
             items.length > 1 && (activeItemId !== entityToEdit.id || items.indexOf(entityToEdit) > 0)
           }

@@ -1,5 +1,6 @@
 import { useCallback, useMemo } from 'react';
 
+import { transform } from 'lodash';
 import { nanoid } from 'nanoid';
 
 import { BLOCKCHAIN_EXPLORERS_OVERRIDES_STORAGE_KEY } from 'lib/constants';
@@ -14,6 +15,7 @@ export interface BlockExplorer {
   name: string;
   url: string;
   id: string;
+  default: boolean;
 }
 
 const FALLBACK_CHAIN_BLOCK_EXPLORERS: BlockExplorer[] = [];
@@ -56,9 +58,13 @@ export function useBlockExplorers() {
   );
 
   const addBlockExplorer = useCallback(
-    async (chainKind: TempleChainKind, chainId: string | number, blockExplorer: Omit<BlockExplorer, 'id'>) => {
+    async (
+      chainKind: TempleChainKind,
+      chainId: string | number,
+      blockExplorer: Omit<BlockExplorer, 'id' | 'default'>
+    ) => {
       const newChainBlockExplorers = [...getChainBlockExplorers(chainKind, chainId)];
-      const newBlockExplorer = { ...blockExplorer, id: nanoid() };
+      const newBlockExplorer = { ...blockExplorer, id: nanoid(), default: false };
       newChainBlockExplorers.push(newBlockExplorer);
 
       await setChainBlockExplorers(chainKind, chainId, newChainBlockExplorers);
@@ -69,9 +75,9 @@ export function useBlockExplorers() {
   );
 
   const replaceBlockExplorer = useCallback(
-    (chainKind: TempleChainKind, chainId: string | number, blockExplorer: BlockExplorer) => {
+    (chainKind: TempleChainKind, chainId: string | number, blockExplorer: Omit<BlockExplorer, 'default'>) => {
       const newChainBlockExplorers = getChainBlockExplorers(chainKind, chainId).map(be =>
-        be.id === blockExplorer.id ? blockExplorer : be
+        be.id === blockExplorer.id ? { ...blockExplorer, default: false } : be
       );
 
       return setChainBlockExplorers(chainKind, chainId, newChainBlockExplorers);
@@ -113,12 +119,13 @@ export function useChainBlockExplorers(chainKind: TempleChainKind, chainId: stri
     FALLBACK_CHAIN_BLOCK_EXPLORERS;
 
   const addBlockExplorer = useCallback(
-    (blockExplorer: Omit<BlockExplorer, 'id'>) => genericAddBlockExplorer(chainKind, chainId, blockExplorer),
+    (blockExplorer: Omit<BlockExplorer, 'id' | 'default'>) =>
+      genericAddBlockExplorer(chainKind, chainId, blockExplorer),
     [chainId, chainKind, genericAddBlockExplorer]
   );
 
   const replaceBlockExplorer = useCallback(
-    (blockExplorer: BlockExplorer) => genericReplaceBlockExplorer(chainKind, chainId, blockExplorer),
+    (blockExplorer: Omit<BlockExplorer, 'default'>) => genericReplaceBlockExplorer(chainKind, chainId, blockExplorer),
     [chainId, chainKind, genericReplaceBlockExplorer]
   );
 
@@ -169,7 +176,7 @@ export function useBlockExplorerHref(
   }, [activeBlockExplorer, chainKind, entityType, hash]);
 }
 
-export const DEFAULT_BLOCK_EXPLORERS: Record<TempleChainKind, Record<string, BlockExplorer[]>> = {
+const DEFAULT_BLOCK_EXPLORERS_BASE: Record<TempleChainKind, Record<string, Omit<BlockExplorer, 'default'>[]>> = {
   [TempleChainKind.Tezos]: {
     [TempleTezosChainId.Mainnet]: [
       {
@@ -290,3 +297,20 @@ export const DEFAULT_BLOCK_EXPLORERS: Record<TempleChainKind, Record<string, Blo
     ]
   }
 };
+
+const DEFAULT_BLOCK_EXPLORERS = transform<
+  typeof DEFAULT_BLOCK_EXPLORERS_BASE,
+  Record<TempleChainKind, Record<string, BlockExplorer[]>>
+>(
+  DEFAULT_BLOCK_EXPLORERS_BASE,
+  (result, chainKindExplorers, chainKind) => {
+    result[chainKind] = transform(chainKindExplorers, (res, chainExplorers, chainId) => {
+      res[chainId] = chainExplorers.map(({ id, ...rest }) => ({ ...rest, id, default: true }));
+
+      return res;
+    });
+
+    return result;
+  },
+  { [TempleChainKind.EVM]: {}, [TempleChainKind.Tezos]: {} }
+);
