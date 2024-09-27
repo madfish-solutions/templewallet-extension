@@ -4,23 +4,17 @@ import { Page } from '../../classes/page.class';
 import { createPageElement } from '../../utils/search.utils';
 
 export class GeneralSettingsPage extends Page {
-  languageitem = createPageElement(SettingsGeneralSelectors.languageitem);
+  languageitem = createPageElement(SettingsGeneralSelectors.languageItem);
   languageDropDown = createPageElement(SettingsGeneralSelectors.languageDropDown);
   currencyItem = createPageElement(SettingsGeneralSelectors.currencyItem);
-  currenctyDropDown = createPageElement(SettingsGeneralSelectors.currenctyDropDown);
+  currencyDropDown = createPageElement(SettingsGeneralSelectors.currencyDropDown);
   popUpCheckBox = createPageElement(SettingsGeneralSelectors.popUpCheckBox);
-  extensionLockUpCheckBox = createPageElement(SettingsGeneralSelectors.extensionLockUpCheckBox);
-  anonymousAnalyticsCheckBox = createPageElement(SettingsGeneralSelectors.anonymousAnalyticsCheckBox);
   notificationCheckBox = createPageElement(SettingsGeneralSelectors.notificationCheckBox);
-  partnersPromotion = createPageElement(SettingsGeneralSelectors.partnersPromotion);
 
   async isVisible() {
     await this.languageDropDown.waitForDisplayed();
-    await this.currenctyDropDown.waitForDisplayed();
+    await this.currencyDropDown.waitForDisplayed();
     await this.popUpCheckBox.waitForDisplayed();
-    await this.extensionLockUpCheckBox.waitForDisplayed();
-    await this.anonymousAnalyticsCheckBox.waitForDisplayed();
     await this.notificationCheckBox.waitForDisplayed();
-    await this.partnersPromotion.waitForDisplayed();
   }
 }

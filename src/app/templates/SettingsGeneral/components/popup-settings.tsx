@@ -3,9 +3,8 @@ import React, { memo, useCallback, useRef } from 'react';
 import { T } from 'lib/i18n';
 import { isPopupModeEnabled, setPopupMode } from 'lib/popup-mode';
 
+import { EnablingSetting } from '../../enabling-setting';
 import { SettingsGeneralSelectors } from '../selectors';
-
-import { EnablingSetting } from './enabling-setting';
 
 export const PopupSettings = memo(() => {
   const popupEnabled = isPopupModeEnabled();

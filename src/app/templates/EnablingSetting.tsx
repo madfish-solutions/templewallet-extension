@@ -11,6 +11,7 @@ interface Props extends Pick<FormCheckboxProps, 'onChange' | 'testID' | 'errorCa
   enabled?: boolean;
 }
 
+/** @deprecated */
 export const EnablingSetting = ({
   titleI18nKey,
   titleSubstituions,

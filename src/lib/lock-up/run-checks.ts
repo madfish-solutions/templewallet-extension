@@ -6,12 +6,11 @@
 import browser from 'webextension-polyfill';
 
 import { SHOULD_BACKUP_MNEMONIC_STORAGE_KEY } from 'lib/constants';
-import { WALLET_AUTOLOCK_TIME } from 'lib/fixed-times';
 import { fetchFromStorage } from 'lib/storage';
 import { TempleMessageType } from 'lib/temple/types';
 import { makeIntercomRequest, assertResponse } from 'temple/front/intercom-client';
 
-import { getIsLockUpEnabled } from './index';
+import { getLockUpTimeout } from './index';
 
 if (window.location.href.includes('extension://') === false)
   throw new Error('Lock-up checks are meant for extension pages only.');
@@ -25,14 +24,16 @@ const isSinglePageOpened = () => getOpenedTemplePagesN() === 1;
   2. Lock time passed or mnemonic backup has to be done.
 */
 
-if (getIsLockUpEnabled() && isSinglePageOpened()) {
+if (isSinglePageOpened()) {
   const closureTimestamp = Number(localStorage.getItem(CLOSURE_STORAGE_KEY));
-  const shouldLockByTimeout = closureTimestamp && Date.now() - closureTimestamp >= WALLET_AUTOLOCK_TIME;
   (async () => {
-    if (
-      shouldLockByTimeout ||
-      (await fetchFromStorage<boolean>(SHOULD_BACKUP_MNEMONIC_STORAGE_KEY).catch(() => false))
-    ) {
+    const [shouldBackupMnemonic, autoLockTime] = await Promise.all([
+      fetchFromStorage<boolean>(SHOULD_BACKUP_MNEMONIC_STORAGE_KEY).catch(() => false),
+      getLockUpTimeout()
+    ]);
+    const shouldLockByTimeout = closureTimestamp && Date.now() - closureTimestamp >= autoLockTime;
+
+    if (shouldLockByTimeout || shouldBackupMnemonic) {
       lock();
     }
   })();

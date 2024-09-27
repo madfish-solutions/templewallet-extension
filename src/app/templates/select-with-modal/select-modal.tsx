@@ -6,7 +6,7 @@ import { EmptyState } from 'app/atoms/EmptyState';
 import { PageModal } from 'app/atoms/PageModal';
 import { ScrollView } from 'app/atoms/PageModal/scroll-view';
 import { SearchBarField } from 'app/templates/SearchField';
-import { searchAndFilterItems } from 'lib/utils/search-items';
+import { SearchKey, searchAndFilterItems } from 'lib/utils/search-items';
 
 import { SelectModalOption, SelectModalOptionProps } from './select-modal-option';
 
@@ -16,7 +16,7 @@ export interface SelectModalProps<T, P extends null | SyncFn<T, any>>
   opened: boolean;
   options: T[];
   value: T;
-  searchKeys: Arguments<typeof searchAndFilterItems<T, P>>[2];
+  searchKeys: SearchKey<T, P>[];
   searchThreshold?: number;
   searchPrepare?: P;
   keyFn: SyncFn<T, string | number>;
@@ -43,17 +43,27 @@ export const SelectModal = <T, P extends null | SyncFn<T, any>>({
   const [topEdgeIsVisible, setTopEdgeIsVisible] = useState(true);
 
   const filteredOptions = useMemo(
-    () => searchAndFilterItems<T, P>(options, searchValue, searchKeys, searchPrepare, searchThreshold),
+    () =>
+      searchKeys.length === 0
+        ? options
+        : searchAndFilterItems<T, P>(options, searchValue, searchKeys, searchPrepare, searchThreshold),
     [options, searchValue, searchKeys, searchPrepare, searchThreshold]
   );
+  const searchBarIsVisible = searchKeys.length > 0;
 
   return (
     <PageModal title={title} opened={opened} onRequestClose={onRequestClose}>
-      <div className={clsx('p-4', !topEdgeIsVisible && 'shadow-bottom border-b-0.5 border-lines overflow-y-visible')}>
-        <SearchBarField containerClassName="!mr-0" value={searchValue} onValueChange={setSearchValue} />
-      </div>
+      {searchBarIsVisible && (
+        <div className={clsx('p-4', !topEdgeIsVisible && 'shadow-bottom border-b-0.5 border-lines overflow-y-visible')}>
+          <SearchBarField containerClassName="!mr-0" value={searchValue} onValueChange={setSearchValue} />
+        </div>
+      )}
 
-      <ScrollView className="gap-3 pb-4" onTopEdgeVisibilityChange={setTopEdgeIsVisible} topEdgeThreshold={4}>
+      <ScrollView
+        className={clsx('gap-3', searchBarIsVisible ? 'pb-4' : 'py-4')}
+        onTopEdgeVisibilityChange={setTopEdgeIsVisible}
+        topEdgeThreshold={4}
+      >
         {filteredOptions.length === 0 && <EmptyState variant="searchUniversal" />}
 
         {filteredOptions.map((option, index) => (
