@@ -2,7 +2,7 @@ import React, { FC, useCallback, useMemo, useRef, useState } from 'react';
 
 import { formatEther, parseEther } from 'viem';
 
-import { PageModal } from 'app/atoms/PageModal';
+import { CLOSE_ANIMATION_TIMEOUT, PageModal } from 'app/atoms/PageModal';
 import { ActionsButtonsBox } from 'app/atoms/PageModal/actions-buttons-box';
 import SegmentedControl from 'app/atoms/SegmentedControl';
 import { StyledButton } from 'app/atoms/StyledButton';
@@ -126,15 +126,16 @@ const Content: FC<ContentProps> = ({ chainAssetSlug, data, onRequestClose }) => 
     setIsConfirming(true);
 
     try {
-      onRequestClose();
-
       const txHash = await sendEvmTransaction(accountPkh, network, {
         to: to as HexString,
         value: parseEther(amount),
         ...estimationData,
         ...(modifiedEstimationData ? modifiedEstimationData : {})
       });
-      toastSuccess('Transaction Submitted. Hash: ', true, txHash);
+
+      onRequestClose();
+
+      setTimeout(() => toastSuccess('Transaction Submitted. ', true, txHash), CLOSE_ANIMATION_TIMEOUT * 2);
     } catch (err: any) {
       console.log(err);
 
@@ -217,12 +218,12 @@ const Content: FC<ContentProps> = ({ chainAssetSlug, data, onRequestClose }) => 
             : null}
         </div>
       </div>
-      <ActionsButtonsBox flexDirection="row" className="gap-x-2.5">
+      <ActionsButtonsBox flexDirection="row" className="gap-x-2.5" shouldChangeBottomShift={false}>
         <StyledButton size="L" className="w-full" color="primary-low" onClick={onRequestClose}>
           <T id="cancel" />
         </StyledButton>
 
-        <StyledButton size="L" className="w-full" color="primary" onClick={handleConfirm}>
+        <StyledButton size="L" className="w-full" disabled={isConfirming} color="primary" onClick={handleConfirm}>
           <T id="confirm" />
         </StyledButton>
       </ActionsButtonsBox>

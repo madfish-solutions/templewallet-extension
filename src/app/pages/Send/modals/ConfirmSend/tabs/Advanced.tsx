@@ -1,8 +1,8 @@
 import React, { FC } from 'react';
 
 import { FormField } from 'app/atoms';
-import { InfoIcon } from 'app/atoms/InfoIcon';
-import { T } from 'lib/i18n';
+import { Tooltip } from 'app/atoms/Tooltip';
+import { t, T } from 'lib/i18n';
 
 export const AdvancedTab: FC = () => {
   return (
@@ -11,7 +11,7 @@ export const AdvancedTab: FC = () => {
         <p className="text-font-description-bold">
           <T id="gasLimit" />
         </p>
-        <InfoIcon infoContent="gasLimitInfoContent" />
+        <Tooltip content={t('gasLimitInfoContent')} size={12} className="text-grey-2" />
       </div>
 
       <FormField type="number" name="gas-limit" id="gas-limit" placeholder="0.0" />
@@ -20,7 +20,7 @@ export const AdvancedTab: FC = () => {
         <p className="text-font-description-bold">
           <T id="nonce" />
         </p>
-        <InfoIcon infoContent="nonceInfoContent" />
+        <Tooltip content={t('nonceInfoContent')} size={12} className="text-grey-2" />
       </div>
 
       <FormField type="number" name="nonce" id="nonce" placeholder="0.0" />

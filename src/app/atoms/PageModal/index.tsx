@@ -23,6 +23,8 @@ interface Props extends TestIDProps {
   animated?: boolean;
 }
 
+export const CLOSE_ANIMATION_TIMEOUT = 300;
+
 export const PageModal = memo<PropsWithChildren<Props>>(
   ({ title, opened, shouldShowBackButton, onRequestClose, onGoBack, children, testID, animated = true }) => {
     const { fullPage } = useAppEnv();
@@ -30,7 +32,7 @@ export const PageModal = memo<PropsWithChildren<Props>>(
     return (
       <Modal
         isOpen={opened}
-        closeTimeoutMS={animated ? 300 : undefined}
+        closeTimeoutMS={animated ? CLOSE_ANIMATION_TIMEOUT : undefined}
         htmlOpenClassName="overflow-hidden" // Disabling page scroll and/or bounce behind modal
         bodyOpenClassName={ACTIVATE_CONTENT_FADER_CLASSNAME}
         overlayClassName={{

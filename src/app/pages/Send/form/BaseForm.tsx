@@ -7,7 +7,7 @@ import { useDebounce } from 'use-debounce';
 import { Button, NoSpaceField } from 'app/atoms';
 import AssetField from 'app/atoms/AssetField';
 import { ConvertedInputAssetAmount } from 'app/atoms/ConvertedInputAssetAmount';
-import { Loader } from 'app/atoms/Loader';
+import { Loader } from 'app/atoms/loader';
 import { ActionsButtonsBox } from 'app/atoms/PageModal/actions-buttons-box';
 import { StyledButton } from 'app/atoms/StyledButton';
 import { SelectAccountModal } from 'app/pages/Send/modals/SelectAccount';
@@ -213,7 +213,7 @@ export const BaseForm: FC<Props> = ({
                     className="flex justify-center items-center text-font-description-bold text-white bg-primary hover:bg-primary-hover rounded-md py-1"
                     style={{ width: '41px' }}
                   >
-                    {maxEstimating ? <Loader /> : <T id="max" />}
+                    {maxEstimating ? <Loader size="S" trackVariant="light" /> : <T id="max" />}
                   </Button>
                 }
                 underneathComponent={
