@@ -47,7 +47,6 @@ export const AutoLockSelect = memo(() => {
 
   return (
     <SelectWithModal
-      className="mb-2"
       title={t('autoLock')}
       options={options}
       value={value}
