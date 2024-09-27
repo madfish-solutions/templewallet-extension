@@ -11,8 +11,7 @@ import { ReactComponent as WarningIcon } from 'app/icons/typed-msg/warning.svg';
 import { useToastsContainerBottomShiftSelector } from 'app/store/settings/selectors';
 import PortalToDocumentBody from 'lib/ui/Portal';
 
-// eslint-disable-next-line import/no-cycle
-import { HashChip } from './atoms';
+import HashShortView from './atoms/HashShortView';
 
 const MAX_TOASTS_COUNT = 3;
 const toastsIdsPool: string[] = [];
@@ -104,7 +103,11 @@ const CustomToastBar = memo<CustomToastBarProps>(({ toast, customType, textBold 
         </span>
       )}
 
-      {txHash && <HashChip hash={txHash} small rounded="base" />}
+      {txHash && (
+        <button onClick={() => toastSuccess('Copied')}>
+          <HashShortView hash={txHash} />
+        </button>
+      )}
     </div>
   );
 });

@@ -135,7 +135,7 @@ const Content: FC<ContentProps> = ({ chainAssetSlug, data, onRequestClose }) => 
 
       onRequestClose();
 
-      setTimeout(() => toastSuccess('Transaction Submitted. ', true, txHash), CLOSE_ANIMATION_TIMEOUT * 2);
+      setTimeout(() => toastSuccess('Transaction Submitted. Hash: ', true, txHash), CLOSE_ANIMATION_TIMEOUT * 2);
     } catch (err: any) {
       console.log(err);
 

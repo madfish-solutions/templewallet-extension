@@ -14,7 +14,6 @@ import clsx from 'clsx';
 import { noop } from 'lodash';
 
 import CleanButton from 'app/atoms/CleanButton';
-// eslint-disable-next-line import/no-cycle
 import OldStyleCopyButton from 'app/atoms/OldStyleCopyButton';
 import { ReactComponent as PasteFillIcon } from 'app/icons/base/paste_fill.svg';
 import { ReactComponent as CopyIcon } from 'app/icons/monochrome/copy.svg';
