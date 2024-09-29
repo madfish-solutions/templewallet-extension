@@ -11,6 +11,7 @@ interface AssetFieldProps extends Omit<ComponentProps<typeof FormField>, 'onChan
   max?: number;
   assetSymbol?: ReactNode;
   assetDecimals?: number;
+  onlyInteger?: boolean;
   onChange?: (v?: string) => void;
 }
 
@@ -22,6 +23,7 @@ const AssetField = forwardRef<HTMLInputElement, AssetFieldProps>(
       max = Number.MAX_SAFE_INTEGER,
       assetSymbol,
       assetDecimals = 6,
+      onlyInteger = false,
       onChange,
       onFocus,
       onBlur,
@@ -47,8 +49,9 @@ const AssetField = forwardRef<HTMLInputElement, AssetFieldProps>(
     const handleChange = useCallback(
       (evt: React.ChangeEvent<HTMLInputElement> & React.ChangeEvent<HTMLTextAreaElement>) => {
         let val = evt.target.value.replace(/ /g, '').replace(/,/g, '.');
-        let numVal = new BigNumber(val || 0);
         const indexOfDot = val.indexOf('.');
+        if (indexOfDot !== -1 && onlyInteger) return;
+        let numVal = new BigNumber(val || 0);
         if (indexOfDot !== -1 && val.length - indexOfDot > assetDecimals + 1) {
           val = val.substring(0, indexOfDot + assetDecimals + 1);
           numVal = new BigNumber(val);
@@ -56,12 +59,10 @@ const AssetField = forwardRef<HTMLInputElement, AssetFieldProps>(
 
         if (!numVal.isNaN() && numVal.isGreaterThanOrEqualTo(min) && numVal.isLessThanOrEqualTo(max)) {
           setLocalValue(val);
-          if (onChange) {
-            onChange(val !== '' ? numVal.toFixed() : undefined);
-          }
+          onChange?.(val !== '' ? numVal.toFixed() : undefined);
         }
       },
-      [assetDecimals, setLocalValue, min, max, onChange]
+      [onlyInteger, assetDecimals, min, max, onChange]
     );
 
     return (

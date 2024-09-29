@@ -104,7 +104,12 @@ const CustomToastBar = memo<CustomToastBarProps>(({ toast, customType, textBold 
       )}
 
       {txHash && (
-        <button onClick={() => toastSuccess('Copied')}>
+        <button
+          onClick={() => {
+            navigator.clipboard.writeText(txHash);
+            toastSuccess('Copied');
+          }}
+        >
           <HashShortView hash={txHash} />
         </button>
       )}

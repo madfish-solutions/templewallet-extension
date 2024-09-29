@@ -4,9 +4,10 @@ export interface EvmTxParams {
   gas: bigint;
   maxFeePerGas: bigint;
   maxPriorityFeePerGas: bigint;
+  nonce?: number;
 }
 
-export interface SerializableEvmTxParams extends Pick<EvmTxParams, 'to'> {
+export interface SerializableEvmTxParams extends Pick<EvmTxParams, 'to' | 'nonce'> {
   value: string;
   gas: string;
   maxFeePerGas: string;

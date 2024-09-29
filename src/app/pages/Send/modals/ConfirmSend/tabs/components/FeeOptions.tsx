@@ -29,7 +29,7 @@ const options: Option[] = [
 
 interface FeeOptionsProps {
   chainAssetSlug: string;
-  activeOptionName: OptionLabel;
+  activeOptionName: OptionLabel | nullish;
   estimatedFeeOptions: { slow: string; mid: string; fast: string };
   onOptionClick?: (option: OptionLabel) => void;
 }

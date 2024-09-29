@@ -837,8 +837,6 @@ export class Vault {
   }
 
   async sendEvmTransaction(accPublicKeyHash: string, network: EvmChain, txParams: EvmTxParams) {
-    console.log(txParams, 'txParams');
-
     try {
       const allAccounts = await this.fetchAccounts();
       const acc = allAccounts.find(acc => getAccountAddressForEvm(acc) === accPublicKeyHash);
@@ -874,7 +872,7 @@ export class Vault {
     } catch (err: any) {
       console.log(err);
 
-      throw new Error(`Failed to send operations. ${err.message}`);
+      throw new Error(err.details ?? 'Failed to send operations.');
     }
   }
 }

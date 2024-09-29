@@ -1,10 +1,13 @@
-import React, { FC, useCallback, useMemo, useRef, useState } from 'react';
+import React, { FC, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
+import { omit } from 'lodash';
+import { useForm } from 'react-hook-form-v7';
 import { formatEther, parseEther } from 'viem';
 
 import { CLOSE_ANIMATION_TIMEOUT, PageModal } from 'app/atoms/PageModal';
 import { ActionsButtonsBox } from 'app/atoms/PageModal/actions-buttons-box';
 import SegmentedControl from 'app/atoms/SegmentedControl';
+import Spinner from 'app/atoms/Spinner/Spinner';
 import { StyledButton } from 'app/atoms/StyledButton';
 import { SendFormData } from 'app/pages/Send/form/interfaces';
 import { toastError, toastSuccess } from 'app/toaster';
@@ -19,6 +22,7 @@ import { useEvmChainByChainId } from 'temple/front/chains';
 
 import { CurrentAccount } from './components/CurrentAccount';
 import { Header } from './components/Header';
+import { EvmConfirmFormData } from './interfaces';
 import { AdvancedTab } from './tabs/Advanced';
 import { OptionLabel } from './tabs/components/FeeOptions';
 import { DetailsTab } from './tabs/Details';
@@ -55,8 +59,6 @@ const Content: FC<ContentProps> = ({ chainAssetSlug, data, onRequestClose }) => 
   const { to, amount } = data;
 
   const { sendEvmTransaction } = useTempleClient();
-
-  const [isConfirming, setIsConfirming] = useState(false);
 
   const [_, chainId, assetSlug] = useMemo(() => parseChainAssetSlug(chainAssetSlug), [chainAssetSlug]);
 
@@ -97,8 +99,17 @@ const Content: FC<ContentProps> = ({ chainAssetSlug, data, onRequestClose }) => 
     }
   );
 
-  const [selectedFeeOption, setSelectedFeeOption] = useState<OptionLabel>('mid');
+  const form = useForm<EvmConfirmFormData>();
+  const { watch, formState, handleSubmit } = form;
+
+  const gasPriceValue = watch('gasPrice');
+
+  const [selectedFeeOption, setSelectedFeeOption] = useState<OptionLabel | null>('mid');
   const [modifiedEstimationData, setModifiedEstimationData] = useState<ModifiableEstimationData | null>(null);
+
+  useEffect(() => {
+    if (gasPriceValue) setSelectedFeeOption(null);
+  }, [gasPriceValue]);
 
   const [tab, setTab] = useState('details');
 
@@ -114,46 +125,50 @@ const Content: FC<ContentProps> = ({ chainAssetSlug, data, onRequestClose }) => 
     setModifiedEstimationData(option);
   }, []);
 
-  const handleConfirm = useCallback(async () => {
-    if (isConfirming) return;
+  const onSubmit = useCallback(
+    async ({ gasPrice, gasLimit, nonce }: EvmConfirmFormData) => {
+      if (formState.isSubmitting) return;
 
-    if (!estimationData) {
-      toastError('Failed to estimate transaction.');
+      if (!estimationData) {
+        toastError('Failed to estimate transaction.');
 
-      return;
-    }
+        return;
+      }
 
-    setIsConfirming(true);
+      try {
+        const txHash = await sendEvmTransaction(accountPkh, network, {
+          to: to as HexString,
+          value: parseEther(amount),
+          ...omit(estimationData, 'estimatedFee'),
+          ...(modifiedEstimationData ? omit(modifiedEstimationData, 'estimatedFee') : {}),
+          ...(gasPrice
+            ? { maxFeePerGas: parseEther(gasPrice, 'gwei'), maxPriorityFeePerGas: parseEther(gasPrice, 'gwei') }
+            : {}),
+          ...(gasLimit ? { gas: BigInt(gasLimit) } : {}),
+          ...(nonce ? { nonce: Number(nonce) } : {})
+        });
 
-    try {
-      const txHash = await sendEvmTransaction(accountPkh, network, {
-        to: to as HexString,
-        value: parseEther(amount),
-        ...estimationData,
-        ...(modifiedEstimationData ? modifiedEstimationData : {})
-      });
+        onRequestClose();
 
-      onRequestClose();
+        setTimeout(() => toastSuccess('Transaction Submitted. Hash: ', true, txHash), CLOSE_ANIMATION_TIMEOUT * 2);
+      } catch (err: any) {
+        console.log(err);
 
-      setTimeout(() => toastSuccess('Transaction Submitted. Hash: ', true, txHash), CLOSE_ANIMATION_TIMEOUT * 2);
-    } catch (err: any) {
-      console.log(err);
-
-      toastError('Oops, Something went wrong!');
-    } finally {
-      setIsConfirming(false);
-    }
-  }, [
-    accountPkh,
-    amount,
-    estimationData,
-    isConfirming,
-    modifiedEstimationData,
-    network,
-    onRequestClose,
-    sendEvmTransaction,
-    to
-  ]);
+        toastError(err.message);
+      }
+    },
+    [
+      accountPkh,
+      amount,
+      estimationData,
+      formState.isSubmitting,
+      modifiedEstimationData,
+      network,
+      onRequestClose,
+      sendEvmTransaction,
+      to
+    ]
+  );
 
   return (
     <>
@@ -187,43 +202,55 @@ const Content: FC<ContentProps> = ({ chainAssetSlug, data, onRequestClose }) => 
           ]}
         />
 
-        <div className="flex-1 flex flex-col">
-          {estimationData
-            ? (() => {
-                switch (tab) {
-                  case 'fee':
-                    return (
-                      <FeeTab
-                        chainAssetSlug={chainAssetSlug}
-                        estimationData={estimationData}
-                        selectedOption={selectedFeeOption}
-                        onOptionSelect={handleFeeOptionSelect}
-                      />
-                    );
-                  case 'advanced':
-                    return <AdvancedTab />;
-                  default:
-                    return (
-                      <DetailsTab
-                        chainAssetSlug={chainAssetSlug}
-                        recipientAddress={to}
-                        estimatedFee={formatEther(
-                          modifiedEstimationData ? modifiedEstimationData.estimatedFee : estimationData?.estimatedFee
-                        )}
-                        goToFeeTab={goToFeeTab}
-                      />
-                    );
-                }
-              })()
-            : null}
-        </div>
+        <form id="confirm-form" className="flex-1 flex flex-col" onSubmit={handleSubmit(onSubmit)}>
+          {estimationData ? (
+            (() => {
+              switch (tab) {
+                case 'fee':
+                  return (
+                    <FeeTab
+                      chainAssetSlug={chainAssetSlug}
+                      estimationData={estimationData}
+                      selectedOption={selectedFeeOption}
+                      form={form}
+                      onOptionSelect={handleFeeOptionSelect}
+                    />
+                  );
+                case 'advanced':
+                  return <AdvancedTab form={form} />;
+                default:
+                  return (
+                    <DetailsTab
+                      chainAssetSlug={chainAssetSlug}
+                      recipientAddress={to}
+                      estimatedFee={formatEther(
+                        modifiedEstimationData ? modifiedEstimationData.estimatedFee : estimationData?.estimatedFee
+                      )}
+                      goToFeeTab={goToFeeTab}
+                    />
+                  );
+              }
+            })()
+          ) : (
+            <div className="flex justify-center my-10">
+              <Spinner theme="gray" className="w-20" />
+            </div>
+          )}
+        </form>
       </div>
       <ActionsButtonsBox flexDirection="row" className="gap-x-2.5" shouldChangeBottomShift={false}>
         <StyledButton size="L" className="w-full" color="primary-low" onClick={onRequestClose}>
           <T id="cancel" />
         </StyledButton>
 
-        <StyledButton size="L" className="w-full" disabled={isConfirming} color="primary" onClick={handleConfirm}>
+        <StyledButton
+          type="submit"
+          form="confirm-form"
+          color="primary"
+          size="L"
+          className="w-full"
+          disabled={formState.isSubmitting}
+        >
           <T id="confirm" />
         </StyledButton>
       </ActionsButtonsBox>

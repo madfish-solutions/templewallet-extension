@@ -1,10 +1,20 @@
 import React, { FC } from 'react';
 
-import { FormField } from 'app/atoms';
+import { Controller, UseFormReturn } from 'react-hook-form-v7';
+
+import AssetField from 'app/atoms/AssetField';
 import { Tooltip } from 'app/atoms/Tooltip';
 import { t, T } from 'lib/i18n';
 
-export const AdvancedTab: FC = () => {
+import { EvmConfirmFormData } from '../interfaces';
+
+interface Props {
+  form: UseFormReturn<EvmConfirmFormData>;
+}
+
+export const AdvancedTab: FC<Props> = ({ form }) => {
+  const { control } = form;
+
   return (
     <>
       <div className="mb-1 px-1 flex flex-row justify-between items-center">
@@ -14,7 +24,11 @@ export const AdvancedTab: FC = () => {
         <Tooltip content={t('gasLimitInfoContent')} size={12} className="text-grey-2" />
       </div>
 
-      <FormField type="number" name="gas-limit" id="gas-limit" placeholder="0.0" />
+      <Controller
+        name="gasLimit"
+        control={control}
+        render={({ field }) => <AssetField placeholder="0.00" min={0} onlyInteger {...field} />}
+      />
 
       <div className="mt-3 mb-1 px-1 flex flex-row justify-between items-center">
         <p className="text-font-description-bold">
@@ -23,7 +37,11 @@ export const AdvancedTab: FC = () => {
         <Tooltip content={t('nonceInfoContent')} size={12} className="text-grey-2" />
       </div>
 
-      <FormField type="number" name="nonce" id="nonce" placeholder="0.0" />
+      <Controller
+        name="nonce"
+        control={control}
+        render={({ field }) => <AssetField placeholder="0" min={0} onlyInteger {...field} />}
+      />
     </>
   );
 };
