@@ -18,6 +18,65 @@ import { useBlockExplorers } from '../block-explorers';
 import type { ChainBase, EvmChain, OneOfChains, TezosChain } from '../chains';
 import { EvmChainSpecs, TezosChainSpecs, useEvmChainsSpecs, useTezosChainsSpecs } from '../chains-specs';
 
+export function useReadyTempleTezosNetworks(customTezosNetworks: StoredTezosNetwork[]) {
+  const allTezosNetworks = useMemo<typeof TEZOS_DEFAULT_NETWORKS>(
+    () => [...TEZOS_DEFAULT_NETWORKS, ...customTezosNetworks],
+    [customTezosNetworks]
+  );
+
+  const [tezosChainsSpecs] = useTezosChainsSpecs();
+
+  const makeChain = useCallback(
+    (baseProps: ChainBaseProps<TezosChain>) => ({
+      ...baseProps,
+      kind: TempleChainKind.Tezos as const
+    }),
+    []
+  );
+  const { allChains, enabledChains } = useChains<TezosChain>(
+    makeChain,
+    tezosChainsSpecs,
+    allTezosNetworks,
+    TEZOS_DEFAULT_NETWORKS,
+    TempleChainKind.Tezos
+  );
+
+  return {
+    allTezosChains: allChains,
+    enabledTezosChains: enabledChains
+  };
+}
+
+export function useReadyTempleEvmNetworks(customEvmNetworks: StoredEvmNetwork[]) {
+  const allEvmNetworks = useMemo<typeof EVM_DEFAULT_NETWORKS>(
+    () => [...EVM_DEFAULT_NETWORKS, ...customEvmNetworks],
+    [customEvmNetworks]
+  );
+
+  const [evmChainsSpecs] = useEvmChainsSpecs();
+
+  const makeChain = useCallback(
+    (baseProps: ChainBaseProps<EvmChain>, specs?: EvmChainSpecs) => ({
+      ...baseProps,
+      kind: TempleChainKind.EVM as const,
+      currency: getCurrency(baseProps.chainId, specs?.currency)
+    }),
+    []
+  );
+  const { allChains, enabledChains } = useChains<EvmChain>(
+    makeChain,
+    evmChainsSpecs,
+    allEvmNetworks,
+    EVM_DEFAULT_NETWORKS,
+    TempleChainKind.EVM
+  );
+
+  return {
+    allEvmChains: allChains,
+    enabledEvmChains: enabledChains
+  };
+}
+
 type Specs<T extends OneOfChains> = T extends TezosChain ? TezosChainSpecs : EvmChainSpecs;
 type StoredNetwork<T extends OneOfChains> = T extends TezosChain ? StoredTezosNetwork : StoredEvmNetwork;
 // This type works even worse if specified with omitting props of `T`
@@ -80,7 +139,7 @@ function useChains<T extends OneOfChains>(
       const name = specs?.name ?? fallbackName;
       const chainBlockExplorers = allBlockExplorers[chainKind]?.[chainId] ?? [];
 
-      const baseProps = {
+      const baseProps: ChainBaseProps<T> = {
         chainId,
         rpcBaseURL,
         name,
@@ -91,7 +150,7 @@ function useChains<T extends OneOfChains>(
         allBlockExplorers: chainBlockExplorers,
         activeBlockExplorer:
           chainBlockExplorers.find(({ id }) => id === specs?.activeBlockExplorerId) ?? chainBlockExplorers[0],
-        mainnet: mainnetChainsIds.has(chainId),
+        testnet: !mainnetChainsIds.has(chainId),
         default: Boolean(defaultRpc)
       };
 
@@ -104,65 +163,6 @@ function useChains<T extends OneOfChains>(
   const enabledChains = useMemo(() => Object.values(allChains).filter(chain => !chain.disabled), [allChains]);
 
   return { allChains, enabledChains };
-}
-
-export function useReadyTempleTezosNetworks(customTezosNetworks: StoredTezosNetwork[]) {
-  const allTezosNetworks = useMemo<typeof TEZOS_DEFAULT_NETWORKS>(
-    () => [...TEZOS_DEFAULT_NETWORKS, ...customTezosNetworks],
-    [customTezosNetworks]
-  );
-
-  const [tezosChainsSpecs] = useTezosChainsSpecs();
-
-  const makeChain = useCallback(
-    (baseProps: ChainBaseProps<TezosChain>) => ({
-      ...baseProps,
-      kind: TempleChainKind.Tezos as const
-    }),
-    []
-  );
-  const { allChains, enabledChains } = useChains<TezosChain>(
-    makeChain,
-    tezosChainsSpecs,
-    allTezosNetworks,
-    TEZOS_DEFAULT_NETWORKS,
-    TempleChainKind.Tezos
-  );
-
-  return {
-    allTezosChains: allChains,
-    enabledTezosChains: enabledChains
-  };
-}
-
-export function useReadyTempleEvmNetworks(customEvmNetworks: StoredEvmNetwork[]) {
-  const allEvmNetworks = useMemo<typeof EVM_DEFAULT_NETWORKS>(
-    () => [...EVM_DEFAULT_NETWORKS, ...customEvmNetworks],
-    [customEvmNetworks]
-  );
-
-  const [evmChainsSpecs] = useEvmChainsSpecs();
-
-  const makeChain = useCallback(
-    (baseProps: ChainBaseProps<EvmChain>, specs?: EvmChainSpecs) => ({
-      ...baseProps,
-      kind: TempleChainKind.EVM as const,
-      currency: getCurrency(baseProps.chainId, specs?.currency)
-    }),
-    []
-  );
-  const { allChains, enabledChains } = useChains<EvmChain>(
-    makeChain,
-    evmChainsSpecs,
-    allEvmNetworks,
-    EVM_DEFAULT_NETWORKS,
-    TempleChainKind.EVM
-  );
-
-  return {
-    allEvmChains: allChains,
-    enabledEvmChains: enabledChains
-  };
 }
 
 const getCurrency = (chainId: number, specsCurrency?: EvmNativeTokenMetadata): EvmNativeTokenMetadata => {

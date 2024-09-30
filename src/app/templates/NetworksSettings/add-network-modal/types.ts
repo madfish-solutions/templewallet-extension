@@ -6,5 +6,5 @@ export interface AddNetworkFormValues {
   chainId: string;
   symbol: string;
   explorerUrl: string;
-  isTestnet: boolean;
+  testnet: boolean;
 }

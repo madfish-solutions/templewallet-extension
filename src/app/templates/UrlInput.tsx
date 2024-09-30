@@ -1,7 +1,7 @@
 import React, { ReactNode, useCallback, useMemo } from 'react';
 
 import clsx from 'clsx';
-import { FieldError, FormContextValues } from 'react-hook-form';
+import { Path, PathValue, UseFormReturn } from 'react-hook-form-v7';
 
 import { FormField, IconBase } from 'app/atoms';
 import { TextButton } from 'app/atoms/TextButton';
@@ -11,10 +11,11 @@ import { ReactComponent as PasteFillIcon } from 'app/icons/base/paste_fill.svg';
 import { T, t } from 'lib/i18n';
 import { readClipboard } from 'lib/ui/utils';
 
+// TODO: change all types if this component should be used for form values that include arrays, objects with fields etc.
 interface UrlInputProps<K extends string, T extends Record<K, string>> {
   name: K;
   label: ReactNode;
-  formContextValues: FormContextValues<T>;
+  formReturn: UseFormReturn<T>;
   urlsToExclude: string[];
   isEditable: boolean;
   id: string;
@@ -32,7 +33,7 @@ interface UrlInputProps<K extends string, T extends Record<K, string>> {
 export const UrlInput = <K extends string, T extends Record<K, string>>({
   name,
   label,
-  formContextValues,
+  formReturn,
   urlsToExclude,
   isEditable,
   id,
@@ -46,16 +47,16 @@ export const UrlInput = <K extends string, T extends Record<K, string>>({
   pasteButtonTestID,
   testID
 }: UrlInputProps<K, T>) => {
-  const { register, errors, watch, formState, setValue, triggerValidation } = formContextValues;
-  const url = watch(name);
-  const isSubmitted = formState.submitCount > 0;
+  const castName = name as unknown as Path<T>;
+  const { register, watch, formState, setValue } = formReturn;
+  const { submitCount, errors } = formState;
+  const url = watch(castName);
+  const isSubmitted = submitCount > 0;
+  const fieldError = errors[castName]?.message;
 
   const setUrl = useCallback(
-    (value: string) => {
-      setValue(name, value as T[K]);
-      triggerValidation(name);
-    },
-    [name, setValue, triggerValidation]
+    (value: string) => setValue(castName, value as PathValue<T, Path<T>>, { shouldValidate: true }),
+    [castName, setValue]
   );
   const pasteUrl = useCallback(async () => {
     try {
@@ -86,18 +87,27 @@ export const UrlInput = <K extends string, T extends Record<K, string>>({
     [resetSubmitError, onChange]
   );
 
+  const errorCaption = useMemo(() => {
+    if (!isSubmitted && !showErrorBeforeSubmit) {
+      return undefined;
+    }
+
+    return typeof fieldError === 'string' ? fieldError : submitError;
+  }, [fieldError, isSubmitted, showErrorBeforeSubmit, submitError]);
+
   return (
     <FormField
-      ref={register({
+      {...register(castName, {
         required: required && t('required'),
         pattern: { value: URL_PATTERN, message: t('mustBeValidURL') },
-        validate: value => (urlsToExclude.includes(value) ? t('mustBeUnique') : true)
+        validate: (value: PathValue<T, Path<T>>) =>
+          urlsToExclude.includes(value as string) ? t('mustBeUnique') : true,
+        onChange: handleChange
       })}
       className={clsx(!isEditable && 'text-grey-1', 'resize-none')}
       cleanable={Boolean(url) && (!textarea || isEditable)}
       onClean={clearUrl}
       additonalActionButtons={additionalActionButtons}
-      name={name}
       labelContainerClassName="w-full flex justify-between items-center"
       label={
         required ? (
@@ -115,10 +125,7 @@ export const UrlInput = <K extends string, T extends Record<K, string>>({
       placeholder={placeholder}
       textarea={textarea}
       rows={textarea ? 3 : undefined}
-      errorCaption={
-        (isSubmitted || showErrorBeforeSubmit) && ((errors[name] as FieldError | undefined)?.message ?? submitError)
-      }
-      onChange={handleChange}
+      errorCaption={errorCaption}
       disabled={!isEditable}
       testID={testID}
     />

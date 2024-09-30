@@ -10,7 +10,7 @@ export const makeFormValues = ({ name, rpcUrls, id, nativeCurrency, blockExplore
   chainId: String(id),
   symbol: nativeCurrency.symbol,
   explorerUrl: blockExplorers?.default?.url ?? '',
-  isTestnet: testnet === true
+  testnet: testnet === true
 });
 
 const getEntityNameTokens = (input: string) => input.split(/[^a-z0-9]/i).filter(Boolean);

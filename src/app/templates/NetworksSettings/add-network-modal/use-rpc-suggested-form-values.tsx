@@ -39,7 +39,7 @@ export const useRpcSuggestedFormValues = (rpcUrl: string, rpcUrlsToExclude: stri
           chainId: tezosResult.value,
           symbol: 'TEZ',
           explorerUrl: '',
-          isTestnet: true
+          testnet: true
         };
       }
 
@@ -57,12 +57,13 @@ export const useRpcSuggestedFormValues = (rpcUrl: string, rpcUrlsToExclude: stri
         chainId: String(evmResult.value),
         symbol: '',
         explorerUrl: '',
-        isTestnet: true
+        testnet: true
       };
     },
     [rpcUrlsToExclude]
   );
   const rpcUrlsToExcludeKeyPart = useMemo(
+    // '+' operator is used for performance reasons
     () => rpcUrlsToExclude.reduce((acc, url) => acc + url + ' ', ''),
     [rpcUrlsToExclude]
   );

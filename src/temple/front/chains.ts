@@ -14,7 +14,7 @@ export interface ChainBase {
   disabled?: boolean;
   allBlockExplorers: BlockExplorer[];
   activeBlockExplorer?: BlockExplorer;
-  mainnet: boolean;
+  testnet?: boolean;
   default: boolean;
 }
 
@@ -34,6 +34,8 @@ export interface EvmChain extends ChainBase {
 }
 
 export type OneOfChains = TezosChain | EvmChain;
+
+export const isTestnetChain = (chain: OneOfChains) => chain.testnet !== false;
 
 export const useTezosChainByChainId = (tezosChainId: string): TezosChain | null => {
   const allTezosChains = useAllTezosChains();

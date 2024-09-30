@@ -10,6 +10,7 @@ import { COLORS } from 'lib/ui/colors';
 import { loadEvmChainId } from 'temple/evm';
 import { useTempleNetworksActions } from 'temple/front';
 import { useBlockExplorers } from 'temple/front/block-explorers';
+import { ChainBase } from 'temple/front/chains';
 import { useEvmChainsSpecs, useTezosChainsSpecs } from 'temple/front/chains-specs';
 import { loadTezosChainId } from 'temple/tezos';
 import { TempleChainKind } from 'temple/types';
@@ -29,7 +30,8 @@ export const useAddNetwork = (
 
   return useCallback(
     async (values: AddNetworkFormValues) => {
-      const { name, rpcUrl, chainId, symbol, explorerUrl, isTestnet } = values;
+      console.log('oy vey 1', values);
+      const { name, rpcUrl, chainId, symbol, explorerUrl, testnet } = values;
 
       try {
         const isEvm = chainId.match(NUMERIC_CHAIN_ID_REGEX);
@@ -69,7 +71,7 @@ export const useAddNetwork = (
               url: explorerUrl
             }
           : undefined;
-        const commonChainSpecs = { name, mainnet: !isTestnet };
+        const commonChainSpecs: Pick<ChainBase, 'name' | 'testnet'> = { name, testnet };
 
         if (chainId.match(NUMERIC_CHAIN_ID_REGEX)) {
           await Promise.all([

@@ -1,6 +1,6 @@
 import React, { memo, useCallback, useState } from 'react';
 
-import { Controller, useForm } from 'react-hook-form';
+import { Controller, useForm } from 'react-hook-form-v7';
 
 import { FormField } from 'app/atoms';
 import { CLOSE_ANIMATION_TIMEOUT, PageModal } from 'app/atoms/PageModal';
@@ -50,11 +50,11 @@ export const CreateUrlEntityModal = memo(
   }: CreateUrlEntityModalProps) => {
     const [submitError, setSubmitError] = useState<string | null>(null);
     const [bottomEdgeIsVisible, setBottomEdgeIsVisible] = useState(true);
-    const formContextValues = useForm<CreateUrlEntityModalFormValues>({
+    const formReturn = useForm<CreateUrlEntityModalFormValues>({
       mode: 'onChange'
     });
-    const { control, register, handleSubmit, formState, errors, reset } = formContextValues;
-    const { isSubmitting, submitCount } = formState;
+    const { control, register, handleSubmit, formState, reset } = formReturn;
+    const { errors, isSubmitting, submitCount } = formState;
     const isSubmitted = submitCount > 0;
 
     const resetSubmitError = useCallback(() => setSubmitError(null), []);
@@ -88,11 +88,10 @@ export const CreateUrlEntityModal = memo(
           >
             <div className="flex-1 flex flex-col">
               <FormField
-                ref={register({
+                {...register('name', {
                   required: t('required'),
-                  validate: value => (namesToExclude.includes(value) ? t('mustBeUnique') : true)
+                  validate: (value: string) => (namesToExclude.includes(value) ? t('mustBeUnique') : true)
                 })}
-                name="name"
                 label={t('name')}
                 id="createurlentity-name"
                 placeholder="Ethereum"
@@ -101,7 +100,7 @@ export const CreateUrlEntityModal = memo(
               />
 
               <UrlInput
-                formContextValues={formContextValues}
+                formReturn={formReturn}
                 urlsToExclude={urlsToExclude}
                 isEditable
                 id="createurlentity-url"
@@ -113,9 +112,14 @@ export const CreateUrlEntityModal = memo(
             <Controller
               control={control}
               name="isActive"
-              as={SettingsCheckbox}
-              label={<T id={activeI18nKey} />}
-              testID={activeCheckboxTestID}
+              render={({ field }) => (
+                <SettingsCheckbox
+                  {...field}
+                  checked={field.value}
+                  label={<T id={activeI18nKey} />}
+                  testID={activeCheckboxTestID}
+                />
+              )}
             />
           </ScrollView>
           <ActionsButtonsBox shouldCastShadow={!bottomEdgeIsVisible} shouldChangeBottomShift={false}>

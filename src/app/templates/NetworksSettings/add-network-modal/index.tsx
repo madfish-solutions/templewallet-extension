@@ -1,7 +1,7 @@
-import React, { memo, useCallback, useEffect, useMemo, useState } from 'react';
+import React, { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { noop } from 'lodash';
-import { Controller, useForm } from 'react-hook-form';
+import { Controller, useForm } from 'react-hook-form-v7';
 
 import { FormField } from 'app/atoms';
 import { PageModal } from 'app/atoms/PageModal';
@@ -35,7 +35,7 @@ const defaultValues = {
   chainId: '',
   symbol: '',
   explorerUrl: '',
-  isTestnet: false
+  testnet: false
 };
 
 export const AddNetworkModal = memo<AddNetworkModalProps>(({ isOpen, onClose }) => {
@@ -68,30 +68,33 @@ export const AddNetworkModal = memo<AddNetworkModalProps>(({ isOpen, onClose }) 
     return result;
   }, [evmChains, tezChains]);
 
-  const formContextValues = useForm<AddNetworkFormValues>({
+  const formReturn = useForm<AddNetworkFormValues>({
     mode: 'onChange',
     defaultValues
   });
-  const { control, reset, formState, errors, register, setValue, watch, handleSubmit } = formContextValues;
-  const { chainId, rpcUrl, symbol } = watch();
-  const { isSubmitting, submitCount } = formState;
+  const { control, reset, formState, register, setValue, watch, handleSubmit } = formReturn;
+  const formValues = watch();
+  const { chainId, rpcUrl, symbol } = formValues;
+  const { isSubmitting, submitCount, errors } = formState;
   const isSubmitted = submitCount > 0;
 
+  const prevSuggestedFormValuesRef = useRef<Partial<AddNetworkFormValues> | null | undefined>(null);
   const { data: suggestedFormValues, isLoading: suggestedFormValuesLoading } = useRpcSuggestedFormValues(
     rpcUrl,
     rpcUrlsToExclude
   );
-  useEffect(
-    () =>
-      void (
-        suggestedFormValues &&
-        setValue(
-          Object.entries(suggestedFormValues).map(([key, value]) => ({ [key]: value })),
-          true
-        )
-      ),
-    [setValue, suggestedFormValues]
-  );
+  useEffect(() => {
+    if (prevSuggestedFormValuesRef.current === suggestedFormValues) {
+      return;
+    }
+
+    prevSuggestedFormValuesRef.current = suggestedFormValues;
+
+    if (suggestedFormValues) {
+      console.log('oy vey 2', suggestedFormValues);
+      reset({ ...formValues, ...suggestedFormValues });
+    }
+  }, [formValues, reset, suggestedFormValues]);
 
   const resetSubmitError = useCallback(() => setSubmitError(null), []);
   const closeModal = useCallback(() => {
@@ -110,7 +113,7 @@ export const AddNetworkModal = memo<AddNetworkModalProps>(({ isOpen, onClose }) 
   );
 
   const makeClearFieldFn = useCallback(
-    (name: Exclude<keyof AddNetworkFormValues, 'isTestnet'>) => () => setValue(name, '', true),
+    (name: Exclude<keyof AddNetworkFormValues, 'testnet'>) => () => setValue(name, '', { shouldValidate: true }),
     [setValue]
   );
   const clearChainId = useMemo(() => makeClearFieldFn('chainId'), [makeClearFieldFn]);
@@ -139,17 +142,13 @@ export const AddNetworkModal = memo<AddNetworkModalProps>(({ isOpen, onClose }) 
           bottomEdgeThreshold={16}
           onBottomEdgeVisibilityChange={setBottomEdgeIsVisible}
         >
-          <NameInput
-            contextValues={formContextValues}
-            namesToExclude={namesToExclude}
-            onChainSelect={handleChainSelect}
-          />
+          <NameInput formReturn={formReturn} namesToExclude={namesToExclude} onChainSelect={handleChainSelect} />
 
           <div className="flex flex-col gap-8">
             <UrlInput
               name="rpcUrl"
               label="RPC URL"
-              formContextValues={formContextValues}
+              formReturn={formReturn}
               urlsToExclude={rpcUrlsToExclude}
               isEditable
               id="add-network-rpc-url"
@@ -164,8 +163,11 @@ export const AddNetworkModal = memo<AddNetworkModalProps>(({ isOpen, onClose }) 
             />
 
             <FormField
-              ref={register({ required: t('required'), validate: validateChainId })}
-              name="chainId"
+              {...register('chainId', {
+                required: t('required'),
+                validate: validateChainId,
+                onChange: resetSubmitError
+              })}
               cleanable={Boolean(chainId)}
               onClean={clearChainId}
               labelContainerClassName="w-full flex justify-between items-center"
@@ -186,13 +188,11 @@ export const AddNetworkModal = memo<AddNetworkModalProps>(({ isOpen, onClose }) 
               }
               placeholder="1"
               errorCaption={isSubmitted && errors.chainId?.message}
-              onChange={resetSubmitError}
               testID={NetworkSettingsSelectors.chainIdInput}
             />
 
             <FormField
-              ref={register({ required: t('required') })}
-              name="symbol"
+              {...register('symbol', { required: t('required') })}
               cleanable={Boolean(symbol)}
               onClean={clearSymbol}
               label={<T id="symbol" />}
@@ -206,7 +206,7 @@ export const AddNetworkModal = memo<AddNetworkModalProps>(({ isOpen, onClose }) 
             <UrlInput
               name="explorerUrl"
               label={<T id="blockExplorerUrl" />}
-              formContextValues={formContextValues}
+              formReturn={formReturn}
               urlsToExclude={explorersUrlsToExclude}
               isEditable
               id="add-network-explorer-url"
@@ -221,10 +221,15 @@ export const AddNetworkModal = memo<AddNetworkModalProps>(({ isOpen, onClose }) 
 
             <Controller
               control={control}
-              name="isTestnet"
-              as={SettingsCheckbox}
-              label={<T id="testnet" />}
-              testID={NetworkSettingsSelectors.testnetCheckbox}
+              name="testnet"
+              render={({ field }) => (
+                <SettingsCheckbox
+                  {...field}
+                  checked={field.value}
+                  label={<T id="testnet" />}
+                  testID={NetworkSettingsSelectors.testnetCheckbox}
+                />
+              )}
             />
           </div>
         </ScrollView>

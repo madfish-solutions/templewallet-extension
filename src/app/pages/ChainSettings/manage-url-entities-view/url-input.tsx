@@ -1,15 +1,13 @@
-import React, { memo } from 'react';
+import React from 'react';
 
-import { FormContextValues } from 'react-hook-form';
+import { UseFormReturn } from 'react-hook-form-v7';
 
 import { UrlInput as GenericUrlInput } from 'app/templates/UrlInput';
 
 import { ChainSettingsSelectors } from '../selectors';
 
-type UrlFormContextValues = FormContextValues<{ url: string }>;
-
-interface UrlInputProps {
-  formContextValues: UrlFormContextValues;
+interface UrlInputProps<T extends { url: string }> {
+  formReturn: UseFormReturn<T>;
   urlsToExclude: string[];
   isEditable: boolean;
   id: string;
@@ -18,22 +16,28 @@ interface UrlInputProps {
   resetSubmitError: EmptyFn;
 }
 
-export const UrlInput = memo<UrlInputProps>(
-  ({ formContextValues, urlsToExclude, isEditable, id, placeholder, submitError, resetSubmitError }) => (
-    <GenericUrlInput
-      name="url"
-      label="URL"
-      formContextValues={formContextValues}
-      urlsToExclude={urlsToExclude}
-      isEditable={isEditable}
-      id={id}
-      placeholder={placeholder}
-      submitError={submitError}
-      textarea
-      required
-      resetSubmitError={resetSubmitError}
-      pasteButtonTestID={ChainSettingsSelectors.pasteUrlButton}
-      testID={ChainSettingsSelectors.urlInput}
-    />
-  )
+export const UrlInput = <T extends { url: string }>({
+  formReturn,
+  urlsToExclude,
+  isEditable,
+  id,
+  placeholder,
+  submitError,
+  resetSubmitError
+}: UrlInputProps<T>) => (
+  <GenericUrlInput
+    name="url"
+    label="URL"
+    formReturn={formReturn}
+    urlsToExclude={urlsToExclude}
+    isEditable={isEditable}
+    id={id}
+    placeholder={placeholder}
+    submitError={submitError}
+    textarea
+    required
+    resetSubmitError={resetSubmitError}
+    pasteButtonTestID={ChainSettingsSelectors.pasteUrlButton}
+    testID={ChainSettingsSelectors.urlInput}
+  />
 );

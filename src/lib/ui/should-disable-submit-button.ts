@@ -1,10 +1,11 @@
 import { ReactNode } from 'react';
 
 import { FormContextValues } from 'react-hook-form';
+import { UseFormReturn } from 'react-hook-form-v7';
 
 interface DisableSubmitButtonConfig {
   errors: FormContextValues['errors'];
-  formState: FormContextValues['formState'];
+  formState: FormContextValues['formState'] | UseFormReturn['formState'];
   errorsBeforeSubmitFields?: string[];
   otherErrors?: ReactNode[];
   disableWhileSubmitting?: boolean;

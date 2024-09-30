@@ -49,12 +49,14 @@ export function useBlockExplorers() {
     [allBlockExplorers]
   );
   const setChainBlockExplorers = useCallback(
-    (chainKind: TempleChainKind, chainId: string | number, blockExplorers: BlockExplorer[]) => {
-      const newChainKindBlockExplorers = { ...allBlockExplorers[chainKind], [chainId]: blockExplorers };
+    (chainKind: TempleChainKind, chainId: string | number, blockExplorers: BlockExplorer[]) =>
+      setBlockExplorersOverrides(prevValue => {
+        const newValue = { ...prevValue };
+        newValue[chainKind] = { ...newValue[chainKind], [chainId]: blockExplorers };
 
-      return setBlockExplorersOverrides(prevValue => ({ ...prevValue, [chainKind]: newChainKindBlockExplorers }));
-    },
-    [allBlockExplorers, setBlockExplorersOverrides]
+        return newValue;
+      }),
+    [setBlockExplorersOverrides]
   );
 
   const addBlockExplorer = useCallback(
@@ -77,7 +79,7 @@ export function useBlockExplorers() {
   const replaceBlockExplorer = useCallback(
     (chainKind: TempleChainKind, chainId: string | number, blockExplorer: Omit<BlockExplorer, 'default'>) => {
       const newChainBlockExplorers = getChainBlockExplorers(chainKind, chainId).map(be =>
-        be.id === blockExplorer.id ? { ...blockExplorer, default: false } : be
+        be.id === blockExplorer.id ? { ...blockExplorer, default: be.default } : be
       );
 
       return setChainBlockExplorers(chainKind, chainId, newChainBlockExplorers);

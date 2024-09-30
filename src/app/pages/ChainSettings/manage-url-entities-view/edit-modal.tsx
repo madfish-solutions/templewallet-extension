@@ -1,6 +1,6 @@
 import React, { useCallback, useState } from 'react';
 
-import { useForm } from 'react-hook-form';
+import { Controller, useForm } from 'react-hook-form-v7';
 
 import { FormField, IconBase, ToggleSwitch } from 'app/atoms';
 import {
@@ -77,12 +77,13 @@ export const EditUrlEntityModal = <T extends UrlEntityBase>({
   const [removeModalIsOpen, openRemoveModal, closeRemoveModal] = useBooleanState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [bottomEdgeIsVisible, setBottomEdgeIsVisible] = useState(true);
-  const formContextValues = useForm<EditUrlEntityModalFormValues>({
-    defaultValues: { name: entity.name, url: entityUrl },
+  const formReturn = useForm<EditUrlEntityModalFormValues>({
+    defaultValues: { name: entity.name, url: entityUrl, isActive },
     mode: 'onChange'
   });
-  const { register, handleSubmit, formState, errors } = formContextValues;
-  const isSubmitted = formState.submitCount > 0;
+  const { control, register, handleSubmit, formState } = formReturn;
+  const { errors, submitCount } = formState;
+  const isSubmitted = submitCount > 0;
   const displayedName = entity.nameI18nKey ? t(entity.nameI18nKey) : entity.name;
 
   const handleDeleteConfirm = useCallback(() => {
@@ -115,24 +116,22 @@ export const EditUrlEntityModal = <T extends UrlEntityBase>({
           >
             <SettingsCellGroup>
               <SettingsCell cellName={<T id={activeI18nKey} />} Component="div">
-                <ToggleSwitch
-                  ref={register()}
+                <Controller
+                  control={control}
                   disabled={!canChangeActiveState}
                   name="isActive"
-                  checked={isActive}
-                  testID={activeSwitchTestID}
+                  render={({ field }) => <ToggleSwitch {...field} checked={field.value} testID={activeSwitchTestID} />}
                 />
               </SettingsCell>
             </SettingsCellGroup>
 
             <FormField
-              ref={register({
+              {...register('name', {
                 required: t('required'),
-                validate: value => (namesToExclude.includes(value) ? t('mustBeUnique') : true)
+                validate: (value: string) => (namesToExclude.includes(value) ? t('mustBeUnique') : true)
               })}
               className={isEditable ? '' : 'text-grey-1'}
               additonalActionButtons={!isEditable && <IconBase size={16} Icon={LockFillIcon} className="text-grey-3" />}
-              name="name"
               label={t('name')}
               id="editurlentity-name"
               placeholder="Ethereum"
@@ -142,7 +141,7 @@ export const EditUrlEntityModal = <T extends UrlEntityBase>({
             />
 
             <UrlInput
-              formContextValues={formContextValues}
+              formReturn={formReturn}
               urlsToExclude={urlsToExclude}
               isEditable={isEditable}
               id="editurlentity-url"

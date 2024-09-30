@@ -1,8 +1,8 @@
-import React, { FC, MutableRefObject, memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { FC, MutableRefObject, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import clsx from 'clsx';
 import { uniqBy } from 'lodash';
-import { FormContextValues } from 'react-hook-form';
+import { UseFormReturn } from 'react-hook-form-v7';
 
 import { FormField } from 'app/atoms';
 import { FormFieldElement } from 'app/atoms/FormField';
@@ -19,18 +19,20 @@ import { NetworkSettingsSelectors } from '../selectors';
 import { AddNetworkFormValues, ViemChain } from './types';
 
 interface NameInputProps {
-  contextValues: FormContextValues<AddNetworkFormValues>;
+  formReturn: UseFormReturn<AddNetworkFormValues>;
   namesToExclude: string[];
   onChainSelect: SyncFn<ViemChain>;
 }
 
 const inputId = 'new-network-name';
 
-export const NameInput = memo<NameInputProps>(({ contextValues, namesToExclude, onChainSelect }) => {
+// Memoization disables reaction on input value change
+export const NameInput = ({ formReturn, namesToExclude, onChainSelect }: NameInputProps) => {
   const existentEvmChains = useAllEvmChains();
-  const { register, errors, setValue, triggerValidation, watch, formState } = contextValues;
+  const { register, setValue, watch, formState } = formReturn;
+  const { submitCount, errors } = formState;
   const inputValue = watch('name');
-  const wasSubmitted = formState.submitCount > 0;
+  const wasSubmitted = submitCount > 0;
 
   const fieldRef = useRef<FormFieldElement>(null);
   const [showAutoComplete, setShowAutoComplete] = useState(false);
@@ -78,12 +80,11 @@ export const NameInput = memo<NameInputProps>(({ contextValues, namesToExclude, 
 
   const setValueToVariant = useCallback(
     (variant: ViemChain) => {
-      setValue('name', variant.name);
-      triggerValidation('name');
+      setValue('name', variant.name, { shouldValidate: true });
       onChainSelect(variant);
       setIsFocused(false);
     },
-    [onChainSelect, setIsFocused, setValue, triggerValidation]
+    [onChainSelect, setIsFocused, setValue]
   );
 
   const handleVariantClick = useCallback(
@@ -139,19 +140,19 @@ export const NameInput = memo<NameInputProps>(({ contextValues, namesToExclude, 
     [autoCompleteVariants, focusedVariantIndex, setValueToVariant]
   );
 
+  const { ref: formNameFieldRef, ...restNameFieldProps } = register('name', {
+    required: t('required'),
+    validate: value => (namesToExclude.includes(value) ? t('mustBeUnique') : true),
+    onBlur: handleBlur
+  });
+
   return (
     <div className="flex flex-col relative">
       <FormField
-        ref={combineRefs(
-          register({
-            required: t('required'),
-            validate: value => (namesToExclude.includes(value) ? t('mustBeUnique') : true)
-          }),
-          fieldRef
-        )}
+        {...restNameFieldProps}
+        ref={combineRefs(formNameFieldRef, fieldRef)}
         type="text"
         label={<T id="name" />}
-        name="name"
         id={inputId}
         fieldWrapperBottomMargin={false}
         errorCaption={wasSubmitted && errors.name?.message}
@@ -160,7 +161,6 @@ export const NameInput = memo<NameInputProps>(({ contextValues, namesToExclude, 
         testID={NetworkSettingsSelectors.newNetworkNameInput}
         onKeyDown={handleInputKeyDown}
         onFocus={handleFocus}
-        onBlur={handleBlur}
       />
       {showAutoComplete && autoCompleteVariants && autoCompleteVariants.length > 0 && (
         <div
@@ -184,7 +184,7 @@ export const NameInput = memo<NameInputProps>(({ contextValues, namesToExclude, 
       )}
     </div>
   );
-});
+};
 
 interface ChainVariantProps {
   variant: ViemChain;

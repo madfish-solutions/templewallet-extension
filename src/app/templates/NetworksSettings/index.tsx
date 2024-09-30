@@ -6,6 +6,7 @@ import { filterNetworksByName } from 'lib/ui/filter-networks-by-name';
 import { useBooleanState } from 'lib/ui/hooks';
 import { SettingsTabProps } from 'lib/ui/settings-tab-props';
 import { useAllEvmChains, useAllTezosChains } from 'temple/front';
+import { isTestnetChain } from 'temple/front/chains';
 import { TempleChainKind, TempleChainTitle } from 'temple/types';
 
 import { AddNetworkModal } from './add-network-modal';
@@ -37,7 +38,7 @@ export const NetworksSettings = memo<SettingsTabProps>(({ setHeaderChildren }) =
         chain =>
           (!kind || chain.kind === kind) &&
           (isDefault === undefined || isDefault === chain.default) &&
-          isMainnetTab === chain.mainnet
+          isMainnetTab !== isTestnetChain(chain)
       ),
     [isMainnetTab, matchingChains]
   );
