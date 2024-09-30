@@ -1,6 +1,6 @@
 import { isNotEmptyString } from '@rnw-community/shared';
 
-import { AUTOLOCK_TIME_STORAGE_KEY } from 'lib/constants';
+import { AUTOLOCK_TIME_STORAGE_KEY, NEVER_AUTOLOCK_VALUE } from 'lib/constants';
 import { DEFAULT_WALLET_AUTOLOCK_TIME } from 'lib/fixed-times';
 import { putToStorage } from 'lib/storage';
 import { TempleSharedStorageKey } from 'lib/temple/types';
@@ -33,8 +33,8 @@ migrate([
       const rawIsLocked = localStorage.getItem(TempleSharedStorageKey.LockUpEnabled);
       localStorage.removeItem(TempleSharedStorageKey.LockUpEnabled);
 
-      putToStorage(AUTOLOCK_TIME_STORAGE_KEY, rawIsLocked ? DEFAULT_WALLET_AUTOLOCK_TIME : Infinity).catch(e =>
-        console.error(e)
+      putToStorage(AUTOLOCK_TIME_STORAGE_KEY, rawIsLocked ? DEFAULT_WALLET_AUTOLOCK_TIME : NEVER_AUTOLOCK_VALUE).catch(
+        e => console.error(e)
       );
     }
   }

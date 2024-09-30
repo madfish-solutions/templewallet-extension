@@ -77,6 +77,9 @@ export const SHOULD_BACKUP_MNEMONIC_STORAGE_KEY = 'SHOULD_BACKUP_MNEMONIC';
 
 export const AUTOLOCK_TIME_STORAGE_KEY = 'AUTOLOCK_TIME';
 
+// Browser storage cannot set a value to Infinity
+export const NEVER_AUTOLOCK_VALUE = Number.MAX_SAFE_INTEGER;
+
 export const DEFAULT_SEED_PHRASE_WORDS_AMOUNT = 12;
 
 export const DEFAULT_PASSWORD_INPUT_PLACEHOLDER = '••••••••••';

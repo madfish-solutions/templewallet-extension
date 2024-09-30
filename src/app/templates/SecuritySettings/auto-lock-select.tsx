@@ -4,6 +4,7 @@ import { startCase } from 'lodash';
 
 import { IconBase } from 'app/atoms';
 import { ReactComponent as LocktimeIcon } from 'app/icons/base/locktime.svg';
+import { NEVER_AUTOLOCK_VALUE } from 'lib/constants';
 import { t } from 'lib/i18n';
 import { formatDuration } from 'lib/i18n/core';
 import { useLockUpTimeout } from 'lib/lock-up';
@@ -18,7 +19,7 @@ interface DurationOption {
   label: string;
 }
 
-const durationOptionsValues = [Infinity, 60, 5 * 60, 30 * 60, 60 * 60, 5 * 60 * 60];
+const durationOptionsValues = [NEVER_AUTOLOCK_VALUE, 60, 5 * 60, 30 * 60, 60 * 60, 5 * 60 * 60];
 const DEFAULT_OPTION_INDEX = 2;
 const SEARCH_KEYS: Array<SearchKey<DurationOption, null>> = [];
 const durationOptionKeyFn = ({ value }: DurationOption) => value;
@@ -32,7 +33,7 @@ export const AutoLockSelect = memo(() => {
     () =>
       durationOptionsValues.map(value => ({
         value,
-        label: Number.isFinite(value) ? startCase(formatDuration(value)) : t('never')
+        label: value === NEVER_AUTOLOCK_VALUE ? t('never') : startCase(formatDuration(value))
       })),
     []
   );
