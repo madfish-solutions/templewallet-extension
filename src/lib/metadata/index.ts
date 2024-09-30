@@ -3,11 +3,13 @@ import { useCallback, useEffect, useRef } from 'react';
 import { dispatch } from 'app/store';
 import {
   useEvmCollectibleMetadataSelector,
-  useEvmChainCollectiblesMetadataRecordSelector
+  useEvmChainCollectiblesMetadataRecordSelector,
+  useEvmCollectiblesMetadataRecordSelector
 } from 'app/store/evm/collectibles-metadata/selectors';
 import {
   useEvmTokenMetadataSelector,
-  useEvmChainTokensMetadataRecordSelector
+  useEvmChainTokensMetadataRecordSelector,
+  useEvmTokensMetadataRecordSelector
 } from 'app/store/evm/tokens-metadata/selectors';
 import { loadCollectiblesMetadataAction } from 'app/store/tezos/collectibles-metadata/actions';
 import {
@@ -26,7 +28,7 @@ import { isTezAsset } from 'lib/assets';
 import { fromChainAssetSlug } from 'lib/assets/utils';
 import { isTruthy } from 'lib/utils';
 import { isEvmNativeTokenSlug } from 'lib/utils/evm.utils';
-import { useAllTezosChains } from 'temple/front';
+import { useAllEvmChains, useAllTezosChains } from 'temple/front';
 import { useEvmChainByChainId } from 'temple/front/chains';
 import { isTezosDcpChainId } from 'temple/networks';
 
@@ -62,7 +64,7 @@ export const useEvmAssetMetadata = (slug: string, evmChainId: number): EvmAssetM
   return isEvmNativeTokenSlug(slug) ? network?.currency : tokenMetadata || collectibleMetadata;
 };
 
-export const useGetEvmAssetMetadata = (chainId: number) => {
+export const useGetEvmChainAssetMetadata = (chainId: number) => {
   const network = useEvmChainByChainId(chainId);
   const tokensMetadatas = useEvmChainTokensMetadataRecordSelector(chainId);
   const collectiblesMetadatas = useEvmChainCollectiblesMetadataRecordSelector(chainId);
@@ -74,6 +76,21 @@ export const useGetEvmAssetMetadata = (chainId: number) => {
       return tokensMetadatas[slug] || collectiblesMetadatas[slug];
     },
     [tokensMetadatas, collectiblesMetadatas, network]
+  );
+};
+
+export const useGetEvmAssetMetadata = () => {
+  const allEvmChains = useAllEvmChains();
+  const tokensMetadatas = useEvmTokensMetadataRecordSelector();
+  const collectiblesMetadatas = useEvmCollectiblesMetadataRecordSelector();
+
+  return useCallback(
+    (slug: string, chainId: number) => {
+      if (isEvmNativeTokenSlug(slug)) return allEvmChains[chainId]?.currency;
+
+      return tokensMetadatas[chainId]?.[slug] || collectiblesMetadatas[chainId]?.[slug];
+    },
+    [tokensMetadatas, collectiblesMetadatas, allEvmChains]
   );
 };
 

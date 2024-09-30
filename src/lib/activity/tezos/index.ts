@@ -20,7 +20,8 @@ export function formatLegacyTezosActivity(
     chain: TempleChainKind.Tezos,
     chainId,
     operations: _activity.operations.map<TezosOperation>(oper => parseTezosPreActivityOperation(oper, address)),
-    operationsCount: _activity.operations.length
+    operationsCount: _activity.operations.length,
+    createdAt: _activity.addedAt
   };
 }
 

@@ -6,7 +6,7 @@ import { isTruthy } from 'lib/utils';
 import { getEvmAddressSafe } from 'lib/utils/evm.utils';
 import { TempleChainKind } from 'temple/types';
 
-import { ActivityOperKindEnum, EvmActivity, EvmActivityAsset, EvmOperation, InfinitySymbol } from './types';
+import { ActivityOperKindEnum, EvmActivity, EvmActivityAsset, EvmOperation, InfinitySymbol } from '../types';
 
 export function parseGoldRushTransaction(
   item: GoldRushTransaction,
@@ -15,6 +15,7 @@ export function parseGoldRushTransaction(
   getMetadata: EvmAssetMetadataGetter
 ): EvmActivity {
   const logEvents = item.log_events ?? [];
+  const createdAt = item.block_signed_at as unknown as string;
 
   const operations = logEvents
     .map<EvmOperation | null>(logEvent => {
@@ -197,7 +198,8 @@ export function parseGoldRushTransaction(
     hash: item.tx_hash!,
     blockExplorerUrl: item.explorers?.[0]?.url,
     operations,
-    operationsCount: gasOperation ? logEvents.length + 1 : logEvents.length
+    operationsCount: gasOperation ? logEvents.length + 1 : logEvents.length,
+    createdAt
   };
 }
 
@@ -208,6 +210,7 @@ export function parseGoldRushERC20Transfer(
   getMetadata: EvmAssetMetadataGetter
 ): EvmActivity {
   const transfers = item.transfers ?? [];
+  const createdAt = item.block_signed_at as unknown as string;
 
   const operations = transfers.map<EvmOperation>(transfer => {
     const kind = (() => {
@@ -262,7 +265,8 @@ export function parseGoldRushERC20Transfer(
     hash: item.tx_hash!,
     blockExplorerUrl: item.transfers?.[0].explorers?.[0]?.url,
     operations,
-    operationsCount: gasOperation ? transfers.length + 1 : transfers.length
+    operationsCount: gasOperation ? transfers.length + 1 : transfers.length,
+    createdAt
   };
 }
 

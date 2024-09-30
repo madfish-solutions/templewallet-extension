@@ -1,5 +1,6 @@
 import { ActivityListContainer } from './ActivityListContainer';
 import { EvmActivityList } from './EvmActivityList';
-import { TezosActivityList } from './TezosActivityTab';
+import { MultichainActivityList } from './MultichainList';
+import { TezosActivityList } from './TezosActivityList';
 
-export { ActivityListContainer, TezosActivityList, EvmActivityList };
+export { ActivityListContainer, MultichainActivityList, TezosActivityList, EvmActivityList };

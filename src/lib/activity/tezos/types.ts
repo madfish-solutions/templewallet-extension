@@ -20,6 +20,7 @@ export interface TezosPreActivity extends TezosActivityOlderThan {
   status: TezosPreActivityStatus;
   /** Sorted old-to-new */
   operations: TezosPreActivityOperation[];
+  chainId: string;
 }
 
 type PickedPropsFromTzktOperation = Pick<TzktOperation, 'id' | 'level'>;

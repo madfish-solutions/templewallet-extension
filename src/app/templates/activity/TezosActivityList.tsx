@@ -98,10 +98,9 @@ function useTezosActivitiesLoadingLogic(
         pseudoLimit,
         lastActivity
       );
-
-      newActivities = groups.map(group => preparseTezosOperationsGroup(group, accountAddress));
-
       if (shouldStop()) return;
+
+      newActivities = groups.map(group => preparseTezosOperationsGroup(group, accountAddress, chainId));
     } catch (error) {
       if (shouldStop()) return;
       setIsLoading(false);

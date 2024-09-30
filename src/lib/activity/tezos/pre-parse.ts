@@ -25,7 +25,8 @@ import type {
 
 export function preparseTezosOperationsGroup(
   { hash, operations: groupOperations }: TempleTzktOperationsGroup,
-  address: string
+  address: string,
+  chainId: string
 ): TezosPreActivity {
   const lastOperation = groupOperations[groupOperations.length - 1]!;
   const addedAt = lastOperation.timestamp;
@@ -37,7 +38,8 @@ export function preparseTezosOperationsGroup(
     addedAt,
     status,
     operations,
-    oldestTzktOperation: lastOperation
+    oldestTzktOperation: lastOperation,
+    chainId
   };
 }
 

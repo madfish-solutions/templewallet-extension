@@ -6,11 +6,9 @@ import { EmptyState } from 'app/atoms/EmptyState';
 import { InfiniteScroll } from 'app/atoms/InfiniteScroll';
 import { DeadEndBoundaryError } from 'app/ErrorBoundary';
 import { useLoadPartnersPromo } from 'app/hooks/use-load-partners-promo';
-import { EvmActivity, parseGoldRushTransaction, parseGoldRushERC20Transfer } from 'lib/activity';
-import { getEvmERC20Transfers, getEvmTransactions } from 'lib/apis/temple/endpoints/evm';
-import { fromAssetSlug } from 'lib/assets';
-import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
-import { EvmAssetMetadataGetter, useGetEvmAssetMetadata } from 'lib/metadata';
+import { EvmActivity } from 'lib/activity';
+import { getEvmAssetTransactions } from 'lib/activity/evm';
+import { useGetEvmChainAssetMetadata } from 'lib/metadata';
 import { useDidMount, useDidUpdate, useSafeState, useStopper } from 'lib/ui/hooks';
 import { useAccountAddressForEvm } from 'temple/front';
 import { useEvmChainByChainId } from 'temple/front/chains';
@@ -37,7 +35,7 @@ export const EvmActivityList: FC<Props> = ({ chainId, assetSlug }) => {
 
   const { stop: stopLoading, stopAndBuildChecker } = useStopper();
 
-  const getMetadata = useGetEvmAssetMetadata(chainId);
+  const getMetadata = useGetEvmChainAssetMetadata(chainId);
 
   const loadActivities = async (activities: EvmActivity[], shouldStop: () => boolean, page?: number) => {
     // if (isLoading) return;
@@ -51,7 +49,7 @@ export const EvmActivityList: FC<Props> = ({ chainId, assetSlug }) => {
       newNextPage = data.nextPage;
       newActivities = data.activities;
 
-      if (shouldStop()) return;
+      if (shouldStop()) return; // TODO: If so - save time on parsing then)
     } catch (error) {
       if (shouldStop()) return;
       setIsLoading(false);
@@ -105,49 +103,3 @@ export const EvmActivityList: FC<Props> = ({ chainId, assetSlug }) => {
     </InfiniteScroll>
   );
 };
-
-async function getEvmAssetTransactions(
-  walletAddress: string,
-  chainId: number,
-  getMetadata: EvmAssetMetadataGetter,
-  assetSlug?: string,
-  page?: number
-) {
-  if (!assetSlug || assetSlug === EVM_TOKEN_SLUG) {
-    const { items, nextPage } = await getEvmTransactions(walletAddress, chainId, page);
-
-    return {
-      activities: items.map<EvmActivity>(item => parseGoldRushTransaction(item, chainId, walletAddress, getMetadata)),
-      nextPage
-    };
-  }
-
-  const [contract] = fromAssetSlug(assetSlug);
-
-  // let nextPage: number | nullish = page;
-
-  // while (nextPage !== null) {
-  //   const data = await getEvmTransactions(walletAddress, chainId, nextPage);
-
-  //   const activities = data.items
-  //     .map<EvmActivity>(item => parseGoldRushTransaction(item, chainId, walletAddress, getMetadata))
-  //     .filter(a =>
-  //       a.operations.some(
-  //         ({ asset }) => asset && asset.contract === contract && (asset.tokenId == null || asset.tokenId === tokenId)
-  //       )
-  //     );
-
-  //   if (activities.length) return { activities, nextPage: data.nextPage };
-
-  //   nextPage = data.nextPage;
-  // }
-
-  // return { nextPage: null, activities: [] };
-
-  const { items, nextPage } = await getEvmERC20Transfers(walletAddress, chainId, contract, page);
-
-  return {
-    activities: items.map<EvmActivity>(item => parseGoldRushERC20Transfer(item, chainId, walletAddress, getMetadata)),
-    nextPage
-  };
-}

@@ -8,11 +8,15 @@ import { ReactComponent as FilterOffIcon } from 'app/icons/base/filteroff.svg';
 import PageLayout from 'app/layouts/PageLayout';
 import { useAssetsFilterOptionsSelector } from 'app/store/assets-filter-options/selectors';
 import { FilterChain } from 'app/store/assets-filter-options/state';
-import { ActivityListContainer, EvmActivityList, TezosActivityList } from 'app/templates/activity';
+import {
+  ActivityListContainer,
+  EvmActivityList,
+  TezosActivityList,
+  MultichainActivityList
+} from 'app/templates/activity';
 import { NetworkSelectModalContent } from 'app/templates/NetworkSelectModal';
 import { T } from 'lib/i18n';
 import { useBooleanState } from 'lib/ui/hooks';
-import { UNDER_DEVELOPMENT_MSG } from 'temple/evm/under_dev_msg';
 import { useAllEvmChains, useAllTezosChains } from 'temple/front';
 import { TempleChainKind } from 'temple/types';
 
@@ -57,7 +61,7 @@ export const ActivityPage = memo(() => {
           )}
         </ActivityListContainer>
       ) : (
-        <div className="text-center">{UNDER_DEVELOPMENT_MSG}</div>
+        <MultichainActivityList />
       )}
     </PageLayout>
   );
