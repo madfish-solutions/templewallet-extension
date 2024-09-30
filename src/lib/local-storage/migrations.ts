@@ -33,9 +33,10 @@ migrate([
       const rawIsLocked = localStorage.getItem(TempleSharedStorageKey.LockUpEnabled);
       localStorage.removeItem(TempleSharedStorageKey.LockUpEnabled);
 
-      putToStorage(AUTOLOCK_TIME_STORAGE_KEY, rawIsLocked ? DEFAULT_WALLET_AUTOLOCK_TIME : NEVER_AUTOLOCK_VALUE).catch(
-        e => console.error(e)
-      );
+      putToStorage(
+        AUTOLOCK_TIME_STORAGE_KEY,
+        rawIsLocked === 'true' || rawIsLocked === null ? DEFAULT_WALLET_AUTOLOCK_TIME : NEVER_AUTOLOCK_VALUE
+      ).catch(e => console.error(e));
     }
   }
 ]);
