@@ -21,7 +21,7 @@ export const PopupSettings = memo(() => {
 
   return (
     <EnablingSetting
-      title={<T id="popupSettings" />}
+      titleI18nKey="popupSettings"
       description={<T id="popupSettingsDescription" />}
       enabled={popupEnabled}
       onChange={handlePopupModeChange}

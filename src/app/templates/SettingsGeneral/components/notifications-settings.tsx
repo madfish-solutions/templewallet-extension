@@ -20,7 +20,7 @@ export const NotificationsSettings = memo(() => {
 
   return (
     <EnablingSetting
-      title={<T id="notifications" />}
+      titleI18nKey="notifications"
       description={<T id="notificationsSettingsDescription" />}
       enabled={isNewsEnabled}
       onChange={handleNewsNotificationsChange}
