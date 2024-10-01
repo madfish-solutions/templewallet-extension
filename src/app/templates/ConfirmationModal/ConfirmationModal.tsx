@@ -1,52 +1,57 @@
-import React, { FC } from 'react';
+import React, { ReactNode, memo } from 'react';
 
-import clsx from 'clsx';
-
-import { FormSubmitButton, FormSecondaryButton } from 'app/atoms';
-import ModalWithTitle, { ModalWithTitleProps } from 'app/templates/ModalWithTitle';
+import { ActionModal, ActionModalButton, ActionModalButtonsContainer, ActionModalProps } from 'app/atoms/action-modal';
 import { T } from 'lib/i18n';
+import { StyledButtonColor } from 'lib/ui/button-like-styles';
+
+import { DialogBody } from '../DialogBody';
 
 import { ConfirmatonModalSelectors } from './ConfirmatonModal.selectors';
 
-export interface ConfirmationModalProps extends ModalWithTitleProps {
-  onConfirm: () => void;
-  comfirmButtonText?: string;
-  stretchButtons?: boolean;
+export interface ConfirmationModalProps extends ActionModalProps {
+  description?: ActionModalProps['children'];
+  isOpen: boolean;
+  confirmButtonText?: ReactNode;
+  confirmButtonColor?: StyledButtonColor;
+  onConfirm: EmptyFn;
 }
 
-const ConfirmationModal: FC<ConfirmationModalProps> = props => {
-  const { onRequestClose, children, onConfirm, comfirmButtonText, stretchButtons, ...restProps } = props;
+const ConfirmationModal = memo<ConfirmationModalProps>(
+  ({
+    onClose,
+    isOpen,
+    children,
+    description,
+    onConfirm,
+    confirmButtonText,
+    confirmButtonColor = 'primary',
+    ...restProps
+  }) =>
+    isOpen ? (
+      <ActionModal {...restProps} onClose={onClose}>
+        <DialogBody description={description}>{children}</DialogBody>
 
-  return (
-    <ModalWithTitle {...restProps} onRequestClose={onRequestClose}>
-      <>
-        <div className="mb-8">{children}</div>
-
-        <div className={clsx('flex', stretchButtons ? 'gap-x-4 h-10' : 'justify-end gap-x-3')}>
-          <FormSecondaryButton
-            small={!stretchButtons}
-            unsetHeight={stretchButtons}
-            className={stretchButtons ? 'flex-grow' : undefined}
-            onClick={onRequestClose}
+        <ActionModalButtonsContainer>
+          <ActionModalButton
+            color="primary-low"
+            onClick={onClose}
+            type="button"
             testID={ConfirmatonModalSelectors.cancelButton}
           >
             <T id="cancel" />
-          </FormSecondaryButton>
+          </ActionModalButton>
 
-          <FormSubmitButton
-            small={!stretchButtons}
-            unsetHeight={stretchButtons}
-            className={clsx(stretchButtons ? 'flex-grow' : 'capitalize')}
+          <ActionModalButton
+            color={confirmButtonColor}
             type="button"
-            onClick={onConfirm}
             testID={ConfirmatonModalSelectors.okButton}
+            onClick={onConfirm}
           >
-            {comfirmButtonText ?? <T id="ok" />}
-          </FormSubmitButton>
-        </div>
-      </>
-    </ModalWithTitle>
-  );
-};
+            {confirmButtonText ?? <T id="ok" />}
+          </ActionModalButton>
+        </ActionModalButtonsContainer>
+      </ActionModal>
+    ) : null
+);
 
 export default ConfirmationModal;

@@ -1,4 +1,4 @@
-import React, { memo } from 'react';
+import React, { ReactNode, memo } from 'react';
 
 import clsx from 'clsx';
 
@@ -14,11 +14,11 @@ import {
 
 import actionModalStyles from './action-modal.module.css';
 
-interface ActionModalProps {
+export interface ActionModalProps {
   hasCloseButton?: boolean;
   onClose?: EmptyFn;
-  children: JSX.Element | JSX.Element[];
-  title: string;
+  children?: ReactNode | ReactNode[];
+  title?: ReactNode;
   className?: string;
 }
 

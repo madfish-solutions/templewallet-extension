@@ -1,11 +1,10 @@
 import React, { memo, useCallback, useRef } from 'react';
 
+import { EnablingSetting } from 'app/templates/enabling-setting';
 import { T } from 'lib/i18n';
 import { isPopupModeEnabled, setPopupMode } from 'lib/popup-mode';
 
 import { SettingsGeneralSelectors } from '../selectors';
-
-import { EnablingSetting } from './enabling-setting';
 
 export const PopupSettings = memo(() => {
   const popupEnabled = isPopupModeEnabled();

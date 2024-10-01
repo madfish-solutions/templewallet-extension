@@ -1,4 +1,4 @@
-import React, { PropsWithChildren, memo } from 'react';
+import React, { PropsWithChildren, ReactNode, memo } from 'react';
 
 import clsx from 'clsx';
 import Modal from 'react-modal';
@@ -15,7 +15,7 @@ import { IconBase } from '../IconBase';
 import ModStyles from './styles.module.css';
 
 interface Props extends TestIDProps {
-  title: string;
+  title: ReactNode;
   opened: boolean;
   shouldShowBackButton?: boolean;
   onRequestClose: EmptyFn;

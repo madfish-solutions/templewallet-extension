@@ -8,7 +8,7 @@ interface EnablingSettingProps {
   title: ReactNode;
   enabled: boolean;
   description: ReactNode;
-  onChange: SyncFn<boolean>;
+  onChange: (newValue: boolean, event: React.ChangeEvent<HTMLInputElement>) => void;
   testID: string;
 }
 
@@ -19,7 +19,8 @@ export const EnablingSetting = memo(({ title, enabled, description, onChange, te
     </SettingsCell>
     <SettingsCell
       Component="div"
-      cellName={<span className="text-grey-1 text-font-description font-normal">{description}</span>}
+      cellName={description}
+      cellNameClassName="text-grey-1 text-font-description font-normal"
     >
       {null}
     </SettingsCell>

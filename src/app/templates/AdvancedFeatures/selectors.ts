@@ -1,3 +1,4 @@
 export enum AdvancedFeaturesSelectors {
-  referralLinksCheckbox = 'Advanced Features/Referral Links Checkbox'
+  referralLinksToggle = 'Advanced Features/Referral Links Toggle',
+  partnersPromotionToggle = 'Advanced Features/Partners Promotion Toggle'
 }
