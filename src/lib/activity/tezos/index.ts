@@ -21,7 +21,7 @@ export function formatLegacyTezosActivity(
     chainId,
     operations: _activity.operations.map<TezosOperation>(oper => parseTezosPreActivityOperation(oper, address)),
     operationsCount: _activity.operations.length,
-    createdAt: _activity.addedAt
+    addedAt: _activity.addedAt
   };
 }
 

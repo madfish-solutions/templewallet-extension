@@ -17,7 +17,8 @@ interface ChainActivityBase {
   hash: string;
   /** Original, not filtered number of operations */
   operationsCount: number;
-  createdAt: string;
+  /** ISO string */
+  addedAt: string;
 }
 
 export interface TezosActivity extends ChainActivityBase {

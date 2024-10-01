@@ -62,22 +62,29 @@ export const MultichainActivityList = memo(() => {
       if (!lastAct) continue;
 
       if (!edgeDate) {
-        edgeDate = lastAct.createdAt;
+        edgeDate = lastAct.addedAt;
         continue;
       }
 
-      if (lastAct.createdAt > edgeDate) edgeDate = lastAct.createdAt;
+      if (lastAct.addedAt > edgeDate) edgeDate = lastAct.addedAt;
     }
 
     const newActivities = evmLoaders
-      .map(l => (edgeDate ? l.activities.filter(a => a.createdAt >= edgeDate) : l.activities)) // TODO: Optimize
-      .flat()
-      .toSorted((a, b) => (a.createdAt < b.createdAt ? 1 : -1));
+      .map(l => {
+        if (!edgeDate) return l.activities;
 
-    setActivities(newActivities);
-    setIsLoading(false);
+        // return l.activities.filter(a => a.addedAt >= edgeDate);
+
+        const lastIndex = l.activities.findLastIndex(a => a.addedAt >= edgeDate);
+
+        return lastIndex === -1 ? [] : l.activities.slice(0, lastIndex + 1);
+      })
+      .flat();
 
     if (activities.length === newActivities.length) setReachedTheEnd(true);
+    else setActivities(newActivities);
+
+    setIsLoading(false);
   }
 
   /** Loads more of older items */
@@ -100,21 +107,24 @@ export const MultichainActivityList = memo(() => {
     loadActivities(stopAndBuildChecker());
   }, [tezAccAddress, evmAccAddress]);
 
-  // const displayActivities: (EvmActivity | TezosPreActivity)[] = [];
+  const displayActivities = useMemo(
+    () => activities.toSorted((a, b) => (a.addedAt < b.addedAt ? 1 : -1)),
+    [activities]
+  );
 
-  if (activities.length === 0 && !isLoading && reachedTheEnd) {
+  if (displayActivities.length === 0 && !isLoading && reachedTheEnd) {
     return <EmptyState />;
   }
 
   return (
     <InfiniteScroll
-      itemsLength={activities.length}
+      itemsLength={displayActivities.length}
       isSyncing={isLoading}
       reachedTheEnd={reachedTheEnd}
       retryInitialLoad={loadMore}
       loadMore={loadMore}
     >
-      {activities.map(activity =>
+      {displayActivities.map(activity =>
         'oldestTzktOperation' in activity ? (
           <TezosActivityComponent
             key={activity.hash}

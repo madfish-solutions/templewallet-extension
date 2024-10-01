@@ -15,7 +15,7 @@ export function parseGoldRushTransaction(
   getMetadata: EvmAssetMetadataGetter
 ): EvmActivity {
   const logEvents = item.log_events ?? [];
-  const createdAt = item.block_signed_at as unknown as string;
+  const addedAt = item.block_signed_at as unknown as string;
 
   const operations = logEvents
     .map<EvmOperation | null>(logEvent => {
@@ -199,7 +199,7 @@ export function parseGoldRushTransaction(
     blockExplorerUrl: item.explorers?.[0]?.url,
     operations,
     operationsCount: gasOperation ? logEvents.length + 1 : logEvents.length,
-    createdAt
+    addedAt
   };
 }
 
@@ -210,7 +210,7 @@ export function parseGoldRushERC20Transfer(
   getMetadata: EvmAssetMetadataGetter
 ): EvmActivity {
   const transfers = item.transfers ?? [];
-  const createdAt = item.block_signed_at as unknown as string;
+  const addedAt = item.block_signed_at as unknown as string;
 
   const operations = transfers.map<EvmOperation>(transfer => {
     const kind = (() => {
@@ -266,7 +266,7 @@ export function parseGoldRushERC20Transfer(
     blockExplorerUrl: item.transfers?.[0].explorers?.[0]?.url,
     operations,
     operationsCount: gasOperation ? transfers.length + 1 : transfers.length,
-    createdAt
+    addedAt
   };
 }
 
