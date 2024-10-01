@@ -16,7 +16,7 @@ export interface ConfirmationModalProps extends ActionModalProps {
   onConfirm: EmptyFn;
 }
 
-const ConfirmationModal = memo<ConfirmationModalProps>(
+export const ConfirmationModal = memo<ConfirmationModalProps>(
   ({
     onClose,
     isOpen,
@@ -53,5 +53,3 @@ const ConfirmationModal = memo<ConfirmationModalProps>(
       </ActionModal>
     ) : null
 );
-
-export default ConfirmationModal;
