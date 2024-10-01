@@ -5,7 +5,7 @@ import clsx from 'clsx';
 import Checkbox, { CheckboxProps } from 'app/atoms/Checkbox';
 import { AnalyticsEventCategory, setTestID, useAnalytics } from 'lib/analytics';
 
-export interface FormCheckboxProps extends CheckboxProps {
+interface FormCheckboxProps extends CheckboxProps {
   basic?: boolean;
   label?: ReactNode;
   labelDescription?: ReactNode;
