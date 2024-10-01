@@ -22,7 +22,7 @@ export interface EvmChainSpecs extends ChainSpecsBase {
   currency?: EvmNativeTokenMetadata;
 }
 
-const DEFAULT_TEZOS_CHAINS_SPECS: Record<string, TezosChainSpecs> = {
+const DEFAULT_TEZOS_CHAINS_SPECS: Record<string, TezosChainSpecs & { testnet: boolean }> = {
   [TempleTezosChainId.Mainnet]: {
     name: 'Tezos Mainnet',
     testnet: false
@@ -32,14 +32,16 @@ const DEFAULT_TEZOS_CHAINS_SPECS: Record<string, TezosChainSpecs> = {
     testnet: false
   },
   [TempleTezosChainId.DcpTest]: {
-    name: 'T4L3NT Testnet'
+    name: 'T4L3NT Testnet',
+    testnet: true
   },
   [TempleTezosChainId.Ghostnet]: {
-    name: 'Ghostnet Testnet'
+    name: 'Ghostnet Testnet',
+    testnet: true
   }
 };
 
-const DEFAULT_EVM_CHAINS_SPECS: Record<string, EvmChainSpecs> = {
+const DEFAULT_EVM_CHAINS_SPECS: Record<string, EvmChainSpecs & { testnet: boolean }> = {
   '1': {
     name: 'Ethereum Mainnet',
     testnet: false,
@@ -82,7 +84,8 @@ const DEFAULT_EVM_CHAINS_SPECS: Record<string, EvmChainSpecs> = {
     currency: {
       ...DEFAULT_EVM_CURRENCY,
       name: 'Sepolia Ether'
-    }
+    },
+    testnet: true
   },
   '80002': {
     name: 'Polygon Amoy',
@@ -90,7 +93,8 @@ const DEFAULT_EVM_CHAINS_SPECS: Record<string, EvmChainSpecs> = {
       ...DEFAULT_EVM_CURRENCY,
       name: 'POL',
       symbol: 'POL'
-    }
+    },
+    testnet: true
   },
   '97': {
     name: 'BSC Testnet',
@@ -98,7 +102,8 @@ const DEFAULT_EVM_CHAINS_SPECS: Record<string, EvmChainSpecs> = {
       ...DEFAULT_EVM_CURRENCY,
       name: 'BNB',
       symbol: 'tBNB'
-    }
+    },
+    testnet: true
   },
   '43113': {
     name: 'Avalanche Fuji',
@@ -106,14 +111,16 @@ const DEFAULT_EVM_CHAINS_SPECS: Record<string, EvmChainSpecs> = {
       ...DEFAULT_EVM_CURRENCY,
       name: 'Avalanche Fuji',
       symbol: 'AVAX'
-    }
+    },
+    testnet: true
   },
   '11155420': {
     name: 'Optimism Sepolia',
     currency: {
       ...DEFAULT_EVM_CURRENCY,
       name: 'Sepolia Ether'
-    }
+    },
+    testnet: true
   }
 };
 
