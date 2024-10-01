@@ -30,7 +30,6 @@ export const useAddNetwork = (
 
   return useCallback(
     async (values: AddNetworkFormValues) => {
-      console.log('oy vey 1', values);
       const { name, rpcUrl, chainId, symbol, explorerUrl, testnet } = values;
 
       try {

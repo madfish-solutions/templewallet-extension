@@ -1,9 +1,11 @@
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
 
 import { EVM_CHAINS_SPECS_STORAGE_KEY, TEZOS_CHAINS_SPECS_STORAGE_KEY } from 'lib/constants';
 import { EvmNativeTokenMetadata } from 'lib/metadata/types';
 import { useStorage } from 'lib/temple/front/storage';
+import { TempleTezosChainId } from 'lib/temple/types';
 import { EMPTY_FROZEN_OBJ } from 'lib/utils';
+import { DEFAULT_EVM_CURRENCY } from 'temple/networks';
 import { TempleChainKind } from 'temple/types';
 
 interface ChainSpecsBase {
@@ -11,7 +13,7 @@ interface ChainSpecsBase {
   activeBlockExplorerId?: string;
   disabled?: boolean;
   name?: string;
-  mainnet?: boolean;
+  testnet?: boolean;
 }
 
 export interface TezosChainSpecs extends ChainSpecsBase {}
@@ -20,10 +22,121 @@ export interface EvmChainSpecs extends ChainSpecsBase {
   currency?: EvmNativeTokenMetadata;
 }
 
+const DEFAULT_TEZOS_CHAINS_SPECS: Record<string, TezosChainSpecs> = {
+  [TempleTezosChainId.Mainnet]: {
+    name: 'Tezos Mainnet',
+    testnet: false
+  },
+  [TempleTezosChainId.Dcp]: {
+    name: 'T4L3NT Mainnet',
+    testnet: false
+  },
+  [TempleTezosChainId.DcpTest]: {
+    name: 'T4L3NT Testnet'
+  },
+  [TempleTezosChainId.Ghostnet]: {
+    name: 'Ghostnet Testnet'
+  }
+};
+
+const DEFAULT_EVM_CHAINS_SPECS: Record<string, EvmChainSpecs> = {
+  '1': {
+    name: 'Ethereum Mainnet',
+    testnet: false,
+    currency: DEFAULT_EVM_CURRENCY
+  },
+  '137': {
+    name: 'Polygon Mainnet',
+    testnet: false,
+    currency: {
+      ...DEFAULT_EVM_CURRENCY,
+      name: 'POL', // https://learn.bybit.com/blockchain/polygon-2-0-from-matic-to-pol
+      symbol: 'POL'
+    }
+  },
+  '56': {
+    name: 'BSC Mainnet',
+    testnet: false,
+    currency: {
+      ...DEFAULT_EVM_CURRENCY,
+      name: 'BNB',
+      symbol: 'BNB'
+    }
+  },
+  '43114': {
+    name: 'Avalanche Mainnet',
+    testnet: false,
+    currency: {
+      ...DEFAULT_EVM_CURRENCY,
+      name: 'Avalanche',
+      symbol: 'AVAX'
+    }
+  },
+  '10': {
+    name: 'Optimism Mainnet',
+    testnet: false,
+    currency: DEFAULT_EVM_CURRENCY
+  },
+  '11155111': {
+    name: 'Ethereum Sepolia',
+    currency: {
+      ...DEFAULT_EVM_CURRENCY,
+      name: 'Sepolia Ether'
+    }
+  },
+  '80002': {
+    name: 'Polygon Amoy',
+    currency: {
+      ...DEFAULT_EVM_CURRENCY,
+      name: 'POL',
+      symbol: 'POL'
+    }
+  },
+  '97': {
+    name: 'BSC Testnet',
+    currency: {
+      ...DEFAULT_EVM_CURRENCY,
+      name: 'BNB',
+      symbol: 'tBNB'
+    }
+  },
+  '43113': {
+    name: 'Avalanche Fuji',
+    currency: {
+      ...DEFAULT_EVM_CURRENCY,
+      name: 'Avalanche Fuji',
+      symbol: 'AVAX'
+    }
+  },
+  '11155420': {
+    name: 'Optimism Sepolia',
+    currency: {
+      ...DEFAULT_EVM_CURRENCY,
+      name: 'Sepolia Ether'
+    }
+  }
+};
+
+const useSpecs = <T extends TezosChainSpecs | EvmChainSpecs>(storageKey: string, defaultSpecs: OptionalRecord<T>) => {
+  const [storedSpecs, setStoredSpecs] = useStorage<OptionalRecord<T>>(storageKey, EMPTY_FROZEN_OBJ);
+
+  const totalSpecs = useMemo(() => ({ ...defaultSpecs, ...storedSpecs }), [defaultSpecs, storedSpecs]);
+  const setSpecs = useCallback(
+    (newSpecs: OptionalRecord<T> | ((prevSpecs: OptionalRecord<T>) => OptionalRecord<T>)) => {
+      setStoredSpecs(prevSpecs => {
+        const prevSpecsWithDefault = { ...defaultSpecs, ...prevSpecs };
+
+        return typeof newSpecs === 'function' ? newSpecs(prevSpecsWithDefault) : newSpecs;
+      });
+    },
+    [defaultSpecs, setStoredSpecs]
+  );
+
+  return [totalSpecs, setSpecs] as const;
+};
 export const useTezosChainsSpecs = () =>
-  useStorage<OptionalRecord<TezosChainSpecs>>(TEZOS_CHAINS_SPECS_STORAGE_KEY, EMPTY_FROZEN_OBJ);
-export const useEvmChainsSpecs = () =>
-  useStorage<OptionalRecord<EvmChainSpecs>>(EVM_CHAINS_SPECS_STORAGE_KEY, EMPTY_FROZEN_OBJ);
+  useSpecs<TezosChainSpecs>(TEZOS_CHAINS_SPECS_STORAGE_KEY, DEFAULT_TEZOS_CHAINS_SPECS);
+export const useEvmChainsSpecs = () => useSpecs<EvmChainSpecs>(EVM_CHAINS_SPECS_STORAGE_KEY, DEFAULT_EVM_CHAINS_SPECS);
 
 export const useChainSpecs = (chainKind: TempleChainKind, chainId: string | number) => {
   const [tezosChainsSpecs, setTezosChainsSpecs] = useTezosChainsSpecs();

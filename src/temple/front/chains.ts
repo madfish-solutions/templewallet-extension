@@ -35,7 +35,7 @@ export interface EvmChain extends ChainBase {
 
 export type OneOfChains = TezosChain | EvmChain;
 
-export const isTestnetChain = (chain: OneOfChains) => chain.testnet !== false;
+export const isPossibleTestnetChain = (chain: OneOfChains) => chain.testnet !== false;
 
 export const useTezosChainByChainId = (tezosChainId: string): TezosChain | null => {
   const allTezosChains = useAllTezosChains();

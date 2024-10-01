@@ -1,8 +1,8 @@
-import React, { FC, MutableRefObject, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { FC, MutableRefObject, memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import clsx from 'clsx';
 import { uniqBy } from 'lodash';
-import { UseFormReturn } from 'react-hook-form-v7';
+import { useFormContext } from 'react-hook-form-v7';
 
 import { FormField } from 'app/atoms';
 import { FormFieldElement } from 'app/atoms/FormField';
@@ -19,17 +19,15 @@ import { NetworkSettingsSelectors } from '../selectors';
 import { AddNetworkFormValues, ViemChain } from './types';
 
 interface NameInputProps {
-  formReturn: UseFormReturn<AddNetworkFormValues>;
   namesToExclude: string[];
   onChainSelect: SyncFn<ViemChain>;
 }
 
 const inputId = 'new-network-name';
 
-// Memoization disables reaction on input value change
-export const NameInput = ({ formReturn, namesToExclude, onChainSelect }: NameInputProps) => {
+export const NameInput = memo(({ namesToExclude, onChainSelect }: NameInputProps) => {
   const existentEvmChains = useAllEvmChains();
-  const { register, setValue, watch, formState } = formReturn;
+  const { register, setValue, watch, formState } = useFormContext<AddNetworkFormValues>();
   const { submitCount, errors } = formState;
   const inputValue = watch('name');
   const wasSubmitted = submitCount > 0;
@@ -184,7 +182,7 @@ export const NameInput = ({ formReturn, namesToExclude, onChainSelect }: NameInp
       )}
     </div>
   );
-};
+});
 
 interface ChainVariantProps {
   variant: ViemChain;

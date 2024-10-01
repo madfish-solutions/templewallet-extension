@@ -15,15 +15,6 @@ export const getReadOnlyEvm = memoizee(
 
 export const getViemChainsList = memoizee(() => Object.values(ViemChains));
 
-export const getViemMainnetChainsIds = memoizee(
-  () =>
-    new Set(
-      getViemChainsList()
-        .filter(({ testnet }) => testnet !== true)
-        .map(({ id }) => id)
-    )
-);
-
 export function loadEvmChainId(rpcUrl: string, timeout?: number) {
   const rpc = getReadOnlyEvm(rpcUrl);
 

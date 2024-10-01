@@ -3,8 +3,7 @@ import { useCallback, useMemo } from 'react';
 import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
 import { EvmAssetStandard } from 'lib/evm/types';
 import { EvmNativeTokenMetadata } from 'lib/metadata/types';
-import { TempleTezosChainId } from 'lib/temple/types';
-import { getViemChainsList, getViemMainnetChainsIds } from 'temple/evm';
+import { getViemChainsList } from 'temple/evm';
 import {
   DEFAULT_EVM_CURRENCY,
   EVM_DEFAULT_NETWORKS,
@@ -82,31 +81,6 @@ type StoredNetwork<T extends OneOfChains> = T extends TezosChain ? StoredTezosNe
 // This type works even worse if specified with omitting props of `T`
 type ChainBaseProps<T extends OneOfChains> = ChainBase & Pick<T, 'chainId' | 'rpc' | 'allRpcs'>;
 
-function useMainnetChainsIds<T extends OneOfChains>(
-  chainKind: T['kind'],
-  chainsSpecs: OptionalRecord<Specs<T>>
-): Set<T['chainId']> {
-  return useMemo(() => {
-    if (chainKind === TempleChainKind.Tezos) {
-      return new Set([TempleTezosChainId.Mainnet, TempleTezosChainId.Dcp]);
-    }
-
-    const result = new Set<number>(getViemMainnetChainsIds());
-
-    for (const chainId in chainsSpecs) {
-      const isMainnet = chainsSpecs[chainId]?.mainnet;
-
-      if (isMainnet) {
-        result.add(Number(chainId));
-      } else if (isMainnet === false) {
-        result.delete(Number(chainId));
-      }
-    }
-
-    return result;
-  }, [chainKind, chainsSpecs]);
-}
-
 function useChains<T extends OneOfChains>(
   makeChain: (baseProps: ChainBaseProps<T>, specs?: Specs<T>) => T,
   chainsSpecs: OptionalRecord<Specs<T>>,
@@ -115,7 +89,6 @@ function useChains<T extends OneOfChains>(
   chainKind: T['kind']
 ) {
   const { allBlockExplorers } = useBlockExplorers();
-  const mainnetChainsIds = useMainnetChainsIds(chainKind, chainsSpecs);
 
   const allChains = useMemo(() => {
     const rpcByChainId = new Map<T['chainId'], NonEmptyArray<StoredNetwork<T>>>();
@@ -150,7 +123,7 @@ function useChains<T extends OneOfChains>(
         allBlockExplorers: chainBlockExplorers,
         activeBlockExplorer:
           chainBlockExplorers.find(({ id }) => id === specs?.activeBlockExplorerId) ?? chainBlockExplorers[0],
-        testnet: !mainnetChainsIds.has(chainId),
+        testnet: specs?.testnet,
         default: Boolean(defaultRpc)
       };
 
@@ -158,7 +131,7 @@ function useChains<T extends OneOfChains>(
     }
 
     return chains;
-  }, [allBlockExplorers, chainKind, chainsSpecs, defaultNetworks, mainnetChainsIds, makeChain, networks]);
+  }, [allBlockExplorers, chainKind, chainsSpecs, defaultNetworks, makeChain, networks]);
 
   const enabledChains = useMemo(() => Object.values(allChains).filter(chain => !chain.disabled), [allChains]);
 

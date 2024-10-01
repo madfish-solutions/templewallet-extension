@@ -1,7 +1,7 @@
 import React, { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { noop } from 'lodash';
-import { Controller, useForm } from 'react-hook-form-v7';
+import { Controller, FormProvider, useForm } from 'react-hook-form-v7';
 
 import { FormField } from 'app/atoms';
 import { PageModal } from 'app/atoms/PageModal';
@@ -91,7 +91,6 @@ export const AddNetworkModal = memo<AddNetworkModalProps>(({ isOpen, onClose }) 
     prevSuggestedFormValuesRef.current = suggestedFormValues;
 
     if (suggestedFormValues) {
-      console.log('oy vey 2', suggestedFormValues);
       reset({ ...formValues, ...suggestedFormValues });
     }
   }, [formValues, reset, suggestedFormValues]);
@@ -136,124 +135,126 @@ export const AddNetworkModal = memo<AddNetworkModalProps>(({ isOpen, onClose }) 
 
   return (
     <PageModal opened={isOpen} onRequestClose={closeModal} title={t('addNetwork')}>
-      <form className="flex-1 flex flex-col max-h-full" onSubmit={handleSubmit(onSubmit)}>
-        <ScrollView
-          className="py-4 gap-4"
-          bottomEdgeThreshold={16}
-          onBottomEdgeVisibilityChange={setBottomEdgeIsVisible}
-        >
-          <NameInput formReturn={formReturn} namesToExclude={namesToExclude} onChainSelect={handleChainSelect} />
-
-          <div className="flex flex-col gap-8">
-            <UrlInput
-              name="rpcUrl"
-              label="RPC URL"
-              formReturn={formReturn}
-              urlsToExclude={rpcUrlsToExclude}
-              isEditable
-              id="add-network-rpc-url"
-              placeholder="https://rpc.link"
-              showErrorBeforeSubmit
-              submitError={submitError}
-              textarea
-              required
-              resetSubmitError={resetSubmitError}
-              pasteButtonTestID={NetworkSettingsSelectors.pasteRpcUrlButton}
-              testID={NetworkSettingsSelectors.rpcUrlInput}
-            />
-
-            <FormField
-              {...register('chainId', {
-                required: t('required'),
-                validate: validateChainId,
-                onChange: resetSubmitError
-              })}
-              cleanable={Boolean(chainId)}
-              onClean={clearChainId}
-              labelContainerClassName="w-full flex justify-between items-center"
-              label={
-                <>
-                  <T id="chainId" />
-                  <Tooltip
-                    content={
-                      <span className="font-normal">
-                        <T id="chainIdTooltip" />
-                      </span>
-                    }
-                    size={16}
-                    className="text-grey-3"
-                    wrapperClassName="max-w-60"
-                  />
-                </>
-              }
-              placeholder="1"
-              errorCaption={isSubmitted && errors.chainId?.message}
-              testID={NetworkSettingsSelectors.chainIdInput}
-            />
-
-            <FormField
-              {...register('symbol', { required: t('required') })}
-              cleanable={Boolean(symbol)}
-              onClean={clearSymbol}
-              label={<T id="symbol" />}
-              placeholder="ETH"
-              errorCaption={isSubmitted && errors.symbol?.message}
-              testID={NetworkSettingsSelectors.symbolInput}
-            />
-          </div>
-
-          <div className="flex flex-col gap-8">
-            <UrlInput
-              name="explorerUrl"
-              label={<T id="blockExplorerUrl" />}
-              formReturn={formReturn}
-              urlsToExclude={explorersUrlsToExclude}
-              isEditable
-              id="add-network-explorer-url"
-              placeholder="https://etherscan.io"
-              submitError={undefined}
-              textarea={false}
-              required={false}
-              resetSubmitError={noop}
-              pasteButtonTestID={NetworkSettingsSelectors.pasteExplorerUrlButton}
-              testID={NetworkSettingsSelectors.explorerUrlInput}
-            />
-
-            <Controller
-              control={control}
-              name="testnet"
-              render={({ field }) => (
-                <SettingsCheckbox
-                  {...field}
-                  checked={field.value}
-                  label={<T id="testnet" />}
-                  testID={NetworkSettingsSelectors.testnetCheckbox}
-                />
-              )}
-            />
-          </div>
-        </ScrollView>
-
-        <ActionsButtonsBox shouldCastShadow={!bottomEdgeIsVisible}>
-          <StyledButton
-            className="w-full"
-            size="L"
-            color="primary"
-            disabled={shouldDisableSubmitButton({
-              errors,
-              formState,
-              errorsBeforeSubmitFields: ['rpcUrl'],
-              otherErrors: [submitError],
-              disableWhileSubmitting: false
-            })}
-            loading={suggestedFormValuesLoading || isSubmitting}
-            type="submit"
-            testID={NetworkSettingsSelectors.saveButton}
+      <FormProvider {...formReturn}>
+        <form className="flex-1 flex flex-col max-h-full" onSubmit={handleSubmit(onSubmit)}>
+          <ScrollView
+            className="py-4 gap-4"
+            bottomEdgeThreshold={16}
+            onBottomEdgeVisibilityChange={setBottomEdgeIsVisible}
           >
-            <T id="save" />
-          </StyledButton>
-        </ActionsButtonsBox>
-      </form>
+            <NameInput namesToExclude={namesToExclude} onChainSelect={handleChainSelect} />
+
+            <div className="flex flex-col gap-8">
+              <UrlInput
+                name="rpcUrl"
+                label="RPC URL"
+                formReturn={formReturn}
+                urlsToExclude={rpcUrlsToExclude}
+                isEditable
+                id="add-network-rpc-url"
+                placeholder="https://rpc.link"
+                showErrorBeforeSubmit
+                submitError={submitError}
+                textarea
+                required
+                resetSubmitError={resetSubmitError}
+                pasteButtonTestID={NetworkSettingsSelectors.pasteRpcUrlButton}
+                testID={NetworkSettingsSelectors.rpcUrlInput}
+              />
+
+              <FormField
+                {...register('chainId', {
+                  required: t('required'),
+                  validate: validateChainId,
+                  onChange: resetSubmitError
+                })}
+                cleanable={Boolean(chainId)}
+                onClean={clearChainId}
+                labelContainerClassName="w-full flex justify-between items-center"
+                label={
+                  <>
+                    <T id="chainId" />
+                    <Tooltip
+                      content={
+                        <span className="font-normal">
+                          <T id="chainIdTooltip" />
+                        </span>
+                      }
+                      size={16}
+                      className="text-grey-3"
+                      wrapperClassName="max-w-60"
+                    />
+                  </>
+                }
+                placeholder="1"
+                errorCaption={isSubmitted && errors.chainId?.message}
+                testID={NetworkSettingsSelectors.chainIdInput}
+              />
+
+              <FormField
+                {...register('symbol', { required: t('required') })}
+                cleanable={Boolean(symbol)}
+                onClean={clearSymbol}
+                label={<T id="symbol" />}
+                placeholder="ETH"
+                errorCaption={isSubmitted && errors.symbol?.message}
+                testID={NetworkSettingsSelectors.symbolInput}
+              />
+            </div>
+
+            <div className="flex flex-col gap-8">
+              <UrlInput
+                name="explorerUrl"
+                label={<T id="blockExplorerUrl" />}
+                formReturn={formReturn}
+                urlsToExclude={explorersUrlsToExclude}
+                isEditable
+                id="add-network-explorer-url"
+                placeholder="https://etherscan.io"
+                submitError={undefined}
+                textarea={false}
+                required={false}
+                resetSubmitError={noop}
+                pasteButtonTestID={NetworkSettingsSelectors.pasteExplorerUrlButton}
+                testID={NetworkSettingsSelectors.explorerUrlInput}
+              />
+
+              <Controller
+                control={control}
+                name="testnet"
+                render={({ field }) => (
+                  <SettingsCheckbox
+                    {...field}
+                    checked={field.value}
+                    label={<T id="testnet" />}
+                    testID={NetworkSettingsSelectors.testnetCheckbox}
+                  />
+                )}
+              />
+            </div>
+          </ScrollView>
+
+          <ActionsButtonsBox shouldCastShadow={!bottomEdgeIsVisible}>
+            <StyledButton
+              className="w-full"
+              size="L"
+              color="primary"
+              disabled={shouldDisableSubmitButton({
+                errors,
+                formState,
+                errorsBeforeSubmitFields: ['rpcUrl'],
+                otherErrors: [submitError],
+                disableWhileSubmitting: false
+              })}
+              loading={suggestedFormValuesLoading || isSubmitting}
+              type="submit"
+              testID={NetworkSettingsSelectors.saveButton}
+            >
+              <T id="save" />
+            </StyledButton>
+          </ActionsButtonsBox>
+        </form>
+      </FormProvider>
     </PageModal>
   );
 });

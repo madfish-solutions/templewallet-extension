@@ -23,7 +23,7 @@ import {
   useEnabledTezosChains
 } from 'temple/front';
 import { BlockExplorer } from 'temple/front/block-explorers';
-import { isTestnetChain } from 'temple/front/chains';
+import { isPossibleTestnetChain } from 'temple/front/chains';
 import { StoredEvmNetwork, StoredTezosNetwork } from 'temple/networks';
 import { TempleChainKind } from 'temple/types';
 
@@ -64,12 +64,12 @@ const ChainExistentSettings = memo<ChainExistentSettingsProps>(({ chain, bottomE
     [enabledEvmChains, enabledTezChains]
   );
   const enabledMainnetChains = useMemo(
-    () => allEnabledChains.filter(chain => !isTestnetChain(chain)),
+    () => allEnabledChains.filter(chain => !isPossibleTestnetChain(chain)),
     [allEnabledChains]
   );
-  const enabledTestnetChains = useMemo(() => allEnabledChains.filter(isTestnetChain), [allEnabledChains]);
+  const enabledTestnetChains = useMemo(() => allEnabledChains.filter(isPossibleTestnetChain), [allEnabledChains]);
   const shouldPreventDisablingChain =
-    (isTestnetChain(chain) ? enabledTestnetChains : enabledMainnetChains).length === 1;
+    (isPossibleTestnetChain(chain) ? enabledTestnetChains : enabledMainnetChains).length === 1;
 
   const handleConfirmRemoveClick = useCallback(() => {
     closeRemoveChainModal();
