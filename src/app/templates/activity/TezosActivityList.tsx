@@ -8,7 +8,7 @@ import { preparseTezosOperationsGroup } from 'lib/activity/tezos';
 import fetchTezosOperationsGroups from 'lib/activity/tezos/fetch';
 import { TezosPreActivity } from 'lib/activity/tezos/types';
 import { isKnownChainId } from 'lib/apis/tzkt/api';
-import { useDidMount, useDidUpdate, useSafeState, useStopper } from 'lib/ui/hooks';
+import { useDidMount, useDidUpdate, useSafeState, useAbortSignal } from 'lib/ui/hooks';
 import { useAccountAddressForTezos, useTezosChainByChainId } from 'temple/front';
 import { TezosNetworkEssentials } from 'temple/networks';
 
@@ -76,9 +76,9 @@ function useTezosActivitiesLoadingLogic(
   const [activities, setActivities] = useSafeState<TezosPreActivity[]>([]);
   const [reachedTheEnd, setReachedTheEnd] = useSafeState(false);
 
-  const { stop: stopLoading, stopAndBuildChecker } = useStopper();
+  const { abort: abortLoading, abortAndRenewSignal } = useAbortSignal();
 
-  async function loadActivities(pseudoLimit: number, activities: TezosPreActivity[], shouldStop: () => boolean) {
+  async function loadActivities(pseudoLimit: number, activities: TezosPreActivity[], signal: AbortSignal) {
     if (!isKnownChainId(chainId)) {
       setIsLoading(false);
       setReachedTheEnd(true);
@@ -86,7 +86,7 @@ function useTezosActivitiesLoadingLogic(
     }
 
     setIsLoading(activities.length ? 'more' : 'init');
-    const lastActivity = activities[activities.length - 1];
+    const lastActivity = activities.at(-1);
 
     let newActivities: TezosPreActivity[];
     try {
@@ -98,11 +98,11 @@ function useTezosActivitiesLoadingLogic(
         pseudoLimit,
         lastActivity
       );
-      if (shouldStop()) return;
+      if (signal.aborted) return;
 
       newActivities = groups.map(group => preparseTezosOperationsGroup(group, accountAddress, chainId));
     } catch (error) {
-      if (shouldStop()) return;
+      if (signal.aborted) return;
       setIsLoading(false);
       console.error(error);
 
@@ -117,13 +117,13 @@ function useTezosActivitiesLoadingLogic(
   /** Loads more of older items */
   function loadMore(pseudoLimit: number) {
     if (isLoading || reachedTheEnd) return;
-    loadActivities(pseudoLimit, activities, stopAndBuildChecker());
+    loadActivities(pseudoLimit, activities, abortAndRenewSignal());
   }
 
   useDidMount(() => {
-    loadActivities(initialPseudoLimit, [], stopAndBuildChecker());
+    loadActivities(initialPseudoLimit, [], abortAndRenewSignal());
 
-    return stopLoading;
+    return abortLoading;
   });
 
   useDidUpdate(() => {
@@ -131,7 +131,7 @@ function useTezosActivitiesLoadingLogic(
     setIsLoading('init');
     setReachedTheEnd(false);
 
-    loadActivities(initialPseudoLimit, [], stopAndBuildChecker());
+    loadActivities(initialPseudoLimit, [], abortAndRenewSignal());
   }, [chainId, accountAddress, assetSlug]);
 
   return {

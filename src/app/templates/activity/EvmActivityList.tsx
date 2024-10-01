@@ -9,7 +9,7 @@ import { useLoadPartnersPromo } from 'app/hooks/use-load-partners-promo';
 import { EvmActivity } from 'lib/activity';
 import { getEvmAssetTransactions } from 'lib/activity/evm';
 import { useGetEvmChainAssetMetadata } from 'lib/metadata';
-import { useDidMount, useDidUpdate, useSafeState, useStopper } from 'lib/ui/hooks';
+import { useDidMount, useDidUpdate, useSafeState, useAbortSignal } from 'lib/ui/hooks';
 import { useAccountAddressForEvm } from 'temple/front';
 import { useEvmChainByChainId } from 'temple/front/chains';
 
@@ -33,25 +33,25 @@ export const EvmActivityList: FC<Props> = ({ chainId, assetSlug }) => {
   const [activities, setActivities] = useSafeState<EvmActivity[]>([]);
   const [nextPage, setNextPage] = useSafeState<number | nullish>(undefined);
 
-  const { stop: stopLoading, stopAndBuildChecker } = useStopper();
+  const { abort: abortLoading, abortAndRenewSignal } = useAbortSignal();
 
   const getMetadata = useGetEvmChainAssetMetadata(chainId);
 
-  const loadActivities = async (activities: EvmActivity[], shouldStop: () => boolean, page?: number) => {
+  const loadActivities = async (activities: EvmActivity[], signal: AbortSignal, page?: number) => {
     // if (isLoading) return;
 
     setIsLoading(true);
 
     let newActivities: EvmActivity[], newNextPage: number | null;
     try {
-      const data = await getEvmAssetTransactions(accountAddress, chainId, getMetadata, assetSlug, page);
+      const data = await getEvmAssetTransactions(accountAddress, chainId, getMetadata, assetSlug, page, signal);
 
       newNextPage = data.nextPage;
       newActivities = data.activities;
 
-      if (shouldStop()) return; // TODO: If so - save time on parsing then)
+      if (signal.aborted) return; // TODO: If so - save time on parsing then)
     } catch (error) {
-      if (shouldStop()) return;
+      if (signal.aborted) return;
       setIsLoading(false);
       if (error instanceof AxiosError && error.status === 501) setReachedTheEnd(true);
       console.error(error);
@@ -68,13 +68,13 @@ export const EvmActivityList: FC<Props> = ({ chainId, assetSlug }) => {
   /** Loads more of older items */
   function loadMore() {
     if (isLoading || reachedTheEnd || nextPage === null) return;
-    loadActivities(activities, stopAndBuildChecker(), nextPage);
+    loadActivities(activities, abortAndRenewSignal(), nextPage);
   }
 
   useDidMount(() => {
-    loadActivities([], stopAndBuildChecker());
+    loadActivities([], abortAndRenewSignal());
 
-    return stopLoading;
+    return abortLoading;
   });
 
   useDidUpdate(() => {
@@ -82,7 +82,7 @@ export const EvmActivityList: FC<Props> = ({ chainId, assetSlug }) => {
     setIsLoading(false);
     setReachedTheEnd(false);
 
-    loadActivities([], stopAndBuildChecker());
+    loadActivities([], abortAndRenewSignal());
   }, [chainId, accountAddress, assetSlug]);
 
   if (activities.length === 0 && !isLoading && reachedTheEnd) {

@@ -5,9 +5,14 @@ import { InfiniteScroll } from 'app/atoms/InfiniteScroll';
 import { useLoadPartnersPromo } from 'app/hooks/use-load-partners-promo';
 import { Activity, EvmActivity } from 'lib/activity';
 import { getEvmAssetTransactions } from 'lib/activity/evm';
+import { preparseTezosOperationsGroup } from 'lib/activity/tezos';
+import fetchTezosOperationsGroups from 'lib/activity/tezos/fetch';
 import { TezosPreActivity } from 'lib/activity/tezos/types';
+import { TzktApiChainId } from 'lib/apis/tzkt';
+import { isKnownChainId as isKnownTzktChainId } from 'lib/apis/tzkt/api';
 import { EvmAssetMetadataGetter, useGetEvmAssetMetadata } from 'lib/metadata';
-import { useDidMount, useDidUpdate, useSafeState, useStopper } from 'lib/ui/hooks';
+import { useDidMount, useDidUpdate, useSafeState, useAbortSignal } from 'lib/ui/hooks';
+import { isTruthy } from 'lib/utils';
 import {
   useAccountAddressForEvm,
   useAccountAddressForTezos,
@@ -31,6 +36,20 @@ export const MultichainActivityList = memo(() => {
   const tezAccAddress = useAccountAddressForTezos();
   const evmAccAddress = useAccountAddressForEvm();
 
+  const tezosLoaders = useMemo(
+    () =>
+      tezAccAddress
+        ? tezosChains
+            .map(chain =>
+              isKnownTzktChainId(chain.chainId)
+                ? new TezosActivityLoader(chain.chainId, tezAccAddress, chain.rpcBaseURL)
+                : null
+            )
+            .filter(isTruthy)
+        : [],
+    [tezosChains, tezAccAddress]
+  );
+
   const evmLoaders = useMemo(
     () => (evmAccAddress ? evmChains.map(chain => new EvmActivityLoader(chain.chainId, evmAccAddress)) : []),
     [evmChains, evmAccAddress]
@@ -40,22 +59,29 @@ export const MultichainActivityList = memo(() => {
   const [reachedTheEnd, setReachedTheEnd] = useSafeState(false);
   const [activities, setActivities] = useState<(EvmActivity | TezosPreActivity)[]>([]);
 
-  const { stop: stopLoading, stopAndBuildChecker } = useStopper();
+  const { abort: abortLoading, abortAndRenewSignal } = useAbortSignal();
 
   const getEvmMetadata = useGetEvmAssetMetadata();
 
-  async function loadActivities(shouldStop: () => boolean) {
-    if (shouldStop()) return;
+  async function loadActivities(signal: AbortSignal) {
+    if (signal.aborted) return;
 
     setIsLoading(true);
 
-    await Promise.allSettled(evmLoaders.map(l => l.loadNext((slug: string) => getEvmMetadata(slug, l.chainId))));
+    const allLoaders = [...tezosLoaders, ...evmLoaders];
+    const lastEdgeDate = activities.at(-1)?.addedAt;
 
-    if (shouldStop()) return;
+    await Promise.allSettled(
+      evmLoaders
+        .map(l => l.loadNext((slug: string) => getEvmMetadata(slug, l.chainId), lastEdgeDate, signal))
+        .concat(tezosLoaders.map(l => l.loadNext(lastEdgeDate, signal)))
+    );
+
+    if (signal.aborted) return;
 
     let edgeDate: string | undefined;
 
-    for (const l of evmLoaders) {
+    for (const l of allLoaders) {
       if (l.reachedTheEnd || l.lastError) continue;
 
       const lastAct = l.activities.at(-1);
@@ -69,7 +95,7 @@ export const MultichainActivityList = memo(() => {
       if (lastAct.addedAt > edgeDate) edgeDate = lastAct.addedAt;
     }
 
-    const newActivities = evmLoaders
+    const newActivities = allLoaders
       .map(l => {
         if (!edgeDate) return l.activities;
 
@@ -90,13 +116,13 @@ export const MultichainActivityList = memo(() => {
   /** Loads more of older items */
   function loadMore() {
     if (isLoading || reachedTheEnd) return;
-    loadActivities(stopAndBuildChecker());
+    loadActivities(abortAndRenewSignal());
   }
 
   useDidMount(() => {
-    loadActivities(stopAndBuildChecker());
+    loadActivities(abortAndRenewSignal());
 
-    return stopLoading;
+    return abortLoading;
   });
 
   useDidUpdate(() => {
@@ -104,7 +130,7 @@ export const MultichainActivityList = memo(() => {
     setIsLoading(true);
     setReachedTheEnd(false);
 
-    loadActivities(stopAndBuildChecker());
+    loadActivities(abortAndRenewSignal());
   }, [tezAccAddress, evmAccAddress]);
 
   const displayActivities = useMemo(
@@ -163,7 +189,17 @@ class EvmActivityLoader {
     return this.nextPage === null;
   }
 
-  async loadNext(getMetadata: EvmAssetMetadataGetter, assetSlug?: string) {
+  async loadNext(
+    getMetadata: EvmAssetMetadataGetter,
+    edgeDate: string | undefined,
+    signal: AbortSignal,
+    assetSlug?: string
+  ) {
+    if (edgeDate) {
+      const lastAct = this.activities.at(-1);
+      if (lastAct && lastAct.addedAt > edgeDate) return;
+    }
+
     try {
       // if (this.isLoading) return;
       // this.isLoading = true;
@@ -177,9 +213,11 @@ class EvmActivityLoader {
         chainId,
         getMetadata,
         assetSlug,
-        nextPage
+        nextPage,
+        signal
       );
-      // TODO: Apply if shouldn't have stopped only
+
+      if (signal.aborted) return;
 
       this.nextPage = newNextPage;
 
@@ -189,6 +227,55 @@ class EvmActivityLoader {
       // if (newNextPage == null) this.reachedTheEnd = true;
 
       // this.isLoading = false;
+
+      delete this.lastError;
+    } catch (error) {
+      console.error(error);
+      this.lastError = error;
+    }
+  }
+}
+
+class TezosActivityLoader {
+  activities: TezosPreActivity[] = [];
+  reachedTheEnd = false;
+  lastError: unknown;
+
+  constructor(
+    readonly chainId: TzktApiChainId,
+    readonly accountAddress: string,
+    private rpcBaseURL: string,
+    private pseudoLimit = 30
+  ) {
+    //
+  }
+
+  async loadNext(edgeDate: string | undefined, signal: AbortSignal, assetSlug?: string) {
+    if (edgeDate) {
+      const lastAct = this.activities.at(-1);
+      if (lastAct && lastAct.addedAt > edgeDate) return;
+    }
+
+    try {
+      const { accountAddress, chainId, rpcBaseURL } = this;
+
+      const lastActivity = this.activities.at(-1);
+
+      const groups = await fetchTezosOperationsGroups(
+        chainId,
+        rpcBaseURL,
+        accountAddress,
+        assetSlug,
+        this.pseudoLimit,
+        lastActivity
+      );
+
+      if (signal.aborted) return;
+
+      const newActivities = groups.map(group => preparseTezosOperationsGroup(group, accountAddress, chainId));
+
+      if (newActivities.length) this.activities = this.activities.concat(newActivities);
+      else this.reachedTheEnd = true;
 
       delete this.lastError;
     } catch (error) {

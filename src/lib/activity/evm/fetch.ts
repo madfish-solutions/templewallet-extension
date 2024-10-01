@@ -12,10 +12,11 @@ export async function getEvmAssetTransactions(
   chainId: number,
   getMetadata: EvmAssetMetadataGetter,
   assetSlug?: string,
-  page?: number
+  page?: number,
+  signal?: AbortSignal
 ) {
   if (!assetSlug || assetSlug === EVM_TOKEN_SLUG) {
-    const { items, nextPage } = await getEvmTransactions(walletAddress, chainId, page);
+    const { items, nextPage } = await getEvmTransactions(walletAddress, chainId, page, signal);
 
     return {
       activities: items.map<EvmActivity>(item => parseGoldRushTransaction(item, chainId, walletAddress, getMetadata)),
@@ -47,7 +48,7 @@ export async function getEvmAssetTransactions(
   return { nextPage: null, activities: [] };
   */
 
-  const { items, nextPage } = await getEvmERC20Transfers(walletAddress, chainId, contract, page);
+  const { items, nextPage } = await getEvmERC20Transfers(walletAddress, chainId, contract, page, signal);
 
   return {
     activities: items.map<EvmActivity>(item => parseGoldRushERC20Transfer(item, chainId, walletAddress, getMetadata)),

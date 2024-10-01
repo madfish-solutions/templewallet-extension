@@ -16,20 +16,38 @@ export const getEvmTokensMetadata = (walletAddress: string, chainId: ChainID) =>
 export const getEvmCollectiblesMetadata = (walletAddress: string, chainId: ChainID) =>
   buildEvmRequest<NftAddressBalanceNftResponse>('/collectibles-metadata', walletAddress, chainId);
 
-export const getEvmTransactions = (walletAddress: string, chainId: ChainID, page?: number) =>
-  buildEvmRequest<{ items: GoldRushTransaction[]; current_page: number }>('/transactions', walletAddress, chainId, {
-    page
-  }).then(({ items, current_page }) => ({
+export const getEvmTransactions = (walletAddress: string, chainId: ChainID, page?: number, signal?: AbortSignal) =>
+  buildEvmRequest<{ items: GoldRushTransaction[]; current_page: number }>(
+    '/transactions',
+    walletAddress,
+    chainId,
+    {
+      page
+    },
+    signal
+  ).then(({ items, current_page }) => ({
     items,
     /** null | \> 0 */
     nextPage: current_page > 1 ? current_page - 1 : null
   }));
 
-export const getEvmERC20Transfers = (walletAddress: string, chainId: ChainID, contractAddress: string, page?: number) =>
-  buildEvmRequest<Erc20TransfersResponse>('/erc20-transfers', walletAddress, chainId, {
-    contractAddress,
-    page
-  }).then(({ items, pagination }) => {
+export const getEvmERC20Transfers = (
+  walletAddress: string,
+  chainId: ChainID,
+  contractAddress: string,
+  page?: number,
+  signal?: AbortSignal
+) =>
+  buildEvmRequest<Erc20TransfersResponse>(
+    '/erc20-transfers',
+    walletAddress,
+    chainId,
+    {
+      contractAddress,
+      page
+    },
+    signal
+  ).then(({ items, pagination }) => {
     const withoutNextPage = items && pagination ? items.length < pagination.page_size : true;
 
     return {
@@ -39,10 +57,17 @@ export const getEvmERC20Transfers = (walletAddress: string, chainId: ChainID, co
     };
   });
 
-const buildEvmRequest = <T>(url: string, walletAddress: string, chainId: ChainID, params?: object) =>
+const buildEvmRequest = <T>(
+  url: string,
+  walletAddress: string,
+  chainId: ChainID,
+  params?: object,
+  signal?: AbortSignal
+) =>
   templeWalletApi
     .get<T>(`evm${url}`, {
-      params: { ...params, walletAddress, chainId }
+      params: { ...params, walletAddress, chainId },
+      signal
     })
     .then(
       res => res.data,
