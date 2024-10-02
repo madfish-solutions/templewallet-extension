@@ -43,13 +43,15 @@ export const InfiniteScroll: FC<Props> = ({
   return (
     <ReactInfiniteScrollComponent
       dataLength={itemsLength}
-      hasMore={reachedTheEnd === false}
+      hasMore={!reachedTheEnd}
       next={loadNext}
-      loader={isSyncing && (loader ?? <SyncSpinner className="mt-4" />)}
       onScroll={onScroll}
+      loader={null} // Doesn't always show this way
       scrollableTarget={SCROLL_DOCUMENT ? undefined : APP_CONTENT_PAPER_DOM_ID}
     >
       {children}
+
+      {isSyncing ? loader ?? <SyncSpinner className="mt-4" /> : null}
     </ReactInfiniteScrollComponent>
   );
 };
