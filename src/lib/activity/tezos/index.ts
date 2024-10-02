@@ -1,10 +1,10 @@
 import { TezosPreActivity, TezosPreActivityOperation } from 'lib/activity/tezos/types';
-import { AssetMetadataBase, getAssetSymbol, isTezosCollectibleMetadata } from 'lib/metadata';
+import { AssetMetadataBase, isTezosCollectibleMetadata } from 'lib/metadata';
 import { isTezosContractAddress } from 'lib/tezos';
 import { TempleChainKind } from 'temple/types';
 
 import { TezosActivity, ActivityOperKindEnum, TezosOperation, TezosActivityAsset } from '../types';
-import { isTransferActivityOperKind } from '../utils';
+import { getAssetSymbol, isTransferActivityOperKind } from '../utils';
 
 export { preparseTezosOperationsGroup } from './pre-parse';
 
@@ -88,7 +88,7 @@ export function parseTezosPreActivityOperation(
       amount: preOperation.amountSigned,
       decimals: assetMetadata.decimals,
       nft: isTezosCollectibleMetadata(assetMetadata),
-      symbol: getAssetSymbol(assetMetadata, true)
+      symbol: getAssetSymbol(assetMetadata)
     };
 
     operationBase.asset = asset;

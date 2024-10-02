@@ -99,6 +99,7 @@ export const MultichainActivityList = memo(() => {
           .map(l => {
             if (!edgeDate) return l.activities;
 
+            // Not optimal, since activities are sorted already:
             // return l.activities.filter(a => a.addedAt >= edgeDate);
 
             const lastIndex = l.activities.findLastIndex(a => a.addedAt >= edgeDate);

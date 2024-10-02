@@ -55,8 +55,8 @@ export interface EvmActivityAsset extends ActivityAssetBase {
 interface ActivityAssetBase {
   contract: string;
   tokenId?: string;
-  /** Signed (with `-` if applicable) */
-  amount?: string | typeof InfinitySymbol; // TODO: Try without symbol
+  /** Signed (with `-` if applicable). `null` for 'unlimited' amount */
+  amount?: string | null;
   decimals: number;
   nft?: boolean;
   symbol?: string;
@@ -66,5 +66,3 @@ export interface OperationMember {
   address: string;
   alias?: string;
 }
-
-export const InfinitySymbol = Symbol('Infinity');

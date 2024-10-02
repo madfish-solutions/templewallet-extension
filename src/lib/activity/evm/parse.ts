@@ -1,12 +1,13 @@
 import { GoldRushERC20Transfer, GoldRushTransaction } from 'lib/apis/temple/endpoints/evm';
 import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
 import { toEvmAssetSlug } from 'lib/assets/utils';
-import { EvmAssetMetadataGetter, getAssetSymbol } from 'lib/metadata';
+import { EvmAssetMetadataGetter } from 'lib/metadata';
 import { isTruthy } from 'lib/utils';
 import { getEvmAddressSafe } from 'lib/utils/evm.utils';
 import { TempleChainKind } from 'temple/types';
 
-import { ActivityOperKindEnum, EvmActivity, EvmActivityAsset, EvmOperation, InfinitySymbol } from '../types';
+import { ActivityOperKindEnum, EvmActivity, EvmActivityAsset, EvmOperation } from '../types';
+import { getAssetSymbol } from '../utils';
 
 export function parseGoldRushTransaction(
   item: GoldRushTransaction,
@@ -133,8 +134,9 @@ export function parseGoldRushTransaction(
 
         if (!contractAddress) return { kind };
 
-        const amountOrTokenId: string = logEvent.decoded.params[2]?.value ?? '0';
-        const nft = logEvent.decoded.params[2]?.indexed ?? false;
+        const amountOrTokenIdParam = logEvent.decoded.params.at(2);
+        const amountOrTokenId: string = amountOrTokenIdParam?.value ?? '0';
+        const nft = amountOrTokenIdParam?.indexed ?? false;
 
         const tokenId = nft ? amountOrTokenId : undefined;
 
@@ -150,7 +152,7 @@ export function parseGoldRushTransaction(
         const asset: EvmActivityAsset = {
           contract: contractAddress,
           tokenId,
-          amount: nft ? '1' : undefined, // Often this amount is too large for non-NFTs
+          amount: nft ? '1' : amountOrTokenId,
           decimals,
           symbol,
           nft,
@@ -174,7 +176,7 @@ export function parseGoldRushTransaction(
 
         const asset: EvmActivityAsset = {
           contract: contractAddress,
-          amount: InfinitySymbol,
+          amount: null,
           decimals: NaN,
           symbol: logEvent.sender_contract_ticker_symbol ?? undefined,
           nft: true,

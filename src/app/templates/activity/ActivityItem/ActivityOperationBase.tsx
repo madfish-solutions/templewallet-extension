@@ -1,4 +1,4 @@
-import React, { FC, useCallback, useMemo } from 'react';
+import React, { FC, ReactNode, useCallback, useMemo } from 'react';
 
 import { Anchor, HashShortView, IconBase, Money } from 'app/atoms';
 import { EvmNetworkLogo, NetworkLogoTooltipWrap, TezosNetworkLogo } from 'app/atoms/NetworkLogo';
@@ -8,7 +8,7 @@ import { ReactComponent as OutLinkIcon } from 'app/icons/base/outLink.svg';
 import { ReactComponent as SendSvg } from 'app/icons/base/send.svg';
 import { ReactComponent as SwapSvg } from 'app/icons/base/swap.svg';
 import { FiatBalance } from 'app/pages/Home/OtherComponents/Tokens/components/Balance';
-import { ActivityOperKindEnum, InfinitySymbol } from 'lib/activity';
+import { ActivityOperKindEnum } from 'lib/activity';
 import { isTransferActivityOperKind } from 'lib/activity/utils';
 import { toEvmAssetSlug, toTezosAssetSlug } from 'lib/assets/utils';
 import { atomsToTokens } from 'lib/temple/helpers';
@@ -30,7 +30,7 @@ interface Props {
 export interface ActivityItemBaseAssetProp {
   contract: string;
   tokenId?: string;
-  amount?: string | typeof InfinitySymbol;
+  amount?: string | null;
   decimals: number;
   symbol?: string;
   iconURL?: string;
@@ -51,33 +51,43 @@ export const ActivityOperationBaseComponent: FC<Props> = ({
       : toTezosAssetSlug(asset.contract, asset.tokenId)
     : null;
 
-  const { amountForFiat, amountJsx } = useMemo(() => {
-    if (!asset) return {};
+  const amountJsx = useMemo<ReactNode>(() => {
+    if (!asset) return null;
 
-    const amountForFiat =
-      typeof asset.amount === 'string' && (kind === 'bundle' || isTransferActivityOperKind(kind))
-        ? atomsToTokens(asset.amount, asset.decimals)
-        : null;
-
-    const amountJsx = (
+    return (
       <div className="text-font-num-14 truncate">
-        {asset.amount ? (
-          asset.amount === InfinitySymbol ? (
-            '∞ '
-          ) : (
-            <>
-              {kind === ActivityOperKindEnum.approve || asset.amount.startsWith('-') ? null : '+'}
-              <Money smallFractionFont={false}>{atomsToTokens(asset.amount, asset.decimals)}</Money>{' '}
-            </>
-          )
+        {kind === ActivityOperKindEnum.approve ? null : asset.amount ? (
+          <>
+            {asset.amount.startsWith('-') ? null : '+'}
+            <Money smallFractionFont={false}>{atomsToTokens(asset.amount, asset.decimals)}</Money>{' '}
+          </>
         ) : null}
-
-        {asset.symbol || '???'}
+        {asset.symbol || '---'}
       </div>
     );
-
-    return { amountForFiat, amountJsx };
   }, [asset, kind]);
+
+  const fiatJsx = useMemo<ReactNode>(() => {
+    if (!asset) return null;
+
+    if (!asset.amount) return asset.amount === null ? 'Unlimited' : null;
+
+    if (kind === ActivityOperKindEnum.approve)
+      return <Money smallFractionFont={false}>{atomsToTokens(asset.amount, asset.decimals)}</Money>;
+
+    if (!assetSlug) return null;
+
+    const amountForFiat =
+      kind === 'bundle' || isTransferActivityOperKind(kind) ? atomsToTokens(asset.amount, asset.decimals) : null;
+
+    return amountForFiat ? (
+      <>
+        {amountForFiat.isPositive() && '+'}
+
+        <FiatBalance evm={typeof chainId === 'number'} chainId={chainId} assetSlug={assetSlug} value={amountForFiat} />
+      </>
+    ) : null;
+  }, [asset, kind, assetSlug, chainId]);
 
   const IconFallback = useCallback<FC>(
     () => (
@@ -138,18 +148,7 @@ export const ActivityOperationBaseComponent: FC<Props> = ({
             <IconBase Icon={OutLinkIcon} size={12} className="invisible group-hover:visible" />
           </Anchor>
 
-          {amountForFiat && assetSlug ? (
-            <div className="shrink-0 flex">
-              {amountForFiat.isPositive() && '+'}
-
-              <FiatBalance
-                evm={typeof chainId === 'number'}
-                chainId={chainId}
-                assetSlug={assetSlug}
-                value={amountForFiat}
-              />
-            </div>
-          ) : null}
+          <div className="shrink-0 flex">{fiatJsx}</div>
         </div>
       </div>
     </div>

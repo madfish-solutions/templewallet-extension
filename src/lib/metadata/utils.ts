@@ -12,8 +12,12 @@ import {
   EvmAssetMetadataBase
 } from './types';
 
-export function getAssetSymbol(metadata: EvmAssetMetadataBase | AssetMetadataBase | nullish, short = false) {
-  if (!metadata || !metadata.symbol) return '???';
+export function getAssetSymbol(
+  metadata: EvmAssetMetadataBase | AssetMetadataBase | nullish,
+  short = false,
+  fallback?: string | null
+) {
+  if (!metadata || !metadata.symbol) return fallback === null ? undefined : fallback ?? '???';
   if (!short) return metadata.symbol;
   return metadata.symbol === 'tez' ? TEZOS_SYMBOL : metadata.symbol.substring(0, 5);
 }
