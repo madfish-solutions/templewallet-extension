@@ -8,15 +8,14 @@ import FastIconSrc from 'app/icons/fee-options/fast.svg?url';
 import MiddleIconSrc from 'app/icons/fee-options/middle.svg?url';
 import SlowIconSrc from 'app/icons/fee-options/slow.svg?url';
 import InFiat from 'app/templates/InFiat';
-import { parseChainAssetSlug } from 'lib/assets/utils';
-import { getAssetSymbol } from 'lib/metadata';
-import { useEvmChainByChainId } from 'temple/front/chains';
+import { getAssetSymbol, TEZOS_METADATA } from 'lib/metadata';
+import { OneOfChains } from 'temple/front/chains';
 import { TempleChainKind } from 'temple/types';
 
-export type OptionLabel = 'slow' | 'mid' | 'fast';
+import { DisplayedFeeOptions, FeeOptionLabel } from '../../interfaces';
 
 interface Option {
-  label: OptionLabel;
+  label: FeeOptionLabel;
   iconSrc: string;
   textColorClassName: string;
 }
@@ -28,54 +27,48 @@ const options: Option[] = [
 ];
 
 interface FeeOptionsProps {
-  chainAssetSlug: string;
-  activeOptionName: OptionLabel | nullish;
-  estimatedFeeOptions: { slow: string; mid: string; fast: string };
-  onOptionClick?: (option: OptionLabel) => void;
+  network: OneOfChains;
+  assetSlug: string;
+  activeOptionName: FeeOptionLabel | nullish;
+  displayedFeeOptions: DisplayedFeeOptions;
+  onOptionClick?: (label: FeeOptionLabel) => void;
 }
 
 export const FeeOptions: FC<FeeOptionsProps> = ({
-  chainAssetSlug,
+  network,
+  assetSlug,
   activeOptionName,
-  estimatedFeeOptions,
+  displayedFeeOptions,
   onOptionClick
-}) => {
-  const [chainKind, chainId, assetSlug] = useMemo(() => parseChainAssetSlug(chainAssetSlug), [chainAssetSlug]);
-
-  const isEvm = chainKind === TempleChainKind.EVM;
-
-  return (
-    <div className="flex flex-row gap-x-2">
-      {options.map(option => (
-        <Option
-          key={option.label}
-          isEvm={isEvm}
-          chainId={chainId}
-          assetSlug={assetSlug}
-          option={option}
-          amount={estimatedFeeOptions[option.label]}
-          active={activeOptionName === option.label}
-          onClick={() => onOptionClick?.(option.label)}
-        />
-      ))}
-    </div>
-  );
-};
+}) => (
+  <div className="flex flex-row gap-x-2">
+    {options.map(option => (
+      <Option
+        key={option.label}
+        network={network}
+        assetSlug={assetSlug}
+        option={option}
+        value={displayedFeeOptions[option.label]}
+        active={activeOptionName === option.label}
+        onClick={() => onOptionClick?.(option.label)}
+      />
+    ))}
+  </div>
+);
 
 interface OptionProps {
-  isEvm: boolean;
-  chainId: number | string;
+  network: OneOfChains;
   assetSlug: string;
   active: boolean;
   option: Option;
-  amount: string;
+  value: string;
   onClick?: EmptyFn;
 }
 
-const Option: FC<OptionProps> = ({ isEvm, chainId, assetSlug, active, option, amount, onClick }) => {
-  const network = useEvmChainByChainId(chainId as number)!;
+const Option: FC<OptionProps> = ({ network, assetSlug, active, option, value, onClick }) => {
+  const isEvm = network.kind === TempleChainKind.EVM;
 
-  const nativeAssetSymbol = useMemo(() => getAssetSymbol(network?.currency), [network]);
+  const nativeAssetSymbol = useMemo(() => getAssetSymbol(isEvm ? network?.currency : TEZOS_METADATA), [isEvm, network]);
 
   return (
     <div
@@ -94,9 +87,9 @@ const Option: FC<OptionProps> = ({ isEvm, chainId, assetSlug, active, option, am
       </div>
       <div className="flex flex-col text-center">
         <InFiat
-          chainId={chainId}
+          chainId={network.chainId}
           assetSlug={assetSlug}
-          volume={amount}
+          volume={value}
           smallFractionFont={false}
           roundingMode={BigNumber.ROUND_FLOOR}
           evm={isEvm}
@@ -114,7 +107,7 @@ const Option: FC<OptionProps> = ({ isEvm, chainId, assetSlug, active, option, am
             smallFractionFont={false}
             tooltipPlacement="bottom"
           >
-            {amount}
+            {value}
           </Money>{' '}
           {nativeAssetSymbol}
         </span>

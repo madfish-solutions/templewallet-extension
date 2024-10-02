@@ -24,17 +24,17 @@ import { useEvmAddressByDomainName } from 'temple/front/evm/ens';
 import { useSettings } from 'temple/front/ready';
 
 import { BaseForm } from './BaseForm';
-import { SendFormData } from './interfaces';
+import { ReviewData, SendFormData } from './interfaces';
 import { getMaxAmountFiat } from './utils';
 
 interface Props {
   chainId: number;
   assetSlug: string;
   onSelectAssetClick: EmptyFn;
-  onConfirm: (data: SendFormData) => void;
+  onReview: (data: ReviewData) => void;
 }
 
-export const EvmForm: FC<Props> = ({ chainId, assetSlug, onSelectAssetClick, onConfirm }) => {
+export const EvmForm: FC<Props> = ({ chainId, assetSlug, onSelectAssetClick, onReview }) => {
   const account = useAccountForEvm();
   const network = useEvmChainByChainId(chainId);
 
@@ -190,13 +190,24 @@ export const EvmForm: FC<Props> = ({ chainId, assetSlug, onSelectAssetClick, onC
 
       const actualAmount = shouldUseFiat ? toAssetAmount(amount) : amount;
 
-      onConfirm({ amount: actualAmount, to: toResolved });
+      onReview({ accountPkh, assetSlug, network, amount: actualAmount, to: toResolved });
 
       reset({ to: '', amount: '' });
 
       formAnalytics.trackSubmitSuccess();
     },
-    [formAnalytics, formState.isSubmitting, onConfirm, reset, shouldUseFiat, toAssetAmount, toResolved]
+    [
+      accountPkh,
+      assetSlug,
+      formAnalytics,
+      formState.isSubmitting,
+      network,
+      onReview,
+      reset,
+      shouldUseFiat,
+      toAssetAmount,
+      toResolved
+    ]
   );
 
   return (

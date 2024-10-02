@@ -12,7 +12,7 @@ import { useAccountAddressForEvm } from 'temple/front';
 import { TempleChainKind } from 'temple/types';
 
 import { Form } from './form';
-import { SendFormData } from './form/interfaces';
+import { ReviewData } from './form/interfaces';
 import { SpinnerSection } from './form/SpinnerSection';
 import { ConfirmSendModal } from './modals/ConfirmSend';
 import { SelectAssetModal } from './modals/SelectAsset';
@@ -50,7 +50,7 @@ const Send = memo<Props>(({ chainKind, chainId, assetSlug }) => {
   const [selectAssetModalOpened, setSelectAssetModalOpen, setSelectAssetModalClosed] = useBooleanState(false);
   const [confirmSendModalOpened, setConfirmSendModalOpen, setConfirmSendModalClosed] = useBooleanState(false);
 
-  const [confirmData, setConfirmData] = useState<SendFormData | null>(null);
+  const [reviewData, setReviewData] = useState<ReviewData>();
 
   const handleAssetSelect = useCallback(
     (slug: string) => {
@@ -60,9 +60,9 @@ const Send = memo<Props>(({ chainKind, chainId, assetSlug }) => {
     [setSelectAssetModalClosed]
   );
 
-  const handleConfirm = useCallback(
-    (data: SendFormData) => {
-      setConfirmData(data);
+  const handleReview = useCallback(
+    (data: ReviewData) => {
+      setReviewData(data);
       setConfirmSendModalOpen();
     },
     [setConfirmSendModalOpen]
@@ -77,7 +77,7 @@ const Send = memo<Props>(({ chainKind, chainId, assetSlug }) => {
       <Suspense fallback={<SpinnerSection />}>
         <Form
           selectedChainAssetSlug={selectedChainAssetSlug}
-          onConfirm={handleConfirm}
+          onReview={handleReview}
           onSelectAssetClick={setSelectAssetModalOpen}
         />
       </Suspense>
@@ -90,8 +90,7 @@ const Send = memo<Props>(({ chainKind, chainId, assetSlug }) => {
       <ConfirmSendModal
         opened={confirmSendModalOpened}
         onRequestClose={setConfirmSendModalClosed}
-        chainAssetSlug={selectedChainAssetSlug}
-        data={confirmData}
+        reviewData={reviewData}
       />
     </PageLayout>
   );

@@ -32,7 +32,7 @@ import {
 } from 'temple/front/tezos';
 
 import { BaseForm } from './BaseForm';
-import { SendFormData } from './interfaces';
+import { ReviewData, SendFormData } from './interfaces';
 import { estimateTezosMaxFee, getBaseFeeError, getFeeError, getMaxAmountFiat, getTezosMaxAmountToken } from './utils';
 
 const RECOMMENDED_ADD_FEE = 0.0001;
@@ -41,10 +41,10 @@ interface Props {
   chainId: string;
   assetSlug: string;
   onSelectAssetClick: EmptyFn;
-  onConfirm: (data: SendFormData) => void;
+  onReview: (data: ReviewData) => void;
 }
 
-export const TezosForm: FC<Props> = ({ chainId, assetSlug, onSelectAssetClick, onConfirm }) => {
+export const TezosForm: FC<Props> = ({ chainId, assetSlug, onSelectAssetClick, onReview }) => {
   const account = useAccountForTezos();
   const network = useTezosChainByChainId(chainId);
 
@@ -240,7 +240,7 @@ export const TezosForm: FC<Props> = ({ chainId, assetSlug, onSelectAssetClick, o
 
         const actualAmount = shouldUseFiat ? toAssetAmount(amount) : amount;
 
-        onConfirm({ amount: actualAmount, to: toResolved });
+        onReview({ accountPkh, assetSlug, network, amount: actualAmount, to: toResolved });
 
         // if (isTezosContractAddress(accountPkh)) {
         //   const michelsonLambda = isTezosContractAddress(toResolved) ? transferToContract : transferImplicit;
@@ -282,7 +282,7 @@ export const TezosForm: FC<Props> = ({ chainId, assetSlug, onSelectAssetClick, o
       estimationError,
       formAnalytics,
       formState.isSubmitting,
-      onConfirm,
+      onReview,
       reset,
       shouldUseFiat,
       toAssetAmount,

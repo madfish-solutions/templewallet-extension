@@ -1,19 +1,23 @@
 import React, { FC } from 'react';
 
-import { Controller, UseFormReturn } from 'react-hook-form-v7';
+import { Controller, useFormContext } from 'react-hook-form-v7';
 
 import AssetField from 'app/atoms/AssetField';
 import { Tooltip } from 'app/atoms/Tooltip';
 import { t, T } from 'lib/i18n';
 
-import { EvmConfirmFormData } from '../interfaces';
+import { EvmTxParamsFormData } from '../interfaces';
 
-interface Props {
-  form: UseFormReturn<EvmConfirmFormData>;
+interface AdvancedTabProps {
+  isEvm?: boolean;
 }
 
-export const AdvancedTab: FC<Props> = ({ form }) => {
-  const { control } = form;
+export const AdvancedTab: FC<AdvancedTabProps> = ({ isEvm = false }) => {
+  return isEvm ? <EvmContent /> : <></>;
+};
+
+const EvmContent = () => {
+  const { control } = useFormContext<EvmTxParamsFormData>();
 
   return (
     <>

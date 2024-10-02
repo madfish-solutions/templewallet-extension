@@ -8,25 +8,29 @@ import Money from 'app/atoms/Money';
 import { EvmNetworkLogo, TezosNetworkLogo } from 'app/atoms/NetworkLogo';
 import { ReactComponent as ChevronRightIcon } from 'app/icons/base/chevron_right.svg';
 import InFiat from 'app/templates/InFiat';
-import { parseChainAssetSlug } from 'lib/assets/utils';
 import { T } from 'lib/i18n';
-import { getAssetSymbol } from 'lib/metadata';
-import { OneOfChains, useEvmChainByChainId, useTezosChainByChainId } from 'temple/front/chains';
+import { getAssetSymbol, TEZOS_METADATA } from 'lib/metadata';
+import { OneOfChains } from 'temple/front/chains';
 import { TempleChainKind } from 'temple/types';
 
-const getNetworkName = (network: OneOfChains | null) => network?.name || 'Unknown';
-
 interface Props {
-  chainAssetSlug: string;
+  network: OneOfChains;
+  assetSlug: string;
   recipientAddress: string;
-  estimatedFee: string;
   goToFeeTab: EmptyFn;
+  displayedFee?: string;
+  displayedStorageLimit?: string;
 }
 
-export const DetailsTab: FC<Props> = ({ chainAssetSlug, recipientAddress, estimatedFee, goToFeeTab }) => {
-  const [chainKind, chainId, assetSlug] = useMemo(() => parseChainAssetSlug(chainAssetSlug), [chainAssetSlug]);
-
-  const isEvm = chainKind === TempleChainKind.EVM;
+export const DetailsTab: FC<Props> = ({
+  network,
+  assetSlug,
+  recipientAddress,
+  displayedFee,
+  displayedStorageLimit,
+  goToFeeTab
+}) => {
+  const { kind: chainKind, chainId } = network;
 
   return (
     <div className="flex flex-col px-4 py-2 mb-6 rounded-lg shadow-bottom border-0.5 border-transparent">
@@ -35,7 +39,12 @@ export const DetailsTab: FC<Props> = ({ chainAssetSlug, recipientAddress, estima
           <T id="network" />
         </p>
         <div className="flex flex-row items-center">
-          {isEvm ? <EvmNetworkInfo chainId={chainId} /> : <TezosNetworkInfo chainId={chainId} />}
+          <span className="p-1 text-font-description-bold">{network.name}</span>
+          {chainKind === TempleChainKind.EVM ? (
+            <EvmNetworkLogo networkName={network.name} chainId={chainId} />
+          ) : (
+            <TezosNetworkLogo networkName={network.name} chainId={chainId} />
+          )}
         </div>
       </div>
 
@@ -46,25 +55,24 @@ export const DetailsTab: FC<Props> = ({ chainAssetSlug, recipientAddress, estima
         <HashChip hash={recipientAddress} small rounded="base" textShade={100} bgShade={50} />
       </div>
 
-      <div className={clsx('py-2 flex flex-row justify-between items-center', !isEvm && 'border-b-0.5 border-lines')}>
+      <div
+        className={clsx(
+          'py-2 flex flex-row justify-between items-center',
+          displayedStorageLimit && 'border-b-0.5 border-lines'
+        )}
+      >
         <p className="p-1 text-font-description text-grey-1">
           <T id="gasFee" />
         </p>
         <div className="flex flex-row items-center">
-          <FeesInfo
-            chainId={chainId}
-            assetSlug={assetSlug}
-            isEvm={isEvm}
-            amount={estimatedFee}
-            goToFeeTab={goToFeeTab}
-          />
+          <FeesInfo network={network} assetSlug={assetSlug} amount={displayedFee} goToFeeTab={goToFeeTab} />
         </div>
       </div>
-      {!isEvm && (
+      {displayedStorageLimit && (
         <div className="py-2 flex flex-row justify-between items-center">
           <p className="p-1 text-font-description text-grey-1">Storage Limit</p>
           <div className="flex flex-row items-center">
-            <FeesInfo chainId={chainId} assetSlug={assetSlug} isEvm={isEvm} amount={'0.001'} goToFeeTab={goToFeeTab} />
+            <FeesInfo network={network} assetSlug={assetSlug} amount={displayedStorageLimit} goToFeeTab={goToFeeTab} />
           </div>
         </div>
       )}
@@ -72,48 +80,23 @@ export const DetailsTab: FC<Props> = ({ chainAssetSlug, recipientAddress, estima
   );
 };
 
-const EvmNetworkInfo: FC<{ chainId: number }> = ({ chainId }) => {
-  const network = useEvmChainByChainId(chainId);
-  const networkName = network?.name || 'Unknown';
-
-  return (
-    <>
-      <span className="p-1 text-font-description-bold">{networkName}</span>
-      <EvmNetworkLogo networkName={networkName} chainId={chainId} />
-    </>
-  );
-};
-
-const TezosNetworkInfo: FC<{ chainId: string }> = ({ chainId }) => {
-  const network = useTezosChainByChainId(chainId);
-  const networkName = getNetworkName(network);
-
-  return (
-    <>
-      <span className="p-1 text-font-description-bold">{networkName}</span>
-      <TezosNetworkLogo networkName={networkName} chainId={chainId} />
-    </>
-  );
-};
-
 interface FeesInfoProps {
-  chainId: string | number;
+  network: OneOfChains;
   assetSlug: string;
-  isEvm: boolean;
-  amount: string;
   goToFeeTab: EmptyFn;
+  amount?: string;
 }
 
-const FeesInfo: FC<FeesInfoProps> = ({ chainId, assetSlug, isEvm, amount, goToFeeTab }) => {
-  const network = useEvmChainByChainId(chainId as number)!;
+const FeesInfo: FC<FeesInfoProps> = ({ network, assetSlug, amount = '0.00', goToFeeTab }) => {
+  const isEvm = network.kind === TempleChainKind.EVM;
 
-  const nativeAssetSymbol = useMemo(() => getAssetSymbol(network?.currency), [network]);
+  const nativeAssetSymbol = useMemo(() => getAssetSymbol(isEvm ? network.currency : TEZOS_METADATA), [network]);
 
   return (
     <>
       <div className="p-1 text-font-num-bold-12">
         <InFiat
-          chainId={chainId}
+          chainId={network.chainId}
           assetSlug={assetSlug}
           volume={amount}
           smallFractionFont={false}
