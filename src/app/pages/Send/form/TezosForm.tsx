@@ -6,7 +6,7 @@ import { useForm } from 'react-hook-form-v7';
 
 import { ArtificialError, NotEnoughFundsError, ZeroBalanceError, ZeroTEZBalanceError } from 'app/defaults';
 import { DeadEndBoundaryError } from 'app/ErrorBoundary';
-import { toastError } from 'app/toaster';
+import { toastError, toastWarning } from 'app/toaster';
 import { useFormAnalytics } from 'lib/analytics';
 import { isTezAsset, TEZ_TOKEN_SLUG, toPenny } from 'lib/assets';
 import { toTransferParams } from 'lib/assets/contract.utils';
@@ -164,7 +164,7 @@ export const TezosForm: FC<Props> = ({ chainId, assetSlug, onSelectAssetClick, o
     error: estimateBaseFeeError,
     isValidating: estimating
   } = useTypedSWR(
-    () => (toFilled ? ['transfer-base-fee', tezos.clientId, assetSlug, accountPkh, toResolved] : null),
+    () => (toFilled ? ['tezos-transaction-fee', tezos.clientId, assetSlug, accountPkh, toResolved] : null),
     estimateBaseFee,
     {
       shouldRetryOnError: false,
@@ -228,6 +228,11 @@ export const TezosForm: FC<Props> = ({ chainId, assetSlug, onSelectAssetClick, o
     async ({ amount }: SendFormData) => {
       if (formState.isSubmitting) return;
 
+      if (estimating) {
+        toastWarning('Estimation in progress...');
+        return;
+      }
+
       if (estimationError) {
         toastError('Failed to estimate transaction.');
         return;
@@ -240,27 +245,7 @@ export const TezosForm: FC<Props> = ({ chainId, assetSlug, onSelectAssetClick, o
 
         const actualAmount = shouldUseFiat ? toAssetAmount(amount) : amount;
 
-        onReview({ accountPkh, assetSlug, network, amount: actualAmount, to: toResolved });
-
-        // if (isTezosContractAddress(accountPkh)) {
-        //   const michelsonLambda = isTezosContractAddress(toResolved) ? transferToContract : transferImplicit;
-        //
-        //   const contract = await loadContract(tezos, accountPkh);
-        //   await contract.methodsObject.do(michelsonLambda(toResolved, tzToMutez(amount))).send({ amount: 0 });
-        // } else {
-        //   const actualAmount = shouldUseFiat ? toAssetAmount(amount) : amount;
-        //   const transferParams = await toTransferParams(
-        //     tezos,
-        //     assetSlug,
-        //     assetMetadata,
-        //     accountPkh,
-        //     toResolved,
-        //     actualAmount
-        //   );
-        //   const estmtn = await tezos.estimate.transfer(transferParams);
-        //   const fee = estmtn.suggestedFeeMutez;
-        //   await tezos.wallet.transfer({ ...transferParams, fee }).send();
-        // }
+        onReview({ account, assetSlug, network, amount: actualAmount, to: toResolved });
 
         reset({ amount: '', to: '' });
 
@@ -269,10 +254,6 @@ export const TezosForm: FC<Props> = ({ chainId, assetSlug, onSelectAssetClick, o
         console.error(err);
 
         formAnalytics.trackSubmitFail();
-
-        if (err?.message === 'Declined') {
-          return;
-        }
 
         toastError('Oops, Something went wrong!');
       }

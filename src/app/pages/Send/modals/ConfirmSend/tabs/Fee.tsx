@@ -7,7 +7,7 @@ import { T } from 'lib/i18n';
 import { OneOfChains } from 'temple/front';
 import { TempleChainKind } from 'temple/types';
 
-import { DisplayedFeeOptions, EvmTxParamsFormData, FeeOptionLabel } from '../interfaces';
+import { DisplayedFeeOptions, EvmTxParamsFormData, FeeOptionLabel, TezosTxParamsFormData } from '../interfaces';
 
 import { FeeOptions } from './components/FeeOptions';
 
@@ -34,7 +34,11 @@ export const FeeTab: FC<FeeTabProps> = ({
       displayedFeeOptions={displayedFeeOptions}
       onOptionClick={onOptionSelect}
     />
-    {network.kind === TempleChainKind.EVM ? <EvmContent onOptionSelect={onOptionSelect} /> : <></>}
+    {network.kind === TempleChainKind.EVM ? (
+      <EvmContent onOptionSelect={onOptionSelect} />
+    ) : (
+      <TezosContent onOptionSelect={onOptionSelect} />
+    )}
   </>
 );
 
@@ -65,6 +69,63 @@ const EvmContent: FC<Pick<FeeTabProps, 'onOptionSelect'>> = ({ onOptionSelect })
               if (!value) onOptionSelect('mid');
               onBlur();
             }}
+          />
+        )}
+      />
+    </>
+  );
+};
+
+const TezosContent: FC<Pick<FeeTabProps, 'onOptionSelect'>> = ({ onOptionSelect }) => {
+  const { control } = useFormContext<TezosTxParamsFormData>();
+
+  return (
+    <>
+      <div className="mt-4 mb-1 px-1 flex flex-row justify-between items-center">
+        <p className="text-font-description-bold">
+          <T id="gasFee" />
+        </p>
+        <p className="text-grey-2 text-font-description">
+          <T id="optional" />
+        </p>
+      </div>
+
+      <Controller
+        name="gasFee"
+        control={control}
+        render={({ field: { value, onChange, onBlur } }) => (
+          <AssetField
+            value={value}
+            placeholder="1.0"
+            min={0}
+            assetDecimals={6}
+            rightSideComponent={<div className="text-font-description-bold text-grey-2">TEZ</div>}
+            onChange={onChange}
+            onBlur={() => {
+              if (!value) onOptionSelect('mid');
+              onBlur();
+            }}
+          />
+        )}
+      />
+
+      <div className="mt-3 mb-1 px-1 flex flex-row justify-between items-center">
+        <p className="text-font-description-bold">Storage Limit</p>
+        <p className="text-grey-2 text-font-description">
+          <T id="optional" />
+        </p>
+      </div>
+
+      <Controller
+        name="storageLimit"
+        control={control}
+        render={({ field }) => (
+          <AssetField
+            placeholder="0.00"
+            min={0}
+            assetDecimals={6}
+            rightSideComponent={<div className="text-font-description-bold text-grey-2">TEZ</div>}
+            {...field}
           />
         )}
       />

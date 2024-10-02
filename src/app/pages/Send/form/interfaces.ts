@@ -1,4 +1,6 @@
+import { AccountForChain } from 'temple/accounts';
 import { EvmChain, TezosChain } from 'temple/front';
+import { TempleChainKind } from 'temple/types';
 
 export interface SendFormData {
   amount: string;
@@ -10,12 +12,12 @@ interface BaseReviewData extends SendFormData {
 }
 
 export interface EvmReviewData extends BaseReviewData {
-  accountPkh: HexString;
+  account: AccountForChain<TempleChainKind.EVM>;
   network: EvmChain;
 }
 
 export interface TezosReviewData extends BaseReviewData {
-  accountPkh: string;
+  account: AccountForChain<TempleChainKind.Tezos>;
   network: TezosChain;
 }
 

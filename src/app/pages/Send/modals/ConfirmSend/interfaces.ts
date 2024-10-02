@@ -9,6 +9,7 @@ export interface EvmTxParamsFormData {
 export interface TezosTxParamsFormData {
   gasFee: string;
   storageLimit: string;
+  rawTransaction: string;
 }
 
 export type TxParamsFormData = EvmTxParamsFormData | TezosTxParamsFormData;

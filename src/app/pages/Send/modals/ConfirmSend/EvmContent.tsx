@@ -22,7 +22,9 @@ interface EvmContentProps {
 }
 
 export const EvmContent: FC<EvmContentProps> = ({ data, onClose }) => {
-  const { accountPkh, network, assetSlug, to, amount } = data;
+  const { account, network, assetSlug, to, amount } = data;
+
+  const accountPkh = account.address as HexString;
 
   const { sendEvmTransaction } = useTempleClient();
 
