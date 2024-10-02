@@ -14,8 +14,8 @@ export default async function fetchTezosOperationsGroups(
   rpcUrl: string,
   accountAddress: string,
   assetSlug: string | undefined,
-  pseudoLimit: number,
-  olderThan?: TezosActivityOlderThan
+  olderThan?: TezosActivityOlderThan,
+  pseudoLimit = 30
 ) {
   const operations = await fetchOperations(chainId, rpcUrl, accountAddress, assetSlug, pseudoLimit, olderThan);
 

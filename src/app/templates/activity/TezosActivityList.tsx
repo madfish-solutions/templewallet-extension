@@ -8,14 +8,10 @@ import { preparseTezosOperationsGroup } from 'lib/activity/tezos';
 import fetchTezosOperationsGroups from 'lib/activity/tezos/fetch';
 import { TezosPreActivity } from 'lib/activity/tezos/types';
 import { isKnownChainId } from 'lib/apis/tzkt/api';
-import { useDidMount, useDidUpdate, useSafeState, useAbortSignal } from 'lib/ui/hooks';
 import { useAccountAddressForTezos, useTezosChainByChainId } from 'temple/front';
-import { TezosNetworkEssentials } from 'temple/networks';
 
 import { TezosActivityComponent } from './ActivityItem';
-
-const INITIAL_NUMBER = 30;
-const LOAD_STEP = 30;
+import { useActivitiesLoadingLogic } from './loading-logic';
 
 interface Props {
   tezosChainId: string;
@@ -30,12 +26,44 @@ export const TezosActivityList = memo<Props>(({ tezosChainId, assetSlug }) => {
 
   useLoadPartnersPromo();
 
-  const { activities, isLoading, reachedTheEnd, loadMore } = useTezosActivitiesLoadingLogic(
-    network,
-    accountAddress,
-    INITIAL_NUMBER,
-    assetSlug
-  );
+  const { chainId, rpcBaseURL } = network;
+
+  const { activities, isLoading, reachedTheEnd, setActivities, setIsLoading, setReachedTheEnd, loadNext } =
+    useActivitiesLoadingLogic<TezosPreActivity>(
+      async (initial, signal) => {
+        if (!isKnownChainId(chainId)) {
+          setIsLoading(false);
+          setReachedTheEnd(true);
+          return;
+        }
+
+        const currActivities = initial ? [] : activities;
+
+        setIsLoading(currActivities.length ? 'more' : 'init');
+
+        const olderThan = currActivities.at(-1);
+
+        try {
+          const groups = await fetchTezosOperationsGroups(chainId, rpcBaseURL, accountAddress, assetSlug, olderThan);
+
+          if (signal.aborted) return;
+
+          const newActivities = groups.map(group => preparseTezosOperationsGroup(group, accountAddress, chainId));
+
+          setActivities(currActivities.concat(newActivities));
+          if (newActivities.length === 0) setReachedTheEnd(true);
+        } catch (error) {
+          if (signal.aborted) return;
+
+          console.error(error);
+        }
+
+        setIsLoading(false);
+      },
+      [chainId, accountAddress, assetSlug],
+      undefined,
+      isKnownChainId(chainId)
+    );
 
   if (activities.length === 0 && !isLoading && reachedTheEnd) {
     return <EmptyState />;
@@ -46,8 +74,8 @@ export const TezosActivityList = memo<Props>(({ tezosChainId, assetSlug }) => {
       itemsLength={activities.length}
       isSyncing={Boolean(isLoading)}
       reachedTheEnd={reachedTheEnd}
-      retryInitialLoad={() => loadMore(INITIAL_NUMBER)}
-      loadMore={() => loadMore(LOAD_STEP)}
+      retryInitialLoad={loadNext}
+      loadMore={loadNext}
     >
       {activities.map(activity => (
         <TezosActivityComponent
@@ -61,83 +89,3 @@ export const TezosActivityList = memo<Props>(({ tezosChainId, assetSlug }) => {
     </InfiniteScroll>
   );
 });
-
-type TLoading = 'init' | 'more' | false;
-
-function useTezosActivitiesLoadingLogic(
-  network: TezosNetworkEssentials,
-  accountAddress: string,
-  initialPseudoLimit: number,
-  assetSlug?: string
-) {
-  const { chainId, rpcBaseURL } = network;
-
-  const [isLoading, setIsLoading] = useSafeState<TLoading>(isKnownChainId(chainId) && 'init');
-  const [activities, setActivities] = useSafeState<TezosPreActivity[]>([]);
-  const [reachedTheEnd, setReachedTheEnd] = useSafeState(false);
-
-  const { abort: abortLoading, abortAndRenewSignal } = useAbortSignal();
-
-  async function loadActivities(pseudoLimit: number, activities: TezosPreActivity[], signal: AbortSignal) {
-    if (!isKnownChainId(chainId)) {
-      setIsLoading(false);
-      setReachedTheEnd(true);
-      return;
-    }
-
-    setIsLoading(activities.length ? 'more' : 'init');
-    const lastActivity = activities.at(-1);
-
-    let newActivities: TezosPreActivity[];
-    try {
-      const groups = await fetchTezosOperationsGroups(
-        chainId,
-        rpcBaseURL,
-        accountAddress,
-        assetSlug,
-        pseudoLimit,
-        lastActivity
-      );
-      if (signal.aborted) return;
-
-      newActivities = groups.map(group => preparseTezosOperationsGroup(group, accountAddress, chainId));
-    } catch (error) {
-      if (signal.aborted) return;
-      setIsLoading(false);
-      console.error(error);
-
-      return;
-    }
-
-    setActivities(activities.concat(newActivities));
-    setIsLoading(false);
-    if (newActivities.length === 0) setReachedTheEnd(true);
-  }
-
-  /** Loads more of older items */
-  function loadMore(pseudoLimit: number) {
-    if (isLoading || reachedTheEnd) return;
-    loadActivities(pseudoLimit, activities, abortAndRenewSignal());
-  }
-
-  useDidMount(() => {
-    loadActivities(initialPseudoLimit, [], abortAndRenewSignal());
-
-    return abortLoading;
-  });
-
-  useDidUpdate(() => {
-    setActivities([]);
-    setIsLoading('init');
-    setReachedTheEnd(false);
-
-    loadActivities(initialPseudoLimit, [], abortAndRenewSignal());
-  }, [chainId, accountAddress, assetSlug]);
-
-  return {
-    isLoading,
-    reachedTheEnd,
-    activities,
-    loadMore
-  };
-}

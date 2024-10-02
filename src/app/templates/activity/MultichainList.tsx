@@ -1,5 +1,7 @@
 import React, { memo, useEffect, useMemo, useState } from 'react';
 
+import { AxiosError } from 'axios';
+
 import { EmptyState } from 'app/atoms/EmptyState';
 import { InfiniteScroll } from 'app/atoms/InfiniteScroll';
 import { useLoadPartnersPromo } from 'app/hooks/use-load-partners-promo';
@@ -11,7 +13,6 @@ import { TezosPreActivity } from 'lib/activity/tezos/types';
 import { TzktApiChainId } from 'lib/apis/tzkt';
 import { isKnownChainId as isKnownTzktChainId } from 'lib/apis/tzkt/api';
 import { EvmAssetMetadataGetter, useGetEvmAssetMetadata } from 'lib/metadata';
-import { useDidMount, useDidUpdate, useSafeState, useAbortSignal } from 'lib/ui/hooks';
 import { isTruthy } from 'lib/utils';
 import {
   useAccountAddressForEvm,
@@ -23,6 +24,7 @@ import {
 } from 'temple/front';
 
 import { EvmActivityComponent, TezosActivityComponent } from './ActivityItem';
+import { useActivitiesLoadingLogic } from './loading-logic';
 
 export const MultichainActivityList = memo(() => {
   useLoadPartnersPromo();
@@ -55,83 +57,63 @@ export const MultichainActivityList = memo(() => {
     [evmChains, evmAccAddress]
   );
 
-  const [isLoading, setIsLoading] = useSafeState(true);
-  const [reachedTheEnd, setReachedTheEnd] = useSafeState(false);
-  const [activities, setActivities] = useState<(EvmActivity | TezosPreActivity)[]>([]);
-
-  const { abort: abortLoading, abortAndRenewSignal } = useAbortSignal();
-
   const getEvmMetadata = useGetEvmAssetMetadata();
 
-  async function loadActivities(signal: AbortSignal) {
-    if (signal.aborted) return;
+  const { activities, isLoading, reachedTheEnd, setActivities, setIsLoading, setReachedTheEnd, loadNext } =
+    useActivitiesLoadingLogic<TezosPreActivity | EvmActivity>(
+      async (initial, signal) => {
+        if (signal.aborted) return;
 
-    setIsLoading(true);
+        const currActivities = initial ? [] : activities;
 
-    const allLoaders = [...tezosLoaders, ...evmLoaders];
-    const lastEdgeDate = activities.at(-1)?.addedAt;
+        setIsLoading(currActivities.length ? 'more' : 'init');
 
-    await Promise.allSettled(
-      evmLoaders
-        .map(l => l.loadNext((slug: string) => getEvmMetadata(slug, l.chainId), lastEdgeDate, signal))
-        .concat(tezosLoaders.map(l => l.loadNext(lastEdgeDate, signal)))
+        const allLoaders = [...tezosLoaders, ...evmLoaders];
+        const lastEdgeDate = currActivities.at(-1)?.addedAt;
+
+        await Promise.allSettled(
+          evmLoaders
+            .map(l => l.loadNext((slug: string) => getEvmMetadata(slug, l.chainId), lastEdgeDate, signal))
+            .concat(tezosLoaders.map(l => l.loadNext(lastEdgeDate, signal)))
+        );
+
+        if (signal.aborted) return;
+
+        let edgeDate: string | undefined;
+
+        for (const l of allLoaders) {
+          if (l.reachedTheEnd || l.lastError) continue;
+
+          const lastAct = l.activities.at(-1);
+          if (!lastAct) continue;
+
+          if (!edgeDate) {
+            edgeDate = lastAct.addedAt;
+            continue;
+          }
+
+          if (lastAct.addedAt > edgeDate) edgeDate = lastAct.addedAt;
+        }
+
+        const newActivities = allLoaders
+          .map(l => {
+            if (!edgeDate) return l.activities;
+
+            // return l.activities.filter(a => a.addedAt >= edgeDate);
+
+            const lastIndex = l.activities.findLastIndex(a => a.addedAt >= edgeDate);
+
+            return lastIndex === -1 ? [] : l.activities.slice(0, lastIndex + 1);
+          })
+          .flat();
+
+        if (currActivities.length === newActivities.length) setReachedTheEnd(true);
+        else setActivities(newActivities);
+
+        setIsLoading(false);
+      },
+      [tezosLoaders, evmLoaders]
     );
-
-    if (signal.aborted) return;
-
-    let edgeDate: string | undefined;
-
-    for (const l of allLoaders) {
-      if (l.reachedTheEnd || l.lastError) continue;
-
-      const lastAct = l.activities.at(-1);
-      if (!lastAct) continue;
-
-      if (!edgeDate) {
-        edgeDate = lastAct.addedAt;
-        continue;
-      }
-
-      if (lastAct.addedAt > edgeDate) edgeDate = lastAct.addedAt;
-    }
-
-    const newActivities = allLoaders
-      .map(l => {
-        if (!edgeDate) return l.activities;
-
-        // return l.activities.filter(a => a.addedAt >= edgeDate);
-
-        const lastIndex = l.activities.findLastIndex(a => a.addedAt >= edgeDate);
-
-        return lastIndex === -1 ? [] : l.activities.slice(0, lastIndex + 1);
-      })
-      .flat();
-
-    if (activities.length === newActivities.length) setReachedTheEnd(true);
-    else setActivities(newActivities);
-
-    setIsLoading(false);
-  }
-
-  /** Loads more of older items */
-  function loadMore() {
-    if (isLoading || reachedTheEnd) return;
-    loadActivities(abortAndRenewSignal());
-  }
-
-  useDidMount(() => {
-    loadActivities(abortAndRenewSignal());
-
-    return abortLoading;
-  });
-
-  useDidUpdate(() => {
-    setActivities([]);
-    setIsLoading(true);
-    setReachedTheEnd(false);
-
-    loadActivities(abortAndRenewSignal());
-  }, [tezAccAddress, evmAccAddress]);
 
   const displayActivities = useMemo(
     () => activities.toSorted((a, b) => (a.addedAt < b.addedAt ? 1 : -1)),
@@ -145,13 +127,13 @@ export const MultichainActivityList = memo(() => {
   return (
     <InfiniteScroll
       itemsLength={displayActivities.length}
-      isSyncing={isLoading}
+      isSyncing={Boolean(isLoading)}
       reachedTheEnd={reachedTheEnd}
-      retryInitialLoad={loadMore}
-      loadMore={loadMore}
+      retryInitialLoad={loadNext}
+      loadMore={loadNext}
     >
       {displayActivities.map(activity =>
-        'oldestTzktOperation' in activity ? (
+        isTezosActivity(activity) ? (
           <TezosActivityComponent
             key={activity.hash}
             activity={activity}
@@ -231,7 +213,9 @@ class EvmActivityLoader {
       delete this.lastError;
     } catch (error) {
       console.error(error);
-      this.lastError = error;
+
+      if (error instanceof AxiosError && error.status === 501) this.nextPage = null;
+      else this.lastError = error;
     }
   }
 }
@@ -241,12 +225,7 @@ class TezosActivityLoader {
   reachedTheEnd = false;
   lastError: unknown;
 
-  constructor(
-    readonly chainId: TzktApiChainId,
-    readonly accountAddress: string,
-    private rpcBaseURL: string,
-    private pseudoLimit = 30
-  ) {
+  constructor(readonly chainId: TzktApiChainId, readonly accountAddress: string, private rpcBaseURL: string) {
     //
   }
 
@@ -261,14 +240,7 @@ class TezosActivityLoader {
 
       const lastActivity = this.activities.at(-1);
 
-      const groups = await fetchTezosOperationsGroups(
-        chainId,
-        rpcBaseURL,
-        accountAddress,
-        assetSlug,
-        this.pseudoLimit,
-        lastActivity
-      );
+      const groups = await fetchTezosOperationsGroups(chainId, rpcBaseURL, accountAddress, assetSlug, lastActivity);
 
       if (signal.aborted) return;
 
