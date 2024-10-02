@@ -1,6 +1,5 @@
 import React, { FC, memo, useCallback, useEffect, useMemo, useState } from 'react';
 
-import { pick } from 'lodash';
 import { useDebounce } from 'use-debounce';
 
 import { IconBase } from 'app/atoms';

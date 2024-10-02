@@ -70,6 +70,5 @@ const buildOnScroll =
   };
 
 function isScrollAtTheEnd(elem: Element) {
-  // return 0 === elem.offsetHeight - elem.clientHeight - elem.scrollTop;
   return elem.scrollHeight === elem.clientHeight + elem.scrollTop;
 }

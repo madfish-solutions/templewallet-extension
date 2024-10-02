@@ -39,9 +39,9 @@ export const EvmActivityList: FC<Props> = ({ chainId, assetSlug }) => {
         const page = initial ? undefined : nextPage;
         if (page === null) return;
 
-        const currActivities = initial ? [] : activities;
+        setIsLoading(true);
 
-        setIsLoading(currActivities.length ? 'more' : 'init');
+        const currActivities = initial ? [] : activities;
 
         try {
           const { activities: newActivities, nextPage: newNextPage } = await getEvmAssetTransactions(
@@ -78,7 +78,7 @@ export const EvmActivityList: FC<Props> = ({ chainId, assetSlug }) => {
   return (
     <InfiniteScroll
       itemsLength={activities.length}
-      isSyncing={Boolean(isLoading)}
+      isSyncing={isLoading}
       reachedTheEnd={reachedTheEnd}
       retryInitialLoad={loadNext}
       loadMore={loadNext}

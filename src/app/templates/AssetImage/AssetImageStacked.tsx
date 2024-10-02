@@ -59,7 +59,7 @@ export const EvmAssetImageStacked: FC<EvmAssetImageStackedProps> = ({ evmChainId
   return <AssetImageStacked sources={sources} alt={metadata?.name} {...rest} />;
 };
 
-export interface AssetImageStackedProps
+interface AssetImageStackedProps
   extends Pick<
     ImageStackedProps,
     'loader' | 'fallback' | 'className' | 'style' | 'onStackLoaded' | 'onStackFailed' | 'alt'
@@ -68,7 +68,7 @@ export interface AssetImageStackedProps
   size?: number;
 }
 
-export const AssetImageStacked: FC<AssetImageStackedProps> = ({
+const AssetImageStacked: FC<AssetImageStackedProps> = ({
   sources,
   className,
   size,

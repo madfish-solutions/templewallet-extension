@@ -1,15 +1,13 @@
 import { useDidMount, useDidUpdate, useSafeState, useAbortSignal } from 'lib/ui/hooks';
 import { useWillUnmount } from 'lib/ui/hooks/useWillUnmount';
 
-type TLoading = 'init' | 'more' | false;
-
 export function useActivitiesLoadingLogic<A>(
   loadActivities: (initial: boolean, signal: AbortSignal) => Promise<void>,
   resetDeps: unknown[],
   onReset?: EmptyFn,
   initialIsLoading = true
 ) {
-  const [isLoading, setIsLoading] = useSafeState<TLoading>(initialIsLoading && 'init');
+  const [isLoading, setIsLoading] = useSafeState(initialIsLoading);
   const [activities, setActivities] = useSafeState<A[]>([]);
   const [reachedTheEnd, setReachedTheEnd] = useSafeState(false);
 
@@ -27,7 +25,7 @@ export function useActivitiesLoadingLogic<A>(
 
   useDidUpdate(() => {
     setActivities([]);
-    setIsLoading('init');
+    setIsLoading(true);
     setReachedTheEnd(false);
     onReset?.();
 

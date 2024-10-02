@@ -37,9 +37,9 @@ export const TezosActivityList = memo<Props>(({ tezosChainId, assetSlug }) => {
           return;
         }
 
-        const currActivities = initial ? [] : activities;
+        setIsLoading(true);
 
-        setIsLoading(currActivities.length ? 'more' : 'init');
+        const currActivities = initial ? [] : activities;
 
         const olderThan = currActivities.at(-1);
 
@@ -72,7 +72,7 @@ export const TezosActivityList = memo<Props>(({ tezosChainId, assetSlug }) => {
   return (
     <InfiniteScroll
       itemsLength={activities.length}
-      isSyncing={Boolean(isLoading)}
+      isSyncing={isLoading}
       reachedTheEnd={reachedTheEnd}
       retryInitialLoad={loadNext}
       loadMore={loadNext}

@@ -39,7 +39,7 @@ export interface ParameterFa2Transfer extends ParameterFa2 {
   }[];
 }
 
-export interface ParameterFa2Approve extends ParameterFa2 {
+interface ParameterFa2Approve extends ParameterFa2 {
   entrypoint: 'update_operators';
   value: {
     add_operator: {
@@ -84,7 +84,7 @@ export function isTzktOperParam_Fa12(param: any): param is ParameterFa12 {
   return true;
 }
 
-export function isTzktOperParam_Fa2(param: any): param is ParameterFa2 {
+function isTzktOperParam_Fa2(param: any): param is ParameterFa2 {
   if (!isTzktOperParam(param)) return false;
   if (!Array.isArray(param.value)) return false;
   if (param.value[0] == null) return true;

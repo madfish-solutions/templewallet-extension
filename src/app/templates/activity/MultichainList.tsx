@@ -1,11 +1,11 @@
-import React, { memo, useEffect, useMemo, useState } from 'react';
+import React, { memo, useMemo } from 'react';
 
 import { AxiosError } from 'axios';
 
 import { EmptyState } from 'app/atoms/EmptyState';
 import { InfiniteScroll } from 'app/atoms/InfiniteScroll';
 import { useLoadPartnersPromo } from 'app/hooks/use-load-partners-promo';
-import { Activity, EvmActivity } from 'lib/activity';
+import { EvmActivity } from 'lib/activity';
 import { getEvmAssetTransactions } from 'lib/activity/evm';
 import { preparseTezosOperationsGroup } from 'lib/activity/tezos';
 import fetchTezosOperationsGroups from 'lib/activity/tezos/fetch';
@@ -64,9 +64,9 @@ export const MultichainActivityList = memo(() => {
       async (initial, signal) => {
         if (signal.aborted) return;
 
-        const currActivities = initial ? [] : activities;
+        setIsLoading(true);
 
-        setIsLoading(currActivities.length ? 'more' : 'init');
+        const currActivities = initial ? [] : activities;
 
         const allLoaders = [...tezosLoaders, ...evmLoaders];
         const lastEdgeDate = currActivities.at(-1)?.addedAt;
@@ -127,7 +127,7 @@ export const MultichainActivityList = memo(() => {
   return (
     <InfiniteScroll
       itemsLength={displayActivities.length}
-      isSyncing={Boolean(isLoading)}
+      isSyncing={isLoading}
       reachedTheEnd={reachedTheEnd}
       retryInitialLoad={loadNext}
       loadMore={loadNext}
@@ -152,20 +152,12 @@ function isTezosActivity(activity: EvmActivity | TezosPreActivity): activity is 
   return 'oldestTzktOperation' in activity;
 }
 
-// interface EvmChainActivity {
-//   activity:
-// }
-
 class EvmActivityLoader {
   activities: EvmActivity[] = [];
-  private nextPage: number | nullish;
-  // private isLoading = false;
-  // private reachedTheEnd = false;
   lastError: unknown;
+  private nextPage: number | nullish;
 
-  constructor(readonly chainId: number, readonly accountAddress: string) {
-    //
-  }
+  constructor(readonly chainId: number, readonly accountAddress: string) {}
 
   get reachedTheEnd() {
     return this.nextPage === null;
@@ -183,9 +175,6 @@ class EvmActivityLoader {
     }
 
     try {
-      // if (this.isLoading) return;
-      // this.isLoading = true;
-
       const { accountAddress, chainId, nextPage } = this;
 
       if (nextPage === null) return;
@@ -204,14 +193,11 @@ class EvmActivityLoader {
       this.nextPage = newNextPage;
 
       if (newActivities.length) this.activities = this.activities.concat(newActivities);
-      // else this.reachedTheEnd = true;
-
-      // if (newNextPage == null) this.reachedTheEnd = true;
-
-      // this.isLoading = false;
 
       delete this.lastError;
     } catch (error) {
+      if (signal.aborted) return;
+
       console.error(error);
 
       if (error instanceof AxiosError && error.status === 501) this.nextPage = null;
@@ -225,9 +211,7 @@ class TezosActivityLoader {
   reachedTheEnd = false;
   lastError: unknown;
 
-  constructor(readonly chainId: TzktApiChainId, readonly accountAddress: string, private rpcBaseURL: string) {
-    //
-  }
+  constructor(readonly chainId: TzktApiChainId, readonly accountAddress: string, private rpcBaseURL: string) {}
 
   async loadNext(edgeDate: string | undefined, signal: AbortSignal, assetSlug?: string) {
     if (edgeDate) {
@@ -251,7 +235,10 @@ class TezosActivityLoader {
 
       delete this.lastError;
     } catch (error) {
+      if (signal.aborted) return;
+
       console.error(error);
+
       this.lastError = error;
     }
   }
