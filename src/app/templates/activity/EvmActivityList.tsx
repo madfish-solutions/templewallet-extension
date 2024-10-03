@@ -1,4 +1,4 @@
-import React, { FC } from 'react';
+import React, { FC, useMemo } from 'react';
 
 import { AxiosError } from 'axios';
 
@@ -15,13 +15,15 @@ import { useEvmChainByChainId } from 'temple/front/chains';
 
 import { EvmActivityComponent } from './ActivityItem';
 import { useActivitiesLoadingLogic } from './loading-logic';
+import { FilterKind, getEvmActivityFilterKind } from './utils';
 
 interface Props {
   chainId: number;
   assetSlug?: string;
+  filterKind: FilterKind;
 }
 
-export const EvmActivityList: FC<Props> = ({ chainId, assetSlug }) => {
+export const EvmActivityList: FC<Props> = ({ chainId, assetSlug, filterKind }) => {
   const network = useEvmChainByChainId(chainId);
   const accountAddress = useAccountAddressForEvm();
 
@@ -71,19 +73,24 @@ export const EvmActivityList: FC<Props> = ({ chainId, assetSlug }) => {
       () => setNextPage(undefined)
     );
 
-  if (activities.length === 0 && !isLoading && reachedTheEnd) {
+  const displayActivities = useMemo(
+    () => (filterKind ? activities.filter(a => getEvmActivityFilterKind(a) === filterKind) : activities),
+    [activities, filterKind]
+  );
+
+  if (displayActivities.length === 0 && !isLoading && reachedTheEnd) {
     return <EmptyState />;
   }
 
   return (
     <InfiniteScroll
-      itemsLength={activities.length}
+      itemsLength={displayActivities.length}
       isSyncing={isLoading}
       reachedTheEnd={reachedTheEnd}
       retryInitialLoad={loadNext}
       loadMore={loadNext}
     >
-      {activities.map(activity => (
+      {displayActivities.map(activity => (
         <EvmActivityComponent key={activity.hash} activity={activity} chain={network} assetSlug={assetSlug} />
       ))}
     </InfiniteScroll>

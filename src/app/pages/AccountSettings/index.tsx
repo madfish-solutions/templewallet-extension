@@ -7,6 +7,7 @@ import { AccountName } from 'app/atoms/AccountName';
 import { CopyButton } from 'app/atoms/CopyButton';
 import { EvmNetworksLogos, TezNetworkLogo } from 'app/atoms/NetworksLogos';
 import { ActionsButtonsBox } from 'app/atoms/PageModal/actions-buttons-box';
+import { SettingsCellSingle } from 'app/atoms/SettingsCell';
 import { StyledButton } from 'app/atoms/StyledButton';
 import { TotalEquity } from 'app/atoms/TotalEquity';
 import { useAllAccountsReactiveOnRemoval } from 'app/hooks/use-all-accounts-reactive';
@@ -25,7 +26,6 @@ import { EditAccountNameModal } from './edit-account-name-modal';
 import { RemoveAccountModal } from './remove-account-modal';
 import { RevealPrivateKeyModal } from './reveal-private-key-modal';
 import { AccountSettingsSelectors } from './selectors';
-import { SettingsCell } from './settings-cell';
 import { PrivateKeyPayload } from './types';
 
 interface AccountSettingsProps {
@@ -157,33 +157,33 @@ export const AccountSettings = memo<AccountSettingsProps>(({ id }) => {
         </div>
 
         <div className="flex flex-col pt-0.5 pb-5 gap-3">
-          <SettingsCell cellName={<T id="displayAccount" />} Component="div">
+          <SettingsCellSingle cellName={<T id="displayAccount" />} Component="div">
             <ToggleSwitch
               checked={!account.hidden}
               onChange={handleVisibilityChange}
               disabled={shouldDisableVisibilityChange}
               testID={AccountSettingsSelectors.visibilityToggle}
             />
-          </SettingsCell>
+          </SettingsCellSingle>
 
-          <SettingsCell
+          <SettingsCellSingle
             cellName={<T id="editName" />}
             Component={Button}
             onClick={openEditNameModal}
             testID={AccountSettingsSelectors.editName}
           >
             <IconBase size={16} Icon={ChevronRightIcon} className="text-primary" />
-          </SettingsCell>
+          </SettingsCellSingle>
 
           {(account.type === TempleAccountType.HD || account.type === TempleAccountType.Imported) && (
-            <SettingsCell
+            <SettingsCellSingle
               cellName={<T id="revealPrivateKey" />}
               Component={Button}
               onClick={openRevealPrivateKeyModal}
               testID={AccountSettingsSelectors.revealPrivateKey}
             >
               <IconBase size={16} Icon={ChevronRightIcon} className="text-primary" />
-            </SettingsCell>
+            </SettingsCellSingle>
           )}
         </div>
 
@@ -193,7 +193,7 @@ export const AccountSettings = memo<AccountSettingsProps>(({ id }) => {
               <T id="derivationPath" />
             </p>
             {derivationPaths.map(({ chainName, path }) => (
-              <SettingsCell
+              <SettingsCellSingle
                 key={chainName}
                 cellName={path}
                 Component={CopyButton}
@@ -202,7 +202,7 @@ export const AccountSettings = memo<AccountSettingsProps>(({ id }) => {
                 testIDProperties={{ chainName }}
               >
                 {chainName === 'tezos' ? <TezNetworkLogo /> : <EvmNetworksLogos />}
-              </SettingsCell>
+              </SettingsCellSingle>
             ))}
           </div>
         )}

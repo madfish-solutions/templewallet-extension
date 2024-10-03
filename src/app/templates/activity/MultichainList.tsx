@@ -25,8 +25,13 @@ import {
 
 import { EvmActivityComponent, TezosActivityComponent } from './ActivityItem';
 import { useActivitiesLoadingLogic } from './loading-logic';
+import { FilterKind, getEvmActivityFilterKind, getTezosPreActivityFilterKind, isEvmActivity } from './utils';
 
-export const MultichainActivityList = memo(() => {
+interface Props {
+  filterKind: FilterKind;
+}
+
+export const MultichainActivityList = memo<Props>(({ filterKind }) => {
   useLoadPartnersPromo();
 
   const tezosChains = useEnabledTezosChains();
@@ -116,10 +121,17 @@ export const MultichainActivityList = memo(() => {
       [tezosLoaders, evmLoaders]
     );
 
-  const displayActivities = useMemo(
-    () => activities.toSorted((a, b) => (a.addedAt < b.addedAt ? 1 : -1)),
-    [activities]
-  );
+  const displayActivities = useMemo(() => {
+    const filtered = filterKind
+      ? activities.filter(act => {
+          if (isEvmActivity(act)) return getEvmActivityFilterKind(act) === filterKind;
+
+          return getTezosPreActivityFilterKind(act, tezAccAddress!) === filterKind;
+        })
+      : activities;
+
+    return filtered.toSorted((a, b) => (a.addedAt < b.addedAt ? 1 : -1));
+  }, [activities, filterKind, tezAccAddress]);
 
   if (displayActivities.length === 0 && !isLoading && reachedTheEnd) {
     return <EmptyState />;

@@ -10,7 +10,6 @@ export enum ActivityOperKindEnum {
   approve
 }
 
-// @ts-prune-ignore-next
 export type Activity = TezosActivity | EvmActivity;
 
 interface ChainActivityBase {

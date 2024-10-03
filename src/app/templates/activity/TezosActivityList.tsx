@@ -1,4 +1,4 @@
-import React, { memo } from 'react';
+import React, { memo, useMemo } from 'react';
 
 import { EmptyState } from 'app/atoms/EmptyState';
 import { InfiniteScroll } from 'app/atoms/InfiniteScroll';
@@ -12,13 +12,15 @@ import { useAccountAddressForTezos, useTezosChainByChainId } from 'temple/front'
 
 import { TezosActivityComponent } from './ActivityItem';
 import { useActivitiesLoadingLogic } from './loading-logic';
+import { FilterKind, getTezosPreActivityFilterKind } from './utils';
 
 interface Props {
   tezosChainId: string;
   assetSlug?: string;
+  filterKind: FilterKind;
 }
 
-export const TezosActivityList = memo<Props>(({ tezosChainId, assetSlug }) => {
+export const TezosActivityList = memo<Props>(({ tezosChainId, assetSlug, filterKind }) => {
   const network = useTezosChainByChainId(tezosChainId);
   const accountAddress = useAccountAddressForTezos();
 
@@ -65,19 +67,25 @@ export const TezosActivityList = memo<Props>(({ tezosChainId, assetSlug }) => {
       isKnownChainId(chainId)
     );
 
-  if (activities.length === 0 && !isLoading && reachedTheEnd) {
+  const displayActivities = useMemo(
+    () =>
+      filterKind ? activities.filter(a => getTezosPreActivityFilterKind(a, accountAddress) === filterKind) : activities,
+    [activities, filterKind, accountAddress]
+  );
+
+  if (displayActivities.length === 0 && !isLoading && reachedTheEnd) {
     return <EmptyState />;
   }
 
   return (
     <InfiniteScroll
-      itemsLength={activities.length}
+      itemsLength={displayActivities.length}
       isSyncing={isLoading}
       reachedTheEnd={reachedTheEnd}
       retryInitialLoad={loadNext}
       loadMore={loadNext}
     >
-      {activities.map(activity => (
+      {displayActivities.map(activity => (
         <TezosActivityComponent
           key={activity.hash}
           activity={activity}

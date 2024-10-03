@@ -1,13 +1,9 @@
 - Remove `lib/temple/activity`
 
 - Prepare activities from TZKT in one parse
-- Approve amount
 - NFTs
-- Asset details (name, symbol, decimals) due to user's wallet set-up
 - `FAILED` // Look into `successful": false`
 - Block explorers href
-- Date grouping
-- Infinite scroll
 - New loader
 -
 
@@ -28,3 +24,13 @@
 - 'Show more/less' button logic
 - `TransferSingle` of ERC-1155
 -
+
+### FOR PRE-REVIEW
+- Filters by kind
+- Filter by network dropdown
+- Grouping by date
+- Bundle modal
+- - Optimise render
+- - Design
+- - Click on bundle item
+- `const HIDE_INTERACTIONS = true;`

@@ -1,9 +1,10 @@
-import React, { FC, ReactNode, useEffect } from 'react';
+import React, { FC, ReactElement, useEffect } from 'react';
 
 import ReactInfiniteScrollComponent from 'react-infinite-scroll-component';
 
 import { APP_CONTENT_PAPER_DOM_ID, SCROLL_DOCUMENT } from 'app/layouts/containers';
 
+import { LoaderDebounce } from './LoaderDebounce';
 import { SyncSpinner } from './SyncSpinner';
 
 interface Props extends PropsWithChildren {
@@ -12,7 +13,7 @@ interface Props extends PropsWithChildren {
   reachedTheEnd: boolean;
   retryInitialLoad: EmptyFn;
   loadMore: EmptyFn;
-  loader?: ReactNode;
+  loader?: ReactElement;
 }
 
 export const InfiniteScroll: FC<Props> = ({
@@ -38,7 +39,7 @@ export const InfiniteScroll: FC<Props> = ({
       return;
 
     if (isScrollAtTheEnd(scrollableElem)) loadNext();
-  }, [isSyncing, reachedTheEnd]);
+  }, [isSyncing, itemsLength, reachedTheEnd]);
 
   return (
     <ReactInfiniteScrollComponent
@@ -51,7 +52,9 @@ export const InfiniteScroll: FC<Props> = ({
     >
       {children}
 
-      {isSyncing ? loader ?? <SyncSpinner className="mt-4" /> : null}
+      <LoaderDebounce isSyncing={isSyncing} keepTime={2_000}>
+        {loader ?? <SyncSpinner className="mt-4" />}
+      </LoaderDebounce>
     </ReactInfiniteScrollComponent>
   );
 };

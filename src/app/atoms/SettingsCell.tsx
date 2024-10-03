@@ -1,6 +1,8 @@
-import React, { FC, HTMLAttributes, ReactNode } from 'react';
+import React, { FC, HTMLAttributes, ReactElement, ReactNode } from 'react';
 
 import clsx from 'clsx';
+
+import { Button } from 'app/atoms';
 
 interface ComponentBase {
   className?: string;
@@ -18,17 +20,17 @@ interface DivSettingsCellProps extends HTMLAttributes<HTMLDivElement>, SettingsC
 
 type FCSettingsCellProps<P extends ComponentBase> = P & SettingsCellPropsBase<P> & { Component: FC<P> };
 
-type SettingsCellProps<P extends ComponentBase> = P extends { Component: 'div' }
+type SettingsCellSingleProps<P extends ComponentBase> = P extends { Component: 'div' }
   ? DivSettingsCellProps
   : FCSettingsCellProps<P>;
 
-export const SettingsCell = <P extends ComponentBase>({
+export const SettingsCellSingle = <P extends ComponentBase>({
   className,
   cellName: name,
   children,
   Component,
   ...restProps
-}: SettingsCellProps<P>) => {
+}: SettingsCellSingleProps<P>) => {
   return (
     <Component
       className={clsx(
@@ -41,5 +43,25 @@ export const SettingsCell = <P extends ComponentBase>({
 
       {children}
     </Component>
+  );
+};
+
+interface Props {
+  title: ReactNode;
+  first?: boolean;
+  icon: ReactElement;
+  onClick: EmptyFn;
+}
+
+export const SettingsCell: FC<Props> = ({ title, first, onClick, icon }) => {
+  return (
+    <Button
+      className={clsx('flex items-center justify-between p-3 gap-x-2 border-lines', !first && 'border-t-0.5')}
+      onClick={onClick}
+    >
+      <span className="text-font-medium-bold">{title}</span>
+
+      {icon}
+    </Button>
   );
 };

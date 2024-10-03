@@ -32,5 +32,13 @@ export function useActivitiesLoadingLogic<A>(
     loadActivities(true, abortAndRenewSignal());
   }, resetDeps);
 
-  return { activities, isLoading, reachedTheEnd, setActivities, setIsLoading, setReachedTheEnd, loadNext };
+  return {
+    activities,
+    isLoading,
+    reachedTheEnd,
+    setActivities,
+    setIsLoading,
+    setReachedTheEnd,
+    loadNext
+  };
 }
