@@ -1,11 +1,40 @@
 import browser from 'webextension-polyfill';
 
 import { buildSwapPageUrlQuery } from 'app/pages/Swap/utils/build-url-query';
-import { ADS_META_SEARCH_PARAM_NAME, ContentScriptType, ORIGIN_SEARCH_PARAM_NAME } from 'lib/constants';
+import {
+  ADS_META_SEARCH_PARAM_NAME,
+  AD_CATEGORIES_PARAM_NAME,
+  ContentScriptType,
+  ORIGIN_SEARCH_PARAM_NAME
+} from 'lib/constants';
 import { APP_VERSION, EnvVars, IS_MISES_BROWSER } from 'lib/env';
 import { isTruthy } from 'lib/utils';
 
 import { importExtensionAdsModule } from './import-extension-ads-module';
+
+// Three interfaces below are copied from '@temple-wallet/extension-ads' to avoid importing it to ensure that a core
+// build runs without errors.
+interface AdSource {
+  shouldNotUseStrictContainerLimits?: boolean;
+  providerName: 'Temple' | 'Persona' | 'HypeLab' | 'SmartyAds';
+  native?: boolean;
+  slug: string;
+  categories?: string[];
+}
+
+interface AdDimensions {
+  width: number;
+  height: number;
+  minContainerWidth: number;
+  minContainerHeight: number;
+  maxContainerWidth: number;
+  maxContainerHeight: number;
+}
+
+interface AdMetadata {
+  source: AdSource;
+  dimensions: AdDimensions;
+}
 
 const smallTkeyInpageAdUrl = browser.runtime.getURL(`/misc/ad-banners/small-tkey-inpage-ad.png`);
 const tkeyInpageAdUrl = browser.runtime.getURL(`/misc/ad-banners/tkey-inpage-ad.png`);
@@ -16,13 +45,14 @@ const swapTkeyUrl = `${browser.runtime.getURL('fullpage.html')}#/swap?${buildSwa
   true
 )}`;
 
-const getAdsStackIframeURL = (id: string, adsMetadataIds: any[], origin: string) => {
+const getAdsStackIframeURL = (id: string, adsMetadataIds: any[], origin: string, adCategories: string[]) => {
   const url = new URL(browser.runtime.getURL('iframes/ads-stack.html'));
   url.searchParams.set('id', id);
   adsMetadataIds.forEach(adMetadataId =>
     url.searchParams.append(ADS_META_SEARCH_PARAM_NAME, JSON.stringify(adMetadataId))
   );
   url.searchParams.set(ORIGIN_SEARCH_PARAM_NAME, origin);
+  adCategories.forEach(category => url.searchParams.append(AD_CATEGORIES_PARAM_NAME, category));
 
   return url.toString();
 };
@@ -61,7 +91,7 @@ const buildNativeAdsMeta = (containerWidth: number, containerHeight: number) =>
     }
   ].filter(isTruthy);
 
-const bannerAdsMetaBase = [
+const bannerAdsMetaBase: (AdMetadata | false)[] = [
   {
     source: {
       providerName: 'SmartyAds' as const,
@@ -107,6 +137,52 @@ const bannerAdsMetaBase = [
       minContainerWidth: 727,
       minContainerHeight: 89,
       maxContainerWidth: Infinity,
+      maxContainerHeight: 300
+    }
+  },
+  {
+    source: {
+      providerName: 'HypeLab' as const,
+      native: false,
+      slug: IS_MISES_BROWSER ? EnvVars.HYPELAB_MISES_WIDE_PLACEMENT_SLUG : EnvVars.HYPELAB_WIDE_PLACEMENT_SLUG
+    },
+    dimensions: {
+      width: 728,
+      height: 90,
+      minContainerWidth: 727,
+      minContainerHeight: 89,
+      maxContainerWidth: Infinity,
+      maxContainerHeight: 300
+    }
+  },
+  {
+    source: {
+      providerName: 'Persona' as const,
+      native: false,
+      slug: IS_MISES_BROWSER ? EnvVars.PERSONA_ADS_MISES_WIDE_BANNER_UNIT_ID : EnvVars.PERSONA_ADS_WIDE_BANNER_UNIT_ID
+    },
+    dimensions: {
+      width: 728,
+      height: 90,
+      minContainerWidth: 727,
+      minContainerHeight: 89,
+      maxContainerWidth: Infinity,
+      maxContainerHeight: 300
+    }
+  },
+  {
+    source: {
+      providerName: 'Persona' as const,
+      slug: IS_MISES_BROWSER
+        ? EnvVars.PERSONA_ADS_MISES_MEDIUM_BANNER_UNIT_ID
+        : EnvVars.PERSONA_ADS_MEDIUM_BANNER_UNIT_ID
+    },
+    dimensions: {
+      width: 600,
+      height: 160,
+      minContainerWidth: 599,
+      minContainerHeight: 159,
+      maxContainerWidth: 800,
       maxContainerHeight: 300
     }
   },
@@ -176,6 +252,37 @@ const bannerAdsMetaBase = [
   },
   {
     source: {
+      providerName: 'HypeLab' as const,
+      native: false,
+      slug: IS_MISES_BROWSER ? EnvVars.HYPELAB_MISES_HIGH_PLACEMENT_SLUG : EnvVars.HYPELAB_HIGH_PLACEMENT_SLUG
+    },
+    dimensions: {
+      width: 300,
+      height: 250,
+      minContainerWidth: 299,
+      minContainerHeight: 249,
+      maxContainerWidth: 700,
+      maxContainerHeight: Infinity
+    }
+  },
+  {
+    source: {
+      providerName: 'Persona' as const,
+      slug: IS_MISES_BROWSER
+        ? EnvVars.PERSONA_ADS_MISES_SQUARISH_BANNER_UNIT_ID
+        : EnvVars.PERSONA_ADS_SQUARISH_BANNER_UNIT_ID
+    },
+    dimensions: {
+      width: 300,
+      height: 250,
+      minContainerWidth: 299,
+      minContainerHeight: 249,
+      maxContainerWidth: 700,
+      maxContainerHeight: Infinity
+    }
+  },
+  {
+    source: {
       providerName: 'SmartyAds' as const,
       native: false,
       slug: EnvVars.SMARTY_320_100_PLACEMENT_ID,
@@ -211,82 +318,6 @@ const bannerAdsMetaBase = [
     source: {
       providerName: 'HypeLab' as const,
       native: false,
-      slug: IS_MISES_BROWSER ? EnvVars.HYPELAB_MISES_WIDE_PLACEMENT_SLUG : EnvVars.HYPELAB_WIDE_PLACEMENT_SLUG
-    },
-    dimensions: {
-      width: 728,
-      height: 90,
-      minContainerWidth: 727,
-      minContainerHeight: 89,
-      maxContainerWidth: Infinity,
-      maxContainerHeight: 300
-    }
-  },
-  {
-    source: {
-      providerName: 'Temple' as const,
-      slug: ''
-    },
-    dimensions: {
-      width: 728,
-      height: 90,
-      minContainerWidth: 727,
-      minContainerHeight: 89,
-      maxContainerWidth: Infinity,
-      maxContainerHeight: 300
-    }
-  },
-  {
-    source: {
-      providerName: 'Persona' as const,
-      slug: IS_MISES_BROWSER
-        ? EnvVars.PERSONA_ADS_MISES_MEDIUM_BANNER_UNIT_ID
-        : EnvVars.PERSONA_ADS_MEDIUM_BANNER_UNIT_ID
-    },
-    dimensions: {
-      width: 600,
-      height: 160,
-      minContainerWidth: 599,
-      minContainerHeight: 159,
-      maxContainerWidth: 800,
-      maxContainerHeight: 300
-    }
-  },
-  {
-    source: {
-      providerName: 'HypeLab' as const,
-      native: false,
-      slug: IS_MISES_BROWSER ? EnvVars.HYPELAB_MISES_HIGH_PLACEMENT_SLUG : EnvVars.HYPELAB_HIGH_PLACEMENT_SLUG
-    },
-    dimensions: {
-      width: 300,
-      height: 250,
-      minContainerWidth: 299,
-      minContainerHeight: 249,
-      maxContainerWidth: 700,
-      maxContainerHeight: Infinity
-    }
-  },
-  {
-    source: {
-      providerName: 'Persona' as const,
-      slug: IS_MISES_BROWSER
-        ? EnvVars.PERSONA_ADS_MISES_SQUARISH_BANNER_UNIT_ID
-        : EnvVars.PERSONA_ADS_SQUARISH_BANNER_UNIT_ID
-    },
-    dimensions: {
-      width: 300,
-      height: 250,
-      minContainerWidth: 299,
-      minContainerHeight: 249,
-      maxContainerWidth: 700,
-      maxContainerHeight: 500
-    }
-  },
-  {
-    source: {
-      providerName: 'HypeLab' as const,
-      native: false,
       slug: IS_MISES_BROWSER ? EnvVars.HYPELAB_MISES_SMALL_PLACEMENT_SLUG : EnvVars.HYPELAB_SMALL_PLACEMENT_SLUG,
       shouldNotUseStrictContainerLimits: true
     },
@@ -302,7 +333,8 @@ const bannerAdsMetaBase = [
   {
     source: {
       providerName: 'Persona' as const,
-      slug: IS_MISES_BROWSER ? EnvVars.PERSONA_ADS_MISES_BANNER_UNIT_ID : EnvVars.PERSONA_ADS_BANNER_UNIT_ID
+      slug: IS_MISES_BROWSER ? EnvVars.PERSONA_ADS_MISES_BANNER_UNIT_ID : EnvVars.PERSONA_ADS_BANNER_UNIT_ID,
+      shouldNotUseStrictContainerLimits: true
     },
     dimensions: {
       width: 321,
@@ -330,6 +362,32 @@ const bannerAdsMetaBase = [
   }
 ];
 
+const bannerAdsMeta = bannerAdsMetaBase.filter(isTruthy);
+
+const pickNextAdMetadata = (
+  allAdsMetadata: AdMetadata[],
+  currentAdMetadata: AdMetadata | undefined,
+  validAdsCounter: number,
+  pageHasPlacesRules: boolean,
+  adCategories: string[]
+) => {
+  const currentAdMetadataIndex = currentAdMetadata ? allAdsMetadata.indexOf(currentAdMetadata) : -1;
+  const isPureCryptoAd = adCategories.length === 1 && adCategories[0] === 'crypto';
+
+  if (
+    !currentAdMetadata ||
+    (!pageHasPlacesRules && !isPureCryptoAd && validAdsCounter > 0 && currentAdMetadataIndex > 0)
+  ) {
+    return allAdsMetadata[0];
+  }
+
+  if (allAdsMetadata.length === 1) {
+    return undefined;
+  }
+
+  return allAdsMetadata[(currentAdMetadataIndex + 1) % allAdsMetadata.length];
+};
+
 export const configureAds = async () => {
   const { configureAds: originalConfigureAds } = await importExtensionAdsModule();
   originalConfigureAds({
@@ -341,9 +399,10 @@ export const configureAds = async () => {
     personaIframePath: browser.runtime.getURL('iframes/persona-ad.html'),
     getAdsStackIframeURL,
     buildNativeAdsMeta,
-    bannerAdsMeta: bannerAdsMetaBase.filter(isTruthy),
+    bannerAdsMeta,
     extVersion: APP_VERSION,
     templePassphrase: EnvVars.TEMPLE_ADS_ORIGIN_PASSPHRASE,
-    isMisesBrowser: IS_MISES_BROWSER
+    isMisesBrowser: IS_MISES_BROWSER,
+    pickNextAdMetadata
   });
 };
