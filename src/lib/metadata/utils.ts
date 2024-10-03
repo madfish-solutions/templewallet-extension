@@ -17,8 +17,10 @@ export function getAssetSymbol(
   short = false,
   fallback?: string | null
 ) {
-  if (!metadata || !metadata.symbol) return fallback === null ? undefined : fallback ?? '???';
+  if (!metadata?.symbol) return fallback === null ? undefined : fallback ?? '???';
+
   if (!short) return metadata.symbol;
+
   return metadata.symbol === 'tez' ? TEZOS_SYMBOL : metadata.symbol.substring(0, 5);
 }
 

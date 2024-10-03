@@ -7,7 +7,7 @@ import { ReactComponent as IncomeSvg } from 'app/icons/base/income.svg';
 import { ReactComponent as OutLinkIcon } from 'app/icons/base/outLink.svg';
 import { ReactComponent as SendSvg } from 'app/icons/base/send.svg';
 import { ReactComponent as SwapSvg } from 'app/icons/base/swap.svg';
-import { FiatBalance } from 'app/pages/Home/OtherComponents/Tokens/components/Balance';
+import { InFiat } from 'app/templates/InFiat';
 import { ActivityOperKindEnum } from 'lib/activity';
 import { isTransferActivityOperKind } from 'lib/activity/utils';
 import { toEvmAssetSlug, toTezosAssetSlug } from 'lib/assets/utils';
@@ -54,15 +54,18 @@ export const ActivityOperationBaseComponent: FC<Props> = ({
   const amountJsx = useMemo<ReactNode>(() => {
     if (!asset) return null;
 
+    const symbol = asset.symbol || (kind === ActivityOperKindEnum.approve ? '---' : '');
+    const symbolStr = symbol.length > 6 ? `${symbol.slice(0, 6)}...` : symbol;
+
     return (
-      <div className="text-font-num-14 truncate">
+      <div className="flex text-font-num-14 overflow-hidden">
         {kind === ActivityOperKindEnum.approve ? null : asset.amount ? (
-          <>
-            {asset.amount.startsWith('-') ? null : '+'}
-            <Money smallFractionFont={false}>{atomsToTokens(asset.amount, asset.decimals)}</Money>{' '}
-          </>
+          <Money smallFractionFont={false} withSign>
+            {atomsToTokens(asset.amount, asset.decimals)}
+          </Money>
         ) : null}
-        {asset.symbol || '---'}
+
+        {symbolStr ? <span className="whitespace-pre"> {symbolStr}</span> : null}
       </div>
     );
   }, [asset, kind]);
@@ -80,13 +83,29 @@ export const ActivityOperationBaseComponent: FC<Props> = ({
     const amountForFiat =
       kind === 'bundle' || isTransferActivityOperKind(kind) ? atomsToTokens(asset.amount, asset.decimals) : null;
 
-    return amountForFiat ? (
-      <>
-        {amountForFiat.isPositive() && '+'}
+    if (!amountForFiat) return null;
 
-        <FiatBalance evm={typeof chainId === 'number'} chainId={chainId} assetSlug={assetSlug} value={amountForFiat} />
-      </>
-    ) : null;
+    return (
+      <InFiat
+        evm={typeof chainId === 'number'}
+        chainId={chainId}
+        assetSlug={assetSlug}
+        volume={amountForFiat}
+        smallFractionFont={false}
+        withSign
+      >
+        {({ balance, symbol, noPrice }) =>
+          noPrice ? (
+            <span>No value</span>
+          ) : (
+            <>
+              {balance}
+              <span className="ml-1">{symbol}</span>
+            </>
+          )
+        }
+      </InFiat>
+    );
   }, [asset, kind, assetSlug, chainId]);
 
   const IconFallback = useCallback<FC>(
@@ -130,7 +149,7 @@ export const ActivityOperationBaseComponent: FC<Props> = ({
         </NetworkLogoTooltipWrap>
       </div>
 
-      <div className="flex-grow flex flex-col gap-y-1 overflow-hidden">
+      <div className="flex-grow flex flex-col gap-y-1 whitespace-nowrap overflow-hidden">
         <div className="flex gap-x-2 justify-between">
           <div className="text-font-medium">{ActivityKindTitle[kind]}</div>
 
