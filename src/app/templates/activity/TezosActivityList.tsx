@@ -4,15 +4,15 @@ import { EmptyState } from 'app/atoms/EmptyState';
 import { InfiniteScroll } from 'app/atoms/InfiniteScroll';
 import { DeadEndBoundaryError } from 'app/ErrorBoundary';
 import { useLoadPartnersPromo } from 'app/hooks/use-load-partners-promo';
-import { preparseTezosOperationsGroup } from 'lib/activity/tezos';
+import { TezosActivity } from 'lib/activity';
+import { parseTezosOperationsGroup } from 'lib/activity/tezos';
 import fetchTezosOperationsGroups from 'lib/activity/tezos/fetch';
-import { TezosPreActivity } from 'lib/activity/tezos/types';
 import { isKnownChainId } from 'lib/apis/tzkt/api';
 import { useAccountAddressForTezos, useTezosChainByChainId } from 'temple/front';
 
 import { TezosActivityComponent } from './ActivityItem';
 import { useActivitiesLoadingLogic } from './loading-logic';
-import { FilterKind, getTezosPreActivityFilterKind } from './utils';
+import { FilterKind, getActivityFilterKind } from './utils';
 
 interface Props {
   tezosChainId: string;
@@ -31,7 +31,7 @@ export const TezosActivityList = memo<Props>(({ tezosChainId, assetSlug, filterK
   const { chainId, rpcBaseURL } = network;
 
   const { activities, isLoading, reachedTheEnd, setActivities, setIsLoading, setReachedTheEnd, loadNext } =
-    useActivitiesLoadingLogic<TezosPreActivity>(
+    useActivitiesLoadingLogic<TezosActivity>(
       async (initial, signal) => {
         if (!isKnownChainId(chainId)) {
           setIsLoading(false);
@@ -50,7 +50,7 @@ export const TezosActivityList = memo<Props>(({ tezosChainId, assetSlug, filterK
 
           if (signal.aborted) return;
 
-          const newActivities = groups.map(group => preparseTezosOperationsGroup(group, accountAddress, chainId));
+          const newActivities = groups.map(group => parseTezosOperationsGroup(group, chainId, accountAddress));
 
           setActivities(currActivities.concat(newActivities));
           if (newActivities.length === 0) setReachedTheEnd(true);
@@ -68,9 +68,8 @@ export const TezosActivityList = memo<Props>(({ tezosChainId, assetSlug, filterK
     );
 
   const displayActivities = useMemo(
-    () =>
-      filterKind ? activities.filter(a => getTezosPreActivityFilterKind(a, accountAddress) === filterKind) : activities,
-    [activities, filterKind, accountAddress]
+    () => (filterKind ? activities.filter(act => getActivityFilterKind(act) === filterKind) : activities),
+    [activities, filterKind]
   );
 
   if (displayActivities.length === 0 && !isLoading && reachedTheEnd) {
@@ -86,13 +85,7 @@ export const TezosActivityList = memo<Props>(({ tezosChainId, assetSlug, filterK
       loadMore={loadNext}
     >
       {displayActivities.map(activity => (
-        <TezosActivityComponent
-          key={activity.hash}
-          activity={activity}
-          chain={network}
-          accountAddress={accountAddress}
-          assetSlug={assetSlug}
-        />
+        <TezosActivityComponent key={activity.hash} activity={activity} chain={network} assetSlug={assetSlug} />
       ))}
     </InfiniteScroll>
   );

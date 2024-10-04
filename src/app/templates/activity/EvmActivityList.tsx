@@ -15,7 +15,7 @@ import { useEvmChainByChainId } from 'temple/front/chains';
 
 import { EvmActivityComponent } from './ActivityItem';
 import { useActivitiesLoadingLogic } from './loading-logic';
-import { FilterKind, getEvmActivityFilterKind } from './utils';
+import { FilterKind, getActivityFilterKind } from './utils';
 
 interface Props {
   chainId: number;
@@ -74,7 +74,7 @@ export const EvmActivityList: FC<Props> = ({ chainId, assetSlug, filterKind }) =
     );
 
   const displayActivities = useMemo(
-    () => (filterKind ? activities.filter(a => getEvmActivityFilterKind(a) === filterKind) : activities),
+    () => (filterKind ? activities.filter(a => getActivityFilterKind(a) === filterKind) : activities),
     [activities, filterKind]
   );
 

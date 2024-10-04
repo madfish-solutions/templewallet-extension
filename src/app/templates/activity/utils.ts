@@ -1,4 +1,4 @@
-import { ActivityOperKindEnum, Activity, EvmActivity, parseTezosPreActivityOperation } from 'lib/activity';
+import { ActivityOperKindEnum, Activity, EvmActivity } from 'lib/activity';
 import { TezosPreActivity } from 'lib/activity/tezos/types';
 
 export function isEvmActivity(activity: Activity | TezosPreActivity): activity is EvmActivity {
@@ -22,20 +22,10 @@ const FILTER_KINDS: Record<ActivityOperKindEnum, FilterKind> = {
   [ActivityOperKindEnum.swap]: null
 };
 
-export function getEvmActivityFilterKind({ operations, operationsCount }: EvmActivity): FilterKind {
+export function getActivityFilterKind({ operations, operationsCount }: Activity): FilterKind {
   if (operationsCount !== 1) return 'bundle';
 
   const kind = operations.at(0)?.kind ?? ActivityOperKindEnum.interaction;
-
-  return FILTER_KINDS[kind];
-}
-
-export function getTezosPreActivityFilterKind({ operations }: TezosPreActivity, address: string): FilterKind {
-  if (operations.length !== 1) return 'bundle';
-
-  const operation = operations.at(0)!;
-
-  const kind = parseTezosPreActivityOperation(operation, address)?.kind;
 
   return FILTER_KINDS[kind];
 }

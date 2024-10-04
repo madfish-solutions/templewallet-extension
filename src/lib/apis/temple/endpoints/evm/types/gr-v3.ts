@@ -1,6 +1,13 @@
 import { Nullable } from './utils';
 
+export interface GoldRushTransactionsResponse {
+  items: GoldRushTransaction[];
+  current_page: number;
+}
+
 export type GoldRushTransaction = Nullable<Transaction>;
+
+export type GoldRushTransactionLogEvent = Nullable<LogEvent>;
 
 interface Transaction {
   /** * The block signed timestamp in UTC. */
@@ -55,7 +62,7 @@ interface Transaction {
   /** * The details for the lending protocol transaction. */
   lending_details: Nullable<LendingReport>[];
   /** * The log events. */
-  log_events: Nullable<LogEvent>[];
+  log_events: GoldRushTransactionLogEvent[];
   /** * The details related to the safe transaction. */
   safe_details: Nullable<SafeDetails>[];
 }

@@ -1,35 +1,36 @@
-import { TezosPreActivity, TezosPreActivityOperation } from 'lib/activity/tezos/types';
-import { AssetMetadataBase, isTezosCollectibleMetadata } from 'lib/metadata';
+import { TempleTzktOperationsGroup, TezosPreActivityOperation } from 'lib/activity/tezos/types';
+import { toTezosAssetSlug } from 'lib/assets/utils';
 import { isTezosContractAddress } from 'lib/tezos';
 import { TempleChainKind } from 'temple/types';
 
-import { TezosActivity, ActivityOperKindEnum, TezosOperation, TezosActivityAsset } from '../types';
-import { getAssetSymbol, isTransferActivityOperKind } from '../utils';
+import { TezosActivity, ActivityOperKindEnum, TezosOperation } from '../types';
+import { isTransferActivityOperKind } from '../utils';
 
-export { preparseTezosOperationsGroup } from './pre-parse';
+import { preparseTezosOperationsGroup } from './pre-parse';
 
-export function formatLegacyTezosActivity(
-  _activity: TezosPreActivity,
+export function parseTezosOperationsGroup(
+  operationsGroup: TempleTzktOperationsGroup,
   chainId: string,
   address: string
 ): TezosActivity {
-  const hash = _activity.hash;
+  const preActivity = preparseTezosOperationsGroup(operationsGroup, address, chainId);
+
+  const { hash, addedAt, operations: preOperations, oldestTzktOperation } = preActivity;
+
+  const operations = preOperations.map<TezosOperation>(oper => parseTezosPreActivityOperation(oper, address));
 
   return {
     hash,
     chain: TempleChainKind.Tezos,
     chainId,
-    operations: _activity.operations.map<TezosOperation>(oper => parseTezosPreActivityOperation(oper, address)),
-    operationsCount: _activity.operations.length,
-    addedAt: _activity.addedAt
+    operations,
+    operationsCount: preOperations.length,
+    addedAt,
+    oldestTzktOperation
   };
 }
 
-export function parseTezosPreActivityOperation(
-  preOperation: TezosPreActivityOperation,
-  address: string,
-  assetMetadata?: AssetMetadataBase
-): TezosOperation {
+function parseTezosPreActivityOperation(preOperation: TezosPreActivityOperation, address: string): TezosOperation {
   let tokenId: string | undefined;
 
   const operationBase: TezosOperation = (() => {
@@ -79,19 +80,11 @@ export function parseTezosPreActivityOperation(
     };
   })();
 
-  if (!assetMetadata || !preOperation.contract) return operationBase;
+  if (!preOperation.contract) return operationBase;
 
   if (isTransferActivityOperKind(operationBase.kind) || operationBase.kind === ActivityOperKindEnum.approve) {
-    const asset: TezosActivityAsset = {
-      contract: preOperation.contract,
-      tokenId,
-      amount: preOperation.amountSigned,
-      decimals: assetMetadata.decimals,
-      nft: isTezosCollectibleMetadata(assetMetadata),
-      symbol: getAssetSymbol(assetMetadata)
-    };
-
-    operationBase.asset = asset;
+    operationBase.assetSlug = toTezosAssetSlug(preOperation.contract, tokenId);
+    operationBase.amountSigned = preOperation.amountSigned;
   }
 
   return operationBase;

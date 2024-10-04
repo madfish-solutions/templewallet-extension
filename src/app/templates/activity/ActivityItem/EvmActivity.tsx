@@ -26,11 +26,9 @@ interface Props {
 export const EvmActivityComponent = memo<Props>(({ activity, chain, assetSlug }) => {
   const networkName = chain.nameI18nKey ? t(chain.nameI18nKey) : chain.name;
 
-  const { hash, blockExplorerUrl } = activity;
+  const { hash, operations, operationsCount, blockExplorerUrl } = activity;
 
-  const operations = activity.operations;
-
-  if (activity.operationsCount === 1) {
+  if (operationsCount === 1) {
     const operation = operations.at(0);
 
     return (

@@ -1,10 +1,19 @@
 import { templeWalletApi } from '../templewallet.api';
 
 import { BalancesResponse, ChainID, NftAddressBalanceNftResponse } from './api.interfaces';
-import { Erc20TransfersResponse, GoldRushERC20Transfer } from './types/erc20-transfers';
-import { GoldRushTransaction } from './types/transactions';
+import {
+  GoldRushERC20TransactionsResponse,
+  GoldRushERC20Transaction,
+  GoldRushERC20TransactionTransfer
+} from './types/gr-v2';
+import { GoldRushTransaction, GoldRushTransactionLogEvent, GoldRushTransactionsResponse } from './types/gr-v3';
 
-export type { GoldRushTransaction, GoldRushERC20Transfer };
+export type {
+  GoldRushTransaction,
+  GoldRushTransactionLogEvent,
+  GoldRushERC20Transaction,
+  GoldRushERC20TransactionTransfer
+};
 
 export const getEvmBalances = (walletAddress: string, chainId: ChainID) =>
   buildEvmRequest<BalancesResponse>('/balances', walletAddress, chainId);
@@ -16,8 +25,9 @@ export const getEvmTokensMetadata = (walletAddress: string, chainId: ChainID) =>
 export const getEvmCollectiblesMetadata = (walletAddress: string, chainId: ChainID) =>
   buildEvmRequest<NftAddressBalanceNftResponse>('/collectibles-metadata', walletAddress, chainId);
 
+/** Calls to GoldRush v3 endpoints */
 export const getEvmTransactions = (walletAddress: string, chainId: ChainID, page?: number, signal?: AbortSignal) =>
-  buildEvmRequest<{ items: GoldRushTransaction[]; current_page: number }>(
+  buildEvmRequest<GoldRushTransactionsResponse>(
     '/transactions',
     walletAddress,
     chainId,
@@ -27,10 +37,11 @@ export const getEvmTransactions = (walletAddress: string, chainId: ChainID, page
     signal
   ).then(({ items, current_page }) => ({
     items,
-    /** null | \> 0 */
+    /** null | > 0 */
     nextPage: current_page > 1 ? current_page - 1 : null
   }));
 
+/** Calls to GoldRush v2 endpoints */
 export const getEvmERC20Transfers = (
   walletAddress: string,
   chainId: ChainID,
@@ -38,7 +49,7 @@ export const getEvmERC20Transfers = (
   page?: number,
   signal?: AbortSignal
 ) =>
-  buildEvmRequest<Erc20TransfersResponse>(
+  buildEvmRequest<GoldRushERC20TransactionsResponse>(
     '/erc20-transfers',
     walletAddress,
     chainId,
@@ -52,7 +63,7 @@ export const getEvmERC20Transfers = (
 
     return {
       items: items ?? [],
-      /** null | \> 0 */
+      /** null | > 0 */
       nextPage: withoutNextPage ? null : pagination?.page_number ?? 0 + 1
     };
   });

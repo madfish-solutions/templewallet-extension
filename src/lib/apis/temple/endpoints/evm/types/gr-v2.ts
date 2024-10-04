@@ -1,11 +1,13 @@
 import { Nullable } from './utils';
 
-export type Erc20TransfersResponse = Nullable<{
-  items: GoldRushERC20Transfer[];
+export type GoldRushERC20TransactionsResponse = Nullable<{
+  items: GoldRushERC20Transaction[];
   pagination: Pagination;
 }>;
 
-export type GoldRushERC20Transfer = Nullable<BlockTransactionWithContractTransfers>;
+export type GoldRushERC20Transaction = Nullable<BlockTransactionWithContractTransfers>;
+
+export type GoldRushERC20TransactionTransfer = Nullable<TokenTransferItem>;
 
 interface Pagination {
   /** * True is there is another page. */
@@ -64,7 +66,7 @@ interface BlockTransactionWithContractTransfers {
   pretty_gas_quote: string;
   /** * The native gas exchange rate for the requested `quote-currency`. */
   gas_quote_rate: number;
-  transfers: Nullable<TokenTransferItem>[];
+  transfers: GoldRushERC20TransactionTransfer[];
 }
 
 interface ContractMetadata {

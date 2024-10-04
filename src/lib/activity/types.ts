@@ -1,5 +1,7 @@
 import { TempleChainKind } from 'temple/types';
 
+import { TezosActivityOlderThan } from './tezos/types';
+
 export enum ActivityOperKindEnum {
   interaction,
   transferFrom,
@@ -21,16 +23,21 @@ interface ChainActivityBase {
   addedAt: string;
 }
 
-export interface TezosActivity extends ChainActivityBase {
+interface OperationBase {
+  kind: ActivityOperKindEnum;
+  /** `null` for 'unlimited' amount */
+  amountSigned?: string | null;
+}
+
+export interface TezosActivity extends ChainActivityBase, TezosActivityOlderThan {
   chain: TempleChainKind.Tezos;
   chainId: string;
   blockExplorerUrl?: string;
   operations: TezosOperation[];
 }
 
-export interface TezosOperation {
-  kind: ActivityOperKindEnum;
-  asset?: TezosActivityAsset;
+export interface TezosOperation extends OperationBase {
+  assetSlug?: string;
 }
 
 export interface TezosActivityAsset extends ActivityAssetBase {}
@@ -42,9 +49,8 @@ export interface EvmActivity extends ChainActivityBase {
   operations: EvmOperation[];
 }
 
-export interface EvmOperation {
-  kind: ActivityOperKindEnum;
-  asset?: EvmActivityAsset;
+export interface EvmOperation extends OperationBase {
+  asset?: EvmActivityAsset; // TODO: Same as for Tezos
 }
 
 export interface EvmActivityAsset extends ActivityAssetBase {

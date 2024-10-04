@@ -1,43 +1,60 @@
 import React, { memo, useMemo } from 'react';
 
-import { TezosOperation, parseTezosPreActivityOperation } from 'lib/activity';
-import { TezosPreActivityOperation } from 'lib/activity/tezos/types';
-import { toTezosAssetSlug } from 'lib/assets/utils';
-import { useTezosAssetMetadata } from 'lib/metadata';
+import { ActivityOperKindEnum, TezosOperation } from 'lib/activity';
+import { fromAssetSlug } from 'lib/assets';
+import { AssetMetadataBase, getAssetSymbol, useTezosAssetMetadata } from 'lib/metadata';
 
-import { ActivityOperationBaseComponent } from './ActivityOperationBase';
+import { ActivityItemBaseAssetProp, ActivityOperationBaseComponent } from './ActivityOperationBase';
 
 interface Props {
   hash: string;
-  operation: TezosPreActivityOperation;
+  operation?: TezosOperation;
   chainId: string;
   networkName: string;
   blockExplorerUrl: string | nullish;
-  accountAddress: string;
   withoutAssetIcon?: boolean;
 }
 
 export const TezosActivityOperationComponent = memo<Props>(
-  ({ hash, operation: preOperation, chainId, networkName, blockExplorerUrl, accountAddress, withoutAssetIcon }) => {
-    const assetSlug = preOperation.contract ? toTezosAssetSlug(preOperation.contract, preOperation.tokenId) : '';
+  ({ hash, operation, chainId, networkName, blockExplorerUrl, withoutAssetIcon }) => {
+    const assetSlug = operation?.assetSlug;
+    const assetMetadata = useTezosAssetMetadata(assetSlug ?? '', chainId);
 
-    const assetMetadata = useTezosAssetMetadata(assetSlug, chainId);
-
-    const operation = useMemo<TezosOperation>(
-      () => parseTezosPreActivityOperation(preOperation, accountAddress, assetMetadata),
-      [assetMetadata, preOperation, accountAddress]
+    const asset = useMemo(
+      () =>
+        assetSlug && assetMetadata
+          ? buildTezosOperationAsset(assetSlug, assetMetadata, operation.amountSigned)
+          : undefined,
+      [assetMetadata, operation, assetSlug]
     );
 
     return (
       <ActivityOperationBaseComponent
-        kind={operation.kind}
+        kind={operation?.kind ?? ActivityOperKindEnum.interaction}
         hash={hash}
         chainId={chainId}
         networkName={networkName}
-        asset={operation.asset}
+        asset={asset}
         blockExplorerUrl={blockExplorerUrl ?? undefined}
         withoutAssetIcon={withoutAssetIcon}
       />
     );
   }
 );
+
+export function buildTezosOperationAsset(
+  assetSlug: string,
+  assetMetadata: AssetMetadataBase,
+  amount: string | nullish
+): ActivityItemBaseAssetProp {
+  const [contract, tokenId] = fromAssetSlug(assetSlug);
+
+  return {
+    contract,
+    tokenId,
+    amount,
+    decimals: assetMetadata.decimals,
+    // nft: isTezosCollectibleMetadata(assetMetadata),
+    symbol: getAssetSymbol(assetMetadata)
+  };
+}

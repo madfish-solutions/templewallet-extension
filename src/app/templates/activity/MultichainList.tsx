@@ -5,11 +5,10 @@ import { AxiosError } from 'axios';
 import { EmptyState } from 'app/atoms/EmptyState';
 import { InfiniteScroll } from 'app/atoms/InfiniteScroll';
 import { useLoadPartnersPromo } from 'app/hooks/use-load-partners-promo';
-import { EvmActivity } from 'lib/activity';
+import { Activity, EvmActivity, TezosActivity } from 'lib/activity';
 import { getEvmAssetTransactions } from 'lib/activity/evm';
-import { preparseTezosOperationsGroup } from 'lib/activity/tezos';
+import { parseTezosOperationsGroup } from 'lib/activity/tezos';
 import fetchTezosOperationsGroups from 'lib/activity/tezos/fetch';
-import { TezosPreActivity } from 'lib/activity/tezos/types';
 import { TzktApiChainId } from 'lib/apis/tzkt';
 import { isKnownChainId as isKnownTzktChainId } from 'lib/apis/tzkt/api';
 import { EvmAssetMetadataGetter, useGetEvmAssetMetadata } from 'lib/metadata';
@@ -25,7 +24,7 @@ import {
 
 import { EvmActivityComponent, TezosActivityComponent } from './ActivityItem';
 import { useActivitiesLoadingLogic } from './loading-logic';
-import { FilterKind, getEvmActivityFilterKind, getTezosPreActivityFilterKind, isEvmActivity } from './utils';
+import { FilterKind, getActivityFilterKind } from './utils';
 
 interface Props {
   filterKind: FilterKind;
@@ -65,7 +64,7 @@ export const MultichainActivityList = memo<Props>(({ filterKind }) => {
   const getEvmMetadata = useGetEvmAssetMetadata();
 
   const { activities, isLoading, reachedTheEnd, setActivities, setIsLoading, setReachedTheEnd, loadNext } =
-    useActivitiesLoadingLogic<TezosPreActivity | EvmActivity>(
+    useActivitiesLoadingLogic<Activity>(
       async (initial, signal) => {
         if (signal.aborted) return;
 
@@ -122,16 +121,10 @@ export const MultichainActivityList = memo<Props>(({ filterKind }) => {
     );
 
   const displayActivities = useMemo(() => {
-    const filtered = filterKind
-      ? activities.filter(act => {
-          if (isEvmActivity(act)) return getEvmActivityFilterKind(act) === filterKind;
-
-          return getTezosPreActivityFilterKind(act, tezAccAddress!) === filterKind;
-        })
-      : activities;
+    const filtered = filterKind ? activities.filter(act => getActivityFilterKind(act) === filterKind) : activities;
 
     return filtered.toSorted((a, b) => (a.addedAt < b.addedAt ? 1 : -1));
-  }, [activities, filterKind, tezAccAddress]);
+  }, [activities, filterKind]);
 
   if (displayActivities.length === 0 && !isLoading && reachedTheEnd) {
     return <EmptyState />;
@@ -147,12 +140,7 @@ export const MultichainActivityList = memo<Props>(({ filterKind }) => {
     >
       {displayActivities.map(activity =>
         isTezosActivity(activity) ? (
-          <TezosActivityComponent
-            key={activity.hash}
-            activity={activity}
-            chain={allTezosChains[activity.chainId]}
-            accountAddress={tezAccAddress!}
-          />
+          <TezosActivityComponent key={activity.hash} activity={activity} chain={allTezosChains[activity.chainId]} />
         ) : (
           <EvmActivityComponent key={activity.hash} activity={activity} chain={allEvmChains[activity.chainId]} />
         )
@@ -161,7 +149,7 @@ export const MultichainActivityList = memo<Props>(({ filterKind }) => {
   );
 });
 
-function isTezosActivity(activity: EvmActivity | TezosPreActivity): activity is TezosPreActivity {
+function isTezosActivity(activity: Activity): activity is TezosActivity {
   return 'oldestTzktOperation' in activity;
 }
 
@@ -220,7 +208,7 @@ class EvmActivityLoader {
 }
 
 class TezosActivityLoader {
-  activities: TezosPreActivity[] = [];
+  activities: TezosActivity[] = [];
   reachedTheEnd = false;
   lastError: unknown;
 
@@ -241,7 +229,7 @@ class TezosActivityLoader {
 
       if (signal.aborted) return;
 
-      const newActivities = groups.map(group => preparseTezosOperationsGroup(group, accountAddress, chainId));
+      const newActivities = groups.map(group => parseTezosOperationsGroup(group, chainId, accountAddress));
 
       if (newActivities.length) this.activities = this.activities.concat(newActivities);
       else this.reachedTheEnd = true;
