@@ -5,13 +5,12 @@ export function isEvmActivity(activity: Activity | TezosPreActivity): activity i
   return typeof activity.chainId === 'number';
 }
 
+export type FaceKind = ActivityOperKindEnum | 'bundle';
+
 export type FilterKind = 'send' | 'receive' | 'approve' | 'transfer' | 'bundle' | null;
 
-export function getEvmActivityFaceKind({ operations, operationsCount }: EvmActivity) {
-  return operationsCount === 1 ? operations.at(0)?.kind ?? ActivityOperKindEnum.interaction : 'batch';
-}
-
-const FILTER_KINDS: Record<ActivityOperKindEnum, FilterKind> = {
+const KINDS_MAP: Record<FaceKind, FilterKind> = {
+  bundle: 'bundle',
   [ActivityOperKindEnum.approve]: 'approve',
   [ActivityOperKindEnum.transferFrom]: 'transfer',
   [ActivityOperKindEnum.transferFrom_ToAccount]: 'send',
@@ -22,10 +21,12 @@ const FILTER_KINDS: Record<ActivityOperKindEnum, FilterKind> = {
   [ActivityOperKindEnum.swap]: null
 };
 
-export function getActivityFilterKind({ operations, operationsCount }: Activity): FilterKind {
-  if (operationsCount !== 1) return 'bundle';
+export function getActivityFilterKind(activity: Activity): FilterKind {
+  const faceKind = getActivityFaceKind(activity);
 
-  const kind = operations.at(0)?.kind ?? ActivityOperKindEnum.interaction;
+  return KINDS_MAP[faceKind];
+}
 
-  return FILTER_KINDS[kind];
+function getActivityFaceKind({ operations, operationsCount }: Activity): FaceKind {
+  return operationsCount === 1 ? operations.at(0)?.kind ?? ActivityOperKindEnum.interaction : 'bundle';
 }

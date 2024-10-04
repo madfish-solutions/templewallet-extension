@@ -19,7 +19,7 @@ import { FilterKind, getActivityFilterKind } from './utils';
 interface Props {
   chainId: number;
   assetSlug?: string;
-  filterKind: FilterKind;
+  filterKind?: FilterKind;
 }
 
 export const EvmActivityList: FC<Props> = ({ chainId, assetSlug, filterKind }) => {

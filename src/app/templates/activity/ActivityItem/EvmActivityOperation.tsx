@@ -1,7 +1,6 @@
 import React, { memo, useMemo } from 'react';
 
 import { ActivityOperKindEnum, type EvmOperation } from 'lib/activity';
-import { getAssetSymbol } from 'lib/activity/utils';
 import { toEvmAssetSlug } from 'lib/assets/utils';
 import { useEvmAssetMetadata } from 'lib/metadata';
 
@@ -26,11 +25,11 @@ export const EvmActivityOperationComponent = memo<Props>(
     const asset = useMemo(() => {
       if (!assetBase) return;
 
-      const decimals = assetBase.amount === null ? NaN : assetMetadata?.decimals ?? assetBase.decimals;
+      const decimals = assetBase.amountSigned === null ? NaN : assetMetadata?.decimals ?? assetBase.decimals;
 
       if (decimals == null) return;
 
-      const symbol = getAssetSymbol(assetMetadata) || assetBase.symbol;
+      const symbol = assetMetadata?.symbol || assetBase.symbol;
 
       const asset: ActivityItemBaseAssetProp = {
         ...assetBase,

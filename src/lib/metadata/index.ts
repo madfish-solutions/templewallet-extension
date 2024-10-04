@@ -94,7 +94,7 @@ export const useGetEvmAssetMetadata = () => {
   );
 };
 
-export type EvmAssetMetadataGetter = (
+type EvmAssetMetadataGetter = (
   slug: string
 ) => EvmNativeTokenMetadata | EvmTokenMetadata | EvmCollectibleMetadata | undefined;
 

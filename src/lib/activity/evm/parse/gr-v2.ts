@@ -61,7 +61,7 @@ function parseTransfer(transfer: GoldRushERC20TransactionTransfer, item: GoldRus
 
   const asset: EvmActivityAsset = {
     contract: contractAddress,
-    amount: amountSigned,
+    amountSigned,
     decimals,
     symbol,
     nft,

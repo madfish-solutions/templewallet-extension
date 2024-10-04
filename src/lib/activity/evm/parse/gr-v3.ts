@@ -82,7 +82,7 @@ function parseLogEvent(
     const asset: EvmActivityAsset = {
       contract: contractAddress,
       tokenId,
-      amount: amountSigned,
+      amountSigned,
       decimals,
       symbol,
       nft,
@@ -126,7 +126,7 @@ function parseLogEvent(
     const asset: EvmActivityAsset = {
       contract: contractAddress,
       tokenId,
-      amount: amountSigned,
+      amountSigned,
       decimals,
       symbol,
       nft: true,
@@ -154,7 +154,7 @@ function parseLogEvent(
     const asset: EvmActivityAsset = {
       contract: contractAddress,
       tokenId,
-      amount: amountSigned,
+      amountSigned,
       decimals,
       symbol,
       nft,
@@ -166,7 +166,7 @@ function parseLogEvent(
 
   if (logEvent.decoded.name === 'ApprovalForAll') {
     if (
-      // @ts-expect-error // `value` is not always `:string`
+      // @ts-expect-error // `.value` is not always `:string`
       logEvent.decoded.params.at(2).value !== true ||
       _fromAddress !== accountAddress
     )
@@ -178,7 +178,7 @@ function parseLogEvent(
 
     const asset: EvmActivityAsset = {
       contract: contractAddress,
-      amount: null,
+      amountSigned: null,
       // decimals: NaN, // We are not supposed to use these in this case (of 'Unlimited' amount)
       symbol,
       nft: true,

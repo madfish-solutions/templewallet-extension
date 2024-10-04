@@ -17,7 +17,7 @@ import { FilterKind, getActivityFilterKind } from './utils';
 interface Props {
   tezosChainId: string;
   assetSlug?: string;
-  filterKind: FilterKind;
+  filterKind?: FilterKind;
 }
 
 export const TezosActivityList = memo<Props>(({ tezosChainId, assetSlug, filterKind }) => {

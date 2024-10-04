@@ -7,7 +7,7 @@ import { PageModal } from 'app/atoms/PageModal';
 import { ReactComponent as CompactDownIcon } from 'app/icons/base/compact_down.svg';
 import { EvmActivity } from 'lib/activity';
 import { EvmActivityAsset } from 'lib/activity/types';
-import { getAssetSymbol, isTransferActivityOperKind } from 'lib/activity/utils';
+import { isTransferActivityOperKind } from 'lib/activity/utils';
 import { fromAssetSlug, toEvmAssetSlug } from 'lib/assets/utils';
 import { t } from 'lib/i18n';
 import { useGetEvmChainAssetMetadata } from 'lib/metadata';
@@ -76,7 +76,7 @@ const EvmActivityBatchComponent = memo<BatchProps>(
       if (assetSlug) return assetSlug;
 
       for (const { kind, asset } of operations) {
-        if (asset?.amount && Number(asset.amount) !== 0 && isTransferActivityOperKind(kind)) {
+        if (asset?.amountSigned && Number(asset.amountSigned) !== 0 && isTransferActivityOperKind(kind)) {
           const slug = toEvmAssetSlug(asset.contract, asset.tokenId);
 
           const decimals = getMetadata(slug)?.decimals ?? asset.decimals;
@@ -97,10 +97,10 @@ const EvmActivityBatchComponent = memo<BatchProps>(
       for (const { kind, asset } of operations) {
         if (
           isTransferActivityOperKind(kind) &&
-          asset?.amount &&
+          asset?.amountSigned &&
           toEvmAssetSlug(asset.contract, asset.tokenId) === faceSlug
         ) {
-          faceAmount = faceAmount.plus(asset.amount);
+          faceAmount = faceAmount.plus(asset.amountSigned);
           if (!faceAssetBase) faceAssetBase = asset;
         }
       }
@@ -111,7 +111,7 @@ const EvmActivityBatchComponent = memo<BatchProps>(
 
       if (decimals == null) return;
 
-      const symbol = getAssetSymbol(assetMetadata) || faceAssetBase?.symbol;
+      const symbol = assetMetadata?.symbol || faceAssetBase?.symbol;
 
       const [contract, tokenId] = fromAssetSlug(faceSlug);
 

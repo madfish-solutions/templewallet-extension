@@ -1,7 +1,6 @@
 import React, { memo, useMemo } from 'react';
 
 import { ActivityOperKindEnum, TezosOperation } from 'lib/activity';
-import { getAssetSymbol } from 'lib/activity/utils';
 import { fromAssetSlug } from 'lib/assets';
 import { AssetMetadataBase, useTezosAssetMetadata } from 'lib/metadata';
 
@@ -56,6 +55,6 @@ export function buildTezosOperationAsset(
     amount: amountSigned,
     decimals,
     // nft: isTezosCollectibleMetadata(assetMetadata),
-    symbol: getAssetSymbol(assetMetadata)
+    symbol: assetMetadata?.symbol
   };
 }

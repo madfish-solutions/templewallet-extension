@@ -33,7 +33,7 @@ export function parseGasTransfer(
 
   const asset: EvmActivityAsset = {
     contract: EVM_TOKEN_SLUG,
-    amount: amountSigned,
+    amountSigned,
     decimals,
     symbol
   };

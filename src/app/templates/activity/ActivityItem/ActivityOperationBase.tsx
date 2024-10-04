@@ -7,19 +7,18 @@ import { ReactComponent as IncomeSvg } from 'app/icons/base/income.svg';
 import { ReactComponent as OutLinkIcon } from 'app/icons/base/outLink.svg';
 import { ReactComponent as SendSvg } from 'app/icons/base/send.svg';
 import { ReactComponent as SwapSvg } from 'app/icons/base/swap.svg';
+import { EvmAssetIcon, TezosAssetIcon } from 'app/templates/AssetIcon';
 import { InFiat } from 'app/templates/InFiat';
 import { ActivityOperKindEnum } from 'lib/activity';
 import { isTransferActivityOperKind } from 'lib/activity/utils';
 import { toEvmAssetSlug, toTezosAssetSlug } from 'lib/assets/utils';
 import { atomsToTokens } from 'lib/temple/helpers';
 
-import { EvmAssetIcon, TezosAssetIcon } from '../../AssetIcon';
-
-type Kind = ActivityOperKindEnum | 'bundle';
+import { FaceKind } from '../utils';
 
 interface Props {
   chainId: string | number;
-  kind: Kind;
+  kind: FaceKind;
   hash: string;
   networkName: string;
   asset?: ActivityItemBaseAssetProp;
@@ -174,7 +173,7 @@ export const ActivityOperationBaseComponent: FC<Props> = ({
   );
 };
 
-const ActivityKindTitle: Record<Kind, string> = {
+const ActivityKindTitle: Record<FaceKind, string> = {
   bundle: 'Bundle',
   [ActivityOperKindEnum.interaction]: 'Interaction',
   [ActivityOperKindEnum.transferFrom_ToAccount]: 'Send',
@@ -185,7 +184,7 @@ const ActivityKindTitle: Record<Kind, string> = {
   [ActivityOperKindEnum.approve]: 'Approve'
 };
 
-const ActivityKindIconSvg: Record<Kind, ImportedSVGComponent> = {
+const ActivityKindIconSvg: Record<FaceKind, ImportedSVGComponent> = {
   bundle: DocumentsSvg,
   [ActivityOperKindEnum.interaction]: DocumentsSvg,
   [ActivityOperKindEnum.transferFrom_ToAccount]: SendSvg,

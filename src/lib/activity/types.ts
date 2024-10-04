@@ -54,8 +54,8 @@ export interface EvmOperation extends OperationBase {
 export interface EvmActivityAsset {
   contract: string;
   tokenId?: string;
-  /** Signed (with `-` if applicable). `null` for 'unlimited' amount */
-  amount?: string | null;
+  /** `null` for 'unlimited' amount */
+  amountSigned?: string | null;
   decimals?: number;
   nft?: boolean;
   symbol?: string;

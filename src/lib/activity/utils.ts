@@ -1,5 +1,3 @@
-import { getAssetSymbol as getAssetSymbolFromMeta } from 'lib/metadata';
-
 import { ActivityOperKindEnum } from './types';
 
 export function isTransferActivityOperKind(kind: ActivityOperKindEnum) {
@@ -10,5 +8,3 @@ export function isTransferActivityOperKind(kind: ActivityOperKindEnum) {
     kind === ActivityOperKindEnum.transferTo
   );
 }
-
-export const getAssetSymbol: typeof getAssetSymbolFromMeta = metadata => getAssetSymbolFromMeta(metadata, false, null);

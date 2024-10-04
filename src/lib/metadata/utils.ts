@@ -12,12 +12,8 @@ import {
   EvmAssetMetadataBase
 } from './types';
 
-export function getAssetSymbol(
-  metadata: EvmAssetMetadataBase | AssetMetadataBase | nullish,
-  short = false,
-  fallback?: string | null
-) {
-  if (!metadata?.symbol) return fallback === null ? undefined : fallback ?? '???';
+export function getAssetSymbol(metadata: EvmAssetMetadataBase | AssetMetadataBase | nullish, short = false) {
+  if (!metadata?.symbol) return '???';
 
   if (!short) return metadata.symbol;
 
