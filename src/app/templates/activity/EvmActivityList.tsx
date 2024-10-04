@@ -8,7 +8,6 @@ import { DeadEndBoundaryError } from 'app/ErrorBoundary';
 import { useLoadPartnersPromo } from 'app/hooks/use-load-partners-promo';
 import { EvmActivity } from 'lib/activity';
 import { getEvmAssetTransactions } from 'lib/activity/evm';
-import { useGetEvmChainAssetMetadata } from 'lib/metadata';
 import { useSafeState } from 'lib/ui/hooks';
 import { useAccountAddressForEvm } from 'temple/front';
 import { useEvmChainByChainId } from 'temple/front/chains';
@@ -33,8 +32,6 @@ export const EvmActivityList: FC<Props> = ({ chainId, assetSlug, filterKind }) =
 
   const [nextPage, setNextPage] = useSafeState<number | nullish>(undefined);
 
-  const getMetadata = useGetEvmChainAssetMetadata(chainId);
-
   const { activities, isLoading, reachedTheEnd, setActivities, setIsLoading, setReachedTheEnd, loadNext } =
     useActivitiesLoadingLogic<EvmActivity>(
       async (initial, signal) => {
@@ -49,7 +46,6 @@ export const EvmActivityList: FC<Props> = ({ chainId, assetSlug, filterKind }) =
           const { activities: newActivities, nextPage: newNextPage } = await getEvmAssetTransactions(
             accountAddress,
             chainId,
-            getMetadata,
             assetSlug,
             page,
             signal

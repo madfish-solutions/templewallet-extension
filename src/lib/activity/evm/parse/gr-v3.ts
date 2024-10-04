@@ -1,29 +1,25 @@
 import { GoldRushTransaction, GoldRushTransactionLogEvent } from 'lib/apis/temple/endpoints/evm';
-import { toEvmAssetSlug } from 'lib/assets/utils';
-import { EvmAssetMetadataGetter } from 'lib/metadata';
 import { isTruthy } from 'lib/utils';
 import { getEvmAddressSafe } from 'lib/utils/evm.utils';
 import { TempleChainKind } from 'temple/types';
 
 import { ActivityOperKindEnum, EvmActivity, EvmActivityAsset, EvmOperation } from '../../types';
-import { getAssetSymbol } from '../../utils';
 
 import { parseGasTransfer } from './gas';
 
 export function parseGoldRushTransaction(
   item: GoldRushTransaction,
   chainId: number,
-  accountAddress: string,
-  getMetadata: EvmAssetMetadataGetter
+  accountAddress: string
 ): EvmActivity {
   const logEvents = item.log_events ?? [];
   const addedAt = item.block_signed_at as unknown as string;
 
   const operations = logEvents
-    .map<EvmOperation | null>(logEvent => parseLogEvent(logEvent, item, accountAddress, getMetadata))
+    .map<EvmOperation | null>(logEvent => parseLogEvent(logEvent, item, accountAddress))
     .filter(isTruthy);
 
-  const gasOperation = parseGasTransfer(item, accountAddress, Boolean(logEvents.length), getMetadata);
+  const gasOperation = parseGasTransfer(item, accountAddress, Boolean(logEvents.length));
 
   if (gasOperation) operations.unshift(gasOperation);
 
@@ -41,15 +37,15 @@ export function parseGoldRushTransaction(
 function parseLogEvent(
   logEvent: GoldRushTransactionLogEvent,
   item: GoldRushTransaction,
-  accountAddress: string,
-  getMetadata: EvmAssetMetadataGetter
+  accountAddress: string
 ): EvmOperation | null {
   if (!logEvent.decoded?.params) return { kind: ActivityOperKindEnum.interaction };
 
   const contractAddress = getEvmAddressSafe(logEvent.sender_address);
   const _fromAddress = getEvmAddressSafe(logEvent.decoded.params.at(0)?.value);
   const _toAddress = getEvmAddressSafe(logEvent.decoded.params.at(1)?.value);
-  let decimals = logEvent.sender_contract_decimals;
+  const decimals = logEvent.sender_contract_decimals ?? undefined;
+  const symbol = logEvent.sender_contract_ticker_symbol || undefined;
   const iconURL = logEvent.sender_logo_url ?? undefined;
 
   if (logEvent.decoded.name === 'Transfer') {
@@ -76,23 +72,17 @@ function parseLogEvent(
     const nft = param3?.indexed ?? false;
     const tokenId = nft ? amountOrTokenId : undefined;
 
-    const slug = toEvmAssetSlug(contractAddress, tokenId);
-    const metadata = getMetadata(slug);
-
-    decimals = metadata?.decimals ?? decimals;
-
-    if (decimals == null) return { kind };
-
     const amount = nft ? '1' : amountOrTokenId;
-    const symbol = getAssetSymbol(metadata) || logEvent.sender_contract_ticker_symbol || undefined;
+
+    const amountSigned =
+      kind === ActivityOperKindEnum.transferFrom || kind === ActivityOperKindEnum.transferFrom_ToAccount
+        ? `-${amount}`
+        : amount;
 
     const asset: EvmActivityAsset = {
       contract: contractAddress,
       tokenId,
-      amount:
-        kind === ActivityOperKindEnum.transferFrom || kind === ActivityOperKindEnum.transferFrom_ToAccount
-          ? `-${amount}`
-          : amount,
+      amount: amountSigned,
       decimals,
       symbol,
       nft,
@@ -126,23 +116,17 @@ function parseLogEvent(
 
     const tokenId = logEvent.decoded.params.at(3)?.value ?? '0';
 
-    const slug = toEvmAssetSlug(contractAddress, tokenId);
-    const metadata = getMetadata(slug);
-
-    decimals = metadata?.decimals ?? decimals;
-
-    if (decimals == null) return { kind };
-
     const amount = '1';
-    const symbol = getAssetSymbol(metadata) || logEvent.sender_contract_ticker_symbol || undefined;
+
+    const amountSigned =
+      kind === ActivityOperKindEnum.transferFrom || kind === ActivityOperKindEnum.transferFrom_ToAccount
+        ? `-${amount}`
+        : amount;
 
     const asset: EvmActivityAsset = {
       contract: contractAddress,
       tokenId,
-      amount:
-        kind === ActivityOperKindEnum.transferFrom || kind === ActivityOperKindEnum.transferFrom_ToAccount
-          ? `-${amount}`
-          : amount,
+      amount: amountSigned,
       decimals,
       symbol,
       nft: true,
@@ -165,19 +149,12 @@ function parseLogEvent(
 
     const tokenId = nft ? amountOrTokenId : undefined;
 
-    const slug = toEvmAssetSlug(contractAddress, tokenId);
-    const metadata = getMetadata(slug);
-
-    decimals = metadata?.decimals ?? decimals;
-
-    if (decimals == null) return { kind };
-
-    const symbol = getAssetSymbol(metadata) || logEvent.sender_contract_ticker_symbol || undefined;
+    const amountSigned = nft ? '1' : amountOrTokenId;
 
     const asset: EvmActivityAsset = {
       contract: contractAddress,
       tokenId,
-      amount: nft ? '1' : amountOrTokenId,
+      amount: amountSigned,
       decimals,
       symbol,
       nft,
@@ -202,8 +179,8 @@ function parseLogEvent(
     const asset: EvmActivityAsset = {
       contract: contractAddress,
       amount: null,
-      decimals: NaN,
-      symbol: logEvent.sender_contract_ticker_symbol ?? undefined,
+      // decimals: NaN, // We are not supposed to use these in this case (of 'Unlimited' amount)
+      symbol,
       nft: true,
       iconURL
     };

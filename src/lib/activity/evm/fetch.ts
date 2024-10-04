@@ -1,7 +1,6 @@
 import { getEvmERC20Transfers, getEvmTransactions } from 'lib/apis/temple/endpoints/evm';
 import { fromAssetSlug } from 'lib/assets';
 import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
-import { EvmAssetMetadataGetter } from 'lib/metadata';
 
 import { EvmActivity } from '../types';
 
@@ -10,7 +9,6 @@ import { parseGoldRushTransaction, parseGoldRushERC20Transfer } from './parse';
 export async function getEvmAssetTransactions(
   walletAddress: string,
   chainId: number,
-  getMetadata: EvmAssetMetadataGetter,
   assetSlug?: string,
   page?: number,
   signal?: AbortSignal
@@ -21,7 +19,7 @@ export async function getEvmAssetTransactions(
     signal?.throwIfAborted();
 
     return {
-      activities: items.map<EvmActivity>(item => parseGoldRushTransaction(item, chainId, walletAddress, getMetadata)),
+      activities: items.map<EvmActivity>(item => parseGoldRushTransaction(item, chainId, walletAddress)),
       nextPage
     };
   }
@@ -55,7 +53,7 @@ export async function getEvmAssetTransactions(
   signal?.throwIfAborted();
 
   return {
-    activities: items.map<EvmActivity>(item => parseGoldRushERC20Transfer(item, chainId, walletAddress, getMetadata)),
+    activities: items.map<EvmActivity>(item => parseGoldRushERC20Transfer(item, chainId, walletAddress)),
     nextPage
   };
 }

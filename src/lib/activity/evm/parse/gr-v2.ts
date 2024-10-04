@@ -1,26 +1,22 @@
 import { GoldRushERC20Transaction, GoldRushERC20TransactionTransfer } from 'lib/apis/temple/endpoints/evm';
-import { toEvmAssetSlug } from 'lib/assets/utils';
-import { EvmAssetMetadataGetter } from 'lib/metadata';
 import { getEvmAddressSafe } from 'lib/utils/evm.utils';
 import { TempleChainKind } from 'temple/types';
 
 import { ActivityOperKindEnum, EvmActivity, EvmActivityAsset, EvmOperation } from '../../types';
-import { getAssetSymbol } from '../../utils';
 
 import { parseGasTransfer } from './gas';
 
 export function parseGoldRushERC20Transfer(
   item: GoldRushERC20Transaction,
   chainId: number,
-  accountAddress: string,
-  getMetadata: EvmAssetMetadataGetter
+  accountAddress: string
 ): EvmActivity {
   const transfers = item.transfers ?? [];
   const addedAt = item.block_signed_at as unknown as string;
 
-  const operations = transfers.map(transfer => parseTransfer(transfer, item, getMetadata));
+  const operations = transfers.map(transfer => parseTransfer(transfer, item));
 
-  const gasOperation = parseGasTransfer(item, accountAddress, Boolean(transfers.length), getMetadata);
+  const gasOperation = parseGasTransfer(item, accountAddress, Boolean(transfers.length));
 
   if (gasOperation) operations.unshift(gasOperation);
 
@@ -35,11 +31,7 @@ export function parseGoldRushERC20Transfer(
   };
 }
 
-function parseTransfer(
-  transfer: GoldRushERC20TransactionTransfer,
-  item: GoldRushERC20Transaction,
-  getMetadata: EvmAssetMetadataGetter
-): EvmOperation {
+function parseTransfer(transfer: GoldRushERC20TransactionTransfer, item: GoldRushERC20Transaction): EvmOperation {
   const kind = (() => {
     if (transfer.transfer_type === 'IN') {
       return item.to_address === transfer.contract_address
@@ -56,23 +48,20 @@ function parseTransfer(
 
   if (contractAddress == null) return { kind };
 
-  const slug = toEvmAssetSlug(contractAddress);
-  const metadata = getMetadata(slug);
-
-  const decimals = metadata?.decimals ?? transfer.contract_decimals;
-
-  if (decimals == null) return { kind: ActivityOperKindEnum.interaction };
+  const decimals = transfer.contract_decimals ?? undefined;
 
   const nft = false;
   const amount = nft ? '1' : transfer.delta?.toString() ?? '0';
-  const symbol = getAssetSymbol(metadata) || transfer.contract_ticker_symbol || undefined;
+  const symbol = transfer.contract_ticker_symbol || undefined;
+
+  const amountSigned =
+    kind === ActivityOperKindEnum.transferFrom || kind === ActivityOperKindEnum.transferFrom_ToAccount
+      ? `-${amount}`
+      : amount;
 
   const asset: EvmActivityAsset = {
     contract: contractAddress,
-    amount:
-      kind === ActivityOperKindEnum.transferFrom || kind === ActivityOperKindEnum.transferFrom_ToAccount
-        ? `-${amount}`
-        : amount,
+    amount: amountSigned,
     decimals,
     symbol,
     nft,

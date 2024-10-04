@@ -94,7 +94,7 @@ const TezosActivityBatchComponent = memo<BatchProps>(
           faceAmount = faceAmount.plus(amountSigned);
       }
 
-      return buildTezosOperationAsset(faceSlug, getMetadata(faceSlug)!, faceAmount.toFixed());
+      return buildTezosOperationAsset(faceSlug, getMetadata(faceSlug), faceAmount.toFixed());
     }, [getMetadata, operations, assetSlug]);
 
     return (

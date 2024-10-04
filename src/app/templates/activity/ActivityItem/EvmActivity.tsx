@@ -5,16 +5,18 @@ import clsx from 'clsx';
 import { IconBase } from 'app/atoms';
 import { PageModal } from 'app/atoms/PageModal';
 import { ReactComponent as CompactDownIcon } from 'app/icons/base/compact_down.svg';
-import { ActivityOperKindEnum, EvmActivity } from 'lib/activity';
+import { EvmActivity } from 'lib/activity';
 import { EvmActivityAsset } from 'lib/activity/types';
-import { isTransferActivityOperKind } from 'lib/activity/utils';
-import { toEvmAssetSlug } from 'lib/assets/utils';
+import { getAssetSymbol, isTransferActivityOperKind } from 'lib/activity/utils';
+import { fromAssetSlug, toEvmAssetSlug } from 'lib/assets/utils';
 import { t } from 'lib/i18n';
+import { useGetEvmChainAssetMetadata } from 'lib/metadata';
 import { useBooleanState } from 'lib/ui/hooks';
 import { ZERO } from 'lib/utils/numbers';
 import { EvmChain } from 'temple/front/chains';
 
 import { ActivityItemBaseAssetProp, ActivityOperationBaseComponent } from './ActivityOperationBase';
+import { EvmActivityOperationComponent } from './EvmActivityOperation';
 import { InteractionsConnector } from './InteractionsConnector';
 
 interface Props {
@@ -32,12 +34,11 @@ export const EvmActivityComponent = memo<Props>(({ activity, chain, assetSlug })
     const operation = operations.at(0);
 
     return (
-      <ActivityOperationBaseComponent
-        kind={operation?.kind ?? ActivityOperKindEnum.interaction}
+      <EvmActivityOperationComponent
         hash={hash}
+        operation={operation}
         chainId={chain.chainId}
         networkName={networkName}
-        asset={operation?.asset}
         blockExplorerUrl={blockExplorerUrl}
         withoutAssetIcon={Boolean(assetSlug)}
       />
@@ -69,43 +70,60 @@ const EvmActivityBatchComponent = memo<BatchProps>(
 
     const { hash, operations } = activity;
 
+    const getMetadata = useGetEvmChainAssetMetadata(chainId);
+
     const faceSlug = useMemo(() => {
       if (assetSlug) return assetSlug;
 
       for (const { kind, asset } of operations) {
-        if (typeof asset?.amount === 'string' && Number(asset.amount) !== 0 && isTransferActivityOperKind(kind))
-          return toEvmAssetSlug(asset.contract, asset.tokenId);
+        if (asset?.amount && Number(asset.amount) !== 0 && isTransferActivityOperKind(kind)) {
+          const slug = toEvmAssetSlug(asset.contract, asset.tokenId);
+
+          const decimals = getMetadata(slug)?.decimals ?? asset.decimals;
+
+          if (decimals != null) return slug;
+        }
       }
 
       return;
-    }, [operations, assetSlug]);
+    }, [getMetadata, operations, assetSlug]);
 
-    const batchAsset = useMemo(() => {
+    const batchAsset = useMemo<ActivityItemBaseAssetProp | undefined>(() => {
       if (!faceSlug) return;
 
-      let faceAsset: EvmActivityAsset | undefined;
+      let faceAssetBase: EvmActivityAsset | undefined;
       let faceAmount = ZERO;
 
       for (const { kind, asset } of operations) {
         if (
-          typeof asset?.amount === 'string' &&
-          toEvmAssetSlug(asset.contract, asset.tokenId) === faceSlug &&
-          isTransferActivityOperKind(kind)
+          isTransferActivityOperKind(kind) &&
+          asset?.amount &&
+          toEvmAssetSlug(asset.contract, asset.tokenId) === faceSlug
         ) {
           faceAmount = faceAmount.plus(asset.amount);
-          if (!faceAsset) faceAsset = asset;
+          if (!faceAssetBase) faceAssetBase = asset;
         }
       }
 
-      if (!faceAsset) return;
+      const assetMetadata = getMetadata(faceSlug);
 
-      const batchAsset: ActivityItemBaseAssetProp = {
-        ...faceAsset,
-        amount: faceAmount.toFixed()
+      const decimals = assetMetadata?.decimals ?? faceAssetBase?.decimals;
+
+      if (decimals == null) return;
+
+      const symbol = getAssetSymbol(assetMetadata) || faceAssetBase?.symbol;
+
+      const [contract, tokenId] = fromAssetSlug(faceSlug);
+
+      return {
+        ...faceAssetBase,
+        contract,
+        tokenId,
+        amount: faceAmount.toFixed(),
+        decimals,
+        symbol
       };
-
-      return batchAsset;
-    }, [operations, faceSlug]);
+    }, [getMetadata, operations, faceSlug]);
 
     return (
       <div className="flex flex-col">
@@ -134,12 +152,11 @@ const EvmActivityBatchComponent = memo<BatchProps>(
               <React.Fragment key={`${hash}-${j}`}>
                 {j > 0 && <InteractionsConnector />}
 
-                <ActivityOperationBaseComponent
-                  kind={operation.kind}
+                <EvmActivityOperationComponent
                   hash={hash}
+                  operation={operation}
                   chainId={chainId}
                   networkName={networkName}
-                  asset={operation.asset}
                   blockExplorerUrl={blockExplorerUrl}
                 />
               </React.Fragment>

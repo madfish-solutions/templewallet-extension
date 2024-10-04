@@ -11,7 +11,6 @@ import { parseTezosOperationsGroup } from 'lib/activity/tezos';
 import fetchTezosOperationsGroups from 'lib/activity/tezos/fetch';
 import { TzktApiChainId } from 'lib/apis/tzkt';
 import { isKnownChainId as isKnownTzktChainId } from 'lib/apis/tzkt/api';
-import { EvmAssetMetadataGetter, useGetEvmAssetMetadata } from 'lib/metadata';
 import { isTruthy } from 'lib/utils';
 import {
   useAccountAddressForEvm,
@@ -61,8 +60,6 @@ export const MultichainActivityList = memo<Props>(({ filterKind }) => {
     [evmChains, evmAccAddress]
   );
 
-  const getEvmMetadata = useGetEvmAssetMetadata();
-
   const { activities, isLoading, reachedTheEnd, setActivities, setIsLoading, setReachedTheEnd, loadNext } =
     useActivitiesLoadingLogic<Activity>(
       async (initial, signal) => {
@@ -77,7 +74,7 @@ export const MultichainActivityList = memo<Props>(({ filterKind }) => {
 
         await Promise.allSettled(
           evmLoaders
-            .map(l => l.loadNext((slug: string) => getEvmMetadata(slug, l.chainId), lastEdgeDate, signal))
+            .map(l => l.loadNext(lastEdgeDate, signal))
             .concat(tezosLoaders.map(l => l.loadNext(lastEdgeDate, signal)))
         );
 
@@ -164,12 +161,7 @@ class EvmActivityLoader {
     return this.nextPage === null;
   }
 
-  async loadNext(
-    getMetadata: EvmAssetMetadataGetter,
-    edgeDate: string | undefined,
-    signal: AbortSignal,
-    assetSlug?: string
-  ) {
+  async loadNext(edgeDate: string | undefined, signal: AbortSignal, assetSlug?: string) {
     if (edgeDate) {
       const lastAct = this.activities.at(-1);
       if (lastAct && lastAct.addedAt > edgeDate) return;
@@ -183,7 +175,6 @@ class EvmActivityLoader {
       const { nextPage: newNextPage, activities: newActivities } = await getEvmAssetTransactions(
         accountAddress,
         chainId,
-        getMetadata,
         assetSlug,
         nextPage,
         signal

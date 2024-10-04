@@ -1,8 +1,9 @@
 import React, { memo, useMemo } from 'react';
 
 import { ActivityOperKindEnum, TezosOperation } from 'lib/activity';
+import { getAssetSymbol } from 'lib/activity/utils';
 import { fromAssetSlug } from 'lib/assets';
-import { AssetMetadataBase, getAssetSymbol, useTezosAssetMetadata } from 'lib/metadata';
+import { AssetMetadataBase, useTezosAssetMetadata } from 'lib/metadata';
 
 import { ActivityItemBaseAssetProp, ActivityOperationBaseComponent } from './ActivityOperationBase';
 
@@ -21,10 +22,7 @@ export const TezosActivityOperationComponent = memo<Props>(
     const assetMetadata = useTezosAssetMetadata(assetSlug ?? '', chainId);
 
     const asset = useMemo(
-      () =>
-        assetSlug && assetMetadata
-          ? buildTezosOperationAsset(assetSlug, assetMetadata, operation.amountSigned)
-          : undefined,
+      () => (assetSlug ? buildTezosOperationAsset(assetSlug, assetMetadata, operation.amountSigned) : undefined),
       [assetMetadata, operation, assetSlug]
     );
 
@@ -44,16 +42,19 @@ export const TezosActivityOperationComponent = memo<Props>(
 
 export function buildTezosOperationAsset(
   assetSlug: string,
-  assetMetadata: AssetMetadataBase,
-  amount: string | nullish
-): ActivityItemBaseAssetProp {
+  assetMetadata: AssetMetadataBase | undefined,
+  amountSigned: string | nullish
+): ActivityItemBaseAssetProp | undefined {
   const [contract, tokenId] = fromAssetSlug(assetSlug);
+
+  const decimals = amountSigned === null ? NaN : assetMetadata?.decimals;
+  if (decimals == null) return;
 
   return {
     contract,
     tokenId,
-    amount,
-    decimals: assetMetadata.decimals,
+    amount: amountSigned,
+    decimals,
     // nft: isTezosCollectibleMetadata(assetMetadata),
     symbol: getAssetSymbol(assetMetadata)
   };

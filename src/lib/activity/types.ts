@@ -25,8 +25,6 @@ interface ChainActivityBase {
 
 interface OperationBase {
   kind: ActivityOperKindEnum;
-  /** `null` for 'unlimited' amount */
-  amountSigned?: string | null;
 }
 
 export interface TezosActivity extends ChainActivityBase, TezosActivityOlderThan {
@@ -38,9 +36,9 @@ export interface TezosActivity extends ChainActivityBase, TezosActivityOlderThan
 
 export interface TezosOperation extends OperationBase {
   assetSlug?: string;
+  /** `null` for 'unlimited' amount */
+  amountSigned?: string | null;
 }
-
-export interface TezosActivityAsset extends ActivityAssetBase {}
 
 export interface EvmActivity extends ChainActivityBase {
   chain: TempleChainKind.EVM;
@@ -53,18 +51,15 @@ export interface EvmOperation extends OperationBase {
   asset?: EvmActivityAsset; // TODO: Same as for Tezos
 }
 
-export interface EvmActivityAsset extends ActivityAssetBase {
-  iconURL?: string;
-}
-
-interface ActivityAssetBase {
+export interface EvmActivityAsset {
   contract: string;
   tokenId?: string;
   /** Signed (with `-` if applicable). `null` for 'unlimited' amount */
   amount?: string | null;
-  decimals: number;
+  decimals?: number;
   nft?: boolean;
   symbol?: string;
+  iconURL?: string;
 }
 
 export interface OperationMember {

@@ -26,7 +26,6 @@
 -
 
 ### FOR PRE-REVIEW
-- Filters by kind
 - Filter by network dropdown
 - Grouping by date
 - Bundle modal
@@ -34,3 +33,5 @@
 - - Design
 - - Click on bundle item
 - `const HIDE_INTERACTIONS = true;`
+- Ad on Multichain
+-

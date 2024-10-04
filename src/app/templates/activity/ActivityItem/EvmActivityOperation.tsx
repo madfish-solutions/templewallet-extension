@@ -1,28 +1,53 @@
-import React, { memo } from 'react';
+import React, { memo, useMemo } from 'react';
 
-import type { EvmOperation } from 'lib/activity';
-import { EvmChain } from 'temple/front';
+import { ActivityOperKindEnum, type EvmOperation } from 'lib/activity';
+import { getAssetSymbol } from 'lib/activity/utils';
+import { toEvmAssetSlug } from 'lib/assets/utils';
+import { useEvmAssetMetadata } from 'lib/metadata';
 
-import { ActivityOperationBaseComponent } from './ActivityOperationBase';
+import { ActivityItemBaseAssetProp, ActivityOperationBaseComponent } from './ActivityOperationBase';
 
 interface Props {
   hash: string;
-  operation: EvmOperation;
-  chain: EvmChain;
+  operation?: EvmOperation;
+  chainId: number;
   networkName: string;
   blockExplorerUrl?: string;
   withoutAssetIcon?: boolean;
 }
 
 export const EvmActivityOperationComponent = memo<Props>(
-  ({ hash, operation, chain, networkName, blockExplorerUrl, withoutAssetIcon }) => {
+  ({ hash, operation, chainId, networkName, blockExplorerUrl, withoutAssetIcon }) => {
+    const assetBase = operation?.asset;
+    const assetSlug = assetBase?.contract ? toEvmAssetSlug(assetBase.contract) : undefined;
+
+    const assetMetadata = useEvmAssetMetadata(assetSlug ?? '', chainId);
+
+    const asset = useMemo(() => {
+      if (!assetBase) return;
+
+      const decimals = assetBase.amount === null ? NaN : assetMetadata?.decimals ?? assetBase.decimals;
+
+      if (decimals == null) return;
+
+      const symbol = getAssetSymbol(assetMetadata) || assetBase.symbol;
+
+      const asset: ActivityItemBaseAssetProp = {
+        ...assetBase,
+        decimals,
+        symbol
+      };
+
+      return asset;
+    }, [assetMetadata, assetBase]);
+
     return (
       <ActivityOperationBaseComponent
-        kind={operation.kind}
+        kind={operation?.kind ?? ActivityOperKindEnum.interaction}
         hash={hash}
-        chainId={chain.chainId}
+        chainId={chainId}
         networkName={networkName}
-        asset={operation.asset}
+        asset={asset}
         blockExplorerUrl={blockExplorerUrl}
         withoutAssetIcon={withoutAssetIcon}
       />

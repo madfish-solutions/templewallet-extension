@@ -1,17 +1,14 @@
 import { GoldRushTransaction, GoldRushERC20Transaction } from 'lib/apis/temple/endpoints/evm';
 import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
-import { EvmAssetMetadataGetter } from 'lib/metadata';
 import { getEvmAddressSafe } from 'lib/utils/evm.utils';
 
 import { ActivityOperKindEnum, EvmActivityAsset, EvmOperation } from '../../types';
-import { getAssetSymbol } from '../../utils';
 
 export function parseGasTransfer(
   item: GoldRushTransaction | GoldRushERC20Transaction,
   accountAddress: string,
   /** Only way to suspect transfering to a contract, not an account */
-  partOfBatch: boolean,
-  getMetadata: EvmAssetMetadataGetter
+  partOfBatch: boolean
 ): EvmOperation | null {
   const value: string = item.value?.toString() ?? '0';
 
@@ -28,16 +25,15 @@ export function parseGasTransfer(
 
   if (!kind) return null;
 
-  const metadata = getMetadata(EVM_TOKEN_SLUG);
-  const decimals = metadata?.decimals ?? item.gas_metadata?.contract_decimals;
+  const decimals = item.gas_metadata?.contract_decimals;
 
-  if (decimals == null) return null;
+  const amountSigned = kind === ActivityOperKindEnum.transferFrom_ToAccount ? `-${value}` : value;
 
-  const symbol = getAssetSymbol(metadata) || item.gas_metadata?.contract_ticker_symbol;
+  const symbol = item.gas_metadata?.contract_ticker_symbol;
 
   const asset: EvmActivityAsset = {
     contract: EVM_TOKEN_SLUG,
-    amount: kind === ActivityOperKindEnum.transferFrom_ToAccount ? `-${value}` : value,
+    amount: amountSigned,
     decimals,
     symbol
   };
