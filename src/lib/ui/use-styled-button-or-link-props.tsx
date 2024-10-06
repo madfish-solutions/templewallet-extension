@@ -1,8 +1,9 @@
-import { useMemo } from 'react';
+import React, { useMemo } from 'react';
 
 import clsx from 'clsx';
 
 import { ButtonProps } from 'app/atoms/Button';
+import { Loader } from 'app/atoms/loader';
 import { LinkProps } from 'lib/woozie/Link';
 
 type Size = 'L' | 'M' | 'S';
@@ -13,6 +14,7 @@ export interface ButtonLikeStylingProps {
   size: Size;
   color: StyledButtonColor;
   active?: boolean;
+  loading?: boolean;
 }
 
 export const ACTIVE_STYLED_BUTTON_COLORS_CLASSNAME = 'bg-grey-4 text-grey-1';
@@ -49,7 +51,9 @@ export function useStyledButtonOrLinkProps({
   size,
   color,
   active,
+  loading,
   className: classNameProp,
+  children: childrenProp,
   ...restProps
 }: (ButtonProps | LinkProps) & ButtonLikeStylingProps): ButtonProps | LinkProps {
   const isLink = 'to' in restProps;
@@ -60,5 +64,15 @@ export function useStyledButtonOrLinkProps({
     [active, classNameProp, color, disabled, size]
   );
 
-  return isLink ? { ...restProps, className } : { ...restProps, className, disabled };
+  const children = loading ? (
+    <div className="w-full flex justify-center">
+      <Loader size={size} trackVariant={className.includes('text-white') ? 'light' : 'dark'} />
+    </div>
+  ) : (
+    childrenProp
+  );
+
+  return isLink
+    ? { ...restProps, children, className }
+    : { ...restProps, children, className, disabled: disabled || loading };
 }

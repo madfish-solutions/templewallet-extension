@@ -2,11 +2,11 @@ import React, { FC, useCallback, useEffect, useMemo } from 'react';
 
 import { getRevealFee, ChainIds } from '@taquito/taquito';
 import BigNumber from 'bignumber.js';
-import { useForm } from 'react-hook-form-v7';
+import { FormProvider, useForm } from 'react-hook-form-v7';
 
 import { ArtificialError, NotEnoughFundsError, ZeroBalanceError, ZeroTEZBalanceError } from 'app/defaults';
 import { DeadEndBoundaryError } from 'app/ErrorBoundary';
-import { toastError, toastWarning } from 'app/toaster';
+import { toastError } from 'app/toaster';
 import { useFormAnalytics } from 'lib/analytics';
 import { isTezAsset, TEZ_TOKEN_SLUG, toPenny } from 'lib/assets';
 import { toTransferParams } from 'lib/assets/contract.utils';
@@ -76,7 +76,7 @@ export const TezosForm: FC<Props> = ({ chainId, assetSlug, onSelectAssetClick, o
     reValidateMode: 'onChange'
   });
 
-  const { watch, formState, trigger, reset } = form;
+  const { watch, formState, trigger } = form;
 
   const toValue = watch('to');
 
@@ -228,11 +228,6 @@ export const TezosForm: FC<Props> = ({ chainId, assetSlug, onSelectAssetClick, o
     async ({ amount }: SendFormData) => {
       if (formState.isSubmitting) return;
 
-      if (estimating) {
-        toastWarning('Estimation in progress...');
-        return;
-      }
-
       if (estimationError) {
         toastError('Failed to estimate transaction.');
         return;
@@ -247,8 +242,6 @@ export const TezosForm: FC<Props> = ({ chainId, assetSlug, onSelectAssetClick, o
 
         onReview({ account, assetSlug, network, amount: actualAmount, to: toResolved });
 
-        reset({ amount: '', to: '' });
-
         formAnalytics.trackSubmitSuccess();
       } catch (err: any) {
         console.error(err);
@@ -259,12 +252,14 @@ export const TezosForm: FC<Props> = ({ chainId, assetSlug, onSelectAssetClick, o
       }
     },
     [
+      account,
       assetMetadata,
+      assetSlug,
       estimationError,
       formAnalytics,
       formState.isSubmitting,
+      network,
       onReview,
-      reset,
       shouldUseFiat,
       toAssetAmount,
       toResolved
@@ -272,24 +267,25 @@ export const TezosForm: FC<Props> = ({ chainId, assetSlug, onSelectAssetClick, o
   );
 
   return (
-    <BaseForm
-      form={form}
-      network={network}
-      accountPkh={accountPkh}
-      assetSlug={assetSlug}
-      assetSymbol={assetSymbol}
-      assetPrice={assetPrice}
-      maxAmount={maxAmount}
-      maxEstimating={estimating}
-      canToggleFiat={canToggleFiat}
-      shouldUseFiat={shouldUseFiat}
-      setShouldUseFiat={setShouldUseFiat}
-      assetDecimals={assetMetadata?.decimals ?? 0}
-      validateAmount={validateAmount}
-      validateRecipient={validateRecipient}
-      onSelectAssetClick={onSelectAssetClick}
-      isToFilledWithFamiliarAddress={isToFilledWithFamiliarAddress}
-      onSubmit={onSubmit}
-    />
+    <FormProvider {...form}>
+      <BaseForm
+        network={network}
+        accountPkh={accountPkh}
+        assetSlug={assetSlug}
+        assetSymbol={assetSymbol}
+        assetPrice={assetPrice}
+        maxAmount={maxAmount}
+        maxEstimating={estimating}
+        canToggleFiat={canToggleFiat}
+        shouldUseFiat={shouldUseFiat}
+        setShouldUseFiat={setShouldUseFiat}
+        assetDecimals={assetMetadata?.decimals ?? 0}
+        validateAmount={validateAmount}
+        validateRecipient={validateRecipient}
+        onSelectAssetClick={onSelectAssetClick}
+        isToFilledWithFamiliarAddress={isToFilledWithFamiliarAddress}
+        onSubmit={onSubmit}
+      />
+    </FormProvider>
   );
 };

@@ -1,7 +1,7 @@
-import React, { FC, FocusEventHandler, useCallback, useMemo, useRef, useState } from 'react';
+import React, { FC, FocusEventHandler, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import BigNumber from 'bignumber.js';
-import { Controller, SubmitHandler, Validate, UseFormReturn } from 'react-hook-form-v7';
+import { Controller, SubmitHandler, Validate, useFormContext } from 'react-hook-form-v7';
 import { useDebounce } from 'use-debounce';
 
 import { Button, NoSpaceField } from 'app/atoms';
@@ -32,7 +32,6 @@ interface Props {
   assetDecimals: number;
   network: OneOfChains;
   accountPkh: string | HexString;
-  form: UseFormReturn<SendFormData>;
   validateAmount: Validate<string, SendFormData>;
   validateRecipient: Validate<string, SendFormData>;
   onSelectAssetClick: EmptyFn;
@@ -47,7 +46,6 @@ interface Props {
 }
 
 export const BaseForm: FC<Props> = ({
-  form,
   network,
   accountPkh,
   assetSlug,
@@ -68,7 +66,7 @@ export const BaseForm: FC<Props> = ({
 }) => {
   const [selectAccountModalOpened, setSelectAccountModalOpen, setSelectAccountModalClosed] = useBooleanState(false);
 
-  const { watch, handleSubmit, control, setValue, getValues, formState } = form;
+  const { watch, handleSubmit, control, setValue, getValues, formState, reset } = useFormContext<SendFormData>();
   const { isValid, isSubmitting, submitCount, errors } = formState;
 
   const formSubmitted = submitCount > 0;
@@ -78,6 +76,12 @@ export const BaseForm: FC<Props> = ({
   const amountValue = watch('amount');
 
   useAddressFieldAnalytics(toValue, 'RECIPIENT_NETWORK');
+
+  useEffect(() => {
+    if (formState.isSubmitSuccessful) {
+      reset({ to: '', amount: '' });
+    }
+  }, [formState, reset]);
 
   const { selectedFiatCurrency } = useFiatCurrency();
 
@@ -293,7 +297,8 @@ export const BaseForm: FC<Props> = ({
           form="send-form"
           size="L"
           color="primary"
-          disabled={(formSubmitted && !isValid) || isSubmitting}
+          loading={maxEstimating || isSubmitting}
+          disabled={formSubmitted && !isValid}
           testID={SendFormSelectors.sendButton}
         >
           Review

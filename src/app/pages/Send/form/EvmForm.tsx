@@ -2,12 +2,11 @@ import React, { FC, useCallback, useMemo } from 'react';
 
 import BigNumber from 'bignumber.js';
 import { isString } from 'lodash';
-import { useForm } from 'react-hook-form-v7';
+import { FormProvider, useForm } from 'react-hook-form-v7';
 import { formatEther, isAddress } from 'viem';
 
 import { DeadEndBoundaryError } from 'app/ErrorBoundary';
 import { useEvmTokenMetadataSelector } from 'app/store/evm/tokens-metadata/selectors';
-import { toastWarning } from 'app/toaster';
 import { useFormAnalytics } from 'lib/analytics';
 import { useEvmTokenBalance } from 'lib/balances/hooks';
 import { useAssetFiatCurrencyPrice } from 'lib/fiat-currency';
@@ -68,7 +67,7 @@ export const EvmForm: FC<Props> = ({ chainId, assetSlug, onSelectAssetClick, onR
     reValidateMode: 'onChange'
   });
 
-  const { watch, formState, reset } = form;
+  const { watch, formState } = form;
 
   const toValue = watch('to');
 
@@ -187,29 +186,21 @@ export const EvmForm: FC<Props> = ({ chainId, assetSlug, onSelectAssetClick, onR
     async ({ amount }: SendFormData) => {
       if (formState.isSubmitting) return;
 
-      if (!estimatingMaxFee) {
-        toastWarning('Estimation in progress...');
-        return;
-      }
-
       formAnalytics.trackSubmit();
 
       const actualAmount = shouldUseFiat ? toAssetAmount(amount) : amount;
 
       onReview({ account, assetSlug, network, amount: actualAmount, to: toResolved });
 
-      reset({ to: '', amount: '' });
-
       formAnalytics.trackSubmitSuccess();
     },
     [
-      accountPkh,
+      account,
       assetSlug,
       formAnalytics,
       formState.isSubmitting,
       network,
       onReview,
-      reset,
       shouldUseFiat,
       toAssetAmount,
       toResolved
@@ -217,25 +208,26 @@ export const EvmForm: FC<Props> = ({ chainId, assetSlug, onSelectAssetClick, onR
   );
 
   return (
-    <BaseForm
-      evm
-      form={form}
-      network={network}
-      accountPkh={accountPkh}
-      assetSlug={assetSlug}
-      assetSymbol={assetSymbol}
-      assetPrice={assetPrice}
-      maxAmount={maxAmount}
-      maxEstimating={estimatingMaxFee}
-      assetDecimals={assetDecimals}
-      canToggleFiat={canToggleFiat}
-      shouldUseFiat={shouldUseFiat}
-      setShouldUseFiat={setShouldUseFiat}
-      validateAmount={validateAmount}
-      validateRecipient={validateRecipient}
-      onSelectAssetClick={onSelectAssetClick}
-      isToFilledWithFamiliarAddress={isToFilledWithFamiliarAddress}
-      onSubmit={onSubmit}
-    />
+    <FormProvider {...form}>
+      <BaseForm
+        evm
+        network={network}
+        accountPkh={accountPkh}
+        assetSlug={assetSlug}
+        assetSymbol={assetSymbol}
+        assetPrice={assetPrice}
+        maxAmount={maxAmount}
+        maxEstimating={estimatingMaxFee}
+        assetDecimals={assetDecimals}
+        canToggleFiat={canToggleFiat}
+        shouldUseFiat={shouldUseFiat}
+        setShouldUseFiat={setShouldUseFiat}
+        validateAmount={validateAmount}
+        validateRecipient={validateRecipient}
+        onSelectAssetClick={onSelectAssetClick}
+        isToFilledWithFamiliarAddress={isToFilledWithFamiliarAddress}
+        onSubmit={onSubmit}
+      />
+    </FormProvider>
   );
 };
