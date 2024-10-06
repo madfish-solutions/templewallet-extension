@@ -101,7 +101,7 @@ export async function dryRunOpParams({
   }
 }
 
-export function buildFinalOpParmas(opParams: any[], modifiedTotalFee?: number, modifiedStorageLimit?: number) {
+export function buildFinalOpParams(opParams: any[], modifiedTotalFee?: number, modifiedStorageLimit?: number) {
   if (modifiedTotalFee !== undefined) {
     opParams = opParams.map(op => ({ ...op, fee: 0 }));
     opParams[0].fee = modifiedTotalFee;

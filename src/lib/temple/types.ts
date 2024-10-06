@@ -619,6 +619,8 @@ interface TempleOperationsRequest extends TempleMessageBase {
   sourcePkh: string;
   networkRpc: string;
   opParams: any[];
+  /** send operations without old confirmation page */
+  straightaway?: boolean;
 }
 
 interface TempleOperationsResponse extends TempleMessageBase {

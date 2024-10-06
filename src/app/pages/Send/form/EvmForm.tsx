@@ -187,7 +187,7 @@ export const EvmForm: FC<Props> = ({ chainId, assetSlug, onSelectAssetClick, onR
     async ({ amount }: SendFormData) => {
       if (formState.isSubmitting) return;
 
-      if (estimatingMaxFee) {
+      if (!estimatingMaxFee) {
         toastWarning('Estimation in progress...');
         return;
       }

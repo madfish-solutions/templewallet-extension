@@ -188,7 +188,14 @@ const processRequest = async (req: TempleRequest, port: Runtime.Port): Promise<T
       };
 
     case TempleMessageType.OperationsRequest:
-      const { opHash } = await Actions.sendOperations(port, req.id, req.sourcePkh, req.networkRpc, req.opParams);
+      const { opHash } = await Actions.sendOperations(
+        port,
+        req.id,
+        req.sourcePkh,
+        req.networkRpc,
+        req.opParams,
+        req.straightaway
+      );
       return {
         type: TempleMessageType.OperationsResponse,
         opHash
