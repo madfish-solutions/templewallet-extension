@@ -164,7 +164,7 @@ export const MyStakeTab = memo(() => {
                   className="h-10"
                   onClick={finalizeUnstake}
                 >
-                  Unstake
+                  Finalize
                 </FormSubmitButton>
               </>
             ) : requestsAreLoading ? (
