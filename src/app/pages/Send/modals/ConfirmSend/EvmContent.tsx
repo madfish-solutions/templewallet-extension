@@ -1,18 +1,18 @@
 import React, { FC, useCallback, useEffect, useMemo, useState } from 'react';
 
-import { omit } from 'lodash';
+import { omit, pick } from 'lodash';
 import { FormProvider, useForm } from 'react-hook-form-v7';
-import { formatEther, parseEther } from 'viem';
+import { formatEther, parseEther, serializeTransaction } from 'viem';
 
 import { CLOSE_ANIMATION_TIMEOUT } from 'app/atoms/PageModal';
 import { EvmReviewData } from 'app/pages/Send/form/interfaces';
 import { toastError, toastSuccess } from 'app/toaster';
 import { useTypedSWR } from 'lib/swr';
 import { useTempleClient } from 'lib/temple/front';
-import { isEvmNativeTokenSlug } from 'lib/utils/evm.utils';
 import { getReadOnlyEvm } from 'temple/evm';
 
 import { BaseContent } from './BaseContent';
+import { useEvmEstimationDataState } from './context';
 import { useEvmFeeOptions } from './hooks/use-evm-fee-options';
 import { EvmEstimationData, EvmTxParamsFormData, FeeOptionLabel } from './interfaces';
 
@@ -33,32 +33,41 @@ export const EvmContent: FC<EvmContentProps> = ({ data, onClose }) => {
 
   const [selectedFeeOption, setSelectedFeeOption] = useState<FeeOptionLabel | nullish>('mid');
 
-  const estimateFee = useCallback(async (): Promise<EvmEstimationData | undefined> => {
+  const getEstimationData = useCallback(async (): Promise<EvmEstimationData | undefined> => {
     try {
       const publicClient = getReadOnlyEvm(network.rpcBaseURL);
-      let gas = BigInt(0);
 
-      if (isEvmNativeTokenSlug(assetSlug)) {
-        gas = await publicClient.estimateGas({
-          account: accountPkh,
-          to: to as HexString,
-          value: parseEther(amount)
-        });
-      }
+      const transaction = await publicClient.prepareTransactionRequest({
+        chain: {
+          id: network.chainId,
+          name: network.name,
+          nativeCurrency: network.currency,
+          rpcUrls: {
+            default: {
+              http: [network.rpcBaseURL]
+            }
+          }
+        },
+        account: accountPkh,
+        to: to as HexString,
+        value: parseEther(amount)
+      });
 
-      const { maxFeePerGas, maxPriorityFeePerGas } = await publicClient.estimateFeesPerGas();
-
-      return { estimatedFee: gas * maxFeePerGas, gas, maxFeePerGas, maxPriorityFeePerGas };
+      return {
+        estimatedFee: transaction.gas * transaction.maxFeePerGas,
+        data: transaction.data || '0x',
+        ...pick(transaction, ['gas', 'maxFeePerGas', 'maxPriorityFeePerGas', 'nonce'])
+      };
     } catch (err) {
       console.warn(err);
 
       return undefined;
     }
-  }, [accountPkh, assetSlug, amount, to, network.rpcBaseURL]);
+  }, [network, accountPkh, to, amount]);
 
   const { data: estimationData } = useTypedSWR(
-    ['evm-transaction-fee', network.chainId, assetSlug, accountPkh, to],
-    estimateFee,
+    ['evm-estimation-data', network.chainId, assetSlug, accountPkh, to],
+    getEstimationData,
     {
       shouldRetryOnError: false,
       focusThrottleInterval: 10_000,
@@ -67,8 +76,49 @@ export const EvmContent: FC<EvmContentProps> = ({ data, onClose }) => {
   );
 
   const feeOptions = useEvmFeeOptions(estimationData);
+  const { setData } = useEvmEstimationDataState();
+
+  useEffect(() => {
+    if (estimationData && feeOptions) setData({ ...estimationData, feeOptions });
+  }, [estimationData, feeOptions, setData]);
 
   const gasPriceValue = watch('gasPrice');
+  const gasLimitValue = watch('gasLimit');
+  const nonceValue = watch('nonce');
+
+  useEffect(() => {
+    if (gasPriceValue && selectedFeeOption) setSelectedFeeOption(null);
+  }, [gasPriceValue, selectedFeeOption]);
+
+  const rawTransaction = useMemo(() => {
+    if (!estimationData || !feeOptions) return null;
+
+    const parsedGasPrice = gasPriceValue ? parseEther(gasPriceValue, 'gwei') : null;
+
+    return serializeTransaction({
+      chainId: network.chainId,
+      gas: gasLimitValue ? BigInt(gasLimitValue) : estimationData.gas,
+      nonce: nonceValue ? Number(nonceValue) : estimationData.nonce,
+      to: to as HexString,
+      value: parseEther(amount),
+      ...(selectedFeeOption ? feeOptions.gasPrice[selectedFeeOption] : feeOptions.gasPrice.mid),
+      ...(parsedGasPrice ? { maxFeePerGas: parsedGasPrice, maxPriorityFeePerGas: parsedGasPrice } : {})
+    });
+  }, [
+    amount,
+    estimationData,
+    feeOptions,
+    gasLimitValue,
+    gasPriceValue,
+    network.chainId,
+    nonceValue,
+    selectedFeeOption,
+    to
+  ]);
+
+  useEffect(() => {
+    if (rawTransaction) setValue('rawTransaction', rawTransaction);
+  }, [rawTransaction, setValue]);
 
   const displayedFee = useMemo(() => {
     if (gasPriceValue && estimationData) {
@@ -79,10 +129,6 @@ export const EvmContent: FC<EvmContentProps> = ({ data, onClose }) => {
 
     return;
   }, [feeOptions, estimationData, gasPriceValue, selectedFeeOption]);
-
-  useEffect(() => {
-    if (gasPriceValue && selectedFeeOption) setSelectedFeeOption(null);
-  }, [gasPriceValue, selectedFeeOption]);
 
   const handleFeeOptionSelect = useCallback(
     (label: FeeOptionLabel) => {

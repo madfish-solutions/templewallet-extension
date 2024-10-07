@@ -1,12 +1,14 @@
-import React, { FC } from 'react';
+import React, { FC, useMemo } from 'react';
 
 import { Controller, useFormContext } from 'react-hook-form-v7';
+import { formatEther } from 'viem';
 
 import AssetField from 'app/atoms/AssetField';
 import { T } from 'lib/i18n';
 import { OneOfChains } from 'temple/front';
 import { TempleChainKind } from 'temple/types';
 
+import { useEvmEstimationDataState } from '../context';
 import { DisplayedFeeOptions, EvmTxParamsFormData, FeeOptionLabel, TezosTxParamsFormData } from '../interfaces';
 
 import { FeeOptions } from './components/FeeOptions';
@@ -35,15 +37,22 @@ export const FeeTab: FC<FeeTabProps> = ({
       onOptionClick={onOptionSelect}
     />
     {network.kind === TempleChainKind.EVM ? (
-      <EvmContent onOptionSelect={onOptionSelect} />
+      <EvmContent selectedOption={selectedOption} onOptionSelect={onOptionSelect} />
     ) : (
       <TezosContent onOptionSelect={onOptionSelect} />
     )}
   </>
 );
 
-const EvmContent: FC<Pick<FeeTabProps, 'onOptionSelect'>> = ({ onOptionSelect }) => {
+const EvmContent: FC<Pick<FeeTabProps, 'selectedOption' | 'onOptionSelect'>> = ({ selectedOption, onOptionSelect }) => {
   const { control } = useFormContext<EvmTxParamsFormData>();
+  const { data } = useEvmEstimationDataState();
+
+  const gasPriceFallback = useMemo(() => {
+    if (!data || !selectedOption) return '';
+
+    return formatEther(data.feeOptions.gasPrice[selectedOption].maxFeePerGas, 'gwei');
+  }, [data, selectedOption]);
 
   return (
     <>
@@ -59,12 +68,12 @@ const EvmContent: FC<Pick<FeeTabProps, 'onOptionSelect'>> = ({ onOptionSelect })
         control={control}
         render={({ field: { value, onChange, onBlur } }) => (
           <AssetField
-            value={value}
+            value={value || gasPriceFallback}
             placeholder="1.0"
             min={0}
             assetDecimals={18}
             rightSideComponent={<div className="text-font-description-bold text-grey-2">GWEI</div>}
-            onChange={onChange}
+            onChange={v => onChange(v ?? '')}
             onBlur={() => {
               if (!value) onOptionSelect('mid');
               onBlur();

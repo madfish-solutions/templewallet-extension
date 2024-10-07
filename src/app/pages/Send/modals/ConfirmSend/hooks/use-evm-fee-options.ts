@@ -3,11 +3,11 @@ import { formatEther } from 'viem';
 import { useMemoWithCompare } from 'lib/ui/hooks';
 import { getGasPriceStep } from 'temple/evm/utils';
 
-import { DisplayedFeeOptions, EvmEstimationData } from '../interfaces';
+import { DisplayedFeeOptions, EvmEstimationData, EvmFeeOptions } from '../interfaces';
 
-export const useEvmFeeOptions = (estimationData?: EvmEstimationData) =>
+export const useEvmFeeOptions = (estimationData?: EvmEstimationData): EvmFeeOptions | null =>
   useMemoWithCompare(() => {
-    if (!estimationData) return;
+    if (!estimationData) return null;
 
     const { maxFeePerGas, gas, maxPriorityFeePerGas } = estimationData;
 
