@@ -157,11 +157,7 @@ export const TezosCollectibleItem = memo<TezosCollectibleItemProps>(
                     className="absolute bottom-0.5 right-0.5"
                     placement="bottom"
                   >
-                    <TezosNetworkLogo
-                      size={NETWORK_IMAGE_DEFAULT_SIZE}
-                      chainId={network.chainId}
-                      networkName={network.name}
-                    />
+                    <TezosNetworkLogo chainId={network.chainId} size={NETWORK_IMAGE_DEFAULT_SIZE} />
                   </NetworkLogoTooltipWrap>
                 )}
               </div>
@@ -220,11 +216,7 @@ export const TezosCollectibleItem = memo<TezosCollectibleItemProps>(
 
           {network && (
             <NetworkLogoTooltipWrap networkName={network.name} className="absolute bottom-1 right-1" placement="bottom">
-              <TezosNetworkLogo
-                size={NETWORK_IMAGE_DEFAULT_SIZE}
-                chainId={network.chainId}
-                networkName={network.name}
-              />
+              <TezosNetworkLogo chainId={network.chainId} size={NETWORK_IMAGE_DEFAULT_SIZE} />
             </NetworkLogoTooltipWrap>
           )}
         </div>
@@ -339,11 +331,7 @@ export const EvmCollectibleItem = memo<EvmCollectibleItemProps>(
                     className="absolute bottom-0.5 right-0.5"
                     placement="bottom"
                   >
-                    <EvmNetworkLogo
-                      networkName={network.name}
-                      chainId={network.chainId}
-                      size={NETWORK_IMAGE_DEFAULT_SIZE}
-                    />
+                    <EvmNetworkLogo chainId={network.chainId} size={NETWORK_IMAGE_DEFAULT_SIZE} />
                   </NetworkLogoTooltipWrap>
                 )}
               </div>
@@ -392,7 +380,7 @@ export const EvmCollectibleItem = memo<EvmCollectibleItemProps>(
 
           {network && (
             <NetworkLogoTooltipWrap networkName={network.name} className="absolute bottom-1 right-1" placement="bottom">
-              <EvmNetworkLogo networkName={network.name} chainId={network.chainId} size={NETWORK_IMAGE_DEFAULT_SIZE} />
+              <EvmNetworkLogo chainId={network.chainId} size={NETWORK_IMAGE_DEFAULT_SIZE} />
             </NetworkLogoTooltipWrap>
           )}
         </div>

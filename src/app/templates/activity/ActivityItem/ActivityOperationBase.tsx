@@ -141,9 +141,9 @@ export const ActivityOperationBaseComponent: FC<Props> = ({
 
         <NetworkLogoTooltipWrap networkName={networkName} className="absolute bottom-0 right-0">
           {typeof chainId === 'number' ? (
-            <EvmNetworkLogo networkName={networkName} chainId={chainId} size={16} />
+            <EvmNetworkLogo chainId={chainId} size={16} />
           ) : (
-            <TezosNetworkLogo networkName={networkName} chainId={chainId} size={16} />
+            <TezosNetworkLogo chainId={chainId} size={16} />
           )}
         </NetworkLogoTooltipWrap>
       </div>

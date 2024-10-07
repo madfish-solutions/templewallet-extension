@@ -84,7 +84,7 @@ export const NetworkSelectModalContent = memo<ContentProps>(({ opened, selectedN
 
   const filteredNetworks = useMemo(
     () =>
-      searchValueDebounced.length
+      searchValueDebounced
         ? searchAndFilterNetworksByName<string | EvmChain | TezosChain>(networks, searchValueDebounced)
         : networks,
     [searchValueDebounced, networks]
@@ -156,13 +156,10 @@ export const Network: FC<NetworkProps> = ({
   const Icon = useMemo(() => {
     if (isAllNetworks) return <IconBase Icon={Browse} className="text-primary mx-0.5" size={iconSize} />;
 
-    if (network.kind === TempleChainKind.Tezos)
-      return <TezosNetworkLogo networkName={network.name} chainId={network.chainId} size={iconSize} />;
+    if (network.kind === TempleChainKind.Tezos) return <TezosNetworkLogo chainId={network.chainId} size={iconSize} />;
 
     if (network.kind === TempleChainKind.EVM)
-      return (
-        <EvmNetworkLogo networkName={network.name} chainId={network.chainId} size={iconSize} imgClassName="p-0.5" />
-      );
+      return <EvmNetworkLogo chainId={network.chainId} size={iconSize} imgClassName="p-0.5" />;
 
     return null;
   }, [isAllNetworks, network, iconSize]);

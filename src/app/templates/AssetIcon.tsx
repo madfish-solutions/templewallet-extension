@@ -42,7 +42,7 @@ export const TezosTokenIconWithNetwork = memo<TezosAssetImageProps>(({ tezosChai
 
       {network && (
         <NetworkLogoTooltipWrap networkName={network.name} className="absolute bottom-0 right-0">
-          <TezosNetworkLogo size={NETWORK_IMAGE_DEFAULT_SIZE} chainId={network.chainId} networkName={network.name} />
+          <TezosNetworkLogo size={NETWORK_IMAGE_DEFAULT_SIZE} chainId={network.chainId} />
         </NetworkLogoTooltipWrap>
       )}
     </div>
@@ -75,7 +75,7 @@ export const EvmTokenIconWithNetwork = memo<EvmAssetImageProps>(({ evmChainId, c
 
       {network && (
         <NetworkLogoTooltipWrap networkName={network.name} className="absolute bottom-0 right-0">
-          <EvmNetworkLogo networkName={network.name} chainId={network.chainId} size={NETWORK_IMAGE_DEFAULT_SIZE} />
+          <EvmNetworkLogo chainId={network.chainId} size={NETWORK_IMAGE_DEFAULT_SIZE} />
         </NetworkLogoTooltipWrap>
       )}
     </div>

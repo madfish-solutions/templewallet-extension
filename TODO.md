@@ -27,11 +27,13 @@
 
 ### FOR PRE-REVIEW
 - Filter by network dropdown
-- Grouping by date
 - Bundle modal
 - - Optimise render
 - - Design
 - - Click on bundle item
+- Grouping by date
 - `const HIDE_INTERACTIONS = true;`
 - Ad on Multichain
+- `-- <NetworkLogoTooltipWrap networkName={networkName}`
+- Covalent SDK
 -

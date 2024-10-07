@@ -1,5 +1,7 @@
 import React, { memo, useCallback, useMemo, useState } from 'react';
 
+import { noop } from 'lodash';
+
 import { IconBase } from 'app/atoms';
 import { PageModal } from 'app/atoms/PageModal';
 import { RadioButton } from 'app/atoms/RadioButton';
@@ -19,10 +21,13 @@ import {
 import { NetworkSelectModalContent } from 'app/templates/NetworkSelectModal';
 import { T } from 'lib/i18n';
 import { useBooleanState } from 'lib/ui/hooks';
-import { useAllEvmChains, useAllTezosChains } from 'temple/front';
+import Popper from 'lib/ui/Popper';
+import { OneOfChains, useAllEvmChains, useAllTezosChains } from 'temple/front';
 import { TempleChainKind } from 'temple/types';
 
 import { SettingsCell } from '../../atoms/SettingsCell';
+
+import { FilterChainDropdown } from './FilterChainDropdown';
 
 export const ActivityPage = memo(() => {
   const { filterChain: initFilterChain } = useAssetsFilterOptionsSelector();
@@ -33,23 +38,23 @@ export const ActivityPage = memo(() => {
 
   const [filtersModalOpen, setFiltersModalOpen, setFiltersModalClosed] = useBooleanState(false);
 
-  const handleFilterKindChange = useCallback(
+  const handleFilterChainSelect = useMemo(
+    () =>
+      initFilterChain
+        ? undefined
+        : (chain: OneOfChains | null) => {
+            setFilterChain(chain);
+            setFiltersModalClosed();
+          },
+    [setFiltersModalClosed]
+  );
+
+  const handleFilterKindSelect = useCallback(
     (kind: FilterKind) => {
       setFilterKind(kind);
       if (kind !== filterKind) setFiltersModalClosed();
     },
-    [filterKind]
-  );
-
-  const handleChainChange = useMemo(
-    () =>
-      initFilterChain
-        ? undefined
-        : (chain: FilterChain) => {
-            setFilterChain(chain);
-            setFiltersModalClosed();
-          },
-    []
+    [filterKind, setFiltersModalClosed]
   );
 
   return (
@@ -63,8 +68,8 @@ export const ActivityPage = memo(() => {
         open={filtersModalOpen}
         filterKind={filterKind}
         filterChain={filterChain}
-        handleFilterKindChange={handleFilterKindChange}
-        handleChainChange={handleChainChange}
+        handleFilterChainSelect={handleFilterChainSelect}
+        handleFilterKindSelect={handleFilterKindSelect}
         onRequestClose={setFiltersModalClosed}
       />
 
@@ -87,55 +92,13 @@ interface FiltersModalProps {
   open: boolean;
   filterKind: FilterKind;
   filterChain: FilterChain;
-  handleFilterKindChange: SyncFn<FilterKind>;
-  handleChainChange?: (chain: FilterChain) => void;
+  handleFilterChainSelect?: SyncFn<OneOfChains | null>;
+  handleFilterKindSelect: SyncFn<FilterKind>;
   onRequestClose: EmptyFn;
 }
 
 const FiltersModal = memo<FiltersModalProps>(
-  ({ open, filterKind, filterChain, handleFilterKindChange, handleChainChange, onRequestClose }) => {
-    const [networksMode, setModeToNetworks, setModeToFilters] = useBooleanState(false);
-
-    return (
-      <PageModal
-        title={networksMode ? 'Select Network' : 'Filter Activity'}
-        opened={open}
-        contentPadding
-        shouldShowBackButton={networksMode}
-        onGoBack={setModeToFilters}
-        onRequestClose={onRequestClose}
-      >
-        {networksMode && handleChainChange ? (
-          <NetworkSelectModalContent
-            opened={open}
-            selectedNetwork={filterChain}
-            handleNetworkSelect={chain => {
-              handleChainChange(chain);
-              setModeToFilters();
-            }}
-          />
-        ) : (
-          <FiltersMainContent
-            filterKind={filterKind}
-            filterChain={filterChain}
-            handleFilterKindChange={handleFilterKindChange}
-            onOpenNetworksClick={handleChainChange ? setModeToNetworks : undefined}
-          />
-        )}
-      </PageModal>
-    );
-  }
-);
-
-interface FiltersMainContentProps {
-  filterKind: FilterKind;
-  filterChain: FilterChain;
-  handleFilterKindChange: SyncFn<FilterKind>;
-  onOpenNetworksClick?: EmptyFn;
-}
-
-const FiltersMainContent = memo<FiltersMainContentProps>(
-  ({ filterKind, filterChain, handleFilterKindChange, onOpenNetworksClick }) => {
+  ({ open, filterKind, filterChain, handleFilterChainSelect, handleFilterKindSelect, onRequestClose }) => {
     const tezosChains = useAllTezosChains();
     const evmChains = useAllEvmChains();
 
@@ -147,61 +110,74 @@ const FiltersMainContent = memo<FiltersMainContentProps>(
       return evmChains[filterChain.chainId];
     }, [filterChain, evmChains, tezosChains]);
 
-    const disabledNetworkChange = !onOpenNetworksClick;
-
     return (
-      <>
+      <PageModal title="Filter Activity" opened={open} contentPadding onRequestClose={onRequestClose}>
         <div className="flex align-center justify-between pl-1 py-0.5">
           <span className="text-font-description-bold">Filter by network</span>
 
-          <TextButton
-            Icon={CompactDownIcon}
-            onClick={onOpenNetworksClick}
-            className={disabledNetworkChange ? 'opacity-50 pointer-events-none' : undefined}
+          <Popper
+            placement="bottom-end"
+            strategy="fixed"
+            popup={props => (
+              <FilterChainDropdown
+                filterChain={filterChain}
+                setFilterChain={handleFilterChainSelect ?? noop}
+                {...props}
+              />
+            )}
           >
-            {chain ? chain.nameI18nKey ? <T id={chain.nameI18nKey} /> : chain.name : 'All Networks'}
-          </TextButton>
+            {({ ref, toggleOpened }) => (
+              <TextButton
+                ref={ref}
+                Icon={CompactDownIcon}
+                onClick={handleFilterChainSelect ? toggleOpened : undefined}
+                className={handleFilterChainSelect ? undefined : 'opacity-50 pointer-events-none'}
+              >
+                {chain ? chain.nameI18nKey ? <T id={chain.nameI18nKey} /> : chain.name : 'All Networks'}
+              </TextButton>
+            )}
+          </Popper>
         </div>
 
         <div className="mt-1 flex flex-col rounded-lg overflow-hidden shadow-center">
           <SettingsCell
             title="All Activity"
             icon={<RadioButton active={!filterKind} />}
-            onClick={() => handleFilterKindChange(null)}
+            onClick={() => handleFilterKindSelect(null)}
             first
           />
 
           <SettingsCell
             title="Send"
             icon={<RadioButton active={filterKind === 'send'} />}
-            onClick={() => handleFilterKindChange('send')}
+            onClick={() => handleFilterKindSelect('send')}
           />
 
           <SettingsCell
             title="Receive"
             icon={<RadioButton active={filterKind === 'receive'} />}
-            onClick={() => handleFilterKindChange('receive')}
+            onClick={() => handleFilterKindSelect('receive')}
           />
 
           <SettingsCell
             title="Approve"
             icon={<RadioButton active={filterKind === 'approve'} />}
-            onClick={() => handleFilterKindChange('approve')}
+            onClick={() => handleFilterKindSelect('approve')}
           />
 
           <SettingsCell
             title="Transfer"
             icon={<RadioButton active={filterKind === 'transfer'} />}
-            onClick={() => handleFilterKindChange('transfer')}
+            onClick={() => handleFilterKindSelect('transfer')}
           />
 
           <SettingsCell
             title="Bundle"
             icon={<RadioButton active={filterKind === 'bundle'} />}
-            onClick={() => handleFilterKindChange('bundle')}
+            onClick={() => handleFilterKindSelect('bundle')}
           />
         </div>
-      </>
+      </PageModal>
     );
   }
 );
