@@ -113,44 +113,66 @@ export const TezosContent: FC<TezosContentProps> = ({ data, onClose }) => {
     [setValue]
   );
 
-  const onSubmit = useCallback(async () => {
-    if (formState.isSubmitting) return;
+  const onSubmit = useCallback(
+    async ({ gasFee, storageLimit }: TezosTxParamsFormData) => {
+      if (formState.isSubmitting) return;
 
-    if (!estimatedBaseFee) {
-      toastError('Failed to estimate transaction.');
+      if (!estimatedBaseFee) {
+        toastError('Failed to estimate transaction.');
 
-      return;
-    }
-
-    try {
-      if (!assetMetadata) throw new Error('Metadata not found');
-
-      let operation: TransactionWalletOperation | TransactionOperation;
-
-      if (isTezosContractAddress(accountPkh)) {
-        const michelsonLambda = isTezosContractAddress(to) ? transferToContract : transferImplicit;
-
-        const contract = await loadContract(tezos, accountPkh);
-        operation = await contract.methodsObject.do(michelsonLambda(to, tzToMutez(amount))).send({ amount: 0 });
-      } else {
-        const transferParams = await toTransferParams(tezos, assetSlug, assetMetadata, accountPkh, to, amount);
-        const estmtn = await tezos.estimate.transfer(transferParams);
-        const fee = estmtn.suggestedFeeMutez;
-        operation = await tezos.wallet.transfer({ ...transferParams, fee }).send();
+        return;
       }
 
-      onClose();
+      try {
+        if (!assetMetadata) throw new Error('Metadata not found');
 
-      // @ts-expect-error
-      const txHash = operation.hash || operation.opHash;
+        let operation: TransactionWalletOperation | TransactionOperation;
 
-      setTimeout(() => toastSuccess('Transaction Submitted. Hash: ', true, txHash), CLOSE_ANIMATION_TIMEOUT * 2);
-    } catch (err: any) {
-      console.log(err);
+        if (isTezosContractAddress(accountPkh)) {
+          const michelsonLambda = isTezosContractAddress(to) ? transferToContract : transferImplicit;
 
-      toastError(err.message);
-    }
-  }, [accountPkh, amount, assetMetadata, assetSlug, estimatedBaseFee, formState.isSubmitting, onClose, tezos, to]);
+          const contract = await loadContract(tezos, accountPkh);
+          operation = await contract.methodsObject.do(michelsonLambda(to, tzToMutez(amount))).send({ amount: 0 });
+        } else {
+          const transferParams = await toTransferParams(tezos, assetSlug, assetMetadata, accountPkh, to, amount);
+          const estmtn = await tezos.estimate.transfer(transferParams);
+          operation = await tezos.wallet
+            .transfer({
+              ...transferParams,
+              fee: tzToMutez(
+                displayedFeeOptions && selectedFeeOption ? displayedFeeOptions[selectedFeeOption] : gasFee
+              ).toNumber(),
+              storageLimit: storageLimit ? tzToMutez(storageLimit).toNumber() : estmtn.storageLimit
+            })
+            .send();
+        }
+
+        onClose();
+
+        // @ts-expect-error
+        const txHash = operation.hash || operation.opHash;
+
+        setTimeout(() => toastSuccess('Transaction Submitted. Hash: ', true, txHash), CLOSE_ANIMATION_TIMEOUT * 2);
+      } catch (err: any) {
+        console.log(err);
+
+        toastError(err.message);
+      }
+    },
+    [
+      accountPkh,
+      amount,
+      assetMetadata,
+      assetSlug,
+      displayedFeeOptions,
+      estimatedBaseFee,
+      formState.isSubmitting,
+      onClose,
+      selectedFeeOption,
+      tezos,
+      to
+    ]
+  );
 
   return (
     <FormProvider {...form}>
