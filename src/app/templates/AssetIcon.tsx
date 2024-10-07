@@ -3,7 +3,7 @@ import React, { memo } from 'react';
 import clsx from 'clsx';
 
 import { Identicon } from 'app/atoms';
-import { EvmNetworkLogo, NetworkLogoTooltipWrap, TezosNetworkLogo } from 'app/atoms/NetworkLogo';
+import { EvmNetworkLogo, TezosNetworkLogo } from 'app/atoms/NetworkLogo';
 import { ReactComponent as CollectiblePlaceholderSvg } from 'app/icons/collectible-placeholder.svg';
 import { AssetMetadataBase } from 'lib/metadata';
 import { EvmAssetMetadataBase } from 'lib/metadata/types';
@@ -41,9 +41,12 @@ export const TezosTokenIconWithNetwork = memo<TezosAssetImageProps>(({ tezosChai
       <TezosAssetIcon tezosChainId={tezosChainId} size={ASSET_IMAGE_DEFAULT_SIZE} {...props} />
 
       {network && (
-        <NetworkLogoTooltipWrap networkName={network.name} className="absolute bottom-0 right-0">
-          <TezosNetworkLogo size={NETWORK_IMAGE_DEFAULT_SIZE} chainId={network.chainId} />
-        </NetworkLogoTooltipWrap>
+        <TezosNetworkLogo
+          size={NETWORK_IMAGE_DEFAULT_SIZE}
+          chainId={network.chainId}
+          className="absolute bottom-0 right-0"
+          withTooltip
+        />
       )}
     </div>
   );
@@ -74,9 +77,12 @@ export const EvmTokenIconWithNetwork = memo<EvmAssetImageProps>(({ evmChainId, c
       <EvmAssetIcon evmChainId={evmChainId} size={ASSET_IMAGE_DEFAULT_SIZE} {...props} />
 
       {network && (
-        <NetworkLogoTooltipWrap networkName={network.name} className="absolute bottom-0 right-0">
-          <EvmNetworkLogo chainId={network.chainId} size={NETWORK_IMAGE_DEFAULT_SIZE} />
-        </NetworkLogoTooltipWrap>
+        <EvmNetworkLogo
+          chainId={network.chainId}
+          size={NETWORK_IMAGE_DEFAULT_SIZE}
+          className="absolute bottom-0 right-0"
+          withTooltip
+        />
       )}
     </div>
   );

@@ -1,4 +1,4 @@
-import React, { CSSProperties, FC, memo, useMemo } from 'react';
+import React, { FC, memo, useMemo } from 'react';
 
 import clsx from 'clsx';
 import type { Placement } from 'tippy.js';
@@ -27,54 +27,79 @@ const logosRecord: Record<number, string> = {
 interface TezosNetworkLogoProps {
   chainId: string;
   size?: number;
+  className?: string;
+  withTooltip?: boolean;
+  tooltipPlacement?: Placement;
 }
 
-export const TezosNetworkLogo = memo<TezosNetworkLogoProps>(({ chainId, size = 24 }) =>
-  chainId === TEZOS_MAINNET_CHAIN_ID ? (
-    <TezNetworkLogo size={size} />
-  ) : (
-    <TezosNetworkLogoFallback chainId={chainId} size={size} />
-  )
+export const TezosNetworkLogo = memo<TezosNetworkLogoProps>(
+  ({ chainId, size = 24, className, withTooltip, tooltipPlacement }) => {
+    const chain = useTezosChainByChainId(chainId);
+    const networkName = useMemo(() => (chain?.nameI18nKey ? t(chain.nameI18nKey) : chain?.name), [chain]);
+
+    const withoutTooltipClassName = withTooltip ? undefined : className;
+
+    const logoJsx =
+      chainId === TEZOS_MAINNET_CHAIN_ID ? (
+        <TezNetworkLogo size={size} className={withoutTooltipClassName} />
+      ) : (
+        <NetworkLogoFallback networkName={networkName} size={size} className={withoutTooltipClassName} />
+      );
+
+    return withTooltip ? (
+      <WithTooltipWrap title={networkName ?? 'Unknown Network'} className={className} placement={tooltipPlacement}>
+        {logoJsx}
+      </WithTooltipWrap>
+    ) : (
+      logoJsx
+    );
+  }
 );
-
-export const TezosNetworkLogoFallback = memo<TezosNetworkLogoProps>(({ chainId, size = 24 }) => {
-  const chain = useTezosChainByChainId(chainId);
-  const networkName = useMemo(() => (chain?.nameI18nKey ? t(chain.nameI18nKey) : chain?.name || ''), [chain]);
-
-  return <NetworkLogoFallback networkName={networkName} size={size} />;
-});
 
 interface EvmNetworkLogoProps {
   chainId: number;
   size?: number;
+  className?: string;
   imgClassName?: string;
-  style?: CSSProperties;
+  withTooltip?: boolean;
+  tooltipPlacement?: Placement;
 }
 
-export const EvmNetworkLogo = memo<EvmNetworkLogoProps>(({ chainId, size = 24, imgClassName, style }) => {
-  const source = useMemo(() => logosRecord[chainId] || getEvmNativeAssetIcon(chainId, size * 2), [chainId, size]);
+export const EvmNetworkLogo = memo<EvmNetworkLogoProps>(
+  ({ chainId, size = 24, className, imgClassName, withTooltip, tooltipPlacement }) => {
+    const source = useMemo(() => logosRecord[chainId] || getEvmNativeAssetIcon(chainId, size * 2), [chainId, size]);
 
-  const chain = useEvmChainByChainId(chainId);
-  const networkName = useMemo(() => (chain?.nameI18nKey ? t(chain.nameI18nKey) : chain?.name || ''), [chain]);
+    const chain = useEvmChainByChainId(chainId);
+    const networkName = useMemo(() => (chain?.nameI18nKey ? t(chain.nameI18nKey) : chain?.name), [chain]);
 
-  return source ? (
-    <img
-      src={source}
-      alt={networkName}
-      width={size}
-      height={size}
-      className={clsx('border border-lines bg-white rounded-full', imgClassName)}
-      style={style}
-    />
-  ) : (
-    <NetworkLogoFallback networkName={networkName} size={size} />
-  );
-});
+    const withoutTooltipClassName = withTooltip ? undefined : className;
+
+    const logoJsx = source ? (
+      <img
+        src={source}
+        alt={networkName}
+        width={size}
+        height={size}
+        className={clsx('border border-lines bg-white rounded-full', withoutTooltipClassName, imgClassName)}
+      />
+    ) : (
+      <NetworkLogoFallback networkName={networkName} size={size} className={withoutTooltipClassName} />
+    );
+
+    return withTooltip ? (
+      <WithTooltipWrap title={networkName} className={className} placement={tooltipPlacement}>
+        {logoJsx}
+      </WithTooltipWrap>
+    ) : (
+      logoJsx
+    );
+  }
+);
 
 const IDENTICON_OPTS = { chars: 1 };
 
 interface NetworkLogoFallbackProps {
-  networkName: string;
+  networkName?: string;
   size?: number;
   className?: string;
 }
@@ -85,20 +110,26 @@ const NetworkLogoFallback = memo<NetworkLogoFallbackProps>(({ networkName, size 
     className={clsx('p-px border border-grey-4 bg-white rounded-full overflow-hidden', className)}
   >
     <div className="w-full h-full flex justify-center items-center rounded-full overflow-hidden">
-      <Identicon type="initials" hash={networkName} size={size * 2} options={IDENTICON_OPTS} className="shrink-0" />
+      <Identicon
+        type="initials"
+        hash={networkName ?? '?'}
+        size={size * 2}
+        options={IDENTICON_OPTS}
+        className="shrink-0"
+      />
     </div>
   </div>
 ));
 
-interface NetworkLogoTooltipWrapProps {
-  networkName: string;
+interface WithTooltipWrapProps {
+  title?: string;
   className?: string;
   placement?: Placement;
 }
 
-export const NetworkLogoTooltipWrap: FC<PropsWithChildren<NetworkLogoTooltipWrapProps>> = ({
+const WithTooltipWrap: FC<PropsWithChildren<WithTooltipWrapProps>> = ({
   className,
-  networkName,
+  title,
   placement = 'bottom-start',
   children
 }) => {
@@ -106,11 +137,11 @@ export const NetworkLogoTooltipWrap: FC<PropsWithChildren<NetworkLogoTooltipWrap
     () => ({
       trigger: 'mouseenter',
       hideOnClick: false,
-      content: networkName ?? 'Unknown Network',
+      content: title ?? 'Unknown Network',
       animation: 'shift-away-subtle',
       placement
     }),
-    [networkName, placement]
+    [title, placement]
   );
 
   const networkIconRef = useTippy<HTMLDivElement>(tippyProps);

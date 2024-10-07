@@ -10,13 +10,12 @@ interface Props {
   hash: string;
   operation?: TezosOperation;
   chainId: string;
-  networkName: string;
   blockExplorerUrl: string | nullish;
   withoutAssetIcon?: boolean;
 }
 
 export const TezosActivityOperationComponent = memo<Props>(
-  ({ hash, operation, chainId, networkName, blockExplorerUrl, withoutAssetIcon }) => {
+  ({ hash, operation, chainId, blockExplorerUrl, withoutAssetIcon }) => {
     const assetSlug = operation?.assetSlug;
     const assetMetadata = useTezosAssetMetadata(assetSlug ?? '', chainId);
 
@@ -30,7 +29,6 @@ export const TezosActivityOperationComponent = memo<Props>(
         kind={operation?.kind ?? ActivityOperKindEnum.interaction}
         hash={hash}
         chainId={chainId}
-        networkName={networkName}
         asset={asset}
         blockExplorerUrl={blockExplorerUrl ?? undefined}
         withoutAssetIcon={withoutAssetIcon}

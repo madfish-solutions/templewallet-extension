@@ -1,7 +1,7 @@
 import React, { FC, ReactNode, useCallback, useMemo } from 'react';
 
 import { Anchor, HashShortView, IconBase, Money } from 'app/atoms';
-import { EvmNetworkLogo, NetworkLogoTooltipWrap, TezosNetworkLogo } from 'app/atoms/NetworkLogo';
+import { EvmNetworkLogo, TezosNetworkLogo } from 'app/atoms/NetworkLogo';
 import { ReactComponent as DocumentsSvg } from 'app/icons/base/documents.svg';
 import { ReactComponent as IncomeSvg } from 'app/icons/base/income.svg';
 import { ReactComponent as OutLinkIcon } from 'app/icons/base/outLink.svg';
@@ -20,7 +20,6 @@ interface Props {
   chainId: string | number;
   kind: FaceKind;
   hash: string;
-  networkName: string;
   asset?: ActivityItemBaseAssetProp;
   blockExplorerUrl?: string;
   withoutAssetIcon?: boolean;
@@ -39,7 +38,6 @@ export const ActivityOperationBaseComponent: FC<Props> = ({
   kind,
   hash,
   chainId,
-  networkName,
   asset,
   blockExplorerUrl,
   withoutAssetIcon
@@ -139,13 +137,11 @@ export const ActivityOperationBaseComponent: FC<Props> = ({
           />
         )}
 
-        <NetworkLogoTooltipWrap networkName={networkName} className="absolute bottom-0 right-0">
-          {typeof chainId === 'number' ? (
-            <EvmNetworkLogo chainId={chainId} size={16} />
-          ) : (
-            <TezosNetworkLogo chainId={chainId} size={16} />
-          )}
-        </NetworkLogoTooltipWrap>
+        {typeof chainId === 'number' ? (
+          <EvmNetworkLogo chainId={chainId} size={16} className="absolute bottom-0 right-0" withTooltip />
+        ) : (
+          <TezosNetworkLogo chainId={chainId} size={16} className="absolute bottom-0 right-0" withTooltip />
+        )}
       </div>
 
       <div className="flex-grow flex flex-col gap-y-1 whitespace-nowrap overflow-hidden">

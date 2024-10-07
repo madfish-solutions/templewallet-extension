@@ -26,7 +26,6 @@
 -
 
 ### FOR PRE-REVIEW
-- Filter by network dropdown
 - Bundle modal
 - - Optimise render
 - - Design

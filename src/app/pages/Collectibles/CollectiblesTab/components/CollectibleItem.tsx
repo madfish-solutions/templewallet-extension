@@ -5,7 +5,7 @@ import clsx from 'clsx';
 
 import { IconBase, ToggleSwitch } from 'app/atoms';
 import Money from 'app/atoms/Money';
-import { EvmNetworkLogo, NetworkLogoTooltipWrap, TezosNetworkLogo } from 'app/atoms/NetworkLogo';
+import { EvmNetworkLogo, TezosNetworkLogo } from 'app/atoms/NetworkLogo';
 import { ReactComponent as DeleteIcon } from 'app/icons/base/delete.svg';
 import { dispatch } from 'app/store';
 import { setEvmCollectibleStatusAction } from 'app/store/evm/assets/actions';
@@ -152,13 +152,13 @@ export const TezosCollectibleItem = memo<TezosCollectibleItemProps>(
                 />
 
                 {network && (
-                  <NetworkLogoTooltipWrap
-                    networkName={network.name}
+                  <TezosNetworkLogo
+                    chainId={network.chainId}
+                    size={NETWORK_IMAGE_DEFAULT_SIZE}
                     className="absolute bottom-0.5 right-0.5"
-                    placement="bottom"
-                  >
-                    <TezosNetworkLogo chainId={network.chainId} size={NETWORK_IMAGE_DEFAULT_SIZE} />
-                  </NetworkLogoTooltipWrap>
+                    withTooltip
+                    tooltipPlacement="bottom"
+                  />
                 )}
               </div>
 
@@ -215,9 +215,13 @@ export const TezosCollectibleItem = memo<TezosCollectibleItemProps>(
           )}
 
           {network && (
-            <NetworkLogoTooltipWrap networkName={network.name} className="absolute bottom-1 right-1" placement="bottom">
-              <TezosNetworkLogo chainId={network.chainId} size={NETWORK_IMAGE_DEFAULT_SIZE} />
-            </NetworkLogoTooltipWrap>
+            <TezosNetworkLogo
+              chainId={network.chainId}
+              size={NETWORK_IMAGE_DEFAULT_SIZE}
+              className="absolute bottom-1 right-1"
+              withTooltip
+              tooltipPlacement="bottom"
+            />
           )}
         </div>
 
@@ -326,13 +330,13 @@ export const EvmCollectibleItem = memo<EvmCollectibleItemProps>(
                 {metadata && <EvmCollectibleItemImage metadata={metadata} />}
 
                 {network && (
-                  <NetworkLogoTooltipWrap
-                    networkName={network.name}
+                  <EvmNetworkLogo
+                    chainId={network.chainId}
+                    size={NETWORK_IMAGE_DEFAULT_SIZE}
                     className="absolute bottom-0.5 right-0.5"
-                    placement="bottom"
-                  >
-                    <EvmNetworkLogo chainId={network.chainId} size={NETWORK_IMAGE_DEFAULT_SIZE} />
-                  </NetworkLogoTooltipWrap>
+                    withTooltip
+                    tooltipPlacement="bottom"
+                  />
                 )}
               </div>
 
@@ -379,9 +383,13 @@ export const EvmCollectibleItem = memo<EvmCollectibleItemProps>(
           )}
 
           {network && (
-            <NetworkLogoTooltipWrap networkName={network.name} className="absolute bottom-1 right-1" placement="bottom">
-              <EvmNetworkLogo chainId={network.chainId} size={NETWORK_IMAGE_DEFAULT_SIZE} />
-            </NetworkLogoTooltipWrap>
+            <EvmNetworkLogo
+              chainId={network.chainId}
+              size={NETWORK_IMAGE_DEFAULT_SIZE}
+              className="absolute bottom-1 right-1"
+              withTooltip
+              tooltipPlacement="bottom"
+            />
           )}
         </div>
 

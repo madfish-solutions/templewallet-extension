@@ -10,13 +10,12 @@ interface Props {
   hash: string;
   operation?: EvmOperation;
   chainId: number;
-  networkName: string;
   blockExplorerUrl?: string;
   withoutAssetIcon?: boolean;
 }
 
 export const EvmActivityOperationComponent = memo<Props>(
-  ({ hash, operation, chainId, networkName, blockExplorerUrl, withoutAssetIcon }) => {
+  ({ hash, operation, chainId, blockExplorerUrl, withoutAssetIcon }) => {
     const assetBase = operation?.asset;
     const assetSlug = assetBase?.contract ? toEvmAssetSlug(assetBase.contract) : undefined;
 
@@ -45,7 +44,6 @@ export const EvmActivityOperationComponent = memo<Props>(
         kind={operation?.kind ?? ActivityOperKindEnum.interaction}
         hash={hash}
         chainId={chainId}
-        networkName={networkName}
         asset={asset}
         blockExplorerUrl={blockExplorerUrl}
         withoutAssetIcon={withoutAssetIcon}
