@@ -1,44 +1,50 @@
-import React, { ChangeEvent, FC } from 'react';
+import React, { ChangeEvent, memo, useCallback } from 'react';
 
 import { useDispatch } from 'react-redux';
 
 import { togglePartnersPromotionAction } from 'app/store/partners-promotion/actions';
 import { useShouldShowPartnersPromoSelector } from 'app/store/partners-promotion/selectors';
-import { T, t } from 'lib/i18n';
-import { useConfirm } from 'lib/ui/dialog';
+import { T } from 'lib/i18n';
+import { useAlert, useConfirm } from 'lib/ui/dialog';
 
-import { EnablingSetting } from '../EnablingSetting';
-import { SettingsGeneralSelectors } from '../SettingsGeneral/selectors';
+import { EnablingSetting } from '../enabling-setting';
 
-export const PartnersPromotionSettings: FC = () => {
+import { AdvancedFeaturesSelectors } from './selectors';
+
+export const PartnersPromotionSettings = memo(() => {
   const dispatch = useDispatch();
+  const alert = useAlert();
   const confirm = useConfirm();
 
   const shouldShowPartnersPromo = useShouldShowPartnersPromoSelector();
 
-  const handleHidePromotion = async (toChecked: boolean) => {
-    const confirmed = await confirm({
-      title: t('closePartnersPromotion'),
-      children: t('closePartnersPromoConfirm'),
-      comfirmButtonText: t('disable')
-    });
+  const handleHidePromotion = useCallback(
+    async (toChecked: boolean) => {
+      const confirmed = await confirm({
+        title: <T id="disableAdsModalTitle" />,
+        description: <T id="disableAdsModalDescription" />,
+        confirmButtonText: (
+          <span className="capitalize">
+            <T id="disable" />
+          </span>
+        ),
+        hasCloseButton: false
+      });
 
-    if (confirmed) {
+      if (confirmed) {
+        dispatch(togglePartnersPromotionAction(toChecked));
+      }
+    },
+    [confirm, dispatch]
+  );
+
+  const handleShowPromotion = useCallback(
+    async (toChecked: boolean) => {
       dispatch(togglePartnersPromotionAction(toChecked));
-    }
-  };
-
-  const handleShowPromotion = async (toChecked: boolean) => {
-    const confirmed = await confirm({
-      title: t('enablePartnersPromotionConfirm'),
-      children: t('enablePartnersPromotionDescriptionConfirm'),
-      comfirmButtonText: t('enable')
-    });
-
-    if (confirmed) {
-      dispatch(togglePartnersPromotionAction(toChecked));
-    }
-  };
+      alert({ title: <T id="adsEnabledAlertTitle" />, description: <T id="adsEnabledAlertDescription" /> });
+    },
+    [alert, dispatch]
+  );
 
   const togglePartnersPromotion = (toChecked: boolean, event: ChangeEvent<HTMLInputElement>) => {
     event?.preventDefault();
@@ -49,15 +55,10 @@ export const PartnersPromotionSettings: FC = () => {
   return (
     <EnablingSetting
       titleI18nKey="partnersPromoSettings"
-      descriptionI18nKey="partnersPromoDescription"
-      descriptionSubstitutions={
-        <span className="font-semibold">
-          <T id="rewards" />
-        </span>
-      }
+      description={<T id="partnersPromoDescription" />}
       enabled={shouldShowPartnersPromo}
       onChange={togglePartnersPromotion}
-      testID={SettingsGeneralSelectors.partnersPromotion}
+      testID={AdvancedFeaturesSelectors.partnersPromotionToggle}
     />
   );
-};
+});

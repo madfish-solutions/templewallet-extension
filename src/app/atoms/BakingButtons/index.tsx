@@ -116,8 +116,7 @@ const RedelegateButtonWithConfirmation = memo<RedelegateButtonWithConfirmationPr
           title: 'You have active staking',
           description:
             'After re-delegation, your active stake with current baker will be requested to unstake. New stake will be available after the unstake cooldown period ends.',
-          comfirmButtonText: `${t('reDelegate')} & Unstake`,
-          stretchButtons: true
+          confirmButtonText: `${t('reDelegate')} & Unstake`
         }).then(confirmed => {
           if (confirmed) navigate(`/delegate/${chainId}`);
         }),

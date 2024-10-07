@@ -1,7 +1,7 @@
 import React, { FC, useCallback } from 'react';
 
-import AlertModal from 'app/templates/AlertModal';
-import ConfirmationModal from 'app/templates/ConfirmationModal/ConfirmationModal';
+import { AlertModal } from 'app/templates/AlertModal';
+import { ConfirmationModal } from 'app/templates/ConfirmationModal/ConfirmationModal';
 import { dispatchAlertClose, dispatchConfirmClose, useModalsParams } from 'lib/ui/dialog';
 
 const Dialogs: FC = () => {
@@ -17,12 +17,8 @@ const Dialogs: FC = () => {
 
   return (
     <>
-      <ConfirmationModal
-        {...confirmParams}
-        onRequestClose={handleConfirmationModalClose}
-        onConfirm={handleConfirmation}
-      />
-      <AlertModal {...alertParams} onRequestClose={dispatchAlertClose} />
+      <ConfirmationModal {...confirmParams} onClose={handleConfirmationModalClose} onConfirm={handleConfirmation} />
+      <AlertModal {...alertParams} onClose={dispatchAlertClose} />
     </>
   );
 };
