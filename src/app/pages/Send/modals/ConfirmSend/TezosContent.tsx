@@ -21,7 +21,7 @@ import { getTezosToolkitWithSigner } from 'temple/front';
 
 import { estimateTezosMaxFee } from '../../form/utils';
 
-import { BaseContent } from './BaseContent';
+import { BaseContent, Tab } from './BaseContent';
 import { DisplayedFeeOptions, FeeOptionLabel, TezosTxParamsFormData } from './interfaces';
 
 interface TezosContentProps {
@@ -37,7 +37,9 @@ export const TezosContent: FC<TezosContentProps> = ({ data, onClose }) => {
   const form = useForm<TezosTxParamsFormData>({ mode: 'onChange' });
   const { watch, formState, setValue } = form;
 
+  const [tab, setTab] = useState<Tab>('details');
   const [selectedFeeOption, setSelectedFeeOption] = useState<FeeOptionLabel | null>('mid');
+  const [latestSubmitError, setLatestSubmitError] = useState<string | nullish>(null);
 
   const assetMetadata = useTezosAssetMetadata(assetSlug, network.chainId);
   const { value: balance = ZERO } = useTezosAssetBalance(assetSlug, accountPkh, network);
@@ -156,7 +158,8 @@ export const TezosContent: FC<TezosContentProps> = ({ data, onClose }) => {
       } catch (err: any) {
         console.log(err);
 
-        toastError(err.message);
+        setLatestSubmitError(err.message);
+        setTab('error');
       }
     },
     [
@@ -183,6 +186,9 @@ export const TezosContent: FC<TezosContentProps> = ({ data, onClose }) => {
         recipientAddress={to}
         displayedFeeOptions={displayedFeeOptions}
         displayedFee={displayedFee}
+        selectedTab={tab}
+        setSelectedTab={setTab}
+        latestSubmitError={latestSubmitError}
         displayedStorageLimit={StorageLimitValue || '0'}
         onFeeOptionSelect={handleFeeOptionSelect}
         selectedFeeOption={selectedFeeOption}

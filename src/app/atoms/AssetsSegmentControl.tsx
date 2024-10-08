@@ -1,4 +1,4 @@
-import React, { createContext, memo, RefObject, useCallback, useContext, useRef } from 'react';
+import React, { createContext, memo, RefObject, useCallback, useContext, useEffect, useRef, useState } from 'react';
 
 import SegmentedControl from './SegmentedControl';
 
@@ -19,10 +19,15 @@ export const AssetsSegmentControl = memo<AssetsSegmentControlProps>(
   ({ tabSlug, onTokensTabClick, onCollectiblesTabClick, className }) => {
     const ref = useAssetsSegmentControlRef();
 
+    const [tab, setTab] = useState(tabSlug ?? 'tokens');
+
+    useEffect(() => void setTab(tabSlug ?? 'tokens'), [tabSlug]);
+
     const setActiveSegment = useCallback(
       (val: string) => {
         if (val === 'tokens') onTokensTabClick();
         else onCollectiblesTabClick();
+        setTab(val);
       },
       [onTokensTabClick, onCollectiblesTabClick]
     );
@@ -30,10 +35,10 @@ export const AssetsSegmentControl = memo<AssetsSegmentControlProps>(
     return (
       <SegmentedControl
         name="assets-segment-control"
+        activeSegment={tab}
         setActiveSegment={setActiveSegment}
         controlRef={ref}
         className={className}
-        defaultIndex={!tabSlug || tabSlug === 'tokens' ? 0 : 1}
         segments={[
           {
             label: 'Tokens',

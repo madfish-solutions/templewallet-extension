@@ -11,7 +11,7 @@ import { useTypedSWR } from 'lib/swr';
 import { useTempleClient } from 'lib/temple/front';
 import { getReadOnlyEvm } from 'temple/evm';
 
-import { BaseContent } from './BaseContent';
+import { BaseContent, Tab } from './BaseContent';
 import { useEvmEstimationDataState } from './context';
 import { useEvmFeeOptions } from './hooks/use-evm-fee-options';
 import { EvmEstimationData, EvmTxParamsFormData, FeeOptionLabel } from './interfaces';
@@ -31,7 +31,9 @@ export const EvmContent: FC<EvmContentProps> = ({ data, onClose }) => {
   const form = useForm<EvmTxParamsFormData>({ mode: 'onChange' });
   const { watch, formState, setValue } = form;
 
+  const [tab, setTab] = useState<Tab>('details');
   const [selectedFeeOption, setSelectedFeeOption] = useState<FeeOptionLabel | nullish>('mid');
+  const [latestSubmitError, setLatestSubmitError] = useState<string | nullish>(null);
 
   const getEstimationData = useCallback(async (): Promise<EvmEstimationData | undefined> => {
     try {
@@ -167,7 +169,8 @@ export const EvmContent: FC<EvmContentProps> = ({ data, onClose }) => {
       } catch (err: any) {
         console.log(err);
 
-        toastError(err.message);
+        setLatestSubmitError(err.message);
+        setTab('error');
       }
     },
     [
@@ -192,7 +195,10 @@ export const EvmContent: FC<EvmContentProps> = ({ data, onClose }) => {
         amount={amount}
         recipientAddress={to}
         displayedFeeOptions={feeOptions?.displayed}
+        selectedTab={tab}
+        setSelectedTab={setTab}
         selectedFeeOption={selectedFeeOption}
+        latestSubmitError={latestSubmitError}
         displayedFee={displayedFee}
         onFeeOptionSelect={handleFeeOptionSelect}
         onCancel={onClose}

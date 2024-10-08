@@ -1,45 +1,35 @@
-import React, { useRef, useState, useEffect, FC, RefObject, CSSProperties, MutableRefObject } from 'react';
+import React, { useRef, useEffect, RefObject, CSSProperties } from 'react';
 
 import clsx from 'clsx';
 
 import styles from './styles.module.css';
 
-interface Segment {
+interface Segment<T extends string> {
   label: string;
-  value: string;
+  value: T;
   ref: RefObject<HTMLDivElement>;
 }
 
-interface Props {
+interface SegmentedControlProps<T extends string> {
   name: string;
-  segments: Segment[];
-  setActiveSegment: (value: string, index: number) => void;
+  segments: Segment<T>[];
+  activeSegment: T;
+  setActiveSegment: (value: T) => void;
   controlRef: RefObject<HTMLDivElement>;
-  defaultIndex?: number;
-  activeIndexRef?: MutableRefObject<number | null>;
   className?: string;
   style?: CSSProperties;
 }
 
-const SegmentedControl: FC<Props> = ({
+const SegmentedControl = <T extends string>({
   name,
   segments,
+  activeSegment,
   setActiveSegment,
-  defaultIndex = 0,
-  activeIndexRef,
   controlRef,
   className,
   style
-}) => {
-  const [activeIndex, setActiveIndex] = useState(defaultIndex);
+}: SegmentedControlProps<T>) => {
   const componentReady = useRef<boolean>();
-
-  useEffect(() => {
-    if (activeIndexRef?.current) {
-      setActiveIndex(activeIndexRef.current);
-      activeIndexRef.current = null;
-    }
-  }, [activeIndexRef?.current]);
 
   // Determine when the component is "ready"
   useEffect(() => {
@@ -47,29 +37,24 @@ const SegmentedControl: FC<Props> = ({
   }, []);
 
   useEffect(() => {
-    const activeSegmentRef = segments[activeIndex].ref;
+    const activeSegmentRef = segments.find(segment => segment.value === activeSegment)?.ref;
 
-    if (activeSegmentRef.current && controlRef.current) {
+    if (activeSegmentRef?.current && controlRef.current) {
       const { offsetWidth, offsetLeft } = activeSegmentRef.current;
       const { style } = controlRef.current;
 
       style.setProperty('--highlight-width', `${offsetWidth}px`);
       style.setProperty('--highlight-x-pos', `${offsetLeft}px`);
     }
-  }, [activeIndex, controlRef, segments]);
-
-  const onInputChange = (value: string, index: number) => {
-    setActiveIndex(index);
-    setActiveSegment(value, index);
-  };
+  }, [activeSegment, controlRef, segments]);
 
   return (
     <div ref={controlRef} className={clsx(styles.controlsContainer, className)} style={style}>
       <div className={clsx(styles.controls, componentReady.current ? styles.ready : styles.idle)}>
-        {segments?.map((item, i) => (
+        {segments?.map(item => (
           <div
             key={item.value}
-            className={clsx(styles.segment, i === activeIndex ? styles.active : styles.inactive)}
+            className={clsx(styles.segment, item.value === activeSegment ? styles.active : styles.inactive)}
             ref={item.ref}
           >
             <input
@@ -77,8 +62,8 @@ const SegmentedControl: FC<Props> = ({
               value={item.value}
               id={item.label}
               name={name}
-              onChange={() => onInputChange(item.value, i)}
-              checked={i === activeIndex}
+              onChange={() => setActiveSegment(item.value)}
+              checked={item.value === activeSegment}
             />
             <label htmlFor={item.label}>{item.label}</label>
           </div>

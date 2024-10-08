@@ -1,4 +1,4 @@
-import React, { useCallback, useRef, useState } from 'react';
+import React, { useCallback, useRef } from 'react';
 
 import { SubmitHandler, useFormContext } from 'react-hook-form-v7';
 
@@ -15,14 +15,20 @@ import { Header } from './components/Header';
 import { DisplayedFeeOptions, FeeOptionLabel, TxParamsFormData } from './interfaces';
 import { AdvancedTab } from './tabs/Advanced';
 import { DetailsTab } from './tabs/Details';
+import { ErrorTab } from './tabs/Error';
 import { FeeTab } from './tabs/Fee';
+
+export type Tab = 'details' | 'fee' | 'advanced' | 'error';
 
 interface BaseContentProps<T extends TxParamsFormData> {
   network: OneOfChains;
   assetSlug: string;
   amount: string;
   recipientAddress: string;
+  selectedTab: Tab;
+  setSelectedTab: (value: Tab) => void;
   selectedFeeOption: FeeOptionLabel | nullish;
+  latestSubmitError: string | nullish;
   onFeeOptionSelect: (label: FeeOptionLabel) => void;
   onSubmit: SubmitHandler<T>;
   onCancel: EmptyFn;
@@ -37,7 +43,10 @@ export const BaseContent = <T extends TxParamsFormData>({
   recipientAddress,
   amount,
   selectedFeeOption,
+  selectedTab,
+  latestSubmitError,
   onFeeOptionSelect,
+  setSelectedTab,
   onSubmit,
   onCancel,
   displayedFee,
@@ -46,14 +55,9 @@ export const BaseContent = <T extends TxParamsFormData>({
 }: BaseContentProps<T>) => {
   const { handleSubmit, formState } = useFormContext<T>();
 
-  const [tab, setTab] = useState('details');
+  const errorTabRef = useRef<HTMLDivElement>(null);
 
-  const activeIndexRef = useRef<number | null>(null);
-
-  const goToFeeTab = useCallback(() => {
-    activeIndexRef.current = 1;
-    setTab('fee');
-  }, []);
+  const goToFeeTab = useCallback(() => setSelectedTab('fee'), []);
 
   return (
     <>
@@ -62,11 +66,11 @@ export const BaseContent = <T extends TxParamsFormData>({
 
         <CurrentAccount />
 
-        <SegmentedControl
+        <SegmentedControl<Tab>
           name="confirm-send-tabs"
-          setActiveSegment={val => setTab(val)}
+          activeSegment={selectedTab}
+          setActiveSegment={setSelectedTab}
           controlRef={useRef<HTMLDivElement>(null)}
-          activeIndexRef={activeIndexRef}
           className="mt-6 mb-4"
           segments={[
             {
@@ -83,14 +87,23 @@ export const BaseContent = <T extends TxParamsFormData>({
               label: 'Advanced',
               value: 'advanced',
               ref: useRef<HTMLDivElement>(null)
-            }
+            },
+            ...(latestSubmitError
+              ? [
+                  {
+                    label: 'Error',
+                    value: 'error' as Tab,
+                    ref: errorTabRef
+                  }
+                ]
+              : [])
           ]}
         />
 
         <form id="confirm-form" className="flex-1 flex flex-col" onSubmit={handleSubmit(onSubmit)}>
           {displayedFeeOptions ? (
             (() => {
-              switch (tab) {
+              switch (selectedTab) {
                 case 'fee':
                   return (
                     <FeeTab
@@ -103,6 +116,8 @@ export const BaseContent = <T extends TxParamsFormData>({
                   );
                 case 'advanced':
                   return <AdvancedTab isEvm={network.kind === TempleChainKind.EVM} />;
+                case 'error':
+                  return <ErrorTab message={latestSubmitError} />;
                 default:
                   return (
                     <DetailsTab
@@ -137,7 +152,7 @@ export const BaseContent = <T extends TxParamsFormData>({
           loading={formState.isSubmitting}
           disabled={!formState.isValid}
         >
-          <T id="confirm" />
+          <T id={latestSubmitError ? 'retry' : 'confirm'} />
         </StyledButton>
       </ActionsButtonsBox>
     </>
