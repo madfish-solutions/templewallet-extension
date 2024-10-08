@@ -179,7 +179,7 @@ export const MyStakeTab = memo<Props>(({ accountPkh, network, cannotDelegate }) 
                   className="h-10"
                   onClick={finalizeUnstake}
                 >
-                  Unstake
+                  Finalize
                 </FormSubmitButton>
               </>
             ) : requestsAreLoading ? (
