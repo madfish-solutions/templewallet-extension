@@ -1,4 +1,5 @@
-import { GoldRushTransaction, GoldRushTransactionLogEvent } from 'lib/apis/temple/endpoints/evm';
+import type { Transaction, LogEvent } from '@covalenthq/client-sdk';
+
 import { isTruthy } from 'lib/utils';
 import { getEvmAddressSafe } from 'lib/utils/evm.utils';
 import { TempleChainKind } from 'temple/types';
@@ -7,11 +8,7 @@ import { ActivityOperKindEnum, EvmActivity, EvmActivityAsset, EvmOperation } fro
 
 import { parseGasTransfer } from './gas';
 
-export function parseGoldRushTransaction(
-  item: GoldRushTransaction,
-  chainId: number,
-  accountAddress: string
-): EvmActivity {
+export function parseGoldRushTransaction(item: Transaction, chainId: number, accountAddress: string): EvmActivity {
   const logEvents = item.log_events ?? [];
   const addedAt = item.block_signed_at as unknown as string;
 
@@ -34,11 +31,7 @@ export function parseGoldRushTransaction(
   };
 }
 
-function parseLogEvent(
-  logEvent: GoldRushTransactionLogEvent,
-  item: GoldRushTransaction,
-  accountAddress: string
-): EvmOperation | null {
+function parseLogEvent(logEvent: LogEvent, item: Transaction, accountAddress: string): EvmOperation | null {
   if (!logEvent.decoded?.params) return { kind: ActivityOperKindEnum.interaction };
 
   const contractAddress = getEvmAddressSafe(logEvent.sender_address);

@@ -1,4 +1,5 @@
-import { GoldRushERC20Transaction, GoldRushERC20TransactionTransfer } from 'lib/apis/temple/endpoints/evm';
+import type { BlockTransactionWithContractTransfers, TokenTransferItem } from '@covalenthq/client-sdk';
+
 import { getEvmAddressSafe } from 'lib/utils/evm.utils';
 import { TempleChainKind } from 'temple/types';
 
@@ -7,7 +8,7 @@ import { ActivityOperKindEnum, EvmActivity, EvmActivityAsset, EvmOperation } fro
 import { parseGasTransfer } from './gas';
 
 export function parseGoldRushERC20Transfer(
-  item: GoldRushERC20Transaction,
+  item: BlockTransactionWithContractTransfers,
   chainId: number,
   accountAddress: string
 ): EvmActivity {
@@ -31,7 +32,7 @@ export function parseGoldRushERC20Transfer(
   };
 }
 
-function parseTransfer(transfer: GoldRushERC20TransactionTransfer, item: GoldRushERC20Transaction): EvmOperation {
+function parseTransfer(transfer: TokenTransferItem, item: BlockTransactionWithContractTransfers): EvmOperation {
   const kind = (() => {
     if (transfer.transfer_type === 'IN') {
       return item.to_address === transfer.contract_address

@@ -1,11 +1,12 @@
-import { GoldRushTransaction, GoldRushERC20Transaction } from 'lib/apis/temple/endpoints/evm';
+import type { Transaction, BlockTransactionWithContractTransfers } from '@covalenthq/client-sdk';
+
 import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
 import { getEvmAddressSafe } from 'lib/utils/evm.utils';
 
 import { ActivityOperKindEnum, EvmActivityAsset, EvmOperation } from '../../types';
 
 export function parseGasTransfer(
-  item: GoldRushTransaction | GoldRushERC20Transaction,
+  item: Transaction | BlockTransactionWithContractTransfers,
   accountAddress: string,
   /** Only way to suspect transfering to a contract, not an account */
   partOfBatch: boolean

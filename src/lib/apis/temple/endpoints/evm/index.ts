@@ -1,19 +1,8 @@
+import type { RecentTransactionsResponse, TransactionsResponse, Erc20TransfersResponse } from '@covalenthq/client-sdk';
+
 import { templeWalletApi } from '../templewallet.api';
 
 import { BalancesResponse, ChainID, NftAddressBalanceNftResponse } from './api.interfaces';
-import {
-  GoldRushERC20TransactionsResponse,
-  GoldRushERC20Transaction,
-  GoldRushERC20TransactionTransfer
-} from './types/gr-v2';
-import { GoldRushTransaction, GoldRushTransactionLogEvent, GoldRushTransactionsResponse } from './types/gr-v3';
-
-export type {
-  GoldRushTransaction,
-  GoldRushTransactionLogEvent,
-  GoldRushERC20Transaction,
-  GoldRushERC20TransactionTransfer
-};
 
 export const getEvmBalances = (walletAddress: string, chainId: ChainID) =>
   buildEvmRequest<BalancesResponse>('/balances', walletAddress, chainId);
@@ -27,7 +16,7 @@ export const getEvmCollectiblesMetadata = (walletAddress: string, chainId: Chain
 
 /** Calls to GoldRush v3 endpoints */
 export const getEvmTransactions = (walletAddress: string, chainId: ChainID, page?: number, signal?: AbortSignal) =>
-  buildEvmRequest<GoldRushTransactionsResponse>(
+  buildEvmRequest<TransactionsResponse | RecentTransactionsResponse>(
     '/transactions',
     walletAddress,
     chainId,
@@ -36,9 +25,9 @@ export const getEvmTransactions = (walletAddress: string, chainId: ChainID, page
     },
     signal
   ).then(({ items, current_page }) => ({
-    items,
+    items: items ?? [],
     /** null | > 0 */
-    nextPage: current_page > 1 ? current_page - 1 : null
+    nextPage: current_page && current_page > 1 ? current_page - 1 : null
   }));
 
 /** Calls to GoldRush v2 endpoints */
@@ -49,7 +38,7 @@ export const getEvmERC20Transfers = (
   page?: number,
   signal?: AbortSignal
 ) =>
-  buildEvmRequest<GoldRushERC20TransactionsResponse>(
+  buildEvmRequest<Erc20TransfersResponse>(
     '/erc20-transfers',
     walletAddress,
     chainId,
