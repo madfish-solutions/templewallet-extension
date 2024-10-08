@@ -27,12 +27,10 @@
 
 ### FOR PRE-REVIEW
 - Bundle modal
-- - Optimise render
 - - Design
-- - Click on bundle item
 - Grouping by date
 - `const HIDE_INTERACTIONS = true;`
 - Ad on Multichain
-- `-- <NetworkLogoTooltipWrap networkName={networkName}`
+- `<WithTooltip />`
 - Covalent SDK
 -

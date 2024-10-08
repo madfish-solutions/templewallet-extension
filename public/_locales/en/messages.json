@@ -2306,6 +2306,7 @@
   "blockExplorer": {
     "message": "Blockchain explorer"
   },
+  "viewOnExplorer": { "message": "View on explorer" },
   "viewOnBlockExplorer": { "message": "View on block explorer" },
   "specifyTokenId": {
     "message": "Specify token ID"

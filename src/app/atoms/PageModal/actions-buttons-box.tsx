@@ -1,4 +1,4 @@
-import React, { HTMLAttributes, memo, useCallback, useEffect, useMemo } from 'react';
+import React, { FC, HTMLAttributes, useCallback, useMemo } from 'react';
 
 import clsx from 'clsx';
 import { throttle } from 'lodash';
@@ -6,57 +6,56 @@ import { useDispatch } from 'react-redux';
 
 import { useAppEnv } from 'app/env';
 import { setToastsContainerBottomShiftAction } from 'app/store/settings/actions';
+import { useWillUnmount } from 'lib/ui/hooks/useWillUnmount';
 
-interface ActionsButtonsBoxProps extends HTMLAttributes<HTMLDivElement> {
+interface Props extends HTMLAttributes<HTMLDivElement> {
   shouldCastShadow?: boolean;
-  flexDirection?: 'row' | 'col';
 }
 
-export const ActionsButtonsBox = memo<ActionsButtonsBoxProps>(
-  ({ className, shouldCastShadow, flexDirection = 'col', ...restProps }) => {
-    const dispatch = useDispatch();
-    const { popup } = useAppEnv();
+export const ActionsButtonsBox: FC<Props> = ({ className, shouldCastShadow, ...restProps }) => {
+  const dispatch = useDispatch();
+  const { popup } = useAppEnv();
 
-    useEffect(() => {
-      return () => void dispatch(setToastsContainerBottomShiftAction(0));
-    }, []);
+  useWillUnmount(() => void dispatch(setToastsContainerBottomShiftAction(0)));
 
-    const handleResize = useMemo(
-      () =>
+  const resizeObserver = useMemo(
+    () =>
+      new ResizeObserver(
         throttle<ResizeObserverCallback>(entries => {
-          const borderBoxSize = entries.map(entry => entry.borderBoxSize?.[0]).filter(Boolean)[0];
+          const borderBoxSize = entries.find(entry => entry.borderBoxSize?.[0])?.borderBoxSize?.[0];
 
           if (borderBoxSize) {
             dispatch(setToastsContainerBottomShiftAction(borderBoxSize.blockSize - (popup ? 16 : 0)));
           }
-        }, 100),
-      [dispatch, popup]
-    );
+        }, 100)
+      ),
+    [popup, dispatch]
+  );
 
-    const resizeObserver = useMemo(() => new ResizeObserver(handleResize), [handleResize]);
-    const rootRef = useCallback(
-      (node: HTMLDivElement | null) => {
-        resizeObserver.disconnect();
-        if (node) {
-          resizeObserver.observe(node);
-          const { height } = node.getBoundingClientRect();
-          dispatch(setToastsContainerBottomShiftAction(height));
-        }
-      },
-      [dispatch, resizeObserver]
-    );
+  const rootRef = useCallback(
+    (node: HTMLDivElement | null) => {
+      resizeObserver.disconnect();
 
-    return (
-      <div
-        className={clsx(
-          'p-4 pb-6 flex bg-white',
-          `flex-${flexDirection}`,
-          shouldCastShadow && 'shadow-bottom border-t-0.5 border-lines overflow-y-visible',
-          className
-        )}
-        ref={rootRef}
-        {...restProps}
-      />
-    );
-  }
-);
+      if (node) {
+        resizeObserver.observe(node);
+
+        const { height } = node.getBoundingClientRect();
+
+        dispatch(setToastsContainerBottomShiftAction(height));
+      }
+    },
+    [resizeObserver, dispatch]
+  );
+
+  return (
+    <div
+      ref={rootRef}
+      className={clsx(
+        'p-4 pb-6 flex flex-col bg-white',
+        shouldCastShadow && 'shadow-bottom border-t-0.5 border-lines overflow-y-visible',
+        className
+      )}
+      {...restProps}
+    />
+  );
+};

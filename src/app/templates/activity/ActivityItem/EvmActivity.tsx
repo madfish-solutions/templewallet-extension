@@ -1,10 +1,6 @@
 import React, { memo, useMemo } from 'react';
 
-import clsx from 'clsx';
-
-import { IconBase } from 'app/atoms';
 import { PageModal } from 'app/atoms/PageModal';
-import { ReactComponent as CompactDownIcon } from 'app/icons/base/compact_down.svg';
 import { EvmActivity } from 'lib/activity';
 import { EvmActivityAsset } from 'lib/activity/types';
 import { isTransferActivityOperKind } from 'lib/activity/utils';
@@ -15,6 +11,7 @@ import { ZERO } from 'lib/utils/numbers';
 import { EvmChain } from 'temple/front/chains';
 
 import { ActivityItemBaseAssetProp, ActivityOperationBaseComponent } from './ActivityOperationBase';
+import { BundleModalContent } from './BundleModal';
 import { EvmActivityOperationComponent } from './EvmActivityOperation';
 import { InteractionsConnector } from './InteractionsConnector';
 
@@ -119,7 +116,7 @@ const EvmActivityBatchComponent = memo<BatchProps>(({ activity, chainId, assetSl
   }, [getMetadata, operations, faceSlug]);
 
   return (
-    <div className="flex flex-col">
+    <>
       <ActivityOperationBaseComponent
         kind="bundle"
         hash={hash}
@@ -127,33 +124,27 @@ const EvmActivityBatchComponent = memo<BatchProps>(({ activity, chainId, assetSl
         asset={batchAsset}
         blockExplorerUrl={blockExplorerUrl}
         withoutAssetIcon={Boolean(assetSlug)}
+        onClick={toggleExpanded}
       />
 
-      <button
-        className="ml-2 mt-1 mb-2 flex px-1 py-0.5 text-font-description-bold text-grey-1" // TODO: DRY
-        onClick={toggleExpanded}
-      >
-        <span>{(expanded ? 'Hide all' : 'Show all') + ` (${operations.length})`}</span>
-
-        <IconBase Icon={CompactDownIcon} size={12} className={clsx('text-grey-2', expanded && 'rotate-180')} />
-      </button>
-
       <PageModal title="Bundle" opened={expanded} onRequestClose={toggleExpanded}>
-        <div className="flex-grow flex flex-col overflow-y-auto p-4 pb-15">
-          {operations.map((operation, j) => (
-            <React.Fragment key={`${hash}-${j}`}>
-              {j > 0 && <InteractionsConnector />}
+        {() => (
+          <BundleModalContent blockExplorerUrl={blockExplorerUrl}>
+            {operations.map((operation, j) => (
+              <React.Fragment key={`${hash}-${j}`}>
+                {j > 0 && <InteractionsConnector />}
 
-              <EvmActivityOperationComponent
-                hash={hash}
-                operation={operation}
-                chainId={chainId}
-                blockExplorerUrl={blockExplorerUrl}
-              />
-            </React.Fragment>
-          ))}
-        </div>
+                <EvmActivityOperationComponent
+                  hash={hash}
+                  operation={operation}
+                  chainId={chainId}
+                  blockExplorerUrl={blockExplorerUrl}
+                />
+              </React.Fragment>
+            ))}
+          </BundleModalContent>
+        )}
       </PageModal>
-    </div>
+    </>
   );
 });
