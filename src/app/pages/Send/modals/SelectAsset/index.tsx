@@ -9,14 +9,12 @@ import { EmptyState } from 'app/atoms/EmptyState';
 import { Size } from 'app/atoms/IconBase';
 import { EvmNetworkLogo, TezosNetworkLogo } from 'app/atoms/NetworkLogo';
 import { PageModal } from 'app/atoms/PageModal';
-import { StyledButton } from 'app/atoms/StyledButton';
 import { ReactComponent as Browse } from 'app/icons/base/browse.svg';
 import { ReactComponent as CompactDown } from 'app/icons/base/compact_down.svg';
 import { SpinnerSection } from 'app/pages/Send/form/SpinnerSection';
 import { useAssetsFilterOptionsSelector } from 'app/store/assets-filter-options/selectors';
 import { FilterChain } from 'app/store/assets-filter-options/state';
 import { SearchBarField } from 'app/templates/SearchField';
-import { T } from 'lib/i18n';
 import Popper, { PopperRenderProps } from 'lib/ui/Popper';
 import { useScrollIntoViewOnMount } from 'lib/ui/use-scroll-into-view';
 import {
@@ -52,6 +50,10 @@ export const SelectAssetModal = memo<SelectTokenModalProps>(({ onAssetSelect, op
 
   const accountTezAddress = useAccountAddressForTezos();
   const accountEvmAddress = useAccountAddressForEvm();
+
+  useEffect(() => {
+    if (!opened) setSearchValue('');
+  }, [opened]);
 
   const handleAssetSelect = useCallback(
     (e: MouseEvent, chainSlug: string) => {
@@ -133,14 +135,8 @@ export const SelectAssetModal = memo<SelectTokenModalProps>(({ onAssetSelect, op
         />
       </div>
 
-      <div className="px-4 flex-1 flex flex-col overflow-y-auto">
+      <div className="px-4 pb-4 flex-1 flex flex-col overflow-y-auto">
         <Suspense fallback={<SpinnerSection />}>{AssetsList}</Suspense>
-      </div>
-
-      <div className="p-4 pb-6 flex flex-col bg-white">
-        <StyledButton size="L" color="primary-low" onClick={onRequestClose}>
-          <T id="cancel" />
-        </StyledButton>
       </div>
     </PageModal>
   );

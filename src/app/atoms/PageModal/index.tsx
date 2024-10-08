@@ -18,7 +18,8 @@ interface Props extends TestIDProps {
   title: string;
   opened: boolean;
   shouldShowBackButton?: boolean;
-  onRequestClose: EmptyFn;
+  shouldShowCloseButton?: boolean;
+  onRequestClose?: EmptyFn;
   onGoBack?: EmptyFn;
   animated?: boolean;
 }
@@ -26,7 +27,17 @@ interface Props extends TestIDProps {
 export const CLOSE_ANIMATION_TIMEOUT = 300;
 
 export const PageModal = memo<PropsWithChildren<Props>>(
-  ({ title, opened, shouldShowBackButton, onRequestClose, onGoBack, children, testID, animated = true }) => {
+  ({
+    title,
+    opened,
+    shouldShowBackButton,
+    shouldShowCloseButton = true,
+    onRequestClose,
+    onGoBack,
+    children,
+    testID,
+    animated = true
+  }) => {
     const { fullPage } = useAppEnv();
 
     return (
@@ -65,7 +76,9 @@ export const PageModal = memo<PropsWithChildren<Props>>(
           <div className="flex-1 text-center text-font-regular-bold">{title}</div>
 
           <div className="w-12 flex justify-end">
-            <IconBase Icon={ExIcon} size={16} className="text-grey-2 cursor-pointer" onClick={onRequestClose} />
+            {shouldShowCloseButton && (
+              <IconBase Icon={ExIcon} size={16} className="text-grey-2 cursor-pointer" onClick={onRequestClose} />
+            )}
           </div>
         </div>
 

@@ -71,6 +71,10 @@ export const NetworkSelectModal = memo<Props>(({ opened, selectedNetwork, onRequ
     else if (!opened) setAttractSelectedNetwork(true);
   }, [opened, searchValueDebounced]);
 
+  useEffect(() => {
+    if (!opened) setSearchValue('');
+  }, [opened]);
+
   const handleNetworkSelect = useCallback(
     (network: Network) => {
       dispatch(setAssetsFilterChain(typeof network === 'string' ? null : network));
@@ -87,7 +91,7 @@ export const NetworkSelectModal = memo<Props>(({ opened, selectedNetwork, onRequ
         <IconButton Icon={PlusIcon} color="blue" onClick={() => navigate('settings/networks')} />
       </div>
 
-      <div className="px-4 flex-1 flex flex-col overflow-y-auto">
+      <div className="px-4 pb-1 flex-1 flex flex-col overflow-y-auto">
         {filteredNetworks.length === 0 && <EmptyState variant="searchUniversal" />}
 
         {filteredNetworks.map(network => (

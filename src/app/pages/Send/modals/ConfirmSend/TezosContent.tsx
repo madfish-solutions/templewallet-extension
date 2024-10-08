@@ -152,7 +152,7 @@ export const TezosContent: FC<TezosContentProps> = ({ data, onClose }) => {
         // @ts-expect-error
         const txHash = operation.hash || operation.opHash;
 
-        setTimeout(() => toastSuccess('Transaction Submitted. Hash: ', true, txHash), CLOSE_ANIMATION_TIMEOUT * 2);
+        setTimeout(() => toastSuccess('Transaction Submitted', true, txHash), CLOSE_ANIMATION_TIMEOUT * 2);
       } catch (err: any) {
         console.log(err);
 

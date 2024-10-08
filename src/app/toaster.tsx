@@ -3,15 +3,15 @@ import React, { memo, useEffect, useMemo, useRef } from 'react';
 import clsx from 'clsx';
 import toast, { Toaster, Toast, ToastIcon, ToastType } from 'react-hot-toast';
 
+import HashShortView from 'app/atoms/HashShortView';
 import { useAppEnv } from 'app/env';
+import { ReactComponent as CopyIcon } from 'app/icons/base/copy.svg';
 import { ReactComponent as ErrorIcon } from 'app/icons/typed-msg/error.svg';
 import { ReactComponent as InfoIcon } from 'app/icons/typed-msg/info.svg';
 import { ReactComponent as SuccessIcon } from 'app/icons/typed-msg/success.svg';
 import { ReactComponent as WarningIcon } from 'app/icons/typed-msg/warning.svg';
 import { useToastsContainerBottomShiftSelector } from 'app/store/settings/selectors';
 import PortalToDocumentBody from 'lib/ui/Portal';
-
-import HashShortView from './atoms/HashShortView';
 
 const MAX_TOASTS_COUNT = 3;
 const toastsIdsPool: string[] = [];
@@ -92,7 +92,7 @@ const CustomToastBar = memo<CustomToastBarProps>(({ toast, customType, textBold 
   }, [toast.id, toast.visible]);
 
   return (
-    <div className={clsx('px-3 py-2.5 flex gap-x-1 rounded-md shadow-bottom max-w-82', TOAST_CLASSES[type])}>
+    <div className={clsx('px-3 py-2.5 flex gap-x-1 rounded-md shadow-bottom max-w-88', TOAST_CLASSES[type])}>
       <CustomToastIcon toast={toast} type={type} />
 
       {typeof toast.message === 'function' ? (
@@ -109,8 +109,10 @@ const CustomToastBar = memo<CustomToastBarProps>(({ toast, customType, textBold 
             navigator.clipboard.writeText(txHash);
             toastSuccess('Copied');
           }}
+          className="flex flex-row items-center text-font-num-bold-12 text-secondary ml-12"
         >
           <HashShortView hash={txHash} />
+          <CopyIcon className="h-4 stroke-current fill-current" />
         </button>
       )}
     </div>

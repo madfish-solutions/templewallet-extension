@@ -8,7 +8,6 @@ import { AccountAvatar } from 'app/atoms/AccountAvatar';
 import { EmptyState } from 'app/atoms/EmptyState';
 import { PageModal } from 'app/atoms/PageModal';
 import { RadioButton } from 'app/atoms/RadioButton';
-import { StyledButton } from 'app/atoms/StyledButton';
 import { ReactComponent as CopyIcon } from 'app/icons/base/copy.svg';
 import { SpinnerSection } from 'app/pages/Send/form/SpinnerSection';
 import { SearchBarField } from 'app/templates/SearchField';
@@ -82,6 +81,10 @@ export const SelectAccountModal = memo<Props>(
       else if (!opened) setAttractSelectedAccount(true);
     }, [opened, searchValue]);
 
+    useEffect(() => {
+      if (!opened) setSearchValue('');
+    }, [opened]);
+
     return (
       <PageModal title="Select Account" opened={opened} onRequestClose={onRequestClose}>
         <div className="flex flex-col px-4 pt-4 pb-3">
@@ -116,12 +119,6 @@ export const SelectAccountModal = memo<Props>(
               <EmptyState variant="universal" />
             )}
           </Suspense>
-        </div>
-
-        <div className="p-4 pb-6 flex flex-col bg-white">
-          <StyledButton size="L" color="primary-low" onClick={onRequestClose}>
-            <T id="cancel" />
-          </StyledButton>
         </div>
       </PageModal>
     );
