@@ -18,7 +18,6 @@ import {
   MultichainActivityList,
   FilterKind
 } from 'app/templates/activity';
-import { NetworkSelectModalContent } from 'app/templates/NetworkSelectModal';
 import { T } from 'lib/i18n';
 import { useBooleanState } from 'lib/ui/hooks';
 import Popper from 'lib/ui/Popper';
@@ -82,7 +81,9 @@ export const ActivityPage = memo(() => {
           )}
         </ActivityListContainer>
       ) : (
-        <MultichainActivityList filterKind={filterKind} />
+        <ActivityListContainer>
+          <MultichainActivityList filterKind={filterKind} />
+        </ActivityListContainer>
       )}
     </PageLayout>
   );

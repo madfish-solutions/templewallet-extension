@@ -30,7 +30,6 @@
 - - Design
 - Grouping by date
 - `const HIDE_INTERACTIONS = true;`
-- Ad on Multichain
 - `<WithTooltip />`
 - Covalent SDK
 -

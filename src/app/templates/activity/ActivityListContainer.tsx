@@ -9,7 +9,7 @@ import { t } from 'lib/i18n/react';
 import { ReactivateAdsBanner } from './ReactivateAdsBanner';
 
 interface Props extends PropsWithChildren {
-  chainId: string | number;
+  chainId?: string | number;
   assetSlug?: string;
 }
 
@@ -20,7 +20,7 @@ export const ActivityListContainer: FC<Props> = ({ children, chainId, assetSlug 
     if (shouldShowPartnersPromo)
       return (
         <PartnersPromotion
-          id={`promo-activity-${chainId}-${assetSlug ?? 'all'}`}
+          id={['promo-activity', chainId ?? 'multi', assetSlug ?? 'all'].join('-')}
           variant={PartnersPromotionVariant.Image}
           pageName="Activity"
           withPersonaProvider
