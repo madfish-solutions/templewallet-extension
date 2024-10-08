@@ -1,3 +1,4 @@
+import { useDebounce } from 'use-debounce';
 import { formatEther } from 'viem';
 
 import { useMemoWithCompare } from 'lib/ui/hooks';
@@ -5,11 +6,15 @@ import { getGasPriceStep } from 'temple/evm/utils';
 
 import { DisplayedFeeOptions, EvmEstimationData, EvmFeeOptions } from '../interfaces';
 
-export const useEvmFeeOptions = (estimationData?: EvmEstimationData): EvmFeeOptions | null =>
-  useMemoWithCompare(() => {
+export const useEvmFeeOptions = (customGasLimit: string, estimationData?: EvmEstimationData): EvmFeeOptions | null => {
+  const [debouncedCustomGasLimit] = useDebounce(customGasLimit, 500);
+
+  return useMemoWithCompare(() => {
     if (!estimationData) return null;
 
-    const { maxFeePerGas, gas, maxPriorityFeePerGas } = estimationData;
+    const { maxFeePerGas, gas: estimatedGasLimit, maxPriorityFeePerGas } = estimationData;
+
+    const gas = debouncedCustomGasLimit ? BigInt(debouncedCustomGasLimit) : estimatedGasLimit;
 
     const maxFeeStep = getGasPriceStep(maxFeePerGas);
     const maxPriorityFeeStep = getGasPriceStep(maxPriorityFeePerGas);
@@ -30,4 +35,5 @@ export const useEvmFeeOptions = (estimationData?: EvmEstimationData): EvmFeeOpti
     };
 
     return { displayed, gasPrice };
-  }, [estimationData]);
+  }, [estimationData, debouncedCustomGasLimit]);
+};

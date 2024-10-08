@@ -31,6 +31,10 @@ export const EvmContent: FC<EvmContentProps> = ({ data, onClose }) => {
   const form = useForm<EvmTxParamsFormData>({ mode: 'onChange' });
   const { watch, formState, setValue } = form;
 
+  const gasPriceValue = watch('gasPrice');
+  const gasLimitValue = watch('gasLimit');
+  const nonceValue = watch('nonce');
+
   const [tab, setTab] = useState<Tab>('details');
   const [selectedFeeOption, setSelectedFeeOption] = useState<FeeOptionLabel | nullish>('mid');
   const [latestSubmitError, setLatestSubmitError] = useState<string | nullish>(null);
@@ -77,16 +81,12 @@ export const EvmContent: FC<EvmContentProps> = ({ data, onClose }) => {
     }
   );
 
-  const feeOptions = useEvmFeeOptions(estimationData);
+  const feeOptions = useEvmFeeOptions(gasLimitValue, estimationData);
   const { setData } = useEvmEstimationDataState();
 
   useEffect(() => {
     if (estimationData && feeOptions) setData({ ...estimationData, feeOptions });
   }, [estimationData, feeOptions, setData]);
-
-  const gasPriceValue = watch('gasPrice');
-  const gasLimitValue = watch('gasLimit');
-  const nonceValue = watch('nonce');
 
   useEffect(() => {
     if (gasPriceValue && selectedFeeOption) setSelectedFeeOption(null);
@@ -123,14 +123,16 @@ export const EvmContent: FC<EvmContentProps> = ({ data, onClose }) => {
   }, [rawTransaction, setValue]);
 
   const displayedFee = useMemo(() => {
-    if (gasPriceValue && estimationData) {
-      return formatEther(estimationData.gas * parseEther(gasPriceValue, 'gwei'));
-    }
-
     if (feeOptions && selectedFeeOption) return feeOptions.displayed[selectedFeeOption];
 
-    return;
-  }, [feeOptions, estimationData, gasPriceValue, selectedFeeOption]);
+    if (estimationData && gasPriceValue) {
+      const gas = gasLimitValue ? BigInt(gasLimitValue) : estimationData.gas;
+
+      return formatEther(gas * parseEther(gasPriceValue, 'gwei'));
+    }
+
+    return '0';
+  }, [feeOptions, selectedFeeOption, estimationData, gasLimitValue, gasPriceValue]);
 
   const handleFeeOptionSelect = useCallback(
     (label: FeeOptionLabel) => {
