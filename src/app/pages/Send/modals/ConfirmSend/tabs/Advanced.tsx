@@ -11,6 +11,7 @@ import { t, T } from 'lib/i18n';
 
 import { useEvmEstimationDataState } from '../context';
 import { EvmTxParamsFormData, TezosTxParamsFormData } from '../interfaces';
+import { validateNonZero } from '../utils';
 
 interface AdvancedTabProps {
   isEvm?: boolean;
@@ -21,8 +22,12 @@ export const AdvancedTab: FC<AdvancedTabProps> = ({ isEvm = false }) => {
 };
 
 const EvmContent = () => {
-  const { control, getValues } = useFormContext<EvmTxParamsFormData>();
+  const { control, getValues, formState } = useFormContext<EvmTxParamsFormData>();
+  const { errors } = formState;
   const { data } = useEvmEstimationDataState();
+
+  const gasLimitError = errors.gasLimit?.message;
+  const nonceError = errors.nonce?.message;
 
   return (
     <>
@@ -36,6 +41,7 @@ const EvmContent = () => {
       <Controller
         name="gasLimit"
         control={control}
+        rules={{ validate: v => validateNonZero(v, t('gasLimit')) }}
         render={({ field: { value, onChange, onBlur } }) => (
           <AssetField
             value={value || data?.gas.toString()}
@@ -44,11 +50,13 @@ const EvmContent = () => {
             onlyInteger
             onChange={v => onChange(v ?? '')}
             onBlur={onBlur}
+            errorCaption={gasLimitError}
+            containerClassName={gasLimitError ? 'mb-3' : 'mb-7'}
           />
         )}
       />
 
-      <div className="mt-3 mb-1 px-1 flex flex-row justify-between items-center">
+      <div className="mb-1 px-1 flex flex-row justify-between items-center">
         <p className="text-font-description-bold">
           <T id="nonce" />
         </p>
@@ -58,6 +66,7 @@ const EvmContent = () => {
       <Controller
         name="nonce"
         control={control}
+        rules={{ validate: v => validateNonZero(v, t('nonce')) }}
         render={({ field: { value, onChange, onBlur } }) => (
           <AssetField
             value={value || data?.nonce}
@@ -66,11 +75,13 @@ const EvmContent = () => {
             onlyInteger
             onChange={v => onChange(v ?? '')}
             onBlur={onBlur}
+            errorCaption={nonceError}
+            containerClassName={nonceError ? 'mb-3' : 'mb-7'}
           />
         )}
       />
 
-      <div className="mt-4 mb-1 flex flex-row justify-between items-center">
+      <div className="mb-1 flex flex-row justify-between items-center">
         <p className="p-1 text-font-description-bold">Data</p>
         <CopyButton
           text={data?.data ?? ''}
@@ -84,11 +95,19 @@ const EvmContent = () => {
         name="data"
         control={control}
         render={() => (
-          <NoSpaceField value={data?.data} textarea rows={5} readOnly placeholder="Info" style={{ resize: 'none' }} />
+          <NoSpaceField
+            value={data?.data}
+            textarea
+            rows={5}
+            readOnly
+            placeholder="Info"
+            style={{ resize: 'none' }}
+            containerClassName="mb-2"
+          />
         )}
       />
 
-      <div className="mt-4 mb-1 flex flex-row justify-between items-center">
+      <div className="mb-1 flex flex-row justify-between items-center">
         <p className="p-1 text-font-description-bold">Raw Transaction</p>
         <CopyButton
           text={getValues().rawTransaction}

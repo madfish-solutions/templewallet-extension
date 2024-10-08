@@ -135,6 +135,7 @@ export const BaseContent = <T extends TxParamsFormData>({
           size="L"
           className="w-full"
           loading={formState.isSubmitting}
+          disabled={!formState.isValid}
         >
           <T id="confirm" />
         </StyledButton>

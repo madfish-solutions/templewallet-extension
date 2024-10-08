@@ -3487,6 +3487,9 @@
   "allNetworks": {
     "message": "All Networks"
   },
+  "gasPrice": {
+    "message": "Gas Price"
+  },
   "gasLimit": {
     "message": "Gas Limit"
   },

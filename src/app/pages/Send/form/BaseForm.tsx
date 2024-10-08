@@ -246,7 +246,7 @@ export const BaseForm: FC<Props> = ({
                 label={t('amount')}
                 placeholder={`0.00 ${floatingAssetSymbol}`}
                 errorCaption={formSubmitted ? errors.amount?.message : null}
-                containerClassName="mb-8"
+                containerClassName="pb-8"
                 testID={SendFormSelectors.amountInput}
               />
             )}
@@ -275,7 +275,7 @@ export const BaseForm: FC<Props> = ({
                 placeholder="Address or Domain name"
                 errorCaption={!toFieldFocused && formSubmitted ? errors.to?.message : null}
                 style={{ resize: 'none' }}
-                containerClassName="mb-4"
+                containerClassName="pb-4"
                 testID={SendFormSelectors.recipientInput}
               />
             )}

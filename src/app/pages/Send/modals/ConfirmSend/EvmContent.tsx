@@ -28,7 +28,7 @@ export const EvmContent: FC<EvmContentProps> = ({ data, onClose }) => {
 
   const { sendEvmTransaction } = useTempleClient();
 
-  const form = useForm<EvmTxParamsFormData>();
+  const form = useForm<EvmTxParamsFormData>({ mode: 'onChange' });
   const { watch, formState, setValue } = form;
 
   const [selectedFeeOption, setSelectedFeeOption] = useState<FeeOptionLabel | nullish>('mid');

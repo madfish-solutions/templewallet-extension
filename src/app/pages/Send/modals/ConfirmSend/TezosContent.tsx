@@ -34,7 +34,7 @@ export const TezosContent: FC<TezosContentProps> = ({ data, onClose }) => {
 
   const accountPkh = account.address;
 
-  const form = useForm<TezosTxParamsFormData>();
+  const form = useForm<TezosTxParamsFormData>({ mode: 'onChange' });
   const { watch, formState, setValue } = form;
 
   const [selectedFeeOption, setSelectedFeeOption] = useState<FeeOptionLabel | null>('mid');
