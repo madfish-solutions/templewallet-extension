@@ -1,5 +1,3 @@
-import BigNumber from 'bignumber.js';
-
 export interface EvmTxParamsFormData {
   gasPrice: string;
   gasLimit: string;
@@ -45,8 +43,4 @@ export interface EvmFeeOptions {
     mid: EvmFeeOption;
     fast: EvmFeeOption;
   };
-}
-
-export interface TezosEstimationData {
-  gasFee: BigNumber;
 }
