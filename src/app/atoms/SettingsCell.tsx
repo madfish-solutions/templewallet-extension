@@ -11,6 +11,7 @@ interface SettingsCellPropsBase<P extends ComponentBase = ComponentBase> {
   isLast?: boolean;
   cellIcon?: ReactNode;
   cellName: ReactNode;
+  cellNameClassName?: string;
   Component: 'div' | FC<P>;
 }
 
@@ -28,6 +29,7 @@ export const SettingsCell = <P extends ComponentBase>({
   className,
   cellIcon,
   cellName,
+  cellNameClassName = 'text-font-medium-bold',
   isLast = true,
   children,
   Component,
@@ -41,7 +43,7 @@ export const SettingsCell = <P extends ComponentBase>({
       <div className="flex items-center gap-2">
         {cellIcon}
 
-        <span className="text-font-medium-bold">{cellName}</span>
+        <span className={cellNameClassName}>{cellName}</span>
       </div>
 
       {children}
