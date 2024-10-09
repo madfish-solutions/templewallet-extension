@@ -77,8 +77,7 @@ const AssetImageStacked: FC<AssetImageStackedProps> = ({
   loader,
   fallback,
   onStackLoaded,
-  onStackFailed,
-  ...rest
+  onStackFailed
 }) => {
   const styleMemo: React.CSSProperties = useMemo(
     () => ({
@@ -102,7 +101,6 @@ const AssetImageStacked: FC<AssetImageStackedProps> = ({
       width={size}
       onStackLoaded={onStackLoaded}
       onStackFailed={onStackFailed}
-      {...rest}
     />
   );
 };

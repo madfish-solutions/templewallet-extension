@@ -1,18 +1,23 @@
-import React, { HTMLAttributes, useMemo } from 'react';
+import React, { FC, HTMLAttributes, ImgHTMLAttributes, useMemo } from 'react';
 
 import clsx from 'clsx';
 
-import { IdenticonType, getIdenticonUri } from 'lib/temple/front';
-import { IdenticonOptions } from 'lib/temple/front/identicon';
+import {
+  IdenticonImgType,
+  ImageIdenticonOptions,
+  InitialsIdenticonOptions,
+  buildImageIdenticonUri,
+  buildInitialsIdenticonUri
+} from 'lib/identicon';
 
-type IdenticonProps<T extends IdenticonType> = HTMLAttributes<HTMLDivElement> & {
+interface IdenticonProps<T extends IdenticonImgType> extends HTMLAttributes<HTMLDivElement> {
   type: T;
   hash: string;
   size?: number;
-  options?: IdenticonOptions<T>;
-};
+  options?: ImageIdenticonOptions<T>;
+}
 
-export const Identicon = <T extends IdenticonType>({
+export const Identicon = <T extends IdenticonImgType>({
   type,
   hash,
   size = 100,
@@ -21,14 +26,13 @@ export const Identicon = <T extends IdenticonType>({
   options,
   ...rest
 }: IdenticonProps<T>) => {
-  const backgroundImage = useMemo(() => getIdenticonUri(hash, size, type, options), [hash, options, size, type]);
+  const backgroundImage = useMemo(() => buildImageIdenticonUri(hash, size, type, options), [hash, options, size, type]);
 
   return (
     <div
       className={clsx(
-        type === 'initials' ? 'bg-transparent' : 'bg-white',
-        'inline-block overflow-hidden',
-        'bg-no-repeat bg-center',
+        'bg-white overflow-hidden',
+        'inline-block bg-no-repeat bg-center', // (!) Why?
         className
       )}
       style={{ width: size, height: size, ...style }}
@@ -37,4 +41,15 @@ export const Identicon = <T extends IdenticonType>({
       <img src={backgroundImage} alt="" className="w-full h-full" />
     </div>
   );
+};
+
+interface IdenticonInitialsProps extends ImgHTMLAttributes<HTMLImageElement> {
+  value: string;
+  options?: InitialsIdenticonOptions;
+}
+
+export const IdenticonInitials: FC<IdenticonInitialsProps> = ({ value, options, ...props }) => {
+  const src = useMemo(() => buildInitialsIdenticonUri(value, options), [options, value]);
+
+  return <img src={src} {...props} />;
 };

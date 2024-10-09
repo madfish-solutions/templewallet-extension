@@ -2,29 +2,31 @@ import React, { memo } from 'react';
 
 import clsx from 'clsx';
 
-import { Identicon } from 'app/atoms';
+import { IdenticonInitials } from 'app/atoms/Identicon';
 import { EvmNetworkLogo, TezosNetworkLogo } from 'app/atoms/NetworkLogo';
 import { ReactComponent as CollectiblePlaceholderSvg } from 'app/icons/collectible-placeholder.svg';
-import { AssetMetadataBase } from 'lib/metadata';
-import { EvmAssetMetadataBase } from 'lib/metadata/types';
 import { getAssetSymbol, isEvmCollectibleMetadata, isTezosCollectibleMetadata } from 'lib/metadata/utils';
 import { useEvmChainByChainId, useTezosChainByChainId } from 'temple/front/chains';
 
 import { TezosAssetImage, TezosAssetImageProps, EvmAssetImage, EvmAssetImageProps } from './AssetImage';
 
-export const TezosAssetIcon = memo<TezosAssetImageProps>(({ className, style, ...props }) => (
+export const TezosAssetIcon = memo<TezosAssetImageProps>(props => (
+  <TezosAssetImage Loader={TezosAssetIconPlaceholder} Fallback={TezosAssetIconPlaceholder} {...props} />
+));
+
+export const TezosTokenIcon = memo<TezosAssetImageProps>(({ className, style, ...props }) => (
   <div className={clsx('flex items-center justify-center rounded-full overflow-hidden', className)} style={style}>
-    <TezosAssetImage Loader={TezosAssetIconPlaceholder} Fallback={TezosAssetIconPlaceholder} {...props} />
+    <TezosAssetImage {...props} />
   </div>
 ));
 
-const TezosAssetIconPlaceholder: TezosAssetImageProps['Fallback'] = memo(({ metadata, size }) => (
-  <AssetIconPlaceholder
-    isCollectible={metadata && isTezosCollectibleMetadata(metadata)}
-    metadata={metadata}
-    size={size}
-  />
-));
+const TezosAssetIconPlaceholder: TezosAssetImageProps['Fallback'] = memo(({ metadata, className, style }) =>
+  metadata && isTezosCollectibleMetadata(metadata) ? (
+    <CollectiblePlaceholderSvg className={className} style={style} />
+  ) : (
+    <IdenticonInitials value={getAssetSymbol(metadata)} className={className} style={style} />
+  )
+);
 
 const ICON_DEFAULT_SIZE = 40;
 const ASSET_IMAGE_DEFAULT_SIZE = 30;
@@ -38,7 +40,7 @@ export const TezosTokenIconWithNetwork = memo<TezosAssetImageProps>(({ tezosChai
       className={clsx('flex items-center justify-center relative', className)}
       style={{ width: ICON_DEFAULT_SIZE, height: ICON_DEFAULT_SIZE, ...style }}
     >
-      <TezosAssetIcon tezosChainId={tezosChainId} size={ASSET_IMAGE_DEFAULT_SIZE} {...props} />
+      <TezosTokenIcon tezosChainId={tezosChainId} size={ASSET_IMAGE_DEFAULT_SIZE} {...props} />
 
       {network && (
         <TezosNetworkLogo
@@ -52,19 +54,23 @@ export const TezosTokenIconWithNetwork = memo<TezosAssetImageProps>(({ tezosChai
   );
 });
 
-export const EvmAssetIcon = memo<EvmAssetImageProps>(({ className, style, ...props }) => (
+export const EvmAssetIcon = memo<EvmAssetImageProps>(props => (
+  <EvmAssetImage Loader={EvmAssetIconPlaceholder} Fallback={EvmAssetIconPlaceholder} {...props} />
+));
+
+export const EvmTokenIcon = memo<EvmAssetImageProps>(({ className, style, ...props }) => (
   <div className={clsx('flex items-center justify-center rounded-full overflow-hidden', className)} style={style}>
-    <EvmAssetImage Loader={EvmAssetIconPlaceholder} Fallback={EvmAssetIconPlaceholder} {...props} />
+    <EvmAssetIcon {...props} />
   </div>
 ));
 
-const EvmAssetIconPlaceholder: EvmAssetImageProps['Fallback'] = memo(({ metadata, size }) => (
-  <AssetIconPlaceholder
-    isCollectible={metadata && isEvmCollectibleMetadata(metadata)}
-    metadata={metadata}
-    size={size}
-  />
-));
+const EvmAssetIconPlaceholder: EvmAssetImageProps['Fallback'] = memo(({ metadata, className, style }) =>
+  metadata && isEvmCollectibleMetadata(metadata) ? (
+    <CollectiblePlaceholderSvg className={className} style={style} />
+  ) : (
+    <IdenticonInitials value={getAssetSymbol(metadata)} className={className} style={style} />
+  )
+);
 
 export const EvmTokenIconWithNetwork = memo<EvmAssetImageProps>(({ evmChainId, className, style, ...props }) => {
   const network = useEvmChainByChainId(evmChainId);
@@ -74,7 +80,7 @@ export const EvmTokenIconWithNetwork = memo<EvmAssetImageProps>(({ evmChainId, c
       className={clsx('flex items-center justify-center relative', className)}
       style={{ width: ICON_DEFAULT_SIZE, height: ICON_DEFAULT_SIZE, ...style }}
     >
-      <EvmAssetIcon evmChainId={evmChainId} size={ASSET_IMAGE_DEFAULT_SIZE} {...props} />
+      <EvmTokenIcon evmChainId={evmChainId} size={ASSET_IMAGE_DEFAULT_SIZE} {...props} className="rounded-full" />
 
       {network && (
         <EvmNetworkLogo
@@ -87,15 +93,3 @@ export const EvmTokenIconWithNetwork = memo<EvmAssetImageProps>(({ evmChainId, c
     </div>
   );
 });
-
-const AssetIconPlaceholder = memo<{
-  isCollectible?: boolean;
-  metadata: AssetMetadataBase | EvmAssetMetadataBase | nullish;
-  size?: number;
-}>(({ isCollectible, metadata, size }) =>
-  isCollectible ? (
-    <CollectiblePlaceholderSvg style={{ maxWidth: `${size}px`, width: '100%', height: '100%' }} />
-  ) : (
-    <Identicon type="initials" hash={getAssetSymbol(metadata)} size={size} className="rounded-full" />
-  )
-);

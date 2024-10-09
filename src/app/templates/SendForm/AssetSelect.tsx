@@ -4,7 +4,7 @@ import classNames from 'clsx';
 import { useDebounce } from 'use-debounce';
 
 import Money from 'app/atoms/Money';
-import { TezosAssetIcon } from 'app/templates/AssetIcon';
+import { TezosTokenIcon } from 'app/templates/AssetIcon';
 import { TezosBalance } from 'app/templates/Balance';
 import InFiat from 'app/templates/InFiat';
 import { setTestID, setAnotherSelector, TestIDProperty } from 'lib/analytics';
@@ -113,7 +113,7 @@ const AssetFieldContent = memo<AssetFieldContentProps>(({ network, slug, publicK
 
   return (
     <div className="flex items-center" {...setTestID(testID)} {...setAnotherSelector('slug', slug)}>
-      <TezosAssetIcon tezosChainId={network.chainId} assetSlug={slug} className="mr-3" size={48} />
+      <TezosTokenIcon tezosChainId={network.chainId} assetSlug={slug} className="mr-3" size={48} />
 
       <TezosBalance network={network} assetSlug={slug} address={publicKeyHash}>
         {balance => (
@@ -154,7 +154,7 @@ const AssetOptionContent = memo<AssetOptionContentProps>(({ network, accountPkh,
     {...setTestID(SendFormSelectors.assetDropDownItem)}
     {...setAnotherSelector('slug', slug)}
   >
-    <TezosAssetIcon tezosChainId={network.chainId} assetSlug={slug} className="mx-2" size={32} />
+    <TezosTokenIcon tezosChainId={network.chainId} assetSlug={slug} className="mx-2" size={32} />
 
     <AssetItemContent network={network} slug={slug} publicKeyHash={accountPkh} />
   </div>

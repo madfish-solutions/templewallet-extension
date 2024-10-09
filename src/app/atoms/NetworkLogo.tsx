@@ -14,7 +14,7 @@ import useTippy, { UseTippyOptions } from 'lib/ui/useTippy';
 import { useTezosChainByChainId } from 'temple/front';
 import { useEvmChainByChainId } from 'temple/front/chains';
 
-import { Identicon } from './Identicon';
+import { IdenticonInitials } from './Identicon';
 import { TezNetworkLogo } from './NetworksLogos';
 
 const logosRecord: Record<number, string> = {
@@ -95,9 +95,6 @@ export const EvmNetworkLogo = memo<EvmNetworkLogoProps>(
     );
   }
 );
-
-const IDENTICON_OPTS = { chars: 1 };
-
 interface NetworkLogoFallbackProps {
   networkName?: string;
   size?: number;
@@ -109,15 +106,7 @@ const NetworkLogoFallback = memo<NetworkLogoFallbackProps>(({ networkName, size 
     style={{ width: size, height: size }}
     className={clsx('p-px border border-grey-4 bg-white rounded-full overflow-hidden', className)}
   >
-    <div className="w-full h-full flex justify-center items-center rounded-full overflow-hidden">
-      <Identicon
-        type="initials"
-        hash={networkName ?? '?'}
-        size={size * 2}
-        options={IDENTICON_OPTS}
-        className="shrink-0"
-      />
-    </div>
+    <IdenticonInitials value={networkName?.at(0) ?? '?'} className="w-full h-full rounded-full" />
   </div>
 ));
 

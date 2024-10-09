@@ -5,44 +5,47 @@ import memoizee from 'memoizee';
 
 import * as firstLetters from 'lib/first-letters';
 
-export type IdenticonType = 'jdenticon' | 'botttsneutral' | 'initials';
+export type IdenticonImgType = 'jdenticon' | 'botttsneutral';
 
-export type IdenticonOptions<T extends IdenticonType> = T extends 'jdenticon'
+export type ImageIdenticonOptions<T extends IdenticonImgType> = T extends 'jdenticon'
   ? Omit<Options, 'size' | 'seed'>
-  : T extends 'botttsneutral'
-  ? Omit<botttsNeutral.Options & Options, 'size' | 'seed'>
-  : Omit<firstLetters.Options & Options, 'size' | 'seed'>;
+  : Omit<botttsNeutral.Options & Options, 'size' | 'seed'>;
 
-const MAX_INITIALS_LENGTH = 5;
-const DEFAULT_FONT_SIZE = 50;
-
-function internalGetIdenticonUri<T extends IdenticonType>(
-  hash: string,
-  size: number,
-  type: T,
-  options?: IdenticonOptions<T>
-) {
-  switch (type) {
-    case 'jdenticon':
-      // TODO: implement options interpretation for jdenticon
-      return `data:image/svg+xml,${encodeURIComponent(jdenticon.toSvg(hash, size))}`;
-    case 'botttsneutral':
-      return createAvatar(botttsNeutral, { seed: hash, size, ...options }).toDataUriSync();
-    default:
-      return createAvatar(firstLetters, {
-        seed: hash,
-        size,
-        fontFamily: ['Menlo', 'Monaco', 'monospace'],
-        fontSize: estimateOptimalFontSize(hash.length),
-        ...options
-      }).toDataUriSync();
-  }
-}
-
-export const getIdenticonUri = memoizee(internalGetIdenticonUri, {
+export const buildImageIdenticonUri = memoizee(buildImageIdenticonUriLocal, {
   max: 1024,
   normalizer: ([hash, size, type, options]) => JSON.stringify([hash, size, type, options])
 });
+
+function buildImageIdenticonUriLocal<T extends IdenticonImgType>(
+  hash: string,
+  size: number,
+  type: T,
+  options?: ImageIdenticonOptions<T>
+) {
+  if (type === 'botttsneutral') return createAvatar(botttsNeutral, { seed: hash, size, ...options }).toDataUriSync();
+
+  // TODO: implement options interpretation for jdenticon
+  return `data:image/svg+xml,${encodeURIComponent(jdenticon.toSvg(hash, size))}`;
+}
+
+export type InitialsIdenticonOptions = Omit<firstLetters.Options & Options, 'seed'>;
+
+export const buildInitialsIdenticonUri = memoizee(
+  (seed: string, options?: InitialsIdenticonOptions) =>
+    createAvatar(firstLetters, {
+      ...options,
+      seed,
+      fontFamily: ['Menlo', 'Monaco', 'monospace'],
+      fontSize: estimateOptimalFontSize(seed.length) // (!) Doesn't account for options.chars
+    }).toDataUriSync(),
+  {
+    max: 1024,
+    normalizer: ([seed, options]) => JSON.stringify([seed, options])
+  }
+);
+
+const MAX_INITIALS_LENGTH = 5;
+const DEFAULT_FONT_SIZE = 50;
 
 /**
  * Dicebear renders letters in a viewbox of 100x100 with a font size that is returned by this function. Let's ensure

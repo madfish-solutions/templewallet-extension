@@ -2,7 +2,7 @@ import React, { FC } from 'react';
 
 import classNames from 'clsx';
 
-import { TezosAssetIcon } from 'app/templates/AssetIcon';
+import { TezosTokenIcon } from 'app/templates/AssetIcon';
 import { AssetItemContent } from 'app/templates/AssetItemContent';
 import { setAnotherSelector, setTestID } from 'lib/analytics';
 import { useTezosAssetMetadata } from 'lib/metadata';
@@ -32,7 +32,7 @@ export const AssetOption: FC<Props> = ({ network, assetSlug, selected, accountPk
       {...setTestID(AssetsMenuSelectors.assetsMenuAssetItem)}
       {...setAnotherSelector('slug', assetSlug)}
     >
-      <TezosAssetIcon tezosChainId={network.chainId} assetSlug={assetSlug} size={32} className="mx-2" />
+      <TezosTokenIcon tezosChainId={network.chainId} assetSlug={assetSlug} size={32} className="mx-2" />
 
       <AssetItemContent network={network} slug={assetSlug} metadata={assetMetadata} publicKeyHash={accountPkh} />
     </div>

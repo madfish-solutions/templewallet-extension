@@ -1,4 +1,4 @@
-import React, { FC, memo, MouseEventHandler, ReactNode, useCallback, useMemo } from 'react';
+import React, { memo, MouseEventHandler, ReactNode, useCallback, useMemo } from 'react';
 
 import clsx from 'clsx';
 
@@ -36,6 +36,7 @@ export interface ActivityItemBaseAssetProp {
   decimals: number;
   symbol?: string;
   iconURL?: string;
+  nft?: boolean;
 }
 
 export const ActivityOperationBaseComponent = memo<Props>(
@@ -121,13 +122,30 @@ export const ActivityOperationBaseComponent = memo<Props>(
       [onClick]
     );
 
-    const IconFallback = useCallback<FC>(
-      () => (
-        <div className="w-full h-full flex items-center justify-center rounded-full bg-grey-4">
-          <IconBase Icon={ActivityKindIconSvg[kind]} size={16} className="text-grey-1" />
-        </div>
-      ),
-      [kind]
+    const isNFT = Boolean(asset?.nft);
+
+    const faceIconJsx = useMemo(
+      () =>
+        withoutAssetIcon || !assetSlug ? (
+          <div className="w-full h-full flex items-center justify-center bg-grey-4">
+            <IconBase Icon={ActivityKindIconSvg[kind]} className="text-grey-1" />
+          </div>
+        ) : typeof chainId === 'number' ? (
+          <EvmAssetIcon
+            evmChainId={chainId}
+            assetSlug={assetSlug}
+            className="w-full h-full"
+            extraSrc={asset?.iconURL}
+          />
+        ) : (
+          <TezosAssetIcon
+            tezosChainId={chainId}
+            assetSlug={assetSlug}
+            className="w-full h-full"
+            extraSrc={asset?.iconURL}
+          />
+        ),
+      [chainId, withoutAssetIcon, kind, asset?.iconURL, assetSlug]
     );
 
     return (
@@ -135,28 +153,14 @@ export const ActivityOperationBaseComponent = memo<Props>(
         className={clsx('z-1 group flex gap-x-2 p-2 rounded-lg hover:bg-secondary-low', onClick && 'cursor-pointer')}
         onClick={handleClick}
       >
-        <div className="relative shrink-0 self-center flex items-center justify-center w-10 h-10 overflow-hidden">
-          {withoutAssetIcon || !assetSlug ? (
-            <IconFallback />
-          ) : typeof chainId === 'number' ? (
-            <EvmAssetIcon
-              evmChainId={chainId}
-              assetSlug={assetSlug}
-              className="w-9 h-9"
-              extraSrc={asset?.iconURL}
-              Fallback={IconFallback}
-            />
+        <div className="relative shrink-0 self-center flex items-center justify-center flex items-start w-10 h-10 overflow-hidden">
+          {kind === 'bundle' ? (
+            <BundleIconsStack isNFT={isNFT}>{faceIconJsx}</BundleIconsStack>
           ) : (
-            <TezosAssetIcon
-              tezosChainId={chainId}
-              assetSlug={assetSlug}
-              className="w-9 h-9"
-              extraSrc={asset?.iconURL}
-              Fallback={IconFallback}
-            />
+            <div className={clsx('w-9 h-9 overflow-hidden', isNFT ? 'rounded-lg' : 'rounded-full')}>{faceIconJsx}</div>
           )}
 
-          {typeof chainId === 'number' ? (
+          {withoutAssetIcon ? null : typeof chainId === 'number' ? (
             <EvmNetworkLogo chainId={chainId} size={16} className="absolute bottom-0 right-0" withTooltip />
           ) : (
             <TezosNetworkLogo chainId={chainId} size={16} className="absolute bottom-0 right-0" withTooltip />
@@ -188,6 +192,38 @@ export const ActivityOperationBaseComponent = memo<Props>(
     );
   }
 );
+
+const MEDALION_CLASS_NAME = 'border border-lines bg-white';
+
+const BundleIconsStack = memo<PropsWithChildren<{ isNFT?: boolean }>>(({ isNFT, children }) => {
+  return (
+    <>
+      <div
+        className={clsx(MEDALION_CLASS_NAME, 'w-6 h-6 absolute top-0 left-0')}
+        style={{ borderRadius: isNFT ? 6 : '100%' }}
+      />
+
+      <div
+        className={clsx(MEDALION_CLASS_NAME, 'w-7 h-7 absolute shadow-center')}
+        style={{ top: 3, left: 3, borderRadius: isNFT ? 7 : '100%' }}
+      />
+
+      <div
+        className={clsx(
+          MEDALION_CLASS_NAME,
+          'w-8 h-8 shadow-center',
+          'flex items-center justify-center',
+          'absolute bottom-0.5 right-0.5'
+        )}
+        style={{ borderRadius: isNFT ? 8 : '100%' }}
+      >
+        <div className="w-7 h-7 overflow-hidden" style={{ borderRadius: isNFT ? 7 : '100%' }}>
+          {children}
+        </div>
+      </div>
+    </>
+  );
+});
 
 const ActivityKindTitle: Record<FaceKind, string> = {
   bundle: 'Bundle',

@@ -2,7 +2,7 @@ import React, { memo, useMemo } from 'react';
 
 import { ActivityOperKindEnum, TezosOperation } from 'lib/activity';
 import { fromAssetSlug } from 'lib/assets';
-import { AssetMetadataBase, useTezosAssetMetadata } from 'lib/metadata';
+import { AssetMetadataBase, isTezosCollectibleMetadata, useTezosAssetMetadata } from 'lib/metadata';
 
 import { ActivityItemBaseAssetProp, ActivityOperationBaseComponent } from './ActivityOperationBase';
 
@@ -53,6 +53,7 @@ export function buildTezosOperationAsset(
     amountSigned,
     decimals,
     // nft: isTezosCollectibleMetadata(assetMetadata),
-    symbol: assetMetadata?.symbol
+    symbol: assetMetadata?.symbol,
+    nft: assetMetadata ? isTezosCollectibleMetadata(assetMetadata) : undefined
   };
 }

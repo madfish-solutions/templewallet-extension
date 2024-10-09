@@ -4,7 +4,7 @@ import { isDefined } from '@rnw-community/shared';
 import classNames from 'clsx';
 
 import { useAppEnv } from 'app/env';
-import { TezosAssetIcon } from 'app/templates/AssetIcon';
+import { TezosTokenIcon } from 'app/templates/AssetIcon';
 import { Route3Dex } from 'lib/apis/route3/fetch-route3-dexes';
 import { Route3Token } from 'lib/apis/route3/fetch-route3-tokens';
 import { toTokenSlug, TEZ_TOKEN_SLUG } from 'lib/assets';
@@ -50,11 +50,11 @@ export const HopItem: FC<Props> = ({ dex, aToken, bToken, className }) => {
 
       <div className={classNames('flex items-center', popup ? 'ml-1' : 'ml-2')}>
         <div ref={tokenAInfoDivRef}>
-          <TezosAssetIcon tezosChainId={TEZOS_MAINNET_CHAIN_ID} assetSlug={toAssetSlugLocal(aToken)} size={20} />
+          <TezosTokenIcon tezosChainId={TEZOS_MAINNET_CHAIN_ID} assetSlug={toAssetSlugLocal(aToken)} size={20} />
         </div>
 
         <div ref={tokenBInfoDivRef} style={{ marginLeft: -8 }}>
-          <TezosAssetIcon tezosChainId={TEZOS_MAINNET_CHAIN_ID} assetSlug={toAssetSlugLocal(bToken)} size={20} />
+          <TezosTokenIcon tezosChainId={TEZOS_MAINNET_CHAIN_ID} assetSlug={toAssetSlugLocal(bToken)} size={20} />
         </div>
       </div>
     </div>
