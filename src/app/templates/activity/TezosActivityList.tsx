@@ -11,6 +11,7 @@ import { isKnownChainId } from 'lib/apis/tzkt/api';
 import { useAccountAddressForTezos, useTezosChainByChainId } from 'temple/front';
 
 import { TezosActivityComponent } from './ActivityItem';
+import { ActivitiesDateGroup, useGroupingByDate } from './grouping-by-date';
 import { useActivitiesLoadingLogic } from './loading-logic';
 import { FilterKind, getActivityFilterKind } from './utils';
 
@@ -72,6 +73,20 @@ export const TezosActivityList = memo<Props>(({ tezosChainId, assetSlug, filterK
     [activities, filterKind]
   );
 
+  const groupedActivities = useGroupingByDate(displayActivities);
+
+  const contentJsx = useMemo(
+    () =>
+      groupedActivities.map(([dateStr, activities]) => (
+        <ActivitiesDateGroup key={dateStr} title={dateStr}>
+          {activities.map(activity => (
+            <TezosActivityComponent key={activity.hash} activity={activity} chain={network} assetSlug={assetSlug} />
+          ))}
+        </ActivitiesDateGroup>
+      )),
+    [groupedActivities, network, assetSlug]
+  );
+
   if (displayActivities.length === 0 && !isLoading && reachedTheEnd) {
     return <EmptyState />;
   }
@@ -84,9 +99,7 @@ export const TezosActivityList = memo<Props>(({ tezosChainId, assetSlug, filterK
       retryInitialLoad={loadNext}
       loadMore={loadNext}
     >
-      {displayActivities.map(activity => (
-        <TezosActivityComponent key={activity.hash} activity={activity} chain={network} assetSlug={assetSlug} />
-      ))}
+      {contentJsx}
     </InfiniteScroll>
   );
 });

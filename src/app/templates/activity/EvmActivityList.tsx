@@ -13,6 +13,7 @@ import { useAccountAddressForEvm } from 'temple/front';
 import { useEvmChainByChainId } from 'temple/front/chains';
 
 import { EvmActivityComponent } from './ActivityItem';
+import { ActivitiesDateGroup, useGroupingByDate } from './grouping-by-date';
 import { useActivitiesLoadingLogic } from './loading-logic';
 import { FilterKind, getActivityFilterKind } from './utils';
 
@@ -74,6 +75,20 @@ export const EvmActivityList: FC<Props> = ({ chainId, assetSlug, filterKind }) =
     [activities, filterKind]
   );
 
+  const groupedActivities = useGroupingByDate(displayActivities);
+
+  const contentJsx = useMemo(
+    () =>
+      groupedActivities.map(([dateStr, activities]) => (
+        <ActivitiesDateGroup key={dateStr} title={dateStr}>
+          {activities.map(activity => (
+            <EvmActivityComponent key={activity.hash} activity={activity} chain={network} assetSlug={assetSlug} />
+          ))}
+        </ActivitiesDateGroup>
+      )),
+    [groupedActivities, network, assetSlug]
+  );
+
   if (displayActivities.length === 0 && !isLoading && reachedTheEnd) {
     return <EmptyState />;
   }
@@ -86,9 +101,7 @@ export const EvmActivityList: FC<Props> = ({ chainId, assetSlug, filterKind }) =
       retryInitialLoad={loadNext}
       loadMore={loadNext}
     >
-      {displayActivities.map(activity => (
-        <EvmActivityComponent key={activity.hash} activity={activity} chain={network} assetSlug={assetSlug} />
-      ))}
+      {contentJsx}
     </InfiniteScroll>
   );
 };

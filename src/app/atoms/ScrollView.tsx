@@ -20,9 +20,7 @@ export const ScrollView: FC<Props> = ({ className, children }) => {
     () => event => {
       const node = event.currentTarget;
 
-      const scrollBottom = node.scrollHeight - node.clientHeight - node.scrollTop;
-
-      setContentHidingThrottled(node.scrollHeight > node.clientHeight && scrollBottom > 0);
+      setContentHidingThrottled(isContentHidingBelow(node));
     },
     []
   );
@@ -33,11 +31,7 @@ export const ScrollView: FC<Props> = ({ className, children }) => {
         throttle<ResizeObserverCallback>(() => {
           const node = ref.current;
 
-          if (!node) return;
-
-          const scrollBottom = node.scrollHeight - node.clientHeight - node.scrollTop;
-
-          setContentHidingThrottled(node.scrollHeight > node.clientHeight && scrollBottom > 0);
+          if (node) setContentHidingThrottled(isContentHidingBelow(node));
         }, 300)
       ),
     []
@@ -49,9 +43,7 @@ export const ScrollView: FC<Props> = ({ className, children }) => {
 
     resizeObserver.observe(node);
 
-    const scrollBottom = node.scrollHeight - node.clientHeight - node.scrollTop;
-
-    setContentHiding(node.scrollHeight > node.clientHeight && scrollBottom > 0);
+    setContentHiding(isContentHidingBelow(node));
   }, []);
 
   return (
@@ -64,3 +56,9 @@ export const ScrollView: FC<Props> = ({ className, children }) => {
     </div>
   );
 };
+
+function isContentHidingBelow(node: HTMLDivElement) {
+  const scrollBottom = node.scrollHeight - node.clientHeight - node.scrollTop;
+
+  return node.scrollHeight > node.clientHeight && scrollBottom > 0;
+}

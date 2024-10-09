@@ -52,7 +52,12 @@ export const ActivityOperationBaseComponent = memo<Props>(
       const symbolStr = symbol.length > 6 ? `${symbol.slice(0, 6)}...` : symbol;
 
       return (
-        <div className="flex text-font-num-14 overflow-hidden">
+        <div
+          className={clsx(
+            'flex text-font-num-14 overflow-hidden',
+            asset.amount && Number(asset.amount) > 0 && 'text-success'
+          )}
+        >
           {kind === ActivityOperKindEnum.approve ? null : asset.amount ? (
             <Money smallFractionFont={false} withSign>
               {atomsToTokens(asset.amount, asset.decimals)}
