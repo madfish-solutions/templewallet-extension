@@ -149,6 +149,7 @@ export const TezosCollectibleItem = memo<TezosCollectibleItemProps>(
                   areDetailsLoading={areDetailsLoading && details === undefined}
                   mime={details?.mime}
                   containerElemRef={wrapperElemRef}
+                  className="object-cover"
                 />
 
                 {network && (
@@ -206,6 +207,7 @@ export const TezosCollectibleItem = memo<TezosCollectibleItemProps>(
             areDetailsLoading={areDetailsLoading && details === undefined}
             mime={details?.mime}
             containerElemRef={wrapperElemRef}
+            className="object-contain"
           />
 
           {areDetailsShown && balance && (
@@ -327,7 +329,7 @@ export const EvmCollectibleItem = memo<EvmCollectibleItemProps>(
                 )}
                 style={manageImgStyle}
               >
-                {metadata && <EvmCollectibleItemImage metadata={metadata} />}
+                {metadata && <EvmCollectibleItemImage metadata={metadata} className="object-cover" />}
 
                 {network && (
                   <EvmNetworkLogo
@@ -374,7 +376,7 @@ export const EvmCollectibleItem = memo<EvmCollectibleItemProps>(
           )}
           style={ImgStyle}
         >
-          {metadata && <EvmCollectibleItemImage metadata={metadata} />}
+          {metadata && <EvmCollectibleItemImage metadata={metadata} className="object-contain" />}
 
           {showDetails && (
             <div className="absolute bottom-1.5 left-1.5 text-xxxs text-white leading-none p-1 bg-black bg-opacity-60 rounded">

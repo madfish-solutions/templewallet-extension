@@ -53,7 +53,7 @@ export const LbPoolPart: FC<Props> = ({ amount, isLbOutput, totalChains }) => {
           style={advancedLbPoolItemStyles}
         >
           <div ref={dexInfoDivRef}>
-            <TezosAssetImageStacked metadata={SIRS_TOKEN_METADATA} size={20} />
+            <TezosAssetImageStacked metadata={SIRS_TOKEN_METADATA} className="w-5 h-5" />
           </div>
         </div>
       </div>

@@ -11,10 +11,13 @@ import { EvmAssetMetadataBase } from 'lib/metadata/types';
 import { isEvmCollectibleMetadata } from 'lib/metadata/utils';
 import { ImageStacked, ImageStackedProps } from 'lib/ui/ImageStacked';
 
-export interface TezosAssetImageStackedProps extends Omit<AssetImageStackedProps, 'sources'> {
+interface AssetImageStackedPropsBase extends Omit<ImageStackedProps, 'pauseRender' | 'sources'> {
+  extraSrc?: string;
+}
+
+export interface TezosAssetImageStackedProps extends AssetImageStackedPropsBase {
   metadata?: AssetMetadataBase;
   fullViewCollectible?: boolean;
-  extraSrc?: string;
 }
 
 export const TezosAssetImageStacked: FC<TezosAssetImageStackedProps> = ({
@@ -34,13 +37,12 @@ export const TezosAssetImageStacked: FC<TezosAssetImageStackedProps> = ({
     return sources;
   }, [metadata, fullViewCollectible, extraSrc]);
 
-  return <AssetImageStacked sources={sources} alt={metadata?.name} {...rest} />;
+  return <ImageStacked sources={sources} alt={metadata?.name} {...rest} />;
 };
 
-export interface EvmAssetImageStackedProps extends Omit<AssetImageStackedProps, 'sources'> {
+export interface EvmAssetImageStackedProps extends AssetImageStackedPropsBase {
   metadata?: EvmAssetMetadataBase;
   evmChainId: number;
-  extraSrc?: string;
 }
 
 export const EvmAssetImageStacked: FC<EvmAssetImageStackedProps> = ({ evmChainId, metadata, extraSrc, ...rest }) => {
@@ -56,51 +58,5 @@ export const EvmAssetImageStacked: FC<EvmAssetImageStackedProps> = ({ evmChainId
     return sources;
   }, [evmChainId, metadata, extraSrc]);
 
-  return <AssetImageStacked sources={sources} alt={metadata?.name} {...rest} />;
-};
-
-interface AssetImageStackedProps
-  extends Pick<
-    ImageStackedProps,
-    'loader' | 'fallback' | 'className' | 'style' | 'onStackLoaded' | 'onStackFailed' | 'alt'
-  > {
-  sources: string[];
-  size?: number;
-}
-
-const AssetImageStacked: FC<AssetImageStackedProps> = ({
-  sources,
-  className,
-  size,
-  style,
-  alt,
-  loader,
-  fallback,
-  onStackLoaded,
-  onStackFailed
-}) => {
-  const styleMemo: React.CSSProperties = useMemo(
-    () => ({
-      objectFit: 'contain',
-      maxWidth: '100%',
-      maxHeight: '100%',
-      ...style
-    }),
-    [style]
-  );
-
-  return (
-    <ImageStacked
-      sources={sources}
-      loader={loader}
-      fallback={fallback}
-      alt={alt}
-      className={className}
-      style={styleMemo}
-      height={size}
-      width={size}
-      onStackLoaded={onStackLoaded}
-      onStackFailed={onStackFailed}
-    />
-  );
+  return <ImageStacked sources={sources} alt={metadata?.name} {...rest} />;
 };

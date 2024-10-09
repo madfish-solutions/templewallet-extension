@@ -11,7 +11,7 @@ import {
 } from './AssetImageStacked';
 
 export type { TezosAssetImageStackedProps, EvmAssetImageStackedProps };
-export { TezosAssetImageStacked };
+export { TezosAssetImageStacked, EvmAssetImageStacked };
 
 export interface TezosAssetImageProps
   extends Omit<TezosAssetImageStackedProps, 'sources' | 'metadata' | 'loader' | 'fallback'> {

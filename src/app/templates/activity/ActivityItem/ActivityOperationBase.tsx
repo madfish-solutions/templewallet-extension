@@ -6,6 +6,7 @@ import { Anchor, HashShortView, IconBase, Money } from 'app/atoms';
 import { EvmNetworkLogo, TezosNetworkLogo } from 'app/atoms/NetworkLogo';
 import { ReactComponent as DocumentsSvg } from 'app/icons/base/documents.svg';
 import { ReactComponent as IncomeSvg } from 'app/icons/base/income.svg';
+import { ReactComponent as OkSvg } from 'app/icons/base/ok.svg';
 import { ReactComponent as OutLinkIcon } from 'app/icons/base/outLink.svg';
 import { ReactComponent as SendSvg } from 'app/icons/base/send.svg';
 import { ReactComponent as SwapSvg } from 'app/icons/base/swap.svg';
@@ -134,14 +135,14 @@ export const ActivityOperationBaseComponent = memo<Props>(
           <EvmAssetIcon
             evmChainId={chainId}
             assetSlug={assetSlug}
-            className="w-full h-full"
+            className="w-full h-full object-cover"
             extraSrc={asset?.iconURL}
           />
         ) : (
           <TezosAssetIcon
             tezosChainId={chainId}
             assetSlug={assetSlug}
-            className="w-full h-full"
+            className="w-full h-full object-cover"
             extraSrc={asset?.iconURL}
           />
         ),
@@ -153,9 +154,11 @@ export const ActivityOperationBaseComponent = memo<Props>(
         className={clsx('z-1 group flex gap-x-2 p-2 rounded-lg hover:bg-secondary-low', onClick && 'cursor-pointer')}
         onClick={handleClick}
       >
-        <div className="relative shrink-0 self-center flex items-center justify-center flex items-start w-10 h-10 overflow-hidden">
+        <div className="relative shrink-0 self-center flex items-center justify-center flex items-start w-10 h-10">
           {kind === 'bundle' ? (
-            <BundleIconsStack isNFT={isNFT}>{faceIconJsx}</BundleIconsStack>
+            <BundleIconsStack withoutAssetIcon={withoutAssetIcon} isNFT={isNFT}>
+              {faceIconJsx}
+            </BundleIconsStack>
           ) : (
             <div className={clsx('w-9 h-9 overflow-hidden', isNFT ? 'rounded-lg' : 'rounded-full')}>{faceIconJsx}</div>
           )}
@@ -193,37 +196,40 @@ export const ActivityOperationBaseComponent = memo<Props>(
   }
 );
 
-const MEDALION_CLASS_NAME = 'border border-lines bg-white';
+const MEDALION_CLASS_NAME = 'absolute border border-lines';
 
-const BundleIconsStack = memo<PropsWithChildren<{ isNFT?: boolean }>>(({ isNFT, children }) => {
-  return (
-    <>
-      <div
-        className={clsx(MEDALION_CLASS_NAME, 'w-6 h-6 absolute top-0 left-0')}
-        style={{ borderRadius: isNFT ? 6 : '100%' }}
-      />
+const BundleIconsStack = memo<PropsWithChildren<{ withoutAssetIcon?: boolean; isNFT?: boolean }>>(
+  ({ withoutAssetIcon, isNFT, children }) => {
+    return (
+      <>
+        <div
+          className={clsx(MEDALION_CLASS_NAME, 'w-6 h-6 top-0 left-0', withoutAssetIcon ? 'bg-grey-4' : 'bg-white')}
+          style={{ borderRadius: isNFT ? 6 : '100%' }}
+        />
 
-      <div
-        className={clsx(MEDALION_CLASS_NAME, 'w-7 h-7 absolute shadow-center')}
-        style={{ top: 3, left: 3, borderRadius: isNFT ? 7 : '100%' }}
-      />
+        <div
+          className={clsx(MEDALION_CLASS_NAME, 'w-7 h-7 shadow-center', withoutAssetIcon ? 'bg-grey-4' : 'bg-white')}
+          style={{ top: 3, left: 3, borderRadius: isNFT ? 7 : '100%' }}
+        />
 
-      <div
-        className={clsx(
-          MEDALION_CLASS_NAME,
-          'w-8 h-8 shadow-center',
-          'flex items-center justify-center',
-          'absolute bottom-0.5 right-0.5'
-        )}
-        style={{ borderRadius: isNFT ? 8 : '100%' }}
-      >
-        <div className="w-7 h-7 overflow-hidden" style={{ borderRadius: isNFT ? 7 : '100%' }}>
-          {children}
+        <div
+          className={clsx(
+            MEDALION_CLASS_NAME,
+            'w-8 h-8 shadow-center',
+            'flex items-center justify-center',
+            'bottom-0.5 right-0.5',
+            withoutAssetIcon ? 'bg-grey-4' : 'bg-white'
+          )}
+          style={{ borderRadius: isNFT ? 8 : '100%' }}
+        >
+          <div className="w-7 h-7 overflow-hidden" style={{ borderRadius: isNFT ? 7 : '100%' }}>
+            {children}
+          </div>
         </div>
-      </div>
-    </>
-  );
-});
+      </>
+    );
+  }
+);
 
 const ActivityKindTitle: Record<FaceKind, string> = {
   bundle: 'Bundle',
@@ -244,5 +250,5 @@ const ActivityKindIconSvg: Record<FaceKind, ImportedSVGComponent> = {
   [ActivityOperKindEnum.transferFrom]: DocumentsSvg,
   [ActivityOperKindEnum.transferTo]: DocumentsSvg,
   [ActivityOperKindEnum.swap]: SwapSvg,
-  [ActivityOperKindEnum.approve]: DocumentsSvg
+  [ActivityOperKindEnum.approve]: OkSvg
 };
