@@ -31,7 +31,8 @@ interface Props {
 export interface ActivityItemBaseAssetProp {
   contract: string;
   tokenId?: string;
-  amount?: string | null;
+  /** `null` for 'unlimited' amount */
+  amountSigned?: string | null;
   decimals: number;
   symbol?: string;
   iconURL?: string;
@@ -55,12 +56,12 @@ export const ActivityOperationBaseComponent = memo<Props>(
         <div
           className={clsx(
             'flex text-font-num-14 overflow-hidden',
-            asset.amount && Number(asset.amount) > 0 && 'text-success'
+            asset.amountSigned && Number(asset.amountSigned) > 0 && 'text-success'
           )}
         >
-          {kind === ActivityOperKindEnum.approve ? null : asset.amount ? (
+          {kind === ActivityOperKindEnum.approve ? null : asset.amountSigned ? (
             <Money smallFractionFont={false} withSign>
-              {atomsToTokens(asset.amount, asset.decimals)}
+              {atomsToTokens(asset.amountSigned, asset.decimals)}
             </Money>
           ) : null}
 
@@ -72,15 +73,17 @@ export const ActivityOperationBaseComponent = memo<Props>(
     const fiatJsx = useMemo<ReactNode>(() => {
       if (!asset) return null;
 
-      if (!asset.amount) return asset.amount === null ? 'Unlimited' : null;
+      if (!asset.amountSigned) return asset.amountSigned === null ? 'Unlimited' : null;
 
       if (kind === ActivityOperKindEnum.approve)
-        return <Money smallFractionFont={false}>{atomsToTokens(asset.amount, asset.decimals)}</Money>;
+        return <Money smallFractionFont={false}>{atomsToTokens(asset.amountSigned, asset.decimals)}</Money>;
 
       if (!assetSlug) return null;
 
       const amountForFiat =
-        kind === 'bundle' || isTransferActivityOperKind(kind) ? atomsToTokens(asset.amount, asset.decimals) : null;
+        kind === 'bundle' || isTransferActivityOperKind(kind)
+          ? atomsToTokens(asset.amountSigned, asset.decimals)
+          : null;
 
       if (!amountForFiat) return null;
 

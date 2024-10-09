@@ -109,7 +109,7 @@ const EvmActivityBatchComponent = memo<BatchProps>(({ activity, chainId, assetSl
       ...faceAssetBase,
       contract,
       tokenId,
-      amount: faceAmount.toFixed(),
+      amountSigned: faceAmount.toFixed(),
       decimals,
       symbol
     };

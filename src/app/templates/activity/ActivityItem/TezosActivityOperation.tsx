@@ -50,7 +50,7 @@ export function buildTezosOperationAsset(
   return {
     contract,
     tokenId,
-    amount: amountSigned,
+    amountSigned,
     decimals,
     // nft: isTezosCollectibleMetadata(assetMetadata),
     symbol: assetMetadata?.symbol
