@@ -1,10 +1,11 @@
 import { useDebounce } from 'use-debounce';
 import { formatEther } from 'viem';
 
+import { EvmEstimationData } from 'app/pages/Send/hooks/use-evm-estimation-data';
 import { useMemoWithCompare } from 'lib/ui/hooks';
 import { getGasPriceStep } from 'temple/evm/utils';
 
-import { DisplayedFeeOptions, EvmEstimationData, EvmFeeOptions } from '../interfaces';
+import { DisplayedFeeOptions, EvmFeeOptions } from '../interfaces';
 
 export const useEvmFeeOptions = (customGasLimit: string, estimationData?: EvmEstimationData): EvmFeeOptions | null => {
   const [debouncedCustomGasLimit] = useDebounce(customGasLimit, 500);

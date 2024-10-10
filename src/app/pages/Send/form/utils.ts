@@ -2,7 +2,6 @@ import { ManagerKeyResponse } from '@taquito/rpc';
 import { Estimate, getRevealFee, TezosToolkit, TransferParams } from '@taquito/taquito';
 import BigNumber from 'bignumber.js';
 
-import { ArtificialError } from 'app/defaults';
 import { transferImplicit, transferToContract } from 'lib/michelson';
 import { loadContract } from 'lib/temple/contract';
 import { mutezToTz, tzToMutez } from 'lib/temple/helpers';
@@ -72,7 +71,7 @@ export const estimateTezosMaxFee = async (
   return estmtnMax;
 };
 
-export const getBaseFeeError = (baseFee: BigNumber | ArtificialError | undefined, estimateBaseFeeError: any) =>
+export const getBaseFeeError = (baseFee: BigNumber | undefined, estimateBaseFeeError: any) =>
   baseFee instanceof Error ? baseFee : estimateBaseFeeError;
 
 export const getFeeError = (estimating: boolean, feeError: any) => (!estimating ? feeError : null);

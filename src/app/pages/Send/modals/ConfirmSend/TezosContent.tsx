@@ -1,25 +1,23 @@
 import React, { FC, useCallback, useEffect, useMemo, useState } from 'react';
 
-import { getRevealFee, TransactionOperation, TransactionWalletOperation } from '@taquito/taquito';
+import { TransactionOperation, TransactionWalletOperation } from '@taquito/taquito';
+import BigNumber from 'bignumber.js';
 import { FormProvider, useForm } from 'react-hook-form-v7';
 
 import { CLOSE_ANIMATION_TIMEOUT } from 'app/atoms/PageModal';
 import { TezosReviewData } from 'app/pages/Send/form/interfaces';
+import { useTezosEstimationData } from 'app/pages/Send/hooks/use-tezos-estimation-data';
 import { toastError, toastSuccess } from 'app/toaster';
-import { isTezAsset, toPenny } from 'lib/assets';
+import { TEZ_TOKEN_SLUG } from 'lib/assets';
 import { toTransferParams } from 'lib/assets/contract.utils';
 import { useTezosAssetBalance } from 'lib/balances';
-import { TEZOS_BLOCK_DURATION } from 'lib/fixed-times';
 import { useTezosAssetMetadata } from 'lib/metadata';
 import { transferImplicit, transferToContract } from 'lib/michelson';
-import { useTypedSWR } from 'lib/swr';
 import { loadContract } from 'lib/temple/contract';
-import { mutezToTz, tzToMutez } from 'lib/temple/helpers';
-import { isTezosContractAddress, tezosManagerKeyHasManager } from 'lib/tezos';
+import { tzToMutez } from 'lib/temple/helpers';
+import { isTezosContractAddress } from 'lib/tezos';
 import { ZERO } from 'lib/utils/numbers';
 import { getTezosToolkitWithSigner } from 'temple/front';
-
-import { estimateTezosMaxFee } from '../../form/utils';
 
 import { BaseContent, Tab } from './BaseContent';
 import { DisplayedFeeOptions, FeeOptionLabel, TezosTxParamsFormData } from './interfaces';
@@ -42,58 +40,37 @@ export const TezosContent: FC<TezosContentProps> = ({ data, onClose }) => {
   const [latestSubmitError, setLatestSubmitError] = useState<string | nullish>(null);
 
   const assetMetadata = useTezosAssetMetadata(assetSlug, network.chainId);
+
   const { value: balance = ZERO } = useTezosAssetBalance(assetSlug, accountPkh, network);
+  const { value: tezBalance = ZERO } = useTezosAssetBalance(TEZ_TOKEN_SLUG, accountPkh, network);
 
   const tezos = getTezosToolkitWithSigner(network.rpcBaseURL, account.ownerAddress || accountPkh, true);
 
-  const estimateBaseFee = useCallback(async () => {
-    try {
-      if (!assetMetadata) throw new Error('Metadata not found');
-
-      const tez = isTezAsset(assetSlug);
-
-      const [transferParams, manager] = await Promise.all([
-        toTransferParams(tezos, assetSlug, assetMetadata, accountPkh, to, toPenny(assetMetadata)),
-        tezos.rpc.getManagerKey(account.ownerAddress || accountPkh)
-      ]);
-
-      const estmtnMax = await estimateTezosMaxFee(account, tez, tezos, to, balance, transferParams, manager);
-
-      let estimatedBaseFee = mutezToTz(estmtnMax.burnFeeMutez + estmtnMax.suggestedFeeMutez);
-      if (!tezosManagerKeyHasManager(manager)) {
-        estimatedBaseFee = estimatedBaseFee.plus(mutezToTz(getRevealFee(to)));
-      }
-
-      return estimatedBaseFee;
-    } catch (err) {
-      console.error(err);
-
-      return undefined;
-    }
-  }, [assetMetadata, assetSlug, tezos, accountPkh, to, account, balance]);
-
-  const { data: estimatedBaseFee } = useTypedSWR(
-    () => ['tezos-transaction-fee', tezos.clientId, assetSlug, accountPkh, to],
-    estimateBaseFee,
-    {
-      shouldRetryOnError: false,
-      focusThrottleInterval: 10_000,
-      dedupingInterval: TEZOS_BLOCK_DURATION
-    }
+  const { data: estimationData } = useTezosEstimationData(
+    to,
+    tezos,
+    network.chainId,
+    account,
+    accountPkh,
+    assetSlug,
+    balance,
+    tezBalance,
+    assetMetadata,
+    true
   );
 
   const gasFeeValue = watch('gasFee');
   const StorageLimitValue = watch('storageLimit');
 
   const displayedFeeOptions = useMemo<DisplayedFeeOptions | undefined>(() => {
-    if (!estimatedBaseFee) return;
+    if (!(estimationData?.baseFee instanceof BigNumber)) return;
 
     return {
-      slow: estimatedBaseFee.plus(1e-4).toString(),
-      mid: estimatedBaseFee.plus(1.5e-4).toString(),
-      fast: estimatedBaseFee.plus(2e-4).toString()
+      slow: estimationData.baseFee.plus(1e-4).toString(),
+      mid: estimationData.baseFee.plus(1.5e-4).toString(),
+      fast: estimationData.baseFee.plus(2e-4).toString()
     };
-  }, [estimatedBaseFee]);
+  }, [estimationData]);
 
   const displayedFee = useMemo(() => {
     if (gasFeeValue) return gasFeeValue;
@@ -119,7 +96,7 @@ export const TezosContent: FC<TezosContentProps> = ({ data, onClose }) => {
     async ({ gasFee, storageLimit }: TezosTxParamsFormData) => {
       if (formState.isSubmitting) return;
 
-      if (!estimatedBaseFee) {
+      if (!estimationData) {
         toastError('Failed to estimate transaction.');
 
         return;
@@ -168,7 +145,7 @@ export const TezosContent: FC<TezosContentProps> = ({ data, onClose }) => {
       assetMetadata,
       assetSlug,
       displayedFeeOptions,
-      estimatedBaseFee,
+      estimationData,
       formState.isSubmitting,
       onClose,
       selectedFeeOption,

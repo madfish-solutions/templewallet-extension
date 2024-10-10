@@ -12,16 +12,16 @@ import { useEvmTokenBalance } from 'lib/balances/hooks';
 import { useAssetFiatCurrencyPrice } from 'lib/fiat-currency';
 import { t, toLocalFixed } from 'lib/i18n';
 import { getAssetSymbol } from 'lib/metadata';
-import { useTypedSWR } from 'lib/swr';
 import { useSafeState } from 'lib/ui/hooks';
 import { isEvmNativeTokenSlug } from 'lib/utils/evm.utils';
 import { ZERO } from 'lib/utils/numbers';
 import { getAccountAddressForEvm } from 'temple/accounts';
-import { getReadOnlyEvm } from 'temple/evm';
 import { useAccountForEvm, useVisibleAccounts } from 'temple/front';
 import { useEvmChainByChainId } from 'temple/front/chains';
 import { useEvmAddressByDomainName } from 'temple/front/evm/ens';
 import { useSettings } from 'temple/front/ready';
+
+import { useEvmEstimationData } from '../hooks/use-evm-estimation-data';
 
 import { BaseForm } from './BaseForm';
 import { ReviewData, SendFormData } from './interfaces';
@@ -102,56 +102,25 @@ export const EvmForm: FC<Props> = ({ chainId, assetSlug, onSelectAssetClick, onR
     return value;
   }, [allAccounts, contacts, toFilled, toResolved]);
 
-  const estimateMaxFee = useCallback(async () => {
-    if (!toResolved) return;
-
-    try {
-      const publicClient = getReadOnlyEvm(network.rpcBaseURL);
-      let gasLimit = BigInt(0);
-
-      if (isEvmNativeTokenSlug(assetSlug)) {
-        gasLimit = await publicClient.estimateGas({
-          account: accountPkh,
-          to: toResolved as HexString,
-          value: BigInt(1)
-        });
-      } else {
-        // TODO: Write logic for other token standards
-      }
-
-      const { maxFeePerGas: gasPrice } = await publicClient.estimateFeesPerGas();
-
-      // TODO: Handle L1 data fee
-
-      return gasLimit * gasPrice;
-    } catch (err) {
-      console.warn(err);
-
-      return undefined;
-    }
-  }, [accountPkh, assetSlug, network.rpcBaseURL, toResolved]);
-
-  const { data: estimatedMaxFee, isValidating: estimatingMaxFee } = useTypedSWR(
-    () => (toFilled ? ['max-transaction-fee', chainId, assetSlug, accountPkh, toResolved] : null),
-    estimateMaxFee,
-    {
-      shouldRetryOnError: false,
-      focusThrottleInterval: 10_000,
-      dedupingInterval: 10_000
-    }
+  const { data: estimationData, isValidating: estimating } = useEvmEstimationData(
+    toResolved as HexString,
+    assetSlug,
+    accountPkh,
+    network,
+    toFilled
   );
 
   const maxAmount = useMemo(() => {
-    if (!estimatedMaxFee) {
-      return shouldUseFiat ? getMaxAmountFiat(assetPrice.toNumber(), balance) : balance;
-    }
+    const fee = estimationData?.estimatedFee;
+
+    if (!fee) return shouldUseFiat ? getMaxAmountFiat(assetPrice.toNumber(), balance) : balance;
 
     const maxAmountAsset = isEvmNativeTokenSlug(assetSlug)
-      ? balance.minus(new BigNumber(estimatedMaxFee ? formatEther(estimatedMaxFee) : 0))
+      ? balance.minus(new BigNumber(fee ? formatEther(fee) : 0))
       : balance;
 
     return shouldUseFiat ? getMaxAmountFiat(assetPrice.toNumber(), maxAmountAsset) : maxAmountAsset;
-  }, [estimatedMaxFee, assetSlug, balance, shouldUseFiat, assetPrice]);
+  }, [estimationData, assetSlug, balance, shouldUseFiat, assetPrice]);
 
   const validateAmount = useCallback(
     (amount: string) => {
@@ -217,7 +186,7 @@ export const EvmForm: FC<Props> = ({ chainId, assetSlug, onSelectAssetClick, onR
         assetSymbol={assetSymbol}
         assetPrice={assetPrice}
         maxAmount={maxAmount}
-        maxEstimating={estimatingMaxFee}
+        maxEstimating={estimating}
         assetDecimals={assetDecimals}
         canToggleFiat={canToggleFiat}
         shouldUseFiat={shouldUseFiat}

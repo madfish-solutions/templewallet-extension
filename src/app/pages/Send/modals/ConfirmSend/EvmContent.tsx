@@ -1,20 +1,19 @@
 import React, { FC, useCallback, useEffect, useMemo, useState } from 'react';
 
-import { omit, pick } from 'lodash';
+import { omit } from 'lodash';
 import { FormProvider, useForm } from 'react-hook-form-v7';
 import { formatEther, parseEther, serializeTransaction } from 'viem';
 
 import { CLOSE_ANIMATION_TIMEOUT } from 'app/atoms/PageModal';
 import { EvmReviewData } from 'app/pages/Send/form/interfaces';
+import { useEvmEstimationData } from 'app/pages/Send/hooks/use-evm-estimation-data';
 import { toastError, toastSuccess } from 'app/toaster';
-import { useTypedSWR } from 'lib/swr';
 import { useTempleClient } from 'lib/temple/front';
-import { getReadOnlyEvm } from 'temple/evm';
 
 import { BaseContent, Tab } from './BaseContent';
 import { useEvmEstimationDataState } from './context';
 import { useEvmFeeOptions } from './hooks/use-evm-fee-options';
-import { EvmEstimationData, EvmTxParamsFormData, FeeOptionLabel } from './interfaces';
+import { EvmTxParamsFormData, FeeOptionLabel } from './interfaces';
 
 interface EvmContentProps {
   data: EvmReviewData;
@@ -39,47 +38,7 @@ export const EvmContent: FC<EvmContentProps> = ({ data, onClose }) => {
   const [selectedFeeOption, setSelectedFeeOption] = useState<FeeOptionLabel | nullish>('mid');
   const [latestSubmitError, setLatestSubmitError] = useState<string | nullish>(null);
 
-  const getEstimationData = useCallback(async (): Promise<EvmEstimationData | undefined> => {
-    try {
-      const publicClient = getReadOnlyEvm(network.rpcBaseURL);
-
-      const transaction = await publicClient.prepareTransactionRequest({
-        chain: {
-          id: network.chainId,
-          name: network.name,
-          nativeCurrency: network.currency,
-          rpcUrls: {
-            default: {
-              http: [network.rpcBaseURL]
-            }
-          }
-        },
-        account: accountPkh,
-        to: to as HexString,
-        value: parseEther(amount)
-      });
-
-      return {
-        estimatedFee: transaction.gas * transaction.maxFeePerGas,
-        data: transaction.data || '0x',
-        ...pick(transaction, ['gas', 'maxFeePerGas', 'maxPriorityFeePerGas', 'nonce'])
-      };
-    } catch (err) {
-      console.warn(err);
-
-      return undefined;
-    }
-  }, [network, accountPkh, to, amount]);
-
-  const { data: estimationData } = useTypedSWR(
-    ['evm-estimation-data', network.chainId, assetSlug, accountPkh, to],
-    getEstimationData,
-    {
-      shouldRetryOnError: false,
-      focusThrottleInterval: 10_000,
-      dedupingInterval: 10_000
-    }
-  );
+  const { data: estimationData } = useEvmEstimationData(to as HexString, assetSlug, accountPkh, network, true, amount);
 
   const feeOptions = useEvmFeeOptions(gasLimitValue, estimationData);
   const { setData } = useEvmEstimationDataState();

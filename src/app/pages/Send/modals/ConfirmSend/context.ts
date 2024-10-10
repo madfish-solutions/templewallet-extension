@@ -2,7 +2,9 @@ import { useState } from 'react';
 
 import constate from 'constate';
 
-import { EvmEstimationData, EvmFeeOptions } from './interfaces';
+import { EvmEstimationData } from 'app/pages/Send/hooks/use-evm-estimation-data';
+
+import { EvmFeeOptions } from './interfaces';
 
 interface ExtendedEstimationData extends EvmEstimationData {
   feeOptions: EvmFeeOptions;

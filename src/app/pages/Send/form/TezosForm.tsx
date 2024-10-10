@@ -1,24 +1,19 @@
 import React, { FC, useCallback, useEffect, useMemo } from 'react';
 
-import { getRevealFee, ChainIds } from '@taquito/taquito';
+import { ChainIds } from '@taquito/taquito';
 import BigNumber from 'bignumber.js';
 import { FormProvider, useForm } from 'react-hook-form-v7';
 
-import { ArtificialError, NotEnoughFundsError, ZeroBalanceError, ZeroTEZBalanceError } from 'app/defaults';
 import { DeadEndBoundaryError } from 'app/ErrorBoundary';
 import { toastError } from 'app/toaster';
 import { useFormAnalytics } from 'lib/analytics';
-import { isTezAsset, TEZ_TOKEN_SLUG, toPenny } from 'lib/assets';
-import { toTransferParams } from 'lib/assets/contract.utils';
+import { isTezAsset, TEZ_TOKEN_SLUG } from 'lib/assets';
 import { useTezosAssetBalance } from 'lib/balances';
 import { useAssetFiatCurrencyPrice } from 'lib/fiat-currency';
-import { TEZOS_BLOCK_DURATION } from 'lib/fixed-times';
 import { toLocalFixed, t } from 'lib/i18n';
 import { useTezosAssetMetadata, getAssetSymbol } from 'lib/metadata';
-import { useTypedSWR } from 'lib/swr';
 import { validateRecipient as validateAddress } from 'lib/temple/front';
-import { mutezToTz } from 'lib/temple/helpers';
-import { isValidTezosAddress, isTezosContractAddress, tezosManagerKeyHasManager } from 'lib/tezos';
+import { isValidTezosAddress, isTezosContractAddress } from 'lib/tezos';
 import { useSafeState } from 'lib/ui/hooks';
 import { ZERO } from 'lib/utils/numbers';
 import { getAccountAddressForTezos } from 'temple/accounts';
@@ -31,9 +26,11 @@ import {
   useTezosAddressByDomainName
 } from 'temple/front/tezos';
 
+import { useTezosEstimationData } from '../hooks/use-tezos-estimation-data';
+
 import { BaseForm } from './BaseForm';
 import { ReviewData, SendFormData } from './interfaces';
-import { estimateTezosMaxFee, getBaseFeeError, getFeeError, getMaxAmountFiat, getTezosMaxAmountToken } from './utils';
+import { getBaseFeeError, getFeeError, getMaxAmountFiat, getTezosMaxAmountToken } from './utils';
 
 const RECOMMENDED_ADD_FEE = 0.0001;
 
@@ -83,7 +80,7 @@ export const TezosForm: FC<Props> = ({ chainId, assetSlug, onSelectAssetClick, o
   const toFilledWithAddress = useMemo(() => Boolean(toValue && isValidTezosAddress(toValue)), [toValue]);
 
   const toFilledWithDomain = useMemo(
-    () => toValue && isTezosDomainsNameValid(toValue, domainsClient),
+    () => Boolean(toValue && isTezosDomainsNameValid(toValue, domainsClient)),
     [toValue, domainsClient]
   );
 
@@ -114,79 +111,37 @@ export const TezosForm: FC<Props> = ({ chainId, assetSlug, onSelectAssetClick, o
     return value;
   }, [allAccounts, contacts, toFilled, toResolved]);
 
-  const estimateBaseFee = useCallback(async () => {
-    try {
-      if (!assetMetadata) throw new Error('Metadata not found');
-
-      const to = toResolved;
-      const tez = isTezAsset(assetSlug);
-
-      if (balance.isZero()) {
-        throw new ZeroBalanceError();
-      }
-
-      if (!tez) {
-        if (tezBalance.isZero()) {
-          throw new ZeroTEZBalanceError();
-        }
-      }
-
-      const [transferParams, manager] = await Promise.all([
-        toTransferParams(tezos, assetSlug, assetMetadata, accountPkh, to, toPenny(assetMetadata)),
-        tezos.rpc.getManagerKey(account.ownerAddress || accountPkh)
-      ]);
-
-      const estmtnMax = await estimateTezosMaxFee(account, tez, tezos, to, balance, transferParams, manager);
-
-      let estimatedBaseFee = mutezToTz(estmtnMax.burnFeeMutez + estmtnMax.suggestedFeeMutez);
-      if (!tezosManagerKeyHasManager(manager)) {
-        estimatedBaseFee = estimatedBaseFee.plus(mutezToTz(getRevealFee(to)));
-      }
-
-      if (tez ? estimatedBaseFee.isGreaterThanOrEqualTo(balance) : estimatedBaseFee.isGreaterThan(tezBalance)) {
-        throw new NotEnoughFundsError();
-      }
-
-      return estimatedBaseFee;
-    } catch (err) {
-      console.error(err);
-
-      if (err instanceof ArtificialError) {
-        return err;
-      }
-
-      throw err;
-    }
-  }, [tezBalance, balance, assetMetadata, toResolved, assetSlug, tezos, accountPkh, account]);
-
   const {
-    data: baseFee,
-    error: estimateBaseFeeError,
+    data: estimationData,
+    error: estimationDataError,
     isValidating: estimating
-  } = useTypedSWR(
-    () => (toFilled ? ['tezos-transaction-fee', tezos.clientId, assetSlug, accountPkh, toResolved] : null),
-    estimateBaseFee,
-    {
-      shouldRetryOnError: false,
-      focusThrottleInterval: 10_000,
-      dedupingInterval: TEZOS_BLOCK_DURATION
-    }
+  } = useTezosEstimationData(
+    toResolved,
+    tezos,
+    chainId,
+    account,
+    accountPkh,
+    assetSlug,
+    balance,
+    tezBalance,
+    assetMetadata,
+    toFilled
   );
 
-  const feeError = getBaseFeeError(baseFee, estimateBaseFeeError);
+  const feeError = getBaseFeeError(estimationData?.baseFee, estimationDataError);
   const estimationError = getFeeError(estimating, feeError);
 
   const maxAmount = useMemo(() => {
-    if (!(baseFee instanceof BigNumber)) {
+    if (!(estimationData?.baseFee instanceof BigNumber)) {
       return shouldUseFiat ? getMaxAmountFiat(assetPrice.toNumber(), balance) : balance;
     }
 
     const maxAmountAsset = isTezAsset(assetSlug)
-      ? getTezosMaxAmountToken(account.type, balance, baseFee, RECOMMENDED_ADD_FEE)
+      ? getTezosMaxAmountToken(account.type, balance, estimationData.baseFee, RECOMMENDED_ADD_FEE)
       : balance;
 
     return shouldUseFiat ? getMaxAmountFiat(assetPrice.toNumber(), maxAmountAsset) : maxAmountAsset;
-  }, [baseFee, assetSlug, account.type, balance, shouldUseFiat, assetPrice]);
+  }, [estimationData, assetSlug, account.type, balance, shouldUseFiat, assetPrice]);
 
   const validateAmount = useCallback(
     (amount: string) => {

@@ -1,15 +1,17 @@
-export interface EvmTxParamsFormData {
+interface TxParamsFormDataBase {
+  rawTransaction: string;
+}
+
+export interface EvmTxParamsFormData extends TxParamsFormDataBase {
   gasPrice: string;
   gasLimit: string;
   nonce: string;
   data: string;
-  rawTransaction: string;
 }
 
-export interface TezosTxParamsFormData {
+export interface TezosTxParamsFormData extends TxParamsFormDataBase {
   gasFee: string;
   storageLimit: string;
-  rawTransaction: string;
 }
 
 export type TxParamsFormData = EvmTxParamsFormData | TezosTxParamsFormData;
@@ -20,15 +22,6 @@ export interface DisplayedFeeOptions {
   slow: string;
   mid: string;
   fast: string;
-}
-
-export interface EvmEstimationData {
-  estimatedFee: bigint;
-  gas: bigint;
-  maxFeePerGas: bigint;
-  maxPriorityFeePerGas: bigint;
-  data: string;
-  nonce: number;
 }
 
 interface EvmFeeOption {
