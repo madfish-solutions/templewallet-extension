@@ -1,9 +1,4 @@
-import { ActivityOperKindEnum, Activity, EvmActivity } from 'lib/activity';
-import { TezosPreActivity } from 'lib/activity/tezos/types';
-
-export function isEvmActivity(activity: Activity | TezosPreActivity): activity is EvmActivity {
-  return typeof activity.chainId === 'number';
-}
+import { ActivityOperKindEnum, Activity } from 'lib/activity';
 
 export type FaceKind = ActivityOperKindEnum | 'bundle';
 

@@ -79,6 +79,7 @@ export const useGetEvmChainAssetMetadata = (chainId: number) => {
   );
 };
 
+// @ ts-prune-ignore-next
 export const useGetEvmAssetMetadata = () => {
   const allEvmChains = useAllEvmChains();
   const tokensMetadatas = useEvmTokensMetadataRecordSelector();
