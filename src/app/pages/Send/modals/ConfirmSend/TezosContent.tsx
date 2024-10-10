@@ -20,7 +20,9 @@ import { ZERO } from 'lib/utils/numbers';
 import { getTezosToolkitWithSigner } from 'temple/front';
 
 import { BaseContent, Tab } from './BaseContent';
+import { useTezosEstimationDataState } from './context';
 import { DisplayedFeeOptions, FeeOptionLabel, TezosTxParamsFormData } from './interfaces';
+import { getTezosFeeOption } from './utils';
 
 interface TezosContentProps {
   data: TezosReviewData;
@@ -34,6 +36,9 @@ export const TezosContent: FC<TezosContentProps> = ({ data, onClose }) => {
 
   const form = useForm<TezosTxParamsFormData>({ mode: 'onChange' });
   const { watch, formState, setValue } = form;
+
+  const gasFeeValue = watch('gasFee');
+  const StorageLimitValue = watch('storageLimit');
 
   const [tab, setTab] = useState<Tab>('details');
   const [selectedFeeOption, setSelectedFeeOption] = useState<FeeOptionLabel | null>('mid');
@@ -59,16 +64,21 @@ export const TezosContent: FC<TezosContentProps> = ({ data, onClose }) => {
     true
   );
 
-  const gasFeeValue = watch('gasFee');
-  const StorageLimitValue = watch('storageLimit');
+  const { setData } = useTezosEstimationDataState();
+
+  useEffect(() => {
+    if (estimationData) setData(estimationData);
+  }, [estimationData, setData]);
 
   const displayedFeeOptions = useMemo<DisplayedFeeOptions | undefined>(() => {
-    if (!(estimationData?.baseFee instanceof BigNumber)) return;
+    const baseFee = estimationData?.baseFee;
+
+    if (!(baseFee instanceof BigNumber)) return;
 
     return {
-      slow: estimationData.baseFee.plus(1e-4).toString(),
-      mid: estimationData.baseFee.plus(1.5e-4).toString(),
-      fast: estimationData.baseFee.plus(2e-4).toString()
+      slow: getTezosFeeOption('slow', baseFee),
+      mid: getTezosFeeOption('mid', baseFee),
+      fast: getTezosFeeOption('fast', baseFee)
     };
   }, [estimationData]);
 

@@ -17,7 +17,7 @@ import { estimateTezosMaxFee } from '../form/utils';
 
 import { checkZeroBalance } from './utils';
 
-interface TezosEstimationData {
+export interface TezosEstimationData {
   baseFee: BigNumber;
   estimates: Estimate;
 }

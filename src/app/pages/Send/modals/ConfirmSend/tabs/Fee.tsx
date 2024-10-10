@@ -9,9 +9,9 @@ import { t, T } from 'lib/i18n';
 import { OneOfChains } from 'temple/front';
 import { TempleChainKind } from 'temple/types';
 
-import { useEvmEstimationDataState } from '../context';
+import { useEvmEstimationDataState, useTezosEstimationDataState } from '../context';
 import { DisplayedFeeOptions, EvmTxParamsFormData, FeeOptionLabel, TezosTxParamsFormData } from '../interfaces';
-import { validateNonZero } from '../utils';
+import { getTezosFeeOption, validateNonZero } from '../utils';
 
 import { FeeOptions } from './components/FeeOptions';
 
@@ -41,12 +41,14 @@ export const FeeTab: FC<FeeTabProps> = ({
     {network.kind === TempleChainKind.EVM ? (
       <EvmContent selectedOption={selectedOption} onOptionSelect={onOptionSelect} />
     ) : (
-      <TezosContent onOptionSelect={onOptionSelect} />
+      <TezosContent selectedOption={selectedOption} onOptionSelect={onOptionSelect} />
     )}
   </>
 );
 
-const EvmContent: FC<Pick<FeeTabProps, 'selectedOption' | 'onOptionSelect'>> = ({ selectedOption, onOptionSelect }) => {
+type ContentProps = Pick<FeeTabProps, 'selectedOption' | 'onOptionSelect'>;
+
+const EvmContent: FC<ContentProps> = ({ selectedOption, onOptionSelect }) => {
   const { control } = useFormContext<EvmTxParamsFormData>();
   const { data } = useEvmEstimationDataState();
 
@@ -85,8 +87,17 @@ const EvmContent: FC<Pick<FeeTabProps, 'selectedOption' | 'onOptionSelect'>> = (
   );
 };
 
-const TezosContent: FC<Pick<FeeTabProps, 'onOptionSelect'>> = ({ onOptionSelect }) => {
-  const { control } = useFormContext<TezosTxParamsFormData>();
+const TezosContent: FC<ContentProps> = ({ selectedOption, onOptionSelect }) => {
+  const { control, formState } = useFormContext<TezosTxParamsFormData>();
+  const { data } = useTezosEstimationDataState();
+
+  const gasFeeFallback = useMemo(() => {
+    if (!data || !selectedOption) return '';
+
+    return getTezosFeeOption(selectedOption, data.baseFee);
+  }, [data, selectedOption]);
+
+  const gasFeeError = formState.errors.gasFee?.message;
 
   return (
     <>
@@ -95,9 +106,10 @@ const TezosContent: FC<Pick<FeeTabProps, 'onOptionSelect'>> = ({ onOptionSelect 
       <Controller
         name="gasFee"
         control={control}
+        rules={{ validate: v => validateNonZero(v, t('gasFee')) }}
         render={({ field: { value, onChange, onBlur } }) => (
           <AssetField
-            value={value}
+            value={value || gasFeeFallback}
             placeholder="1.0"
             min={0}
             assetDecimals={6}
@@ -107,6 +119,8 @@ const TezosContent: FC<Pick<FeeTabProps, 'onOptionSelect'>> = ({ onOptionSelect 
               if (!value) onOptionSelect('mid');
               onBlur();
             }}
+            errorCaption={gasFeeError}
+            containerClassName={gasFeeError ? 'mb-3' : 'mb-7'}
           />
         )}
       />
@@ -116,7 +130,9 @@ const TezosContent: FC<Pick<FeeTabProps, 'onOptionSelect'>> = ({ onOptionSelect 
       <Controller
         name="storageLimit"
         control={control}
-        render={({ field }) => <AssetField placeholder="0.00" min={0} assetDecimals={6} {...field} />}
+        render={({ field: { value, ...rest } }) => (
+          <AssetField value={value || data?.estimates.storageLimit} placeholder="0" min={0} onlyInteger {...rest} />
+        )}
       />
     </>
   );

@@ -4,7 +4,7 @@ import { PageModal } from 'app/atoms/PageModal';
 import { EvmReviewData, ReviewData } from 'app/pages/Send/form/interfaces';
 import { TempleChainKind } from 'temple/types';
 
-import { EvmEstimationDataProvider } from './context';
+import { EvmEstimationDataProvider, TezosEstimationDataProvider } from './context';
 import { EvmContent } from './EvmContent';
 import { TezosContent } from './TezosContent';
 
@@ -22,7 +22,9 @@ export const ConfirmSendModal: FC<ConfirmSendModalProps> = ({ opened, onRequestC
           <EvmContent data={reviewData} onClose={onRequestClose} />
         </EvmEstimationDataProvider>
       ) : (
-        <TezosContent data={reviewData} onClose={onRequestClose} />
+        <TezosEstimationDataProvider>
+          <TezosContent data={reviewData} onClose={onRequestClose} />
+        </TezosEstimationDataProvider>
       )
     ) : null}
   </PageModal>
