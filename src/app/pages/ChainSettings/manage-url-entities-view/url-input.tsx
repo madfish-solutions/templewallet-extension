@@ -9,6 +9,7 @@ import { ChainSettingsSelectors } from '../selectors';
 interface UrlInputProps<T extends { url: string }> {
   formReturn: UseFormReturn<T>;
   urlsToExclude: string[];
+  disabled: boolean;
   isEditable: boolean;
   id: string;
   placeholder: string;
@@ -19,6 +20,7 @@ interface UrlInputProps<T extends { url: string }> {
 export const UrlInput = <T extends { url: string }>({
   formReturn,
   urlsToExclude,
+  disabled,
   isEditable,
   id,
   placeholder,
@@ -31,6 +33,7 @@ export const UrlInput = <T extends { url: string }>({
     formReturn={formReturn}
     urlsToExclude={urlsToExclude}
     isEditable={isEditable}
+    disabled={disabled}
     id={id}
     placeholder={placeholder}
     submitError={submitError}

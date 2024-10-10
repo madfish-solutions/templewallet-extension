@@ -5,8 +5,9 @@ import clsx from 'clsx';
 import { Button, IconBase } from 'app/atoms';
 import { SettingsCell } from 'app/atoms/SettingsCell';
 import { ReactComponent as ChevronRightIcon } from 'app/icons/base/chevron_right.svg';
+import { ShortenedTextWithTooltip } from 'app/templates/shortened-text-with-tooltip';
 import { setAnotherSelector } from 'lib/analytics';
-import { T } from 'lib/i18n';
+import { T, t } from 'lib/i18n';
 
 import { UrlEntityBase } from './types';
 
@@ -25,6 +26,7 @@ export const ManageUrlEntitiesItem = <T extends UrlEntityBase>({
   onClick,
   testID
 }: ManageUrlEntitiesItemProps<T>) => {
+  const { name, nameI18nKey } = item;
   const handleClick = useCallback(() => onClick(item), [item, onClick]);
 
   const url = getEntityUrl(item);
@@ -33,11 +35,14 @@ export const ManageUrlEntitiesItem = <T extends UrlEntityBase>({
     <SettingsCell
       Component={Button}
       cellName={
-        <div className="flex flex-col gap-0.5 text-left font-normal">
-          <span className="text-font-description">{item.nameI18nKey ? <T id={item.nameI18nKey} /> : item.name}</span>
-          <span className="text-font-small text-grey-1">{url}</span>
+        <div className="flex flex-1 flex-col gap-0.5 text-left font-normal truncate">
+          <ShortenedTextWithTooltip className="text-font-description">
+            {nameI18nKey ? t(nameI18nKey) : name}
+          </ShortenedTextWithTooltip>
+          <ShortenedTextWithTooltip className="text-font-small text-grey-1">{url}</ShortenedTextWithTooltip>
         </div>
       }
+      wrapCellName={false}
       className="hover:bg-secondary-low"
       onClick={handleClick}
       testID={testID}

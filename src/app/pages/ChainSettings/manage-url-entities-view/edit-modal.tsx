@@ -3,12 +3,7 @@ import React, { useCallback, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form-v7';
 
 import { FormField, IconBase, ToggleSwitch } from 'app/atoms';
-import {
-  ActionModal,
-  ActionModalBodyContainer,
-  ActionModalButton,
-  ActionModalButtonsContainer
-} from 'app/atoms/action-modal';
+import { ActionModalBodyContainer, ActionModalButton, ActionModalButtonsContainer } from 'app/atoms/action-modal';
 import { PageModal } from 'app/atoms/PageModal';
 import { ActionsButtonsBox } from 'app/atoms/PageModal/actions-buttons-box';
 import { ScrollView } from 'app/atoms/PageModal/scroll-view';
@@ -23,6 +18,8 @@ import { useBooleanState } from 'lib/ui/hooks';
 import { shouldDisableSubmitButton } from 'lib/ui/should-disable-submit-button';
 
 import { ChainSettingsSelectors } from '../selectors';
+import { ShortenedEntityNameActionModal } from '../shortened-entity-name-action-modal';
+import { ShortenedEntityNameActionTitle } from '../shortened-entity-name-action-title';
 
 import { UrlEntityBase } from './types';
 import { UrlInput } from './url-input';
@@ -43,8 +40,8 @@ interface EditUrlEntityModalProps<T extends UrlEntityBase> {
   namesToExclude: string[];
   urlsToExclude: string[];
   activeI18nKey: TID;
-  titleI18nKey: TID;
-  confirmDeleteTitleI18nKey: TID;
+  titleI18nKeyBase: 'editSomeRpc' | 'editSomeBlockExplorer';
+  confirmDeleteTitleI18nKeyBase: 'confirmDeleteRpcTitle' | 'confirmDeleteBlockExplorerTitle';
   confirmDeleteDescriptionI18nKey: TID;
   deleteLabelI18nKey: TID;
   urlInputPlaceholder: string;
@@ -64,8 +61,8 @@ export const EditUrlEntityModal = <T extends UrlEntityBase>({
   namesToExclude,
   urlsToExclude,
   activeI18nKey,
-  titleI18nKey,
-  confirmDeleteTitleI18nKey,
+  titleI18nKeyBase,
+  confirmDeleteTitleI18nKeyBase,
   confirmDeleteDescriptionI18nKey,
   deleteLabelI18nKey,
   urlInputPlaceholder,
@@ -82,7 +79,7 @@ export const EditUrlEntityModal = <T extends UrlEntityBase>({
     mode: 'onChange'
   });
   const { control, register, handleSubmit, formState } = formReturn;
-  const { errors, submitCount } = formState;
+  const { errors, submitCount, isSubmitting } = formState;
   const isSubmitted = submitCount > 0;
   const displayedName = entity.nameI18nKey ? t(entity.nameI18nKey) : entity.name;
 
@@ -107,7 +104,12 @@ export const EditUrlEntityModal = <T extends UrlEntityBase>({
 
   return (
     <>
-      <PageModal opened onRequestClose={onClose} title={t(titleI18nKey, displayedName)}>
+      <PageModal
+        headerClassName="flex justify-center truncate"
+        opened
+        onRequestClose={onClose}
+        title={<ShortenedEntityNameActionTitle entityName={displayedName} i18nKeyBase={titleI18nKeyBase} />}
+      >
         <form onSubmit={handleSubmit(onSubmit)} className="flex-1 flex flex-col max-h-full">
           <ScrollView
             className="pt-4 pb-6 gap-4"
@@ -118,7 +120,7 @@ export const EditUrlEntityModal = <T extends UrlEntityBase>({
               <SettingsCell cellName={<T id={activeI18nKey} />} Component="div">
                 <Controller
                   control={control}
-                  disabled={!canChangeActiveState}
+                  disabled={!canChangeActiveState || isSubmitting}
                   name="isActive"
                   render={({ field }) => <ToggleSwitch {...field} checked={field.value} testID={activeSwitchTestID} />}
                 />
@@ -136,11 +138,12 @@ export const EditUrlEntityModal = <T extends UrlEntityBase>({
               id="editurlentity-name"
               placeholder="Ethereum"
               errorCaption={isSubmitted && errors.name?.message}
-              disabled={!isEditable}
+              disabled={!isEditable || isSubmitting}
               testID={ChainSettingsSelectors.nameInput}
             />
 
             <UrlInput
+              disabled={isSubmitting}
               formReturn={formReturn}
               urlsToExclude={urlsToExclude}
               isEditable={isEditable}
@@ -171,6 +174,7 @@ export const EditUrlEntityModal = <T extends UrlEntityBase>({
               size="L"
               color="primary"
               type="submit"
+              loading={isSubmitting}
               disabled={shouldDisableSubmitButton({ errors, formState, otherErrors: [submitError] })}
               testID={ChainSettingsSelectors.saveButton}
             >
@@ -181,10 +185,11 @@ export const EditUrlEntityModal = <T extends UrlEntityBase>({
       </PageModal>
 
       {removeModalIsOpen && (
-        <ActionModal
+        <ShortenedEntityNameActionModal
+          titleI18nKeyBase={confirmDeleteTitleI18nKeyBase}
+          entityName={displayedName}
           hasCloseButton={false}
           onClose={closeRemoveModal}
-          title={t(confirmDeleteTitleI18nKey, displayedName)}
         >
           <ActionModalBodyContainer>
             <p className="py-1 text-center text-font-description text-grey-1">
@@ -210,7 +215,7 @@ export const EditUrlEntityModal = <T extends UrlEntityBase>({
               <T id="delete" />
             </ActionModalButton>
           </ActionModalButtonsContainer>
-        </ActionModal>
+        </ShortenedEntityNameActionModal>
       )}
     </>
   );

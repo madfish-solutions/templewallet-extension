@@ -1,6 +1,7 @@
 import React, { memo, useCallback, useEffect, useMemo, useState } from 'react';
 
 import { EmptyState } from 'app/atoms/EmptyState';
+import { useSearchParamsBoolean } from 'app/hooks/use-search-params-boolean';
 import { t } from 'lib/i18n';
 import { filterNetworksByName } from 'lib/ui/filter-networks-by-name';
 import { useBooleanState } from 'lib/ui/hooks';
@@ -22,7 +23,7 @@ export const NetworksSettings = memo<SettingsTabProps>(({ setHeaderChildren }) =
   const tezosChainsRecord = useAllTezosChains();
   const evmChainsRecord = useAllEvmChains();
 
-  const [isMainnetTab, openMainnetTab, openTestnetTab] = useBooleanState(true);
+  const { value: isTestnetTab, setTrue: openTestnetTab, setFalse: openMainnetTab } = useSearchParamsBoolean('testnet');
   const [isAddNetworkModalOpen, openAddNetworkModal, closeAddNetworkModal] = useBooleanState(false);
   const [searchValue, setSearchValue] = useState('');
 
@@ -38,52 +39,54 @@ export const NetworksSettings = memo<SettingsTabProps>(({ setHeaderChildren }) =
         chain =>
           (!kind || chain.kind === kind) &&
           (isDefault === undefined || isDefault === chain.default) &&
-          isMainnetTab !== isPossibleTestnetChain(chain)
+          isTestnetTab === isPossibleTestnetChain(chain)
       ),
-    [isMainnetTab, matchingChains]
+    [isTestnetTab, matchingChains]
   );
 
-  const chainsGroups = useMemo(() => {
-    const customChainsGroup = {
-      title: t('customNetworksGroup'),
-      chains: pickChains({ isDefault: false })
-    };
-
-    if (isMainnetTab) {
-      return [
-        {
-          title: t('defaultNetworksGroup'),
-          chains: pickChains({ isDefault: true })
-        },
-        customChainsGroup
-      ].filter(({ chains }) => chains.length > 0);
-    }
-
-    return [
-      {
-        title: TempleChainTitle[TempleChainKind.EVM],
-        chains: pickChains({ isDefault: true, kind: TempleChainKind.EVM })
-      },
-      {
-        title: TempleChainTitle[TempleChainKind.Tezos],
-        chains: pickChains({ isDefault: true, kind: TempleChainKind.Tezos })
-      },
-      customChainsGroup
-    ].filter(({ chains }) => chains.length > 0);
-  }, [isMainnetTab, pickChains]);
+  const chainsGroups = useMemo(
+    () =>
+      (isTestnetTab
+        ? [
+            {
+              title: t('chainTestnetsGroup', TempleChainTitle[TempleChainKind.EVM]),
+              chains: pickChains({ isDefault: true, kind: TempleChainKind.EVM })
+            },
+            {
+              title: t('chainTestnetsGroup', TempleChainTitle[TempleChainKind.Tezos]),
+              chains: pickChains({ isDefault: true, kind: TempleChainKind.Tezos })
+            },
+            {
+              title: t('customTestnetsGroup'),
+              chains: pickChains({ isDefault: false })
+            }
+          ]
+        : [
+            {
+              title: t('defaultNetworksGroup'),
+              chains: pickChains({ isDefault: true })
+            },
+            {
+              title: t('customNetworksGroup'),
+              chains: pickChains({ isDefault: false })
+            }
+          ]
+      ).filter(({ chains }) => chains.length > 0),
+    [isTestnetTab, pickChains]
+  );
 
   const headerChildren = useMemo(
     () => (
       <FiltersBlock
         searchValue={searchValue}
-        isMainnetTab={isMainnetTab}
+        isTestnetTab={isTestnetTab}
         openMainnetTab={openMainnetTab}
         openTestnetTab={openTestnetTab}
         setSearchValue={setSearchValue}
         onAddNetworkClick={openAddNetworkModal}
       />
     ),
-    [isMainnetTab, openAddNetworkModal, openMainnetTab, openTestnetTab, searchValue]
+    [isTestnetTab, openAddNetworkModal, openMainnetTab, openTestnetTab, searchValue]
   );
   useEffect(() => setHeaderChildren(headerChildren), [headerChildren, setHeaderChildren]);
   useEffect(() => {

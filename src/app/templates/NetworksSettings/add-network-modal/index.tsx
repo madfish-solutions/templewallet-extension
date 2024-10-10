@@ -149,6 +149,7 @@ export const AddNetworkModal = memo<AddNetworkModalProps>(({ isOpen, onClose }) 
                 name="rpcUrl"
                 label="RPC URL"
                 formReturn={formReturn}
+                disabled={isSubmitting}
                 urlsToExclude={rpcUrlsToExclude}
                 isEditable
                 id="add-network-rpc-url"
@@ -169,6 +170,7 @@ export const AddNetworkModal = memo<AddNetworkModalProps>(({ isOpen, onClose }) 
                   onChange: resetSubmitError
                 })}
                 cleanable={Boolean(chainId)}
+                disabled={isSubmitting}
                 onClean={clearChainId}
                 labelContainerClassName="w-full flex justify-between items-center"
                 label={
@@ -194,6 +196,7 @@ export const AddNetworkModal = memo<AddNetworkModalProps>(({ isOpen, onClose }) 
               <FormField
                 {...register('symbol', { required: t('required') })}
                 cleanable={Boolean(symbol)}
+                disabled={isSubmitting}
                 onClean={clearSymbol}
                 label={<T id="symbol" />}
                 placeholder="ETH"
@@ -204,6 +207,7 @@ export const AddNetworkModal = memo<AddNetworkModalProps>(({ isOpen, onClose }) 
 
             <div className="flex flex-col gap-8">
               <UrlInput
+                disabled={isSubmitting}
                 name="explorerUrl"
                 label={<T id="blockExplorerUrl" />}
                 formReturn={formReturn}
@@ -226,6 +230,7 @@ export const AddNetworkModal = memo<AddNetworkModalProps>(({ isOpen, onClose }) 
                   <SettingsCheckbox
                     {...field}
                     checked={field.value}
+                    disabled={isSubmitting}
                     label={<T id="testnet" />}
                     testID={NetworkSettingsSelectors.testnetCheckbox}
                   />

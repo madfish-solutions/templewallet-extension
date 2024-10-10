@@ -2207,10 +2207,21 @@
     "message": "Default account (the first one)"
   },
   "defaultNetworksGroup": {
-    "message": "Default"
+    "message": "Default Networks"
   },
   "customNetworksGroup": {
-    "message": "Custom"
+    "message": "Custom Networks"
+  },
+  "chainTestnetsGroup": {
+    "message": "$chain$ Testnets",
+    "placeholders": {
+      "chain": {
+        "content": "$1"
+      }
+    }
+  },
+  "customTestnetsGroup": {
+    "message": "Custom Testnets"
   },
   "active": {
     "message": "Active"
@@ -2254,32 +2265,26 @@
   "removeNetwork": {
     "message": "Remove Network"
   },
-  "removeNetworkModalTitle": {
-    "message": "Remove $network$?",
-    "placeholders": {
-      "network": {
-        "content": "$1"
-      }
-    }
+  "removeNetworkModalTitleLeftPart": {
+    "message": "Remove "
+  },
+  "removeNetworkModalTitleRightPart": {
+    "message": "?"
   },
   "removeNetworkModalDescription": {
     "message": "You won’t be able to check the assets on this\nnetwork anymore."
   },
-  "editSomeRpc": {
-    "message": "Edit $name$ RPC",
-    "placeholders": {
-      "name": {
-        "content": "$1"
-      }
-    }
+  "editSomeRpcLeftPart": {
+    "message": "Edit "
   },
-  "editSomeBlockExplorer": {
-    "message": "Edit $name$",
-    "placeholders": {
-      "name": {
-        "content": "$1"
-      }
-    }
+  "editSomeRpcRightPart": {
+    "message": " RPC"
+  },
+  "editSomeBlockExplorerLeftPart": {
+    "message": "Edit "
+  },
+  "editSomeBlockExplorerRightPart": {
+    "message": ""
   },
   "rpcDoesNotRespond": {
     "message": "RPC doesn’t respond"
@@ -2306,24 +2311,20 @@
       }
     }
   },
-  "confirmDeleteRpcTitle": {
-    "message": "Delete $name$ RPC?",
-    "placeholders": {
-      "name": {
-        "content": "$1"
-      }
-    }
+  "confirmDeleteRpcTitleLeftPart": {
+    "message": "Delete "
+  },
+  "confirmDeleteRpcTitleRightPart": {
+    "message": " RPC?"
   },
   "confirmDeleteRpcDescription": {
     "message": "This will remove the RPC from the list and automatically switch the network to the default RPC endpoint."
   },
-  "confirmDeleteBlockExplorerTitle": {
-    "message": "Delete $name$?",
-    "placeholders": {
-      "name": {
-        "content": "$1"
-      }
-    }
+  "confirmDeleteBlockExplorerTitleLeftPart": {
+    "message": "Delete "
+  },
+  "confirmDeleteBlockExplorerTitleRightPart": {
+    "message": "?"
   },
   "confirmDeleteBlockExplorerDescription": {
     "message": "This will remove the block explorer from the list and automatically switch the network to the default one."

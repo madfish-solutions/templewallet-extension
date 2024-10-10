@@ -18,9 +18,9 @@ interface ManageUrlEntitiesViewProps<T> {
   title: ReactNode;
   items: T[];
   activeItemId: string;
-  editModalTitleI18nKey: TID;
+  editModalTitleI18nKeyBase: 'editSomeRpc' | 'editSomeBlockExplorer';
   activeI18nKey: TID;
-  confirmDeleteTitleI18nKey: TID;
+  confirmDeleteTitleI18nKeyBase: 'confirmDeleteRpcTitle' | 'confirmDeleteBlockExplorerTitle';
   confirmDeleteDescriptionI18nKey: TID;
   deleteLabelI18nKey: TID;
   successfullyAddedMessageI18nKey: TID;
@@ -40,9 +40,9 @@ export const ManageUrlEntitiesView = <T extends UrlEntityBase>({
   title,
   items,
   activeItemId,
-  editModalTitleI18nKey,
+  editModalTitleI18nKeyBase,
   activeI18nKey,
-  confirmDeleteTitleI18nKey,
+  confirmDeleteTitleI18nKeyBase,
   confirmDeleteDescriptionI18nKey,
   deleteLabelI18nKey,
   successfullyAddedMessageI18nKey,
@@ -95,7 +95,8 @@ export const ManageUrlEntitiesView = <T extends UrlEntityBase>({
       <SettingsCellGroup className="overflow-hidden">
         <SettingsCell
           isLast={false}
-          cellName={<span className="text-font-description-bold">{title}</span>}
+          cellName={<span className="text-font-description-bold flex-1">{title}</span>}
+          wrapCellName={false}
           Component="div"
         >
           <Button onClick={openCreateModal} testID={addButtonTestID}>
@@ -117,8 +118,8 @@ export const ManageUrlEntitiesView = <T extends UrlEntityBase>({
       {entityToEdit && (
         <EditUrlEntityModal
           activeI18nKey={activeI18nKey}
-          titleI18nKey={editModalTitleI18nKey}
-          confirmDeleteTitleI18nKey={confirmDeleteTitleI18nKey}
+          titleI18nKeyBase={editModalTitleI18nKeyBase}
+          confirmDeleteTitleI18nKeyBase={confirmDeleteTitleI18nKeyBase}
           confirmDeleteDescriptionI18nKey={confirmDeleteDescriptionI18nKey}
           deleteLabelI18nKey={deleteLabelI18nKey}
           urlInputPlaceholder={urlInputPlaceholder}

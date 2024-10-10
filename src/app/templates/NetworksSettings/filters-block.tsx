@@ -9,7 +9,7 @@ import { NetworkSettingsSelectors } from './selectors';
 
 interface FiltersBlockProps {
   searchValue: string;
-  isMainnetTab: boolean;
+  isTestnetTab: boolean;
   openMainnetTab: EmptyFn;
   openTestnetTab: EmptyFn;
   setSearchValue: SyncFn<string>;
@@ -17,14 +17,14 @@ interface FiltersBlockProps {
 }
 
 export const FiltersBlock = memo<FiltersBlockProps>(
-  ({ searchValue, isMainnetTab, openMainnetTab, openTestnetTab, setSearchValue, onAddNetworkClick }) => {
+  ({ searchValue, isTestnetTab, openMainnetTab, openTestnetTab, setSearchValue, onAddNetworkClick }) => {
     return (
       <div className="p-4 gap-4 flex flex-col bg-background">
         <SimpleSegmentControl
           className="w-full"
           firstTitle="Mainnet"
           secondTitle="Testnet"
-          activeSecond={!isMainnetTab}
+          activeSecond={isTestnetTab}
           onFirstClick={openMainnetTab}
           onSecondClick={openTestnetTab}
           firstButtonTestId={NetworkSettingsSelectors.mainnetTabButton}

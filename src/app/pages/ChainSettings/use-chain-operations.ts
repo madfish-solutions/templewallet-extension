@@ -116,7 +116,9 @@ export const useChainOperations = (chainKind: TempleChainKind, chainId: string |
     async (rpc: StoredTezosNetwork | StoredEvmNetwork, { name, url, isActive }: EditUrlEntityModalFormValues) => {
       const wasActive = rpc.id === activeRpcId;
       try {
-        await assertRpcChainId(url);
+        if (url !== rpc.rpcBaseURL) {
+          await assertRpcChainId(url);
+        }
       } catch (e) {
         console.error(e);
         if (e instanceof ArtificialError) {

@@ -4,6 +4,7 @@ import { IconBase } from 'app/atoms';
 import { EvmNetworkLogo, TezosNetworkLogo } from 'app/atoms/NetworkLogo';
 import { SettingsCell } from 'app/atoms/SettingsCell';
 import { ReactComponent as ChevronRightIcon } from 'app/icons/base/chevron_right.svg';
+import { ShortenedTextWithTooltip } from 'app/templates/shortened-text-with-tooltip';
 import { setAnotherSelector } from 'lib/analytics';
 import { t } from 'lib/i18n';
 import { Link } from 'lib/woozie';
@@ -27,7 +28,12 @@ export const ChainsGroupItem = memo<ChainsGroupItemProps>(({ item, isLast }) => 
         <TezosNetworkLogo networkName={item.name} chainId={item.chainId} size={24} />
       )
     }
-    cellName={item.nameI18nKey ? t(item.nameI18nKey) : item.name}
+    cellName={
+      <ShortenedTextWithTooltip className="text-font-medium-bold flex-1">
+        {item.nameI18nKey ? t(item.nameI18nKey) : item.name}
+      </ShortenedTextWithTooltip>
+    }
+    wrapCellName={false}
     Component={Link}
     to={`/settings/networks/${item.kind}/${item.chainId}`}
     testID={NetworkSettingsSelectors.networkItem}

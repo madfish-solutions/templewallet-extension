@@ -92,6 +92,7 @@ export const CreateUrlEntityModal = memo(
                   required: t('required'),
                   validate: (value: string) => (namesToExclude.includes(value) ? t('mustBeUnique') : true)
                 })}
+                disabled={isSubmitting}
                 label={t('name')}
                 id="createurlentity-name"
                 placeholder="Ethereum"
@@ -102,6 +103,7 @@ export const CreateUrlEntityModal = memo(
               <UrlInput
                 formReturn={formReturn}
                 urlsToExclude={urlsToExclude}
+                disabled={isSubmitting}
                 isEditable
                 id="createurlentity-url"
                 placeholder={urlInputPlaceholder}
@@ -116,6 +118,7 @@ export const CreateUrlEntityModal = memo(
                 <SettingsCheckbox
                   {...field}
                   checked={field.value}
+                  disabled={isSubmitting}
                   label={<T id={activeI18nKey} />}
                   testID={activeCheckboxTestID}
                 />

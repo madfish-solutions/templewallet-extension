@@ -17,6 +17,7 @@ interface UrlInputProps<K extends string, T extends Record<K, string>> {
   label: ReactNode;
   formReturn: UseFormReturn<T>;
   urlsToExclude: string[];
+  disabled?: boolean;
   isEditable: boolean;
   id: string;
   placeholder: string;
@@ -35,6 +36,7 @@ export const UrlInput = <K extends string, T extends Record<K, string>>({
   label,
   formReturn,
   urlsToExclude,
+  disabled,
   isEditable,
   id,
   placeholder,
@@ -126,7 +128,7 @@ export const UrlInput = <K extends string, T extends Record<K, string>>({
       textarea={textarea}
       rows={textarea ? 3 : undefined}
       errorCaption={errorCaption}
-      disabled={!isEditable}
+      disabled={!isEditable || disabled}
       testID={testID}
     />
   );

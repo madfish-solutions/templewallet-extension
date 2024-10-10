@@ -1,12 +1,7 @@
 import React, { memo, useCallback, useEffect, useMemo, useState } from 'react';
 
 import { ToggleSwitch } from 'app/atoms';
-import {
-  ActionModal,
-  ActionModalBodyContainer,
-  ActionModalButton,
-  ActionModalButtonsContainer
-} from 'app/atoms/action-modal';
+import { ActionModalBodyContainer, ActionModalButton, ActionModalButtonsContainer } from 'app/atoms/action-modal';
 import { ActionsButtonsBox } from 'app/atoms/PageModal/actions-buttons-box';
 import { SettingsCell } from 'app/atoms/SettingsCell';
 import { SettingsCellGroup } from 'app/atoms/SettingsCellGroup';
@@ -29,6 +24,7 @@ import { TempleChainKind } from 'temple/types';
 
 import { ManageUrlEntitiesView } from './manage-url-entities-view';
 import { ChainSettingsSelectors } from './selectors';
+import { ShortenedEntityNameActionModal } from './shortened-entity-name-action-modal';
 import { useChainOperations } from './use-chain-operations';
 
 interface ChainSettingsProps {
@@ -97,9 +93,9 @@ const ChainExistentSettings = memo<ChainExistentSettingsProps>(({ chain, bottomE
           activeItemId={chain.rpc.id}
           title={<T id="rpcEndpoints" />}
           items={chain.allRpcs}
-          editModalTitleI18nKey="editSomeRpc"
+          editModalTitleI18nKeyBase="editSomeRpc"
           createModalTitle={t('addSomeRpc', chain.name)}
-          confirmDeleteTitleI18nKey="confirmDeleteRpcTitle"
+          confirmDeleteTitleI18nKeyBase="confirmDeleteRpcTitle"
           confirmDeleteDescriptionI18nKey="confirmDeleteRpcDescription"
           deleteLabelI18nKey="deleteRpc"
           successfullyAddedMessageI18nKey="rpcAdded"
@@ -119,9 +115,9 @@ const ChainExistentSettings = memo<ChainExistentSettingsProps>(({ chain, bottomE
           activeItemId={chain.activeBlockExplorer?.id ?? ''}
           title={<T id="blockExplorer" />}
           items={chain.allBlockExplorers}
-          editModalTitleI18nKey="editSomeBlockExplorer"
+          editModalTitleI18nKeyBase="editSomeBlockExplorer"
           createModalTitle={t('addSomeBlockExplorer', chain.name)}
-          confirmDeleteTitleI18nKey="confirmDeleteBlockExplorerTitle"
+          confirmDeleteTitleI18nKeyBase="confirmDeleteBlockExplorerTitle"
           deleteLabelI18nKey="deleteBlockExplorer"
           confirmDeleteDescriptionI18nKey="confirmDeleteBlockExplorerDescription"
           successfullyAddedMessageI18nKey="blockExplorerAdded"
@@ -149,7 +145,11 @@ const ChainExistentSettings = memo<ChainExistentSettingsProps>(({ chain, bottomE
         </ActionsButtonsBox>
       )}
       {removeChainModalIsOpen && (
-        <ActionModal title={t('removeNetworkModalTitle', chain.name)} hasCloseButton={false}>
+        <ShortenedEntityNameActionModal
+          titleI18nKeyBase="removeNetworkModalTitle"
+          entityName={chain.nameI18nKey ? <T id={chain.nameI18nKey} /> : chain.name}
+          hasCloseButton={false}
+        >
           <ActionModalBodyContainer>
             <p className="text-center text-grey-1 text-font-description">
               <T id="removeNetworkModalDescription" />
@@ -172,7 +172,7 @@ const ChainExistentSettings = memo<ChainExistentSettingsProps>(({ chain, bottomE
               <T id="remove" />
             </ActionModalButton>
           </ActionModalButtonsContainer>
-        </ActionModal>
+        </ShortenedEntityNameActionModal>
       )}
     </>
   );
@@ -196,7 +196,7 @@ export const ChainSettings = memo<ChainSettingsProps>(props => {
   return (
     <PageLayout
       contentPadding={false}
-      pageTitle={pageTitle}
+      pageTitle={<span className="truncate">{pageTitle}</span>}
       onBottomEdgeVisibilityChange={setBottomEdgeIsVisible}
       bottomEdgeThreshold={16}
     >
