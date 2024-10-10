@@ -2,6 +2,7 @@ import React, { FC, useCallback, useEffect, useMemo, useState } from 'react';
 
 import { omit } from 'lodash';
 import { FormProvider, useForm } from 'react-hook-form-v7';
+import { useDebounce } from 'use-debounce';
 import { formatEther, parseEther, serializeTransaction } from 'viem';
 
 import { CLOSE_ANIMATION_TIMEOUT } from 'app/atoms/PageModal';
@@ -14,6 +15,7 @@ import { useTempleClient } from 'lib/temple/front';
 import { ZERO } from 'lib/utils/numbers';
 
 import { BaseContent, Tab } from './BaseContent';
+import { DEFAULT_INPUT_DEBOUNCE } from './contants';
 import { useEvmEstimationDataState } from './context';
 import { useEvmFeeOptions } from './hooks/use-evm-fee-options';
 import { EvmTxParamsFormData, FeeOptionLabel } from './interfaces';
@@ -37,8 +39,10 @@ export const EvmContent: FC<EvmContentProps> = ({ data, onClose }) => {
   const { watch, formState, setValue } = form;
 
   const gasPriceValue = watch('gasPrice');
-  const gasLimitValue = watch('gasLimit');
-  const nonceValue = watch('nonce');
+
+  const [debouncedNonce] = useDebounce(watch('nonce'), DEFAULT_INPUT_DEBOUNCE);
+  const [debouncedGasLimit] = useDebounce(watch('gasLimit'), DEFAULT_INPUT_DEBOUNCE);
+  const [debouncedGasPrice] = useDebounce(gasPriceValue, DEFAULT_INPUT_DEBOUNCE);
 
   const [tab, setTab] = useState<Tab>('details');
   const [selectedFeeOption, setSelectedFeeOption] = useState<FeeOptionLabel | nullish>('mid');
@@ -55,7 +59,7 @@ export const EvmContent: FC<EvmContentProps> = ({ data, onClose }) => {
     amount
   );
 
-  const feeOptions = useEvmFeeOptions(gasLimitValue, estimationData);
+  const feeOptions = useEvmFeeOptions(debouncedGasLimit, estimationData);
   const { setData } = useEvmEstimationDataState();
 
   useEffect(() => {
@@ -69,12 +73,12 @@ export const EvmContent: FC<EvmContentProps> = ({ data, onClose }) => {
   const rawTransaction = useMemo(() => {
     if (!estimationData || !feeOptions) return null;
 
-    const parsedGasPrice = gasPriceValue ? parseEther(gasPriceValue, 'gwei') : null;
+    const parsedGasPrice = debouncedGasPrice ? parseEther(debouncedGasPrice, 'gwei') : null;
 
     return serializeTransaction({
       chainId: network.chainId,
-      gas: gasLimitValue ? BigInt(gasLimitValue) : estimationData.gas,
-      nonce: nonceValue ? Number(nonceValue) : estimationData.nonce,
+      gas: debouncedGasLimit ? BigInt(debouncedGasLimit) : estimationData.gas,
+      nonce: debouncedNonce ? Number(debouncedNonce) : estimationData.nonce,
       to: to as HexString,
       value: parseEther(amount),
       ...(selectedFeeOption ? feeOptions.gasPrice[selectedFeeOption] : feeOptions.gasPrice.mid),
@@ -82,12 +86,12 @@ export const EvmContent: FC<EvmContentProps> = ({ data, onClose }) => {
     });
   }, [
     amount,
+    debouncedGasLimit,
+    debouncedGasPrice,
+    debouncedNonce,
     estimationData,
     feeOptions,
-    gasLimitValue,
-    gasPriceValue,
     network.chainId,
-    nonceValue,
     selectedFeeOption,
     to
   ]);
@@ -99,14 +103,14 @@ export const EvmContent: FC<EvmContentProps> = ({ data, onClose }) => {
   const displayedFee = useMemo(() => {
     if (feeOptions && selectedFeeOption) return feeOptions.displayed[selectedFeeOption];
 
-    if (estimationData && gasPriceValue) {
-      const gas = gasLimitValue ? BigInt(gasLimitValue) : estimationData.gas;
+    if (estimationData && debouncedGasPrice) {
+      const gas = debouncedGasLimit ? BigInt(debouncedGasLimit) : estimationData.gas;
 
-      return formatEther(gas * parseEther(gasPriceValue, 'gwei'));
+      return formatEther(gas * parseEther(debouncedGasPrice, 'gwei'));
     }
 
     return '0';
-  }, [feeOptions, selectedFeeOption, estimationData, gasLimitValue, gasPriceValue]);
+  }, [feeOptions, selectedFeeOption, estimationData, debouncedGasPrice, debouncedGasLimit]);
 
   const handleFeeOptionSelect = useCallback(
     (label: FeeOptionLabel) => {
@@ -120,7 +124,7 @@ export const EvmContent: FC<EvmContentProps> = ({ data, onClose }) => {
     async ({ gasPrice, gasLimit, nonce }: EvmTxParamsFormData) => {
       if (formState.isSubmitting) return;
 
-      if (!estimationData) {
+      if (!estimationData || !feeOptions) {
         toastError('Failed to estimate transaction.');
 
         return;
@@ -133,7 +137,7 @@ export const EvmContent: FC<EvmContentProps> = ({ data, onClose }) => {
           to: to as HexString,
           value: parseEther(amount),
           ...omit(estimationData, 'estimatedFee'),
-          ...(feeOptions && selectedFeeOption ? feeOptions.gasPrice[selectedFeeOption] : {}),
+          ...(selectedFeeOption ? feeOptions.gasPrice[selectedFeeOption] : feeOptions.gasPrice.mid),
           ...(parsedGasPrice ? { maxFeePerGas: parsedGasPrice, maxPriorityFeePerGas: parsedGasPrice } : {}),
           ...(gasLimit ? { gas: BigInt(gasLimit) } : {}),
           ...(nonce ? { nonce: Number(nonce) } : {})

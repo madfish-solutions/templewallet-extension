@@ -123,7 +123,7 @@ const TezosContent = () => {
         render={({ field }) => (
           <NoSpaceField
             textarea
-            rows={3}
+            rows={5}
             readOnly
             placeholder="Info"
             style={{ resize: 'none' }}
