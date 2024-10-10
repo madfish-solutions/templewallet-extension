@@ -1,12 +1,16 @@
 import { useCallback } from 'react';
 
+import BigNumber from 'bignumber.js';
 import { pick } from 'lodash';
 import { parseEther } from 'viem';
 
 import { toastError } from 'app/toaster';
+import { isNativeTokenAddress } from 'lib/apis/temple/endpoints/evm/api.utils';
 import { useTypedSWR } from 'lib/swr';
 import { getReadOnlyEvm } from 'temple/evm';
 import { EvmChain } from 'temple/front';
+
+import { checkZeroBalance } from './utils';
 
 export interface EvmEstimationData {
   estimatedFee: bigint;
@@ -22,11 +26,17 @@ export const useEvmEstimationData = (
   assetSlug: string,
   accountPkh: HexString,
   network: EvmChain,
+  balance: BigNumber,
+  ethBalance: BigNumber,
   toFilled?: boolean,
   amount?: string
 ) => {
   const estimate = useCallback(async (): Promise<EvmEstimationData | undefined> => {
     try {
+      const isNativeToken = isNativeTokenAddress(network.chainId, assetSlug);
+
+      checkZeroBalance(balance, ethBalance, isNativeToken);
+
       const publicClient = getReadOnlyEvm(network.rpcBaseURL);
 
       const transaction = await publicClient.prepareTransactionRequest({
@@ -56,11 +66,15 @@ export const useEvmEstimationData = (
 
       return undefined;
     }
-  }, [network, accountPkh, to, amount]);
+  }, [network, assetSlug, balance, ethBalance, to, accountPkh, amount]);
 
-  return useTypedSWR(toFilled ? ['evm-estimation-data', network.chainId, assetSlug, accountPkh, to] : null, estimate, {
-    shouldRetryOnError: false,
-    focusThrottleInterval: 10_000,
-    dedupingInterval: 10_000
-  });
+  return useTypedSWR(
+    toFilled ? ['evm-estimation-data', network.chainId, assetSlug, accountPkh, to, amount] : null,
+    estimate,
+    {
+      shouldRetryOnError: false,
+      focusThrottleInterval: 10_000,
+      dedupingInterval: 10_000
+    }
+  );
 };

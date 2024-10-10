@@ -8,7 +8,10 @@ import { CLOSE_ANIMATION_TIMEOUT } from 'app/atoms/PageModal';
 import { EvmReviewData } from 'app/pages/Send/form/interfaces';
 import { useEvmEstimationData } from 'app/pages/Send/hooks/use-evm-estimation-data';
 import { toastError, toastSuccess } from 'app/toaster';
+import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
+import { useEvmTokenBalance } from 'lib/balances/hooks';
 import { useTempleClient } from 'lib/temple/front';
+import { ZERO } from 'lib/utils/numbers';
 
 import { BaseContent, Tab } from './BaseContent';
 import { useEvmEstimationDataState } from './context';
@@ -27,6 +30,9 @@ export const EvmContent: FC<EvmContentProps> = ({ data, onClose }) => {
 
   const { sendEvmTransaction } = useTempleClient();
 
+  const { value: balance = ZERO } = useEvmTokenBalance(assetSlug, accountPkh, network);
+  const { value: ethBalance = ZERO } = useEvmTokenBalance(EVM_TOKEN_SLUG, accountPkh, network);
+
   const form = useForm<EvmTxParamsFormData>({ mode: 'onChange' });
   const { watch, formState, setValue } = form;
 
@@ -38,7 +44,16 @@ export const EvmContent: FC<EvmContentProps> = ({ data, onClose }) => {
   const [selectedFeeOption, setSelectedFeeOption] = useState<FeeOptionLabel | nullish>('mid');
   const [latestSubmitError, setLatestSubmitError] = useState<string | nullish>(null);
 
-  const { data: estimationData } = useEvmEstimationData(to as HexString, assetSlug, accountPkh, network, true, amount);
+  const { data: estimationData } = useEvmEstimationData(
+    to as HexString,
+    assetSlug,
+    accountPkh,
+    network,
+    balance,
+    ethBalance,
+    true,
+    amount
+  );
 
   const feeOptions = useEvmFeeOptions(gasLimitValue, estimationData);
   const { setData } = useEvmEstimationDataState();

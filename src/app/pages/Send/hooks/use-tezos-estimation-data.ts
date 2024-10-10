@@ -3,7 +3,6 @@ import { useCallback } from 'react';
 import { Estimate, getRevealFee, TezosToolkit } from '@taquito/taquito';
 import BigNumber from 'bignumber.js';
 
-import { NotEnoughFundsError, ZeroBalanceError, ZeroTEZBalanceError } from 'app/defaults';
 import { toastError } from 'app/toaster';
 import { isTezAsset, toPenny } from 'lib/assets';
 import { toTransferParams } from 'lib/assets/contract.utils';
@@ -15,6 +14,8 @@ import { tezosManagerKeyHasManager } from 'lib/tezos';
 import { AccountForTezos } from 'temple/accounts';
 
 import { estimateTezosMaxFee } from '../form/utils';
+
+import { checkZeroBalance } from './utils';
 
 interface TezosEstimationData {
   baseFee: BigNumber;
@@ -35,34 +36,26 @@ export const useTezosEstimationData = (
 ) => {
   const estimate = useCallback(async (): Promise<TezosEstimationData | undefined> => {
     try {
-      if (!assetMetadata) throw new Error('Metadata not found');
+      const isTez = isTezAsset(assetSlug);
 
-      const tez = isTezAsset(assetSlug);
+      checkZeroBalance(balance, tezBalance, isTez);
 
-      if (balance.isZero()) {
-        throw new ZeroBalanceError();
-      }
-
-      if (!tez) {
-        if (tezBalance.isZero()) {
-          throw new ZeroTEZBalanceError();
-        }
-      }
+      if (!assetMetadata) throw new Error('Asset metadata not found');
 
       const [transferParams, manager] = await Promise.all([
         toTransferParams(tezos, assetSlug, assetMetadata, accountPkh, to, toPenny(assetMetadata)),
         tezos.rpc.getManagerKey(account.ownerAddress || accountPkh)
       ]);
 
-      const estmtnMax = await estimateTezosMaxFee(account, tez, tezos, to, balance, transferParams, manager);
+      const estmtnMax = await estimateTezosMaxFee(account, isTez, tezos, to, balance, transferParams, manager);
 
       let estimatedBaseFee = mutezToTz(estmtnMax.burnFeeMutez + estmtnMax.suggestedFeeMutez);
       if (!tezosManagerKeyHasManager(manager)) {
         estimatedBaseFee = estimatedBaseFee.plus(mutezToTz(getRevealFee(to)));
       }
 
-      if (tez ? estimatedBaseFee.isGreaterThanOrEqualTo(balance) : estimatedBaseFee.isGreaterThan(tezBalance)) {
-        throw new NotEnoughFundsError();
+      if (isTez ? estimatedBaseFee.isGreaterThanOrEqualTo(balance) : estimatedBaseFee.isGreaterThan(tezBalance)) {
+        throw new Error('Not enough funds');
       }
 
       return {

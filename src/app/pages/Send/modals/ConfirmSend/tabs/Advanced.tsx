@@ -7,7 +7,7 @@ import AssetField from 'app/atoms/AssetField';
 import { CopyButton } from 'app/atoms/CopyButton';
 import { Tooltip } from 'app/atoms/Tooltip';
 import { ReactComponent as CopyIcon } from 'app/icons/base/copy.svg';
-import { t, T } from 'lib/i18n';
+import { t } from 'lib/i18n';
 
 import { useEvmEstimationDataState } from '../context';
 import { EvmTxParamsFormData, TezosTxParamsFormData } from '../interfaces';
@@ -31,12 +31,7 @@ const EvmContent = () => {
 
   return (
     <>
-      <div className="mb-1 px-1 flex flex-row justify-between items-center">
-        <p className="text-font-description-bold">
-          <T id="gasLimit" />
-        </p>
-        <Tooltip content={t('gasLimitInfoContent')} size={12} className="text-grey-2" />
-      </div>
+      <FieldLabelWithTooltip title={t('gasLimit')} tooltipContent={t('gasLimitInfoContent')} />
 
       <Controller
         name="gasLimit"
@@ -56,12 +51,7 @@ const EvmContent = () => {
         )}
       />
 
-      <div className="mb-1 px-1 flex flex-row justify-between items-center">
-        <p className="text-font-description-bold">
-          <T id="nonce" />
-        </p>
-        <Tooltip content={t('nonceInfoContent')} size={12} className="text-grey-2" />
-      </div>
+      <FieldLabelWithTooltip title={t('nonce')} tooltipContent={t('nonceInfoContent')} />
 
       <Controller
         name="nonce"
@@ -81,16 +71,8 @@ const EvmContent = () => {
         )}
       />
 
-      <div className="mb-1 flex flex-row justify-between items-center">
-        <p className="p-1 text-font-description-bold">Data</p>
-        <CopyButton
-          text={data?.data ?? ''}
-          className="text-secondary flex text-font-description-bold items-center px-1 py-0.5"
-        >
-          <span>Copy</span>
-          <IconBase size={12} Icon={CopyIcon} />
-        </CopyButton>
-      </div>
+      <FieldLabelWithCopyButton title="Data" copyableText={data?.data ?? ''} />
+
       <Controller
         name="data"
         control={control}
@@ -107,21 +89,21 @@ const EvmContent = () => {
         )}
       />
 
-      <div className="mb-1 flex flex-row justify-between items-center">
-        <p className="p-1 text-font-description-bold">Raw Transaction</p>
-        <CopyButton
-          text={getValues().rawTransaction}
-          className="text-secondary flex text-font-description-bold items-center px-1 py-0.5"
-        >
-          <span>Copy</span>
-          <IconBase size={12} Icon={CopyIcon} />
-        </CopyButton>
-      </div>
+      <FieldLabelWithCopyButton title="Raw Transaction" copyableText={getValues().rawTransaction} />
+
       <Controller
         name="rawTransaction"
         control={control}
         render={({ field }) => (
-          <NoSpaceField textarea rows={5} readOnly placeholder="Info" style={{ resize: 'none' }} {...field} />
+          <NoSpaceField
+            textarea
+            rows={5}
+            readOnly
+            placeholder="Info"
+            style={{ resize: 'none' }}
+            {...field}
+            containerClassName="mb-5"
+          />
         )}
       />
     </>
@@ -133,23 +115,57 @@ const TezosContent = () => {
 
   return (
     <>
-      <div className="mt-4 mb-1 flex flex-row justify-between items-center">
-        <p className="p-1 text-font-description-bold">Raw Transaction</p>
-        <CopyButton
-          text={getValues().rawTransaction}
-          className="text-secondary flex text-font-description-bold items-center px-1 py-0.5"
-        >
-          <span>Copy</span>
-          <IconBase size={12} Icon={CopyIcon} />
-        </CopyButton>
-      </div>
+      <FieldLabelWithCopyButton title="Raw Transaction" copyableText={getValues().rawTransaction} />
+
       <Controller
         name="rawTransaction"
         control={control}
         render={({ field }) => (
-          <NoSpaceField textarea rows={3} readOnly placeholder="Info" style={{ resize: 'none' }} {...field} />
+          <NoSpaceField
+            textarea
+            rows={3}
+            readOnly
+            placeholder="Info"
+            style={{ resize: 'none' }}
+            {...field}
+            containerClassName="mb-6"
+          />
         )}
       />
     </>
   );
 };
+
+interface FieldLabelProps extends PropsWithChildren {
+  title: string;
+}
+
+const FieldLabel: FC<FieldLabelProps> = ({ title, children }) => (
+  <div className="mb-1 p-1 flex flex-row justify-between items-center">
+    <p className="text-font-description-bold">{title}</p>
+    {children}
+  </div>
+);
+
+interface FieldLabelWithTooltipProps extends Pick<FieldLabelProps, 'title'> {
+  tooltipContent: string;
+}
+
+const FieldLabelWithTooltip: FC<FieldLabelWithTooltipProps> = ({ title, tooltipContent }) => (
+  <FieldLabel title={title}>
+    <Tooltip content={tooltipContent} size={12} className="text-grey-2" />
+  </FieldLabel>
+);
+
+interface FieldLabelWithCopyButtonProps extends Pick<FieldLabelProps, 'title'> {
+  copyableText: string;
+}
+
+const FieldLabelWithCopyButton: FC<FieldLabelWithCopyButtonProps> = ({ title, copyableText }) => (
+  <FieldLabel title={title}>
+    <CopyButton text={copyableText} className="text-secondary flex text-font-description-bold items-center">
+      <span>Copy</span>
+      <IconBase size={12} Icon={CopyIcon} />
+    </CopyButton>
+  </FieldLabel>
+);

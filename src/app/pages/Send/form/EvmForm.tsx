@@ -8,6 +8,7 @@ import { formatEther, isAddress } from 'viem';
 import { DeadEndBoundaryError } from 'app/ErrorBoundary';
 import { useEvmTokenMetadataSelector } from 'app/store/evm/tokens-metadata/selectors';
 import { useFormAnalytics } from 'lib/analytics';
+import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
 import { useEvmTokenBalance } from 'lib/balances/hooks';
 import { useAssetFiatCurrencyPrice } from 'lib/fiat-currency';
 import { t, toLocalFixed } from 'lib/i18n';
@@ -48,6 +49,7 @@ export const EvmForm: FC<Props> = ({ chainId, assetSlug, onSelectAssetClick, onR
   const formAnalytics = useFormAnalytics('SendForm');
 
   const { value: balance = ZERO } = useEvmTokenBalance(assetSlug, accountPkh, network);
+  const { value: ethBalance = ZERO } = useEvmTokenBalance(EVM_TOKEN_SLUG, accountPkh, network);
 
   const [shouldUseFiat, setShouldUseFiat] = useSafeState(false);
 
@@ -107,6 +109,8 @@ export const EvmForm: FC<Props> = ({ chainId, assetSlug, onSelectAssetClick, onR
     assetSlug,
     accountPkh,
     network,
+    balance,
+    ethBalance,
     toFilled
   );
 

@@ -1,5 +1,6 @@
 import React, { FC, useMemo } from 'react';
 
+import clsx from 'clsx';
 import { Controller, useFormContext } from 'react-hook-form-v7';
 import { formatEther } from 'viem';
 
@@ -57,14 +58,7 @@ const EvmContent: FC<Pick<FeeTabProps, 'selectedOption' | 'onOptionSelect'>> = (
 
   return (
     <>
-      <div className="mt-4 mb-1 px-1 flex flex-row justify-between items-center">
-        <p className="text-font-description-bold">
-          <T id="gasPrice" />
-        </p>
-        <p className="text-grey-2 text-font-description">
-          <T id="optional" />
-        </p>
-      </div>
+      <OptionalFieldLabel title={t('gasPrice')} className="mt-4" />
 
       <Controller
         name="gasPrice"
@@ -96,14 +90,7 @@ const TezosContent: FC<Pick<FeeTabProps, 'onOptionSelect'>> = ({ onOptionSelect 
 
   return (
     <>
-      <div className="mt-4 mb-1 px-1 flex flex-row justify-between items-center">
-        <p className="text-font-description-bold">
-          <T id="gasFee" />
-        </p>
-        <p className="text-grey-2 text-font-description">
-          <T id="optional" />
-        </p>
-      </div>
+      <OptionalFieldLabel title={t('gasFee')} className="mt-4" />
 
       <Controller
         name="gasFee"
@@ -124,26 +111,27 @@ const TezosContent: FC<Pick<FeeTabProps, 'onOptionSelect'>> = ({ onOptionSelect 
         )}
       />
 
-      <div className="mt-3 mb-1 px-1 flex flex-row justify-between items-center">
-        <p className="text-font-description-bold">Storage Limit</p>
-        <p className="text-grey-2 text-font-description">
-          <T id="optional" />
-        </p>
-      </div>
+      <OptionalFieldLabel title="Storage Limit" className="mt-3" />
 
       <Controller
         name="storageLimit"
         control={control}
-        render={({ field }) => (
-          <AssetField
-            placeholder="0.00"
-            min={0}
-            assetDecimals={6}
-            rightSideComponent={<div className="text-font-description-bold text-grey-2">TEZ</div>}
-            {...field}
-          />
-        )}
+        render={({ field }) => <AssetField placeholder="0.00" min={0} assetDecimals={6} {...field} />}
       />
     </>
   );
 };
+
+interface OptionalFieldLabelProps {
+  title: string;
+  className?: string;
+}
+
+const OptionalFieldLabel: FC<OptionalFieldLabelProps> = ({ title, className }) => (
+  <div className={clsx('mb-1 flex flex-row justify-between items-center', className)}>
+    <p className="text-font-description-bold">{title}</p>
+    <p className="text-grey-2 text-font-description">
+      <T id="optional" />
+    </p>
+  </div>
+);
