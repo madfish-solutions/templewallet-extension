@@ -1,6 +1,7 @@
 import { localForger } from '@taquito/local-forging';
 import { ForgeOperationsParams } from '@taquito/rpc';
 import { Estimate, TezosToolkit } from '@taquito/taquito';
+import { omit } from 'lodash';
 
 import { formatOpParamsBeforeSend } from 'lib/temple/helpers';
 import { ReadOnlySigner } from 'lib/temple/read-only-signer';
@@ -85,10 +86,10 @@ export async function dryRunOpParams({
           opParams: opParams.map((op, i) => {
             const eIndex = withReveal ? i + 1 : i;
             return {
-              ...op,
+              ...omit(op, ['storage_limit', 'gas_limit']),
               fee: op.fee ?? estimates?.[eIndex].suggestedFeeMutez,
-              gasLimit: op.gasLimit ?? estimates?.[eIndex].gasLimit,
-              storageLimit: op.storageLimit ?? estimates?.[eIndex].storageLimit
+              gasLimit: op.gas_limit ?? estimates?.[eIndex].gasLimit,
+              storageLimit: op.storage_limit ?? estimates?.[eIndex].storageLimit
             };
           })
         }

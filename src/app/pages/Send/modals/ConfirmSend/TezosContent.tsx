@@ -14,7 +14,7 @@ import { useTezosAssetBalance } from 'lib/balances';
 import { useTezosAssetMetadata } from 'lib/metadata';
 import { transferImplicit, transferToContract } from 'lib/michelson';
 import { loadContract } from 'lib/temple/contract';
-import { tzToMutez } from 'lib/temple/helpers';
+import { mutezToTz, tzToMutez } from 'lib/temple/helpers';
 import { isTezosContractAddress } from 'lib/tezos';
 import { ZERO } from 'lib/utils/numbers';
 import { getTezosToolkitWithSigner } from 'temple/front';
@@ -38,7 +38,7 @@ export const TezosContent: FC<TezosContentProps> = ({ data, onClose }) => {
   const { watch, formState, setValue } = form;
 
   const gasFeeValue = watch('gasFee');
-  const StorageLimitValue = watch('storageLimit');
+  const storageLimitValue = watch('storageLimit');
 
   const [tab, setTab] = useState<Tab>('details');
   const [selectedFeeOption, setSelectedFeeOption] = useState<FeeOptionLabel | null>('mid');
@@ -90,6 +90,18 @@ export const TezosContent: FC<TezosContentProps> = ({ data, onClose }) => {
     return;
   }, [selectedFeeOption, gasFeeValue, displayedFeeOptions]);
 
+  const displayedStorageLimit = useMemo(() => {
+    if (!estimationData) return;
+
+    const estimates = estimationData.estimates;
+
+    const storageLimit = storageLimitValue || estimates.storageLimit;
+    // @ts-expect-error
+    const minimalFeePerStorageByteMutez = estimates.minimalFeePerStorageByteMutez;
+
+    return mutezToTz(new BigNumber(storageLimit).times(minimalFeePerStorageByteMutez)).toString();
+  }, [estimationData, storageLimitValue]);
+
   useEffect(() => {
     if (gasFeeValue && selectedFeeOption) setSelectedFeeOption(null);
   }, [gasFeeValue, selectedFeeOption]);
@@ -131,7 +143,7 @@ export const TezosContent: FC<TezosContentProps> = ({ data, onClose }) => {
               fee: tzToMutez(
                 displayedFeeOptions && selectedFeeOption ? displayedFeeOptions[selectedFeeOption] : gasFee
               ).toNumber(),
-              storageLimit: storageLimit ? tzToMutez(storageLimit).toNumber() : estmtn.storageLimit
+              storageLimit: storageLimit ? Number(storageLimit) : estmtn.storageLimit
             })
             .send();
         }
@@ -176,7 +188,7 @@ export const TezosContent: FC<TezosContentProps> = ({ data, onClose }) => {
         selectedTab={tab}
         setSelectedTab={setTab}
         latestSubmitError={latestSubmitError}
-        displayedStorageLimit={StorageLimitValue || '0'}
+        displayedStorageLimit={displayedStorageLimit}
         onFeeOptionSelect={handleFeeOptionSelect}
         selectedFeeOption={selectedFeeOption}
         onCancel={onClose}

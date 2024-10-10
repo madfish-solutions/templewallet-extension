@@ -114,7 +114,7 @@ const TezosContent: FC<ContentProps> = ({ selectedOption, onOptionSelect }) => {
             min={0}
             assetDecimals={6}
             rightSideComponent={<div className="text-font-description-bold text-grey-2">TEZ</div>}
-            onChange={onChange}
+            onChange={v => onChange(v ?? '')}
             onBlur={() => {
               if (!value) onOptionSelect('mid');
               onBlur();
@@ -130,8 +130,15 @@ const TezosContent: FC<ContentProps> = ({ selectedOption, onOptionSelect }) => {
       <Controller
         name="storageLimit"
         control={control}
-        render={({ field: { value, ...rest } }) => (
-          <AssetField value={value || data?.estimates.storageLimit} placeholder="0" min={0} onlyInteger {...rest} />
+        render={({ field: { value, onChange, onBlur } }) => (
+          <AssetField
+            value={value || data?.estimates.storageLimit}
+            placeholder="0"
+            min={0}
+            onlyInteger
+            onChange={v => onChange(v ?? '')}
+            onBlur={onBlur}
+          />
         )}
       />
     </>
