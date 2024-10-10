@@ -81,7 +81,6 @@ export const TEZOS_DEFAULT_NETWORKS: NonEmptyArray<StoredTezosNetwork> = [
   {
     id: 'marigold-mainnet',
     name: 'Marigold Mainnet',
-    nameI18nKey: 'marigoldMainnet',
     chain: TempleChainKind.Tezos,
     chainId: TempleTezosChainId.Mainnet,
     rpcBaseURL: 'https://mainnet.tezos.marigold.dev',
