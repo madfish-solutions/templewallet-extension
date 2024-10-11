@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import constate from 'constate';
 import { omit } from 'lodash';
+import browser from 'webextension-polyfill';
 
 import { WALLETS_SPECS_STORAGE_KEY } from 'lib/constants';
 import { useRetryableSWR } from 'lib/swr';
@@ -364,6 +365,16 @@ export const [TempleClientProvider, useTempleClient] = constate(() => {
     return res.sessions;
   }, []);
 
+  const resetExtension = useCallback(async (password: string) => {
+    const res = await request({
+      type: TempleMessageType.ResetExtensionRequest,
+      password
+    });
+    assertResponse(res.type === TempleMessageType.ResetExtensionResponse);
+    localStorage.clear();
+    browser.runtime.reload();
+  }, []);
+
   return {
     state,
 
@@ -408,6 +419,7 @@ export const [TempleClientProvider, useTempleClient] = constate(() => {
     confirmDAppOperation,
     confirmDAppSign,
     getAllDAppSessions,
-    removeDAppSession
+    removeDAppSession,
+    resetExtension
   };
 });

@@ -9,4 +9,6 @@ export const getIsLockUpEnabled = () => {
   return stored ? stored === 'true' : DEFAULT_VALUE;
 };
 
+// TODO: remove this comment while making 'Security' settings section
+// @ts-prune-ignore-next
 export const useIsLockUpEnabled = () => useLocalStorage(STORAGE_KEY, DEFAULT_VALUE);

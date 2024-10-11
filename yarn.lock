@@ -1605,24 +1605,24 @@
   integrity sha512-tAgvZQe/t2mlvpNosA4+CkMiZ2azISW5WPAcdSalZlEjQvUfghHxfQcrCiK/7/CrfAWVxyM88kGFYO82heIGDg==
 
 "@dicebear/bottts-neutral@^8.0.1":
-  version "8.0.1"
-  resolved "https://registry.yarnpkg.com/@dicebear/bottts-neutral/-/bottts-neutral-8.0.1.tgz#22f2547cd74669f5fc38ffd5298f083b049daaba"
-  integrity sha512-krbD3U+UvzlY+kfQDpg9Hql1xJmmu3y9ensiU+XZXiuNw/ZavgGqpJtzpbYeF3J5GsggQlbBh/ZAK9AIKz7S3Q==
+  version "8.0.2"
+  resolved "https://registry.yarnpkg.com/@dicebear/bottts-neutral/-/bottts-neutral-8.0.2.tgz#4e3ff249202c570acd79e5cbfc4dc14a6a403962"
+  integrity sha512-khiccnWoo0ivb+3PyneuWcL4bJc9+izAFFKIXvE3h7ozOT6VCT4h2WtYULaPwDYBAr85CygxgdWKd7aAujK6JQ==
 
-"@dicebear/converter@8.0.1":
-  version "8.0.1"
-  resolved "https://registry.yarnpkg.com/@dicebear/converter/-/converter-8.0.1.tgz#c037c1404f73a994ee4f943928edb367029425e1"
-  integrity sha512-65L04fN4V07WcUnwQuDYDH+zrP8WA6/UeIuqqH/Pv7VWoJtIk9qHlaA+XGpPr4qgRtkmY7uXVkrED/RMlqvUDA==
+"@dicebear/converter@8.0.2":
+  version "8.0.2"
+  resolved "https://registry.yarnpkg.com/@dicebear/converter/-/converter-8.0.2.tgz#a1c5e8c8d324d80512786a7e8a0f3788c210ca83"
+  integrity sha512-mREmyQLIfHnt30Xzjc9ZHgDgIzbF7BXApBCYolnB2kO2Kpb14OdmsyLRsYe/Tt+Vt6sLgiigWoZFcRvbStRhLA==
   dependencies:
     "@types/json-schema" "^7.0.11"
     tmp-promise "^3.0.3"
 
 "@dicebear/core@^8.0.1":
-  version "8.0.1"
-  resolved "https://registry.yarnpkg.com/@dicebear/core/-/core-8.0.1.tgz#3ac1e98a5380071c4a1e0d874cc8ff83b1c9ba8f"
-  integrity sha512-HWqvQRpVjkboQXinCOjU3poZIMd5p+32wPvc9N5fYiXe3KQLhJNw5T5XiRttDUm3XpoTvhQ4DVTPDsXT8CqrTg==
+  version "8.0.2"
+  resolved "https://registry.yarnpkg.com/@dicebear/core/-/core-8.0.2.tgz#6d42cbdd1ae11a6bb344e71ddefbc654ee3f3f4f"
+  integrity sha512-Zr3dBAH+6BBYc2kjz7KvJCMYasQlsY9CZ7D3abgZhk/XRT4B3qxo8kP+FL8YjJvrOJyV2P7h08BAKZlTWuKXPA==
   dependencies:
-    "@dicebear/converter" "8.0.1"
+    "@dicebear/converter" "8.0.2"
     "@types/json-schema" "^7.0.11"
 
 "@discoveryjs/json-ext@^0.5.0":

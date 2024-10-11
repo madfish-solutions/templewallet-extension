@@ -51,15 +51,9 @@
       }
     }
   },
-  "authorizedDApps": {
-    "message": "Authorized DApps",
-    "description": "DApps = Decentralized Applications"
-  },
-  "advancedFeatures": {
-    "message": "Advanced Features"
-  },
-  "advancedFeaturesDescription": {
-    "message": "In this section you can customize additional Temple extension features"
+  "connectedDApps": {
+    "message": "Connected Dapps",
+    "description": "Dapps = Decentralized Applications"
   },
   "clickIconToResetPermissions": {
     "message": "Click on the X icon to reset permissions."
@@ -699,6 +693,18 @@
   "resetExtension": {
     "message": "Reset Extension"
   },
+  "resetExtensionModalTitle": {
+    "message": "Reset Extension?"
+  },
+  "resetExtensionModalDescription": {
+    "message": "Resetting will delete wallets, accounts and erase all data. Ensure your Seed Phrases and Private Keys are backed up to avoid permanent loss and recover access to assets later."
+  },
+  "resetPasswordInputLabel": {
+    "message": "Enter the password to confirm reset"
+  },
+  "reset": {
+    "message": "Reset"
+  },
   "resetExtensionConfirmation": {
     "message": "Are you sure you want to reset the Temple Wallet?\nAs a result, all your data will be deleted."
   },
@@ -944,28 +950,15 @@
   "revealPrivateKey": {
     "message": "Reveal Private Key"
   },
-  "revealPrivateKeyDescription": {
-    "message": "Also known as \"Export Account\", reveals private key for your selected account."
-  },
   "revealPrivateKeyPasswordLabel": {
     "message": "Enter your password to reveal private key"
   },
   "revealSeedPhrase": {
     "message": "Reveal Seed Phrase"
   },
-  "revealSeedPhraseDescription": {
-    "message": "Also known as \"Export Wallet\", you may need this seed phrase to access your wallet and accounts on other devices."
-  },
   "dApps": {
     "message": "DApps",
     "description": "DApps = Decentralized Applications"
-  },
-  "dAppsDescription": {
-    "message": "In this section you can enable ability to interact with decentralized applications that support Temple Wallet."
-  },
-  "networksDescription": {
-    "message": "In this section you can add or delete custom Tezos networks.",
-    "description": "Tezos = blockchain name (https://tezos.com/)"
   },
   "removeAccount": {
     "message": "Remove Account"
@@ -976,8 +969,8 @@
   "accountsManagement": {
     "message": "Accounts management"
   },
-  "accountsManagementDescription": {
-    "message": "Use this section to create, edit, and delete accounts."
+  "securityAndPrivacy": {
+    "message": "Security & Privacy"
   },
   "editAccount": {
     "message": "Edit Account"
@@ -1022,14 +1015,14 @@
   "selectNetworkToReveal": {
     "message": "Select Network to reveal"
   },
-  "about": {
-    "message": "About"
+  "advancedFeatures": {
+    "message": "Advanced Features"
+  },
+  "aboutAndSupport": {
+    "message": "About & Support"
   },
   "info": {
     "message": "Info"
-  },
-  "aboutDescription": {
-    "message": "Use this section to view meta info about Temple Wallet."
   },
   "unlockWallet": {
     "message": "Unlock the Wallet"
@@ -1802,7 +1795,7 @@
   "upload": {
     "message": "Upload"
   },
-  "languageAndCountry": {
+  "language": {
     "message": "Language"
   },
   "fiatCurrency": {
@@ -1810,9 +1803,6 @@
   },
   "generalSettings": {
     "message": "General"
-  },
-  "generalSettingsDescription": {
-    "message": "Here you can manage languages preferences and display mode."
   },
   "swapNoun": {
     "message": "Swap"
@@ -1989,10 +1979,10 @@
     }
   },
   "popupSettings": {
-    "message": "Popup mode"
+    "message": "Pop-up Mode"
   },
   "popupSettingsDescription": {
-    "message": "Here you can configure the popup which appears on plugin's icon click in extensions panel."
+    "message": "Here you can configure the pop-up which appears on plugin's icon click in extensions panel."
   },
   "analyticsSettings": {
     "message": "Anonymous Analytics"
@@ -2156,8 +2146,14 @@
   "actionConfirmation": {
     "message": "Confirm the action"
   },
-  "closePartnersPromotion": {
-    "message": "Are you sure you want to disable all ads?"
+  "adsEnabledAlertTitle": {
+    "message": "Earn TKEY & Support Temple"
+  },
+  "adsEnabledAlertDescription": {
+    "message": "Congrats, you've started earning TKEY tokens!\nBy enabling this feature, you agreed to share your Wallet address and IP to receive tokens and view ads. You can turn ads off or on anytime in the settings."
+  },
+  "disableAdsModalTitle": {
+    "message": "Disable advertising?"
   },
   "hideAd": {
     "message": "Hide Ad"
@@ -2584,9 +2580,6 @@
   "addressBook": {
     "message": "Address Book"
   },
-  "addressBookDescription": {
-    "message": "Add, remove and manage your contacts."
-  },
   "addNewContact": {
     "message": "New contact"
   },
@@ -2608,8 +2601,8 @@
   "deleteContactConfirm": {
     "message": "Are you sure you want to delete this contact?"
   },
-  "closePartnersPromoConfirm": {
-    "message": "Pay attention: you can receive rewards in TKEY tokens for viewing ads in our wallet. If you disabled Ads, you can always activate it in the settings."
+  "disableAdsModalDescription": {
+    "message": "Did you know, you can earn TKEY tokens by viewing ads? If ads are turned off, you can easily enable them anytime in the settings and start earning rewards!"
   },
   "enablePartnersPromotionConfirm": {
     "message": "Support the development team and earn TKEY tokens by viewing ads."
@@ -2816,12 +2809,7 @@
     "description": "Part of partnersPromoDescription phrase"
   },
   "partnersPromoDescription": {
-    "message": "Here you can configure displaying of ads in Temple wallet. Remember, you get $rewards$ at TKEY tokens for viewing ads.",
-    "placeholders": {
-      "rewards": {
-        "content": "$1"
-      }
-    }
+    "message": "Here you can configure displaying ads in Temple Wallet and getting reward in TKEY tokens. By enabling this, you agree to share your wallet address and IP to receive tokens and view ads."
   },
   "referralLinks": {
     "message": "Referral Links"
@@ -3202,11 +3190,8 @@
   "sync": {
     "message": "Sync"
   },
-  "synchronization": {
-    "message": "Synchronization"
-  },
-  "synchronizationSettingsDescription": {
-    "message": "Sync with Mobile Temple Wallet."
+  "templeSync": {
+    "message": "Temple Sync"
   },
   "syncSettingsTitle": {
     "message": "Sync with Mobile Temple Wallet"
@@ -3476,5 +3461,107 @@
   },
   "allNetworks": {
     "message": "All Networks"
+  },
+  "enLangName": {
+    "message": "English"
+  },
+  "en_GBLangName": {
+    "message": "English ‒ United Kingdom"
+  },
+  "frLangName": {
+    "message": "French"
+  },
+  "deLangName": {
+    "message": "German"
+  },
+  "zh_CNLangName": {
+    "message": "Chinese ‒ Simplified"
+  },
+  "zh_TWLangName": {
+    "message": "Chinese ‒ Traditional"
+  },
+  "jaLangName": {
+    "message": "Japanese"
+  },
+  "koLangName": {
+    "message": "Korean"
+  },
+  "ukLangName": {
+    "message": "Ukrainian"
+  },
+  "trLangName": {
+    "message": "Turkish"
+  },
+  "ptLangName": {
+    "message": "Portuguese"
+  },
+  "usdName": {
+    "message": "United States Dollar"
+  },
+  "eurName": {
+    "message": "Euro"
+  },
+  "gbpName": {
+    "message": "British Pound"
+  },
+  "jpyName": {
+    "message": "Japanese Yen"
+  },
+  "audName": {
+    "message": "Australian Dollar"
+  },
+  "cadName": {
+    "message": "Canadian Dollar"
+  },
+  "chfName": {
+    "message": "Swiss Franc"
+  },
+  "cnyName": {
+    "message": "Chinese Yuan"
+  },
+  "dkkName": {
+    "message": "Danish Krone"
+  },
+  "hkdName": {
+    "message": "Hong Kong Dollar"
+  },
+  "idrName": {
+    "message": "Indonesian Rupiah"
+  },
+  "inrName": {
+    "message": "Indian Rupee"
+  },
+  "krwName": {
+    "message": "South Korean Won"
+  },
+  "mxnName": {
+    "message": "Mexican Peso"
+  },
+  "nzdName": {
+    "message": "New Zealand Dollar"
+  },
+  "plnName": {
+    "message": "Polish Zloty"
+  },
+  "sekName": {
+    "message": "Swedish Krona"
+  },
+  "sgdName": {
+    "message": "Singapore Dollar"
+  },
+  "thbName": {
+    "message": "Thai Baht"
+  },
+  "tryName": {
+    "message": "Turkish Lira"
+  },
+  "twdName": {
+    "message": "Taiwan Dollar"
+  },
+  "uahName": {
+    "message": "Ukrainian Hryvnia"
+  },
+  "zarName": {
+    "message": "South African Rand"
   }
 }

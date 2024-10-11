@@ -5,7 +5,7 @@ import { ReferralLinksSettings } from './referral-links-settings';
 
 export const AdvancedFeatures = memo(() => {
   return (
-    <div className="w-full max-w-sm mx-auto my-8">
+    <div className="w-full flex flex-col gap-4">
       <PartnersPromotionSettings />
 
       <ReferralLinksSettings />

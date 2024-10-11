@@ -5,7 +5,7 @@ import clsx from 'clsx';
 import CustomModal, { CustomModalProps } from 'app/atoms/CustomModal';
 import { useAppEnv } from 'app/env';
 
-export interface ModalWithTitleProps extends CustomModalProps {
+interface ModalWithTitleProps extends CustomModalProps {
   title?: ReactNode;
   titleClassName?: string;
   description?: ReactNode;

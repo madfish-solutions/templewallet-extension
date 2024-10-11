@@ -34,10 +34,6 @@
       }
     }
   },
-  "authorizedDApps": {
-    "message": "DApps autorizados",
-    "description": "DApps = Decentralized Applications"
-  },
   "clickIconToResetPermissions": {
     "message": "Clique no ícone X para repor as permissões."
   },
@@ -643,37 +639,18 @@
   "revealPrivateKey": {
     "message": "Revelar chave privada"
   },
-  "revealPrivateKeyDescription": {
-    "message": "Também conhecida como \"Exportar conta\", revela a chave privada da sua conta selecionada."
-  },
   "revealSeedPhrase": {
     "message": "Revelar frase semente"
-  },
-  "revealSeedPhraseDescription": {
-    "message": "Também conhecida como \"Exportar carteira\", pode precisar desta frase semente para aceder à sua carteira e às suas contas noutros dispositivos."
   },
   "dApps": {
     "message": "DApps",
     "description": "DApps = Decentralized Applications"
-  },
-  "dAppsDescription": {
-    "message": "Nesta secção pode ativar a capacidade de interagir com aplicações descentralizadas que suportam a Carteira Temple."
-  },
-  "networksDescription": {
-    "message": "Nesta secção pode adicionar ou apagar redes Tezos personalizadas.",
-    "description": "Tezos = blockchain name (https://tezos.com/)"
   },
   "removeAccount": {
     "message": "Remover conta"
   },
   "removeAccountDescription": {
     "message": "Utilize esta secção para remover a sua conta selecionada. Apenas as contas importadas podem ser removidas."
-  },
-  "about": {
-    "message": "Sobre"
-  },
-  "aboutDescription": {
-    "message": "Utilize esta secção para ver meta informações sobre a Carteira Temple."
   },
   "unlockWallet": {
     "message": "Desbloquear a Carteira"
@@ -1264,14 +1241,11 @@
   "upload": {
     "message": "Carregar"
   },
-  "languageAndCountry": {
+  "language": {
     "message": "Idioma"
   },
   "generalSettings": {
     "message": "Geral"
-  },
-  "generalSettingsDescription": {
-    "message": "Aqui pode gerir as preferências de idioma e o modo de visualização."
   },
   "swapNoun": {
     "message": "Trocar"
@@ -1890,9 +1864,6 @@
   },
   "addressBook": {
     "message": "Livro de endereços"
-  },
-  "addressBookDescription": {
-    "message": "Adicione, remova e gira os seus contactos."
   },
   "addNewContact": {
     "message": "Novo contacto"

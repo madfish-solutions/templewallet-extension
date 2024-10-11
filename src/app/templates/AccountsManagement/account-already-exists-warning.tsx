@@ -6,7 +6,7 @@ import {
   ActionModalButton,
   ActionModalButtonsContainer
 } from 'app/atoms/action-modal';
-import { t } from 'lib/i18n';
+import { T } from 'lib/i18n';
 import { DisplayedGroup, StoredAccount } from 'lib/temple/types';
 import { useHDGroups } from 'temple/front';
 import { getAllGroups } from 'temple/front/accounts-groups';
@@ -25,10 +25,10 @@ export const AccountAlreadyExistsWarning = memo<AccountAlreadyExistsWarningProps
     const oldAccountGroupName = useMemo(() => getAllGroups(hdGroups, [oldAccount])[0].name, [hdGroups, oldAccount]);
 
     return (
-      <ActionModal title={t('addAccount')} hasCloseButton={false} onClose={onClose}>
+      <ActionModal title={<T id="addAccount" />} hasCloseButton={false} onClose={onClose}>
         <ActionModalBodyContainer>
-          <span className="w-full text-center text-font-description text-gray-600">
-            {t('accountAlreadyExistsWarning', [newAccountGroup.name, oldAccountGroupName])}
+          <span className="w-full text-center text-font-description text-grey-1">
+            <T id="accountAlreadyExistsWarning" substitutions={[newAccountGroup.name, oldAccountGroupName]} />
           </span>
         </ActionModalBodyContainer>
         <ActionModalButtonsContainer>
@@ -38,7 +38,7 @@ export const AccountAlreadyExistsWarning = memo<AccountAlreadyExistsWarningProps
             onClick={onClose}
             testID={AccountsManagementSelectors.gotItButton}
           >
-            Got it
+            <T id="okGotIt" />
           </ActionModalButton>
         </ActionModalButtonsContainer>
       </ActionModal>

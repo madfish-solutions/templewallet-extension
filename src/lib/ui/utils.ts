@@ -2,15 +2,6 @@ import { MutableRefObject, ForwardedRef } from 'react';
 
 import { browser } from 'lib/browser';
 
-/** For that the following is not allowed by Prettier:
- * ```tsx
- * <span />
- * {' '} // Use {SPACE_CHAR} instead
- * <span />
- * ```
- */
-export const SPACE_CHAR = ' ';
-
 export const combineRefs = <E extends HTMLElement>(
   ...refs: (MutableRefObject<E | nullish> | ForwardedRef<E | null> | nullish)[]
 ) => {

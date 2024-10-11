@@ -34,10 +34,6 @@
       }
     }
   },
-  "authorizedDApps": {
-    "message": "Autorisierte DApps",
-    "description": "DApps = Decentralized Applications"
-  },
   "clickIconToResetPermissions": {
     "message": "Klicken Sie auf das X-Symbol, um die Berechtigungen zurückzusetzen."
   },
@@ -647,37 +643,18 @@
   "revealPrivateKey": {
     "message": "Privaten Schlüssel freigeben"
   },
-  "revealPrivateKeyDescription": {
-    "message": "Auch bekannt als „Exportkonto“, zeigt den privaten Schlüssel für Ihr ausgewähltes Konto an."
-  },
   "revealSeedPhrase": {
     "message": "Seed-Phrase freigeben"
-  },
-  "revealSeedPhraseDescription": {
-    "message": "Auch als \"Export-Wallet\" bekannt, Sie benötigen diese Seed-Phrase möglicherweise, um auf Ihre Wallet und Konten auf anderen Geräten zuzugreifen."
   },
   "dApps": {
     "message": "DApps",
     "description": "DApps = Decentralized Applications"
-  },
-  "dAppsDescription": {
-    "message": "In diesem Abschnitt können Sie die Möglichkeit zur Interaktion mit dezentralen Anwendungen aktivieren, die Temple Wallet unterstützen."
-  },
-  "networksDescription": {
-    "message": "In diesem Abschnitt können Sie benutzerdefinierte Tezos-Netzwerke hinzufügen oder löschen.",
-    "description": "Tezos = blockchain name (https://tezos.com/)"
   },
   "removeAccount": {
     "message": "Konto entfernen"
   },
   "removeAccountDescription": {
     "message": "Verwenden Sie diesen Abschnitt, um Ihr ausgewähltes Konto zu entfernen. Nur importierte Konten können entfernt werden."
-  },
-  "about": {
-    "message": "Über"
-  },
-  "aboutDescription": {
-    "message": "Verwenden Sie diesen Abschnitt, um Metainformationen zu Temple Wallet anzuzeigen."
   },
   "unlockWallet": {
     "message": "Die Wallet entsperren"
@@ -1268,14 +1245,11 @@
   "upload": {
     "message": "Hochladen"
   },
-  "languageAndCountry": {
+  "language": {
     "message": "Sprache"
   },
   "generalSettings": {
     "message": "Allgemein"
-  },
-  "generalSettingsDescription": {
-    "message": "Hier können Sie die Spracheinstellungen und den Anzeigemodus verwalten."
   },
   "swapNoun": {
     "message": "Wechseln"
@@ -1894,9 +1868,6 @@
   },
   "addressBook": {
     "message": "Adressbuch"
-  },
-  "addressBookDescription": {
-    "message": "Fügen Sie Ihre Kontakte hinzu, entfernen und verwalten Sie sie."
   },
   "addNewContact": {
     "message": "Neuer Kontakt"
