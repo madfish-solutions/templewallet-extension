@@ -3,7 +3,7 @@ import type { BlockTransactionWithContractTransfers, TokenTransferItem } from '@
 import { getEvmAddressSafe } from 'lib/utils/evm.utils';
 import { TempleChainKind } from 'temple/types';
 
-import { ActivityOperKindEnum, EvmActivity, EvmActivityAsset, EvmOperation } from '../../types';
+import { ActivityOperKindEnum, ActivityStatus, EvmActivity, EvmActivityAsset, EvmOperation } from '../../types';
 
 import { parseGasTransfer } from './gas';
 
@@ -28,7 +28,8 @@ export function parseGoldRushERC20Transfer(
     blockExplorerUrl: item.transfers?.[0].explorers?.[0]?.url,
     operations,
     operationsCount: gasOperation ? transfers.length + 1 : transfers.length,
-    addedAt
+    addedAt,
+    status: item.successful ? ActivityStatus.applied : ActivityStatus.failed
   };
 }
 

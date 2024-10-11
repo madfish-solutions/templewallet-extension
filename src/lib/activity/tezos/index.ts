@@ -3,7 +3,7 @@ import { toTezosAssetSlug } from 'lib/assets/utils';
 import { isTezosContractAddress } from 'lib/tezos';
 import { TempleChainKind } from 'temple/types';
 
-import { TezosActivity, ActivityOperKindEnum, TezosOperation } from '../types';
+import { TezosActivity, ActivityOperKindEnum, TezosOperation, ActivityStatus } from '../types';
 import { isTransferActivityOperKind } from '../utils';
 
 import { preparseTezosOperationsGroup } from './pre-parse';
@@ -15,7 +15,7 @@ export function parseTezosOperationsGroup(
 ): TezosActivity {
   const preActivity = preparseTezosOperationsGroup(operationsGroup, address, chainId);
 
-  const { hash, addedAt, operations: preOperations, oldestTzktOperation } = preActivity;
+  const { hash, addedAt, operations: preOperations, oldestTzktOperation, status } = preActivity;
 
   const operations = preOperations.map<TezosOperation>(oper => parseTezosPreActivityOperation(oper, address));
 
@@ -26,7 +26,13 @@ export function parseTezosOperationsGroup(
     operations,
     operationsCount: preOperations.length,
     addedAt,
-    oldestTzktOperation
+    oldestTzktOperation,
+    status:
+      status === 'applied'
+        ? ActivityStatus.applied
+        : status === 'pending'
+        ? ActivityStatus.pending
+        : ActivityStatus.failed
   };
 }
 

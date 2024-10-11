@@ -21,6 +21,13 @@ interface ChainActivityBase {
   operationsCount: number;
   /** ISO string */
   addedAt: string;
+  status: ActivityStatus;
+}
+
+export enum ActivityStatus {
+  applied,
+  pending,
+  failed
 }
 
 interface OperationBase {

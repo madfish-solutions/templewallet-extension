@@ -21,7 +21,7 @@ interface Props {
 }
 
 export const TezosActivityComponent = memo<Props>(({ activity, chain, assetSlug }) => {
-  const { hash, operations, operationsCount } = activity;
+  const { hash, operations, status, operationsCount } = activity;
 
   const blockExplorerUrl = useExplorerHref(chain.chainId, hash) ?? undefined;
 
@@ -34,6 +34,7 @@ export const TezosActivityComponent = memo<Props>(({ activity, chain, assetSlug 
         operation={operation}
         chainId={chain.chainId}
         blockExplorerUrl={blockExplorerUrl}
+        status={status}
         withoutAssetIcon={Boolean(assetSlug)}
       />
     );
@@ -59,7 +60,7 @@ interface BatchProps {
 const TezosActivityBatchComponent = memo<BatchProps>(({ activity, chainId, assetSlug, blockExplorerUrl }) => {
   const [expanded, , , toggleExpanded] = useBooleanState(false);
 
-  const { hash, operations } = activity;
+  const { hash, operations, status } = activity;
 
   const getMetadata = useGetChainTokenOrGasMetadata(chainId);
 
@@ -94,6 +95,7 @@ const TezosActivityBatchComponent = memo<BatchProps>(({ activity, chainId, asset
         hash={hash}
         chainId={chainId}
         asset={batchAsset}
+        status={status}
         blockExplorerUrl={blockExplorerUrl}
         withoutAssetIcon={Boolean(assetSlug)}
         onClick={toggleExpanded}

@@ -1,6 +1,7 @@
 import React, { memo, useMemo } from 'react';
 
 import { ActivityOperKindEnum, type EvmOperation } from 'lib/activity';
+import { ActivityStatus } from 'lib/activity/types';
 import { toEvmAssetSlug } from 'lib/assets/utils';
 import { useEvmAssetMetadata } from 'lib/metadata';
 
@@ -11,11 +12,12 @@ interface Props {
   operation?: EvmOperation;
   chainId: number;
   blockExplorerUrl?: string;
+  status?: ActivityStatus;
   withoutAssetIcon?: boolean;
 }
 
 export const EvmActivityOperationComponent = memo<Props>(
-  ({ hash, operation, chainId, blockExplorerUrl, withoutAssetIcon }) => {
+  ({ hash, operation, chainId, blockExplorerUrl, status, withoutAssetIcon }) => {
     const assetBase = operation?.asset;
     const assetSlug = assetBase?.contract ? toEvmAssetSlug(assetBase.contract) : undefined;
 
@@ -46,6 +48,7 @@ export const EvmActivityOperationComponent = memo<Props>(
         chainId={chainId}
         asset={asset}
         blockExplorerUrl={blockExplorerUrl}
+        status={status}
         withoutAssetIcon={withoutAssetIcon}
       />
     );

@@ -22,7 +22,7 @@ interface Props {
 }
 
 export const EvmActivityComponent = memo<Props>(({ activity, chain, assetSlug }) => {
-  const { hash, operations, operationsCount, blockExplorerUrl } = activity;
+  const { hash, operations, operationsCount, blockExplorerUrl, status } = activity;
 
   if (operationsCount === 1) {
     const operation = operations.at(0);
@@ -33,6 +33,7 @@ export const EvmActivityComponent = memo<Props>(({ activity, chain, assetSlug })
         operation={operation}
         chainId={chain.chainId}
         blockExplorerUrl={blockExplorerUrl}
+        status={status}
         withoutAssetIcon={Boolean(assetSlug)}
       />
     );
@@ -58,7 +59,7 @@ interface BatchProps {
 const EvmActivityBatchComponent = memo<BatchProps>(({ activity, chainId, assetSlug, blockExplorerUrl }) => {
   const [expanded, , , toggleExpanded] = useBooleanState(false);
 
-  const { hash, operations } = activity;
+  const { hash, operations, status } = activity;
 
   const getMetadata = useGetEvmChainAssetMetadata(chainId);
 
@@ -123,6 +124,7 @@ const EvmActivityBatchComponent = memo<BatchProps>(({ activity, chainId, assetSl
         chainId={chainId}
         asset={batchAsset}
         blockExplorerUrl={blockExplorerUrl}
+        status={status}
         withoutAssetIcon={Boolean(assetSlug)}
         onClick={toggleExpanded}
       />

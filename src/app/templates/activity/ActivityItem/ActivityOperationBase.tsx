@@ -1,4 +1,4 @@
-import React, { memo, MouseEventHandler, ReactNode, useCallback, useMemo } from 'react';
+import React, { FC, memo, MouseEventHandler, ReactNode, useCallback, useMemo } from 'react';
 
 import clsx from 'clsx';
 
@@ -13,11 +13,14 @@ import { ReactComponent as SwapSvg } from 'app/icons/base/swap.svg';
 import { EvmAssetIcon, TezosAssetIcon } from 'app/templates/AssetIcon';
 import { InFiat } from 'app/templates/InFiat';
 import { ActivityOperKindEnum } from 'lib/activity';
+import { ActivityStatus } from 'lib/activity/types';
 import { isTransferActivityOperKind } from 'lib/activity/utils';
 import { toEvmAssetSlug, toTezosAssetSlug } from 'lib/assets/utils';
 import { atomsToTokens } from 'lib/temple/helpers';
 
 import { FaceKind } from '../utils';
+
+import { ReactComponent as PendingSpinSvg } from './pending-spin.svg';
 
 interface Props {
   chainId: string | number;
@@ -25,6 +28,7 @@ interface Props {
   hash: string;
   asset?: ActivityItemBaseAssetProp;
   blockExplorerUrl?: string;
+  status?: ActivityStatus;
   withoutAssetIcon?: boolean;
   onClick?: EmptyFn;
 }
@@ -41,7 +45,7 @@ export interface ActivityItemBaseAssetProp {
 }
 
 export const ActivityOperationBaseComponent = memo<Props>(
-  ({ kind, hash, chainId, asset, blockExplorerUrl, withoutAssetIcon, onClick }) => {
+  ({ kind, hash, chainId, asset, blockExplorerUrl, status, withoutAssetIcon, onClick }) => {
     const assetSlug = asset
       ? typeof chainId === 'number'
         ? toEvmAssetSlug(asset.contract, asset.tokenId)
@@ -177,7 +181,11 @@ export const ActivityOperationBaseComponent = memo<Props>(
 
         <div className="flex-grow flex flex-col gap-y-1 whitespace-nowrap overflow-hidden">
           <div className="flex gap-x-2 justify-between">
-            <div className="text-font-medium">{ActivityKindTitle[kind]}</div>
+            <div className="shrink-0 flex items-center gap-x-1">
+              <span className="text-font-medium">{ActivityKindTitle[kind]}</span>
+
+              <StatusTag status={status} />
+            </div>
 
             {amountJsx}
           </div>
@@ -237,6 +245,22 @@ const BundleIconsStack = memo<PropsWithChildren<{ withoutAssetIcon?: boolean; is
 );
 
 const CLICK_DETECTION_ATTR = 'click-break-point';
+
+const StatusTag: FC<{ status?: ActivityStatus }> = ({ status }) => {
+  if (status === ActivityStatus.failed) return StatusTagFailed;
+
+  if (status === ActivityStatus.pending) return StatusTagPending;
+
+  return null;
+};
+
+const StatusTagFailed = (
+  <div className="text-font-small-bold h-4 px-1 leading-4 text-error border-0.5 border-error bg-error-low rounded">
+    FAILED
+  </div>
+);
+
+const StatusTagPending = <PendingSpinSvg className="w-4 h-4 animate-spin" />;
 
 const ActivityKindTitle: Record<FaceKind, string> = {
   bundle: 'Bundle',

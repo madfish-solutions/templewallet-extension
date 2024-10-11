@@ -1,6 +1,7 @@
 import React, { memo, useMemo } from 'react';
 
 import { ActivityOperKindEnum, TezosOperation } from 'lib/activity';
+import { ActivityStatus } from 'lib/activity/types';
 import { fromAssetSlug } from 'lib/assets';
 import { AssetMetadataBase, isTezosCollectibleMetadata, useTezosAssetMetadata } from 'lib/metadata';
 
@@ -10,12 +11,13 @@ interface Props {
   hash: string;
   operation?: TezosOperation;
   chainId: string;
+  status?: ActivityStatus;
   blockExplorerUrl: string | nullish;
   withoutAssetIcon?: boolean;
 }
 
 export const TezosActivityOperationComponent = memo<Props>(
-  ({ hash, operation, chainId, blockExplorerUrl, withoutAssetIcon }) => {
+  ({ hash, operation, chainId, blockExplorerUrl, status, withoutAssetIcon }) => {
     const assetSlug = operation?.assetSlug;
     const assetMetadata = useTezosAssetMetadata(assetSlug ?? '', chainId);
 
@@ -30,6 +32,7 @@ export const TezosActivityOperationComponent = memo<Props>(
         hash={hash}
         chainId={chainId}
         asset={asset}
+        status={status}
         blockExplorerUrl={blockExplorerUrl ?? undefined}
         withoutAssetIcon={withoutAssetIcon}
       />

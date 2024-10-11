@@ -4,7 +4,7 @@ import { isTruthy } from 'lib/utils';
 import { getEvmAddressSafe } from 'lib/utils/evm.utils';
 import { TempleChainKind } from 'temple/types';
 
-import { ActivityOperKindEnum, EvmActivity, EvmActivityAsset, EvmOperation } from '../../types';
+import { ActivityOperKindEnum, ActivityStatus, EvmActivity, EvmActivityAsset, EvmOperation } from '../../types';
 
 import { parseGasTransfer } from './gas';
 
@@ -27,7 +27,8 @@ export function parseGoldRushTransaction(item: Transaction, chainId: number, acc
     blockExplorerUrl: item.explorers?.at(0)?.url,
     operations,
     operationsCount: gasOperation ? logEvents.length + 1 : logEvents.length,
-    addedAt
+    addedAt,
+    status: item.successful ? ActivityStatus.applied : ActivityStatus.failed
   };
 }
 

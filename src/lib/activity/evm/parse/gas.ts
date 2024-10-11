@@ -13,7 +13,7 @@ export function parseGasTransfer(
 ): EvmOperation | null {
   const value: string = item.value?.toString() ?? '0';
 
-  if (value === '0') return null;
+  if (value === '0' && partOfBatch) return null;
 
   const kind = (() => {
     if (getEvmAddressSafe(item.from_address) === accountAddress)
