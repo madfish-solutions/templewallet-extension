@@ -74,7 +74,7 @@ export const useChainOperations = (chainKind: TempleChainKind, chainId: string |
   );
 
   const addRpc = useCallback(
-    async (values: CreateUrlEntityModalFormValues) => {
+    async (values: CreateUrlEntityModalFormValues, abortSignal: AbortSignal) => {
       const { name, url, isActive } = values;
 
       await assertRpcChainId(url);
@@ -86,6 +86,8 @@ export const useChainOperations = (chainKind: TempleChainKind, chainId: string |
         id: rpcId,
         color: COLORS[Math.floor(Math.random() * COLORS.length)]
       };
+
+      abortSignal.throwIfAborted();
 
       if (chainKind === TempleChainKind.Tezos) {
         await addTezosNetwork({ ...commonRpcProps, chainId: String(chainId), chain: TempleChainKind.Tezos });
@@ -113,7 +115,11 @@ export const useChainOperations = (chainKind: TempleChainKind, chainId: string |
   );
 
   const updateRpc = useCallback(
-    async (rpc: StoredTezosNetwork | StoredEvmNetwork, { name, url, isActive }: EditUrlEntityModalFormValues) => {
+    async (
+      rpc: StoredTezosNetwork | StoredEvmNetwork,
+      { name, url, isActive }: EditUrlEntityModalFormValues,
+      abortSignal: AbortSignal
+    ) => {
       const wasActive = rpc.id === activeRpcId;
       try {
         if (url !== rpc.rpcBaseURL) {
@@ -127,6 +133,8 @@ export const useChainOperations = (chainKind: TempleChainKind, chainId: string |
 
         throw new Error(t('rpcDoesNotRespond'));
       }
+
+      abortSignal.throwIfAborted();
 
       const newRpcProps = { name, rpcBaseURL: url };
 

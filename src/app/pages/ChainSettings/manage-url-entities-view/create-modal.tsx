@@ -10,6 +10,8 @@ import { SettingsCheckbox } from 'app/atoms/SettingsCheckbox';
 import { StyledButton } from 'app/atoms/StyledButton';
 import { toastError, toastSuccess } from 'app/toaster';
 import { T, TID, t } from 'lib/i18n';
+import { useAbortSignal } from 'lib/ui/hooks';
+import { isAbortError } from 'lib/ui/is-abort-error';
 import { shouldDisableSubmitButton } from 'lib/ui/should-disable-submit-button';
 
 import { ChainSettingsSelectors } from '../selectors';
@@ -26,12 +28,13 @@ interface CreateUrlEntityModalProps {
   opened: boolean;
   activeI18nKey: TID;
   successMessageI18nKey: TID;
+  namePlaceholder: string;
   title: string;
   urlInputPlaceholder: string;
   namesToExclude: string[];
   urlsToExclude: string[];
   onClose: EmptyFn;
-  createEntity: (values: CreateUrlEntityModalFormValues) => Promise<void>;
+  createEntity: (values: CreateUrlEntityModalFormValues, signal: AbortSignal) => Promise<void>;
   activeCheckboxTestID: string;
 }
 
@@ -41,6 +44,7 @@ export const CreateUrlEntityModal = memo(
     activeI18nKey,
     successMessageI18nKey,
     title,
+    namePlaceholder,
     namesToExclude,
     urlsToExclude,
     urlInputPlaceholder,
@@ -48,6 +52,7 @@ export const CreateUrlEntityModal = memo(
     createEntity,
     activeCheckboxTestID
   }: CreateUrlEntityModalProps) => {
+    const { abort, abortAndRenewSignal } = useAbortSignal();
     const [submitError, setSubmitError] = useState<string | null>(null);
     const [bottomEdgeIsVisible, setBottomEdgeIsVisible] = useState(true);
     const formReturn = useForm<CreateUrlEntityModalFormValues>({
@@ -59,23 +64,29 @@ export const CreateUrlEntityModal = memo(
 
     const resetSubmitError = useCallback(() => setSubmitError(null), []);
     const closeModal = useCallback(() => {
+      abort();
       reset({ name: '', url: '', isActive: false });
       resetSubmitError();
       onClose();
-    }, [onClose, reset, resetSubmitError]);
+    }, [abort, onClose, reset, resetSubmitError]);
 
     const onSubmit = useCallback(
       async (values: CreateUrlEntityModalFormValues) => {
         try {
-          await createEntity(values);
+          const signal = abortAndRenewSignal();
+          await createEntity(values, signal);
           closeModal();
           setTimeout(() => toastSuccess(t(successMessageI18nKey)), CLOSE_ANIMATION_TIMEOUT * 2);
         } catch (error) {
+          if (isAbortError(error)) {
+            return;
+          }
+
           toastError(error instanceof Error ? error.message : String(error));
           setSubmitError(t('wrongAddress'));
         }
       },
-      [closeModal, createEntity, successMessageI18nKey]
+      [abortAndRenewSignal, closeModal, createEntity, successMessageI18nKey]
     );
 
     return (
@@ -95,7 +106,7 @@ export const CreateUrlEntityModal = memo(
                 disabled={isSubmitting}
                 label={t('name')}
                 id="createurlentity-name"
-                placeholder="Ethereum"
+                placeholder={namePlaceholder}
                 errorCaption={isSubmitted && errors.name?.message}
                 testID={ChainSettingsSelectors.nameInput}
               />

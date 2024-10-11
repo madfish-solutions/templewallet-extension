@@ -9,6 +9,7 @@ import { URL_PATTERN } from 'app/defaults';
 import { ReactComponent as LockFillIcon } from 'app/icons/base/lock_fill.svg';
 import { ReactComponent as PasteFillIcon } from 'app/icons/base/paste_fill.svg';
 import { T, t } from 'lib/i18n';
+import { useShowErrorIfOnBlur } from 'lib/ui/hooks';
 import { readClipboard } from 'lib/ui/utils';
 
 // TODO: change all types if this component should be used for form values that include arrays, objects with fields etc.
@@ -22,7 +23,7 @@ interface UrlInputProps<K extends string, T extends Record<K, string>> {
   id: string;
   placeholder: string;
   submitError: ReactNode | undefined;
-  showErrorBeforeSubmit?: boolean;
+  showErrorOnBlur?: boolean;
   textarea: boolean;
   required: boolean;
   resetSubmitError: EmptyFn;
@@ -41,7 +42,7 @@ export const UrlInput = <K extends string, T extends Record<K, string>>({
   id,
   placeholder,
   submitError,
-  showErrorBeforeSubmit = false,
+  showErrorOnBlur = false,
   textarea,
   required,
   resetSubmitError,
@@ -49,6 +50,12 @@ export const UrlInput = <K extends string, T extends Record<K, string>>({
   pasteButtonTestID,
   testID
 }: UrlInputProps<K, T>) => {
+  const {
+    showErrorIfOnBlur,
+    onBlur: updateShowErrorOnBlur,
+    onFocus: updateShowErrorOnFocus,
+    onChange: updateShowErrorOnChange
+  } = useShowErrorIfOnBlur();
   const castName = name as unknown as Path<T>;
   const { register, watch, formState, setValue } = formReturn;
   const { submitCount, errors } = formState;
@@ -56,9 +63,21 @@ export const UrlInput = <K extends string, T extends Record<K, string>>({
   const isSubmitted = submitCount > 0;
   const fieldError = errors[castName]?.message;
 
+  const applyValueChangeEffects = useCallback(
+    (newValue: string) => {
+      resetSubmitError();
+      onChange?.(newValue);
+      updateShowErrorOnChange();
+    },
+    [onChange, resetSubmitError, updateShowErrorOnChange]
+  );
+
   const setUrl = useCallback(
-    (value: string) => setValue(castName, value as PathValue<T, Path<T>>, { shouldValidate: true }),
-    [castName, setValue]
+    (value: string) => {
+      setValue(castName, value as PathValue<T, Path<T>>, { shouldValidate: true });
+      applyValueChangeEffects(value);
+    },
+    [applyValueChangeEffects, castName, setValue]
   );
   const pasteUrl = useCallback(async () => {
     try {
@@ -82,20 +101,17 @@ export const UrlInput = <K extends string, T extends Record<K, string>>({
   }, [isEditable, pasteButtonTestID, pasteUrl, textarea, url]);
 
   const handleChange = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-      resetSubmitError();
-      onChange?.(e.target.value);
-    },
-    [resetSubmitError, onChange]
+    (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => applyValueChangeEffects(e.target.value),
+    [applyValueChangeEffects]
   );
 
   const errorCaption = useMemo(() => {
-    if (!isSubmitted && !showErrorBeforeSubmit) {
-      return undefined;
+    if (showErrorOnBlur ? showErrorIfOnBlur : isSubmitted) {
+      return typeof fieldError === 'string' ? fieldError : submitError;
     }
 
-    return typeof fieldError === 'string' ? fieldError : submitError;
-  }, [fieldError, isSubmitted, showErrorBeforeSubmit, submitError]);
+    return undefined;
+  }, [showErrorOnBlur, showErrorIfOnBlur, isSubmitted, fieldError, submitError]);
 
   return (
     <FormField
@@ -104,11 +120,13 @@ export const UrlInput = <K extends string, T extends Record<K, string>>({
         pattern: { value: URL_PATTERN, message: t('mustBeValidURL') },
         validate: (value: PathValue<T, Path<T>>) =>
           urlsToExclude.includes(value as string) ? t('mustBeUnique') : true,
-        onChange: handleChange
+        onChange: handleChange,
+        onBlur: updateShowErrorOnBlur
       })}
       className={clsx(!isEditable && 'text-grey-1', 'resize-none')}
       cleanable={Boolean(url) && (!textarea || isEditable)}
       onClean={clearUrl}
+      onFocus={updateShowErrorOnFocus}
       additonalActionButtons={additionalActionButtons}
       labelContainerClassName="w-full flex justify-between items-center"
       label={

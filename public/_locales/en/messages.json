@@ -2341,6 +2341,14 @@
   "invalidJsonInput": {
     "message": "Invalid JSON"
   },
+  "anotherChainIdError": {
+    "message": "The chain ID used by RPC is $chainId$",
+    "placeholders": {
+      "chainId": {
+        "content": "$1"
+      }
+    }
+  },
   "unknownErrorFromRPC": {
     "message": "Failed to send request to $url$. Invalid request provided or RPC node is temporarily unreachable.",
     "placeholders": {

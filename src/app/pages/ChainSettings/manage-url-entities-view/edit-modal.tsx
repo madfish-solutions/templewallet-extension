@@ -14,7 +14,7 @@ import { ReactComponent as DeleteIcon } from 'app/icons/base/delete.svg';
 import { ReactComponent as LockFillIcon } from 'app/icons/base/lock_fill.svg';
 import { toastError } from 'app/toaster';
 import { T, TID, t } from 'lib/i18n';
-import { useBooleanState } from 'lib/ui/hooks';
+import { useAbortSignal, useBooleanState } from 'lib/ui/hooks';
 import { shouldDisableSubmitButton } from 'lib/ui/should-disable-submit-button';
 
 import { ChainSettingsSelectors } from '../selectors';
@@ -44,10 +44,11 @@ interface EditUrlEntityModalProps<T extends UrlEntityBase> {
   confirmDeleteTitleI18nKeyBase: 'confirmDeleteRpcTitle' | 'confirmDeleteBlockExplorerTitle';
   confirmDeleteDescriptionI18nKey: TID;
   deleteLabelI18nKey: TID;
+  namePlaceholder: string;
   urlInputPlaceholder: string;
   onClose: EmptyFn;
   onRemoveConfirm: EmptyFn;
-  updateEntity: (entity: T, values: EditUrlEntityModalFormValues) => Promise<void>;
+  updateEntity: (entity: T, values: EditUrlEntityModalFormValues, signal: AbortSignal) => Promise<void>;
   activeSwitchTestID: string;
 }
 
@@ -65,12 +66,14 @@ export const EditUrlEntityModal = <T extends UrlEntityBase>({
   confirmDeleteTitleI18nKeyBase,
   confirmDeleteDescriptionI18nKey,
   deleteLabelI18nKey,
+  namePlaceholder,
   urlInputPlaceholder,
   onClose,
   onRemoveConfirm,
   updateEntity,
   activeSwitchTestID
 }: EditUrlEntityModalProps<T>) => {
+  const { abort, abortAndRenewSignal } = useAbortSignal();
   const [removeModalIsOpen, openRemoveModal, closeRemoveModal] = useBooleanState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [bottomEdgeIsVisible, setBottomEdgeIsVisible] = useState(true);
@@ -89,17 +92,23 @@ export const EditUrlEntityModal = <T extends UrlEntityBase>({
   }, [closeRemoveModal, onRemoveConfirm]);
   const resetSubmitError = useCallback(() => setSubmitError(null), []);
 
+  const handleRequestClose = useCallback(() => {
+    abort();
+    onClose();
+  }, [abort, onClose]);
+
   const onSubmit = useCallback(
     async (values: EditUrlEntityModalFormValues) => {
       try {
-        await updateEntity(entity, values);
+        const signal = abortAndRenewSignal();
+        await updateEntity(entity, values, signal);
         onClose();
       } catch (error) {
         toastError(error instanceof Error ? error.message : String(error));
         setSubmitError(t('wrongAddress'));
       }
     },
-    [entity, onClose, updateEntity]
+    [abortAndRenewSignal, entity, onClose, updateEntity]
   );
 
   return (
@@ -107,7 +116,7 @@ export const EditUrlEntityModal = <T extends UrlEntityBase>({
       <PageModal
         headerClassName="flex justify-center truncate"
         opened
-        onRequestClose={onClose}
+        onRequestClose={handleRequestClose}
         title={<ShortenedEntityNameActionTitle entityName={displayedName} i18nKeyBase={titleI18nKeyBase} />}
       >
         <form onSubmit={handleSubmit(onSubmit)} className="flex-1 flex flex-col max-h-full">
@@ -136,7 +145,7 @@ export const EditUrlEntityModal = <T extends UrlEntityBase>({
               additonalActionButtons={!isEditable && <IconBase size={16} Icon={LockFillIcon} className="text-grey-3" />}
               label={t('name')}
               id="editurlentity-name"
-              placeholder="Ethereum"
+              placeholder={namePlaceholder}
               errorCaption={isSubmitted && errors.name?.message}
               disabled={!isEditable || isSubmitting}
               testID={ChainSettingsSelectors.nameInput}

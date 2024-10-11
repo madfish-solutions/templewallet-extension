@@ -26,9 +26,10 @@ interface ManageUrlEntitiesViewProps<T> {
   successfullyAddedMessageI18nKey: TID;
   createModalTitle: string;
   urlInputPlaceholder: string;
+  namePlaceholder: string;
   getEntityUrl: SyncFn<T, string>;
-  createEntity: (values: CreateUrlEntityModalFormValues) => Promise<void>;
-  updateEntity: (entity: T, values: EditUrlEntityModalFormValues) => Promise<void>;
+  createEntity: (values: CreateUrlEntityModalFormValues, signal: AbortSignal) => Promise<void>;
+  updateEntity: (entity: T, values: EditUrlEntityModalFormValues, signal: AbortSignal) => Promise<void>;
   removeEntity: (id: string) => Promise<void>;
   addButtonTestID: string;
   itemTestID: string;
@@ -48,6 +49,7 @@ export const ManageUrlEntitiesView = <T extends UrlEntityBase>({
   successfullyAddedMessageI18nKey,
   createModalTitle,
   urlInputPlaceholder,
+  namePlaceholder,
   getEntityUrl,
   createEntity,
   updateEntity,
@@ -123,6 +125,7 @@ export const ManageUrlEntitiesView = <T extends UrlEntityBase>({
           confirmDeleteDescriptionI18nKey={confirmDeleteDescriptionI18nKey}
           deleteLabelI18nKey={deleteLabelI18nKey}
           urlInputPlaceholder={urlInputPlaceholder}
+          namePlaceholder={namePlaceholder}
           isActive={entityToEdit.id === activeItemId}
           isEditable={!entityToEdit.default}
           isRemovable={!entityToEdit.default && items.length > 1}
@@ -148,6 +151,7 @@ export const ManageUrlEntitiesView = <T extends UrlEntityBase>({
         namesToExclude={namesToExclude}
         urlsToExclude={urlsToExclude}
         urlInputPlaceholder={urlInputPlaceholder}
+        namePlaceholder={namePlaceholder}
         onClose={closeCreateModal}
         createEntity={createEntity}
         activeCheckboxTestID={activeCheckboxTestID}

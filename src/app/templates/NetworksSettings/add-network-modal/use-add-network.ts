@@ -21,7 +21,8 @@ import { NUMERIC_CHAIN_ID_REGEX, generateEntityNameFromUrl, makeFormValues } fro
 export const useAddNetwork = (
   setSubmitError: SyncFn<string>,
   lastSelectedChain: ViemChain | null,
-  onClose: EmptyFn
+  onClose: EmptyFn,
+  abortAndRenewSignal: () => AbortSignal
 ) => {
   const [, setTezosChainsSpecs] = useTezosChainsSpecs();
   const [, setEvmChainsSpecs] = useEvmChainsSpecs();
@@ -30,6 +31,7 @@ export const useAddNetwork = (
 
   return useCallback(
     async (values: AddNetworkFormValues) => {
+      const signal = abortAndRenewSignal();
       const { name, rpcUrl, chainId, symbol, explorerUrl, testnet } = values;
 
       try {
@@ -71,6 +73,11 @@ export const useAddNetwork = (
             }
           : undefined;
         const commonChainSpecs: Pick<ChainBase, 'name' | 'testnet'> = { name, testnet };
+
+        if (signal.aborted) {
+          console.log('aborted addNetwork');
+          return;
+        }
 
         if (chainId.match(NUMERIC_CHAIN_ID_REGEX)) {
           await Promise.all([
@@ -118,6 +125,7 @@ export const useAddNetwork = (
       }
     },
     [
+      abortAndRenewSignal,
       addBlockExplorer,
       addEvmNetwork,
       addTezosNetwork,

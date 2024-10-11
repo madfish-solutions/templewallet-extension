@@ -13,6 +13,7 @@ import { Tooltip } from 'app/atoms/Tooltip';
 import { UrlInput } from 'app/templates/UrlInput';
 import { T, t } from 'lib/i18n';
 import { isValidTezosChainId } from 'lib/tezos';
+import { useAbortSignal, useShowErrorIfOnBlur } from 'lib/ui/hooks';
 import { shouldDisableSubmitButton } from 'lib/ui/should-disable-submit-button';
 import { OneOfChains, useAllEvmChains, useAllTezosChains } from 'temple/front';
 
@@ -39,6 +40,13 @@ const defaultValues = {
 };
 
 export const AddNetworkModal = memo<AddNetworkModalProps>(({ isOpen, onClose }) => {
+  const { abort, abortAndRenewSignal } = useAbortSignal();
+  const {
+    showErrorIfOnBlur: showChainIdError,
+    onBlur: updateChainIdShowErrorOnBlur,
+    onFocus: updateChainIdShowErrorOnFocus,
+    onChange: updateChainIdShowErrorOnChange
+  } = useShowErrorIfOnBlur();
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [bottomEdgeIsVisible, setBottomEdgeIsVisible] = useState(false);
   const [lastSelectedChain, setLastSelectedChain] = useState<ViemChain | null>(null);
@@ -99,9 +107,10 @@ export const AddNetworkModal = memo<AddNetworkModalProps>(({ isOpen, onClose }) 
   const closeModal = useCallback(() => {
     reset(defaultValues);
     resetSubmitError();
+    abort();
     onClose();
-  }, [onClose, reset, resetSubmitError]);
-  const onSubmit = useAddNetwork(setSubmitError, lastSelectedChain, closeModal);
+  }, [abort, onClose, reset, resetSubmitError]);
+  const onSubmit = useAddNetwork(setSubmitError, lastSelectedChain, closeModal, abortAndRenewSignal);
 
   const handleChainSelect = useCallback(
     (chain: ViemChain) => {
@@ -118,10 +127,15 @@ export const AddNetworkModal = memo<AddNetworkModalProps>(({ isOpen, onClose }) 
   const clearChainId = useMemo(() => makeClearFieldFn('chainId'), [makeClearFieldFn]);
   const clearSymbol = useMemo(() => makeClearFieldFn('symbol'), [makeClearFieldFn]);
 
+  const suggestedChainId = suggestedFormValues?.chainId;
   const validateChainId = useCallback(
     (chainId: string) => {
       if (evmChains[chainId] || tezChains[chainId]) {
         return t('mustBeUnique');
+      }
+
+      if (suggestedChainId) {
+        return suggestedChainId === chainId ? true : t('anotherChainIdError', suggestedChainId);
       }
 
       if (NUMERIC_CHAIN_ID_REGEX.test(chainId)) {
@@ -130,8 +144,13 @@ export const AddNetworkModal = memo<AddNetworkModalProps>(({ isOpen, onClose }) 
 
       return isValidTezosChainId(chainId) || t('invalidChainId');
     },
-    [evmChains, tezChains]
+    [evmChains, suggestedChainId, tezChains]
   );
+
+  const handleChainIdChange = useCallback(() => {
+    resetSubmitError();
+    updateChainIdShowErrorOnChange();
+  }, [resetSubmitError, updateChainIdShowErrorOnChange]);
 
   return (
     <PageModal opened={isOpen} onRequestClose={closeModal} title={t('addNetwork')}>
@@ -154,8 +173,8 @@ export const AddNetworkModal = memo<AddNetworkModalProps>(({ isOpen, onClose }) 
                 isEditable
                 id="add-network-rpc-url"
                 placeholder="https://rpc.link"
-                showErrorBeforeSubmit
-                submitError={submitError}
+                showErrorOnBlur
+                submitError={undefined}
                 textarea
                 required
                 resetSubmitError={resetSubmitError}
@@ -167,11 +186,13 @@ export const AddNetworkModal = memo<AddNetworkModalProps>(({ isOpen, onClose }) 
                 {...register('chainId', {
                   required: t('required'),
                   validate: validateChainId,
-                  onChange: resetSubmitError
+                  onChange: handleChainIdChange,
+                  onBlur: updateChainIdShowErrorOnBlur
                 })}
                 cleanable={Boolean(chainId)}
                 disabled={isSubmitting}
                 onClean={clearChainId}
+                onFocus={updateChainIdShowErrorOnFocus}
                 labelContainerClassName="w-full flex justify-between items-center"
                 label={
                   <>
@@ -189,7 +210,7 @@ export const AddNetworkModal = memo<AddNetworkModalProps>(({ isOpen, onClose }) 
                   </>
                 }
                 placeholder="1"
-                errorCaption={isSubmitted && errors.chainId?.message}
+                errorCaption={showChainIdError && (submitError ?? errors.chainId?.message)}
                 testID={NetworkSettingsSelectors.chainIdInput}
               />
 
@@ -247,7 +268,7 @@ export const AddNetworkModal = memo<AddNetworkModalProps>(({ isOpen, onClose }) 
               disabled={shouldDisableSubmitButton({
                 errors,
                 formState,
-                errorsBeforeSubmitFields: ['rpcUrl'],
+                errorsBeforeSubmitFields: ['rpcUrl', 'chainId'],
                 otherErrors: [submitError],
                 disableWhileSubmitting: false
               })}
