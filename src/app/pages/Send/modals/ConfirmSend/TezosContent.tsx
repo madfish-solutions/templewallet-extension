@@ -96,7 +96,7 @@ export const TezosContent: FC<TezosContentProps> = ({ data, onClose }) => {
     return;
   }, [selectedFeeOption, debouncedGasFee, displayedFeeOptions]);
 
-  const displayedStorageLimit = useMemo(() => {
+  const displayedStorageFee = useMemo(() => {
     if (!estimationData) return;
 
     const estimates = estimationData.estimates;
@@ -249,7 +249,7 @@ export const TezosContent: FC<TezosContentProps> = ({ data, onClose }) => {
         selectedTab={tab}
         setSelectedTab={setTab}
         latestSubmitError={latestSubmitError}
-        displayedStorageLimit={displayedStorageLimit}
+        displayedStorageFee={displayedStorageFee}
         onFeeOptionSelect={handleFeeOptionSelect}
         selectedFeeOption={selectedFeeOption}
         onCancel={onClose}

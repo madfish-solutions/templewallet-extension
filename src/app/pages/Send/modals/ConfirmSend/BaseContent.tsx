@@ -33,7 +33,7 @@ interface BaseContentProps<T extends TxParamsFormData> {
   onSubmit: SubmitHandler<T>;
   onCancel: EmptyFn;
   displayedFee?: string;
-  displayedStorageLimit?: string;
+  displayedStorageFee?: string;
   displayedFeeOptions?: DisplayedFeeOptions;
 }
 
@@ -50,7 +50,7 @@ export const BaseContent = <T extends TxParamsFormData>({
   onSubmit,
   onCancel,
   displayedFee,
-  displayedStorageLimit,
+  displayedStorageFee,
   displayedFeeOptions
 }: BaseContentProps<T>) => {
   const { handleSubmit, formState } = useFormContext<T>();
@@ -125,7 +125,7 @@ export const BaseContent = <T extends TxParamsFormData>({
                       assetSlug={assetSlug}
                       recipientAddress={recipientAddress}
                       displayedFee={displayedFee}
-                      displayedStorageLimit={displayedStorageLimit}
+                      displayedStorageFee={displayedStorageFee}
                       goToFeeTab={goToFeeTab}
                     />
                   );

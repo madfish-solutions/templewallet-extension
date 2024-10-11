@@ -19,7 +19,7 @@ interface Props {
   recipientAddress: string;
   goToFeeTab: EmptyFn;
   displayedFee?: string;
-  displayedStorageLimit?: string;
+  displayedStorageFee?: string;
 }
 
 export const DetailsTab: FC<Props> = ({
@@ -27,7 +27,7 @@ export const DetailsTab: FC<Props> = ({
   assetSlug,
   recipientAddress,
   displayedFee,
-  displayedStorageLimit,
+  displayedStorageFee,
   goToFeeTab
 }) => {
   const { kind: chainKind, chainId } = network;
@@ -58,7 +58,7 @@ export const DetailsTab: FC<Props> = ({
       <div
         className={clsx(
           'py-2 flex flex-row justify-between items-center',
-          displayedStorageLimit && 'border-b-0.5 border-lines'
+          displayedStorageFee && 'border-b-0.5 border-lines'
         )}
       >
         <p className="p-1 text-font-description text-grey-1">
@@ -68,11 +68,11 @@ export const DetailsTab: FC<Props> = ({
           <FeesInfo network={network} assetSlug={assetSlug} amount={displayedFee} goToFeeTab={goToFeeTab} />
         </div>
       </div>
-      {displayedStorageLimit && (
+      {displayedStorageFee && (
         <div className="py-2 flex flex-row justify-between items-center">
-          <p className="p-1 text-font-description text-grey-1">Storage Limit</p>
+          <p className="p-1 text-font-description text-grey-1">Storage Fee</p>
           <div className="flex flex-row items-center">
-            <FeesInfo network={network} assetSlug={assetSlug} amount={displayedStorageLimit} goToFeeTab={goToFeeTab} />
+            <FeesInfo network={network} assetSlug={assetSlug} amount={displayedStorageFee} goToFeeTab={goToFeeTab} />
           </div>
         </div>
       )}
@@ -111,7 +111,7 @@ const FeesInfo: FC<FeesInfoProps> = ({ network, assetSlug, amount = '0.00', goTo
           )}
         </InFiat>
         <span className="pl-1 ">
-          <Money cryptoDecimals={6} smallFractionFont={false} tooltipPlacement="bottom">
+          <Money smallFractionFont={false} tooltipPlacement="bottom">
             {amount}
           </Money>{' '}
           {nativeAssetSymbol}
