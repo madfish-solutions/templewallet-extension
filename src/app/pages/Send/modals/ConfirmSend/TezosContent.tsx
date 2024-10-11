@@ -233,9 +233,9 @@ export const TezosContent: FC<TezosContentProps> = ({ data, onClose }) => {
 
         setTimeout(() => toastSuccess('Transaction Submitted', true, txHash), CLOSE_ANIMATION_TIMEOUT * 2);
       } catch (err: any) {
-        console.log(err);
+        console.error(err);
 
-        setLatestSubmitError(err.message);
+        setLatestSubmitError(err.errors ? JSON.stringify(err.errors) : err.message);
         setTab('error');
       }
     },

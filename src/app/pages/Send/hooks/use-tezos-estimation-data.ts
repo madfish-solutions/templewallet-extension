@@ -40,7 +40,10 @@ export const useTezosEstimationData = (
 
       checkZeroBalance(balance, tezBalance, isTez);
 
-      if (!assetMetadata) throw new Error('Asset metadata not found');
+      if (!assetMetadata) {
+        toastError('Asset metadata not found');
+        return;
+      }
 
       const [transferParams, manager] = await Promise.all([
         toTransferParams(tezos, assetSlug, assetMetadata, accountPkh, to, toPenny(assetMetadata)),
@@ -55,7 +58,8 @@ export const useTezosEstimationData = (
       }
 
       if (isTez ? estimatedBaseFee.isGreaterThanOrEqualTo(balance) : estimatedBaseFee.isGreaterThan(tezBalance)) {
-        throw new Error('Not enough funds');
+        toastError('Not enough funds');
+        return;
       }
 
       return {
@@ -64,7 +68,6 @@ export const useTezosEstimationData = (
       };
     } catch (err: any) {
       console.error(err);
-      toastError(err.message);
 
       return undefined;
     }

@@ -870,9 +870,9 @@ export class Vault {
           return await client.sendTransaction(txParams);
       }
     } catch (err: any) {
-      console.log(err);
+      console.error(err);
 
-      throw new Error(err.details ?? 'Failed to send operations.');
+      throw new Error(err.details ?? err.message);
     }
   }
 }

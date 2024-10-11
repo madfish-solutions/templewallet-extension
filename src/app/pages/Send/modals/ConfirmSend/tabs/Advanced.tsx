@@ -127,7 +127,7 @@ const TezosContent = () => {
         render={({ field: { value } }) => (
           <div className="w-full h-44 p-3 mb-3 bg-input-low rounded-lg overflow-scroll">
             <ReactJson
-              src={value}
+              src={value ?? {}}
               name={null}
               iconStyle="square"
               indentWidth={4}

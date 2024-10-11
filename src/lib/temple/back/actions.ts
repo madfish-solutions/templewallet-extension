@@ -301,11 +301,7 @@ export function sendOperations(
 
           resolve({ opHash: op.hash });
         } catch (err: any) {
-          if (err instanceof TezosOperationError) {
-            reject(err);
-          } else {
-            throw err;
-          }
+          reject(err);
         }
       } else {
         return promisableUnlock(resolve, reject, port, id, sourcePkh, networkRpc, opParams, dryRunResult);

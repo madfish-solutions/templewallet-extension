@@ -1,13 +1,26 @@
-import React, { memo } from 'react';
+import React, { memo, useMemo } from 'react';
+
+import ReactJson from 'react-json-view';
 
 import { CaptionAlert, CopyButton, IconBase, NoSpaceField } from 'app/atoms';
 import { ReactComponent as CopyIcon } from 'app/icons/base/copy.svg';
 
 interface ErrorTabProps {
+  isEvm: boolean;
   message: string | nullish;
 }
 
-export const ErrorTab = memo<ErrorTabProps>(({ message }) => {
+export const ErrorTab = memo<ErrorTabProps>(({ isEvm, message }) => {
+  const parsedError = useMemo(() => {
+    try {
+      if (isEvm || !message) return null;
+
+      return JSON.parse(message);
+    } catch {
+      return null;
+    }
+  }, [isEvm, message]);
+
   if (!message) return null;
 
   return (
@@ -21,15 +34,31 @@ export const ErrorTab = memo<ErrorTabProps>(({ message }) => {
           <IconBase size={12} Icon={CopyIcon} />
         </CopyButton>
       </div>
-      <NoSpaceField
-        value={message}
-        textarea
-        rows={5}
-        readOnly
-        placeholder="Info"
-        style={{ resize: 'none' }}
-        containerClassName="mb-2"
-      />
+
+      {parsedError ? (
+        <div className="w-full h-44 p-3 mb-3 bg-input-low rounded-lg overflow-scroll">
+          <ReactJson
+            src={parsedError}
+            name={null}
+            iconStyle="square"
+            indentWidth={4}
+            collapseStringsAfterLength={36}
+            enableClipboard={false}
+            displayObjectSize={false}
+            displayDataTypes={false}
+          />
+        </div>
+      ) : (
+        <NoSpaceField
+          value={message}
+          textarea
+          rows={5}
+          readOnly
+          placeholder="Info"
+          style={{ resize: 'none' }}
+          containerClassName="mb-2"
+        />
+      )}
     </>
   );
 });

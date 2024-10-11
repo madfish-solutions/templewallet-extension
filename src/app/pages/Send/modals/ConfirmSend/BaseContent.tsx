@@ -57,7 +57,9 @@ export const BaseContent = <T extends TxParamsFormData>({
 
   const errorTabRef = useRef<HTMLDivElement>(null);
 
-  const goToFeeTab = useCallback(() => setSelectedTab('fee'), []);
+  const goToFeeTab = useCallback(() => setSelectedTab('fee'), [setSelectedTab]);
+
+  const isEvm = network.kind === TempleChainKind.EVM;
 
   return (
     <>
@@ -115,9 +117,9 @@ export const BaseContent = <T extends TxParamsFormData>({
                     />
                   );
                 case 'advanced':
-                  return <AdvancedTab isEvm={network.kind === TempleChainKind.EVM} />;
+                  return <AdvancedTab isEvm={isEvm} />;
                 case 'error':
-                  return <ErrorTab message={latestSubmitError} />;
+                  return <ErrorTab isEvm={isEvm} message={latestSubmitError} />;
                 default:
                   return (
                     <DetailsTab
