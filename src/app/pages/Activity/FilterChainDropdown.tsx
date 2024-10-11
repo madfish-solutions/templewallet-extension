@@ -44,35 +44,37 @@ export const FilterChainDropdown = memo<Props>(({ filterChain, setFilterChain, o
   );
 
   return (
-    <ActionsDropdownPopup title="Select Network" opened={opened} lowering={1} style={{ minWidth: 196 }}>
-      <SearchBarField value={searchValue} onValueChange={setSearchValue} containerClassName="!mr-0 mb-2" />
+    <ActionsDropdownPopup title="Select Network" opened={opened} lowering={1} style={{ minWidth: 196, maxHeight: 340 }}>
+      <SearchBarField value={searchValue} onValueChange={setSearchValue} containerClassName="!mr-0" />
 
-      {!inSearch && (
-        <ActionListItem active={filterChain === null} className="justify-between" onClick={() => onChainClick(null)}>
-          <span>
-            <T id="allNetworks" />
-          </span>
+      <div className="mt-2 flex-grow flex flex-col overflow-y-auto">
+        {!inSearch && (
+          <ActionListItem active={filterChain === null} className="justify-between" onClick={() => onChainClick(null)}>
+            <span>
+              <T id="allNetworks" />
+            </span>
 
-          <IconBase Icon={BrowseSvg} className="text-primary" />
-        </ActionListItem>
-      )}
+            <IconBase Icon={BrowseSvg} className="text-primary" />
+          </ActionListItem>
+        )}
 
-      {searchedNetworks.map(chain => (
-        <ActionListItem
-          key={chain.chainId}
-          active={chain.chainId === filterChain?.chainId}
-          className="justify-between"
-          onClick={() => onChainClick(chain)}
-        >
-          <span>{chain.nameI18nKey ? <T id={chain.nameI18nKey} /> : chain.name}</span>
+        {searchedNetworks.map(chain => (
+          <ActionListItem
+            key={chain.chainId}
+            active={chain.chainId === filterChain?.chainId}
+            className="justify-between"
+            onClick={() => onChainClick(chain)}
+          >
+            <span>{chain.nameI18nKey ? <T id={chain.nameI18nKey} /> : chain.name}</span>
 
-          {chain.kind === TempleChainKind.Tezos ? (
-            <TezosNetworkLogo chainId={chain.chainId} />
-          ) : (
-            <EvmNetworkLogo chainId={chain.chainId} />
-          )}
-        </ActionListItem>
-      ))}
+            {chain.kind === TempleChainKind.Tezos ? (
+              <TezosNetworkLogo chainId={chain.chainId} />
+            ) : (
+              <EvmNetworkLogo chainId={chain.chainId} />
+            )}
+          </ActionListItem>
+        ))}
+      </div>
     </ActionsDropdownPopup>
   );
 });

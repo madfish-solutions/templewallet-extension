@@ -116,7 +116,8 @@ export const ActivityOperationBaseComponent = memo<Props>(
       event => {
         if (!onClick) return;
 
-        if (event.target instanceof HTMLAnchorElement) return;
+        // Case of click on link inside this component's element
+        if (event.target instanceof Element && event.target.closest(`.${CLICK_DETECTION_ATTR} a`)) return;
 
         onClick();
       },
@@ -151,7 +152,11 @@ export const ActivityOperationBaseComponent = memo<Props>(
 
     return (
       <div
-        className={clsx('z-1 group flex gap-x-2 p-2 rounded-lg hover:bg-secondary-low', onClick && 'cursor-pointer')}
+        className={clsx(
+          'z-1 group flex gap-x-2 p-2 rounded-lg hover:bg-secondary-low',
+          onClick && 'cursor-pointer',
+          CLICK_DETECTION_ATTR
+        )}
         onClick={handleClick}
       >
         <div className="relative shrink-0 self-center flex items-center justify-center flex items-start w-10 h-10">
@@ -230,6 +235,8 @@ const BundleIconsStack = memo<PropsWithChildren<{ withoutAssetIcon?: boolean; is
     );
   }
 );
+
+const CLICK_DETECTION_ATTR = 'click-break-point';
 
 const ActivityKindTitle: Record<FaceKind, string> = {
   bundle: 'Bundle',
