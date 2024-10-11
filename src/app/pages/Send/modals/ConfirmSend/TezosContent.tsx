@@ -1,5 +1,6 @@
 import React, { FC, useCallback, useEffect, useMemo, useState } from 'react';
 
+import { localForger } from '@taquito/local-forging';
 import { TezosToolkit, TransactionOperation, TransactionWalletOperation } from '@taquito/taquito';
 import BigNumber from 'bignumber.js';
 import { FormProvider, useForm } from 'react-hook-form-v7';
@@ -170,7 +171,11 @@ export const TezosContent: FC<TezosContentProps> = ({ data, onClose }) => {
         displayedFeeOptions
       ).catch(() => null);
 
-      if (bytesToSign) setValue('rawTransaction', bytesToSign);
+      if (bytesToSign) {
+        const rawToSign = await localForger.parse(bytesToSign).catch(() => null);
+        if (rawToSign) setValue('raw', rawToSign);
+        setValue('bytes', bytesToSign);
+      }
     } catch (err: any) {
       console.error(err);
     }

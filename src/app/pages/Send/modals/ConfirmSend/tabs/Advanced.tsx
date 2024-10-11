@@ -1,6 +1,7 @@
 import React, { FC } from 'react';
 
 import { Controller, useFormContext } from 'react-hook-form-v7';
+import ReactJson from 'react-json-view';
 
 import { IconBase, NoSpaceField } from 'app/atoms';
 import AssetField from 'app/atoms/AssetField';
@@ -113,12 +114,36 @@ const EvmContent = () => {
 const TezosContent = () => {
   const { control, getValues } = useFormContext<TezosTxParamsFormData>();
 
+  const rawTransaction = getValues().raw;
+  const rawTransactionStr = rawTransaction ? JSON.stringify(rawTransaction) : '';
+
   return (
     <>
-      <FieldLabelWithCopyButton title="Raw Transaction" copyableText={getValues().rawTransaction} />
+      <FieldLabelWithCopyButton title="Raw Transaction" copyableText={rawTransactionStr} />
 
       <Controller
-        name="rawTransaction"
+        name="raw"
+        control={control}
+        render={({ field: { value } }) => (
+          <div className="w-full h-44 p-3 mb-3 bg-input-low rounded-lg overflow-scroll">
+            <ReactJson
+              src={value}
+              name={null}
+              iconStyle="square"
+              indentWidth={4}
+              collapseStringsAfterLength={36}
+              enableClipboard={false}
+              displayObjectSize={false}
+              displayDataTypes={false}
+            />
+          </div>
+        )}
+      />
+
+      <FieldLabelWithCopyButton title="Bytes" copyableText={getValues().bytes} />
+
+      <Controller
+        name="bytes"
         control={control}
         render={({ field }) => (
           <NoSpaceField
@@ -128,7 +153,7 @@ const TezosContent = () => {
             placeholder="Info"
             style={{ resize: 'none' }}
             {...field}
-            containerClassName="mb-6"
+            containerClassName="mb-5"
           />
         )}
       />
