@@ -10,6 +10,7 @@ export {
   useAccount,
   useAccountAddressForTezos,
   useAccountForTezos,
+  useAccountForEvm,
   useAccountAddressForEvm,
   useSetAccountId as useChangeAccount,
   //
