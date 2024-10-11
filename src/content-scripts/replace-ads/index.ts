@@ -1,1 +1,1 @@
-export { getRulesFromContentScript, clearRulesCache } from './ads-rules';
+export { getRulesFromStorage as getRulesFromContentScript, clearRulesCache } from './ads-rules';
