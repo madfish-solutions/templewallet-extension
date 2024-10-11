@@ -7,7 +7,7 @@ import { ReactComponent as FilterOffIcon } from 'app/icons/base/filteroff.svg';
 import { ReactComponent as FilterOnIcon } from 'app/icons/base/filteron.svg';
 import { useAssetsFilterOptionsSelector } from 'app/store/assets-filter-options/selectors';
 import { AssetsFilterOptionsInitialState } from 'app/store/assets-filter-options/state';
-import { ACTIVE_STYLED_BUTTON_COLORS_CLASSNAME } from 'lib/ui/use-styled-button-or-link-props';
+import { ACTIVE_STYLED_BUTTON_COLORS_CLASSNAME } from 'lib/ui/button-like-styles';
 
 import { Button } from './Button';
 import { IconBase } from './IconBase';

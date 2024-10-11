@@ -6,7 +6,7 @@ import {
   StyledButtonColor,
   ACTIVE_STYLED_BUTTON_COLORS_CLASSNAME,
   getStyledButtonColorsClassNames
-} from 'lib/ui/use-styled-button-or-link-props';
+} from 'lib/ui/button-like-styles';
 import useTippy from 'lib/ui/useTippy';
 import { combineRefs } from 'lib/ui/utils';
 

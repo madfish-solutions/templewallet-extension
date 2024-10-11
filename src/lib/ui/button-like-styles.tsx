@@ -3,7 +3,7 @@ import React, { useMemo } from 'react';
 import clsx from 'clsx';
 
 import { ButtonProps } from 'app/atoms/Button';
-import { Loader } from 'app/atoms/loader';
+import { Loader } from 'app/atoms/Loader';
 import { LinkProps } from 'lib/woozie/Link';
 
 type Size = 'L' | 'M' | 'S';

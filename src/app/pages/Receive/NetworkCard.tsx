@@ -11,7 +11,7 @@ import { ReactComponent as CopyIcon } from 'app/icons/base/copy.svg';
 import { ReactComponent as QRCodeIcon } from 'app/icons/base/qr_code.svg';
 import { setTestID } from 'lib/analytics';
 import { t } from 'lib/i18n';
-import { getStyledButtonColorsClassNames } from 'lib/ui/use-styled-button-or-link-props';
+import { getStyledButtonColorsClassNames } from 'lib/ui/button-like-styles';
 import { UseTippyOptions } from 'lib/ui/useTippy';
 import { TempleChainKind, TempleChainTitle } from 'temple/types';
 

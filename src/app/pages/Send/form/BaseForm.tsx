@@ -7,7 +7,7 @@ import { useDebounce } from 'use-debounce';
 import { Button, NoSpaceField } from 'app/atoms';
 import AssetField from 'app/atoms/AssetField';
 import { ConvertedInputAssetAmount } from 'app/atoms/ConvertedInputAssetAmount';
-import { Loader } from 'app/atoms/loader';
+import { Loader } from 'app/atoms/Loader';
 import { ActionsButtonsBox } from 'app/atoms/PageModal/actions-buttons-box';
 import { StyledButton } from 'app/atoms/StyledButton';
 import { SelectAccountModal } from 'app/pages/Send/modals/SelectAccount';

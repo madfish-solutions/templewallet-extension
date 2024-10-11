@@ -4,8 +4,6 @@ import clsx from 'clsx';
 
 import { ReactComponent as LoaderIcon } from 'app/icons/loader.svg';
 
-import LoaderStyles from './loader.module.css';
-
 type Size = 'L' | 'M' | 'S';
 
 interface LoaderProps {
@@ -24,7 +22,9 @@ export const Loader = memo<LoaderProps>(({ trackVariant, size }) => (
     className={clsx(
       SIZE_CLASSNAME[size],
       'fill-current animate-spin',
-      trackVariant === 'light' ? LoaderStyles.trackLight : LoaderStyles.trackDark
+      trackVariant === 'light'
+        ? '[--track-opacity:0.25] [--track-color:white]'
+        : '[--track-opacity:0.05] [--track-color:black]'
     )}
   />
 ));
