@@ -79,16 +79,6 @@ export const TEZOS_DEFAULT_NETWORKS: NonEmptyArray<StoredTezosNetwork> = [
     default: true
   },
   {
-    id: 'marigold-mainnet',
-    name: 'Marigold Mainnet',
-    chain: TempleChainKind.Tezos,
-    chainId: TempleTezosChainId.Mainnet,
-    rpcBaseURL: 'https://mainnet.tezos.marigold.dev',
-    description: 'Marigold mainnet',
-    color: '#48bb78',
-    default: true
-  },
-  {
     id: 'smartpy-mainnet',
     name: 'SmartPy Mainnet',
     chain: TempleChainKind.Tezos,

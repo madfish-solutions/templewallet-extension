@@ -34,10 +34,6 @@
       }
     }
   },
-  "authorizedDApps": {
-    "message": "İzin Verilen DApps",
-    "description": "DApps = Decentralized Applications"
-  },
   "clickIconToResetPermissions": {
     "message": "İzinleri sıfırlamak için X simgesine tıklayın."
   },
@@ -643,37 +639,18 @@
   "revealPrivateKey": {
     "message": "Özel Anahtarı Göster"
   },
-  "revealPrivateKeyDescription": {
-    "message": "\"Hesabı Dışa Aktar\" olarak da bilinen bu özellik, seçtiğiniz hesap için özel anahtarı gösterir."
-  },
   "revealSeedPhrase": {
     "message": "Kurtarma Sözcüğünü Göster"
-  },
-  "revealSeedPhraseDescription": {
-    "message": "\"Cüzdanı Dışa Aktar\" olarak da bilinir; başka cihazlarda hesaplarınıza ve cüzdanınıza erişmek için bu kurtarma sözcüğüne ihtiyacınız olabilir."
   },
   "dApps": {
     "message": "DApps",
     "description": "DApps = Decentralized Applications"
-  },
-  "dAppsDescription": {
-    "message": "Bu bölümde, Temple Wallet'i destekleyen merkezi olmayan uygulamalarla etkileşim kurabilmeyi etkinleştirebilirsiniz."
-  },
-  "networksDescription": {
-    "message": "Bu bölümde, özel Tezos ağları ekleyebilir ya da silebilirsiniz.",
-    "description": "Tezos = blockchain name (https://tezos.com/)"
   },
   "removeAccount": {
     "message": "Hesabı Kaldır"
   },
   "removeAccountDescription": {
     "message": "Seçtiğiniz hesabı kaldırmak için bu bölümü kullanın. Yalnızca içe aktarılmış olan hesaplar kaldırılabilir."
-  },
-  "about": {
-    "message": "Hakkında"
-  },
-  "aboutDescription": {
-    "message": "Temple Wallet hakkında meta verileri görüntülemek için bu bölümü kullanın."
   },
   "unlockWallet": {
     "message": "Cüzdan Kilidini Aç"
@@ -1264,14 +1241,11 @@
   "upload": {
     "message": "Yükle"
   },
-  "languageAndCountry": {
+  "language": {
     "message": "Dil"
   },
   "generalSettings": {
     "message": "Genel"
-  },
-  "generalSettingsDescription": {
-    "message": "Dil tercihlerini ve ekran modunu buradan yönetebilirsiniz."
   },
   "swapNoun": {
     "message": "Takas"
@@ -1890,9 +1864,6 @@
   },
   "addressBook": {
     "message": "Adres Defteri"
-  },
-  "addressBookDescription": {
-    "message": "Kişilerinizi ekleyin, çıkarın ve yönetin."
   },
   "addNewContact": {
     "message": "Yeni kişi"

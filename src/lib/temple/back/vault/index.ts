@@ -382,6 +382,12 @@ export class Vault {
     });
   }
 
+  static async reset(password: string) {
+    await Vault.assertValidPassword(password);
+    await Vault.forgetSession();
+    await clearAsyncStorages();
+  }
+
   constructor(private passKey: CryptoKey) {}
 
   revealPublicKey(accountAddress: string) {

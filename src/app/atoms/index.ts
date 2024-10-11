@@ -37,7 +37,6 @@ export { FormSubmitButton } from './FormSubmitButton';
 
 export { FormSecondaryButton } from './FormSecondaryButton';
 
-export type { FormCheckboxProps } from './FormCheckbox';
 export { FormCheckbox } from './FormCheckbox';
 
 export { SyncSpinner } from './SyncSpinner';

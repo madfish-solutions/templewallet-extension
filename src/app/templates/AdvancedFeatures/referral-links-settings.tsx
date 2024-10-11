@@ -15,7 +15,7 @@ import { t, T } from 'lib/i18n';
 import { putToStorage } from 'lib/storage';
 import { useConfirm } from 'lib/ui/dialog';
 
-import { EnablingSetting } from '../EnablingSetting';
+import { EnablingSetting } from '../enabling-setting';
 
 import { AdvancedFeaturesSelectors } from './selectors';
 
@@ -38,6 +38,7 @@ export const ReferralLinksSettings = memo(() => {
               substitutions={[
                 <a
                   href={TERMS_OF_USE_URL}
+                  key="termsLink"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="underline text-secondary"
@@ -46,6 +47,7 @@ export const ReferralLinksSettings = memo(() => {
                 </a>,
                 <a
                   href={PRIVACY_POLICY_URL}
+                  key="privacyPolicyLink"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="underline text-secondary"
@@ -55,7 +57,7 @@ export const ReferralLinksSettings = memo(() => {
               ]}
             />
           ),
-          comfirmButtonText: t('agreeAndContinue')
+          confirmButtonText: t('agreeAndContinue')
         });
 
         if (!confirmed) {
@@ -73,10 +75,10 @@ export const ReferralLinksSettings = memo(() => {
   return (
     <EnablingSetting
       titleI18nKey="referralLinks"
-      descriptionI18nKey="referralLinksDescription"
+      description={<T id="referralLinksDescription" />}
       enabled={referralLinksEnabled}
       onChange={toggleReferralLinks}
-      testID={AdvancedFeaturesSelectors.referralLinksCheckbox}
+      testID={AdvancedFeaturesSelectors.referralLinksToggle}
     />
   );
 });

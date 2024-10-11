@@ -31,10 +31,6 @@
       }
     }
   },
-  "authorizedDApps": {
-    "message": "인증된 분산 앱",
-    "description": "DApps = Decentralized Applications"
-  },
   "clickIconToResetPermissions": {
     "message": "X 아이콘을 클릭하여 접근 권한을 초기화하세요."
   },
@@ -607,37 +603,18 @@
   "revealPrivateKey": {
     "message": "비공개 키 공개"
   },
-  "revealPrivateKeyDescription": {
-    "message": "\"계정 내보내기\"라고도 하는데, 선택한 계정의 비공개 키가 공개됩니다"
-  },
   "revealSeedPhrase": {
     "message": "비밀 문구 공개"
-  },
-  "revealSeedPhraseDescription": {
-    "message": "\"지갑 내보내기\"라고도 하는데, 다른 기기에서 지갑 및 계정에 액세스 하려면 이 비밀 문구가 있어야 합니다."
   },
   "dApps": {
     "message": "분산 앱",
     "description": "DApps = Decentralized Applications"
-  },
-  "dAppsDescription": {
-    "message": "이 섹션에서 타노스 지갑을 지원하는 분산 애플리케이션과 상호 소통하는 기능을 활성화할 수 있습니다."
-  },
-  "networksDescription": {
-    "message": "이 섹션에서 맞춤형 테조스 네트워크를 추가하거나 삭제할 수 있습니다.",
-    "description": "Tezos = blockchain name (https://tezos.com/)"
   },
   "removeAccount": {
     "message": "계정 제거"
   },
   "removeAccountDescription": {
     "message": "이 섹션을 활용하여 선택한 계정을 제거하세요. 불러온 계정만 제거할 수 있습니다."
-  },
-  "about": {
-    "message": "정보"
-  },
-  "aboutDescription": {
-    "message": "이 섹션을 활용하여 타노스 지갑에 관한 메타 징보를 확인하세요."
   },
   "unlockWallet": {
     "message": "지갑 잠금 해제"
@@ -1192,14 +1169,11 @@
   "upload": {
     "message": "업로드"
   },
-  "languageAndCountry": {
+  "language": {
     "message": "언어"
   },
   "generalSettings": {
     "message": "일반"
-  },
-  "generalSettingsDescription": {
-    "message": "여기에서 선호하는 언어와 디스플레이 모드를 관리할 수 있습니다."
   },
   "swapNoun": {
     "message": "스왑"

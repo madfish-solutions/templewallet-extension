@@ -25,9 +25,8 @@ export const ScamTag = memo<Props>(({ assetSlug, tezPkh, tezosChainId }) => {
       try {
         const confirmed = await confirm({
           title: t('deleteScamTokenConfirmTitle'),
-          titleClassName: 'font-bold',
           description: t('deleteScamTokenConfirmDescription'),
-          comfirmButtonText: t('delete')
+          confirmButtonText: t('delete')
         });
 
         if (confirmed)
