@@ -76,7 +76,7 @@ export const CreateUrlEntityModal = memo(
           const signal = abortAndRenewSignal();
           await createEntity(values, signal);
           closeModal();
-          setTimeout(() => toastSuccess(t(successMessageI18nKey)), CLOSE_ANIMATION_TIMEOUT * 2);
+          setTimeout(() => toastSuccess(t(successMessageI18nKey)), CLOSE_ANIMATION_TIMEOUT + 100);
         } catch (error) {
           if (isAbortError(error)) {
             return;

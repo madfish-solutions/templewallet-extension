@@ -75,7 +75,6 @@ export const useAddNetwork = (
         const commonChainSpecs: Pick<ChainBase, 'name' | 'testnet'> = { name, testnet };
 
         if (signal.aborted) {
-          console.log('aborted addNetwork');
           return;
         }
 

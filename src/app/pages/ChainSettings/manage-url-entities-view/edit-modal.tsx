@@ -121,11 +121,11 @@ export const EditUrlEntityModal = <T extends UrlEntityBase>({
       >
         <form onSubmit={handleSubmit(onSubmit)} className="flex-1 flex flex-col max-h-full">
           <ScrollView
-            className="pt-4 pb-6 gap-4"
+            className="pt-4 pb-6"
             bottomEdgeThreshold={24}
             onBottomEdgeVisibilityChange={setBottomEdgeIsVisible}
           >
-            <SettingsCellGroup>
+            <SettingsCellGroup className="mb-4">
               <SettingsCell cellName={<T id={activeI18nKey} />} Component="div">
                 <Controller
                   control={control}

@@ -222,6 +222,7 @@ export const SeedWordInput: FC<SeedWordInputProps> = ({
         autoComplete="off"
         smallPaddings
         fieldWrapperBottomMargin={false}
+        reserveSpaceForError={false}
         testID={testID}
         onKeyDown={handleInputKeyDown}
       />

@@ -1,6 +1,7 @@
 import React, { memo, useCallback, useContext, useEffect, useLayoutEffect, useMemo } from 'react';
 
 import { isDefined } from '@rnw-community/shared';
+import { useDispatch } from 'react-redux';
 
 import {
   AssetsSegmentControl,
@@ -11,13 +12,13 @@ import { SuspenseContainer } from 'app/atoms/SuspenseContainer';
 import { useAppEnv } from 'app/env';
 import { useLocationSearchParamValue } from 'app/hooks/use-location';
 import PageLayout, { PageLayoutProps } from 'app/layouts/PageLayout';
+import { setToastsContainerBottomShiftAction } from 'app/store/settings/actions';
 import { useMainnetTokensScamlistSelector } from 'app/store/tezos/assets/selectors';
 import { ActivityTab } from 'app/templates/activity/Activity';
 import { AdvertisingBanner } from 'app/templates/advertising/advertising-banner/advertising-banner';
 import { AppHeader } from 'app/templates/AppHeader';
 import { toastSuccess } from 'app/toaster';
-import { t } from 'lib/i18n';
-import { SuccessfulImportToastContext } from 'lib/temple/front/successful-import-toast-context';
+import { SuccessfulInitToastContext } from 'lib/temple/front/successful-init-toast-context';
 import { HistoryAction, navigate, useLocation } from 'lib/woozie';
 
 import { CollectiblesTab } from '../Collectibles/CollectiblesTab';
@@ -39,15 +40,21 @@ const Home = memo<HomeProps>(props => {
   const tabSlug = useLocationSearchParamValue('tab');
   const { onboardingCompleted } = useOnboardingProgress();
   const { search } = useLocation();
+  const dispatch = useDispatch();
 
-  const [shouldShowImportToast, setShouldShowImportToast] = useContext(SuccessfulImportToastContext);
+  const [initToastMessage, setInitToastMessage] = useContext(SuccessfulInitToastContext);
 
   useEffect(() => {
-    if (shouldShowImportToast) {
-      setShouldShowImportToast(false);
-      toastSuccess(t('importSuccessful'));
-    }
-  }, [setShouldShowImportToast, shouldShowImportToast]);
+    if (!initToastMessage) return;
+
+    const timeout = setTimeout(() => {
+      dispatch(setToastsContainerBottomShiftAction(0));
+      setInitToastMessage(undefined);
+      toastSuccess(initToastMessage);
+    }, 100);
+
+    return () => clearTimeout(timeout);
+  }, [dispatch, initToastMessage, setInitToastMessage]);
 
   const assetsSegmentControlRef = useAssetsSegmentControlRef();
 

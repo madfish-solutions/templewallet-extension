@@ -1,11 +1,12 @@
-import React, { memo, useCallback, useState } from 'react';
+import React, { memo, useCallback, useContext, useState } from 'react';
 
 import { ManualBackupModal } from 'app/templates/ManualBackupModal';
-import { toastError, toastSuccess } from 'app/toaster';
+import { toastError } from 'app/toaster';
 import { SHOULD_BACKUP_MNEMONIC_STORAGE_KEY } from 'lib/constants';
 import { t } from 'lib/i18n';
 import { useStorage } from 'lib/temple/front';
 import { clearMnemonicToBackup, getMnemonicToBackup } from 'lib/temple/front/mnemonic-to-backup-keeper';
+import { SuccessfulInitToastContext } from 'lib/temple/front/successful-init-toast-context';
 
 import { BackupOptionsModal } from './backup-options-modal';
 
@@ -14,6 +15,7 @@ export const BackupMnemonicOverlay = memo(() => {
   const [backupSelected, setBackupSelected] = useState(false);
   const [mnemonicToBackup, setMnemonicToBackup] = useState('');
   const [, setShouldBackupMnemonic] = useStorage(SHOULD_BACKUP_MNEMONIC_STORAGE_KEY, false);
+  const [, setInitToast] = useContext(SuccessfulInitToastContext);
 
   const handleBackupOptionSelect = useCallback(async () => {
     const currentMnemonicToBackup = await getMnemonicToBackup();
@@ -29,10 +31,10 @@ export const BackupMnemonicOverlay = memo(() => {
     setBackupSelected(false);
   }, []);
   const handleSeedPhraseVerified = useCallback(() => {
-    toastSuccess(t('backupSuccessful'));
+    setInitToast(t('backupSuccessful'));
     clearMnemonicToBackup();
     setShouldBackupMnemonic(false).catch(e => console.error(e));
-  }, [setShouldBackupMnemonic]);
+  }, [setInitToast, setShouldBackupMnemonic]);
 
   return backupSelected ? (
     <ManualBackupModal

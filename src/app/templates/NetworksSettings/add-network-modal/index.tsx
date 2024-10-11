@@ -156,14 +156,10 @@ export const AddNetworkModal = memo<AddNetworkModalProps>(({ isOpen, onClose }) 
     <PageModal opened={isOpen} onRequestClose={closeModal} title={t('addNetwork')}>
       <FormProvider {...formReturn}>
         <form className="flex-1 flex flex-col max-h-full" onSubmit={handleSubmit(onSubmit)}>
-          <ScrollView
-            className="py-4 gap-4"
-            bottomEdgeThreshold={16}
-            onBottomEdgeVisibilityChange={setBottomEdgeIsVisible}
-          >
+          <ScrollView className="py-4" bottomEdgeThreshold={16} onBottomEdgeVisibilityChange={setBottomEdgeIsVisible}>
             <NameInput namesToExclude={namesToExclude} onChainSelect={handleChainSelect} />
 
-            <div className="flex flex-col gap-8">
+            <div className="flex flex-col gap-4">
               <UrlInput
                 name="rpcUrl"
                 label="RPC URL"
@@ -226,7 +222,7 @@ export const AddNetworkModal = memo<AddNetworkModalProps>(({ isOpen, onClose }) 
               />
             </div>
 
-            <div className="flex flex-col gap-8">
+            <div className="flex flex-col gap-4">
               <UrlInput
                 disabled={isSubmitting}
                 name="explorerUrl"

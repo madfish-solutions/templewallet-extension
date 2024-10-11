@@ -17,7 +17,7 @@ export const ActionsButtonsBox = memo<ActionsButtonsBoxProps>(
     const dispatch = useDispatch();
 
     useEffect(() => {
-      return () => void shouldChangeBottomShift && dispatch(setToastsContainerBottomShiftAction(0));
+      return () => void (shouldChangeBottomShift && dispatch(setToastsContainerBottomShiftAction(0)));
     }, [dispatch, shouldChangeBottomShift]);
 
     const handleResize = useMemo(
