@@ -1,8 +1,7 @@
 import React, { memo, useMemo } from 'react';
 
 import { PageModal } from 'app/atoms/PageModal';
-import { EvmActivity } from 'lib/activity';
-import { EvmActivityAsset } from 'lib/activity/types';
+import { EvmActivity, EvmActivityAsset } from 'lib/activity';
 import { isTransferActivityOperKind } from 'lib/activity/utils';
 import { fromAssetSlug, toEvmAssetSlug } from 'lib/assets/utils';
 import { useGetEvmChainAssetMetadata } from 'lib/metadata';

@@ -48,10 +48,10 @@ interface TezosApproveOperation extends TezosOperationBase {
 }
 
 export enum ActivityOperTransferType {
-  fromUs,
-  toUs,
-  fromUsToAccount,
-  toUsFromAccount
+  send,
+  receive,
+  sendToAccount,
+  receiveFromAccount
 }
 
 interface TezosTransferOperation extends TezosOperationBase {

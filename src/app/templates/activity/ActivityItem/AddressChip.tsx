@@ -3,8 +3,7 @@ import React, { FC, useMemo } from 'react';
 import { HashShortView, IconBase } from 'app/atoms';
 import { CopyButton } from 'app/atoms/CopyButton';
 import { ReactComponent as CopySvg } from 'app/icons/base/copy.svg';
-import { ActivityOperKindEnum, EvmOperation, TezosOperation } from 'lib/activity';
-import { ActivityOperTransferType } from 'lib/activity/types';
+import { ActivityOperKindEnum, EvmOperation, TezosOperation, ActivityOperTransferType } from 'lib/activity';
 
 interface Props {
   operation: TezosOperation | EvmOperation;
@@ -17,15 +16,14 @@ export const OperAddressChip: FC<Props> = ({ operation }) => {
     if (operation.kind === ActivityOperKindEnum.interaction)
       return operation.withAddress ? { title: 'With', address: operation.withAddress } : undefined;
 
-    if (operation.type === ActivityOperTransferType.fromUsToAccount)
-      return { title: 'To', address: operation.toAddress };
+    if (operation.type === ActivityOperTransferType.sendToAccount) return { title: 'To', address: operation.toAddress };
 
-    if (operation.type === ActivityOperTransferType.toUsFromAccount)
+    if (operation.type === ActivityOperTransferType.receiveFromAccount)
       return { title: 'From', address: operation.fromAddress };
 
-    if (operation.type === ActivityOperTransferType.fromUs) return { title: 'With', address: operation.toAddress };
+    if (operation.type === ActivityOperTransferType.send) return { title: 'With', address: operation.toAddress };
 
-    if (operation.type === ActivityOperTransferType.toUs) return { title: 'With', address: operation.fromAddress };
+    if (operation.type === ActivityOperTransferType.receive) return { title: 'With', address: operation.fromAddress };
 
     return;
   }, [operation]);

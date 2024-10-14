@@ -26,11 +26,11 @@ export function getActivityFilterKind(activity: Activity): FilterKind {
 
   const type = operation.type;
 
-  if (type === ActivityOperTransferType.fromUs || type === ActivityOperTransferType.toUs) return 'transfer';
+  if (type === ActivityOperTransferType.send || type === ActivityOperTransferType.receive) return 'transfer';
 
-  if (type === ActivityOperTransferType.fromUsToAccount) return 'send';
+  if (type === ActivityOperTransferType.sendToAccount) return 'send';
 
-  if (type === ActivityOperTransferType.toUsFromAccount) return 'receive';
+  if (type === ActivityOperTransferType.receiveFromAccount) return 'receive';
 
   return null;
 }

@@ -70,8 +70,8 @@ function parseTezosPreActivityOperation(preOperation: TezosPreActivityOperation,
           kind: ActivityOperKindEnum.transfer,
           type:
             preOperation.to.length === 1 && !isTezosContractAddress(preOperation.to[0].address)
-              ? ActivityOperTransferType.fromUsToAccount
-              : ActivityOperTransferType.fromUs,
+              ? ActivityOperTransferType.sendToAccount
+              : ActivityOperTransferType.send,
           fromAddress,
           toAddress
         };
@@ -80,8 +80,8 @@ function parseTezosPreActivityOperation(preOperation: TezosPreActivityOperation,
         return {
           kind: ActivityOperKindEnum.transfer,
           type: isTezosContractAddress(preOperation.from.address)
-            ? ActivityOperTransferType.toUs
-            : ActivityOperTransferType.toUsFromAccount,
+            ? ActivityOperTransferType.receive
+            : ActivityOperTransferType.receiveFromAccount,
           fromAddress,
           toAddress
         };

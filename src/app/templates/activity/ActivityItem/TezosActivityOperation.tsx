@@ -1,7 +1,6 @@
 import React, { memo, useMemo } from 'react';
 
-import { ActivityOperKindEnum, TezosOperation } from 'lib/activity';
-import { ActivityStatus } from 'lib/activity/types';
+import { ActivityOperKindEnum, TezosOperation, ActivityStatus } from 'lib/activity';
 import { fromAssetSlug } from 'lib/assets';
 import { AssetMetadataBase, isTezosCollectibleMetadata, useTezosAssetMetadata } from 'lib/metadata';
 

@@ -52,14 +52,14 @@ function parseLogEvent(logEvent: LogEvent, item: Transaction, accountAddress: st
     const type = (() => {
       if (toAddress === accountAddress) {
         return item.to_address === logEvent.sender_address
-          ? ActivityOperTransferType.toUsFromAccount
-          : ActivityOperTransferType.toUs;
+          ? ActivityOperTransferType.receiveFromAccount
+          : ActivityOperTransferType.receive;
       }
 
       if (fromAddress === accountAddress) {
         return item.to_address === logEvent.sender_address
-          ? ActivityOperTransferType.fromUsToAccount
-          : ActivityOperTransferType.fromUs;
+          ? ActivityOperTransferType.sendToAccount
+          : ActivityOperTransferType.send;
       }
 
       return null;
@@ -79,9 +79,7 @@ function parseLogEvent(logEvent: LogEvent, item: Transaction, accountAddress: st
     const amount = nft ? '1' : amountOrTokenId;
 
     const amountSigned =
-      type === ActivityOperTransferType.fromUs || type === ActivityOperTransferType.fromUsToAccount
-        ? `-${amount}`
-        : amount;
+      type === ActivityOperTransferType.send || type === ActivityOperTransferType.sendToAccount ? `-${amount}` : amount;
 
     const asset: EvmActivityAsset = {
       contract: contractAddress,
@@ -103,14 +101,14 @@ function parseLogEvent(logEvent: LogEvent, item: Transaction, accountAddress: st
     const type = (() => {
       if (toAddress === accountAddress) {
         return item.to_address === logEvent.sender_address
-          ? ActivityOperTransferType.toUsFromAccount
-          : ActivityOperTransferType.toUs;
+          ? ActivityOperTransferType.receiveFromAccount
+          : ActivityOperTransferType.receive;
       }
 
       if (fromAddress === accountAddress) {
         return item.to_address === logEvent.sender_address
-          ? ActivityOperTransferType.fromUsToAccount
-          : ActivityOperTransferType.fromUs;
+          ? ActivityOperTransferType.sendToAccount
+          : ActivityOperTransferType.send;
       }
 
       return null;
@@ -127,9 +125,7 @@ function parseLogEvent(logEvent: LogEvent, item: Transaction, accountAddress: st
     const amount = '1';
 
     const amountSigned =
-      type === ActivityOperTransferType.fromUs || type === ActivityOperTransferType.fromUsToAccount
-        ? `-${amount}`
-        : amount;
+      type === ActivityOperTransferType.send || type === ActivityOperTransferType.sendToAccount ? `-${amount}` : amount;
 
     const asset: EvmActivityAsset = {
       contract: contractAddress,

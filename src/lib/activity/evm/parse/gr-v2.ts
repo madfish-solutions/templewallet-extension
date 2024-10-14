@@ -46,14 +46,14 @@ function parseTransfer(transfer: TokenTransferItem, item: BlockTransactionWithCo
 
   const type: ActivityOperTransferType = (() => {
     if (transfer.transfer_type === 'IN') {
-      if (item.to_address === transfer.contract_address) return ActivityOperTransferType.toUsFromAccount;
+      if (item.to_address === transfer.contract_address) return ActivityOperTransferType.receiveFromAccount;
 
-      return ActivityOperTransferType.toUs;
+      return ActivityOperTransferType.receive;
     }
 
-    if (item.to_address === transfer.contract_address) return ActivityOperTransferType.fromUsToAccount;
+    if (item.to_address === transfer.contract_address) return ActivityOperTransferType.sendToAccount;
 
-    return ActivityOperTransferType.fromUs;
+    return ActivityOperTransferType.send;
   })();
 
   const operBase = { kind: ActivityOperKindEnum.transfer as const, type, fromAddress, toAddress };
@@ -69,9 +69,7 @@ function parseTransfer(transfer: TokenTransferItem, item: BlockTransactionWithCo
   const symbol = transfer.contract_ticker_symbol || undefined;
 
   const amountSigned =
-    type === ActivityOperTransferType.fromUs || type === ActivityOperTransferType.fromUsToAccount
-      ? `-${amount}`
-      : amount;
+    type === ActivityOperTransferType.send || type === ActivityOperTransferType.sendToAccount ? `-${amount}` : amount;
 
   const asset: EvmActivityAsset = {
     contract: contractAddress,

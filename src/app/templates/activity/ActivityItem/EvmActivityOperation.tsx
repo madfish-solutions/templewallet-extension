@@ -1,7 +1,6 @@
 import React, { memo, useMemo } from 'react';
 
-import { ActivityOperKindEnum, type EvmOperation } from 'lib/activity';
-import { ActivityStatus } from 'lib/activity/types';
+import { ActivityOperKindEnum, EvmOperation, ActivityStatus } from 'lib/activity';
 import { toEvmAssetSlug } from 'lib/assets/utils';
 import { useEvmAssetMetadata } from 'lib/metadata';
 

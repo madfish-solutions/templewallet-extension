@@ -20,9 +20,9 @@ export function parseGasTransfer(
 
   const type = (() => {
     if (fromAddress === accountAddress)
-      return partOfBatch ? ActivityOperTransferType.fromUs : ActivityOperTransferType.fromUsToAccount;
+      return partOfBatch ? ActivityOperTransferType.send : ActivityOperTransferType.sendToAccount;
     if (toAddress === accountAddress)
-      return partOfBatch ? ActivityOperTransferType.toUs : ActivityOperTransferType.toUsFromAccount;
+      return partOfBatch ? ActivityOperTransferType.receive : ActivityOperTransferType.receiveFromAccount;
 
     return null;
   })();
@@ -34,7 +34,7 @@ export function parseGasTransfer(
   const decimals = item.gas_metadata?.contract_decimals;
 
   const amountSigned =
-    type === ActivityOperTransferType.fromUs || type === ActivityOperTransferType.fromUsToAccount ? `-${value}` : value;
+    type === ActivityOperTransferType.send || type === ActivityOperTransferType.sendToAccount ? `-${value}` : value;
 
   const symbol = item.gas_metadata?.contract_ticker_symbol;
 

@@ -11,8 +11,7 @@ import { ReactComponent as OutLinkIcon } from 'app/icons/base/outLink.svg';
 import { ReactComponent as SendSvg } from 'app/icons/base/send.svg';
 import { EvmAssetIcon, TezosAssetIcon } from 'app/templates/AssetIcon';
 import { InFiat } from 'app/templates/InFiat';
-import { ActivityOperKindEnum } from 'lib/activity';
-import { ActivityOperTransferType, ActivityStatus } from 'lib/activity/types';
+import { ActivityOperKindEnum, ActivityOperTransferType, ActivityStatus } from 'lib/activity';
 import { isTransferActivityOperKind } from 'lib/activity/utils';
 import { toEvmAssetSlug, toTezosAssetSlug } from 'lib/assets/utils';
 import { atomsToTokens } from 'lib/temple/helpers';
@@ -284,10 +283,10 @@ function getTitleByKind(kind: FaceKind, transferType?: ActivityOperTransferType)
 }
 
 const TransferTypeTitle: Record<ActivityOperTransferType, string> = {
-  [ActivityOperTransferType.fromUsToAccount]: 'Send',
-  [ActivityOperTransferType.toUsFromAccount]: 'Receive',
-  [ActivityOperTransferType.fromUs]: 'Transfer',
-  [ActivityOperTransferType.toUs]: 'Transfer'
+  [ActivityOperTransferType.sendToAccount]: 'Send',
+  [ActivityOperTransferType.receiveFromAccount]: 'Receive',
+  [ActivityOperTransferType.send]: 'Transfer',
+  [ActivityOperTransferType.receive]: 'Transfer'
 };
 
 function getIconByKind(kind: FaceKind, transferType?: ActivityOperTransferType) {
@@ -301,8 +300,8 @@ function getIconByKind(kind: FaceKind, transferType?: ActivityOperTransferType) 
 }
 
 const TransferTypeIconSvg: Record<ActivityOperTransferType, ImportedSVGComponent> = {
-  [ActivityOperTransferType.fromUsToAccount]: SendSvg,
-  [ActivityOperTransferType.toUsFromAccount]: IncomeSvg,
-  [ActivityOperTransferType.fromUs]: DocumentsSvg,
-  [ActivityOperTransferType.toUs]: DocumentsSvg
+  [ActivityOperTransferType.sendToAccount]: SendSvg,
+  [ActivityOperTransferType.receiveFromAccount]: IncomeSvg,
+  [ActivityOperTransferType.send]: DocumentsSvg,
+  [ActivityOperTransferType.receive]: DocumentsSvg
 };
