@@ -147,7 +147,7 @@ export const MultichainActivityList = memo<Props>(({ filterKind }) => {
   );
 
   if (displayActivities.length === 0 && !isLoading && reachedTheEnd) {
-    return <EmptyState />;
+    return <EmptyState stretch />;
   }
 
   return (

@@ -49,7 +49,7 @@ export const NetworkSelectModal = memo<Props>(({ opened, selectedNetwork, onRequ
   );
 
   return (
-    <PageModal title="Select Network" opened={opened} contentPadding onRequestClose={onRequestClose}>
+    <PageModal title="Select Network" opened={opened} onRequestClose={onRequestClose}>
       <NetworkSelectModalContent
         opened={opened}
         selectedNetwork={selectedNetwork}
@@ -104,13 +104,13 @@ const NetworkSelectModalContent = memo<ContentProps>(({ opened, selectedNetwork,
 
   return (
     <>
-      <div className="flex gap-x-2">
+      <div className="flex gap-x-2 p-4">
         <SearchBarField value={searchValue} onValueChange={setSearchValue} />
 
         <IconButton Icon={PlusIcon} color="blue" onClick={() => navigate('settings/networks')} />
       </div>
 
-      <div className="mt-4 flex-grow flex flex-col overflow-y-auto">
+      <div className="px-4 flex-grow flex flex-col overflow-y-auto">
         {filteredNetworks.length === 0 && <EmptyState variant="searchUniversal" />}
 
         {filteredNetworks.map(network => (

@@ -11,7 +11,6 @@ import { TezosChain } from 'temple/front/chains';
 
 import { ActivityOperationBaseComponent } from './ActivityOperationBase';
 import { BundleModalContent } from './BundleModal';
-import { InteractionsConnector } from './InteractionsConnector';
 import { TezosActivityOperationComponent, buildTezosOperationAsset } from './TezosActivityOperation';
 
 interface Props {
@@ -103,19 +102,16 @@ const TezosActivityBatchComponent = memo<BatchProps>(({ activity, chainId, asset
 
       <PageModal title="Bundle" opened={expanded} onRequestClose={toggleExpanded}>
         {() => (
-          <BundleModalContent blockExplorerUrl={blockExplorerUrl}>
+          <BundleModalContent addedAt={activity.addedAt} blockExplorerUrl={blockExplorerUrl}>
             {operations.map((operation, j) => (
-              <React.Fragment key={`${hash}-${j}`}>
-                {j > 0 && <InteractionsConnector />}
-
-                <TezosActivityOperationComponent
-                  hash={hash}
-                  operation={operation}
-                  chainId={chainId}
-                  blockExplorerUrl={blockExplorerUrl}
-                  withoutOperHashChip
-                />
-              </React.Fragment>
+              <TezosActivityOperationComponent
+                key={`${hash}-${j}`}
+                hash={hash}
+                operation={operation}
+                chainId={chainId}
+                blockExplorerUrl={blockExplorerUrl}
+                withoutOperHashChip
+              />
             ))}
           </BundleModalContent>
         )}

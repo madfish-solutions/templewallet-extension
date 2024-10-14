@@ -88,7 +88,7 @@ export const TezosActivityList = memo<Props>(({ tezosChainId, assetSlug, filterK
   );
 
   if (displayActivities.length === 0 && !isLoading && reachedTheEnd) {
-    return <EmptyState />;
+    return <EmptyState stretch />;
   }
 
   return (

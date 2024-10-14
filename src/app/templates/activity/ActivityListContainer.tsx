@@ -33,7 +33,7 @@ export const ActivityListContainer: FC<Props> = ({ children, chainId, assetSlug 
 
   return (
     <SuspenseContainer errorMessage={t('operationHistoryWhileMessage')}>
-      <div className="flex flex-col">
+      <div className="flex-grow flex flex-col p-4 pb-15">
         {promotion}
 
         {children}

@@ -90,7 +90,7 @@ export const EvmActivityList: FC<Props> = ({ chainId, assetSlug, filterKind }) =
   );
 
   if (displayActivities.length === 0 && !isLoading && reachedTheEnd) {
-    return <EmptyState />;
+    return <EmptyState stretch />;
   }
 
   return (

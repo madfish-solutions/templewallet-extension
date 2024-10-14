@@ -1,9 +1,10 @@
-import React, { FC, memo, MouseEventHandler, ReactElement, ReactNode, useCallback, useMemo } from 'react';
+import React, { FC, memo, ReactElement, ReactNode, useMemo } from 'react';
 
 import clsx from 'clsx';
 
-import { Anchor, HashShortView, IconBase, Money } from 'app/atoms';
+import { Anchor, Button, HashShortView, IconBase, Money } from 'app/atoms';
 import { EvmNetworkLogo, TezosNetworkLogo } from 'app/atoms/NetworkLogo';
+import { ReactComponent as ChevronRightSvg } from 'app/icons/base/chevron_right.svg';
 import { ReactComponent as DocumentsSvg } from 'app/icons/base/documents.svg';
 import { ReactComponent as IncomeSvg } from 'app/icons/base/income.svg';
 import { ReactComponent as OkSvg } from 'app/icons/base/ok.svg';
@@ -61,8 +62,9 @@ export const ActivityOperationBaseComponent = memo<Props>(
       return (
         <div
           className={clsx(
-            'flex text-font-num-14 overflow-hidden',
-            asset.amountSigned && Number(asset.amountSigned) > 0 && 'text-success'
+            'max-w-40 flex text-font-num-14 overflow-hidden',
+            asset.amountSigned && Number(asset.amountSigned) > 0 && 'text-success',
+            onClick && 'group-hover:hidden'
           )}
         >
           {kind === ActivityOperKindEnum.approve ? null : asset.amountSigned ? (
@@ -74,7 +76,7 @@ export const ActivityOperationBaseComponent = memo<Props>(
           {symbolStr ? <span className="whitespace-pre"> {symbolStr}</span> : null}
         </div>
       );
-    }, [asset, kind]);
+    }, [asset, kind, onClick]);
 
     const fiatJsx = useMemo<ReactNode>(() => {
       if (!asset) return null;
@@ -134,18 +136,6 @@ export const ActivityOperationBaseComponent = memo<Props>(
       [addressChip, hash, blockExplorerUrl]
     );
 
-    const handleClick = useCallback<MouseEventHandler<HTMLDivElement>>(
-      event => {
-        if (!onClick) return;
-
-        // Case of click on link inside this component's element
-        if (event.target instanceof Element && event.target.closest(`.${CLICK_DETECTION_ATTR} a`)) return;
-
-        onClick();
-      },
-      [onClick]
-    );
-
     const isNFT = Boolean(asset?.nft);
 
     const faceIconJsx = useMemo(
@@ -175,11 +165,9 @@ export const ActivityOperationBaseComponent = memo<Props>(
     return (
       <div
         className={clsx(
-          'z-1 group flex gap-x-2 p-2 rounded-lg hover:bg-secondary-low',
-          onClick && 'cursor-pointer',
-          CLICK_DETECTION_ATTR
+          'z-1 relative group flex gap-x-2 p-2 rounded-lg hover:bg-secondary-low',
+          onClick && 'cursor-pointer'
         )}
-        onClick={handleClick}
       >
         <div className="relative shrink-0 self-center flex items-center justify-center flex items-start w-10 h-10">
           {kind === 'bundle' ? (
@@ -211,9 +199,24 @@ export const ActivityOperationBaseComponent = memo<Props>(
           <div className="flex gap-x-2 justify-between text-font-num-12 text-grey-1">
             {chipJsx}
 
-            <div className="shrink-0 flex">{fiatJsx}</div>
+            <div className={clsx('shrink-0 flex', onClick && 'group-hover:hidden')}>{fiatJsx}</div>
           </div>
         </div>
+
+        {onClick && (
+          <Button
+            className={clsx(
+              'flex items-center flex-nowrap py-0.5 px-1 text-secondary',
+              'absolute right-2 top-1/2 -translate-y-1/2',
+              'hidden group-hover:flex'
+            )}
+            onClick={onClick}
+          >
+            <span className="text-font-description-bold">Details</span>
+
+            <IconBase Icon={ChevronRightSvg} size={12} />
+          </Button>
+        )}
       </div>
     );
   }
@@ -253,8 +256,6 @@ const BundleIconsStack = memo<PropsWithChildren<{ withoutAssetIcon?: boolean; is
     );
   }
 );
-
-const CLICK_DETECTION_ATTR = 'click-break-point';
 
 const StatusTag: FC<{ status?: ActivityStatus }> = ({ status }) => {
   if (status === ActivityStatus.failed) return StatusTagFailed;

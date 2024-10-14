@@ -12,7 +12,6 @@ import { EvmChain } from 'temple/front/chains';
 import { ActivityItemBaseAssetProp, ActivityOperationBaseComponent } from './ActivityOperationBase';
 import { BundleModalContent } from './BundleModal';
 import { EvmActivityOperationComponent } from './EvmActivityOperation';
-import { InteractionsConnector } from './InteractionsConnector';
 
 interface Props {
   activity: EvmActivity;
@@ -130,19 +129,16 @@ const EvmActivityBatchComponent = memo<BatchProps>(({ activity, chainId, assetSl
 
       <PageModal title="Bundle" opened={expanded} onRequestClose={toggleExpanded}>
         {() => (
-          <BundleModalContent blockExplorerUrl={blockExplorerUrl}>
+          <BundleModalContent addedAt={activity.addedAt} blockExplorerUrl={blockExplorerUrl}>
             {operations.map((operation, j) => (
-              <React.Fragment key={`${hash}-${j}`}>
-                {j > 0 && <InteractionsConnector />}
-
-                <EvmActivityOperationComponent
-                  hash={hash}
-                  operation={operation}
-                  chainId={chainId}
-                  blockExplorerUrl={blockExplorerUrl}
-                  withoutOperHashChip
-                />
-              </React.Fragment>
+              <EvmActivityOperationComponent
+                key={`${hash}-${j}`}
+                hash={hash}
+                operation={operation}
+                chainId={chainId}
+                blockExplorerUrl={blockExplorerUrl}
+                withoutOperHashChip
+              />
             ))}
           </BundleModalContent>
         )}

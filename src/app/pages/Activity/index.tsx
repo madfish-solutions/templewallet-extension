@@ -59,6 +59,7 @@ export const ActivityPage = memo(() => {
   return (
     <PageLayout
       pageTitle="Activity"
+      contentPadding={false}
       headerRightElem={
         <IconBase Icon={FilterOffIcon} className="text-primary cursor-pointer" onClick={setFiltersModalOpen} />
       }
