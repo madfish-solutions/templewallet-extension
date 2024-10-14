@@ -2,7 +2,7 @@ import React, { ReactNode, memo } from 'react';
 
 import { T } from 'lib/i18n';
 
-export interface ShortenedEntityNameActionTitleProps {
+interface ShortenedEntityNameActionTitleProps {
   i18nKeyBase:
     | 'removeNetworkModalTitle'
     | 'confirmDeleteRpcTitle'
