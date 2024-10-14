@@ -31,12 +31,13 @@ import {
   ROUTING_FEE_SLIPPAGE_RATIO,
   SWAP_THRESHOLD_TO_GET_CASHBACK,
   TEMPLE_TOKEN,
-  ATOMIC_INPUT_THRESHOLD_FOR_FEE_FROM_INPUT
+  ATOMIC_INPUT_THRESHOLD_FOR_FEE_FROM_INPUT,
+  ROUTING_FEE_PERCENT,
+  SWAP_CASHBACK_PERCENT
 } from 'lib/route3/constants';
 import { isLiquidityBakingParamsResponse } from 'lib/route3/interfaces';
 import { getPercentageRatio } from 'lib/route3/utils/get-percentage-ratio';
 import { getRoute3TokenBySlug } from 'lib/route3/utils/get-route3-token-by-slug';
-import { ROUTING_FEE_PERCENT, SWAP_CASHBACK_PERCENT } from 'lib/swap-router/config';
 import { useAccount, useTezos } from 'lib/temple/front';
 import { atomsToTokens, tokensToAtoms } from 'lib/temple/helpers';
 import useTippy from 'lib/ui/useTippy';
