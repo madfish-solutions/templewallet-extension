@@ -1,25 +1,21 @@
-import React, { FC, memo, ReactElement, ReactNode, useMemo } from 'react';
+import React, { memo, ReactElement, ReactNode, useMemo } from 'react';
 
 import clsx from 'clsx';
 
 import { Anchor, Button, HashShortView, IconBase, Money } from 'app/atoms';
 import { EvmNetworkLogo, TezosNetworkLogo } from 'app/atoms/NetworkLogo';
 import { ReactComponent as ChevronRightSvg } from 'app/icons/base/chevron_right.svg';
-import { ReactComponent as DocumentsSvg } from 'app/icons/base/documents.svg';
-import { ReactComponent as IncomeSvg } from 'app/icons/base/income.svg';
-import { ReactComponent as OkSvg } from 'app/icons/base/ok.svg';
 import { ReactComponent as OutLinkIcon } from 'app/icons/base/outLink.svg';
-import { ReactComponent as SendSvg } from 'app/icons/base/send.svg';
-import { EvmAssetIcon, TezosAssetIcon } from 'app/templates/AssetIcon';
+import { EvmAssetImage, TezosAssetImage } from 'app/templates/AssetImage';
 import { InFiat } from 'app/templates/InFiat';
 import { ActivityOperKindEnum, ActivityOperTransferType, ActivityStatus } from 'lib/activity';
 import { isTransferActivityOperKind } from 'lib/activity/utils';
 import { toEvmAssetSlug, toTezosAssetSlug } from 'lib/assets/utils';
 import { atomsToTokens } from 'lib/temple/helpers';
 
-import { FaceKind } from '../utils';
+import { FaceKind } from '../../utils';
 
-import { ReactComponent as PendingSpinSvg } from './pending-spin.svg';
+import { AssetIconPlaceholder, BundleIconsStack, getIconByKind, getTitleByKind, StatusTag } from './utils';
 
 interface Props {
   chainId: string | number;
@@ -138,29 +134,38 @@ export const ActivityOperationBaseComponent = memo<Props>(
 
     const isNFT = Boolean(asset?.nft);
 
-    const faceIconJsx = useMemo(
-      () =>
-        withoutAssetIcon || !assetSlug ? (
+    const faceIconJsx = useMemo(() => {
+      if (withoutAssetIcon || !assetSlug)
+        return (
           <div className="w-full h-full flex items-center justify-center bg-grey-4">
             <IconBase Icon={getIconByKind(kind, transferType)} className="text-grey-1" />
           </div>
-        ) : typeof chainId === 'number' ? (
-          <EvmAssetIcon
-            evmChainId={chainId}
-            assetSlug={assetSlug}
-            className="w-full h-full object-cover"
-            extraSrc={asset?.iconURL}
-          />
-        ) : (
-          <TezosAssetIcon
-            tezosChainId={chainId}
-            assetSlug={assetSlug}
-            className="w-full h-full object-cover"
-            extraSrc={asset?.iconURL}
-          />
-        ),
-      [chainId, withoutAssetIcon, kind, transferType, asset?.iconURL, assetSlug]
-    );
+        );
+
+      const className = 'w-full h-full object-cover';
+
+      const placeholderJsx = <AssetIconPlaceholder isNFT={isNFT} symbol={asset?.symbol} className={className} />;
+
+      return typeof chainId === 'number' ? (
+        <EvmAssetImage
+          evmChainId={chainId}
+          assetSlug={assetSlug}
+          className={className}
+          extraSrc={asset?.iconURL}
+          loader={placeholderJsx}
+          fallback={placeholderJsx}
+        />
+      ) : (
+        <TezosAssetImage
+          tezosChainId={chainId}
+          assetSlug={assetSlug}
+          className={className}
+          extraSrc={asset?.iconURL}
+          loader={placeholderJsx}
+          fallback={placeholderJsx}
+        />
+      );
+    }, [chainId, withoutAssetIcon, kind, transferType, asset?.iconURL, asset?.symbol, isNFT, assetSlug]);
 
     return (
       <div
@@ -221,88 +226,3 @@ export const ActivityOperationBaseComponent = memo<Props>(
     );
   }
 );
-
-const MEDALION_CLASS_NAME = 'absolute border border-lines';
-
-const BundleIconsStack = memo<PropsWithChildren<{ withoutAssetIcon?: boolean; isNFT?: boolean }>>(
-  ({ withoutAssetIcon, isNFT, children }) => {
-    return (
-      <>
-        <div
-          className={clsx(MEDALION_CLASS_NAME, 'w-6 h-6 top-0 left-0', withoutAssetIcon ? 'bg-grey-4' : 'bg-white')}
-          style={{ borderRadius: isNFT ? 6 : '100%' }}
-        />
-
-        <div
-          className={clsx(MEDALION_CLASS_NAME, 'w-7 h-7 shadow-center', withoutAssetIcon ? 'bg-grey-4' : 'bg-white')}
-          style={{ top: 3, left: 3, borderRadius: isNFT ? 7 : '100%' }}
-        />
-
-        <div
-          className={clsx(
-            MEDALION_CLASS_NAME,
-            'w-8 h-8 shadow-center',
-            'flex items-center justify-center',
-            'bottom-0.5 right-0.5',
-            withoutAssetIcon ? 'bg-grey-4' : 'bg-white'
-          )}
-          style={{ borderRadius: isNFT ? 8 : '100%' }}
-        >
-          <div className="w-7 h-7 overflow-hidden" style={{ borderRadius: isNFT ? 7 : '100%' }}>
-            {children}
-          </div>
-        </div>
-      </>
-    );
-  }
-);
-
-const StatusTag: FC<{ status?: ActivityStatus }> = ({ status }) => {
-  if (status === ActivityStatus.failed) return StatusTagFailed;
-
-  if (status === ActivityStatus.pending) return StatusTagPending;
-
-  return null;
-};
-
-const StatusTagFailed = (
-  <div className="text-font-small-bold h-4 px-1 leading-4 text-error border-0.5 border-error bg-error-low rounded">
-    FAILED
-  </div>
-);
-
-const StatusTagPending = <PendingSpinSvg className="w-4 h-4 animate-spin" />;
-
-function getTitleByKind(kind: FaceKind, transferType?: ActivityOperTransferType) {
-  if (kind === 'bundle') return 'Bundle';
-
-  if (kind === ActivityOperKindEnum.interaction) return 'Interaction';
-
-  if (kind === ActivityOperKindEnum.approve) return 'Approve';
-
-  return transferType == null ? 'Interaction' : TransferTypeTitle[transferType];
-}
-
-const TransferTypeTitle: Record<ActivityOperTransferType, string> = {
-  [ActivityOperTransferType.sendToAccount]: 'Send',
-  [ActivityOperTransferType.receiveFromAccount]: 'Receive',
-  [ActivityOperTransferType.send]: 'Transfer',
-  [ActivityOperTransferType.receive]: 'Transfer'
-};
-
-function getIconByKind(kind: FaceKind, transferType?: ActivityOperTransferType) {
-  if (kind === 'bundle') return DocumentsSvg;
-
-  if (kind === ActivityOperKindEnum.interaction) return DocumentsSvg;
-
-  if (kind === ActivityOperKindEnum.approve) return OkSvg;
-
-  return transferType == null ? DocumentsSvg : TransferTypeIconSvg[transferType];
-}
-
-const TransferTypeIconSvg: Record<ActivityOperTransferType, ImportedSVGComponent> = {
-  [ActivityOperTransferType.sendToAccount]: SendSvg,
-  [ActivityOperTransferType.receiveFromAccount]: IncomeSvg,
-  [ActivityOperTransferType.send]: DocumentsSvg,
-  [ActivityOperTransferType.receive]: DocumentsSvg
-};

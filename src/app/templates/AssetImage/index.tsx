@@ -12,8 +12,7 @@ import {
 
 export { TezosAssetImageStacked };
 
-export interface TezosAssetImageProps
-  extends Omit<TezosAssetImageStackedProps, 'sources' | 'metadata' | 'loader' | 'fallback'> {
+export interface TezosAssetImageProps extends Omit<TezosAssetImageStackedProps, 'sources' | 'metadata'> {
   tezosChainId: string;
   assetSlug: string;
   Loader?: Placeholder<TezosAssetImageProps, AssetMetadataBase>;
@@ -35,8 +34,7 @@ export const TezosAssetImage = memo<TezosAssetImageProps>(({ Loader, Fallback, .
   );
 });
 
-export interface EvmAssetImageProps
-  extends Omit<EvmAssetImageStackedProps, 'sources' | 'metadata' | 'loader' | 'fallback'> {
+export interface EvmAssetImageProps extends Omit<EvmAssetImageStackedProps, 'sources' | 'metadata'> {
   evmChainId: number;
   assetSlug: string;
   Loader?: Placeholder<EvmAssetImageProps, EvmAssetMetadataBase>;

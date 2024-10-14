@@ -36,7 +36,7 @@ export const buildInitialsIdenticonUri = memoizee(
       ...options,
       seed,
       fontFamily: ['Menlo', 'Monaco', 'monospace'],
-      fontSize: estimateOptimalFontSize(seed.length) // (!) Doesn't account for options.chars
+      fontSize: estimateOptimalFontSize(options?.chars ?? 2)
     }).toDataUriSync(),
   {
     max: 1024,
