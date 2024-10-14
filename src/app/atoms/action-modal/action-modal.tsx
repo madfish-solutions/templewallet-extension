@@ -19,36 +19,39 @@ export interface ActionModalProps {
   onClose?: EmptyFn;
   children?: ReactNode | ReactNode[];
   title?: ReactNode;
+  headerClassName?: string;
   className?: string;
 }
 
-export const ActionModal = memo<ActionModalProps>(({ onClose, children, hasCloseButton = true, title }) => {
-  const { fullPage } = useAppEnv();
+export const ActionModal = memo<ActionModalProps>(
+  ({ onClose, children, hasCloseButton = true, headerClassName, title }) => {
+    const { fullPage } = useAppEnv();
 
-  return (
-    <CustomModal
-      isOpen
-      className="rounded-lg"
-      overlayClassName={clsx(
-        'backdrop-blur-xs',
-        fullPage && [
-          FULL_PAGE_WRAP_OVERLAY_CLASSNAME,
-          actionModalStyles.fullPageOverlay,
-          LAYOUT_CONTAINER_CLASSNAME,
-          FULL_PAGE_LAYOUT_CONTAINER_CLASSNAME
-        ]
-      )}
-      onRequestClose={onClose}
-    >
-      <div className="relative p-3 border-b-0.5 border-lines w-modal">
-        <h1 className="text-center text-font-regular-bold mx-9">{title}</h1>
-        {hasCloseButton && (
-          <Button className="absolute top-3 right-3" onClick={onClose}>
-            <IconBase Icon={CloseIcon} size={16} className="text-grey-2" />
-          </Button>
+    return (
+      <CustomModal
+        isOpen
+        className="rounded-lg"
+        overlayClassName={clsx(
+          'backdrop-blur-xs',
+          fullPage && [
+            FULL_PAGE_WRAP_OVERLAY_CLASSNAME,
+            actionModalStyles.fullPageOverlay,
+            LAYOUT_CONTAINER_CLASSNAME,
+            FULL_PAGE_LAYOUT_CONTAINER_CLASSNAME
+          ]
         )}
-      </div>
-      {children}
-    </CustomModal>
-  );
-});
+        onRequestClose={onClose}
+      >
+        <div className="relative p-3 border-b-0.5 border-lines w-modal">
+          <h1 className={clsx('text-center text-font-regular-bold mx-12', headerClassName)}>{title}</h1>
+          {hasCloseButton && (
+            <Button className="absolute top-3 right-3" onClick={onClose}>
+              <IconBase Icon={CloseIcon} size={16} className="text-grey-2" />
+            </Button>
+          )}
+        </div>
+        {children}
+      </CustomModal>
+    );
+  }
+);

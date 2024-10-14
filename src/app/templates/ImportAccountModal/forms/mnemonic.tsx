@@ -129,7 +129,7 @@ export const MnemonicForm = memo<ImportAccountFormProps>(({ onSuccess }) => {
           className="w-full"
           size="L"
           color="primary"
-          disabled={shouldDisableSubmitButton(errors, formState, seedError)}
+          disabled={shouldDisableSubmitButton({ errors, formState, otherErrors: [seedError] })}
           type="submit"
           testID={AccountsModalSelectors.nextButton}
         >

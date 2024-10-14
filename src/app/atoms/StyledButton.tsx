@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { ButtonLikeStylingProps, useStyledButtonOrLinkProps } from 'lib/ui/button-like-styles';
+import { ButtonLikeStylingProps, useStyledButtonOrLinkProps } from 'lib/ui/use-styled-button-or-link-props';
 
 import { Button, ButtonProps } from './Button';
 

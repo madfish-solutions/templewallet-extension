@@ -1,5 +1,9 @@
 import type { ManagerKeyResponse } from '@taquito/rpc';
-import { validateAddress, ValidationResult } from '@taquito/utils';
+import { validateAddress, validateChain, ValidationResult } from '@taquito/utils';
+
+export function isValidTezosChainId(chainId: string) {
+  return validateChain(chainId) === ValidationResult.VALID;
+}
 
 export function isValidTezosAddress(address: string) {
   return validateAddress(address) === ValidationResult.VALID;

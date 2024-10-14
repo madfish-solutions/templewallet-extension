@@ -5,7 +5,6 @@ import { ConfirmationModalPage } from '../page-objects/pages/confirmation-modal.
 import { GeneralSettingsPage } from '../page-objects/pages/general-settings.page';
 import { HomePage } from '../page-objects/pages/home.page';
 import { BackupOptionsModalPage } from '../page-objects/pages/modal/backup-options-modal.page';
-import { NetworksPage } from '../page-objects/pages/networks.page';
 import { NotificationContentPage } from '../page-objects/pages/notification-content.page';
 import { NotificationsListPage } from '../page-objects/pages/notifications-list.page';
 import { SwapPage } from '../page-objects/pages/swap.page';
@@ -40,7 +39,7 @@ export const Pages = {
   Swap: new SwapPage(),
   AddressBook: new AddressBookPage(),
   ConfirmationModal: new ConfirmationModalPage(),
-  Networks: new NetworksPage(),
+  // TODO: add tests for networks settings
   CollectiblePage: new CollectiblePage(),
   CollectiblesTabPage: new CollectiblesTabPage(),
   NotificationsList: new NotificationsListPage(),
