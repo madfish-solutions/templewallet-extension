@@ -31,9 +31,9 @@
       }
     }
   },
-  "authorizedDApps": {
-    "message": "Авторизовані Dapp`ки",
-    "description": "DApps = децентралізовані додатки"
+  "connectedDApps": {
+    "message": "Підключені Dapp`ки",
+    "description": "Dapps = децентралізовані додатки"
   },
   "clickIconToResetPermissions": {
     "message": "Натисни X іконку щоб скинути дозволи."
@@ -630,37 +630,18 @@
   "revealPrivateKey": {
     "message": "Розкрити приватний ключ"
   },
-  "revealPrivateKeyDescription": {
-    "message": "Також відоме як \"Export Account\", відкриває приватний ключ для вибраного облікового запису."
-  },
   "revealSeedPhrase": {
     "message": "Розкрийте Сід Фразу"
-  },
-  "revealSeedPhraseDescription": {
-    "message": "Також відоме як \"Export Wallet\", ця сід фраза може знадобитися для доступу до вашого гаманця та облікових записів на інших пристроях."
   },
   "dApps": {
     "message": "DApps",
     "description": "DApps = Decentralized Applications"
-  },
-  "dAppsDescription": {
-    "message": "У цьому розділі ви можете включити можливість взаємодії з децентралізованими додатками, які підтримують Temple Wallet."
-  },
-  "networksDescription": {
-    "message": "У цій секції ти можеш додати або видалити кастомні Tezos мережі",
-    "description": "Tezos = blockchain name (https://tezos.com/)"
   },
   "removeAccount": {
     "message": "Видалити Аккаунт"
   },
   "removeAccountDescription": {
     "message": "Використовуйте цей розділ, щоб видалити вибраний обліковий запис. Видалити можна лише імпортовані облікові записи."
-  },
-  "about": {
-    "message": "Додатково"
-  },
-  "aboutDescription": {
-    "message": "Використовуйте цей розділ, щоб переглянути метаінформацію про Temple Wallet."
   },
   "unlockWallet": {
     "message": "Розблокувати гаманець"
@@ -1245,14 +1226,11 @@
   "upload": {
     "message": "Завантажити"
   },
-  "languageAndCountry": {
+  "language": {
     "message": "Мова"
   },
   "generalSettings": {
     "message": "Загальне"
-  },
-  "generalSettingsDescription": {
-    "message": "Тут ви можете керувати налаштуваннями мови та режимом відображення."
   },
   "swapNoun": {
     "message": "Своп"
@@ -1883,5 +1861,107 @@
         "content": "$1"
       }
     }
+  },
+  "enLangName": {
+    "message": "Англійська"
+  },
+  "en_GBLangName": {
+    "message": "Англійська ‒ Велика Британія"
+  },
+  "frLangName": {
+    "message": "Французька"
+  },
+  "deLangName": {
+    "message": "Німецька"
+  },
+  "zh_CNLangName": {
+    "message": "Китайська ‒ Спрощена"
+  },
+  "zh_TWLangName": {
+    "message": "Китайська ‒ Традиційна"
+  },
+  "jaLangName": {
+    "message": "Японська"
+  },
+  "koLangName": {
+    "message": "Корейська"
+  },
+  "ukLangName": {
+    "message": "Українська"
+  },
+  "trLangName": {
+    "message": "Турецька"
+  },
+  "ptLangName": {
+    "message": "Португальська"
+  },
+  "usdName": {
+    "message": "Долар США"
+  },
+  "eurName": {
+    "message": "Євро"
+  },
+  "gbpName": {
+    "message": "Фунт стерлінгів"
+  },
+  "jpyName": {
+    "message": "Японська єна"
+  },
+  "audName": {
+    "message": "Австралійський долар"
+  },
+  "cadName": {
+    "message": "Канадський долар"
+  },
+  "chfName": {
+    "message": "Швейцарський франк"
+  },
+  "cnyName": {
+    "message": "Китайський юань"
+  },
+  "dkkName": {
+    "message": "Датська крона"
+  },
+  "hkdName": {
+    "message": "Гонконгський долар"
+  },
+  "idrName": {
+    "message": "Індонезійська рупія"
+  },
+  "inrName": {
+    "message": "Індійська рупія"
+  },
+  "krwName": {
+    "message": "Південнокорейська вона"
+  },
+  "mxnName": {
+    "message": "Мексиканське песо"
+  },
+  "nzdName": {
+    "message": "Новозеландський долар"
+  },
+  "plnName": {
+    "message": "Польський злотий"
+  },
+  "sekName": {
+    "message": "Шведська крона"
+  },
+  "sgdName": {
+    "message": "Сінгапурський долар"
+  },
+  "thbName": {
+    "message": "Тайський бат"
+  },
+  "tryName": {
+    "message": "Турецька ліра"
+  },
+  "twdName": {
+    "message": "Тайванський долар"
+  },
+  "uahName": {
+    "message": "Українська гривня"
+  },
+  "zarName": {
+    "message": "Південноафриканський ранд"
   }
 }

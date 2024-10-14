@@ -8,6 +8,7 @@ import { CopyButton } from 'app/atoms/CopyButton';
 import { EvmNetworksLogos, TezNetworkLogo } from 'app/atoms/NetworksLogos';
 import { ActionsButtonsBox } from 'app/atoms/PageModal/actions-buttons-box';
 import { SettingsCellSingle } from 'app/atoms/SettingsCell';
+import { SettingsCellGroup } from 'app/atoms/SettingsCellGroup';
 import { StyledButton } from 'app/atoms/StyledButton';
 import { TotalEquity } from 'app/atoms/TotalEquity';
 import { useAllAccountsReactiveOnRemoval } from 'app/hooks/use-all-accounts-reactive';
@@ -157,33 +158,39 @@ export const AccountSettings = memo<AccountSettingsProps>(({ id }) => {
         </div>
 
         <div className="flex flex-col pt-0.5 pb-5 gap-3">
-          <SettingsCellSingle cellName={<T id="displayAccount" />} Component="div">
-            <ToggleSwitch
-              checked={!account.hidden}
-              onChange={handleVisibilityChange}
-              disabled={shouldDisableVisibilityChange}
-              testID={AccountSettingsSelectors.visibilityToggle}
-            />
-          </SettingsCellSingle>
+          <SettingsCellGroup>
+            <SettingsCellSingle cellName={<T id="displayAccount" />} Component="div">
+              <ToggleSwitch
+                checked={!account.hidden}
+                onChange={handleVisibilityChange}
+                disabled={shouldDisableVisibilityChange}
+                testID={AccountSettingsSelectors.visibilityToggle}
+              />
+            </SettingsCellSingle>
+          </SettingsCellGroup>
 
-          <SettingsCellSingle
-            cellName={<T id="editName" />}
-            Component={Button}
-            onClick={openEditNameModal}
-            testID={AccountSettingsSelectors.editName}
-          >
-            <IconBase size={16} Icon={ChevronRightIcon} className="text-primary" />
-          </SettingsCellSingle>
-
-          {(account.type === TempleAccountType.HD || account.type === TempleAccountType.Imported) && (
+          <SettingsCellGroup>
             <SettingsCellSingle
-              cellName={<T id="revealPrivateKey" />}
+              cellName={<T id="editName" />}
               Component={Button}
-              onClick={openRevealPrivateKeyModal}
-              testID={AccountSettingsSelectors.revealPrivateKey}
+              onClick={openEditNameModal}
+              testID={AccountSettingsSelectors.editName}
             >
               <IconBase size={16} Icon={ChevronRightIcon} className="text-primary" />
             </SettingsCellSingle>
+          </SettingsCellGroup>
+
+          {(account.type === TempleAccountType.HD || account.type === TempleAccountType.Imported) && (
+            <SettingsCellGroup>
+              <SettingsCellSingle
+                cellName={<T id="revealPrivateKey" />}
+                Component={Button}
+                onClick={openRevealPrivateKeyModal}
+                testID={AccountSettingsSelectors.revealPrivateKey}
+              >
+                <IconBase size={16} Icon={ChevronRightIcon} className="text-primary" />
+              </SettingsCellSingle>
+            </SettingsCellGroup>
           )}
         </div>
 
@@ -193,16 +200,17 @@ export const AccountSettings = memo<AccountSettingsProps>(({ id }) => {
               <T id="derivationPath" />
             </p>
             {derivationPaths.map(({ chainName, path }) => (
-              <SettingsCellSingle
-                key={chainName}
-                cellName={path}
-                Component={CopyButton}
-                text={path}
-                testID={AccountSettingsSelectors.derivationPathButton}
-                testIDProperties={{ chainName }}
-              >
-                {chainName === 'tezos' ? <TezNetworkLogo /> : <EvmNetworksLogos />}
-              </SettingsCellSingle>
+              <SettingsCellGroup key={chainName}>
+                <SettingsCellSingle
+                  cellName={path}
+                  Component={CopyButton}
+                  text={path}
+                  testID={AccountSettingsSelectors.derivationPathButton}
+                  testIDProperties={{ chainName }}
+                >
+                  {chainName === 'tezos' ? <TezNetworkLogo /> : <EvmNetworksLogos />}
+                </SettingsCellSingle>
+              </SettingsCellGroup>
             ))}
           </div>
         )}

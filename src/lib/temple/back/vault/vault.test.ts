@@ -11,10 +11,12 @@ import { TempleChainKind } from 'temple/types';
 import { TempleAccountType, TempleSettings } from '../../types';
 
 import { setGeneratedMnemonicOnce } from './bip39.mock';
+import { getPassHash } from './session-store';
 
 import { Vault } from './index';
 
 const password = 'Test123!';
+const invalidPassword = 'Invalid123!';
 
 const hdWallets = [
   {
@@ -860,6 +862,22 @@ describe('Vault tests', () => {
       const { name, createdAt } = newGroupsNames[secondWalletId];
       expect(name).toEqual('newName');
       expectRecentTimestampInMs(createdAt);
+    });
+  });
+
+  describe('reset', () => {
+    it('should reset wallet if the given password is correct', async () => {
+      await Vault.spawn(password, defaultMnemonic);
+      await Vault.setup(password);
+      await Vault.reset(password);
+      expect(await getPassHash()).toBeUndefined();
+      expect(await Vault.isExist()).toBe(false);
+    });
+
+    it('should throw an error if the given password is incorrect', async () => {
+      await Vault.spawn(password, defaultMnemonic);
+      await Vault.setup(password);
+      await expect(() => Vault.reset(invalidPassword)).rejects.toThrow('Invalid password');
     });
   });
 });

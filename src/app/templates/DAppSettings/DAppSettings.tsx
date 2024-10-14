@@ -91,7 +91,7 @@ const DAppSettings: FC = () => {
         <>
           <h2>
             <span className="text-base font-semibold text-gray-700">
-              <T id="authorizedDApps" />
+              <T id="connectedDApps" />
             </span>
           </h2>
 

@@ -31,10 +31,6 @@
       }
     }
   },
-  "authorizedDApps": {
-    "message": "授权DApps",
-    "description": "DApps = Decentralized Applications"
-  },
   "clickIconToResetPermissions": {
     "message": "点击X图标来重置权限。"
   },
@@ -607,25 +603,12 @@
   "revealPrivateKey": {
     "message": "显示私钥"
   },
-  "revealPrivateKeyDescription": {
-    "message": "也称为“导出账户”，显示所选账户的私钥。"
-  },
   "revealSeedPhrase": {
     "message": "显示助记词"
-  },
-  "revealSeedPhraseDescription": {
-    "message": "也称为“导出钱包”，您可能需要此助记词来在其他设备上访问您的钱包和账户。"
   },
   "dApps": {
     "message": "DApp",
     "description": "DApps = Decentralized Applications"
-  },
-  "dAppsDescription": {
-    "message": "在此处，您可以获得与支持Temple钱包的去中心化应用互动的能力。"
-  },
-  "networksDescription": {
-    "message": "在此处，您可以添加或删除自定义Tezos网络。",
-    "description": "Tezos = blockchain name (https://tezos.com/)"
   },
   "removeAccount": {
     "message": "移除账户"
@@ -635,9 +618,6 @@
   },
   "about": {
     "message": "关于"
-  },
-  "aboutDescription": {
-    "message": "使用此板块来查看关于Temple钱包的元信息。"
   },
   "unlockWallet": {
     "message": "解锁钱包"
@@ -1192,14 +1172,11 @@
   "upload": {
     "message": "上传"
   },
-  "languageAndCountry": {
+  "language": {
     "message": "语言"
   },
   "generalSettings": {
     "message": "通用"
-  },
-  "generalSettingsDescription": {
-    "message": "在此处您可以管理语言偏好和显示模式。"
   },
   "swapNoun": {
     "message": "交换"

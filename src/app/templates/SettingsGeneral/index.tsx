@@ -1,24 +1,17 @@
 import React, { memo } from 'react';
 
-import { NotificationsSettings } from 'lib/notifications/components';
-
-import AnalyticsSettings from './Components/AnalyticsSettings';
-import FiatCurrencySelect from './Components/FiatCurrencySelect';
-import LocaleSelect from './Components/LocaleSelect';
-import LockUpSettings from './Components/LockUpSettings';
-import PopupSettings from './Components/PopupSettings';
+import { FiatCurrencySelect } from './components/fiat-currency-select';
+import { LocaleSelect } from './components/locale-select';
+import { NotificationsSettings } from './components/notifications-settings';
+import { PopupSettings } from './components/popup-settings';
 
 const GeneralSettings = memo(() => (
-  <div className="w-full max-w-sm mx-auto my-8">
+  <div className="w-full flex flex-col gap-4">
     <LocaleSelect />
 
     <FiatCurrencySelect />
 
     <PopupSettings />
-
-    <LockUpSettings />
-
-    <AnalyticsSettings />
 
     <NotificationsSettings />
   </div>
