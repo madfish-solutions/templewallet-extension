@@ -4,11 +4,7 @@ import { TezosActivityOlderThan } from './tezos/types';
 
 export enum ActivityOperKindEnum {
   interaction,
-  transferFrom,
-  transferTo,
-  transferFrom_ToAccount,
-  transferTo_FromAccount,
-  swap,
+  transfer,
   approve
 }
 
@@ -51,8 +47,16 @@ interface TezosApproveOperation extends TezosOperationBase {
   spenderAddress: string;
 }
 
+export enum ActivityOperTransferType {
+  fromUs,
+  toUs,
+  fromUsToAccount,
+  toUsFromAccount
+}
+
 interface TezosTransferOperation extends TezosOperationBase {
-  kind: ActivityOperTransferKinds;
+  kind: ActivityOperKindEnum.transfer;
+  type: ActivityOperTransferType;
   fromAddress: string;
   toAddress: string;
 }
@@ -62,18 +66,7 @@ interface TezosInteractionOperation extends TezosOperationBase {
   withAddress?: string;
 }
 
-interface TezosOtherOperation extends TezosOperationBase {
-  kind: Exclude<
-    ActivityOperKindEnum,
-    ActivityOperKindEnum.approve | ActivityOperTransferKinds | ActivityOperKindEnum.interaction
-  >;
-}
-
-export type TezosOperation =
-  | TezosApproveOperation
-  | TezosTransferOperation
-  | TezosInteractionOperation
-  | TezosOtherOperation;
+export type TezosOperation = TezosApproveOperation | TezosTransferOperation | TezosInteractionOperation;
 
 export interface EvmActivity extends ChainActivityBase {
   chain: TempleChainKind.EVM;
@@ -91,14 +84,9 @@ interface EvmApproveOperation extends EvmOperationBase {
   spenderAddress: string;
 }
 
-export type ActivityOperTransferKinds =
-  | ActivityOperKindEnum.transferFrom
-  | ActivityOperKindEnum.transferFrom_ToAccount
-  | ActivityOperKindEnum.transferTo
-  | ActivityOperKindEnum.transferTo_FromAccount;
-
 interface EvmTransferOperation extends EvmOperationBase {
-  kind: ActivityOperTransferKinds;
+  kind: ActivityOperKindEnum.transfer;
+  type: ActivityOperTransferType;
   toAddress: string;
   fromAddress: string;
 }
@@ -108,14 +96,7 @@ interface EvmInteractionOperation extends EvmOperationBase {
   withAddress?: string;
 }
 
-interface EvmOtherOperation extends EvmOperationBase {
-  kind: Exclude<
-    ActivityOperKindEnum,
-    ActivityOperKindEnum.approve | ActivityOperTransferKinds | ActivityOperKindEnum.interaction
-  >;
-}
-
-export type EvmOperation = EvmApproveOperation | EvmTransferOperation | EvmInteractionOperation | EvmOtherOperation;
+export type EvmOperation = EvmApproveOperation | EvmTransferOperation | EvmInteractionOperation;
 
 export interface EvmActivityAsset {
   contract: string;

@@ -5,6 +5,8 @@ import { ActivityStatus } from 'lib/activity/types';
 import { toEvmAssetSlug } from 'lib/assets/utils';
 import { useEvmAssetMetadata } from 'lib/metadata';
 
+import { getActivityOperTransferType } from '../utils';
+
 import { ActivityItemBaseAssetProp, ActivityOperationBaseComponent } from './ActivityOperationBase';
 import { OperAddressChip } from './AddressChip';
 
@@ -51,6 +53,7 @@ export const EvmActivityOperationComponent = memo<Props>(
     return (
       <ActivityOperationBaseComponent
         kind={operation?.kind ?? ActivityOperKindEnum.interaction}
+        transferType={getActivityOperTransferType(operation)}
         hash={hash}
         chainId={chainId}
         asset={asset}

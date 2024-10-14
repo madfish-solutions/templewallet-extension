@@ -3,7 +3,13 @@ import { toTezosAssetSlug } from 'lib/assets/utils';
 import { isTezosContractAddress } from 'lib/tezos';
 import { TempleChainKind } from 'temple/types';
 
-import { TezosActivity, ActivityOperKindEnum, TezosOperation, ActivityStatus } from '../types';
+import {
+  TezosActivity,
+  ActivityOperKindEnum,
+  TezosOperation,
+  ActivityStatus,
+  ActivityOperTransferType
+} from '../types';
 import { isTransferActivityOperKind } from '../utils';
 
 import { preparseTezosOperationsGroup } from './pre-parse';
@@ -61,19 +67,21 @@ function parseTezosPreActivityOperation(preOperation: TezosPreActivityOperation,
 
       if (preOperation.from.address === address)
         return {
-          kind:
+          kind: ActivityOperKindEnum.transfer,
+          type:
             preOperation.to.length === 1 && !isTezosContractAddress(preOperation.to[0].address)
-              ? ActivityOperKindEnum.transferFrom_ToAccount
-              : ActivityOperKindEnum.transferFrom,
+              ? ActivityOperTransferType.fromUsToAccount
+              : ActivityOperTransferType.fromUs,
           fromAddress,
           toAddress
         };
 
       if (preOperation.to.some(member => member.address === address))
         return {
-          kind: isTezosContractAddress(preOperation.from.address)
-            ? ActivityOperKindEnum.transferTo
-            : ActivityOperKindEnum.transferTo_FromAccount,
+          kind: ActivityOperKindEnum.transfer,
+          type: isTezosContractAddress(preOperation.from.address)
+            ? ActivityOperTransferType.toUs
+            : ActivityOperTransferType.toUsFromAccount,
           fromAddress,
           toAddress
         };

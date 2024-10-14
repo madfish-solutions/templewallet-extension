@@ -3,7 +3,7 @@ import type { Transaction, BlockTransactionWithContractTransfers } from '@covale
 import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
 import { getEvmAddressSafe } from 'lib/utils/evm.utils';
 
-import { ActivityOperKindEnum, EvmActivityAsset, EvmOperation } from '../../types';
+import { ActivityOperKindEnum, ActivityOperTransferType, EvmActivityAsset, EvmOperation } from '../../types';
 
 export function parseGasTransfer(
   item: Transaction | BlockTransactionWithContractTransfers,
@@ -18,20 +18,23 @@ export function parseGasTransfer(
   const fromAddress = getEvmAddressSafe(item.from_address)!;
   const toAddress = getEvmAddressSafe(item.to_address)!;
 
-  const kind = (() => {
+  const type = (() => {
     if (fromAddress === accountAddress)
-      return partOfBatch ? ActivityOperKindEnum.transferFrom : ActivityOperKindEnum.transferFrom_ToAccount;
+      return partOfBatch ? ActivityOperTransferType.fromUs : ActivityOperTransferType.fromUsToAccount;
     if (toAddress === accountAddress)
-      return partOfBatch ? ActivityOperKindEnum.transferTo : ActivityOperKindEnum.transferTo_FromAccount;
+      return partOfBatch ? ActivityOperTransferType.toUs : ActivityOperTransferType.toUsFromAccount;
 
     return null;
   })();
 
-  if (!kind) return null;
+  if (type == null) return null;
+
+  const kind = ActivityOperKindEnum.transfer;
 
   const decimals = item.gas_metadata?.contract_decimals;
 
-  const amountSigned = kind === ActivityOperKindEnum.transferFrom_ToAccount ? `-${value}` : value;
+  const amountSigned =
+    type === ActivityOperTransferType.fromUs || type === ActivityOperTransferType.fromUsToAccount ? `-${value}` : value;
 
   const symbol = item.gas_metadata?.contract_ticker_symbol;
 
@@ -42,5 +45,5 @@ export function parseGasTransfer(
     symbol
   };
 
-  return { kind, fromAddress, toAddress, asset };
+  return { kind, type, fromAddress, toAddress, asset };
 }

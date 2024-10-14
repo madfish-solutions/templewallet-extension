@@ -5,7 +5,7 @@ import { TempleChainKind } from 'temple/types';
 
 import {
   ActivityOperKindEnum,
-  ActivityOperTransferKinds,
+  ActivityOperTransferType,
   ActivityStatus,
   EvmActivity,
   EvmActivityAsset,
@@ -44,19 +44,19 @@ function parseTransfer(transfer: TokenTransferItem, item: BlockTransactionWithCo
   const fromAddress = getEvmAddressSafe(transfer.from_address)!;
   const toAddress = getEvmAddressSafe(transfer.to_address)!;
 
-  const kind: ActivityOperTransferKinds = (() => {
+  const type: ActivityOperTransferType = (() => {
     if (transfer.transfer_type === 'IN') {
-      if (item.to_address === transfer.contract_address) return ActivityOperKindEnum.transferTo_FromAccount;
+      if (item.to_address === transfer.contract_address) return ActivityOperTransferType.toUsFromAccount;
 
-      return ActivityOperKindEnum.transferTo;
+      return ActivityOperTransferType.toUs;
     }
 
-    if (item.to_address === transfer.contract_address) return ActivityOperKindEnum.transferFrom_ToAccount;
+    if (item.to_address === transfer.contract_address) return ActivityOperTransferType.fromUsToAccount;
 
-    return ActivityOperKindEnum.transferFrom;
+    return ActivityOperTransferType.fromUs;
   })();
 
-  const operBase = { kind, fromAddress, toAddress };
+  const operBase = { kind: ActivityOperKindEnum.transfer as const, type, fromAddress, toAddress };
 
   const contractAddress = getEvmAddressSafe(transfer.contract_address);
 
@@ -69,7 +69,7 @@ function parseTransfer(transfer: TokenTransferItem, item: BlockTransactionWithCo
   const symbol = transfer.contract_ticker_symbol || undefined;
 
   const amountSigned =
-    operBase.kind === ActivityOperKindEnum.transferFrom || operBase.kind === ActivityOperKindEnum.transferFrom_ToAccount
+    type === ActivityOperTransferType.fromUs || type === ActivityOperTransferType.fromUsToAccount
       ? `-${amount}`
       : amount;
 

@@ -9,11 +9,10 @@ import { ReactComponent as IncomeSvg } from 'app/icons/base/income.svg';
 import { ReactComponent as OkSvg } from 'app/icons/base/ok.svg';
 import { ReactComponent as OutLinkIcon } from 'app/icons/base/outLink.svg';
 import { ReactComponent as SendSvg } from 'app/icons/base/send.svg';
-import { ReactComponent as SwapSvg } from 'app/icons/base/swap.svg';
 import { EvmAssetIcon, TezosAssetIcon } from 'app/templates/AssetIcon';
 import { InFiat } from 'app/templates/InFiat';
 import { ActivityOperKindEnum } from 'lib/activity';
-import { ActivityStatus } from 'lib/activity/types';
+import { ActivityOperTransferType, ActivityStatus } from 'lib/activity/types';
 import { isTransferActivityOperKind } from 'lib/activity/utils';
 import { toEvmAssetSlug, toTezosAssetSlug } from 'lib/assets/utils';
 import { atomsToTokens } from 'lib/temple/helpers';
@@ -25,6 +24,7 @@ import { ReactComponent as PendingSpinSvg } from './pending-spin.svg';
 interface Props {
   chainId: string | number;
   kind: FaceKind;
+  transferType?: ActivityOperTransferType;
   hash: string;
   asset?: ActivityItemBaseAssetProp;
   blockExplorerUrl?: string;
@@ -46,7 +46,7 @@ export interface ActivityItemBaseAssetProp {
 }
 
 export const ActivityOperationBaseComponent = memo<Props>(
-  ({ kind, hash, chainId, asset, blockExplorerUrl, status, withoutAssetIcon, onClick, addressChip }) => {
+  ({ kind, transferType, hash, chainId, asset, blockExplorerUrl, status, withoutAssetIcon, onClick, addressChip }) => {
     const assetSlug = asset
       ? typeof chainId === 'number'
         ? toEvmAssetSlug(asset.contract, asset.tokenId)
@@ -153,7 +153,7 @@ export const ActivityOperationBaseComponent = memo<Props>(
       () =>
         withoutAssetIcon || !assetSlug ? (
           <div className="w-full h-full flex items-center justify-center bg-grey-4">
-            <IconBase Icon={ActivityKindIconSvg[kind]} className="text-grey-1" />
+            <IconBase Icon={getIconByKind(kind, transferType)} className="text-grey-1" />
           </div>
         ) : typeof chainId === 'number' ? (
           <EvmAssetIcon
@@ -170,7 +170,7 @@ export const ActivityOperationBaseComponent = memo<Props>(
             extraSrc={asset?.iconURL}
           />
         ),
-      [chainId, withoutAssetIcon, kind, asset?.iconURL, assetSlug]
+      [chainId, withoutAssetIcon, kind, transferType, asset?.iconURL, assetSlug]
     );
 
     return (
@@ -201,7 +201,7 @@ export const ActivityOperationBaseComponent = memo<Props>(
         <div className="flex-grow flex flex-col gap-y-1 whitespace-nowrap overflow-hidden">
           <div className="flex gap-x-2 justify-between">
             <div className="shrink-0 flex items-center gap-x-1">
-              <span className="text-font-medium">{ActivityKindTitle[kind]}</span>
+              <span className="text-font-medium">{getTitleByKind(kind, transferType)}</span>
 
               <StatusTag status={status} />
             </div>
@@ -273,24 +273,36 @@ const StatusTagFailed = (
 
 const StatusTagPending = <PendingSpinSvg className="w-4 h-4 animate-spin" />;
 
-const ActivityKindTitle: Record<FaceKind, string> = {
-  bundle: 'Bundle',
-  [ActivityOperKindEnum.interaction]: 'Interaction',
-  [ActivityOperKindEnum.transferFrom_ToAccount]: 'Send',
-  [ActivityOperKindEnum.transferTo_FromAccount]: 'Receive',
-  [ActivityOperKindEnum.transferFrom]: 'Transfer',
-  [ActivityOperKindEnum.transferTo]: 'Transfer',
-  [ActivityOperKindEnum.swap]: 'Swap',
-  [ActivityOperKindEnum.approve]: 'Approve'
+function getTitleByKind(kind: FaceKind, transferType?: ActivityOperTransferType) {
+  if (kind === 'bundle') return 'Bundle';
+
+  if (kind === ActivityOperKindEnum.interaction) return 'Interaction';
+
+  if (kind === ActivityOperKindEnum.approve) return 'Approve';
+
+  return transferType == null ? 'Interaction' : TransferTypeTitle[transferType];
+}
+
+const TransferTypeTitle: Record<ActivityOperTransferType, string> = {
+  [ActivityOperTransferType.fromUsToAccount]: 'Send',
+  [ActivityOperTransferType.toUsFromAccount]: 'Receive',
+  [ActivityOperTransferType.fromUs]: 'Transfer',
+  [ActivityOperTransferType.toUs]: 'Transfer'
 };
 
-const ActivityKindIconSvg: Record<FaceKind, ImportedSVGComponent> = {
-  bundle: DocumentsSvg,
-  [ActivityOperKindEnum.interaction]: DocumentsSvg,
-  [ActivityOperKindEnum.transferFrom_ToAccount]: SendSvg,
-  [ActivityOperKindEnum.transferTo_FromAccount]: IncomeSvg,
-  [ActivityOperKindEnum.transferFrom]: DocumentsSvg,
-  [ActivityOperKindEnum.transferTo]: DocumentsSvg,
-  [ActivityOperKindEnum.swap]: SwapSvg,
-  [ActivityOperKindEnum.approve]: OkSvg
+function getIconByKind(kind: FaceKind, transferType?: ActivityOperTransferType) {
+  if (kind === 'bundle') return DocumentsSvg;
+
+  if (kind === ActivityOperKindEnum.interaction) return DocumentsSvg;
+
+  if (kind === ActivityOperKindEnum.approve) return OkSvg;
+
+  return transferType == null ? DocumentsSvg : TransferTypeIconSvg[transferType];
+}
+
+const TransferTypeIconSvg: Record<ActivityOperTransferType, ImportedSVGComponent> = {
+  [ActivityOperTransferType.fromUsToAccount]: SendSvg,
+  [ActivityOperTransferType.toUsFromAccount]: IncomeSvg,
+  [ActivityOperTransferType.fromUs]: DocumentsSvg,
+  [ActivityOperTransferType.toUs]: DocumentsSvg
 };

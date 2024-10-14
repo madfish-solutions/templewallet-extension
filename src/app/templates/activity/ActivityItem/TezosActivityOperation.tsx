@@ -5,6 +5,8 @@ import { ActivityStatus } from 'lib/activity/types';
 import { fromAssetSlug } from 'lib/assets';
 import { AssetMetadataBase, isTezosCollectibleMetadata, useTezosAssetMetadata } from 'lib/metadata';
 
+import { getActivityOperTransferType } from '../utils';
+
 import { ActivityItemBaseAssetProp, ActivityOperationBaseComponent } from './ActivityOperationBase';
 import { OperAddressChip } from './AddressChip';
 
@@ -36,6 +38,7 @@ export const TezosActivityOperationComponent = memo<Props>(
     return (
       <ActivityOperationBaseComponent
         kind={operation?.kind ?? ActivityOperKindEnum.interaction}
+        transferType={getActivityOperTransferType(operation)}
         hash={hash}
         chainId={chainId}
         asset={asset}
