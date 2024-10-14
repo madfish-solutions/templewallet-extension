@@ -43,45 +43,59 @@ function parseTezosPreActivityOperation(preOperation: TezosPreActivityOperation,
     if (preOperation.type === 'transaction') {
       tokenId = preOperation.tokenId;
 
-      if (preOperation.subtype === 'approve') return { kind: ActivityOperKindEnum.approve };
+      if (preOperation.subtype === 'approve')
+        return {
+          kind: ActivityOperKindEnum.approve,
+          spenderAddress: preOperation.to.at(0)!.address
+        };
 
       if (preOperation.subtype !== 'transfer' || isZero(preOperation.amountSigned))
         return {
-          kind: ActivityOperKindEnum.interaction
-          // with: oper.destination.address,
+          kind: ActivityOperKindEnum.interaction,
+          withAddress: preOperation.destination.address
           // entrypoint: oper.entrypoint
         };
+
+      const fromAddress = preOperation.from.address;
+      const toAddress = preOperation.to.at(0)!.address;
 
       if (preOperation.from.address === address)
         return {
           kind:
             preOperation.to.length === 1 && !isTezosContractAddress(preOperation.to[0].address)
               ? ActivityOperKindEnum.transferFrom_ToAccount
-              : ActivityOperKindEnum.transferFrom
+              : ActivityOperKindEnum.transferFrom,
+          fromAddress,
+          toAddress
         };
 
       if (preOperation.to.some(member => member.address === address))
         return {
           kind: isTezosContractAddress(preOperation.from.address)
             ? ActivityOperKindEnum.transferTo
-            : ActivityOperKindEnum.transferTo_FromAccount
+            : ActivityOperKindEnum.transferTo_FromAccount,
+          fromAddress,
+          toAddress
         };
 
       return {
-        kind: ActivityOperKindEnum.interaction
+        kind: ActivityOperKindEnum.interaction,
+        withAddress: preOperation.destination.address
       };
     }
 
     if (preOperation.type === 'delegation' && preOperation.sender.address === address && preOperation.destination) {
       return {
-        kind: ActivityOperKindEnum.interaction
+        kind: ActivityOperKindEnum.interaction,
+        withAddress: preOperation.destination.address
         // subkind: ActivitySubKindEnum.Delegation
         // to: oper.destination.address
       };
     }
 
     return {
-      kind: ActivityOperKindEnum.interaction
+      kind: ActivityOperKindEnum.interaction,
+      withAddress: preOperation.destination?.address
       // subkind: OperStackItemTypeEnum.Other
     };
   })();

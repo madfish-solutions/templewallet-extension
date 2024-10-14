@@ -6,6 +6,7 @@ import { fromAssetSlug } from 'lib/assets';
 import { AssetMetadataBase, isTezosCollectibleMetadata, useTezosAssetMetadata } from 'lib/metadata';
 
 import { ActivityItemBaseAssetProp, ActivityOperationBaseComponent } from './ActivityOperationBase';
+import { OperAddressChip } from './AddressChip';
 
 interface Props {
   hash: string;
@@ -14,16 +15,22 @@ interface Props {
   status?: ActivityStatus;
   blockExplorerUrl: string | nullish;
   withoutAssetIcon?: boolean;
+  withoutOperHashChip?: boolean;
 }
 
 export const TezosActivityOperationComponent = memo<Props>(
-  ({ hash, operation, chainId, blockExplorerUrl, status, withoutAssetIcon }) => {
+  ({ hash, operation, chainId, blockExplorerUrl, status, withoutAssetIcon, withoutOperHashChip }) => {
     const assetSlug = operation?.assetSlug;
     const assetMetadata = useTezosAssetMetadata(assetSlug ?? '', chainId);
 
     const asset = useMemo(
       () => (assetSlug ? buildTezosOperationAsset(assetSlug, assetMetadata, operation.amountSigned) : undefined),
       [assetMetadata, operation, assetSlug]
+    );
+
+    const addressChip = useMemo(
+      () => (withoutOperHashChip && operation ? <OperAddressChip operation={operation} /> : null),
+      [operation, withoutOperHashChip]
     );
 
     return (
@@ -35,6 +42,7 @@ export const TezosActivityOperationComponent = memo<Props>(
         status={status}
         blockExplorerUrl={blockExplorerUrl ?? undefined}
         withoutAssetIcon={withoutAssetIcon}
+        addressChip={addressChip}
       />
     );
   }

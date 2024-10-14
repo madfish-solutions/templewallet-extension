@@ -1,6 +1,5 @@
 import type { Transaction, LogEvent } from '@covalenthq/client-sdk';
 
-import { isTruthy } from 'lib/utils';
 import { getEvmAddressSafe } from 'lib/utils/evm.utils';
 import { TempleChainKind } from 'temple/types';
 
@@ -12,9 +11,7 @@ export function parseGoldRushTransaction(item: Transaction, chainId: number, acc
   const logEvents = item.log_events ?? [];
   const addedAt = item.block_signed_at as unknown as string;
 
-  const operations = logEvents
-    .map<EvmOperation | null>(logEvent => parseLogEvent(logEvent, item, accountAddress))
-    .filter(isTruthy);
+  const operations = logEvents.map(logEvent => parseLogEvent(logEvent, item, accountAddress));
 
   const gasOperation = parseGasTransfer(item, accountAddress, Boolean(logEvents.length));
 
@@ -32,25 +29,27 @@ export function parseGoldRushTransaction(item: Transaction, chainId: number, acc
   };
 }
 
-function parseLogEvent(logEvent: LogEvent, item: Transaction, accountAddress: string): EvmOperation | null {
-  if (!logEvent.decoded?.params) return { kind: ActivityOperKindEnum.interaction };
+function parseLogEvent(logEvent: LogEvent, item: Transaction, accountAddress: string): EvmOperation {
+  const contractAddress = getEvmAddressSafe(logEvent.sender_address) ?? undefined;
 
-  const contractAddress = getEvmAddressSafe(logEvent.sender_address);
-  const _fromAddress = getEvmAddressSafe(logEvent.decoded.params.at(0)?.value);
-  const _toAddress = getEvmAddressSafe(logEvent.decoded.params.at(1)?.value);
+  if (!logEvent.decoded?.params) return { kind: ActivityOperKindEnum.interaction, withAddress: contractAddress };
+
   const decimals = logEvent.sender_contract_decimals ?? undefined;
   const symbol = logEvent.sender_contract_ticker_symbol || undefined;
   const iconURL = logEvent.sender_logo_url ?? undefined;
 
   if (logEvent.decoded.name === 'Transfer') {
+    const fromAddress = getEvmAddressSafe(logEvent.decoded.params.at(0)?.value)!;
+    const toAddress = getEvmAddressSafe(logEvent.decoded.params.at(1)?.value)!;
+
     const kind = (() => {
-      if (_toAddress === accountAddress) {
+      if (toAddress === accountAddress) {
         return item.to_address === logEvent.sender_address
           ? ActivityOperKindEnum.transferTo_FromAccount
           : ActivityOperKindEnum.transferTo;
       }
 
-      if (_fromAddress === accountAddress) {
+      if (fromAddress === accountAddress) {
         return item.to_address === logEvent.sender_address
           ? ActivityOperKindEnum.transferFrom_ToAccount
           : ActivityOperKindEnum.transferFrom;
@@ -59,7 +58,9 @@ function parseLogEvent(logEvent: LogEvent, item: Transaction, accountAddress: st
       return null;
     })();
 
-    if (kind == null || !contractAddress) return { kind: ActivityOperKindEnum.interaction };
+    if (kind == null) return { kind: ActivityOperKindEnum.interaction, withAddress: contractAddress };
+
+    if (!contractAddress) return { kind, fromAddress, toAddress };
 
     const param3 = logEvent.decoded.params.at(2);
     const amountOrTokenId: string = param3?.value ?? '0';
@@ -83,12 +84,12 @@ function parseLogEvent(logEvent: LogEvent, item: Transaction, accountAddress: st
       iconURL
     };
 
-    return { kind, asset };
+    return { kind, fromAddress, toAddress, asset };
   }
 
   if (logEvent.decoded.name === 'TransferSingle') {
-    const fromAddress = getEvmAddressSafe(logEvent.decoded.params.at(1)?.value);
-    const toAddress = getEvmAddressSafe(logEvent.decoded.params.at(2)?.value);
+    const fromAddress = getEvmAddressSafe(logEvent.decoded.params.at(1)?.value)!;
+    const toAddress = getEvmAddressSafe(logEvent.decoded.params.at(2)?.value)!;
 
     const kind = (() => {
       if (toAddress === accountAddress) {
@@ -106,7 +107,9 @@ function parseLogEvent(logEvent: LogEvent, item: Transaction, accountAddress: st
       return null;
     })();
 
-    if (kind == null || !contractAddress) return null;
+    if (kind == null) return { kind: ActivityOperKindEnum.interaction, withAddress: contractAddress };
+
+    if (!contractAddress) return { kind, fromAddress, toAddress };
 
     const tokenId = logEvent.decoded.params.at(3)?.value ?? '0';
 
@@ -127,15 +130,18 @@ function parseLogEvent(logEvent: LogEvent, item: Transaction, accountAddress: st
       iconURL
     };
 
-    return { kind, asset };
+    return { kind, fromAddress, toAddress, asset };
   }
 
   if (logEvent.decoded.name === 'Approval') {
-    if (_fromAddress !== accountAddress) return null;
+    const fromAddress = getEvmAddressSafe(logEvent.decoded.params.at(0)?.value);
+    if (fromAddress !== accountAddress) return { kind: ActivityOperKindEnum.interaction, withAddress: contractAddress };
 
     const kind = ActivityOperKindEnum.approve;
 
-    if (!contractAddress) return { kind };
+    const spenderAddress = logEvent.decoded.params.at(1)!.value;
+
+    if (!contractAddress) return { kind, spenderAddress };
 
     const amountOrTokenIdParam = logEvent.decoded.params.at(2);
     const amountOrTokenId: string = amountOrTokenIdParam?.value ?? '0';
@@ -155,20 +161,20 @@ function parseLogEvent(logEvent: LogEvent, item: Transaction, accountAddress: st
       iconURL
     };
 
-    return { kind, asset };
+    return { kind, spenderAddress, asset };
   }
 
   if (logEvent.decoded.name === 'ApprovalForAll') {
-    if (
-      // @ts-expect-error // `.value` is not always `:string`
-      logEvent.decoded.params.at(2).value !== true ||
-      _fromAddress !== accountAddress
-    )
-      return null;
+    const fromAddress = getEvmAddressSafe(logEvent.decoded.params.at(0)?.value);
+
+    if ((logEvent.decoded.params.at(2)!.value as unknown as boolean) !== true || fromAddress !== accountAddress)
+      return { kind: ActivityOperKindEnum.interaction, withAddress: contractAddress };
 
     const kind = ActivityOperKindEnum.approve;
 
-    if (!contractAddress) return { kind };
+    const spenderAddress = logEvent.decoded.params.at(1)!.value;
+
+    if (!contractAddress) return { kind, spenderAddress };
 
     const asset: EvmActivityAsset = {
       contract: contractAddress,
@@ -179,8 +185,8 @@ function parseLogEvent(logEvent: LogEvent, item: Transaction, accountAddress: st
       iconURL
     };
 
-    return { kind, asset };
+    return { kind, spenderAddress, asset };
   }
 
-  return { kind: ActivityOperKindEnum.interaction };
+  return { kind: ActivityOperKindEnum.interaction, withAddress: contractAddress };
 }

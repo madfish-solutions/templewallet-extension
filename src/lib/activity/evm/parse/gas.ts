@@ -15,10 +15,13 @@ export function parseGasTransfer(
 
   if (value === '0' && partOfBatch) return null;
 
+  const fromAddress = getEvmAddressSafe(item.from_address)!;
+  const toAddress = getEvmAddressSafe(item.to_address)!;
+
   const kind = (() => {
-    if (getEvmAddressSafe(item.from_address) === accountAddress)
+    if (fromAddress === accountAddress)
       return partOfBatch ? ActivityOperKindEnum.transferFrom : ActivityOperKindEnum.transferFrom_ToAccount;
-    if (getEvmAddressSafe(item.to_address) === accountAddress)
+    if (toAddress === accountAddress)
       return partOfBatch ? ActivityOperKindEnum.transferTo : ActivityOperKindEnum.transferTo_FromAccount;
 
     return null;
@@ -39,5 +42,5 @@ export function parseGasTransfer(
     symbol
   };
 
-  return { kind, asset };
+  return { kind, fromAddress, toAddress, asset };
 }

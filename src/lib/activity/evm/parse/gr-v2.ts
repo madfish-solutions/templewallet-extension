@@ -3,7 +3,14 @@ import type { BlockTransactionWithContractTransfers, TokenTransferItem } from '@
 import { getEvmAddressSafe } from 'lib/utils/evm.utils';
 import { TempleChainKind } from 'temple/types';
 
-import { ActivityOperKindEnum, ActivityStatus, EvmActivity, EvmActivityAsset, EvmOperation } from '../../types';
+import {
+  ActivityOperKindEnum,
+  ActivityOperTransferKinds,
+  ActivityStatus,
+  EvmActivity,
+  EvmActivityAsset,
+  EvmOperation
+} from '../../types';
 
 import { parseGasTransfer } from './gas';
 
@@ -34,21 +41,26 @@ export function parseGoldRushERC20Transfer(
 }
 
 function parseTransfer(transfer: TokenTransferItem, item: BlockTransactionWithContractTransfers): EvmOperation {
-  const kind = (() => {
+  const fromAddress = getEvmAddressSafe(transfer.from_address)!;
+  const toAddress = getEvmAddressSafe(transfer.to_address)!;
+
+  const kind: ActivityOperTransferKinds = (() => {
     if (transfer.transfer_type === 'IN') {
-      return item.to_address === transfer.contract_address
-        ? ActivityOperKindEnum.transferTo_FromAccount
-        : ActivityOperKindEnum.transferTo;
+      if (item.to_address === transfer.contract_address) return ActivityOperKindEnum.transferTo_FromAccount;
+
+      return ActivityOperKindEnum.transferTo;
     }
 
-    return item.to_address === transfer.contract_address
-      ? ActivityOperKindEnum.transferFrom_ToAccount
-      : ActivityOperKindEnum.transferFrom;
+    if (item.to_address === transfer.contract_address) return ActivityOperKindEnum.transferFrom_ToAccount;
+
+    return ActivityOperKindEnum.transferFrom;
   })();
+
+  const operBase = { kind, fromAddress, toAddress };
 
   const contractAddress = getEvmAddressSafe(transfer.contract_address);
 
-  if (contractAddress == null) return { kind };
+  if (contractAddress == null) return operBase;
 
   const decimals = transfer.contract_decimals ?? undefined;
 
@@ -57,7 +69,7 @@ function parseTransfer(transfer: TokenTransferItem, item: BlockTransactionWithCo
   const symbol = transfer.contract_ticker_symbol || undefined;
 
   const amountSigned =
-    kind === ActivityOperKindEnum.transferFrom || kind === ActivityOperKindEnum.transferFrom_ToAccount
+    operBase.kind === ActivityOperKindEnum.transferFrom || operBase.kind === ActivityOperKindEnum.transferFrom_ToAccount
       ? `-${amount}`
       : amount;
 
@@ -70,5 +82,5 @@ function parseTransfer(transfer: TokenTransferItem, item: BlockTransactionWithCo
     iconURL: transfer.logo_url ?? undefined
   };
 
-  return { kind, asset };
+  return { ...operBase, asset };
 }

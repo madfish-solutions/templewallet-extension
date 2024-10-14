@@ -113,6 +113,7 @@ const TezosActivityBatchComponent = memo<BatchProps>(({ activity, chainId, asset
                   operation={operation}
                   chainId={chainId}
                   blockExplorerUrl={blockExplorerUrl}
+                  withoutOperHashChip
                 />
               </React.Fragment>
             ))}

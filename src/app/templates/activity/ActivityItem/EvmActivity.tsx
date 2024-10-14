@@ -141,6 +141,7 @@ const EvmActivityBatchComponent = memo<BatchProps>(({ activity, chainId, assetSl
                   operation={operation}
                   chainId={chainId}
                   blockExplorerUrl={blockExplorerUrl}
+                  withoutOperHashChip
                 />
               </React.Fragment>
             ))}

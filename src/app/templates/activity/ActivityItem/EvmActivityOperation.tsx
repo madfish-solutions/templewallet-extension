@@ -6,6 +6,7 @@ import { toEvmAssetSlug } from 'lib/assets/utils';
 import { useEvmAssetMetadata } from 'lib/metadata';
 
 import { ActivityItemBaseAssetProp, ActivityOperationBaseComponent } from './ActivityOperationBase';
+import { OperAddressChip } from './AddressChip';
 
 interface Props {
   hash: string;
@@ -14,10 +15,11 @@ interface Props {
   blockExplorerUrl?: string;
   status?: ActivityStatus;
   withoutAssetIcon?: boolean;
+  withoutOperHashChip?: boolean;
 }
 
 export const EvmActivityOperationComponent = memo<Props>(
-  ({ hash, operation, chainId, blockExplorerUrl, status, withoutAssetIcon }) => {
+  ({ hash, operation, chainId, blockExplorerUrl, status, withoutAssetIcon, withoutOperHashChip }) => {
     const assetBase = operation?.asset;
     const assetSlug = assetBase?.contract ? toEvmAssetSlug(assetBase.contract) : undefined;
 
@@ -41,6 +43,11 @@ export const EvmActivityOperationComponent = memo<Props>(
       return asset;
     }, [assetMetadata, assetBase]);
 
+    const addressChip = useMemo(
+      () => (withoutOperHashChip && operation ? <OperAddressChip operation={operation} /> : null),
+      [operation, withoutOperHashChip]
+    );
+
     return (
       <ActivityOperationBaseComponent
         kind={operation?.kind ?? ActivityOperKindEnum.interaction}
@@ -50,6 +57,7 @@ export const EvmActivityOperationComponent = memo<Props>(
         blockExplorerUrl={blockExplorerUrl}
         status={status}
         withoutAssetIcon={withoutAssetIcon}
+        addressChip={addressChip}
       />
     );
   }

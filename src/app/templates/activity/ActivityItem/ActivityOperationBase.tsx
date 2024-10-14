@@ -1,4 +1,4 @@
-import React, { FC, memo, MouseEventHandler, ReactNode, useCallback, useMemo } from 'react';
+import React, { FC, memo, MouseEventHandler, ReactElement, ReactNode, useCallback, useMemo } from 'react';
 
 import clsx from 'clsx';
 
@@ -31,6 +31,7 @@ interface Props {
   status?: ActivityStatus;
   withoutAssetIcon?: boolean;
   onClick?: EmptyFn;
+  addressChip?: ReactElement | null;
 }
 
 export interface ActivityItemBaseAssetProp {
@@ -45,7 +46,7 @@ export interface ActivityItemBaseAssetProp {
 }
 
 export const ActivityOperationBaseComponent = memo<Props>(
-  ({ kind, hash, chainId, asset, blockExplorerUrl, status, withoutAssetIcon, onClick }) => {
+  ({ kind, hash, chainId, asset, blockExplorerUrl, status, withoutAssetIcon, onClick, addressChip }) => {
     const assetSlug = asset
       ? typeof chainId === 'number'
         ? toEvmAssetSlug(asset.contract, asset.tokenId)
@@ -115,6 +116,24 @@ export const ActivityOperationBaseComponent = memo<Props>(
         </InFiat>
       );
     }, [asset, kind, assetSlug, chainId]);
+
+    const chipJsx = useMemo(
+      () =>
+        addressChip ?? (
+          <Anchor
+            href={blockExplorerUrl}
+            target="_blank"
+            className="flex items-center gap-x-1 group-hover:text-secondary"
+          >
+            <span>
+              <HashShortView hash={hash} firstCharsCount={6} lastCharsCount={4} />
+            </span>
+
+            <IconBase Icon={OutLinkIcon} size={12} className="invisible group-hover:visible" />
+          </Anchor>
+        ),
+      [addressChip, hash, blockExplorerUrl]
+    );
 
     const handleClick = useCallback<MouseEventHandler<HTMLDivElement>>(
       event => {
@@ -191,15 +210,7 @@ export const ActivityOperationBaseComponent = memo<Props>(
           </div>
 
           <div className="flex gap-x-2 justify-between text-font-num-12 text-grey-1">
-            <Anchor
-              href={blockExplorerUrl}
-              target="_blank"
-              className="flex items-center gap-x-1 group-hover:text-secondary"
-            >
-              <HashShortView hash={hash} firstCharsCount={6} lastCharsCount={4} />
-
-              <IconBase Icon={OutLinkIcon} size={12} className="invisible group-hover:visible" />
-            </Anchor>
+            {chipJsx}
 
             <div className="shrink-0 flex">{fiatJsx}</div>
           </div>
