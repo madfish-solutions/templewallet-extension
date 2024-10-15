@@ -16,13 +16,12 @@ import { dispatch } from 'app/store';
 import { setAssetsFilterChain } from 'app/store/assets-filter-options/actions';
 import { FilterChain } from 'app/store/assets-filter-options/state';
 import { SearchBarField } from 'app/templates/SearchField';
-import { T } from 'lib/i18n';
+import { T, t } from 'lib/i18n';
 import { useScrollIntoViewOnMount } from 'lib/ui/use-scroll-into-view';
+import { isSearchStringApplicable, searchAndFilterItems } from 'lib/utils/search-items';
 import { navigate } from 'lib/woozie';
 import {
-  EvmChain,
   OneOfChains,
-  TezosChain,
   useAccount,
   useAccountAddressForEvm,
   useAccountAddressForTezos,
@@ -65,7 +64,7 @@ interface ContentProps {
   handleNetworkSelect: (chain: OneOfChains | null) => void;
 }
 
-const NetworkSelectModalContent = memo<ContentProps>(({ opened, selectedNetwork, handleNetworkSelect }) => {
+export const NetworkSelectModalContent = memo<ContentProps>(({ opened, selectedNetwork, handleNetworkSelect }) => {
   const accountTezAddress = useAccountAddressForTezos();
   const accountEvmAddress = useAccountAddressForEvm();
 
@@ -73,21 +72,19 @@ const NetworkSelectModalContent = memo<ContentProps>(({ opened, selectedNetwork,
   const evmChains = useEnabledEvmChains();
 
   const networks = useMemo(
-    () => [ALL_NETWORKS, ...(accountTezAddress ? tezosChains : []), ...(accountEvmAddress ? evmChains : [])],
+    () => [...(accountTezAddress ? tezosChains : []), ...(accountEvmAddress ? evmChains : [])],
     [accountEvmAddress, accountTezAddress, evmChains, tezosChains]
   );
 
   const [searchValue, setSearchValue] = useState('');
   const [searchValueDebounced] = useDebounce(searchValue, 300);
+  const inSearch = isSearchStringApplicable(searchValueDebounced);
 
   const [attractSelectedNetwork, setAttractSelectedNetwork] = useState(true);
 
-  const filteredNetworks = useMemo(
-    () =>
-      searchValueDebounced
-        ? searchAndFilterNetworksByName<string | EvmChain | TezosChain>(networks, searchValueDebounced)
-        : networks,
-    [searchValueDebounced, networks]
+  const searchedNetworks = useMemo(
+    () => (inSearch ? searchAndFilterChains(networks, searchValueDebounced) : networks),
+    [inSearch, searchValueDebounced, networks]
   );
 
   useEffect(() => {
@@ -111,11 +108,23 @@ const NetworkSelectModalContent = memo<ContentProps>(({ opened, selectedNetwork,
       </div>
 
       <div className="px-4 flex-grow flex flex-col overflow-y-auto">
-        {filteredNetworks.length === 0 && <EmptyState variant="searchUniversal" />}
+        {searchedNetworks.length === 0 ? (
+          <EmptyState variant="searchUniversal" />
+        ) : (
+          !inSearch && (
+            <Network
+              network={ALL_NETWORKS}
+              activeNetwork={selectedNetwork}
+              attractSelf={attractSelectedNetwork}
+              showBalance
+              onClick={onNetworkSelect}
+            />
+          )
+        )}
 
-        {filteredNetworks.map(network => (
+        {searchedNetworks.map(network => (
           <Network
-            key={typeof network === 'string' ? ALL_NETWORKS : network.chainId}
+            key={network.chainId}
             network={network}
             activeNetwork={selectedNetwork}
             attractSelf={attractSelectedNetwork}
@@ -192,14 +201,17 @@ export const Network: FC<NetworkProps> = ({
   );
 };
 
-type SearchNetwork = string | { name: string };
-
-const searchAndFilterNetworksByName = <T extends SearchNetwork>(networks: T[], searchValue: string) => {
-  const preparedSearchValue = searchValue.trim().toLowerCase();
-
-  return networks.filter(network => {
-    if (typeof network === 'string') return network.toLowerCase().includes(preparedSearchValue);
-
-    return network.name.toLowerCase().includes(preparedSearchValue);
-  });
-};
+function searchAndFilterChains(networks: OneOfChains[], searchValue: string) {
+  return searchAndFilterItems(
+    networks,
+    searchValue.trim(),
+    [
+      { name: 'name', weight: 1 },
+      { name: 'nameI18n', weight: 1 }
+    ],
+    ({ name, nameI18nKey }) => ({
+      name,
+      nameI18n: nameI18nKey ? t(nameI18nKey) : undefined
+    })
+  );
+}

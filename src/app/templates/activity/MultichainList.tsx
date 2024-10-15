@@ -26,7 +26,7 @@ import { useActivitiesLoadingLogic } from './loading-logic';
 import { FilterKind, getActivityFilterKind } from './utils';
 
 interface Props {
-  filterKind: FilterKind;
+  filterKind?: FilterKind;
 }
 
 export const MultichainActivityList = memo<Props>(({ filterKind }) => {
