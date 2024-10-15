@@ -19,7 +19,7 @@ interface DurationOption {
   label: string;
 }
 
-const durationOptionsValues = [NEVER_AUTOLOCK_VALUE, 60, 5 * 60, 30 * 60, 60 * 60, 5 * 60 * 60];
+const durationOptionsValues = [Infinity, 60, 5 * 60, 30 * 60, 60 * 60, 5 * 60 * 60];
 const DEFAULT_OPTION_INDEX = 2;
 const SEARCH_KEYS: Array<SearchKey<DurationOption, null>> = [];
 const durationOptionKeyFn = ({ value }: DurationOption) => value;
@@ -33,12 +33,15 @@ export const AutoLockSelect = memo(() => {
     () =>
       durationOptionsValues.map(value => ({
         value,
-        label: value === NEVER_AUTOLOCK_VALUE ? t('never') : startCase(formatDuration(value))
+        label: Number.isFinite(value) ? startCase(formatDuration(value)) : t('never')
       })),
     []
   );
   const value = useMemo(
-    () => options.find(({ value }) => value * 1000 === timeoutDurationMs) ?? options[DEFAULT_OPTION_INDEX],
+    () =>
+      options.find(({ value }) =>
+        Number.isFinite(value) ? value * 1000 === timeoutDurationMs : timeoutDurationMs === NEVER_AUTOLOCK_VALUE
+      ) ?? options[DEFAULT_OPTION_INDEX],
     [options, timeoutDurationMs]
   );
   const handleAutoLockOptionSelect = useCallback(

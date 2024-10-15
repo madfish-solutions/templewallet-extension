@@ -7,7 +7,8 @@ import browser from 'webextension-polyfill';
 
 import { SHOULD_BACKUP_MNEMONIC_STORAGE_KEY } from 'lib/constants';
 import { fetchFromStorage } from 'lib/storage';
-import { TempleMessageType } from 'lib/temple/types';
+import { TempleMessageType, TempleStatus } from 'lib/temple/types';
+import { fetchState } from 'temple/front/fetch-state';
 import { makeIntercomRequest, assertResponse } from 'temple/front/intercom-client';
 
 import { getLockUpTimeout } from './index';
@@ -34,7 +35,13 @@ if (isSinglePageOpened()) {
     const shouldLockByTimeout = closureTimestamp && Date.now() - closureTimestamp >= autoLockTime;
 
     if (shouldLockByTimeout || shouldBackupMnemonic) {
-      lock();
+      await lock();
+      const { status } = await fetchState();
+      // `start` method from src/lib/temple/back/main.ts may unlock the wallet after the lock above
+      if (status === TempleStatus.Ready) {
+        console.log('Second lock');
+        await lock();
+      }
     }
   })();
 }

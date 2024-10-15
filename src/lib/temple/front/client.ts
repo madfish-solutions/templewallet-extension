@@ -17,6 +17,7 @@ import {
   TempleAccountType,
   WalletSpecs
 } from 'lib/temple/types';
+import { fetchState } from 'temple/front/fetch-state';
 import {
   intercomClient,
   makeIntercomRequest as request,
@@ -39,12 +40,6 @@ export const [TempleClientProvider, useTempleClient] = constate(() => {
    * State
    */
 
-  const fetchState = useCallback(async () => {
-    const res = await request({ type: TempleMessageType.GetStateRequest });
-    assertResponse(res.type === TempleMessageType.GetStateResponse);
-    return res.state;
-  }, []);
-
   const { data, mutate } = useRetryableSWR('state', fetchState, {
     suspense: true,
     shouldRetryOnError: false,
@@ -56,6 +51,9 @@ export const [TempleClientProvider, useTempleClient] = constate(() => {
   const [confirmation, setConfirmation] = useState<Confirmation | null>(null);
 
   useEffect(() => {
+    // The state may have been updated during the first render
+    mutate();
+
     return intercomClient.subscribe((msg: TempleNotification) => {
       switch (msg?.type) {
         case TempleMessageType.StateUpdated:
