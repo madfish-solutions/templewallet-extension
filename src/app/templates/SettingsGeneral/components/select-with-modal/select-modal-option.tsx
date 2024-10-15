@@ -1,7 +1,7 @@
 import React, { ComponentType, useCallback } from 'react';
 
 import { Button, IconBase } from 'app/atoms';
-import { SettingsCell } from 'app/atoms/SettingsCell';
+import { SettingsCellSingle } from 'app/atoms/SettingsCell';
 import { SettingsCellGroup } from 'app/atoms/SettingsCellGroup';
 import { ReactComponent as OkFillIcon } from 'app/icons/base/ok_fill.svg';
 import { setTestID } from 'lib/analytics';
@@ -34,7 +34,7 @@ export const SelectModalOption = <T extends unknown>({
 
   return (
     <SettingsCellGroup className={className}>
-      <SettingsCell
+      <SettingsCellSingle
         Component={Button}
         cellIcon={<CellIcon option={option} />}
         cellName={<CellName option={option} />}
@@ -42,7 +42,7 @@ export const SelectModalOption = <T extends unknown>({
         {...setTestID(testID)}
       >
         {isSelected && <IconBase size={24} className="text-primary" Icon={OkFillIcon} />}
-      </SettingsCell>
+      </SettingsCellSingle>
     </SettingsCellGroup>
   );
 };

@@ -60,6 +60,7 @@ interface Props {
   onClick: EmptyFn;
 }
 
+// @ts-prune-ignore-next
 export const SettingsCell: FC<Props> = ({ title, first, onClick, icon }) => {
   return (
     <Button
