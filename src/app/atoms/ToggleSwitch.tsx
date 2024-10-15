@@ -38,7 +38,7 @@ export const ToggleSwitch = forwardRef<HTMLInputElement, Props>((props, ref) => 
     () =>
       clsx(
         'absolute h-full shadow-drop duration-300 ease-out',
-        small ? 'w-4 rounded-1.25' : 'w-6 rounded-md',
+        small ? 'w-4 rounded-5' : 'w-6 rounded-md',
         disabled ? 'bg-lines' : 'bg-white',
         (() => {
           if (localChecked) return small ? 'left-3.5 right-0' : 'left-5 right-0';

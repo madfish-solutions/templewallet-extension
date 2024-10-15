@@ -24,13 +24,22 @@ export const BundleIconsStack = memo<PropsWithChildren<{ withoutAssetIcon?: bool
     return (
       <>
         <div
-          className={clsx(MEDALLION_CLASS_NAME, 'w-6 h-6 top-0 left-0', bgClassName)}
-          style={{ borderRadius: isNFT ? 6 : '100%' }}
+          className={clsx(
+            MEDALLION_CLASS_NAME,
+            'w-6 h-6 top-0 left-0',
+            isNFT ? 'rounded-6' : 'rounded-full',
+            bgClassName
+          )}
         />
 
         <div
-          className={clsx(MEDALLION_CLASS_NAME, 'w-7 h-7 shadow-center', bgClassName)}
-          style={{ top: 3, left: 3, borderRadius: isNFT ? 7 : '100%' }}
+          className={clsx(
+            MEDALLION_CLASS_NAME,
+            'w-7 h-7 shadow-center',
+            isNFT ? 'rounded-7' : 'rounded-full',
+            bgClassName
+          )}
+          style={{ top: 3, left: 3 }}
         />
 
         <div
@@ -39,13 +48,11 @@ export const BundleIconsStack = memo<PropsWithChildren<{ withoutAssetIcon?: bool
             'w-8 h-8 shadow-center',
             'flex items-center justify-center',
             'bottom-0.5 right-0.5',
+            isNFT ? 'rounded-8' : 'rounded-full',
             bgClassName
           )}
-          style={{ borderRadius: isNFT ? 8 : '100%' }}
         >
-          <div className="w-7 h-7 overflow-hidden" style={{ borderRadius: isNFT ? 7 : '100%' }}>
-            {children}
-          </div>
+          <div className={clsx('w-7 h-7 overflow-hidden', isNFT ? 'rounded-7' : 'rounded-full')}>{children}</div>
         </div>
       </>
     );

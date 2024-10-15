@@ -156,7 +156,7 @@ export const PartnersPromotion = memo<PartnersPromotionProps>(
           <div
             className={clsx(
               'absolute top-0 left-0 w-full h-full bg-gray-100 flex justify-center items-center',
-              !popup && 'rounded-2.5'
+              !popup && 'rounded-10'
             )}
           >
             <Spinner theme="dark-gray" className="w-6" />
