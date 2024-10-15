@@ -75,7 +75,7 @@ const ROUTE_MAP = Woozie.createMap<RouteContext>([
       <Home chainKind={chainKind} chainId={chainId} assetSlug={assetSlug} />
     ))
   ],
-  ['/activity/:chainKind?/:chainId?', onlyReady(() => <ActivityPage />)],
+  ['/activity', onlyReady(() => <ActivityPage />)],
   ['/connect-ledger', onlyReady(onlyInFullPage(() => <ConnectLedger />))],
   ['/receive', onlyReady(() => <Receive />)],
   [

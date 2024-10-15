@@ -185,7 +185,7 @@ export const Network: FC<NetworkProps> = ({
         {Icon}
 
         <div className="flex flex-col">
-          <span className="text-font-medium-bold">{isAllNetworks ? ALL_NETWORKS : network.name}</span>
+          <span className="text-font-medium-bold">{isAllNetworks ? <T id="allNetworks" /> : network.name}</span>
 
           {showBalance && (
             <span className="text-grey-1 text-font-description">

@@ -61,15 +61,13 @@ interface Props {
 }
 
 // @ts-prune-ignore-next
-export const SettingsCell: FC<Props> = ({ title, first, onClick, icon }) => {
-  return (
-    <Button
-      className={clsx('flex items-center justify-between p-3 gap-x-2 border-lines', !first && 'border-t-0.5')}
-      onClick={onClick}
-    >
-      <span className="text-font-medium-bold">{title}</span>
+export const SettingsCell: FC<Props> = ({ title, first, onClick, icon }) => (
+  <Button
+    className={clsx('flex items-center justify-between p-3 gap-x-2 border-lines', !first && 'border-t-0.5')}
+    onClick={onClick}
+  >
+    <span className="text-font-medium-bold">{title}</span>
 
-      {icon}
-    </Button>
-  );
-};
+    {icon}
+  </Button>
+);

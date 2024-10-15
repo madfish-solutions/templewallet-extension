@@ -127,7 +127,7 @@ function reduceOneTzktTransactionOperation(
     return _buildReturn({ amount, from, to, contract, subtype: 'transfer' });
   } else if (isTzktOperParam_Fa2_transfer(parameter)) {
     const values = reduceParameterFa2TransferValues(parameter.value, address);
-    const firstVal = values[0];
+    const firstVal = values.at(0);
     // (!) Here we abandon other but 1st non-zero-amount values
     if (firstVal == null) return null;
 
@@ -216,12 +216,15 @@ function reduceParameterFa2TransferValues(values: ParameterFa2Transfer['value'],
   const result: ReducedParameterFa2Values[] = [];
 
   for (const val of values) {
+    const firstTx = val.txs.at(0);
+    if (firstTx == null) continue;
+
     /*
       We assume, that all `val.txs` items have same `token_id` value.
       Visit https://tezos.b9lab.com/fa2 - There is a link to code in Smartpy IDE.
       Fa2 token-standard/smartcontract literally has it in its code.
     */
-    const tokenId = val.txs[0]!.token_id;
+    const tokenId = firstTx.token_id;
 
     const fromAddress = val.from_;
 

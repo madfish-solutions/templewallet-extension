@@ -65,7 +65,6 @@ export function buildTezosOperationAsset(
     tokenId,
     amountSigned,
     decimals,
-    // nft: isTezosCollectibleMetadata(assetMetadata),
     symbol: assetMetadata?.symbol,
     nft: assetMetadata ? isTezosCollectibleMetadata(assetMetadata) : undefined
   };
