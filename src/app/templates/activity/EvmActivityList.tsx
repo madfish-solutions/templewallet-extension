@@ -2,8 +2,6 @@ import React, { FC, useMemo } from 'react';
 
 import { AxiosError } from 'axios';
 
-import { EmptyState } from 'app/atoms/EmptyState';
-import { InfiniteScroll } from 'app/atoms/InfiniteScroll';
 import { DeadEndBoundaryError } from 'app/ErrorBoundary';
 import { useLoadPartnersPromo } from 'app/hooks/use-load-partners-promo';
 import { EvmActivity } from 'lib/activity';
@@ -13,6 +11,7 @@ import { useAccountAddressForEvm } from 'temple/front';
 import { useEvmChainByChainId } from 'temple/front/chains';
 
 import { EvmActivityComponent } from './ActivityItem';
+import { ActivityListView } from './ActivityListView';
 import { ActivitiesDateGroup, useGroupingByDate } from './grouping-by-date';
 import { useActivitiesLoadingLogic } from './loading-logic';
 import { FilterKind, getActivityFilterKind } from './utils';
@@ -89,19 +88,14 @@ export const EvmActivityList: FC<Props> = ({ chainId, assetSlug, filterKind }) =
     [groupedActivities, network, assetSlug]
   );
 
-  if (displayActivities.length === 0 && !isLoading && reachedTheEnd) {
-    return <EmptyState stretch />;
-  }
-
   return (
-    <InfiniteScroll
-      itemsLength={displayActivities.length}
+    <ActivityListView
+      activitiesNumber={displayActivities.length}
       isSyncing={isLoading}
       reachedTheEnd={reachedTheEnd}
-      retryInitialLoad={loadNext}
-      loadMore={loadNext}
+      loadNext={loadNext}
     >
       {contentJsx}
-    </InfiniteScroll>
+    </ActivityListView>
   );
 };

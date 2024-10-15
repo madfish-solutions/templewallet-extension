@@ -2,8 +2,6 @@ import React, { memo, useMemo } from 'react';
 
 import { AxiosError } from 'axios';
 
-import { EmptyState } from 'app/atoms/EmptyState';
-import { InfiniteScroll } from 'app/atoms/InfiniteScroll';
 import { useLoadPartnersPromo } from 'app/hooks/use-load-partners-promo';
 import { Activity, EvmActivity, TezosActivity } from 'lib/activity';
 import { getEvmAssetTransactions } from 'lib/activity/evm';
@@ -22,6 +20,7 @@ import {
 } from 'temple/front';
 
 import { EvmActivityComponent, TezosActivityComponent } from './ActivityItem';
+import { ActivityListView } from './ActivityListView';
 import { ActivitiesDateGroup, useGroupingByDate } from './grouping-by-date';
 import { useActivitiesLoadingLogic } from './loading-logic';
 import { FilterKind, getActivityFilterKind } from './utils';
@@ -146,20 +145,15 @@ export const MultichainActivityList = memo<Props>(({ filterKind }) => {
     [groupedActivities, allTezosChains, allEvmChains]
   );
 
-  if (displayActivities.length === 0 && !isLoading && reachedTheEnd) {
-    return <EmptyState stretch />;
-  }
-
   return (
-    <InfiniteScroll
-      itemsLength={displayActivities.length}
+    <ActivityListView
+      activitiesNumber={displayActivities.length}
       isSyncing={isLoading}
       reachedTheEnd={reachedTheEnd}
-      retryInitialLoad={loadNext}
-      loadMore={loadNext}
+      loadNext={loadNext}
     >
       {contentJsx}
-    </InfiniteScroll>
+    </ActivityListView>
   );
 });
 

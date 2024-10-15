@@ -1,7 +1,5 @@
 import React, { memo, useMemo } from 'react';
 
-import { EmptyState } from 'app/atoms/EmptyState';
-import { InfiniteScroll } from 'app/atoms/InfiniteScroll';
 import { DeadEndBoundaryError } from 'app/ErrorBoundary';
 import { useLoadPartnersPromo } from 'app/hooks/use-load-partners-promo';
 import { TezosActivity } from 'lib/activity';
@@ -11,6 +9,7 @@ import { isKnownChainId } from 'lib/apis/tzkt/api';
 import { useAccountAddressForTezos, useTezosChainByChainId } from 'temple/front';
 
 import { TezosActivityComponent } from './ActivityItem';
+import { ActivityListView } from './ActivityListView';
 import { ActivitiesDateGroup, useGroupingByDate } from './grouping-by-date';
 import { useActivitiesLoadingLogic } from './loading-logic';
 import { FilterKind, getActivityFilterKind } from './utils';
@@ -87,19 +86,14 @@ export const TezosActivityList = memo<Props>(({ tezosChainId, assetSlug, filterK
     [groupedActivities, network, assetSlug]
   );
 
-  if (displayActivities.length === 0 && !isLoading && reachedTheEnd) {
-    return <EmptyState stretch />;
-  }
-
   return (
-    <InfiniteScroll
-      itemsLength={displayActivities.length}
+    <ActivityListView
+      activitiesNumber={displayActivities.length}
       isSyncing={isLoading}
       reachedTheEnd={reachedTheEnd}
-      retryInitialLoad={loadNext}
-      loadMore={loadNext}
+      loadNext={loadNext}
     >
       {contentJsx}
-    </InfiniteScroll>
+    </ActivityListView>
   );
 });
