@@ -45,7 +45,7 @@ export const AutoLockSelect = memo(() => {
     [options, timeoutDurationMs]
   );
   const handleAutoLockOptionSelect = useCallback(
-    ({ value }: DurationOption) => setTimeoutDurationMs(value * 1000),
+    ({ value }: DurationOption) => setTimeoutDurationMs(Number.isFinite(value) ? value * 1000 : NEVER_AUTOLOCK_VALUE),
     [setTimeoutDurationMs]
   );
 
