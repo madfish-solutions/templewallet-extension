@@ -171,8 +171,6 @@ function reduceOneTzktTransactionOperation(
     const from = { ...operation.sender, address: parameter.value.from };
     const to = { address: parameter.value.to };
 
-    // if (from.address !== address && to.address !== address) return null;
-
     return _buildReturn({ amount, from, to, contract, subtype: 'transfer' });
   } else if (isTzktOperParam_LiquidityBaking(parameter)) {
     const from = operation.sender;

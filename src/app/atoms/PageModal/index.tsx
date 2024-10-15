@@ -41,8 +41,6 @@ export const PageModal: FC<Props> = ({
 }) => {
   const { fullPage } = useAppEnv();
 
-  // const isHidden = useDebounce(opened, 300);
-
   return (
     <Modal
       isOpen={opened}

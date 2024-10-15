@@ -43,7 +43,6 @@ export interface PageLayoutProps extends DefaultHeaderProps, ScrollEdgesVisibili
   Header?: ComponentType;
   contentPadding?: boolean;
   dimBg?: boolean;
-  paperClassName?: string;
   headerChildren?: ReactNode;
 }
 

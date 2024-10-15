@@ -132,7 +132,7 @@ const Settings = memo<SettingsProps>(({ tabSlug }) => {
   const [extensionModalOpened, openResetExtensionModal, closeResetExtensionModal] = useBooleanState(false);
 
   return (
-    <PageLayout pageTitle={<T id={activeTab?.titleI18nKey ?? 'settings'} />} headerChildren={headerChildren} dimBg>
+    <PageLayout pageTitle={<T id={activeTab?.titleI18nKey ?? 'settings'} />} headerChildren={headerChildren}>
       {extensionModalOpened && <ResetExtensionModal onClose={closeResetExtensionModal} />}
       {activeTab ? (
         <activeTab.Component setHeaderChildren={setHeaderChildren} />

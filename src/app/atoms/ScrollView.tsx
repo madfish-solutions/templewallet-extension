@@ -4,6 +4,7 @@ import clsx from 'clsx';
 import { throttle } from 'lodash';
 
 import { useSafeState } from 'lib/ui/hooks';
+import { useWillUnmount } from 'lib/ui/hooks/useWillUnmount';
 
 interface Props extends PropsWithChildren {
   className?: string;
@@ -16,26 +17,23 @@ export const ScrollView: FC<Props> = ({ className, children }) => {
 
   const setContentHidingThrottled = useMemo(() => throttle((value: boolean) => setContentHiding(value), 300), []);
 
-  const onScroll = useMemo<UIEventHandler<HTMLDivElement>>(
-    () => event => {
-      const node = event.currentTarget;
+  const onScroll = useCallback<UIEventHandler<HTMLDivElement>>(event => {
+    const node = event.currentTarget;
 
-      setContentHidingThrottled(isContentHidingBelow(node));
-    },
-    []
-  );
+    setContentHidingThrottled(isContentHidingBelow(node));
+  }, []);
 
   const resizeObserver = useMemo(
     () =>
-      new ResizeObserver(
-        throttle<ResizeObserverCallback>(() => {
-          const node = ref.current;
+      new ResizeObserver(() => {
+        const node = ref.current;
 
-          if (node) setContentHidingThrottled(isContentHidingBelow(node));
-        }, 300)
-      ),
+        if (node) setContentHidingThrottled(isContentHidingBelow(node));
+      }),
     []
   );
+
+  useWillUnmount(() => void resizeObserver.disconnect());
 
   const refFn = useCallback((node: HTMLDivElement | null) => {
     ref.current = node;

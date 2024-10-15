@@ -49,7 +49,7 @@ function parseTezosPreActivityOperation(preOperation: TezosPreActivityOperation,
     if (preOperation.type === 'transaction') {
       tokenId = preOperation.tokenId;
 
-      if (preOperation.subtype === 'approve')
+      if (preOperation.subtype === 'approve' && preOperation.from.address !== address)
         return {
           kind: ActivityOperKindEnum.approve,
           spenderAddress: preOperation.to.at(0)!.address
@@ -59,8 +59,9 @@ function parseTezosPreActivityOperation(preOperation: TezosPreActivityOperation,
         return {
           kind: ActivityOperKindEnum.interaction,
           withAddress: preOperation.destination.address
-          // entrypoint: oper.entrypoint
         };
+
+      // subtype === 'transfer' below
 
       const fromAddress = preOperation.from.address;
       const toAddress = preOperation.to.at(0)!.address;
@@ -96,15 +97,12 @@ function parseTezosPreActivityOperation(preOperation: TezosPreActivityOperation,
       return {
         kind: ActivityOperKindEnum.interaction,
         withAddress: preOperation.destination.address
-        // subkind: ActivitySubKindEnum.Delegation
-        // to: oper.destination.address
       };
     }
 
     return {
       kind: ActivityOperKindEnum.interaction,
       withAddress: preOperation.destination?.address
-      // subkind: OperStackItemTypeEnum.Other
     };
   })();
 

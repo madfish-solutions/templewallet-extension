@@ -64,6 +64,10 @@ function parseTransfer(transfer: TokenTransferItem, item: BlockTransactionWithCo
 
   const decimals = transfer.contract_decimals ?? undefined;
 
+  /** We don't implement Activity History for Collectibles pages yet.
+   * GoldRush v2 might not have means to distinguish NFTs.
+   * TODO: Implement, when needed.
+   */
   const nft = false;
   const amount = nft ? '1' : transfer.delta?.toString() ?? '0';
   const symbol = transfer.contract_ticker_symbol || undefined;

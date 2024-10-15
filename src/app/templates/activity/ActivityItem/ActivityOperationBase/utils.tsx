@@ -15,7 +15,7 @@ import { ReactComponent as PendingSpinSvg } from '../pending-spin.svg';
 import { ReactComponent as NftPlaceholderSvg } from './nft.svg';
 import { ReactComponent as TokenPlaceholderSvg } from './token.svg';
 
-const MEDALION_CLASS_NAME = 'absolute border border-lines';
+const MEDALLION_CLASS_NAME = 'absolute border border-lines';
 
 export const BundleIconsStack = memo<PropsWithChildren<{ withoutAssetIcon?: boolean; isNFT?: boolean }>>(
   ({ withoutAssetIcon, isNFT, children }) => {
@@ -24,18 +24,18 @@ export const BundleIconsStack = memo<PropsWithChildren<{ withoutAssetIcon?: bool
     return (
       <>
         <div
-          className={clsx(MEDALION_CLASS_NAME, 'w-6 h-6 top-0 left-0', bgClassName)}
+          className={clsx(MEDALLION_CLASS_NAME, 'w-6 h-6 top-0 left-0', bgClassName)}
           style={{ borderRadius: isNFT ? 6 : '100%' }}
         />
 
         <div
-          className={clsx(MEDALION_CLASS_NAME, 'w-7 h-7 shadow-center', bgClassName)}
+          className={clsx(MEDALLION_CLASS_NAME, 'w-7 h-7 shadow-center', bgClassName)}
           style={{ top: 3, left: 3, borderRadius: isNFT ? 7 : '100%' }}
         />
 
         <div
           className={clsx(
-            MEDALION_CLASS_NAME,
+            MEDALLION_CLASS_NAME,
             'w-8 h-8 shadow-center',
             'flex items-center justify-center',
             'bottom-0.5 right-0.5',
