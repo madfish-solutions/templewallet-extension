@@ -9,11 +9,12 @@ import { useBooleanState } from 'lib/ui/hooks';
 
 import { SelectModal, SelectModalProps } from './select-modal';
 
-const NullComponent = () => null;
+export const NullComponent = () => null;
 
 interface SelectWithModalProps<T, P extends null | ((item: T) => any)>
   extends Omit<SelectModalProps<T, P>, 'opened' | 'onRequestClose' | 'CellIcon'> {
   CellIcon?: SelectModalProps<T, P>['CellIcon'];
+  ModalCellIcon?: SelectModalProps<T, P>['CellIcon'];
   testID: string;
   className?: string;
 }
@@ -24,6 +25,7 @@ export const SelectWithModal = <T, P extends null | ((item: T) => any)>({
   title,
   testID,
   CellIcon = NullComponent,
+  ModalCellIcon = CellIcon,
   CellName,
   value,
   className,
@@ -61,7 +63,7 @@ export const SelectWithModal = <T, P extends null | ((item: T) => any)>({
         title={title}
         opened={selectModalOpened}
         value={value}
-        CellIcon={CellIcon}
+        CellIcon={ModalCellIcon}
         CellName={CellName}
         onRequestClose={closeSelectModal}
         onSelect={handleSelect}

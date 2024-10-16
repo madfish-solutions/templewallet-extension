@@ -1,8 +1,7 @@
 import React, { memo } from 'react';
 
+import { CellPartProps } from 'app/templates/select-with-modal';
 import { FiatCurrencyOption } from 'lib/fiat-currency';
-
-import { CellPartProps } from '../select-with-modal';
 
 export const CurrencyIcon = memo<CellPartProps<FiatCurrencyOption>>(({ option: { symbol } }) => (
   <div className="w-6 h-6 flex items-center justify-center bg-white border border-lines shadow-bottom rounded-full">
