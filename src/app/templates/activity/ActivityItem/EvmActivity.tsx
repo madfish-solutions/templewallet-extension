@@ -7,7 +7,7 @@ import { fromAssetSlug, toEvmAssetSlug } from 'lib/assets/utils';
 import { useGetEvmChainAssetMetadata } from 'lib/metadata';
 import { useBooleanState } from 'lib/ui/hooks';
 import { ZERO } from 'lib/utils/numbers';
-import { EvmChain } from 'temple/front/chains';
+import { BasicEvmChain } from 'temple/front/chains';
 
 import { ActivityItemBaseAssetProp, ActivityOperationBaseComponent } from './ActivityOperationBase';
 import { BundleModalContent } from './BundleModal';
@@ -15,7 +15,7 @@ import { EvmActivityOperationComponent } from './EvmActivityOperation';
 
 interface Props {
   activity: EvmActivity;
-  chain: EvmChain;
+  chain: BasicEvmChain;
   assetSlug?: string;
 }
 
@@ -29,7 +29,7 @@ export const EvmActivityComponent = memo<Props>(({ activity, chain, assetSlug })
       <EvmActivityOperationComponent
         hash={hash}
         operation={operation}
-        chainId={chain.chainId}
+        chain={chain}
         blockExplorerUrl={blockExplorerUrl}
         status={status}
         withoutAssetIcon={Boolean(assetSlug)}
@@ -40,7 +40,7 @@ export const EvmActivityComponent = memo<Props>(({ activity, chain, assetSlug })
   return (
     <EvmActivityBatchComponent
       activity={activity}
-      chainId={chain.chainId}
+      chain={chain}
       assetSlug={assetSlug}
       blockExplorerUrl={blockExplorerUrl}
     />
@@ -49,17 +49,17 @@ export const EvmActivityComponent = memo<Props>(({ activity, chain, assetSlug })
 
 interface BatchProps {
   activity: EvmActivity;
-  chainId: number;
+  chain: BasicEvmChain;
   assetSlug?: string;
   blockExplorerUrl?: string;
 }
 
-const EvmActivityBatchComponent = memo<BatchProps>(({ activity, chainId, assetSlug, blockExplorerUrl }) => {
+const EvmActivityBatchComponent = memo<BatchProps>(({ activity, chain, assetSlug, blockExplorerUrl }) => {
   const [expanded, , , toggleExpanded] = useBooleanState(false);
 
   const { hash, operations, status } = activity;
 
-  const getMetadata = useGetEvmChainAssetMetadata(chainId);
+  const getMetadata = useGetEvmChainAssetMetadata(chain.chainId);
 
   const faceSlug = useMemo(() => {
     if (assetSlug) return assetSlug;
@@ -119,7 +119,7 @@ const EvmActivityBatchComponent = memo<BatchProps>(({ activity, chainId, assetSl
       <ActivityOperationBaseComponent
         kind="bundle"
         hash={hash}
-        chainId={chainId}
+        chain={chain}
         asset={batchAsset}
         blockExplorerUrl={blockExplorerUrl}
         status={status}
@@ -135,7 +135,7 @@ const EvmActivityBatchComponent = memo<BatchProps>(({ activity, chainId, assetSl
                 key={`${hash}-${j}`}
                 hash={hash}
                 operation={operation}
-                chainId={chainId}
+                chain={chain}
                 blockExplorerUrl={blockExplorerUrl}
                 withoutOperHashChip
               />

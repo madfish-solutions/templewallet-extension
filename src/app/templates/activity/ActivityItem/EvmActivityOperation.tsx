@@ -3,6 +3,7 @@ import React, { memo, useMemo } from 'react';
 import { ActivityOperKindEnum, EvmOperation, ActivityStatus } from 'lib/activity';
 import { toEvmAssetSlug } from 'lib/assets/utils';
 import { useEvmAssetMetadata } from 'lib/metadata';
+import { BasicEvmChain } from 'temple/front/chains';
 
 import { getActivityOperTransferType } from '../utils';
 
@@ -12,7 +13,7 @@ import { OperAddressChip } from './AddressChip';
 interface Props {
   hash: string;
   operation?: EvmOperation;
-  chainId: number;
+  chain: BasicEvmChain;
   blockExplorerUrl?: string;
   status?: ActivityStatus;
   withoutAssetIcon?: boolean;
@@ -20,11 +21,11 @@ interface Props {
 }
 
 export const EvmActivityOperationComponent = memo<Props>(
-  ({ hash, operation, chainId, blockExplorerUrl, status, withoutAssetIcon, withoutOperHashChip }) => {
+  ({ hash, operation, chain, blockExplorerUrl, status, withoutAssetIcon, withoutOperHashChip }) => {
     const assetBase = operation?.asset;
     const assetSlug = assetBase?.contract ? toEvmAssetSlug(assetBase.contract) : undefined;
 
-    const assetMetadata = useEvmAssetMetadata(assetSlug ?? '', chainId);
+    const assetMetadata = useEvmAssetMetadata(assetSlug ?? '', chain.chainId);
 
     const asset = useMemo(() => {
       if (!assetBase) return;
@@ -54,7 +55,7 @@ export const EvmActivityOperationComponent = memo<Props>(
         kind={operation?.kind ?? ActivityOperKindEnum.interaction}
         transferType={getActivityOperTransferType(operation)}
         hash={hash}
-        chainId={chainId}
+        chain={chain}
         asset={asset}
         blockExplorerUrl={blockExplorerUrl}
         status={status}

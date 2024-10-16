@@ -1,16 +1,6 @@
-import { TempleChainKind } from 'temple/types';
+import { BasicChain } from 'temple/front/chains';
 
-interface EvmChain {
-  kind: TempleChainKind.EVM;
-  chainId: number;
-}
-
-interface TezosChain {
-  kind: TempleChainKind.Tezos;
-  chainId: string;
-}
-
-export type FilterChain = EvmChain | TezosChain | null;
+export type FilterChain = BasicChain | null;
 
 export interface AssetsFilterOptionsStateInterface {
   filterChain: FilterChain;

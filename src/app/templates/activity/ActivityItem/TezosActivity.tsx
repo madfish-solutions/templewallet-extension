@@ -7,7 +7,7 @@ import { useGetChainTokenOrGasMetadata } from 'lib/metadata';
 import { useBooleanState } from 'lib/ui/hooks';
 import { ZERO } from 'lib/utils/numbers';
 import { useExplorerHref } from 'temple/front/block-explorers';
-import { TezosChain } from 'temple/front/chains';
+import { BasicTezosChain } from 'temple/front/chains';
 
 import { ActivityOperationBaseComponent } from './ActivityOperationBase';
 import { BundleModalContent } from './BundleModal';
@@ -15,7 +15,7 @@ import { TezosActivityOperationComponent, buildTezosOperationAsset } from './Tez
 
 interface Props {
   activity: TezosActivity;
-  chain: TezosChain;
+  chain: BasicTezosChain;
   assetSlug?: string;
 }
 
@@ -31,7 +31,7 @@ export const TezosActivityComponent = memo<Props>(({ activity, chain, assetSlug 
       <TezosActivityOperationComponent
         hash={hash}
         operation={operation}
-        chainId={chain.chainId}
+        chain={chain}
         blockExplorerUrl={blockExplorerUrl}
         status={status}
         withoutAssetIcon={Boolean(assetSlug)}
@@ -42,7 +42,7 @@ export const TezosActivityComponent = memo<Props>(({ activity, chain, assetSlug 
   return (
     <TezosActivityBatchComponent
       activity={activity}
-      chainId={chain.chainId}
+      chain={chain}
       assetSlug={assetSlug}
       blockExplorerUrl={blockExplorerUrl}
     />
@@ -51,17 +51,17 @@ export const TezosActivityComponent = memo<Props>(({ activity, chain, assetSlug 
 
 interface BatchProps {
   activity: TezosActivity;
-  chainId: string;
+  chain: BasicTezosChain;
   assetSlug?: string;
   blockExplorerUrl?: string;
 }
 
-const TezosActivityBatchComponent = memo<BatchProps>(({ activity, chainId, assetSlug, blockExplorerUrl }) => {
+const TezosActivityBatchComponent = memo<BatchProps>(({ activity, chain, assetSlug, blockExplorerUrl }) => {
   const [expanded, , , toggleExpanded] = useBooleanState(false);
 
   const { hash, operations, status } = activity;
 
-  const getMetadata = useGetChainTokenOrGasMetadata(chainId);
+  const getMetadata = useGetChainTokenOrGasMetadata(chain.chainId);
 
   const batchAsset = useMemo(() => {
     const faceSlug =
@@ -92,7 +92,7 @@ const TezosActivityBatchComponent = memo<BatchProps>(({ activity, chainId, asset
       <ActivityOperationBaseComponent
         kind="bundle"
         hash={hash}
-        chainId={chainId}
+        chain={chain}
         asset={batchAsset}
         status={status}
         blockExplorerUrl={blockExplorerUrl}
@@ -108,7 +108,7 @@ const TezosActivityBatchComponent = memo<BatchProps>(({ activity, chainId, asset
                 key={`${hash}-${j}`}
                 hash={hash}
                 operation={operation}
-                chainId={chainId}
+                chain={chain}
                 blockExplorerUrl={blockExplorerUrl}
                 withoutOperHashChip
               />

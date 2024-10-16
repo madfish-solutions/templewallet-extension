@@ -3,6 +3,7 @@ import React, { memo, useMemo } from 'react';
 import { ActivityOperKindEnum, TezosOperation, ActivityStatus } from 'lib/activity';
 import { fromAssetSlug } from 'lib/assets';
 import { AssetMetadataBase, isTezosCollectibleMetadata, useTezosAssetMetadata } from 'lib/metadata';
+import { BasicTezosChain } from 'temple/front/chains';
 
 import { getActivityOperTransferType } from '../utils';
 
@@ -12,7 +13,7 @@ import { OperAddressChip } from './AddressChip';
 interface Props {
   hash: string;
   operation?: TezosOperation;
-  chainId: string;
+  chain: BasicTezosChain;
   status?: ActivityStatus;
   blockExplorerUrl: string | nullish;
   withoutAssetIcon?: boolean;
@@ -20,9 +21,9 @@ interface Props {
 }
 
 export const TezosActivityOperationComponent = memo<Props>(
-  ({ hash, operation, chainId, blockExplorerUrl, status, withoutAssetIcon, withoutOperHashChip }) => {
+  ({ hash, operation, chain, blockExplorerUrl, status, withoutAssetIcon, withoutOperHashChip }) => {
     const assetSlug = operation?.assetSlug;
-    const assetMetadata = useTezosAssetMetadata(assetSlug ?? '', chainId);
+    const assetMetadata = useTezosAssetMetadata(assetSlug ?? '', chain.chainId);
 
     const asset = useMemo(
       () => (assetSlug ? buildTezosOperationAsset(assetSlug, assetMetadata, operation.amountSigned) : undefined),
@@ -39,7 +40,7 @@ export const TezosActivityOperationComponent = memo<Props>(
         kind={operation?.kind ?? ActivityOperKindEnum.interaction}
         transferType={getActivityOperTransferType(operation)}
         hash={hash}
-        chainId={chainId}
+        chain={chain}
         asset={asset}
         status={status}
         blockExplorerUrl={blockExplorerUrl ?? undefined}

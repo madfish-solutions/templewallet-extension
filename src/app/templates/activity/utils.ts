@@ -19,18 +19,22 @@ export function getActivityFilterKind(activity: Activity): FilterKind {
 
   if (!operation) return null;
 
-  const kind = operation.kind;
+  switch (operation.kind) {
+    case ActivityOperKindEnum.interaction:
+      return null;
+    case ActivityOperKindEnum.approve:
+      return 'approve';
+  }
 
-  if (kind === ActivityOperKindEnum.interaction) return null;
-  if (kind === ActivityOperKindEnum.approve) return 'approve';
-
-  const type = operation.type;
-
-  if (type === ActivityOperTransferType.send || type === ActivityOperTransferType.receive) return 'transfer';
-
-  if (type === ActivityOperTransferType.sendToAccount) return 'send';
-
-  if (type === ActivityOperTransferType.receiveFromAccount) return 'receive';
+  switch (operation.type) {
+    case ActivityOperTransferType.send:
+    case ActivityOperTransferType.receive:
+      return 'transfer';
+    case ActivityOperTransferType.sendToAccount:
+      return 'send';
+    case ActivityOperTransferType.receiveFromAccount:
+      return 'receive';
+  }
 
   return null;
 }

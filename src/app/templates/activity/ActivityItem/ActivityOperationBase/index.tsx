@@ -12,13 +12,15 @@ import { ActivityOperKindEnum, ActivityOperTransferType, ActivityStatus } from '
 import { isTransferActivityOperKind } from 'lib/activity/utils';
 import { toEvmAssetSlug, toTezosAssetSlug } from 'lib/assets/utils';
 import { atomsToTokens } from 'lib/temple/helpers';
+import { BasicChain } from 'temple/front/chains';
+import { TempleChainKind } from 'temple/types';
 
 import { FaceKind } from '../../utils';
 
 import { AssetIconPlaceholder, BundleIconsStack, getIconByKind, getTitleByKind, StatusTag } from './utils';
 
 interface Props {
-  chainId: string | number;
+  chain: BasicChain;
   kind: FaceKind;
   transferType?: ActivityOperTransferType;
   hash: string;
@@ -42,9 +44,11 @@ export interface ActivityItemBaseAssetProp {
 }
 
 export const ActivityOperationBaseComponent = memo<Props>(
-  ({ kind, transferType, hash, chainId, asset, blockExplorerUrl, status, withoutAssetIcon, onClick, addressChip }) => {
+  ({ kind, transferType, hash, chain, asset, blockExplorerUrl, status, withoutAssetIcon, onClick, addressChip }) => {
+    const isForEvm = chain.kind === TempleChainKind.EVM;
+
     const assetSlug = asset
-      ? typeof chainId === 'number'
+      ? isForEvm
         ? toEvmAssetSlug(asset.contract, asset.tokenId)
         : toTezosAssetSlug(asset.contract, asset.tokenId)
       : null;
@@ -93,8 +97,8 @@ export const ActivityOperationBaseComponent = memo<Props>(
 
       return (
         <InFiat
-          evm={typeof chainId === 'number'}
-          chainId={chainId}
+          evm={isForEvm}
+          chainId={chain.chainId}
           assetSlug={assetSlug}
           volume={amountForFiat}
           smallFractionFont={false}
@@ -112,7 +116,7 @@ export const ActivityOperationBaseComponent = memo<Props>(
           }
         </InFiat>
       );
-    }, [asset, kind, assetSlug, chainId]);
+    }, [asset, kind, assetSlug, chain.chainId, isForEvm]);
 
     const chipJsx = useMemo(
       () =>
@@ -146,9 +150,9 @@ export const ActivityOperationBaseComponent = memo<Props>(
 
       const placeholderJsx = <AssetIconPlaceholder isNFT={isNFT} symbol={asset?.symbol} className={className} />;
 
-      return typeof chainId === 'number' ? (
+      return isForEvm ? (
         <EvmAssetImage
-          evmChainId={chainId}
+          evmChainId={chain.chainId}
           assetSlug={assetSlug}
           className={className}
           extraSrc={asset?.iconURL}
@@ -157,7 +161,7 @@ export const ActivityOperationBaseComponent = memo<Props>(
         />
       ) : (
         <TezosAssetImage
-          tezosChainId={chainId}
+          tezosChainId={chain.chainId}
           assetSlug={assetSlug}
           className={className}
           extraSrc={asset?.iconURL}
@@ -165,7 +169,7 @@ export const ActivityOperationBaseComponent = memo<Props>(
           fallback={placeholderJsx}
         />
       );
-    }, [chainId, withoutAssetIcon, kind, transferType, asset?.iconURL, asset?.symbol, isNFT, assetSlug]);
+    }, [chain, isForEvm, withoutAssetIcon, kind, transferType, asset?.iconURL, asset?.symbol, isNFT, assetSlug]);
 
     return (
       <div
@@ -183,10 +187,10 @@ export const ActivityOperationBaseComponent = memo<Props>(
             <div className={clsx('w-9 h-9 overflow-hidden', isNFT ? 'rounded-lg' : 'rounded-full')}>{faceIconJsx}</div>
           )}
 
-          {withoutAssetIcon ? null : typeof chainId === 'number' ? (
-            <EvmNetworkLogo chainId={chainId} size={16} className="absolute bottom-0 right-0" withTooltip />
+          {withoutAssetIcon ? null : isForEvm ? (
+            <EvmNetworkLogo chainId={chain.chainId} size={16} className="absolute bottom-0 right-0" withTooltip />
           ) : (
-            <TezosNetworkLogo chainId={chainId} size={16} className="absolute bottom-0 right-0" withTooltip />
+            <TezosNetworkLogo chainId={chain.chainId} size={16} className="absolute bottom-0 right-0" withTooltip />
           )}
         </div>
 

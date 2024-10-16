@@ -11,21 +11,23 @@ interface Props {
 
 export const OperAddressChip: FC<Props> = ({ operation }) => {
   const info = useMemo(() => {
-    if (operation.kind === ActivityOperKindEnum.approve) return { title: 'For', address: operation.spenderAddress };
+    switch (operation.kind) {
+      case ActivityOperKindEnum.approve:
+        return { title: 'For', address: operation.spenderAddress };
+      case ActivityOperKindEnum.interaction:
+        return operation.withAddress ? { title: 'With', address: operation.withAddress } : undefined;
+    }
 
-    if (operation.kind === ActivityOperKindEnum.interaction)
-      return operation.withAddress ? { title: 'With', address: operation.withAddress } : undefined;
-
-    if (operation.type === ActivityOperTransferType.sendToAccount) return { title: 'To', address: operation.toAddress };
-
-    if (operation.type === ActivityOperTransferType.receiveFromAccount)
-      return { title: 'From', address: operation.fromAddress };
-
-    if (operation.type === ActivityOperTransferType.send) return { title: 'With', address: operation.toAddress };
-
-    if (operation.type === ActivityOperTransferType.receive) return { title: 'With', address: operation.fromAddress };
-
-    return;
+    switch (operation.type) {
+      case ActivityOperTransferType.sendToAccount:
+        return { title: 'To', address: operation.toAddress };
+      case ActivityOperTransferType.receiveFromAccount:
+        return { title: 'From', address: operation.fromAddress };
+      case ActivityOperTransferType.send:
+        return { title: 'With', address: operation.toAddress };
+      case ActivityOperTransferType.receive:
+        return { title: 'With', address: operation.fromAddress };
+    }
   }, [operation]);
 
   if (!info) return null;
