@@ -235,7 +235,6 @@ export const SeedPhraseInput: FC<SeedPhraseInputProps> = ({
             </TextButton>
           ) : (
             <TextButton
-              color="blue"
               Icon={PasteFillIcon}
               onClick={pasteMnemonic}
               testID={ImportAccountSelectors.pasteSeedPhraseButton}

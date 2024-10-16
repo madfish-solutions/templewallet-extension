@@ -10,7 +10,7 @@ export { useTimeout } from './useTimeout';
 
 export { useInterval } from './useInterval';
 
-export { useStopper } from './useStopper';
+export { useAbortSignal } from './useAbortSignal';
 
 export { useMemoWithCompare } from './useMemoWithCompare';
 

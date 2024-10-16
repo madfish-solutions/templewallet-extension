@@ -23,6 +23,7 @@ import { Notifications, NotificationsItem } from 'lib/notifications/components';
 import { useTempleClient } from 'lib/temple/front';
 import * as Woozie from 'lib/woozie';
 
+import { ActivityPage } from './pages/Activity';
 import { ImportWallet } from './pages/ImportWallet';
 import { Market } from './pages/Market';
 import { StakingPage } from './pages/Staking';
@@ -74,6 +75,7 @@ const ROUTE_MAP = Woozie.createMap<RouteContext>([
       <Home chainKind={chainKind} chainId={chainId} assetSlug={assetSlug} />
     ))
   ],
+  ['/activity', onlyReady(() => <ActivityPage />)],
   ['/connect-ledger', onlyReady(onlyInFullPage(() => <ConnectLedger />))],
   ['/receive', onlyReady(() => <Receive />)],
   [

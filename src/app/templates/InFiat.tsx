@@ -1,16 +1,17 @@
 import React, { FC, ReactElement, ReactNode, useMemo } from 'react';
 
-import { isDefined } from '@rnw-community/shared';
 import BigNumber from 'bignumber.js';
 
 import Money from 'app/atoms/Money';
 import { TestIDProps } from 'lib/analytics';
 import { useAssetFiatCurrencyPrice, useFiatCurrency } from 'lib/fiat-currency';
 import { TEZOS_MAINNET_CHAIN_ID } from 'lib/temple/types';
+import { ZERO } from 'lib/utils/numbers';
 
 interface OutputProps {
   balance: ReactNode;
   symbol: string;
+  noPrice: boolean;
 }
 
 interface Props extends TestIDProps {
@@ -22,19 +23,20 @@ interface Props extends TestIDProps {
   shortened?: boolean;
   smallFractionFont?: boolean;
   showCents?: boolean;
+  withSign?: boolean;
   evm?: boolean;
 }
 
-const InFiat: FC<Props> = props => {
+const InFiatDefault: FC<Props> = props => {
   // TODO: show fiat value only for mainnet chains
   if (!props.evm && props.chainId !== TEZOS_MAINNET_CHAIN_ID) return null;
 
-  return <InFiatContent {...props} />;
+  return <InFiat {...props} />;
 };
 
-export default InFiat;
+export default InFiatDefault;
 
-const InFiatContent: FC<Props> = ({
+export const InFiat: FC<Props> = ({
   evm,
   chainId,
   volume,
@@ -44,6 +46,7 @@ const InFiatContent: FC<Props> = ({
   shortened,
   smallFractionFont,
   showCents = true,
+  withSign,
   testID,
   testIDProperties
 }) => {
@@ -51,33 +54,34 @@ const InFiatContent: FC<Props> = ({
   const { selectedFiatCurrency } = useFiatCurrency();
 
   const roundedInFiat = useMemo(() => {
-    if (!isDefined(price)) return new BigNumber(0);
+    if (price.isZero()) return ZERO;
 
     const inFiat = new BigNumber(volume).times(price);
     if (showCents) {
       return inFiat;
     }
+
     return inFiat.integerValue();
   }, [price, showCents, volume]);
 
   const cryptoDecimals = showCents ? undefined : 0;
 
-  return isDefined(price)
-    ? children({
-        balance: (
-          <Money
-            fiat={showCents}
-            cryptoDecimals={cryptoDecimals}
-            roundingMode={roundingMode}
-            shortened={shortened}
-            smallFractionFont={smallFractionFont}
-            testID={testID}
-            testIDProperties={testIDProperties}
-          >
-            {roundedInFiat}
-          </Money>
-        ),
-        symbol: selectedFiatCurrency.symbol
-      })
-    : null;
+  return children({
+    balance: (
+      <Money
+        fiat={showCents}
+        cryptoDecimals={cryptoDecimals}
+        roundingMode={roundingMode}
+        shortened={shortened}
+        smallFractionFont={smallFractionFont}
+        withSign={withSign}
+        testID={testID}
+        testIDProperties={testIDProperties}
+      >
+        {roundedInFiat}
+      </Money>
+    ),
+    symbol: selectedFiatCurrency.symbol,
+    noPrice: price.isZero()
+  });
 };

@@ -9,6 +9,7 @@ export interface ImageStackedProps extends React.ImgHTMLAttributes<HTMLImageElem
    * (i) Don't let empty string (`''`) get inside. Filter to not get endless loader.
    */
   sources: string[];
+  size?: number;
   loader?: JSX.Element;
   fallback?: JSX.Element;
   pauseRender?: boolean;
@@ -18,6 +19,7 @@ export interface ImageStackedProps extends React.ImgHTMLAttributes<HTMLImageElem
 
 export const ImageStacked: FC<ImageStackedProps> = ({
   sources,
+  size,
   loader,
   fallback,
   style,
@@ -36,8 +38,12 @@ export const ImageStacked: FC<ImageStackedProps> = ({
             width: 0,
             height: 0
           }
-        : style,
-    [style, isLoading]
+        : {
+            width: size,
+            height: size,
+            ...style
+          },
+    [style, isLoading, size]
   );
 
   const onStackLoadedRef = useRef(onStackLoaded);

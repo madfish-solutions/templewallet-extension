@@ -4,7 +4,7 @@ import Money from 'app/atoms/Money';
 import { DeadEndBoundaryError } from 'app/ErrorBoundary';
 import { useEvmTokenMetadataSelector } from 'app/store/evm/tokens-metadata/selectors';
 import AddressChip from 'app/templates/AddressChip';
-import { TezosAssetIcon, EvmTokenIcon } from 'app/templates/AssetIcon';
+import { EvmAssetIcon, TezosAssetIcon } from 'app/templates/AssetIcon';
 import { EvmBalance, TezosBalance } from 'app/templates/Balance';
 import InFiat from 'app/templates/InFiat';
 import { setAnotherSelector, setTestID } from 'lib/analytics';
@@ -48,7 +48,7 @@ const TezosAssetBanner = memo<TezosAssetBannerProps>(({ tezosChainId, assetSlug 
   return (
     <>
       <div className="flex items-center gap-x-2 my-3">
-        <TezosAssetIcon tezosChainId={network.chainId} assetSlug={assetSlug} size={24} className="flex-shrink-0" />
+        <TezosAssetIcon tezosChainId={network.chainId} assetSlug={assetSlug} size={24} className="shrink-0" />
 
         <div
           className="flex-grow text-font-medium font-normal text-gray-700 truncate"
@@ -114,7 +114,7 @@ const EvmAssetBanner = memo<EvmAssetBannerProps>(({ evmChainId, assetSlug }) => 
   return (
     <>
       <div className="flex items-center gap-x-2 my-3">
-        <EvmTokenIcon evmChainId={network.chainId} assetSlug={assetSlug} size={24} className="flex-shrink-0" />
+        <EvmAssetIcon evmChainId={network.chainId} assetSlug={assetSlug} size={24} className="shrink-0" />
 
         <div
           className="flex-grow text-sm font-normal text-gray-700 truncate"

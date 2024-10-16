@@ -106,7 +106,6 @@ export const PrivateKeyForm = memo<ImportAccountFormProps>(({ onSuccess }) => {
           additonalActionButtons={
             keyValue ? null : (
               <TextButton
-                color="blue"
                 Icon={PasteFillIcon}
                 onClick={pastePrivateKey}
                 testID={ImportAccountSelectors.pastePrivateKeyButton}

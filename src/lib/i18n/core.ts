@@ -60,7 +60,7 @@ export function getMessage(messageName: string, substitutions?: Substitutions) {
     : browser.i18n.getMessage(messageName, substitutions) ?? '';
 }
 
-export function getDateFnsLocale() {
+function getDateFnsLocale() {
   return dateFnsLocales[getCurrentLocale()] || enUS;
 }
 

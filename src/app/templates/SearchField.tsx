@@ -104,13 +104,13 @@ export const SearchBarField = memo(
     <SearchField
       ref={ref}
       value={value}
+      containerClassName={clsx('flex-grow mr-2', containerClassName)}
       className={clsx(
         'bg-input-low rounded-lg',
         'placeholder-grey-1 hover:placeholder-text caret-primary',
         'transition ease-in-out duration-200',
         className
       )}
-      containerClassName={clsx('flex-1 mr-2', containerClassName)}
       placeholder="Search"
       {...rest}
     />
