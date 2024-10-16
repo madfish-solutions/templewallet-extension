@@ -12,11 +12,11 @@ import { TempleChainKind } from 'temple/types';
 
 import { CurrentAccount } from './components/CurrentAccount';
 import { Header } from './components/Header';
-import { DisplayedFeeOptions, FeeOptionLabel, TxParamsFormData } from './interfaces';
 import { AdvancedTab } from './tabs/Advanced';
 import { DetailsTab } from './tabs/Details';
 import { ErrorTab } from './tabs/Error';
 import { FeeTab } from './tabs/Fee';
+import { DisplayedFeeOptions, FeeOptionLabel, TxParamsFormData } from './types';
 
 export type Tab = 'details' | 'fee' | 'advanced' | 'error';
 
@@ -26,10 +26,10 @@ interface BaseContentProps<T extends TxParamsFormData> {
   amount: string;
   recipientAddress: string;
   selectedTab: Tab;
-  setSelectedTab: (value: Tab) => void;
+  setSelectedTab: SyncFn<Tab>;
   selectedFeeOption: FeeOptionLabel | nullish;
   latestSubmitError: string | nullish;
-  onFeeOptionSelect: (label: FeeOptionLabel) => void;
+  onFeeOptionSelect: SyncFn<FeeOptionLabel>;
   onSubmit: SubmitHandler<T>;
   onCancel: EmptyFn;
   displayedFee?: string;

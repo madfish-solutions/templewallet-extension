@@ -1,6 +1,6 @@
 import BigNumber from 'bignumber.js';
 
-import { FeeOptionLabel } from './interfaces';
+import { FeeOptionLabel } from './types';
 
 export const validateNonZero = (value: string, fieldName: string) =>
   value !== '0' || `${fieldName} should be more than 0`;

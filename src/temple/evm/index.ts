@@ -1,6 +1,6 @@
 import memoizee from 'memoizee';
-import { createPublicClient, http } from 'viem';
-import type * as ViemChainsModuleType from 'viem/chains';
+import { Transport, Chain, createPublicClient, http, PublicClient } from 'viem';
+import * as ViemChains from 'viem/chains';
 
 import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
 import { EvmAssetStandard } from 'lib/evm/types';
@@ -9,20 +9,24 @@ import { EvmChain } from 'temple/front';
 import { MAX_MEMOIZED_TOOLKITS } from 'temple/misc';
 
 export const getReadOnlyEvm = memoizee(
-  (rpcUrl: string) =>
+  (rpcUrl: string): PublicClient =>
     createPublicClient({
       transport: http(rpcUrl)
     }),
   { max: MAX_MEMOIZED_TOOLKITS }
 );
 
+type ChainPublicClient = PublicClient<Transport, Pick<Chain, 'id' | 'name' | 'nativeCurrency' | 'rpcUrls'>>;
+
+/**
+ * Some Viem Client methods will need chain definition to execute, use below fn in those cases
+ */
 export const getReadOnlyEvmForNetwork = memoizee(
-  async (network: EvmChain) => {
-    const ViemChains: typeof ViemChainsModuleType = await import('viem/chains');
+  (network: EvmChain): ChainPublicClient => {
     const viemChain = Object.values(ViemChains).find(chain => chain.id === network.chainId);
 
     if (viemChain) {
-      return createPublicClient({ chain: viemChain, transport: http(network.rpcBaseURL) });
+      return createPublicClient({ chain: viemChain, transport: http(network.rpcBaseURL) }) as ChainPublicClient;
     }
 
     return createPublicClient({
@@ -59,7 +63,6 @@ export const loadEvmChainInfo = memoizee(async (rpcUrl: string): Promise<EvmChai
 
   const chainId = await client.getChainId();
 
-  const ViemChains: typeof ViemChainsModuleType = await import('viem/chains');
   const viemChain = Object.values(ViemChains).find(chain => chain.id === chainId);
 
   if (!viemChain) throw new Error('Cannot resolve currency of the EVM network');

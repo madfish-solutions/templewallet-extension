@@ -7,7 +7,7 @@ import { parseEther } from 'viem';
 import { toastError } from 'app/toaster';
 import { isNativeTokenAddress } from 'lib/apis/temple/endpoints/evm/api.utils';
 import { useTypedSWR } from 'lib/swr';
-import { getReadOnlyEvm } from 'temple/evm';
+import { getReadOnlyEvmForNetwork } from 'temple/evm';
 import { EvmChain } from 'temple/front';
 
 import { checkZeroBalance } from './utils';
@@ -37,19 +37,9 @@ export const useEvmEstimationData = (
 
       checkZeroBalance(balance, ethBalance, isNativeToken);
 
-      const publicClient = getReadOnlyEvm(network.rpcBaseURL);
+      const publicClient = getReadOnlyEvmForNetwork(network);
 
       const transaction = await publicClient.prepareTransactionRequest({
-        chain: {
-          id: network.chainId,
-          name: network.name,
-          nativeCurrency: network.currency,
-          rpcUrls: {
-            default: {
-              http: [network.rpcBaseURL]
-            }
-          }
-        },
         to,
         account: accountPkh,
         value: amount ? parseEther(amount) : BigInt(1)

@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, RefObject, CSSProperties } from 'react';
+import React, { useEffect, RefObject, CSSProperties } from 'react';
 
 import clsx from 'clsx';
 
@@ -14,7 +14,7 @@ interface SegmentedControlProps<T extends string> {
   name: string;
   segments: Segment<T>[];
   activeSegment: T;
-  setActiveSegment: (value: T) => void;
+  setActiveSegment: SyncFn<T>;
   controlRef: RefObject<HTMLDivElement>;
   className?: string;
   style?: CSSProperties;
@@ -29,13 +29,6 @@ const SegmentedControl = <T extends string>({
   className,
   style
 }: SegmentedControlProps<T>) => {
-  const componentReady = useRef<boolean>();
-
-  // Determine when the component is "ready"
-  useEffect(() => {
-    componentReady.current = true;
-  }, []);
-
   useEffect(() => {
     const activeSegmentRef = segments.find(segment => segment.value === activeSegment)?.ref;
 
@@ -50,7 +43,7 @@ const SegmentedControl = <T extends string>({
 
   return (
     <div ref={controlRef} className={clsx(styles.controlsContainer, className)} style={style}>
-      <div className={clsx(styles.controls, componentReady.current ? styles.ready : styles.idle)}>
+      <div className={styles.controls}>
         {segments?.map(item => (
           <div
             key={item.value}

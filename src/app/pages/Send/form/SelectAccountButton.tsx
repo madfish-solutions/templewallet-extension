@@ -8,7 +8,7 @@ import { getAccountAddressForEvm, getAccountAddressForTezos } from 'temple/accou
 import { useVisibleAccounts } from 'temple/front';
 import { useSettings } from 'temple/front/ready';
 
-import DefaultAvatarImg from './assets/default_avatar.png';
+import DefaultAvatarImgSrc from './assets/default_avatar.png';
 
 const DEFAULT_TITLE = 'Select account';
 export const SELECT_ACCOUNT_BUTTON_ID = 'select-account-button';
@@ -59,7 +59,7 @@ export const SelectAccountButton = memo<Props>(({ value: selectedAccountAddress,
           <AccountAvatar seed={iconHash} size={24} borderColor="secondary" />
         ) : (
           <div className="flex p-px rounded border border-secondary">
-            <img src={DefaultAvatarImg} alt="default-avatar" className="w-5 h-5" />
+            <img src={DefaultAvatarImgSrc} alt="default-avatar" className="w-5 h-5" />
           </div>
         )}
 

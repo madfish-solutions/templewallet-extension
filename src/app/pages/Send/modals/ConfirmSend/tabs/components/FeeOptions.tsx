@@ -12,7 +12,7 @@ import { getAssetSymbol, TEZOS_METADATA } from 'lib/metadata';
 import { OneOfChains } from 'temple/front/chains';
 import { TempleChainKind } from 'temple/types';
 
-import { DisplayedFeeOptions, FeeOptionLabel } from '../../interfaces';
+import { DisplayedFeeOptions, FeeOptionLabel } from '../../types';
 
 interface Option {
   label: FeeOptionLabel;
@@ -81,9 +81,7 @@ const Option: FC<OptionProps> = ({ network, assetSlug, active, option, value, on
     >
       <div className="flex flex-col text-center">
         <img src={option.iconSrc} alt={option.label} className="my-1.5" />
-        <span className={clsx('text-font-description-bold', option.textColorClassName)}>
-          {option.label.toUpperCase()}
-        </span>
+        <span className={clsx('text-font-description-bold uppercase', option.textColorClassName)}>{option.label}</span>
       </div>
       <div className="flex flex-col text-center">
         <InFiat

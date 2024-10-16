@@ -19,8 +19,7 @@ const BG_SHADES = {
   200: 'bg-gray-200 hover:bg-gray-300'
 };
 
-/** @deprecated */
-export type OldStyleCopyButtonProps = HTMLAttributes<HTMLButtonElement> &
+export type StyledCopyButtonProps = HTMLAttributes<HTMLButtonElement> &
   TestIDProps & {
     bgShade?: 50 | 100 | 200;
     rounded?: 'sm' | 'base';
@@ -31,8 +30,7 @@ export type OldStyleCopyButtonProps = HTMLAttributes<HTMLButtonElement> &
     isSecret?: boolean;
   };
 
-/** @deprecated */
-const OldStyleCopyButton: FC<OldStyleCopyButtonProps> = ({
+const StyledCopyButton: FC<StyledCopyButtonProps> = ({
   bgShade = 100,
   children,
   text,
@@ -77,4 +75,4 @@ const OldStyleCopyButton: FC<OldStyleCopyButtonProps> = ({
   );
 };
 
-export default OldStyleCopyButton;
+export default StyledCopyButton;

@@ -1,7 +1,7 @@
 import React, { FC, useEffect } from 'react';
 
 import { FormSubmitButton } from 'app/atoms';
-import OldStyleCopyButton from 'app/atoms/OldStyleCopyButton';
+import StyledCopyButton from 'app/atoms/StyledCopyButton';
 import { ReactComponent as CopyIcon } from 'app/icons/monochrome/copy.svg';
 import { AnalyticsEventCategory, TestIDProps, useAnalytics } from 'lib/analytics';
 import { T } from 'lib/i18n';
@@ -57,13 +57,13 @@ const ErrorComponent: FC<Props> = ({ exchangeData, testIDProperties, setIsError,
             </p>
             <span>
               <p className="text-xs inline align-text-bottom text-gray-910">{exchangeData.id}</p>
-              <OldStyleCopyButton text={exchangeData.id} type="link">
+              <StyledCopyButton text={exchangeData.id} type="link">
                 <CopyIcon
                   style={{ verticalAlign: 'inherit' }}
                   className="h-4 ml-1 w-auto inline stroke-orange-500 stroke-2"
                   onClick={() => copy()}
                 />
-              </OldStyleCopyButton>
+              </StyledCopyButton>
             </span>
           </div>
         </>

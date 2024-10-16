@@ -31,11 +31,7 @@ export const EvmChainAssetsList = memo<Props>(({ chainId, publicKeyHash, searchV
   const metadata = useEvmTokensMetadataRecordSelector();
 
   const getMetadata = useCallback(
-    (slug: string) => {
-      if (slug === EVM_TOKEN_SLUG) return chain?.currency;
-
-      return metadata[chainId]?.[slug];
-    },
+    (slug: string) => (slug === EVM_TOKEN_SLUG ? chain?.currency : metadata[chainId]?.[slug]),
     [chain, metadata, chainId]
   );
 

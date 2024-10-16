@@ -19,7 +19,7 @@ export const ActionsButtonsBox = memo<ActionsButtonsBoxProps>(
     const { popup } = useAppEnv();
 
     useEffect(() => {
-      return () => void shouldChangeBottomShift && dispatch(setToastsContainerBottomShiftAction(0));
+      return () => void (shouldChangeBottomShift && dispatch(setToastsContainerBottomShiftAction(0)));
     }, [dispatch, shouldChangeBottomShift]);
 
     const handleResize = useMemo(

@@ -3,7 +3,7 @@ import React, { memo, useCallback, useMemo, useState } from 'react';
 import BigNumber from 'bignumber.js';
 
 import { FormSubmitButton } from 'app/atoms';
-import OldStyleCopyButton from 'app/atoms/OldStyleCopyButton';
+import StyledCopyButton from 'app/atoms/StyledCopyButton';
 import { ReactComponent as CopyIcon } from 'app/icons/monochrome/copy.svg';
 import { WithdrawSelectors } from 'app/pages/Withdraw/Withdraw.selectors';
 import { AnalyticsEventCategory, setTestID, useAnalytics, useFormAnalytics } from 'lib/analytics';
@@ -101,9 +101,9 @@ export const SellStep = memo<SellStepProps>(
             <p className="text-gray-910" style={{ fontSize: 17 }}>
               {truncatedOrderId}
             </p>
-            <OldStyleCopyButton text={orderId} type="link">
+            <StyledCopyButton text={orderId} type="link">
               <CopyIcon className="h-4 ml-1 w-auto stroke-orange-500 stroke-2" onClick={copy} />
-            </OldStyleCopyButton>
+            </StyledCopyButton>
           </span>
         </div>
 

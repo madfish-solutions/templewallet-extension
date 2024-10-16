@@ -85,6 +85,7 @@ export async function dryRunOpParams({
           estimates,
           opParams: opParams.map((op, i) => {
             const eIndex = withReveal ? i + 1 : i;
+            // opParams previously formatted using withoutFeesOverride, reformating here
             return {
               ...omit(op, ['storage_limit', 'gas_limit']),
               fee: op.fee ?? estimates?.[eIndex].suggestedFeeMutez,

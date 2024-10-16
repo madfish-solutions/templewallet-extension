@@ -14,7 +14,7 @@ import clsx from 'clsx';
 import { noop } from 'lodash';
 
 import CleanButton from 'app/atoms/CleanButton';
-import OldStyleCopyButton from 'app/atoms/OldStyleCopyButton';
+import StyledCopyButton from 'app/atoms/StyledCopyButton';
 import { ReactComponent as PasteFillIcon } from 'app/icons/base/paste_fill.svg';
 import { ReactComponent as CopyIcon } from 'app/icons/monochrome/copy.svg';
 import { setTestID, TestIDProperty } from 'lib/analytics';
@@ -366,13 +366,13 @@ interface CopyableProps {
 }
 
 const Copyable: React.FC<CopyableProps> = ({ copy, value }) => (
-  <OldStyleCopyButton text={value} type="link">
+  <StyledCopyButton text={value} type="link">
     <CopyIcon
       style={{ verticalAlign: 'inherit' }}
       className="h-4 ml-1 w-auto inline stroke-orange-500 stroke-2"
       onClick={copy}
     />
-  </OldStyleCopyButton>
+  </StyledCopyButton>
 );
 
 interface ErrorCaptionProps {

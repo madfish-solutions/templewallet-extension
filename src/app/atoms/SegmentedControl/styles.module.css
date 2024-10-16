@@ -58,14 +58,10 @@
   width: var(--highlight-width);
   box-shadow: 0 2px 8px 0 #00000014;
   transform: translateX(var(--highlight-x-pos));
+  transition: transform 0.3s ease, width 0.3s ease;
   position: absolute;
   top: 2px;
   bottom: 2px;
   left: 0;
   z-index: 0;
-}
-
-/* Only allow transitions once component is ready */
-.controls.ready::before {
-  transition: transform 0.3s ease, width 0.3s ease;
 }

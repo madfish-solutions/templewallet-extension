@@ -62,7 +62,7 @@ export const EvmForm: FC<Props> = ({ chainId, assetSlug, onSelectAssetClick, onR
 
   const assetPrice = useAssetFiatCurrencyPrice(assetSlug, chainId, true);
 
-  const canToggleFiat = assetPrice.gt(ZERO);
+  const canToggleFiat = assetPrice.isPositive();
 
   const form = useForm<SendFormData>({
     mode: 'onSubmit',
@@ -75,33 +75,17 @@ export const EvmForm: FC<Props> = ({ chainId, assetSlug, onSelectAssetClick, onR
 
   const { data: resolvedAddress } = useEvmAddressByDomainName(toValue, network);
 
-  const toFilled = useMemo(
-    () => Boolean(toValue && (isAddress(toValue) || isString(resolvedAddress))),
-    [resolvedAddress, toValue]
-  );
+  const toFilled = Boolean(toValue && (isAddress(toValue) || isString(resolvedAddress)));
 
-  const toResolved = useMemo(() => {
-    if (resolvedAddress) return resolvedAddress;
-
-    return toValue;
-  }, [resolvedAddress, toValue]);
+  const toResolved = resolvedAddress || toValue;
 
   const isToFilledWithFamiliarAddress = useMemo(() => {
     if (!toFilled) return false;
 
-    let value = false;
+    if (allAccounts.some(acc => getAccountAddressForEvm(acc) === toResolved)) return true;
+    if (contacts?.some(contact => contact.address === toResolved)) return true;
 
-    allAccounts.forEach(acc => {
-      const evmAddress = getAccountAddressForEvm(acc);
-
-      if (evmAddress === toResolved) value = true;
-    });
-
-    contacts?.forEach(contact => {
-      if (contact.address === toResolved) value = true;
-    });
-
-    return value;
+    return false;
   }, [allAccounts, contacts, toFilled, toResolved]);
 
   const { data: estimationData, isValidating: estimating } = useEvmEstimationData(
@@ -119,9 +103,7 @@ export const EvmForm: FC<Props> = ({ chainId, assetSlug, onSelectAssetClick, onR
 
     if (!fee) return shouldUseFiat ? getMaxAmountFiat(assetPrice.toNumber(), balance) : balance;
 
-    const maxAmountAsset = isEvmNativeTokenSlug(assetSlug)
-      ? balance.minus(new BigNumber(fee ? formatEther(fee) : 0))
-      : balance;
+    const maxAmountAsset = isEvmNativeTokenSlug(assetSlug) ? balance.minus(formatEther(fee)) : balance;
 
     return shouldUseFiat ? getMaxAmountFiat(assetPrice.toNumber(), maxAmountAsset) : maxAmountAsset;
   }, [estimationData, assetSlug, balance, shouldUseFiat, assetPrice]);
@@ -147,12 +129,10 @@ export const EvmForm: FC<Props> = ({ chainId, assetSlug, onSelectAssetClick, onR
 
   const toAssetAmount = useCallback(
     (fiatAmount: BigNumber.Value) =>
-      new BigNumber(fiatAmount)
-        .dividedBy(assetPrice ?? 1)
-        .toFormat(assetMetadata?.decimals ?? 0, BigNumber.ROUND_FLOOR, {
-          decimalSeparator: '.'
-        }),
-    [assetPrice, assetMetadata?.decimals]
+      new BigNumber(fiatAmount).dividedBy(assetPrice ?? 1).toFormat(assetDecimals, BigNumber.ROUND_FLOOR, {
+        decimalSeparator: '.'
+      }),
+    [assetPrice, assetDecimals]
   );
 
   const onSubmit = useCallback(

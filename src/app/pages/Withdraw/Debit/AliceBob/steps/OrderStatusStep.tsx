@@ -3,7 +3,7 @@ import React, { FC, useCallback, useMemo } from 'react';
 import classNames from 'clsx';
 
 import { FormSubmitButton, Lines } from 'app/atoms';
-import OldStyleCopyButton from 'app/atoms/OldStyleCopyButton';
+import StyledCopyButton from 'app/atoms/StyledCopyButton';
 import { ReactComponent as CopyIcon } from 'app/icons/monochrome/copy.svg';
 import { WithdrawSelectors } from 'app/pages/Withdraw/Withdraw.selectors';
 import { AliceBobOrderStatus } from 'lib/apis/temple';
@@ -57,9 +57,9 @@ export const OrderStatusStep: FC<StepProps> = ({ orderInfo, setStep, setOrderInf
         </p>
         <span className="flex flex-row justify-center">
           <p className="text-gray-910">{truncatedOrderId}</p>
-          <OldStyleCopyButton text={orderId} type="link">
+          <StyledCopyButton text={orderId} type="link">
             <CopyIcon className="h-4 ml-1 w-auto stroke-orange-500 stroke-2" onClick={copy} />
-          </OldStyleCopyButton>
+          </StyledCopyButton>
         </span>
       </div>
 

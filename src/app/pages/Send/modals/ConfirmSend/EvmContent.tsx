@@ -18,7 +18,7 @@ import { BaseContent, Tab } from './BaseContent';
 import { DEFAULT_INPUT_DEBOUNCE } from './contants';
 import { useEvmEstimationDataState } from './context';
 import { useEvmFeeOptions } from './hooks/use-evm-fee-options';
-import { EvmTxParamsFormData, FeeOptionLabel } from './interfaces';
+import { EvmTxParamsFormData, FeeOptionLabel } from './types';
 
 interface EvmContentProps {
   data: EvmReviewData;

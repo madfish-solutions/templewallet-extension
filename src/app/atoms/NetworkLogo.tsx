@@ -79,11 +79,12 @@ interface NetworkLogoFallbackProps {
   networkName: string;
   size?: number;
   className?: string;
+  style?: CSSProperties;
 }
 
-export const NetworkLogoFallback = memo<NetworkLogoFallbackProps>(({ networkName, size = 16, className }) => (
+export const NetworkLogoFallback = memo<NetworkLogoFallbackProps>(({ networkName, size = 16, className, style }) => (
   <div
-    style={{ width: size, height: size, padding: size * 0.0625 }}
+    style={{ width: size, height: size, padding: size * 0.0625, ...style }}
     className={clsx('flex justify-center items-center border border-grey-4 bg-white rounded-full', className)}
   >
     <Identicon

@@ -53,6 +53,8 @@ export const TezosForm: FC<Props> = ({ chainId, assetSlug, onSelectAssetClick, o
   const assetMetadata = useTezosAssetMetadata(assetSlug, chainId);
   const assetPrice = useAssetFiatCurrencyPrice(assetSlug, chainId);
 
+  const assetDecimals = assetMetadata?.decimals ?? 0;
+
   const assetSymbol = useMemo(() => getAssetSymbol(assetMetadata), [assetMetadata]);
 
   const accountPkh = account.address;
@@ -86,29 +88,17 @@ export const TezosForm: FC<Props> = ({ chainId, assetSlug, onSelectAssetClick, o
 
   const { data: resolvedAddress } = useTezosAddressByDomainName(toValue, network);
 
-  const toFilled = useMemo(
-    () => (resolvedAddress ? toFilledWithDomain : toFilledWithAddress),
-    [toFilledWithAddress, toFilledWithDomain, resolvedAddress]
-  );
+  const toFilled = resolvedAddress ? toFilledWithDomain : toFilledWithAddress;
 
-  const toResolved = useMemo(() => resolvedAddress || toValue, [resolvedAddress, toValue]);
+  const toResolved = resolvedAddress || toValue;
 
   const isToFilledWithFamiliarAddress = useMemo(() => {
     if (!toFilled) return false;
 
-    let value = false;
+    if (allAccounts.some(acc => getAccountAddressForTezos(acc) === toResolved)) return true;
+    if (contacts?.some(contact => contact.address === toResolved)) return true;
 
-    allAccounts.forEach(acc => {
-      const tezosAddress = getAccountAddressForTezos(acc);
-
-      if (tezosAddress === toResolved) value = true;
-    });
-
-    contacts?.forEach(contact => {
-      if (contact.address === toResolved) value = true;
-    });
-
-    return value;
+    return false;
   }, [allAccounts, contacts, toFilled, toResolved]);
 
   const {
@@ -171,12 +161,10 @@ export const TezosForm: FC<Props> = ({ chainId, assetSlug, onSelectAssetClick, o
 
   const toAssetAmount = useCallback(
     (fiatAmount: BigNumber.Value) =>
-      new BigNumber(fiatAmount)
-        .dividedBy(assetPrice ?? 1)
-        .toFormat(assetMetadata?.decimals ?? 0, BigNumber.ROUND_FLOOR, {
-          decimalSeparator: '.'
-        }),
-    [assetPrice, assetMetadata?.decimals]
+      new BigNumber(fiatAmount).dividedBy(assetPrice ?? 1).toFormat(assetDecimals, BigNumber.ROUND_FLOOR, {
+        decimalSeparator: '.'
+      }),
+    [assetPrice, assetDecimals]
   );
 
   const onSubmit = useCallback(
@@ -234,7 +222,7 @@ export const TezosForm: FC<Props> = ({ chainId, assetSlug, onSelectAssetClick, o
         canToggleFiat={canToggleFiat}
         shouldUseFiat={shouldUseFiat}
         setShouldUseFiat={setShouldUseFiat}
-        assetDecimals={assetMetadata?.decimals ?? 0}
+        assetDecimals={assetDecimals}
         validateAmount={validateAmount}
         validateRecipient={validateRecipient}
         onSelectAssetClick={onSelectAssetClick}

@@ -26,7 +26,7 @@ import { getTezosFastRpcClient, michelEncoder } from 'temple/tezos';
 import { BaseContent, Tab } from './BaseContent';
 import { DEFAULT_INPUT_DEBOUNCE } from './contants';
 import { useTezosEstimationDataState } from './context';
-import { DisplayedFeeOptions, FeeOptionLabel, TezosTxParamsFormData } from './interfaces';
+import { DisplayedFeeOptions, FeeOptionLabel, TezosTxParamsFormData } from './types';
 import { getTezosFeeOption } from './utils';
 
 interface TezosContentProps {

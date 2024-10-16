@@ -6,7 +6,8 @@ import { getReadOnlyEvmForNetwork } from 'temple/evm';
 import { EvmChain } from 'temple/front/chains';
 
 async function resolveAddress(domainName: string, network: EvmChain) {
-  const publicClient = await getReadOnlyEvmForNetwork(network);
+  // need universalResolverAddress from ViemChain definition
+  const publicClient = getReadOnlyEvmForNetwork(network);
 
   return publicClient.getEnsAddress({
     name: normalize(domainName)

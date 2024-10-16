@@ -5,7 +5,7 @@ import constate from 'constate';
 import { EvmEstimationData } from 'app/pages/Send/hooks/use-evm-estimation-data';
 import { TezosEstimationData } from 'app/pages/Send/hooks/use-tezos-estimation-data';
 
-import { EvmFeeOptions } from './interfaces';
+import { EvmFeeOptions } from './types';
 
 interface ExtendedEvmEstimationData extends EvmEstimationData {
   feeOptions: EvmFeeOptions;

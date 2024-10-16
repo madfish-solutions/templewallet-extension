@@ -44,7 +44,7 @@ export const SelectAccountModal = memo<Props>(
           if (acc.id === currentStoredAccountId) return false;
 
           if (evm) return Boolean(getAccountAddressForEvm(acc));
-          else return Boolean(getAccountAddressForTezos(acc));
+          return Boolean(getAccountAddressForTezos(acc));
         }),
       [allStoredAccounts, currentStoredAccountId, evm]
     );
@@ -206,9 +206,7 @@ interface AccountOfGroupProps {
 
 const AccountOfGroup = memo<AccountOfGroupProps>(({ name, address, iconHash, isCurrent, attractSelf, onSelect }) => {
   const onClick = useCallback(() => {
-    if (isCurrent) return;
-
-    onSelect(address!);
+    if (!isCurrent) onSelect(address!);
   }, [address, isCurrent, onSelect]);
 
   const elemRef = useScrollIntoViewOnMount<HTMLDivElement>(isCurrent && attractSelf);

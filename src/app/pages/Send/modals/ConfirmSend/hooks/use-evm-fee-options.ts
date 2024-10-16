@@ -4,7 +4,7 @@ import { EvmEstimationData } from 'app/pages/Send/hooks/use-evm-estimation-data'
 import { useMemoWithCompare } from 'lib/ui/hooks';
 import { getGasPriceStep } from 'temple/evm/utils';
 
-import { DisplayedFeeOptions, EvmFeeOptions } from '../interfaces';
+import { DisplayedFeeOptions, EvmFeeOptions } from '../types';
 
 export const useEvmFeeOptions = (customGasLimit: string, estimationData?: EvmEstimationData): EvmFeeOptions | null =>
   useMemoWithCompare(() => {

@@ -6,11 +6,13 @@ import { formatEther } from 'viem';
 
 import AssetField from 'app/atoms/AssetField';
 import { t, T } from 'lib/i18n';
+import { TEZOS_METADATA } from 'lib/metadata';
 import { OneOfChains } from 'temple/front';
+import { DEFAULT_EVM_CURRENCY } from 'temple/networks';
 import { TempleChainKind } from 'temple/types';
 
 import { useEvmEstimationDataState, useTezosEstimationDataState } from '../context';
-import { DisplayedFeeOptions, EvmTxParamsFormData, FeeOptionLabel, TezosTxParamsFormData } from '../interfaces';
+import { DisplayedFeeOptions, EvmTxParamsFormData, FeeOptionLabel, TezosTxParamsFormData } from '../types';
 import { getTezosFeeOption, validateNonZero } from '../utils';
 
 import { FeeOptions } from './components/FeeOptions';
@@ -71,7 +73,7 @@ const EvmContent: FC<ContentProps> = ({ selectedOption, onOptionSelect }) => {
             value={value || gasPriceFallback}
             placeholder="1.0"
             min={0}
-            assetDecimals={18}
+            assetDecimals={DEFAULT_EVM_CURRENCY.decimals}
             rightSideComponent={<div className="text-font-description-bold text-grey-2">GWEI</div>}
             onChange={v => onChange(v ?? '')}
             onBlur={() => {
@@ -112,7 +114,7 @@ const TezosContent: FC<ContentProps> = ({ selectedOption, onOptionSelect }) => {
             value={value || gasFeeFallback}
             placeholder="1.0"
             min={0}
-            assetDecimals={6}
+            assetDecimals={TEZOS_METADATA.decimals}
             rightSideComponent={<div className="text-font-description-bold text-grey-2">TEZ</div>}
             onChange={v => onChange(v ?? '')}
             onBlur={() => {

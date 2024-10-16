@@ -138,7 +138,7 @@ export const BaseForm: FC<Props> = ({
 
   const toAssetAmount = useCallback(
     (fiatAmount: BigNumber.Value = ZERO) =>
-      new BigNumber(fiatAmount || '0').dividedBy(assetPrice ?? 1).toFormat(assetDecimals ?? 0, BigNumber.ROUND_FLOOR, {
+      new BigNumber(fiatAmount || '0').dividedBy(assetPrice ?? 1).toFormat(assetDecimals, BigNumber.ROUND_FLOOR, {
         decimalSeparator: '.'
       }),
     [assetPrice, assetDecimals]
@@ -160,7 +160,7 @@ export const BaseForm: FC<Props> = ({
       setValue(
         'amount',
         (newShouldUseFiat ? amountBN.multipliedBy(assetPrice) : amountBN.div(assetPrice)).toFormat(
-          newShouldUseFiat ? 2 : 6,
+          newShouldUseFiat ? 2 : assetDecimals,
           BigNumber.ROUND_FLOOR,
           {
             decimalSeparator: '.'
@@ -168,7 +168,7 @@ export const BaseForm: FC<Props> = ({
         )
       );
     },
-    [setShouldUseFiat, shouldUseFiat, getValues, assetPrice, setValue]
+    [shouldUseFiat, setShouldUseFiat, getValues, setValue, assetPrice, assetDecimals]
   );
 
   const handleRecipientAddressSelect = useCallback(
@@ -207,7 +207,7 @@ export const BaseForm: FC<Props> = ({
                 onFocus={handleAmountFieldFocus}
                 onChange={onChange}
                 extraFloatingInner={floatingAssetSymbol}
-                assetDecimals={shouldUseFiat ? 2 : assetDecimals ?? 0}
+                assetDecimals={shouldUseFiat ? 2 : assetDecimals}
                 cleanable={Boolean(amountValue)}
                 rightSideComponent={
                   <Button
