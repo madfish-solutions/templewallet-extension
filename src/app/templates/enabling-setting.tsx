@@ -8,7 +8,7 @@ interface EnablingSettingProps {
   title: ReactNode;
   enabled: boolean;
   description: ReactNode;
-  onChange: SyncFn<boolean>;
+  onChange: (value: boolean, event: React.ChangeEvent<HTMLInputElement>) => void;
   testID: string;
 }
 
