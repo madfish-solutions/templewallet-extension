@@ -286,7 +286,6 @@ module.exports = {
       gap: theme => theme('spacing'),
 
       borderRadius: {
-        2.5: '0.625rem', // 10px
         3: 3,
         5: 5,
         6: 6,
