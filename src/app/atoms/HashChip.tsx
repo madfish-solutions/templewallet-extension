@@ -2,6 +2,8 @@ import React, { ComponentProps, FC } from 'react';
 
 import clsx from 'clsx';
 
+import { getStyledButtonColorsClassNames } from 'lib/ui/button-like-styles';
+
 import { CopyButton, CopyButtonProps } from './CopyButton';
 import HashShortView from './HashShortView';
 
@@ -19,9 +21,9 @@ export const HashChip: FC<HashChipProps> = ({
   <CopyButton
     text={hash}
     className={clsx(
-      'bg-secondary-low hover:bg-secondary-hover-low',
+      getStyledButtonColorsClassNames('secondary-low'),
       'select-none transition ease-in-out duration-300',
-      'text-secondary text-font-description px-1 py-0.5 rounded',
+      'text-font-description px-1 py-0.5 rounded',
       className
     )}
     {...rest}
