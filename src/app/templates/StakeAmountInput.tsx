@@ -150,9 +150,9 @@ export const StakeAmountField: FC<Props> = ({
 
         {amountValue ? (
           <ConvertedInputAssetAmount
-            tezosChainId={tezosChainId}
+            chainId={tezosChainId}
             assetSlug={TEZ_TOKEN_SLUG}
-            assetMetadata={TEZOS_METADATA}
+            assetSymbol={TEZOS_METADATA.symbol}
             amountValue={inFiat ? convertFiatToAssetAmount(amountValue, assetPrice, decimals) : amountValue}
             toFiat={!inFiat}
           />

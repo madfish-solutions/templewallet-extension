@@ -22,6 +22,7 @@ export const [
   useAccount,
   useAccountAddressForTezos,
   useAccountForTezos,
+  useAccountForEvm,
   useAccountAddressForEvm,
   useSetAccountId,
   //
@@ -42,6 +43,7 @@ export const [
   v => v.account,
   v => v.accountAddressForTezos,
   v => v.accountForTezos,
+  v => v.accountForEvm,
   v => v.accountAddressForEvm,
   v => v.setAccountId,
   //

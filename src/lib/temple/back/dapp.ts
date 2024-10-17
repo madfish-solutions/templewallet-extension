@@ -40,7 +40,7 @@ import { StoredTezosNetwork, TEZOS_DEFAULT_NETWORKS } from 'temple/networks';
 import { loadTezosChainId } from 'temple/tezos';
 
 import { intercom } from './defaults';
-import { buildFinalOpParmas, dryRunOpParams } from './dryrun';
+import { buildFinalOpParams, dryRunOpParams } from './dryrun';
 import { withUnlocked } from './store';
 
 const CONFIRM_WINDOW_WIDTH = 380;
@@ -199,7 +199,7 @@ const handleIntercomRequest = async (
           vault.sendOperations(
             dApp.pkh,
             networkRpc,
-            buildFinalOpParmas(req.opParams, confirmReq.modifiedTotalFee, confirmReq.modifiedStorageLimit)
+            buildFinalOpParams(req.opParams, confirmReq.modifiedTotalFee, confirmReq.modifiedStorageLimit)
           )
         );
 

@@ -37,10 +37,10 @@ export {
 } from './tzdns';
 
 export const getTezosToolkitWithSigner = memoizee(
-  (rpcUrl: string, signerPkh: string) => {
+  (rpcUrl: string, signerPkh: string, straightaway?: boolean) => {
     const tezos = new ReactiveTezosToolkit(rpcUrl, signerPkh);
 
-    const wallet = new TempleTaquitoWallet(signerPkh, rpcUrl, setPendingConfirmationId);
+    const wallet = new TempleTaquitoWallet(signerPkh, rpcUrl, setPendingConfirmationId, straightaway);
     tezos.setWalletProvider(wallet);
 
     // TODO: Do we need signer, if wallet is provided ?
@@ -51,7 +51,10 @@ export const getTezosToolkitWithSigner = memoizee(
 
     return tezos;
   },
-  { max: MAX_MEMOIZED_TOOLKITS, normalizer: ([rpcUrl, signerPkh]) => makeTezosClientId(rpcUrl, signerPkh) }
+  {
+    max: MAX_MEMOIZED_TOOLKITS,
+    normalizer: ([rpcUrl, signerPkh, straightaway]) => makeTezosClientId(rpcUrl, signerPkh, straightaway)
+  }
 );
 
 class ReactiveTezosToolkit extends TezosToolkit {
@@ -68,7 +71,12 @@ class ReactiveTezosToolkit extends TezosToolkit {
 }
 
 class TempleTaquitoWallet implements WalletProvider {
-  constructor(private pkh: string, private rpc: string, private onBeforeSend?: (id: string) => void) {}
+  constructor(
+    private pkh: string,
+    private rpc: string,
+    private onBeforeSend?: (id: string) => void,
+    private straightaway?: boolean
+  ) {}
 
   async getPKH() {
     return this.pkh;
@@ -123,7 +131,8 @@ class TempleTaquitoWallet implements WalletProvider {
       id,
       sourcePkh: this.pkh,
       networkRpc: this.rpc,
-      opParams: opParams.map(formatOpParams)
+      opParams: opParams.map(formatOpParams),
+      straightaway: this.straightaway
     });
     assertResponse(res.type === TempleMessageType.OperationsResponse);
 

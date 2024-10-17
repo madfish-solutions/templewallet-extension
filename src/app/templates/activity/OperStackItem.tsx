@@ -1,6 +1,6 @@
 import React, { memo } from 'react';
 
-import { HashChip } from 'app/atoms';
+import { OldStyleHashChip } from 'app/atoms';
 import { ReactComponent as ClipboardIcon } from 'app/icons/clipboard.svg';
 import { TID, T } from 'lib/i18n';
 import { OperStackItemInterface, OperStackItemTypeEnum } from 'lib/temple/activity-new/types';
@@ -96,7 +96,7 @@ const StackItemArgs = memo<StackItemArgsProps>(({ i18nKey, args }) => (
       id={i18nKey}
       substitutions={args.map((value, index) => (
         <span key={index}>
-          <HashChip className="text-blue-600 opacity-75" key={index} hash={value} type="link" />
+          <OldStyleHashChip className="text-blue-600 opacity-75" key={index} hash={value} type="link" />
           {index === args.length - 1 ? null : ', '}
         </span>
       ))}

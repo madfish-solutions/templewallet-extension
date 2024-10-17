@@ -10,7 +10,8 @@ export { TEZOS_CONFIRMATION_TIMED_OUT_ERROR_MSG, confirmTezosOperation } from '.
 
 export const michelEncoder = new MichelCodecPacker();
 
-export const makeTezosClientId = (rpcUrl: string, accountPkh: string) => `${accountPkh}@${rpcUrl}`;
+export const makeTezosClientId = (rpcUrl: string, accountPkh: string, straightaway = false) =>
+  `${accountPkh}@${rpcUrl}@${straightaway}`;
 
 export const getReadOnlyTezos = memoizee(
   (rpcUrl: string) => {

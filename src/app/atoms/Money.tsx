@@ -2,6 +2,7 @@ import React, { FC, HTMLAttributes, memo, useCallback, useMemo, useRef } from 'r
 
 import BigNumber from 'bignumber.js';
 import classNames from 'clsx';
+import { Placement } from 'tippy.js';
 
 import { AnalyticsEventCategory, setTestID, TestIDProps, useAnalytics } from 'lib/analytics';
 import { getNumberSymbols, toLocalFixed, toLocalFormat, toShortened, t } from 'lib/i18n';
@@ -16,6 +17,7 @@ interface MoneyProps extends TestIDProps {
   shortened?: boolean;
   smallFractionFont?: boolean;
   tooltip?: boolean;
+  tooltipPlacement?: Placement;
 }
 
 const DEFAULT_CRYPTO_DECIMALS = 6;
@@ -30,6 +32,7 @@ const Money = memo<MoneyProps>(
     shortened,
     smallFractionFont = true,
     tooltip = true,
+    tooltipPlacement,
     testID,
     testIDProperties
   }) => {
@@ -60,6 +63,7 @@ const Money = memo<MoneyProps>(
           tooltip={tooltip}
           result={result}
           className={tippyClassName}
+          tooltipPlacement={tooltipPlacement}
           bn={bn}
           testID={testID}
           testIDProperties={testIDProperties}
@@ -71,6 +75,7 @@ const Money = memo<MoneyProps>(
       return (
         <MoneyWithoutFormat
           tooltip={tooltip}
+          tooltipPlacement={tooltipPlacement}
           className={tippyClassName}
           bn={bn}
           cryptoDecimals={cryptoDecimals}
@@ -85,6 +90,7 @@ const Money = memo<MoneyProps>(
     return (
       <MoneyWithFormat
         tooltip={tooltip}
+        tooltipPlacement={tooltipPlacement}
         result={result}
         className={tippyClassName}
         bn={bn}
@@ -105,13 +111,23 @@ interface JustMoneyProps extends TestIDProps {
   bn: BigNumber;
   className: string;
   result: string;
+  tooltipPlacement?: Placement;
 }
 
-const JustMoney: FC<JustMoneyProps> = ({ tooltip, bn, className, result, testID, testIDProperties }) => (
+const JustMoney: FC<JustMoneyProps> = ({
+  tooltip,
+  bn,
+  tooltipPlacement,
+  className,
+  result,
+  testID,
+  testIDProperties
+}) => (
   <FullAmountTippy
     enabled={tooltip}
     fullAmount={bn}
     className={className}
+    tooltipPlacement={tooltipPlacement}
     testID={testID}
     testIDProperties={testIDProperties}
   >
@@ -124,6 +140,7 @@ interface MoneyAnyFormatPropsBase extends TestIDProps {
   bn: BigNumber;
   className: string;
   smallFractionFont: boolean;
+  tooltipPlacement?: Placement;
 }
 
 interface MoneyWithoutFormatProps extends MoneyAnyFormatPropsBase {
@@ -152,6 +169,7 @@ const MoneyWithoutFormat: FC<MoneyWithoutFormatProps> = ({
   cryptoDecimals,
   roundingMode,
   smallFractionFont,
+  tooltipPlacement,
   testID,
   testIDProperties
 }) => {
@@ -170,6 +188,7 @@ const MoneyWithoutFormat: FC<MoneyWithoutFormatProps> = ({
       enabled={tooltip}
       fullAmount={bn}
       className={className}
+      tooltipPlacement={tooltipPlacement}
       showAmountTooltip
       testID={testID}
       testIDProperties={testIDProperties}
@@ -196,6 +215,7 @@ const MoneyWithFormat: FC<MoneyWithFormatProps> = ({
   indexOfDecimal,
   isFiat,
   smallFractionFont,
+  tooltipPlacement,
   testID,
   testIDProperties
 }) => {
@@ -212,6 +232,7 @@ const MoneyWithFormat: FC<MoneyWithFormatProps> = ({
       enabled={tooltip}
       fullAmount={fullAmount}
       className={className}
+      tooltipPlacement={tooltipPlacement}
       testID={testID}
       testIDProperties={testIDProperties}
     >
@@ -226,6 +247,7 @@ const MoneyWithFormat: FC<MoneyWithFormatProps> = ({
 interface FullAmountTippyProps extends HTMLAttributes<HTMLSpanElement>, TestIDProps {
   fullAmount: BigNumber;
   showAmountTooltip?: boolean;
+  tooltipPlacement?: Placement;
   enabled?: boolean;
 }
 
@@ -233,6 +255,7 @@ const FullAmountTippy: FC<FullAmountTippyProps> = ({
   fullAmount,
   onClick,
   showAmountTooltip,
+  tooltipPlacement = 'top',
   enabled = true,
   testID,
   testIDProperties,
@@ -256,6 +279,7 @@ const FullAmountTippy: FC<FullAmountTippyProps> = ({
       hideOnClick: false,
       content: tippyContent,
       animation: 'shift-away-subtle',
+      placement: tooltipPlacement,
       onCreate(instance) {
         tippyInstanceRef.current = instance;
         instance.enable();

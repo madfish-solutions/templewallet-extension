@@ -5,7 +5,7 @@ import BigNumber from 'bignumber.js';
 import classNames from 'clsx';
 import { Collapse } from 'react-collapse';
 
-import { HashChip, Money, Identicon } from 'app/atoms';
+import { OldStyleHashChip, Money, Identicon } from 'app/atoms';
 import PlainAssetInput from 'app/atoms/PlainAssetInput';
 import { ReactComponent as ChevronDownIcon } from 'app/icons/chevron-down.svg';
 import { ReactComponent as ClipboardIcon } from 'app/icons/clipboard.svg';
@@ -441,7 +441,7 @@ const OperationArgumentDisplay = memo<OperationArgumentDisplayProps>(({ i18nKey,
         {arg.map((value, index) => (
           <span key={index}>
             &nbsp;
-            <HashChip className="text-blue-600 opacity-75" key={index} hash={value} type="link" />
+            <OldStyleHashChip className="text-blue-600 opacity-75" key={index} hash={value} type="link" />
             {index === arg.length - 1 ? null : ','}
           </span>
         ))}
