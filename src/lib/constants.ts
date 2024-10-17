@@ -7,6 +7,8 @@ export enum ContentScriptType {
   ReferralClick = 'ReferralClick'
 }
 
+export const AD_CATEGORIES_PARAM_NAME = 'categories';
+
 export const ORIGIN_SEARCH_PARAM_NAME = 'o';
 
 export const ADS_META_SEARCH_PARAM_NAME = 'ads-meta';

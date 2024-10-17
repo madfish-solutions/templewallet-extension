@@ -640,10 +640,6 @@
     "message": "Tezos Mainnet",
     "description": "Mainnet = main network"
   },
-  "marigoldMainnet": {
-    "message": "Marigold Mainnet",
-    "description": "Mainnet = main network"
-  },
   "templeWalletOptions": {
     "message": "Temple Wallet | Options"
   },
@@ -1099,7 +1095,7 @@
     "message": "Earn"
   },
   "delegationPointsHead2": {
-    "message": "on your Tezos annualy from\nBaking & Stake rewards"
+    "message": "on your Tezos annually from\nBaking & Stake rewards"
   },
   "delegationPoint1": {
     "message": "First reward in Tezos will be paid approximately in 36 days."
@@ -3115,7 +3111,12 @@
     "message": "Cashback"
   },
   "swapCashbackDescription": {
-    "message": "Swap more than 10$ and receive 0.175% from the swapped amount in the TKEY token as a cashback"
+    "message": "Swap more than 10$$ and receive $text$% from the swapped amount in the TKEY token as a cashback",
+    "placeholders": {
+      "text": {
+        "content": "$1"
+      }
+    }
   },
   "jumpInTezos": {
     "message": "Jump in Tezos right now!"
