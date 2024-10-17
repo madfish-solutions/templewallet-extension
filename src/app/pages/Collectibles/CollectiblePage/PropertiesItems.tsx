@@ -2,7 +2,7 @@ import React, { memo, useMemo } from 'react';
 
 import BigNumber from 'bignumber.js';
 
-import { HashChip, ExternalLinkChip } from 'app/atoms';
+import { OldStyleHashChip, ExternalLinkChip } from 'app/atoms';
 import { useRawEvmAssetBalanceSelector } from 'app/store/evm/balances/selectors';
 import type { CollectibleDetails } from 'app/store/tezos/collectibles/state';
 import { fromFa2TokenSlug } from 'lib/assets/utils';
@@ -73,7 +73,7 @@ export const PropertiesItems = memo<PropertiesItemsProps>(({ network, assetSlug,
       <div className={itemClassName}>
         <h6 className={itemTitleClassName}>Contract</h6>
         <div className="flex gap-x-1.5">
-          <HashChip
+          <OldStyleHashChip
             hash={contract}
             firstCharsCount={5}
             lastCharsCount={5}
@@ -126,7 +126,7 @@ export const EvmPropertiesItems = memo<EvmPropertiesItemsProps>(({ accountPkh, e
       <div className={itemClassName}>
         <h6 className={itemTitleClassName}>Contract</h6>
         <div className="flex gap-x-1.5">
-          <HashChip
+          <OldStyleHashChip
             hash={metadata.address}
             firstCharsCount={5}
             lastCharsCount={5}

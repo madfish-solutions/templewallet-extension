@@ -20,7 +20,7 @@ export { IconBase } from './IconBase';
 
 export { default as HashShortView } from './HashShortView';
 
-export { HashChip } from './HashChip';
+export { OldStyleHashChip } from './OldStyleHashChip';
 
 export { Lines } from './Lines';
 

@@ -3,7 +3,7 @@ import React, { FC, memo, useMemo } from 'react';
 import BigNumber from 'bignumber.js';
 import clsx from 'clsx';
 
-import { Identicon, Name, Money, HashChip, Divider } from 'app/atoms';
+import { Identicon, Name, Money, OldStyleHashChip, Divider } from 'app/atoms';
 import { useAppEnv } from 'app/env';
 import { useStakedAmount } from 'app/hooks/use-baking-hooks';
 import { BakingSectionSelectors } from 'app/pages/Home/OtherComponents/BakingSection/selectors';
@@ -245,7 +245,7 @@ const UnknownBakerName = memo<{ bakerPkh: string }>(({ bakerPkh }) => {
         <T id="unknownBakerTitle" />
       </BakerName>
 
-      <HashChip bgShade={200} rounded="base" hash={bakerPkh} small textShade={700} />
+      <OldStyleHashChip bgShade={200} rounded="base" hash={bakerPkh} small textShade={700} />
     </div>
   );
 });

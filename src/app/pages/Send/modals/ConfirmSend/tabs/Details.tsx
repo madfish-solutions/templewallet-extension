@@ -3,7 +3,8 @@ import React, { FC, useMemo } from 'react';
 import BigNumber from 'bignumber.js';
 import clsx from 'clsx';
 
-import { HashChip, IconBase } from 'app/atoms';
+import { IconBase } from 'app/atoms';
+import { HashChip } from 'app/atoms/HashChip';
 import Money from 'app/atoms/Money';
 import { EvmNetworkLogo, TezosNetworkLogo } from 'app/atoms/NetworkLogo';
 import { ReactComponent as ChevronRightIcon } from 'app/icons/base/chevron_right.svg';
@@ -52,7 +53,7 @@ export const DetailsTab: FC<Props> = ({
         <p className="p-1 text-font-description text-grey-1">
           <T id="recipient" />
         </p>
-        <HashChip hash={recipientAddress} small rounded="base" textShade={100} bgShade={50} />
+        <HashChip hash={recipientAddress} />
       </div>
 
       <div

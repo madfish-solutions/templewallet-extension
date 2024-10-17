@@ -37,6 +37,10 @@ interface TezosContentProps {
 export const TezosContent: FC<TezosContentProps> = ({ data, onClose }) => {
   const { account, network, assetSlug, to, amount } = data;
 
+  const assetMetadata = useTezosAssetMetadata(assetSlug, network.chainId);
+
+  if (!assetMetadata) throw new Error('Metadata not found');
+
   const accountPkh = account.address;
 
   const form = useForm<TezosTxParamsFormData>({ mode: 'onChange' });
@@ -50,8 +54,6 @@ export const TezosContent: FC<TezosContentProps> = ({ data, onClose }) => {
   const [tab, setTab] = useState<Tab>('details');
   const [selectedFeeOption, setSelectedFeeOption] = useState<FeeOptionLabel | null>('mid');
   const [latestSubmitError, setLatestSubmitError] = useState<string | nullish>(null);
-
-  const assetMetadata = useTezosAssetMetadata(assetSlug, network.chainId);
 
   const { value: balance = ZERO } = useTezosAssetBalance(assetSlug, accountPkh, network);
   const { value: tezBalance = ZERO } = useTezosAssetBalance(TEZ_TOKEN_SLUG, accountPkh, network);
@@ -118,11 +120,11 @@ export const TezosContent: FC<TezosContentProps> = ({ data, onClose }) => {
       tezos: TezosToolkit,
       gasFee: string,
       storageLimit: string,
-      assetMetadata?: AssetMetadataBase,
+      assetMetadata: AssetMetadataBase,
       estimationData?: TezosEstimationData,
       displayedFeeOptions?: DisplayedFeeOptions
     ) => {
-      if (!assetMetadata || !estimationData || !displayedFeeOptions) return;
+      if (!estimationData || !displayedFeeOptions) return;
 
       let operation: TransactionWalletOperation | TransactionOperation;
 
@@ -209,11 +211,7 @@ export const TezosContent: FC<TezosContentProps> = ({ data, onClose }) => {
 
         if (!estimationData || !displayedFeeOptions) {
           toastError('Failed to estimate transaction.');
-          return;
-        }
 
-        if (!assetMetadata) {
-          toastError('Metadata not found');
           return;
         }
 

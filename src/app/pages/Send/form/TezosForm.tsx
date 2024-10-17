@@ -47,13 +47,16 @@ export const TezosForm: FC<Props> = ({ chainId, assetSlug, onSelectAssetClick, o
 
   if (!account || !network) throw new DeadEndBoundaryError();
 
+  const assetMetadata = useTezosAssetMetadata(assetSlug, chainId);
+
+  if (!assetMetadata) throw new Error('Metadata not found');
+
   const allAccounts = useVisibleAccounts();
   const { contacts } = useSettings();
 
-  const assetMetadata = useTezosAssetMetadata(assetSlug, chainId);
   const assetPrice = useAssetFiatCurrencyPrice(assetSlug, chainId);
 
-  const assetDecimals = assetMetadata?.decimals ?? 0;
+  const assetDecimals = assetMetadata.decimals ?? 0;
 
   const assetSymbol = useMemo(() => getAssetSymbol(assetMetadata), [assetMetadata]);
 
@@ -179,8 +182,6 @@ export const TezosForm: FC<Props> = ({ chainId, assetSlug, onSelectAssetClick, o
       formAnalytics.trackSubmit();
 
       try {
-        if (!assetMetadata) throw new Error('Metadata not found');
-
         const actualAmount = shouldUseFiat ? toAssetAmount(amount) : amount;
 
         onReview({ account, assetSlug, network, amount: actualAmount, to: toResolved });
@@ -196,7 +197,6 @@ export const TezosForm: FC<Props> = ({ chainId, assetSlug, onSelectAssetClick, o
     },
     [
       account,
-      assetMetadata,
       assetSlug,
       estimationError,
       formAnalytics,

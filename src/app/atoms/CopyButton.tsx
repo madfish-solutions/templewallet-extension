@@ -8,7 +8,7 @@ import { t } from 'lib/i18n';
 import useCopyToClipboard from 'lib/ui/useCopyToClipboard';
 import useTippy from 'lib/ui/useTippy';
 
-interface CopyButtonProps extends HTMLAttributes<HTMLButtonElement>, TestIDProps {
+export interface CopyButtonProps extends HTMLAttributes<HTMLButtonElement>, TestIDProps {
   text: string;
   isSecret?: boolean;
   shouldShowTooltip?: boolean;

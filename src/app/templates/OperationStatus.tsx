@@ -2,7 +2,7 @@ import React, { FC, ReactNode, useEffect, useMemo } from 'react';
 
 import type { WalletOperation } from '@taquito/taquito';
 
-import { HashChip, Alert } from 'app/atoms';
+import { OldStyleHashChip, Alert } from 'app/atoms';
 import { setTestID } from 'lib/analytics';
 import { T, t } from 'lib/i18n';
 import { useSafeState } from 'lib/ui/hooks';
@@ -38,7 +38,7 @@ const OperationStatus: FC<OperationStatusProps> = ({ network, typeTitle, operati
           <T id="operationHash" />:{' '}
         </div>
 
-        <HashChip hash={hash} firstCharsCount={10} lastCharsCount={7} small key="hash" className="mx-2" />
+        <OldStyleHashChip hash={hash} firstCharsCount={10} lastCharsCount={7} small key="hash" className="mx-2" />
 
         <OpenInExplorerChip tezosChainId={chainId} hash={hash} small />
       </div>

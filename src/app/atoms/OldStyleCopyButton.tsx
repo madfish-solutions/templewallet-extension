@@ -7,30 +7,30 @@ import { TestIDProps } from 'lib/analytics';
 import { CopyButton } from './CopyButton';
 
 const TEXT_SHADES = {
-  100: 'text-secondary',
   500: 'text-gray-500',
   600: 'text-gray-600',
   700: 'text-gray-700'
 };
 
 const BG_SHADES = {
-  50: 'bg-secondary-low hover:bg-secondary-hover-low',
   100: 'bg-gray-100 hover:bg-gray-200',
   200: 'bg-gray-200 hover:bg-gray-300'
 };
 
-export type StyledCopyButtonProps = HTMLAttributes<HTMLButtonElement> &
+/** @deprecated */
+export type OldStyleCopyButtonProps = HTMLAttributes<HTMLButtonElement> &
   TestIDProps & {
-    bgShade?: 50 | 100 | 200;
+    bgShade?: 100 | 200;
     rounded?: 'sm' | 'base';
     text: string;
     small?: boolean;
     type?: 'button' | 'link';
-    textShade?: 100 | 500 | 600 | 700;
+    textShade?: 500 | 600 | 700;
     isSecret?: boolean;
   };
 
-const StyledCopyButton: FC<StyledCopyButtonProps> = ({
+/** @deprecated */
+const OldStyleCopyButton: FC<OldStyleCopyButtonProps> = ({
   bgShade = 100,
   children,
   text,
@@ -75,4 +75,4 @@ const StyledCopyButton: FC<StyledCopyButtonProps> = ({
   );
 };
 
-export default StyledCopyButton;
+export default OldStyleCopyButton;

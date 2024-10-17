@@ -4,7 +4,7 @@ import classNames from 'clsx';
 import { useForm } from 'react-hook-form';
 import { isAddress } from 'viem';
 
-import { FormField, FormSubmitButton, HashChip, Name, SubTitle } from 'app/atoms';
+import { FormField, FormSubmitButton, OldStyleHashChip, Name, SubTitle } from 'app/atoms';
 import { AccountAvatar } from 'app/atoms/AccountAvatar';
 import { ReactComponent as CloseIcon } from 'app/icons/close.svg';
 import { ChainSelectSection, useChainSelectController } from 'app/templates/ChainSelect';
@@ -242,7 +242,7 @@ const ContactContent: React.FC<OptionRenderProps<TempleContact, string, ContactA
       <Name className="mb-px text-sm font-medium leading-tight text-left">{item.name}</Name>
 
       <div className="text-xs font-light leading-tight text-gray-600">
-        <HashChip hash={item.address} small />
+        <OldStyleHashChip hash={item.address} small />
       </div>
     </div>
 

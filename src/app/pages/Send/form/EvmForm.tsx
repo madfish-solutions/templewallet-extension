@@ -41,6 +41,11 @@ export const EvmForm: FC<Props> = ({ chainId, assetSlug, onSelectAssetClick, onR
 
   if (!account || !network) throw new DeadEndBoundaryError();
 
+  const storedMetadata = useEvmTokenMetadataSelector(network.chainId, assetSlug);
+  const assetMetadata = isEvmNativeTokenSlug(assetSlug) ? network?.currency : storedMetadata;
+
+  if (!assetMetadata) throw new Error('Metadata not found');
+
   const allAccounts = useVisibleAccounts();
   const { contacts } = useSettings();
 
@@ -53,10 +58,7 @@ export const EvmForm: FC<Props> = ({ chainId, assetSlug, onSelectAssetClick, onR
 
   const [shouldUseFiat, setShouldUseFiat] = useSafeState(false);
 
-  const storedMetadata = useEvmTokenMetadataSelector(network.chainId, assetSlug);
-  const assetMetadata = isEvmNativeTokenSlug(assetSlug) ? network?.currency : storedMetadata;
-
-  const assetDecimals = assetMetadata?.decimals ?? 0;
+  const assetDecimals = assetMetadata.decimals ?? 0;
 
   const assetSymbol = useMemo(() => getAssetSymbol(assetMetadata), [assetMetadata]);
 

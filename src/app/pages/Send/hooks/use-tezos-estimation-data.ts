@@ -31,7 +31,7 @@ export const useTezosEstimationData = (
   assetSlug: string,
   balance: BigNumber,
   tezBalance: BigNumber,
-  assetMetadata?: AssetMetadataBase,
+  assetMetadata: AssetMetadataBase,
   toFilled?: boolean
 ) => {
   const estimate = useCallback(async (): Promise<TezosEstimationData | undefined> => {
@@ -39,11 +39,6 @@ export const useTezosEstimationData = (
       const isTez = isTezAsset(assetSlug);
 
       checkZeroBalance(balance, tezBalance, isTez);
-
-      if (!assetMetadata) {
-        toastError('Asset metadata not found');
-        return;
-      }
 
       const [transferParams, manager] = await Promise.all([
         toTransferParams(tezos, assetSlug, assetMetadata, accountPkh, to, toPenny(assetMetadata)),
