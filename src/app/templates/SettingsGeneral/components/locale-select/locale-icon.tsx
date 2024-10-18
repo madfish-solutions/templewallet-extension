@@ -3,8 +3,7 @@ import React, { memo } from 'react';
 import browser from 'webextension-polyfill';
 
 import Flag from 'app/atoms/Flag';
-
-import { CellPartProps } from '../select-with-modal';
+import { CellPartProps } from 'app/templates/select-with-modal';
 
 import { LocaleOption } from './options';
 

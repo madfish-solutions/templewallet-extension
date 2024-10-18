@@ -54,7 +54,7 @@ export const PartnersPromotionSettings = memo(() => {
 
   return (
     <EnablingSetting
-      titleI18nKey="partnersPromoSettings"
+      title={<T id="partnersPromoSettings" />}
       description={<T id="partnersPromoDescription" />}
       enabled={shouldShowPartnersPromo}
       onChange={togglePartnersPromotion}

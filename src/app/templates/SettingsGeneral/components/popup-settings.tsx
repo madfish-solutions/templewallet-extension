@@ -1,9 +1,9 @@
 import React, { memo, useCallback, useRef } from 'react';
 
-import { EnablingSetting } from 'app/templates/enabling-setting';
 import { T } from 'lib/i18n';
 import { isPopupModeEnabled, setPopupMode } from 'lib/popup-mode';
 
+import { EnablingSetting } from '../../enabling-setting';
 import { SettingsGeneralSelectors } from '../selectors';
 
 export const PopupSettings = memo(() => {
@@ -21,7 +21,7 @@ export const PopupSettings = memo(() => {
 
   return (
     <EnablingSetting
-      titleI18nKey="popupSettings"
+      title={<T id="popupSettings" />}
       description={<T id="popupSettingsDescription" />}
       enabled={popupEnabled}
       onChange={handlePopupModeChange}
