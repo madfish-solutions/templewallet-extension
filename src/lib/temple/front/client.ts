@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import constate from 'constate';
 import { omit } from 'lodash';
@@ -17,16 +17,18 @@ import {
   TempleAccountType,
   WalletSpecs
 } from 'lib/temple/types';
-import { fetchState } from 'temple/front/fetch-state';
+import { useDidMount } from 'lib/ui/hooks';
 import {
   intercomClient,
   makeIntercomRequest as request,
   assertResponse,
-  getAccountPublicKey
+  getAccountPublicKey,
+  makeIntercomRequest
 } from 'temple/front/intercom-client';
 import { getPendingConfirmationId, resetPendingConfirmationId } from 'temple/front/pending-confirm';
 import { TempleChainKind } from 'temple/types';
 
+import { shouldLockOnStartup } from './lock';
 import { useStorage } from './storage';
 
 type Confirmation = {
@@ -40,6 +42,22 @@ export const [TempleClientProvider, useTempleClient] = constate(() => {
    * State
    */
 
+  const didMountRef = useRef(false);
+  useDidMount(() => void (didMountRef.current = true));
+
+  const fetchState = useCallback(async () => {
+    const res = await makeIntercomRequest({ type: TempleMessageType.GetStateRequest });
+    assertResponse(res.type === TempleMessageType.GetStateResponse);
+
+    if (didMountRef.current || res.state.status !== TempleStatus.Ready) {
+      return res.state;
+    }
+
+    const isLocked = await shouldLockOnStartup();
+
+    return isLocked ? { status: TempleStatus.Locked, accounts: [], settings: null } : res.state;
+  }, []);
+
   const { data, mutate } = useRetryableSWR('state', fetchState, {
     suspense: true,
     shouldRetryOnError: false,
@@ -51,9 +69,6 @@ export const [TempleClientProvider, useTempleClient] = constate(() => {
   const [confirmation, setConfirmation] = useState<Confirmation | null>(null);
 
   useEffect(() => {
-    // The state may have been updated during the first render
-    mutate();
-
     return intercomClient.subscribe((msg: TempleNotification) => {
       switch (msg?.type) {
         case TempleMessageType.StateUpdated:
