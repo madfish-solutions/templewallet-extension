@@ -19,6 +19,8 @@ interface Props {
   dexType: Route3DexTypeEnum | null;
 }
 
+// TODO: use this component to display a route
+// ts-prune-ignore-next
 export const DexTypeIcon: FC<Props> = ({ dexType }) => {
   switch (dexType) {
     case Route3DexTypeEnum.QuipuSwapDex2:

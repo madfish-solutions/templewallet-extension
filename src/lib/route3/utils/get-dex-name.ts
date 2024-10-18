@@ -1,5 +1,7 @@
 import { Route3DexTypeEnum } from 'lib/apis/route3/fetch-route3-dexes';
 
+// TODO: use this function to display a route
+// ts-prune-ignore-next
 export const getDexName = (dexType: Route3DexTypeEnum | undefined) => {
   switch (dexType) {
     case Route3DexTypeEnum.QuipuSwapDex2:

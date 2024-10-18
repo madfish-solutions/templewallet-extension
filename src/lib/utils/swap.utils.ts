@@ -1,66 +1,67 @@
-import { ContractMethod, ContractProvider, TezosToolkit, TransferParams, Wallet } from '@taquito/taquito';
+import { MichelsonMap } from '@taquito/michelson-encoder';
+import { ContractMethodObject, ContractProvider, TezosToolkit, TransferParams, Wallet } from '@taquito/taquito';
 import { BigNumber } from 'bignumber.js';
 
 import { Route3Token } from 'lib/apis/route3/fetch-route3-tokens';
-import { TZBTC_TOKEN_METADATA } from 'lib/assets/known-tokens';
-import { THREE_ROUTE_SIRS_TOKEN } from 'lib/assets/three-route-tokens';
-import { TEZOS_METADATA } from 'lib/metadata';
 import {
   APP_ID,
   ATOMIC_INPUT_THRESHOLD_FOR_FEE_FROM_INPUT,
   LIQUIDITY_BAKING_PROXY_CONTRACT,
   ROUTE3_CONTRACT,
-  ROUTING_FEE_RATIO
+  ROUTING_FEE_PERCENT,
+  SWAP_CASHBACK_PERCENT
 } from 'lib/route3/constants';
-import { isSwapChains, Route3LiquidityBakingChains, Route3SwapChains } from 'lib/route3/interfaces';
+import { isSwapHops, Route3LiquidityBakingHops, Route3SwapHops } from 'lib/route3/interfaces';
 import { isRoute3GasToken } from 'lib/route3/utils/assets.utils';
+import { getAtomicValuePercentage } from 'lib/route3/utils/get-atomic-value-percentage';
 import { mapToRoute3ExecuteHops } from 'lib/route3/utils/map-to-route3-hops';
 import { loadContract } from 'lib/temple/contract';
 
 import { getTransferPermissions } from './get-transfer-permissions';
 import { ZERO } from './numbers';
 
+function toMichelsonMap<T>(arr: T[]): MichelsonMap<string, T> {
+  return arr.reduce((acc, item, index) => {
+    acc.set(index.toString(), item);
+
+    return acc;
+  }, new MichelsonMap<string, T>());
+}
+
 export const getSwapTransferParams = async (
   fromRoute3Token: Route3Token,
   toRoute3Token: Route3Token,
   inputAmountAtomic: BigNumber,
   minimumReceivedAtomic: BigNumber,
-  chains: Route3SwapChains | Route3LiquidityBakingChains,
+  chains: Route3LiquidityBakingHops | Route3SwapHops,
   tezos: TezosToolkit,
   accountPkh: string
 ) => {
   const resultParams: Array<TransferParams> = [];
-  let swapMethod: ContractMethod<Wallet | ContractProvider>;
+  let swapMethod: ContractMethodObject<Wallet | ContractProvider>;
 
-  if (isSwapChains(chains)) {
+  if (isSwapHops(chains)) {
     const swapContract = await loadContract(tezos, ROUTE3_CONTRACT, false);
-    swapMethod = swapContract.methods.execute(
-      fromRoute3Token.id,
-      toRoute3Token.id,
-      minimumReceivedAtomic,
-      accountPkh,
-      mapToRoute3ExecuteHops(chains.chains, fromRoute3Token.decimals),
-      APP_ID
-    );
+    swapMethod = swapContract.methodsObject.execute({
+      token_in_id: fromRoute3Token.id,
+      token_out_id: toRoute3Token.id,
+      min_out: minimumReceivedAtomic,
+      receiver: accountPkh,
+      hops: toMichelsonMap(mapToRoute3ExecuteHops(chains.hops)),
+      app_id: APP_ID
+    });
   } else {
     const liquidityBakingProxyContract = await loadContract(tezos, LIQUIDITY_BAKING_PROXY_CONTRACT, false);
-    const isDivestingFromLb = fromRoute3Token.symbol === THREE_ROUTE_SIRS_TOKEN.symbol;
-    swapMethod = liquidityBakingProxyContract.methods.swap(
-      fromRoute3Token.id,
-      toRoute3Token.id,
-      mapToRoute3ExecuteHops(
-        chains.xtzChain.chains,
-        isDivestingFromLb ? TEZOS_METADATA.decimals : fromRoute3Token.decimals
-      ),
-      mapToRoute3ExecuteHops(
-        chains.tzbtcChain.chains,
-        isDivestingFromLb ? TZBTC_TOKEN_METADATA.decimals : fromRoute3Token.decimals
-      ),
-      inputAmountAtomic,
-      minimumReceivedAtomic,
-      accountPkh,
-      APP_ID
-    );
+    swapMethod = liquidityBakingProxyContract.methodsObject.swap({
+      token_in_id: fromRoute3Token.id,
+      token_out_id: toRoute3Token.id,
+      tez_hops: toMichelsonMap(mapToRoute3ExecuteHops(chains.xtzHops)),
+      tzbtc_hops: toMichelsonMap(mapToRoute3ExecuteHops(chains.tzbtcHops)),
+      amount_in: inputAmountAtomic,
+      min_out: minimumReceivedAtomic,
+      receiver: accountPkh,
+      app_id: APP_ID
+    });
   }
 
   if (fromRoute3Token.symbol.toLowerCase() === 'xtz') {
@@ -76,7 +77,7 @@ export const getSwapTransferParams = async (
 
   const { approve, revoke } = await getTransferPermissions(
     tezos,
-    isSwapChains(chains) ? ROUTE3_CONTRACT : LIQUIDITY_BAKING_PROXY_CONTRACT,
+    isSwapHops(chains) ? ROUTE3_CONTRACT : LIQUIDITY_BAKING_PROXY_CONTRACT,
     accountPkh,
     fromRoute3Token,
     inputAmountAtomic
@@ -88,24 +89,29 @@ export const getSwapTransferParams = async (
   return resultParams;
 };
 
-export const calculateRoutingInputAndFeeFromInput = (inputAmount: BigNumber | undefined) => {
+export const calculateSidePaymentsFromInput = (inputAmount: BigNumber | undefined) => {
   const swapInputAtomic = (inputAmount ?? ZERO).integerValue(BigNumber.ROUND_DOWN);
   const shouldTakeFeeFromInput = swapInputAtomic.gte(ATOMIC_INPUT_THRESHOLD_FOR_FEE_FROM_INPUT);
-  const swapInputMinusFeeAtomic = shouldTakeFeeFromInput
-    ? swapInputAtomic.times(ROUTING_FEE_RATIO).integerValue(BigNumber.ROUND_DOWN)
-    : swapInputAtomic;
-  const routingFeeFromInputAtomic = swapInputAtomic.minus(swapInputMinusFeeAtomic);
+  const inputFeeAtomic = shouldTakeFeeFromInput ? getAtomicValuePercentage(swapInputAtomic, ROUTING_FEE_PERCENT) : ZERO;
+  const cashbackSwapInputAtomic = shouldTakeFeeFromInput
+    ? getAtomicValuePercentage(swapInputAtomic, SWAP_CASHBACK_PERCENT)
+    : ZERO;
+  const swapInputMinusFeeAtomic = swapInputAtomic.minus(inputFeeAtomic);
 
   return {
-    swapInputMinusFeeAtomic,
-    routingFeeFromInputAtomic
+    inputFeeAtomic,
+    cashbackSwapInputAtomic,
+    swapInputMinusFeeAtomic
   };
 };
 
-export const calculateFeeFromOutput = (inputAmount: BigNumber | undefined, outputAmount: BigNumber) =>
-  (inputAmount ?? ZERO).gte(ATOMIC_INPUT_THRESHOLD_FOR_FEE_FROM_INPUT)
+export const calculateOutputFeeAtomic = (inputAmount: BigNumber | undefined, outputAmount: BigNumber) => {
+  const swapInputAtomic = (inputAmount ?? ZERO).integerValue(BigNumber.ROUND_DOWN);
+
+  return swapInputAtomic.gte(ATOMIC_INPUT_THRESHOLD_FOR_FEE_FROM_INPUT)
     ? ZERO
-    : outputAmount.times(1 - ROUTING_FEE_RATIO).integerValue(BigNumber.ROUND_UP);
+    : getAtomicValuePercentage(outputAmount, ROUTING_FEE_PERCENT);
+};
 
 export const getRoutingFeeTransferParams = async (
   token: Route3Token,

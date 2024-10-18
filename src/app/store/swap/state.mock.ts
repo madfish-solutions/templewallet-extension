@@ -3,7 +3,7 @@ import { createEntity } from 'lib/store';
 
 import type { SwapState } from './state';
 
-export const DEFAULT_SWAP_PARAMS: Route3SwapParamsResponse = { input: undefined, output: undefined, chains: [] };
+export const DEFAULT_SWAP_PARAMS: Route3SwapParamsResponse = { input: undefined, output: undefined, hops: [] };
 
 export const mockSwapState: SwapState = {
   swapParams: createEntity(DEFAULT_SWAP_PARAMS),
