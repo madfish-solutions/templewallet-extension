@@ -17,14 +17,14 @@ export const useSwap = () => {
       toRoute3Token: Route3Token,
       inputAmountAtomic: BigNumber,
       minimumReceivedAtomic: BigNumber,
-      chains: Route3SwapHops | Route3LiquidityBakingHops
+      hops: Route3SwapHops | Route3LiquidityBakingHops
     ) =>
       getSwapTransferParams(
         fromRoute3Token,
         toRoute3Token,
         inputAmountAtomic,
         minimumReceivedAtomic,
-        chains,
+        hops,
         tezos,
         publicKeyHash
       ),

@@ -114,7 +114,7 @@ export const SwapForm: FC = () => {
     }
   }, [swapParams.data.output, outputAssetMetadata.decimals, slippageRatio]);
 
-  const chainsAreAbsent = isLiquidityBakingParamsResponse(swapParams.data)
+  const hopsAreAbsent = isLiquidityBakingParamsResponse(swapParams.data)
     ? swapParams.data.tzbtcHops.length === 0 && swapParams.data.xtzHops.length === 0
     : swapParams.data.hops.length === 0;
 
@@ -184,12 +184,12 @@ export const SwapForm: FC = () => {
   }, [blockLevel, dispatchLoadSwapParams, fromRoute3Token, inputValue, outputValue, toRoute3Token]);
 
   useEffect(() => {
-    if (Number(swapParams.data.input) > 0 && chainsAreAbsent) {
+    if (Number(swapParams.data.input) > 0 && hopsAreAbsent) {
       setIsAlertVisible(true);
     } else {
       setIsAlertVisible(false);
     }
-  }, [chainsAreAbsent, swapParams.data]);
+  }, [hopsAreAbsent, swapParams.data]);
 
   useEffect(
     () =>

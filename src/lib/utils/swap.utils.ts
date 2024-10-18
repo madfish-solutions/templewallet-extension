@@ -1,4 +1,3 @@
-import { MichelsonMap } from '@taquito/michelson-encoder';
 import { ContractMethodObject, ContractProvider, TezosToolkit, TransferParams, Wallet } from '@taquito/taquito';
 import { BigNumber } from 'bignumber.js';
 
@@ -20,14 +19,6 @@ import { loadContract } from 'lib/temple/contract';
 import { getTransferPermissions } from './get-transfer-permissions';
 import { ZERO } from './numbers';
 
-function toMichelsonMap<T>(arr: T[]): MichelsonMap<string, T> {
-  return arr.reduce((acc, item, index) => {
-    acc.set(index.toString(), item);
-
-    return acc;
-  }, new MichelsonMap<string, T>());
-}
-
 export const getSwapTransferParams = async (
   fromRoute3Token: Route3Token,
   toRoute3Token: Route3Token,
@@ -47,7 +38,7 @@ export const getSwapTransferParams = async (
       token_out_id: toRoute3Token.id,
       min_out: minimumReceivedAtomic,
       receiver: accountPkh,
-      hops: toMichelsonMap(mapToRoute3ExecuteHops(chains.hops)),
+      hops: mapToRoute3ExecuteHops(chains.hops),
       app_id: APP_ID
     });
   } else {
@@ -55,8 +46,8 @@ export const getSwapTransferParams = async (
     swapMethod = liquidityBakingProxyContract.methodsObject.swap({
       token_in_id: fromRoute3Token.id,
       token_out_id: toRoute3Token.id,
-      tez_hops: toMichelsonMap(mapToRoute3ExecuteHops(chains.xtzHops)),
-      tzbtc_hops: toMichelsonMap(mapToRoute3ExecuteHops(chains.tzbtcHops)),
+      tez_hops: mapToRoute3ExecuteHops(chains.xtzHops),
+      tzbtc_hops: mapToRoute3ExecuteHops(chains.tzbtcHops),
       amount_in: inputAmountAtomic,
       min_out: minimumReceivedAtomic,
       receiver: accountPkh,

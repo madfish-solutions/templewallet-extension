@@ -153,8 +153,6 @@ export async function requestOperation(
     throw new Error(TempleDAppErrorType.NotFound);
   }
 
-  console.log('fuflo 1', origin, req);
-
   return new Promise(async (resolve, reject) => {
     const id = nanoid();
     const networkRpc = await getNetworkRPC(dApp.network);
