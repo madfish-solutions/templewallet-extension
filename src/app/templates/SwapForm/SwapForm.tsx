@@ -61,7 +61,6 @@ import { SwapMinimumReceived } from './SwapMinimumReceived/SwapMinimumReceived';
 // These value have been set after some experimentation
 const SINGLE_SWAP_IN_BATCH_MAX_DEXES = 11;
 const LB_OPERATION_DEXES_COST = 2;
-const CASHBACK_SWAP_MAX_DEXES = Math.ceil(SINGLE_SWAP_IN_BATCH_MAX_DEXES / 2);
 
 export const SwapForm: FC = () => {
   const dispatch = useDispatch();
@@ -133,14 +132,16 @@ export const SwapForm: FC = () => {
       const isSirsSwap =
         inputAssetSlug === KNOWN_TOKENS_SLUGS.SIRS || newOutputValue.assetSlug === KNOWN_TOKENS_SLUGS.SIRS;
       const isSwapAmountMoreThreshold = inputAmountInUsd.isGreaterThanOrEqualTo(SWAP_THRESHOLD_TO_GET_CASHBACK);
+      const totalMaxDexes = SINGLE_SWAP_IN_BATCH_MAX_DEXES - (isSirsSwap ? LB_OPERATION_DEXES_COST : 0);
+      const cashbackSwapMaxDexes = Math.ceil(totalMaxDexes / 2);
+      const mainSwapMaxDexes =
+        totalMaxDexes - (isSwapAmountMoreThreshold && !isInputTokenTempleToken ? cashbackSwapMaxDexes : 0);
 
       return {
         isInputTokenTempleToken,
         isSwapAmountMoreThreshold,
-        mainSwapMaxDexes:
-          SINGLE_SWAP_IN_BATCH_MAX_DEXES -
-          (isSirsSwap ? LB_OPERATION_DEXES_COST : 0) -
-          (isSwapAmountMoreThreshold && !isInputTokenTempleToken ? CASHBACK_SWAP_MAX_DEXES : 0)
+        mainSwapMaxDexes,
+        cashbackSwapMaxDexes
       };
     },
     [allUsdToTokenRates]
@@ -314,7 +315,10 @@ export const SwapForm: FC = () => {
         return;
       }
 
-      const { isInputTokenTempleToken, isSwapAmountMoreThreshold } = getSwapWithFeeParams(inputValue, outputValue);
+      const { isInputTokenTempleToken, isSwapAmountMoreThreshold, cashbackSwapMaxDexes } = getSwapWithFeeParams(
+        inputValue,
+        outputValue
+      );
 
       if (isInputTokenTempleToken && isSwapAmountMoreThreshold) {
         const routingInputFeeOpParams = await getRoutingFeeTransferParams(
@@ -339,7 +343,7 @@ export const SwapForm: FC = () => {
           fromSymbol: fromRoute3Token.symbol,
           toSymbol: TEMPLE_TOKEN.symbol,
           amount: atomsToTokens(routingFeeFromInputAtomic, fromRoute3Token.decimals).toFixed(),
-          dexesLimit: CASHBACK_SWAP_MAX_DEXES
+          dexesLimit: cashbackSwapMaxDexes
         });
 
         const templeOutputAtomic = tokensToAtoms(
@@ -372,7 +376,7 @@ export const SwapForm: FC = () => {
           fromSymbol: toRoute3Token.symbol,
           toSymbol: TEMPLE_TOKEN.symbol,
           amount: atomsToTokens(routingFeeFromOutputAtomic, toRoute3Token.decimals).toFixed(),
-          dexesLimit: CASHBACK_SWAP_MAX_DEXES
+          dexesLimit: cashbackSwapMaxDexes
         });
 
         const templeOutputAtomic = tokensToAtoms(
