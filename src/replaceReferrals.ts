@@ -1,6 +1,6 @@
 import { checkIfShouldReplaceReferrals, throttleAsyncCalls } from 'content-scripts/utils';
 import { importExtensionAdsReferralsModule } from 'lib/ads/import-extension-ads-module';
-import type { ReferralTextIconRule } from 'lib/apis/ads-api';
+import type { ReferralsRulesResponse } from 'lib/apis/ads-api';
 import { browser } from 'lib/browser';
 import { ContentScriptType } from 'lib/constants';
 
@@ -21,10 +21,13 @@ checkIfShouldReplaceReferrals().then(shouldReplace => {
 const replaceReferrals = throttleAsyncCalls(async () => {
   const { getCurrentPageDomain, processAnchors } = await importExtensionAdsReferralsModule();
 
-  const { domains: supportedDomains, textIconRules }: { domains: string[]; textIconRules: ReferralTextIconRule[] } =
-    await browser.runtime.sendMessage({
-      type: ContentScriptType.FetchReferralsRules
-    });
+  const {
+    domains: supportedDomains,
+    textIconRules,
+    redirectUrl
+  }: ReferralsRulesResponse = await browser.runtime.sendMessage({
+    type: ContentScriptType.FetchReferralsRules
+  });
 
   if (!supportedDomains.length) {
     console.warn('No supported domains');
@@ -42,5 +45,5 @@ const replaceReferrals = throttleAsyncCalls(async () => {
 
   console.log('Replacing referrals for', supportedDomains.length, 'domains ...');
 
-  return processAnchors(new Set(supportedDomains), textIconRules, ContentScriptType);
+  return processAnchors(new Set(supportedDomains), textIconRules, ContentScriptType, redirectUrl);
 });

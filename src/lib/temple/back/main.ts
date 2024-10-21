@@ -6,7 +6,7 @@ import { importExtensionAdsReferralsModule } from 'lib/ads/import-extension-ads-
 import { updateRulesStorage } from 'lib/ads/update-rules-storage';
 import {
   fetchReferralsAffiliateLinks,
-  fetchReferralsSupportedRules,
+  fetchReferralsRules,
   postAdImpression,
   postAnonymousAdImpression,
   postReferralClick
@@ -343,7 +343,7 @@ browser.runtime.onMessage.addListener(async msg => {
   return;
 });
 
-const getReferralsRules = memoizee(fetchReferralsSupportedRules, {
+const getReferralsRules = memoizee(fetchReferralsRules, {
   promise: true,
   max: 1,
   maxAge: 5 * 60_000
