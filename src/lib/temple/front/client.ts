@@ -28,7 +28,7 @@ import {
 import { getPendingConfirmationId, resetPendingConfirmationId } from 'temple/front/pending-confirm';
 import { TempleChainKind } from 'temple/types';
 
-import { shouldLockOnStartup } from './lock';
+import { getShouldBeLockedOnStartup } from './lock';
 import { useStorage } from './storage';
 
 type Confirmation = {
@@ -50,12 +50,15 @@ export const [TempleClientProvider, useTempleClient] = constate(() => {
     assertResponse(res.type === TempleMessageType.GetStateResponse);
 
     if (didMountRef.current || res.state.status !== TempleStatus.Ready) {
-      return res.state;
+      return { state: res.state, shouldLockOnStartup: false };
     }
 
-    const isLocked = await shouldLockOnStartup();
+    const isLocked = await getShouldBeLockedOnStartup();
 
-    return isLocked ? { status: TempleStatus.Locked, accounts: [], settings: null } : res.state;
+    return {
+      state: isLocked ? { status: TempleStatus.Locked, accounts: [], settings: null } : res.state,
+      shouldLockOnStartup: isLocked
+    };
   }, []);
 
   const { data, mutate } = useRetryableSWR('state', fetchState, {
@@ -64,7 +67,7 @@ export const [TempleClientProvider, useTempleClient] = constate(() => {
     revalidateOnFocus: false,
     revalidateOnReconnect: false
   });
-  const state = data!;
+  const state = data!.state;
 
   const [confirmation, setConfirmation] = useState<Confirmation | null>(null);
 
@@ -387,6 +390,8 @@ export const [TempleClientProvider, useTempleClient] = constate(() => {
     localStorage.clear();
     browser.runtime.reload();
   }, []);
+
+  useEffect(() => void (data?.shouldLockOnStartup && lock()), [data?.shouldLockOnStartup, lock]);
 
   return {
     state,

@@ -10,7 +10,7 @@ const CLOSURE_STORAGE_KEY = 'last-page-closure-timestamp';
 
 const isSinglePageOpened = () => getOpenedTemplePagesN() === 1;
 
-export async function shouldLockOnStartup() {
+export async function getShouldBeLockedOnStartup() {
   if (!isSinglePageOpened()) {
     return false;
   }
