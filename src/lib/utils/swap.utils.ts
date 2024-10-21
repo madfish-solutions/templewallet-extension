@@ -83,7 +83,9 @@ export const getSwapTransferParams = async (
 export const calculateSidePaymentsFromInput = (inputAmount: BigNumber | undefined) => {
   const swapInputAtomic = (inputAmount ?? ZERO).integerValue(BigNumber.ROUND_DOWN);
   const shouldTakeFeeFromInput = swapInputAtomic.gte(ATOMIC_INPUT_THRESHOLD_FOR_FEE_FROM_INPUT);
-  const inputFeeAtomic = shouldTakeFeeFromInput ? getAtomicValuePercentage(swapInputAtomic, ROUTING_FEE_PERCENT) : ZERO;
+  const inputFeeAtomic = shouldTakeFeeFromInput
+    ? getAtomicValuePercentage(swapInputAtomic, ROUTING_FEE_PERCENT, BigNumber.ROUND_CEIL)
+    : ZERO;
   const cashbackSwapInputAtomic = shouldTakeFeeFromInput
     ? getAtomicValuePercentage(swapInputAtomic, SWAP_CASHBACK_PERCENT)
     : ZERO;
@@ -101,7 +103,7 @@ export const calculateOutputFeeAtomic = (inputAmount: BigNumber | undefined, out
 
   return swapInputAtomic.gte(ATOMIC_INPUT_THRESHOLD_FOR_FEE_FROM_INPUT)
     ? ZERO
-    : getAtomicValuePercentage(outputAmount, ROUTING_FEE_PERCENT);
+    : getAtomicValuePercentage(outputAmount, ROUTING_FEE_PERCENT, BigNumber.ROUND_CEIL);
 };
 
 export const getRoutingFeeTransferParams = async (
@@ -129,14 +131,14 @@ export const getRoutingFeeTransferParams = async (
 
   if (token.standard === 'fa12') {
     return [
-      assetContract.methods
-        .transfer(senderPublicKeyHash, routingFeeAddress, feeAmountAtomic.toNumber())
+      assetContract.methodsObject
+        .transfer({ from: senderPublicKeyHash, to: routingFeeAddress, value: feeAmountAtomic })
         .toTransferParams({ mutez: true })
     ];
   }
   if (token.standard === 'fa2') {
     return [
-      assetContract.methods
+      assetContract.methodsObject
         .transfer([
           {
             from_: senderPublicKeyHash,
@@ -144,7 +146,7 @@ export const getRoutingFeeTransferParams = async (
               {
                 to_: routingFeeAddress,
                 token_id: token.tokenId,
-                amount: feeAmountAtomic.toNumber()
+                amount: feeAmountAtomic
               }
             ]
           }

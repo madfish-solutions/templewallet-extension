@@ -59,7 +59,7 @@ import { SwapFormInput } from './SwapFormInput/SwapFormInput';
 import { SwapMinimumReceived } from './SwapMinimumReceived/SwapMinimumReceived';
 
 // These value have been set after some experimentation
-const SINGLE_SWAP_IN_BATCH_MAX_DEXES = 12;
+const SINGLE_SWAP_IN_BATCH_MAX_DEXES = 11;
 const LB_OPERATION_DEXES_COST = 2;
 const CASHBACK_SWAP_MAX_DEXES = Math.ceil(SINGLE_SWAP_IN_BATCH_MAX_DEXES / 2);
 

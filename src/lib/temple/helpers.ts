@@ -46,11 +46,11 @@ export function mutezToTz(mutez: BigNumber.Value) {
 }
 
 export function atomsToTokens(x: BigNumber.Value, decimals: number) {
-  return new BigNumber(x).integerValue().div(new BigNumber(10).pow(decimals));
+  return new BigNumber(x).integerValue().shiftedBy(-decimals);
 }
 
 export function tokensToAtoms(x: BigNumber.Value, decimals: number) {
-  return new BigNumber(x).times(10 ** decimals).integerValue();
+  return new BigNumber(x).shiftedBy(decimals).integerValue();
 }
 
 export function isAddressValid(address: string) {

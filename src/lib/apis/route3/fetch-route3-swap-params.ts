@@ -1,4 +1,4 @@
-import { transform } from 'lodash';
+import { intersection, transform } from 'lodash';
 
 import { THREE_ROUTE_SIRS_TOKEN } from 'lib/assets/three-route-tokens';
 import { EnvVars } from 'lib/env';
@@ -58,13 +58,17 @@ const fetchRoute3LiquidityBakingParams = (
     .then(res => res.text())
     .then(res => parser(res));
 
-export const fetchRoute3SwapParams = ({ fromSymbol, toSymbol, amount, dexesLimit }: Route3SwapParamsRequest) =>
-  [fromSymbol, toSymbol].includes(THREE_ROUTE_SIRS_TOKEN.symbol)
+export const fetchRoute3SwapParams = ({ fromSymbol, toSymbol, amount, dexesLimit }: Route3SwapParamsRequest) => {
+  const isLbUnderlyingTokenSwap = intersection([fromSymbol, toSymbol], ['TZBTC', 'XTZ']).length > 0;
+
+  return [fromSymbol, toSymbol].includes(THREE_ROUTE_SIRS_TOKEN.symbol)
     ? fetchRoute3LiquidityBakingParams({
         fromSymbol,
         toSymbol,
         amount,
-        xtzDexesLimit: Math.ceil(dexesLimit / 2),
-        tzbtcDexesLimit: Math.floor(dexesLimit / 2)
+        // XTZ <-> SIRS and TZBTC <-> SIRS swaps have either XTZ or TZBTC hops, so a total number of hops cannot exceed the limit
+        xtzDexesLimit: isLbUnderlyingTokenSwap ? dexesLimit : Math.ceil(dexesLimit / 2),
+        tzbtcDexesLimit: isLbUnderlyingTokenSwap ? dexesLimit : Math.floor(dexesLimit / 2)
       })
     : fetchRoute3TraditionalSwapParams({ fromSymbol, toSymbol, amount, dexesLimit });
+};
