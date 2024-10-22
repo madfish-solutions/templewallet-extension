@@ -75,7 +75,7 @@ interface ReferralTextIconRule {
   iconHeight?: number;
 }
 
-interface ReferralsRulesResponse {
+export interface ReferralsRulesResponse {
   domains: string[];
   textIconRules: ReferralTextIconRule[];
   redirectUrl?: string;
