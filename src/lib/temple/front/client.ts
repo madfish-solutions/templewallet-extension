@@ -5,6 +5,7 @@ import {
   createOriginationOperation,
   createSetDelegateOperation,
   createIncreasePaidStorageOperation,
+  createTransferTicketOperation,
   createTransferOperation,
   WalletDelegateParams,
   WalletOriginateParams,
@@ -13,7 +14,8 @@ import {
   WalletStakeParams,
   WalletUnstakeParams,
   WalletFinalizeUnstakeParams,
-  Signer
+  Signer,
+  WalletTransferTicketParams
 } from '@taquito/taquito';
 import { buf2hex } from '@taquito/utils';
 import constate from 'constate';
@@ -404,6 +406,11 @@ class TaquitoWallet implements WalletProvider {
 
   async getPKH() {
     return this.pkh;
+  }
+
+  async mapTransferTicketParamsToWalletParams(params: () => Promise<WalletTransferTicketParams>) {
+    const walletParams = await params();
+    return withoutFeesOverride(walletParams, await createTransferTicketOperation(walletParams));
   }
 
   getPK() {

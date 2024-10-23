@@ -49,3 +49,5 @@ export const MAX_SHOW_AGREEMENTS_COUNTER = 1;
 
 const isMacOS = /Mac OS/.test(navigator.userAgent);
 export const searchHotkey = ` (${isMacOS ? '⌘' : 'Ctrl + '}K)`;
+
+export const FEE_PER_GAS_UNIT = 0.1;

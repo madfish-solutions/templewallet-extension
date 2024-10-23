@@ -1,7 +1,8 @@
-import { ContractMethodObject, ContractProvider, TezosToolkit, TransferParams, Wallet } from '@taquito/taquito';
+import { ContractMethodObject, ContractProvider, OpKind, TezosToolkit, TransferParams, Wallet } from '@taquito/taquito';
 import { BigNumber } from 'bignumber.js';
 
 import { Route3Token } from 'lib/apis/route3/fetch-route3-tokens';
+import { FEE_PER_GAS_UNIT } from 'lib/constants';
 import {
   APP_ID,
   ATOMIC_INPUT_THRESHOLD_FOR_FEE_FROM_INPUT,
@@ -18,6 +19,8 @@ import { loadContract } from 'lib/temple/contract';
 
 import { getTransferPermissions } from './get-transfer-permissions';
 import { ZERO } from './numbers';
+
+const GAS_CAP = 1000;
 
 export const getSwapTransferParams = async (
   fromRoute3Token: Route3Token,
@@ -75,6 +78,19 @@ export const getSwapTransferParams = async (
   );
 
   resultParams.unshift(...approve);
+  try {
+    const estimations = await tezos.estimate.batch(
+      resultParams.map(params => ({ kind: OpKind.TRANSACTION, ...params }))
+    );
+    estimations.forEach(({ suggestedFeeMutez, storageLimit, gasLimit }, index) => {
+      const currentParams = resultParams[index];
+      currentParams.fee = suggestedFeeMutez + Math.ceil(GAS_CAP * FEE_PER_GAS_UNIT);
+      currentParams.storageLimit = storageLimit;
+      currentParams.gasLimit = gasLimit + GAS_CAP;
+    });
+  } catch (e) {
+    console.error(e);
+  }
   resultParams.push(...revoke);
 
   return resultParams;

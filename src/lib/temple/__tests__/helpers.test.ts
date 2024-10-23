@@ -24,7 +24,7 @@ describe('Helpers', () => {
     expect(atomsValue.toFixed()).toBe('1000000000000');
   });
 
-  it('atomsToTokens', async () => {
+  it('formatOpParamsBeforeSend', async () => {
     let params: any = { kind: 'transaction', script: {} };
     expect(Helpers.formatOpParamsBeforeSend(params)).toBe(params);
 
@@ -40,6 +40,14 @@ describe('Helpers', () => {
       kind: 'origination',
       a: 'A',
       init: { b: 'B' }
+    });
+
+    params = {
+      kind: 'transaction'
+    };
+    expect(Helpers.formatOpParamsBeforeSend(params, 'source')).toStrictEqual({
+      kind: 'transaction',
+      source: 'source'
     });
   });
 

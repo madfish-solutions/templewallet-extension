@@ -59,7 +59,7 @@ import { SwapFormInput } from './SwapFormInput/SwapFormInput';
 import { SwapMinimumReceived } from './SwapMinimumReceived/SwapMinimumReceived';
 
 // These value have been set after some experimentation
-const SINGLE_SWAP_IN_BATCH_MAX_DEXES = 11;
+const SINGLE_SWAP_IN_BATCH_MAX_DEXES = 12;
 const LB_OPERATION_DEXES_COST = 2;
 
 export const SwapForm: FC = () => {
@@ -125,20 +125,22 @@ export const SwapForm: FC = () => {
   const getSwapWithFeeParams = useCallback(
     (newInputValue: SwapInputValue, newOutputValue: SwapInputValue) => {
       const { assetSlug: inputAssetSlug, amount: inputAmount } = newInputValue;
+      const outputAssetSlug = newOutputValue.assetSlug;
       const inputTokenExchangeRate = inputAssetSlug ? allUsdToTokenRates[inputAssetSlug] : '0';
       const inputAmountInUsd = inputAmount?.multipliedBy(inputTokenExchangeRate) ?? ZERO;
 
       const isInputTokenTempleToken = inputAssetSlug === KNOWN_TOKENS_SLUGS.TEMPLE;
-      const isSirsSwap =
-        inputAssetSlug === KNOWN_TOKENS_SLUGS.SIRS || newOutputValue.assetSlug === KNOWN_TOKENS_SLUGS.SIRS;
+      const isOutputTokenTempleToken = outputAssetSlug === KNOWN_TOKENS_SLUGS.TEMPLE;
+      const isSirsSwap = inputAssetSlug === KNOWN_TOKENS_SLUGS.SIRS || outputAssetSlug === KNOWN_TOKENS_SLUGS.SIRS;
       const isSwapAmountMoreThreshold = inputAmountInUsd.isGreaterThanOrEqualTo(SWAP_THRESHOLD_TO_GET_CASHBACK);
       const totalMaxDexes = SINGLE_SWAP_IN_BATCH_MAX_DEXES - (isSirsSwap ? LB_OPERATION_DEXES_COST : 0);
-      const cashbackSwapMaxDexes = Math.ceil(totalMaxDexes / 2);
+      const cashbackSwapMaxDexes = Math.ceil(totalMaxDexes / (isSirsSwap ? 3 : 2));
       const mainSwapMaxDexes =
         totalMaxDexes - (isSwapAmountMoreThreshold && !isInputTokenTempleToken ? cashbackSwapMaxDexes : 0);
 
       return {
         isInputTokenTempleToken,
+        isOutputTokenTempleToken,
         isSwapAmountMoreThreshold,
         mainSwapMaxDexes,
         cashbackSwapMaxDexes
@@ -315,10 +317,8 @@ export const SwapForm: FC = () => {
         return;
       }
 
-      const { isInputTokenTempleToken, isSwapAmountMoreThreshold, cashbackSwapMaxDexes } = getSwapWithFeeParams(
-        inputValue,
-        outputValue
-      );
+      const { isInputTokenTempleToken, isOutputTokenTempleToken, isSwapAmountMoreThreshold, cashbackSwapMaxDexes } =
+        getSwapWithFeeParams(inputValue, outputValue);
 
       if (isInputTokenTempleToken && isSwapAmountMoreThreshold) {
         const routingInputFeeOpParams = await getRoutingFeeTransferParams(
@@ -371,6 +371,16 @@ export const SwapForm: FC = () => {
           tezos
         );
         allSwapParams.push(...routingFeeOpParams);
+      } else if (!isInputTokenTempleToken && isSwapAmountMoreThreshold && isOutputTokenTempleToken) {
+        routingOutputFeeTransferParams = await getRoutingFeeTransferParams(
+          TEMPLE_TOKEN,
+          routingFeeFromOutputAtomic
+            .times(ROUTING_FEE_PERCENT - SWAP_CASHBACK_PERCENT)
+            .dividedToIntegerBy(ROUTING_FEE_PERCENT),
+          publicKeyHash,
+          BURN_ADDREESS,
+          tezos
+        );
       } else if (!isInputTokenTempleToken && isSwapAmountMoreThreshold) {
         const swapToTempleParams = await fetchRoute3SwapParams({
           fromSymbol: toRoute3Token.symbol,

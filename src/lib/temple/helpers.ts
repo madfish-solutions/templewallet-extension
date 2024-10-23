@@ -63,7 +63,7 @@ export function isKTAddress(address: string) {
 
 export const isValidContractAddress = (address: string) => isAddressValid(address) && isKTAddress(address);
 
-export function formatOpParamsBeforeSend(params: any) {
+export function formatOpParamsBeforeSend(params: any, sourcePkh?: string) {
   if (params.kind === 'origination' && params.script) {
     const newParams = { ...params, ...params.script };
     newParams.init = newParams.storage;
@@ -71,6 +71,11 @@ export function formatOpParamsBeforeSend(params: any) {
     delete newParams.storage;
     return newParams;
   }
+
+  if (params.kind === 'transaction' && sourcePkh) {
+    return { ...params, source: sourcePkh };
+  }
+
   return params;
 }
 
