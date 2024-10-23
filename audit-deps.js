@@ -12,7 +12,7 @@ exec('yarn audit --level high', (error, stdout, stderr) => {
       })
       .reduce((a, b) => a + b, 0);
     const tooSevereTypesVunerabilitiesCount = Array
-      .from(stdout.matchAll(/Dependency of\s+\x1B\[90m│\x1B\[39m\s+@types/g))
+      .from(stdout.matchAll(/Dependency of\s+(\x1B\[90m)?│(\x1B\[39m)?\s+@types/g))
       .length;
 
     if (tooSevereVunerabilitiesCount - tooSevereTypesVunerabilitiesCount > 0) {
