@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useEffect, useMemo, useState } from 'react';
+import React, { memo, useCallback, useEffect, useState } from 'react';
 
 import { ToggleSwitch } from 'app/atoms';
 import { ActionModalBodyContainer, ActionModalButton, ActionModalButtonsContainer } from 'app/atoms/action-modal';
@@ -7,18 +7,12 @@ import { SettingsCell } from 'app/atoms/SettingsCell';
 import { SettingsCellGroup } from 'app/atoms/SettingsCellGroup';
 import { StyledButton } from 'app/atoms/StyledButton';
 import PageLayout from 'app/layouts/PageLayout';
+import { MAIN_CHAINS_IDS } from 'lib/constants';
 import { T, t } from 'lib/i18n';
 import { useBooleanState } from 'lib/ui/hooks';
 import { HistoryAction, navigate } from 'lib/woozie';
-import {
-  OneOfChains,
-  useAllEvmChains,
-  useAllTezosChains,
-  useEnabledEvmChains,
-  useEnabledTezosChains
-} from 'temple/front';
+import { OneOfChains, useAllEvmChains, useAllTezosChains } from 'temple/front';
 import { BlockExplorer } from 'temple/front/block-explorers';
-import { isPossibleTestnetChain } from 'temple/front/chains';
 import { StoredEvmNetwork, StoredTezosNetwork } from 'temple/networks';
 import { TempleChainKind } from 'temple/types';
 
@@ -42,8 +36,6 @@ const explorerUrlFn = (item: { url: string }) => item.url;
 
 const ChainExistentSettings = memo<ChainExistentSettingsProps>(({ chain, bottomEdgeIsVisible }) => {
   const [removeChainModalIsOpen, openRemoveChainModal, closeRemoveChainModal] = useBooleanState(false);
-  const enabledEvmChains = useEnabledEvmChains();
-  const enabledTezChains = useEnabledTezosChains();
   const { kind: chainKind, chainId } = chain;
   const {
     setChainEnabled,
@@ -55,17 +47,7 @@ const ChainExistentSettings = memo<ChainExistentSettingsProps>(({ chain, bottomE
     removeBlockExplorer,
     removeChain
   } = useChainOperations(chainKind, chainId);
-  const allEnabledChains = useMemo(
-    () => (enabledEvmChains as OneOfChains[]).concat(enabledTezChains),
-    [enabledEvmChains, enabledTezChains]
-  );
-  const enabledMainnetChains = useMemo(
-    () => allEnabledChains.filter(chain => !isPossibleTestnetChain(chain)),
-    [allEnabledChains]
-  );
-  const enabledTestnetChains = useMemo(() => allEnabledChains.filter(isPossibleTestnetChain), [allEnabledChains]);
-  const shouldPreventDisablingChain =
-    (isPossibleTestnetChain(chain) ? enabledTestnetChains : enabledMainnetChains).length === 1;
+  const shouldPreventDisablingChain = MAIN_CHAINS_IDS.includes(chainId);
 
   const handleConfirmRemoveClick = useCallback(() => {
     closeRemoveChainModal();

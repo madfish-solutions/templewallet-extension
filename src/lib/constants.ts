@@ -1,3 +1,10 @@
+import {
+  ETHEREUM_MAINNET_CHAIN_ID,
+  ETH_SEPOLIA_CHAIN_ID,
+  TEZOS_MAINNET_CHAIN_ID,
+  TempleTezosChainId
+} from './temple/types';
+
 export enum ContentScriptType {
   ExternalLinksActivity = 'ExternalLinksActivity',
   ExternalAdsActivity = 'ExternalAdsActivity',
@@ -82,3 +89,10 @@ export const SHOULD_BACKUP_MNEMONIC_STORAGE_KEY = 'SHOULD_BACKUP_MNEMONIC';
 export const DEFAULT_SEED_PHRASE_WORDS_AMOUNT = 12;
 
 export const DEFAULT_PASSWORD_INPUT_PLACEHOLDER = '••••••••••';
+
+export const MAIN_CHAINS_IDS = [
+  TEZOS_MAINNET_CHAIN_ID,
+  ETHEREUM_MAINNET_CHAIN_ID,
+  TempleTezosChainId.Ghostnet,
+  ETH_SEPOLIA_CHAIN_ID
+];

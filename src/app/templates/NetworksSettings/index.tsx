@@ -2,6 +2,7 @@ import React, { memo, useCallback, useEffect, useMemo, useState } from 'react';
 
 import { EmptyState } from 'app/atoms/EmptyState';
 import { useSearchParamsBoolean } from 'app/hooks/use-search-params-boolean';
+import { MAIN_CHAINS_IDS } from 'lib/constants';
 import { t } from 'lib/i18n';
 import { filterNetworksByName } from 'lib/ui/filter-networks-by-name';
 import { useBooleanState } from 'lib/ui/hooks';
@@ -28,7 +29,11 @@ export const NetworksSettings = memo<SettingsTabProps>(({ setHeaderChildren }) =
   const [searchValue, setSearchValue] = useState('');
 
   const allChains = useMemo(
-    () => [...Object.values(tezosChainsRecord), ...Object.values(evmChainsRecord)],
+    () =>
+      [...Object.values(tezosChainsRecord), ...Object.values(evmChainsRecord)].sort(
+        ({ chainId: aChainId }, { chainId: bChainId }) =>
+          MAIN_CHAINS_IDS.indexOf(bChainId) - MAIN_CHAINS_IDS.indexOf(aChainId)
+      ),
     [evmChainsRecord, tezosChainsRecord]
   );
   const matchingChains = useMemo(() => filterNetworksByName(allChains, searchValue), [allChains, searchValue]);
