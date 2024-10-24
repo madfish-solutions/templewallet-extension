@@ -2,6 +2,7 @@ import { localForger } from '@taquito/local-forging';
 import { ForgeOperationsParams } from '@taquito/rpc';
 import { Estimate, TezosToolkit } from '@taquito/taquito';
 
+import { FEE_PER_GAS_UNIT } from 'lib/constants';
 import { formatOpParamsBeforeSend, michelEncoder, loadFastRpcClient } from 'lib/temple/helpers';
 import { ReadOnlySigner } from 'lib/temple/read-only-signer';
 
@@ -21,8 +22,6 @@ export interface DryRunResult {
     opParams: any;
   };
 }
-
-const FEE_PER_GAS_UNIT = 0.1;
 
 export async function dryRunOpParams({
   opParams,
@@ -44,7 +43,7 @@ export async function dryRunOpParams({
     let estimates: Estimate[] | undefined;
     let error: any = [];
     try {
-      const formatted = opParams.map(formatOpParamsBeforeSend);
+      const formatted = opParams.map(operation => formatOpParamsBeforeSend(operation, sourcePkh));
       const result = [
         await tezos.estimate.batch(formatted).catch(e => ({ ...e, isError: true })),
         await tezos.contract

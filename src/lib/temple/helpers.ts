@@ -46,11 +46,11 @@ export function mutezToTz(mutez: BigNumber.Value) {
 }
 
 export function atomsToTokens(x: BigNumber.Value, decimals: number) {
-  return new BigNumber(x).integerValue().div(new BigNumber(10).pow(decimals));
+  return new BigNumber(x).integerValue().shiftedBy(-decimals);
 }
 
 export function tokensToAtoms(x: BigNumber.Value, decimals: number) {
-  return new BigNumber(x).times(10 ** decimals).integerValue();
+  return new BigNumber(x).shiftedBy(decimals).integerValue();
 }
 
 export function isAddressValid(address: string) {
@@ -63,7 +63,7 @@ export function isKTAddress(address: string) {
 
 export const isValidContractAddress = (address: string) => isAddressValid(address) && isKTAddress(address);
 
-export function formatOpParamsBeforeSend(params: any) {
+export function formatOpParamsBeforeSend(params: any, sourcePkh?: string) {
   if (params.kind === 'origination' && params.script) {
     const newParams = { ...params, ...params.script };
     newParams.init = newParams.storage;
@@ -71,6 +71,11 @@ export function formatOpParamsBeforeSend(params: any) {
     delete newParams.storage;
     return newParams;
   }
+
+  if (params.kind === 'transaction' && sourcePkh) {
+    return { ...params, source: sourcePkh };
+  }
+
   return params;
 }
 
