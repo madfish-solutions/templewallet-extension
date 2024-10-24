@@ -18,19 +18,32 @@ interface Props extends TestIDProps {
   title: string;
   opened: boolean;
   shouldShowBackButton?: boolean;
-  onRequestClose: EmptyFn;
+  shouldShowCloseButton?: boolean;
+  onRequestClose?: EmptyFn;
   onGoBack?: EmptyFn;
   animated?: boolean;
 }
 
+export const CLOSE_ANIMATION_TIMEOUT = 300;
+
 export const PageModal = memo<PropsWithChildren<Props>>(
-  ({ title, opened, shouldShowBackButton, onRequestClose, onGoBack, children, testID, animated = true }) => {
+  ({
+    title,
+    opened,
+    shouldShowBackButton,
+    shouldShowCloseButton = true,
+    onRequestClose,
+    onGoBack,
+    children,
+    testID,
+    animated = true
+  }) => {
     const { fullPage } = useAppEnv();
 
     return (
       <Modal
         isOpen={opened}
-        closeTimeoutMS={animated ? 300 : undefined}
+        closeTimeoutMS={animated ? CLOSE_ANIMATION_TIMEOUT : undefined}
         htmlOpenClassName="overflow-hidden" // Disabling page scroll and/or bounce behind modal
         bodyOpenClassName={ACTIVATE_CONTENT_FADER_CLASSNAME}
         overlayClassName={{
@@ -53,7 +66,7 @@ export const PageModal = memo<PropsWithChildren<Props>>(
         onRequestClose={onRequestClose}
         testId={testID}
       >
-        <div className="flex items-center p-4 border-b border-lines">
+        <div className="flex items-center p-4 border-b-0.5 border-lines">
           <div className="w-12">
             {shouldShowBackButton && (
               <IconBase Icon={ChevronLeftIcon} size={16} className="text-grey-2 cursor-pointer" onClick={onGoBack} />
@@ -63,7 +76,9 @@ export const PageModal = memo<PropsWithChildren<Props>>(
           <div className="flex-1 text-center text-font-regular-bold">{title}</div>
 
           <div className="w-12 flex justify-end">
-            <IconBase Icon={ExIcon} size={16} className="text-grey-2 cursor-pointer" onClick={onRequestClose} />
+            {shouldShowCloseButton && (
+              <IconBase Icon={ExIcon} size={16} className="text-grey-2 cursor-pointer" onClick={onRequestClose} />
+            )}
           </div>
         </div>
 

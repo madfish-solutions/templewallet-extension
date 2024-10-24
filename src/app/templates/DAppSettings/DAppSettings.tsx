@@ -2,7 +2,7 @@ import React, { ComponentProps, FC, useCallback, useMemo, useRef, useState } fro
 
 import classNames from 'clsx';
 
-import { Name, FormCheckbox, HashChip } from 'app/atoms';
+import { Name, FormCheckbox, OldStyleHashChip } from 'app/atoms';
 import { ReactComponent as CloseIcon } from 'app/icons/close.svg';
 import CustomSelect, { OptionRenderProps } from 'app/templates/CustomSelect';
 import DAppLogo from 'app/templates/DAppLogo';
@@ -169,7 +169,7 @@ const DAppDescription: FC<OptionRenderProps<DAppEntry, string, DAppActions>> = p
       },
       {
         key: 'pkhLabel',
-        value: <HashChip hash={pkh} type="link" small />,
+        value: <OldStyleHashChip hash={pkh} type="link" small />,
         Component: 'span'
       }
     ],

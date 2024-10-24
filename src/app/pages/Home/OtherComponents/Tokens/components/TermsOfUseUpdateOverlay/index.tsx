@@ -69,7 +69,7 @@ export const TermsOfUseUpdateOverlay = memo<TermsOfUseUpdateOverlayProps>(({ onC
   }, []);
 
   return (
-    <div className="fixed inset-0 z-40 flex flex-col items-center justify-center bg-gray-700 bg-opacity-20">
+    <div className="fixed inset-0 z-sticky flex flex-col items-center justify-center bg-gray-700 bg-opacity-20">
       <div
         className={clsx('w-full max-w-screen-sm mx-auto overflow-y-scroll p-4', popup ? 'w-full h-full' : 'max-h-full')}
         style={{ width: popup ? undefined : 'fit-content' }}

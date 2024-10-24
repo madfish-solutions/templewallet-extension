@@ -4,7 +4,7 @@ export { useTempleClient } from './client';
 
 export { validateDerivationPath } from './helpers';
 
-export { useContactsActions, searchContacts } from './address-book';
+export { useContactsActions } from './address-book';
 
 export type { Baker } from './baking';
 export { getRewardsStats, useKnownBaker, useKnownBakers, useDelegate } from './baking';

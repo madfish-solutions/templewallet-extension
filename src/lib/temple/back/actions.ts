@@ -23,6 +23,8 @@ import {
   TempleAccountType
 } from 'lib/temple/types';
 import { createQueue, delay } from 'lib/utils';
+import { EvmTxParams } from 'temple/evm/types';
+import { EvmChain } from 'temple/front';
 import { loadTezosChainId } from 'temple/tezos';
 import { TempleChainKind } from 'temple/types';
 
@@ -37,7 +39,7 @@ import {
 } from './dapp';
 import { intercom } from './defaults';
 import type { DryRunResult } from './dryrun';
-import { buildFinalOpParmas, dryRunOpParams } from './dryrun';
+import { buildFinalOpParams, dryRunOpParams } from './dryrun';
 import {
   toFront,
   store,
@@ -92,6 +94,12 @@ export async function isDAppEnabled() {
   ]);
 
   return bools.every(Boolean);
+}
+
+export function sendEvmTransaction(accountPkh: HexString, network: EvmChain, txParams: EvmTxParams) {
+  return withUnlocked(async ({ vault }) => {
+    return await vault.sendEvmTransaction(accountPkh, network, txParams);
+  });
 }
 
 export function registerNewWallet(password: string, mnemonic?: string) {
@@ -269,9 +277,10 @@ export function sendOperations(
   id: string,
   sourcePkh: string,
   networkRpc: string,
-  opParams: any[]
+  opParams: any[],
+  straightaway?: boolean
 ): Promise<{ opHash: string }> {
-  return withUnlocked(async () => {
+  return withUnlocked(async ({ vault }) => {
     const sourcePublicKey = await revealPublicKey(sourcePkh);
     const dryRunResult = await dryRunOpParams({
       opParams,
@@ -283,9 +292,21 @@ export function sendOperations(
       opParams = dryRunResult.result.opParams;
     }
 
-    return new Promise((resolve, reject) =>
-      promisableUnlock(resolve, reject, port, id, sourcePkh, networkRpc, opParams, dryRunResult)
-    );
+    return new Promise(async (resolve, reject) => {
+      if (straightaway) {
+        try {
+          const op = await vault.sendOperations(sourcePkh, networkRpc, opParams);
+
+          await safeAddLocalOperation(networkRpc, op);
+
+          resolve({ opHash: op.hash });
+        } catch (err: any) {
+          reject(err);
+        }
+      } else {
+        return promisableUnlock(resolve, reject, port, id, sourcePkh, networkRpc, opParams, dryRunResult);
+      }
+    });
   });
 }
 
@@ -330,7 +351,7 @@ const promisableUnlock = async (
             vault.sendOperations(
               sourcePkh,
               networkRpc,
-              buildFinalOpParmas(opParams, req.modifiedTotalFee, req.modifiedStorageLimit)
+              buildFinalOpParams(opParams, req.modifiedTotalFee, req.modifiedStorageLimit)
             )
           );
 

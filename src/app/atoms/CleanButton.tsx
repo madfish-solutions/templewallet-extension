@@ -34,7 +34,7 @@ const CleanButton = memo<Props>(({ className, size = 12, showText, onClick }) =>
   return (
     <button
       id={CLEAN_BUTTON_ID}
-      ref={buttonRef}
+      ref={showText ? undefined : buttonRef}
       type="button"
       className={clsx(className, 'flex items-center ease-in-out duration-200', showText && 'px-1 py-0.5')}
       tabIndex={-1}

@@ -1,6 +1,7 @@
 import { localForger } from '@taquito/local-forging';
 import { ForgeOperationsParams } from '@taquito/rpc';
 import { Estimate, TezosToolkit } from '@taquito/taquito';
+import { omit } from 'lodash';
 
 import { formatOpParamsBeforeSend } from 'lib/temple/helpers';
 import { ReadOnlySigner } from 'lib/temple/read-only-signer';
@@ -84,11 +85,12 @@ export async function dryRunOpParams({
           estimates,
           opParams: opParams.map((op, i) => {
             const eIndex = withReveal ? i + 1 : i;
+            // opParams previously formatted using withoutFeesOverride, reformating here
             return {
-              ...op,
+              ...omit(op, ['storage_limit', 'gas_limit']),
               fee: op.fee ?? estimates?.[eIndex].suggestedFeeMutez,
-              gasLimit: op.gasLimit ?? estimates?.[eIndex].gasLimit,
-              storageLimit: op.storageLimit ?? estimates?.[eIndex].storageLimit
+              gasLimit: op.gas_limit ?? estimates?.[eIndex].gasLimit,
+              storageLimit: op.storage_limit ?? estimates?.[eIndex].storageLimit
             };
           })
         }
@@ -101,7 +103,7 @@ export async function dryRunOpParams({
   }
 }
 
-export function buildFinalOpParmas(opParams: any[], modifiedTotalFee?: number, modifiedStorageLimit?: number) {
+export function buildFinalOpParams(opParams: any[], modifiedTotalFee?: number, modifiedStorageLimit?: number) {
   if (modifiedTotalFee !== undefined) {
     opParams = opParams.map(op => ({ ...op, fee: 0 }));
     opParams[0].fee = modifiedTotalFee;

@@ -1,4 +1,6 @@
-import React, { FC, HTMLAttributes, useCallback, useMemo } from 'react';
+import React, { FC, HTMLAttributes, MouseEventHandler, useCallback, useMemo } from 'react';
+
+import clsx from 'clsx';
 
 import { toastSuccess } from 'app/toaster';
 import { AnalyticsEventCategory, TestIDProps, setTestID, useAnalytics } from 'lib/analytics';
@@ -6,7 +8,7 @@ import { t } from 'lib/i18n';
 import useCopyToClipboard from 'lib/ui/useCopyToClipboard';
 import useTippy from 'lib/ui/useTippy';
 
-interface CopyButtonProps extends HTMLAttributes<HTMLButtonElement>, TestIDProps {
+export interface CopyButtonProps extends HTMLAttributes<HTMLButtonElement>, TestIDProps {
   text: string;
   isSecret?: boolean;
   shouldShowTooltip?: boolean;
@@ -19,6 +21,8 @@ export const CopyButton: FC<CopyButtonProps> = ({
   shouldShowTooltip,
   children,
   isSecret,
+  className,
+  onClick,
   ...rest
 }) => {
   const { trackEvent } = useAnalytics();
@@ -37,20 +41,25 @@ export const CopyButton: FC<CopyButtonProps> = ({
 
   const buttonRef = useTippy<HTMLButtonElement>(tippyProps);
 
-  const handleCopyPress = useCallback(() => {
-    testID && trackEvent(testID, AnalyticsEventCategory.ButtonPress, testIDProperties);
+  const handleCopyPress = useCallback<MouseEventHandler<HTMLButtonElement>>(
+    e => {
+      testID && trackEvent(testID, AnalyticsEventCategory.ButtonPress, testIDProperties);
 
-    copy();
-    toastSuccess(t('copiedHash'));
-  }, [copy, testID, testIDProperties, trackEvent]);
+      copy();
+      toastSuccess(t('copiedHash'));
+      onClick?.(e);
+    },
+    [copy, testID, testIDProperties, trackEvent]
+  );
 
   return (
     <>
       <button
         ref={shouldShowTooltip ? buttonRef : undefined}
         type="button"
-        {...rest}
+        className={clsx('w-fit', className)}
         onClick={handleCopyPress}
+        {...rest}
         {...setTestID(testID)}
       >
         {children}

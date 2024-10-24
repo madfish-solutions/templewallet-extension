@@ -42,14 +42,3 @@ export function useContactsActions() {
     getContact
   };
 }
-
-const CONTACT_FIELDS_TO_SEARCH = ['name', 'address'] as const;
-
-export function searchContacts<T extends TempleContact>(contacts: T[], searchValue: string) {
-  if (!searchValue) return contacts;
-
-  const loweredSearchValue = searchValue.toLowerCase();
-  return contacts.filter(c =>
-    CONTACT_FIELDS_TO_SEARCH.some(field => c[field].toLowerCase().includes(loweredSearchValue))
-  );
-}
