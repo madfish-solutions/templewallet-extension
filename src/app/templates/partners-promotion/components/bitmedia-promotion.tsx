@@ -59,6 +59,7 @@ export const BitmediaPromotion: FC<Omit<SingleProviderPromotionProps, 'variant'>
 
     switch (message.type) {
       case AdFrameMessageType.Ready:
+        if (!message.ad) break;
         const { cta_url: ctaUrl, creative_set: creativeSet } = message.ad;
         setAdHref(ctaUrl);
         if (creativeSet) setBackgroundAssetUrl(creativeSet.image.url);
