@@ -1,8 +1,5 @@
 const { exec } = require('child_process');
 
-/** TODO: Discard ASAP */
-const advisoryException = 'https://www.npmjs.com/advisories/1100223';
-
 exec('yarn audit --level high', (error, stdout, stderr) => {
   if (error) {
     console.log(stdout);
