@@ -7,38 +7,12 @@ exec('yarn audit --level high', (error, stdout, stderr) => {
   if (error) {
     console.log(stdout);
 
-    const unescapedStdout = stdout.replace(/\x1B\[\d+m/g, '');
-    const vunerabilitiesTablesBodies = Array.from(unescapedStdout.matchAll(/┌.+┐\n([^└]+)\n└/g)).map(match => match[1]);
-    const vunerabilitiesTraits = vunerabilitiesTablesBodies.map(body => {
-      const tableRows = body
-        .split(/\n*├─+┼─+┤\n*/g)
-        .filter(row => row)
-        .map(row => {
-          const cellsParts = row
-            .split('\n')
-            .map(line => line.split('│').map(cellPart => cellPart.trim()).slice(1, -1));
-          return cellsParts.slice(1).reduce(
-            (acc, lineCellsParts) => {
-              lineCellsParts.forEach((cellPart, index) => {
-                if (cellPart) {
-                  acc[index] = (acc[index] || '') + ' ' + cellPart;
-                }
-              });
+    if (stdout.includes('High') || stdout.includes('Critical')) {
+      const countHigh = stdout.match(/Severity: .* (\d+) High/)?.[1];
+      const countCritical = stdout.match(/Severity: .* (\d+) Critical/)?.[1];
+      const count = (countHigh ? Number(countHigh) : 0) + (countCritical ? Number(countCritical) : 0);
 
-              return acc;
-            },
-            cellsParts[0]
-          )
-        });
-
-      return {
-        advisory: tableRows.find(entry => entry[1].includes('https://www.npmjs.com/advisories'))?.[1],
-        patchAvailable: tableRows.every(entry => !entry[1].includes('No patch available'))
-      };
-    });
-
-    if (vunerabilitiesTraits.some(({ advisory, patchAvailable }) => advisory !== advisoryException && patchAvailable)) {
-      throw new Error(`Audit failed with ${vunerabilitiesTablesBodies.length} vulnerabilities`);
+      throw new Error(`Audit failed with ${count} vulnerabilities`);
     }
   }
 });
