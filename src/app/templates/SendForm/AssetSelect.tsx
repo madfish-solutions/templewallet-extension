@@ -113,7 +113,12 @@ const AssetFieldContent = memo<AssetFieldContentProps>(({ network, slug, publicK
 
   return (
     <div className="flex items-center" {...setTestID(testID)} {...setAnotherSelector('slug', slug)}>
-      <TezosAssetIcon tezosChainId={network.chainId} assetSlug={slug} className="mr-3" size={48} />
+      <TezosAssetIcon
+        tezosChainId={network.chainId}
+        assetSlug={slug}
+        className="mr-3 rounded-lg object-cover"
+        size={48}
+      />
 
       <TezosBalance network={network} assetSlug={slug} address={publicKeyHash}>
         {balance => (
@@ -154,7 +159,12 @@ const AssetOptionContent = memo<AssetOptionContentProps>(({ network, accountPkh,
     {...setTestID(SendFormSelectors.assetDropDownItem)}
     {...setAnotherSelector('slug', slug)}
   >
-    <TezosAssetIcon tezosChainId={network.chainId} assetSlug={slug} className="mx-2" size={32} />
+    <TezosAssetIcon
+      tezosChainId={network.chainId}
+      assetSlug={slug}
+      className="mx-2 object-cover rounded-sm"
+      size={32}
+    />
 
     <AssetItemContent network={network} slug={slug} publicKeyHash={accountPkh} />
   </div>

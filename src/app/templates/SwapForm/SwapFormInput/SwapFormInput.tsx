@@ -221,7 +221,7 @@ const SwapDropdownFace: FC<SwapFieldProps> = ({ tezosChainId, testId, selectedAs
   <div {...setTestID(testId)} className="max-h-18">
     {selectedAssetSlug ? (
       <div className="flex gap-2 align-center">
-        <TezosAssetIcon tezosChainId={tezosChainId} assetSlug={selectedAssetSlug} size={32} className="w-8" />
+        <TezosAssetIcon tezosChainId={tezosChainId} assetSlug={selectedAssetSlug} size={32} />
         <span className="text-gray-700 text-lg overflow-hidden w-16 leading-8 text-ellipsis">
           {selectedAssetMetadata.symbol}
         </span>

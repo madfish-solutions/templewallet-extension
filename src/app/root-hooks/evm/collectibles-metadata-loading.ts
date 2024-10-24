@@ -9,7 +9,7 @@ import {
 } from 'app/store/evm/collectibles-metadata/actions';
 import { useEvmCollectiblesMetadataRecordSelector } from 'app/store/evm/collectibles-metadata/selectors';
 import { useEvmCollectiblesMetadataLoadingSelector } from 'app/store/evm/selectors';
-import { getEvmCollectiblesMetadata } from 'lib/apis/temple/endpoints/evm/api';
+import { getEvmCollectiblesMetadata } from 'lib/apis/temple/endpoints/evm';
 import { isSupportedChainId } from 'lib/apis/temple/endpoints/evm/api.utils';
 import { fetchEvmCollectiblesMetadataFromChain } from 'lib/evm/on-chain/metadata';
 import { useEnabledEvmChains } from 'temple/front';

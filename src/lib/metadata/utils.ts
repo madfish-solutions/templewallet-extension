@@ -8,12 +8,15 @@ import {
   TokenMetadata,
   TezosTokenStandardsEnum,
   EvmTokenMetadata,
-  EvmCollectibleMetadata
+  EvmCollectibleMetadata,
+  EvmAssetMetadataBase
 } from './types';
 
-export function getAssetSymbol(metadata: EvmTokenMetadata | AssetMetadataBase | nullish, short = false) {
-  if (!metadata || !metadata.symbol) return '???';
+export function getAssetSymbol(metadata: EvmAssetMetadataBase | AssetMetadataBase | nullish, short = false) {
+  if (!metadata?.symbol) return '???';
+
   if (!short) return metadata.symbol;
+
   return metadata.symbol === 'tez' ? TEZOS_SYMBOL : metadata.symbol.substring(0, 5);
 }
 
@@ -36,8 +39,12 @@ export const isCollectible = (metadata: StringRecord<any>) =>
 /**
  * @deprecated // Assertion here is not safe!
  */
-export const isCollectibleTokenMetadata = (metadata: AssetMetadataBase): metadata is TokenMetadata =>
+export const isTezosCollectibleMetadata = (metadata: AssetMetadataBase): metadata is TokenMetadata =>
   isCollectible(metadata);
+
+/** TODO: Better way */
+export const isEvmCollectibleMetadata = (metadata: EvmAssetMetadataBase): metadata is EvmCollectibleMetadata =>
+  'image' in metadata;
 
 export const buildTokenMetadataFromFetched = (
   token: TokenMetadataResponse,

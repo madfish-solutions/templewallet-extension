@@ -5,8 +5,7 @@ import clsx from 'clsx';
 
 import { IconBase, ToggleSwitch } from 'app/atoms';
 import Money from 'app/atoms/Money';
-import { EvmNetworkLogo, NetworkLogoFallback } from 'app/atoms/NetworkLogo';
-import { TezNetworkLogo } from 'app/atoms/NetworksLogos';
+import { EvmNetworkLogo, TezosNetworkLogo } from 'app/atoms/NetworkLogo';
 import { ReactComponent as DeleteIcon } from 'app/icons/base/delete.svg';
 import { dispatch } from 'app/store';
 import { setEvmCollectibleStatusAction } from 'app/store/evm/assets/actions';
@@ -29,9 +28,7 @@ import { T } from 'lib/i18n';
 import { getTokenName } from 'lib/metadata';
 import { getCollectibleName, getCollectionName } from 'lib/metadata/utils';
 import { atomsToTokens } from 'lib/temple/helpers';
-import { TEZOS_MAINNET_CHAIN_ID } from 'lib/temple/types';
 import { useBooleanState } from 'lib/ui/hooks';
-import useTippy, { UseTippyOptions } from 'lib/ui/useTippy';
 import { Link } from 'lib/woozie';
 import { useEvmChainByChainId, useTezosChainByChainId } from 'temple/front/chains';
 import { TempleChainKind } from 'temple/types';
@@ -67,17 +64,6 @@ export const TezosCollectibleItem = memo<TezosCollectibleItemProps>(
 
     const network = useTezosChainByChainId(tezosChainId);
 
-    const tippyProps = useMemo<UseTippyOptions>(
-      () => ({
-        trigger: 'mouseenter',
-        hideOnClick: false,
-        content: network?.name ?? 'Unknown Network',
-        animation: 'shift-away-subtle',
-        placement: 'bottom'
-      }),
-      [network]
-    );
-
     const storedToken = useStoredTezosCollectibleSelector(accountPkh, tezosChainId, assetSlug);
 
     const checked = getAssetStatus(balanceAtomic, storedToken?.status) === 'enabled';
@@ -109,8 +95,6 @@ export const TezosCollectibleItem = memo<TezosCollectibleItemProps>(
         ),
       [checked, assetSlug, tezosChainId, accountPkh]
     );
-
-    const networkIconRef = useTippy<HTMLDivElement>(tippyProps);
 
     const decimals = metadata?.decimals;
 
@@ -165,16 +149,17 @@ export const TezosCollectibleItem = memo<TezosCollectibleItemProps>(
                   areDetailsLoading={areDetailsLoading && details === undefined}
                   mime={details?.mime}
                   containerElemRef={wrapperElemRef}
+                  className="object-cover"
                 />
 
                 {network && (
-                  <div ref={networkIconRef} className="absolute bottom-0.5 right-0.5">
-                    {network.chainId === TEZOS_MAINNET_CHAIN_ID ? (
-                      <TezNetworkLogo size={NETWORK_IMAGE_DEFAULT_SIZE} />
-                    ) : (
-                      <NetworkLogoFallback networkName={network.name} size={NETWORK_IMAGE_DEFAULT_SIZE} />
-                    )}
-                  </div>
+                  <TezosNetworkLogo
+                    chainId={network.chainId}
+                    size={NETWORK_IMAGE_DEFAULT_SIZE}
+                    className="absolute bottom-0.5 right-0.5"
+                    withTooltip
+                    tooltipPlacement="bottom"
+                  />
                 )}
               </div>
 
@@ -222,6 +207,7 @@ export const TezosCollectibleItem = memo<TezosCollectibleItemProps>(
             areDetailsLoading={areDetailsLoading && details === undefined}
             mime={details?.mime}
             containerElemRef={wrapperElemRef}
+            className="object-contain"
           />
 
           {areDetailsShown && balance && (
@@ -231,13 +217,13 @@ export const TezosCollectibleItem = memo<TezosCollectibleItemProps>(
           )}
 
           {network && (
-            <div ref={networkIconRef} className="absolute bottom-1 right-1">
-              {network.chainId === TEZOS_MAINNET_CHAIN_ID ? (
-                <TezNetworkLogo size={NETWORK_IMAGE_DEFAULT_SIZE} />
-              ) : (
-                <NetworkLogoFallback networkName={network.name} size={NETWORK_IMAGE_DEFAULT_SIZE} />
-              )}
-            </div>
+            <TezosNetworkLogo
+              chainId={network.chainId}
+              size={NETWORK_IMAGE_DEFAULT_SIZE}
+              className="absolute bottom-1 right-1"
+              withTooltip
+              tooltipPlacement="bottom"
+            />
           )}
         </div>
 
@@ -322,19 +308,6 @@ export const EvmCollectibleItem = memo<EvmCollectibleItemProps>(
 
     const network = useEvmChainByChainId(evmChainId);
 
-    const tippyProps = useMemo<UseTippyOptions>(
-      () => ({
-        trigger: 'mouseenter',
-        hideOnClick: false,
-        content: network?.name ?? 'Unknown Network',
-        animation: 'shift-away-subtle',
-        placement: 'bottom'
-      }),
-      [network]
-    );
-
-    const networkIconRef = useTippy<HTMLDivElement>(tippyProps);
-
     const imgContainerStyles = useMemo(
       () => (showDetails ? ImgWithDetailsContainerStyle : ImgContainerStyle),
       [showDetails]
@@ -356,15 +329,15 @@ export const EvmCollectibleItem = memo<EvmCollectibleItemProps>(
                 )}
                 style={manageImgStyle}
               >
-                {metadata && <EvmCollectibleItemImage metadata={metadata} />}
+                {metadata && <EvmCollectibleItemImage metadata={metadata} className="object-cover" />}
 
                 {network && (
                   <EvmNetworkLogo
-                    ref={networkIconRef}
-                    className="absolute bottom-0.5 right-0.5"
-                    networkName={network.name}
                     chainId={network.chainId}
                     size={NETWORK_IMAGE_DEFAULT_SIZE}
+                    className="absolute bottom-0.5 right-0.5"
+                    withTooltip
+                    tooltipPlacement="bottom"
                   />
                 )}
               </div>
@@ -403,7 +376,7 @@ export const EvmCollectibleItem = memo<EvmCollectibleItemProps>(
           )}
           style={ImgStyle}
         >
-          {metadata && <EvmCollectibleItemImage metadata={metadata} />}
+          {metadata && <EvmCollectibleItemImage metadata={metadata} className="object-contain" />}
 
           {showDetails && (
             <div className="absolute bottom-1.5 left-1.5 text-xxxs text-white leading-none p-1 bg-black bg-opacity-60 rounded">
@@ -413,11 +386,11 @@ export const EvmCollectibleItem = memo<EvmCollectibleItemProps>(
 
           {network && (
             <EvmNetworkLogo
-              ref={networkIconRef}
-              className="absolute bottom-1 right-1"
-              networkName={network.name}
               chainId={network.chainId}
               size={NETWORK_IMAGE_DEFAULT_SIZE}
+              className="absolute bottom-1 right-1"
+              withTooltip
+              tooltipPlacement="bottom"
             />
           )}
         </div>

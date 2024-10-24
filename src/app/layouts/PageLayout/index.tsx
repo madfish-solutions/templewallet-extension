@@ -2,7 +2,7 @@ import React, { ComponentType, createContext, FC, ReactNode, RefObject, useConte
 
 import clsx from 'clsx';
 
-import { ContentFader } from 'app/a11y/ContentFader';
+import { FADABLE_CONTENT_CLASSNAME } from 'app/a11y/content-fader';
 import DocBg from 'app/a11y/DocBg';
 import Spinner from 'app/atoms/Spinner/Spinner';
 import { SuspenseContainer } from 'app/atoms/SuspenseContainer';
@@ -42,7 +42,7 @@ export interface PageLayoutProps extends DefaultHeaderProps, ScrollEdgesVisibili
   /** With this given, header props are ignored */
   Header?: ComponentType;
   contentPadding?: boolean;
-  paperClassName?: string;
+  dimBg?: boolean;
   headerChildren?: ReactNode;
 }
 
@@ -50,7 +50,7 @@ const PageLayout: FC<PropsWithChildren<PageLayoutProps>> = ({
   Header,
   children,
   contentPadding = true,
-  paperClassName,
+  dimBg = true,
   headerChildren,
   onBottomEdgeVisibilityChange,
   bottomEdgeThreshold,
@@ -74,7 +74,6 @@ const PageLayout: FC<PropsWithChildren<PageLayoutProps>> = ({
 
       <div id={APP_CONTENT_WRAP_DOM_ID} className={clsx(fullPage && FULL_PAGE_WRAP_CLASSNAME)}>
         <ContentPaper
-          className={paperClassName}
           onBottomEdgeVisibilityChange={onBottomEdgeVisibilityChange}
           bottomEdgeThreshold={bottomEdgeThreshold}
           onTopEdgeVisibilityChange={onTopEdgeVisibilityChange}
@@ -82,7 +81,7 @@ const PageLayout: FC<PropsWithChildren<PageLayoutProps>> = ({
         >
           {Header ? <Header /> : <DefaultHeader {...headerProps}>{headerChildren}</DefaultHeader>}
 
-          <div className={clsx('flex-1 flex flex-col', contentPadding && 'p-4 pb-15')}>
+          <div className={clsx('flex-grow flex flex-col', contentPadding && 'p-4 pb-15', dimBg && 'bg-background')}>
             <SuspenseContainer errorMessage="displaying this page">{children}</SuspenseContainer>
           </div>
         </ContentPaper>
@@ -143,6 +142,7 @@ const ContentPaper: FC<ContentPaperProps> = ({
         id={APP_CONTENT_PAPER_DOM_ID}
         className={clsx(
           LAYOUT_CONTAINER_CLASSNAME,
+          FADABLE_CONTENT_CLASSNAME,
           'relative flex flex-col bg-white',
           !SCROLL_DOCUMENT && 'overflow-y-auto',
           appEnv.fullPage && 'min-h-80 rounded-md shadow-bottom',
@@ -150,8 +150,6 @@ const ContentPaper: FC<ContentPaperProps> = ({
         )}
       >
         {children}
-
-        <ContentFader />
       </ContentPaperNode>
     </ContentPaperRefContext.Provider>
   );

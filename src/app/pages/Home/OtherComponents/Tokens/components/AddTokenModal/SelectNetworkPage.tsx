@@ -10,6 +10,7 @@ import { SearchBarField } from 'app/templates/SearchField';
 import { navigate } from 'lib/woozie';
 import {
   EvmChain,
+  OneOfChains,
   TezosChain,
   useAccountAddressForEvm,
   useAccountAddressForTezos,
@@ -20,8 +21,8 @@ import {
 type Network = EvmChain | TezosChain;
 
 interface SelectNetworkPageProps {
-  selectedNetwork: Network;
-  onNetworkSelect: (network: Network) => void;
+  selectedNetwork: OneOfChains;
+  onNetworkSelect: (network: OneOfChains) => void;
 }
 
 export const SelectNetworkPage: FC<SelectNetworkPageProps> = ({ selectedNetwork, onNetworkSelect }) => {
@@ -42,13 +43,13 @@ export const SelectNetworkPage: FC<SelectNetworkPageProps> = ({ selectedNetwork,
   const filteredNetworks = useMemo(
     () =>
       searchValueDebounced.length
-        ? searchAndFilterNetworksByName<Network>(sortedNetworks, searchValueDebounced)
+        ? searchAndFilterNetworksByName<OneOfChains>(sortedNetworks, searchValueDebounced)
         : sortedNetworks,
     [searchValueDebounced, sortedNetworks]
   );
 
   const handleNetworkSelect = useCallback(
-    (network: Network | string) => {
+    (network: OneOfChains | string) => {
       if (typeof network === 'string') return;
 
       onNetworkSelect(network);

@@ -27,7 +27,7 @@ export const Receive = memo(() => {
   const resetReceivePayload = useCallback(() => setReceivePayload(null), []);
 
   return (
-    <PageLayout pageTitle={<PageTitle title={t('receive')} />} paperClassName="!bg-background">
+    <PageLayout pageTitle={<PageTitle title={t('receive')} />}>
       <AccountsModal opened={accountsModalIsOpen} onRequestClose={closeAccountsModal} />
       <AccountDropdownHeader className="mb-5" account={account} onClick={openAccountsModal} />
       {receivePayload && <ReceiveModal onClose={resetReceivePayload} {...receivePayload} />}
