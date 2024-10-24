@@ -2,7 +2,7 @@ import React, { ReactNode, memo } from 'react';
 
 import { ActionModal, ActionModalButton, ActionModalButtonsContainer, ActionModalProps } from 'app/atoms/action-modal';
 import { T } from 'lib/i18n';
-import { StyledButtonColor } from 'lib/ui/button-like-styles';
+import { StyledButtonColor } from 'lib/ui/use-styled-button-or-link-props';
 
 import { DialogBody } from '../DialogBody';
 

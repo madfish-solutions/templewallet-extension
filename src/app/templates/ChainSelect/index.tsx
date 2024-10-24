@@ -17,16 +17,23 @@ export { useChainSelectController } from './controller';
 
 interface Props {
   controller: ChainSelectController;
+  shouldFilterByCurrentAccount?: boolean;
 }
 
-const ChainSelect = memo<Props>(({ controller }) => {
+const ChainSelect = memo<Props>(({ controller, shouldFilterByCurrentAccount = true }) => {
   const selectedChain = controller.value;
 
   return (
     <Popper
       placement="bottom-end"
       strategy="fixed"
-      popup={props => <ChainsDropdown controller={controller} {...props} />}
+      popup={props => (
+        <ChainsDropdown
+          shouldFilterByCurrentAccount={shouldFilterByCurrentAccount}
+          controller={controller}
+          {...props}
+        />
+      )}
     >
       {({ ref, opened, toggleOpened }) => (
         <Button

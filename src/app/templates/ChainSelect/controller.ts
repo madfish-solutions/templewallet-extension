@@ -7,12 +7,14 @@ export interface ChainSelectController {
   setValue: SyncFn<OneOfChains>;
 }
 
-export const useChainSelectController = (): ChainSelectController => {
+export const useChainSelectController = (shouldFilterByCurrentAccount = true): ChainSelectController => {
   const tezosMainnetChain = useTezosMainnetChain();
   const evmMainnet = useEthereumMainnetChain();
   const accountTezAddress = useAccountAddressForTezos();
 
-  const [value, setValue] = useState<OneOfChains>(() => (accountTezAddress ? tezosMainnetChain : evmMainnet));
+  const [value, setValue] = useState<OneOfChains>(() =>
+    accountTezAddress || !shouldFilterByCurrentAccount ? tezosMainnetChain : evmMainnet
+  );
 
   return useMemo(() => ({ value, setValue }), [value]);
 };

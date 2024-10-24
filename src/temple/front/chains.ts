@@ -1,16 +1,21 @@
 import type { TID } from 'lib/i18n';
 import { EvmNativeTokenMetadata } from 'lib/metadata/types';
-import { TEZOS_MAINNET_CHAIN_ID } from 'lib/temple/types';
+import { ETHEREUM_MAINNET_CHAIN_ID, TEZOS_MAINNET_CHAIN_ID } from 'lib/temple/types';
 import type { StoredTezosNetwork, StoredEvmNetwork } from 'temple/networks';
 import type { TempleChainKind } from 'temple/types';
 
+import { BlockExplorer } from './block-explorers';
 import { useAllTezosChains, useAllEvmChains } from './ready';
 
-interface ChainBase {
+export interface ChainBase {
   rpcBaseURL: string;
   name: string;
   nameI18nKey?: TID;
   disabled?: boolean;
+  allBlockExplorers: BlockExplorer[];
+  activeBlockExplorer?: BlockExplorer;
+  testnet?: boolean;
+  default: boolean;
 }
 
 export interface TezosChain extends ChainBase {
@@ -30,16 +35,7 @@ export interface EvmChain extends ChainBase {
 
 export type OneOfChains = TezosChain | EvmChain;
 
-export interface TezosChainSpecs {
-  activeRpcId?: string;
-  disabled?: boolean;
-}
-
-export interface EvmChainSpecs {
-  activeRpcId?: string;
-  disabled?: boolean;
-  currency?: EvmNativeTokenMetadata;
-}
+export const isPossibleTestnetChain = (chain: OneOfChains) => chain.testnet !== false;
 
 export const useTezosChainByChainId = (tezosChainId: string): TezosChain | null => {
   const allTezosChains = useAllTezosChains();
@@ -55,4 +51,4 @@ export const useEvmChainByChainId = (evmChainId: number): EvmChain | undefined =
   return allEvmChains[evmChainId];
 };
 
-export const useEthereumMainnetChain = () => useEvmChainByChainId(1)!;
+export const useEthereumMainnetChain = () => useEvmChainByChainId(ETHEREUM_MAINNET_CHAIN_ID)!;

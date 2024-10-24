@@ -26,6 +26,7 @@ export const WordInput = memo<WordInputProps>(({ wordIndex, active, value, testI
         </span>
       </div>
     }
+    reserveSpaceForError={false}
     value={value}
     readOnly
     testID={testID}

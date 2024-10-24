@@ -36,10 +36,18 @@ export const useTempleNetworksActions = () => {
     [customTezosNetworks, updateSettings]
   );
 
-  const removeTezosNetwork = useCallback(
-    (networkId: string) =>
+  const updateTezosNetwork = useCallback(
+    (networkId: string, newNetwork: StoredTezosNetwork) =>
       updateSettings({
-        customTezosNetworks: customTezosNetworks.filter(n => n.id !== networkId)
+        customTezosNetworks: customTezosNetworks.map(n => (n.id === networkId ? newNetwork : n))
+      }),
+    [customTezosNetworks, updateSettings]
+  );
+
+  const removeTezosNetworks = useCallback(
+    (networkIds: string[]) =>
+      updateSettings({
+        customTezosNetworks: customTezosNetworks.filter(n => !networkIds.includes(n.id))
       }),
     [customTezosNetworks, updateSettings]
   );
@@ -52,10 +60,18 @@ export const useTempleNetworksActions = () => {
     [customEvmNetworks, updateSettings]
   );
 
-  const removeEvmNetwork = useCallback(
-    (networkId: string) =>
+  const updateEvmNetwork = useCallback(
+    (networkId: string, newNetwork: StoredEvmNetwork) =>
       updateSettings({
-        customEvmNetworks: customEvmNetworks.filter(n => n.id !== networkId)
+        customEvmNetworks: customEvmNetworks.map(n => (n.id === networkId ? newNetwork : n))
+      }),
+    [customEvmNetworks, updateSettings]
+  );
+
+  const removeEvmNetworks = useCallback(
+    (networkIds: string[]) =>
+      updateSettings({
+        customEvmNetworks: customEvmNetworks.filter(n => !networkIds.includes(n.id))
       }),
     [customEvmNetworks, updateSettings]
   );
@@ -64,8 +80,10 @@ export const useTempleNetworksActions = () => {
     customTezosNetworks,
     customEvmNetworks,
     addTezosNetwork,
-    removeTezosNetwork,
+    updateTezosNetwork,
+    removeTezosNetworks,
     addEvmNetwork,
-    removeEvmNetwork
+    updateEvmNetwork,
+    removeEvmNetworks
   };
 };

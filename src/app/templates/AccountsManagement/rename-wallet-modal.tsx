@@ -66,6 +66,7 @@ export const RenameWalletModal = memo<RenameWalletModalProps>(({ onClose, select
             name="name"
             placeholder={selectedGroup.name}
             errorCaption={errors.name?.message}
+            reserveSpaceForError={false}
             containerClassName="mb-1.5"
             cleanable
             onClean={cleanWalletName}

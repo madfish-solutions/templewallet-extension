@@ -73,6 +73,7 @@ export const ConfirmRevealPrivateKeyAccessModal = memo<ConfirmRevealPrivateKeyAc
               name="password"
               placeholder={DEFAULT_PASSWORD_INPUT_PLACEHOLDER}
               errorCaption={errors.password?.message}
+              reserveSpaceForError={false}
               containerClassName="mb-1"
               testID={AccountSettingsSelectors.passwordInput}
             />

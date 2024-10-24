@@ -62,6 +62,7 @@ export const EditAccountNameModal = memo<EditAccountNameModalProps>(({ account, 
             name="name"
             placeholder={account.name}
             errorCaption={errors.name?.message}
+            reserveSpaceForError={false}
             containerClassName="mb-1"
             testID={AccountSettingsSelectors.accountNameInput}
           />
