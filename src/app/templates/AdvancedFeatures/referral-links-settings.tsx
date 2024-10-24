@@ -74,7 +74,7 @@ export const ReferralLinksSettings = memo(() => {
 
   return (
     <EnablingSetting
-      titleI18nKey="referralLinks"
+      title={<T id="referralLinks" />}
       description={<T id="referralLinksDescription" />}
       enabled={referralLinksEnabled}
       onChange={toggleReferralLinks}
