@@ -10,7 +10,6 @@ exec('yarn audit --level high', (error, stdout, stderr) => {
     const unescapedStdout = stdout.replace(/\x1B\[\d+m/g, '');
     const vunerabilitiesTablesBodies = Array.from(unescapedStdout.matchAll(/┌.+┐\n([^└]+)\n└/g)).map(match => match[1]);
     const vunerabilitiesTraits = vunerabilitiesTablesBodies.map(body => {
-      console.log(JSON.stringify(body));
       const tableRows = body
         .split(/\n*├─+┼─+┤\n*/g)
         .filter(row => row)
