@@ -8,7 +8,8 @@ export const LIQUIDITY_BAKING_PROXY_CONTRACT = 'KT1WLWMMm9MywjCqnA8wBAYy9QhUE1Lz
 export const BURN_ADDREESS = 'tz1burnburnburnburnburnburnburjAYjjX';
 export const ROUTING_FEE_ADDRESS = 'tz1UbRzhYjQKTtWYvGUWcRtVT4fN3NESDVYT';
 
-const ROUTING_FEE_PERCENT = 0.35;
+export const ROUTING_FEE_PERCENT = 0.6;
+export const SWAP_CASHBACK_PERCENT = 0.3;
 export const ROUTING_FEE_RATIO = getPercentageRatio(ROUTING_FEE_PERCENT);
 export const ROUTING_FEE_SLIPPAGE_RATIO = 0.995;
 export const MAX_ROUTING_FEE_CHAINS = 1;

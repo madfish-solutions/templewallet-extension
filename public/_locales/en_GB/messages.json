@@ -1660,7 +1660,12 @@
     "message": "Cashback"
   },
   "swapCashbackDescription": {
-    "message": "Swap more than 10$ and receive 0.175% from the swapped amount in the TKEY token as a cashback"
+    "message": "Swap more than 10$$ and receive $text$% from the swapped amount in the TKEY token as a cashback",
+    "placeholders": {
+      "text": {
+        "content": "$1"
+      }
+    }
   },
   "subscribeToNewsletter": {
     "message": "Subscribe to our Newsletter"
