@@ -27,9 +27,9 @@ import { useAssetMetadata, useGetAssetMetadata } from 'lib/metadata';
 import {
   BURN_ADDREESS,
   ROUTING_FEE_ADDRESS,
-  ROUTING_FEE_PERCENT,
+  ROUTING_FEE_RATIO,
   ROUTING_FEE_SLIPPAGE_RATIO,
-  SWAP_CASHBACK_PERCENT,
+  SWAP_CASHBACK_RATIO,
   SWAP_THRESHOLD_TO_GET_CASHBACK,
   TEMPLE_TOKEN
 } from 'lib/route3/constants';
@@ -365,7 +365,7 @@ export const SwapForm: FC = () => {
 
         const routingFeeOpParams = await getRoutingFeeTransferParams(
           TEMPLE_TOKEN,
-          templeOutputAtomic.times(ROUTING_FEE_PERCENT - SWAP_CASHBACK_PERCENT).dividedToIntegerBy(ROUTING_FEE_PERCENT),
+          templeOutputAtomic.times(ROUTING_FEE_RATIO - SWAP_CASHBACK_RATIO).dividedToIntegerBy(ROUTING_FEE_RATIO),
           publicKeyHash,
           BURN_ADDREESS,
           tezos
@@ -375,8 +375,8 @@ export const SwapForm: FC = () => {
         routingOutputFeeTransferParams = await getRoutingFeeTransferParams(
           TEMPLE_TOKEN,
           routingFeeFromOutputAtomic
-            .times(ROUTING_FEE_PERCENT - SWAP_CASHBACK_PERCENT)
-            .dividedToIntegerBy(ROUTING_FEE_PERCENT),
+            .times(ROUTING_FEE_RATIO - SWAP_CASHBACK_RATIO)
+            .dividedToIntegerBy(ROUTING_FEE_RATIO),
           publicKeyHash,
           BURN_ADDREESS,
           tezos
@@ -406,7 +406,7 @@ export const SwapForm: FC = () => {
 
         const routingFeeOpParams = await getRoutingFeeTransferParams(
           TEMPLE_TOKEN,
-          templeOutputAtomic.times(ROUTING_FEE_PERCENT - SWAP_CASHBACK_PERCENT).dividedToIntegerBy(ROUTING_FEE_PERCENT),
+          templeOutputAtomic.times(ROUTING_FEE_RATIO - SWAP_CASHBACK_RATIO).dividedToIntegerBy(ROUTING_FEE_RATIO),
           publicKeyHash,
           BURN_ADDREESS,
           tezos
@@ -560,7 +560,7 @@ export const SwapForm: FC = () => {
                   <InfoIcon className="w-3 h-auto stroke-current" />
                 </span>
               </td>
-              <td className="text-right text-gray-600">{ROUTING_FEE_PERCENT}%</td>
+              <td className="text-right text-gray-600">{ROUTING_FEE_RATIO * 100}%</td>
             </tr>
             <tr>
               <td>
@@ -610,7 +610,7 @@ export const SwapForm: FC = () => {
                   <InfoIcon className="w-3 h-auto stroke-current" />
                 </span>
               </td>
-              <td className="text-right text-gray-600">{SWAP_CASHBACK_PERCENT}%</td>
+              <td className="text-right text-gray-600">{SWAP_CASHBACK_RATIO * 100}%</td>
             </tr>
           </tbody>
         </table>

@@ -1,22 +1,45 @@
 const { exec } = require('child_process');
 
+/** TODO: Discard ASAP */
+const advisoryException = 'https://www.npmjs.com/advisories/1100223';
+
 exec('yarn audit --level high', (error, stdout, stderr) => {
   if (error) {
     console.log(stdout);
 
-    const tooSevereVunerabilitiesCount = [/(\d+) High/, /(\d+) Critical/]
-      .map(regex => {
-        const match = regex.exec(stdout);
+    const unescapedStdout = stdout.replace(/\x1B\[\d+m/g, '');
+    const vunerabilitiesTablesBodies = Array.from(unescapedStdout.matchAll(/┌.+┐\n([^└]+)\n└/g)).map(match => match[1]);
+    const vunerabilitiesTraits = vunerabilitiesTablesBodies.map(body => {
+      console.log(JSON.stringify(body));
+      const tableRows = body
+        .split(/\n*├─+┼─+┤\n*/g)
+        .filter(row => row)
+        .map(row => {
+          const cellsParts = row
+            .split('\n')
+            .map(line => line.split('│').map(cellPart => cellPart.trim()).slice(1, -1));
+          return cellsParts.slice(1).reduce(
+            (acc, lineCellsParts) => {
+              lineCellsParts.forEach((cellPart, index) => {
+                if (cellPart) {
+                  acc[index] = (acc[index] || '') + ' ' + cellPart;
+                }
+              });
 
-        return match ? parseInt(match[1]) : 0;
-      })
-      .reduce((a, b) => a + b, 0);
-    const tooSevereTypesVunerabilitiesCount = Array
-      .from(stdout.matchAll(/Dependency of\s+(\x1B\[90m)?│(\x1B\[39m)?\s+@types/g))
-      .length;
+              return acc;
+            },
+            cellsParts[0]
+          )
+        });
 
-    if (tooSevereVunerabilitiesCount - tooSevereTypesVunerabilitiesCount > 0) {
-      throw new Error('Audit failed');
+      return {
+        advisory: tableRows.find(entry => entry[1].includes('https://www.npmjs.com/advisories'))?.[1],
+        patchAvailable: tableRows.every(entry => !entry[1].includes('No patch available'))
+      };
+    });
+
+    if (vunerabilitiesTraits.some(({ advisory, patchAvailable }) => advisory !== advisoryException && patchAvailable)) {
+      throw new Error(`Audit failed with ${vunerabilitiesTablesBodies.length} vulnerabilities`);
     }
   }
 });

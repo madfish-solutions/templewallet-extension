@@ -408,13 +408,13 @@ class TaquitoWallet implements WalletProvider {
     return this.pkh;
   }
 
+  getPK() {
+    return getPublicKey(this.pkh);
+  }
+
   async mapTransferTicketParamsToWalletParams(params: () => Promise<WalletTransferTicketParams>) {
     const walletParams = await params();
     return withoutFeesOverride(walletParams, await createTransferTicketOperation(walletParams));
-  }
-
-  getPK() {
-    return getPublicKey(this.pkh);
   }
 
   async mapIncreasePaidStorageWalletParams(params: () => Promise<WalletIncreasePaidStorageParams>) {
