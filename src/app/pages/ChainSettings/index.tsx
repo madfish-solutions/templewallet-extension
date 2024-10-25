@@ -47,7 +47,7 @@ const ChainExistentSettings = memo<ChainExistentSettingsProps>(({ chain, bottomE
     removeBlockExplorer,
     removeChain
   } = useChainOperations(chainKind, chainId);
-  const shouldPreventDisablingChain = MAIN_CHAINS_IDS.includes(chainId);
+  const disablingIsForbidden = MAIN_CHAINS_IDS.includes(chainId);
 
   const handleConfirmRemoveClick = useCallback(() => {
     closeRemoveChainModal();
@@ -63,7 +63,7 @@ const ChainExistentSettings = memo<ChainExistentSettingsProps>(({ chain, bottomE
           <SettingsCell cellName={<T id="networkEnabled" />} Component="div">
             <ToggleSwitch
               checked={!chain.disabled}
-              disabled={!chain.disabled && shouldPreventDisablingChain}
+              disabled={!chain.disabled && disablingIsForbidden}
               onChange={setChainEnabled}
               testID={ChainSettingsSelectors.networkEnabledSwitch}
             />
