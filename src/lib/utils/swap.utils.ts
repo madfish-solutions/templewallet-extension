@@ -96,15 +96,14 @@ export const getSwapTransferParams = async (
     });
   } catch (e) {
     console.error(e);
-    console.log('Using approximated fees');
     const swapOpParams = resultParams.find(isSwapTransaction)!;
-    // Some more experimental values
+    // The quotients for calculations below are taken from analyzing several estimations
     swapOpParams.fee = isSwapHops(chains)
-      ? 1073 + 1340 * chains.hops.length
-      : 4650 + 3824 * chains.tzbtcHops.length + 1183 * chains.xtzHops.length;
+      ? 1100 + 1400 * chains.hops.length
+      : 4700 + 3900 * chains.tzbtcHops.length + 1200 * chains.xtzHops.length;
     swapOpParams.gasLimit = isSwapHops(chains)
-      ? 7977 + 13303 * chains.hops.length
-      : 43505 + 38154 * chains.tzbtcHops.length + 11830 * chains.xtzHops.length;
+      ? 8000 + 14000 * chains.hops.length
+      : 44000 + 39000 * chains.tzbtcHops.length + 12000 * chains.xtzHops.length;
   }
   resultParams.push(...revoke);
 
