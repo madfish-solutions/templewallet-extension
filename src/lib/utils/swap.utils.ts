@@ -19,7 +19,10 @@ import { loadContract } from 'lib/temple/contract';
 import { getTransferPermissions } from './get-transfer-permissions';
 import { ZERO } from './numbers';
 
-const GAS_CAP = 1000;
+const GAS_CAP_PER_INTERNAL_OPERATION = 1000;
+
+const isSwapTransaction = (params: TransferParams) =>
+  params.to === ROUTE3_CONTRACT || params.to === LIQUIDITY_BAKING_PROXY_CONTRACT;
 
 export const getSwapTransferParams = async (
   fromRoute3Token: Route3Token,
@@ -83,12 +86,25 @@ export const getSwapTransferParams = async (
     );
     estimations.forEach(({ suggestedFeeMutez, storageLimit, gasLimit }, index) => {
       const currentParams = resultParams[index];
-      currentParams.fee = suggestedFeeMutez + Math.ceil(GAS_CAP * FEE_PER_GAS_UNIT);
+      const approximateInternalOperationsCount = isSwapTransaction(currentParams)
+        ? 1 + (isSwapHops(chains) ? chains.hops.length : chains.xtzHops.length + chains.tzbtcHops.length)
+        : 1;
+      const gasCap = approximateInternalOperationsCount * GAS_CAP_PER_INTERNAL_OPERATION;
+      currentParams.fee = suggestedFeeMutez + Math.ceil(gasCap * FEE_PER_GAS_UNIT);
       currentParams.storageLimit = storageLimit;
-      currentParams.gasLimit = gasLimit + GAS_CAP;
+      currentParams.gasLimit = gasLimit + gasCap;
     });
   } catch (e) {
     console.error(e);
+    console.log('Using approximated fees');
+    const swapOpParams = resultParams.find(isSwapTransaction)!;
+    // Some more experimental values
+    swapOpParams.fee = isSwapHops(chains)
+      ? 1073 + 1340 * chains.hops.length
+      : 4650 + 3824 * chains.tzbtcHops.length + 1183 * chains.xtzHops.length;
+    swapOpParams.gasLimit = isSwapHops(chains)
+      ? 7977 + 13303 * chains.hops.length
+      : 43505 + 38154 * chains.tzbtcHops.length + 11830 * chains.xtzHops.length;
   }
   resultParams.push(...revoke);
 

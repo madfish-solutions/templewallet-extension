@@ -2,14 +2,13 @@ import type { TzktApiChainId, TzktOperation } from 'lib/apis/tzkt';
 import * as TZKT from 'lib/apis/tzkt';
 import { TEZ_TOKEN_SLUG } from 'lib/assets';
 import { detectTokenStandard } from 'lib/assets/standards';
+import { LIQUIDITY_BAKING_DEX_ADDRESS } from 'lib/constants';
 import { ReactiveTezosToolkit } from 'lib/temple/front';
 import { TempleAccount } from 'lib/temple/types';
 import { filterUnique } from 'lib/utils';
 
 import type { Activity, OperationsGroup } from './types';
 import { operationsGroupToActivity } from './utils';
-
-const LIQUIDITY_BAKING_DEX_ADDRESS = 'KT1TxqZ8QtKvLu3V3JH7Gx58n7Co8pgtpQU5';
 
 export default async function fetchActivities(
   chainId: TzktApiChainId,

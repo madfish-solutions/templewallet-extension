@@ -165,18 +165,21 @@ export const SwapForm: FC = () => {
       );
 
       const route3FromToken = getRoute3TokenBySlug(route3Tokens, input.assetSlug);
+      const route3ToToken = getRoute3TokenBySlug(route3Tokens, output.assetSlug);
       const { mainSwapMaxDexes } = getSwapWithFeeParams(input, output);
 
       dispatch(
         loadSwapParamsAction.submit({
           fromSymbol: route3FromToken?.symbol ?? '',
-          toSymbol: getRoute3TokenBySlug(route3Tokens, output.assetSlug)?.symbol ?? '',
+          toSymbol: route3ToToken?.symbol ?? '',
+          toTokenDecimals: route3ToToken?.decimals ?? 0,
           amount: atomsToTokens(amount, route3FromToken?.decimals ?? 0).toFixed(),
-          dexesLimit: mainSwapMaxDexes
+          dexesLimit: mainSwapMaxDexes,
+          rpcUrl: tezos.rpc.getRpcUrl()
         })
       );
     },
-    [dispatch, getSwapWithFeeParams, getTokenMetadata, route3Tokens]
+    [dispatch, getSwapWithFeeParams, getTokenMetadata, route3Tokens, tezos.rpc]
   );
 
   useEffect(() => {
@@ -342,8 +345,10 @@ export const SwapForm: FC = () => {
         const swapToTempleParams = await fetchRoute3SwapParams({
           fromSymbol: fromRoute3Token.symbol,
           toSymbol: TEMPLE_TOKEN.symbol,
+          toTokenDecimals: TEMPLE_TOKEN.decimals,
           amount: atomsToTokens(routingFeeFromInputAtomic, fromRoute3Token.decimals).toFixed(),
-          dexesLimit: cashbackSwapMaxDexes
+          dexesLimit: cashbackSwapMaxDexes,
+          rpcUrl: tezos.rpc.getRpcUrl()
         });
 
         const templeOutputAtomic = tokensToAtoms(
@@ -385,8 +390,10 @@ export const SwapForm: FC = () => {
         const swapToTempleParams = await fetchRoute3SwapParams({
           fromSymbol: toRoute3Token.symbol,
           toSymbol: TEMPLE_TOKEN.symbol,
+          toTokenDecimals: TEMPLE_TOKEN.decimals,
           amount: atomsToTokens(routingFeeFromOutputAtomic, toRoute3Token.decimals).toFixed(),
-          dexesLimit: cashbackSwapMaxDexes
+          dexesLimit: cashbackSwapMaxDexes,
+          rpcUrl: tezos.rpc.getRpcUrl()
         });
 
         const templeOutputAtomic = tokensToAtoms(

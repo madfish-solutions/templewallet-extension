@@ -3,15 +3,21 @@ import { BigNumber } from 'bignumber.js';
 export interface Route3SwapParamsRequestRaw {
   fromSymbol: string;
   toSymbol: string;
+  toTokenDecimals: number;
   amount: string | undefined;
   dexesLimit: number;
+  /** Needed to make a correction of params if input is SIRS */
+  rpcUrl: string;
 }
 
 // TODO: add `showTree: boolean` when adding route view
 interface Route3SwapParamsRequestBase {
   fromSymbol: string;
   toSymbol: string;
+  toTokenDecimals: number;
   amount: string;
+  /** Needed to make a correction of params if input is SIRS */
+  rpcUrl: string;
 }
 
 export interface Route3SwapParamsRequest extends Route3SwapParamsRequestBase {

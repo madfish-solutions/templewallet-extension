@@ -8,3 +8,12 @@ export const THREE_ROUTE_SIRS_TOKEN: Route3Token = {
   tokenId: null,
   decimals: 0
 };
+
+export const THREE_ROUTE_TEZ_TOKEN: Route3Token = {
+  id: 0,
+  symbol: 'XTZ',
+  standard: Route3TokenStandardEnum.xtz,
+  contract: null,
+  tokenId: null,
+  decimals: 6
+};

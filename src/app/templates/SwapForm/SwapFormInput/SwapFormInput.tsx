@@ -51,8 +51,8 @@ export const SwapFormInput: FC<SwapFormInputProps> = ({
   const { trackChange } = useFormAnalytics('SwapForm');
 
   const { assetSlug, amount } = value;
-  const isTezosSlug = assetSlug === 'tez';
-  const assetSlugWithFallback = assetSlug ?? 'tez';
+  const isTezosSlug = assetSlug === TEZ_TOKEN_SLUG;
+  const assetSlugWithFallback = assetSlug ?? TEZ_TOKEN_SLUG;
 
   const assetMetadataWithFallback = useAssetMetadata(assetSlugWithFallback)!;
   const assetMetadata = useMemo(
@@ -138,7 +138,7 @@ export const SwapFormInput: FC<SwapFormInputProps> = ({
         header={
           <SwapInputHeader
             label={label}
-            selectedAssetSlug={assetSlugWithFallback}
+            selectedAssetSlug={assetSlug}
             selectedAssetSymbol={assetMetadataWithFallback.symbol}
           />
         }
@@ -270,13 +270,13 @@ const SwapInput: FC<SwapInputProps> = ({
   );
 };
 
-const SwapInputHeader: FC<{ label: ReactNode; selectedAssetSlug: string; selectedAssetSymbol: string }> = ({
+const SwapInputHeader: FC<{ label: ReactNode; selectedAssetSlug?: string; selectedAssetSymbol: string }> = ({
   selectedAssetSlug,
   selectedAssetSymbol,
   label
 }) => {
   const { publicKeyHash } = useAccount();
-  const { value: balance } = useBalance(selectedAssetSlug, publicKeyHash);
+  const { value: balance } = useBalance(selectedAssetSlug ?? TEZ_TOKEN_SLUG, publicKeyHash);
 
   return (
     <div className="w-full flex items-center justify-between">
