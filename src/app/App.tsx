@@ -1,7 +1,6 @@
 import React, { PropsWithChildren, ComponentProps, FC, Suspense } from 'react';
 
 import 'lib/local-storage/migrations';
-import 'lib/lock-up/run-checks';
 import 'lib/ledger/proxy/foreground';
 import 'lib/keep-bg-worker-alive/script';
 

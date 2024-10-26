@@ -21,6 +21,7 @@ import { AccountsManagement } from 'app/templates/AccountsManagement';
 import AddressBook from 'app/templates/AddressBook/AddressBook';
 import { AdvancedFeatures } from 'app/templates/AdvancedFeatures';
 import DAppSettings from 'app/templates/DAppSettings/DAppSettings';
+import { SecuritySettings } from 'app/templates/SecuritySettings';
 import GeneralSettings from 'app/templates/SettingsGeneral';
 import SyncSettings from 'app/templates/Synchronization/SyncSettings';
 import { TID, T } from 'lib/i18n';
@@ -80,7 +81,7 @@ const TABS_GROUPS: Tab[][] = [
       slug: 'security-and-privacy',
       titleI18nKey: 'securityAndPrivacy',
       Icon: DefaultSettingsIconHOC(LockIcon),
-      Component: () => <div>TODO: add some content</div>,
+      Component: SecuritySettings,
       testID: SettingsSelectors.securityAndPrivacyButton
     }
   ],

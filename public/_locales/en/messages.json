@@ -295,11 +295,11 @@
   "usageAnalytics": {
     "message": "Usage Analytics"
   },
-  "analyticsCollecting": {
-    "message": "anonymous information collecting"
+  "usageAnalyticsSettingsDescription": {
+    "message": "Here you can configure sending of usage analytics that helps us to improve the Temple."
   },
-  "anonymousAnalytics": {
-    "message": "Anonymous analytics"
+  "never": {
+    "message": "Never"
   },
   "analyticsInputDescription": {
     "message": "By enabling this checkbox, you help Temple improve products and services by allowing analytics of usage data."
@@ -2795,11 +2795,8 @@
   "deleteTokenConfirm": {
     "message": "Are you sure you want to delete this token?"
   },
-  "lockUpSettings": {
-    "message": "Extension lock-up"
-  },
-  "lockUpSettingsDescription": {
-    "message": "The extension will be automatically blocked after 5 minutes of inactivity."
+  "autoLock": {
+    "message": "Auto-Lock"
   },
   "partnersPromoSettings": {
     "message": "Advertising"
