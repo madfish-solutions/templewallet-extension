@@ -41,6 +41,7 @@ interface Tab {
   slug: string;
   titleI18nKey: TID;
   Icon: FC;
+  noPadding?: true;
   Component: FC<{ setHeaderChildren: React.Dispatch<SetStateAction<ReactNode>> }>;
   testID?: SettingsSelectors;
 }
@@ -58,6 +59,7 @@ const TABS_GROUPS: Tab[][] = [
 
         return <AccountAvatar size={24} seed={id} />;
       }),
+      noPadding: true,
       Component: AccountsManagement,
       testID: SettingsSelectors.accountsManagementButton
     }
@@ -125,6 +127,7 @@ const TABS_GROUPS: Tab[][] = [
     }
   ]
 ];
+
 const TABS = TABS_GROUPS.flat();
 
 const Settings = memo<SettingsProps>(({ tabSlug }) => {
@@ -135,14 +138,16 @@ const Settings = memo<SettingsProps>(({ tabSlug }) => {
   return (
     <PageLayout
       pageTitle={<T id={activeTab?.titleI18nKey ?? 'settings'} />}
-      paperClassName="!bg-background"
+      dimBg
       headerChildren={headerChildren}
+      contentPadding={!activeTab?.noPadding}
     >
       {extensionModalOpened && <ResetExtensionModal onClose={closeResetExtensionModal} />}
+
       {activeTab ? (
         <activeTab.Component setHeaderChildren={setHeaderChildren} />
       ) : (
-        <div className="w-full flex flex-col gap-4">
+        <div className="flex flex-col gap-4">
           {TABS_GROUPS.map((tabs, i) => (
             <SettingsCellGroup key={i}>
               {tabs.map(({ slug, titleI18nKey, Icon, testID }, j) => (
@@ -165,11 +170,12 @@ const Settings = memo<SettingsProps>(({ tabSlug }) => {
             <StyledButton
               size="S"
               color="red-low"
-              className="bg-transparent flex items-center !px-0 py-1 gap-0.5"
+              className="!bg-transparent flex items-center !px-0 py-1 gap-0.5"
               onClick={openResetExtensionModal}
               testID={SettingsSelectors.resetExtensionButton}
             >
               <T id="resetExtension" />
+
               <IconBase size={12} Icon={ExitIcon} />
             </StyledButton>
           </div>

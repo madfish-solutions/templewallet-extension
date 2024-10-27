@@ -134,7 +134,7 @@ export const AccountSettings = memo<AccountSettingsProps>(({ id }) => {
     <PageLayout
       pageTitle={t('editAccount')}
       contentPadding={false}
-      paperClassName="!bg-background"
+      dimBg
       onBottomEdgeVisibilityChange={setBottomEdgeIsVisible}
       bottomEdgeThreshold={16}
     >

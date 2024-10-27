@@ -15,9 +15,10 @@ import { useConfirm } from 'lib/ui/dialog';
 import { DAppSettingsSelectors } from './DAppSettings.selectors';
 
 type DAppEntry = [string, TempleDAppSession];
-type DAppActions = {
+
+interface DAppActions {
   remove: (origin: string) => void;
-};
+}
 
 const getDAppKey = (entry: DAppEntry) => entry[0];
 
@@ -119,11 +120,11 @@ const DAppSettings: FC = () => {
 
 export default DAppSettings;
 
-const DAppIcon: FC<OptionRenderProps<DAppEntry, string, DAppActions>> = props => (
+const DAppIcon: FC<OptionRenderProps<DAppEntry, DAppActions>> = props => (
   <DAppLogo className="flex-none ml-2 mr-1 my-1" style={{ alignSelf: 'flex-start' }} origin={props.item[0]} size={36} />
 );
 
-const DAppDescription: FC<OptionRenderProps<DAppEntry, string, DAppActions>> = props => {
+const DAppDescription: FC<OptionRenderProps<DAppEntry, DAppActions>> = props => {
   const {
     actions,
     item: [origin, { appMeta, network, pkh }]

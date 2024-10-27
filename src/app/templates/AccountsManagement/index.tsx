@@ -219,11 +219,11 @@ export const AccountsManagement = memo<AccountsManagementProps>(({ setHeaderChil
   return (
     <>
       {filteredGroups.length === 0 ? (
-        <div className="w-full h-full flex items-center">
+        <div className="flex-grow flex items-center">
           <EmptyState variant="searchUniversal" />
         </div>
       ) : (
-        <div className="flex flex-col gap-y-4 -m-4 px-4 pb-4 overflow-y-auto">
+        <div className="flex flex-col gap-y-4 px-4 pb-4 overflow-y-auto">
           {filteredGroups.map(group => (
             <GroupView
               group={group}
