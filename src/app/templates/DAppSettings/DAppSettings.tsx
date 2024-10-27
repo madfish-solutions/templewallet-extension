@@ -3,18 +3,19 @@ import React, { ComponentProps, FC, useCallback, useMemo, useRef, useState } fro
 import classNames from 'clsx';
 
 import { Name, FormCheckbox, HashChip } from 'app/atoms';
+import DAppLogo from 'app/atoms/DAppLogo';
 import { ReactComponent as CloseIcon } from 'app/icons/close.svg';
+import { TezosDAppSession, getStoredTezosDappsSessions } from 'app/storage/dapps';
 import CustomSelect, { OptionRenderProps } from 'app/templates/CustomSelect';
-import DAppLogo from 'app/templates/DAppLogo';
 import { TID, T, t } from 'lib/i18n';
 import { useRetryableSWR } from 'lib/swr';
 import { useTempleClient, useStorage } from 'lib/temple/front';
-import { TempleSharedStorageKey, TempleDAppSession, TempleDAppSessions } from 'lib/temple/types';
+import { TempleSharedStorageKey } from 'lib/temple/types';
 import { useConfirm } from 'lib/ui/dialog';
 
-import { DAppSettingsSelectors } from './DAppSettings.selectors';
+import { DAppSettingsSelectors } from './selectors';
 
-type DAppEntry = [string, TempleDAppSession];
+type DAppEntry = [string, TezosDAppSession];
 
 interface DAppActions {
   remove: (origin: string) => void;
@@ -22,11 +23,11 @@ interface DAppActions {
 
 const getDAppKey = (entry: DAppEntry) => entry[0];
 
-const DAppSettings: FC = () => {
-  const { getAllDAppSessions, removeDAppSession } = useTempleClient();
+export const DAppsSettings: FC = () => {
+  const { removeDAppSession } = useTempleClient();
   const confirm = useConfirm();
 
-  const { data, mutate } = useRetryableSWR<TempleDAppSessions>(['getAllDAppSessions'], getAllDAppSessions, {
+  const { data, mutate } = useRetryableSWR(['getAllDAppSessions'], getStoredTezosDappsSessions, {
     suspense: true,
     shouldRetryOnError: false,
     revalidateOnFocus: false,
@@ -118,10 +119,13 @@ const DAppSettings: FC = () => {
   );
 };
 
-export default DAppSettings;
-
 const DAppIcon: FC<OptionRenderProps<DAppEntry, DAppActions>> = props => (
-  <DAppLogo className="flex-none ml-2 mr-1 my-1" style={{ alignSelf: 'flex-start' }} origin={props.item[0]} size={36} />
+  <DAppLogo
+    className="flex-none ml-2 mr-1 my-1 shadow-xs"
+    style={{ alignSelf: 'flex-start' }}
+    origin={props.item[0]}
+    size={36}
+  />
 );
 
 const DAppDescription: FC<OptionRenderProps<DAppEntry, DAppActions>> = props => {

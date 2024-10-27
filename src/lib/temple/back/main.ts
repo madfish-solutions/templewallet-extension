@@ -192,13 +192,6 @@ const processRequest = async (req: TempleRequest, port: Runtime.Port): Promise<T
         result
       };
 
-    case TempleMessageType.DAppGetAllSessionsRequest:
-      const allSessions = await Actions.getAllDAppSessions();
-      return {
-        type: TempleMessageType.DAppGetAllSessionsResponse,
-        sessions: allSessions
-      };
-
     case TempleMessageType.DAppRemoveSessionRequest:
       const sessions = await Actions.removeDAppSession(req.origin);
       return {

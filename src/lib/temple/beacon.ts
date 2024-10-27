@@ -22,6 +22,7 @@ import memoizee from 'memoizee';
 import browser from 'webextension-polyfill';
 
 import { APP_TITLE } from 'lib/constants';
+import { fetchFromStorage, putToStorage, removeFromStorage } from 'lib/storage';
 
 interface AppMetadata {
   senderId: string;
@@ -324,38 +325,31 @@ export async function createCryptoBox(
 
 export const getOrCreateKeyPair = memoizee(
   async () => {
-    const items = await browser.storage.local.get([KEYPAIR_SEED_STORAGE_KEY]);
-    const exist = KEYPAIR_SEED_STORAGE_KEY in items;
+    let seed = await fetchFromStorage<string>(KEYPAIR_SEED_STORAGE_KEY);
 
-    let seed: string;
-    if (exist) {
-      seed = items[KEYPAIR_SEED_STORAGE_KEY];
-    } else {
+    if (seed === null) {
       const newSeed = generateNewSeed();
-      await browser.storage.local.set({ [KEYPAIR_SEED_STORAGE_KEY]: newSeed });
+      await putToStorage(KEYPAIR_SEED_STORAGE_KEY, newSeed);
       seed = newSeed;
     }
 
     await ready;
+
     return crypto_sign_seed_keypair(crypto_generichash(32, from_string(seed)));
   },
   { maxAge: 60_000, promise: true }
 );
 
 export async function getDAppPublicKey(origin: string) {
-  const key = toPubKeyStorageKey(origin);
-  const items = await browser.storage.local.get([key]);
-  return key in items ? (items[key] as string) : null;
+  return await fetchFromStorage<string>(toPubKeyStorageKey(origin));
 }
 
 export async function saveDAppPublicKey(origin: string, publicKey: string) {
-  await browser.storage.local.set({
-    [toPubKeyStorageKey(origin)]: publicKey
-  });
+  await putToStorage(toPubKeyStorageKey(origin), publicKey);
 }
 
 export async function removeDAppPublicKey(origin: string) {
-  await browser.storage.local.remove([toPubKeyStorageKey(origin)]);
+  await removeFromStorage(toPubKeyStorageKey(origin));
 }
 
 export function generateNewSeed() {

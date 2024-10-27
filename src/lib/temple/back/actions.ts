@@ -32,7 +32,6 @@ import {
   requestOperation,
   requestSign,
   requestBroadcast,
-  getAllDApps,
   removeDApp
 } from './dapp';
 import { intercom } from './defaults';
@@ -254,10 +253,6 @@ export function createOrImportWallet(mnemonic?: string) {
     const { newAccounts } = await vault.createOrImportWallet(mnemonic);
     accountsUpdated(newAccounts);
   });
-}
-
-export function getAllDAppSessions() {
-  return getAllDApps();
 }
 
 export function removeDAppSession(origin: string) {

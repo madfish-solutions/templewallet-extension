@@ -20,7 +20,7 @@ import About from 'app/templates/About/About';
 import { AccountsManagement } from 'app/templates/AccountsManagement';
 import AddressBook from 'app/templates/AddressBook/AddressBook';
 import { AdvancedFeatures } from 'app/templates/AdvancedFeatures';
-import DAppSettings from 'app/templates/DAppSettings/DAppSettings';
+import { DAppsSettings as OldDAppsSettings } from 'app/templates/DAppSettings/DAppSettings';
 import { SecuritySettings } from 'app/templates/SecuritySettings';
 import GeneralSettings from 'app/templates/SettingsGeneral';
 import SyncSettings from 'app/templates/Synchronization/SyncSettings';
@@ -29,6 +29,7 @@ import { useBooleanState } from 'lib/ui/hooks';
 import { Link } from 'lib/woozie';
 import { useAccount } from 'temple/front';
 
+import { DAppsSettings } from './DApps';
 import NetworksSettings from './Networks';
 import { ResetExtensionModal } from './reset-extension-modal';
 import { SettingsSelectors } from './Settings.selectors';
@@ -96,10 +97,17 @@ const TABS_GROUPS: Tab[][] = [
       testID: SettingsSelectors.addressBookButton
     },
     {
+      slug: 'old-dapps',
+      titleI18nKey: 'connectedDApps',
+      Icon: DefaultSettingsIconHOC(LinkIcon),
+      Component: OldDAppsSettings,
+      testID: SettingsSelectors.dAppsButton
+    },
+    {
       slug: 'dapps',
       titleI18nKey: 'connectedDApps',
       Icon: DefaultSettingsIconHOC(LinkIcon),
-      Component: DAppSettings,
+      Component: DAppsSettings,
       testID: SettingsSelectors.dAppsButton
     },
     {

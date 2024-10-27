@@ -21,6 +21,7 @@ import {
 import { nanoid } from 'nanoid';
 import browser, { Runtime } from 'webextension-polyfill';
 
+import { TezosDAppSession, getStoredTezosDappsSessions, putStoredTezosDappsSessions } from 'app/storage/dapps';
 import { CUSTOM_TEZOS_NETWORKS_STORAGE_KEY, TEZOS_CHAINS_SPECS_STORAGE_KEY } from 'lib/constants';
 import { fetchFromStorage } from 'lib/storage';
 import { addLocalOperation } from 'lib/temple/activity';
@@ -29,8 +30,6 @@ import {
   TempleMessageType,
   TempleRequest,
   TempleDAppPayload,
-  TempleDAppSession,
-  TempleDAppSessions,
   TempleNotification,
   TEZOS_MAINNET_CHAIN_ID
 } from 'lib/temple/types';
@@ -46,7 +45,6 @@ import { withUnlocked } from './store';
 const CONFIRM_WINDOW_WIDTH = 380;
 const CONFIRM_WINDOW_HEIGHT = 632;
 const AUTODECLINE_AFTER = 120_000;
-const STORAGE_KEY = 'dapp_sessions';
 const HEX_PATTERN = /^[0-9a-fA-F]+$/;
 const TEZ_MSG_SIGN_PATTERN = /^0501[a-f0-9]{8}54657a6f73205369676e6564204d6573736167653a20[a-f0-9]*$/;
 
@@ -186,7 +184,7 @@ const handleIntercomRequest = async (
   confirmReq: TempleRequest,
   decline: () => void,
   id: string,
-  dApp: TempleDAppSession,
+  dApp: TezosDAppSession,
   networkRpc: string,
   req: TempleDAppOperationRequest,
   resolve: any,
@@ -257,12 +255,7 @@ export async function requestSign(origin: string, req: TempleDAppSignRequest): P
   return new Promise((resolve, reject) => generatePromisifySign(resolve, reject, dApp, req));
 }
 
-const generatePromisifySign = async (
-  resolve: any,
-  reject: any,
-  dApp: TempleDAppSession,
-  req: TempleDAppSignRequest
-) => {
+const generatePromisifySign = async (resolve: any, reject: any, dApp: TezosDAppSession, req: TempleDAppSignRequest) => {
   const id = nanoid();
   const networkRpc = await getNetworkRPC(dApp.network);
 
@@ -356,31 +349,26 @@ export async function requestBroadcast(
   }
 }
 
-export async function getAllDApps() {
-  const dAppsSessions: TempleDAppSessions = (await browser.storage.local.get([STORAGE_KEY]))[STORAGE_KEY] || {};
-  return dAppsSessions;
+async function getAllDApps() {
+  return (await getStoredTezosDappsSessions()) || {};
 }
 
-async function getDApp(origin: string): Promise<TempleDAppSession | undefined> {
+async function getDApp(origin: string): Promise<TezosDAppSession | undefined> {
   return (await getAllDApps())[origin];
 }
 
-async function setDApp(origin: string, permissions: TempleDAppSession) {
+async function setDApp(origin: string, permissions: TezosDAppSession) {
   const current = await getAllDApps();
   const newDApps = { ...current, [origin]: permissions };
-  await setDApps(newDApps);
+  await putStoredTezosDappsSessions(newDApps);
   return newDApps;
 }
 
 export async function removeDApp(origin: string) {
   const { [origin]: permissionsToRemove, ...restDApps } = await getAllDApps();
-  await setDApps(restDApps);
+  await putStoredTezosDappsSessions(restDApps);
   await Beacon.removeDAppPublicKey(origin);
   return restDApps;
-}
-
-function setDApps(newDApps: TempleDAppSessions) {
-  return browser.storage.local.set({ [STORAGE_KEY]: newDApps });
 }
 
 type RequestConfirmParams = {
