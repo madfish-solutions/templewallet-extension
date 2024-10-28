@@ -13,6 +13,7 @@ import {
   Route3SwapParamsRequest,
   Route3TraditionalSwapParamsResponse
 } from 'lib/route3/interfaces';
+import { ONE_MINUTE_S } from 'lib/utils/numbers';
 
 import { ROUTE3_BASE_URL } from './route3.api';
 
@@ -55,19 +56,19 @@ const fetchRoute3TraditionalSwapParams = (
 const getLbSubsidyCausedXtzDeviation = memoizee(
   async (rpcUrl: string) => {
     const currentBlockRpcBaseURL = `${rpcUrl}/chains/main/blocks/head/context`;
-    const { data: constants } = await axios.get<{ minimal_block_delay: string; liquidity_baking_subsidy: string }>(
-      `${currentBlockRpcBaseURL}/constants`
-    );
+    const [{ data: constants }, { data: rawSirsDexBalance }] = await Promise.all([
+      axios.get<{ minimal_block_delay: string; liquidity_baking_subsidy: string }>(
+        `${currentBlockRpcBaseURL}/constants`
+      ),
+      axios.get<string>(`${currentBlockRpcBaseURL}/contracts/${LIQUIDITY_BAKING_DEX_ADDRESS}/balance`)
+    ]);
     const { minimal_block_delay: blockDuration = String(BLOCK_DURATION), liquidity_baking_subsidy: lbSubsidyPerMin } =
       constants;
-    const lbSubsidyPerBlock = Math.floor(Number(lbSubsidyPerMin) / Math.floor(60 / Number(blockDuration)));
-    const { data: rawSirsDexBalance } = await axios.get<string>(
-      `${currentBlockRpcBaseURL}/contracts/${LIQUIDITY_BAKING_DEX_ADDRESS}/balance`
-    );
+    const lbSubsidyPerBlock = Math.floor(Number(lbSubsidyPerMin) / Math.floor(ONE_MINUTE_S / Number(blockDuration)));
 
     return lbSubsidyPerBlock / Number(rawSirsDexBalance);
   },
-  { promise: true, maxAge: 1000 * 60 * 5 }
+  { promise: true, maxAge: 1000 * ONE_MINUTE_S * 5 }
 );
 
 const fetchRoute3LiquidityBakingParams = (
