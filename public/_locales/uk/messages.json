@@ -110,9 +110,6 @@
   "lock": {
     "message": "Заблокувати"
   },
-  "lockUpSettingsDescription": {
-    "message": "Розширення буде заблоковане після 5 хвилин відсутності активності."
-  },
   "importedAccount": {
     "message": "Імпортований"
   },

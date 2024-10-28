@@ -2,17 +2,19 @@ import Fuse from 'fuse.js';
 
 export const isSearchStringApplicable = (searchString: string) => Boolean(searchString.trim());
 
+export interface SearchKey<T, P extends null | ((item: T) => any)> {
+  name: P extends (item: T) => infer S
+    ? KeysOfUnionType<S> // Case of prepared objects
+    : T extends object
+    ? KeysOfUnionType<T> // Case of original objects
+    : string; // Fallback
+  weight: number;
+}
+
 export function searchAndFilterItems<T, P extends null | ((item: T) => any)>(
   items: T[],
   searchString: string,
-  keys: {
-    name: P extends (item: T) => infer S
-      ? KeysOfUnionType<S> // Case of prepared objects
-      : T extends object
-      ? KeysOfUnionType<T> // Case of original objects
-      : string; // Fallback
-    weight: number;
-  }[],
+  keys: SearchKey<T, P>[],
   prepare?: P,
   threshold = 0.1
 ) {

@@ -3,29 +3,27 @@ import React, { ReactNode, memo } from 'react';
 import { ToggleSwitch } from 'app/atoms';
 import { SettingsCellSingle } from 'app/atoms/SettingsCell';
 import { SettingsCellGroup } from 'app/atoms/SettingsCellGroup';
-import { T, TID } from 'lib/i18n';
 
 interface EnablingSettingProps {
-  titleI18nKey: TID;
+  title: ReactNode;
   enabled: boolean;
   description: ReactNode;
-  onChange: (newValue: boolean, event: React.ChangeEvent<HTMLInputElement>) => void;
+  onChange: (value: boolean, event: React.ChangeEvent<HTMLInputElement>) => void;
   testID: string;
 }
 
-export const EnablingSetting = memo(
-  ({ titleI18nKey, enabled, description, onChange, testID }: EnablingSettingProps) => (
-    <SettingsCellGroup>
-      <SettingsCellSingle Component="div" isLast={false} cellName={<T id={titleI18nKey} />}>
-        <ToggleSwitch checked={enabled} onChange={onChange} testID={testID} />
-      </SettingsCellSingle>
-      <SettingsCellSingle
-        Component="div"
-        cellName={description}
-        cellNameClassName="text-grey-1 text-font-description font-normal"
-      >
-        {null}
-      </SettingsCellSingle>
-    </SettingsCellGroup>
-  )
-);
+export const EnablingSetting = memo(({ title, enabled, description, onChange, testID }: EnablingSettingProps) => (
+  <SettingsCellGroup>
+    <SettingsCellSingle Component="div" isLast={false} cellName={title}>
+      <ToggleSwitch checked={enabled} onChange={onChange} testID={testID} />
+    </SettingsCellSingle>
+
+    <SettingsCellSingle
+      Component="div"
+      cellName={description}
+      cellNameClassName="text-grey-1 text-font-description font-normal"
+    >
+      {null}
+    </SettingsCellSingle>
+  </SettingsCellGroup>
+));
