@@ -225,6 +225,7 @@
     "react-dev-utils/fork-ts-checker-webpack-plugin": "^9",
     "tslib": "^2.4.0",
     "@types/react": "18.0.15",
+    "@types/react-dev-utils/@types/webpack-dev-server": "^4",
     "@taquito/taquito": "20.0.0",
     "@taquito/utils": "20.0.0",
     "@taquito/beacon-wallet": "20.0.0",
