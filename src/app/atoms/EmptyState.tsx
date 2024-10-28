@@ -10,14 +10,14 @@ interface EmptyStateProps {
   forSearch?: boolean;
   textI18n?: TID;
   text?: string;
-  className?: string;
+  stretch?: boolean;
 }
 
-export const EmptyState = memo<EmptyStateProps>(({ forSearch = true, textI18n, text, className }) => {
+export const EmptyState = memo<EmptyStateProps>(({ forSearch = true, textI18n, text, stretch }) => {
   const Icon = forSearch ? SadSearchIcon : SadUniversalIcon;
 
   return (
-    <div className={clsx('w-full py-7 flex flex-col items-center gap-2', className)}>
+    <div className={clsx('w-full py-7 flex flex-col items-center gap-2', stretch && 'flex-grow justify-center')}>
       <Icon className="w-[92px] fill-grey-3 stroke-grey-3" />
 
       <span className="text-font-medium-bold text-grey-2">

@@ -4,8 +4,10 @@ import { fetchFromStorage, putToStorage, removeFromStorage } from 'lib/storage';
 
 export const storageKey = 'dapp_sessions';
 
+export type TezosDAppNetwork = TempleDAppNetwork | 'ghostnet';
+
 export interface TezosDAppSession {
-  network: TempleDAppNetwork;
+  network: TezosDAppNetwork;
   appMeta: TempleDAppMetadata;
   pkh: string;
   publicKey: string;
