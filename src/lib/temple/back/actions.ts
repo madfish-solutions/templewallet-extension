@@ -32,7 +32,8 @@ import {
   requestOperation,
   requestSign,
   requestBroadcast,
-  removeDApp
+  removeDApp,
+  removeAllDApps
 } from './dapp';
 import { intercom } from './defaults';
 import type { DryRunResult } from './dryrun';
@@ -255,7 +256,9 @@ export function createOrImportWallet(mnemonic?: string) {
   });
 }
 
-export function removeDAppSession(origin: string) {
+export function removeDAppSession(origin: string | null) {
+  if (origin === null) return removeAllDApps();
+
   return removeDApp(origin);
 }
 

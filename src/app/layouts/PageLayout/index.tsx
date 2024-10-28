@@ -41,6 +41,7 @@ interface ScrollEdgesVisibilityProps {
 export interface PageLayoutProps extends DefaultHeaderProps, ScrollEdgesVisibilityProps {
   /** With this given, header props are ignored */
   Header?: ComponentType;
+  noScroll?: boolean;
   contentPadding?: boolean;
   dimBg?: boolean;
   headerChildren?: ReactNode;
@@ -49,6 +50,7 @@ export interface PageLayoutProps extends DefaultHeaderProps, ScrollEdgesVisibili
 const PageLayout: FC<PropsWithChildren<PageLayoutProps>> = ({
   Header,
   children,
+  noScroll = false,
   contentPadding = true,
   dimBg = true,
   headerChildren,
@@ -81,7 +83,14 @@ const PageLayout: FC<PropsWithChildren<PageLayoutProps>> = ({
         >
           {Header ? <Header /> : <DefaultHeader {...headerProps}>{headerChildren}</DefaultHeader>}
 
-          <div className={clsx('flex-1 flex flex-col', contentPadding && 'p-4 pb-15', dimBg && 'bg-background')}>
+          <div
+            className={clsx(
+              'flex-1 flex flex-col',
+              noScroll && 'overflow-hidden',
+              contentPadding && 'p-4 pb-15',
+              dimBg && 'bg-background'
+            )}
+          >
             <SuspenseContainer errorMessage="displaying this page">{children}</SuspenseContainer>
           </div>
         </ContentPaper>

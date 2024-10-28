@@ -364,7 +364,7 @@ export const [TempleClientProvider, useTempleClient] = constate(() => {
     assertResponse(res.type === TempleMessageType.DAppSignConfirmationResponse);
   }, []);
 
-  const removeDAppSession = useCallback(async (origin: string) => {
+  const removeDAppSession = useCallback(async (origin: string | null) => {
     const res = await request({
       type: TempleMessageType.DAppRemoveSessionRequest,
       origin

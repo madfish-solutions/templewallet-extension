@@ -42,6 +42,7 @@ interface Tab {
   slug: string;
   titleI18nKey: TID;
   Icon: FC;
+  noScroll?: true;
   noPadding?: true;
   Component: FC<{ setHeaderChildren: React.Dispatch<SetStateAction<ReactNode>> }>;
   testID?: SettingsSelectors;
@@ -108,6 +109,8 @@ const TABS_GROUPS: Tab[][] = [
       titleI18nKey: 'connectedDApps',
       Icon: DefaultSettingsIconHOC(LinkIcon),
       Component: DAppsSettings,
+      noScroll: true,
+      noPadding: true,
       testID: SettingsSelectors.dAppsButton
     },
     {
@@ -148,6 +151,7 @@ const Settings = memo<SettingsProps>(({ tabSlug }) => {
       pageTitle={<T id={activeTab?.titleI18nKey ?? 'settings'} />}
       dimBg
       headerChildren={headerChildren}
+      noScroll={activeTab?.noScroll}
       contentPadding={!activeTab?.noPadding}
     >
       {extensionModalOpened && <ResetExtensionModal onClose={closeResetExtensionModal} />}

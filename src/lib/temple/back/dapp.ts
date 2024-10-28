@@ -21,7 +21,12 @@ import {
 import { nanoid } from 'nanoid';
 import browser, { Runtime } from 'webextension-polyfill';
 
-import { TezosDAppSession, getStoredTezosDappsSessions, putStoredTezosDappsSessions } from 'app/storage/dapps';
+import {
+  TezosDAppSession,
+  getStoredTezosDappsSessions,
+  putStoredTezosDappsSessions,
+  removeAllStoredTezosDappsSessions
+} from 'app/storage/dapps';
 import { CUSTOM_TEZOS_NETWORKS_STORAGE_KEY, TEZOS_CHAINS_SPECS_STORAGE_KEY } from 'lib/constants';
 import { fetchFromStorage } from 'lib/storage';
 import { addLocalOperation } from 'lib/temple/activity';
@@ -364,10 +369,19 @@ async function setDApp(origin: string, permissions: TezosDAppSession) {
   return newDApps;
 }
 
+export async function removeAllDApps() {
+  const allDApps = await getAllDApps();
+  await removeAllStoredTezosDappsSessions();
+  await Beacon.removeDAppPublicKey(Object.keys(allDApps));
+
+  return {};
+}
+
 export async function removeDApp(origin: string) {
   const { [origin]: permissionsToRemove, ...restDApps } = await getAllDApps();
   await putStoredTezosDappsSessions(restDApps);
   await Beacon.removeDAppPublicKey(origin);
+
   return restDApps;
 }
 

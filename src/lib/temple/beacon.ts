@@ -348,8 +348,9 @@ export async function saveDAppPublicKey(origin: string, publicKey: string) {
   await putToStorage(toPubKeyStorageKey(origin), publicKey);
 }
 
-export async function removeDAppPublicKey(origin: string) {
-  await removeFromStorage(toPubKeyStorageKey(origin));
+export async function removeDAppPublicKey(origin: string | string[]) {
+  const keys = Array.isArray(origin) ? origin.map(o => toPubKeyStorageKey(o)) : origin;
+  await removeFromStorage(keys);
 }
 
 export function generateNewSeed() {

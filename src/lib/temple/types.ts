@@ -708,7 +708,8 @@ interface TempleDAppSignConfirmationResponse extends TempleMessageBase {
 
 interface TempleRemoveDAppSessionRequest extends TempleMessageBase {
   type: TempleMessageType.DAppRemoveSessionRequest;
-  origin: string;
+  /** `null` for all connections */
+  origin: string | null;
 }
 
 interface TempleRemoveDAppSessionResponse extends TempleMessageBase {
