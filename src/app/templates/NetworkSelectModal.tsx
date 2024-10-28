@@ -109,7 +109,7 @@ export const NetworkSelectModalContent = memo<ContentProps>(({ opened, selectedN
 
       <div className="px-4 flex-grow flex flex-col overflow-y-auto">
         {searchedNetworks.length === 0 ? (
-          <EmptyState variant="searchUniversal" />
+          <EmptyState />
         ) : (
           !inSearch && (
             <Network

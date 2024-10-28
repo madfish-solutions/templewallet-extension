@@ -73,7 +73,7 @@ export const useGetEvmChainAssetMetadata = (chainId: number) => {
     (slug: string) => {
       if (isEvmNativeTokenSlug(slug)) return network?.currency;
 
-      return tokensMetadatas[slug] || collectiblesMetadatas[slug];
+      return tokensMetadatas?.[slug] || collectiblesMetadatas?.[slug];
     },
     [tokensMetadatas, collectiblesMetadatas, network]
   );

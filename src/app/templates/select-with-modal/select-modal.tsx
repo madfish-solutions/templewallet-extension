@@ -64,7 +64,7 @@ export const SelectModal = <T, P extends null | SyncFn<T, any>>({
         onTopEdgeVisibilityChange={setTopEdgeIsVisible}
         topEdgeThreshold={4}
       >
-        {filteredOptions.length === 0 && <EmptyState variant="searchUniversal" />}
+        {filteredOptions.length === 0 && <EmptyState />}
 
         {filteredOptions.map((option, index) => (
           <SelectModalOption<T>

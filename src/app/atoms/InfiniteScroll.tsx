@@ -1,4 +1,4 @@
-import React, { FC, ReactElement, useEffect } from 'react';
+import React, { CSSProperties, FC, ReactElement, useEffect } from 'react';
 
 import ReactInfiniteScrollComponent from 'react-infinite-scroll-component';
 
@@ -49,6 +49,7 @@ export const InfiniteScroll: FC<Props> = ({
       onScroll={onScroll}
       loader={null} // Doesn't always show this way
       scrollableTarget={SCROLL_DOCUMENT ? undefined : APP_CONTENT_PAPER_DOM_ID}
+      style={STYLE}
     >
       {children}
 
@@ -57,6 +58,11 @@ export const InfiniteScroll: FC<Props> = ({
       </LoaderDebounce>
     </ReactInfiniteScrollComponent>
   );
+};
+
+const STYLE: CSSProperties = {
+  /** Scrollable element must be an ancestor of this component - document or other. */
+  overflow: 'unset'
 };
 
 /**
