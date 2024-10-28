@@ -32,8 +32,7 @@ import {
   requestOperation,
   requestSign,
   requestBroadcast,
-  removeDApp,
-  removeAllDApps
+  removeDApps
 } from './dapp';
 import { intercom } from './defaults';
 import type { DryRunResult } from './dryrun';
@@ -256,10 +255,8 @@ export function createOrImportWallet(mnemonic?: string) {
   });
 }
 
-export function removeDAppSession(origin: string | null) {
-  if (origin === null) return removeAllDApps();
-
-  return removeDApp(origin);
+export function removeDAppSession(origins: string[]) {
+  return removeDApps(origins);
 }
 
 export function sendOperations(
@@ -514,7 +511,7 @@ export async function processBeacon(
 
   // Process Disconnect
   if (req.type === Beacon.MessageType.Disconnect) {
-    await removeDApp(origin);
+    await removeDApps([origin]);
     return;
   }
 

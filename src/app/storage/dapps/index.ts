@@ -1,6 +1,6 @@
 import type { TempleDAppMetadata, TempleDAppNetwork } from '@temple-wallet/dapp/dist/types';
 
-import { fetchFromStorage, putToStorage, removeFromStorage } from 'lib/storage';
+import { fetchFromStorage, putToStorage } from 'lib/storage';
 
 export const storageKey = 'dapp_sessions';
 
@@ -19,5 +19,3 @@ export const getStoredTezosDappsSessions = () => fetchFromStorage<TezosDAppsSess
 
 export const putStoredTezosDappsSessions = (value: TezosDAppsSessionsRecord) =>
   putToStorage<TezosDAppsSessionsRecord>(storageKey, value);
-
-export const removeAllStoredTezosDappsSessions = () => removeFromStorage(storageKey);

@@ -29,26 +29,28 @@ export const DAppsSettings = memo(() => {
     return tezAddress ? entries.filter(([, ds]) => ds.pkh === tezAddress) : entries;
   }, [dappsSessions, tezAddress]);
 
-  const activeTabOrirign = useActiveTabUrlOrigin();
+  const activeTabOrigin = useActiveTabUrlOrigin();
 
   const activeDApp = useMemo(
-    () => (activeTabOrirign ? dapps.find(([origin]) => origin === activeTabOrirign) : null),
-    [dapps, activeTabOrirign]
+    () => (activeTabOrigin ? dapps.find(([origin]) => origin === activeTabOrigin) : null),
+    [dapps, activeTabOrigin]
   );
 
-  const onRemoveClick = useMemo(
-    () => throttleAsyncCalls((origin: string | null) => removeDAppSession(origin)),
+  const displayedDapps = useMemo(
+    () => (activeDApp ? dapps.filter(dapp => dapp !== activeDApp) : dapps),
+    [dapps, activeDApp]
+  );
+
+  const handleRemove = useMemo(
+    () => throttleAsyncCalls((origins: string[]) => removeDAppSession(origins)),
     [removeDAppSession]
   );
 
-  const onRemoveAllClick = useCallback(() => onRemoveClick(null), [onRemoveClick]);
+  const onRemoveClick = useCallback((origin: string) => handleRemove([origin]), [handleRemove]);
 
-  if (!dapps.length)
-    return (
-      <div className="flex-grow flex flex-col justify-center">
-        <EmptyState forSearch={false} text="No connections" stretch />
-      </div>
-    );
+  const onRemoveAllClick = useCallback(() => handleRemove(dapps.map(([o]) => o)), [handleRemove, dapps]);
+
+  if (!dapps.length) return <EmptyState forSearch={false} text="No connections" stretch />;
 
   return (
     <>
@@ -59,13 +61,15 @@ export const DAppsSettings = memo(() => {
           </Section>
         ) : null}
 
-        <Section title="Connected Dapps">
-          <div className="flex flex-col gap-y-3">
-            {dapps.map(([origin, dapp]) => (
-              <DAppItem key={dapp.appMeta.name} dapp={dapp} origin={origin} onRemoveClick={onRemoveClick} />
-            ))}
-          </div>
-        </Section>
+        {displayedDapps.length ? (
+          <Section title="Connected Dapps">
+            <div className="flex flex-col gap-y-3">
+              {displayedDapps.map(([origin, dapp]) => (
+                <DAppItem key={dapp.appMeta.name} dapp={dapp} origin={origin} onRemoveClick={onRemoveClick} />
+              ))}
+            </div>
+          </Section>
+        ) : null}
       </ScrollView>
 
       <ActionsButtonsBox className="sticky left-0 bottom-0" bgSet={false}>

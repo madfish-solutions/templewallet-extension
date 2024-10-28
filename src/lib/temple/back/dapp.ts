@@ -24,8 +24,7 @@ import {
   TezosDAppNetwork,
   TezosDAppSession,
   getStoredTezosDappsSessions,
-  putStoredTezosDappsSessions,
-  removeAllStoredTezosDappsSessions
+  putStoredTezosDappsSessions
 } from 'app/storage/dapps';
 import { CUSTOM_TEZOS_NETWORKS_STORAGE_KEY, TEZOS_CHAINS_SPECS_STORAGE_KEY } from 'lib/constants';
 import { fetchFromStorage } from 'lib/storage';
@@ -373,20 +372,13 @@ async function setDApp(origin: string, permissions: TezosDAppSession) {
   return newDApps;
 }
 
-export async function removeAllDApps() {
-  const allDApps = await getAllDApps();
-  await removeAllStoredTezosDappsSessions();
-  await Beacon.removeDAppPublicKey(Object.keys(allDApps));
+export async function removeDApps(origins: string[]) {
+  const dappsRecord = await getAllDApps();
+  for (const origin of origins) delete dappsRecord[origin];
+  await putStoredTezosDappsSessions(dappsRecord);
+  await Beacon.removeDAppPublicKey(origins);
 
-  return {};
-}
-
-export async function removeDApp(origin: string) {
-  const { [origin]: permissionsToRemove, ...restDApps } = await getAllDApps();
-  await putStoredTezosDappsSessions(restDApps);
-  await Beacon.removeDAppPublicKey(origin);
-
-  return restDApps;
+  return dappsRecord;
 }
 
 type RequestConfirmParams = {

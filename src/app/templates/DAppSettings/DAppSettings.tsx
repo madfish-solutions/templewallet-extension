@@ -61,7 +61,7 @@ export const DAppsSettings: FC = () => {
           children: t('resetPermissionsConfirmation', origin)
         })
       ) {
-        await removeDAppSession(origin);
+        await removeDAppSession([origin]);
         mutate();
       }
     },
