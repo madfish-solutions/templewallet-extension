@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import constate from 'constate';
 import { omit } from 'lodash';
@@ -17,15 +17,18 @@ import {
   TempleAccountType,
   WalletSpecs
 } from 'lib/temple/types';
+import { useDidMount } from 'lib/ui/hooks';
 import {
   intercomClient,
   makeIntercomRequest as request,
   assertResponse,
-  getAccountPublicKey
+  getAccountPublicKey,
+  makeIntercomRequest
 } from 'temple/front/intercom-client';
 import { getPendingConfirmationId, resetPendingConfirmationId } from 'temple/front/pending-confirm';
 import { TempleChainKind } from 'temple/types';
 
+import { getShouldBeLockedOnStartup } from './lock';
 import { useStorage } from './storage';
 
 type Confirmation = {
@@ -39,10 +42,23 @@ export const [TempleClientProvider, useTempleClient] = constate(() => {
    * State
    */
 
+  const didMountRef = useRef(false);
+  useDidMount(() => void (didMountRef.current = true));
+
   const fetchState = useCallback(async () => {
-    const res = await request({ type: TempleMessageType.GetStateRequest });
+    const res = await makeIntercomRequest({ type: TempleMessageType.GetStateRequest });
     assertResponse(res.type === TempleMessageType.GetStateResponse);
-    return res.state;
+
+    if (didMountRef.current || res.state.status !== TempleStatus.Ready) {
+      return { state: res.state, shouldLockOnStartup: false };
+    }
+
+    const isLocked = await getShouldBeLockedOnStartup();
+
+    return {
+      state: isLocked ? { status: TempleStatus.Locked, accounts: [], settings: null } : res.state,
+      shouldLockOnStartup: isLocked
+    };
   }, []);
 
   const { data, mutate } = useRetryableSWR('state', fetchState, {
@@ -51,7 +67,7 @@ export const [TempleClientProvider, useTempleClient] = constate(() => {
     revalidateOnFocus: false,
     revalidateOnReconnect: false
   });
-  const state = data!;
+  const state = data!.state;
 
   const [confirmation, setConfirmation] = useState<Confirmation | null>(null);
 
@@ -374,6 +390,8 @@ export const [TempleClientProvider, useTempleClient] = constate(() => {
     localStorage.clear();
     browser.runtime.reload();
   }, []);
+
+  useEffect(() => void (data?.shouldLockOnStartup && lock()), [data?.shouldLockOnStartup, lock]);
 
   return {
     state,

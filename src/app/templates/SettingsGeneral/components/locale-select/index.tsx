@@ -1,10 +1,10 @@
 import React, { memo, useCallback, useMemo } from 'react';
 
+import { CellPartProps, SelectWithModal } from 'app/templates/select-with-modal';
 import { AnalyticsEventCategory, AnalyticsEventEnum, useAnalytics } from 'lib/analytics';
 import { getCurrentLocale, t, updateLocale } from 'lib/i18n';
 
 import { SettingsGeneralSelectors } from '../../selectors';
-import { CellPartProps, SelectWithModal } from '../select-with-modal';
 
 import { LocaleIcon } from './locale-icon';
 import { LOCALE_OPTIONS, LocaleOption } from './options';
@@ -50,7 +50,7 @@ export const LocaleSelect = memo(() => {
       CellName={CellName}
       onSelect={handleLocaleChange}
       testID={SettingsGeneralSelectors.languageDropDown}
-      itemTestID={SettingsGeneralSelectors.languageitem}
+      itemTestID={SettingsGeneralSelectors.languageItem}
     />
   );
 });
