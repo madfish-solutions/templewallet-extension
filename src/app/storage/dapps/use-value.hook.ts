@@ -1,7 +1,5 @@
 import { useStorage } from 'lib/temple/front';
 
-import { TezosDAppsSessionsRecord, TezosDAppSession, storageKey } from './index';
-
-export type { TezosDAppsSessionsRecord, TezosDAppSession };
+import { TezosDAppsSessionsRecord, storageKey } from './index';
 
 export const useStoredTezosDappsSessions = () => useStorage<TezosDAppsSessionsRecord>(storageKey);

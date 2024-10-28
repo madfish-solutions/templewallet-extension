@@ -2,11 +2,11 @@ import React, { FC } from 'react';
 
 import classNames from 'clsx';
 
+import DAppLogo from 'app/atoms/DAppLogo';
 import { Logo } from 'app/atoms/Logo';
 import Name from 'app/atoms/Name';
 import { ReactComponent as LayersIcon } from 'app/icons/layers.svg';
 import { ReactComponent as OkIcon } from 'app/icons/ok.svg';
-import DAppLogo from 'app/atoms/DAppLogo';
 import { DappMetadata } from 'lib/temple/types';
 
 interface ConnectBannerProps {

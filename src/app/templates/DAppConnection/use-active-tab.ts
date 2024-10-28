@@ -6,7 +6,7 @@ import { browser } from 'lib/browser';
 import { useTypedSWR } from 'lib/swr';
 import { useUpdatableRef } from 'lib/ui/hooks';
 
-export function useActiveTab() {
+function useActiveTab() {
   const { data: activeTab, mutate } = useTypedSWR(
     ['browser', 'active-tab'],
     () =>

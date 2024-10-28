@@ -4,6 +4,7 @@ import clsx from 'clsx';
 
 import { AccountTypeBadge, Alert, FormSubmitButton, FormSecondaryButton } from 'app/atoms';
 import ConfirmLedgerOverlay from 'app/atoms/ConfirmLedgerOverlay';
+import DAppLogo from 'app/atoms/DAppLogo';
 import HashShortView from 'app/atoms/HashShortView';
 import Money from 'app/atoms/Money';
 import Name from 'app/atoms/Name';
@@ -16,7 +17,6 @@ import AccountBanner from 'app/templates/AccountBanner';
 import { TezosBalance } from 'app/templates/Balance';
 import ConnectBanner from 'app/templates/ConnectBanner';
 import CustomSelect, { OptionRenderProps } from 'app/templates/CustomSelect';
-import DAppLogo from 'app/atoms/DAppLogo';
 import { ModifyFeeAndLimit } from 'app/templates/ExpensesView/ExpensesView';
 import NetworkBanner from 'app/templates/NetworkBanner';
 import OperationView from 'app/templates/OperationView';

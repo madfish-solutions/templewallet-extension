@@ -8,47 +8,17 @@ import { ScrollView } from 'app/atoms/ScrollView';
 import { StyledButton } from 'app/atoms/StyledButton';
 import { ReactComponent as UnlinkSvg } from 'app/icons/base/unlink.svg';
 import type { TezosDAppSession } from 'app/storage/dapps';
-import { useStoredTezosDappsSessions } from 'app/storage/dapps/use-value.hook';
-import { useTempleClient } from 'lib/temple/front';
-import { throttleAsyncCalls } from 'lib/utils/functions';
-import { useAccountAddressForTezos } from 'temple/front';
-
-import { useActiveTabUrlOrigin } from './use-active-tab';
+import { useDAppsConnections } from 'app/templates/DAppConnection/use-connections';
 
 export const DAppsSettings = memo(() => {
-  const { removeDAppSession } = useTempleClient();
-
-  const tezAddress = useAccountAddressForTezos();
-  const [dappsSessions] = useStoredTezosDappsSessions();
-
-  const dapps = useMemo(() => {
-    if (!dappsSessions) return [];
-
-    const entries = Object.entries(dappsSessions);
-
-    return tezAddress ? entries.filter(([, ds]) => ds.pkh === tezAddress) : entries;
-  }, [dappsSessions, tezAddress]);
-
-  const activeTabOrigin = useActiveTabUrlOrigin();
-
-  const activeDApp = useMemo(
-    () => (activeTabOrigin ? dapps.find(([origin]) => origin === activeTabOrigin) : null),
-    [dapps, activeTabOrigin]
-  );
+  const { dapps, activeDApp, disconnectDApps, disconnectOne } = useDAppsConnections();
 
   const displayedDapps = useMemo(
     () => (activeDApp ? dapps.filter(dapp => dapp !== activeDApp) : dapps),
     [dapps, activeDApp]
   );
 
-  const handleRemove = useMemo(
-    () => throttleAsyncCalls((origins: string[]) => removeDAppSession(origins)),
-    [removeDAppSession]
-  );
-
-  const onRemoveClick = useCallback((origin: string) => handleRemove([origin]), [handleRemove]);
-
-  const onRemoveAllClick = useCallback(() => handleRemove(dapps.map(([o]) => o)), [handleRemove, dapps]);
+  const onRemoveAllClick = useCallback(() => disconnectDApps(dapps.map(([o]) => o)), [disconnectDApps, dapps]);
 
   if (!dapps.length) return <EmptyState forSearch={false} text="No connections" stretch />;
 
@@ -57,7 +27,7 @@ export const DAppsSettings = memo(() => {
       <ScrollView className="gap-y-6 px-4 py-6">
         {activeDApp ? (
           <Section title="Current connection">
-            <DAppItem dapp={activeDApp[1]} origin={activeDApp[0]} onRemoveClick={onRemoveClick} />
+            <DAppItem dapp={activeDApp[1]} origin={activeDApp[0]} onRemoveClick={disconnectOne} />
           </Section>
         ) : null}
 
@@ -65,7 +35,7 @@ export const DAppsSettings = memo(() => {
           <Section title="Connected Dapps">
             <div className="flex flex-col gap-y-3">
               {displayedDapps.map(([origin, dapp]) => (
-                <DAppItem key={dapp.appMeta.name} dapp={dapp} origin={origin} onRemoveClick={onRemoveClick} />
+                <DAppItem key={dapp.appMeta.name} dapp={dapp} origin={origin} onRemoveClick={disconnectOne} />
               ))}
             </div>
           </Section>
@@ -89,7 +59,7 @@ interface DAppItemProps {
 
 const DAppItem = memo<DAppItemProps>(({ dapp, origin, onRemoveClick }) => (
   <div key={dapp.appMeta.name} className="flex items-center gap-2 p-2 bg-white rounded-lg shadow-bottom">
-    <DAppLogo origin={origin} size={40} className="p-[2px] rounded-full" />
+    <DAppLogo origin={origin} size={36} className="m-[2px] rounded-full" />
 
     <div className="flex-grow text-font-medium">{dapp.appMeta.name}</div>
 
