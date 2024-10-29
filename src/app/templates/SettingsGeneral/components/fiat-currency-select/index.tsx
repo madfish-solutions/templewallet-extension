@@ -1,5 +1,6 @@
 import React, { memo, useCallback, useMemo } from 'react';
 
+import { CellPartProps, SelectWithModal } from 'app/templates/select-with-modal';
 import { AnalyticsEventCategory, AnalyticsEventEnum, useAnalytics } from 'lib/analytics';
 import {
   FIAT_CURRENCIES_BASE,
@@ -11,7 +12,6 @@ import {
 import { t } from 'lib/i18n';
 
 import { SettingsGeneralSelectors } from '../../selectors';
-import { CellPartProps, SelectWithModal } from '../select-with-modal';
 
 import { CurrencyIcon } from './currency-icon';
 
@@ -64,7 +64,7 @@ export const FiatCurrencySelect = memo(() => {
       CellIcon={CurrencyIcon}
       CellName={CellName}
       onSelect={handleCurrencyChange}
-      testID={SettingsGeneralSelectors.currenctyDropDown}
+      testID={SettingsGeneralSelectors.currencyDropDown}
       itemTestID={SettingsGeneralSelectors.currencyItem}
     />
   );

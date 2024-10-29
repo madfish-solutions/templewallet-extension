@@ -14,8 +14,15 @@ import {
   setReferralLinksEnabledAction,
   setShowAgreementsCounterAction
 } from 'app/store/settings/actions';
-import { MAX_SHOW_AGREEMENTS_COUNTER, PRIVACY_POLICY_URL, RECENT_TERMS_VERSION, TERMS_OF_USE_URL } from 'lib/constants';
+import {
+  MAX_SHOW_AGREEMENTS_COUNTER,
+  PRIVACY_POLICY_URL,
+  RECENT_TERMS_VERSION,
+  REPLACE_REFERRALS_ENABLED,
+  TERMS_OF_USE_URL
+} from 'lib/constants';
 import { t, T } from 'lib/i18n';
+import { putToStorage } from 'lib/storage';
 
 import AdvancedFeaturesIllustration from './advanced-features-illustration.png';
 import IllustrationBgFull from './illustration-bg-full.png';
@@ -49,6 +56,7 @@ export const TermsOfUseUpdateOverlay = memo<TermsOfUseUpdateOverlayProps>(({ onC
   const onSubmit = useCallback(() => {
     dispatch(setAcceptedTermsVersionAction(RECENT_TERMS_VERSION));
     dispatch(setReferralLinksEnabledAction(true));
+    putToStorage<boolean>(REPLACE_REFERRALS_ENABLED, true);
     handleClose();
   }, [dispatch, handleClose]);
 

@@ -1,7 +1,8 @@
-// eslint-disable-next-line import/no-duplicates
+/* eslint-disable import/no-duplicates */
 import formatDateFns from 'date-fns/format';
-// eslint-disable-next-line import/no-duplicates
+import formatDurationFns from 'date-fns/formatDuration';
 import { enUS, enGB, fr, zhCN, zhTW, ja, ko, uk } from 'date-fns/locale';
+/* eslint-enable */
 import browser from 'webextension-polyfill';
 
 import cldrjsLocales from './cldrjs-locales.json';
@@ -76,4 +77,32 @@ export function formatDate(date: string | number | Date, format: string) {
   const locale = getDateFnsLocale();
 
   return formatDateFns(new Date(date), format, { locale });
+}
+
+const formatDurationParts = [
+  ['hours', 60 * 60],
+  ['minutes', 60],
+  ['seconds', 1]
+] as const;
+
+export function formatDuration(seconds: number) {
+  const locale = getDateFnsLocale();
+
+  const { duration, format } = formatDurationParts.reduce<{ duration: Duration; format: string[]; remainder: number }>(
+    (acc, [newPart, newPartSeconds]) => {
+      const newPartValue = Math.floor(acc.remainder / newPartSeconds);
+
+      if (newPartValue) {
+        acc.duration[newPart] = newPartValue;
+        acc.format.push(newPart);
+        acc.remainder -= newPartValue * newPartSeconds;
+      }
+
+      return acc;
+    },
+    { duration: {}, format: [], remainder: seconds }
+  );
+
+  // @ts-expect-error
+  return formatDurationFns(duration, { format, locale });
 }

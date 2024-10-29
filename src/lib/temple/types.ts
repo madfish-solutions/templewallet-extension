@@ -128,6 +128,7 @@ export interface TempleSettings {
 
 export enum TempleSharedStorageKey {
   DAppEnabled = 'dappenabled',
+  /** @deprecated */
   LockUpEnabled = 'lock_up',
   PasswordAttempts = 'passwordAttempts',
   TimeLock = 'timelock'
