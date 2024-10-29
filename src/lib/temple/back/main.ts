@@ -235,7 +235,8 @@ const processRequest = async (req: TempleRequest, port: Runtime.Port): Promise<T
     }
 
     case TempleMessageType.PageRequest:
-      const dAppEnabled = await Actions.isDAppEnabled();
+      const dAppEnabled = await Actions.canInteractWithDApps();
+
       if (dAppEnabled) {
         if (req.payload === 'PING') {
           return {

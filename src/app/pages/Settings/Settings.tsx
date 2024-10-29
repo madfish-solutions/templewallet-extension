@@ -20,7 +20,6 @@ import About from 'app/templates/About/About';
 import { AccountsManagement } from 'app/templates/AccountsManagement';
 import AddressBook from 'app/templates/AddressBook/AddressBook';
 import { AdvancedFeatures } from 'app/templates/AdvancedFeatures';
-import { DAppsSettings as OldDAppsSettings } from 'app/templates/DAppSettings/DAppSettings';
 import { SecuritySettings } from 'app/templates/SecuritySettings';
 import GeneralSettings from 'app/templates/SettingsGeneral';
 import SyncSettings from 'app/templates/Synchronization/SyncSettings';
@@ -96,13 +95,6 @@ const TABS_GROUPS: Tab[][] = [
       Icon: DefaultSettingsIconHOC(AddressBookIcon),
       Component: AddressBook,
       testID: SettingsSelectors.addressBookButton
-    },
-    {
-      slug: 'old-dapps',
-      titleI18nKey: 'connectedDApps',
-      Icon: DefaultSettingsIconHOC(LinkIcon),
-      Component: OldDAppsSettings,
-      testID: SettingsSelectors.dAppsButton
     },
     {
       slug: 'dapps',

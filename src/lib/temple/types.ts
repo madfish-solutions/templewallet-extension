@@ -120,7 +120,7 @@ export interface TempleSettings {
 
 export enum TempleSharedStorageKey {
   /** @deprecated */
-  DAppEnabled = 'dappenabled',
+  DAppEnabled = 'dappenabled', // rm
   /** @deprecated */
   LockUpEnabled = 'lock_up',
   PasswordAttempts = 'passwordAttempts',

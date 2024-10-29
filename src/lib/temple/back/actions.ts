@@ -80,17 +80,8 @@ export async function getFrontState(): Promise<TempleState> {
   }
 }
 
-export async function isDAppEnabled() {
-  const bools = await Promise.all([
-    Vault.isExist(),
-    (async () => {
-      const key = TempleSharedStorageKey.DAppEnabled;
-      const items = await browser.storage.local.get([key]);
-      return key in items ? items[key] : true;
-    })()
-  ]);
-
-  return bools.every(Boolean);
+export function canInteractWithDApps() {
+  return Vault.isExist();
 }
 
 export function registerNewWallet(password: string, mnemonic?: string) {
