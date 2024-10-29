@@ -30,13 +30,13 @@ const isSwapTransaction = (params: TransferParams) =>
  * @param transfersParams The transfer params to estimate and apply the estimations to.
  * @param tezos The TezosToolkit instance to use for the estimations.
  * @param sourcePkh The public key hash of the sender.
- * @param gasCap A function that returns the gas cap for a given transfer params.
+ * @param gasCapFn A function that returns the gas cap for a given transfer params.
  */
 const withBatchEstimations = async (
   transfersParams: TransferParams[],
   tezos: TezosToolkit,
   sourcePkh: string,
-  gasCap: (params: TransferParams) => number = () => GAS_CAP_PER_INTERNAL_OPERATION
+  gasCapFn: (params: TransferParams) => number = () => GAS_CAP_PER_INTERNAL_OPERATION
 ) => {
   if (transfersParams.length === 0) {
     return [];
@@ -49,12 +49,13 @@ const withBatchEstimations = async (
 
     return transfersParams.map((params, index) => {
       const { suggestedFeeMutez, storageLimit, gasLimit } = estimations[index];
+      const gasCap = gasCapFn(params);
 
       return {
         ...params,
-        fee: suggestedFeeMutez + Math.ceil(gasCap(params) * FEE_PER_GAS_UNIT),
+        fee: suggestedFeeMutez + Math.ceil(gasCap * FEE_PER_GAS_UNIT),
         storageLimit,
-        gasLimit: gasLimit + gasCap(params)
+        gasLimit: gasLimit + gasCap
       };
     });
   } catch (e) {
