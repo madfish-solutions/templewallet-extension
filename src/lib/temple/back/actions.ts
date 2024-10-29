@@ -14,14 +14,7 @@ import { BACKGROUND_IS_WORKER } from 'lib/env';
 import { putToStorage } from 'lib/storage';
 import { addLocalOperation } from 'lib/temple/activity';
 import * as Beacon from 'lib/temple/beacon';
-import {
-  TempleState,
-  TempleMessageType,
-  TempleRequest,
-  TempleSettings,
-  TempleSharedStorageKey,
-  TempleAccountType
-} from 'lib/temple/types';
+import { TempleState, TempleMessageType, TempleRequest, TempleSettings, TempleAccountType } from 'lib/temple/types';
 import { createQueue, delay } from 'lib/utils';
 import { loadTezosChainId } from 'temple/tezos';
 import { TempleChainKind } from 'temple/types';
