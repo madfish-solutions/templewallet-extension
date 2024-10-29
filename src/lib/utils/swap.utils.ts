@@ -24,6 +24,46 @@ const GAS_CAP_PER_INTERNAL_OPERATION = 1000;
 const isSwapTransaction = (params: TransferParams) =>
   params.to === ROUTE3_CONTRACT || params.to === LIQUIDITY_BAKING_PROXY_CONTRACT;
 
+/**
+ * Estimates a batch of transfers and applies the estimations to the transfer params. If the estimation fails,
+ * the transfer params are returned as is.
+ * @param transfersParams The transfer params to estimate and apply the estimations to.
+ * @param tezos The TezosToolkit instance to use for the estimations.
+ * @param sourcePkh The public key hash of the sender.
+ * @param gasCap A function that returns the gas cap for a given transfer params.
+ */
+const withBatchEstimations = async (
+  transfersParams: TransferParams[],
+  tezos: TezosToolkit,
+  sourcePkh: string,
+  gasCap: (params: TransferParams) => number = () => GAS_CAP_PER_INTERNAL_OPERATION
+) => {
+  if (transfersParams.length === 0) {
+    return [];
+  }
+
+  try {
+    const estimations = await tezos.estimate.batch(
+      transfersParams.map(params => ({ kind: OpKind.TRANSACTION, source: sourcePkh, ...params }))
+    );
+
+    return transfersParams.map((params, index) => {
+      const { suggestedFeeMutez, storageLimit, gasLimit } = estimations[index];
+
+      return {
+        ...params,
+        fee: suggestedFeeMutez + Math.ceil(gasCap(params) * FEE_PER_GAS_UNIT),
+        storageLimit,
+        gasLimit: gasLimit + gasCap(params)
+      };
+    });
+  } catch (e) {
+    console.error(e);
+
+    return transfersParams;
+  }
+};
+
 export const getSwapTransferParams = async (
   fromRoute3Token: Route3Token,
   toRoute3Token: Route3Token,
@@ -33,7 +73,7 @@ export const getSwapTransferParams = async (
   tezos: TezosToolkit,
   accountPkh: string
 ) => {
-  const resultParams: Array<TransferParams> = [];
+  const swapParams: Array<TransferParams> = [];
   let swapMethod: ContractMethodObject<Wallet | ContractProvider>;
 
   if (isSwapHops(chains)) {
@@ -61,14 +101,14 @@ export const getSwapTransferParams = async (
   }
 
   if (fromRoute3Token.symbol.toLowerCase() === 'xtz') {
-    resultParams.push(
+    swapParams.push(
       swapMethod.toTransferParams({
         amount: inputAmountAtomic.toNumber(),
         mutez: true
       })
     );
   } else {
-    resultParams.push(swapMethod.toTransferParams());
+    swapParams.push(swapMethod.toTransferParams());
   }
 
   const { approve, revoke } = await getTransferPermissions(
@@ -79,27 +119,20 @@ export const getSwapTransferParams = async (
     inputAmountAtomic
   );
 
-  resultParams.unshift(...approve);
-  try {
-    const estimations = await tezos.estimate.batch(
-      resultParams.map(params => ({ kind: OpKind.TRANSACTION, ...params }))
-    );
-    estimations.forEach(({ suggestedFeeMutez, storageLimit, gasLimit }, index) => {
-      const currentParams = resultParams[index];
-      const approximateInternalOperationsCount = isSwapTransaction(currentParams)
-        ? 1 + (isSwapHops(chains) ? chains.hops.length : chains.xtzHops.length + chains.tzbtcHops.length)
+  const [swapWithApproveParams, revokeParams] = await Promise.all([
+    withBatchEstimations(approve.concat(swapParams), tezos, accountPkh, params => {
+      const approximateInternalOperationsCount = isSwapTransaction(params)
+        ? isSwapHops(chains)
+          ? 1 + chains.hops.length
+          : 2 + chains.xtzHops.length + chains.tzbtcHops.length
         : 1;
-      const gasCap = approximateInternalOperationsCount * GAS_CAP_PER_INTERNAL_OPERATION;
-      currentParams.fee = suggestedFeeMutez + Math.ceil(gasCap * FEE_PER_GAS_UNIT);
-      currentParams.storageLimit = storageLimit;
-      currentParams.gasLimit = gasLimit + gasCap;
-    });
-  } catch (e) {
-    console.error(e);
-  }
-  resultParams.push(...revoke);
 
-  return resultParams;
+      return approximateInternalOperationsCount * GAS_CAP_PER_INTERNAL_OPERATION;
+    }),
+    withBatchEstimations(revoke, tezos, accountPkh)
+  ]);
+
+  return swapWithApproveParams.concat(revokeParams);
 };
 
 export const calculateSidePaymentsFromInput = (inputAmount: BigNumber | undefined) => {
@@ -128,7 +161,7 @@ export const calculateOutputFeeAtomic = (inputAmount: BigNumber | undefined, out
     : outputAmount.times(ROUTING_FEE_RATIO).integerValue(BigNumber.ROUND_CEIL);
 };
 
-export const getRoutingFeeTransferParams = async (
+const getRoutingFeeTransferParamsBeforeEstimate = async (
   token: Route3Token,
   feeAmountAtomic: BigNumber,
   senderPublicKeyHash: string,
@@ -179,3 +212,22 @@ export const getRoutingFeeTransferParams = async (
 
   return [];
 };
+
+export const getRoutingFeeTransferParams = async (
+  token: Route3Token,
+  feeAmountAtomic: BigNumber,
+  senderPublicKeyHash: string,
+  routingFeeAddress: string,
+  tezos: TezosToolkit
+) =>
+  withBatchEstimations(
+    await getRoutingFeeTransferParamsBeforeEstimate(
+      token,
+      feeAmountAtomic,
+      senderPublicKeyHash,
+      routingFeeAddress,
+      tezos
+    ),
+    tezos,
+    senderPublicKeyHash
+  );

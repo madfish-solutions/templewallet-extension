@@ -58,9 +58,10 @@ import { slippageToleranceInputValidationFn } from './SwapFormInput/SlippageTole
 import { SwapFormInput } from './SwapFormInput/SwapFormInput';
 import { SwapMinimumReceived } from './SwapMinimumReceived/SwapMinimumReceived';
 
-// These value have been set after some experimentation
+// These values have been set after some experimentation. They are different to the respective values in
+// templewallet-mobile because the mobile app still uses taquito v19.0.0, which has a different gas estimation algorithm.
 const SINGLE_SWAP_IN_BATCH_MAX_DEXES = 12;
-const LB_OPERATION_DEXES_COST = 2;
+const LB_OPERATION_DEXES_COST = 3;
 
 export const SwapForm: FC = () => {
   const dispatch = useDispatch();
