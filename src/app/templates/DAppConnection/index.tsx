@@ -55,7 +55,7 @@ export const DAppConnection = memo(() => {
       <div className="flex-grow flex flex-col items-start gap-y-1">
         <span className="text-font-medium-bold">{dapp.appMeta.name}</span>
 
-        <Link to="/settings/dapps" className="flex items-center text-font-description text-grey-1 hover:text-secondary">
+        <Link to="/settings/dapps" className="flex items-center text-font-description text-grey-1">
           <span>Manage connections</span>
 
           <IconBase Icon={ChevronRightSvg} size={12} />

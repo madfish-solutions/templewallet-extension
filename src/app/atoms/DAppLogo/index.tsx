@@ -1,7 +1,12 @@
 import React, { CSSProperties, memo, useMemo } from 'react';
 
-import { Identicon } from 'app/atoms';
+import clsx from 'clsx';
+
 import { ImageStacked } from 'lib/ui/ImageStacked';
+
+import { IconBase } from '../IconBase';
+
+import { ReactComponent as PlugSvg } from './plug.svg';
 
 interface DAppLogoProps {
   origin: string;
@@ -14,13 +19,19 @@ interface DAppLogoProps {
 const DAppLogo = memo<DAppLogoProps>(({ origin, size, icon, className, style }) => {
   const faviconSrc = useMemo(() => [icon ? icon : `${origin}/favicon.ico`], [origin, icon]);
 
-  const placeholder = <Identicon type="jdenticon" hash={origin} size={size} className={className} style={style} />;
+  const styleMemo = useMemo(() => ({ width: size, height: size, ...style }), [style, size]);
+
+  const placeholder = (
+    <div className={clsx('flex items-center bg-grey-4', className)} style={styleMemo}>
+      <IconBase Icon={PlugSvg} size={16} className="mx-auto text-grey-1" />
+    </div>
+  );
 
   return (
     <ImageStacked
       sources={faviconSrc}
       alt={origin}
-      style={{ width: size, height: size, ...style }}
+      style={styleMemo}
       className={className}
       loader={placeholder}
       fallback={placeholder}
