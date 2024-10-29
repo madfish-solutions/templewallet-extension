@@ -349,7 +349,7 @@ export async function saveDAppPublicKey(origin: string, publicKey: string) {
 }
 
 export async function removeDAppPublicKey(origin: string | string[]) {
-  const keys = Array.isArray(origin) ? origin.map(o => toPubKeyStorageKey(o)) : origin;
+  const keys = Array.isArray(origin) ? origin.map(o => toPubKeyStorageKey(o)) : toPubKeyStorageKey(origin);
   await removeFromStorage(keys);
 }
 
