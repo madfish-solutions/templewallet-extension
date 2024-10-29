@@ -115,7 +115,7 @@ export const EvmForm: FC<Props> = ({ chainId, assetSlug, onSelectAssetClick, onR
       if (!amount) return t('required');
       if (Number(amount) === 0) return t('amountMustBePositive');
 
-      return new BigNumber(amount).isLessThanOrEqualTo(maxAmount) || t('maximalAmount', toLocalFixed(maxAmount));
+      return new BigNumber(amount).isLessThanOrEqualTo(maxAmount) || t('maximalAmount', toLocalFixed(maxAmount, 6));
     },
     [maxAmount]
   );
@@ -148,6 +148,7 @@ export const EvmForm: FC<Props> = ({ chainId, assetSlug, onSelectAssetClick, onR
       onReview({ account, assetSlug, network, amount: actualAmount, to: toResolved });
 
       formAnalytics.trackSubmitSuccess();
+      setShouldUseFiat(false);
     },
     [
       account,
@@ -156,6 +157,7 @@ export const EvmForm: FC<Props> = ({ chainId, assetSlug, onSelectAssetClick, onR
       formState.isSubmitting,
       network,
       onReview,
+      setShouldUseFiat,
       shouldUseFiat,
       toAssetAmount,
       toResolved

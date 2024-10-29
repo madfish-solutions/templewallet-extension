@@ -111,7 +111,7 @@ const FeesInfo: FC<FeesInfoProps> = ({ network, assetSlug, amount = '0.00', goTo
             </span>
           )}
         </InFiat>
-        <span className="pl-1 ">
+        <span className="pl-1">
           <Money smallFractionFont={false} tooltipPlacement="bottom">
             {amount}
           </Money>{' '}

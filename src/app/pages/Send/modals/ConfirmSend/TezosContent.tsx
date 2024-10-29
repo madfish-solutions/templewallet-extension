@@ -199,7 +199,7 @@ export const TezosContent: FC<TezosContentProps> = ({ data, onClose }) => {
   const handleFeeOptionSelect = useCallback(
     (label: FeeOptionLabel) => {
       setSelectedFeeOption(label);
-      setValue('gasFee', '');
+      setValue('gasFee', '', { shouldValidate: true });
     },
     [setValue]
   );

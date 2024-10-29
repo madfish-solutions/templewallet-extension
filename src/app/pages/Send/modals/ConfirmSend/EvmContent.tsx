@@ -115,7 +115,7 @@ export const EvmContent: FC<EvmContentProps> = ({ data, onClose }) => {
   const handleFeeOptionSelect = useCallback(
     (label: FeeOptionLabel) => {
       setSelectedFeeOption(label);
-      setValue('gasPrice', '');
+      setValue('gasPrice', '', { shouldValidate: true });
     },
     [setValue]
   );

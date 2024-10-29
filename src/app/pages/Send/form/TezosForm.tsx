@@ -141,7 +141,7 @@ export const TezosForm: FC<Props> = ({ chainId, assetSlug, onSelectAssetClick, o
       if (!amount) return t('required');
       if (toValue && !isTezosContractAddress(toValue) && Number(amount) === 0) return t('amountMustBePositive');
 
-      return new BigNumber(amount).isLessThanOrEqualTo(maxAmount) || t('maximalAmount', toLocalFixed(maxAmount));
+      return new BigNumber(amount).isLessThanOrEqualTo(maxAmount) || t('maximalAmount', toLocalFixed(maxAmount, 6));
     },
     [maxAmount, toValue]
   );
@@ -187,6 +187,7 @@ export const TezosForm: FC<Props> = ({ chainId, assetSlug, onSelectAssetClick, o
         onReview({ account, assetSlug, network, amount: actualAmount, to: toResolved });
 
         formAnalytics.trackSubmitSuccess();
+        setShouldUseFiat(false);
       } catch (err: any) {
         console.error(err);
 
@@ -203,6 +204,7 @@ export const TezosForm: FC<Props> = ({ chainId, assetSlug, onSelectAssetClick, o
       formState.isSubmitting,
       network,
       onReview,
+      setShouldUseFiat,
       shouldUseFiat,
       toAssetAmount,
       toResolved

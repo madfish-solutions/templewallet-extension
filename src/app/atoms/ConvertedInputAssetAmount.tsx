@@ -4,6 +4,8 @@ import BigNumber from 'bignumber.js';
 
 import InFiat from 'app/templates/InFiat';
 
+import Money from './Money';
+
 interface Props {
   chainId: string | number;
   assetSlug: string;
@@ -37,9 +39,11 @@ export const ConvertedInputAssetAmount = memo<Props>(
 
     return (
       <div className="flex items-baseline text-font-num-12 text-grey-1">
-        <span>≈</span>
-        <span className="mx-1">{amountValue}</span>
-        <span className="truncate">{assetSymbol}</span>
+        <span className="mr-0.5">≈</span>
+        <Money smallFractionFont={false} tooltipPlacement="bottom">
+          {amountValue}
+        </Money>
+        <span className="ml-1 truncate">{assetSymbol}</span>
       </div>
     );
   }

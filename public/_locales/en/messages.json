@@ -738,7 +738,7 @@
     }
   },
   "maximalAmount": {
-    "message": "Maximal: $amount$",
+    "message": "Max: $amount$",
     "placeholders": {
       "amount": {
         "content": "$1"
@@ -2370,7 +2370,7 @@
     }
   },
   "gasFee": {
-    "message": "Gas fee"
+    "message": "Gas Fee"
   },
   "storageFee": {
     "message": "Storage fee"

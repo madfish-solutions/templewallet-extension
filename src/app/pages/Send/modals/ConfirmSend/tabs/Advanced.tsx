@@ -90,7 +90,7 @@ const EvmContent = () => {
         )}
       />
 
-      <FieldLabelWithCopyButton title="Raw Transaction" copyableText={getValues().rawTransaction} />
+      <FieldLabelWithCopyButton title="RAW Transaction" copyableText={getValues().rawTransaction} />
 
       <Controller
         name="rawTransaction"
@@ -119,7 +119,7 @@ const TezosContent = () => {
 
   return (
     <>
-      <FieldLabelWithCopyButton title="Raw Transaction" copyableText={rawTransactionStr} />
+      <FieldLabelWithCopyButton title="RAW Transaction" copyableText={rawTransactionStr} />
 
       <Controller
         name="raw"
