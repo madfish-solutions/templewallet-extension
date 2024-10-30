@@ -43,6 +43,7 @@ export interface FormFieldProps extends TestIDProperty, Omit<FormFieldAttrs, 'ty
   labelWarning?: ReactNode;
   errorCaption?: ReactNode;
   shouldShowErrorCaption?: boolean;
+  reserveSpaceForError?: boolean;
   warning?: boolean;
   containerClassName?: string;
   labelContainerClassName?: string;
@@ -90,6 +91,7 @@ export const FormField = forwardRef<FormFieldElement, FormFieldProps>(
       labelWarning,
       errorCaption,
       shouldShowErrorCaption = true,
+      reserveSpaceForError = true,
       warning = false,
       containerClassName,
       labelContainerClassName,
@@ -257,7 +259,12 @@ export const FormField = forwardRef<FormFieldElement, FormFieldProps>(
           {secretCovered && <SecretCover onClick={handleSecretBannerClick} />}
         </div>
 
-        {shouldShowErrorCaption && <ErrorCaption errorCaption={errorCaption} />}
+        {shouldShowErrorCaption &&
+          (reserveSpaceForError && !errorCaption ? (
+            <div className="size-4" />
+          ) : (
+            <ErrorCaption errorCaption={errorCaption} />
+          ))}
       </div>
     );
   }

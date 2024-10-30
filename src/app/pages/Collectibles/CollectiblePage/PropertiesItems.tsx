@@ -9,8 +9,9 @@ import { fromFa2TokenSlug } from 'lib/assets/utils';
 import { useTezosAssetBalance } from 'lib/balances';
 import { formatDate } from 'lib/i18n';
 import { EvmCollectibleMetadata } from 'lib/metadata/types';
-import { useTezosBlockExplorerUrl } from 'temple/front/block-explorers';
+import { useBlockExplorerHref } from 'temple/front/block-explorers';
 import { TezosNetworkEssentials } from 'temple/networks';
+import { TempleChainKind } from 'temple/types';
 
 const itemClassName = 'flex flex-col gap-y-2 p-3 border border-gray-300 rounded-md';
 const itemTitleClassName = 'text-xs text-gray-600 leading-5';
@@ -28,11 +29,7 @@ export const PropertiesItems = memo<PropertiesItemsProps>(({ network, assetSlug,
 
   const { value: balance } = useTezosAssetBalance(assetSlug, accountPkh, network);
 
-  const explorerBaseUrl = useTezosBlockExplorerUrl(network.chainId);
-  const exploreContractUrl = useMemo(
-    () => (explorerBaseUrl ? new URL(contract, explorerBaseUrl).href : null),
-    [explorerBaseUrl, contract]
-  );
+  const exploreContractUrl = useBlockExplorerHref(TempleChainKind.Tezos, network.chainId, 'address', contract);
 
   const mintedTimestamp = useMemo(() => {
     const value = details?.mintedTimestamp;

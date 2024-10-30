@@ -1,4 +1,4 @@
-import React, { memo, ReactNode, useCallback, useEffect, useMemo, useState } from 'react';
+import React, { memo, useCallback, useEffect, useMemo, useState } from 'react';
 
 import { EmptyState } from 'app/atoms/EmptyState';
 import { useAllAccountsReactiveOnAddition, useAllAccountsReactiveOnRemoval } from 'app/hooks/use-all-accounts-reactive';
@@ -6,6 +6,7 @@ import { t } from 'lib/i18n';
 import { useTempleClient } from 'lib/temple/front';
 import { DisplayedGroup, StoredAccount } from 'lib/temple/types';
 import { useAlert } from 'lib/ui';
+import { SettingsTabProps } from 'lib/ui/settings-tab-props';
 import { searchAndFilterAccounts } from 'temple/front/accounts';
 import { useAccountsGroups } from 'temple/front/groups';
 
@@ -34,11 +35,7 @@ enum AccountsManagementModal {
   WatchOnly = 'watch-only'
 }
 
-interface AccountsManagementProps {
-  setHeaderChildren: (children: ReactNode) => void;
-}
-
-export const AccountsManagement = memo<AccountsManagementProps>(({ setHeaderChildren }) => {
+export const AccountsManagement = memo<SettingsTabProps>(({ setHeaderChildren }) => {
   const { createAccount } = useTempleClient();
   const customAlert = useAlert();
   const allAccounts = useAllAccountsReactiveOnAddition(false);

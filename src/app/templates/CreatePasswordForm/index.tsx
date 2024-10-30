@@ -38,7 +38,7 @@ import { T, TID, t } from 'lib/i18n';
 import { putToStorage } from 'lib/storage';
 import { useStorage, useTempleClient } from 'lib/temple/front';
 import { setMnemonicToBackup } from 'lib/temple/front/mnemonic-to-backup-keeper';
-import { SuccessfulImportToastContext } from 'lib/temple/front/successful-import-toast-context';
+import { SuccessfulInitToastContext } from 'lib/temple/front/successful-init-toast-context';
 import { navigate } from 'lib/woozie';
 
 import { createPasswordSelectors } from './selectors';
@@ -68,7 +68,7 @@ export const CreatePasswordForm = memo<CreatePasswordFormProps>(({ seedPhrase: s
   const [, setShouldBackupMnemonic] = useStorage(SHOULD_BACKUP_MNEMONIC_STORAGE_KEY);
   const [bottomEdgeIsVisible, setBottomEdgeIsVisible] = useState(true);
   const { setOnboardingCompleted } = useOnboardingProgress();
-  const [, setShouldShowImportToast] = useContext(SuccessfulImportToastContext);
+  const [, setInitToast] = useContext(SuccessfulInitToastContext);
 
   const dispatch = useDispatch();
 
@@ -128,7 +128,7 @@ export const CreatePasswordForm = memo<CreatePasswordFormProps>(({ seedPhrase: s
           trackEvent('AnalyticsAndAdsEnabled', AnalyticsEventCategory.General, { accountPkh }, data.analytics);
         }
         if (seedPhraseToImport) {
-          setShouldShowImportToast(true);
+          setInitToast(t('importSuccessful'));
         } else {
           await setShouldBackupMnemonic(true);
           setMnemonicToBackup(seedPhrase);
@@ -147,16 +147,16 @@ export const CreatePasswordForm = memo<CreatePasswordFormProps>(({ seedPhrase: s
       }
     },
     [
+      setOnboardingCompleted,
+      submitting,
       dispatch,
+      setTermsAccepted,
       registerWallet,
       seedPhrase,
       seedPhraseToImport,
-      setTermsAccepted,
-      setOnboardingCompleted,
-      setShouldBackupMnemonic,
-      setShouldShowImportToast,
-      submitting,
-      trackEvent
+      trackEvent,
+      setInitToast,
+      setShouldBackupMnemonic
     ]
   );
 

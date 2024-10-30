@@ -97,7 +97,7 @@ const SUBMIT_ERROR_TYPE = 'submit-error';
 const AddNewContactForm: React.FC<{ className?: string }> = ({ className }) => {
   const { addContact } = useContactsActions();
 
-  const chainSelectController = useChainSelectController();
+  const chainSelectController = useChainSelectController(false);
   const network = chainSelectController.value;
 
   const {
@@ -171,7 +171,11 @@ const AddNewContactForm: React.FC<{ className?: string }> = ({ className }) => {
 
   return (
     <form className={className} onSubmit={handleSubmit(onAddContactSubmit)}>
-      <ChainSelectSection controller={chainSelectController} onlyForAddressResolution />
+      <ChainSelectSection
+        controller={chainSelectController}
+        onlyForAddressResolution
+        shouldFilterByCurrentAccount={false}
+      />
 
       <FormField
         ref={register({ validate: validateAddressField })}

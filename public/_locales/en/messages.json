@@ -243,6 +243,9 @@
       }
     }
   },
+  "networkEnabled": {
+    "message": "Network Enabled"
+  },
   "pkhLabel": {
     "message": "Account: $pkh$",
     "placeholders": {
@@ -2199,6 +2202,129 @@
   "defaultAccount": {
     "message": "Default account (the first one)"
   },
+  "defaultNetworksGroup": {
+    "message": "Default Networks"
+  },
+  "customNetworksGroup": {
+    "message": "Custom Networks"
+  },
+  "chainTestnetsGroup": {
+    "message": "$chain$ Testnets",
+    "placeholders": {
+      "chain": {
+        "content": "$1"
+      }
+    }
+  },
+  "customTestnetsGroup": {
+    "message": "Custom Testnets"
+  },
+  "active": {
+    "message": "Active"
+  },
+  "rpcEndpoints": {
+    "message": "RPC Endpoints"
+  },
+  "activeRpc": {
+    "message": "Active RPC"
+  },
+  "activeBlockExplorer": {
+    "message": "Active"
+  },
+  "deleteRpc": {
+    "message": "Delete RPC"
+  },
+  "deleteBlockExplorer": {
+    "message": "Delete"
+  },
+  "rpcAdded": {
+    "message": "RPC added"
+  },
+  "blockExplorerAdded": {
+    "message": "Block explorer added"
+  },
+  "invalidChainId": {
+    "message": "Invalid chain ID"
+  },
+  "chainId": {
+    "message": "Chain ID"
+  },
+  "chainIdTooltip": {
+    "message": "The chain ID is used for signing transactions. It must match the chain ID returned by the network."
+  },
+  "blockExplorerUrl": {
+    "message": "Block explorer URL"
+  },
+  "testnet": {
+    "message": "Testnet"
+  },
+  "removeNetwork": {
+    "message": "Remove Network"
+  },
+  "removeNetworkModalTitleLeftPart": {
+    "message": "Remove "
+  },
+  "removeNetworkModalTitleRightPart": {
+    "message": "?"
+  },
+  "removeNetworkModalDescription": {
+    "message": "You won’t be able to check the assets on this\nnetwork anymore."
+  },
+  "editSomeRpcLeftPart": {
+    "message": "Edit "
+  },
+  "editSomeRpcRightPart": {
+    "message": " RPC"
+  },
+  "editSomeBlockExplorerLeftPart": {
+    "message": "Edit "
+  },
+  "editSomeBlockExplorerRightPart": {
+    "message": ""
+  },
+  "rpcDoesNotRespond": {
+    "message": "RPC doesn’t respond"
+  },
+  "rpcDoesNotMatchChain": {
+    "message": "RPC doesn’t match chain"
+  },
+  "wrongAddress": {
+    "message": "Wrong address"
+  },
+  "addSomeRpc": {
+    "message": "Add $network$ RPC",
+    "placeholders": {
+      "network": {
+        "content": "$1"
+      }
+    }
+  },
+  "addSomeBlockExplorer": {
+    "message": "Add $network$ explorer",
+    "placeholders": {
+      "network": {
+        "content": "$1"
+      }
+    }
+  },
+  "confirmDeleteRpcTitleLeftPart": {
+    "message": "Delete "
+  },
+  "confirmDeleteRpcTitleRightPart": {
+    "message": " RPC?"
+  },
+  "confirmDeleteRpcDescription": {
+    "message": "This will remove the RPC from the list and automatically switch the network to the default RPC endpoint."
+  },
+  "confirmDeleteBlockExplorerTitleLeftPart": {
+    "message": "Delete "
+  },
+  "confirmDeleteBlockExplorerTitleRightPart": {
+    "message": "?"
+  },
+  "confirmDeleteBlockExplorerDescription": {
+    "message": "This will remove the block explorer from the list and automatically switch the network to the default one."
+  },
   "loadMore": {
     "message": "Load more"
   },
@@ -2210,6 +2336,14 @@
   },
   "invalidJsonInput": {
     "message": "Invalid JSON"
+  },
+  "anotherChainIdError": {
+    "message": "The chain ID used by RPC is $chainId$",
+    "placeholders": {
+      "chainId": {
+        "content": "$1"
+      }
+    }
   },
   "unknownErrorFromRPC": {
     "message": "Failed to send request to $url$. Invalid request provided or RPC node is temporarily unreachable.",
@@ -2300,7 +2434,7 @@
     "message": "Feel free to join and ask your questions 😊"
   },
   "blockExplorer": {
-    "message": "Blockchain explorer"
+    "message": "Block Explorer"
   },
   "viewOnBlockExplorer": { "message": "View on block explorer" },
   "specifyTokenId": {

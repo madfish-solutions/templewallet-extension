@@ -210,7 +210,18 @@ const chainIdsChainNamesRecord: Record<number, string> = {
   17001: 'redstoneholesky',
   534352: 'scroll',
   100: 'xdai',
-  324: 'zksync'
+  324: 'zksync',
+  787: 'acalaevm',
+  42161: 'arbitrum',
+  8453: 'base',
+  321: 'kcc',
+  4200: 'merlin',
+  82: 'meter',
+  1285: 'moonriver',
+  66: 'okc',
+  2020: 'ronin',
+  100009: 'vechain',
+  7000: 'zetachain'
 };
 
 const baseUrl = 'https://raw.githubusercontent.com/rainbow-me/assets/master/blockchains/';
