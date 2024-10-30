@@ -26,7 +26,7 @@ interface EvmContentProps {
 }
 
 export const EvmContent: FC<EvmContentProps> = ({ data, onClose }) => {
-  const { account, network, assetSlug, to, amount } = data;
+  const { account, network, assetSlug, to, amount, onConfirm } = data;
 
   const accountPkh = account.address as HexString;
 
@@ -143,6 +143,7 @@ export const EvmContent: FC<EvmContentProps> = ({ data, onClose }) => {
           ...(nonce ? { nonce: Number(nonce) } : {})
         });
 
+        onConfirm();
         onClose();
 
         setTimeout(() => toastSuccess('Transaction Submitted', true, txHash), CLOSE_ANIMATION_TIMEOUT * 2);
@@ -161,6 +162,7 @@ export const EvmContent: FC<EvmContentProps> = ({ data, onClose }) => {
       formState.isSubmitting,
       network,
       onClose,
+      onConfirm,
       selectedFeeOption,
       sendEvmTransaction,
       to

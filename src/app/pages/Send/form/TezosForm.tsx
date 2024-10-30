@@ -78,7 +78,7 @@ export const TezosForm: FC<Props> = ({ chainId, assetSlug, onSelectAssetClick, o
     reValidateMode: 'onChange'
   });
 
-  const { watch, formState, trigger } = form;
+  const { watch, formState, trigger, reset } = form;
 
   const toValue = watch('to');
 
@@ -170,6 +170,11 @@ export const TezosForm: FC<Props> = ({ chainId, assetSlug, onSelectAssetClick, o
     [assetPrice, assetDecimals]
   );
 
+  const resetForm = useCallback(() => {
+    reset({ to: '', amount: '' });
+    setShouldUseFiat(false);
+  }, [reset, setShouldUseFiat]);
+
   const onSubmit = useCallback(
     async ({ amount }: SendFormData) => {
       if (formState.isSubmitting) return;
@@ -184,10 +189,16 @@ export const TezosForm: FC<Props> = ({ chainId, assetSlug, onSelectAssetClick, o
       try {
         const actualAmount = shouldUseFiat ? toAssetAmount(amount) : amount;
 
-        onReview({ account, assetSlug, network, amount: actualAmount, to: toResolved });
+        onReview({
+          account,
+          assetSlug,
+          network,
+          amount: actualAmount,
+          to: toResolved,
+          onConfirm: resetForm
+        });
 
         formAnalytics.trackSubmitSuccess();
-        setShouldUseFiat(false);
       } catch (err: any) {
         console.error(err);
 
@@ -204,7 +215,7 @@ export const TezosForm: FC<Props> = ({ chainId, assetSlug, onSelectAssetClick, o
       formState.isSubmitting,
       network,
       onReview,
-      setShouldUseFiat,
+      resetForm,
       shouldUseFiat,
       toAssetAmount,
       toResolved

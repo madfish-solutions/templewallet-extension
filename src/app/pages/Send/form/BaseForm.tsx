@@ -1,6 +1,7 @@
-import React, { FC, FocusEventHandler, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { FC, FocusEventHandler, useCallback, useMemo, useRef, useState } from 'react';
 
 import BigNumber from 'bignumber.js';
+import { isEmpty } from 'lodash';
 import { Controller, SubmitHandler, Validate, useFormContext } from 'react-hook-form-v7';
 import { useDebounce } from 'use-debounce';
 
@@ -66,8 +67,8 @@ export const BaseForm: FC<Props> = ({
 }) => {
   const [selectAccountModalOpened, setSelectAccountModalOpen, setSelectAccountModalClosed] = useBooleanState(false);
 
-  const { watch, handleSubmit, control, setValue, getValues, formState, reset } = useFormContext<SendFormData>();
-  const { isValid, isSubmitting, submitCount, errors } = formState;
+  const { watch, handleSubmit, control, setValue, getValues, formState } = useFormContext<SendFormData>();
+  const { isSubmitting, submitCount, errors } = formState;
 
   const formSubmitted = submitCount > 0;
 
@@ -77,15 +78,8 @@ export const BaseForm: FC<Props> = ({
 
   useAddressFieldAnalytics(toValue, 'RECIPIENT_NETWORK');
 
-  useEffect(() => {
-    if (formState.isSubmitSuccessful) {
-      reset({ to: '', amount: '' });
-    }
-  }, [formState, reset]);
-
   const { selectedFiatCurrency } = useFiatCurrency();
 
-  const amountFieldRef = useRef<HTMLInputElement>(null);
   const toFieldRef = useRef<HTMLTextAreaElement>(null);
 
   const [toFieldFocused, setToFieldFocused] = useState(false);
@@ -113,11 +107,6 @@ export const BaseForm: FC<Props> = ({
     () => setValue('to', '', { shouldValidate: formSubmitted }),
     [setValue, formSubmitted]
   );
-
-  const handleAmountFieldFocus = useCallback<FocusEventHandler>(evt => {
-    evt.preventDefault();
-    amountFieldRef.current?.focus({ preventScroll: true });
-  }, []);
 
   const handlePasteButtonClick = useCallback(() => {
     readClipboard()
@@ -200,12 +189,11 @@ export const BaseForm: FC<Props> = ({
             name="amount"
             control={control}
             rules={{ validate: validateAmount }}
-            render={({ field: { onChange, value } }) => (
+            render={({ field: { value, onChange, onBlur } }) => (
               <AssetField
-                ref={amountFieldRef}
                 value={value}
-                onFocus={handleAmountFieldFocus}
-                onChange={onChange}
+                onBlur={onBlur}
+                onChange={v => onChange(v ?? '')}
                 extraFloatingInner={floatingAssetSymbol}
                 assetDecimals={shouldUseFiat ? 2 : assetDecimals}
                 cleanable={Boolean(amountValue)}
@@ -298,7 +286,7 @@ export const BaseForm: FC<Props> = ({
           size="L"
           color="primary"
           loading={maxEstimating || isSubmitting}
-          disabled={formSubmitted && !isValid}
+          disabled={formSubmitted && !isEmpty(errors)}
           testID={SendFormSelectors.sendButton}
         >
           Review

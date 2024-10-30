@@ -23,5 +23,7 @@ export function fromSerializableEvmTxParams(txParams: SerializableEvmTxParams): 
 }
 
 export function getGasPriceStep(averageGasPrice: bigint) {
-  return BigInt(`1${'0'.repeat(averageGasPrice.toString().length - 2)}`);
+  const repeatCount = averageGasPrice.toString().length - 2;
+
+  return BigInt(`1${'0'.repeat(repeatCount > 0 ? repeatCount : 0)}`);
 }

@@ -71,7 +71,7 @@ export const EvmForm: FC<Props> = ({ chainId, assetSlug, onSelectAssetClick, onR
     reValidateMode: 'onChange'
   });
 
-  const { watch, formState } = form;
+  const { watch, formState, reset } = form;
 
   const toValue = watch('to');
 
@@ -137,6 +137,11 @@ export const EvmForm: FC<Props> = ({ chainId, assetSlug, onSelectAssetClick, onR
     [assetPrice, assetDecimals]
   );
 
+  const resetForm = useCallback(() => {
+    reset({ to: '', amount: '' });
+    setShouldUseFiat(false);
+  }, [reset, setShouldUseFiat]);
+
   const onSubmit = useCallback(
     async ({ amount }: SendFormData) => {
       if (formState.isSubmitting) return;
@@ -145,10 +150,16 @@ export const EvmForm: FC<Props> = ({ chainId, assetSlug, onSelectAssetClick, onR
 
       const actualAmount = shouldUseFiat ? toAssetAmount(amount) : amount;
 
-      onReview({ account, assetSlug, network, amount: actualAmount, to: toResolved });
+      onReview({
+        account,
+        assetSlug,
+        network,
+        amount: actualAmount,
+        to: toResolved,
+        onConfirm: resetForm
+      });
 
       formAnalytics.trackSubmitSuccess();
-      setShouldUseFiat(false);
     },
     [
       account,
@@ -157,7 +168,7 @@ export const EvmForm: FC<Props> = ({ chainId, assetSlug, onSelectAssetClick, onR
       formState.isSubmitting,
       network,
       onReview,
-      setShouldUseFiat,
+      resetForm,
       shouldUseFiat,
       toAssetAmount,
       toResolved

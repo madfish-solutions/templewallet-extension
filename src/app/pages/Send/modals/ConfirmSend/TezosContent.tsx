@@ -35,7 +35,7 @@ interface TezosContentProps {
 }
 
 export const TezosContent: FC<TezosContentProps> = ({ data, onClose }) => {
-  const { account, network, assetSlug, to, amount } = data;
+  const { account, network, assetSlug, to, amount, onConfirm } = data;
 
   const assetMetadata = useTezosAssetMetadata(assetSlug, network.chainId);
 
@@ -224,6 +224,7 @@ export const TezosContent: FC<TezosContentProps> = ({ data, onClose }) => {
           displayedFeeOptions
         );
 
+        onConfirm();
         onClose();
 
         // @ts-expect-error
@@ -237,7 +238,16 @@ export const TezosContent: FC<TezosContentProps> = ({ data, onClose }) => {
         setTab('error');
       }
     },
-    [assetMetadata, displayedFeeOptions, estimationData, formState.isSubmitting, onClose, submitOperation, tezos]
+    [
+      assetMetadata,
+      displayedFeeOptions,
+      estimationData,
+      formState.isSubmitting,
+      onClose,
+      onConfirm,
+      submitOperation,
+      tezos
+    ]
   );
 
   return (

@@ -9,6 +9,7 @@ export interface SendFormData {
 
 interface BaseReviewData extends SendFormData {
   assetSlug: string;
+  onConfirm: EmptyFn;
 }
 
 export interface EvmReviewData extends BaseReviewData {
