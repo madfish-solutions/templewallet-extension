@@ -1,120 +1,318 @@
 import { useCallback, useMemo } from 'react';
 
-import { useStorage } from 'lib/temple/front';
+import { transform } from 'lodash';
+import { nanoid } from 'nanoid';
+
+import { BLOCKCHAIN_EXPLORERS_OVERRIDES_STORAGE_KEY } from 'lib/constants';
+import { useStorage } from 'lib/temple/front/storage';
 import { TempleTezosChainId } from 'lib/temple/types';
-import { EMPTY_FROZEN_OBJ, isTruthy } from 'lib/utils';
+import { EMPTY_FROZEN_OBJ } from 'lib/utils';
+import { TempleChainKind } from 'temple/types';
 
-type TezosBlockExplorerKnownId = 'tzkt' | 'tzstats' | 'bcd' | 't4l3nt';
+import { useChainSpecs } from './chains-specs';
 
-export function useTezosBlockExplorerUrl(chainId: string) {
-  const [explorersStored] = useStoredTezosBlockExplorers();
-
-  return useMemo(() => {
-    const knownId = getTezosExplorerKnownId(explorersStored, chainId);
-
-    return knownId ? TEZOS_BLOCK_EXPLORERS[knownId]?.baseUrls[chainId] : undefined;
-  }, [explorersStored, chainId]);
-}
-
-export function useExplorerHref(chainId: string, hash: string) {
-  const baseUrl = useTezosBlockExplorerUrl(chainId);
-
-  return useMemo(() => {
-    return baseUrl ? new URL(hash, baseUrl).href : null;
-  }, [baseUrl, hash]);
-}
-
-export interface TezosBlockExplorer {
-  id: TezosBlockExplorerKnownId;
+export interface BlockExplorer {
   name: string;
-  baseUrl: string;
+  url: string;
+  id: string;
+  default: boolean;
 }
 
-export function useTezosBlockExplorersListingLogic(chainId: string) {
-  const [explorersStored, setExplorers] = useStoredTezosBlockExplorers();
+const FALLBACK_CHAIN_BLOCK_EXPLORERS: BlockExplorer[] = [];
 
-  const knownOptions = useMemo(
-    () =>
-      Object.values(TEZOS_BLOCK_EXPLORERS)
-        .map(({ id, name, baseUrls }) => {
-          const baseUrl = baseUrls[chainId];
+export type BlockExplorerEntityType = 'address' | 'tx';
 
-          return baseUrl ? { id, name, baseUrl } : null;
-        })
-        .filter(isTruthy),
-    [chainId]
+const useBlockExplorersOverrides = () =>
+  useStorage<Partial<Record<TempleChainKind, OptionalRecord<BlockExplorer[]> | undefined>>>(
+    BLOCKCHAIN_EXPLORERS_OVERRIDES_STORAGE_KEY,
+    EMPTY_FROZEN_OBJ
   );
 
-  const currentKnownId = getTezosExplorerKnownId(explorersStored, chainId);
+export function useBlockExplorers() {
+  const [blockExplorersOverrides, setBlockExplorersOverrides] = useBlockExplorersOverrides();
+  const allBlockExplorers = useMemo(
+    () => ({
+      [TempleChainKind.Tezos]: {
+        ...DEFAULT_BLOCK_EXPLORERS[TempleChainKind.Tezos],
+        ...blockExplorersOverrides[TempleChainKind.Tezos]
+      },
+      [TempleChainKind.EVM]: {
+        ...DEFAULT_BLOCK_EXPLORERS[TempleChainKind.EVM],
+        ...blockExplorersOverrides[TempleChainKind.EVM]
+      }
+    }),
+    [blockExplorersOverrides]
+  );
 
-  const setExplorerById = useCallback(
-    (knownId: TezosBlockExplorerKnownId) => {
-      setExplorers({ ...explorersStored, [chainId]: knownId });
+  const getChainBlockExplorers = useCallback(
+    (chainKind: TempleChainKind, chainId: string | number) => allBlockExplorers[chainKind]?.[chainId] ?? [],
+    [allBlockExplorers]
+  );
+  const setChainBlockExplorers = useCallback(
+    (chainKind: TempleChainKind, chainId: string | number, blockExplorers: BlockExplorer[]) =>
+      setBlockExplorersOverrides(prevValue => {
+        const newValue = { ...prevValue };
+        newValue[chainKind] = { ...newValue[chainKind], [chainId]: blockExplorers };
+
+        return newValue;
+      }),
+    [setBlockExplorersOverrides]
+  );
+
+  const addBlockExplorer = useCallback(
+    async (
+      chainKind: TempleChainKind,
+      chainId: string | number,
+      blockExplorer: Omit<BlockExplorer, 'id' | 'default'>
+    ) => {
+      const newChainBlockExplorers = [...getChainBlockExplorers(chainKind, chainId)];
+      const newBlockExplorer = { ...blockExplorer, id: nanoid(), default: false };
+      newChainBlockExplorers.push(newBlockExplorer);
+
+      await setChainBlockExplorers(chainKind, chainId, newChainBlockExplorers);
+
+      return newBlockExplorer;
     },
-    [explorersStored, chainId, setExplorers]
+    [getChainBlockExplorers, setChainBlockExplorers]
   );
 
-  return { knownOptions, currentKnownId, setExplorerById };
+  const replaceBlockExplorer = useCallback(
+    (chainKind: TempleChainKind, chainId: string | number, blockExplorer: Omit<BlockExplorer, 'default'>) => {
+      const newChainBlockExplorers = getChainBlockExplorers(chainKind, chainId).map(be =>
+        be.id === blockExplorer.id ? { ...blockExplorer, default: be.default } : be
+      );
+
+      return setChainBlockExplorers(chainKind, chainId, newChainBlockExplorers);
+    },
+    [getChainBlockExplorers, setChainBlockExplorers]
+  );
+
+  const removeBlockExplorers = useCallback(
+    (chainKind: TempleChainKind, chainId: string | number, explorersIds: string[]) => {
+      const newChainBlockExplorers = getChainBlockExplorers(chainKind, chainId).filter(
+        ({ id }) => !explorersIds.includes(id)
+      );
+
+      return setChainBlockExplorers(chainKind, chainId, newChainBlockExplorers);
+    },
+    [getChainBlockExplorers, setChainBlockExplorers]
+  );
+
+  return {
+    allBlockExplorers,
+    addBlockExplorer,
+    replaceBlockExplorer,
+    removeBlockExplorers
+  };
 }
 
-interface KnownTezosBlockExplorer<ID = TezosBlockExplorerKnownId> {
-  id: ID;
-  name: string;
-  baseUrls: StringRecord;
+export function useChainBlockExplorers(chainKind: TempleChainKind, chainId: string | number) {
+  const {
+    allBlockExplorers,
+    addBlockExplorer: genericAddBlockExplorer,
+    removeBlockExplorers: genericRemoveBlockExplorers,
+    replaceBlockExplorer: genericReplaceBlockExplorer
+  } = useBlockExplorers();
+  const [{ activeBlockExplorerId }] = useChainSpecs(chainKind, chainId);
+
+  const chainBlockExplorers =
+    allBlockExplorers[chainKind]?.[chainId] ??
+    DEFAULT_BLOCK_EXPLORERS[chainKind]?.[chainId] ??
+    FALLBACK_CHAIN_BLOCK_EXPLORERS;
+
+  const addBlockExplorer = useCallback(
+    (blockExplorer: Omit<BlockExplorer, 'id' | 'default'>) =>
+      genericAddBlockExplorer(chainKind, chainId, blockExplorer),
+    [chainId, chainKind, genericAddBlockExplorer]
+  );
+
+  const replaceBlockExplorer = useCallback(
+    (blockExplorer: Omit<BlockExplorer, 'default'>) => genericReplaceBlockExplorer(chainKind, chainId, blockExplorer),
+    [chainId, chainKind, genericReplaceBlockExplorer]
+  );
+
+  const removeBlockExplorer = useCallback(
+    (explorerId: string) => genericRemoveBlockExplorers(chainKind, chainId, [explorerId]),
+    [chainId, chainKind, genericRemoveBlockExplorers]
+  );
+
+  const removeAllBlockExplorers = useCallback(
+    () =>
+      genericRemoveBlockExplorers(
+        chainKind,
+        chainId,
+        chainBlockExplorers.map(({ id }) => id)
+      ),
+    [chainBlockExplorers, chainId, chainKind, genericRemoveBlockExplorers]
+  );
+
+  const activeBlockExplorer = useMemo<BlockExplorer | undefined>(
+    () => chainBlockExplorers.find(({ id }) => id === activeBlockExplorerId) ?? chainBlockExplorers[0],
+    [activeBlockExplorerId, chainBlockExplorers]
+  );
+
+  return {
+    chainBlockExplorers,
+    activeBlockExplorer,
+    addBlockExplorer,
+    removeBlockExplorer,
+    removeAllBlockExplorers,
+    replaceBlockExplorer
+  };
 }
 
-const TEZOS_BLOCK_EXPLORERS: {
-  [K in TezosBlockExplorerKnownId]: KnownTezosBlockExplorer<K>;
-} = {
-  tzkt: {
-    id: 'tzkt',
-    name: 'TzKT',
-    baseUrls: {
-      [TempleTezosChainId.Mainnet]: 'https://tzkt.io',
-      [TempleTezosChainId.Ghostnet]: 'https://ghostnet.tzkt.io',
-      [TempleTezosChainId.Mumbai]: 'https://mumbainet.tzkt.io',
-      [TempleTezosChainId.Nairobi]: 'https://nairobinet.tzkt.io'
+export function useBlockExplorerHref(
+  chainKind: TempleChainKind,
+  chainId: string | number,
+  entityType: BlockExplorerEntityType,
+  hash: string
+) {
+  const { activeBlockExplorer } = useChainBlockExplorers(chainKind, chainId);
+
+  return useMemo(() => {
+    if (!activeBlockExplorer) {
+      return null;
     }
+
+    return new URL(chainKind === TempleChainKind.Tezos ? hash : `${entityType}/${hash}`, activeBlockExplorer.url).href;
+  }, [activeBlockExplorer, chainKind, entityType, hash]);
+}
+
+const DEFAULT_BLOCK_EXPLORERS_BASE: Record<TempleChainKind, Record<string, Omit<BlockExplorer, 'default'>[]>> = {
+  [TempleChainKind.Tezos]: {
+    [TempleTezosChainId.Mainnet]: [
+      {
+        name: 'TzKT',
+        url: 'https://tzkt.io',
+        id: 'tzkt-mainnet'
+      },
+      {
+        name: 'TzStats',
+        url: 'https://tzstats.com',
+        id: 'tzstats-mainnet'
+      },
+      {
+        name: 'Better Call Dev',
+        url: 'https://better-call.dev/mainnet/opg',
+        id: 'bcd-mainnet'
+      }
+    ],
+    [TempleTezosChainId.Ghostnet]: [
+      {
+        name: 'TzKT',
+        url: 'https://ghostnet.tzkt.io',
+        id: 'tzkt-ghostnet'
+      }
+    ],
+    [TempleTezosChainId.Paris]: [
+      {
+        name: 'TzKT',
+        url: 'https://parisnet.tzkt.io',
+        id: 'tzkt-paris'
+      }
+    ],
+    [TempleTezosChainId.Dcp]: [
+      {
+        name: 'T4L3NT',
+        url: 'https://explorer.tlnt.net',
+        id: 'tlnt-mainnet'
+      }
+    ],
+    [TempleTezosChainId.DcpTest]: [
+      {
+        name: 'T4L3NT',
+        url: 'https://explorer.test.tlnt.net',
+        id: 'tlnt-testnet'
+      }
+    ]
   },
-  t4l3nt: {
-    id: 't4l3nt',
-    name: 'T4L3NT',
-    baseUrls: {
-      [TempleTezosChainId.Dcp]: 'https://explorer.tlnt.net',
-      [TempleTezosChainId.DcpTest]: 'https://explorer.test.tlnt.net'
-    }
-  },
-  tzstats: {
-    id: 'tzstats',
-    name: 'TzStats',
-    baseUrls: {
-      [TempleTezosChainId.Mainnet]: 'https://tzstats.com'
-    }
-  },
-  bcd: {
-    id: 'bcd',
-    name: 'Better Call Dev',
-    baseUrls: {
-      [TempleTezosChainId.Mainnet]: 'https://better-call.dev/mainnet/opg'
-    }
+  [TempleChainKind.EVM]: {
+    '1': [
+      {
+        name: 'Etherscan',
+        url: 'https://etherscan.io',
+        id: 'etherscan-mainnet'
+      }
+    ],
+    '137': [
+      {
+        name: 'PolygonScan',
+        url: 'https://polygonscan.com',
+        id: 'polygonscan-mainnet'
+      }
+    ],
+    '56': [
+      {
+        name: 'BscScan',
+        url: 'https://bscscan.com',
+        id: 'bscscan-mainnet'
+      }
+    ],
+    '43114': [
+      {
+        name: 'SnowTrace',
+        url: 'https://snowtrace.io',
+        id: 'snowtrace-mainnet'
+      }
+    ],
+    '10': [
+      {
+        name: 'Optimistic Ethereum',
+        url: 'https://optimistic.etherscan.io',
+        id: 'optimism-mainnet'
+      }
+    ],
+    '11155111': [
+      {
+        name: 'Etherscan',
+        url: 'https://sepolia.etherscan.io',
+        id: 'eth-sepolia'
+      }
+    ],
+    '80002': [
+      {
+        name: 'PolygonScan',
+        url: 'https://amoy.polygonscan.com',
+        id: 'polygon-amoy'
+      }
+    ],
+    '97': [
+      {
+        name: 'BscScan',
+        url: 'https://testnet.bscscan.com',
+        id: 'bscscan-testnet'
+      }
+    ],
+    '43113': [
+      {
+        name: 'SnowTrace',
+        url: 'https://testnet.snowtrace.io',
+        id: 'snowtrace-testnet'
+      }
+    ],
+    '11155420': [
+      {
+        name: 'Blockscout',
+        url: 'https://optimism-sepolia.blockscout.com',
+        id: 'optimism-sepolia'
+      }
+    ]
   }
 };
 
-const DEFAULT_TEZOS_BLOCK_EXPLORERS: StringRecord<TezosBlockExplorerKnownId> = {
-  [TempleTezosChainId.Mainnet]: 'tzkt',
-  [TempleTezosChainId.Ghostnet]: 'tzkt',
-  [TempleTezosChainId.Mumbai]: 'tzkt',
-  [TempleTezosChainId.Nairobi]: 'tzkt',
-  [TempleTezosChainId.Dcp]: 't4l3nt',
-  [TempleTezosChainId.DcpTest]: 't4l3nt'
-};
+const DEFAULT_BLOCK_EXPLORERS = transform<
+  typeof DEFAULT_BLOCK_EXPLORERS_BASE,
+  Record<TempleChainKind, Record<string, BlockExplorer[]>>
+>(
+  DEFAULT_BLOCK_EXPLORERS_BASE,
+  (result, chainKindExplorers, chainKind) => {
+    result[chainKind] = transform(chainKindExplorers, (res, chainExplorers, chainId) => {
+      res[chainId] = chainExplorers.map(({ id, ...rest }) => ({ ...rest, id, default: true }));
 
-const useStoredTezosBlockExplorers = () =>
-  useStorage<OptionalRecord<TezosBlockExplorerKnownId>>('TEZOS_BLOCK_EXPLORERS', EMPTY_FROZEN_OBJ);
+      return res;
+    });
 
-function getTezosExplorerKnownId(
-  explorers: OptionalRecord<TezosBlockExplorerKnownId>,
-  chainId: string
-): TezosBlockExplorerKnownId | undefined {
-  return explorers[chainId] || DEFAULT_TEZOS_BLOCK_EXPLORERS[chainId];
-}
+    return result;
+  },
+  { [TempleChainKind.EVM]: {}, [TempleChainKind.Tezos]: {} }
+);

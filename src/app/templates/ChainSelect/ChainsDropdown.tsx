@@ -7,7 +7,14 @@ import { useShortcutAccountSelectModalIsOpened } from 'app/hooks/use-account-sel
 import { ReactComponent as SignalAltIcon } from 'app/icons/monochrome/signal-alt.svg';
 import { T } from 'lib/i18n';
 import { PopperRenderProps } from 'lib/ui/Popper';
-import { TezosChain, EvmChain, useEnabledTezosChains, useEnabledEvmChains } from 'temple/front';
+import {
+  TezosChain,
+  EvmChain,
+  useEnabledTezosChains,
+  useEnabledEvmChains,
+  useAccountAddressForTezos,
+  useAccountAddressForEvm
+} from 'temple/front';
 import { TempleChainTitle } from 'temple/types';
 
 import { ChainButton } from './ChainButton';
@@ -16,13 +23,16 @@ import styles from './style.module.css';
 
 interface Props extends PopperRenderProps {
   controller: ChainSelectController;
+  shouldFilterByCurrentAccount: boolean;
 }
 
-export const ChainsDropdown = memo<Props>(({ opened, setOpened, controller }) => {
+export const ChainsDropdown = memo<Props>(({ opened, setOpened, controller, shouldFilterByCurrentAccount }) => {
   const selectedChain = controller.value;
 
   const tezosChains = useEnabledTezosChains();
   const evmChains = useEnabledEvmChains();
+  const accountTezAddress = useAccountAddressForTezos();
+  const accountEvmAddress = useAccountAddressForEvm();
 
   useShortcutAccountSelectModalIsOpened(() => setOpened(false));
 
@@ -53,51 +63,59 @@ export const ChainsDropdown = memo<Props>(({ opened, setOpened, controller }) =>
   return (
     <DropdownWrapper opened={opened} design="dark" className="origin-top-right mt-1 p-2">
       <div className={styles.scroll}>
-        <h2 className={h2ClassName}>
-          <SignalAltIcon className="w-auto h-4 mr-1 stroke-current" />
-          {TempleChainTitle.tezos} <T id="networks" />
-        </h2>
+        {(!shouldFilterByCurrentAccount || accountTezAddress) && (
+          <>
+            <h2 className={h2ClassName}>
+              <SignalAltIcon className="w-auto h-4 mr-1 stroke-current" />
+              {TempleChainTitle.tezos} <T id="networks" />
+            </h2>
 
-        {tezosChains.map(chain => {
-          const { chainId } = chain;
-          const selected = chainId === selectedChain.chainId && selectedChain.kind === 'tezos';
+            {tezosChains.map(chain => {
+              const { chainId } = chain;
+              const selected = chainId === selectedChain?.chainId && selectedChain.kind === 'tezos';
 
-          return (
-            <ChainButton
-              key={chainId}
-              chain={chain}
-              selected={selected}
-              onClick={() => {
-                setOpened(false);
+              return (
+                <ChainButton
+                  key={chainId}
+                  chain={chain}
+                  selected={selected}
+                  onClick={() => {
+                    setOpened(false);
 
-                if (!selected) handleTezosNetworkSelect(chain);
-              }}
-            />
-          );
-        })}
+                    if (!selected) handleTezosNetworkSelect(chain);
+                  }}
+                />
+              );
+            })}
+          </>
+        )}
 
-        <h2 className={clsx(h2ClassName, 'mt-2')}>
-          <SignalAltIcon className="w-auto h-4 mr-1 stroke-current" />
-          {TempleChainTitle.evm} <T id="networks" />
-        </h2>
+        {(!shouldFilterByCurrentAccount || accountEvmAddress) && (
+          <>
+            <h2 className={clsx(h2ClassName, 'mt-2')}>
+              <SignalAltIcon className="w-auto h-4 mr-1 stroke-current" />
+              {TempleChainTitle.evm} <T id="networks" />
+            </h2>
 
-        {evmChains.map(chain => {
-          const { chainId } = chain;
-          const selected = chainId === selectedChain.chainId && selectedChain.kind === 'evm';
+            {evmChains.map(chain => {
+              const { chainId } = chain;
+              const selected = chainId === selectedChain?.chainId && selectedChain.kind === 'evm';
 
-          return (
-            <ChainButton
-              key={chainId}
-              chain={chain}
-              selected={selected}
-              onClick={() => {
-                setOpened(false);
+              return (
+                <ChainButton
+                  key={chainId}
+                  chain={chain}
+                  selected={selected}
+                  onClick={() => {
+                    setOpened(false);
 
-                if (!selected) handleEvmNetworkSelect(chain);
-              }}
-            />
-          );
-        })}
+                    if (!selected) handleEvmNetworkSelect(chain);
+                  }}
+                />
+              );
+            })}
+          </>
+        )}
       </div>
     </DropdownWrapper>
   );

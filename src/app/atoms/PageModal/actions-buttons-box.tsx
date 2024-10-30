@@ -4,46 +4,45 @@ import clsx from 'clsx';
 import { throttle } from 'lodash';
 import { useDispatch } from 'react-redux';
 
-import { useAppEnv } from 'app/env';
 import { setToastsContainerBottomShiftAction } from 'app/store/settings/actions';
 
 interface ActionsButtonsBoxProps extends HTMLAttributes<HTMLDivElement> {
   shouldCastShadow?: boolean;
   flexDirection?: 'row' | 'col';
+  shouldChangeBottomShift?: boolean;
 }
 
 export const ActionsButtonsBox = memo<ActionsButtonsBoxProps>(
-  ({ className, shouldCastShadow, flexDirection = 'col', ...restProps }) => {
+  ({ className, shouldCastShadow, flexDirection = 'col', shouldChangeBottomShift = true, ...restProps }) => {
     const dispatch = useDispatch();
-    const { popup } = useAppEnv();
 
     useEffect(() => {
-      return () => void dispatch(setToastsContainerBottomShiftAction(0));
-    }, []);
+      return () => void (shouldChangeBottomShift && dispatch(setToastsContainerBottomShiftAction(0)));
+    }, [dispatch, shouldChangeBottomShift]);
 
     const handleResize = useMemo(
       () =>
         throttle<ResizeObserverCallback>(entries => {
           const borderBoxSize = entries.map(entry => entry.borderBoxSize?.[0]).filter(Boolean)[0];
 
-          if (borderBoxSize) {
-            dispatch(setToastsContainerBottomShiftAction(borderBoxSize.blockSize - (popup ? 16 : 0)));
+          if (borderBoxSize && shouldChangeBottomShift) {
+            dispatch(setToastsContainerBottomShiftAction(borderBoxSize.blockSize - 24));
           }
         }, 100),
-      [dispatch, popup]
+      [dispatch, shouldChangeBottomShift]
     );
 
     const resizeObserver = useMemo(() => new ResizeObserver(handleResize), [handleResize]);
     const rootRef = useCallback(
       (node: HTMLDivElement | null) => {
         resizeObserver.disconnect();
-        if (node) {
+        if (node && shouldChangeBottomShift) {
           resizeObserver.observe(node);
           const { height } = node.getBoundingClientRect();
           dispatch(setToastsContainerBottomShiftAction(height));
         }
       },
-      [dispatch, resizeObserver]
+      [dispatch, resizeObserver, shouldChangeBottomShift]
     );
 
     return (

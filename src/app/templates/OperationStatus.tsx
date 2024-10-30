@@ -40,7 +40,7 @@ const OperationStatus: FC<OperationStatusProps> = ({ network, typeTitle, operati
 
         <HashChip hash={hash} firstCharsCount={10} lastCharsCount={7} small key="hash" className="mx-2" />
 
-        <OpenInExplorerChip tezosChainId={chainId} hash={hash} small />
+        <OpenInExplorerChip entityType="tx" tezosChainId={chainId} hash={hash} small />
       </div>
     ),
     [hash, chainId]

@@ -359,13 +359,13 @@ export const AddTokenForm = memo<AddTokenPageProps>(
             onClean={cleanContractAddress}
             placeholder={isTezosChainSelected ? 'KT1v9CmPy…' : '0x0f5d2fb2…'}
             errorCaption={errors.address?.message}
-            containerClassName="mb-6"
+            containerClassName={forCollectible || isTezosChainSelected ? 'mb-3' : 'mb-1'}
             className="resize-none"
           />
 
           {(forCollectible || isTezosChainSelected) && (
             <>
-              <div className="mt-6 pt-1 pb-2 px-1 flex flex-row justify-between items-center">
+              <div className="pt-1 pb-2 px-1 flex flex-row justify-between items-center">
                 <p className="text-font-description-bold">
                   <T id="tokenId" />
                 </p>
@@ -386,7 +386,7 @@ export const AddTokenForm = memo<AddTokenPageProps>(
                 cleanable={Boolean(tokenIdWithoutFallback) || tokenIdWithoutFallback === '0'}
                 onClean={cleanTokenId}
                 errorCaption={errors.id?.message}
-                containerClassName="mb-6"
+                containerClassName="mb-1"
               />
             </>
           )}

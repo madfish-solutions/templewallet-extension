@@ -1,4 +1,4 @@
-import React, { FC, ReactNode, SetStateAction, memo, useMemo, useState } from 'react';
+import React, { FC, ReactNode, memo, useMemo, useState } from 'react';
 
 import { IconBase } from 'app/atoms';
 import { AccountAvatar } from 'app/atoms/AccountAvatar';
@@ -21,15 +21,16 @@ import { AccountsManagement } from 'app/templates/AccountsManagement';
 import AddressBook from 'app/templates/AddressBook/AddressBook';
 import { AdvancedFeatures } from 'app/templates/AdvancedFeatures';
 import DAppSettings from 'app/templates/DAppSettings/DAppSettings';
+import { NetworksSettings } from 'app/templates/NetworksSettings';
 import { SecuritySettings } from 'app/templates/SecuritySettings';
 import GeneralSettings from 'app/templates/SettingsGeneral';
 import SyncSettings from 'app/templates/Synchronization/SyncSettings';
 import { TID, T } from 'lib/i18n';
 import { useBooleanState } from 'lib/ui/hooks';
+import { SettingsTabProps } from 'lib/ui/settings-tab-props';
 import { Link } from 'lib/woozie';
 import { useAccount } from 'temple/front';
 
-import NetworksSettings from './Networks';
 import { ResetExtensionModal } from './reset-extension-modal';
 import { SettingsSelectors } from './Settings.selectors';
 
@@ -41,7 +42,7 @@ interface Tab {
   slug: string;
   titleI18nKey: TID;
   Icon: FC;
-  Component: FC<{ setHeaderChildren: React.Dispatch<SetStateAction<ReactNode>> }>;
+  Component: FC<SettingsTabProps>;
   testID?: SettingsSelectors;
 }
 

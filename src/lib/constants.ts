@@ -1,3 +1,10 @@
+import {
+  ETHEREUM_MAINNET_CHAIN_ID,
+  ETH_SEPOLIA_CHAIN_ID,
+  TEZOS_MAINNET_CHAIN_ID,
+  TempleTezosChainId
+} from './temple/types';
+
 export enum ContentScriptType {
   ExternalLinksActivity = 'ExternalLinksActivity',
   ExternalAdsActivity = 'ExternalAdsActivity',
@@ -31,6 +38,8 @@ export const CUSTOM_TEZOS_NETWORKS_STORAGE_KEY = 'CUSTOM_TEZOS_NETWORKS';
 
 export const TEZOS_CHAINS_SPECS_STORAGE_KEY = 'TEZOS_CHAINS_SPECS';
 export const EVM_CHAINS_SPECS_STORAGE_KEY = 'EVM_CHAINS_SPECS';
+
+export const BLOCKCHAIN_EXPLORERS_OVERRIDES_STORAGE_KEY = 'BLOCKCHAIN_EXPLORERS_OVERRIDES';
 
 export const ANALYTICS_USER_ID_STORAGE_KEY = 'analytics_user_id';
 
@@ -85,3 +94,10 @@ export const NEVER_AUTOLOCK_VALUE = Number.MAX_SAFE_INTEGER;
 export const DEFAULT_SEED_PHRASE_WORDS_AMOUNT = 12;
 
 export const DEFAULT_PASSWORD_INPUT_PLACEHOLDER = '••••••••••';
+
+export const MAIN_CHAINS_IDS = [
+  TEZOS_MAINNET_CHAIN_ID,
+  ETHEREUM_MAINNET_CHAIN_ID,
+  TempleTezosChainId.Ghostnet,
+  ETH_SEPOLIA_CHAIN_ID
+];
