@@ -16,7 +16,7 @@ import { ReactComponent as LockIcon } from 'app/icons/base/lock.svg';
 import { ReactComponent as ManageIcon } from 'app/icons/base/manage.svg';
 import { ReactComponent as RefreshIcon } from 'app/icons/base/refresh.svg';
 import PageLayout from 'app/layouts/PageLayout';
-import About from 'app/templates/About/About';
+import { About } from 'app/templates/About/About';
 import { AccountsManagement } from 'app/templates/AccountsManagement';
 import AddressBook from 'app/templates/AddressBook/AddressBook';
 import { AdvancedFeatures } from 'app/templates/AdvancedFeatures';

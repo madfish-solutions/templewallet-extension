@@ -39,7 +39,7 @@
     "message": "Натисни X іконку щоб скинути дозволи."
   },
   "versionLabel": {
-    "message": "version: $version$",
+    "message": "Версія: $version$",
     "placeholders": {
       "version": {
         "content": "$1"
@@ -47,21 +47,10 @@
     }
   },
   "branchName": {
-    "message": "branch: $branch$",
+    "message": "Гілка: $branch$",
     "placeholders": {
       "branch": {
         "content": "$1"
-      }
-    }
-  },
-  "madeWithLove": {
-    "message": "Зроблено з $loveIcon$ компанією $companyName$",
-    "placeholders": {
-      "loveIcon": {
-        "content": "$1"
-      },
-      "companyName": {
-        "content": "$2"
       }
     }
   },
@@ -675,7 +664,7 @@
     "message": "Вебсайт"
   },
   "repo": {
-    "message": "Репозиторій"
+    "message": "GitHub репозиторій"
   },
   "privacyPolicy": {
     "message": "Політика конфіденційності"
@@ -683,8 +672,11 @@
   "termsOfUse": {
     "message": "Умови використання"
   },
-  "contact": {
-    "message": "Контакти"
+  "knowledgeBase": {
+    "message": "База знань"
+  },
+  "featureRequest": {
+    "message": "Попросити функцію"
   },
   "minimalFeeDescription": {
     "message": "Мінімально"
@@ -1601,17 +1593,8 @@
   "minimumReceived": {
     "message": "Мінімальний вихід"
   },
-  "helpAndCommunity": {
-    "message": "Допомога та спільнота"
-  },
-  "communityResourcesTitle": {
-    "message": "На цих ресурсах Ви завжди зможете знайти додаткову інформацію про Temple wallet або попросити про допомогу."
-  },
-  "helpAndCommunityDescription": {
-    "message": "Використовуйте цей розділ, якщо хочете стати частиною нашої спільноти або якщо Вам потрібна допомога."
-  },
-  "joinPrompt": {
-    "message": "Долучайтесь та задавайте Ваші запитання 😊"
+  "community": {
+    "message": "Спільнота"
   },
   "blockExplorer": {
     "message": "Експлорер блокчейна"

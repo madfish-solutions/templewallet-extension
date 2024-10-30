@@ -59,7 +59,7 @@
     "message": "Click on the X icon to reset permissions."
   },
   "versionLabel": {
-    "message": "version: $version$",
+    "message": "Version: $version$",
     "placeholders": {
       "version": {
         "content": "$1"
@@ -67,21 +67,10 @@
     }
   },
   "branchName": {
-    "message": "branch: $branch$",
+    "message": "Branch: $branch$",
     "placeholders": {
       "branch": {
         "content": "$1"
-      }
-    }
-  },
-  "madeWithLove": {
-    "message": "Made with $loveIcon$ by $companyName$",
-    "placeholders": {
-      "loveIcon": {
-        "content": "$1"
-      },
-      "companyName": {
-        "content": "$2"
       }
     }
   },
@@ -1074,7 +1063,7 @@
     "message": "Website"
   },
   "repo": {
-    "message": "Repository"
+    "message": "GitHub Repository"
   },
   "privacyPolicy": {
     "message": "Privacy Policy"
@@ -1082,8 +1071,26 @@
   "termsOfUse": {
     "message": "Terms of Use"
   },
-  "contact": {
-    "message": "Contact"
+  "knowledgeBase": {
+    "message": "Knowledge Base"
+  },
+  "featureRequest": {
+    "message": "Feature Request"
+  },
+  "xSocial": {
+    "message": "X (Twitter)"
+  },
+  "telegram": {
+    "message": "Telegram"
+  },
+  "discord": {
+    "message": "Discord"
+  },
+  "reddit": {
+    "message": "Reddit"
+  },
+  "youtube": {
+    "message": "Youtube"
   },
   "minimalFeeDescription": {
     "message": "Minimal"
@@ -2421,17 +2428,8 @@
       }
     }
   },
-  "helpAndCommunity": {
-    "message": "Help & Community"
-  },
-  "communityResourcesTitle": {
-    "message": "You may always find additional info about the Temple wallet or ask for help on the next resources."
-  },
-  "helpAndCommunityDescription": {
-    "message": "Use this section if you want to be a part of our community or need help."
-  },
-  "joinPrompt": {
-    "message": "Feel free to join and ask your questions 😊"
+  "community": {
+    "message": "Community"
   },
   "blockExplorer": {
     "message": "Block Explorer"
