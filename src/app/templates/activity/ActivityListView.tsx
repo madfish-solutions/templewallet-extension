@@ -30,7 +30,7 @@ export const ActivityListView: FC<PropsWithChildren<Props>> = ({
       reachedTheEnd={reachedTheEnd}
       retryInitialLoad={loadNext}
       loadMore={loadNext}
-      loader={<Loader color="secondary" className="mt-4 mx-auto" />}
+      loader={<Loader size="L" className="mt-4 mx-auto text-secondary" trackVariant="dark" />}
     >
       {children}
     </InfiniteScroll>

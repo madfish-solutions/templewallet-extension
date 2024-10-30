@@ -18,8 +18,9 @@ import ModStyles from './styles.module.css';
 export { ActionsButtonsBox } from './actions-buttons-box';
 
 interface Props extends TestIDProps {
-  title: string;
+  title: ReactNode | ReactNode[];
   opened: boolean;
+  headerClassName?: string;
   shouldShowBackButton?: boolean;
   onRequestClose: EmptyFn;
   onGoBack?: EmptyFn;
@@ -28,9 +29,12 @@ interface Props extends TestIDProps {
   children: ReactNode | (() => ReactElement);
 }
 
+export const CLOSE_ANIMATION_TIMEOUT = 300;
+
 export const PageModal: FC<Props> = ({
   title,
   opened,
+  headerClassName,
   shouldShowBackButton,
   onRequestClose,
   onGoBack,
@@ -44,7 +48,7 @@ export const PageModal: FC<Props> = ({
   return (
     <Modal
       isOpen={opened}
-      closeTimeoutMS={animated ? 300 : undefined}
+      closeTimeoutMS={animated ? CLOSE_ANIMATION_TIMEOUT : undefined}
       htmlOpenClassName="overflow-hidden" // Disabling page scroll and/or bounce behind modal
       bodyOpenClassName={ACTIVATE_CONTENT_FADER_CLASSNAME}
       overlayClassName={{
@@ -74,7 +78,7 @@ export const PageModal: FC<Props> = ({
           )}
         </div>
 
-        <div className="flex-1 text-center text-font-regular-bold">{title}</div>
+        <div className={clsx('flex-1 text-center text-font-regular-bold', headerClassName)}>{title}</div>
 
         <div className="w-12 flex justify-end">
           <IconBase Icon={ExIcon} size={16} className="text-grey-2 cursor-pointer" onClick={onRequestClose} />

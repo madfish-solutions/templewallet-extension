@@ -57,6 +57,7 @@ export const ResetExtensionModal = memo<ResetExtensionModalProps>(({ onClose }) 
             labelContainerClassName="text-grey-2"
             placeholder={DEFAULT_PASSWORD_INPUT_PLACEHOLDER}
             errorCaption={errors.password?.message}
+            reserveSpaceForError={false}
             containerClassName="mb-2"
             testID={SettingsSelectors.passwordInput}
           />

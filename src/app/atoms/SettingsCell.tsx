@@ -14,6 +14,7 @@ interface SettingsCellPropsBase<P extends ComponentBase = ComponentBase> {
   cellIcon?: ReactNode;
   cellName: ReactNode;
   cellNameClassName?: string;
+  wrapCellName?: boolean;
   Component: 'div' | FC<P>;
 }
 
@@ -31,7 +32,8 @@ export const SettingsCellSingle = <P extends ComponentBase>({
   className,
   cellIcon,
   cellName,
-  cellNameClassName = 'text-font-medium-bold',
+  cellNameClassName = 'text-left text-font-medium-bold flex-1',
+  wrapCellName = true,
   isLast = true,
   children,
   Component,
@@ -39,14 +41,12 @@ export const SettingsCellSingle = <P extends ComponentBase>({
 }: SettingsCellSingleProps<P>) => {
   return (
     <Component
-      className={clsx('flex justify-between items-center p-3', !isLast && 'border-b-0.5 border-lines', className)}
+      className={clsx('flex items-center p-3 gap-2', !isLast && 'border-b-0.5 border-lines', className)}
       {...restProps}
     >
-      <div className="flex items-center gap-2">
-        {cellIcon}
+      {cellIcon}
 
-        <span className={cellNameClassName}>{cellName}</span>
-      </div>
+      {wrapCellName ? <span className={cellNameClassName}>{cellName}</span> : cellName}
 
       {children}
     </Component>

@@ -1,14 +1,9 @@
-import { useMemo } from 'react';
-
-import * as ViemChains from 'viem/chains';
+import { useCallback, useMemo } from 'react';
 
 import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
-import { EVM_CHAINS_SPECS_STORAGE_KEY, TEZOS_CHAINS_SPECS_STORAGE_KEY } from 'lib/constants';
 import { EvmAssetStandard } from 'lib/evm/types';
 import { EvmNativeTokenMetadata } from 'lib/metadata/types';
-import { useStorage } from 'lib/temple/front/storage';
-import { TEZOS_MAINNET_CHAIN_ID } from 'lib/temple/types';
-import { EMPTY_FROZEN_OBJ } from 'lib/utils';
+import { getViemChainsList } from 'temple/evm';
 import {
   DEFAULT_EVM_CURRENCY,
   EVM_DEFAULT_NETWORKS,
@@ -18,7 +13,9 @@ import {
 } from 'temple/networks';
 import { TempleChainKind } from 'temple/types';
 
-import type { TezosChain, EvmChain, TezosChainSpecs, EvmChainSpecs } from '../chains';
+import { useBlockExplorers } from '../block-explorers';
+import type { ChainBase, EvmChain, OneOfChains, TezosChain } from '../chains';
+import { EvmChainSpecs, TezosChainSpecs, useEvmChainsSpecs, useTezosChainsSpecs } from '../chains-specs';
 
 export function useReadyTempleTezosNetworks(customTezosNetworks: StoredTezosNetwork[]) {
   const allTezosNetworks = useMemo<typeof TEZOS_DEFAULT_NETWORKS>(
@@ -26,54 +23,26 @@ export function useReadyTempleTezosNetworks(customTezosNetworks: StoredTezosNetw
     [customTezosNetworks]
   );
 
-  const [tezosChainsSpecs] = useStorage<OptionalRecord<TezosChainSpecs>>(
-    TEZOS_CHAINS_SPECS_STORAGE_KEY,
-    EMPTY_FROZEN_OBJ
+  const [tezosChainsSpecs] = useTezosChainsSpecs();
+
+  const makeChain = useCallback(
+    (baseProps: ChainBaseProps<TezosChain>) => ({
+      ...baseProps,
+      kind: TempleChainKind.Tezos as const
+    }),
+    []
   );
-
-  const allTezosChains = useMemo(() => {
-    const rpcByChainId = new Map<string, NonEmptyArray<StoredTezosNetwork>>();
-
-    for (const rpc of allTezosNetworks) {
-      const networks = rpcByChainId.get(rpc.chainId);
-      if (networks) networks.push(rpc);
-      else rpcByChainId.set(rpc.chainId, [rpc]);
-    }
-
-    const chains: StringRecord<TezosChain> = {};
-
-    for (const [chainId, networks] of rpcByChainId) {
-      const specs = tezosChainsSpecs[chainId];
-      const activeRpcId = specs?.activeRpcId;
-      const activeRpc = (activeRpcId && networks.find(n => n.id === activeRpcId)) || networks[0];
-      const { rpcBaseURL } = activeRpc;
-
-      const defaultRpc = TEZOS_DEFAULT_NETWORKS.find(n => n.chainId === chainId);
-      const { name, nameI18nKey } = defaultRpc ?? activeRpc;
-
-      chains[chainId] = {
-        kind: TempleChainKind.Tezos,
-        chainId,
-        rpcBaseURL,
-        name,
-        nameI18nKey,
-        rpc: activeRpc,
-        allRpcs: networks,
-        disabled: chainId === TEZOS_MAINNET_CHAIN_ID ? false : specs?.disabled
-      };
-    }
-
-    return chains;
-  }, [allTezosNetworks, tezosChainsSpecs]);
-
-  const enabledTezosChains = useMemo(
-    () => Object.values(allTezosChains).filter(chain => !chain.disabled),
-    [allTezosChains]
+  const { allChains, enabledChains } = useChains<TezosChain>(
+    makeChain,
+    tezosChainsSpecs,
+    allTezosNetworks,
+    TEZOS_DEFAULT_NETWORKS,
+    TempleChainKind.Tezos
   );
 
   return {
-    allTezosChains,
-    enabledTezosChains
+    allTezosChains: allChains,
+    enabledTezosChains: enabledChains
   };
 }
 
@@ -83,60 +52,96 @@ export function useReadyTempleEvmNetworks(customEvmNetworks: StoredEvmNetwork[])
     [customEvmNetworks]
   );
 
-  const [evmChainsSpecs] = useStorage<OptionalRecord<EvmChainSpecs>>(EVM_CHAINS_SPECS_STORAGE_KEY, EMPTY_FROZEN_OBJ);
+  const [evmChainsSpecs] = useEvmChainsSpecs();
 
-  const allEvmChains = useMemo(() => {
-    const rpcByChainId = new Map<number, NonEmptyArray<StoredEvmNetwork>>();
+  const makeChain = useCallback(
+    (baseProps: ChainBaseProps<EvmChain>, specs?: EvmChainSpecs) => ({
+      ...baseProps,
+      kind: TempleChainKind.EVM as const,
+      currency: getCurrency(baseProps.chainId, specs?.currency)
+    }),
+    []
+  );
+  const { allChains, enabledChains } = useChains<EvmChain>(
+    makeChain,
+    evmChainsSpecs,
+    allEvmNetworks,
+    EVM_DEFAULT_NETWORKS,
+    TempleChainKind.EVM
+  );
 
-    for (const rpc of allEvmNetworks) {
+  return {
+    allEvmChains: allChains,
+    enabledEvmChains: enabledChains
+  };
+}
+
+type Specs<T extends OneOfChains> = T extends TezosChain ? TezosChainSpecs : EvmChainSpecs;
+type StoredNetwork<T extends OneOfChains> = T extends TezosChain ? StoredTezosNetwork : StoredEvmNetwork;
+// This type works even worse if specified with omitting props of `T`
+type ChainBaseProps<T extends OneOfChains> = ChainBase & Pick<T, 'chainId' | 'rpc' | 'allRpcs'>;
+
+function useChains<T extends OneOfChains>(
+  makeChain: (baseProps: ChainBaseProps<T>, specs?: Specs<T>) => T,
+  chainsSpecs: OptionalRecord<Specs<T>>,
+  networks: NonEmptyArray<StoredNetwork<T>>,
+  defaultNetworks: NonEmptyArray<StoredNetwork<T>>,
+  chainKind: T['kind']
+) {
+  const { allBlockExplorers } = useBlockExplorers();
+
+  const allChains = useMemo(() => {
+    const rpcByChainId = new Map<T['chainId'], NonEmptyArray<StoredNetwork<T>>>();
+
+    for (const rpc of networks) {
       const networks = rpcByChainId.get(rpc.chainId);
       if (networks) networks.push(rpc);
       else rpcByChainId.set(rpc.chainId, [rpc]);
     }
 
-    const chains: StringRecord<EvmChain> = {};
+    const chains: StringRecord<T> = {};
 
     for (const [chainId, networks] of rpcByChainId) {
-      const specs = evmChainsSpecs[chainId];
-
+      const specs = chainsSpecs[String(chainId)];
       const activeRpcId = specs?.activeRpcId;
       const activeRpc = (activeRpcId && networks.find(n => n.id === activeRpcId)) || networks[0];
-
-      const currency: EvmNativeTokenMetadata = getCurrency(chainId, specs?.currency);
-
       const { rpcBaseURL } = activeRpc;
 
-      const defaultRpc = EVM_DEFAULT_NETWORKS.find(n => n.chainId === chainId);
-      const { name, nameI18nKey } = defaultRpc ?? activeRpc;
+      const defaultRpc = defaultNetworks.find(n => n.chainId === chainId);
+      const { name: fallbackName, nameI18nKey } = defaultRpc ?? activeRpc;
+      const name = specs?.name ?? fallbackName;
+      const chainBlockExplorers = allBlockExplorers[chainKind]?.[chainId] ?? [];
 
-      chains[chainId] = {
-        kind: TempleChainKind.EVM,
+      const baseProps: ChainBaseProps<T> = {
         chainId,
         rpcBaseURL,
-        currency,
         name,
         nameI18nKey,
         rpc: activeRpc,
-        allRpcs: networks,
-        disabled: chainId === 1 ? false : specs?.disabled
+        disabled: specs?.disabled,
+        allRpcs: networks as T['allRpcs'],
+        allBlockExplorers: chainBlockExplorers,
+        activeBlockExplorer:
+          chainBlockExplorers.find(({ id }) => id === specs?.activeBlockExplorerId) ?? chainBlockExplorers[0],
+        testnet: specs?.testnet,
+        default: Boolean(defaultRpc)
       };
+
+      chains[String(chainId)] = makeChain(baseProps, specs);
     }
 
     return chains;
-  }, [allEvmNetworks, evmChainsSpecs]);
+  }, [allBlockExplorers, chainKind, chainsSpecs, defaultNetworks, makeChain, networks]);
 
-  const enabledEvmChains = useMemo(() => Object.values(allEvmChains).filter(chain => !chain.disabled), [allEvmChains]);
+  const enabledChains = useMemo(() => Object.values(allChains).filter(chain => !chain.disabled), [allChains]);
 
-  return {
-    allEvmChains,
-    enabledEvmChains
-  };
+  return { allChains, enabledChains };
 }
 
 const getCurrency = (chainId: number, specsCurrency?: EvmNativeTokenMetadata): EvmNativeTokenMetadata => {
   if (specsCurrency) return specsCurrency;
 
-  const viemChain = Object.values(ViemChains).find(chain => chain.id === chainId);
+  const viemChain = getViemChainsList().find(chain => chain.id === chainId);
 
   if (viemChain) {
     return {

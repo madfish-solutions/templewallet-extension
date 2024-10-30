@@ -4,39 +4,45 @@ import clsx from 'clsx';
 import { throttle } from 'lodash';
 import { useDispatch } from 'react-redux';
 
-import { useAppEnv } from 'app/env';
 import { setToastsContainerBottomShiftAction } from 'app/store/settings/actions';
 import { useWillUnmount } from 'lib/ui/hooks/useWillUnmount';
 
 interface Props extends HTMLAttributes<HTMLDivElement> {
   shouldCastShadow?: boolean;
+  shouldChangeBottomShift?: boolean;
 }
 
-export const ActionsButtonsBox: FC<Props> = ({ className, shouldCastShadow, ...restProps }) => {
+export const ActionsButtonsBox: FC<Props> = ({
+  className,
+  shouldCastShadow,
+  shouldChangeBottomShift,
+  ...restProps
+}) => {
   const dispatch = useDispatch();
-  const { popup } = useAppEnv();
 
-  useWillUnmount(() => void dispatch(setToastsContainerBottomShiftAction(0)));
+  useWillUnmount(() => {
+    if (shouldChangeBottomShift) void dispatch(setToastsContainerBottomShiftAction(0));
+  });
 
   const resizeObserver = useMemo(
     () =>
       new ResizeObserver(
         throttle<ResizeObserverCallback>(entries => {
-          const borderBoxSize = entries.find(entry => entry.borderBoxSize?.[0])?.borderBoxSize?.[0];
+          const borderBoxSize = entries.find(entry => entry.borderBoxSize[0])?.borderBoxSize[0];
 
-          if (borderBoxSize) {
-            dispatch(setToastsContainerBottomShiftAction(borderBoxSize.blockSize - (popup ? 16 : 0)));
+          if (borderBoxSize && shouldChangeBottomShift) {
+            dispatch(setToastsContainerBottomShiftAction(borderBoxSize.blockSize - 24));
           }
         }, 100)
       ),
-    [popup, dispatch]
+    [shouldChangeBottomShift, dispatch]
   );
 
   const rootRef = useCallback(
     (node: HTMLDivElement | null) => {
       resizeObserver.disconnect();
 
-      if (node) {
+      if (node && shouldChangeBottomShift) {
         resizeObserver.observe(node);
 
         const { height } = node.getBoundingClientRect();
@@ -44,7 +50,7 @@ export const ActionsButtonsBox: FC<Props> = ({ className, shouldCastShadow, ...r
         dispatch(setToastsContainerBottomShiftAction(height));
       }
     },
-    [resizeObserver, dispatch]
+    [resizeObserver, shouldChangeBottomShift, dispatch]
   );
 
   return (

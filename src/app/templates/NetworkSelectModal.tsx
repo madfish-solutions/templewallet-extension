@@ -16,9 +16,10 @@ import { dispatch } from 'app/store';
 import { setAssetsFilterChain } from 'app/store/assets-filter-options/actions';
 import { FilterChain } from 'app/store/assets-filter-options/state';
 import { SearchBarField } from 'app/templates/SearchField';
-import { T, t } from 'lib/i18n';
+import { T } from 'lib/i18n';
+import { searchAndFilterChains } from 'lib/ui/search-networks';
 import { useScrollIntoViewOnMount } from 'lib/ui/use-scroll-into-view';
-import { isSearchStringApplicable, searchAndFilterItems } from 'lib/utils/search-items';
+import { isSearchStringApplicable } from 'lib/utils/search-items';
 import { navigate } from 'lib/woozie';
 import {
   OneOfChains,
@@ -200,18 +201,3 @@ export const Network: FC<NetworkProps> = ({
     </div>
   );
 };
-
-function searchAndFilterChains(networks: OneOfChains[], searchValue: string) {
-  return searchAndFilterItems(
-    networks,
-    searchValue.trim(),
-    [
-      { name: 'name', weight: 1 },
-      { name: 'nameI18n', weight: 1 }
-    ],
-    ({ name, nameI18nKey }) => ({
-      name,
-      nameI18n: nameI18nKey ? t(nameI18nKey) : undefined
-    })
-  );
-}

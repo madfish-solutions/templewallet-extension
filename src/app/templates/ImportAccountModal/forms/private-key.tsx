@@ -99,7 +99,7 @@ export const PrivateKeyForm = memo<ImportAccountFormProps>(({ onSuccess }) => {
           errorCaption={errors.privateKey?.message ?? submitError}
           shouldShowErrorCaption
           className="resize-none"
-          containerClassName="mb-8"
+          containerClassName="mb-4"
           cleanable={Boolean(keyValue)}
           onClean={cleanPrivateKeyField}
           onChange={resetSubmitError}
@@ -144,7 +144,7 @@ export const PrivateKeyForm = memo<ImportAccountFormProps>(({ onSuccess }) => {
         <StyledButton
           size="L"
           type="submit"
-          disabled={shouldDisableSubmitButton(errors, formState, submitError)}
+          disabled={shouldDisableSubmitButton({ errors, formState, otherErrors: [submitError] })}
           testID={ImportAccountSelectors.privateKeyImportButton}
           color="primary"
         >

@@ -57,6 +57,7 @@ export const ConfirmSeedPhraseAccessModal = memo<ConfirmSeedPhraseAccessModalPro
               placeholder={DEFAULT_PASSWORD_INPUT_PLACEHOLDER}
               errorCaption={errors.password?.message}
               shouldShowRevealWhenEmpty
+              reserveSpaceForError={false}
               containerClassName="mb-1"
               testID={AccountsManagementSelectors.passwordInput}
             />

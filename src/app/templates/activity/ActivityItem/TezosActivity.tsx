@@ -6,8 +6,9 @@ import { isTransferActivityOperKind } from 'lib/activity/utils';
 import { useGetChainTokenOrGasMetadata } from 'lib/metadata';
 import { useBooleanState } from 'lib/ui/hooks';
 import { ZERO } from 'lib/utils/numbers';
-import { useExplorerHref } from 'temple/front/block-explorers';
+import { useBlockExplorerHref } from 'temple/front/block-explorers';
 import { BasicTezosChain } from 'temple/front/chains';
+import { TempleChainKind } from 'temple/types';
 
 import { ActivityOperationBaseComponent } from './ActivityOperationBase';
 import { BundleModalContent } from './BundleModal';
@@ -22,7 +23,7 @@ interface Props {
 export const TezosActivityComponent = memo<Props>(({ activity, chain, assetSlug }) => {
   const { hash, operations, status, operationsCount } = activity;
 
-  const blockExplorerUrl = useExplorerHref(chain.chainId, hash) ?? undefined;
+  const blockExplorerUrl = useBlockExplorerHref(TempleChainKind.Tezos, chain.chainId, 'tx', hash) ?? undefined;
 
   if (operationsCount === 1) {
     const operation = operations.at(0);

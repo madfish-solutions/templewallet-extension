@@ -96,6 +96,7 @@ export const DeleteWalletModal = memo<DeleteWalletModalProps>(({ onClose, select
               name="password"
               placeholder={DEFAULT_PASSWORD_INPUT_PLACEHOLDER}
               errorCaption={errors.password?.message}
+              reserveSpaceForError={false}
               containerClassName="mb-1"
               testID={AccountsManagementSelectors.passwordInput}
             />
