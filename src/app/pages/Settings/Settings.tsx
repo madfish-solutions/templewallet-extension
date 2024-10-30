@@ -1,4 +1,4 @@
-import React, { FC, ReactNode, memo, useMemo, useState } from 'react';
+import React, { FC, ReactNode, memo, useMemo, useState, useCallback, MouseEventHandler } from 'react';
 
 import { IconBase } from 'app/atoms';
 import { AccountAvatar } from 'app/atoms/AccountAvatar';
@@ -25,7 +25,9 @@ import { NetworksSettings } from 'app/templates/NetworksSettings';
 import { SecuritySettings } from 'app/templates/SecuritySettings';
 import GeneralSettings from 'app/templates/SettingsGeneral';
 import SyncSettings from 'app/templates/Synchronization/SyncSettings';
+import { SyncUnavailableModal } from 'app/templates/Synchronization/SyncUnavailableModal';
 import { TID, T } from 'lib/i18n';
+import { TempleAccountType } from 'lib/temple/types';
 import { useBooleanState } from 'lib/ui/hooks';
 import { SettingsTabProps } from 'lib/ui/settings-tab-props';
 import { Link } from 'lib/woozie';
@@ -48,6 +50,8 @@ interface Tab {
 
 const DefaultSettingsIconHOC = (Icon: React.FC<React.SVGProps<SVGSVGElement>>) =>
   memo(() => <IconBase size={16} Icon={Icon} className="text-primary" />);
+
+const SYNC_PAGE_SLUG = 'synchronization';
 
 const TABS_GROUPS: Tab[][] = [
   [
@@ -109,7 +113,7 @@ const TABS_GROUPS: Tab[][] = [
       testID: SettingsSelectors.advancedFeaturesButton
     },
     {
-      slug: 'synchronization',
+      slug: SYNC_PAGE_SLUG,
       titleI18nKey: 'templeSync',
       Icon: DefaultSettingsIconHOC(RefreshIcon),
       Component: SyncSettings,
@@ -129,17 +133,32 @@ const TABS_GROUPS: Tab[][] = [
 const TABS = TABS_GROUPS.flat();
 
 const Settings = memo<SettingsProps>(({ tabSlug }) => {
+  const { type: currentAccountType } = useAccount();
   const activeTab = useMemo(() => TABS.find(t => t.slug === tabSlug) || null, [tabSlug]);
   const [headerChildren, setHeaderChildren] = useState<ReactNode>(null);
   const [extensionModalOpened, openResetExtensionModal, closeResetExtensionModal] = useBooleanState(false);
+  const [syncUnavailableModalOpened, openSyncUnavailableModal, closeSyncUnavailableModal] = useBooleanState(false);
+
+  const handleSyncCellClick = useCallback<MouseEventHandler<HTMLAnchorElement>>(
+    e => {
+      if (currentAccountType !== TempleAccountType.HD) {
+        e.preventDefault();
+        openSyncUnavailableModal();
+      }
+    },
+    [currentAccountType, openSyncUnavailableModal]
+  );
 
   return (
     <PageLayout
       pageTitle={<T id={activeTab?.titleI18nKey ?? 'settings'} />}
+      contentPadding={false}
+      contentClassName="pt-4 px-4"
       paperClassName="!bg-background"
       headerChildren={headerChildren}
     >
       {extensionModalOpened && <ResetExtensionModal onClose={closeResetExtensionModal} />}
+      {syncUnavailableModalOpened && <SyncUnavailableModal onClose={closeSyncUnavailableModal} />}
       {activeTab ? (
         <activeTab.Component setHeaderChildren={setHeaderChildren} />
       ) : (
@@ -153,6 +172,7 @@ const Settings = memo<SettingsProps>(({ tabSlug }) => {
                   key={slug}
                   cellIcon={<Icon />}
                   cellName={<T id={titleI18nKey} />}
+                  onClick={slug === SYNC_PAGE_SLUG ? handleSyncCellClick : undefined}
                   isLast={j === tabs.length - 1}
                   testID={testID}
                 >

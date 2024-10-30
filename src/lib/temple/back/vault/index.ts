@@ -8,12 +8,12 @@ import { nanoid } from 'nanoid';
 import type * as WasmThemisPackageInterface from 'wasm-themis';
 
 import {
-  AT_LEAST_ONE_HD_ACCOUNT_ERR_MSG,
+  ACCOUNT_ALREADY_EXISTS_ERR_MSG,
   ACCOUNT_NAME_COLLISION_ERR_MSG,
-  WALLETS_SPECS_STORAGE_KEY,
-  ACCOUNT_ALREADY_EXISTS_ERR_MSG
+  AT_LEAST_ONE_HD_ACCOUNT_ERR_MSG,
+  WALLETS_SPECS_STORAGE_KEY
 } from 'lib/constants';
-import { fetchFromStorage as getPlain, putToStorage as savePlain } from 'lib/storage';
+import { fetchFromStorage, fetchFromStorage as getPlain, putToStorage as savePlain } from 'lib/storage';
 import {
   fetchNewGroupName,
   formatOpParamsBeforeSend,
@@ -27,7 +27,7 @@ import { clearAsyncStorages } from 'lib/temple/reset';
 import { StoredAccount, TempleAccountType, TempleSettings, WalletSpecs } from 'lib/temple/types';
 import { isTruthy } from 'lib/utils';
 import { getAccountAddressForChain, getAccountAddressForEvm, getAccountAddressForTezos } from 'temple/accounts';
-import { michelEncoder, getTezosFastRpcClient } from 'temple/tezos';
+import { getTezosFastRpcClient, michelEncoder } from 'temple/tezos';
 import { TempleChainKind } from 'temple/types';
 
 import { createLedgerSigner } from '../ledger';
@@ -36,20 +36,20 @@ import { PublicError } from '../PublicError';
 import { fetchMessage, transformHttpResponseError } from './helpers';
 import { MIGRATIONS } from './migrations';
 import {
-  seedToPrivateKey,
-  deriveSeed,
-  generateCheck,
-  fetchNewAccountName,
+  buildEncryptAndSaveManyForAccount,
+  canRemoveAccounts,
   concatAccount,
   createMemorySigner,
-  withError,
-  mnemonicToTezosAccountCreds,
+  deriveSeed,
+  fetchNewAccountName,
+  generateCheck,
+  isEvmDerivationPath,
   mnemonicToEvmAccountCreds,
-  buildEncryptAndSaveManyForAccount,
-  privateKeyToTezosAccountCreds,
+  mnemonicToTezosAccountCreds,
   privateKeyToEvmAccountCreds,
-  canRemoveAccounts,
-  isEvmDerivationPath
+  privateKeyToTezosAccountCreds,
+  seedToPrivateKey,
+  withError
 } from './misc';
 import {
   encryptAndSaveMany,
@@ -64,14 +64,14 @@ import {
 } from './safe-storage';
 import * as SessionStore from './session-store';
 import {
-  checkStrgKey,
-  migrationLevelStrgKey,
-  walletMnemonicStrgKey,
+  accountsStrgKey,
   accPrivKeyStrgKey,
   accPubKeyStrgKey,
-  accountsStrgKey,
+  checkStrgKey,
+  legacyMigrationLevelStrgKey,
+  migrationLevelStrgKey,
   settingsStrgKey,
-  legacyMigrationLevelStrgKey
+  walletMnemonicStrgKey
 } from './storage-keys';
 
 const TEMPLE_SYNC_PREFIX = 'templesync';
@@ -244,14 +244,20 @@ export class Vault {
 
     const { passKey } = await Vault.toValidPassKey(password);
     return withError('Failed to generate sync payload', async () => {
-      const walletsSpecs = await getPlain<StringRecord<WalletSpecs>>(WALLETS_SPECS_STORAGE_KEY);
-      const firstWalletId = Object.keys(walletsSpecs ?? {})[0];
-      const [mnemonic, allAccounts] = await Promise.all([
-        fetchAndDecryptOne<string>(walletMnemonicStrgKey(firstWalletId), passKey),
-        fetchAndDecryptOne<StoredAccount[]>(accountsStrgKey, passKey)
-      ]);
+      const currentAccountId = await fetchFromStorage<string>('CURRENT_ACCOUNT_ID');
+      const allAccounts = await fetchAndDecryptOne<StoredAccount[]>(accountsStrgKey, passKey);
 
-      const hdAccounts = getSameGroupAccounts(allAccounts, TempleAccountType.HD, firstWalletId);
+      const currentAccount = allAccounts.find(a => a.id === currentAccountId) ?? allAccounts[0];
+
+      if (currentAccount.type !== TempleAccountType.HD) {
+        throw new PublicError("Can't generate sync payload for Non-HD Wallet");
+      }
+
+      const currentWalletId = currentAccount.walletId;
+
+      const mnemonic = await fetchAndDecryptOne<string>(walletMnemonicStrgKey(currentWalletId), passKey);
+
+      const hdAccounts = getSameGroupAccounts(allAccounts, TempleAccountType.HD, currentWalletId);
 
       const data = [mnemonic, hdAccounts.length];
 

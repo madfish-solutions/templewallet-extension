@@ -24,13 +24,13 @@ export interface ActionModalProps {
 }
 
 export const ActionModal = memo<ActionModalProps>(
-  ({ onClose, children, hasCloseButton = true, headerClassName, title }) => {
+  ({ onClose, children, hasCloseButton = true, headerClassName, title, className }) => {
     const { fullPage } = useAppEnv();
 
     return (
       <CustomModal
         isOpen
-        className="rounded-lg"
+        className={clsx('rounded-lg', className)}
         overlayClassName={clsx(
           'backdrop-blur-xs',
           fullPage && [
@@ -42,7 +42,7 @@ export const ActionModal = memo<ActionModalProps>(
         )}
         onRequestClose={onClose}
       >
-        <div className="relative p-3 border-b-0.5 border-lines w-modal">
+        <div className={'relative p-3 border-b-0.5 border-lines w-full'}>
           <h1 className={clsx('text-center text-font-regular-bold mx-12', headerClassName)}>{title}</h1>
           {hasCloseButton && (
             <Button className="absolute top-3 right-3" onClick={onClose}>

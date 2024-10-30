@@ -3325,19 +3325,22 @@
     "message": "Temple Sync"
   },
   "syncSettingsTitle": {
-    "message": "Sync with Mobile Temple Wallet"
+    "message": "Sync with Temple Wallet app"
   },
   "syncSettingsDescription": {
-    "message": "You can sync your Seed Phrase and accounts (HD) with your mobile device. If you just open the Temple Mobile app for the first time, click 'Sync' button and follow the steps in your phone."
+    "message": "Easily sync your Seed Phrase from current wallet with the mobile app. Just select Sync method for import during the initial setup of the Temple app, and follow the steps to complete."
   },
-  "syncPasswordDescription": {
-    "message": "Use your current wallet password to start the synchronization."
+  "syncSettingsPassword": {
+    "message": "Enter the password to reveal QR-code"
   },
   "syncSettingsAlert": {
-    "message": "Make sure nobody else is looking at your screen when you scan this code."
+    "message": "Make sure nobody else is looking at your screen when you scan this QR-code."
   },
   "scanQRWithTempleMobile": {
-    "message": "Scan this QR-code with yor Temple Wallet Mobile app."
+    "message": "Scan this QR-code with your Temple Wallet\nmobile app to sync."
+  },
+  "syncUnavailable": {
+    "message": "This feature allows you to sync Temple extension with mobile app. You can only sync your Seed Phrase from wallet that supports Tezos network. Switch your current account to proceed synchronization."
   },
   "serviceIsUnavailable": {
     "message": "Sorry, service is temporarily unavailable. Try again later!"

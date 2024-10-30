@@ -1,40 +1,46 @@
-import React, { FC, useCallback, useLayoutEffect, useRef } from 'react';
+import React, { FC, useCallback } from 'react';
 
-import { OnSubmit, useForm } from 'react-hook-form';
-import { QRCode } from 'react-qr-svg';
+import { Controller, SubmitHandler, useForm } from 'react-hook-form-v7';
 
-import { Alert, FormField, FormSubmitButton } from 'app/atoms';
+import { CaptionAlert, FormField } from 'app/atoms';
+import { ActionsButtonsBox } from 'app/atoms/PageModal/actions-buttons-box';
+import { StyledButton } from 'app/atoms/StyledButton';
 import { DEFAULT_PASSWORD_INPUT_PLACEHOLDER } from 'lib/constants';
-import { T, t } from 'lib/i18n';
+import { t } from 'lib/i18n';
 import { useTempleClient } from 'lib/temple/front';
 import { useVanishingState } from 'lib/ui/hooks';
 import { delay } from 'lib/utils';
 
+import { QrCodeModal } from './QrCodeModal';
 import { SyncSettingsSelectors } from './SyncSettings.selectors';
 
 interface FormData {
   password: string;
 }
 
+const defaultFormValues: FormData = {
+  password: ''
+};
+
 const SyncSettings: FC = () => {
   const { generateSyncPayload } = useTempleClient();
 
-  const formRef = useRef<HTMLFormElement>(null);
   const [payload, setPayload] = useVanishingState();
-  const { register, handleSubmit, errors, setError, clearError, formState } = useForm<FormData>();
+  const { control, handleSubmit, setError, clearErrors, formState } = useForm<FormData>({
+    mode: 'onSubmit',
+    defaultValues: defaultFormValues
+  });
+  const { errors, isSubmitting, isValid, submitCount } = formState;
 
-  const focusPasswordField = useCallback(
-    () => formRef.current?.querySelector<HTMLInputElement>("input[name='password']")?.focus(),
-    []
-  );
+  const formSubmitted = submitCount > 0;
 
-  useLayoutEffect(() => focusPasswordField(), [focusPasswordField]);
+  const resetPayload = useCallback(() => void setPayload(null), [setPayload]);
 
-  const onSubmit = useCallback<OnSubmit<FormData>>(
+  const onSubmit = useCallback<SubmitHandler<FormData>>(
     async ({ password }) => {
       if (formState.isSubmitting) return;
 
-      clearError('password');
+      clearErrors('password');
       try {
         const syncPayload = await generateSyncPayload(password);
         setPayload(syncPayload);
@@ -45,74 +51,55 @@ const SyncSettings: FC = () => {
 
         // Human delay.
         await delay();
-        setError('password', 'submit-error', err.message);
-        focusPasswordField();
+        setError('password', { type: 'submit-error', message: err.message });
       }
     },
-    [formState.isSubmitting, clearError, setError, generateSyncPayload, setPayload, focusPasswordField]
+    [formState.isSubmitting, clearErrors, setError, generateSyncPayload, setPayload]
   );
 
   return (
-    <div className="w-full max-w-sm p-2 mx-auto">
-      {payload ? (
-        <>
-          <Alert
-            title={t('attentionExclamation')}
-            description={
-              <p>
-                <T id="syncSettingsAlert" />
-              </p>
-            }
-            className="mt-4 mb-8"
+    <>
+      <div className="flex-1">
+        <CaptionAlert type="info" title={t('syncSettingsTitle')} message={t('syncSettingsDescription')} />
+
+        <form id="sync-form" onSubmit={handleSubmit(onSubmit)}>
+          <Controller
+            name="password"
+            control={control}
+            rules={{ required: t('required') }}
+            render={({ field }) => (
+              <FormField
+                autoFocus
+                type="password"
+                id="reveal-secret-password"
+                label={t('syncSettingsPassword')}
+                placeholder={DEFAULT_PASSWORD_INPUT_PLACEHOLDER}
+                errorCaption={errors.password?.message}
+                testID={SyncSettingsSelectors.passwordInput}
+                containerClassName="mt-6"
+                {...field}
+              />
+            )}
           />
+        </form>
+      </div>
 
-          <p className="mb-4 text-sm text-gray-600">
-            <T id="scanQRWithTempleMobile" />
-          </p>
+      <ActionsButtonsBox flexDirection="col" className="px-0" style={{ backgroundColor: '#FBFBFB' }}>
+        <StyledButton
+          type="submit"
+          form="sync-form"
+          size="L"
+          color="primary"
+          loading={isSubmitting}
+          disabled={formSubmitted && !isValid}
+          testID={SyncSettingsSelectors.syncButton}
+        >
+          Sync
+        </StyledButton>
+      </ActionsButtonsBox>
 
-          <div className="mb-8 p-1 bg-gray-100 border-2 border-gray-300 rounded">
-            <QRCode value={payload} bgColor="#f7fafc" fgColor="#000000" level="Q" style={{ width: '100%' }} />
-          </div>
-
-          <FormSubmitButton
-            className="w-full justify-center"
-            onClick={() => setPayload(null)}
-            testID={SyncSettingsSelectors.doneButton}
-          >
-            <T id="done" />
-          </FormSubmitButton>
-        </>
-      ) : (
-        <>
-          <h2 className="mb-3 text-base text-gray-700">
-            <T id="syncSettingsTitle" />
-          </h2>
-
-          <p className="mb-6 text-xs text-gray-600">
-            <T id="syncSettingsDescription" />
-          </p>
-
-          <form ref={formRef} onSubmit={handleSubmit(onSubmit)}>
-            <FormField
-              ref={register({ required: t('required') })}
-              label={t('password')}
-              labelDescription={t('syncPasswordDescription')}
-              id="reveal-secret-password"
-              type="password"
-              name="password"
-              placeholder={DEFAULT_PASSWORD_INPUT_PLACEHOLDER}
-              errorCaption={errors.password?.message}
-              containerClassName="mb-4"
-              testID={SyncSettingsSelectors.passwordInput}
-            />
-
-            <FormSubmitButton loading={formState.isSubmitting} testID={SyncSettingsSelectors.syncButton}>
-              <T id="sync" />
-            </FormSubmitButton>
-          </form>
-        </>
-      )}
-    </div>
+      {payload && <QrCodeModal onClose={resetPayload} payload={payload} />}
+    </>
   );
 };
 
