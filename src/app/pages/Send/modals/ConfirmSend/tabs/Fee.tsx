@@ -122,12 +122,12 @@ const TezosContent: FC<ContentProps> = ({ selectedOption, onOptionSelect }) => {
               onBlur();
             }}
             errorCaption={gasFeeError}
-            containerClassName={gasFeeError ? 'mb-3' : 'mb-7'}
+            containerClassName="mb-3"
           />
         )}
       />
 
-      <OptionalFieldLabel title="Storage Limit" className="mt-3" />
+      <OptionalFieldLabel title="Storage Limit" />
 
       <Controller
         name="storageLimit"

@@ -47,7 +47,7 @@ const EvmContent = () => {
             onChange={v => onChange(v ?? '')}
             onBlur={onBlur}
             errorCaption={gasLimitError}
-            containerClassName={gasLimitError ? 'mb-3' : 'mb-7'}
+            containerClassName="mb-3"
           />
         )}
       />
@@ -67,7 +67,7 @@ const EvmContent = () => {
             onChange={v => onChange(v ?? '')}
             onBlur={onBlur}
             errorCaption={nonceError}
-            containerClassName={nonceError ? 'mb-3' : 'mb-7'}
+            containerClassName="mb-3"
           />
         )}
       />

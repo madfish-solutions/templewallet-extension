@@ -291,7 +291,7 @@ export const FormField = forwardRef<FormFieldElement, FormFieldProps>(
         </div>
 
         {shouldShowErrorCaption &&
-          (reserveSpaceForError && !errorCaption ? (
+          (reserveSpaceForError && !errorCaption && !underneathComponent ? (
             <div className="size-4" />
           ) : (
             <ErrorCaption errorCaption={errorCaption} />
