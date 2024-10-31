@@ -35,7 +35,7 @@ import {
   TEZOS_MAINNET_CHAIN_ID
 } from 'lib/temple/types';
 import { isValidTezosAddress } from 'lib/tezos';
-import { TezosChainSpecs } from 'temple/front/chains';
+import { TezosChainSpecs } from 'temple/front/chains-specs';
 import { StoredTezosNetwork, TEZOS_DEFAULT_NETWORKS } from 'temple/networks';
 import { loadTezosChainId } from 'temple/tezos';
 

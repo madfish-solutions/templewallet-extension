@@ -1,12 +1,11 @@
 import memoizee from 'memoizee';
 import { Transport, Chain, createPublicClient, http, PublicClient } from 'viem';
-import * as ViemChains from 'viem/chains';
 
-import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
-import { EvmAssetStandard } from 'lib/evm/types';
-import { EvmNativeTokenMetadata } from 'lib/metadata/types';
+import { rejectOnTimeout } from 'lib/utils';
 import { EvmChain } from 'temple/front';
 import { MAX_MEMOIZED_TOOLKITS } from 'temple/misc';
+
+import { getViemChainsList } from './utils';
 
 export const getReadOnlyEvm = memoizee(
   (rpcUrl: string): PublicClient =>
@@ -23,7 +22,7 @@ type ChainPublicClient = PublicClient<Transport, Pick<Chain, 'id' | 'name' | 'na
  */
 export const getReadOnlyEvmForNetwork = memoizee(
   (network: EvmChain): ChainPublicClient => {
-    const viemChain = Object.values(ViemChains).find(chain => chain.id === network.chainId);
+    const viemChain = getViemChainsList().find(chain => chain.id === network.chainId);
 
     if (viemChain) {
       return createPublicClient({ chain: viemChain, transport: http(network.rpcBaseURL) }) as ChainPublicClient;
@@ -50,28 +49,11 @@ export const getReadOnlyEvmForNetwork = memoizee(
   }
 );
 
-export interface EvmChainInfo {
-  chainId: number;
-  currency: EvmNativeTokenMetadata;
-  testnet: boolean;
+export function loadEvmChainId(rpcUrl: string, timeout?: number) {
+  const rpc = getReadOnlyEvm(rpcUrl);
+
+  if (timeout && timeout > 0)
+    return rejectOnTimeout(rpc.getChainId(), timeout, new Error('Timed-out for loadEvmChainId()'));
+
+  return rpc.getChainId();
 }
-
-export const loadEvmChainInfo = memoizee(async (rpcUrl: string): Promise<EvmChainInfo> => {
-  const client = createPublicClient({
-    transport: http(rpcUrl)
-  });
-
-  const chainId = await client.getChainId();
-
-  const viemChain = Object.values(ViemChains).find(chain => chain.id === chainId);
-
-  if (!viemChain) throw new Error('Cannot resolve currency of the EVM network');
-
-  const currency: EvmNativeTokenMetadata = {
-    standard: EvmAssetStandard.NATIVE,
-    address: EVM_TOKEN_SLUG,
-    ...viemChain.nativeCurrency
-  };
-
-  return { chainId, currency, testnet: viemChain.testnet ?? false };
-});

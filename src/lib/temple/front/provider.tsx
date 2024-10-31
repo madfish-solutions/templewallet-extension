@@ -7,18 +7,18 @@ import { CustomTezosChainIdContext } from 'lib/analytics';
 import { ReadyTempleProvider } from 'temple/front/ready';
 
 import { TempleClientProvider, useTempleClient } from './client';
-import { SuccessfulImportToastContext } from './successful-import-toast-context';
+import { SuccessfulInitToastContext } from './successful-init-toast-context';
 
 export const TempleProvider: FC<PropsWithChildren> = ({ children }) => {
   usePushNotifications();
-  const importToastState = useState(false);
+  const initToastState = useState<string | undefined>();
 
   return (
     <CustomTezosChainIdContext.Provider value={undefined}>
       <TempleClientProvider>
-        <SuccessfulImportToastContext.Provider value={importToastState}>
+        <SuccessfulInitToastContext.Provider value={initToastState}>
           <ConditionalReadyTemple>{children}</ConditionalReadyTemple>
-        </SuccessfulImportToastContext.Provider>
+        </SuccessfulInitToastContext.Provider>
       </TempleClientProvider>
     </CustomTezosChainIdContext.Provider>
   );

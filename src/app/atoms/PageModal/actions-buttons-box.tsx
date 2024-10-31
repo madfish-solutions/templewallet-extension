@@ -4,7 +4,6 @@ import clsx from 'clsx';
 import { throttle } from 'lodash';
 import { useDispatch } from 'react-redux';
 
-import { useAppEnv } from 'app/env';
 import { setToastsContainerBottomShiftAction } from 'app/store/settings/actions';
 
 interface ActionsButtonsBoxProps extends HTMLAttributes<HTMLDivElement> {
@@ -16,7 +15,6 @@ interface ActionsButtonsBoxProps extends HTMLAttributes<HTMLDivElement> {
 export const ActionsButtonsBox = memo<ActionsButtonsBoxProps>(
   ({ className, shouldCastShadow, flexDirection = 'col', shouldChangeBottomShift = true, ...restProps }) => {
     const dispatch = useDispatch();
-    const { popup } = useAppEnv();
 
     useEffect(() => {
       return () => void (shouldChangeBottomShift && dispatch(setToastsContainerBottomShiftAction(0)));
@@ -28,10 +26,10 @@ export const ActionsButtonsBox = memo<ActionsButtonsBoxProps>(
           const borderBoxSize = entries.map(entry => entry.borderBoxSize?.[0]).filter(Boolean)[0];
 
           if (borderBoxSize && shouldChangeBottomShift) {
-            dispatch(setToastsContainerBottomShiftAction(borderBoxSize.blockSize - (popup ? 16 : 0)));
+            dispatch(setToastsContainerBottomShiftAction(borderBoxSize.blockSize - 24));
           }
         }, 100),
-      [dispatch, popup, shouldChangeBottomShift]
+      [dispatch, shouldChangeBottomShift]
     );
 
     const resizeObserver = useMemo(() => new ResizeObserver(handleResize), [handleResize]);

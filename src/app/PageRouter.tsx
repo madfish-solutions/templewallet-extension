@@ -22,7 +22,9 @@ import { usePageRouterAnalytics } from 'lib/analytics';
 import { Notifications, NotificationsItem } from 'lib/notifications/components';
 import { useTempleClient } from 'lib/temple/front';
 import * as Woozie from 'lib/woozie';
+import { TempleChainKind } from 'temple/types';
 
+import { ChainSettings } from './pages/ChainSettings';
 import { ImportWallet } from './pages/ImportWallet';
 import { Market } from './pages/Market';
 import { StakingPage } from './pages/Staking';
@@ -91,6 +93,10 @@ const ROUTE_MAP = Woozie.createMap<RouteContext>([
     onlyReady(({ chainKind, chainId, assetSlug }) => (
       <CollectiblePage chainKind={chainKind!} chainId={chainId!} assetSlug={assetSlug!} />
     ))
+  ],
+  [
+    '/settings/networks/:chainKind/:chainId',
+    onlyReady(({ chainId, chainKind }) => <ChainSettings chainKind={chainKind as TempleChainKind} chainId={chainId!} />)
   ],
   ['/settings/:tabSlug?', onlyReady(({ tabSlug }) => <Settings tabSlug={tabSlug} />)],
   ['/market', onlyReady(onlyInFullPage(() => <Market />))],

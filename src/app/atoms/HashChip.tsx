@@ -2,7 +2,7 @@ import React, { ComponentProps, FC } from 'react';
 
 import clsx from 'clsx';
 
-import { getStyledButtonColorsClassNames } from 'lib/ui/button-like-styles';
+import { getStyledButtonColorsClassNames } from 'lib/ui/use-styled-button-or-link-props';
 
 import { CopyButton, CopyButtonProps } from './CopyButton';
 import HashShortView from './HashShortView';

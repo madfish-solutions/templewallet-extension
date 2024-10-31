@@ -1,4 +1,9 @@
+import memoizee from 'memoizee';
+import * as ViemChains from 'viem/chains';
+
 import { EvmTxParams, SerializableEvmTxParams } from './types';
+
+export const getViemChainsList = memoizee(() => Object.values(ViemChains));
 
 export function toSerializableEvmTxParams(txParams: EvmTxParams): SerializableEvmTxParams {
   return {

@@ -355,7 +355,13 @@ const BakingHistoryItem = memo<BakingHistoryItemProps>(
                 textShade={700}
               />
 
-              <OpenInExplorerChip tezosChainId={tezosChainId} hash={baker.address} small alternativeDesign />
+              <OpenInExplorerChip
+                entityType="address"
+                tezosChainId={tezosChainId}
+                hash={baker.address}
+                small
+                alternativeDesign
+              />
             </div>
 
             <div className="mt-2 flex flex-col gap-y-2">

@@ -14,8 +14,9 @@ import { useKnownBaker } from 'lib/temple/front';
 import { atomsToTokens } from 'lib/temple/helpers';
 import { AccountForTezos, findAccountForTezos } from 'temple/accounts';
 import { useAllAccounts, useOnTezosBlock } from 'temple/front';
-import { useExplorerHref } from 'temple/front/block-explorers';
+import { useBlockExplorerHref } from 'temple/front/block-explorers';
 import { TezosNetworkEssentials } from 'temple/networks';
+import { TempleChainKind } from 'temple/types';
 
 import { OpenInExplorerChip, OpenInExplorerChipBase } from './OpenInExplorerChip';
 
@@ -52,7 +53,7 @@ export const BakerCard = memo<Props>(
               <SelfBakerNameValue bakerAcc={bakerAcc} accountPkh={accountPkh} />
             </BakerName>
           ) : (
-            <UnknownBakerName bakerPkh={bakerPkh} />
+            <UnknownBakerName bakerPkh={bakerPkh} chainId={tezosChainId} />
           )}
         </BakerHeader>
       );
@@ -67,7 +68,13 @@ export const BakerCard = memo<Props>(
           {withBakerTag && <BakerTag recommended={isRecommendedBaker} />}
 
           {!hideAddress && (
-            <OpenInExplorerChip tezosChainId={tezosChainId} hash={baker.address} small alternativeDesign />
+            <OpenInExplorerChip
+              entityType="address"
+              tezosChainId={tezosChainId}
+              hash={baker.address}
+              small
+              alternativeDesign
+            />
           )}
         </BakerHeader>
 
@@ -225,8 +232,8 @@ const SelfBakerNameValue: React.FC<{
   </>
 );
 
-const UnknownBakerName = memo<{ bakerPkh: string }>(({ bakerPkh }) => {
-  const explorerHref = useExplorerHref(bakerPkh, 'account');
+const UnknownBakerName = memo<{ bakerPkh: string; chainId: string }>(({ bakerPkh, chainId }) => {
+  const explorerHref = useBlockExplorerHref(TempleChainKind.Tezos, chainId, 'address', bakerPkh);
 
   if (explorerHref)
     return (

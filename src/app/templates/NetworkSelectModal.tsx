@@ -17,12 +17,11 @@ import { setAssetsFilterChain } from 'app/store/assets-filter-options/actions';
 import { FilterChain } from 'app/store/assets-filter-options/state';
 import { SearchBarField } from 'app/templates/SearchField';
 import { T } from 'lib/i18n';
+import { filterNetworksByName } from 'lib/ui/filter-networks-by-name';
 import { useScrollIntoViewOnMount } from 'lib/ui/use-scroll-into-view';
 import { navigate } from 'lib/woozie';
 import {
-  EvmChain,
   OneOfChains,
-  TezosChain,
   useAccount,
   useAccountAddressForEvm,
   useAccountAddressForTezos,
@@ -59,10 +58,7 @@ export const NetworkSelectModal = memo<Props>(({ opened, selectedNetwork, onRequ
   const [attractSelectedNetwork, setAttractSelectedNetwork] = useState(true);
 
   const filteredNetworks = useMemo(
-    () =>
-      searchValueDebounced.length
-        ? searchAndFilterNetworksByName<string | EvmChain | TezosChain>(networks, searchValueDebounced)
-        : networks,
+    () => (searchValueDebounced.length ? filterNetworksByName(networks, searchValueDebounced) : networks),
     [searchValueDebounced, networks]
   );
 
@@ -171,16 +167,4 @@ export const Network: FC<NetworkProps> = ({
       <RadioButton active={active} className={active ? undefined : 'opacity-0 group-hover:opacity-100'} />
     </div>
   );
-};
-
-type SearchNetwork = string | { name: string };
-
-const searchAndFilterNetworksByName = <T extends SearchNetwork>(networks: T[], searchValue: string) => {
-  const preparedSearchValue = searchValue.trim().toLowerCase();
-
-  return networks.filter(network => {
-    if (typeof network === 'string') return network.toLowerCase().includes(preparedSearchValue);
-
-    return network.name.toLowerCase().includes(preparedSearchValue);
-  });
 };

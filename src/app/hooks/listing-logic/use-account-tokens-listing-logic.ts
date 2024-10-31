@@ -77,7 +77,7 @@ export const useAccountTokensForListing = (
       : enabledChainsSlugs;
 
     return enabledChainsSlugsFiltered.sort(tokensSortPredicate);
-  }, [tezTokens, evmTokens, isNonZeroBalance, tokensSortPredicate, gasChainsSlugs, filterZeroBalances]);
+  }, [gasChainsSlugs, tezTokens, evmTokens, filterZeroBalances, isNonZeroBalance, tokensSortPredicate]);
 
   return {
     enabledChainsSlugsSorted,

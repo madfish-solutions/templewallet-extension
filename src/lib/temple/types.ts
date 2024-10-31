@@ -36,12 +36,12 @@ export interface TempleState {
 
 export const TEZOS_MAINNET_CHAIN_ID = 'NetXdQprcVkpaWU';
 export const ETHEREUM_MAINNET_CHAIN_ID = 1;
+export const ETH_SEPOLIA_CHAIN_ID = 11155111;
 
 export enum TempleTezosChainId {
   Mainnet = TEZOS_MAINNET_CHAIN_ID,
   Ghostnet = 'NetXnHfVqm9iesp',
-  Mumbai = 'NetXgbcrNtXD2yA',
-  Nairobi = 'NetXyuzvDo2Ugzb',
+  Paris = 'NetXXWAHLEvre9b',
   Dcp = 'NetXooyhiru73tk',
   DcpTest = 'NetXZb3Lz8FsrZx'
 }
