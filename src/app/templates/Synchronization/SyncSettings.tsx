@@ -5,15 +5,14 @@ import { Controller } from 'react-hook-form-v7';
 import { CaptionAlert, FormField } from 'app/atoms';
 import { ActionsButtonsBox } from 'app/atoms/PageModal/actions-buttons-box';
 import { StyledButton } from 'app/atoms/StyledButton';
+import { DeadEndBoundaryError } from 'app/ErrorBoundary';
 import { useTempleBackendActionForm } from 'app/hooks/use-temple-backend-action-form';
 import { DEFAULT_PASSWORD_INPUT_PLACEHOLDER } from 'lib/constants';
 import { t } from 'lib/i18n';
 import { useTempleClient } from 'lib/temple/front';
+import { TempleAccountType } from 'lib/temple/types';
 import { useVanishingState } from 'lib/ui/hooks';
-
-import { TempleAccountType } from '../../../lib/temple/types';
-import { useAccount } from '../../../temple/front';
-import { DeadEndBoundaryError } from '../../ErrorBoundary';
+import { useAccount } from 'temple/front';
 
 import { QrCodeModal } from './QrCodeModal';
 import { SyncSettingsSelectors } from './SyncSettings.selectors';
