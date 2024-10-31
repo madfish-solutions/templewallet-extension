@@ -1,5 +1,6 @@
 import React, { FC } from 'react';
 
+import clsx from 'clsx';
 import { Controller, useFormContext } from 'react-hook-form-v7';
 import ReactJson from 'react-json-view';
 
@@ -166,10 +167,11 @@ const TezosContent = () => {
 
 interface FieldLabelProps extends PropsWithChildren {
   title: string;
+  className?: string;
 }
 
-const FieldLabel: FC<FieldLabelProps> = ({ title, children }) => (
-  <div className="mb-1 p-1 flex flex-row justify-between items-center">
+const FieldLabel: FC<FieldLabelProps> = ({ title, className, children }) => (
+  <div className={clsx('mb-1 px-1 flex flex-row justify-between items-center', className)}>
     <p className="text-font-description-bold">{title}</p>
     {children}
   </div>
@@ -181,7 +183,7 @@ interface FieldLabelWithTooltipProps extends Pick<FieldLabelProps, 'title'> {
 
 const FieldLabelWithTooltip: FC<FieldLabelWithTooltipProps> = ({ title, tooltipContent }) => (
   <FieldLabel title={title}>
-    <Tooltip content={tooltipContent} size={12} className="text-grey-2" />
+    <Tooltip content={tooltipContent} size={16} className="text-grey-2" />
   </FieldLabel>
 );
 
@@ -190,7 +192,7 @@ interface FieldLabelWithCopyButtonProps extends Pick<FieldLabelProps, 'title'> {
 }
 
 const FieldLabelWithCopyButton: FC<FieldLabelWithCopyButtonProps> = ({ title, copyableText }) => (
-  <FieldLabel title={title}>
+  <FieldLabel title={title} className="p-1">
     <CopyButton text={copyableText} className="text-secondary flex text-font-description-bold items-center">
       <span>Copy</span>
       <IconBase size={12} Icon={CopyIcon} />
