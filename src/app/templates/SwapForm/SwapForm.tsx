@@ -26,14 +26,12 @@ import { T, t } from 'lib/i18n';
 import { useAssetMetadata, useGetAssetMetadata } from 'lib/metadata';
 import {
   BURN_ADDREESS,
-  MAX_ROUTING_FEE_CHAINS,
   ROUTING_FEE_ADDRESS,
+  ROUTING_FEE_RATIO,
   ROUTING_FEE_SLIPPAGE_RATIO,
+  SWAP_CASHBACK_RATIO,
   SWAP_THRESHOLD_TO_GET_CASHBACK,
-  TEMPLE_TOKEN,
-  ATOMIC_INPUT_THRESHOLD_FOR_FEE_FROM_INPUT,
-  ROUTING_FEE_PERCENT,
-  SWAP_CASHBACK_PERCENT
+  TEMPLE_TOKEN
 } from 'lib/route3/constants';
 import { isLiquidityBakingParamsResponse } from 'lib/route3/interfaces';
 import { getPercentageRatio } from 'lib/route3/utils/get-percentage-ratio';
@@ -44,8 +42,8 @@ import useTippy from 'lib/ui/useTippy';
 import { ZERO } from 'lib/utils/numbers';
 import { parseTransferParamsToParamsWithKind } from 'lib/utils/parse-transfer-params';
 import {
-  calculateFeeFromOutput,
-  calculateRoutingInputAndFeeFromInput,
+  calculateSidePaymentsFromInput,
+  calculateOutputFeeAtomic,
   getRoutingFeeTransferParams
 } from 'lib/utils/swap.utils';
 import { HistoryAction, navigate } from 'lib/woozie';
@@ -59,12 +57,17 @@ import { SlippageToleranceInput } from './SwapFormInput/SlippageToleranceInput/S
 import { slippageToleranceInputValidationFn } from './SwapFormInput/SlippageToleranceInput/SlippageToleranceInput.validation';
 import { SwapFormInput } from './SwapFormInput/SwapFormInput';
 import { SwapMinimumReceived } from './SwapMinimumReceived/SwapMinimumReceived';
-import { SwapRoute } from './SwapRoute/SwapRoute';
+
+// These values have been set after some experimentation. They are different to the respective values in
+// templewallet-mobile because the mobile app still uses taquito v19.0.0, which has a different gas estimation algorithm.
+const SINGLE_SWAP_IN_BATCH_MAX_DEXES = 12;
+const LB_OPERATION_DEXES_COST = 3;
 
 export const SwapForm: FC = () => {
   const dispatch = useDispatch();
   const tezos = useTezos();
   const blockLevel = useBlockLevel();
+  const prevBlockLevelRef = useRef(blockLevel);
   const { publicKeyHash } = useAccount();
   const getSwapParams = useSwap();
   const { data: route3Tokens } = useSwapTokensSelector();
@@ -111,39 +114,89 @@ export const SwapForm: FC = () => {
     }
   }, [swapParams.data.output, outputAssetMetadata.decimals, slippageRatio]);
 
-  const chainsAreAbsent = isLiquidityBakingParamsResponse(swapParams.data)
-    ? swapParams.data.tzbtcChain.chains.length === 0 && swapParams.data.xtzChain.chains.length === 0
-    : swapParams.data.chains.length === 0;
+  const hopsAreAbsent = isLiquidityBakingParamsResponse(swapParams.data)
+    ? swapParams.data.tzbtcHops.length === 0 && swapParams.data.xtzHops.length === 0
+    : swapParams.data.hops.length === 0;
 
   const atomsInputValue = useMemo(
     () => tokensToAtoms(inputValue.amount ?? ZERO, inputAssetMetadata.decimals),
     [inputAssetMetadata.decimals, inputValue.amount]
   );
-  const routingFeeIsTakenFromOutput = atomsInputValue.lt(ATOMIC_INPUT_THRESHOLD_FOR_FEE_FROM_INPUT) ?? false;
 
-  useEffect(() => {
-    const { swapInputMinusFeeAtomic } = calculateRoutingInputAndFeeFromInput(
-      tokensToAtoms(inputValue.amount ?? ZERO, inputAssetMetadata.decimals)
-    );
+  const getSwapWithFeeParams = useCallback(
+    (newInputValue: SwapInputValue, newOutputValue: SwapInputValue) => {
+      const { assetSlug: inputAssetSlug, amount: inputAmount } = newInputValue;
+      const outputAssetSlug = newOutputValue.assetSlug;
+      const inputTokenExchangeRate = inputAssetSlug ? allUsdToTokenRates[inputAssetSlug] : '0';
+      const inputAmountInUsd = inputAmount?.multipliedBy(inputTokenExchangeRate) ?? ZERO;
 
-    if (isDefined(fromRoute3Token) && isDefined(toRoute3Token)) {
+      const isInputTokenTempleToken = inputAssetSlug === KNOWN_TOKENS_SLUGS.TEMPLE;
+      const isOutputTokenTempleToken = outputAssetSlug === KNOWN_TOKENS_SLUGS.TEMPLE;
+      const isSirsSwap = inputAssetSlug === KNOWN_TOKENS_SLUGS.SIRS || outputAssetSlug === KNOWN_TOKENS_SLUGS.SIRS;
+      const isSwapAmountMoreThreshold = inputAmountInUsd.isGreaterThanOrEqualTo(SWAP_THRESHOLD_TO_GET_CASHBACK);
+      const totalMaxDexes = SINGLE_SWAP_IN_BATCH_MAX_DEXES - (isSirsSwap ? LB_OPERATION_DEXES_COST : 0);
+      const cashbackSwapMaxDexes = Math.ceil(totalMaxDexes / (isSirsSwap ? 3 : 2));
+      const mainSwapMaxDexes =
+        totalMaxDexes - (isSwapAmountMoreThreshold && !isInputTokenTempleToken ? cashbackSwapMaxDexes : 0);
+
+      return {
+        isInputTokenTempleToken,
+        isOutputTokenTempleToken,
+        isSwapAmountMoreThreshold,
+        mainSwapMaxDexes,
+        cashbackSwapMaxDexes
+      };
+    },
+    [allUsdToTokenRates]
+  );
+
+  const dispatchLoadSwapParams = useCallback(
+    (input: SwapInputValue, output: SwapInputValue) => {
+      if (!input.assetSlug || !output.assetSlug) {
+        return;
+      }
+      const inputMetadata = getTokenMetadata(input.assetSlug);
+
+      if (!inputMetadata) {
+        return;
+      }
+
+      const { swapInputMinusFeeAtomic: amount } = calculateSidePaymentsFromInput(
+        tokensToAtoms(input.amount ?? ZERO, inputMetadata.decimals)
+      );
+
+      const route3FromToken = getRoute3TokenBySlug(route3Tokens, input.assetSlug);
+      const route3ToToken = getRoute3TokenBySlug(route3Tokens, output.assetSlug);
+      const { mainSwapMaxDexes } = getSwapWithFeeParams(input, output);
+
       dispatch(
         loadSwapParamsAction.submit({
-          fromSymbol: fromRoute3Token.symbol,
-          toSymbol: toRoute3Token.symbol,
-          amount: atomsToTokens(swapInputMinusFeeAtomic, fromRoute3Token.decimals).toFixed()
+          fromSymbol: route3FromToken?.symbol ?? '',
+          toSymbol: route3ToToken?.symbol ?? '',
+          toTokenDecimals: route3ToToken?.decimals ?? 0,
+          amount: atomsToTokens(amount, route3FromToken?.decimals ?? 0).toFixed(),
+          dexesLimit: mainSwapMaxDexes,
+          rpcUrl: tezos.rpc.getRpcUrl()
         })
       );
-    }
-  }, [blockLevel]);
+    },
+    [dispatch, getSwapWithFeeParams, getTokenMetadata, route3Tokens, tezos.rpc]
+  );
 
   useEffect(() => {
-    if (Number(swapParams.data.input) > 0 && chainsAreAbsent) {
+    if (isDefined(fromRoute3Token) && isDefined(toRoute3Token) && prevBlockLevelRef.current !== blockLevel) {
+      dispatchLoadSwapParams(inputValue, outputValue);
+    }
+    prevBlockLevelRef.current = blockLevel;
+  }, [blockLevel, dispatchLoadSwapParams, fromRoute3Token, inputValue, outputValue, toRoute3Token]);
+
+  useEffect(() => {
+    if (Number(swapParams.data.input) > 0 && hopsAreAbsent) {
       setIsAlertVisible(true);
     } else {
       setIsAlertVisible(false);
     }
-  }, [chainsAreAbsent, swapParams.data]);
+  }, [hopsAreAbsent, swapParams.data]);
 
   useEffect(
     () =>
@@ -168,21 +221,29 @@ export const SwapForm: FC = () => {
         amount: undefined
       });
     } else {
-      const outputAtomicAmountPlusFee = tokensToAtoms(new BigNumber(currentOutput), outputAssetMetadata.decimals);
-      const feeFromOutput = calculateFeeFromOutput(
+      const outputAtomicAmountBeforeFee = tokensToAtoms(new BigNumber(currentOutput), outputAssetMetadata.decimals);
+      const outputFeeAtomic = calculateOutputFeeAtomic(
         tokensToAtoms(inputValue.amount ?? ZERO, inputAssetMetadata.decimals),
-        outputAtomicAmountPlusFee
+        outputAtomicAmountBeforeFee
       );
       setValue('output', {
         assetSlug: outputValue.assetSlug,
-        amount: atomsToTokens(outputAtomicAmountPlusFee.minus(feeFromOutput), outputAssetMetadata.decimals)
+        amount: atomsToTokens(outputAtomicAmountBeforeFee.minus(outputFeeAtomic), outputAssetMetadata.decimals)
       });
     }
 
     if (isSubmitButtonPressedRef.current) {
       triggerValidation();
     }
-  }, [swapParams.data.output, setValue, triggerValidation]);
+  }, [
+    swapParams.data.output,
+    setValue,
+    triggerValidation,
+    outputValue.assetSlug,
+    outputAssetMetadata.decimals,
+    inputValue.amount,
+    inputAssetMetadata.decimals
+  ]);
 
   useEffect(() => {
     register('input', {
@@ -225,9 +286,12 @@ export const SwapForm: FC = () => {
 
     formAnalytics.trackSubmit(analyticsProperties);
 
-    const { swapInputMinusFeeAtomic, routingFeeFromInputAtomic } =
-      calculateRoutingInputAndFeeFromInput(atomsInputValue);
-    const routingFeeFromOutputAtomic = calculateFeeFromOutput(atomsInputValue, minimumReceivedAmountAtomic);
+    const {
+      swapInputMinusFeeAtomic,
+      inputFeeAtomic: routingFeeFromInputAtomic,
+      cashbackSwapInputAtomic: cashbackSwapInputFromInAtomic
+    } = calculateSidePaymentsFromInput(atomsInputValue);
+    const routingFeeFromOutputAtomic = calculateOutputFeeAtomic(atomsInputValue, minimumReceivedAmountAtomic);
 
     if (!fromRoute3Token || !toRoute3Token || !swapParams.data.output || !inputValue.assetSlug) {
       return;
@@ -253,20 +317,17 @@ export const SwapForm: FC = () => {
         swapParams.data
       );
 
-      if (!route3SwapOpParams) {
+      if (route3SwapOpParams.length === 0) {
         return;
       }
 
-      const inputTokenExhangeRate = allUsdToTokenRates[inputValue.assetSlug];
-      const inputAmountInUsd = inputValue.amount?.multipliedBy(inputTokenExhangeRate) ?? ZERO;
-
-      const isInputTokenTempleToken = inputValue.assetSlug === KNOWN_TOKENS_SLUGS.TEMPLE;
-      const isSwapAmountMoreThreshold = inputAmountInUsd.isGreaterThanOrEqualTo(SWAP_THRESHOLD_TO_GET_CASHBACK);
+      const { isInputTokenTempleToken, isOutputTokenTempleToken, isSwapAmountMoreThreshold, cashbackSwapMaxDexes } =
+        getSwapWithFeeParams(inputValue, outputValue);
 
       if (isInputTokenTempleToken && isSwapAmountMoreThreshold) {
         const routingInputFeeOpParams = await getRoutingFeeTransferParams(
           fromRoute3Token,
-          routingFeeFromInputAtomic.dividedToIntegerBy(2),
+          routingFeeFromInputAtomic.minus(cashbackSwapInputFromInAtomic),
           publicKeyHash,
           BURN_ADDREESS,
           tezos
@@ -285,8 +346,10 @@ export const SwapForm: FC = () => {
         const swapToTempleParams = await fetchRoute3SwapParams({
           fromSymbol: fromRoute3Token.symbol,
           toSymbol: TEMPLE_TOKEN.symbol,
+          toTokenDecimals: TEMPLE_TOKEN.decimals,
           amount: atomsToTokens(routingFeeFromInputAtomic, fromRoute3Token.decimals).toFixed(),
-          chainsLimit: MAX_ROUTING_FEE_CHAINS
+          dexesLimit: cashbackSwapMaxDexes,
+          rpcUrl: tezos.rpc.getRpcUrl()
         });
 
         const templeOutputAtomic = tokensToAtoms(
@@ -308,18 +371,30 @@ export const SwapForm: FC = () => {
 
         const routingFeeOpParams = await getRoutingFeeTransferParams(
           TEMPLE_TOKEN,
-          templeOutputAtomic.dividedToIntegerBy(2),
+          templeOutputAtomic.times(ROUTING_FEE_RATIO - SWAP_CASHBACK_RATIO).dividedToIntegerBy(ROUTING_FEE_RATIO),
           publicKeyHash,
           BURN_ADDREESS,
           tezos
         );
         allSwapParams.push(...routingFeeOpParams);
+      } else if (!isInputTokenTempleToken && isSwapAmountMoreThreshold && isOutputTokenTempleToken) {
+        routingOutputFeeTransferParams = await getRoutingFeeTransferParams(
+          TEMPLE_TOKEN,
+          routingFeeFromOutputAtomic
+            .times(ROUTING_FEE_RATIO - SWAP_CASHBACK_RATIO)
+            .dividedToIntegerBy(ROUTING_FEE_RATIO),
+          publicKeyHash,
+          BURN_ADDREESS,
+          tezos
+        );
       } else if (!isInputTokenTempleToken && isSwapAmountMoreThreshold) {
         const swapToTempleParams = await fetchRoute3SwapParams({
           fromSymbol: toRoute3Token.symbol,
           toSymbol: TEMPLE_TOKEN.symbol,
+          toTokenDecimals: TEMPLE_TOKEN.decimals,
           amount: atomsToTokens(routingFeeFromOutputAtomic, toRoute3Token.decimals).toFixed(),
-          chainsLimit: MAX_ROUTING_FEE_CHAINS
+          dexesLimit: cashbackSwapMaxDexes,
+          rpcUrl: tezos.rpc.getRpcUrl()
         });
 
         const templeOutputAtomic = tokensToAtoms(
@@ -339,7 +414,7 @@ export const SwapForm: FC = () => {
 
         const routingFeeOpParams = await getRoutingFeeTransferParams(
           TEMPLE_TOKEN,
-          templeOutputAtomic.dividedToIntegerBy(2),
+          templeOutputAtomic.times(ROUTING_FEE_RATIO - SWAP_CASHBACK_RATIO).dividedToIntegerBy(ROUTING_FEE_RATIO),
           publicKeyHash,
           BURN_ADDREESS,
           tezos
@@ -374,31 +449,6 @@ export const SwapForm: FC = () => {
       setIsSubmitting(false);
     }
   };
-
-  const dispatchLoadSwapParams = useCallback((input: SwapInputValue, output: SwapInputValue) => {
-    if (!input.assetSlug || !output.assetSlug) {
-      return;
-    }
-    const inputMetadata = getTokenMetadata(input.assetSlug);
-
-    if (!inputMetadata) {
-      return;
-    }
-
-    const { swapInputMinusFeeAtomic: amount } = calculateRoutingInputAndFeeFromInput(
-      tokensToAtoms(input.amount ?? ZERO, inputMetadata.decimals)
-    );
-
-    const route3FromToken = getRoute3TokenBySlug(route3Tokens, input.assetSlug);
-
-    dispatch(
-      loadSwapParamsAction.submit({
-        fromSymbol: route3FromToken?.symbol ?? '',
-        toSymbol: getRoute3TokenBySlug(route3Tokens, output.assetSlug)?.symbol ?? '',
-        amount: amount && atomsToTokens(amount, route3FromToken?.decimals ?? 0).toFixed()
-      })
-    );
-  }, []);
 
   const handleErrorClose = () => setError(undefined);
   const handleOperationClose = () => setOperation(undefined);
@@ -518,7 +568,7 @@ export const SwapForm: FC = () => {
                   <InfoIcon className="w-3 h-auto stroke-current" />
                 </span>
               </td>
-              <td className="text-right text-gray-600">{ROUTING_FEE_PERCENT}%</td>
+              <td className="text-right text-gray-600">{ROUTING_FEE_RATIO * 100}%</td>
             </tr>
             <tr>
               <td>
@@ -568,7 +618,7 @@ export const SwapForm: FC = () => {
                   <InfoIcon className="w-3 h-auto stroke-current" />
                 </span>
               </td>
-              <td className="text-right text-gray-600">{SWAP_CASHBACK_PERCENT}%</td>
+              <td className="text-right text-gray-600">{SWAP_CASHBACK_RATIO * 100}%</td>
             </tr>
           </tbody>
         </table>
@@ -585,13 +635,7 @@ export const SwapForm: FC = () => {
         />
       )}
 
-      <SwapRoute
-        isLbInput={isDefined(inputValue.assetSlug) && inputValue.assetSlug === KNOWN_TOKENS_SLUGS.SIRS}
-        isLbOutput={isDefined(outputValue.assetSlug) && outputValue.assetSlug === KNOWN_TOKENS_SLUGS.SIRS}
-        routingFeeIsTakenFromOutput={routingFeeIsTakenFromOutput}
-        outputToken={outputAssetMetadata}
-        className="mb-6"
-      />
+      {/* TODO: add a route display */}
 
       <p className="text-center text-gray-700 max-w-xs m-auto">
         <span className="mr-1">

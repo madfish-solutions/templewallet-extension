@@ -3,56 +3,69 @@ import { BigNumber } from 'bignumber.js';
 export interface Route3SwapParamsRequestRaw {
   fromSymbol: string;
   toSymbol: string;
+  toTokenDecimals: number;
   amount: string | undefined;
-  chainsLimit?: number;
+  dexesLimit: number;
+  /** Needed to make a correction of params if input is SIRS */
+  rpcUrl: string;
 }
-export interface Route3SwapParamsRequest {
+
+// TODO: add `showTree: boolean` when adding route view
+interface Route3SwapParamsRequestBase {
   fromSymbol: string;
   toSymbol: string;
+  toTokenDecimals: number;
   amount: string;
-  chainsLimit?: number;
+  /** Needed to make a correction of params if input is SIRS */
+  rpcUrl: string;
+}
+
+export interface Route3SwapParamsRequest extends Route3SwapParamsRequestBase {
+  dexesLimit: number;
+}
+
+export interface Route3LbSwapParamsRequest extends Route3SwapParamsRequestBase {
+  xtzDexesLimit: number;
+  tzbtcDexesLimit: number;
 }
 
 export interface Hop {
-  amount_opt: BigNumber | null;
   dex_id: number;
   code: number;
-  params: string;
+  amount_from_token_in_reserves: BigNumber;
+  amount_from_trading_balance: BigNumber;
+  params: string | null;
 }
 
-interface Route3Hop {
-  dex: number;
-  forward: boolean;
-}
-
-export interface Route3Chain {
-  input: string;
-  output: string;
-  hops: Array<Route3Hop>;
+export interface Route3Hop {
+  dexId: number;
+  tokenInAmount: string;
+  tradingBalanceAmount: string;
+  code: number;
+  params: string | null;
 }
 
 export interface Route3TraditionalSwapParamsResponse {
   input: string | undefined;
   output: string | undefined;
-  chains: Array<Route3Chain>;
+  hops: Route3Hop[];
 }
 
 export interface Route3LiquidityBakingParamsResponse {
   input: string | undefined;
   output: string | undefined;
-  tzbtcChain: Route3TraditionalSwapParamsResponse;
-  xtzChain: Route3TraditionalSwapParamsResponse;
+  tzbtcHops: Route3Hop[];
+  xtzHops: Route3Hop[];
 }
 
-export type Route3SwapChains = Pick<Route3TraditionalSwapParamsResponse, 'chains'>;
+export type Route3SwapHops = Pick<Route3TraditionalSwapParamsResponse, 'hops'>;
 
-export type Route3LiquidityBakingChains = Pick<Route3LiquidityBakingParamsResponse, 'tzbtcChain' | 'xtzChain'>;
+export type Route3LiquidityBakingHops = Pick<Route3LiquidityBakingParamsResponse, 'tzbtcHops' | 'xtzHops'>;
 
 export type Route3SwapParamsResponse = Route3TraditionalSwapParamsResponse | Route3LiquidityBakingParamsResponse;
 
-export const isSwapChains = (chains: Route3SwapChains | Route3LiquidityBakingChains): chains is Route3SwapChains =>
-  'chains' in chains;
+export const isSwapHops = (hops: Route3SwapHops | Route3LiquidityBakingHops): hops is Route3SwapHops => 'hops' in hops;
 
 export const isLiquidityBakingParamsResponse = (
   response: Route3SwapParamsResponse
-): response is Route3LiquidityBakingParamsResponse => 'tzbtcChain' in response && 'xtzChain' in response;
+): response is Route3LiquidityBakingParamsResponse => 'tzbtcHops' in response && 'xtzHops' in response;
