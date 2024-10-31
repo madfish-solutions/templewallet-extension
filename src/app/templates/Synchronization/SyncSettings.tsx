@@ -1,15 +1,15 @@
 import React, { FC, useCallback } from 'react';
 
-import { Controller, SubmitHandler, useForm } from 'react-hook-form-v7';
+import { Controller } from 'react-hook-form-v7';
 
 import { CaptionAlert, FormField } from 'app/atoms';
 import { ActionsButtonsBox } from 'app/atoms/PageModal/actions-buttons-box';
 import { StyledButton } from 'app/atoms/StyledButton';
+import { useTempleBackendActionForm } from 'app/hooks/use-temple-backend-action-form';
 import { DEFAULT_PASSWORD_INPUT_PLACEHOLDER } from 'lib/constants';
 import { t } from 'lib/i18n';
 import { useTempleClient } from 'lib/temple/front';
 import { useVanishingState } from 'lib/ui/hooks';
-import { delay } from 'lib/utils';
 
 import { QrCodeModal } from './QrCodeModal';
 import { SyncSettingsSelectors } from './SyncSettings.selectors';
@@ -26,36 +26,29 @@ const SyncSettings: FC = () => {
   const { generateSyncPayload } = useTempleClient();
 
   const [payload, setPayload] = useVanishingState();
-  const { control, handleSubmit, setError, clearErrors, formState } = useForm<FormData>({
-    mode: 'onSubmit',
-    defaultValues: defaultFormValues
-  });
+
+  const setQrCodePayload = useCallback(
+    async ({ password }: FormData) => {
+      const syncPayload = await generateSyncPayload(password);
+      setPayload(syncPayload);
+    },
+    [generateSyncPayload, setPayload]
+  );
+
+  const { control, handleSubmit, formState, onSubmit } = useTempleBackendActionForm<FormData>(
+    setQrCodePayload,
+    'password',
+    {
+      mode: 'onSubmit',
+      defaultValues: defaultFormValues
+    }
+  );
+
   const { errors, isSubmitting, isValid, submitCount } = formState;
 
   const formSubmitted = submitCount > 0;
 
   const resetPayload = useCallback(() => void setPayload(null), [setPayload]);
-
-  const onSubmit = useCallback<SubmitHandler<FormData>>(
-    async ({ password }) => {
-      if (formState.isSubmitting) return;
-
-      clearErrors('password');
-      try {
-        const syncPayload = await generateSyncPayload(password);
-        setPayload(syncPayload);
-      } catch (err: any) {
-        if (process.env.NODE_ENV === 'development') {
-          console.error(err);
-        }
-
-        // Human delay.
-        await delay();
-        setError('password', { type: 'submit-error', message: err.message });
-      }
-    },
-    [formState.isSubmitting, clearErrors, setError, generateSyncPayload, setPayload]
-  );
 
   return (
     <>
