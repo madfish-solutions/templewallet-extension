@@ -32,7 +32,7 @@ export const PageModal: FC<PropsWithChildren<Props>> = ({
   opened,
   headerClassName,
   shouldShowBackButton,
-  shouldShowCloseButton,
+  shouldShowCloseButton = true,
   onRequestClose,
   onGoBack,
   children,

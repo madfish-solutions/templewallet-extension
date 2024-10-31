@@ -263,7 +263,6 @@ export const BaseForm: FC<Props> = ({
                 placeholder="Address or Domain name"
                 errorCaption={!toFieldFocused && formSubmitted ? errors.to?.message : null}
                 style={{ resize: 'none' }}
-                containerClassName="pb-4"
                 testID={SendFormSelectors.recipientInput}
               />
             )}

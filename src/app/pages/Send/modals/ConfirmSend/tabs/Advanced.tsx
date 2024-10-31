@@ -85,6 +85,7 @@ const EvmContent = () => {
             readOnly
             placeholder="Info"
             style={{ resize: 'none' }}
+            reserveSpaceForError={false}
             containerClassName="mb-2"
           />
         )}
@@ -103,6 +104,7 @@ const EvmContent = () => {
             placeholder="Info"
             style={{ resize: 'none' }}
             {...field}
+            reserveSpaceForError={false}
             containerClassName="mb-5"
           />
         )}
@@ -153,6 +155,7 @@ const TezosContent = () => {
             placeholder="Info"
             style={{ resize: 'none' }}
             {...field}
+            reserveSpaceForError={false}
             containerClassName="mb-5"
           />
         )}
