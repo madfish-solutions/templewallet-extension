@@ -2,7 +2,7 @@ export enum ContentScriptType {
   ExternalLinksActivity = 'ExternalLinksActivity',
   ExternalAdsActivity = 'ExternalAdsActivity',
   UpdateAdsRules = 'UpdateAdsRules',
-  FetchReferralsSupportedDomains = 'FetchReferralsSupportedDomains',
+  FetchReferralsRules = 'FetchReferralsRules',
   FetchReferrals = 'FetchReferrals',
   ReferralClick = 'ReferralClick'
 }

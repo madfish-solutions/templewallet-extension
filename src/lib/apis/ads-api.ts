@@ -67,8 +67,22 @@ export async function postLinkAdsImpressions(accountPkh: string, installId: stri
   await axiosClient.post('/link-impressions', { accountPkh, installId, signature, appVersion: APP_VERSION });
 }
 
-export async function fetchReferralsSupportedDomains() {
-  const res = await axiosClient.get<string[]>('/takeads/referrals/supported-domains');
+interface ReferralTextIconRule {
+  /** RegEx (string) to check page hostname against */
+  hostRegExStr: string;
+  aMatchSelector?: string;
+  aChildSelector?: string;
+  iconHeight?: number;
+}
+
+export interface ReferralsRulesResponse {
+  domains: string[];
+  textIconRules: ReferralTextIconRule[];
+  redirectUrl?: string;
+}
+
+export async function fetchReferralsRules() {
+  const res = await axiosClient.get<ReferralsRulesResponse>('/takeads/referrals/rules');
 
   return res.data;
 }
