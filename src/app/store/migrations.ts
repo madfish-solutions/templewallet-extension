@@ -6,6 +6,7 @@ import { isCollectible } from 'lib/metadata';
 
 import { collectiblesMetadataInitialState } from './collectibles-metadata/state';
 import type { RootState } from './root-state.type';
+import { DEFAULT_SWAP_PARAMS } from './swap/state.mock';
 
 import type { SLICES_BLACKLIST } from './index';
 
@@ -77,6 +78,24 @@ export const MIGRATIONS: MigrationManifest = {
       settings: {
         ...typedPersistedState.settings,
         pendingReactivateAds: !typedPersistedState.partnersPromotion.shouldShowPromotion
+      }
+    };
+
+    return newState;
+  },
+
+  '4': (persistedState: PersistedState) => {
+    if (!persistedState) return persistedState;
+
+    const typedPersistedState = persistedState as TypedPersistedRootState;
+    const newState: TypedPersistedRootState = {
+      ...typedPersistedState,
+      swap: {
+        ...typedPersistedState.swap,
+        swapParams: {
+          data: DEFAULT_SWAP_PARAMS,
+          isLoading: false
+        }
       }
     };
 

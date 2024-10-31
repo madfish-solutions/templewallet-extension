@@ -1,12 +1,13 @@
 import { createReducer } from '@reduxjs/toolkit';
+import { persistReducer } from 'redux-persist';
 
-import { createEntity } from 'lib/store';
+import { createEntity, storageConfig } from 'lib/store';
 
 import { loadSwapDexesAction, loadSwapParamsAction, loadSwapTokensAction, resetSwapParamsAction } from './actions';
-import { swapInitialState } from './state';
+import { swapInitialState, SwapState } from './state';
 import { DEFAULT_SWAP_PARAMS } from './state.mock';
 
-export const swapReducer = createReducer(swapInitialState, builder => {
+const swapReducer = createReducer(swapInitialState, builder => {
   builder.addCase(loadSwapTokensAction.submit, state => {
     state.tokens = createEntity([...state.tokens.data], true);
   });
@@ -38,3 +39,12 @@ export const swapReducer = createReducer(swapInitialState, builder => {
     state.swapParams = createEntity(DEFAULT_SWAP_PARAMS, false, payload);
   });
 });
+
+export const swapPersistedReducer = persistReducer<SwapState>(
+  {
+    key: 'root.swap',
+    ...storageConfig,
+    blacklist: ['swapParams']
+  },
+  swapReducer
+);

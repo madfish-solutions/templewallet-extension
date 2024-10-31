@@ -14,7 +14,7 @@ import { dAppsReducer } from './d-apps/reducers';
 import { newsletterReducers } from './newsletter/newsletter-reducers';
 import { partnersPromotionPersistedReducer } from './partners-promotion/reducers';
 import { settingsReducer } from './settings/reducers';
-import { swapReducer } from './swap/reducers';
+import { swapPersistedReducer } from './swap/reducers';
 import { tokensMetadataReducer } from './tokens-metadata/reducers';
 
 const rootStateReducersMap = {
@@ -23,7 +23,7 @@ const rootStateReducersMap = {
   currency: currencyReducer,
   notifications: notificationsReducer,
   dApps: dAppsReducer,
-  swap: swapReducer,
+  swap: swapPersistedReducer,
   partnersPromotion: partnersPromotionPersistedReducer,
   balances: balancesReducer,
   assets: assetsPersistedReducer,
