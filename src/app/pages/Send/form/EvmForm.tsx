@@ -64,7 +64,7 @@ export const EvmForm: FC<Props> = ({ chainId, assetSlug, onSelectAssetClick, onR
 
   const assetPrice = useAssetFiatCurrencyPrice(assetSlug, chainId, true);
 
-  const canToggleFiat = assetPrice.isPositive();
+  const canToggleFiat = !network.testnet && assetPrice.isGreaterThan(ZERO);
 
   const form = useForm<SendFormData>({
     mode: 'onSubmit',
