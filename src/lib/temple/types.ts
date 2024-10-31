@@ -493,6 +493,7 @@ interface TempleRevealMnemonicResponse extends TempleMessageBase {
 interface TempleGenerateSyncPayloadRequest extends TempleMessageBase {
   type: TempleMessageType.GenerateSyncPayloadRequest;
   password: string;
+  walletId: string;
 }
 
 interface TempleGenerateSyncPayloadResponse extends TempleMessageBase {

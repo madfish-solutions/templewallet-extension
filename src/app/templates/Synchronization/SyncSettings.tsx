@@ -11,6 +11,10 @@ import { t } from 'lib/i18n';
 import { useTempleClient } from 'lib/temple/front';
 import { useVanishingState } from 'lib/ui/hooks';
 
+import { TempleAccountType } from '../../../lib/temple/types';
+import { useAccount } from '../../../temple/front';
+import { DeadEndBoundaryError } from '../../ErrorBoundary';
+
 import { QrCodeModal } from './QrCodeModal';
 import { SyncSettingsSelectors } from './SyncSettings.selectors';
 
@@ -23,16 +27,20 @@ const defaultFormValues: FormData = {
 };
 
 const SyncSettings: FC = () => {
+  const account = useAccount();
+
+  if (account.type !== TempleAccountType.HD) throw new DeadEndBoundaryError();
+
   const { generateSyncPayload } = useTempleClient();
 
   const [payload, setPayload] = useVanishingState();
 
   const setQrCodePayload = useCallback(
     async ({ password }: FormData) => {
-      const syncPayload = await generateSyncPayload(password);
+      const syncPayload = await generateSyncPayload(password, account.walletId);
       setPayload(syncPayload);
     },
-    [generateSyncPayload, setPayload]
+    [account.walletId, generateSyncPayload, setPayload]
   );
 
   const { control, handleSubmit, formState, onSubmit } = useTempleBackendActionForm<FormData>(
@@ -62,6 +70,7 @@ const SyncSettings: FC = () => {
             rules={{ required: t('required') }}
             render={({ field }) => (
               <FormField
+                {...field}
                 autoFocus
                 type="password"
                 id="reveal-secret-password"
@@ -70,7 +79,6 @@ const SyncSettings: FC = () => {
                 errorCaption={errors.password?.message}
                 testID={SyncSettingsSelectors.passwordInput}
                 containerClassName="mt-6"
-                {...field}
               />
             )}
           />

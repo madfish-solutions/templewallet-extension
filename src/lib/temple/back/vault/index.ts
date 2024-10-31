@@ -13,7 +13,7 @@ import {
   AT_LEAST_ONE_HD_ACCOUNT_ERR_MSG,
   WALLETS_SPECS_STORAGE_KEY
 } from 'lib/constants';
-import { fetchFromStorage, fetchFromStorage as getPlain, putToStorage as savePlain } from 'lib/storage';
+import { fetchFromStorage as getPlain, putToStorage as savePlain } from 'lib/storage';
 import {
   fetchNewGroupName,
   formatOpParamsBeforeSend,
@@ -233,7 +233,7 @@ export class Vault {
     );
   }
 
-  static async generateSyncPayload(password: string) {
+  static async generateSyncPayload(password: string, walletId: string) {
     let WasmThemis: typeof WasmThemisPackageInterface;
     try {
       WasmThemis = await import('wasm-themis');
@@ -244,20 +244,12 @@ export class Vault {
 
     const { passKey } = await Vault.toValidPassKey(password);
     return withError('Failed to generate sync payload', async () => {
-      const currentAccountId = await fetchFromStorage<string>('CURRENT_ACCOUNT_ID');
-      const allAccounts = await fetchAndDecryptOne<StoredAccount[]>(accountsStrgKey, passKey);
+      const [mnemonic, allAccounts] = await Promise.all([
+        fetchAndDecryptOne<string>(walletMnemonicStrgKey(walletId), passKey),
+        fetchAndDecryptOne<StoredAccount[]>(accountsStrgKey, passKey)
+      ]);
 
-      const currentAccount = allAccounts.find(a => a.id === currentAccountId) ?? allAccounts[0];
-
-      if (currentAccount.type !== TempleAccountType.HD) {
-        throw new PublicError("Can't generate sync payload for Non-HD Wallet");
-      }
-
-      const currentWalletId = currentAccount.walletId;
-
-      const mnemonic = await fetchAndDecryptOne<string>(walletMnemonicStrgKey(currentWalletId), passKey);
-
-      const hdAccounts = getSameGroupAccounts(allAccounts, TempleAccountType.HD, currentWalletId);
+      const hdAccounts = getSameGroupAccounts(allAccounts, TempleAccountType.HD, walletId);
 
       const data = [mnemonic, hdAccounts.length];
 

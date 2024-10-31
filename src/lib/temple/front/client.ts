@@ -179,10 +179,11 @@ export const [TempleClientProvider, useTempleClient] = constate(() => {
     return res.mnemonic;
   }, []);
 
-  const generateSyncPayload = useCallback(async (password: string) => {
+  const generateSyncPayload = useCallback(async (password: string, walletId: string) => {
     const res = await request({
       type: TempleMessageType.GenerateSyncPayloadRequest,
-      password
+      password,
+      walletId
     });
     assertResponse(res.type === TempleMessageType.GenerateSyncPayloadResponse);
     return res.payload;
