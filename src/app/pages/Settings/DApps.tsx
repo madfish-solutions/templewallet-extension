@@ -20,30 +20,32 @@ export const DAppsSettings = memo(() => {
 
   const onRemoveAllClick = useCallback(() => disconnectDApps(dapps.map(([o]) => o)), [disconnectDApps, dapps]);
 
-  if (!dapps.length) return <EmptyState forSearch={false} text="No connections" stretch />;
-
   return (
     <>
-      <ScrollView className="gap-y-6 px-4 py-6">
-        {activeDApp ? (
-          <Section title="Current connection">
-            <DAppItem dapp={activeDApp[1]} origin={activeDApp[0]} onRemoveClick={disconnectOne} />
-          </Section>
-        ) : null}
+      {dapps.length ? (
+        <ScrollView className="gap-y-6 px-4 py-6">
+          {activeDApp ? (
+            <Section title="Current connection">
+              <DAppItem dapp={activeDApp[1]} origin={activeDApp[0]} onRemoveClick={disconnectOne} />
+            </Section>
+          ) : null}
 
-        {displayedDapps.length ? (
-          <Section title="Connected Dapps">
-            <div className="flex flex-col gap-y-3">
-              {displayedDapps.map(([origin, dapp]) => (
-                <DAppItem key={dapp.appMeta.name} dapp={dapp} origin={origin} onRemoveClick={disconnectOne} />
-              ))}
-            </div>
-          </Section>
-        ) : null}
-      </ScrollView>
+          {displayedDapps.length ? (
+            <Section title="Connected Dapps">
+              <div className="flex flex-col gap-y-3">
+                {displayedDapps.map(([origin, dapp]) => (
+                  <DAppItem key={dapp.appMeta.name} dapp={dapp} origin={origin} onRemoveClick={disconnectOne} />
+                ))}
+              </div>
+            </Section>
+          ) : null}
+        </ScrollView>
+      ) : (
+        <EmptyState forSearch={false} text="No connections" stretch />
+      )}
 
       <ActionsButtonsBox className="sticky left-0 bottom-0" bgSet={false}>
-        <StyledButton className="flex-1" size="L" color="red-low" onClick={onRemoveAllClick}>
+        <StyledButton className="flex-1" size="L" color="red-low" disabled={!dapps.length} onClick={onRemoveAllClick}>
           Disconnect All
         </StyledButton>
       </ActionsButtonsBox>

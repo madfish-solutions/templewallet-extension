@@ -2,8 +2,8 @@ import React, { useMemo } from 'react';
 
 import clsx from 'clsx';
 
+import { Loader } from 'app/atoms';
 import { ButtonProps } from 'app/atoms/Button';
-import { Loader } from 'app/atoms/loader';
 import { LinkProps } from 'lib/woozie/Link';
 
 type Size = 'L' | 'M' | 'S';
