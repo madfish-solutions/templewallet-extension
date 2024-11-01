@@ -9,6 +9,7 @@ export function toSerializableEvmTxParams(txParams: EvmTxParams): SerializableEv
   return {
     to: txParams.to,
     value: txParams.value.toString(),
+    data: txParams.data,
     gas: txParams.gas.toString(),
     maxFeePerGas: txParams.maxFeePerGas.toString(),
     maxPriorityFeePerGas: txParams.maxPriorityFeePerGas.toString(),
@@ -20,6 +21,7 @@ export function fromSerializableEvmTxParams(txParams: SerializableEvmTxParams): 
   return {
     to: txParams.to,
     value: BigInt(txParams.value),
+    data: txParams.data,
     gas: BigInt(txParams.gas),
     maxFeePerGas: BigInt(txParams.maxFeePerGas),
     maxPriorityFeePerGas: BigInt(txParams.maxPriorityFeePerGas),

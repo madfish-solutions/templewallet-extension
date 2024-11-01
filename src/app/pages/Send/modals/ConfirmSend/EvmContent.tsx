@@ -8,11 +8,14 @@ import { formatEther, parseEther, serializeTransaction } from 'viem';
 import { CLOSE_ANIMATION_TIMEOUT } from 'app/atoms/PageModal';
 import { EvmReviewData } from 'app/pages/Send/form/interfaces';
 import { useEvmEstimationData } from 'app/pages/Send/hooks/use-evm-estimation-data';
+import { useEvmTokenMetadataSelector } from 'app/store/evm/tokens-metadata/selectors';
 import { toastError, toastSuccess } from 'app/toaster';
 import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
 import { useEvmTokenBalance } from 'lib/balances/hooks';
 import { useTempleClient } from 'lib/temple/front';
 import { ZERO } from 'lib/utils/numbers';
+
+import { buildBasicEvmSendParams } from '../../build-basic-evm-send-params';
 
 import { BaseContent, Tab } from './BaseContent';
 import { DEFAULT_INPUT_DEBOUNCE } from './contants';
@@ -34,6 +37,7 @@ export const EvmContent: FC<EvmContentProps> = ({ data, onClose }) => {
 
   const { value: balance = ZERO } = useEvmTokenBalance(assetSlug, accountPkh, network);
   const { value: ethBalance = ZERO } = useEvmTokenBalance(EVM_TOKEN_SLUG, accountPkh, network);
+  const tokenMetadata = useEvmTokenMetadataSelector(network.chainId, assetSlug);
 
   const form = useForm<EvmTxParamsFormData>({ mode: 'onChange' });
   const { watch, formState, setValue } = form;
@@ -133,9 +137,12 @@ export const EvmContent: FC<EvmContentProps> = ({ data, onClose }) => {
       try {
         const parsedGasPrice = gasPrice ? parseEther(gasPrice, 'gwei') : null;
 
+        const basicParams = await buildBasicEvmSendParams(to as HexString, amount, tokenMetadata);
+        const { value, to: txDestination } = basicParams;
+
         const txHash = await sendEvmTransaction(accountPkh, network, {
-          to: to as HexString,
-          value: parseEther(amount),
+          to: txDestination,
+          value,
           ...omit(estimationData, 'estimatedFee'),
           ...(selectedFeeOption ? feeOptions.gasPrice[selectedFeeOption] : feeOptions.gasPrice.mid),
           ...(parsedGasPrice ? { maxFeePerGas: parsedGasPrice, maxPriorityFeePerGas: parsedGasPrice } : {}),
@@ -165,7 +172,8 @@ export const EvmContent: FC<EvmContentProps> = ({ data, onClose }) => {
       onConfirm,
       selectedFeeOption,
       sendEvmTransaction,
-      to
+      to,
+      tokenMetadata
     ]
   );
 

@@ -2,13 +2,15 @@ import { useCallback } from 'react';
 
 import BigNumber from 'bignumber.js';
 import { pick } from 'lodash';
-import { parseEther } from 'viem';
 
+import { useEvmTokenMetadataSelector } from 'app/store/evm/tokens-metadata/selectors';
 import { toastError } from 'app/toaster';
 import { isNativeTokenAddress } from 'lib/apis/temple/endpoints/evm/api.utils';
 import { useTypedSWR } from 'lib/swr';
 import { getReadOnlyEvmForNetwork } from 'temple/evm';
 import { EvmChain } from 'temple/front';
+
+import { buildBasicEvmSendParams } from '../build-basic-evm-send-params';
 
 import { checkZeroBalance } from './utils';
 
@@ -17,7 +19,7 @@ export interface EvmEstimationData {
   gas: bigint;
   maxFeePerGas: bigint;
   maxPriorityFeePerGas: bigint;
-  data: string;
+  data: HexString;
   nonce: number;
 }
 
@@ -31,6 +33,8 @@ export const useEvmEstimationData = (
   toFilled?: boolean,
   amount?: string
 ) => {
+  const tokenMetadata = useEvmTokenMetadataSelector(network.chainId, assetSlug);
+
   const estimate = useCallback(async (): Promise<EvmEstimationData | undefined> => {
     try {
       const isNativeToken = isNativeTokenAddress(network.chainId, assetSlug);
@@ -40,9 +44,8 @@ export const useEvmEstimationData = (
       const publicClient = getReadOnlyEvmForNetwork(network);
 
       const transaction = await publicClient.prepareTransactionRequest({
-        to,
-        account: accountPkh,
-        value: amount ? parseEther(amount) : BigInt(1)
+        ...(await buildBasicEvmSendParams(to, amount, tokenMetadata)),
+        account: accountPkh
       });
 
       return {
@@ -56,7 +59,7 @@ export const useEvmEstimationData = (
 
       return undefined;
     }
-  }, [network, assetSlug, balance, ethBalance, to, accountPkh, amount]);
+  }, [network, assetSlug, balance, ethBalance, tokenMetadata, to, accountPkh, amount]);
 
   return useTypedSWR(
     toFilled ? ['evm-estimation-data', network.chainId, assetSlug, accountPkh, to, amount] : null,
