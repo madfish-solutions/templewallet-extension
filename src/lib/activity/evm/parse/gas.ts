@@ -1,5 +1,4 @@
 import type { Transaction, BlockTransactionWithContractTransfers } from '@covalenthq/client-sdk';
-import { getAddress } from 'viem';
 
 import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
 
@@ -46,5 +45,5 @@ export function parseGasTransfer(
     symbol
   };
 
-  return { kind, type, fromAddress: getAddress(fromAddress), toAddress: getAddress(toAddress), asset };
+  return { kind, type, fromAddress, toAddress, asset };
 }

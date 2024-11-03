@@ -1,6 +1,5 @@
 import type { BlockTransactionWithContractTransfers, TokenTransferItem } from '@covalenthq/client-sdk';
 
-import { getEvmAddressSafe } from 'lib/utils/evm.utils';
 import { TempleChainKind } from 'temple/types';
 
 import {
@@ -43,8 +42,8 @@ export function parseGoldRushERC20Transfer(
 }
 
 function parseTransfer(transfer: TokenTransferItem, item: BlockTransactionWithContractTransfers): EvmOperation {
-  const fromAddress = getEvmAddressSafe(transfer.from_address)!;
-  const toAddress = getEvmAddressSafe(transfer.to_address)!;
+  const fromAddress = transfer.from_address!;
+  const toAddress = transfer.to_address!;
 
   const type: ActivityOperTransferType = (() => {
     if (transfer.transfer_type === 'IN') {
@@ -60,7 +59,7 @@ function parseTransfer(transfer: TokenTransferItem, item: BlockTransactionWithCo
 
   const operBase = { kind: ActivityOperKindEnum.transfer as const, type, fromAddress, toAddress };
 
-  const contractAddress = getEvmAddressSafe(transfer.contract_address);
+  const contractAddress = transfer.contract_address;
 
   if (contractAddress == null) return operBase;
 

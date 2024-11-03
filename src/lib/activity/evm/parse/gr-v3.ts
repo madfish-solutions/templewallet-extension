@@ -1,7 +1,5 @@
 import type { Transaction, LogEvent } from '@covalenthq/client-sdk';
-import { getAddress } from 'viem';
 
-import { getEvmAddressSafe } from 'lib/utils/evm.utils';
 import { TempleChainKind } from 'temple/types';
 
 import {
@@ -45,7 +43,7 @@ function parseLogEvent(
   /** Lower-cased */
   accountAddress: string
 ): EvmOperation {
-  const contractAddress = getEvmAddressSafe(logEvent.sender_address) ?? undefined;
+  const contractAddress = logEvent.sender_address ?? undefined;
 
   if (!logEvent.decoded?.params) return { kind: ActivityOperKindEnum.interaction, withAddress: contractAddress };
 
@@ -77,7 +75,7 @@ function parseLogEvent(
 
     const kind = ActivityOperKindEnum.transfer;
 
-    if (!contractAddress) return { kind, type, fromAddress: getAddress(fromAddress), toAddress: getAddress(toAddress) };
+    if (!contractAddress) return { kind, type, fromAddress, toAddress };
 
     const param3 = logEvent.decoded.params.at(2);
     const amountOrTokenId: string = param3?.value ?? '0';
@@ -99,7 +97,7 @@ function parseLogEvent(
       iconURL
     };
 
-    return { kind, type, fromAddress: getAddress(fromAddress), toAddress: getAddress(toAddress), asset };
+    return { kind, type, fromAddress, toAddress, asset };
   }
 
   if (logEvent.decoded.name === 'TransferSingle') {
@@ -126,7 +124,7 @@ function parseLogEvent(
 
     const kind = ActivityOperKindEnum.transfer;
 
-    if (!contractAddress) return { kind, type, fromAddress: getAddress(fromAddress), toAddress: getAddress(toAddress) };
+    if (!contractAddress) return { kind, type, fromAddress, toAddress };
 
     const tokenId = logEvent.decoded.params.at(3)?.value ?? '0';
 
@@ -145,7 +143,7 @@ function parseLogEvent(
       iconURL
     };
 
-    return { kind, type, fromAddress: getAddress(fromAddress), toAddress: getAddress(toAddress), asset };
+    return { kind, type, fromAddress, toAddress, asset };
   }
 
   if (logEvent.decoded.name === 'Approval') {
@@ -154,7 +152,7 @@ function parseLogEvent(
 
     const kind = ActivityOperKindEnum.approve;
 
-    const spenderAddress = getAddress(logEvent.decoded.params.at(1)!.value);
+    const spenderAddress = logEvent.decoded.params.at(1)!.value;
 
     if (!contractAddress) return { kind, spenderAddress };
 
@@ -187,7 +185,7 @@ function parseLogEvent(
 
     const kind = ActivityOperKindEnum.approve;
 
-    const spenderAddress = getAddress(logEvent.decoded.params.at(1)!.value);
+    const spenderAddress = logEvent.decoded.params.at(1)!.value;
 
     if (!contractAddress) return { kind, spenderAddress };
 
