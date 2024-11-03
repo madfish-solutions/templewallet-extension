@@ -22,9 +22,11 @@ export function parseGoldRushERC20Transfer(
   const transfers = item.transfers ?? [];
   const addedAt = item.block_signed_at as unknown as string;
 
+  const accountAddressLowerCased = accountAddress.toLowerCase();
+
   const operations = transfers.map(transfer => parseTransfer(transfer, item));
 
-  const gasOperation = parseGasTransfer(item, accountAddress, Boolean(transfers.length));
+  const gasOperation = parseGasTransfer(item, accountAddressLowerCased, Boolean(transfers.length));
 
   if (gasOperation) operations.unshift(gasOperation);
 

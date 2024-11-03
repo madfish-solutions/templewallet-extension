@@ -1,12 +1,13 @@
 import type { Transaction, BlockTransactionWithContractTransfers } from '@covalenthq/client-sdk';
+import { getAddress } from 'viem';
 
 import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
-import { getEvmAddressSafe } from 'lib/utils/evm.utils';
 
 import { ActivityOperKindEnum, ActivityOperTransferType, EvmActivityAsset, EvmOperation } from '../../types';
 
 export function parseGasTransfer(
   item: Transaction | BlockTransactionWithContractTransfers,
+  /** Lower-cased */
   accountAddress: string,
   /** Only way to suspect transfering to a contract, not an account */
   partOfBatch: boolean
@@ -15,8 +16,8 @@ export function parseGasTransfer(
 
   if (value === '0' && partOfBatch) return null;
 
-  const fromAddress = getEvmAddressSafe(item.from_address)!;
-  const toAddress = getEvmAddressSafe(item.to_address)!;
+  const fromAddress = item.from_address!;
+  const toAddress = item.to_address!;
 
   const type = (() => {
     if (fromAddress === accountAddress)
@@ -45,5 +46,5 @@ export function parseGasTransfer(
     symbol
   };
 
-  return { kind, type, fromAddress, toAddress, asset };
+  return { kind, type, fromAddress: getAddress(fromAddress), toAddress: getAddress(toAddress), asset };
 }

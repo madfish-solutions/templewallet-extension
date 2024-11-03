@@ -18,6 +18,7 @@ export const isProperCollectibleMetadata = (
 
 export const isEvmNativeTokenSlug = (slug: string) => slug === EVM_TOKEN_SLUG;
 
+/** (!) Expensive */
 export function getEvmAddressSafe(value: string | nullish): HexString | null {
   if (!value) return null;
 

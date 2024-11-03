@@ -172,12 +172,7 @@ export const ActivityOperationBaseComponent = memo<Props>(
     }, [chain, isForEvm, withoutAssetIcon, kind, transferType, asset?.iconURL, asset?.symbol, isNFT, assetSlug]);
 
     return (
-      <div
-        className={clsx(
-          'z-1 relative group flex gap-x-2 p-2 rounded-lg hover:bg-secondary-low',
-          onClick && 'cursor-pointer'
-        )}
-      >
+      <div className="z-1 relative group flex gap-x-2 p-2 rounded-lg hover:bg-secondary-low">
         <div className="relative shrink-0 self-center flex items-center justify-center flex items-start w-10 h-10">
           {kind === 'bundle' ? (
             <BundleIconsStack withoutAssetIcon={withoutAssetIcon} isNFT={isNFT}>

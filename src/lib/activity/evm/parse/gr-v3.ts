@@ -1,4 +1,5 @@
 import type { Transaction, LogEvent } from '@covalenthq/client-sdk';
+import { getAddress } from 'viem';
 
 import { getEvmAddressSafe } from 'lib/utils/evm.utils';
 import { TempleChainKind } from 'temple/types';
@@ -18,9 +19,11 @@ export function parseGoldRushTransaction(item: Transaction, chainId: number, acc
   const logEvents = item.log_events ?? [];
   const addedAt = item.block_signed_at as unknown as string;
 
-  const operations = logEvents.map(logEvent => parseLogEvent(logEvent, item, accountAddress));
+  const accountAddressLowerCased = accountAddress.toLowerCase();
 
-  const gasOperation = parseGasTransfer(item, accountAddress, Boolean(logEvents.length));
+  const operations = logEvents.map(logEvent => parseLogEvent(logEvent, item, accountAddressLowerCased));
+
+  const gasOperation = parseGasTransfer(item, accountAddressLowerCased, Boolean(logEvents.length));
 
   if (gasOperation) operations.unshift(gasOperation);
 
@@ -36,7 +39,12 @@ export function parseGoldRushTransaction(item: Transaction, chainId: number, acc
   };
 }
 
-function parseLogEvent(logEvent: LogEvent, item: Transaction, accountAddress: string): EvmOperation {
+function parseLogEvent(
+  logEvent: LogEvent,
+  item: Transaction,
+  /** Lower-cased */
+  accountAddress: string
+): EvmOperation {
   const contractAddress = getEvmAddressSafe(logEvent.sender_address) ?? undefined;
 
   if (!logEvent.decoded?.params) return { kind: ActivityOperKindEnum.interaction, withAddress: contractAddress };
@@ -46,8 +54,8 @@ function parseLogEvent(logEvent: LogEvent, item: Transaction, accountAddress: st
   const iconURL = logEvent.sender_logo_url ?? undefined;
 
   if (logEvent.decoded.name === 'Transfer') {
-    const fromAddress = getEvmAddressSafe(logEvent.decoded.params.at(0)?.value)!;
-    const toAddress = getEvmAddressSafe(logEvent.decoded.params.at(1)?.value)!;
+    const fromAddress = logEvent.decoded.params.at(0)!.value;
+    const toAddress = logEvent.decoded.params.at(1)!.value;
 
     const type = (() => {
       if (toAddress === accountAddress) {
@@ -69,7 +77,7 @@ function parseLogEvent(logEvent: LogEvent, item: Transaction, accountAddress: st
 
     const kind = ActivityOperKindEnum.transfer;
 
-    if (!contractAddress) return { kind, type, fromAddress, toAddress };
+    if (!contractAddress) return { kind, type, fromAddress: getAddress(fromAddress), toAddress: getAddress(toAddress) };
 
     const param3 = logEvent.decoded.params.at(2);
     const amountOrTokenId: string = param3?.value ?? '0';
@@ -91,12 +99,12 @@ function parseLogEvent(logEvent: LogEvent, item: Transaction, accountAddress: st
       iconURL
     };
 
-    return { kind, type, fromAddress, toAddress, asset };
+    return { kind, type, fromAddress: getAddress(fromAddress), toAddress: getAddress(toAddress), asset };
   }
 
   if (logEvent.decoded.name === 'TransferSingle') {
-    const fromAddress = getEvmAddressSafe(logEvent.decoded.params.at(1)?.value)!;
-    const toAddress = getEvmAddressSafe(logEvent.decoded.params.at(2)?.value)!;
+    const fromAddress = logEvent.decoded.params.at(1)!.value;
+    const toAddress = logEvent.decoded.params.at(2)!.value;
 
     const type = (() => {
       if (toAddress === accountAddress) {
@@ -118,7 +126,7 @@ function parseLogEvent(logEvent: LogEvent, item: Transaction, accountAddress: st
 
     const kind = ActivityOperKindEnum.transfer;
 
-    if (!contractAddress) return { kind, type, fromAddress, toAddress };
+    if (!contractAddress) return { kind, type, fromAddress: getAddress(fromAddress), toAddress: getAddress(toAddress) };
 
     const tokenId = logEvent.decoded.params.at(3)?.value ?? '0';
 
@@ -137,16 +145,16 @@ function parseLogEvent(logEvent: LogEvent, item: Transaction, accountAddress: st
       iconURL
     };
 
-    return { kind, type, fromAddress, toAddress, asset };
+    return { kind, type, fromAddress: getAddress(fromAddress), toAddress: getAddress(toAddress), asset };
   }
 
   if (logEvent.decoded.name === 'Approval') {
-    const fromAddress = getEvmAddressSafe(logEvent.decoded.params.at(0)?.value);
+    const fromAddress = logEvent.decoded.params.at(0)?.value;
     if (fromAddress !== accountAddress) return { kind: ActivityOperKindEnum.interaction, withAddress: contractAddress };
 
     const kind = ActivityOperKindEnum.approve;
 
-    const spenderAddress = logEvent.decoded.params.at(1)!.value;
+    const spenderAddress = getAddress(logEvent.decoded.params.at(1)!.value);
 
     if (!contractAddress) return { kind, spenderAddress };
 
@@ -172,14 +180,14 @@ function parseLogEvent(logEvent: LogEvent, item: Transaction, accountAddress: st
   }
 
   if (logEvent.decoded.name === 'ApprovalForAll') {
-    const fromAddress = getEvmAddressSafe(logEvent.decoded.params.at(0)?.value);
+    const fromAddress = logEvent.decoded.params.at(0)?.value;
 
     if ((logEvent.decoded.params.at(2)!.value as unknown as boolean) !== true || fromAddress !== accountAddress)
       return { kind: ActivityOperKindEnum.interaction, withAddress: contractAddress };
 
     const kind = ActivityOperKindEnum.approve;
 
-    const spenderAddress = logEvent.decoded.params.at(1)!.value;
+    const spenderAddress = getAddress(logEvent.decoded.params.at(1)!.value);
 
     if (!contractAddress) return { kind, spenderAddress };
 
