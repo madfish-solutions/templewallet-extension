@@ -1,6 +1,6 @@
 import React, { memo } from 'react';
 
-import { Lines } from 'app/atoms';
+import { VerticalLines } from 'app/atoms/Lines';
 import { Logo } from 'app/atoms/Logo';
 import { SettingsCell } from 'app/atoms/SettingsCell';
 import { SettingsCellGroup } from 'app/atoms/SettingsCellGroup';
@@ -111,7 +111,7 @@ export const About = memo(() => {
                 {/* `branch` is equal to `version` in releases */}
                 {branch && branch !== version && (
                   <>
-                    <Lines orientation="vertical" className="py-0.5" />
+                    <VerticalLines className="py-0.5" />
                     <span>
                       <T id="branchName" substitutions={branch} />
                     </span>
