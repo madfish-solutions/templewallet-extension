@@ -2,16 +2,21 @@ import { isString, pick } from 'lodash';
 
 import type { TokenMetadataResponse, WhitelistResponseToken } from 'lib/apis/temple';
 import { TEZOS_SYMBOL } from 'lib/assets';
+import { EvmAssetStandard } from 'lib/evm/types';
 
 import {
   AssetMetadataBase,
   TokenMetadata,
   TezosTokenStandardsEnum,
   EvmTokenMetadata,
-  EvmCollectibleMetadata
+  EvmCollectibleMetadata,
+  EvmNativeTokenMetadata
 } from './types';
 
-export function getAssetSymbol(metadata: EvmTokenMetadata | AssetMetadataBase | nullish, short = false) {
+export function getAssetSymbol(
+  metadata: EvmTokenMetadata | AssetMetadataBase | EvmCollectibleMetadata | nullish,
+  short = false
+) {
   if (!metadata || !metadata.symbol) return '???';
   if (!short) return metadata.symbol;
   return metadata.symbol === 'tez' ? TEZOS_SYMBOL : metadata.symbol.substring(0, 5);
@@ -32,6 +37,11 @@ export function getCollectionName(metadata: EvmCollectibleMetadata | nullish) {
 /** Empty string for `artifactUri` counts */
 export const isCollectible = (metadata: StringRecord<any>) =>
   'artifactUri' in metadata && isString(metadata.artifactUri);
+
+export const isEvmCollectible = (
+  metadata: EvmCollectibleMetadata | EvmTokenMetadata | EvmNativeTokenMetadata
+): metadata is EvmCollectibleMetadata =>
+  metadata.standard === EvmAssetStandard.ERC721 || metadata.standard === EvmAssetStandard.ERC1155;
 
 /**
  * @deprecated // Assertion here is not safe!

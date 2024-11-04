@@ -5,9 +5,10 @@ import clsx from 'clsx';
 import { Identicon } from 'app/atoms';
 import { EvmNetworkLogo, TezosNetworkLogo } from 'app/atoms/NetworkLogo';
 import { ReactComponent as CollectiblePlaceholder } from 'app/icons/collectible-placeholder.svg';
+import { useEvmCollectibleMetadataSelector } from 'app/store/evm/collectibles-metadata/selectors';
 import { useEvmTokenMetadataSelector } from 'app/store/evm/tokens-metadata/selectors';
-import { AssetMetadataBase, getAssetSymbol, isCollectible, useTezosAssetMetadata } from 'lib/metadata';
-import { EvmTokenMetadata } from 'lib/metadata/types';
+import { getAssetSymbol, isCollectible, useTezosAssetMetadata } from 'lib/metadata';
+import { AssetMetadataBase, EvmCollectibleMetadata, EvmTokenMetadata } from 'lib/metadata/types';
 import useTippy, { UseTippyOptions } from 'lib/ui/useTippy';
 import { isEvmNativeTokenSlug } from 'lib/utils/evm.utils';
 import { useEvmChainByChainId, useTezosChainByChainId } from 'temple/front/chains';
@@ -108,18 +109,19 @@ export const TezosTokenIconWithNetwork = memo<TezosTokenIconWithNetworkProps>(
   }
 );
 
-interface EvmTokenIconWithNetworkProps
+interface EvmAssetIconWithNetworkProps
   extends Omit<AssetImageBaseProps, 'sources' | 'metadata' | 'loader' | 'fallback' | 'size'> {
   evmChainId: number;
   assetSlug: string;
 }
 
-export const EvmTokenIconWithNetwork = memo<EvmTokenIconWithNetworkProps>(
+export const EvmAssetIconWithNetwork = memo<EvmAssetIconWithNetworkProps>(
   ({ evmChainId, assetSlug, className, style, ...props }) => {
     const network = useEvmChainByChainId(evmChainId);
     const tokenMetadata = useEvmTokenMetadataSelector(evmChainId, assetSlug);
+    const collectibleMetadata = useEvmCollectibleMetadataSelector(evmChainId, assetSlug);
 
-    const metadata = isEvmNativeTokenSlug(assetSlug) ? network?.currency : tokenMetadata;
+    const metadata = isEvmNativeTokenSlug(assetSlug) ? network?.currency : tokenMetadata ?? collectibleMetadata;
 
     const tippyProps = useMemo<UseTippyOptions>(
       () => ({
@@ -162,7 +164,7 @@ export const EvmTokenIconWithNetwork = memo<EvmTokenIconWithNetworkProps>(
 );
 
 interface PlaceholderProps {
-  metadata: EvmTokenMetadata | AssetMetadataBase | nullish;
+  metadata: EvmTokenMetadata | AssetMetadataBase | EvmCollectibleMetadata | nullish;
   size?: number;
 }
 

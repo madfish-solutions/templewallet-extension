@@ -3,6 +3,7 @@ import { useCallback } from 'react';
 import BigNumber from 'bignumber.js';
 import { pick } from 'lodash';
 
+import { useEvmCollectibleMetadataSelector } from 'app/store/evm/collectibles-metadata/selectors';
 import { useEvmTokenMetadataSelector } from 'app/store/evm/tokens-metadata/selectors';
 import { toastError } from 'app/toaster';
 import { isNativeTokenAddress } from 'lib/apis/temple/endpoints/evm/api.utils';
@@ -34,6 +35,7 @@ export const useEvmEstimationData = (
   amount?: string
 ) => {
   const tokenMetadata = useEvmTokenMetadataSelector(network.chainId, assetSlug);
+  const collectibleMetadata = useEvmCollectibleMetadataSelector(network.chainId, assetSlug);
 
   const estimate = useCallback(async (): Promise<EvmEstimationData | undefined> => {
     try {
@@ -44,7 +46,7 @@ export const useEvmEstimationData = (
       const publicClient = getReadOnlyEvmForNetwork(network);
 
       const transaction = await publicClient.prepareTransactionRequest({
-        ...(await buildBasicEvmSendParams(to, amount, tokenMetadata)),
+        ...(await buildBasicEvmSendParams(accountPkh, to, amount, tokenMetadata ?? collectibleMetadata)),
         account: accountPkh
       });
 
@@ -59,7 +61,7 @@ export const useEvmEstimationData = (
 
       return undefined;
     }
-  }, [network, assetSlug, balance, ethBalance, tokenMetadata, to, accountPkh, amount]);
+  }, [network, assetSlug, balance, ethBalance, accountPkh, to, amount, tokenMetadata, collectibleMetadata]);
 
   return useTypedSWR(
     toFilled ? ['evm-estimation-data', network.chainId, assetSlug, accountPkh, to, amount] : null,

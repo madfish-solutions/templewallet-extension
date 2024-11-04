@@ -1,4 +1,4 @@
-import { useCallback, useMemo } from 'react';
+import { useCallback, useEffect, useMemo } from 'react';
 
 import { emptyFn, isDefined } from '@rnw-community/shared';
 import BigNumber from 'bignumber.js';
@@ -8,6 +8,7 @@ import {
   useRawEvmChainAccountBalancesSelector,
   useRawEvmAssetBalanceSelector
 } from 'app/store/evm/balances/selectors';
+import { useEvmCollectibleMetadataSelector } from 'app/store/evm/collectibles-metadata/selectors';
 import { useEvmBalancesLoadingStateSelector } from 'app/store/evm/selectors';
 import {
   useEvmTokenMetadataSelector,
@@ -261,6 +262,32 @@ function useEvmAssetRawBalance(
     error: onChainBalanceSwrRes.error,
     refresh: refreshBalanceOnChain
   };
+}
+
+export function useEvmAssetBalance(assetSlug: string, address: HexString, network: EvmNetworkEssentials) {
+  const collectibleMetadata = useEvmCollectibleMetadataSelector(network.chainId, assetSlug);
+  const tokenBalance = useEvmTokenBalance(assetSlug, address, network);
+  const collectibleBalance = useEvmCollectibleBalance(assetSlug, address, network);
+
+  return collectibleMetadata ? collectibleBalance : tokenBalance;
+}
+
+export function useEvmCollectibleBalance(assetSlug: string, address: HexString, network: EvmNetworkEssentials) {
+  const metadata = useEvmCollectibleMetadataSelector(network.chainId, assetSlug);
+
+  const {
+    value: rawValue,
+    isSyncing,
+    error,
+    refresh
+  } = useEvmAssetRawBalance(assetSlug, address, network, metadata?.standard);
+
+  const value = useMemo(
+    () => (rawValue && metadata ? atomsToTokens(new BigNumber(rawValue), metadata.decimals ?? 0) : undefined),
+    [rawValue, metadata]
+  );
+
+  return { rawValue, value, isSyncing, error, refresh, metadata };
 }
 
 export function useEvmTokenBalance(assetSlug: string, address: HexString, network: EvmNetworkEssentials) {

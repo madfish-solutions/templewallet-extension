@@ -5,8 +5,9 @@ import clsx from 'clsx';
 import { Button, IconBase } from 'app/atoms';
 import Money from 'app/atoms/Money';
 import { ReactComponent as CompactDown } from 'app/icons/base/compact_down.svg';
+import { useEvmCollectibleMetadataSelector } from 'app/store/evm/collectibles-metadata/selectors';
 import { useEvmTokenMetadataSelector } from 'app/store/evm/tokens-metadata/selectors';
-import { EvmTokenIconWithNetwork, TezosTokenIconWithNetwork } from 'app/templates/AssetIcon';
+import { EvmAssetIconWithNetwork, TezosTokenIconWithNetwork } from 'app/templates/AssetIcon';
 import { EvmBalance, TezosBalance } from 'app/templates/Balance';
 import { setAnotherSelector, setTestID, TestIDProperty } from 'lib/analytics';
 import { T } from 'lib/i18n';
@@ -87,12 +88,13 @@ interface EvmContentProps {
 
 const EvmContent = memo<EvmContentProps>(({ network, accountPkh, assetSlug }) => {
   const tokenMetadata = useEvmTokenMetadataSelector(network.chainId, assetSlug);
+  const collectibleMetadata = useEvmCollectibleMetadataSelector(network.chainId, assetSlug);
 
-  const metadata = isEvmNativeTokenSlug(assetSlug) ? network.currency : tokenMetadata;
+  const metadata = isEvmNativeTokenSlug(assetSlug) ? network.currency : tokenMetadata ?? collectibleMetadata;
 
   return (
     <>
-      <EvmTokenIconWithNetwork evmChainId={network.chainId} assetSlug={assetSlug} />
+      <EvmAssetIconWithNetwork evmChainId={network.chainId} assetSlug={assetSlug} />
 
       <EvmBalance network={network} address={accountPkh} assetSlug={assetSlug}>
         {balance => (

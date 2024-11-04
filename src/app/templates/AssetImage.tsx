@@ -1,8 +1,19 @@
 import React, { FC, useMemo } from 'react';
 
-import { buildTokenImagesStack, buildCollectibleImagesStack, buildEvmTokenIconSources } from 'lib/images-uri';
+import {
+  buildTokenImagesStack,
+  buildCollectibleImagesStack,
+  buildEvmTokenIconSources,
+  buildEvmCollectibleIconSources
+} from 'lib/images-uri';
 import { AssetMetadataBase, isCollectibleTokenMetadata } from 'lib/metadata';
-import { EvmAssetMetadataBase } from 'lib/metadata/types';
+import {
+  EvmAssetMetadataBase,
+  EvmCollectibleMetadata,
+  EvmNativeTokenMetadata,
+  EvmTokenMetadata
+} from 'lib/metadata/types';
+import { isEvmCollectible } from 'lib/metadata/utils';
 import { ImageStacked, ImageStackedProps } from 'lib/ui/ImageStacked';
 
 export interface AssetImageBaseProps
@@ -66,15 +77,22 @@ export const TezosAssetImage: FC<TezosAssetImageProps> = ({ metadata, fullViewCo
 };
 
 interface EvmAssetImageProps extends Omit<AssetImageBaseProps, 'sources'> {
-  metadata?: EvmAssetMetadataBase;
+  metadata?: EvmTokenMetadata | EvmNativeTokenMetadata | EvmCollectibleMetadata;
   evmChainId?: number;
 }
 
 export const EvmAssetImage: FC<EvmAssetImageProps> = ({ evmChainId, metadata, ...rest }) => {
-  const sources = useMemo(
-    () => (metadata ? buildEvmTokenIconSources(metadata, evmChainId) : []),
-    [evmChainId, metadata]
-  );
+  const sources = useMemo(() => {
+    if (!metadata) {
+      return [];
+    }
+
+    if (isEvmCollectible(metadata) && metadata.image) {
+      return buildEvmCollectibleIconSources(metadata);
+    }
+
+    return buildEvmTokenIconSources(metadata, evmChainId);
+  }, [evmChainId, metadata]);
 
   return <AssetImageBase sources={sources} metadata={metadata} {...rest} />;
 };

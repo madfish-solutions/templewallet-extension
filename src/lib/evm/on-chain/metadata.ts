@@ -1,9 +1,11 @@
 import axios from 'axios';
-import { parseAbi, PublicClient } from 'viem';
+import { transform } from 'lodash';
+import { erc20Abi, erc721Abi, parseAbi, PublicClient } from 'viem';
 
+import { erc1155Abi } from 'lib/abi/erc1155';
 import { NftCollectionAttribute } from 'lib/apis/temple/endpoints/evm/api.interfaces';
 import { fromAssetSlug } from 'lib/assets';
-import { buildMetadataLinkFromUri } from 'lib/images-uri';
+import { buildHttpLinkFromUri } from 'lib/images-uri';
 import { EvmCollectibleMetadata, EvmTokenMetadata } from 'lib/metadata/types';
 import { getReadOnlyEvm } from 'temple/evm';
 import { EvmNetworkEssentials } from 'temple/networks';
@@ -138,15 +140,18 @@ const getERC1155Metadata = async (publicClient: PublicClient, contractAddress: H
 
   if (!metadataUri) throw new Error();
 
-  const collectibleMetadata = await getCollectiblePropertiesFromUri(metadataUri);
+  const actualMetadataUri = metadataUri.replace('{id}', tokenId.toString().padStart(64, '0'));
+  const collectibleMetadata = await getCollectiblePropertiesFromUri(actualMetadataUri);
 
   const metadata: EvmCollectibleMetadata = {
     address: contractAddress,
     tokenId: tokenId.toString(),
     standard: EvmAssetStandard.ERC1155,
-    name: getValue<string>(results[0]),
-    symbol: getValue<string>(results[1]),
-    metadataUri,
+    // ERC1155 specification does not include `symbol` or `name` view methods, see
+    // https://eips.ethereum.org/EIPS/eip-1155#metadata-choices but let's assign their values if a contract has them
+    name: collectibleMetadata.collectibleName ?? getValue<string>(results[0]),
+    symbol: getValue<string>(results[1]) ?? collectibleMetadata.collectibleName,
+    metadataUri: actualMetadataUri,
     ...collectibleMetadata
   };
 
@@ -171,7 +176,7 @@ const getERC20Properties = async (publicClient: PublicClient, contractAddress: H
     ...getCommonPromises(publicClient, contractAddress),
     publicClient.readContract({
       address: contractAddress,
-      abi: parseAbi(['function decimals() public view returns (uint8)']),
+      abi: erc20Abi,
       functionName: 'decimals'
     })
   ]);
@@ -181,7 +186,7 @@ const getERC721Properties = async (publicClient: PublicClient, contractAddress: 
     ...getCommonPromises(publicClient, contractAddress),
     publicClient.readContract({
       address: contractAddress,
-      abi: parseAbi(['function tokenURI(uint256 _tokenId) external view returns (string)']),
+      abi: erc721Abi,
       functionName: 'tokenURI',
       args: [tokenId]
     })
@@ -192,7 +197,7 @@ const getERC1155Properties = async (publicClient: PublicClient, contractAddress:
     ...getCommonPromises(publicClient, contractAddress),
     publicClient.readContract({
       address: contractAddress,
-      abi: parseAbi(['function uri(uint256 _id) external view returns (string memory)']),
+      abi: erc1155Abi,
       functionName: 'uri',
       args: [tokenId]
     })
@@ -211,6 +216,7 @@ const getValue = <T>(result: PromiseSettledResult<unknown>) =>
 interface CollectibleMetadata {
   image?: string;
   name?: string;
+  decimals?: number;
   description?: string;
   attributes?: NftCollectionAttribute[];
   external_url?: string;
@@ -225,7 +231,7 @@ const getCollectiblePropertiesFromUri = async (
     'image' | 'collectibleName' | 'description' | 'attributes' | 'externalUrl' | 'animationUrl'
   >
 > => {
-  const uri = buildMetadataLinkFromUri(metadataUri);
+  const uri = buildHttpLinkFromUri(metadataUri);
 
   if (!uri) throw new Error();
 
@@ -233,14 +239,32 @@ const getCollectiblePropertiesFromUri = async (
 
   if (typeof data !== 'object' || !data.image || !data.name || !data.description) throw new Error();
 
-  const { name, description, image, attributes, external_url: externalUrl, animation_url: animationUrl } = data;
+  const {
+    name,
+    description,
+    decimals,
+    image,
+    attributes,
+    external_url: externalUrl,
+    animation_url: animationUrl
+  } = data;
+
+  const optionalProps = { attributes, externalUrl, animationUrl, decimals };
 
   return {
     image,
     collectibleName: name,
     description,
-    ...(attributes && { attributes }),
-    ...(externalUrl && { externalUrl }),
-    ...(animationUrl && { animationUrl })
+    ...transform(
+      optionalProps,
+      (acc, value, key: keyof typeof optionalProps) => {
+        if (value === undefined || value === '') {
+          delete acc[key];
+        }
+
+        return acc;
+      },
+      { ...optionalProps }
+    )
   };
 };

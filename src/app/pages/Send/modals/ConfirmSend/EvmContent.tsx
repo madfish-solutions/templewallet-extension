@@ -8,10 +8,11 @@ import { formatEther, parseEther, serializeTransaction } from 'viem';
 import { CLOSE_ANIMATION_TIMEOUT } from 'app/atoms/PageModal';
 import { EvmReviewData } from 'app/pages/Send/form/interfaces';
 import { useEvmEstimationData } from 'app/pages/Send/hooks/use-evm-estimation-data';
+import { useEvmCollectibleMetadataSelector } from 'app/store/evm/collectibles-metadata/selectors';
 import { useEvmTokenMetadataSelector } from 'app/store/evm/tokens-metadata/selectors';
 import { toastError, toastSuccess } from 'app/toaster';
 import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
-import { useEvmTokenBalance } from 'lib/balances/hooks';
+import { useEvmAssetBalance, useEvmTokenBalance } from 'lib/balances/hooks';
 import { useTempleClient } from 'lib/temple/front';
 import { ZERO } from 'lib/utils/numbers';
 
@@ -35,9 +36,10 @@ export const EvmContent: FC<EvmContentProps> = ({ data, onClose }) => {
 
   const { sendEvmTransaction } = useTempleClient();
 
-  const { value: balance = ZERO } = useEvmTokenBalance(assetSlug, accountPkh, network);
+  const { value: balance = ZERO } = useEvmAssetBalance(assetSlug, accountPkh, network);
   const { value: ethBalance = ZERO } = useEvmTokenBalance(EVM_TOKEN_SLUG, accountPkh, network);
   const tokenMetadata = useEvmTokenMetadataSelector(network.chainId, assetSlug);
+  const collectibleMetadata = useEvmCollectibleMetadataSelector(network.chainId, assetSlug);
 
   const form = useForm<EvmTxParamsFormData>({ mode: 'onChange' });
   const { watch, formState, setValue } = form;
@@ -137,7 +139,12 @@ export const EvmContent: FC<EvmContentProps> = ({ data, onClose }) => {
       try {
         const parsedGasPrice = gasPrice ? parseEther(gasPrice, 'gwei') : null;
 
-        const basicParams = await buildBasicEvmSendParams(to as HexString, amount, tokenMetadata);
+        const basicParams = await buildBasicEvmSendParams(
+          accountPkh,
+          to as HexString,
+          amount,
+          tokenMetadata ?? collectibleMetadata
+        );
         const { value, to: txDestination } = basicParams;
 
         const txHash = await sendEvmTransaction(accountPkh, network, {
@@ -164,6 +171,7 @@ export const EvmContent: FC<EvmContentProps> = ({ data, onClose }) => {
     [
       accountPkh,
       amount,
+      collectibleMetadata,
       estimationData,
       feeOptions,
       formState.isSubmitting,

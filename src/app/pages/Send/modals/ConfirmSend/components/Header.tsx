@@ -2,7 +2,7 @@ import React, { memo } from 'react';
 
 import BigNumber from 'bignumber.js';
 
-import { EvmTokenIconWithNetwork, TezosTokenIconWithNetwork } from 'app/templates/AssetIcon';
+import { EvmAssetIconWithNetwork, TezosTokenIconWithNetwork } from 'app/templates/AssetIcon';
 import InFiat from 'app/templates/InFiat';
 import { OneOfChains } from 'temple/front';
 import { TempleChainKind } from 'temple/types';
@@ -19,7 +19,7 @@ export const Header = memo<HeaderProps>(({ network, assetSlug, amount }) => {
   return (
     <div className="flex flex-col justify-center items-center text-center my-4">
       {isEvm ? (
-        <EvmTokenIconWithNetwork evmChainId={network.chainId} assetSlug={assetSlug} />
+        <EvmAssetIconWithNetwork evmChainId={network.chainId} assetSlug={assetSlug} />
       ) : (
         <TezosTokenIconWithNetwork tezosChainId={network.chainId} assetSlug={assetSlug} />
       )}

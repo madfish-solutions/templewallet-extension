@@ -87,6 +87,11 @@ const EvmCollectiblePage = memo<EvmCollectiblePageProps>(({ evmChainId, assetSlu
     return tab ?? tabs[0]!;
   }, [tabs, tabNameInUrl]);
 
+  const onSendButtonClick = useCallback(
+    () => navigate(buildSendPagePath(TempleChainKind.EVM, String(evmChainId), assetSlug)),
+    [evmChainId, assetSlug]
+  );
+
   return (
     <PageLayout
       pageTitle={
@@ -127,6 +132,10 @@ const EvmCollectiblePage = memo<EvmCollectiblePageProps>(({ evmChainId, assetSlu
               </div>
             </div>
           )}
+
+          <FormSubmitButton onClick={onSendButtonClick} testID={CollectiblesSelectors.sendButton}>
+            <T id="send" />
+          </FormSubmitButton>
 
           <TabsBar tabs={tabs} activeTabName={activeTabName} withOutline />
 
