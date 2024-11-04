@@ -44,7 +44,7 @@ export const TezosChainAssetsList = memo<Props>(({ chainId, publicKeyHash, searc
 
   return (
     <>
-      {searchedSlugs.length === 0 && <EmptyState variant="searchUniversal" />}
+      {searchedSlugs.length === 0 && <EmptyState />}
 
       {searchedSlugs.map(slug => (
         <TezosListItem

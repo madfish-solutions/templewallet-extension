@@ -367,18 +367,10 @@ export const [TempleClientProvider, useTempleClient] = constate(() => {
     assertResponse(res.type === TempleMessageType.DAppSignConfirmationResponse);
   }, []);
 
-  const getAllDAppSessions = useCallback(async () => {
-    const res = await request({
-      type: TempleMessageType.DAppGetAllSessionsRequest
-    });
-    assertResponse(res.type === TempleMessageType.DAppGetAllSessionsResponse);
-    return res.sessions;
-  }, []);
-
-  const removeDAppSession = useCallback(async (origin: string) => {
+  const removeDAppSession = useCallback(async (origins: string[]) => {
     const res = await request({
       type: TempleMessageType.DAppRemoveSessionRequest,
-      origin
+      origins
     });
     assertResponse(res.type === TempleMessageType.DAppRemoveSessionResponse);
     return res.sessions;
@@ -451,7 +443,6 @@ export const [TempleClientProvider, useTempleClient] = constate(() => {
     confirmDAppPermission,
     confirmDAppOperation,
     confirmDAppSign,
-    getAllDAppSessions,
     removeDAppSession,
     sendEvmTransaction,
     resetExtension

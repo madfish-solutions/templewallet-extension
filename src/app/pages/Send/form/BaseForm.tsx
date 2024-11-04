@@ -278,7 +278,7 @@ export const BaseForm: FC<Props> = ({
         </form>
       </div>
 
-      <ActionsButtonsBox flexDirection="col" style={{ backgroundColor: '#FBFBFB' }}>
+      <ActionsButtonsBox bgSet={false}>
         <StyledButton
           type="submit"
           form="send-form"

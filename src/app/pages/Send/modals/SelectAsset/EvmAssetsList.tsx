@@ -28,7 +28,8 @@ export const EvmAssetsList = memo<Props>(({ publicKeyHash, searchValue, onAssetS
     () =>
       enabledChains
         .map(chain => toChainAssetSlug(TempleChainKind.EVM, chain.chainId, EVM_TOKEN_SLUG))
-        .concat(Array.from(tokensSlugs).sort(tokensSortPredicate)),
+        .sort(tokensSortPredicate)
+        .concat(tokensSlugs.toSorted(tokensSortPredicate)),
     [enabledChains, tokensSlugs, tokensSortPredicate]
   );
 
@@ -48,7 +49,7 @@ export const EvmAssetsList = memo<Props>(({ publicKeyHash, searchValue, onAssetS
 
   return (
     <>
-      {searchedSlugs.length === 0 && <EmptyState variant="searchUniversal" />}
+      {searchedSlugs.length === 0 && <EmptyState />}
 
       {searchedSlugs.map(chainSlug => {
         const [_, chainId, assetSlug] = parseChainAssetSlug(chainSlug);

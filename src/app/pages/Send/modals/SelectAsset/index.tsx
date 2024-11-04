@@ -223,8 +223,9 @@ const FilterNetworkDropdown = memo<FilterNetworkDropdownProps>(
         <div className="mb-1">
           <SearchBarField value={searchValue} defaultRightMargin={false} onValueChange={setSearchValue} />
         </div>
+
         <div className="flex flex-col flex-grow overflow-y-auto">
-          {filteredNetworks.length === 0 && <EmptyState variant="searchUniversal" showText={false} iconSize={60} />}
+          {filteredNetworks.length === 0 && <EmptyState text="" iconSize={60} forSearch />}
 
           {filteredNetworks.map(network => (
             <FilterOption
@@ -298,6 +299,7 @@ const FilterOption = memo<FilterOptionProps>(({ network, activeNetwork, attractS
 
 type SearchNetwork = string | { name: string };
 
+/** @deprecated // Rely on fuse.js */
 const searchAndFilterNetworksByName = <T extends SearchNetwork>(networks: T[], searchValue: string) => {
   const preparedSearchValue = searchValue.trim().toLowerCase();
 

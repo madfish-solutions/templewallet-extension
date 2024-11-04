@@ -103,7 +103,7 @@ export const NetworksSettings = memo<SettingsTabProps>(({ setHeaderChildren }) =
     <>
       {chainsGroups.length === 0 ? (
         <div className="w-full h-full flex items-center">
-          <EmptyState variant="searchUniversal" />
+          <EmptyState />
         </div>
       ) : (
         <div className="flex flex-col gap-y-4 -m-4 px-4 pb-4 overflow-y-auto">

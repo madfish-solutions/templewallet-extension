@@ -69,11 +69,7 @@ const Send = memo<Props>(({ chainKind, chainId, assetSlug }) => {
   );
 
   return (
-    <PageLayout
-      pageTitle={<PageTitle title={t('send')} />}
-      contentPadding={false}
-      contentClassName="bg-background overflow-hidden"
-    >
+    <PageLayout pageTitle={<PageTitle title={t('send')} />} contentPadding={false} noScroll>
       <Suspense fallback={<SpinnerSection />}>
         <Form
           selectedChainAssetSlug={selectedChainAssetSlug}

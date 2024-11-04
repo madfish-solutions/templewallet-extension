@@ -139,13 +139,12 @@ export const EvmContent: FC<EvmContentProps> = ({ data, onClose }) => {
       try {
         const parsedGasPrice = gasPrice ? parseEther(gasPrice, 'gwei') : null;
 
-        const basicParams = await buildBasicEvmSendParams(
+        const { value, to: txDestination } = await buildBasicEvmSendParams(
           accountPkh,
           to as HexString,
           amount,
           tokenMetadata ?? collectibleMetadata
         );
-        const { value, to: txDestination } = basicParams;
 
         const txHash = await sendEvmTransaction(accountPkh, network, {
           to: txDestination,

@@ -8,7 +8,6 @@ import { useShortcutAccountSelectModalIsOpened } from 'app/hooks/use-account-sel
 import { ReactComponent as FullViewIcon } from 'app/icons/base/fullview.svg';
 import { ReactComponent as LockIcon } from 'app/icons/base/lock.svg';
 import { ReactComponent as SettingsIcon } from 'app/icons/base/settings.svg';
-import { ReactComponent as DAppsIcon } from 'app/icons/monochrome/apps-alt.svg';
 import { T } from 'lib/i18n';
 import { NotificationsBell } from 'lib/notifications/components/bell';
 import { useTempleClient } from 'lib/temple/front';
@@ -39,14 +38,6 @@ const MenuDropdown = memo<PopperRenderProps>(({ opened, setOpened }) => {
 
   const actions = useMemo(
     (): TDropdownAction[] => [
-      {
-        key: 'dapps',
-        Icon: DAppsIcon,
-        children: <T id="dApps" />,
-        linkTo: '/dApps',
-        testID: MenuDropdownSelectors.dAppsButton,
-        onClick: closeDropdown
-      },
       {
         key: 'settings',
         Icon: SettingsIcon,

@@ -71,7 +71,7 @@ export const TezosForm: FC<Props> = ({ chainId, assetSlug, onSelectAssetClick, o
 
   const [shouldUseFiat, setShouldUseFiat] = useSafeState(false);
 
-  const canToggleFiat = network.chainId === ChainIds.MAINNET;
+  const canToggleFiat = network.chainId === ChainIds.MAINNET && assetPrice.isGreaterThan(ZERO);
 
   const form = useForm<SendFormData>({
     mode: 'onSubmit',

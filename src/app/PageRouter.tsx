@@ -7,7 +7,6 @@ import Exolix from 'app/pages/Buy/Crypto/Exolix/Exolix';
 import { BuyWithCreditCard } from 'app/pages/BuyWithCreditCard/BuyWithCreditCard';
 import CollectiblePage from 'app/pages/Collectibles/CollectiblePage';
 import ConnectLedger from 'app/pages/ConnectLedger/ConnectLedger';
-import DApps from 'app/pages/DApps';
 import Delegate from 'app/pages/Delegate';
 import Home from 'app/pages/Home/Home';
 import AttentionPage from 'app/pages/Onboarding/pages/AttentionPage';
@@ -87,7 +86,6 @@ const ROUTE_MAP = Woozie.createMap<RouteContext>([
   ['/swap', onlyReady(() => <Swap />)],
   ['/delegate/:tezosChainId', onlyReady(({ tezosChainId }) => <Delegate tezosChainId={tezosChainId!} />)],
   ['/staking/:tezosChainId', onlyReady(({ tezosChainId }) => <StakingPage tezosChainId={tezosChainId!} />)],
-  ['/dapps', onlyReady(() => <DApps />)],
   [
     '/collectible/:chainKind?/:chainId?/:assetSlug?',
     onlyReady(({ chainKind, chainId, assetSlug }) => (

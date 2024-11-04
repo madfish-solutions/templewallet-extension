@@ -170,7 +170,7 @@ export const AccountsModal = memo<Props>(({ opened, onRequestClose }) => {
         <ScrollView onTopEdgeVisibilityChange={setTopEdgeIsVisible} topEdgeThreshold={4}>
           {filteredGroups.length === 0 ? (
             <div className="w-full h-full flex items-center">
-              <EmptyState variant="searchUniversal" />
+              <EmptyState />
             </div>
           ) : (
             filteredGroups.map(group => (
