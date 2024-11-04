@@ -353,6 +353,9 @@
   "addAsset": {
     "message": "Add Asset"
   },
+  "available": {
+    "message": "Available"
+  },
   "contractNotAvailable": {
     "message": "The contract at this address is not available. Does it exist on this network?"
   },
@@ -738,7 +741,7 @@
     }
   },
   "maximalAmount": {
-    "message": "Maximal: $amount$",
+    "message": "Max: $amount$",
     "placeholders": {
       "amount": {
         "content": "$1"
@@ -1102,6 +1105,9 @@
   },
   "asset": {
     "message": "Asset"
+  },
+  "token": {
+    "message": "Token"
   },
   "selectAnotherAssetPrompt": {
     "message": "Click on area to select another asset or token."
@@ -2498,7 +2504,7 @@
     }
   },
   "gasFee": {
-    "message": "Gas fee"
+    "message": "Gas Fee"
   },
   "storageFee": {
     "message": "Storage fee"
@@ -3597,6 +3603,21 @@
   },
   "allNetworks": {
     "message": "All Networks"
+  },
+  "gasPrice": {
+    "message": "Gas Price"
+  },
+  "gasLimit": {
+    "message": "Gas Limit"
+  },
+  "nonce": {
+    "message": "Nonce"
+  },
+  "gasLimitInfoContent": {
+    "message": "Gas limit is the maximum units of gas you are willing to use. Units of gas are a multiplier to “Max priority fee” and “Max fee”."
+  },
+  "nonceInfoContent": {
+    "message": "The nonce is the number of transactions sent from a given address. Each time you send a transaction, the nonce value increases by 1."
   },
   "enLangName": {
     "message": "English"

@@ -1,40 +1,93 @@
-import React, { memo } from 'react';
+import React, { memo, Suspense, useCallback, useState } from 'react';
 
 import { PageTitle } from 'app/atoms';
-import { ReactComponent as SendIcon } from 'app/icons/base/send.svg';
 import PageLayout from 'app/layouts/PageLayout';
-import { useChainSelectController, ChainSelectSection } from 'app/templates/ChainSelect';
-import SendForm from 'app/templates/SendForm';
+import { useAssetsFilterOptionsSelector } from 'app/store/assets-filter-options/selectors';
+import { EVM_TOKEN_SLUG, TEZ_TOKEN_SLUG } from 'lib/assets/defaults';
+import { toChainAssetSlug } from 'lib/assets/utils';
 import { t } from 'lib/i18n';
-import { UNDER_DEVELOPMENT_MSG } from 'temple/evm/under_dev_msg';
-import { OneOfChains, useAccountForTezos, useAllTezosChains } from 'temple/front';
+import { ETHEREUM_MAINNET_CHAIN_ID, TEZOS_MAINNET_CHAIN_ID } from 'lib/temple/types';
+import { useBooleanState } from 'lib/ui/hooks';
+import { useAccountAddressForEvm } from 'temple/front';
+import { TempleChainKind } from 'temple/types';
+
+import { Form } from './form';
+import { ReviewData } from './form/interfaces';
+import { SpinnerSection } from './form/SpinnerSection';
+import { ConfirmSendModal } from './modals/ConfirmSend';
+import { SelectAssetModal } from './modals/SelectAsset';
 
 interface Props {
-  tezosChainId?: string | null;
+  chainKind?: string | null;
+  chainId?: string | null;
   assetSlug?: string | null;
 }
 
-const Send = memo<Props>(({ tezosChainId, assetSlug }) => {
-  const tezosAccount = useAccountForTezos();
+const Send = memo<Props>(({ chainKind, chainId, assetSlug }) => {
+  const accountEvmAddress = useAccountAddressForEvm();
+  const { filterChain } = useAssetsFilterOptionsSelector();
 
-  const allTezosChains = useAllTezosChains();
+  const [selectedChainAssetSlug, setSelectedChainAssetSlug] = useState(() => {
+    if (chainKind && chainId && assetSlug) {
+      return toChainAssetSlug(chainKind as TempleChainKind, chainId, assetSlug);
+    }
 
-  const chainSelectController = useChainSelectController();
-  const network = tezosChainId
-    ? (allTezosChains[tezosChainId] as OneOfChains | undefined)
-    : chainSelectController.value;
+    if (filterChain) {
+      return toChainAssetSlug(
+        filterChain.kind,
+        filterChain.chainId,
+        filterChain.kind === TempleChainKind.Tezos ? TEZ_TOKEN_SLUG : EVM_TOKEN_SLUG
+      );
+    }
+
+    if (accountEvmAddress) {
+      return toChainAssetSlug(TempleChainKind.EVM, ETHEREUM_MAINNET_CHAIN_ID, EVM_TOKEN_SLUG);
+    }
+
+    return toChainAssetSlug(TempleChainKind.Tezos, TEZOS_MAINNET_CHAIN_ID, TEZ_TOKEN_SLUG);
+  });
+
+  const [selectAssetModalOpened, setSelectAssetModalOpen, setSelectAssetModalClosed] = useBooleanState(false);
+  const [confirmSendModalOpened, setConfirmSendModalOpen, setConfirmSendModalClosed] = useBooleanState(false);
+
+  const [reviewData, setReviewData] = useState<ReviewData>();
+
+  const handleAssetSelect = useCallback(
+    (slug: string) => {
+      setSelectedChainAssetSlug(slug);
+      setSelectAssetModalClosed();
+    },
+    [setSelectAssetModalClosed]
+  );
+
+  const handleReview = useCallback(
+    (data: ReviewData) => {
+      setReviewData(data);
+      setConfirmSendModalOpen();
+    },
+    [setConfirmSendModalOpen]
+  );
 
   return (
-    <PageLayout pageTitle={<PageTitle Icon={SendIcon} title={t('send')} />}>
-      <>
-        {tezosChainId ? null : <ChainSelectSection controller={chainSelectController} />}
+    <PageLayout pageTitle={<PageTitle title={t('send')} />} contentPadding={false} noScroll>
+      <Suspense fallback={<SpinnerSection />}>
+        <Form
+          selectedChainAssetSlug={selectedChainAssetSlug}
+          onReview={handleReview}
+          onSelectAssetClick={setSelectAssetModalOpen}
+        />
+      </Suspense>
 
-        {tezosAccount && network && network.kind === 'tezos' ? (
-          <SendForm network={network} tezosAccount={tezosAccount} assetSlug={assetSlug} />
-        ) : (
-          <div className="text-center">{UNDER_DEVELOPMENT_MSG}</div>
-        )}
-      </>
+      <SelectAssetModal
+        onAssetSelect={handleAssetSelect}
+        opened={selectAssetModalOpened}
+        onRequestClose={setSelectAssetModalClosed}
+      />
+      <ConfirmSendModal
+        opened={confirmSendModalOpened}
+        onRequestClose={setConfirmSendModalClosed}
+        reviewData={reviewData}
+      />
     </PageLayout>
   );
 });

@@ -11,7 +11,7 @@ import { T, t } from 'lib/i18n';
 import { useFocusHandlers } from 'lib/ui/hooks/use-focus-handlers';
 import { combineRefs } from 'lib/ui/utils';
 import { searchAndFilterItems } from 'lib/utils/search-items';
-import { getViemChainsList } from 'temple/evm';
+import { getViemChainsList } from 'temple/evm/utils';
 import { useAllEvmChains } from 'temple/front';
 
 import { NetworkSettingsSelectors } from '../selectors';

@@ -30,7 +30,7 @@ export const AccLabel = memo<Props>(({ type }) => {
   }, [type]);
 
   return (
-    <div className="flex items-center gap-x-px py-1 pl-1.5 pr-2 bg-grey-4 rounded-md">
+    <div className="flex items-center gap-x-px py-1 pl-1.5 pr-2 bg-grey-4 rounded-md self-end">
       <IconBase Icon={Icon} size={12} className="text-grey-2" />
 
       <span className="text-font-num-bold-10 text-grey-1 uppercase">{title}</span>

@@ -85,7 +85,7 @@ const PageLayout: FC<PropsWithChildren<PageLayoutProps>> = ({
 
           <div
             className={clsx(
-              'flex-1 flex flex-col',
+              'flex-grow flex flex-col',
               noScroll && 'overflow-hidden',
               contentPadding && 'p-4 pb-15',
               dimBg && 'bg-background'

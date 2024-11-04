@@ -3,6 +3,8 @@ import type { Estimate } from '@taquito/taquito';
 import type { TempleDAppMetadata } from '@temple-wallet/dapp/dist/types';
 
 import { TezosDAppsSessionsRecord } from 'app/storage/dapps';
+import type { SerializableEvmTxParams } from 'temple/evm/types';
+import type { EvmChain } from 'temple/front';
 import type { StoredEvmNetwork, StoredTezosNetwork } from 'temple/networks';
 import type { TempleChainKind } from 'temple/types';
 
@@ -275,6 +277,8 @@ export enum TempleMessageType {
   SendTrackEventResponse = 'SEND_TRACK_EVENT_RESPONSE',
   SendPageEventRequest = 'SEND_PAGE_EVENT_REQUEST',
   SendPageEventResponse = 'SEND_PAGE_EVENT_RESPONSE',
+  SendEvmTransactionRequest = 'SEND_EVM_TRANSACTION_REQUEST',
+  SendEvmTransactionResponse = 'SEND_EVM_TRANSACTION_RESPONSE',
   ResetExtensionRequest = 'RESET_EXTENSION_REQUEST',
   ResetExtensionResponse = 'RESET_EXTENSION_RESPONSE'
 }
@@ -319,6 +323,7 @@ export type TempleRequest =
   | TempleRemoveDAppSessionRequest
   | TempleSendTrackEventRequest
   | TempleSendPageEventRequest
+  | TempleSendEvmTransactionRequest
   | TempleResetExtensionRequest;
 
 export type TempleResponse =
@@ -355,6 +360,7 @@ export type TempleResponse =
   | TempleRemoveDAppSessionResponse
   | TempleSendTrackEventResponse
   | TempleSendPageEventResponse
+  | TempleSendEvmTransactionResponse
   | TempleResetExtensionResponse;
 
 export interface TempleMessageBase {
@@ -607,6 +613,8 @@ interface TempleOperationsRequest extends TempleMessageBase {
   sourcePkh: string;
   networkRpc: string;
   opParams: any[];
+  /** send operations without old confirmation page */
+  straightaway?: boolean;
 }
 
 interface TempleOperationsResponse extends TempleMessageBase {
@@ -638,6 +646,18 @@ interface TempleConfirmationRequest extends TempleMessageBase {
 
 interface TempleConfirmationResponse extends TempleMessageBase {
   type: TempleMessageType.ConfirmationResponse;
+}
+
+interface TempleSendEvmTransactionRequest extends TempleMessageBase {
+  type: TempleMessageType.SendEvmTransactionRequest;
+  accountPkh: HexString;
+  network: EvmChain;
+  txParams: SerializableEvmTxParams;
+}
+
+interface TempleSendEvmTransactionResponse extends TempleMessageBase {
+  type: TempleMessageType.SendEvmTransactionResponse;
+  txHash: HexString;
 }
 
 interface TemplePageRequest extends TempleMessageBase {

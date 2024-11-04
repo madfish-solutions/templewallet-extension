@@ -3,7 +3,7 @@ import React, { useEffect, useState, useMemo, memo } from 'react';
 import classNames from 'clsx';
 import formatDistanceToNow from 'date-fns/formatDistanceToNow';
 
-import { HashChip } from 'app/atoms';
+import { OldStyleHashChip } from 'app/atoms';
 import { MoneyDiffView } from 'app/templates/activity/MoneyDiffView';
 import { OperStack } from 'app/templates/activity/OperStack';
 import { OpenInExplorerChip } from 'app/templates/OpenInExplorerChip';
@@ -26,7 +26,7 @@ export const ActivityItem = memo<Props>(({ tezosChainId, activity, address }) =>
   return (
     <div className="my-3">
       <div className="w-full flex items-center">
-        <HashChip hash={hash} firstCharsCount={10} lastCharsCount={7} small className="mr-2" />
+        <OldStyleHashChip hash={hash} firstCharsCount={10} lastCharsCount={7} small className="mr-2" />
 
         <OpenInExplorerChip entityType="tx" tezosChainId={tezosChainId} hash={hash} className="mr-2" small />
 
