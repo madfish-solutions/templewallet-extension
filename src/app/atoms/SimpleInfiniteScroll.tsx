@@ -6,15 +6,18 @@ import { APP_CONTENT_PAPER_DOM_ID, SCROLL_DOCUMENT } from 'app/layouts/container
 
 interface Props {
   loadNext: EmptyFn;
+  scrollableTargetId?: string;
 }
 
-export const SimpleInfiniteScroll = memo<PropsWithChildren<Props>>(({ loadNext, children }) => {
+export const SimpleInfiniteScroll = memo<PropsWithChildren<Props>>(({ loadNext, scrollableTargetId, children }) => {
   const [seedForLoadNext, setSeedForLoadNext] = useState(0);
 
   const loadNextLocal = useCallback(() => {
     setSeedForLoadNext(val => (val % 2) + 1);
     loadNext();
   }, [loadNext]);
+
+  const scrollableTarget = scrollableTargetId ?? (SCROLL_DOCUMENT ? undefined : APP_CONTENT_PAPER_DOM_ID);
 
   return (
     <InfiniteScroll
@@ -31,7 +34,7 @@ export const SimpleInfiniteScroll = memo<PropsWithChildren<Props>>(({ loadNext, 
       // `InfiniteScroll`'s loader conditions r not suited here
       loader={null}
       scrollThreshold="600px"
-      scrollableTarget={SCROLL_DOCUMENT ? undefined : APP_CONTENT_PAPER_DOM_ID}
+      scrollableTarget={scrollableTarget}
     >
       {children}
     </InfiniteScroll>
