@@ -4,7 +4,6 @@ import { TempleAccountType } from 'lib/temple/types';
 export class ArtificialError extends Error {}
 export class NotEnoughFundsError extends ArtificialError {}
 export class ZeroBalanceError extends NotEnoughFundsError {}
-export class ZeroTEZBalanceError extends NotEnoughFundsError {}
 
 export const ACCOUNT_OR_GROUP_NAME_PATTERN = /^[^!@#$%^&*()_+\-=\]{};':"\\|,.<>?]{1,16}$/;
 

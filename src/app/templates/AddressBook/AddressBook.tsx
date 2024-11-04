@@ -2,8 +2,9 @@ import React, { useCallback, useMemo } from 'react';
 
 import classNames from 'clsx';
 import { useForm } from 'react-hook-form';
+import { isAddress } from 'viem';
 
-import { Name, FormField, FormSubmitButton, HashChip, SubTitle } from 'app/atoms';
+import { FormField, FormSubmitButton, OldStyleHashChip, Name, SubTitle } from 'app/atoms';
 import { AccountAvatar } from 'app/atoms/AccountAvatar';
 import { ReactComponent as CloseIcon } from 'app/icons/close.svg';
 import { ChainSelectSection, useChainSelectController } from 'app/templates/ChainSelect';
@@ -14,7 +15,8 @@ import { TempleContact } from 'lib/temple/types';
 import { isValidTezosAddress } from 'lib/tezos';
 import { useConfirm } from 'lib/ui/dialog';
 import { delay } from 'lib/utils';
-import { isTezosDomainsNameValid, getTezosDomainsClient } from 'temple/front/tezos';
+import { getTezosDomainsClient, isTezosDomainsNameValid } from 'temple/front/tezos';
+import { TempleChainKind } from 'temple/types';
 
 import CustomSelect, { OptionRenderProps } from '../CustomSelect';
 
@@ -137,9 +139,17 @@ const AddNewContactForm: React.FC<{ className?: string }> = ({ className }) => {
       try {
         clearError();
 
-        address = await resolveAddress(address);
+        let isValidAddress: boolean;
 
-        if (!isValidTezosAddress(address)) {
+        if (network.kind === TempleChainKind.Tezos) {
+          const resolvedAddress = await resolveAddress(address);
+
+          isValidAddress = isValidTezosAddress(resolvedAddress);
+        } else {
+          isValidAddress = isAddress(address);
+        }
+
+        if (!isValidAddress) {
           throw new Error(t('invalidAddressOrDomain'));
         }
 
@@ -153,20 +163,26 @@ const AddNewContactForm: React.FC<{ className?: string }> = ({ className }) => {
         setError('address', SUBMIT_ERROR_TYPE, err.message);
       }
     },
-    [submitting, resolveAddress, clearError, addContact, resetForm, setError]
+    [submitting, clearError, network.kind, addContact, resetForm, resolveAddress, setError]
   );
 
   const validateAddressField = useCallback(
     async (value: any) => {
-      if (!value?.length) {
-        return t('required');
+      if (!value?.length) return t('required');
+
+      let isValidAddress: boolean;
+
+      if (network.kind === TempleChainKind.Tezos) {
+        const resolvedAddress = await resolveAddress(value);
+
+        isValidAddress = isValidTezosAddress(resolvedAddress);
+      } else {
+        isValidAddress = isAddress(value);
       }
 
-      value = await resolveAddress(value);
-
-      return isValidTezosAddress(value) ? true : t('invalidAddressOrDomain');
+      return isValidAddress ? true : t('invalidAddressOrDomain');
     },
-    [resolveAddress]
+    [network.kind, resolveAddress]
   );
 
   return (
@@ -230,7 +246,7 @@ const ContactContent: React.FC<OptionRenderProps<TempleContact, ContactActions>>
       <Name className="mb-px text-sm font-medium leading-tight text-left">{item.name}</Name>
 
       <div className="text-xs font-light leading-tight text-gray-600">
-        <HashChip hash={item.address} small />
+        <OldStyleHashChip hash={item.address} small />
       </div>
     </div>
 

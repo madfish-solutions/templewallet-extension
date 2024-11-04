@@ -1,5 +1,5 @@
 import { isDefined } from '@rnw-community/shared';
-import { validate as multinetworkValidateAddress } from '@temple-wallet/wallet-address-validator';
+import { validate as multiNetworkValidateAddress } from '@temple-wallet/wallet-address-validator';
 import { TaquitoTezosDomainsClient } from '@tezos-domains/taquito-client';
 
 import { t } from 'lib/i18n';
@@ -13,7 +13,7 @@ export const validateRecipient = async (
   validateAddress?: (value: string) => boolean | string
 ) => {
   const matchingOtherNetwork = isDefined(value)
-    ? otherNetworks.find(({ slug }) => multinetworkValidateAddress(value, slug))
+    ? otherNetworks.find(({ slug }) => multiNetworkValidateAddress(value, slug))
     : undefined;
 
   if (isDefined(matchingOtherNetwork)) {

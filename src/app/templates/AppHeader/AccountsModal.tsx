@@ -65,6 +65,10 @@ export const AccountsModal = memo<Props>(({ opened, onRequestClose }) => {
     else if (!opened) setAttractSelectedAccount(true);
   }, [opened, searchValue]);
 
+  useEffect(() => {
+    if (!opened) setSearchValue('');
+  }, [opened]);
+
   const closeSubmodal = useCallback(() => {
     setActiveSubmodal(undefined);
     setImportOptionSlug(undefined);

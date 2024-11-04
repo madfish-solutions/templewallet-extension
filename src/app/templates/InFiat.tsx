@@ -5,7 +5,6 @@ import BigNumber from 'bignumber.js';
 import Money from 'app/atoms/Money';
 import { TestIDProps } from 'lib/analytics';
 import { useAssetFiatCurrencyPrice, useFiatCurrency } from 'lib/fiat-currency';
-import { TEZOS_MAINNET_CHAIN_ID } from 'lib/temple/types';
 import { ZERO } from 'lib/utils/numbers';
 
 interface OutputProps {
@@ -27,16 +26,7 @@ interface Props extends TestIDProps {
   evm?: boolean;
 }
 
-const InFiatDefault: FC<Props> = props => {
-  // TODO: show fiat value only for mainnet chains
-  if (!props.evm && props.chainId !== TEZOS_MAINNET_CHAIN_ID) return null;
-
-  return <InFiat {...props} />;
-};
-
-export default InFiatDefault;
-
-export const InFiat: FC<Props> = ({
+const InFiat: FC<Props> = ({
   evm,
   chainId,
   volume,
@@ -85,3 +75,5 @@ export const InFiat: FC<Props> = ({
     noPrice: price.isZero()
   });
 };
+
+export default InFiat;

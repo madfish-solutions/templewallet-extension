@@ -62,8 +62,8 @@ export function useStyledButtonOrLinkProps({
   size,
   color,
   active,
-  className: classNameProp,
   loading,
+  className: classNameProp,
   children: childrenProp,
   ...restProps
 }: (ButtonProps | LinkProps) & ButtonLikeStylingProps): ButtonProps | LinkProps {

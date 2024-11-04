@@ -5,7 +5,7 @@ import { normalize } from 'viem/ens';
 
 import { getMessage } from 'lib/i18n';
 import { useTypedSWR } from 'lib/swr';
-import { getViemChainsList } from 'temple/evm';
+import { getViemChainsList } from 'temple/evm/utils';
 
 import { EvmChain } from '../chains';
 import { useEnabledEvmChains } from '../ready';
@@ -32,6 +32,7 @@ export function useEvmAddressByDomainName(domainName: string) {
     async () => {
       const ensCapableChainsReadOnlyEvms = getEnsCapableEnabledChainsReadOnlyEvms(enabledEvmChains);
       const results = await Promise.allSettled(
+        // @ts-expect-error
         ensCapableChainsReadOnlyEvms.map(evm => evm.getEnsAddress({ name: normalize(domainName) }))
       );
 

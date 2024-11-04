@@ -2,7 +2,7 @@ import React, { FC, useCallback } from 'react';
 
 import classNames from 'clsx';
 
-import { Button, HashChip } from 'app/atoms';
+import { Button, OldStyleHashChip } from 'app/atoms';
 import { ReactComponent as GlobeIcon } from 'app/icons/globe.svg';
 import { ReactComponent as HashIcon } from 'app/icons/hash.svg';
 import { TestIDProps } from 'lib/analytics';
@@ -32,9 +32,9 @@ const AddressChip: FC<Props> = ({ address, tezosNetwork, className, small, modeS
   return (
     <div className={classNames('flex', className)}>
       {tzdnsName && domainDisplayed ? (
-        <HashChip hash={tzdnsName} firstCharsCount={7} lastCharsCount={10} small={small} {...rest} />
+        <OldStyleHashChip hash={tzdnsName} firstCharsCount={7} lastCharsCount={10} small={small} {...rest} />
       ) : (
-        <HashChip hash={address} small={small} {...rest} />
+        <OldStyleHashChip hash={address} small={small} {...rest} />
       )}
 
       {tzdnsName && (

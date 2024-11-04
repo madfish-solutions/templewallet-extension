@@ -15,6 +15,7 @@ interface Props extends InputHTMLAttributes<HTMLInputElement>, TestIDProps {
   value: string;
   onValueChange: (value: string) => void;
   bottomOffset?: string;
+  /** @deprecated */
   containerClassName?: string;
   onCleanButtonClick?: () => void;
 }
@@ -99,20 +100,26 @@ const SearchField = forwardRef<HTMLDivElement, Props>(
 
 export default SearchField;
 
+interface SearchBarFieldProps extends Props {
+  defaultRightMargin?: boolean;
+}
+
 export const SearchBarField = memo(
-  forwardRef<HTMLDivElement, Props>(({ className, containerClassName, value, ...rest }, ref) => (
-    <SearchField
-      ref={ref}
-      value={value}
-      containerClassName={clsx('flex-grow mr-2', containerClassName)}
-      className={clsx(
-        'bg-input-low rounded-lg',
-        'placeholder-grey-1 hover:placeholder-text caret-primary',
-        'transition ease-in-out duration-200',
-        className
-      )}
-      placeholder="Search"
-      {...rest}
-    />
-  ))
+  forwardRef<HTMLDivElement, SearchBarFieldProps>(
+    ({ className, placeholder = 'Search', defaultRightMargin = true, containerClassName, value, ...rest }, ref) => (
+      <SearchField
+        ref={ref}
+        value={value}
+        className={clsx(
+          'bg-input-low rounded-lg',
+          'placeholder-grey-1 hover:placeholder-text caret-primary',
+          'transition ease-in-out duration-200',
+          className
+        )}
+        containerClassName={clsx('flex-1', defaultRightMargin && 'mr-2', containerClassName)}
+        placeholder={placeholder}
+        {...rest}
+      />
+    )
+  )
 );

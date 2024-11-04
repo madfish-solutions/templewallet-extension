@@ -7,7 +7,7 @@ import { EvmNetworkLogo, TezosNetworkLogo } from 'app/atoms/NetworkLogo';
 import { ReactComponent as ChevronRightSvg } from 'app/icons/base/chevron_right.svg';
 import { ReactComponent as OutLinkIcon } from 'app/icons/base/outLink.svg';
 import { EvmAssetImage, TezosAssetImage } from 'app/templates/AssetImage';
-import { InFiat } from 'app/templates/InFiat';
+import InFiat from 'app/templates/InFiat';
 import { ActivityOperKindEnum, ActivityOperTransferType, ActivityStatus } from 'lib/activity';
 import { isTransferActivityOperKind } from 'lib/activity/utils';
 import { toEvmAssetSlug, toTezosAssetSlug } from 'lib/assets/utils';

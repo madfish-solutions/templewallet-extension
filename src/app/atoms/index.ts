@@ -20,7 +20,7 @@ export { IconBase } from './IconBase';
 
 export { default as HashShortView } from './HashShortView';
 
-export { HashChip } from './HashChip';
+export { OldStyleHashChip } from './OldStyleHashChip';
 
 export { Lines } from './Lines';
 
@@ -53,3 +53,5 @@ export { PageTitle } from './PageTitle';
 export { default as AccountTypeBadge } from './AccountTypeBadge';
 
 export { QRCode } from './QRCode';
+
+export { CopyButton } from './CopyButton';

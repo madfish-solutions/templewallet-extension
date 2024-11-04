@@ -1,7 +1,6 @@
 import React, { FC, cloneElement, ReactElement } from 'react';
 
 import BigNumber from 'bignumber.js';
-import clsx from 'clsx';
 import CSSTransition from 'react-transition-group/CSSTransition';
 
 import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
@@ -32,7 +31,7 @@ export const TezosBalance: FC<TezosBalanceProps> = ({ network, address, children
       }}
     >
       {cloneElement(childNode, {
-        className: clsx(childNode.props.className, !exists && 'invisible')
+        className: childNode.props.className
       })}
     </CSSTransition>
   );
@@ -62,7 +61,7 @@ export const EvmBalance: FC<EvmBalanceProps> = ({ network, address, children, as
       }}
     >
       {cloneElement(childNode, {
-        className: clsx(childNode.props.className, !exists && 'invisible')
+        className: childNode.props.className
       })}
     </CSSTransition>
   );

@@ -58,6 +58,7 @@ const DEFAULT_FONT_SIZE = 50;
  * for 1 or 2 characters.
  */
 const precalculatedFontSizes = new Map<number, number>([
+  [1, 64],
   [3, 44],
   [4, 34],
   [5, 28]

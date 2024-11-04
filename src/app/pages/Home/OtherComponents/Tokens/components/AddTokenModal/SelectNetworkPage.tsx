@@ -7,18 +7,16 @@ import { IconButton } from 'app/atoms/IconButton';
 import { ReactComponent as PlusIcon } from 'app/icons/base/plus.svg';
 import { Network } from 'app/templates/NetworkSelectModal';
 import { SearchBarField } from 'app/templates/SearchField';
+import { searchAndFilterChains } from 'lib/ui/search-networks';
+import { isSearchStringApplicable } from 'lib/utils/search-items';
 import { navigate } from 'lib/woozie';
 import {
-  EvmChain,
   OneOfChains,
-  TezosChain,
   useAccountAddressForEvm,
   useAccountAddressForTezos,
   useEnabledEvmChains,
   useEnabledTezosChains
 } from 'temple/front';
-
-type Network = EvmChain | TezosChain;
 
 interface SelectNetworkPageProps {
   selectedNetwork: OneOfChains;
@@ -42,8 +40,8 @@ export const SelectNetworkPage: FC<SelectNetworkPageProps> = ({ selectedNetwork,
 
   const filteredNetworks = useMemo(
     () =>
-      searchValueDebounced.length
-        ? searchAndFilterNetworksByName<OneOfChains>(sortedNetworks, searchValueDebounced)
+      isSearchStringApplicable(searchValueDebounced)
+        ? searchAndFilterChains(sortedNetworks, searchValueDebounced)
         : sortedNetworks,
     [searchValueDebounced, sortedNetworks]
   );
@@ -60,7 +58,7 @@ export const SelectNetworkPage: FC<SelectNetworkPageProps> = ({ selectedNetwork,
   return (
     <>
       <div className="flex gap-x-2 p-4">
-        <SearchBarField value={searchValue} onValueChange={setSearchValue} />
+        <SearchBarField value={searchValue} placeholder="Network name" onValueChange={setSearchValue} />
 
         <IconButton Icon={PlusIcon} color="blue" onClick={() => navigate('settings/networks')} />
       </div>
@@ -81,10 +79,4 @@ export const SelectNetworkPage: FC<SelectNetworkPageProps> = ({ selectedNetwork,
       </div>
     </>
   );
-};
-
-const searchAndFilterNetworksByName = <T extends EvmChain | TezosChain>(networks: T[], searchValue: string) => {
-  const preparedSearchValue = searchValue.trim().toLowerCase();
-
-  return networks.filter(network => network.name.toLowerCase().includes(preparedSearchValue));
 };
