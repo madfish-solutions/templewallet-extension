@@ -122,6 +122,7 @@ const TABS_GROUPS: Tab[][] = [
       titleI18nKey: 'templeSync',
       Icon: DefaultSettingsIconHOC(RefreshIcon),
       Component: SyncSettings,
+      noPadding: true,
       testID: SettingsSelectors.synchronizationButton
     }
   ],
@@ -158,7 +159,6 @@ const Settings = memo<SettingsProps>(({ tabSlug }) => {
   return (
     <PageLayout
       pageTitle={<T id={activeTab?.titleI18nKey ?? 'settings'} />}
-      contentPadding={false}
       contentClassName="pt-4 px-4"
       dimBg
       headerChildren={headerChildren}
