@@ -85,12 +85,6 @@ export function sendEvmTransaction(accountPkh: HexString, network: EvmChain, txP
   });
 }
 
-export function sendEvmTransaction(accountPkh: HexString, network: EvmChain, txParams: EvmTxParams) {
-  return withUnlocked(async ({ vault }) => {
-    return await vault.sendEvmTransaction(accountPkh, network, txParams);
-  });
-}
-
 export function registerNewWallet(password: string, mnemonic?: string) {
   return withInited(async () => {
     const accountPkh = await Vault.spawn(password, mnemonic);

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo } from 'react';
+import { useCallback, useMemo } from 'react';
 
 import { emptyFn, isDefined } from '@rnw-community/shared';
 import BigNumber from 'bignumber.js';

@@ -6,7 +6,7 @@ import { OldStyleHashChip, ExternalLinkChip } from 'app/atoms';
 import type { CollectibleDetails } from 'app/store/tezos/collectibles/state';
 import { fromFa2TokenSlug } from 'lib/assets/utils';
 import { useTezosAssetBalance } from 'lib/balances';
-import { useEvmAssetBalance } from 'lib/balances/hooks';
+import { useEvmCollectibleBalance } from 'lib/balances/hooks';
 import { formatDate } from 'lib/i18n';
 import { EvmCollectibleMetadata } from 'lib/metadata/types';
 import { useBlockExplorerHref } from 'temple/front/block-explorers';
@@ -111,7 +111,7 @@ interface EvmPropertiesItemsProps {
 
 export const EvmPropertiesItems = memo<EvmPropertiesItemsProps>(({ accountPkh, evmChainId, assetSlug, metadata }) => {
   const chain = useEvmChainByChainId(evmChainId);
-  const { value: balance } = useEvmAssetBalance(assetSlug, accountPkh, chain!);
+  const { value: balance } = useEvmCollectibleBalance(assetSlug, accountPkh, chain!);
 
   if (!metadata) return null;
 
