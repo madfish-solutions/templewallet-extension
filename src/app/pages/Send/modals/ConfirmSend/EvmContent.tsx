@@ -81,17 +81,25 @@ export const EvmContent: FC<EvmContentProps> = ({ data, onClose }) => {
 
     const parsedGasPrice = debouncedGasPrice ? parseEther(debouncedGasPrice, 'gwei') : null;
 
+    const basicParams = buildBasicEvmSendParams(
+      accountPkh,
+      to as HexString,
+      amount,
+      tokenMetadata ?? collectibleMetadata
+    );
+
     return serializeTransaction({
       chainId: network.chainId,
       gas: debouncedGasLimit ? BigInt(debouncedGasLimit) : estimationData.gas,
       nonce: debouncedNonce ? Number(debouncedNonce) : estimationData.nonce,
-      to: to as HexString,
-      value: parseEther(amount),
+      ...basicParams,
       ...(selectedFeeOption ? feeOptions.gasPrice[selectedFeeOption] : feeOptions.gasPrice.mid),
       ...(parsedGasPrice ? { maxFeePerGas: parsedGasPrice, maxPriorityFeePerGas: parsedGasPrice } : {})
     });
   }, [
+    accountPkh,
     amount,
+    collectibleMetadata,
     debouncedGasLimit,
     debouncedGasPrice,
     debouncedNonce,
@@ -99,7 +107,8 @@ export const EvmContent: FC<EvmContentProps> = ({ data, onClose }) => {
     feeOptions,
     network.chainId,
     selectedFeeOption,
-    to
+    to,
+    tokenMetadata
   ]);
 
   useEffect(() => {
