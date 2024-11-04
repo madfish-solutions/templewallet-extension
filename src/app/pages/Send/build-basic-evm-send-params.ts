@@ -10,7 +10,6 @@ interface BasicEvmSendParams {
   data?: HexString;
 }
 
-// TODO: add collectibles support
 /**
  * Builds parameters for sending a EVM token or ETH.
  * @param sender Tokens sender address.
@@ -19,12 +18,12 @@ interface BasicEvmSendParams {
  * @param assetMetadata Token metadata. If unspecified, the function returns parameters for sending ETH.
  * @returns Parameters for sending a EVM token or ETH.
  */
-export const buildBasicEvmSendParams = async (
+export const buildBasicEvmSendParams = (
   sender: HexString,
   receiver: HexString,
   amount?: string,
   assetMetadata?: EvmTokenMetadata | EvmCollectibleMetadata
-): Promise<BasicEvmSendParams> => {
+): BasicEvmSendParams => {
   let value = BigInt(0);
   let data: HexString | undefined;
 

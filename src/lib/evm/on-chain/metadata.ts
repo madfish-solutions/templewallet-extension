@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { transform } from 'lodash';
+import { pickBy } from 'lodash';
 import { erc20Abi, erc721Abi, parseAbi, PublicClient } from 'viem';
 
 import { erc1155Abi } from 'lib/abi/erc1155';
@@ -158,7 +158,10 @@ const getERC1155Metadata = async (publicClient: PublicClient, contractAddress: H
   return metadata;
 };
 
-const getCommonPromises = (publicClient: PublicClient, contractAddress: HexString): Promise<string>[] => [
+const getCommonPromises = (
+  publicClient: PublicClient,
+  contractAddress: HexString
+): [Promise<string>, Promise<string>] => [
   publicClient.readContract({
     address: contractAddress,
     abi: parseAbi(['function name() public view returns (string)']),
@@ -210,8 +213,7 @@ const handleFetchedMetadata = <T>(fetchedMetadata: T[], assetSlugs: string[]) =>
     return { ...acc, [slug]: metadata };
   }, {});
 
-const getValue = <T>(result: PromiseSettledResult<unknown>) =>
-  result.status === 'fulfilled' ? (result.value as T) : undefined;
+const getValue = <T>(result: PromiseSettledResult<T>) => (result.status === 'fulfilled' ? result.value : undefined);
 
 interface CollectibleMetadata {
   image?: string;
@@ -249,22 +251,10 @@ const getCollectiblePropertiesFromUri = async (
     animation_url: animationUrl
   } = data;
 
-  const optionalProps = { attributes, externalUrl, animationUrl, decimals };
-
   return {
     image,
     collectibleName: name,
     description,
-    ...transform(
-      optionalProps,
-      (acc, value, key: keyof typeof optionalProps) => {
-        if (value === undefined || value === '') {
-          delete acc[key];
-        }
-
-        return acc;
-      },
-      { ...optionalProps }
-    )
+    ...pickBy({ attributes, externalUrl, animationUrl, decimals }, value => value !== undefined && value !== '')
   };
 };

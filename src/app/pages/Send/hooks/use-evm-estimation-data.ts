@@ -46,7 +46,7 @@ export const useEvmEstimationData = (
       const publicClient = getReadOnlyEvmForNetwork(network);
 
       const transaction = await publicClient.prepareTransactionRequest({
-        ...(await buildBasicEvmSendParams(accountPkh, to, amount, tokenMetadata ?? collectibleMetadata)),
+        ...buildBasicEvmSendParams(accountPkh, to, amount, tokenMetadata ?? collectibleMetadata),
         account: accountPkh
       });
 

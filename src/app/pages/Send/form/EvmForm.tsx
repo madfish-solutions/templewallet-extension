@@ -10,7 +10,7 @@ import { useEvmCollectibleMetadataSelector } from 'app/store/evm/collectibles-me
 import { useEvmTokenMetadataSelector } from 'app/store/evm/tokens-metadata/selectors';
 import { useFormAnalytics } from 'lib/analytics';
 import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
-import { useEvmAssetBalance, useEvmTokenBalance } from 'lib/balances/hooks';
+import { useEvmAssetBalance } from 'lib/balances/hooks';
 import { useAssetFiatCurrencyPrice } from 'lib/fiat-currency';
 import { t, toLocalFixed } from 'lib/i18n';
 import { getAssetSymbol } from 'lib/metadata';
@@ -58,7 +58,7 @@ export const EvmForm: FC<Props> = ({ chainId, assetSlug, onSelectAssetClick, onR
   const formAnalytics = useFormAnalytics('SendForm');
 
   const { value: balance = ZERO } = useEvmAssetBalance(assetSlug, accountPkh, network);
-  const { value: ethBalance = ZERO } = useEvmTokenBalance(EVM_TOKEN_SLUG, accountPkh, network);
+  const { value: ethBalance = ZERO } = useEvmAssetBalance(EVM_TOKEN_SLUG, accountPkh, network);
 
   const [shouldUseFiat, setShouldUseFiat] = useSafeState(false);
 

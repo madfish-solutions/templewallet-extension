@@ -28,8 +28,8 @@ export const EvmAssetsList = memo<Props>(({ publicKeyHash, searchValue, onAssetS
     () =>
       enabledChains
         .map(chain => toChainAssetSlug(TempleChainKind.EVM, chain.chainId, EVM_TOKEN_SLUG))
-        .sort(tokensSortPredicate)
-        .concat(tokensSlugs.toSorted(tokensSortPredicate)),
+        .concat(tokensSlugs)
+        .sort(tokensSortPredicate),
     [enabledChains, tokensSlugs, tokensSortPredicate]
   );
 

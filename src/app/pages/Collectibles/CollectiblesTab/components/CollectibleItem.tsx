@@ -24,7 +24,7 @@ import { DeleteAssetModal } from 'app/templates/remove-asset-modal/delete-asset-
 import { setAnotherSelector, setTestID } from 'lib/analytics';
 import { objktCurrencies } from 'lib/apis/objkt';
 import { getAssetStatus } from 'lib/assets/hooks/utils';
-import { useEvmCollectibleBalance } from 'lib/balances/hooks';
+import { useEvmAssetBalance } from 'lib/balances/hooks';
 import { T } from 'lib/i18n';
 import { getTokenName } from 'lib/metadata';
 import { getCollectibleName, getCollectionName } from 'lib/metadata/utils';
@@ -280,7 +280,7 @@ export const EvmCollectibleItem = memo<EvmCollectibleItemProps>(
   ({ assetSlug, evmChainId, accountPkh, showDetails = false, manageActive = false, hideWithoutMeta }) => {
     const metadata = useEvmCollectibleMetadataSelector(evmChainId, assetSlug);
     const chain = useEvmChainByChainId(evmChainId);
-    const { value: balance = ZERO } = useEvmCollectibleBalance(assetSlug, accountPkh, chain!);
+    const { value: balance = ZERO } = useEvmAssetBalance(assetSlug, accountPkh, chain!);
     const balanceBeforeTruncate = balance.toString();
 
     const storedToken = useStoredEvmCollectibleSelector(accountPkh, evmChainId, assetSlug);

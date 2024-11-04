@@ -12,7 +12,7 @@ import { useEvmCollectibleMetadataSelector } from 'app/store/evm/collectibles-me
 import { useEvmTokenMetadataSelector } from 'app/store/evm/tokens-metadata/selectors';
 import { toastError, toastSuccess } from 'app/toaster';
 import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
-import { useEvmAssetBalance, useEvmTokenBalance } from 'lib/balances/hooks';
+import { useEvmAssetBalance } from 'lib/balances/hooks';
 import { useTempleClient } from 'lib/temple/front';
 import { ZERO } from 'lib/utils/numbers';
 
@@ -37,7 +37,7 @@ export const EvmContent: FC<EvmContentProps> = ({ data, onClose }) => {
   const { sendEvmTransaction } = useTempleClient();
 
   const { value: balance = ZERO } = useEvmAssetBalance(assetSlug, accountPkh, network);
-  const { value: ethBalance = ZERO } = useEvmTokenBalance(EVM_TOKEN_SLUG, accountPkh, network);
+  const { value: ethBalance = ZERO } = useEvmAssetBalance(EVM_TOKEN_SLUG, accountPkh, network);
   const tokenMetadata = useEvmTokenMetadataSelector(network.chainId, assetSlug);
   const collectibleMetadata = useEvmCollectibleMetadataSelector(network.chainId, assetSlug);
 
@@ -139,7 +139,7 @@ export const EvmContent: FC<EvmContentProps> = ({ data, onClose }) => {
       try {
         const parsedGasPrice = gasPrice ? parseEther(gasPrice, 'gwei') : null;
 
-        const { value, to: txDestination } = await buildBasicEvmSendParams(
+        const { value, to: txDestination } = buildBasicEvmSendParams(
           accountPkh,
           to as HexString,
           amount,

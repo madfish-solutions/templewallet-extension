@@ -28,6 +28,7 @@ import { EvmAssetStandard } from 'lib/evm/types';
 import { EVM_BALANCES_SYNC_INTERVAL } from 'lib/fixed-times';
 import { useTezosAssetMetadata, useGetChainTokenOrGasMetadata, useGetTokenOrGasMetadata } from 'lib/metadata';
 import { EvmTokenMetadata } from 'lib/metadata/types';
+import { isEvmCollectible } from 'lib/metadata/utils';
 import { useTypedSWR } from 'lib/swr';
 import { atomsToTokens } from 'lib/temple/helpers';
 import { useInterval } from 'lib/ui/hooks';
@@ -266,14 +267,9 @@ function useEvmAssetRawBalance(
 
 export function useEvmAssetBalance(assetSlug: string, address: HexString, network: EvmNetworkEssentials) {
   const collectibleMetadata = useEvmCollectibleMetadataSelector(network.chainId, assetSlug);
-  const tokenBalance = useEvmTokenBalance(assetSlug, address, network);
-  const collectibleBalance = useEvmCollectibleBalance(assetSlug, address, network);
-
-  return collectibleMetadata ? collectibleBalance : tokenBalance;
-}
-
-export function useEvmCollectibleBalance(assetSlug: string, address: HexString, network: EvmNetworkEssentials) {
-  const metadata = useEvmCollectibleMetadataSelector(network.chainId, assetSlug);
+  const tokenMetadata = useEvmTokenMetadataSelector(network.chainId, assetSlug);
+  const chain = useEvmChainByChainId(network.chainId);
+  const metadata = collectibleMetadata ?? (isEvmNativeTokenSlug(assetSlug) ? chain?.currency : tokenMetadata);
 
   const {
     value: rawValue,
@@ -291,22 +287,9 @@ export function useEvmCollectibleBalance(assetSlug: string, address: HexString, 
 }
 
 export function useEvmTokenBalance(assetSlug: string, address: HexString, network: EvmNetworkEssentials) {
-  const chain = useEvmChainByChainId(network.chainId);
-  const tokenMetadata = useEvmTokenMetadataSelector(network.chainId, assetSlug);
+  const { metadata, ...restProps } = useEvmAssetBalance(assetSlug, address, network);
 
-  const metadata = isEvmNativeTokenSlug(assetSlug) ? chain?.currency : tokenMetadata;
-
-  const {
-    value: rawValue,
-    isSyncing,
-    error,
-    refresh
-  } = useEvmAssetRawBalance(assetSlug, address, network, metadata?.standard);
-
-  const value = useMemo(
-    () => (rawValue && metadata?.decimals ? atomsToTokens(new BigNumber(rawValue), metadata.decimals) : undefined),
-    [rawValue, metadata]
-  );
-
-  return { rawValue, value, isSyncing, error, refresh, metadata };
+  return !metadata || isEvmCollectible(metadata)
+    ? { ...restProps, metadata: undefined, value: undefined }
+    : { metadata, ...restProps };
 }
