@@ -55,21 +55,7 @@ function parseLogEvent(
     const fromAddress = logEvent.decoded.params.at(0)!.value;
     const toAddress = logEvent.decoded.params.at(1)!.value;
 
-    const type = (() => {
-      if (toAddress === accountAddress) {
-        return item.to_address === logEvent.sender_address
-          ? ActivityOperTransferType.receiveFromAccount
-          : ActivityOperTransferType.receive;
-      }
-
-      if (fromAddress === accountAddress) {
-        return item.to_address === logEvent.sender_address
-          ? ActivityOperTransferType.sendToAccount
-          : ActivityOperTransferType.send;
-      }
-
-      return null;
-    })();
+    const type = deriveTransferType(accountAddress, fromAddress, toAddress, item, logEvent);
 
     if (type == null) return { kind: ActivityOperKindEnum.interaction, withAddress: contractAddress };
 
@@ -104,21 +90,7 @@ function parseLogEvent(
     const fromAddress = logEvent.decoded.params.at(1)!.value;
     const toAddress = logEvent.decoded.params.at(2)!.value;
 
-    const type = (() => {
-      if (toAddress === accountAddress) {
-        return item.to_address === logEvent.sender_address
-          ? ActivityOperTransferType.receiveFromAccount
-          : ActivityOperTransferType.receive;
-      }
-
-      if (fromAddress === accountAddress) {
-        return item.to_address === logEvent.sender_address
-          ? ActivityOperTransferType.sendToAccount
-          : ActivityOperTransferType.send;
-      }
-
-      return null;
-    })();
+    const type = deriveTransferType(accountAddress, fromAddress, toAddress, item, logEvent);
 
     if (type == null) return { kind: ActivityOperKindEnum.interaction, withAddress: contractAddress };
 
@@ -202,4 +174,26 @@ function parseLogEvent(
   }
 
   return { kind: ActivityOperKindEnum.interaction, withAddress: contractAddress };
+}
+
+function deriveTransferType(
+  accountAddress: string,
+  fromAddress: string,
+  toAddress: string,
+  item: Transaction,
+  logEvent: LogEvent
+) {
+  if (toAddress === accountAddress) {
+    return item.to_address === logEvent.sender_address
+      ? ActivityOperTransferType.receiveFromAccount
+      : ActivityOperTransferType.receive;
+  }
+
+  if (fromAddress === accountAddress) {
+    return item.to_address === logEvent.sender_address
+      ? ActivityOperTransferType.sendToAccount
+      : ActivityOperTransferType.send;
+  }
+
+  return null;
 }

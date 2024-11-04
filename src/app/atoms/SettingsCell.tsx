@@ -1,8 +1,6 @@
-import React, { FC, HTMLAttributes, ReactElement, ReactNode } from 'react';
+import React, { FC, HTMLAttributes, ReactNode } from 'react';
 
 import clsx from 'clsx';
-
-import { Button } from 'app/atoms';
 
 interface ComponentBase {
   className?: string;
@@ -52,22 +50,3 @@ export const SettingsCellSingle = <P extends ComponentBase>({
     </Component>
   );
 };
-
-interface Props {
-  title: ReactNode;
-  first?: boolean;
-  icon: ReactElement;
-  onClick: EmptyFn;
-}
-
-// @ts-prune-ignore-next
-export const SettingsCell: FC<Props> = ({ title, first, onClick, icon }) => (
-  <Button
-    className={clsx('flex items-center justify-between p-3 gap-x-2 border-lines', !first && 'border-t-0.5')}
-    onClick={onClick}
-  >
-    <span className="text-font-medium-bold">{title}</span>
-
-    {icon}
-  </Button>
-);
