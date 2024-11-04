@@ -11,6 +11,7 @@ import { ReactComponent as ManageIcon } from 'app/icons/base/manage.svg';
 import { ContentContainer, StickyBar } from 'app/layouts/containers';
 import { AssetsSelectors } from 'app/pages/Home/OtherComponents/Assets.selectors';
 import { AssetsFilterOptions } from 'app/templates/AssetsFilterOptions';
+import { DAppConnection } from 'app/templates/DAppConnection';
 import { SearchBarField } from 'app/templates/SearchField';
 import { OneOfChains } from 'temple/front';
 
@@ -73,6 +74,8 @@ export const TokensTabBase: FC<PropsWithChildren<TokensTabBaseProps>> = ({
           )}
         </ContentContainer>
       )}
+
+      <DAppConnection />
     </>
   );
 };

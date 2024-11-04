@@ -10,12 +10,14 @@ import { useWillUnmount } from 'lib/ui/hooks/useWillUnmount';
 interface Props extends HTMLAttributes<HTMLDivElement> {
   shouldCastShadow?: boolean;
   shouldChangeBottomShift?: boolean;
+  bgSet?: false;
 }
 
 export const ActionsButtonsBox: FC<Props> = ({
   className,
   shouldCastShadow,
   shouldChangeBottomShift,
+  bgSet,
   ...restProps
 }) => {
   const dispatch = useDispatch();
@@ -57,7 +59,8 @@ export const ActionsButtonsBox: FC<Props> = ({
     <div
       ref={rootRef}
       className={clsx(
-        'p-4 pb-6 flex flex-col bg-white',
+        'p-4 pb-6 flex flex-col',
+        bgSet && 'bg-white',
         shouldCastShadow && 'shadow-bottom border-t-0.5 border-lines overflow-y-visible',
         className
       )}

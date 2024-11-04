@@ -73,12 +73,6 @@ browser.runtime.onUpdateAvailable.addListener(newManifest => {
 
 start();
 
-if (process.env.TARGET_BROWSER === 'safari') {
-  browser.browserAction.onClicked.addListener(() => {
-    openFullPage();
-  });
-}
-
 function openFullPage() {
   browser.tabs.create({
     url: browser.runtime.getURL('fullpage.html')

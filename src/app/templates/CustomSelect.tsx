@@ -4,15 +4,13 @@ import classNames from 'clsx';
 
 import { ReactComponent as OkIcon } from 'app/icons/ok.svg';
 
-type Actions<K extends string | number> = { [key: string]: (id: K) => void };
-
-export type OptionRenderProps<T, K extends string | number = string | number, A extends Actions<K> = {}> = {
+export interface OptionRenderProps<T, A = unknown> {
   actions?: A;
   item: T;
   index: number;
-};
+}
 
-type CustomSelectProps<T, K extends string | number = string | number, A extends Actions<K> = {}> = {
+interface CustomSelectProps<T, K extends string | number = string | number, A = unknown> {
   activeItemId?: K;
   actions?: A;
   className?: string;
@@ -25,11 +23,11 @@ type CustomSelectProps<T, K extends string | number = string | number, A extends
   light?: boolean;
   hoverable?: boolean;
   onSelect?: (itemId: K) => void;
-  OptionIcon?: ComponentType<OptionRenderProps<T, K, A>>;
-  OptionContent: ComponentType<OptionRenderProps<T, K, A>>;
-};
+  OptionIcon?: ComponentType<OptionRenderProps<T, A>>;
+  OptionContent: ComponentType<OptionRenderProps<T, A>>;
+}
 
-const CustomSelect = <T extends {}, K extends string | number = string | number, A extends Actions<K> = {}>(
+const CustomSelect = <T extends {}, K extends string | number = string | number, A = unknown>(
   props: CustomSelectProps<T, K, A>
 ) => {
   const {
@@ -90,7 +88,7 @@ const CustomSelect = <T extends {}, K extends string | number = string | number,
 
 export default CustomSelect;
 
-type CustomSelectItemProps<T, K extends string | number, A extends Actions<K>> = Pick<
+type CustomSelectItemProps<T, K extends string | number, A> = Pick<
   CustomSelectProps<T, K, A>,
   'onSelect' | 'OptionIcon' | 'OptionContent' | 'padding' | 'autoFocus' | 'light' | 'hoverable' | 'actions'
 > & {
@@ -101,9 +99,7 @@ type CustomSelectItemProps<T, K extends string | number, A extends Actions<K>> =
   item: T;
 };
 
-const CustomSelectItem = <T extends {}, K extends string | number, A extends Actions<K>>(
-  props: CustomSelectItemProps<T, K, A>
-) => {
+const CustomSelectItem = <T extends {}, K extends string | number, A>(props: CustomSelectItemProps<T, K, A>) => {
   const {
     active,
     actions,

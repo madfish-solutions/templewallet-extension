@@ -15,12 +15,17 @@ import {
   TempleDAppSignRequest,
   TempleDAppSignResponse,
   TempleDAppBroadcastRequest,
-  TempleDAppBroadcastResponse,
-  TempleDAppNetwork
+  TempleDAppBroadcastResponse
 } from '@temple-wallet/dapp/dist/types';
 import { nanoid } from 'nanoid';
 import browser, { Runtime } from 'webextension-polyfill';
 
+import {
+  TezosDAppNetwork,
+  TezosDAppSession,
+  getStoredTezosDappsSessions,
+  putStoredTezosDappsSessions
+} from 'app/storage/dapps';
 import { CUSTOM_TEZOS_NETWORKS_STORAGE_KEY, TEZOS_CHAINS_SPECS_STORAGE_KEY } from 'lib/constants';
 import { fetchFromStorage } from 'lib/storage';
 import { addLocalOperation } from 'lib/temple/activity';
@@ -29,10 +34,9 @@ import {
   TempleMessageType,
   TempleRequest,
   TempleDAppPayload,
-  TempleDAppSession,
-  TempleDAppSessions,
   TempleNotification,
-  TEZOS_MAINNET_CHAIN_ID
+  TEZOS_MAINNET_CHAIN_ID,
+  TempleTezosChainId
 } from 'lib/temple/types';
 import { isValidTezosAddress } from 'lib/tezos';
 import { TezosChainSpecs } from 'temple/front/chains-specs';
@@ -46,7 +50,6 @@ import { withUnlocked } from './store';
 const CONFIRM_WINDOW_WIDTH = 380;
 const CONFIRM_WINDOW_HEIGHT = 632;
 const AUTODECLINE_AFTER = 120_000;
-const STORAGE_KEY = 'dapp_sessions';
 const HEX_PATTERN = /^[0-9a-fA-F]+$/;
 const TEZ_MSG_SIGN_PATTERN = /^0501[a-f0-9]{8}54657a6f73205369676e6564204d6573736167653a20[a-f0-9]*$/;
 
@@ -54,7 +57,7 @@ export async function getCurrentPermission(origin: string): Promise<TempleDAppGe
   const dApp = await getDApp(origin);
   const permission = dApp
     ? {
-        rpc: await getNetworkRPC(dApp.network),
+        rpc: await getAssertNetworkRPC(dApp.network),
         pkh: dApp.pkh,
         publicKey: dApp.publicKey
       }
@@ -69,11 +72,14 @@ export async function requestPermission(
   origin: string,
   req: TempleDAppPermissionRequest
 ): Promise<TempleDAppPermissionResponse> {
-  if (![isAllowedNetwork(req?.network), typeof req?.appMeta?.name === 'string'].every(Boolean)) {
-    throw new Error(TempleDAppErrorType.InvalidParams);
-  }
+  if (typeof req?.appMeta?.name !== 'string') throw new Error(TempleDAppErrorType.InvalidParams);
 
-  const networkRpc = await getNetworkRPC(req.network);
+  const networkRpc = await getNetworkRPC(req.network).then(rpcUrl => {
+    if (!rpcUrl) throw new Error(TempleDAppErrorType.InvalidParams);
+
+    return rpcUrl;
+  });
+
   const dApp = await getDApp(origin);
 
   if (!req.force && dApp && isNetworkEquals(req.network, dApp.network) && req.appMeta.name === dApp.appMeta.name) {
@@ -160,7 +166,7 @@ export async function requestOperation(
 
   return new Promise(async (resolve, reject) => {
     const id = nanoid();
-    const networkRpc = await getNetworkRPC(dApp.network);
+    const networkRpc = await getAssertNetworkRPC(dApp.network);
 
     await requestConfirm({
       id,
@@ -186,7 +192,7 @@ const handleIntercomRequest = async (
   confirmReq: TempleRequest,
   decline: () => void,
   id: string,
-  dApp: TempleDAppSession,
+  dApp: TezosDAppSession,
   networkRpc: string,
   req: TempleDAppOperationRequest,
   resolve: any,
@@ -257,14 +263,9 @@ export async function requestSign(origin: string, req: TempleDAppSignRequest): P
   return new Promise((resolve, reject) => generatePromisifySign(resolve, reject, dApp, req));
 }
 
-const generatePromisifySign = async (
-  resolve: any,
-  reject: any,
-  dApp: TempleDAppSession,
-  req: TempleDAppSignRequest
-) => {
+const generatePromisifySign = async (resolve: any, reject: any, dApp: TezosDAppSession, req: TempleDAppSignRequest) => {
   const id = nanoid();
-  const networkRpc = await getNetworkRPC(dApp.network);
+  const networkRpc = await getAssertNetworkRPC(dApp.network);
 
   let preview: any;
   try {
@@ -340,7 +341,7 @@ export async function requestBroadcast(
   }
 
   try {
-    const rpc = new RpcClient(await getNetworkRPC(dApp.network));
+    const rpc = new RpcClient(await getAssertNetworkRPC(dApp.network));
     const opHash = await rpc.injectOperation(req.signedOpBytes);
     return {
       type: TempleDAppMessageType.BroadcastResponse,
@@ -356,31 +357,28 @@ export async function requestBroadcast(
   }
 }
 
-export async function getAllDApps() {
-  const dAppsSessions: TempleDAppSessions = (await browser.storage.local.get([STORAGE_KEY]))[STORAGE_KEY] || {};
-  return dAppsSessions;
+async function getAllDApps() {
+  return (await getStoredTezosDappsSessions()) || {};
 }
 
-async function getDApp(origin: string): Promise<TempleDAppSession | undefined> {
+async function getDApp(origin: string): Promise<TezosDAppSession | undefined> {
   return (await getAllDApps())[origin];
 }
 
-async function setDApp(origin: string, permissions: TempleDAppSession) {
+async function setDApp(origin: string, permissions: TezosDAppSession) {
   const current = await getAllDApps();
   const newDApps = { ...current, [origin]: permissions };
-  await setDApps(newDApps);
+  await putStoredTezosDappsSessions(newDApps);
   return newDApps;
 }
 
-export async function removeDApp(origin: string) {
-  const { [origin]: permissionsToRemove, ...restDApps } = await getAllDApps();
-  await setDApps(restDApps);
-  await Beacon.removeDAppPublicKey(origin);
-  return restDApps;
-}
+export async function removeDApps(origins: string[]) {
+  const dappsRecord = await getAllDApps();
+  for (const origin of origins) delete dappsRecord[origin];
+  await putStoredTezosDappsSessions(dappsRecord);
+  await Beacon.removeDAppPublicKey(origins);
 
-function setDApps(newDApps: TempleDAppSessions) {
-  return browser.storage.local.set({ [STORAGE_KEY]: newDApps });
+  return dappsRecord;
 }
 
 type RequestConfirmParams = {
@@ -470,20 +468,26 @@ async function requestConfirm({ id, payload, onDecline, handleIntercomRequest }:
   const stopTimeout = () => clearTimeout(t);
 }
 
-async function getNetworkRPC(net: TempleDAppNetwork) {
+async function getNetworkRPC(net: TezosDAppNetwork) {
   if (net === 'sandbox') {
     return 'http://localhost:8732';
   }
 
-  if (net === 'mainnet') {
-    const rpcUrl = await getActiveTempleRpcUrlByChainId(TEZOS_MAINNET_CHAIN_ID);
+  if (net === 'mainnet') return await getActiveTempleRpcUrlByChainId(TEZOS_MAINNET_CHAIN_ID);
 
-    return rpcUrl!;
-  }
+  if (net === 'ghostnet') return await getActiveTempleRpcUrlByChainId(TempleTezosChainId.Ghostnet);
 
-  if (typeof net === 'string') throw new Error('Unsupported network');
+  if (typeof net === 'string') return null;
 
   return removeLastSlash(net.rpc);
+}
+
+async function getAssertNetworkRPC(net: TezosDAppNetwork) {
+  const rpcUrl = await getNetworkRPC(net);
+
+  if (!rpcUrl) throw new Error('Unsupported network');
+
+  return rpcUrl;
 }
 
 async function getActiveTempleRpcUrlByChainId(chainId: string): Promise<string | undefined> {
@@ -500,11 +504,7 @@ async function getActiveTempleRpcUrlByChainId(chainId: string): Promise<string |
   return activeChainRpc?.rpcBaseURL;
 }
 
-function isAllowedNetwork(net: TempleDAppNetwork) {
-  return typeof net === 'string' ? TEZOS_DEFAULT_NETWORKS.some(n => n.id === net) : Boolean(net?.rpc);
-}
-
-function isNetworkEquals(fNet: TempleDAppNetwork, sNet: TempleDAppNetwork) {
+function isNetworkEquals(fNet: TezosDAppNetwork, sNet: TezosDAppNetwork) {
   return typeof fNet !== 'string' && typeof sNet !== 'string'
     ? removeLastSlash(fNet.rpc) === removeLastSlash(sNet.rpc)
     : fNet === sNet;

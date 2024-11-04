@@ -11,7 +11,6 @@ interface EmptyStateProps {
   textI18n?: TID;
   text?: string;
   stretch?: boolean;
-  className?: string;
 }
 
 export const EmptyState = memo<EmptyStateProps>(({ forSearch = true, textI18n, text, stretch }) => {
