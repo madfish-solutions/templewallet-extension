@@ -20,9 +20,9 @@ import CustomSelect, { OptionRenderProps } from '../CustomSelect';
 
 import { AddressBookSelectors } from './AddressBook.selectors';
 
-type ContactActions = {
+interface ContactActions {
   remove: (address: string) => void;
-};
+}
 
 const AddressBook: React.FC = () => {
   const { removeContact } = useContactsActions();
@@ -87,10 +87,10 @@ const AddressBook: React.FC = () => {
 
 export default AddressBook;
 
-type ContactFormData = {
+interface ContactFormData {
   address: string;
   name: string;
-};
+}
 
 const SUBMIT_ERROR_TYPE = 'submit-error';
 
@@ -216,11 +216,11 @@ const AddNewContactForm: React.FC<{ className?: string }> = ({ className }) => {
   );
 };
 
-const ContactIcon: React.FC<OptionRenderProps<TempleContact, string, ContactActions>> = ({ item }) => (
+const ContactIcon: React.FC<OptionRenderProps<TempleContact, ContactActions>> = ({ item }) => (
   <AccountAvatar seed={item.address} size={32} className="flex-shrink-0" />
 );
 
-const ContactContent: React.FC<OptionRenderProps<TempleContact, string, ContactActions>> = ({ item, actions }) => (
+const ContactContent: React.FC<OptionRenderProps<TempleContact, ContactActions>> = ({ item, actions }) => (
   <div
     className="flex flex-1 w-full"
     {...setTestID(AddressBookSelectors.contactItem)}

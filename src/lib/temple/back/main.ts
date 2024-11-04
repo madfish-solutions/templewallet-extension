@@ -192,15 +192,8 @@ const processRequest = async (req: TempleRequest, port: Runtime.Port): Promise<T
         result
       };
 
-    case TempleMessageType.DAppGetAllSessionsRequest:
-      const allSessions = await Actions.getAllDAppSessions();
-      return {
-        type: TempleMessageType.DAppGetAllSessionsResponse,
-        sessions: allSessions
-      };
-
     case TempleMessageType.DAppRemoveSessionRequest:
-      const sessions = await Actions.removeDAppSession(req.origin);
+      const sessions = await Actions.removeDAppSession(req.origins);
       return {
         type: TempleMessageType.DAppRemoveSessionResponse,
         sessions
@@ -242,7 +235,8 @@ const processRequest = async (req: TempleRequest, port: Runtime.Port): Promise<T
     }
 
     case TempleMessageType.PageRequest:
-      const dAppEnabled = await Actions.isDAppEnabled();
+      const dAppEnabled = await Actions.canInteractWithDApps();
+
       if (dAppEnabled) {
         if (req.payload === 'PING') {
           return {

@@ -24,6 +24,8 @@ export { HashChip } from './HashChip';
 
 export { Lines } from './Lines';
 
+export { Loader } from './Loader';
+
 export { ExternalLinkChip } from './ExternalLinkChip';
 
 export { default as SubTitle } from './SubTitle';

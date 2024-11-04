@@ -16,14 +16,14 @@ interface GroupViewProps extends GroupActionsPopperProps {
 }
 
 export const GroupView = memo<GroupViewProps>(({ group, searchValue, ...restProps }) => (
-  <div className="shadow-bottom rounded-lg w-full flex flex-col bg-white">
-    <div className="p-3 gap-0.5 w-full flex flex-col">
-      <div className="w-full flex flex-row justify-between items-center">
+  <div className="shadow-bottom rounded-lg flex flex-col bg-white">
+    <div className="p-3 gap-0.5 flex flex-col">
+      <div className="flex flex-row justify-between items-center">
         <span className="text-font-description-bold">{group.name}</span>
         <GroupActionsPopper group={group} {...restProps} />
       </div>
 
-      <div className="w-full flex flex-row justify-between items-center">
+      <div className="flex flex-row justify-between items-center">
         <AccLabel type={group.type} />
         <span className="text-grey-1 text-font-description capitalize">
           {t(getPluralKey('accounts', group.accounts.length), String(group.accounts.length))}
@@ -34,7 +34,7 @@ export const GroupView = memo<GroupViewProps>(({ group, searchValue, ...restProp
     {group.accounts.map(acc => (
       <Link
         to={`/account/${acc.id}`}
-        className="w-full flex h-12 items-center justify-between border-t-0.5 border-lines px-3"
+        className="flex h-12 items-center justify-between border-t-0.5 border-lines px-3"
         key={acc.id}
         testID={AccountsManagementSelectors.accountItem}
       >

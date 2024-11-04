@@ -14,14 +14,7 @@ import { BACKGROUND_IS_WORKER } from 'lib/env';
 import { putToStorage } from 'lib/storage';
 import { addLocalOperation } from 'lib/temple/activity';
 import * as Beacon from 'lib/temple/beacon';
-import {
-  TempleState,
-  TempleMessageType,
-  TempleRequest,
-  TempleSettings,
-  TempleSharedStorageKey,
-  TempleAccountType
-} from 'lib/temple/types';
+import { TempleState, TempleMessageType, TempleRequest, TempleSettings, TempleAccountType } from 'lib/temple/types';
 import { createQueue, delay } from 'lib/utils';
 import { loadTezosChainId } from 'temple/tezos';
 import { TempleChainKind } from 'temple/types';
@@ -32,8 +25,7 @@ import {
   requestOperation,
   requestSign,
   requestBroadcast,
-  getAllDApps,
-  removeDApp
+  removeDApps
 } from './dapp';
 import { intercom } from './defaults';
 import type { DryRunResult } from './dryrun';
@@ -81,17 +73,8 @@ export async function getFrontState(): Promise<TempleState> {
   }
 }
 
-export async function isDAppEnabled() {
-  const bools = await Promise.all([
-    Vault.isExist(),
-    (async () => {
-      const key = TempleSharedStorageKey.DAppEnabled;
-      const items = await browser.storage.local.get([key]);
-      return key in items ? items[key] : true;
-    })()
-  ]);
-
-  return bools.every(Boolean);
+export function canInteractWithDApps() {
+  return Vault.isExist();
 }
 
 export function registerNewWallet(password: string, mnemonic?: string) {
@@ -256,12 +239,8 @@ export function createOrImportWallet(mnemonic?: string) {
   });
 }
 
-export function getAllDAppSessions() {
-  return getAllDApps();
-}
-
-export function removeDAppSession(origin: string) {
-  return removeDApp(origin);
+export function removeDAppSession(origins: string[]) {
+  return removeDApps(origins);
 }
 
 export function sendOperations(
@@ -516,7 +495,7 @@ export async function processBeacon(
 
   // Process Disconnect
   if (req.type === Beacon.MessageType.Disconnect) {
-    await removeDApp(origin);
+    await removeDApps([origin]);
     return;
   }
 

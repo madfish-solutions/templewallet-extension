@@ -84,7 +84,7 @@ export const NetworkSelectModal = memo<Props>(({ opened, selectedNetwork, onRequ
       </div>
 
       <div className="px-4 flex-1 flex flex-col overflow-y-auto">
-        {filteredNetworks.length === 0 && <EmptyState variant="searchUniversal" />}
+        {filteredNetworks.length === 0 && <EmptyState />}
 
         {filteredNetworks.map(network => (
           <Network
