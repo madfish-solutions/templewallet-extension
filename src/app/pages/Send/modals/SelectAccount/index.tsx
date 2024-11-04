@@ -116,7 +116,7 @@ export const SelectAccountModal = memo<Props>(
                 />
               </>
             ) : (
-              <EmptyState variant="universal" />
+              <EmptyState />
             )}
           </Suspense>
         </div>

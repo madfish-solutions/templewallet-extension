@@ -77,7 +77,7 @@ export const MultiChainAssetsList = memo<Props>(
 
     return (
       <>
-        {searchedSlugs.length === 0 && <EmptyState variant="searchUniversal" />}
+        {searchedSlugs.length === 0 && <EmptyState />}
 
         {searchedSlugs.map(chainSlug => {
           const [chainKind, chainId, assetSlug] = parseChainAssetSlug(chainSlug);

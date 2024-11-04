@@ -29,7 +29,7 @@ export const TezosAssetsList = memo<Props>(({ publicKeyHash, searchValue, onAsse
 
   return (
     <>
-      {searchedSlugs.length === 0 && <EmptyState variant="searchUniversal" />}
+      {searchedSlugs.length === 0 && <EmptyState />}
 
       {searchedSlugs.map(chainSlug => {
         const [_, chainId, assetSlug] = parseChainAssetSlug(chainSlug);

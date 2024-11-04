@@ -94,6 +94,7 @@ export const AccountSettings = memo<AccountSettingsProps>(({ id }) => {
     setCurrentModal(null);
     setPrivateKeysPayload([]);
   }, []);
+
   const modal = useMemo(() => {
     switch (currentModal) {
       case AccountSettingsModal.EditName:
@@ -134,7 +135,7 @@ export const AccountSettings = memo<AccountSettingsProps>(({ id }) => {
     <PageLayout
       pageTitle={t('editAccount')}
       contentPadding={false}
-      paperClassName="!bg-background"
+      dimBg
       onBottomEdgeVisibilityChange={setBottomEdgeIsVisible}
       bottomEdgeThreshold={16}
     >
@@ -200,6 +201,7 @@ export const AccountSettings = memo<AccountSettingsProps>(({ id }) => {
             <p className="text-font-description-bold text-grey-2">
               <T id="derivationPath" />
             </p>
+
             {derivationPaths.map(({ chainName, path }) => (
               <SettingsCellGroup key={chainName}>
                 <SettingsCell
@@ -216,6 +218,7 @@ export const AccountSettings = memo<AccountSettingsProps>(({ id }) => {
           </div>
         )}
       </div>
+
       <ActionsButtonsBox className="sticky left-0 bottom-0" shouldCastShadow={!bottomEdgeIsVisible}>
         <StyledButton
           className="flex-1"
@@ -227,6 +230,7 @@ export const AccountSettings = memo<AccountSettingsProps>(({ id }) => {
           <T id="removeAccount" />
         </StyledButton>
       </ActionsButtonsBox>
+
       {modal}
     </PageLayout>
   );
