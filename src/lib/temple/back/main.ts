@@ -19,6 +19,7 @@ import { encodeMessage, encryptMessage, getSenderId, MessageType, Response } fro
 import { clearAsyncStorages } from 'lib/temple/reset';
 import { StoredHDAccount, TempleMessageType, TempleRequest, TempleResponse } from 'lib/temple/types';
 import { getTrackedCashbackServiceDomain, getTrackedUrl } from 'lib/utils/url-track/url-track.utils';
+import { fromSerializableEvmTxParams } from 'temple/evm/utils';
 
 import * as Actions from './actions';
 import * as Analytics from './analytics';
@@ -60,6 +61,14 @@ const processRequest = async (req: TempleRequest, port: Runtime.Port): Promise<T
         type: TempleMessageType.GetStateResponse,
         state
       };
+
+    case TempleMessageType.SendEvmTransactionRequest:
+      const txHash = await Actions.sendEvmTransaction(
+        req.accountPkh,
+        req.network,
+        fromSerializableEvmTxParams(req.txParams)
+      );
+      return { type: TempleMessageType.SendEvmTransactionResponse, txHash };
 
     case TempleMessageType.NewWalletRequest:
       const accountPkh = await Actions.registerNewWallet(req.password, req.mnemonic);
@@ -179,7 +188,14 @@ const processRequest = async (req: TempleRequest, port: Runtime.Port): Promise<T
       };
 
     case TempleMessageType.OperationsRequest:
-      const { opHash } = await Actions.sendOperations(port, req.id, req.sourcePkh, req.networkRpc, req.opParams);
+      const { opHash } = await Actions.sendOperations(
+        port,
+        req.id,
+        req.sourcePkh,
+        req.networkRpc,
+        req.opParams,
+        req.straightaway
+      );
       return {
         type: TempleMessageType.OperationsResponse,
         opHash
@@ -192,15 +208,8 @@ const processRequest = async (req: TempleRequest, port: Runtime.Port): Promise<T
         result
       };
 
-    case TempleMessageType.DAppGetAllSessionsRequest:
-      const allSessions = await Actions.getAllDAppSessions();
-      return {
-        type: TempleMessageType.DAppGetAllSessionsResponse,
-        sessions: allSessions
-      };
-
     case TempleMessageType.DAppRemoveSessionRequest:
-      const sessions = await Actions.removeDAppSession(req.origin);
+      const sessions = await Actions.removeDAppSession(req.origins);
       return {
         type: TempleMessageType.DAppRemoveSessionResponse,
         sessions
@@ -242,7 +251,8 @@ const processRequest = async (req: TempleRequest, port: Runtime.Port): Promise<T
     }
 
     case TempleMessageType.PageRequest:
-      const dAppEnabled = await Actions.isDAppEnabled();
+      const dAppEnabled = await Actions.canInteractWithDApps();
+
       if (dAppEnabled) {
         if (req.payload === 'PING') {
           return {

@@ -65,6 +65,10 @@ export const AccountsModal = memo<Props>(({ opened, onRequestClose }) => {
     else if (!opened) setAttractSelectedAccount(true);
   }, [opened, searchValue]);
 
+  useEffect(() => {
+    if (!opened) setSearchValue('');
+  }, [opened]);
+
   const closeSubmodal = useCallback(() => {
     setActiveSubmodal(undefined);
     setImportOptionSlug(undefined);
@@ -166,7 +170,7 @@ export const AccountsModal = memo<Props>(({ opened, onRequestClose }) => {
         <ScrollView onTopEdgeVisibilityChange={setTopEdgeIsVisible} topEdgeThreshold={4}>
           {filteredGroups.length === 0 ? (
             <div className="w-full h-full flex items-center">
-              <EmptyState variant="searchUniversal" />
+              <EmptyState />
             </div>
           ) : (
             filteredGroups.map(group => (

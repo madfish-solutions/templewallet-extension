@@ -508,7 +508,7 @@
     }
   },
   "maximalAmount": {
-    "message": "Maximal: $amount$",
+    "message": "Max: $amount$",
     "placeholders": {
       "amount": {
         "content": "$1"

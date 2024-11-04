@@ -6,7 +6,8 @@ import React, {
   useCallback,
   useMemo,
   useRef,
-  useState
+  useState,
+  useLayoutEffect
 } from 'react';
 
 import clsx from 'clsx';
@@ -14,6 +15,7 @@ import { noop } from 'lodash';
 
 import CleanButton from 'app/atoms/CleanButton';
 import OldStyleCopyButton from 'app/atoms/OldStyleCopyButton';
+import { ReactComponent as PasteFillIcon } from 'app/icons/base/paste_fill.svg';
 import { ReactComponent as CopyIcon } from 'app/icons/monochrome/copy.svg';
 import { setTestID, TestIDProperty } from 'lib/analytics';
 import { useDidUpdate } from 'lib/ui/hooks';
@@ -23,8 +25,10 @@ import { useBlurElementOnTimeout } from 'lib/ui/use-blur-on-timeout';
 import useCopyToClipboard from 'lib/ui/useCopyToClipboard';
 import { combineRefs } from 'lib/ui/utils';
 
+import { Button } from './Button';
 import { ErrorCaptionSelectors } from './ErrorCaption.selectors';
 import { FieldLabel } from './FieldLabel';
+import { IconBase } from './IconBase';
 import { SecretCover } from './SecretCover';
 import usePasswordToggle from './usePasswordToggle.hook';
 
@@ -51,6 +55,8 @@ export interface FormFieldProps extends TestIDProperty, Omit<FormFieldAttrs, 'ty
   textarea?: boolean;
   /** `textarea=true` only */
   secret?: boolean;
+  /** `textarea=true` only */
+  showPasteButton?: boolean;
   /** `type='password'` only */
   revealForbidden?: boolean;
   /** `type='password'` only */
@@ -67,6 +73,7 @@ export interface FormFieldProps extends TestIDProperty, Omit<FormFieldAttrs, 'ty
   extraRightInner?: ReactNode;
   extraRightInnerWrapper?: InnerWrapperType;
   onClean?: EmptyFn;
+  onPasteButtonClick?: EmptyFn;
   onReveal?: EmptyFn;
   onBlur?: React.FocusEventHandler;
   smallPaddings?: boolean;
@@ -76,6 +83,9 @@ export interface FormFieldProps extends TestIDProperty, Omit<FormFieldAttrs, 'ty
     inputSection?: string;
     input?: string;
   };
+  rightSideComponent?: ReactNode;
+  underneathComponent?: ReactNode;
+  extraFloatingInner?: ReactNode;
 }
 
 /**
@@ -101,10 +111,12 @@ export const FormField = forwardRef<FormFieldElement, FormFieldProps>(
       shouldShowRevealWhenEmpty = false,
       revealRef,
       cleanable,
+      showPasteButton = false,
       extraLeftInner = null,
       extraLeftInnerWrapper = 'default',
       extraRightInner = null,
       extraRightInnerWrapper = 'default',
+      extraFloatingInner = null,
       id,
       type,
       value,
@@ -113,8 +125,11 @@ export const FormField = forwardRef<FormFieldElement, FormFieldProps>(
       onFocus,
       onBlur,
       onClean = noop,
+      onPasteButtonClick,
       onReveal,
       className,
+      rightSideComponent,
+      underneathComponent,
       spellCheck = false,
       autoComplete = 'off',
       smallPaddings = false,
@@ -169,6 +184,8 @@ export const FormField = forwardRef<FormFieldElement, FormFieldProps>(
           [cleanable, copyable, hasRevealablePassword].filter(Boolean).length,
           extraLeftInnerWrapper === 'unset' ? false : Boolean(extraLeftInner),
           extraRightInnerWrapper === 'unset' ? false : Boolean(extraRightInner),
+          Boolean(extraFloatingInner),
+          Boolean(rightSideComponent),
           smallPaddings,
           textarea
         )
@@ -181,6 +198,7 @@ export const FormField = forwardRef<FormFieldElement, FormFieldProps>(
         extraRightInner,
         extraRightInnerWrapper,
         hasRevealablePassword,
+        rightSideComponent,
         smallPaddings,
         style,
         textarea
@@ -207,6 +225,12 @@ export const FormField = forwardRef<FormFieldElement, FormFieldProps>(
         {extraSection}
 
         <div className={clsx('relative flex items-stretch', fieldWrapperBottomMargin && 'mb-1')}>
+          <ExtraFloatingInner
+            inputValue={value}
+            innerComponent={extraFloatingInner}
+            onClick={() => spareRef.current?.focus()}
+          />
+
           <ExtraInner
             innerComponent={extraLeftInner}
             useDefaultWrapper={extraLeftInnerWrapper === 'default'}
@@ -251,7 +275,14 @@ export const FormField = forwardRef<FormFieldElement, FormFieldProps>(
             )}
           >
             {additonalActionButtons}
-            {cleanable && <CleanButton size={textarea ? 12 : 16} onClick={onClean} showText={textarea} />}
+            {cleanable && <CleanButton showText={textarea} size={textarea ? 12 : 16} onClick={onClean} />}
+            {rightSideComponent && rightSideComponent}
+            {textarea && !cleanable && showPasteButton && (
+              <Button className="flex items-center text-secondary px-1 py-0.5" onClick={onPasteButtonClick}>
+                <span className="text-font-description-bold">Paste</span>
+                <IconBase Icon={PasteFillIcon} size={12} onClick={onClean} />
+              </Button>
+            )}
             {copyable && <Copyable value={String(value)} copy={copy} isSecret={type === 'password'} />}
             {hasRevealablePassword && RevealPasswordIcon}
           </div>
@@ -260,11 +291,13 @@ export const FormField = forwardRef<FormFieldElement, FormFieldProps>(
         </div>
 
         {shouldShowErrorCaption &&
-          (reserveSpaceForError && !errorCaption ? (
+          (reserveSpaceForError && !errorCaption && !underneathComponent ? (
             <div className="size-4" />
           ) : (
             <ErrorCaption errorCaption={errorCaption} />
           ))}
+
+        {!errorCaption && underneathComponent}
       </div>
     );
   }
@@ -274,6 +307,41 @@ export const FORM_FIELD_CLASS_NAME = clsx(
   'appearance-none w-full border rounded-lg bg-input-low caret-primary focus:outline-none',
   'transition ease-in-out duration-200 text-font-regular placeholder-grey-2 hover:placeholder-grey-1'
 );
+
+interface ExtraFloatingInnerProps {
+  inputValue?: string | number | readonly string[];
+  innerComponent?: React.ReactNode;
+  onClick?: EmptyFn;
+}
+
+// input padding + textWidth + gap between text and innerComponent
+const getLeftIndent = (textWidth: number) => 12 + textWidth + 8;
+
+const ExtraFloatingInner: React.FC<ExtraFloatingInnerProps> = ({ inputValue, innerComponent, onClick }) => {
+  const measureTextWidthRef = useRef<HTMLDivElement>(null);
+  const [textWidth, setTextWidth] = useState(0);
+
+  const leftIndent = getLeftIndent(textWidth);
+
+  useLayoutEffect(() => {
+    if (measureTextWidthRef.current) {
+      const width = measureTextWidthRef.current.clientWidth;
+
+      if (getLeftIndent(width) < 226) setTextWidth(width);
+    }
+  }, [inputValue]);
+
+  return (
+    <>
+      <div ref={measureTextWidthRef} className="fixed bottom-0 right-0 text-font-regular invisible">
+        {inputValue}
+      </div>
+      <div onClick={onClick} className="absolute text-font-regular text-grey-2" style={{ top: 13, left: leftIndent }}>
+        {inputValue ? innerComponent : null}
+      </div>
+    </>
+  );
+};
 
 interface ExtraInnerProps {
   innerComponent: React.ReactNode;
@@ -322,7 +390,7 @@ const ErrorCaption: React.FC<ErrorCaptionProps> = ({ errorCaption }) => {
   const isPasswordStrengthIndicator = errorCaption === PASSWORD_ERROR_CAPTION;
 
   return errorCaption && !isPasswordStrengthIndicator ? (
-    <div className="text-xs text-red-500" {...setTestID(ErrorCaptionSelectors.inputError)}>
+    <div className="pl-1 text-xs text-red-500" {...setTestID(ErrorCaptionSelectors.inputError)}>
       {errorCaption}
     </div>
   ) : null;
@@ -332,11 +400,16 @@ const buildHorizontalPaddingStyle = (
   buttonsCount: number,
   withExtraInnerLeft: boolean,
   withExtraInnerRight: boolean,
+  withExtraFloatingInner: boolean,
+  withRightSideComponent: boolean,
   smallPaddings: boolean,
   textarea = false
 ) => {
   return {
-    paddingRight: withExtraInnerRight ? 128 : (smallPaddings ? 8 : 12) + (textarea ? 0 : buttonsCount * 28),
+    paddingRight:
+      withExtraInnerRight || withRightSideComponent
+        ? 128 + (withExtraFloatingInner ? 10 : 0)
+        : (smallPaddings ? 8 : 12) + (textarea ? 0 : buttonsCount * 28),
     paddingLeft: withExtraInnerLeft ? (smallPaddings ? 32 : 40) : smallPaddings ? 8 : 12
   };
 };

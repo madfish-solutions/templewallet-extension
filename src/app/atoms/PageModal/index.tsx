@@ -14,23 +14,25 @@ import { IconBase } from '../IconBase';
 
 import ModStyles from './styles.module.css';
 
+export const CLOSE_ANIMATION_TIMEOUT = 300;
+
 interface Props extends TestIDProps {
   title: ReactNode | ReactNode[];
   opened: boolean;
   headerClassName?: string;
   shouldShowBackButton?: boolean;
-  onRequestClose: EmptyFn;
+  shouldShowCloseButton?: boolean;
+  onRequestClose?: EmptyFn;
   onGoBack?: EmptyFn;
   animated?: boolean;
 }
-
-export const CLOSE_ANIMATION_TIMEOUT = 300;
 
 export const PageModal: FC<PropsWithChildren<Props>> = ({
   title,
   opened,
   headerClassName,
   shouldShowBackButton,
+  shouldShowCloseButton = true,
   onRequestClose,
   onGoBack,
   children,
@@ -75,7 +77,9 @@ export const PageModal: FC<PropsWithChildren<Props>> = ({
         <div className={clsx('flex-1 text-center text-font-regular-bold', headerClassName)}>{title}</div>
 
         <div className="w-12 flex justify-end">
-          <IconBase Icon={ExIcon} size={16} className="text-grey-2 cursor-pointer" onClick={onRequestClose} />
+          {shouldShowCloseButton && (
+            <IconBase Icon={ExIcon} size={16} className="text-grey-2 cursor-pointer" onClick={onRequestClose} />
+          )}
         </div>
       </div>
 

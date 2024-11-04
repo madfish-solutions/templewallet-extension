@@ -4,7 +4,8 @@ import { omit } from 'lodash';
 import useSWR from 'swr';
 import { useDebounce } from 'use-debounce';
 
-import { getViemChainsList, loadEvmChainId } from 'temple/evm';
+import { loadEvmChainId } from 'temple/evm';
+import { getViemChainsList } from 'temple/evm/utils';
 import { loadTezosChainId } from 'temple/tezos';
 
 import { ViemChain } from './types';

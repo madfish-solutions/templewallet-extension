@@ -5,11 +5,6 @@ export const otherNetworks = [
     name: 'Tron'
   },
   {
-    analyticsSlug: 'evm',
-    slug: 'eth',
-    name: 'EVM'
-  },
-  {
     analyticsSlug: 'btc',
     slug: 'btc',
     name: 'Bitcoin'

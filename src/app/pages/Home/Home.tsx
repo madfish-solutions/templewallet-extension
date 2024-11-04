@@ -90,7 +90,7 @@ const Home = memo<HomeProps>(props => {
     <PageLayout {...pageProps} contentPadding={false}>
       {showScamTokenAlert && <ScamTokenAlert />}
 
-      <div className="flex flex-col pt-1 px-4">
+      <div className="flex flex-col pt-1 px-4 bg-white">
         {chainKind && chainId && assetSlug ? (
           <AssetBanner chainKind={chainKind} chainId={chainId} assetSlug={assetSlug} />
         ) : (

@@ -5,6 +5,8 @@ import { CompositeForger, RpcForger, Signer, TezosOperationError, TezosToolkit }
 import * as TaquitoUtils from '@taquito/utils';
 import * as Bip39 from 'bip39';
 import { nanoid } from 'nanoid';
+import { createWalletClient, http } from 'viem';
+import { privateKeyToAccount } from 'viem/accounts';
 import type * as WasmThemisPackageInterface from 'wasm-themis';
 
 import {
@@ -27,7 +29,9 @@ import { clearAsyncStorages } from 'lib/temple/reset';
 import { StoredAccount, TempleAccountType, TempleSettings, WalletSpecs } from 'lib/temple/types';
 import { isTruthy } from 'lib/utils';
 import { getAccountAddressForChain, getAccountAddressForEvm, getAccountAddressForTezos } from 'temple/accounts';
-import { getTezosFastRpcClient, michelEncoder } from 'temple/tezos';
+import { EvmTxParams } from 'temple/evm/types';
+import { EvmChain } from 'temple/front';
+import { michelEncoder, getTezosFastRpcClient } from 'temple/tezos';
 import { TempleChainKind } from 'temple/types';
 
 import { createLedgerSigner } from '../ledger';
@@ -833,6 +837,46 @@ export class Vault {
         const privateKey = await fetchAndDecryptOne<string>(accPrivKeyStrgKey(accPublicKeyHash), this.passKey);
         const signer = await createMemorySigner(privateKey);
         return { signer, cleanup: () => {} };
+    }
+  }
+
+  async sendEvmTransaction(accPublicKeyHash: string, network: EvmChain, txParams: EvmTxParams) {
+    try {
+      const allAccounts = await this.fetchAccounts();
+      const acc = allAccounts.find(acc => getAccountAddressForEvm(acc) === accPublicKeyHash);
+      if (!acc) {
+        throw new PublicError('Account not found');
+      }
+
+      switch (acc.type) {
+        case TempleAccountType.WatchOnly:
+          throw new PublicError('Cannot sign Watch-only account');
+
+        default:
+          const privateKey = await fetchAndDecryptOne<string>(accPrivKeyStrgKey(accPublicKeyHash), this.passKey);
+          const account = privateKeyToAccount(privateKey as HexString);
+
+          const client = createWalletClient({
+            account,
+            chain: {
+              id: network.chainId,
+              name: network.name,
+              nativeCurrency: network.currency,
+              rpcUrls: {
+                default: {
+                  http: [network.rpcBaseURL]
+                }
+              }
+            },
+            transport: http()
+          });
+
+          return await client.sendTransaction(txParams);
+      }
+    } catch (err: any) {
+      console.error(err);
+
+      throw new Error(err.details ?? err.message);
     }
   }
 }

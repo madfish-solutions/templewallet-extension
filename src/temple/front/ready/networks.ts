@@ -3,7 +3,7 @@ import { useCallback, useMemo } from 'react';
 import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
 import { EvmAssetStandard } from 'lib/evm/types';
 import { EvmNativeTokenMetadata } from 'lib/metadata/types';
-import { getViemChainsList } from 'temple/evm';
+import { getViemChainsList } from 'temple/evm/utils';
 import {
   DEFAULT_EVM_CURRENCY,
   EVM_DEFAULT_NETWORKS,

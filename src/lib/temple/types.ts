@@ -1,7 +1,10 @@
 import type { DerivationType } from '@taquito/ledger-signer';
 import type { Estimate } from '@taquito/taquito';
-import type { TempleDAppMetadata, TempleDAppNetwork } from '@temple-wallet/dapp/dist/types';
+import type { TempleDAppMetadata } from '@temple-wallet/dapp/dist/types';
 
+import { TezosDAppsSessionsRecord } from 'app/storage/dapps';
+import type { SerializableEvmTxParams } from 'temple/evm/types';
+import type { EvmChain } from 'temple/front';
 import type { StoredEvmNetwork, StoredTezosNetwork } from 'temple/networks';
 import type { TempleChainKind } from 'temple/types';
 
@@ -13,13 +16,6 @@ import type {
 } from './analytics-types';
 
 export { DerivationType };
-
-export interface TempleDAppSession {
-  network: TempleDAppNetwork;
-  appMeta: TempleDAppMetadata;
-  pkh: string;
-  publicKey: string;
-}
 
 export interface WalletSpecs {
   name: string;
@@ -125,14 +121,13 @@ export interface TempleSettings {
 }
 
 export enum TempleSharedStorageKey {
-  DAppEnabled = 'dappenabled',
+  /** @deprecated */
+  DAppEnabled = 'dappenabled', // rm
   /** @deprecated */
   LockUpEnabled = 'lock_up',
   PasswordAttempts = 'passwordAttempts',
   TimeLock = 'timelock'
 }
-
-export type TempleDAppSessions = Record<string, TempleDAppSession>;
 
 export interface TempleContact {
   address: string;
@@ -276,14 +271,14 @@ export enum TempleMessageType {
   DAppOpsConfirmationResponse = 'TEMPLE_DAPP_OPS_CONFIRMATION_RESPONSE',
   DAppSignConfirmationRequest = 'TEMPLE_DAPP_SIGN_CONFIRMATION_REQUEST',
   DAppSignConfirmationResponse = 'TEMPLE_DAPP_SIGN_CONFIRMATION_RESPONSE',
-  DAppGetAllSessionsRequest = 'TEMPLE_DAPP_GET_ALL_SESSIONS_REQUEST',
-  DAppGetAllSessionsResponse = 'TEMPLE_DAPP_GET_ALL_SESSIONS_RESPONSE',
   DAppRemoveSessionRequest = 'TEMPLE_DAPP_REMOVE_SESSION_REQUEST',
   DAppRemoveSessionResponse = 'TEMPLE_DAPP_REMOVE_SESSION_RESPONSE',
   SendTrackEventRequest = 'SEND_TRACK_EVENT_REQUEST',
   SendTrackEventResponse = 'SEND_TRACK_EVENT_RESPONSE',
   SendPageEventRequest = 'SEND_PAGE_EVENT_REQUEST',
   SendPageEventResponse = 'SEND_PAGE_EVENT_RESPONSE',
+  SendEvmTransactionRequest = 'SEND_EVM_TRANSACTION_REQUEST',
+  SendEvmTransactionResponse = 'SEND_EVM_TRANSACTION_RESPONSE',
   ResetExtensionRequest = 'RESET_EXTENSION_REQUEST',
   ResetExtensionResponse = 'RESET_EXTENSION_RESPONSE'
 }
@@ -325,10 +320,10 @@ export type TempleRequest =
   | TempleDAppOpsConfirmationRequest
   | TempleDAppSignConfirmationRequest
   | TempleUpdateSettingsRequest
-  | TempleGetAllDAppSessionsRequest
   | TempleRemoveDAppSessionRequest
   | TempleSendTrackEventRequest
   | TempleSendPageEventRequest
+  | TempleSendEvmTransactionRequest
   | TempleResetExtensionRequest;
 
 export type TempleResponse =
@@ -362,10 +357,10 @@ export type TempleResponse =
   | TempleDAppOpsConfirmationResponse
   | TempleDAppSignConfirmationResponse
   | TempleUpdateSettingsResponse
-  | TempleGetAllDAppSessionsResponse
   | TempleRemoveDAppSessionResponse
   | TempleSendTrackEventResponse
   | TempleSendPageEventResponse
+  | TempleSendEvmTransactionResponse
   | TempleResetExtensionResponse;
 
 export interface TempleMessageBase {
@@ -619,6 +614,8 @@ interface TempleOperationsRequest extends TempleMessageBase {
   sourcePkh: string;
   networkRpc: string;
   opParams: any[];
+  /** send operations without old confirmation page */
+  straightaway?: boolean;
 }
 
 interface TempleOperationsResponse extends TempleMessageBase {
@@ -650,6 +647,18 @@ interface TempleConfirmationRequest extends TempleMessageBase {
 
 interface TempleConfirmationResponse extends TempleMessageBase {
   type: TempleMessageType.ConfirmationResponse;
+}
+
+interface TempleSendEvmTransactionRequest extends TempleMessageBase {
+  type: TempleMessageType.SendEvmTransactionRequest;
+  accountPkh: HexString;
+  network: EvmChain;
+  txParams: SerializableEvmTxParams;
+}
+
+interface TempleSendEvmTransactionResponse extends TempleMessageBase {
+  type: TempleMessageType.SendEvmTransactionResponse;
+  txHash: HexString;
 }
 
 interface TemplePageRequest extends TempleMessageBase {
@@ -718,23 +727,14 @@ interface TempleDAppSignConfirmationResponse extends TempleMessageBase {
   type: TempleMessageType.DAppSignConfirmationResponse;
 }
 
-interface TempleGetAllDAppSessionsRequest extends TempleMessageBase {
-  type: TempleMessageType.DAppGetAllSessionsRequest;
-}
-
-interface TempleGetAllDAppSessionsResponse extends TempleMessageBase {
-  type: TempleMessageType.DAppGetAllSessionsResponse;
-  sessions: TempleDAppSessions;
-}
-
 interface TempleRemoveDAppSessionRequest extends TempleMessageBase {
   type: TempleMessageType.DAppRemoveSessionRequest;
-  origin: string;
+  origins: string[];
 }
 
 interface TempleRemoveDAppSessionResponse extends TempleMessageBase {
   type: TempleMessageType.DAppRemoveSessionResponse;
-  sessions: TempleDAppSessions;
+  sessions: TezosDAppsSessionsRecord;
 }
 
 interface TempleResetExtensionRequest extends TempleMessageBase {

@@ -33,7 +33,7 @@ function internalGetIdenticonUri<T extends IdenticonType>(
         seed: hash,
         size,
         fontFamily: ['Menlo', 'Monaco', 'monospace'],
-        fontSize: estimateOptimalFontSize(hash.length),
+        fontSize: estimateOptimalFontSize((options as firstLetters.Options | undefined)?.chars || hash.length),
         ...options
       }).toDataUriSync();
   }
@@ -55,6 +55,7 @@ export const getIdenticonUri = memoizee(internalGetIdenticonUri, {
  * for 1 or 2 characters.
  */
 const precalculatedFontSizes = new Map<number, number>([
+  [1, 64],
   [3, 44],
   [4, 34],
   [5, 28]
