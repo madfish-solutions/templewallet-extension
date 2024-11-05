@@ -159,7 +159,6 @@ const Settings = memo<SettingsProps>(({ tabSlug }) => {
   return (
     <PageLayout
       pageTitle={<T id={activeTab?.titleI18nKey ?? 'settings'} />}
-      contentClassName="pt-4 px-4"
       headerChildren={headerChildren}
       noScroll={activeTab?.noScroll}
       contentPadding={!activeTab?.noPadding}

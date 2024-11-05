@@ -59,7 +59,7 @@ const SyncSettings: FC = () => {
 
   return (
     <>
-      <div className="flex-1">
+      <div className="flex-1 pt-4 px-4">
         <CaptionAlert type="info" title={t('syncSettingsTitle')} message={t('syncSettingsDescription')} />
 
         <form id="sync-form" onSubmit={handleSubmit(onSubmit)}>
@@ -84,7 +84,7 @@ const SyncSettings: FC = () => {
         </form>
       </div>
 
-      <ActionsButtonsBox flexDirection="col" className="px-0" style={{ backgroundColor: '#FBFBFB' }}>
+      <ActionsButtonsBox flexDirection="col" className="px-4" style={{ backgroundColor: '#FBFBFB' }}>
         <StyledButton
           type="submit"
           form="sync-form"
