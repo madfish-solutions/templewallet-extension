@@ -2,7 +2,7 @@ import { searchAndFilterItems } from 'lib/utils/search-items';
 
 type SearchNetwork = string | { name: string };
 
-export const filterNetworksByName = <T extends SearchNetwork>(networks: T[], searchValue: string) => {
+export const searchNetworksByName = <T extends SearchNetwork>(networks: T[], searchValue: string) => {
   const preparedSearchValue = searchValue.trim().toLowerCase();
 
   return preparedSearchValue

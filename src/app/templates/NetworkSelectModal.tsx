@@ -17,7 +17,7 @@ import { setAssetsFilterChain } from 'app/store/assets-filter-options/actions';
 import { FilterChain } from 'app/store/assets-filter-options/state';
 import { SearchBarField } from 'app/templates/SearchField';
 import { T, t } from 'lib/i18n';
-import { filterNetworksByName } from 'lib/ui/filter-networks-by-name';
+import { searchNetworksByName } from 'lib/ui/search-networks-by-name';
 import { useScrollIntoViewOnMount } from 'lib/ui/use-scroll-into-view';
 import { navigate } from 'lib/woozie';
 import {
@@ -60,7 +60,7 @@ export const NetworkSelectModal = memo<Props>(({ opened, selectedNetwork, onRequ
   const [attractSelectedNetwork, setAttractSelectedNetwork] = useState(true);
 
   const filteredNetworks = useMemo(
-    () => (searchValueDebounced.length ? filterNetworksByName(networks, searchValueDebounced) : networks),
+    () => (searchValueDebounced.length ? searchNetworksByName(networks, searchValueDebounced) : networks),
     [searchValueDebounced, networks]
   );
 

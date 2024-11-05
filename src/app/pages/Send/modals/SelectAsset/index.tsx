@@ -16,8 +16,8 @@ import { useAssetsFilterOptionsSelector } from 'app/store/assets-filter-options/
 import { FilterChain } from 'app/store/assets-filter-options/state';
 import { SearchBarField } from 'app/templates/SearchField';
 import { t } from 'lib/i18n';
-import { filterNetworksByName } from 'lib/ui/filter-networks-by-name';
 import Popper, { PopperRenderProps } from 'lib/ui/Popper';
+import { searchNetworksByName } from 'lib/ui/search-networks-by-name';
 import { useScrollIntoViewOnMount } from 'lib/ui/use-scroll-into-view';
 import {
   OneOfChains,
@@ -215,7 +215,7 @@ const FilterNetworkDropdown = memo<FilterNetworkDropdownProps>(
     const filteredNetworks = useMemo(
       () =>
         searchValueDebounced.length
-          ? filterNetworksByName<string | OneOfChains>(networks, searchValueDebounced)
+          ? searchNetworksByName<string | OneOfChains>(networks, searchValueDebounced)
           : networks,
       [searchValueDebounced, networks]
     );
