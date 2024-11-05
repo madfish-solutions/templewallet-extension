@@ -245,7 +245,8 @@ function useEvmAssetRawBalance(
       refreshBalanceOnChain();
     },
     [usingStore, refreshBalanceOnChain],
-    EVM_BALANCES_SYNC_INTERVAL
+    EVM_BALANCES_SYNC_INTERVAL,
+    false
   );
 
   if (usingStore)

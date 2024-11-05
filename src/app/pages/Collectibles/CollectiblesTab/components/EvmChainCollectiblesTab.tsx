@@ -7,6 +7,7 @@ import { useEvmChainByChainId } from 'temple/front/chains';
 
 import { EvmCollectibleItem } from './CollectibleItem';
 import { CollectiblesTabBase } from './CollectiblesTabBase';
+import { useEvmCollectiblesMetadataLoading } from './evm-meta-loading';
 
 interface EvmChainCollectiblesTabProps {
   chainId: number;
@@ -21,6 +22,8 @@ export const EvmChainCollectiblesTab = memo<EvmChainCollectiblesTabProps>(({ cha
 
   const { isInSearchMode, paginatedSlugs, isSyncing, loadNext, searchValue, setSearchValue } =
     useEvmChainCollectiblesListingLogic(publicKeyHash, chainId, manageActive);
+
+  useEvmCollectiblesMetadataLoading(publicKeyHash);
 
   const contentElement = useMemo(
     () => (
