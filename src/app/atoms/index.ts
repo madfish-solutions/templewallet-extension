@@ -1,5 +1,5 @@
 export { Alert } from './Alert';
-// ts-prune-ignore-next
+
 export { CaptionAlert } from './CaptionAlert';
 
 export { default as Divider } from './Divider';
@@ -27,8 +27,6 @@ export { Lines } from './Lines';
 export { Loader } from './Loader';
 
 export { ExternalLinkChip } from './ExternalLinkChip';
-
-export { default as SubTitle } from './SubTitle';
 
 export { PASSWORD_ERROR_CAPTION, FormField } from './FormField';
 
