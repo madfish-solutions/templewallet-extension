@@ -14,9 +14,7 @@ export function useContactsActions() {
 
   const addContact = useCallback(
     async (contactToAdd: TempleContact) => {
-      if (contactsWithFallback.some(c => c.address === contactToAdd.address)) {
-        throw new Error(getMessage('contactWithTheSameAddressAlreadyExists'));
-      }
+      checkIfContactAlreadyExists(contactsWithFallback, contactToAdd.address);
 
       await updateSettings({
         contacts: [contactToAdd, ...contactsWithFallback]
@@ -26,16 +24,22 @@ export function useContactsActions() {
   );
 
   const editContact = useCallback(
-    async (contactToEdit: TempleContact) => {
+    async (editedData: Pick<TempleContact, 'name' | 'address'>) => {
+      checkIfContactAlreadyExists(contactsWithFallback, editedData.address);
+
       const newContacts = [...contactsWithFallback];
 
-      const index = newContacts.findIndex(c => c.address === contactToEdit.address);
+      const index = newContacts.findIndex(c => c.address === editedData.address);
 
       if (index === -1) {
         throw new Error('Failed to find a contact to edit');
       }
 
-      newContacts[index] = await updateSettings({
+      const currentContact = contactsWithFallback[index];
+
+      newContacts[index] = { ...currentContact, ...editedData };
+
+      await updateSettings({
         contacts: newContacts
       });
     },
@@ -56,3 +60,9 @@ export function useContactsActions() {
     removeContact
   };
 }
+
+const checkIfContactAlreadyExists = (contacts: TempleContact[], address: string) => {
+  if (contacts.some(c => c.address === address)) {
+    throw new Error(getMessage('contactWithTheSameAddressAlreadyExists'));
+  }
+};
