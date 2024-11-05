@@ -15,7 +15,6 @@ import { SpinnerSection } from 'app/pages/Send/form/SpinnerSection';
 import { useAssetsFilterOptionsSelector } from 'app/store/assets-filter-options/selectors';
 import { FilterChain } from 'app/store/assets-filter-options/state';
 import { SearchBarField } from 'app/templates/SearchField';
-import { ALL_NETWORKS_IDENTIFIER } from 'lib/constants';
 import { t } from 'lib/i18n';
 import { filterNetworksByName } from 'lib/ui/filter-networks-by-name';
 import Popper, { PopperRenderProps } from 'lib/ui/Popper';
@@ -145,6 +144,8 @@ export const SelectAssetModal = memo<SelectTokenModalProps>(({ onAssetSelect, op
   );
 });
 
+const ALL_NETWORKS = 'All Networks';
+
 interface FilterNetworkPopperProps {
   selectedOption: FilterChain;
   onOptionSelect: (filterChain: FilterChain) => void;
@@ -207,11 +208,7 @@ const FilterNetworkDropdown = memo<FilterNetworkDropdownProps>(
     }, [opened, searchValueDebounced]);
 
     const networks = useMemo(
-      () => [
-        ALL_NETWORKS_IDENTIFIER,
-        ...(accountTezAddress ? tezosChains : []),
-        ...(accountEvmAddress ? evmChains : [])
-      ],
+      () => [ALL_NETWORKS, ...(accountTezAddress ? tezosChains : []), ...(accountEvmAddress ? evmChains : [])],
       [accountEvmAddress, accountTezAddress, evmChains, tezosChains]
     );
 

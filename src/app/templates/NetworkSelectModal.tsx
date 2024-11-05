@@ -16,7 +16,6 @@ import { dispatch } from 'app/store';
 import { setAssetsFilterChain } from 'app/store/assets-filter-options/actions';
 import { FilterChain } from 'app/store/assets-filter-options/state';
 import { SearchBarField } from 'app/templates/SearchField';
-import { ALL_NETWORKS_IDENTIFIER } from 'lib/constants';
 import { T, t } from 'lib/i18n';
 import { filterNetworksByName } from 'lib/ui/filter-networks-by-name';
 import { useScrollIntoViewOnMount } from 'lib/ui/use-scroll-into-view';
@@ -30,6 +29,8 @@ import {
   useEnabledTezosChains
 } from 'temple/front';
 import { TempleChainKind } from 'temple/types';
+
+const ALL_NETWORKS = 'All Networks';
 
 type Network = OneOfChains | string;
 
@@ -49,7 +50,7 @@ export const NetworkSelectModal = memo<Props>(({ opened, selectedNetwork, onRequ
   const evmChains = useEnabledEvmChains();
 
   const networks = useMemo(
-    () => [ALL_NETWORKS_IDENTIFIER, ...(accountTezAddress ? tezosChains : []), ...(accountEvmAddress ? evmChains : [])],
+    () => [ALL_NETWORKS, ...(accountTezAddress ? tezosChains : []), ...(accountEvmAddress ? evmChains : [])],
     [accountEvmAddress, accountTezAddress, evmChains, tezosChains]
   );
 
@@ -93,7 +94,7 @@ export const NetworkSelectModal = memo<Props>(({ opened, selectedNetwork, onRequ
 
         {filteredNetworks.map(network => (
           <Network
-            key={standsForAllNetworks(network) ? ALL_NETWORKS_IDENTIFIER : network.chainId}
+            key={standsForAllNetworks(network) ? ALL_NETWORKS : network.chainId}
             network={network}
             activeNetwork={selectedNetwork}
             attractSelf={attractSelectedNetwork}
