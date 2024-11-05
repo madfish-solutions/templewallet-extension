@@ -3723,5 +3723,8 @@
   },
   "zarName": {
     "message": "South African Rand"
+  },
+  "deleteContactActionDescription": {
+    "message": "This will delete the contact from the list."
   }
 }

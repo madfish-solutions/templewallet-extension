@@ -24,12 +24,14 @@ export function useContactsActions() {
   );
 
   const editContact = useCallback(
-    async (editedData: Pick<TempleContact, 'name' | 'address'>) => {
-      checkIfContactAlreadyExists(contactsWithFallback, editedData.address);
+    async (address: string, editedData: Pick<TempleContact, 'name' | 'address'>) => {
+      if (address !== editedData.address) {
+        checkIfContactAlreadyExists(contactsWithFallback, editedData.address);
+      }
 
       const newContacts = [...contactsWithFallback];
 
-      const index = newContacts.findIndex(c => c.address === editedData.address);
+      const index = contactsWithFallback.findIndex(c => c.address === address);
 
       if (index === -1) {
         throw new Error('Failed to find a contact to edit');
@@ -47,8 +49,8 @@ export function useContactsActions() {
   );
 
   const removeContact = useCallback(
-    (address: string) =>
-      updateSettings({
+    async (address: string) =>
+      await updateSettings({
         contacts: contactsWithFallback.filter(c => c.address !== address)
       }),
     [contactsWithFallback, updateSettings]

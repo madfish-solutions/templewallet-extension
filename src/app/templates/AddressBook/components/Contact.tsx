@@ -13,7 +13,7 @@ import { isEvmContact } from '../utils';
 
 interface ContactProps {
   data: TempleContact;
-  onClick: (data: TempleContact) => void;
+  onClick: (contact: TempleContact) => void;
 }
 
 export const Contact = memo<ContactProps>(({ data, onClick }) => (
