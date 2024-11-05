@@ -2721,10 +2721,10 @@
     "message": "Address Book"
   },
   "addNewContact": {
-    "message": "New contact"
+    "message": "Add New Contact"
   },
   "addContact": {
-    "message": "Add contact"
+    "message": "Add Contact"
   },
   "newContactPlaceholder": {
     "message": "e.g. Alice Bob"
@@ -2764,6 +2764,9 @@
   },
   "noContactsFound": {
     "message": "No contacts found"
+  },
+  "noContacts": {
+    "message": "No contacts"
   },
   "addThisAddressToContacts": {
     "message": "Add this address to contacts?"

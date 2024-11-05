@@ -18,7 +18,7 @@ import { ReactComponent as RefreshIcon } from 'app/icons/base/refresh.svg';
 import PageLayout from 'app/layouts/PageLayout';
 import About from 'app/templates/About/About';
 import { AccountsManagement } from 'app/templates/AccountsManagement';
-import AddressBook from 'app/templates/AddressBook/AddressBook';
+import { AddressBook } from 'app/templates/AddressBook';
 import { AdvancedFeatures } from 'app/templates/AdvancedFeatures';
 import { NetworksSettings } from 'app/templates/NetworksSettings';
 import { SecuritySettings } from 'app/templates/SecuritySettings';
@@ -95,6 +95,8 @@ const TABS_GROUPS: Tab[][] = [
       titleI18nKey: 'addressBook',
       Icon: DefaultSettingsIconHOC(AddressBookIcon),
       Component: AddressBook,
+      noScroll: true,
+      noPadding: true,
       testID: SettingsSelectors.addressBookButton
     },
     {
