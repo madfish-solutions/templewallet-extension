@@ -49,8 +49,8 @@ export function useContactsActions() {
   );
 
   const removeContact = useCallback(
-    async (address: string) =>
-      await updateSettings({
+    (address: string) =>
+      updateSettings({
         contacts: contactsWithFallback.filter(c => c.address !== address)
       }),
     [contactsWithFallback, updateSettings]
