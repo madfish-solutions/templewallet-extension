@@ -1,4 +1,4 @@
-import React, { FC, useCallback, useEffect } from 'react';
+import React, { memo, useCallback, useEffect } from 'react';
 
 import { isEmpty } from 'lodash';
 import { Controller, useForm } from 'react-hook-form-v7';
@@ -42,7 +42,7 @@ interface Props {
   onRequestClose: EmptyFn;
 }
 
-export const EditAddContact: FC<Props> = ({ contact, opened, onRequestClose }) => {
+export const EditAddContact = memo<Props>(({ contact, opened, onRequestClose }) => {
   const formAnalytics = useFormAnalytics(contact ? 'EditContactForm' : 'AddContactForm');
 
   const [deleteModalOpened, setDeleteModalOpened, setDeleteModalClosed] = useBooleanState(false);
@@ -226,4 +226,4 @@ export const EditAddContact: FC<Props> = ({ contact, opened, onRequestClose }) =
       </ActionsButtonsBox>
     </PageModal>
   );
-};
+});

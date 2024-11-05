@@ -1,4 +1,4 @@
-import React, { FC, useCallback, useMemo, useState } from 'react';
+import React, { memo, useCallback, useMemo, useState } from 'react';
 
 import { useDebounce } from 'use-debounce';
 
@@ -16,7 +16,7 @@ import { EmptySection } from './components/EmptySection';
 import { EditAddContact } from './modals/EditAddContact';
 import { searchAndFilterContacts } from './utils';
 
-export const AddressBook: FC = () => {
+export const AddressBook = memo(() => {
   const [searchValue, setSearchValue] = useState('');
   const [searchValueDebounced] = useDebounce(searchValue, 300);
 
@@ -79,4 +79,4 @@ export const AddressBook: FC = () => {
       />
     </>
   );
-};
+});

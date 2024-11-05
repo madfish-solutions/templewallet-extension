@@ -1,4 +1,4 @@
-import React, { FC, useCallback } from 'react';
+import React, { memo, useCallback } from 'react';
 
 import {
   ActionModal,
@@ -16,7 +16,7 @@ interface Props {
   onDelete: EmptyFn;
 }
 
-export const DeleteContactModal: FC<Props> = ({ contact, onClose, onDelete }) => {
+export const DeleteContactModal = memo<Props>(({ contact, onClose, onDelete }) => {
   const { removeContact } = useContactsActions();
 
   const handleDelete = useCallback(async () => {
@@ -42,4 +42,4 @@ export const DeleteContactModal: FC<Props> = ({ contact, onClose, onDelete }) =>
       </ActionModalButtonsContainer>
     </ActionModal>
   );
-};
+});

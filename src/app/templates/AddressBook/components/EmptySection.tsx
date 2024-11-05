@@ -1,4 +1,4 @@
-import React, { FC } from 'react';
+import React, { memo } from 'react';
 
 import { Button, IconBase } from 'app/atoms';
 import { EmptyState } from 'app/atoms/EmptyState';
@@ -9,7 +9,7 @@ interface Props {
   onAddContactClick: EmptyFn;
 }
 
-export const EmptySection: FC<Props> = ({ onAddContactClick }) => (
+export const EmptySection = memo<Props>(({ onAddContactClick }) => (
   <div className="w-full h-full flex flex-col items-center">
     <EmptyState stretch forSearch={false} textI18n="noContacts" />
 
@@ -21,4 +21,4 @@ export const EmptySection: FC<Props> = ({ onAddContactClick }) => (
       <T id="addNewContact" />
     </Button>
   </div>
-);
+));
