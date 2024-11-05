@@ -101,3 +101,5 @@ export const MAIN_CHAINS_IDS = [
   TempleTezosChainId.Ghostnet,
   ETH_SEPOLIA_CHAIN_ID
 ];
+
+export const ALL_NETWORKS_IDENTIFIER = 'ALL_NETWORKS';

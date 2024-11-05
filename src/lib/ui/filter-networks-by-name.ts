@@ -1,11 +1,15 @@
+import { searchAndFilterItems } from 'lib/utils/search-items';
+
 type SearchNetwork = string | { name: string };
 
 export const filterNetworksByName = <T extends SearchNetwork>(networks: T[], searchValue: string) => {
   const preparedSearchValue = searchValue.trim().toLowerCase();
 
-  return networks.filter(network => {
-    if (typeof network === 'string') return network.toLowerCase().includes(preparedSearchValue);
-
-    return network.name.toLowerCase().includes(preparedSearchValue);
-  });
+  return preparedSearchValue
+    ? searchAndFilterItems(
+        networks.filter(network => typeof network !== 'string'),
+        preparedSearchValue,
+        [{ name: 'name', weight: 1 }]
+      )
+    : networks;
 };

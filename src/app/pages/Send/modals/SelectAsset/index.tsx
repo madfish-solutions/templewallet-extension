@@ -15,6 +15,9 @@ import { SpinnerSection } from 'app/pages/Send/form/SpinnerSection';
 import { useAssetsFilterOptionsSelector } from 'app/store/assets-filter-options/selectors';
 import { FilterChain } from 'app/store/assets-filter-options/state';
 import { SearchBarField } from 'app/templates/SearchField';
+import { ALL_NETWORKS_IDENTIFIER } from 'lib/constants';
+import { t } from 'lib/i18n';
+import { filterNetworksByName } from 'lib/ui/filter-networks-by-name';
 import Popper, { PopperRenderProps } from 'lib/ui/Popper';
 import { useScrollIntoViewOnMount } from 'lib/ui/use-scroll-into-view';
 import {
@@ -142,8 +145,6 @@ export const SelectAssetModal = memo<SelectTokenModalProps>(({ onAssetSelect, op
   );
 });
 
-const ALL_NETWORKS = 'All Networks';
-
 interface FilterNetworkPopperProps {
   selectedOption: FilterChain;
   onOptionSelect: (filterChain: FilterChain) => void;
@@ -154,7 +155,7 @@ const FilterNetworkPopper = memo<FilterNetworkPopperProps>(({ selectedOption, on
   const allEvmChains = useAllEvmChains();
 
   const selectedOptionName = useMemo(() => {
-    if (!selectedOption) return ALL_NETWORKS;
+    if (!selectedOption) return t('allNetworks');
 
     if (selectedOption.kind === TempleChainKind.Tezos) {
       return allTezosChains[selectedOption.chainId]?.name;
@@ -206,14 +207,18 @@ const FilterNetworkDropdown = memo<FilterNetworkDropdownProps>(
     }, [opened, searchValueDebounced]);
 
     const networks = useMemo(
-      () => [ALL_NETWORKS, ...(accountTezAddress ? tezosChains : []), ...(accountEvmAddress ? evmChains : [])],
+      () => [
+        ALL_NETWORKS_IDENTIFIER,
+        ...(accountTezAddress ? tezosChains : []),
+        ...(accountEvmAddress ? evmChains : [])
+      ],
       [accountEvmAddress, accountTezAddress, evmChains, tezosChains]
     );
 
     const filteredNetworks = useMemo(
       () =>
         searchValueDebounced.length
-          ? searchAndFilterNetworksByName<string | OneOfChains>(networks, searchValueDebounced)
+          ? filterNetworksByName<string | OneOfChains>(networks, searchValueDebounced)
           : networks,
       [searchValueDebounced, networks]
     );
@@ -229,7 +234,7 @@ const FilterNetworkDropdown = memo<FilterNetworkDropdownProps>(
 
           {filteredNetworks.map(network => (
             <FilterOption
-              key={typeof network === 'string' ? ALL_NETWORKS : network.chainId}
+              key={typeof network === 'string' ? t('allNetworks') : network.chainId}
               network={network}
               activeNetwork={selectedOption}
               attractSelf={attractSelectedNetwork}
@@ -291,21 +296,8 @@ const FilterOption = memo<FilterOptionProps>(({ network, activeNetwork, attractS
       )}
       onClick={handleClick}
     >
-      <span>{isAllNetworks ? ALL_NETWORKS : network.name}</span>
+      <span>{isAllNetworks ? t('allNetworks') : network.name}</span>
       {Icon}
     </div>
   );
 });
-
-type SearchNetwork = string | { name: string };
-
-/** @deprecated // Rely on fuse.js */
-const searchAndFilterNetworksByName = <T extends SearchNetwork>(networks: T[], searchValue: string) => {
-  const preparedSearchValue = searchValue.trim().toLowerCase();
-
-  return networks.filter(network => {
-    if (typeof network === 'string') return network.toLowerCase().includes(preparedSearchValue);
-
-    return network.name.toLowerCase().includes(preparedSearchValue);
-  });
-};

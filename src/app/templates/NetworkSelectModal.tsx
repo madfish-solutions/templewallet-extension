@@ -16,7 +16,8 @@ import { dispatch } from 'app/store';
 import { setAssetsFilterChain } from 'app/store/assets-filter-options/actions';
 import { FilterChain } from 'app/store/assets-filter-options/state';
 import { SearchBarField } from 'app/templates/SearchField';
-import { T } from 'lib/i18n';
+import { ALL_NETWORKS_IDENTIFIER } from 'lib/constants';
+import { T, t } from 'lib/i18n';
 import { filterNetworksByName } from 'lib/ui/filter-networks-by-name';
 import { useScrollIntoViewOnMount } from 'lib/ui/use-scroll-into-view';
 import { navigate } from 'lib/woozie';
@@ -30,9 +31,9 @@ import {
 } from 'temple/front';
 import { TempleChainKind } from 'temple/types';
 
-const ALL_NETWORKS = 'All Networks';
-
 type Network = OneOfChains | string;
+
+const standsForAllNetworks = (network: Network): network is string => typeof network === 'string';
 
 interface Props {
   opened: boolean;
@@ -48,7 +49,7 @@ export const NetworkSelectModal = memo<Props>(({ opened, selectedNetwork, onRequ
   const evmChains = useEnabledEvmChains();
 
   const networks = useMemo(
-    () => [ALL_NETWORKS, ...(accountTezAddress ? tezosChains : []), ...(accountEvmAddress ? evmChains : [])],
+    () => [ALL_NETWORKS_IDENTIFIER, ...(accountTezAddress ? tezosChains : []), ...(accountEvmAddress ? evmChains : [])],
     [accountEvmAddress, accountTezAddress, evmChains, tezosChains]
   );
 
@@ -73,7 +74,7 @@ export const NetworkSelectModal = memo<Props>(({ opened, selectedNetwork, onRequ
 
   const handleNetworkSelect = useCallback(
     (network: Network) => {
-      dispatch(setAssetsFilterChain(typeof network === 'string' ? null : network));
+      dispatch(setAssetsFilterChain(standsForAllNetworks(network) ? null : network));
       onRequestClose();
     },
     [onRequestClose]
@@ -92,7 +93,7 @@ export const NetworkSelectModal = memo<Props>(({ opened, selectedNetwork, onRequ
 
         {filteredNetworks.map(network => (
           <Network
-            key={typeof network === 'string' ? ALL_NETWORKS : network.chainId}
+            key={standsForAllNetworks(network) ? ALL_NETWORKS_IDENTIFIER : network.chainId}
             network={network}
             activeNetwork={selectedNetwork}
             attractSelf={attractSelectedNetwork}
@@ -122,7 +123,7 @@ export const Network: FC<NetworkProps> = ({
   iconSize = 32,
   onClick
 }) => {
-  const isAllNetworks = typeof network === 'string';
+  const isAllNetworks = standsForAllNetworks(network);
 
   const active = isAllNetworks ? activeNetwork === null : network.chainId === activeNetwork?.chainId;
 
@@ -155,7 +156,7 @@ export const Network: FC<NetworkProps> = ({
       <div className="flex items-center gap-x-2">
         {Icon}
         <div className="flex flex-col">
-          <span className="text-font-medium-bold">{isAllNetworks ? ALL_NETWORKS : network.name}</span>
+          <span className="text-font-medium-bold">{isAllNetworks ? t('allNetworks') : network.name}</span>
           {showBalance && (
             <span className="text-grey-1 text-font-description">
               <T id="balance" />:{' '}
