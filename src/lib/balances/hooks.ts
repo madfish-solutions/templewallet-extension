@@ -8,12 +8,8 @@ import {
   useRawEvmChainAccountBalancesSelector,
   useRawEvmAssetBalanceSelector
 } from 'app/store/evm/balances/selectors';
-import { useEvmCollectibleMetadataSelector } from 'app/store/evm/collectibles-metadata/selectors';
 import { useEvmBalancesLoadingStateSelector } from 'app/store/evm/selectors';
-import {
-  useEvmTokenMetadataSelector,
-  useEvmTokensMetadataRecordSelector
-} from 'app/store/evm/tokens-metadata/selectors';
+import { useEvmTokensMetadataRecordSelector } from 'app/store/evm/tokens-metadata/selectors';
 import {
   useAllAccountBalancesSelector,
   useAllAccountBalancesEntitySelector,
@@ -26,15 +22,18 @@ import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
 import { fetchEvmRawBalance as fetchEvmRawBalanceFromBlockchain } from 'lib/evm/on-chain/balance';
 import { EvmAssetStandard } from 'lib/evm/types';
 import { EVM_BALANCES_SYNC_INTERVAL } from 'lib/fixed-times';
-import { useTezosAssetMetadata, useGetChainTokenOrGasMetadata, useGetTokenOrGasMetadata } from 'lib/metadata';
+import {
+  useTezosAssetMetadata,
+  useGetChainTokenOrGasMetadata,
+  useGetTokenOrGasMetadata,
+  useEvmAssetMetadata
+} from 'lib/metadata';
 import { EvmTokenMetadata } from 'lib/metadata/types';
 import { isEvmCollectible } from 'lib/metadata/utils';
 import { useTypedSWR } from 'lib/swr';
 import { atomsToTokens } from 'lib/temple/helpers';
 import { useInterval } from 'lib/ui/hooks';
-import { isEvmNativeTokenSlug } from 'lib/utils/evm.utils';
 import { useAccountAddressForEvm, useAccountAddressForTezos, useAllEvmChains, useOnTezosBlock } from 'temple/front';
-import { useEvmChainByChainId } from 'temple/front/chains';
 import { EvmNetworkEssentials, TezosNetworkEssentials } from 'temple/networks';
 import { getReadOnlyTezos } from 'temple/tezos';
 
@@ -266,10 +265,7 @@ function useEvmAssetRawBalance(
 }
 
 export function useEvmAssetBalance(assetSlug: string, address: HexString, network: EvmNetworkEssentials) {
-  const collectibleMetadata = useEvmCollectibleMetadataSelector(network.chainId, assetSlug);
-  const tokenMetadata = useEvmTokenMetadataSelector(network.chainId, assetSlug);
-  const chain = useEvmChainByChainId(network.chainId);
-  const metadata = collectibleMetadata ?? (isEvmNativeTokenSlug(assetSlug) ? chain?.currency : tokenMetadata);
+  const metadata = useEvmAssetMetadata(network.chainId, assetSlug);
 
   const {
     value: rawValue,

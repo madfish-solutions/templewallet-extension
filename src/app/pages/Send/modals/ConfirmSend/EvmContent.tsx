@@ -8,11 +8,10 @@ import { formatEther, parseEther, serializeTransaction } from 'viem';
 import { CLOSE_ANIMATION_TIMEOUT } from 'app/atoms/PageModal';
 import { EvmReviewData } from 'app/pages/Send/form/interfaces';
 import { useEvmEstimationData } from 'app/pages/Send/hooks/use-evm-estimation-data';
-import { useEvmCollectibleMetadataSelector } from 'app/store/evm/collectibles-metadata/selectors';
-import { useEvmTokenMetadataSelector } from 'app/store/evm/tokens-metadata/selectors';
 import { toastError, toastSuccess } from 'app/toaster';
 import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
 import { useEvmAssetBalance } from 'lib/balances/hooks';
+import { useEvmAssetMetadata } from 'lib/metadata';
 import { useTempleClient } from 'lib/temple/front';
 import { ZERO } from 'lib/utils/numbers';
 
@@ -38,8 +37,7 @@ export const EvmContent: FC<EvmContentProps> = ({ data, onClose }) => {
 
   const { value: balance = ZERO } = useEvmAssetBalance(assetSlug, accountPkh, network);
   const { value: ethBalance = ZERO } = useEvmAssetBalance(EVM_TOKEN_SLUG, accountPkh, network);
-  const tokenMetadata = useEvmTokenMetadataSelector(network.chainId, assetSlug);
-  const collectibleMetadata = useEvmCollectibleMetadataSelector(network.chainId, assetSlug);
+  const assetMetadata = useEvmAssetMetadata(network.chainId, assetSlug);
 
   const form = useForm<EvmTxParamsFormData>({ mode: 'onChange' });
   const { watch, formState, setValue } = form;
@@ -77,16 +75,11 @@ export const EvmContent: FC<EvmContentProps> = ({ data, onClose }) => {
   }, [gasPriceValue, selectedFeeOption]);
 
   const rawTransaction = useMemo(() => {
-    if (!estimationData || !feeOptions) return null;
+    if (!estimationData || !feeOptions || !assetMetadata) return null;
 
     const parsedGasPrice = debouncedGasPrice ? parseEther(debouncedGasPrice, 'gwei') : null;
 
-    const basicParams = buildBasicEvmSendParams(
-      accountPkh,
-      to as HexString,
-      amount,
-      tokenMetadata ?? collectibleMetadata
-    );
+    const basicParams = buildBasicEvmSendParams(accountPkh, to as HexString, assetMetadata, amount);
 
     return serializeTransaction({
       chainId: network.chainId,
@@ -99,7 +92,7 @@ export const EvmContent: FC<EvmContentProps> = ({ data, onClose }) => {
   }, [
     accountPkh,
     amount,
-    collectibleMetadata,
+    assetMetadata,
     debouncedGasLimit,
     debouncedGasPrice,
     debouncedNonce,
@@ -107,8 +100,7 @@ export const EvmContent: FC<EvmContentProps> = ({ data, onClose }) => {
     feeOptions,
     network.chainId,
     selectedFeeOption,
-    to,
-    tokenMetadata
+    to
   ]);
 
   useEffect(() => {
@@ -139,6 +131,10 @@ export const EvmContent: FC<EvmContentProps> = ({ data, onClose }) => {
     async ({ gasPrice, gasLimit, nonce }: EvmTxParamsFormData) => {
       if (formState.isSubmitting) return;
 
+      if (!assetMetadata) {
+        throw new Error('Asset metadata not found.');
+      }
+
       if (!estimationData || !feeOptions) {
         toastError('Failed to estimate transaction.');
 
@@ -151,8 +147,8 @@ export const EvmContent: FC<EvmContentProps> = ({ data, onClose }) => {
         const { value, to: txDestination } = buildBasicEvmSendParams(
           accountPkh,
           to as HexString,
-          amount,
-          tokenMetadata ?? collectibleMetadata
+          assetMetadata,
+          amount
         );
 
         const txHash = await sendEvmTransaction(accountPkh, network, {
@@ -179,7 +175,7 @@ export const EvmContent: FC<EvmContentProps> = ({ data, onClose }) => {
     [
       accountPkh,
       amount,
-      collectibleMetadata,
+      assetMetadata,
       estimationData,
       feeOptions,
       formState.isSubmitting,
@@ -188,8 +184,7 @@ export const EvmContent: FC<EvmContentProps> = ({ data, onClose }) => {
       onConfirm,
       selectedFeeOption,
       sendEvmTransaction,
-      to,
-      tokenMetadata
+      to
     ]
   );
 

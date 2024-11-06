@@ -14,4 +14,4 @@ export const isProperCollectibleMetadata = (
 ): data is NonNullableField<NftData, 'token_id' | 'external_data' | 'token_url'> =>
   Boolean(data.token_id && data.token_url && data.external_data);
 
-export const isEvmNativeTokenSlug = (slug: string) => slug === EVM_TOKEN_SLUG;
+export const isEvmNativeTokenSlug = (slug: string): slug is typeof EVM_TOKEN_SLUG => slug === EVM_TOKEN_SLUG;

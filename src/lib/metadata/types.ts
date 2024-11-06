@@ -64,3 +64,5 @@ export interface EvmCollectibleMetadata extends EvmAssetMetadataBase {
   animationUrl?: string;
   originalOwner?: string;
 }
+
+export type EvmAssetMetadata = EvmTokenMetadata | EvmNativeTokenMetadata | EvmCollectibleMetadata;

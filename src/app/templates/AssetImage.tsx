@@ -7,12 +7,7 @@ import {
   buildEvmCollectibleIconSources
 } from 'lib/images-uri';
 import { AssetMetadataBase, isCollectibleTokenMetadata } from 'lib/metadata';
-import {
-  EvmAssetMetadataBase,
-  EvmCollectibleMetadata,
-  EvmNativeTokenMetadata,
-  EvmTokenMetadata
-} from 'lib/metadata/types';
+import { EvmAssetMetadata, EvmAssetMetadataBase } from 'lib/metadata/types';
 import { isEvmCollectible } from 'lib/metadata/utils';
 import { ImageStacked, ImageStackedProps } from 'lib/ui/ImageStacked';
 
@@ -77,7 +72,7 @@ export const TezosAssetImage: FC<TezosAssetImageProps> = ({ metadata, fullViewCo
 };
 
 interface EvmAssetImageProps extends Omit<AssetImageBaseProps, 'sources'> {
-  metadata?: EvmTokenMetadata | EvmNativeTokenMetadata | EvmCollectibleMetadata;
+  metadata?: EvmAssetMetadata;
   evmChainId?: number;
 }
 

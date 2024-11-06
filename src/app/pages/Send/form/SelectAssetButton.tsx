@@ -5,14 +5,11 @@ import clsx from 'clsx';
 import { Button, IconBase } from 'app/atoms';
 import Money from 'app/atoms/Money';
 import { ReactComponent as CompactDown } from 'app/icons/base/compact_down.svg';
-import { useEvmCollectibleMetadataSelector } from 'app/store/evm/collectibles-metadata/selectors';
-import { useEvmTokenMetadataSelector } from 'app/store/evm/tokens-metadata/selectors';
 import { EvmAssetIconWithNetwork, TezosTokenIconWithNetwork } from 'app/templates/AssetIcon';
 import { EvmBalance, TezosBalance } from 'app/templates/Balance';
 import { setAnotherSelector, setTestID, TestIDProperty } from 'lib/analytics';
 import { T } from 'lib/i18n';
-import { getAssetSymbol, useTezosAssetMetadata } from 'lib/metadata';
-import { isEvmNativeTokenSlug } from 'lib/utils/evm.utils';
+import { getAssetSymbol, useEvmAssetMetadata, useTezosAssetMetadata } from 'lib/metadata';
 import { EvmChain, OneOfChains, TezosChain } from 'temple/front';
 import { TempleChainKind } from 'temple/types';
 
@@ -87,10 +84,7 @@ interface EvmContentProps {
 }
 
 const EvmContent = memo<EvmContentProps>(({ network, accountPkh, assetSlug }) => {
-  const tokenMetadata = useEvmTokenMetadataSelector(network.chainId, assetSlug);
-  const collectibleMetadata = useEvmCollectibleMetadataSelector(network.chainId, assetSlug);
-
-  const metadata = isEvmNativeTokenSlug(assetSlug) ? network.currency : tokenMetadata ?? collectibleMetadata;
+  const assetMetadata = useEvmAssetMetadata(network.chainId, assetSlug);
 
   return (
     <>
@@ -99,7 +93,7 @@ const EvmContent = memo<EvmContentProps>(({ network, accountPkh, assetSlug }) =>
       <EvmBalance network={network} address={accountPkh} assetSlug={assetSlug}>
         {balance => (
           <div className="flex flex-col items-start ml-2">
-            <span className="text-font-description-bold mb-0.5">{getAssetSymbol(metadata)}</span>
+            <span className="text-font-description-bold mb-0.5">{getAssetSymbol(assetMetadata)}</span>
 
             <span className="text-font-num-12 text-grey-1">
               <Money smallFractionFont={false}>{balance}</Money>

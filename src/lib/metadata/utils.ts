@@ -10,7 +10,7 @@ import {
   TezosTokenStandardsEnum,
   EvmTokenMetadata,
   EvmCollectibleMetadata,
-  EvmNativeTokenMetadata
+  EvmAssetMetadata
 } from './types';
 
 export function getAssetSymbol(
@@ -38,9 +38,7 @@ export function getCollectionName(metadata: EvmCollectibleMetadata | nullish) {
 export const isCollectible = (metadata: StringRecord<any>) =>
   'artifactUri' in metadata && isString(metadata.artifactUri);
 
-export const isEvmCollectible = (
-  metadata: EvmCollectibleMetadata | EvmTokenMetadata | EvmNativeTokenMetadata
-): metadata is EvmCollectibleMetadata =>
+export const isEvmCollectible = (metadata: EvmAssetMetadata): metadata is EvmCollectibleMetadata =>
   metadata.standard === EvmAssetStandard.ERC721 || metadata.standard === EvmAssetStandard.ERC1155;
 
 /**

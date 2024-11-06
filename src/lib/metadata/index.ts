@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useRef } from 'react';
 
 import { dispatch } from 'app/store';
+import { useEvmCollectibleMetadataSelector } from 'app/store/evm/collectibles-metadata/selectors';
+import { useEvmTokenMetadataSelector } from 'app/store/evm/tokens-metadata/selectors';
 import { loadCollectiblesMetadataAction } from 'app/store/tezos/collectibles-metadata/actions';
 import {
   useAllCollectiblesMetadataSelector,
@@ -17,7 +19,9 @@ import { METADATA_API_LOAD_CHUNK_SIZE } from 'lib/apis/temple';
 import { isTezAsset } from 'lib/assets';
 import { fromChainAssetSlug } from 'lib/assets/utils';
 import { isTruthy } from 'lib/utils';
+import { isEvmNativeTokenSlug } from 'lib/utils/evm.utils';
 import { useAllTezosChains } from 'temple/front';
+import { useEvmChainByChainId } from 'temple/front/chains';
 import { isTezosDcpChainId } from 'temple/networks';
 
 import { TEZOS_METADATA, FILM_METADATA } from './defaults';
@@ -195,4 +199,11 @@ const useTezosAssetsMetadataPresenceCheck = (
       }
     }
   }, [ofCollectibles, getMetadata, metadataLoading, chainSlugsToCheck, tezosChains]);
+};
+
+export const useEvmAssetMetadata = (chainId: number, assetSlug: string) => {
+  const tokenMetadata = useEvmTokenMetadataSelector(chainId, assetSlug);
+  const collectibleMetadata = useEvmCollectibleMetadataSelector(chainId, assetSlug);
+  const network = useEvmChainByChainId(chainId);
+  return isEvmNativeTokenSlug(assetSlug) ? network?.currency : tokenMetadata ?? collectibleMetadata;
 };
