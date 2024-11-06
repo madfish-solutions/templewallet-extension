@@ -10,10 +10,10 @@ import { privateKeyToAccount } from 'viem/accounts';
 import type * as WasmThemisPackageInterface from 'wasm-themis';
 
 import {
-  AT_LEAST_ONE_HD_ACCOUNT_ERR_MSG,
+  ACCOUNT_ALREADY_EXISTS_ERR_MSG,
   ACCOUNT_NAME_COLLISION_ERR_MSG,
-  WALLETS_SPECS_STORAGE_KEY,
-  ACCOUNT_ALREADY_EXISTS_ERR_MSG
+  AT_LEAST_ONE_HD_ACCOUNT_ERR_MSG,
+  WALLETS_SPECS_STORAGE_KEY
 } from 'lib/constants';
 import { fetchFromStorage as getPlain, putToStorage as savePlain } from 'lib/storage';
 import {
@@ -40,20 +40,20 @@ import { PublicError } from '../PublicError';
 import { fetchMessage, transformHttpResponseError } from './helpers';
 import { MIGRATIONS } from './migrations';
 import {
-  seedToPrivateKey,
-  deriveSeed,
-  generateCheck,
-  fetchNewAccountName,
+  buildEncryptAndSaveManyForAccount,
+  canRemoveAccounts,
   concatAccount,
   createMemorySigner,
-  withError,
-  mnemonicToTezosAccountCreds,
+  deriveSeed,
+  fetchNewAccountName,
+  generateCheck,
+  isEvmDerivationPath,
   mnemonicToEvmAccountCreds,
-  buildEncryptAndSaveManyForAccount,
-  privateKeyToTezosAccountCreds,
+  mnemonicToTezosAccountCreds,
   privateKeyToEvmAccountCreds,
-  canRemoveAccounts,
-  isEvmDerivationPath
+  privateKeyToTezosAccountCreds,
+  seedToPrivateKey,
+  withError
 } from './misc';
 import {
   encryptAndSaveMany,
@@ -68,14 +68,14 @@ import {
 } from './safe-storage';
 import * as SessionStore from './session-store';
 import {
-  checkStrgKey,
-  migrationLevelStrgKey,
-  walletMnemonicStrgKey,
+  accountsStrgKey,
   accPrivKeyStrgKey,
   accPubKeyStrgKey,
-  accountsStrgKey,
+  checkStrgKey,
+  legacyMigrationLevelStrgKey,
+  migrationLevelStrgKey,
   settingsStrgKey,
-  legacyMigrationLevelStrgKey
+  walletMnemonicStrgKey
 } from './storage-keys';
 
 const TEMPLE_SYNC_PREFIX = 'templesync';
@@ -237,7 +237,7 @@ export class Vault {
     );
   }
 
-  static async generateSyncPayload(password: string) {
+  static async generateSyncPayload(password: string, walletId: string) {
     let WasmThemis: typeof WasmThemisPackageInterface;
     try {
       WasmThemis = await import('wasm-themis');
@@ -248,14 +248,12 @@ export class Vault {
 
     const { passKey } = await Vault.toValidPassKey(password);
     return withError('Failed to generate sync payload', async () => {
-      const walletsSpecs = await getPlain<StringRecord<WalletSpecs>>(WALLETS_SPECS_STORAGE_KEY);
-      const firstWalletId = Object.keys(walletsSpecs ?? {})[0];
       const [mnemonic, allAccounts] = await Promise.all([
-        fetchAndDecryptOne<string>(walletMnemonicStrgKey(firstWalletId), passKey),
+        fetchAndDecryptOne<string>(walletMnemonicStrgKey(walletId), passKey),
         fetchAndDecryptOne<StoredAccount[]>(accountsStrgKey, passKey)
       ]);
 
-      const hdAccounts = getSameGroupAccounts(allAccounts, TempleAccountType.HD, firstWalletId);
+      const hdAccounts = getSameGroupAccounts(allAccounts, TempleAccountType.HD, walletId);
 
       const data = [mnemonic, hdAccounts.length];
 

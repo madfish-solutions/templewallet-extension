@@ -12,6 +12,7 @@ type CaptionAlertType = 'success' | 'error' | 'info' | 'warning';
 interface Props {
   type: CaptionAlertType;
   message: string;
+  title?: string;
   className?: string;
   textClassName?: string;
 }
@@ -24,7 +25,7 @@ const TYPE_CLASSES: Record<CaptionAlertType, string> = {
 };
 
 /** Refer to `./Alert` for existing functionality */
-export const CaptionAlert = memo<Props>(({ type, message, className, textClassName }) => {
+export const CaptionAlert = memo<Props>(({ type, message, title, className, textClassName }) => {
   const Icon = (() => {
     switch (type) {
       case 'success':
@@ -42,7 +43,10 @@ export const CaptionAlert = memo<Props>(({ type, message, className, textClassNa
     <div className={clsx('flex items-start p-3 gap-x-1 rounded-md', TYPE_CLASSES[type], className)}>
       <Icon className="shrink-0 w-6 h-6" />
 
-      <p className={clsx('flex-1 text-font-description', textClassName)}>{message}</p>
+      <div className="flex-1">
+        {title && <p className="text-font-description-bold">{title}</p>}
+        <p className={clsx('text-font-description', textClassName)}>{message}</p>
+      </div>
     </div>
   );
 });

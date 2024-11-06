@@ -38,7 +38,7 @@
     "message": "Click on the X icon to reset permissions."
   },
   "versionLabel": {
-    "message": "version: $version$",
+    "message": "Version: $version$",
     "placeholders": {
       "version": {
         "content": "$1"
@@ -46,21 +46,10 @@
     }
   },
   "branchName": {
-    "message": "branch: $branch$",
+    "message": "Branch: $branch$",
     "placeholders": {
       "branch": {
         "content": "$1"
-      }
-    }
-  },
-  "madeWithLove": {
-    "message": "Made with $loveIcon$ by $companyName$",
-    "placeholders": {
-      "loveIcon": {
-        "content": "$1"
-      },
-      "companyName": {
-        "content": "$2"
       }
     }
   },
@@ -685,16 +674,13 @@
     "message": "Website"
   },
   "repo": {
-    "message": "Repository"
+    "message": "GitHub Repository"
   },
   "privacyPolicy": {
     "message": "Privacy Policy"
   },
   "termsOfUse": {
     "message": "Terms of Use"
-  },
-  "contact": {
-    "message": "Contact"
   },
   "minimalFeeDescription": {
     "message": "Minimal"
