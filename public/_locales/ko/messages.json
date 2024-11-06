@@ -43,21 +43,10 @@
     }
   },
   "branchName": {
-    "message": "branch: $branch$",
+    "message": "Branch: $branch$",
     "placeholders": {
       "branch": {
         "content": "$1"
-      }
-    }
-  },
-  "madeWithLove": {
-    "message": "$companyName$ 옆에 $loveIcon$ 포함하여 제작",
-    "placeholders": {
-      "loveIcon": {
-        "content": "$1"
-      },
-      "companyName": {
-        "content": "$2"
       }
     }
   },
@@ -647,17 +636,11 @@
   "website": {
     "message": "웹사이트"
   },
-  "repo": {
-    "message": "저장소"
-  },
   "privacyPolicy": {
     "message": "개인정보 보호정책"
   },
   "termsOfUse": {
     "message": "사용약관"
-  },
-  "contact": {
-    "message": "연락처"
   },
   "minimalFeeDescription": {
     "message": "최소"

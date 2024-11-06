@@ -43,6 +43,8 @@ export interface PageLayoutProps extends DefaultHeaderProps, ScrollEdgesVisibili
   Header?: ComponentType;
   noScroll?: boolean;
   contentPadding?: boolean;
+  contentClassName?: string;
+  paperClassName?: string;
   dimBg?: boolean;
   headerChildren?: ReactNode;
 }
@@ -52,6 +54,8 @@ const PageLayout: FC<PropsWithChildren<PageLayoutProps>> = ({
   children,
   noScroll = false,
   contentPadding = true,
+  contentClassName,
+  paperClassName,
   dimBg = true,
   headerChildren,
   onBottomEdgeVisibilityChange,
@@ -76,6 +80,7 @@ const PageLayout: FC<PropsWithChildren<PageLayoutProps>> = ({
 
       <div id={APP_CONTENT_WRAP_DOM_ID} className={clsx(fullPage && FULL_PAGE_WRAP_CLASSNAME)}>
         <ContentPaper
+          className={paperClassName}
           onBottomEdgeVisibilityChange={onBottomEdgeVisibilityChange}
           bottomEdgeThreshold={bottomEdgeThreshold}
           onTopEdgeVisibilityChange={onTopEdgeVisibilityChange}
@@ -88,7 +93,8 @@ const PageLayout: FC<PropsWithChildren<PageLayoutProps>> = ({
               'flex-grow flex flex-col',
               noScroll && 'overflow-hidden',
               contentPadding && 'p-4 pb-15',
-              dimBg && 'bg-background'
+              dimBg && 'bg-background',
+              contentClassName
             )}
           >
             <SuspenseContainer errorMessage="displaying this page">{children}</SuspenseContainer>

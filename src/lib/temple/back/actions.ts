@@ -150,8 +150,8 @@ export function revealMnemonic(walletId: string, password: string) {
   return withUnlocked(() => Vault.revealMnemonic(walletId, password));
 }
 
-export function generateSyncPayload(password: string) {
-  return withUnlocked(() => Vault.generateSyncPayload(password));
+export function generateSyncPayload(password: string, walletId: string) {
+  return withUnlocked(() => Vault.generateSyncPayload(password, walletId));
 }
 
 export function revealPrivateKey(address: string, password: string) {

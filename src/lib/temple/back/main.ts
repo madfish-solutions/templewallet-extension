@@ -115,7 +115,7 @@ const processRequest = async (req: TempleRequest, port: Runtime.Port): Promise<T
       };
 
     case TempleMessageType.GenerateSyncPayloadRequest:
-      const payload = await Actions.generateSyncPayload(req.password);
+      const payload = await Actions.generateSyncPayload(req.password, req.walletId);
       return {
         type: TempleMessageType.GenerateSyncPayloadResponse,
         payload
