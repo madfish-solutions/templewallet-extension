@@ -1,4 +1,4 @@
-import React, { FC, UIEventHandler, useCallback, useMemo, useRef } from 'react';
+import React, { FC, HTMLAttributes, UIEventHandler, useCallback, useMemo, useRef } from 'react';
 
 import clsx from 'clsx';
 import { throttle } from 'lodash';
@@ -6,11 +6,11 @@ import { throttle } from 'lodash';
 import { useSafeState } from 'lib/ui/hooks';
 import { useWillUnmount } from 'lib/ui/hooks/useWillUnmount';
 
-interface Props extends PropsWithChildren {
+interface Props extends HTMLAttributes<HTMLDivElement> {
   className?: string;
 }
 
-export const ScrollView: FC<Props> = ({ className, children }) => {
+export const ScrollView: FC<Props> = ({ className, children, ...rest }) => {
   const [contentHiding, setContentHiding] = useSafeState(false);
 
   const ref = useRef<HTMLDivElement | nullish>();
@@ -49,6 +49,7 @@ export const ScrollView: FC<Props> = ({ className, children }) => {
       ref={refFn}
       className={clsx('flex-grow flex flex-col overflow-y-auto', className, contentHiding && 'shadow-inner-bottom')}
       onScroll={onScroll}
+      {...rest}
     >
       {children}
     </div>

@@ -31,7 +31,7 @@ export const BackupOptionsModal = memo<BackupOptionsModalProps>(({ onSelect }) =
         onClick={onSelect}
         testID={BackupOptionsModalSelectors.manualBackupButton}
       >
-        <IconBase Icon={DocumentsIcon} size={16} />
+        <IconBase Icon={DocumentsIcon} size={16} className="text-primary" />
         <span className="text-font-regular-bold">{t('backupManually')}</span>
       </StyledButton>
     </div>

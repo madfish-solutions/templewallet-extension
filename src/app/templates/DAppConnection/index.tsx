@@ -5,7 +5,6 @@ import DAppLogo from 'app/atoms/DAppLogo';
 import { TezosNetworkLogo } from 'app/atoms/NetworkLogo';
 import { StyledButton } from 'app/atoms/StyledButton';
 import { ReactComponent as ChevronRightSvg } from 'app/icons/base/chevron_right.svg';
-import { t } from 'lib/i18n';
 import { useTypedSWR } from 'lib/swr';
 import { TempleTezosChainId } from 'lib/temple/types';
 import { Link } from 'lib/woozie';
@@ -43,11 +42,7 @@ export const DAppConnection = memo(() => {
 
         {network && (
           <div className="absolute bottom-0 right-0">
-            <TezosNetworkLogo
-              chainId={network.chainId}
-              size={16}
-              networkName={network.nameI18nKey ? t(network.nameI18nKey) : network.name}
-            />
+            <TezosNetworkLogo chainId={network.chainId} size={16} />
           </div>
         )}
       </div>

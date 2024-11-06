@@ -15,9 +15,9 @@ interface Props extends InputHTMLAttributes<HTMLInputElement>, TestIDProps {
   value: string;
   onValueChange: (value: string) => void;
   bottomOffset?: string;
+  /** @deprecated */
   containerClassName?: string;
   onCleanButtonClick?: () => void;
-  defaultRightMargin?: boolean;
 }
 
 const SearchField = forwardRef<HTMLDivElement, Props>(
@@ -100,8 +100,12 @@ const SearchField = forwardRef<HTMLDivElement, Props>(
 
 export default SearchField;
 
+interface SearchBarFieldProps extends Props {
+  defaultRightMargin?: boolean;
+}
+
 export const SearchBarField = memo(
-  forwardRef<HTMLDivElement, Props>(
+  forwardRef<HTMLDivElement, SearchBarFieldProps>(
     ({ className, placeholder = 'Search', defaultRightMargin = true, containerClassName, value, ...rest }, ref) => (
       <SearchField
         ref={ref}

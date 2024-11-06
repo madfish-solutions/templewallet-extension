@@ -42,9 +42,9 @@ export const DetailsTab: FC<Props> = ({
         <div className="flex flex-row items-center">
           <span className="p-1 text-font-description-bold">{network.name}</span>
           {chainKind === TempleChainKind.EVM ? (
-            <EvmNetworkLogo networkName={network.name} chainId={chainId} />
+            <EvmNetworkLogo chainId={chainId} />
           ) : (
-            <TezosNetworkLogo networkName={network.name} chainId={chainId} />
+            <TezosNetworkLogo chainId={chainId} />
           )}
         </div>
       </div>

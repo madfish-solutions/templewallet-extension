@@ -3,7 +3,7 @@ import React, { memo, useCallback, useEffect, useState } from 'react';
 import { ToggleSwitch } from 'app/atoms';
 import { ActionModalBodyContainer, ActionModalButton, ActionModalButtonsContainer } from 'app/atoms/action-modal';
 import { ActionsButtonsBox } from 'app/atoms/PageModal/actions-buttons-box';
-import { SettingsCell } from 'app/atoms/SettingsCell';
+import { SettingsCellSingle } from 'app/atoms/SettingsCell';
 import { SettingsCellGroup } from 'app/atoms/SettingsCellGroup';
 import { StyledButton } from 'app/atoms/StyledButton';
 import PageLayout from 'app/layouts/PageLayout';
@@ -60,14 +60,14 @@ const ChainExistentSettings = memo<ChainExistentSettingsProps>(({ chain, bottomE
     <>
       <div className="w-full h-full flex flex-col p-4 gap-4">
         <SettingsCellGroup>
-          <SettingsCell cellName={<T id="networkEnabled" />} Component="div">
+          <SettingsCellSingle cellName={<T id="networkEnabled" />} Component="div">
             <ToggleSwitch
               checked={!chain.disabled}
               disabled={!chain.disabled && disablingIsForbidden}
               onChange={setChainEnabled}
               testID={ChainSettingsSelectors.networkEnabledSwitch}
             />
-          </SettingsCell>
+          </SettingsCellSingle>
         </SettingsCellGroup>
 
         <ManageUrlEntitiesView<StoredTezosNetwork | StoredEvmNetwork>

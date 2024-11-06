@@ -1,0 +1,3 @@
+.activateContentFader .fadeableContent {
+  filter: brightness(0.85);
+}

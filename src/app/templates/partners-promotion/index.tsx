@@ -29,6 +29,7 @@ interface PartnersPromotionProps {
   id: string;
   pageName: string;
   withPersonaProvider?: boolean;
+  className?: string;
 }
 
 type AdsProviderLocalName = Exclude<AdsProviderName, 'Temple'>;
@@ -37,128 +38,131 @@ const shouldBeHiddenTemporarily = (hiddenAt: number) => {
   return Date.now() - hiddenAt < AD_HIDING_TIMEOUT;
 };
 
-export const PartnersPromotion = memo<PartnersPromotionProps>(({ variant, id, pageName, withPersonaProvider }) => {
-  const isImageAd = variant === PartnersPromotionVariant.Image;
-  const adsViewerAddress = useAdsViewerPkh();
-  const { popup } = useAppEnv();
-  const dispatch = useDispatch();
-  const hiddenAt = usePromotionHidingTimestampSelector(id);
-  const shouldShowPartnersPromo = useShouldShowPartnersPromoSelector();
+export const PartnersPromotion = memo<PartnersPromotionProps>(
+  ({ variant, id, pageName, withPersonaProvider, className }) => {
+    const isImageAd = variant === PartnersPromotionVariant.Image;
+    const adsViewerAddress = useAdsViewerPkh();
+    const { popup } = useAppEnv();
+    const dispatch = useDispatch();
+    const hiddenAt = usePromotionHidingTimestampSelector(id);
+    const shouldShowPartnersPromo = useShouldShowPartnersPromoSelector();
 
-  const isAnalyticsSentRef = useRef(false);
+    const isAnalyticsSentRef = useRef(false);
 
-  const [isHiddenTemporarily, setIsHiddenTemporarily] = useState(shouldBeHiddenTemporarily(hiddenAt));
-  const [providerName, setProviderName] = useState<AdsProviderLocalName>('Optimal');
-  const [adError, setAdError] = useState(false);
-  const [adIsReady, setAdIsReady] = useState(false);
+    const [isHiddenTemporarily, setIsHiddenTemporarily] = useState(shouldBeHiddenTemporarily(hiddenAt));
+    const [providerName, setProviderName] = useState<AdsProviderLocalName>('Optimal');
+    const [adError, setAdError] = useState(false);
+    const [adIsReady, setAdIsReady] = useState(false);
 
-  useEffect(() => {
-    const newIsHiddenTemporarily = shouldBeHiddenTemporarily(hiddenAt);
-    setIsHiddenTemporarily(newIsHiddenTemporarily);
+    useEffect(() => {
+      const newIsHiddenTemporarily = shouldBeHiddenTemporarily(hiddenAt);
+      setIsHiddenTemporarily(newIsHiddenTemporarily);
 
-    if (newIsHiddenTemporarily) {
-      const timeout = setTimeout(
-        () => setIsHiddenTemporarily(false),
-        Math.max(Date.now() - hiddenAt + AD_HIDING_TIMEOUT, 0)
-      );
+      if (newIsHiddenTemporarily) {
+        const timeout = setTimeout(
+          () => setIsHiddenTemporarily(false),
+          Math.max(Date.now() - hiddenAt + AD_HIDING_TIMEOUT, 0)
+        );
 
-      return () => clearTimeout(timeout);
+        return () => clearTimeout(timeout);
+      }
+
+      return;
+    }, [hiddenAt]);
+
+    const handleAdRectSeen = useCallback(() => {
+      if (isAnalyticsSentRef.current) return;
+
+      postAdImpression(adsViewerAddress, AdsProviderTitle[providerName], { pageName });
+
+      isAnalyticsSentRef.current = true;
+    }, [providerName, pageName, adsViewerAddress]);
+
+    const handleClosePartnersPromoClick = useCallback<MouseEventHandler<HTMLButtonElement>>(
+      e => {
+        e.preventDefault();
+        e.stopPropagation();
+        dispatch(hidePromotionAction({ timestamp: Date.now(), id }));
+      },
+      [id, dispatch]
+    );
+
+    const handleOptimalError = useCallback(() => setProviderName('HypeLab'), []);
+    const handleHypelabError = useCallback(
+      () => (withPersonaProvider ? setProviderName('Persona') : setAdError(true)),
+      [withPersonaProvider]
+    );
+    const handlePersonaError = useCallback(() => setAdError(true), []);
+
+    const handleAdReady = useCallback(() => setAdIsReady(true), []);
+
+    if (!shouldShowPartnersPromo || adError || isHiddenTemporarily) {
+      return null;
     }
 
-    return;
-  }, [hiddenAt]);
+    return (
+      <div
+        className={clsx(
+          'w-full relative flex flex-col items-center',
+          !adIsReady && (isImageAd ? styles.imageAdLoading : styles.textAdLoading),
+          className
+        )}
+      >
+        {(() => {
+          switch (providerName) {
+            case 'Optimal':
+              return (
+                <OptimalPromotion
+                  accountPkh={adsViewerAddress}
+                  variant={variant}
+                  isVisible={adIsReady}
+                  pageName={pageName}
+                  onAdRectSeen={handleAdRectSeen}
+                  onClose={handleClosePartnersPromoClick}
+                  onReady={handleAdReady}
+                  onError={handleOptimalError}
+                />
+              );
+            case 'HypeLab':
+              return (
+                <HypelabPromotion
+                  accountPkh={adsViewerAddress}
+                  variant={variant}
+                  isVisible={adIsReady}
+                  pageName={pageName}
+                  onAdRectSeen={handleAdRectSeen}
+                  onClose={handleClosePartnersPromoClick}
+                  onReady={handleAdReady}
+                  onError={handleHypelabError}
+                />
+              );
+            case 'Persona':
+              return (
+                <PersonaPromotion
+                  accountPkh={adsViewerAddress}
+                  id={id}
+                  isVisible={adIsReady}
+                  pageName={pageName}
+                  onAdRectSeen={handleAdRectSeen}
+                  onClose={handleClosePartnersPromoClick}
+                  onReady={handleAdReady}
+                  onError={handlePersonaError}
+                />
+              );
+          }
+        })()}
 
-  const handleAdRectSeen = useCallback(() => {
-    if (isAnalyticsSentRef.current) return;
-
-    postAdImpression(adsViewerAddress, AdsProviderTitle[providerName], { pageName });
-
-    isAnalyticsSentRef.current = true;
-  }, [providerName, pageName, adsViewerAddress]);
-
-  const handleClosePartnersPromoClick = useCallback<MouseEventHandler<HTMLButtonElement>>(
-    e => {
-      e.preventDefault();
-      e.stopPropagation();
-      dispatch(hidePromotionAction({ timestamp: Date.now(), id }));
-    },
-    [id, dispatch]
-  );
-
-  const handleOptimalError = useCallback(() => setProviderName('HypeLab'), []);
-  const handleHypelabError = useCallback(
-    () => (withPersonaProvider ? setProviderName('Persona') : setAdError(true)),
-    [withPersonaProvider]
-  );
-  const handlePersonaError = useCallback(() => setAdError(true), []);
-
-  const handleAdReady = useCallback(() => setAdIsReady(true), []);
-
-  if (!shouldShowPartnersPromo || adError || isHiddenTemporarily) {
-    return null;
+        {!adIsReady && (
+          <div
+            className={clsx(
+              'absolute top-0 left-0 w-full h-full bg-gray-100 flex justify-center items-center',
+              !popup && 'rounded-10'
+            )}
+          >
+            <Spinner theme="dark-gray" className="w-6" />
+          </div>
+        )}
+      </div>
+    );
   }
-
-  return (
-    <div
-      className={clsx(
-        'w-full relative flex flex-col items-center',
-        !adIsReady && (isImageAd ? styles.imageAdLoading : styles.textAdLoading)
-      )}
-    >
-      {(() => {
-        switch (providerName) {
-          case 'Optimal':
-            return (
-              <OptimalPromotion
-                accountPkh={adsViewerAddress}
-                variant={variant}
-                isVisible={adIsReady}
-                pageName={pageName}
-                onAdRectSeen={handleAdRectSeen}
-                onClose={handleClosePartnersPromoClick}
-                onReady={handleAdReady}
-                onError={handleOptimalError}
-              />
-            );
-          case 'HypeLab':
-            return (
-              <HypelabPromotion
-                accountPkh={adsViewerAddress}
-                variant={variant}
-                isVisible={adIsReady}
-                pageName={pageName}
-                onAdRectSeen={handleAdRectSeen}
-                onClose={handleClosePartnersPromoClick}
-                onReady={handleAdReady}
-                onError={handleHypelabError}
-              />
-            );
-          case 'Persona':
-            return (
-              <PersonaPromotion
-                accountPkh={adsViewerAddress}
-                id={id}
-                isVisible={adIsReady}
-                pageName={pageName}
-                onAdRectSeen={handleAdRectSeen}
-                onClose={handleClosePartnersPromoClick}
-                onReady={handleAdReady}
-                onError={handlePersonaError}
-              />
-            );
-        }
-      })()}
-
-      {!adIsReady && (
-        <div
-          className={clsx(
-            'absolute top-0 left-0 w-full h-full bg-gray-100 flex justify-center items-center',
-            !popup && 'rounded-2.5'
-          )}
-        >
-          <Spinner theme="dark-gray" className="w-6" />
-        </div>
-      )}
-    </div>
-  );
-});
+);

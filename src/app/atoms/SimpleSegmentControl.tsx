@@ -35,7 +35,7 @@ export const SimpleSegmentControl = memo(
           {/* Slider */}
           <div
             className={clsx(
-              'absolute h-full bg-white rounded-1.25 shadow-bottom duration-400 ease-out',
+              'absolute h-full bg-white rounded-5 shadow-bottom duration-400 ease-out',
               activeSecond ? 'left-1/2 right-0' : 'left-0 right-1/2'
             )}
           />

@@ -14,7 +14,6 @@ import { useLocationSearchParamValue } from 'app/hooks/use-location';
 import PageLayout, { PageLayoutProps } from 'app/layouts/PageLayout';
 import { setToastsContainerBottomShiftAction } from 'app/store/settings/actions';
 import { useMainnetTokensScamlistSelector } from 'app/store/tezos/assets/selectors';
-import { ActivityTab } from 'app/templates/activity/Activity';
 import { AdvertisingBanner } from 'app/templates/advertising/advertising-banner/advertising-banner';
 import { AppHeader } from 'app/templates/AppHeader';
 import { toastSuccess } from 'app/toaster';
@@ -116,8 +115,6 @@ const Home = memo<HomeProps>(props => {
               switch (tabSlug) {
                 case 'collectibles':
                   return <CollectiblesTab />;
-                case 'activity':
-                  return <ActivityTab />;
                 default:
                   return <TokensTab />;
               }

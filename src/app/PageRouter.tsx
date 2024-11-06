@@ -23,6 +23,7 @@ import { useTempleClient } from 'lib/temple/front';
 import * as Woozie from 'lib/woozie';
 import { TempleChainKind } from 'temple/types';
 
+import { ActivityPage } from './pages/Activity';
 import { ChainSettings } from './pages/ChainSettings';
 import { ImportWallet } from './pages/ImportWallet';
 import { Market } from './pages/Market';
@@ -75,6 +76,7 @@ const ROUTE_MAP = Woozie.createMap<RouteContext>([
       <Home chainKind={chainKind} chainId={chainId} assetSlug={assetSlug} />
     ))
   ],
+  ['/activity', onlyReady(() => <ActivityPage />)],
   ['/connect-ledger', onlyReady(onlyInFullPage(() => <ConnectLedger />))],
   ['/receive', onlyReady(() => <Receive />)],
   [

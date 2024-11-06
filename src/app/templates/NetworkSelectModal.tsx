@@ -17,8 +17,9 @@ import { setAssetsFilterChain } from 'app/store/assets-filter-options/actions';
 import { FilterChain } from 'app/store/assets-filter-options/state';
 import { SearchBarField } from 'app/templates/SearchField';
 import { T } from 'lib/i18n';
-import { filterNetworksByName } from 'lib/ui/filter-networks-by-name';
+import { searchAndFilterChains } from 'lib/ui/search-networks';
 import { useScrollIntoViewOnMount } from 'lib/ui/use-scroll-into-view';
+import { isSearchStringApplicable } from 'lib/utils/search-items';
 import { navigate } from 'lib/woozie';
 import {
   OneOfChains,
@@ -32,8 +33,6 @@ import { TempleChainKind } from 'temple/types';
 
 const ALL_NETWORKS = 'All Networks';
 
-type Network = OneOfChains | string;
-
 interface Props {
   opened: boolean;
   selectedNetwork: FilterChain;
@@ -41,39 +40,9 @@ interface Props {
 }
 
 export const NetworkSelectModal = memo<Props>(({ opened, selectedNetwork, onRequestClose }) => {
-  const accountTezAddress = useAccountAddressForTezos();
-  const accountEvmAddress = useAccountAddressForEvm();
-
-  const tezosChains = useEnabledTezosChains();
-  const evmChains = useEnabledEvmChains();
-
-  const networks = useMemo(
-    () => [ALL_NETWORKS, ...(accountTezAddress ? tezosChains : []), ...(accountEvmAddress ? evmChains : [])],
-    [accountEvmAddress, accountTezAddress, evmChains, tezosChains]
-  );
-
-  const [searchValue, setSearchValue] = useState('');
-  const [searchValueDebounced] = useDebounce(searchValue, 300);
-
-  const [attractSelectedNetwork, setAttractSelectedNetwork] = useState(true);
-
-  const filteredNetworks = useMemo(
-    () => (searchValueDebounced.length ? filterNetworksByName(networks, searchValueDebounced) : networks),
-    [searchValueDebounced, networks]
-  );
-
-  useEffect(() => {
-    if (searchValueDebounced) setAttractSelectedNetwork(false);
-    else if (!opened) setAttractSelectedNetwork(true);
-  }, [opened, searchValueDebounced]);
-
-  useEffect(() => {
-    if (!opened) setSearchValue('');
-  }, [opened]);
-
   const handleNetworkSelect = useCallback(
-    (network: Network) => {
-      dispatch(setAssetsFilterChain(typeof network === 'string' ? null : network));
+    (network: OneOfChains | null) => {
+      dispatch(setAssetsFilterChain(network));
       onRequestClose();
     },
     [onRequestClose]
@@ -81,37 +50,101 @@ export const NetworkSelectModal = memo<Props>(({ opened, selectedNetwork, onRequ
 
   return (
     <PageModal title="Select Network" opened={opened} onRequestClose={onRequestClose}>
+      <NetworkSelectModalContent
+        opened={opened}
+        selectedNetwork={selectedNetwork}
+        handleNetworkSelect={handleNetworkSelect}
+      />
+    </PageModal>
+  );
+});
+
+interface ContentProps {
+  opened: boolean;
+  selectedNetwork: FilterChain;
+  handleNetworkSelect: (chain: OneOfChains | null) => void;
+}
+
+export const NetworkSelectModalContent = memo<ContentProps>(({ opened, selectedNetwork, handleNetworkSelect }) => {
+  const accountTezAddress = useAccountAddressForTezos();
+  const accountEvmAddress = useAccountAddressForEvm();
+
+  const tezosChains = useEnabledTezosChains();
+  const evmChains = useEnabledEvmChains();
+
+  const networks = useMemo(
+    () => [...(accountTezAddress ? tezosChains : []), ...(accountEvmAddress ? evmChains : [])],
+    [accountEvmAddress, accountTezAddress, evmChains, tezosChains]
+  );
+
+  const [searchValue, setSearchValue] = useState('');
+  const [searchValueDebounced] = useDebounce(searchValue, 300);
+  const inSearch = isSearchStringApplicable(searchValueDebounced);
+
+  const [attractSelectedNetwork, setAttractSelectedNetwork] = useState(true);
+
+  const searchedNetworks = useMemo(
+    () => (inSearch ? searchAndFilterChains(networks, searchValueDebounced) : networks),
+    [inSearch, searchValueDebounced, networks]
+  );
+
+  useEffect(() => {
+    if (searchValueDebounced) setAttractSelectedNetwork(false);
+    else if (!opened) setAttractSelectedNetwork(true);
+  }, [opened, searchValueDebounced]);
+
+  const onNetworkSelect = useCallback(
+    (network: OneOfChains | string) => {
+      handleNetworkSelect(typeof network === 'string' ? null : network);
+    },
+    [handleNetworkSelect]
+  );
+
+  return (
+    <>
       <div className="flex gap-x-2 p-4">
         <SearchBarField value={searchValue} placeholder="Network name" onValueChange={setSearchValue} />
 
         <IconButton Icon={PlusIcon} color="blue" onClick={() => navigate('settings/networks')} />
       </div>
 
-      <div className="px-4 pb-1 flex-1 flex flex-col overflow-y-auto">
-        {filteredNetworks.length === 0 && <EmptyState />}
+      <div className="px-4 pb-1 flex-grow flex flex-col overflow-y-auto">
+        {searchedNetworks.length === 0 ? (
+          <EmptyState />
+        ) : (
+          !inSearch && (
+            <Network
+              network={ALL_NETWORKS}
+              activeNetwork={selectedNetwork}
+              attractSelf={attractSelectedNetwork}
+              showBalance
+              onClick={onNetworkSelect}
+            />
+          )
+        )}
 
-        {filteredNetworks.map(network => (
+        {searchedNetworks.map(network => (
           <Network
-            key={typeof network === 'string' ? ALL_NETWORKS : network.chainId}
+            key={network.chainId}
             network={network}
             activeNetwork={selectedNetwork}
             attractSelf={attractSelectedNetwork}
             showBalance
-            onClick={handleNetworkSelect}
+            onClick={onNetworkSelect}
           />
         ))}
       </div>
-    </PageModal>
+    </>
   );
 });
 
 interface NetworkProps {
-  network: Network;
+  network: OneOfChains | string;
   activeNetwork: FilterChain;
   attractSelf?: boolean;
   showBalance?: boolean;
   iconSize?: Size;
-  onClick?: (network: Network) => void;
+  onClick?: (network: OneOfChains | string) => void;
 }
 
 export const Network: FC<NetworkProps> = ({
@@ -133,13 +166,10 @@ export const Network: FC<NetworkProps> = ({
   const Icon = useMemo(() => {
     if (isAllNetworks) return <IconBase Icon={Browse} className="text-primary mx-0.5" size={iconSize} />;
 
-    if (network.kind === TempleChainKind.Tezos)
-      return <TezosNetworkLogo networkName={network.name} chainId={network.chainId} size={iconSize} />;
+    if (network.kind === TempleChainKind.Tezos) return <TezosNetworkLogo chainId={network.chainId} size={iconSize} />;
 
     if (network.kind === TempleChainKind.EVM)
-      return (
-        <EvmNetworkLogo networkName={network.name} chainId={network.chainId} size={iconSize} imgClassName="p-0.5" />
-      );
+      return <EvmNetworkLogo chainId={network.chainId} size={iconSize} imgClassName="p-0.5" />;
 
     return null;
   }, [isAllNetworks, network, iconSize]);
@@ -154,8 +184,10 @@ export const Network: FC<NetworkProps> = ({
     >
       <div className="flex items-center gap-x-2">
         {Icon}
+
         <div className="flex flex-col">
-          <span className="text-font-medium-bold">{isAllNetworks ? ALL_NETWORKS : network.name}</span>
+          <span className="text-font-medium-bold">{isAllNetworks ? <T id="allNetworks" /> : network.name}</span>
+
           {showBalance && (
             <span className="text-grey-1 text-font-description">
               <T id="balance" />:{' '}
@@ -164,6 +196,7 @@ export const Network: FC<NetworkProps> = ({
           )}
         </div>
       </div>
+
       <RadioButton active={active} className={active ? undefined : 'opacity-0 group-hover:opacity-100'} />
     </div>
   );

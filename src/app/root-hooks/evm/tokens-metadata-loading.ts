@@ -13,7 +13,7 @@ import {
 } from 'app/store/evm/tokens-metadata/actions';
 import { useEvmTokensMetadataRecordSelector } from 'app/store/evm/tokens-metadata/selectors';
 import { isValidFetchedEvmMetadata } from 'app/store/evm/tokens-metadata/utils';
-import { getEvmTokensMetadata } from 'lib/apis/temple/endpoints/evm/api';
+import { getEvmTokensMetadata } from 'lib/apis/temple/endpoints/evm';
 import { isSupportedChainId } from 'lib/apis/temple/endpoints/evm/api.utils';
 import { toTokenSlug } from 'lib/assets';
 import { fetchEvmTokensMetadataFromChain } from 'lib/evm/on-chain/metadata';

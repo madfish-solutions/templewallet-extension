@@ -16,6 +16,8 @@ interface MoneyProps extends TestIDProps {
   roundingMode?: BigNumber.RoundingMode;
   shortened?: boolean;
   smallFractionFont?: boolean;
+  /** To show the '+' sign */
+  withSign?: boolean;
   tooltip?: boolean;
   tooltipPlacement?: Placement;
 }
@@ -31,6 +33,7 @@ const Money = memo<MoneyProps>(
     roundingMode = BigNumber.ROUND_DOWN,
     shortened,
     smallFractionFont = true,
+    withSign,
     tooltip = true,
     tooltipPlacement,
     testID,
@@ -65,6 +68,7 @@ const Money = memo<MoneyProps>(
           className={tippyClassName}
           tooltipPlacement={tooltipPlacement}
           bn={bn}
+          withSign={withSign}
           testID={testID}
           testIDProperties={testIDProperties}
         />
@@ -81,6 +85,7 @@ const Money = memo<MoneyProps>(
           cryptoDecimals={cryptoDecimals}
           roundingMode={roundingMode}
           smallFractionFont={smallFractionFont}
+          withSign={withSign}
           testID={testID}
           testIDProperties={testIDProperties}
         />
@@ -97,6 +102,7 @@ const Money = memo<MoneyProps>(
         isFiat={fiat}
         indexOfDecimal={indexOfDecimal}
         smallFractionFont={smallFractionFont}
+        withSign={withSign}
         testID={testID}
         testIDProperties={testIDProperties}
       />
@@ -111,15 +117,17 @@ interface JustMoneyProps extends TestIDProps {
   bn: BigNumber;
   className: string;
   result: string;
+  withSign?: boolean;
   tooltipPlacement?: Placement;
 }
 
 const JustMoney: FC<JustMoneyProps> = ({
   tooltip,
   bn,
-  tooltipPlacement,
   className,
   result,
+  withSign,
+  tooltipPlacement,
   testID,
   testIDProperties
 }) => (
@@ -131,6 +139,7 @@ const JustMoney: FC<JustMoneyProps> = ({
     testID={testID}
     testIDProperties={testIDProperties}
   >
+    {withSign && bn.isPositive() && '+'}
     {result}
   </FullAmountTippy>
 );
@@ -140,6 +149,7 @@ interface MoneyAnyFormatPropsBase extends TestIDProps {
   bn: BigNumber;
   className: string;
   smallFractionFont: boolean;
+  withSign?: boolean;
   tooltipPlacement?: Placement;
 }
 
@@ -169,6 +179,7 @@ const MoneyWithoutFormat: FC<MoneyWithoutFormatProps> = ({
   cryptoDecimals,
   roundingMode,
   smallFractionFont,
+  withSign,
   tooltipPlacement,
   testID,
   testIDProperties
@@ -193,6 +204,7 @@ const MoneyWithoutFormat: FC<MoneyWithoutFormatProps> = ({
       testID={testID}
       testIDProperties={testIDProperties}
     >
+      {withSign && bn.isPositive() && '+'}
       {result.slice(0, indexOfDecimal + 1)}
       <span style={{ fontSize: smallFractionFont ? '0.9em' : undefined }}>
         {result.slice(indexOfDecimal + 1, result.length)}
@@ -215,6 +227,7 @@ const MoneyWithFormat: FC<MoneyWithFormatProps> = ({
   indexOfDecimal,
   isFiat,
   smallFractionFont,
+  withSign,
   tooltipPlacement,
   testID,
   testIDProperties
@@ -236,6 +249,7 @@ const MoneyWithFormat: FC<MoneyWithFormatProps> = ({
       testID={testID}
       testIDProperties={testIDProperties}
     >
+      {withSign && bn.isPositive() && '+'}
       {result.slice(0, indexOfDecimal + 1)}
       <span style={{ fontSize: smallFractionFont ? '0.9em' : undefined }}>
         {result.slice(indexOfDecimal + 1, result.length)}

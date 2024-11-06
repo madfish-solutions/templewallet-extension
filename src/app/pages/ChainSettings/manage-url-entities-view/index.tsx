@@ -3,7 +3,7 @@ import React, { ReactNode, useCallback, useEffect, useMemo, useState } from 'rea
 import { isEqual } from 'lodash';
 
 import { Button, IconBase } from 'app/atoms';
-import { SettingsCell } from 'app/atoms/SettingsCell';
+import { SettingsCellSingle } from 'app/atoms/SettingsCell';
 import { SettingsCellGroup } from 'app/atoms/SettingsCellGroup';
 import { ReactComponent as PlusIcon } from 'app/icons/base/plus.svg';
 import { TID } from 'lib/i18n';
@@ -95,7 +95,7 @@ export const ManageUrlEntitiesView = <T extends UrlEntityBase>({
   return (
     <>
       <SettingsCellGroup className="overflow-hidden">
-        <SettingsCell
+        <SettingsCellSingle
           isLast={false}
           cellName={<span className="text-font-description-bold flex-1">{title}</span>}
           wrapCellName={false}
@@ -104,7 +104,8 @@ export const ManageUrlEntitiesView = <T extends UrlEntityBase>({
           <Button onClick={openCreateModal} testID={addButtonTestID}>
             <IconBase Icon={PlusIcon} size={16} className="text-secondary" />
           </Button>
-        </SettingsCell>
+        </SettingsCellSingle>
+
         {items.map(item => (
           <ManageUrlEntitiesItem
             key={item.id}

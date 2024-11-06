@@ -60,7 +60,7 @@ export const TokensTabBase: FC<PropsWithChildren<TokensTabBaseProps>> = ({
       {filtersOpened ? (
         <AssetsFilterOptions filterButtonRef={filterButtonRef} onRequestClose={setFiltersClosed} />
       ) : (
-        <ContentContainer ref={containerRef} padding={tokensCount > 0}>
+        <ContentContainer ref={containerRef}>
           {manageActive ? null : <Banner stickyBarRef={stickyBarRef} />}
 
           {tokensCount === 0 ? (

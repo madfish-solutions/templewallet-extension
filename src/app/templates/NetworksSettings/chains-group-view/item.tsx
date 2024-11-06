@@ -2,7 +2,7 @@ import React, { memo } from 'react';
 
 import { IconBase } from 'app/atoms';
 import { EvmNetworkLogo, TezosNetworkLogo } from 'app/atoms/NetworkLogo';
-import { SettingsCell } from 'app/atoms/SettingsCell';
+import { SettingsCellSingle } from 'app/atoms/SettingsCell';
 import { ReactComponent as ChevronRightIcon } from 'app/icons/base/chevron_right.svg';
 import { ShortenedTextWithTooltip } from 'app/templates/shortened-text-with-tooltip';
 import { setAnotherSelector } from 'lib/analytics';
@@ -19,13 +19,13 @@ interface ChainsGroupItemProps {
 }
 
 export const ChainsGroupItem = memo<ChainsGroupItemProps>(({ item, isLast }) => (
-  <SettingsCell
+  <SettingsCellSingle
     isLast={isLast}
     cellIcon={
       item.kind === TempleChainKind.EVM ? (
-        <EvmNetworkLogo networkName={item.name} chainId={item.chainId} size={24} />
+        <EvmNetworkLogo chainId={item.chainId} size={24} />
       ) : (
-        <TezosNetworkLogo networkName={item.name} chainId={item.chainId} size={24} />
+        <TezosNetworkLogo chainId={item.chainId} size={24} />
       )
     }
     cellName={
@@ -40,5 +40,5 @@ export const ChainsGroupItem = memo<ChainsGroupItemProps>(({ item, isLast }) => 
     {...setAnotherSelector('url', item.rpcBaseURL)}
   >
     <IconBase size={16} className="text-primary" Icon={ChevronRightIcon} />
-  </SettingsCell>
+  </SettingsCellSingle>
 ));

@@ -1,9 +1,9 @@
-import React, { FC, PropsWithChildren, ReactNode } from 'react';
+import React, { FC, ReactElement, ReactNode } from 'react';
 
 import clsx from 'clsx';
 import Modal from 'react-modal';
 
-import { ACTIVATE_CONTENT_FADER_CLASSNAME } from 'app/a11y/ContentFader';
+import { ACTIVATE_CONTENT_FADER_CLASSNAME } from 'app/a11y/content-fader';
 import { useAppEnv } from 'app/env';
 import { ReactComponent as ChevronLeftIcon } from 'app/icons/base/chevron_left.svg';
 import { ReactComponent as ExIcon } from 'app/icons/base/x.svg';
@@ -11,8 +11,11 @@ import { LAYOUT_CONTAINER_CLASSNAME } from 'app/layouts/containers';
 import { TestIDProps } from 'lib/analytics';
 
 import { IconBase } from '../IconBase';
+import { SuspenseContainer } from '../SuspenseContainer';
 
 import ModStyles from './styles.module.css';
+
+export { ActionsButtonsBox } from './actions-buttons-box';
 
 export const CLOSE_ANIMATION_TIMEOUT = 300;
 
@@ -25,9 +28,11 @@ interface Props extends TestIDProps {
   onRequestClose?: EmptyFn;
   onGoBack?: EmptyFn;
   animated?: boolean;
+  contentPadding?: boolean;
+  children: ReactNode | (() => ReactElement);
 }
 
-export const PageModal: FC<PropsWithChildren<Props>> = ({
+export const PageModal: FC<Props> = ({
   title,
   opened,
   headerClassName,
@@ -37,7 +42,8 @@ export const PageModal: FC<PropsWithChildren<Props>> = ({
   onGoBack,
   children,
   testID,
-  animated = true
+  animated = true,
+  contentPadding = false
 }) => {
   const { fullPage } = useAppEnv();
 
@@ -83,7 +89,11 @@ export const PageModal: FC<PropsWithChildren<Props>> = ({
         </div>
       </div>
 
-      <div className="flex-1 flex flex-col overflow-hidden">{children}</div>
+      <div className={clsx('flex-1 flex flex-col overflow-hidden', contentPadding && 'p-4')}>
+        <SuspenseContainer>
+          {typeof children === 'function' ? (opened ? children() : null) : children}
+        </SuspenseContainer>
+      </div>
     </Modal>
   );
 };

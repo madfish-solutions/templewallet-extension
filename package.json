@@ -33,6 +33,7 @@
   },
   "dependencies": {
     "@apollo/client": "^3.7.2",
+    "@covalenthq/client-sdk": "^2",
     "@dicebear/bottts-neutral": "^8.0.1",
     "@dicebear/core": "^8.0.1",
     "@firebase/app": "^0.10.1",
@@ -200,7 +201,7 @@
     "ts-prune": "^0.10.3",
     "typescript": "^5.4.2",
     "typescript-eslint": "^7",
-    "use-debounce": "7.0.1",
+    "use-debounce": "^10",
     "use-force-update": "1.0.7",
     "use-onclickoutside": "0.4.1",
     "util": "0.11.1",

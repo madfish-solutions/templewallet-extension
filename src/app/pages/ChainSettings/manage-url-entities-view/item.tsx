@@ -3,7 +3,7 @@ import React, { useCallback } from 'react';
 import clsx from 'clsx';
 
 import { Button, IconBase } from 'app/atoms';
-import { SettingsCell } from 'app/atoms/SettingsCell';
+import { SettingsCellSingle } from 'app/atoms/SettingsCell';
 import { ReactComponent as ChevronRightIcon } from 'app/icons/base/chevron_right.svg';
 import { ShortenedTextWithTooltip } from 'app/templates/shortened-text-with-tooltip';
 import { setAnotherSelector } from 'lib/analytics';
@@ -32,7 +32,7 @@ export const ManageUrlEntitiesItem = <T extends UrlEntityBase>({
   const url = getEntityUrl(item);
 
   return (
-    <SettingsCell
+    <SettingsCellSingle
       Component={Button}
       cellName={
         <div className="flex flex-1 flex-col gap-0.5 text-left font-normal truncate">
@@ -61,6 +61,6 @@ export const ManageUrlEntitiesItem = <T extends UrlEntityBase>({
         )}
         <IconBase Icon={ChevronRightIcon} className="text-primary" size={16} />
       </div>
-    </SettingsCell>
+    </SettingsCellSingle>
   );
 };

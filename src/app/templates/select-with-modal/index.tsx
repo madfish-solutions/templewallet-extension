@@ -1,7 +1,7 @@
 import React, { useCallback } from 'react';
 
 import { Button, IconBase } from 'app/atoms';
-import { SettingsCell } from 'app/atoms/SettingsCell';
+import { SettingsCellSingle } from 'app/atoms/SettingsCell';
 import { SettingsCellGroup } from 'app/atoms/SettingsCellGroup';
 import { ReactComponent as CompactDownIcon } from 'app/icons/base/compact_down.svg';
 import { InputContainer } from 'app/templates/InputContainer/InputContainer';
@@ -46,7 +46,7 @@ export const SelectWithModal = <T, P extends null | ((item: T) => any)>({
     <>
       <InputContainer className={className} header={<span className="m-1 text-font-description-bold">{title}</span>}>
         <SettingsCellGroup>
-          <SettingsCell
+          <SettingsCellSingle
             Component={Button}
             cellIcon={<CellIcon option={value} />}
             cellName={<CellName option={value} />}
@@ -54,7 +54,7 @@ export const SelectWithModal = <T, P extends null | ((item: T) => any)>({
             onClick={openSelectModal}
           >
             <IconBase size={16} className="text-primary" Icon={CompactDownIcon} />
-          </SettingsCell>
+          </SettingsCellSingle>
         </SettingsCellGroup>
       </InputContainer>
 
