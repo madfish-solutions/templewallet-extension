@@ -43,21 +43,10 @@
     }
   },
   "branchName": {
-    "message": "branch: $branch$",
+    "message": "Branch: $branch$",
     "placeholders": {
       "branch": {
         "content": "$1"
-      }
-    }
-  },
-  "madeWithLove": {
-    "message": "$companyName$的用$loveIcon$之作",
-    "placeholders": {
-      "loveIcon": {
-        "content": "$1"
-      },
-      "companyName": {
-        "content": "$2"
       }
     }
   },
@@ -650,17 +639,11 @@
   "website": {
     "message": "网站"
   },
-  "repo": {
-    "message": "知识库"
-  },
   "privacyPolicy": {
     "message": "隐私政策"
   },
   "termsOfUse": {
     "message": "使用条款"
-  },
-  "contact": {
-    "message": "联系方式"
   },
   "minimalFeeDescription": {
     "message": "最小"

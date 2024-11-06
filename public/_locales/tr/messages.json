@@ -38,7 +38,7 @@
     "message": "İzinleri sıfırlamak için X simgesine tıklayın."
   },
   "versionLabel": {
-    "message": "sürüm: $version$",
+    "message": "Sürüm: $version$",
     "placeholders": {
       "version": {
         "content": "$1"
@@ -46,21 +46,10 @@
     }
   },
   "branchName": {
-    "message": "branch: $branch$",
+    "message": "Branch: $branch$",
     "placeholders": {
       "branch": {
         "content": "$1"
-      }
-    }
-  },
-  "madeWithLove": {
-    "message": "$companyName$ tarafından $loveIcon$ ile oluşturulmuştur",
-    "placeholders": {
-      "loveIcon": {
-        "content": "$1"
-      },
-      "companyName": {
-        "content": "$2"
       }
     }
   },
@@ -686,17 +675,11 @@
   "website": {
     "message": "Web Sitesi"
   },
-  "repo": {
-    "message": "Depo"
-  },
   "privacyPolicy": {
     "message": "Gizlilik Politikası"
   },
   "termsOfUse": {
     "message": "Kullanım Koşulları"
-  },
-  "contact": {
-    "message": "İletişim"
   },
   "minimalFeeDescription": {
     "message": "En az"
@@ -1661,18 +1644,6 @@
         "content": "$1"
       }
     }
-  },
-  "helpAndCommunity": {
-    "message": "Yardım ve Topluluk"
-  },
-  "communityResourcesTitle": {
-    "message": "Dilediğiniz zaman Temple Wallet hakkında ek bilgi bulabilir ya da sonraki kaynaklarla ilgili yardım isteyebilirsiniz."
-  },
-  "helpAndCommunityDescription": {
-    "message": "Topluluğumuzun bir parçası olmak istiyorsanız ya da yardıma ihtiyacınız varsa bu bölümü kullanın."
-  },
-  "joinPrompt": {
-    "message": "Aramıza katılmaktan ve sorularınızı sormaktan çekinmeyin "
   },
   "blockExplorer": {
     "message": "Blokzinciri gezgini"

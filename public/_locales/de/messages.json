@@ -46,21 +46,10 @@
     }
   },
   "branchName": {
-    "message": "branch: $branch$",
+    "message": "Branch: $branch$",
     "placeholders": {
       "branch": {
         "content": "$1"
-      }
-    }
-  },
-  "madeWithLove": {
-    "message": "Erstellt mit $loveIcon$ von $companyName$",
-    "placeholders": {
-      "loveIcon": {
-        "content": "$1"
-      },
-      "companyName": {
-        "content": "$2"
       }
     }
   },
@@ -690,17 +679,11 @@
   "website": {
     "message": "Website"
   },
-  "repo": {
-    "message": "Repository"
-  },
   "privacyPolicy": {
     "message": "Datenschutzbestimmungen"
   },
   "termsOfUse": {
     "message": "Nutzungsbedingungen"
-  },
-  "contact": {
-    "message": "Kontakt"
   },
   "minimalFeeDescription": {
     "message": "Minimal"
@@ -1665,18 +1648,6 @@
         "content": "$1"
       }
     }
-  },
-  "helpAndCommunity": {
-    "message": "Hilfe & Community"
-  },
-  "communityResourcesTitle": {
-    "message": "Sie können jederzeit zusätzliche Informationen über die Temple Wallet finden oder um Hilfe bei den nächsten Ressourcen bitten."
-  },
-  "helpAndCommunityDescription": {
-    "message": "Verwenden Sie diesen Abschnitt, wenn Sie Teil unserer Community werden möchten oder Hilfe benötigen."
-  },
-  "joinPrompt": {
-    "message": "Treten Sie gerne bei und stellen Sie Ihre Fragen "
   },
   "blockExplorer": {
     "message": "Blockchain-Explorer"
