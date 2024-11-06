@@ -1,6 +1,7 @@
 import React, { memo, useCallback, useMemo } from 'react';
 
 import { startCase } from 'lodash';
+import { Controller } from 'react-hook-form-v7';
 
 import { FormField } from 'app/atoms';
 import {
@@ -38,7 +39,7 @@ export const RenameWalletModal = memo<RenameWalletModalProps>(({ onClose, select
     [editHdGroupName, onClose, selectedGroup.id]
   );
 
-  const { register, handleSubmit, errors, formState, onSubmit, setValue } = useTempleBackendActionForm<FormData>(
+  const { control, handleSubmit, errors, formState, onSubmit, setValue } = useTempleBackendActionForm<FormData>(
     renameGroup,
     'name',
     { defaultValues: renameFormInitialValues }
@@ -51,26 +52,32 @@ export const RenameWalletModal = memo<RenameWalletModalProps>(({ onClose, select
     <ActionModal title={startCase(t('renameWallet'))} onClose={onClose}>
       <form onSubmit={handleSubmit(onSubmit)}>
         <ActionModalBodyContainer>
-          <FormField
-            ref={register({
+          <Controller
+            name="name"
+            control={control}
+            rules={{
               required: t('required'),
               pattern: {
                 value: ACCOUNT_OR_GROUP_NAME_PATTERN,
                 message: t('accountOrGroupNameInputTitle')
               }
-            })}
-            label={<T id="walletNameInputLabel" />}
-            labelContainerClassName="text-grey-2"
-            id="rename-wallet-input"
-            type="text"
-            name="name"
-            placeholder={selectedGroup.name}
-            errorCaption={errors.name?.message}
-            reserveSpaceForError={false}
-            containerClassName="mb-1.5"
-            cleanable
-            onClean={cleanWalletName}
-            testID={AccountsManagementSelectors.newWalletNameInput}
+            }}
+            render={({ field }) => (
+              <FormField
+                {...field}
+                label={<T id="walletNameInputLabel" />}
+                labelContainerClassName="text-grey-2"
+                id="rename-wallet-input"
+                type="text"
+                placeholder={selectedGroup.name}
+                errorCaption={errors.name?.message}
+                reserveSpaceForError={false}
+                containerClassName="mb-1.5"
+                cleanable
+                onClean={cleanWalletName}
+                testID={AccountsManagementSelectors.newWalletNameInput}
+              />
+            )}
           />
         </ActionModalBodyContainer>
         <ActionModalButtonsContainer>

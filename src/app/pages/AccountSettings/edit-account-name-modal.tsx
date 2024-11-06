@@ -1,5 +1,7 @@
 import React, { memo, useCallback, useMemo } from 'react';
 
+import { Controller } from 'react-hook-form-v7';
+
 import { FormField } from 'app/atoms';
 import {
   ActionModal,
@@ -36,7 +38,7 @@ export const EditAccountNameModal = memo<EditAccountNameModalProps>(({ account, 
     [account.id, editAccountName, onClose]
   );
 
-  const { register, handleSubmit, errors, formState, onSubmit } = useTempleBackendActionForm<FormData>(
+  const { control, handleSubmit, errors, formState, onSubmit } = useTempleBackendActionForm<FormData>(
     renameAccount,
     'name',
     { defaultValues: renameFormInitialValues }
@@ -47,24 +49,30 @@ export const EditAccountNameModal = memo<EditAccountNameModalProps>(({ account, 
     <ActionModal title={t('editAccountName')} onClose={onClose}>
       <form onSubmit={handleSubmit(onSubmit)}>
         <ActionModalBodyContainer>
-          <FormField
-            ref={register({
+          <Controller
+            name="name"
+            control={control}
+            rules={{
               required: t('required'),
               pattern: {
                 value: ACCOUNT_OR_GROUP_NAME_PATTERN,
                 message: t('accountOrGroupNameInputTitle')
               }
-            })}
-            label={t('accountNameInputLabel')}
-            labelContainerClassName="text-grey-2"
-            id="rename-account-input"
-            type="text"
-            name="name"
-            placeholder={account.name}
-            errorCaption={errors.name?.message}
-            reserveSpaceForError={false}
-            containerClassName="mb-1"
-            testID={AccountSettingsSelectors.accountNameInput}
+            }}
+            render={({ field }) => (
+              <FormField
+                {...field}
+                label={t('accountNameInputLabel')}
+                labelContainerClassName="text-grey-2"
+                id="rename-account-input"
+                type="text"
+                placeholder={account.name}
+                errorCaption={errors.name?.message}
+                reserveSpaceForError={false}
+                containerClassName="mb-1"
+                testID={AccountSettingsSelectors.accountNameInput}
+              />
+            )}
           />
         </ActionModalBodyContainer>
         <ActionModalButtonsContainer>

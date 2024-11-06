@@ -1,5 +1,7 @@
 import React, { memo, useCallback } from 'react';
 
+import { Controller } from 'react-hook-form-v7';
+
 import { FormField } from 'app/atoms';
 import {
   ActionModal,
@@ -34,7 +36,7 @@ export const ConfirmSeedPhraseAccessModal = memo<ConfirmSeedPhraseAccessModalPro
       [onReveal, revealMnemonic, selectedGroup.id]
     );
 
-    const { register, handleSubmit, errors, formState, onSubmit } = useTempleBackendActionForm<FormData>(
+    const { control, handleSubmit, errors, formState, onSubmit } = useTempleBackendActionForm<FormData>(
       revealSeedPhrase,
       'password'
     );
@@ -44,22 +46,28 @@ export const ConfirmSeedPhraseAccessModal = memo<ConfirmSeedPhraseAccessModalPro
       <ActionModal title={t('confirmAccess')} onClose={onClose}>
         <form onSubmit={handleSubmit(onSubmit)}>
           <ActionModalBodyContainer>
-            <FormField
-              ref={register({ required: t('required') })}
-              label={
-                <span className="text-grey-2">
-                  <T id="revealSeedPhrasePasswordLabel" />
-                </span>
-              }
-              id="revealseedphrase-secret-password"
-              type="password"
+            <Controller
               name="password"
-              placeholder={DEFAULT_PASSWORD_INPUT_PLACEHOLDER}
-              errorCaption={errors.password?.message}
-              shouldShowRevealWhenEmpty
-              reserveSpaceForError={false}
-              containerClassName="mb-1"
-              testID={AccountsManagementSelectors.passwordInput}
+              control={control}
+              rules={{ required: t('required') }}
+              render={({ field }) => (
+                <FormField
+                  {...field}
+                  label={
+                    <span className="text-grey-2">
+                      <T id="revealSeedPhrasePasswordLabel" />
+                    </span>
+                  }
+                  id="revealseedphrase-secret-password"
+                  type="password"
+                  placeholder={DEFAULT_PASSWORD_INPUT_PLACEHOLDER}
+                  errorCaption={errors.password?.message}
+                  shouldShowRevealWhenEmpty
+                  reserveSpaceForError={false}
+                  containerClassName="mb-1"
+                  testID={AccountsManagementSelectors.passwordInput}
+                />
+              )}
             />
           </ActionModalBodyContainer>
           <ActionModalButtonsContainer>

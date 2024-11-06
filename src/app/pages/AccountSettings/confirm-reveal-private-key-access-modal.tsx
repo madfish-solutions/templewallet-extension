@@ -1,5 +1,7 @@
 import React, { memo, useCallback } from 'react';
 
+import { Controller } from 'react-hook-form-v7';
+
 import { FormField } from 'app/atoms';
 import {
   ActionModal,
@@ -54,7 +56,7 @@ export const ConfirmRevealPrivateKeyAccessModal = memo<ConfirmRevealPrivateKeyAc
       [account, onReveal, revealPrivateKey]
     );
 
-    const { register, handleSubmit, errors, formState, onSubmit } = useTempleBackendActionForm<FormData>(
+    const { control, handleSubmit, errors, formState, onSubmit } = useTempleBackendActionForm<FormData>(
       revealSecretKeys,
       'password'
     );
@@ -64,18 +66,24 @@ export const ConfirmRevealPrivateKeyAccessModal = memo<ConfirmRevealPrivateKeyAc
       <ActionModal title={t('confirmAccess')} onClose={onClose}>
         <form onSubmit={handleSubmit(onSubmit)}>
           <ActionModalBodyContainer>
-            <FormField
-              ref={register({ required: t('required') })}
-              label={t('enterPasswordToRevealPrivateKey')}
-              labelContainerClassName="text-grey-2"
-              id="revealprivatekey-secret-password"
-              type="password"
+            <Controller
               name="password"
-              placeholder={DEFAULT_PASSWORD_INPUT_PLACEHOLDER}
-              errorCaption={errors.password?.message}
-              reserveSpaceForError={false}
-              containerClassName="mb-1"
-              testID={AccountSettingsSelectors.passwordInput}
+              control={control}
+              rules={{ required: t('required') }}
+              render={({ field }) => (
+                <FormField
+                  {...field}
+                  label={t('enterPasswordToRevealPrivateKey')}
+                  labelContainerClassName="text-grey-2"
+                  id="revealprivatekey-secret-password"
+                  type="password"
+                  placeholder={DEFAULT_PASSWORD_INPUT_PLACEHOLDER}
+                  errorCaption={errors.password?.message}
+                  reserveSpaceForError={false}
+                  containerClassName="mb-1"
+                  testID={AccountSettingsSelectors.passwordInput}
+                />
+              )}
             />
           </ActionModalBodyContainer>
           <ActionModalButtonsContainer>

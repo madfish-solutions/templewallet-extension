@@ -43,21 +43,10 @@
     }
   },
   "branchName": {
-    "message": "branch: $branch$",
+    "message": "Branch: $branch$",
     "placeholders": {
       "branch": {
         "content": "$1"
-      }
-    }
-  },
-  "madeWithLove": {
-    "message": "$companyName$ 以 $loveIcon$ 製作",
-    "placeholders": {
-      "loveIcon": {
-        "content": "$1"
-      },
-      "companyName": {
-        "content": "$2"
       }
     }
   },
@@ -647,17 +636,11 @@
   "website": {
     "message": "網站"
   },
-  "repo": {
-    "message": "存放庫"
-  },
   "privacyPolicy": {
     "message": "隱私政策"
   },
   "termsOfUse": {
     "message": "使用條款"
-  },
-  "contact": {
-    "message": "聯絡我們"
   },
   "minimalFeeDescription": {
     "message": "最小金額"

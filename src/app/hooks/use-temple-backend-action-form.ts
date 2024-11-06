@@ -1,31 +1,31 @@
 import { useCallback } from 'react';
 
-import { FieldName, OnSubmit, UseFormOptions, useForm } from 'react-hook-form';
+import { FieldPath, SubmitHandler, UseFormProps, useForm } from 'react-hook-form-v7';
 
 const SUBMIT_ERROR_TYPE = 'submit-error';
 
 export const useTempleBackendActionForm = <T extends object>(
   action: (formData: T) => Promise<void>,
-  submitErrorField: FieldName<T>,
-  options?: UseFormOptions<T>
+  submitErrorField: FieldPath<T>,
+  options?: UseFormProps<T>
 ) => {
-  const { register, handleSubmit, errors, setError, clearError, formState, ...rest } = useForm<T>(options);
-  const submitting = formState.isSubmitting;
+  const { register, handleSubmit, setError, clearErrors, formState, ...rest } = useForm<T>(options);
+  const { isSubmitting, errors } = formState;
 
-  const onSubmit = useCallback<OnSubmit<T>>(
+  const onSubmit = useCallback<SubmitHandler<T>>(
     async formData => {
-      if (submitting) return;
+      if (isSubmitting) return;
 
-      clearError(submitErrorField);
+      clearErrors(submitErrorField);
       try {
         await action(formData);
       } catch (err: any) {
         console.error(err);
 
-        setError(submitErrorField, SUBMIT_ERROR_TYPE, err.message);
+        setError(submitErrorField, { type: SUBMIT_ERROR_TYPE, message: err.message });
       }
     },
-    [submitting, clearError, submitErrorField, action, setError]
+    [isSubmitting, clearErrors, submitErrorField, action, setError]
   );
 
   return {
@@ -33,7 +33,7 @@ export const useTempleBackendActionForm = <T extends object>(
     handleSubmit,
     errors,
     setError,
-    clearError,
+    clearErrors,
     formState,
     onSubmit,
     ...rest

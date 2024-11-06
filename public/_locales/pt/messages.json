@@ -38,7 +38,7 @@
     "message": "Clique no ícone X para repor as permissões."
   },
   "versionLabel": {
-    "message": "versão: $version$",
+    "message": "Versão: $version$",
     "placeholders": {
       "version": {
         "content": "$1"
@@ -46,21 +46,10 @@
     }
   },
   "branchName": {
-    "message": "branch: $branch$",
+    "message": "Branch: $branch$",
     "placeholders": {
       "branch": {
         "content": "$1"
-      }
-    }
-  },
-  "madeWithLove": {
-    "message": "Feito com $loveIcon$ pela $companyName$",
-    "placeholders": {
-      "loveIcon": {
-        "content": "$1"
-      },
-      "companyName": {
-        "content": "$2"
       }
     }
   },
@@ -686,17 +675,11 @@
   "website": {
     "message": "Website"
   },
-  "repo": {
-    "message": "Repositório"
-  },
   "privacyPolicy": {
     "message": "Política de privacidade"
   },
   "termsOfUse": {
     "message": "Termos de utilização"
-  },
-  "contact": {
-    "message": "Contacto"
   },
   "minimalFeeDescription": {
     "message": "Mínimo"
@@ -1661,18 +1644,6 @@
         "content": "$1"
       }
     }
-  },
-  "helpAndCommunity": {
-    "message": "Ajuda e comunidade"
-  },
-  "communityResourcesTitle": {
-    "message": "Poderá sempre encontrar informações adicionais sobre a carteira Temple ou pedir ajuda sobre os próximos recursos."
-  },
-  "helpAndCommunityDescription": {
-    "message": "Utilize esta secção se quiser fazer parte da nossa comunidade ou precisar de ajuda."
-  },
-  "joinPrompt": {
-    "message": "Sinta-se à vontade para aderir e colocar as suas dúvidas "
   },
   "blockExplorer": {
     "message": "Explorador de blocos em cadeia"

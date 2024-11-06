@@ -59,7 +59,7 @@
     "message": "Click on the X icon to reset permissions."
   },
   "versionLabel": {
-    "message": "version: $version$",
+    "message": "Version: $version$",
     "placeholders": {
       "version": {
         "content": "$1"
@@ -67,21 +67,10 @@
     }
   },
   "branchName": {
-    "message": "branch: $branch$",
+    "message": "Branch: $branch$",
     "placeholders": {
       "branch": {
         "content": "$1"
-      }
-    }
-  },
-  "madeWithLove": {
-    "message": "Made with $loveIcon$ by $companyName$",
-    "placeholders": {
-      "loveIcon": {
-        "content": "$1"
-      },
-      "companyName": {
-        "content": "$2"
       }
     }
   },
@@ -189,7 +178,7 @@
     }
   },
   "okGotIt": {
-    "message": "Got it"
+    "message": "Got It"
   },
   "changelogTitle": {
     "message": "Temple Wallet updated"
@@ -1077,7 +1066,7 @@
     "message": "Website"
   },
   "repo": {
-    "message": "Repository"
+    "message": "GitHub Repository"
   },
   "privacyPolicy": {
     "message": "Privacy Policy"
@@ -1085,8 +1074,26 @@
   "termsOfUse": {
     "message": "Terms of Use"
   },
-  "contact": {
-    "message": "Contact"
+  "knowledgeBase": {
+    "message": "Knowledge Base"
+  },
+  "featureRequest": {
+    "message": "Feature Request"
+  },
+  "xSocial": {
+    "message": "X (Twitter)"
+  },
+  "telegram": {
+    "message": "Telegram"
+  },
+  "discord": {
+    "message": "Discord"
+  },
+  "reddit": {
+    "message": "Reddit"
+  },
+  "youtube": {
+    "message": "Youtube"
   },
   "minimalFeeDescription": {
     "message": "Minimal"
@@ -2427,17 +2434,8 @@
       }
     }
   },
-  "helpAndCommunity": {
-    "message": "Help & Community"
-  },
-  "communityResourcesTitle": {
-    "message": "You may always find additional info about the Temple wallet or ask for help on the next resources."
-  },
-  "helpAndCommunityDescription": {
-    "message": "Use this section if you want to be a part of our community or need help."
-  },
-  "joinPrompt": {
-    "message": "Feel free to join and ask your questions 😊"
+  "community": {
+    "message": "Community"
   },
   "blockExplorer": {
     "message": "Block Explorer"
@@ -3331,19 +3329,22 @@
     "message": "Temple Sync"
   },
   "syncSettingsTitle": {
-    "message": "Sync with Mobile Temple Wallet"
+    "message": "Sync with Temple Wallet app"
   },
   "syncSettingsDescription": {
-    "message": "You can sync your Seed Phrase and accounts (HD) with your mobile device. If you just open the Temple Mobile app for the first time, click 'Sync' button and follow the steps in your phone."
+    "message": "Easily sync your Seed Phrase from current wallet with the mobile app. Just select Sync method for import during the initial setup of the Temple app, and follow the steps to complete."
   },
-  "syncPasswordDescription": {
-    "message": "Use your current wallet password to start the synchronization."
+  "syncSettingsPassword": {
+    "message": "Enter the password to reveal QR-code"
   },
   "syncSettingsAlert": {
-    "message": "Make sure nobody else is looking at your screen when you scan this code."
+    "message": "Make sure nobody else is looking at your screen when you scan this QR-code."
   },
   "scanQRWithTempleMobile": {
-    "message": "Scan this QR-code with yor Temple Wallet Mobile app."
+    "message": "Scan this QR-code with your Temple Wallet\nmobile app to sync."
+  },
+  "syncUnavailable": {
+    "message": "This feature allows you to sync Temple extension with mobile app. You can only sync your Seed Phrase from wallet that supports Tezos network. Switch your current account to proceed synchronization."
   },
   "serviceIsUnavailable": {
     "message": "Sorry, service is temporarily unavailable. Try again later!"
