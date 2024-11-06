@@ -8,6 +8,7 @@ import { TempleChainKind } from 'temple/types';
 
 import { EvmCollectibleItem, TezosCollectibleItem } from './CollectibleItem';
 import { CollectiblesTabBase } from './CollectiblesTabBase';
+import { useEvmCollectiblesMetadataLoading } from './evm-meta-loading';
 
 interface MultiChainCollectiblesTabProps {
   accountTezAddress: string;
@@ -22,6 +23,8 @@ export const MultiChainCollectiblesTab = memo<MultiChainCollectiblesTabProps>(
 
     const { isInSearchMode, paginatedSlugs, isSyncing, loadNext, searchValue, setSearchValue } =
       useAccountCollectiblesListingLogic(accountTezAddress, accountEvmAddress, manageActive);
+
+    useEvmCollectiblesMetadataLoading(accountEvmAddress);
 
     const contentElement = useMemo(
       () => (
