@@ -1,32 +1,41 @@
 import { useCallback, useMemo } from 'react';
 
+import { isString } from 'lodash';
+
 import { getMessage } from 'lib/i18n';
 import { TempleContact } from 'lib/temple/types';
-import { useSettings } from 'temple/front/ready';
+import { getAccountAddressForEvm, getAccountAddressForTezos } from 'temple/accounts';
+import { useAllAccounts, useSettings } from 'temple/front/ready';
 
 import { useTempleClient } from './client';
 
 export function useContactsActions() {
   const { updateSettings } = useTempleClient();
   const { contacts } = useSettings();
+  const allAccounts = useAllAccounts();
+
+  const allAccountsAddresses = useMemo(
+    () => allAccounts.flatMap(acc => [getAccountAddressForEvm(acc), getAccountAddressForTezos(acc)].filter(isString)),
+    [allAccounts]
+  );
 
   const contactsWithFallback = useMemo(() => contacts ?? [], [contacts]);
 
   const addContact = useCallback(
     async (contactToAdd: TempleContact) => {
-      checkIfContactAlreadyExists(contactsWithFallback, contactToAdd.address);
+      checkForContactDuplication(contactsWithFallback, allAccountsAddresses, contactToAdd.address);
 
       await updateSettings({
         contacts: [contactToAdd, ...contactsWithFallback]
       });
     },
-    [contactsWithFallback, updateSettings]
+    [allAccountsAddresses, contactsWithFallback, updateSettings]
   );
 
   const editContact = useCallback(
     async (address: string, editedData: Pick<TempleContact, 'name' | 'address'>) => {
       if (address !== editedData.address) {
-        checkIfContactAlreadyExists(contactsWithFallback, editedData.address);
+        checkForContactDuplication(contactsWithFallback, allAccountsAddresses, editedData.address);
       }
 
       const newContacts = [...contactsWithFallback];
@@ -45,7 +54,7 @@ export function useContactsActions() {
         contacts: newContacts
       });
     },
-    [contactsWithFallback, updateSettings]
+    [allAccountsAddresses, contactsWithFallback, updateSettings]
   );
 
   const removeContact = useCallback(
@@ -63,8 +72,11 @@ export function useContactsActions() {
   };
 }
 
-const checkIfContactAlreadyExists = (contacts: TempleContact[], address: string) => {
+const checkForContactDuplication = (contacts: TempleContact[], allAccountsAddresses: string[], address: string) => {
   if (contacts.some(c => c.address === address)) {
     throw new Error(getMessage('contactWithTheSameAddressAlreadyExists'));
+  }
+  if (allAccountsAddresses.some(a => a === address)) {
+    throw new Error(getMessage('accountWithTheSameAddressAlreadyExists'));
   }
 };
