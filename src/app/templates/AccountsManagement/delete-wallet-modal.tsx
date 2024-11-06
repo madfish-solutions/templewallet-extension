@@ -1,5 +1,7 @@
 import React, { memo, useCallback } from 'react';
 
+import { Controller } from 'react-hook-form-v7';
+
 import { Alert, FormField } from 'app/atoms';
 import {
   ActionModal,
@@ -45,7 +47,7 @@ export const DeleteWalletModal = memo<DeleteWalletModalProps>(({ onClose, select
     },
     [onClose, removeAccountsByType, removeHdGroup, selectedGroup]
   );
-  const { register, handleSubmit, errors, formState, onSubmit } = useTempleBackendActionForm<FormData>(
+  const { control, handleSubmit, errors, formState, onSubmit } = useTempleBackendActionForm<FormData>(
     deleteGroup,
     'password'
   );
@@ -87,18 +89,24 @@ export const DeleteWalletModal = memo<DeleteWalletModalProps>(({ onClose, select
               />
             )}
 
-            <FormField
-              ref={register({ required: t('required') })}
-              label={<T id="deleteWalletPasswordLabel" />}
-              labelContainerClassName="text-grey-2"
-              id="removewallet-secret-password"
-              type="password"
+            <Controller
               name="password"
-              placeholder={DEFAULT_PASSWORD_INPUT_PLACEHOLDER}
-              errorCaption={errors.password?.message}
-              reserveSpaceForError={false}
-              containerClassName="mb-1"
-              testID={AccountsManagementSelectors.passwordInput}
+              control={control}
+              rules={{ required: t('required') }}
+              render={({ field }) => (
+                <FormField
+                  {...field}
+                  label={<T id="deleteWalletPasswordLabel" />}
+                  labelContainerClassName="text-grey-2"
+                  id="removewallet-secret-password"
+                  type="password"
+                  placeholder={DEFAULT_PASSWORD_INPUT_PLACEHOLDER}
+                  errorCaption={errors.password?.message}
+                  reserveSpaceForError={false}
+                  containerClassName="mb-1"
+                  testID={AccountsManagementSelectors.passwordInput}
+                />
+              )}
             />
           </ActionModalBodyContainer>
           <ActionModalButtonsContainer>

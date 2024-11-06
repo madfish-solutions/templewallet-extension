@@ -1,5 +1,7 @@
 import React, { memo, useCallback } from 'react';
 
+import { Controller } from 'react-hook-form-v7';
+
 import { Alert, FormField } from 'app/atoms';
 import {
   ActionModal,
@@ -27,7 +29,7 @@ export const ResetExtensionModal = memo<ResetExtensionModalProps>(({ onClose }) 
 
   const handleResetPasswordSubmit = useCallback(({ password }: FormData) => resetExtension(password), [resetExtension]);
 
-  const { register, handleSubmit, errors, formState, onSubmit } = useTempleBackendActionForm(
+  const { control, handleSubmit, errors, formState, onSubmit } = useTempleBackendActionForm(
     handleResetPasswordSubmit,
     'password'
   );
@@ -47,19 +49,25 @@ export const ResetExtensionModal = memo<ResetExtensionModalProps>(({ onClose }) 
             }
           />
 
-          <FormField
-            ref={register({ required: t('required') })}
-            id="reset-extension-password"
-            type="password"
+          <Controller
             name="password"
-            shouldShowRevealWhenEmpty
-            label={<T id="resetPasswordInputLabel" />}
-            labelContainerClassName="text-grey-2"
-            placeholder={DEFAULT_PASSWORD_INPUT_PLACEHOLDER}
-            errorCaption={errors.password?.message}
-            reserveSpaceForError={false}
-            containerClassName="mb-2"
-            testID={SettingsSelectors.passwordInput}
+            control={control}
+            rules={{ required: t('required') }}
+            render={({ field }) => (
+              <FormField
+                {...field}
+                id="reset-extension-password"
+                type="password"
+                shouldShowRevealWhenEmpty
+                label={<T id="resetPasswordInputLabel" />}
+                labelContainerClassName="text-grey-2"
+                placeholder={DEFAULT_PASSWORD_INPUT_PLACEHOLDER}
+                errorCaption={errors.password?.message}
+                reserveSpaceForError={false}
+                containerClassName="mb-2"
+                testID={SettingsSelectors.passwordInput}
+              />
+            )}
           />
         </ActionModalBodyContainer>
 

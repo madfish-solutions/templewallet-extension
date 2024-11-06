@@ -1,5 +1,7 @@
 import React, { memo, useCallback, useMemo } from 'react';
 
+import { Controller } from 'react-hook-form-v7';
+
 import { Alert, FormField } from 'app/atoms';
 import {
   ActionModal,
@@ -42,7 +44,7 @@ export const RemoveAccountModal = memo<RemoveAccountModalProps>(({ account, onCl
     },
     [account.id, onClose, removeAccount]
   );
-  const { register, handleSubmit, errors, formState, onSubmit } = useTempleBackendActionForm<FormData>(
+  const { control, handleSubmit, errors, formState, onSubmit } = useTempleBackendActionForm<FormData>(
     deleteAccount,
     'password'
   );
@@ -77,16 +79,22 @@ export const RemoveAccountModal = memo<RemoveAccountModalProps>(({ account, onCl
       ) : (
         <form onSubmit={handleSubmit(onSubmit)}>
           <ActionModalBodyContainer>
-            <FormField
-              ref={register({ required: t('required') })}
-              id="removewallet-secret-password"
-              type="password"
+            <Controller
               name="password"
-              placeholder={DEFAULT_PASSWORD_INPUT_PLACEHOLDER}
-              errorCaption={errors.password?.message}
-              reserveSpaceForError={false}
-              containerClassName="mb-1"
-              testID={AccountSettingsSelectors.passwordInput}
+              control={control}
+              rules={{ required: t('required') }}
+              render={({ field }) => (
+                <FormField
+                  {...field}
+                  id="removewallet-secret-password"
+                  type="password"
+                  placeholder={DEFAULT_PASSWORD_INPUT_PLACEHOLDER}
+                  errorCaption={errors.password?.message}
+                  reserveSpaceForError={false}
+                  containerClassName="mb-1"
+                  testID={AccountSettingsSelectors.passwordInput}
+                />
+              )}
             />
             <span className="text-font-description text-grey-1 w-full text-center">
               This will remove the account from this list and delete all data associated with it.
