@@ -10,7 +10,7 @@ import { IconBase } from './IconBase';
 type Color = 'black' | 'blue' | 'grey';
 
 interface Props extends TestIDProps {
-  Icon: ImportedSVGComponent;
+  Icon?: ImportedSVGComponent;
   className?: string;
   color?: Color;
   onClick?: EmptyFn;
@@ -52,7 +52,7 @@ export const TextButton = memo(
           testIDProperties={testIDProperties}
         >
           <span className={clsx('text-font-description-bold', textClassName)}>{children}</span>
-          <IconBase size={12} Icon={Icon} className={iconClassName} />
+          {Icon && <IconBase size={12} Icon={Icon} className={iconClassName} />}
         </Button>
       );
     }

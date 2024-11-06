@@ -1030,6 +1030,23 @@
   "info": {
     "message": "Info"
   },
+  "welcomeBack": {
+    "message": "Welcome Back to Temple"
+  },
+  "enterPasswordToUnlock": {
+    "message": "Enter your password to unlock wallet"
+  },
+  "forgotPasswordQuestion": {
+    "message": "Forgot password?"
+  },
+  "walletTemporarilyBlockedError": {
+    "message": "Incorrect password entered $attempts$ times. Wallet temporarily blocked for safety reason.",
+    "placeholders": {
+      "attempts": {
+        "content": "$1"
+      }
+    }
+  },
   "unlockWallet": {
     "message": "Unlock the Wallet"
   },

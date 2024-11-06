@@ -1,13 +1,16 @@
 import React, { FC, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
-import classNames from 'clsx';
 import { OnSubmit, useForm } from 'react-hook-form';
 import { useDispatch } from 'react-redux';
 
-import { Alert, FormField, FormSubmitButton } from 'app/atoms';
-import SimplePageLayout from 'app/layouts/SimplePageLayout';
+import { FormField } from 'app/atoms';
+import { TezosNetworkLogo } from 'app/atoms/NetworkLogo';
+import { StyledButton } from 'app/atoms/StyledButton';
+import { TextButton } from 'app/atoms/TextButton';
+import PageLayout from 'app/layouts/PageLayout';
 import { getUserTestingGroupNameActions } from 'app/store/ab-testing/actions';
 import { useUserTestingGroupNameSelector } from 'app/store/ab-testing/selectors';
+import { toastError } from 'app/toaster';
 import { useFormAnalytics } from 'lib/analytics';
 import { ABTestGroup } from 'lib/apis/temple';
 import { DEFAULT_PASSWORD_INPUT_PLACEHOLDER } from 'lib/constants';
@@ -15,12 +18,85 @@ import { USER_ACTION_TIMEOUT } from 'lib/fixed-times';
 import { T, t } from 'lib/i18n';
 import { useTempleClient } from 'lib/temple/front';
 import { loadMnemonicToBackup } from 'lib/temple/front/mnemonic-to-backup-keeper';
-import { TempleSharedStorageKey } from 'lib/temple/types';
+import { TempleSharedStorageKey, TEZOS_MAINNET_CHAIN_ID } from 'lib/temple/types';
 import { useLocalStorage } from 'lib/ui/local-storage';
 import { delay } from 'lib/utils';
-import { Link } from 'lib/woozie';
 
+import { EvmPlanetItem } from './evm-planet-item';
+import { PlanetsAnimation } from './planets-animation';
+import { SUN_RADIUS } from './planets-animation/constants';
+import { OrbitProps } from './planets-animation/types';
 import { UnlockSelectors } from './Unlock.selectors';
+
+const EmptyHeader = () => null;
+
+const orbits: OrbitProps[] = [
+  {
+    fullRotationPeriod: 150,
+    radius: 86,
+    direction: 'clockwise',
+    planets: [
+      {
+        id: 'tezos',
+        radius: 19,
+        startAlpha: -Math.PI,
+        item: <TezosNetworkLogo size={38} networkName="Tezos" chainId={TEZOS_MAINNET_CHAIN_ID} className="p-[3px]" />
+      },
+      {
+        id: 'avalanche',
+        radius: 19,
+        startAlpha: -1.8415335313770882, // -Math.PI / 2 - Math.asin(23 / 86)
+        item: <EvmPlanetItem name="Avalanche" chainId={43114} padding="large" />
+      }
+    ]
+  },
+  {
+    fullRotationPeriod: 142,
+    radius: 136,
+    direction: 'counter-clockwise',
+    planets: [
+      {
+        id: 'bsc',
+        radius: 19,
+        startAlpha: -0.6471826704033151, // -Math.asin(82 / 136)
+        item: <EvmPlanetItem name="Binance Smart Chain" chainId={56} />
+      },
+      {
+        id: 'polygon',
+        radius: 19,
+        startAlpha: 0.19236058448249815, // Math.asin(26 / 136)
+        item: <EvmPlanetItem name="Polygon" chainId={137} />
+      }
+    ]
+  },
+  {
+    fullRotationPeriod: 136,
+    radius: 186,
+    direction: 'clockwise',
+    planets: [
+      {
+        id: 'eth',
+        radius: 19,
+        startAlpha: -2.6609314132174586, // -Math.PI + Math.asin(86 / 186)
+        item: <EvmPlanetItem name="Ethereum" chainId={1} />
+      },
+      {
+        id: 'optimism',
+        radius: 19,
+        startAlpha: -2.0333518738695027, // -Math.PI / 2 - Math.asin(83 / 186)
+        item: <EvmPlanetItem name="Optimism" chainId={10} padding="medium" />
+      }
+    ]
+  },
+  {
+    fullRotationPeriod: 130,
+    radius: 236,
+    direction: 'counter-clockwise',
+    planets: []
+  }
+];
+
+const BOTTOM_GAP = 88;
 
 interface UnlockProps {
   canImportNew?: boolean;
@@ -87,7 +163,10 @@ const Unlock: FC<UnlockProps> = ({ canImportNew = true }) => {
         setAttempt(1);
       } catch (err: any) {
         formAnalytics.trackSubmitFail();
-        if (attempt >= LAST_ATTEMPT) setTimeLock(Date.now());
+        if (attempt >= LAST_ATTEMPT) {
+          setTimeLock(Date.now());
+          toastError(t('walletTemporarilyBlockedError', String(LAST_ATTEMPT)));
+        }
         setAttempt(attempt + 1);
         setTimeleft(getTimeLeft(Date.now(), LOCK_TIME * Math.floor((attempt + 1) / 3)));
 
@@ -101,6 +180,8 @@ const Unlock: FC<UnlockProps> = ({ canImportNew = true }) => {
     },
     [submitting, clearError, setError, unlock, focusPasswordField, formAnalytics, attempt, setAttempt, setTimeLock]
   );
+
+  const handleForgotPasswordClick = useCallback(() => console.log('TODO: Forgot password'), []);
 
   const isDisabled = useMemo(() => Date.now() - timelock <= lockLevel, [timelock, lockLevel]);
 
@@ -118,68 +199,51 @@ const Unlock: FC<UnlockProps> = ({ canImportNew = true }) => {
   }, [timelock, lockLevel, setTimeLock]);
 
   return (
-    <SimplePageLayout
-      title={
-        <>
-          <T id="unlockWallet" />
-          <br />
-          <span style={{ fontSize: '0.9em' }}>
-            <T id="toContinue" />
-          </span>
-        </>
-      }
-    >
-      {isDisabled && (
-        <Alert
-          type="error"
-          title={t('error')}
-          description={`${t('unlockPasswordErrorDelay')} ${timeleft}`}
-          className="mt-6"
-        />
-      )}
-      <form ref={formRef} className="w-full max-w-sm mx-auto my-8" onSubmit={handleSubmit(onSubmit)}>
-        <FormField
-          ref={register({ required: t('required') })}
-          label={t('password')}
-          labelDescription={t('unlockPasswordInputDescription')}
-          id="unlock-password"
-          type="password"
-          name="password"
-          placeholder={DEFAULT_PASSWORD_INPUT_PLACEHOLDER}
-          errorCaption={errors.password && errors.password.message}
-          containerClassName="mb-4"
-          autoFocus
-          disabled={isDisabled}
-          testID={UnlockSelectors.passwordInput}
-        />
+    <PageLayout Header={EmptyHeader} contentPadding={false}>
+      <PlanetsAnimation bottomGap={BOTTOM_GAP} orbits={orbits} />
+      <div className="w-full min-h-full absolute top-0 left-0 p-4 flex flex-col z-1">
+        <div className="w-full aspect-[2]" />
+        <div className="w-full" style={{ height: SUN_RADIUS + BOTTOM_GAP }} />
+        <form ref={formRef} className="w-full flex-1 flex flex-col items-center mb-4" onSubmit={handleSubmit(onSubmit)}>
+          <p className="text-font-regular-bold text-center mb-0.5">
+            <T id="welcomeBack" />
+          </p>
+          <p className="text-font-description text-center text-grey-1 mb-5">
+            <T id="enterPasswordToUnlock" />
+          </p>
+          <div className="w-full flex-1 flex flex-col">
+            <FormField
+              ref={register({ required: t('required') })}
+              id="unlock-password"
+              type="password"
+              name="password"
+              placeholder={DEFAULT_PASSWORD_INPUT_PLACEHOLDER}
+              errorCaption={errors.password && errors.password.message}
+              containerClassName="mb-3"
+              autoFocus
+              disabled={isDisabled}
+              testID={UnlockSelectors.passwordInput}
+            />
 
-        <FormSubmitButton disabled={isDisabled} loading={submitting} testID={UnlockSelectors.unlockButton}>
-          {t('unlock')}
-        </FormSubmitButton>
-
-        {canImportNew && (
-          <div className="my-6">
-            <h3 className="text-sm font-light text-gray-600">
-              <T id="importNewAccountTitle" />
-            </h3>
-
-            <Link
-              to="/import-wallet"
-              className={classNames(
-                'text-primary-orange',
-                'text-sm font-semibold',
-                'transition duration-200 ease-in-out',
-                'opacity-75 hover:opacity-100 focus:opacity-100',
-                'hover:underline'
-              )}
-              testID={UnlockSelectors.importWalletUsingSeedPhrase}
+            <StyledButton
+              color="primary"
+              size="L"
+              type="submit"
+              disabled={isDisabled}
+              loading={submitting}
+              testID={UnlockSelectors.unlockButton}
             >
-              <T id="importWalletUsingSeedPhrase" />
-            </Link>
+              {isDisabled ? timeleft : t('unlock')}
+            </StyledButton>
           </div>
-        )}
-      </form>
-    </SimplePageLayout>
+          {canImportNew && (
+            <TextButton onClick={handleForgotPasswordClick}>
+              <T id="forgotPasswordQuestion" />
+            </TextButton>
+          )}
+        </form>
+      </div>
+    </PageLayout>
   );
 };
 

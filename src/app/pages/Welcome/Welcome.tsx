@@ -57,7 +57,7 @@ const Welcome = memo(() => {
   );
 
   return (
-    <PageLayout Header={EmptyHeader} contentPadding={false} dimBg={false}>
+    <PageLayout Header={EmptyHeader} contentPadding={false}>
       <PageModal
         title={t(shouldShowPasswordForm ? 'createPassword' : 'importExistingWallet')}
         opened={shouldShowPasswordForm || isImport}
