@@ -1,4 +1,4 @@
-import React, { memo, useMemo, useRef } from 'react';
+import React, { memo, useCallback, useMemo, useRef } from 'react';
 
 import { SUN_RADIUS } from './constants';
 import { PlanetStick } from './planet-stick';
@@ -7,6 +7,8 @@ import { GlobalAnimationParamsProps, OrbitProps, PlanetAnimationParams } from '.
 interface Props extends GlobalAnimationParamsProps {
   orbit: OrbitProps;
 }
+
+const planetMayBounce = (separatorAlpha: number) => !Number.isNaN(separatorAlpha) && separatorAlpha < Math.PI / 2;
 
 export const Orbit = memo<Props>(({ bottomGap, orbit }) => {
   const { planets, radius, direction, fullRotationPeriod } = orbit;
@@ -19,8 +21,8 @@ export const Orbit = memo<Props>(({ bottomGap, orbit }) => {
       Math.asin((SUN_RADIUS + bottomGap - planetRadius) / radius)
     );
 
-    const leftBouncingPlanetIndex = separatorAlphaValues.findIndex(value => !Number.isNaN(value));
-    const rightBouncingPlanetIndex = separatorAlphaValues.findLastIndex(value => !Number.isNaN(value));
+    const leftBouncingPlanetIndex = separatorAlphaValues.findIndex(planetMayBounce);
+    const rightBouncingPlanetIndex = separatorAlphaValues.findLastIndex(planetMayBounce);
 
     if (leftBouncingPlanetIndex === -1) {
       return planets.map(() => ({ bounces: false, duration: fullRotationPeriod }));

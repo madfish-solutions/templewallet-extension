@@ -7,6 +7,7 @@ import { FormField } from 'app/atoms';
 import { TezosNetworkLogo } from 'app/atoms/NetworkLogo';
 import { StyledButton } from 'app/atoms/StyledButton';
 import { TextButton } from 'app/atoms/TextButton';
+import { useResizeDependentValue } from 'app/hooks/use-resize-dependent-value';
 import PageLayout from 'app/layouts/PageLayout';
 import { getUserTestingGroupNameActions } from 'app/store/ab-testing/actions';
 import { useUserTestingGroupNameSelector } from 'app/store/ab-testing/selectors';
@@ -23,9 +24,11 @@ import { useLocalStorage } from 'lib/ui/local-storage';
 import { delay } from 'lib/utils';
 
 import { EvmPlanetItem } from './evm-planet-item';
+import { ForgotPasswordModal } from './forgot-password-modal';
 import { PlanetsAnimation } from './planets-animation';
 import { SUN_RADIUS } from './planets-animation/constants';
 import { OrbitProps } from './planets-animation/types';
+import { ResetExtensionModal } from './reset-extension-modal';
 import { UnlockSelectors } from './Unlock.selectors';
 
 const EmptyHeader = () => null;
@@ -96,7 +99,7 @@ const orbits: OrbitProps[] = [
   }
 ];
 
-const BOTTOM_GAP = 88;
+const MIN_BOTTOM_GAP = 88;
 
 interface UnlockProps {
   canImportNew?: boolean;
@@ -104,6 +107,11 @@ interface UnlockProps {
 
 interface FormData {
   password: string;
+}
+
+enum PageModalName {
+  ForgotPassword = 'ForgotPassword',
+  ResetExtension = 'ResetExtension'
 }
 
 const SUBMIT_ERROR_TYPE = 'submit-error';
@@ -120,11 +128,15 @@ const getTimeLeft = (start: number, end: number) => {
   return `${checkTime(minutes)}:${checkTime(seconds)}`;
 };
 
+const getAnimationBottomGap = (bottomGapElement: HTMLDivElement) =>
+  bottomGapElement.getBoundingClientRect().height - SUN_RADIUS;
+
 const Unlock: FC<UnlockProps> = ({ canImportNew = true }) => {
   const { unlock } = useTempleClient();
   const dispatch = useDispatch();
   const formAnalytics = useFormAnalytics('UnlockWallet');
 
+  const [pageModalName, setPageModalName] = useState<PageModalName | null>(null);
   const [attempt, setAttempt] = useLocalStorage<number>(TempleSharedStorageKey.PasswordAttempts, 1);
   const [timelock, setTimeLock] = useLocalStorage<number>(TempleSharedStorageKey.TimeLock, 0);
   const lockLevel = LOCK_TIME * Math.floor(attempt / 3);
@@ -140,6 +152,12 @@ const Unlock: FC<UnlockProps> = ({ canImportNew = true }) => {
   }, [testGroupName]);
 
   const formRef = useRef<HTMLFormElement>(null);
+
+  const { value: bottomGap, refFn: bottomGapElementRef } = useResizeDependentValue<number, HTMLDivElement>(
+    getAnimationBottomGap,
+    MIN_BOTTOM_GAP,
+    100
+  );
 
   const focusPasswordField = useCallback(() => {
     formRef.current?.querySelector<HTMLInputElement>("input[name='password']")?.focus();
@@ -181,7 +199,9 @@ const Unlock: FC<UnlockProps> = ({ canImportNew = true }) => {
     [submitting, clearError, setError, unlock, focusPasswordField, formAnalytics, attempt, setAttempt, setTimeLock]
   );
 
-  const handleForgotPasswordClick = useCallback(() => console.log('TODO: Forgot password'), []);
+  const handleForgotPasswordClick = useCallback(() => setPageModalName(PageModalName.ForgotPassword), []);
+  const handleModalClose = useCallback(() => setPageModalName(null), []);
+  const handleForgotPasswordContinueClick = useCallback(() => setPageModalName(PageModalName.ResetExtension), []);
 
   const isDisabled = useMemo(() => Date.now() - timelock <= lockLevel, [timelock, lockLevel]);
 
@@ -200,11 +220,11 @@ const Unlock: FC<UnlockProps> = ({ canImportNew = true }) => {
 
   return (
     <PageLayout Header={EmptyHeader} contentPadding={false}>
-      <PlanetsAnimation bottomGap={BOTTOM_GAP} orbits={orbits} />
+      <PlanetsAnimation bottomGap={bottomGap} orbits={orbits} />
       <div className="w-full min-h-full absolute top-0 left-0 p-4 flex flex-col z-1">
         <div className="w-full aspect-[2]" />
-        <div className="w-full" style={{ height: SUN_RADIUS + BOTTOM_GAP }} />
-        <form ref={formRef} className="w-full flex-1 flex flex-col items-center mb-4" onSubmit={handleSubmit(onSubmit)}>
+        <div className="w-full flex-1" ref={bottomGapElementRef} style={{ minHeight: SUN_RADIUS + MIN_BOTTOM_GAP }} />
+        <form ref={formRef} className="w-full flex flex-col items-center mb-4" onSubmit={handleSubmit(onSubmit)}>
           <p className="text-font-regular-bold text-center mb-0.5">
             <T id="welcomeBack" />
           </p>
@@ -237,12 +257,17 @@ const Unlock: FC<UnlockProps> = ({ canImportNew = true }) => {
             </StyledButton>
           </div>
           {canImportNew && (
-            <TextButton onClick={handleForgotPasswordClick}>
+            <TextButton onClick={handleForgotPasswordClick} className="mt-12">
               <T id="forgotPasswordQuestion" />
             </TextButton>
           )}
         </form>
       </div>
+
+      {pageModalName === PageModalName.ForgotPassword && (
+        <ForgotPasswordModal onClose={handleModalClose} onContinueClick={handleForgotPasswordContinueClick} />
+      )}
+      {pageModalName === PageModalName.ResetExtension && <ResetExtensionModal onClose={handleModalClose} />}
     </PageLayout>
   );
 };

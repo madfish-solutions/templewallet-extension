@@ -18,7 +18,7 @@ interface Props extends TestIDProps {
 
 export const TextButton = memo(
   forwardRef<HTMLButtonElement, PropsWithChildren<Props>>(
-    ({ Icon, color, onClick, testID, testIDProperties, children, className }, ref) => {
+    ({ Icon, color = 'grey', onClick, testID, testIDProperties, children, className }, ref) => {
       const { textClassName, iconClassName } = useMemo(() => {
         switch (color) {
           case 'black':
