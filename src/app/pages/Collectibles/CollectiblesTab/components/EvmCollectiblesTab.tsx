@@ -8,6 +8,7 @@ import { useEthereumMainnetChain } from 'temple/front';
 
 import { EvmCollectibleItem } from './CollectibleItem';
 import { CollectiblesTabBase } from './CollectiblesTabBase';
+import { useEvmCollectiblesMetadataLoading } from './evm-meta-loading';
 
 interface EvmCollectiblesTabProps {
   publicKeyHash: HexString;
@@ -21,6 +22,8 @@ export const EvmCollectiblesTab = memo<EvmCollectiblesTabProps>(({ publicKeyHash
 
   const { isInSearchMode, paginatedSlugs, isSyncing, loadNext, searchValue, setSearchValue } =
     useEvmAccountCollectiblesListingLogic(publicKeyHash, manageActive);
+
+  useEvmCollectiblesMetadataLoading(publicKeyHash);
 
   const contentElement = useMemo(
     () => (

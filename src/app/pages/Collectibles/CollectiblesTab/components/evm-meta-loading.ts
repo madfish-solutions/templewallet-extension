@@ -1,4 +1,4 @@
-import { memo, useEffect, useRef } from 'react';
+import { useEffect, useRef } from 'react';
 
 import { dispatch } from 'app/store';
 import { setEvmCollectiblesMetadataLoading } from 'app/store/evm/actions';
@@ -14,7 +14,10 @@ import { isSupportedChainId } from 'lib/apis/temple/endpoints/evm/api.utils';
 import { fetchEvmCollectiblesMetadataFromChain } from 'lib/evm/on-chain/metadata';
 import { useEnabledEvmChains } from 'temple/front';
 
-export const AppEvmCollectiblesMetadataLoading = memo<{ publicKeyHash: HexString }>(({ publicKeyHash }) => {
+/** TODO: Might wanna tune this loading logic either via pagination or queueing.
+ * Pagination for Collectibles is planned for the future.
+ */
+export const useEvmCollectiblesMetadataLoading = (publicKeyHash: HexString) => {
   const evmChains = useEnabledEvmChains();
   const isLoading = useEvmCollectiblesMetadataLoadingSelector();
 
@@ -61,6 +64,4 @@ export const AppEvmCollectiblesMetadataLoading = memo<{ publicKeyHash: HexString
       })
     ).then(() => void dispatch(setEvmCollectiblesMetadataLoading(false)));
   }, [evmChains, storedCollectiblesRecord, publicKeyHash]);
-
-  return null;
-});
+};
