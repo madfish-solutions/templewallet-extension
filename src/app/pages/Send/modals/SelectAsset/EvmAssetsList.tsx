@@ -24,13 +24,17 @@ export const EvmAssetsList = memo<Props>(({ publicKeyHash, searchValue, onAssetS
   const tokensSortPredicate = useEvmAccountTokensSortPredicate(publicKeyHash);
   const tokensSlugs = useEnabledEvmAccountTokenSlugs(publicKeyHash);
 
-  const enabledEvmAssetsSlugsSorted = useMemoWithCompare(
+  const enabledEvmAssetsSlugs = useMemo(
     () =>
       enabledChains
         .map(chain => toChainAssetSlug(TempleChainKind.EVM, chain.chainId, EVM_TOKEN_SLUG))
-        .concat(tokensSlugs)
-        .sort(tokensSortPredicate),
-    [enabledChains, tokensSlugs, tokensSortPredicate]
+        .concat(tokensSlugs),
+    [enabledChains, tokensSlugs]
+  );
+
+  const enabledEvmAssetsSlugsSorted = useMemoWithCompare(
+    () => enabledEvmAssetsSlugs.sort(tokensSortPredicate),
+    [enabledEvmAssetsSlugs, tokensSortPredicate]
   );
 
   const allEvmChains = useAllEvmChains();

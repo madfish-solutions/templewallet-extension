@@ -66,13 +66,14 @@ const TabContentWithManageActive: FC<TabContentProps> = ({ publicKeyHash, networ
     chainId
   );
 
+  const allTokensSlugs = useMemo(
+    () => tokens.filter(({ status }) => status !== 'removed').map(({ slug }) => slug),
+    [tokens]
+  );
+
   const allTokensSlugsSorted = useMemoWithCompare(
-    () =>
-      tokens
-        .filter(({ status }) => status !== 'removed')
-        .map(({ slug }) => slug)
-        .sort(tokensSortPredicate),
-    [tokens, tokensSortPredicate]
+    () => allTokensSlugs.sort(tokensSortPredicate),
+    [allTokensSlugs, tokensSortPredicate]
   );
 
   const allSlugsSorted = usePreservedOrderSlugsToManage(enabledTokenSlugsSorted, allTokensSlugsSorted);

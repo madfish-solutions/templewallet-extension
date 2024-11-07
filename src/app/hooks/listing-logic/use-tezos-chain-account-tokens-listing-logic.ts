@@ -45,14 +45,19 @@ export const useTezosChainAccountTokensForListing = (publicKeyHash: string, chai
     [isNonZeroBalance, leadingAssetsSlugs, filterZeroBalances]
   );
 
-  const nonLeadingTokenSlugsFilteredSorted = useMemoWithCompare(() => {
-    const nonLeadingSlugs = [
-      TEZ_TOKEN_SLUG,
-      ...tokens.filter(({ status }) => status === 'enabled').map(({ slug }) => slug)
-    ];
+  const nonLeadingTokensSlugsFiltered = useMemo(() => {
+    const gasSlugs: string[] = [TEZ_TOKEN_SLUG];
+    const nonLeadingSlugs = gasSlugs.concat(
+      tokens.filter(({ status }) => status === 'enabled').map(({ slug }) => slug)
+    );
 
-    return (filterZeroBalances ? nonLeadingSlugs.filter(isNonZeroBalance) : nonLeadingSlugs).sort(tokensSortPredicate);
-  }, [tokens, isNonZeroBalance, tokensSortPredicate, filterZeroBalances]);
+    return filterZeroBalances ? nonLeadingSlugs.filter(isNonZeroBalance) : nonLeadingSlugs;
+  }, [tokens, isNonZeroBalance, filterZeroBalances]);
+
+  const nonLeadingTokenSlugsFilteredSorted = useMemoWithCompare(
+    () => nonLeadingTokensSlugsFiltered.sort(tokensSortPredicate),
+    [nonLeadingTokensSlugsFiltered, tokensSortPredicate]
+  );
 
   const enabledTokenSlugsSorted = useMemo(
     () => Array.from(new Set(leadingAssetsFiltered.concat(nonLeadingTokenSlugsFilteredSorted))),

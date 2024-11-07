@@ -61,16 +61,20 @@ const TabContentWithManageActive: FC<Props> = ({ publicKeyHash }) => {
     hideZeroBalance
   );
 
-  const allChainsSlugsSorted = useMemoWithCompare(
+  const allTezosTokensSlugs = useMemo(
     () =>
       tokens
         .filter(({ status }) => status !== 'removed')
-        .map(({ chainId, slug }) => toChainAssetSlug(TempleChainKind.Tezos, chainId, slug))
-        .sort(tokensSortPredicate),
-    [tokens, tokensSortPredicate]
+        .map(({ chainId, slug }) => toChainAssetSlug(TempleChainKind.Tezos, chainId, slug)),
+    [tokens]
   );
 
-  const allSlugsSorted = usePreservedOrderSlugsToManage(enabledChainsSlugsSorted, allChainsSlugsSorted);
+  const allTezosTokensSlugsSorted = useMemoWithCompare(
+    () => allTezosTokensSlugs.sort(tokensSortPredicate),
+    [allTezosTokensSlugs, tokensSortPredicate]
+  );
+
+  const allSlugsSorted = usePreservedOrderSlugsToManage(enabledChainsSlugsSorted, allTezosTokensSlugsSorted);
 
   return (
     <TabContentBase

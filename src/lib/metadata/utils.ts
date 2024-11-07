@@ -2,7 +2,6 @@ import { isString, pick } from 'lodash';
 
 import type { TokenMetadataResponse, WhitelistResponseToken } from 'lib/apis/temple';
 import { TEZOS_SYMBOL } from 'lib/assets';
-import { EvmAssetStandard } from 'lib/evm/types';
 
 import {
   AssetMetadataBase,
@@ -39,7 +38,7 @@ export const isCollectible = (metadata: StringRecord<any>) =>
   'artifactUri' in metadata && isString(metadata.artifactUri);
 
 export const isEvmCollectible = (metadata: EvmAssetMetadata): metadata is EvmCollectibleMetadata =>
-  metadata.standard === EvmAssetStandard.ERC721 || metadata.standard === EvmAssetStandard.ERC1155;
+  'tokenId' in metadata;
 
 /**
  * @deprecated // Assertion here is not safe!

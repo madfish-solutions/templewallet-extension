@@ -40,16 +40,19 @@ export const useEvmChainAccountTokensForListing = (
     [balances]
   );
 
-  const enabledSlugsSorted = useMemoWithCompare(() => {
-    const enabledSlugs = [
-      EVM_TOKEN_SLUG,
-      ...tokens.filter(({ status }) => status === 'enabled').map(({ slug }) => slug)
-    ];
+  const enabledSlugsFiltered = useMemo(() => {
+    const gasTokensSlugs: string[] = [EVM_TOKEN_SLUG];
+    const enabledSlugs = gasTokensSlugs.concat(
+      tokens.filter(({ status }) => status === 'enabled').map(({ slug }) => slug)
+    );
 
-    const enabledSlugsFiltered = filterZeroBalances ? enabledSlugs.filter(isNonZeroBalance) : enabledSlugs;
+    return filterZeroBalances ? enabledSlugs.filter(isNonZeroBalance) : enabledSlugs;
+  }, [filterZeroBalances, isNonZeroBalance, tokens]);
 
-    return enabledSlugsFiltered.sort(tokensSortPredicate);
-  }, [tokens, isNonZeroBalance, tokensSortPredicate, filterZeroBalances]);
+  const enabledSlugsSorted = useMemoWithCompare(
+    () => enabledSlugsFiltered.sort(tokensSortPredicate),
+    [enabledSlugsFiltered, tokensSortPredicate]
+  );
 
   return {
     enabledSlugsSorted,

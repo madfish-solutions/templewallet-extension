@@ -61,23 +61,26 @@ export const useAccountTokensForListing = (
     [enabledEvmChains, enabledTezChains]
   );
 
-  const enabledChainsSlugsSorted = useMemoWithCompare(() => {
-    const enabledChainsSlugs = [
-      ...gasChainsSlugs,
-      ...tezTokens
-        .filter(({ status }) => status === 'enabled')
-        .map(({ chainId, slug }) => toChainAssetSlug(TempleChainKind.Tezos, chainId, slug)),
-      ...evmTokens
-        .filter(({ status }) => status === 'enabled')
-        .map(({ chainId, slug }) => toChainAssetSlug(TempleChainKind.EVM, chainId, slug))
-    ];
+  const enabledChainsSlugsFiltered = useMemo(() => {
+    const enabledChainsSlugs = gasChainsSlugs
+      .concat(
+        tezTokens
+          .filter(({ status }) => status === 'enabled')
+          .map(({ chainId, slug }) => toChainAssetSlug(TempleChainKind.Tezos, chainId, slug))
+      )
+      .concat(
+        evmTokens
+          .filter(({ status }) => status === 'enabled')
+          .map(({ chainId, slug }) => toChainAssetSlug(TempleChainKind.EVM, chainId, slug))
+      );
 
-    const enabledChainsSlugsFiltered = filterZeroBalances
-      ? enabledChainsSlugs.filter(isNonZeroBalance)
-      : enabledChainsSlugs;
+    return filterZeroBalances ? enabledChainsSlugs.filter(isNonZeroBalance) : enabledChainsSlugs;
+  }, [evmTokens, filterZeroBalances, gasChainsSlugs, isNonZeroBalance, tezTokens]);
 
-    return enabledChainsSlugsFiltered.sort(tokensSortPredicate);
-  }, [gasChainsSlugs, tezTokens, evmTokens, filterZeroBalances, isNonZeroBalance, tokensSortPredicate]);
+  const enabledChainsSlugsSorted = useMemoWithCompare(
+    () => enabledChainsSlugsFiltered.sort(tokensSortPredicate),
+    [enabledChainsSlugsFiltered, tokensSortPredicate]
+  );
 
   return {
     enabledChainsSlugsSorted,

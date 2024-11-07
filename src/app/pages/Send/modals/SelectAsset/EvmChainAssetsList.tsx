@@ -27,11 +27,16 @@ export const EvmChainAssetsList = memo<Props>(({ chainId, publicKeyHash, searchV
 
   if (!chain) throw new DeadEndBoundaryError();
 
-  const enabledEvmChainAssetsSlugsSorted = useMemoWithCompare(() => {
+  const enabledEvmChainAssetsSlugs = useMemo(() => {
     const gasTokensSlugs: string[] = [EVM_TOKEN_SLUG];
 
-    return gasTokensSlugs.concat(Array.from(tokensSlugs).sort(tokensSortPredicate));
-  }, [tokensSlugs, tokensSortPredicate]);
+    return gasTokensSlugs.concat(tokensSlugs);
+  }, [tokensSlugs]);
+
+  const enabledEvmChainAssetsSlugsSorted = useMemoWithCompare(
+    () => enabledEvmChainAssetsSlugs.sort(tokensSortPredicate),
+    [enabledEvmChainAssetsSlugs, tokensSortPredicate]
+  );
 
   const metadata = useEvmTokensMetadataRecordSelector();
 

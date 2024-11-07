@@ -31,7 +31,7 @@ export const MultiChainAssetsList = memo<Props>(
 
     const tokensSortPredicate = useAccountTokensSortPredicate(accountTezAddress, accountEvmAddress);
 
-    const enabledAssetsSlugsSorted = useMemoWithCompare(
+    const enabledAssetsSlugs = useMemo(
       () =>
         enabledTezChains
           .map(chain => toChainAssetSlug(TempleChainKind.Tezos, chain.chainId, TEZ_TOKEN_SLUG))
@@ -39,9 +39,13 @@ export const MultiChainAssetsList = memo<Props>(
             enabledEvmChains.map(chain => toChainAssetSlug(TempleChainKind.EVM, chain.chainId, EVM_TOKEN_SLUG)),
             tezTokensSlugs,
             evmTokensSlugs
-          )
-          .sort(tokensSortPredicate),
-      [enabledTezChains, enabledEvmChains, tezTokensSlugs, evmTokensSlugs, tokensSortPredicate]
+          ),
+      [enabledTezChains, enabledEvmChains, tezTokensSlugs, evmTokensSlugs]
+    );
+
+    const enabledAssetsSlugsSorted = useMemoWithCompare(
+      () => enabledAssetsSlugs.sort(tokensSortPredicate),
+      [enabledAssetsSlugs, tokensSortPredicate]
     );
 
     const tezosChains = useAllTezosChains();
