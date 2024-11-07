@@ -9,19 +9,11 @@ interface Props extends PropsWithChildren {
 }
 
 export const ScrollView: FC<Props> = ({ className, children }) => {
-  const {
-    value: contentHiding,
-    setValue: setContentHiding,
-    refFn
-  } = useResizeDependentValue(isContentHidingBelow, false, 300);
+  const { value: contentHiding, updateValue, refFn } = useResizeDependentValue(isContentHidingBelow, false, 300);
 
   const onScroll = useCallback<UIEventHandler<HTMLDivElement>>(
-    event => {
-      const node = event.currentTarget;
-
-      setContentHiding(isContentHidingBelow(node));
-    },
-    [setContentHiding]
+    event => updateValue(event.currentTarget),
+    [updateValue]
   );
 
   return (

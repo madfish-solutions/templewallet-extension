@@ -1,7 +1,7 @@
 import React, { memo, useCallback, useMemo, useRef } from 'react';
 
 import { SUN_RADIUS } from './constants';
-import { PlanetStick } from './planet-stick';
+import { Planet } from './planet';
 import { GlobalAnimationParamsProps, OrbitProps, PlanetAnimationParams } from './types';
 
 interface Props extends GlobalAnimationParamsProps {
@@ -70,7 +70,7 @@ export const Orbit = memo<Props>(({ bottomGap, orbit }) => {
         style={{ width: radius * 2, height: radius * 2 }}
       >
         {planets.map((planet, index) => (
-          <PlanetStick
+          <Planet
             key={planet.id}
             planet={planet}
             animationParams={animationsParams[index]}

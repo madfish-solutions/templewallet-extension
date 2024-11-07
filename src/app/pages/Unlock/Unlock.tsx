@@ -219,9 +219,9 @@ const Unlock: FC<UnlockProps> = ({ canImportNew = true }) => {
   }, [timelock, lockLevel, setTimeLock]);
 
   return (
-    <PageLayout Header={EmptyHeader} contentPadding={false}>
+    <PageLayout Header={EmptyHeader} contentPadding={false} contentClassName="relative">
       <PlanetsAnimation bottomGap={bottomGap} orbits={orbits} />
-      <div className="w-full min-h-full absolute top-0 left-0 p-4 flex flex-col z-1">
+      <div className="w-full min-h-full p-4 flex flex-col z-1">
         <div className="w-full aspect-[2]" />
         <div className="w-full flex-1" ref={bottomGapElementRef} style={{ minHeight: SUN_RADIUS + MIN_BOTTOM_GAP }} />
         <form ref={formRef} className="w-full flex flex-col items-center mb-4" onSubmit={handleSubmit(onSubmit)}>

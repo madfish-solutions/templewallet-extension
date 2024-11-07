@@ -19,14 +19,21 @@ export const useResizeDependentValue = <T, E extends HTMLElement>(
     [setValue, throttleTime]
   );
 
+  const updateValue = useCallback(
+    (node: E) => {
+      setValueThrottled(fn(node));
+    },
+    [fn, setValueThrottled]
+  );
+
   const resizeObserver = useMemo(
     () =>
       new ResizeObserver(() => {
         const node = ref.current;
 
-        if (node) setValue(fn(node));
+        if (node) updateValue(node);
       }),
-    [fn, setValue]
+    [updateValue]
   );
 
   useWillUnmount(() => void resizeObserver.disconnect());
@@ -39,14 +46,14 @@ export const useResizeDependentValue = <T, E extends HTMLElement>(
       resizeObserver.disconnect();
       resizeObserver.observe(node);
 
-      setValue(fn(node));
+      updateValue(node);
     },
-    [fallbackValue, fn, resizeObserver, setValue]
+    [fallbackValue, resizeObserver, setValue, updateValue]
   );
 
   return {
     value,
-    setValue: setValueThrottled,
+    updateValue,
     refFn
   };
 };
