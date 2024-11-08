@@ -4,7 +4,6 @@ import { OnSubmit, useForm } from 'react-hook-form';
 import { useDispatch } from 'react-redux';
 
 import { FormField } from 'app/atoms';
-import { TezosNetworkLogo } from 'app/atoms/NetworkLogo';
 import { StyledButton } from 'app/atoms/StyledButton';
 import { TextButton } from 'app/atoms/TextButton';
 import { useResizeDependentValue } from 'app/hooks/use-resize-dependent-value';
@@ -19,85 +18,17 @@ import { USER_ACTION_TIMEOUT } from 'lib/fixed-times';
 import { T, t } from 'lib/i18n';
 import { useTempleClient } from 'lib/temple/front';
 import { loadMnemonicToBackup } from 'lib/temple/front/mnemonic-to-backup-keeper';
-import { TempleSharedStorageKey, TEZOS_MAINNET_CHAIN_ID } from 'lib/temple/types';
+import { TempleSharedStorageKey } from 'lib/temple/types';
 import { useLocalStorage } from 'lib/ui/local-storage';
 import { delay } from 'lib/utils';
 
-import { EvmPlanetItem } from './evm-planet-item';
 import { ForgotPasswordModal } from './forgot-password-modal';
 import { PlanetsAnimation } from './planets-animation';
 import { SUN_RADIUS } from './planets-animation/constants';
-import { OrbitProps } from './planets-animation/types';
 import { ResetExtensionModal } from './reset-extension-modal';
 import { UnlockSelectors } from './Unlock.selectors';
 
 const EmptyHeader = () => null;
-
-const orbits: OrbitProps[] = [
-  {
-    fullRotationPeriod: 150,
-    radius: 86,
-    direction: 'clockwise',
-    planets: [
-      {
-        id: 'tezos',
-        radius: 19,
-        startAlpha: -Math.PI,
-        item: <TezosNetworkLogo size={38} networkName="Tezos" chainId={TEZOS_MAINNET_CHAIN_ID} className="p-[3px]" />
-      },
-      {
-        id: 'avalanche',
-        radius: 19,
-        startAlpha: -1.8415335313770882, // -Math.PI / 2 - Math.asin(23 / 86)
-        item: <EvmPlanetItem name="Avalanche" chainId={43114} padding="large" />
-      }
-    ]
-  },
-  {
-    fullRotationPeriod: 142,
-    radius: 136,
-    direction: 'counter-clockwise',
-    planets: [
-      {
-        id: 'bsc',
-        radius: 19,
-        startAlpha: -0.6471826704033151, // -Math.asin(82 / 136)
-        item: <EvmPlanetItem name="Binance Smart Chain" chainId={56} />
-      },
-      {
-        id: 'polygon',
-        radius: 19,
-        startAlpha: 0.19236058448249815, // Math.asin(26 / 136)
-        item: <EvmPlanetItem name="Polygon" chainId={137} />
-      }
-    ]
-  },
-  {
-    fullRotationPeriod: 136,
-    radius: 186,
-    direction: 'clockwise',
-    planets: [
-      {
-        id: 'eth',
-        radius: 19,
-        startAlpha: -2.6609314132174586, // -Math.PI + Math.asin(86 / 186)
-        item: <EvmPlanetItem name="Ethereum" chainId={1} />
-      },
-      {
-        id: 'optimism',
-        radius: 19,
-        startAlpha: -2.0333518738695027, // -Math.PI / 2 - Math.asin(83 / 186)
-        item: <EvmPlanetItem name="Optimism" chainId={10} padding="medium" />
-      }
-    ]
-  },
-  {
-    fullRotationPeriod: 130,
-    radius: 236,
-    direction: 'counter-clockwise',
-    planets: []
-  }
-];
 
 const MIN_BOTTOM_GAP = 88;
 
@@ -220,7 +151,7 @@ const Unlock: FC<UnlockProps> = ({ canImportNew = true }) => {
 
   return (
     <PageLayout Header={EmptyHeader} contentPadding={false} contentClassName="relative">
-      <PlanetsAnimation bottomGap={bottomGap} orbits={orbits} />
+      <PlanetsAnimation bottomGap={bottomGap} />
       <div className="w-full min-h-full p-4 flex flex-col z-1">
         <div className="w-full aspect-[2]" />
         <div className="w-full flex-1" ref={bottomGapElementRef} style={{ minHeight: SUN_RADIUS + MIN_BOTTOM_GAP }} />

@@ -1,10 +1,10 @@
 import React, { memo, useMemo, useRef } from 'react';
 
-import { SUN_RADIUS } from './constants';
 import { Planet } from './planet';
-import { GlobalAnimationParamsProps, OrbitProps, PlanetAnimationParams } from './types';
+import { PlanetsAnimationProps, OrbitProps, PlanetAnimationParams } from './types';
+import { calculateBottomGapAngle } from './utils';
 
-interface Props extends GlobalAnimationParamsProps {
+interface Props extends PlanetsAnimationProps {
   orbit: OrbitProps;
 }
 
@@ -17,19 +17,20 @@ export const Orbit = memo<Props>(({ bottomGap, orbit }) => {
   const orderedPlanets = useMemo(() => planets.toSorted((a, b) => a.startAlpha - b.startAlpha), [planets]);
 
   const animationsParams = useMemo<PlanetAnimationParams[]>(() => {
-    const separatorAlphaValues = orderedPlanets.map(({ radius: planetRadius }) =>
-      Math.asin((SUN_RADIUS + bottomGap - planetRadius) / radius)
+    const bottomGapAngles = orderedPlanets.map(({ radius: planetRadius }) =>
+      calculateBottomGapAngle(bottomGap, radius, planetRadius)
     );
 
-    const leftBouncingPlanetIndex = separatorAlphaValues.findIndex(planetMayBounce);
-    const rightBouncingPlanetIndex = separatorAlphaValues.findLastIndex(planetMayBounce);
+    // This and the following calculations may be invalid if planets have significantly different radii.
+    const leftBouncingPlanetIndex = bottomGapAngles.findIndex(planetMayBounce);
+    const rightBouncingPlanetIndex = bottomGapAngles.findLastIndex(planetMayBounce);
 
     if (leftBouncingPlanetIndex === -1) {
       return planets.map(() => ({ bounces: false, duration: fullRotationPeriod }));
     }
 
-    const leftSeparatorAlpha = separatorAlphaValues[leftBouncingPlanetIndex];
-    const rightSeparatorAlpha = separatorAlphaValues[rightBouncingPlanetIndex];
+    const leftSeparatorAlpha = bottomGapAngles[leftBouncingPlanetIndex];
+    const rightSeparatorAlpha = bottomGapAngles[rightBouncingPlanetIndex];
     const { startAlpha: leftStartAlpha } = orderedPlanets[leftBouncingPlanetIndex];
     const { startAlpha: rightStartAlpha } = orderedPlanets[rightBouncingPlanetIndex];
 

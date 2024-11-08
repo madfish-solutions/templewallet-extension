@@ -15,7 +15,7 @@ export interface OrbitProps {
   direction: 'clockwise' | 'counter-clockwise';
 }
 
-export interface GlobalAnimationParamsProps {
+export interface PlanetsAnimationProps {
   bottomGap: number;
 }
 

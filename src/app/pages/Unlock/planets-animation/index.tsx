@@ -1,20 +1,135 @@
-import React, { memo } from 'react';
+import React, { memo, useMemo } from 'react';
 
 import clsx from 'clsx';
 
 import { Logo } from 'app/atoms/Logo';
+import { TezosNetworkLogo } from 'app/atoms/NetworkLogo';
+import { TEZOS_MAINNET_CHAIN_ID } from 'lib/temple/types';
 
 import { SUN_RADIUS } from './constants';
+import { EvmPlanetItem } from './evm-planet-item';
 import { Orbit } from './orbit';
 import styles from './PlanetsAnimation.module.css';
 import { ReactComponent as SunGlow } from './sun-glow.svg';
-import { GlobalAnimationParamsProps, OrbitProps } from './types';
+import { PlanetsAnimationProps, OrbitProps } from './types';
+import { calculateBottomGapAngle } from './utils';
 
-interface Props extends GlobalAnimationParamsProps {
-  orbits: OrbitProps[];
-}
+const orbitsBase = [
+  {
+    fullRotationPeriod: 150,
+    radius: 86,
+    direction: 'clockwise' as const,
+    planets: [
+      {
+        id: 'tezos',
+        radius: 19,
+        item: <TezosNetworkLogo size={38} networkName="Tezos" chainId={TEZOS_MAINNET_CHAIN_ID} className="p-[3px]" />
+      },
+      {
+        id: 'avalanche',
+        radius: 19,
+        item: <EvmPlanetItem name="Avalanche" chainId={43114} padding="large" />
+      }
+    ]
+  },
+  {
+    fullRotationPeriod: 142,
+    radius: 136,
+    direction: 'counter-clockwise' as const,
+    planets: [
+      {
+        id: 'bsc',
+        radius: 19,
+        item: <EvmPlanetItem name="Binance Smart Chain" chainId={56} />
+      },
+      {
+        id: 'polygon',
+        radius: 19,
+        item: <EvmPlanetItem name="Polygon" chainId={137} />
+      }
+    ]
+  },
+  {
+    fullRotationPeriod: 136,
+    radius: 186,
+    direction: 'clockwise' as const,
+    planets: [
+      {
+        id: 'eth',
+        radius: 19,
+        item: <EvmPlanetItem name="Ethereum" chainId={1} />
+      },
+      {
+        id: 'optimism',
+        radius: 19,
+        item: <EvmPlanetItem name="Optimism" chainId={10} padding="medium" />
+      },
+      {
+        id: 'arbitrum',
+        radius: 19,
+        item: <EvmPlanetItem name="Arbitrum" chainId={42161} />
+      },
+      {
+        id: 'base',
+        radius: 19,
+        item: <EvmPlanetItem name="Base" chainId={8453} />
+      }
+    ]
+  },
+  {
+    fullRotationPeriod: 130,
+    radius: 236,
+    direction: 'counter-clockwise' as const,
+    planets: []
+  }
+];
 
-export const PlanetsAnimation = memo<Props>(({ bottomGap, orbits }) => {
+export const PlanetsAnimation = memo<PlanetsAnimationProps>(({ bottomGap }) => {
+  const orbits = useMemo<OrbitProps[]>(() => {
+    const { planets: thirdOrbitPlanets, radius: thirdOrbitRadius } = orbitsBase[2];
+    // This and the following calculations may be invalid if planets have significantly different radii.
+    const [thirdOrbitFirstPlanetBottomGapAngle, thirdOrbitLastPlanetBottomGapAngle] = [
+      thirdOrbitPlanets[0],
+      thirdOrbitPlanets.at(-1)!
+    ].map(({ radius: planetRadius }) => calculateBottomGapAngle(bottomGap, thirdOrbitRadius, planetRadius));
+    let orbitsStartAlphas: number[][];
+
+    if (Number.isNaN(thirdOrbitFirstPlanetBottomGapAngle)) {
+      orbitsStartAlphas = [
+        [-Math.PI / 2, Math.PI / 2],
+        [-Math.PI, 0],
+        [(-5 * Math.PI) / 4, (-3 * Math.PI) / 4, -Math.PI / 4, Math.PI / 4]
+      ];
+    } else {
+      const thirdOrbitMinPlanetBottomGapAngle = Math.min(
+        thirdOrbitFirstPlanetBottomGapAngle,
+        thirdOrbitLastPlanetBottomGapAngle
+      );
+      const thirdOrbitTravelBeforeFirstBumpAngle = Math.PI / 12;
+      const thirdOrbitFirstPlanetStartAlpha =
+        -Math.PI - thirdOrbitMinPlanetBottomGapAngle + thirdOrbitTravelBeforeFirstBumpAngle;
+      const thirdOrbitLastPlanetStartAlpha = thirdOrbitMinPlanetBottomGapAngle - thirdOrbitTravelBeforeFirstBumpAngle;
+      const thirdOrbitPlanetsStartAlphas = thirdOrbitPlanets.map(
+        (_, index) =>
+          thirdOrbitFirstPlanetStartAlpha * (1 - index / (thirdOrbitPlanets.length - 1)) +
+          thirdOrbitLastPlanetStartAlpha * (index / (thirdOrbitPlanets.length - 1))
+      );
+      const secondOrbitStartAlphas = [
+        (thirdOrbitPlanetsStartAlphas[0] + thirdOrbitPlanetsStartAlphas[1]) / 2,
+        (thirdOrbitPlanetsStartAlphas.at(-2)! + thirdOrbitPlanetsStartAlphas.at(-1)!) / 2
+      ];
+      orbitsStartAlphas = [[-Math.PI / 2, Math.PI / 2], secondOrbitStartAlphas, thirdOrbitPlanetsStartAlphas];
+    }
+
+    return orbitsBase.map(({ planets, ...restOrbitProps }, index) => ({
+      ...restOrbitProps,
+      planets: planets.map((planet, planetIndex) => ({
+        ...planet,
+        startAlpha: orbitsStartAlphas[index][planetIndex]
+      }))
+    }));
+  }, [bottomGap]);
+
   return (
     <div className="absolute inset-0 overflow-hidden">
       <div className="w-full aspect-square overflow-y-visible relative">
