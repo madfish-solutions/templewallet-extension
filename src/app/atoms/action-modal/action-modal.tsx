@@ -11,8 +11,7 @@ import {
   FULL_PAGE_WRAP_OVERLAY_CLASSNAME,
   LAYOUT_CONTAINER_CLASSNAME
 } from 'app/layouts/containers';
-
-import { useTestnetModeEnabledSelector } from '../../store/settings/selectors';
+import { useTestnetModeEnabledSelector } from 'app/store/settings/selectors';
 
 import actionModalStyles from './action-modal.module.css';
 
