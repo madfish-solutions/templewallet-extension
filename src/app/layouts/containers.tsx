@@ -2,6 +2,7 @@ import React, { forwardRef, useRef, useState } from 'react';
 
 import clsx from 'clsx';
 
+import { useTestnetModeEnabledSelector } from 'app/store/settings/selectors';
 import { useIntersectionObserver } from 'lib/ui/use-intersection-observer';
 import { combineRefs } from 'lib/ui/utils';
 
@@ -47,12 +48,14 @@ export const StickyBar = React.forwardRef<HTMLDivElement, StickyBarProps>(({ cla
   const spareRef = useRef<HTMLDivElement>(null);
 
   const sticked = useStickyObservation(spareRef);
+  const testnetModeEnabled = useTestnetModeEnabledSelector();
 
   return (
     <div
       ref={combineRefs(forwardedRef, spareRef)}
       className={clsx(
-        'sticky -top-px z-sticky px-4 py-3 flex items-center gap-x-2 bg-white',
+        'sticky z-sticky px-4 py-3 flex items-center gap-x-2 bg-white',
+        testnetModeEnabled ? 'top-6' : 'top-0',
         sticked && 'shadow-bottom',
         className
       )}

@@ -8,9 +8,11 @@ import Spinner from 'app/atoms/Spinner/Spinner';
 import { SuspenseContainer } from 'app/atoms/SuspenseContainer';
 import { useAppEnv } from 'app/env';
 import { useScrollEdgesVisibility } from 'app/hooks/use-scroll-edges-visibility';
+import { useTestnetModeEnabledSelector } from 'app/store/settings/selectors';
 import { AdvertisingOverlay } from 'app/templates/advertising/advertising-overlay/advertising-overlay';
 import { SHOULD_BACKUP_MNEMONIC_STORAGE_KEY } from 'lib/constants';
 import { IS_MISES_BROWSER } from 'lib/env';
+import { T } from 'lib/i18n';
 import { useStorage, useTempleClient } from 'lib/temple/front';
 
 import {
@@ -163,6 +165,8 @@ const ContentPaper: FC<ContentPaperProps> = ({
           className
         )}
       >
+        <TestnetModeIndicator />
+
         {children}
 
         <ContentFader />
@@ -172,6 +176,24 @@ const ContentPaper: FC<ContentPaperProps> = ({
 };
 
 const ContentPaperNode = SCROLL_DOCUMENT ? 'div' : ScrollRestorer;
+
+const TestnetModeIndicator: FC = () => {
+  const enabled = useTestnetModeEnabledSelector();
+
+  return (
+    <div
+      className={clsx(
+        'flex justify-center items-center sticky z-sticky top-0 bg-success',
+        'transition-all ease-in-out duration-300',
+        enabled ? 'min-h-6 h-6' : 'min-h-0 h-0'
+      )}
+    >
+      <span className="text-font-description-bold text-white">
+        <T id="testnetMode" />
+      </span>
+    </div>
+  );
+};
 
 export const SpinnerSection: FC = () => (
   <div className="flex justify-center mt-24">

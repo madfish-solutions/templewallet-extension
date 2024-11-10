@@ -3721,5 +3721,11 @@
   },
   "zarName": {
     "message": "South African Rand"
+  },
+  "testnetMode": {
+    "message": "Testnet Mode"
+  },
+  "disabledInTestnetMode": {
+    "message": "Disabled in Testnet Mode"
   }
 }

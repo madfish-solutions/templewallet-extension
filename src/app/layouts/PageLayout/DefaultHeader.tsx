@@ -5,6 +5,7 @@ import clsx from 'clsx';
 import { IconBase } from 'app/atoms';
 import { Button } from 'app/atoms/Button';
 import { ReactComponent as ChevronLeftIcon } from 'app/icons/base/chevron_left.svg';
+import { useTestnetModeEnabledSelector } from 'app/store/settings/selectors';
 import { goBack, HistoryAction, navigate, useLocation } from 'lib/woozie';
 
 import { useStickyObservation } from '../containers';
@@ -23,6 +24,7 @@ const HEADER_IS_STICKY = true;
 export const DefaultHeader = memo<PropsWithChildren<DefaultHeaderProps>>(
   ({ children, pageTitle, step, setStep, headerRightElem }) => {
     const { historyPosition, pathname } = useLocation();
+    const testnetModeEnabled = useTestnetModeEnabledSelector();
 
     const inHome = pathname === '/';
     const canNavBack = historyPosition > 0 || !inHome;
@@ -44,7 +46,8 @@ export const DefaultHeader = memo<PropsWithChildren<DefaultHeaderProps>>(
     const rootClassName = useMemo(
       () =>
         clsx(
-          HEADER_IS_STICKY && 'sticky z-header -top-px',
+          HEADER_IS_STICKY && 'sticky z-header',
+          testnetModeEnabled ? 'top-6' : 'top-0',
           'flex flex-col',
           sticked && 'shadow',
           !sticked && 'rounded-t-inherit',
