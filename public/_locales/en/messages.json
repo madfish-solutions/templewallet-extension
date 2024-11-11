@@ -2719,16 +2719,19 @@
     "message": "Address Book"
   },
   "addNewContact": {
-    "message": "New contact"
+    "message": "Add New Contact"
   },
   "addContact": {
-    "message": "Add contact"
+    "message": "Add Contact"
   },
   "newContactPlaceholder": {
     "message": "e.g. Alice Bob"
   },
   "contactWithTheSameAddressAlreadyExists": {
     "message": "Contact with the same address already exists"
+  },
+  "accountWithTheSameAddressAlreadyExists": {
+    "message": "Account with the same address already exists"
   },
   "currentContacts": {
     "message": "Current contacts"
@@ -2762,6 +2765,9 @@
   },
   "noContactsFound": {
     "message": "No contacts found"
+  },
+  "noContacts": {
+    "message": "No contacts"
   },
   "addThisAddressToContacts": {
     "message": "Add this address to contacts?"
@@ -3721,6 +3727,9 @@
   },
   "zarName": {
     "message": "South African Rand"
+  },
+  "deleteContactActionDescription": {
+    "message": "This will delete the contact from the list."
   },
   "testnetMode": {
     "message": "Testnet Mode"
