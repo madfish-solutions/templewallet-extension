@@ -1,3 +1,4 @@
+import { fetchOklinkTransactions } from 'lib/apis/oklink';
 import { getEvmERC20Transfers, getEvmTransactions } from 'lib/apis/temple/endpoints/evm';
 import { fromAssetSlug } from 'lib/assets';
 import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
@@ -5,6 +6,7 @@ import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
 import { EvmActivity } from '../types';
 
 import { parseGoldRushTransaction, parseGoldRushERC20Transfer } from './parse';
+import { parseOklinkTransaction } from './parse/oklink';
 
 export async function getEvmAssetTransactions(
   walletAddress: string,
@@ -56,4 +58,16 @@ export async function getEvmAssetTransactions(
     activities: items.map<EvmActivity>(item => parseGoldRushERC20Transfer(item, chainId, walletAddress)),
     nextPage
   };
+}
+
+export async function getEvmActivities(
+  walletAddress: string,
+  chainId: number,
+  // assetSlug?: string,
+  olderThanBlockHeight?: `${number}`,
+  signal?: AbortSignal
+) {
+  const items = await fetchOklinkTransactions(walletAddress, chainId, olderThanBlockHeight, signal);
+
+  return items.map<EvmActivity>(item => parseOklinkTransaction(item, chainId, walletAddress));
 }

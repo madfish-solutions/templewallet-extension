@@ -73,6 +73,7 @@ export interface EvmActivity extends ChainActivityBase {
   chainId: number;
   blockExplorerUrl?: string;
   operations: EvmOperation[];
+  blockHeight: `${number}`;
 }
 
 interface EvmOperationBase extends OperationBase {
