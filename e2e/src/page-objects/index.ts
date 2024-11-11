@@ -1,4 +1,3 @@
-import { AddressBookPage } from '../page-objects/pages/address-book.page';
 import { CollectiblePage } from '../page-objects/pages/collectible.page';
 import { CollectiblesTabPage } from '../page-objects/pages/CollectiblesTab.page';
 import { ConfirmationModalPage } from '../page-objects/pages/confirmation-modal.page';
@@ -37,7 +36,6 @@ export const Pages = {
   OnRumpModal: new OnRumModalPage(),
   NewsletterModal: new NewsletterModalPage(),
   Swap: new SwapPage(),
-  AddressBook: new AddressBookPage(),
   ConfirmationModal: new ConfirmationModalPage(),
   // TODO: add tests for networks settings
   CollectiblePage: new CollectiblePage(),
