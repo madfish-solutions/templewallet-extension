@@ -2,7 +2,12 @@ import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
 import { EvmAssetStandard } from 'lib/evm/types';
 import type { TID } from 'lib/i18n';
 import { EvmNativeTokenMetadata } from 'lib/metadata/types';
-import { TempleTezosChainId } from 'lib/temple/types';
+import {
+  ETHEREUM_MAINNET_CHAIN_ID,
+  ETH_SEPOLIA_CHAIN_ID,
+  OTHER_COMMON_MAINNET_CHAIN_IDS,
+  TempleTezosChainId
+} from 'lib/temple/types';
 
 import { TempleChainKind } from './types';
 
@@ -130,7 +135,7 @@ export const EVM_DEFAULT_NETWORKS: NonEmptyArray<StoredEvmNetwork> = [
     id: 'eth-mainnet',
     name: 'Ethereum Mainnet',
     chain: TempleChainKind.EVM,
-    chainId: 1,
+    chainId: ETHEREUM_MAINNET_CHAIN_ID,
     rpcBaseURL: 'https://cloudflare-eth.com',
     color: '#0036fc',
     default: true
@@ -139,7 +144,7 @@ export const EVM_DEFAULT_NETWORKS: NonEmptyArray<StoredEvmNetwork> = [
     id: 'matic-mainnet',
     name: 'Polygon Mainnet',
     chain: TempleChainKind.EVM,
-    chainId: 137,
+    chainId: OTHER_COMMON_MAINNET_CHAIN_IDS.polygon,
     rpcBaseURL: 'https://polygon-rpc.com',
     color: '#725ae8',
     default: true
@@ -148,7 +153,7 @@ export const EVM_DEFAULT_NETWORKS: NonEmptyArray<StoredEvmNetwork> = [
     id: 'bsc-mainnet',
     name: 'BSC Mainnet',
     chain: TempleChainKind.EVM,
-    chainId: 56,
+    chainId: OTHER_COMMON_MAINNET_CHAIN_IDS.bsc,
     rpcBaseURL: 'https://bsc-rpc.publicnode.com',
     description: 'Binance Smart Chain Mainnet',
     color: '#f5d300',
@@ -158,7 +163,7 @@ export const EVM_DEFAULT_NETWORKS: NonEmptyArray<StoredEvmNetwork> = [
     id: 'avalanche-mainnet',
     name: 'Avalanche Mainnet',
     chain: TempleChainKind.EVM,
-    chainId: 43114,
+    chainId: OTHER_COMMON_MAINNET_CHAIN_IDS.avalanche,
     rpcBaseURL: 'https://avalanche.drpc.org',
     color: '#ff5959',
     default: true
@@ -167,7 +172,7 @@ export const EVM_DEFAULT_NETWORKS: NonEmptyArray<StoredEvmNetwork> = [
     id: 'optimism-mainnet',
     name: 'OP Mainnet',
     chain: TempleChainKind.EVM,
-    chainId: 10,
+    chainId: OTHER_COMMON_MAINNET_CHAIN_IDS.avalanche,
     rpcBaseURL: 'https://mainnet.optimism.io',
     description: 'Optimism Mainnet',
     color: '#fc0000',
@@ -177,7 +182,7 @@ export const EVM_DEFAULT_NETWORKS: NonEmptyArray<StoredEvmNetwork> = [
     id: 'eth-sepolia',
     name: 'Ethereum Sepolia',
     chain: TempleChainKind.EVM,
-    chainId: 11155111,
+    chainId: ETH_SEPOLIA_CHAIN_ID,
     rpcBaseURL: 'https://ethereum-sepolia-rpc.publicnode.com',
     color: '#010b79',
     default: true
