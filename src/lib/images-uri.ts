@@ -4,6 +4,7 @@ import { isTruthy } from 'lib/utils';
 
 import { EvmAssetStandard } from './evm/types';
 import type { TokenMetadata, EvmAssetMetadataBase, EvmCollectibleMetadata } from './metadata/types';
+import { ETHEREUM_MAINNET_CHAIN_ID, ETH_SEPOLIA_CHAIN_ID, OTHER_COMMON_MAINNET_CHAIN_IDS } from './temple/types';
 
 type TcInfraMediaSize = 'small' | 'medium' | 'large' | 'raw';
 type ObjktMediaTail = 'display' | 'artifact' | 'thumb288';
@@ -169,14 +170,14 @@ const buildIpfsMediaUriByInfo = (
 };
 
 const chainIdsChainNamesRecord: Record<number, string> = {
-  1: 'ethereum',
-  11155111: 'sepolia',
-  137: 'polygon',
-  56: 'smartchain',
+  [ETHEREUM_MAINNET_CHAIN_ID]: 'ethereum',
+  [ETH_SEPOLIA_CHAIN_ID]: 'sepolia',
+  [OTHER_COMMON_MAINNET_CHAIN_IDS.polygon]: 'polygon',
+  [OTHER_COMMON_MAINNET_CHAIN_IDS.bsc]: 'smartchain',
   97: 'bnbt',
-  43114: 'avalanchex',
+  [OTHER_COMMON_MAINNET_CHAIN_IDS.avalanche]: 'avalanchex',
   43113: 'avalanchecfuji',
-  10: 'optimism',
+  [OTHER_COMMON_MAINNET_CHAIN_IDS.optimism]: 'optimism',
   42170: 'arbitrumnova',
   1313161554: 'aurora',
   81457: 'blast',
@@ -212,8 +213,8 @@ const chainIdsChainNamesRecord: Record<number, string> = {
   100: 'xdai',
   324: 'zksync',
   787: 'acalaevm',
-  42161: 'arbitrum',
-  8453: 'base',
+  [OTHER_COMMON_MAINNET_CHAIN_IDS.arbitrum]: 'arbitrum',
+  [OTHER_COMMON_MAINNET_CHAIN_IDS.base]: 'base',
   321: 'kcc',
   4200: 'merlin',
   82: 'meter',

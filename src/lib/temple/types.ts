@@ -30,6 +30,14 @@ export interface TempleState {
 
 export const TEZOS_MAINNET_CHAIN_ID = 'NetXdQprcVkpaWU';
 export const ETHEREUM_MAINNET_CHAIN_ID = 1;
+export const OTHER_COMMON_MAINNET_CHAIN_IDS = {
+  polygon: 137,
+  bsc: 56,
+  avalanche: 43114,
+  optimism: 10,
+  arbitrum: 42161,
+  base: 8453
+};
 export const ETH_SEPOLIA_CHAIN_ID = 11155111;
 
 export enum TempleTezosChainId {

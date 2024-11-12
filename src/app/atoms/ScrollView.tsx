@@ -1,48 +1,20 @@
-import React, { FC, UIEventHandler, useCallback, useMemo, useRef } from 'react';
+import React, { FC, UIEventHandler, useCallback } from 'react';
 
 import clsx from 'clsx';
-import { throttle } from 'lodash';
 
-import { useSafeState } from 'lib/ui/hooks';
-import { useWillUnmount } from 'lib/ui/hooks/useWillUnmount';
+import { useResizeDependentValue } from 'app/hooks/use-resize-dependent-value';
 
 interface Props extends PropsWithChildren {
   className?: string;
 }
 
 export const ScrollView: FC<Props> = ({ className, children }) => {
-  const [contentHiding, setContentHiding] = useSafeState(false);
+  const { value: contentHiding, updateValue, refFn } = useResizeDependentValue(isContentHidingBelow, false, 300);
 
-  const ref = useRef<HTMLDivElement | nullish>();
-
-  const setContentHidingThrottled = useMemo(() => throttle((value: boolean) => setContentHiding(value), 300), []);
-
-  const onScroll = useCallback<UIEventHandler<HTMLDivElement>>(event => {
-    const node = event.currentTarget;
-
-    setContentHidingThrottled(isContentHidingBelow(node));
-  }, []);
-
-  const resizeObserver = useMemo(
-    () =>
-      new ResizeObserver(() => {
-        const node = ref.current;
-
-        if (node) setContentHidingThrottled(isContentHidingBelow(node));
-      }),
-    []
+  const onScroll = useCallback<UIEventHandler<HTMLDivElement>>(
+    event => updateValue(event.currentTarget),
+    [updateValue]
   );
-
-  useWillUnmount(() => void resizeObserver.disconnect());
-
-  const refFn = useCallback((node: HTMLDivElement | null) => {
-    ref.current = node;
-    if (!node) return void setContentHiding(false);
-
-    resizeObserver.observe(node);
-
-    setContentHiding(isContentHidingBelow(node));
-  }, []);
 
   return (
     <div

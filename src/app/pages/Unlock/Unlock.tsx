@@ -1,13 +1,16 @@
 import React, { FC, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
-import classNames from 'clsx';
 import { OnSubmit, useForm } from 'react-hook-form';
 import { useDispatch } from 'react-redux';
 
-import { Alert, FormField, FormSubmitButton } from 'app/atoms';
-import SimplePageLayout from 'app/layouts/SimplePageLayout';
+import { FormField } from 'app/atoms';
+import { StyledButton } from 'app/atoms/StyledButton';
+import { TextButton } from 'app/atoms/TextButton';
+import { useResizeDependentValue } from 'app/hooks/use-resize-dependent-value';
+import PageLayout from 'app/layouts/PageLayout';
 import { getUserTestingGroupNameActions } from 'app/store/ab-testing/actions';
 import { useUserTestingGroupNameSelector } from 'app/store/ab-testing/selectors';
+import { toastError } from 'app/toaster';
 import { useFormAnalytics } from 'lib/analytics';
 import { ABTestGroup } from 'lib/apis/temple';
 import { DEFAULT_PASSWORD_INPUT_PLACEHOLDER } from 'lib/constants';
@@ -18,9 +21,16 @@ import { loadMnemonicToBackup } from 'lib/temple/front/mnemonic-to-backup-keeper
 import { TempleSharedStorageKey } from 'lib/temple/types';
 import { useLocalStorage } from 'lib/ui/local-storage';
 import { delay } from 'lib/utils';
-import { Link } from 'lib/woozie';
 
+import { ForgotPasswordModal } from './forgot-password-modal';
+import { PlanetsAnimation } from './planets-animation';
+import { SUN_RADIUS } from './planets-animation/constants';
+import { ResetExtensionModal } from './reset-extension-modal';
 import { UnlockSelectors } from './Unlock.selectors';
+
+const EmptyHeader = () => null;
+
+const MIN_BOTTOM_GAP = 88;
 
 interface UnlockProps {
   canImportNew?: boolean;
@@ -28,6 +38,11 @@ interface UnlockProps {
 
 interface FormData {
   password: string;
+}
+
+enum PageModalName {
+  ForgotPassword = 'ForgotPassword',
+  ResetExtension = 'ResetExtension'
 }
 
 const SUBMIT_ERROR_TYPE = 'submit-error';
@@ -44,11 +59,15 @@ const getTimeLeft = (start: number, end: number) => {
   return `${checkTime(minutes)}:${checkTime(seconds)}`;
 };
 
+const getAnimationBottomGap = (bottomGapElement: HTMLDivElement) =>
+  bottomGapElement.getBoundingClientRect().height - SUN_RADIUS;
+
 const Unlock: FC<UnlockProps> = ({ canImportNew = true }) => {
   const { unlock } = useTempleClient();
   const dispatch = useDispatch();
   const formAnalytics = useFormAnalytics('UnlockWallet');
 
+  const [pageModalName, setPageModalName] = useState<PageModalName | null>(null);
   const [attempt, setAttempt] = useLocalStorage<number>(TempleSharedStorageKey.PasswordAttempts, 1);
   const [timelock, setTimeLock] = useLocalStorage<number>(TempleSharedStorageKey.TimeLock, 0);
   const lockLevel = LOCK_TIME * Math.floor(attempt / 3);
@@ -64,6 +83,12 @@ const Unlock: FC<UnlockProps> = ({ canImportNew = true }) => {
   }, [testGroupName]);
 
   const formRef = useRef<HTMLFormElement>(null);
+
+  const { value: bottomGap, refFn: bottomGapElementRef } = useResizeDependentValue<number, HTMLDivElement>(
+    getAnimationBottomGap,
+    MIN_BOTTOM_GAP,
+    100
+  );
 
   const focusPasswordField = useCallback(() => {
     formRef.current?.querySelector<HTMLInputElement>("input[name='password']")?.focus();
@@ -87,7 +112,10 @@ const Unlock: FC<UnlockProps> = ({ canImportNew = true }) => {
         setAttempt(1);
       } catch (err: any) {
         formAnalytics.trackSubmitFail();
-        if (attempt >= LAST_ATTEMPT) setTimeLock(Date.now());
+        if (attempt >= LAST_ATTEMPT) {
+          setTimeLock(Date.now());
+          toastError(t('walletTemporarilyBlockedError', String(LAST_ATTEMPT)));
+        }
         setAttempt(attempt + 1);
         setTimeleft(getTimeLeft(Date.now(), LOCK_TIME * Math.floor((attempt + 1) / 3)));
 
@@ -101,6 +129,10 @@ const Unlock: FC<UnlockProps> = ({ canImportNew = true }) => {
     },
     [submitting, clearError, setError, unlock, focusPasswordField, formAnalytics, attempt, setAttempt, setTimeLock]
   );
+
+  const handleForgotPasswordClick = useCallback(() => setPageModalName(PageModalName.ForgotPassword), []);
+  const handleModalClose = useCallback(() => setPageModalName(null), []);
+  const handleForgotPasswordContinueClick = useCallback(() => setPageModalName(PageModalName.ResetExtension), []);
 
   const isDisabled = useMemo(() => Date.now() - timelock <= lockLevel, [timelock, lockLevel]);
 
@@ -118,68 +150,56 @@ const Unlock: FC<UnlockProps> = ({ canImportNew = true }) => {
   }, [timelock, lockLevel, setTimeLock]);
 
   return (
-    <SimplePageLayout
-      title={
-        <>
-          <T id="unlockWallet" />
-          <br />
-          <span style={{ fontSize: '0.9em' }}>
-            <T id="toContinue" />
-          </span>
-        </>
-      }
-    >
-      {isDisabled && (
-        <Alert
-          type="error"
-          title={t('error')}
-          description={`${t('unlockPasswordErrorDelay')} ${timeleft}`}
-          className="mt-6"
-        />
-      )}
-      <form ref={formRef} className="w-full max-w-sm mx-auto my-8" onSubmit={handleSubmit(onSubmit)}>
-        <FormField
-          ref={register({ required: t('required') })}
-          label={t('password')}
-          labelDescription={t('unlockPasswordInputDescription')}
-          id="unlock-password"
-          type="password"
-          name="password"
-          placeholder={DEFAULT_PASSWORD_INPUT_PLACEHOLDER}
-          errorCaption={errors.password && errors.password.message}
-          containerClassName="mb-4"
-          autoFocus
-          disabled={isDisabled}
-          testID={UnlockSelectors.passwordInput}
-        />
+    <PageLayout Header={EmptyHeader} contentPadding={false} contentClassName="relative">
+      <PlanetsAnimation bottomGap={bottomGap} />
+      <div className="w-full min-h-full p-4 flex flex-col z-1">
+        <div className="w-full aspect-[2]" />
+        <div className="w-full flex-1" ref={bottomGapElementRef} style={{ minHeight: SUN_RADIUS + MIN_BOTTOM_GAP }} />
+        <form ref={formRef} className="w-full flex flex-col items-center mb-4" onSubmit={handleSubmit(onSubmit)}>
+          <p className="text-font-regular-bold text-center mb-0.5">
+            <T id="welcomeBack" />
+          </p>
+          <p className="text-font-description text-center text-grey-1 mb-5">
+            <T id="enterPasswordToUnlock" />
+          </p>
+          <div className="w-full flex-1 flex flex-col">
+            <FormField
+              ref={register({ required: t('required') })}
+              id="unlock-password"
+              type="password"
+              name="password"
+              placeholder={DEFAULT_PASSWORD_INPUT_PLACEHOLDER}
+              errorCaption={errors.password && errors.password.message}
+              containerClassName="mb-3"
+              autoFocus
+              disabled={isDisabled}
+              testID={UnlockSelectors.passwordInput}
+            />
 
-        <FormSubmitButton disabled={isDisabled} loading={submitting} testID={UnlockSelectors.unlockButton}>
-          {t('unlock')}
-        </FormSubmitButton>
-
-        {canImportNew && (
-          <div className="my-6">
-            <h3 className="text-sm font-light text-gray-600">
-              <T id="importNewAccountTitle" />
-            </h3>
-
-            <Link
-              to="/import-wallet"
-              className={classNames(
-                'text-primary-orange',
-                'text-sm font-semibold',
-                'transition duration-200 ease-in-out',
-                'opacity-75 hover:opacity-100 focus:opacity-100',
-                'hover:underline'
-              )}
-              testID={UnlockSelectors.importWalletUsingSeedPhrase}
+            <StyledButton
+              color="primary"
+              size="L"
+              type="submit"
+              disabled={isDisabled}
+              loading={submitting}
+              testID={UnlockSelectors.unlockButton}
             >
-              <T id="importWalletUsingSeedPhrase" />
-            </Link>
+              {isDisabled ? timeleft : t('unlock')}
+            </StyledButton>
           </div>
-        )}
-      </form>
-    </SimplePageLayout>
+          {canImportNew && (
+            <TextButton onClick={handleForgotPasswordClick} className="mt-12">
+              <T id="forgotPasswordQuestion" />
+            </TextButton>
+          )}
+        </form>
+      </div>
+
+      {pageModalName === PageModalName.ForgotPassword && (
+        <ForgotPasswordModal onClose={handleModalClose} onContinueClick={handleForgotPasswordContinueClick} />
+      )}
+      {pageModalName === PageModalName.ResetExtension && <ResetExtensionModal onClose={handleModalClose} />}
+    </PageLayout>
   );
 };
 

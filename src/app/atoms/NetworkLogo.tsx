@@ -23,13 +23,14 @@ interface TezosNetworkLogoProps {
   networkName: string;
   chainId: string;
   size?: number;
+  className?: string;
 }
 
-export const TezosNetworkLogo = memo<TezosNetworkLogoProps>(({ networkName, chainId, size = 16 }) =>
+export const TezosNetworkLogo = memo<TezosNetworkLogoProps>(({ className, networkName, chainId, size = 16 }) =>
   chainId === TEZOS_MAINNET_CHAIN_ID ? (
-    <TezNetworkLogo size={size} />
+    <TezNetworkLogo size={size} className={className} />
   ) : (
-    <NetworkLogoFallback networkName={networkName} size={size} />
+    <NetworkLogoFallback networkName={networkName} size={size} className={className} />
   )
 );
 

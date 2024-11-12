@@ -5,7 +5,12 @@ import { nanoid } from 'nanoid';
 
 import { BLOCKCHAIN_EXPLORERS_OVERRIDES_STORAGE_KEY } from 'lib/constants';
 import { useStorage } from 'lib/temple/front/storage';
-import { TempleTezosChainId } from 'lib/temple/types';
+import {
+  OTHER_COMMON_MAINNET_CHAIN_IDS,
+  ETHEREUM_MAINNET_CHAIN_ID,
+  ETH_SEPOLIA_CHAIN_ID,
+  TempleTezosChainId
+} from 'lib/temple/types';
 import { EMPTY_FROZEN_OBJ } from 'lib/utils';
 import { TempleChainKind } from 'temple/types';
 
@@ -227,42 +232,42 @@ const DEFAULT_BLOCK_EXPLORERS_BASE: Record<TempleChainKind, Record<string, Omit<
     ]
   },
   [TempleChainKind.EVM]: {
-    '1': [
+    [ETHEREUM_MAINNET_CHAIN_ID]: [
       {
         name: 'Etherscan',
         url: 'https://etherscan.io',
         id: 'etherscan-mainnet'
       }
     ],
-    '137': [
+    [OTHER_COMMON_MAINNET_CHAIN_IDS.polygon]: [
       {
         name: 'PolygonScan',
         url: 'https://polygonscan.com',
         id: 'polygonscan-mainnet'
       }
     ],
-    '56': [
+    [OTHER_COMMON_MAINNET_CHAIN_IDS.bsc]: [
       {
         name: 'BscScan',
         url: 'https://bscscan.com',
         id: 'bscscan-mainnet'
       }
     ],
-    '43114': [
+    [OTHER_COMMON_MAINNET_CHAIN_IDS.avalanche]: [
       {
         name: 'SnowTrace',
         url: 'https://snowtrace.io',
         id: 'snowtrace-mainnet'
       }
     ],
-    '10': [
+    [OTHER_COMMON_MAINNET_CHAIN_IDS.optimism]: [
       {
         name: 'Optimistic Ethereum',
         url: 'https://optimistic.etherscan.io',
         id: 'optimism-mainnet'
       }
     ],
-    '11155111': [
+    [ETH_SEPOLIA_CHAIN_ID]: [
       {
         name: 'Etherscan',
         url: 'https://sepolia.etherscan.io',
