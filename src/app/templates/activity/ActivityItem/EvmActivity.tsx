@@ -70,7 +70,9 @@ const EvmActivityBatchComponent = memo<BatchProps>(({ activity, chain, assetSlug
 
         const decimals = getMetadata(slug)?.decimals ?? asset.decimals;
 
-        if (decimals != null) return slug;
+        // if (decimals != null) return slug;
+
+        return slug;
       }
     }
 
@@ -98,7 +100,7 @@ const EvmActivityBatchComponent = memo<BatchProps>(({ activity, chain, assetSlug
 
     const decimals = assetMetadata?.decimals ?? faceAssetBase?.decimals;
 
-    if (decimals == null) return;
+    // if (decimals == null) return;
 
     const symbol = assetMetadata?.symbol || faceAssetBase?.symbol;
 
@@ -109,7 +111,7 @@ const EvmActivityBatchComponent = memo<BatchProps>(({ activity, chain, assetSlug
       contract,
       tokenId,
       amountSigned: faceAmount.toFixed(),
-      decimals,
+      decimals: 0,
       symbol
     };
   }, [getMetadata, operations, faceSlug]);
@@ -121,6 +123,7 @@ const EvmActivityBatchComponent = memo<BatchProps>(({ activity, chain, assetSlug
         hash={hash}
         chain={chain}
         asset={batchAsset}
+        atomic={false}
         blockExplorerUrl={blockExplorerUrl}
         status={status}
         withoutAssetIcon={Boolean(assetSlug)}

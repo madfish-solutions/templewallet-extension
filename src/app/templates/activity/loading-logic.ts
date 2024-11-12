@@ -4,6 +4,7 @@ import { useWillUnmount } from 'lib/ui/hooks/useWillUnmount';
 export function useActivitiesLoadingLogic<A>(
   loadActivities: (initial: boolean, signal: AbortSignal) => Promise<void>,
   resetDeps: unknown[],
+  /** @deprecated - Not used ? */
   onReset?: EmptyFn,
   initialIsLoading = true
 ) {

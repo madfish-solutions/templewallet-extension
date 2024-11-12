@@ -25,6 +25,7 @@ interface Props {
   transferType?: ActivityOperTransferType;
   hash: string;
   asset?: ActivityItemBaseAssetProp;
+  atomic: boolean;
   blockExplorerUrl?: string;
   status?: ActivityStatus;
   withoutAssetIcon?: boolean;
@@ -44,7 +45,19 @@ export interface ActivityItemBaseAssetProp {
 }
 
 export const ActivityOperationBaseComponent = memo<Props>(
-  ({ kind, transferType, hash, chain, asset, blockExplorerUrl, status, withoutAssetIcon, onClick, addressChip }) => {
+  ({
+    kind,
+    transferType,
+    hash,
+    chain,
+    asset,
+    atomic,
+    blockExplorerUrl,
+    status,
+    withoutAssetIcon,
+    onClick,
+    addressChip
+  }) => {
     const isForEvm = chain.kind === TempleChainKind.EVM;
 
     const assetSlug = asset
@@ -69,14 +82,14 @@ export const ActivityOperationBaseComponent = memo<Props>(
         >
           {kind === ActivityOperKindEnum.approve ? null : asset.amountSigned ? (
             <Money smallFractionFont={false} withSign>
-              {atomsToTokens(asset.amountSigned, asset.decimals)}
+              {atomic ? atomsToTokens(asset.amountSigned, asset.decimals) : asset.amountSigned}
             </Money>
           ) : null}
 
           {symbolStr ? <span className="whitespace-pre"> {symbolStr}</span> : null}
         </div>
       );
-    }, [asset, kind, onClick]);
+    }, [asset, kind, onClick, atomic]);
 
     const fiatJsx = useMemo<ReactNode>(() => {
       if (!asset) return null;
@@ -84,13 +97,19 @@ export const ActivityOperationBaseComponent = memo<Props>(
       if (!asset.amountSigned) return asset.amountSigned === null ? 'Unlimited' : null;
 
       if (kind === ActivityOperKindEnum.approve)
-        return <Money smallFractionFont={false}>{atomsToTokens(asset.amountSigned, asset.decimals)}</Money>;
+        return (
+          <Money smallFractionFont={false}>
+            {atomic ? atomsToTokens(asset.amountSigned, asset.decimals) : asset.amountSigned}
+          </Money>
+        );
 
       if (!assetSlug) return null;
 
       const amountForFiat =
         kind === 'bundle' || isTransferActivityOperKind(kind)
-          ? atomsToTokens(asset.amountSigned, asset.decimals)
+          ? atomic
+            ? atomsToTokens(asset.amountSigned, asset.decimals)
+            : asset.amountSigned
           : null;
 
       if (!amountForFiat) return null;

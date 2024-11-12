@@ -1,12 +1,9 @@
 import React, { FC, useMemo } from 'react';
 
-import { AxiosError } from 'axios';
-
 import { DeadEndBoundaryError } from 'app/ErrorBoundary';
 import { useLoadPartnersPromo } from 'app/hooks/use-load-partners-promo';
 import { EvmActivity } from 'lib/activity';
-import { getEvmAssetTransactions } from 'lib/activity/evm';
-import { useSafeState } from 'lib/ui/hooks';
+import { getEvmActivities } from 'lib/activity/evm/fetch';
 import { useAccountAddressForEvm } from 'temple/front';
 import { useEvmChainByChainId } from 'temple/front/chains';
 
@@ -30,43 +27,33 @@ export const EvmActivityList: FC<Props> = ({ chainId, assetSlug, filterKind }) =
 
   useLoadPartnersPromo();
 
-  const [nextPage, setNextPage] = useSafeState<number | nullish>(undefined);
-
   const { activities, isLoading, reachedTheEnd, setActivities, setIsLoading, setReachedTheEnd, loadNext } =
     useActivitiesLoadingLogic<EvmActivity>(
       async (initial, signal) => {
-        const page = initial ? undefined : nextPage;
-        if (page === null) return;
+        if (reachedTheEnd) return;
 
         setIsLoading(true);
 
         const currActivities = initial ? [] : activities;
 
         try {
-          const { activities: newActivities, nextPage: newNextPage } = await getEvmAssetTransactions(
-            accountAddress,
-            chainId,
-            assetSlug,
-            page,
-            signal
-          );
+          const olderThanBlockHeight = activities.at(activities.length - 1)?.blockHeight;
+
+          const newActivities = await getEvmActivities(accountAddress, chainId, olderThanBlockHeight);
 
           if (signal.aborted) return;
 
           setActivities(currActivities.concat(newActivities));
-          setNextPage(newNextPage);
-          if (newNextPage === null || newActivities.length === 0) setReachedTheEnd(true);
+          if (newActivities.length === 0) setReachedTheEnd(true);
         } catch (error) {
           if (signal.aborted) return;
 
           console.error(error);
-          if (error instanceof AxiosError && error.status === 501) setReachedTheEnd(true);
         }
 
         setIsLoading(false);
       },
-      [chainId, accountAddress, assetSlug],
-      () => setNextPage(undefined)
+      [chainId, accountAddress, assetSlug]
     );
 
   const displayActivities = useMemo(
@@ -75,6 +62,8 @@ export const EvmActivityList: FC<Props> = ({ chainId, assetSlug, filterKind }) =
   );
 
   const groupedActivities = useGroupingByDate(displayActivities);
+
+  console.log('AAA:', activities);
 
   const contentJsx = useMemo(
     () =>

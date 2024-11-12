@@ -32,13 +32,13 @@ export const EvmActivityOperationComponent = memo<Props>(
 
       const decimals = assetBase.amountSigned === null ? NaN : assetMetadata?.decimals ?? assetBase.decimals;
 
-      if (decimals == null) return;
+      // if (decimals == null) return;
 
       const symbol = assetMetadata?.symbol || assetBase.symbol;
 
       const asset: ActivityItemBaseAssetProp = {
         ...assetBase,
-        decimals,
+        decimals: -1,
         symbol
       };
 
@@ -57,6 +57,7 @@ export const EvmActivityOperationComponent = memo<Props>(
         hash={hash}
         chain={chain}
         asset={asset}
+        atomic={false}
         blockExplorerUrl={blockExplorerUrl}
         status={status}
         withoutAssetIcon={withoutAssetIcon}
