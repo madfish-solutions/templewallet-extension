@@ -6,11 +6,116 @@ import {
   EvmActivityAsset,
   EvmOperation
 } from 'lib/activity/types';
-import { TransactionFillsResponseDataItem } from 'lib/apis/oklink';
+import { OklinkTransaction, TransactionFillsResponseDataItem } from 'lib/apis/oklink';
 import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
 import { TempleChainKind } from 'temple/types';
 
-export function parseOklinkTransaction(
+export function parseOklinkTransactionsGroup(
+  items: OklinkTransaction[],
+  chainId: number,
+  accountAddress: string,
+  hash: string
+): EvmActivity {
+  const firstItem = items.at(0)!;
+
+  const status =
+    firstItem.state === 'success'
+      ? ActivityStatus.applied
+      : firstItem.state === 'pending'
+      ? ActivityStatus.pending
+      : ActivityStatus.failed;
+
+  const operations = items.map(item => parseOklinkTransaction(item, accountAddress));
+
+  return {
+    chain: TempleChainKind.EVM,
+    chainId,
+    hash,
+    operations,
+    operationsCount: items.length,
+    status,
+    addedAt: new Date(Number(firstItem.transactionTime)).toISOString(),
+    blockHeight: firstItem.height
+  };
+}
+
+function parseOklinkTransaction(item: OklinkTransaction, accountAddress: string): EvmOperation {
+  const fromAddress = item.from;
+  const toAddress = item.to;
+
+  if (!item.methodId) {
+    const type = (() => {
+      if (fromAddress === accountAddress)
+        return item.isToContract ? ActivityOperTransferType.send : ActivityOperTransferType.sendToAccount;
+      if (toAddress === accountAddress)
+        return item.isFromContract ? ActivityOperTransferType.receive : ActivityOperTransferType.receiveFromAccount;
+
+      return null;
+    })();
+
+    if (type == null)
+      return {
+        kind: ActivityOperKindEnum.interaction,
+        withAddress: item.tokenContractAddress || undefined
+      };
+
+    const { amount, tokenId, transactionSymbol: symbol } = item;
+
+    const amountSigned =
+      type === ActivityOperTransferType.send || type === ActivityOperTransferType.sendToAccount ? `-${amount}` : amount;
+
+    const asset: EvmActivityAsset = {
+      contract: item.tokenContractAddress,
+      tokenId,
+      amountSigned,
+      // decimals,
+      symbol
+      // nft
+    };
+
+    return {
+      kind: ActivityOperKindEnum.transfer,
+      type,
+      fromAddress,
+      toAddress,
+      asset
+    };
+  }
+
+  if (item.methodId === KnownMethodsEnum.ApprovalForAll) {
+    const kind = ActivityOperKindEnum.approve;
+
+    const asset: EvmActivityAsset = {
+      contract: item.to,
+      amountSigned: null,
+      // decimals: NaN, // We are not supposed to use these in this case (of 'Unlimited' amount)
+      // symbol,
+      nft: true
+      // iconURL
+    };
+
+    return { kind, asset };
+  }
+
+  if (item.methodId === KnownMethodsEnum.Approval) {
+    const kind = ActivityOperKindEnum.approve;
+
+    const asset: EvmActivityAsset = {
+      contract: item.to,
+      amountSigned: '0' // ?!
+      // decimals: NaN, // We are not supposed to use these in this case (of 'Unlimited' amount)
+      // symbol,
+      // nft: true // ?!
+      // iconURL
+    };
+
+    return { kind, asset };
+  }
+
+  return { kind: ActivityOperKindEnum.interaction, withAddress: item.to };
+}
+
+export function parseOklinkFillResponseData(
   item: TransactionFillsResponseDataItem,
   chainId: number,
   accountAddress: string

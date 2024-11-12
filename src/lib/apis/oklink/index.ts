@@ -2,16 +2,13 @@ import axios from 'axios';
 
 import { filterUnique } from 'lib/utils';
 
-/** Maximum allowed for the endpoint */
-const MAX_HASHES_FOR_FILLS = 20;
-
 export async function fetchOklinkTransactions(
   address: string,
   chainId: number,
   olderThanBlockHeight?: `${number}`,
   // newerThanBlockHeight?: string,
   signal?: AbortSignal
-) {
+): Promise<OklinkTransaction[]> {
   const chainShortName = CHAINS[chainId];
   if (!chainShortName) return [];
 
@@ -25,21 +22,9 @@ export async function fetchOklinkTransactions(
     makeTransactionsRequest(address, chainShortName, 'token_10', endBlockHeight, signal)
   ]);
 
-  const allItems = [
-    ...data1.transactionLists,
-    ...data2.transactionLists,
-    ...data3.transactionLists,
-    ...data4.transactionLists,
-    ...data5.transactionLists
-  ].sort((a, b) => (a.transactionTime > b.transactionTime ? -1 : 1));
-
-  const uniqHashes = filterUnique(allItems.map(item => item.txId)).slice(0, MAX_HASHES_FOR_FILLS);
-
-  await new Promise(r => void setTimeout(r, 1_000));
-
-  const fillsRes = await makeTransactionsFillsRequest(address, chainShortName, uniqHashes);
-
-  return fillsRes.sort((a, b) => (a.transactionTime > b.transactionTime ? -1 : 1));
+  return [...data1, ...data2, ...data3, ...data4, ...data5].sort((a, b) =>
+    a.transactionTime > b.transactionTime ? -1 : 1
+  );
 }
 
 /** See: https://www.oklink.com/docs/en/#fundamental-blockchain-data-address-data-get-address-transaction-list */
@@ -50,13 +35,14 @@ async function makeTransactionsRequest(
   protocolType?: ProtocolType,
   // startBlockHeight?: string,
   endBlockHeight?: string,
-  signal?: AbortSignal
-) {
-  const data = await axios
+  signal?: AbortSignal,
+  prevItems: OklinkTransaction[] = []
+): Promise<OklinkTransaction[]> {
+  const items = await axios
     .get<OklinkResponse<[TransactionListResponseData]>>('explorer/address/transaction-list', {
       baseURL: 'https://www.oklink.com/api/v5',
       headers: {
-        'Ok-Access-Key': ''
+        'Ok-Access-Key': process.env._OKLINK_API_KEY
       },
       params: {
         chainShortName,
@@ -72,10 +58,28 @@ async function makeTransactionsRequest(
     .then(response => {
       if (response.data.code !== '0') throw new Error(response.data.msg);
 
-      return response.data.data[0];
+      return response.data.data[0].transactionLists;
     });
 
-  return data;
+  // Cutting out trailing number of same-hash items, since there might be more on the 'next page'
+
+  const lastHash = items.at(items.length - 1)?.txId;
+
+  // if (!lastHash) return prevItems;
+
+  // const countSameLastHashes = items.length - items.findIndex(d => d.txId === lastHash);
+
+  // if (countSameLastHashes < items.length) return [...prevItems, ...items.toSpliced(-countSameLastHashes)];
+
+  // return [...prevItems, ...items, ...(await makeTransactionsRequest(address, chainShortName, protocolType, endBlockHeight, signal))];
+
+  if (!lastHash) return [];
+
+  const countSameLastHashes = items.length - items.findIndex(d => d.txId === lastHash);
+
+  if (countSameLastHashes < items.length) return items.toSpliced(-countSameLastHashes);
+
+  return items; // TODO: Do sth for this `else`
 }
 
 interface OklinkResponse<T> {
@@ -106,7 +110,7 @@ export interface OklinkTransaction {
   methodId: '' | HexString;
   blockHash: HexString;
   /** number */
-  height: string;
+  height: `${number}`;
   /** number - UNIX time */
   transactionTime: string;
   from: HexString;
@@ -136,7 +140,7 @@ async function makeTransactionsFillsRequest(
     .get<OklinkResponse<TransactionFillsResponseDataItem[]>>('explorer/transaction/transaction-fills', {
       baseURL: 'https://www.oklink.com/api/v5',
       headers: {
-        'Ok-Access-Key': ''
+        'Ok-Access-Key': process.env._OKLINK_API_KEY
       },
       params: {
         chainShortName,

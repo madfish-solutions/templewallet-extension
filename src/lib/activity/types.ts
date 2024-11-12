@@ -82,7 +82,7 @@ interface EvmOperationBase extends OperationBase {
 
 interface EvmApproveOperation extends EvmOperationBase {
   kind: ActivityOperKindEnum.approve;
-  spenderAddress: string;
+  spenderAddress?: string;
 }
 
 interface EvmTransferOperation extends EvmOperationBase {

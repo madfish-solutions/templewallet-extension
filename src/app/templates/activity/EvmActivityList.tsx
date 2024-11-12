@@ -63,6 +63,8 @@ export const EvmActivityList: FC<Props> = ({ chainId, assetSlug, filterKind }) =
 
   const groupedActivities = useGroupingByDate(displayActivities);
 
+  console.log('AAA:', activities);
+
   const contentJsx = useMemo(
     () =>
       groupedActivities.map(([dateStr, activities]) => (
