@@ -1,4 +1,4 @@
-import React, { ComponentType, createContext, FC, ReactNode, RefObject, useContext, useRef } from 'react';
+import React, { ComponentType, FC, memo, ReactNode, useRef } from 'react';
 
 import clsx from 'clsx';
 
@@ -26,6 +26,7 @@ import {
 import { BackupMnemonicOverlay } from './BackupMnemonicOverlay';
 import { ChangelogOverlay } from './ChangelogOverlay/ChangelogOverlay';
 import ConfirmationOverlay from './ConfirmationOverlay';
+import { ContentPaperRefContext } from './context';
 import { DefaultHeader, DefaultHeaderProps } from './DefaultHeader';
 import { NewsletterOverlay } from './NewsletterOverlay/NewsletterOverlay';
 import { OnRampOverlay } from './OnRampOverlay/OnRampOverlay';
@@ -126,11 +127,6 @@ const PageLayout: FC<PropsWithChildren<PageLayoutProps>> = ({
 
 export default PageLayout;
 
-const ContentPaperRefContext = createContext<RefObject<HTMLDivElement>>({
-  current: null
-});
-export const useContentPaperRef = () => useContext(ContentPaperRefContext);
-
 type ContentPaperProps = PropsWithChildren<{ className?: string } & ScrollEdgesVisibilityProps>;
 
 const ContentPaper: FC<ContentPaperProps> = ({
@@ -177,7 +173,7 @@ const ContentPaper: FC<ContentPaperProps> = ({
 
 const ContentPaperNode = SCROLL_DOCUMENT ? 'div' : ScrollRestorer;
 
-const TestnetModeIndicator: FC = () => {
+const TestnetModeIndicator = memo(() => {
   const enabled = useTestnetModeEnabledSelector();
 
   return (
@@ -193,7 +189,7 @@ const TestnetModeIndicator: FC = () => {
       </span>
     </div>
   );
-};
+});
 
 export const SpinnerSection: FC = () => (
   <div className="flex justify-center mt-24">
