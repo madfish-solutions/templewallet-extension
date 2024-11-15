@@ -84,7 +84,7 @@ interface ProtocolMetadata {
   protocol_name: string;
 }
 
-export interface BalanceNftData {
+interface BalanceNftData {
   /** * The token's id. */
   token_id: string | null;
   /** * The count of the number of NFTs with this ID. */

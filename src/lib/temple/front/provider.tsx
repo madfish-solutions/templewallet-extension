@@ -4,6 +4,7 @@ import { ShortcutAccountSelectStateProvider } from 'app/hooks/use-account-select
 import { AssetsViewStateProvider } from 'app/hooks/use-assets-view-state';
 import { usePushNotifications } from 'app/hooks/use-push-notifications';
 import { CustomTezosChainIdContext } from 'lib/analytics';
+import { EvmTransferSubscriptionsProvider } from 'lib/evm/on-chain/evm-transfer-subscriptions';
 import { ReadyTempleProvider } from 'temple/front/ready';
 
 import { TempleClientProvider, useTempleClient } from './client';
@@ -32,7 +33,9 @@ const ConditionalReadyTemple: FC<PropsWithChildren> = ({ children }) => {
       ready ? (
         <ReadyTempleProvider>
           <AssetsViewStateProvider>
-            <ShortcutAccountSelectStateProvider>{children}</ShortcutAccountSelectStateProvider>
+            <ShortcutAccountSelectStateProvider>
+              <EvmTransferSubscriptionsProvider>{children}</EvmTransferSubscriptionsProvider>
+            </ShortcutAccountSelectStateProvider>
           </AssetsViewStateProvider>
         </ReadyTempleProvider>
       ) : (

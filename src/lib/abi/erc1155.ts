@@ -1,3 +1,79 @@
+export const erc1155TransferBatchEvent = {
+  anonymous: false,
+  inputs: [
+    {
+      indexed: true,
+      internalType: 'address',
+      name: 'operator',
+      type: 'address'
+    },
+    {
+      indexed: true,
+      internalType: 'address',
+      name: 'from',
+      type: 'address'
+    },
+    {
+      indexed: true,
+      internalType: 'address',
+      name: 'to',
+      type: 'address'
+    },
+    {
+      indexed: false,
+      internalType: 'uint256[]',
+      name: 'ids',
+      type: 'uint256[]'
+    },
+    {
+      indexed: false,
+      internalType: 'uint256[]',
+      name: 'values',
+      type: 'uint256[]'
+    }
+  ],
+  name: 'TransferBatch',
+  type: 'event'
+} as const;
+
+export const erc1155TransferSingleEvent = {
+  anonymous: false,
+  inputs: [
+    {
+      indexed: true,
+      internalType: 'address',
+      name: 'operator',
+      type: 'address'
+    },
+    {
+      indexed: true,
+      internalType: 'address',
+      name: 'from',
+      type: 'address'
+    },
+    {
+      indexed: true,
+      internalType: 'address',
+      name: 'to',
+      type: 'address'
+    },
+    {
+      indexed: false,
+      internalType: 'uint256',
+      name: 'id',
+      type: 'uint256'
+    },
+    {
+      indexed: false,
+      internalType: 'uint256',
+      name: 'value',
+      type: 'uint256'
+    }
+  ],
+  name: 'TransferSingle',
+  type: 'event'
+} as const;
+
 export const erc1155Abi = [
   {
     inputs: [
@@ -126,80 +202,8 @@ export const erc1155Abi = [
     name: 'ApprovalForAll',
     type: 'event'
   },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: true,
-        internalType: 'address',
-        name: 'operator',
-        type: 'address'
-      },
-      {
-        indexed: true,
-        internalType: 'address',
-        name: 'from',
-        type: 'address'
-      },
-      {
-        indexed: true,
-        internalType: 'address',
-        name: 'to',
-        type: 'address'
-      },
-      {
-        indexed: false,
-        internalType: 'uint256[]',
-        name: 'ids',
-        type: 'uint256[]'
-      },
-      {
-        indexed: false,
-        internalType: 'uint256[]',
-        name: 'values',
-        type: 'uint256[]'
-      }
-    ],
-    name: 'TransferBatch',
-    type: 'event'
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: true,
-        internalType: 'address',
-        name: 'operator',
-        type: 'address'
-      },
-      {
-        indexed: true,
-        internalType: 'address',
-        name: 'from',
-        type: 'address'
-      },
-      {
-        indexed: true,
-        internalType: 'address',
-        name: 'to',
-        type: 'address'
-      },
-      {
-        indexed: false,
-        internalType: 'uint256',
-        name: 'id',
-        type: 'uint256'
-      },
-      {
-        indexed: false,
-        internalType: 'uint256',
-        name: 'value',
-        type: 'uint256'
-      }
-    ],
-    name: 'TransferSingle',
-    type: 'event'
-  },
+  erc1155TransferBatchEvent,
+  erc1155TransferSingleEvent,
   {
     anonymous: false,
     inputs: [

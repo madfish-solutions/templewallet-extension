@@ -5,6 +5,7 @@ import { nanoid } from 'nanoid';
 
 import { ArtificialError } from 'app/defaults';
 import { toastError } from 'app/toaster';
+import { EvmAssetStandard } from 'lib/evm/types';
 import { t } from 'lib/i18n';
 import { COLORS } from 'lib/ui/colors';
 import { loadEvmChainId } from 'temple/evm';
@@ -85,6 +86,7 @@ export const useAddNetwork = (
               [Number(chainId)]: {
                 ...commonChainSpecs,
                 currency: {
+                  standard: EvmAssetStandard.NATIVE,
                   symbol,
                   name: currencyName,
                   decimals: currencyDecimals

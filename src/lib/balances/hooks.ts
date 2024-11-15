@@ -1,8 +1,10 @@
-import { useCallback, useMemo } from 'react';
+import { useCallback, useEffect, useMemo } from 'react';
 
 import { emptyFn, isDefined } from '@rnw-community/shared';
 import BigNumber from 'bignumber.js';
+import { useDispatch } from 'react-redux';
 
+import { loadEvmBalanceOnChainActions } from 'app/store/evm/balances/actions';
 import {
   useRawEvmAccountBalancesSelector,
   useRawEvmChainAccountBalancesSelector,
@@ -19,7 +21,7 @@ import { getKeyForBalancesRecord } from 'app/store/tezos/balances/utils';
 import { isSupportedChainId } from 'lib/apis/temple/endpoints/evm/api.utils';
 import { isKnownChainId } from 'lib/apis/tzkt';
 import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
-import { fetchEvmRawBalance as fetchEvmRawBalanceFromBlockchain } from 'lib/evm/on-chain/balance';
+import { useEvmTransferSubscriptions } from 'lib/evm/on-chain/evm-transfer-subscriptions';
 import { EvmAssetStandard } from 'lib/evm/types';
 import { EVM_BALANCES_SYNC_INTERVAL } from 'lib/fixed-times';
 import {
@@ -211,56 +213,52 @@ function useEvmAssetRawBalance(
   error?: unknown;
   refresh: EmptyFn;
 } {
+  const dispatch = useDispatch();
   const currentAccountAddress = useAccountAddressForEvm();
 
-  const { chainId, rpcBaseURL } = network;
+  const { chainId } = network;
 
   const storedBalance = useRawEvmAssetBalanceSelector(address, network.chainId, assetSlug);
   const storedLoadingState = useEvmBalancesLoadingStateSelector(chainId);
   const storedError = isDefined(storedLoadingState?.error);
 
-  const usingStore = useMemo(
+  const usingOffchainAPI = useMemo(
     () => address === currentAccountAddress && isSupportedChainId(chainId) && !storedError,
     [storedError, address, currentAccountAddress, chainId]
   );
 
-  const onChainBalanceSwrRes = useTypedSWR(
-    ['evm-asset-raw-balance', rpcBaseURL, assetSlug, address],
-    () => {
-      if (usingStore) return;
-
-      return fetchEvmRawBalanceFromBlockchain(network, assetSlug, address, assetStandard).then(res => res.toString());
-    },
-    {
-      revalidateOnFocus: false,
-      dedupingInterval: 20000
-    }
+  const refreshBalanceOnChain = useCallback(
+    () => dispatch(loadEvmBalanceOnChainActions.submit({ network, assetSlug, account: address, assetStandard })),
+    [dispatch, network, assetSlug, address, assetStandard]
   );
-
-  const refreshBalanceOnChain = useCallback(() => void onChainBalanceSwrRes.mutate(), [onChainBalanceSwrRes.mutate]);
 
   useInterval(
     () => {
-      if (usingStore) return;
+      if (usingOffchainAPI) return;
 
       refreshBalanceOnChain();
     },
-    [usingStore, refreshBalanceOnChain],
+    [usingOffchainAPI, refreshBalanceOnChain],
     EVM_BALANCES_SYNC_INTERVAL,
-    false
+    true
   );
 
-  if (usingStore)
-    return {
-      value: storedBalance,
-      isSyncing: storedLoadingState?.isLoading ?? false,
-      refresh: emptyFn
-    };
+  const { subscribe, unsubscribe } = useEvmTransferSubscriptions();
+
+  useEffect(() => {
+    // The API may overwrite fresh balances from RPC with stale ones
+    if (usingOffchainAPI) {
+      return;
+    }
+
+    subscribe(chainId, address, assetSlug, refreshBalanceOnChain);
+
+    return () => unsubscribe(chainId, address, assetSlug, refreshBalanceOnChain);
+  }, [address, assetSlug, chainId, refreshBalanceOnChain, subscribe, unsubscribe, usingOffchainAPI]);
 
   return {
-    value: onChainBalanceSwrRes.data,
-    isSyncing: onChainBalanceSwrRes.isValidating,
-    error: onChainBalanceSwrRes.error,
+    value: storedBalance,
+    isSyncing: storedLoadingState?.isLoading ?? false,
     refresh: refreshBalanceOnChain
   };
 }
