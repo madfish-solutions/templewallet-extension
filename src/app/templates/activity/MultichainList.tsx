@@ -1,10 +1,8 @@
 import React, { memo, useMemo } from 'react';
 
-import { AxiosError } from 'axios';
-
 import { useLoadPartnersPromo } from 'app/hooks/use-load-partners-promo';
 import { Activity, EvmActivity, TezosActivity } from 'lib/activity';
-import { getEvmAssetTransactions } from 'lib/activity/evm';
+import { getEvmActivities } from 'lib/activity/evm/fetch';
 import { parseTezosOperationsGroup } from 'lib/activity/tezos';
 import fetchTezosOperationsGroups from 'lib/activity/tezos/fetch';
 import { TzktApiChainId } from 'lib/apis/tzkt';
@@ -163,14 +161,10 @@ function isTezosActivity(activity: Activity): activity is TezosActivity {
 
 class EvmActivityLoader {
   activities: EvmActivity[] = [];
+  reachedTheEnd = false;
   lastError: unknown;
-  private nextPage: number | nullish;
 
   constructor(readonly chainId: number, readonly accountAddress: string) {}
-
-  get reachedTheEnd() {
-    return this.nextPage === null;
-  }
 
   async loadNext(edgeDate: string | undefined, signal: AbortSignal, assetSlug?: string) {
     if (edgeDate) {
@@ -179,23 +173,18 @@ class EvmActivityLoader {
     }
 
     try {
-      const { accountAddress, chainId, nextPage } = this;
+      const { accountAddress, chainId } = this;
 
-      if (nextPage === null) return;
+      if (this.reachedTheEnd || this.lastError) return;
 
-      const { nextPage: newNextPage, activities: newActivities } = await getEvmAssetTransactions(
-        accountAddress,
-        chainId,
-        assetSlug,
-        nextPage,
-        signal
-      );
+      const olderThanBlockHeight = this.activities.at(this.activities.length - 1)?.blockHeight;
+
+      const newActivities = await getEvmActivities(chainId, accountAddress, olderThanBlockHeight, signal);
 
       if (signal.aborted) return;
 
-      this.nextPage = newNextPage;
-
       if (newActivities.length) this.activities = this.activities.concat(newActivities);
+      else this.reachedTheEnd = true;
 
       delete this.lastError;
     } catch (error) {
@@ -203,8 +192,7 @@ class EvmActivityLoader {
 
       console.error(error);
 
-      if (error instanceof AxiosError && error.status === 501) this.nextPage = null;
-      else this.lastError = error;
+      this.lastError = error;
     }
   }
 }
