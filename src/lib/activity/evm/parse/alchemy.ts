@@ -1,4 +1,4 @@
-import { AssetTransfersCategory, AssetTransfersWithMetadataResult } from 'alchemy-sdk';
+import { AssetTransfersCategory, AssetTransfersWithMetadataResult, Log } from 'alchemy-sdk';
 
 import { ActivityOperKindEnum, ActivityOperTransferType, EvmActivityAsset, EvmOperation } from 'lib/activity/types';
 import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
@@ -167,6 +167,34 @@ export function parseTransfer(transfer: AssetTransfersWithMetadataResult, accAdd
   }
 
   return buildInteraction(transfer, accAddress);
+}
+
+export function parseApprovalLog(approval: Log): EvmOperation {
+  const spenderAddress = '0x' + approval.topics.at(2)!.slice(26);
+
+  if (approval.topics[0] !== '0x8c5be1e5ebec7d5bd14f71427d1e84f3dd0314c0f7b2291e5b200ac8c7c3b925') {
+    // Not Approval, but ApprovalForAll method
+    if (approval.data.endsWith('0')) return { kind: ActivityOperKindEnum.interaction, withAddress: approval.address };
+
+    const asset: EvmActivityAsset = {
+      contract: approval.address,
+      amountSigned: null,
+      nft: true
+    };
+
+    return { kind: ActivityOperKindEnum.approve, spenderAddress, asset };
+  }
+
+  const approvalOnERC721 = approval.topics.length === 4;
+
+  const asset: EvmActivityAsset = {
+    contract: approval.address,
+    tokenId: approvalOnERC721 ? hexToStringInteger(approval.topics.at(3)!) : undefined,
+    amountSigned: approvalOnERC721 ? '1' : hexToStringInteger(approval.data),
+    nft: approvalOnERC721 ? true : undefined // Still exhaustive?
+  };
+
+  return { kind: ActivityOperKindEnum.approve, spenderAddress, asset };
 }
 
 function buildInteraction(transfer: AssetTransfersWithMetadataResult, accAddress: string): EvmOperation {

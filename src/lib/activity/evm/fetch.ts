@@ -17,7 +17,7 @@ import { TempleChainKind } from 'temple/types';
 import { ActivityStatus, EvmActivity } from '../types';
 
 import { parseGoldRushTransaction, parseGoldRushERC20Transfer } from './parse';
-import { parseTransfer } from './parse/alchemy';
+import { parseApprovalLog, parseTransfer } from './parse/alchemy';
 
 export async function getEvmAssetTransactions(
   walletAddress: string,
@@ -74,49 +74,54 @@ export async function getEvmAssetTransactions(
 export async function getEvmActivities(
   chainId: number,
   accAddress: string,
-  olderThanBlockHeight?: string,
+  olderThanBlockHeight?: `${number}`,
   signal?: AbortSignal
 ) {
+  const chainName = CHAINS_NAMES[chainId];
+  if (!chainName) return [];
+
   const accAddressLowercased = accAddress.toLowerCase();
 
-  const allTransfers = await fetchTransfers(chainId, accAddress, olderThanBlockHeight, signal);
+  const allTransfers = await fetchTransfers(chainName, accAddress, olderThanBlockHeight, signal);
   if (!allTransfers.length) return [];
+
+  const allApprovals = await fetchApprovals(
+    chainName,
+    accAddress,
+    olderThanBlockHeight,
+    // Loading approvals withing the gap of received transfers.
+    // TODO: Mind the case of reaching response items number limit & not reaching block heights gap.
+    allTransfers.at(allTransfers.length - 1)?.blockNum
+  );
 
   const groups = Object.entries(groupBy(allTransfers, 'hash'));
 
-  const activities: EvmActivity[] = [];
-
-  for (const [hash, transfers] of groups) {
+  return groups.map<EvmActivity>(([hash, transfers]) => {
     const firstTransfer = transfers.at(0)!;
 
-    const operations = transfers.map(transfer => parseTransfer(transfer, accAddressLowercased));
+    const approvals = allApprovals.filter(a => a.transactionHash === hash).map(approval => parseApprovalLog(approval));
 
-    const activity: EvmActivity = {
+    const operations = transfers.map(transfer => parseTransfer(transfer, accAddressLowercased)).concat(approvals);
+
+    return {
       chain: TempleChainKind.EVM,
       chainId,
       hash,
-      status: ActivityStatus.applied,
+      status: ActivityStatus.applied, // TODO: Differentiate - how?
       addedAt: firstTransfer.metadata.blockTimestamp,
       operations,
       operationsCount: operations.length,
       blockHeight: `${Number(firstTransfer.blockNum)}`
     };
-
-    activities.push(activity);
-  }
-
-  return activities;
+  });
 }
 
 async function fetchTransfers(
-  chainId: number,
+  chainName: Network,
   accAddress: string,
-  olderThanBlockHeight?: string,
+  olderThanBlockHeight?: `${number}`,
   signal?: AbortSignal
 ): Promise<AssetTransfersWithMetadataResult[]> {
-  const chainName = CHAINS_NAMES[chainId];
-  if (!chainName) return [];
-
   const alchemy = new Alchemy({
     apiKey: process.env._ALCHEMY_API_KEY, // TODO: To EnvVars
     network: chainName
@@ -129,7 +134,7 @@ async function fetchTransfers(
 
   const allTransfers = transfersFrom
     .concat(transfersTo)
-    .toSorted((a, b) => (a.metadata.blockTimestamp > b.metadata.blockTimestamp ? -1 : 1));
+    .toSorted((a, b) => (a.metadata.blockTimestamp < b.metadata.blockTimestamp ? 1 : -1));
 
   if (!allTransfers.length) return [];
 
@@ -148,9 +153,12 @@ async function fetchTransfers(
   return uniqBy(allTransfers, uniqByKey);
 }
 
-async function _fetchTransfers(alchemy: Alchemy, accAddress: string, toAcc = false, olderThanBlockHeight?: string) {
-  const toBlock = olderThanBlockHeight ? '0x' + (BigInt(olderThanBlockHeight) - BigInt(1)).toString(16) : undefined;
-
+async function _fetchTransfers(
+  alchemy: Alchemy,
+  accAddress: string,
+  toAcc = false,
+  olderThanBlockHeight?: `${number}`
+) {
   const categories = new Set(Object.values(AssetTransfersCategory));
   const excludedCategory = EXCLUDED_CATEGORIES[alchemy.config.network];
   if (excludedCategory) categories.delete(excludedCategory);
@@ -160,7 +168,7 @@ async function _fetchTransfers(alchemy: Alchemy, accAddress: string, toAcc = fal
     category: Array.from(categories),
     excludeZeroValue: true,
     withMetadata: true,
-    toBlock,
+    toBlock: olderThanBlockToToBlockValue(olderThanBlockHeight),
     maxCount: 50
   };
 
@@ -180,6 +188,35 @@ function calcSameTrailingHashes(transfers: AssetTransfersWithMetadataResult[]) {
   const sameTrailingHashes = transfers.length - 1 - transfers.findLastIndex(tr => tr.hash !== trailingHash);
 
   return sameTrailingHashes;
+}
+
+function fetchApprovals(
+  chainName: Network,
+  accAddress: string,
+  olderThanBlockHeight?: `${number}`,
+  /** Hex string. Including said block. */
+  fromBlock?: string
+) {
+  const alchemy = new Alchemy({
+    apiKey: process.env._ALCHEMY_API_KEY, // TODO: To EnvVars
+    network: chainName
+  });
+
+  return alchemy.core.getLogs({
+    topics: [
+      [
+        '0x8c5be1e5ebec7d5bd14f71427d1e84f3dd0314c0f7b2291e5b200ac8c7c3b925', // Approval
+        '0x17307eab39ab6107e8899845ad3d59bd9653f200f220920489ca2b5937696c31' // ApprovalForAll
+      ],
+      `0x000000000000000000000000${accAddress.slice(2)}`
+    ],
+    toBlock: olderThanBlockToToBlockValue(olderThanBlockHeight),
+    fromBlock
+  });
+}
+
+function olderThanBlockToToBlockValue(olderThanBlockHeight: `${number}` | undefined) {
+  return olderThanBlockHeight ? '0x' + (BigInt(olderThanBlockHeight) - BigInt(1)).toString(16) : undefined;
 }
 
 /** E.g. 'opt_mainnet' does not support 'internal' category */
