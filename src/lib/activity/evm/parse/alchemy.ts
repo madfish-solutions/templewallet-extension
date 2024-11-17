@@ -90,9 +90,6 @@ export function parseTransfer(transfer: AssetTransfersWithMetadataResult, accAdd
   if (transfer.category === AssetTransfersCategory.ERC1155) {
     const erc1155Metadata = transfer.erc1155Metadata?.at(0);
 
-    if (transfer.hash === '0xf1ec44d7cbff7eca47ec34675eab1b1a36a2b0fa3e480acc441c71290fff2508')
-      console.log('FUCK:', 1, contractAddress, erc1155Metadata, transfer);
-
     if (!contractAddress || !erc1155Metadata) return buildInteraction(transfer, accAddress);
 
     const { tokenId, value } = erc1155Metadata;
@@ -107,9 +104,6 @@ export function parseTransfer(transfer: AssetTransfersWithMetadataResult, accAdd
       decimals: 0,
       nft: true
     };
-
-    if (transfer.hash === '0xf1ec44d7cbff7eca47ec34675eab1b1a36a2b0fa3e480acc441c71290fff2508')
-      console.log('FUCK:', 2, type, asset);
 
     return {
       kind: ActivityOperKindEnum.transfer,

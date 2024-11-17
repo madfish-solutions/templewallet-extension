@@ -1,3 +1,4 @@
+// TODO: Make requests via axios, not SDK
 import {
   Alchemy,
   AssetTransfersCategory,
@@ -121,18 +122,9 @@ async function fetchTransfers(
     network: chainName
   });
 
-  const reqOptions: AssetTransfersWithMetadataParams = {
-    order: SortingOrder.DESCENDING,
-    category: Object.values(AssetTransfersCategory),
-    excludeZeroValue: true,
-    withMetadata: true,
-    toBlock: olderThanBlockHeight ? '0x' + (BigInt(olderThanBlockHeight) - BigInt(1)).toString(16) : undefined,
-    maxCount: 50
-  };
-
   const [transfersFrom, transfersTo] = await Promise.all([
-    alchemy.core.getAssetTransfers({ ...reqOptions, fromAddress: accAddress }).then(r => r.transfers),
-    alchemy.core.getAssetTransfers({ ...reqOptions, toAddress: accAddress }).then(r => r.transfers)
+    _fetchTransfers(alchemy, accAddress, false, olderThanBlockHeight),
+    _fetchTransfers(alchemy, accAddress, true, olderThanBlockHeight)
   ]);
 
   const allTransfers = transfersFrom
@@ -156,6 +148,29 @@ async function fetchTransfers(
   return uniqBy(allTransfers, uniqByKey);
 }
 
+async function _fetchTransfers(alchemy: Alchemy, accAddress: string, toAcc = false, olderThanBlockHeight?: string) {
+  const toBlock = olderThanBlockHeight ? '0x' + (BigInt(olderThanBlockHeight) - BigInt(1)).toString(16) : undefined;
+
+  const categories = new Set(Object.values(AssetTransfersCategory));
+  const excludedCategory = EXCLUDED_CATEGORIES[alchemy.config.network];
+  if (excludedCategory) categories.delete(excludedCategory);
+
+  const reqOptions: AssetTransfersWithMetadataParams = {
+    order: SortingOrder.DESCENDING,
+    category: Array.from(categories),
+    excludeZeroValue: true,
+    withMetadata: true,
+    toBlock,
+    maxCount: 50
+  };
+
+  if (toAcc) reqOptions.toAddress = accAddress;
+  else reqOptions.fromAddress = accAddress;
+
+  // TODO: Seems like Alchemy SDK processes Error 429 itself
+  return alchemy.core.getAssetTransfers(reqOptions).then(r => r.transfers);
+}
+
 function calcSameTrailingHashes(transfers: AssetTransfersWithMetadataResult[]) {
   const trailingHash = transfers.at(transfers.length - 1)!.hash;
   if (transfers.at(0)!.hash === trailingHash) return transfers.length; // All are same, saving runtime
@@ -166,6 +181,13 @@ function calcSameTrailingHashes(transfers: AssetTransfersWithMetadataResult[]) {
 
   return sameTrailingHashes;
 }
+
+/** E.g. 'opt_mainnet' does not support 'internal' category */
+const EXCLUDED_CATEGORIES: Partial<Record<Network, AssetTransfersCategory>> = {
+  [Network.OPT_MAINNET]: AssetTransfersCategory.INTERNAL,
+  [Network.OPT_SEPOLIA]: AssetTransfersCategory.INTERNAL,
+  [Network.MATIC_AMOY]: AssetTransfersCategory.INTERNAL
+};
 
 /** TODO: Verify this mapping */
 const CHAINS_NAMES: Record<number, Network> = {
