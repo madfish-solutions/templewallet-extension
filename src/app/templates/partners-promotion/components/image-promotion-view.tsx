@@ -1,4 +1,4 @@
-import React, { FC, MouseEventHandler, PropsWithChildren, memo, useMemo, useRef } from 'react';
+import React, { MouseEventHandler, PropsWithChildren, memo, useMemo, useRef } from 'react';
 
 import clsx from 'clsx';
 
