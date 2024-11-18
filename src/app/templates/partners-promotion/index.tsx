@@ -3,8 +3,7 @@ import React, { memo, MouseEventHandler, useCallback, useEffect, useRef, useStat
 import clsx from 'clsx';
 import { useDispatch } from 'react-redux';
 
-import Spinner from 'app/atoms/Spinner/Spinner';
-import { useAppEnv } from 'app/env';
+import { Loader } from 'app/atoms';
 import { useAdsViewerPkh } from 'app/hooks/use-ads-viewer-pkh';
 import { hidePromotionAction } from 'app/store/partners-promotion/actions';
 import {
@@ -15,10 +14,10 @@ import { AdsProviderName, AdsProviderTitle } from 'lib/ads';
 import { postAdImpression } from 'lib/apis/ads-api';
 import { AD_HIDING_TIMEOUT } from 'lib/constants';
 
+import { CloseButton } from './components/close-button';
 import { HypelabPromotion } from './components/hypelab-promotion';
 import { OptimalPromotion } from './components/optimal-promotion';
 import { PersonaPromotion } from './components/persona-promotion';
-import styles from './partners-promotion.module.css';
 import { PartnersPromotionVariant } from './types';
 
 export { PartnersPromotionVariant } from './types';
@@ -40,7 +39,6 @@ const shouldBeHiddenTemporarily = (hiddenAt: number) => {
 export const PartnersPromotion = memo<PartnersPromotionProps>(({ variant, id, pageName, withPersonaProvider }) => {
   const isImageAd = variant === PartnersPromotionVariant.Image;
   const adsViewerAddress = useAdsViewerPkh();
-  const { popup } = useAppEnv();
   const dispatch = useDispatch();
   const hiddenAt = usePromotionHidingTimestampSelector(id);
   const shouldShowPartnersPromo = useShouldShowPartnersPromoSelector();
@@ -102,7 +100,7 @@ export const PartnersPromotion = memo<PartnersPromotionProps>(({ variant, id, pa
     <div
       className={clsx(
         'w-full relative flex flex-col items-center',
-        !adIsReady && (isImageAd ? styles.imageAdLoading : styles.textAdLoading)
+        !adIsReady && (isImageAd ? 'min-h-[101px]' : 'min-h-16')
       )}
     >
       {(() => {
@@ -150,14 +148,13 @@ export const PartnersPromotion = memo<PartnersPromotionProps>(({ variant, id, pa
       })()}
 
       {!adIsReady && (
-        <div
-          className={clsx(
-            'absolute top-0 left-0 w-full h-full bg-gray-100 flex justify-center items-center',
-            !popup && 'rounded-2.5'
-          )}
-        >
-          <Spinner theme="dark-gray" className="w-6" />
-        </div>
+        <>
+          {isImageAd && <CloseButton />}
+
+          <div className="absolute inset-0 bg-grey-4 text-secondary flex justify-center items-center rounded-lg">
+            <Loader trackVariant="dark" size="L" />
+          </div>
+        </>
       )}
     </div>
   );

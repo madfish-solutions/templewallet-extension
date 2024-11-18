@@ -1,4 +1,4 @@
-import React, { FC, MouseEventHandler, PropsWithChildren, useMemo, useRef } from 'react';
+import React, { FC, MouseEventHandler, PropsWithChildren, memo, useMemo, useRef } from 'react';
 
 import clsx from 'clsx';
 
@@ -46,11 +46,7 @@ export const ImagePromotionView: FC<Props> = ({
 
   return (
     <Anchor
-      className={clsx(
-        'relative w-full rounded-xl overflow-hidden',
-        'bg-gray-100 hover:bg-gray-200',
-        !isVisible && 'invisible'
-      )}
+      className={clsx('relative w-full h-[101px] rounded-lg overflow-hidden bg-grey-4', !isVisible && 'invisible')}
       href={href}
       target="_blank"
       rel="noreferrer"
@@ -62,13 +58,13 @@ export const ImagePromotionView: FC<Props> = ({
         <>
           {backgroundAssetType === 'image' ? (
             <img
-              className="absolute inset-0 w-full h-full object-cover filter blur-md"
+              className="absolute inset-0 w-full h-full object-cover filter blur-[10px]"
               src={backgroundAssetUrl}
               alt=""
             />
           ) : (
             <video
-              className="absolute inset-0 w-full h-full object-cover filter blur-md"
+              className="absolute inset-0 w-full h-full object-cover filter blur-[10px]"
               src={backgroundAssetUrl}
               autoPlay
               preload="auto"
@@ -80,22 +76,22 @@ export const ImagePromotionView: FC<Props> = ({
         </>
       )}
 
-      <div className="w-full flex justify-center items-center z-10 relative">{children}</div>
+      <div className="w-full h-full flex justify-center items-center z-10 relative">{children}</div>
 
       <ImageAdLabel />
 
-      <CloseButton onClick={onClose} variant={PartnersPromotionVariant.Image} />
+      <CloseButton onClick={onClose} />
     </Anchor>
   );
 };
 
-const ImageAdLabel: FC = () => (
+const ImageAdLabel = memo(() => (
   <div
     className={clsx(
-      'absolute top-0 left-0 px-3 rounded-tl-xl rounded-br-xl z-20',
-      'bg-blue-500 text-2xs leading-snug font-semibold text-white'
+      'absolute top-0 left-0 p-1 rounded-tl-lg rounded-br-lg z-20',
+      'bg-secondary text-font-small-bold text-white'
     )}
   >
     AD
   </div>
-);
+));

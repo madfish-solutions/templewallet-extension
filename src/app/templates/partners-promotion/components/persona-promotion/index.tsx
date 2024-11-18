@@ -117,7 +117,7 @@ export const PersonaPromotion = memo<Props>(
           ref={ref}
           id={containerId}
           onClick={onClick}
-          className={clsx('h-full rounded-xl overflow-hidden', ModStyles.container)}
+          className={clsx('h-full rounded overflow-hidden', ModStyles.container)}
         />
       </ImagePromotionView>
     );
