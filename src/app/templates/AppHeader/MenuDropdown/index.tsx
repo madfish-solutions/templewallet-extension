@@ -9,6 +9,7 @@ import { ReactComponent as FullViewIcon } from 'app/icons/base/fullview.svg';
 import { ReactComponent as LockIcon } from 'app/icons/base/lock.svg';
 import { ReactComponent as SettingsIcon } from 'app/icons/base/settings.svg';
 import { dispatch } from 'app/store';
+import { setAssetsFilterChain } from 'app/store/assets-filter-options/actions';
 import { setIsTestnetModeEnabledAction } from 'app/store/settings/actions';
 import { useTestnetModeEnabledSelector } from 'app/store/settings/selectors';
 import { T } from 'lib/i18n';
@@ -29,7 +30,10 @@ const MenuDropdown = memo<PopperRenderProps>(({ opened, setOpened }) => {
 
   const closeDropdown = useCallback(() => void setOpened(false), [setOpened]);
 
-  const handleTestnetModeSwitch = useCallback((value: boolean) => dispatch(setIsTestnetModeEnabledAction(value)), []);
+  const handleTestnetModeSwitch = useCallback((value: boolean) => {
+    dispatch(setAssetsFilterChain(null));
+    dispatch(setIsTestnetModeEnabledAction(value));
+  }, []);
 
   useShortcutAccountSelectModalIsOpened(closeDropdown);
 
