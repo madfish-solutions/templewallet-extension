@@ -24,66 +24,68 @@ interface Props extends PropsWithChildren {
   onClose: MouseEventHandler<HTMLButtonElement>;
 }
 
-export const ImagePromotionView: FC<Props> = ({
-  accountPkh,
-  children,
-  href,
-  isVisible,
-  providerTitle,
-  pageName,
-  backgroundAssetUrl,
-  backgroundAssetType = 'image',
-  onAdRectSeen,
-  onClose
-}) => {
-  const ref = useRef<HTMLAnchorElement>(null);
-  useAdRectObservation(ref, onAdRectSeen, isVisible);
+export const ImagePromotionView = memo<Props>(
+  ({
+    accountPkh,
+    children,
+    href,
+    isVisible,
+    providerTitle,
+    pageName,
+    backgroundAssetUrl,
+    backgroundAssetType = 'image',
+    onAdRectSeen,
+    onClose
+  }) => {
+    const ref = useRef<HTMLAnchorElement>(null);
+    useAdRectObservation(ref, onAdRectSeen, isVisible);
 
-  const testIDProperties = useMemo(
-    () => buildAdClickAnalyticsProperties(PartnersPromotionVariant.Image, providerTitle, pageName, accountPkh, href),
-    [href, providerTitle, pageName, accountPkh]
-  );
+    const testIDProperties = useMemo(
+      () => buildAdClickAnalyticsProperties(PartnersPromotionVariant.Image, providerTitle, pageName, accountPkh, href),
+      [href, providerTitle, pageName, accountPkh]
+    );
 
-  return (
-    <Anchor
-      className={clsx('relative w-full h-[101px] rounded-lg overflow-hidden bg-grey-4', !isVisible && 'invisible')}
-      href={href}
-      target="_blank"
-      rel="noreferrer"
-      ref={ref}
-      testID={PartnersPromotionSelectors.promoLink}
-      testIDProperties={testIDProperties}
-    >
-      {backgroundAssetUrl && (
-        <>
-          {backgroundAssetType === 'image' ? (
-            <img
-              className="absolute inset-0 w-full h-full object-cover filter blur-[10px]"
-              src={backgroundAssetUrl}
-              alt=""
-            />
-          ) : (
-            <video
-              className="absolute inset-0 w-full h-full object-cover filter blur-[10px]"
-              src={backgroundAssetUrl}
-              autoPlay
-              preload="auto"
-              playsInline
-              muted
-              loop
-            />
-          )}
-        </>
-      )}
+    return (
+      <Anchor
+        className={clsx('relative w-full h-[101px] rounded-lg overflow-hidden bg-grey-4', !isVisible && 'invisible')}
+        href={href}
+        target="_blank"
+        rel="noreferrer"
+        ref={ref}
+        testID={PartnersPromotionSelectors.promoLink}
+        testIDProperties={testIDProperties}
+      >
+        {backgroundAssetUrl && (
+          <>
+            {backgroundAssetType === 'image' ? (
+              <img
+                className="absolute inset-0 w-full h-full object-cover filter blur-[10px]"
+                src={backgroundAssetUrl}
+                alt=""
+              />
+            ) : (
+              <video
+                className="absolute inset-0 w-full h-full object-cover filter blur-[10px]"
+                src={backgroundAssetUrl}
+                autoPlay
+                preload="auto"
+                playsInline
+                muted
+                loop
+              />
+            )}
+          </>
+        )}
 
-      <div className="w-full h-full flex justify-center items-center z-10 relative">{children}</div>
+        <div className="w-full h-full flex justify-center items-center z-10 relative">{children}</div>
 
-      <ImageAdLabel />
+        <ImageAdLabel />
 
-      <CloseButton onClick={onClose} />
-    </Anchor>
-  );
-};
+        <CloseButton onClick={onClose} />
+      </Anchor>
+    );
+  }
+);
 
 const ImageAdLabel = memo(() => (
   <div
