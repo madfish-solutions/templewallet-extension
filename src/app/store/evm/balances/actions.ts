@@ -9,7 +9,7 @@ import { EvmNetworkEssentials } from 'temple/networks';
 interface processLoadedEvmTokensBalancesActionPayload {
   publicKeyHash: HexString;
   chainId: number;
-  data: Pick<BalancesResponse, 'items'>;
+  data: BalancesResponse;
 }
 
 export interface LoadOnChainBalancePayload {

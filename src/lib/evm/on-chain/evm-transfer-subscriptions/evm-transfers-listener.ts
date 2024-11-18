@@ -1,5 +1,4 @@
 import memoizee from 'memoizee';
-import { nanoid } from 'nanoid';
 import {
   HttpTransport,
   Log,
@@ -126,8 +125,6 @@ const getWssRpcClient = memoizee(
  * round-robin fashion.
  */
 export class EvmTransfersListener {
-  private readonly mainHttpRpcUrl: string;
-  private readonly otherRpcUrls: string[];
   private mainRpcClient: PublicClient<HttpTransport>;
   private allRpcClients: PublicClient<HttpTransport | WebSocketTransport>[];
   private banRpcListeningEndTimestamps: number[];
@@ -139,12 +136,9 @@ export class EvmTransfersListener {
   private cancelEventsSubscriptions: EmptyFn[] | null = null;
   private callbacksQueue: QueueOfUnique<CallbackDescriptor> = new QueueOfUnique();
   private queueInterval: NodeJS.Timer;
-  private readonly id: string;
   private isFinalized = false;
 
   constructor({ account, mainHttpRpcUrl, otherRpcUrls, onNewBlock, onTokenTransfer }: EvmTransfersListenerConfig) {
-    this.otherRpcUrls = otherRpcUrls;
-    this.mainHttpRpcUrl = mainHttpRpcUrl;
     this.mainRpcClient = getReadOnlyEvm(mainHttpRpcUrl);
     this.allRpcClients = otherRpcUrls
       .concat(mainHttpRpcUrl)
@@ -155,7 +149,6 @@ export class EvmTransfersListener {
     this.account = account;
     this.onNewBlock = onNewBlock;
     this.onTokenTransfer = onTokenTransfer;
-    this.id = nanoid();
     this.handleNewBlockNumber = this.handleNewBlockNumber.bind(this);
     this.onError = this.onError.bind(this);
     this.handleLogs = this.handleLogs.bind(this);
@@ -254,7 +247,7 @@ export class EvmTransfersListener {
 
         return;
       },
-      onError: error => {
+      onError: () => {
         unsubscribe();
         return addTokenTransferToQueue();
       }
@@ -354,15 +347,6 @@ export class EvmTransfersListener {
       return;
     }
 
-    console.error(
-      error,
-      this.id,
-      this.account,
-      this.mainHttpRpcUrl,
-      clientIndex,
-      this.otherRpcUrls[clientIndex] ?? this.mainHttpRpcUrl,
-      this.banRpcListeningEndTimestamps
-    );
     if ('code' in error && BAN_LISTENING_ERRORS_CODES.includes(error.code as number)) {
       this.banRpcListeningEndTimestamps[clientIndex] = Date.now() + 60 * 60_000;
     }
