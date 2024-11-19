@@ -3,7 +3,12 @@ import { useCallback, useMemo } from 'react';
 import { EVM_CHAINS_SPECS_STORAGE_KEY, TEZOS_CHAINS_SPECS_STORAGE_KEY } from 'lib/constants';
 import { EvmNativeTokenMetadata } from 'lib/metadata/types';
 import { useStorage } from 'lib/temple/front/storage';
-import { TempleTezosChainId } from 'lib/temple/types';
+import {
+  OTHER_COMMON_MAINNET_CHAIN_IDS,
+  ETHEREUM_MAINNET_CHAIN_ID,
+  ETH_SEPOLIA_CHAIN_ID,
+  TempleTezosChainId
+} from 'lib/temple/types';
 import { EMPTY_FROZEN_OBJ } from 'lib/utils';
 import { DEFAULT_EVM_CURRENCY } from 'temple/networks';
 import { TempleChainKind } from 'temple/types';
@@ -42,12 +47,12 @@ const DEFAULT_TEZOS_CHAINS_SPECS: Record<string, TezosChainSpecs & { testnet: bo
 };
 
 const DEFAULT_EVM_CHAINS_SPECS: Record<string, EvmChainSpecs & { testnet: boolean }> = {
-  '1': {
+  [ETHEREUM_MAINNET_CHAIN_ID]: {
     name: 'Ethereum Mainnet',
     testnet: false,
     currency: DEFAULT_EVM_CURRENCY
   },
-  '137': {
+  [OTHER_COMMON_MAINNET_CHAIN_IDS.polygon]: {
     name: 'Polygon Mainnet',
     testnet: false,
     currency: {
@@ -56,7 +61,7 @@ const DEFAULT_EVM_CHAINS_SPECS: Record<string, EvmChainSpecs & { testnet: boolea
       symbol: 'POL'
     }
   },
-  '56': {
+  [OTHER_COMMON_MAINNET_CHAIN_IDS.bsc]: {
     name: 'BSC Mainnet',
     testnet: false,
     currency: {
@@ -65,7 +70,7 @@ const DEFAULT_EVM_CHAINS_SPECS: Record<string, EvmChainSpecs & { testnet: boolea
       symbol: 'BNB'
     }
   },
-  '43114': {
+  [OTHER_COMMON_MAINNET_CHAIN_IDS.avalanche]: {
     name: 'Avalanche Mainnet',
     testnet: false,
     currency: {
@@ -74,12 +79,12 @@ const DEFAULT_EVM_CHAINS_SPECS: Record<string, EvmChainSpecs & { testnet: boolea
       symbol: 'AVAX'
     }
   },
-  '10': {
+  [OTHER_COMMON_MAINNET_CHAIN_IDS.optimism]: {
     name: 'Optimism Mainnet',
     testnet: false,
     currency: DEFAULT_EVM_CURRENCY
   },
-  '11155111': {
+  [ETH_SEPOLIA_CHAIN_ID]: {
     name: 'Ethereum Sepolia',
     currency: {
       ...DEFAULT_EVM_CURRENCY,

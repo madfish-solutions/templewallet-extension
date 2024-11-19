@@ -1019,6 +1019,35 @@
   "info": {
     "message": "Info"
   },
+  "welcomeBack": {
+    "message": "Welcome Back to Temple"
+  },
+  "enterPasswordToUnlock": {
+    "message": "Enter your password to unlock wallet"
+  },
+  "forgotPasswordQuestion": {
+    "message": "Forgot password?"
+  },
+  "forgotPasswordModalTitle": {
+    "message": "Forgot password"
+  },
+  "forgotPasswordModalDescription": {
+    "message": "For safety reasons, Temple never stores your password and can’t help recover it. If you forgot your password, you can reset extension and re-import your wallet using your Seed Phrase without losing any funds."
+  },
+  "unlockScreenResetModalAlertText": {
+    "message": "Before you continue, ensure you have a back up of your Seed Phrase to avoid permanent loss of your funds and recover access later."
+  },
+  "unlockScreenResetModalDescription": {
+    "message": "If you reset the extension without Seed Phrase back up, you'll not be able to recover your funds."
+  },
+  "walletTemporarilyBlockedError": {
+    "message": "Incorrect password entered $attempts$ times. Wallet temporarily blocked for safety reason.",
+    "placeholders": {
+      "attempts": {
+        "content": "$1"
+      }
+    }
+  },
   "unlockWallet": {
     "message": "Unlock the Wallet"
   },
@@ -2720,16 +2749,19 @@
     "message": "Address Book"
   },
   "addNewContact": {
-    "message": "New contact"
+    "message": "Add New Contact"
   },
   "addContact": {
-    "message": "Add contact"
+    "message": "Add Contact"
   },
   "newContactPlaceholder": {
     "message": "e.g. Alice Bob"
   },
   "contactWithTheSameAddressAlreadyExists": {
     "message": "Contact with the same address already exists"
+  },
+  "accountWithTheSameAddressAlreadyExists": {
+    "message": "Account with the same address already exists"
   },
   "currentContacts": {
     "message": "Current contacts"
@@ -2763,6 +2795,9 @@
   },
   "noContactsFound": {
     "message": "No contacts found"
+  },
+  "noContacts": {
+    "message": "No contacts"
   },
   "addThisAddressToContacts": {
     "message": "Add this address to contacts?"
@@ -3722,5 +3757,8 @@
   },
   "zarName": {
     "message": "South African Rand"
+  },
+  "deleteContactActionDescription": {
+    "message": "This will delete the contact from the list."
   }
 }

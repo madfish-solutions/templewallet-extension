@@ -45,7 +45,6 @@ export interface PageLayoutProps extends DefaultHeaderProps, ScrollEdgesVisibili
   contentPadding?: boolean;
   contentClassName?: string;
   paperClassName?: string;
-  dimBg?: boolean;
   headerChildren?: ReactNode;
 }
 
@@ -56,7 +55,6 @@ const PageLayout: FC<PropsWithChildren<PageLayoutProps>> = ({
   contentPadding = true,
   contentClassName,
   paperClassName,
-  dimBg = true,
   headerChildren,
   onBottomEdgeVisibilityChange,
   bottomEdgeThreshold,
@@ -93,7 +91,7 @@ const PageLayout: FC<PropsWithChildren<PageLayoutProps>> = ({
               'flex-grow flex flex-col',
               noScroll && 'overflow-hidden',
               contentPadding && 'p-4 pb-15',
-              dimBg && 'bg-background',
+              'bg-background',
               contentClassName
             )}
           >
