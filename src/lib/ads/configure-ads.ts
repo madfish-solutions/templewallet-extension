@@ -200,7 +200,7 @@ const bannerAdsMetaBase: (AdMetadata | false)[] = [
       maxContainerHeight: 300
     }
   },
-  {
+  EnvVars.PERSONA_ADS_ENABLED && {
     source: {
       providerName: 'Persona' as const,
       native: false,
@@ -215,7 +215,7 @@ const bannerAdsMetaBase: (AdMetadata | false)[] = [
       maxContainerHeight: 300
     }
   },
-  {
+  EnvVars.PERSONA_ADS_ENABLED && {
     source: {
       providerName: 'Persona' as const,
       slug: IS_MISES_BROWSER
@@ -310,7 +310,7 @@ const bannerAdsMetaBase: (AdMetadata | false)[] = [
       maxContainerHeight: Infinity
     }
   },
-  {
+  EnvVars.PERSONA_ADS_ENABLED && {
     source: {
       providerName: 'Persona' as const,
       slug: IS_MISES_BROWSER
@@ -375,7 +375,7 @@ const bannerAdsMetaBase: (AdMetadata | false)[] = [
       maxContainerHeight: 130
     }
   },
-  {
+  EnvVars.PERSONA_ADS_ENABLED && {
     source: {
       providerName: 'Persona' as const,
       slug: IS_MISES_BROWSER ? EnvVars.PERSONA_ADS_MISES_BANNER_UNIT_ID : EnvVars.PERSONA_ADS_BANNER_UNIT_ID,

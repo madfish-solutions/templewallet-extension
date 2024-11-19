@@ -14,6 +14,8 @@ import { T } from 'lib/i18n/react';
 import useActivities from 'lib/temple/activity-new/hook';
 import { useAccount } from 'lib/temple/front';
 
+import { EnvVars } from '../../../lib/env';
+
 import { ActivityItem } from './ActivityItem';
 import { ReactivateAdsBanner } from './ReactivateAdsBanner';
 
@@ -41,7 +43,7 @@ export const ActivityComponent: React.FC<Props> = ({ assetSlug }) => {
           id={`promo-activity-${assetSlug ?? 'all'}`}
           variant={PartnersPromotionVariant.Image}
           pageName="Activity"
-          withPersonaProvider
+          withPersonaProvider={EnvVars.PERSONA_ADS_ENABLED}
         />
       );
 

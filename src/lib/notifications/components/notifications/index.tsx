@@ -11,6 +11,7 @@ import { T } from 'lib/i18n';
 import { BellIcon } from 'lib/icons';
 import { useTimeout } from 'lib/ui/hooks';
 
+import { EnvVars } from '../../../env';
 import { viewAllNotificationsAction } from '../../store/actions';
 import { useNotificationsSelector } from '../../store/selectors';
 
@@ -45,7 +46,7 @@ export const Notifications = () => {
               id="promo-notifications-item"
               variant={PartnersPromotionVariant.Image}
               pageName="Notifications"
-              withPersonaProvider
+              withPersonaProvider={EnvVars.PERSONA_ADS_ENABLED}
             />
           </div>
         )}
