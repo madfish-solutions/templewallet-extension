@@ -10,7 +10,7 @@ import { IconBase } from './IconBase';
 type Color = 'black' | 'blue' | 'grey';
 
 interface Props extends TestIDProps {
-  Icon: ImportedSVGComponent;
+  Icon?: ImportedSVGComponent;
   className?: string;
   color?: Color;
   onClick?: EmptyFn;
@@ -18,7 +18,7 @@ interface Props extends TestIDProps {
 
 export const TextButton = memo(
   forwardRef<HTMLButtonElement, PropsWithChildren<Props>>(
-    ({ Icon, color, onClick, testID, testIDProperties, children, className }, ref) => {
+    ({ Icon, color = 'grey', onClick, testID, testIDProperties, children, className }, ref) => {
       const { textClassName, iconClassName } = useMemo(() => {
         switch (color) {
           case 'black':
@@ -52,7 +52,7 @@ export const TextButton = memo(
           testIDProperties={testIDProperties}
         >
           <span className={clsx('text-font-description-bold', textClassName)}>{children}</span>
-          <IconBase size={12} Icon={Icon} className={iconClassName} />
+          {Icon && <IconBase size={12} Icon={Icon} className={iconClassName} />}
         </Button>
       );
     }
