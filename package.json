@@ -220,6 +220,7 @@
     "text-decoding": "^1.0.0"
   },
   "resolutions": {
+    "npm-run-all/cross-spawn": "^7.0.6",
     "react-dev-utils/fork-ts-checker-webpack-plugin": "^9",
     "tslib": "^2.4.0",
     "@types/react": "18.0.15",
@@ -230,7 +231,6 @@
     "@taquito/contracts-library": "20.0.0",
     "@taquito/tzip16": "20.0.0",
     "bignumber.js": "9.1.0",
-    "cross-spawn": "^7.0.5",
     "graphql-request": "^6.1.0",
     "json5": "^2.2.2",
     "follow-redirects": "^1.15.4"
