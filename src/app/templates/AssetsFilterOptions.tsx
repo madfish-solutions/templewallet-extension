@@ -8,7 +8,7 @@ import { useAssetsSegmentControlRef } from 'app/atoms/AssetsSegmentControl';
 import { NetworkSelectButton } from 'app/atoms/NetworkSelectButton';
 import { ReactComponent as CleanIcon } from 'app/icons/base/x_circle_fill.svg';
 import { ContentContainer } from 'app/layouts/containers';
-import { useContentPaperRef } from 'app/layouts/PageLayout';
+import { useContentPaperRef } from 'app/layouts/PageLayout/context';
 import { dispatch } from 'app/store';
 import {
   resetTokensFilterOptions,

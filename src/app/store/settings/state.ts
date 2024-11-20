@@ -15,6 +15,7 @@ export interface SettingsState {
   showAgreementsCounter: number;
   shouldShowTermsOfUseUpdateOverlay: boolean;
   toastsContainerBottomShift: number;
+  isTestnetModeEnabled: boolean;
   /** @deprecated */
   balanceMode?: 'fiat' | 'gas';
 }
@@ -30,5 +31,6 @@ export const settingsInitialState: SettingsState = {
   referralLinksEnabled: IS_MISES_BROWSER,
   showAgreementsCounter: IS_MISES_BROWSER ? MAX_SHOW_AGREEMENTS_COUNTER : 0,
   shouldShowTermsOfUseUpdateOverlay: true,
-  toastsContainerBottomShift: 0
+  toastsContainerBottomShift: 0,
+  isTestnetModeEnabled: false
 };

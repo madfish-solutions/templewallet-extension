@@ -3,10 +3,16 @@ import React, { memo, Suspense, useCallback, useState } from 'react';
 import { PageTitle } from 'app/atoms';
 import PageLayout from 'app/layouts/PageLayout';
 import { useAssetsFilterOptionsSelector } from 'app/store/assets-filter-options/selectors';
+import { useTestnetModeEnabledSelector } from 'app/store/settings/selectors';
 import { EVM_TOKEN_SLUG, TEZ_TOKEN_SLUG } from 'lib/assets/defaults';
 import { toChainAssetSlug } from 'lib/assets/utils';
 import { t } from 'lib/i18n';
-import { ETHEREUM_MAINNET_CHAIN_ID, TEZOS_MAINNET_CHAIN_ID } from 'lib/temple/types';
+import {
+  ETH_SEPOLIA_CHAIN_ID,
+  ETHEREUM_MAINNET_CHAIN_ID,
+  TEZOS_GHOSTNET_CHAIN_ID,
+  TEZOS_MAINNET_CHAIN_ID
+} from 'lib/temple/types';
 import { useBooleanState } from 'lib/ui/hooks';
 import { useAccountAddressForEvm } from 'temple/front';
 import { TempleChainKind } from 'temple/types';
@@ -26,6 +32,7 @@ interface Props {
 const Send = memo<Props>(({ chainKind, chainId, assetSlug }) => {
   const accountEvmAddress = useAccountAddressForEvm();
   const { filterChain } = useAssetsFilterOptionsSelector();
+  const testnetModeEnabled = useTestnetModeEnabledSelector();
 
   const [selectedChainAssetSlug, setSelectedChainAssetSlug] = useState(() => {
     if (chainKind && chainId && assetSlug) {
@@ -41,10 +48,18 @@ const Send = memo<Props>(({ chainKind, chainId, assetSlug }) => {
     }
 
     if (accountEvmAddress) {
-      return toChainAssetSlug(TempleChainKind.EVM, ETHEREUM_MAINNET_CHAIN_ID, EVM_TOKEN_SLUG);
+      return toChainAssetSlug(
+        TempleChainKind.EVM,
+        testnetModeEnabled ? ETH_SEPOLIA_CHAIN_ID : ETHEREUM_MAINNET_CHAIN_ID,
+        EVM_TOKEN_SLUG
+      );
     }
 
-    return toChainAssetSlug(TempleChainKind.Tezos, TEZOS_MAINNET_CHAIN_ID, TEZ_TOKEN_SLUG);
+    return toChainAssetSlug(
+      TempleChainKind.Tezos,
+      testnetModeEnabled ? TEZOS_GHOSTNET_CHAIN_ID : TEZOS_MAINNET_CHAIN_ID,
+      TEZ_TOKEN_SLUG
+    );
   });
 
   const [selectAssetModalOpened, setSelectAssetModalOpen, setSelectAssetModalClosed] = useBooleanState(false);
