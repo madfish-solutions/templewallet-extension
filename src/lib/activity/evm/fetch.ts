@@ -1,4 +1,3 @@
-// TODO: Make requests via axios, not SDK
 import {
   Alchemy,
   AssetTransfersCategory,
@@ -9,71 +8,18 @@ import {
 } from 'alchemy-sdk';
 import { groupBy, uniqBy } from 'lodash';
 
-import { getEvmERC20Transfers, getEvmTransactions } from 'lib/apis/temple/endpoints/evm';
 import { fromAssetSlug } from 'lib/assets';
 import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
 import { TempleChainKind } from 'temple/types';
 
-import { ActivityStatus, EvmActivity } from '../types';
+import { EvmActivity } from '../types';
 
-import { parseGoldRushTransaction, parseGoldRushERC20Transfer } from './parse';
-import { parseApprovalLog, parseTransfer } from './parse/alchemy';
-
-export async function getEvmAssetTransactions(
-  walletAddress: string,
-  chainId: number,
-  assetSlug?: string,
-  page?: number,
-  signal?: AbortSignal
-) {
-  if (!assetSlug || assetSlug === EVM_TOKEN_SLUG) {
-    const { items, nextPage } = await getEvmTransactions(walletAddress, chainId, page, signal);
-
-    signal?.throwIfAborted();
-
-    return {
-      activities: items.map<EvmActivity>(item => parseGoldRushTransaction(item, chainId, walletAddress)),
-      nextPage
-    };
-  }
-
-  const [contract] = fromAssetSlug(assetSlug);
-
-  /* Way to do the rest here through GoldRush API v3
-  let nextPage: number | nullish = page;
-
-  while (nextPage !== null) {
-    const data = await getEvmTransactions(walletAddress, chainId, nextPage);
-
-    const activities = data.items
-      .map<EvmActivity>(item => parseGoldRushTransaction(item, chainId, walletAddress, getMetadata))
-      .filter(a =>
-        a.operations.some(
-          ({ asset }) => asset && asset.contract === contract && (asset.tokenId == null || asset.tokenId === tokenId)
-        )
-      );
-
-    if (activities.length) return { activities, nextPage: data.nextPage };
-
-    nextPage = data.nextPage;
-  }
-
-  return { nextPage: null, activities: [] };
-  */
-
-  const { items, nextPage } = await getEvmERC20Transfers(walletAddress, chainId, contract, page, signal);
-
-  signal?.throwIfAborted();
-
-  return {
-    activities: items.map<EvmActivity>(item => parseGoldRushERC20Transfer(item, chainId, walletAddress)),
-    nextPage
-  };
-}
+import { parseApprovalLog, parseTransfer } from './parse';
 
 export async function getEvmActivities(
   chainId: number,
   accAddress: string,
+  assetSlug?: string,
   olderThanBlockHeight?: `${number}`,
   signal?: AbortSignal
 ) {
@@ -82,17 +28,23 @@ export async function getEvmActivities(
 
   const accAddressLowercased = accAddress.toLowerCase();
 
-  const allTransfers = await fetchTransfers(chainName, accAddress, olderThanBlockHeight, signal);
-  if (!allTransfers.length) return [];
+  const contractAddress = assetSlug ? fromAssetSlug(assetSlug)[0] : undefined;
 
-  const allApprovals = await fetchApprovals(
-    chainName,
-    accAddress,
-    olderThanBlockHeight,
-    // Loading approvals withing the gap of received transfers.
-    // TODO: Mind the case of reaching response items number limit & not reaching block heights gap.
-    allTransfers.at(allTransfers.length - 1)?.blockNum
-  );
+  const allTransfers = await fetchTransfers(chainName, accAddress, contractAddress, olderThanBlockHeight, signal);
+  if (!allTransfers.length) return []; // TODO: return with marker `reachedTheEnd: boolean`
+
+  const allApprovals =
+    contractAddress === EVM_TOKEN_SLUG
+      ? []
+      : await fetchApprovals(
+          chainName,
+          accAddress,
+          contractAddress,
+          olderThanBlockHeight,
+          // Loading approvals withing the gap of received transfers.
+          // TODO: Mind the case of reaching response items number limit & not reaching block heights gap.
+          allTransfers.at(allTransfers.length - 1)?.blockNum
+        );
 
   const groups = Object.entries(groupBy(allTransfers, 'hash'));
 
@@ -107,7 +59,7 @@ export async function getEvmActivities(
       chain: TempleChainKind.EVM,
       chainId,
       hash,
-      status: ActivityStatus.applied, // TODO: Differentiate - how?
+      // status: Not provided by the API. Those which `failed`, are included still.
       addedAt: firstTransfer.metadata.blockTimestamp,
       operations,
       operationsCount: operations.length,
@@ -119,6 +71,7 @@ export async function getEvmActivities(
 async function fetchTransfers(
   chainName: Network,
   accAddress: string,
+  contractAddress?: string,
   olderThanBlockHeight?: `${number}`,
   signal?: AbortSignal
 ): Promise<AssetTransfersWithMetadataResult[]> {
@@ -128,8 +81,8 @@ async function fetchTransfers(
   });
 
   const [transfersFrom, transfersTo] = await Promise.all([
-    _fetchTransfers(alchemy, accAddress, false, olderThanBlockHeight),
-    _fetchTransfers(alchemy, accAddress, true, olderThanBlockHeight)
+    _fetchTransfers(alchemy, accAddress, contractAddress, false, olderThanBlockHeight),
+    _fetchTransfers(alchemy, accAddress, contractAddress, true, olderThanBlockHeight)
   ]);
 
   const allTransfers = transfersFrom
@@ -148,7 +101,7 @@ async function fetchTransfers(
     // return uniqBy(allTransfers.concat(moreTransfers), uniqByKey);
   }
 
-  allTransfers.splice(allTransfers.length - sameTrailingHashes, sameTrailingHashes);
+  if (allTransfers.length === 100) allTransfers.splice(allTransfers.length - sameTrailingHashes, sameTrailingHashes);
 
   return uniqBy(allTransfers, uniqByKey);
 }
@@ -156,14 +109,24 @@ async function fetchTransfers(
 async function _fetchTransfers(
   alchemy: Alchemy,
   accAddress: string,
+  contractAddress?: string,
   toAcc = false,
   olderThanBlockHeight?: `${number}`
 ) {
-  const categories = new Set(Object.values(AssetTransfersCategory));
-  const excludedCategory = EXCLUDED_CATEGORIES[alchemy.config.network];
-  if (excludedCategory) categories.delete(excludedCategory);
+  const categories = new Set(
+    contractAddress === EVM_TOKEN_SLUG
+      ? GAS_CATEGORIES
+      : contractAddress
+      ? ASSET_CATEGORIES // (!) Won't have gas transfer operations in batches // TODO:
+      : Object.values(AssetTransfersCategory)
+  );
+
+  if (EXCLUDED_INTERNAL_CATEGORY.has(alchemy.config.network)) categories.delete(AssetTransfersCategory.INTERNAL);
+
+  if (contractAddress === EVM_TOKEN_SLUG) contractAddress = undefined;
 
   const reqOptions: AssetTransfersWithMetadataParams = {
+    contractAddresses: contractAddress ? [contractAddress] : undefined,
     order: SortingOrder.DESCENDING,
     category: Array.from(categories),
     excludeZeroValue: true,
@@ -193,6 +156,7 @@ function calcSameTrailingHashes(transfers: AssetTransfersWithMetadataResult[]) {
 function fetchApprovals(
   chainName: Network,
   accAddress: string,
+  contractAddress?: string,
   olderThanBlockHeight?: `${number}`,
   /** Hex string. Including said block. */
   fromBlock?: string
@@ -203,6 +167,7 @@ function fetchApprovals(
   });
 
   return alchemy.core.getLogs({
+    address: contractAddress,
     topics: [
       [
         '0x8c5be1e5ebec7d5bd14f71427d1e84f3dd0314c0f7b2291e5b200ac8c7c3b925', // Approval
@@ -219,12 +184,16 @@ function olderThanBlockToToBlockValue(olderThanBlockHeight: `${number}` | undefi
   return olderThanBlockHeight ? '0x' + (BigInt(olderThanBlockHeight) - BigInt(1)).toString(16) : undefined;
 }
 
-/** E.g. 'opt_mainnet' does not support 'internal' category */
-const EXCLUDED_CATEGORIES: Partial<Record<Network, AssetTransfersCategory>> = {
-  [Network.OPT_MAINNET]: AssetTransfersCategory.INTERNAL,
-  [Network.OPT_SEPOLIA]: AssetTransfersCategory.INTERNAL,
-  [Network.MATIC_AMOY]: AssetTransfersCategory.INTERNAL
-};
+const GAS_CATEGORIES = [AssetTransfersCategory.EXTERNAL, AssetTransfersCategory.INTERNAL];
+const ASSET_CATEGORIES = [
+  AssetTransfersCategory.ERC20,
+  AssetTransfersCategory.ERC721,
+  AssetTransfersCategory.ERC1155,
+  AssetTransfersCategory.SPECIALNFT
+];
+
+/** If included, response fails with message about category not being supported. */
+const EXCLUDED_INTERNAL_CATEGORY = new Set([Network.OPT_MAINNET, Network.OPT_SEPOLIA, Network.MATIC_AMOY]);
 
 /** TODO: Verify this mapping */
 const CHAINS_NAMES: Record<number, Network> = {

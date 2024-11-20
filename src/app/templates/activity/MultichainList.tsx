@@ -166,7 +166,7 @@ class EvmActivityLoader {
 
   constructor(readonly chainId: number, readonly accountAddress: string) {}
 
-  async loadNext(edgeDate: string | undefined, signal: AbortSignal, assetSlug?: string) {
+  async loadNext(edgeDate: string | undefined, signal: AbortSignal) {
     if (edgeDate) {
       const lastAct = this.activities.at(-1);
       if (lastAct && lastAct.addedAt > edgeDate) return;
@@ -179,7 +179,7 @@ class EvmActivityLoader {
 
       const olderThanBlockHeight = this.activities.at(this.activities.length - 1)?.blockHeight;
 
-      const newActivities = await getEvmActivities(chainId, accountAddress, olderThanBlockHeight, signal);
+      const newActivities = await getEvmActivities(chainId, accountAddress, undefined, olderThanBlockHeight, signal);
 
       if (signal.aborted) return;
 

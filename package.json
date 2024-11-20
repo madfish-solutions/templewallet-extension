@@ -33,7 +33,6 @@
   },
   "dependencies": {
     "@apollo/client": "^3.7.2",
-    "@covalenthq/client-sdk": "^2",
     "@dicebear/bottts-neutral": "^8.0.1",
     "@dicebear/core": "^8.0.1",
     "@firebase/app": "^0.10.1",

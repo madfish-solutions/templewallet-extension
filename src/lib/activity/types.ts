@@ -17,7 +17,7 @@ interface ChainActivityBase {
   operationsCount: number;
   /** ISO string */
   addedAt: string;
-  status: ActivityStatus;
+  status?: ActivityStatus;
 }
 
 export enum ActivityStatus {

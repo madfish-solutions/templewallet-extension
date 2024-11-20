@@ -1,1 +1,0 @@
-export { getEvmAssetTransactions } from './fetch';
