@@ -231,7 +231,6 @@
     "@taquito/contracts-library": "20.0.0",
     "@taquito/tzip16": "20.0.0",
     "bignumber.js": "9.1.0",
-    "cross-spawn": "^7.0.5",
     "graphql-request": "^6.1.0",
     "json5": "^2.2.2",
     "follow-redirects": "^1.15.4"
