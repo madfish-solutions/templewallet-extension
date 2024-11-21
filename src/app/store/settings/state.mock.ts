@@ -15,5 +15,6 @@ export const mockSettingsState = mockPersistedState<SettingsState>({
   referralLinksEnabled: IS_MISES_BROWSER,
   showAgreementsCounter: IS_MISES_BROWSER ? MAX_SHOW_AGREEMENTS_COUNTER : 0,
   shouldShowTermsOfUseUpdateOverlay: true,
-  toastsContainerBottomShift: 0
+  toastsContainerBottomShift: 0,
+  isTestnetModeEnabled: false
 });

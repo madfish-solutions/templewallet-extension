@@ -11,6 +11,7 @@ import {
   FULL_PAGE_WRAP_OVERLAY_CLASSNAME,
   LAYOUT_CONTAINER_CLASSNAME
 } from 'app/layouts/containers';
+import { useTestnetModeEnabledSelector } from 'app/store/settings/selectors';
 
 import actionModalStyles from './action-modal.module.css';
 
@@ -27,6 +28,7 @@ export interface ActionModalProps {
 export const ActionModal = memo<ActionModalProps>(
   ({ onClose, children, hasCloseButton = true, title, headerClassName, contentClassName, className }) => {
     const { fullPage } = useAppEnv();
+    const testnetModeEnabled = useTestnetModeEnabledSelector();
 
     return (
       <CustomModal
@@ -34,6 +36,7 @@ export const ActionModal = memo<ActionModalProps>(
         className={clsx('rounded-lg', className)}
         overlayClassName={clsx(
           'backdrop-blur-xs',
+          testnetModeEnabled && 'mt-6 rounded-t-none',
           fullPage && [
             FULL_PAGE_WRAP_OVERLAY_CLASSNAME,
             actionModalStyles.fullPageOverlay,

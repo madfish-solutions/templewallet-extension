@@ -8,6 +8,10 @@ import { useShortcutAccountSelectModalIsOpened } from 'app/hooks/use-account-sel
 import { ReactComponent as FullViewIcon } from 'app/icons/base/fullview.svg';
 import { ReactComponent as LockIcon } from 'app/icons/base/lock.svg';
 import { ReactComponent as SettingsIcon } from 'app/icons/base/settings.svg';
+import { dispatch } from 'app/store';
+import { setAssetsFilterChain } from 'app/store/assets-filter-options/actions';
+import { setIsTestnetModeEnabledAction } from 'app/store/settings/actions';
+import { useTestnetModeEnabledSelector } from 'app/store/settings/selectors';
 import { T } from 'lib/i18n';
 import { NotificationsBell } from 'lib/notifications/components/bell';
 import { useTempleClient } from 'lib/temple/front';
@@ -22,8 +26,14 @@ interface TDropdownAction extends ActionListItemProps {
 const MenuDropdown = memo<PopperRenderProps>(({ opened, setOpened }) => {
   const appEnv = useAppEnv();
   const { lock } = useTempleClient();
+  const testnetModeEnabled = useTestnetModeEnabledSelector();
 
   const closeDropdown = useCallback(() => void setOpened(false), [setOpened]);
+
+  const handleTestnetModeSwitch = useCallback((value: boolean) => {
+    dispatch(setAssetsFilterChain(null));
+    dispatch(setIsTestnetModeEnabledAction(value));
+  }, []);
 
   useShortcutAccountSelectModalIsOpened(closeDropdown);
 
@@ -81,9 +91,17 @@ const MenuDropdown = memo<PopperRenderProps>(({ opened, setOpened }) => {
       <Lines className="my-1.5" />
 
       <label className="py-2.5 px-2 flex items-center gap-x-1">
-        <span className="flex-1 text-font-description">Testnet Mode</span>
+        <span className="flex-1 text-font-description">
+          <T id="testnetMode" />
+        </span>
 
-        <ToggleSwitch small checked={false} />
+        <ToggleSwitch
+          small
+          checked={testnetModeEnabled}
+          onClick={closeDropdown}
+          onChange={handleTestnetModeSwitch}
+          testID={MenuDropdownSelectors.testnetModeSwitch}
+        />
       </label>
     </ActionsDropdownPopup>
   );

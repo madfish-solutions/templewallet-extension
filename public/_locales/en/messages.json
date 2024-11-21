@@ -3759,5 +3759,11 @@
   },
   "deleteContactActionDescription": {
     "message": "This will delete the contact from the list."
+  },
+  "testnetMode": {
+    "message": "Testnet Mode"
+  },
+  "disabledInTestnetMode": {
+    "message": "Disabled in Testnet Mode"
   }
 }

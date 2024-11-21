@@ -4,10 +4,10 @@ import clsx from 'clsx';
 
 import { IconBase } from 'app/atoms';
 import { Button } from 'app/atoms/Button';
+import { useStickyObservation } from 'app/hooks/use-sticky-observation';
 import { ReactComponent as ChevronLeftIcon } from 'app/icons/base/chevron_left.svg';
+import { useTestnetModeEnabledSelector } from 'app/store/settings/selectors';
 import { goBack, HistoryAction, navigate, useLocation } from 'lib/woozie';
-
-import { useStickyObservation } from '../containers';
 
 import { PageLayoutSelectors } from './selectors';
 
@@ -35,27 +35,30 @@ export const DefaultHeader = memo<PropsWithChildren<DefaultHeaderProps>>(
       navigate('/', HistoryAction.Replace);
     }, [setStep, step, canNavBack]);
 
-    const rootRef = useRef<HTMLDivElement>(null);
+    const elemRef = useRef<HTMLDivElement>(null);
 
-    const sticked = useStickyObservation(rootRef, HEADER_IS_STICKY);
+    const testnetModeEnabled = useTestnetModeEnabledSelector();
 
-    const hasChildren = !!children;
+    const sticked = useStickyObservation(elemRef, HEADER_IS_STICKY);
+
+    const hasChildren = Boolean(children);
 
     const rootClassName = useMemo(
       () =>
         clsx(
-          HEADER_IS_STICKY && 'sticky z-header -top-px',
+          HEADER_IS_STICKY && 'sticky z-header',
+          testnetModeEnabled ? 'top-[23px]' : '-top-px',
           'flex flex-col',
           sticked && 'shadow',
           !sticked && 'rounded-t-inherit',
           !sticked && !hasChildren && 'border-b-0.5 border-lines',
           'ease-in-out duration-300'
         ),
-      [sticked, hasChildren]
+      [testnetModeEnabled, sticked, hasChildren]
     );
 
     return (
-      <div ref={rootRef} className={rootClassName}>
+      <div ref={elemRef} className={rootClassName}>
         <div
           className={clsx(
             'flex items-center p-4 min-h-14 bg-white overflow-hidden',
