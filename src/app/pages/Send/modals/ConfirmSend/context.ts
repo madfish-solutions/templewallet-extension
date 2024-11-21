@@ -7,9 +7,9 @@ import { TezosEstimationData } from 'app/pages/Send/hooks/use-tezos-estimation-d
 
 import { EvmFeeOptions } from './types';
 
-interface ExtendedEvmEstimationData extends EvmEstimationData {
+type ExtendedEvmEstimationData = EvmEstimationData & {
   feeOptions: EvmFeeOptions;
-}
+};
 
 export const [EvmEstimationDataProvider, useEvmEstimationDataState] = constate(() => {
   const [data, setData] = useState<ExtendedEvmEstimationData | nullish>(null);

@@ -3,9 +3,7 @@ import { useCallback, useEffect, useMemo, useRef } from 'react';
 import constate from 'constate';
 import { isEqual } from 'lodash';
 
-import { getEvmNetworks } from 'lib/apis/chainlist';
 import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
-import { useTypedSWR } from 'lib/swr';
 import { useWillUnmount } from 'lib/ui/hooks/useWillUnmount';
 import { useEnabledEvmChains } from 'temple/front';
 
@@ -28,50 +26,6 @@ export const [EvmTransferSubscriptionsProvider, useEvmTransferSubscriptions] = c
   }, [enabledEvmChains]);
   const prevEnabledChainsHttpRpcsRef = useRef(enabledChainsHttpRpcs);
 
-  const { data: chainidNetworks } = useTypedSWR('evm-chainid-networks', getEvmNetworks, {
-    suspense: false,
-    shouldRetryOnError: true,
-    errorRetryInterval: 10_000
-  });
-
-  const wssUrlsByChainId = useMemo(() => {
-    if (!chainidNetworks) return {};
-
-    const result: Record<number, string[]> = {};
-    chainidNetworks.forEach(({ chainId, rpc }) => {
-      if (!enabledChainsHttpRpcs.has(chainId)) {
-        return;
-      }
-
-      const chainUrls = rpc
-        .map(({ url }) => url)
-        .filter(url => {
-          if (!url.startsWith('wss://') || url.includes('${')) {
-            return false;
-          }
-
-          try {
-            const parsedUrl = new URL(url);
-            const searchParamsNames = Array.from(parsedUrl.searchParams.keys());
-
-            return (
-              searchParamsNames.length === 0 ||
-              (searchParamsNames.length === 1 && searchParamsNames[0].toLowerCase().includes('chainid'))
-            );
-          } catch (e) {
-            return false;
-          }
-        });
-
-      if (chainUrls.length > 0) {
-        result[chainId] = chainUrls;
-      }
-    });
-
-    return result;
-  }, [chainidNetworks, enabledChainsHttpRpcs]);
-  const prevWssUrlsByChainIdRef = useRef(wssUrlsByChainId);
-
   useWillUnmount(() => {
     listeningStateRef.current.forEach(chainIdStateEntries => {
       chainIdStateEntries.forEach(stateEntry => {
@@ -91,7 +45,6 @@ export const [EvmTransferSubscriptionsProvider, useEvmTransferSubscriptions] = c
       return new EvmTransfersListener({
         account,
         mainHttpRpcUrl: httpRpcUrl,
-        otherRpcUrls: wssUrlsByChainId[chainId] ?? [],
         // There is no way to get that the native token balance has changed without getting it after each block
         // or getting the block itself
         onNewBlock: () => {
@@ -112,7 +65,7 @@ export const [EvmTransferSubscriptionsProvider, useEvmTransferSubscriptions] = c
         }
       });
     },
-    [enabledChainsHttpRpcs, wssUrlsByChainId]
+    [enabledChainsHttpRpcs]
   );
 
   const subscribe = useCallback(
@@ -174,21 +127,11 @@ export const [EvmTransferSubscriptionsProvider, useEvmTransferSubscriptions] = c
   }, []);
 
   useEffect(() => {
-    if (
-      isEqual(prevWssUrlsByChainIdRef.current, wssUrlsByChainId) &&
-      isEqual(prevEnabledChainsHttpRpcsRef.current, enabledChainsHttpRpcs)
-    ) {
+    if (isEqual(prevEnabledChainsHttpRpcsRef.current, enabledChainsHttpRpcs)) {
       return;
     }
 
     listeningStateRef.current.forEach((chainIdStateEntries, chainId) => {
-      const prevWssUrls = prevWssUrlsByChainIdRef.current[chainId] ?? [];
-      const newWssUrls = wssUrlsByChainId[chainId] ?? [];
-
-      if (isEqual(prevWssUrls, newWssUrls)) {
-        return;
-      }
-
       chainIdStateEntries.forEach((stateEntry, account) => {
         stateEntry.listener.finalize();
         const newListener = makeEvmTransfersListener(account, chainId);
@@ -200,9 +143,8 @@ export const [EvmTransferSubscriptionsProvider, useEvmTransferSubscriptions] = c
         }
       });
     });
-    prevWssUrlsByChainIdRef.current = wssUrlsByChainId;
     prevEnabledChainsHttpRpcsRef.current = enabledChainsHttpRpcs;
-  }, [enabledChainsHttpRpcs, makeEvmTransfersListener, wssUrlsByChainId]);
+  }, [enabledChainsHttpRpcs, makeEvmTransfersListener]);
 
   return { subscribe, unsubscribe };
 });

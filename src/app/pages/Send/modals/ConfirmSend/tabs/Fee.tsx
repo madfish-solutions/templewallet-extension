@@ -57,7 +57,12 @@ const EvmContent: FC<ContentProps> = ({ selectedOption, onOptionSelect }) => {
   const gasPriceFallback = useMemo(() => {
     if (!data || !selectedOption) return '';
 
-    return formatEther(data.feeOptions.gasPrice[selectedOption].maxFeePerGas, 'gwei');
+    return formatEther(
+      data.feeOptions.type === 'legacy'
+        ? data.feeOptions.gasPrice[selectedOption].gasPrice
+        : data.feeOptions.gasPrice[selectedOption].maxFeePerGas,
+      'gwei'
+    );
   }, [data, selectedOption]);
 
   return (

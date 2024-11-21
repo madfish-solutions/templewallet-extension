@@ -4,6 +4,7 @@ import { emptyFn, isDefined } from '@rnw-community/shared';
 import BigNumber from 'bignumber.js';
 import { useDispatch } from 'react-redux';
 
+import { setEvmBalancesLoadingState } from 'app/store/evm/actions';
 import { loadEvmBalanceOnChainActions } from 'app/store/evm/balances/actions';
 import {
   useRawEvmAccountBalancesSelector,
@@ -227,10 +228,10 @@ function useEvmAssetRawBalance(
     [storedError, address, currentAccountAddress, chainId]
   );
 
-  const refreshBalanceOnChain = useCallback(
-    () => dispatch(loadEvmBalanceOnChainActions.submit({ network, assetSlug, account: address, assetStandard })),
-    [dispatch, network, assetSlug, address, assetStandard]
-  );
+  const refreshBalanceOnChain = useCallback(() => {
+    dispatch(setEvmBalancesLoadingState({ chainId, isLoading: true }));
+    dispatch(loadEvmBalanceOnChainActions.submit({ network, assetSlug, account: address, assetStandard }));
+  }, [dispatch, chainId, network, assetSlug, address, assetStandard]);
 
   useInterval(
     () => {

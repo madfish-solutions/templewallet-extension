@@ -9,6 +9,7 @@ import { isNativeTokenAddress } from 'lib/apis/temple/endpoints/evm/api.utils';
 import { toTokenSlug } from 'lib/assets';
 import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
 import { fetchEvmRawBalance } from 'lib/evm/on-chain/balance';
+import { EVM_RPC_REQUESTS_INTERVAL } from 'lib/fixed-times';
 import { isPositiveCollectibleBalance, isPositiveTokenBalance } from 'lib/utils/evm.utils';
 import { QueueOfUnique } from 'lib/utils/queue-of-unique';
 
@@ -57,14 +58,9 @@ interface RequestQueueElement extends LoadOnChainBalancePayload {
   onError: SyncFn<Error>;
 }
 const requestsAreSame = (a: RequestQueueElement, b: RequestQueueElement) =>
-  a.network.chainId === b.network.chainId &&
-  a.assetSlug === b.assetSlug &&
-  a.account === b.account &&
-  a.assetStandard === b.assetStandard;
+  a.network.chainId === b.network.chainId && a.assetSlug === b.assetSlug && a.account === b.account;
 
 export class RequestAlreadyPendingError extends Error {}
-
-const REQUESTS_EXECUTION_INTERVAL_PER_CHAIN = 70;
 
 class EvmOnChainBalancesRequestsExecutor {
   private requestsQueues = new Map<number, QueueOfUnique<RequestQueueElement>>();
@@ -73,7 +69,7 @@ class EvmOnChainBalancesRequestsExecutor {
 
   constructor() {
     this.executeNextRequests = this.executeNextRequests.bind(this);
-    this.requestInterval = setInterval(() => this.executeNextRequests(), REQUESTS_EXECUTION_INTERVAL_PER_CHAIN);
+    this.requestInterval = setInterval(() => this.executeNextRequests(), EVM_RPC_REQUESTS_INTERVAL);
   }
 
   async executeRequest(payload: LoadOnChainBalancePayload) {

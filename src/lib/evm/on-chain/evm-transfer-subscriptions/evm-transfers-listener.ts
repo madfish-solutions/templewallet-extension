@@ -1,25 +1,14 @@
-import memoizee from 'memoizee';
-import {
-  HttpTransport,
-  Log,
-  PublicClient,
-  WatchEventOnLogsParameter,
-  WebSocketTransport,
-  createPublicClient,
-  webSocket
-} from 'viem';
+import { HttpTransport, Log, PublicClient, WatchEventOnLogsParameter } from 'viem';
 
 import { erc1155TransferBatchEvent, erc1155TransferSingleEvent } from 'lib/abi/erc1155';
 import { toTokenSlug } from 'lib/assets';
+import { EVM_RPC_REQUESTS_INTERVAL } from 'lib/fixed-times';
 import { delay } from 'lib/utils';
-import { QueueOfUnique } from 'lib/utils/queue-of-unique';
 import { getReadOnlyEvm } from 'temple/evm';
-import { EVM_DEFAULT_NETWORKS } from 'temple/networks';
 
 interface EvmTransfersListenerConfig {
   account: HexString;
   mainHttpRpcUrl: string;
-  otherRpcUrls: string[];
   onTokenTransfer: SyncFn<string>;
   onNewBlock: EmptyFn;
 }
@@ -78,118 +67,37 @@ const erc721TransferEvent = {
   ]
 } as const;
 
-interface CallbackDescriptorBase {
-  type: 'block' | 'tokenTransfer';
-}
-
-interface BlockCallbackDescriptor extends CallbackDescriptorBase {
-  type: 'block';
-}
-
-interface TokenTransferCallbackDescriptor extends CallbackDescriptorBase {
-  type: 'tokenTransfer';
-  tokenSlug: string;
-}
-
-type CallbackDescriptor = BlockCallbackDescriptor | TokenTransferCallbackDescriptor;
-
-// These intervals are added to prevent 429 errors
-const QUEUE_ELEMENT_INTERVAL = 100;
-const WATCH_REQUEST_INTERVAL = 80;
-
-const BAN_LISTENING_ERRORS_CODES = [
-  -32701, // Missing parameters
-  -32600, // Invalid request
-  -32601, // Method not found
-  -32603, // Internal error
-  -32001, // Resource not found
-  -32004, // Method not supported
-  32701, // Some websocket RPC nodes return positive error codes instead of negative counterparts
-  32600,
-  32601,
-  32603,
-  32001,
-  32004
-];
-
-const getWssRpcClient = memoizee(
-  (rpcUrl: string) =>
-    createPublicClient({
-      transport: webSocket(rpcUrl, { retryCount: 0 })
-    }),
-  { max: EVM_DEFAULT_NETWORKS.length * 4 }
-);
-
 /**
- * This class listens to token transfers and new blocks using multiple RPC URLs for one chain. RPCs are used in a
- * round-robin fashion.
+ * This class listens to token transfers and new blocks using an HTTP RPC.
  */
 export class EvmTransfersListener {
-  private mainRpcClient: PublicClient<HttpTransport>;
-  private allRpcClients: PublicClient<HttpTransport | WebSocketTransport>[];
-  private banRpcListeningEndTimestamps: number[];
-  private currentRpcClientIndex = 0;
+  private rpcClient: PublicClient<HttpTransport>;
   private account: HexString;
   private onTokenTransfer: EvmTransfersListenerConfig['onTokenTransfer'];
   private onNewBlock: EvmTransfersListenerConfig['onNewBlock'];
   private cancelBlockSubscription: EmptyFn | null = null;
   private cancelEventsSubscriptions: EmptyFn[] | null = null;
-  private callbacksQueue: QueueOfUnique<CallbackDescriptor> = new QueueOfUnique();
-  private queueInterval: NodeJS.Timer;
   private isFinalized = false;
 
-  constructor({ account, mainHttpRpcUrl, otherRpcUrls, onNewBlock, onTokenTransfer }: EvmTransfersListenerConfig) {
-    this.mainRpcClient = getReadOnlyEvm(mainHttpRpcUrl);
-    this.allRpcClients = otherRpcUrls
-      .concat(mainHttpRpcUrl)
-      .map<PublicClient<HttpTransport | WebSocketTransport>>(url =>
-        url.startsWith('ws') ? getWssRpcClient(url) : getReadOnlyEvm(url)
-      );
-    this.banRpcListeningEndTimestamps = new Array(this.allRpcClients.length).fill(0);
+  constructor({ account, mainHttpRpcUrl, onNewBlock, onTokenTransfer }: EvmTransfersListenerConfig) {
+    this.rpcClient = getReadOnlyEvm(mainHttpRpcUrl);
     this.account = account;
     this.onNewBlock = onNewBlock;
     this.onTokenTransfer = onTokenTransfer;
-    this.handleNewBlockNumber = this.handleNewBlockNumber.bind(this);
     this.onError = this.onError.bind(this);
     this.handleLogs = this.handleLogs.bind(this);
-    this.handleFirstQueueElement = this.handleFirstQueueElement.bind(this);
     this.subscribe();
-    this.queueInterval = setInterval(() => this.handleFirstQueueElement(), QUEUE_ELEMENT_INTERVAL);
-  }
-
-  private async handleFirstQueueElement() {
-    const descriptor = await this.callbacksQueue.pop();
-    if (!descriptor) {
-      return;
-    }
-
-    switch (descriptor.type) {
-      case 'block':
-        this.onNewBlock();
-        break;
-      case 'tokenTransfer':
-        this.onTokenTransfer(descriptor.tokenSlug);
-        break;
-    }
-  }
-
-  get currentRpcClient() {
-    return this.allRpcClients[this.currentRpcClientIndex];
   }
 
   finalize() {
     this.cancelAllSubscriptions();
-    clearInterval(this.queueInterval);
     this.isFinalized = true;
   }
 
   private async subscribe() {
-    const rpcClientIndex = this.currentRpcClientIndex;
-    const rpcClient = this.allRpcClients[rpcClientIndex];
-
-    this.cancelBlockSubscription = rpcClient.watchBlockNumber({
-      onBlockNumber: this.handleNewBlockNumber,
-      onError: error => this.onError(error, rpcClientIndex)
+    this.cancelBlockSubscription = this.rpcClient.watchBlockNumber({
+      onBlockNumber: () => this.onNewBlock,
+      onError: this.onError
     });
 
     this.cancelEventsSubscriptions = [];
@@ -208,52 +116,16 @@ export class EvmTransfersListener {
         }
 
         this.cancelEventsSubscriptions.push(
-          this.currentRpcClient.watchEvent({
+          this.rpcClient.watchEvent({
             onLogs: this.handleLogs,
             event,
             args,
-            onError: error => this.onError(error, rpcClientIndex)
+            onError: this.onError
           })
         );
-        await delay(WATCH_REQUEST_INTERVAL);
+        await delay(EVM_RPC_REQUESTS_INTERVAL);
       }
     }
-  }
-
-  private handleNewBlockNumber() {
-    return this.callbacksQueue.push({ type: 'block' });
-  }
-
-  private async handleTokenTransferEvent(address: HexString, tokenId: bigint, blockNumber: bigint | null) {
-    const addTokenTransferToQueue = () =>
-      this.callbacksQueue.push({ type: 'tokenTransfer', tokenSlug: toTokenSlug(address, tokenId.toString()) });
-
-    if (blockNumber === null) {
-      return addTokenTransferToQueue();
-    }
-
-    const httpRpcBlockNumber = await this.mainRpcClient.getBlockNumber();
-
-    if (httpRpcBlockNumber >= blockNumber) {
-      return addTokenTransferToQueue();
-    }
-
-    const unsubscribe = this.mainRpcClient.watchBlockNumber({
-      onBlockNumber: newBlockNumber => {
-        if (newBlockNumber >= blockNumber) {
-          unsubscribe();
-          return addTokenTransferToQueue();
-        }
-
-        return;
-      },
-      onError: () => {
-        unsubscribe();
-        return addTokenTransferToQueue();
-      }
-    });
-
-    return;
   }
 
   private makeTokenTransferLogHandler<T extends ERC20TransferLog | ERC721TransferLog | ERC1155TransferSingleLog>(
@@ -261,7 +133,7 @@ export class EvmTransfersListener {
     getAmount: SyncFn<T, bigint | undefined>
   ) {
     return (log: T) => {
-      const { address, blockNumber, args } = log;
+      const { address, args } = log;
       const { from, to } = args;
       const amount = getAmount(log);
       const tokenId = getTokenId(log);
@@ -272,7 +144,7 @@ export class EvmTransfersListener {
       }
 
       if (amount && tokenId !== undefined) {
-        this.handleTokenTransferEvent(address, tokenId, blockNumber);
+        this.onTokenTransfer(toTokenSlug(address, tokenId.toString()));
       }
     };
   }
@@ -293,7 +165,7 @@ export class EvmTransfersListener {
   );
 
   private handleERC1155TransferBatchLog(log: ERC1155TransferBatchLog) {
-    const { address, args, blockNumber } = log;
+    const { address, args } = log;
     const { ids, values, from, to } = args;
 
     if (from !== this.account && to !== this.account) {
@@ -302,7 +174,7 @@ export class EvmTransfersListener {
 
     ids?.forEach((rawTokenId, i) => {
       if (values?.[i]) {
-        this.handleTokenTransferEvent(address, rawTokenId, blockNumber);
+        this.onTokenTransfer(toTokenSlug(address, rawTokenId.toString()));
       }
     });
   }
@@ -342,30 +214,14 @@ export class EvmTransfersListener {
     this.cancelEventsSubscriptions = null;
   }
 
-  private async onError(error: Error, clientIndex: number) {
-    if (clientIndex !== this.currentRpcClientIndex || this.isFinalized) {
+  private async onError(error: Error) {
+    if (this.isFinalized) {
       return;
     }
 
-    if ('code' in error && BAN_LISTENING_ERRORS_CODES.includes(error.code as number)) {
-      this.banRpcListeningEndTimestamps[clientIndex] = Date.now() + 60 * 60_000;
-    }
-
+    console.error(error);
     this.cancelAllSubscriptions();
-    const now = Date.now();
-    const minBanEndTimestamp = Math.min(...this.banRpcListeningEndTimestamps);
-    if (minBanEndTimestamp > now) {
-      this.banRpcListeningEndTimestamps = this.banRpcListeningEndTimestamps.map(ts => ts - minBanEndTimestamp + now);
-    }
-    const rightNextRpcClientIndex = this.banRpcListeningEndTimestamps.slice(clientIndex + 1).findIndex(ts => ts <= now);
-    const leftNextRpcClientIndex = this.banRpcListeningEndTimestamps.slice(0, clientIndex).findIndex(ts => ts <= now);
-    if (rightNextRpcClientIndex === -1 && leftNextRpcClientIndex === -1) {
-      this.currentRpcClientIndex = (clientIndex + 1) % this.allRpcClients.length;
-    } else if (rightNextRpcClientIndex === -1) {
-      this.currentRpcClientIndex = leftNextRpcClientIndex + 1;
-    } else {
-      this.currentRpcClientIndex = rightNextRpcClientIndex + clientIndex + 1;
-    }
+    await delay(1000);
     await this.subscribe();
   }
 }

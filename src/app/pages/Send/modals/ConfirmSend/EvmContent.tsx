@@ -1,9 +1,9 @@
 import React, { FC, useCallback, useEffect, useMemo, useState } from 'react';
 
-import { omit } from 'lodash';
+import { omit, transform } from 'lodash';
 import { FormProvider, useForm } from 'react-hook-form-v7';
 import { useDebounce } from 'use-debounce';
-import { formatEther, parseEther, serializeTransaction } from 'viem';
+import { FeeValuesEIP1559, FeeValuesLegacy, formatEther, parseEther, serializeTransaction } from 'viem';
 
 import { CLOSE_ANIMATION_TIMEOUT } from 'app/atoms/PageModal';
 import { EvmReviewData } from 'app/pages/Send/form/interfaces';
@@ -14,6 +14,7 @@ import { useEvmAssetBalance } from 'lib/balances/hooks';
 import { useEvmAssetMetadata } from 'lib/metadata';
 import { useTempleClient } from 'lib/temple/front';
 import { ZERO } from 'lib/utils/numbers';
+import { EvmTxParams } from 'temple/evm/types';
 
 import { buildBasicEvmSendParams } from '../../build-basic-evm-send-params';
 
@@ -74,10 +75,35 @@ export const EvmContent: FC<EvmContentProps> = ({ data, onClose }) => {
     if (gasPriceValue && selectedFeeOption) setSelectedFeeOption(null);
   }, [gasPriceValue, selectedFeeOption]);
 
-  const rawTransaction = useMemo(() => {
-    if (!estimationData || !feeOptions || !assetMetadata) return null;
+  const getFeesPerGas = useCallback(
+    (rawGasPrice: string): FeeValuesLegacy | FeeValuesEIP1559 | null => {
+      if (!feeOptions) {
+        return null;
+      }
 
-    const parsedGasPrice = debouncedGasPrice ? parseEther(debouncedGasPrice, 'gwei') : null;
+      const parsedGasPrice = rawGasPrice ? parseEther(rawGasPrice, 'gwei') : null;
+      const feeOptionValues = feeOptions.gasPrice[selectedFeeOption ?? 'mid'];
+
+      return transform(
+        feeOptionValues,
+        (acc, value, key) => {
+          if (typeof value === 'bigint' && parsedGasPrice) {
+            // @ts-expect-error
+            acc[key] = parsedGasPrice;
+          }
+
+          return acc;
+        },
+        { ...feeOptionValues }
+      );
+    },
+    [feeOptions, selectedFeeOption]
+  );
+
+  const rawTransaction = useMemo(() => {
+    const feesPerGas = getFeesPerGas(debouncedGasPrice);
+
+    if (!estimationData || !feesPerGas || !assetMetadata) return null;
 
     const basicParams = buildBasicEvmSendParams(accountPkh, to as HexString, assetMetadata, amount);
 
@@ -86,8 +112,7 @@ export const EvmContent: FC<EvmContentProps> = ({ data, onClose }) => {
       gas: debouncedGasLimit ? BigInt(debouncedGasLimit) : estimationData.gas,
       nonce: debouncedNonce ? Number(debouncedNonce) : estimationData.nonce,
       ...basicParams,
-      ...(selectedFeeOption ? feeOptions.gasPrice[selectedFeeOption] : feeOptions.gasPrice.mid),
-      ...(parsedGasPrice ? { maxFeePerGas: parsedGasPrice, maxPriorityFeePerGas: parsedGasPrice } : {})
+      ...feesPerGas
     });
   }, [
     accountPkh,
@@ -97,9 +122,8 @@ export const EvmContent: FC<EvmContentProps> = ({ data, onClose }) => {
     debouncedGasPrice,
     debouncedNonce,
     estimationData,
-    feeOptions,
+    getFeesPerGas,
     network.chainId,
-    selectedFeeOption,
     to
   ]);
 
@@ -131,19 +155,19 @@ export const EvmContent: FC<EvmContentProps> = ({ data, onClose }) => {
     async ({ gasPrice, gasLimit, nonce }: EvmTxParamsFormData) => {
       if (formState.isSubmitting) return;
 
+      const feesPerGas = getFeesPerGas(gasPrice);
+
       if (!assetMetadata) {
         throw new Error('Asset metadata not found.');
       }
 
-      if (!estimationData || !feeOptions) {
+      if (!estimationData || !feesPerGas) {
         toastError('Failed to estimate transaction.');
 
         return;
       }
 
       try {
-        const parsedGasPrice = gasPrice ? parseEther(gasPrice, 'gwei') : null;
-
         const { value, to: txDestination } = buildBasicEvmSendParams(
           accountPkh,
           to as HexString,
@@ -155,11 +179,10 @@ export const EvmContent: FC<EvmContentProps> = ({ data, onClose }) => {
           to: txDestination,
           value,
           ...omit(estimationData, 'estimatedFee'),
-          ...(selectedFeeOption ? feeOptions.gasPrice[selectedFeeOption] : feeOptions.gasPrice.mid),
-          ...(parsedGasPrice ? { maxFeePerGas: parsedGasPrice, maxPriorityFeePerGas: parsedGasPrice } : {}),
+          ...feesPerGas,
           ...(gasLimit ? { gas: BigInt(gasLimit) } : {}),
           ...(nonce ? { nonce: Number(nonce) } : {})
-        });
+        } as EvmTxParams);
 
         onConfirm();
         onClose();
@@ -177,12 +200,11 @@ export const EvmContent: FC<EvmContentProps> = ({ data, onClose }) => {
       amount,
       assetMetadata,
       estimationData,
-      feeOptions,
       formState.isSubmitting,
+      getFeesPerGas,
       network,
       onClose,
       onConfirm,
-      selectedFeeOption,
       sendEvmTransaction,
       to
     ]

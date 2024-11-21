@@ -1,7 +1,7 @@
 import { useCallback } from 'react';
 
 import BigNumber from 'bignumber.js';
-import { pick } from 'lodash';
+import { FeeValuesEIP1559, FeeValuesLegacy, TransactionRequest } from 'viem';
 
 import { toastError } from 'app/toaster';
 import { isNativeTokenAddress } from 'lib/apis/temple/endpoints/evm/api.utils';
@@ -14,14 +14,23 @@ import { buildBasicEvmSendParams } from '../build-basic-evm-send-params';
 
 import { checkZeroBalance } from './utils';
 
-export interface EvmEstimationData {
+interface EvmEstimationDataBase {
   estimatedFee: bigint;
-  gas: bigint;
-  maxFeePerGas: bigint;
-  maxPriorityFeePerGas: bigint;
   data: HexString;
+  type: NonNullable<TransactionRequest['type']>;
+  gas: bigint;
   nonce: number;
 }
+
+interface LegacyEvmEstimationData extends EvmEstimationDataBase, FeeValuesLegacy {
+  type: 'legacy' | 'eip2930';
+}
+
+interface Eip1559EvmEstimationData extends EvmEstimationDataBase, FeeValuesEIP1559 {
+  type: 'eip1559' | 'eip7702';
+}
+
+export type EvmEstimationData = LegacyEvmEstimationData | Eip1559EvmEstimationData;
 
 export const useEvmEstimationData = (
   to: HexString,
@@ -52,11 +61,31 @@ export const useEvmEstimationData = (
         account: accountPkh
       });
 
-      return {
-        estimatedFee: transaction.gas * transaction.maxFeePerGas,
-        data: transaction.data || '0x',
-        ...pick(transaction, ['gas', 'maxFeePerGas', 'maxPriorityFeePerGas', 'nonce'])
-      };
+      switch (transaction.type) {
+        case 'legacy':
+        case 'eip2930':
+          return {
+            estimatedFee: transaction.gas * transaction.gasPrice,
+            data: transaction.data || '0x',
+            type: transaction.type,
+            gas: transaction.gas,
+            gasPrice: transaction.gasPrice,
+            nonce: transaction.nonce
+          };
+        case 'eip1559':
+        case 'eip7702':
+          return {
+            estimatedFee: transaction.gas * transaction.maxFeePerGas,
+            data: transaction.data || '0x',
+            type: transaction.type,
+            gas: transaction.gas,
+            maxFeePerGas: transaction.maxFeePerGas,
+            maxPriorityFeePerGas: transaction.maxPriorityFeePerGas,
+            nonce: transaction.nonce
+          };
+        default:
+          throw new Error('Unsupported transaction type');
+      }
     } catch (err: any) {
       console.warn(err);
       toastError(err.details || err.message);
