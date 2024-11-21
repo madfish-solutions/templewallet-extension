@@ -1,17 +1,14 @@
-import React, { memo, MouseEventHandler, useMemo, useRef } from 'react';
+import React, { memo, useMemo, useRef } from 'react';
 
 import clsx from 'clsx';
 
 import { Anchor } from 'app/atoms/Anchor';
 import { useAdRectObservation } from 'app/hooks/ads/use-ad-rect-observation';
 import type { AdsProviderTitle } from 'lib/ads';
-import { useBooleanState } from 'lib/ui/hooks';
 
 import { PartnersPromotionSelectors } from '../selectors';
 import { PartnersPromotionVariant } from '../types';
 import { buildAdClickAnalyticsProperties } from '../utils';
-
-import { CloseButton } from './close-button';
 
 interface Props {
   accountPkh: string;
@@ -24,7 +21,6 @@ interface Props {
   pageName: string;
   onAdRectSeen: EmptyFn;
   onImageError: EmptyFn;
-  onClose: MouseEventHandler<HTMLButtonElement>;
 }
 
 export const TextPromotionView = memo<Props>(
@@ -38,10 +34,8 @@ export const TextPromotionView = memo<Props>(
     providerTitle,
     pageName,
     onAdRectSeen,
-    onImageError,
-    onClose
+    onImageError
   }) => {
-    const [hovered, setHovered, setUnhovered] = useBooleanState(false);
     const ref = useRef<HTMLAnchorElement>(null);
     useAdRectObservation(ref, onAdRectSeen, isVisible);
 
@@ -57,8 +51,6 @@ export const TextPromotionView = memo<Props>(
         target="_blank"
         rel="noreferrer"
         ref={ref}
-        onMouseEnter={setHovered}
-        onMouseLeave={setUnhovered}
         testID={PartnersPromotionSelectors.promoLink}
         testIDProperties={testIDProperties}
       >
@@ -82,8 +74,6 @@ export const TextPromotionView = memo<Props>(
               <span className="text-font-description-regular text-grey-1 line-clamp-2">{contentText}</span>
             )}
           </div>
-
-          {hovered && <CloseButton onClick={onClose} />}
         </div>
       </Anchor>
     );

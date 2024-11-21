@@ -1,4 +1,4 @@
-import React, { MouseEventHandler, PropsWithChildren, memo, useMemo, useRef } from 'react';
+import React, { PropsWithChildren, memo, useMemo, useRef } from 'react';
 
 import clsx from 'clsx';
 
@@ -10,8 +10,6 @@ import { PartnersPromotionSelectors } from '../selectors';
 import { PartnersPromotionVariant } from '../types';
 import { buildAdClickAnalyticsProperties } from '../utils';
 
-import { CloseButton } from './close-button';
-
 interface Props extends PropsWithChildren {
   accountPkh: string;
   href: string;
@@ -21,7 +19,6 @@ interface Props extends PropsWithChildren {
   backgroundAssetUrl?: string;
   backgroundAssetType?: 'image' | 'video';
   onAdRectSeen: EmptyFn;
-  onClose: MouseEventHandler<HTMLButtonElement>;
 }
 
 export const ImagePromotionView = memo<Props>(
@@ -34,8 +31,7 @@ export const ImagePromotionView = memo<Props>(
     pageName,
     backgroundAssetUrl,
     backgroundAssetType = 'image',
-    onAdRectSeen,
-    onClose
+    onAdRectSeen
   }) => {
     const ref = useRef<HTMLAnchorElement>(null);
     useAdRectObservation(ref, onAdRectSeen, isVisible);
@@ -80,8 +76,6 @@ export const ImagePromotionView = memo<Props>(
         <div className="w-full h-full flex justify-center items-center z-10 relative">{children}</div>
 
         <ImageAdLabel />
-
-        <CloseButton onClick={onClose} />
       </Anchor>
     );
   }

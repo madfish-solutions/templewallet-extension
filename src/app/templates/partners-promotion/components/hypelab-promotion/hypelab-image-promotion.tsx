@@ -18,7 +18,6 @@ export const HypelabImagePromotion: FC<Omit<SingleProviderPromotionProps, 'varia
   isVisible,
   pageName,
   onAdRectSeen,
-  onClose,
   onError,
   onReady
 }) => {
@@ -80,7 +79,6 @@ export const HypelabImagePromotion: FC<Omit<SingleProviderPromotionProps, 'varia
   return (
     <ImagePromotionView
       accountPkh={accountPkh}
-      onClose={onClose}
       href={currentAd?.cta_url ?? '#'}
       isVisible={isVisible}
       providerTitle={AdsProviderTitle.HypeLab}

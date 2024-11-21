@@ -3,7 +3,6 @@ import React, { memo, MouseEventHandler, useCallback, useEffect, useRef, useStat
 import clsx from 'clsx';
 import { useDispatch } from 'react-redux';
 
-import { Loader } from 'app/atoms';
 import { useAdsViewerPkh } from 'app/hooks/use-ads-viewer-pkh';
 import { hidePromotionAction } from 'app/store/partners-promotion/actions';
 import {
@@ -13,6 +12,8 @@ import {
 import { AdsProviderName, AdsProviderTitle } from 'lib/ads';
 import { postAdImpression } from 'lib/apis/ads-api';
 import { AD_HIDING_TIMEOUT } from 'lib/constants';
+import { T } from 'lib/i18n';
+import { useBooleanState } from 'lib/ui/hooks';
 
 import { CloseButton } from './components/close-button';
 import { HypelabPromotion } from './components/hypelab-promotion';
@@ -45,6 +46,7 @@ export const PartnersPromotion = memo<PartnersPromotionProps>(({ variant, id, pa
 
   const isAnalyticsSentRef = useRef(false);
 
+  const [hovered, setHovered, setUnhovered] = useBooleanState(false);
   const [isHiddenTemporarily, setIsHiddenTemporarily] = useState(shouldBeHiddenTemporarily(hiddenAt));
   const [providerName, setProviderName] = useState<AdsProviderLocalName>('Optimal');
   const [adError, setAdError] = useState(false);
@@ -102,6 +104,8 @@ export const PartnersPromotion = memo<PartnersPromotionProps>(({ variant, id, pa
         'w-full relative flex flex-col items-center',
         !adIsReady && (isImageAd ? 'min-h-[101px]' : 'min-h-16')
       )}
+      onMouseEnter={setHovered}
+      onMouseLeave={setUnhovered}
     >
       {(() => {
         switch (providerName) {
@@ -113,7 +117,6 @@ export const PartnersPromotion = memo<PartnersPromotionProps>(({ variant, id, pa
                 isVisible={adIsReady}
                 pageName={pageName}
                 onAdRectSeen={handleAdRectSeen}
-                onClose={handleClosePartnersPromoClick}
                 onReady={handleAdReady}
                 onError={handleOptimalError}
               />
@@ -126,7 +129,6 @@ export const PartnersPromotion = memo<PartnersPromotionProps>(({ variant, id, pa
                 isVisible={adIsReady}
                 pageName={pageName}
                 onAdRectSeen={handleAdRectSeen}
-                onClose={handleClosePartnersPromoClick}
                 onReady={handleAdReady}
                 onError={handleHypelabError}
               />
@@ -139,7 +141,6 @@ export const PartnersPromotion = memo<PartnersPromotionProps>(({ variant, id, pa
                 isVisible={adIsReady}
                 pageName={pageName}
                 onAdRectSeen={handleAdRectSeen}
-                onClose={handleClosePartnersPromoClick}
                 onReady={handleAdReady}
                 onError={handlePersonaError}
               />
@@ -148,14 +149,14 @@ export const PartnersPromotion = memo<PartnersPromotionProps>(({ variant, id, pa
       })()}
 
       {!adIsReady && (
-        <>
-          {isImageAd && <CloseButton />}
-
-          <div className="absolute inset-0 bg-grey-4 text-secondary flex justify-center items-center rounded-lg">
-            <Loader trackVariant="dark" size="L" />
-          </div>
-        </>
+        <div className="absolute inset-0 bg-grey-4 text-secondary flex justify-center items-center rounded-lg">
+          <span className="text-font-description-bold text-grey-2">
+            <T id="thanksForSupportingTemple" />
+          </span>
+        </div>
       )}
+
+      {hovered && <CloseButton onClick={handleClosePartnersPromoClick} />}
     </div>
   );
 });

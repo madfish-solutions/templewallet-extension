@@ -86,7 +86,6 @@ const TezosActivity: FC<TezosActivityProps> = ({ tezosChainId, assetSlug }) => {
           id={`promo-activity-${assetSlug ?? 'all'}`}
           variant={PartnersPromotionVariant.Image}
           pageName="Activity"
-          withPersonaProvider
         />
       );
 

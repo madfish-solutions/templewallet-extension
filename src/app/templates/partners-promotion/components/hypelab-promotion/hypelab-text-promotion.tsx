@@ -25,7 +25,6 @@ export const HypelabTextPromotion: FC<Omit<SingleProviderPromotionProps, 'varian
   isVisible,
   pageName,
   onAdRectSeen,
-  onClose,
   onReady,
   onError
 }) => {
@@ -68,7 +67,6 @@ export const HypelabTextPromotion: FC<Omit<SingleProviderPromotionProps, 'varian
         pageName={pageName}
         onAdRectSeen={onAdRectSeen}
         onImageError={onError}
-        onClose={onClose}
       />
     </Native>
   );
