@@ -202,7 +202,6 @@ export class EvmTransfersListener {
           } else {
             this.handleERC20Log(typecastLog);
           }
-          break;
       }
     });
   }
