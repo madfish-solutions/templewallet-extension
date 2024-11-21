@@ -49,8 +49,8 @@ export const EvmActivityList: FC<Props> = ({ chainId, assetSlug, filterKind }) =
 
           if (signal.aborted) return;
 
-          setActivities(currActivities.concat(newActivities));
-          if (newActivities.length === 0) setReachedTheEnd(true);
+          if (newActivities.length) setActivities(currActivities.concat(newActivities));
+          else setReachedTheEnd(true);
         } catch (error) {
           if (signal.aborted) return;
 

@@ -33,7 +33,7 @@ export async function getEvmActivities(
   const contractAddress = assetSlug ? fromAssetSlug(assetSlug)[0] : undefined;
 
   const allTransfers = await fetchTransfers(chainName, accAddress, contractAddress, olderThanBlockHeight, signal);
-  if (!allTransfers.length) return []; // TODO: return with marker `reachedTheEnd: boolean`
+  if (!allTransfers.length) return [];
 
   const allApprovals =
     contractAddress === EVM_TOKEN_SLUG
@@ -91,10 +91,12 @@ async function fetchTransfers(
 
   if (!allTransfers.length) return [];
 
+  allTransfers.sort(sortPredicate);
+
   /** Will need to filter those transfers, that r made from & to the same address */
   const uniqByKey: keyof (typeof allTransfers)[number] = 'uniqueId';
 
-  return uniqBy(allTransfers, uniqByKey);
+  return uniqBy(cutOffTrailingSameHashes(allTransfers), uniqByKey);
 }
 
 /** Order of the lists (which goest 1st) is not important here */
@@ -103,27 +105,19 @@ function mergeFetchedTransfers(
   transfersTo: AssetTransfersWithMetadataResult[]
 ) {
   // 1. One of them is empty
-  if (!transfersFrom.length)
-    return transfersTo.length === TR_PSEUDO_LIMIT ? cutOffTrailingSameHashes(transfersTo) : transfersTo;
-  if (!transfersTo.length) return [];
+  if (!transfersFrom.length) return transfersTo;
+  if (!transfersTo.length) return transfersFrom;
 
   // 2. Both haven't reached the limit - basically reached the end for both
   if (transfersFrom.length < TR_PSEUDO_LIMIT && transfersTo.length < TR_PSEUDO_LIMIT)
-    return transfersFrom.concat(transfersTo).toSorted(sortPredicate);
+    return transfersFrom.concat(transfersTo);
 
   // 3. Second hasn't reached the limit; first reached the end
   if (transfersTo.length < TR_PSEUDO_LIMIT) {
     // transfersFrom.length === TR_PSEUDO_LIMIT here
     const edgeBlockNum = transfersTo.at(-1)!.blockNum;
 
-    const filteredConcated = transfersFrom
-      .filter(t => t.blockNum >= edgeBlockNum)
-      .concat(transfersTo)
-      .toSorted(sortPredicate);
-
-    return transfersFrom.at(-1)!.hash === transfersTo.at(-1)!.hash
-      ? cutOffTrailingSameHashes(filteredConcated)
-      : filteredConcated;
+    return transfersFrom.filter(t => t.blockNum >= edgeBlockNum).concat(transfersTo);
   }
 
   // 4. First hasn't reached the limit; second reached the end
@@ -131,25 +125,18 @@ function mergeFetchedTransfers(
     // transfersTo.length === TR_PSEUDO_LIMIT here
     const edgeBlockNum = transfersFrom.at(-1)!.blockNum;
 
-    const filteredConcated = transfersTo
-      .filter(t => t.blockNum >= edgeBlockNum)
-      .concat(transfersFrom)
-      .toSorted(sortPredicate);
-
-    return transfersTo.at(-1)!.hash === transfersFrom.at(-1)!.hash
-      ? cutOffTrailingSameHashes(filteredConcated)
-      : filteredConcated;
+    return transfersTo.filter(t => t.blockNum >= edgeBlockNum).concat(transfersFrom);
   }
 
   // 5. Both reached the limit
 
   const trFromLastBlockNum = transfersFrom.at(-1)!.blockNum;
 
-  if (trFromLastBlockNum > transfersTo.at(0)!.blockNum) return cutOffTrailingSameHashes(transfersFrom);
+  if (trFromLastBlockNum > transfersTo.at(0)!.blockNum) return transfersFrom;
 
   const trToLastBlockNum = transfersTo.at(-1)!.blockNum;
 
-  if (trToLastBlockNum > transfersFrom.at(0)!.blockNum) return cutOffTrailingSameHashes(transfersTo);
+  if (trToLastBlockNum > transfersFrom.at(0)!.blockNum) return transfersTo;
 
   if (trFromLastBlockNum > trToLastBlockNum) {
     transfersTo = transfersTo.filter(tr => tr.blockNum >= trFromLastBlockNum);
@@ -157,9 +144,7 @@ function mergeFetchedTransfers(
     transfersFrom = transfersFrom.filter(tr => tr.blockNum >= trToLastBlockNum);
   }
 
-  const sorted = transfersFrom.concat(transfersTo).toSorted(sortPredicate);
-
-  return cutOffTrailingSameHashes(sorted);
+  return transfersFrom.concat(transfersTo);
 }
 
 function cutOffTrailingSameHashes(transfers: AssetTransfersWithMetadataResult[]) {
@@ -209,6 +194,8 @@ async function _fetchTransfers(
 }
 
 function calcSameTrailingHashes(transfers: AssetTransfersWithMetadataResult[]) {
+  if (!transfers.length) return 0;
+
   const trailingHash = transfers.at(-1)!.hash;
   if (transfers.at(0)!.hash === trailingHash) return transfers.length; // All are same, saving runtime
 
