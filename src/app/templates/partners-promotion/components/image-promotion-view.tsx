@@ -55,13 +55,13 @@ export const ImagePromotionView = memo<Props>(
           <>
             {backgroundAssetType === 'image' ? (
               <img
-                className="absolute inset-0 w-full h-full object-cover filter blur-[10px]"
+                className="absolute inset-0 w-full h-full object-cover filter blur-[20px]"
                 src={backgroundAssetUrl}
                 alt=""
               />
             ) : (
               <video
-                className="absolute inset-0 w-full h-full object-cover filter blur-[10px]"
+                className="absolute inset-0 w-full h-full object-cover filter blur-[20px]"
                 src={backgroundAssetUrl}
                 autoPlay
                 preload="auto"
