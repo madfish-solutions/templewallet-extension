@@ -8,6 +8,8 @@ export function parseTransfer(transfer: AssetTransfersWithMetadataResult, accAdd
   const fromAddress = transfer.from;
   const toAddress = transfer.to;
 
+  const logIndex = getTransferLogIndex(transfer);
+
   if (!fromAddress || !toAddress) return buildInteraction(transfer, accAddress);
 
   // TODO: to/from contract/account recognition
@@ -34,7 +36,8 @@ export function parseTransfer(transfer: AssetTransfersWithMetadataResult, accAdd
       type,
       fromAddress,
       toAddress,
-      asset
+      asset,
+      logIndex
     };
   }
 
@@ -59,7 +62,8 @@ export function parseTransfer(transfer: AssetTransfersWithMetadataResult, accAdd
       type,
       fromAddress,
       toAddress,
-      asset
+      asset,
+      logIndex
     };
   }
 
@@ -85,7 +89,8 @@ export function parseTransfer(transfer: AssetTransfersWithMetadataResult, accAdd
       type,
       fromAddress,
       toAddress,
-      asset
+      asset,
+      logIndex
     };
   }
 
@@ -112,7 +117,8 @@ export function parseTransfer(transfer: AssetTransfersWithMetadataResult, accAdd
       type,
       fromAddress,
       toAddress,
-      asset
+      asset,
+      logIndex
     };
   }
 
@@ -136,7 +142,8 @@ export function parseTransfer(transfer: AssetTransfersWithMetadataResult, accAdd
       type,
       fromAddress,
       toAddress,
-      asset
+      asset,
+      logIndex
     };
   }
 
@@ -164,7 +171,8 @@ export function parseTransfer(transfer: AssetTransfersWithMetadataResult, accAdd
       type,
       fromAddress,
       toAddress,
-      asset
+      asset,
+      logIndex
     };
   }
 
@@ -173,10 +181,12 @@ export function parseTransfer(transfer: AssetTransfersWithMetadataResult, accAdd
 
 export function parseApprovalLog(approval: Log): EvmOperation {
   const spenderAddress = '0x' + approval.topics.at(2)!.slice(26);
+  const logIndex = approval.logIndex;
 
   if (approval.topics[0] !== '0x8c5be1e5ebec7d5bd14f71427d1e84f3dd0314c0f7b2291e5b200ac8c7c3b925') {
     // Not Approval, but ApprovalForAll method
-    if (approval.data.endsWith('0')) return { kind: ActivityOperKindEnum.interaction, withAddress: approval.address };
+    if (approval.data.endsWith('0'))
+      return { kind: ActivityOperKindEnum.interaction, withAddress: approval.address, logIndex };
 
     const asset: EvmActivityAsset = {
       contract: approval.address,
@@ -184,7 +194,7 @@ export function parseApprovalLog(approval: Log): EvmOperation {
       nft: true
     };
 
-    return { kind: ActivityOperKindEnum.approve, spenderAddress, asset };
+    return { kind: ActivityOperKindEnum.approve, spenderAddress, asset, logIndex };
   }
 
   const approvalOnERC721 = approval.topics.length === 4;
@@ -196,15 +206,19 @@ export function parseApprovalLog(approval: Log): EvmOperation {
     nft: approvalOnERC721 ? true : undefined // Still exhaustive?
   };
 
-  return { kind: ActivityOperKindEnum.approve, spenderAddress, asset };
+  return { kind: ActivityOperKindEnum.approve, spenderAddress, asset, logIndex };
 }
 
 function buildInteraction(transfer: AssetTransfersWithMetadataResult, accAddress: string): EvmOperation {
   const withAddress = transfer.from === accAddress ? transfer.to ?? undefined : transfer.from;
 
-  return { kind: ActivityOperKindEnum.interaction, withAddress };
+  return { kind: ActivityOperKindEnum.interaction, withAddress, logIndex: getTransferLogIndex(transfer) };
 }
 
 function hexToStringInteger(hex: string) {
   return BigInt(hex).toString();
+}
+
+function getTransferLogIndex(transfer: AssetTransfersWithMetadataResult) {
+  return Number(transfer.uniqueId.split(':').at(2)) || -1;
 }

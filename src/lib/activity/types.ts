@@ -78,6 +78,7 @@ export interface EvmActivity extends ChainActivityBase {
 
 interface EvmOperationBase extends OperationBase {
   asset?: EvmActivityAsset;
+  logIndex: number;
 }
 
 interface EvmApproveOperation extends EvmOperationBase {
