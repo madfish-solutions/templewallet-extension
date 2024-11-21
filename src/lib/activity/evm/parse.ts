@@ -68,6 +68,7 @@ export function parseTransfer(transfer: AssetTransfersWithMetadataResult, accAdd
   }
 
   let contractAddress = transfer.rawContract.address;
+  const iconURL = contractAddress ? `https://logos.covalenthq.com/tokens/1/${contractAddress}.png` : undefined;
   contractAddress = contractAddress ? getAddress(contractAddress) : null;
 
   if (transfer.category === AssetTransfersCategory.ERC721) {
@@ -81,7 +82,8 @@ export function parseTransfer(transfer: AssetTransfersWithMetadataResult, accAdd
       amountSigned: fromAddress === accAddress ? '-1' : '1',
       symbol: transfer.asset ?? undefined,
       decimals: 0,
-      nft: true
+      nft: true,
+      iconURL
     };
 
     return {
@@ -109,7 +111,8 @@ export function parseTransfer(transfer: AssetTransfersWithMetadataResult, accAdd
       amountSigned: fromAddress === accAddress ? `-${amount}` : amount,
       symbol: transfer.asset ?? undefined,
       decimals: 0,
-      nft: true
+      nft: true,
+      iconURL
     };
 
     return {
@@ -134,7 +137,8 @@ export function parseTransfer(transfer: AssetTransfersWithMetadataResult, accAdd
       contract: contractAddress,
       amountSigned,
       symbol: transfer.asset ?? undefined,
-      decimals: decimal ? Number(decimal) : undefined
+      decimals: decimal ? Number(decimal) : undefined,
+      iconURL
     };
 
     return {
@@ -163,7 +167,8 @@ export function parseTransfer(transfer: AssetTransfersWithMetadataResult, accAdd
       amountSigned,
       symbol: transfer.asset ?? undefined,
       decimals: decimal ? Number(decimal) : undefined,
-      nft: true
+      nft: true,
+      iconURL
     };
 
     return {

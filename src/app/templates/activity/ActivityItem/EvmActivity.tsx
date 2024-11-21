@@ -7,7 +7,9 @@ import { fromAssetSlug, toEvmAssetSlug } from 'lib/assets/utils';
 import { useGetEvmChainAssetMetadata } from 'lib/metadata';
 import { useBooleanState } from 'lib/ui/hooks';
 import { ZERO } from 'lib/utils/numbers';
+import { useBlockExplorerHref } from 'temple/front/block-explorers';
 import { BasicEvmChain } from 'temple/front/chains';
+import { TempleChainKind } from 'temple/types';
 
 import { ActivityItemBaseAssetProp, ActivityOperationBaseComponent } from './ActivityOperationBase';
 import { BundleModalContent } from './BundleModal';
@@ -20,7 +22,9 @@ interface Props {
 }
 
 export const EvmActivityComponent = memo<Props>(({ activity, chain, assetSlug }) => {
-  const { hash, operations, operationsCount, blockExplorerUrl, status } = activity;
+  const { hash, operations, operationsCount, status } = activity;
+
+  const blockExplorerUrl = useBlockExplorerHref(TempleChainKind.EVM, chain.chainId, 'tx', hash) ?? undefined;
 
   if (operationsCount === 1) {
     const operation = operations.at(0);

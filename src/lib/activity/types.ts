@@ -71,7 +71,6 @@ export type TezosOperation = TezosApproveOperation | TezosTransferOperation | Te
 export interface EvmActivity extends ChainActivityBase {
   chain: TempleChainKind.EVM;
   chainId: number;
-  blockExplorerUrl?: string;
   operations: EvmOperation[];
   blockHeight: `${number}`;
 }
