@@ -16,6 +16,8 @@ import { EvmActivity } from '../types';
 
 import { parseApprovalLog, parseTransfer } from './parse';
 
+const TR_PSEUDO_LIMIT = 50;
+
 export async function getEvmActivities(
   chainId: number,
   accAddress: string,
@@ -43,7 +45,7 @@ export async function getEvmActivities(
           olderThanBlockHeight,
           // Loading approvals withing the gap of received transfers.
           // TODO: Mind the case of reaching response items number limit & not reaching block heights gap.
-          allTransfers.at(allTransfers.length - 1)?.blockNum
+          allTransfers.at(-1)?.blockNum
         );
 
   const groups = Object.entries(groupBy(allTransfers, 'hash'));
@@ -85,25 +87,89 @@ async function fetchTransfers(
     _fetchTransfers(alchemy, accAddress, contractAddress, true, olderThanBlockHeight)
   ]);
 
-  const allTransfers = transfersFrom
-    .concat(transfersTo)
-    .toSorted((a, b) => (a.metadata.blockTimestamp < b.metadata.blockTimestamp ? 1 : -1));
+  const allTransfers = mergeFetchedTransfers(transfersFrom, transfersTo);
 
   if (!allTransfers.length) return [];
-
-  const sameTrailingHashes = calcSameTrailingHashes(allTransfers);
 
   /** Will need to filter those transfers, that r made from & to the same address */
   const uniqByKey: keyof (typeof allTransfers)[number] = 'uniqueId';
 
-  if (sameTrailingHashes === allTransfers.length) {
-    // const moreTransfers = []; // TODO: Fetch more transfers until reach another hash ?
-    // return uniqBy(allTransfers.concat(moreTransfers), uniqByKey);
+  return uniqBy(allTransfers, uniqByKey);
+}
+
+/** Order of the lists (which goest 1st) is not important here */
+function mergeFetchedTransfers(
+  transfersFrom: AssetTransfersWithMetadataResult[],
+  transfersTo: AssetTransfersWithMetadataResult[]
+) {
+  // 1. One of them is empty
+  if (!transfersFrom.length)
+    return transfersTo.length === TR_PSEUDO_LIMIT ? cutOffTrailingSameHashes(transfersTo) : transfersTo;
+  if (!transfersTo.length) return [];
+
+  // 2. Both haven't reached the limit - basically reached the end for both
+  if (transfersFrom.length < TR_PSEUDO_LIMIT && transfersTo.length < TR_PSEUDO_LIMIT)
+    return transfersFrom.concat(transfersTo).toSorted(sortPredicate);
+
+  // 3. Second hasn't reached the limit; first reached the end
+  if (transfersTo.length < TR_PSEUDO_LIMIT) {
+    // transfersFrom.length === TR_PSEUDO_LIMIT here
+    const edgeBlockNum = transfersTo.at(-1)!.blockNum;
+
+    const filteredConcated = transfersFrom
+      .filter(t => t.blockNum >= edgeBlockNum)
+      .concat(transfersTo)
+      .toSorted(sortPredicate);
+
+    return transfersFrom.at(-1)!.hash === transfersTo.at(-1)!.hash
+      ? cutOffTrailingSameHashes(filteredConcated)
+      : filteredConcated;
   }
 
-  if (allTransfers.length === 100) allTransfers.splice(allTransfers.length - sameTrailingHashes, sameTrailingHashes);
+  // 4. First hasn't reached the limit; second reached the end
+  if (transfersFrom.length < TR_PSEUDO_LIMIT) {
+    // transfersTo.length === TR_PSEUDO_LIMIT here
+    const edgeBlockNum = transfersFrom.at(-1)!.blockNum;
 
-  return uniqBy(allTransfers, uniqByKey);
+    const filteredConcated = transfersTo
+      .filter(t => t.blockNum >= edgeBlockNum)
+      .concat(transfersFrom)
+      .toSorted(sortPredicate);
+
+    return transfersTo.at(-1)!.hash === transfersFrom.at(-1)!.hash
+      ? cutOffTrailingSameHashes(filteredConcated)
+      : filteredConcated;
+  }
+
+  // 5. Both reached the limit
+
+  const trFromLastBlockNum = transfersFrom.at(-1)!.blockNum;
+
+  if (trFromLastBlockNum > transfersTo.at(0)!.blockNum) return cutOffTrailingSameHashes(transfersFrom);
+
+  const trToLastBlockNum = transfersTo.at(-1)!.blockNum;
+
+  if (trToLastBlockNum > transfersFrom.at(0)!.blockNum) return cutOffTrailingSameHashes(transfersTo);
+
+  if (trFromLastBlockNum > trToLastBlockNum) {
+    transfersTo = transfersTo.filter(tr => tr.blockNum >= trFromLastBlockNum);
+  } else {
+    transfersFrom = transfersFrom.filter(tr => tr.blockNum >= trToLastBlockNum);
+  }
+
+  const sorted = transfersFrom.concat(transfersTo).toSorted(sortPredicate);
+
+  return cutOffTrailingSameHashes(sorted);
+}
+
+function cutOffTrailingSameHashes(transfers: AssetTransfersWithMetadataResult[]) {
+  const sameTrailingHashes = calcSameTrailingHashes(transfers);
+
+  if (sameTrailingHashes === transfers.length)
+    // (!) Leaving the list as is - this puts a limit on max batch size we display
+    return transfers;
+
+  return transfers.slice(0, -sameTrailingHashes);
 }
 
 async function _fetchTransfers(
@@ -117,7 +183,7 @@ async function _fetchTransfers(
     contractAddress === EVM_TOKEN_SLUG
       ? GAS_CATEGORIES
       : contractAddress
-      ? ASSET_CATEGORIES // (!) Won't have gas transfer operations in batches // TODO:
+      ? ASSET_CATEGORIES // (!) TODO: Won't have gas transfer operations in batches this way
       : Object.values(AssetTransfersCategory)
   );
 
@@ -132,7 +198,7 @@ async function _fetchTransfers(
     excludeZeroValue: true,
     withMetadata: true,
     toBlock: olderThanBlockToToBlockValue(olderThanBlockHeight),
-    maxCount: 50
+    maxCount: TR_PSEUDO_LIMIT
   };
 
   if (toAcc) reqOptions.toAddress = accAddress;
@@ -143,7 +209,7 @@ async function _fetchTransfers(
 }
 
 function calcSameTrailingHashes(transfers: AssetTransfersWithMetadataResult[]) {
-  const trailingHash = transfers.at(transfers.length - 1)!.hash;
+  const trailingHash = transfers.at(-1)!.hash;
   if (transfers.at(0)!.hash === trailingHash) return transfers.length; // All are same, saving runtime
 
   if (transfers.length === 2) return 1; // Preposition for further math
@@ -151,6 +217,16 @@ function calcSameTrailingHashes(transfers: AssetTransfersWithMetadataResult[]) {
   const sameTrailingHashes = transfers.length - 1 - transfers.findLastIndex(tr => tr.hash !== trailingHash);
 
   return sameTrailingHashes;
+}
+
+function sortPredicate(
+  { metadata: { blockTimestamp: aTs } }: AssetTransfersWithMetadataResult,
+  { metadata: { blockTimestamp: bTs } }: AssetTransfersWithMetadataResult
+) {
+  if (aTs < bTs) return 1;
+  if (aTs > bTs) return -1;
+  // return aTs < bTs ? 1 : -1;
+  return 0;
 }
 
 function fetchApprovals(

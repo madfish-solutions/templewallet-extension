@@ -1,4 +1,5 @@
 import { AssetTransfersCategory, AssetTransfersWithMetadataResult, Log } from 'alchemy-sdk';
+import { getAddress } from 'viem';
 
 import { ActivityOperKindEnum, ActivityOperTransferType, EvmActivityAsset, EvmOperation } from 'lib/activity/types';
 import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
@@ -8,8 +9,6 @@ export function parseTransfer(transfer: AssetTransfersWithMetadataResult, accAdd
   const toAddress = transfer.to;
 
   if (!fromAddress || !toAddress) return buildInteraction(transfer, accAddress);
-
-  const contractAddress = transfer.rawContract.address;
 
   // TODO: to/from contract/account recognition
   const type = fromAddress === accAddress ? ActivityOperTransferType.send : ActivityOperTransferType.receive;
@@ -63,6 +62,9 @@ export function parseTransfer(transfer: AssetTransfersWithMetadataResult, accAdd
       asset
     };
   }
+
+  let contractAddress = transfer.rawContract.address;
+  contractAddress = contractAddress ? getAddress(contractAddress) : null;
 
   if (transfer.category === AssetTransfersCategory.ERC721) {
     if (!contractAddress) return buildInteraction(transfer, accAddress);
