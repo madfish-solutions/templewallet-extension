@@ -23,3 +23,5 @@ export const useReferralLinksEnabledSelector = () => useSelector(({ settings }) 
 
 export const useToastsContainerBottomShiftSelector = () =>
   useSelector(({ settings }) => settings.toastsContainerBottomShift);
+
+export const useTestnetModeEnabledSelector = () => useSelector(({ settings }) => settings.isTestnetModeEnabled);

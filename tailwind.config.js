@@ -40,7 +40,7 @@ module.exports = {
       outline: '0 0 0 3px rgba(237, 137, 54, 0.5)',
       none: 'none',
       //
-      'bottom': '0px 2px 8px 0px rgba(0, 0, 0, 0.08)',
+      bottom: '0px 2px 8px 0px rgba(0, 0, 0, 0.08)',
       center: '0px 0px 8px 0px #00000014',
       'content-inset': 'inset 0px 10px 8px -8px #00000014',
       drop: '0px 2px 4px 0px #00000040'
@@ -55,7 +55,7 @@ module.exports = {
 
     extend: {
       blur: {
-        'xs': '2px'
+        xs: '2px'
       },
 
       colors: {
@@ -171,6 +171,7 @@ module.exports = {
         13.5: '3.375rem',
         15: '3.75rem',
         18: '4.5rem',
+        19: '4.75rem',
         25: '6.25rem',
         29: '7.25rem',
         52: '13rem',

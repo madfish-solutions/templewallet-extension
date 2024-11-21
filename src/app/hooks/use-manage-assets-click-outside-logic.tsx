@@ -3,7 +3,7 @@ import { useRef } from 'react';
 import useOnClickOutside from 'use-onclickoutside';
 
 import { useAssetsSegmentControlRef } from 'app/atoms/AssetsSegmentControl';
-import { useContentPaperRef } from 'app/layouts/PageLayout';
+import { useContentPaperRef } from 'app/layouts/PageLayout/context';
 
 import { useAssetsViewState } from './use-assets-view-state';
 
