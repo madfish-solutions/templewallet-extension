@@ -1,11 +1,13 @@
 import { Epic, combineEpics } from 'redux-observable';
-import { EMPTY, catchError, from, merge, mergeMap, of } from 'rxjs';
+import { EMPTY, catchError, forkJoin, from, merge, mergeMap, of, switchMap } from 'rxjs';
 import { ofType } from 'ts-action-operators';
+
+import { RequestAlreadyPendingError } from 'lib/evm/on-chain/utils/evm-rpc-requests-executor';
 
 import { setEvmBalancesLoadingState } from '../actions';
 
 import { loadEvmBalanceOnChainActions } from './actions';
-import { RequestAlreadyPendingError, evmOnChainBalancesRequestsExecutor } from './utils';
+import { evmOnChainBalancesRequestsExecutor } from './utils';
 
 const loadEvmBalanceOnChainEpic: Epic = action$ =>
   action$.pipe(
@@ -14,12 +16,21 @@ const loadEvmBalanceOnChainEpic: Epic = action$ =>
       const { network, assetSlug, account } = payload;
 
       return from(evmOnChainBalancesRequestsExecutor.executeRequest(payload)).pipe(
-        mergeMap(balance =>
-          merge(
-            of(loadEvmBalanceOnChainActions.success({ network, assetSlug, account, balance })),
-            of(setEvmBalancesLoadingState({ chainId: network.chainId, isLoading: false }))
-          )
+        switchMap(balance =>
+          forkJoin([Promise.resolve(balance), evmOnChainBalancesRequestsExecutor.queueIsEmpty(network.chainId)])
         ),
+        switchMap(([balance, queueIsEmpty]) => {
+          const updateBalanceObservable = of(
+            loadEvmBalanceOnChainActions.success({ network, assetSlug, account, balance })
+          );
+
+          return queueIsEmpty
+            ? merge(
+                updateBalanceObservable,
+                of(setEvmBalancesLoadingState({ chainId: network.chainId, isLoading: false }))
+              )
+            : updateBalanceObservable;
+        }),
         catchError(error =>
           error instanceof RequestAlreadyPendingError ? EMPTY : of(loadEvmBalanceOnChainActions.fail(error.message))
         )

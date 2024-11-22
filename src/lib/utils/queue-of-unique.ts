@@ -7,6 +7,10 @@ export class QueueOfUnique<T> {
 
   constructor(private equalityFn: (a: T, b: T) => boolean = isEqual) {}
 
+  length() {
+    return this.mutex.runExclusive(() => this.data.length);
+  }
+
   pop() {
     return this.mutex.runExclusive(() => this.data.shift());
   }

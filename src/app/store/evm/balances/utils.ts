@@ -1,6 +1,4 @@
 import { Draft } from '@reduxjs/toolkit';
-import { isDefined } from '@rnw-community/shared';
-import { Mutex } from 'async-mutex';
 import { BigNumber } from 'bignumber.js';
 import { getAddress } from 'viem';
 
@@ -9,9 +7,8 @@ import { isNativeTokenAddress } from 'lib/apis/temple/endpoints/evm/api.utils';
 import { toTokenSlug } from 'lib/assets';
 import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
 import { fetchEvmRawBalance } from 'lib/evm/on-chain/balance';
-import { EVM_RPC_REQUESTS_INTERVAL } from 'lib/fixed-times';
+import { EvmRpcRequestsExecutor, ExecutionQueueCallbacks } from 'lib/evm/on-chain/utils/evm-rpc-requests-executor';
 import { isPositiveCollectibleBalance, isPositiveTokenBalance } from 'lib/utils/evm.utils';
-import { QueueOfUnique } from 'lib/utils/queue-of-unique';
 
 import { LoadOnChainBalancePayload } from './actions';
 import { AssetSlugBalanceRecord, EvmBalancesAtomicRecord } from './state';
@@ -53,69 +50,22 @@ export const getTokenSlugBalanceRecord = (data: BalanceItem[], chainId: number) 
     return acc;
   }, {});
 
-interface RequestQueueElement extends LoadOnChainBalancePayload {
-  onSuccess: SyncFn<BigNumber>;
-  onError: SyncFn<Error>;
-}
-const requestsAreSame = (a: RequestQueueElement, b: RequestQueueElement) =>
-  a.network.chainId === b.network.chainId && a.assetSlug === b.assetSlug && a.account === b.account;
-
-export class RequestAlreadyPendingError extends Error {}
-
-class EvmOnChainBalancesRequestsExecutor {
-  private requestsQueues = new Map<number, QueueOfUnique<RequestQueueElement>>();
-  private mapMutex = new Mutex();
-  private requestInterval: NodeJS.Timer;
-
-  constructor() {
-    this.executeNextRequests = this.executeNextRequests.bind(this);
-    this.requestInterval = setInterval(() => this.executeNextRequests(), EVM_RPC_REQUESTS_INTERVAL);
+class EvmOnChainBalancesRequestsExecutor extends EvmRpcRequestsExecutor<
+  LoadOnChainBalancePayload & ExecutionQueueCallbacks<BigNumber>,
+  BigNumber
+> {
+  protected getChainId(payload: LoadOnChainBalancePayload) {
+    return payload.network.chainId;
   }
 
-  async executeRequest(payload: LoadOnChainBalancePayload) {
-    const { chainId } = payload.network;
-
-    return new Promise<BigNumber>(async (resolve, reject) => {
-      const queue = await this.mapMutex.runExclusive(async () => {
-        let result = this.requestsQueues.get(chainId);
-        if (!result) {
-          result = new QueueOfUnique<RequestQueueElement>(requestsAreSame);
-          this.requestsQueues.set(chainId, result);
-        }
-
-        return result;
-      });
-
-      queue.push({
-        ...payload,
-        onSuccess: resolve,
-        onError: reject
-      });
-    });
+  protected requestsAreSame(a: LoadOnChainBalancePayload, b: LoadOnChainBalancePayload) {
+    return a.network.chainId === b.network.chainId && a.assetSlug === b.assetSlug && a.account === b.account;
   }
 
-  finalize() {
-    clearInterval(this.requestInterval);
-  }
+  protected async getResult(payload: LoadOnChainBalancePayload) {
+    const { network, assetSlug, account, assetStandard } = payload;
 
-  private async executeNextRequests() {
-    const requests = await this.mapMutex.runExclusive(() => {
-      const requestsPromises: Promise<RequestQueueElement | undefined>[] = [];
-      this.requestsQueues.forEach(queue => requestsPromises.push(queue.pop()));
-
-      return Promise.all(requestsPromises).then(requests => requests.filter(isDefined));
-    });
-
-    return Promise.all(
-      requests.map(async ({ network, assetSlug, account, assetStandard, onSuccess, onError }) => {
-        try {
-          const balance = await fetchEvmRawBalance(network, assetSlug, account, assetStandard);
-          onSuccess(balance);
-        } catch (err: any) {
-          onError(err);
-        }
-      })
-    );
+    return fetchEvmRawBalance(network, assetSlug, account, assetStandard);
   }
 }
 

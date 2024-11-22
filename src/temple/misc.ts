@@ -1,5 +1,3 @@
-/** TODO: Optimize via either:
- * - Set to Math.max(TEZOS_DEFAULT_CHAINS.length, EVM_DEFAULT_CHAINS.length)
- * - Set `{ max: 10, maxAge: number }`
- */
-export const MAX_MEMOIZED_TOOLKITS = 4;
+import { EVM_DEFAULT_NETWORKS, TEZOS_DEFAULT_NETWORKS } from './networks';
+
+export const MAX_MEMOIZED_TOOLKITS = Math.max(TEZOS_DEFAULT_NETWORKS.length, EVM_DEFAULT_NETWORKS.length) * 2;

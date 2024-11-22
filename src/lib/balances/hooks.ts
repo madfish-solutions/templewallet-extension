@@ -22,7 +22,7 @@ import { getKeyForBalancesRecord } from 'app/store/tezos/balances/utils';
 import { isSupportedChainId } from 'lib/apis/temple/endpoints/evm/api.utils';
 import { isKnownChainId } from 'lib/apis/tzkt';
 import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
-import { useEvmTransferSubscriptions } from 'lib/evm/on-chain/evm-transfer-subscriptions';
+import { createEvmTransfersListener } from 'lib/evm/on-chain/evm-transfer-subscriptions';
 import { EvmAssetStandard } from 'lib/evm/types';
 import { EVM_BALANCES_SYNC_INTERVAL } from 'lib/fixed-times';
 import {
@@ -228,6 +228,14 @@ function useEvmAssetRawBalance(
     [storedError, address, currentAccountAddress, chainId]
   );
 
+  const evmTransfersListener = useMemo(
+    () =>
+      assetStandard && !usingOffchainAPI
+        ? createEvmTransfersListener(network, address, assetSlug, assetStandard)
+        : undefined,
+    [address, assetSlug, assetStandard, network, usingOffchainAPI]
+  );
+
   const refreshBalanceOnChain = useCallback(() => {
     dispatch(setEvmBalancesLoadingState({ chainId, isLoading: true }));
     dispatch(loadEvmBalanceOnChainActions.submit({ network, assetSlug, account: address, assetStandard }));
@@ -244,18 +252,10 @@ function useEvmAssetRawBalance(
     true
   );
 
-  const { subscribe, unsubscribe } = useEvmTransferSubscriptions();
-
-  useEffect(() => {
-    // The API may overwrite fresh balances from RPC with stale ones
-    if (usingOffchainAPI) {
-      return;
-    }
-
-    subscribe(chainId, address, assetSlug, refreshBalanceOnChain);
-
-    return () => unsubscribe(chainId, address, assetSlug, refreshBalanceOnChain);
-  }, [address, assetSlug, chainId, refreshBalanceOnChain, subscribe, unsubscribe, usingOffchainAPI]);
+  useEffect(
+    () => evmTransfersListener?.subscribe(refreshBalanceOnChain),
+    [address, assetSlug, chainId, evmTransfersListener, refreshBalanceOnChain, usingOffchainAPI]
+  );
 
   return {
     value: storedBalance,
