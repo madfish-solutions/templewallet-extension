@@ -21,17 +21,17 @@ export type TransferEvent = OneOf<
 >;
 
 interface TransfersSubscriptionPayload {
-  chainId: number;
   rpcUrl: string;
   args: WatchEventParameters<TransferEvent>;
 }
 
 class EvmTransferEventsSubscriptionExecutor extends EvmRpcRequestsExecutor<
   TransfersSubscriptionPayload & ExecutionQueueCallbacks<EmptyFn>,
-  EmptyFn
+  EmptyFn,
+  string
 > {
-  protected getChainId(payload: TransfersSubscriptionPayload) {
-    return payload.chainId;
+  protected getQueueKey(payload: TransfersSubscriptionPayload) {
+    return payload.rpcUrl;
   }
 
   protected requestsAreSame(a: TransfersSubscriptionPayload, b: TransfersSubscriptionPayload) {
@@ -48,12 +48,7 @@ class EvmTransferEventsSubscriptionExecutor extends EvmRpcRequestsExecutor<
 const evmTransferEventsSubscriptionExecutor = new EvmTransferEventsSubscriptionExecutor();
 
 export abstract class EvmTransferEventsListener<T extends TransferEvent> extends EvmHttpRpcListener<[string]> {
-  constructor(
-    protected chainId: number,
-    protected httpRpcUrl: string,
-    protected account: HexString,
-    protected event: T
-  ) {
+  constructor(protected httpRpcUrl: string, protected account: HexString, protected event: T) {
     super(httpRpcUrl);
   }
 
@@ -71,7 +66,6 @@ export abstract class EvmTransferEventsListener<T extends TransferEvent> extends
       eventsArgs.map(args =>
         evmTransferEventsSubscriptionExecutor
           .executeRequest({
-            chainId: this.chainId,
             rpcUrl: this.httpRpcUrl,
             args: {
               onLogs: logs => logs.forEach(log => this.handleLog(log as Log<bigint, number, false, T>)),

@@ -38,10 +38,10 @@ class ERC1155BatchTransferEventsListener extends EvmTransferEventsListener<typeo
 }
 
 class ERC1155TransferEventsListener extends ListenersDelegate<[string]> {
-  constructor(chainId: number, httpRpcUrl: string, account: HexString) {
+  constructor(httpRpcUrl: string, account: HexString) {
     super([
-      new ERC1155SingleTransferEventsListener(chainId, httpRpcUrl, account, erc1155TransferSingleEvent),
-      new ERC1155BatchTransferEventsListener(chainId, httpRpcUrl, account, erc1155TransferBatchEvent)
+      new ERC1155SingleTransferEventsListener(httpRpcUrl, account, erc1155TransferSingleEvent),
+      new ERC1155BatchTransferEventsListener(httpRpcUrl, account, erc1155TransferBatchEvent)
     ]);
   }
 }

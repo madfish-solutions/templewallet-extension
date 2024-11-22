@@ -6,8 +6,8 @@ import { EvmSingleTransferEventsListener } from './evm-single-transfer-events-li
 import { makeGetTransferEventsListener } from './make-get-transfer-events-listener';
 
 class ERC20SingleTransferEventsListener extends EvmSingleTransferEventsListener<typeof erc20TransferEvent> {
-  constructor(chainId: number, httpRpcUrl: string, account: HexString) {
-    super(chainId, httpRpcUrl, account, erc20TransferEvent);
+  constructor(httpRpcUrl: string, account: HexString) {
+    super(httpRpcUrl, account, erc20TransferEvent);
   }
 
   protected getTokenId() {

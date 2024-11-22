@@ -52,9 +52,10 @@ export const getTokenSlugBalanceRecord = (data: BalanceItem[], chainId: number) 
 
 class EvmOnChainBalancesRequestsExecutor extends EvmRpcRequestsExecutor<
   LoadOnChainBalancePayload & ExecutionQueueCallbacks<BigNumber>,
-  BigNumber
+  BigNumber,
+  number
 > {
-  protected getChainId(payload: LoadOnChainBalancePayload) {
+  protected getQueueKey(payload: LoadOnChainBalancePayload) {
     return payload.network.chainId;
   }
 
