@@ -8,15 +8,14 @@ import { getERC20TransferEventsListener } from './transfer-events-listeners/erc2
 import { getERC721TransferEventsListener } from './transfer-events-listeners/erc721-transfer-events-listener';
 
 const transferListenerGetters = {
+  [EvmAssetStandard.NATIVE]: getEvmNewBlockListener,
   [EvmAssetStandard.ERC20]: getERC20TransferEventsListener,
   [EvmAssetStandard.ERC721]: getERC721TransferEventsListener,
   [EvmAssetStandard.ERC1155]: getERC1155TransferEventsListener
 };
 
 class EvmAssetTransfersListener {
-  private listener:
-    | EvmNewBlockListener
-    | ReturnType<(typeof transferListenerGetters)[keyof typeof transferListenerGetters]>;
+  private listener: ReturnType<(typeof transferListenerGetters)[EvmAssetStandard]>;
 
   constructor(rpcUrl: string, account: HexString, private assetSlug: string, assetStandard: EvmAssetStandard) {
     if (assetStandard === EvmAssetStandard.NATIVE) {
