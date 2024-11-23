@@ -1,7 +1,7 @@
-import { AssetTransfersCategory, AssetTransfersWithMetadataResult, Log } from 'alchemy-sdk';
 import { getAddress } from 'viem';
 
 import { ActivityOperKindEnum, ActivityOperTransferType, EvmActivityAsset, EvmOperation } from 'lib/activity/types';
+import { AssetTransfersCategory, AssetTransfersWithMetadataResult, Log } from 'lib/apis/temple/endpoints/evm/alchemy';
 import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
 
 export function parseTransfer(transfer: AssetTransfersWithMetadataResult, accAddress: string): EvmOperation {

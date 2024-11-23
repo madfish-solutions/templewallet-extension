@@ -14,4 +14,8 @@ const chainIdNativeTokenAddressRecord: Record<number, string> = {
 export const isNativeTokenAddress = (chainId: number, address: string) =>
   address === (chainIdNativeTokenAddressRecord[chainId] ?? DEFAULT_NATIVE_TOKEN_ADDRESS);
 
-export const isSupportedChainId = (chainId: number): chainId is ChainID => ChainIDs.includes(chainId);
+export const isSupportedChainId = (chainId: number): chainId is ChainID =>
+  ChainIDs.includes(
+    // @ts-expect-error
+    chainId
+  );
