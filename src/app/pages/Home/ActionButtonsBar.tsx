@@ -12,6 +12,7 @@ import { ReactComponent as SendIcon } from 'app/icons/base/send.svg';
 import { ReactComponent as SwapIcon } from 'app/icons/base/swap.svg';
 import { buildSendPagePath } from 'app/pages/Send/build-url';
 import { buildSwapPageUrlQuery } from 'app/pages/Swap/utils/build-url-query';
+import { useTestnetModeEnabledSelector } from 'app/store/settings/selectors';
 import { TestIDProps } from 'lib/analytics';
 import { TID, T, t } from 'lib/i18n';
 import { TempleAccountType } from 'lib/temple/types';
@@ -24,15 +25,16 @@ import { TempleChainKind } from 'temple/types';
 import { HomeProps } from './interfaces';
 import { HomeSelectors } from './selectors';
 
-const tippyPropsMock = {
+const getDisabledTippyProps = (testnetMode: boolean) => ({
   trigger: 'mouseenter',
   hideOnClick: false,
-  content: t('disabledForWatchOnlyAccount'),
+  content: t(testnetMode ? 'disabledInTestnetMode' : 'disabledForWatchOnlyAccount'),
   animation: 'shift-away-subtle'
-};
+});
 
 export const ActionButtonsBar = memo<HomeProps>(({ chainKind, chainId, assetSlug }) => {
   const account = useAccount();
+  const testnetModeEnabled = useTestnetModeEnabledSelector();
 
   const canSend = account.type !== TempleAccountType.WatchOnly;
   const sendLink = buildSendPagePath(chainKind, chainId, assetSlug);
@@ -52,14 +54,21 @@ export const ActionButtonsBar = memo<HomeProps>(({ chainKind, chainId, assetSlug
     <div className="flex justify-between gap-x-2 h-13.5 mt-4">
       <ActionButton labelI18nKey="receive" Icon={ReceiveIcon} to="/receive" testID={HomeSelectors.receiveButton} />
 
-      <ActionButton labelI18nKey="market" Icon={MarketIcon} to="/market" testID={HomeSelectors.marketButton} />
+      <ActionButton
+        labelI18nKey="market"
+        Icon={MarketIcon}
+        to="/market"
+        disabled={!canSend || testnetModeEnabled}
+        tippyProps={getDisabledTippyProps(testnetModeEnabled)}
+        testID={HomeSelectors.marketButton}
+      />
 
       <ActionButton
         labelI18nKey="swap"
         Icon={SwapIcon}
         to={swapLink}
-        disabled={!canSend}
-        tippyProps={tippyPropsMock}
+        disabled={!canSend || testnetModeEnabled}
+        tippyProps={getDisabledTippyProps(testnetModeEnabled)}
         testID={HomeSelectors.swapButton}
       />
 
@@ -70,7 +79,7 @@ export const ActionButtonsBar = memo<HomeProps>(({ chainKind, chainId, assetSlug
         Icon={SendIcon}
         to={sendLink}
         disabled={!canSend}
-        tippyProps={tippyPropsMock}
+        tippyProps={getDisabledTippyProps(false)}
         testID={HomeSelectors.sendButton}
       />
     </div>

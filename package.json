@@ -10,7 +10,7 @@
     "start:firefox:core": "cross-env CORE_BUILD=true run-s start:firefox",
     "build-run": "cross-env TS_NODE_PROJECT=\"webpack/tsconfig.json\" webpack && ts-node webpack/check-script.ts && ts-node webpack/zip-script.ts",
     "build": "cross-env NODE_ENV=production run-s build-run",
-    "build-all": "run-s \"build:!(*:core)\"",
+    "build-all": "run-s build:*",
     "build-all:core": "run-s build:*:core",
     "build:chrome": "cross-env TARGET_BROWSER=chrome run-s build",
     "build:chrome:core": "cross-env CORE_BUILD=true run-s build:chrome",
@@ -221,6 +221,7 @@
     "text-decoding": "^1.0.0"
   },
   "resolutions": {
+    "npm-run-all/cross-spawn": "^7.0.6",
     "react-dev-utils/fork-ts-checker-webpack-plugin": "^9",
     "tslib": "^2.4.0",
     "@types/react": "18.0.15",

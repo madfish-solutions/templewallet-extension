@@ -1,8 +1,9 @@
-import React, { forwardRef, useRef, useState } from 'react';
+import React, { forwardRef, useRef } from 'react';
 
 import clsx from 'clsx';
 
-import { useIntersectionObserver } from 'lib/ui/use-intersection-observer';
+import { useStickyObservation } from 'app/hooks/use-sticky-observation';
+import { useTestnetModeEnabledSelector } from 'app/store/settings/selectors';
 import { combineRefs } from 'lib/ui/utils';
 
 export const SCROLL_DOCUMENT = process.env.SCROLL_DOCUMENT === 'true';
@@ -46,13 +47,16 @@ interface StickyBarProps extends PropsWithChildren {
 export const StickyBar = React.forwardRef<HTMLDivElement, StickyBarProps>(({ className, children }, forwardedRef) => {
   const spareRef = useRef<HTMLDivElement>(null);
 
+  const testnetModeEnabled = useTestnetModeEnabledSelector();
+
   const sticked = useStickyObservation(spareRef);
 
   return (
     <div
       ref={combineRefs(forwardedRef, spareRef)}
       className={clsx(
-        'sticky -top-px z-sticky px-4 py-3 flex items-center gap-x-2 bg-white',
+        'sticky z-sticky px-4 py-3 flex items-center gap-x-2 bg-white',
+        testnetModeEnabled ? 'top-[23px]' : '-top-px',
         sticked && 'shadow-bottom',
         className
       )}
@@ -61,25 +65,3 @@ export const StickyBar = React.forwardRef<HTMLDivElement, StickyBarProps>(({ cla
     </div>
   );
 });
-
-/**
- * Solution is based on `IntersectionObserver`, thus the `top` value
- * of the sticky element needs to be `-1px`.
- *
- * Oterwise the element will never intersect with the top of the scrollable ancestor
- * (thus never triggering the intersection observer).
- */
-export const useStickyObservation = (ref: React.RefObject<Element>, predicate = true) => {
-  const [sticked, setSticked] = useState(false);
-
-  useIntersectionObserver(
-    ref,
-    entry => setSticked(entry.intersectionRatio < 1),
-    {
-      threshold: [1]
-    },
-    predicate
-  );
-
-  return sticked;
-};

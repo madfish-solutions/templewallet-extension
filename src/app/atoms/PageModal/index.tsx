@@ -1,4 +1,4 @@
-import React, { FC, ReactElement, ReactNode } from 'react';
+import React, { FC, ReactElement, ReactNode, useMemo } from 'react';
 
 import clsx from 'clsx';
 import Modal from 'react-modal';
@@ -8,6 +8,7 @@ import { useAppEnv } from 'app/env';
 import { ReactComponent as ChevronLeftIcon } from 'app/icons/base/chevron_left.svg';
 import { ReactComponent as ExIcon } from 'app/icons/base/x.svg';
 import { LAYOUT_CONTAINER_CLASSNAME } from 'app/layouts/containers';
+import { useTestnetModeEnabledSelector } from 'app/store/settings/selectors';
 import { TestIDProps } from 'lib/analytics';
 
 import { IconBase } from '../IconBase';
@@ -46,6 +47,13 @@ export const PageModal: FC<Props> = ({
   contentPadding = false
 }) => {
   const { fullPage } = useAppEnv();
+  const testnetModeEnabled = useTestnetModeEnabledSelector();
+
+  const baseOverlayClassNames = useMemo(() => {
+    if (testnetModeEnabled) return fullPage ? 'pt-19 pb-8' : 'pt-10';
+
+    return fullPage ? 'pt-13 pb-8' : 'pt-4';
+  }, [fullPage, testnetModeEnabled]);
 
   return (
     <Modal
@@ -54,7 +62,7 @@ export const PageModal: FC<Props> = ({
       htmlOpenClassName="overflow-hidden" // Disabling page scroll and/or bounce behind modal
       bodyOpenClassName={ACTIVATE_CONTENT_FADER_CLASSNAME}
       overlayClassName={{
-        base: clsx('fixed z-modal-page inset-0', fullPage ? 'pt-13 pb-8' : 'pt-4'),
+        base: clsx('fixed z-modal-page inset-0', baseOverlayClassNames),
         afterOpen: '',
         beforeClose: ''
       }}

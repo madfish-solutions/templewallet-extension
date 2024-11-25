@@ -4,11 +4,15 @@ import { useUpdatableRef } from './hooks';
 
 const IS_SUPPORTED = 'IntersectionObserver' in window;
 
+/**
+ * Memoize rootMargin to avoid unnecessary Intersection Observer re-creations.
+ */
 export const useIntersectionObserver = (
   elemRef: RefObject<Element>,
   callback: (entry: IntersectionObserverEntry) => void,
-  init: IntersectionObserverInit,
-  predicate = true
+  init: Omit<IntersectionObserverInit, 'rootMargin'>,
+  predicate = true,
+  rootMargin?: string
 ) => {
   const callbackRef = useUpdatableRef(callback);
 
@@ -18,13 +22,16 @@ export const useIntersectionObserver = (
 
     if (!canDetect) return;
 
-    const observer = new IntersectionObserver(([entry]) => {
-      callbackRef.current(entry);
-    }, init);
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        callbackRef.current(entry);
+      },
+      { ...init, rootMargin }
+    );
 
     observer.observe(elem);
 
     return () => void observer.unobserve(elem);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [predicate]);
+  }, [rootMargin, predicate]);
 };

@@ -41,6 +41,10 @@ export const CollectiblesTab = memo(() => {
     if (!filtersOpened) setLocalFilterChain(filterChain);
   }, [filtersOpened]);
 
+  useEffect(() => {
+    if (filterChain?.chainId !== localFilterChain?.chainId) setLocalFilterChain(filterChain);
+  }, [filterChain]);
+
   if (isTezosFilter && accountTezAddress)
     return <TezosChainCollectiblesTab chainId={localFilterChain.chainId} publicKeyHash={accountTezAddress} />;
 

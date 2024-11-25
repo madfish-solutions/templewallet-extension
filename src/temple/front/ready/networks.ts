@@ -1,5 +1,6 @@
 import { useCallback, useMemo } from 'react';
 
+import { useTestnetModeEnabledSelector } from 'app/store/settings/selectors';
 import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
 import { EvmAssetStandard } from 'lib/evm/types';
 import { EvmNativeTokenMetadata } from 'lib/metadata/types';
@@ -89,6 +90,7 @@ function useChains<T extends OneOfChains>(
   chainKind: T['kind']
 ) {
   const { allBlockExplorers } = useBlockExplorers();
+  const testnetModeEnabled = useTestnetModeEnabledSelector();
 
   const allChains = useMemo(() => {
     const rpcByChainId = new Map<T['chainId'], NonEmptyArray<StoredNetwork<T>>>();
@@ -133,7 +135,13 @@ function useChains<T extends OneOfChains>(
     return chains;
   }, [allBlockExplorers, chainKind, chainsSpecs, defaultNetworks, makeChain, networks]);
 
-  const enabledChains = useMemo(() => Object.values(allChains).filter(chain => !chain.disabled), [allChains]);
+  const enabledChains = useMemo(
+    () =>
+      Object.values(allChains).filter(
+        chain => !chain.disabled && (testnetModeEnabled ? chain.testnet : !chain.testnet)
+      ),
+    [allChains, testnetModeEnabled]
+  );
 
   return { allChains, enabledChains };
 }

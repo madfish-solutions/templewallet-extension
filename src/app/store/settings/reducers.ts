@@ -14,7 +14,8 @@ import {
   setShowAgreementsCounterAction,
   setReferralLinksEnabledAction,
   setShouldShowTermsOfUseUpdateOverlayAction,
-  setToastsContainerBottomShiftAction
+  setToastsContainerBottomShiftAction,
+  setIsTestnetModeEnabledAction
 } from './actions';
 import { SettingsState, settingsInitialState } from './state';
 
@@ -57,6 +58,10 @@ const settingsReducer = createReducer<SettingsState>(settingsInitialState, build
 
   builder.addCase(setToastsContainerBottomShiftAction, (state, { payload }) => {
     state.toastsContainerBottomShift = payload;
+  });
+
+  builder.addCase(setIsTestnetModeEnabledAction, (state, { payload }) => {
+    state.isTestnetModeEnabled = payload;
   });
 });
 
