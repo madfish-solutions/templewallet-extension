@@ -10,7 +10,7 @@ import { useEvmChainByChainId } from 'temple/front/chains';
 import { EvmActivityComponent } from './ActivityItem';
 import { ActivityListView } from './ActivityListView';
 import { ActivitiesDateGroup, useGroupingByDate } from './grouping-by-date';
-import { useActivitiesLoadingLogic } from './loading-logic';
+import { RETRY_AFTER_ERROR_TIMEOUT, useActivitiesLoadingLogic } from './loading-logic';
 import { FilterKind, getActivityFilterKind } from './utils';
 
 interface Props {
@@ -27,40 +27,47 @@ export const EvmActivityList: FC<Props> = ({ chainId, assetSlug, filterKind }) =
 
   useLoadPartnersPromo();
 
-  const { activities, isLoading, reachedTheEnd, setActivities, setIsLoading, setReachedTheEnd, loadNext } =
-    useActivitiesLoadingLogic<EvmActivity>(
-      async (initial, signal) => {
-        if (reachedTheEnd) return;
+  const {
+    activities,
+    isLoading,
+    reachedTheEnd,
+    error,
+    setActivities,
+    setIsLoading,
+    setReachedTheEnd,
+    setError,
+    loadNext
+  } = useActivitiesLoadingLogic<EvmActivity>(
+    async (initial, signal) => {
+      setIsLoading(true);
 
-        setIsLoading(true);
+      const currActivities = initial ? [] : activities;
 
-        const currActivities = initial ? [] : activities;
+      try {
+        const olderThanBlockHeight = activities.at(activities.length - 1)?.blockHeight;
 
-        try {
-          const olderThanBlockHeight = activities.at(activities.length - 1)?.blockHeight;
+        const newActivities = await getEvmActivities(chainId, accountAddress, assetSlug, olderThanBlockHeight, signal);
 
-          const newActivities = await getEvmActivities(
-            chainId,
-            accountAddress,
-            assetSlug,
-            olderThanBlockHeight,
-            signal
-          );
+        if (signal.aborted) return;
 
-          if (signal.aborted) return;
+        if (newActivities.length) setActivities(currActivities.concat(newActivities));
+        else setReachedTheEnd(true);
+      } catch (error) {
+        if (signal.aborted) return;
 
-          if (newActivities.length) setActivities(currActivities.concat(newActivities));
-          else setReachedTheEnd(true);
-        } catch (error) {
-          if (signal.aborted) return;
+        console.error(error);
 
-          console.error(error);
-        }
+        setError(error);
 
-        setIsLoading(false);
-      },
-      [chainId, accountAddress, assetSlug]
-    );
+        setTimeout(() => {
+          if (!signal.aborted) setError(null);
+        }, RETRY_AFTER_ERROR_TIMEOUT);
+      }
+
+      setIsLoading(false);
+    },
+    [chainId, accountAddress, assetSlug]
+  );
 
   const displayActivities = useMemo(
     () => (filterKind ? activities.filter(a => getActivityFilterKind(a) === filterKind) : activities),
@@ -85,7 +92,7 @@ export const EvmActivityList: FC<Props> = ({ chainId, assetSlug, filterKind }) =
     <ActivityListView
       activitiesNumber={displayActivities.length}
       isSyncing={isLoading}
-      reachedTheEnd={reachedTheEnd}
+      reachedTheEnd={reachedTheEnd || Boolean(error)}
       loadNext={loadNext}
     >
       {contentJsx}

@@ -1,6 +1,8 @@
 import { useDidMount, useDidUpdate, useSafeState, useAbortSignal } from 'lib/ui/hooks';
 import { useWillUnmount } from 'lib/ui/hooks/useWillUnmount';
 
+export const RETRY_AFTER_ERROR_TIMEOUT = 5_000;
+
 export function useActivitiesLoadingLogic<A>(
   loadActivities: (initial: boolean, signal: AbortSignal) => Promise<void>,
   resetDeps: unknown[],
@@ -10,11 +12,12 @@ export function useActivitiesLoadingLogic<A>(
   const [isLoading, setIsLoading] = useSafeState(initialIsLoading);
   const [activities, setActivities] = useSafeState<A[]>([]);
   const [reachedTheEnd, setReachedTheEnd] = useSafeState(false);
+  const [error, setError] = useSafeState<unknown>(null);
 
   const { abort: abortLoading, abortAndRenewSignal } = useAbortSignal();
 
   function loadNext() {
-    if (isLoading || reachedTheEnd) return;
+    if (isLoading || reachedTheEnd || error) return;
 
     loadActivities(false, abortAndRenewSignal());
   }
@@ -27,6 +30,7 @@ export function useActivitiesLoadingLogic<A>(
     setActivities([]);
     setIsLoading(true);
     setReachedTheEnd(false);
+    setError(null);
     onReset?.();
 
     loadActivities(true, abortAndRenewSignal());
@@ -36,9 +40,11 @@ export function useActivitiesLoadingLogic<A>(
     activities,
     isLoading,
     reachedTheEnd,
+    error,
     setActivities,
     setIsLoading,
     setReachedTheEnd,
+    setError,
     loadNext
   };
 }
