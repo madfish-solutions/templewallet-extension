@@ -107,11 +107,14 @@ export const MIGRATIONS: MigrationManifest = {
     if (!persistedState || IS_MISES_BROWSER) return persistedState;
 
     const typedPersistedState = persistedState as TypedPersistedRootState;
+
+    if (typedPersistedState.partnersPromotion.shouldShowPromotion) return persistedState;
+
     const newState: TypedPersistedRootState = {
       ...typedPersistedState,
       settings: {
         ...typedPersistedState.settings,
-        referralLinksEnabled: typedPersistedState.partnersPromotion.shouldShowPromotion
+        referralLinksEnabled: false
       }
     };
 
