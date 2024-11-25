@@ -20,7 +20,7 @@ export const ActivityListView: FC<PropsWithChildren<Props>> = ({
 }) => {
   if (activitiesNumber === 0) {
     if (isSyncing) return <PageLoader stretch text="Activity is loading..." />;
-    else if (reachedTheEnd) return <EmptyState stretch text="No activity yet" />;
+    else if (reachedTheEnd) return <EmptyState stretch text="No activity yet" forSearch={false} />;
   }
 
   return (

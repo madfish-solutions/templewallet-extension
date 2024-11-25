@@ -172,7 +172,7 @@ export const EVM_DEFAULT_NETWORKS: NonEmptyArray<StoredEvmNetwork> = [
     id: 'optimism-mainnet',
     name: 'OP Mainnet',
     chain: TempleChainKind.EVM,
-    chainId: OTHER_COMMON_MAINNET_CHAIN_IDS.avalanche,
+    chainId: OTHER_COMMON_MAINNET_CHAIN_IDS.optimism,
     rpcBaseURL: 'https://mainnet.optimism.io',
     description: 'Optimism Mainnet',
     color: '#fc0000',
