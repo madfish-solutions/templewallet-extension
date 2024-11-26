@@ -26,6 +26,8 @@ export const OperAddressChip: FC<Props> = ({ operation }) => {
       operation.type === ActivityOperTransferType.receiveFromAccount
     )
       return { title: 'From', address: operation.fromAddress };
+
+    return null;
   }, [operation]);
 
   if (!info) return null;
