@@ -72,16 +72,16 @@ export function isTzktOperParam_Fa12(param: any): param is ParameterFa12 {
   if (param.value == null) return false;
 
   if (param.entrypoint === 'approve') {
-    if (typeof param.value.spender !== 'string') return false;
-    if (typeof param.value.value !== 'string') return false;
-  } else {
-    // 'transfer'
-    if (typeof param.value.to !== 'string') return false;
-    if (typeof param.value.from !== 'string') return false;
-    if (typeof param.value.value !== 'string') return false;
+    const { spender, value } = param.value;
+
+    return typeof spender === 'string' && typeof value === 'string';
   }
 
-  return true;
+  // 'transfer' case
+
+  const { to, from, value } = param.value;
+
+  return typeof from === 'string' && typeof to === 'string' && typeof value === 'string';
 }
 
 function isTzktOperParam_Fa2(param: any): param is ParameterFa2 {
@@ -101,11 +101,9 @@ export function isTzktOperParam_Fa2_approve(param: any): param is ParameterFa2Ap
   const add_operator = param.value[0]?.add_operator;
   if (add_operator == null) return false;
 
-  if (typeof add_operator.operator !== 'string') return false;
-  if (typeof add_operator.owner !== 'string') return false;
-  if (typeof add_operator.token_id !== 'string') return false;
+  const { operator, owner, token_id } = add_operator;
 
-  return true;
+  return typeof operator === 'string' && typeof owner === 'string' && typeof token_id === 'string';
 }
 
 /**

@@ -175,6 +175,7 @@ export const WatchOnlyForm = memo<ImportAccountFormProps>(({ onSuccess }) => {
           additonalActionButtons={
             addressValue ? null : (
               <TextButton
+                color="blue"
                 Icon={PasteFillIcon}
                 onClick={pasteAddress}
                 testID={ImportAccountSelectors.pasteAddressButton}

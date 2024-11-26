@@ -1,4 +1,4 @@
-import React, { CSSProperties, FC, ReactElement, useEffect } from 'react';
+import React, { CSSProperties, FC, ReactElement, useEffect, useMemo } from 'react';
 
 import ReactInfiniteScrollComponent from 'react-infinite-scroll-component';
 
@@ -27,13 +27,25 @@ export const InfiniteScroll: FC<Props> = ({
 }) => {
   const loadNext = itemsLength ? loadMore : retryInitialLoad;
 
-  const onScroll = isSyncing || reachedTheEnd ? undefined : buildOnScroll(loadNext);
+  /**
+   * Build onscroll listener to trigger next loading, when fetching data resulted in error.
+   * `InfiniteScroll.props.next` won't be triggered in this case.
+   */
+  const onScroll = useMemo(() => {
+    if (isSyncing || reachedTheEnd) return;
+
+    return ({ target }: { target: EventTarget | null }) => {
+      const elem = (target instanceof Document ? target.scrollingElement! : target) as HTMLElement;
+
+      if (isScrollAtTheEnd(elem)) loadNext();
+    };
+  }, [loadNext, isSyncing, reachedTheEnd]);
+
+  const scrollableElem = useMemo(() => document.getElementById(APP_CONTENT_PAPER_DOM_ID), []);
 
   // For when there are too few items to make initial scroll for loadMore:
   useEffect(() => {
     if (SCROLL_DOCUMENT || isSyncing || reachedTheEnd) return;
-
-    const scrollableElem = document.getElementById(APP_CONTENT_PAPER_DOM_ID);
 
     if (!scrollableElem || scrollableElem.scrollTop || scrollableElem.scrollHeight > scrollableElem.clientHeight)
       return;
@@ -64,19 +76,6 @@ const STYLE: CSSProperties = {
   /** Scrollable element must be an ancestor of this component - document or other. */
   overflow: 'unset'
 };
-
-/**
- * Build onscroll listener to trigger next loading, when fetching data resulted in error.
- * `InfiniteScroll.props.next` won't be triggered in this case.
- */
-const buildOnScroll =
-  (next: EmptyFn) =>
-  ({ target }: { target: EventTarget | null }) => {
-    const elem: HTMLElement =
-      target instanceof Document ? (target.scrollingElement! as HTMLElement) : (target as HTMLElement);
-
-    if (isScrollAtTheEnd(elem)) next();
-  };
 
 function isScrollAtTheEnd(elem: Element) {
   return elem.scrollHeight === elem.clientHeight + elem.scrollTop;

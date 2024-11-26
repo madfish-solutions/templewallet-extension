@@ -12,7 +12,7 @@ type Color = 'black' | 'blue' | 'grey';
 interface Props extends TestIDProps {
   Icon?: ImportedSVGComponent;
   className?: string;
-  color?: Color;
+  color: Color;
   onClick?: EmptyFn;
 }
 
