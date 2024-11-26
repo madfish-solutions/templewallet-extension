@@ -12,12 +12,12 @@ export function parseTransfer(transfer: AssetTransfersWithMetadataResult, accAdd
 
   if (!fromAddress || !toAddress) return buildInteraction(transfer, accAddress);
 
-  // TODO: to/from contract/account recognition
-  const type = fromAddress === accAddress ? ActivityOperTransferType.send : ActivityOperTransferType.receive;
+  // (!) Note: Cannot distinguish contract addresses here
+  const type =
+    fromAddress === accAddress ? ActivityOperTransferType.sendToAccount : ActivityOperTransferType.receiveFromAccount;
 
   if (transfer.category === AssetTransfersCategory.EXTERNAL) {
     // fromAddress is an account's address for 'external' transfers
-    const type = toAddress === accAddress ? ActivityOperTransferType.receiveFromAccount : ActivityOperTransferType.send;
 
     const { decimal, value } = transfer.rawContract;
 
@@ -43,7 +43,6 @@ export function parseTransfer(transfer: AssetTransfersWithMetadataResult, accAdd
 
   if (transfer.category === AssetTransfersCategory.INTERNAL) {
     // fromAddress is contract address for 'internal' transfers
-    const type = toAddress === accAddress ? ActivityOperTransferType.receive : ActivityOperTransferType.send;
 
     const { decimal, value } = transfer.rawContract;
 
