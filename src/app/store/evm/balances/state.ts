@@ -4,7 +4,7 @@ export type AssetSlugBalanceRecord = StringRecord;
 
 export type ChainIdTokenSlugsBalancesRecord = Record<number, AssetSlugBalanceRecord>;
 
-export type EvmBalancesAtomicRecord = Record<PublicKeyHash, ChainIdTokenSlugsBalancesRecord>;
+type EvmBalancesAtomicRecord = Record<PublicKeyHash, ChainIdTokenSlugsBalancesRecord>;
 
 export interface EvmBalancesStateInterface {
   balancesAtomic: EvmBalancesAtomicRecord;

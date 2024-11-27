@@ -1,4 +1,3 @@
-import { Draft } from '@reduxjs/toolkit';
 import { BigNumber } from 'bignumber.js';
 import { getAddress } from 'viem';
 
@@ -11,19 +10,7 @@ import { EvmRpcRequestsExecutor, ExecutionQueueCallbacks } from 'lib/evm/on-chai
 import { isPositiveCollectibleBalance, isPositiveTokenBalance } from 'lib/utils/evm.utils';
 
 import { LoadOnChainBalancePayload } from './actions';
-import { AssetSlugBalanceRecord, EvmBalancesAtomicRecord } from './state';
-
-export const assignBalances = (
-  balancesAtomic: Draft<EvmBalancesAtomicRecord>,
-  publicKeyHash: HexString,
-  chainId: number,
-  data: AssetSlugBalanceRecord
-) => {
-  if (!balancesAtomic[publicKeyHash]) balancesAtomic[publicKeyHash] = {};
-  const accountBalances = balancesAtomic[publicKeyHash];
-
-  accountBalances[chainId] = Object.assign({}, accountBalances[chainId] ?? {}, data);
-};
+import { AssetSlugBalanceRecord } from './state';
 
 export const getTokenSlugBalanceRecord = (data: BalanceItem[], chainId: number) =>
   data.reduce<AssetSlugBalanceRecord>((acc, currentValue) => {
