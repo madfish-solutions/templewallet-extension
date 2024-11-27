@@ -2,7 +2,7 @@ import React, { FC, memo } from 'react';
 
 import { SuspenseContainer } from 'app/atoms/SuspenseContainer';
 import { useLocationSearchParamValue } from 'app/hooks/use-location';
-import { ContentContainer } from 'app/layouts/containers';
+import BakingSection from 'app/pages/Home/OtherComponents/BakingSection';
 import { TezosActivityList, EvmActivityList } from 'app/templates/activity';
 import { ActivityListContainer } from 'app/templates/activity/ActivityListContainer';
 import AssetInfo from 'app/templates/AssetInfo';
@@ -13,26 +13,12 @@ import { t } from 'lib/i18n';
 import { isEvmNativeTokenSlug } from 'lib/utils/evm.utils';
 import { TempleChainKind } from 'temple/types';
 
-import { HomeProps } from '../interfaces';
-
-import BakingSection from './BakingSection';
-
-export const AssetTab = memo<NonNullableFields<Required<HomeProps>>>(({ chainKind, chainId, assetSlug }) => (
-  <ContentContainer className="mt-3">
-    {chainKind === TempleChainKind.Tezos ? (
-      <TezosAssetTab chainId={chainId} assetSlug={assetSlug} />
-    ) : (
-      <EvmAssetTab chainId={Number(chainId)} assetSlug={assetSlug} />
-    )}
-  </ContentContainer>
-));
-
 interface TezosAssetTabProps {
   chainId: string;
   assetSlug: string;
 }
 
-const TezosAssetTab: FC<TezosAssetTabProps> = ({ chainId, assetSlug }) =>
+export const TezosAssetTab: FC<TezosAssetTabProps> = ({ chainId, assetSlug }) =>
   isTezAsset(assetSlug) ? (
     <TezosGasTab tezosChainId={chainId} />
   ) : (
@@ -94,7 +80,7 @@ interface EvmAssetTabProps {
   assetSlug: string;
 }
 
-const EvmAssetTab: FC<EvmAssetTabProps> = ({ chainId, assetSlug }) =>
+export const EvmAssetTab: FC<EvmAssetTabProps> = ({ chainId, assetSlug }) =>
   isEvmNativeTokenSlug(assetSlug) ? (
     <ActivityListContainer chainId={chainId} assetSlug={EVM_TOKEN_SLUG}>
       <EvmActivityList chainId={chainId} assetSlug={EVM_TOKEN_SLUG} />

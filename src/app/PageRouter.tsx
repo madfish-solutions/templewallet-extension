@@ -28,6 +28,7 @@ import { ChainSettings } from './pages/ChainSettings';
 import { ImportWallet } from './pages/ImportWallet';
 import { Market } from './pages/Market';
 import { StakingPage } from './pages/Staking';
+import { TokenPage } from './pages/Token';
 
 interface RouteContext {
   popup: boolean;
@@ -70,12 +71,6 @@ const ROUTE_MAP = Woozie.createMap<RouteContext>([
   ],
   ['/loading', (_p, ctx) => (ctx.ready ? <Woozie.Redirect to={'/'} /> : <RootSuspenseFallback />)],
   ['/', (_p, ctx) => (ctx.ready ? <Home /> : <Welcome />)],
-  [
-    '/explore/:chainKind?/:chainId?/:assetSlug?',
-    onlyReady(({ chainKind, chainId, assetSlug }) => (
-      <Home chainKind={chainKind} chainId={chainId} assetSlug={assetSlug} />
-    ))
-  ],
   ['/activity', onlyReady(() => <ActivityPage />)],
   ['/connect-ledger', onlyReady(onlyInFullPage(() => <ConnectLedger />))],
   ['/receive', onlyReady(() => <Receive />)],
@@ -88,6 +83,12 @@ const ROUTE_MAP = Woozie.createMap<RouteContext>([
   ['/swap', onlyReady(() => <Swap />)],
   ['/delegate/:tezosChainId', onlyReady(({ tezosChainId }) => <Delegate tezosChainId={tezosChainId!} />)],
   ['/staking/:tezosChainId', onlyReady(({ tezosChainId }) => <StakingPage tezosChainId={tezosChainId!} />)],
+  [
+    '/token/:chainKind?/:chainId?/:assetSlug?',
+    onlyReady(({ chainKind, chainId, assetSlug }) => (
+      <TokenPage chainKind={chainKind!} chainId={chainId!} assetSlug={assetSlug!} />
+    ))
+  ],
   [
     '/collectible/:chainKind?/:chainId?/:assetSlug?',
     onlyReady(({ chainKind, chainId, assetSlug }) => (
