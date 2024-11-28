@@ -1,6 +1,6 @@
 import { templeWalletApi } from './templewallet.api';
 
-export enum AliceBobOrderStatus {
+enum AliceBobOrderStatus {
   WAITING = 'WAITING',
   EXCHANGING = 'EXCHANGING',
   SENDING = 'SENDING',
@@ -13,7 +13,7 @@ export enum AliceBobOrderStatus {
   PREPARED = 'PREPARED'
 }
 
-export interface AliceBobOrderInfo {
+interface AliceBobOrderInfo {
   id: string;
   status: AliceBobOrderStatus;
   from: string;
@@ -80,14 +80,8 @@ export const createAliceBobOrder = (
     }
   });
 
-export const cancelAliceBobOrder = (orderId: string) =>
-  templeWalletApi.post('/alice-bob/cancel-order', null, { params: { orderId } });
-
 export const getAliceBobPairsInfo = (isWithdraw: boolean) =>
   templeWalletApi.get<{ pairsInfo: AliceBobPairInfo[] }>('/alice-bob/get-pairs-info', { params: { isWithdraw } });
-
-export const getAliceBobOrderInfo = (orderId: string) =>
-  templeWalletApi.get<{ orderInfo: AliceBobOrderInfo }>('/alice-bob/check-order', { params: { orderId } });
 
 export const estimateAliceBobOutput = (amount: string, inputAssetCode: string, outputAssetCode: string) =>
   templeWalletApi.post<{ outputAmount: number }>('/alice-bob/estimate-amount', null, {

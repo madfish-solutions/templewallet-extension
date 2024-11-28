@@ -23,7 +23,7 @@ interface AliceBobFiatCurrency {
 const UTORG_FIAT_ICONS_BASE_URL = 'https://utorg.pro/img/flags2/icon-';
 const UTORG_CRYPTO_ICONS_BASE_URL = 'https://utorg.pro/img/cryptoIcons';
 
-export const getCurrencyNameByCode = (code: string) => {
+const getCurrencyNameByCode = (code: string) => {
   const customCurrencyNames: StringRecord = {
     UAH: 'Ukrainian Hryvnia',
     KZT: 'Kazakhstani Tenge'
@@ -38,7 +38,7 @@ export const getCurrencyNameByCode = (code: string) => {
   return isDefined(currencyInfo) ? currencyInfo.currency : '???';
 };
 
-export const knownAliceBobFiatCurrencies: Record<string, AliceBobFiatCurrency> = {
+const knownAliceBobFiatCurrencies: Record<string, AliceBobFiatCurrency> = {
   UAH: {
     name: getCurrencyNameByCode('UAH'),
     code: 'UAH',

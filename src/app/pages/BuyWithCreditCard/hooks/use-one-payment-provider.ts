@@ -10,7 +10,7 @@ import {
   usePairLimitsErrorsSelector
 } from 'app/store/buy-with-credit-card/selectors';
 import { getMoonPayBuyQuote } from 'lib/apis/moonpay';
-import { estimateAliceBobOutput } from 'lib/apis/temple/endpoints/alice-bob';
+import { estimateAliceBobOutput } from 'lib/apis/temple';
 import { convertFiatAmountToCrypto } from 'lib/apis/utorg';
 import { getAssetSymbolToDisplay } from 'lib/buy-with-credit-card/get-asset-symbol-to-display';
 import { getUpdatedFiatLimits } from 'lib/buy-with-credit-card/get-updated-fiat-limits';

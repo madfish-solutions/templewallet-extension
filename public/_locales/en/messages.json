@@ -2996,9 +2996,6 @@
   "buyButton": {
     "message": "Buy"
   },
-  "withdraw": {
-    "message": "Withdraw"
-  },
   "toCard": {
     "message": "To card"
   },
@@ -3057,23 +3054,26 @@
   "buyWithRampDescription": {
     "message": "Buy TEZ  using Visa, Mastercard, and all major debit and credit cards. Ramp is available in 160+ countries and territories."
   },
-  "sellWithAliceBob": {
-    "message": "Sell TEZ with Alice-Bob"
-  },
-  "sellWithAliceBobDescription": {
-    "message": "Fast and cost-effective exchange of TEZ."
-  },
   "selectPaymentProvider": {
     "message": "Select payment provider"
   },
   "pleaseSelectPaymentProvider": {
     "message": "Please select payment provider"
   },
-  "topUpBuy": {
-    "message": "Buy"
-  },
   "buyWithCard": {
     "message": "Buy with Debit/Credit Card"
+  },
+  "cryptoExchange": {
+    "message": "Crypto Exchange"
+  },
+  "cryptoExchangeDescription": {
+    "message": "Top-up balance instantly with best rate and without registration"
+  },
+  "debitCreditCard": {
+    "message": "Debit & Credit Card"
+  },
+  "debitCreditCardDescription": {
+    "message": "Simple crypto purchase with fiat currencies in a few steps"
   },
   "sellTez": {
     "message": "Sell TEZ"
@@ -3133,9 +3133,6 @@
   },
   "bestPrice": {
     "message": "Best price"
-  },
-  "withdrawDescription": {
-    "message": "Temple integrated third-party solutions to sell TEZ. Choose a provider, follow guides, \n get fiat to your Debit/Credit card"
   },
   "topUpCrypto": {
     "message": "Crypto"
@@ -3383,12 +3380,6 @@
   },
   "serviceIsUnavailable": {
     "message": "Sorry, service is temporarily unavailable. Try again later!"
-  },
-  "buyWithChainBits": {
-    "message": "Buy with ChainBits"
-  },
-  "buyWithChainBitsDescription": {
-    "message": "Buying Crypto Was Never This Easy"
   },
   "news": {
     "message": "News"
@@ -3765,5 +3756,8 @@
   },
   "disabledInTestnetMode": {
     "message": "Disabled in Testnet Mode"
+  },
+  "marketPageDisclaimer": {
+    "message": "Temple integrated third-party solutions to buy or exchange crypto."
   }
 }
