@@ -1,9 +1,10 @@
-import { useCallback, useMemo } from 'react';
+import { useCallback, useEffect, useMemo } from 'react';
 
 import { useTestnetModeEnabledSelector } from 'app/store/settings/selectors';
 import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
 import { EvmAssetStandard } from 'lib/evm/types';
 import { EvmNativeTokenMetadata } from 'lib/metadata/types';
+import { setEvmChainsRpcUrls } from 'temple/evm/evm-chains-rpc-urls';
 import { getViemChainsList } from 'temple/evm/utils';
 import {
   DEFAULT_EVM_CURRENCY,
@@ -70,6 +71,18 @@ export function useReadyTempleEvmNetworks(customEvmNetworks: StoredEvmNetwork[])
     EVM_DEFAULT_NETWORKS,
     TempleChainKind.EVM
   );
+
+  useEffect(() => {
+    setEvmChainsRpcUrls(
+      enabledChains.reduce<Partial<StringRecord>>(
+        (acc, { chainId, rpcBaseURL }) => ({
+          ...acc,
+          [chainId]: rpcBaseURL
+        }),
+        {}
+      )
+    ).catch(e => console.error(e));
+  }, [enabledChains]);
 
   return {
     allEvmChains: allChains,

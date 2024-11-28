@@ -4,6 +4,8 @@ import browser from 'webextension-polyfill';
 import { APP_TITLE, ContentScriptType, WEBSITES_ANALYTICS_ENABLED } from 'lib/constants';
 import { serealizeError } from 'lib/intercom/helpers';
 import { TempleMessageType, TempleResponse } from 'lib/temple/types';
+import { PASS_TO_BG_EVENT, PassToBgEventDetail, RESPONSE_FROM_BG_EVENT } from 'temple/evm/web3-provider';
+import { TempleChainKind } from 'temple/types';
 
 import { getIntercom } from './intercom-client';
 
@@ -73,6 +75,26 @@ const SENDER = {
   name: APP_TITLE,
   iconUrl: 'https://templewallet.com/logo.png'
 };
+
+window.addEventListener(PASS_TO_BG_EVENT, evt => {
+  const { origin, args: payload, chainId, iconUrl } = (evt as CustomEvent<PassToBgEventDetail>).detail;
+  console.log('passToBackground_content_script', payload);
+  getIntercom()
+    .request({
+      type: TempleMessageType.PageRequest,
+      origin,
+      iconUrl,
+      payload,
+      chainId,
+      chainType: TempleChainKind.EVM
+    })
+    .then((res: TempleResponse) => {
+      if (res?.type === TempleMessageType.PageResponse && res.payload) {
+        window.dispatchEvent(new CustomEvent(RESPONSE_FROM_BG_EVENT, { detail: res.payload }));
+      }
+    })
+    .catch(err => console.error(err));
+});
 
 window.addEventListener(
   'message',

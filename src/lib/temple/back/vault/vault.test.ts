@@ -1,3 +1,4 @@
+import { TypedDataDefinition } from 'viem';
 import browser from 'webextension-polyfill';
 
 import {
@@ -6,6 +7,7 @@ import {
   ACCOUNT_ALREADY_EXISTS_ERR_MSG
 } from 'lib/constants';
 import { getAccountAddressForTezos } from 'temple/accounts';
+import { TypedDataV1 } from 'temple/evm/typed-data-v1';
 import { TempleChainKind } from 'temple/types';
 
 import { TempleAccountType, TempleSettings } from '../../types';
@@ -106,6 +108,102 @@ const hdWallets = [
         }
       }
     ]
+  }
+];
+
+const EIP712Domain = [
+  { name: 'name', type: 'string' },
+  { name: 'version', type: 'string' },
+  { name: 'chainId', type: 'uint256' },
+  { name: 'verifyingContract', type: 'address' }
+];
+const typedDataV4: TypedDataDefinition = {
+  domain: {
+    chainId: 168587773,
+    name: 'Ether Mail',
+    verifyingContract: '0xCcCCccccCCCCcCCCCCCcCcCccCcCCCcCcccccccC',
+    version: '1'
+  },
+  message: {
+    contents: 'Hello, Bob!',
+    from: {
+      name: 'Cow',
+      wallets: ['0xCD2a3d9F938E13CD947Ec05AbC7FE734Df8DD826', '0xDeaDbeefdEAdbeefdEadbEEFdeadbeEFdEaDbeeF']
+    },
+    to: [
+      {
+        name: 'Bob',
+        wallets: [
+          '0xbBbBBBBbbBBBbbbBbbBbbbbBBbBbbbbBbBbbBBbB',
+          '0xB0BdaBea57B0BDABeA57b0bdABEA57b0BDabEa57',
+          '0xB0B0b0b0b0b0B000000000000000000000000000'
+        ]
+      }
+    ],
+    attachment: '0x'
+  },
+  primaryType: 'Mail',
+  types: {
+    EIP712Domain,
+    Group: [
+      { name: 'name', type: 'string' },
+      { name: 'members', type: 'Person[]' }
+    ],
+    Mail: [
+      { name: 'from', type: 'Person' },
+      { name: 'to', type: 'Person[]' },
+      { name: 'contents', type: 'string' },
+      { name: 'attachment', type: 'bytes' }
+    ],
+    Person: [
+      { name: 'name', type: 'string' },
+      { name: 'wallets', type: 'address[]' }
+    ]
+  }
+};
+const typedDataV3: TypedDataDefinition = {
+  types: {
+    EIP712Domain,
+    Person: [
+      { name: 'name', type: 'string' },
+      { name: 'wallet', type: 'address' }
+    ],
+    Mail: [
+      { name: 'from', type: 'Person' },
+      { name: 'to', type: 'Person' },
+      { name: 'contents', type: 'string' }
+    ]
+  },
+  primaryType: 'Mail',
+  domain: {
+    name: 'Ether Mail',
+    version: '1',
+    chainId: 168587773,
+    verifyingContract: '0xCcCCccccCCCCcCCCCCCcCcCccCcCCCcCcccccccC'
+  },
+  message: {
+    from: {
+      name: 'Cow',
+      wallet: '0xCD2a3d9F938E13CD947Ec05AbC7FE734Df8DD826'
+    },
+    to: {
+      name: 'Bob',
+      wallet: '0xbBbBBBBbbBBBbbbBbbBbbbbBBbBbbbbBbBbbBBbB'
+    },
+    contents: 'Hello, Bob!'
+  }
+};
+
+const typedDataV1: TypedDataV1 = [
+  {
+    type: 'string',
+    name: 'Message',
+    value: 'Hi, Alice!'
+  },
+  {
+    type: 'uint32',
+    name: 'A number',
+    value: '1337'
   }
 ];
 
@@ -878,6 +976,89 @@ describe('Vault tests', () => {
       await Vault.spawn(password, defaultMnemonic);
       await Vault.setup(password);
       await expect(() => Vault.reset(invalidPassword)).rejects.toThrow('Invalid password');
+    });
+  });
+
+  describe('EVM signing functions', () => {
+    const { accounts } = hdWallets[0];
+    let vault: Vault;
+    beforeEach(async () => {
+      await Vault.spawn(password, defaultMnemonic);
+      vault = await Vault.setup(password);
+      const walletsSpecs = await vault.fetchWalletsSpecs();
+      const firstGroupId = Object.keys(walletsSpecs)[0];
+      await vault.createHDAccount(firstGroupId);
+      await vault.importWatchOnlyAccount(TempleChainKind.EVM, accounts[2].evm.address);
+    });
+
+    describe('signEvmTypedData', () => {
+      it('should throw an error if the specified account is a watch-only account', async () => {
+        await expect(() => vault.signEvmTypedData(accounts[2].evm.address, typedDataV4)).rejects.toThrow(
+          'Cannot sign Watch-only account'
+        );
+      });
+
+      it('should throw an error if the specified account does not exist', async () => {
+        await expect(() => vault.signEvmTypedData(accounts[3].evm.address, typedDataV4)).rejects.toThrow(
+          'Account not found'
+        );
+      });
+
+      it('should sign EVM V4 typed data', async () => {
+        const v4Signatures = [
+          '0x0424dc98837b579307e84ac9ece69f57e0958981ba683673efd79ecac71a9e855019e178a25e9634ffa7bf98d2facfa1dee78dfc066c1cbc444f9f7f1089ea2b1b',
+          '0x7a0552524c94a92a38fa15ace5725110020b3e4bb0d66ec8f5392f1f73cfa1eb6f437c84f5df12091a908488d633d1aa44f220ca15f0daf72d6e4f16927915f61c'
+        ];
+        for (let i = 0; i < v4Signatures.length; i++) {
+          expect(await vault.signEvmTypedData(accounts[i].evm.address, typedDataV4)).toEqual(v4Signatures[i]);
+        }
+      });
+
+      it('should sign EVM V3 typed data', async () => {
+        const v3Signatures = [
+          '0x7420b983fbf0e10e33592d53a3eaad0c10ced57670bf9a4b82c37b4178559b2c5f4ff13cad9549eb6c710720dd9252d76000f14e7a9d76fa6c99aec9d04829b41b',
+          '0xc2bf3021c2367654495f548d3c523660e59220b55b8932f82a7b750e848ce4746c5bc4acd85c943ddc2f82a7eb9d1e2440b08f384a5f46dedba184146e468fd31c'
+        ];
+        for (let i = 0; i < v3Signatures.length; i++) {
+          expect(await vault.signEvmTypedData(accounts[i].evm.address, typedDataV3)).toEqual(v3Signatures[i]);
+        }
+      });
+
+      it('should sign EVM V1 typed data', async () => {
+        const v1Signatures = [
+          '0xee053009ad94aea458b5e24bd8c577a68c39d45e1d0ce14bc3bb9331c524021723d5f90915f1910b98ac33000185a644d3f15c0c810d63aab269f74324b5c77a1b',
+          '0x97bdd50520a3fe1166f91591cb5aee814650b9a4b6a4dde73cbc31cc8dc0f5e73b7c4550538bddd79f4dac309a295d7df02489595790a05c0e432e2c131c99bf1b'
+        ];
+        for (let i = 0; i < v1Signatures.length; i++) {
+          expect(await vault.signEvmTypedData(accounts[i].evm.address, typedDataV1)).toEqual(v1Signatures[i]);
+        }
+      });
+    });
+
+    describe('signEvmMessage', () => {
+      it('should throw an error if the specified account is a watch-only account', async () => {
+        await expect(() => vault.signEvmTypedData(accounts[2].evm.address, typedDataV4)).rejects.toThrow(
+          'Cannot sign Watch-only account'
+        );
+      });
+
+      it('should throw an error if the specified account does not exist', async () => {
+        await expect(() => vault.signEvmTypedData(accounts[3].evm.address, typedDataV4)).rejects.toThrow(
+          'Account not found'
+        );
+      });
+
+      it('should sign a personal_sign message', async () => {
+        const message = 'Example `personal_sign` message';
+        const signatures = [
+          '0xa05ae8c6df3619be48d9e1aa0ecea58988be4f06559304607ff2c5a1e9f2a7bf3186407236ee7d8e0258bd80aefed6c2930088b16cd4a27113737d07442c9dff1b',
+          '0xeff65a3fdfa5b546476cb3d9c0192993c4892f0d9475acac22d10407b70009f5241e575c1b1a8da0adedf609c01c66d3db234a24e90ae1b8117037b6077205ac1c'
+        ];
+
+        for (let i = 0; i < signatures.length; i++) {
+          expect(await vault.signEvmMessage(accounts[i].evm.address, message)).toEqual(signatures[i]);
+        }
+      });
     });
   });
 });

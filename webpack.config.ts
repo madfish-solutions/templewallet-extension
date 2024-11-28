@@ -53,9 +53,12 @@ const HTML_TEMPLATES = PAGES_NAMES.map(name => {
   })
 );
 
-const CONTENT_SCRIPTS = ['contentScript', !IS_CORE_BUILD && 'replaceAds', !IS_CORE_BUILD && 'replaceReferrals'].filter(
-  isTruthy
-);
+const CONTENT_SCRIPTS = [
+  'contentScript',
+  !IS_CORE_BUILD && 'replaceAds',
+  !IS_CORE_BUILD && 'replaceReferrals',
+  'inpage'
+].filter(isTruthy);
 if (BACKGROUND_IS_WORKER) CONTENT_SCRIPTS.push('keepBackgroundWorkerAlive');
 
 const mainConfig = (() => {
@@ -191,7 +194,8 @@ const scriptsConfig = (() => {
       : 'module'; // Required for dynamic imports `import()`
 
   config.entry = {
-    contentScript: Path.join(PATHS.SOURCE, 'contentScript.ts')
+    contentScript: Path.join(PATHS.SOURCE, 'contentScript.ts'),
+    inpage: Path.join(PATHS.SOURCE, 'inpage.ts')
   };
   if (!IS_CORE_BUILD) {
     config.entry.replaceAds = Path.join(PATHS.SOURCE, 'replaceAds.ts');

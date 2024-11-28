@@ -3,7 +3,7 @@ import React, { FC, useMemo, useState } from 'react';
 import { ShortcutAccountSelectStateProvider } from 'app/hooks/use-account-select-shortcut';
 import { AssetsViewStateProvider } from 'app/hooks/use-assets-view-state';
 import { usePushNotifications } from 'app/hooks/use-push-notifications';
-import { CustomTezosChainIdContext } from 'lib/analytics';
+import { CustomEvmChainIdContext, CustomTezosChainIdContext } from 'lib/analytics';
 import { ReadyTempleProvider } from 'temple/front/ready';
 
 import { TempleClientProvider, useTempleClient } from './client';
@@ -15,11 +15,13 @@ export const TempleProvider: FC<PropsWithChildren> = ({ children }) => {
 
   return (
     <CustomTezosChainIdContext.Provider value={undefined}>
-      <TempleClientProvider>
-        <SuccessfulInitToastContext.Provider value={initToastState}>
-          <ConditionalReadyTemple>{children}</ConditionalReadyTemple>
-        </SuccessfulInitToastContext.Provider>
-      </TempleClientProvider>
+      <CustomEvmChainIdContext.Provider value={undefined}>
+        <TempleClientProvider>
+          <SuccessfulInitToastContext.Provider value={initToastState}>
+            <ConditionalReadyTemple>{children}</ConditionalReadyTemple>
+          </SuccessfulInitToastContext.Provider>
+        </TempleClientProvider>
+      </CustomEvmChainIdContext.Provider>
     </CustomTezosChainIdContext.Provider>
   );
 };

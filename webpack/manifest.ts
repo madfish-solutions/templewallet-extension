@@ -121,7 +121,7 @@ const buildManifestV2 = (vendor: string): Manifest.WebExtensionManifest => {
 
 const AUTHOR_URL = 'https://madfish.solutions';
 
-const PERMISSIONS = ['storage', 'unlimitedStorage', 'clipboardWrite', 'activeTab'];
+const PERMISSIONS = ['storage', 'unlimitedStorage', 'clipboardWrite', 'activeTab', 'scripting'];
 
 const HOST_PERMISSIONS: string[] = ['http://localhost:8732/'];
 
@@ -196,6 +196,13 @@ const buildManifestCommons = (vendor: string): Omit<Manifest.WebExtensionManifes
         js: ['scripts/replaceAds.js', 'scripts/replaceReferrals.js'],
         run_at: 'document_start' as const,
         all_frames: false
+      },
+      {
+        matches: ['http://*/*', 'https://*/*'],
+        js: ['scripts/inpage.js'],
+        run_at: 'document_start' as const,
+        all_frames: true,
+        world: 'MAIN'
       }
     ].filter(isTruthy)
   };

@@ -5,7 +5,7 @@ import { CompositeForger, RpcForger, Signer, TezosOperationError, TezosToolkit }
 import * as TaquitoUtils from '@taquito/utils';
 import * as Bip39 from 'bip39';
 import { nanoid } from 'nanoid';
-import { createWalletClient, http } from 'viem';
+import { createWalletClient, http, PrivateKeyAccount, TypedDataDefinition } from 'viem';
 import { privateKeyToAccount } from 'viem/accounts';
 import type * as WasmThemisPackageInterface from 'wasm-themis';
 
@@ -29,6 +29,7 @@ import { clearAsyncStorages } from 'lib/temple/reset';
 import { StoredAccount, TempleAccountType, TempleSettings, WalletSpecs } from 'lib/temple/types';
 import { isTruthy } from 'lib/utils';
 import { getAccountAddressForChain, getAccountAddressForEvm, getAccountAddressForTezos } from 'temple/accounts';
+import { TypedDataV1, typedV1SignatureHash } from 'temple/evm/typed-data-v1';
 import { EvmTxParams } from 'temple/evm/types';
 import { EvmChain } from 'temple/front';
 import { michelEncoder, getTezosFastRpcClient } from 'temple/tezos';
@@ -779,6 +780,21 @@ export class Vault {
     );
   }
 
+  // TODO: implement signing typed data V1
+  async signEvmTypedData(accPublicKeyHash: string, typedData: TypedDataDefinition | TypedDataV1) {
+    return this.withSigningEvmAccount(accPublicKeyHash, async account => {
+      console.log('trying to sign typed data', typedData);
+
+      return Array.isArray(typedData)
+        ? account.sign({ hash: `0x${typedV1SignatureHash(typedData).toString('hex')}` })
+        : account.signTypedData(typedData);
+    });
+  }
+
+  async signEvmMessage(accPublicKeyHash: string, message: string) {
+    return this.withSigningEvmAccount(accPublicKeyHash, async account => account.signMessage({ message }));
+  }
+
   async sendOperations(accPublicKeyHash: string, rpc: string, opParams: any[]) {
     return this.withSigner(accPublicKeyHash, async signer => {
       const batch = await withError('Failed to send operations', async () => {
@@ -818,6 +834,30 @@ export class Vault {
     }
   }
 
+  private async withSigningEvmAccount<T>(
+    accPublicKeyHash: string,
+    factory: (account: PrivateKeyAccount) => Promise<T>
+  ) {
+    try {
+      const allAccounts = await this.fetchAccounts();
+      const acc = allAccounts.find(acc => getAccountAddressForEvm(acc) === accPublicKeyHash);
+      if (!acc) {
+        throw new PublicError('Account not found');
+      }
+
+      if (acc.type === TempleAccountType.WatchOnly) {
+        throw new Error('Cannot sign Watch-only account');
+      }
+
+      const privateKey = await fetchAndDecryptOne<string>(accPrivKeyStrgKey(accPublicKeyHash), this.passKey);
+      return factory(privateKeyToAccount(privateKey as HexString));
+    } catch (err: any) {
+      console.error(err);
+
+      throw new Error(err.details ?? err.message);
+    }
+  }
+
   private async getSigner(accPublicKeyHash: string): Promise<{ signer: Signer; cleanup: () => void }> {
     const allAccounts = await this.fetchAccounts();
     const acc = allAccounts.find(acc => getAccountAddressForTezos(acc) === accPublicKeyHash);
@@ -841,42 +881,23 @@ export class Vault {
   }
 
   async sendEvmTransaction(accPublicKeyHash: string, network: EvmChain, txParams: EvmTxParams) {
-    try {
-      const allAccounts = await this.fetchAccounts();
-      const acc = allAccounts.find(acc => getAccountAddressForEvm(acc) === accPublicKeyHash);
-      if (!acc) {
-        throw new PublicError('Account not found');
-      }
+    return this.withSigningEvmAccount(accPublicKeyHash, async account => {
+      const client = createWalletClient({
+        account,
+        chain: {
+          id: network.chainId,
+          name: network.name,
+          nativeCurrency: network.currency,
+          rpcUrls: {
+            default: {
+              http: [network.rpcBaseURL]
+            }
+          }
+        },
+        transport: http()
+      });
 
-      switch (acc.type) {
-        case TempleAccountType.WatchOnly:
-          throw new PublicError('Cannot sign Watch-only account');
-
-        default:
-          const privateKey = await fetchAndDecryptOne<string>(accPrivKeyStrgKey(accPublicKeyHash), this.passKey);
-          const account = privateKeyToAccount(privateKey as HexString);
-
-          const client = createWalletClient({
-            account,
-            chain: {
-              id: network.chainId,
-              name: network.name,
-              nativeCurrency: network.currency,
-              rpcUrls: {
-                default: {
-                  http: [network.rpcBaseURL]
-                }
-              }
-            },
-            transport: http()
-          });
-
-          return await client.sendTransaction(txParams);
-      }
-    } catch (err: any) {
-      console.error(err);
-
-      throw new Error(err.details ?? err.message);
-    }
+      return await client.sendTransaction(txParams);
+    });
   }
 }

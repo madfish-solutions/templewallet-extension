@@ -1,8 +1,10 @@
 import type { DerivationType } from '@taquito/ledger-signer';
 import type { Estimate } from '@taquito/taquito';
 import type { TempleDAppMetadata } from '@temple-wallet/dapp/dist/types';
+import type { TypedDataDefinition } from 'viem';
 
-import { TezosDAppsSessionsRecord } from 'app/storage/dapps';
+import type { TezosDAppsSessionsRecord } from 'app/storage/dapps';
+import { TypedDataV1 } from 'temple/evm/typed-data-v1';
 import type { SerializableEvmTxParams } from 'temple/evm/types';
 import type { EvmChain } from 'temple/front';
 import type { StoredEvmNetwork, StoredTezosNetwork } from 'temple/networks';
@@ -181,16 +183,30 @@ export type DappMetadata = TempleDAppMetadata & {
 interface TempleDAppPayloadBase {
   type: string;
   origin: string;
-  networkRpc: string;
   appMeta: DappMetadata;
   error?: any;
+  chainType?: TempleChainKind;
 }
 
-interface TempleDAppConnectPayload extends TempleDAppPayloadBase {
+interface TempleTezosDAppPayloadBase extends TempleDAppPayloadBase {
+  networkRpc: string;
+  chainType?: TempleChainKind.Tezos;
+}
+
+interface TempleEvmDAppPayloadBase extends TempleDAppPayloadBase {
+  chainId: string;
+  chainType: TempleChainKind.EVM;
+}
+
+interface TempleTezosDAppConnectPayload extends TempleTezosDAppPayloadBase {
   type: 'connect';
 }
 
-export interface TempleDAppOperationsPayload extends TempleDAppPayloadBase {
+interface TempleEvmDAppConnectPayload extends TempleEvmDAppPayloadBase {
+  type: 'connect';
+}
+
+export interface TempleTezosDAppOperationsPayload extends TempleTezosDAppPayloadBase {
   type: 'confirm_operations';
   sourcePkh: string;
   sourcePublicKey: string;
@@ -200,14 +216,39 @@ export interface TempleDAppOperationsPayload extends TempleDAppPayloadBase {
   estimates?: Estimate[];
 }
 
-export interface TempleDAppSignPayload extends TempleDAppPayloadBase {
+export interface TempleTezosDAppSignPayload extends TempleTezosDAppPayloadBase {
   type: 'sign';
   sourcePkh: string;
   payload: string;
   preview: any;
 }
 
-export type TempleDAppPayload = TempleDAppConnectPayload | TempleDAppOperationsPayload | TempleDAppSignPayload;
+interface TempleEvmDAppSignPayloadBase extends TempleEvmDAppPayloadBase {
+  type: string;
+  sourcePkh: HexString;
+  payload: unknown;
+}
+
+export interface TempleEvmDAppSignTypedPayload extends TempleEvmDAppSignPayloadBase {
+  type: 'sign_typed';
+  payload: TypedDataDefinition | TypedDataV1;
+}
+
+export interface TempleEvmDAppPersonalSignPayload extends TempleEvmDAppSignPayloadBase {
+  type: 'personal_sign';
+  payload: string;
+}
+
+export type TempleEvmDAppSignPayload = TempleEvmDAppSignTypedPayload | TempleEvmDAppPersonalSignPayload;
+
+export type TempleTezosDAppPayload =
+  | TempleTezosDAppConnectPayload
+  | TempleTezosDAppOperationsPayload
+  | TempleTezosDAppSignPayload;
+
+export type TempleEvmDAppPayload = TempleEvmDAppConnectPayload | TempleEvmDAppSignPayload;
+
+export type TempleDAppPayload = TempleTezosDAppPayload | TempleEvmDAppPayload;
 
 /**
  * Messages
@@ -670,13 +711,26 @@ interface TempleSendEvmTransactionResponse extends TempleMessageBase {
   txHash: HexString;
 }
 
-interface TemplePageRequest extends TempleMessageBase {
+interface TemplePageRequestBase extends TempleMessageBase {
   type: TempleMessageType.PageRequest;
   origin: string;
   payload: any;
+  iconUrl?: string;
+  chainType?: TempleChainKind;
+}
+
+interface TempleTezosPageRequest extends TemplePageRequestBase {
+  chainType?: TempleChainKind.Tezos;
   beacon?: boolean;
   encrypted?: boolean;
 }
+
+interface TempleEvmPageRequest extends TemplePageRequestBase {
+  chainType: TempleChainKind.EVM;
+  chainId: string;
+}
+
+type TemplePageRequest = TempleTezosPageRequest | TempleEvmPageRequest;
 
 interface TempleAcknowledgeRequest extends TempleMessageBase {
   type: TempleMessageType.Acknowledge;

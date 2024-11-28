@@ -16,7 +16,8 @@ import { addLocalOperation } from 'lib/temple/activity';
 import * as Beacon from 'lib/temple/beacon';
 import { TempleState, TempleMessageType, TempleRequest, TempleSettings, TempleAccountType } from 'lib/temple/types';
 import { createQueue, delay } from 'lib/utils';
-import { EvmTxParams } from 'temple/evm/types';
+import { evmRpcMethodsNames, METHOD_NOT_SUPPORTED_ERROR_CODE } from 'temple/evm/constants';
+import { ErrorWithCode, EvmTxParams } from 'temple/evm/types';
 import { EvmChain } from 'temple/front';
 import { loadTezosChainId } from 'temple/tezos';
 import { TempleChainKind } from 'temple/types';
@@ -32,6 +33,22 @@ import {
 import { intercom } from './defaults';
 import type { DryRunResult } from './dryrun';
 import { buildFinalOpParams, dryRunOpParams } from './dryrun';
+import {
+  connectEvm,
+  getEvmPermissions,
+  requestEvmPermissions,
+  requestEvmPersonalSign,
+  requestEvmTypedSign,
+  revokeEvmPermissions,
+  switchChain
+} from './evm-dapp';
+import {
+  ethChangePermissionsPayloadValidationSchema,
+  ethOldSignTypedDataValidationSchema,
+  ethPersonalSignPayloadValidationSchema,
+  ethSignTypedDataValidationSchema,
+  switchEthChainPayloadValidationSchema
+} from './evm-validation-schemas';
 import {
   toFront,
   store,
@@ -449,6 +466,62 @@ export async function processDApp(origin: string, req: TempleDAppRequest): Promi
     case TempleDAppMessageType.BroadcastRequest:
       return withInited(() => requestBroadcast(origin, req));
   }
+}
+
+interface EvmRequestPayload {
+  method: string;
+  params: unknown;
+}
+
+export async function processEvmDApp(origin: string, payload: EvmRequestPayload, chainId: string, iconUrl?: string) {
+  const { method, params } = payload;
+  let methodHandler: () => Promise<any>;
+
+  switch (method) {
+    case evmRpcMethodsNames.eth_requestAccounts:
+      methodHandler = () => connectEvm(origin, chainId, iconUrl);
+      break;
+    case evmRpcMethodsNames.wallet_switchEthereumChain:
+      const [{ chainId: destinationChainId }] = switchEthChainPayloadValidationSchema.validateSync(params);
+      methodHandler = () => switchChain(origin, destinationChainId);
+      break;
+    case evmRpcMethodsNames.eth_signTypedData:
+    case evmRpcMethodsNames.eth_signTypedData_v1:
+      const [oldTypedData, oldTypedSignerPkh] = ethOldSignTypedDataValidationSchema.validateSync(params);
+      methodHandler = () => requestEvmTypedSign(origin, oldTypedSignerPkh, chainId, oldTypedData, iconUrl);
+      break;
+    case evmRpcMethodsNames.eth_signTypedData_v3:
+    case evmRpcMethodsNames.eth_signTypedData_v4:
+      const [typedSignerPkh, typedData] = ethSignTypedDataValidationSchema.validateSync(params);
+      methodHandler = () => requestEvmTypedSign(origin, typedSignerPkh, chainId, typedData, iconUrl);
+      break;
+    case evmRpcMethodsNames.personal_sign:
+      const [personalSignData, personalSignerPkh] = ethPersonalSignPayloadValidationSchema.validateSync(params);
+      methodHandler = () =>
+        requestEvmPersonalSign(
+          origin,
+          personalSignerPkh,
+          chainId,
+          Buffer.from(personalSignData).toString('utf8'),
+          iconUrl
+        );
+      break;
+    case evmRpcMethodsNames.wallet_getPermissions:
+      methodHandler = () => getEvmPermissions(origin);
+      break;
+    case evmRpcMethodsNames.wallet_requestPermissions:
+      const [requestPermissionsPayload] = ethChangePermissionsPayloadValidationSchema.validateSync(params);
+      methodHandler = () => requestEvmPermissions(origin, chainId, requestPermissionsPayload, iconUrl);
+      break;
+    case evmRpcMethodsNames.wallet_revokePermissions:
+      const [revokePermissionsPayload] = ethChangePermissionsPayloadValidationSchema.validateSync(params);
+      methodHandler = () => revokeEvmPermissions(origin, revokePermissionsPayload);
+      break;
+    default:
+      throw new ErrorWithCode(METHOD_NOT_SUPPORTED_ERROR_CODE, 'There is no handler for this method');
+  }
+
+  return withInited(() => enqueueDApp(methodHandler));
 }
 
 export async function getBeaconMessage(origin: string, msg: string, encrypted = false) {
