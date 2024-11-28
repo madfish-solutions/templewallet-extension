@@ -46,6 +46,7 @@ export interface PageLayoutProps extends DefaultHeaderProps, ScrollEdgesVisibili
   Header?: ComponentType;
   noScroll?: boolean;
   contentPadding?: boolean;
+  showTestnetModeIndicator?: boolean;
   contentClassName?: string;
   paperClassName?: string;
   headerChildren?: ReactNode;
@@ -56,6 +57,7 @@ const PageLayout: FC<PropsWithChildren<PageLayoutProps>> = ({
   children,
   noScroll = false,
   contentPadding = true,
+  showTestnetModeIndicator = true,
   contentClassName,
   paperClassName,
   headerChildren,
@@ -86,6 +88,7 @@ const PageLayout: FC<PropsWithChildren<PageLayoutProps>> = ({
           bottomEdgeThreshold={bottomEdgeThreshold}
           onTopEdgeVisibilityChange={onTopEdgeVisibilityChange}
           topEdgeThreshold={topEdgeThreshold}
+          showTestnetModeIndicator={showTestnetModeIndicator}
         >
           {Header ? <Header /> : <DefaultHeader {...headerProps}>{headerChildren}</DefaultHeader>}
 
@@ -125,7 +128,9 @@ const PageLayout: FC<PropsWithChildren<PageLayoutProps>> = ({
 
 export default PageLayout;
 
-type ContentPaperProps = PropsWithChildren<{ className?: string } & ScrollEdgesVisibilityProps>;
+type ContentPaperProps = PropsWithChildren<
+  { showTestnetModeIndicator?: boolean; className?: string } & ScrollEdgesVisibilityProps
+>;
 
 const ContentPaper: FC<ContentPaperProps> = ({
   children,
@@ -133,7 +138,8 @@ const ContentPaper: FC<ContentPaperProps> = ({
   bottomEdgeThreshold,
   topEdgeThreshold,
   onBottomEdgeVisibilityChange,
-  onTopEdgeVisibilityChange
+  onTopEdgeVisibilityChange,
+  showTestnetModeIndicator = true
 }) => {
   const appEnv = useAppEnv();
   const rootRef = useRef<HTMLDivElement>(null);
@@ -159,7 +165,7 @@ const ContentPaper: FC<ContentPaperProps> = ({
           className
         )}
       >
-        <TestnetModeIndicator />
+        {showTestnetModeIndicator && <TestnetModeIndicator />}
 
         {children}
 
@@ -177,7 +183,7 @@ const TestnetModeIndicator = memo(() => {
   return (
     <div
       className={clsx(
-        'flex justify-center items-center sticky z-sticky top-0 bg-success',
+        'flex justify-center items-center sticky z-sticky top-0 bg-success overflow-hidden',
         'transition-all ease-in-out duration-300',
         enabled ? 'min-h-6 h-6' : 'min-h-0 h-0'
       )}
