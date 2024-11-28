@@ -14,7 +14,7 @@ import {
 import { EMPTY_FROZEN_OBJ } from 'lib/utils';
 import { TempleChainKind } from 'temple/types';
 
-import { useChainSpecs } from './chains-specs';
+import { useEvmChainsSpecs, useTezosChainsSpecs } from './chains-specs';
 
 export interface BlockExplorer {
   name: string;
@@ -33,8 +33,9 @@ const useBlockExplorersOverrides = () =>
     EMPTY_FROZEN_OBJ
   );
 
-export function useBlockExplorers() {
+function useAllBlockExplorers() {
   const [blockExplorersOverrides, setBlockExplorersOverrides] = useBlockExplorersOverrides();
+
   const allBlockExplorers = useMemo(
     () => ({
       [TempleChainKind.Tezos]: {
@@ -49,10 +50,17 @@ export function useBlockExplorers() {
     [blockExplorersOverrides]
   );
 
+  return [allBlockExplorers, setBlockExplorersOverrides] as const;
+}
+
+export function useBlockExplorers() {
+  const [allBlockExplorers, setBlockExplorersOverrides] = useAllBlockExplorers();
+
   const getChainBlockExplorers = useCallback(
     (chainKind: TempleChainKind, chainId: string | number) => allBlockExplorers[chainKind]?.[chainId] ?? [],
     [allBlockExplorers]
   );
+
   const setChainBlockExplorers = useCallback(
     (chainKind: TempleChainKind, chainId: string | number, blockExplorers: BlockExplorer[]) =>
       setBlockExplorersOverrides(prevValue => {
@@ -111,19 +119,46 @@ export function useBlockExplorers() {
   };
 }
 
+function useGetBlockExplorers(chainKind: TempleChainKind) {
+  const [allBlockExplorers] = useAllBlockExplorers();
+
+  return useCallback(
+    (chainId: string) =>
+      allBlockExplorers[chainKind]?.[chainId] ??
+      DEFAULT_BLOCK_EXPLORERS[chainKind]?.[chainId] ??
+      FALLBACK_CHAIN_BLOCK_EXPLORERS,
+    [allBlockExplorers, chainKind]
+  );
+}
+
+export function useGetActiveBlockExplorer(chainKind: TempleChainKind) {
+  const [tezosChainsSpecs] = useTezosChainsSpecs();
+  const [evmChainsSpecs] = useEvmChainsSpecs();
+
+  const getBlockExplorers = useGetBlockExplorers(chainKind);
+
+  return useCallback(
+    (chainId: string) => {
+      const chainsSpecs = chainKind === TempleChainKind.Tezos ? tezosChainsSpecs : evmChainsSpecs;
+      const chainBlockExplorers = getBlockExplorers(chainId);
+      const activeBlockExplorerId = chainsSpecs[chainId]?.activeBlockExplorerId;
+
+      if (!activeBlockExplorerId) return chainBlockExplorers[0];
+
+      return chainBlockExplorers.find(({ id }) => id === activeBlockExplorerId) ?? chainBlockExplorers[0];
+    },
+    [getBlockExplorers, tezosChainsSpecs, evmChainsSpecs, chainKind]
+  );
+}
+
 export function useChainBlockExplorers(chainKind: TempleChainKind, chainId: string | number) {
   const {
-    allBlockExplorers,
     addBlockExplorer: genericAddBlockExplorer,
     removeBlockExplorers: genericRemoveBlockExplorers,
     replaceBlockExplorer: genericReplaceBlockExplorer
   } = useBlockExplorers();
-  const [{ activeBlockExplorerId }] = useChainSpecs(chainKind, chainId);
 
-  const chainBlockExplorers =
-    allBlockExplorers[chainKind]?.[chainId] ??
-    DEFAULT_BLOCK_EXPLORERS[chainKind]?.[chainId] ??
-    FALLBACK_CHAIN_BLOCK_EXPLORERS;
+  const getBlockExplorers = useGetBlockExplorers(chainKind);
 
   const addBlockExplorer = useCallback(
     (blockExplorer: Omit<BlockExplorer, 'id' | 'default'>) =>
@@ -146,19 +181,12 @@ export function useChainBlockExplorers(chainKind: TempleChainKind, chainId: stri
       genericRemoveBlockExplorers(
         chainKind,
         chainId,
-        chainBlockExplorers.map(({ id }) => id)
+        getBlockExplorers(String(chainId)).map(({ id }) => id)
       ),
-    [chainBlockExplorers, chainId, chainKind, genericRemoveBlockExplorers]
-  );
-
-  const activeBlockExplorer = useMemo<BlockExplorer | undefined>(
-    () => chainBlockExplorers.find(({ id }) => id === activeBlockExplorerId) ?? chainBlockExplorers[0],
-    [activeBlockExplorerId, chainBlockExplorers]
+    [getBlockExplorers, chainId, chainKind, genericRemoveBlockExplorers]
   );
 
   return {
-    chainBlockExplorers,
-    activeBlockExplorer,
     addBlockExplorer,
     removeBlockExplorer,
     removeAllBlockExplorers,
@@ -166,21 +194,29 @@ export function useChainBlockExplorers(chainKind: TempleChainKind, chainId: stri
   };
 }
 
+/** (!) Very expensive hook for lists */
 export function useBlockExplorerHref(
   chainKind: TempleChainKind,
   chainId: string | number,
   entityType: BlockExplorerEntityType,
   hash: string
 ) {
-  const { activeBlockExplorer } = useChainBlockExplorers(chainKind, chainId);
+  const getActiveBlockExplorer = useGetActiveBlockExplorer(chainKind);
 
   return useMemo(() => {
-    if (!activeBlockExplorer) {
-      return null;
-    }
+    const activeBlockExplorer = getActiveBlockExplorer(String(chainId));
 
-    return new URL(chainKind === TempleChainKind.Tezos ? hash : `${entityType}/${hash}`, activeBlockExplorer.url).href;
-  }, [activeBlockExplorer, chainKind, entityType, hash]);
+    return activeBlockExplorer ? makeBlockExplorerHref(activeBlockExplorer.url, hash, entityType, chainKind) : null;
+  }, [getActiveBlockExplorer, chainKind, entityType, hash]);
+}
+
+export function makeBlockExplorerHref(
+  baseUrl: string,
+  hash: string,
+  entityType: BlockExplorerEntityType,
+  chainKind: TempleChainKind
+) {
+  return new URL(chainKind === TempleChainKind.Tezos ? hash : `${entityType}/${hash}`, baseUrl).href;
 }
 
 const DEFAULT_BLOCK_EXPLORERS_BASE: Record<TempleChainKind, Record<string, Omit<BlockExplorer, 'default'>[]>> = {

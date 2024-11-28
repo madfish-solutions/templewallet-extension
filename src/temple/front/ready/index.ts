@@ -4,6 +4,9 @@ import constate from 'constate';
 
 import { useTempleClient } from 'lib/temple/front/client';
 import { TempleStatus, TempleState, StoredAccount, TempleSettings } from 'lib/temple/types';
+import { TempleChainKind } from 'temple/types';
+
+import { useGetActiveBlockExplorer } from '../block-explorers';
 
 import { useReadyTempleAccounts } from './accounts';
 import { useReadyTempleTezosNetworks, useReadyTempleEvmNetworks } from './networks';
@@ -28,7 +31,10 @@ export const [
   //
   useSettings,
   //
-  useHDGroups
+  useHDGroups,
+  //
+  useGetTezosActiveBlockExplorer,
+  useGetEvmActiveBlockExplorer
 ] = constate(
   useReadyTemple,
   //
@@ -49,7 +55,10 @@ export const [
   //
   v => v.settings,
   //
-  v => v.hdGroups
+  v => v.hdGroups,
+  //
+  v => v.getTezosActiveBlockExplorer,
+  v => v.getEvmActiveBlockExplorer
 );
 
 function useReadyTemple() {
@@ -71,6 +80,9 @@ function useReadyTemple() {
 
   const readyTempleAccounts = useReadyTempleAccounts(allAccounts);
 
+  const getTezosActiveBlockExplorer = useGetActiveBlockExplorer(TempleChainKind.Tezos);
+  const getEvmActiveBlockExplorer = useGetActiveBlockExplorer(TempleChainKind.EVM);
+
   /** Error boundary reset */
   useLayoutEffect(() => {
     const evt = new CustomEvent('reseterrorboundary');
@@ -84,7 +96,10 @@ function useReadyTemple() {
     ...readyTempleAccounts,
 
     hdGroups,
-    settings
+    settings,
+
+    getTezosActiveBlockExplorer,
+    getEvmActiveBlockExplorer
   };
 }
 

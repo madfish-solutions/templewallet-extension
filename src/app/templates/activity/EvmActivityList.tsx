@@ -43,9 +43,9 @@ export const EvmActivityList: FC<Props> = ({ chainId, assetSlug, filterKind }) =
 
       const currActivities = initial ? [] : activities;
 
-      try {
-        const olderThanBlockHeight = activities.at(activities.length - 1)?.blockHeight;
+      const olderThanBlockHeight = currActivities.at(-1)?.blockHeight;
 
+      try {
         const newActivities = await getEvmActivities(chainId, accountAddress, assetSlug, olderThanBlockHeight, signal);
 
         if (signal.aborted) return;
