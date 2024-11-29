@@ -3,7 +3,7 @@ import React, { FC, memo } from 'react';
 import { CaptionAlert, IconBase, PageTitle } from 'app/atoms';
 import { IconBaseProps } from 'app/atoms/IconBase';
 import { ReactComponent as CardIcon } from 'app/icons/base/card.svg';
-import { ReactComponent as ExchangeIcon } from 'app/icons/base/exchange.svg';
+import { ReactComponent as RouteIcon } from 'app/icons/base/route.svg';
 import PageLayout from 'app/layouts/PageLayout';
 import { t } from 'lib/i18n/react';
 import { Link } from 'lib/woozie';
@@ -13,7 +13,7 @@ export const Market = memo(() => {
     <PageLayout pageTitle={<PageTitle title={t('market')} />} noScroll>
       <CaptionAlert type="info" message={t('marketPageDisclaimer')} className="mb-4" />
 
-      <Option Icon={ExchangeIcon} title={t('cryptoExchange')} description={t('cryptoExchangeDescription')} />
+      <Option Icon={RouteIcon} title={t('cryptoExchange')} description={t('cryptoExchangeDescription')} />
       <Link to="/buy/debit">
         <Option Icon={CardIcon} title={t('debitCreditCard')} description={t('debitCreditCardDescription')} />
       </Link>
