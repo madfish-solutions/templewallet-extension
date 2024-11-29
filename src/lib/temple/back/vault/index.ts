@@ -782,13 +782,11 @@ export class Vault {
 
   // TODO: implement signing typed data V1
   async signEvmTypedData(accPublicKeyHash: string, typedData: TypedDataDefinition | TypedDataV1) {
-    return this.withSigningEvmAccount(accPublicKeyHash, async account => {
-      console.log('trying to sign typed data', typedData);
-
-      return Array.isArray(typedData)
+    return this.withSigningEvmAccount(accPublicKeyHash, async account =>
+      Array.isArray(typedData)
         ? account.sign({ hash: `0x${typedV1SignatureHash(typedData).toString('hex')}` })
-        : account.signTypedData(typedData);
-    });
+        : account.signTypedData(typedData)
+    );
   }
 
   async signEvmMessage(accPublicKeyHash: string, message: string) {

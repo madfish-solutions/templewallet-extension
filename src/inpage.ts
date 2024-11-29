@@ -10,8 +10,6 @@ interface EIP6963ProviderInfo {
   rdns?: string;
 }
 
-console.log('TEMPLE_INPAGE_SCRIPT_INJECTED');
-
 const provider = new TempleWeb3Provider();
 
 setGlobalProvider(provider);
@@ -77,7 +75,6 @@ announceProvider();
 
 function setGlobalProvider(providerInstance: EIP1193Provider) {
   (window as Record<string, any>).ethereum = providerInstance;
-  console.log((window as Record<string, any>).ethereum);
   window.dispatchEvent(new Event('ethereum#initialized'));
 }
 

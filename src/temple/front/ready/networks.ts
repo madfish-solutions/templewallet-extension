@@ -4,7 +4,7 @@ import { useTestnetModeEnabledSelector } from 'app/store/settings/selectors';
 import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
 import { EvmAssetStandard } from 'lib/evm/types';
 import { EvmNativeTokenMetadata } from 'lib/metadata/types';
-import { setEvmChainsRpcUrls } from 'temple/evm/evm-chains-rpc-urls';
+import { ChainsRpcUrls, setEvmChainsRpcUrls } from 'temple/evm/evm-chains-rpc-urls';
 import { getViemChainsList } from 'temple/evm/utils';
 import {
   DEFAULT_EVM_CURRENCY,
@@ -74,15 +74,18 @@ export function useReadyTempleEvmNetworks(customEvmNetworks: StoredEvmNetwork[])
 
   useEffect(() => {
     setEvmChainsRpcUrls(
-      enabledChains.reduce<Partial<StringRecord>>(
-        (acc, { chainId, rpcBaseURL }) => ({
-          ...acc,
-          [chainId]: rpcBaseURL
-        }),
-        {}
-      )
+      // `enabledChains` are filtered by `testnetModeEnabled`, which is harmful here
+      Object.values(allChains)
+        .filter(({ disabled }) => !disabled)
+        .reduce<ChainsRpcUrls>(
+          (acc, { chainId, allRpcs }) => ({
+            ...acc,
+            [chainId]: allRpcs.map(({ rpcBaseURL }) => rpcBaseURL)
+          }),
+          {}
+        )
     ).catch(e => console.error(e));
-  }, [enabledChains]);
+  }, [allChains]);
 
   return {
     allEvmChains: allChains,

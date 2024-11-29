@@ -1,5 +1,5 @@
 import memoizee from 'memoizee';
-import { HttpTransportConfig, PublicClient, createPublicClient, http } from 'viem';
+import { HttpTransportConfig, PublicClient, createPublicClient, fallback, http } from 'viem';
 
 import { MAX_MEMOIZED_TOOLKITS } from 'temple/misc';
 
@@ -12,9 +12,15 @@ const READ_ONLY_CLIENT_TRANSPORT_CONFIG: HttpTransportConfig = {
 };
 
 export const getReadOnlyEvm = memoizee(
-  (rpcUrl: string): PublicClient =>
+  (rpcUrls: string | string[]): PublicClient =>
     createPublicClient({
-      transport: http(rpcUrl, READ_ONLY_CLIENT_TRANSPORT_CONFIG)
+      transport:
+        typeof rpcUrls === 'string'
+          ? http(rpcUrls, READ_ONLY_CLIENT_TRANSPORT_CONFIG)
+          : fallback(
+              rpcUrls.map(url => http(url, READ_ONLY_CLIENT_TRANSPORT_CONFIG)),
+              { key: rpcUrls.join() }
+            )
     }),
-  { max: MAX_MEMOIZED_TOOLKITS }
+  { max: MAX_MEMOIZED_TOOLKITS, normalizer: args => JSON.stringify(args) }
 );

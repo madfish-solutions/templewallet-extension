@@ -3,7 +3,6 @@ import { useCallback } from 'react';
 import { t } from 'lib/i18n';
 import { useRetryableSWR } from 'lib/swr';
 import { useTempleClient } from 'lib/temple/front/client';
-import { getEvmChainsRpcUrls } from 'temple/evm/evm-chains-rpc-urls';
 import { NetworkBase, StoredEvmNetwork, StoredTezosNetwork } from 'temple/networks';
 
 import { loadTezosChainId } from '../tezos';
@@ -20,22 +19,10 @@ export function useTezosChainIdLoadingValue(rpcUrl: string, suspense?: boolean):
   return chainId;
 }
 
-export function useEvmRpcUrlLoadingValue(chainId: number, suspense?: boolean): string | undefined {
-  const { data: rpcUrl } = useEvmRpcUrlLoading(chainId, suspense);
-
-  return rpcUrl;
-}
-
 function useTezosChainIdLoading(rpcUrl: string, suspense?: boolean) {
   const fetchChainId = useCallback(() => loadTezosChainId(rpcUrl), [rpcUrl]);
 
   return useRetryableSWR(['chain-id', rpcUrl], fetchChainId, { suspense, revalidateOnFocus: false });
-}
-
-function useEvmRpcUrlLoading(chainId: number, suspense?: boolean) {
-  const fetchRpcUrl = useCallback(() => getEvmChainsRpcUrls().then(urls => urls[chainId]), [chainId]);
-
-  return useRetryableSWR(['evm-rpc-url', chainId], fetchRpcUrl, { suspense, revalidateOnFocus: false });
 }
 
 export const useTempleNetworksActions = () => {

@@ -258,7 +258,15 @@ const processRequest = async (req: TempleRequest, port: Runtime.Port): Promise<T
       const dAppEnabled = await Actions.canInteractWithDApps();
 
       if (!dAppEnabled) {
-        break;
+        return {
+          type: TempleMessageType.PageResponse,
+          payload: {
+            error: {
+              code: 4001,
+              message: 'DApp interaction is disabled'
+            }
+          }
+        };
       }
 
       if (req.chainType === TempleChainKind.EVM) {
@@ -290,6 +298,9 @@ const processRequest = async (req: TempleRequest, port: Runtime.Port): Promise<T
             };
           }
         }
+
+        console.log('oy vey 4', resPayload);
+
         return {
           type: TempleMessageType.PageResponse,
           payload: resPayload ?? null

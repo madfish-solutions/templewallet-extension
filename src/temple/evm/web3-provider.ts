@@ -9,6 +9,7 @@ import {
   PublicClient,
   RpcSchema,
   RpcSchemaOverride,
+  toHex,
   WalletPermission
 } from 'viem';
 
@@ -16,6 +17,7 @@ import { ETHEREUM_MAINNET_CHAIN_ID } from 'lib/temple/types';
 
 import {
   evmRpcMethodsNames,
+  GET_DEFAULT_WEB3_PARAMS_METHOD_NAME,
   INVALID_INPUT_ERROR_CODE,
   METHOD_NOT_SUPPORTED_ERROR_CODE,
   RETURNED_ACCOUNTS_CAVEAT_NAME
@@ -30,7 +32,8 @@ const ETH_MAINNET_RPC_URL = 'https://cloudflare-eth.com';
 
 interface EIP1193Callbacks {
   accountsChanged: SyncFn<HexString[]>[];
-  chainChanged: SyncFn<string>[];
+  chainChanged: SyncFn<HexString>[];
+  networkChanged: SyncFn<HexString>[];
   connect: SyncFn<ProviderConnectInfo>[];
   disconnect: SyncFn<ProviderRpcError>[];
   message: SyncFn<ProviderMessage>[];
@@ -67,28 +70,38 @@ type OldSignTypedDataMethods = [
     ReturnType: HexString;
   }
 ];
-type KnownMethods = [...EIP1474Methods, ...OldSignTypedDataMethods];
+type InternalServiceMethods = [
+  {
+    Method: typeof GET_DEFAULT_WEB3_PARAMS_METHOD_NAME;
+    Parameters?: null;
+    ReturnType: { chainId: HexString; rpcUrls: string[]; accounts: HexString[] };
+  }
+];
+type KnownMethods = [...EIP1474Methods, ...OldSignTypedDataMethods, ...InternalServiceMethods];
+
+type RequestParameters = EIP1193Parameters<KnownMethods>;
 
 type DerivedRpcSchema<
   rpcSchema extends RpcSchema | undefined,
   rpcSchemaOverride extends RpcSchemaOverride | undefined
 > = rpcSchemaOverride extends RpcSchemaOverride ? [rpcSchemaOverride & { Method: string }] : rpcSchema;
 
-type RequestArgs<M extends EIP1193Parameters['method']> = Extract<
+type RequestArgs<M extends RequestParameters['method']> = Extract<
   EIP1193Parameters<DerivedRpcSchema<KnownMethods, undefined>>,
   { method: M }
 >;
-type ProviderResponse<M extends EIP1193Parameters['method']> = Extract<
+type ProviderResponse<M extends RequestParameters['method']> = Extract<
   DerivedRpcSchema<KnownMethods, undefined>[number],
   { Method: M }
 >['ReturnType'];
 
 type BackgroundResponseOverrides = {
-  wallet_switchEthereumChain: { chainId: string; rpcUrl: string };
-  eth_requestAccounts: { accounts: HexString[]; rpcUrl: string };
-  wallet_requestPermissions: { permissions: WalletPermission[]; rpcUrl: string };
+  wallet_switchEthereumChain: { chainId: HexString; rpcUrls: string[] };
+  eth_requestAccounts: { accounts: HexString[]; rpcUrls: string[] };
+  wallet_requestPermissions: { permissions: WalletPermission[]; rpcUrls: string[] };
+  wallet_revokePermissions: object;
 };
-type BackgroundResponse<M extends EIP1193Parameters['method']> = M extends keyof BackgroundResponseOverrides
+type BackgroundResponse<M extends RequestParameters['method']> = M extends keyof BackgroundResponseOverrides
   ? BackgroundResponseOverrides[M]
   : ProviderResponse<M>;
 
@@ -106,11 +119,14 @@ export class TempleWeb3Provider {
   private baseProvider: PublicClient;
   private isConnected: boolean;
   private accounts: HexString[];
-  private chainId: string;
+  private chainId: HexString;
   // TODO: call the callbacks according to the EIP1193 spec
   private callbacks: EIP1193Callbacks;
 
-  private async handleRequest<M extends EIP1193Parameters['method']>(
+  // Other extensions do the same
+  readonly isMetaMask = true;
+
+  private async handleRequest<M extends RequestParameters['method']>(
     args: RequestArgs<M>,
     effectFn: (data: BackgroundResponse<M>) => void,
     toProviderResponse: (data: BackgroundResponse<M>) => ProviderResponse<M>,
@@ -120,7 +136,7 @@ export class TempleWeb3Provider {
       throw new ErrorWithCode(INVALID_INPUT_ERROR_CODE, 'Account is not available');
     }
 
-    const iconUrl = (document.head.querySelector('link[rel*="icon"]') as HTMLLinkElement | null)?.href;
+    const iconUrl = (document?.head?.querySelector('link[rel*="icon"]') as HTMLLinkElement | nullish)?.href;
     window.dispatchEvent(
       new CustomEvent(PASS_TO_BG_EVENT, {
         detail: { args, origin: window.origin, chainId: this.chainId, iconUrl }
@@ -148,16 +164,38 @@ export class TempleWeb3Provider {
     });
   }
 
+  private onChainChanged(chainId: HexString) {
+    this.chainId = chainId;
+    this.callbacks.chainChanged.forEach(listener => listener(chainId));
+    this.callbacks.networkChanged.forEach(listener => listener(chainId));
+  }
+
+  private onConnected(chainId: HexString) {
+    this.isConnected = true;
+    this.callbacks.connect.forEach(listener => listener({ chainId }));
+    this.onChainChanged(chainId);
+  }
+
+  private onDisconnected(error: ProviderRpcError) {
+    this.isConnected = false;
+    this.onAccountsChanged([]);
+    this.callbacks.disconnect.forEach(listener => listener(error));
+  }
+
+  private onAccountsChanged(accounts: HexString[]) {
+    this.accounts = accounts;
+    this.callbacks.accountsChanged.forEach(listener => listener(accounts));
+  }
+
   private handleConnect(args: RequestArgs<'eth_requestAccounts'>) {
     return this.handleRequest(
       args,
-      ({ accounts, rpcUrl }) => {
+      ({ accounts, rpcUrls }) => {
         if (!this.isConnected) {
-          this.isConnected = true;
-          this.callbacks.connect.forEach(listener => listener({ chainId: this.chainId }));
+          this.onConnected(this.chainId);
         }
-        this.accounts = accounts;
-        this.baseProvider = getReadOnlyEvm(rpcUrl);
+        this.onAccountsChanged(accounts);
+        this.baseProvider = getReadOnlyEvm(rpcUrls);
       },
       ({ accounts }) => accounts,
       undefined
@@ -176,9 +214,9 @@ export class TempleWeb3Provider {
   private handleChainChange(args: RequestArgs<'wallet_switchEthereumChain'>) {
     return this.handleRequest(
       args,
-      ({ chainId, rpcUrl }) => {
-        this.chainId = chainId;
-        this.baseProvider = getReadOnlyEvm(rpcUrl);
+      ({ chainId, rpcUrls }) => {
+        this.baseProvider = getReadOnlyEvm(rpcUrls);
+        this.onChainChanged(chainId);
       },
       () => null,
       undefined
@@ -188,7 +226,7 @@ export class TempleWeb3Provider {
   private handleNewPermissionsRequest(args: RequestArgs<'wallet_requestPermissions'>) {
     return this.handleRequest(
       args,
-      ({ permissions, rpcUrl }) => {
+      ({ permissions, rpcUrls }) => {
         // TODO: add handling other permissions than for reading accounts
         const ethAccountsPermission = permissions.find(
           ({ parentCapability }) => parentCapability === evmRpcMethodsNames.eth_accounts
@@ -204,15 +242,13 @@ export class TempleWeb3Provider {
 
         if (returnedAccountsCaveat) {
           if (!this.isConnected) {
-            this.isConnected = true;
-            this.callbacks.connect.forEach(listener => listener({ chainId: this.chainId }));
+            this.onConnected(this.chainId);
           }
           if (JSON.stringify(this.accounts.toSorted()) !== JSON.stringify(returnedAccountsCaveat.value.toSorted())) {
-            this.callbacks.accountsChanged.forEach(listener => listener(returnedAccountsCaveat.value));
+            this.onAccountsChanged(returnedAccountsCaveat.value);
           }
-          this.accounts = returnedAccountsCaveat.value;
         }
-        this.baseProvider = getReadOnlyEvm(rpcUrl);
+        this.baseProvider = getReadOnlyEvm(rpcUrls);
       },
       ({ permissions }) => permissions,
       undefined
@@ -226,15 +262,12 @@ export class TempleWeb3Provider {
       () => {
         this.accounts = [];
         if (this.isConnected) {
-          this.isConnected = false;
-          this.callbacks.disconnect.forEach(listener =>
-            listener(
-              new ProviderRpcError(new Error(), { shortMessage: 'Permissions for reading accounts have been revoked' })
-            )
+          this.onDisconnected(
+            new ProviderRpcError(new Error(), { shortMessage: 'Permissions for reading accounts have been revoked' })
           );
         }
       },
-      identity,
+      () => null,
       undefined
     );
   }
@@ -247,16 +280,30 @@ export class TempleWeb3Provider {
     this.baseProvider = getReadOnlyEvm(ETH_MAINNET_RPC_URL);
     this.isConnected = false;
     this.accounts = [];
-    this.chainId = `0x${ETHEREUM_MAINNET_CHAIN_ID.toString(16)}`;
+    this.chainId = toHex(ETHEREUM_MAINNET_CHAIN_ID);
     this.callbacks = {
       accountsChanged: [],
       chainChanged: [],
+      networkChanged: [],
       connect: [],
       disconnect: [],
       message: []
     };
 
-    this.request = this.request.bind(this);
+    this.handleRequest(
+      { method: GET_DEFAULT_WEB3_PARAMS_METHOD_NAME, params: null },
+      ({ chainId, rpcUrls, accounts }) => {
+        this.baseProvider = getReadOnlyEvm(rpcUrls);
+        this.onChainChanged(chainId);
+
+        if (accounts.length > 0) {
+          this.onConnected(chainId);
+          this.onAccountsChanged(accounts);
+        }
+      },
+      identity,
+      undefined
+    ).catch(error => console.error(error));
   }
 
   async enable() {
@@ -264,8 +311,7 @@ export class TempleWeb3Provider {
   }
 
   // @ts-expect-error
-  request: EIP1193RequestFn<KnownMethods> = async (args, options) => {
-    console.log('inpage got request', args, options);
+  request: EIP1193RequestFn<KnownMethods> = async args => {
     switch (args.method) {
       case evmRpcMethodsNames.eth_accounts:
         return this.accounts;

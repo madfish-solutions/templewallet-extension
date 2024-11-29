@@ -16,7 +16,11 @@ import { addLocalOperation } from 'lib/temple/activity';
 import * as Beacon from 'lib/temple/beacon';
 import { TempleState, TempleMessageType, TempleRequest, TempleSettings, TempleAccountType } from 'lib/temple/types';
 import { createQueue, delay } from 'lib/utils';
-import { evmRpcMethodsNames, METHOD_NOT_SUPPORTED_ERROR_CODE } from 'temple/evm/constants';
+import {
+  evmRpcMethodsNames,
+  GET_DEFAULT_WEB3_PARAMS_METHOD_NAME,
+  METHOD_NOT_SUPPORTED_ERROR_CODE
+} from 'temple/evm/constants';
 import { ErrorWithCode, EvmTxParams } from 'temple/evm/types';
 import { EvmChain } from 'temple/front';
 import { loadTezosChainId } from 'temple/tezos';
@@ -35,6 +39,7 @@ import type { DryRunResult } from './dryrun';
 import { buildFinalOpParams, dryRunOpParams } from './dryrun';
 import {
   connectEvm,
+  getDefaultRpc,
   getEvmPermissions,
   requestEvmPermissions,
   requestEvmPersonalSign,
@@ -477,7 +482,11 @@ export async function processEvmDApp(origin: string, payload: EvmRequestPayload,
   const { method, params } = payload;
   let methodHandler: () => Promise<any>;
 
+  console.log('oy vey 3', method, params);
   switch (method) {
+    case GET_DEFAULT_WEB3_PARAMS_METHOD_NAME:
+      methodHandler = () => getDefaultRpc(origin);
+      break;
     case evmRpcMethodsNames.eth_requestAccounts:
       methodHandler = () => connectEvm(origin, chainId, iconUrl);
       break;

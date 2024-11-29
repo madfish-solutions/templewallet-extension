@@ -19,3 +19,5 @@ export const evmRpcMethodsNames = {
 } as const;
 
 export const RETURNED_ACCOUNTS_CAVEAT_NAME = 'restrictReturnedAccounts';
+
+export const GET_DEFAULT_WEB3_PARAMS_METHOD_NAME = 'getDefaultRpc';

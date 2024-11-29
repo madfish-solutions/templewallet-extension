@@ -1,4 +1,5 @@
 import { nanoid } from 'nanoid';
+import { toHex, WalletPermission } from 'viem';
 
 import {
   EvmDAppSession,
@@ -12,6 +13,7 @@ import { ChangePermissionsPayload, ErrorWithCode } from 'temple/evm/types';
 import { TempleChainKind } from 'temple/types';
 
 import {
+  ETHEREUM_MAINNET_CHAIN_ID,
   TempleEvmDAppPersonalSignPayload,
   TempleEvmDAppSignPayload,
   TempleEvmDAppSignTypedPayload,
@@ -38,14 +40,43 @@ async function removeDApps(origins: string[]) {
   return genericRemoveDApps(TempleChainKind.EVM, origins);
 }
 
-export const connectEvm = async (origin: string, chainId: string, icon?: string) => {
-  return new Promise<{ accounts: HexString[]; rpcUrl: string }>(async (resolve, reject) => {
-    const id = nanoid();
-    const rpcUrl = (await getEvmChainsRpcUrls())[chainId];
-    const appMeta = { name: new URL(origin).hostname, icon };
+function getAppMeta(origin: string, icon?: string) {
+  return { name: new URL(origin).hostname, icon };
+}
 
-    if (!rpcUrl) {
-      throw new ErrorWithCode(4001, 'Network not found');
+function makeReadAccountPermission(pkh: string): WalletPermission {
+  return {
+    caveats: [
+      {
+        type: RETURNED_ACCOUNTS_CAVEAT_NAME,
+        value: [pkh]
+      }
+    ],
+    date: Date.now(),
+    id: nanoid(),
+    invoker: origin as `http://${string}` | `https://${string}`,
+    parentCapability: evmRpcMethodsNames.eth_accounts
+  };
+}
+
+export const getDefaultRpc = async (origin: string) => {
+  const dApp = await getDApp(origin);
+  const chainId = dApp?.chainId ?? ETHEREUM_MAINNET_CHAIN_ID;
+  const rpcUrls = (await getEvmChainsRpcUrls())[chainId];
+
+  return { chainId: toHex(chainId), rpcUrls, accounts: dApp?.pkh ? [dApp.pkh] : [] };
+};
+
+export const connectEvm = async (origin: string, chainId: string, icon?: string) => {
+  return new Promise<{ accounts: HexString[]; rpcUrls: string[] }>(async (resolve, reject) => {
+    const id = nanoid();
+    const rpcUrls = (await getEvmChainsRpcUrls())[Number(chainId)];
+    const appMeta = getAppMeta(origin, icon);
+
+    if (!rpcUrls) {
+      reject(new ErrorWithCode(4001, 'Network not found'));
+
+      return;
     }
 
     await requestConfirm({
@@ -69,22 +100,9 @@ export const connectEvm = async (origin: string, chainId: string, icon?: string)
               chainId: Number(chainId),
               appMeta,
               pkh,
-              permissions: [
-                {
-                  caveats: [
-                    {
-                      type: RETURNED_ACCOUNTS_CAVEAT_NAME,
-                      value: [pkh]
-                    }
-                  ],
-                  date: Date.now(),
-                  id: nanoid(),
-                  invoker: origin as `http://${string}` | `https://${string}`,
-                  parentCapability: evmRpcMethodsNames.eth_accounts
-                }
-              ]
+              permissions: [makeReadAccountPermission(pkh)]
             });
-            resolve({ accounts: [pkh], rpcUrl });
+            resolve({ accounts: [pkh], rpcUrls });
           } else {
             decline();
           }
@@ -100,9 +118,9 @@ export const connectEvm = async (origin: string, chainId: string, icon?: string)
 };
 
 export const switchChain = async (origin: string, destinationChainId: number) => {
-  const rpcUrl = (await getEvmChainsRpcUrls())[destinationChainId];
+  const rpcUrls = (await getEvmChainsRpcUrls())[destinationChainId];
 
-  if (!rpcUrl) {
+  if (!rpcUrls) {
     throw new ErrorWithCode(4001, 'Network not found');
   }
 
@@ -114,7 +132,7 @@ export const switchChain = async (origin: string, destinationChainId: number) =>
 
   await setDApp(origin, { ...dApp, chainId: destinationChainId });
 
-  return { chainId: `0x${destinationChainId.toString(16)}`, rpcUrl };
+  return { chainId: toHex(destinationChainId), rpcUrls };
 };
 
 const makeRequestEvmSignFunction =
@@ -177,7 +195,9 @@ export const getEvmPermissions = async (origin: string) => {
 
 export const revokeEvmPermissions = async (origin: string, _payload: ChangePermissionsPayload) => {
   // TODO: add handling other permissions than for reading accounts
-  return removeDApps([origin]);
+  await removeDApps([origin]);
+
+  return {};
 };
 
 export const requestEvmPermissions = async (
@@ -187,5 +207,7 @@ export const requestEvmPermissions = async (
   icon?: string
 ) => {
   // TODO: add handling other permissions than for reading accounts
-  return connectEvm(origin, chainId, icon);
+  const { accounts, rpcUrls } = await connectEvm(origin, chainId, icon);
+
+  return { permissions: [makeReadAccountPermission(accounts[0])], rpcUrls };
 };

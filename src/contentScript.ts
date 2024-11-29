@@ -89,7 +89,7 @@ window.addEventListener(PASS_TO_BG_EVENT, evt => {
       chainType: TempleChainKind.EVM
     })
     .then((res: TempleResponse) => {
-      if (res?.type === TempleMessageType.PageResponse && res.payload) {
+      if (res?.type === TempleMessageType.PageResponse && res.payload != null) {
         window.dispatchEvent(new CustomEvent(RESPONSE_FROM_BG_EVENT, { detail: res.payload }));
       }
     })

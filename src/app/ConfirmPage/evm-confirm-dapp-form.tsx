@@ -15,7 +15,7 @@ import { TempleAccountType, TempleEvmDAppPayload } from 'lib/temple/types';
 import { useSafeState } from 'lib/ui/hooks';
 import { delay, isTruthy } from 'lib/utils';
 import { getAccountForEvm, isAccountOfActableType } from 'temple/accounts';
-import { useAccountForEvm, useAllAccounts, useEvmRpcUrlLoadingValue } from 'temple/front';
+import { useAccountForEvm, useAllAccounts, useAllEvmChains } from 'temple/front';
 
 import { EvmPayloadContent } from './payload-content';
 import { ConfirmPageSelectors } from './selectors';
@@ -45,9 +45,10 @@ export const EvmConfirmDAppForm = memo<EvmConfirmDAppFormProps>(({ payload, id }
     () => currentAccountForEvm?.address || allAccounts[0]!.address
   );
 
+  const evmChains = useAllEvmChains();
   const payloadError = payload!.error;
   const chainId = Number(payload.chainId);
-  const rpcBaseURL = useEvmRpcUrlLoadingValue(chainId, true)!;
+  const rpcBaseURL = evmChains[chainId].rpcBaseURL;
 
   const network = useMemo(() => ({ chainId, rpcBaseURL }), [chainId, rpcBaseURL]);
 
