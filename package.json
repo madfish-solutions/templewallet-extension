@@ -1,6 +1,6 @@
 {
   "name": "temple-wallet",
-  "version": "1.28.0",
+  "version": "1.29.0",
   "private": true,
   "scripts": {
     "start-run": "cross-env TS_NODE_PROJECT=\"webpack/tsconfig.json\" webpack --watch --stats errors-warnings",
@@ -217,6 +217,7 @@
     "source-map": "^0.7.4"
   },
   "resolutions": {
+    "npm-run-all/cross-spawn": "^7.0.6",
     "tslib": "^2.4.0",
     "@types/react": "18.0.15",
     "@types/react-dev-utils/@types/webpack-dev-server": "^4",
@@ -232,6 +233,6 @@
     "follow-redirects": "^1.15.4"
   },
   "optionalDependencies": {
-    "@temple-wallet/extension-ads": "9.1.0"
+    "@temple-wallet/extension-ads": "10.0.1"
   }
 }

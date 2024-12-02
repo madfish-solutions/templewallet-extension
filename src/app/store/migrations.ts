@@ -2,6 +2,7 @@ import { cloneDeep } from 'lodash';
 import type { MigrationManifest, PersistedState } from 'redux-persist';
 
 import { toTokenSlug } from 'lib/assets';
+import { IS_MISES_BROWSER } from 'lib/env';
 import { isCollectible } from 'lib/metadata';
 
 import { collectiblesMetadataInitialState } from './collectibles-metadata/state';
@@ -96,6 +97,24 @@ export const MIGRATIONS: MigrationManifest = {
           data: DEFAULT_SWAP_PARAMS,
           isLoading: false
         }
+      }
+    };
+
+    return newState;
+  },
+
+  '5': (persistedState: PersistedState) => {
+    if (!persistedState || IS_MISES_BROWSER) return persistedState;
+
+    const typedPersistedState = persistedState as TypedPersistedRootState;
+
+    if (typedPersistedState.partnersPromotion.shouldShowPromotion) return persistedState;
+
+    const newState: TypedPersistedRootState = {
+      ...typedPersistedState,
+      settings: {
+        ...typedPersistedState.settings,
+        referralLinksEnabled: false
       }
     };
 
