@@ -3657,10 +3657,10 @@
   dependencies:
     nanoid "^3.1.25"
 
-"@temple-wallet/extension-ads@9.1.1-dev.1589.2":
-  version "9.1.1-dev.1589.2"
-  resolved "https://registry.yarnpkg.com/@temple-wallet/extension-ads/-/extension-ads-9.1.1-dev.1589.2.tgz#6f57e8881016769018671ddfcaa2417647d74d45"
-  integrity sha512-upUeIqLT5L3z5loTM4kTEWLYKldYV7j23aa/tpL/7VNknGGvGWP1wzu3rge+FSYg7pex6swmQpV1URrdpbxLQA==
+"@temple-wallet/extension-ads@10.0.1":
+  version "10.0.1"
+  resolved "https://registry.yarnpkg.com/@temple-wallet/extension-ads/-/extension-ads-10.0.1.tgz#76a05a83b037ad539d2a67a271ddb1cc35025660"
+  integrity sha512-rRY2xFvSwJXhLLOeOmxfJqprAGfPtpoWOmFxgF1Rx/f3ajogqNYcYH0dLn8Q3T8Vit2xzr5T4S7BdzDbLijNSQ==
   dependencies:
     axios "^1.7.4"
     crypto-js "^4.2.0"
