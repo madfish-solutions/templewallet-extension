@@ -3160,11 +3160,11 @@
   "selectedAccountCannotSignTx": { "message": "Selected account cannot sign transactions" },
   "attributes": { "message": "Attributes" },
   "properties": { "message": "Properties" },
-  "earnRewardsWithAds": {
-    "message": "Earn Rewards with Ads"
+  "earnTkeyRewards": {
+    "message": "Earn TKEY Rewards"
   },
-  "earnRewardsWithAdsDescription": {
-    "message": "I agree to share my wallet address and IP to receive ads and rewards in TKEY token."
+  "earnTkeyRewardsDescription": {
+    "message": "I agree to share my wallet address and IP to receive ads, referral links and rewards in TKEY token."
   },
   "dropdownNoItems": {
     "message": "No items"
