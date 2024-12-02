@@ -78,7 +78,6 @@ const SENDER = {
 
 window.addEventListener(PASS_TO_BG_EVENT, evt => {
   const { origin, args: payload, chainId, iconUrl } = (evt as CustomEvent<PassToBgEventDetail>).detail;
-  console.log('passToBackground_content_script', payload);
   getIntercom()
     .request({
       type: TempleMessageType.PageRequest,

@@ -10,6 +10,7 @@ interface EIP6963ProviderInfo {
   rdns?: string;
 }
 
+console.log('inpage templewallet');
 const provider = new TempleWeb3Provider();
 
 setGlobalProvider(provider);

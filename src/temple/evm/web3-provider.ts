@@ -7,6 +7,7 @@ import {
   ProviderMessage,
   ProviderRpcError,
   PublicClient,
+  recoverMessageAddress,
   RpcSchema,
   RpcSchemaOverride,
   toHex,
@@ -53,7 +54,7 @@ interface ErrorResponse {
   };
 }
 
-type OldSignTypedDataMethods = [
+type ExtraSignMethods = [
   {
     Method: 'eth_signTypedData';
     Parameters: [message: TypedDataV1, address: HexString];
@@ -68,6 +69,11 @@ type OldSignTypedDataMethods = [
     Method: 'eth_signTypedData_v3';
     Parameters: [address: HexString, message: string];
     ReturnType: HexString;
+  },
+  {
+    Method: 'personal_ecRecover';
+    Parameters: [message: string, signature: HexString];
+    ReturnType: HexString;
   }
 ];
 type InternalServiceMethods = [
@@ -77,7 +83,7 @@ type InternalServiceMethods = [
     ReturnType: { chainId: HexString; rpcUrls: string[]; accounts: HexString[] };
   }
 ];
-type KnownMethods = [...EIP1474Methods, ...OldSignTypedDataMethods, ...InternalServiceMethods];
+type KnownMethods = [...EIP1474Methods, ...ExtraSignMethods, ...InternalServiceMethods];
 
 type RequestParameters = EIP1193Parameters<KnownMethods>;
 
@@ -148,7 +154,7 @@ export class TempleWeb3Provider {
         window.removeEventListener(RESPONSE_FROM_BG_EVENT, listener);
         const backgroundData = (evt as CustomEvent<BackgroundResponse<M> | ErrorResponse>).detail;
 
-        if (backgroundData && 'error' in backgroundData) {
+        if (backgroundData && typeof backgroundData === 'object' && 'error' in backgroundData) {
           console.error('inpage got error from bg', backgroundData);
           reject(new ErrorWithCode(backgroundData.error.code, backgroundData.error.message));
 
@@ -310,8 +316,17 @@ export class TempleWeb3Provider {
     return this.handleConnect({ method: evmRpcMethodsNames.eth_requestAccounts });
   }
 
+  private async handlePersonalSignRecoverRequest(args: RequestArgs<'personal_ecRecover'>) {
+    const [message, signature] = args.params;
+
+    return (
+      await recoverMessageAddress({ message: Buffer.from(message.slice(2), 'hex').toString('utf8'), signature })
+    ).toLowerCase();
+  }
+
   // @ts-expect-error
   request: EIP1193RequestFn<KnownMethods> = async args => {
+    console.log('request', args);
     switch (args.method) {
       case evmRpcMethodsNames.eth_accounts:
         return this.accounts;
@@ -351,6 +366,8 @@ export class TempleWeb3Provider {
       case 'wallet_watchAsset':
       case 'eth_sign':
         throw new ErrorWithCode(METHOD_NOT_SUPPORTED_ERROR_CODE, 'Method not supported');
+      case 'personal_ecRecover':
+        return this.handlePersonalSignRecoverRequest(args as RequestArgs<'personal_ecRecover'>);
       default:
         // @ts-expect-error
         return this.baseProvider.request(args);

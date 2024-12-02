@@ -1,20 +1,21 @@
-import { Address, TypedDataDefinition, TypedDataDomain, isAddress } from 'viem';
+import { Address, TypedDataDefinition, TypedDataDomain, getAddress, isAddress } from 'viem';
 import {
   array as arraySchema,
   ObjectSchema,
   mixed as mixedSchema,
   number as numberSchema,
   object as objectSchema,
-  StringSchema,
   string as stringSchema
 } from 'yup';
 
-export const evmAddressValidationSchema = stringSchema().test('valid', 'Invalid address', value =>
-  value === undefined ? true : isAddress(value)
-) as StringSchema<Address | undefined>;
+export const evmAddressValidationSchema = stringSchema<Address>()
+  .test('valid', 'Invalid address', value => (value === undefined ? true : isAddress(value)))
+  .transform(function (value: unknown) {
+    return this.isType(value) && value && isAddress(value) ? getAddress(value) : value;
+  });
 
 const HEX_STRING_REGEX = /^0x([0-9a-f]*)$/i;
-export const hexStringSchema = stringSchema().test('valid', 'Invalid hex string', value => {
+export const hexStringSchema = stringSchema<HexString>().test('valid', 'Invalid hex string', value => {
   if (value === undefined) {
     return true;
   }
@@ -22,7 +23,7 @@ export const hexStringSchema = stringSchema().test('valid', 'Invalid hex string'
   const match = value.match(HEX_STRING_REGEX);
 
   return match !== null && match[1].length % 2 === 0;
-}) as StringSchema<HexString | undefined>;
+});
 
 const typedDataTypeSchema = arraySchema()
   .of(

@@ -1,5 +1,5 @@
 import { nanoid } from 'nanoid';
-import { toHex, WalletPermission } from 'viem';
+import { getAddress, toHex, WalletPermission } from 'viem';
 
 import {
   EvmDAppSession,
@@ -95,7 +95,7 @@ export const connectEvm = async (origin: string, chainId: string, icon?: string)
         if (confirmReq?.type === TempleMessageType.DAppPermConfirmationRequest && confirmReq?.id === id) {
           const { confirmed, accountPublicKeyHash } = confirmReq;
           if (confirmed && accountPublicKeyHash) {
-            const pkh = accountPublicKeyHash as HexString;
+            const pkh = accountPublicKeyHash.toLowerCase() as HexString;
             await setDApp(origin, {
               chainId: Number(chainId),
               appMeta,
@@ -140,9 +140,10 @@ const makeRequestEvmSignFunction =
     payloadType: T['type'],
     signDataWithValue: (vault: Vault, payload: T['payload'], signerPkh: HexString) => Promise<HexString>
   ) =>
-  (origin: string, sourcePkh: HexString, chainId: string, payload: T['payload'], icon?: string) =>
+  (origin: string, rawSourcePkh: HexString, chainId: string, payload: T['payload'], icon?: string) =>
     new Promise<HexString>(async (resolve, reject) => {
       const id = nanoid();
+      const sourcePkh = getAddress(rawSourcePkh);
 
       await requestConfirm({
         id,

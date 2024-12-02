@@ -511,7 +511,7 @@ export async function processEvmDApp(origin: string, payload: EvmRequestPayload,
           origin,
           personalSignerPkh,
           chainId,
-          Buffer.from(personalSignData).toString('utf8'),
+          Buffer.from(personalSignData.slice(2), 'hex').toString('utf8'),
           iconUrl
         );
       break;

@@ -2,6 +2,7 @@ import React, { FC } from 'react';
 
 import ReactJson from 'react-json-view';
 
+import { CopyButton } from 'app/atoms';
 import { TempleEvmDAppSignPayload } from 'lib/temple/types';
 import { EvmNetworkEssentials } from 'temple/networks';
 
@@ -19,7 +20,18 @@ export const EvmOperationView: FC<EvmOperationViewProps> = ({ payload }) => {
         <h2 className="mb-3 leading-tight flex items-center">
           <span className="mr-2 text-base font-semibold text-gray-700">Sign typed data</span>
         </h2>
-        {JSON.stringify(payload.payload)}
+        <CopyButton text={JSON.stringify(payload.payload)}>Copy</CopyButton>
+        <ReactJson
+          src={payload.payload}
+          name={null}
+          iconStyle="square"
+          indentWidth={4}
+          collapsed={3}
+          collapseStringsAfterLength={36}
+          enableClipboard={false}
+          displayObjectSize={false}
+          displayDataTypes={false}
+        />
       </div>
     );
   }
@@ -29,8 +41,9 @@ export const EvmOperationView: FC<EvmOperationViewProps> = ({ payload }) => {
       <h2 className="mb-3 leading-tight flex items-center">
         <span className="mr-2 text-base font-semibold text-gray-700">Personal sign</span>
       </h2>
+      <CopyButton text={payload.payload}>Copy</CopyButton>
       <ReactJson
-        src={typeof payload.payload === 'string' ? { string: payload.payload } : payload.payload}
+        src={{ string: payload.payload }}
         name={null}
         iconStyle="square"
         indentWidth={4}
