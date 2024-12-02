@@ -10,7 +10,8 @@ import { useStorage } from 'lib/temple/front';
 import { UNDER_DEVELOPMENT_MSG } from 'temple/evm/under_dev_msg';
 import { useAccountAddressForTezos } from 'temple/front';
 
-import { EXOLIX_CONTACT_LINK } from './config';
+import { EXOLIX_CONTACT_LINK } from '../../../Market/crypto-exchange/config';
+
 import { ExolixSelectors } from './Exolix.selectors';
 import { ExchangeDataInterface } from './exolix.types';
 
@@ -102,9 +103,6 @@ const BuyCryptoContent = memo<BuyCryptoContentProps>(({ publicKeyHash }) => {
           <T id={'support'} />
         </Anchor>
       )}
-      <p className={'mt-6 text-gray-600'}>
-        <T id="exolixWarningTopUpServiceMessage" />
-      </p>
     </div>
   );
 });

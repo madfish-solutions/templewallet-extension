@@ -6,18 +6,32 @@ import { ReactComponent as CardIcon } from 'app/icons/base/card.svg';
 import { ReactComponent as RouteIcon } from 'app/icons/base/route.svg';
 import PageLayout from 'app/layouts/PageLayout';
 import { t } from 'lib/i18n/react';
+import { useBooleanState } from 'lib/ui/hooks';
 import { Link } from 'lib/woozie';
 
-export const Market = memo(() => {
-  return (
-    <PageLayout pageTitle={<PageTitle title={t('market')} />} noScroll>
-      <CaptionAlert type="info" message={t('marketPageDisclaimer')} className="mb-4" />
+import { CryptoExchange } from './crypto-exchange';
 
-      <Option Icon={RouteIcon} title={t('cryptoExchange')} description={t('cryptoExchangeDescription')} />
-      <Link to="/buy/debit">
-        <Option Icon={CardIcon} title={t('debitCreditCard')} description={t('debitCreditCardDescription')} />
-      </Link>
-    </PageLayout>
+export const Market = memo(() => {
+  const [cryptoExchangeModalOpened, setCryptoExchangeModalOpen, setCryptoExchangeModalClosed] = useBooleanState(false);
+
+  return (
+    <>
+      <PageLayout pageTitle={<PageTitle title={t('market')} />} noScroll>
+        <CaptionAlert type="info" message={t('marketPageDisclaimer')} className="mb-4" />
+
+        <Option
+          Icon={RouteIcon}
+          title={t('cryptoExchange')}
+          description={t('cryptoExchangeDescription')}
+          onClick={setCryptoExchangeModalOpen}
+        />
+        <Link to="/buy/debit">
+          <Option Icon={CardIcon} title={t('debitCreditCard')} description={t('debitCreditCardDescription')} />
+        </Link>
+      </PageLayout>
+
+      <CryptoExchange opened={cryptoExchangeModalOpened} onRequestClose={setCryptoExchangeModalClosed} />
+    </>
   );
 });
 

@@ -1923,19 +1923,8 @@
   "newTopUp": {
     "message": "Neue Aufladung"
   },
-  "exchangeDetails": {
-    "message": "Austauschdetails eingeben"
-  },
-  "exchangeDetailsDescription": {
-    "message": "Laden Sie Ihr TEZ-Guthaben oder USDT-Tezos-Guthaben sofort mit $number$ Kryptowährungen auf",
-    "placeholders": {
-      "number": {
-        "content": "$1"
-      }
-    }
-  },
   "privacyAndPolicyLinks": {
-    "message": "Indem Sie auf Aufladen klicken, stimmen Sie den \n$termsOfUse$ und $privacyPolicy$ zu",
+    "message": "Indem Sie auf Aufladen klicken, stimmen Sie den $termsOfUse$ und $privacyPolicy$ zu",
     "placeholders": {
       "termsOfUse": {
         "content": "$1"

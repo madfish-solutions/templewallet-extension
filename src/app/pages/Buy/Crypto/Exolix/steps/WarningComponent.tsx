@@ -5,7 +5,7 @@ import classNames from 'clsx';
 import { CurrencyToken } from 'app/templates/TopUpInput';
 import { T } from 'lib/i18n';
 
-import { EXOLIX_CONTACT_LINK } from '../config';
+import { EXOLIX_CONTACT_LINK } from '../../../../Market/crypto-exchange/config';
 import { getProperNetworkFullName } from '../exolix.util';
 
 interface Props {

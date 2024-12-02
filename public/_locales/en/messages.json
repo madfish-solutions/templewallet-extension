@@ -1101,7 +1101,7 @@
     "message": "Privacy Policy"
   },
   "termsOfUse": {
-    "message": "Terms of Use"
+    "message": "Terms of Usage"
   },
   "knowledgeBase": {
     "message": "Knowledge Base"
@@ -3152,16 +3152,14 @@
   "newTopUp": {
     "message": "New Top Up"
   },
+  "exchange": {
+    "message": "Exchange"
+  },
   "exchangeDetails": {
-    "message": "Enter exchange details"
+    "message": "Exchange details"
   },
   "exchangeDetailsDescription": {
-    "message": "Top up your TEZ or USDT Tezos balance instantly with $number$ cryptocurrencies",
-    "placeholders": {
-      "number": {
-        "content": "$1"
-      }
-    }
+    "message": "Enter token amount and top up your balance instantly with best rate and without registration"
   },
   "sellTezDetails": {
     "message": "Sell TEZ details"
@@ -3184,7 +3182,7 @@
     }
   },
   "privacyAndPolicyLinks": {
-    "message": "By clicking $buttonContent$ you agree with \n$termsOfUse$ and $privacyPolicy$",
+    "message": "By pressing $buttonContent$ you are agree with the $termsOfUse$ and $privacyPolicy$",
     "placeholders": {
       "buttonContent": {
         "content": "$1"
@@ -3333,11 +3331,8 @@
   "min": {
     "message": "Min:"
   },
-  "exolixWarningTopUpServiceMessage": {
-    "message": "The token exchange feature is provided by Exolix as third party provider. Temple wallet is not responsible for the work of third-party services."
-  },
   "warningTopUpServiceMessage": {
-    "message": "The token exchange feature is provided by a third party. The Temple Wallet is not responsible for the work of third-party services."
+    "message": "Token exchange is powered by a third-party, and Temple Wallet is not responsible for work of third-party services."
   },
   "selectTokensToSwap": {
     "message": "Please, select tokens to swap"

@@ -1919,19 +1919,8 @@
   "newTopUp": {
     "message": "Nova reposição"
   },
-  "exchangeDetails": {
-    "message": "Introduza os detalhes da troca"
-  },
-  "exchangeDetailsDescription": {
-    "message": "Reponha o seu saldo TEZ ou USDT Tezos instantaneamente com $number$ criptomoedas",
-    "placeholders": {
-      "number": {
-        "content": "$1"
-      }
-    }
-  },
   "privacyAndPolicyLinks": {
-    "message": "Ao clicar em Repor, concorda com \n$termsOfUse$ e $privacyPolicy$",
+    "message": "Ao clicar em Repor, concorda com $termsOfUse$ e $privacyPolicy$",
     "placeholders": {
       "termsOfUse": {
         "content": "$1"

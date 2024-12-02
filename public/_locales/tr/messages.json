@@ -1919,19 +1919,8 @@
   "newTopUp": {
     "message": "Yeni Doldurma"
   },
-  "exchangeDetails": {
-    "message": "Alım satım bilgilerini girin"
-  },
-  "exchangeDetailsDescription": {
-    "message": "TEZ or USDT Tezos bakiyenizi anında $number$ kripto para ile doldurun",
-    "placeholders": {
-      "number": {
-        "content": "$1"
-      }
-    }
-  },
   "privacyAndPolicyLinks": {
-    "message": "Doldur seçeneğine tıklayarak $termsOfUse$ \nve $privacyPolicy$ hükümlerini kabul etmiş olursunuz",
+    "message": "Doldur seçeneğine tıklayarak $termsOfUse$ ve $privacyPolicy$ hükümlerini kabul etmiş olursunuz",
     "placeholders": {
       "termsOfUse": {
         "content": "$1"

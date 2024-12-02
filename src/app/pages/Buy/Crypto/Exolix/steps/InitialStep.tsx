@@ -12,7 +12,12 @@ import { TopUpInput } from 'app/templates/TopUpInput';
 import { T, t } from 'lib/i18n';
 import { useTypedSWR } from 'lib/swr';
 
-import { EXOLIX_PRIVICY_LINK, EXOLIX_TERMS_LINK, INITIAL_COIN_FROM, INITIAL_COIN_TO } from '../config';
+import {
+  EXOLIX_PRIVICY_LINK,
+  EXOLIX_TERMS_LINK,
+  INITIAL_COIN_FROM,
+  INITIAL_COIN_TO
+} from '../../../../Market/crypto-exchange/config';
 import { ExolixSelectors } from '../Exolix.selectors';
 import { ExchangeDataInterface, ExchangeDataStatusEnum, OutputCurrencyInterface } from '../exolix.types';
 import { getCurrencies, loadMinMaxFields, queryExchange, submitExchange } from '../exolix.util';
