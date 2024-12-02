@@ -7,12 +7,10 @@ import { useAcceptedTermsVersionSelector, useReferralLinksEnabledSelector } from
 import {
   PRIVACY_POLICY_URL,
   RECENT_TERMS_VERSION,
-  REPLACE_REFERRALS_ENABLED,
   TERMS_OF_USE_URL,
   TERMS_WITH_REFERRALS_VERSION
 } from 'lib/constants';
 import { t, T } from 'lib/i18n';
-import { putToStorage } from 'lib/storage';
 import { useConfirm } from 'lib/ui/dialog';
 
 import { EnablingSetting } from '../EnablingSetting';
@@ -65,7 +63,6 @@ export const ReferralLinksSettings = memo(() => {
 
       dispatch(setAcceptedTermsVersionAction(RECENT_TERMS_VERSION));
       dispatch(setReferralLinksEnabledAction(toChecked));
-      putToStorage(REPLACE_REFERRALS_ENABLED, toChecked);
     },
     [acceptedTermsVersion, confirm, dispatch]
   );

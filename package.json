@@ -217,6 +217,7 @@
     "source-map": "^0.7.4"
   },
   "resolutions": {
+    "npm-run-all/cross-spawn": "^7.0.6",
     "tslib": "^2.4.0",
     "@types/react": "18.0.15",
     "@types/react-dev-utils/@types/webpack-dev-server": "^4",
@@ -232,6 +233,6 @@
     "follow-redirects": "^1.15.4"
   },
   "optionalDependencies": {
-    "@temple-wallet/extension-ads": "10.0.0-dev.1563.1"
+    "@temple-wallet/extension-ads": "10.0.0"
   }
 }
