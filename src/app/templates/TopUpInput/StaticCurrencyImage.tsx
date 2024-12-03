@@ -5,7 +5,7 @@ import classNames from 'clsx';
 import { FIAT_FALLBACK_ICON_SRC, TOKEN_FALLBACK_ICON_SRC, TOKENS_ICONS_SRC } from 'lib/icons';
 import { useIntersectionObserver } from 'lib/ui/use-intersection-observer';
 
-const ROUNDING_STYLE = { borderRadius: '50%', width: 32, height: 32 };
+const ROUNDING_STYLE = { borderRadius: '50%', width: 36, height: 36 };
 
 interface Props {
   currencyCode: string;

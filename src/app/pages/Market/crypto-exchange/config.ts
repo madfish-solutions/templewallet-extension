@@ -4,12 +4,12 @@ export const EXOLIX_TERMS_LINK = 'https://exolix.com/terms';
 export const EXOLIX_PRIVICY_LINK = 'https://exolix.com/privacy';
 
 export const INITIAL_COIN_FROM = {
-  code: 'BTC',
-  name: 'Bitcoin',
-  icon: 'https://exolix.com/icons/coins/BTC.png',
+  code: 'ETH',
+  name: 'Ethereum',
+  icon: 'https://exolix.com/icons/coins/ETH.png',
   network: {
-    code: 'BTC',
-    fullName: 'Bitcoin'
+    code: 'ETH',
+    fullName: 'Ethereum'
   }
 };
 

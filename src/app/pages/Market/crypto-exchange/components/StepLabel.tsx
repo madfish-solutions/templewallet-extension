@@ -7,9 +7,9 @@ interface Props {
   description: TID;
 }
 
-export const StepDescription = memo<Props>(({ title, description }) => {
+export const StepLabel = memo<Props>(({ title, description }) => {
   return (
-    <div className="flex flex-col py-1 mt-1 gap-y-0.5">
+    <div className="flex flex-col py-1 mt-1 mb-4 gap-y-0.5">
       <p className="text-font-description-bold">
         <T id={title} />
       </p>
