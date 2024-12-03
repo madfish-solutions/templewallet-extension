@@ -183,7 +183,6 @@ export const FormField = forwardRef<FormFieldElement, FormFieldProps>(
       isPasswordInput && !revealForbidden && (shouldShowRevealWhenEmpty || Boolean(localValue));
     const fieldStyle = useMemo(
       () => ({
-        ...style,
         ...buildHorizontalPaddingStyle(
           [cleanable, copyable, hasRevealablePassword].filter(Boolean).length,
           extraLeftInnerWrapper === 'unset' ? false : Boolean(extraLeftInner),
@@ -192,7 +191,8 @@ export const FormField = forwardRef<FormFieldElement, FormFieldProps>(
           Boolean(rightSideComponent),
           smallPaddings,
           textarea
-        )
+        ),
+        ...style
       }),
       [
         cleanable,

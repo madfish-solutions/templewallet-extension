@@ -74,6 +74,7 @@ export const OrderCreation: FC = () => {
                 </Button>
               }
               rightSideContainerStyle={{ right: 2 }}
+              style={{ paddingRight: 158 }}
               underneathComponent={
                 <div className="flex items-center text-font-description text-grey-1 py-1">
                   <T id="min" /> <span className="text-font-num-12 text-secondary ml-0.5 mr-4">0.020534 ETH</span>
@@ -109,6 +110,7 @@ export const OrderCreation: FC = () => {
                 </Button>
               }
               rightSideContainerStyle={{ right: 2 }}
+              style={{ paddingRight: 158 }}
               label={t('get')}
               placeholder="0.00"
               shouldShowErrorCaption={false}
