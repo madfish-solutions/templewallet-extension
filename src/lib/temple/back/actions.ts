@@ -15,7 +15,7 @@ import { putToStorage } from 'lib/storage';
 import { addLocalOperation } from 'lib/temple/activity';
 import * as Beacon from 'lib/temple/beacon';
 import { TempleState, TempleMessageType, TempleRequest, TempleSettings, TempleAccountType } from 'lib/temple/types';
-import { createQueue, delay } from 'lib/utils';
+import { PromisesQueue, PromisesQueueCounters, delay } from 'lib/utils';
 import {
   evmRpcMethodsNames,
   GET_DEFAULT_WEB3_PARAMS_METHOD_NAME,
@@ -63,7 +63,8 @@ import {
   accountsUpdated,
   settingsUpdated,
   withInited,
-  withUnlocked
+  withUnlocked,
+  dAppQueueCountersUpdated
 } from './store';
 import { Vault } from './vault';
 
@@ -72,8 +73,12 @@ const AUTODECLINE_AFTER = 60_000;
 const BEACON_ID = `temple_wallet_${browser.runtime.id}`;
 let initLocked = false;
 
-const enqueueDApp = createQueue();
-const enqueueUnlock = createQueue();
+const dAppQueue = new PromisesQueue();
+const unlockQueue = new PromisesQueue();
+
+dAppQueue.on(PromisesQueue.COUNTERS_CHANGE_EVENT_NAME, (counters: PromisesQueueCounters) => {
+  dAppQueueCountersUpdated(counters);
+});
 
 export async function init() {
   const vaultExist = await Vault.isExist();
@@ -88,7 +93,7 @@ export async function init() {
 export async function getFrontState(): Promise<TempleState> {
   const state = store.getState();
   if (state.inited) {
-    if (BACKGROUND_IS_WORKER) return await enqueueUnlock(async () => toFront(store.getState()));
+    if (BACKGROUND_IS_WORKER) return await unlockQueue.enqueue(async () => toFront(store.getState()));
     else return toFront(state);
   } else {
     await delay(10);
@@ -131,7 +136,7 @@ export async function lock() {
 
 export function unlock(password: string) {
   return withInited(() =>
-    enqueueUnlock(async () => {
+    unlockQueue.enqueue(async () => {
       const vault = await Vault.setup(password, BACKGROUND_IS_WORKER);
       const accounts = await vault.fetchAccounts();
       const settings = await vault.fetchSettings();
@@ -141,7 +146,7 @@ export function unlock(password: string) {
 }
 
 export async function unlockFromSession() {
-  await enqueueUnlock(async () => {
+  await unlockQueue.enqueue(async () => {
     const vault = await Vault.recoverFromSession();
     if (vault == null) return;
     const accounts = await vault.fetchAccounts();
@@ -460,13 +465,13 @@ export async function processDApp(origin: string, req: TempleDAppRequest): Promi
       return withInited(() => getCurrentPermission(origin));
 
     case TempleDAppMessageType.PermissionRequest:
-      return withInited(() => enqueueDApp(() => requestPermission(origin, req)));
+      return withInited(() => dAppQueue.enqueue(() => requestPermission(origin, req)));
 
     case TempleDAppMessageType.OperationRequest:
-      return withInited(() => enqueueDApp(() => requestOperation(origin, req)));
+      return withInited(() => dAppQueue.enqueue(() => requestOperation(origin, req)));
 
     case TempleDAppMessageType.SignRequest:
-      return withInited(() => enqueueDApp(() => requestSign(origin, req)));
+      return withInited(() => dAppQueue.enqueue(() => requestSign(origin, req)));
 
     case TempleDAppMessageType.BroadcastRequest:
       return withInited(() => requestBroadcast(origin, req));
@@ -482,7 +487,6 @@ export async function processEvmDApp(origin: string, payload: EvmRequestPayload,
   const { method, params } = payload;
   let methodHandler: () => Promise<any>;
 
-  console.log('oy vey 3', method, params);
   switch (method) {
     case GET_DEFAULT_WEB3_PARAMS_METHOD_NAME:
       methodHandler = () => getDefaultRpc(origin);
@@ -530,7 +534,7 @@ export async function processEvmDApp(origin: string, payload: EvmRequestPayload,
       throw new ErrorWithCode(METHOD_NOT_SUPPORTED_ERROR_CODE, 'There is no handler for this method');
   }
 
-  return withInited(() => enqueueDApp(methodHandler));
+  return withInited(() => dAppQueue.enqueue(methodHandler));
 }
 
 export async function getBeaconMessage(origin: string, msg: string, encrypted = false) {

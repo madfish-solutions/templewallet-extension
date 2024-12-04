@@ -8,12 +8,12 @@ import { AccountName } from 'app/atoms/AccountName';
 import { Button } from 'app/atoms/Button';
 import { useSearchParamsBoolean } from 'app/hooks/use-search-params-boolean';
 import { ReactComponent as BurgerIcon } from 'app/icons/base/menu.svg';
+import { HomeSelectors } from 'app/pages/Home/selectors';
 import Popper from 'lib/ui/Popper';
 import { useAccount } from 'temple/front';
 
-import { HomeSelectors } from '../../pages/Home/selectors';
+import { AccountsModal } from '../AccountsModal';
 
-import { AccountsModal } from './AccountsModal';
 import MenuDropdown from './MenuDropdown';
 
 export const AppHeader = memo(() => {

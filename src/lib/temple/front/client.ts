@@ -18,6 +18,7 @@ import {
   WalletSpecs
 } from 'lib/temple/types';
 import { useDidMount } from 'lib/ui/hooks';
+import { DEFAULT_PROMISES_QUEUE_COUNTERS } from 'lib/utils';
 import type { EvmTxParams } from 'temple/evm/types';
 import { toSerializableEvmTxParams } from 'temple/evm/utils';
 import type { EvmChain } from 'temple/front';
@@ -59,7 +60,14 @@ export const [TempleClientProvider, useTempleClient] = constate(() => {
     const isLocked = await getShouldBeLockedOnStartup();
 
     return {
-      state: isLocked ? { status: TempleStatus.Locked, accounts: [], settings: null } : res.state,
+      state: isLocked
+        ? {
+            status: TempleStatus.Locked,
+            accounts: [],
+            settings: null,
+            dAppQueueCounters: DEFAULT_PROMISES_QUEUE_COUNTERS
+          }
+        : res.state,
       shouldLockOnStartup: isLocked
     };
   }, []);
@@ -101,7 +109,7 @@ export const [TempleClientProvider, useTempleClient] = constate(() => {
    * Aliases
    */
 
-  const { status, accounts, settings } = state;
+  const { status, accounts, settings, dAppQueueCounters } = state;
   const idle = status === TempleStatus.Idle;
   const locked = status === TempleStatus.Locked;
   const ready = status === TempleStatus.Ready;
@@ -414,6 +422,7 @@ export const [TempleClientProvider, useTempleClient] = constate(() => {
     idle,
     locked,
     ready,
+    dAppQueueCounters,
 
     // Misc
     confirmation,

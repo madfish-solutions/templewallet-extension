@@ -1,6 +1,7 @@
 import { createStore, createEvent } from 'effector';
 
 import { TempleState, TempleStatus, StoredAccount, TempleSettings } from 'lib/temple/types';
+import { DEFAULT_PROMISES_QUEUE_COUNTERS, PromisesQueueCounters } from 'lib/utils';
 
 import { Vault } from './vault';
 
@@ -13,11 +14,12 @@ interface UnlockedStoreState extends StoreState {
   vault: Vault;
 }
 
-export function toFront({ status, accounts, settings }: StoreState): TempleState {
+export function toFront({ status, accounts, settings, dAppQueueCounters }: StoreState): TempleState {
   return {
     status,
     accounts,
-    settings
+    settings,
+    dAppQueueCounters
   };
 }
 
@@ -39,6 +41,8 @@ export const accountsUpdated = createEvent<StoredAccount[]>('Accounts updated');
 
 export const settingsUpdated = createEvent<TempleSettings>('Settings updated');
 
+export const dAppQueueCountersUpdated = createEvent<PromisesQueueCounters>('DApp queue counters updated');
+
 /**
  * Store
  */
@@ -48,7 +52,8 @@ export const store = createStore<StoreState>({
   vault: null,
   status: TempleStatus.Idle,
   accounts: [],
-  settings: null
+  settings: null,
+  dAppQueueCounters: DEFAULT_PROMISES_QUEUE_COUNTERS
 })
   .on(inited, (state, vaultExist) => ({
     ...state,
@@ -65,7 +70,8 @@ export const store = createStore<StoreState>({
     vault: null,
     status: TempleStatus.Locked,
     accounts: [],
-    settings: null
+    settings: null,
+    dAppQueueCounters: DEFAULT_PROMISES_QUEUE_COUNTERS
   }))
   .on(unlocked, (state, { vault, accounts, settings }) => ({
     ...state,
@@ -81,6 +87,10 @@ export const store = createStore<StoreState>({
   .on(settingsUpdated, (state, settings) => ({
     ...state,
     settings
+  }))
+  .on(dAppQueueCountersUpdated, (state, dAppQueueCounters) => ({
+    ...state,
+    dAppQueueCounters
   }));
 
 /**

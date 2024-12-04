@@ -152,6 +152,7 @@
     "lodash": "4.17.21",
     "memoizee": "^0.4.15",
     "mini-css-extract-plugin": "^2",
+    "multiformats": "^13.3.1",
     "nanoid": "3.1.31",
     "node-forge": "^1.3.1",
     "npm-run-all": "^4.1.5",

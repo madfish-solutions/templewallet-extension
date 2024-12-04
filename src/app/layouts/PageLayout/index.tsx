@@ -65,7 +65,7 @@ const PageLayout: FC<PropsWithChildren<PageLayoutProps>> = ({
   topEdgeThreshold,
   ...headerProps
 }) => {
-  const { fullPage } = useAppEnv();
+  const { fullPage, confirmWindow } = useAppEnv();
   const { ready } = useTempleClient();
   const [shouldBackupMnemonic] = useStorage(SHOULD_BACKUP_MNEMONIC_STORAGE_KEY, false);
 
@@ -79,7 +79,7 @@ const PageLayout: FC<PropsWithChildren<PageLayoutProps>> = ({
         !IS_MISES_BROWSER && <DocBg bgClassName="bg-secondary-low" />
       }
 
-      <div id={APP_CONTENT_WRAP_DOM_ID} className={clsx(fullPage && FULL_PAGE_WRAP_CLASSNAME)}>
+      <div id={APP_CONTENT_WRAP_DOM_ID} className={clsx(fullPage && !confirmWindow && FULL_PAGE_WRAP_CLASSNAME)}>
         <ContentPaper
           className={paperClassName}
           onBottomEdgeVisibilityChange={onBottomEdgeVisibilityChange}

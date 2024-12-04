@@ -1,6 +1,6 @@
 import React, { memo, useCallback, useState } from 'react';
 
-import { PageModal } from 'app/atoms/PageModal';
+import { BackButton, PageModal } from 'app/atoms/PageModal';
 import { SuspenseContainer } from 'app/atoms/SuspenseContainer';
 import PageLayout from 'app/layouts/PageLayout';
 import { CreatePasswordForm } from 'app/templates/CreatePasswordForm';
@@ -34,9 +34,8 @@ export const ImportWallet = memo(() => {
       <PageModal
         title={t(shouldShowPasswordForm ? 'createPassword' : 'importExistingWallet')}
         opened
-        shouldShowBackButton={shouldShowPasswordForm}
+        titleLeft={shouldShowPasswordForm ? <BackButton onClick={handleGoBack} /> : undefined}
         onRequestClose={goHome}
-        onGoBack={handleGoBack}
       >
         <SuspenseContainer>
           {shouldShowPasswordForm ? (

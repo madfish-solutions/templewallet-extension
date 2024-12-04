@@ -3,7 +3,7 @@ import React, { memo, useCallback, useState } from 'react';
 import { IconBase } from 'app/atoms';
 import { Lines } from 'app/atoms/Lines';
 import { Logo } from 'app/atoms/Logo';
-import { PageModal } from 'app/atoms/PageModal';
+import { BackButton, PageModal } from 'app/atoms/PageModal';
 import { SocialButton } from 'app/atoms/SocialButton';
 import { StyledButton } from 'app/atoms/StyledButton';
 import { SuspenseContainer } from 'app/atoms/SuspenseContainer';
@@ -61,9 +61,8 @@ const Welcome = memo(() => {
       <PageModal
         title={t(shouldShowPasswordForm ? 'createPassword' : 'importExistingWallet')}
         opened={shouldShowPasswordForm || isImport}
-        shouldShowBackButton={shouldShowPasswordForm && isImport}
+        titleLeft={shouldShowPasswordForm && isImport ? <BackButton onClick={handleGoBack} /> : undefined}
         onRequestClose={closeModal}
-        onGoBack={handleGoBack}
       >
         <SuspenseContainer>
           {isImport && !shouldShowPasswordForm ? (

@@ -4,7 +4,8 @@ import type { TempleDAppMetadata } from '@temple-wallet/dapp/dist/types';
 import type { TypedDataDefinition } from 'viem';
 
 import type { TezosDAppsSessionsRecord } from 'app/storage/dapps';
-import { TypedDataV1 } from 'temple/evm/typed-data-v1';
+import type { PromisesQueueCounters } from 'lib/utils';
+import type { TypedDataV1 } from 'temple/evm/typed-data-v1';
 import type { SerializableEvmTxParams } from 'temple/evm/types';
 import type { EvmChain } from 'temple/front';
 import type { StoredEvmNetwork, StoredTezosNetwork } from 'temple/networks';
@@ -25,6 +26,7 @@ export interface WalletSpecs {
 }
 
 export interface TempleState {
+  dAppQueueCounters: PromisesQueueCounters;
   status: TempleStatus;
   accounts: StoredAccount[];
   settings: TempleSettings | null;
@@ -176,7 +178,7 @@ export type TempleConfirmationPayload = TempleSignConfirmationPayload | TempleOp
  * DApp confirmation payloads
  */
 
-export type DappMetadata = TempleDAppMetadata & {
+type DappMetadata = TempleDAppMetadata & {
   icon?: string;
 };
 

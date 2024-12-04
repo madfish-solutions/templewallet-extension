@@ -2,6 +2,7 @@ import React, { memo, useMemo } from 'react';
 
 import clsx from 'clsx';
 
+import { ContentFader } from 'app/a11y/ContentFader';
 import Spinner from 'app/atoms/Spinner/Spinner';
 import { SuspenseContainer } from 'app/atoms/SuspenseContainer';
 import { LAYOUT_CONTAINER_CLASSNAME } from 'app/layouts/containers';
@@ -21,7 +22,9 @@ const ConfirmPage = memo(() => {
 
   if (ready)
     return (
-      <div className={clsx(LAYOUT_CONTAINER_CLASSNAME, 'min-h-screen flex flex-col items-center justify-center')}>
+      <div
+        className={clsx(LAYOUT_CONTAINER_CLASSNAME, 'min-h-screen flex flex-col items-center justify-center bg-white')}
+      >
         <SuspenseContainer
           errorMessage={t('fetchingConfirmationDetails')}
           loader={
@@ -33,6 +36,8 @@ const ConfirmPage = memo(() => {
           }
         >
           <ConfirmDAppForm />
+
+          <ContentFader />
         </SuspenseContainer>
       </div>
     );

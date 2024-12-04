@@ -790,8 +790,6 @@ export class Vault {
   }
 
   async signEvmMessage(accPublicKeyHash: string, message: string) {
-    console.log('oy vey', accPublicKeyHash, message);
-
     return this.withSigningEvmAccount(accPublicKeyHash, async account => account.signMessage({ message }));
   }
 

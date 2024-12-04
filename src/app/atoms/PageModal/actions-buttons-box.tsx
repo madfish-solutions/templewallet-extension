@@ -8,20 +8,12 @@ import { setToastsContainerBottomShiftAction } from 'app/store/settings/actions'
 
 interface ActionsButtonsBoxProps extends HTMLAttributes<HTMLDivElement> {
   shouldCastShadow?: boolean;
-  flexDirection?: 'row' | 'col';
   bgSet?: false;
   shouldChangeBottomShift?: boolean;
 }
 
 export const ActionsButtonsBox = memo<ActionsButtonsBoxProps>(
-  ({
-    className,
-    flexDirection = 'col',
-    shouldCastShadow,
-    bgSet = true,
-    shouldChangeBottomShift = true,
-    ...restProps
-  }) => {
+  ({ className, shouldCastShadow, bgSet = true, shouldChangeBottomShift = true, ...restProps }) => {
     const dispatch = useDispatch();
 
     useEffect(() => {
@@ -56,8 +48,7 @@ export const ActionsButtonsBox = memo<ActionsButtonsBoxProps>(
     return (
       <div
         className={clsx(
-          'p-4 pb-6 flex',
-          `flex-${flexDirection}`,
+          'p-4 pb-6 flex gap-x-2.5',
           bgSet && 'bg-white',
           shouldCastShadow && 'shadow-bottom border-t-0.5 border-lines overflow-y-visible',
           className

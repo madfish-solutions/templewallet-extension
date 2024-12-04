@@ -7,7 +7,7 @@ import {
   setDApp as genericSetDApp,
   removeDApps as genericRemoveDApps
 } from 'app/storage/dapps';
-import { evmRpcMethodsNames, RETURNED_ACCOUNTS_CAVEAT_NAME } from 'temple/evm/constants';
+import { evmRpcMethodsNames, INVALID_PARAMS_CODE, RETURNED_ACCOUNTS_CAVEAT_NAME } from 'temple/evm/constants';
 import { getEvmChainsRpcUrls } from 'temple/evm/evm-chains-rpc-urls';
 import { ChangePermissionsPayload, ErrorWithCode } from 'temple/evm/types';
 import { TempleChainKind } from 'temple/types';
@@ -127,7 +127,7 @@ export const switchChain = async (origin: string, destinationChainId: number) =>
   const dApp = await getDApp(origin);
 
   if (!dApp) {
-    throw new Error('DApp not found');
+    throw new ErrorWithCode(4001, 'DApp not found');
   }
 
   await setDApp(origin, { ...dApp, chainId: destinationChainId });
@@ -138,12 +138,25 @@ export const switchChain = async (origin: string, destinationChainId: number) =>
 const makeRequestEvmSignFunction =
   <T extends TempleEvmDAppSignPayload>(
     payloadType: T['type'],
-    signDataWithValue: (vault: Vault, payload: T['payload'], signerPkh: HexString) => Promise<HexString>
+    signDataWithValue: (
+      vault: Vault,
+      payload: T['payload'],
+      signerPkh: HexString,
+      connectedChainId: string
+    ) => Promise<HexString>
   ) =>
   (origin: string, rawSourcePkh: HexString, chainId: string, payload: T['payload'], icon?: string) =>
     new Promise<HexString>(async (resolve, reject) => {
       const id = nanoid();
       const sourcePkh = getAddress(rawSourcePkh);
+
+      const dApp = await getDApp(origin);
+
+      if (!dApp) {
+        reject(new ErrorWithCode(4001, 'DApp not found'));
+
+        return;
+      }
 
       await requestConfirm({
         id,
@@ -162,7 +175,7 @@ const makeRequestEvmSignFunction =
         handleIntercomRequest: async (confirmReq, decline) => {
           if (confirmReq?.type === TempleMessageType.DAppSignConfirmationRequest && confirmReq.id === id) {
             if (confirmReq.confirmed) {
-              const result = await withUnlocked(({ vault }) => signDataWithValue(vault, payload, sourcePkh));
+              const result = await withUnlocked(({ vault }) => signDataWithValue(vault, payload, sourcePkh, chainId));
               resolve(result);
             } else {
               decline();
@@ -180,7 +193,17 @@ const makeRequestEvmSignFunction =
 
 export const requestEvmTypedSign = makeRequestEvmSignFunction<TempleEvmDAppSignTypedPayload>(
   'sign_typed',
-  (vault, typedData, signerPkh) => vault.signEvmTypedData(signerPkh, typedData)
+  (vault, typedData, signerPkh, connectedChainId) => {
+    if (
+      !Array.isArray(typedData) &&
+      typedData.domain?.chainId !== undefined &&
+      typedData.domain?.chainId !== Number(connectedChainId)
+    ) {
+      throw new ErrorWithCode(INVALID_PARAMS_CODE, 'Cannot sign payload with other chain ID than the current one');
+    }
+
+    return vault.signEvmTypedData(signerPkh, typedData);
+  }
 );
 
 export const requestEvmPersonalSign = makeRequestEvmSignFunction<TempleEvmDAppPersonalSignPayload>(

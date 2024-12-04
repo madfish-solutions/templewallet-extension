@@ -299,8 +299,6 @@ const processRequest = async (req: TempleRequest, port: Runtime.Port): Promise<T
           }
         }
 
-        console.log('oy vey 4', resPayload);
-
         return {
           type: TempleMessageType.PageResponse,
           payload: resPayload ?? null

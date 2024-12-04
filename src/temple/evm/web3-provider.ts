@@ -142,7 +142,26 @@ export class TempleWeb3Provider {
       throw new ErrorWithCode(INVALID_INPUT_ERROR_CODE, 'Account is not available');
     }
 
-    const iconUrl = (document?.head?.querySelector('link[rel*="icon"]') as HTMLLinkElement | nullish)?.href;
+    const iconsTags = Array.from(document?.head?.querySelectorAll('link[rel*="icon"]') ?? []) as HTMLLinkElement[];
+    const { CID } = await import('multiformats/cid');
+    const iconUrl = iconsTags
+      .map(tag => tag.href)
+      .find(url => {
+        const parsedUrl = new URL(url);
+        let endsWithIpfsCid: boolean;
+        try {
+          CID.parse(parsedUrl.pathname.split('/').at(-1) ?? '');
+          endsWithIpfsCid = true;
+        } catch {
+          endsWithIpfsCid = false;
+        }
+        const isHttpImgUrl =
+          parsedUrl.protocol.match(/^https?:$/) &&
+          (parsedUrl.pathname.match(/\.(png|jpe?g|gif|svg|ico)$/) || endsWithIpfsCid);
+        const isDataImgUrl = parsedUrl.protocol === 'data:' && parsedUrl.pathname.match(/^image\/(png|jpe?g|gif|svg)$/);
+
+        return isHttpImgUrl || isDataImgUrl;
+      });
     window.dispatchEvent(
       new CustomEvent(PASS_TO_BG_EVENT, {
         detail: { args, origin: window.origin, chainId: this.chainId, iconUrl }

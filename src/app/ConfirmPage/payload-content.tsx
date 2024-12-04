@@ -1,24 +1,15 @@
-import React, { FC, NamedExoticComponent, memo, useMemo } from 'react';
+import React, { FC, memo } from 'react';
 
-import { AccountAvatar } from 'app/atoms/AccountAvatar';
-import CustomSelect, { OptionRenderProps } from 'app/templates/CustomSelect';
+import { IconBase } from 'app/atoms';
+import { ReactComponent as UnlockFillIcon } from 'app/icons/base/unlock_fill.svg';
+import { AccountCard } from 'app/templates/AccountCard';
 import { EvmOperationView } from 'app/templates/EvmOperationView';
 import { ModifyFeeAndLimit } from 'app/templates/ExpensesView/ExpensesView';
 import TezosOperationView from 'app/templates/TezosOperationView';
-import { T } from 'lib/i18n';
-import { TempleEvmDAppPayload, TempleTezosDAppPayload } from 'lib/temple/types';
-import { AccountForChain } from 'temple/accounts';
+import { T, TID } from 'lib/i18n';
+import { StoredAccount, TempleEvmDAppPayload, TempleTezosDAppPayload } from 'lib/temple/types';
 import { NetworkEssentials } from 'temple/networks';
 import { TempleChainKind } from 'temple/types';
-
-import { EvmAccountOptionContentHOC, TezosAccountOptionContentHOC } from './account-option';
-
-interface ConnectViewProps<T extends TempleChainKind> {
-  accounts: AccountForChain<T>[];
-  accountPkhToConnect: string;
-  setAccountPkhToConnect: SyncFn<string>;
-  network: NetworkEssentials<T>;
-}
 
 type DAppPayload<T extends TempleChainKind> = T extends TempleChainKind.EVM
   ? TempleEvmDAppPayload
@@ -34,74 +25,60 @@ interface OperationViewProps<T extends TempleChainKind> {
 }
 
 interface PayloadContentProps<T extends TempleChainKind> extends Omit<OperationViewProps<T>, 'payload'> {
-  accountPkhToConnect: string;
+  account: StoredAccount;
   payload: DAppPayload<T>;
-  accounts: AccountForChain<T>[];
-  setAccountPkhToConnect: SyncFn<string>;
+  openAccountsModal: EmptyFn;
 }
 
-type AccountOptionContentHOC<T extends TempleChainKind> = (
-  network: NetworkEssentials<T>
-) => NamedExoticComponent<OptionRenderProps<AccountForChain<T>, unknown>>;
+interface ConnectViewProps {
+  accountToConnect: StoredAccount;
+  openAccountsModal: EmptyFn;
+}
 
-const AccountIcon = <T extends TempleChainKind>({ item }: OptionRenderProps<AccountForChain<T>>) => (
-  <AccountAvatar size={32} seed={item.id} className="flex-shrink-0" />
-);
+const permissionsDescriptionsI18nKeys: TID[] = [
+  'viewWalletPermissionDescription',
+  'transactionsPermissionDescription',
+  'signingPermissionDescription'
+];
 
-const getPkh = (account: AccountForChain) => account.address;
+const ConnectView = memo<ConnectViewProps>(({ accountToConnect, openAccountsModal }) => (
+  <div className="w-full flex flex-col gap-4">
+    <AccountCard
+      account={accountToConnect}
+      isCurrent={false}
+      attractSelf={false}
+      searchValue=""
+      showRadioOnHover={false}
+      onClick={openAccountsModal}
+    />
 
-const ConnectViewHOC = <T extends TempleChainKind>(AccountOptionContentHOC: AccountOptionContentHOC<T>) =>
-  memo<ConnectViewProps<T>>(({ accounts, accountPkhToConnect, network, setAccountPkhToConnect }) => {
-    const AccountOptionContent = useMemo(() => AccountOptionContentHOC(network), [network]);
-
-    return (
-      <div className="w-full flex flex-col">
-        <h2 className="mb-2 leading-tight flex flex-col">
-          <span className="text-base font-semibold text-gray-700">
-            <T id="account" />
+    <div className="bg-white shadow-bottom rounded-lg p-4">
+      <p className="my-1 text-font-description-bold text-grey-1">
+        <T id="permissions" />
+      </p>
+      {permissionsDescriptionsI18nKeys.map(key => (
+        <div className="flex justify-between items-center py-2.5" key={key}>
+          <span className="text-font-description">
+            <T id={key} />
           </span>
+          <div className="bg-grey-4 rounded-md pl-1.5 pr-2 py-1 flex items-center gap-px">
+            <IconBase Icon={UnlockFillIcon} size={12} className="text-success" />
 
-          <span className="mt-px text-xs font-light text-gray-600 max-w-9/10">
-            <T id="toBeConnectedWithDApp" />
-          </span>
-        </h2>
+            <span className="text-font-num-bold-10 uppercase">
+              <T id="allowed" />
+            </span>
+          </div>
+        </div>
+      ))}
+    </div>
+  </div>
+));
 
-        <CustomSelect<AccountForChain<T>, string>
-          activeItemId={accountPkhToConnect}
-          getItemId={getPkh}
-          items={accounts}
-          maxHeight="8rem"
-          onSelect={setAccountPkhToConnect}
-          OptionIcon={AccountIcon}
-          OptionContent={AccountOptionContent}
-          autoFocus
-        />
-      </div>
-    );
-  });
-
-const PayloadContentHOC = <T extends TempleChainKind>(
-  AccountOptionContentHOC: AccountOptionContentHOC<T>,
-  OperationView: FC<OperationViewProps<T>>
-) => {
-  const ConnectView = ConnectViewHOC(AccountOptionContentHOC);
-
-  return ({
-    network,
-    payload,
-    error,
-    modifyFeeAndLimit,
-    accounts,
-    accountPkhToConnect,
-    setAccountPkhToConnect
-  }: PayloadContentProps<T>) =>
+const PayloadContentHOC =
+  <T extends TempleChainKind>(OperationView: FC<OperationViewProps<T>>) =>
+  ({ network, payload, error, modifyFeeAndLimit, account, openAccountsModal }: PayloadContentProps<T>) =>
     payload.type === 'connect' ? (
-      <ConnectView
-        accounts={accounts}
-        accountPkhToConnect={accountPkhToConnect}
-        setAccountPkhToConnect={setAccountPkhToConnect}
-        network={network}
-      />
+      <ConnectView accountToConnect={account} openAccountsModal={openAccountsModal} />
     ) : (
       <OperationView
         network={network}
@@ -110,8 +87,7 @@ const PayloadContentHOC = <T extends TempleChainKind>(
         modifyFeeAndLimit={modifyFeeAndLimit}
       />
     );
-};
 
-export const TezosPayloadContent = PayloadContentHOC(TezosAccountOptionContentHOC, TezosOperationView);
+export const TezosPayloadContent = PayloadContentHOC<TempleChainKind.Tezos>(TezosOperationView);
 
-export const EvmPayloadContent = PayloadContentHOC(EvmAccountOptionContentHOC, EvmOperationView);
+export const EvmPayloadContent = PayloadContentHOC<TempleChainKind.EVM>(EvmOperationView);
