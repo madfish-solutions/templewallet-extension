@@ -1,11 +1,15 @@
 import { nanoid } from 'nanoid';
 import { getAddress, toHex, WalletPermission } from 'viem';
+import browser, { Storage } from 'webextension-polyfill';
 
 import {
   EvmDAppSession,
   getDApp as genericGetDApp,
   setDApp as genericSetDApp,
-  removeDApps as genericRemoveDApps
+  removeDApps as genericRemoveDApps,
+  evmDAppStorageKey,
+  EvmDAppsSessionsRecord,
+  getAllDApps
 } from 'app/storage/dapps';
 import {
   CHAIN_DISCONNECTED_ERROR_CODE,
@@ -15,7 +19,7 @@ import {
   RETURNED_ACCOUNTS_CAVEAT_NAME,
   USER_REJECTED_REQUEST_ERROR_CODE
 } from 'temple/evm/constants';
-import { getEvmChainsRpcUrls } from 'temple/evm/evm-chains-rpc-urls';
+import { ChainsRpcUrls, EVM_CHAINS_RPC_URLS_STORAGE_KEY, getEvmChainsRpcUrls } from 'temple/evm/evm-chains-rpc-urls';
 import { ChangePermissionsPayload, ErrorWithCode } from 'temple/evm/types';
 import { TempleChainKind } from 'temple/types';
 
@@ -27,9 +31,87 @@ import {
   TempleMessageType
 } from '../types';
 
+import { intercom } from './defaults';
 import { requestConfirm as genericRequestConfirm, RequestConfirmParams } from './request-confirm';
 import { withUnlocked } from './store';
 import type { Vault } from './vault';
+
+export async function init() {
+  [evmDAppsSessionsListener, evmRpcUrlsListener].forEach(listener =>
+    browser.storage.local.onChanged.addListener(listener as unknown as SyncFn<Storage.StorageAreaOnChangedChangesType>)
+  );
+}
+
+/** Reaction on network change in 'DApps' section */
+async function evmDAppsSessionsListener(changes: StringRecord<Storage.StorageChange>) {
+  if (!(evmDAppStorageKey in changes)) {
+    return;
+  }
+
+  const { oldValue, newValue } = changes[evmDAppStorageKey];
+
+  const oldSessions: EvmDAppsSessionsRecord = Object.assign({}, oldValue);
+  const newSessions: EvmDAppsSessionsRecord = Object.assign({}, newValue);
+  const switchedChainIdSessions: EvmDAppsSessionsRecord = {};
+  for (const origin in newSessions) {
+    const oldSession = oldSessions[origin];
+    const newSession = newSessions[origin];
+    if (oldSession && oldSession.chainId !== newSession.chainId) {
+      switchedChainIdSessions[origin] = newSession;
+    }
+  }
+
+  if (Object.keys(switchedChainIdSessions).length === 0) {
+    return;
+  }
+
+  const rpcUrls = await getEvmChainsRpcUrls();
+  for (const origin in switchedChainIdSessions) {
+    const { chainId } = switchedChainIdSessions[origin];
+
+    intercom.broadcast({
+      type: TempleMessageType.TempleEvmChainSwitched,
+      origin,
+      chainId,
+      rpcUrls: rpcUrls[chainId]
+    });
+  }
+}
+
+/** Reaction on disabling a chain or removing it  */
+async function evmRpcUrlsListener(changes: StringRecord<Storage.StorageChange>) {
+  if (!(EVM_CHAINS_RPC_URLS_STORAGE_KEY in changes)) {
+    return;
+  }
+
+  const { oldValue, newValue } = changes[EVM_CHAINS_RPC_URLS_STORAGE_KEY];
+
+  const oldEvmRpcUrls: ChainsRpcUrls = oldValue ?? {};
+  const newEvmRpcUrls: ChainsRpcUrls = newValue ?? {};
+  const removedChainsIds = new Set<number>();
+  for (const chainId in oldEvmRpcUrls) {
+    const newChainRpcUrls = newEvmRpcUrls[chainId];
+    if (!newChainRpcUrls || newChainRpcUrls.length === 0) {
+      removedChainsIds.add(Number(chainId));
+    }
+  }
+
+  if (removedChainsIds.size === 0) {
+    return;
+  }
+
+  const evmDApps = await getAllDApps(TempleChainKind.EVM);
+  const removedDAppsOrigins: string[] = [];
+  for (const [origin, dApp] of Object.entries(evmDApps)) {
+    if (removedChainsIds.has(dApp.chainId)) {
+      removedDAppsOrigins.push(origin);
+    }
+  }
+
+  if (removedDAppsOrigins.length) {
+    await removeDApps(removedDAppsOrigins);
+  }
+}
 
 async function requestConfirm(params: Omit<RequestConfirmParams, 'transformPayload'>) {
   return genericRequestConfirm(params);
@@ -43,8 +125,14 @@ async function setDApp(origin: string, permissions: EvmDAppSession) {
   return genericSetDApp(TempleChainKind.EVM, origin, permissions);
 }
 
-async function removeDApps(origins: string[]) {
-  return genericRemoveDApps(TempleChainKind.EVM, origins);
+export async function removeDApps(origins: string[]) {
+  const result = await genericRemoveDApps(TempleChainKind.EVM, origins);
+  intercom.broadcast({
+    type: TempleMessageType.TempleEvmDAppsDisconnected,
+    origins
+  });
+
+  return result;
 }
 
 function getAppMeta(origin: string, icon?: string) {
@@ -71,7 +159,7 @@ export const getDefaultRpc = async (origin: string) => {
   const chainId = dApp?.chainId ?? ETHEREUM_MAINNET_CHAIN_ID;
   const rpcUrls = (await getEvmChainsRpcUrls())[chainId];
 
-  return { chainId: toHex(chainId), rpcUrls, accounts: dApp?.pkh ? [dApp.pkh] : [] };
+  return { chainId: toHex(chainId), rpcUrls, accounts: dApp?.pkh ? [dApp.pkh.toLowerCase()] : [] };
 };
 
 export const connectEvm = async (origin: string, chainId: string, icon?: string) => {
@@ -103,14 +191,14 @@ export const connectEvm = async (origin: string, chainId: string, icon?: string)
         if (confirmReq?.type === TempleMessageType.DAppPermConfirmationRequest && confirmReq?.id === id) {
           const { confirmed, accountPublicKeyHash } = confirmReq;
           if (confirmed && accountPublicKeyHash) {
-            const pkh = accountPublicKeyHash.toLowerCase() as HexString;
+            const lowercasePkh = accountPublicKeyHash.toLowerCase() as HexString;
             await setDApp(origin, {
               chainId: Number(chainId),
               appMeta,
-              pkh,
-              permissions: [makeReadAccountPermission(pkh, origin)]
+              pkh: accountPublicKeyHash,
+              permissions: [makeReadAccountPermission(lowercasePkh, origin)]
             });
-            resolve({ accounts: [pkh], rpcUrls });
+            resolve({ accounts: [lowercasePkh], rpcUrls });
           } else {
             decline();
           }

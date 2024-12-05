@@ -29,6 +29,7 @@ import {
 import { CUSTOM_TEZOS_NETWORKS_STORAGE_KEY, TEZOS_CHAINS_SPECS_STORAGE_KEY } from 'lib/constants';
 import { fetchFromStorage } from 'lib/storage';
 import { addLocalOperation } from 'lib/temple/activity';
+import * as Beacon from 'lib/temple/beacon';
 import {
   TempleMessageType,
   TempleRequest,
@@ -363,7 +364,10 @@ async function setDApp(origin: string, permissions: TezosDAppSession) {
 }
 
 export async function removeDApps(origins: string[]) {
-  return genericRemoveDApps(TempleChainKind.Tezos, origins);
+  const result = await genericRemoveDApps(TempleChainKind.Tezos, origins);
+  await Beacon.removeDAppPublicKey(origins);
+
+  return result;
 }
 
 async function requestConfirm(params: Omit<RequestConfirmParams, 'transformPayload'>) {

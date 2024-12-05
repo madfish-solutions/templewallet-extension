@@ -15,7 +15,7 @@ import {
   WalletPermission
 } from 'viem';
 
-import { PASS_TO_BG_EVENT, RESPONSE_FROM_BG_EVENT } from 'lib/constants';
+import { DISCONNECT_DAPP_EVENT, PASS_TO_BG_EVENT, RESPONSE_FROM_BG_EVENT, SWITCH_CHAIN_EVENT } from 'lib/constants';
 import { ETHEREUM_MAINNET_CHAIN_ID } from 'lib/temple/types';
 
 import {
@@ -132,7 +132,6 @@ const noop = () => {};
 
 export class TempleWeb3Provider {
   private baseProvider: PublicClient;
-  private isConnected: boolean;
   private accounts: HexString[];
   private chainId: HexString;
   // TODO: call the callbacks according to the EIP1193 spec
@@ -140,6 +139,10 @@ export class TempleWeb3Provider {
 
   // Other extensions do the same
   readonly isMetaMask = true;
+
+  get isConnected() {
+    return this.accounts.length > 0;
+  }
 
   private async handleRequest<M extends RequestParameters['method']>(
     args: RequestArgs<M>,
@@ -212,7 +215,6 @@ export class TempleWeb3Provider {
   }
 
   private onConnected(chainId: HexString) {
-    this.isConnected = true;
     this.callbacks.connect.forEach(listener => listener({ chainId }));
     if (chainId !== this.chainId) {
       this.onChainChanged(chainId);
@@ -220,7 +222,6 @@ export class TempleWeb3Provider {
   }
 
   private onDisconnected(error: ProviderRpcError) {
-    this.isConnected = false;
     this.onAccountsChanged([]);
     this.callbacks.disconnect.forEach(listener => listener(error));
   }
@@ -257,13 +258,15 @@ export class TempleWeb3Provider {
   private handleChainChange(args: RequestArgs<'wallet_switchEthereumChain'>) {
     return this.handleRequest(
       args,
-      ({ chainId, rpcUrls }) => {
-        this.baseProvider = getReadOnlyEvm(rpcUrls);
-        this.onChainChanged(chainId);
-      },
+      ({ chainId, rpcUrls }) => this.switchChain(chainId, rpcUrls),
       () => null,
       undefined
     );
+  }
+
+  private switchChain(chainId: HexString, rpcUrls: string[]) {
+    this.baseProvider = getReadOnlyEvm(rpcUrls);
+    this.onChainChanged(chainId);
   }
 
   private handleNewPermissionsRequest(args: RequestArgs<'wallet_requestPermissions'>) {
@@ -300,19 +303,18 @@ export class TempleWeb3Provider {
 
   private handleRevokePermissionsRequest(args: RequestArgs<'wallet_revokePermissions'>) {
     // TODO: add handling other permissions than for reading accounts
-    return this.handleRequest(
-      args,
-      () => {
-        this.accounts = [];
-        if (this.isConnected) {
-          this.onDisconnected(
-            new ProviderRpcError(new Error(), { shortMessage: 'Permissions for reading accounts have been revoked' })
-          );
-        }
-      },
-      () => null,
-      undefined
-    );
+    return this.handleRequest(args, this.onPlannedDisconnect, () => null, undefined);
+  }
+
+  private onPlannedDisconnect() {
+    if (this.isConnected) {
+      this.onDisconnected(
+        new ProviderRpcError(new Error(), {
+          code: 1000,
+          shortMessage: 'The provider has been disconnected by the user'
+        })
+      );
+    }
   }
 
   private handleGetPermissionsRequest(args: RequestArgs<'wallet_getPermissions'>) {
@@ -321,7 +323,6 @@ export class TempleWeb3Provider {
 
   constructor() {
     this.baseProvider = getReadOnlyEvm(ETH_MAINNET_RPC_URL);
-    this.isConnected = false;
     this.accounts = [];
     this.chainId = toHex(ETHEREUM_MAINNET_CHAIN_ID);
     this.callbacks = {
@@ -333,6 +334,7 @@ export class TempleWeb3Provider {
       message: []
     };
 
+    this.onPlannedDisconnect = this.onPlannedDisconnect.bind(this);
     this.handleRequest(
       { method: GET_DEFAULT_WEB3_PARAMS_METHOD_NAME, params: null },
       ({ chainId, rpcUrls, accounts }) => {
@@ -347,6 +349,12 @@ export class TempleWeb3Provider {
       identity,
       undefined
     ).catch(error => console.error(error));
+    window.addEventListener(DISCONNECT_DAPP_EVENT, this.onPlannedDisconnect);
+    window.addEventListener(SWITCH_CHAIN_EVENT, e => {
+      const { chainId, rpcUrls } = (e as CustomEvent<{ chainId: number; rpcUrls: string[] }>).detail;
+
+      this.switchChain(toHex(chainId), rpcUrls);
+    });
   }
 
   async enable() {

@@ -3,7 +3,7 @@ import type { Estimate } from '@taquito/taquito';
 import type { TempleDAppMetadata } from '@temple-wallet/dapp/dist/types';
 import type { TypedDataDefinition } from 'viem';
 
-import type { TezosDAppsSessionsRecord } from 'app/storage/dapps';
+import type { DAppsSessionsRecord } from 'app/storage/dapps';
 import type { PromisesQueueCounters } from 'lib/utils';
 import type { TypedDataV1 } from 'temple/evm/typed-data-v1';
 import type { SerializableEvmTxParams } from 'temple/evm/types';
@@ -178,14 +178,14 @@ export type TempleConfirmationPayload = TempleSignConfirmationPayload | TempleOp
  * DApp confirmation payloads
  */
 
-type DappMetadata = TempleDAppMetadata & {
+export interface DAppMetadata extends TempleDAppMetadata {
   icon?: string;
-};
+}
 
 interface TempleDAppPayloadBase {
   type: string;
   origin: string;
-  appMeta: DappMetadata;
+  appMeta: DAppMetadata;
   error?: any;
   chainType?: TempleChainKind;
 }
@@ -264,6 +264,8 @@ export enum TempleMessageType {
   ConfirmationRequested = 'TEMPLE_CONFIRMATION_REQUESTED',
   ConfirmationExpired = 'TEMPLE_CONFIRMATION_EXPIRED',
   SelectedAccountChanged = 'TEMPLE_SELECTED_ACCOUNT_CHANGED',
+  TempleEvmDAppsDisconnected = 'TEMPLE_EVM_DAPPS_DISCONNECTED',
+  TempleEvmChainSwitched = 'TEMPLE_SWITCH_EVM_CHAIN',
   // Request-Response pairs
   GetStateRequest = 'TEMPLE_GET_STATE_REQUEST',
   GetStateResponse = 'TEMPLE_GET_STATE_RESPONSE',
@@ -339,7 +341,9 @@ export type TempleNotification =
   | TempleStateUpdated
   | TempleConfirmationRequested
   | TempleConfirmationExpired
-  | TempleSelectedAccountChanged;
+  | TempleSelectedAccountChanged
+  | TempleEvmDAppsDisconnected
+  | TempleEvmChainSwitched;
 
 export type TempleRequest =
   | TempleAcknowledgeRequest
@@ -438,6 +442,18 @@ interface TempleConfirmationExpired extends TempleMessageBase {
 interface TempleSelectedAccountChanged extends TempleMessageBase {
   type: TempleMessageType.SelectedAccountChanged;
   accountPublicKeyHash: string;
+}
+
+interface TempleEvmDAppsDisconnected extends TempleMessageBase {
+  type: TempleMessageType.TempleEvmDAppsDisconnected;
+  origins: string[];
+}
+
+interface TempleEvmChainSwitched extends TempleMessageBase {
+  type: TempleMessageType.TempleEvmChainSwitched;
+  origin: string;
+  chainId: number;
+  rpcUrls: string[];
 }
 
 interface TempleGetStateRequest extends TempleMessageBase {
@@ -799,7 +815,9 @@ interface TempleRemoveDAppSessionRequest extends TempleMessageBase {
 
 interface TempleRemoveDAppSessionResponse extends TempleMessageBase {
   type: TempleMessageType.DAppRemoveSessionResponse;
-  sessions: TezosDAppsSessionsRecord;
+  sessions: {
+    [k in TempleChainKind]: DAppsSessionsRecord<k>;
+  };
 }
 
 interface TempleResetExtensionRequest extends TempleMessageBase {

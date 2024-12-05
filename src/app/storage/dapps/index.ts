@@ -1,36 +1,42 @@
-import type { TempleDAppMetadata, TempleDAppNetwork } from '@temple-wallet/dapp/dist/types';
+import type { TempleDAppNetwork } from '@temple-wallet/dapp/dist/types';
 import { WalletPermission } from 'viem';
 
 import { fetchFromStorage, putToStorage } from 'lib/storage';
-import * as Beacon from 'lib/temple/beacon';
+import { DAppMetadata } from 'lib/temple/types';
 import { TempleChainKind } from 'temple/types';
 
 export const tezosDAppStorageKey = 'dapp_sessions';
-const evmDAppStorageKey = 'evm_dapp_sessions';
+export const evmDAppStorageKey = 'evm_dapp_sessions';
 
 export type TezosDAppNetwork = TempleDAppNetwork | 'ghostnet';
 
 export interface TezosDAppSession {
   network: TezosDAppNetwork;
-  appMeta: TempleDAppMetadata;
+  appMeta: DAppMetadata;
   pkh: string;
   publicKey: string;
 }
 
 export interface EvmDAppSession {
   chainId: number;
-  appMeta: TempleDAppMetadata;
+  appMeta: DAppMetadata;
   pkh: string;
   permissions: WalletPermission[];
 }
 
-type DAppSession<T extends TempleChainKind> = T extends TempleChainKind.Tezos ? TezosDAppSession : EvmDAppSession;
+export type DAppSession<T extends TempleChainKind = TempleChainKind> = T extends TempleChainKind.Tezos
+  ? TezosDAppSession
+  : EvmDAppSession;
 
-type DAppsSessionsRecord<T extends TempleChainKind> = StringRecord<DAppSession<T>>;
+export function isTezosDAppSession(session: DAppSession): session is TezosDAppSession {
+  return 'network' in session;
+}
+
+export type DAppsSessionsRecord<T extends TempleChainKind> = StringRecord<DAppSession<T>>;
 
 export type TezosDAppsSessionsRecord = DAppsSessionsRecord<TempleChainKind.Tezos>;
 
-// type EvmDAppsSessionsRecord = DAppsSessionsRecord<TempleChainKind.EVM>;
+export type EvmDAppsSessionsRecord = DAppsSessionsRecord<TempleChainKind.EVM>;
 
 function getStoredDAppsSessions<T extends TempleChainKind>(chainKind: T): Promise<DAppsSessionsRecord<T> | null> {
   return fetchFromStorage(chainKind === TempleChainKind.Tezos ? tezosDAppStorageKey : evmDAppStorageKey);
@@ -40,7 +46,7 @@ function putStoredDappsSessions<T extends TempleChainKind>(chainKind: T, value: 
   return putToStorage(chainKind === TempleChainKind.Tezos ? tezosDAppStorageKey : evmDAppStorageKey, value);
 }
 
-async function getAllDApps<T extends TempleChainKind>(chainKind: T) {
+export async function getAllDApps<T extends TempleChainKind>(chainKind: T) {
   return (await getStoredDAppsSessions(chainKind)) || {};
 }
 
@@ -69,10 +75,6 @@ export async function removeDApps<T extends TempleChainKind>(chainKind: T, origi
   const dappsRecord = await getAllDApps(chainKind);
   for (const origin of origins) delete dappsRecord[origin];
   await putStoredDappsSessions(chainKind, dappsRecord);
-
-  if (chainKind === TempleChainKind.Tezos) {
-    await Beacon.removeDAppPublicKey(origins);
-  }
 
   return dappsRecord;
 }

@@ -1,7 +1,7 @@
 import { fetchFromStorage, putToStorage } from 'lib/storage';
 import { EVM_DEFAULT_NETWORKS } from 'temple/networks';
 
-const EVM_CHAINS_RPC_URLS_STORAGE_KEY = 'evmChainsRpcUrls';
+export const EVM_CHAINS_RPC_URLS_STORAGE_KEY = 'evmChainsRpcUrls';
 
 export type ChainsRpcUrls = Partial<StringRecord<string[]>>;
 

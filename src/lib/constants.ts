@@ -102,6 +102,10 @@ export const MAIN_CHAINS_IDS = [
   ETH_SEPOLIA_CHAIN_ID
 ];
 
-export const PASS_TO_BG_EVENT = 'passToBackground';
+export const PASS_TO_BG_EVENT = 'templePassToBackground';
 
-export const RESPONSE_FROM_BG_EVENT = 'responseFromBackground';
+export const RESPONSE_FROM_BG_EVENT = 'templeResponseFromBackground';
+
+export const DISCONNECT_DAPP_EVENT = 'templeDisconnectDApp';
+
+export const SWITCH_CHAIN_EVENT = 'templeSwitchChain';

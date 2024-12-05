@@ -30,62 +30,58 @@ interface PayloadContentProps<T extends TempleChainKind> extends Omit<OperationV
   openAccountsModal: EmptyFn;
 }
 
-interface ConnectViewProps {
-  accountToConnect: StoredAccount;
-  openAccountsModal: EmptyFn;
-}
-
 const permissionsDescriptionsI18nKeys: TID[] = [
   'viewWalletPermissionDescription',
   'transactionsPermissionDescription',
   'signingPermissionDescription'
 ];
 
-const ConnectView = memo<ConnectViewProps>(({ accountToConnect, openAccountsModal }) => (
-  <div className="w-full flex flex-col gap-4">
-    <AccountCard
-      account={accountToConnect}
-      isCurrent={false}
-      attractSelf={false}
-      searchValue=""
-      showRadioOnHover={false}
-      onClick={openAccountsModal}
-    />
+const ConnectView = memo(() => (
+  <div className="bg-white shadow-bottom rounded-lg p-4">
+    <p className="my-1 text-font-description-bold text-grey-1">
+      <T id="permissions" />
+    </p>
+    {permissionsDescriptionsI18nKeys.map(key => (
+      <div className="flex justify-between items-center py-2.5" key={key}>
+        <span className="text-font-description">
+          <T id={key} />
+        </span>
+        <div className="bg-grey-4 rounded-md pl-1.5 pr-2 py-1 flex items-center gap-px">
+          <IconBase Icon={UnlockFillIcon} size={12} className="text-success" />
 
-    <div className="bg-white shadow-bottom rounded-lg p-4">
-      <p className="my-1 text-font-description-bold text-grey-1">
-        <T id="permissions" />
-      </p>
-      {permissionsDescriptionsI18nKeys.map(key => (
-        <div className="flex justify-between items-center py-2.5" key={key}>
-          <span className="text-font-description">
-            <T id={key} />
+          <span className="text-font-num-bold-10 uppercase">
+            <T id="allowed" />
           </span>
-          <div className="bg-grey-4 rounded-md pl-1.5 pr-2 py-1 flex items-center gap-px">
-            <IconBase Icon={UnlockFillIcon} size={12} className="text-success" />
-
-            <span className="text-font-num-bold-10 uppercase">
-              <T id="allowed" />
-            </span>
-          </div>
         </div>
-      ))}
-    </div>
+      </div>
+    ))}
   </div>
 ));
 
 const PayloadContentHOC =
   <T extends TempleChainKind>(OperationView: FC<OperationViewProps<T>>) =>
   ({ network, payload, error, modifyFeeAndLimit, account, openAccountsModal }: PayloadContentProps<T>) =>
-    payload.type === 'connect' ? (
-      <ConnectView accountToConnect={account} openAccountsModal={openAccountsModal} />
-    ) : (
-      <OperationView
-        network={network}
-        payload={payload as OperationDAppPayload<T>}
-        error={error}
-        modifyFeeAndLimit={modifyFeeAndLimit}
-      />
+    (
+      <div className="w-full flex flex-col gap-4">
+        <AccountCard
+          account={account}
+          isCurrent={false}
+          attractSelf={false}
+          searchValue=""
+          showRadioOnHover={false}
+          onClick={openAccountsModal}
+        />
+        {payload.type === 'connect' ? (
+          <ConnectView />
+        ) : (
+          <OperationView
+            network={network}
+            payload={payload as OperationDAppPayload<T>}
+            error={error}
+            modifyFeeAndLimit={modifyFeeAndLimit}
+          />
+        )}
+      </div>
     );
 
 export const TezosPayloadContent = PayloadContentHOC<TempleChainKind.Tezos>(TezosOperationView);

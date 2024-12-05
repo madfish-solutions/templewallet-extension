@@ -4,12 +4,14 @@ import browser from 'webextension-polyfill';
 import {
   APP_TITLE,
   ContentScriptType,
+  DISCONNECT_DAPP_EVENT,
   PASS_TO_BG_EVENT,
   RESPONSE_FROM_BG_EVENT,
+  SWITCH_CHAIN_EVENT,
   WEBSITES_ANALYTICS_ENABLED
 } from 'lib/constants';
 import { serealizeError } from 'lib/intercom/helpers';
-import { TempleMessageType, TempleResponse } from 'lib/temple/types';
+import { TempleMessageType, TempleNotification, TempleResponse } from 'lib/temple/types';
 import type { PassToBgEventDetail } from 'temple/evm/web3-provider';
 import { TempleChainKind } from 'temple/types';
 
@@ -81,6 +83,23 @@ const SENDER = {
   name: APP_TITLE,
   iconUrl: 'https://templewallet.com/logo.png'
 };
+
+getIntercom().subscribe((msg?: TempleNotification) => {
+  switch (msg?.type) {
+    case TempleMessageType.TempleEvmDAppsDisconnected:
+      const { origins } = msg;
+
+      if (origins.some(origin => window.origin === origin)) {
+        window.dispatchEvent(new CustomEvent(DISCONNECT_DAPP_EVENT));
+      }
+      break;
+    case TempleMessageType.TempleEvmChainSwitched:
+      const { origin, type, ...chainSwitchPayload } = msg;
+      if (origin === window.origin) {
+        window.dispatchEvent(new CustomEvent(SWITCH_CHAIN_EVENT, { detail: chainSwitchPayload }));
+      }
+  }
+});
 
 window.addEventListener(PASS_TO_BG_EVENT, evt => {
   const { origin, args: payload, chainId, iconUrl, requestId } = (evt as CustomEvent<PassToBgEventDetail>).detail;

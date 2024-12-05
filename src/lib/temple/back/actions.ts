@@ -32,7 +32,7 @@ import {
   requestOperation,
   requestSign,
   requestBroadcast,
-  removeDApps
+  removeDApps as removeTezDApps
 } from './dapp';
 import { intercom } from './defaults';
 import type { DryRunResult } from './dryrun';
@@ -45,7 +45,9 @@ import {
   requestEvmPersonalSign,
   requestEvmTypedSign,
   revokeEvmPermissions,
-  switchChain
+  switchChain,
+  removeDApps as removeEvmDApps,
+  init as initEvm
 } from './evm-dapp';
 import {
   ethChangePermissionsPayloadValidationSchema,
@@ -88,6 +90,8 @@ export async function init() {
     initLocked = false;
     locked();
   }
+
+  await initEvm();
 }
 
 export async function getFrontState(): Promise<TempleState> {
@@ -274,8 +278,11 @@ export function createOrImportWallet(mnemonic?: string) {
   });
 }
 
-export function removeDAppSession(origins: string[]) {
-  return removeDApps(origins);
+export async function removeDAppSession(origins: string[]) {
+  return {
+    [TempleChainKind.Tezos]: await removeTezDApps(origins),
+    [TempleChainKind.EVM]: await removeEvmDApps(origins)
+  };
 }
 
 export function sendOperations(
@@ -602,7 +609,7 @@ export async function processBeacon(
 
   // Process Disconnect
   if (req.type === Beacon.MessageType.Disconnect) {
-    await removeDApps([origin]);
+    await removeTezDApps([origin]);
     return;
   }
 
