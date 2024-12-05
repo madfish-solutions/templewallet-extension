@@ -1,3 +1,4 @@
+import { v4 as uuid } from 'uuid';
 import {
   EIP1193EventMap,
   EIP1193Parameters,
@@ -14,21 +15,20 @@ import {
   WalletPermission
 } from 'viem';
 
+import { PASS_TO_BG_EVENT, RESPONSE_FROM_BG_EVENT } from 'lib/constants';
 import { ETHEREUM_MAINNET_CHAIN_ID } from 'lib/temple/types';
 
 import {
   evmRpcMethodsNames,
   GET_DEFAULT_WEB3_PARAMS_METHOD_NAME,
   INVALID_INPUT_ERROR_CODE,
-  METHOD_NOT_SUPPORTED_ERROR_CODE,
+  METHOD_NOT_SUPPORTED_BY_PROVIDER_ERROR_CODE,
   RETURNED_ACCOUNTS_CAVEAT_NAME
 } from './constants';
 import { getReadOnlyEvm } from './get-read-only-evm';
 import { TypedDataV1 } from './typed-data-v1';
 import { ErrorWithCode } from './types';
 
-export const PASS_TO_BG_EVENT = 'passToBackground';
-export const RESPONSE_FROM_BG_EVENT = 'responseFromBackground';
 const ETH_MAINNET_RPC_URL = 'https://cloudflare-eth.com';
 
 interface EIP1193Callbacks {
@@ -45,13 +45,7 @@ export interface PassToBgEventDetail {
   args: any;
   chainId: string;
   iconUrl?: string;
-}
-
-interface ErrorResponse {
-  error: {
-    code: number;
-    message: string;
-  };
+  requestId: string;
 }
 
 type ExtraSignMethods = [
@@ -101,15 +95,30 @@ type ProviderResponse<M extends RequestParameters['method']> = Extract<
   { Method: M }
 >['ReturnType'];
 
-type BackgroundResponseOverrides = {
+type BackgroundResponseDataOverrides = {
   wallet_switchEthereumChain: { chainId: HexString; rpcUrls: string[] };
   eth_requestAccounts: { accounts: HexString[]; rpcUrls: string[] };
   wallet_requestPermissions: { permissions: WalletPermission[]; rpcUrls: string[] };
   wallet_revokePermissions: object;
 };
-type BackgroundResponse<M extends RequestParameters['method']> = M extends keyof BackgroundResponseOverrides
-  ? BackgroundResponseOverrides[M]
+type BackgroundResponseData<M extends RequestParameters['method']> = M extends keyof BackgroundResponseDataOverrides
+  ? BackgroundResponseDataOverrides[M]
   : ProviderResponse<M>;
+
+interface BackgroundErrorResponse {
+  error: {
+    code: number;
+    message: string;
+  };
+  requestId: string;
+}
+
+interface BackgroundSuccessResponse<M extends RequestParameters['method']> {
+  data: BackgroundResponseData<M>;
+  requestId: string;
+}
+
+type BackgroundResponse<M extends RequestParameters['method']> = BackgroundSuccessResponse<M> | BackgroundErrorResponse;
 
 type RpcSignMethod =
   | 'personal_sign'
@@ -134,8 +143,8 @@ export class TempleWeb3Provider {
 
   private async handleRequest<M extends RequestParameters['method']>(
     args: RequestArgs<M>,
-    effectFn: (data: BackgroundResponse<M>) => void,
-    toProviderResponse: (data: BackgroundResponse<M>) => ProviderResponse<M>,
+    effectFn: (data: BackgroundResponseData<M>) => void,
+    toProviderResponse: (data: BackgroundResponseData<M>) => ProviderResponse<M>,
     requiredAccount: HexString | undefined
   ) {
     if (requiredAccount && !this.accounts.some(acc => acc.toLowerCase() === requiredAccount.toLowerCase())) {
@@ -162,28 +171,35 @@ export class TempleWeb3Provider {
 
         return isHttpImgUrl || isDataImgUrl;
       });
+    const requestId = uuid();
     window.dispatchEvent(
-      new CustomEvent(PASS_TO_BG_EVENT, {
-        detail: { args, origin: window.origin, chainId: this.chainId, iconUrl }
+      new CustomEvent<PassToBgEventDetail>(PASS_TO_BG_EVENT, {
+        detail: { args, origin: window.origin, chainId: this.chainId, iconUrl, requestId }
       })
     );
 
     return new Promise<ProviderResponse<M>>((resolve, reject) => {
       const listener = (evt: Event) => {
-        window.removeEventListener(RESPONSE_FROM_BG_EVENT, listener);
-        const backgroundData = (evt as CustomEvent<BackgroundResponse<M> | ErrorResponse>).detail;
+        const { requestId: reqIdFromEvent, ...responseContent } = (evt as CustomEvent<BackgroundResponse<M>>).detail;
 
-        if (backgroundData && typeof backgroundData === 'object' && 'error' in backgroundData) {
-          console.error('inpage got error from bg', backgroundData);
-          reject(new ErrorWithCode(backgroundData.error.code, backgroundData.error.message));
+        if (reqIdFromEvent !== requestId) {
+          return;
+        }
+
+        window.removeEventListener(RESPONSE_FROM_BG_EVENT, listener);
+
+        if ('error' in responseContent) {
+          console.error('inpage got error from bg', responseContent);
+          reject(new ErrorWithCode(responseContent.error.code, responseContent.error.message));
 
           return;
         }
 
-        effectFn(backgroundData);
-        console.log('inpage got response from bg', backgroundData);
+        const { data } = responseContent;
+
+        effectFn(data);
         // @ts-expect-error
-        resolve(toProviderResponse(backgroundData));
+        resolve(toProviderResponse(data));
       };
       window.addEventListener(RESPONSE_FROM_BG_EVENT, listener);
     });
@@ -198,7 +214,9 @@ export class TempleWeb3Provider {
   private onConnected(chainId: HexString) {
     this.isConnected = true;
     this.callbacks.connect.forEach(listener => listener({ chainId }));
-    this.onChainChanged(chainId);
+    if (chainId !== this.chainId) {
+      this.onChainChanged(chainId);
+    }
   }
 
   private onDisconnected(error: ProviderRpcError) {
@@ -345,7 +363,6 @@ export class TempleWeb3Provider {
 
   // @ts-expect-error
   request: EIP1193RequestFn<KnownMethods> = async args => {
-    console.log('request', args);
     switch (args.method) {
       case evmRpcMethodsNames.eth_accounts:
         return this.accounts;
@@ -384,7 +401,7 @@ export class TempleWeb3Provider {
       case 'wallet_showCallsStatus':
       case 'wallet_watchAsset':
       case 'eth_sign':
-        throw new ErrorWithCode(METHOD_NOT_SUPPORTED_ERROR_CODE, 'Method not supported');
+        throw new ErrorWithCode(METHOD_NOT_SUPPORTED_BY_PROVIDER_ERROR_CODE, 'Method not supported');
       case 'personal_ecRecover':
         return this.handlePersonalSignRecoverRequest(args as RequestArgs<'personal_ecRecover'>);
       default:

@@ -126,7 +126,6 @@ export const MnemonicForm = memo<ImportAccountFormProps>(({ onSuccess }) => {
 
       <ActionsButtonsBox shouldCastShadow={!bottomEdgeIsVisible}>
         <StyledButton
-          className="w-full"
           size="L"
           color="primary"
           disabled={shouldDisableSubmitButton({ errors, formState, otherErrors: [seedError] })}

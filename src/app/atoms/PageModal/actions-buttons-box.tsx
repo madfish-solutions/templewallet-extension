@@ -1,4 +1,4 @@
-import React, { HTMLAttributes, memo, useCallback, useEffect, useMemo } from 'react';
+import React, { Children, HTMLAttributes, memo, useCallback, useEffect, useMemo } from 'react';
 
 import clsx from 'clsx';
 import { throttle } from 'lodash';
@@ -13,7 +13,7 @@ interface ActionsButtonsBoxProps extends HTMLAttributes<HTMLDivElement> {
 }
 
 export const ActionsButtonsBox = memo<ActionsButtonsBoxProps>(
-  ({ className, shouldCastShadow, bgSet = true, shouldChangeBottomShift = true, ...restProps }) => {
+  ({ className, shouldCastShadow, bgSet = true, shouldChangeBottomShift = true, children, ...restProps }) => {
     const dispatch = useDispatch();
 
     useEffect(() => {
@@ -48,14 +48,17 @@ export const ActionsButtonsBox = memo<ActionsButtonsBoxProps>(
     return (
       <div
         className={clsx(
-          'p-4 pb-6 flex gap-x-2.5',
+          'p-4 pb-6 flex',
+          Children.count(children) > 1 ? 'flex-row gap-2.5' : 'flex-col',
           bgSet && 'bg-white',
           shouldCastShadow && 'shadow-bottom border-t-0.5 border-lines overflow-y-visible',
           className
         )}
         ref={rootRef}
         {...restProps}
-      />
+      >
+        {children}
+      </div>
     );
   }
 );

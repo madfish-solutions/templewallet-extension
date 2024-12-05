@@ -3,6 +3,7 @@ import React, { ReactNode, memo, useCallback, useMemo, useState } from 'react';
 import clsx from 'clsx';
 
 import { Alert, Anchor, IconBase } from 'app/atoms';
+import ConfirmLedgerOverlay from 'app/atoms/ConfirmLedgerOverlay';
 import DAppLogo from 'app/atoms/DAppLogo';
 import { Logo } from 'app/atoms/Logo';
 import { CloseButton, PageModal } from 'app/atoms/PageModal';
@@ -15,7 +16,7 @@ import { ReactComponent as OutLinkIcon } from 'app/icons/base/outLink.svg';
 import { AccountsModalContent } from 'app/templates/AccountsModalContent';
 import { T, t } from 'lib/i18n';
 import { useTempleClient } from 'lib/temple/front';
-import { StoredAccount, TempleDAppPayload } from 'lib/temple/types';
+import { StoredAccount, TempleAccountType, TempleDAppPayload } from 'lib/temple/types';
 import { useBooleanState, useSafeState } from 'lib/ui/hooks';
 import { delay } from 'lib/utils';
 import { useCurrentAccountId } from 'temple/front';
@@ -26,11 +27,7 @@ interface ConfirmDAppFormProps {
   accounts: StoredAccount[];
   payload: TempleDAppPayload;
   onConfirm: (confirmed: boolean, selectedAccount: StoredAccount) => Promise<void>;
-  children: (
-    openAccountsModal: EmptyFn,
-    selectedAccount: StoredAccount,
-    confirming: boolean
-  ) => ReactNode | ReactNode[];
+  children: (openAccountsModal: EmptyFn, selectedAccount: StoredAccount) => ReactNode | ReactNode[];
 }
 
 export const ConfirmDAppForm = memo<ConfirmDAppFormProps>(({ accounts, payload, onConfirm, children }) => {
@@ -122,7 +119,7 @@ export const ConfirmDAppForm = memo<ConfirmDAppFormProps>(({ accounts, payload, 
       opened
       titleLeft={
         payload.type !== 'connect' && totalRequestsCount > 1 ? (
-          <ProgressAndNumbers progress={requestsLeft} total={totalRequestsCount} />
+          <ProgressAndNumbers progress={totalRequestsCount - requestsLeft + 1} total={totalRequestsCount} />
         ) : null
       }
       titleRight={accountsModalIsOpen ? <CloseButton onClick={closeAccountsModal} /> : null}
@@ -174,7 +171,7 @@ export const ConfirmDAppForm = memo<ConfirmDAppFormProps>(({ accounts, payload, 
               />
             )}
 
-            {children(openAccountsModal, selectedAccount, isConfirming)}
+            {children(openAccountsModal, selectedAccount)}
           </ScrollView>
 
           <ActionsButtonsBox shouldCastShadow={!bottomEdgeIsVisible}>
@@ -200,6 +197,8 @@ export const ConfirmDAppForm = memo<ConfirmDAppFormProps>(({ accounts, payload, 
               {confirmButtonName}
             </StyledButton>
           </ActionsButtonsBox>
+
+          <ConfirmLedgerOverlay displayed={isConfirming && selectedAccount.type === TempleAccountType.Ledger} />
         </>
       )}
     </PageModal>

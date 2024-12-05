@@ -1,10 +1,9 @@
 import React, { memo, useCallback, useMemo } from 'react';
 
-import ConfirmLedgerOverlay from 'app/atoms/ConfirmLedgerOverlay';
 import { ModifyFeeAndLimit } from 'app/templates/ExpensesView/ExpensesView';
 import { CustomTezosChainIdContext } from 'lib/analytics';
 import { useTempleClient } from 'lib/temple/front/client';
-import { StoredAccount, TempleAccountType, TempleTezosDAppPayload } from 'lib/temple/types';
+import { StoredAccount, TempleTezosDAppPayload } from 'lib/temple/types';
 import { useSafeState } from 'lib/ui/hooks';
 import { getAccountForTezos, isAccountOfActableType } from 'temple/accounts';
 import { useAllAccounts, useTezosChainIdLoadingValue } from 'temple/front';
@@ -103,19 +102,15 @@ export const TezosConfirmDAppForm = memo<TezosConfirmDAppFormProps>(({ payload, 
   );
 
   const renderPayload = useCallback(
-    (openAccountsModal: EmptyFn, selectedAccount: StoredAccount, confirming: boolean) => (
-      <>
-        <TezosPayloadContent
-          network={network}
-          error={payloadError}
-          modifyFeeAndLimit={modifyFeeAndLimit}
-          account={selectedAccount}
-          payload={payload}
-          openAccountsModal={openAccountsModal}
-        />
-
-        <ConfirmLedgerOverlay displayed={confirming && selectedAccount.type === TempleAccountType.Ledger} />
-      </>
+    (openAccountsModal: EmptyFn, selectedAccount: StoredAccount) => (
+      <TezosPayloadContent
+        network={network}
+        error={payloadError}
+        modifyFeeAndLimit={modifyFeeAndLimit}
+        account={selectedAccount}
+        payload={payload}
+        openAccountsModal={openAccountsModal}
+      />
     ),
     [modifyFeeAndLimit, network, payload, payloadError]
   );

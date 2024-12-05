@@ -1,10 +1,16 @@
 import { TemplePageMessage, TemplePageMessageType } from '@temple-wallet/dapp/dist/types';
 import browser from 'webextension-polyfill';
 
-import { APP_TITLE, ContentScriptType, WEBSITES_ANALYTICS_ENABLED } from 'lib/constants';
+import {
+  APP_TITLE,
+  ContentScriptType,
+  PASS_TO_BG_EVENT,
+  RESPONSE_FROM_BG_EVENT,
+  WEBSITES_ANALYTICS_ENABLED
+} from 'lib/constants';
 import { serealizeError } from 'lib/intercom/helpers';
 import { TempleMessageType, TempleResponse } from 'lib/temple/types';
-import { PASS_TO_BG_EVENT, PassToBgEventDetail, RESPONSE_FROM_BG_EVENT } from 'temple/evm/web3-provider';
+import type { PassToBgEventDetail } from 'temple/evm/web3-provider';
 import { TempleChainKind } from 'temple/types';
 
 import { getIntercom } from './intercom-client';
@@ -77,7 +83,7 @@ const SENDER = {
 };
 
 window.addEventListener(PASS_TO_BG_EVENT, evt => {
-  const { origin, args: payload, chainId, iconUrl } = (evt as CustomEvent<PassToBgEventDetail>).detail;
+  const { origin, args: payload, chainId, iconUrl, requestId } = (evt as CustomEvent<PassToBgEventDetail>).detail;
   getIntercom()
     .request({
       type: TempleMessageType.PageRequest,
@@ -89,7 +95,12 @@ window.addEventListener(PASS_TO_BG_EVENT, evt => {
     })
     .then((res: TempleResponse) => {
       if (res?.type === TempleMessageType.PageResponse && res.payload != null) {
-        window.dispatchEvent(new CustomEvent(RESPONSE_FROM_BG_EVENT, { detail: res.payload }));
+        const detail =
+          typeof res.payload === 'object' && 'error' in res.payload
+            ? { ...res.payload, requestId }
+            : { data: res.payload, requestId };
+
+        window.dispatchEvent(new CustomEvent(RESPONSE_FROM_BG_EVENT, { detail }));
       }
     })
     .catch(err => console.error(err));

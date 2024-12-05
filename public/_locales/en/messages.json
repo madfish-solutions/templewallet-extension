@@ -582,6 +582,9 @@
   "signatureRequest": {
     "message": "Signature Request"
   },
+  "message": {
+    "message": "Message"
+  },
   "appRequestsToSign": {
     "message": "$origin$ requests you to sign",
     "placeholders": {
@@ -3568,7 +3571,7 @@
   "enterSeedPhrase": {
     "message": "enter"
   },
-  "copyMnemonic": {
+  "copy": {
     "message": "Copy"
   },
   "verifySeedPhraseInputTitle": {

@@ -19,7 +19,7 @@ import { PromisesQueue, PromisesQueueCounters, delay } from 'lib/utils';
 import {
   evmRpcMethodsNames,
   GET_DEFAULT_WEB3_PARAMS_METHOD_NAME,
-  METHOD_NOT_SUPPORTED_ERROR_CODE
+  METHOD_NOT_SUPPORTED_BY_PROVIDER_ERROR_CODE
 } from 'temple/evm/constants';
 import { ErrorWithCode, EvmTxParams } from 'temple/evm/types';
 import { EvmChain } from 'temple/front';
@@ -531,7 +531,7 @@ export async function processEvmDApp(origin: string, payload: EvmRequestPayload,
       methodHandler = () => revokeEvmPermissions(origin, revokePermissionsPayload);
       break;
     default:
-      throw new ErrorWithCode(METHOD_NOT_SUPPORTED_ERROR_CODE, 'There is no handler for this method');
+      throw new ErrorWithCode(METHOD_NOT_SUPPORTED_BY_PROVIDER_ERROR_CODE, 'There is no handler for this method');
   }
 
   return withInited(() => dAppQueue.enqueue(methodHandler));

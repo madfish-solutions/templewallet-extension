@@ -7,7 +7,14 @@ import {
   setDApp as genericSetDApp,
   removeDApps as genericRemoveDApps
 } from 'app/storage/dapps';
-import { evmRpcMethodsNames, INVALID_PARAMS_CODE, RETURNED_ACCOUNTS_CAVEAT_NAME } from 'temple/evm/constants';
+import {
+  CHAIN_DISCONNECTED_ERROR_CODE,
+  evmRpcMethodsNames,
+  INVALID_PARAMS_CODE,
+  PROVIDER_DISCONNECTED_ERROR_CODE,
+  RETURNED_ACCOUNTS_CAVEAT_NAME,
+  USER_REJECTED_REQUEST_ERROR_CODE
+} from 'temple/evm/constants';
 import { getEvmChainsRpcUrls } from 'temple/evm/evm-chains-rpc-urls';
 import { ChangePermissionsPayload, ErrorWithCode } from 'temple/evm/types';
 import { TempleChainKind } from 'temple/types';
@@ -44,7 +51,7 @@ function getAppMeta(origin: string, icon?: string) {
   return { name: new URL(origin).hostname, icon };
 }
 
-function makeReadAccountPermission(pkh: string): WalletPermission {
+function makeReadAccountPermission(pkh: string, origin: string): WalletPermission {
   return {
     caveats: [
       {
@@ -54,7 +61,7 @@ function makeReadAccountPermission(pkh: string): WalletPermission {
     ],
     date: Date.now(),
     id: nanoid(),
-    invoker: origin as `http://${string}` | `https://${string}`,
+    invoker: origin as WalletPermission['invoker'],
     parentCapability: evmRpcMethodsNames.eth_accounts
   };
 }
@@ -74,7 +81,8 @@ export const connectEvm = async (origin: string, chainId: string, icon?: string)
     const appMeta = getAppMeta(origin, icon);
 
     if (!rpcUrls) {
-      reject(new ErrorWithCode(4001, 'Network not found'));
+      // TODO: find a more appropriate error code
+      reject(new ErrorWithCode(INVALID_PARAMS_CODE, 'Network not found'));
 
       return;
     }
@@ -89,7 +97,7 @@ export const connectEvm = async (origin: string, chainId: string, icon?: string)
         appMeta
       },
       onDecline: () => {
-        reject(new ErrorWithCode(4001, 'Connection declined'));
+        reject(new ErrorWithCode(USER_REJECTED_REQUEST_ERROR_CODE, 'Connection declined'));
       },
       handleIntercomRequest: async (confirmReq, decline) => {
         if (confirmReq?.type === TempleMessageType.DAppPermConfirmationRequest && confirmReq?.id === id) {
@@ -100,7 +108,7 @@ export const connectEvm = async (origin: string, chainId: string, icon?: string)
               chainId: Number(chainId),
               appMeta,
               pkh,
-              permissions: [makeReadAccountPermission(pkh)]
+              permissions: [makeReadAccountPermission(pkh, origin)]
             });
             resolve({ accounts: [pkh], rpcUrls });
           } else {
@@ -121,16 +129,15 @@ export const switchChain = async (origin: string, destinationChainId: number) =>
   const rpcUrls = (await getEvmChainsRpcUrls())[destinationChainId];
 
   if (!rpcUrls) {
-    throw new ErrorWithCode(4001, 'Network not found');
+    // TODO: find a more appropriate error code
+    throw new ErrorWithCode(INVALID_PARAMS_CODE, 'Network not found');
   }
 
   const dApp = await getDApp(origin);
 
-  if (!dApp) {
-    throw new ErrorWithCode(4001, 'DApp not found');
+  if (dApp) {
+    await setDApp(origin, { ...dApp, chainId: destinationChainId });
   }
-
-  await setDApp(origin, { ...dApp, chainId: destinationChainId });
 
   return { chainId: toHex(destinationChainId), rpcUrls };
 };
@@ -153,7 +160,7 @@ const makeRequestEvmSignFunction =
       const dApp = await getDApp(origin);
 
       if (!dApp) {
-        reject(new ErrorWithCode(4001, 'DApp not found'));
+        reject(new ErrorWithCode(PROVIDER_DISCONNECTED_ERROR_CODE, 'DApp not found'));
 
         return;
       }
@@ -170,7 +177,7 @@ const makeRequestEvmSignFunction =
           appMeta: { name: new URL(origin).hostname, icon }
         } as T,
         onDecline: () => {
-          reject(new ErrorWithCode(4001, 'Signature declined'));
+          reject(new ErrorWithCode(USER_REJECTED_REQUEST_ERROR_CODE, 'Signature declined'));
         },
         handleIntercomRequest: async (confirmReq, decline) => {
           if (confirmReq?.type === TempleMessageType.DAppSignConfirmationRequest && confirmReq.id === id) {
@@ -199,7 +206,10 @@ export const requestEvmTypedSign = makeRequestEvmSignFunction<TempleEvmDAppSignT
       typedData.domain?.chainId !== undefined &&
       typedData.domain?.chainId !== Number(connectedChainId)
     ) {
-      throw new ErrorWithCode(INVALID_PARAMS_CODE, 'Cannot sign payload with other chain ID than the current one');
+      throw new ErrorWithCode(
+        CHAIN_DISCONNECTED_ERROR_CODE,
+        'Cannot sign payload with other chain ID than the current one'
+      );
     }
 
     return vault.signEvmTypedData(signerPkh, typedData);
@@ -233,5 +243,5 @@ export const requestEvmPermissions = async (
   // TODO: add handling other permissions than for reading accounts
   const { accounts, rpcUrls } = await connectEvm(origin, chainId, icon);
 
-  return { permissions: [makeReadAccountPermission(accounts[0])], rpcUrls };
+  return { permissions: [makeReadAccountPermission(accounts[0], origin)], rpcUrls };
 };
