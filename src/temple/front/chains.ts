@@ -7,6 +7,18 @@ import type { TempleChainKind } from 'temple/types';
 import { BlockExplorer } from './block-explorers';
 import { useAllTezosChains, useAllEvmChains } from './ready';
 
+export interface BasicEvmChain {
+  kind: TempleChainKind.EVM;
+  chainId: number;
+}
+
+export interface BasicTezosChain {
+  kind: TempleChainKind.Tezos;
+  chainId: string;
+}
+
+export type BasicChain = BasicEvmChain | BasicTezosChain;
+
 export interface ChainBase {
   rpcBaseURL: string;
   name: string;
@@ -18,16 +30,12 @@ export interface ChainBase {
   default: boolean;
 }
 
-export interface TezosChain extends ChainBase {
-  kind: TempleChainKind.Tezos;
-  chainId: string;
+export interface TezosChain extends BasicTezosChain, ChainBase {
   rpc: StoredTezosNetwork;
   allRpcs: StoredTezosNetwork[];
 }
 
-export interface EvmChain extends ChainBase {
-  kind: TempleChainKind.EVM;
-  chainId: number;
+export interface EvmChain extends BasicEvmChain, ChainBase {
   currency: EvmNativeTokenMetadata;
   rpc: StoredEvmNetwork;
   allRpcs: StoredEvmNetwork[];

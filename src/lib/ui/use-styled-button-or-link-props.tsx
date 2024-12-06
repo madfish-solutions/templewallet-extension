@@ -14,6 +14,7 @@ export interface ButtonLikeStylingProps {
   size: Size;
   color: StyledButtonColor;
   active?: boolean;
+  disabled?: boolean;
   loading?: boolean;
 }
 
@@ -45,6 +46,16 @@ const SIZE_CLASSNAME: Record<Size, string> = {
   S: 'py-1 px-2 rounded-lg text-font-description-bold'
 };
 
+export function useStyledButtonClassName(
+  { size, color, active, disabled }: ButtonLikeStylingProps,
+  className?: string
+) {
+  return useMemo(
+    () => clsx(SIZE_CLASSNAME[size], getStyledButtonColorsClassNames(color, active, disabled), className),
+    [active, className, color, disabled, size]
+  );
+}
+
 export function useStyledButtonOrLinkProps(inputProps: ButtonProps & ButtonLikeStylingProps): ButtonProps;
 export function useStyledButtonOrLinkProps(inputProps: LinkProps & ButtonLikeStylingProps): LinkProps;
 export function useStyledButtonOrLinkProps({
@@ -59,10 +70,7 @@ export function useStyledButtonOrLinkProps({
   const isLink = 'to' in restProps;
   const disabled = 'disabled' in restProps && restProps.disabled;
 
-  const className = useMemo(
-    () => clsx(SIZE_CLASSNAME[size], getStyledButtonColorsClassNames(color, active, disabled), classNameProp),
-    [active, classNameProp, color, disabled, size]
-  );
+  const className = useStyledButtonClassName({ size, color, active, disabled }, classNameProp);
 
   const children = loading ? (
     <div className="w-full flex justify-center">

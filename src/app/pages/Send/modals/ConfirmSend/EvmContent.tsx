@@ -38,7 +38,7 @@ export const EvmContent: FC<EvmContentProps> = ({ data, onClose }) => {
 
   const { value: balance = ZERO } = useEvmAssetBalance(assetSlug, accountPkh, network);
   const { value: ethBalance = ZERO } = useEvmAssetBalance(EVM_TOKEN_SLUG, accountPkh, network);
-  const assetMetadata = useEvmAssetMetadata(network.chainId, assetSlug);
+  const assetMetadata = useEvmAssetMetadata(assetSlug, network.chainId);
 
   const form = useForm<EvmTxParamsFormData>({ mode: 'onChange' });
   const { watch, formState, setValue } = form;

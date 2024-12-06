@@ -299,7 +299,7 @@ const TezosCollectiblePage = memo<TezosCollectiblePageProps>(({ tezosChainId, as
             objktArtifactUri={details?.objktArtifactUri}
             isAdultContent={details?.isAdultContent}
             mime={details?.mime}
-            className="h-full w-full"
+            className="h-full w-full object-contain"
           />
         </div>
 

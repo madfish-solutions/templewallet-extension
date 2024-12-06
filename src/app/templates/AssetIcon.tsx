@@ -1,173 +1,95 @@
-import React, { FC, memo, useMemo } from 'react';
+import React, { memo } from 'react';
 
 import clsx from 'clsx';
 
-import { Identicon } from 'app/atoms';
+import { IdenticonInitials } from 'app/atoms/Identicon';
 import { EvmNetworkLogo, TezosNetworkLogo } from 'app/atoms/NetworkLogo';
-import { ReactComponent as CollectiblePlaceholder } from 'app/icons/collectible-placeholder.svg';
-import { useEvmTokenMetadataSelector } from 'app/store/evm/tokens-metadata/selectors';
-import { getAssetSymbol, isCollectible, useEvmAssetMetadata, useTezosAssetMetadata } from 'lib/metadata';
-import { AssetMetadataBase, EvmCollectibleMetadata, EvmTokenMetadata } from 'lib/metadata/types';
-import useTippy, { UseTippyOptions } from 'lib/ui/useTippy';
-import { isEvmNativeTokenSlug } from 'lib/utils/evm.utils';
+import { ReactComponent as CollectiblePlaceholderSvg } from 'app/icons/collectible-placeholder.svg';
+import { getAssetSymbol, isEvmCollectibleMetadata, isTezosCollectibleMetadata } from 'lib/metadata/utils';
 import { useEvmChainByChainId, useTezosChainByChainId } from 'temple/front/chains';
 
-import { TezosAssetImage, AssetImageBaseProps, EvmAssetImage } from './AssetImage';
+import { TezosAssetImage, TezosAssetImageProps, EvmAssetImage, EvmAssetImageProps } from './AssetImage';
 
-interface TezosAssetIconProps extends Omit<AssetImageBaseProps, 'sources' | 'metadata' | 'loader' | 'fallback'> {
-  tezosChainId: string;
-  assetSlug: string;
-}
+export const TezosAssetIcon = memo<TezosAssetImageProps>(props => (
+  <TezosAssetImage Loader={TezosAssetIconPlaceholder} Fallback={TezosAssetIconPlaceholder} {...props} />
+));
 
-export const TezosAssetIcon = memo<TezosAssetIconProps>(({ tezosChainId, className, style, ...props }) => {
-  const metadata = useTezosAssetMetadata(props.assetSlug, tezosChainId);
-
-  return (
-    <div className={clsx('flex items-center justify-center', className)} style={style}>
-      <TezosAssetImage
-        {...props}
-        metadata={metadata}
-        loader={<AssetIconPlaceholder metadata={metadata} size={props.size} />}
-        fallback={<AssetIconPlaceholder metadata={metadata} size={props.size} />}
-      />
-    </div>
-  );
-});
-
-interface EvmAssetIconProps extends Omit<AssetImageBaseProps, 'sources' | 'metadata' | 'loader' | 'fallback'> {
-  evmChainId: number;
-  assetSlug: string;
-}
-
-export const EvmTokenIcon = memo<EvmAssetIconProps>(({ evmChainId, assetSlug, className, style, ...props }) => {
-  const network = useEvmChainByChainId(evmChainId);
-  const tokenMetadata = useEvmTokenMetadataSelector(evmChainId, assetSlug);
-
-  const metadata = isEvmNativeTokenSlug(assetSlug) ? network?.currency : tokenMetadata;
-
-  return (
-    <div className={clsx('flex items-center justify-center', className)} style={style}>
-      <EvmAssetImage
-        {...props}
-        evmChainId={evmChainId}
-        metadata={metadata}
-        loader={<AssetIconPlaceholder metadata={metadata} size={props.size} />}
-        fallback={<AssetIconPlaceholder metadata={metadata} size={props.size} />}
-      />
-    </div>
-  );
-});
+const TezosAssetIconPlaceholder: TezosAssetImageProps['Fallback'] = memo(({ metadata, size, className, style }) =>
+  metadata && isTezosCollectibleMetadata(metadata) ? (
+    <CollectiblePlaceholderSvg className={className} style={style} width={size} height={size} />
+  ) : (
+    <IdenticonInitials
+      value={getAssetSymbol(metadata)}
+      className={className}
+      style={style}
+      width={size}
+      height={size}
+    />
+  )
+);
 
 const ICON_DEFAULT_SIZE = 40;
 const ASSET_IMAGE_DEFAULT_SIZE = 30;
+const NETWORK_IMAGE_DEFAULT_SIZE = 16;
 
-interface TezosTokenIconWithNetworkProps
-  extends Omit<AssetImageBaseProps, 'sources' | 'metadata' | 'loader' | 'fallback' | 'size'> {
-  tezosChainId: string;
-  assetSlug: string;
-}
+export const TezosTokenIconWithNetwork = memo<TezosAssetImageProps>(({ tezosChainId, className, style, ...props }) => {
+  const network = useTezosChainByChainId(tezosChainId);
 
-export const TezosTokenIconWithNetwork = memo<TezosTokenIconWithNetworkProps>(
-  ({ tezosChainId, className, style, ...props }) => {
-    const network = useTezosChainByChainId(tezosChainId);
-    const metadata = useTezosAssetMetadata(props.assetSlug, tezosChainId);
+  return (
+    <div
+      className={clsx('flex items-center justify-center relative', className)}
+      style={{ width: ICON_DEFAULT_SIZE, height: ICON_DEFAULT_SIZE, ...style }}
+    >
+      <TezosAssetIcon tezosChainId={tezosChainId} size={ASSET_IMAGE_DEFAULT_SIZE} className="rounded-full" {...props} />
 
-    const tippyProps = useMemo<UseTippyOptions>(
-      () => ({
-        trigger: 'mouseenter',
-        hideOnClick: false,
-        content: network?.name ?? 'Unknown Network',
-        animation: 'shift-away-subtle',
-        placement: 'bottom-start'
-      }),
-      [network]
-    );
-
-    const networkIconRef = useTippy<HTMLDivElement>(tippyProps);
-
-    return (
-      <div
-        className={clsx('flex items-center justify-center relative', className)}
-        style={{ width: ICON_DEFAULT_SIZE, height: ICON_DEFAULT_SIZE, ...style }}
-      >
-        <TezosAssetImage
-          {...props}
-          metadata={metadata}
-          size={ASSET_IMAGE_DEFAULT_SIZE}
-          className="rounded-full"
-          loader={<AssetIconPlaceholder metadata={metadata} size={ASSET_IMAGE_DEFAULT_SIZE} />}
-          fallback={<AssetIconPlaceholder metadata={metadata} size={ASSET_IMAGE_DEFAULT_SIZE} />}
+      {network && (
+        <TezosNetworkLogo
+          size={NETWORK_IMAGE_DEFAULT_SIZE}
+          chainId={network.chainId}
+          className="absolute bottom-0 right-0"
+          withTooltip
         />
-        {network && (
-          <div ref={networkIconRef} className="absolute bottom-0 right-0">
-            <TezosNetworkLogo networkName={network.name} chainId={network.chainId} />
-          </div>
-        )}
-      </div>
-    );
-  }
-);
-
-interface EvmAssetIconWithNetworkProps
-  extends Omit<AssetImageBaseProps, 'sources' | 'metadata' | 'loader' | 'fallback' | 'size'> {
-  evmChainId: number;
-  assetSlug: string;
-}
-
-export const EvmAssetIconWithNetwork = memo<EvmAssetIconWithNetworkProps>(
-  ({ evmChainId, assetSlug, className, style, ...props }) => {
-    const network = useEvmChainByChainId(evmChainId);
-    const metadata = useEvmAssetMetadata(evmChainId, assetSlug);
-
-    const tippyProps = useMemo<UseTippyOptions>(
-      () => ({
-        trigger: 'mouseenter',
-        hideOnClick: false,
-        content: network?.name ?? 'Unknown Network',
-        animation: 'shift-away-subtle',
-        placement: 'bottom-start'
-      }),
-      [network]
-    );
-
-    const networkIconRef = useTippy<HTMLDivElement>(tippyProps);
-
-    return (
-      <div
-        className={clsx('flex items-center justify-center relative', className)}
-        style={{ width: ICON_DEFAULT_SIZE, height: ICON_DEFAULT_SIZE, ...style }}
-      >
-        <EvmAssetImage
-          {...props}
-          evmChainId={evmChainId}
-          metadata={metadata}
-          size={ASSET_IMAGE_DEFAULT_SIZE}
-          className="rounded-full"
-          loader={<AssetIconPlaceholder metadata={metadata} size={ASSET_IMAGE_DEFAULT_SIZE} />}
-          fallback={<AssetIconPlaceholder metadata={metadata} size={ASSET_IMAGE_DEFAULT_SIZE} />}
-        />
-        {network && (
-          <EvmNetworkLogo
-            ref={networkIconRef}
-            className="absolute bottom-0 right-0"
-            networkName={network.name}
-            chainId={network.chainId}
-          />
-        )}
-      </div>
-    );
-  }
-);
-
-interface PlaceholderProps {
-  metadata: EvmTokenMetadata | AssetMetadataBase | EvmCollectibleMetadata | nullish;
-  size?: number;
-}
-
-const AssetIconPlaceholder: FC<PlaceholderProps> = ({ metadata, size }) => {
-  return metadata && isCollectible(metadata) ? (
-    <CollectiblePlaceholder style={{ maxWidth: `${size}px`, width: '100%', height: '100%' }} />
-  ) : (
-    <Identicon type="initials" hash={getAssetSymbol(metadata)} size={size} className="rounded-full" />
+      )}
+    </div>
   );
-};
+});
+
+export const EvmAssetIcon = memo<EvmAssetImageProps>(props => (
+  <EvmAssetImage Loader={EvmAssetIconPlaceholder} Fallback={EvmAssetIconPlaceholder} {...props} />
+));
+
+const EvmAssetIconPlaceholder: EvmAssetImageProps['Fallback'] = memo(({ metadata, size, className, style }) =>
+  metadata && isEvmCollectibleMetadata(metadata) ? (
+    <CollectiblePlaceholderSvg className={className} style={style} width={size} height={size} />
+  ) : (
+    <IdenticonInitials
+      value={getAssetSymbol(metadata)}
+      className={className}
+      style={style}
+      width={size}
+      height={size}
+    />
+  )
+);
+
+export const EvmAssetIconWithNetwork = memo<EvmAssetImageProps>(({ evmChainId, className, style, ...props }) => {
+  const network = useEvmChainByChainId(evmChainId);
+
+  return (
+    <div
+      className={clsx('flex items-center justify-center relative', className)}
+      style={{ width: ICON_DEFAULT_SIZE, height: ICON_DEFAULT_SIZE, ...style }}
+    >
+      <EvmAssetIcon evmChainId={evmChainId} size={ASSET_IMAGE_DEFAULT_SIZE} className="rounded-full" {...props} />
+
+      {network && (
+        <EvmNetworkLogo
+          chainId={network.chainId}
+          size={NETWORK_IMAGE_DEFAULT_SIZE}
+          className="absolute bottom-0 right-0"
+          withTooltip
+        />
+      )}
+    </div>
+  );
+});

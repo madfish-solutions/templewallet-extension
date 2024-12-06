@@ -2,7 +2,7 @@ import React, { memo } from 'react';
 
 import { VerticalLines } from 'app/atoms/Lines';
 import { Logo } from 'app/atoms/Logo';
-import { SettingsCell } from 'app/atoms/SettingsCell';
+import { SettingsCellSingle } from 'app/atoms/SettingsCell';
 import { SettingsCellGroup } from 'app/atoms/SettingsCellGroup';
 import { ReactComponent as DiscordIcon } from 'app/icons/monochrome/discord.svg';
 import { ReactComponent as KnowledgeBaseIcon } from 'app/icons/monochrome/knowledge-base.svg';
@@ -93,7 +93,7 @@ export const About = memo(() => {
   return (
     <div className="flex flex-col gap-4">
       <SettingsCellGroup>
-        <SettingsCell
+        <SettingsCellSingle
           Component="div"
           isLast
           className="p-4 gap-3"

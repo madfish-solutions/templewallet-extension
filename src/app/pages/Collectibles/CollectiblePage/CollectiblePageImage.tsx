@@ -4,7 +4,7 @@ import { isString } from 'lodash';
 
 import { Model3DViewer } from 'app/atoms/Model3DViewer';
 import { useCollectiblesListOptionsSelector } from 'app/store/assets-filter-options/selectors';
-import { TezosAssetImage } from 'app/templates/AssetImage';
+import { TezosAssetImageStacked } from 'app/templates/AssetImage';
 import { isSvgDataUriInUtf8Encoding, buildObjktCollectibleArtifactUri, buildHttpLinkFromUri } from 'lib/images-uri';
 import { TokenMetadata } from 'lib/metadata';
 import { EvmCollectibleMetadata } from 'lib/metadata/types';
@@ -88,7 +88,7 @@ export const TezosCollectiblePageImage = memo<Props>(
     }
 
     return (
-      <TezosAssetImage
+      <TezosAssetImageStacked
         metadata={metadata}
         fullViewCollectible
         loader={<CollectibleImageLoader large />}

@@ -12,29 +12,28 @@ type Color = 'black' | 'blue' | 'grey';
 interface Props extends TestIDProps {
   Icon?: ImportedSVGComponent;
   className?: string;
-  color?: Color;
+  color: Color;
   onClick?: EmptyFn;
 }
 
 export const TextButton = memo(
   forwardRef<HTMLButtonElement, PropsWithChildren<Props>>(
     ({ Icon, color = 'grey', onClick, testID, testIDProperties, children, className }, ref) => {
-      const { textClassName, iconClassName } = useMemo(() => {
+      const { btnClassName, iconClassName } = useMemo(() => {
         switch (color) {
           case 'black':
             return {
-              textClassName: 'focus:text-black',
+              btnClassName: 'hover:bg-secondary-low focus:text-black',
               iconClassName: 'text-secondary focus:text-secondary-hover'
             };
-          case 'blue':
+          case 'grey':
             return {
-              textClassName: 'text-secondary focus:text-secondary-hover',
-              iconClassName: 'text-secondary focus:text-secondary-hover'
-            };
-          default:
-            return {
-              textClassName: 'text-grey-1 focus:text-grey-2',
+              btnClassName: 'text-grey-1 hover:bg-grey-4 focus:text-grey-2',
               iconClassName: 'text-grey-2 focus:text-grey-3'
+            };
+          default: // blue
+            return {
+              btnClassName: 'text-secondary hover:bg-secondary-low focus:text-secondary-hover'
             };
         }
       }, [color]);
@@ -42,16 +41,13 @@ export const TextButton = memo(
       return (
         <Button
           ref={ref}
-          className={clsx(
-            className,
-            'px-1 py-0.5 rounded flex items-center',
-            color === 'grey' ? 'hover:bg-grey-4' : 'hover:bg-secondary-low'
-          )}
+          className={clsx('px-1 py-0.5 rounded flex items-center', btnClassName, className)}
           onClick={onClick}
           testID={testID}
           testIDProperties={testIDProperties}
         >
-          <span className={clsx('text-font-description-bold', textClassName)}>{children}</span>
+          <span className="text-font-description-bold">{children}</span>
+
           {Icon && <IconBase size={12} Icon={Icon} className={iconClassName} />}
         </Button>
       );

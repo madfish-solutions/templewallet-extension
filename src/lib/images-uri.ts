@@ -252,9 +252,7 @@ const getEvmCustomChainIconUrl = (chainId: number, metadata: EvmAssetMetadataBas
     : `${baseUrl}${chainName}/assets/${metadata.address}/logo.png`;
 };
 
-export const buildEvmTokenIconSources = (metadata: EvmAssetMetadataBase, chainId?: number) => {
-  if (!chainId) return [];
-
+export const buildEvmTokenIconSources = (metadata: EvmAssetMetadataBase, chainId: number) => {
   const mainFallback = getEvmCustomChainIconUrl(chainId, metadata);
 
   return mainFallback ? [getCompressedImageUrl(mainFallback, COMPRESSES_TOKEN_ICON_SIZE)] : [];

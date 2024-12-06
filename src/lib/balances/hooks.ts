@@ -265,7 +265,7 @@ function useEvmAssetRawBalance(
 }
 
 export function useEvmAssetBalance(assetSlug: string, address: HexString, network: EvmNetworkEssentials) {
-  const metadata = useEvmAssetMetadata(network.chainId, assetSlug);
+  const metadata = useEvmAssetMetadata(assetSlug, network.chainId);
 
   const {
     value: rawValue,

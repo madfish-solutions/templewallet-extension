@@ -22,11 +22,11 @@ interface DivSettingsCellProps extends HTMLAttributes<HTMLDivElement>, SettingsC
 
 type FCSettingsCellProps<P extends ComponentBase> = P & SettingsCellPropsBase<P> & { Component: FC<P> };
 
-type SettingsCellProps<P extends ComponentBase> = P extends { Component: 'div' }
+type SettingsCellSingleProps<P extends ComponentBase> = P extends { Component: 'div' }
   ? DivSettingsCellProps
   : FCSettingsCellProps<P>;
 
-export const SettingsCell = <P extends ComponentBase>({
+export const SettingsCellSingle = <P extends ComponentBase>({
   className,
   cellIcon,
   cellName,
@@ -36,7 +36,7 @@ export const SettingsCell = <P extends ComponentBase>({
   children,
   Component,
   ...restProps
-}: SettingsCellProps<P>) => {
+}: SettingsCellSingleProps<P>) => {
   return (
     <Component
       className={clsx('flex items-center p-3 gap-2', !isLast && 'border-b-0.5 border-lines', className)}

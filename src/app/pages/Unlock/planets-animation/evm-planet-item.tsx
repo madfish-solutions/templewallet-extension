@@ -3,7 +3,6 @@ import React, { memo } from 'react';
 import { EvmNetworkLogo } from 'app/atoms/NetworkLogo';
 
 interface EvmPlanetItemProps {
-  name: string;
   chainId: number;
   padding?: 'none' | 'small' | 'medium' | 'large';
 }
@@ -15,6 +14,6 @@ const paddingClassNames = {
   large: 'p-1.5'
 };
 
-export const EvmPlanetItem = memo<EvmPlanetItemProps>(({ name, chainId, padding = 'small' }) => (
-  <EvmNetworkLogo size={38} networkName={name} chainId={chainId} imgClassName={paddingClassNames[padding]} />
+export const EvmPlanetItem = memo<EvmPlanetItemProps>(({ chainId, padding = 'small' }) => (
+  <EvmNetworkLogo size={38} chainId={chainId} imgClassName={paddingClassNames[padding]} />
 ));

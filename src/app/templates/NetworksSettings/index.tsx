@@ -4,8 +4,8 @@ import { EmptyState } from 'app/atoms/EmptyState';
 import { useSearchParamsBoolean } from 'app/hooks/use-search-params-boolean';
 import { MAIN_CHAINS_IDS } from 'lib/constants';
 import { t } from 'lib/i18n';
-import { filterNetworksByName } from 'lib/ui/filter-networks-by-name';
 import { useBooleanState } from 'lib/ui/hooks';
+import { searchAndFilterChains } from 'lib/ui/search-networks';
 import { SettingsTabProps } from 'lib/ui/settings-tab-props';
 import { useAllEvmChains, useAllTezosChains } from 'temple/front';
 import { isPossibleTestnetChain } from 'temple/front/chains';
@@ -36,7 +36,7 @@ export const NetworksSettings = memo<SettingsTabProps>(({ setHeaderChildren }) =
       ),
     [evmChainsRecord, tezosChainsRecord]
   );
-  const matchingChains = useMemo(() => filterNetworksByName(allChains, searchValue), [allChains, searchValue]);
+  const matchingChains = useMemo(() => searchAndFilterChains(allChains, searchValue), [allChains, searchValue]);
 
   const pickChains = useCallback(
     ({ kind, isDefault }: ChainsFilters) =>

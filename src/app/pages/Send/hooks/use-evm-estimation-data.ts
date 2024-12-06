@@ -42,7 +42,7 @@ export const useEvmEstimationData = (
   toFilled?: boolean,
   amount?: string
 ) => {
-  const assetMetadata = useEvmAssetMetadata(network.chainId, assetSlug);
+  const assetMetadata = useEvmAssetMetadata(assetSlug, network.chainId);
 
   const estimate = useCallback(async (): Promise<EvmEstimationData | undefined> => {
     try {

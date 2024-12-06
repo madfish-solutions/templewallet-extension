@@ -188,7 +188,7 @@ const Unlock: FC<UnlockProps> = ({ canImportNew = true }) => {
             </StyledButton>
           </div>
           {canImportNew && (
-            <TextButton onClick={handleForgotPasswordClick} className="mt-12">
+            <TextButton color="grey" onClick={handleForgotPasswordClick} className="mt-12">
               <T id="forgotPasswordQuestion" />
             </TextButton>
           )}

@@ -13,7 +13,7 @@ interface BuyPageOptionProps extends TestIDProps {
 export const BuyPageOption: FC<BuyPageOptionProps> = ({ Icon, title, to, ...testIDProps }) => (
   <Link
     {...testIDProps}
-    className="bg-white p-4 flex flex-col items-center gap-3 w-full max-w-sm border-2 border-gray-300 rounded-2.5"
+    className="bg-white p-4 flex flex-col items-center gap-3 w-full max-w-sm border-2 border-gray-300 rounded-10"
     to={to}
   >
     <Icon />

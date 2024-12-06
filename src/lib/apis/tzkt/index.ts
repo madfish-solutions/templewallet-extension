@@ -2,7 +2,6 @@ export type {
   TzktOperation,
   TzktTokenTransfer,
   TzktRewardsEntry,
-  TzktAlias,
   TzktOperationType,
   TzktTransactionOperation
 } from './types';

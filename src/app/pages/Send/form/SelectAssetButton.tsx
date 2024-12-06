@@ -84,7 +84,7 @@ interface EvmContentProps {
 }
 
 const EvmContent = memo<EvmContentProps>(({ network, accountPkh, assetSlug }) => {
-  const assetMetadata = useEvmAssetMetadata(network.chainId, assetSlug);
+  const assetMetadata = useEvmAssetMetadata(assetSlug, network.chainId);
 
   return (
     <>
