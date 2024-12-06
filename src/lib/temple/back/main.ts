@@ -219,6 +219,10 @@ const processRequest = async (req: TempleRequest, port: Runtime.Port): Promise<T
         sessions
       };
 
+    case TempleMessageType.DAppSwitchEvmChainRequest:
+      await Actions.switchEvmChain(req.origin, req.chainId, true);
+      return { type: TempleMessageType.DAppSwitchEvmChainResponse };
+
     case TempleMessageType.Acknowledge: {
       if (req.payload !== 'PING' && req.payload !== 'ping' && req.beacon) {
         const {

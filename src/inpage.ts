@@ -74,8 +74,12 @@ window.addEventListener('eip6963:requestProvider', announceProvider);
 announceProvider();
 
 function setGlobalProvider(providerInstance: EIP1193Provider) {
-  (window as Record<string, any>).ethereum = providerInstance;
-  window.dispatchEvent(new Event('ethereum#initialized'));
+  try {
+    (window as Record<string, any>).ethereum = providerInstance;
+    window.dispatchEvent(new Event('ethereum#initialized'));
+  } catch (e) {
+    console.error(e);
+  }
 }
 
 function announceProvider() {

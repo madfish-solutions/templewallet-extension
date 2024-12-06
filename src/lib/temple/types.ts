@@ -327,6 +327,8 @@ export enum TempleMessageType {
   DAppSignConfirmationResponse = 'TEMPLE_DAPP_SIGN_CONFIRMATION_RESPONSE',
   DAppRemoveSessionRequest = 'TEMPLE_DAPP_REMOVE_SESSION_REQUEST',
   DAppRemoveSessionResponse = 'TEMPLE_DAPP_REMOVE_SESSION_RESPONSE',
+  DAppSwitchEvmChainRequest = 'TEMPLE_DAPP_SWITCH_EVM_CHAIN_REQUEST',
+  DAppSwitchEvmChainResponse = 'TEMPLE_DAPP_SWITCH_EVM_CHAIN_RESPONSE',
   SendTrackEventRequest = 'SEND_TRACK_EVENT_REQUEST',
   SendTrackEventResponse = 'SEND_TRACK_EVENT_RESPONSE',
   SendPageEventRequest = 'SEND_PAGE_EVENT_REQUEST',
@@ -377,6 +379,7 @@ export type TempleRequest =
   | TempleDAppSignConfirmationRequest
   | TempleUpdateSettingsRequest
   | TempleRemoveDAppSessionRequest
+  | TempleSwitchDAppEvmChainRequest
   | TempleSendTrackEventRequest
   | TempleSendPageEventRequest
   | TempleSendEvmTransactionRequest
@@ -414,6 +417,7 @@ export type TempleResponse =
   | TempleDAppSignConfirmationResponse
   | TempleUpdateSettingsResponse
   | TempleRemoveDAppSessionResponse
+  | TempleSwitchDAppEvmChainResponse
   | TempleSendTrackEventResponse
   | TempleSendPageEventResponse
   | TempleSendEvmTransactionResponse
@@ -818,6 +822,16 @@ interface TempleRemoveDAppSessionResponse extends TempleMessageBase {
   sessions: {
     [k in TempleChainKind]: DAppsSessionsRecord<k>;
   };
+}
+
+interface TempleSwitchDAppEvmChainRequest extends TempleMessageBase {
+  type: TempleMessageType.DAppSwitchEvmChainRequest;
+  origin: string;
+  chainId: number;
+}
+
+interface TempleSwitchDAppEvmChainResponse extends TempleMessageBase {
+  type: TempleMessageType.DAppSwitchEvmChainResponse;
 }
 
 interface TempleResetExtensionRequest extends TempleMessageBase {

@@ -16,7 +16,7 @@ function getDApps<T extends TempleChainKind>(sessions: DAppsSessionsRecord<T> | 
 }
 
 export function useDAppsConnections() {
-  const { removeDAppSession } = useTempleClient();
+  const { removeDAppSession, switchDAppEvmChain } = useTempleClient();
 
   const tezAddress = useAccountAddressForTezos();
   const evmAddress = useAccountAddressForEvm();
@@ -43,5 +43,5 @@ export function useDAppsConnections() {
 
   const disconnectOne = useCallback((origin: string) => disconnectDApps([origin]), [disconnectDApps]);
 
-  return { dapps, activeDApp, disconnectDApps, disconnectOne };
+  return { dapps, activeDApp, disconnectDApps, disconnectOne, switchDAppEvmChain };
 }

@@ -385,6 +385,15 @@ export const [TempleClientProvider, useTempleClient] = constate(() => {
     return res.sessions;
   }, []);
 
+  const switchDAppEvmChain = useCallback(async (origin: string, chainId: number) => {
+    const res = await request({
+      type: TempleMessageType.DAppSwitchEvmChainRequest,
+      origin,
+      chainId
+    });
+    assertResponse(res.type === TempleMessageType.DAppSwitchEvmChainResponse);
+  }, []);
+
   const sendEvmTransaction = useCallback(async (accountPkh: HexString, network: EvmChain, txParams: EvmTxParams) => {
     const res = await request({
       type: TempleMessageType.SendEvmTransactionRequest,
@@ -454,6 +463,7 @@ export const [TempleClientProvider, useTempleClient] = constate(() => {
     confirmDAppOperation,
     confirmDAppSign,
     removeDAppSession,
+    switchDAppEvmChain,
     sendEvmTransaction,
     resetExtension
   };

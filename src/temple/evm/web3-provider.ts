@@ -134,15 +134,10 @@ export class TempleWeb3Provider {
   private baseProvider: PublicClient;
   private accounts: HexString[];
   private chainId: HexString;
-  // TODO: call the callbacks according to the EIP1193 spec
   private callbacks: EIP1193Callbacks;
 
   // Other extensions do the same
   readonly isMetaMask = true;
-
-  get isConnected() {
-    return this.accounts.length > 0;
-  }
 
   private async handleRequest<M extends RequestParameters['method']>(
     args: RequestArgs<M>,
@@ -208,25 +203,27 @@ export class TempleWeb3Provider {
     });
   }
 
-  private onChainChanged(chainId: HexString) {
+  private updateChainId(chainId: HexString) {
+    if (this.chainId === chainId) {
+      return;
+    }
+
+    console.log('oy vey 1', this.chainId, chainId);
     this.chainId = chainId;
     this.callbacks.chainChanged.forEach(listener => listener(chainId));
     this.callbacks.networkChanged.forEach(listener => listener(chainId));
   }
 
-  private onConnected(chainId: HexString) {
-    this.callbacks.connect.forEach(listener => listener({ chainId }));
-    if (chainId !== this.chainId) {
-      this.onChainChanged(chainId);
+  private handleDisconnect() {
+    this.updateAccounts([]);
+  }
+
+  private updateAccounts(accounts: HexString[]) {
+    if (JSON.stringify(this.accounts.toSorted()) === JSON.stringify(accounts.toSorted())) {
+      return;
     }
-  }
 
-  private onDisconnected(error: ProviderRpcError) {
-    this.onAccountsChanged([]);
-    this.callbacks.disconnect.forEach(listener => listener(error));
-  }
-
-  private onAccountsChanged(accounts: HexString[]) {
+    console.log('oy vey 2', this.accounts, accounts);
     this.accounts = accounts;
     this.callbacks.accountsChanged.forEach(listener => listener(accounts));
   }
@@ -235,10 +232,7 @@ export class TempleWeb3Provider {
     return this.handleRequest(
       args,
       ({ accounts, rpcUrls }) => {
-        if (!this.isConnected) {
-          this.onConnected(this.chainId);
-        }
-        this.onAccountsChanged(accounts);
+        this.updateAccounts(accounts);
         this.baseProvider = getReadOnlyEvm(rpcUrls);
       },
       ({ accounts }) => accounts,
@@ -265,8 +259,10 @@ export class TempleWeb3Provider {
   }
 
   private switchChain(chainId: HexString, rpcUrls: string[]) {
+    console.log('ebota 1');
     this.baseProvider = getReadOnlyEvm(rpcUrls);
-    this.onChainChanged(chainId);
+    console.log('ebota 2');
+    this.updateChainId(chainId);
   }
 
   private handleNewPermissionsRequest(args: RequestArgs<'wallet_requestPermissions'>) {
@@ -287,12 +283,7 @@ export class TempleWeb3Provider {
         );
 
         if (returnedAccountsCaveat) {
-          if (!this.isConnected) {
-            this.onConnected(this.chainId);
-          }
-          if (JSON.stringify(this.accounts.toSorted()) !== JSON.stringify(returnedAccountsCaveat.value.toSorted())) {
-            this.onAccountsChanged(returnedAccountsCaveat.value);
-          }
+          this.updateAccounts(returnedAccountsCaveat.value);
         }
         this.baseProvider = getReadOnlyEvm(rpcUrls);
       },
@@ -303,18 +294,7 @@ export class TempleWeb3Provider {
 
   private handleRevokePermissionsRequest(args: RequestArgs<'wallet_revokePermissions'>) {
     // TODO: add handling other permissions than for reading accounts
-    return this.handleRequest(args, this.onPlannedDisconnect, () => null, undefined);
-  }
-
-  private onPlannedDisconnect() {
-    if (this.isConnected) {
-      this.onDisconnected(
-        new ProviderRpcError(new Error(), {
-          code: 1000,
-          shortMessage: 'The provider has been disconnected by the user'
-        })
-      );
-    }
+    return this.handleRequest(args, this.handleDisconnect, () => null, undefined);
   }
 
   private handleGetPermissionsRequest(args: RequestArgs<'wallet_getPermissions'>) {
@@ -334,22 +314,21 @@ export class TempleWeb3Provider {
       message: []
     };
 
-    this.onPlannedDisconnect = this.onPlannedDisconnect.bind(this);
+    this.handleDisconnect = this.handleDisconnect.bind(this);
     this.handleRequest(
       { method: GET_DEFAULT_WEB3_PARAMS_METHOD_NAME, params: null },
       ({ chainId, rpcUrls, accounts }) => {
         this.baseProvider = getReadOnlyEvm(rpcUrls);
-        this.onChainChanged(chainId);
+        this.updateChainId(chainId);
 
         if (accounts.length > 0) {
-          this.onConnected(chainId);
-          this.onAccountsChanged(accounts);
+          this.updateAccounts(accounts);
         }
       },
       identity,
       undefined
     ).catch(error => console.error(error));
-    window.addEventListener(DISCONNECT_DAPP_EVENT, this.onPlannedDisconnect);
+    window.addEventListener(DISCONNECT_DAPP_EVENT, this.handleDisconnect);
     window.addEventListener(SWITCH_CHAIN_EVENT, e => {
       const { chainId, rpcUrls } = (e as CustomEvent<{ chainId: number; rpcUrls: string[] }>).detail;
 
@@ -371,6 +350,7 @@ export class TempleWeb3Provider {
 
   // @ts-expect-error
   request: EIP1193RequestFn<KnownMethods> = async args => {
+    console.log('oy vey 3', args, this.chainId, this.accounts);
     switch (args.method) {
       case evmRpcMethodsNames.eth_accounts:
         return this.accounts;

@@ -83,7 +83,14 @@ const TEMPLE_SYNC_PREFIX = 'templesync';
 const DEFAULT_SETTINGS: TempleSettings = {};
 const libthemisWasmSrc = '/wasm/libthemis.wasm';
 
+interface RemoveAccountEventPayload {
+  tezosAddress?: string;
+  evmAddress?: string;
+}
+
 export class Vault {
+  static removeAccountsListeners: SyncFn<RemoveAccountEventPayload[]>[] = [];
+
   static async isExist() {
     const stored = await isStored(checkStrgKey);
     if (stored) return stored;
@@ -280,6 +287,14 @@ export class Vault {
       .filter(isTruthy);
 
     await removeMany(accAddresses.map(address => [accPrivKeyStrgKey(address), accPubKeyStrgKey(address)]).flat());
+    Vault.removeAccountsListeners.forEach(fn =>
+      fn(
+        accounts.map(account => ({
+          tezosAddress: getAccountAddressForTezos(account),
+          evmAddress: getAccountAddressForEvm(account)
+        }))
+      )
+    );
   }
 
   static async removeAccount(id: string, password: string) {
@@ -385,6 +400,14 @@ export class Vault {
     await Vault.assertValidPassword(password);
     await Vault.forgetSession();
     await clearAsyncStorages();
+  }
+
+  static subscribeToRemoveAccounts(fn: SyncFn<RemoveAccountEventPayload[]>) {
+    Vault.removeAccountsListeners.push(fn);
+  }
+
+  static unsubscribeFromRemoveAccounts(fn: SyncFn<RemoveAccountEventPayload[]>) {
+    Vault.removeAccountsListeners = Vault.removeAccountsListeners.filter(f => f !== fn);
   }
 
   constructor(private passKey: CryptoKey) {}

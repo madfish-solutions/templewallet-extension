@@ -7,10 +7,9 @@ import {
   getDApp as genericGetDApp,
   setDApp as genericSetDApp,
   removeDApps as genericRemoveDApps,
-  evmDAppStorageKey,
-  EvmDAppsSessionsRecord,
   getAllDApps
 } from 'app/storage/dapps';
+import { isTruthy } from 'lib/utils';
 import {
   CHAIN_DISCONNECTED_ERROR_CODE,
   evmRpcMethodsNames,
@@ -34,51 +33,31 @@ import {
 import { intercom } from './defaults';
 import { requestConfirm as genericRequestConfirm, RequestConfirmParams } from './request-confirm';
 import { withUnlocked } from './store';
-import type { Vault } from './vault';
+import { Vault } from './vault';
 
 export async function init() {
-  [evmDAppsSessionsListener, evmRpcUrlsListener].forEach(listener =>
-    browser.storage.local.onChanged.addListener(listener as unknown as SyncFn<Storage.StorageAreaOnChangedChangesType>)
+  browser.storage.local.onChanged.addListener(
+    evmRpcUrlsListener as unknown as SyncFn<Storage.StorageAreaOnChangedChangesType>
   );
-}
 
-/** Reaction on network change in 'DApps' section */
-async function evmDAppsSessionsListener(changes: StringRecord<Storage.StorageChange>) {
-  if (!(evmDAppStorageKey in changes)) {
-    return;
-  }
+  Vault.subscribeToRemoveAccounts(async addresses => {
+    const removedAccounts = new Set(addresses.map(({ evmAddress }) => evmAddress).filter(isTruthy));
+    const evmDApps = await getAllDApps(TempleChainKind.EVM);
+    const dAppsToRemoveOrigins: string[] = [];
 
-  const { oldValue, newValue } = changes[evmDAppStorageKey];
-
-  const oldSessions: EvmDAppsSessionsRecord = Object.assign({}, oldValue);
-  const newSessions: EvmDAppsSessionsRecord = Object.assign({}, newValue);
-  const switchedChainIdSessions: EvmDAppsSessionsRecord = {};
-  for (const origin in newSessions) {
-    const oldSession = oldSessions[origin];
-    const newSession = newSessions[origin];
-    if (oldSession && oldSession.chainId !== newSession.chainId) {
-      switchedChainIdSessions[origin] = newSession;
+    for (const [origin, dApp] of Object.entries(evmDApps)) {
+      if (removedAccounts.has(dApp.pkh)) {
+        dAppsToRemoveOrigins.push(origin);
+      }
     }
-  }
 
-  if (Object.keys(switchedChainIdSessions).length === 0) {
-    return;
-  }
-
-  const rpcUrls = await getEvmChainsRpcUrls();
-  for (const origin in switchedChainIdSessions) {
-    const { chainId } = switchedChainIdSessions[origin];
-
-    intercom.broadcast({
-      type: TempleMessageType.TempleEvmChainSwitched,
-      origin,
-      chainId,
-      rpcUrls: rpcUrls[chainId]
-    });
-  }
+    if (dAppsToRemoveOrigins.length) {
+      await removeDApps(dAppsToRemoveOrigins);
+    }
+  });
 }
 
-/** Reaction on disabling a chain or removing it  */
+/** Implements a reaction on disabling a chain or removing it, or wallet reset */
 async function evmRpcUrlsListener(changes: StringRecord<Storage.StorageChange>) {
   if (!(EVM_CHAINS_RPC_URLS_STORAGE_KEY in changes)) {
     return;
@@ -101,15 +80,15 @@ async function evmRpcUrlsListener(changes: StringRecord<Storage.StorageChange>) 
   }
 
   const evmDApps = await getAllDApps(TempleChainKind.EVM);
-  const removedDAppsOrigins: string[] = [];
+  const dAppsToRemoveOrigins: string[] = [];
   for (const [origin, dApp] of Object.entries(evmDApps)) {
     if (removedChainsIds.has(dApp.chainId)) {
-      removedDAppsOrigins.push(origin);
+      dAppsToRemoveOrigins.push(origin);
     }
   }
 
-  if (removedDAppsOrigins.length) {
-    await removeDApps(removedDAppsOrigins);
+  if (dAppsToRemoveOrigins.length) {
+    await removeDApps(dAppsToRemoveOrigins);
   }
 }
 
@@ -213,7 +192,7 @@ export const connectEvm = async (origin: string, chainId: string, icon?: string)
   });
 };
 
-export const switchChain = async (origin: string, destinationChainId: number) => {
+export const switchChain = async (origin: string, destinationChainId: number, isInternal: boolean) => {
   const rpcUrls = (await getEvmChainsRpcUrls())[destinationChainId];
 
   if (!rpcUrls) {
@@ -225,6 +204,15 @@ export const switchChain = async (origin: string, destinationChainId: number) =>
 
   if (dApp) {
     await setDApp(origin, { ...dApp, chainId: destinationChainId });
+  }
+
+  if (isInternal) {
+    intercom.broadcast({
+      type: TempleMessageType.TempleEvmChainSwitched,
+      origin,
+      chainId: destinationChainId,
+      rpcUrls
+    });
   }
 
   return { chainId: toHex(destinationChainId), rpcUrls };

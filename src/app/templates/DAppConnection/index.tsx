@@ -43,7 +43,6 @@ export const DAppConnection = memo(() => {
       ? tezosChains[tezosChainId]
       : null
     : evmChains[dapp.chainId] ?? null;
-  console.log('oy vey 1', origin, dapp.appMeta.icon);
 
   return (
     <div className="sticky bottom-0 flex items-center gap-x-2 py-3 px-4 bg-white shadow-bottom">

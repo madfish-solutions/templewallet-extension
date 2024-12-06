@@ -70,6 +70,8 @@ import {
 } from './store';
 import { Vault } from './vault';
 
+export { switchChain as switchEvmChain } from './evm-dapp';
+
 const ACCOUNT_OR_GROUP_NAME_PATTERN = /^.{1,16}$/;
 const AUTODECLINE_AFTER = 60_000;
 const BEACON_ID = `temple_wallet_${browser.runtime.id}`;
@@ -503,7 +505,7 @@ export async function processEvmDApp(origin: string, payload: EvmRequestPayload,
       break;
     case evmRpcMethodsNames.wallet_switchEthereumChain:
       const [{ chainId: destinationChainId }] = switchEthChainPayloadValidationSchema.validateSync(params);
-      methodHandler = () => switchChain(origin, destinationChainId);
+      methodHandler = () => switchChain(origin, destinationChainId, false);
       break;
     case evmRpcMethodsNames.eth_signTypedData:
     case evmRpcMethodsNames.eth_signTypedData_v1:
