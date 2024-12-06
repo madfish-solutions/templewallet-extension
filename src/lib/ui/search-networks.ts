@@ -2,7 +2,7 @@ import { t } from 'lib/i18n';
 import { searchAndFilterItems } from 'lib/utils/search-items';
 import { OneOfChains } from 'temple/front';
 
-export function searchAndFilterChains(networks: (string | OneOfChains)[], searchValue: string) {
+export function searchAndFilterChains<T extends string | OneOfChains>(networks: T[], searchValue: string) {
   return searchAndFilterItems(
     networks,
     searchValue.trim(),
