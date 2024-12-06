@@ -2,7 +2,7 @@
 
 import { encodePacked, hexToBytes, isHex, keccak256, numberToBytes, pad, toBytes } from 'viem';
 
-import { INVALID_INPUT_ERROR_CODE } from './constants';
+import { EVMErrorCodes } from './constants';
 import { ErrorWithCode } from './types';
 
 interface TypedDataV1Field {
@@ -27,7 +27,7 @@ function getLength(type: string) {
 
   if (!groups?.length) {
     throw new ErrorWithCode(
-      INVALID_INPUT_ERROR_CODE,
+      EVMErrorCodes.INVALID_INPUT,
       `Invalid number type. Expected a number type, but received "${type}".`
     );
   }
@@ -36,14 +36,14 @@ function getLength(type: string) {
 
   if (length < 8 || length > 256) {
     throw new ErrorWithCode(
-      INVALID_INPUT_ERROR_CODE,
+      EVMErrorCodes.INVALID_INPUT,
       `Invalid number length. Expected a number between 8 and 256, but received "${type}".`
     );
   }
 
   if (length % 8 !== 0) {
     throw new ErrorWithCode(
-      INVALID_INPUT_ERROR_CODE,
+      EVMErrorCodes.INVALID_INPUT,
       `Invalid number length. Expected a multiple of 8, but received "${type}".`
     );
   }
@@ -74,14 +74,11 @@ function normalizeAddresses(values: unknown[]) {
 }
 
 function signedBigIntToBytes(value: bigint, byteLength: number): Uint8Array {
-  // ESLint doesn't like mutating function parameters, so to avoid having to
-  // disable the rule, we create a new variable.
   let numberValue = value;
   const bytes = new Uint8Array(byteLength);
 
   for (let i = 0; i < bytes.length; i++) {
     bytes[i] = Number(BigInt.asUintN(8, numberValue));
-    // eslint-disable-next-line no-bitwise
     numberValue >>= BigInt(8);
   }
 
@@ -109,7 +106,7 @@ function getArrayType(type: string): [type: string, length: number | undefined] 
   const groups = type.match(ARRAY_REGEX)?.groups;
   if (!groups?.type) {
     throw new ErrorWithCode(
-      INVALID_INPUT_ERROR_CODE,
+      EVMErrorCodes.INVALID_INPUT,
       `Invalid array type. Expected an array type, but received "${type}".`
     );
   }
@@ -286,7 +283,7 @@ export function typedV1SignatureHash(typedData: TypedDataV1) {
   });
   const types = normalizedData.map(e => {
     if (e.type === 'function') {
-      throw new ErrorWithCode(INVALID_INPUT_ERROR_CODE, 'Unsupported or invalid type: "function"');
+      throw new ErrorWithCode(EVMErrorCodes.INVALID_INPUT, 'Unsupported or invalid type: "function"');
     }
 
     return e.type;

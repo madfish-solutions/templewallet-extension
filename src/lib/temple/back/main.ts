@@ -20,7 +20,7 @@ import { encodeMessage, encryptMessage, getSenderId, MessageType, Response } fro
 import { clearAsyncStorages } from 'lib/temple/reset';
 import { StoredHDAccount, TempleMessageType, TempleRequest, TempleResponse } from 'lib/temple/types';
 import { getTrackedCashbackServiceDomain, getTrackedUrl } from 'lib/utils/url-track/url-track.utils';
-import { INTERNAL_ERROR_CODE, INVALID_PARAMS_CODE } from 'temple/evm/constants';
+import { EVMErrorCodes } from 'temple/evm/constants';
 import { ErrorWithCode } from 'temple/evm/types';
 import { fromSerializableEvmTxParams } from 'temple/evm/utils';
 import { TempleChainKind } from 'temple/types';
@@ -261,16 +261,20 @@ const processRequest = async (req: TempleRequest, port: Runtime.Port): Promise<T
     case TempleMessageType.PageRequest:
       const dAppEnabled = await Actions.canInteractWithDApps();
 
-      if (!dAppEnabled) {
+      if (!dAppEnabled && req.chainType === TempleChainKind.EVM) {
         return {
           type: TempleMessageType.PageResponse,
           payload: {
             error: {
-              code: 4001,
+              code: EVMErrorCodes.NOT_AUTHORIZED,
               message: 'DApp interaction is disabled'
             }
           }
         };
+      }
+
+      if (!dAppEnabled) {
+        return;
       }
 
       if (req.chainType === TempleChainKind.EVM) {
@@ -289,14 +293,14 @@ const processRequest = async (req: TempleRequest, port: Runtime.Port): Promise<T
           } else if (e instanceof ValidationError) {
             resPayload = {
               error: {
-                code: INVALID_PARAMS_CODE,
+                code: EVMErrorCodes.INVALID_PARAMS,
                 message: e.message
               }
             };
           } else {
             resPayload = {
               error: {
-                code: INTERNAL_ERROR_CODE,
+                code: EVMErrorCodes.INTERNAL_ERROR,
                 message: e instanceof Error ? e.message : 'Unknown error'
               }
             };

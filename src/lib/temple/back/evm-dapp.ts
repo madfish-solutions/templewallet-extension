@@ -10,14 +10,7 @@ import {
   getAllDApps
 } from 'app/storage/dapps';
 import { isTruthy } from 'lib/utils';
-import {
-  CHAIN_DISCONNECTED_ERROR_CODE,
-  evmRpcMethodsNames,
-  INVALID_PARAMS_CODE,
-  PROVIDER_DISCONNECTED_ERROR_CODE,
-  RETURNED_ACCOUNTS_CAVEAT_NAME,
-  USER_REJECTED_REQUEST_ERROR_CODE
-} from 'temple/evm/constants';
+import { EVMErrorCodes, evmRpcMethodsNames, RETURNED_ACCOUNTS_CAVEAT_NAME } from 'temple/evm/constants';
 import { ChainsRpcUrls, EVM_CHAINS_RPC_URLS_STORAGE_KEY, getEvmChainsRpcUrls } from 'temple/evm/evm-chains-rpc-urls';
 import { ChangePermissionsPayload, ErrorWithCode } from 'temple/evm/types';
 import { TempleChainKind } from 'temple/types';
@@ -150,7 +143,7 @@ export const connectEvm = async (origin: string, chainId: string, icon?: string)
 
     if (!rpcUrls) {
       // TODO: find a more appropriate error code
-      reject(new ErrorWithCode(INVALID_PARAMS_CODE, 'Network not found'));
+      reject(new ErrorWithCode(EVMErrorCodes.INVALID_PARAMS, 'Network not found'));
 
       return;
     }
@@ -165,7 +158,7 @@ export const connectEvm = async (origin: string, chainId: string, icon?: string)
         appMeta
       },
       onDecline: () => {
-        reject(new ErrorWithCode(USER_REJECTED_REQUEST_ERROR_CODE, 'Connection declined'));
+        reject(new ErrorWithCode(EVMErrorCodes.USER_REJECTED_REQUEST, 'Connection declined'));
       },
       handleIntercomRequest: async (confirmReq, decline) => {
         if (confirmReq?.type === TempleMessageType.DAppPermConfirmationRequest && confirmReq?.id === id) {
@@ -198,7 +191,7 @@ export const switchChain = async (origin: string, destinationChainId: number, is
 
   if (!rpcUrls) {
     // TODO: find a more appropriate error code
-    throw new ErrorWithCode(INVALID_PARAMS_CODE, 'Network not found');
+    throw new ErrorWithCode(EVMErrorCodes.INVALID_PARAMS, 'Network not found');
   }
 
   const dApp = await getDApp(origin);
@@ -237,7 +230,7 @@ const makeRequestEvmSignFunction =
       const dApp = await getDApp(origin);
 
       if (!dApp) {
-        reject(new ErrorWithCode(PROVIDER_DISCONNECTED_ERROR_CODE, 'DApp not found'));
+        reject(new ErrorWithCode(EVMErrorCodes.NOT_AUTHORIZED, 'DApp not found'));
 
         return;
       }
@@ -254,7 +247,7 @@ const makeRequestEvmSignFunction =
           appMeta: { name: new URL(origin).hostname, icon }
         } as T,
         onDecline: () => {
-          reject(new ErrorWithCode(USER_REJECTED_REQUEST_ERROR_CODE, 'Signature declined'));
+          reject(new ErrorWithCode(EVMErrorCodes.USER_REJECTED_REQUEST, 'Signature declined'));
         },
         handleIntercomRequest: async (confirmReq, decline) => {
           if (confirmReq?.type === TempleMessageType.DAppSignConfirmationRequest && confirmReq.id === id) {
@@ -284,7 +277,7 @@ export const requestEvmTypedSign = makeRequestEvmSignFunction<TempleEvmDAppSignT
       typedData.domain?.chainId !== Number(connectedChainId)
     ) {
       throw new ErrorWithCode(
-        CHAIN_DISCONNECTED_ERROR_CODE,
+        EVMErrorCodes.CHAIN_DISCONNECTED,
         'Cannot sign payload with other chain ID than the current one'
       );
     }

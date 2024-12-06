@@ -17,7 +17,7 @@ import { TempleChainKind } from 'temple/types';
 import { SearchBarField } from '../SearchField';
 
 import { ALL_NETWORKS } from './constants';
-import { FilterOption } from './option';
+import { NetworkOption } from './option';
 import { NetworkPopperProps, Network } from './types';
 
 interface NetworkDropdownProps extends Omit<NetworkPopperProps, 'children'>, PopperRenderProps {}
@@ -63,7 +63,7 @@ export const NetworkDropdown = memo<NetworkDropdownProps>(
           {filteredNetworks.length === 0 && <EmptyState text="" iconSize={60} forSearch />}
 
           {filteredNetworks.map(network => (
-            <FilterOption
+            <NetworkOption
               key={typeof network === 'string' ? ALL_NETWORKS : network.chainId}
               network={network}
               activeNetwork={selectedOption}

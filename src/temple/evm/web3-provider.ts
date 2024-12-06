@@ -21,8 +21,7 @@ import { ETHEREUM_MAINNET_CHAIN_ID } from 'lib/temple/types';
 import {
   evmRpcMethodsNames,
   GET_DEFAULT_WEB3_PARAMS_METHOD_NAME,
-  INVALID_INPUT_ERROR_CODE,
-  METHOD_NOT_SUPPORTED_BY_PROVIDER_ERROR_CODE,
+  EVMErrorCodes,
   RETURNED_ACCOUNTS_CAVEAT_NAME
 } from './constants';
 import { getReadOnlyEvm } from './get-read-only-evm';
@@ -146,7 +145,7 @@ export class TempleWeb3Provider {
     requiredAccount: HexString | undefined
   ) {
     if (requiredAccount && !this.accounts.some(acc => acc.toLowerCase() === requiredAccount.toLowerCase())) {
-      throw new ErrorWithCode(INVALID_INPUT_ERROR_CODE, 'Account is not available');
+      throw new ErrorWithCode(EVMErrorCodes.NOT_AUTHORIZED, 'Account is not connected');
     }
 
     const iconsTags = Array.from(document?.head?.querySelectorAll('link[rel*="icon"]') ?? []) as HTMLLinkElement[];
@@ -208,7 +207,6 @@ export class TempleWeb3Provider {
       return;
     }
 
-    console.log('oy vey 1', this.chainId, chainId);
     this.chainId = chainId;
     this.callbacks.chainChanged.forEach(listener => listener(chainId));
     this.callbacks.networkChanged.forEach(listener => listener(chainId));
@@ -223,7 +221,6 @@ export class TempleWeb3Provider {
       return;
     }
 
-    console.log('oy vey 2', this.accounts, accounts);
     this.accounts = accounts;
     this.callbacks.accountsChanged.forEach(listener => listener(accounts));
   }
@@ -259,9 +256,7 @@ export class TempleWeb3Provider {
   }
 
   private switchChain(chainId: HexString, rpcUrls: string[]) {
-    console.log('ebota 1');
     this.baseProvider = getReadOnlyEvm(rpcUrls);
-    console.log('ebota 2');
     this.updateChainId(chainId);
   }
 
@@ -349,7 +344,6 @@ export class TempleWeb3Provider {
 
   // @ts-expect-error
   request: EIP1193RequestFn<KnownMethods> = async args => {
-    console.log('oy vey 3', args, this.chainId, this.accounts);
     switch (args.method) {
       case evmRpcMethodsNames.eth_accounts:
         return this.accounts;
@@ -388,7 +382,7 @@ export class TempleWeb3Provider {
       case 'wallet_showCallsStatus':
       case 'wallet_watchAsset':
       case 'eth_sign':
-        throw new ErrorWithCode(METHOD_NOT_SUPPORTED_BY_PROVIDER_ERROR_CODE, 'Method not supported');
+        throw new ErrorWithCode(EVMErrorCodes.METHOD_NOT_SUPPORTED, 'Method not supported');
       case 'personal_ecRecover':
         return this.handlePersonalSignRecoverRequest(args as RequestArgs<'personal_ecRecover'>);
       default:

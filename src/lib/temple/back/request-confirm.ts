@@ -13,8 +13,8 @@ export interface RequestConfirmParams {
   handleIntercomRequest: (req: TempleRequest, decline: () => void) => Promise<any>;
 }
 
-const CONFIRM_WINDOW_WIDTH = 380;
-const CONFIRM_WINDOW_HEIGHT = 632;
+const CONFIRM_WINDOW_WIDTH = 384;
+const CONFIRM_WINDOW_HEIGHT = 600;
 const AUTODECLINE_AFTER = 120_000;
 
 export async function requestConfirm({

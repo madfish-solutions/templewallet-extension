@@ -17,10 +17,10 @@ interface NetworkOptionProps {
   activeNetwork: FilterChain;
   attractSelf: boolean;
   iconSize?: Size;
-  onClick?: EmptyFn;
+  onClick: EmptyFn;
 }
 
-export const FilterOption = memo<NetworkOptionProps>(
+export const NetworkOption = memo<NetworkOptionProps>(
   ({ network, activeNetwork, attractSelf, iconSize = 24, onClick }) => {
     const isAllNetworks = typeof network === 'string';
 
@@ -39,11 +39,7 @@ export const FilterOption = memo<NetworkOptionProps>(
       return null;
     }, [isAllNetworks, network, iconSize]);
 
-    const handleClick = useCallback(() => {
-      if (active) return;
-
-      onClick?.();
-    }, [active, onClick]);
+    const handleClick = useCallback(() => void (!active && onClick()), [active, onClick]);
 
     return (
       <div
