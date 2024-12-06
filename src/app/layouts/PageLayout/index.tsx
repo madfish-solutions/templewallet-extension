@@ -178,7 +178,7 @@ const TestnetModeIndicator = memo(() => {
     <div
       className={clsx(
         'flex justify-center items-center sticky z-sticky top-0 bg-success',
-        'transition-all ease-in-out duration-300',
+        'transition-all ease-in-out duration-300 overflow-hidden',
         enabled ? 'min-h-6 h-6' : 'min-h-0 h-0'
       )}
     >
