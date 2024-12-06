@@ -35,7 +35,7 @@ export const NetworkSelectButton = memo<NetworkSelectProps>(({ selectedChain, on
 
       return (
         <>
-          <TezosNetworkLogo networkName={networkName} chainId={selectedChain.chainId} />
+          <TezosNetworkLogo chainId={selectedChain.chainId} />
           <span className="text-font-medium-bold">{networkName}</span>
         </>
       );
@@ -45,7 +45,7 @@ export const NetworkSelectButton = memo<NetworkSelectProps>(({ selectedChain, on
 
     return (
       <>
-        <EvmNetworkLogo networkName={networkName} chainId={selectedChain.chainId} size={24} imgClassName="p-0.5" />
+        <EvmNetworkLogo chainId={selectedChain.chainId} size={24} imgClassName="p-0.5" />
         <span className="text-font-medium-bold">{networkName}</span>
       </>
     );

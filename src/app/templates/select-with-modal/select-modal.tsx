@@ -55,7 +55,7 @@ export const SelectModal = <T, P extends null | SyncFn<T, any>>({
     <PageModal title={title} opened={opened} onRequestClose={onRequestClose}>
       {searchBarIsVisible && (
         <div className={clsx('p-4', !topEdgeIsVisible && 'shadow-bottom border-b-0.5 border-lines overflow-y-visible')}>
-          <SearchBarField containerClassName="!mr-0" value={searchValue} onValueChange={setSearchValue} />
+          <SearchBarField defaultRightMargin={false} value={searchValue} onValueChange={setSearchValue} />
         </div>
       )}
 

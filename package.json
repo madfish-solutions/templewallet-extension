@@ -200,7 +200,7 @@
     "ts-prune": "^0.10.3",
     "typescript": "^5.4.2",
     "typescript-eslint": "^7",
-    "use-debounce": "7.0.1",
+    "use-debounce": "^10",
     "use-force-update": "1.0.7",
     "use-onclickoutside": "0.4.1",
     "util": "0.11.1",

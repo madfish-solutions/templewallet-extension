@@ -1,14 +1,14 @@
-import React, { FC, UIEventHandler, useCallback } from 'react';
+import React, { FC, HTMLAttributes, UIEventHandler, useCallback } from 'react';
 
 import clsx from 'clsx';
 
 import { useResizeDependentValue } from 'app/hooks/use-resize-dependent-value';
 
-interface Props extends PropsWithChildren {
+interface Props extends HTMLAttributes<HTMLDivElement> {
   className?: string;
 }
 
-export const ScrollView: FC<Props> = ({ className, children }) => {
+export const ScrollView: FC<Props> = ({ className, children, ...rest }) => {
   const { value: contentHiding, updateValue, refFn } = useResizeDependentValue(isContentHidingBelow, false, 300);
 
   const onScroll = useCallback<UIEventHandler<HTMLDivElement>>(
@@ -21,6 +21,7 @@ export const ScrollView: FC<Props> = ({ className, children }) => {
       ref={refFn}
       className={clsx('flex-grow flex flex-col overflow-y-auto', className, contentHiding && 'shadow-inner-bottom')}
       onScroll={onScroll}
+      {...rest}
     >
       {children}
     </div>

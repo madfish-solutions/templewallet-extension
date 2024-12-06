@@ -1,6 +1,6 @@
 export type { TID } from './types';
 
-export { getMessage, getCurrentLocale, getDateFnsLocale, getNumberSymbols, formatDate } from './core';
+export { getMessage, getCurrentLocale, getNumberSymbols, formatDate } from './core';
 
 export { updateLocale, onInited } from './loading';
 

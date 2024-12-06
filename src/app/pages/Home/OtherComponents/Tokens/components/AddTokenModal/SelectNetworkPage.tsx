@@ -7,21 +7,20 @@ import { IconButton } from 'app/atoms/IconButton';
 import { ReactComponent as PlusIcon } from 'app/icons/base/plus.svg';
 import { Network } from 'app/templates/NetworkSelectModal';
 import { SearchBarField } from 'app/templates/SearchField';
+import { searchAndFilterChains } from 'lib/ui/search-networks';
+import { isSearchStringApplicable } from 'lib/utils/search-items';
 import { navigate } from 'lib/woozie';
 import {
-  EvmChain,
-  TezosChain,
+  OneOfChains,
   useAccountAddressForEvm,
   useAccountAddressForTezos,
   useEnabledEvmChains,
   useEnabledTezosChains
 } from 'temple/front';
 
-type Network = EvmChain | TezosChain;
-
 interface SelectNetworkPageProps {
-  selectedNetwork: Network;
-  onNetworkSelect: (network: Network) => void;
+  selectedNetwork: OneOfChains;
+  onNetworkSelect: (network: OneOfChains) => void;
 }
 
 export const SelectNetworkPage: FC<SelectNetworkPageProps> = ({ selectedNetwork, onNetworkSelect }) => {
@@ -41,14 +40,14 @@ export const SelectNetworkPage: FC<SelectNetworkPageProps> = ({ selectedNetwork,
 
   const filteredNetworks = useMemo(
     () =>
-      searchValueDebounced.length
-        ? searchAndFilterNetworksByName<Network>(sortedNetworks, searchValueDebounced)
+      isSearchStringApplicable(searchValueDebounced)
+        ? searchAndFilterChains(sortedNetworks, searchValueDebounced)
         : sortedNetworks,
     [searchValueDebounced, sortedNetworks]
   );
 
   const handleNetworkSelect = useCallback(
-    (network: Network | string) => {
+    (network: OneOfChains | string) => {
       if (typeof network === 'string') return;
 
       onNetworkSelect(network);
@@ -80,10 +79,4 @@ export const SelectNetworkPage: FC<SelectNetworkPageProps> = ({ selectedNetwork,
       </div>
     </>
   );
-};
-
-const searchAndFilterNetworksByName = <T extends EvmChain | TezosChain>(networks: T[], searchValue: string) => {
-  const preparedSearchValue = searchValue.trim().toLowerCase();
-
-  return networks.filter(network => network.name.toLowerCase().includes(preparedSearchValue));
 };

@@ -20,7 +20,6 @@ const SIZE_CLASSNAME: Record<Size, string> = {
   S: 'w-4 h-4'
 };
 
-// @ts-prune-ignore-next
 export const Loader = memo<Props>(({ size, trackVariant, className }) => (
   <LoaderIcon
     className={clsx(
@@ -37,7 +36,6 @@ interface PageLoaderProps {
   stretch?: boolean;
 }
 
-// @ts-prune-ignore-next
 export const PageLoader: FC<PageLoaderProps> = ({ text = 'Content is Loading...', stretch }) => (
   <div className={clsx('w-full flex flex-col items-center', stretch && 'flex-grow justify-center')}>
     <div
