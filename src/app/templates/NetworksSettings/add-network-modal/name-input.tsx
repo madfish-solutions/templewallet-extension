@@ -229,7 +229,7 @@ const ChainVariant: FC<ChainVariantProps> = ({ variant, index, variantsRef, onCl
     >
       {variant.name}
 
-      <EvmNetworkLogo networkName={variant.name} chainId={variant.id} size={24} />
+      <EvmNetworkLogo chainId={variant.id} size={24} />
     </button>
   );
 };

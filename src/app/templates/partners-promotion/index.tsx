@@ -29,6 +29,7 @@ interface PartnersPromotionProps {
   id: string;
   pageName: string;
   withPersonaProvider?: boolean;
+  className?: string;
 }
 
 type AdsProviderLocalName = Exclude<AdsProviderName, 'Temple'>;

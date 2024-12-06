@@ -20,7 +20,8 @@ export const useChainOperations = (chainKind: TempleChainKind, chainId: string |
   const evmChains = useAllEvmChains();
   const tezChains = useAllTezosChains();
   const chain: OneOfChains = evmChains[chainId] ?? tezChains[chainId];
-  const [, setChainSpecs, removeChainSpecs] = useChainSpecs(chainKind, chainId);
+  const [setChainSpecs, removeChainSpecs] = useChainSpecs(chainKind, chainId);
+
   const {
     addEvmNetwork,
     addTezosNetwork,
@@ -29,8 +30,10 @@ export const useChainOperations = (chainKind: TempleChainKind, chainId: string |
     removeEvmNetworks,
     removeTezosNetworks
   } = useTempleNetworksActions();
+
   const { addBlockExplorer, replaceBlockExplorer, removeBlockExplorer, removeAllBlockExplorers } =
     useChainBlockExplorers(chainKind, chainId);
+
   const activeRpcId = chain.rpc.id;
   const defaultRpcId = chain.allRpcs[0].id;
   const activeBlockExplorerId = chain.activeBlockExplorer?.id;

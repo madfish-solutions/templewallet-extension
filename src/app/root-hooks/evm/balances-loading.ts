@@ -5,7 +5,7 @@ import { setEvmBalancesLoadingState } from 'app/store/evm/actions';
 import { processLoadedEvmAssetsAction } from 'app/store/evm/assets/actions';
 import { processLoadedEvmAssetsBalancesAction } from 'app/store/evm/balances/actions';
 import { useAllEvmChainsBalancesLoadingStatesSelector } from 'app/store/evm/selectors';
-import { getEvmBalances } from 'lib/apis/temple/endpoints/evm/api';
+import { getEvmBalances } from 'lib/apis/temple/endpoints/evm';
 import { isSupportedChainId } from 'lib/apis/temple/endpoints/evm/api.utils';
 import { EVM_BALANCES_SYNC_INTERVAL } from 'lib/fixed-times';
 import { useInterval, useMemoWithCompare } from 'lib/ui/hooks';

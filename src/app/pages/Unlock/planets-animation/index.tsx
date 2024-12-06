@@ -23,12 +23,12 @@ const orbitsBase = [
       {
         id: 'tezos',
         radius: 19,
-        item: <TezosNetworkLogo size={38} networkName="Tezos" chainId={TEZOS_MAINNET_CHAIN_ID} className="p-[3px]" />
+        item: <TezosNetworkLogo size={38} chainId={TEZOS_MAINNET_CHAIN_ID} className="p-[3px]" />
       },
       {
         id: 'avalanche',
         radius: 19,
-        item: <EvmPlanetItem name="Avalanche" chainId={OTHER_COMMON_MAINNET_CHAIN_IDS.avalanche} padding="large" />
+        item: <EvmPlanetItem chainId={OTHER_COMMON_MAINNET_CHAIN_IDS.avalanche} padding="large" />
       }
     ]
   },
@@ -40,12 +40,12 @@ const orbitsBase = [
       {
         id: 'bsc',
         radius: 19,
-        item: <EvmPlanetItem name="Binance Smart Chain" chainId={OTHER_COMMON_MAINNET_CHAIN_IDS.bsc} />
+        item: <EvmPlanetItem chainId={OTHER_COMMON_MAINNET_CHAIN_IDS.bsc} />
       },
       {
         id: 'polygon',
         radius: 19,
-        item: <EvmPlanetItem name="Polygon" chainId={OTHER_COMMON_MAINNET_CHAIN_IDS.polygon} />
+        item: <EvmPlanetItem chainId={OTHER_COMMON_MAINNET_CHAIN_IDS.polygon} />
       }
     ]
   },
@@ -57,22 +57,22 @@ const orbitsBase = [
       {
         id: 'eth',
         radius: 19,
-        item: <EvmPlanetItem name="Ethereum" chainId={ETHEREUM_MAINNET_CHAIN_ID} />
+        item: <EvmPlanetItem chainId={ETHEREUM_MAINNET_CHAIN_ID} />
       },
       {
         id: 'optimism',
         radius: 19,
-        item: <EvmPlanetItem name="Optimism" chainId={OTHER_COMMON_MAINNET_CHAIN_IDS.optimism} padding="medium" />
+        item: <EvmPlanetItem chainId={OTHER_COMMON_MAINNET_CHAIN_IDS.optimism} padding="medium" />
       },
       {
         id: 'arbitrum',
         radius: 19,
-        item: <EvmPlanetItem name="Arbitrum" chainId={OTHER_COMMON_MAINNET_CHAIN_IDS.arbitrum} />
+        item: <EvmPlanetItem chainId={OTHER_COMMON_MAINNET_CHAIN_IDS.arbitrum} />
       },
       {
         id: 'base',
         radius: 19,
-        item: <EvmPlanetItem name="Base" chainId={OTHER_COMMON_MAINNET_CHAIN_IDS.base} />
+        item: <EvmPlanetItem chainId={OTHER_COMMON_MAINNET_CHAIN_IDS.base} />
       }
     ]
   },
