@@ -2,7 +2,7 @@ import React, { ComponentType, FC, memo, ReactNode, useRef } from 'react';
 
 import clsx from 'clsx';
 
-import { ContentFader } from 'app/a11y/ContentFader';
+import { FADABLE_CONTENT_CLASSNAME } from 'app/a11y/content-fader';
 import DocBg from 'app/a11y/DocBg';
 import Spinner from 'app/atoms/Spinner/Spinner';
 import { SuspenseContainer } from 'app/atoms/SuspenseContainer';
@@ -88,20 +88,23 @@ const PageLayout: FC<PropsWithChildren<PageLayoutProps>> = ({
           bottomEdgeThreshold={bottomEdgeThreshold}
           onTopEdgeVisibilityChange={onTopEdgeVisibilityChange}
           topEdgeThreshold={topEdgeThreshold}
-          showTestnetModeIndicator={showTestnetModeIndicator}
         >
-          {Header ? <Header /> : <DefaultHeader {...headerProps}>{headerChildren}</DefaultHeader>}
+          {showTestnetModeIndicator && <TestnetModeIndicator />}
 
-          <div
-            className={clsx(
-              'flex-grow flex flex-col',
-              noScroll && 'overflow-hidden',
-              contentPadding && 'p-4 pb-15',
-              'bg-background',
-              contentClassName
-            )}
-          >
-            <SuspenseContainer errorMessage="displaying this page">{children}</SuspenseContainer>
+          <div className={clsx('flex-grow flex flex-col bg-white', FADABLE_CONTENT_CLASSNAME)}>
+            {Header ? <Header /> : <DefaultHeader {...headerProps}>{headerChildren}</DefaultHeader>}
+
+            <div
+              className={clsx(
+                'flex-grow flex flex-col',
+                noScroll && 'overflow-hidden',
+                contentPadding && 'p-4 pb-15',
+                'bg-background',
+                contentClassName
+              )}
+            >
+              <SuspenseContainer errorMessage="displaying this page">{children}</SuspenseContainer>
+            </div>
           </div>
         </ContentPaper>
       </div>
@@ -128,9 +131,7 @@ const PageLayout: FC<PropsWithChildren<PageLayoutProps>> = ({
 
 export default PageLayout;
 
-type ContentPaperProps = PropsWithChildren<
-  { showTestnetModeIndicator?: boolean; className?: string } & ScrollEdgesVisibilityProps
->;
+type ContentPaperProps = PropsWithChildren<{ className?: string } & ScrollEdgesVisibilityProps>;
 
 const ContentPaper: FC<ContentPaperProps> = ({
   children,
@@ -138,8 +139,7 @@ const ContentPaper: FC<ContentPaperProps> = ({
   bottomEdgeThreshold,
   topEdgeThreshold,
   onBottomEdgeVisibilityChange,
-  onTopEdgeVisibilityChange,
-  showTestnetModeIndicator = true
+  onTopEdgeVisibilityChange
 }) => {
   const appEnv = useAppEnv();
   const rootRef = useRef<HTMLDivElement>(null);
@@ -165,11 +165,7 @@ const ContentPaper: FC<ContentPaperProps> = ({
           className
         )}
       >
-        {showTestnetModeIndicator && <TestnetModeIndicator />}
-
         {children}
-
-        <ContentFader />
       </ContentPaperNode>
     </ContentPaperRefContext.Provider>
   );

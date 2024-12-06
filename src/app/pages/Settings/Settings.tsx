@@ -2,7 +2,7 @@ import React, { FC, ReactNode, memo, useMemo, useState, useCallback, MouseEventH
 
 import { IconBase } from 'app/atoms';
 import { AccountAvatar } from 'app/atoms/AccountAvatar';
-import { SettingsCell } from 'app/atoms/SettingsCell';
+import { SettingsCellSingle } from 'app/atoms/SettingsCell';
 import { SettingsCellGroup } from 'app/atoms/SettingsCellGroup';
 import { StyledButton } from 'app/atoms/StyledButton';
 import { ReactComponent as AdditionalFeaturesIcon } from 'app/icons/base/additional.svg';
@@ -176,7 +176,7 @@ const Settings = memo<SettingsProps>(({ tabSlug }) => {
           {TABS_GROUPS.map((tabs, i) => (
             <SettingsCellGroup key={i}>
               {tabs.map(({ slug, titleI18nKey, Icon, testID }, j) => (
-                <SettingsCell
+                <SettingsCellSingle
                   Component={Link}
                   to={`/settings/${slug}`}
                   key={slug}
@@ -187,7 +187,7 @@ const Settings = memo<SettingsProps>(({ tabSlug }) => {
                   testID={testID}
                 >
                   <IconBase size={16} Icon={ChevronRightIcon} className="text-primary" />
-                </SettingsCell>
+                </SettingsCellSingle>
               ))}
             </SettingsCellGroup>
           ))}

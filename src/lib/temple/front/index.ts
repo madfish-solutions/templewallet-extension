@@ -17,5 +17,3 @@ export { TempleProvider } from './provider';
 export { validateDelegate } from './validate-delegate';
 
 export { validateRecipient } from './validate-recipient';
-
-export { type IdenticonType, getIdenticonUri } from './identicon';

@@ -90,7 +90,6 @@ interface CopyAddressButtonProps {
 
 const CopyAddressButton = memo<CopyAddressButtonProps>(({ chain, address, onCopy }) => (
   <ActionListItem
-    className="flex items-center"
     onClick={() => {
       window.navigator.clipboard.writeText(address);
       onCopy();

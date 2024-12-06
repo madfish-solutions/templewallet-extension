@@ -9,7 +9,7 @@ export type TzktQuoteCurrency = 'None' | 'Btc' | 'Eur' | 'Usd' | 'Cny' | 'Jpy' |
 
 type TzktOperationStatus = 'applied' | 'failed' | 'backtracked' | 'skipped';
 
-export interface TzktAlias {
+interface TzktAlias {
   alias?: string;
   address: string;
 }

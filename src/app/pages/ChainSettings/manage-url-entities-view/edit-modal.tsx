@@ -7,7 +7,7 @@ import { ActionModalBodyContainer, ActionModalButton, ActionModalButtonsContaine
 import { PageModal } from 'app/atoms/PageModal';
 import { ActionsButtonsBox } from 'app/atoms/PageModal/actions-buttons-box';
 import { ScrollView } from 'app/atoms/PageModal/scroll-view';
-import { SettingsCell } from 'app/atoms/SettingsCell';
+import { SettingsCellSingle } from 'app/atoms/SettingsCell';
 import { SettingsCellGroup } from 'app/atoms/SettingsCellGroup';
 import { StyledButton } from 'app/atoms/StyledButton';
 import { ReactComponent as DeleteIcon } from 'app/icons/base/delete.svg';
@@ -126,14 +126,14 @@ export const EditUrlEntityModal = <T extends UrlEntityBase>({
             onBottomEdgeVisibilityChange={setBottomEdgeIsVisible}
           >
             <SettingsCellGroup className="mb-4">
-              <SettingsCell cellName={<T id={activeI18nKey} />} Component="div">
+              <SettingsCellSingle cellName={<T id={activeI18nKey} />} Component="div">
                 <Controller
                   control={control}
                   disabled={!canChangeActiveState || isSubmitting}
                   name="isActive"
                   render={({ field }) => <ToggleSwitch {...field} checked={field.value} testID={activeSwitchTestID} />}
                 />
-              </SettingsCell>
+              </SettingsCellSingle>
             </SettingsCellGroup>
 
             <FormField

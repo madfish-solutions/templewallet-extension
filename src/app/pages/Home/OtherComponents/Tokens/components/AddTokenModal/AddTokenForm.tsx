@@ -36,7 +36,7 @@ import { fetchOneTokenMetadata } from 'lib/metadata/fetch';
 import { TokenMetadataNotFoundError } from 'lib/metadata/on-chain';
 import { EvmTokenMetadata } from 'lib/metadata/types';
 import { loadContract } from 'lib/temple/contract';
-import { useSafeState } from 'lib/ui/hooks';
+import { useSafeState, useUpdatableRef } from 'lib/ui/hooks';
 import { navigate } from 'lib/woozie';
 import { OneOfChains, useAccountAddressForEvm, useAccountAddressForTezos, useAllTezosChains } from 'temple/front';
 import { validateEvmContractAddress } from 'temple/front/evm/helpers';
@@ -206,10 +206,7 @@ export const AddTokenForm = memo<AddTokenPageProps>(
 
     const loadMetadata = useDebouncedCallback(loadMetadataPure, 500);
 
-    const loadMetadataRef = useRef(loadMetadata);
-    useEffect(() => {
-      loadMetadataRef.current = loadMetadata;
-    }, [loadMetadata]);
+    const loadMetadataRef = useUpdatableRef(loadMetadata);
 
     useEffect(() => {
       if (formValid) {

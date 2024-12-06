@@ -7,7 +7,7 @@ import { AccountName } from 'app/atoms/AccountName';
 import { CopyButton } from 'app/atoms/CopyButton';
 import { EvmNetworksLogos, TezNetworkLogo } from 'app/atoms/NetworksLogos';
 import { ActionsButtonsBox } from 'app/atoms/PageModal/actions-buttons-box';
-import { SettingsCell } from 'app/atoms/SettingsCell';
+import { SettingsCellSingle } from 'app/atoms/SettingsCell';
 import { SettingsCellGroup } from 'app/atoms/SettingsCellGroup';
 import { StyledButton } from 'app/atoms/StyledButton';
 import { TotalEquity } from 'app/atoms/TotalEquity';
@@ -160,37 +160,37 @@ export const AccountSettings = memo<AccountSettingsProps>(({ id }) => {
 
         <div className="flex flex-col pt-0.5 pb-5 gap-3">
           <SettingsCellGroup>
-            <SettingsCell cellName={<T id="displayAccount" />} Component="div">
+            <SettingsCellSingle cellName={<T id="displayAccount" />} Component="div">
               <ToggleSwitch
                 checked={!account.hidden}
                 onChange={handleVisibilityChange}
                 disabled={shouldDisableVisibilityChange}
                 testID={AccountSettingsSelectors.visibilityToggle}
               />
-            </SettingsCell>
+            </SettingsCellSingle>
           </SettingsCellGroup>
 
           <SettingsCellGroup>
-            <SettingsCell
+            <SettingsCellSingle
               cellName={<T id="editName" />}
               Component={Button}
               onClick={openEditNameModal}
               testID={AccountSettingsSelectors.editName}
             >
               <IconBase size={16} Icon={ChevronRightIcon} className="text-primary" />
-            </SettingsCell>
+            </SettingsCellSingle>
           </SettingsCellGroup>
 
           {(account.type === TempleAccountType.HD || account.type === TempleAccountType.Imported) && (
             <SettingsCellGroup>
-              <SettingsCell
+              <SettingsCellSingle
                 cellName={<T id="revealPrivateKey" />}
                 Component={Button}
                 onClick={openRevealPrivateKeyModal}
                 testID={AccountSettingsSelectors.revealPrivateKey}
               >
                 <IconBase size={16} Icon={ChevronRightIcon} className="text-primary" />
-              </SettingsCell>
+              </SettingsCellSingle>
             </SettingsCellGroup>
           )}
         </div>
@@ -203,7 +203,7 @@ export const AccountSettings = memo<AccountSettingsProps>(({ id }) => {
 
             {derivationPaths.map(({ chainName, path }) => (
               <SettingsCellGroup key={chainName}>
-                <SettingsCell
+                <SettingsCellSingle
                   cellName={path}
                   Component={CopyButton}
                   text={path}
@@ -211,7 +211,7 @@ export const AccountSettings = memo<AccountSettingsProps>(({ id }) => {
                   testIDProperties={{ chainName }}
                 >
                   {chainName === 'tezos' ? <TezNetworkLogo /> : <EvmNetworksLogos />}
-                </SettingsCell>
+                </SettingsCellSingle>
               </SettingsCellGroup>
             ))}
           </div>

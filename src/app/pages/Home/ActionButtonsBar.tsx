@@ -72,12 +72,7 @@ export const ActionButtonsBar = memo<HomeProps>(({ chainKind, chainId, assetSlug
         testID={HomeSelectors.swapButton}
       />
 
-      <ActionButton
-        labelI18nKey="activity"
-        Icon={ActivityIcon}
-        to={{ search: 'tab=activity' }}
-        testID={HomeSelectors.activityButton}
-      />
+      <ActionButton labelI18nKey="activity" Icon={ActivityIcon} to="/activity" testID={HomeSelectors.activityButton} />
 
       <ActionButton
         labelI18nKey="send"
