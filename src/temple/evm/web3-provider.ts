@@ -318,8 +318,7 @@ export class TempleWeb3Provider {
     this.handleRequest(
       { method: GET_DEFAULT_WEB3_PARAMS_METHOD_NAME, params: null },
       ({ chainId, rpcUrls, accounts }) => {
-        this.baseProvider = getReadOnlyEvm(rpcUrls);
-        this.updateChainId(chainId);
+        this.switchChain(chainId, rpcUrls);
 
         if (accounts.length > 0) {
           this.updateAccounts(accounts);

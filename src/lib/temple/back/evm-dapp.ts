@@ -89,6 +89,7 @@ async function evmRpcUrlsListener(changes: StringRecord<Storage.StorageChange>) 
 
   if (dAppsToRemoveOrigins.length) {
     await removeDApps(dAppsToRemoveOrigins);
+    await Promise.all(dAppsToRemoveOrigins.map(origin => switchChain(origin, ETHEREUM_MAINNET_CHAIN_ID, true)));
   }
 }
 
