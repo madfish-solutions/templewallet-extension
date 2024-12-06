@@ -265,13 +265,10 @@ const FilterOption = memo<FilterOptionProps>(({ network, activeNetwork, attractS
   const Icon = useMemo(() => {
     if (isAllNetworks) return <IconBase Icon={Browse} className="text-primary" size={16} />;
 
-    if (network.kind === TempleChainKind.Tezos)
-      return <TezosNetworkLogo networkName={network.name} chainId={network.chainId} size={iconSize} />;
+    if (network.kind === TempleChainKind.Tezos) return <TezosNetworkLogo chainId={network.chainId} size={iconSize} />;
 
     if (network.kind === TempleChainKind.EVM)
-      return (
-        <EvmNetworkLogo networkName={network.name} chainId={network.chainId} size={iconSize} imgClassName="p-0.5" />
-      );
+      return <EvmNetworkLogo chainId={network.chainId} size={iconSize} imgClassName="p-0.5" />;
 
     return null;
   }, [isAllNetworks, network, iconSize]);
@@ -299,7 +296,7 @@ const FilterOption = memo<FilterOptionProps>(({ network, activeNetwork, attractS
 
 type SearchNetwork = string | { name: string };
 
-/** @deprecated // Rely on fuse.js */
+/** @deprecated // Apply searchAndFilterChains() instead */
 const searchAndFilterNetworksByName = <T extends SearchNetwork>(networks: T[], searchValue: string) => {
   const preparedSearchValue = searchValue.trim().toLowerCase();
 

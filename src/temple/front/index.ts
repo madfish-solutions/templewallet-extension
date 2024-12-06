@@ -22,7 +22,7 @@ export { useTezosChainByChainId, useTezosMainnetChain, useEthereumMainnetChain }
 
 export { useAccountsGroups } from './groups';
 
-export { getNetworkTitle, useTezosChainIdLoadingValue, useTempleNetworksActions } from './networks';
+export { useTezosChainIdLoadingValue, useTempleNetworksActions } from './networks';
 
 export { searchAndFilterAccounts, useRelevantAccounts, useVisibleAccounts } from './accounts';
 

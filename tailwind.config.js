@@ -37,6 +37,7 @@ module.exports = {
       xl: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
       '2xl': '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
       inner: 'inset 0 2px 4px 0 rgba(0, 0, 0, 0.06)',
+      'inner-bottom': 'inset 0 -2px 4px 0 rgba(0, 0, 0, 0.06)',
       outline: '0 0 0 3px rgba(237, 137, 54, 0.5)',
       none: 'none',
       //
@@ -271,7 +272,6 @@ module.exports = {
         45: '45',
         header: 50,
         sticky: 100,
-        'content-fade': 200,
         'overlay-promo': 300,
         overlay: 400,
         'overlay-confirm': 500,
@@ -288,9 +288,12 @@ module.exports = {
       gap: theme => theme('spacing'),
 
       borderRadius: {
-        0.75: '0.1875rem', // 3px
-        1.25: '0.3125rem', // 5px
-        2.5: '0.625rem', // 10px
+        3: 3,
+        5: 5,
+        6: 6,
+        7: 7,
+        8: 8,
+        10: 10,
         circle: '50%',
         inherit: 'inherit'
       },

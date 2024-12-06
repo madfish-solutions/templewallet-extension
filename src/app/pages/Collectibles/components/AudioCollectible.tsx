@@ -2,7 +2,7 @@ import React, { memo, useCallback, useEffect, useRef, useState } from 'react';
 
 import { emptyFn } from '@rnw-community/shared';
 
-import { TezosAssetImage } from 'app/templates/AssetImage';
+import { TezosAssetImageStacked } from 'app/templates/AssetImage';
 import { AssetMetadataBase } from 'lib/metadata';
 
 import { CollectibleImageFallback } from './CollectibleImageFallback';
@@ -43,7 +43,7 @@ export const AudioCollectible = memo<Props>(({ uri, metadata, className, style, 
         loop
         hidden={!ready}
         audioPoster={
-          <TezosAssetImage
+          <TezosAssetImageStacked
             metadata={metadata}
             fullViewCollectible
             fallback={<CollectibleImageFallback large isAudioCollectible />}

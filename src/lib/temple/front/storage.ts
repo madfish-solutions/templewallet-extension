@@ -65,18 +65,15 @@ export function usePassiveStorage<T = any>(key: string, fallback?: T) {
 }
 
 function onStorageChanged<T = any>(key: string, callback: (newValue: T) => void) {
-  const handleChanged = (
-    changes: {
-      [s: string]: Storage.StorageChange;
-    },
-    areaName: string
-  ) => {
-    if (areaName === 'local' && key in changes) {
-      callback(changes[key].newValue);
+  const handleChanged = ((changes: { [s: string]: Storage.StorageChange }) => {
+    if (key in changes) {
+      callback(changes[key].newValue as any);
     }
-  };
+  }) as unknown as (changes: Storage.StorageAreaOnChangedChangesType) => void;
 
-  browser.storage.onChanged.addListener(handleChanged);
+  // (!) Do not sub to all storages at once (via `browser.storage.onChanged`).
+  // See: https://bugzilla.mozilla.org/show_bug.cgi?id=1838448#c14
+  browser.storage.local.onChanged.addListener(handleChanged);
 
-  return () => browser.storage.onChanged.removeListener(handleChanged);
+  return () => browser.storage.local.onChanged.removeListener(handleChanged);
 }

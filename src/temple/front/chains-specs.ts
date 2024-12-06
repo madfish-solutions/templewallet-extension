@@ -145,16 +145,16 @@ const useSpecs = <T extends TezosChainSpecs | EvmChainSpecs>(storageKey: string,
 
   return [totalSpecs, setSpecs] as const;
 };
+
 export const useTezosChainsSpecs = () =>
   useSpecs<TezosChainSpecs>(TEZOS_CHAINS_SPECS_STORAGE_KEY, DEFAULT_TEZOS_CHAINS_SPECS);
+
 export const useEvmChainsSpecs = () => useSpecs<EvmChainSpecs>(EVM_CHAINS_SPECS_STORAGE_KEY, DEFAULT_EVM_CHAINS_SPECS);
 
 export const useChainSpecs = (chainKind: TempleChainKind, chainId: string | number) => {
-  const [tezosChainsSpecs, setTezosChainsSpecs] = useTezosChainsSpecs();
-  const [evmChainsSpecs, setEvmChainsSpecs] = useEvmChainsSpecs();
+  const [, setTezosChainsSpecs] = useTezosChainsSpecs();
+  const [, setEvmChainsSpecs] = useEvmChainsSpecs();
 
-  const chainSpecs: TezosChainSpecs | EvmChainSpecs =
-    (chainKind === TempleChainKind.Tezos ? tezosChainsSpecs[chainId] : evmChainsSpecs[chainId]) ?? {};
   const setChainSpecs = useCallback(
     (
       newChainSpecs:
@@ -178,6 +178,7 @@ export const useChainSpecs = (chainKind: TempleChainKind, chainId: string | numb
     },
     [chainId, chainKind, setEvmChainsSpecs, setTezosChainsSpecs]
   );
+
   const removeChainSpecs = useCallback(() => {
     switch (chainKind) {
       case TempleChainKind.EVM:
@@ -187,5 +188,5 @@ export const useChainSpecs = (chainKind: TempleChainKind, chainId: string | numb
     }
   }, [chainId, chainKind, setEvmChainsSpecs, setTezosChainsSpecs]);
 
-  return [chainSpecs, setChainSpecs, removeChainSpecs] as const;
+  return [setChainSpecs, removeChainSpecs] as const;
 };

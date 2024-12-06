@@ -6,7 +6,6 @@ import { EvmNetworkLogo, TezosNetworkLogo } from 'app/atoms/NetworkLogo';
 import { StyledButton } from 'app/atoms/StyledButton';
 import { ReactComponent as ChevronRightSvg } from 'app/icons/base/chevron_right.svg';
 import { isTezosDAppSession } from 'app/storage/dapps';
-import { t } from 'lib/i18n';
 import { useTypedSWR } from 'lib/swr';
 import { TempleTezosChainId } from 'lib/temple/types';
 import { Link } from 'lib/woozie';
@@ -44,7 +43,6 @@ export const DAppConnection = memo(() => {
       ? tezosChains[tezosChainId]
       : null
     : evmChains[dapp.chainId] ?? null;
-  const networkName = network?.nameI18nKey ? t(network.nameI18nKey) : network?.name;
   console.log('oy vey 1', origin, dapp.appMeta.icon);
 
   return (
@@ -55,9 +53,9 @@ export const DAppConnection = memo(() => {
         {network && (
           <div className="absolute bottom-0 right-0">
             {network.kind === TempleChainKind.Tezos ? (
-              <TezosNetworkLogo chainId={network.chainId} size={16} networkName={networkName!} />
+              <TezosNetworkLogo chainId={network.chainId} size={16} />
             ) : (
-              <EvmNetworkLogo chainId={network.chainId} size={16} networkName={networkName!} />
+              <EvmNetworkLogo chainId={network.chainId} size={16} />
             )}
           </div>
         )}

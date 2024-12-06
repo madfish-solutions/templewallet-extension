@@ -2,7 +2,7 @@ import React, { memo, useCallback, useEffect, useMemo, useState } from 'react';
 
 import { Model3DViewer } from 'app/atoms/Model3DViewer';
 import { useCollectiblesListOptionsSelector } from 'app/store/assets-filter-options/selectors';
-import { TezosAssetImage } from 'app/templates/AssetImage';
+import { TezosAssetImageStacked } from 'app/templates/AssetImage';
 import { isSvgDataUriInUtf8Encoding, buildObjktCollectibleArtifactUri } from 'lib/images-uri';
 import { TokenMetadata } from 'lib/metadata';
 import { EvmCollectibleMetadata } from 'lib/metadata/types';
@@ -86,7 +86,7 @@ export const TezosCollectiblePageImage = memo<Props>(
     }
 
     return (
-      <TezosAssetImage
+      <TezosAssetImageStacked
         metadata={metadata}
         fullViewCollectible
         loader={<CollectibleImageLoader large />}
