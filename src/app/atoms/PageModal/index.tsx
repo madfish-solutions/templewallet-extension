@@ -20,7 +20,7 @@ export { ActionsButtonsBox } from './actions-buttons-box';
 
 export const CLOSE_ANIMATION_TIMEOUT = 300;
 
-interface Props extends TestIDProps {
+export interface PageModalProps extends TestIDProps {
   title: ReactNode | ReactNode[];
   opened: boolean;
   headerClassName?: string;
@@ -33,7 +33,7 @@ interface Props extends TestIDProps {
   children: ReactNode | (() => ReactElement);
 }
 
-export const PageModal: FC<Props> = ({
+export const PageModal: FC<PageModalProps> = ({
   title,
   opened,
   headerClassName,

@@ -6,6 +6,7 @@ import { abTestingReducer } from './ab-testing/reducers';
 import { advertisingReducer } from './advertising/reducers';
 import { assetsFilterOptionsReducer } from './assets-filter-options/reducer';
 import { buyWithCreditCardReducer } from './buy-with-credit-card/reducers';
+import { cryptoExchangePersistedReducer } from './crypto-exchange/reducers';
 import { currencyPersistedReducer } from './currency/reducers';
 import { dAppsReducer } from './d-apps/reducers';
 import { evmAssetsPersistedReducer } from './evm/assets/reducer';
@@ -37,6 +38,7 @@ const rootStateReducersMap = {
   tokensMetadata: tokensMetadataReducer,
   collectiblesMetadata: collectiblesMetadataPersistedReducer,
   abTesting: abTestingReducer,
+  cryptoExchange: cryptoExchangePersistedReducer,
   buyWithCreditCard: buyWithCreditCardReducer,
   collectibles: collectiblesPersistedReducer,
   newsletter: newsletterReducers,
