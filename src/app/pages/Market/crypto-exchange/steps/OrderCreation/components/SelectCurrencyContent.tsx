@@ -1,4 +1,4 @@
-import React, { FC, memo, useCallback, useEffect, useMemo, useState } from 'react';
+import React, { FC, memo, useCallback, useLayoutEffect, useMemo, useState } from 'react';
 
 import { useFormContext } from 'react-hook-form-v7';
 import { useDebounce } from 'use-debounce';
@@ -66,7 +66,7 @@ export const SelectCurrencyContent: FC<Props> = ({ content, setModalState, onGoB
   const inputCurrency = watch('inputCurrency');
   const outputCurrency = watch('outputCurrency');
 
-  useEffect(() => void setModalState({ title: 'Select Token', shouldShowBackButton: true, onGoBack }), []);
+  useLayoutEffect(() => void setModalState({ title: 'Select Token', shouldShowBackButton: true, onGoBack }), []);
 
   const enabledExolixNetworkCodes = useMemo(
     () => evmChains.map(({ chainId }) => chainIdExolixNetworkCodeRecord[chainId]),

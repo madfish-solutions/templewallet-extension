@@ -1,4 +1,4 @@
-import React, { FC, useCallback, useEffect } from 'react';
+import React, { FC, useCallback, useLayoutEffect } from 'react';
 
 import { Controller, useFormContext } from 'react-hook-form-v7';
 
@@ -35,7 +35,7 @@ export const FormContent: FC<Props> = ({ setModalState, setModalContent }) => {
   const inputCurrency = watch('inputCurrency');
   const outputCurrency = watch('outputCurrency');
 
-  useEffect(() => void setModalState(defaultModalState), []);
+  useLayoutEffect(() => void setModalState(defaultModalState), []);
 
   const selectInputCurrency = useCallback(() => setModalContent('send'), []);
   const selectOutputCurrency = useCallback(() => setModalContent('get'), []);
