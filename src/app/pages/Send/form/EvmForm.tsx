@@ -6,10 +6,11 @@ import { FormProvider, useForm } from 'react-hook-form-v7';
 import { formatEther, isAddress } from 'viem';
 
 import { DeadEndBoundaryError } from 'app/ErrorBoundary';
+import { useEvmCollectibleMetadataSelector } from 'app/store/evm/collectibles-metadata/selectors';
 import { useEvmTokenMetadataSelector } from 'app/store/evm/tokens-metadata/selectors';
 import { useFormAnalytics } from 'lib/analytics';
 import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
-import { useEvmTokenBalance } from 'lib/balances/hooks';
+import { useEvmAssetBalance } from 'lib/balances/hooks';
 import { useAssetFiatCurrencyPrice } from 'lib/fiat-currency';
 import { t, toLocalFixed } from 'lib/i18n';
 import { getAssetSymbol } from 'lib/metadata';
@@ -41,8 +42,11 @@ export const EvmForm: FC<Props> = ({ chainId, assetSlug, onSelectAssetClick, onR
 
   if (!account || !network) throw new DeadEndBoundaryError();
 
-  const storedMetadata = useEvmTokenMetadataSelector(network.chainId, assetSlug);
-  const assetMetadata = isEvmNativeTokenSlug(assetSlug) ? network?.currency : storedMetadata;
+  const storedTokenMetadata = useEvmTokenMetadataSelector(network.chainId, assetSlug);
+  const storedCollectibleMetadata = useEvmCollectibleMetadataSelector(network.chainId, assetSlug);
+  const assetMetadata = isEvmNativeTokenSlug(assetSlug)
+    ? network?.currency
+    : storedTokenMetadata ?? storedCollectibleMetadata;
 
   if (!assetMetadata) throw new Error('Metadata not found');
 
@@ -53,8 +57,8 @@ export const EvmForm: FC<Props> = ({ chainId, assetSlug, onSelectAssetClick, onR
 
   const formAnalytics = useFormAnalytics('SendForm');
 
-  const { value: balance = ZERO } = useEvmTokenBalance(assetSlug, accountPkh, network);
-  const { value: ethBalance = ZERO } = useEvmTokenBalance(EVM_TOKEN_SLUG, accountPkh, network);
+  const { value: balance = ZERO } = useEvmAssetBalance(assetSlug, accountPkh, network);
+  const { value: ethBalance = ZERO } = useEvmAssetBalance(EVM_TOKEN_SLUG, accountPkh, network);
 
   const [shouldUseFiat, setShouldUseFiat] = useSafeState(false);
 
