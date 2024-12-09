@@ -1,5 +1,13 @@
 import memoizee from 'memoizee';
-import { HttpTransportConfig, PublicClient, createPublicClient, fallback, http } from 'viem';
+import {
+  FallbackTransport,
+  HttpTransport,
+  HttpTransportConfig,
+  PublicClient,
+  createPublicClient,
+  fallback,
+  http
+} from 'viem';
 
 import { MAX_MEMOIZED_TOOLKITS } from 'temple/misc';
 
@@ -11,16 +19,25 @@ const READ_ONLY_CLIENT_TRANSPORT_CONFIG: HttpTransportConfig = {
   retryDelay: 300
 };
 
-export const getReadOnlyEvm = memoizee(
-  (rpcUrls: string | string[]): PublicClient =>
-    createPublicClient({
-      transport:
-        typeof rpcUrls === 'string'
-          ? http(rpcUrls, READ_ONLY_CLIENT_TRANSPORT_CONFIG)
-          : fallback(
-              rpcUrls.map(url => http(url, READ_ONLY_CLIENT_TRANSPORT_CONFIG)),
-              { key: rpcUrls.join() }
-            )
-    }),
-  { max: MAX_MEMOIZED_TOOLKITS, normalizer: args => JSON.stringify(args) }
-);
+type HttpPublicClient = PublicClient<HttpTransport>;
+type HttpFallbacksPublicClient = PublicClient<FallbackTransport<HttpTransport[]>>;
+
+function getReadOnlyEvmBeforeMemo(rpcUrl: string): HttpPublicClient;
+function getReadOnlyEvmBeforeMemo(rpcUrls: string[]): HttpFallbacksPublicClient;
+function getReadOnlyEvmBeforeMemo(rpcUrls: string | string[]): HttpPublicClient | HttpFallbacksPublicClient {
+  if (typeof rpcUrls === 'string') {
+    return createPublicClient({ transport: http(rpcUrls, READ_ONLY_CLIENT_TRANSPORT_CONFIG) });
+  }
+
+  return createPublicClient({
+    transport: fallback(
+      rpcUrls.map(url => http(url, READ_ONLY_CLIENT_TRANSPORT_CONFIG)),
+      { key: rpcUrls.join() }
+    )
+  });
+}
+
+export const getReadOnlyEvm = memoizee(getReadOnlyEvmBeforeMemo, {
+  max: MAX_MEMOIZED_TOOLKITS,
+  normalizer: args => JSON.stringify(args)
+});

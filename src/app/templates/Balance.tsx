@@ -5,7 +5,7 @@ import CSSTransition from 'react-transition-group/CSSTransition';
 
 import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
 import { useTezosAssetBalance } from 'lib/balances';
-import { useEvmTokenBalance } from 'lib/balances/hooks';
+import { useEvmAssetBalance } from 'lib/balances/hooks';
 import { NetworkEssentials } from 'temple/networks';
 import { TempleChainKind } from 'temple/types';
 
@@ -52,4 +52,4 @@ const BalanceHOC = <T extends TempleChainKind>(
 
 export const TezosBalance = BalanceHOC<TempleChainKind.Tezos>(useTezosAssetBalance, 'tez');
 
-export const EvmBalance = BalanceHOC<TempleChainKind.EVM>(useEvmTokenBalance, EVM_TOKEN_SLUG);
+export const EvmBalance = BalanceHOC<TempleChainKind.EVM>(useEvmAssetBalance, EVM_TOKEN_SLUG);

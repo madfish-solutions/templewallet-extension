@@ -36,7 +36,7 @@ import { isTezosDcpChainId } from 'temple/networks';
 import { TEZOS_METADATA, FILM_METADATA } from './defaults';
 import {
   AssetMetadataBase,
-  EvmAssetMetadataBase,
+  EvmAssetMetadata,
   EvmCollectibleMetadata,
   EvmNativeTokenMetadata,
   EvmTokenMetadata,
@@ -59,7 +59,7 @@ export const useTezosAssetMetadata = (slug: string, tezosChainId: string): Asset
   return isTezAsset(slug) ? getTezosGasMetadata(tezosChainId) : tokenMetadata || collectibleMetadata;
 };
 
-export const useEvmAssetMetadata = (slug: string, evmChainId: number): EvmAssetMetadataBase | undefined => {
+export const useEvmAssetMetadata = (slug: string, evmChainId: number): EvmAssetMetadata | undefined => {
   const network = useEvmChainByChainId(evmChainId);
   const tokenMetadata = useEvmTokenMetadataSelector(evmChainId, slug);
   const collectibleMetadata = useEvmCollectibleMetadataSelector(evmChainId, slug);

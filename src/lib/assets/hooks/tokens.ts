@@ -38,7 +38,7 @@ export const useEnabledAccountChainTokenSlugs = (accountTezAddress: string, acco
   return useMemo(() => [...tezTokens, ...evmTokens], [tezTokens, evmTokens]);
 };
 
-const useEnabledTezosAccountTokenSlugs = (publicKeyHash: string) => {
+export const useEnabledTezosAccountTokenSlugs = (publicKeyHash: string) => {
   const tokens = useTezosAccountTokens(publicKeyHash);
 
   return useMemoWithCompare(

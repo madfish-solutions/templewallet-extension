@@ -34,7 +34,7 @@ import { t, T } from 'lib/i18n';
 import { isCollectible, TokenMetadata } from 'lib/metadata';
 import { fetchOneTokenMetadata } from 'lib/metadata/fetch';
 import { TokenMetadataNotFoundError } from 'lib/metadata/on-chain';
-import { EvmTokenMetadata } from 'lib/metadata/types';
+import { EvmCollectibleMetadata, EvmTokenMetadata } from 'lib/metadata/types';
 import { loadContract } from 'lib/temple/contract';
 import { useSafeState, useUpdatableRef } from 'lib/ui/hooks';
 import { navigate } from 'lib/woozie';
@@ -69,10 +69,13 @@ interface RequiredTokenMetadataResponse extends TokenMetadataResponse {
   symbol: string;
 }
 
-interface RequiredEvmTokenMetadata extends EvmTokenMetadata {
+interface RequiredMetadata {
   name: string;
   symbol: string;
 }
+
+type RequiredEvmTokenMetadata = EvmTokenMetadata & RequiredMetadata;
+type RequiredEvmCollectibleMetadata = EvmCollectibleMetadata & RequiredMetadata;
 
 interface FormData {
   address: string;
@@ -125,7 +128,7 @@ export const AddTokenForm = memo<AddTokenPageProps>(
 
     const attemptRef = useRef(0);
     const tezMetadataRef = useRef<RequiredTokenMetadataResponse>();
-    const evmMetadataRef = useRef<RequiredEvmTokenMetadata>();
+    const evmMetadataRef = useRef<RequiredEvmTokenMetadata | RequiredEvmCollectibleMetadata>();
 
     const loadMetadataPure = useCallback(async () => {
       if (!formValid) return;
@@ -173,10 +176,10 @@ export const AddTokenForm = memo<AddTokenPageProps>(
             ? fetchEvmCollectibleMetadataFromChain
             : fetchEvmTokenMetadataFromChain)(selectedNetwork, tokenSlug);
 
-          if (!metadata || !metadata.name || !metadata.symbol)
+          if (!metadata || !hasRequiredMetadata(metadata))
             throw new TokenMetadataNotFoundError('Failed to load token metadata');
 
-          evmMetadataRef.current = metadata as RequiredEvmTokenMetadata;
+          evmMetadataRef.current = metadata;
 
           stateToSet = { bottomSectionVisible: true };
         }
@@ -282,14 +285,16 @@ export const AddTokenForm = memo<AddTokenPageProps>(
               dispatch(
                 putEvmCollectiblesMetadataAction({
                   chainId: selectedNetwork.chainId,
-                  records: { [tokenSlug]: { ...evmMetadataRef.current, tokenId: id } }
+                  records: {
+                    [tokenSlug]: { ...(evmMetadataRef.current as RequiredEvmCollectibleMetadata), tokenId: id }
+                  }
                 })
               );
             else
               dispatch(
                 putEvmTokensMetadataAction({
                   chainId: selectedNetwork.chainId,
-                  records: { [tokenSlug]: evmMetadataRef.current }
+                  records: { [tokenSlug]: evmMetadataRef.current as RequiredEvmTokenMetadata }
                 })
               );
           }
@@ -418,6 +423,10 @@ export const AddTokenForm = memo<AddTokenPageProps>(
     );
   }
 );
+
+const hasRequiredMetadata = (
+  metadata: EvmTokenMetadata | EvmCollectibleMetadata
+): metadata is RequiredEvmCollectibleMetadata | RequiredEvmTokenMetadata => Boolean(metadata.name && metadata.symbol);
 
 const errorHandler = (err: any, contractAddress: string) => {
   if (err instanceof ContractNotFoundError) {
