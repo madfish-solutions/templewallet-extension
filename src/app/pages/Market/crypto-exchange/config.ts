@@ -28,9 +28,9 @@ export const INITIAL_OUTPUT_CURRENCY: StoredExolixCurrency = {
   }
 };
 
-export type ModalState = Pick<PageModalProps, 'title' | 'shouldShowBackButton' | 'onGoBack'>;
+export type ModalHeaderConfig = Pick<PageModalProps, 'title' | 'shouldShowBackButton' | 'onGoBack'>;
 
-export const defaultModalState: ModalState = {
+export const defaultModalHeaderConfig: ModalHeaderConfig = {
   title: 'Crypto Exchange',
   shouldShowBackButton: undefined,
   onGoBack: undefined

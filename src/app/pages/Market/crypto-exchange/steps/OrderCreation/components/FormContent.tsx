@@ -11,7 +11,7 @@ import { t, T } from 'lib/i18n';
 
 import { StepLabel } from '../../../components/StepLabel';
 import { Stepper } from '../../../components/Stepper';
-import { defaultModalState, ModalState } from '../../../config';
+import { defaultModalHeaderConfig, ModalHeaderConfig } from '../../../config';
 import { getCurrencyDisplayCode } from '../../../utils';
 import { CryptoExchangeFormData } from '../types';
 
@@ -23,11 +23,11 @@ import { SelectTokenContent } from './SelectCurrencyContent';
 const EXOLIX_DECIMALS = 8;
 
 interface Props {
-  setModalState: SyncFn<ModalState>;
+  setModalHeaderConfig: SyncFn<ModalHeaderConfig>;
   setModalContent: SyncFn<SelectTokenContent>;
 }
 
-export const FormContent: FC<Props> = ({ setModalState, setModalContent }) => {
+export const FormContent: FC<Props> = ({ setModalHeaderConfig, setModalContent }) => {
   const formAnalytics = useFormAnalytics('ExolixOrderCreationForm');
 
   const { control, watch, handleSubmit, formState } = useFormContext<CryptoExchangeFormData>();
@@ -36,7 +36,7 @@ export const FormContent: FC<Props> = ({ setModalState, setModalContent }) => {
   const inputCurrency = watch('inputCurrency');
   const outputCurrency = watch('outputCurrency');
 
-  useLayoutEffect(() => void setModalState(defaultModalState), []);
+  useLayoutEffect(() => void setModalHeaderConfig(defaultModalHeaderConfig), []);
 
   const selectInputCurrency = useCallback(() => setModalContent('send'), []);
   const selectOutputCurrency = useCallback(() => setModalContent('get'), []);

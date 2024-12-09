@@ -5,7 +5,7 @@ import { FormProvider, useForm } from 'react-hook-form-v7';
 import { dispatch } from 'app/store';
 import { loadExolixCurrenciesActions } from 'app/store/crypto-exchange/actions';
 
-import { INITIAL_INPUT_CURRENCY, INITIAL_OUTPUT_CURRENCY, ModalState } from '../../config';
+import { INITIAL_INPUT_CURRENCY, INITIAL_OUTPUT_CURRENCY, ModalHeaderConfig } from '../../config';
 
 import { FormContent } from './components/FormContent';
 import { SelectCurrencyContent, SelectTokenContent } from './components/SelectCurrencyContent';
@@ -21,10 +21,10 @@ const defaultFormData = {
 type ModalContent = 'form' | SelectTokenContent;
 
 interface Props {
-  setModalState: SyncFn<ModalState>;
+  setModalHeaderConfig: SyncFn<ModalHeaderConfig>;
 }
 
-export const OrderCreation: FC<Props> = ({ setModalState }) => {
+export const OrderCreation: FC<Props> = ({ setModalHeaderConfig }) => {
   const [modalContent, setModalContent] = useState<ModalContent>('form');
 
   useEffect(() => void dispatch(loadExolixCurrenciesActions.submit()), []);
@@ -40,9 +40,9 @@ export const OrderCreation: FC<Props> = ({ setModalState }) => {
   return (
     <FormProvider {...form}>
       {modalContent === 'form' ? (
-        <FormContent setModalState={setModalState} setModalContent={setModalContent} />
+        <FormContent setModalHeaderConfig={setModalHeaderConfig} setModalContent={setModalContent} />
       ) : (
-        <SelectCurrencyContent content={modalContent} setModalState={setModalState} onGoBack={onGoBack} />
+        <SelectCurrencyContent content={modalContent} setModalHeaderConfig={setModalHeaderConfig} onGoBack={onGoBack} />
       )}
     </FormProvider>
   );

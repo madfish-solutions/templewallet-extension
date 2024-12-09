@@ -18,7 +18,7 @@ import { SearchBarField } from 'app/templates/SearchField';
 import { isSearchStringApplicable, searchAndFilterItems } from 'lib/utils/search-items';
 import { useEnabledEvmChains } from 'temple/front';
 
-import { ModalState } from '../../../config';
+import { ModalHeaderConfig } from '../../../config';
 import { getCurrencyDisplayCode } from '../../../utils';
 import { CryptoExchangeFormData } from '../types';
 
@@ -49,11 +49,11 @@ export type SelectTokenContent = 'send' | 'get';
 
 interface Props {
   content: SelectTokenContent;
-  setModalState: SyncFn<ModalState>;
+  setModalHeaderConfig: SyncFn<ModalHeaderConfig>;
   onGoBack: EmptyFn;
 }
 
-export const SelectCurrencyContent: FC<Props> = ({ content, setModalState, onGoBack }) => {
+export const SelectCurrencyContent: FC<Props> = ({ content, setModalHeaderConfig, onGoBack }) => {
   const [searchValue, setSearchValue] = useState('');
   const [searchValueDebounced] = useDebounce(searchValue, 300);
 
@@ -67,7 +67,7 @@ export const SelectCurrencyContent: FC<Props> = ({ content, setModalState, onGoB
   const inputCurrency = watch('inputCurrency');
   const outputCurrency = watch('outputCurrency');
 
-  useLayoutEffect(() => void setModalState({ title: 'Select Token', shouldShowBackButton: true, onGoBack }), []);
+  useLayoutEffect(() => void setModalHeaderConfig({ title: 'Select Token', shouldShowBackButton: true, onGoBack }), []);
 
   const enabledExolixNetworkCodes = useMemo(
     () => evmChains.map(({ chainId }) => chainIdExolixNetworkCodeRecord[chainId]),

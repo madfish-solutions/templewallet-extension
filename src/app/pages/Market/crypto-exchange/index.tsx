@@ -2,7 +2,7 @@ import React, { FC, useState } from 'react';
 
 import { PageModal } from 'app/atoms/PageModal';
 
-import { defaultModalState } from './config';
+import { defaultModalHeaderConfig } from './config';
 import { OrderCreation } from './steps/OrderCreation';
 
 interface Props {
@@ -11,11 +11,11 @@ interface Props {
 }
 
 export const CryptoExchange: FC<Props> = ({ opened, onRequestClose }) => {
-  const [modalState, setModalState] = useState(defaultModalState);
+  const [modalHeaderConfig, setModalHeaderConfig] = useState(defaultModalHeaderConfig);
 
   return (
-    <PageModal opened={opened} onRequestClose={onRequestClose} {...modalState}>
-      <OrderCreation setModalState={setModalState} />
+    <PageModal opened={opened} onRequestClose={onRequestClose} {...modalHeaderConfig}>
+      <OrderCreation setModalHeaderConfig={setModalHeaderConfig} />
     </PageModal>
   );
 };
