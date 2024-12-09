@@ -101,7 +101,7 @@ const DAppItem = memo<DAppItemProps>(({ dapp, origin, onRemoveClick, onEvmNetwor
             <NetworkPopper
               placement="bottom-start"
               chainKind={TempleChainKind.EVM}
-              showAllNetworksOption
+              showAllNetworksOption={false}
               selectedOption={evmDAppNetwork}
               onOptionSelect={switchDAppNetwork}
             >

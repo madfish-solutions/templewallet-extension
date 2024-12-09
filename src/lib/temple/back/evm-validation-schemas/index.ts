@@ -18,25 +18,21 @@ import {
 } from './utils';
 
 export const ethOldSignTypedDataValidationSchema = tupleSchema([
-  oldTypedDataValidationSchema.clone().required(),
-  evmAddressValidationSchema.clone().required()
+  oldTypedDataValidationSchema().required(),
+  evmAddressValidationSchema().required()
 ]).required();
 
 export const ethSignTypedDataValidationSchema = tupleSchema([
-  evmAddressValidationSchema.clone().required(),
-  typedDataValidationSchema.clone().json().required()
+  evmAddressValidationSchema().required(),
+  typedDataValidationSchema().json().required()
 ]).required();
 
 export const ethPersonalSignPayloadValidationSchema = mixedSchema<
   [HexString, HexString, string] | [HexString, HexString]
 >((value: unknown): value is [HexString, HexString, string] | [HexString, HexString] => {
   const tuplesSchemas = [
-    tupleSchema([
-      hexStringSchema.clone().required(),
-      evmAddressValidationSchema.clone().required(),
-      stringSchema().required()
-    ]),
-    tupleSchema([hexStringSchema.clone().required(), evmAddressValidationSchema.clone().required()])
+    tupleSchema([hexStringSchema().required(), evmAddressValidationSchema().required(), stringSchema().required()]),
+    tupleSchema([hexStringSchema().required(), evmAddressValidationSchema().required()])
   ];
 
   for (const schema of tuplesSchemas) {
@@ -62,4 +58,9 @@ export const ethChangePermissionsPayloadValidationSchema: TupleSchema<[ChangePer
   objectSchema()
     .shape({ [evmRpcMethodsNames.eth_accounts]: objectSchema().required() })
     .required()
+]).required();
+
+export const personalSignRecoverPayloadValidationSchema = tupleSchema([
+  hexStringSchema().required(),
+  hexStringSchema().required()
 ]).required();

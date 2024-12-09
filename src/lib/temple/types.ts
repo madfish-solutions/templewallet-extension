@@ -457,7 +457,6 @@ interface TempleEvmChainSwitched extends TempleMessageBase {
   type: TempleMessageType.TempleEvmChainSwitched;
   origin: string;
   chainId: number;
-  rpcUrls: string[];
 }
 
 interface TempleGetStateRequest extends TempleMessageBase {

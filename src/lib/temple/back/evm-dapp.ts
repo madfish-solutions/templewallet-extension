@@ -1,5 +1,5 @@
 import { nanoid } from 'nanoid';
-import { getAddress, toHex, WalletPermission } from 'viem';
+import { getAddress, recoverMessageAddress, toHex, WalletPermission } from 'viem';
 import browser, { Storage } from 'webextension-polyfill';
 
 import {
@@ -10,6 +10,7 @@ import {
   getAllDApps
 } from 'app/storage/dapps';
 import { isTruthy } from 'lib/utils';
+import { getReadOnlyEvm } from 'temple/evm';
 import { EVMErrorCodes, evmRpcMethodsNames, RETURNED_ACCOUNTS_CAVEAT_NAME } from 'temple/evm/constants';
 import { ChainsRpcUrls, EVM_CHAINS_RPC_URLS_STORAGE_KEY, getEvmChainsRpcUrls } from 'temple/evm/evm-chains-rpc-urls';
 import { ChangePermissionsPayload, ErrorWithCode } from 'temple/evm/types';
@@ -127,26 +128,18 @@ function makeReadAccountPermission(pkh: string, origin: string): WalletPermissio
   };
 }
 
-export const getDefaultRpc = async (origin: string) => {
+export const getDefaultWeb3Params = async (origin: string) => {
   const dApp = await getDApp(origin);
   const chainId = dApp?.chainId ?? ETHEREUM_MAINNET_CHAIN_ID;
-  const rpcUrls = (await getEvmChainsRpcUrls())[chainId];
 
-  return { chainId: toHex(chainId), rpcUrls, accounts: dApp?.pkh ? [dApp.pkh.toLowerCase()] : [] };
+  return { chainId: toHex(chainId), accounts: dApp?.pkh ? [dApp.pkh.toLowerCase()] : [] };
 };
 
 export const connectEvm = async (origin: string, chainId: string, icon?: string) => {
-  return new Promise<{ accounts: HexString[]; rpcUrls: string[] }>(async (resolve, reject) => {
+  return new Promise<HexString[]>(async (resolve, reject) => {
     const id = nanoid();
-    const rpcUrls = (await getEvmChainsRpcUrls())[Number(chainId)];
+    await assertiveGetChainRpcURLs(Number(chainId));
     const appMeta = getAppMeta(origin, icon);
-
-    if (!rpcUrls) {
-      // TODO: find a more appropriate error code
-      reject(new ErrorWithCode(EVMErrorCodes.INVALID_PARAMS, 'Network not found'));
-
-      return;
-    }
 
     await requestConfirm({
       id,
@@ -171,7 +164,7 @@ export const connectEvm = async (origin: string, chainId: string, icon?: string)
               pkh: accountPublicKeyHash,
               permissions: [makeReadAccountPermission(lowercasePkh, origin)]
             });
-            resolve({ accounts: [lowercasePkh], rpcUrls });
+            resolve([lowercasePkh]);
           } else {
             decline();
           }
@@ -187,12 +180,7 @@ export const connectEvm = async (origin: string, chainId: string, icon?: string)
 };
 
 export const switchChain = async (origin: string, destinationChainId: number, isInternal: boolean) => {
-  const rpcUrls = (await getEvmChainsRpcUrls())[destinationChainId];
-
-  if (!rpcUrls) {
-    // TODO: find a more appropriate error code
-    throw new ErrorWithCode(EVMErrorCodes.INVALID_PARAMS, 'Network not found');
-  }
+  await assertiveGetChainRpcURLs(destinationChainId);
 
   const dApp = await getDApp(origin);
 
@@ -204,12 +192,11 @@ export const switchChain = async (origin: string, destinationChainId: number, is
     intercom.broadcast({
       type: TempleMessageType.TempleEvmChainSwitched,
       origin,
-      chainId: destinationChainId,
-      rpcUrls
+      chainId: destinationChainId
     });
   }
 
-  return { chainId: toHex(destinationChainId), rpcUrls };
+  return toHex(destinationChainId);
 };
 
 const makeRequestEvmSignFunction =
@@ -311,7 +298,49 @@ export const requestEvmPermissions = async (
   icon?: string
 ) => {
   // TODO: add handling other permissions than for reading accounts
-  const { accounts, rpcUrls } = await connectEvm(origin, chainId, icon);
+  const accounts = await connectEvm(origin, chainId, icon);
 
-  return { permissions: [makeReadAccountPermission(accounts[0], origin)], rpcUrls };
+  return [makeReadAccountPermission(accounts[0], origin)];
+};
+
+export const recoverEvmMessageAddress = async (message: HexString, signature: HexString) =>
+  (
+    await recoverMessageAddress({ message: Buffer.from(message.slice(2), 'hex').toString('utf8'), signature })
+  ).toLowerCase();
+
+export const handleEvmRpcRequest = async (origin: string, payload: any, chainId: string) => {
+  const requestChainId = Number(chainId);
+  const dApp = await getDApp(origin);
+
+  if (dApp && dApp.chainId !== requestChainId) {
+    throw new ErrorWithCode(EVMErrorCodes.CHAIN_DISCONNECTED, 'DApp chain ID does not match the connected chain ID');
+  }
+
+  const rpcUrls = await assertiveGetChainRpcURLs(requestChainId);
+  const evmToolkit = getReadOnlyEvm(rpcUrls);
+
+  try {
+    return await evmToolkit.request(payload);
+  } catch (err) {
+    if (typeof err === 'object' && err && 'code' in err) {
+      throw new ErrorWithCode(
+        Number(err.code),
+        'message' in err && typeof err.message === 'string' ? err.message : 'Unexpected error'
+      );
+    }
+
+    throw err;
+  }
+};
+
+/** Throws an error if the chain is unknown; otherwise, returns a list of known RPC URLs for the chain */
+const assertiveGetChainRpcURLs = async (chainId: number) => {
+  const rpcUrls = (await getEvmChainsRpcUrls())[chainId];
+
+  if (!rpcUrls) {
+    // TODO: find a more appropriate error code
+    throw new ErrorWithCode(EVMErrorCodes.INVALID_PARAMS, 'Network not found');
+  }
+
+  return rpcUrls;
 };

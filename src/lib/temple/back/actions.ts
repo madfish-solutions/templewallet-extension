@@ -16,8 +16,8 @@ import { addLocalOperation } from 'lib/temple/activity';
 import * as Beacon from 'lib/temple/beacon';
 import { TempleState, TempleMessageType, TempleRequest, TempleSettings, TempleAccountType } from 'lib/temple/types';
 import { PromisesQueue, PromisesQueueCounters, delay } from 'lib/utils';
-import { evmRpcMethodsNames, GET_DEFAULT_WEB3_PARAMS_METHOD_NAME, EVMErrorCodes } from 'temple/evm/constants';
-import { ErrorWithCode, EvmTxParams } from 'temple/evm/types';
+import { evmRpcMethodsNames, GET_DEFAULT_WEB3_PARAMS_METHOD_NAME } from 'temple/evm/constants';
+import { EvmTxParams } from 'temple/evm/types';
 import { EvmChain } from 'temple/front';
 import { loadTezosChainId } from 'temple/tezos';
 import { TempleChainKind } from 'temple/types';
@@ -35,7 +35,7 @@ import type { DryRunResult } from './dryrun';
 import { buildFinalOpParams, dryRunOpParams } from './dryrun';
 import {
   connectEvm,
-  getDefaultRpc,
+  getDefaultWeb3Params,
   getEvmPermissions,
   requestEvmPermissions,
   requestEvmPersonalSign,
@@ -43,13 +43,16 @@ import {
   revokeEvmPermissions,
   switchChain,
   removeDApps as removeEvmDApps,
-  init as initEvm
+  init as initEvm,
+  recoverEvmMessageAddress,
+  handleEvmRpcRequest
 } from './evm-dapp';
 import {
   ethChangePermissionsPayloadValidationSchema,
   ethOldSignTypedDataValidationSchema,
   ethPersonalSignPayloadValidationSchema,
   ethSignTypedDataValidationSchema,
+  personalSignRecoverPayloadValidationSchema,
   switchEthChainPayloadValidationSchema
 } from './evm-validation-schemas';
 import {
@@ -494,7 +497,7 @@ export async function processEvmDApp(origin: string, payload: EvmRequestPayload,
 
   switch (method) {
     case GET_DEFAULT_WEB3_PARAMS_METHOD_NAME:
-      methodHandler = () => getDefaultRpc(origin);
+      methodHandler = () => getDefaultWeb3Params(origin);
       break;
     case evmRpcMethodsNames.eth_requestAccounts:
       methodHandler = () => connectEvm(origin, chainId, iconUrl);
@@ -535,8 +538,12 @@ export async function processEvmDApp(origin: string, payload: EvmRequestPayload,
       const [revokePermissionsPayload] = ethChangePermissionsPayloadValidationSchema.validateSync(params);
       methodHandler = () => revokeEvmPermissions(origin, revokePermissionsPayload);
       break;
+    case evmRpcMethodsNames.personal_ecRecover:
+      const [message, signature] = personalSignRecoverPayloadValidationSchema.validateSync(params);
+      methodHandler = () => recoverEvmMessageAddress(message, signature);
+      break;
     default:
-      throw new ErrorWithCode(EVMErrorCodes.METHOD_NOT_SUPPORTED, 'There is no handler for this method');
+      methodHandler = () => handleEvmRpcRequest(origin, payload, chainId);
   }
 
   return withInited(() => dAppQueue.enqueue(methodHandler));

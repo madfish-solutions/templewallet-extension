@@ -280,7 +280,7 @@ const processRequest = async (req: TempleRequest, port: Runtime.Port): Promise<T
       if (req.chainType === TempleChainKind.EVM) {
         let resPayload: any;
         try {
-          resPayload = await Actions.processEvmDApp(req.origin, req.payload, req.chainId, req.iconUrl);
+          resPayload = { data: await Actions.processEvmDApp(req.origin, req.payload, req.chainId, req.iconUrl) };
         } catch (e) {
           console.error(e);
           if (e instanceof ErrorWithCode) {
@@ -307,10 +307,7 @@ const processRequest = async (req: TempleRequest, port: Runtime.Port): Promise<T
           }
         }
 
-        return {
-          type: TempleMessageType.PageResponse,
-          payload: resPayload ?? null
-        };
+        return { type: TempleMessageType.PageResponse, payload: resPayload };
       }
 
       if (req.payload === 'PING') {

@@ -81,8 +81,8 @@ export class PromisesQueue extends EventEmitter {
       this._counters.length++;
       this._counters.maxLength++;
       this.emitCountersChange();
-      this.worker = this.worker.then(() => {
-        return factory()
+      this.worker = this.worker.then(() =>
+        factory()
           .then(result => {
             // Decrementing in `finally` is not completely testable
             this.decrement();
@@ -91,8 +91,8 @@ export class PromisesQueue extends EventEmitter {
           .catch(err => {
             this.decrement();
             rej(err);
-          });
-      });
+          })
+      );
     });
   }
 

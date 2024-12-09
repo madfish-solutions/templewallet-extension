@@ -113,13 +113,8 @@ window.addEventListener(PASS_TO_BG_EVENT, evt => {
       chainType: TempleChainKind.EVM
     })
     .then((res: TempleResponse) => {
-      if (res?.type === TempleMessageType.PageResponse && res.payload != null) {
-        const detail =
-          typeof res.payload === 'object' && 'error' in res.payload
-            ? { ...res.payload, requestId }
-            : { data: res.payload, requestId };
-
-        window.dispatchEvent(new CustomEvent(RESPONSE_FROM_BG_EVENT, { detail }));
+      if (res?.type === TempleMessageType.PageResponse && res.payload) {
+        window.dispatchEvent(new CustomEvent(RESPONSE_FROM_BG_EVENT, { detail: { ...res.payload, requestId } }));
       }
     })
     .catch(err => console.error(err));

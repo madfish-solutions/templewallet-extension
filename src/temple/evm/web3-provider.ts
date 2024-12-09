@@ -1,5 +1,6 @@
+import memoizee from 'memoizee';
 import { v4 as uuid } from 'uuid';
-import {
+import type {
   EIP1193EventMap,
   EIP1193Parameters,
   EIP1193RequestFn,
@@ -8,11 +9,8 @@ import {
   ProviderMessage,
   ProviderRpcError,
   PublicClient,
-  recoverMessageAddress,
   RpcSchema,
-  RpcSchemaOverride,
-  toHex,
-  WalletPermission
+  RpcSchemaOverride
 } from 'viem';
 
 import { DISCONNECT_DAPP_EVENT, PASS_TO_BG_EVENT, RESPONSE_FROM_BG_EVENT, SWITCH_CHAIN_EVENT } from 'lib/constants';
@@ -24,11 +22,8 @@ import {
   EVMErrorCodes,
   RETURNED_ACCOUNTS_CAVEAT_NAME
 } from './constants';
-import { getReadOnlyEvm } from './get-read-only-evm';
-import { TypedDataV1 } from './typed-data-v1';
+import type { TypedDataV1 } from './typed-data-v1';
 import { ErrorWithCode } from './types';
-
-const ETH_MAINNET_RPC_URL = 'https://cloudflare-eth.com';
 
 interface EIP1193Callbacks {
   accountsChanged: SyncFn<HexString[]>[];
@@ -73,7 +68,7 @@ type InternalServiceMethods = [
   {
     Method: typeof GET_DEFAULT_WEB3_PARAMS_METHOD_NAME;
     Parameters?: null;
-    ReturnType: { chainId: HexString; rpcUrls: string[]; accounts: HexString[] };
+    ReturnType: { chainId: HexString; accounts: HexString[] };
   }
 ];
 type KnownMethods = [...EIP1474Methods, ...ExtraSignMethods, ...InternalServiceMethods];
@@ -95,9 +90,7 @@ type ProviderResponse<M extends RequestParameters['method']> = Extract<
 >['ReturnType'];
 
 type BackgroundResponseDataOverrides = {
-  wallet_switchEthereumChain: { chainId: HexString; rpcUrls: string[] };
-  eth_requestAccounts: { accounts: HexString[]; rpcUrls: string[] };
-  wallet_requestPermissions: { permissions: WalletPermission[]; rpcUrls: string[] };
+  wallet_switchEthereumChain: HexString;
   wallet_revokePermissions: object;
 };
 type BackgroundResponseData<M extends RequestParameters['method']> = M extends keyof BackgroundResponseDataOverrides
@@ -128,15 +121,194 @@ type RpcSignMethod =
 
 const identity = <T>(x: T) => x;
 const noop = () => {};
+const toHex = (value: number): HexString => `0x${value.toString(16)}`;
 
 export class TempleWeb3Provider {
-  private baseProvider: PublicClient;
   private accounts: HexString[];
   private chainId: HexString;
   private callbacks: EIP1193Callbacks;
 
   // Other extensions do the same
   readonly isMetaMask = true;
+
+  constructor() {
+    this.accounts = [];
+    this.chainId = toHex(ETHEREUM_MAINNET_CHAIN_ID);
+    this.callbacks = {
+      accountsChanged: [],
+      chainChanged: [],
+      networkChanged: [],
+      connect: [],
+      disconnect: [],
+      message: []
+    };
+
+    this.handleDisconnect = this.handleDisconnect.bind(this);
+    this.handleRequest(
+      { method: GET_DEFAULT_WEB3_PARAMS_METHOD_NAME, params: null },
+      ({ chainId, accounts }) => {
+        this.updateChainId(chainId);
+
+        if (accounts.length > 0) {
+          this.updateAccounts(accounts);
+        }
+      },
+      identity,
+      undefined
+    ).catch(error => console.error(error));
+    window.addEventListener(DISCONNECT_DAPP_EVENT, this.handleDisconnect);
+    window.addEventListener(SWITCH_CHAIN_EVENT, e => {
+      const { chainId } = (e as CustomEvent<{ chainId: number }>).detail;
+
+      this.updateChainId(toHex(chainId));
+    });
+  }
+
+  // @ts-expect-error
+  request: EIP1193RequestFn<KnownMethods> = async params => {
+    switch (params.method) {
+      case evmRpcMethodsNames.eth_accounts:
+        return this.accounts;
+      case evmRpcMethodsNames.eth_requestAccounts:
+        if (this.accounts.length === 0) {
+          return this.handleConnect({ method: evmRpcMethodsNames.eth_requestAccounts });
+        } else {
+          return this.accounts;
+        }
+      case evmRpcMethodsNames.wallet_switchEthereumChain:
+        return this.handleChainChange(params as RequestArgs<'wallet_switchEthereumChain'>);
+      case evmRpcMethodsNames.eth_signTypedData:
+      case evmRpcMethodsNames.eth_signTypedData_v1:
+      case evmRpcMethodsNames.eth_signTypedData_v3:
+      case evmRpcMethodsNames.eth_signTypedData_v4:
+      case evmRpcMethodsNames.personal_sign:
+        return this.handleSign(params as RequestArgs<RpcSignMethod>);
+      case evmRpcMethodsNames.wallet_getPermissions:
+        return this.handleGetPermissionsRequest(params as RequestArgs<'wallet_getPermissions'>);
+      case evmRpcMethodsNames.wallet_requestPermissions:
+        return this.handleNewPermissionsRequest(params as RequestArgs<'wallet_requestPermissions'>);
+      case evmRpcMethodsNames.wallet_revokePermissions:
+        return this.handleRevokePermissionsRequest(params as RequestArgs<'wallet_revokePermissions'>);
+      /* Not going to support eth_sign */
+      case 'wallet_grantPermissions':
+      case 'eth_sendUserOperation':
+      case 'eth_sendTransaction':
+      case 'eth_sendRawTransaction':
+      case 'eth_signTransaction':
+      case 'eth_syncing':
+      case 'wallet_addEthereumChain':
+      case 'wallet_getCallsStatus':
+      case 'wallet_getCapabilities':
+      case 'wallet_sendCalls':
+      case 'wallet_sendTransaction':
+      case 'wallet_showCallsStatus':
+      case 'wallet_watchAsset':
+      case 'eth_sign':
+        throw new ErrorWithCode(EVMErrorCodes.METHOD_NOT_SUPPORTED, 'Method not supported');
+      default:
+        // @ts-expect-error
+        return this.handleRpcRequest(params);
+    }
+  };
+
+  on<event extends keyof EIP1193EventMap>(event: event, listener: EIP1193EventMap[event]) {
+    // @ts-expect-error
+    this.callbacks[event].push(listener);
+  }
+  removeListener<event extends keyof EIP1193EventMap>(event: event, listener: EIP1193EventMap[event]) {
+    this.callbacks[event] = this.callbacks[event].filter(
+      currentListener => currentListener !== listener
+    ) as EIP1193Callbacks[event];
+  }
+
+  async enable() {
+    return this.handleConnect({ method: evmRpcMethodsNames.eth_requestAccounts });
+  }
+
+  // @ts-expect-error
+  private handleRpcRequest: PublicClient['request'] = async args => {
+    return this.handleRequest<any>(args as RequestParameters, noop, identity, undefined);
+  };
+
+  private handleConnect(args: RequestArgs<'eth_requestAccounts'>) {
+    return this.handleRequest(args, accounts => this.updateAccounts(accounts), identity, undefined);
+  }
+
+  private handleSign(args: RequestArgs<RpcSignMethod>) {
+    return this.handleRequest(
+      args,
+      noop,
+      identity,
+      args.method === 'eth_signTypedData_v3' || args.method === 'eth_signTypedData_v4' ? args.params[0] : args.params[1]
+    );
+  }
+
+  private handleChainChange(args: RequestArgs<'wallet_switchEthereumChain'>) {
+    return this.handleRequest(
+      args,
+      chainId => this.updateChainId(chainId),
+      () => null,
+      undefined
+    );
+  }
+
+  private updateChainId(chainId: HexString) {
+    if (this.chainId === chainId) {
+      return;
+    }
+
+    this.chainId = chainId;
+    this.callbacks.chainChanged.forEach(listener => listener(chainId));
+    this.callbacks.networkChanged.forEach(listener => listener(chainId));
+  }
+
+  private handleNewPermissionsRequest(args: RequestArgs<'wallet_requestPermissions'>) {
+    return this.handleRequest(
+      args,
+      permissions => {
+        // TODO: add handling other permissions than for reading accounts
+        const ethAccountsPermission = permissions.find(
+          ({ parentCapability }) => parentCapability === evmRpcMethodsNames.eth_accounts
+        );
+
+        if (!ethAccountsPermission) {
+          return;
+        }
+
+        const returnedAccountsCaveat = ethAccountsPermission.caveats.find(
+          ({ type }) => type === RETURNED_ACCOUNTS_CAVEAT_NAME
+        );
+
+        if (returnedAccountsCaveat) {
+          this.updateAccounts(returnedAccountsCaveat.value);
+        }
+      },
+      identity,
+      undefined
+    );
+  }
+
+  private handleRevokePermissionsRequest(args: RequestArgs<'wallet_revokePermissions'>) {
+    // TODO: add handling other permissions than for reading accounts
+    return this.handleRequest(args, this.handleDisconnect, () => null, undefined);
+  }
+
+  private handleDisconnect() {
+    this.updateAccounts([]);
+  }
+
+  private updateAccounts(accounts: HexString[]) {
+    if (JSON.stringify(this.accounts.toSorted()) === JSON.stringify(accounts.toSorted())) {
+      return;
+    }
+
+    this.accounts = accounts;
+    this.callbacks.accountsChanged.forEach(listener => listener(accounts));
+  }
+
+  private handleGetPermissionsRequest(args: RequestArgs<'wallet_getPermissions'>) {
+    return this.handleRequest(args, noop, identity, undefined);
+  }
 
   private async handleRequest<M extends RequestParameters['method']>(
     args: RequestArgs<M>,
@@ -148,30 +320,16 @@ export class TempleWeb3Provider {
       throw new ErrorWithCode(EVMErrorCodes.NOT_AUTHORIZED, 'Account is not connected');
     }
 
-    const iconsTags = Array.from(document?.head?.querySelectorAll('link[rel*="icon"]') ?? []) as HTMLLinkElement[];
-    const { CID } = await import('multiformats/cid');
-    const iconUrl = iconsTags
-      .map(tag => tag.href)
-      .find(url => {
-        const parsedUrl = new URL(url);
-        let endsWithIpfsCid: boolean;
-        try {
-          CID.parse(parsedUrl.pathname.split('/').at(-1) ?? '');
-          endsWithIpfsCid = true;
-        } catch {
-          endsWithIpfsCid = false;
-        }
-        const isHttpImgUrl =
-          parsedUrl.protocol.match(/^https?:$/) &&
-          (parsedUrl.pathname.match(/\.(png|jpe?g|gif|svg|ico)$/) || endsWithIpfsCid);
-        const isDataImgUrl = parsedUrl.protocol === 'data:' && parsedUrl.pathname.match(/^image\/(png|jpe?g|gif|svg)$/);
-
-        return isHttpImgUrl || isDataImgUrl;
-      });
     const requestId = uuid();
     window.dispatchEvent(
       new CustomEvent<PassToBgEventDetail>(PASS_TO_BG_EVENT, {
-        detail: { args, origin: window.origin, chainId: this.chainId, iconUrl, requestId }
+        detail: {
+          args,
+          origin: window.origin,
+          chainId: this.chainId,
+          iconUrl: await this.getIconUrl(document?.head),
+          requestId
+        }
       })
     );
 
@@ -202,202 +360,31 @@ export class TempleWeb3Provider {
     });
   }
 
-  private updateChainId(chainId: HexString) {
-    if (this.chainId === chainId) {
-      return;
-    }
+  private getIconUrl = memoizee(
+    // A page may not have a head element
+    async (head: HTMLHeadElement | undefined) => {
+      const iconsTags = Array.from(head?.querySelectorAll('link[rel*="icon"]') ?? []) as HTMLLinkElement[];
+      const { CID } = await import('multiformats/cid');
+      return iconsTags
+        .map(tag => tag.href)
+        .find(url => {
+          const parsedUrl = new URL(url);
+          let endsWithIpfsCid: boolean;
+          try {
+            CID.parse(parsedUrl.pathname.split('/').at(-1) ?? '');
+            endsWithIpfsCid = true;
+          } catch {
+            endsWithIpfsCid = false;
+          }
+          const isHttpImgUrl =
+            parsedUrl.protocol.match(/^https?:$/) &&
+            (parsedUrl.pathname.match(/\.(png|jpe?g|gif|svg|ico)$/) || endsWithIpfsCid);
+          const isDataImgUrl =
+            parsedUrl.protocol === 'data:' && parsedUrl.pathname.match(/^image\/(png|jpe?g|gif|svg)$/);
 
-    this.chainId = chainId;
-    this.callbacks.chainChanged.forEach(listener => listener(chainId));
-    this.callbacks.networkChanged.forEach(listener => listener(chainId));
-  }
-
-  private handleDisconnect() {
-    this.updateAccounts([]);
-  }
-
-  private updateAccounts(accounts: HexString[]) {
-    if (JSON.stringify(this.accounts.toSorted()) === JSON.stringify(accounts.toSorted())) {
-      return;
-    }
-
-    this.accounts = accounts;
-    this.callbacks.accountsChanged.forEach(listener => listener(accounts));
-  }
-
-  private handleConnect(args: RequestArgs<'eth_requestAccounts'>) {
-    return this.handleRequest(
-      args,
-      ({ accounts, rpcUrls }) => {
-        this.updateAccounts(accounts);
-        this.baseProvider = getReadOnlyEvm(rpcUrls);
-      },
-      ({ accounts }) => accounts,
-      undefined
-    );
-  }
-
-  private handleSign(args: RequestArgs<RpcSignMethod>) {
-    return this.handleRequest(
-      args,
-      noop,
-      identity,
-      args.method === 'eth_signTypedData_v3' || args.method === 'eth_signTypedData_v4' ? args.params[0] : args.params[1]
-    );
-  }
-
-  private handleChainChange(args: RequestArgs<'wallet_switchEthereumChain'>) {
-    return this.handleRequest(
-      args,
-      ({ chainId, rpcUrls }) => this.switchChain(chainId, rpcUrls),
-      () => null,
-      undefined
-    );
-  }
-
-  private switchChain(chainId: HexString, rpcUrls: string[]) {
-    this.baseProvider = getReadOnlyEvm(rpcUrls);
-    this.updateChainId(chainId);
-  }
-
-  private handleNewPermissionsRequest(args: RequestArgs<'wallet_requestPermissions'>) {
-    return this.handleRequest(
-      args,
-      ({ permissions, rpcUrls }) => {
-        // TODO: add handling other permissions than for reading accounts
-        const ethAccountsPermission = permissions.find(
-          ({ parentCapability }) => parentCapability === evmRpcMethodsNames.eth_accounts
-        );
-
-        if (!ethAccountsPermission) {
-          return;
-        }
-
-        const returnedAccountsCaveat = ethAccountsPermission.caveats.find(
-          ({ type }) => type === RETURNED_ACCOUNTS_CAVEAT_NAME
-        );
-
-        if (returnedAccountsCaveat) {
-          this.updateAccounts(returnedAccountsCaveat.value);
-        }
-        this.baseProvider = getReadOnlyEvm(rpcUrls);
-      },
-      ({ permissions }) => permissions,
-      undefined
-    );
-  }
-
-  private handleRevokePermissionsRequest(args: RequestArgs<'wallet_revokePermissions'>) {
-    // TODO: add handling other permissions than for reading accounts
-    return this.handleRequest(args, this.handleDisconnect, () => null, undefined);
-  }
-
-  private handleGetPermissionsRequest(args: RequestArgs<'wallet_getPermissions'>) {
-    return this.handleRequest(args, noop, identity, undefined);
-  }
-
-  constructor() {
-    this.baseProvider = getReadOnlyEvm(ETH_MAINNET_RPC_URL);
-    this.accounts = [];
-    this.chainId = toHex(ETHEREUM_MAINNET_CHAIN_ID);
-    this.callbacks = {
-      accountsChanged: [],
-      chainChanged: [],
-      networkChanged: [],
-      connect: [],
-      disconnect: [],
-      message: []
-    };
-
-    this.handleDisconnect = this.handleDisconnect.bind(this);
-    this.handleRequest(
-      { method: GET_DEFAULT_WEB3_PARAMS_METHOD_NAME, params: null },
-      ({ chainId, rpcUrls, accounts }) => {
-        this.switchChain(chainId, rpcUrls);
-
-        if (accounts.length > 0) {
-          this.updateAccounts(accounts);
-        }
-      },
-      identity,
-      undefined
-    ).catch(error => console.error(error));
-    window.addEventListener(DISCONNECT_DAPP_EVENT, this.handleDisconnect);
-    window.addEventListener(SWITCH_CHAIN_EVENT, e => {
-      const { chainId, rpcUrls } = (e as CustomEvent<{ chainId: number; rpcUrls: string[] }>).detail;
-
-      this.switchChain(toHex(chainId), rpcUrls);
-    });
-  }
-
-  async enable() {
-    return this.handleConnect({ method: evmRpcMethodsNames.eth_requestAccounts });
-  }
-
-  private async handlePersonalSignRecoverRequest(args: RequestArgs<'personal_ecRecover'>) {
-    const [message, signature] = args.params;
-
-    return (
-      await recoverMessageAddress({ message: Buffer.from(message.slice(2), 'hex').toString('utf8'), signature })
-    ).toLowerCase();
-  }
-
-  // @ts-expect-error
-  request: EIP1193RequestFn<KnownMethods> = async args => {
-    switch (args.method) {
-      case evmRpcMethodsNames.eth_accounts:
-        return this.accounts;
-      case evmRpcMethodsNames.eth_requestAccounts:
-        if (this.accounts.length === 0) {
-          return this.handleConnect({ method: evmRpcMethodsNames.eth_requestAccounts });
-        } else {
-          return this.accounts;
-        }
-      case evmRpcMethodsNames.wallet_switchEthereumChain:
-        return this.handleChainChange(args as RequestArgs<'wallet_switchEthereumChain'>);
-      case evmRpcMethodsNames.eth_signTypedData:
-      case evmRpcMethodsNames.eth_signTypedData_v1:
-      case evmRpcMethodsNames.eth_signTypedData_v3:
-      case evmRpcMethodsNames.eth_signTypedData_v4:
-      case evmRpcMethodsNames.personal_sign:
-        return this.handleSign(args as RequestArgs<RpcSignMethod>);
-      case evmRpcMethodsNames.wallet_getPermissions:
-        return this.handleGetPermissionsRequest(args as RequestArgs<'wallet_getPermissions'>);
-      case evmRpcMethodsNames.wallet_requestPermissions:
-        return this.handleNewPermissionsRequest(args as RequestArgs<'wallet_requestPermissions'>);
-      case evmRpcMethodsNames.wallet_revokePermissions:
-        return this.handleRevokePermissionsRequest(args as RequestArgs<'wallet_revokePermissions'>);
-      /* Not going to support eth_sign */
-      case 'wallet_grantPermissions':
-      case 'eth_sendUserOperation':
-      case 'eth_sendTransaction':
-      case 'eth_sendRawTransaction':
-      case 'eth_signTransaction':
-      case 'eth_syncing':
-      case 'wallet_addEthereumChain':
-      case 'wallet_getCallsStatus':
-      case 'wallet_getCapabilities':
-      case 'wallet_sendCalls':
-      case 'wallet_sendTransaction':
-      case 'wallet_showCallsStatus':
-      case 'wallet_watchAsset':
-      case 'eth_sign':
-        throw new ErrorWithCode(EVMErrorCodes.METHOD_NOT_SUPPORTED, 'Method not supported');
-      case 'personal_ecRecover':
-        return this.handlePersonalSignRecoverRequest(args as RequestArgs<'personal_ecRecover'>);
-      default:
-        // @ts-expect-error
-        return this.baseProvider.request(args);
-    }
-  };
-
-  on<event extends keyof EIP1193EventMap>(event: event, listener: EIP1193EventMap[event]) {
-    // @ts-expect-error
-    this.callbacks[event].push(listener);
-  }
-  removeListener<event extends keyof EIP1193EventMap>(event: event, listener: EIP1193EventMap[event]) {
-    this.callbacks[event] = this.callbacks[event].filter(
-      currentListener => currentListener !== listener
-    ) as EIP1193Callbacks[event];
-  }
+          return isHttpImgUrl || isDataImgUrl;
+        });
+    },
+    { max: 1, maxAge: 1000 * 60 * 5 }
+  );
 }

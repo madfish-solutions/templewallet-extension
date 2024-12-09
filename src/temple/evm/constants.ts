@@ -21,7 +21,8 @@ export const evmRpcMethodsNames = {
   personal_sign: 'personal_sign',
   wallet_getPermissions: 'wallet_getPermissions',
   wallet_requestPermissions: 'wallet_requestPermissions',
-  wallet_revokePermissions: 'wallet_revokePermissions'
+  wallet_revokePermissions: 'wallet_revokePermissions',
+  personal_ecRecover: 'personal_ecRecover'
 } as const;
 
 export const RETURNED_ACCOUNTS_CAVEAT_NAME = 'restrictReturnedAccounts';

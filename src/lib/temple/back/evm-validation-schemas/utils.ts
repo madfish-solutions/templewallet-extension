@@ -8,22 +8,24 @@ import {
   string as stringSchema
 } from 'yup';
 
-export const evmAddressValidationSchema = stringSchema<Address>()
-  .test('valid', 'Invalid address', value => (value === undefined ? true : isAddress(value)))
-  .transform(function (value: unknown) {
-    return this.isType(value) && value && isAddress(value) ? getAddress(value) : value;
-  });
+export const evmAddressValidationSchema = () =>
+  stringSchema<Address>()
+    .test('valid', 'Invalid address', value => (value === undefined ? true : isAddress(value)))
+    .transform(function (value: unknown) {
+      return this.isType(value) && value && isAddress(value) ? getAddress(value) : value;
+    });
 
 const HEX_STRING_REGEX = /^0x([0-9a-f]*)$/i;
-export const hexStringSchema = stringSchema<HexString>().test('valid', 'Invalid hex string', value => {
-  if (value === undefined) {
-    return true;
-  }
+export const hexStringSchema = () =>
+  stringSchema<HexString>().test('valid', 'Invalid hex string', value => {
+    if (value === undefined) {
+      return true;
+    }
 
-  const match = value.match(HEX_STRING_REGEX);
+    const match = value.match(HEX_STRING_REGEX);
 
-  return match !== null && match[1].length % 2 === 0;
-});
+    return match !== null && match[1].length % 2 === 0;
+  });
 
 const typedDataTypeSchema = arraySchema()
   .of(
@@ -37,8 +39,8 @@ const typedDataTypeSchema = arraySchema()
 const typedDataDomainSchema: ObjectSchema<TypedDataDomain> = objectSchema().shape({
   chainId: numberSchema().integer().positive(),
   name: stringSchema().min(1),
-  salt: hexStringSchema,
-  verifyingContract: evmAddressValidationSchema,
+  salt: hexStringSchema(),
+  verifyingContract: evmAddressValidationSchema(),
   version: stringSchema().min(1)
 });
 
@@ -70,18 +72,20 @@ const typedDataTypesSchema = objectSchema().test(
 const arbitraryObjectSchema: ObjectSchema<StringRecord<unknown>> = objectSchema().required();
 
 // TODO: Implement stricter validation
-export const oldTypedDataValidationSchema = arraySchema().of(
-  objectSchema({
-    name: stringSchema().required(),
-    type: stringSchema().required(),
-    value: mixedSchema().required()
-  }).required()
-);
+export const oldTypedDataValidationSchema = () =>
+  arraySchema().of(
+    objectSchema({
+      name: stringSchema().required(),
+      type: stringSchema().required(),
+      value: mixedSchema().required()
+    }).required()
+  );
 
 // TODO: Implement stricter validation
-export const typedDataValidationSchema: ObjectSchema<TypedDataDefinition> = objectSchema({
-  types: typedDataTypesSchema,
-  primaryType: stringSchema().required(),
-  domain: typedDataDomainSchema,
-  message: arbitraryObjectSchema
-});
+export const typedDataValidationSchema = (): ObjectSchema<TypedDataDefinition> =>
+  objectSchema({
+    types: typedDataTypesSchema,
+    primaryType: stringSchema().required(),
+    domain: typedDataDomainSchema,
+    message: arbitraryObjectSchema
+  });
