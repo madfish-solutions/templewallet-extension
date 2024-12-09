@@ -30,9 +30,9 @@ export const TezosChainAssetsList = memo<Props>(({ chainId, publicKeyHash, searc
   const tokensSortPredicate = useTezosChainAccountTokensSortPredicate(publicKeyHash, chainId);
 
   const assetsSlugs = useMemoWithCompare<string[]>(() => {
-    const sortedSlugs = Array.from(tokensSlugs).sort(tokensSortPredicate);
+    const gasTokensSlugs: string[] = [TEZ_TOKEN_SLUG];
 
-    return [TEZ_TOKEN_SLUG, ...sortedSlugs];
+    return gasTokensSlugs.concat(Array.from(tokensSlugs).sort(tokensSortPredicate));
   }, [tokensSortPredicate, tokensSlugs]);
 
   const getAssetMetadata = useGetChainTokenOrGasMetadata(chainId);

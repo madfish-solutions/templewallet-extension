@@ -52,6 +52,8 @@ export interface EvmNativeTokenMetadata extends Required<EvmAssetMetadataBase> {
 }
 
 export interface EvmCollectibleMetadata extends EvmAssetMetadataBase {
+  standard?: EvmAssetStandard.ERC721 | EvmAssetStandard.ERC1155;
+  address: HexString;
   tokenId: string;
   metadataUri?: string;
   image?: string;
@@ -62,3 +64,5 @@ export interface EvmCollectibleMetadata extends EvmAssetMetadataBase {
   animationUrl?: string;
   originalOwner?: string;
 }
+
+export type EvmAssetMetadata = EvmTokenMetadata | EvmNativeTokenMetadata | EvmCollectibleMetadata;

@@ -1,6 +1,7 @@
 import BigNumber from 'bignumber.js';
-import { parseAbi } from 'viem';
+import { erc20Abi, erc721Abi } from 'viem';
 
+import { erc1155Abi } from 'lib/abi/erc1155';
 import { fromAssetSlug } from 'lib/assets';
 import { isEvmNativeTokenSlug } from 'lib/utils/evm.utils';
 import { ONE, ZERO } from 'lib/utils/numbers';
@@ -39,7 +40,7 @@ export const fetchEvmRawBalance = async (
     if (standard === EvmAssetStandard.ERC1155) {
       const fetchedErc1155Balance = await publicClient.readContract({
         address: contractAddress,
-        abi: parseAbi(['function balanceOf(address account, uint256 id) view returns (uint256)']),
+        abi: erc1155Abi,
         functionName: 'balanceOf',
         args: [account, tokenId]
       });
@@ -50,7 +51,7 @@ export const fetchEvmRawBalance = async (
     if (standard === EvmAssetStandard.ERC721) {
       const ownerAddress = await publicClient.readContract({
         address: contractAddress,
-        abi: parseAbi(['function ownerOf(uint256 tokenId) view returns (address owner)']),
+        abi: erc721Abi,
         functionName: 'ownerOf',
         args: [tokenId]
       });
@@ -60,7 +61,7 @@ export const fetchEvmRawBalance = async (
 
     const fetchedBalance = await publicClient.readContract({
       address: contractAddress,
-      abi: parseAbi(['function balanceOf(address owner) view returns (uint256)']),
+      abi: erc20Abi,
       functionName: 'balanceOf',
       args: [account]
     });

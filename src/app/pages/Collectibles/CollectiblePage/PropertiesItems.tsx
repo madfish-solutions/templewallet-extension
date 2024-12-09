@@ -3,13 +3,14 @@ import React, { memo, useMemo } from 'react';
 import BigNumber from 'bignumber.js';
 
 import { OldStyleHashChip, ExternalLinkChip } from 'app/atoms';
-import { useRawEvmAssetBalanceSelector } from 'app/store/evm/balances/selectors';
 import type { CollectibleDetails } from 'app/store/tezos/collectibles/state';
 import { fromFa2TokenSlug } from 'lib/assets/utils';
 import { useTezosAssetBalance } from 'lib/balances';
+import { useEvmAssetBalance } from 'lib/balances/hooks';
 import { formatDate } from 'lib/i18n';
 import { EvmCollectibleMetadata } from 'lib/metadata/types';
 import { useBlockExplorerHref } from 'temple/front/block-explorers';
+import { useEvmChainByChainId } from 'temple/front/chains';
 import { TezosNetworkEssentials } from 'temple/networks';
 import { TempleChainKind } from 'temple/types';
 
@@ -109,7 +110,8 @@ interface EvmPropertiesItemsProps {
 }
 
 export const EvmPropertiesItems = memo<EvmPropertiesItemsProps>(({ accountPkh, evmChainId, assetSlug, metadata }) => {
-  const rawBalance = useRawEvmAssetBalanceSelector(accountPkh, evmChainId, assetSlug);
+  const chain = useEvmChainByChainId(evmChainId);
+  const { value: balance } = useEvmAssetBalance(assetSlug, accountPkh, chain!);
 
   if (!metadata) return null;
 
@@ -117,7 +119,7 @@ export const EvmPropertiesItems = memo<EvmPropertiesItemsProps>(({ accountPkh, e
     <>
       <div className={itemClassName}>
         <h6 className={itemTitleClassName}>Owned</h6>
-        <span className={itemValueClassName}>{rawBalance ?? '-'}</span>
+        <span className={itemValueClassName}>{balance?.toFixed() ?? '-'}</span>
       </div>
 
       <div className={itemClassName}>

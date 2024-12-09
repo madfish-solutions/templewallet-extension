@@ -1,3 +1,5 @@
+import { FeeValues, FeeValuesEIP1559, FeeValuesLegacy } from 'viem';
+
 export interface EvmTxParamsFormData {
   gasPrice: string;
   gasLimit: string;
@@ -23,16 +25,22 @@ export interface DisplayedFeeOptions {
   fast: string;
 }
 
-interface EvmFeeOption {
-  maxFeePerGas: bigint;
-  maxPriorityFeePerGas: bigint;
+type EvmFeeOptionType = 'legacy' | 'eip1559';
+
+interface EvmFeeOptionsBase {
+  type: EvmFeeOptionType;
+  displayed: DisplayedFeeOptions;
+  gasPrice: Record<FeeOptionLabel, FeeValues>;
 }
 
-export interface EvmFeeOptions {
-  displayed: DisplayedFeeOptions;
-  gasPrice: {
-    slow: EvmFeeOption;
-    mid: EvmFeeOption;
-    fast: EvmFeeOption;
-  };
+interface EvmLegacyFeeOptions extends EvmFeeOptionsBase {
+  type: 'legacy';
+  gasPrice: Record<FeeOptionLabel, FeeValuesLegacy>;
 }
+
+interface EvmEip1559FeeOptions extends EvmFeeOptionsBase {
+  type: 'eip1559';
+  gasPrice: Record<FeeOptionLabel, FeeValuesEIP1559>;
+}
+
+export type EvmFeeOptions = EvmLegacyFeeOptions | EvmEip1559FeeOptions;
