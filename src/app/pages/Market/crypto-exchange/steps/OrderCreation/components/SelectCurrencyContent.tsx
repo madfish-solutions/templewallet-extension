@@ -3,6 +3,7 @@ import React, { FC, memo, useCallback, useLayoutEffect, useMemo, useState } from
 import { useFormContext } from 'react-hook-form-v7';
 import { useDebounce } from 'use-debounce';
 
+import { FadeTransition } from 'app/a11y/FadeTransition';
 import { Button } from 'app/atoms';
 import { EmptyState } from 'app/atoms/EmptyState';
 import { PageLoader } from 'app/atoms/Loader';
@@ -114,7 +115,7 @@ export const SelectCurrencyContent: FC<Props> = ({ content, setModalState, onGoB
   );
 
   return (
-    <>
+    <FadeTransition>
       <div className="flex flex-col px-4 pt-4 pb-3">
         <SearchBarField value={searchValue} defaultRightMargin={false} onValueChange={setSearchValue} />
       </div>
@@ -136,7 +137,7 @@ export const SelectCurrencyContent: FC<Props> = ({ content, setModalState, onGoB
           </SimpleInfiniteScroll>
         )}
       </div>
-    </>
+    </FadeTransition>
   );
 };
 

@@ -2,6 +2,7 @@ import React, { FC, useCallback, useLayoutEffect } from 'react';
 
 import { Controller, useFormContext } from 'react-hook-form-v7';
 
+import { FadeTransition } from 'app/a11y/FadeTransition';
 import AssetField from 'app/atoms/AssetField';
 import { ActionsButtonsBox } from 'app/atoms/PageModal/actions-buttons-box';
 import { StyledButton } from 'app/atoms/StyledButton';
@@ -49,7 +50,7 @@ export const FormContent: FC<Props> = ({ setModalState, setModalContent }) => {
   }, [formAnalytics, isSubmitting]);
 
   return (
-    <>
+    <FadeTransition>
       <form
         id="create-order-form"
         className="flex-1 pt-4 px-4 flex flex-col overflow-y-auto"
@@ -119,6 +120,6 @@ export const FormContent: FC<Props> = ({ setModalState, setModalContent }) => {
           <T id="exchange" />
         </StyledButton>
       </ActionsButtonsBox>
-    </>
+    </FadeTransition>
   );
 };
