@@ -1,4 +1,4 @@
-import { parseAbi } from 'viem';
+import { erc20Abi, parseAbi } from 'viem';
 
 import { fromAssetSlug } from 'lib/assets';
 import { getReadOnlyEvm } from 'temple/evm';
@@ -38,7 +38,7 @@ export const detectEvmTokenStandard = async (
   try {
     await publicClient.readContract({
       address: contractAddress,
-      abi: parseAbi(['function totalSupply() public view returns (uint256)']),
+      abi: erc20Abi,
       functionName: 'totalSupply'
     });
 

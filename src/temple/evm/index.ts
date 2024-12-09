@@ -1,5 +1,5 @@
 import memoizee from 'memoizee';
-import { Transport, Chain, createPublicClient, http, PublicClient, HttpTransportConfig } from 'viem';
+import { Transport, Chain, createPublicClient, http, PublicClient, HttpTransportConfig, HttpTransport } from 'viem';
 
 import { rejectOnTimeout } from 'lib/utils';
 import { EvmChain } from 'temple/front';
@@ -16,7 +16,7 @@ const READ_ONLY_CLIENT_TRANSPORT_CONFIG: HttpTransportConfig = {
 };
 
 export const getReadOnlyEvm = memoizee(
-  (rpcUrl: string): PublicClient =>
+  (rpcUrl: string): PublicClient<HttpTransport> =>
     createPublicClient({
       transport: http(rpcUrl, READ_ONLY_CLIENT_TRANSPORT_CONFIG)
     }),

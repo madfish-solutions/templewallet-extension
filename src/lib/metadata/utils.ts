@@ -9,12 +9,12 @@ import {
   TezosTokenStandardsEnum,
   EvmTokenMetadata,
   EvmCollectibleMetadata,
+  EvmAssetMetadata,
   EvmAssetMetadataBase
 } from './types';
 
-export function getAssetSymbol(metadata: EvmAssetMetadataBase | AssetMetadataBase | nullish, short = false) {
+export function getAssetSymbol(metadata: AssetMetadataBase | EvmAssetMetadataBase | nullish, short = false) {
   if (!metadata?.symbol) return '???';
-
   if (!short) return metadata.symbol;
 
   return metadata.symbol === 'tez' ? TEZOS_SYMBOL : metadata.symbol.substring(0, 5);
@@ -35,6 +35,9 @@ export function getCollectionName(metadata: EvmCollectibleMetadata | nullish) {
 /** Empty string for `artifactUri` counts */
 export const isCollectible = (metadata: StringRecord<any>) =>
   'artifactUri' in metadata && isString(metadata.artifactUri);
+
+export const isEvmCollectible = (metadata: EvmAssetMetadata): metadata is EvmCollectibleMetadata =>
+  'tokenId' in metadata;
 
 /**
  * @deprecated // Assertion here is not safe!

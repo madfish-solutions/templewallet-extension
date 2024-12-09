@@ -60,13 +60,17 @@ const TabContentWithManageActive: FC<Props> = ({ publicKeyHash }) => {
     hideZeroBalance
   );
 
-  const allChainsSlugsSorted = useMemoWithCompare(
+  const allChainsSlugs = useMemo(
     () =>
       tokens
         .filter(({ status }) => status !== 'removed')
-        .map(({ chainId, slug }) => toChainAssetSlug(TempleChainKind.EVM, chainId, slug))
-        .sort(tokensSortPredicate),
-    [tokens, tokensSortPredicate]
+        .map(({ chainId, slug }) => toChainAssetSlug(TempleChainKind.EVM, chainId, slug)),
+    [tokens]
+  );
+
+  const allChainsSlugsSorted = useMemoWithCompare(
+    () => allChainsSlugs.sort(tokensSortPredicate),
+    [allChainsSlugs, tokensSortPredicate]
   );
 
   const allSlugsSorted = usePreservedOrderSlugsToManage(enabledChainSlugsSorted, allChainsSlugsSorted);

@@ -13,7 +13,7 @@ const COMPRESSES_TOKEN_ICON_SIZE = 80;
 const COMPRESSES_COLLECTIBLE_ICON_SIZE = 250;
 
 const IPFS_PROTOCOL = 'ipfs://';
-const IPFS_GATE = 'https://cloudflare-ipfs.com/ipfs';
+const IPFS_GATE = 'https://ipfs.io/ipfs';
 const MEDIA_HOST = 'https://static.tcinfra.net/media';
 const DEFAULT_MEDIA_SIZE: TcInfraMediaSize = 'small';
 const OBJKT_MEDIA_HOST = 'https://assets.objkt.media/file/assets-003';
@@ -258,10 +258,21 @@ export const buildEvmTokenIconSources = (metadata: EvmAssetMetadataBase, chainId
   return mainFallback ? [getCompressedImageUrl(mainFallback, COMPRESSES_TOKEN_ICON_SIZE)] : [];
 };
 
-export const buildEvmCollectibleIconSources = (metadata: EvmCollectibleMetadata) =>
-  metadata.image ? [getCompressedImageUrl(metadata.image, COMPRESSES_COLLECTIBLE_ICON_SIZE), metadata.image] : [];
+export const buildEvmCollectibleIconSources = (metadata: EvmCollectibleMetadata) => {
+  const originalUrl = metadata.image;
 
-export const buildMetadataLinkFromUri = (uri?: string) => {
+  return originalUrl
+    ? [
+        getCompressedImageUrl(
+          buildIpfsMediaUriByInfo({ uri: originalUrl, ipfs: getIpfsItemInfo(originalUrl) }) ?? originalUrl,
+          COMPRESSES_COLLECTIBLE_ICON_SIZE
+        ),
+        originalUrl
+      ]
+    : [];
+};
+
+export const buildHttpLinkFromUri = (uri?: string) => {
   if (!uri) return undefined;
 
   if (uri.startsWith(IPFS_PROTOCOL)) {

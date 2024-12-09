@@ -53,13 +53,16 @@ export const useTezosAccountTokensForListing = (publicKeyHash: string, filterZer
     [balancesRecord, publicKeyHash]
   );
 
-  const enabledChainsSlugsSorted = useMemoWithCompare(() => {
+  const enabledSlugsFiltered = useMemo(() => {
     const enabledSlugs = gasSlugs.concat(enabledStoredChainSlugs);
 
-    const enabledSlugsFiltered = filterZeroBalances ? enabledSlugs.filter(isNonZeroBalance) : enabledSlugs;
+    return filterZeroBalances ? enabledSlugs.filter(isNonZeroBalance) : enabledSlugs;
+  }, [enabledStoredChainSlugs, filterZeroBalances, gasSlugs, isNonZeroBalance]);
 
-    return enabledSlugsFiltered.sort(tokensSortPredicate);
-  }, [enabledStoredChainSlugs, isNonZeroBalance, tokensSortPredicate, gasSlugs, filterZeroBalances]);
+  const enabledChainsSlugsSorted = useMemoWithCompare(
+    () => enabledSlugsFiltered.sort(tokensSortPredicate),
+    [enabledSlugsFiltered, tokensSortPredicate]
+  );
 
   return {
     enabledChainsSlugsSorted,
