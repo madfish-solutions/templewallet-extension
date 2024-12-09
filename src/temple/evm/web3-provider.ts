@@ -1,13 +1,10 @@
+import EventEmitter from 'events';
 import memoizee from 'memoizee';
 import { v4 as uuid } from 'uuid';
 import type {
-  EIP1193EventMap,
   EIP1193Parameters,
   EIP1193RequestFn,
   EIP1474Methods,
-  ProviderConnectInfo,
-  ProviderMessage,
-  ProviderRpcError,
   PublicClient,
   RpcSchema,
   RpcSchemaOverride
@@ -24,15 +21,6 @@ import {
 } from './constants';
 import type { TypedDataV1 } from './typed-data-v1';
 import { ErrorWithCode } from './types';
-
-interface EIP1193Callbacks {
-  accountsChanged: SyncFn<HexString[]>[];
-  chainChanged: SyncFn<HexString>[];
-  networkChanged: SyncFn<HexString>[];
-  connect: SyncFn<ProviderConnectInfo>[];
-  disconnect: SyncFn<ProviderRpcError>[];
-  message: SyncFn<ProviderMessage>[];
-}
 
 export interface PassToBgEventDetail {
   origin: string;
@@ -123,25 +111,17 @@ const identity = <T>(x: T) => x;
 const noop = () => {};
 const toHex = (value: number): HexString => `0x${value.toString(16)}`;
 
-export class TempleWeb3Provider {
+export class TempleWeb3Provider extends EventEmitter {
   private accounts: HexString[];
   private chainId: HexString;
-  private callbacks: EIP1193Callbacks;
 
   // Other extensions do the same
   readonly isMetaMask = true;
 
   constructor() {
+    super();
     this.accounts = [];
     this.chainId = toHex(ETHEREUM_MAINNET_CHAIN_ID);
-    this.callbacks = {
-      accountsChanged: [],
-      chainChanged: [],
-      networkChanged: [],
-      connect: [],
-      disconnect: [],
-      message: []
-    };
 
     this.handleDisconnect = this.handleDisconnect.bind(this);
     this.handleRequest(
@@ -211,16 +191,6 @@ export class TempleWeb3Provider {
     }
   };
 
-  on<event extends keyof EIP1193EventMap>(event: event, listener: EIP1193EventMap[event]) {
-    // @ts-expect-error
-    this.callbacks[event].push(listener);
-  }
-  removeListener<event extends keyof EIP1193EventMap>(event: event, listener: EIP1193EventMap[event]) {
-    this.callbacks[event] = this.callbacks[event].filter(
-      currentListener => currentListener !== listener
-    ) as EIP1193Callbacks[event];
-  }
-
   async enable() {
     return this.handleConnect({ method: evmRpcMethodsNames.eth_requestAccounts });
   }
@@ -258,8 +228,8 @@ export class TempleWeb3Provider {
     }
 
     this.chainId = chainId;
-    this.callbacks.chainChanged.forEach(listener => listener(chainId));
-    this.callbacks.networkChanged.forEach(listener => listener(chainId));
+    this.emit('chainChanged', chainId);
+    this.emit('networkChanged', chainId);
   }
 
   private handleNewPermissionsRequest(args: RequestArgs<'wallet_requestPermissions'>) {
@@ -303,7 +273,7 @@ export class TempleWeb3Provider {
     }
 
     this.accounts = accounts;
-    this.callbacks.accountsChanged.forEach(listener => listener(accounts));
+    this.emit('accountsChanged', accounts);
   }
 
   private handleGetPermissionsRequest(args: RequestArgs<'wallet_getPermissions'>) {

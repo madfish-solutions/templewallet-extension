@@ -338,8 +338,7 @@ const assertiveGetChainRpcURLs = async (chainId: number) => {
   const rpcUrls = (await getEvmChainsRpcUrls())[chainId];
 
   if (!rpcUrls) {
-    // TODO: find a more appropriate error code
-    throw new ErrorWithCode(EVMErrorCodes.INVALID_PARAMS, 'Network not found');
+    throw new ErrorWithCode(EVMErrorCodes.CHAIN_NOT_RECOGNIZED, 'Network not found');
   }
 
   return rpcUrls;
