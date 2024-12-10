@@ -3168,5 +3168,38 @@
   },
   "dropdownNoItems": {
     "message": "No items"
+  },
+  "earnings": {
+    "message": "Earnings"
+  },
+  "earningsInfoTooltip": {
+    "message": "TODO: add some text about the meaning of RP acronym, stats update interval etc."
+  },
+  "ads": {
+    "message": "Ads"
+  },
+  "today": {
+    "message": "Today"
+  },
+  "activeFeatures": {
+    "message": "Active features"
+  },
+  "advertisingFeatureDescription": {
+    "message": "Get RP by viewing ads"
+  },
+  "advertisingFeatureTooltip": {
+    "message": "TODO: add some text about getting RP by viewing ads"
+  },
+  "referralLinksFeatureDescription": {
+    "message": "Get RP while use favorite websites"
+  },
+  "referralLinksFeatureTooltip": {
+    "message": "TODO: add some text about getting RP while use favorite websites"
+  },
+  "achievements": {
+    "message": "Achievements"
+  },
+  "lifetimeEarnings": {
+    "message": "Lifetime earnings"
   }
 }
