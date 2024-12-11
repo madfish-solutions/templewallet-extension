@@ -4,9 +4,8 @@ import { Button, IconBase } from 'app/atoms';
 import { ReactComponent as CompactDown } from 'app/icons/base/compact_down.svg';
 import { StoredExolixCurrency } from 'app/store/crypto-exchange/state';
 
+import { CurrencyIcon } from '../../../components/CurrencyIcon';
 import { getCurrencyDisplayCode } from '../../../utils';
-
-import { CurrencyIcon } from './CurrencyIcon';
 
 interface Props {
   currency: StoredExolixCurrency;

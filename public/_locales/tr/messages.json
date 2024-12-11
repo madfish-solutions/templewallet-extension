@@ -1930,14 +1930,6 @@
       }
     }
   },
-  "depositAddressText": {
-    "message": "Yatırma $depositAddress$ adresi:",
-    "placeholders": {
-      "depositAddress": {
-        "content": "$1"
-      }
-    }
-  },
   "support": {
     "message": "Destek"
   },

@@ -320,6 +320,9 @@
   "cancel": {
     "message": "Cancel"
   },
+  "cancelOrder": {
+    "message": "Cancel Order"
+  },
   "save": {
     "message": "Save"
   },
@@ -3196,22 +3199,23 @@
       }
     }
   },
-  "depositAddressText": {
-    "message": "Deposit $depositAddress$ address:",
-    "placeholders": {
-      "depositAddress": {
-        "content": "$1"
-      }
-    }
+  "depositAddress": {
+    "message": "Deposit address"
   },
   "support": {
     "message": "Support"
+  },
+  "exolixSupport": {
+    "message": "Exolix Support"
   },
   "deposit": {
     "message": "Deposit"
   },
   "depositDescription": {
-    "message": "Send the funds to the address below. As soon as the deposit is received, the exchange process will begin automatically"
+    "message": "Send tokens to the deposit address, and the exchange will begin automatically once the deposit is confirmed"
+  },
+  "depositDisclaimer": {
+    "message": "Send the exact amount of crypto to the deposit address. Otherwise the transaction will be failed and you will need to contact Exolix support."
   },
   "sendByOneTransaction": {
     "message": "Send by one transaction"
@@ -3287,6 +3291,17 @@
   },
   "expiredStatusDescription": {
     "message": "The order was not paid for the time allocated."
+  },
+  "expiresIn": {
+    "message": "Expires in"
+  },
+  "sendInOneTransaction": {
+    "message": "Send in one transaction to the $networkName$ deposit address",
+    "placeholders": {
+      "networkName": {
+        "content": "$1"
+      }
+    }
   },
   "canceledStatusDescription": {
     "message": "The order was canceled."

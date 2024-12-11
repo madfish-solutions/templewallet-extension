@@ -7,11 +7,12 @@ import { TOKEN_FALLBACK_ICON_SRC, TOKENS_ICONS_SRC } from 'lib/icons';
 interface Props {
   src: string;
   code: string;
+  size?: number;
   alt?: string;
   className?: string;
 }
 
-export const CurrencyIcon = memo<Props>(({ src, code, alt, className }) => {
+export const CurrencyIcon = memo<Props>(({ src, code, size = 40, alt, className }) => {
   const [isFailed, setIsFailed] = useState(false);
 
   const localSrc = useMemo(() => {
@@ -24,8 +25,13 @@ export const CurrencyIcon = memo<Props>(({ src, code, alt, className }) => {
   const handleError = useCallback(() => setIsFailed(true), []);
 
   return (
-    <div className="flex justify-center items-center w-10 h-10">
-      <img src={localSrc} alt={alt} className={clsx('rounded-full w-9 h-9', className)} onError={handleError} />
+    <div className="flex justify-center items-center" style={{ width: size, height: size }}>
+      <img
+        src={localSrc}
+        alt={alt}
+        className={clsx('rounded-full w-full h-auto p-0.5', className)}
+        onError={handleError}
+      />
     </div>
   );
 });

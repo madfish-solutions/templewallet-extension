@@ -18,11 +18,10 @@ import { SearchBarField } from 'app/templates/SearchField';
 import { isSearchStringApplicable, searchAndFilterItems } from 'lib/utils/search-items';
 import { useAccountAddressForEvm, useAccountAddressForTezos, useEnabledEvmChains } from 'temple/front';
 
+import { CurrencyIcon } from '../../../components/CurrencyIcon';
 import { ModalHeaderConfig } from '../../../config';
 import { getCurrencyDisplayCode } from '../../../utils';
 import { CryptoExchangeFormData } from '../types';
-
-import { CurrencyIcon } from './CurrencyIcon';
 
 export const TEZOS_EXOLIX_NETWORK_CODE = 'XTZ';
 

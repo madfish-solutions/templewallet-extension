@@ -1930,14 +1930,6 @@
       }
     }
   },
-  "depositAddressText": {
-    "message": "Zahlen Sie auf $depositAddress$ address:",
-    "placeholders": {
-      "depositAddress": {
-        "content": "$1"
-      }
-    }
-  },
   "support": {
     "message": "Support"
   },

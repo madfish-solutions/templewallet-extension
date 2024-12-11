@@ -151,6 +151,9 @@ export const FormContent: FC<Props> = ({ setModalHeaderConfig, setModalContent, 
 
   const onSubmit = useCallback<SubmitHandler<CryptoExchangeFormData>>(
     async ({ inputValue, inputCurrency, outputCurrency }) => {
+      console.log('Submitted');
+      return;
+
       try {
         if (isSubmitting || !withdrawalAddress) return;
 

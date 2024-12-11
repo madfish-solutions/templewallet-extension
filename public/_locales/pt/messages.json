@@ -1930,14 +1930,6 @@
       }
     }
   },
-  "depositAddressText": {
-    "message": "Endereço do depósito $depositAddress$:",
-    "placeholders": {
-      "depositAddress": {
-        "content": "$1"
-      }
-    }
-  },
   "support": {
     "message": "Assistência"
   },
