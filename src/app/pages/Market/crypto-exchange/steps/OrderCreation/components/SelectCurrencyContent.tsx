@@ -16,7 +16,7 @@ import {
 import { StoredExolixCurrency } from 'app/store/crypto-exchange/state';
 import { SearchBarField } from 'app/templates/SearchField';
 import { isSearchStringApplicable, searchAndFilterItems } from 'lib/utils/search-items';
-import { useEnabledEvmChains } from 'temple/front';
+import { useAccountAddressForEvm, useAccountAddressForTezos, useEnabledEvmChains } from 'temple/front';
 
 import { ModalHeaderConfig } from '../../../config';
 import { getCurrencyDisplayCode } from '../../../utils';
@@ -24,7 +24,7 @@ import { CryptoExchangeFormData } from '../types';
 
 import { CurrencyIcon } from './CurrencyIcon';
 
-const TEZOS_EXOLIX_NETWORK_CODE = 'XTZ';
+export const TEZOS_EXOLIX_NETWORK_CODE = 'XTZ';
 
 // TODO: move to backend
 const chainIdExolixNetworkCodeRecord: Record<number, string> = {
@@ -59,6 +59,9 @@ export const SelectCurrencyContent: FC<Props> = ({ content, setModalHeaderConfig
 
   const evmChains = useEnabledEvmChains();
 
+  const evmAddress = useAccountAddressForEvm();
+  const tezosAddress = useAccountAddressForTezos();
+
   const isLoading = useExolixCurrenciesLoadingSelector();
   const allCurrencies = useAllExolixCurrenciesSelector();
 
@@ -88,12 +91,12 @@ export const SelectCurrencyContent: FC<Props> = ({ content, setModalHeaderConfig
         const networkCode = currency.network.code;
 
         const isInputCurrency = currency.code === inputCurrency.code && networkCode === inputCurrency.network.code;
-        const isTezosNetwork = networkCode === TEZOS_EXOLIX_NETWORK_CODE;
-        const isEnabledEvmNetwork = enabledExolixNetworkCodes.includes(networkCode);
+        const isTezosNetwork = Boolean(tezosAddress) && networkCode === TEZOS_EXOLIX_NETWORK_CODE;
+        const isEnabledEvmNetwork = Boolean(evmAddress) && enabledExolixNetworkCodes.includes(networkCode);
 
         return !isInputCurrency && (isTezosNetwork || isEnabledEvmNetwork);
       }),
-    [allCurrencies, enabledExolixNetworkCodes, inputCurrency]
+    [allCurrencies, enabledExolixNetworkCodes, evmAddress, inputCurrency.code, inputCurrency.network.code, tezosAddress]
   );
 
   const displayCurrencies = useMemo(() => {
@@ -157,7 +160,7 @@ const Item = memo<ItemProps>(({ currency, selectCurrency }) => {
       <div className="flex items-center gap-x-1">
         <CurrencyIcon src={currency.icon} code={currency.code} />
         <div className="text-start gap-y-1">
-          <p className="text-font-medium">{getCurrencyDisplayCode(currency)}</p>
+          <p className="text-font-medium">{getCurrencyDisplayCode(currency.code)}</p>
           <p className="text-font-description text-grey-1 w-20 truncate">{currency.name}</p>
         </div>
       </div>

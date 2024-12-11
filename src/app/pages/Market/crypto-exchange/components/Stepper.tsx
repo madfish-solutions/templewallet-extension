@@ -2,10 +2,12 @@ import React, { FC, memo } from 'react';
 
 import clsx from 'clsx';
 
+export type Steps = 0 | 1 | 2 | 3;
+
 type Status = 'active' | 'next' | 'default';
 
 interface Props {
-  currentStep: 0 | 1 | 2 | 3;
+  currentStep: Steps;
 }
 
 export const Stepper = memo<Props>(({ currentStep }) => {

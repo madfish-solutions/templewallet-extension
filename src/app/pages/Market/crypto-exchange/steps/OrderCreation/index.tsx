@@ -1,36 +1,48 @@
-import React, { FC, useCallback, useEffect, useState } from 'react';
+import React, { FC, useCallback, useEffect, useMemo, useState } from 'react';
 
 import { FormProvider, useForm } from 'react-hook-form-v7';
 
 import { dispatch } from 'app/store';
 import { loadExolixCurrenciesActions } from 'app/store/crypto-exchange/actions';
+import { useAccountAddressForTezos } from 'temple/front';
 
-import { INITIAL_INPUT_CURRENCY, INITIAL_OUTPUT_CURRENCY, ModalHeaderConfig } from '../../config';
+import { Steps } from '../../components/Stepper';
+import {
+  INITIAL_EVM_ACC_OUTPUT_CURRENCY,
+  INITIAL_INPUT_CURRENCY,
+  INITIAL_TEZOS_ACC_OUTPUT_CURRENCY,
+  ModalHeaderConfig
+} from '../../config';
 
 import { FormContent } from './components/FormContent';
 import { SelectCurrencyContent, SelectTokenContent } from './components/SelectCurrencyContent';
 import { CryptoExchangeFormData } from './types';
 
-const defaultFormData = {
-  inputValue: '',
-  inputCurrency: INITIAL_INPUT_CURRENCY,
-  outputValue: '',
-  outputCurrency: INITIAL_OUTPUT_CURRENCY
-};
-
 type ModalContent = 'form' | SelectTokenContent;
 
 interface Props {
   setModalHeaderConfig: SyncFn<ModalHeaderConfig>;
+  setExchangeStep: SyncFn<Steps>;
 }
 
-export const OrderCreation: FC<Props> = ({ setModalHeaderConfig }) => {
+export const OrderCreation: FC<Props> = ({ setModalHeaderConfig, setExchangeStep }) => {
   const [modalContent, setModalContent] = useState<ModalContent>('form');
 
   useEffect(() => void dispatch(loadExolixCurrenciesActions.submit()), []);
 
+  const tezosAddress = useAccountAddressForTezos();
+
+  const defaultFormData = useMemo(
+    () => ({
+      inputValue: '',
+      inputCurrency: INITIAL_INPUT_CURRENCY,
+      outputCurrency: tezosAddress ? INITIAL_TEZOS_ACC_OUTPUT_CURRENCY : INITIAL_EVM_ACC_OUTPUT_CURRENCY
+    }),
+    [tezosAddress]
+  );
+
   const form = useForm<CryptoExchangeFormData>({
-    mode: 'onSubmit',
+    mode: 'onChange',
     reValidateMode: 'onChange',
     defaultValues: defaultFormData
   });
@@ -40,7 +52,11 @@ export const OrderCreation: FC<Props> = ({ setModalHeaderConfig }) => {
   return (
     <FormProvider {...form}>
       {modalContent === 'form' ? (
-        <FormContent setModalHeaderConfig={setModalHeaderConfig} setModalContent={setModalContent} />
+        <FormContent
+          setModalHeaderConfig={setModalHeaderConfig}
+          setModalContent={setModalContent}
+          setExchangeStep={setExchangeStep}
+        />
       ) : (
         <SelectCurrencyContent content={modalContent} setModalHeaderConfig={setModalHeaderConfig} onGoBack={onGoBack} />
       )}

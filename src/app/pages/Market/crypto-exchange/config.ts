@@ -17,13 +17,24 @@ export const INITIAL_INPUT_CURRENCY: StoredExolixCurrency = {
   }
 };
 
-export const INITIAL_OUTPUT_CURRENCY: StoredExolixCurrency = {
+export const INITIAL_TEZOS_ACC_OUTPUT_CURRENCY: StoredExolixCurrency = {
   code: 'XTZ',
   name: 'Tezos',
   icon: 'https://exolix.com/icons/coins/XTZ.png',
   network: {
     code: 'XTZ',
     fullName: 'Tezos',
+    shortName: null
+  }
+};
+
+export const INITIAL_EVM_ACC_OUTPUT_CURRENCY: StoredExolixCurrency = {
+  code: 'USDT',
+  name: 'TetherUS',
+  icon: 'https://exolix.com/icons/coins/USDT.png',
+  network: {
+    code: 'ETH',
+    fullName: 'Ethereum',
     shortName: null
   }
 };

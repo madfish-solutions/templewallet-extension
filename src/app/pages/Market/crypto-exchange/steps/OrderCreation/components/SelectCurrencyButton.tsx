@@ -21,7 +21,7 @@ export const SelectCurrencyButton = memo<Props>(({ currency, onClick }) => (
     <div className="flex items-center gap-x-2">
       <CurrencyIcon src={currency.icon} code={currency.code} />
       <div className="text-start">
-        <p className="text-font-description-bold">{getCurrencyDisplayCode(currency)}</p>
+        <p className="text-font-description-bold">{getCurrencyDisplayCode(currency.code)}</p>
         <p className="text-font-num-12 text-grey-1 w-[52px] truncate">{currency.network.fullName}</p>
       </div>
     </div>
