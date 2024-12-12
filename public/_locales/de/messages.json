@@ -1943,13 +1943,13 @@
     "message": "Mit einer Transaktion senden"
   },
   "youGet": {
-    "message": "Sie erhalten:"
+    "message": "Sie erhalten"
   },
   "fixedRate": {
     "message": "Festpreis:"
   },
   "transactionId": {
-    "message": "Transaktions-ID:"
+    "message": "Transaktions-ID"
   },
   "atomDepositMemo": {
     "message": "Atom Deposit Memo"

@@ -13,6 +13,8 @@ const MAX_DOLLAR_VALUE = 10000;
 const MIN_ASSET_AMOUNT = 0.00001;
 const AVG_COMISSION = 300;
 
+const COMMON_RETRY_CONFIG = { retries: 3, minTimeout: 250, maxTimeout: 1000 };
+
 const api = axios.create({
   baseURL: 'https://exolix.com/api/v2',
   headers: {
@@ -55,7 +57,7 @@ const getCurrencies = (page: number) =>
       api
         .get<ExolixCurrenciesResponse>('/currencies', { params: { size: currenciesLimit, page, withNetworks: true } })
         .then(r => r.data),
-    { retries: 3, minTimeout: 250, maxTimeout: 1000 }
+    COMMON_RETRY_CONFIG
   );
 
 const loadUSDTRate = async (coinTo: string, coinToNetwork: string) => {
@@ -152,16 +154,20 @@ export const loadMinMaxExchangeValues = async (
 };
 
 export const queryExchange = (data: GetRateRequestData): Promise<GetRateResponse> =>
-  api.get<GetRateResponse>('/rate', { params: { ...data, rateType: 'fixed' } }).then(
-    r => r.data,
-    (error: unknown) => {
-      if (axios.isAxiosError(error) && error.response && error.response.status === 422) {
-        const data = error.response.data;
-        if (data && data.error == null) return data;
-      }
-      console.error(error);
-      throw error;
-    }
+  retry(
+    () =>
+      api.get<GetRateResponse>('/rate', { params: { ...data, rateType: 'fixed' } }).then(
+        r => r.data,
+        (error: unknown) => {
+          if (axios.isAxiosError(error) && error.response && error.response.status === 422) {
+            const data = error.response.data;
+            if (data && data.error == null) return data;
+          }
+          console.error(error);
+          throw error;
+        }
+      ),
+    COMMON_RETRY_CONFIG
   );
 
 export const submitExchange = (data: {
@@ -172,7 +178,7 @@ export const submitExchange = (data: {
   amount: number;
   withdrawalAddress: string;
   withdrawalExtraId: string;
-}) => api.post('/transactions', { ...data, rateType: 'fixed' }).then(r => r.data);
+}) => retry(() => api.post('/transactions', { ...data, rateType: 'fixed' }).then(r => r.data), COMMON_RETRY_CONFIG);
 
 export const getExchangeData = (exchangeId: string) =>
-  api.get<ExchangeData>(`/transactions/${exchangeId}`).then(r => r.data);
+  retry(() => api.get<ExchangeData>(`/transactions/${exchangeId}`).then(r => r.data), COMMON_RETRY_CONFIG);

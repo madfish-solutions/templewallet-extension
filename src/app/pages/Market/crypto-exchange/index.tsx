@@ -2,9 +2,8 @@ import React, { FC, useState } from 'react';
 
 import { PageModal } from 'app/atoms/PageModal';
 
-import { Steps } from './components/Stepper';
 import { defaultModalHeaderConfig } from './config';
-import { ExchangeDataProvider } from './context';
+import { CryptoExchangeDataProvider, useCryptoExchangeDataState } from './context';
 import { Deposit } from './steps/Deposit';
 import { OrderCreation } from './steps/OrderCreation';
 
@@ -16,22 +15,22 @@ interface Props {
 export const CryptoExchange: FC<Props> = ({ opened, onRequestClose }) => {
   const [modalHeaderConfig, setModalHeaderConfig] = useState(defaultModalHeaderConfig);
 
-  const [exchangeStep, setExchangeStep] = useState<Steps>(1);
+  const { step } = useCryptoExchangeDataState();
 
   return (
     <PageModal opened={opened} onRequestClose={onRequestClose} {...modalHeaderConfig}>
-      <ExchangeDataProvider>
+      <CryptoExchangeDataProvider>
         {(() => {
-          switch (exchangeStep) {
+          switch (step) {
             case 0:
-              return <OrderCreation setModalHeaderConfig={setModalHeaderConfig} setExchangeStep={setExchangeStep} />;
+              return <OrderCreation setModalHeaderConfig={setModalHeaderConfig} />;
             case 1:
-              return <Deposit setExchangeStep={setExchangeStep} />;
+              return <Deposit />;
             default:
               return null;
           }
         })()}
-      </ExchangeDataProvider>
+      </CryptoExchangeDataProvider>
     </PageModal>
   );
 };

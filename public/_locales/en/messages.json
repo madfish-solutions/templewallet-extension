@@ -3221,13 +3221,13 @@
     "message": "Send by one transaction"
   },
   "youGet": {
-    "message": "You get:"
+    "message": "You get"
   },
   "fixedRate": {
     "message": "Fixed rate:"
   },
   "transactionId": {
-    "message": "Transaction ID:"
+    "message": "Transaction ID"
   },
   "atomDepositMemo": {
     "message": "Atom Deposit Memo"

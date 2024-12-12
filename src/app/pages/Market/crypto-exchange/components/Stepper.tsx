@@ -2,7 +2,7 @@ import React, { FC, memo } from 'react';
 
 import clsx from 'clsx';
 
-export type Steps = 0 | 1 | 2 | 3;
+import { Steps } from '../context';
 
 type Status = 'active' | 'next' | 'default';
 

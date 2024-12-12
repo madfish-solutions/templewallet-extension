@@ -10,6 +10,7 @@ import { FadeTransition } from 'app/a11y/FadeTransition';
 import AssetField from 'app/atoms/AssetField';
 import { ActionsButtonsBox } from 'app/atoms/PageModal/actions-buttons-box';
 import { StyledButton } from 'app/atoms/StyledButton';
+import { toastError } from 'app/toaster';
 import { useFormAnalytics } from 'lib/analytics';
 import { ExchangeDataStatusEnum } from 'lib/apis/exolix/types';
 import { loadMinMaxExchangeValues, queryExchange, submitExchange } from 'lib/apis/exolix/utils';
@@ -18,9 +19,9 @@ import { useTypedSWR } from 'lib/swr';
 import { useAccountAddressForEvm, useAccountAddressForTezos } from 'temple/front';
 
 import { StepLabel } from '../../../components/StepLabel';
-import { Stepper, Steps } from '../../../components/Stepper';
+import { Stepper } from '../../../components/Stepper';
 import { defaultModalHeaderConfig, ModalHeaderConfig } from '../../../config';
-import { useExchangeDataState } from '../../../context';
+import { useCryptoExchangeDataState } from '../../../context';
 import { getCurrencyDisplayCode } from '../../../utils';
 import { CryptoExchangeFormData } from '../types';
 
@@ -42,16 +43,15 @@ const DEFAULT_SWR_CONGIG = {
 interface Props {
   setModalHeaderConfig: SyncFn<ModalHeaderConfig>;
   setModalContent: SyncFn<SelectTokenContent>;
-  setExchangeStep: SyncFn<Steps>;
 }
 
-export const FormContent: FC<Props> = ({ setModalHeaderConfig, setModalContent, setExchangeStep }) => {
+export const FormContent: FC<Props> = ({ setModalHeaderConfig, setModalContent }) => {
   const formAnalytics = useFormAnalytics('ExolixOrderCreationForm');
 
   const evmAddress = useAccountAddressForEvm();
   const tezosAddress = useAccountAddressForTezos();
 
-  const { setExchangeData } = useExchangeDataState();
+  const { setExchangeData, setStep } = useCryptoExchangeDataState();
 
   const { control, watch, handleSubmit, formState, trigger } = useFormContext<CryptoExchangeFormData>();
   const { isSubmitting, submitCount, errors } = formState;
@@ -151,15 +151,25 @@ export const FormContent: FC<Props> = ({ setModalHeaderConfig, setModalContent, 
 
   const onSubmit = useCallback<SubmitHandler<CryptoExchangeFormData>>(
     async ({ inputValue, inputCurrency, outputCurrency }) => {
-      console.log('Submitted');
-      return;
-
       try {
         if (isSubmitting || !withdrawalAddress) return;
 
         formAnalytics.trackSubmit();
 
         const amount = Number(inputValue) ?? 0;
+
+        console.log(
+          {
+            coinFrom: inputCurrency.code,
+            networkFrom: inputCurrency.network.code,
+            coinTo: outputCurrency.code,
+            networkTo: outputCurrency.network.code,
+            amount,
+            withdrawalAddress,
+            withdrawalExtraId: ''
+          },
+          'submitData'
+        );
 
         const data = await submitExchange({
           coinFrom: inputCurrency.code,
@@ -171,25 +181,27 @@ export const FormContent: FC<Props> = ({ setModalHeaderConfig, setModalContent, 
           withdrawalExtraId: ''
         });
         setExchangeData(data);
+        console.log(data, 'data');
 
         switch (data.status) {
           case ExchangeDataStatusEnum.WAIT:
-            setExchangeStep(1);
+            setStep(1);
             break;
           case ExchangeDataStatusEnum.CONFIRMATION:
-            setExchangeStep(2);
+            setStep(2);
             break;
           case ExchangeDataStatusEnum.EXCHANGING:
-            setExchangeStep(3);
+            setStep(3);
         }
 
         formAnalytics.trackSubmitSuccess();
       } catch (e) {
         console.log(e);
         formAnalytics.trackSubmitFail();
+        toastError('Something went wrong! Please try again later.');
       }
     },
-    [formAnalytics, isSubmitting, setExchangeData, setExchangeStep, withdrawalAddress]
+    [formAnalytics, isSubmitting, setExchangeData, setStep, withdrawalAddress]
   );
 
   return (
@@ -263,6 +275,8 @@ export const FormContent: FC<Props> = ({ setModalHeaderConfig, setModalContent, 
   );
 };
 
+const COMMON_TEXT_CLASSNAME = 'cursor-pointer text-font-num-12 ml-0.5';
+
 interface MinMaxDisplayProps {
   currencyCode: string;
   error?: FieldError;
@@ -274,14 +288,28 @@ const MinMaxDisplay = memo<MinMaxDisplayProps>(({ currencyCode, error, min, max 
   const isMinError = error?.message === MIN_ERROR;
   const ismMaxError = error?.message === MAX_ERROR;
 
+  const { setValue } = useFormContext<CryptoExchangeFormData>();
+
+  const handleMinClick = useCallback(
+    () => min && setValue('inputValue', min.toString(), { shouldValidate: true }),
+    [min, setValue]
+  );
+  const handleMaxClick = useCallback(
+    () => max && setValue('inputValue', max.toString(), { shouldValidate: true }),
+    [max, setValue]
+  );
+
   return (
     <div className="flex items-center text-font-description text-grey-1 py-1">
       <T id="min" />{' '}
-      <span className={clsx('text-font-num-12 ml-0.5 mr-4', getMinMaxTextClassNames(isMinError, min))}>
+      <span
+        className={clsx('mr-4', COMMON_TEXT_CLASSNAME, getMinMaxTextClassNames(isMinError, min))}
+        onClick={handleMinClick}
+      >
         {getMinMaxDisplayValue(currencyCode, min)}
       </span>
       <T id="max" />:{' '}
-      <span className={clsx('text-font-num-12 ml-0.5', getMinMaxTextClassNames(ismMaxError, max))}>
+      <span className={clsx(COMMON_TEXT_CLASSNAME, getMinMaxTextClassNames(ismMaxError, max))} onClick={handleMaxClick}>
         {getMinMaxDisplayValue(currencyCode, max)}
       </span>
     </div>

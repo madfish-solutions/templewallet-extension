@@ -9,7 +9,7 @@ import { toastSuccess } from 'app/toaster';
 import { T } from 'lib/i18n';
 import { useBooleanState } from 'lib/ui/hooks';
 
-import { useExchangeDataState } from '../../../context';
+import { useCryptoExchangeDataState } from '../../../context';
 
 import { DepositQrCodeModal } from './DepositQrCodeModal';
 
@@ -18,7 +18,7 @@ interface Props {
 }
 
 export const DepositAddressBlock = memo<Props>(({ className }) => {
-  const { exchangeData } = useExchangeDataState();
+  const { exchangeData } = useCryptoExchangeDataState();
 
   const [isQrCodeModalOpened, openQrCodeModal, closeQrCodeModal] = useBooleanState(false);
 
@@ -41,9 +41,9 @@ export const DepositAddressBlock = memo<Props>(({ className }) => {
           <span className="text-font-regular-bold">
             <T id="depositAddress" />
           </span>
-          <span className="text-font-description text-grey-1 max-w-56">{exchangeData.depositAddress}</span>
+          <span className="text-font-description text-grey-1 w-56 h-8 break-words">{exchangeData.depositAddress}</span>
         </div>
-        <div className="self-end">
+        <div className="flex flex-row gap-x-2 self-end">
           <IconButton Icon={CopyIcon} color="blue" onClick={handleCopyButtonClick} />
           <IconButton Icon={QrCodeIcon} color="blue" onClick={openQrCodeModal} />
         </div>

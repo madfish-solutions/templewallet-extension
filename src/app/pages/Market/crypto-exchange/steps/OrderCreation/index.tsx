@@ -6,7 +6,6 @@ import { dispatch } from 'app/store';
 import { loadExolixCurrenciesActions } from 'app/store/crypto-exchange/actions';
 import { useAccountAddressForTezos } from 'temple/front';
 
-import { Steps } from '../../components/Stepper';
 import {
   INITIAL_EVM_ACC_OUTPUT_CURRENCY,
   INITIAL_INPUT_CURRENCY,
@@ -22,10 +21,9 @@ type ModalContent = 'form' | SelectTokenContent;
 
 interface Props {
   setModalHeaderConfig: SyncFn<ModalHeaderConfig>;
-  setExchangeStep: SyncFn<Steps>;
 }
 
-export const OrderCreation: FC<Props> = ({ setModalHeaderConfig, setExchangeStep }) => {
+export const OrderCreation: FC<Props> = ({ setModalHeaderConfig }) => {
   const [modalContent, setModalContent] = useState<ModalContent>('form');
 
   useEffect(() => void dispatch(loadExolixCurrenciesActions.submit()), []);
@@ -52,11 +50,7 @@ export const OrderCreation: FC<Props> = ({ setModalHeaderConfig, setExchangeStep
   return (
     <FormProvider {...form}>
       {modalContent === 'form' ? (
-        <FormContent
-          setModalHeaderConfig={setModalHeaderConfig}
-          setModalContent={setModalContent}
-          setExchangeStep={setExchangeStep}
-        />
+        <FormContent setModalHeaderConfig={setModalHeaderConfig} setModalContent={setModalContent} />
       ) : (
         <SelectCurrencyContent content={modalContent} setModalHeaderConfig={setModalHeaderConfig} onGoBack={onGoBack} />
       )}

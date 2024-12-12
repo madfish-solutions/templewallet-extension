@@ -1943,13 +1943,13 @@
     "message": "Bir işlem başına gönder"
   },
   "youGet": {
-    "message": "Aldığınız:"
+    "message": "Aldığınız"
   },
   "fixedRate": {
     "message": "Sabit oran:"
   },
   "transactionId": {
-    "message": "İşlem Kimliği:"
+    "message": "İşlem Kimliği"
   },
   "atomDepositMemo": {
     "message": "Atom Yatırma Notu"

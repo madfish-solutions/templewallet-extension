@@ -1943,13 +1943,13 @@
     "message": "Enviar por uma transação"
   },
   "youGet": {
-    "message": "Recebe:"
+    "message": "Recebe"
   },
   "fixedRate": {
     "message": "Taxa fixa:"
   },
   "transactionId": {
-    "message": "ID de transação:"
+    "message": "ID de transação"
   },
   "atomDepositMemo": {
     "message": "Memorando de depósito de átomo"

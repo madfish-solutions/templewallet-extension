@@ -1,7 +1,7 @@
 import { PageModalProps } from 'app/atoms/PageModal';
 import { StoredExolixCurrency } from 'app/store/crypto-exchange/state';
 
-// export const EXOLIX_CONTACT_LINK = 'https://exolix.com/contact';
+export const EXOLIX_CONTACT_LINK = 'https://exolix.com/contact';
 
 export const EXOLIX_TERMS_LINK = 'https://exolix.com/terms';
 export const EXOLIX_PRIVICY_LINK = 'https://exolix.com/privacy';
