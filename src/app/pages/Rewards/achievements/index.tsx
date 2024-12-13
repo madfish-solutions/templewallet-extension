@@ -13,7 +13,7 @@ export const Achievements = memo(() => (
         'bg-gray-100 rounded-2xl flex flex-col justify-center items-center text-center gap-1',
         'text-sm leading-tight text-gray-500 font-medium'
       )}
-      style={{ padding: '50px 0' }}
+      style={{ height: '8.625rem' }}
     >
       <p>🚧</p>
       <p>

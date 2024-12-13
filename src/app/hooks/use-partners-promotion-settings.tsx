@@ -13,7 +13,7 @@ export const usePartnersPromotionSettings = () => {
 
   const isEnabled = useShouldShowPartnersPromoSelector();
 
-  const handleHidePromotion = async (toChecked: boolean) => {
+  const handleHidePromotion = async () => {
     const confirmed = await confirm({
       title: t('closePartnersPromotion'),
       children: t('closePartnersPromoConfirm'),
@@ -21,11 +21,11 @@ export const usePartnersPromotionSettings = () => {
     });
 
     if (confirmed) {
-      dispatch(togglePartnersPromotionAction(toChecked));
+      dispatch(togglePartnersPromotionAction(false));
     }
   };
 
-  const handleShowPromotion = async (toChecked: boolean) => {
+  const handleShowPromotion = async () => {
     const confirmed = await confirm({
       title: t('enablePartnersPromotionConfirm'),
       children: t('enablePartnersPromotionDescriptionConfirm'),
@@ -33,14 +33,14 @@ export const usePartnersPromotionSettings = () => {
     });
 
     if (confirmed) {
-      dispatch(togglePartnersPromotionAction(toChecked));
+      dispatch(togglePartnersPromotionAction(true));
     }
   };
 
   const setEnabled = (toChecked: boolean, event?: ChangeEvent<HTMLInputElement>) => {
     event?.preventDefault();
 
-    return toChecked ? handleShowPromotion(toChecked) : handleHidePromotion(toChecked);
+    return toChecked ? handleShowPromotion() : handleHidePromotion();
   };
 
   return { isEnabled, setEnabled };

@@ -2,7 +2,7 @@ import React, { memo, ReactNode, useCallback } from 'react';
 
 import clsx from 'clsx';
 
-import { Button } from 'app/atoms';
+import { AnalyticsEventCategory, setTestID, useAnalytics } from 'lib/analytics';
 import { T } from 'lib/i18n';
 
 import { RewardsTooltip } from '../tooltip';
@@ -19,11 +19,18 @@ interface FeatureItemProps {
   description: ReactNode | ReactNode[];
   tooltip: string;
   buttonTestID?: string;
+  settingsCheckboxTestID?: string;
 }
 
 export const FeatureItem = memo<FeatureItemProps>(
-  ({ Icon, enabled, setEnabled, name, description, tooltip, buttonTestID }) => {
-    const toggle = useCallback(() => setEnabled(!enabled), [enabled, setEnabled]);
+  ({ Icon, enabled, setEnabled, name, description, tooltip, buttonTestID, settingsCheckboxTestID }) => {
+    const { trackEvent } = useAnalytics();
+    const toggle = useCallback(() => {
+      if (settingsCheckboxTestID) {
+        trackEvent(settingsCheckboxTestID, AnalyticsEventCategory.CheckboxChange, { toChecked: !enabled });
+      }
+      setEnabled(!enabled);
+    }, [enabled, setEnabled, settingsCheckboxTestID, trackEvent]);
     const StatusIcon = enabled ? EnabledIcon : DisabledIcon;
 
     return (
@@ -52,17 +59,17 @@ export const FeatureItem = memo<FeatureItemProps>(
           <span className="text-xs text-gray-600">{description}</span>
         </div>
 
-        <Button
+        <button
           className={clsx(
             'rounded-lg p-2 text-center text-white text-xs font-semibold leading-none capitalize',
             enabled ? 'bg-gray-500' : 'bg-blue-500'
           )}
           style={{ minWidth: '3.875rem' }}
           onClick={toggle}
-          testID={buttonTestID}
+          {...setTestID(buttonTestID)}
         >
           <T id={enabled ? 'disable' : 'enable'} />
-        </Button>
+        </button>
       </div>
     );
   }
