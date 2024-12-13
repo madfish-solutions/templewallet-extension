@@ -116,7 +116,6 @@ type ToolbarProps = {
   hasBackAction?: boolean;
   step?: number;
   setStep?: (step: number) => void;
-  adShow?: boolean;
   skip?: boolean;
   attention?: boolean;
 };
@@ -126,15 +125,7 @@ export let ToolbarElement: HTMLDivElement | null = null;
 /** Defined for reference in code to highlight relation between multiple sticky elements & their sizes */
 export const TOOLBAR_IS_STICKY = true;
 
-const Toolbar: FC<ToolbarProps> = ({
-  pageTitle,
-  hasBackAction = true,
-  step,
-  setStep,
-  adShow = false,
-  skip,
-  attention
-}) => {
+const Toolbar: FC<ToolbarProps> = ({ pageTitle, hasBackAction = true, step, setStep, skip, attention }) => {
   const { historyPosition, pathname } = useLocation();
   const { fullPage } = useAppEnv();
   const { setOnboardingCompleted } = useOnboardingProgress();
