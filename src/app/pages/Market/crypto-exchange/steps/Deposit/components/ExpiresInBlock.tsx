@@ -24,7 +24,7 @@ export const ExpiresInBlock = memo<Props>(({ className }) => {
         <span className="text-font-description-bold text-grey-1">
           <T id="expiresIn" />
         </span>
-        <ExchangeCountdown className="text-font-num-bold-12" />
+        <ExchangeCountdown className="text-font-num-bold-12 w-8" />
       </div>
       <div className="flex flex-col justify-center items-center gap-y-2 p-4 pt-2.5">
         <div className="flex flex-row gap-x-2">

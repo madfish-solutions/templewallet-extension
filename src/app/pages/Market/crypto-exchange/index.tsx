@@ -23,15 +23,13 @@ export const CryptoExchange: FC<Props> = ({ opened, onRequestClose }) => {
       <CryptoExchangeDataProvider>
         {(() => {
           switch (step) {
-            case 0:
-              return <OrderCreation setModalHeaderConfig={setModalHeaderConfig} />;
             case 1:
               return <Deposit />;
             case 2:
             case 3:
               return <ConvertationTracker />;
             default:
-              return null;
+              return <OrderCreation setModalHeaderConfig={setModalHeaderConfig} />;
           }
         })()}
       </CryptoExchangeDataProvider>

@@ -12,7 +12,6 @@ import { ActionsButtonsBox } from 'app/atoms/PageModal/actions-buttons-box';
 import { StyledButton } from 'app/atoms/StyledButton';
 import { toastError } from 'app/toaster';
 import { useFormAnalytics } from 'lib/analytics';
-import { OrderStatusEnum } from 'lib/apis/exolix/types';
 import { loadMinMaxExchangeValues, queryExchange, submitExchange } from 'lib/apis/exolix/utils';
 import { t, T } from 'lib/i18n';
 import { useTypedSWR } from 'lib/swr';
@@ -169,15 +168,7 @@ export const FormContent: FC<Props> = ({ setModalHeaderConfig, setModalContent }
         });
 
         setExchangeData(data);
-
-        switch (data.status) {
-          case OrderStatusEnum.WAIT:
-            setStep(1);
-            break;
-          case OrderStatusEnum.CONFIRMATION:
-          case OrderStatusEnum.EXCHANGING:
-            setStep(2);
-        }
+        setStep(1);
 
         formAnalytics.trackSubmitSuccess();
       } catch (e) {

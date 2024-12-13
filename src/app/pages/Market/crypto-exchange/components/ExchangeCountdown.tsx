@@ -6,7 +6,7 @@ import { getExchangeData } from 'lib/apis/exolix/utils';
 
 import { useCryptoExchangeDataState } from '../context';
 
-const FORTY_FIVE_MINUTES_IN_MS = 45 * 60 * 1000;
+const ORDER_EXPIRATION_TIMEOUT = 25 * 60 * 1000;
 
 interface Props {
   className?: string;
@@ -24,7 +24,7 @@ export const ExchangeCountdown = memo<Props>(({ className }) => {
           {props.minutes}:{props.seconds < 10 ? '0' + props.seconds : props.seconds}
         </span>
       )}
-      date={new Date(exchangeData.createdAt).getTime() + FORTY_FIVE_MINUTES_IN_MS}
+      date={new Date(exchangeData.createdAt).getTime() + ORDER_EXPIRATION_TIMEOUT}
       onComplete={async () => {
         const data = await getExchangeData(exchangeData.id);
         setExchangeData(data);

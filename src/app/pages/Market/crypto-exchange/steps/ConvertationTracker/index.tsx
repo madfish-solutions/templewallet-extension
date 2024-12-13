@@ -27,17 +27,20 @@ export const ConvertationTracker = memo(() => {
       case OrderStatusEnum.OVERDUE:
         setStep(1);
         break;
+      case OrderStatusEnum.REFUNDED:
+        reset();
+        break;
       case OrderStatusEnum.SUCCESS:
         setStep(3);
     }
-  }, [exchangeData, setStep]);
+  }, [exchangeData, reset, setStep]);
 
   const isSuccess = step === 3;
 
   return (
     <FadeTransition>
       <div className="flex-1 pt-4 px-4 flex flex-col overflow-y-auto">
-        <Stepper currentStep={isSuccess ? 3 : 2} />
+        <Stepper currentStep={step} />
 
         <StepLabel
           title={isSuccess ? 'completed' : 'convertation'}
