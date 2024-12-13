@@ -2,13 +2,16 @@ import React, { memo, useCallback, useEffect, useMemo, useState } from 'react';
 
 import clsx from 'clsx';
 
-import { Name } from 'app/atoms';
 import { EmptyState } from 'app/atoms/EmptyState';
 import { IconButton } from 'app/atoms/IconButton';
 import { ScrollView } from 'app/atoms/PageModal/scroll-view';
 import { useShortcutAccountSelectModalIsOpened } from 'app/hooks/use-account-select-shortcut';
 import { useAllAccountsReactiveOnAddition } from 'app/hooks/use-all-accounts-reactive';
 import { ReactComponent as SettingsIcon } from 'app/icons/base/settings.svg';
+import {
+  AccountsGroup as GenericAccountsGroup,
+  AccountsGroupProps as GenericAccountsGroupProps
+} from 'app/templates/AccountsGroup';
 import { NewWalletActionsPopper } from 'app/templates/NewWalletActionsPopper';
 import { SearchBarField } from 'app/templates/SearchField';
 import { StoredAccount } from 'lib/temple/types';
@@ -188,9 +191,7 @@ export const AccountsModalContent = memo<AccountsModalContentProps>(
   }
 );
 
-interface AccountsGroupProps {
-  title: string;
-  accounts: StoredAccount[];
+interface AccountsGroupProps extends Omit<GenericAccountsGroupProps, 'children'> {
   currentAccountId: string;
   attractSelectedAccount: boolean;
   searchValue: string;
@@ -198,27 +199,20 @@ interface AccountsGroupProps {
 }
 
 const AccountsGroup = memo<AccountsGroupProps>(
-  ({ title, accounts, currentAccountId, attractSelectedAccount, searchValue, onAccountSelect }) => {
-    //
-    return (
-      <div className="flex flex-col mb-4">
-        <Name className="mb-1 p-1 text-font-description-bold">{title}</Name>
-
-        <div className="flex flex-col gap-y-3">
-          {accounts.map(account => (
-            <AccountOfGroup
-              key={account.id}
-              account={account}
-              isCurrent={account.id === currentAccountId}
-              attractSelf={attractSelectedAccount}
-              searchValue={searchValue}
-              onClick={onAccountSelect}
-            />
-          ))}
-        </div>
-      </div>
-    );
-  }
+  ({ title, accounts, currentAccountId, attractSelectedAccount, searchValue, onAccountSelect }) => (
+    <GenericAccountsGroup title={title} accounts={accounts}>
+      {account => (
+        <AccountOfGroup
+          key={account.id}
+          account={account}
+          isCurrent={account.id === currentAccountId}
+          attractSelf={attractSelectedAccount}
+          searchValue={searchValue}
+          onClick={onAccountSelect}
+        />
+      )}
+    </GenericAccountsGroup>
+  )
 );
 
 const AccountOfGroup = memo<AccountCardProps>(({ onClick, isCurrent, account, ...restProps }) => {

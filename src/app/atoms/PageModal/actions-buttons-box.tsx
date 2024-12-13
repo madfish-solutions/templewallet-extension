@@ -1,4 +1,4 @@
-import React, { Children, HTMLAttributes, memo, useCallback, useMemo } from 'react';
+import React, { HTMLAttributes, memo, useCallback, useMemo } from 'react';
 
 import clsx from 'clsx';
 import { throttle } from 'lodash';
@@ -9,12 +9,20 @@ import { useWillUnmount } from 'lib/ui/hooks/useWillUnmount';
 
 interface Props extends HTMLAttributes<HTMLDivElement> {
   shouldCastShadow?: boolean;
+  flexDirection?: 'row' | 'col';
   bgSet?: false;
   shouldChangeBottomShift?: boolean;
 }
 
 export const ActionsButtonsBox = memo<Props>(
-  ({ className, shouldCastShadow, bgSet = true, shouldChangeBottomShift = true, children, ...restProps }) => {
+  ({
+    className,
+    flexDirection = 'col',
+    shouldCastShadow,
+    bgSet = true,
+    shouldChangeBottomShift = true,
+    ...restProps
+  }) => {
     const dispatch = useDispatch();
 
     useWillUnmount(() => {
@@ -54,16 +62,14 @@ export const ActionsButtonsBox = memo<Props>(
       <div
         ref={rootRef}
         className={clsx(
-          'p-4 pb-6 flex',
-          Children.count(children) > 1 ? 'flex-row gap-2.5' : 'flex-col',
+          'p-4 pb-6 flex gap-2.5',
+          `flex-${flexDirection}`,
           bgSet && 'bg-white',
           shouldCastShadow && 'shadow-bottom border-t-0.5 border-lines overflow-y-visible',
           className
         )}
         {...restProps}
-      >
-        {children}
-      </div>
+      />
     );
   }
 );

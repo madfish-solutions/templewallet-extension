@@ -141,7 +141,7 @@ export const BaseContent = <T extends TxParamsFormData>({
         </form>
       </div>
 
-      <ActionsButtonsBox shouldChangeBottomShift={false}>
+      <ActionsButtonsBox flexDirection="row" shouldChangeBottomShift={false}>
         <StyledButton size="L" className="w-full" color="primary-low" onClick={onCancel}>
           <T id="cancel" />
         </StyledButton>

@@ -174,7 +174,7 @@ export const ConfirmDAppForm = memo<ConfirmDAppFormProps>(({ accounts, payload, 
             {children(openAccountsModal, selectedAccount)}
           </ScrollView>
 
-          <ActionsButtonsBox shouldCastShadow={!bottomEdgeIsVisible}>
+          <ActionsButtonsBox shouldCastShadow={!bottomEdgeIsVisible} flexDirection="row">
             <StyledButton
               size="L"
               color="primary-low"

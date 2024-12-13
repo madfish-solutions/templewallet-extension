@@ -20,31 +20,32 @@ import { TezosConfirmDAppForm } from './tezos-confirm-dapp-form';
 const ConfirmPage = memo(() => {
   const { ready } = useTempleClient();
 
-  if (ready)
-    return (
-      <div
-        className={clsx(
-          LAYOUT_CONTAINER_CLASSNAME,
-          'min-h-screen flex flex-col items-center justify-center bg-white',
-          FADABLE_CONTENT_CLASSNAME
-        )}
-      >
-        <SuspenseContainer
-          errorMessage={t('fetchingConfirmationDetails')}
-          loader={
-            <div className="flex items-center justify-center h-screen">
-              <div>
-                <Spinner theme="primary" className="w-20" />
-              </div>
-            </div>
-          }
-        >
-          <ConfirmDAppForm />
-        </SuspenseContainer>
-      </div>
-    );
+  if (!ready) {
+    return <Unlock canImportNew={false} />;
+  }
 
-  return <Unlock canImportNew={false} />;
+  return (
+    <div
+      className={clsx(
+        LAYOUT_CONTAINER_CLASSNAME,
+        'min-h-screen flex flex-col items-center justify-center bg-white',
+        FADABLE_CONTENT_CLASSNAME
+      )}
+    >
+      <SuspenseContainer
+        errorMessage={t('fetchingConfirmationDetails')}
+        loader={
+          <div className="flex items-center justify-center h-screen">
+            <div>
+              <Spinner theme="primary" className="w-20" />
+            </div>
+          </div>
+        }
+      >
+        <ConfirmDAppForm />
+      </SuspenseContainer>
+    </div>
+  );
 });
 
 export default ConfirmPage;

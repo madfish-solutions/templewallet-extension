@@ -3,17 +3,21 @@ import React, { memo, Suspense, useCallback, useEffect, useMemo, useState } from
 import clsx from 'clsx';
 import { useDebounce } from 'use-debounce';
 
-import { HashShortView, IconBase, Name } from 'app/atoms';
+import { HashShortView, IconBase } from 'app/atoms';
 import { AccountAvatar } from 'app/atoms/AccountAvatar';
 import { EmptyState } from 'app/atoms/EmptyState';
 import { PageModal } from 'app/atoms/PageModal';
 import { RadioButton } from 'app/atoms/RadioButton';
 import { ReactComponent as CopyIcon } from 'app/icons/base/copy.svg';
 import { SpinnerSection } from 'app/pages/Send/form/SpinnerSection';
+import {
+  AccountsGroup as GenericAccountsGroup,
+  AccountsGroupProps as GenericAccountsGroupProps
+} from 'app/templates/AccountsGroup';
 import { SearchBarField } from 'app/templates/SearchField';
 import { toastSuccess } from 'app/toaster';
 import { T } from 'lib/i18n';
-import { StoredAccount, TempleContact } from 'lib/temple/types';
+import { TempleContact } from 'lib/temple/types';
 import { useScrollIntoViewOnMount } from 'lib/ui/use-scroll-into-view';
 import { searchAndFilterItems } from 'lib/utils/search-items';
 import { getAccountAddressForEvm, getAccountAddressForTezos } from 'temple/accounts';
@@ -125,9 +129,7 @@ export const SelectAccountModal = memo<Props>(
   }
 );
 
-interface AccountsGroupProps {
-  title: string;
-  accounts: StoredAccount[];
+interface AccountsGroupProps extends Omit<GenericAccountsGroupProps, 'children'> {
   selectedAccountAddress: string;
   attractSelectedAccount: boolean;
   onAccountSelect: (address: string) => void;
@@ -136,27 +138,23 @@ interface AccountsGroupProps {
 
 const AccountsGroup = memo<AccountsGroupProps>(
   ({ title, accounts, selectedAccountAddress, attractSelectedAccount, onAccountSelect, evm = false }) => (
-    <div className="flex flex-col mb-4">
-      <Name className="mb-1 p-1 text-font-description-bold">{title}</Name>
+    <GenericAccountsGroup title={title} accounts={accounts}>
+      {account => {
+        const address = evm ? getAccountAddressForEvm(account) : getAccountAddressForTezos(account);
 
-      <div className="flex flex-col gap-y-3">
-        {accounts.map(account => {
-          const address = evm ? getAccountAddressForEvm(account) : getAccountAddressForTezos(account);
-
-          return (
-            <AccountOfGroup
-              key={account.id}
-              name={account.name}
-              address={address!}
-              iconHash={account.id}
-              isCurrent={address === selectedAccountAddress}
-              attractSelf={attractSelectedAccount}
-              onSelect={onAccountSelect}
-            />
-          );
-        })}
-      </div>
-    </div>
+        return (
+          <AccountOfGroup
+            key={account.id}
+            name={account.name}
+            address={address!}
+            iconHash={account.id}
+            isCurrent={address === selectedAccountAddress}
+            attractSelf={attractSelectedAccount}
+            onSelect={onAccountSelect}
+          />
+        );
+      }}
+    </GenericAccountsGroup>
   )
 );
 
@@ -172,25 +170,19 @@ const AddressBookGroup = memo<AddressBookGroupProps>(
     if (!contacts.length) return null;
 
     return (
-      <div className="flex flex-col mb-4">
-        <Name className="mb-1 p-1 text-font-description-bold">
-          <T id="addressBook" />
-        </Name>
-
-        <div className="flex flex-col gap-y-3">
-          {contacts.map(contact => (
-            <AccountOfGroup
-              key={contact.address}
-              name={contact.name}
-              address={contact.address}
-              iconHash={contact.address}
-              isCurrent={contact.address === selectedAccountAddress}
-              attractSelf={attractSelectedAccount}
-              onSelect={onAccountSelect}
-            />
-          ))}
-        </div>
-      </div>
+      <GenericAccountsGroup<TempleContact> title={<T id="addressBook" />} accounts={contacts}>
+        {contact => (
+          <AccountOfGroup
+            key={contact.address}
+            name={contact.name}
+            address={contact.address}
+            iconHash={contact.address}
+            isCurrent={contact.address === selectedAccountAddress}
+            attractSelf={attractSelectedAccount}
+            onSelect={onAccountSelect}
+          />
+        )}
+      </GenericAccountsGroup>
     );
   }
 );

@@ -121,7 +121,7 @@ const buildManifestV2 = (vendor: string): Manifest.WebExtensionManifest => {
 
 const AUTHOR_URL = 'https://madfish.solutions';
 
-const PERMISSIONS = ['storage', 'unlimitedStorage', 'clipboardWrite', 'activeTab', 'scripting'];
+const PERMISSIONS = ['storage', 'unlimitedStorage', 'clipboardWrite', 'activeTab'];
 
 const HOST_PERMISSIONS: string[] = ['http://localhost:8732/'];
 
@@ -186,7 +186,7 @@ const buildManifestCommons = (vendor: string): Omit<Manifest.WebExtensionManifes
           /* For some URLs from `HOST_PERMISSIONS` & active tabs (with `activeTab` permission) */
           'https://*/*'
         ],
-        js: ['scripts/contentScript.js'],
+        js: ['scripts/main.js'],
         run_at: 'document_start' as const,
         all_frames: true
       },
