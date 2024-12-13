@@ -19,14 +19,14 @@ import { useAccountAddressForEvm, useAccountAddressForTezos } from 'temple/front
 
 import { StepLabel } from '../../../components/StepLabel';
 import { Stepper } from '../../../components/Stepper';
-import { defaultModalHeaderConfig, ModalHeaderConfig } from '../../../config';
+import { defaultModalHeaderConfig, ModalHeaderConfig, TEZOS_EXOLIX_NETWORK_CODE } from '../../../config';
 import { useCryptoExchangeDataState } from '../../../context';
 import { getCurrencyDisplayCode } from '../../../utils';
 import { CryptoExchangeFormData } from '../types';
 
 import { InfoCard } from './InfoCard';
 import { SelectCurrencyButton } from './SelectCurrencyButton';
-import { SelectTokenContent, TEZOS_EXOLIX_NETWORK_CODE } from './SelectCurrencyContent';
+import { SelectTokenContent } from './SelectCurrencyContent';
 
 const MIN_ERROR = 'min';
 const MAX_ERROR = 'max';

@@ -1,4 +1,6 @@
 import { TEZOS_METADATA } from 'lib/metadata';
 
+import { TEZOS_EXOLIX_NETWORK_CODE } from './config';
+
 export const getCurrencyDisplayCode = (currencyCode: string) =>
-  currencyCode === 'XTZ' ? TEZOS_METADATA.symbol : currencyCode;
+  currencyCode === TEZOS_EXOLIX_NETWORK_CODE ? TEZOS_METADATA.symbol : currencyCode;

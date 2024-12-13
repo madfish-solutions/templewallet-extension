@@ -6,6 +6,8 @@ export const EXOLIX_CONTACT_LINK = 'https://exolix.com/contact';
 export const EXOLIX_TERMS_LINK = 'https://exolix.com/terms';
 export const EXOLIX_PRIVICY_LINK = 'https://exolix.com/privacy';
 
+export const TEZOS_EXOLIX_NETWORK_CODE = 'XTZ';
+
 export const INITIAL_INPUT_CURRENCY: StoredExolixCurrency = {
   code: 'ETH',
   name: 'Ethereum',

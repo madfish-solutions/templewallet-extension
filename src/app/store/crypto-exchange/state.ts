@@ -11,10 +11,14 @@ export interface StoredExolixCurrency {
   };
 }
 
+export type ExolixNetworksMap = Record<number, string>;
+
 export interface CryptoExchangeState {
   exolixCurrencies: LoadableEntityState<Array<StoredExolixCurrency>>;
+  exolixNetworksMap: LoadableEntityState<ExolixNetworksMap>;
 }
 
 export const cryptoExchangeInitialState: CryptoExchangeState = {
-  exolixCurrencies: createEntity([])
+  exolixCurrencies: createEntity([]),
+  exolixNetworksMap: createEntity({})
 };

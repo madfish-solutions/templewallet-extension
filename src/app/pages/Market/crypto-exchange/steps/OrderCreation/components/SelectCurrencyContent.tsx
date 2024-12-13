@@ -11,7 +11,9 @@ import { SimpleInfiniteScroll } from 'app/atoms/SimpleInfiniteScroll';
 import { useSimplePaginationLogic } from 'app/hooks/use-simple-pagination-logic';
 import {
   useAllExolixCurrenciesSelector,
-  useExolixCurrenciesLoadingSelector
+  useExolixCurrenciesLoadingSelector,
+  useExolixNetworksMapLoadingSelector,
+  useExolixNetworksMapSelector
 } from 'app/store/crypto-exchange/selectors';
 import { StoredExolixCurrency } from 'app/store/crypto-exchange/state';
 import { SearchBarField } from 'app/templates/SearchField';
@@ -19,27 +21,9 @@ import { isSearchStringApplicable, searchAndFilterItems } from 'lib/utils/search
 import { useAccountAddressForEvm, useAccountAddressForTezos, useEnabledEvmChains } from 'temple/front';
 
 import { CurrencyIcon } from '../../../components/CurrencyIcon';
-import { ModalHeaderConfig } from '../../../config';
+import { ModalHeaderConfig, TEZOS_EXOLIX_NETWORK_CODE } from '../../../config';
 import { getCurrencyDisplayCode } from '../../../utils';
 import { CryptoExchangeFormData } from '../types';
-
-export const TEZOS_EXOLIX_NETWORK_CODE = 'XTZ';
-
-// TODO: move to backend
-const chainIdExolixNetworkCodeRecord: Record<number, string> = {
-  1: 'ETH',
-  56: 'BSC',
-  10: 'OPTIMISM',
-  43114: 'AVAXC',
-  42161: 'ARBITRUM',
-  8453: 'BASE',
-  314: 'FIL',
-  250: 'FTM',
-  2222: 'KAVA',
-  88888: 'CHZ',
-  42220: 'CELO',
-  1666600000: 'ONE'
-};
 
 const FULLPAGE_ITEMS_COUNT = 11;
 const SCROLLABLE_ELEM_ID = 'SELECT_TOKEN_CONTENT_SCROLL';
@@ -61,8 +45,12 @@ export const SelectCurrencyContent: FC<Props> = ({ content, setModalHeaderConfig
   const evmAddress = useAccountAddressForEvm();
   const tezosAddress = useAccountAddressForTezos();
 
-  const isLoading = useExolixCurrenciesLoadingSelector();
+  const currenciesLoading = useExolixCurrenciesLoadingSelector();
+  const networksMapLoading = useExolixNetworksMapLoadingSelector();
+  const isLoading = currenciesLoading || networksMapLoading;
+
   const allCurrencies = useAllExolixCurrenciesSelector();
+  const exolixNetworksMap = useExolixNetworksMapSelector();
 
   const { watch, setValue } = useFormContext<CryptoExchangeFormData>();
 
@@ -72,8 +60,8 @@ export const SelectCurrencyContent: FC<Props> = ({ content, setModalHeaderConfig
   useLayoutEffect(() => void setModalHeaderConfig({ title: 'Select Token', shouldShowBackButton: true, onGoBack }), []);
 
   const enabledExolixNetworkCodes = useMemo(
-    () => evmChains.map(({ chainId }) => chainIdExolixNetworkCodeRecord[chainId]),
-    [evmChains]
+    () => evmChains.map(({ chainId }) => exolixNetworksMap[chainId]),
+    [evmChains, exolixNetworksMap]
   );
 
   const inputCurrencies = useMemo(
