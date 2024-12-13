@@ -6,6 +6,7 @@ import { IconBase, Size } from 'app/atoms/IconBase';
 import { EvmNetworkLogo, TezosNetworkLogo } from 'app/atoms/NetworkLogo';
 import { ReactComponent as Browse } from 'app/icons/base/browse.svg';
 import { FilterChain } from 'app/store/assets-filter-options/state';
+import { T } from 'lib/i18n';
 import { useScrollIntoViewOnMount } from 'lib/ui/use-scroll-into-view';
 import { TempleChainKind } from 'temple/types';
 
@@ -50,7 +51,7 @@ export const NetworkOption = memo<NetworkOptionProps>(
         )}
         onClick={handleClick}
       >
-        <span>{isAllNetworks ? ALL_NETWORKS : network.name}</span>
+        <span>{isAllNetworks ? <T id={ALL_NETWORKS} /> : network.name}</span>
         {Icon}
       </div>
     );
