@@ -1955,7 +1955,7 @@
     "message": "Atom Yatırma Notu"
   },
   "recipientAddress": {
-    "message": "Alıcı adresi:"
+    "message": "Alıcı adresi"
   },
   "recipientXtzAddress": {
     "message": "Alıcı XTZ adresi:"
@@ -1967,10 +1967,7 @@
     "message": "Gönderdiğiniz:"
   },
   "sendTime": {
-    "message": "Gönderme saati:"
-  },
-  "completedDescription": {
-    "message": "Lütfen cüzdanınızdaki fonu kontrol edin.\nAlım satım işlemi tamamlandı."
+    "message": "Gönderme saati"
   },
   "completed": {
     "message": "Tamamlandı"

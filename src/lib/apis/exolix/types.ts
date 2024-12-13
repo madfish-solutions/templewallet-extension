@@ -35,7 +35,7 @@ interface ExchangeCurrency {
   networkShortName: string;
 }
 
-interface ExchangeHash {
+export interface ExchangeHash {
   hash: string | null;
   link: string | null;
 }
@@ -58,7 +58,7 @@ export interface ExchangeData {
   status: string;
 }
 
-export enum ExchangeDataStatusEnum {
+export enum OrderStatusEnum {
   WAIT = 'wait',
   CONFIRMATION = 'confirmation',
   EXCHANGING = 'exchanging',

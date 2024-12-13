@@ -1,3 +1,5 @@
+import { useCallback } from 'react';
+
 import constate from 'constate';
 
 import { ExchangeData } from 'lib/apis/exolix/types';
@@ -16,5 +18,10 @@ export const [CryptoExchangeDataProvider, useCryptoExchangeDataState] = constate
 
   const [step, setStep] = useStorage<Steps>(`topup_step_state_${currentAccount.id}`, 0);
 
-  return { exchangeData, setExchangeData, step, setStep };
+  const reset = useCallback(() => {
+    setStep(0);
+    setExchangeData(null);
+  }, [setExchangeData, setStep]);
+
+  return { exchangeData, setExchangeData, step, setStep, reset };
 });

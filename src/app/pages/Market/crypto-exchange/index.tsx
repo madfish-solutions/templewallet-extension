@@ -4,6 +4,7 @@ import { PageModal } from 'app/atoms/PageModal';
 
 import { defaultModalHeaderConfig } from './config';
 import { CryptoExchangeDataProvider, useCryptoExchangeDataState } from './context';
+import { ConvertationTracker } from './steps/ConvertationTracker';
 import { Deposit } from './steps/Deposit';
 import { OrderCreation } from './steps/OrderCreation';
 
@@ -26,6 +27,9 @@ export const CryptoExchange: FC<Props> = ({ opened, onRequestClose }) => {
               return <OrderCreation setModalHeaderConfig={setModalHeaderConfig} />;
             case 1:
               return <Deposit />;
+            case 2:
+            case 3:
+              return <ConvertationTracker />;
             default:
               return null;
           }

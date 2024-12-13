@@ -1,4 +1,4 @@
-import React, { memo, useCallback } from 'react';
+import React, { memo, useCallback, useEffect, useState } from 'react';
 
 import { FadeTransition } from 'app/a11y/FadeTransition';
 import { CaptionAlert, IconBase } from 'app/atoms';
@@ -7,13 +7,14 @@ import { ActionsButtonsBox } from 'app/atoms/PageModal';
 import { StyledButton } from 'app/atoms/StyledButton';
 import { ReactComponent as CopyIcon } from 'app/icons/base/copy.svg';
 import { toastSuccess } from 'app/toaster';
+import { OrderStatusEnum } from 'lib/apis/exolix/types';
 import { t, T } from 'lib/i18n';
 
 import { CurrencyIcon } from '../../components/CurrencyIcon';
 import { InfoContainer, InfoRaw } from '../../components/InfoBlock';
 import { StepLabel } from '../../components/StepLabel';
 import { Stepper } from '../../components/Stepper';
-import { SupportLink } from '../../components/SupportButton';
+import { SupportLink } from '../../components/SupportLink';
 import { useCryptoExchangeDataState } from '../../context';
 import { useTopUpUpdate } from '../../hooks/use-top-up-update';
 
@@ -21,14 +22,24 @@ import { DepositAddressBlock } from './components/DepositAddressBlock';
 import { ExpiresInBlock } from './components/ExpiresInBlock';
 
 export const Deposit = memo(() => {
+  const [isOrderOverdue, setIsOrderOverdue] = useState(false);
+
+  const { exchangeData, setStep, reset } = useCryptoExchangeDataState();
+
   useTopUpUpdate();
 
-  const { setExchangeData, setStep } = useCryptoExchangeDataState();
+  useEffect(() => {
+    if (!exchangeData) return;
 
-  const cancelOrder = useCallback(() => {
-    setStep(0);
-    setExchangeData(null);
-  }, [setExchangeData, setStep]);
+    switch (exchangeData.status) {
+      case OrderStatusEnum.CONFIRMATION:
+      case OrderStatusEnum.EXCHANGING:
+        setStep(2);
+        break;
+      case OrderStatusEnum.OVERDUE:
+        setIsOrderOverdue(true);
+    }
+  }, [exchangeData, setStep]);
 
   return (
     <FadeTransition>
@@ -37,20 +48,26 @@ export const Deposit = memo(() => {
 
         <StepLabel title="deposit" description="depositDescription" />
 
-        <CaptionAlert type="warning" message={t('depositDisclaimer')} />
+        {isOrderOverdue ? (
+          <CaptionAlert type="error" title={t('orderExpired')} message={t('orderExpiredDescription')} />
+        ) : (
+          <>
+            <CaptionAlert type="warning" message={t('depositDisclaimer')} />
 
-        <ExpiresInBlock className="mt-4" />
+            <ExpiresInBlock className="mt-4" />
 
-        <DepositAddressBlock className="mt-6 mb-4" />
+            <DepositAddressBlock className="mt-6 mb-4" />
 
-        <InfoBlock />
+            <InfoBlock />
+          </>
+        )}
 
         <SupportLink className="mt-6 mb-7" />
       </div>
 
       <ActionsButtonsBox>
-        <StyledButton size="L" color="red-low" onClick={cancelOrder}>
-          <T id="cancelOrder" />
+        <StyledButton size="L" color={isOrderOverdue ? 'primary' : 'red-low'} onClick={reset}>
+          <T id={isOrderOverdue ? 'retry' : 'cancelOrder'} />
         </StyledButton>
       </ActionsButtonsBox>
     </FadeTransition>

@@ -12,7 +12,7 @@ import { ActionsButtonsBox } from 'app/atoms/PageModal/actions-buttons-box';
 import { StyledButton } from 'app/atoms/StyledButton';
 import { toastError } from 'app/toaster';
 import { useFormAnalytics } from 'lib/analytics';
-import { ExchangeDataStatusEnum } from 'lib/apis/exolix/types';
+import { OrderStatusEnum } from 'lib/apis/exolix/types';
 import { loadMinMaxExchangeValues, queryExchange, submitExchange } from 'lib/apis/exolix/utils';
 import { t, T } from 'lib/i18n';
 import { useTypedSWR } from 'lib/swr';
@@ -37,7 +37,7 @@ const VALUE_PLACEHOLDER = '---';
 const DEFAULT_SWR_CONGIG = {
   shouldRetryOnError: false,
   focusThrottleInterval: 10_000,
-  dedupingInterval: 15_000
+  dedupingInterval: 10_000
 };
 
 interface Props {
@@ -158,19 +158,6 @@ export const FormContent: FC<Props> = ({ setModalHeaderConfig, setModalContent }
 
         const amount = Number(inputValue) ?? 0;
 
-        console.log(
-          {
-            coinFrom: inputCurrency.code,
-            networkFrom: inputCurrency.network.code,
-            coinTo: outputCurrency.code,
-            networkTo: outputCurrency.network.code,
-            amount,
-            withdrawalAddress,
-            withdrawalExtraId: ''
-          },
-          'submitData'
-        );
-
         const data = await submitExchange({
           coinFrom: inputCurrency.code,
           networkFrom: inputCurrency.network.code,
@@ -180,18 +167,16 @@ export const FormContent: FC<Props> = ({ setModalHeaderConfig, setModalContent }
           withdrawalAddress,
           withdrawalExtraId: ''
         });
+
         setExchangeData(data);
-        console.log(data, 'data');
 
         switch (data.status) {
-          case ExchangeDataStatusEnum.WAIT:
+          case OrderStatusEnum.WAIT:
             setStep(1);
             break;
-          case ExchangeDataStatusEnum.CONFIRMATION:
+          case OrderStatusEnum.CONFIRMATION:
+          case OrderStatusEnum.EXCHANGING:
             setStep(2);
-            break;
-          case ExchangeDataStatusEnum.EXCHANGING:
-            setStep(3);
         }
 
         formAnalytics.trackSubmitSuccess();

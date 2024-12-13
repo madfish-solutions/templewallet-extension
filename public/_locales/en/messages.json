@@ -323,6 +323,9 @@
   "cancelOrder": {
     "message": "Cancel Order"
   },
+  "newOrder": {
+    "message": "New Order"
+  },
   "save": {
     "message": "Save"
   },
@@ -1633,6 +1636,9 @@
   },
   "recipient": {
     "message": "Recipient"
+  },
+  "transactionHash": {
+    "message": "Transaction hash"
   },
   "tokensRecepientInputDescription": {
     "message": "Address to send $assetSymbol$ funds to.",
@@ -3217,11 +3223,23 @@
   "depositDisclaimer": {
     "message": "Send the exact amount of crypto to the deposit address. Otherwise the transaction will be failed and you will need to contact Exolix support."
   },
+  "convertation": {
+    "message": "Convertation"
+  },
+  "convertationDescription": {
+    "message": "Please wait, the convertation process usually takes between 15 minutes and 2 hours"
+  },
   "sendByOneTransaction": {
     "message": "Send by one transaction"
   },
   "youGet": {
     "message": "You get"
+  },
+  "youReceived": {
+    "message": "You received"
+  },
+  "youSent": {
+    "message": "You sent"
   },
   "fixedRate": {
     "message": "Fixed rate:"
@@ -3233,7 +3251,7 @@
     "message": "Atom Deposit Memo"
   },
   "recipientAddress": {
-    "message": "Recipient address:"
+    "message": "Recipient address"
   },
   "recipientXtzAddress": {
     "message": "Recipient XTZ address:"
@@ -3254,10 +3272,10 @@
     "message": "You sell:"
   },
   "sendTime": {
-    "message": "Send time:"
+    "message": "Send time"
   },
   "completedDescription": {
-    "message": "Please, check your funds in your wallet.\nThe exchange process is completed."
+    "message": "Please check your balance - the exchange has been finished"
   },
   "completed": {
     "message": "Completed"
@@ -3294,6 +3312,12 @@
   },
   "expiresIn": {
     "message": "Expires in"
+  },
+  "orderExpired": {
+    "message": "Your order has expired"
+  },
+  "orderExpiredDescription": {
+    "message": "Retry the top-up by creating a new exchange order. If the funds have already been sent, wait for the deposit to be confirmed."
   },
   "sendInOneTransaction": {
     "message": "Send in one transaction to the $networkName$ deposit address",

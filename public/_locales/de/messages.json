@@ -1955,7 +1955,7 @@
     "message": "Atom Deposit Memo"
   },
   "recipientAddress": {
-    "message": "Empfängeradresse:"
+    "message": "Empfängeradresse"
   },
   "recipientXtzAddress": {
     "message": "Empfänger-XTZ-Adresse:"
@@ -1967,10 +1967,7 @@
     "message": "Sie senden:"
   },
   "sendTime": {
-    "message": "Sendezeit:"
-  },
-  "completedDescription": {
-    "message": "Bitte überprüfen Sie Ihr Guthaben in Ihrer Wallet.\nDer Austauschvorgang ist abgeschlossen."
+    "message": "Sendezeit"
   },
   "completed": {
     "message": "Abgeschlossen"

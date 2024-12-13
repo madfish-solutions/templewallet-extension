@@ -13,7 +13,7 @@ const MAX_DOLLAR_VALUE = 10000;
 const MIN_ASSET_AMOUNT = 0.00001;
 const AVG_COMISSION = 300;
 
-const COMMON_RETRY_CONFIG = { retries: 3, minTimeout: 250, maxTimeout: 1000 };
+const COMMON_RETRY_CONFIG = { retries: 5, minTimeout: 250, maxTimeout: 1000 };
 
 const api = axios.create({
   baseURL: 'https://exolix.com/api/v2',

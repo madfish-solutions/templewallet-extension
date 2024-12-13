@@ -1955,7 +1955,7 @@
     "message": "Memorando de depósito de átomo"
   },
   "recipientAddress": {
-    "message": "Endereço do destinatário:"
+    "message": "Endereço do destinatário"
   },
   "recipientXtzAddress": {
     "message": "Endereço XTZ do destinatário:"
@@ -1967,10 +1967,7 @@
     "message": "Envia:"
   },
   "sendTime": {
-    "message": "Hora de envio:"
-  },
-  "completedDescription": {
-    "message": "Verifique os seus fundos na sua carteira.\nO processo de troca está concluído."
+    "message": "Hora de envio"
   },
   "completed": {
     "message": "Concluído"
