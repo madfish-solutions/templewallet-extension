@@ -27,7 +27,7 @@ const loadManyMonthsRewardsEpic: Epic = action$ =>
         map(values =>
           loadManyMonthsRewardsActions.success({
             ...payload,
-            firstActivityDate: values[0].firstActivityDate,
+            firstActivityDate: values.at(0)!.firstActivityDate,
             values: Object.fromEntries(
               values.map(({ firstActivityDate, ...value }, i): [string, RpStatsResponse] => [
                 String(monthYearIndexes[i]),

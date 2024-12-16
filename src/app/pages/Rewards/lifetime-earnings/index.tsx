@@ -22,16 +22,20 @@ import { Section } from '../section';
 import { RewardsPageSelectors } from '../selectors';
 import { formatRpAmount, getMonthName } from '../utils';
 
-// August 2024
+/** August 2024 */
 const firstMonthWithCompleteStatsIndex = toMonthYearIndex(7, 2024);
 
-export const LifetimeEarnings = memo(() => {
+interface Props {
+  statsDate: Date;
+}
+
+export const LifetimeEarnings = memo<Props>(({ statsDate }) => {
   const dispatch = useDispatch();
   const accountPkh = useAccountPkh();
   const earliestLoadedMonthYearIndex = useEarliestLoadedMonthYearIndex(accountPkh);
   const rpForMonthsLoading = useRpForMonthsLoadingSelector(accountPkh);
   const rpForMonthsError = useRpForMonthsErrorSelector(accountPkh);
-  const lifetimeEarnings = useLifetimeEarnings(accountPkh, new Date());
+  const lifetimeEarnings = useLifetimeEarnings(accountPkh, statsDate);
   const firstActivityDate = useFirstActivityDateSelector(accountPkh);
   const failedToLoadAnyData = rpForMonthsError && lifetimeEarnings.length === 0;
 
@@ -42,19 +46,19 @@ export const LifetimeEarnings = memo(() => {
 
     return firstActivityDate
       ? Math.max(toMonthYearIndex(new Date(firstActivityDate)), firstMonthWithCompleteStatsIndex)
-      : toMonthYearIndex(new Date());
-  }, [failedToLoadAnyData, firstActivityDate]);
+      : toMonthYearIndex(statsDate);
+  }, [failedToLoadAnyData, firstActivityDate, statsDate]);
 
   const loadMore = useCallback(() => {
     dispatch(
       loadManyMonthsRewardsActions.submit({
         account: accountPkh,
         monthYearIndexes: range(1, 4)
-          .map(i => (earliestLoadedMonthYearIndex ?? toMonthYearIndex(new Date()) + 1) - i)
+          .map(i => (earliestLoadedMonthYearIndex ?? toMonthYearIndex(statsDate) + 1) - i)
           .filter(monthYearIndex => monthYearIndex >= earliestMonthYearIndexToLoad)
       })
     );
-  }, [accountPkh, dispatch, earliestLoadedMonthYearIndex, earliestMonthYearIndexToLoad]);
+  }, [accountPkh, dispatch, earliestLoadedMonthYearIndex, earliestMonthYearIndexToLoad, statsDate]);
 
   const showLoadMoreButton = useMemo(
     () =>
@@ -94,7 +98,7 @@ export const LifetimeEarnings = memo(() => {
 
       {lifetimeEarnings.length === 0 &&
         rpForMonthsError &&
-        range(1, 4).map(i => <HistoryEntry key={i} monthYearIndex={toMonthYearIndex(new Date()) - i} />)}
+        range(1, 4).map(i => <HistoryEntry key={i} monthYearIndex={toMonthYearIndex(statsDate) - i} />)}
 
       {lifetimeEarnings.map(([monthYearIndex, data]) => (
         <HistoryEntry key={monthYearIndex} monthYearIndex={monthYearIndex} data={data} />

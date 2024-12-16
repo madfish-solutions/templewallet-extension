@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useEffect, useRef } from 'react';
+import React, { memo, useCallback, useEffect, useRef, useState } from 'react';
 
 import { capitalize, range } from 'lodash';
 import { useDispatch } from 'react-redux';
@@ -25,18 +25,31 @@ export const RewardsPage = memo(() => {
   const midnightTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const rpForTodayError = useRpForTodayErrorSelector(accountPkh);
   const rpForMonthsError = useRpForMonthsErrorSelector(accountPkh);
+  const [statsDate, setStatsDate] = useState(() => new Date());
+
+  const updateStatsDate = useCallback(() => {
+    const newStatsDate = new Date();
+    setStatsDate(newStatsDate);
+
+    return newStatsDate;
+  }, []);
 
   const updateRecentEarnings = useCallback(() => {
+    const newStatsDate = updateStatsDate();
     dispatch(loadTodayRewardsActions.submit({ account: accountPkh }));
     dispatch(
-      loadManyMonthsRewardsActions.submit({ account: accountPkh, monthYearIndexes: [toMonthYearIndex(new Date())] })
+      loadManyMonthsRewardsActions.submit({
+        account: accountPkh,
+        monthYearIndexes: [toMonthYearIndex(newStatsDate)]
+      })
     );
-  }, [accountPkh, dispatch]);
+  }, [accountPkh, dispatch, updateStatsDate]);
 
   useInterval(updateRecentEarnings, ONE_HOUR_MS, [updateRecentEarnings], false);
 
   useEffect(() => {
-    const currentMonthYearIndex = toMonthYearIndex(new Date());
+    const newStatsDate = updateStatsDate();
+    const currentMonthYearIndex = toMonthYearIndex(newStatsDate);
     dispatch(loadTodayRewardsActions.submit({ account: accountPkh }));
     dispatch(
       loadManyMonthsRewardsActions.submit({
@@ -45,7 +58,7 @@ export const RewardsPage = memo(() => {
       })
     );
 
-    const tomorrowDate = new Date();
+    const tomorrowDate = newStatsDate;
     tomorrowDate.setDate(tomorrowDate.getDate() + 1);
     tomorrowDate.setHours(0, 0, 0, 0);
     midnightTimeoutRef.current = setTimeout(() => {
@@ -59,7 +72,7 @@ export const RewardsPage = memo(() => {
       dailyInterval !== null && clearInterval(dailyInterval);
       midnightTimeout !== null && clearTimeout(midnightTimeout);
     };
-  }, [accountPkh, dispatch, updateRecentEarnings]);
+  }, [accountPkh, dispatch, updateRecentEarnings, updateStatsDate]);
 
   return (
     <PageLayout pageTitle={<PageTitle icon={<div />} title={capitalize(t('rewards'))} />}>
@@ -68,10 +81,10 @@ export const RewardsPage = memo(() => {
           {(rpForTodayError || rpForMonthsError) && (
             <Alert type="error" description={<T id="somethingWentWrong" />} autoFocus />
           )}
-          <RecentEarnings />
+          <RecentEarnings statsDate={statsDate} />
           <ActiveFeatures />
           <Achievements />
-          <LifetimeEarnings />
+          <LifetimeEarnings statsDate={statsDate} />
         </div>
       </div>
     </PageLayout>

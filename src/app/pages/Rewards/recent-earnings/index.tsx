@@ -16,11 +16,15 @@ import { getMonthName } from '../utils';
 
 import { StatsCard } from './stats-card';
 
-export const RecentEarnings = memo(() => {
+interface Props {
+  statsDate: Date;
+}
+
+export const RecentEarnings = memo<Props>(({ statsDate }) => {
   const accountPkh = useAccountPkh();
   const rpForToday = useRpForTodaySelector(accountPkh);
   const rpForTodayError = useRpForTodayErrorSelector(accountPkh);
-  const rpForMonth = useRpForMonthSelector(accountPkh, toMonthYearIndex(new Date()));
+  const rpForMonth = useRpForMonthSelector(accountPkh, toMonthYearIndex(statsDate));
   const rpForMonthsError = useRpForMonthsErrorSelector(accountPkh);
 
   return (
@@ -38,7 +42,7 @@ export const RecentEarnings = memo(() => {
           testID={RewardsPageSelectors.todayStatsCard}
         />
         <StatsCard
-          periodName={getMonthName(new Date())}
+          periodName={getMonthName(statsDate)}
           data={rpForMonth}
           error={rpForMonthsError}
           background="bluish"
