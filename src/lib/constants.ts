@@ -104,8 +104,8 @@ export const MAIN_CHAINS_IDS = [
 
 export const PASS_TO_BG_EVENT = 'templePassToBackground';
 
-export const RESPONSE_FROM_BG_EVENT = 'templeResponseFromBackground';
+export const RESPONSE_FROM_BG_MSG_TYPE = 'templeResponseFromBackground';
 
-export const DISCONNECT_DAPP_EVENT = 'templeDisconnectDApp';
+export const DISCONNECT_DAPP_MSG_TYPE = 'templeDisconnectDApp';
 
-export const SWITCH_CHAIN_EVENT = 'templeSwitchChain';
+export const SWITCH_CHAIN_MSG_TYPE = 'templeSwitchChain';

@@ -4,10 +4,10 @@ import browser from 'webextension-polyfill';
 import {
   APP_TITLE,
   ContentScriptType,
-  DISCONNECT_DAPP_EVENT,
+  DISCONNECT_DAPP_MSG_TYPE,
   PASS_TO_BG_EVENT,
-  RESPONSE_FROM_BG_EVENT,
-  SWITCH_CHAIN_EVENT,
+  RESPONSE_FROM_BG_MSG_TYPE,
+  SWITCH_CHAIN_MSG_TYPE,
   WEBSITES_ANALYTICS_ENABLED
 } from 'lib/constants';
 import { serealizeError } from 'lib/intercom/helpers';
@@ -78,13 +78,13 @@ getIntercom().subscribe((msg?: TempleNotification) => {
       const { origins } = msg;
 
       if (origins.some(origin => window.origin === origin)) {
-        window.dispatchEvent(new CustomEvent(DISCONNECT_DAPP_EVENT));
+        window.postMessage({ type: DISCONNECT_DAPP_MSG_TYPE }, window.origin);
       }
       break;
     case TempleMessageType.TempleEvmChainSwitched:
       const { origin, type, ...chainSwitchPayload } = msg;
       if (origin === window.origin) {
-        window.dispatchEvent(new CustomEvent(SWITCH_CHAIN_EVENT, { detail: chainSwitchPayload }));
+        window.postMessage({ type: SWITCH_CHAIN_MSG_TYPE, ...chainSwitchPayload }, window.origin);
       }
   }
 });
@@ -102,7 +102,7 @@ window.addEventListener(PASS_TO_BG_EVENT, evt => {
     })
     .then((res: TempleResponse) => {
       if (res?.type === TempleMessageType.PageResponse && res.payload) {
-        window.dispatchEvent(new CustomEvent(RESPONSE_FROM_BG_EVENT, { detail: { ...res.payload, requestId } }));
+        window.postMessage({ type: RESPONSE_FROM_BG_MSG_TYPE, payload: res.payload, requestId }, window.origin);
       }
     })
     .catch(err => console.error(err));

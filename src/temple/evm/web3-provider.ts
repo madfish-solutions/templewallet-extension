@@ -10,7 +10,12 @@ import type {
   RpcSchemaOverride
 } from 'viem';
 
-import { DISCONNECT_DAPP_EVENT, PASS_TO_BG_EVENT, RESPONSE_FROM_BG_EVENT, SWITCH_CHAIN_EVENT } from 'lib/constants';
+import {
+  DISCONNECT_DAPP_MSG_TYPE,
+  PASS_TO_BG_EVENT,
+  RESPONSE_FROM_BG_MSG_TYPE,
+  SWITCH_CHAIN_MSG_TYPE
+} from 'lib/constants';
 import { ETHEREUM_MAINNET_CHAIN_ID } from 'lib/temple/types';
 
 import {
@@ -95,7 +100,6 @@ interface BackgroundErrorResponse {
 
 interface BackgroundSuccessResponse<M extends RequestParameters['method']> {
   data: BackgroundResponseData<M>;
-  requestId: string;
 }
 
 type BackgroundResponse<M extends RequestParameters['method']> = BackgroundSuccessResponse<M> | BackgroundErrorResponse;
@@ -110,6 +114,29 @@ type RpcSignMethod =
 const identity = <T>(x: T) => x;
 const noop = () => {};
 const toHex = (value: number): HexString => `0x${value.toString(16)}`;
+
+interface DisconnectDAppMessage {
+  type: typeof DISCONNECT_DAPP_MSG_TYPE;
+}
+
+interface SwitchChainMessage {
+  type: typeof SWITCH_CHAIN_MSG_TYPE;
+  chainId: number;
+}
+
+interface ResponseFromBgMessage {
+  type: typeof RESPONSE_FROM_BG_MSG_TYPE;
+  payload: any;
+  requestId: string;
+}
+
+const isTypedMessage = (msg: any): msg is { type: string } => typeof msg === 'object' && msg && 'type' in msg;
+const isDisconnectDAppMessage = (msg: any): msg is DisconnectDAppMessage =>
+  isTypedMessage(msg) && msg.type === DISCONNECT_DAPP_MSG_TYPE;
+const isSwitchChainMessage = (msg: any): msg is SwitchChainMessage =>
+  isTypedMessage(msg) && msg.type === SWITCH_CHAIN_MSG_TYPE;
+const isResponseFromBgMessage = (msg: any): msg is ResponseFromBgMessage =>
+  isTypedMessage(msg) && msg.type === RESPONSE_FROM_BG_MSG_TYPE;
 
 export class TempleWeb3Provider extends EventEmitter {
   private accounts: HexString[];
@@ -136,12 +163,8 @@ export class TempleWeb3Provider extends EventEmitter {
       identity,
       undefined
     ).catch(error => console.error(error));
-    window.addEventListener(DISCONNECT_DAPP_EVENT, this.handleDisconnect);
-    window.addEventListener(SWITCH_CHAIN_EVENT, e => {
-      const { chainId } = (e as CustomEvent<{ chainId: number }>).detail;
-
-      this.updateChainId(toHex(chainId));
-    });
+    this.listenToTypedMessage(isDisconnectDAppMessage, this.handleDisconnect);
+    this.listenToTypedMessage(isSwitchChainMessage, ({ chainId }) => this.updateChainId(toHex(chainId)));
   }
 
   // @ts-expect-error
@@ -304,30 +327,44 @@ export class TempleWeb3Provider extends EventEmitter {
     );
 
     return new Promise<ProviderResponse<M>>((resolve, reject) => {
-      const listener = (evt: Event) => {
-        const { requestId: reqIdFromEvent, ...responseContent } = (evt as CustomEvent<BackgroundResponse<M>>).detail;
+      const listener = (msg: ResponseFromBgMessage) => {
+        const reqIdFromEvent = msg.requestId;
+        const payload: BackgroundResponse<M> = msg.payload;
 
         if (reqIdFromEvent !== requestId) {
           return;
         }
 
-        window.removeEventListener(RESPONSE_FROM_BG_EVENT, listener);
+        removeListener();
 
-        if ('error' in responseContent) {
-          console.error('inpage got error from bg', responseContent);
-          reject(new ErrorWithCode(responseContent.error.code, responseContent.error.message));
+        if ('error' in payload) {
+          console.error('inpage got error from bg', payload);
+          reject(new ErrorWithCode(payload.error.code, payload.error.message));
 
           return;
         }
 
-        const { data } = responseContent;
+        const { data } = payload;
 
         effectFn(data);
         // @ts-expect-error
         resolve(toProviderResponse(data));
       };
-      window.addEventListener(RESPONSE_FROM_BG_EVENT, listener);
+      const removeListener = this.listenToTypedMessage(isResponseFromBgMessage, listener);
     });
+  }
+
+  private listenToTypedMessage<T>(typeguard: (msg: any) => msg is T, callback: SyncFn<T>) {
+    const listener = (evt: MessageEvent<any>) => {
+      if (evt.origin === window.origin && typeguard(evt.data)) {
+        callback(evt.data);
+      }
+    };
+    const removeListener = () => window.removeEventListener('message', listener);
+
+    window.addEventListener('message', listener);
+
+    return removeListener;
   }
 
   private getIconUrl = memoizee(
