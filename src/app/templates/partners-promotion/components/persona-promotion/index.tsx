@@ -43,7 +43,7 @@ const getAdProperties = (adRoot: HTMLDivElement): AdProperties => {
 };
 
 export const PersonaPromotion = memo<Props>(
-  ({ id, isVisible, pageName, accountPkh, onReady, onError, onAdRectSeen, onClose }) => {
+  ({ id, isVisible, pageName, accountPkh, onReady, onError, onAdRectSeen }) => {
     const containerId = `persona-ad-${id}`;
 
     const ref = useRef<HTMLDivElement>(null);
@@ -103,7 +103,6 @@ export const PersonaPromotion = memo<Props>(
 
     return (
       <ImagePromotionView
-        onClose={onClose}
         href={href}
         isVisible={isVisible}
         providerTitle={AdsProviderTitle.HypeLab}
@@ -117,7 +116,7 @@ export const PersonaPromotion = memo<Props>(
           ref={ref}
           id={containerId}
           onClick={onClick}
-          className={clsx('h-full rounded-xl overflow-hidden', ModStyles.container)}
+          className={clsx('h-full rounded overflow-hidden', ModStyles.container)}
         />
       </ImagePromotionView>
     );

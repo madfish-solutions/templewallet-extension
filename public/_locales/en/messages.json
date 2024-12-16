@@ -2805,6 +2805,9 @@
   "enablePartnersPromotionConfirm": {
     "message": "Support the development team and earn TKEY tokens by viewing ads."
   },
+  "thanksForSupportingTemple": {
+    "message": "Thanks for supporting Temple"
+  },
   "enablePartnersPromotionDescriptionConfirm": {
     "message": "To enable this feature, we request your permission to trace your Wallet Address and IP address. You can always disable ads in the settings."
   },

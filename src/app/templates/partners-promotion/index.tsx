@@ -3,8 +3,6 @@ import React, { memo, MouseEventHandler, useCallback, useEffect, useRef, useStat
 import clsx from 'clsx';
 import { useDispatch } from 'react-redux';
 
-import Spinner from 'app/atoms/Spinner/Spinner';
-import { useAppEnv } from 'app/env';
 import { useAdsViewerPkh } from 'app/hooks/use-ads-viewer-pkh';
 import { hidePromotionAction } from 'app/store/partners-promotion/actions';
 import {
@@ -14,11 +12,13 @@ import {
 import { AdsProviderName, AdsProviderTitle } from 'lib/ads';
 import { postAdImpression } from 'lib/apis/ads-api';
 import { AD_HIDING_TIMEOUT } from 'lib/constants';
+import { T } from 'lib/i18n';
+import { useBooleanState } from 'lib/ui/hooks';
 
+import { CloseButton } from './components/close-button';
 import { HypelabPromotion } from './components/hypelab-promotion';
 import { OptimalPromotion } from './components/optimal-promotion';
 import { PersonaPromotion } from './components/persona-promotion';
-import styles from './partners-promotion.module.css';
 import { PartnersPromotionVariant } from './types';
 
 export { PartnersPromotionVariant } from './types';
@@ -42,13 +42,13 @@ export const PartnersPromotion = memo<PartnersPromotionProps>(
   ({ variant, id, pageName, withPersonaProvider, className }) => {
     const isImageAd = variant === PartnersPromotionVariant.Image;
     const adsViewerAddress = useAdsViewerPkh();
-    const { popup } = useAppEnv();
     const dispatch = useDispatch();
     const hiddenAt = usePromotionHidingTimestampSelector(id);
     const shouldShowPartnersPromo = useShouldShowPartnersPromoSelector();
 
     const isAnalyticsSentRef = useRef(false);
 
+    const [hovered, setHovered, setUnhovered] = useBooleanState(false);
     const [isHiddenTemporarily, setIsHiddenTemporarily] = useState(shouldBeHiddenTemporarily(hiddenAt));
     const [providerName, setProviderName] = useState<AdsProviderLocalName>('Optimal');
     const [adError, setAdError] = useState(false);
@@ -104,9 +104,11 @@ export const PartnersPromotion = memo<PartnersPromotionProps>(
       <div
         className={clsx(
           'w-full relative flex flex-col items-center',
-          !adIsReady && (isImageAd ? styles.imageAdLoading : styles.textAdLoading),
+          !adIsReady && (isImageAd ? 'min-h-[101px]' : 'min-h-16'),
           className
         )}
+        onMouseEnter={setHovered}
+        onMouseLeave={setUnhovered}
       >
         {(() => {
           switch (providerName) {
@@ -118,7 +120,6 @@ export const PartnersPromotion = memo<PartnersPromotionProps>(
                   isVisible={adIsReady}
                   pageName={pageName}
                   onAdRectSeen={handleAdRectSeen}
-                  onClose={handleClosePartnersPromoClick}
                   onReady={handleAdReady}
                   onError={handleOptimalError}
                 />
@@ -131,7 +132,6 @@ export const PartnersPromotion = memo<PartnersPromotionProps>(
                   isVisible={adIsReady}
                   pageName={pageName}
                   onAdRectSeen={handleAdRectSeen}
-                  onClose={handleClosePartnersPromoClick}
                   onReady={handleAdReady}
                   onError={handleHypelabError}
                 />
@@ -144,7 +144,6 @@ export const PartnersPromotion = memo<PartnersPromotionProps>(
                   isVisible={adIsReady}
                   pageName={pageName}
                   onAdRectSeen={handleAdRectSeen}
-                  onClose={handleClosePartnersPromoClick}
                   onReady={handleAdReady}
                   onError={handlePersonaError}
                 />
@@ -153,15 +152,14 @@ export const PartnersPromotion = memo<PartnersPromotionProps>(
         })()}
 
         {!adIsReady && (
-          <div
-            className={clsx(
-              'absolute top-0 left-0 w-full h-full bg-gray-100 flex justify-center items-center',
-              !popup && 'rounded-10'
-            )}
-          >
-            <Spinner theme="dark-gray" className="w-6" />
+          <div className="absolute inset-0 bg-grey-4 text-secondary flex justify-center items-center rounded-lg">
+            <span className="text-font-description-bold text-grey-2">
+              <T id="thanksForSupportingTemple" />
+            </span>
           </div>
         )}
+
+        {hovered && <CloseButton onClick={handleClosePartnersPromoClick} />}
       </div>
     );
   }
