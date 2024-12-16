@@ -1,9 +1,11 @@
 import React, { memo, useCallback, useEffect, useMemo, useState } from 'react';
 
+import { isString } from 'lodash';
+
 import { Model3DViewer } from 'app/atoms/Model3DViewer';
 import { useCollectiblesListOptionsSelector } from 'app/store/assets-filter-options/selectors';
 import { TezosAssetImageStacked } from 'app/templates/AssetImage';
-import { isSvgDataUriInUtf8Encoding, buildObjktCollectibleArtifactUri } from 'lib/images-uri';
+import { isSvgDataUriInUtf8Encoding, buildObjktCollectibleArtifactUri, buildHttpLinkFromUri } from 'lib/images-uri';
 import { TokenMetadata } from 'lib/metadata';
 import { EvmCollectibleMetadata } from 'lib/metadata/types';
 import { ImageStacked } from 'lib/ui/ImageStacked';
@@ -103,7 +105,9 @@ interface EvmCollectiblePageImageProps {
 }
 
 export const EvmCollectiblePageImage = memo<EvmCollectiblePageImageProps>(({ metadata, className }) => {
-  const sources = useMemo(() => (metadata.image ? [metadata.image] : []), [metadata.image]);
+  const { image } = metadata;
+
+  const sources = useMemo(() => [buildHttpLinkFromUri(image)].filter(isString), [image]);
 
   return (
     <ImageStacked

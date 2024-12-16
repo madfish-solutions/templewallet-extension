@@ -1,11 +1,15 @@
+import { BigNumber } from 'bignumber.js';
 import { getAddress } from 'viem';
 
 import { BalanceItem } from 'lib/apis/temple/endpoints/evm/api.interfaces';
 import { isNativeTokenAddress } from 'lib/apis/temple/endpoints/evm/api.utils';
 import { toTokenSlug } from 'lib/assets';
 import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
+import { fetchEvmRawBalance } from 'lib/evm/on-chain/balance';
+import { EvmRpcRequestsExecutor, ExecutionQueueCallbacks } from 'lib/evm/on-chain/utils/evm-rpc-requests-executor';
 import { isPositiveCollectibleBalance, isPositiveTokenBalance } from 'lib/utils/evm.utils';
 
+import { LoadOnChainBalancePayload } from './actions';
 import { AssetSlugBalanceRecord } from './state';
 
 export const getTokenSlugBalanceRecord = (data: BalanceItem[], chainId: number) =>
@@ -32,3 +36,25 @@ export const getTokenSlugBalanceRecord = (data: BalanceItem[], chainId: number) 
 
     return acc;
   }, {});
+
+class EvmOnChainBalancesRequestsExecutor extends EvmRpcRequestsExecutor<
+  LoadOnChainBalancePayload & ExecutionQueueCallbacks<BigNumber>,
+  BigNumber,
+  number
+> {
+  protected getQueueKey(payload: LoadOnChainBalancePayload) {
+    return payload.network.chainId;
+  }
+
+  protected requestsAreSame(a: LoadOnChainBalancePayload, b: LoadOnChainBalancePayload) {
+    return a.network.chainId === b.network.chainId && a.assetSlug === b.assetSlug && a.account === b.account;
+  }
+
+  protected async getResult(payload: LoadOnChainBalancePayload) {
+    const { network, assetSlug, account, assetStandard } = payload;
+
+    return fetchEvmRawBalance(network, assetSlug, account, assetStandard);
+  }
+}
+
+export const evmOnChainBalancesRequestsExecutor = new EvmOnChainBalancesRequestsExecutor();

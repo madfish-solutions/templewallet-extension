@@ -72,7 +72,7 @@ const EvmAssetIconPlaceholder: EvmAssetImageProps['Fallback'] = memo(({ metadata
   )
 );
 
-export const EvmTokenIconWithNetwork = memo<EvmAssetImageProps>(({ evmChainId, className, style, ...props }) => {
+export const EvmAssetIconWithNetwork = memo<EvmAssetImageProps>(({ evmChainId, className, style, ...props }) => {
   const network = useEvmChainByChainId(evmChainId);
 
   return (

@@ -32,3 +32,5 @@ type PropsWithChildren<P = unknown> = P & { children: import('react').ReactNode 
 type PropsWithClassName<P = unknown> = P & { className?: string };
 
 type Arguments<T> = T extends (...args: infer U) => any ? U : never;
+
+type Replace<T, S1, S2> = Exclude<T, S1> extends never ? S2 : S1 extends T ? Exclude<T, S1> | S2 : T;

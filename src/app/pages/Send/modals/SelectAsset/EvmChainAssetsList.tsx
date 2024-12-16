@@ -5,7 +5,9 @@ import { DeadEndBoundaryError } from 'app/ErrorBoundary';
 import { EvmListItem } from 'app/pages/Home/OtherComponents/Tokens/components/ListItem';
 import { useEvmTokensMetadataRecordSelector } from 'app/store/evm/tokens-metadata/selectors';
 import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
+import { useEnabledEvmChainAccountTokenSlugs } from 'lib/assets/hooks';
 import { searchEvmChainTokensWithNoMeta } from 'lib/assets/search.utils';
+import { useEvmAccountTokensSortPredicate } from 'lib/assets/use-sorting';
 import { toChainAssetSlug } from 'lib/assets/utils';
 import { useMemoWithCompare } from 'lib/ui/hooks';
 import { useEvmChainByChainId } from 'temple/front/chains';
@@ -20,13 +22,21 @@ interface Props {
 
 export const EvmChainAssetsList = memo<Props>(({ chainId, publicKeyHash, searchValue, onAssetSelect }) => {
   const chain = useEvmChainByChainId(chainId);
+  const tokensSlugs = useEnabledEvmChainAccountTokenSlugs(publicKeyHash, chainId);
+  const tokensSortPredicate = useEvmAccountTokensSortPredicate(publicKeyHash);
 
   if (!chain) throw new DeadEndBoundaryError();
 
-  // TODO: Show all tokens for current chain
-  const assetsSlugs = useMemoWithCompare<string[]>(() => {
-    return [EVM_TOKEN_SLUG];
-  }, []);
+  const enabledEvmChainAssetsSlugs = useMemo(() => {
+    const gasTokensSlugs: string[] = [EVM_TOKEN_SLUG];
+
+    return gasTokensSlugs.concat(tokensSlugs);
+  }, [tokensSlugs]);
+
+  const enabledEvmChainAssetsSlugsSorted = useMemoWithCompare(
+    () => enabledEvmChainAssetsSlugs.sort(tokensSortPredicate),
+    [enabledEvmChainAssetsSlugs, tokensSortPredicate]
+  );
 
   const metadata = useEvmTokensMetadataRecordSelector();
 
@@ -36,8 +46,8 @@ export const EvmChainAssetsList = memo<Props>(({ chainId, publicKeyHash, searchV
   );
 
   const searchedSlugs = useMemo(
-    () => searchEvmChainTokensWithNoMeta(searchValue, assetsSlugs, getMetadata, s => s),
-    [assetsSlugs, getMetadata, searchValue]
+    () => searchEvmChainTokensWithNoMeta(searchValue, enabledEvmChainAssetsSlugsSorted, getMetadata, s => s),
+    [enabledEvmChainAssetsSlugsSorted, getMetadata, searchValue]
   );
 
   return (

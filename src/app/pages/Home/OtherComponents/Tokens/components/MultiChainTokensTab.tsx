@@ -68,18 +68,23 @@ const TabContentWithManageActive: FC<Props> = ({ accountTezAddress, accountEvmAd
     hideZeroBalance
   );
 
-  const otherChainSlugsSorted = useMemoWithCompare(() => {
-    const tokensChainsSlugs = [
-      ...tezTokens
+  const tokensChainsSlugs = useMemo(
+    () =>
+      tezTokens
         .filter(({ status }) => status !== 'removed')
-        .map(({ chainId, slug }) => toChainAssetSlug(TempleChainKind.Tezos, chainId, slug)),
-      ...evmTokens
-        .filter(({ status }) => status !== 'removed')
-        .map(({ chainId, slug }) => toChainAssetSlug(TempleChainKind.EVM, chainId, slug))
-    ];
+        .map(({ chainId, slug }) => toChainAssetSlug(TempleChainKind.Tezos, chainId, slug))
+        .concat(
+          evmTokens
+            .filter(({ status }) => status !== 'removed')
+            .map(({ chainId, slug }) => toChainAssetSlug(TempleChainKind.EVM, chainId, slug))
+        ),
+    [tezTokens, evmTokens]
+  );
 
-    return tokensChainsSlugs.sort(tokensSortPredicate);
-  }, [tokensSortPredicate, tezTokens, evmTokens]);
+  const otherChainSlugsSorted = useMemoWithCompare(
+    () => tokensChainsSlugs.sort(tokensSortPredicate),
+    [tokensChainsSlugs, tokensSortPredicate]
+  );
 
   const allSlugsSorted = usePreservedOrderSlugsToManage(enabledChainsSlugsSorted, otherChainSlugsSorted);
 

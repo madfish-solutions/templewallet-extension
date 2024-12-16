@@ -35,7 +35,7 @@ export const ActivityPage = memo(() => {
   return (
     <PageLayout
       pageTitle="Activity"
-      contentPadding={false}
+      contentPadding
       headerRightElem={
         <IconBase
           Icon={filterChain ? FilterOnIcon : FilterOffIcon}
