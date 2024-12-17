@@ -4,7 +4,7 @@ import axios from 'axios';
 import { StoredExolixCurrency } from 'app/store/crypto-exchange/state';
 import { EnvVars } from 'lib/env';
 
-import { ExchangeData, ExolixCurrenciesResponse, ExolixNetwork, GetRateRequestData, GetRateResponse } from './types';
+import { ExchangeData, ExolixCurrenciesResponse, GetRateRequestData, GetRateResponse } from './types';
 
 const API_KEY = EnvVars.TEMPLE_WALLET_EXOLIX_API_KEY;
 
@@ -37,7 +37,7 @@ export const getAllCurrencies = async (): Promise<Array<StoredExolixCurrency>> =
   }
   return totalData
     .map(({ code, icon, name, networks }) =>
-      networks.map((network: ExolixNetwork) => ({
+      networks.map(network => ({
         code,
         icon,
         name,

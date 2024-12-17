@@ -249,7 +249,7 @@ export const FormField = forwardRef<FormFieldElement, FormFieldProps>(
               FORM_FIELD_CLASS_NAME,
               readOnly && '!placeholder-grey-1',
               smallPaddings ? 'py-2 pl-2' : 'p-3',
-              errorCaption ? 'border-error' : warning ? 'border-warning' : 'border-none',
+              errorCaption ? 'border-error' : warning ? 'border-warning' : 'border-input-low',
               className
             )}
             style={fieldStyle}

@@ -6,7 +6,7 @@ import { IconButton } from 'app/atoms/IconButton';
 import { ReactComponent as CopyIcon } from 'app/icons/base/copy.svg';
 import { ReactComponent as QrCodeIcon } from 'app/icons/base/qr_code.svg';
 import { toastSuccess } from 'app/toaster';
-import { T } from 'lib/i18n';
+import { t, T } from 'lib/i18n';
 import { useBooleanState } from 'lib/ui/hooks';
 
 import { useCryptoExchangeDataState } from '../../../context';
@@ -24,7 +24,7 @@ export const DepositAddressBlock = memo<Props>(({ className }) => {
 
   const handleCopyButtonClick = useCallback(() => {
     window.navigator.clipboard.writeText(exchangeData!.depositAddress);
-    toastSuccess('Address Copied');
+    toastSuccess(t('copiedAddress'));
   }, [exchangeData]);
 
   if (!exchangeData) return null;

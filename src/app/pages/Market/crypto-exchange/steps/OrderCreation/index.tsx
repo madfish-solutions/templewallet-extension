@@ -1,9 +1,10 @@
-import React, { FC, useCallback, useEffect, useMemo, useState } from 'react';
+import React, { FC, useCallback, useMemo, useState } from 'react';
 
 import { FormProvider, useForm } from 'react-hook-form-v7';
 
 import { dispatch } from 'app/store';
 import { loadExolixCurrenciesActions, loadExolixNetworksMapActions } from 'app/store/crypto-exchange/actions';
+import { useDidMount } from 'lib/ui/hooks';
 import { useAccountAddressForTezos } from 'temple/front';
 
 import {
@@ -26,10 +27,10 @@ interface Props {
 export const OrderCreation: FC<Props> = ({ setModalHeaderConfig }) => {
   const [modalContent, setModalContent] = useState<ModalContent>('form');
 
-  useEffect(() => {
+  useDidMount(() => {
     dispatch(loadExolixNetworksMapActions.submit());
     dispatch(loadExolixCurrenciesActions.submit());
-  }, []);
+  });
 
   const tezosAddress = useAccountAddressForTezos();
 

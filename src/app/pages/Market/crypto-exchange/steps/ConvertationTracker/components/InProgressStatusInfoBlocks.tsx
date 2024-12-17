@@ -5,6 +5,7 @@ import { HashChip } from 'app/atoms/HashChip';
 import Money from 'app/atoms/Money';
 import { ReactComponent as CopyIcon } from 'app/icons/base/copy.svg';
 import { toastSuccess } from 'app/toaster';
+import { t } from 'lib/i18n';
 
 import { CurrencyIcon } from '../../../components/CurrencyIcon';
 import { InfoContainer, InfoRaw } from '../../../components/InfoBlock';
@@ -15,7 +16,7 @@ export const InProgressStatusInfoBlocks = memo(() => {
 
   const handleCopyTxId = useCallback(() => {
     window.navigator.clipboard.writeText(exchangeData!.id);
-    toastSuccess('Copied');
+    toastSuccess(t('copiedHash'));
   }, [exchangeData]);
 
   if (!exchangeData) return null;

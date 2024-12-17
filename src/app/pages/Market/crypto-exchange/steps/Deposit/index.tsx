@@ -1,8 +1,7 @@
 import React, { memo, useCallback, useEffect, useState } from 'react';
 
 import { FadeTransition } from 'app/a11y/FadeTransition';
-import { CaptionAlert, IconBase } from 'app/atoms';
-import Money from 'app/atoms/Money';
+import { CaptionAlert, IconBase, Money } from 'app/atoms';
 import { ActionsButtonsBox } from 'app/atoms/PageModal';
 import { StyledButton } from 'app/atoms/StyledButton';
 import { ReactComponent as CopyIcon } from 'app/icons/base/copy.svg';

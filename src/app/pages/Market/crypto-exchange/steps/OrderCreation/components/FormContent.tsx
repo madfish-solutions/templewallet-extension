@@ -1,6 +1,5 @@
 import React, { FC, memo, useCallback, useEffect, useLayoutEffect, useMemo, useRef } from 'react';
 
-import BigNumber from 'bignumber.js';
 import clsx from 'clsx';
 import { isEmpty } from 'lodash';
 import { Controller, useFormContext, SubmitHandler, FieldError } from 'react-hook-form-v7';
@@ -19,7 +18,12 @@ import { useAccountAddressForEvm, useAccountAddressForTezos } from 'temple/front
 
 import { StepLabel } from '../../../components/StepLabel';
 import { Stepper } from '../../../components/Stepper';
-import { defaultModalHeaderConfig, ModalHeaderConfig, TEZOS_EXOLIX_NETWORK_CODE } from '../../../config';
+import {
+  defaultModalHeaderConfig,
+  ModalHeaderConfig,
+  TEZOS_EXOLIX_NETWORK_CODE,
+  VALUE_PLACEHOLDER
+} from '../../../config';
 import { useCryptoExchangeDataState } from '../../../context';
 import { getCurrencyDisplayCode } from '../../../utils';
 import { CryptoExchangeFormData } from '../types';
@@ -31,7 +35,6 @@ import { SelectTokenContent } from './SelectCurrencyContent';
 const MIN_ERROR = 'min';
 const MAX_ERROR = 'max';
 const EXOLIX_DECIMALS = 8;
-const VALUE_PLACEHOLDER = '---';
 
 const DEFAULT_SWR_CONGIG = {
   shouldRetryOnError: false,
@@ -112,14 +115,6 @@ export const FormContent: FC<Props> = ({ setModalHeaderConfig, setModalContent }
         ? { rate: ratesData.rate, toAmount: ratesData.toAmount }
         : { rate: null, toAmount: 0 },
     [ratesData]
-  );
-
-  const displayRate = useMemo(
-    () =>
-      rate
-        ? `1 ${inputCurrency.code} ≈ ${new BigNumber(rate).decimalPlaces(2).toFixed()} ${outputCurrency.code}`
-        : VALUE_PLACEHOLDER,
-    [inputCurrency.code, outputCurrency.code, rate]
   );
 
   const withdrawalAddress = useMemo(() => {
@@ -232,7 +227,7 @@ export const FormContent: FC<Props> = ({ setModalHeaderConfig, setModalContent }
           containerClassName="pb-5"
         />
 
-        <InfoCard exchangeRate={displayRate} />
+        <InfoCard rate={rate} inputCurrencyCode={inputCurrency.code} outputCurrencyCode={outputCurrency.code} />
       </form>
 
       <ActionsButtonsBox>

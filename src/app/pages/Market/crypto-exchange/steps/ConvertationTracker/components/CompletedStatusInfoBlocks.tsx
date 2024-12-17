@@ -1,15 +1,16 @@
 import React, { memo, useCallback, useMemo } from 'react';
 
-import { Anchor, HashShortView, IconBase } from 'app/atoms';
+import { Anchor, HashShortView, IconBase, Money } from 'app/atoms';
 import { HashChip } from 'app/atoms/HashChip';
-import Money from 'app/atoms/Money';
 import { ReactComponent as CopyIcon } from 'app/icons/base/copy.svg';
 import { ReactComponent as OutLinkIcon } from 'app/icons/base/outLink.svg';
 import { toastSuccess } from 'app/toaster';
 import { ExchangeHash } from 'lib/apis/exolix/types';
+import { t } from 'lib/i18n';
 
 import { CurrencyIcon } from '../../../components/CurrencyIcon';
 import { InfoContainer, InfoRaw } from '../../../components/InfoBlock';
+import { VALUE_PLACEHOLDER } from '../../../config';
 import { useCryptoExchangeDataState } from '../../../context';
 
 export const CompletedStatusInfoBlocks = memo(() => {
@@ -17,7 +18,7 @@ export const CompletedStatusInfoBlocks = memo(() => {
 
   const handleCopyTxId = useCallback(() => {
     window.navigator.clipboard.writeText(exchangeData!.id);
-    toastSuccess('Copied');
+    toastSuccess(t('copiedHash'));
   }, [exchangeData]);
 
   const sendTime = useMemo(() => {
@@ -126,5 +127,5 @@ const TxHash = memo<TxHashProps>(({ exchangeHash }) => {
     );
   }
 
-  return <span className="p-1 text-font-description">---</span>;
+  return <span className="p-1 text-font-description">{VALUE_PLACEHOLDER}</span>;
 });

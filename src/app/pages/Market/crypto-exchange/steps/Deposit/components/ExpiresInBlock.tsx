@@ -2,9 +2,9 @@ import React, { memo } from 'react';
 
 import clsx from 'clsx';
 
+import Money from 'app/atoms/Money';
 import { T } from 'lib/i18n';
 
-import Money from '../../../../../../atoms/Money';
 import { CurrencyIcon } from '../../../components/CurrencyIcon';
 import { ExchangeCountdown } from '../../../components/ExchangeCountdown';
 import { useCryptoExchangeDataState } from '../../../context';

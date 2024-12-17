@@ -22,7 +22,7 @@ import { useAccountAddressForEvm, useAccountAddressForTezos, useEnabledEvmChains
 
 import { CurrencyIcon } from '../../../components/CurrencyIcon';
 import { ModalHeaderConfig, TEZOS_EXOLIX_NETWORK_CODE } from '../../../config';
-import { getCurrencyDisplayCode } from '../../../utils';
+import { getCurrencyDisplayCode, isSameExolixCurrency } from '../../../utils';
 import { CryptoExchangeFormData } from '../types';
 
 const FULLPAGE_ITEMS_COUNT = 11;
@@ -65,10 +65,7 @@ export const SelectCurrencyContent: FC<Props> = ({ content, setModalHeaderConfig
   );
 
   const inputCurrencies = useMemo(
-    () =>
-      allCurrencies.filter(
-        currency => !(currency.code === outputCurrency.code && currency.network.code === outputCurrency.network.code)
-      ),
+    () => allCurrencies.filter(currency => !isSameExolixCurrency(currency, outputCurrency)),
     [allCurrencies, outputCurrency]
   );
 
@@ -77,13 +74,13 @@ export const SelectCurrencyContent: FC<Props> = ({ content, setModalHeaderConfig
       allCurrencies.filter(currency => {
         const networkCode = currency.network.code;
 
-        const isInputCurrency = currency.code === inputCurrency.code && networkCode === inputCurrency.network.code;
+        const isInputCurrency = isSameExolixCurrency(currency, inputCurrency);
         const isTezosNetwork = Boolean(tezosAddress) && networkCode === TEZOS_EXOLIX_NETWORK_CODE;
         const isEnabledEvmNetwork = Boolean(evmAddress) && enabledExolixNetworkCodes.includes(networkCode);
 
         return !isInputCurrency && (isTezosNetwork || isEnabledEvmNetwork);
       }),
-    [allCurrencies, enabledExolixNetworkCodes, evmAddress, inputCurrency.code, inputCurrency.network.code, tezosAddress]
+    [allCurrencies, enabledExolixNetworkCodes, evmAddress, inputCurrency, tezosAddress]
   );
 
   const displayCurrencies = useMemo(() => {

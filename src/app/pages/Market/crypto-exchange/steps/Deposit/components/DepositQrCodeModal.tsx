@@ -1,10 +1,9 @@
 import React, { memo } from 'react';
 
-import { QRCode } from 'app/atoms';
+import { Money, QRCode } from 'app/atoms';
 import { ActionModal, ActionModalBodyContainer } from 'app/atoms/action-modal';
 import { T } from 'lib/i18n';
 
-import Money from '../../../../../../atoms/Money';
 import { CurrencyIcon } from '../../../components/CurrencyIcon';
 import { useCryptoExchangeDataState } from '../../../context';
 

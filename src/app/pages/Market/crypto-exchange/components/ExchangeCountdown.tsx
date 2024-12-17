@@ -21,7 +21,7 @@ export const ExchangeCountdown = memo<Props>(({ className }) => {
     <Countdown
       renderer={props => (
         <span className={className}>
-          {props.minutes}:{props.seconds < 10 ? '0' + props.seconds : props.seconds}
+          {props.minutes}:{String(props.seconds).padStart(2, '0')}
         </span>
       )}
       date={new Date(exchangeData.createdAt).getTime() + ORDER_EXPIRATION_TIMEOUT}
