@@ -1,5 +1,5 @@
 import { nanoid } from 'nanoid';
-import { getAddress, recoverMessageAddress, toHex, WalletPermission } from 'viem';
+import { getAddress, recoverMessageAddress, toHex, TransactionRequest, WalletPermission } from 'viem';
 import browser, { Storage } from 'webextension-polyfill';
 
 import {
@@ -137,8 +137,8 @@ export const getDefaultWeb3Params = async (origin: string) => {
 
 export const connectEvm = async (origin: string, chainId: string, icon?: string) => {
   return new Promise<HexString[]>(async (resolve, reject) => {
-    const id = nanoid();
     await assertiveGetChainRpcURLs(Number(chainId));
+    const id = nanoid();
     const appMeta = getAppMeta(origin, icon);
 
     await requestConfirm({
@@ -209,19 +209,12 @@ const makeRequestEvmSignFunction =
       connectedChainId: string
     ) => Promise<HexString>
   ) =>
-  (origin: string, rawSourcePkh: HexString, chainId: string, payload: T['payload'], icon?: string) =>
-    new Promise<HexString>(async (resolve, reject) => {
-      const id = nanoid();
-      const sourcePkh = getAddress(rawSourcePkh);
+  async (origin: string, rawSourcePkh: HexString, chainId: string, payload: T['payload'], icon?: string) => {
+    await checkDApp(origin, rawSourcePkh);
+    const id = nanoid();
+    const sourcePkh = getAddress(rawSourcePkh);
 
-      const dApp = await getDApp(origin);
-
-      if (!dApp) {
-        reject(new ErrorWithCode(EVMErrorCodes.NOT_AUTHORIZED, 'DApp not found'));
-
-        return;
-      }
-
+    return new Promise<HexString>(async (resolve, reject) => {
       await requestConfirm({
         id,
         payload: {
@@ -254,6 +247,7 @@ const makeRequestEvmSignFunction =
         }
       });
     });
+  };
 
 export const requestEvmTypedSign = makeRequestEvmSignFunction<TempleEvmDAppSignTypedPayload>(
   'sign_typed',
@@ -261,7 +255,7 @@ export const requestEvmTypedSign = makeRequestEvmSignFunction<TempleEvmDAppSignT
     if (
       !Array.isArray(typedData) &&
       typedData.domain?.chainId !== undefined &&
-      typedData.domain?.chainId !== Number(connectedChainId)
+      typedData.domain.chainId !== Number(connectedChainId)
     ) {
       throw new ErrorWithCode(
         EVMErrorCodes.CHAIN_DISCONNECTED,
@@ -309,14 +303,9 @@ export const recoverEvmMessageAddress = async (message: HexString, signature: He
   ).toLowerCase();
 
 export const handleEvmRpcRequest = async (origin: string, payload: any, chainId: string) => {
-  const requestChainId = Number(chainId);
-  const dApp = await getDApp(origin);
+  await assertDAppChainId(origin, chainId);
 
-  if (dApp && dApp.chainId !== requestChainId) {
-    throw new ErrorWithCode(EVMErrorCodes.CHAIN_DISCONNECTED, 'DApp chain ID does not match the connected chain ID');
-  }
-
-  const rpcUrls = await assertiveGetChainRpcURLs(requestChainId);
+  const rpcUrls = await assertiveGetChainRpcURLs(Number(chainId));
   const evmToolkit = getReadOnlyEvm(rpcUrls);
 
   try {
@@ -330,6 +319,44 @@ export const handleEvmRpcRequest = async (origin: string, payload: any, chainId:
     }
 
     throw err;
+  }
+};
+
+export const sendEvmTransactionAfterConfirm = async (
+  origin: string,
+  chainId: string,
+  req: TransactionRequest,
+  iconUrl?: string
+) => {
+  await checkDApp(origin, req.from!);
+  await assertDAppChainId(origin, chainId);
+  // TODO: show confirmation modal using `requestConfirm` function and send the transaction if it is confirmed
+};
+
+/** Throws an error if the dApp is not connected or the connected account does not match the specified one; otherwise,
+ *  returns the dApp object
+ */
+const checkDApp = async (origin: string, account: string) => {
+  const dApp = await getDApp(origin);
+
+  if (!dApp) {
+    throw new ErrorWithCode(EVMErrorCodes.NOT_AUTHORIZED, 'DApp not found');
+  }
+
+  if (getAddress(account) !== getAddress(dApp.pkh)) {
+    throw new ErrorWithCode(EVMErrorCodes.NOT_AUTHORIZED, 'Account is not connected');
+  }
+
+  return dApp;
+};
+
+/** Throws an error if a dApp is connected but to another chain than `chainId` */
+const assertDAppChainId = async (origin: string, chainId: string) => {
+  const requestChainId = Number(chainId);
+
+  const dApp = await getDApp(origin);
+  if (dApp && dApp.chainId !== requestChainId) {
+    throw new ErrorWithCode(EVMErrorCodes.CHAIN_DISCONNECTED, 'DApp chain ID does not match the connected chain ID');
   }
 };
 

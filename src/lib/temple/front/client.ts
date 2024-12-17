@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import constate from 'constate';
 import { omit } from 'lodash';
+import { TransactionRequest, formatTransactionRequest } from 'viem';
 import browser from 'webextension-polyfill';
 
 import { WALLETS_SPECS_STORAGE_KEY } from 'lib/constants';
@@ -19,8 +20,6 @@ import {
 } from 'lib/temple/types';
 import { useDidMount } from 'lib/ui/hooks';
 import { DEFAULT_PROMISES_QUEUE_COUNTERS } from 'lib/utils';
-import type { EvmTxParams } from 'temple/evm/types';
-import { toSerializableEvmTxParams } from 'temple/evm/utils';
 import type { EvmChain } from 'temple/front';
 import {
   intercomClient,
@@ -394,17 +393,20 @@ export const [TempleClientProvider, useTempleClient] = constate(() => {
     assertResponse(res.type === TempleMessageType.DAppSwitchEvmChainResponse);
   }, []);
 
-  const sendEvmTransaction = useCallback(async (accountPkh: HexString, network: EvmChain, txParams: EvmTxParams) => {
-    const res = await request({
-      type: TempleMessageType.SendEvmTransactionRequest,
-      accountPkh,
-      network,
-      txParams: toSerializableEvmTxParams(txParams)
-    });
-    assertResponse(res.type === TempleMessageType.SendEvmTransactionResponse);
+  const sendEvmTransaction = useCallback(
+    async (accountPkh: HexString, network: EvmChain, txParams: TransactionRequest) => {
+      const res = await request({
+        type: TempleMessageType.SendEvmTransactionRequest,
+        accountPkh,
+        network,
+        txParams: formatTransactionRequest(txParams)
+      });
+      assertResponse(res.type === TempleMessageType.SendEvmTransactionResponse);
 
-    return res.txHash;
-  }, []);
+      return res.txHash;
+    },
+    []
+  );
 
   const resetExtension = useCallback(async (password: string) => {
     const res = await request({

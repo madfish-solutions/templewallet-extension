@@ -3,7 +3,14 @@ import React, { FC, useCallback, useEffect, useMemo, useState } from 'react';
 import { omit, transform } from 'lodash';
 import { FormProvider, useForm } from 'react-hook-form-v7';
 import { useDebounce } from 'use-debounce';
-import { FeeValuesEIP1559, FeeValuesLegacy, formatEther, parseEther, serializeTransaction } from 'viem';
+import {
+  FeeValuesEIP1559,
+  FeeValuesLegacy,
+  TransactionRequest,
+  formatEther,
+  parseEther,
+  serializeTransaction
+} from 'viem';
 
 import { CLOSE_ANIMATION_TIMEOUT } from 'app/atoms/PageModal';
 import { EvmReviewData } from 'app/pages/Send/form/interfaces';
@@ -14,7 +21,6 @@ import { useEvmAssetBalance } from 'lib/balances/hooks';
 import { useEvmAssetMetadata } from 'lib/metadata';
 import { useTempleClient } from 'lib/temple/front';
 import { ZERO } from 'lib/utils/numbers';
-import { EvmTxParams } from 'temple/evm/types';
 
 import { buildBasicEvmSendParams } from '../../build-basic-evm-send-params';
 
@@ -182,7 +188,7 @@ export const EvmContent: FC<EvmContentProps> = ({ data, onClose }) => {
           ...feesPerGas,
           ...(gasLimit ? { gas: BigInt(gasLimit) } : {}),
           ...(nonce ? { nonce: Number(nonce) } : {})
-        } as EvmTxParams);
+        } as TransactionRequest);
 
         onConfirm();
         onClose();

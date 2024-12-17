@@ -1,12 +1,11 @@
 import type { DerivationType } from '@taquito/ledger-signer';
 import type { Estimate } from '@taquito/taquito';
 import type { TempleDAppMetadata } from '@temple-wallet/dapp/dist/types';
-import type { TypedDataDefinition } from 'viem';
+import type { FeeValues, RpcTransactionRequest, TransactionRequest, TypedDataDefinition } from 'viem';
 
 import type { DAppsSessionsRecord } from 'app/storage/dapps';
 import type { PromisesQueueCounters } from 'lib/utils';
 import type { TypedDataV1 } from 'temple/evm/typed-data-v1';
-import type { SerializableEvmTxParams } from 'temple/evm/types';
 import type { EvmChain } from 'temple/front';
 import type { StoredEvmNetwork, StoredTezosNetwork } from 'temple/networks';
 import type { TempleChainKind } from 'temple/types';
@@ -218,6 +217,12 @@ export interface TempleTezosDAppOperationsPayload extends TempleTezosDAppPayload
   estimates?: Estimate[];
 }
 
+export interface TempleEvmDAppTransactionPayload extends TempleEvmDAppPayloadBase {
+  type: 'confirm_operations';
+  req: TransactionRequest & { from: HexString };
+  estimatedFees?: FeeValues<HexString>;
+}
+
 export interface TempleTezosDAppSignPayload extends TempleTezosDAppPayloadBase {
   type: 'sign';
   sourcePkh: string;
@@ -248,7 +253,10 @@ export type TempleTezosDAppPayload =
   | TempleTezosDAppOperationsPayload
   | TempleTezosDAppSignPayload;
 
-export type TempleEvmDAppPayload = TempleEvmDAppConnectPayload | TempleEvmDAppSignPayload;
+export type TempleEvmDAppPayload =
+  | TempleEvmDAppConnectPayload
+  | TempleEvmDAppTransactionPayload
+  | TempleEvmDAppSignPayload;
 
 export type TempleDAppPayload = TempleTezosDAppPayload | TempleEvmDAppPayload;
 
@@ -724,7 +732,7 @@ interface TempleSendEvmTransactionRequest extends TempleMessageBase {
   type: TempleMessageType.SendEvmTransactionRequest;
   accountPkh: HexString;
   network: EvmChain;
-  txParams: SerializableEvmTxParams;
+  txParams: RpcTransactionRequest;
 }
 
 interface TempleSendEvmTransactionResponse extends TempleMessageBase {
