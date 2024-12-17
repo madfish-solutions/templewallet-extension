@@ -23,6 +23,7 @@ import ContentContainer from 'app/layouts/ContentContainer';
 import { useOnboardingProgress } from 'app/pages/Onboarding/hooks/useOnboardingProgress.hook';
 import { AdvertisingBanner } from 'app/templates/advertising/advertising-banner/advertising-banner';
 import { AdvertisingOverlay } from 'app/templates/advertising/advertising-overlay/advertising-overlay';
+import { AirdropButton } from 'app/templates/temple-tap/AirdropButton';
 import { IS_MISES_BROWSER } from 'lib/env';
 import { T } from 'lib/i18n';
 import { NotificationsBell } from 'lib/notifications/components/bell';
@@ -111,7 +112,7 @@ export const SpinnerSection: FC = () => (
   </div>
 );
 
-type ToolbarProps = {
+interface ToolbarProps {
   pageTitle?: ReactNode;
   hasBackAction?: boolean;
   step?: number;
@@ -119,7 +120,8 @@ type ToolbarProps = {
   adShow?: boolean;
   skip?: boolean;
   attention?: boolean;
-};
+  withBell?: boolean;
+}
 
 export let ToolbarElement: HTMLDivElement | null = null;
 
@@ -133,7 +135,8 @@ const Toolbar: FC<ToolbarProps> = ({
   setStep,
   adShow = false,
   skip,
-  attention
+  attention,
+  withBell
 }) => {
   const { historyPosition, pathname } = useLocation();
   const { fullPage } = useAppEnv();
@@ -232,9 +235,10 @@ const Toolbar: FC<ToolbarProps> = ({
 
       <div className="flex-1" />
 
-      {attention && (
-        <div className="flex items-center content-end absolute right-0">
-          <AdvertisingBanner />
+      {(attention || withBell) && (
+        <div className="flex items-center gap-x-2 content-end">
+          {attention && <AdvertisingBanner />}
+          {attention && <AirdropButton />}
           <NotificationsBell />
         </div>
       )}

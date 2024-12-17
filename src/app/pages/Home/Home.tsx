@@ -61,6 +61,7 @@ const Home = memo<Props>(({ assetSlug }) => {
         ) : null
       }
       attention={true}
+      withBell={true}
       adShow
     >
       {fullPage && (
