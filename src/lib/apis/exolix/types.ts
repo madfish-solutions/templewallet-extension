@@ -1,4 +1,4 @@
-export interface ExolixNetwork {
+interface ExolixNetwork {
   addressRegex: string;
   blockExplorer: string | null;
   depositMinAmount: number | null;
