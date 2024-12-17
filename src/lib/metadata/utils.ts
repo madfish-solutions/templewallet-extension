@@ -7,7 +7,6 @@ import {
   AssetMetadataBase,
   TokenMetadata,
   TezosTokenStandardsEnum,
-  EvmTokenMetadata,
   EvmCollectibleMetadata,
   EvmAssetMetadataBase,
   EvmAssetMetadata
@@ -20,7 +19,7 @@ export function getAssetSymbol(metadata: EvmAssetMetadataBase | AssetMetadataBas
   return metadata.symbol === 'tez' ? TEZOS_SYMBOL : metadata.symbol.substring(0, 5);
 }
 
-export function getTokenName(metadata: EvmTokenMetadata | AssetMetadataBase | nullish) {
+export function getTokenName(metadata: EvmAssetMetadataBase | AssetMetadataBase | nullish) {
   return metadata?.name || 'Unknown Token';
 }
 

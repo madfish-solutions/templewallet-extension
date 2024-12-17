@@ -8,7 +8,7 @@ import { EvmAssetIcon, TezosAssetIcon } from 'app/templates/AssetIcon';
 import { EvmBalance, TezosBalance } from 'app/templates/Balance';
 import InFiat from 'app/templates/InFiat';
 import { setAnotherSelector, setTestID } from 'lib/analytics';
-import { getTokenName, getAssetSymbol, useTezosAssetMetadata } from 'lib/metadata';
+import { getTokenName, getAssetSymbol, AssetMetadataBase } from 'lib/metadata';
 import { isEvmNativeTokenSlug } from 'lib/utils/evm.utils';
 import { useAccountAddressForEvm, useAccountAddressForTezos, useTezosChainByChainId } from 'temple/front';
 import { useEvmChainByChainId } from 'temple/front/chains';
@@ -18,15 +18,15 @@ import { TokenPageSelectors } from './selectors';
 interface TezosAssetBannerProps {
   tezosChainId: string;
   assetSlug: string;
+  metadata: AssetMetadataBase | undefined;
 }
 
-export const TezosAssetBanner = memo<TezosAssetBannerProps>(({ tezosChainId, assetSlug }) => {
+export const TezosAssetBanner = memo<TezosAssetBannerProps>(({ tezosChainId, assetSlug, metadata: assetMetadata }) => {
   const accountTezAddress = useAccountAddressForTezos();
   const network = useTezosChainByChainId(tezosChainId);
 
   if (!accountTezAddress || !network) throw new DeadEndBoundaryError();
 
-  const assetMetadata = useTezosAssetMetadata(assetSlug, tezosChainId);
   const assetName = getTokenName(assetMetadata);
   const assetSymbol = getAssetSymbol(assetMetadata);
 

@@ -8,6 +8,7 @@ import { Anchor, IconBase } from 'app/atoms';
 import { ReactComponent as ActivityIcon } from 'app/icons/base/activity.svg';
 import { ReactComponent as MarketIcon } from 'app/icons/base/card.svg';
 import { ReactComponent as ReceiveIcon } from 'app/icons/base/income.svg';
+import { ReactComponent as OutcomeIcon } from 'app/icons/base/outcome.svg';
 import { ReactComponent as SendIcon } from 'app/icons/base/send.svg';
 import { ReactComponent as SwapIcon } from 'app/icons/base/swap.svg';
 import { buildSendPagePath } from 'app/pages/Send/build-url';
@@ -28,9 +29,10 @@ interface Props {
   chainKind?: string | nullish;
   chainId?: string | nullish;
   assetSlug?: string | nullish;
+  activityBtn?: 'activity' | 'earn-tez';
 }
 
-export const ExploreActionButtonsBar = memo<Props>(({ chainKind, chainId, assetSlug }) => {
+export const ExploreActionButtonsBar = memo<Props>(({ chainKind, chainId, assetSlug, activityBtn }) => {
   const account = useAccount();
   const testnetModeEnabled = useTestnetModeEnabledSelector();
 
@@ -75,12 +77,23 @@ export const ExploreActionButtonsBar = memo<Props>(({ chainKind, chainId, assetS
         testID={ExploreActionButtonsSelectors.swapButton}
       />
 
-      <ActionButton
-        labelI18nKey="activity"
-        Icon={ActivityIcon}
-        to="/activity"
-        testID={ExploreActionButtonsSelectors.activityButton}
-      />
+      {activityBtn === 'earn-tez' ? (
+        <ActionButton
+          labelI18nKey="earn"
+          Icon={OutcomeIcon}
+          to={`/earn-tez/${chainId}`}
+          testID={ExploreActionButtonsSelectors.earnButton}
+        />
+      ) : (
+        activityBtn === 'activity' && (
+          <ActionButton
+            labelI18nKey="activity"
+            Icon={ActivityIcon}
+            to="/activity"
+            testID={ExploreActionButtonsSelectors.activityButton}
+          />
+        )
+      )}
 
       <ActionButton
         labelI18nKey="send"
@@ -113,7 +126,7 @@ const ActionButton = memo<ActionButtonProps>(
     const commonButtonProps = useMemo(
       () => ({
         className: clsx(
-          'flex-1 max-w-16 flex flex-col gap-y-0.5 p-2 items-center justify-center rounded-lg',
+          'flex-1 flex flex-col gap-y-0.5 p-2 items-center justify-center rounded-lg',
           disabled
             ? 'bg-disable text-grey-2'
             : 'bg-primary-low text-primary hover:bg-primary-hover-low hover:text-primary-hover'

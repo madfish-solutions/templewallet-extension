@@ -56,7 +56,7 @@ const Home = memo<HomeProps>(props => {
       <div className="flex flex-col pt-1 px-4 bg-white">
         <TotalEquityBanner />
 
-        <ExploreActionButtonsBar {...props} />
+        <ExploreActionButtonsBar activityBtn="activity" {...props} />
 
         <AssetsSegmentControl
           tabSlug={tabSlug}
