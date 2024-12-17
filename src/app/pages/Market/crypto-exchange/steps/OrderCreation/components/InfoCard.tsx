@@ -19,7 +19,11 @@ export const InfoCard = memo<Props>(({ rate, inputCurrencyCode, outputCurrencyCo
         {rate ? (
           <>
             <span>{`1 ${inputCurrencyCode} ≈ `}</span>
-            <Money cryptoDecimals={2} smallFractionFont={false} tooltipPlacement="bottom">
+            <Money
+              cryptoDecimals={String(rate).length > 12 ? 2 : 6}
+              smallFractionFont={false}
+              tooltipPlacement="bottom"
+            >
               {rate}
             </Money>{' '}
             {outputCurrencyCode}
