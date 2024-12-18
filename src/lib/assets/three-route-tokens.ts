@@ -17,3 +17,12 @@ export const THREE_ROUTE_TEZ_TOKEN: Route3Token = {
   tokenId: null,
   decimals: 6
 };
+
+export const THREE_ROUTE_TZBTC_TOKEN: Route3Token = {
+  id: 2,
+  symbol: 'TZBTC',
+  standard: Route3TokenStandardEnum.fa12,
+  contract: 'KT1PWx2mnDueood7fEmfbBDKx1D9BAnnXitn',
+  tokenId: null,
+  decimals: 8
+};

@@ -11,16 +11,16 @@ import {
   Route3LbSwapParamsRequest,
   Route3LiquidityBakingParamsResponse,
   Route3SwapParamsRequest,
-  Route3TraditionalSwapParamsResponse
+  Route3TraditionalSwapParamsResponse,
+  Route3TreeNode,
+  Route3TreeNodeType
 } from 'lib/route3/interfaces';
 import { ONE_MINUTE_S } from 'lib/utils/numbers';
 
 import { ROUTE3_BASE_URL } from './route3.api';
 
 const parser = (origJSON: string): ReturnType<typeof JSON['parse']> => {
-  const stringedJSON = origJSON
-    .replace(/input":\s*([-+Ee0-9.]+)/g, 'input":"$1"')
-    .replace(/output":\s*([-+Ee0-9.]+)/g, 'output":"$1"');
+  const stringedJSON = origJSON.replace(/(input|output|tokenInAmount|tokenOutAmount)":\s*([-+Ee0-9.]+)/g, '$1":"$2"');
 
   return JSON.parse(stringedJSON);
 };
@@ -71,6 +71,34 @@ const getLbSubsidyCausedXtzDeviation = memoizee(
   { promise: true, maxAge: 1000 * ONE_MINUTE_S * 5 }
 );
 
+const correctFinalOutput = <T extends Route3TreeNode>(tree: T, multiplier: BigNumber, decimals: number): T => {
+  const correctedTokenOutAmount = new BigNumber(tree.tokenOutAmount)
+    .times(multiplier)
+    .decimalPlaces(decimals, BigNumber.ROUND_FLOOR)
+    .toFixed();
+
+  switch (tree.type) {
+    case Route3TreeNodeType.Empty:
+    case Route3TreeNodeType.Dex:
+      return { ...tree, tokenOutAmount: correctedTokenOutAmount };
+    case Route3TreeNodeType.High:
+      return {
+        ...tree,
+        tokenOutAmount: correctedTokenOutAmount,
+        // TODO: Fix output value for the last item; the sum of outputs for all subitems should be equal to the output of the parent item
+        items: tree.items.map(item => correctFinalOutput(item, multiplier, decimals))
+      };
+    default:
+      return {
+        ...tree,
+        tokenOutAmount: correctedTokenOutAmount,
+        items: tree.items.map((item, index, subitems) =>
+          index === subitems.length - 1 ? correctFinalOutput(item, multiplier, decimals) : item
+        )
+      };
+  }
+};
+
 const fetchRoute3LiquidityBakingParams = (
   params: Route3LbSwapParamsRequest
 ): Promise<Route3LiquidityBakingParamsResponse> =>
@@ -98,21 +126,21 @@ const fetchRoute3LiquidityBakingParams = (
         const initialXtzInput = new BigNumber(originalParams.xtzHops[0].tokenInAmount);
         const correctedXtzInput = initialXtzInput.times(1 - lbSubsidyCausedXtzDeviation).integerValue();
         const initialOutput = new BigNumber(originalParams.output);
+        const multiplier = new BigNumber(correctedXtzInput).div(initialXtzInput);
         // The difference between inputs is usually pretty small, so we can use the following formula
-        const correctedOutput = initialOutput
-          .times(correctedXtzInput)
-          .div(initialXtzInput)
-          .decimalPlaces(toTokenDecimals, BigNumber.ROUND_FLOOR);
+        const correctedOutput = initialOutput.times(multiplier).decimalPlaces(toTokenDecimals, BigNumber.ROUND_FLOOR);
+        const correctedXtzTree = correctFinalOutput(originalParams.xtzTree, multiplier, toTokenDecimals);
 
         return {
           ...originalParams,
-          output: correctedOutput.toString(),
+          output: correctedOutput.toFixed(),
           xtzHops: [
             {
               ...originalParams.xtzHops[0],
               tokenInAmount: correctedXtzInput.toFixed()
             }
-          ].concat(originalParams.xtzHops.slice(1))
+          ].concat(originalParams.xtzHops.slice(1)),
+          xtzTree: correctedXtzTree
         };
       } catch (err) {
         console.error(err);
@@ -120,7 +148,12 @@ const fetchRoute3LiquidityBakingParams = (
       }
     });
 
-export const fetchRoute3SwapParams = ({ fromSymbol, toSymbol, dexesLimit, ...restParams }: Route3SwapParamsRequest) => {
+export const fetchRoute3SwapParams = ({
+  fromSymbol,
+  toSymbol,
+  dexesLimit,
+  ...restParams
+}: Omit<Route3SwapParamsRequest, 'showTree'>) => {
   const isLbUnderlyingTokenSwap = intersection([fromSymbol, toSymbol], ['TZBTC', 'XTZ']).length > 0;
 
   return [fromSymbol, toSymbol].includes(THREE_ROUTE_SIRS_TOKEN.symbol)
@@ -130,7 +163,8 @@ export const fetchRoute3SwapParams = ({ fromSymbol, toSymbol, dexesLimit, ...res
         // XTZ <-> SIRS and TZBTC <-> SIRS swaps have either XTZ or TZBTC hops, so a total number of hops cannot exceed the limit
         xtzDexesLimit: isLbUnderlyingTokenSwap ? dexesLimit : Math.ceil(dexesLimit / 2),
         tzbtcDexesLimit: isLbUnderlyingTokenSwap ? dexesLimit : Math.floor(dexesLimit / 2),
+        showTree: true,
         ...restParams
       })
-    : fetchRoute3TraditionalSwapParams({ fromSymbol, toSymbol, dexesLimit, ...restParams });
+    : fetchRoute3TraditionalSwapParams({ fromSymbol, toSymbol, dexesLimit, showTree: true, ...restParams });
 };

@@ -16,14 +16,16 @@ export const useSwap = () => {
       fromRoute3Token: Route3Token,
       toRoute3Token: Route3Token,
       inputAmountAtomic: BigNumber,
-      minimumReceivedAtomic: BigNumber,
+      expectedReceivedAtomic: BigNumber,
+      slippageRatio: number,
       hops: Route3SwapHops | Route3LiquidityBakingHops
     ) =>
       getSwapTransferParams(
         fromRoute3Token,
         toRoute3Token,
         inputAmountAtomic,
-        minimumReceivedAtomic,
+        expectedReceivedAtomic,
+        slippageRatio,
         hops,
         tezos,
         publicKeyHash
