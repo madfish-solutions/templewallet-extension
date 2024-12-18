@@ -140,13 +140,11 @@ export const getSwapTransferParams = async (
     swapBeforeEstimateParams = [];
     const xtzSwapOut = tokensToAtoms(chains.xtzTree.tokenOutAmount, toRoute3Token.decimals);
     const tzbtcSwapOut = tokensToAtoms(chains.tzbtcTree.tokenOutAmount, toRoute3Token.decimals);
-    const xtzSwapMinOut = multiplyAtomicAmount(xtzSwapOut, slippageRatio, BigNumber.ROUND_FLOOR);
-    const tzbtcSwapMinOut = multiplyAtomicAmount(tzbtcSwapOut, slippageRatio, BigNumber.ROUND_FLOOR);
     if (chains.xtzHops.length > 0) {
       const xtzSwapMethod = swapContract.methodsObject.execute({
         token_in_id: THREE_ROUTE_TEZ_TOKEN.id,
         token_out_id: toRoute3Token.id,
-        min_out: xtzSwapMinOut,
+        min_out: multiplyAtomicAmount(xtzSwapOut, slippageRatio, BigNumber.ROUND_FLOOR),
         receiver: accountPkh,
         hops: mapToRoute3ExecuteHops(chains.xtzHops),
         app_id: APP_ID
@@ -159,7 +157,7 @@ export const getSwapTransferParams = async (
       const tzbtcSwapMethod = swapContract.methodsObject.execute({
         token_in_id: THREE_ROUTE_TZBTC_TOKEN.id,
         token_out_id: toRoute3Token.id,
-        min_out: tzbtcSwapMinOut,
+        min_out: multiplyAtomicAmount(tzbtcSwapOut, slippageRatio, BigNumber.ROUND_FLOOR),
         receiver: accountPkh,
         hops: mapToRoute3ExecuteHops(chains.tzbtcHops),
         app_id: APP_ID
