@@ -494,10 +494,12 @@ interface EvmRequestPayload {
 export async function processEvmDApp(origin: string, payload: EvmRequestPayload, chainId: string, iconUrl?: string) {
   const { method, params } = payload;
   let methodHandler: () => Promise<any>;
+  let requiresConfirm = true;
 
   switch (method) {
     case GET_DEFAULT_WEB3_PARAMS_METHOD_NAME:
       methodHandler = () => getDefaultWeb3Params(origin);
+      requiresConfirm = false;
       break;
     case evmRpcMethodsNames.eth_requestAccounts:
       methodHandler = () => connectEvm(origin, chainId, iconUrl);
@@ -505,6 +507,7 @@ export async function processEvmDApp(origin: string, payload: EvmRequestPayload,
     case evmRpcMethodsNames.wallet_switchEthereumChain:
       const [{ chainId: destinationChainId }] = switchEthChainPayloadValidationSchema.validateSync(params);
       methodHandler = () => switchChain(origin, destinationChainId, false);
+      requiresConfirm = false;
       break;
     case evmRpcMethodsNames.eth_signTypedData:
     case evmRpcMethodsNames.eth_signTypedData_v1:
@@ -529,6 +532,7 @@ export async function processEvmDApp(origin: string, payload: EvmRequestPayload,
       break;
     case evmRpcMethodsNames.wallet_getPermissions:
       methodHandler = () => getEvmPermissions(origin);
+      requiresConfirm = false;
       break;
     case evmRpcMethodsNames.wallet_requestPermissions:
       const [requestPermissionsPayload] = ethChangePermissionsPayloadValidationSchema.validateSync(params);
@@ -541,12 +545,14 @@ export async function processEvmDApp(origin: string, payload: EvmRequestPayload,
     case evmRpcMethodsNames.personal_ecRecover:
       const [message, signature] = personalSignRecoverPayloadValidationSchema.validateSync(params);
       methodHandler = () => recoverEvmMessageAddress(message, signature);
+      requiresConfirm = false;
       break;
     default:
       methodHandler = () => handleEvmRpcRequest(origin, payload, chainId);
+      requiresConfirm = false;
   }
 
-  return withInited(() => dAppQueue.enqueue(methodHandler));
+  return requiresConfirm ? withInited(() => dAppQueue.enqueue(methodHandler)) : methodHandler();
 }
 
 export async function getBeaconMessage(origin: string, msg: string, encrypted = false) {
