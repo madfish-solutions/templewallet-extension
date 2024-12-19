@@ -1,3 +1,4 @@
+import memoizee from 'memoizee';
 import { nanoid } from 'nanoid';
 import { getAddress, recoverMessageAddress, toHex, TransactionRequest, WalletPermission } from 'viem';
 import browser, { Storage } from 'webextension-polyfill';
@@ -302,13 +303,28 @@ export const recoverEvmMessageAddress = async (message: HexString, signature: He
     await recoverMessageAddress({ message: Buffer.from(message.slice(2), 'hex').toString('utf8'), signature })
   ).toLowerCase();
 
+const makeChainIdRequest = memoizee(
+  async (chainId: number) => {
+    const rpcUrls = await assertiveGetChainRpcURLs(chainId);
+    const evmToolkit = getReadOnlyEvm(rpcUrls);
+
+    return evmToolkit.request({ method: evmRpcMethodsNames.eth_chainId });
+  },
+  { promise: true, maxAge: 200 }
+);
+
 export const handleEvmRpcRequest = async (origin: string, payload: any, chainId: string) => {
   await assertDAppChainId(origin, chainId);
 
-  const rpcUrls = await assertiveGetChainRpcURLs(Number(chainId));
-  const evmToolkit = getReadOnlyEvm(rpcUrls);
-
   try {
+    const requestChainId = Number(chainId);
+    if (payload.method === evmRpcMethodsNames.eth_chainId) {
+      return await makeChainIdRequest(requestChainId);
+    }
+
+    const rpcUrls = await assertiveGetChainRpcURLs(requestChainId);
+    const evmToolkit = getReadOnlyEvm(rpcUrls);
+
     return await evmToolkit.request(payload);
   } catch (err) {
     if (typeof err === 'object' && err && 'code' in err) {
