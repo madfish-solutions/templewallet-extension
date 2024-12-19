@@ -1,31 +1,17 @@
-import React, { memo, useCallback, useRef, useState } from 'react';
+import React, { memo, useCallback, useState } from 'react';
 
 import { TestIDProps } from 'lib/analytics';
 import { T } from 'lib/i18n';
-import { useWillUnmount } from 'lib/ui/hooks/useWillUnmount';
 import { Link } from 'lib/woozie';
 
-const starAnimationVideo = require('./star_animation.webm');
-const starAnimationPoster = require('./star_animation_poster.gif');
+import { FirefoxStarAnimation } from './firefox-star-animation';
+import { StarAnimation } from './star-animation';
 
 export const RewardsButton = memo<TestIDProps>(props => {
   const [isHovered, setIsHovered] = useState(false);
-  const loopTimeoutRef = useRef<NodeJS.Timeout>();
-  const videoRef = useRef<HTMLVideoElement>(null);
 
-  console.log('oy vey 1', starAnimationVideo);
-  useWillUnmount(() => void (loopTimeoutRef.current !== undefined && clearTimeout(loopTimeoutRef.current)));
-
-  const handleHover = useCallback(() => {
-    videoRef.current!.fastSeek(0);
-    videoRef.current!.play();
-    setIsHovered(true);
-  }, []);
-  const handleUnhover = useCallback(() => {
-    videoRef.current!.fastSeek(0);
-    videoRef.current!.pause();
-    setIsHovered(false);
-  }, []);
+  const handleHover = useCallback(() => setIsHovered(true), []);
+  const handleUnhover = useCallback(() => setIsHovered(false), []);
 
   return (
     <Link
@@ -36,19 +22,11 @@ export const RewardsButton = memo<TestIDProps>(props => {
       {...props}
     >
       <div className="flex items-center gap-1 relative">
-        <video
-          className="w-4 h-4"
-          src={starAnimationVideo}
-          autoPlay
-          muted
-          loop={isHovered}
-          ref={videoRef}
-          poster={starAnimationPoster}
-          controls={false}
-          playsInline
-          disablePictureInPicture
-          disableRemotePlayback
-        />
+        {process.env.TARGET_BROWSER === 'firefox' ? (
+          <FirefoxStarAnimation loop={isHovered} />
+        ) : (
+          <StarAnimation loop={isHovered} />
+        )}
         <T id="rewards" />
       </div>
     </Link>
