@@ -309,7 +309,7 @@ export const recoverEvmMessageAddress = async (message: HexString, signature: He
     await recoverMessageAddress({ message: Buffer.from(message.slice(2), 'hex').toString('utf8'), signature })
   ).toLowerCase();
 
-export const makeChainIdRequest = memoizee(
+const makeChainIdRequest = memoizee(
   async (chainId: number) => {
     const rpcUrls = await assertiveGetChainRpcURLs(chainId);
     const evmToolkit = getReadOnlyEvm(rpcUrls);
