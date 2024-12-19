@@ -69,7 +69,7 @@ export const PageModal: FC<Props> = ({
       className={{
         base: clsx(
           LAYOUT_CONTAINER_CLASSNAME,
-          'h-full flex flex-col bg-white overflow-hidden',
+          'h-full flex flex-col bg-white overflow-hidden outline-none',
           fullPage ? 'rounded-lg' : 'rounded-t-lg',
           ModStyles.base,
           animated && 'ease-out duration-300'
