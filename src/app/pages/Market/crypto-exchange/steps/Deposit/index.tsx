@@ -1,7 +1,7 @@
 import React, { memo, useCallback, useEffect, useState } from 'react';
 
 import { FadeTransition } from 'app/a11y/FadeTransition';
-import { CaptionAlert, IconBase, Money } from 'app/atoms';
+import { CaptionAlert, IconBase } from 'app/atoms';
 import { ActionsButtonsBox } from 'app/atoms/PageModal';
 import { StyledButton } from 'app/atoms/StyledButton';
 import { ReactComponent as CopyIcon } from 'app/icons/base/copy.svg';
@@ -10,6 +10,7 @@ import { OrderStatusEnum } from 'lib/apis/exolix/types';
 import { t, T } from 'lib/i18n';
 
 import { CurrencyIcon } from '../../components/CurrencyIcon';
+import { DisplayExchangeValue } from '../../components/DisplayExchangeValue';
 import { InfoContainer, InfoRaw } from '../../components/InfoBlock';
 import { StepLabel } from '../../components/StepLabel';
 import { Stepper } from '../../components/Stepper';
@@ -94,14 +95,7 @@ const InfoBlock = memo(() => {
       <InfoRaw bottomSeparator title="youGet">
         <div className="flex flex-row gap-x-0.5">
           <span className="p-1 text-font-description-bold">
-            <Money
-              cryptoDecimals={exchangeData.amountTo.length > 12 ? 2 : 6}
-              smallFractionFont={false}
-              tooltipPlacement="bottom"
-            >
-              {exchangeData.amountTo}
-            </Money>{' '}
-            {getCurrencyDisplayCode(exchangeData.coinTo.coinCode)}
+            <DisplayExchangeValue value={exchangeData.amountTo} currencyCode={exchangeData.coinTo.coinCode} />
           </span>
           <CurrencyIcon src={exchangeData.coinTo.icon} code={exchangeData.coinTo.coinCode} size={24} />
         </div>
@@ -109,14 +103,7 @@ const InfoBlock = memo(() => {
       <InfoRaw bottomSeparator title="exchangeRate">
         <span className="p-1 text-font-description">
           <span>{`1 ${getCurrencyDisplayCode(exchangeData.coinFrom.coinCode)} = `}</span>
-          <Money
-            cryptoDecimals={exchangeData.rate.length > 12 ? 2 : 6}
-            smallFractionFont={false}
-            tooltipPlacement="bottom"
-          >
-            {exchangeData.rate}
-          </Money>{' '}
-          {getCurrencyDisplayCode(exchangeData.coinTo.coinCode)}
+          <DisplayExchangeValue value={exchangeData.rate} currencyCode={exchangeData.coinTo.coinCode} />
         </span>
       </InfoRaw>
       <InfoRaw title="transactionId">

@@ -206,7 +206,7 @@ export const FormContent: FC<Props> = ({ setModalHeaderConfig, setModalContent }
               style={{ paddingRight: 158 }}
               underneathComponent={
                 <MinMaxDisplay
-                  currencyCode={getCurrencyDisplayCode(inputCurrency.code)}
+                  currencyCode={inputCurrency.code}
                   min={minMaxData?.finalMinAmount}
                   max={minMaxData?.finalMaxAmount}
                   error={errors.inputValue}
@@ -293,7 +293,7 @@ const MinMaxDisplay = memo<MinMaxDisplayProps>(({ currencyCode, error, min, max 
 });
 
 const getMinMaxDisplayValue = (currencyCode: string, value?: number) =>
-  value ? `${value} ${currencyCode}` : VALUE_PLACEHOLDER;
+  value ? `${value} ${getCurrencyDisplayCode(currencyCode)}` : VALUE_PLACEHOLDER;
 
 const getMinMaxTextClassNames = (isError: boolean, value?: number) =>
   value ? (isError ? 'text-error underline' : 'text-secondary') : '';

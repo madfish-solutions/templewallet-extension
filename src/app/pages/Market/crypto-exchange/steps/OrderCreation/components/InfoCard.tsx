@@ -1,10 +1,11 @@
 import React, { memo } from 'react';
 
-import Money from 'app/atoms/Money';
 import { T } from 'lib/i18n';
 
+import { DisplayExchangeValue } from '../../../components/DisplayExchangeValue';
 import { InfoContainer, InfoRaw } from '../../../components/InfoBlock';
 import { EXOLIX_PRIVICY_LINK, EXOLIX_TERMS_LINK, VALUE_PLACEHOLDER } from '../../../config';
+import { getCurrencyDisplayCode } from '../../../utils';
 
 interface Props {
   rate: number | nullish;
@@ -18,15 +19,8 @@ export const InfoCard = memo<Props>(({ rate, inputCurrencyCode, outputCurrencyCo
       <span className="p-1 text-font-description">
         {rate ? (
           <>
-            <span>{`1 ${inputCurrencyCode} ≈ `}</span>
-            <Money
-              cryptoDecimals={String(rate).length > 12 ? 2 : 6}
-              smallFractionFont={false}
-              tooltipPlacement="bottom"
-            >
-              {rate}
-            </Money>{' '}
-            {outputCurrencyCode}
+            <span>{`1 ${getCurrencyDisplayCode(inputCurrencyCode)} ≈ `}</span>
+            <DisplayExchangeValue value={rate} currencyCode={outputCurrencyCode} />
           </>
         ) : (
           VALUE_PLACEHOLDER

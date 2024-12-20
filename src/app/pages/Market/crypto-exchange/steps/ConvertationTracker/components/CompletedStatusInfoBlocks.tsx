@@ -1,6 +1,6 @@
 import React, { memo, useCallback, useMemo } from 'react';
 
-import { Anchor, HashShortView, IconBase, Money } from 'app/atoms';
+import { Anchor, HashShortView, IconBase } from 'app/atoms';
 import { HashChip } from 'app/atoms/HashChip';
 import { ReactComponent as CopyIcon } from 'app/icons/base/copy.svg';
 import { ReactComponent as OutLinkIcon } from 'app/icons/base/outLink.svg';
@@ -9,10 +9,10 @@ import { ExchangeHash } from 'lib/apis/exolix/types';
 import { t } from 'lib/i18n';
 
 import { CurrencyIcon } from '../../../components/CurrencyIcon';
+import { DisplayExchangeValue } from '../../../components/DisplayExchangeValue';
 import { InfoContainer, InfoRaw } from '../../../components/InfoBlock';
 import { VALUE_PLACEHOLDER } from '../../../config';
 import { useCryptoExchangeDataState } from '../../../context';
-import { getCurrencyDisplayCode } from '../../../utils';
 
 export const CompletedStatusInfoBlocks = memo(() => {
   const { exchangeData } = useCryptoExchangeDataState();
@@ -46,14 +46,7 @@ export const CompletedStatusInfoBlocks = memo(() => {
         <InfoRaw bottomSeparator title="youSent">
           <div className="flex flex-row gap-x-0.5">
             <span className="p-1 text-font-description-bold">
-              <Money
-                cryptoDecimals={exchangeData.amount.length > 12 ? 2 : 6}
-                smallFractionFont={false}
-                tooltipPlacement="bottom"
-              >
-                {exchangeData.amount}
-              </Money>{' '}
-              {getCurrencyDisplayCode(exchangeData.coinFrom.coinCode)}
+              <DisplayExchangeValue value={exchangeData.amount} currencyCode={exchangeData.coinFrom.coinCode} />
             </span>
             <CurrencyIcon src={exchangeData.coinFrom.icon} code={exchangeData.coinFrom.coinCode} size={24} />
           </div>
@@ -70,14 +63,7 @@ export const CompletedStatusInfoBlocks = memo(() => {
         <InfoRaw bottomSeparator title="youReceived">
           <div className="flex flex-row gap-x-0.5">
             <span className="p-1 text-font-description-bold">
-              <Money
-                cryptoDecimals={exchangeData.amountTo.length > 12 ? 2 : 6}
-                smallFractionFont={false}
-                tooltipPlacement="bottom"
-              >
-                {exchangeData.amountTo}
-              </Money>{' '}
-              {getCurrencyDisplayCode(exchangeData.coinTo.coinCode)}
+              <DisplayExchangeValue value={exchangeData.amountTo} currencyCode={exchangeData.coinTo.coinCode} />
             </span>
             <CurrencyIcon src={exchangeData.coinTo.icon} code={exchangeData.coinTo.coinCode} size={24} />
           </div>

@@ -2,14 +2,12 @@ import React, { memo } from 'react';
 
 import clsx from 'clsx';
 
-import Money from 'app/atoms/Money';
 import { T } from 'lib/i18n';
 
 import { CurrencyIcon } from '../../../components/CurrencyIcon';
+import { DisplayExchangeValue } from '../../../components/DisplayExchangeValue';
 import { ExchangeCountdown } from '../../../components/ExchangeCountdown';
-import { EXOLIX_DECIMALS } from '../../../config';
 import { useCryptoExchangeDataState } from '../../../context';
-import { getCurrencyDisplayCode } from '../../../utils';
 
 interface Props {
   className?: string;
@@ -32,10 +30,11 @@ export const ExpiresInBlock = memo<Props>(({ className }) => {
         <div className="flex flex-row items-center gap-x-2">
           <CurrencyIcon src={exchangeData.coinFrom.icon} code={exchangeData.coinFrom.coinCode} size={24} />
           <span className={exchangeData.amount.length > 12 ? 'text-font-num-bold-14' : 'text-font-num-bold-16'}>
-            <Money cryptoDecimals={EXOLIX_DECIMALS} smallFractionFont={false} tooltipPlacement="bottom">
-              {exchangeData.amount}
-            </Money>{' '}
-            {getCurrencyDisplayCode(exchangeData.coinFrom.coinCode)}
+            <DisplayExchangeValue
+              showAllDecimals
+              value={exchangeData.amount}
+              currencyCode={exchangeData.coinFrom.coinCode}
+            />
           </span>
         </div>
         <span className="text-font-description text-grey-1 text-center">

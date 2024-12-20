@@ -1,13 +1,12 @@
 import React, { memo } from 'react';
 
-import { Money, QRCode } from 'app/atoms';
+import { QRCode } from 'app/atoms';
 import { ActionModal, ActionModalBodyContainer } from 'app/atoms/action-modal';
 import { T } from 'lib/i18n';
 
 import { CurrencyIcon } from '../../../components/CurrencyIcon';
-import { EXOLIX_DECIMALS } from '../../../config';
+import { DisplayExchangeValue } from '../../../components/DisplayExchangeValue';
 import { useCryptoExchangeDataState } from '../../../context';
-import { getCurrencyDisplayCode } from '../../../utils';
 
 interface Props {
   onClose: EmptyFn;
@@ -29,10 +28,11 @@ export const DepositAddressQrCodeModal = memo<Props>(({ onClose }) => {
           <div className="flex flex-row items-center gap-x-2">
             <CurrencyIcon src={exchangeData.coinFrom.icon} code={exchangeData.coinFrom.coinCode} size={24} />
             <span className={exchangeData.amount.length > 12 ? 'text-font-num-bold-14' : 'text-font-num-bold-16'}>
-              <Money cryptoDecimals={EXOLIX_DECIMALS} smallFractionFont={false} tooltipPlacement="bottom">
-                {exchangeData.amount}
-              </Money>{' '}
-              {getCurrencyDisplayCode(exchangeData.coinFrom.coinCode)}
+              <DisplayExchangeValue
+                showAllDecimals
+                value={exchangeData.amount}
+                currencyCode={exchangeData.coinFrom.coinCode}
+              />
             </span>
           </div>
           <span className="text-font-description text-grey-1 text-center">
