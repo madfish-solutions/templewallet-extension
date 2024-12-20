@@ -10,6 +10,7 @@ import { t } from 'lib/i18n';
 import { CurrencyIcon } from '../../../components/CurrencyIcon';
 import { InfoContainer, InfoRaw } from '../../../components/InfoBlock';
 import { useCryptoExchangeDataState } from '../../../context';
+import { getCurrencyDisplayCode } from '../../../utils';
 
 export const InProgressStatusInfoBlocks = memo(() => {
   const { exchangeData } = useCryptoExchangeDataState();
@@ -27,10 +28,14 @@ export const InProgressStatusInfoBlocks = memo(() => {
         <InfoRaw bottomSeparator title="youSent">
           <div className="flex flex-row gap-x-0.5">
             <span className="p-1 text-font-description-bold">
-              <Money smallFractionFont={false} tooltipPlacement="bottom">
+              <Money
+                cryptoDecimals={exchangeData.amount.length > 12 ? 2 : 6}
+                smallFractionFont={false}
+                tooltipPlacement="bottom"
+              >
                 {exchangeData.amount}
               </Money>{' '}
-              {exchangeData.coinFrom.coinCode}
+              {getCurrencyDisplayCode(exchangeData.coinFrom.coinCode)}
             </span>
             <CurrencyIcon src={exchangeData.coinFrom.icon} code={exchangeData.coinFrom.coinCode} size={24} />
           </div>
@@ -47,10 +52,14 @@ export const InProgressStatusInfoBlocks = memo(() => {
         <InfoRaw bottomSeparator title="youGet">
           <div className="flex flex-row gap-x-0.5">
             <span className="p-1 text-font-description-bold">
-              <Money smallFractionFont={false} tooltipPlacement="bottom">
+              <Money
+                cryptoDecimals={exchangeData.amountTo.length > 12 ? 2 : 6}
+                smallFractionFont={false}
+                tooltipPlacement="bottom"
+              >
                 {exchangeData.amountTo}
               </Money>{' '}
-              {exchangeData.coinTo.coinCode}
+              {getCurrencyDisplayCode(exchangeData.coinTo.coinCode)}
             </span>
             <CurrencyIcon src={exchangeData.coinTo.icon} code={exchangeData.coinTo.coinCode} size={24} />
           </div>

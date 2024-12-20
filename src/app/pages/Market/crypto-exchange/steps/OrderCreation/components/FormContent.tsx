@@ -1,5 +1,6 @@
 import React, { FC, memo, useCallback, useEffect, useLayoutEffect, useMemo, useRef } from 'react';
 
+import axios from 'axios';
 import clsx from 'clsx';
 import { isEmpty } from 'lodash';
 import { Controller, useFormContext, SubmitHandler, FieldError } from 'react-hook-form-v7';
@@ -20,6 +21,7 @@ import { StepLabel } from '../../../components/StepLabel';
 import { Stepper } from '../../../components/Stepper';
 import {
   defaultModalHeaderConfig,
+  EXOLIX_DECIMALS,
   ModalHeaderConfig,
   TEZOS_EXOLIX_NETWORK_CODE,
   VALUE_PLACEHOLDER
@@ -34,12 +36,14 @@ import { SelectTokenContent } from './SelectCurrencyContent';
 
 const MIN_ERROR = 'min';
 const MAX_ERROR = 'max';
-const EXOLIX_DECIMALS = 8;
+
+const TEN_SECONDS_IN_MS = 10_000;
 
 const DEFAULT_SWR_CONGIG = {
   shouldRetryOnError: false,
-  focusThrottleInterval: 10_000,
-  dedupingInterval: 10_000
+  focusThrottleInterval: TEN_SECONDS_IN_MS,
+  refreshInterval: TEN_SECONDS_IN_MS,
+  dedupingInterval: TEN_SECONDS_IN_MS
 };
 
 interface Props {
@@ -169,6 +173,7 @@ export const FormContent: FC<Props> = ({ setModalHeaderConfig, setModalContent }
       } catch (e) {
         console.log(e);
         formAnalytics.trackSubmitFail();
+        if (axios.isAxiosError(e) && e.response && e.response.status === 422) return;
         toastError('Something went wrong! Please try again later.');
       }
     },

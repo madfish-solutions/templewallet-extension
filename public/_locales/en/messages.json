@@ -3319,6 +3319,20 @@
   "orderExpiredDescription": {
     "message": "Retry the top-up by creating a new exchange order. If the funds have already been sent, wait for the deposit to be confirmed."
   },
+  "memo": {
+    "message": "MEMO"
+  },
+  "bothMemoAndAddressAreRequired": {
+    "message": "Both the memo and address are required to successfully deposit your funds to Exolix"
+  },
+  "memoDisclaimer": {
+    "message": "You must copy both the $networkName$ address and MEMO to complete deposit, or you’ll lose your funds.",
+    "placeholders": {
+      "networkName": {
+        "content": "$1"
+      }
+    }
+  },
   "sendInOneTransaction": {
     "message": "Send in one transaction to the $networkName$ deposit address",
     "placeholders": {

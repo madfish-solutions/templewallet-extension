@@ -9,6 +9,7 @@ export const EXOLIX_PRIVICY_LINK = 'https://exolix.com/privacy';
 export const TEZOS_EXOLIX_NETWORK_CODE = 'XTZ';
 
 export const VALUE_PLACEHOLDER = '---';
+export const EXOLIX_DECIMALS = 8;
 
 export const INITIAL_INPUT_CURRENCY: StoredExolixCurrency = {
   code: 'ETH',

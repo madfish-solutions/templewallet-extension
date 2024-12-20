@@ -16,8 +16,10 @@ import { Stepper } from '../../components/Stepper';
 import { SupportLink } from '../../components/SupportLink';
 import { useCryptoExchangeDataState } from '../../context';
 import { useTopUpUpdate } from '../../hooks/use-top-up-update';
+import { getCurrencyDisplayCode } from '../../utils';
 
 import { DepositAddressBlock } from './components/DepositAddressBlock';
+import { DepositMemoBlock } from './components/DepositMemoBlock';
 import { ExpiresInBlock } from './components/ExpiresInBlock';
 
 export const Deposit = memo(() => {
@@ -40,6 +42,8 @@ export const Deposit = memo(() => {
     }
   }, [exchangeData, setStep]);
 
+  const shouldShowMemoBlock = Boolean(exchangeData?.depositExtraId);
+
   return (
     <FadeTransition>
       <div className="flex-1 pt-4 px-4 flex flex-col overflow-y-auto">
@@ -56,6 +60,8 @@ export const Deposit = memo(() => {
             <ExpiresInBlock className="mt-4" />
 
             <DepositAddressBlock className="mt-6 mb-4" />
+
+            {shouldShowMemoBlock && <DepositMemoBlock />}
 
             <InfoBlock />
           </>
@@ -88,17 +94,21 @@ const InfoBlock = memo(() => {
       <InfoRaw bottomSeparator title="youGet">
         <div className="flex flex-row gap-x-0.5">
           <span className="p-1 text-font-description-bold">
-            <Money smallFractionFont={false} tooltipPlacement="bottom">
-              {exchangeData.amount}
+            <Money
+              cryptoDecimals={exchangeData.amountTo.length > 12 ? 2 : 6}
+              smallFractionFont={false}
+              tooltipPlacement="bottom"
+            >
+              {exchangeData.amountTo}
             </Money>{' '}
-            {exchangeData.coinFrom.coinCode}
+            {getCurrencyDisplayCode(exchangeData.coinTo.coinCode)}
           </span>
-          <CurrencyIcon src={exchangeData.coinFrom.icon} code={exchangeData.coinFrom.coinCode} size={24} />
+          <CurrencyIcon src={exchangeData.coinTo.icon} code={exchangeData.coinTo.coinCode} size={24} />
         </div>
       </InfoRaw>
       <InfoRaw bottomSeparator title="exchangeRate">
         <span className="p-1 text-font-description">
-          <span>{`1 ${exchangeData.coinFrom.coinCode} = `}</span>
+          <span>{`1 ${getCurrencyDisplayCode(exchangeData.coinFrom.coinCode)} = `}</span>
           <Money
             cryptoDecimals={exchangeData.rate.length > 12 ? 2 : 6}
             smallFractionFont={false}
@@ -106,7 +116,7 @@ const InfoBlock = memo(() => {
           >
             {exchangeData.rate}
           </Money>{' '}
-          {exchangeData.coinTo.coinCode}
+          {getCurrencyDisplayCode(exchangeData.coinTo.coinCode)}
         </span>
       </InfoRaw>
       <InfoRaw title="transactionId">

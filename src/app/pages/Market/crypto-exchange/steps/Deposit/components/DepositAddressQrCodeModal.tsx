@@ -5,13 +5,15 @@ import { ActionModal, ActionModalBodyContainer } from 'app/atoms/action-modal';
 import { T } from 'lib/i18n';
 
 import { CurrencyIcon } from '../../../components/CurrencyIcon';
+import { EXOLIX_DECIMALS } from '../../../config';
 import { useCryptoExchangeDataState } from '../../../context';
+import { getCurrencyDisplayCode } from '../../../utils';
 
 interface Props {
   onClose: EmptyFn;
 }
 
-export const DepositQrCodeModal = memo<Props>(({ onClose }) => {
+export const DepositAddressQrCodeModal = memo<Props>(({ onClose }) => {
   const { exchangeData } = useCryptoExchangeDataState();
 
   if (!exchangeData) return null;
@@ -24,13 +26,13 @@ export const DepositQrCodeModal = memo<Props>(({ onClose }) => {
         </div>
 
         <div className="flex flex-col justify-center items-center gap-y-2">
-          <div className="flex flex-row gap-x-2">
+          <div className="flex flex-row items-center gap-x-2">
             <CurrencyIcon src={exchangeData.coinFrom.icon} code={exchangeData.coinFrom.coinCode} size={24} />
-            <span className="text-font-num-bold-16">
-              <Money smallFractionFont={false} tooltipPlacement="bottom">
+            <span className={exchangeData.amount.length > 12 ? 'text-font-num-bold-14' : 'text-font-num-bold-16'}>
+              <Money cryptoDecimals={EXOLIX_DECIMALS} smallFractionFont={false} tooltipPlacement="bottom">
                 {exchangeData.amount}
               </Money>{' '}
-              {exchangeData.coinFrom.coinCode}
+              {getCurrencyDisplayCode(exchangeData.coinFrom.coinCode)}
             </span>
           </div>
           <span className="text-font-description text-grey-1 text-center">
