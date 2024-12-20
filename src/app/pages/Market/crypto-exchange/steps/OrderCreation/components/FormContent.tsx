@@ -39,7 +39,7 @@ const MAX_ERROR = 'max';
 
 const TEN_SECONDS_IN_MS = 10_000;
 
-const DEFAULT_SWR_CONGIG = {
+const DEFAULT_SWR_CONFIG = {
   shouldRetryOnError: false,
   focusThrottleInterval: TEN_SECONDS_IN_MS,
   refreshInterval: TEN_SECONDS_IN_MS,
@@ -81,7 +81,7 @@ export const FormContent: FC<Props> = ({ setModalHeaderConfig, setModalContent }
         outputCurrency.code,
         outputCurrency.network.code
       ),
-    DEFAULT_SWR_CONGIG
+    DEFAULT_SWR_CONFIG
   );
 
   const minMaxDataRef = useRef(minMaxData);
@@ -110,7 +110,7 @@ export const FormContent: FC<Props> = ({ setModalHeaderConfig, setModalContent }
         coinToNetwork: outputCurrency.network.code
       });
     },
-    DEFAULT_SWR_CONGIG
+    DEFAULT_SWR_CONFIG
   );
 
   const { rate, toAmount } = useMemo(
