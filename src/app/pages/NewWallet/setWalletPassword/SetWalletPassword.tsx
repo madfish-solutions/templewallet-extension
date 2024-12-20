@@ -272,7 +272,7 @@ export const SetWalletPassword: FC<SetWalletPasswordProps> = ({
               id="analyticsInputDescription"
               substitutions={[
                 <a
-                  href="https://templewallet.com/analytics-collecting"
+                  href="https://www.templewallet.com/privacy"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="underline text-secondary"
