@@ -1,13 +1,23 @@
-import React, { FC, memo, PropsWithChildren, useMemo } from 'react';
+import React, { FC, memo, PropsWithChildren, useCallback, useMemo, useState } from 'react';
 
-import { Alert, Anchor } from 'app/atoms';
+import { isAxiosError } from 'axios';
+import { OnSubmit, useForm } from 'react-hook-form';
+
+import { Alert, Anchor, FormField, FormSubmitButton } from 'app/atoms';
 import { ReactComponent as TelegramSvg } from 'app/icons/social-tg.svg';
 import { ReactComponent as XSocialSvg } from 'app/icons/social-x.svg';
 import PageLayout from 'app/layouts/PageLayout';
+import { sendTempleTapAirdropUsernameConfirmation } from 'lib/apis/temple-tap';
+import { t } from 'lib/i18n';
 import { useAccount } from 'lib/temple/front';
 import { TempleAccountType } from 'lib/temple/types';
 
 import BannerImgSrc from './banner.png';
+import { ReactComponent as ConfirmedSvg } from './confirmed.svg';
+
+interface FormData {
+  username: string;
+}
 
 export const TempleTapAirdropPage = memo(() => {
   const account = useAccount();
@@ -15,6 +25,32 @@ export const TempleTapAirdropPage = memo(() => {
   const canSign = useMemo(
     () => [TempleAccountType.HD, TempleAccountType.Imported, TempleAccountType.Ledger].includes(account.type),
     [account.type]
+  );
+
+  const { register, handleSubmit, errors, setError, clearError, formState, reset } = useForm<FormData>();
+
+  const submitting = formState.isSubmitting;
+  const [confirmSent, setConfirmSent] = useState(false);
+  const [confirmed, setConfirmed] = useState(false);
+
+  const onSubmit = useCallback<OnSubmit<FormData>>(
+    async ({ username }) => {
+      clearError();
+
+      try {
+        await sendTempleTapAirdropUsernameConfirmation(account.publicKeyHash, username);
+
+        setConfirmSent(true);
+        reset();
+      } catch (error: any) {
+        if (isAxiosError(error) && error.response?.data.code === 'ACCOUNT_CONFIRMED') {
+          return void setConfirmed(true);
+        }
+
+        setError('username', 'submit-error', error?.response.data?.message || 'Something went wrong...');
+      }
+    },
+    [reset, clearError, setError, account.publicKeyHash]
   );
 
   return (
@@ -33,18 +69,59 @@ export const TempleTapAirdropPage = memo(() => {
 
         <span className="mt-8 text-dark-gray text-base leading-tighter font-medium">How to receive TKEY?</span>
 
+        {confirmSent && (
+          <Alert
+            type="success"
+            title={`${t('success')} ${confirmed ? '✅' : '🛫'}`}
+            description="Confirmation sent to Temple Tap bot! Waiting for approve..."
+            autoFocus
+            className="mt-4"
+          />
+        )}
+
         {canSign ? (
-          <BlockComp
-            title="Confirm address"
-            description="Enter your telegram @username to confirm your Tezos address in Temple Tap bot for future airdrop distribution"
-          >
-            <div className="text-xs leading-5 text-dark-gray">
-              <span>Your address: </span>
-              <span>{account.publicKeyHash}</span>
-            </div>
-          </BlockComp>
+          confirmed ? (
+            <BlockComp
+              title="Address confirmed"
+              description="Your address has been successfully confirmed in Temple Tap bot for future airdrop distribution."
+            >
+              <ConfirmedSvg className="w-6 h-6 absolute top-4 right-4" />
+            </BlockComp>
+          ) : (
+            <BlockComp
+              title="Confirm address"
+              description="Enter your telegram @username to confirm your Tezos address in Temple Tap bot for future airdrop distribution"
+            >
+              <div className="text-xs leading-5 text-dark-gray">
+                <span>Your address: </span>
+                <span>{account.publicKeyHash}</span>
+              </div>
+
+              <form onSubmit={handleSubmit(onSubmit)} className="contents">
+                <FormField
+                  ref={register({
+                    pattern: {
+                      value: TG_USERNAME_REGEX,
+                      message:
+                        "Starts with '@'. You can use a-z, A-Z, 0-9 and '_' in between. Minimum length is 6 characters."
+                    }
+                  })}
+                  name="username"
+                  placeholder="@username"
+                  className="mt-4"
+                  style={{ backgroundColor: 'white' }}
+                  disabled={submitting}
+                  errorCaption={errors.username?.message}
+                />
+
+                <FormSubmitButton type="submit" loading={submitting} className="mt-4">
+                  Confirm
+                </FormSubmitButton>
+              </form>
+            </BlockComp>
+          )
         ) : (
-          <Alert description="Please, use a signer account first." className="mt-4" />
+          <Alert description="Please, use a signer account to pursue." className="mt-4" />
         )}
 
         <BlockComp
@@ -68,7 +145,7 @@ interface BlockCompProps {
 }
 
 const BlockComp: FC<PropsWithChildren<BlockCompProps>> = ({ title, description, children }) => (
-  <div className="mt-4 flex flex-col p-4 bg-gray-100 rounded-xl">
+  <div className="mt-4 relative flex flex-col p-4 bg-gray-100 rounded-xl">
     <span className="text-sm font-semibold text-dark">{title}</span>
 
     <p className="my-1 text-xs leading-5 text-gray-600">{description}</p>
@@ -96,3 +173,5 @@ const SocialItem: FC<SocialItemProps> = ({ title, IconComp, followUrl }) => (
     </Anchor>
   </div>
 );
+
+const TG_USERNAME_REGEX = /^@[a-zA-Z0-9](?:[a-zA-Z0-9_]{3,}[a-zA-Z0-9])$/;
