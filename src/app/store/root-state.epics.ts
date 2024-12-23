@@ -12,7 +12,6 @@ import { buyWithCreditCardEpics } from './buy-with-credit-card/epics';
 import { collectiblesEpics } from './collectibles/epics';
 import { collectiblesMetadataEpics } from './collectibles-metadata/epics';
 import { currencyEpics } from './currency/epics';
-import { partnersPromotionEpics } from './partners-promotion/epics';
 import type { RootState } from './root-state.type';
 import { swapEpics } from './swap/epics';
 import { tokensMetadataEpics } from './tokens-metadata/epics';
@@ -22,7 +21,6 @@ const allEpics = combineEpics(
   advertisingEpics,
   notificationsEpics,
   swapEpics,
-  partnersPromotionEpics,
   balancesEpics,
   assetsEpics,
   tokensMetadataEpics,
