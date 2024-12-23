@@ -1,0 +1,9 @@
+.goldenGradient {
+  background: radial-gradient(135.48% 211.13% at 124.73% 100%, #ED8936 0%, #1B262C 50.05%),
+    linear-gradient(0deg, #1B262C, #1B262C);
+}
+
+.bluishGradient {
+  background: radial-gradient(139.93% 204.42% at 107.26% 117.45%, rgba(66, 153, 225, 0.5) 0%, rgba(27, 38, 44, 0.5) 47%),
+    linear-gradient(0deg, #1B262C, #1B262C);
+}
