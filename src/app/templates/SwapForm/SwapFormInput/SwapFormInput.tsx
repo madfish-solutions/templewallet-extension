@@ -29,7 +29,7 @@ import { AssetOption } from './AssetsMenu/AssetOption';
 import { PercentageButton } from './PercentageButton/PercentageButton';
 import { SwapFormInputProps } from './SwapFormInput.props';
 
-const EXCHANGE_XTZ_RESERVE = new BigNumber('0');
+const EXCHANGE_XTZ_RESERVE = new BigNumber('0.3');
 const PERCENTAGE_BUTTONS = [25, 50, 75, 100];
 const LEADING_ASSETS = [TEZ_TOKEN_SLUG];
 

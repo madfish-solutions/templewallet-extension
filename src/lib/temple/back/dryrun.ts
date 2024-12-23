@@ -47,19 +47,6 @@ export async function dryRunOpParams({
       const [estimationResult] = await Promise.allSettled([tezos.estimate.batch(formatted)]);
       const [contractBatchResult] = await Promise.allSettled([tezos.contract.batch(formatted).send()]);
       if (estimationResult.status === 'rejected' && contractBatchResult.status === 'rejected') {
-        if (estimationResult.reason instanceof TezosOperationError) {
-          const { operationsWithResults, errors } = estimationResult.reason;
-          if (errors.some(error => error.id.includes('gas_exhausted'))) {
-            const firstSkippedIndex = operationsWithResults.findIndex(
-              op =>
-                'metadata' in op &&
-                'operation_result' in op.metadata &&
-                op.metadata.operation_result.status === 'skipped'
-            );
-            console.log('firstSkippedIndex', firstSkippedIndex);
-            console.log(operationsWithResults);
-          }
-        }
         error = [
           { ...estimationResult.reason, isError: true },
           { ...contractBatchResult.reason, isError: true }

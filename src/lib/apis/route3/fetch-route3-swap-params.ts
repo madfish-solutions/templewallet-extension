@@ -6,7 +6,6 @@ import memoizee from 'memoizee';
 import { THREE_ROUTE_SIRS_TOKEN, THREE_ROUTE_TEZ_TOKEN, THREE_ROUTE_TZBTC_TOKEN } from 'lib/assets/three-route-tokens';
 import { LIQUIDITY_BAKING_DEX_ADDRESS } from 'lib/constants';
 import { EnvVars } from 'lib/env';
-// import { BLOCK_DURATION } from 'lib/fixed-times';
 import { SIRS_LIQUIDITY_SLIPPAGE_RATIO } from 'lib/route3/constants';
 import {
   Route3EmptyTreeNode,
@@ -19,7 +18,6 @@ import {
 import { loadContract } from 'lib/temple/contract';
 import { ReactiveTezosToolkit } from 'lib/temple/front';
 import { atomsToTokens, loadFastRpcClient, tokensToAtoms } from 'lib/temple/helpers';
-// import { ONE_MINUTE_S } from 'lib/utils/numbers';
 
 import { ROUTE3_BASE_URL } from './route3.api';
 
