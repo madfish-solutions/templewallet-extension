@@ -5,6 +5,8 @@ import { Estimate, TezosToolkit } from '@taquito/taquito';
 import { formatOpParamsBeforeSend, michelEncoder, loadFastRpcClient } from 'lib/temple/helpers';
 import { ReadOnlySigner } from 'lib/temple/read-only-signer';
 
+const MINIMAL_FEE_MUTEZ = 100;
+
 type DryRunParams = {
   opParams: any[];
   networkRpc: string;
@@ -61,6 +63,9 @@ export async function dryRunOpParams({
               consumedMilligas: e.consumedMilligas,
               gasLimit: e.gasLimit,
               minimalFeeMutez: e.minimalFeeMutez,
+              // The field below does not appear after spreading `e`
+              // @ts-expect-error: accessing private field
+              suggestedFeeMutez: Math.ceil(e.operationFeeMutez + MINIMAL_FEE_MUTEZ * 1.2),
               storageLimit: opParams[i]?.storageLimit ? +opParams[i].storageLimit : e.storageLimit,
               totalCost: e.totalCost,
               usingBaseFeeMutez: e.usingBaseFeeMutez
