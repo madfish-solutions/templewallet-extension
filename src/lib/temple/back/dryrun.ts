@@ -1,8 +1,7 @@
 import { localForger } from '@taquito/local-forging';
 import { ForgeOperationsParams } from '@taquito/rpc';
-import { Estimate, TezosOperationError, TezosToolkit } from '@taquito/taquito';
+import { Estimate, TezosToolkit } from '@taquito/taquito';
 
-import { MINIMAL_FEE_MUTEZ } from 'lib/constants';
 import { formatOpParamsBeforeSend, michelEncoder, loadFastRpcClient } from 'lib/temple/helpers';
 import { ReadOnlySigner } from 'lib/temple/read-only-signer';
 
@@ -63,8 +62,6 @@ export async function dryRunOpParams({
               gasLimit: e.gasLimit,
               minimalFeeMutez: e.minimalFeeMutez,
               storageLimit: opParams[i]?.storageLimit ? +opParams[i].storageLimit : e.storageLimit,
-              // @ts-expect-error: accessing private field
-              suggestedFeeMutez: Math.ceil(e.operationFeeMutez + MINIMAL_FEE_MUTEZ * 1.2),
               totalCost: e.totalCost,
               usingBaseFeeMutez: e.usingBaseFeeMutez
             } as Estimate)

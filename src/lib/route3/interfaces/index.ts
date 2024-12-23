@@ -114,4 +114,4 @@ interface Route3DexTreeNode extends Route3TreeNodeBase {
 
 type Route3NonEmptyNode = Route3NonTerminalTreeNode | Route3DexTreeNode;
 
-export type Route3TreeNode = Route3EmptyTreeNode | Route3NonEmptyNode;
+type Route3TreeNode = Route3EmptyTreeNode | Route3NonEmptyNode;

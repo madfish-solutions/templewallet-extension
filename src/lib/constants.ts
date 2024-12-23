@@ -50,8 +50,6 @@ export const MAX_SHOW_AGREEMENTS_COUNTER = 1;
 const isMacOS = /Mac OS/.test(navigator.userAgent);
 export const searchHotkey = ` (${isMacOS ? '⌘' : 'Ctrl + '}K)`;
 
-export const MINIMAL_FEE_MUTEZ = 100;
-
 export const LIQUIDITY_BAKING_DEX_ADDRESS = 'KT1TxqZ8QtKvLu3V3JH7Gx58n7Co8pgtpQU5';
 
 export const THEME_COLOR_SEARCH_PARAM_NAME = 'tc';
