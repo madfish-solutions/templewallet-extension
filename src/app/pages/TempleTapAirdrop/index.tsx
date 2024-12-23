@@ -44,7 +44,8 @@ export const TempleTapAirdropPage = memo(() => {
         reset();
       } catch (error: any) {
         if (isAxiosError(error) && error.response?.data.code === 'ACCOUNT_CONFIRMED') {
-          return void setConfirmed(true);
+          setConfirmed(true);
+          return;
         }
 
         setError('username', 'submit-error', error?.response.data?.message || 'Something went wrong...');
