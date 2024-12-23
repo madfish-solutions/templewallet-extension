@@ -1,7 +1,6 @@
 import React, { FC, useCallback, useEffect, useMemo } from 'react';
 
 import { localForger } from '@taquito/local-forging';
-import BigNumber from 'bignumber.js';
 import classNames from 'clsx';
 import { useDispatch } from 'react-redux';
 
@@ -21,8 +20,7 @@ import OperationsBanner from 'app/templates/OperationsBanner/OperationsBanner';
 import RawPayloadView from 'app/templates/RawPayloadView';
 import ViewsSwitcher from 'app/templates/ViewsSwitcher/ViewsSwitcher';
 import { ViewsSwitcherItemProps } from 'app/templates/ViewsSwitcher/ViewsSwitcherItem';
-import { TEZ_TOKEN_SLUG, toTokenSlug } from 'lib/assets';
-import { useRawBalance } from 'lib/balances';
+import { toTokenSlug } from 'lib/assets';
 import { T, t } from 'lib/i18n';
 import { useRetryableSWR } from 'lib/swr';
 import { useChainIdValue, useNetwork, useRelevantAccounts, tryParseExpenses } from 'lib/temple/front';
@@ -87,24 +85,29 @@ const InternalConfirmation: FC<InternalConfiramtionProps> = ({ payload, onConfir
     }));
   }, [rawExpensesData]);
 
-  const { value: tezBalance } = useRawBalance(TEZ_TOKEN_SLUG, account.publicKeyHash);
-
-  const totalTransactionCost = useMemo(() => {
-    if (payload.type === 'operations') {
-      return payload.opParams.reduce(
-        (accumulator, currentOpParam) => accumulator.plus(currentOpParam.amount),
-        new BigNumber(0)
-      );
-    }
-
-    return new BigNumber(0);
-  }, [payload]);
-
   useEffect(() => {
-    if (tezBalance && new BigNumber(tezBalance).isLessThanOrEqualTo(totalTransactionCost)) {
-      dispatch(setOnRampPossibilityAction(true));
-    }
-  }, [dispatch, tezBalance, totalTransactionCost]);
+    try {
+      const { errorDetails, errors, name } = payloadError.error[0];
+      if (
+        payload.type !== 'operations' ||
+        !errorDetails.toLowerCase().includes('estimation') ||
+        name !== 'TezosOperationError' ||
+        !Array.isArray(errors)
+      ) {
+        return;
+      }
+
+      const tezBalanceTooLow = errors.some(error => {
+        const { id, contract } = error ?? {};
+
+        return id?.includes('balance_too_low') && contract === payload.sourcePkh;
+      });
+
+      if (tezBalanceTooLow) {
+        dispatch(setOnRampPossibilityAction(true));
+      }
+    } catch {}
+  }, [dispatch, payload.sourcePkh, payload.type, payloadError]);
 
   const signPayloadFormats: ViewsSwitcherItemProps[] = useMemo(() => {
     if (payload.type === 'operations') {

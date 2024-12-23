@@ -1,8 +1,8 @@
 import { localForger } from '@taquito/local-forging';
 import { ForgeOperationsParams } from '@taquito/rpc';
-import { Estimate, TezosToolkit } from '@taquito/taquito';
+import { Estimate, TezosOperationError, TezosToolkit } from '@taquito/taquito';
 
-import { FEE_PER_GAS_UNIT } from 'lib/constants';
+import { MINIMAL_FEE_MUTEZ } from 'lib/constants';
 import { formatOpParamsBeforeSend, michelEncoder, loadFastRpcClient } from 'lib/temple/helpers';
 import { ReadOnlySigner } from 'lib/temple/read-only-signer';
 
@@ -44,32 +44,45 @@ export async function dryRunOpParams({
     let error: any = [];
     try {
       const formatted = opParams.map(operation => formatOpParamsBeforeSend(operation, sourcePkh));
-      const result = [
-        await tezos.estimate.batch(formatted).catch(e => ({ ...e, isError: true })),
-        await tezos.contract
-          .batch(formatted)
-          .send()
-          .catch(e => ({ ...e, isError: true }))
-      ];
-      if (result.every(x => x.isError)) {
-        error = result;
+      const [estimationResult] = await Promise.allSettled([tezos.estimate.batch(formatted)]);
+      const [contractBatchResult] = await Promise.allSettled([tezos.contract.batch(formatted).send()]);
+      if (estimationResult.status === 'rejected' && contractBatchResult.status === 'rejected') {
+        if (estimationResult.reason instanceof TezosOperationError) {
+          const { operationsWithResults, errors } = estimationResult.reason;
+          if (errors.some(error => error.id.includes('gas_exhausted'))) {
+            const firstSkippedIndex = operationsWithResults.findIndex(
+              op =>
+                'metadata' in op &&
+                'operation_result' in op.metadata &&
+                op.metadata.operation_result.status === 'skipped'
+            );
+            console.log('firstSkippedIndex', firstSkippedIndex);
+            console.log(operationsWithResults);
+          }
+        }
+        error = [
+          { ...estimationResult.reason, isError: true },
+          { ...contractBatchResult.reason, isError: true }
+        ];
       }
-      estimates = result[0]?.map(
-        (e: any, i: number) =>
-          ({
-            ...e,
-            burnFeeMutez: e.burnFeeMutez,
-            consumedMilligas: e.consumedMilligas,
-            gasLimit: e.gasLimit,
-            minimalFeeMutez: e.minimalFeeMutez,
-            storageLimit: opParams[i]?.storageLimit ? +opParams[i].storageLimit : e.storageLimit,
-            suggestedFeeMutez:
-              e.suggestedFeeMutez +
-              (opParams[i]?.gasLimit ? Math.ceil((opParams[i].gasLimit - e.gasLimit) * FEE_PER_GAS_UNIT) : 0),
-            totalCost: e.totalCost,
-            usingBaseFeeMutez: e.usingBaseFeeMutez
-          } as Estimate)
-      );
+
+      if (estimationResult.status === 'fulfilled') {
+        estimates = estimationResult.value.map(
+          (e, i) =>
+            ({
+              ...e,
+              burnFeeMutez: e.burnFeeMutez,
+              consumedMilligas: e.consumedMilligas,
+              gasLimit: e.gasLimit,
+              minimalFeeMutez: e.minimalFeeMutez,
+              storageLimit: opParams[i]?.storageLimit ? +opParams[i].storageLimit : e.storageLimit,
+              // @ts-expect-error: accessing private field
+              suggestedFeeMutez: Math.ceil(e.operationFeeMutez + MINIMAL_FEE_MUTEZ * 1.2),
+              totalCost: e.totalCost,
+              usingBaseFeeMutez: e.usingBaseFeeMutez
+            } as Estimate)
+        );
+      }
     } catch {}
 
     if (bytesToSign && estimates) {

@@ -50,7 +50,7 @@ export const MAX_SHOW_AGREEMENTS_COUNTER = 1;
 const isMacOS = /Mac OS/.test(navigator.userAgent);
 export const searchHotkey = ` (${isMacOS ? '⌘' : 'Ctrl + '}K)`;
 
-export const FEE_PER_GAS_UNIT = 0.1;
+export const MINIMAL_FEE_MUTEZ = 100;
 
 export const LIQUIDITY_BAKING_DEX_ADDRESS = 'KT1TxqZ8QtKvLu3V3JH7Gx58n7Co8pgtpQU5';
 

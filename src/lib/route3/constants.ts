@@ -6,6 +6,7 @@ export const LIQUIDITY_BAKING_PROXY_CONTRACT = 'KT1DJRF7pTocLsoVgA9KQPBtrDrbzNUc
 export const BURN_ADDREESS = 'tz1burnburnburnburnburnburnburjAYjjX';
 export const ROUTING_FEE_ADDRESS = 'tz1UbRzhYjQKTtWYvGUWcRtVT4fN3NESDVYT';
 
+export const SIRS_LIQUIDITY_SLIPPAGE_RATIO = 0.9999;
 export const ROUTING_FEE_RATIO = 0.006;
 export const SWAP_CASHBACK_RATIO = 0.003;
 export const ROUTING_FEE_SLIPPAGE_RATIO = 0.995;
