@@ -63,9 +63,7 @@ export async function dryRunOpParams({
               consumedMilligas: e.consumedMilligas,
               gasLimit: e.gasLimit,
               minimalFeeMutez: e.minimalFeeMutez,
-              // The field below does not appear after spreading `e`
-              // @ts-expect-error: accessing private field
-              suggestedFeeMutez: Math.ceil(e.operationFeeMutez + MINIMAL_FEE_MUTEZ * 1.2),
+              suggestedFeeMutez: e.suggestedFeeMutez,
               storageLimit: opParams[i]?.storageLimit ? +opParams[i].storageLimit : e.storageLimit,
               totalCost: e.totalCost,
               usingBaseFeeMutez: e.usingBaseFeeMutez
