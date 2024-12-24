@@ -117,10 +117,11 @@ interface ToolbarProps {
   hasBackAction?: boolean;
   step?: number;
   setStep?: (step: number) => void;
-  adShow?: boolean;
   skip?: boolean;
-  attention?: boolean;
+  withDonation?: boolean;
   withBell?: boolean;
+  withAd?: boolean;
+  withAirdrop?: boolean;
 }
 
 export let ToolbarElement: HTMLDivElement | null = null;
@@ -133,10 +134,11 @@ const Toolbar: FC<ToolbarProps> = ({
   hasBackAction = true,
   step,
   setStep,
-  adShow = false,
   skip,
-  attention,
-  withBell
+  withDonation,
+  withBell,
+  withAd,
+  withAirdrop
 }) => {
   const { historyPosition, pathname } = useLocation();
   const { fullPage } = useAppEnv();
@@ -207,7 +209,7 @@ const Toolbar: FC<ToolbarProps> = ({
   return (
     <div ref={updateRootRef} className={className}>
       <div className="flex-1">
-        {!isBackButtonAvailable && adShow && <DonationBanner />}
+        {!isBackButtonAvailable && withDonation && <DonationBanner />}
 
         {isBackButtonAvailable && (
           <Button
@@ -235,11 +237,11 @@ const Toolbar: FC<ToolbarProps> = ({
 
       <div className="flex-1" />
 
-      {(attention || withBell) && (
+      {(withAd || withAirdrop || withBell) && (
         <div className="flex items-center gap-x-2 content-end">
-          {attention && <AdvertisingBanner />}
-          {attention && <AirdropButton />}
-          <NotificationsBell />
+          {withAd && <AdvertisingBanner />}
+          {withAirdrop && <AirdropButton />}
+          {withBell && <NotificationsBell />}
         </div>
       )}
 
