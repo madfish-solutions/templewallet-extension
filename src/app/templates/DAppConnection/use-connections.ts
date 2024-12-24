@@ -1,25 +1,33 @@
 import { useCallback, useMemo } from 'react';
 
-import { useStoredTezosDappsSessions } from 'app/storage/dapps/use-value.hook';
+import { DAppSession, DAppsSessionsRecord } from 'app/storage/dapps';
+import { useStoredEvmDappsSessions, useStoredTezosDappsSessions } from 'app/storage/dapps/use-value.hook';
 import { useTempleClient } from 'lib/temple/front';
 import { throttleAsyncCalls } from 'lib/utils/functions';
-import { useAccountAddressForTezos } from 'temple/front';
+import { useAccountAddressForEvm, useAccountAddressForTezos } from 'temple/front';
+import { TempleChainKind } from 'temple/types';
 
 import { useActiveTabUrlOrigin } from './use-active-tab';
 
+function getDApps<T extends TempleChainKind>(sessions: DAppsSessionsRecord<T> | nullish, address?: string) {
+  const entries = Object.entries(sessions || {});
+
+  return address ? entries.filter(([, ds]) => ds.pkh === address) : entries;
+}
+
 export function useDAppsConnections() {
-  const { removeDAppSession } = useTempleClient();
+  const { removeDAppSession, switchDAppEvmChain } = useTempleClient();
 
   const tezAddress = useAccountAddressForTezos();
-  const [dappsSessions] = useStoredTezosDappsSessions();
+  const evmAddress = useAccountAddressForEvm();
+  const [tezosDappsSessions] = useStoredTezosDappsSessions();
+  const [evmDappsSessions] = useStoredEvmDappsSessions();
 
   const dapps = useMemo(() => {
-    if (!dappsSessions) return [];
+    const tezosDApps: [string, DAppSession][] = getDApps(tezosDappsSessions, tezAddress);
 
-    const entries = Object.entries(dappsSessions);
-
-    return tezAddress ? entries.filter(([, ds]) => ds.pkh === tezAddress) : entries;
-  }, [dappsSessions, tezAddress]);
+    return tezosDApps.concat(getDApps(evmDappsSessions, evmAddress));
+  }, [evmAddress, evmDappsSessions, tezAddress, tezosDappsSessions]);
 
   const activeTabOrigin = useActiveTabUrlOrigin();
 
@@ -35,5 +43,5 @@ export function useDAppsConnections() {
 
   const disconnectOne = useCallback((origin: string) => disconnectDApps([origin]), [disconnectDApps]);
 
-  return { dapps, activeDApp, disconnectDApps, disconnectOne };
+  return { dapps, activeDApp, disconnectDApps, disconnectOne, switchDAppEvmChain };
 }

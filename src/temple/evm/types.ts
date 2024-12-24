@@ -16,6 +16,18 @@ import { Signature } from 'viem/_types/types/misc';
 
 import { EvmNativeTokenMetadata } from 'lib/metadata/types';
 
+import { evmRpcMethodsNames } from './constants';
+
+export class ErrorWithCode extends Error {
+  constructor(public code: number, message: string) {
+    super(message);
+  }
+}
+
+export interface ChangePermissionsPayload {
+  [evmRpcMethodsNames.eth_accounts]: StringRecord<unknown>;
+}
+
 interface RestoredChain {
   id: number;
   name: string;

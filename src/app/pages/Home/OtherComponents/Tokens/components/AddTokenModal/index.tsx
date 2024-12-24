@@ -1,6 +1,6 @@
 import React, { memo, useCallback, useState } from 'react';
 
-import { PageModal } from 'app/atoms/PageModal';
+import { BackButton, PageModal } from 'app/atoms/PageModal';
 import { useBooleanState } from 'lib/ui/hooks';
 import { OneOfChains, useAccountAddressForTezos, useEthereumMainnetChain, useTezosMainnetChain } from 'temple/front';
 
@@ -46,8 +46,7 @@ export const AddTokenModal = memo<Props>(({ forCollectible, opened, onRequestClo
     <PageModal
       title={isNetworkSelectOpened ? 'Select Network' : 'Add Custom Token'}
       opened={opened}
-      shouldShowBackButton={isNetworkSelectOpened}
-      onGoBack={isNetworkSelectOpened ? setNetworkSelectClosed : undefined}
+      titleLeft={isNetworkSelectOpened ? <BackButton onClick={setNetworkSelectClosed} /> : undefined}
       onRequestClose={totalClose}
     >
       {isNetworkSelectOpened ? (

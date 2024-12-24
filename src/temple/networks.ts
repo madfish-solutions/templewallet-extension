@@ -21,6 +21,14 @@ export interface EvmNetworkEssentials {
   chainId: number;
 }
 
+export type NetworkEssentials<T extends TempleChainKind> = T extends TempleChainKind.Tezos
+  ? TezosNetworkEssentials
+  : EvmNetworkEssentials;
+
+export const isTezosNetworkEssentials = (
+  essentials: TezosNetworkEssentials | EvmNetworkEssentials
+): essentials is TezosNetworkEssentials => typeof essentials.chainId === 'string';
+
 export interface NetworkBase {
   chain: TempleChainKind;
   id: string;

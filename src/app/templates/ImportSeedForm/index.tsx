@@ -54,7 +54,6 @@ export const ImportSeedForm = memo<ImportSeedFormProps>(({ next }) => {
           disabled={Boolean(seedError) && wasSubmitted}
           type="submit"
           size="L"
-          className="w-full"
           color="primary"
           testID={ImportSeedFormSelectors.nextButton}
         >

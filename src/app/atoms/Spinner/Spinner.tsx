@@ -19,17 +19,17 @@ const Spinner = memo<SpinnerProps>(({ theme = 'primary', className, ...rest }) =
           (() => {
             switch (theme) {
               case 'primary':
-                return 'bg-primary-orange';
+                return 'bg-primary';
 
               case 'white':
                 return 'bg-white shadow-sm';
 
               case 'dark-gray':
-                return 'bg-gray-600';
+                return 'bg-grey-1';
 
               case 'gray':
               default:
-                return 'bg-gray-400';
+                return 'bg-grey-3';
             }
           })(),
           styles['bounce'],

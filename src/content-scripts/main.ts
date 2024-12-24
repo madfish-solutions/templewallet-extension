@@ -1,29 +1,27 @@
 import { TemplePageMessage, TemplePageMessageType } from '@temple-wallet/dapp/dist/types';
 import browser from 'webextension-polyfill';
 
-import { APP_TITLE, ContentScriptType, WEBSITES_ANALYTICS_ENABLED } from 'lib/constants';
+import {
+  APP_TITLE,
+  ContentScriptType,
+  DISCONNECT_DAPP_MSG_TYPE,
+  PASS_TO_BG_EVENT,
+  RESPONSE_FROM_BG_MSG_TYPE,
+  SWITCH_CHAIN_MSG_TYPE,
+  WEBSITES_ANALYTICS_ENABLED
+} from 'lib/constants';
 import { serealizeError } from 'lib/intercom/helpers';
-import { TempleMessageType, TempleResponse } from 'lib/temple/types';
+import { TempleMessageType, TempleNotification, TempleResponse } from 'lib/temple/types';
+import type { PassToBgEventDetail } from 'temple/evm/web3-provider';
+import { TempleChainKind } from 'temple/types';
 
-import { getIntercom } from './intercom-client';
+import { getIntercom } from '../intercom-client';
 
 const TRACK_URL_CHANGE_INTERVAL = 5000;
 
 enum BeaconMessageTarget {
   Page = 'toPage',
   Extension = 'toExtension'
-}
-
-enum LegacyPageMessageType {
-  Request = 'THANOS_PAGE_REQUEST',
-  Response = 'THANOS_PAGE_RESPONSE',
-  ErrorResponse = 'THANOS_PAGE_ERROR_RESPONSE'
-}
-
-interface LegacyPageMessage {
-  type: LegacyPageMessageType;
-  payload: any;
-  reqId?: string | number;
 }
 
 type BeaconMessage =
@@ -74,18 +72,53 @@ const SENDER = {
   iconUrl: 'https://templewallet.com/logo.png'
 };
 
+getIntercom().subscribe((msg?: TempleNotification) => {
+  switch (msg?.type) {
+    case TempleMessageType.TempleEvmDAppsDisconnected:
+      const { origins } = msg;
+
+      if (origins.some(origin => window.origin === origin)) {
+        window.postMessage({ type: DISCONNECT_DAPP_MSG_TYPE }, window.origin);
+      }
+      break;
+    case TempleMessageType.TempleEvmChainSwitched:
+      const { origin, type, ...chainSwitchPayload } = msg;
+      if (origin === window.origin) {
+        window.postMessage({ type: SWITCH_CHAIN_MSG_TYPE, ...chainSwitchPayload }, window.origin);
+      }
+  }
+});
+
+window.addEventListener(PASS_TO_BG_EVENT, evt => {
+  const { origin, args: payload, chainId, iconUrl, requestId } = (evt as CustomEvent<PassToBgEventDetail>).detail;
+  getIntercom()
+    .request({
+      type: TempleMessageType.PageRequest,
+      origin,
+      iconUrl,
+      payload,
+      chainId,
+      chainType: TempleChainKind.EVM
+    })
+    .then((res: TempleResponse) => {
+      if (res?.type === TempleMessageType.PageResponse && res.payload) {
+        window.postMessage({ type: RESPONSE_FROM_BG_MSG_TYPE, payload: res.payload, requestId }, window.origin);
+      }
+    })
+    .catch(err => console.error(err));
+});
+
 window.addEventListener(
   'message',
   evt => {
     if (evt.source !== window) return;
 
-    const legacyRequest = evt.data?.type === LegacyPageMessageType.Request;
-    const isTempleRequest = evt.data?.type === TemplePageMessageType.Request || legacyRequest;
+    const isTempleRequest = evt.data?.type === TemplePageMessageType.Request;
     const isBeaconRequest =
       evt.data?.target === BeaconMessageTarget.Extension && (evt.data?.targetId === SENDER.id || !evt.data?.targetId);
 
     if (isTempleRequest) {
-      templeRequest(evt, legacyRequest);
+      templeRequest(evt);
     } else if (isBeaconRequest) {
       beaconRequest(evt);
     } else {
@@ -95,7 +128,7 @@ window.addEventListener(
   false
 );
 
-function templeRequest(evt: MessageEvent, isLegacyRequest: boolean) {
+function templeRequest(evt: MessageEvent) {
   const { payload, reqId } = evt.data as TemplePageMessage;
 
   getIntercom()
@@ -108,7 +141,7 @@ function templeRequest(evt: MessageEvent, isLegacyRequest: boolean) {
       if (res?.type === TempleMessageType.PageResponse) {
         send(
           {
-            type: isLegacyRequest ? LegacyPageMessageType.Response : TemplePageMessageType.Response,
+            type: TemplePageMessageType.Response,
             payload: res.payload,
             reqId
           },
@@ -119,7 +152,7 @@ function templeRequest(evt: MessageEvent, isLegacyRequest: boolean) {
     .catch(err => {
       send(
         {
-          type: isLegacyRequest ? LegacyPageMessageType.ErrorResponse : TemplePageMessageType.ErrorResponse,
+          type: TemplePageMessageType.ErrorResponse,
           payload: serealizeError(err),
           reqId
         },
@@ -184,7 +217,7 @@ function beaconRequest(evt: MessageEvent) {
     .catch(err => console.error(err));
 }
 
-function send(msg: TemplePageMessage | LegacyPageMessage | BeaconPageMessage, targetOrigin: string) {
+function send(msg: TemplePageMessage | BeaconPageMessage, targetOrigin: string) {
   if (!targetOrigin || targetOrigin === '*') return;
   window.postMessage(msg, targetOrigin);
 }

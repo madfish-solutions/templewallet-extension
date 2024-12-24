@@ -51,8 +51,8 @@ export const MnemonicView = memo<MnemonicViewProps>(({ mnemonic, isNewMnemonic, 
         />
       </ScrollView>
 
-      <ActionsButtonsBox shouldCastShadow={!bottomEdgeIsVisible}>
-        {isNewMnemonic && (
+      {isNewMnemonic && (
+        <ActionsButtonsBox shouldCastShadow={!bottomEdgeIsVisible}>
           <StyledButton
             className="w-full"
             size="L"
@@ -62,8 +62,8 @@ export const MnemonicView = memo<MnemonicViewProps>(({ mnemonic, isNewMnemonic, 
           >
             <T id="notedSeedPhraseDown" />
           </StyledButton>
-        )}
-      </ActionsButtonsBox>
+        </ActionsButtonsBox>
+      )}
     </>
   );
 });

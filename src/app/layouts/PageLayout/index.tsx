@@ -65,7 +65,7 @@ const PageLayout: FC<PropsWithChildren<PageLayoutProps>> = ({
   topEdgeThreshold,
   ...headerProps
 }) => {
-  const { fullPage } = useAppEnv();
+  const { fullPage, confirmWindow } = useAppEnv();
   const { ready } = useTempleClient();
   const [shouldBackupMnemonic] = useStorage(SHOULD_BACKUP_MNEMONIC_STORAGE_KEY, false);
 
@@ -79,7 +79,7 @@ const PageLayout: FC<PropsWithChildren<PageLayoutProps>> = ({
         !IS_MISES_BROWSER && <DocBg bgClassName="bg-secondary-low" />
       }
 
-      <div id={APP_CONTENT_WRAP_DOM_ID} className={clsx(fullPage && FULL_PAGE_WRAP_CLASSNAME)}>
+      <div id={APP_CONTENT_WRAP_DOM_ID} className={clsx(fullPage && !confirmWindow && FULL_PAGE_WRAP_CLASSNAME)}>
         <ContentPaper
           className={paperClassName}
           onBottomEdgeVisibilityChange={onBottomEdgeVisibilityChange}
@@ -178,7 +178,7 @@ const TestnetModeIndicator = memo(() => {
     <div
       className={clsx(
         'flex justify-center items-center sticky z-sticky top-0 bg-success',
-        'transition-all ease-in-out duration-300',
+        'transition-all ease-in-out duration-300 overflow-hidden',
         enabled ? 'min-h-6 h-6' : 'min-h-0 h-0'
       )}
     >
