@@ -469,6 +469,7 @@ module.exports = {
     },
     scale: {
       0: '0',
+      '1/3': '33.333333%',
       50: '.5',
       75: '.75',
       90: '.9',
@@ -494,6 +495,8 @@ module.exports = {
       '-full': '-100%',
       '-1/2': '-50%',
       '1/2': '50%',
+      '1/3': '33.333333%',
+      '-1/3': '-33.333333%',
       full: '100%'
     }),
     skew: {
@@ -603,6 +606,7 @@ module.exports = {
       minWidth: theme => theme('width'),
       maxWidth: (theme, { breakpoints }) => ({
         ...theme('width'),
+        30: '7.5rem',
         xs: '20rem',
         sm: '24rem',
         md: '28rem',

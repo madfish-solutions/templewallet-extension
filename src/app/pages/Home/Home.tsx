@@ -60,7 +60,6 @@ const Home = memo<Props>(({ assetSlug }) => {
           </span>
         ) : null
       }
-      withDonation
       withBell
       withAd
       withAirdrop={!assetSlug}

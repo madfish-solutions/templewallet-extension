@@ -58,10 +58,10 @@ import { slippageToleranceInputValidationFn } from './SwapFormInput/SlippageTole
 import { SwapFormInput } from './SwapFormInput/SwapFormInput';
 import { SwapMinimumReceived } from './SwapMinimumReceived/SwapMinimumReceived';
 
-// These values have been set after some experimentation. They are different to the respective values in
-// templewallet-mobile because the mobile app still uses taquito v19.0.0, which has a different gas estimation algorithm.
-const SINGLE_SWAP_IN_BATCH_MAX_DEXES = 12;
-const LB_OPERATION_DEXES_COST = 3;
+const CASHBACK_SWAP_MAX_DEXES = 3;
+// Actually, at most 2 dexes for each of underlying SIRS -> tzBTC -> X swap and SIRS -> XTZ -> X swap
+const MAIN_SIRS_SWAP_MAX_DEXES = 4;
+const MAIN_NON_SIRS_SWAP_MAX_DEXES = 3;
 
 export const SwapForm: FC = () => {
   const dispatch = useDispatch();
@@ -134,17 +134,13 @@ export const SwapForm: FC = () => {
       const isOutputTokenTempleToken = outputAssetSlug === KNOWN_TOKENS_SLUGS.TEMPLE;
       const isSirsSwap = inputAssetSlug === KNOWN_TOKENS_SLUGS.SIRS || outputAssetSlug === KNOWN_TOKENS_SLUGS.SIRS;
       const isSwapAmountMoreThreshold = inputAmountInUsd.isGreaterThanOrEqualTo(SWAP_THRESHOLD_TO_GET_CASHBACK);
-      const totalMaxDexes = SINGLE_SWAP_IN_BATCH_MAX_DEXES - (isSirsSwap ? LB_OPERATION_DEXES_COST : 0);
-      const cashbackSwapMaxDexes = Math.ceil(totalMaxDexes / (isSirsSwap ? 3 : 2));
-      const mainSwapMaxDexes =
-        totalMaxDexes - (isSwapAmountMoreThreshold && !isInputTokenTempleToken ? cashbackSwapMaxDexes : 0);
+      const mainSwapMaxDexes = isSirsSwap ? MAIN_SIRS_SWAP_MAX_DEXES : MAIN_NON_SIRS_SWAP_MAX_DEXES;
 
       return {
         isInputTokenTempleToken,
         isOutputTokenTempleToken,
         isSwapAmountMoreThreshold,
-        mainSwapMaxDexes,
-        cashbackSwapMaxDexes
+        mainSwapMaxDexes
       };
     },
     [allUsdToTokenRates]
@@ -321,8 +317,10 @@ export const SwapForm: FC = () => {
         return;
       }
 
-      const { isInputTokenTempleToken, isOutputTokenTempleToken, isSwapAmountMoreThreshold, cashbackSwapMaxDexes } =
-        getSwapWithFeeParams(inputValue, outputValue);
+      const { isInputTokenTempleToken, isOutputTokenTempleToken, isSwapAmountMoreThreshold } = getSwapWithFeeParams(
+        inputValue,
+        outputValue
+      );
 
       if (isInputTokenTempleToken && isSwapAmountMoreThreshold) {
         const routingInputFeeOpParams = await getRoutingFeeTransferParams(
@@ -348,7 +346,7 @@ export const SwapForm: FC = () => {
           toSymbol: TEMPLE_TOKEN.symbol,
           toTokenDecimals: TEMPLE_TOKEN.decimals,
           amount: atomsToTokens(routingFeeFromInputAtomic, fromRoute3Token.decimals).toFixed(),
-          dexesLimit: cashbackSwapMaxDexes,
+          dexesLimit: CASHBACK_SWAP_MAX_DEXES,
           rpcUrl: tezos.rpc.getRpcUrl()
         });
 
@@ -393,7 +391,7 @@ export const SwapForm: FC = () => {
           toSymbol: TEMPLE_TOKEN.symbol,
           toTokenDecimals: TEMPLE_TOKEN.decimals,
           amount: atomsToTokens(routingFeeFromOutputAtomic, toRoute3Token.decimals).toFixed(),
-          dexesLimit: cashbackSwapMaxDexes,
+          dexesLimit: CASHBACK_SWAP_MAX_DEXES,
           rpcUrl: tezos.rpc.getRpcUrl()
         });
 
