@@ -61,7 +61,6 @@ const Home = memo<Props>(({ assetSlug }) => {
         ) : null
       }
       attention={true}
-      adShow
     >
       {fullPage && (
         <div className="w-full max-w-sm mx-auto">
