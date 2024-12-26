@@ -5,8 +5,6 @@ import { Estimate, TezosToolkit } from '@taquito/taquito';
 import { formatOpParamsBeforeSend, michelEncoder, loadFastRpcClient } from 'lib/temple/helpers';
 import { ReadOnlySigner } from 'lib/temple/read-only-signer';
 
-const MINIMAL_FEE_MUTEZ = 100;
-
 type DryRunParams = {
   opParams: any[];
   networkRpc: string;
