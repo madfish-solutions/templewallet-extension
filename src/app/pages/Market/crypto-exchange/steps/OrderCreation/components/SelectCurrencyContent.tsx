@@ -17,9 +17,11 @@ import {
 } from 'app/store/crypto-exchange/selectors';
 import { StoredExolixCurrency } from 'app/store/crypto-exchange/state';
 import { SearchBarField } from 'app/templates/SearchField';
+import { t } from 'lib/i18n';
 import { isSearchStringApplicable, searchAndFilterItems } from 'lib/utils/search-items';
 import { useAccountAddressForEvm, useAccountAddressForTezos, useEnabledEvmChains } from 'temple/front';
 
+import { BackButton } from '../../../../../../atoms/PageModal';
 import { CurrencyIcon } from '../../../components/CurrencyIcon';
 import { ModalHeaderConfig, TEZOS_EXOLIX_NETWORK_CODE } from '../../../config';
 import { getCurrencyDisplayCode, isSameExolixCurrency } from '../../../utils';
@@ -57,7 +59,10 @@ export const SelectCurrencyContent: FC<Props> = ({ content, setModalHeaderConfig
   const inputCurrency = watch('inputCurrency');
   const outputCurrency = watch('outputCurrency');
 
-  useLayoutEffect(() => void setModalHeaderConfig({ title: 'Select Token', shouldShowBackButton: true, onGoBack }), []);
+  useLayoutEffect(
+    () => void setModalHeaderConfig({ title: t('selectToken'), titleLeft: <BackButton onClick={onGoBack} /> }),
+    []
+  );
 
   const enabledExolixNetworkCodes = useMemo(
     () => evmChains.map(({ chainId }) => exolixNetworksMap[chainId]),

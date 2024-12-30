@@ -1,5 +1,6 @@
 import { PageModalProps } from 'app/atoms/PageModal';
 import { StoredExolixCurrency } from 'app/store/crypto-exchange/state';
+import { t } from 'lib/i18n';
 
 export const EXOLIX_CONTACT_LINK = 'https://exolix.com/contact';
 
@@ -44,10 +45,9 @@ export const INITIAL_EVM_ACC_OUTPUT_CURRENCY: StoredExolixCurrency = {
   }
 };
 
-export type ModalHeaderConfig = Pick<PageModalProps, 'title' | 'shouldShowBackButton' | 'onGoBack'>;
+export type ModalHeaderConfig = Pick<PageModalProps, 'title' | 'titleLeft'>;
 
 export const defaultModalHeaderConfig: ModalHeaderConfig = {
-  title: 'Crypto Exchange',
-  shouldShowBackButton: undefined,
-  onGoBack: undefined
+  title: t('cryptoExchange'),
+  titleLeft: undefined
 };
