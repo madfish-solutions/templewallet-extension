@@ -7,6 +7,7 @@ import { FadeTransition } from 'app/a11y/FadeTransition';
 import { Button } from 'app/atoms';
 import { EmptyState } from 'app/atoms/EmptyState';
 import { PageLoader } from 'app/atoms/Loader';
+import { BackButton } from 'app/atoms/PageModal';
 import { SimpleInfiniteScroll } from 'app/atoms/SimpleInfiniteScroll';
 import { useSimplePaginationLogic } from 'app/hooks/use-simple-pagination-logic';
 import {
@@ -21,7 +22,6 @@ import { t } from 'lib/i18n';
 import { isSearchStringApplicable, searchAndFilterItems } from 'lib/utils/search-items';
 import { useAccountAddressForEvm, useAccountAddressForTezos, useEnabledEvmChains } from 'temple/front';
 
-import { BackButton } from '../../../../../../atoms/PageModal';
 import { CurrencyIcon } from '../../../components/CurrencyIcon';
 import { ModalHeaderConfig, TEZOS_EXOLIX_NETWORK_CODE } from '../../../config';
 import { getCurrencyDisplayCode, isSameExolixCurrency } from '../../../utils';
