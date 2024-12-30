@@ -1,83 +1,89 @@
-import React, { memo, useMemo } from 'react';
+import React, { FC, memo, ReactNode } from 'react';
 
-import clsx from 'clsx';
-
+import { CaptionAlert, IconBase, PageTitle } from 'app/atoms';
+import { IconBaseProps } from 'app/atoms/IconBase';
 import { ReactComponent as CardIcon } from 'app/icons/base/card.svg';
-import { ReactComponent as BuyWithCryptoIcon } from 'app/icons/buy-with-crypto.svg';
-import { ReactComponent as CreditCardIcon } from 'app/icons/credit-card.svg';
-import { TabInterface, TabsPageLayout } from 'app/layouts/TabsPageLayout';
-import { ReactComponent as AliceBobIcon } from 'app/pages/Buy/assets/AliceBob.svg';
-import { T, t } from 'lib/i18n/react';
+import { ReactComponent as RouteIcon } from 'app/icons/base/route.svg';
+import PageLayout from 'app/layouts/PageLayout';
+import { t } from 'lib/i18n/react';
+import { useBooleanState } from 'lib/ui/hooks';
 import { Link } from 'lib/woozie';
 
-import { BuySelectors } from '../Buy/Buy.selectors';
-
-import { BuyPageOption } from './BuyPageOption';
+import { CryptoExchange } from './crypto-exchange';
+import { ExchangeCountdown } from './crypto-exchange/components/ExchangeCountdown';
+import { CryptoExchangeDataProvider, useCryptoExchangeDataState } from './crypto-exchange/context';
 
 export const Market = memo(() => {
-  const tabs = useMemo<NonEmptyArray<TabInterface>>(() => {
-    return [
-      {
-        slug: 'buy',
-        title: t('topUpBuy'),
-        Component: BuyTab,
-        description: t('topUpDescription')
-      },
-      {
-        slug: 'withdraw',
-        title: t('withdraw'),
-        Component: WithdrawTab,
-        description: t('withdrawDescription')
-      }
-    ];
-  }, []);
-
-  return <TabsPageLayout tabs={tabs} Icon={CardIcon} title="Market" />;
-});
-
-const BuyTab = memo(() => (
-  <div className="flex flex-col gap-4 items-center">
-    <BuyPageOption
-      Icon={BuyWithCryptoIcon}
-      title={t('buyWithCrypto')}
-      to="/buy/crypto/exolix"
-      testID={BuySelectors.cryptoButton}
-    />
-
-    <BuyPageOption Icon={CreditCardIcon} title={t('buyWithCard')} to="/buy/debit" testID={BuySelectors.debitButton} />
-  </div>
-));
-
-const WithdrawTab = memo(() => {
-  const buttonClassName = useMemo(
-    () =>
-      clsx(
-        'w-full mt-4 py-2 px-4 rounded',
-        'text-white bg-blue-500 border-2',
-        'border-blue-500 hover:border-blue-600 focus:border-blue-600',
-        'flex items-center justify-center',
-        'shadow-sm hover:shadow focus:shadow',
-        'text-font-regular font-medium',
-        'transition ease-in-out duration-300'
-      ),
-    []
-  );
+  const [cryptoExchangeModalOpened, setCryptoExchangeModalOpen, setCryptoExchangeModalClosed] = useBooleanState(false);
 
   return (
-    <div className="mx-auto max-w-sm flex flex-col items-center border-2 rounded-md p-4 mb-4">
-      <AliceBobIcon />
+    <>
+      <PageLayout pageTitle={<PageTitle title={t('market')} />} noScroll>
+        <CaptionAlert type="info" message={t('marketPageDisclaimer')} className="mb-4" />
 
-      <div className="text-lg text-center mt-4">
-        <T id="sellWithAliceBob" />
-      </div>
+        <CryptoExchangeDataProvider>
+          <Option
+            Icon={RouteIcon}
+            title={t('cryptoExchange')}
+            description={t('cryptoExchangeDescription')}
+            extraInnerComponent={<Timer />}
+            onClick={setCryptoExchangeModalOpen}
+          />
+        </CryptoExchangeDataProvider>
+        <Link to="/buy/debit">
+          <Option Icon={CardIcon} title={t('debitCreditCard')} description={t('debitCreditCardDescription')} />
+        </Link>
+      </PageLayout>
 
-      <div className="text-center px-2 mt-2 mx-auto text-gray-700">
-        <T id="sellWithAliceBobDescription" />
-      </div>
+      <CryptoExchangeDataProvider>
+        <CryptoExchange opened={cryptoExchangeModalOpened} onRequestClose={setCryptoExchangeModalClosed} />
+      </CryptoExchangeDataProvider>
+    </>
+  );
+});
 
-      <Link className={buttonClassName} to={`/withdraw/debit/alice-bob`}>
-        <T id="continue" />
-      </Link>
+const Timer = memo(() => {
+  const { exchangeData } = useCryptoExchangeDataState();
+
+  if (!exchangeData) return null;
+
+  return (
+    <div className="flex flex-row justify-center items-center w-15 h-5 gap-x-1 bg-warning-low rounded-6">
+      <span className="relative flex h-2 w-2">
+        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-yellow-400 opacity-75" />
+        <span className="relative inline-flex rounded-full h-2 w-2 bg-yellow-500" />
+      </span>
+      <ExchangeCountdown className="text-font-small-bold w-8" />
     </div>
   );
 });
+
+interface OptionProps extends Pick<IconBaseProps, 'Icon'> {
+  title: string;
+  description: string;
+  extraInnerComponent?: ReactNode;
+  onClick?: EmptyFn;
+}
+
+const Option: FC<OptionProps> = ({ Icon, title, description, extraInnerComponent, onClick }) => (
+  <div
+    className="cursor-pointer flex justify-between items-center mb-3 p-3 gap-x-3 rounded-lg shadow-bottom border-0.5 border-transparent hover:border-lines"
+    onClick={onClick}
+  >
+    <CircleIcon Icon={Icon} size={32} className="text-primary" />
+
+    <div className="flex flex-col gap-y-1">
+      <div className="flex flex-row gap-x-2">
+        <span className="text-font-medium-bold">{title}</span>
+        {extraInnerComponent}
+      </div>
+      <span className="text-font-description text-grey-1">{description}</span>
+    </div>
+  </div>
+);
+
+const CircleIcon: FC<IconBaseProps> = props => (
+  <div className="flex justify-center items-center bg-primary-low p-3 rounded-full">
+    <IconBase {...props} />
+  </div>
+);

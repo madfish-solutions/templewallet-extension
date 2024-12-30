@@ -7,7 +7,8 @@ import React, {
   useMemo,
   useRef,
   useState,
-  useLayoutEffect
+  useLayoutEffect,
+  CSSProperties
 } from 'react';
 
 import clsx from 'clsx';
@@ -86,6 +87,7 @@ export interface FormFieldProps extends TestIDProperty, Omit<FormFieldAttrs, 'ty
   rightSideComponent?: ReactNode;
   underneathComponent?: ReactNode;
   extraFloatingInner?: ReactNode;
+  rightSideContainerStyle?: CSSProperties;
 }
 
 /**
@@ -121,6 +123,7 @@ export const FormField = forwardRef<FormFieldElement, FormFieldProps>(
       type,
       value,
       defaultValue,
+      readOnly,
       onChange,
       onFocus,
       onBlur,
@@ -139,6 +142,7 @@ export const FormField = forwardRef<FormFieldElement, FormFieldProps>(
       testID,
       testIDs,
       style,
+      rightSideContainerStyle,
       ...rest
     },
     ref
@@ -179,7 +183,6 @@ export const FormField = forwardRef<FormFieldElement, FormFieldProps>(
       isPasswordInput && !revealForbidden && (shouldShowRevealWhenEmpty || Boolean(localValue));
     const fieldStyle = useMemo(
       () => ({
-        ...style,
         ...buildHorizontalPaddingStyle(
           [cleanable, copyable, hasRevealablePassword].filter(Boolean).length,
           extraLeftInnerWrapper === 'unset' ? false : Boolean(extraLeftInner),
@@ -188,11 +191,13 @@ export const FormField = forwardRef<FormFieldElement, FormFieldProps>(
           Boolean(rightSideComponent),
           smallPaddings,
           textarea
-        )
+        ),
+        ...style
       }),
       [
         cleanable,
         copyable,
+        extraFloatingInner,
         extraLeftInner,
         extraLeftInnerWrapper,
         extraRightInner,
@@ -242,6 +247,7 @@ export const FormField = forwardRef<FormFieldElement, FormFieldProps>(
             ref={combineRefs(ref, spareRef)}
             className={clsx(
               FORM_FIELD_CLASS_NAME,
+              readOnly && '!placeholder-grey-1',
               smallPaddings ? 'py-2 pl-2' : 'p-3',
               errorCaption ? 'border-error' : warning ? 'border-warning' : 'border-input-low',
               className
@@ -251,6 +257,7 @@ export const FormField = forwardRef<FormFieldElement, FormFieldProps>(
             type={inputType}
             value={value}
             defaultValue={defaultValue}
+            readOnly={readOnly}
             spellCheck={spellCheck}
             autoComplete={autoComplete}
             onChange={handleChange}
@@ -273,6 +280,7 @@ export const FormField = forwardRef<FormFieldElement, FormFieldProps>(
               textarea ? (smallPaddings ? 'bottom-2' : 'bottom-3') : 'inset-y-0',
               smallPaddings ? 'right-2' : 'right-3'
             )}
+            style={rightSideContainerStyle}
           >
             {additonalActionButtons}
             {cleanable && <CleanButton showText={textarea} size={textarea ? 12 : 16} onClick={onClean} />}
@@ -390,7 +398,7 @@ const ErrorCaption: React.FC<ErrorCaptionProps> = ({ errorCaption }) => {
   const isPasswordStrengthIndicator = errorCaption === PASSWORD_ERROR_CAPTION;
 
   return errorCaption && !isPasswordStrengthIndicator ? (
-    <div className="pl-1 text-xs text-red-500" {...setTestID(ErrorCaptionSelectors.inputError)}>
+    <div className="pl-1 text-font-description text-error" {...setTestID(ErrorCaptionSelectors.inputError)}>
       {errorCaption}
     </div>
   ) : null;

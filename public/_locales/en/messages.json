@@ -320,6 +320,12 @@
   "cancel": {
     "message": "Cancel"
   },
+  "cancelOrder": {
+    "message": "Cancel Order"
+  },
+  "newOrder": {
+    "message": "New Order"
+  },
   "save": {
     "message": "Save"
   },
@@ -1107,7 +1113,7 @@
     "message": "Privacy Policy"
   },
   "termsOfUse": {
-    "message": "Terms of Use"
+    "message": "Terms of Usage"
   },
   "knowledgeBase": {
     "message": "Knowledge Base"
@@ -1642,6 +1648,9 @@
   },
   "recipient": {
     "message": "Recipient"
+  },
+  "transactionHash": {
+    "message": "Transaction hash"
   },
   "tokensRecepientInputDescription": {
     "message": "Address to send $assetSymbol$ funds to.",
@@ -3027,9 +3036,6 @@
   "buyButton": {
     "message": "Buy"
   },
-  "withdraw": {
-    "message": "Withdraw"
-  },
   "toCard": {
     "message": "To card"
   },
@@ -3088,23 +3094,26 @@
   "buyWithRampDescription": {
     "message": "Buy TEZ  using Visa, Mastercard, and all major debit and credit cards. Ramp is available in 160+ countries and territories."
   },
-  "sellWithAliceBob": {
-    "message": "Sell TEZ with Alice-Bob"
-  },
-  "sellWithAliceBobDescription": {
-    "message": "Fast and cost-effective exchange of TEZ."
-  },
   "selectPaymentProvider": {
     "message": "Select payment provider"
   },
   "pleaseSelectPaymentProvider": {
     "message": "Please select payment provider"
   },
-  "topUpBuy": {
-    "message": "Buy"
-  },
   "buyWithCard": {
     "message": "Buy with Debit/Credit Card"
+  },
+  "cryptoExchange": {
+    "message": "Crypto Exchange"
+  },
+  "cryptoExchangeDescription": {
+    "message": "Top-up balance instantly with best rate and without registration"
+  },
+  "debitCreditCard": {
+    "message": "Debit & Credit Card"
+  },
+  "debitCreditCardDescription": {
+    "message": "Simple crypto purchase with fiat currencies in a few steps"
   },
   "sellTez": {
     "message": "Sell TEZ"
@@ -3165,9 +3174,6 @@
   "bestPrice": {
     "message": "Best price"
   },
-  "withdrawDescription": {
-    "message": "Temple integrated third-party solutions to sell TEZ. Choose a provider, follow guides, \n get fiat to your Debit/Credit card"
-  },
   "topUpCrypto": {
     "message": "Crypto"
   },
@@ -3186,16 +3192,14 @@
   "newTopUp": {
     "message": "New Top Up"
   },
+  "exchange": {
+    "message": "Exchange"
+  },
   "exchangeDetails": {
-    "message": "Enter exchange details"
+    "message": "Exchange details"
   },
   "exchangeDetailsDescription": {
-    "message": "Top up your TEZ or USDT Tezos balance instantly with $number$ cryptocurrencies",
-    "placeholders": {
-      "number": {
-        "content": "$1"
-      }
-    }
+    "message": "Enter token amount and top up your balance instantly with best rate and without registration"
   },
   "sellTezDetails": {
     "message": "Sell TEZ details"
@@ -3218,7 +3222,7 @@
     }
   },
   "privacyAndPolicyLinks": {
-    "message": "By clicking $buttonContent$ you agree with \n$termsOfUse$ and $privacyPolicy$",
+    "message": "By pressing $buttonContent$ you are agree with the $termsOfUse$ and $privacyPolicy$",
     "placeholders": {
       "buttonContent": {
         "content": "$1"
@@ -3231,40 +3235,53 @@
       }
     }
   },
-  "depositAddressText": {
-    "message": "Deposit $depositAddress$ address:",
-    "placeholders": {
-      "depositAddress": {
-        "content": "$1"
-      }
-    }
+  "depositAddress": {
+    "message": "Deposit address"
   },
   "support": {
     "message": "Support"
+  },
+  "exolixSupport": {
+    "message": "Exolix Support"
   },
   "deposit": {
     "message": "Deposit"
   },
   "depositDescription": {
-    "message": "Send the funds to the address below. As soon as the deposit is received, the exchange process will begin automatically"
+    "message": "Send tokens to the deposit address, and the exchange will begin automatically once the deposit is confirmed"
+  },
+  "depositDisclaimer": {
+    "message": "Send the exact amount of crypto to the deposit address. Otherwise the transaction will be failed and you will need to contact Exolix support."
+  },
+  "convertation": {
+    "message": "Convertation"
+  },
+  "convertationDescription": {
+    "message": "Please wait, the convertation process usually takes between 15 minutes and 2 hours"
   },
   "sendByOneTransaction": {
     "message": "Send by one transaction"
   },
   "youGet": {
-    "message": "You get:"
+    "message": "You get"
+  },
+  "youReceived": {
+    "message": "You received"
+  },
+  "youSent": {
+    "message": "You sent"
   },
   "fixedRate": {
     "message": "Fixed rate:"
   },
   "transactionId": {
-    "message": "Transaction ID:"
+    "message": "Transaction ID"
   },
   "atomDepositMemo": {
     "message": "Atom Deposit Memo"
   },
   "recipientAddress": {
-    "message": "Recipient address:"
+    "message": "Recipient address"
   },
   "recipientXtzAddress": {
     "message": "Recipient XTZ address:"
@@ -3285,10 +3302,10 @@
     "message": "You sell:"
   },
   "sendTime": {
-    "message": "Send time:"
+    "message": "Send time"
   },
   "completedDescription": {
-    "message": "Please, check your funds in your wallet.\nThe exchange process is completed."
+    "message": "Please check your balance - the exchange has been finished"
   },
   "completed": {
     "message": "Completed"
@@ -3322,6 +3339,37 @@
   },
   "expiredStatusDescription": {
     "message": "The order was not paid for the time allocated."
+  },
+  "expiresIn": {
+    "message": "Expires in"
+  },
+  "orderExpired": {
+    "message": "Your order has expired"
+  },
+  "orderExpiredDescription": {
+    "message": "Retry the top-up by creating a new exchange order. If the funds have already been sent, wait for the deposit to be confirmed."
+  },
+  "memo": {
+    "message": "MEMO"
+  },
+  "bothMemoAndAddressAreRequired": {
+    "message": "Both the memo and address are required to successfully deposit your funds to Exolix"
+  },
+  "memoDisclaimer": {
+    "message": "You must copy both the $networkName$ address and MEMO to complete deposit, or you’ll lose your funds.",
+    "placeholders": {
+      "networkName": {
+        "content": "$1"
+      }
+    }
+  },
+  "sendInOneTransaction": {
+    "message": "Send in one transaction to the $networkName$ deposit address",
+    "placeholders": {
+      "networkName": {
+        "content": "$1"
+      }
+    }
   },
   "canceledStatusDescription": {
     "message": "The order was canceled."
@@ -3367,11 +3415,8 @@
   "min": {
     "message": "Min:"
   },
-  "exolixWarningTopUpServiceMessage": {
-    "message": "The token exchange feature is provided by Exolix as third party provider. Temple wallet is not responsible for the work of third-party services."
-  },
   "warningTopUpServiceMessage": {
-    "message": "The token exchange feature is provided by a third party. The Temple Wallet is not responsible for the work of third-party services."
+    "message": "Token exchange is powered by a third-party, and Temple Wallet is not responsible for work of third-party services."
   },
   "selectTokensToSwap": {
     "message": "Please, select tokens to swap"
@@ -3414,12 +3459,6 @@
   },
   "serviceIsUnavailable": {
     "message": "Sorry, service is temporarily unavailable. Try again later!"
-  },
-  "buyWithChainBits": {
-    "message": "Buy with ChainBits"
-  },
-  "buyWithChainBitsDescription": {
-    "message": "Buying Crypto Was Never This Easy"
   },
   "news": {
     "message": "News"
@@ -3802,5 +3841,8 @@
   },
   "interactionWith": {
     "message": "Interaction With"
+  },
+  "marketPageDisclaimer": {
+    "message": "Temple integrated third-party solutions to buy or exchange crypto."
   }
 }

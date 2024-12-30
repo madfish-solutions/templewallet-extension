@@ -4,7 +4,6 @@ import classNames from 'clsx';
 import { isEqual } from 'lodash';
 
 import AssetField from 'app/atoms/AssetField';
-import { getBigErrorText, getSmallErrorText } from 'app/pages/Buy/utils/errorText.utils';
 import { getAssetSymbolToDisplay } from 'lib/buy-with-credit-card/get-asset-symbol-to-display';
 import { T, toLocalFormat } from 'lib/i18n';
 
@@ -15,8 +14,6 @@ import { CurrencyOption } from './CurrencyOption';
 import { StaticCurrencyImage } from './StaticCurrencyImage';
 import { TopUpInputPropsGeneric, CurrencyBase, TopUpInputPropsBase } from './types';
 import { getProperNetworkFullName, useFilteredCurrencies } from './utils';
-
-export type { CurrencyToken } from './types';
 
 const TWO_TOKENS_LENGTH = 2;
 
@@ -197,3 +194,6 @@ const CurrencyText: React.FC<ErrorsComponentProps & { className: string }> = ({ 
     <span className={classNames(className, 'text-xs')}>{coin}</span>
   </>
 );
+
+const getSmallErrorText = (flag?: boolean) => (flag ? 'text-red-700' : 'text-gray-500');
+const getBigErrorText = (flag?: boolean) => (flag ? 'text-red-700' : 'text-gray-700');

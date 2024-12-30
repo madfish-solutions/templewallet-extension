@@ -13,6 +13,7 @@ import type { RootState } from './root-state.type';
 import { sanitizeCollectiblesMetadataForDevTools } from './tezos/collectibles-metadata/state';
 
 export const SLICES_BLACKLIST = [
+  'cryptoExchange' as const,
   'buyWithCreditCard' as const,
   'collectibles' as const,
   'assets' as const,

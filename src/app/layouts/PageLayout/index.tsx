@@ -46,6 +46,7 @@ export interface PageLayoutProps extends DefaultHeaderProps, ScrollEdgesVisibili
   Header?: ComponentType;
   noScroll?: boolean;
   contentPadding?: boolean;
+  showTestnetModeIndicator?: boolean;
   contentClassName?: string;
   paperClassName?: string;
   headerChildren?: ReactNode;
@@ -56,6 +57,7 @@ const PageLayout: FC<PropsWithChildren<PageLayoutProps>> = ({
   children,
   noScroll = false,
   contentPadding = true,
+  showTestnetModeIndicator = true,
   contentClassName,
   paperClassName,
   headerChildren,
@@ -87,7 +89,7 @@ const PageLayout: FC<PropsWithChildren<PageLayoutProps>> = ({
           onTopEdgeVisibilityChange={onTopEdgeVisibilityChange}
           topEdgeThreshold={topEdgeThreshold}
         >
-          <TestnetModeIndicator />
+          {showTestnetModeIndicator && <TestnetModeIndicator />}
 
           <div className={clsx('flex-grow flex flex-col bg-white', FADABLE_CONTENT_CLASSNAME)}>
             {Header ? <Header /> : <DefaultHeader {...headerProps}>{headerChildren}</DefaultHeader>}

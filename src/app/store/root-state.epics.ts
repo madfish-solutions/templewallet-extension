@@ -7,6 +7,7 @@ import { notificationsEpics } from 'lib/notifications';
 import { abTestingEpics } from './ab-testing/epics';
 import { advertisingEpics } from './advertising/epics';
 import { buyWithCreditCardEpics } from './buy-with-credit-card/epics';
+import { cryptoExchangeEpics } from './crypto-exchange/epics';
 import { currencyEpics } from './currency/epics';
 import { evmBalancesEpics } from './evm/balances/epics';
 import { partnersPromotionEpics } from './partners-promotion/epics';
@@ -29,6 +30,7 @@ const allEpics = combineEpics(
   tokensMetadataEpics,
   collectiblesMetadataEpics,
   abTestingEpics,
+  cryptoExchangeEpics,
   buyWithCreditCardEpics,
   collectiblesEpics,
   evmBalancesEpics

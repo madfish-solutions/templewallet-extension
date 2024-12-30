@@ -1919,33 +1919,14 @@
   "newTopUp": {
     "message": "Yeni Doldurma"
   },
-  "exchangeDetails": {
-    "message": "Alım satım bilgilerini girin"
-  },
-  "exchangeDetailsDescription": {
-    "message": "TEZ or USDT Tezos bakiyenizi anında $number$ kripto para ile doldurun",
-    "placeholders": {
-      "number": {
-        "content": "$1"
-      }
-    }
-  },
   "privacyAndPolicyLinks": {
-    "message": "Doldur seçeneğine tıklayarak $termsOfUse$ \nve $privacyPolicy$ hükümlerini kabul etmiş olursunuz",
+    "message": "Doldur seçeneğine tıklayarak $termsOfUse$ ve $privacyPolicy$ hükümlerini kabul etmiş olursunuz",
     "placeholders": {
       "termsOfUse": {
         "content": "$1"
       },
       "privacyPolicy": {
         "content": "$2"
-      }
-    }
-  },
-  "depositAddressText": {
-    "message": "Yatırma $depositAddress$ adresi:",
-    "placeholders": {
-      "depositAddress": {
-        "content": "$1"
       }
     }
   },
@@ -1962,19 +1943,19 @@
     "message": "Bir işlem başına gönder"
   },
   "youGet": {
-    "message": "Aldığınız:"
+    "message": "Aldığınız"
   },
   "fixedRate": {
     "message": "Sabit oran:"
   },
   "transactionId": {
-    "message": "İşlem Kimliği:"
+    "message": "İşlem Kimliği"
   },
   "atomDepositMemo": {
     "message": "Atom Yatırma Notu"
   },
   "recipientAddress": {
-    "message": "Alıcı adresi:"
+    "message": "Alıcı adresi"
   },
   "recipientXtzAddress": {
     "message": "Alıcı XTZ adresi:"
@@ -1986,10 +1967,7 @@
     "message": "Gönderdiğiniz:"
   },
   "sendTime": {
-    "message": "Gönderme saati:"
-  },
-  "completedDescription": {
-    "message": "Lütfen cüzdanınızdaki fonu kontrol edin.\nAlım satım işlemi tamamlandı."
+    "message": "Gönderme saati"
   },
   "completed": {
     "message": "Tamamlandı"
