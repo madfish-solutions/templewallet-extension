@@ -34,10 +34,11 @@ export const Loader = memo<Props>(({ size, trackVariant, className }) => (
 interface PageLoaderProps {
   text?: string;
   stretch?: boolean;
+  className?: string;
 }
 
-export const PageLoader: FC<PageLoaderProps> = ({ text = 'Content is Loading...', stretch }) => (
-  <div className={clsx('w-full flex flex-col items-center', stretch && 'flex-grow justify-center')}>
+export const PageLoader: FC<PageLoaderProps> = ({ text, stretch, className }) => (
+  <div className={clsx('w-full flex flex-col items-center', stretch && 'flex-grow justify-center', className)}>
     <div
       className={clsx(
         'w-12 h-12 flex items-center justify-center',
@@ -47,8 +48,10 @@ export const PageLoader: FC<PageLoaderProps> = ({ text = 'Content is Loading...'
       <Loader size="L" trackVariant="dark" className="text-secondary" />
     </div>
 
-    <div className="p-4">
-      <span className="text-font-description-bold text-grey-2">{text}</span>
-    </div>
+    {text && (
+      <div className="p-4">
+        <span className="text-font-description-bold text-grey-2">{text}</span>
+      </div>
+    )}
   </div>
 );

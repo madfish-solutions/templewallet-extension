@@ -150,7 +150,12 @@ const Unlock: FC<UnlockProps> = ({ canImportNew = true }) => {
   }, [timelock, lockLevel, setTimeLock]);
 
   return (
-    <PageLayout Header={EmptyHeader} contentPadding={false} contentClassName="relative">
+    <PageLayout
+      Header={EmptyHeader}
+      contentPadding={false}
+      contentClassName="relative"
+      showTestnetModeIndicator={false}
+    >
       <PlanetsAnimation bottomGap={bottomGap} />
       <div className="w-full min-h-full p-4 flex flex-col z-1">
         <div className="w-full aspect-[2]" />
