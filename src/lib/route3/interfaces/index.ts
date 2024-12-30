@@ -10,7 +10,6 @@ export interface Route3SwapParamsRequestRaw {
   rpcUrl: string;
 }
 
-// TODO: add `showTree: boolean` when adding route view
 interface Route3SwapParamsRequestBase {
   fromSymbol: string;
   toSymbol: string;
@@ -18,6 +17,8 @@ interface Route3SwapParamsRequestBase {
   amount: string;
   /** Needed to make a correction of params if input is SIRS */
   rpcUrl: string;
+  /** 3route API does not require it but the extension needs swaps trees */
+  showTree: true;
 }
 
 export interface Route3SwapParamsRequest extends Route3SwapParamsRequestBase {
@@ -45,22 +46,26 @@ export interface Route3Hop {
   params: string | null;
 }
 
-export interface Route3TraditionalSwapParamsResponse {
-  input: string | undefined;
-  output: string | undefined;
+export interface Route3SwapHops {
   hops: Route3Hop[];
+  tree: Route3TreeNode;
 }
 
-export interface Route3LiquidityBakingParamsResponse {
+interface Route3SwapParamsResponseBase {
   input: string | undefined;
   output: string | undefined;
+}
+
+export interface Route3TraditionalSwapParamsResponse extends Route3SwapHops, Route3SwapParamsResponseBase {}
+
+export interface Route3LiquidityBakingHops {
   tzbtcHops: Route3Hop[];
   xtzHops: Route3Hop[];
+  tzbtcTree: Route3TreeNode;
+  xtzTree: Route3TreeNode;
 }
 
-export type Route3SwapHops = Pick<Route3TraditionalSwapParamsResponse, 'hops'>;
-
-export type Route3LiquidityBakingHops = Pick<Route3LiquidityBakingParamsResponse, 'tzbtcHops' | 'xtzHops'>;
+export interface Route3LiquidityBakingParamsResponse extends Route3LiquidityBakingHops, Route3SwapParamsResponseBase {}
 
 export type Route3SwapParamsResponse = Route3TraditionalSwapParamsResponse | Route3LiquidityBakingParamsResponse;
 
@@ -69,3 +74,44 @@ export const isSwapHops = (hops: Route3SwapHops | Route3LiquidityBakingHops): ho
 export const isLiquidityBakingParamsResponse = (
   response: Route3SwapParamsResponse
 ): response is Route3LiquidityBakingParamsResponse => 'tzbtcHops' in response && 'xtzHops' in response;
+
+export enum Route3TreeNodeType {
+  Empty = 'Empty',
+  High = 'High',
+  Dex = 'Dex',
+  Wide = 'Wide'
+}
+
+interface Route3TreeNodeBase {
+  type: Route3TreeNodeType;
+  tokenInId: number;
+  tokenOutId: number;
+  tokenInAmount: string;
+  tokenOutAmount: string;
+  width: number;
+  height: number;
+  items: Route3NonEmptyNode[] | null;
+  dexId: number | null;
+}
+
+export interface Route3EmptyTreeNode extends Route3TreeNodeBase {
+  type: Route3TreeNodeType.Empty;
+  items: [];
+  dexId: null;
+}
+
+interface Route3NonTerminalTreeNode extends Route3TreeNodeBase {
+  type: Route3TreeNodeType.High | Route3TreeNodeType.Wide;
+  items: Route3NonEmptyNode[];
+  dexId: null;
+}
+
+interface Route3DexTreeNode extends Route3TreeNodeBase {
+  type: Route3TreeNodeType.Dex;
+  items: null;
+  dexId: number;
+}
+
+type Route3NonEmptyNode = Route3NonTerminalTreeNode | Route3DexTreeNode;
+
+type Route3TreeNode = Route3EmptyTreeNode | Route3NonEmptyNode;
