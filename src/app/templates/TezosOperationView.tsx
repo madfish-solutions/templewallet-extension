@@ -12,18 +12,22 @@ import ViewsSwitcher from 'app/templates/ViewsSwitcher/ViewsSwitcher';
 import { TEZ_TOKEN_SLUG, toTokenSlug } from 'lib/assets';
 import { T, t } from 'lib/i18n';
 import { tryParseExpenses } from 'lib/temple/front';
-import { TempleDAppOperationsPayload, TempleDAppSignPayload } from 'lib/temple/types';
+import { TempleTezosDAppOperationsPayload, TempleTezosDAppSignPayload } from 'lib/temple/types';
 import { TezosNetworkEssentials } from 'temple/networks';
 
-interface OperationViewProps {
-  tezosNetwork: TezosNetworkEssentials;
-  payload: TempleDAppOperationsPayload | TempleDAppSignPayload;
-  networkRpc?: string;
+interface TezosOperationViewProps {
+  network: TezosNetworkEssentials;
+  payload: TempleTezosDAppOperationsPayload | TempleTezosDAppSignPayload;
   error?: any;
   modifyFeeAndLimit?: ModifyFeeAndLimit;
 }
 
-const OperationView: FC<OperationViewProps> = ({ tezosNetwork, payload, error: payloadError, modifyFeeAndLimit }) => {
+const TezosOperationView: FC<TezosOperationViewProps> = ({
+  network,
+  payload,
+  error: payloadError,
+  modifyFeeAndLimit
+}) => {
   const contentToParse = useMemo(() => {
     switch (payload.type) {
       case 'confirm_operations':
@@ -121,7 +125,7 @@ const OperationView: FC<OperationViewProps> = ({ tezosNetwork, payload, error: p
         />
 
         <div className={classNames(spFormat.key !== 'preview' && 'hidden')}>
-          <ExpensesView tezosNetwork={tezosNetwork} error={payloadError} expenses={expensesData} />
+          <ExpensesView tezosNetwork={network} error={payloadError} expenses={expensesData} />
         </div>
       </div>
     );
@@ -171,7 +175,7 @@ const OperationView: FC<OperationViewProps> = ({ tezosNetwork, payload, error: p
 
         <div className={classNames(spFormat.key !== 'preview' && 'hidden')}>
           <ExpensesView
-            tezosNetwork={tezosNetwork}
+            tezosNetwork={network}
             expenses={expensesData}
             estimates={payload.estimates}
             modifyFeeAndLimit={modifyFeeAndLimit}
@@ -185,4 +189,4 @@ const OperationView: FC<OperationViewProps> = ({ tezosNetwork, payload, error: p
   return null;
 };
 
-export default OperationView;
+export default TezosOperationView;

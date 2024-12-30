@@ -18,13 +18,13 @@ import {
   TempleDAppBroadcastResponse
 } from '@temple-wallet/dapp/dist/types';
 import { nanoid } from 'nanoid';
-import browser, { Runtime } from 'webextension-polyfill';
 
 import {
   TezosDAppNetwork,
   TezosDAppSession,
-  getStoredTezosDappsSessions,
-  putStoredTezosDappsSessions
+  getDApp as genericGetDApp,
+  setDApp as genericSetDApp,
+  removeDApps as genericRemoveDApps
 } from 'app/storage/dapps';
 import { CUSTOM_TEZOS_NETWORKS_STORAGE_KEY, TEZOS_CHAINS_SPECS_STORAGE_KEY } from 'lib/constants';
 import { fetchFromStorage } from 'lib/storage';
@@ -33,7 +33,6 @@ import * as Beacon from 'lib/temple/beacon';
 import {
   TempleMessageType,
   TempleRequest,
-  TempleDAppPayload,
   TempleNotification,
   TEZOS_MAINNET_CHAIN_ID,
   TempleTezosChainId
@@ -42,14 +41,13 @@ import { isValidTezosAddress } from 'lib/tezos';
 import { TezosChainSpecs } from 'temple/front/chains-specs';
 import { StoredTezosNetwork, TEZOS_DEFAULT_NETWORKS } from 'temple/networks';
 import { loadTezosChainId } from 'temple/tezos';
+import { TempleChainKind } from 'temple/types';
 
 import { intercom } from './defaults';
 import { buildFinalOpParams, dryRunOpParams } from './dryrun';
+import { RequestConfirmParams, requestConfirm as genericRequestConfirm } from './request-confirm';
 import { withUnlocked } from './store';
 
-const CONFIRM_WINDOW_WIDTH = 380;
-const CONFIRM_WINDOW_HEIGHT = 632;
-const AUTODECLINE_AFTER = 120_000;
 const HEX_PATTERN = /^[0-9a-fA-F]+$/;
 const TEZ_MSG_SIGN_PATTERN = /^0501[a-f0-9]{8}54657a6f73205369676e6564204d6573736167653a20[a-f0-9]*$/;
 
@@ -357,62 +355,25 @@ export async function requestBroadcast(
   }
 }
 
-async function getAllDApps() {
-  return (await getStoredTezosDappsSessions()) || {};
-}
-
-async function getDApp(origin: string): Promise<TezosDAppSession | undefined> {
-  return (await getAllDApps())[origin];
+async function getDApp(origin: string) {
+  return genericGetDApp(TempleChainKind.Tezos, origin);
 }
 
 async function setDApp(origin: string, permissions: TezosDAppSession) {
-  const current = await getAllDApps();
-  const newDApps = { ...current, [origin]: permissions };
-  await putStoredTezosDappsSessions(newDApps);
-  return newDApps;
+  return genericSetDApp(TempleChainKind.Tezos, origin, permissions);
 }
 
 export async function removeDApps(origins: string[]) {
-  const dappsRecord = await getAllDApps();
-  for (const origin of origins) delete dappsRecord[origin];
-  await putStoredTezosDappsSessions(dappsRecord);
+  const result = await genericRemoveDApps(TempleChainKind.Tezos, origins);
   await Beacon.removeDAppPublicKey(origins);
 
-  return dappsRecord;
+  return result;
 }
 
-type RequestConfirmParams = {
-  id: string;
-  payload: TempleDAppPayload;
-  onDecline: () => void;
-  handleIntercomRequest: (req: TempleRequest, decline: () => void) => Promise<any>;
-};
-
-async function requestConfirm({ id, payload, onDecline, handleIntercomRequest }: RequestConfirmParams) {
-  let closing = false;
-  const close = async () => {
-    if (closing) return;
-    closing = true;
-
-    try {
-      stopTimeout();
-      stopRequestListening();
-      stopWinRemovedListening();
-
-      await closeWindow();
-    } catch (_err) {}
-  };
-
-  const declineAndClose = () => {
-    onDecline();
-    close();
-  };
-
-  let knownPort: Runtime.Port | undefined;
-  const stopRequestListening = intercom.onRequest(async (req: TempleRequest, port) => {
-    if (req?.type === TempleMessageType.DAppGetPayloadRequest && req.id === id) {
-      knownPort = port;
-
+async function requestConfirm(params: Omit<RequestConfirmParams, 'transformPayload'>) {
+  return genericRequestConfirm({
+    ...params,
+    transformPayload: async payload => {
       if (payload.type === 'confirm_operations') {
         const dryrunResult = await dryRunOpParams({
           opParams: payload.opParams,
@@ -428,44 +389,9 @@ async function requestConfirm({ id, payload, onDecline, handleIntercomRequest }:
           };
         }
       }
-
-      return {
-        type: TempleMessageType.DAppGetPayloadResponse,
-        payload
-      };
-    } else {
-      if (knownPort !== port) return;
-
-      const result = await handleIntercomRequest(req, onDecline);
-      if (result) {
-        close();
-        return result;
-      }
+      return payload;
     }
   });
-
-  const confirmWin = await createConfirmationWindow(id);
-
-  const closeWindow = async () => {
-    if (confirmWin.id) {
-      const win = await browser.windows.get(confirmWin.id);
-      if (win.id) {
-        await browser.windows.remove(win.id);
-      }
-    }
-  };
-
-  const handleWinRemoved = (winId: number) => {
-    if (winId === confirmWin?.id) {
-      declineAndClose();
-    }
-  };
-  browser.windows.onRemoved.addListener(handleWinRemoved);
-  const stopWinRemovedListening = () => browser.windows.onRemoved.removeListener(handleWinRemoved);
-
-  // Decline after timeout
-  const t = setTimeout(declineAndClose, AUTODECLINE_AFTER);
-  const stopTimeout = () => clearTimeout(t);
 }
 
 async function getNetworkRPC(net: TezosDAppNetwork) {
@@ -512,45 +438,4 @@ function isNetworkEquals(fNet: TezosDAppNetwork, sNet: TezosDAppNetwork) {
 
 function removeLastSlash(str: string) {
   return str.endsWith('/') ? str.slice(0, -1) : str;
-}
-
-async function createConfirmationWindow(confirmationId: string) {
-  const isWin = (await browser.runtime.getPlatformInfo()).os === 'win';
-
-  const height = isWin ? CONFIRM_WINDOW_HEIGHT + 17 : CONFIRM_WINDOW_HEIGHT;
-  const width = isWin ? CONFIRM_WINDOW_WIDTH + 16 : CONFIRM_WINDOW_WIDTH;
-
-  const [top, left] = (await getCenterPositionForWindow(width, height)) || [];
-
-  const options: browser.Windows.CreateCreateDataType = {
-    type: 'popup',
-    url: browser.runtime.getURL(`confirm.html#?id=${confirmationId}`),
-    width,
-    height
-  };
-
-  try {
-    /* Trying, because must have 50% of window in a viewport. Otherwise, error thrown. */
-    const confirmWin = await browser.windows.create({ ...options, top, left });
-
-    // Firefox currently ignores left/top for create, but it works for update
-    if (left != null && confirmWin.id && confirmWin.state !== 'fullscreen' && confirmWin.left !== left)
-      await browser.windows.update(confirmWin.id, { left, top }).catch(() => void 0);
-
-    return confirmWin;
-  } catch {
-    return await browser.windows.create(options);
-  }
-}
-
-/** Position window in the center of lastFocused window */
-async function getCenterPositionForWindow(width: number, height: number): Promise<[number, number] | undefined> {
-  const lastFocused = await browser.windows.getLastFocused().catch(() => void 0);
-
-  if (lastFocused == null || lastFocused.width == null) return;
-
-  const top = Math.round(lastFocused.top! + lastFocused.height! / 2 - height / 2);
-  const left = Math.round(lastFocused.left! + lastFocused.width! / 2 - width / 2);
-
-  return [top, left];
 }

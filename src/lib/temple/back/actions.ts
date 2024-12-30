@@ -15,7 +15,8 @@ import { putToStorage } from 'lib/storage';
 import { addLocalOperation } from 'lib/temple/activity';
 import * as Beacon from 'lib/temple/beacon';
 import { TempleState, TempleMessageType, TempleRequest, TempleSettings, TempleAccountType } from 'lib/temple/types';
-import { createQueue, delay } from 'lib/utils';
+import { PromisesQueue, PromisesQueueCounters, delay } from 'lib/utils';
+import { evmRpcMethodsNames, GET_DEFAULT_WEB3_PARAMS_METHOD_NAME } from 'temple/evm/constants';
 import { EvmTxParams } from 'temple/evm/types';
 import { EvmChain } from 'temple/front';
 import { loadTezosChainId } from 'temple/tezos';
@@ -27,11 +28,33 @@ import {
   requestOperation,
   requestSign,
   requestBroadcast,
-  removeDApps
+  removeDApps as removeTezDApps
 } from './dapp';
 import { intercom } from './defaults';
 import type { DryRunResult } from './dryrun';
 import { buildFinalOpParams, dryRunOpParams } from './dryrun';
+import {
+  connectEvm,
+  getDefaultWeb3Params,
+  getEvmPermissions,
+  requestEvmPermissions,
+  requestEvmPersonalSign,
+  requestEvmTypedSign,
+  revokeEvmPermissions,
+  switchChain,
+  removeDApps as removeEvmDApps,
+  init as initEvm,
+  recoverEvmMessageAddress,
+  handleEvmRpcRequest
+} from './evm-dapp';
+import {
+  ethChangePermissionsPayloadValidationSchema,
+  ethOldSignTypedDataValidationSchema,
+  ethPersonalSignPayloadValidationSchema,
+  ethSignTypedDataValidationSchema,
+  personalSignRecoverPayloadValidationSchema,
+  switchEthChainPayloadValidationSchema
+} from './evm-validation-schemas';
 import {
   toFront,
   store,
@@ -41,17 +64,24 @@ import {
   accountsUpdated,
   settingsUpdated,
   withInited,
-  withUnlocked
+  withUnlocked,
+  dAppQueueCountersUpdated
 } from './store';
 import { Vault } from './vault';
+
+export { switchChain as switchEvmChain } from './evm-dapp';
 
 const ACCOUNT_OR_GROUP_NAME_PATTERN = /^.{1,16}$/;
 const AUTODECLINE_AFTER = 60_000;
 const BEACON_ID = `temple_wallet_${browser.runtime.id}`;
 let initLocked = false;
 
-const enqueueDApp = createQueue();
-const enqueueUnlock = createQueue();
+const dAppQueue = new PromisesQueue();
+const unlockQueue = new PromisesQueue();
+
+dAppQueue.on(PromisesQueue.COUNTERS_CHANGE_EVENT_NAME, (counters: PromisesQueueCounters) => {
+  dAppQueueCountersUpdated(counters);
+});
 
 export async function init() {
   const vaultExist = await Vault.isExist();
@@ -61,12 +91,14 @@ export async function init() {
     initLocked = false;
     locked();
   }
+
+  await initEvm();
 }
 
 export async function getFrontState(): Promise<TempleState> {
   const state = store.getState();
   if (state.inited) {
-    if (BACKGROUND_IS_WORKER) return await enqueueUnlock(async () => toFront(store.getState()));
+    if (BACKGROUND_IS_WORKER) return await unlockQueue.enqueue(async () => toFront(store.getState()));
     else return toFront(state);
   } else {
     await delay(10);
@@ -109,7 +141,7 @@ export async function lock() {
 
 export function unlock(password: string) {
   return withInited(() =>
-    enqueueUnlock(async () => {
+    unlockQueue.enqueue(async () => {
       const vault = await Vault.setup(password, BACKGROUND_IS_WORKER);
       const accounts = await vault.fetchAccounts();
       const settings = await vault.fetchSettings();
@@ -119,7 +151,7 @@ export function unlock(password: string) {
 }
 
 export async function unlockFromSession() {
-  await enqueueUnlock(async () => {
+  await unlockQueue.enqueue(async () => {
     const vault = await Vault.recoverFromSession();
     if (vault == null) return;
     const accounts = await vault.fetchAccounts();
@@ -247,8 +279,11 @@ export function createOrImportWallet(mnemonic?: string) {
   });
 }
 
-export function removeDAppSession(origins: string[]) {
-  return removeDApps(origins);
+export async function removeDAppSession(origins: string[]) {
+  return {
+    [TempleChainKind.Tezos]: await removeTezDApps(origins),
+    [TempleChainKind.EVM]: await removeEvmDApps(origins)
+  };
 }
 
 export function sendOperations(
@@ -438,17 +473,86 @@ export async function processDApp(origin: string, req: TempleDAppRequest): Promi
       return withInited(() => getCurrentPermission(origin));
 
     case TempleDAppMessageType.PermissionRequest:
-      return withInited(() => enqueueDApp(() => requestPermission(origin, req)));
+      return withInited(() => dAppQueue.enqueue(() => requestPermission(origin, req)));
 
     case TempleDAppMessageType.OperationRequest:
-      return withInited(() => enqueueDApp(() => requestOperation(origin, req)));
+      return withInited(() => dAppQueue.enqueue(() => requestOperation(origin, req)));
 
     case TempleDAppMessageType.SignRequest:
-      return withInited(() => enqueueDApp(() => requestSign(origin, req)));
+      return withInited(() => dAppQueue.enqueue(() => requestSign(origin, req)));
 
     case TempleDAppMessageType.BroadcastRequest:
       return withInited(() => requestBroadcast(origin, req));
   }
+}
+
+interface EvmRequestPayload {
+  method: string;
+  params: unknown;
+}
+
+export async function processEvmDApp(origin: string, payload: EvmRequestPayload, chainId: string, iconUrl?: string) {
+  const { method, params } = payload;
+  let methodHandler: () => Promise<any>;
+  let requiresConfirm = true;
+
+  switch (method) {
+    case GET_DEFAULT_WEB3_PARAMS_METHOD_NAME:
+      methodHandler = () => getDefaultWeb3Params(origin);
+      requiresConfirm = false;
+      break;
+    case evmRpcMethodsNames.eth_requestAccounts:
+      methodHandler = () => connectEvm(origin, chainId, iconUrl);
+      break;
+    case evmRpcMethodsNames.wallet_switchEthereumChain:
+      const [{ chainId: destinationChainId }] = switchEthChainPayloadValidationSchema.validateSync(params);
+      methodHandler = () => switchChain(origin, destinationChainId, false);
+      requiresConfirm = false;
+      break;
+    case evmRpcMethodsNames.eth_signTypedData:
+    case evmRpcMethodsNames.eth_signTypedData_v1:
+      const [oldTypedData, oldTypedSignerPkh] = ethOldSignTypedDataValidationSchema.validateSync(params);
+      methodHandler = () => requestEvmTypedSign(origin, oldTypedSignerPkh, chainId, oldTypedData, iconUrl);
+      break;
+    case evmRpcMethodsNames.eth_signTypedData_v3:
+    case evmRpcMethodsNames.eth_signTypedData_v4:
+      const [typedSignerPkh, typedData] = ethSignTypedDataValidationSchema.validateSync(params);
+      methodHandler = () => requestEvmTypedSign(origin, typedSignerPkh, chainId, typedData, iconUrl);
+      break;
+    case evmRpcMethodsNames.personal_sign:
+      const [personalSignData, personalSignerPkh] = ethPersonalSignPayloadValidationSchema.validateSync(params);
+      methodHandler = () =>
+        requestEvmPersonalSign(
+          origin,
+          personalSignerPkh,
+          chainId,
+          Buffer.from(personalSignData.slice(2), 'hex').toString('utf8'),
+          iconUrl
+        );
+      break;
+    case evmRpcMethodsNames.wallet_getPermissions:
+      methodHandler = () => getEvmPermissions(origin);
+      requiresConfirm = false;
+      break;
+    case evmRpcMethodsNames.wallet_requestPermissions:
+      const [requestPermissionsPayload] = ethChangePermissionsPayloadValidationSchema.validateSync(params);
+      methodHandler = () => requestEvmPermissions(origin, chainId, requestPermissionsPayload, iconUrl);
+      break;
+    case evmRpcMethodsNames.wallet_revokePermissions:
+      const [revokePermissionsPayload] = ethChangePermissionsPayloadValidationSchema.validateSync(params);
+      methodHandler = () => revokeEvmPermissions(origin, revokePermissionsPayload);
+      break;
+    case evmRpcMethodsNames.personal_ecRecover:
+      const [message, signature] = personalSignRecoverPayloadValidationSchema.validateSync(params);
+      methodHandler = () => recoverEvmMessageAddress(message, signature);
+      requiresConfirm = false;
+      break;
+    default:
+      methodHandler = () => handleEvmRpcRequest(origin, payload, chainId);
+      requiresConfirm = false;
+  }
+
+  return requiresConfirm ? withInited(() => dAppQueue.enqueue(methodHandler)) : methodHandler();
 }
 
 export async function getBeaconMessage(origin: string, msg: string, encrypted = false) {
@@ -516,7 +620,7 @@ export async function processBeacon(
 
   // Process Disconnect
   if (req.type === Beacon.MessageType.Disconnect) {
-    await removeDApps([origin]);
+    await removeTezDApps([origin]);
     return;
   }
 

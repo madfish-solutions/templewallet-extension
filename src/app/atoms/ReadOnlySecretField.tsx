@@ -77,7 +77,7 @@ export const ReadOnlySecretField: FC<ReadOnlySecretFieldProps> = ({
           onBlur={handleCopyButtonBlur}
         >
           <span>
-            <T id="copyMnemonic" />
+            <T id="copy" />
           </span>
           <IconBase size={12} Icon={CopyIcon} />
         </CopyButton>

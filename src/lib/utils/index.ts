@@ -1,4 +1,5 @@
 import { Mutex } from 'async-mutex';
+import EventEmitter from 'events';
 
 export { arrayBufferToString, stringToArrayBuffer, uInt8ArrayToString, stringToUInt8Array } from './buffers';
 
@@ -59,14 +60,54 @@ export const assert: (value: any, errorMessage?: string) => asserts value = (
   if (!value) throw new AssertionError(errorMessage, value);
 };
 
-export const createQueue = () => {
-  let worker: Promise<any> = Promise.resolve();
+export interface PromisesQueueCounters {
+  length: number;
+  maxLength: number;
+}
 
-  return <T>(factory: () => Promise<T>): Promise<T> =>
-    new Promise((res, rej) => {
-      worker = worker.then(() => factory().then(res).catch(rej));
+export const DEFAULT_PROMISES_QUEUE_COUNTERS: PromisesQueueCounters = { length: 0, maxLength: 0 };
+
+export class PromisesQueue extends EventEmitter {
+  private _counters = { ...DEFAULT_PROMISES_QUEUE_COUNTERS };
+  private worker: Promise<void> = Promise.resolve();
+  static COUNTERS_CHANGE_EVENT_NAME = 'countersChange';
+
+  get counters() {
+    return { ...this._counters };
+  }
+
+  enqueue<T>(factory: () => Promise<T>) {
+    return new Promise<T>((res, rej) => {
+      this._counters.length++;
+      this._counters.maxLength++;
+      this.emitCountersChange();
+      this.worker = this.worker.then(() =>
+        factory()
+          .then(result => {
+            // Decrementing in `finally` is not completely testable
+            this.decrement();
+            res(result);
+          })
+          .catch(err => {
+            this.decrement();
+            rej(err);
+          })
+      );
     });
-};
+  }
+
+  private emitCountersChange() {
+    this.emit(PromisesQueue.COUNTERS_CHANGE_EVENT_NAME, this.counters);
+  }
+
+  private decrement() {
+    this._counters.length--;
+    if (this._counters.length === 0) {
+      this._counters.maxLength = 0;
+    }
+    this.emitCountersChange();
+  }
+}
 
 export const openLink = (href: string, newTab = true, noreferrer = false) => {
   const anchor = document.createElement('a');

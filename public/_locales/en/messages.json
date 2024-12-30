@@ -585,6 +585,12 @@
   "signAction": {
     "message": "Sign"
   },
+  "signatureRequest": {
+    "message": "Signature Request"
+  },
+  "message": {
+    "message": "Message"
+  },
   "appRequestsToSign": {
     "message": "$origin$ requests you to sign",
     "placeholders": {
@@ -1408,6 +1414,9 @@
       }
     }
   },
+  "allowed": {
+    "message": "Allowed"
+  },
   "notAllowed": {
     "message": "Not allowed"
   },
@@ -1476,6 +1485,9 @@
   },
   "network": {
     "message": "Network"
+  },
+  "networkDropdownPrefix": {
+    "message": "Network:"
   },
   "unknownNetwork": {
     "message": "Unknown:"
@@ -1710,6 +1722,18 @@
   "myAccounts": {
     "message": "My Accounts"
   },
+  "permissions": {
+    "message": "Permissions"
+  },
+  "viewWalletPermissionDescription": {
+    "message": "View wallet balance and activity"
+  },
+  "transactionsPermissionDescription": {
+    "message": "Request approval for transactions"
+  },
+  "signingPermissionDescription": {
+    "message": "Request signing messages and data"
+  },
   "sendToMyAccounts": {
     "message": "Send to My Accounts"
   },
@@ -1776,6 +1800,9 @@
   },
   "connect": {
     "message": "Connect"
+  },
+  "connectAccount": {
+    "message": "Connect Account"
   },
   "confirmActionOnDevice": {
     "message": "Confirm the action on"
@@ -2787,6 +2814,9 @@
   "enablePartnersPromotionConfirm": {
     "message": "Support the development team and earn TKEY tokens by viewing ads."
   },
+  "thanksForSupportingTemple": {
+    "message": "Thanks for supporting Temple"
+  },
   "enablePartnersPromotionDescriptionConfirm": {
     "message": "To enable this feature, we request your permission to trace your Wallet Address and IP address. You can always disable ads in the settings."
   },
@@ -3587,7 +3617,7 @@
   "enterSeedPhrase": {
     "message": "enter"
   },
-  "copyMnemonic": {
+  "copy": {
     "message": "Copy"
   },
   "verifySeedPhraseInputTitle": {

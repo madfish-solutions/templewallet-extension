@@ -84,7 +84,7 @@ const SyncSettings: FC = () => {
         </form>
       </div>
 
-      <ActionsButtonsBox flexDirection="col" className="px-4" style={{ backgroundColor: '#FBFBFB' }}>
+      <ActionsButtonsBox className="px-4" style={{ backgroundColor: '#FBFBFB' }}>
         <StyledButton
           type="submit"
           form="sync-form"

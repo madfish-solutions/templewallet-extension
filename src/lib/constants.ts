@@ -101,3 +101,11 @@ export const MAIN_CHAINS_IDS = [
   TempleTezosChainId.Ghostnet,
   ETH_SEPOLIA_CHAIN_ID
 ];
+
+export const PASS_TO_BG_EVENT = 'templePassToBackground';
+
+export const RESPONSE_FROM_BG_MSG_TYPE = 'templeResponseFromBackground';
+
+export const DISCONNECT_DAPP_MSG_TYPE = 'templeDisconnectDApp';
+
+export const SWITCH_CHAIN_MSG_TYPE = 'templeSwitchChain';

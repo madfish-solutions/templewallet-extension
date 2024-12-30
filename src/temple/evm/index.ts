@@ -1,27 +1,13 @@
 import memoizee from 'memoizee';
-import { Transport, Chain, createPublicClient, http, PublicClient, HttpTransportConfig, HttpTransport } from 'viem';
+import { Transport, Chain, createPublicClient, http, PublicClient } from 'viem';
 
 import { rejectOnTimeout } from 'lib/utils';
 import { EvmChain } from 'temple/front';
-import { MAX_MEMOIZED_TOOLKITS } from 'temple/misc';
 
+import { getReadOnlyEvm } from './get-read-only-evm';
 import { getViemChainsList } from './utils';
 
-/** See: https://viem.sh/docs/clients/transports/http */
-const READ_ONLY_CLIENT_TRANSPORT_CONFIG: HttpTransportConfig = {
-  /** Defaults to 3 */
-  retryCount: 1,
-  /** Defaults to 150 */
-  retryDelay: 300
-};
-
-export const getReadOnlyEvm = memoizee(
-  (rpcUrl: string): PublicClient<HttpTransport> =>
-    createPublicClient({
-      transport: http(rpcUrl, READ_ONLY_CLIENT_TRANSPORT_CONFIG)
-    }),
-  { max: MAX_MEMOIZED_TOOLKITS }
-);
+export { getReadOnlyEvm } from './get-read-only-evm';
 
 type ChainPublicClient = PublicClient<Transport, Pick<Chain, 'id' | 'name' | 'nativeCurrency' | 'rpcUrls'>>;
 

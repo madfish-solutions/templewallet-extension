@@ -53,11 +53,6 @@ const HTML_TEMPLATES = PAGES_NAMES.map(name => {
   })
 );
 
-const CONTENT_SCRIPTS = ['contentScript', !IS_CORE_BUILD && 'replaceAds', !IS_CORE_BUILD && 'replaceReferrals'].filter(
-  isTruthy
-);
-if (BACKGROUND_IS_WORKER) CONTENT_SCRIPTS.push('keepBackgroundWorkerAlive');
-
 const mainConfig = (() => {
   const config = buildBaseConfig();
 
@@ -191,7 +186,8 @@ const scriptsConfig = (() => {
       : 'module'; // Required for dynamic imports `import()`
 
   config.entry = {
-    contentScript: Path.join(PATHS.SOURCE, 'contentScript.ts')
+    main: Path.join(PATHS.SOURCE, 'content-scripts/main.ts'),
+    inpage: Path.join(PATHS.SOURCE, 'content-scripts/inpage.ts')
   };
   if (!IS_CORE_BUILD) {
     config.entry.replaceAds = Path.join(PATHS.SOURCE, 'replaceAds.ts');

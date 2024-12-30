@@ -12,7 +12,7 @@ import { ImagePromotionView } from './image-promotion-view';
 import { TextPromotionView } from './text-promotion-view';
 
 export const OptimalPromotion = memo<SingleProviderPromotionProps>(
-  ({ accountPkh, isVisible, variant, pageName, onAdRectSeen, onClose, onReady, onError }) => {
+  ({ accountPkh, isVisible, variant, pageName, onAdRectSeen, onReady, onError }) => {
     const [isImageBroken, setIsImageBroken] = useState(false);
     const [wasLoading, setWasLoading] = useState(false);
     const [shouldPreventShowingPrevAd, setShouldPreventShowingPrevAd] = useState(true);
@@ -67,11 +67,10 @@ export const OptimalPromotion = memo<SingleProviderPromotionProps>(
           isVisible={isVisible}
           providerTitle={providerTitle}
           pageName={pageName}
-          onClose={onClose}
           onAdRectSeen={onAdRectSeen}
           backgroundAssetUrl={imageSrc}
         >
-          <img src={imageSrc} alt="Partners promotion" className="rounded-xl" onError={onImageError} />
+          <img src={imageSrc} alt="Partners promotion" className="rounded" onError={onImageError} />
         </ImagePromotionView>
       );
     }
@@ -88,7 +87,6 @@ export const OptimalPromotion = memo<SingleProviderPromotionProps>(
         pageName={pageName}
         onAdRectSeen={onAdRectSeen}
         onImageError={onError}
-        onClose={onClose}
       />
     );
   }
