@@ -3796,5 +3796,11 @@
   },
   "disabledInTestnetMode": {
     "message": "Disabled in Testnet Mode"
+  },
+  "unknownTransaction": {
+    "message": "Unknown Transaction"
+  },
+  "interactionWith": {
+    "message": "Interaction With"
   }
 }

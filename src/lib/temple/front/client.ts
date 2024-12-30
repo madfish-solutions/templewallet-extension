@@ -16,7 +16,8 @@ import {
   TempleSettings,
   DerivationType,
   TempleAccountType,
-  WalletSpecs
+  WalletSpecs,
+  EvmTransactionRequestWithSender
 } from 'lib/temple/types';
 import { useDidMount } from 'lib/ui/hooks';
 import { DEFAULT_PROMISES_QUEUE_COUNTERS } from 'lib/utils';
@@ -352,14 +353,27 @@ export const [TempleClientProvider, useTempleClient] = constate(() => {
     assertResponse(res.type === TempleMessageType.DAppPermConfirmationResponse);
   }, []);
 
-  const confirmDAppOperation = useCallback(
+  const confirmTezosDAppOperation = useCallback(
     async (id: string, confirmed: boolean, modifiedTotalFee?: number, modifiedStorageLimit?: number) => {
       const res = await request({
-        type: TempleMessageType.DAppOpsConfirmationRequest,
+        type: TempleMessageType.DAppTezosOpsConfirmationRequest,
         id,
         confirmed,
         modifiedTotalFee,
         modifiedStorageLimit
+      });
+      assertResponse(res.type === TempleMessageType.DAppOpsConfirmationResponse);
+    },
+    []
+  );
+
+  const confirmEvmDAppOperation = useCallback(
+    async (id: string, confirmed: boolean, modifiedReq: EvmTransactionRequestWithSender) => {
+      const res = await request({
+        type: TempleMessageType.DAppEvmOpsConfirmationRequest,
+        id,
+        confirmed,
+        modifiedReq
       });
       assertResponse(res.type === TempleMessageType.DAppOpsConfirmationResponse);
     },
@@ -462,7 +476,8 @@ export const [TempleClientProvider, useTempleClient] = constate(() => {
     confirmInternal,
     getDAppPayload,
     confirmDAppPermission,
-    confirmDAppOperation,
+    confirmTezosDAppOperation,
+    confirmEvmDAppOperation,
     confirmDAppSign,
     removeDAppSession,
     switchDAppEvmChain,

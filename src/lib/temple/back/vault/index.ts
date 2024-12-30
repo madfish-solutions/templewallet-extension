@@ -900,7 +900,11 @@ export class Vault {
     }
   }
 
-  async sendEvmTransaction(accPublicKeyHash: string, network: EvmChain, txParams: TransactionRequest) {
+  async sendEvmTransaction(
+    accPublicKeyHash: string,
+    network: Pick<EvmChain, 'chainId' | 'name' | 'currency' | 'rpcBaseURL'>,
+    txParams: TransactionRequest
+  ) {
     return this.withSigningEvmAccount(accPublicKeyHash, async account => {
       const client = createWalletClient({
         account,

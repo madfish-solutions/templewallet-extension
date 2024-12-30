@@ -362,13 +362,14 @@ const promisableUnlock = async (
 
   const stopRequestListening = intercom.onRequest(async (req: TempleRequest, reqPort) => {
     if (reqPort === port && req?.type === TempleMessageType.ConfirmationRequest && req?.id === id) {
-      if (req.confirmed) {
+      const { confirmed, modifiedStorageLimit, modifiedTotalFee } = req;
+      if (confirmed) {
         try {
           const op = await withUnlocked(({ vault }) =>
             vault.sendOperations(
               sourcePkh,
               networkRpc,
-              buildFinalOpParams(opParams, req.modifiedTotalFee, req.modifiedStorageLimit)
+              buildFinalOpParams(opParams, modifiedTotalFee, modifiedStorageLimit)
             )
           );
 
@@ -554,7 +555,7 @@ export async function processEvmDApp(origin: string, payload: EvmRequestPayload,
     case evmRpcMethodsNames.eth_sendTransaction:
       let req: TransactionRequest;
       try {
-        req = parseTransactionRequest(params as RpcTransactionRequest);
+        req = parseTransactionRequest((params as [RpcTransactionRequest])[0]);
       } catch (e: any) {
         throw new ErrorWithCode(EVMErrorCodes.INVALID_PARAMS, e.message ?? 'Invalid transaction request');
       }
