@@ -11,6 +11,7 @@ import { mockCurrencyState } from './currency/state.mock';
 import { mockDAppsState } from './d-apps/state.mock';
 import { mockNewsletterState } from './newsletter/newsletter-state.mock';
 import { mockPartnersPromotionState } from './partners-promotion/state.mock';
+import { mockRewardsState } from './rewards/state.mock';
 import type { RootState } from './root-state.type';
 import { mockSettingsState } from './settings/state.mock';
 import { mockSwapState } from './swap/state.mock';
@@ -32,5 +33,6 @@ export const mockRootState: RootState = {
   abTesting: mockABTestingState,
   buyWithCreditCard: mockBuyWithCreditCardState,
   collectibles: mockCollectiblesState,
-  newsletter: mockNewsletterState
+  newsletter: mockNewsletterState,
+  rewards: mockRewardsState
 };

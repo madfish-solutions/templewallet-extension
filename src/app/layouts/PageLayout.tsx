@@ -14,7 +14,6 @@ import clsx from 'clsx';
 
 import DocBg from 'app/a11y/DocBg';
 import { Button } from 'app/atoms/Button';
-import { DonationBanner } from 'app/atoms/DonationBanner/DonationBanner';
 import Spinner from 'app/atoms/Spinner/Spinner';
 import { useAppEnv } from 'app/env';
 import ErrorBoundary from 'app/ErrorBoundary';
@@ -35,6 +34,7 @@ import Header from './PageLayout/Header';
 import { NewsletterOverlay } from './PageLayout/NewsletterOverlay/NewsletterOverlay';
 import { OnRampOverlay } from './PageLayout/OnRampOverlay/OnRampOverlay';
 import { ReactivateAdsOverlay } from './PageLayout/ReactivateAdsOverlay';
+import { RewardsButton } from './PageLayout/RewardsButton';
 import { ShortcutAccountSwitchOverlay } from './PageLayout/ShortcutAccountSwitchOverlay';
 import { PageLayoutSelectors } from './PageLayout.selectors';
 
@@ -116,7 +116,6 @@ type ToolbarProps = {
   hasBackAction?: boolean;
   step?: number;
   setStep?: (step: number) => void;
-  adShow?: boolean;
   skip?: boolean;
   attention?: boolean;
 };
@@ -126,15 +125,7 @@ export let ToolbarElement: HTMLDivElement | null = null;
 /** Defined for reference in code to highlight relation between multiple sticky elements & their sizes */
 export const TOOLBAR_IS_STICKY = true;
 
-const Toolbar: FC<ToolbarProps> = ({
-  pageTitle,
-  hasBackAction = true,
-  step,
-  setStep,
-  adShow = false,
-  skip,
-  attention
-}) => {
+const Toolbar: FC<ToolbarProps> = ({ pageTitle, hasBackAction = true, step, setStep, skip, attention }) => {
   const { historyPosition, pathname } = useLocation();
   const { fullPage } = useAppEnv();
   const { setOnboardingCompleted } = useOnboardingProgress();
@@ -203,10 +194,8 @@ const Toolbar: FC<ToolbarProps> = ({
 
   return (
     <div ref={updateRootRef} className={className}>
-      <div className="flex-1">
-        {!isBackButtonAvailable && adShow && <DonationBanner />}
-
-        {isBackButtonAvailable && (
+      {isBackButtonAvailable ? (
+        <div className="flex-1">
           <Button
             className={clsx(
               'rounded px-2 py-1',
@@ -223,8 +212,10 @@ const Toolbar: FC<ToolbarProps> = ({
             <ChevronLeftIcon className="-ml-2 h-5 w-auto stroke-current stroke-2" />
             <T id="back" />
           </Button>
-        )}
-      </div>
+        </div>
+      ) : (
+        <RewardsButton testID={PageLayoutSelectors.rewardsButton} />
+      )}
 
       {pageTitle && (
         <h2 className="px-1 flex items-center text-ulg text-gray-700 font-normal overflow-hidden">{pageTitle}</h2>
