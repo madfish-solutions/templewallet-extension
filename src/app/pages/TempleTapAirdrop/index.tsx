@@ -1,6 +1,5 @@
 import React, { FC, memo, PropsWithChildren, useCallback, useMemo, useState } from 'react';
 
-import { isAxiosError } from 'axios';
 import { OnSubmit, useForm } from 'react-hook-form';
 
 import { Alert, Anchor, FormField, FormSubmitButton } from 'app/atoms';
@@ -30,25 +29,29 @@ export const TempleTapAirdropPage = memo(() => {
   const { register, handleSubmit, errors, setError, clearError, formState, reset } = useForm<FormData>();
 
   const submitting = formState.isSubmitting;
-  const [confirmSent, setConfirmSent] = useState(false);
-  const [confirmed, setConfirmed] = useState(false);
+  const [confirmStatus, setConfirmStatus] = useState<null | 'sent' | 'confirmed'>(null);
 
   const onSubmit = useCallback<OnSubmit<FormData>>(
     async ({ username }) => {
       clearError();
 
       try {
-        await sendTempleTapAirdropUsernameConfirmation(account.publicKeyHash, username);
+        const res = await sendTempleTapAirdropUsernameConfirmation(account.publicKeyHash, username);
 
-        setConfirmSent(true);
-        reset();
-      } catch (error: any) {
-        if (isAxiosError(error) && error.response?.data.code === 'ACCOUNT_CONFIRMED') {
-          setConfirmed(true);
-          return;
+        switch (res.data.status) {
+          case 'ACCEPTED':
+            setConfirmStatus('sent');
+            break;
+          case 'CONFIRMED':
+            setConfirmStatus('confirmed');
+            break;
         }
 
-        setError('username', 'submit-error', error?.response.data?.message || 'Something went wrong...');
+        reset();
+      } catch (error: any) {
+        console.error(error);
+
+        setError('username', 'submit-error', error?.response?.data?.message || 'Something went wrong...');
       }
     },
     [reset, clearError, setError, account.publicKeyHash]
@@ -70,10 +73,10 @@ export const TempleTapAirdropPage = memo(() => {
 
         <span className="mt-8 text-dark-gray text-base leading-tighter font-medium">How to receive TKEY?</span>
 
-        {confirmSent && (
+        {confirmStatus && (
           <Alert
             type="success"
-            title={`${t('success')} ${confirmed ? '✅' : '🛫'}`}
+            title={`${t('success')} ${confirmStatus === 'confirmed' ? '✅' : '🛫'}`}
             description="Confirmation sent to Temple Tap bot! Waiting for approve..."
             autoFocus
             className="mt-4"
@@ -81,7 +84,7 @@ export const TempleTapAirdropPage = memo(() => {
         )}
 
         {canSign ? (
-          confirmed ? (
+          confirmStatus === 'confirmed' ? (
             <BlockComp
               title="Address confirmed"
               description="Your address has been successfully confirmed in Temple Tap bot for future airdrop distribution."
