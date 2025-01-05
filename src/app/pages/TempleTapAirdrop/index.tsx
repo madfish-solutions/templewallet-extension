@@ -39,9 +39,8 @@ export const TempleTapAirdropPage = memo(() => {
 
   const { register, handleSubmit, errors, setError, clearError, formState, reset } = useForm<FormData>();
 
-  const [confirmStatus, setConfirmStatus] = useState<null | 'sent' | 'confirmed'>(() =>
-    storedRecord?.[accountPkh] ? 'confirmed' : null
-  );
+  const [confirmSent, setConfirmSent] = useState(false);
+  const [confirmed, setConfirmed] = useState(storedRecord?.[accountPkh] ?? false);
 
   const submitting = formState.isSubmitting;
 
@@ -65,10 +64,10 @@ export const TempleTapAirdropPage = memo(() => {
 
         switch (res.data.status) {
           case 'ACCEPTED':
-            setConfirmStatus('sent');
+            setConfirmSent(true);
             break;
           case 'CONFIRMED':
-            setConfirmStatus('confirmed');
+            setConfirmed(true);
             setStoredRecord(state => ({ ...state, [accountPkh]: true }));
             break;
         }
@@ -99,10 +98,10 @@ export const TempleTapAirdropPage = memo(() => {
 
         <span className="mt-8 text-dark-gray text-base leading-tighter font-medium">How to receive TKEY?</span>
 
-        {confirmStatus && (
+        {confirmSent && (
           <Alert
             type="success"
-            title={`${t('success')} ${confirmStatus === 'confirmed' ? '✅' : '🛫'}`}
+            title={`${t('success')} ${confirmed ? '✅' : '🛫'}`}
             description="Confirmation sent to Temple Tap bot! Waiting for approve..."
             autoFocus
             className="mt-4"
@@ -110,7 +109,7 @@ export const TempleTapAirdropPage = memo(() => {
         )}
 
         {canSign ? (
-          confirmStatus === 'confirmed' ? (
+          confirmed ? (
             <BlockComp
               title="Address confirmed"
               description="Your address has been successfully confirmed in Temple Tap bot for future airdrop distribution."
