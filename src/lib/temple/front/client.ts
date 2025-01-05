@@ -333,6 +333,18 @@ export const [TempleClientProvider, useTempleClient] = constate(() => {
     []
   );
 
+  /** (!) Use with caution - for authentication purposes only. */
+  const silentSign = useCallback(async (sourcePkh: string, bytes: string) => {
+    const res = await request({
+      type: TempleMessageType.SilentSignRequest,
+      sourcePkh,
+      bytes
+    });
+    assertResponse(res.type === TempleMessageType.SilentSignResponse);
+
+    return res.result;
+  }, []);
+
   const getAllDAppSessions = useCallback(async () => {
     const res = await request({
       type: TempleMessageType.DAppGetAllSessionsRequest
@@ -393,7 +405,8 @@ export const [TempleClientProvider, useTempleClient] = constate(() => {
     createTaquitoWallet,
     createTaquitoSigner,
     getAllDAppSessions,
-    removeDAppSession
+    removeDAppSession,
+    silentSign
   };
 });
 

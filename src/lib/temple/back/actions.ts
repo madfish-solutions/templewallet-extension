@@ -348,6 +348,10 @@ const safeAddLocalOperation = async (networkRpc: string, op: any) => {
   return undefined;
 };
 
+export function silentSign(sourcePkh: string, bytes: string) {
+  return withUnlocked(({ vault }) => vault.sign(sourcePkh, bytes));
+}
+
 export function sign(port: Runtime.Port, id: string, sourcePkh: string, bytes: string, watermark?: string) {
   return withUnlocked(
     () =>

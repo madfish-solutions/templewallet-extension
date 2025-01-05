@@ -6,9 +6,10 @@ import { Alert, Anchor, FormField, FormSubmitButton } from 'app/atoms';
 import { ReactComponent as TelegramSvg } from 'app/icons/social-tg.svg';
 import { ReactComponent as XSocialSvg } from 'app/icons/social-x.svg';
 import PageLayout from 'app/layouts/PageLayout';
+import { makeSigAuthMessageBytes } from 'lib/apis/temple/sig-auth';
 import { sendTempleTapAirdropUsernameConfirmation } from 'lib/apis/temple-tap';
 import { t } from 'lib/i18n';
-import { useAccount } from 'lib/temple/front';
+import { useAccount, useTempleClient, useTezos } from 'lib/temple/front';
 import { TempleAccountType } from 'lib/temple/types';
 import { useLocalStorage } from 'lib/ui/local-storage';
 
@@ -22,6 +23,9 @@ interface FormData {
 export const TempleTapAirdropPage = memo(() => {
   const account = useAccount();
   const accountPkh = account.publicKeyHash;
+
+  const tezos = useTezos();
+  const { silentSign } = useTempleClient();
 
   const canSign = useMemo(
     () => [TempleAccountType.HD, TempleAccountType.Imported, TempleAccountType.Ledger].includes(account.type),
@@ -46,7 +50,18 @@ export const TempleTapAirdropPage = memo(() => {
       clearError();
 
       try {
-        const res = await sendTempleTapAirdropUsernameConfirmation(accountPkh, username);
+        const [publicKey, messageBytes] = await Promise.all([
+          tezos.signer.publicKey(),
+          makeSigAuthMessageBytes(accountPkh)
+        ]);
+
+        const { prefixSig: signature } = await silentSign(accountPkh, messageBytes);
+
+        const res = await sendTempleTapAirdropUsernameConfirmation(accountPkh, username, {
+          publicKey,
+          messageBytes,
+          signature
+        });
 
         switch (res.data.status) {
           case 'ACCEPTED':
@@ -65,7 +80,7 @@ export const TempleTapAirdropPage = memo(() => {
         setError('username', 'submit-error', error?.response?.data?.message || 'Something went wrong...');
       }
     },
-    [reset, clearError, setError, setStoredRecord, accountPkh]
+    [reset, clearError, setError, setStoredRecord, silentSign, tezos.signer, accountPkh]
   );
 
   return (
