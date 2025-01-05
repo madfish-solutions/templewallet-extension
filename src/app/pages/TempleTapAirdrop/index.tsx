@@ -10,6 +10,7 @@ import { sendTempleTapAirdropUsernameConfirmation } from 'lib/apis/temple-tap';
 import { t } from 'lib/i18n';
 import { useAccount } from 'lib/temple/front';
 import { TempleAccountType } from 'lib/temple/types';
+import { useLocalStorage } from 'lib/ui/local-storage';
 
 import BannerImgSrc from './banner.png';
 import { ReactComponent as ConfirmedSvg } from './confirmed.svg';
@@ -20,23 +21,32 @@ interface FormData {
 
 export const TempleTapAirdropPage = memo(() => {
   const account = useAccount();
+  const accountPkh = account.publicKeyHash;
 
   const canSign = useMemo(
     () => [TempleAccountType.HD, TempleAccountType.Imported, TempleAccountType.Ledger].includes(account.type),
     [account.type]
   );
 
+  const [storedRecord, setStoredRecord] = useLocalStorage<LocalStorageRecord | null>(
+    'TEMPLE_TAP_AIRDROP_PKH_CONFIRMATIONS',
+    null
+  );
+
   const { register, handleSubmit, errors, setError, clearError, formState, reset } = useForm<FormData>();
 
+  const [confirmStatus, setConfirmStatus] = useState<null | 'sent' | 'confirmed'>(() =>
+    storedRecord?.[accountPkh] ? 'confirmed' : null
+  );
+
   const submitting = formState.isSubmitting;
-  const [confirmStatus, setConfirmStatus] = useState<null | 'sent' | 'confirmed'>(null);
 
   const onSubmit = useCallback<OnSubmit<FormData>>(
     async ({ username }) => {
       clearError();
 
       try {
-        const res = await sendTempleTapAirdropUsernameConfirmation(account.publicKeyHash, username);
+        const res = await sendTempleTapAirdropUsernameConfirmation(accountPkh, username);
 
         switch (res.data.status) {
           case 'ACCEPTED':
@@ -44,6 +54,7 @@ export const TempleTapAirdropPage = memo(() => {
             break;
           case 'CONFIRMED':
             setConfirmStatus('confirmed');
+            setStoredRecord(state => ({ ...state, [accountPkh]: true }));
             break;
         }
 
@@ -54,7 +65,7 @@ export const TempleTapAirdropPage = memo(() => {
         setError('username', 'submit-error', error?.response?.data?.message || 'Something went wrong...');
       }
     },
-    [reset, clearError, setError, account.publicKeyHash]
+    [reset, clearError, setError, setStoredRecord, accountPkh]
   );
 
   return (
@@ -98,7 +109,7 @@ export const TempleTapAirdropPage = memo(() => {
             >
               <div className="text-xs leading-5 text-dark-gray">
                 <span>Your address: </span>
-                <span>{account.publicKeyHash}</span>
+                <span>{accountPkh}</span>
               </div>
 
               <form onSubmit={handleSubmit(onSubmit)} className="contents">
@@ -142,6 +153,8 @@ export const TempleTapAirdropPage = memo(() => {
     </PageLayout>
   );
 });
+
+type LocalStorageRecord = StringRecord<true>;
 
 interface BlockCompProps {
   title: string;
