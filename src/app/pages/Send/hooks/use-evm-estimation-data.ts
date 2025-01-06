@@ -36,7 +36,7 @@ export const useEvmEstimationData = (
 
       return genericEstimate(network, {
         ...buildBasicEvmSendParams(accountPkh, to, assetMetadata, amount),
-        account: accountPkh
+        from: accountPkh
       });
     } catch (err: any) {
       console.warn(err);

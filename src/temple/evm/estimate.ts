@@ -36,12 +36,13 @@ function getEstimatedFee(fees: Partial<FeeValues & { gas: bigint }>): bigint | u
   return fees.gas !== undefined && gasPrice !== undefined ? fees.gas * gasPrice : undefined;
 }
 
-type EstimationPayload = PrepareTransactionRequestRequest & { account?: HexString };
+type EstimationPayload = PrepareTransactionRequestRequest & { from?: HexString };
 
 export const estimate = async (network: EvmChain, req: EstimationPayload): Promise<EvmEstimationData> => {
+  const { gasPrice, maxFeePerGas, maxPriorityFeePerGas, ...restReqProps } = req;
   const publicClient = getReadOnlyEvmForNetwork(network);
 
-  const transaction = await publicClient.prepareTransactionRequest(req);
+  const transaction = await publicClient.prepareTransactionRequest(restReqProps);
 
   const commonProps = {
     estimatedFee: getEstimatedFee(transaction),

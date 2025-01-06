@@ -25,6 +25,7 @@ interface TransactionTabsProps<T extends TxParamsFormData> {
   displayedFee?: string;
   displayedStorageFee?: string;
   displayedFeeOptions?: DisplayedFeeOptions;
+  estimationError?: string | nullish;
   formId: string;
   tabsName: string;
   destinationName: ReactNode;
@@ -43,6 +44,7 @@ export const TransactionTabs = <T extends TxParamsFormData>({
   displayedFee,
   displayedStorageFee,
   displayedFeeOptions,
+  estimationError,
   formId,
   tabsName,
   destinationName,
@@ -77,7 +79,7 @@ export const TransactionTabs = <T extends TxParamsFormData>({
             value: 'advanced',
             ref: useRef<HTMLDivElement>(null)
           },
-          ...(latestSubmitError
+          ...(latestSubmitError || estimationError
             ? [
                 {
                   label: 'Error',
@@ -90,11 +92,15 @@ export const TransactionTabs = <T extends TxParamsFormData>({
       />
 
       <form id={formId} className="flex-1 flex flex-col" onSubmit={handleSubmit(onSubmit)}>
-        {displayedFeeOptions ? (
+        {!displayedFeeOptions && !estimationError ? (
+          <div className="flex justify-center my-10">
+            <Spinner theme="gray" className="w-20" />
+          </div>
+        ) : (
           (() => {
             switch (selectedTab) {
               case 'fee':
-                return (
+                return displayedFeeOptions ? (
                   <FeeTab
                     network={network}
                     assetSlug={nativeAssetSlug}
@@ -102,11 +108,13 @@ export const TransactionTabs = <T extends TxParamsFormData>({
                     selectedOption={selectedFeeOption}
                     onOptionSelect={onFeeOptionSelect}
                   />
+                ) : (
+                  <div>TODO: add some content</div>
                 );
               case 'advanced':
                 return <AdvancedTab isEvm={isEvm} />;
               case 'error':
-                return <ErrorTab isEvm={isEvm} message={latestSubmitError} />;
+                return <ErrorTab isEvm={isEvm} message={latestSubmitError || estimationError} />;
               default:
                 return (
                   <DetailsTab
@@ -121,10 +129,6 @@ export const TransactionTabs = <T extends TxParamsFormData>({
                 );
             }
           })()
-        ) : (
-          <div className="flex justify-center my-10">
-            <Spinner theme="gray" className="w-20" />
-          </div>
         )}
       </form>
     </>

@@ -235,6 +235,17 @@ export const sendEvmTransactionAfterConfirm = async (
         type: 'eip2930',
         gasPrice: maxFeePerGas ?? maxPriorityFeePerGas
       };
+    } else if (
+      req.type === undefined &&
+      !req.gasPrice &&
+      !req.maxFeePerGas &&
+      !req.maxPriorityFeePerGas &&
+      req.authorizationList &&
+      eip1559Supported
+    ) {
+      modifiedReq.type = 'eip7702';
+    } else if (req.type === undefined && !req.gasPrice && !req.maxFeePerGas && !req.maxPriorityFeePerGas) {
+      modifiedReq.type = eip1559Supported ? 'eip1559' : req.accessList ? 'eip2930' : 'legacy';
     }
   } catch (e) {
     console.error(e);

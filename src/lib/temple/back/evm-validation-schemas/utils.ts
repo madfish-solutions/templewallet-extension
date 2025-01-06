@@ -16,7 +16,7 @@ export const evmAddressValidationSchema = () =>
     });
 
 const HEX_STRING_REGEX = /^0x([0-9a-f]*)$/i;
-const hexStringSchema = () => stringSchema<HexString>().matches(HEX_STRING_REGEX, 'Invalid hex string');
+export const hexStringSchema = () => stringSchema<HexString>().matches(HEX_STRING_REGEX, 'Invalid hex string');
 
 export const hexByteStringSchema = () =>
   hexStringSchema().test('even-digits', 'String must contain even amount of digits', value => {

@@ -11,7 +11,7 @@ import { T } from 'lib/i18n';
 import { EvmTransactionRequestWithSender, TempleEvmDAppTransactionPayload } from 'lib/temple/types';
 import { getAccountAddressForEvm } from 'temple/accounts';
 import { parseTransactionRequest } from 'temple/evm/utils';
-import { useAllAccounts, useEnabledEvmChains } from 'temple/front';
+import { useAllAccounts, useAllEvmChains } from 'temple/front';
 
 import { AccountCard } from '../AccountCard';
 import { TransactionTabs } from '../TransactionTabs';
@@ -24,7 +24,6 @@ interface EvmTransactionViewProps {
   payload: TempleEvmDAppTransactionPayload;
   formId: string;
   error: any;
-  // TODO: use `setFinalEvmTransaction` to modify approval parameters
   setFinalEvmTransaction: ReactSetStateFn<EvmTransactionRequestWithSender>;
   // TODO: use `setCustomTitle` to set the appropriate title for approves, contract deployments, etc.
   setCustomTitle: ReactSetStateFn<ReactNode>;
@@ -33,19 +32,19 @@ interface EvmTransactionViewProps {
 
 export const EvmTransactionView = memo<EvmTransactionViewProps>(
   ({ payload, formId, error, setFinalEvmTransaction, onSubmit }) => {
-    const chains = useEnabledEvmChains();
+    const chains = useAllEvmChains();
     const { chainId, req } = payload;
     const parsedChainId = Number(chainId);
     const parsedReq = useMemo(() => ({ ...parseTransactionRequest(req), from: req.from }), [req]);
 
     const accounts = useAllAccounts();
-    const chain = useMemo(() => chains.find(c => c.chainId === parsedChainId)!, [chains, parsedChainId]);
+    const chain = useMemo(() => Object.values(chains).find(c => c.chainId === parsedChainId)!, [chains, parsedChainId]);
     const sendingAccount = useMemo(
       () => accounts.find(acc => getAccountAddressForEvm(acc)?.toLowerCase() === req.from.toLowerCase())!,
       [accounts, req.from]
     );
 
-    const { data: estimationData } = useEvmEstimationData(parsedChainId, parsedReq);
+    const { data: estimationData, error: estimationError } = useEvmEstimationData(parsedChainId, parsedReq);
     const basicParams = useMemo(
       () => ({
         ...parsedReq,
@@ -60,7 +59,9 @@ export const EvmTransactionView = memo<EvmTransactionViewProps>(
     const { formState } = form;
 
     const handleSubmit = useCallback(
-      ({ gasPrice, gasLimit, nonce }: EvmTxParamsFormData) => {
+      (values: EvmTxParamsFormData) => {
+        const { gasPrice, gasLimit, nonce } = values;
+
         if (formState.isSubmitting) return;
 
         const feesPerGas = getFeesPerGas(gasPrice);
@@ -102,6 +103,7 @@ export const EvmTransactionView = memo<EvmTransactionViewProps>(
             setSelectedTab={setTab}
             selectedFeeOption={selectedFeeOption}
             latestSubmitError={error}
+            estimationError={estimationError?.message}
             onFeeOptionSelect={handleFeeOptionSelect}
             onSubmit={handleSubmit}
             displayedFee={displayedFee}

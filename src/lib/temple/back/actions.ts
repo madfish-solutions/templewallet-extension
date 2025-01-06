@@ -7,7 +7,7 @@ import {
   TempleDAppRequest,
   TempleDAppResponse
 } from '@temple-wallet/dapp/dist/types';
-import { RpcTransactionRequest, TransactionRequest } from 'viem';
+import { TransactionRequest } from 'viem';
 import browser, { Runtime } from 'webextension-polyfill';
 
 import { CUSTOM_TEZOS_NETWORKS_STORAGE_KEY } from 'lib/constants';
@@ -56,6 +56,7 @@ import {
   ethPersonalSignPayloadValidationSchema,
   ethSignTypedDataValidationSchema,
   personalSignRecoverPayloadValidationSchema,
+  sendTransactionPayloadValidationSchema,
   switchEthChainPayloadValidationSchema
 } from './evm-validation-schemas';
 import {
@@ -555,7 +556,7 @@ export async function processEvmDApp(origin: string, payload: EvmRequestPayload,
     case evmRpcMethodsNames.eth_sendTransaction:
       let req: TransactionRequest;
       try {
-        req = parseTransactionRequest((params as [RpcTransactionRequest])[0]);
+        req = parseTransactionRequest(sendTransactionPayloadValidationSchema.validateSync(params)[0]);
       } catch (e: any) {
         throw new ErrorWithCode(EVMErrorCodes.INVALID_PARAMS, e.message ?? 'Invalid transaction request');
       }

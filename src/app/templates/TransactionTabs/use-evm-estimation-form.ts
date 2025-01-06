@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
+import { isDefined } from '@rnw-community/shared';
 import { transform } from 'lodash';
 import { useForm } from 'react-hook-form-v7';
 import { useDebounce } from 'use-debounce';
@@ -45,7 +46,7 @@ export const useEvmEstimationForm = (
     };
   }, [basicParams]);
   const form = useForm<EvmTxParamsFormData>({ mode: 'onChange', defaultValues });
-  const { watch, setValue } = form;
+  const { watch, setValue, formState } = form;
 
   const gasPriceValue = watch('gasPrice');
 
@@ -69,10 +70,33 @@ export const useEvmEstimationForm = (
     if (gasPriceValue && selectedFeeOption) setSelectedFeeOption(null);
   }, [gasPriceValue, selectedFeeOption]);
 
+  const feesPerGasFromBasicParams = useMemo(() => {
+    if (!basicParams) {
+      return null;
+    }
+
+    if (basicParams.gasPrice) {
+      return { gasPrice: basicParams.gasPrice };
+    }
+
+    if (basicParams.maxFeePerGas && isDefined(basicParams.maxPriorityFeePerGas)) {
+      return {
+        maxFeePerGas: basicParams.maxFeePerGas,
+        maxPriorityFeePerGas: basicParams.maxPriorityFeePerGas
+      };
+    }
+
+    return null;
+  }, [basicParams]);
+
   const getFeesPerGas = useCallback(
     (rawGasPrice: string): FeeValuesLegacy | FeeValuesEIP1559 | null => {
       if (!feeOptions) {
         return null;
+      }
+
+      if (!selectedFeeOption && !formState.touchedFields.gasPrice) {
+        return feesPerGasFromBasicParams;
       }
 
       try {
@@ -97,7 +121,7 @@ export const useEvmEstimationForm = (
         return null;
       }
     },
-    [feeOptions, selectedFeeOption]
+    [feeOptions, feesPerGasFromBasicParams, formState.touchedFields.gasPrice, selectedFeeOption]
   );
 
   const rawTransaction = useMemo(() => {

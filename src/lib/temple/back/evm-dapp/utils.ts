@@ -189,7 +189,7 @@ export const networkSupportsEIP1559 = memoizee(
     const evmToolkit = getReadOnlyEvm(rpcBaseURL);
     const block = await evmToolkit.getBlock({ includeTransactions: false, blockTag: 'latest' });
 
-    return Boolean(block.baseFeePerGas);
+    return block.baseFeePerGas !== null;
   },
   { promise: true, maxAge: 60 * 1000 }
 );
