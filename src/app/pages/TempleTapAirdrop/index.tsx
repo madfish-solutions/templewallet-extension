@@ -55,24 +55,26 @@ export const TempleTapAirdropPage = memo(() => {
   }, [silentSign, tezos.signer, accountPkh]);
 
   useTypedSWR(
-    [accountPkh],
+    ['temple-tap-airdrop-confirm-check', accountPkh],
     async () => {
-      if (confirmed || !canSign) return;
+      if (confirmed || !canSign) return null;
 
       const sigAuthValues = await prepSigAuthValues();
 
       const confirmedRes = await checkTempleTapAirdropConfirmation(accountPkh, sigAuthValues);
 
-      if (!confirmedRes) return false;
+      if (!confirmedRes) return null;
 
       setConfirmed(true);
+      setStoredRecord(state => ({ ...state, [accountPkh]: true }));
 
-      return true;
+      return null;
     },
     {
       suspense: true,
       revalidateOnFocus: false,
-      refreshInterval: 60_000
+      refreshInterval: 60_000,
+      errorRetryInterval: 60_000
     }
   );
 
@@ -125,7 +127,7 @@ export const TempleTapAirdropPage = memo(() => {
 
         <span className="mt-8 text-dark-gray text-base leading-tighter font-medium">How to receive TKEY?</span>
 
-        {confirmSent && (
+        {confirmSent && !confirmed && (
           <Alert
             type="success"
             title={`${t('success')} ${confirmed ? '✅' : '🛫'}`}
@@ -206,7 +208,7 @@ const BlockComp: FC<PropsWithChildren<BlockCompProps>> = ({ title, description, 
   <div className="mt-4 relative flex flex-col p-4 bg-gray-100 rounded-xl">
     <span className="text-sm font-semibold text-dark">{title}</span>
 
-    <p className="my-1 text-xs leading-5 text-gray-600">{description}</p>
+    <p className="my-1 pr-4 text-xs leading-5 text-gray-600">{description}</p>
 
     {children}
   </div>
