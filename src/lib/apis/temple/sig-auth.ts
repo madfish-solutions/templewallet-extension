@@ -1,5 +1,11 @@
 import { templeWalletApi } from './endpoints/templewallet.api';
 
+/** Result for packing (via `import('@taquito/michel-codec').packDataBytes({ string })`) in bytes for message:
+ * `Tezos Signed Message: Confirming my identity as ${Account PKH}.\n\nNonce: ${nonce}`
+ */
+export const TEZ_SIG_AUTH_MSG_PATTERN =
+  /^0501[a-f0-9]{8}54657a6f73205369676e6564204d6573736167653a20436f6e6669726d696e67206d79206964656e7469747920617320[a-f0-9]{72}2e0a0a4e6f6e63653a20[a-f0-9]{16,40}$/;
+
 interface SigningNonce {
   value: string;
   /** ISO string time */
@@ -27,33 +33,11 @@ export function buildSigAuthHeaders({ publicKey, messageBytes, signature }: SigA
 }
 
 export async function makeSigAuthMessageBytes(accountPkh: string) {
+  const { packDataBytes } = await import('@taquito/michel-codec');
+
   const nonce = await fetchTempleSigningNonce(accountPkh);
 
   const message = `Tezos Signed Message: Confirming my identity as ${accountPkh}.\n\nNonce: ${nonce.value}`;
 
-  const messageBytes = stringToSigningPayload(message);
-
-  return messageBytes;
-}
-
-/**
- * See: https://tezostaquito.io/docs/signing/#generating-a-signature-with-beacon-sdk
- *
- * Same payload goes without Beacon.
- */
-function stringToSigningPayload(value: string) {
-  const bytes = stringToHex(value);
-
-  const bytesLength = (bytes.length / 2).toString(16);
-  const addPadding = `00000000${bytesLength}`;
-  const paddedBytesLength = addPadding.slice(addPadding.length - 8);
-
-  return '0501' + paddedBytesLength + bytes;
-}
-
-function stringToHex(value: string) {
-  const buffer = new TextEncoder().encode(value);
-  const hexArray = Array.from(buffer, byte => byte.toString(16).padStart(2, '0'));
-
-  return hexArray.reduce((acc, curr) => acc + curr, '');
+  return packDataBytes({ string: message }).bytes;
 }

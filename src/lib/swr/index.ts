@@ -13,6 +13,6 @@ export const useTypedSWR = <Data, Error = any, SWRKey extends Key = Key>(
 /** Fetcher must not return (awaited) `undefined` value - results in endless fetching. */
 export const useRetryableSWR = <Data, Error = any, SWRKey extends Key = Key>(
   key: SWRKey,
-  fetcher: Data extends undefined ? never : Fetcher<Data, SWRKey> | null,
+  fetcher: Fetcher<Data, SWRKey> | null,
   config?: SWRConfiguration<Data, Error, Fetcher<Data, SWRKey>>
 ) => useSWR(key, fetcher, { errorRetryCount: 2, ...config });

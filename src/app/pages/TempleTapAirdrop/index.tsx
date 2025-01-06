@@ -41,17 +41,15 @@ export const TempleTapAirdropPage = memo(() => {
   const [confirmSent, setConfirmSent] = useState(false);
   const [confirmed, setConfirmed] = useState(storedRecord?.[accountPkh] ?? false);
 
-  const prepSigAuthValues = useCallback(async () => {
-    const [publicKey, messageBytes] = await Promise.all([
-      tezos.signer.publicKey(),
-      makeSigAuthMessageBytes(accountPkh)
+  const prepSigAuthValues = useCallback(async (): Promise<SigAuthValues> => {
+    const [messageBytes, publicKey] = await Promise.all([
+      makeSigAuthMessageBytes(accountPkh),
+      tezos.signer.publicKey()
     ]);
 
     const { prefixSig: signature } = await silentSign(accountPkh, messageBytes);
 
-    const values: SigAuthValues = { publicKey, messageBytes, signature };
-
-    return values;
+    return { publicKey, messageBytes, signature };
   }, [silentSign, tezos.signer, accountPkh]);
 
   useTypedSWR(
