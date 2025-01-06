@@ -17,3 +17,17 @@ export function sendTempleTapAirdropUsernameConfirmation(
     }
   );
 }
+
+export function checkTempleTapAirdropConfirmation(accountPkh: string, sigAuthValues: SigAuthValues) {
+  return templeWalletApi
+    .post<boolean>(
+      '/temple-tap/check-airdrop-confirmation',
+      {
+        accountPkh
+      },
+      {
+        headers: buildSigAuthHeaders(sigAuthValues)
+      }
+    )
+    .then(({ data }) => data);
+}

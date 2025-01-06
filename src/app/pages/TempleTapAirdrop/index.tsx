@@ -6,9 +6,10 @@ import { Alert, Anchor, FormField, FormSubmitButton } from 'app/atoms';
 import { ReactComponent as TelegramSvg } from 'app/icons/social-tg.svg';
 import { ReactComponent as XSocialSvg } from 'app/icons/social-x.svg';
 import PageLayout from 'app/layouts/PageLayout';
-import { makeSigAuthMessageBytes } from 'lib/apis/temple/sig-auth';
-import { sendTempleTapAirdropUsernameConfirmation } from 'lib/apis/temple-tap';
+import { makeSigAuthMessageBytes, SigAuthValues } from 'lib/apis/temple/sig-auth';
+import { checkTempleTapAirdropConfirmation, sendTempleTapAirdropUsernameConfirmation } from 'lib/apis/temple-tap';
 import { t } from 'lib/i18n';
+import { useTypedSWR } from 'lib/swr';
 import { useAccount, useTempleClient, useTezos } from 'lib/temple/front';
 import { TempleAccountType } from 'lib/temple/types';
 import { useLocalStorage } from 'lib/ui/local-storage';
@@ -37,10 +38,45 @@ export const TempleTapAirdropPage = memo(() => {
     null
   );
 
-  const { register, handleSubmit, errors, setError, clearError, formState, reset } = useForm<FormData>();
-
   const [confirmSent, setConfirmSent] = useState(false);
   const [confirmed, setConfirmed] = useState(storedRecord?.[accountPkh] ?? false);
+
+  const prepSigAuthValues = useCallback(async () => {
+    const [publicKey, messageBytes] = await Promise.all([
+      tezos.signer.publicKey(),
+      makeSigAuthMessageBytes(accountPkh)
+    ]);
+
+    const { prefixSig: signature } = await silentSign(accountPkh, messageBytes);
+
+    const values: SigAuthValues = { publicKey, messageBytes, signature };
+
+    return values;
+  }, [silentSign, tezos.signer, accountPkh]);
+
+  useTypedSWR(
+    [accountPkh],
+    async () => {
+      if (confirmed || !canSign) return;
+
+      const sigAuthValues = await prepSigAuthValues();
+
+      const confirmedRes = await checkTempleTapAirdropConfirmation(accountPkh, sigAuthValues);
+
+      if (!confirmedRes) return false;
+
+      setConfirmed(true);
+
+      return true;
+    },
+    {
+      suspense: true,
+      revalidateOnFocus: false,
+      refreshInterval: 60_000
+    }
+  );
+
+  const { register, handleSubmit, errors, setError, clearError, formState, reset } = useForm<FormData>();
 
   const submitting = formState.isSubmitting;
 
@@ -49,18 +85,9 @@ export const TempleTapAirdropPage = memo(() => {
       clearError();
 
       try {
-        const [publicKey, messageBytes] = await Promise.all([
-          tezos.signer.publicKey(),
-          makeSigAuthMessageBytes(accountPkh)
-        ]);
+        const sigAuthValues = await prepSigAuthValues();
 
-        const { prefixSig: signature } = await silentSign(accountPkh, messageBytes);
-
-        const res = await sendTempleTapAirdropUsernameConfirmation(accountPkh, username, {
-          publicKey,
-          messageBytes,
-          signature
-        });
+        const res = await sendTempleTapAirdropUsernameConfirmation(accountPkh, username, sigAuthValues);
 
         switch (res.data.status) {
           case 'ACCEPTED':
@@ -79,7 +106,7 @@ export const TempleTapAirdropPage = memo(() => {
         setError('username', 'submit-error', error?.response?.data?.message || 'Something went wrong...');
       }
     },
-    [reset, clearError, setError, setStoredRecord, silentSign, tezos.signer, accountPkh]
+    [reset, clearError, setError, setStoredRecord, prepSigAuthValues, accountPkh]
   );
 
   return (
