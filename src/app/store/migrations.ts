@@ -2,9 +2,11 @@ import { cloneDeep } from 'lodash';
 import type { MigrationManifest, PersistedState } from 'redux-persist';
 
 import { toTokenSlug } from 'lib/assets';
+import { IS_MISES_BROWSER } from 'lib/env';
 import { isCollectible } from 'lib/metadata/utils';
 
 import type { RootState } from './root-state.type';
+import { DEFAULT_SWAP_PARAMS } from './swap/state.mock';
 import { collectiblesMetadataInitialState } from './tezos/collectibles-metadata/state';
 
 import type { SLICES_BLACKLIST } from './index';
@@ -77,6 +79,42 @@ export const MIGRATIONS: MigrationManifest = {
       settings: {
         ...typedPersistedState.settings,
         pendingReactivateAds: !typedPersistedState.partnersPromotion.shouldShowPromotion
+      }
+    };
+
+    return newState;
+  },
+
+  '4': (persistedState: PersistedState) => {
+    if (!persistedState) return persistedState;
+
+    const typedPersistedState = persistedState as TypedPersistedRootState;
+    const newState: TypedPersistedRootState = {
+      ...typedPersistedState,
+      swap: {
+        ...typedPersistedState.swap,
+        swapParams: {
+          data: DEFAULT_SWAP_PARAMS,
+          isLoading: false
+        }
+      }
+    };
+
+    return newState;
+  },
+
+  '5': (persistedState: PersistedState) => {
+    if (!persistedState || IS_MISES_BROWSER) return persistedState;
+
+    const typedPersistedState = persistedState as TypedPersistedRootState;
+
+    if (typedPersistedState.partnersPromotion.shouldShowPromotion) return persistedState;
+
+    const newState: TypedPersistedRootState = {
+      ...typedPersistedState,
+      settings: {
+        ...typedPersistedState.settings,
+        referralLinksEnabled: false
       }
     };
 

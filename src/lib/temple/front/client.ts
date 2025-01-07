@@ -35,11 +35,11 @@ import { TempleChainKind } from 'temple/types';
 import { getShouldBeLockedOnStartup } from './lock';
 import { useStorage } from './storage';
 
-type Confirmation = {
+interface Confirmation {
   id: string;
   payload: TempleConfirmationPayload;
   error?: any;
-};
+}
 
 export const [TempleClientProvider, useTempleClient] = constate(() => {
   /**

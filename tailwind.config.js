@@ -183,6 +183,10 @@ module.exports = {
         88: '22rem'
       },
 
+      scale: {
+        '1/3': '33.333333%'
+      },
+
       opacity: {
         15: '0.15'
       },
@@ -196,6 +200,7 @@ module.exports = {
 
       maxWidth: (theme, { breakpoints }) => ({
         ...theme('width'),
+        30: '7.5rem',
         xs: '20rem',
         sm: '24rem',
         md: '28rem',
@@ -305,6 +310,8 @@ module.exports = {
         '-full': '-100%',
         '-1/2': '-50%',
         '1/2': '50%',
+        '1/3': '33.333333%',
+        '-1/3': '-33.333333%',
         full: '100%'
       }),
 

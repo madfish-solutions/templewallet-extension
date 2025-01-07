@@ -1,7 +1,6 @@
 import React, { memo, useMemo } from 'react';
 
 import { DeadEndBoundaryError } from 'app/ErrorBoundary';
-import { useLoadPartnersPromo } from 'app/hooks/use-load-partners-promo';
 import { TezosActivity } from 'lib/activity';
 import { parseTezosOperationsGroup } from 'lib/activity/tezos';
 import fetchTezosOperationsGroups from 'lib/activity/tezos/fetch';
@@ -25,8 +24,6 @@ export const TezosActivityList = memo<Props>(({ tezosChainId, assetSlug, filterK
   const accountAddress = useAccountAddressForTezos();
 
   if (!network || !accountAddress) throw new DeadEndBoundaryError();
-
-  useLoadPartnersPromo();
 
   const { chainId, rpcBaseURL } = network;
 

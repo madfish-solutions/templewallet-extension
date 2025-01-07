@@ -25,6 +25,7 @@ import { ActivityPage } from './pages/Activity';
 import { ChainSettings } from './pages/ChainSettings';
 import { ImportWallet } from './pages/ImportWallet';
 import { Market } from './pages/Market';
+import { RewardsPage } from './pages/Rewards';
 import { StakingPage } from './pages/Staking';
 
 interface RouteContext {
@@ -103,6 +104,7 @@ const ROUTE_MAP = Woozie.createMap<RouteContext>([
   ['/notifications', onlyReady(() => <Notifications />)],
   ['/notifications/:id', onlyReady(({ id }) => <NotificationsItem id={Number(id) ?? 0} />)],
   ['/account/:id', onlyReady(({ id }) => <AccountSettings id={id!} />)],
+  ['/rewards', onlyReady(() => <RewardsPage />)],
   ['*', () => <Woozie.Redirect to="/" />]
 ]);
 

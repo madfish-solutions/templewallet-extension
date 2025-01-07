@@ -129,7 +129,7 @@ export const useGetTezosChainAccountTokenOrGasBalanceWithDecimals = (publicKeyHa
   );
 };
 
-export function useTezosAssetRawBalance(
+function useTezosAssetRawBalance(
   assetSlug: string,
   address: string,
   network: TezosNetworkEssentials
