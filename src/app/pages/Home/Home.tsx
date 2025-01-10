@@ -60,7 +60,9 @@ const Home = memo<Props>(({ assetSlug }) => {
           </span>
         ) : null
       }
-      attention={true}
+      withBell
+      withAd
+      withAirdrop={!assetSlug}
     >
       {fullPage && (
         <div className="w-full max-w-sm mx-auto">

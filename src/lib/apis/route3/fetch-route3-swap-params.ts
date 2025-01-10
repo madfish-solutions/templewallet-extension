@@ -1,26 +1,28 @@
-import axios from 'axios';
+import type { TezosToolkit } from '@taquito/taquito';
 import BigNumber from 'bignumber.js';
 import { intersection, transform } from 'lodash';
 import memoizee from 'memoizee';
 
-import { THREE_ROUTE_SIRS_TOKEN, THREE_ROUTE_TEZ_TOKEN } from 'lib/assets/three-route-tokens';
+import { THREE_ROUTE_SIRS_TOKEN, THREE_ROUTE_TEZ_TOKEN, THREE_ROUTE_TZBTC_TOKEN } from 'lib/assets/three-route-tokens';
 import { LIQUIDITY_BAKING_DEX_ADDRESS } from 'lib/constants';
 import { EnvVars } from 'lib/env';
-import { BLOCK_DURATION } from 'lib/fixed-times';
+import { SIRS_LIQUIDITY_SLIPPAGE_RATIO } from 'lib/route3/constants';
 import {
+  Route3EmptyTreeNode,
   Route3LbSwapParamsRequest,
   Route3LiquidityBakingParamsResponse,
   Route3SwapParamsRequest,
-  Route3TraditionalSwapParamsResponse
+  Route3TraditionalSwapParamsResponse,
+  Route3TreeNodeType
 } from 'lib/route3/interfaces';
-import { ONE_MINUTE_S } from 'lib/utils/numbers';
+import { loadContract } from 'lib/temple/contract';
+import { ReactiveTezosToolkit } from 'lib/temple/front';
+import { atomsToTokens, loadFastRpcClient, tokensToAtoms } from 'lib/temple/helpers';
 
 import { ROUTE3_BASE_URL } from './route3.api';
 
 const parser = (origJSON: string): ReturnType<typeof JSON['parse']> => {
-  const stringedJSON = origJSON
-    .replace(/input":\s*([-+Ee0-9.]+)/g, 'input":"$1"')
-    .replace(/output":\s*([-+Ee0-9.]+)/g, 'output":"$1"');
+  const stringedJSON = origJSON.replace(/(input|output|tokenInAmount|tokenOutAmount)":\s*([-+Ee0-9.]+)/g, '$1":"$2"');
 
   return JSON.parse(stringedJSON);
 };
@@ -53,74 +55,129 @@ const fetchRoute3TraditionalSwapParams = (
     .then(res => res.text())
     .then(res => parser(res));
 
-const getLbSubsidyCausedXtzDeviation = memoizee(
-  async (rpcUrl: string) => {
-    const currentBlockRpcBaseURL = `${rpcUrl}/chains/main/blocks/head/context`;
-    const [{ data: constants }, { data: rawSirsDexBalance }] = await Promise.all([
-      axios.get<{ minimal_block_delay: string; liquidity_baking_subsidy: string }>(
-        `${currentBlockRpcBaseURL}/constants`
-      ),
-      axios.get<string>(`${currentBlockRpcBaseURL}/contracts/${LIQUIDITY_BAKING_DEX_ADDRESS}/balance`)
-    ]);
-    const { minimal_block_delay: blockDuration = String(BLOCK_DURATION), liquidity_baking_subsidy: lbSubsidyPerMin } =
-      constants;
-    const lbSubsidyPerBlock = Math.floor(Number(lbSubsidyPerMin) / Math.floor(ONE_MINUTE_S / Number(blockDuration)));
-
-    return lbSubsidyPerBlock / Number(rawSirsDexBalance);
-  },
-  { promise: true, maxAge: 1000 * ONE_MINUTE_S * 5 }
+const getTezosToolkit = memoizee(
+  (rpcUrl: string) => new ReactiveTezosToolkit(loadFastRpcClient(rpcUrl), `${rpcUrl}_3route`),
+  { max: 2 }
 );
 
-const fetchRoute3LiquidityBakingParams = (
+export const getLbStorage = async (tezosOrRpc: string | TezosToolkit) => {
+  const tezos = typeof tezosOrRpc === 'string' ? getTezosToolkit(tezosOrRpc) : tezosOrRpc;
+  const contract = await loadContract(tezos, LIQUIDITY_BAKING_DEX_ADDRESS, false);
+
+  return contract.storage<{ tokenPool: BigNumber; xtzPool: BigNumber; lqtTotal: BigNumber }>();
+};
+
+const makeEmptyTreeNode = (
+  tokenInId: number,
+  tokenOutId: number,
+  tokenInAmount: string,
+  tokenOutAmount: string
+): Route3EmptyTreeNode => ({
+  type: Route3TreeNodeType.Empty,
+  items: [],
+  dexId: null,
+  tokenInId,
+  tokenOutId,
+  tokenInAmount,
+  tokenOutAmount,
+  width: 0,
+  height: 0
+});
+
+const fetchRoute3LiquidityBakingParams = async (
   params: Route3LbSwapParamsRequest
-): Promise<Route3LiquidityBakingParamsResponse> =>
-  fetch(`${ROUTE3_BASE_URL}/swap-sirs${getRoute3ParametrizedUrlPart(params)}`, {
+): Promise<Route3LiquidityBakingParamsResponse> => {
+  const { rpcUrl, toSymbol, toTokenDecimals } = params;
+
+  if (params.fromSymbol === THREE_ROUTE_SIRS_TOKEN.symbol) {
+    const { tokenPool, xtzPool, lqtTotal } = await getLbStorage(params.rpcUrl);
+    const sirsAtomicAmount = tokensToAtoms(params.amount, THREE_ROUTE_SIRS_TOKEN.decimals);
+    const tzbtcAtomicAmount = sirsAtomicAmount
+      .times(tokenPool)
+      .times(SIRS_LIQUIDITY_SLIPPAGE_RATIO)
+      .dividedToIntegerBy(lqtTotal);
+    const xtzAtomicAmount = sirsAtomicAmount
+      .times(xtzPool)
+      .times(SIRS_LIQUIDITY_SLIPPAGE_RATIO)
+      .dividedToIntegerBy(lqtTotal);
+    const xtzInAmount = atomsToTokens(xtzAtomicAmount, THREE_ROUTE_TEZ_TOKEN.decimals).toFixed();
+    const tzbtcInAmount = atomsToTokens(tzbtcAtomicAmount, THREE_ROUTE_TZBTC_TOKEN.decimals).toFixed();
+    const [fromXtzSwapParams, fromTzbtcSwapParams] = await Promise.all<Route3TraditionalSwapParamsResponse>([
+      toSymbol === THREE_ROUTE_TEZ_TOKEN.symbol
+        ? {
+            input: xtzInAmount,
+            output: xtzInAmount,
+            hops: [],
+            tree: makeEmptyTreeNode(THREE_ROUTE_TEZ_TOKEN.id, THREE_ROUTE_TEZ_TOKEN.id, xtzInAmount, xtzInAmount)
+          }
+        : fetchRoute3TraditionalSwapParams({
+            fromSymbol: THREE_ROUTE_TEZ_TOKEN.symbol,
+            toSymbol: toSymbol,
+            amount: xtzInAmount,
+            toTokenDecimals,
+            rpcUrl,
+            dexesLimit: params.xtzDexesLimit,
+            showTree: true
+          }),
+      toSymbol === THREE_ROUTE_TZBTC_TOKEN.symbol
+        ? {
+            input: tzbtcInAmount,
+            output: tzbtcInAmount,
+            hops: [],
+            tree: makeEmptyTreeNode(
+              THREE_ROUTE_TZBTC_TOKEN.id,
+              THREE_ROUTE_TZBTC_TOKEN.id,
+              tzbtcInAmount,
+              tzbtcInAmount
+            )
+          }
+        : fetchRoute3TraditionalSwapParams({
+            fromSymbol: THREE_ROUTE_TZBTC_TOKEN.symbol,
+            toSymbol: toSymbol,
+            amount: tzbtcInAmount,
+            toTokenDecimals,
+            rpcUrl,
+            dexesLimit: params.tzbtcDexesLimit,
+            showTree: true
+          })
+    ]);
+
+    if (fromTzbtcSwapParams.output === undefined || fromXtzSwapParams.output === undefined) {
+      return {
+        input: params.amount,
+        output: undefined,
+        tzbtcHops: [],
+        xtzHops: [],
+        tzbtcTree: makeEmptyTreeNode(THREE_ROUTE_TZBTC_TOKEN.id, -1, tzbtcInAmount, '0'),
+        xtzTree: makeEmptyTreeNode(THREE_ROUTE_TEZ_TOKEN.id, -1, xtzInAmount, '0')
+      };
+    }
+
+    return {
+      input: params.amount,
+      output: new BigNumber(fromTzbtcSwapParams.output).plus(fromXtzSwapParams.output).toFixed(),
+      tzbtcHops: fromTzbtcSwapParams.hops,
+      xtzHops: fromXtzSwapParams.hops,
+      tzbtcTree: fromTzbtcSwapParams.tree,
+      xtzTree: fromXtzSwapParams.tree
+    };
+  }
+
+  const originalResponse = await fetch(`${ROUTE3_BASE_URL}/swap-sirs${getRoute3ParametrizedUrlPart(params)}`, {
     headers: {
       Authorization: EnvVars.TEMPLE_WALLET_ROUTE3_AUTH_TOKEN
     }
-  })
-    .then(res => res.text())
-    .then(async res => {
-      const { rpcUrl, fromSymbol, toSymbol, toTokenDecimals } = params;
-      const originalParams: Route3LiquidityBakingParamsResponse = parser(res);
+  });
 
-      if (
-        fromSymbol !== THREE_ROUTE_SIRS_TOKEN.symbol ||
-        toSymbol === THREE_ROUTE_TEZ_TOKEN.symbol ||
-        originalParams.output === undefined
-      ) {
-        return originalParams;
-      }
+  return parser(await originalResponse.text());
+};
 
-      // SIRS -> not XTZ swaps are likely to fail with tez.subtraction_underflow error, preventing it
-      try {
-        const lbSubsidyCausedXtzDeviation = await getLbSubsidyCausedXtzDeviation(rpcUrl);
-        const initialXtzInput = new BigNumber(originalParams.xtzHops[0].tokenInAmount);
-        const correctedXtzInput = initialXtzInput.times(1 - lbSubsidyCausedXtzDeviation).integerValue();
-        const initialOutput = new BigNumber(originalParams.output);
-        // The difference between inputs is usually pretty small, so we can use the following formula
-        const correctedOutput = initialOutput
-          .times(correctedXtzInput)
-          .div(initialXtzInput)
-          .decimalPlaces(toTokenDecimals, BigNumber.ROUND_FLOOR);
-
-        return {
-          ...originalParams,
-          output: correctedOutput.toString(),
-          xtzHops: [
-            {
-              ...originalParams.xtzHops[0],
-              tokenInAmount: correctedXtzInput.toFixed()
-            }
-          ].concat(originalParams.xtzHops.slice(1))
-        };
-      } catch (err) {
-        console.error(err);
-        return originalParams;
-      }
-    });
-
-export const fetchRoute3SwapParams = ({ fromSymbol, toSymbol, dexesLimit, ...restParams }: Route3SwapParamsRequest) => {
+export const fetchRoute3SwapParams = ({
+  fromSymbol,
+  toSymbol,
+  dexesLimit,
+  ...restParams
+}: Omit<Route3SwapParamsRequest, 'showTree'>) => {
   const isLbUnderlyingTokenSwap = intersection([fromSymbol, toSymbol], ['TZBTC', 'XTZ']).length > 0;
 
   return [fromSymbol, toSymbol].includes(THREE_ROUTE_SIRS_TOKEN.symbol)
@@ -130,7 +187,8 @@ export const fetchRoute3SwapParams = ({ fromSymbol, toSymbol, dexesLimit, ...res
         // XTZ <-> SIRS and TZBTC <-> SIRS swaps have either XTZ or TZBTC hops, so a total number of hops cannot exceed the limit
         xtzDexesLimit: isLbUnderlyingTokenSwap ? dexesLimit : Math.ceil(dexesLimit / 2),
         tzbtcDexesLimit: isLbUnderlyingTokenSwap ? dexesLimit : Math.floor(dexesLimit / 2),
+        showTree: true,
         ...restParams
       })
-    : fetchRoute3TraditionalSwapParams({ fromSymbol, toSymbol, dexesLimit, ...restParams });
+    : fetchRoute3TraditionalSwapParams({ fromSymbol, toSymbol, dexesLimit, showTree: true, ...restParams });
 };

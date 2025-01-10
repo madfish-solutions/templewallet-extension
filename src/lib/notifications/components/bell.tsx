@@ -13,7 +13,7 @@ export const NotificationsBell = () => {
   return (
     <Link
       to="/notifications"
-      className="flex items-center justify-center mr-3"
+      className="flex items-center justify-center"
       style={{
         position: 'relative',
         height: 28,

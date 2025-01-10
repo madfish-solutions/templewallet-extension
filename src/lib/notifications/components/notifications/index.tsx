@@ -3,7 +3,6 @@ import React, { useCallback } from 'react';
 import { useDispatch } from 'react-redux';
 
 import { DataPlaceholder } from 'app/atoms';
-import { useLoadPartnersPromo } from 'app/hooks/use-load-partners-promo';
 import PageLayout from 'app/layouts/PageLayout';
 import { useShouldShowPartnersPromoSelector } from 'app/store/partners-promotion/selectors';
 import { PartnersPromotion, PartnersPromotionVariant } from 'app/templates/partners-promotion';
@@ -26,7 +25,6 @@ export const Notifications = () => {
   const viewAllNotifications = useCallback(() => void dispatch(viewAllNotificationsAction()), [dispatch]);
 
   useTimeout(viewAllNotifications, VIEW_ALL_NOTIFICATIONS_TIMEOUT, true, [notifications]);
-  useLoadPartnersPromo();
 
   return (
     <PageLayout
