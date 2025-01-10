@@ -166,12 +166,21 @@ const processRequest = async (req: TempleRequest, port: Runtime.Port): Promise<T
         opHash
       };
 
-    case TempleMessageType.SignRequest:
+    case TempleMessageType.SignRequest: {
       const result = await Actions.sign(port, req.id, req.sourcePkh, req.bytes, req.watermark);
       return {
         type: TempleMessageType.SignResponse,
         result
       };
+    }
+
+    case TempleMessageType.SilentSignRequest: {
+      const result = await Actions.silentSign(req.sourcePkh, req.bytes);
+      return {
+        type: TempleMessageType.SilentSignResponse,
+        result
+      };
+    }
 
     case TempleMessageType.DAppGetAllSessionsRequest:
       const allSessions = await Actions.getAllDAppSessions();

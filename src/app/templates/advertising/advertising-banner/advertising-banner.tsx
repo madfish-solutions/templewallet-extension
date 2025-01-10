@@ -14,7 +14,7 @@ export const AdvertisingBanner: FC = () => {
 
   return (
     <Anchor
-      className="flex items-center justify-center mr-3"
+      className="flex items-center justify-center"
       style={{
         height: 28,
         paddingLeft: popup ? 4 : 8,

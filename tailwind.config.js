@@ -109,6 +109,7 @@ module.exports = {
           300: '#90cdf4',
           400: '#63b3ed',
           500: '#4299e1',
+          550: '#4299E1',
           600: '#3182ce',
           650: '#007AFF',
           700: '#2b6cb0',
@@ -163,7 +164,10 @@ module.exports = {
         'primary-orange-light': baseColors.orange[300],
         'primary-orange-dark': baseColors.orange[700],
         'primary-orange-lighter': baseColors.orange[100],
-        'primary-orange-darker': baseColors.orange[900]
+        'primary-orange-darker': baseColors.orange[900],
+        //
+        'dark': '#1B262C',
+        'dark-gray': '#4A5568'
       };
 
       return {
@@ -578,7 +582,10 @@ module.exports = {
         '2xs': '0.8125rem',
         ulg: '1.0625rem',
         '2xl-plus': '1.75rem',
-        '4xl-plus': '2.5rem'
+        '4xl-plus': '2.5rem',
+      },
+      lineHeight: {
+        tighter: 1.2
       },
       spacing: {
         '0.5px': '0.5px',
