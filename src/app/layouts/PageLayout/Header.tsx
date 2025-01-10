@@ -1,4 +1,4 @@
-import React, { FC, useMemo } from 'react';
+import React, { FC } from 'react';
 
 import classNames from 'clsx';
 
@@ -18,19 +18,22 @@ import styles from './Header.module.css';
 import { HeaderSelectors } from './Header.selectors';
 
 const Header: FC = () => {
-  const { fullPage } = useAppEnv();
+  const appEnv = useAppEnv();
   const { ready } = useTempleClient();
 
-  const logoStyles = useMemo(() => ({ height: fullPage ? 64 : 52, marginTop: 0, marginBottom: 0 }), [fullPage]);
-
   return (
-    <header className={classNames('bg-primary-orange', styles['inner-shadow'], fullPage && 'pb-20 -mb-20')}>
-      <ContentContainer className="pt-4 pb-3">
-        <div className={classNames('flex justify-between items-center', fullPage && 'px-4')}>
-          <Link to="/" className="flex-shrink-0 pr-4" testID={HeaderSelectors.templeLogoIcon}>
-            <Logo hasTitle={fullPage} white style={logoStyles} />
-          </Link>
-          <div className="flex items-stretch">{ready && <Control />}</div>
+    <header className={classNames('bg-primary-orange', styles['inner-shadow'], appEnv.fullPage && 'pb-20 -mb-20')}>
+      <ContentContainer className="py-4">
+        <div className={classNames(appEnv.fullPage && 'px-4')}>
+          <div className="flex items-stretch">
+            <Link to="/" className="flex-shrink-0 pr-4" testID={HeaderSelectors.templeLogoIcon}>
+              <div className="flex items-center">
+                <Logo hasTitle={appEnv.fullPage} fill="#FFFFFF" />
+              </div>
+            </Link>
+
+            {ready && <Control />}
+          </div>
         </div>
       </ContentContainer>
     </header>
