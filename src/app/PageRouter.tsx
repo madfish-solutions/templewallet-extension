@@ -73,7 +73,7 @@ const ROUTE_MAP = Woozie.createMap<RouteContext>([
   ['/', (_p, ctx) => (ctx.ready ? <Home /> : <Welcome />)],
   ['/activity', onlyReady(() => <ActivityPage />)],
   ['/connect-ledger', onlyReady(onlyInFullPage(() => <ConnectLedger />))],
-  ['/receive', onlyReady(() => <Receive />)],
+  ['/receive/:chainKind?', onlyReady(({ chainKind }) => <Receive chainKind={chainKind} />)],
   [
     '/send/:chainKind?/:chainId?/:assetSlug?',
     onlyReady(({ chainKind, chainId, assetSlug }) => (

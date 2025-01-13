@@ -30,9 +30,10 @@ interface Props {
   chainId?: string | nullish;
   assetSlug?: string | nullish;
   activityBtn?: 'activity' | 'earn-tez';
+  className?: string;
 }
 
-export const ExploreActionButtonsBar = memo<Props>(({ chainKind, chainId, assetSlug, activityBtn }) => {
+export const ExploreActionButtonsBar = memo<Props>(({ chainKind, chainId, assetSlug, activityBtn, className }) => {
   const account = useAccount();
   const testnetModeEnabled = useTestnetModeEnabledSelector();
 
@@ -51,11 +52,11 @@ export const ExploreActionButtonsBar = memo<Props>(({ chainKind, chainId, assetS
   );
 
   return (
-    <div className="flex justify-between gap-x-2 h-13.5 mt-4">
+    <div className={clsx('flex justify-between gap-x-2 h-13.5', className)}>
       <ActionButton
         labelI18nKey="receive"
         Icon={ReceiveIcon}
-        to="/receive"
+        to={chainKind ? `/receive/${chainKind}` : '/receive'}
         testID={ExploreActionButtonsSelectors.receiveButton}
       />
 

@@ -21,11 +21,10 @@ import { CollectiblesTab } from '../Collectibles/CollectiblesTab';
 import { useOnboardingProgress } from '../Onboarding/hooks/useOnboardingProgress.hook';
 import Onboarding from '../Onboarding/Onboarding';
 
-import { HomeProps } from './interfaces';
 import { TokensTab } from './OtherComponents/Tokens/Tokens';
 import { TotalEquityBanner } from './OtherComponents/TotalEquityBanner';
 
-const Home = memo<HomeProps>(props => {
+const Home = memo(() => {
   const tabSlug = useLocationSearchParamValue('tab');
   const { onboardingCompleted } = useOnboardingProgress();
   const dispatch = useDispatch();
@@ -56,7 +55,7 @@ const Home = memo<HomeProps>(props => {
       <div className="flex flex-col pt-1 px-4 bg-white">
         <TotalEquityBanner />
 
-        <ExploreActionButtonsBar activityBtn="activity" {...props} />
+        <ExploreActionButtonsBar activityBtn="activity" className="mt-4" />
 
         <AssetsSegmentControl
           tabSlug={tabSlug}
