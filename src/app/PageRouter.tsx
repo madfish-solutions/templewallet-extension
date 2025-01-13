@@ -30,7 +30,9 @@ import { Notifications, NotificationsItem } from 'lib/notifications/components';
 import { useTempleClient } from 'lib/temple/front';
 import * as Woozie from 'lib/woozie';
 
+import { RewardsPage } from './pages/Rewards';
 import { StakingPage } from './pages/Staking';
+import { TempleTapAirdropPage } from './pages/TempleTapAirdrop';
 import { WithDataLoading } from './WithDataLoading';
 
 interface RouteContext {
@@ -98,6 +100,8 @@ const ROUTE_MAP = Woozie.createMap<RouteContext>([
   ['/attention', onlyReady(onlyInFullPage(() => <AttentionPage />))],
   ['/notifications', onlyReady(() => <Notifications />)],
   ['/notifications/:id', onlyReady(({ id }) => <NotificationsItem id={Number(id) ?? 0} />)],
+  ['/rewards', onlyReady(() => <RewardsPage />)],
+  ['/temple-tap-airdrop', onlyReady(onlyInFullPage(() => <TempleTapAirdropPage />))],
   ['*', () => <Woozie.Redirect to="/" />]
 ]);
 

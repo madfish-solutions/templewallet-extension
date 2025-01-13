@@ -6,7 +6,6 @@ import clsx from 'clsx';
 import { SyncSpinner, Divider, Checkbox } from 'app/atoms';
 import DropdownWrapper from 'app/atoms/DropdownWrapper';
 import { useAppEnv } from 'app/env';
-import { useLoadPartnersPromo } from 'app/hooks/use-load-partners-promo';
 import { useTokensListingLogic } from 'app/hooks/use-tokens-listing-logic';
 import { ReactComponent as EditingIcon } from 'app/icons/editing.svg';
 import { ReactComponent as SearchIcon } from 'app/icons/search.svg';
@@ -21,7 +20,6 @@ import { ButtonForManageDropdown } from 'app/templates/ManageDropdown';
 import { PartnersPromotion, PartnersPromotionVariant } from 'app/templates/partners-promotion';
 import SearchAssetField from 'app/templates/SearchAssetField';
 import { setTestID } from 'lib/analytics';
-import { OptimalPromoVariantEnum } from 'lib/apis/optimal';
 import { TEZ_TOKEN_SLUG, TEMPLE_TOKEN_SLUG } from 'lib/assets';
 import { useEnabledAccountTokensSlugs } from 'lib/assets/hooks';
 import { RECENT_TERMS_VERSION } from 'lib/constants';
@@ -117,8 +115,6 @@ export const TokensTab = memo(() => {
 
     return tokensJsx;
   }, [filteredAssets, activeAssetSlug, publicKeyHash, mainnetTokensScamSlugsRecord]);
-
-  useLoadPartnersPromo(OptimalPromoVariantEnum.Token);
 
   useEffect(() => {
     if (activeIndex !== 0 && activeIndex >= filteredAssets.length) {

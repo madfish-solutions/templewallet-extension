@@ -3160,13 +3160,52 @@
   "selectedAccountCannotSignTx": { "message": "Selected account cannot sign transactions" },
   "attributes": { "message": "Attributes" },
   "properties": { "message": "Properties" },
-  "earnRewardsWithAds": {
-    "message": "Earn Rewards with Ads"
+  "earnTkeyRewards": {
+    "message": "Earn TKEY Rewards"
   },
-  "earnRewardsWithAdsDescription": {
-    "message": "I agree to share my wallet address and IP to receive ads and rewards in TKEY token."
+  "earnTkeyRewardsDescription": {
+    "message": "I agree to share my wallet address and IP to receive ads, referral links and rewards in TKEY token."
   },
   "dropdownNoItems": {
     "message": "No items"
+  },
+  "earnings": {
+    "message": "Earnings"
+  },
+  "earningsInfoTooltip": {
+    "message": "Earnings are only an estimation of your daily and monthly activity, including ad views and interactions with referral links. At the end of each month, your RP (reward points) will be converted into TKEY and distributed to your Tezos address. The more RP you accumulate, the greater your rewards will be."
+  },
+  "ads": {
+    "message": "Ads"
+  },
+  "today": {
+    "message": "Today"
+  },
+  "activeFeatures": {
+    "message": "Active features"
+  },
+  "advertisingFeatureDescription": {
+    "message": "Get RP by viewing ads"
+  },
+  "advertisingFeatureTooltip": {
+    "message": "The advertising feature is used to display ads within Temple Wallet and on websites. To earn TKEY and enable ads, we request your permission to share your wallet address and IP, this information is used solely to serve you relevant ads and distribute rewards."
+  },
+  "referralLinksFeatureDescription": {
+    "message": "Get RP while use favorite websites"
+  },
+  "referralLinksFeatureTooltip": {
+    "message": "The referral links feature allows users to engage with affiliate offers from our partners. These offers will appear as links while you browse your favorite websites. To enable this feature, we request your permission to share your wallet address and IP address, this information is used solely to serve you relevant offers and distribute rewards."
+  },
+  "achievements": {
+    "message": "Achievements"
+  },
+  "lifetimeEarnings": {
+    "message": "Lifetime earnings"
+  },
+  "noEarningsFound": {
+    "message": "No earnings found"
+  },
+  "somethingWentWrong": {
+    "message": "Something went wrong"
   }
 }

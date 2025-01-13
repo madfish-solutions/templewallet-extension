@@ -17,7 +17,6 @@ import { AD_HIDING_TIMEOUT } from 'lib/constants';
 
 import { BitmediaPromotion } from './components/bitmedia-promotion';
 import { HypelabPromotion } from './components/hypelab-promotion';
-import { OptimalPromotion } from './components/optimal-promotion';
 import { PersonaPromotion } from './components/persona-promotion';
 import styles from './partners-promotion.module.css';
 import { PartnersPromotionVariant } from './types';
@@ -49,7 +48,7 @@ export const PartnersPromotion = memo<PartnersPromotionProps>(({ variant, id, pa
   const isAnalyticsSentRef = useRef(false);
 
   const [isHiddenTemporarily, setIsHiddenTemporarily] = useState(shouldBeHiddenTemporarily(hiddenAt));
-  const [providerName, setProviderName] = useState<AdsProviderLocalName>('Bitmedia');
+  const [providerName, setProviderName] = useState<AdsProviderLocalName>('HypeLab');
   const [adError, setAdError] = useState(false);
   const [adIsReady, setAdIsReady] = useState(false);
 
@@ -86,8 +85,7 @@ export const PartnersPromotion = memo<PartnersPromotionProps>(({ variant, id, pa
     [id, dispatch]
   );
 
-  const handleBitmediaError = useCallback(() => setProviderName('Optimal'), []);
-  const handleOptimalError = useCallback(() => setProviderName('HypeLab'), []);
+  const handleBitmediaError = useCallback(() => setProviderName('HypeLab'), []);
   const handleHypelabError = useCallback(
     () => (withPersonaProvider ? setProviderName('Persona') : setAdError(true)),
     [withPersonaProvider]
@@ -118,18 +116,6 @@ export const PartnersPromotion = memo<PartnersPromotionProps>(({ variant, id, pa
                 onClose={handleClosePartnersPromoClick}
                 onReady={handleAdReady}
                 onError={handleBitmediaError}
-              />
-            );
-          case 'Optimal':
-            return (
-              <OptimalPromotion
-                variant={variant}
-                isVisible={adIsReady}
-                pageName={pageName}
-                onAdRectSeen={handleAdRectSeen}
-                onClose={handleClosePartnersPromoClick}
-                onReady={handleAdReady}
-                onError={handleOptimalError}
               />
             );
           case 'HypeLab':

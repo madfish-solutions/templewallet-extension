@@ -1,16 +1,13 @@
-import { OptimalPromotionType } from 'lib/apis/optimal';
-import { LoadableEntityState, createEntity } from 'lib/store';
-
-import { mockPartnersPromotion } from './state.mock';
+import { LoadableEntityState } from 'lib/store';
 
 export interface PartnersPromotionState {
-  promotion: LoadableEntityState<OptimalPromotionType>;
+  /** @deprecated */
+  promotion?: LoadableEntityState<{}>;
   shouldShowPromotion: boolean;
   promotionHidingTimestamps: StringRecord<number>;
 }
 
 export const partnersPromotionInitialState: PartnersPromotionState = {
-  promotion: createEntity(mockPartnersPromotion),
   shouldShowPromotion: false,
   promotionHidingTimestamps: {}
 };

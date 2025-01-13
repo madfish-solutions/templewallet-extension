@@ -50,8 +50,8 @@ interface FormData extends TestIDProps {
   password?: string;
   repeatPassword?: string;
   termsAccepted: boolean;
-  analytics?: boolean;
-  earnRewardsWithAds: boolean;
+  analytics: boolean;
+  earnTkeyRewards: boolean;
   testID?: string;
 }
 
@@ -102,7 +102,7 @@ export const SetWalletPassword: FC<SetWalletPasswordProps> = ({
     defaultValues: {
       shouldUseKeystorePassword: !isKeystorePasswordWeak,
       analytics: true,
-      earnRewardsWithAds: true
+      earnTkeyRewards: true
     },
     mode: 'onChange'
   });
@@ -140,20 +140,21 @@ export const SetWalletPassword: FC<SetWalletPasswordProps> = ({
           : data.password
         : data.password;
       try {
-        const shouldEnableAnalytics = Boolean(data.analytics);
-        const adsViewEnabled = data.earnRewardsWithAds;
+        const analyticsEnabled = data.analytics;
+        const adsViewEnabled = data.earnTkeyRewards;
+
+        setAnalyticsEnabled(analyticsEnabled);
         setAdsViewEnabled(adsViewEnabled);
-        setAnalyticsEnabled(shouldEnableAnalytics);
-        setReferralLinksEnabled(true);
+        setReferralLinksEnabled(adsViewEnabled);
         setTermsAccepted();
 
         await setOnboardingCompleted(true);
 
         const accountPkh = await registerWallet(password!, formatMnemonic(seedPhrase));
         // registerWallet function clears async storages
-        await putToStorage(REPLACE_REFERRALS_ENABLED, true);
+        await putToStorage(REPLACE_REFERRALS_ENABLED, adsViewEnabled);
         await putToStorage(WEBSITES_ANALYTICS_ENABLED, adsViewEnabled);
-        trackEvent('AnalyticsEnabled', AnalyticsEventCategory.General, { accountPkh }, shouldEnableAnalytics);
+        trackEvent('AnalyticsEnabled', AnalyticsEventCategory.General, { accountPkh }, analyticsEnabled);
         trackEvent('AdsEnabled', AnalyticsEventCategory.General, { accountPkh }, adsViewEnabled);
 
         navigate('/loading');
@@ -271,7 +272,7 @@ export const SetWalletPassword: FC<SetWalletPasswordProps> = ({
               id="analyticsInputDescription"
               substitutions={[
                 <a
-                  href="https://templewallet.com/analytics-collecting"
+                  href={PRIVACY_POLICY_URL}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="underline text-secondary"
@@ -287,10 +288,10 @@ export const SetWalletPassword: FC<SetWalletPasswordProps> = ({
         <Controller
           basic
           control={control}
-          name="earnRewardsWithAds"
+          name="earnTkeyRewards"
           as={FormCheckbox}
-          label={t('earnRewardsWithAds')}
-          labelDescription={<T id="earnRewardsWithAdsDescription" />}
+          label={t('earnTkeyRewards')}
+          labelDescription={<T id="earnTkeyRewardsDescription" />}
           testID={setWalletPasswordSelectors.viewAdsCheckBox}
         />
       </FormCheckboxGroup>

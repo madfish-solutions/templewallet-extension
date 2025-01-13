@@ -5,7 +5,6 @@ import InfiniteScroll from 'react-infinite-scroll-component';
 
 import { SyncSpinner } from 'app/atoms';
 import { useAppEnv } from 'app/env';
-import { useLoadPartnersPromo } from 'app/hooks/use-load-partners-promo';
 import { ReactComponent as LayersIcon } from 'app/icons/layers.svg';
 import { useShouldShowPartnersPromoSelector } from 'app/store/partners-promotion/selectors';
 import { PartnersPromotion, PartnersPromotionVariant } from 'app/templates/partners-promotion';
@@ -34,7 +33,6 @@ export const ActivityComponent: React.FC<Props> = ({ assetSlug }) => {
   const { publicKeyHash: accountAddress } = useAccount();
 
   const shouldShowPartnersPromo = useShouldShowPartnersPromoSelector();
-  useLoadPartnersPromo();
 
   const promotion = useMemo(() => {
     if (shouldShowPartnersPromo)

@@ -14,7 +14,6 @@ import clsx from 'clsx';
 
 import DocBg from 'app/a11y/DocBg';
 import { Button } from 'app/atoms/Button';
-import { DonationBanner } from 'app/atoms/DonationBanner/DonationBanner';
 import Spinner from 'app/atoms/Spinner/Spinner';
 import { useAppEnv } from 'app/env';
 import ErrorBoundary from 'app/ErrorBoundary';
@@ -23,6 +22,7 @@ import ContentContainer from 'app/layouts/ContentContainer';
 import { useOnboardingProgress } from 'app/pages/Onboarding/hooks/useOnboardingProgress.hook';
 import { AdvertisingBanner } from 'app/templates/advertising/advertising-banner/advertising-banner';
 import { AdvertisingOverlay } from 'app/templates/advertising/advertising-overlay/advertising-overlay';
+import { AirdropButton } from 'app/templates/temple-tap/AirdropButton';
 import { IS_MISES_BROWSER } from 'lib/env';
 import { T } from 'lib/i18n';
 import { NotificationsBell } from 'lib/notifications/components/bell';
@@ -35,6 +35,7 @@ import Header from './PageLayout/Header';
 import { NewsletterOverlay } from './PageLayout/NewsletterOverlay/NewsletterOverlay';
 import { OnRampOverlay } from './PageLayout/OnRampOverlay/OnRampOverlay';
 import { ReactivateAdsOverlay } from './PageLayout/ReactivateAdsOverlay';
+import { RewardsButton } from './PageLayout/RewardsButton';
 import { ShortcutAccountSwitchOverlay } from './PageLayout/ShortcutAccountSwitchOverlay';
 import { PageLayoutSelectors } from './PageLayout.selectors';
 
@@ -111,15 +112,16 @@ export const SpinnerSection: FC = () => (
   </div>
 );
 
-type ToolbarProps = {
+interface ToolbarProps {
   pageTitle?: ReactNode;
   hasBackAction?: boolean;
   step?: number;
   setStep?: (step: number) => void;
-  adShow?: boolean;
   skip?: boolean;
-  attention?: boolean;
-};
+  withBell?: boolean;
+  withAd?: boolean;
+  withAirdrop?: boolean;
+}
 
 export let ToolbarElement: HTMLDivElement | null = null;
 
@@ -131,9 +133,10 @@ const Toolbar: FC<ToolbarProps> = ({
   hasBackAction = true,
   step,
   setStep,
-  adShow = false,
   skip,
-  attention
+  withBell,
+  withAd,
+  withAirdrop
 }) => {
   const { historyPosition, pathname } = useLocation();
   const { fullPage } = useAppEnv();
@@ -203,10 +206,8 @@ const Toolbar: FC<ToolbarProps> = ({
 
   return (
     <div ref={updateRootRef} className={className}>
-      <div className="flex-1">
-        {!isBackButtonAvailable && adShow && <DonationBanner />}
-
-        {isBackButtonAvailable && (
+      {isBackButtonAvailable ? (
+        <div className="flex-1">
           <Button
             className={clsx(
               'rounded px-2 py-1',
@@ -223,8 +224,10 @@ const Toolbar: FC<ToolbarProps> = ({
             <ChevronLeftIcon className="-ml-2 h-5 w-auto stroke-current stroke-2" />
             <T id="back" />
           </Button>
-        )}
-      </div>
+        </div>
+      ) : (
+        <RewardsButton testID={PageLayoutSelectors.rewardsButton} />
+      )}
 
       {pageTitle && (
         <h2 className="px-1 flex items-center text-ulg text-gray-700 font-normal overflow-hidden">{pageTitle}</h2>
@@ -232,10 +235,11 @@ const Toolbar: FC<ToolbarProps> = ({
 
       <div className="flex-1" />
 
-      {attention && (
-        <div className="flex items-center content-end absolute right-0">
-          <AdvertisingBanner />
-          <NotificationsBell />
+      {(withAd || withAirdrop || withBell) && (
+        <div className="flex items-center gap-x-2 content-end">
+          {withAd && <AdvertisingBanner />}
+          {withAirdrop && <AirdropButton />}
+          {withBell && <NotificationsBell />}
         </div>
       )}
 

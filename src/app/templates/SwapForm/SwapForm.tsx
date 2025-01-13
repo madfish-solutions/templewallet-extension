@@ -43,8 +43,9 @@ import { ZERO } from 'lib/utils/numbers';
 import { parseTransferParamsToParamsWithKind } from 'lib/utils/parse-transfer-params';
 import {
   calculateSidePaymentsFromInput,
-  calculateOutputFeeAtomic,
-  getRoutingFeeTransferParams
+  getRoutingFeeTransferParams,
+  multiplyAtomicAmount,
+  calculateOutputAmounts
 } from 'lib/utils/swap.utils';
 import { HistoryAction, navigate } from 'lib/woozie';
 
@@ -58,10 +59,10 @@ import { slippageToleranceInputValidationFn } from './SwapFormInput/SlippageTole
 import { SwapFormInput } from './SwapFormInput/SwapFormInput';
 import { SwapMinimumReceived } from './SwapMinimumReceived/SwapMinimumReceived';
 
-// These values have been set after some experimentation. They are different to the respective values in
-// templewallet-mobile because the mobile app still uses taquito v19.0.0, which has a different gas estimation algorithm.
-const SINGLE_SWAP_IN_BATCH_MAX_DEXES = 12;
-const LB_OPERATION_DEXES_COST = 3;
+const CASHBACK_SWAP_MAX_DEXES = 3;
+// Actually, at most 2 dexes for each of underlying SIRS -> tzBTC -> X swap and SIRS -> XTZ -> X swap
+const MAIN_SIRS_SWAP_MAX_DEXES = 4;
+const MAIN_NON_SIRS_SWAP_MAX_DEXES = 3;
 
 export const SwapForm: FC = () => {
   const dispatch = useDispatch();
@@ -104,15 +105,23 @@ export const SwapForm: FC = () => {
   const [isAlertVisible, setIsAlertVisible] = useState(false);
 
   const slippageRatio = useMemo(() => getPercentageRatio(slippageTolerance ?? 0), [slippageTolerance]);
-  const minimumReceivedAmountAtomic = useMemo(() => {
-    if (isDefined(swapParams.data.output)) {
-      return tokensToAtoms(new BigNumber(swapParams.data.output), outputAssetMetadata.decimals)
-        .multipliedBy(slippageRatio)
-        .integerValue(BigNumber.ROUND_DOWN);
-    } else {
-      return ZERO;
-    }
-  }, [swapParams.data.output, outputAssetMetadata.decimals, slippageRatio]);
+  const { outputAtomicAmountBeforeFee, minimumReceivedAtomic, outputFeeAtomicAmount } = useMemo(
+    () =>
+      calculateOutputAmounts(
+        inputValue.amount,
+        inputAssetMetadata.decimals,
+        swapParams.data.output,
+        outputAssetMetadata.decimals,
+        slippageRatio
+      ),
+    [
+      inputValue.amount,
+      inputAssetMetadata.decimals,
+      swapParams.data.output,
+      outputAssetMetadata.decimals,
+      slippageRatio
+    ]
+  );
 
   const hopsAreAbsent = isLiquidityBakingParamsResponse(swapParams.data)
     ? swapParams.data.tzbtcHops.length === 0 && swapParams.data.xtzHops.length === 0
@@ -134,17 +143,13 @@ export const SwapForm: FC = () => {
       const isOutputTokenTempleToken = outputAssetSlug === KNOWN_TOKENS_SLUGS.TEMPLE;
       const isSirsSwap = inputAssetSlug === KNOWN_TOKENS_SLUGS.SIRS || outputAssetSlug === KNOWN_TOKENS_SLUGS.SIRS;
       const isSwapAmountMoreThreshold = inputAmountInUsd.isGreaterThanOrEqualTo(SWAP_THRESHOLD_TO_GET_CASHBACK);
-      const totalMaxDexes = SINGLE_SWAP_IN_BATCH_MAX_DEXES - (isSirsSwap ? LB_OPERATION_DEXES_COST : 0);
-      const cashbackSwapMaxDexes = Math.ceil(totalMaxDexes / (isSirsSwap ? 3 : 2));
-      const mainSwapMaxDexes =
-        totalMaxDexes - (isSwapAmountMoreThreshold && !isInputTokenTempleToken ? cashbackSwapMaxDexes : 0);
+      const mainSwapMaxDexes = isSirsSwap ? MAIN_SIRS_SWAP_MAX_DEXES : MAIN_NON_SIRS_SWAP_MAX_DEXES;
 
       return {
         isInputTokenTempleToken,
         isOutputTokenTempleToken,
         isSwapAmountMoreThreshold,
-        mainSwapMaxDexes,
-        cashbackSwapMaxDexes
+        mainSwapMaxDexes
       };
     },
     [allUsdToTokenRates]
@@ -221,14 +226,16 @@ export const SwapForm: FC = () => {
         amount: undefined
       });
     } else {
-      const outputAtomicAmountBeforeFee = tokensToAtoms(new BigNumber(currentOutput), outputAssetMetadata.decimals);
-      const outputFeeAtomic = calculateOutputFeeAtomic(
-        tokensToAtoms(inputValue.amount ?? ZERO, inputAssetMetadata.decimals),
-        outputAtomicAmountBeforeFee
+      const { expectedReceivedAtomic } = calculateOutputAmounts(
+        inputValue.amount,
+        inputAssetMetadata.decimals,
+        currentOutput,
+        outputAssetMetadata.decimals,
+        slippageRatio
       );
       setValue('output', {
         assetSlug: outputValue.assetSlug,
-        amount: atomsToTokens(outputAtomicAmountBeforeFee.minus(outputFeeAtomic), outputAssetMetadata.decimals)
+        amount: atomsToTokens(expectedReceivedAtomic, outputAssetMetadata.decimals)
       });
     }
 
@@ -236,6 +243,7 @@ export const SwapForm: FC = () => {
       triggerValidation();
     }
   }, [
+    slippageRatio,
     swapParams.data.output,
     setValue,
     triggerValidation,
@@ -291,7 +299,6 @@ export const SwapForm: FC = () => {
       inputFeeAtomic: routingFeeFromInputAtomic,
       cashbackSwapInputAtomic: cashbackSwapInputFromInAtomic
     } = calculateSidePaymentsFromInput(atomsInputValue);
-    const routingFeeFromOutputAtomic = calculateOutputFeeAtomic(atomsInputValue, minimumReceivedAmountAtomic);
 
     if (!fromRoute3Token || !toRoute3Token || !swapParams.data.output || !inputValue.assetSlug) {
       return;
@@ -303,7 +310,7 @@ export const SwapForm: FC = () => {
       const allSwapParams: Array<TransferParams> = [];
       let routingOutputFeeTransferParams: TransferParams[] = await getRoutingFeeTransferParams(
         toRoute3Token,
-        routingFeeFromOutputAtomic,
+        outputFeeAtomicAmount,
         publicKeyHash,
         ROUTING_FEE_ADDRESS,
         tezos
@@ -313,7 +320,8 @@ export const SwapForm: FC = () => {
         fromRoute3Token,
         toRoute3Token,
         swapInputMinusFeeAtomic,
-        minimumReceivedAmountAtomic,
+        outputAtomicAmountBeforeFee,
+        slippageRatio,
         swapParams.data
       );
 
@@ -321,8 +329,10 @@ export const SwapForm: FC = () => {
         return;
       }
 
-      const { isInputTokenTempleToken, isOutputTokenTempleToken, isSwapAmountMoreThreshold, cashbackSwapMaxDexes } =
-        getSwapWithFeeParams(inputValue, outputValue);
+      const { isInputTokenTempleToken, isOutputTokenTempleToken, isSwapAmountMoreThreshold } = getSwapWithFeeParams(
+        inputValue,
+        outputValue
+      );
 
       if (isInputTokenTempleToken && isSwapAmountMoreThreshold) {
         const routingInputFeeOpParams = await getRoutingFeeTransferParams(
@@ -348,22 +358,26 @@ export const SwapForm: FC = () => {
           toSymbol: TEMPLE_TOKEN.symbol,
           toTokenDecimals: TEMPLE_TOKEN.decimals,
           amount: atomsToTokens(routingFeeFromInputAtomic, fromRoute3Token.decimals).toFixed(),
-          dexesLimit: cashbackSwapMaxDexes,
+          dexesLimit: CASHBACK_SWAP_MAX_DEXES,
           rpcUrl: tezos.rpc.getRpcUrl()
         });
 
-        const templeOutputAtomic = tokensToAtoms(
+        const templeExpectedOutputAtomic = tokensToAtoms(
           new BigNumber(swapToTempleParams.output ?? ZERO),
           TEMPLE_TOKEN.decimals
-        )
-          .multipliedBy(ROUTING_FEE_SLIPPAGE_RATIO)
-          .integerValue(BigNumber.ROUND_DOWN);
+        );
+        const templeMinOutputAtomic = multiplyAtomicAmount(
+          templeExpectedOutputAtomic,
+          ROUTING_FEE_SLIPPAGE_RATIO,
+          BigNumber.ROUND_DOWN
+        );
 
         const swapToTempleTokenOpParams = await getSwapParams(
           fromRoute3Token,
           TEMPLE_TOKEN,
           routingFeeFromInputAtomic,
-          templeOutputAtomic,
+          templeExpectedOutputAtomic,
+          ROUTING_FEE_SLIPPAGE_RATIO,
           swapToTempleParams
         );
 
@@ -371,7 +385,7 @@ export const SwapForm: FC = () => {
 
         const routingFeeOpParams = await getRoutingFeeTransferParams(
           TEMPLE_TOKEN,
-          templeOutputAtomic.times(ROUTING_FEE_RATIO - SWAP_CASHBACK_RATIO).dividedToIntegerBy(ROUTING_FEE_RATIO),
+          templeMinOutputAtomic.times(ROUTING_FEE_RATIO - SWAP_CASHBACK_RATIO).dividedToIntegerBy(ROUTING_FEE_RATIO),
           publicKeyHash,
           BURN_ADDREESS,
           tezos
@@ -380,9 +394,7 @@ export const SwapForm: FC = () => {
       } else if (!isInputTokenTempleToken && isSwapAmountMoreThreshold && isOutputTokenTempleToken) {
         routingOutputFeeTransferParams = await getRoutingFeeTransferParams(
           TEMPLE_TOKEN,
-          routingFeeFromOutputAtomic
-            .times(ROUTING_FEE_RATIO - SWAP_CASHBACK_RATIO)
-            .dividedToIntegerBy(ROUTING_FEE_RATIO),
+          outputFeeAtomicAmount.times(ROUTING_FEE_RATIO - SWAP_CASHBACK_RATIO).dividedToIntegerBy(ROUTING_FEE_RATIO),
           publicKeyHash,
           BURN_ADDREESS,
           tezos
@@ -392,29 +404,33 @@ export const SwapForm: FC = () => {
           fromSymbol: toRoute3Token.symbol,
           toSymbol: TEMPLE_TOKEN.symbol,
           toTokenDecimals: TEMPLE_TOKEN.decimals,
-          amount: atomsToTokens(routingFeeFromOutputAtomic, toRoute3Token.decimals).toFixed(),
-          dexesLimit: cashbackSwapMaxDexes,
+          amount: atomsToTokens(outputFeeAtomicAmount, toRoute3Token.decimals).toFixed(),
+          dexesLimit: CASHBACK_SWAP_MAX_DEXES,
           rpcUrl: tezos.rpc.getRpcUrl()
         });
 
-        const templeOutputAtomic = tokensToAtoms(
+        const templeExpectedOutputAtomic = tokensToAtoms(
           new BigNumber(swapToTempleParams.output ?? ZERO),
           TEMPLE_TOKEN.decimals
-        )
-          .multipliedBy(ROUTING_FEE_SLIPPAGE_RATIO)
-          .integerValue(BigNumber.ROUND_DOWN);
+        );
+        const templeMinOutputAtomic = multiplyAtomicAmount(
+          templeExpectedOutputAtomic,
+          ROUTING_FEE_SLIPPAGE_RATIO,
+          BigNumber.ROUND_DOWN
+        );
 
         const swapToTempleTokenOpParams = await getSwapParams(
           toRoute3Token,
           TEMPLE_TOKEN,
-          routingFeeFromOutputAtomic,
-          templeOutputAtomic,
+          outputFeeAtomicAmount,
+          templeExpectedOutputAtomic,
+          ROUTING_FEE_SLIPPAGE_RATIO,
           swapToTempleParams
         );
 
         const routingFeeOpParams = await getRoutingFeeTransferParams(
           TEMPLE_TOKEN,
-          templeOutputAtomic.times(ROUTING_FEE_RATIO - SWAP_CASHBACK_RATIO).dividedToIntegerBy(ROUTING_FEE_RATIO),
+          templeMinOutputAtomic.times(ROUTING_FEE_RATIO - SWAP_CASHBACK_RATIO).dividedToIntegerBy(ROUTING_FEE_RATIO),
           publicKeyHash,
           BURN_ADDREESS,
           tezos
@@ -605,7 +621,7 @@ export const SwapForm: FC = () => {
               </td>
               <td className="text-right text-gray-600">
                 <SwapMinimumReceived
-                  minimumReceivedAmount={minimumReceivedAmountAtomic}
+                  minimumReceivedAmount={minimumReceivedAtomic}
                   outputAssetMetadata={outputAssetMetadata}
                 />
               </td>

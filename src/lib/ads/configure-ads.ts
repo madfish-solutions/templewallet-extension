@@ -5,14 +5,17 @@ import {
   ADS_META_SEARCH_PARAM_NAME,
   AD_CATEGORIES_PARAM_NAME,
   ContentScriptType,
-  ORIGIN_SEARCH_PARAM_NAME
+  FONT_SIZE_SEARCH_PARAM_NAME,
+  LINE_HEIGHT_SEARCH_PARAM_NAME,
+  ORIGIN_SEARCH_PARAM_NAME,
+  THEME_COLOR_SEARCH_PARAM_NAME
 } from 'lib/constants';
 import { APP_VERSION, EnvVars, IS_MISES_BROWSER } from 'lib/env';
 import { isTruthy } from 'lib/utils';
 
 import { importExtensionAdsModule } from './import-extension-ads-module';
 
-// Three interfaces below are copied from '@temple-wallet/extension-ads' to avoid importing it to ensure that a core
+// Four interfaces below are copied from '@temple-wallet/extension-ads' to avoid importing it to ensure that a core
 // build runs without errors.
 interface AdSource {
   shouldNotUseStrictContainerLimits?: boolean;
@@ -36,6 +39,16 @@ interface AdMetadata {
   dimensions: AdDimensions;
 }
 
+interface AdsStackIframeURLParams {
+  id: string;
+  adsMetadataIds: any[];
+  origin: string;
+  adCategories: string[];
+  themeColor?: string;
+  fontSize?: number;
+  lineHeight?: number;
+}
+
 const smallTkeyInpageAdUrl = browser.runtime.getURL(`/misc/ad-banners/small-tkey-inpage-ad.png`);
 const tkeyInpageAdUrl = browser.runtime.getURL(`/misc/ad-banners/tkey-inpage-ad.png`);
 
@@ -45,9 +58,28 @@ const swapTkeyUrl = `${browser.runtime.getURL('fullpage.html')}#/swap?${buildSwa
   true
 )}`;
 
-const getAdsStackIframeURL = (id: string, adsMetadataIds: any[], origin: string, adCategories: string[]) => {
+const searchParamsNames = {
+  id: 'id',
+  themeColor: THEME_COLOR_SEARCH_PARAM_NAME,
+  fontSize: FONT_SIZE_SEARCH_PARAM_NAME,
+  lineHeight: LINE_HEIGHT_SEARCH_PARAM_NAME
+};
+
+const getAdsStackIframeURL = ({
+  adsMetadataIds,
+  origin,
+  adCategories,
+  ...plainSearchParamsInput
+}: AdsStackIframeURLParams) => {
   const url = new URL(browser.runtime.getURL('iframes/ads-stack.html'));
-  url.searchParams.set('id', id);
+  for (const searchParamsInputName in plainSearchParamsInput) {
+    const searchParamsInputNameTyped = searchParamsInputName as keyof typeof plainSearchParamsInput;
+    const key = searchParamsNames[searchParamsInputNameTyped];
+    const value = plainSearchParamsInput[searchParamsInputNameTyped];
+    if (value || value === 0) {
+      url.searchParams.set(key, String(value));
+    }
+  }
   adsMetadataIds.forEach(adMetadataId =>
     url.searchParams.append(ADS_META_SEARCH_PARAM_NAME, JSON.stringify(adMetadataId))
   );
