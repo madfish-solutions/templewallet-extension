@@ -44,7 +44,8 @@ module.exports = {
       bottom: '0px 2px 8px 0px rgba(0, 0, 0, 0.08)',
       center: '0px 0px 8px 0px #00000014',
       'content-inset': 'inset 0px 10px 8px -8px #00000014',
-      drop: '0px 2px 4px 0px #00000040'
+      drop: '0px 2px 4px 0px #00000040',
+      card: '0px 2px 8px 0px #00000014'
     },
 
     fontFamily: {
@@ -89,6 +90,7 @@ module.exports = {
         yellow: {
           100: '#fffff0',
           400: '#f6e05e',
+          500: '#fed500',
           600: '#d69e2e',
           700: '#b7791f'
         },
@@ -181,6 +183,10 @@ module.exports = {
         88: '22rem'
       },
 
+      scale: {
+        '1/3': '33.333333%'
+      },
+
       opacity: {
         15: '0.15'
       },
@@ -194,6 +200,7 @@ module.exports = {
 
       maxWidth: (theme, { breakpoints }) => ({
         ...theme('width'),
+        30: '7.5rem',
         xs: '20rem',
         sm: '24rem',
         md: '28rem',
@@ -303,6 +310,8 @@ module.exports = {
         '-full': '-100%',
         '-1/2': '-50%',
         '1/2': '50%',
+        '1/3': '33.333333%',
+        '-1/3': '-33.333333%',
         full: '100%'
       }),
 

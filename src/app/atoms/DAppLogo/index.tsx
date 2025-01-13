@@ -1,12 +1,8 @@
 import React, { CSSProperties, memo, useMemo } from 'react';
 
-import clsx from 'clsx';
-
 import { ImageStacked } from 'lib/ui/ImageStacked';
 
-import { IconBase } from '../IconBase';
-
-import { ReactComponent as PlugSvg } from './plug.svg';
+import { ReactComponent as UnknownDAppIcon } from './unknown-dapp.svg';
 
 interface DAppLogoProps {
   origin: string;
@@ -21,11 +17,7 @@ const DAppLogo = memo<DAppLogoProps>(({ origin, size, icon, className, style }) 
 
   const styleMemo = useMemo(() => ({ width: size, height: size, ...style }), [style, size]);
 
-  const placeholder = (
-    <div className={clsx('flex items-center bg-grey-4', className)} style={styleMemo}>
-      <IconBase Icon={PlugSvg} size={16} className="mx-auto text-grey-1" />
-    </div>
-  );
+  const placeholder = <UnknownDAppIcon className={className} style={styleMemo} />;
 
   return (
     <ImageStacked

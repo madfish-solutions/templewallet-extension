@@ -25,6 +25,7 @@ import {
 } from 'app/store/tezos/tokens-metadata/selectors';
 import { METADATA_API_LOAD_CHUNK_SIZE } from 'lib/apis/temple';
 import { isTezAsset } from 'lib/assets';
+import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
 import { fromChainAssetSlug } from 'lib/assets/utils';
 import { isTruthy } from 'lib/utils';
 import { isEvmNativeTokenSlug } from 'lib/utils/evm.utils';
@@ -48,6 +49,8 @@ export { isCollectible, isTezosCollectibleMetadata, getAssetSymbol, getTokenName
 export { TEZOS_METADATA };
 
 export const getTezosGasMetadata = (chainId: string) => (isTezosDcpChainId(chainId) ? FILM_METADATA : TEZOS_METADATA);
+
+export const useEvmGasMetadata = (chainId: number) => useEvmTokenMetadataSelector(chainId, EVM_TOKEN_SLUG);
 
 export const useTezosAssetMetadata = (slug: string, tezosChainId: string): AssetMetadataBase | undefined => {
   const tokenMetadata = useTokenMetadataSelector(slug);

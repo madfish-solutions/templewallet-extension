@@ -2,6 +2,8 @@ import axios from 'axios';
 
 import { APP_VERSION, EnvVars } from 'lib/env';
 
+import { withAxiosDataExtract } from './utils';
+
 const axiosClient = axios.create({
   baseURL: EnvVars.TEMPLE_ADS_API_URL,
   adapter: 'fetch'
@@ -67,21 +69,71 @@ export async function postLinkAdsImpressions(accountPkh: string, installId: stri
   await axiosClient.post('/link-impressions', { accountPkh, installId, signature, appVersion: APP_VERSION });
 }
 
-export async function fetchReferralsSupportedDomains() {
-  const res = await axiosClient.get<string[]>('/takeads/referrals/supported-domains');
-
-  return res.data;
+interface ReferralTextIconRule {
+  /** RegEx (string) to check page hostname against */
+  hostRegExStr: string;
+  aMatchSelector?: string;
+  aChildSelector?: string;
+  iconHeight?: number;
 }
 
-export async function fetchReferralsAffiliateLinks(links: string[]) {
-  const res = await axiosClient
-    .post<TekeadsAffiliateResponse>('/takeads/referrals/affiliate-links', links)
-    .catch(err => {
-      throw err;
-    });
-
-  return res.data;
+export interface ReferralsRulesResponse {
+  domains: string[];
+  textIconRules: ReferralTextIconRule[];
+  redirectUrl?: string;
 }
+
+export const fetchReferralsRules = withAxiosDataExtract(() =>
+  axiosClient.get<ReferralsRulesResponse>('/takeads/referrals/rules')
+);
+
+export const fetchReferralsAffiliateLinks = withAxiosDataExtract((links: string[]) =>
+  axiosClient.post<TekeadsAffiliateResponse>('/takeads/referrals/affiliate-links', links).catch(err => {
+    throw err;
+  })
+);
+
+export interface RpStatsResponse {
+  impressionsCount: number;
+  referralsClicksCount: number;
+}
+
+interface RpForMonthResponse extends RpStatsResponse {
+  firstActivityDate: string | null;
+}
+
+export const parseMonthYearIndex = (index: number) => {
+  const monthIndex = index % 12;
+  const year = Math.floor(index / 12);
+
+  return new Date(year, monthIndex);
+};
+
+export function toMonthYearIndex(monthIndex: number, year: number): number;
+export function toMonthYearIndex(date: Date): number;
+export function toMonthYearIndex(...args: [number, number] | [Date]) {
+  let monthIndex: number;
+  let year: number;
+  if (args.length === 2) {
+    [monthIndex, year] = args;
+  } else {
+    const date = args[0];
+    monthIndex = date.getMonth();
+    year = date.getFullYear();
+  }
+
+  return monthIndex + year * 12;
+}
+
+export const fetchRpForToday = withAxiosDataExtract((accountPkh: string) =>
+  axiosClient.get<RpStatsResponse>('/rp/today', { params: { accountPkh, tzOffset: new Date().getTimezoneOffset() } })
+);
+
+export const fetchRpForMonth = withAxiosDataExtract((accountPkh: string, monthYearIndex: number) =>
+  axiosClient.get<RpForMonthResponse>('/rp/month', {
+    params: { accountPkh, monthYearIndex, tzOffset: new Date().getTimezoneOffset() }
+  })
+);
 
 interface TekeadsAffiliateResponse {
   data: AffiliateLink[];

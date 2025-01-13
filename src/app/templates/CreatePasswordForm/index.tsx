@@ -111,22 +111,27 @@ export const CreatePasswordForm = memo<CreatePasswordFormProps>(({ seedPhrase: s
       if (submitting) return;
 
       try {
-        dispatch(togglePartnersPromotionAction(data.getRewards));
-        dispatch(setIsAnalyticsEnabledAction(data.analytics));
-        const shouldEnableWebsiteAnalytics = data.getRewards && data.analytics;
-        await putToStorage(WEBSITES_ANALYTICS_ENABLED, shouldEnableWebsiteAnalytics);
-        dispatch(setReferralLinksEnabledAction(true));
+        const analyticsEnabled = data.analytics;
+        const adsViewEnabled = data.getRewards;
+
+        dispatch(togglePartnersPromotionAction(adsViewEnabled));
+        dispatch(setIsAnalyticsEnabledAction(analyticsEnabled));
+        dispatch(setReferralLinksEnabledAction(adsViewEnabled));
         setTermsAccepted();
 
         const accountPkh = await registerWallet(data.password!, formatMnemonic(seedPhrase));
 
         // registerWallet function clears async storages
-        await putToStorage(REPLACE_REFERRALS_ENABLED, true);
-        await putToStorage(WEBSITES_ANALYTICS_ENABLED, data.getRewards);
+        await putToStorage(REPLACE_REFERRALS_ENABLED, adsViewEnabled);
+        await putToStorage(WEBSITES_ANALYTICS_ENABLED, adsViewEnabled);
 
-        if (shouldEnableWebsiteAnalytics) {
-          trackEvent('AnalyticsAndAdsEnabled', AnalyticsEventCategory.General, { accountPkh }, data.analytics);
+        if (adsViewEnabled && analyticsEnabled) {
+          trackEvent('AnalyticsAndAdsEnabled', AnalyticsEventCategory.General, { accountPkh }, true);
+        } else {
+          trackEvent('AnalyticsEnabled', AnalyticsEventCategory.General, { accountPkh }, analyticsEnabled);
+          trackEvent('AdsEnabled', AnalyticsEventCategory.General, { accountPkh }, adsViewEnabled);
         }
+
         if (seedPhraseToImport) {
           setInitToast(t('importSuccessful'));
         } else {

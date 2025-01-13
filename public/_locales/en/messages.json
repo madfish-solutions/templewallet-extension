@@ -320,6 +320,12 @@
   "cancel": {
     "message": "Cancel"
   },
+  "cancelOrder": {
+    "message": "Cancel Order"
+  },
+  "newOrder": {
+    "message": "New Order"
+  },
   "save": {
     "message": "Save"
   },
@@ -578,6 +584,12 @@
   },
   "signAction": {
     "message": "Sign"
+  },
+  "signatureRequest": {
+    "message": "Signature Request"
+  },
+  "message": {
+    "message": "Message"
   },
   "appRequestsToSign": {
     "message": "$origin$ requests you to sign",
@@ -1107,7 +1119,7 @@
     "message": "Privacy Policy"
   },
   "termsOfUse": {
-    "message": "Terms of Use"
+    "message": "Terms of Usage"
   },
   "knowledgeBase": {
     "message": "Knowledge Base"
@@ -1412,6 +1424,9 @@
       }
     }
   },
+  "allowed": {
+    "message": "Allowed"
+  },
   "notAllowed": {
     "message": "Not allowed"
   },
@@ -1480,6 +1495,9 @@
   },
   "network": {
     "message": "Network"
+  },
+  "networkDropdownPrefix": {
+    "message": "Network:"
   },
   "unknownNetwork": {
     "message": "Unknown:"
@@ -1641,6 +1659,9 @@
   "recipient": {
     "message": "Recipient"
   },
+  "transactionHash": {
+    "message": "Transaction hash"
+  },
   "tokensRecepientInputDescription": {
     "message": "Address to send $assetSymbol$ funds to.",
     "placeholders": {
@@ -1711,6 +1732,18 @@
   "myAccounts": {
     "message": "My Accounts"
   },
+  "permissions": {
+    "message": "Permissions"
+  },
+  "viewWalletPermissionDescription": {
+    "message": "View wallet balance and activity"
+  },
+  "transactionsPermissionDescription": {
+    "message": "Request approval for transactions"
+  },
+  "signingPermissionDescription": {
+    "message": "Request signing messages and data"
+  },
   "sendToMyAccounts": {
     "message": "Send to My Accounts"
   },
@@ -1777,6 +1810,9 @@
   },
   "connect": {
     "message": "Connect"
+  },
+  "connectAccount": {
+    "message": "Connect Account"
   },
   "confirmActionOnDevice": {
     "message": "Confirm the action on"
@@ -3036,9 +3072,6 @@
   "buyButton": {
     "message": "Buy"
   },
-  "withdraw": {
-    "message": "Withdraw"
-  },
   "toCard": {
     "message": "To card"
   },
@@ -3097,23 +3130,26 @@
   "buyWithRampDescription": {
     "message": "Buy TEZ  using Visa, Mastercard, and all major debit and credit cards. Ramp is available in 160+ countries and territories."
   },
-  "sellWithAliceBob": {
-    "message": "Sell TEZ with Alice-Bob"
-  },
-  "sellWithAliceBobDescription": {
-    "message": "Fast and cost-effective exchange of TEZ."
-  },
   "selectPaymentProvider": {
     "message": "Select payment provider"
   },
   "pleaseSelectPaymentProvider": {
     "message": "Please select payment provider"
   },
-  "topUpBuy": {
-    "message": "Buy"
-  },
   "buyWithCard": {
     "message": "Buy with Debit/Credit Card"
+  },
+  "cryptoExchange": {
+    "message": "Crypto Exchange"
+  },
+  "cryptoExchangeDescription": {
+    "message": "Top-up balance instantly with best rate and without registration"
+  },
+  "debitCreditCard": {
+    "message": "Debit & Credit Card"
+  },
+  "debitCreditCardDescription": {
+    "message": "Simple crypto purchase with fiat currencies in a few steps"
   },
   "sellTez": {
     "message": "Sell TEZ"
@@ -3174,9 +3210,6 @@
   "bestPrice": {
     "message": "Best price"
   },
-  "withdrawDescription": {
-    "message": "Temple integrated third-party solutions to sell TEZ. Choose a provider, follow guides, \n get fiat to your Debit/Credit card"
-  },
   "topUpCrypto": {
     "message": "Crypto"
   },
@@ -3195,16 +3228,14 @@
   "newTopUp": {
     "message": "New Top Up"
   },
+  "exchange": {
+    "message": "Exchange"
+  },
   "exchangeDetails": {
-    "message": "Enter exchange details"
+    "message": "Exchange details"
   },
   "exchangeDetailsDescription": {
-    "message": "Top up your TEZ or USDT Tezos balance instantly with $number$ cryptocurrencies",
-    "placeholders": {
-      "number": {
-        "content": "$1"
-      }
-    }
+    "message": "Enter token amount and top up your balance instantly with best rate and without registration"
   },
   "sellTezDetails": {
     "message": "Sell TEZ details"
@@ -3227,7 +3258,7 @@
     }
   },
   "privacyAndPolicyLinks": {
-    "message": "By clicking $buttonContent$ you agree with \n$termsOfUse$ and $privacyPolicy$",
+    "message": "By pressing $buttonContent$ you are agree with the $termsOfUse$ and $privacyPolicy$",
     "placeholders": {
       "buttonContent": {
         "content": "$1"
@@ -3240,40 +3271,53 @@
       }
     }
   },
-  "depositAddressText": {
-    "message": "Deposit $depositAddress$ address:",
-    "placeholders": {
-      "depositAddress": {
-        "content": "$1"
-      }
-    }
+  "depositAddress": {
+    "message": "Deposit address"
   },
   "support": {
     "message": "Support"
+  },
+  "exolixSupport": {
+    "message": "Exolix Support"
   },
   "deposit": {
     "message": "Deposit"
   },
   "depositDescription": {
-    "message": "Send the funds to the address below. As soon as the deposit is received, the exchange process will begin automatically"
+    "message": "Send tokens to the deposit address, and the exchange will begin automatically once the deposit is confirmed"
+  },
+  "depositDisclaimer": {
+    "message": "Send the exact amount of crypto to the deposit address. Otherwise the transaction will be failed and you will need to contact Exolix support."
+  },
+  "convertation": {
+    "message": "Convertation"
+  },
+  "convertationDescription": {
+    "message": "Please wait, the convertation process usually takes between 15 minutes and 2 hours"
   },
   "sendByOneTransaction": {
     "message": "Send by one transaction"
   },
   "youGet": {
-    "message": "You get:"
+    "message": "You get"
+  },
+  "youReceived": {
+    "message": "You received"
+  },
+  "youSent": {
+    "message": "You sent"
   },
   "fixedRate": {
     "message": "Fixed rate:"
   },
   "transactionId": {
-    "message": "Transaction ID:"
+    "message": "Transaction ID"
   },
   "atomDepositMemo": {
     "message": "Atom Deposit Memo"
   },
   "recipientAddress": {
-    "message": "Recipient address:"
+    "message": "Recipient address"
   },
   "recipientXtzAddress": {
     "message": "Recipient XTZ address:"
@@ -3294,10 +3338,10 @@
     "message": "You sell:"
   },
   "sendTime": {
-    "message": "Send time:"
+    "message": "Send time"
   },
   "completedDescription": {
-    "message": "Please, check your funds in your wallet.\nThe exchange process is completed."
+    "message": "Please check your balance - the exchange has been finished"
   },
   "completed": {
     "message": "Completed"
@@ -3331,6 +3375,37 @@
   },
   "expiredStatusDescription": {
     "message": "The order was not paid for the time allocated."
+  },
+  "expiresIn": {
+    "message": "Expires in"
+  },
+  "orderExpired": {
+    "message": "Your order has expired"
+  },
+  "orderExpiredDescription": {
+    "message": "Retry the top-up by creating a new exchange order. If the funds have already been sent, wait for the deposit to be confirmed."
+  },
+  "memo": {
+    "message": "MEMO"
+  },
+  "bothMemoAndAddressAreRequired": {
+    "message": "Both the memo and address are required to successfully deposit your funds to Exolix"
+  },
+  "memoDisclaimer": {
+    "message": "You must copy both the $networkName$ address and MEMO to complete deposit, or you’ll lose your funds.",
+    "placeholders": {
+      "networkName": {
+        "content": "$1"
+      }
+    }
+  },
+  "sendInOneTransaction": {
+    "message": "Send in one transaction to the $networkName$ deposit address",
+    "placeholders": {
+      "networkName": {
+        "content": "$1"
+      }
+    }
   },
   "canceledStatusDescription": {
     "message": "The order was canceled."
@@ -3376,11 +3451,8 @@
   "min": {
     "message": "Min:"
   },
-  "exolixWarningTopUpServiceMessage": {
-    "message": "The token exchange feature is provided by Exolix as third party provider. Temple wallet is not responsible for the work of third-party services."
-  },
   "warningTopUpServiceMessage": {
-    "message": "The token exchange feature is provided by a third party. The Temple Wallet is not responsible for the work of third-party services."
+    "message": "Token exchange is powered by a third-party, and Temple Wallet is not responsible for work of third-party services."
   },
   "selectTokensToSwap": {
     "message": "Please, select tokens to swap"
@@ -3423,12 +3495,6 @@
   },
   "serviceIsUnavailable": {
     "message": "Sorry, service is temporarily unavailable. Try again later!"
-  },
-  "buyWithChainBits": {
-    "message": "Buy with ChainBits"
-  },
-  "buyWithChainBitsDescription": {
-    "message": "Buying Crypto Was Never This Easy"
   },
   "news": {
     "message": "News"
@@ -3523,17 +3589,18 @@
   "unknownError": {
     "message": "Unknown error"
   },
-  "cannotSellToYourself": {
-    "message": "Cannot sell to yourself"
+  "cannotSellToYourself": { "message": "Cannot sell to yourself" },
+  "selectedAccountCannotSignTx": { "message": "Selected account cannot sign transactions" },
+  "attributes": { "message": "Attributes" },
+  "properties": { "message": "Properties" },
+  "closePartnersPromotion": {
+    "message": "Are you sure you want to disable all ads?"
   },
-  "selectedAccountCannotSignTx": {
-    "message": "Selected account cannot sign transactions"
+  "closePartnersPromoConfirm": {
+    "message": "Pay attention: you can receive rewards in TKEY tokens for viewing ads in our wallet. If you disabled Ads, you can always activate it in the settings."
   },
-  "attributes": {
-    "message": "Attributes"
-  },
-  "properties": {
-    "message": "Properties"
+  "earnTkeyRewards": {
+    "message": "Earn TKEY Rewards"
   },
   "earnRewardsWithAds": {
     "message": "Earn Rewards with Ads"
@@ -3541,8 +3608,50 @@
   "earnRewardsWithAdsDescription": {
     "message": "By enabling this checkbox, you agree to share your wallet address and IP to receive ads and rewards in TKEY token."
   },
+  "earnTkeyRewardsDescription": {
+    "message": "I agree to share my wallet address and IP to receive ads, referral links and rewards in TKEY token."
+  },
   "dropdownNoItems": {
     "message": "No items"
+  },
+  "earnings": {
+    "message": "Earnings"
+  },
+  "earningsInfoTooltip": {
+    "message": "Earnings are only an estimation of your daily and monthly activity, including ad views and interactions with referral links. At the end of each month, your RP (reward points) will be converted into TKEY and distributed to your Tezos address. The more RP you accumulate, the greater your rewards will be."
+  },
+  "ads": {
+    "message": "Ads"
+  },
+  "today": {
+    "message": "Today"
+  },
+  "activeFeatures": {
+    "message": "Active features"
+  },
+  "advertisingFeatureDescription": {
+    "message": "Get RP by viewing ads"
+  },
+  "advertisingFeatureTooltip": {
+    "message": "The advertising feature is used to display ads within Temple Wallet and on websites. To earn TKEY and enable ads, we request your permission to share your wallet address and IP, this information is used solely to serve you relevant ads and distribute rewards."
+  },
+  "referralLinksFeatureDescription": {
+    "message": "Get RP while use favorite websites"
+  },
+  "referralLinksFeatureTooltip": {
+    "message": "The referral links feature allows users to engage with affiliate offers from our partners. These offers will appear as links while you browse your favorite websites. To enable this feature, we request your permission to share your wallet address and IP address, this information is used solely to serve you relevant offers and distribute rewards."
+  },
+  "achievements": {
+    "message": "Achievements"
+  },
+  "lifetimeEarnings": {
+    "message": "Lifetime earnings"
+  },
+  "noEarningsFound": {
+    "message": "No earnings found"
+  },
+  "somethingWentWrong": {
+    "message": "Something went wrong"
   },
   "backupYourWallet": {
     "message": "Backup your wallet"
@@ -3595,7 +3704,7 @@
   "enterSeedPhrase": {
     "message": "enter"
   },
-  "copyMnemonic": {
+  "copy": {
     "message": "Copy"
   },
   "verifySeedPhraseInputTitle": {
@@ -3816,5 +3925,8 @@
   },
   "earn": {
     "message": "Earn"
+  },
+  "marketPageDisclaimer": {
+    "message": "Temple integrated third-party solutions to buy or exchange crypto."
   }
 }

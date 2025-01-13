@@ -1919,33 +1919,14 @@
   "newTopUp": {
     "message": "Neue Aufladung"
   },
-  "exchangeDetails": {
-    "message": "Austauschdetails eingeben"
-  },
-  "exchangeDetailsDescription": {
-    "message": "Laden Sie Ihr TEZ-Guthaben oder USDT-Tezos-Guthaben sofort mit $number$ Kryptowährungen auf",
-    "placeholders": {
-      "number": {
-        "content": "$1"
-      }
-    }
-  },
   "privacyAndPolicyLinks": {
-    "message": "Indem Sie auf Aufladen klicken, stimmen Sie den \n$termsOfUse$ und $privacyPolicy$ zu",
+    "message": "Indem Sie auf Aufladen klicken, stimmen Sie den $termsOfUse$ und $privacyPolicy$ zu",
     "placeholders": {
       "termsOfUse": {
         "content": "$1"
       },
       "privacyPolicy": {
         "content": "$2"
-      }
-    }
-  },
-  "depositAddressText": {
-    "message": "Zahlen Sie auf $depositAddress$ address:",
-    "placeholders": {
-      "depositAddress": {
-        "content": "$1"
       }
     }
   },
@@ -1962,19 +1943,19 @@
     "message": "Mit einer Transaktion senden"
   },
   "youGet": {
-    "message": "Sie erhalten:"
+    "message": "Sie erhalten"
   },
   "fixedRate": {
     "message": "Festpreis:"
   },
   "transactionId": {
-    "message": "Transaktions-ID:"
+    "message": "Transaktions-ID"
   },
   "atomDepositMemo": {
     "message": "Atom Deposit Memo"
   },
   "recipientAddress": {
-    "message": "Empfängeradresse:"
+    "message": "Empfängeradresse"
   },
   "recipientXtzAddress": {
     "message": "Empfänger-XTZ-Adresse:"
@@ -1986,10 +1967,7 @@
     "message": "Sie senden:"
   },
   "sendTime": {
-    "message": "Sendezeit:"
-  },
-  "completedDescription": {
-    "message": "Bitte überprüfen Sie Ihr Guthaben in Ihrer Wallet.\nDer Austauschvorgang ist abgeschlossen."
+    "message": "Sendezeit"
   },
   "completed": {
     "message": "Abgeschlossen"

@@ -2,23 +2,28 @@ import React, { memo } from 'react';
 
 import { IconBase } from 'app/atoms';
 import DAppLogo from 'app/atoms/DAppLogo';
-import { TezosNetworkLogo } from 'app/atoms/NetworkLogo';
+import { EvmNetworkLogo, TezosNetworkLogo } from 'app/atoms/NetworkLogo';
 import { StyledButton } from 'app/atoms/StyledButton';
 import { ReactComponent as ChevronRightSvg } from 'app/icons/base/chevron_right.svg';
+import { isTezosDAppSession } from 'app/storage/dapps';
 import { useTypedSWR } from 'lib/swr';
 import { TempleTezosChainId } from 'lib/temple/types';
 import { Link } from 'lib/woozie';
-import { useAllTezosChains } from 'temple/front';
+import { useAllEvmChains, useAllTezosChains } from 'temple/front';
 import { loadTezosChainId } from 'temple/tezos';
+import { TempleChainKind } from 'temple/types';
 
 import { useDAppsConnections } from './use-connections';
 
 export const DAppConnection = memo(() => {
   const { activeDApp, disconnectOne } = useDAppsConnections();
 
+  const evmChains = useAllEvmChains();
   const tezosChains = useAllTezosChains();
 
-  const { data: chainId } = useTypedSWR(['dapp-connection', 'tezos-chain-id'], () => {
+  const { data: tezosChainId } = useTypedSWR(['dapp-connection', 'tezos-chain-id'], () => {
+    if (!isTezosDAppSession(dapp)) return null;
+
     if (dapp.network === 'mainnet') return TempleTezosChainId.Mainnet;
     if (dapp.network === 'ghostnet') return TempleTezosChainId.Ghostnet;
 
@@ -33,16 +38,24 @@ export const DAppConnection = memo(() => {
 
   const [origin, dapp] = activeDApp;
 
-  const network = chainId ? tezosChains[chainId] : null;
+  const network = isTezosDAppSession(dapp)
+    ? tezosChainId
+      ? tezosChains[tezosChainId]
+      : null
+    : evmChains[dapp.chainId] ?? null;
 
   return (
     <div className="sticky bottom-0 flex items-center gap-x-2 py-3 px-4 bg-white shadow-bottom">
       <div className="relative flex">
-        <DAppLogo origin={origin} size={36} className="m-[2px] rounded-full" />
+        <DAppLogo origin={origin} icon={dapp.appMeta.icon} size={36} className="m-[2px] rounded-full" />
 
         {network && (
           <div className="absolute bottom-0 right-0">
-            <TezosNetworkLogo chainId={network.chainId} size={16} />
+            {network.kind === TempleChainKind.Tezos ? (
+              <TezosNetworkLogo chainId={network.chainId} size={16} />
+            ) : (
+              <EvmNetworkLogo chainId={network.chainId} size={16} />
+            )}
           </div>
         )}
       </div>

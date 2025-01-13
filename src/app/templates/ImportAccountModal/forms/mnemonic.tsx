@@ -8,7 +8,7 @@ import { ActionsButtonsBox } from 'app/atoms/PageModal/actions-buttons-box';
 import { ScrollView } from 'app/atoms/PageModal/scroll-view';
 import { StyledButton } from 'app/atoms/StyledButton';
 import { formatMnemonic } from 'app/defaults';
-import { AccountsModalSelectors } from 'app/templates/AppHeader/selectors';
+import { AccountsModalSelectors } from 'app/templates/AccountsModalContent/selectors';
 import { isSeedPhraseFilled, SeedPhraseInput } from 'app/templates/SeedPhraseInput';
 import { useFormAnalytics } from 'lib/analytics';
 import { DEFAULT_EVM_DERIVATION_PATH, DEFAULT_SEED_PHRASE_WORDS_AMOUNT } from 'lib/constants';
@@ -126,7 +126,6 @@ export const MnemonicForm = memo<ImportAccountFormProps>(({ onSuccess }) => {
 
       <ActionsButtonsBox shouldCastShadow={!bottomEdgeIsVisible}>
         <StyledButton
-          className="w-full"
           size="L"
           color="primary"
           disabled={shouldDisableSubmitButton({ errors, formState, otherErrors: [seedError] })}

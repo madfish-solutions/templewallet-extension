@@ -13,6 +13,7 @@ import type { RootState } from './root-state.type';
 import { sanitizeCollectiblesMetadataForDevTools } from './tezos/collectibles-metadata/state';
 
 export const SLICES_BLACKLIST = [
+  'cryptoExchange' as const,
   'buyWithCreditCard' as const,
   'collectibles' as const,
   'assets' as const,
@@ -30,7 +31,7 @@ const persistConfigBlacklist: (keyof RootState)[] = SLICES_BLACKLIST;
 const persistedReducer = persistReducer<RootState>(
   {
     key: 'temple-root',
-    version: 3,
+    version: 5,
     ...storageConfig,
     stateReconciler: autoMergeLevel2,
     blacklist: persistConfigBlacklist,

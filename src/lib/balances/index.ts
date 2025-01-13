@@ -1,1 +1,1 @@
-export { useTezosAssetRawBalance, useTezosAssetBalance } from './hooks';
+export { useTezosAssetBalance } from './hooks';

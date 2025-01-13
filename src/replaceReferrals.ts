@@ -1,5 +1,6 @@
 import { checkIfShouldReplaceReferrals } from 'content-scripts/utils';
 import { importExtensionAdsReferralsModule } from 'lib/ads/import-extension-ads-module';
+import type { ReferralsRulesResponse } from 'lib/apis/ads-api';
 import { browser } from 'lib/browser';
 import { ContentScriptType } from 'lib/constants';
 import { throttleAsyncCalls } from 'lib/utils/functions';
@@ -21,8 +22,12 @@ checkIfShouldReplaceReferrals().then(shouldReplace => {
 const replaceReferrals = throttleAsyncCalls(async () => {
   const { getCurrentPageDomain, processAnchors } = await importExtensionAdsReferralsModule();
 
-  const supportedDomains: string[] = await browser.runtime.sendMessage({
-    type: ContentScriptType.FetchReferralsSupportedDomains
+  const {
+    domains: supportedDomains,
+    textIconRules,
+    redirectUrl
+  }: ReferralsRulesResponse = await browser.runtime.sendMessage({
+    type: ContentScriptType.FetchReferralsRules
   });
 
   if (!supportedDomains.length) {
@@ -41,5 +46,5 @@ const replaceReferrals = throttleAsyncCalls(async () => {
 
   console.log('Replacing referrals for', supportedDomains.length, 'domains ...');
 
-  return processAnchors(new Set(supportedDomains), ContentScriptType);
+  return processAnchors(new Set(supportedDomains), textIconRules, ContentScriptType, redirectUrl);
 });

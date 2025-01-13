@@ -7,9 +7,10 @@ import { notificationsEpics } from 'lib/notifications';
 import { abTestingEpics } from './ab-testing/epics';
 import { advertisingEpics } from './advertising/epics';
 import { buyWithCreditCardEpics } from './buy-with-credit-card/epics';
+import { cryptoExchangeEpics } from './crypto-exchange/epics';
 import { currencyEpics } from './currency/epics';
 import { evmBalancesEpics } from './evm/balances/epics';
-import { partnersPromotionEpics } from './partners-promotion/epics';
+import { rewardsEpics } from './rewards/epics';
 import type { RootState } from './root-state.type';
 import { swapEpics } from './swap/epics';
 import { assetsEpics } from './tezos/assets/epics';
@@ -23,14 +24,15 @@ const allEpics = combineEpics(
   advertisingEpics,
   notificationsEpics,
   swapEpics,
-  partnersPromotionEpics,
   balancesEpics,
   assetsEpics,
   tokensMetadataEpics,
   collectiblesMetadataEpics,
   abTestingEpics,
+  cryptoExchangeEpics,
   buyWithCreditCardEpics,
   collectiblesEpics,
+  rewardsEpics,
   evmBalancesEpics
 );
 

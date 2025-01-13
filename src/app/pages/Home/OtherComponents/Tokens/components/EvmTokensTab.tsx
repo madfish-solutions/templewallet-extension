@@ -9,10 +9,8 @@ import {
 import { usePreservedOrderSlugsToManage } from 'app/hooks/listing-logic/use-manageable-slugs';
 import { useChainsSlugsGrouping } from 'app/hooks/listing-logic/use-slugs-grouping';
 import { useAssetsViewState } from 'app/hooks/use-assets-view-state';
-import { useLoadPartnersPromo } from 'app/hooks/use-load-partners-promo';
 import { useTokensListOptionsSelector } from 'app/store/assets-filter-options/selectors';
 import { PartnersPromotion, PartnersPromotionVariant } from 'app/templates/partners-promotion';
-import { OptimalPromoVariantEnum } from 'lib/apis/optimal';
 import { fromChainAssetSlug, toChainAssetSlug } from 'lib/assets/utils';
 import { useMemoWithCompare } from 'lib/ui/hooks';
 import { useAllEvmChains, useEthereumMainnetChain } from 'temple/front';
@@ -29,8 +27,6 @@ interface Props {
 
 export const EvmTokensTab = memo<Props>(({ publicKeyHash }) => {
   const { manageActive } = useAssetsViewState();
-
-  useLoadPartnersPromo(OptimalPromoVariantEnum.Token);
 
   if (manageActive) return <TabContentWithManageActive publicKeyHash={publicKeyHash} />;
 

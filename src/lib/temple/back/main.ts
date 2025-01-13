@@ -1,12 +1,13 @@
 import memoizee from 'memoizee';
 import browser, { Runtime } from 'webextension-polyfill';
+import { ValidationError } from 'yup';
 
 import { getStoredAppInstallIdentity } from 'app/storage/app-install-id';
 import { importExtensionAdsReferralsModule } from 'lib/ads/import-extension-ads-module';
 import { updateRulesStorage } from 'lib/ads/update-rules-storage';
 import {
   fetchReferralsAffiliateLinks,
-  fetchReferralsSupportedDomains,
+  fetchReferralsRules,
   postAdImpression,
   postAnonymousAdImpression,
   postReferralClick
@@ -19,7 +20,10 @@ import { encodeMessage, encryptMessage, getSenderId, MessageType, Response } fro
 import { clearAsyncStorages } from 'lib/temple/reset';
 import { StoredHDAccount, TempleMessageType, TempleRequest, TempleResponse } from 'lib/temple/types';
 import { getTrackedCashbackServiceDomain, getTrackedUrl } from 'lib/utils/url-track/url-track.utils';
+import { EVMErrorCodes } from 'temple/evm/constants';
+import { ErrorWithCode } from 'temple/evm/types';
 import { fromSerializableEvmTxParams } from 'temple/evm/utils';
+import { TempleChainKind } from 'temple/types';
 
 import * as Actions from './actions';
 import * as Analytics from './analytics';
@@ -46,7 +50,7 @@ const processRequestWithErrorsLogged = (...args: Parameters<typeof processReques
   });
 
 const processRequest = async (req: TempleRequest, port: Runtime.Port): Promise<TempleResponse | void> => {
-  switch (req?.type) {
+  switch (req.type) {
     case TempleMessageType.SendTrackEventRequest:
       await Analytics.trackEvent(req);
       return { type: TempleMessageType.SendTrackEventResponse };
@@ -215,6 +219,10 @@ const processRequest = async (req: TempleRequest, port: Runtime.Port): Promise<T
         sessions
       };
 
+    case TempleMessageType.DAppSwitchEvmChainRequest:
+      await Actions.switchEvmChain(req.origin, req.chainId, true);
+      return { type: TempleMessageType.DAppSwitchEvmChainResponse };
+
     case TempleMessageType.Acknowledge: {
       if (req.payload !== 'PING' && req.payload !== 'ping' && req.beacon) {
         const {
@@ -253,35 +261,81 @@ const processRequest = async (req: TempleRequest, port: Runtime.Port): Promise<T
     case TempleMessageType.PageRequest:
       const dAppEnabled = await Actions.canInteractWithDApps();
 
-      if (dAppEnabled) {
-        if (req.payload === 'PING') {
-          return {
-            type: TempleMessageType.PageResponse,
-            payload: 'PONG'
-          };
-        } else if (req.beacon && req.payload === 'ping') {
-          return {
-            type: TempleMessageType.PageResponse,
-            payload: 'pong'
-          };
+      if (!dAppEnabled && req.chainType === TempleChainKind.EVM) {
+        return {
+          type: TempleMessageType.PageResponse,
+          payload: {
+            error: {
+              code: EVMErrorCodes.NOT_AUTHORIZED,
+              message: 'DApp interaction is disabled'
+            }
+          }
+        };
+      }
+
+      if (!dAppEnabled) {
+        return;
+      }
+
+      if (req.chainType === TempleChainKind.EVM) {
+        let resPayload: any;
+        try {
+          resPayload = { data: await Actions.processEvmDApp(req.origin, req.payload, req.chainId, req.iconUrl) };
+        } catch (e) {
+          console.error(e);
+          if (e instanceof ErrorWithCode) {
+            resPayload = {
+              error: {
+                code: e.code,
+                message: e.message
+              }
+            };
+          } else if (e instanceof ValidationError) {
+            resPayload = {
+              error: {
+                code: EVMErrorCodes.INVALID_PARAMS,
+                message: e.message
+              }
+            };
+          } else {
+            resPayload = {
+              error: {
+                code: EVMErrorCodes.INTERNAL_ERROR,
+                message: e instanceof Error ? e.message : 'Unknown error'
+              }
+            };
+          }
         }
 
-        if (!req.beacon) {
-          const resPayload = await Actions.processDApp(req.origin, req.payload);
-          return {
-            type: TempleMessageType.PageResponse,
-            payload: resPayload ?? null
-          };
-        } else {
-          const res = await Actions.processBeacon(req.origin, req.payload, req.encrypted);
-          return {
-            type: TempleMessageType.PageResponse,
-            payload: res?.payload ?? null,
-            encrypted: res?.encrypted
-          };
-        }
+        return { type: TempleMessageType.PageResponse, payload: resPayload };
       }
-      break;
+
+      if (req.payload === 'PING') {
+        return {
+          type: TempleMessageType.PageResponse,
+          payload: 'PONG'
+        };
+      } else if (req.beacon && req.payload === 'ping') {
+        return {
+          type: TempleMessageType.PageResponse,
+          payload: 'pong'
+        };
+      }
+
+      if (!req.beacon) {
+        const resPayload = await Actions.processDApp(req.origin, req.payload);
+        return {
+          type: TempleMessageType.PageResponse,
+          payload: resPayload ?? null
+        };
+      } else {
+        const res = await Actions.processBeacon(req.origin, req.payload, req.encrypted);
+        return {
+          type: TempleMessageType.PageResponse,
+          payload: res?.payload ?? null,
+          encrypted: res?.encrypted
+        };
+      }
 
     case TempleMessageType.ResetExtensionRequest:
       await Actions.resetExtension(req.password);
@@ -331,8 +385,8 @@ browser.runtime.onMessage.addListener(async msg => {
         break;
       }
 
-      case ContentScriptType.FetchReferralsSupportedDomains: {
-        return await getReferralsSupportedDomains();
+      case ContentScriptType.FetchReferralsRules: {
+        return await getReferralsRules();
       }
 
       case ContentScriptType.FetchReferrals: {
@@ -379,7 +433,7 @@ async function getAdsViewerPkh() {
   return (frontState.accounts[0] as StoredHDAccount | undefined)?.tezosAddress;
 }
 
-const getReferralsSupportedDomains = memoizee(fetchReferralsSupportedDomains, {
+const getReferralsRules = memoizee(fetchReferralsRules, {
   promise: true,
   max: 1,
   maxAge: 5 * 60_000

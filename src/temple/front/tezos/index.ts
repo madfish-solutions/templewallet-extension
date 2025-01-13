@@ -4,6 +4,7 @@ import {
   createSetDelegateOperation,
   createIncreasePaidStorageOperation,
   createTransferOperation,
+  createTransferTicketOperation,
   WalletDelegateParams,
   WalletOriginateParams,
   WalletIncreasePaidStorageParams,
@@ -11,6 +12,7 @@ import {
   WalletStakeParams,
   WalletUnstakeParams,
   WalletFinalizeUnstakeParams,
+  WalletTransferTicketParams,
   Signer,
   TezosToolkit
 } from '@taquito/taquito';
@@ -84,6 +86,11 @@ class TempleTaquitoWallet implements WalletProvider {
 
   getPK() {
     return getAccountPublicKey(this.pkh);
+  }
+
+  async mapTransferTicketParamsToWalletParams(params: () => Promise<WalletTransferTicketParams>) {
+    const walletParams = await params();
+    return withoutFeesOverride(walletParams, await createTransferTicketOperation(walletParams));
   }
 
   async mapIncreasePaidStorageWalletParams(params: () => Promise<WalletIncreasePaidStorageParams>) {

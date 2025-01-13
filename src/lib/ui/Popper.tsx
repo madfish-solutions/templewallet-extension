@@ -25,7 +25,7 @@ export interface PopperRenderProps {
 }
 type RenderProp<P> = (props: P) => ReactElement;
 
-interface PopperAnchorProps extends PopperRenderProps {
+export interface PopperAnchorProps extends PopperRenderProps {
   ref: RefObject<HTMLButtonElement>;
 }
 

@@ -7,10 +7,8 @@ import {
 } from 'app/hooks/listing-logic/use-evm-chain-account-tokens-listing-logic';
 import { usePreservedOrderSlugsToManage } from 'app/hooks/listing-logic/use-manageable-slugs';
 import { useAssetsViewState } from 'app/hooks/use-assets-view-state';
-import { useLoadPartnersPromo } from 'app/hooks/use-load-partners-promo';
 import { useTokensListOptionsSelector } from 'app/store/assets-filter-options/selectors';
 import { PartnersPromotion, PartnersPromotionVariant } from 'app/templates/partners-promotion';
-import { OptimalPromoVariantEnum } from 'lib/apis/optimal';
 import { useMemoWithCompare } from 'lib/ui/hooks';
 import { EvmChain, useEvmChainByChainId } from 'temple/front/chains';
 
@@ -30,8 +28,6 @@ export const EvmChainTokensTab = memo<Props>(({ chainId, publicKeyHash }) => {
   if (!network) throw new DeadEndBoundaryError();
 
   const { manageActive } = useAssetsViewState();
-
-  useLoadPartnersPromo(OptimalPromoVariantEnum.Token);
 
   if (manageActive) return <TabContentWithManageActive publicKeyHash={publicKeyHash} network={network} />;
 

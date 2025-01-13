@@ -1919,33 +1919,14 @@
   "newTopUp": {
     "message": "Nova reposição"
   },
-  "exchangeDetails": {
-    "message": "Introduza os detalhes da troca"
-  },
-  "exchangeDetailsDescription": {
-    "message": "Reponha o seu saldo TEZ ou USDT Tezos instantaneamente com $number$ criptomoedas",
-    "placeholders": {
-      "number": {
-        "content": "$1"
-      }
-    }
-  },
   "privacyAndPolicyLinks": {
-    "message": "Ao clicar em Repor, concorda com \n$termsOfUse$ e $privacyPolicy$",
+    "message": "Ao clicar em Repor, concorda com $termsOfUse$ e $privacyPolicy$",
     "placeholders": {
       "termsOfUse": {
         "content": "$1"
       },
       "privacyPolicy": {
         "content": "$2"
-      }
-    }
-  },
-  "depositAddressText": {
-    "message": "Endereço do depósito $depositAddress$:",
-    "placeholders": {
-      "depositAddress": {
-        "content": "$1"
       }
     }
   },
@@ -1962,19 +1943,19 @@
     "message": "Enviar por uma transação"
   },
   "youGet": {
-    "message": "Recebe:"
+    "message": "Recebe"
   },
   "fixedRate": {
     "message": "Taxa fixa:"
   },
   "transactionId": {
-    "message": "ID de transação:"
+    "message": "ID de transação"
   },
   "atomDepositMemo": {
     "message": "Memorando de depósito de átomo"
   },
   "recipientAddress": {
-    "message": "Endereço do destinatário:"
+    "message": "Endereço do destinatário"
   },
   "recipientXtzAddress": {
     "message": "Endereço XTZ do destinatário:"
@@ -1986,10 +1967,7 @@
     "message": "Envia:"
   },
   "sendTime": {
-    "message": "Hora de envio:"
-  },
-  "completedDescription": {
-    "message": "Verifique os seus fundos na sua carteira.\nO processo de troca está concluído."
+    "message": "Hora de envio"
   },
   "completed": {
     "message": "Concluído"

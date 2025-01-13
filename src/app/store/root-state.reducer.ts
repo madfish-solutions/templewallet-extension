@@ -6,6 +6,7 @@ import { abTestingReducer } from './ab-testing/reducers';
 import { advertisingReducer } from './advertising/reducers';
 import { assetsFilterOptionsReducer } from './assets-filter-options/reducer';
 import { buyWithCreditCardReducer } from './buy-with-credit-card/reducers';
+import { cryptoExchangePersistedReducer } from './crypto-exchange/reducers';
 import { currencyPersistedReducer } from './currency/reducers';
 import { dAppsReducer } from './d-apps/reducers';
 import { evmAssetsPersistedReducer } from './evm/assets/reducer';
@@ -16,8 +17,9 @@ import { evmTokensExchangeRatesPersistedReducer } from './evm/tokens-exchange-ra
 import { evmTokensMetadataPersistedReducer } from './evm/tokens-metadata/reducers';
 import { newsletterReducers } from './newsletter/newsletter-reducers';
 import { partnersPromotionPersistedReducer } from './partners-promotion/reducers';
+import { rewardsReducer } from './rewards/reducers';
 import { settingsPersistedReducer } from './settings/reducers';
-import { swapReducer } from './swap/reducers';
+import { swapPersistedReducer } from './swap/reducers';
 import { assetsPersistedReducer } from './tezos/assets/reducer';
 import { balancesReducer } from './tezos/balances/reducers';
 import { collectiblesPersistedReducer } from './tezos/collectibles/reducer';
@@ -30,16 +32,18 @@ const rootStateReducersMap = {
   currency: currencyPersistedReducer,
   notifications: notificationsReducer,
   dApps: dAppsReducer,
-  swap: swapReducer,
+  swap: swapPersistedReducer,
   partnersPromotion: partnersPromotionPersistedReducer,
   balances: balancesReducer,
   assets: assetsPersistedReducer,
   tokensMetadata: tokensMetadataReducer,
   collectiblesMetadata: collectiblesMetadataPersistedReducer,
   abTesting: abTestingReducer,
+  cryptoExchange: cryptoExchangePersistedReducer,
   buyWithCreditCard: buyWithCreditCardReducer,
   collectibles: collectiblesPersistedReducer,
   newsletter: newsletterReducers,
+  rewards: rewardsReducer,
   evmLoading: evmLoadingReducer,
   evmAssets: evmAssetsPersistedReducer,
   evmBalances: evmBalancesReducer,

@@ -4,6 +4,7 @@ import { mockABTestingState } from './ab-testing/state.mock';
 import { mockAdvertisingState } from './advertising/state.mock';
 import { mockAssetsFilterOptionsState } from './assets-filter-options/state.mock';
 import { mockBuyWithCreditCardState } from './buy-with-credit-card/state.mock';
+import { mockCryptoExchangeState } from './crypto-exchange/state.mock';
 import { mockCurrencyState } from './currency/state.mock';
 import { mockDAppsState } from './d-apps/state.mock';
 import { mockEvmAssetsState } from './evm/assets/state.mock';
@@ -14,6 +15,7 @@ import { mockEvmTokensExchangeRatesState } from './evm/tokens-exchange-rates/sta
 import { mockEvmTokensMetadataState } from './evm/tokens-metadata/state.mock';
 import { mockNewsletterState } from './newsletter/newsletter-state.mock';
 import { mockPartnersPromotionState } from './partners-promotion/state.mock';
+import { mockRewardsState } from './rewards/state.mock';
 import type { RootState } from './root-state.type';
 import { mockSettingsState } from './settings/state.mock';
 import { mockSwapState } from './swap/state.mock';
@@ -37,9 +39,11 @@ export const mockRootState: RootState = {
   tokensMetadata: mockTokensMetadataState,
   collectiblesMetadata: mockCollectiblesMetadataState,
   abTesting: mockABTestingState,
+  cryptoExchange: mockCryptoExchangeState,
   buyWithCreditCard: mockBuyWithCreditCardState,
   collectibles: mockCollectiblesState,
   newsletter: mockNewsletterState,
+  rewards: mockRewardsState,
   evmLoading: mockEvmLoadingState,
   evmAssets: mockEvmAssetsState,
   evmBalances: mockEvmBalancesState,

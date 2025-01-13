@@ -1,6 +1,5 @@
 import React, { memo, useMemo } from 'react';
 
-import { useLoadPartnersPromo } from 'app/hooks/use-load-partners-promo';
 import { Activity, EvmActivity, TezosActivity } from 'lib/activity';
 import { getEvmActivities } from 'lib/activity/evm/fetch';
 import { parseTezosOperationsGroup } from 'lib/activity/tezos';
@@ -28,8 +27,6 @@ interface Props {
 }
 
 export const MultichainActivityList = memo<Props>(({ filterKind }) => {
-  useLoadPartnersPromo();
-
   const tezosChains = useEnabledTezosChains();
   const evmChains = useEnabledEvmChains();
 

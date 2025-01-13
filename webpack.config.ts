@@ -31,7 +31,7 @@ import {
 } from './webpack/env';
 import { buildManifest } from './webpack/manifest';
 import { PATHS, IFRAMES } from './webpack/paths';
-import { CheckUnusedFilesPlugin } from './webpack/plugins/check-unused';
+// import { CheckUnusedFilesPlugin } from './webpack/plugins/check-unused';
 import usePagesLiveReload from './webpack/plugins/live-reload';
 import { isTruthy } from './webpack/utils';
 
@@ -52,11 +52,6 @@ const HTML_TEMPLATES = PAGES_NAMES.map(name => {
     return { name, filename: `iframes/${filename}`, path };
   })
 );
-
-const CONTENT_SCRIPTS = ['contentScript', !IS_CORE_BUILD && 'replaceAds', !IS_CORE_BUILD && 'replaceReferrals'].filter(
-  isTruthy
-);
-if (BACKGROUND_IS_WORKER) CONTENT_SCRIPTS.push('keepBackgroundWorkerAlive');
 
 const mainConfig = (() => {
   const config = buildBaseConfig();
@@ -148,7 +143,8 @@ const mainConfig = (() => {
         { url: 'https://api.hypelab.com/v1/scripts/hp-sdk.js?v=0', filepath: 'scripts/hypelab.embed.js', hash: false }
       ]),
 
-      new CheckUnusedFilesPlugin(['src/**/*.svg'], PRODUCTION_ENV),
+      // TODO: Enable, when Swap route hops SVGs are used again
+      // new CheckUnusedFilesPlugin(['src/**/*.svg'], PRODUCTION_ENV),
 
       new CreateFileWebpack({
         path: PATHS.OUTPUT,
@@ -191,7 +187,8 @@ const scriptsConfig = (() => {
       : 'module'; // Required for dynamic imports `import()`
 
   config.entry = {
-    contentScript: Path.join(PATHS.SOURCE, 'contentScript.ts')
+    main: Path.join(PATHS.SOURCE, 'content-scripts/main.ts'),
+    inpage: Path.join(PATHS.SOURCE, 'content-scripts/inpage.ts')
   };
   if (!IS_CORE_BUILD) {
     config.entry.replaceAds = Path.join(PATHS.SOURCE, 'replaceAds.ts');

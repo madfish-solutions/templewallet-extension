@@ -9,7 +9,7 @@ export enum ContentScriptType {
   ExternalLinksActivity = 'ExternalLinksActivity',
   ExternalAdsActivity = 'ExternalAdsActivity',
   UpdateAdsRules = 'UpdateAdsRules',
-  FetchReferralsSupportedDomains = 'FetchReferralsSupportedDomains',
+  FetchReferralsRules = 'FetchReferralsRules',
   FetchReferrals = 'FetchReferrals',
   ReferralClick = 'ReferralClick'
 }
@@ -101,3 +101,18 @@ export const MAIN_CHAINS_IDS = [
   TempleTezosChainId.Ghostnet,
   ETH_SEPOLIA_CHAIN_ID
 ];
+
+export const PASS_TO_BG_EVENT = 'templePassToBackground';
+
+export const RESPONSE_FROM_BG_MSG_TYPE = 'templeResponseFromBackground';
+
+export const DISCONNECT_DAPP_MSG_TYPE = 'templeDisconnectDApp';
+
+export const SWITCH_CHAIN_MSG_TYPE = 'templeSwitchChain';
+export const LIQUIDITY_BAKING_DEX_ADDRESS = 'KT1TxqZ8QtKvLu3V3JH7Gx58n7Co8pgtpQU5';
+
+export const FEE_PER_GAS_UNIT = 0.1;
+
+export const THEME_COLOR_SEARCH_PARAM_NAME = 'tc';
+export const FONT_SIZE_SEARCH_PARAM_NAME = 'fs';
+export const LINE_HEIGHT_SEARCH_PARAM_NAME = 'lh';

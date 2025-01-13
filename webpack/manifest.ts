@@ -186,7 +186,7 @@ const buildManifestCommons = (vendor: string): Omit<Manifest.WebExtensionManifes
           /* For some URLs from `HOST_PERMISSIONS` & active tabs (with `activeTab` permission) */
           'https://*/*'
         ],
-        js: ['scripts/contentScript.js'],
+        js: ['scripts/main.js'],
         run_at: 'document_start' as const,
         all_frames: true
       },
@@ -196,6 +196,13 @@ const buildManifestCommons = (vendor: string): Omit<Manifest.WebExtensionManifes
         js: ['scripts/replaceAds.js', 'scripts/replaceReferrals.js'],
         run_at: 'document_start' as const,
         all_frames: false
+      },
+      {
+        matches: ['http://*/*', 'https://*/*'],
+        js: ['scripts/inpage.js'],
+        run_at: 'document_start' as const,
+        all_frames: true,
+        world: 'MAIN'
       }
     ].filter(isTruthy)
   };
