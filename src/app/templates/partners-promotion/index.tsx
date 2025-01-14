@@ -15,7 +15,6 @@ import { AdsProviderName, AdsProviderTitle } from 'lib/ads';
 import { postAdImpression } from 'lib/apis/ads-api';
 import { AD_HIDING_TIMEOUT } from 'lib/constants';
 
-import { BitmediaPromotion } from './components/bitmedia-promotion';
 import { HypelabPromotion } from './components/hypelab-promotion';
 import { PersonaPromotion } from './components/persona-promotion';
 import styles from './partners-promotion.module.css';
@@ -85,7 +84,6 @@ export const PartnersPromotion = memo<PartnersPromotionProps>(({ variant, id, pa
     [id, dispatch]
   );
 
-  const handleBitmediaError = useCallback(() => setProviderName('HypeLab'), []);
   const handleHypelabError = useCallback(
     () => (withPersonaProvider ? setProviderName('Persona') : setAdError(true)),
     [withPersonaProvider]
@@ -107,17 +105,6 @@ export const PartnersPromotion = memo<PartnersPromotionProps>(({ variant, id, pa
     >
       {(() => {
         switch (providerName) {
-          case 'Bitmedia':
-            return (
-              <BitmediaPromotion
-                isVisible={adIsReady}
-                pageName={pageName}
-                onAdRectSeen={handleAdRectSeen}
-                onClose={handleClosePartnersPromoClick}
-                onReady={handleAdReady}
-                onError={handleBitmediaError}
-              />
-            );
           case 'HypeLab':
             return (
               <HypelabPromotion
