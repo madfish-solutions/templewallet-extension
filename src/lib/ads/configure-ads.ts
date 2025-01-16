@@ -1,4 +1,3 @@
-import { isDefined } from '@rnw-community/shared';
 import browser from 'webextension-polyfill';
 
 import { buildSwapPageUrlQuery } from 'app/pages/Swap/utils/build-url-query';
@@ -157,7 +156,7 @@ const bannerAdsMetaBase: (AdMetadata | false)[] = [
       maxContainerHeight: 300
     }
   },
-  isDefined(EnvVars.BITMEDIA_970_90_PLACEMENT_ID) && {
+  isTruthy(EnvVars.BITMEDIA_970_90_PLACEMENT_ID) && {
     source: {
       providerName: 'Bitmedia' as const,
       native: false,
@@ -266,7 +265,7 @@ const bannerAdsMetaBase: (AdMetadata | false)[] = [
       maxContainerHeight: Infinity
     }
   },
-  isDefined(EnvVars.BITMEDIA_300_600_PLACEMENT_ID) && {
+  isTruthy(EnvVars.BITMEDIA_300_600_PLACEMENT_ID) && {
     source: {
       providerName: 'Bitmedia' as const,
       native: false,
@@ -297,7 +296,7 @@ const bannerAdsMetaBase: (AdMetadata | false)[] = [
       maxContainerHeight: Infinity
     }
   },
-  isDefined(EnvVars.BITMEDIA_160_600_PLACEMENT_ID) && {
+  isTruthy(EnvVars.BITMEDIA_160_600_PLACEMENT_ID) && {
     source: {
       providerName: 'Bitmedia' as const,
       native: false,
@@ -328,7 +327,7 @@ const bannerAdsMetaBase: (AdMetadata | false)[] = [
       maxContainerHeight: 480
     }
   },
-  isDefined(EnvVars.BITMEDIA_336_280_PLACEMENT_ID) && {
+  isTruthy(EnvVars.BITMEDIA_336_280_PLACEMENT_ID) && {
     source: {
       providerName: 'Bitmedia' as const,
       native: false,
@@ -405,7 +404,7 @@ const bannerAdsMetaBase: (AdMetadata | false)[] = [
       maxContainerHeight: Infinity
     }
   },
-  isDefined(EnvVars.BITMEDIA_250_250_PLACEMENT_ID) && {
+  isTruthy(EnvVars.BITMEDIA_250_250_PLACEMENT_ID) && {
     source: {
       providerName: 'Bitmedia' as const,
       native: false,
@@ -436,7 +435,7 @@ const bannerAdsMetaBase: (AdMetadata | false)[] = [
       maxContainerHeight: 200
     }
   },
-  isDefined(EnvVars.BITMEDIA_320_100_PLACEMENT_ID) && {
+  isTruthy(EnvVars.BITMEDIA_320_100_PLACEMENT_ID) && {
     source: {
       providerName: 'Bitmedia' as const,
       native: false,
@@ -451,7 +450,7 @@ const bannerAdsMetaBase: (AdMetadata | false)[] = [
       maxContainerHeight: 200
     }
   },
-  isDefined(EnvVars.BITMEDIA_300_100_PLACEMENT_ID) && {
+  isTruthy(EnvVars.BITMEDIA_300_100_PLACEMENT_ID) && {
     source: {
       providerName: 'Bitmedia' as const,
       native: false,
