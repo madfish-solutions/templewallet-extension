@@ -15,6 +15,7 @@ import { mockEvmTokensExchangeRatesState } from './evm/tokens-exchange-rates/sta
 import { mockEvmTokensMetadataState } from './evm/tokens-metadata/state.mock';
 import { mockNewsletterState } from './newsletter/newsletter-state.mock';
 import { mockPartnersPromotionState } from './partners-promotion/state.mock';
+import { mockRewardsState } from './rewards/state.mock';
 import type { RootState } from './root-state.type';
 import { mockSettingsState } from './settings/state.mock';
 import { mockSwapState } from './swap/state.mock';
@@ -42,6 +43,7 @@ export const mockRootState: RootState = {
   buyWithCreditCard: mockBuyWithCreditCardState,
   collectibles: mockCollectiblesState,
   newsletter: mockNewsletterState,
+  rewards: mockRewardsState,
   evmLoading: mockEvmLoadingState,
   evmAssets: mockEvmAssetsState,
   evmBalances: mockEvmBalancesState,

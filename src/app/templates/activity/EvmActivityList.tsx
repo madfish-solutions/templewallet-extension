@@ -1,7 +1,6 @@
 import React, { FC, useMemo } from 'react';
 
 import { DeadEndBoundaryError } from 'app/ErrorBoundary';
-import { useLoadPartnersPromo } from 'app/hooks/use-load-partners-promo';
 import { EvmActivity } from 'lib/activity';
 import { getEvmActivities } from 'lib/activity/evm/fetch';
 import { useAccountAddressForEvm } from 'temple/front';
@@ -24,8 +23,6 @@ export const EvmActivityList: FC<Props> = ({ chainId, assetSlug, filterKind }) =
   const accountAddress = useAccountAddressForEvm();
 
   if (!network || !accountAddress) throw new DeadEndBoundaryError();
-
-  useLoadPartnersPromo();
 
   const {
     activities,

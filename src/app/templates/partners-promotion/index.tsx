@@ -17,7 +17,6 @@ import { useBooleanState } from 'lib/ui/hooks';
 
 import { CloseButton } from './components/close-button';
 import { HypelabPromotion } from './components/hypelab-promotion';
-import { OptimalPromotion } from './components/optimal-promotion';
 import { PersonaPromotion } from './components/persona-promotion';
 import { PartnersPromotionVariant } from './types';
 
@@ -50,7 +49,7 @@ export const PartnersPromotion = memo<PartnersPromotionProps>(
 
     const [hovered, setHovered, setUnhovered] = useBooleanState(false);
     const [isHiddenTemporarily, setIsHiddenTemporarily] = useState(shouldBeHiddenTemporarily(hiddenAt));
-    const [providerName, setProviderName] = useState<AdsProviderLocalName>('Optimal');
+    const [providerName, setProviderName] = useState<AdsProviderLocalName>('HypeLab');
     const [adError, setAdError] = useState(false);
     const [adIsReady, setAdIsReady] = useState(false);
 
@@ -87,7 +86,6 @@ export const PartnersPromotion = memo<PartnersPromotionProps>(
       [id, dispatch]
     );
 
-    const handleOptimalError = useCallback(() => setProviderName('HypeLab'), []);
     const handleHypelabError = useCallback(
       () => (withPersonaProvider ? setProviderName('Persona') : setAdError(true)),
       [withPersonaProvider]
@@ -112,18 +110,6 @@ export const PartnersPromotion = memo<PartnersPromotionProps>(
       >
         {(() => {
           switch (providerName) {
-            case 'Optimal':
-              return (
-                <OptimalPromotion
-                  accountPkh={adsViewerAddress}
-                  variant={variant}
-                  isVisible={adIsReady}
-                  pageName={pageName}
-                  onAdRectSeen={handleAdRectSeen}
-                  onReady={handleAdReady}
-                  onError={handleOptimalError}
-                />
-              );
             case 'HypeLab':
               return (
                 <HypelabPromotion

@@ -4,6 +4,5 @@ export enum SettingsGeneralSelectors {
   currencyItem = 'Settings General/Currency Item',
   currencyDropDown = 'Settings General/Currency Drop-down',
   popUpCheckBox = 'Setting General/Pop-up Check Box',
-  notificationCheckBox = 'Setting General/Notification Check Box',
-  partnersPromotion = 'Setting General/Partners Promotion Check Box'
+  notificationCheckBox = 'Setting General/Notification Check Box'
 }

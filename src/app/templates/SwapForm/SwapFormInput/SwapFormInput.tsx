@@ -55,8 +55,8 @@ export const SwapFormInput: FC<SwapFormInputProps> = ({
   const { trackChange } = useFormAnalytics('SwapForm');
 
   const { assetSlug, amount } = value;
-  const isTezosSlug = assetSlug === 'tez';
-  const assetSlugWithFallback = assetSlug ?? 'tez';
+  const isTezosSlug = assetSlug === TEZ_TOKEN_SLUG;
+  const assetSlugWithFallback = assetSlug ?? TEZ_TOKEN_SLUG;
 
   const assetMetadataWithFallback = useTezosAssetMetadata(assetSlugWithFallback, network.chainId)!;
   const assetMetadata = useMemo(
@@ -153,7 +153,7 @@ export const SwapFormInput: FC<SwapFormInputProps> = ({
         header={
           <SwapInputHeader
             label={label}
-            selectedAssetSlug={assetSlugWithFallback}
+            selectedAssetSlug={assetSlug ?? TEZ_TOKEN_SLUG}
             selectedAssetSymbol={assetMetadataWithFallback.symbol}
             selectedAssetBalanceStr={selectedAssetBalanceStr}
           />

@@ -822,7 +822,7 @@ export class Vault {
         tezos.setSignerProvider(signer);
         tezos.setForgerProvider(new CompositeForger([tezos.getFactory(RpcForger)(), localForger]));
         tezos.setPackerProvider(michelEncoder);
-        return tezos.contract.batch(opParams.map(formatOpParamsBeforeSend));
+        return tezos.contract.batch(opParams.map(operation => formatOpParamsBeforeSend(operation, accPublicKeyHash)));
       });
 
       try {

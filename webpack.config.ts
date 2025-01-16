@@ -31,7 +31,7 @@ import {
 } from './webpack/env';
 import { buildManifest } from './webpack/manifest';
 import { PATHS, IFRAMES } from './webpack/paths';
-import { CheckUnusedFilesPlugin } from './webpack/plugins/check-unused';
+// import { CheckUnusedFilesPlugin } from './webpack/plugins/check-unused';
 import usePagesLiveReload from './webpack/plugins/live-reload';
 import { isTruthy } from './webpack/utils';
 
@@ -143,7 +143,8 @@ const mainConfig = (() => {
         { url: 'https://api.hypelab.com/v1/scripts/hp-sdk.js?v=0', filepath: 'scripts/hypelab.embed.js', hash: false }
       ]),
 
-      new CheckUnusedFilesPlugin(['src/**/*.svg'], PRODUCTION_ENV),
+      // TODO: Enable, when Swap route hops SVGs are used again
+      // new CheckUnusedFilesPlugin(['src/**/*.svg'], PRODUCTION_ENV),
 
       new CreateFileWebpack({
         path: PATHS.OUTPUT,

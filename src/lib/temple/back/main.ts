@@ -7,7 +7,7 @@ import { importExtensionAdsReferralsModule } from 'lib/ads/import-extension-ads-
 import { updateRulesStorage } from 'lib/ads/update-rules-storage';
 import {
   fetchReferralsAffiliateLinks,
-  fetchReferralsSupportedDomains,
+  fetchReferralsRules,
   postAdImpression,
   postAnonymousAdImpression,
   postReferralClick
@@ -50,7 +50,7 @@ const processRequestWithErrorsLogged = (...args: Parameters<typeof processReques
   });
 
 const processRequest = async (req: TempleRequest, port: Runtime.Port): Promise<TempleResponse | void> => {
-  switch (req?.type) {
+  switch (req.type) {
     case TempleMessageType.SendTrackEventRequest:
       await Analytics.trackEvent(req);
       return { type: TempleMessageType.SendTrackEventResponse };
@@ -385,8 +385,8 @@ browser.runtime.onMessage.addListener(async msg => {
         break;
       }
 
-      case ContentScriptType.FetchReferralsSupportedDomains: {
-        return await getReferralsSupportedDomains();
+      case ContentScriptType.FetchReferralsRules: {
+        return await getReferralsRules();
       }
 
       case ContentScriptType.FetchReferrals: {
@@ -433,7 +433,7 @@ async function getAdsViewerPkh() {
   return (frontState.accounts[0] as StoredHDAccount | undefined)?.tezosAddress;
 }
 
-const getReferralsSupportedDomains = memoizee(fetchReferralsSupportedDomains, {
+const getReferralsRules = memoizee(fetchReferralsRules, {
   promise: true,
   max: 1,
   maxAge: 5 * 60_000

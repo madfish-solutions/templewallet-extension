@@ -1,7 +1,6 @@
 import React, { useCallback } from 'react';
 
 import { DataPlaceholder, IconBase } from 'app/atoms';
-import { useLoadPartnersPromo } from 'app/hooks/use-load-partners-promo';
 import { ReactComponent as BellIcon } from 'app/icons/base/bell.svg';
 import PageLayout from 'app/layouts/PageLayout';
 import { dispatch } from 'app/store';
@@ -24,7 +23,6 @@ export const Notifications = () => {
   const viewAllNotifications = useCallback(() => void dispatch(viewAllNotificationsAction()), []);
 
   useTimeout(viewAllNotifications, VIEW_ALL_NOTIFICATIONS_TIMEOUT, true, [notifications]);
-  useLoadPartnersPromo();
 
   return (
     <PageLayout

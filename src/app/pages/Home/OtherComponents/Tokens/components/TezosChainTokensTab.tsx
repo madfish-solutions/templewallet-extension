@@ -7,10 +7,8 @@ import {
   useTezosChainAccountTokensListingLogic
 } from 'app/hooks/listing-logic/use-tezos-chain-account-tokens-listing-logic';
 import { useAssetsViewState } from 'app/hooks/use-assets-view-state';
-import { useLoadPartnersPromo } from 'app/hooks/use-load-partners-promo';
 import { useMainnetTokensScamlistSelector } from 'app/store/tezos/assets/selectors';
 import { PartnersPromotion, PartnersPromotionVariant } from 'app/templates/partners-promotion';
-import { OptimalPromoVariantEnum } from 'lib/apis/optimal';
 import { useMemoWithCompare } from 'lib/ui/hooks';
 import { TezosChain, useTezosChainByChainId } from 'temple/front';
 
@@ -30,8 +28,6 @@ export const TezosChainTokensTab = memo<Props>(({ chainId, publicKeyHash }) => {
   if (!network) throw new DeadEndBoundaryError();
 
   const { manageActive } = useAssetsViewState();
-
-  useLoadPartnersPromo(OptimalPromoVariantEnum.Token);
 
   if (manageActive) return <TabContentWithManageActive publicKeyHash={publicKeyHash} network={network} />;
 

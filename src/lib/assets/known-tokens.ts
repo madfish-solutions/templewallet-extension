@@ -32,23 +32,13 @@ const DEPRECATED_TKEY_METADATA: TokenMetadata = {
   standard: TezosTokenStandardsEnum.Fa2
 };
 
-export const TZBTC_TOKEN_METADATA: TokenMetadata = {
+const TZBTC_TOKEN_METADATA: TokenMetadata = {
   id: '0',
   address: 'KT1PWx2mnDueood7fEmfbBDKx1D9BAnnXitn',
   name: 'Tezos BTC',
   symbol: 'tzBTC',
   decimals: 8,
   thumbnailUri: 'https://tzbtc.io/wp-content/uploads/2020/03/tzbtc_logo_single.svg',
-  standard: TezosTokenStandardsEnum.Fa12
-};
-
-export const SIRS_TOKEN_METADATA: TokenMetadata = {
-  id: '0',
-  address: 'KT1AafHA1C1vk959wvHWBispY9Y2f3fxBUUo',
-  name: 'Sirius',
-  symbol: 'SIRS',
-  decimals: 0,
-  thumbnailUri: 'ipfs://QmNXQPkRACxaR17cht5ZWaaKiQy46qfCwNVT5FGZy6qnyp',
   standard: TezosTokenStandardsEnum.Fa12
 };
 

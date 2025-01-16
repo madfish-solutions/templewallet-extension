@@ -17,8 +17,9 @@ import { evmTokensExchangeRatesPersistedReducer } from './evm/tokens-exchange-ra
 import { evmTokensMetadataPersistedReducer } from './evm/tokens-metadata/reducers';
 import { newsletterReducers } from './newsletter/newsletter-reducers';
 import { partnersPromotionPersistedReducer } from './partners-promotion/reducers';
+import { rewardsReducer } from './rewards/reducers';
 import { settingsPersistedReducer } from './settings/reducers';
-import { swapReducer } from './swap/reducers';
+import { swapPersistedReducer } from './swap/reducers';
 import { assetsPersistedReducer } from './tezos/assets/reducer';
 import { balancesReducer } from './tezos/balances/reducers';
 import { collectiblesPersistedReducer } from './tezos/collectibles/reducer';
@@ -31,7 +32,7 @@ const rootStateReducersMap = {
   currency: currencyPersistedReducer,
   notifications: notificationsReducer,
   dApps: dAppsReducer,
-  swap: swapReducer,
+  swap: swapPersistedReducer,
   partnersPromotion: partnersPromotionPersistedReducer,
   balances: balancesReducer,
   assets: assetsPersistedReducer,
@@ -42,6 +43,7 @@ const rootStateReducersMap = {
   buyWithCreditCard: buyWithCreditCardReducer,
   collectibles: collectiblesPersistedReducer,
   newsletter: newsletterReducers,
+  rewards: rewardsReducer,
   evmLoading: evmLoadingReducer,
   evmAssets: evmAssetsPersistedReducer,
   evmBalances: evmBalancesReducer,

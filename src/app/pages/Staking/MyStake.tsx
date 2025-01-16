@@ -197,5 +197,5 @@ export const MyStakeTab = memo<Props>(({ accountPkh, network, cannotDelegate }) 
 const CYCLES_LOOKUP_URLS: StringRecord = {
   [ChainIds.MAINNET]: 'https://tzkt.io/cycles',
   [ChainIds.ITHACANET2]: 'https://ghostnet.tzkt.io/cycles',
-  [ChainIds.PARISNET]: 'https://parisnet.tzkt.io/cycles'
+  [ChainIds.PARISCNET]: 'https://parisnet.tzkt.io/cycles'
 };

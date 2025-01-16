@@ -1,20 +1,23 @@
 import { Route3Token, Route3TokenStandardEnum } from 'lib/apis/route3/fetch-route3-tokens';
 import { TempleToken } from 'lib/assets/known-tokens';
 
-import { getPercentageRatio } from './utils/get-percentage-ratio';
-
-export const ROUTE3_CONTRACT = 'KT1R7WEtNNim3YgkxPt8wPMczjH3eyhbJMtz';
-export const LIQUIDITY_BAKING_PROXY_CONTRACT = 'KT1WLWMMm9MywjCqnA8wBAYy9QhUE1LzfZ4j';
+export const ROUTE3_CONTRACT = 'KT1V5XKmeypanMS9pR65REpqmVejWBZURuuT';
 export const BURN_ADDREESS = 'tz1burnburnburnburnburnburnburjAYjjX';
 export const ROUTING_FEE_ADDRESS = 'tz1UbRzhYjQKTtWYvGUWcRtVT4fN3NESDVYT';
 
-export const ROUTING_FEE_PERCENT = 0.6;
-export const SWAP_CASHBACK_PERCENT = 0.3;
-export const ROUTING_FEE_RATIO = getPercentageRatio(ROUTING_FEE_PERCENT);
+export const SIRS_LIQUIDITY_SLIPPAGE_RATIO = 0.9999;
+export const ROUTING_FEE_RATIO = 0.006;
+export const SWAP_CASHBACK_RATIO = 0.003;
 export const ROUTING_FEE_SLIPPAGE_RATIO = 0.995;
-export const MAX_ROUTING_FEE_CHAINS = 1;
 export const SWAP_THRESHOLD_TO_GET_CASHBACK = 10;
-export const ATOMIC_INPUT_THRESHOLD_FOR_FEE_FROM_INPUT = 286;
+/** The measure of acceptable deviation of an input for cashback swap or an amount of tokens to burn or to send to
+ * `ROUTING_FEE_ADDRESS` from ideal caused by the discretion of tokens values.
+ */
+const MAX_FEE_OR_CASHBACK_DEVIATION_RATIO = 0.01;
+
+export const ATOMIC_INPUT_THRESHOLD_FOR_FEE_FROM_INPUT = Math.ceil(
+  1 / MAX_FEE_OR_CASHBACK_DEVIATION_RATIO / Math.min(SWAP_CASHBACK_RATIO, ROUTING_FEE_RATIO - SWAP_CASHBACK_RATIO)
+);
 
 export const TEMPLE_TOKEN: Route3Token = {
   id: 138,
