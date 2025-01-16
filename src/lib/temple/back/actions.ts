@@ -15,6 +15,7 @@ import { BACKGROUND_IS_WORKER } from 'lib/env';
 import { putToStorage } from 'lib/storage';
 import { addLocalOperation } from 'lib/temple/activity';
 import * as Beacon from 'lib/temple/beacon';
+import { buildFinalTezosOpParams } from 'lib/temple/helpers';
 import { TempleState, TempleMessageType, TempleRequest, TempleSettings, TempleAccountType } from 'lib/temple/types';
 import { PromisesQueue, PromisesQueueCounters, delay } from 'lib/utils';
 import { EVMErrorCodes, evmRpcMethodsNames, GET_DEFAULT_WEB3_PARAMS_METHOD_NAME } from 'temple/evm/constants';
@@ -34,7 +35,7 @@ import {
 } from './dapp';
 import { intercom } from './defaults';
 import type { DryRunResult } from './dryrun';
-import { buildFinalOpParams, dryRunOpParams } from './dryrun';
+import { dryRunOpParams } from './dryrun';
 import {
   connectEvm,
   getDefaultWeb3Params,
@@ -370,7 +371,7 @@ const promisableUnlock = async (
             vault.sendOperations(
               sourcePkh,
               networkRpc,
-              buildFinalOpParams(opParams, modifiedTotalFee, modifiedStorageLimit)
+              buildFinalTezosOpParams(opParams, modifiedTotalFee, modifiedStorageLimit)
             )
           );
 

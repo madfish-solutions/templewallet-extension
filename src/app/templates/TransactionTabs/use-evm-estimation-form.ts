@@ -15,11 +15,10 @@ import {
 
 import { EvmEstimationData } from 'temple/evm/estimate';
 
+import { DEFAULT_INPUT_DEBOUNCE } from './constants';
 import { useEvmEstimationDataState } from './context';
 import { useEvmFeeOptions } from './hooks/use-evm-fee-options';
 import { EvmTxParamsFormData, FeeOptionLabel, Tab } from './types';
-
-const DEFAULT_INPUT_DEBOUNCE = 500;
 
 const serializeBigint = (value: bigint | nullish) => (typeof value === 'bigint' ? value.toString() : undefined);
 

@@ -1,5 +1,4 @@
 import type { DerivationType } from '@taquito/ledger-signer';
-import type { Estimate } from '@taquito/taquito';
 import type { TempleDAppMetadata } from '@temple-wallet/dapp/dist/types';
 import type { FeeValues, RpcTransactionRequest, TypedDataDefinition } from 'viem';
 
@@ -168,7 +167,7 @@ interface TempleOpsConfirmationPayload extends TempleConfirmationPayloadBase {
   opParams: any[];
   bytesToSign?: string;
   rawToSign?: any;
-  estimates?: Estimate[];
+  estimates?: SerializedEstimate[];
 }
 
 export type TempleConfirmationPayload = TempleSignConfirmationPayload | TempleOpsConfirmationPayload;
@@ -207,6 +206,19 @@ export interface TempleEvmDAppConnectPayload extends TempleEvmDAppPayloadBase {
   type: 'connect';
 }
 
+export interface SerializedEstimate {
+  minimalFeePerStorageByteMutez: string | number;
+  opSize: string | number;
+  burnFeeMutez: number;
+  consumedMilligas: number;
+  gasLimit: number;
+  minimalFeeMutez: number;
+  storageLimit: number;
+  suggestedFeeMutez: number;
+  totalCost: number;
+  usingBaseFeeMutez: number;
+}
+
 export interface TempleTezosDAppOperationsPayload extends TempleTezosDAppPayloadBase {
   type: 'confirm_operations';
   sourcePkh: string;
@@ -214,7 +226,7 @@ export interface TempleTezosDAppOperationsPayload extends TempleTezosDAppPayload
   opParams: any[];
   bytesToSign?: string;
   rawToSign?: any;
-  estimates?: Estimate[];
+  estimates?: SerializedEstimate[];
 }
 
 export interface TempleEvmDAppTransactionPayload extends TempleEvmDAppPayloadBase {
@@ -273,6 +285,7 @@ export enum TempleMessageType {
   ConfirmationExpired = 'TEMPLE_CONFIRMATION_EXPIRED',
   SelectedAccountChanged = 'TEMPLE_SELECTED_ACCOUNT_CHANGED',
   TempleEvmDAppsDisconnected = 'TEMPLE_EVM_DAPPS_DISCONNECTED',
+  TempleTezosDAppsDisconnected = 'TEMPLE_TEZOS_DAPPS_DISCONNECTED',
   TempleEvmChainSwitched = 'TEMPLE_SWITCH_EVM_CHAIN',
   // Request-Response pairs
   GetStateRequest = 'TEMPLE_GET_STATE_REQUEST',
@@ -354,6 +367,7 @@ export type TempleNotification =
   | TempleConfirmationExpired
   | TempleSelectedAccountChanged
   | TempleEvmDAppsDisconnected
+  | TempleTezosDAppsDisconnected
   | TempleEvmChainSwitched;
 
 export type TempleRequest =
@@ -461,6 +475,11 @@ interface TempleSelectedAccountChanged extends TempleMessageBase {
 interface TempleEvmDAppsDisconnected extends TempleMessageBase {
   type: TempleMessageType.TempleEvmDAppsDisconnected;
   origins: string[];
+}
+
+interface TempleTezosDAppsDisconnected extends TempleMessageBase {
+  type: TempleMessageType.TempleTezosDAppsDisconnected;
+  messagePayloads: StringRecord;
 }
 
 interface TempleEvmChainSwitched extends TempleMessageBase {

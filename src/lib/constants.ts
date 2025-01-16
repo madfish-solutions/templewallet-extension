@@ -109,3 +109,5 @@ export const RESPONSE_FROM_BG_MSG_TYPE = 'templeResponseFromBackground';
 export const DISCONNECT_DAPP_MSG_TYPE = 'templeDisconnectDApp';
 
 export const SWITCH_CHAIN_MSG_TYPE = 'templeSwitchChain';
+
+export const RECOMMENDED_ADD_TEZ_GAS_FEE = 0.00015;

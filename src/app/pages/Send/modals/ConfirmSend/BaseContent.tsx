@@ -13,8 +13,6 @@ import { OneOfChains } from 'temple/front';
 import { CurrentAccount } from './components/CurrentAccount';
 import { Header } from './components/Header';
 
-export type { Tab } from 'app/templates/TransactionTabs/types';
-
 interface BaseContentProps<T extends TxParamsFormData> {
   network: OneOfChains;
   assetSlug: string;

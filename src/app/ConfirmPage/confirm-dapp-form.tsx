@@ -82,16 +82,16 @@ export const ConfirmDAppForm = memo<ConfirmDAppFormProps>(({ accounts, payload, 
 
     setIsConfirming(true);
     await confirm(true);
-    setIsDeclining(false);
-  }, [confirm, isConfirming, isDeclining, setIsConfirming, setIsDeclining]);
+    setIsConfirming(false);
+  }, [confirm, isConfirming, isDeclining, setIsConfirming]);
 
   const handleDeclineClick = useCallback(async () => {
     if (isConfirming || isDeclining) return;
 
-    setIsConfirming(true);
+    setIsDeclining(true);
     await confirm(false);
     setIsDeclining(false);
-  }, [confirm, isConfirming, isDeclining, setIsConfirming, setIsDeclining]);
+  }, [confirm, isConfirming, isDeclining, setIsDeclining]);
 
   const handleErrorAlertClose = useCallback(() => setError(null), [setError]);
   const [customTitle, setCustomTitle] = useSafeState<ReactNode | null>(null);

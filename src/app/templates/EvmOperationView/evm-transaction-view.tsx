@@ -9,6 +9,7 @@ import { toastError } from 'app/toaster';
 import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
 import { T } from 'lib/i18n';
 import { EvmTransactionRequestWithSender, TempleEvmDAppTransactionPayload } from 'lib/temple/types';
+import { serializeError } from 'lib/utils/serialize-error';
 import { getAccountAddressForEvm } from 'temple/accounts';
 import { parseTransactionRequest } from 'temple/evm/utils';
 import { useAllAccounts, useAllEvmChains } from 'temple/front';
@@ -59,9 +60,7 @@ export const EvmTransactionView = memo<EvmTransactionViewProps>(
     const { formState } = form;
 
     const handleSubmit = useCallback(
-      (values: EvmTxParamsFormData) => {
-        const { gasPrice, gasLimit, nonce } = values;
-
+      ({ gasPrice, gasLimit, nonce }: EvmTxParamsFormData) => {
         if (formState.isSubmitting) return;
 
         const feesPerGas = getFeesPerGas(gasPrice);
@@ -85,6 +84,9 @@ export const EvmTransactionView = memo<EvmTransactionViewProps>(
       [estimationData, formState.isSubmitting, getFeesPerGas, onSubmit, parsedReq, setFinalEvmTransaction]
     );
 
+    const displayedEstimationError = useMemo(() => serializeError(estimationError), [estimationError]);
+    const displayedSubmitError = useMemo(() => serializeError(error), [error]);
+
     return (
       <>
         <FormProvider {...form}>
@@ -102,8 +104,8 @@ export const EvmTransactionView = memo<EvmTransactionViewProps>(
             selectedTab={tab}
             setSelectedTab={setTab}
             selectedFeeOption={selectedFeeOption}
-            latestSubmitError={error}
-            estimationError={estimationError?.message}
+            latestSubmitError={displayedSubmitError}
+            estimationError={displayedEstimationError}
             onFeeOptionSelect={handleFeeOptionSelect}
             onSubmit={handleSubmit}
             displayedFee={displayedFee}

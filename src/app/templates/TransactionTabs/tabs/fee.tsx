@@ -100,10 +100,15 @@ const TezosContent: FC<ContentProps> = ({ selectedOption, onOptionSelect }) => {
   const gasFeeFallback = useMemo(() => {
     if (!data || !selectedOption) return '';
 
-    return getTezosFeeOption(selectedOption, data.baseFee);
+    return getTezosFeeOption(selectedOption, data.gasFee);
   }, [data, selectedOption]);
 
   const gasFeeError = formState.errors.gasFee?.message;
+
+  const defaultStorageLimit = useMemo(
+    () => data?.estimates.reduce((acc, { storageLimit }) => acc + storageLimit, 0),
+    [data?.estimates]
+  );
 
   return (
     <>
@@ -138,7 +143,7 @@ const TezosContent: FC<ContentProps> = ({ selectedOption, onOptionSelect }) => {
         control={control}
         render={({ field: { value, onChange, onBlur } }) => (
           <AssetField
-            value={value || data?.estimates.storageLimit}
+            value={value || defaultStorageLimit}
             placeholder="0"
             min={0}
             onlyInteger

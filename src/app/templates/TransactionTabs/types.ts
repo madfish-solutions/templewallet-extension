@@ -1,6 +1,7 @@
-import { Estimate } from '@taquito/taquito';
 import BigNumber from 'bignumber.js';
 import { FeeValues, FeeValuesEIP1559, FeeValuesLegacy } from 'viem';
+
+import { SerializedEstimate } from 'lib/temple/types';
 
 export interface EvmTxParamsFormData {
   gasPrice: string;
@@ -21,7 +22,9 @@ export type TxParamsFormData = EvmTxParamsFormData | TezosTxParamsFormData;
 
 export interface TezosEstimationData {
   baseFee: BigNumber;
-  estimates: Estimate;
+  gasFee: BigNumber;
+  revealFee: BigNumber;
+  estimates: SerializedEstimate[];
 }
 
 export type FeeOptionLabel = 'slow' | 'mid' | 'fast';

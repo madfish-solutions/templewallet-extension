@@ -6,9 +6,8 @@ import { IconBase } from 'app/atoms';
 import { ReactComponent as UnlockFillIcon } from 'app/icons/base/unlock_fill.svg';
 import { AccountCard } from 'app/templates/AccountCard';
 import { EvmOperationView } from 'app/templates/EvmOperationView';
-import { ModifyFeeAndLimit } from 'app/templates/ExpensesView/ExpensesView';
 import { SignPayloadView } from 'app/templates/SignPayloadView';
-import TezosOperationView from 'app/templates/TezosOperationView';
+import { TezosOperationView } from 'app/templates/TezosOperationView';
 import { T, TID } from 'lib/i18n';
 import {
   EvmTransactionRequestWithSender,
@@ -33,7 +32,9 @@ type DAppOperationsPayload<T extends TempleChainKind> = T extends TempleChainKin
 interface OperationViewPropsBase<T extends TempleChainKind> {
   network: NetworkEssentials<T>;
   payload: DAppOperationsPayload<T>;
-  error?: any;
+  error: any;
+  formId: string;
+  onSubmit: EmptyFn;
 }
 
 interface PayloadContentPropsBase<T extends TempleChainKind> extends Omit<OperationViewPropsBase<T>, 'payload'> {
@@ -114,18 +115,15 @@ const PayloadContentHOC = <
   return PayloadContent;
 };
 
-export const TezosPayloadContent = PayloadContentHOC<TempleChainKind.Tezos, { modifyFeeAndLimit?: ModifyFeeAndLimit }>(
-  TezosOperationView
-);
+export const TezosPayloadContent = PayloadContentHOC<
+  TempleChainKind.Tezos,
+  { setTotalFee: SyncFn<number>; setStorageLimit: SyncFn<number> }
+>(TezosOperationView);
 
 export const EvmPayloadContent = PayloadContentHOC<
   TempleChainKind.EVM,
   {
     setFinalEvmTransaction: ReactSetStateFn<EvmTransactionRequestWithSender>;
     setCustomTitle: ReactSetStateFn<ReactNode>;
-    // TODO: Move the fields below to OperationViewPropsBase
-    formId: string;
-    onSubmit: EmptyFn;
-    error: any;
   }
 >(EvmOperationView);
