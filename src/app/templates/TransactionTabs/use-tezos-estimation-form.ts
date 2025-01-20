@@ -58,7 +58,7 @@ export const useTezosEstimationForm = (
       }
     }
 
-    return { gasFee: gasFee?.toString(), storageLimit: storageLimit?.toString() };
+    return { gasFee: gasFee?.toString() ?? '', storageLimit: storageLimit?.toString() ?? '' };
   }, [basicParams, estimates, sender]);
   const form = useForm<TezosTxParamsFormData>({ mode: 'onChange', defaultValues });
   const { watch, setValue } = form;
@@ -129,7 +129,7 @@ export const useTezosEstimationForm = (
       const opParams = buildFinalTezosOpParams(
         basicParams,
         tzToMutez(gasFee || displayedFeeOptions[selectedFeeOption || 'mid'])
-          .minus(tzToMutez(revealFee))
+          .minus(revealFee)
           .toNumber(),
         storageLimit ? Number(storageLimit) : totalDefaultStorageLimit.toNumber()
       );
@@ -159,7 +159,11 @@ export const useTezosEstimationForm = (
         debouncedStorageLimit,
         revealFee,
         displayedFeeOptions
-      ).catch(() => null);
+      ).catch(e => {
+        console.error(e);
+
+        return null;
+      });
 
       if (bytesToSign) {
         const rawToSign = await localForger.parse(bytesToSign).catch(() => null);
@@ -191,11 +195,30 @@ export const useTezosEstimationForm = (
     [setValue]
   );
 
+  const getFeeParams = useCallback(
+    (customGasFee: string, customStorageLimit: string) => {
+      const parsedCustomGasFee = new BigNumber(customGasFee);
+      const parsedCustomStorageLimit = new BigNumber(customStorageLimit);
+      const currentGasFeePreset = displayedFeeOptions?.[selectedFeeOption || 'mid'];
+
+      return {
+        gasFee: parsedCustomGasFee.isPositive()
+          ? parsedCustomGasFee
+          : currentGasFeePreset
+          ? new BigNumber(currentGasFeePreset)
+          : null,
+        storageLimit: parsedCustomStorageLimit.gte(0) ? parsedCustomStorageLimit : totalDefaultStorageLimit
+      };
+    },
+    [totalDefaultStorageLimit, displayedFeeOptions, selectedFeeOption]
+  );
+
   return {
     form,
     tab,
     setTab,
     selectedFeeOption,
+    getFeeParams,
     handleFeeOptionSelect,
     submitOperation,
     displayedFeeOptions,

@@ -4,6 +4,7 @@ import BigNumber from 'bignumber.js';
 import { nanoid } from 'nanoid';
 import { FormProvider } from 'react-hook-form-v7';
 
+import { toastError } from 'app/toaster';
 import { TEZ_TOKEN_SLUG } from 'lib/assets';
 import { useTypedSWR } from 'lib/swr';
 import { mutezToTz, tzToMutez } from 'lib/temple/helpers';
@@ -56,6 +57,7 @@ export const TezosTransactionView = memo<TezosTransactionViewProps>(
       tab,
       setTab,
       selectedFeeOption,
+      getFeeParams,
       handleFeeOptionSelect,
       displayedFeeOptions,
       displayedFee,
@@ -100,13 +102,20 @@ export const TezosTransactionView = memo<TezosTransactionViewProps>(
     });
 
     const handleSubmit = useCallback(
-      (values: TezosTxParamsFormData) => {
-        const { gasFee, storageLimit } = values;
+      ({ gasFee: customGasFee, storageLimit: customStorageLimit }: TezosTxParamsFormData) => {
+        const { gasFee, storageLimit } = getFeeParams(customGasFee, customStorageLimit);
+
+        if (!gasFee) {
+          toastError('Failed to estimate transaction.');
+
+          return;
+        }
+
         setTotalFee(tzToMutez(gasFee).toNumber());
-        setStorageLimit(Number(storageLimit));
+        setStorageLimit(storageLimit.toNumber());
         onSubmit();
       },
-      [onSubmit, setStorageLimit, setTotalFee]
+      [getFeeParams, onSubmit, setStorageLimit, setTotalFee]
     );
 
     const displayedEstimationError = useMemo(() => serializeError(estimationError), [estimationError]);

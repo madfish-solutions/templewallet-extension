@@ -1,6 +1,6 @@
 import { localForger } from '@taquito/local-forging';
 import { ForgeOperationsParams } from '@taquito/rpc';
-import { TezosToolkit, TezosOperationError } from '@taquito/taquito';
+import { TezosToolkit, TezosOperationError, getRevealGasLimit, getRevealFee } from '@taquito/taquito';
 import { omit } from 'lodash';
 
 import { FEE_PER_GAS_UNIT } from 'lib/constants';
@@ -92,13 +92,30 @@ export async function dryRunOpParams({
       }
 
       if (estimationResult.status === 'fulfilled') {
-        estimates = estimationResult.value.map((e, i) => ({
-          ...serializeEstimate(e),
-          suggestedFeeMutez:
-            e.suggestedFeeMutez +
-            (opParams[i]?.gasLimit ? Math.ceil((opParams[i].gasLimit - e.gasLimit) * FEE_PER_GAS_UNIT) : 0),
-          storageLimit: opParams[i]?.storageLimit ? +opParams[i].storageLimit : e.storageLimit
-        }));
+        estimates = estimationResult.value.map((e, i) => {
+          if (i === 0 && estimationResult.value.length === opParams.length + 1) {
+            // tezos.estimate reports reveal fee that is less than the actual fee
+            const feeDelta = getRevealFee(sourcePkh) - e.suggestedFeeMutez;
+            const gasLimit = getRevealGasLimit(sourcePkh);
+            return {
+              ...serializeEstimate(e),
+              consumedMilligas: gasLimit * 1000,
+              gasLimit,
+              minimalFeeMutez: e.minimalFeeMutez + feeDelta,
+              suggestedFeeMutez: e.suggestedFeeMutez + feeDelta,
+              totalCost: e.totalCost + feeDelta,
+              usingBaseFeeMutez: e.usingBaseFeeMutez + feeDelta
+            };
+          }
+
+          return {
+            ...serializeEstimate(e),
+            suggestedFeeMutez:
+              e.suggestedFeeMutez +
+              (opParams[i]?.gasLimit ? Math.ceil((opParams[i].gasLimit - e.gasLimit) * FEE_PER_GAS_UNIT) : 0),
+            storageLimit: opParams[i]?.storageLimit ? +opParams[i].storageLimit : e.storageLimit
+          };
+        });
       }
     } catch {}
 
