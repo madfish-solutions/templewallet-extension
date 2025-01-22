@@ -1,11 +1,13 @@
-import React, { memo, useCallback, useMemo } from 'react';
+import React, { memo, useCallback, useEffect, useMemo } from 'react';
 
 import BigNumber from 'bignumber.js';
 import { nanoid } from 'nanoid';
 import { FormProvider } from 'react-hook-form-v7';
 
+import { Loader } from 'app/atoms';
 import { toastError } from 'app/toaster';
 import { TEZ_TOKEN_SLUG } from 'lib/assets';
+import { T } from 'lib/i18n';
 import { useTypedSWR } from 'lib/swr';
 import { mutezToTz, tzToMutez } from 'lib/temple/helpers';
 import { TempleTezosDAppOperationsPayload } from 'lib/temple/types';
@@ -17,6 +19,7 @@ import { getReadOnlyTezos } from 'temple/tezos';
 import { TempleChainKind } from 'temple/types';
 
 import { AccountCard } from '../AccountCard';
+import { ExpensesView } from '../expenses-view';
 import { TransactionTabs } from '../TransactionTabs';
 import { TezosTxParamsFormData } from '../TransactionTabs/types';
 import { useTezosEstimationForm } from '../TransactionTabs/use-tezos-estimation-form';
@@ -52,17 +55,6 @@ export const TezosTransactionView = memo<TezosTransactionViewProps>(
         revealFee: revealFeeMutez
       };
     }, [estimates, opParams.length]);
-    const {
-      form,
-      tab,
-      setTab,
-      selectedFeeOption,
-      getFeeParams,
-      handleFeeOptionSelect,
-      displayedFeeOptions,
-      displayedFee,
-      displayedStorageFee
-    } = useTezosEstimationForm(estimationData, opParams, sendingAccount, networkRpc);
 
     const getTezosChain = useCallback(async (): Promise<TezosChain> => {
       const knownTezosChain = Object.values(tezosChains).find(c =>
@@ -101,6 +93,21 @@ export const TezosTransactionView = memo<TezosTransactionViewProps>(
       shouldRetryOnError: false
     });
 
+    const {
+      balancesChanges: balancesChanges,
+      balancesChangesLoading,
+      form,
+      tab,
+      setTab,
+      selectedFeeOption,
+      getFeeParams,
+      handleFeeOptionSelect,
+      displayedFeeOptions,
+      displayedFee,
+      displayedStorageFee
+    } = useTezosEstimationForm(estimationData, opParams, sendingAccount, networkRpc, chain!.chainId, true);
+    const expensesViewIsVisible = useMemo(() => Object.keys(balancesChanges).length > 0, [balancesChanges]);
+
     const handleSubmit = useCallback(
       ({ gasFee: customGasFee, storageLimit: customStorageLimit }: TezosTxParamsFormData) => {
         const { gasFee, storageLimit } = getFeeParams(customGasFee, customStorageLimit);
@@ -122,8 +129,18 @@ export const TezosTransactionView = memo<TezosTransactionViewProps>(
     const displayedSubmitError = useMemo(() => serializeError(submitError), [submitError]);
 
     return (
-      <>
-        <FormProvider {...form}>
+      <FormProvider {...form}>
+        {expensesViewIsVisible ? (
+          <ExpensesView assetsDeltas={balancesChanges} chain={chain!} title={<T id="transactionInfo" />} />
+        ) : (
+          balancesChangesLoading && (
+            <div className="flex justify-center items-center">
+              <Loader size="L" trackVariant="dark" className="text-primary" />
+            </div>
+          )
+        )}
+
+        <div className="flex flex-col">
           <AccountCard
             account={sendingAccount}
             isCurrent={false}
@@ -150,8 +167,8 @@ export const TezosTransactionView = memo<TezosTransactionViewProps>(
             destinationName={null}
             destinationValue={null}
           />
-        </FormProvider>
-      </>
+        </div>
+      </FormProvider>
     );
   }
 );

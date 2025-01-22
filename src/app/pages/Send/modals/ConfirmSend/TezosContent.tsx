@@ -92,7 +92,7 @@ export const TezosContent: FC<TezosContentProps> = ({ data, onClose }) => {
     displayedFeeOptions,
     displayedFee,
     displayedStorageFee
-  } = useTezosEstimationForm(estimationData, basicSendParams, account, network.rpcBaseURL);
+  } = useTezosEstimationForm(estimationData, basicSendParams, account, network.rpcBaseURL, network.chainId);
   const { formState } = form;
 
   const onSubmit = useCallback(

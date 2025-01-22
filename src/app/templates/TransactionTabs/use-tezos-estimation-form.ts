@@ -1,14 +1,17 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
-import { localForger } from '@taquito/local-forging';
+import { ForgeParams, localForger } from '@taquito/local-forging';
 import { TezosToolkit, WalletParamsWithKind, getRevealFee } from '@taquito/taquito';
 import BigNumber from 'bignumber.js';
 import { useForm } from 'react-hook-form-v7';
+import { BehaviorSubject, EMPTY, catchError, from, of, switchMap } from 'rxjs';
 import { useDebounce } from 'use-debounce';
 
 import { buildFinalTezosOpParams, mutezToTz, tzToMutez } from 'lib/temple/helpers';
 import { ReadOnlySigner } from 'lib/temple/read-only-signer';
 import { StoredAccount } from 'lib/temple/types';
+import { getBalanceDeltas } from 'lib/tezos';
+import { useSafeState } from 'lib/ui/hooks';
 import { ZERO } from 'lib/utils/numbers';
 import { AccountForChain, getAccountForTezos } from 'temple/accounts';
 import { getTezosToolkitWithSigner } from 'temple/front';
@@ -24,7 +27,9 @@ export const useTezosEstimationForm = (
   estimationData: TezosEstimationData | undefined,
   basicParams: WalletParamsWithKind[] | undefined,
   senderAccount: StoredAccount | AccountForChain<TempleChainKind.Tezos>,
-  rpcBaseURL: string
+  rpcBaseURL: string,
+  chainId: string,
+  simulateOperation?: boolean
 ) => {
   const ownerAddress =
     'ownerAddress' in senderAccount
@@ -39,6 +44,64 @@ export const useTezosEstimationForm = (
   const sender = ownerAddress || accountPkh;
   const tezos = getTezosToolkitWithSigner(rpcBaseURL, sender, true);
   const estimates = estimationData?.estimates;
+  const params$ = useMemo(() => new BehaviorSubject<ForgeParams | null>(null), []);
+  const [balancesChanges, setBalancesChanges] = useSafeState<StringRecord<BigNumber>>({});
+  const [balancesChangesLoading, setBalancesChangesLoading] = useSafeState(false);
+
+  useEffect(() => {
+    const deltas$ = params$.pipe(
+      switchMap(operation => {
+        if (!operation) {
+          return EMPTY;
+        }
+
+        return from(tezos.rpc.simulateOperation({ operation, chain_id: chainId })).pipe(
+          catchError(e => {
+            console.error(e);
+
+            return from(
+              tezos.rpc.simulateOperation({ operation: { contents: operation.contents }, chain_id: chainId })
+            );
+          }),
+          switchMap(response => {
+            if (
+              response.contents.some(
+                entry =>
+                  'metadata' in entry &&
+                  'operation_result' in entry.metadata &&
+                  entry.metadata.operation_result.status !== 'applied'
+              )
+            ) {
+              throw new Error('Could not get results by simulation');
+            }
+
+            setBalancesChangesLoading(false);
+
+            return of(getBalanceDeltas(response.contents, accountPkh));
+          }),
+          catchError(e => {
+            console.error(e);
+
+            try {
+              return of(getBalanceDeltas(operation.contents, accountPkh));
+            } catch (err) {
+              console.error(err);
+
+              return EMPTY;
+            } finally {
+              setBalancesChangesLoading(false);
+            }
+          })
+        );
+      })
+    );
+
+    const sub = deltas$.subscribe(deltas => {
+      setBalancesChanges(deltas);
+    });
+
+    return () => sub.unsubscribe();
+  }, [accountPkh, params$, tezos.rpc, chainId, setBalancesChangesLoading, setBalancesChanges]);
 
   const defaultValues = useMemo(() => {
     let gasFee: BigNumber | undefined;
@@ -142,7 +205,10 @@ export const useTezosEstimationForm = (
   const revealFee = estimationData?.revealFee ?? ZERO;
   const setRawTransaction = useCallback(async () => {
     try {
-      const sourcePublicKey = await tezos.wallet.getPK();
+      if (simulateOperation) {
+        setBalancesChangesLoading(true);
+      }
+      const sourcePublicKey = await tezos.wallet.pk();
 
       let bytesToSign: string | undefined;
       const signer = new ReadOnlySigner(accountPkh, sourcePublicKey, digest => {
@@ -167,11 +233,21 @@ export const useTezosEstimationForm = (
 
       if (bytesToSign) {
         const rawToSign = await localForger.parse(bytesToSign).catch(() => null);
-        if (rawToSign) setValue('raw', rawToSign);
+        if (rawToSign && simulateOperation) {
+          params$.next(rawToSign);
+        } else if (simulateOperation) {
+          setBalancesChangesLoading(false);
+        }
+        if (rawToSign) {
+          setValue('raw', rawToSign);
+        }
         setValue('bytes', bytesToSign);
+      } else if (simulateOperation) {
+        setBalancesChangesLoading(false);
       }
     } catch (err: any) {
       console.error(err);
+      setBalancesChangesLoading(false);
     }
   }, [
     accountPkh,
@@ -182,7 +258,10 @@ export const useTezosEstimationForm = (
     debouncedStorageLimit,
     submitOperation,
     tezos,
-    revealFee
+    revealFee,
+    simulateOperation,
+    params$,
+    setBalancesChangesLoading
   ]);
 
   useEffect(() => void setRawTransaction(), [setRawTransaction]);
@@ -214,6 +293,8 @@ export const useTezosEstimationForm = (
   );
 
   return {
+    balancesChanges,
+    balancesChangesLoading,
     form,
     tab,
     setTab,

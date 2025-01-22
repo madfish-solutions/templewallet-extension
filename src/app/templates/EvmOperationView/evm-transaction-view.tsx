@@ -88,7 +88,7 @@ export const EvmTransactionView = memo<EvmTransactionViewProps>(
     const displayedSubmitError = useMemo(() => serializeError(error), [error]);
 
     return (
-      <>
+      <div className="flex flex-col">
         <FormProvider {...form}>
           <AccountCard
             account={sendingAccount}
@@ -116,7 +116,7 @@ export const EvmTransactionView = memo<EvmTransactionViewProps>(
             destinationValue={req.to ? <HashChip hash={req.to} /> : null}
           />
         </FormProvider>
-      </>
+      </div>
     );
   }
 );

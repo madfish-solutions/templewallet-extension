@@ -1646,6 +1646,12 @@
   "transaction": {
     "message": "Transaction"
   },
+  "transactionInfo": {
+    "message": "Transaction info"
+  },
+  "noValue": {
+    "message": "No value"
+  },
   "recipient": {
     "message": "Recipient"
   },
@@ -1890,6 +1896,9 @@
   },
   "transfers": {
     "message": "Transfers"
+  },
+  "unknownToken": {
+    "message": "Unknown Token"
   },
   "someUnknownToken": {
     "message": "unknown token $token$",
