@@ -1,5 +1,6 @@
 import React, { FC, memo, PropsWithChildren, useCallback, useMemo, useState } from 'react';
 
+import clsx from 'clsx';
 import { OnSubmit, useForm } from 'react-hook-form';
 
 import { Alert, Anchor, FormField, FormSubmitButton } from 'app/atoms';
@@ -18,7 +19,7 @@ import BannerImgSrc from './banner.png';
 import { ReactComponent as ConfirmedSvg } from './confirmed.svg';
 
 interface FormData {
-  username: string;
+  usernameOrId: string;
 }
 
 export const TempleTapAirdropPage = memo(() => {
@@ -81,13 +82,13 @@ export const TempleTapAirdropPage = memo(() => {
   const submitting = formState.isSubmitting;
 
   const onSubmit = useCallback<OnSubmit<FormData>>(
-    async ({ username }) => {
+    async ({ usernameOrId }) => {
       clearError();
 
       try {
         const sigAuthValues = await prepSigAuthValues();
 
-        const res = await sendTempleTapAirdropUsernameConfirmation(accountPkh, username, sigAuthValues);
+        const res = await sendTempleTapAirdropUsernameConfirmation(accountPkh, usernameOrId, sigAuthValues);
 
         switch (res.data.status) {
           case 'ACCEPTED':
@@ -103,7 +104,7 @@ export const TempleTapAirdropPage = memo(() => {
       } catch (error: any) {
         console.error(error);
 
-        setError('username', 'submit-error', error?.response?.data?.message || 'Something went wrong...');
+        setError('usernameOrId', 'submit-error', error?.response?.data?.message || 'Something went wrong...');
       }
     },
     [reset, clearError, setError, setStoredRecord, prepSigAuthValues, accountPkh]
@@ -140,13 +141,14 @@ export const TempleTapAirdropPage = memo(() => {
             <BlockComp
               title="Address confirmed"
               description="Your address has been successfully confirmed in Temple Tap bot for future airdrop distribution."
+              padText
             >
               <ConfirmedSvg className="w-6 h-6 absolute top-4 right-4" />
             </BlockComp>
           ) : (
             <BlockComp
               title="Confirm address"
-              description="Enter your telegram @username to confirm your Tezos address in Temple Tap bot for future airdrop distribution"
+              description="Enter your Telegram ID or @username to confirm your Tezos address in Temple Tap bot for future airdrop distribution"
             >
               <div className="text-xs leading-5 text-dark-gray">
                 <span>Your address: </span>
@@ -155,19 +157,13 @@ export const TempleTapAirdropPage = memo(() => {
 
               <form onSubmit={handleSubmit(onSubmit)} className="contents">
                 <FormField
-                  ref={register({
-                    pattern: {
-                      value: TG_USERNAME_REGEX,
-                      message:
-                        "Starts with '@'. You can use a-z, A-Z, 0-9 and '_' in between. Minimum length is 6 characters."
-                    }
-                  })}
-                  name="username"
-                  placeholder="@username"
+                  ref={register({ validate })}
+                  name="usernameOrId"
+                  placeholder="Telegram ID or @username"
                   className="mt-4"
                   style={{ backgroundColor: 'white' }}
                   disabled={submitting}
-                  errorCaption={errors.username?.message}
+                  errorCaption={errors.usernameOrId?.message}
                 />
 
                 <FormSubmitButton type="submit" loading={submitting} className="mt-4">
@@ -200,13 +196,14 @@ type LocalStorageRecord = StringRecord<true>;
 interface BlockCompProps {
   title: string;
   description: string;
+  padText?: boolean;
 }
 
-const BlockComp: FC<PropsWithChildren<BlockCompProps>> = ({ title, description, children }) => (
+const BlockComp: FC<PropsWithChildren<BlockCompProps>> = ({ title, description, padText, children }) => (
   <div className="mt-4 relative flex flex-col p-4 bg-gray-100 rounded-xl">
     <span className="text-sm font-semibold text-dark">{title}</span>
 
-    <p className="my-1 pr-4 text-xs leading-5 text-gray-600">{description}</p>
+    <p className={clsx('my-1 text-xs leading-5 text-gray-600', padText && 'pr-4')}>{description}</p>
 
     {children}
   </div>
@@ -233,3 +230,15 @@ const SocialItem: FC<SocialItemProps> = ({ title, IconComp, followUrl }) => (
 );
 
 const TG_USERNAME_REGEX = /^@[a-zA-Z0-9](?:[a-zA-Z0-9_]{3,}[a-zA-Z0-9])$/;
+
+function validate(value: string) {
+  const numberValue = Number(value);
+  if (Number.isInteger(numberValue) && numberValue > 0) return true;
+
+  if (TG_USERNAME_REGEX.test(value)) return true;
+
+  if (value.includes('@'))
+    return "Username starts with '@'. You can use a-z, A-Z, 0-9 and '_' in between. Minimum length is 6 characters.";
+
+  return 'Telegram ID should contain only numbers';
+}
