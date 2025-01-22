@@ -202,7 +202,7 @@ const bannerAdsMetaBase: (AdMetadata | false)[] = [
       maxContainerHeight: 300
     }
   },
-  EnvVars.PERSONA_ADS_ENABLED && {
+  {
     source: {
       providerName: 'Bitmedia' as const,
       native: false,
@@ -373,7 +373,7 @@ const bannerAdsMetaBase: (AdMetadata | false)[] = [
       maxContainerHeight: Infinity
     }
   },
-  EnvVars.PERSONA_ADS_ENABLED && {
+  {
     source: {
       providerName: 'Bitmedia' as const,
       native: false,
@@ -498,7 +498,7 @@ const bannerAdsMetaBase: (AdMetadata | false)[] = [
       maxContainerHeight: 130
     }
   },
-  EnvVars.PERSONA_ADS_ENABLED && {
+  {
     source: {
       providerName: 'Bitmedia' as const,
       native: false,
