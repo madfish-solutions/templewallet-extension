@@ -13,7 +13,7 @@ import { ErrorTab } from './tabs/error';
 import { FeeTab } from './tabs/fee';
 import { DisplayedFeeOptions, FeeOptionLabel, Tab, TxParamsFormData } from './types';
 
-interface TransactionTabsProps<T extends TxParamsFormData> {
+export interface TransactionTabsProps<T extends TxParamsFormData> {
   network: OneOfChains;
   nativeAssetSlug: string;
   selectedTab: Tab;

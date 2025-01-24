@@ -14,8 +14,7 @@ import { getAccountAddressForEvm } from 'temple/accounts';
 import { parseTransactionRequest } from 'temple/evm/utils';
 import { useAllAccounts, useAllEvmChains } from 'temple/front';
 
-import { AccountCard } from '../AccountCard';
-import { TransactionTabs } from '../TransactionTabs';
+import { OperationViewLayout } from '../operation-view-layout';
 import { EvmTxParamsFormData } from '../TransactionTabs/types';
 import { useEvmEstimationForm } from '../TransactionTabs/use-evm-estimation-form';
 
@@ -39,7 +38,7 @@ export const EvmTransactionView = memo<EvmTransactionViewProps>(
     const parsedReq = useMemo(() => ({ ...parseTransactionRequest(req), from: req.from }), [req]);
 
     const accounts = useAllAccounts();
-    const chain = useMemo(() => Object.values(chains).find(c => c.chainId === parsedChainId)!, [chains, parsedChainId]);
+    const chain = chains[parsedChainId];
     const sendingAccount = useMemo(
       () => accounts.find(acc => getAccountAddressForEvm(acc)?.toLowerCase() === req.from.toLowerCase())!,
       [accounts, req.from]
@@ -55,8 +54,18 @@ export const EvmTransactionView = memo<EvmTransactionViewProps>(
       }),
       [parsedChainId, parsedReq]
     );
-    const { form, tab, setTab, selectedFeeOption, handleFeeOptionSelect, feeOptions, displayedFee, getFeesPerGas } =
-      useEvmEstimationForm(estimationData, basicParams, parsedChainId);
+    const {
+      balancesChanges,
+      balancesChangesLoading,
+      form,
+      tab,
+      setTab,
+      selectedFeeOption,
+      handleFeeOptionSelect,
+      feeOptions,
+      displayedFee,
+      getFeesPerGas
+    } = useEvmEstimationForm(estimationData, basicParams, sendingAccount, parsedChainId, true);
     const { formState } = form;
 
     const handleSubmit = useCallback(
@@ -88,35 +97,28 @@ export const EvmTransactionView = memo<EvmTransactionViewProps>(
     const displayedSubmitError = useMemo(() => serializeError(error), [error]);
 
     return (
-      <div className="flex flex-col">
-        <FormProvider {...form}>
-          <AccountCard
-            account={sendingAccount}
-            isCurrent={false}
-            attractSelf={false}
-            searchValue=""
-            showRadioOnHover={false}
-          />
-
-          <TransactionTabs<EvmTxParamsFormData>
-            network={chain}
-            nativeAssetSlug={EVM_TOKEN_SLUG}
-            selectedTab={tab}
-            setSelectedTab={setTab}
-            selectedFeeOption={selectedFeeOption}
-            latestSubmitError={displayedSubmitError}
-            estimationError={displayedEstimationError}
-            onFeeOptionSelect={handleFeeOptionSelect}
-            onSubmit={handleSubmit}
-            displayedFee={displayedFee}
-            displayedFeeOptions={feeOptions?.displayed}
-            formId={formId}
-            tabsName="confirm-send-tabs"
-            destinationName={req.to ? <T id="interactionWith" /> : null}
-            destinationValue={req.to ? <HashChip hash={req.to} /> : null}
-          />
-        </FormProvider>
-      </div>
+      <FormProvider {...form}>
+        <OperationViewLayout
+          network={chain}
+          nativeAssetSlug={EVM_TOKEN_SLUG}
+          selectedTab={tab}
+          setSelectedTab={setTab}
+          selectedFeeOption={selectedFeeOption}
+          latestSubmitError={displayedSubmitError}
+          estimationError={displayedEstimationError}
+          onFeeOptionSelect={handleFeeOptionSelect}
+          onSubmit={handleSubmit}
+          displayedFee={displayedFee}
+          displayedFeeOptions={feeOptions?.displayed}
+          formId={formId}
+          tabsName="confirm-send-tabs"
+          destinationName={req.to ? <T id="interactionWith" /> : null}
+          destinationValue={req.to ? <HashChip hash={req.to} /> : null}
+          sendingAccount={sendingAccount}
+          balancesChanges={balancesChanges}
+          balancesChangesLoading={balancesChangesLoading}
+        />
+      </FormProvider>
     );
   }
 );

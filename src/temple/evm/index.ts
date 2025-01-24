@@ -9,7 +9,7 @@ import { getViemChainsList } from './utils';
 
 export { getReadOnlyEvm } from './get-read-only-evm';
 
-type ChainPublicClient = PublicClient<Transport, Pick<Chain, 'id' | 'name' | 'nativeCurrency' | 'rpcUrls'>>;
+export type ChainPublicClient = PublicClient<Transport, Pick<Chain, 'id' | 'name' | 'nativeCurrency' | 'rpcUrls'>>;
 
 /**
  * Some Viem Client methods will need chain definition to execute, use below fn in those cases

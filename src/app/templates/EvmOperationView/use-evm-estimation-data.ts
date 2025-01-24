@@ -14,7 +14,7 @@ type TransactionRequestWithSender = TransactionRequest & { from: string };
 
 export const useEvmEstimationData = (chainId: number, req: TransactionRequestWithSender) => {
   const chains = useAllEvmChains();
-  const chain = useMemo(() => Object.values(chains).find(c => c.chainId === chainId)!, [chains, chainId]);
+  const chain = chains[chainId];
 
   const { value: ethBalance } = useEvmTokenBalance(EVM_TOKEN_SLUG, req.from, chain);
 

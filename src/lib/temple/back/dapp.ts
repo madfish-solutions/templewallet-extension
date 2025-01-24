@@ -2,7 +2,7 @@ import { localForger } from '@taquito/local-forging';
 import { valueDecoder } from '@taquito/local-forging/dist/lib/michelson/codec';
 import { Uint8ArrayConsumer } from '@taquito/local-forging/dist/lib/uint8array-consumer';
 import { emitMicheline } from '@taquito/michel-codec';
-import { OpKind, RpcClient } from '@taquito/rpc';
+import { RpcClient } from '@taquito/rpc';
 import { TezosOperationError } from '@taquito/taquito';
 import {
   TempleDAppMessageType,

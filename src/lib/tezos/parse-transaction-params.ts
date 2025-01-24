@@ -73,11 +73,11 @@ function makeEntrypointsParamsHandlers(
   externalTxSenderPkh: string,
   senderPkh: string,
   opDestination: string,
-  onBalanceChange: (tokenSlug: string, value: BigNumber) => void
+  onBalanceChange: (tokenSlug: string, value: BigNumber, isNft: boolean | undefined) => void
 ): EntrypointsParamsHandlers {
   const onObjktOrHenMintParse = ({ token_id, address, amount }: ObjktMintParams | HenMintParams) => {
     if (address === externalTxSenderPkh) {
-      onBalanceChange(toTokenSlug(opDestination, token_id.toFixed()), amount);
+      onBalanceChange(toTokenSlug(opDestination, token_id.toFixed()), amount, true);
     }
   };
 
@@ -95,10 +95,10 @@ function makeEntrypointsParamsHandlers(
               }
 
               if (from_ === externalTxSenderPkh) {
-                onBalanceChange(tokenSlug, amount.negated());
+                onBalanceChange(tokenSlug, amount.negated(), undefined);
               }
               if (to_ === externalTxSenderPkh) {
-                onBalanceChange(tokenSlug, amount);
+                onBalanceChange(tokenSlug, amount, undefined);
               }
             })
           );
@@ -109,10 +109,10 @@ function makeEntrypointsParamsHandlers(
         onParse: ({ from, to, value }) => {
           const tokenSlug = toTokenSlug(opDestination);
           if (from === externalTxSenderPkh && to !== externalTxSenderPkh) {
-            onBalanceChange(tokenSlug, value.negated());
+            onBalanceChange(tokenSlug, value.negated(), false);
           }
           if (from !== externalTxSenderPkh && to === externalTxSenderPkh) {
-            onBalanceChange(tokenSlug, value);
+            onBalanceChange(tokenSlug, value, false);
           }
         }
       }
@@ -124,7 +124,7 @@ function makeEntrypointsParamsHandlers(
         schema: raribleMintParamsSchema,
         onParse: ({ itokenid, iowner, iamount }) => {
           if (iowner === externalTxSenderPkh) {
-            onBalanceChange(toTokenSlug(opDestination, itokenid.toFixed()), iamount);
+            onBalanceChange(toTokenSlug(opDestination, itokenid.toFixed()), iamount, true);
           }
         }
       },
@@ -132,7 +132,7 @@ function makeEntrypointsParamsHandlers(
         schema: wtzMintOrBurnParamsSchema,
         onParse: ({ 0: receiver, 2: amount }) => {
           if (receiver === externalTxSenderPkh && WTZ_ADDRESSES.includes(opDestination)) {
-            onBalanceChange(toTokenSlug(opDestination, 0), amount);
+            onBalanceChange(toTokenSlug(opDestination, 0), amount, false);
           }
         }
       },
@@ -140,7 +140,7 @@ function makeEntrypointsParamsHandlers(
         schema: wtezMintParamsSchema,
         onParse: (receiver, amount) => {
           if (receiver === externalTxSenderPkh && WTEZ_ADDRESSES.includes(opDestination)) {
-            onBalanceChange(toTokenSlug(opDestination, 0), amount);
+            onBalanceChange(toTokenSlug(opDestination, 0), amount, false);
           }
         }
       },
@@ -148,7 +148,7 @@ function makeEntrypointsParamsHandlers(
         schema: genericMintParamsSchema,
         onParse: ({ to, value }) => {
           if (to === externalTxSenderPkh) {
-            onBalanceChange(toTokenSlug(opDestination), value);
+            onBalanceChange(toTokenSlug(opDestination), value, undefined);
           }
         }
       }
@@ -158,7 +158,7 @@ function makeEntrypointsParamsHandlers(
         schema: raribleBurnParamsSchema,
         onParse: ({ itokenid, iamount }) => {
           if (externalTxSenderPkh === senderPkh) {
-            onBalanceChange(toTokenSlug(opDestination, itokenid.toFixed()), iamount.negated());
+            onBalanceChange(toTokenSlug(opDestination, itokenid.toFixed()), iamount.negated(), true);
           }
         }
       },
@@ -166,7 +166,7 @@ function makeEntrypointsParamsHandlers(
         schema: wtzMintOrBurnParamsSchema,
         onParse: ({ 0: sender, 2: amount }) => {
           if (sender === externalTxSenderPkh && WTZ_ADDRESSES.includes(opDestination)) {
-            onBalanceChange(toTokenSlug(opDestination, 0), amount.negated());
+            onBalanceChange(toTokenSlug(opDestination, 0), amount.negated(), true);
           }
         }
       },
@@ -174,7 +174,7 @@ function makeEntrypointsParamsHandlers(
         schema: wtezBurnParamsSchema,
         onParse: ({ from_, amount }) => {
           if (from_ === externalTxSenderPkh && WTEZ_ADDRESSES.includes(opDestination)) {
-            onBalanceChange(toTokenSlug(opDestination, 0), amount.negated());
+            onBalanceChange(toTokenSlug(opDestination, 0), amount.negated(), true);
           }
         }
       },
@@ -182,7 +182,7 @@ function makeEntrypointsParamsHandlers(
         schema: genericBurnParamsSchema,
         onParse: ({ from, value }) => {
           if (from === externalTxSenderPkh) {
-            onBalanceChange(toTokenSlug(opDestination), value.negated());
+            onBalanceChange(toTokenSlug(opDestination), value.negated(), undefined);
           }
         }
       }
@@ -192,7 +192,7 @@ function makeEntrypointsParamsHandlers(
         schema: mintOrBurnOneEntrypointParamsSchema,
         onParse: ({ quantity, target }) => {
           if (target === externalTxSenderPkh) {
-            onBalanceChange(toTokenSlug(opDestination), quantity);
+            onBalanceChange(toTokenSlug(opDestination), quantity, undefined);
           }
         }
       }
@@ -206,7 +206,7 @@ export function parseTransactionParams(
   senderPkh: string,
   opDestination: string,
   mutezAmount: BigNumber,
-  onBalanceChange: (tokenSlug: string, value: BigNumber) => void
+  onBalanceChange: (tokenSlug: string, value: BigNumber, isNft: boolean | undefined) => void
 ) {
   const { entrypoint, value } = params;
 

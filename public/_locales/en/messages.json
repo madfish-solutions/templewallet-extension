@@ -1649,6 +1649,9 @@
   "transactionInfo": {
     "message": "Transaction info"
   },
+  "estimatedTxDetails": {
+    "message": "Est. transaction details"
+  },
   "noValue": {
     "message": "No value"
   },

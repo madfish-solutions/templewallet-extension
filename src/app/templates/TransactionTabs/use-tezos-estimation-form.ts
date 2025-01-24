@@ -10,13 +10,13 @@ import { useDebounce } from 'use-debounce';
 import { buildFinalTezosOpParams, mutezToTz, tzToMutez } from 'lib/temple/helpers';
 import { ReadOnlySigner } from 'lib/temple/read-only-signer';
 import { StoredAccount } from 'lib/temple/types';
-import { getBalanceDeltas } from 'lib/tezos';
+import { getBalancesChanges } from 'lib/tezos';
 import { useSafeState } from 'lib/ui/hooks';
 import { ZERO } from 'lib/utils/numbers';
-import { AccountForChain, getAccountForTezos } from 'temple/accounts';
+import { AccountForChain, getAccountAddressForTezos } from 'temple/accounts';
 import { getTezosToolkitWithSigner } from 'temple/front';
 import { getTezosFastRpcClient, michelEncoder } from 'temple/tezos';
-import { TempleChainKind } from 'temple/types';
+import { BalancesChanges, TempleChainKind } from 'temple/types';
 
 import { DEFAULT_INPUT_DEBOUNCE } from './constants';
 import { useTezosEstimationDataState } from './context';
@@ -38,14 +38,14 @@ export const useTezosEstimationForm = (
       ? senderAccount.owner
       : undefined;
   const accountPkh = useMemo(
-    () => ('address' in senderAccount ? senderAccount.address : getAccountForTezos(senderAccount)!.address),
+    () => ('address' in senderAccount ? senderAccount.address : getAccountAddressForTezos(senderAccount)!),
     [senderAccount]
   );
   const sender = ownerAddress || accountPkh;
   const tezos = getTezosToolkitWithSigner(rpcBaseURL, sender, true);
   const estimates = estimationData?.estimates;
   const params$ = useMemo(() => new BehaviorSubject<ForgeParams | null>(null), []);
-  const [balancesChanges, setBalancesChanges] = useSafeState<StringRecord<BigNumber>>({});
+  const [balancesChanges, setBalancesChanges] = useSafeState<BalancesChanges>({});
   const [balancesChangesLoading, setBalancesChangesLoading] = useSafeState(false);
 
   useEffect(() => {
@@ -77,13 +77,13 @@ export const useTezosEstimationForm = (
 
             setBalancesChangesLoading(false);
 
-            return of(getBalanceDeltas(response.contents, accountPkh));
+            return of(getBalancesChanges(response.contents, accountPkh));
           }),
           catchError(e => {
             console.error(e);
 
             try {
-              return of(getBalanceDeltas(operation.contents, accountPkh));
+              return of(getBalancesChanges(operation.contents, accountPkh));
             } catch (err) {
               console.error(err);
 

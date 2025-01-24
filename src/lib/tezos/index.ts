@@ -10,6 +10,7 @@ import BigNumber from 'bignumber.js';
 
 import { TEZ_TOKEN_SLUG } from 'lib/assets';
 import { ZERO } from 'lib/utils/numbers';
+import { BalancesChanges } from 'temple/types';
 
 import { parseTransactionParams } from './parse-transaction-params';
 
@@ -33,18 +34,26 @@ export function tezosManagerKeyHasManager(manager: ManagerKeyResponse) {
   return manager && typeof manager === 'object' ? !!manager.key : !!manager;
 }
 
-function getBalanceDeltasInternal(
+const onBalanceChangeFnFactory =
+  (balancesChanges: BalancesChanges) => (tokenSlug: string, value: BigNumber, isNft: boolean | undefined) => {
+    if (!balancesChanges[tokenSlug]) {
+      balancesChanges[tokenSlug] = { atomicAmount: ZERO, isNft };
+    }
+    balancesChanges[tokenSlug].atomicAmount = balancesChanges[tokenSlug].atomicAmount.plus(value);
+  };
+
+function getBalancesChangesInternal(
   input: InternalOperationResult,
   externalOperationSource: string,
   externalOperationDestination: string
 ) {
-  const balancesChanges: StringRecord<BigNumber> = {};
-  const onBalanceChange = (tokenSlug: string, value: BigNumber) => {
-    balancesChanges[tokenSlug] = (balancesChanges[tokenSlug] ?? ZERO).plus(value);
-  };
+  const balancesChanges: BalancesChanges = {};
+  const onBalanceChange = onBalanceChangeFnFactory(balancesChanges);
 
   if (input.kind !== OpKind.TRANSACTION) {
-    return input.amount ? { [TEZ_TOKEN_SLUG]: new BigNumber(input.amount).negated() } : {};
+    return input.amount
+      ? { [TEZ_TOKEN_SLUG]: { atomicAmount: new BigNumber(input.amount).negated(), isNft: false } }
+      : {};
   }
 
   if (input.parameters) {
@@ -59,35 +68,35 @@ function getBalanceDeltasInternal(
   }
 
   if (input.amount && input.destination === externalOperationSource) {
-    onBalanceChange(TEZ_TOKEN_SLUG, new BigNumber(input.amount));
+    onBalanceChange(TEZ_TOKEN_SLUG, new BigNumber(input.amount), false);
   }
 
   return balancesChanges;
 }
 
-export function getBalanceDeltas(
+export function getBalancesChanges(
   entry: OperationContentsAndResult | OperationContents,
   senderPkh: string
-): StringRecord<BigNumber>;
-export function getBalanceDeltas(
+): BalancesChanges;
+export function getBalancesChanges(
   entries: OperationContentsAndResult[] | OperationContents[],
   senderPkh: string
-): StringRecord<BigNumber>;
-export function getBalanceDeltas(
+): BalancesChanges;
+export function getBalancesChanges(
   input: OperationContentsAndResult | OperationContents | OperationContentsAndResult[] | OperationContents[],
   senderPkh: string
 ) {
-  const balancesChanges: StringRecord<BigNumber> = {};
-  const onBalanceChange = (tokenSlug: string, value: BigNumber) => {
-    balancesChanges[tokenSlug] = (balancesChanges[tokenSlug] ?? ZERO).plus(value);
+  const balancesChanges: BalancesChanges = {};
+  const onBalanceChange = onBalanceChangeFnFactory(balancesChanges);
+  const onBalancesChanges = (newBalancesChanges: BalancesChanges) => {
+    Object.entries(newBalancesChanges).forEach(([tokenSlug, { atomicAmount, isNft }]) =>
+      onBalanceChange(tokenSlug, atomicAmount, isNft)
+    );
   };
 
   if (Array.isArray(input)) {
     input.forEach(entry => {
-      const internalBalancesChanges = getBalanceDeltas(entry, senderPkh);
-      Object.entries(internalBalancesChanges).forEach(
-        ([tokenSlug, value]) => value && onBalanceChange(tokenSlug, value)
-      );
+      onBalancesChanges(getBalancesChanges(entry, senderPkh));
     });
 
     return balancesChanges;
@@ -110,10 +119,7 @@ export function getBalanceDeltas(
 
   if ('metadata' in input) {
     input.metadata.internal_operation_results?.forEach(internalOpResult => {
-      const internalBalancesChanges = getBalanceDeltasInternal(internalOpResult, senderPkh, input.destination);
-      Object.entries(internalBalancesChanges).forEach(
-        ([tokenSlug, value]) => value && onBalanceChange(tokenSlug, value)
-      );
+      onBalancesChanges(getBalancesChangesInternal(internalOpResult, senderPkh, input.destination));
     });
   }
   if (
@@ -121,7 +127,7 @@ export function getBalanceDeltas(
     input.source === senderPkh &&
     (input.destination !== senderPkh || input.parameters?.entrypoint === 'stake')
   ) {
-    onBalanceChange(TEZ_TOKEN_SLUG, new BigNumber(input.amount).negated());
+    onBalanceChange(TEZ_TOKEN_SLUG, new BigNumber(input.amount).negated(), false);
   }
 
   return balancesChanges;

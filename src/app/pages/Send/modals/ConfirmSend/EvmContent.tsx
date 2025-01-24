@@ -53,7 +53,7 @@ export const EvmContent: FC<EvmContentProps> = ({ data, onClose }) => {
     [accountPkh, amount, assetMetadata, to]
   );
   const { form, tab, setTab, selectedFeeOption, handleFeeOptionSelect, feeOptions, displayedFee, getFeesPerGas } =
-    useEvmEstimationForm(estimationData, basicParams, network.chainId);
+    useEvmEstimationForm(estimationData, basicParams, account, network.chainId);
   const { formState } = form;
 
   const onSubmit = useCallback(

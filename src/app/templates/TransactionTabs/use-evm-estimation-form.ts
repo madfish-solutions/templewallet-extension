@@ -13,7 +13,14 @@ import {
   serializeTransaction
 } from 'viem';
 
+import { getEvmBalancesChanges } from 'lib/evm/on-chain/get-evm-balances-changes';
+import { useTypedSWR } from 'lib/swr';
+import { StoredAccount } from 'lib/temple/types';
+import { AccountForChain, getAccountAddressForEvm } from 'temple/accounts';
+import { getReadOnlyEvmForNetwork } from 'temple/evm';
 import { EvmEstimationData } from 'temple/evm/estimate';
+import { useAllEvmChains } from 'temple/front';
+import { BalancesChanges, TempleChainKind } from 'temple/types';
 
 import { DEFAULT_INPUT_DEBOUNCE } from './constants';
 import { useEvmEstimationDataState } from './context';
@@ -25,8 +32,16 @@ const serializeBigint = (value: bigint | nullish) => (typeof value === 'bigint' 
 export const useEvmEstimationForm = (
   estimationData: EvmEstimationData | undefined,
   basicParams: TransactionSerializable | undefined,
-  chainId: number
+  senderAccount: StoredAccount | AccountForChain<TempleChainKind.EVM>,
+  chainId: number,
+  simulateOperation?: boolean
 ) => {
+  const accountAddress = useMemo(
+    () => ('address' in senderAccount ? (senderAccount.address as HexString) : getAccountAddressForEvm(senderAccount)!),
+    [senderAccount]
+  );
+  const chains = useAllEvmChains();
+  const chain = chains[chainId];
   const defaultValues = useMemo<Partial<EvmTxParamsFormData>>(() => {
     if (!basicParams) return {};
 
@@ -164,7 +179,27 @@ export const useEvmEstimationForm = (
     [setValue]
   );
 
+  const estimateBalancesChanges = useCallback(
+    async (): Promise<BalancesChanges> =>
+      basicParams ? getEvmBalancesChanges(basicParams, accountAddress, getReadOnlyEvmForNetwork(chain)) : {},
+    [basicParams, chain, accountAddress]
+  );
+  const estimateBalancesChangesSwrKey = useMemo(
+    () =>
+      basicParams && simulateOperation
+        ? ['estimate-evm-balances-changes', serializeTransaction(basicParams), chainId]
+        : null,
+    [basicParams, chainId, simulateOperation]
+  );
+  const { data: balancesChanges, isValidating: balancesChangesLoading } = useTypedSWR(
+    estimateBalancesChangesSwrKey,
+    estimateBalancesChanges,
+    { revalidateOnFocus: false, revalidateOnReconnect: false, dedupingInterval: 10000, fallbackData: {} }
+  );
+
   return {
+    balancesChanges: balancesChanges!,
+    balancesChangesLoading,
     form,
     tab,
     setTab,

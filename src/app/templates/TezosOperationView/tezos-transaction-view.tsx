@@ -1,13 +1,11 @@
-import React, { memo, useCallback, useEffect, useMemo } from 'react';
+import React, { memo, useCallback, useMemo } from 'react';
 
 import BigNumber from 'bignumber.js';
 import { nanoid } from 'nanoid';
 import { FormProvider } from 'react-hook-form-v7';
 
-import { Loader } from 'app/atoms';
 import { toastError } from 'app/toaster';
 import { TEZ_TOKEN_SLUG } from 'lib/assets';
-import { T } from 'lib/i18n';
 import { useTypedSWR } from 'lib/swr';
 import { mutezToTz, tzToMutez } from 'lib/temple/helpers';
 import { TempleTezosDAppOperationsPayload } from 'lib/temple/types';
@@ -18,9 +16,7 @@ import { StoredTezosNetwork } from 'temple/networks';
 import { getReadOnlyTezos } from 'temple/tezos';
 import { TempleChainKind } from 'temple/types';
 
-import { AccountCard } from '../AccountCard';
-import { ExpensesView } from '../expenses-view';
-import { TransactionTabs } from '../TransactionTabs';
+import { OperationViewLayout } from '../operation-view-layout';
 import { TezosTxParamsFormData } from '../TransactionTabs/types';
 import { useTezosEstimationForm } from '../TransactionTabs/use-tezos-estimation-form';
 
@@ -106,7 +102,6 @@ export const TezosTransactionView = memo<TezosTransactionViewProps>(
       displayedFee,
       displayedStorageFee
     } = useTezosEstimationForm(estimationData, opParams, sendingAccount, networkRpc, chain!.chainId, true);
-    const expensesViewIsVisible = useMemo(() => Object.keys(balancesChanges).length > 0, [balancesChanges]);
 
     const handleSubmit = useCallback(
       ({ gasFee: customGasFee, storageLimit: customStorageLimit }: TezosTxParamsFormData) => {
@@ -130,44 +125,27 @@ export const TezosTransactionView = memo<TezosTransactionViewProps>(
 
     return (
       <FormProvider {...form}>
-        {expensesViewIsVisible ? (
-          <ExpensesView assetsDeltas={balancesChanges} chain={chain!} title={<T id="transactionInfo" />} />
-        ) : (
-          balancesChangesLoading && (
-            <div className="flex justify-center items-center">
-              <Loader size="L" trackVariant="dark" className="text-primary" />
-            </div>
-          )
-        )}
-
-        <div className="flex flex-col">
-          <AccountCard
-            account={sendingAccount}
-            isCurrent={false}
-            attractSelf={false}
-            searchValue=""
-            showRadioOnHover={false}
-          />
-
-          <TransactionTabs<TezosTxParamsFormData>
-            network={chain!}
-            nativeAssetSlug={TEZ_TOKEN_SLUG}
-            selectedTab={tab}
-            setSelectedTab={setTab}
-            selectedFeeOption={selectedFeeOption}
-            latestSubmitError={displayedSubmitError}
-            estimationError={displayedEstimationError}
-            onFeeOptionSelect={handleFeeOptionSelect}
-            onSubmit={handleSubmit}
-            displayedFee={displayedFee}
-            displayedFeeOptions={displayedFeeOptions}
-            displayedStorageFee={displayedStorageFee}
-            formId={formId}
-            tabsName="confirm-send-tabs"
-            destinationName={null}
-            destinationValue={null}
-          />
-        </div>
+        <OperationViewLayout
+          network={chain!}
+          nativeAssetSlug={TEZ_TOKEN_SLUG}
+          selectedTab={tab}
+          setSelectedTab={setTab}
+          selectedFeeOption={selectedFeeOption}
+          latestSubmitError={displayedSubmitError}
+          estimationError={displayedEstimationError}
+          onFeeOptionSelect={handleFeeOptionSelect}
+          onSubmit={handleSubmit}
+          displayedFee={displayedFee}
+          displayedFeeOptions={displayedFeeOptions}
+          displayedStorageFee={displayedStorageFee}
+          formId={formId}
+          tabsName="confirm-send-tabs"
+          destinationName={null}
+          destinationValue={null}
+          sendingAccount={sendingAccount}
+          balancesChanges={balancesChanges}
+          balancesChangesLoading={balancesChangesLoading}
+        />
       </FormProvider>
     );
   }
