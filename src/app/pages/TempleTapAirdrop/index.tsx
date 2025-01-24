@@ -4,6 +4,7 @@ import clsx from 'clsx';
 import { OnSubmit, useForm } from 'react-hook-form';
 
 import { Alert, Anchor, FormField, FormSubmitButton } from 'app/atoms';
+import ConfirmLedgerOverlay from 'app/atoms/ConfirmLedgerOverlay';
 import { ReactComponent as TelegramSvg } from 'app/icons/social-tg.svg';
 import { ReactComponent as XSocialSvg } from 'app/icons/social-x.svg';
 import PageLayout from 'app/layouts/PageLayout';
@@ -14,6 +15,7 @@ import { useTypedSWR } from 'lib/swr';
 import { useAccount, useTempleClient, useTezos } from 'lib/temple/front';
 import { TempleAccountType } from 'lib/temple/types';
 import { useLocalStorage } from 'lib/ui/local-storage';
+import { navigate } from 'lib/woozie';
 
 import BannerImgSrc from './banner.png';
 import { ReactComponent as ConfirmedSvg } from './confirmed.svg';
@@ -23,15 +25,15 @@ interface FormData {
 }
 
 export const TempleTapAirdropPage = memo(() => {
-  const account = useAccount();
-  const accountPkh = account.publicKeyHash;
+  const { type: accountType, publicKeyHash: accountPkh } = useAccount();
+  const isLedger = accountType === TempleAccountType.Ledger;
 
   const tezos = useTezos();
   const { silentSign } = useTempleClient();
 
   const canSign = useMemo(
-    () => [TempleAccountType.HD, TempleAccountType.Imported, TempleAccountType.Ledger].includes(account.type),
-    [account.type]
+    () => [TempleAccountType.HD, TempleAccountType.Imported, TempleAccountType.Ledger].includes(accountType),
+    [accountType]
   );
 
   const [storedRecord, setStoredRecord] = useLocalStorage<LocalStorageRecord | null>(
@@ -40,6 +42,7 @@ export const TempleTapAirdropPage = memo(() => {
   );
 
   const [confirmSent, setConfirmSent] = useState(false);
+  const [signing, setSigning] = useState(false);
   const [confirmed, setConfirmed] = useState(storedRecord?.[accountPkh] ?? false);
 
   const prepSigAuthValues = useCallback(async (): Promise<SigAuthValues> => {
@@ -53,24 +56,34 @@ export const TempleTapAirdropPage = memo(() => {
     return { publicKey, messageBytes, signature };
   }, [silentSign, tezos.signer, accountPkh]);
 
-  useTypedSWR(
+  const { data: airdropChecked } = useTypedSWR(
     ['temple-tap-airdrop-confirm-check', accountPkh],
     async () => {
-      if (confirmed || !canSign) return null;
+      try {
+        if (confirmed || !canSign) return true;
 
-      const sigAuthValues = await prepSigAuthValues();
+        const sigAuthValues = await prepSigAuthValues();
 
-      const confirmedRes = await checkTempleTapAirdropConfirmation(accountPkh, sigAuthValues);
+        const confirmedRes = await checkTempleTapAirdropConfirmation(accountPkh, sigAuthValues);
 
-      if (!confirmedRes) return null;
+        if (!confirmedRes) return true;
 
-      setConfirmed(true);
-      setStoredRecord(state => ({ ...state, [accountPkh]: true }));
+        setConfirmed(true);
+        setStoredRecord(state => ({ ...state, [accountPkh]: true }));
 
-      return null;
+        return true;
+      } catch (e) {
+        if (isLedger) {
+          navigate('/');
+
+          return true;
+        }
+
+        throw e;
+      }
     },
     {
-      suspense: true,
+      suspense: !isLedger,
       revalidateOnFocus: false,
       refreshInterval: 60_000,
       errorRetryInterval: 60_000
@@ -86,7 +99,9 @@ export const TempleTapAirdropPage = memo(() => {
       clearError();
 
       try {
+        setSigning(true);
         const sigAuthValues = await prepSigAuthValues();
+        setSigning(false);
 
         const res = await sendTempleTapAirdropUsernameConfirmation(accountPkh, usernameOrId, sigAuthValues);
 
@@ -104,14 +119,29 @@ export const TempleTapAirdropPage = memo(() => {
       } catch (error: any) {
         console.error(error);
 
-        setError('usernameOrId', 'submit-error', error?.response?.data?.message || 'Something went wrong...');
+        if (isLedger) {
+          navigate('/');
+        } else {
+          setError('usernameOrId', 'submit-error', error?.response?.data?.message || 'Something went wrong...');
+          setSigning(false);
+        }
       }
     },
-    [reset, clearError, setError, setStoredRecord, prepSigAuthValues, accountPkh]
+    [reset, clearError, setError, setStoredRecord, prepSigAuthValues, accountPkh, isLedger]
   );
 
+  if (!airdropChecked && isLedger) {
+    return (
+      <PageLayout pageTitle="Temple Tap Airdrop" withBell contentContainerStyle={{ position: 'relative' }}>
+        <div className="flex flex-col w-full max-w-sm mx-auto pb-6" style={{ height: 660 }} />
+
+        <ConfirmLedgerOverlay displayed />
+      </PageLayout>
+    );
+  }
+
   return (
-    <PageLayout pageTitle="Temple Tap Airdrop" withBell>
+    <PageLayout pageTitle="Temple Tap Airdrop" withBell contentContainerStyle={{ position: 'relative' }}>
       <div className="flex flex-col w-full max-w-sm mx-auto pb-6">
         <img src={BannerImgSrc} alt="Banner" className="self-center h-28" />
 
@@ -187,6 +217,8 @@ export const TempleTapAirdropPage = memo(() => {
           <SocialItem title="MadFish Community" IconComp={TelegramSvg} followUrl="https://t.me/MadFishCommunity" />
         </BlockComp>
       </div>
+
+      <ConfirmLedgerOverlay displayed={signing && isLedger} />
     </PageLayout>
   );
 });
