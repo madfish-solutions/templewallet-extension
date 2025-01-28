@@ -6,6 +6,7 @@ import { StoredAccount, TempleEvmDAppPayload } from 'lib/temple/types';
 import { getAccountForEvm, isAccountOfActableType } from 'temple/accounts';
 import { useAllAccounts, useAllEvmChains } from 'temple/front';
 
+import { useAddChainDataState } from './add-chain/context';
 import { ConfirmDAppForm } from './confirm-dapp-form';
 import { EvmPayloadContent } from './payload-content';
 
@@ -15,7 +16,8 @@ interface EvmConfirmDAppFormProps {
 }
 
 export const EvmConfirmDAppForm = memo<EvmConfirmDAppFormProps>(({ payload, id }) => {
-  const { confirmDAppPermission, confirmDAppSign } = useTempleClient();
+  const { confirmDAppPermission, confirmDAppSign, addDAppEvmChain } = useTempleClient();
+  const { testnet } = useAddChainDataState();
 
   const allAccountsStored = useAllAccounts();
   const allAccounts = useMemo(
@@ -26,23 +28,27 @@ export const EvmConfirmDAppForm = memo<EvmConfirmDAppFormProps>(({ payload, id }
   const evmChains = useAllEvmChains();
   const payloadError = payload!.error;
   const chainId = Number(payload.chainId);
-  const rpcBaseURL = evmChains[chainId].rpcBaseURL;
 
-  const network = useMemo(() => ({ chainId, rpcBaseURL }), [chainId, rpcBaseURL]);
+  const network = useMemo(
+    () => ({ chainId, rpcBaseURL: payload.type === 'add_chain' ? '' : evmChains[chainId].rpcBaseURL }),
+    [chainId, evmChains, payload.type]
+  );
 
   const handleConfirm = useCallback(
-    async (confimed: boolean, selectedAccount: StoredAccount) => {
+    async (confirmed: boolean, selectedAccount: StoredAccount) => {
       const accountPkh = getAccountForEvm(selectedAccount)!.address;
       switch (payload.type) {
         case 'connect':
-          return confirmDAppPermission(id, confimed, accountPkh);
+          return confirmDAppPermission(id, confirmed, accountPkh);
+        case 'add_chain':
+          return addDAppEvmChain(id, confirmed, testnet);
 
         case 'personal_sign':
         case 'sign_typed':
-          return confirmDAppSign(id, confimed);
+          return confirmDAppSign(id, confirmed);
       }
     },
-    [id, payload.type, confirmDAppPermission, confirmDAppSign]
+    [payload.type, confirmDAppPermission, id, addDAppEvmChain, testnet, confirmDAppSign]
   );
 
   const renderPayload = useCallback(

@@ -49,6 +49,8 @@ export const ConfirmDAppForm = memo<ConfirmDAppFormProps>(({ accounts, payload, 
   const { dAppQueueCounters } = useTempleClient();
   const { length: requestsLeft, maxLength: totalRequestsCount } = dAppQueueCounters;
 
+  const shouldShowProgress = payload.type !== 'connect' && payload.type !== 'add_chain' && totalRequestsCount > 1;
+
   const confirm = useCallback(
     async (confirmed: boolean) => {
       setError(null);
@@ -94,6 +96,7 @@ export const ConfirmDAppForm = memo<ConfirmDAppFormProps>(({ accounts, payload, 
             : ConfirmPageSelectors.ConnectAction_ConnectButton,
           declineTestID: ConfirmPageSelectors.ConnectAction_CancelButton
         };
+      case 'add_chain':
       case 'confirm_operations':
         return {
           title: <T id="confirmAction" substitutions={<T id="operations" />} />,
@@ -118,7 +121,7 @@ export const ConfirmDAppForm = memo<ConfirmDAppFormProps>(({ accounts, payload, 
       title={title}
       opened
       titleLeft={
-        payload.type !== 'connect' && totalRequestsCount > 1 ? (
+        shouldShowProgress ? (
           <ProgressAndNumbers progress={totalRequestsCount - requestsLeft + 1} total={totalRequestsCount} />
         ) : null
       }

@@ -1767,6 +1767,9 @@
   "mustBeValidURL": {
     "message": "Must be a valid URL"
   },
+  "rpcURL": {
+    "message": "RPC URL"
+  },
   "rpcBaseURL": {
     "message": "RPC base URL",
     "description": "RPC = Remote Procedure Call (https://en.wikipedia.org/wiki/Remote_procedure_call)"

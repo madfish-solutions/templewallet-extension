@@ -385,6 +385,16 @@ export const [TempleClientProvider, useTempleClient] = constate(() => {
     return res.sessions;
   }, []);
 
+  const addDAppEvmChain = useCallback(async (id: string, confirmed: boolean, testnet: boolean) => {
+    const res = await request({
+      type: TempleMessageType.DAppAddEvmChainRequest,
+      id,
+      confirmed,
+      testnet
+    });
+    assertResponse(res.type === TempleMessageType.DAppAddEvmChainResponse);
+  }, []);
+
   const switchDAppEvmChain = useCallback(async (origin: string, chainId: number) => {
     const res = await request({
       type: TempleMessageType.DAppSwitchEvmChainRequest,
@@ -463,6 +473,7 @@ export const [TempleClientProvider, useTempleClient] = constate(() => {
     confirmDAppOperation,
     confirmDAppSign,
     removeDAppSession,
+    addDAppEvmChain,
     switchDAppEvmChain,
     sendEvmTransaction,
     resetExtension

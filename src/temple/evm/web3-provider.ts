@@ -178,6 +178,8 @@ export class TempleWeb3Provider extends EventEmitter {
         } else {
           return this.accounts;
         }
+      case evmRpcMethodsNames.wallet_addEthereumChain:
+        return this.addNewChain(params as RequestArgs<'wallet_addEthereumChain'>);
       case evmRpcMethodsNames.wallet_switchEthereumChain:
         return this.handleChainChange(params as RequestArgs<'wallet_switchEthereumChain'>);
       case evmRpcMethodsNames.eth_signTypedData:
@@ -199,7 +201,6 @@ export class TempleWeb3Provider extends EventEmitter {
       case 'eth_sendRawTransaction':
       case 'eth_signTransaction':
       case 'eth_syncing':
-      case 'wallet_addEthereumChain':
       case 'wallet_getCallsStatus':
       case 'wallet_getCapabilities':
       case 'wallet_sendCalls':
@@ -234,6 +235,10 @@ export class TempleWeb3Provider extends EventEmitter {
       identity,
       args.method === 'eth_signTypedData_v3' || args.method === 'eth_signTypedData_v4' ? args.params[0] : args.params[1]
     );
+  }
+
+  private addNewChain(args: RequestArgs<'wallet_addEthereumChain'>) {
+    return this.handleRequest(args, noop, () => null, undefined);
   }
 
   private handleChainChange(args: RequestArgs<'wallet_switchEthereumChain'>) {

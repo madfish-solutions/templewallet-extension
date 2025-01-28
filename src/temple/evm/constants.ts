@@ -14,6 +14,7 @@ export enum EVMErrorCodes {
 export const evmRpcMethodsNames = {
   eth_accounts: 'eth_accounts',
   eth_requestAccounts: 'eth_requestAccounts',
+  wallet_addEthereumChain: 'wallet_addEthereumChain',
   wallet_switchEthereumChain: 'wallet_switchEthereumChain',
   eth_signTypedData: 'eth_signTypedData',
   eth_signTypedData_v1: 'eth_signTypedData_v1',
