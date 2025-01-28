@@ -50,13 +50,19 @@ export const useEvmEstimationForm = (
       basicParams.type === 'legacy' || basicParams.type === 'eip2930' || basicParams.gasPrice
         ? basicParams.gasPrice
         : basicParams.maxFeePerGas;
+    let rawTransaction: string | undefined;
+    try {
+      rawTransaction = serializeTransaction(basicParams);
+    } catch {
+      // Do nothing
+    }
 
     return {
       gasPrice: rawGasPrice ? formatEther(rawGasPrice, 'gwei') : undefined,
       gasLimit: serializeBigint(basicParams.gas),
       nonce: nonce?.toString(),
       data,
-      rawTransaction: serializeTransaction(basicParams)
+      rawTransaction
     };
   }, [basicParams]);
   const form = useForm<EvmTxParamsFormData>({ mode: 'onChange', defaultValues });

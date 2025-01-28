@@ -51,8 +51,10 @@ function getBalancesChangesInternal(
   const onBalanceChange = onBalanceChangeFnFactory(balancesChanges);
 
   if (input.kind !== OpKind.TRANSACTION) {
-    return input.amount
-      ? { [TEZ_TOKEN_SLUG]: { atomicAmount: new BigNumber(input.amount).negated(), isNft: false } }
+    const rawSpentMutez = input.amount ?? input.balance;
+
+    return rawSpentMutez
+      ? { [TEZ_TOKEN_SLUG]: { atomicAmount: new BigNumber(rawSpentMutez).negated(), isNft: false } }
       : {};
   }
 
@@ -103,7 +105,11 @@ export function getBalancesChanges(
   }
 
   if (input.kind !== OpKind.TRANSACTION) {
-    return 'amount' in input ? { [TEZ_TOKEN_SLUG]: new BigNumber(input.amount) } : {};
+    const rawSpentMutez = 'amount' in input ? input.amount : 'balance' in input ? input.balance : undefined;
+
+    return rawSpentMutez
+      ? { [TEZ_TOKEN_SLUG]: { atomicAmount: new BigNumber(rawSpentMutez).negated(), isNft: false } }
+      : {};
   }
 
   if (input.parameters) {
@@ -128,6 +134,8 @@ export function getBalancesChanges(
     (input.destination !== senderPkh || input.parameters?.entrypoint === 'stake')
   ) {
     onBalanceChange(TEZ_TOKEN_SLUG, new BigNumber(input.amount).negated(), false);
+  } else if (input.amount && input.source !== senderPkh && input.destination === senderPkh) {
+    onBalanceChange(TEZ_TOKEN_SLUG, new BigNumber(input.amount), false);
   }
 
   return balancesChanges;

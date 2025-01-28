@@ -44,6 +44,19 @@ export const erc20BurnAbi = {
   stateMutability: 'nonpayable',
   inputs: [
     {
+      name: 'value',
+      type: 'uint256'
+    }
+  ],
+  outputs: []
+} as const;
+
+export const erc20BurnFromAbi = {
+  type: 'function',
+  name: 'burnFrom',
+  stateMutability: 'nonpayable',
+  inputs: [
+    {
       name: 'account',
       type: 'address'
     },

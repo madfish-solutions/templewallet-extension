@@ -64,12 +64,12 @@ export interface WTezBurnParams {
   amount: BigNumber;
 }
 
-export interface GenericMintParams {
+export interface wXTZMintParams {
   to: string;
   value: BigNumber;
 }
 
-export interface GenericBurnParams {
+export interface wXTZBurnParams {
   from: string;
   value: BigNumber;
 }

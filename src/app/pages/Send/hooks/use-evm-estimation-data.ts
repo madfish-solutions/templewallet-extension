@@ -34,9 +34,9 @@ export const useEvmEstimationData = (
 
       checkZeroBalance(balance, ethBalance, isNativeToken);
 
-      return genericEstimate(network, {
+      return await genericEstimate(network, {
         ...buildBasicEvmSendParams(accountPkh, to, assetMetadata, amount),
-        from: accountPkh
+        account: accountPkh
       });
     } catch (err: any) {
       console.warn(err);

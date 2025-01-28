@@ -15,7 +15,7 @@ import {
   erc1155SafeBatchTransferFromAbi,
   erc1155SafeTransferFromAbi
 } from 'lib/abi/erc1155';
-import { erc20BurnAbi, erc20MintAbi, erc20TransferAbi, erc20TransferFromAbi } from 'lib/abi/erc20';
+import { erc20BurnAbi, erc20BurnFromAbi, erc20MintAbi, erc20TransferAbi, erc20TransferFromAbi } from 'lib/abi/erc20';
 import {
   erc721BurnAbi,
   erc721MintAbi,
@@ -26,8 +26,11 @@ import {
   erc721TransferFromAbi
 } from 'lib/abi/erc721';
 import { toEvmAssetSlug } from 'lib/assets/utils';
+import { EvmAssetStandard } from 'lib/evm/types';
 import { ChainPublicClient } from 'temple/evm';
 import { BalancesChanges } from 'temple/types';
+
+import { detectEvmTokenStandard } from '../utils/common.utils';
 
 type TxAbiFragment = AbiFunction & { stateMutability: 'nonpayable' | 'payable' };
 type ParseCallback<AbiFragment extends TxAbiFragment> = (
@@ -41,10 +44,15 @@ export type ContractCallTransaction = TransactionSerializable & { data: HexStrin
 
 const makeAbiFunctionHandler = <AbiFragment extends TxAbiFragment>(
   fragment: AbiFragment,
-  onParse: ParseCallback<AbiFragment>
+  onParse: ParseCallback<AbiFragment>,
+  applicabilityPredicate?: (tx: ContractCallTransaction, client: ChainPublicClient) => Promise<boolean>
 ) => {
   return async (tx: ContractCallTransaction, sender: HexString, client: ChainPublicClient) => {
     try {
+      if (applicabilityPredicate && !(await applicabilityPredicate(tx, client))) {
+        return null;
+      }
+
       const args = decodeFunctionData({ abi: [fragment], data: tx.data }).args;
       const simulateOperation = async () => {
         // @ts-expect-error
@@ -100,12 +108,16 @@ const onErc721TransferParse: ParseCallback<
 
 const onErc721MintParse: ParseCallback<
   typeof erc721MintAbi | typeof erc721SafeMintAbi | typeof erc721SafeMintWithDataAbi
-> = async (args, _, sender, to) => {
-  const [recipient, tokenId] = args;
+> = async (args, simulateOperation, sender, to) => {
+  const [recipient] = args;
 
-  return recipient === sender
-    ? { [toEvmAssetSlug(to, tokenId.toString())]: { atomicAmount: new BigNumber(1), isNft: true } }
-    : {};
+  if (recipient !== sender) {
+    return {};
+  }
+
+  return withOperationSimulation<typeof erc721MintAbi | typeof erc721SafeMintAbi>(simulateOperation, tokenId => {
+    return { [toEvmAssetSlug(to, tokenId.toString())]: { atomicAmount: new BigNumber(1), isNft: true } };
+  });
 };
 
 const onErc1155TransfersParse: ParseCallback<typeof erc1155SafeBatchTransferFromAbi> = async (args, _, sender, to) => {
@@ -143,6 +155,16 @@ const onErc1155BurnsParse: ParseCallback<typeof erc1155BurnBatchAbi> = async (ar
     : {};
 };
 
+const makeTargetIsOfStandardFn =
+  (standard: EvmAssetStandard) => async (tx: ContractCallTransaction, client: ChainPublicClient) => {
+    const standardDetected = await detectEvmTokenStandard(client, toEvmAssetSlug(tx.to, '0'));
+
+    return standardDetected === standard;
+  };
+
+const targetIsErc20 = makeTargetIsOfStandardFn(EvmAssetStandard.ERC20);
+const targetIsErc721 = makeTargetIsOfStandardFn(EvmAssetStandard.ERC721);
+
 /**
  * A list of functions that try to estimate tokens balances changes assuming that a user themselves sent a transaction.
  * Each of them returns `null` if the transaction is not related to the function, or a record of balances changes otherwise.
@@ -153,50 +175,60 @@ export const knownOperationsHandlers = [
 
     return account === sender ? { [toEvmAssetSlug(to)]: { atomicAmount: toBigNumber(value), isNft: false } } : {};
   }),
-  makeAbiFunctionHandler(erc20BurnAbi, async (args, _, sender, to) => {
+  makeAbiFunctionHandler(
+    erc20BurnAbi,
+    async (args, _, _2, to) => {
+      const [value] = args;
+
+      return { [toEvmAssetSlug(to)]: { atomicAmount: toBigNumber(-value), isNft: false } };
+    },
+    targetIsErc20
+  ),
+  makeAbiFunctionHandler(erc20BurnFromAbi, async (args, _, sender, to) => {
     const [account, value] = args;
 
     return account === sender ? { [toEvmAssetSlug(to)]: { atomicAmount: toBigNumber(-value), isNft: false } } : {};
   }),
-  makeAbiFunctionHandler(erc20TransferAbi, async (args, simulateOperation, sender, to) => {
-    const [recipient, amount] = args;
+  makeAbiFunctionHandler(
+    erc20TransferAbi,
+    async (args, _, sender, to) => {
+      const [recipient, amount] = args;
 
-    if (recipient === sender) {
-      return {};
-    }
+      return recipient === sender ? {} : { [toEvmAssetSlug(to)]: { atomicAmount: toBigNumber(-amount), isNft: false } };
+    },
+    targetIsErc20
+  ),
+  makeAbiFunctionHandler(
+    erc20TransferFromAbi,
+    async (args, _, sender, to) => {
+      const [tokensSender, recipient, amount] = args;
 
-    return withOperationSimulation<typeof erc20TransferAbi>(simulateOperation, transferSuccess =>
-      transferSuccess ? { [toEvmAssetSlug(to)]: { atomicAmount: toBigNumber(-amount), isNft: false } } : {}
-    );
-  }),
-  makeAbiFunctionHandler(erc20TransferFromAbi, async (args, simulateOperation, sender, to) => {
-    const [tokensSender, recipient, amount] = args;
-
-    if (recipient === tokensSender || (tokensSender !== sender && recipient !== sender)) {
-      return {};
-    }
-
-    return withOperationSimulation<typeof erc20TransferFromAbi>(simulateOperation, transferSuccess => {
-      if (!transferSuccess) {
-        return {};
-      }
-
-      return {
-        [toEvmAssetSlug(to)]: { atomicAmount: toBigNumber(tokensSender === sender ? -amount : amount), isNft: false }
-      };
-    });
-  }),
-  makeAbiFunctionHandler(erc721SafeTransferFromPayableAbi, onErc721TransferParse),
-  makeAbiFunctionHandler(erc721SafeTransferFromNonpayableAbi, onErc721TransferParse),
-  makeAbiFunctionHandler(erc721TransferFromAbi, onErc721TransferParse),
+      return recipient === tokensSender || (tokensSender !== sender && recipient !== sender)
+        ? {}
+        : {
+            [toEvmAssetSlug(to)]: {
+              atomicAmount: toBigNumber(tokensSender === sender ? -amount : amount),
+              isNft: false
+            }
+          };
+    },
+    targetIsErc20
+  ),
+  makeAbiFunctionHandler(erc721SafeTransferFromPayableAbi, onErc721TransferParse, targetIsErc721),
+  makeAbiFunctionHandler(erc721SafeTransferFromNonpayableAbi, onErc721TransferParse, targetIsErc721),
+  makeAbiFunctionHandler(erc721TransferFromAbi, onErc721TransferParse, targetIsErc721),
   makeAbiFunctionHandler(erc721MintAbi, onErc721MintParse),
   makeAbiFunctionHandler(erc721SafeMintAbi, onErc721MintParse),
   makeAbiFunctionHandler(erc721SafeMintWithDataAbi, onErc721MintParse),
-  makeAbiFunctionHandler(erc721BurnAbi, async (args, _, _2, to) => {
-    const [tokenId] = args;
+  makeAbiFunctionHandler(
+    erc721BurnAbi,
+    async (args, _, _2, to) => {
+      const [tokenId] = args;
 
-    return { [toEvmAssetSlug(to, tokenId.toString())]: { atomicAmount: new BigNumber(-1), isNft: true } };
-  }),
+      return { [toEvmAssetSlug(to, tokenId.toString())]: { atomicAmount: new BigNumber(-1), isNft: true } };
+    },
+    targetIsErc721
+  ),
   makeAbiFunctionHandler(erc1155SafeBatchTransferFromAbi, onErc1155TransfersParse),
   makeAbiFunctionHandler(erc1155SafeTransferFromAbi, (args, simulateOperation, sender, to) => {
     const [tokensSender, recipient, id, value, data] = args;

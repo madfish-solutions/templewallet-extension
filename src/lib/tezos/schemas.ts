@@ -228,7 +228,7 @@ export const mintOrBurnOneEntrypointParamsSchema = new Schema({
   ]
 });
 
-export const genericMintParamsSchema = new Schema({
+export const wXTZMintParamsSchema = new Schema({
   prim: 'pair',
   args: [
     {
@@ -242,7 +242,7 @@ export const genericMintParamsSchema = new Schema({
   ]
 });
 
-export const genericBurnParamsSchema = new Schema({
+export const wXTZBurnParamsSchema = new Schema({
   prim: 'pair',
   args: [
     {

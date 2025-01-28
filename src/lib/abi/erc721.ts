@@ -98,11 +98,11 @@ export const erc721MintAbi = {
       type: 'address'
     },
     {
-      name: 'tokenId',
-      type: 'uint256'
+      name: 'uri',
+      type: 'string'
     }
   ],
-  outputs: []
+  outputs: [{ type: 'uint256' }]
 } as const;
 
 export const erc721SafeMintAbi = {
@@ -115,11 +115,11 @@ export const erc721SafeMintAbi = {
       type: 'address'
     },
     {
-      name: 'tokenId',
-      type: 'uint256'
+      name: 'uri',
+      type: 'string'
     }
   ],
-  outputs: []
+  outputs: [{ type: 'uint256' }]
 } as const;
 
 export const erc721SafeMintWithDataAbi = {
@@ -132,15 +132,15 @@ export const erc721SafeMintWithDataAbi = {
       type: 'address'
     },
     {
-      name: 'tokenId',
-      type: 'uint256'
+      name: 'uri',
+      type: 'string'
     },
     {
       name: 'data',
       type: 'bytes'
     }
   ],
-  outputs: []
+  outputs: [{ type: 'uint256' }]
 } as const;
 
 export const erc721BurnAbi = {

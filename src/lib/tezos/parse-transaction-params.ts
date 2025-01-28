@@ -15,8 +15,8 @@ import {
   wtezBurnParamsSchema,
   wtezMintParamsSchema,
   wtzMintOrBurnParamsSchema,
-  genericMintParamsSchema,
-  genericBurnParamsSchema
+  wXTZMintParamsSchema,
+  wXTZBurnParamsSchema
 } from './schemas';
 import {
   HenMintParams,
@@ -28,8 +28,8 @@ import {
   MintOrBurnParams,
   WTezBurnParams,
   WtzMintOrBurnParams,
-  GenericMintParams,
-  GenericBurnParams
+  wXTZMintParams,
+  wXTZBurnParams
 } from './types';
 
 function handleParams<T>(schema: Schema, value: MichelsonV1Expression, onParse: SyncFn<T>) {
@@ -44,30 +44,32 @@ function handleParams<T>(schema: Schema, value: MichelsonV1Expression, onParse: 
 
 interface ParamsHandler<T> {
   schema: Schema;
+  acceptedOpDestinations?: string[];
   onParse: (parsedParams: T, mutezAmount: BigNumber) => void;
 }
 
 interface EntrypointsParamsHandlers {
   transfer: [ParamsHandler<ParameterFa2TransferValue[]>, ParamsHandler<ParameterFa12Transfer>];
   mint: [
+    ParamsHandler<wXTZMintParams>,
     ParamsHandler<ObjktMintParams>,
     ParamsHandler<HenMintParams>,
     ParamsHandler<RaribleMintParams>,
     ParamsHandler<WtzMintOrBurnParams>,
-    ParamsHandler<string>,
-    ParamsHandler<GenericMintParams>
+    ParamsHandler<string>
   ];
   burn: [
+    ParamsHandler<wXTZBurnParams>,
     ParamsHandler<RaribleBurnParams>,
     ParamsHandler<WtzMintOrBurnParams>,
-    ParamsHandler<WTezBurnParams>,
-    ParamsHandler<GenericBurnParams>
+    ParamsHandler<WTezBurnParams>
   ];
   mintOrBurn: [ParamsHandler<MintOrBurnParams>];
 }
 
 const WTZ_ADDRESSES = ['KT1PnUZCp3u2KzWr93pn4DD7HAJnm3rWVrgn', 'KT1K8xvaCCXYZbWS3iBYJH4ZbTtBqtthkvN2'];
 const WTEZ_ADDRESSES = ['KT1UpeXdK6AJbX58GJ92pLZVCucn2DR8Nu4b', 'KT1L8ujeb25JWKa4yPB61ub4QG2NbaKfdJDK'];
+const WXTZ_ADDRESSES = ['KT1VYsVfmobT7rsMVivvZ4J8i3bPiqz12NaH'];
 
 function makeEntrypointsParamsHandlers(
   externalTxSenderPkh: string,
@@ -118,6 +120,15 @@ function makeEntrypointsParamsHandlers(
       }
     ],
     mint: [
+      {
+        schema: wXTZMintParamsSchema,
+        acceptedOpDestinations: WXTZ_ADDRESSES,
+        onParse: ({ to, value }) => {
+          if (to === externalTxSenderPkh) {
+            onBalanceChange(toTokenSlug(opDestination), value, false);
+          }
+        }
+      },
       { schema: objktComMintParamsSchema, onParse: onObjktOrHenMintParse },
       { schema: henMintParamsSchema, onParse: onObjktOrHenMintParse },
       {
@@ -130,30 +141,33 @@ function makeEntrypointsParamsHandlers(
       },
       {
         schema: wtzMintOrBurnParamsSchema,
+        acceptedOpDestinations: WTZ_ADDRESSES,
         onParse: ({ 0: receiver, 2: amount }) => {
-          if (receiver === externalTxSenderPkh && WTZ_ADDRESSES.includes(opDestination)) {
+          if (receiver === externalTxSenderPkh) {
             onBalanceChange(toTokenSlug(opDestination, 0), amount, false);
           }
         }
       },
       {
         schema: wtezMintParamsSchema,
+        acceptedOpDestinations: WTEZ_ADDRESSES,
         onParse: (receiver, amount) => {
-          if (receiver === externalTxSenderPkh && WTEZ_ADDRESSES.includes(opDestination)) {
+          if (receiver === externalTxSenderPkh) {
             onBalanceChange(toTokenSlug(opDestination, 0), amount, false);
-          }
-        }
-      },
-      {
-        schema: genericMintParamsSchema,
-        onParse: ({ to, value }) => {
-          if (to === externalTxSenderPkh) {
-            onBalanceChange(toTokenSlug(opDestination), value, undefined);
           }
         }
       }
     ],
     burn: [
+      {
+        schema: wXTZBurnParamsSchema,
+        acceptedOpDestinations: WXTZ_ADDRESSES,
+        onParse: ({ from, value }) => {
+          if (from === externalTxSenderPkh) {
+            onBalanceChange(toTokenSlug(opDestination), value.negated(), false);
+          }
+        }
+      },
       {
         schema: raribleBurnParamsSchema,
         onParse: ({ itokenid, iamount }) => {
@@ -164,25 +178,19 @@ function makeEntrypointsParamsHandlers(
       },
       {
         schema: wtzMintOrBurnParamsSchema,
+        acceptedOpDestinations: WTZ_ADDRESSES,
         onParse: ({ 0: sender, 2: amount }) => {
-          if (sender === externalTxSenderPkh && WTZ_ADDRESSES.includes(opDestination)) {
+          if (sender === externalTxSenderPkh) {
             onBalanceChange(toTokenSlug(opDestination, 0), amount.negated(), true);
           }
         }
       },
       {
         schema: wtezBurnParamsSchema,
+        acceptedOpDestinations: WTEZ_ADDRESSES,
         onParse: ({ from_, amount }) => {
-          if (from_ === externalTxSenderPkh && WTEZ_ADDRESSES.includes(opDestination)) {
+          if (from_ === externalTxSenderPkh) {
             onBalanceChange(toTokenSlug(opDestination, 0), amount.negated(), true);
-          }
-        }
-      },
-      {
-        schema: genericBurnParamsSchema,
-        onParse: ({ from, value }) => {
-          if (from === externalTxSenderPkh) {
-            onBalanceChange(toTokenSlug(opDestination), value.negated(), undefined);
           }
         }
       }
@@ -213,7 +221,11 @@ export function parseTransactionParams(
   const handlers = makeEntrypointsParamsHandlers(externalTxSenderPkh, senderPkh, opDestination, onBalanceChange);
   if (entrypoint in handlers) {
     for (const handler of handlers[entrypoint as keyof EntrypointsParamsHandlers]) {
-      if (handleParams(handler.schema, value, (value: any) => handler.onParse(value, mutezAmount))) {
+      const { schema, acceptedOpDestinations, onParse } = handler;
+      if (
+        (!acceptedOpDestinations || acceptedOpDestinations.includes(opDestination)) &&
+        handleParams(schema, value, (value: any) => onParse(value, mutezAmount))
+      ) {
         return;
       }
     }
