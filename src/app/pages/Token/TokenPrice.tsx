@@ -44,9 +44,13 @@ export const TokenPrice = memo<Props>(({ assetSlug, chainId, forEVM }) => {
       </span>
 
       <span className="text-font-num-12">
-        <Money cryptoDecimals={4} smallFractionFont={false}>
-          {price}
-        </Money>
+        {price.isZero() ? (
+          'No value'
+        ) : (
+          <Money cryptoDecimals={4} smallFractionFont={false}>
+            {price}
+          </Money>
+        )}
       </span>
     </div>
   );

@@ -3,6 +3,7 @@ import React, { FC, memo, useLayoutEffect, useMemo } from 'react';
 import { isDefined } from '@rnw-community/shared';
 
 import { IconBase } from 'app/atoms';
+import { PageModal } from 'app/atoms/PageModal';
 import { SuspenseContainer } from 'app/atoms/SuspenseContainer';
 import { useAppEnv } from 'app/env';
 import { ReactComponent as InfoSvg } from 'app/icons/base/info.svg';
@@ -19,7 +20,7 @@ import { HistoryAction, navigate, useLocation } from 'lib/woozie';
 import { TempleChainKind } from 'temple/types';
 
 import { EvmAssetBanner, TezosAssetBanner } from './AssetBanner';
-import { EvmInfoModal, TezosInfoModal } from './InfoModal';
+import { EvmInfoModalContent, TezosInfoModalContent } from './InfoModal';
 import { EvmPageTitle, TezosPageTitle } from './PageTitle';
 import { ScamTokenAlert } from './ScamTokenAlert';
 
@@ -80,13 +81,9 @@ const TezosTokenPage: FC<TezosTokenPageProps> = ({ chainId, assetSlug }) => {
 
   return (
     <>
-      <TezosInfoModal
-        opened={infoModalOpen}
-        assetSlug={assetSlug}
-        chainId={chainId}
-        assetMetadata={assetMetadata}
-        onRequestClose={setInfoModalClosed}
-      />
+      <PageModal title="Token Info" opened={infoModalOpen} contentPadding onRequestClose={setInfoModalClosed}>
+        {() => <TezosInfoModalContent assetSlug={assetSlug} chainId={chainId} assetMetadata={assetMetadata} />}
+      </PageModal>
 
       <PageLayout {...pageProps} contentPadding={false}>
         {showScamTokenAlert && <ScamTokenAlert />}
@@ -139,13 +136,9 @@ const EvmTokenPage: FC<EvmTokenPageProps> = ({ chainId, assetSlug }) => {
 
   return (
     <>
-      <EvmInfoModal
-        opened={infoModalOpen}
-        assetSlug={assetSlug}
-        chainId={chainId}
-        assetMetadata={assetMetadata}
-        onRequestClose={setInfoModalClosed}
-      />
+      <PageModal title="Token Info" opened={infoModalOpen} contentPadding onRequestClose={setInfoModalClosed}>
+        {() => <EvmInfoModalContent assetSlug={assetSlug} chainId={chainId} assetMetadata={assetMetadata} />}
+      </PageModal>
 
       <PageLayout {...pageProps} contentPadding={false}>
         <div className="flex flex-col p-4 gap-y-3 bg-white">
