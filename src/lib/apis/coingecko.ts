@@ -5,7 +5,7 @@ import { ETHEREUM_MAINNET_CHAIN_ID, OTHER_COMMON_MAINNET_CHAIN_IDS } from 'lib/t
 import { BasicChain } from 'temple/front/chains';
 import { TempleChainKind } from 'temple/types';
 
-export const coingeckoApi = axios.create({ baseURL: 'https://api.coingecko.com/api/v3/' });
+const coingeckoApi = axios.create({ baseURL: 'https://api.coingecko.com/api/v3/' });
 
 export function fetchTokenMarketInfo(assetSlug: string, chain: BasicChain) {
   const coingeckoAssetId =
