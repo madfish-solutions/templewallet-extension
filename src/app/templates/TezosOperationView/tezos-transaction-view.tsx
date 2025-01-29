@@ -6,9 +6,11 @@ import { FormProvider } from 'react-hook-form-v7';
 
 import { toastError } from 'app/toaster';
 import { TEZ_TOKEN_SLUG } from 'lib/assets';
+import { TEZOS_BLOCK_DURATION } from 'lib/fixed-times';
 import { useTypedSWR } from 'lib/swr';
 import { mutezToTz, tzToMutez } from 'lib/temple/helpers';
 import { TempleTezosDAppOperationsPayload } from 'lib/temple/types';
+import { tezosManagerKeyHasManager } from 'lib/tezos';
 import { serializeError } from 'lib/utils/serialize-error';
 import { getAccountAddressForTezos } from 'temple/accounts';
 import { TezosChain, useAllAccounts, useAllTezosChains } from 'temple/front';
@@ -51,10 +53,8 @@ export const TezosTransactionView = memo<TezosTransactionViewProps>(
         revealFee: revealFeeMutez
       };
     }, [estimates, opParams.length]);
-    const estimationResponse = useMemo(
-      () => ({ data: estimationData, error: estimationError }),
-      [estimationData, estimationError]
-    );
+
+    const tezos = useMemo(() => getReadOnlyTezos(networkRpc), [networkRpc]);
 
     const getTezosChain = useCallback(async (): Promise<TezosChain> => {
       const knownTezosChain = Object.values(tezosChains).find(c =>
@@ -65,7 +65,6 @@ export const TezosTransactionView = memo<TezosTransactionViewProps>(
         return knownTezosChain;
       }
 
-      const tezos = getReadOnlyTezos(networkRpc);
       const chainId = await tezos.rpc.getChainId();
       const rpc: StoredTezosNetwork = {
         chain: TempleChainKind.Tezos,
@@ -86,12 +85,27 @@ export const TezosTransactionView = memo<TezosTransactionViewProps>(
         allBlockExplorers: [],
         default: false
       };
-    }, [networkRpc, tezosChains]);
+    }, [networkRpc, tezosChains, tezos]);
     const { data: chain } = useTypedSWR(['tezos-chain', networkRpc], getTezosChain, {
       suspense: true,
       revalidateOnFocus: false,
       shouldRetryOnError: false
     });
+
+    const getSourcePkIsRevealed = useCallback(
+      async () => tezosManagerKeyHasManager(await tezos.rpc.getManagerKey(sourcePkh)),
+      [sourcePkh, tezos]
+    );
+    const { data: sourcePkIsRevealed } = useTypedSWR(
+      ['source-pk-is-revealed', sourcePkh, networkRpc],
+      getSourcePkIsRevealed,
+      {
+        revalidateOnFocus: false,
+        revalidateOnReconnect: false,
+        dedupingInterval: TEZOS_BLOCK_DURATION,
+        fallbackData: false
+      }
+    );
 
     const {
       balancesChanges: balancesChanges,
@@ -105,7 +119,7 @@ export const TezosTransactionView = memo<TezosTransactionViewProps>(
       displayedFeeOptions,
       displayedFee,
       displayedStorageFee
-    } = useTezosEstimationForm(estimationResponse, opParams, sendingAccount, networkRpc, chain!.chainId, true);
+    } = useTezosEstimationForm(estimationData, opParams, sendingAccount, networkRpc, chain!.chainId, true);
 
     const handleSubmit = useCallback(
       ({ gasFee: customGasFee, storageLimit: customStorageLimit }: TezosTxParamsFormData) => {

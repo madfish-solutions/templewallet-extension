@@ -3,7 +3,6 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { isDefined } from '@rnw-community/shared';
 import { transform } from 'lodash';
 import { useForm } from 'react-hook-form-v7';
-import { SWRResponse } from 'swr';
 import { useDebounce } from 'use-debounce';
 import {
   FeeValuesEIP1559,
@@ -14,6 +13,7 @@ import {
   serializeTransaction
 } from 'viem';
 
+import { SEND_ETH_GAS_LIMIT } from 'lib/constants';
 import { getEvmBalancesChanges } from 'lib/evm/on-chain/get-evm-balances-changes';
 import { useTypedSWR } from 'lib/swr';
 import { EvmEstimationDataWithFallback, StoredAccount } from 'lib/temple/types';
@@ -28,18 +28,15 @@ import { useEvmEstimationDataState } from './context';
 import { useEvmFeeOptions } from './hooks/use-evm-fee-options';
 import { EvmTxParamsFormData, FeeOptionLabel, Tab } from './types';
 
-const SEND_ETH_GAS_LIMIT = 21000;
-
 const serializeBigint = (value: bigint | nullish) => (typeof value === 'bigint' ? value.toString() : undefined);
 
 export const useEvmEstimationForm = (
-  estimationResponse: Pick<SWRResponse<EvmEstimationDataWithFallback>, 'data' | 'error'>,
+  estimationData: EvmEstimationDataWithFallback | undefined,
   basicParams: TransactionSerializable | undefined,
   senderAccount: StoredAccount | AccountForChain<TempleChainKind.EVM>,
   chainId: number,
   simulateOperation?: boolean
 ) => {
-  const { data: estimationData, error: estimationError } = estimationResponse;
   const fullEstimationData = isEvmEstimationData(estimationData) ? estimationData : undefined;
   const accountAddress = useMemo(
     () => ('address' in senderAccount ? (senderAccount.address as HexString) : getAccountAddressForEvm(senderAccount)!),
@@ -51,7 +48,6 @@ export const useEvmEstimationForm = (
     if (!basicParams) return {};
 
     const { nonce, data } = basicParams;
-    const shouldUseFallbackValues = !fullEstimationData && estimationError;
     const rawGasPrice =
       basicParams.type === 'legacy' || basicParams.type === 'eip2930' || basicParams.gasPrice
         ? basicParams.gasPrice
@@ -65,12 +61,12 @@ export const useEvmEstimationForm = (
 
     return {
       gasPrice: rawGasPrice ? formatEther(rawGasPrice, 'gwei') : undefined,
-      gasLimit: serializeBigint(basicParams.gas) ?? (shouldUseFallbackValues ? String(SEND_ETH_GAS_LIMIT) : undefined),
+      gasLimit: serializeBigint(basicParams.gas),
       nonce: nonce?.toString(),
       data,
       rawTransaction
     };
-  }, [basicParams, estimationError, fullEstimationData]);
+  }, [basicParams]);
   const form = useForm<EvmTxParamsFormData>({ mode: 'onChange', defaultValues });
   const { watch, setValue, formState } = form;
 
@@ -175,7 +171,7 @@ export const useEvmEstimationForm = (
     if (feeOptions && selectedFeeOption) return feeOptions.displayed[selectedFeeOption];
 
     if (debouncedGasPrice) {
-      const gas = debouncedGasLimit ? BigInt(debouncedGasLimit) : fullEstimationData?.gas ?? BigInt(SEND_ETH_GAS_LIMIT);
+      const gas = debouncedGasLimit ? BigInt(debouncedGasLimit) : fullEstimationData?.gas ?? SEND_ETH_GAS_LIMIT;
 
       return formatEther(gas * parseEther(debouncedGasPrice, 'gwei'));
     }

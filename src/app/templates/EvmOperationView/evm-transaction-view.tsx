@@ -30,7 +30,7 @@ interface EvmTransactionViewProps {
 export const EvmTransactionView = memo<EvmTransactionViewProps>(
   ({ payload, formId, error, setFinalEvmTransaction, onSubmit }) => {
     const chains = useAllEvmChains();
-    const { chainId, req } = payload;
+    const { chainId, req, estimationData: serializedEstimationData, error: estimationError } = payload;
     const parsedChainId = Number(chainId);
     const parsedReq = useMemo(() => ({ ...parseTransactionRequest(req), from: req.from }), [req]);
 
@@ -41,19 +41,15 @@ export const EvmTransactionView = memo<EvmTransactionViewProps>(
       [accounts, req.from]
     );
 
-    const estimationResponse = useMemo(() => {
-      const { estimationData, error } = payload;
+    const estimationData = useMemo(() => {
+      if (!serializedEstimationData) {
+        return undefined;
+      }
 
-      return {
-        data: estimationData
-          ? isSerializedEvmEstimationData(estimationData)
-            ? deserializeEstimationData(estimationData)
-            : { gasPrice: BigInt(estimationData.gasPrice), type: estimationData.type }
-          : undefined,
-        error
-      };
-    }, [payload]);
-    const { data: estimationData, error: estimationError } = estimationResponse;
+      return isSerializedEvmEstimationData(serializedEstimationData)
+        ? deserializeEstimationData(serializedEstimationData)
+        : { gasPrice: BigInt(serializedEstimationData.gasPrice), type: serializedEstimationData.type };
+    }, [serializedEstimationData]);
     const basicParams = useMemo(
       () => ({
         ...parsedReq,
@@ -74,7 +70,7 @@ export const EvmTransactionView = memo<EvmTransactionViewProps>(
       feeOptions,
       displayedFee,
       getFeesPerGas
-    } = useEvmEstimationForm(estimationResponse, basicParams, sendingAccount, parsedChainId, true);
+    } = useEvmEstimationForm(estimationData, basicParams, sendingAccount, parsedChainId, true);
     const { formState } = form;
 
     const handleSubmit = useCallback(
