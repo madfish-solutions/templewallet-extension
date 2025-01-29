@@ -119,7 +119,15 @@ export const TezosTransactionView = memo<TezosTransactionViewProps>(
       displayedFeeOptions,
       displayedFee,
       displayedStorageFee
-    } = useTezosEstimationForm(estimationData, opParams, sendingAccount, networkRpc, chain!.chainId, true);
+    } = useTezosEstimationForm(
+      estimationData,
+      opParams,
+      sendingAccount,
+      networkRpc,
+      chain!.chainId,
+      true,
+      sourcePkIsRevealed
+    );
 
     const handleSubmit = useCallback(
       ({ gasFee: customGasFee, storageLimit: customStorageLimit }: TezosTxParamsFormData) => {

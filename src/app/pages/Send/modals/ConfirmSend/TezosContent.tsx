@@ -44,7 +44,7 @@ export const TezosContent: FC<TezosContentProps> = ({ data, onClose }) => {
 
   const tezos = getTezosToolkitWithSigner(network.rpcBaseURL, account.ownerAddress || accountPkh, true);
 
-  const estimationResponse = useTezosEstimationData(
+  const { data: estimationData } = useTezosEstimationData(
     to,
     tezos,
     network.chainId,
@@ -56,7 +56,6 @@ export const TezosContent: FC<TezosContentProps> = ({ data, onClose }) => {
     assetMetadata,
     true
   );
-  const { data: estimationData } = estimationResponse;
 
   const getBasicSendParams = useCallback(async (): Promise<WalletParamsWithKind[]> => {
     let transferParams: TransferParams;
@@ -93,7 +92,7 @@ export const TezosContent: FC<TezosContentProps> = ({ data, onClose }) => {
     displayedFeeOptions,
     displayedFee,
     displayedStorageFee
-  } = useTezosEstimationForm(estimationResponse, basicSendParams, account, network.rpcBaseURL, network.chainId);
+  } = useTezosEstimationForm(estimationData, basicSendParams, account, network.rpcBaseURL, network.chainId);
   const { formState } = form;
 
   const onSubmit = useCallback(

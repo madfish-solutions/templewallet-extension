@@ -33,7 +33,7 @@ export const useTezosEstimationForm = (
   rpcBaseURL: string,
   chainId: string,
   simulateOperation?: boolean,
-  sourcePkIsRevealed?: boolean
+  sourcePkIsRevealed = true
 ) => {
   const ownerAddress =
     'ownerAddress' in senderAccount
@@ -113,7 +113,7 @@ export const useTezosEstimationForm = (
 
     if (basicParams) {
       gasFee =
-        (estimates && estimates.length > basicParams.length) || sourcePkIsRevealed
+        (estimates && estimates.length > basicParams.length) || !sourcePkIsRevealed
           ? mutezToTz(getRevealFee(sender))
           : ZERO;
       storageLimit = ZERO;
@@ -153,7 +153,12 @@ export const useTezosEstimationForm = (
   const displayedFeeOptions = useMemo<DisplayedFeeOptions | undefined>(() => {
     const gasFee =
       gasFeeFromEstimation ??
-      (basicParams ? mutezToTz(SEND_TEZ_TO_NON_EMPTY_ESTIMATE.suggestedFeeMutez * basicParams.length) : undefined);
+      (basicParams
+        ? mutezToTz(
+            SEND_TEZ_TO_NON_EMPTY_ESTIMATE.suggestedFeeMutez * basicParams.length +
+              (sourcePkIsRevealed ? 0 : getRevealFee(sender))
+          )
+        : undefined);
 
     if (!(gasFee instanceof BigNumber)) return;
 
@@ -162,7 +167,7 @@ export const useTezosEstimationForm = (
       mid: getTezosFeeOption('mid', gasFee),
       fast: getTezosFeeOption('fast', gasFee)
     };
-  }, [basicParams, gasFeeFromEstimation]);
+  }, [basicParams, gasFeeFromEstimation, sender, sourcePkIsRevealed]);
 
   const displayedFee = useMemo(() => {
     if (debouncedGasFee) return debouncedGasFee;
