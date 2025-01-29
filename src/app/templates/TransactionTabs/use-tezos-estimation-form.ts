@@ -52,6 +52,11 @@ export const useTezosEstimationForm = (
   const [balancesChanges, setBalancesChanges] = useSafeState<BalancesChanges>({});
   const [balancesChangesLoading, setBalancesChangesLoading] = useSafeState(false);
 
+  const revealFee = useMemo(
+    () => estimationData?.revealFee ?? (sourcePkIsRevealed ? ZERO : mutezToTz(getRevealFee(sender))),
+    [estimationData?.revealFee, sender, sourcePkIsRevealed]
+  );
+
   useEffect(() => {
     const deltas$ = params$.pipe(
       switchMap(operation => {
@@ -112,10 +117,7 @@ export const useTezosEstimationForm = (
     let storageLimit: BigNumber | undefined;
 
     if (basicParams) {
-      gasFee =
-        (estimates && estimates.length > basicParams.length) || !sourcePkIsRevealed
-          ? mutezToTz(getRevealFee(sender))
-          : ZERO;
+      gasFee = tzToMutez(revealFee);
       storageLimit = ZERO;
       for (let i = 0; i < basicParams.length; i++) {
         if (gasFee === undefined && storageLimit === undefined) break;
@@ -129,7 +131,7 @@ export const useTezosEstimationForm = (
     }
 
     return { gasFee: gasFee?.toString() ?? '', storageLimit: storageLimit?.toString() ?? '' };
-  }, [basicParams, estimates, sender, sourcePkIsRevealed]);
+  }, [basicParams, revealFee]);
   const form = useForm<TezosTxParamsFormData>({ mode: 'onChange', defaultValues });
   const { watch, setValue } = form;
 
@@ -154,10 +156,7 @@ export const useTezosEstimationForm = (
     const gasFee =
       gasFeeFromEstimation ??
       (basicParams
-        ? mutezToTz(
-            SEND_TEZ_TO_NON_EMPTY_ESTIMATE.suggestedFeeMutez * basicParams.length +
-              (sourcePkIsRevealed ? 0 : getRevealFee(sender))
-          )
+        ? mutezToTz(SEND_TEZ_TO_NON_EMPTY_ESTIMATE.suggestedFeeMutez * basicParams.length).plus(revealFee)
         : undefined);
 
     if (!(gasFee instanceof BigNumber)) return;
@@ -167,7 +166,7 @@ export const useTezosEstimationForm = (
       mid: getTezosFeeOption('mid', gasFee),
       fast: getTezosFeeOption('fast', gasFee)
     };
-  }, [basicParams, gasFeeFromEstimation, sender, sourcePkIsRevealed]);
+  }, [basicParams, gasFeeFromEstimation, revealFee]);
 
   const displayedFee = useMemo(() => {
     if (debouncedGasFee) return debouncedGasFee;
@@ -205,7 +204,7 @@ export const useTezosEstimationForm = (
       return buildFinalTezosOpParams(
         basicParams,
         tzToMutez(gasFee || displayedFeeOptions[selectedFeeOption || 'mid'])
-          .minus(revealFee)
+          .minus(tzToMutez(revealFee))
           .toNumber(),
         storageLimit ? Number(storageLimit) : totalDefaultStorageLimit.toNumber()
       );
@@ -255,7 +254,6 @@ export const useTezosEstimationForm = (
     [makeFinalOpParams]
   );
 
-  const revealFee = estimationData?.revealFee ?? ZERO;
   const setRawTransaction = useCallback(async () => {
     try {
       if (simulateOperation) {

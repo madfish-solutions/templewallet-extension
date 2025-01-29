@@ -1,4 +1,4 @@
-import React, { ReactNode, useCallback, useRef } from 'react';
+import React, { ReactNode, useCallback, useEffect, useRef } from 'react';
 
 import { SubmitHandler, useFormContext } from 'react-hook-form-v7';
 
@@ -54,6 +54,16 @@ export const TransactionTabs = <T extends TxParamsFormData>({
   const errorTabRef = useRef<HTMLDivElement>(null);
   const isEvm = network.kind === TempleChainKind.EVM;
   const goToFeeTab = useCallback(() => setSelectedTab('fee'), [setSelectedTab]);
+
+  const error = latestSubmitError || estimationError;
+  const prevErrorRef = useRef<string | nullish>(null);
+  useEffect(() => {
+    if (error && error !== prevErrorRef.current) {
+      setSelectedTab('error');
+    }
+
+    prevErrorRef.current = error;
+  }, [error, setSelectedTab]);
 
   return (
     <>

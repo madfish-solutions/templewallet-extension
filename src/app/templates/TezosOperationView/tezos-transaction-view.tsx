@@ -44,7 +44,7 @@ export const TezosTransactionView = memo<TezosTransactionViewProps>(
     const estimationData = useMemo(() => {
       if (!estimates) return undefined;
 
-      const revealFeeMutez = new BigNumber(estimates.length > opParams.length ? estimates[0].suggestedFeeMutez : 0);
+      const revealFeeMutez = mutezToTz(estimates.length > opParams.length ? estimates[0].suggestedFeeMutez : 0);
 
       return {
         estimates,

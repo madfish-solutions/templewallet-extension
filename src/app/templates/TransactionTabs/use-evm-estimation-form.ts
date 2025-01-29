@@ -48,7 +48,7 @@ export const useEvmEstimationForm = (
     if (!basicParams) return {};
 
     const { nonce, data } = basicParams;
-    const rawGasPrice =
+    const rawGasPriceFromParams =
       basicParams.type === 'legacy' || basicParams.type === 'eip2930' || basicParams.gasPrice
         ? basicParams.gasPrice
         : basicParams.maxFeePerGas;
@@ -60,13 +60,13 @@ export const useEvmEstimationForm = (
     }
 
     return {
-      gasPrice: rawGasPrice ? formatEther(rawGasPrice, 'gwei') : undefined,
-      gasLimit: serializeBigint(basicParams.gas),
+      gasPrice: rawGasPriceFromParams ? formatEther(rawGasPriceFromParams, 'gwei') : undefined,
+      gasLimit: serializeBigint(basicParams.gas ?? (fullEstimationData ? undefined : SEND_ETH_GAS_LIMIT)),
       nonce: nonce?.toString(),
       data,
       rawTransaction
     };
-  }, [basicParams]);
+  }, [basicParams, fullEstimationData]);
   const form = useForm<EvmTxParamsFormData>({ mode: 'onChange', defaultValues });
   const { watch, setValue, formState } = form;
 

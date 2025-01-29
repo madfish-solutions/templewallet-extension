@@ -13,7 +13,7 @@ import { EvmCollectibleMetadata, EvmNativeTokenMetadata, EvmTokenMetadata } from
 import { EvmChain, OneOfChains, TezosChain } from 'temple/front';
 import { TempleChainKind } from 'temple/types';
 
-import { EvmAssetIcon, TezosAssetIcon } from '../AssetIcon';
+import { EvmAssetIcon, EvmAssetIconPlaceholder, TezosAssetIcon, TezosAssetIconPlaceholder } from '../AssetIcon';
 
 import { BalancesChangesViewLayout, BalancesChangesViewRowProps, BalancesChangesViewRowVariant } from './layout';
 import { BalancesChangesViewProps } from './types';
@@ -26,7 +26,7 @@ function BalancesChangesViewHOC<
 >(
   useTokenOrGasMetadataGetter: (chainId: C['chainId']) => (assetSlug: string) => TM | undefined,
   useCollectibleMetadataGetter: (chainId: C['chainId']) => (assetSlug: string) => CM | undefined,
-  renderIcon: (chainId: C['chainId'], assetSlug: string, size: number) => ReactNode
+  renderIcon: (chainId: C['chainId'], assetSlug: string, size: number, isCollectible: boolean) => ReactNode
 ) {
   return memo<BalancesChangesViewProps<C>>(({ balancesChanges, chain }) => {
     const { chainId, kind: chainKind } = chain;
@@ -46,7 +46,12 @@ function BalancesChangesViewHOC<
           const collectibleMetadata = getCollectibleMetadata(assetSlug);
 
           return {
-            icon: renderIcon(chainId, assetSlug, allAssetsAreCollectibles ? 36 : 24),
+            icon: renderIcon(
+              chainId,
+              assetSlug,
+              allAssetsAreCollectibles ? 36 : 24,
+              Boolean(collectibleMetadata || isNft)
+            ),
             atomicAmount,
             decimals: (tokenOrGasMetadata ?? collectibleMetadata)?.decimals,
             symbol: collectibleMetadata
@@ -76,23 +81,33 @@ function BalancesChangesViewHOC<
   });
 }
 
-const AssetIconFallback = memo<{ size?: number }>(({ size = 24 }) => (
+const CollectibleIconFallback = memo<{ size?: number }>(({ size = 24 }) => (
   <UnknownToken style={{ width: size, height: size }} />
 ));
 
 const TezosBalancesChangesView = BalancesChangesViewHOC<TezosChain, AssetMetadataBase, TezosCollectibleMetadata>(
   useGetTezosChainTokenOrGasMetadata,
   useGetTezosCollectibleMetadata,
-  (chainId, assetSlug, size) => (
-    <TezosAssetIcon tezosChainId={chainId} assetSlug={assetSlug} size={size} Fallback={AssetIconFallback} />
+  (chainId, assetSlug, size, isCollectible) => (
+    <TezosAssetIcon
+      tezosChainId={chainId}
+      assetSlug={assetSlug}
+      size={size}
+      Fallback={isCollectible ? CollectibleIconFallback : TezosAssetIconPlaceholder}
+    />
   )
 );
 const EvmBalancesChangesView = BalancesChangesViewHOC<
   EvmChain,
   EvmTokenMetadata | EvmNativeTokenMetadata,
   EvmCollectibleMetadata
->(useGetEvmChainTokenOrGasMetadata, useGetEvmChainCollectibleMetadata, (chainId, assetSlug, size) => (
-  <EvmAssetIcon evmChainId={chainId} assetSlug={assetSlug} size={size} Fallback={AssetIconFallback} />
+>(useGetEvmChainTokenOrGasMetadata, useGetEvmChainCollectibleMetadata, (chainId, assetSlug, size, isCollectible) => (
+  <EvmAssetIcon
+    evmChainId={chainId}
+    assetSlug={assetSlug}
+    size={size}
+    Fallback={isCollectible ? CollectibleIconFallback : EvmAssetIconPlaceholder}
+  />
 ));
 
 export const BalancesChangesView = memo<BalancesChangesViewProps>(({ balancesChanges, chain }) => {
