@@ -3907,5 +3907,14 @@
   },
   "marketPageDisclaimer": {
     "message": "Temple integrated third-party solutions to buy or exchange crypto."
+  },
+  "txCouldNotBeEstimated": {
+    "message": "Transaction could not be estimated"
+  },
+  "txCouldNotBeEstimatedDescription": {
+    "message": "Fee estimation isn't available. Default values are used, but the transaction may fail. Please retry or adjust transaction parameters manually."
+  },
+  "genericTxError": {
+    "message": "Something’s not right. Please review a message."
   }
 }

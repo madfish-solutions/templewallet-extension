@@ -1,4 +1,4 @@
-import React, { ReactNode, memo } from 'react';
+import React, { memo } from 'react';
 
 import {
   EvmTransactionRequestWithSender,
@@ -16,20 +16,18 @@ interface EvmOperationViewProps {
   formId: string;
   error: any;
   setFinalEvmTransaction: ReactSetStateFn<EvmTransactionRequestWithSender>;
-  setCustomTitle: ReactSetStateFn<ReactNode>;
   onSubmit: EmptyFn;
 }
 
 // TODO: add layouts for other types of EVM dApp actions
 export const EvmOperationView = memo<EvmOperationViewProps>(
-  ({ payload, formId, error, setFinalEvmTransaction, setCustomTitle, onSubmit }) => (
+  ({ payload, formId, error, setFinalEvmTransaction, onSubmit }) => (
     <EvmEstimationDataProvider>
       <EvmTransactionView
         error={error}
         payload={payload}
         formId={formId}
         setFinalEvmTransaction={setFinalEvmTransaction}
-        setCustomTitle={setCustomTitle}
         onSubmit={onSubmit}
       />
     </EvmEstimationDataProvider>

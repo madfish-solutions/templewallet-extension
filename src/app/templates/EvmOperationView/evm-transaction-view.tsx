@@ -1,4 +1,4 @@
-import React, { ReactNode, memo, useCallback, useMemo } from 'react';
+import React, { memo, useCallback, useMemo } from 'react';
 
 import { omit } from 'lodash';
 import { FormProvider } from 'react-hook-form-v7';
@@ -11,22 +11,19 @@ import { T } from 'lib/i18n';
 import { EvmTransactionRequestWithSender, TempleEvmDAppTransactionPayload } from 'lib/temple/types';
 import { serializeError } from 'lib/utils/serialize-error';
 import { getAccountAddressForEvm } from 'temple/accounts';
-import { parseTransactionRequest } from 'temple/evm/utils';
+import { deserializeEstimationData } from 'temple/evm/estimate';
+import { isEvmEstimationData, isSerializedEvmEstimationData, parseTransactionRequest } from 'temple/evm/utils';
 import { useAllAccounts, useAllEvmChains } from 'temple/front';
 
 import { OperationViewLayout } from '../operation-view-layout';
 import { EvmTxParamsFormData } from '../TransactionTabs/types';
 import { useEvmEstimationForm } from '../TransactionTabs/use-evm-estimation-form';
 
-import { useEvmEstimationData } from './use-evm-estimation-data';
-
 interface EvmTransactionViewProps {
   payload: TempleEvmDAppTransactionPayload;
   formId: string;
   error: any;
   setFinalEvmTransaction: ReactSetStateFn<EvmTransactionRequestWithSender>;
-  // TODO: use `setCustomTitle` to set the appropriate title for approves, contract deployments, etc.
-  setCustomTitle: ReactSetStateFn<ReactNode>;
   onSubmit: EmptyFn;
 }
 
@@ -44,7 +41,19 @@ export const EvmTransactionView = memo<EvmTransactionViewProps>(
       [accounts, req.from]
     );
 
-    const { data: estimationData, error: estimationError } = useEvmEstimationData(parsedChainId, parsedReq);
+    const estimationResponse = useMemo(() => {
+      const { estimationData, error } = payload;
+
+      return {
+        data: estimationData
+          ? isSerializedEvmEstimationData(estimationData)
+            ? deserializeEstimationData(estimationData)
+            : { gasPrice: BigInt(estimationData.gasPrice), type: estimationData.type }
+          : undefined,
+        error
+      };
+    }, [payload]);
+    const { data: estimationData, error: estimationError } = estimationResponse;
     const basicParams = useMemo(
       () => ({
         ...parsedReq,
@@ -65,7 +74,7 @@ export const EvmTransactionView = memo<EvmTransactionViewProps>(
       feeOptions,
       displayedFee,
       getFeesPerGas
-    } = useEvmEstimationForm(estimationData, basicParams, sendingAccount, parsedChainId, true);
+    } = useEvmEstimationForm(estimationResponse, basicParams, sendingAccount, parsedChainId, true);
     const { formState } = form;
 
     const handleSubmit = useCallback(
@@ -74,15 +83,15 @@ export const EvmTransactionView = memo<EvmTransactionViewProps>(
 
         const feesPerGas = getFeesPerGas(gasPrice);
 
-        if (!estimationData || !feesPerGas) {
-          toastError('Failed to estimate transaction.');
+        if (!feesPerGas) {
+          toastError('Failed to get fees.');
 
           return;
         }
 
         const finalTransaction = {
           ...parsedReq,
-          ...omit(estimationData, 'estimatedFee'),
+          ...(isEvmEstimationData(estimationData) ? omit(estimationData, 'estimatedFee') : {}),
           ...feesPerGas,
           ...(gasLimit ? { gas: BigInt(gasLimit) } : {}),
           ...(nonce ? { nonce: Number(nonce) } : {})

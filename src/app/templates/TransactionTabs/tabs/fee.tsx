@@ -19,7 +19,7 @@ import { getTezosFeeOption, validateNonZero } from '../utils';
 interface FeeTabProps {
   network: OneOfChains;
   assetSlug: string;
-  displayedFeeOptions: DisplayedFeeOptions;
+  displayedFeeOptions?: DisplayedFeeOptions;
   selectedOption: FeeOptionLabel | nullish;
   onOptionSelect: (label: FeeOptionLabel) => void;
 }
@@ -32,13 +32,15 @@ export const FeeTab: FC<FeeTabProps> = ({
   onOptionSelect
 }) => (
   <>
-    <FeeOptions
-      network={network}
-      activeOptionName={selectedOption}
-      assetSlug={assetSlug}
-      displayedFeeOptions={displayedFeeOptions}
-      onOptionClick={onOptionSelect}
-    />
+    {displayedFeeOptions && (
+      <FeeOptions
+        network={network}
+        activeOptionName={selectedOption}
+        assetSlug={assetSlug}
+        displayedFeeOptions={displayedFeeOptions}
+        onOptionClick={onOptionSelect}
+      />
+    )}
     {network.kind === TempleChainKind.EVM ? (
       <EvmContent selectedOption={selectedOption} onOptionSelect={onOptionSelect} />
     ) : (

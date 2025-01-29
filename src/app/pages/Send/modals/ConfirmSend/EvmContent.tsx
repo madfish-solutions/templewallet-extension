@@ -38,7 +38,7 @@ export const EvmContent: FC<EvmContentProps> = ({ data, onClose }) => {
 
   const [latestSubmitError, setLatestSubmitError] = useState<string | nullish>(null);
 
-  const { data: estimationData } = useEvmEstimationData(
+  const estimationResponse = useEvmEstimationData(
     to as HexString,
     assetSlug,
     accountPkh,
@@ -48,12 +48,13 @@ export const EvmContent: FC<EvmContentProps> = ({ data, onClose }) => {
     true,
     amount
   );
+  const { data: estimationData } = estimationResponse;
   const basicParams = useMemo(
     () => assetMetadata && buildBasicEvmSendParams(accountPkh, to as HexString, assetMetadata, amount),
     [accountPkh, amount, assetMetadata, to]
   );
   const { form, tab, setTab, selectedFeeOption, handleFeeOptionSelect, feeOptions, displayedFee, getFeesPerGas } =
-    useEvmEstimationForm(estimationData, basicParams, account, network.chainId);
+    useEvmEstimationForm(estimationResponse, basicParams, account, network.chainId);
   const { formState } = form;
 
   const onSubmit = useCallback(

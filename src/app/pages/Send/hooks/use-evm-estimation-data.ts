@@ -7,7 +7,7 @@ import { isNativeTokenAddress } from 'lib/apis/temple/endpoints/evm/api.utils';
 import { useEvmAssetMetadata } from 'lib/metadata';
 import { useTypedSWR } from 'lib/swr';
 import { checkZeroBalance } from 'lib/utils/check-zero-balance';
-import { EvmEstimationData, estimate as genericEstimate } from 'temple/evm/estimate';
+import { estimate as genericEstimate } from 'temple/evm/estimate';
 import { EvmChain } from 'temple/front';
 
 import { buildBasicEvmSendParams } from '../build-basic-evm-send-params';
@@ -24,7 +24,7 @@ export const useEvmEstimationData = (
 ) => {
   const assetMetadata = useEvmAssetMetadata(assetSlug, network.chainId);
 
-  const estimate = useCallback(async (): Promise<EvmEstimationData | undefined> => {
+  const estimate = useCallback(async () => {
     try {
       if (!assetMetadata) {
         throw new Error('Asset metadata not found');
@@ -42,7 +42,7 @@ export const useEvmEstimationData = (
       console.warn(err);
       toastError(err.details || err.message);
 
-      return undefined;
+      throw err;
     }
   }, [network, assetSlug, balance, ethBalance, accountPkh, to, amount, assetMetadata]);
 

@@ -1,10 +1,12 @@
 import type { DerivationType } from '@taquito/ledger-signer';
 import type { TempleDAppMetadata } from '@temple-wallet/dapp/dist/types';
-import type { FeeValues, RpcTransactionRequest, TypedDataDefinition } from 'viem';
+import type { RpcTransactionRequest, TypedDataDefinition } from 'viem';
 
 import type { DAppsSessionsRecord } from 'app/storage/dapps';
 import type { PromisesQueueCounters } from 'lib/utils';
+import type { EvmEstimationData, SerializedEvmEstimationData } from 'temple/evm/estimate';
 import type { TypedDataV1 } from 'temple/evm/typed-data-v1';
+import type { SerializedBigints } from 'temple/evm/utils';
 import type { EvmChain } from 'temple/front';
 import type { StoredEvmNetwork, StoredTezosNetwork } from 'temple/networks';
 import type { TempleChainKind } from 'temple/types';
@@ -56,6 +58,14 @@ export enum TempleStatus {
   Locked,
   Ready
 }
+
+type EvmEstimationDataFallback = { gasPrice: bigint; type: 'legacy' | 'eip1559' };
+
+export type EvmEstimationDataWithFallback = EvmEstimationData | EvmEstimationDataFallback;
+
+export type SerializedEvmEstimationDataWithFallback =
+  | SerializedEvmEstimationData
+  | SerializedBigints<EvmEstimationDataFallback>;
 
 export type StoredAccount =
   | StoredHDAccount
@@ -232,7 +242,7 @@ export interface TempleTezosDAppOperationsPayload extends TempleTezosDAppPayload
 export interface TempleEvmDAppTransactionPayload extends TempleEvmDAppPayloadBase {
   type: 'confirm_operations';
   req: EvmTransactionRequestWithSender;
-  estimatedFees?: FeeValues<HexString>;
+  estimationData?: SerializedEvmEstimationDataWithFallback;
 }
 
 export interface TempleTezosDAppSignPayload extends TempleTezosDAppPayloadBase {

@@ -2,7 +2,7 @@ import React, { ReactNode, useCallback, useRef } from 'react';
 
 import { SubmitHandler, useFormContext } from 'react-hook-form-v7';
 
-import { Spinner } from 'app/atoms';
+import { Loader } from 'app/atoms';
 import SegmentedControl from 'app/atoms/SegmentedControl';
 import { OneOfChains } from 'temple/front';
 import { TempleChainKind } from 'temple/types';
@@ -94,13 +94,13 @@ export const TransactionTabs = <T extends TxParamsFormData>({
       <form id={formId} className="flex-1 flex flex-col" onSubmit={handleSubmit(onSubmit)}>
         {!displayedFeeOptions && !estimationError ? (
           <div className="flex justify-center my-10">
-            <Spinner theme="gray" className="w-20" />
+            <Loader size="M" trackVariant="dark" className="text-primary" />
           </div>
         ) : (
           (() => {
             switch (selectedTab) {
               case 'fee':
-                return displayedFeeOptions ? (
+                return (
                   <FeeTab
                     network={network}
                     assetSlug={nativeAssetSlug}
@@ -108,13 +108,11 @@ export const TransactionTabs = <T extends TxParamsFormData>({
                     selectedOption={selectedFeeOption}
                     onOptionSelect={onFeeOptionSelect}
                   />
-                ) : (
-                  <div>TODO: add some content</div>
                 );
               case 'advanced':
                 return <AdvancedTab isEvm={isEvm} />;
               case 'error':
-                return <ErrorTab isEvm={isEvm} message={latestSubmitError || estimationError} />;
+                return <ErrorTab isEvm={isEvm} submitError={latestSubmitError} estimationError={estimationError} />;
               default:
                 return (
                   <DetailsTab

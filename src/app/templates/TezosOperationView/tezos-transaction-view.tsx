@@ -51,6 +51,10 @@ export const TezosTransactionView = memo<TezosTransactionViewProps>(
         revealFee: revealFeeMutez
       };
     }, [estimates, opParams.length]);
+    const estimationResponse = useMemo(
+      () => ({ data: estimationData, error: estimationError }),
+      [estimationData, estimationError]
+    );
 
     const getTezosChain = useCallback(async (): Promise<TezosChain> => {
       const knownTezosChain = Object.values(tezosChains).find(c =>
@@ -101,7 +105,7 @@ export const TezosTransactionView = memo<TezosTransactionViewProps>(
       displayedFeeOptions,
       displayedFee,
       displayedStorageFee
-    } = useTezosEstimationForm(estimationData, opParams, sendingAccount, networkRpc, chain!.chainId, true);
+    } = useTezosEstimationForm(estimationResponse, opParams, sendingAccount, networkRpc, chain!.chainId, true);
 
     const handleSubmit = useCallback(
       ({ gasFee: customGasFee, storageLimit: customStorageLimit }: TezosTxParamsFormData) => {

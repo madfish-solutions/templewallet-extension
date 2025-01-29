@@ -28,7 +28,6 @@ export interface ConfirmDAppFormContentProps {
   selectedAccount: StoredAccount;
   error: any;
   formId: string;
-  setCustomTitle: ReactSetStateFn<ReactNode>;
   openAccountsModal: EmptyFn;
   onSubmit: EmptyFn;
 }
@@ -94,7 +93,6 @@ export const ConfirmDAppForm = memo<ConfirmDAppFormProps>(({ accounts, payload, 
   }, [confirm, isConfirming, isDeclining, setIsDeclining]);
 
   const handleErrorAlertClose = useCallback(() => setError(null), [setError]);
-  const [customTitle, setCustomTitle] = useSafeState<ReactNode | null>(null);
 
   const { title, confirmButtonName, confirmTestID, declineTestID } = useMemo(() => {
     switch (payload.type) {
@@ -117,14 +115,14 @@ export const ConfirmDAppForm = memo<ConfirmDAppFormProps>(({ accounts, payload, 
           declineTestID: ConfirmPageSelectors.SignAction_RejectButton
         };
       default:
+        // TODO: add other variants of title using ABIs and payload data
         return {
           title:
-            customTitle ??
-            (payload.chainType === TempleChainKind.EVM ? (
+            payload.chainType === TempleChainKind.EVM ? (
               <T id="unknownTransaction" />
             ) : (
               <T id="confirmAction" substitutions={<T id="transfer" />} />
-            )),
+            ),
           confirmButtonName: <T id={error ? 'retry' : 'confirm'} />,
           confirmTestID: error
             ? ConfirmPageSelectors.ConfirmOperationsAction_RetryButton
@@ -132,7 +130,7 @@ export const ConfirmDAppForm = memo<ConfirmDAppFormProps>(({ accounts, payload, 
           declineTestID: ConfirmPageSelectors.ConfirmOperationsAction_RejectButton
         };
     }
-  }, [error, payload.type, payload.chainType, customTitle]);
+  }, [error, payload.type, payload.chainType]);
 
   const isOperationsConfirm = payload.type === 'confirm_operations';
 
@@ -197,7 +195,6 @@ export const ConfirmDAppForm = memo<ConfirmDAppFormProps>(({ accounts, payload, 
             {children({
               openAccountsModal,
               selectedAccount,
-              setCustomTitle,
               formId: CONFIRM_OPERATIONS_FORM_ID,
               onSubmit: handleConfirmClick,
               error

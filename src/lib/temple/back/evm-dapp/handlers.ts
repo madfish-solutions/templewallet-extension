@@ -1,11 +1,13 @@
 import { nanoid } from 'nanoid';
 import { formatTransactionRequest, getAddress, Hash, recoverMessageAddress, toHex, TransactionRequest } from 'viem';
 
+import { serializeError } from 'lib/utils/serialize-error';
 import { getReadOnlyEvm } from 'temple/evm';
 import { EVMErrorCodes, evmRpcMethodsNames } from 'temple/evm/constants';
+import { estimate } from 'temple/evm/estimate';
 import { getActiveEvmChainsRpcUrls } from 'temple/evm/evm-chains-rpc-urls';
 import { ChangePermissionsPayload, ErrorWithCode } from 'temple/evm/types';
-import { parseTransactionRequest } from 'temple/evm/utils';
+import { parseTransactionRequest, serializeBigints } from 'temple/evm/utils';
 import { DEFAULT_EVM_CURRENCY } from 'temple/networks';
 import { TempleChainKind } from 'temple/types';
 
@@ -13,6 +15,7 @@ import {
   ETHEREUM_MAINNET_CHAIN_ID,
   TempleEvmDAppPersonalSignPayload,
   TempleEvmDAppSignTypedPayload,
+  TempleEvmDAppTransactionPayload,
   TempleMessageType
 } from '../../types';
 import { withUnlocked } from '../store';
@@ -23,6 +26,7 @@ import {
   checkDApp,
   getAppMeta,
   getDApp,
+  getGasPrice,
   makeChainIdRequest,
   makeReadAccountPermission,
   makeRequestEvmSignFunction,
@@ -175,8 +179,8 @@ export const sendEvmTransactionAfterConfirm = async (
   const rpcUrls = await assertiveGetChainRpcURLs(parsedChainId);
   const rpcBaseURL = (await getActiveEvmChainsRpcUrls())[parsedChainId] ?? rpcUrls[0];
   let modifiedReq = req;
+  const eip1559Supported = await networkSupportsEIP1559(rpcBaseURL);
   try {
-    const eip1559Supported = await networkSupportsEIP1559(rpcBaseURL);
     if (eip1559Supported && (req.type === 'legacy' || (req.gasPrice && !req.authorizationList && !req.accessList))) {
       const { gasPrice, ...restProps } = req;
       modifiedReq = {
@@ -250,6 +254,34 @@ export const sendEvmTransactionAfterConfirm = async (
   } catch (e) {
     console.error(e);
   }
+  let estimationData: TempleEvmDAppTransactionPayload['estimationData'];
+  let error: string | null | undefined;
+
+  try {
+    estimationData = serializeBigints(
+      await estimate(
+        {
+          rpcUrl: rpcBaseURL,
+          chain: {
+            id: parsedChainId,
+            rpcUrls: { default: { http: [rpcBaseURL] } },
+            // The two fields below are just for type compatibility
+            name: '',
+            nativeCurrency: DEFAULT_EVM_CURRENCY
+          }
+        },
+        modifiedReq
+      )
+    );
+  } catch (e) {
+    console.error(e);
+    try {
+      estimationData = { gasPrice: await getGasPrice(rpcBaseURL), type: eip1559Supported ? 'eip1559' : 'legacy' };
+    } catch (e) {
+      console.error(e);
+    }
+    error = serializeError(e);
+  }
 
   return new Promise<Hash>(async (resolve, reject) => {
     await requestConfirm({
@@ -260,7 +292,9 @@ export const sendEvmTransactionAfterConfirm = async (
         chainId,
         chainType: TempleChainKind.EVM,
         origin,
-        appMeta: getAppMeta(origin, iconUrl)
+        appMeta: getAppMeta(origin, iconUrl),
+        estimationData,
+        error
       },
       onDecline: () => {
         reject(new ErrorWithCode(EVMErrorCodes.USER_REJECTED_REQUEST, 'Transaction declined'));

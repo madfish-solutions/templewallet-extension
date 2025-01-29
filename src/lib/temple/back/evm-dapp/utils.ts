@@ -193,3 +193,12 @@ export const networkSupportsEIP1559 = memoizee(
   },
   { promise: true, maxAge: 60 * 1000 }
 );
+
+export const getGasPrice = memoizee(
+  async (rpcBaseURL: string) => {
+    const evmToolkit = getReadOnlyEvm(rpcBaseURL);
+
+    return evmToolkit.request({ method: evmRpcMethodsNames.eth_gasPrice });
+  },
+  { promise: true, maxAge: 1000 }
+);

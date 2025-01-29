@@ -5,6 +5,7 @@ import { TezosToolkit, WalletParamsWithKind, getRevealFee } from '@taquito/taqui
 import BigNumber from 'bignumber.js';
 import { useForm } from 'react-hook-form-v7';
 import { BehaviorSubject, EMPTY, catchError, from, of, switchMap } from 'rxjs';
+import { SWRResponse } from 'swr';
 import { useDebounce } from 'use-debounce';
 
 import { buildFinalTezosOpParams, mutezToTz, tzToMutez } from 'lib/temple/helpers';
@@ -24,13 +25,14 @@ import { DisplayedFeeOptions, FeeOptionLabel, Tab, TezosEstimationData, TezosTxP
 import { getTezosFeeOption } from './utils';
 
 export const useTezosEstimationForm = (
-  estimationData: TezosEstimationData | undefined,
+  estimationResponse: Pick<SWRResponse<TezosEstimationData>, 'data' | 'error'>,
   basicParams: WalletParamsWithKind[] | undefined,
   senderAccount: StoredAccount | AccountForChain<TempleChainKind.Tezos>,
   rpcBaseURL: string,
   chainId: string,
   simulateOperation?: boolean
 ) => {
+  const { data: estimationData } = estimationResponse;
   const ownerAddress =
     'ownerAddress' in senderAccount
       ? senderAccount.ownerAddress

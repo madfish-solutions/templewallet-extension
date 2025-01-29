@@ -2,7 +2,7 @@ import memoizee from 'memoizee';
 import { Transport, Chain, createPublicClient, http, PublicClient } from 'viem';
 
 import { rejectOnTimeout } from 'lib/utils';
-import { EvmChain } from 'temple/front';
+import type { EvmChain } from 'temple/front';
 
 import { getReadOnlyEvm } from './get-read-only-evm';
 import { getViemChainsList } from './utils';

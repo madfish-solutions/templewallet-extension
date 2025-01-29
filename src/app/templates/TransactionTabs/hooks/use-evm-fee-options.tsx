@@ -1,11 +1,13 @@
 import { pick, transform } from 'lodash';
 import { FeeValues, formatEther } from 'viem';
 
+import { EvmEstimationDataWithFallback } from 'lib/temple/types';
 import { useMemoWithCompare } from 'lib/ui/hooks';
-import { EvmEstimationData } from 'temple/evm/estimate';
-import { getGasPriceStep } from 'temple/evm/utils';
+import { getGasPriceStep, isEvmEstimationData } from 'temple/evm/utils';
 
 import { EvmFeeOptions, FeeOptionLabel } from '../types';
+
+const SEND_ETH_GAS_LIMIT = BigInt(21000);
 
 const generateOptions = <T extends FeeValues, U extends string>(
   type: U,
@@ -49,21 +51,30 @@ const generateOptions = <T extends FeeValues, U extends string>(
   return { type, displayed, gasPrice };
 };
 
-export const useEvmFeeOptions = (customGasLimit: string, estimationData?: EvmEstimationData): EvmFeeOptions | null =>
+export const useEvmFeeOptions = (
+  customGasLimit: string,
+  estimationData?: EvmEstimationDataWithFallback
+): EvmFeeOptions | null =>
   useMemoWithCompare(() => {
     if (!estimationData) return null;
 
-    const gas = customGasLimit ? BigInt(customGasLimit) : estimationData.gas;
+    const gas = customGasLimit
+      ? BigInt(customGasLimit)
+      : isEvmEstimationData(estimationData)
+      ? estimationData.gas
+      : SEND_ETH_GAS_LIMIT;
 
     switch (estimationData.type) {
       case 'legacy':
       case 'eip2930':
-        return generateOptions('legacy' as const, pick(estimationData, 'gasPrice'), gas, fees => fees.gasPrice);
+        return generateOptions('legacy', pick(estimationData, 'gasPrice'), gas, fees => fees.gasPrice);
       case 'eip1559':
       case 'eip7702':
         return generateOptions(
-          'eip1559' as const,
-          pick(estimationData, 'maxFeePerGas', 'maxPriorityFeePerGas'),
+          'eip1559',
+          'gas' in estimationData
+            ? pick(estimationData, 'maxFeePerGas', 'maxPriorityFeePerGas')
+            : { maxFeePerGas: estimationData.gasPrice, maxPriorityFeePerGas: estimationData.gasPrice },
           gas,
           fees => fees.maxFeePerGas
         );

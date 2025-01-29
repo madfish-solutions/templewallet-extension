@@ -1,7 +1,11 @@
 import memoizee from 'memoizee';
-import type { RpcTransactionRequest, TransactionRequest } from 'viem';
+import { toHex, type RpcTransactionRequest, type TransactionRequest } from 'viem';
 import * as ViemChains from 'viem/chains';
 import type { AuthorizationList, RpcAuthorizationList } from 'viem/experimental';
+
+import { EvmEstimationDataWithFallback, SerializedEvmEstimationDataWithFallback } from 'lib/temple/types';
+
+import type { EvmEstimationData, SerializedEvmEstimationData } from './estimate';
 
 export const getViemChainsList = memoizee(() => Object.values(ViemChains));
 
@@ -103,7 +107,7 @@ type DeserializedBigints<T extends Partial<StringRecord>> = {
   [K in keyof T]: Replace<Replace<T[K], string, bigint>, HexString, bigint>;
 };
 
-function toBigintRecord<T extends Partial<StringRecord>>(input: T): DeserializedBigints<T> {
+export function toBigintRecord<T extends Partial<StringRecord>>(input: T): DeserializedBigints<T> {
   const result = {} as DeserializedBigints<T>;
   for (const key in input) {
     const value = input[key];
@@ -119,3 +123,25 @@ export function getGasPriceStep(averageGasPrice: bigint) {
 
   return BigInt(`1${'0'.repeat(repeatCount > 0 ? repeatCount : 0)}`);
 }
+
+export type SerializedBigints<T extends object> = {
+  [K in keyof T]: Replace<T[K], bigint, HexString>;
+};
+
+export function serializeBigints<T extends object>(input: T): SerializedBigints<T> {
+  const result = {} as SerializedBigints<T>;
+  for (const key in input) {
+    const value = input[key];
+    // @ts-expect-error
+    result[key] = typeof value === 'bigint' ? toHex(value) : value;
+  }
+
+  return result;
+}
+
+export const isEvmEstimationData = (data: EvmEstimationDataWithFallback | undefined): data is EvmEstimationData =>
+  data !== undefined && 'gas' in data;
+
+export const isSerializedEvmEstimationData = (
+  data: SerializedEvmEstimationDataWithFallback
+): data is SerializedEvmEstimationData => 'gas' in data;

@@ -65,11 +65,10 @@ export const EvmConfirmDAppForm = memo<EvmConfirmDAppFormProps>(({ payload, id }
   );
 
   const renderPayload = useCallback(
-    ({ openAccountsModal, selectedAccount, setCustomTitle, formId, onSubmit, error }: ConfirmDAppFormContentProps) => (
+    ({ openAccountsModal, selectedAccount, formId, onSubmit, error }: ConfirmDAppFormContentProps) => (
       <EvmPayloadContent
         network={network}
         error={error}
-        setCustomTitle={setCustomTitle}
         setFinalEvmTransaction={updateFinalEvmTransaction}
         account={selectedAccount}
         payload={modifiedPayload}

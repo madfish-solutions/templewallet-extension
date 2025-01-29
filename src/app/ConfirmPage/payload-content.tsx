@@ -1,4 +1,4 @@
-import React, { FC, ReactNode, memo } from 'react';
+import React, { FC, memo } from 'react';
 
 import type { Omit as StrictOmit } from 'viem';
 
@@ -122,8 +122,5 @@ export const TezosPayloadContent = PayloadContentHOC<
 
 export const EvmPayloadContent = PayloadContentHOC<
   TempleChainKind.EVM,
-  {
-    setFinalEvmTransaction: ReactSetStateFn<EvmTransactionRequestWithSender>;
-    setCustomTitle: ReactSetStateFn<ReactNode>;
-  }
+  { setFinalEvmTransaction: ReactSetStateFn<EvmTransactionRequestWithSender> }
 >(EvmOperationView);
