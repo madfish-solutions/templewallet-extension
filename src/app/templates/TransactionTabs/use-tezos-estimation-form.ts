@@ -281,14 +281,10 @@ export const useTezosEstimationForm = (
       ).catch(() => undefined);
 
       if (bytesToSign && forgeParams) {
-        if (forgeParams && simulateOperation) {
+        if (simulateOperation) {
           params$.next(forgeParams);
-        } else if (simulateOperation) {
-          setBalancesChangesLoading(false);
         }
-        if (forgeParams) {
-          setValue('raw', forgeParams);
-        }
+        setValue('raw', forgeParams);
         setValue('bytes', bytesToSign);
       } else if (simulateOperation) {
         setBalancesChangesLoading(false);
