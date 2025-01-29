@@ -565,11 +565,7 @@ const pickNextAdMetadata = (
     return allAdsMetadata[0];
   }
 
-  if (allAdsMetadata.length === 1) {
-    return undefined;
-  }
-
-  return allAdsMetadata[(currentAdMetadataIndex + 1) % allAdsMetadata.length];
+  return allAdsMetadata[currentAdMetadataIndex + 1];
 };
 
 export const configureAds = async () => {
