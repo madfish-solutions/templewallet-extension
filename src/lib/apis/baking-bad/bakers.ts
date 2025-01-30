@@ -8,19 +8,17 @@ export const bakingBadGetBaker = buildQuery<BakingBadGetBakerParams, BakingBadGe
   []
 );
 
-const bakingBadGetKnownBakers = buildQuery<BakingBadGetBakersParams, BakingBadGetBakerResponse[]>(
-  api,
-  'GET',
-  '/bakers',
-  ['status', 'staking', 'delegation']
-);
+const bakingBadGetKnownBakers = buildQuery<BakingBadGetBakersParams, BakingBadBaker[]>(api, 'GET', '/bakers', [
+  'status',
+  'staking',
+  'delegation'
+]);
 
 export async function getAllBakersBakingBad() {
-  const bakers = await bakingBadGetKnownBakers({
-    status: 'active'
+  return bakingBadGetKnownBakers({
+    status: 'active',
+    delegation: true
   });
-
-  return bakers.filter((baker): baker is BakingBadBaker => Boolean(baker?.delegation.enabled));
 }
 
 type BakerStatus = 'active' | 'closed' | 'not_responding';
