@@ -1778,7 +1778,7 @@
     "message": "Must be unique"
   },
   "addNetwork": {
-    "message": "Add network"
+    "message": "Add Network"
   },
   "currentNetworks": {
     "message": "Current networks"
@@ -2016,6 +2016,9 @@
   },
   "contract": {
     "message": "Contract"
+  },
+  "contractAddress": {
+    "message": "Contract Address"
   },
   "contractAddressInputDescription": {
     "message": "Address of the contract to connect."

@@ -183,10 +183,31 @@ export interface DAppMetadata extends TempleDAppMetadata {
 }
 
 /**
+ * https://eips.ethereum.org/EIPS/eip-747
+ */
+
+export interface WatchAssetParameters {
+  type: string; // The asset's interface, e.g. 'ERC20'
+  options: WatchAssetOptions;
+}
+
+interface WatchAssetOptions {
+  address: HexString;
+  chainId?: number; // If empty, defaults to the current chain ID.
+  name?: string;
+  symbol?: string;
+  decimals?: number;
+}
+
+export interface EvmAssetToAddMetadata extends WatchAssetOptions {
+  chainId: number;
+}
+
+/**
  * https://eips.ethereum.org/EIPS/eip-3085
  */
 
-export interface AddEvmChainRequestData {
+export interface AddEthereumChainParameter {
   chainId: string;
   chainName: string;
   nativeCurrency: {
@@ -242,6 +263,11 @@ interface TempleEvmDAppAddChainPayload extends TempleEvmDAppPayloadBase {
   metadata: EvmChainToAddMetadata;
 }
 
+interface TempleEvmDAppAddAssetPayload extends TempleEvmDAppPayloadBase {
+  type: 'add_asset';
+  metadata: EvmAssetToAddMetadata;
+}
+
 export interface TempleTezosDAppOperationsPayload extends TempleTezosDAppPayloadBase {
   type: 'confirm_operations';
   sourcePkh: string;
@@ -285,6 +311,7 @@ export type TempleTezosDAppPayload =
 export type TempleEvmDAppPayload =
   | TempleEvmDAppConnectPayload
   | TempleEvmDAppAddChainPayload
+  | TempleEvmDAppAddAssetPayload
   | TempleEvmDAppSignPayload;
 
 export type TempleDAppPayload = TempleTezosDAppPayload | TempleEvmDAppPayload;
@@ -364,6 +391,8 @@ export enum TempleMessageType {
   DAppSignConfirmationResponse = 'TEMPLE_DAPP_SIGN_CONFIRMATION_RESPONSE',
   DAppRemoveSessionRequest = 'TEMPLE_DAPP_REMOVE_SESSION_REQUEST',
   DAppRemoveSessionResponse = 'TEMPLE_DAPP_REMOVE_SESSION_RESPONSE',
+  DAppAddEvmAssetRequest = 'TEMPLE_DAPP_ADD_EVM_ASSET_REQUEST',
+  DAppAddEvmAssetResponse = 'TEMPLE_DAPP_ADD_EVM_ASSET_RESPONSE',
   DAppAddEvmChainRequest = 'TEMPLE_DAPP_ADD_EVM_CHAIN_REQUEST',
   DAppAddEvmChainResponse = 'TEMPLE_DAPP_ADD_EVM_CHAIN_RESPONSE',
   DAppSwitchEvmChainRequest = 'TEMPLE_DAPP_SWITCH_EVM_CHAIN_REQUEST',
@@ -419,6 +448,7 @@ export type TempleRequest =
   | TempleUpdateSettingsRequest
   | TempleRemoveDAppSessionRequest
   | TempleAddDAppEvmChainRequest
+  | TempleAddDAppEvmAssetRequest
   | TempleSwitchDAppEvmChainRequest
   | TempleSendTrackEventRequest
   | TempleSendPageEventRequest
@@ -458,6 +488,7 @@ export type TempleResponse =
   | TempleUpdateSettingsResponse
   | TempleRemoveDAppSessionResponse
   | TempleAddDAppEvmChainResponse
+  | TempleAddDAppEvmAssetResponse
   | TempleSwitchDAppEvmChainResponse
   | TempleSendTrackEventResponse
   | TempleSendPageEventResponse
@@ -864,6 +895,12 @@ interface TempleRemoveDAppSessionResponse extends TempleMessageBase {
   };
 }
 
+interface TempleAddDAppEvmAssetRequest extends TempleMessageBase {
+  type: TempleMessageType.DAppAddEvmAssetRequest;
+  id: string;
+  confirmed: boolean;
+}
+
 interface TempleAddDAppEvmChainRequest extends TempleMessageBase {
   type: TempleMessageType.DAppAddEvmChainRequest;
   id: string;
@@ -875,6 +912,10 @@ interface TempleSwitchDAppEvmChainRequest extends TempleMessageBase {
   type: TempleMessageType.DAppSwitchEvmChainRequest;
   origin: string;
   chainId: number;
+}
+
+interface TempleAddDAppEvmAssetResponse extends TempleMessageBase {
+  type: TempleMessageType.DAppAddEvmAssetResponse;
 }
 
 interface TempleAddDAppEvmChainResponse extends TempleMessageBase {

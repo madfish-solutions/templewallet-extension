@@ -8,6 +8,7 @@ import { StoredAccount, TempleEvmDAppPayload, TempleTezosDAppPayload } from 'lib
 import { NetworkEssentials } from 'temple/networks';
 import { TempleChainKind } from 'temple/types';
 
+import { AddAssetView } from './add-asset/add-asset-view';
 import { AddChainView } from './add-chain/add-chain-view';
 import { ConnectView } from './connect-view';
 
@@ -15,7 +16,7 @@ type DAppPayload<T extends TempleChainKind> = T extends TempleChainKind.EVM
   ? TempleEvmDAppPayload
   : TempleTezosDAppPayload;
 
-type ExcludedDAppPayloads = 'connect' | 'add_chain';
+type ExcludedDAppPayloads = 'connect' | 'add_chain' | 'add_asset';
 type OperationDAppPayload<T extends TempleChainKind> = Exclude<DAppPayload<T>, { type: ExcludedDAppPayloads }>;
 
 interface OperationViewProps<T extends TempleChainKind> {
@@ -33,10 +34,12 @@ interface PayloadContentProps<T extends TempleChainKind> extends Omit<OperationV
 
 const PayloadContentHOC =
   <T extends TempleChainKind>(OperationView: FC<OperationViewProps<T>>) =>
-  ({ network, payload, error, modifyFeeAndLimit, account, openAccountsModal }: PayloadContentProps<T>) =>
-    (
+  ({ network, payload, error, modifyFeeAndLimit, account, openAccountsModal }: PayloadContentProps<T>) => {
+    const shouldShowAccountCard = payload.type !== 'add_chain' && payload.type !== 'add_asset';
+
+    return (
       <div className="w-full flex flex-col gap-4">
-        {payload.type !== 'add_chain' && (
+        {shouldShowAccountCard && (
           <AccountCard
             account={account}
             isCurrent={false}
@@ -50,6 +53,8 @@ const PayloadContentHOC =
           switch (payload.type) {
             case 'connect':
               return <ConnectView />;
+            case 'add_asset':
+              return <AddAssetView metadata={payload.metadata} />;
             case 'add_chain':
               return <AddChainView metadata={payload.metadata} />;
             default:
@@ -65,6 +70,7 @@ const PayloadContentHOC =
         })()}
       </div>
     );
+  };
 
 export const TezosPayloadContent = PayloadContentHOC<TempleChainKind.Tezos>(TezosOperationView);
 

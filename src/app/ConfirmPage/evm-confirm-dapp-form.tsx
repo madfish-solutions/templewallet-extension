@@ -6,6 +6,7 @@ import { StoredAccount, TempleEvmDAppPayload } from 'lib/temple/types';
 import { getAccountForEvm, isAccountOfActableType } from 'temple/accounts';
 import { useAllAccounts, useAllEvmChains } from 'temple/front';
 
+import { useAddAsset } from './add-asset/context';
 import { useAddChainDataState } from './add-chain/context';
 import { ConfirmDAppForm } from './confirm-dapp-form';
 import { EvmPayloadContent } from './payload-content';
@@ -16,8 +17,9 @@ interface EvmConfirmDAppFormProps {
 }
 
 export const EvmConfirmDAppForm = memo<EvmConfirmDAppFormProps>(({ payload, id }) => {
-  const { confirmDAppPermission, confirmDAppSign, addDAppEvmChain } = useTempleClient();
+  const { confirmDAppPermission, confirmDAppSign, confirmDAppEvmChainAdding } = useTempleClient();
   const { testnet } = useAddChainDataState();
+  const { handleConfirm: confirmAssetAdding } = useAddAsset();
 
   const allAccountsStored = useAllAccounts();
   const allAccounts = useMemo(
@@ -40,15 +42,17 @@ export const EvmConfirmDAppForm = memo<EvmConfirmDAppFormProps>(({ payload, id }
       switch (payload.type) {
         case 'connect':
           return confirmDAppPermission(id, confirmed, accountPkh);
+        case 'add_asset':
+          return confirmAssetAdding(id, confirmed, payload.metadata);
         case 'add_chain':
-          return addDAppEvmChain(id, confirmed, testnet);
+          return confirmDAppEvmChainAdding(id, confirmed, testnet);
 
         case 'personal_sign':
         case 'sign_typed':
           return confirmDAppSign(id, confirmed);
       }
     },
-    [payload.type, confirmDAppPermission, id, addDAppEvmChain, testnet, confirmDAppSign]
+    [payload, confirmDAppPermission, id, confirmAssetAdding, confirmDAppEvmChainAdding, testnet, confirmDAppSign]
   );
 
   const renderPayload = useCallback(

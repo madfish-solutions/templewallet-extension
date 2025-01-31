@@ -26,13 +26,15 @@ import { TempleChainKind } from 'temple/types';
 
 import { DEFAULT_EVM_CHAINS_SPECS, EvmChainSpecs } from '../chains-specs';
 import {
-  AddEvmChainRequestData,
+  AddEthereumChainParameter,
+  EvmAssetToAddMetadata,
   ETHEREUM_MAINNET_CHAIN_ID,
   EvmChainToAddMetadata,
   TempleEvmDAppPersonalSignPayload,
   TempleEvmDAppSignPayload,
   TempleEvmDAppSignTypedPayload,
-  TempleMessageType
+  TempleMessageType,
+  WatchAssetParameters
 } from '../types';
 
 import { intercom } from './defaults';
@@ -190,7 +192,7 @@ export const connectEvm = async (origin: string, chainId: string, icon?: string)
   });
 };
 
-export const addChain = async (origin: string, requestData: AddEvmChainRequestData) =>
+export const addAsset = async (origin: string, currentChainId: string, params: WatchAssetParameters) =>
   new Promise(async (resolve, reject) => {
     const id = nanoid();
 
@@ -202,13 +204,67 @@ export const addChain = async (origin: string, requestData: AddEvmChainRequestDa
       return;
     }
 
-    const rpcUrl = requestData.rpcUrls.find(url => url.startsWith('https'));
+    if (params.type !== 'ERC20') {
+      reject(new ErrorWithCode(EVMErrorCodes.INVALID_PARAMS, `Asset type not supported. Received: ${params.type}`));
+
+      return;
+    }
+
+    const assetMetadata: EvmAssetToAddMetadata = {
+      ...params.options,
+      chainId: params.options.chainId ?? Number(currentChainId)
+    };
+
+    await requestConfirm({
+      id,
+      payload: {
+        chainType: TempleChainKind.EVM,
+        type: 'add_asset',
+        metadata: assetMetadata,
+        chainId: currentChainId,
+        origin,
+        appMeta: dApp.appMeta
+      },
+      onDecline: () => {
+        reject(new ErrorWithCode(EVMErrorCodes.USER_REJECTED_REQUEST, 'Asset adding declined'));
+      },
+      handleIntercomRequest: async (confirmReq, decline) => {
+        if (confirmReq?.type === TempleMessageType.DAppAddEvmAssetRequest && confirmReq.id === id) {
+          if (confirmReq.confirmed) {
+            resolve(null);
+          } else {
+            decline();
+          }
+
+          return {
+            type: TempleMessageType.DAppAddEvmAssetResponse
+          };
+        }
+
+        return undefined;
+      }
+    });
+  });
+
+export const addChain = async (origin: string, currentChainId: string, params: AddEthereumChainParameter) =>
+  new Promise(async (resolve, reject) => {
+    const id = nanoid();
+
+    const dApp = await getDApp(origin);
+
+    if (!dApp) {
+      reject(new ErrorWithCode(EVMErrorCodes.NOT_AUTHORIZED, 'DApp not found'));
+
+      return;
+    }
+
+    const rpcUrl = params.rpcUrls.find(url => url.startsWith('https'));
 
     if (!rpcUrl) {
       reject(
         new ErrorWithCode(
           EVMErrorCodes.INVALID_PARAMS,
-          `Expected array with at least one valid string HTTPS URL 'rpcUrls'. Received: ${requestData.rpcUrls}`
+          `Expected array with at least one valid string HTTPS URL 'rpcUrls'. Received: ${params.rpcUrls}`
         )
       );
 
@@ -216,11 +272,11 @@ export const addChain = async (origin: string, requestData: AddEvmChainRequestDa
     }
 
     const chainMetadata: EvmChainToAddMetadata = {
-      chainId: requestData.chainId,
-      name: requestData.chainName,
-      nativeCurrency: requestData.nativeCurrency,
+      chainId: params.chainId,
+      name: params.chainName,
+      nativeCurrency: params.nativeCurrency,
       rpcUrl,
-      blockExplorerUrl: requestData.blockExplorerUrls?.at(0)
+      blockExplorerUrl: params.blockExplorerUrls?.at(0)
     };
 
     await requestConfirm({
@@ -229,7 +285,7 @@ export const addChain = async (origin: string, requestData: AddEvmChainRequestDa
         chainType: TempleChainKind.EVM,
         type: 'add_chain',
         metadata: chainMetadata,
-        chainId: chainMetadata.chainId,
+        chainId: currentChainId,
         origin,
         appMeta: dApp.appMeta
       },

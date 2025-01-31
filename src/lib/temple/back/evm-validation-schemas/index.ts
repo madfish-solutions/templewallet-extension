@@ -49,6 +49,21 @@ export const ethPersonalSignPayloadValidationSchema = mixedSchema<
   return false;
 }).required();
 
+export const addEthAssetPayloadValidationSchema = objectSchema()
+  .shape({
+    type: stringSchema().required(),
+    options: objectSchema()
+      .shape({
+        address: evmAddressValidationSchema().required(),
+        chainId: numberSchema(),
+        name: stringSchema(),
+        symbol: stringSchema(),
+        decimals: numberSchema().integer().positive()
+      })
+      .required()
+  })
+  .required();
+
 export const addEthChainPayloadValidationSchema = tupleSchema([
   objectSchema()
     .shape({

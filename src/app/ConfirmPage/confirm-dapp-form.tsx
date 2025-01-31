@@ -21,6 +21,7 @@ import { useBooleanState, useSafeState } from 'lib/ui/hooks';
 import { delay } from 'lib/utils';
 import { useCurrentAccountId } from 'temple/front';
 
+import { useAddAsset } from './add-asset/context';
 import { ConfirmPageSelectors } from './selectors';
 
 interface ConfirmDAppFormProps {
@@ -36,6 +37,8 @@ export const ConfirmDAppForm = memo<ConfirmDAppFormProps>(({ accounts, payload, 
   const [isConfirming, setIsConfirming] = useSafeState(false);
   const [isDeclining, setIsDeclining] = useSafeState(false);
   const [error, setError] = useSafeState<any>(null);
+
+  const { errorMessage: addAssetErrorMessage } = useAddAsset();
 
   const currentAccountId = useCurrentAccountId();
   const selectedAccountId = useMemo(
@@ -85,7 +88,7 @@ export const ConfirmDAppForm = memo<ConfirmDAppFormProps>(({ accounts, payload, 
 
   const handleErrorAlertClose = useCallback(() => setError(null), [setError]);
 
-  const { title, confirmButtonName, confirmTestID, declineTestID } = useMemo(() => {
+  const { title, confirmButtonName, confirmTestID, declineTestID, confirmDisabled } = useMemo(() => {
     switch (payload.type) {
       case 'connect':
         return {
@@ -96,7 +99,25 @@ export const ConfirmDAppForm = memo<ConfirmDAppFormProps>(({ accounts, payload, 
             : ConfirmPageSelectors.ConnectAction_ConnectButton,
           declineTestID: ConfirmPageSelectors.ConnectAction_CancelButton
         };
+      case 'add_asset':
+        return {
+          title: <T id="addToken" />,
+          confirmButtonName: <T id={error ? 'retry' : 'confirm'} />,
+          confirmTestID: error
+            ? ConfirmPageSelectors.ConfirmOperationsAction_RetryButton
+            : ConfirmPageSelectors.ConfirmOperationsAction_ConfirmButton,
+          declineTestID: ConfirmPageSelectors.ConfirmOperationsAction_RejectButton,
+          confirmDisabled: Boolean(addAssetErrorMessage)
+        };
       case 'add_chain':
+        return {
+          title: <T id="addNetwork" />,
+          confirmButtonName: <T id={error ? 'retry' : 'confirm'} />,
+          confirmTestID: error
+            ? ConfirmPageSelectors.ConfirmOperationsAction_RetryButton
+            : ConfirmPageSelectors.ConfirmOperationsAction_ConfirmButton,
+          declineTestID: ConfirmPageSelectors.ConfirmOperationsAction_RejectButton
+        };
       case 'confirm_operations':
         return {
           title: <T id="confirmAction" substitutions={<T id="operations" />} />,
@@ -114,7 +135,7 @@ export const ConfirmDAppForm = memo<ConfirmDAppFormProps>(({ accounts, payload, 
           declineTestID: ConfirmPageSelectors.SignAction_RejectButton
         };
     }
-  }, [error, payload.type]);
+  }, [addAssetErrorMessage, error, payload.type]);
 
   return (
     <PageModal
@@ -139,29 +160,31 @@ export const ConfirmDAppForm = memo<ConfirmDAppFormProps>(({ accounts, payload, 
       ) : (
         <>
           <ScrollView className="p-4 gap-4" onBottomEdgeVisibilityChange={setBottomEdgeIsVisible}>
-            <div className="mb-2 flex flex-col items-center gap-2">
-              <div className="flex gap-2 relative">
-                <div className="w-13 h-13 flex justify-center items-center bg-white shadow-card rounded">
-                  <Logo size={30} type="icon" />
+            {payload.type !== 'add_asset' && (
+              <div className="mb-2 flex flex-col items-center gap-2">
+                <div className="flex gap-2 relative">
+                  <div className="w-13 h-13 flex justify-center items-center bg-white shadow-card rounded">
+                    <Logo size={30} type="icon" />
+                  </div>
+                  <div className="w-13 h-13 flex justify-center items-center bg-white shadow-card rounded">
+                    <DAppLogo size={30} icon={payload.appMeta.icon} origin={payload.origin} />
+                  </div>
+                  <div
+                    className={clsx(
+                      'w-5 h-5 rounded-full bg-grey-4 flex justify-center items-center',
+                      'absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2'
+                    )}
+                  >
+                    <IconBase Icon={LinkIcon} size={12} className="text-grey-1" />
+                  </div>
                 </div>
-                <div className="w-13 h-13 flex justify-center items-center bg-white shadow-card rounded">
-                  <DAppLogo size={30} icon={payload.appMeta.icon} origin={payload.origin} />
-                </div>
-                <div
-                  className={clsx(
-                    'w-5 h-5 rounded-full bg-grey-4 flex justify-center items-center',
-                    'absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2'
-                  )}
-                >
-                  <IconBase Icon={LinkIcon} size={12} className="text-grey-1" />
-                </div>
-              </div>
 
-              <Anchor className="flex pl-1 items-center" href={payload.origin}>
-                <span className="text-font-description-bold">{payload.appMeta.name}</span>
-                <IconBase Icon={OutLinkIcon} size={16} className="text-secondary" />
-              </Anchor>
-            </div>
+                <Anchor className="flex pl-1 items-center" href={payload.origin}>
+                  <span className="text-font-description-bold">{payload.appMeta.name}</span>
+                  <IconBase Icon={OutLinkIcon} size={16} className="text-secondary" />
+                </Anchor>
+              </div>
+            )}
 
             {error && (
               <Alert
@@ -196,6 +219,7 @@ export const ConfirmDAppForm = memo<ConfirmDAppFormProps>(({ accounts, payload, 
               loading={isConfirming}
               testID={confirmTestID}
               onClick={handleConfirmClick}
+              disabled={confirmDisabled}
             >
               {confirmButtonName}
             </StyledButton>
