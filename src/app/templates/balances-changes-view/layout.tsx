@@ -5,6 +5,7 @@ import clsx from 'clsx';
 
 import { T, t } from 'lib/i18n';
 import { atomsToTokens } from 'lib/temple/helpers';
+import useTippy, { UseTippyOptions } from 'lib/ui/useTippy';
 
 import InFiat, { InFiatProps } from '../InFiat';
 import { ShortenedTextWithTooltip } from '../shortened-text-with-tooltip';
@@ -28,12 +29,20 @@ interface BalancesChangesViewLayoutProps {
   rows: BalancesChangesViewRowProps[];
 }
 
+const unknownTokenTippyOptions: UseTippyOptions = {
+  trigger: 'mouseenter',
+  hideOnClick: false,
+  animation: 'shift-away-subtle',
+  content: t('unknownToken')
+};
+
 const BalancesChangesViewRow = memo<BalancesChangesViewRowProps>(
   ({ icon, symbol, atomicAmount, decimals, chainId, assetSlug, evm, variant }) => {
     const allCollectibles = variant === BalancesChangesViewRowVariant.AllCollectibles;
     const isCollectible = variant === BalancesChangesViewRowVariant.Collectible;
     const volume = useMemo(() => atomsToTokens(atomicAmount, decimals ?? 0), [atomicAmount, decimals]);
     const formattedVolume = useMemo(() => `${volume.isPositive() ? '+' : ''}${volume.toFixed()}`, [volume]);
+    const tippyRef = useTippy<HTMLSpanElement>(unknownTokenTippyOptions);
 
     return (
       <div className={clsx('flex items-center', allCollectibles ? 'gap-2' : 'gap-1')}>
@@ -52,7 +61,16 @@ const BalancesChangesViewRow = memo<BalancesChangesViewRowProps>(
           ) : (
             <>
               <ShortenedTextWithTooltip>{formattedVolume}</ShortenedTextWithTooltip>
-              <span className="whitespace-nowrap">{symbol ?? <T id="unknownToken" />}</span>
+              <span className="whitespace-nowrap">
+                {symbol ??
+                  (isCollectible ? (
+                    <T id="unknownToken" />
+                  ) : (
+                    <span ref={tippyRef}>
+                      <T id="unknownTokenAcronym" />
+                    </span>
+                  ))}
+              </span>
             </>
           )}
         </div>
