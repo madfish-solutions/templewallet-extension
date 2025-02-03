@@ -7,7 +7,8 @@ import { BalancesChanges } from 'temple/types';
 
 import { ContractCallTransaction, knownOperationsHandlers } from './handlers';
 
-const isContractCallTransaction = (tx: TransactionSerializable): tx is ContractCallTransaction => !!tx.data && !!tx.to;
+const isContractCallTransaction = (tx: TransactionSerializable): tx is ContractCallTransaction =>
+  Boolean(tx.data && tx.to);
 
 /** Returns the estimation of EVM balances changes of the `sender` assuming that they send the transaction themselves */
 export const getEvmBalancesChanges = async (

@@ -265,13 +265,15 @@ export async function requestSign(origin: string, req: TempleDAppSignRequest): P
   return new Promise((resolve, reject) => generatePromisifySign(resolve, reject, dApp, req));
 }
 
+const OPERATION_SIGN_PAYLOAD_PREFIX = '03';
+
 const generatePromisifySign = async (resolve: any, reject: any, dApp: TezosDAppSession, req: TempleDAppSignRequest) => {
   const id = nanoid();
   const networkRpc = await getAssertNetworkRPC(dApp.network);
 
   let preview: any;
   try {
-    if (req.payload.startsWith('03')) {
+    if (req.payload.startsWith(OPERATION_SIGN_PAYLOAD_PREFIX)) {
       const parsed = await localForger.parse(req.payload.slice(2));
       if (parsed.contents.length > 0) {
         preview = parsed;

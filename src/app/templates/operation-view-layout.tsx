@@ -44,13 +44,7 @@ export const OperationViewLayout = <T extends TxParamsFormData>({
       )}
 
       <div className="flex flex-col">
-        <AccountCard
-          account={sendingAccount}
-          isCurrent={false}
-          attractSelf={false}
-          searchValue=""
-          showRadioOnHover={false}
-        />
+        <AccountCard account={sendingAccount} isCurrent={false} attractSelf={false} showRadioOnHover={false} />
 
         <TransactionTabs<T> network={network} {...restProps} />
       </div>
