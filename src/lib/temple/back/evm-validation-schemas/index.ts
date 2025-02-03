@@ -54,11 +54,7 @@ export const addEthAssetPayloadValidationSchema = objectSchema()
     type: stringSchema().required(),
     options: objectSchema()
       .shape({
-        address: evmAddressValidationSchema().required(),
-        chainId: numberSchema(),
-        name: stringSchema(),
-        symbol: stringSchema(),
-        decimals: numberSchema().integer().positive()
+        address: evmAddressValidationSchema().required()
       })
       .required()
   })

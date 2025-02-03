@@ -65,9 +65,9 @@ export const AddAssetView = memo<Props>(({ metadata }) => {
     );
   }
 
-  const name = chainMetadata?.name ?? metadata.name ?? 'Unknown Asset';
-  const symbol = chainMetadata?.symbol ?? metadata.symbol ?? '???';
-  const decimals = chainMetadata?.decimals ?? metadata.decimals ?? 0;
+  const name = chainMetadata?.name || metadata.name || 'Unknown Asset';
+  const symbol = chainMetadata?.symbol || metadata.symbol || '???';
+  const decimals = chainMetadata?.decimals || metadata.decimals || 0;
 
   return (
     <div className="flex flex-col gap-6 mb-6">
