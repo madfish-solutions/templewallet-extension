@@ -87,6 +87,7 @@ export interface FormFieldProps extends TestIDProperty, Omit<FormFieldAttrs, 'ty
   rightSideComponent?: ReactNode;
   underneathComponent?: ReactNode;
   extraFloatingInner?: ReactNode;
+  floatAfterPlaceholder?: boolean;
   rightSideContainerStyle?: CSSProperties;
 }
 
@@ -119,6 +120,7 @@ export const FormField = forwardRef<FormFieldElement, FormFieldProps>(
       extraRightInner = null,
       extraRightInnerWrapper = 'default',
       extraFloatingInner = null,
+      floatAfterPlaceholder,
       id,
       type,
       value,
@@ -143,10 +145,12 @@ export const FormField = forwardRef<FormFieldElement, FormFieldProps>(
       testIDs,
       style,
       rightSideContainerStyle,
+      placeholder,
       ...rest
     },
     ref
   ) => {
+    console.log('oy vey 2', floatAfterPlaceholder, placeholder, extraFloatingInner);
     const secret = secretProp && textarea;
     const Field = textarea ? 'textarea' : 'input';
 
@@ -231,7 +235,7 @@ export const FormField = forwardRef<FormFieldElement, FormFieldProps>(
 
         <div className={clsx('relative flex items-stretch', fieldWrapperBottomMargin && 'mb-1')}>
           <ExtraFloatingInner
-            inputValue={value}
+            inputValue={value || (floatAfterPlaceholder ? placeholder : undefined)}
             innerComponent={extraFloatingInner}
             onClick={() => spareRef.current?.focus()}
           />
@@ -260,6 +264,7 @@ export const FormField = forwardRef<FormFieldElement, FormFieldProps>(
             readOnly={readOnly}
             spellCheck={spellCheck}
             autoComplete={autoComplete}
+            placeholder={placeholder}
             onChange={handleChange}
             onFocus={handleFocus}
             onBlur={handleBlur}
@@ -326,6 +331,7 @@ interface ExtraFloatingInnerProps {
 const getLeftIndent = (textWidth: number) => 12 + textWidth + 8;
 
 const ExtraFloatingInner: React.FC<ExtraFloatingInnerProps> = ({ inputValue, innerComponent, onClick }) => {
+  console.log('oy vey 1', inputValue, innerComponent);
   const measureTextWidthRef = useRef<HTMLDivElement>(null);
   const [textWidth, setTextWidth] = useState(0);
 

@@ -2,7 +2,7 @@ import React, { useMemo } from 'react';
 
 import { Loader } from 'app/atoms';
 import { StoredAccount } from 'lib/temple/types';
-import { BalancesChanges } from 'temple/types';
+import { AssetsAmounts } from 'temple/types';
 
 import { AccountCard } from './AccountCard';
 import { BalancesChangesView } from './balances-changes-view';
@@ -11,7 +11,7 @@ import { TxParamsFormData } from './TransactionTabs/types';
 
 interface OperationViewLayoutProps<T extends TxParamsFormData> extends TransactionTabsProps<T> {
   sendingAccount: StoredAccount;
-  balancesChanges: BalancesChanges;
+  balancesChanges: AssetsAmounts;
   balancesChangesLoading: boolean;
 }
 

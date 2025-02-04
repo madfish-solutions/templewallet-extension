@@ -7,17 +7,21 @@ import { TransactionRequest, formatTransactionRequest } from 'viem';
 import { HashChip } from 'app/atoms/HashChip';
 import { toastError } from 'app/toaster';
 import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
+import { EvmOperationKind, getOperationKind } from 'lib/evm/on-chain/transactions';
+import { parseEvmTxRequest } from 'lib/evm/on-chain/utils/parse-evm-tx-request';
 import { T } from 'lib/i18n';
 import { EvmTransactionRequestWithSender, TempleEvmDAppTransactionPayload } from 'lib/temple/types';
 import { serializeError } from 'lib/utils/serialize-error';
 import { getAccountAddressForEvm } from 'temple/accounts';
 import { deserializeEstimationData } from 'temple/evm/estimate';
-import { isEvmEstimationData, isSerializedEvmEstimationData, parseTransactionRequest } from 'temple/evm/utils';
+import { isEvmEstimationData, isSerializedEvmEstimationData } from 'temple/evm/utils';
 import { useAllAccounts, useAllEvmChains } from 'temple/front';
 
 import { OperationViewLayout } from '../operation-view-layout';
 import { EvmTxParamsFormData } from '../TransactionTabs/types';
 import { useEvmEstimationForm } from '../TransactionTabs/use-evm-estimation-form';
+
+import { ApproveLayout } from './approve-layout';
 
 interface EvmTransactionViewProps {
   payload: TempleEvmDAppTransactionPayload;
@@ -32,7 +36,6 @@ export const EvmTransactionView = memo<EvmTransactionViewProps>(
     const chains = useAllEvmChains();
     const { chainId, req, estimationData: serializedEstimationData, error: estimationError } = payload;
     const parsedChainId = Number(chainId);
-    const parsedReq = useMemo(() => ({ ...parseTransactionRequest(req), from: req.from }), [req]);
 
     const accounts = useAllAccounts();
     const chain = chains[parsedChainId];
@@ -50,15 +53,8 @@ export const EvmTransactionView = memo<EvmTransactionViewProps>(
         ? deserializeEstimationData(serializedEstimationData)
         : { gasPrice: BigInt(serializedEstimationData.gasPrice), type: serializedEstimationData.type };
     }, [serializedEstimationData]);
-    const basicParams = useMemo(
-      () => ({
-        ...parsedReq,
-        chainId: parsedChainId,
-        kzg: parsedReq.kzg as any,
-        authorizationList: parsedReq.authorizationList as any
-      }),
-      [parsedChainId, parsedReq]
-    );
+    const { txRequest, txSerializable } = useMemo(() => parseEvmTxRequest(payload), [payload]);
+    const operationKind = useMemo(() => getOperationKind(txSerializable), [txSerializable]);
     const {
       balancesChanges,
       balancesChangesLoading,
@@ -70,7 +66,7 @@ export const EvmTransactionView = memo<EvmTransactionViewProps>(
       feeOptions,
       displayedFee,
       getFeesPerGas
-    } = useEvmEstimationForm(estimationData, basicParams, sendingAccount, parsedChainId, true);
+    } = useEvmEstimationForm(estimationData, txSerializable, sendingAccount, parsedChainId, true);
     const { formState } = form;
 
     const handleSubmit = useCallback(
@@ -86,16 +82,16 @@ export const EvmTransactionView = memo<EvmTransactionViewProps>(
         }
 
         const finalTransaction = {
-          ...parsedReq,
-          ...(isEvmEstimationData(estimationData) ? omit(estimationData, 'estimatedFee') : {}),
+          ...txRequest,
+          ...(isEvmEstimationData(estimationData) ? omit(estimationData, 'estimatedFee', 'data') : {}),
           ...feesPerGas,
           ...(gasLimit ? { gas: BigInt(gasLimit) } : {}),
           ...(nonce ? { nonce: Number(nonce) } : {})
         } as TransactionRequest;
-        setFinalEvmTransaction({ ...formatTransactionRequest(finalTransaction), from: parsedReq.from });
+        setFinalEvmTransaction({ ...formatTransactionRequest(finalTransaction), from: txRequest.from });
         onSubmit();
       },
-      [estimationData, formState.isSubmitting, getFeesPerGas, onSubmit, parsedReq, setFinalEvmTransaction]
+      [estimationData, formState.isSubmitting, getFeesPerGas, onSubmit, txRequest, setFinalEvmTransaction]
     );
 
     const displayedEstimationError = useMemo(() => serializeError(estimationError), [estimationError]);
@@ -103,6 +99,10 @@ export const EvmTransactionView = memo<EvmTransactionViewProps>(
 
     return (
       <FormProvider {...form}>
+        {operationKind === EvmOperationKind.Approval && (
+          <ApproveLayout chain={chain} payload={payload} setFinalEvmTransaction={setFinalEvmTransaction} />
+        )}
+
         <OperationViewLayout
           network={chain}
           nativeAssetSlug={EVM_TOKEN_SLUG}
