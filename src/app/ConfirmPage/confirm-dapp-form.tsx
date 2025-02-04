@@ -52,7 +52,11 @@ export const ConfirmDAppForm = memo<ConfirmDAppFormProps>(({ accounts, payload, 
   const { dAppQueueCounters } = useTempleClient();
   const { length: requestsLeft, maxLength: totalRequestsCount } = dAppQueueCounters;
 
-  const shouldShowProgress = payload.type !== 'connect' && payload.type !== 'add_chain' && totalRequestsCount > 1;
+  const shouldShowProgress =
+    payload.type !== 'connect' &&
+    payload.type !== 'add_chain' &&
+    payload.type !== 'add_asset' &&
+    totalRequestsCount > 1;
 
   const confirm = useCallback(
     async (confirmed: boolean) => {
