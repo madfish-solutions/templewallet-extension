@@ -15,8 +15,9 @@ import {
   TempleEvmDAppConnectPayload,
   TempleEvmDAppPayload,
   TempleEvmDAppSignPayload,
-  TempleTezosDAppOperationsPayload,
-  TempleTezosDAppPayload
+  TempleTezosDAppConnectPayload,
+  TempleTezosDAppPayload,
+  TempleTezosDAppSignPayload
 } from 'lib/temple/types';
 import { NetworkEssentials } from 'temple/networks';
 import { TempleChainKind } from 'temple/types';
@@ -25,9 +26,10 @@ type DAppPayload<T extends TempleChainKind> = T extends TempleChainKind.EVM
   ? TempleEvmDAppPayload
   : TempleTezosDAppPayload;
 
-type DAppOperationsPayload<T extends TempleChainKind> = T extends TempleChainKind.Tezos
-  ? TempleTezosDAppOperationsPayload
-  : Exclude<TempleEvmDAppPayload, TempleEvmDAppConnectPayload | TempleEvmDAppSignPayload>;
+type DAppOperationsPayload<T extends TempleChainKind> = Exclude<
+  DAppPayload<T>,
+  TempleEvmDAppConnectPayload | TempleEvmDAppSignPayload | TempleTezosDAppConnectPayload | TempleTezosDAppSignPayload
+>;
 
 interface OperationViewPropsBase<T extends TempleChainKind> {
   network: NetworkEssentials<T>;
@@ -81,33 +83,51 @@ const ConnectView = memo<{ account: StoredAccount; openAccountsModal: EmptyFn }>
   </>
 ));
 
+const isConfirmOperationsPayload = <T extends TempleChainKind>(
+  payload: DAppPayload<T>
+): payload is DAppOperationsPayload<T> =>
+  ['connect', 'sign', 'personal_sign', 'sign_typed'].indexOf(payload.type) === -1;
+
 const PayloadContentHOC = <
   T extends TempleChainKind,
   E extends StrictOmit<StringRecord<unknown>, keyof PayloadContentPropsBase<T>>
 >(
   OperationView: FC<OperationViewPropsBase<T> & E>
 ) => {
-  const PayloadContent: FC<PayloadContentPropsBase<T> & E> = ({
+  const PayloadContent: FC<PayloadContentPropsBase<T> & { extraProps: E }> = ({
     network,
     payload,
     error,
     account,
+    formId,
+    onSubmit,
     openAccountsModal,
-    ...restProps
+    extraProps
   }) => (
     <div className="w-full flex flex-col gap-4">
       {(() => {
-        switch (payload.type) {
-          case 'connect':
-            return <ConnectView account={account} openAccountsModal={openAccountsModal} />;
-          case 'sign':
-          case 'personal_sign':
-          case 'sign_typed':
-            return <SignPayloadView payload={payload} />;
-          default:
-            // @ts-expect-error
-            return <OperationView network={network} payload={payload} error={error} {...restProps} />;
+        if (payload.type === 'connect') {
+          return <ConnectView account={account} openAccountsModal={openAccountsModal} />;
         }
+
+        if (payload.type === 'sign' || payload.type === 'personal_sign' || payload.type === 'sign_typed') {
+          return <SignPayloadView payload={payload} />;
+        }
+
+        if (isConfirmOperationsPayload(payload)) {
+          return (
+            <OperationView
+              network={network}
+              payload={payload}
+              error={error}
+              formId={formId}
+              onSubmit={onSubmit}
+              {...extraProps}
+            />
+          );
+        }
+
+        return null;
       })()}
     </div>
   );

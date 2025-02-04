@@ -84,13 +84,12 @@ export const TezosConfirmDAppForm = memo<TezosConfirmDAppFormProps>(({ payload, 
       <TezosPayloadContent
         network={network}
         error={error}
-        setTotalFee={setTotalFee}
-        setStorageLimit={setStorageLimit}
         account={selectedAccount}
         payload={payload}
         openAccountsModal={openAccountsModal}
         formId={formId}
         onSubmit={onSubmit}
+        extraProps={{ setTotalFee, setStorageLimit }}
       />
     ),
     [network, payload, setTotalFee, setStorageLimit]

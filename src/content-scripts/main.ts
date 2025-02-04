@@ -1,3 +1,4 @@
+import type { AccountInfo } from '@airgap/beacon-types/dist/esm';
 import { TemplePageMessage, TemplePageMessageType } from '@temple-wallet/dapp/dist/types';
 import browser from 'webextension-polyfill';
 
@@ -237,11 +238,11 @@ const TRACK_BEACON_DISCONNECTION_INTERVAL = 5000;
 function beaconIsConnected() {
   try {
     const activeAccountId = localStorage.getItem('beacon:active-account');
-    const accounts = JSON.parse(localStorage.getItem('beacon:accounts') || '[]');
+    const accounts: AccountInfo[] = JSON.parse(localStorage.getItem('beacon:accounts') || '[]');
 
     if (!Array.isArray(accounts)) return false;
 
-    const account = accounts.find((acc: any) => acc.accountIdentifier === activeAccountId);
+    const account = accounts.find(acc => acc.accountIdentifier === activeAccountId);
 
     return account?.origin?.id === browser.runtime.id;
   } catch (e) {

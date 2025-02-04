@@ -69,12 +69,12 @@ export const EvmConfirmDAppForm = memo<EvmConfirmDAppFormProps>(({ payload, id }
       <EvmPayloadContent
         network={network}
         error={error}
-        setFinalEvmTransaction={updateFinalEvmTransaction}
         account={selectedAccount}
         payload={modifiedPayload}
         openAccountsModal={openAccountsModal}
         formId={formId}
         onSubmit={onSubmit}
+        extraProps={{ setFinalEvmTransaction: updateFinalEvmTransaction }}
       />
     ),
     [modifiedPayload, network, updateFinalEvmTransaction]
