@@ -170,7 +170,7 @@ export const TezosTransactionView = memo<TezosTransactionViewProps>(
           destinationValue={null}
           sendingAccount={sendingAccount}
           balancesChanges={balancesChanges}
-          balancesChangesLoading={balancesChangesLoading}
+          loading={balancesChangesLoading}
         />
       </FormProvider>
     );

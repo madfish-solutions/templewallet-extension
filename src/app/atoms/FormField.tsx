@@ -150,7 +150,6 @@ export const FormField = forwardRef<FormFieldElement, FormFieldProps>(
     },
     ref
   ) => {
-    console.log('oy vey 2', floatAfterPlaceholder, placeholder, extraFloatingInner);
     const secret = secretProp && textarea;
     const Field = textarea ? 'textarea' : 'input';
 
@@ -331,7 +330,6 @@ interface ExtraFloatingInnerProps {
 const getLeftIndent = (textWidth: number) => 12 + textWidth + 8;
 
 const ExtraFloatingInner: React.FC<ExtraFloatingInnerProps> = ({ inputValue, innerComponent, onClick }) => {
-  console.log('oy vey 1', inputValue, innerComponent);
   const measureTextWidthRef = useRef<HTMLDivElement>(null);
   const [textWidth, setTextWidth] = useState(0);
 

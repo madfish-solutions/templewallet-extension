@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useMemo } from 'react';
+import React, { memo, useCallback, useMemo, useState } from 'react';
 
 import { omit } from 'lodash';
 import { FormProvider } from 'react-hook-form-v7';
@@ -96,11 +96,17 @@ export const EvmTransactionView = memo<EvmTransactionViewProps>(
 
     const displayedEstimationError = useMemo(() => serializeError(estimationError), [estimationError]);
     const displayedSubmitError = useMemo(() => serializeError(error), [error]);
+    const [approvesLoading, setApprovesLoading] = useState(operationKind === EvmOperationKind.Approval);
 
     return (
       <FormProvider {...form}>
         {operationKind === EvmOperationKind.Approval && (
-          <ApproveLayout chain={chain} payload={payload} setFinalEvmTransaction={setFinalEvmTransaction} />
+          <ApproveLayout
+            chain={chain}
+            req={req}
+            setFinalEvmTransaction={setFinalEvmTransaction}
+            onLoadingState={setApprovesLoading}
+          />
         )}
 
         <OperationViewLayout
@@ -121,7 +127,7 @@ export const EvmTransactionView = memo<EvmTransactionViewProps>(
           destinationValue={req.to ? <HashChip hash={req.to} /> : null}
           sendingAccount={sendingAccount}
           balancesChanges={balancesChanges}
-          balancesChangesLoading={balancesChangesLoading}
+          loading={balancesChangesLoading || approvesLoading}
         />
       </FormProvider>
     );

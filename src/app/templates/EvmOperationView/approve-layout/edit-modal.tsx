@@ -148,6 +148,7 @@ export const EditModal = memo<EditModalProps>(
                   'text-white bg-primary hover:bg-primary-hover rounded-md py-1'
                 )}
                 style={{ width: '41px' }}
+                testID={EvmTransactionViewSelectors.maxButton}
               >
                 <T id="max" />
               </Button>
