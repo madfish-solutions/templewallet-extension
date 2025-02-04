@@ -92,7 +92,6 @@ export async function dryRunOpParams({
       }
 
       if (estimationResult.status === 'fulfilled') {
-        console.log('oy vey 1', estimationResult.value.map(serializeEstimate));
         let revealEstimate: Estimate | undefined;
         const otherEstimates = Array.from(estimationResult.value);
 
@@ -122,7 +121,6 @@ export async function dryRunOpParams({
             usingBaseFeeMutez: revealEstimate.usingBaseFeeMutez + feeDelta
           });
         }
-        console.log('oy vey 2', serializedEstimates);
       }
     } catch (e) {
       console.error(e);
