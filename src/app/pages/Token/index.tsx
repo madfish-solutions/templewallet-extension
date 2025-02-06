@@ -14,7 +14,7 @@ import { ActivityListContainer, EvmActivityList, TezosActivityList } from 'app/t
 import { AdvertisingBanner } from 'app/templates/advertising/advertising-banner/advertising-banner';
 import { ExploreActionButtonsBar } from 'app/templates/ExploreActionButtons';
 import { isTezAsset } from 'lib/assets';
-import { useEvmAssetMetadata, useTezosAssetMetadata } from 'lib/metadata';
+import { useEvmAssetMetadata, useCategorizedTezosAssetMetadata } from 'lib/metadata';
 import { useBooleanState } from 'lib/ui/hooks';
 import { HistoryAction, navigate, useLocation } from 'lib/woozie';
 import { TempleChainKind } from 'temple/types';
@@ -64,7 +64,7 @@ const TezosTokenPage: FC<TezosTokenPageProps> = ({ chainId, assetSlug }) => {
 
   const [infoModalOpen, setInfoModalOpen, setInfoModalClosed] = useBooleanState(false);
 
-  const assetMetadata = useTezosAssetMetadata(assetSlug, chainId);
+  const assetMetadata = useCategorizedTezosAssetMetadata(assetSlug, chainId);
 
   const pageProps = useMemo<PageLayoutProps>(
     () => ({

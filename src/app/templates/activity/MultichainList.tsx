@@ -20,6 +20,7 @@ import { EvmActivityComponent, TezosActivityComponent } from './ActivityItem';
 import { ActivityListView } from './ActivityListView';
 import { ActivitiesDateGroup, useGroupingByDate } from './grouping-by-date';
 import { useActivitiesLoadingLogic } from './loading-logic';
+import { useTezosAssetsFromActivitiesCheck } from './use-tezos-assets-from-activites-check';
 import { FilterKind, getActivityFilterKind } from './utils';
 
 interface Props {
@@ -139,6 +140,15 @@ export const MultichainActivityList = memo<Props>(({ filterKind }) => {
       )),
     [groupedActivities, allTezosChains, allEvmChains]
   );
+
+  const tezosAssetsCheckConfig = useMemo(
+    () => ({
+      activities: displayActivities.filter(isTezosActivity),
+      accountPkh: tezAccAddress
+    }),
+    [tezAccAddress, displayActivities]
+  );
+  useTezosAssetsFromActivitiesCheck(tezosAssetsCheckConfig);
 
   return (
     <ActivityListView

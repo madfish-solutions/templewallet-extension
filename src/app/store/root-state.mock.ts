@@ -23,6 +23,7 @@ import { mockAssetsState } from './tezos/assets/state.mock';
 import { mockBalancesState } from './tezos/balances/state.mock';
 import { mockCollectiblesState } from './tezos/collectibles/state.mock';
 import { mockCollectiblesMetadataState } from './tezos/collectibles-metadata/state.mock';
+import { mockNoCategoryAssetsMetadataState } from './tezos/no-category-assets-metadata/state.mock';
 import { mockTokensMetadataState } from './tezos/tokens-metadata/state.mock';
 
 // ts-prune-ignore-next
@@ -38,6 +39,7 @@ export const mockRootState: RootState = {
   assets: mockAssetsState,
   tokensMetadata: mockTokensMetadataState,
   collectiblesMetadata: mockCollectiblesMetadataState,
+  noCategoryAssetMetadata: mockNoCategoryAssetsMetadataState,
   abTesting: mockABTestingState,
   cryptoExchange: mockCryptoExchangeState,
   buyWithCreditCard: mockBuyWithCreditCardState,

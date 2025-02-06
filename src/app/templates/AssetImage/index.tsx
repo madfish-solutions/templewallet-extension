@@ -1,6 +1,6 @@
 import React, { memo } from 'react';
 
-import { AssetMetadataBase, useEvmAssetMetadata, useTezosAssetMetadata } from 'lib/metadata';
+import { AssetMetadataBase, useEvmAssetMetadata, useGenericTezosAssetMetadata } from 'lib/metadata';
 import { EvmAssetMetadataBase } from 'lib/metadata/types';
 
 import {
@@ -22,7 +22,7 @@ export interface TezosAssetImageProps extends Omit<TezosAssetImageStackedProps, 
 export const TezosAssetImage = memo<TezosAssetImageProps>(({ Loader, Fallback, ...props }) => {
   const { tezosChainId, assetSlug, ...rest } = props;
 
-  const metadata = useTezosAssetMetadata(assetSlug, tezosChainId);
+  const metadata = useGenericTezosAssetMetadata(assetSlug, tezosChainId);
 
   return (
     <TezosAssetImageStacked

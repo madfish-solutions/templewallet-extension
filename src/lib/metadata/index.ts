@@ -17,6 +17,12 @@ import {
   useCollectibleMetadataSelector,
   useCollectiblesMetadataLoadingSelector
 } from 'app/store/tezos/collectibles-metadata/selectors';
+import { loadNoCategoryAssetsMetadataAction } from 'app/store/tezos/no-category-assets-metadata/actions';
+import {
+  useAllNoCategoryAssetsMetadataSelector,
+  useNoCategoryAssetMetadataSelector,
+  useNoCategoryAssetsMetadataLoadingSelector
+} from 'app/store/tezos/no-category-assets-metadata/selectors';
 import { loadTokensMetadataAction } from 'app/store/tezos/tokens-metadata/actions';
 import {
   useTokenMetadataSelector,
@@ -26,12 +32,13 @@ import {
 import { METADATA_API_LOAD_CHUNK_SIZE } from 'lib/apis/temple';
 import { isTezAsset } from 'lib/assets';
 import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
-import { fromChainAssetSlug } from 'lib/assets/utils';
+import { parseChainAssetSlug } from 'lib/assets/utils';
 import { isTruthy } from 'lib/utils';
 import { isEvmNativeTokenSlug } from 'lib/utils/evm.utils';
 import { useAllEvmChains, useAllTezosChains } from 'temple/front';
 import { useEvmChainByChainId } from 'temple/front/chains';
 import { isTezosDcpChainId } from 'temple/networks';
+import { TempleChainKind } from 'temple/types';
 
 import { TEZOS_METADATA, FILM_METADATA } from './defaults';
 import {
@@ -52,11 +59,18 @@ export const getTezosGasMetadata = (chainId: string) => (isTezosDcpChainId(chain
 
 export const useEvmGasMetadata = (chainId: number) => useEvmTokenMetadataSelector(chainId, EVM_TOKEN_SLUG);
 
-export const useTezosAssetMetadata = (slug: string, tezosChainId: string): AssetMetadataBase | undefined => {
+export const useCategorizedTezosAssetMetadata = (slug: string, tezosChainId: string): AssetMetadataBase | undefined => {
   const tokenMetadata = useTokenMetadataSelector(slug);
   const collectibleMetadata = useCollectibleMetadataSelector(slug);
 
   return isTezAsset(slug) ? getTezosGasMetadata(tezosChainId) : tokenMetadata || collectibleMetadata;
+};
+
+export const useGenericTezosAssetMetadata = (slug: string, tezosChainId: string): AssetMetadataBase | undefined => {
+  const categorizedMetadata = useCategorizedTezosAssetMetadata(slug, tezosChainId);
+  const noCategoryMetadata = useNoCategoryAssetMetadataSelector(slug);
+
+  return categorizedMetadata || noCategoryMetadata;
 };
 
 export const useEvmAssetMetadata = (slug: string, evmChainId: number): EvmAssetMetadata | undefined => {
@@ -136,13 +150,29 @@ export const useGetCollectibleMetadata = () => {
   return useCallback<TokenMetadataGetter>(slug => allMeta.get(slug), [allMeta]);
 };
 
-export const useGetAssetMetadata = (tezosChainId: string) => {
+export const useGetNoCategoryAssetMetadata = () => {
+  const allMeta = useAllNoCategoryAssetsMetadataSelector();
+
+  return useCallback<TokenMetadataGetter>(slug => allMeta[slug], [allMeta]);
+};
+
+export const useGetCategorizedAssetMetadata = (tezosChainId: string) => {
   const getTokenOrGasMetadata = useGetChainTokenOrGasMetadata(tezosChainId);
   const getCollectibleMetadata = useGetCollectibleMetadata();
 
   return useCallback(
     (slug: string) => getTokenOrGasMetadata(slug) || getCollectibleMetadata(slug),
     [getTokenOrGasMetadata, getCollectibleMetadata]
+  );
+};
+
+export const useGetGenericAssetMetadata = (tezosChainId: string) => {
+  const getCategorizedAssetMetadata = useGetCategorizedAssetMetadata(tezosChainId);
+  const getNoCategoryAssetMetadata = useGetNoCategoryAssetMetadata();
+
+  return useCallback(
+    (slug: string) => getCategorizedAssetMetadata(slug) || getNoCategoryAssetMetadata(slug),
+    [getCategorizedAssetMetadata, getNoCategoryAssetMetadata]
   );
 };
 
@@ -171,6 +201,31 @@ export const useTezosCollectiblesMetadataPresenceCheck = (chainSlugsToCheck?: st
   const getMetadata = useGetCollectibleMetadata();
 
   useTezosAssetsMetadataPresenceCheck(true, metadataLoading, getMetadata, chainSlugsToCheck);
+};
+
+export const useTezosGenericAssetsMetadataCheck = (
+  chainSlugsToCheck: string[] | undefined,
+  associatedAccountPkh: string | undefined
+) => {
+  const tokensMetadataLoading = useTokensMetadataLoadingSelector();
+  const collectiblesMetadataLoading = useCollectiblesMetadataLoadingSelector();
+  const noCategoryAssetsMetadataLoading = useNoCategoryAssetsMetadataLoadingSelector();
+  const getCollectibleMetadata = useGetCollectibleMetadata();
+  const getTokenMetadata = useGetTokenMetadata();
+  const getNoCategoryAssetMetadata = useGetNoCategoryAssetMetadata();
+
+  const getAssetMetadata = useCallback<TokenMetadataGetter>(
+    slug => getCollectibleMetadata(slug) || getTokenMetadata(slug) || getNoCategoryAssetMetadata(slug),
+    [getCollectibleMetadata, getNoCategoryAssetMetadata, getTokenMetadata]
+  );
+
+  useTezosAssetsMetadataPresenceCheck(
+    undefined,
+    tokensMetadataLoading || collectiblesMetadataLoading || noCategoryAssetsMetadataLoading,
+    getAssetMetadata,
+    chainSlugsToCheck,
+    associatedAccountPkh
+  );
 };
 
 const useTezosChainAssetsMetadataPresenceCheck = (
@@ -209,10 +264,11 @@ const useTezosChainAssetsMetadataPresenceCheck = (
 };
 
 const useTezosAssetsMetadataPresenceCheck = (
-  ofCollectibles: boolean,
+  ofCollectibles: boolean | undefined,
   metadataLoading: boolean,
   getMetadata: TokenMetadataGetter,
-  chainSlugsToCheck?: string[]
+  chainSlugsToCheck?: string[],
+  associatedAccountPkh = ''
 ) => {
   const tezosChains = useAllTezosChains();
 
@@ -223,7 +279,7 @@ const useTezosAssetsMetadataPresenceCheck = (
 
     const missingChunk = chainSlugsToCheck
       .filter(chainSlug => {
-        const [_, _2, slug] = fromChainAssetSlug<string>(chainSlug);
+        const [_, _2, slug] = parseChainAssetSlug(chainSlug, TempleChainKind.Tezos);
 
         return (
           !isTezAsset(slug) &&
@@ -238,7 +294,7 @@ const useTezosAssetsMetadataPresenceCheck = (
       checkedRef.current = [...checkedRef.current, ...missingChunk];
 
       const chainIdToMissingSlugsRecord = missingChunk.reduce<Record<string, string[]>>((acc, chainSlug) => {
-        const [_, chainId, slug] = fromChainAssetSlug<string>(chainSlug);
+        const [_, chainId, slug] = parseChainAssetSlug(chainSlug, TempleChainKind.Tezos);
 
         if (acc[chainId]) acc[chainId].push(slug);
         else acc[chainId] = [slug];
@@ -251,13 +307,24 @@ const useTezosAssetsMetadataPresenceCheck = (
 
         if (!rpcBaseURL) continue;
 
-        dispatch(
-          (ofCollectibles ? loadCollectiblesMetadataAction : loadTokensMetadataAction)({
-            rpcUrl: rpcBaseURL,
-            slugs: chainIdToMissingSlugsRecord[chainId]
-          })
-        );
+        if (ofCollectibles === undefined) {
+          dispatch(
+            loadNoCategoryAssetsMetadataAction({
+              rpcUrl: rpcBaseURL,
+              slugs: chainIdToMissingSlugsRecord[chainId],
+              associatedAccountPkh,
+              chainId
+            })
+          );
+        } else {
+          dispatch(
+            (ofCollectibles ? loadCollectiblesMetadataAction : loadTokensMetadataAction)({
+              rpcUrl: rpcBaseURL,
+              slugs: chainIdToMissingSlugsRecord[chainId]
+            })
+          );
+        }
       }
     }
-  }, [ofCollectibles, getMetadata, metadataLoading, chainSlugsToCheck, tezosChains]);
+  }, [ofCollectibles, getMetadata, metadataLoading, chainSlugsToCheck, tezosChains, associatedAccountPkh]);
 };

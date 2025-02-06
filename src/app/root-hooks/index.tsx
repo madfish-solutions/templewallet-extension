@@ -8,6 +8,7 @@ import { useConversionTracking } from 'app/hooks/use-conversion-tracking';
 import { useTokensApyLoading } from 'app/hooks/use-load-tokens-apy.hook';
 import { useLongRefreshLoading } from 'app/hooks/use-long-refresh-loading.hook';
 import { useMetadataRefresh } from 'app/hooks/use-metadata-refresh';
+import { useNoCategoryTezosAssetsLoading } from 'app/hooks/use-no-category-tezos-assets-loading';
 import { useShowAgreementsSync } from 'app/hooks/use-show-agreements-sync';
 import { useStorageAnalytics } from 'app/hooks/use-storage-analytics';
 import { useUserAnalyticsAndAdsSettings } from 'app/hooks/use-user-analytics-and-ads-settings.hook';
@@ -72,6 +73,7 @@ const AppReadyRootHooks = memo(() => {
 
 const TezosAccountHooks = memo<{ publicKeyHash: string }>(({ publicKeyHash }) => {
   useCollectiblesDetailsLoading(publicKeyHash);
+  useNoCategoryTezosAssetsLoading(publicKeyHash);
 
   return (
     <>

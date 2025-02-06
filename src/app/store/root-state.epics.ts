@@ -17,6 +17,7 @@ import { assetsEpics } from './tezos/assets/epics';
 import { balancesEpics } from './tezos/balances/epics';
 import { collectiblesEpics } from './tezos/collectibles/epics';
 import { collectiblesMetadataEpics } from './tezos/collectibles-metadata/epics';
+import { noCategoryAssetsMetadataEpics } from './tezos/no-category-assets-metadata/epics';
 import { tokensMetadataEpics } from './tezos/tokens-metadata/epics';
 
 const allEpics = combineEpics(
@@ -28,6 +29,7 @@ const allEpics = combineEpics(
   assetsEpics,
   tokensMetadataEpics,
   collectiblesMetadataEpics,
+  noCategoryAssetsMetadataEpics,
   abTestingEpics,
   cryptoExchangeEpics,
   buyWithCreditCardEpics,

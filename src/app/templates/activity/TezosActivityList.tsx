@@ -11,6 +11,7 @@ import { TezosActivityComponent } from './ActivityItem';
 import { ActivityListView } from './ActivityListView';
 import { ActivitiesDateGroup, useGroupingByDate } from './grouping-by-date';
 import { RETRY_AFTER_ERROR_TIMEOUT, useActivitiesLoadingLogic } from './loading-logic';
+import { useTezosAssetsFromActivitiesCheck } from './use-tezos-assets-from-activites-check';
 import { FilterKind, getActivityFilterKind } from './utils';
 
 interface Props {
@@ -85,6 +86,16 @@ export const TezosActivityList = memo<Props>(({ tezosChainId, assetSlug, filterK
   );
 
   const groupedActivities = useGroupingByDate(displayActivities);
+
+  const tezosAssetsCheckConfig = useMemo(
+    () => ({
+      activities: displayActivities,
+      accountPkh: accountAddress,
+      mainAsset: assetSlug ? { chainId, slug: assetSlug } : undefined
+    }),
+    [accountAddress, assetSlug, chainId, displayActivities]
+  );
+  useTezosAssetsFromActivitiesCheck(tezosAssetsCheckConfig);
 
   const contentJsx = useMemo(
     () =>

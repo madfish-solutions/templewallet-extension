@@ -24,6 +24,7 @@ import { assetsPersistedReducer } from './tezos/assets/reducer';
 import { balancesReducer } from './tezos/balances/reducers';
 import { collectiblesPersistedReducer } from './tezos/collectibles/reducer';
 import { collectiblesMetadataPersistedReducer } from './tezos/collectibles-metadata/reducer';
+import { noCategoryAssetsMetadataReducer } from './tezos/no-category-assets-metadata/reducers';
 import { tokensMetadataReducer } from './tezos/tokens-metadata/reducers';
 
 const rootStateReducersMap = {
@@ -38,6 +39,7 @@ const rootStateReducersMap = {
   assets: assetsPersistedReducer,
   tokensMetadata: tokensMetadataReducer,
   collectiblesMetadata: collectiblesMetadataPersistedReducer,
+  noCategoryAssetMetadata: noCategoryAssetsMetadataReducer,
   abTesting: abTestingReducer,
   cryptoExchange: cryptoExchangePersistedReducer,
   buyWithCreditCard: buyWithCreditCardReducer,
