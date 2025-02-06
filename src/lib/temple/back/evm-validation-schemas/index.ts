@@ -1,5 +1,4 @@
 import {
-  array as arraySchema,
   mixed as mixedSchema,
   object as objectSchema,
   tuple as tupleSchema,
@@ -15,6 +14,7 @@ import {
   evmAddressValidationSchema,
   hexStringSchema,
   oldTypedDataValidationSchema,
+  stringArraySchema,
   typedDataValidationSchema
 } from './utils';
 
@@ -72,9 +72,9 @@ export const addEthChainPayloadValidationSchema = tupleSchema([
           decimals: numberSchema().integer().positive().required()
         })
         .required(),
-      rpcUrls: arraySchema().of(stringSchema().required()).required(),
-      blockExplorerUrls: arraySchema().of(stringSchema().required()),
-      iconUrls: arraySchema().of(stringSchema().required())
+      rpcUrls: stringArraySchema().required(),
+      blockExplorerUrls: stringArraySchema(),
+      iconUrls: stringArraySchema()
     })
     .required(),
   hexStringSchema()

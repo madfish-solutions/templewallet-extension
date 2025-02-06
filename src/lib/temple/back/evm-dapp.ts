@@ -14,7 +14,7 @@ import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
 import { BLOCKCHAIN_EXPLORERS_OVERRIDES_STORAGE_KEY, EVM_CHAINS_SPECS_STORAGE_KEY } from 'lib/constants';
 import { EvmAssetStandard } from 'lib/evm/types';
 import { fetchFromStorage, putToStorage } from 'lib/storage';
-import { COLORS } from 'lib/ui/colors';
+import { getRandomColor } from 'lib/ui/colors';
 import { generateEntityNameFromUrl, isTruthy } from 'lib/utils';
 import { getReadOnlyEvm } from 'temple/evm';
 import { EVMErrorCodes, evmRpcMethodsNames, RETURNED_ACCOUNTS_CAVEAT_NAME } from 'temple/evm/constants';
@@ -325,7 +325,6 @@ export const addChain = async (origin: string, currentChainId: string, params: A
                 !customEvmNetworks.some(n => n.rpcBaseURL === rpcUrl) &&
                 !EVM_DEFAULT_NETWORKS.some(n => n.rpcBaseURL === rpcUrl)
               ) {
-                console.log(2);
                 const updatedSettings = await vault.updateSettings({
                   customEvmNetworks: [
                     ...customEvmNetworks,
@@ -334,7 +333,7 @@ export const addChain = async (origin: string, currentChainId: string, params: A
                       name: chainMetadata.name,
                       chain: TempleChainKind.EVM,
                       chainId: chainIdNum,
-                      color: COLORS[Math.floor(Math.random() * COLORS.length)],
+                      color: getRandomColor(),
                       rpcBaseURL: rpcUrl,
                       default: false
                     }

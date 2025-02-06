@@ -7,7 +7,7 @@ import { ArtificialError } from 'app/defaults';
 import { toastError } from 'app/toaster';
 import { EvmAssetStandard } from 'lib/evm/types';
 import { t } from 'lib/i18n';
-import { COLORS } from 'lib/ui/colors';
+import { getRandomColor } from 'lib/ui/colors';
 import { generateEntityNameFromUrl } from 'lib/utils';
 import { loadEvmChainId } from 'temple/evm';
 import { useTempleNetworksActions } from 'temple/front';
@@ -66,7 +66,7 @@ export const useAddNetwork = (
           id: nanoid(),
           rpcBaseURL: rpcUrl,
           name: rpcName,
-          color: COLORS[Math.floor(Math.random() * COLORS.length)]
+          color: getRandomColor()
         };
         const blockExplorerInput = explorerUrl
           ? {

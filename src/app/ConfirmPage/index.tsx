@@ -7,7 +7,6 @@ import Spinner from 'app/atoms/Spinner/Spinner';
 import { SuspenseContainer } from 'app/atoms/SuspenseContainer';
 import { LAYOUT_CONTAINER_CLASSNAME } from 'app/layouts/containers';
 import Unlock from 'app/pages/Unlock/Unlock';
-import { ToasterProvider } from 'app/toaster';
 import { t } from 'lib/i18n';
 import { useRetryableSWR } from 'lib/swr';
 import { useTempleClient } from 'lib/temple/front/client';
@@ -46,7 +45,6 @@ const ConfirmPage = memo(() => {
         }
       >
         <ConfirmDAppForm />
-        <ToasterProvider />
       </SuspenseContainer>
     </div>
   );
