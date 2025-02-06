@@ -209,7 +209,6 @@ export const useEvmAccountTokens = (account: HexString) => {
 export const useEvmChainAccountTokens = (account: HexString, chainId: number) => {
   const storedRaw = useRawEvmChainAccountTokensSelector(account, chainId);
   const balances = useRawEvmChainAccountBalancesSelector(account, chainId);
-  console.log(storedRaw, 'storedRaw');
 
   return useMemoWithCompare<AccountToken[]>(
     () =>
