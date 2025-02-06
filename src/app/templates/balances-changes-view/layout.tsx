@@ -76,7 +76,7 @@ const BalancesChangesViewRow = memo<BalancesChangesViewRowProps>(
         </div>
         {!allCollectibles && (
           <span className="text-font-num-12 text-grey-1 ml-3 whitespace-nowrap">
-            <InFiat volume={volume} chainId={chainId} assetSlug={assetSlug} evm={evm}>
+            <InFiat volume={volume} chainId={chainId} assetSlug={assetSlug} evm={evm} smallFractionFont={false}>
               {({ balance, symbol, noPrice }) =>
                 noPrice ? (
                   <T id="noValue" />
