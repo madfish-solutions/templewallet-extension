@@ -29,11 +29,15 @@ export const ethSignTypedDataValidationSchema = tupleSchema([
 ]).required();
 
 const ethPersonalSignSchemas = [
-  tupleSchema([hexByteStringSchema().required(), evmAddressValidationSchema().required(), stringSchema().required()]),
+  tupleSchema([
+    hexByteStringSchema().required(),
+    evmAddressValidationSchema().required(),
+    stringSchema().required().nullable()
+  ]),
   tupleSchema([hexByteStringSchema().required(), evmAddressValidationSchema().required()])
 ];
 export const ethPersonalSignPayloadValidationSchema = mixedSchema<
-  [HexString, HexString, string] | [HexString, HexString]
+  [HexString, HexString, string | null] | [HexString, HexString]
 >((value: unknown): value is [HexString, HexString, string] | [HexString, HexString] => {
   for (const schema of ethPersonalSignSchemas) {
     try {

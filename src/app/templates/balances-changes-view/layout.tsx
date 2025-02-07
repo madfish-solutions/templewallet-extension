@@ -46,6 +46,7 @@ const BalancesChangesViewRow = memo<BalancesChangesViewRowProps>(({ chain, symbo
               chainId={chain.chainId}
               assetSlug={assetSlug}
               evm={chain.kind === TempleChainKind.EVM}
+              smallFractionFont={false}
             >
               {({ balance, symbol, noPrice }) =>
                 noPrice ? (
