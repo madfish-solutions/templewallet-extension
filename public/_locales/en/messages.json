@@ -3130,6 +3130,9 @@
   "buyWithRampDescription": {
     "message": "Buy TEZ  using Visa, Mastercard, and all major debit and credit cards. Ramp is available in 160+ countries and territories."
   },
+  "provider": {
+    "message": "Provider"
+  },
   "selectPaymentProvider": {
     "message": "Select payment provider"
   },
