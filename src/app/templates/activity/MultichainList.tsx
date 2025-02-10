@@ -20,8 +20,8 @@ import { EvmActivityComponent, TezosActivityComponent } from './ActivityItem';
 import { ActivityListView } from './ActivityListView';
 import { ActivitiesDateGroup, useGroupingByDate } from './grouping-by-date';
 import { useActivitiesLoadingLogic } from './loading-logic';
-import { useTezosAssetsFromActivitiesCheck } from './use-tezos-assets-from-activites-check';
-import { FilterKind, getActivityFilterKind } from './utils';
+import { useAssetsFromActivitiesCheck } from './use-assets-from-activites-check';
+import { FilterKind, getActivityFilterKind, isTezosActivity } from './utils';
 
 interface Props {
   filterKind?: FilterKind;
@@ -143,12 +143,13 @@ export const MultichainActivityList = memo<Props>(({ filterKind }) => {
 
   const tezosAssetsCheckConfig = useMemo(
     () => ({
-      activities: displayActivities.filter(isTezosActivity),
-      accountPkh: tezAccAddress
+      activities: displayActivities,
+      tezAccountPkh: tezAccAddress,
+      evmAccountPkh: evmAccAddress
     }),
-    [tezAccAddress, displayActivities]
+    [displayActivities, tezAccAddress, evmAccAddress]
   );
-  useTezosAssetsFromActivitiesCheck(tezosAssetsCheckConfig);
+  useAssetsFromActivitiesCheck(tezosAssetsCheckConfig);
 
   return (
     <ActivityListView
@@ -161,10 +162,6 @@ export const MultichainActivityList = memo<Props>(({ filterKind }) => {
     </ActivityListView>
   );
 });
-
-function isTezosActivity(activity: Activity): activity is TezosActivity {
-  return 'oldestTzktOperation' in activity;
-}
 
 class EvmActivityLoader {
   activities: EvmActivity[] = [];

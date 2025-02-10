@@ -10,14 +10,14 @@ import { putTokensMetadataAction } from '../tokens-metadata/actions';
 
 import {
   putNoCategoryAssetsMetadataAction,
-  loadNoCategoryAssetsMetadataAction,
+  loadNoCategoryTezosAssetsMetadataAction,
   setNoCategoryAssetsMetadataLoadingAction,
-  refreshNoCategoryAssetsMetadataActions
+  refreshNoCategoryTezosAssetsMetadataActions
 } from './actions';
-import { noCategoryAssetsMetadataInitialState, NoCategoryAssetsMetadataState } from './state';
+import { noCategoryTezosAssetsMetadataInitialState, NoCategoryTezosAssetsMetadataState } from './state';
 
-export const noCategoryAssetsMetadataReducer = createReducer<NoCategoryAssetsMetadataState>(
-  noCategoryAssetsMetadataInitialState,
+export const noCategoryTezosAssetsMetadataReducer = createReducer<NoCategoryTezosAssetsMetadataState>(
+  noCategoryTezosAssetsMetadataInitialState,
   builder => {
     builder.addCase(
       putNoCategoryAssetsMetadataAction,
@@ -39,7 +39,7 @@ export const noCategoryAssetsMetadataReducer = createReducer<NoCategoryAssetsMet
       }
     );
 
-    builder.addCase(loadNoCategoryAssetsMetadataAction, state => {
+    builder.addCase(loadNoCategoryTezosAssetsMetadataAction, state => {
       state.metadataLoading = true;
     });
 
@@ -47,7 +47,7 @@ export const noCategoryAssetsMetadataReducer = createReducer<NoCategoryAssetsMet
       state.metadataLoading = payload;
     });
 
-    builder.addCase(refreshNoCategoryAssetsMetadataActions.success, (state, { payload }) => {
+    builder.addCase(refreshNoCategoryTezosAssetsMetadataActions.success, (state, { payload }) => {
       const keysToRefresh = ['artifactUri', 'displayUri'] as const;
 
       for (const slug of Object.keys(payload)) {
@@ -68,11 +68,13 @@ export const noCategoryAssetsMetadataReducer = createReducer<NoCategoryAssetsMet
     });
 
     const handlePutTokensOrCollectibles = (
-      state: Draft<NoCategoryAssetsMetadataState>,
+      state: Draft<NoCategoryTezosAssetsMetadataState>,
       { payload: { records } }: { payload: { records: FetchedMetadataRecord } }
     ) => {
-      for (const slug of Object.keys(records)) {
-        delete state.metadataRecord[slug];
+      for (const slug in records) {
+        if (records[slug]) {
+          delete state.metadataRecord[slug];
+        }
       }
     };
 

@@ -9,7 +9,7 @@ import { EvmAssetIconWithNetwork, TezosTokenIconWithNetwork } from 'app/template
 import { EvmBalance, TezosBalance } from 'app/templates/Balance';
 import { setAnotherSelector, setTestID, TestIDProperty } from 'lib/analytics';
 import { T } from 'lib/i18n';
-import { getAssetSymbol, useEvmAssetMetadata, useCategorizedTezosAssetMetadata } from 'lib/metadata';
+import { getAssetSymbol, useEvmCategorizedAssetMetadata, useCategorizedTezosAssetMetadata } from 'lib/metadata';
 import { EvmChain, OneOfChains, TezosChain } from 'temple/front';
 import { TempleChainKind } from 'temple/types';
 
@@ -84,7 +84,7 @@ interface EvmContentProps {
 }
 
 const EvmContent = memo<EvmContentProps>(({ network, accountPkh, assetSlug }) => {
-  const assetMetadata = useEvmAssetMetadata(assetSlug, network.chainId);
+  const assetMetadata = useEvmCategorizedAssetMetadata(assetSlug, network.chainId);
 
   return (
     <>

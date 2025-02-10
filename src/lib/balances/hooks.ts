@@ -29,7 +29,7 @@ import {
   useCategorizedTezosAssetMetadata,
   useGetChainTokenOrGasMetadata,
   useGetTokenOrGasMetadata,
-  useEvmAssetMetadata
+  useEvmGenericAssetMetadata
 } from 'lib/metadata';
 import { EvmTokenMetadata } from 'lib/metadata/types';
 import { isEvmCollectible } from 'lib/metadata/utils';
@@ -265,7 +265,7 @@ function useEvmAssetRawBalance(
 }
 
 export function useEvmAssetBalance(assetSlug: string, address: HexString, network: EvmNetworkEssentials) {
-  const metadata = useEvmAssetMetadata(assetSlug, network.chainId);
+  const metadata = useEvmGenericAssetMetadata(assetSlug, network.chainId);
 
   const {
     value: rawValue,

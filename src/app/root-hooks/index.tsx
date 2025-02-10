@@ -8,6 +8,7 @@ import { useConversionTracking } from 'app/hooks/use-conversion-tracking';
 import { useTokensApyLoading } from 'app/hooks/use-load-tokens-apy.hook';
 import { useLongRefreshLoading } from 'app/hooks/use-long-refresh-loading.hook';
 import { useMetadataRefresh } from 'app/hooks/use-metadata-refresh';
+import { useNoCategoryEvmAssetsLoading } from 'app/hooks/use-no-category-evm-assets-loading';
 import { useNoCategoryTezosAssetsLoading } from 'app/hooks/use-no-category-tezos-assets-loading';
 import { useShowAgreementsSync } from 'app/hooks/use-show-agreements-sync';
 import { useStorageAnalytics } from 'app/hooks/use-storage-analytics';
@@ -84,10 +85,14 @@ const TezosAccountHooks = memo<{ publicKeyHash: string }>(({ publicKeyHash }) =>
   );
 });
 
-const EvmAccountHooks = memo<{ publicKeyHash: HexString }>(({ publicKeyHash }) => (
-  <>
-    <AppEvmTokensExchangeRatesLoading publicKeyHash={publicKeyHash} />
-    <AppEvmTokensMetadataLoading publicKeyHash={publicKeyHash} />
-    <AppEvmBalancesLoading publicKeyHash={publicKeyHash} />
-  </>
-));
+const EvmAccountHooks = memo<{ publicKeyHash: HexString }>(({ publicKeyHash }) => {
+  useNoCategoryEvmAssetsLoading(publicKeyHash);
+
+  return (
+    <>
+      <AppEvmTokensExchangeRatesLoading publicKeyHash={publicKeyHash} />
+      <AppEvmTokensMetadataLoading publicKeyHash={publicKeyHash} />
+      <AppEvmBalancesLoading publicKeyHash={publicKeyHash} />
+    </>
+  );
+});

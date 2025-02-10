@@ -1,6 +1,6 @@
 import React, { memo } from 'react';
 
-import { AssetMetadataBase, useEvmAssetMetadata, useGenericTezosAssetMetadata } from 'lib/metadata';
+import { AssetMetadataBase, useEvmGenericAssetMetadata, useGenericTezosAssetMetadata } from 'lib/metadata';
 import { EvmAssetMetadataBase } from 'lib/metadata/types';
 
 import {
@@ -44,7 +44,7 @@ export interface EvmAssetImageProps extends Omit<EvmAssetImageStackedProps, 'sou
 export const EvmAssetImage = memo<EvmAssetImageProps>(({ Loader, Fallback, ...props }) => {
   const { evmChainId, assetSlug, ...rest } = props;
 
-  const metadata = useEvmAssetMetadata(assetSlug, evmChainId);
+  const metadata = useEvmGenericAssetMetadata(assetSlug, evmChainId);
 
   return (
     <EvmAssetImageStacked

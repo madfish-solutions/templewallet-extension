@@ -2,9 +2,9 @@ import { tokenToSlug } from 'lib/assets';
 
 import { mockFA1_2TokenMetadata, mockFA2TokenMetadata } from '../utils';
 
-import { NoCategoryAssetsMetadataState } from './state';
+import { NoCategoryTezosAssetsMetadataState } from './state';
 
-export const mockNoCategoryAssetsMetadataState: NoCategoryAssetsMetadataState = {
+export const mockNoCategoryTezosAssetsMetadataState: NoCategoryTezosAssetsMetadataState = {
   metadataRecord: {
     [tokenToSlug(mockFA1_2TokenMetadata)]: mockFA1_2TokenMetadata,
     [tokenToSlug(mockFA2TokenMetadata)]: mockFA2TokenMetadata
