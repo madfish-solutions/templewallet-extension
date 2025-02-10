@@ -9,7 +9,6 @@ import { ActionsButtonsBox } from 'app/atoms/PageModal';
 import { StyledButton } from 'app/atoms/StyledButton';
 import { T, t } from 'lib/i18n';
 
-import { ModalHeaderConfig } from '../../types';
 import { InfoCard } from '../components/InfoCard';
 import { SelectAssetButton } from '../components/SelectAssetButton';
 import { SelectProviderButton } from '../components/SelectProviderButton';
@@ -20,11 +19,10 @@ const MIN_ERROR = 'min';
 const MAX_ERROR = 'max';
 
 interface Props {
-  setModalHeaderConfig: SyncFn<ModalHeaderConfig>;
   setModalContent: SyncFn<'send' | 'get' | 'provider'>;
 }
 
-export const Form: FC<Props> = () => {
+export const Form: FC<Props> = ({ setModalContent }) => {
   //const formAnalytics = useFormAnalytics('BuyWithDebitCreditCardForm');
 
   const {
@@ -37,6 +35,10 @@ export const Form: FC<Props> = () => {
 
   const inputCurrency = watch('inputCurrency');
   const outputCurrency = watch('outputToken');
+
+  const handleSelectCurrency = useCallback(() => void setModalContent('send'), []);
+  const handleSelectToken = useCallback(() => void setModalContent('get'), []);
+  const handleSelectProvider = useCallback(() => void setModalContent('provider'), []);
 
   const onSubmit = useCallback<SubmitHandler<FormData>>(() => 1, []);
 
@@ -53,12 +55,7 @@ export const Form: FC<Props> = () => {
               onBlur={onBlur}
               onChange={v => onChange(v ?? '')}
               assetDecimals={inputCurrency.precision}
-              rightSideComponent={
-                <SelectAssetButton
-                  currency={inputCurrency}
-                  //onClick={selectInputCurrency}
-                />
-              }
+              rightSideComponent={<SelectAssetButton currency={inputCurrency} onClick={handleSelectCurrency} />}
               rightSideContainerStyle={{ right: 2 }}
               style={{ paddingRight: 158 }}
               underneathComponent={
@@ -80,12 +77,7 @@ export const Form: FC<Props> = () => {
           readOnly
           //value={toAmount === 0 ? '' : toAmount}
           assetDecimals={outputCurrency.precision}
-          rightSideComponent={
-            <SelectAssetButton
-              currency={outputCurrency}
-              //onClick={selectOutputCurrency}
-            />
-          }
+          rightSideComponent={<SelectAssetButton currency={outputCurrency} onClick={handleSelectToken} />}
           rightSideContainerStyle={{ right: 2 }}
           style={{ paddingRight: 158 }}
           label={t('get')}
@@ -105,7 +97,7 @@ export const Form: FC<Props> = () => {
           </span>
         </div>
 
-        <SelectProviderButton providerId={TopUpProviderId.MoonPay} />
+        <SelectProviderButton providerId={TopUpProviderId.MoonPay} onClick={handleSelectProvider} />
 
         <InfoCard
           rate={0.35}

@@ -47,7 +47,10 @@ export const DebitCreditCard: FC<Props> = ({ opened, onRequestClose }) => {
     defaultValues: defaultFormData
   });
 
-  const onGoBack = useCallback(() => setModalContent('form'), []);
+  const onGoBack = useCallback(() => {
+    setModalHeaderConfig(defaultModalHeaderConfig);
+    setModalContent('form');
+  }, []);
 
   return (
     <PageModal opened={opened} onRequestClose={onRequestClose} {...modalHeaderConfig}>
@@ -57,11 +60,11 @@ export const DebitCreditCard: FC<Props> = ({ opened, onRequestClose }) => {
             case 'send':
               return <SelectCurrency setModalHeaderConfig={setModalHeaderConfig} onGoBack={onGoBack} />;
             case 'get':
-              return <SelectToken />;
+              return <SelectToken setModalHeaderConfig={setModalHeaderConfig} onGoBack={onGoBack} />;
             case 'provider':
-              return <SelectProvider />;
+              return <SelectProvider setModalHeaderConfig={setModalHeaderConfig} onGoBack={onGoBack} />;
             default:
-              return <Form setModalContent={setModalContent} setModalHeaderConfig={setModalHeaderConfig} />;
+              return <Form setModalContent={setModalContent} />;
           }
         })()}
       </FormProvider>

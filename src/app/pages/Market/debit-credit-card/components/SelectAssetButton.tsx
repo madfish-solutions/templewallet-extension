@@ -14,7 +14,7 @@ interface Props {
 
 export const SelectAssetButton = memo<Props>(({ currency, onClick }) => (
   <Button
-    className="cursor-pointer flex justify-between items-center bg-white py-0.5 px-2 gap-x-1 rounded-8 w-[144px] h-[46px]"
+    className="cursor-pointer flex justify-between items-center bg-white py-0.5 px-2 gap-x-1 rounded-8 w-[144px] h-[46px] border-0.5 border-transparent hover:border-lines"
     onClick={onClick}
   >
     <div className="flex items-center gap-x-2">
