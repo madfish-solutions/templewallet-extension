@@ -55,7 +55,9 @@ export const Form: FC<Props> = ({ setModalContent }) => {
               onBlur={onBlur}
               onChange={v => onChange(v ?? '')}
               assetDecimals={inputCurrency.precision}
-              rightSideComponent={<SelectAssetButton currency={inputCurrency} onClick={handleSelectCurrency} />}
+              rightSideComponent={
+                <SelectAssetButton useFlagIcon currency={inputCurrency} onClick={handleSelectCurrency} />
+              }
               rightSideContainerStyle={{ right: 2 }}
               style={{ paddingRight: 158 }}
               underneathComponent={
