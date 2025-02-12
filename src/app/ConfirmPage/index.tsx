@@ -14,6 +14,8 @@ import { TempleDAppPayload } from 'lib/temple/types';
 import { useLocation } from 'lib/woozie';
 import { TempleChainKind } from 'temple/types';
 
+import { AddAssetProvider } from './add-asset/context';
+import { AddChainDataProvider } from './add-chain/context';
 import { EvmConfirmDAppForm } from './evm-confirm-dapp-form';
 import { TezosConfirmDAppForm } from './tezos-confirm-dapp-form';
 
@@ -72,7 +74,11 @@ const ConfirmDAppForm = () => {
   const payload = data!;
 
   return payload.chainType === TempleChainKind.EVM ? (
-    <EvmConfirmDAppForm payload={payload} id={id} />
+    <AddChainDataProvider>
+      <AddAssetProvider>
+        <EvmConfirmDAppForm payload={payload} id={id} />
+      </AddAssetProvider>
+    </AddChainDataProvider>
   ) : (
     <TezosConfirmDAppForm payload={payload} id={id} />
   );
