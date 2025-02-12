@@ -265,11 +265,11 @@ interface TempleEvmDAppPayloadBase extends TempleDAppPayloadBase {
   chainType: TempleChainKind.EVM;
 }
 
-export interface TempleTezosDAppConnectPayload extends TempleTezosDAppPayloadBase {
+interface TempleTezosDAppConnectPayload extends TempleTezosDAppPayloadBase {
   type: 'connect';
 }
 
-export interface TempleEvmDAppConnectPayload extends TempleEvmDAppPayloadBase {
+interface TempleEvmDAppConnectPayload extends TempleEvmDAppPayloadBase {
   type: 'connect';
 }
 
