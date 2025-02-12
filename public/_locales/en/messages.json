@@ -2602,6 +2602,9 @@
   "PriceImpactInfo": {
     "message": "The difference between the market price and estimated price due to trade size"
   },
+  "newQuote": {
+    "message": "New quote:"
+  },
   "selectProvider": {
     "message": "Select Provider"
   },
@@ -3139,6 +3142,9 @@
   "provider": {
     "message": "Provider"
   },
+  "providers": {
+    "message": "Providers"
+  },
   "selectPaymentProvider": {
     "message": "Select payment provider"
   },
@@ -3217,7 +3223,7 @@
     "message": "Supports USDT"
   },
   "bestPrice": {
-    "message": "Best price"
+    "message": "Best Price"
   },
   "topUpCrypto": {
     "message": "Crypto"

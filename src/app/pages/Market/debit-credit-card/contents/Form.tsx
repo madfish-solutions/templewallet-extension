@@ -10,10 +10,10 @@ import { StyledButton } from 'app/atoms/StyledButton';
 import { T, t } from 'lib/i18n';
 
 import { InfoCard } from '../components/InfoCard';
+import { NewQuoteLabel } from '../components/NewQuoteLabel';
 import { SelectAssetButton } from '../components/SelectAssetButton';
 import { SelectProviderButton } from '../components/SelectProviderButton';
 import { FormData, VALUE_PLACEHOLDER } from '../config';
-import { TopUpProviderId } from '../top-up-provider-id.enum';
 
 const MIN_ERROR = 'min';
 const MAX_ERROR = 'max';
@@ -35,6 +35,7 @@ export const Form: FC<Props> = ({ setModalContent }) => {
 
   const inputCurrency = watch('inputCurrency');
   const outputCurrency = watch('outputToken');
+  const provider = watch('provider');
 
   const handleSelectCurrency = useCallback(() => void setModalContent('send'), []);
   const handleSelectToken = useCallback(() => void setModalContent('get'), []);
@@ -88,18 +89,9 @@ export const Form: FC<Props> = ({ setModalContent }) => {
           containerClassName="pb-8"
         />
 
-        <div className="flex flex-row justify-between py-1 mb-1">
-          <span className="text-font-description-bold">
-            <T id="provider" />
-          </span>
+        <NewQuoteLabel title="provider" className="mb-1" />
 
-          <span>
-            <span className="text-font-description text-grey-2 mr-0.5">New Quote:</span>
-            <span className="w-7 inline-block text-font-description-bold text-end">0:22</span>
-          </span>
-        </div>
-
-        <SelectProviderButton providerId={TopUpProviderId.MoonPay} onClick={handleSelectProvider} />
+        <SelectProviderButton provider={provider} onClick={handleSelectProvider} />
 
         <InfoCard
           rate={0.35}
