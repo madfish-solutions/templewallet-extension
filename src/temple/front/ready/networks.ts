@@ -4,6 +4,7 @@ import { useTestnetModeEnabledSelector } from 'app/store/settings/selectors';
 import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
 import { EvmAssetStandard } from 'lib/evm/types';
 import { EvmNativeTokenMetadata } from 'lib/metadata/types';
+import { EvmChainSpecs, TezosChainSpecs } from 'lib/temple/chains-specs';
 import {
   ActiveChainsRpcUrls,
   ChainsRpcUrls,
@@ -20,9 +21,9 @@ import {
 } from 'temple/networks';
 import { TempleChainKind } from 'temple/types';
 
-import { useBlockExplorers } from '../block-explorers';
 import type { ChainBase, EvmChain, OneOfChains, TezosChain } from '../chains';
-import { EvmChainSpecs, TezosChainSpecs, useEvmChainsSpecs, useTezosChainsSpecs } from '../chains-specs';
+import { useBlockExplorers } from '../use-block-explorers';
+import { useEvmChainsSpecs, useTezosChainsSpecs } from '../use-chains-specs';
 
 export function useReadyTempleTezosNetworks(customTezosNetworks: StoredTezosNetwork[]) {
   const allTezosNetworks = useMemo<typeof TEZOS_DEFAULT_NETWORKS>(

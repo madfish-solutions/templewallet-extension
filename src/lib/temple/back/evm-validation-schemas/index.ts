@@ -14,7 +14,9 @@ import { rpcTransactionRequestValidationSchema } from './transaction-request';
 import {
   evmAddressValidationSchema,
   hexByteStringSchema,
+  hexStringSchema,
   oldTypedDataValidationSchema,
+  stringArraySchema,
   typedDataValidationSchema
 } from './utils';
 
@@ -51,6 +53,37 @@ export const ethPersonalSignPayloadValidationSchema = mixedSchema<
 
   return false;
 }).required();
+
+export const addEthAssetPayloadValidationSchema = objectSchema()
+  .shape({
+    type: stringSchema().required(),
+    options: objectSchema()
+      .shape({
+        address: evmAddressValidationSchema().required()
+      })
+      .required()
+  })
+  .required();
+
+export const addEthChainPayloadValidationSchema = tupleSchema([
+  objectSchema()
+    .shape({
+      chainId: stringSchema().required(),
+      chainName: stringSchema().required(),
+      nativeCurrency: objectSchema()
+        .shape({
+          name: stringSchema().required(),
+          symbol: stringSchema().required(),
+          decimals: numberSchema().integer().positive().required()
+        })
+        .required(),
+      rpcUrls: stringArraySchema().required(),
+      blockExplorerUrls: stringArraySchema(),
+      iconUrls: stringArraySchema()
+    })
+    .required(),
+  hexStringSchema()
+]).required();
 
 export const switchEthChainPayloadValidationSchema = tupleSchema([
   objectSchema().shape({

@@ -6,6 +6,8 @@ import { EvmTransactionRequestWithSender, StoredAccount, TempleEvmDAppPayload } 
 import { getAccountForEvm, isAccountOfActableType } from 'temple/accounts';
 import { useAllAccounts, useAllEvmChains } from 'temple/front';
 
+import { useAddAsset } from './add-asset/context';
+import { useAddChainDataState } from './add-chain/context';
 import { ConfirmDAppForm, ConfirmDAppFormContentProps } from './confirm-dapp-form';
 import { EvmPayloadContent } from './payload-content';
 
@@ -17,7 +19,8 @@ interface EvmConfirmDAppFormProps {
 const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
 
 export const EvmConfirmDAppForm = memo<EvmConfirmDAppFormProps>(({ payload, id }) => {
-  const { confirmDAppPermission, confirmDAppSign, confirmEvmDAppOperation } = useTempleClient();
+  const { confirmDAppPermission, confirmDAppSign, confirmEvmDAppOperation, confirmDAppEvmChainAdding } =
+    useTempleClient();
 
   const [finalEvmTransaction, setFinalEvmTransaction] = useState<EvmTransactionRequestWithSender>(() =>
     payload.type === 'confirm_operations' ? payload.req : { to: ZERO_ADDRESS, from: ZERO_ADDRESS }
@@ -34,6 +37,9 @@ export const EvmConfirmDAppForm = memo<EvmConfirmDAppFormProps>(({ payload, id }
     [payload, finalEvmTransaction]
   );
 
+  const { testnet } = useAddChainDataState();
+  const { handleConfirm: confirmAssetAdding } = useAddAsset();
+
   const allAccountsStored = useAllAccounts();
   const allAccounts = useMemo(
     () => allAccountsStored.filter(acc => isAccountOfActableType(acc) && getAccountForEvm(acc)),
@@ -42,9 +48,11 @@ export const EvmConfirmDAppForm = memo<EvmConfirmDAppFormProps>(({ payload, id }
 
   const evmChains = useAllEvmChains();
   const chainId = Number(payload.chainId);
-  const rpcBaseURL = evmChains[chainId].rpcBaseURL;
 
-  const network = useMemo(() => ({ chainId, rpcBaseURL }), [chainId, rpcBaseURL]);
+  const network = useMemo(
+    () => ({ chainId, rpcBaseURL: payload.type === 'add_chain' ? '' : evmChains[chainId].rpcBaseURL }),
+    [chainId, evmChains, payload.type]
+  );
 
   const handleConfirm = useCallback(
     async (confirmed: boolean, selectedAccount: StoredAccount) => {
@@ -52,6 +60,10 @@ export const EvmConfirmDAppForm = memo<EvmConfirmDAppFormProps>(({ payload, id }
       switch (payload.type) {
         case 'connect':
           return confirmDAppPermission(id, confirmed, accountPkh);
+        case 'add_asset':
+          return confirmAssetAdding(id, confirmed, payload.metadata);
+        case 'add_chain':
+          return confirmDAppEvmChainAdding(id, confirmed, testnet);
 
         case 'personal_sign':
         case 'sign_typed':
@@ -61,7 +73,16 @@ export const EvmConfirmDAppForm = memo<EvmConfirmDAppFormProps>(({ payload, id }
           return confirmEvmDAppOperation(id, confirmed, evmTransactionRef.current);
       }
     },
-    [payload.type, confirmDAppPermission, id, confirmDAppSign, confirmEvmDAppOperation]
+    [
+      payload,
+      confirmDAppPermission,
+      id,
+      confirmAssetAdding,
+      confirmDAppEvmChainAdding,
+      testnet,
+      confirmDAppSign,
+      confirmEvmDAppOperation
+    ]
   );
 
   const renderPayload = useCallback(
