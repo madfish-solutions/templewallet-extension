@@ -187,6 +187,16 @@ export const EVM_DEFAULT_NETWORKS: NonEmptyArray<StoredEvmNetwork> = [
     default: true
   },
   {
+    id: 'etherlink-mainnet',
+    name: 'Etherlink Mainnet',
+    chain: TempleChainKind.EVM,
+    chainId: OTHER_COMMON_MAINNET_CHAIN_IDS.etherlink,
+    rpcBaseURL: 'https://node.mainnet.etherlink.com',
+    description: 'Etherlink Mainnet',
+    color: '#207449',
+    default: true
+  },
+  {
     id: 'eth-sepolia',
     name: 'Ethereum Sepolia',
     chain: TempleChainKind.EVM,
@@ -232,6 +242,16 @@ export const EVM_DEFAULT_NETWORKS: NonEmptyArray<StoredEvmNetwork> = [
     rpcBaseURL: 'https://endpoints.omniatech.io/v1/op/sepolia/public',
     description: 'Optimism Testnet',
     color: '#fc0000',
+    default: true
+  },
+  {
+    id: 'etherlink-ghostnet',
+    name: 'Etherlink Testnet',
+    chain: TempleChainKind.EVM,
+    chainId: 128123,
+    rpcBaseURL: 'https://node.ghostnet.etherlink.com',
+    description: 'Etherlink Testnet (Ghostnet)',
+    color: '#144c2f',
     default: true
   }
 ];

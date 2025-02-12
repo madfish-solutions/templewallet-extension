@@ -14,7 +14,7 @@ import {
 import { EMPTY_FROZEN_OBJ } from 'lib/utils';
 import { TempleChainKind } from 'temple/types';
 
-import { useEvmChainsSpecs, useTezosChainsSpecs } from './chains-specs';
+import { useEvmChainsSpecs, useTezosChainsSpecs } from './use-chains-specs';
 
 export interface BlockExplorer {
   name: string;
@@ -303,6 +303,13 @@ const DEFAULT_BLOCK_EXPLORERS_BASE: Record<TempleChainKind, Record<string, Omit<
         id: 'optimism-mainnet'
       }
     ],
+    [OTHER_COMMON_MAINNET_CHAIN_IDS.etherlink]: [
+      {
+        name: 'Etherlink explorer',
+        url: 'https://explorer.etherlink.com',
+        id: 'etherlink-mainnet'
+      }
+    ],
     [ETH_SEPOLIA_CHAIN_ID]: [
       {
         name: 'Etherscan',
@@ -336,6 +343,13 @@ const DEFAULT_BLOCK_EXPLORERS_BASE: Record<TempleChainKind, Record<string, Omit<
         name: 'Blockscout',
         url: 'https://optimism-sepolia.blockscout.com',
         id: 'optimism-sepolia'
+      }
+    ],
+    '128123': [
+      {
+        name: 'Etherlink Testnet explorer',
+        url: 'https://testnet.explorer.etherlink.com',
+        id: 'etherlink-ghostnet'
       }
     ]
   }

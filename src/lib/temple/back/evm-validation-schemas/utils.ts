@@ -89,3 +89,5 @@ export const typedDataValidationSchema = (): ObjectSchema<TypedDataDefinition> =
     domain: typedDataDomainSchema,
     message: arbitraryObjectSchema
   });
+
+export const stringArraySchema = () => arraySchema().of(stringSchema().required());

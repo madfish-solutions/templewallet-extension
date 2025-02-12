@@ -5,9 +5,9 @@ import { TezosActivity } from 'lib/activity';
 import { isTransferActivityOperKind } from 'lib/activity/utils';
 import { useBooleanState } from 'lib/ui/hooks';
 import { ZERO } from 'lib/utils/numbers';
-import { makeBlockExplorerHref } from 'temple/front/block-explorers';
 import { BasicTezosChain } from 'temple/front/chains';
 import { useGetTezosActiveBlockExplorer } from 'temple/front/ready';
+import { makeBlockExplorerHref } from 'temple/front/use-block-explorers';
 import { TempleChainKind } from 'temple/types';
 
 import { ActivityOperationBaseComponent } from './ActivityOperationBase';

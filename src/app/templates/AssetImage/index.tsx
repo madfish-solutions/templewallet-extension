@@ -39,12 +39,14 @@ export interface EvmAssetImageProps extends Omit<EvmAssetImageStackedProps, 'sou
   assetSlug: string;
   Loader?: Placeholder<EvmAssetImageProps, EvmAssetMetadataBase>;
   Fallback?: Placeholder<EvmAssetImageProps, EvmAssetMetadataBase>;
+  metadata?: EvmAssetMetadataBase;
 }
 
-export const EvmAssetImage = memo<EvmAssetImageProps>(({ Loader, Fallback, ...props }) => {
+export const EvmAssetImage = memo<EvmAssetImageProps>(({ Loader, Fallback, metadata: metadataOverrides, ...props }) => {
   const { evmChainId, assetSlug, ...rest } = props;
 
-  const metadata = useEvmGenericAssetMetadata(assetSlug, evmChainId);
+  const storedMetadata = useEvmGenericAssetMetadata(assetSlug, evmChainId);
+  const metadata = metadataOverrides ?? storedMetadata;
 
   return (
     <EvmAssetImageStacked
