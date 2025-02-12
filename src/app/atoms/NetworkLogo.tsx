@@ -61,6 +61,7 @@ export const TezosNetworkLogo = memo<TezosNetworkLogoProps>(
 interface EvmNetworkLogoProps {
   chainId: number;
   size?: number;
+  chainName?: string;
   className?: string;
   imgClassName?: string;
   withTooltip?: boolean;
@@ -68,7 +69,7 @@ interface EvmNetworkLogoProps {
 }
 
 export const EvmNetworkLogo = memo<EvmNetworkLogoProps>(
-  ({ chainId, size = 24, className, imgClassName, withTooltip, tooltipPlacement }) => {
+  ({ chainId, size = 24, chainName, className, imgClassName, withTooltip, tooltipPlacement }) => {
     const sources = useMemo(() => {
       const doubleSize = size * 2;
 
@@ -80,7 +81,10 @@ export const EvmNetworkLogo = memo<EvmNetworkLogoProps>(
     }, [chainId, size]);
 
     const chain = useEvmChainByChainId(chainId);
-    const networkName = useMemo(() => (chain?.nameI18nKey ? t(chain.nameI18nKey) : chain?.name), [chain]);
+    const networkName = useMemo(
+      () => chainName || (chain?.nameI18nKey ? t(chain.nameI18nKey) : chain?.name),
+      [chainName, chain]
+    );
 
     const withoutTooltipClassName = withTooltip ? undefined : className;
 
