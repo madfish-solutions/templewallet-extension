@@ -18,6 +18,7 @@ import { isEvmEstimationData, isSerializedEvmEstimationData } from 'temple/evm/u
 import { useAllAccounts, useAllEvmChains } from 'temple/front';
 
 import { OperationViewLayout } from '../operation-view-layout';
+import { EvmEstimationDataProvider } from '../TransactionTabs/context';
 import { EvmTxParamsFormData } from '../TransactionTabs/types';
 import { useEvmEstimationForm } from '../TransactionTabs/use-evm-estimation-form';
 
@@ -32,6 +33,20 @@ interface EvmTransactionViewProps {
 }
 
 export const EvmTransactionView = memo<EvmTransactionViewProps>(
+  ({ payload, formId, error, setFinalEvmTransaction, onSubmit }) => (
+    <EvmEstimationDataProvider>
+      <EvmTransactionViewBody
+        error={error}
+        payload={payload}
+        formId={formId}
+        setFinalEvmTransaction={setFinalEvmTransaction}
+        onSubmit={onSubmit}
+      />
+    </EvmEstimationDataProvider>
+  )
+);
+
+const EvmTransactionViewBody = memo<EvmTransactionViewProps>(
   ({ payload, formId, error, setFinalEvmTransaction, onSubmit }) => {
     const chains = useAllEvmChains();
     const { chainId, req, estimationData: serializedEstimationData, error: estimationError } = payload;

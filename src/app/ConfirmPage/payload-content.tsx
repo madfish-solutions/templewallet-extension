@@ -5,31 +5,31 @@ import type { Omit as StrictOmit } from 'viem';
 import { IconBase } from 'app/atoms';
 import { ReactComponent as UnlockFillIcon } from 'app/icons/base/unlock_fill.svg';
 import { AccountCard } from 'app/templates/AccountCard';
-import { EvmOperationView } from 'app/templates/EvmOperationView';
+import { EvmTransactionView } from 'app/templates/EvmTransactionView';
 import { SignPayloadView } from 'app/templates/SignPayloadView';
-import { TezosOperationView } from 'app/templates/TezosOperationView';
+import { TezosTransactionView } from 'app/templates/TezosTransactionView';
 import { T, TID } from 'lib/i18n';
 import {
   EvmTransactionRequestWithSender,
   StoredAccount,
-  TempleEvmDAppConnectPayload,
   TempleEvmDAppPayload,
-  TempleEvmDAppSignPayload,
-  TempleTezosDAppConnectPayload,
-  TempleTezosDAppPayload,
-  TempleTezosDAppSignPayload
+  TempleEvmDAppTransactionPayload,
+  TempleTezosDAppOperationsPayload,
+  TempleTezosDAppPayload
 } from 'lib/temple/types';
 import { NetworkEssentials } from 'temple/networks';
 import { TempleChainKind } from 'temple/types';
+
+import { AddAssetView } from './add-asset/add-asset-view';
+import { AddChainView } from './add-chain/add-chain-view';
 
 type DAppPayload<T extends TempleChainKind> = T extends TempleChainKind.EVM
   ? TempleEvmDAppPayload
   : TempleTezosDAppPayload;
 
-type DAppOperationsPayload<T extends TempleChainKind> = Exclude<
-  DAppPayload<T>,
-  TempleEvmDAppConnectPayload | TempleEvmDAppSignPayload | TempleTezosDAppConnectPayload | TempleTezosDAppSignPayload
->;
+type DAppOperationsPayload<T extends TempleChainKind> = T extends TempleChainKind.EVM
+  ? TempleEvmDAppTransactionPayload
+  : TempleTezosDAppOperationsPayload;
 
 interface OperationViewPropsBase<T extends TempleChainKind> {
   network: NetworkEssentials<T>;
@@ -85,8 +85,7 @@ const ConnectView = memo<{ account: StoredAccount; openAccountsModal: EmptyFn }>
 
 const isConfirmOperationsPayload = <T extends TempleChainKind>(
   payload: DAppPayload<T>
-): payload is DAppOperationsPayload<T> =>
-  ['connect', 'sign', 'personal_sign', 'sign_typed'].indexOf(payload.type) === -1;
+): payload is DAppOperationsPayload<T> => payload.type === 'confirm_operations';
 
 const PayloadContentHOC = <
   T extends TempleChainKind,
@@ -127,6 +126,14 @@ const PayloadContentHOC = <
           );
         }
 
+        if (payload.type === 'add_asset') {
+          return <AddAssetView metadata={payload.metadata} />;
+        }
+
+        if (payload.type === 'add_chain') {
+          return <AddChainView metadata={payload.metadata} />;
+        }
+
         return null;
       })()}
     </div>
@@ -138,9 +145,9 @@ const PayloadContentHOC = <
 export const TezosPayloadContent = PayloadContentHOC<
   TempleChainKind.Tezos,
   { setTotalFee: SyncFn<number>; setStorageLimit: SyncFn<number> }
->(TezosOperationView);
+>(TezosTransactionView);
 
 export const EvmPayloadContent = PayloadContentHOC<
   TempleChainKind.EVM,
   { setFinalEvmTransaction: ReactSetStateFn<EvmTransactionRequestWithSender> }
->(EvmOperationView);
+>(EvmTransactionView);

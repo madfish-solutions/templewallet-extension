@@ -31,6 +31,7 @@ import { CUSTOM_TEZOS_NETWORKS_STORAGE_KEY, TEZOS_CHAINS_SPECS_STORAGE_KEY } fro
 import { fetchFromStorage } from 'lib/storage';
 import { addLocalOperation } from 'lib/temple/activity';
 import * as Beacon from 'lib/temple/beacon';
+import { TezosChainSpecs } from 'lib/temple/chains-specs';
 import { buildFinalTezosOpParams } from 'lib/temple/helpers';
 import {
   TempleMessageType,
@@ -41,7 +42,6 @@ import {
   TempleTezosDAppPayload
 } from 'lib/temple/types';
 import { isValidTezosAddress } from 'lib/tezos';
-import { TezosChainSpecs } from 'temple/front/chains-specs';
 import { StoredTezosNetwork, TEZOS_DEFAULT_NETWORKS } from 'temple/networks';
 import { loadTezosChainId } from 'temple/tezos';
 import { TempleChainKind } from 'temple/types';

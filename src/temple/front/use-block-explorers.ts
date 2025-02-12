@@ -9,19 +9,13 @@ import {
   OTHER_COMMON_MAINNET_CHAIN_IDS,
   ETHEREUM_MAINNET_CHAIN_ID,
   ETH_SEPOLIA_CHAIN_ID,
-  TempleTezosChainId
+  TempleTezosChainId,
+  BlockExplorer
 } from 'lib/temple/types';
 import { EMPTY_FROZEN_OBJ } from 'lib/utils';
 import { TempleChainKind } from 'temple/types';
 
-import { useEvmChainsSpecs, useTezosChainsSpecs } from './chains-specs';
-
-export interface BlockExplorer {
-  name: string;
-  url: string;
-  id: string;
-  default: boolean;
-}
+import { useEvmChainsSpecs, useTezosChainsSpecs } from './use-chains-specs';
 
 const FALLBACK_CHAIN_BLOCK_EXPLORERS: BlockExplorer[] = [];
 

@@ -18,11 +18,12 @@ import { StoredTezosNetwork } from 'temple/networks';
 import { getReadOnlyTezos } from 'temple/tezos';
 import { TempleChainKind } from 'temple/types';
 
-import { OperationViewLayout } from '../operation-view-layout';
-import { TezosTxParamsFormData } from '../TransactionTabs/types';
-import { useTezosEstimationForm } from '../TransactionTabs/use-tezos-estimation-form';
+import { OperationViewLayout } from './operation-view-layout';
+import { TezosEstimationDataProvider } from './TransactionTabs/context';
+import { TezosTxParamsFormData } from './TransactionTabs/types';
+import { useTezosEstimationForm } from './TransactionTabs/use-tezos-estimation-form';
 
-export interface TezosTransactionViewProps {
+interface TezosTransactionViewProps {
   payload: TempleTezosDAppOperationsPayload;
   formId: string;
   error: any;
@@ -32,6 +33,21 @@ export interface TezosTransactionViewProps {
 }
 
 export const TezosTransactionView = memo<TezosTransactionViewProps>(
+  ({ payload, formId, error, setTotalFee, setStorageLimit, onSubmit }) => (
+    <TezosEstimationDataProvider>
+      <TezosTransactionViewBody
+        error={error}
+        payload={payload}
+        formId={formId}
+        setTotalFee={setTotalFee}
+        setStorageLimit={setStorageLimit}
+        onSubmit={onSubmit}
+      />
+    </TezosEstimationDataProvider>
+  )
+);
+
+const TezosTransactionViewBody = memo<TezosTransactionViewProps>(
   ({ payload, formId, error: submitError, setTotalFee, setStorageLimit, onSubmit }) => {
     const { networkRpc, opParams, sourcePkh, estimates, error: estimationError } = payload;
     const tezosChains = useAllTezosChains();

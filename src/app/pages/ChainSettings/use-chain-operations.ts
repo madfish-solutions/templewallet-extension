@@ -4,11 +4,13 @@ import { nanoid } from 'nanoid';
 
 import { ArtificialError } from 'app/defaults';
 import { t } from 'lib/i18n';
-import { COLORS } from 'lib/ui/colors';
+import { EvmChainSpecs, TezosChainSpecs } from 'lib/temple/chains-specs';
+import { BlockExplorer } from 'lib/temple/types';
+import { getRandomColor } from 'lib/ui/colors';
 import { loadEvmChainId } from 'temple/evm';
 import { OneOfChains, useAllEvmChains, useAllTezosChains, useTempleNetworksActions } from 'temple/front';
-import { BlockExplorer, useChainBlockExplorers } from 'temple/front/block-explorers';
-import { EvmChainSpecs, TezosChainSpecs, useChainSpecs } from 'temple/front/chains-specs';
+import { useChainBlockExplorers } from 'temple/front/use-block-explorers';
+import { useChainSpecs } from 'temple/front/use-chains-specs';
 import { StoredEvmNetwork, StoredTezosNetwork } from 'temple/networks';
 import { loadTezosChainId } from 'temple/tezos';
 import { TempleChainKind } from 'temple/types';
@@ -87,7 +89,7 @@ export const useChainOperations = (chainKind: TempleChainKind, chainId: string |
         name,
         rpcBaseURL: url,
         id: rpcId,
-        color: COLORS[Math.floor(Math.random() * COLORS.length)]
+        color: getRandomColor()
       };
 
       abortSignal.throwIfAborted();
