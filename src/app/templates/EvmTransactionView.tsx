@@ -28,7 +28,6 @@ interface EvmTransactionViewProps {
   onSubmit: EmptyFn;
 }
 
-// TODO: add layouts for other types of EVM dApp actions
 export const EvmTransactionView = memo<EvmTransactionViewProps>(
   ({ payload, formId, error, setFinalEvmTransaction, onSubmit }) => (
     <EvmEstimationDataProvider>
