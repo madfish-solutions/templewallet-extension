@@ -22,7 +22,6 @@ import ContentContainer from 'app/layouts/ContentContainer';
 import { useOnboardingProgress } from 'app/pages/Onboarding/hooks/useOnboardingProgress.hook';
 import { AdvertisingBanner } from 'app/templates/advertising/advertising-banner/advertising-banner';
 import { AdvertisingOverlay } from 'app/templates/advertising/advertising-overlay/advertising-overlay';
-import { AirdropButton } from 'app/templates/temple-tap/AirdropButton';
 import { IS_MISES_BROWSER } from 'lib/env';
 import { T } from 'lib/i18n';
 import { NotificationsBell } from 'lib/notifications/components/bell';
@@ -112,32 +111,21 @@ export const SpinnerSection: FC = () => (
   </div>
 );
 
-interface ToolbarProps {
+type ToolbarProps = {
   pageTitle?: ReactNode;
   hasBackAction?: boolean;
   step?: number;
   setStep?: (step: number) => void;
   skip?: boolean;
-  withBell?: boolean;
-  withAd?: boolean;
-  withAirdrop?: boolean;
-}
+  attention?: boolean;
+};
 
 export let ToolbarElement: HTMLDivElement | null = null;
 
 /** Defined for reference in code to highlight relation between multiple sticky elements & their sizes */
 export const TOOLBAR_IS_STICKY = true;
 
-const Toolbar: FC<ToolbarProps> = ({
-  pageTitle,
-  hasBackAction = true,
-  step,
-  setStep,
-  skip,
-  withBell,
-  withAd,
-  withAirdrop
-}) => {
+const Toolbar: FC<ToolbarProps> = ({ pageTitle, hasBackAction = true, step, setStep, skip, attention }) => {
   const { historyPosition, pathname } = useLocation();
   const { fullPage } = useAppEnv();
   const { setOnboardingCompleted } = useOnboardingProgress();
@@ -235,11 +223,10 @@ const Toolbar: FC<ToolbarProps> = ({
 
       <div className="flex-1" />
 
-      {(withAd || withAirdrop || withBell) && (
-        <div className="flex items-center gap-x-2 content-end">
-          {withAd && <AdvertisingBanner />}
-          {withAirdrop && <AirdropButton />}
-          {withBell && <NotificationsBell />}
+      {attention && (
+        <div className="flex items-center content-end absolute right-0">
+          <AdvertisingBanner />
+          <NotificationsBell />
         </div>
       )}
 
