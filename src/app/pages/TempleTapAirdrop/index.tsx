@@ -1,10 +1,8 @@
 import React, { FC, memo, PropsWithChildren, useCallback, useMemo, useState } from 'react';
 
-import clsx from 'clsx';
 import { OnSubmit, useForm } from 'react-hook-form';
 
 import { Alert, Anchor, FormField, FormSubmitButton } from 'app/atoms';
-import ConfirmLedgerOverlay from 'app/atoms/ConfirmLedgerOverlay';
 import { ReactComponent as TelegramSvg } from 'app/icons/social-tg.svg';
 import { ReactComponent as XSocialSvg } from 'app/icons/social-x.svg';
 import PageLayout from 'app/layouts/PageLayout';
@@ -15,25 +13,24 @@ import { useTypedSWR } from 'lib/swr';
 import { useAccount, useTempleClient, useTezos } from 'lib/temple/front';
 import { TempleAccountType } from 'lib/temple/types';
 import { useLocalStorage } from 'lib/ui/local-storage';
-import { navigate } from 'lib/woozie';
 
 import BannerImgSrc from './banner.png';
 import { ReactComponent as ConfirmedSvg } from './confirmed.svg';
 
 interface FormData {
-  usernameOrId: string;
+  username: string;
 }
 
 export const TempleTapAirdropPage = memo(() => {
-  const { type: accountType, publicKeyHash: accountPkh } = useAccount();
-  const isLedger = accountType === TempleAccountType.Ledger;
+  const account = useAccount();
+  const accountPkh = account.publicKeyHash;
 
   const tezos = useTezos();
   const { silentSign } = useTempleClient();
 
   const canSign = useMemo(
-    () => [TempleAccountType.HD, TempleAccountType.Imported, TempleAccountType.Ledger].includes(accountType),
-    [accountType]
+    () => [TempleAccountType.HD, TempleAccountType.Imported, TempleAccountType.Ledger].includes(account.type),
+    [account.type]
   );
 
   const [storedRecord, setStoredRecord] = useLocalStorage<LocalStorageRecord | null>(
@@ -42,7 +39,6 @@ export const TempleTapAirdropPage = memo(() => {
   );
 
   const [confirmSent, setConfirmSent] = useState(false);
-  const [signing, setSigning] = useState(false);
   const [confirmed, setConfirmed] = useState(storedRecord?.[accountPkh] ?? false);
 
   const prepSigAuthValues = useCallback(async (): Promise<SigAuthValues> => {
@@ -56,34 +52,24 @@ export const TempleTapAirdropPage = memo(() => {
     return { publicKey, messageBytes, signature };
   }, [silentSign, tezos.signer, accountPkh]);
 
-  const { data: airdropChecked } = useTypedSWR(
+  useTypedSWR(
     ['temple-tap-airdrop-confirm-check', accountPkh],
     async () => {
-      try {
-        if (confirmed || !canSign) return true;
+      if (confirmed || !canSign) return null;
 
-        const sigAuthValues = await prepSigAuthValues();
+      const sigAuthValues = await prepSigAuthValues();
 
-        const confirmedRes = await checkTempleTapAirdropConfirmation(accountPkh, sigAuthValues);
+      const confirmedRes = await checkTempleTapAirdropConfirmation(accountPkh, sigAuthValues);
 
-        if (!confirmedRes) return true;
+      if (!confirmedRes) return null;
 
-        setConfirmed(true);
-        setStoredRecord(state => ({ ...state, [accountPkh]: true }));
+      setConfirmed(true);
+      setStoredRecord(state => ({ ...state, [accountPkh]: true }));
 
-        return true;
-      } catch (e) {
-        if (isLedger) {
-          navigate('/');
-
-          return true;
-        }
-
-        throw e;
-      }
+      return null;
     },
     {
-      suspense: !isLedger,
+      suspense: true,
       revalidateOnFocus: false,
       refreshInterval: 60_000,
       errorRetryInterval: 60_000
@@ -95,15 +81,13 @@ export const TempleTapAirdropPage = memo(() => {
   const submitting = formState.isSubmitting;
 
   const onSubmit = useCallback<OnSubmit<FormData>>(
-    async ({ usernameOrId }) => {
+    async ({ username }) => {
       clearError();
 
       try {
-        setSigning(true);
         const sigAuthValues = await prepSigAuthValues();
-        setSigning(false);
 
-        const res = await sendTempleTapAirdropUsernameConfirmation(accountPkh, usernameOrId, sigAuthValues);
+        const res = await sendTempleTapAirdropUsernameConfirmation(accountPkh, username, sigAuthValues);
 
         switch (res.data.status) {
           case 'ACCEPTED':
@@ -119,29 +103,14 @@ export const TempleTapAirdropPage = memo(() => {
       } catch (error: any) {
         console.error(error);
 
-        if (isLedger) {
-          navigate('/');
-        } else {
-          setError('usernameOrId', 'submit-error', error?.response?.data?.message || 'Something went wrong...');
-          setSigning(false);
-        }
+        setError('username', 'submit-error', error?.response?.data?.message || 'Something went wrong...');
       }
     },
-    [reset, clearError, setError, setStoredRecord, prepSigAuthValues, accountPkh, isLedger]
+    [reset, clearError, setError, setStoredRecord, prepSigAuthValues, accountPkh]
   );
 
-  if (!airdropChecked && isLedger) {
-    return (
-      <PageLayout pageTitle="Temple Tap Airdrop" withBell contentContainerStyle={{ position: 'relative' }}>
-        <div className="flex flex-col w-full max-w-sm mx-auto pb-6" style={{ height: 660 }} />
-
-        <ConfirmLedgerOverlay displayed />
-      </PageLayout>
-    );
-  }
-
   return (
-    <PageLayout pageTitle="Temple Tap Airdrop" withBell contentContainerStyle={{ position: 'relative' }}>
+    <PageLayout pageTitle="Temple Tap Airdrop" withBell>
       <div className="flex flex-col w-full max-w-sm mx-auto pb-6">
         <img src={BannerImgSrc} alt="Banner" className="self-center h-28" />
 
@@ -171,14 +140,13 @@ export const TempleTapAirdropPage = memo(() => {
             <BlockComp
               title="Address confirmed"
               description="Your address has been successfully confirmed in Temple Tap bot for future airdrop distribution."
-              padText
             >
               <ConfirmedSvg className="w-6 h-6 absolute top-4 right-4" />
             </BlockComp>
           ) : (
             <BlockComp
               title="Confirm address"
-              description="Enter your Telegram ID or @username to confirm your Tezos address in Temple Tap bot for future airdrop distribution"
+              description="Enter your telegram @username to confirm your Tezos address in Temple Tap bot for future airdrop distribution"
             >
               <div className="text-xs leading-5 text-dark-gray">
                 <span>Your address: </span>
@@ -187,13 +155,19 @@ export const TempleTapAirdropPage = memo(() => {
 
               <form onSubmit={handleSubmit(onSubmit)} className="contents">
                 <FormField
-                  ref={register({ validate })}
-                  name="usernameOrId"
-                  placeholder="Telegram ID or @username"
+                  ref={register({
+                    pattern: {
+                      value: TG_USERNAME_REGEX,
+                      message:
+                        "Starts with '@'. You can use a-z, A-Z, 0-9 and '_' in between. Minimum length is 6 characters."
+                    }
+                  })}
+                  name="username"
+                  placeholder="@username"
                   className="mt-4"
                   style={{ backgroundColor: 'white' }}
                   disabled={submitting}
-                  errorCaption={errors.usernameOrId?.message}
+                  errorCaption={errors.username?.message}
                 />
 
                 <FormSubmitButton type="submit" loading={submitting} className="mt-4">
@@ -217,8 +191,6 @@ export const TempleTapAirdropPage = memo(() => {
           <SocialItem title="MadFish Community" IconComp={TelegramSvg} followUrl="https://t.me/MadFishCommunity" />
         </BlockComp>
       </div>
-
-      <ConfirmLedgerOverlay displayed={signing && isLedger} />
     </PageLayout>
   );
 });
@@ -228,14 +200,13 @@ type LocalStorageRecord = StringRecord<true>;
 interface BlockCompProps {
   title: string;
   description: string;
-  padText?: boolean;
 }
 
-const BlockComp: FC<PropsWithChildren<BlockCompProps>> = ({ title, description, padText, children }) => (
+const BlockComp: FC<PropsWithChildren<BlockCompProps>> = ({ title, description, children }) => (
   <div className="mt-4 relative flex flex-col p-4 bg-gray-100 rounded-xl">
     <span className="text-sm font-semibold text-dark">{title}</span>
 
-    <p className={clsx('my-1 text-xs leading-5 text-gray-600', padText && 'pr-4')}>{description}</p>
+    <p className="my-1 pr-4 text-xs leading-5 text-gray-600">{description}</p>
 
     {children}
   </div>
@@ -262,15 +233,3 @@ const SocialItem: FC<SocialItemProps> = ({ title, IconComp, followUrl }) => (
 );
 
 const TG_USERNAME_REGEX = /^@[a-zA-Z0-9](?:[a-zA-Z0-9_]{3,}[a-zA-Z0-9])$/;
-
-function validate(value: string) {
-  const numberValue = Number(value);
-  if (Number.isInteger(numberValue) && numberValue > 0) return true;
-
-  if (TG_USERNAME_REGEX.test(value)) return true;
-
-  if (value.includes('@'))
-    return "Username starts with '@'. You can use a-z, A-Z, 0-9 and '_' in between. Minimum length is 6 characters.";
-
-  return 'Telegram ID is an integer number';
-}

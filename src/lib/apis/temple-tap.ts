@@ -3,17 +3,19 @@ import { buildSigAuthHeaders, SigAuthValues } from './temple/sig-auth';
 
 export function sendTempleTapAirdropUsernameConfirmation(
   accountPkh: string,
-  usernameOrId: string,
+  username: string,
   sigAuthValues: SigAuthValues
 ) {
-  const body: StringRecord<unknown> = { accountPkh };
-
-  if (usernameOrId.startsWith('@')) body.username = usernameOrId;
-  else body.userId = Number(usernameOrId);
-
-  return templeWalletApi.post<{ status: string }>('/temple-tap/confirm-airdrop-username', body, {
-    headers: buildSigAuthHeaders(sigAuthValues)
-  });
+  return templeWalletApi.post<{ status: string }>(
+    '/temple-tap/confirm-airdrop-username',
+    {
+      accountPkh,
+      username
+    },
+    {
+      headers: buildSigAuthHeaders(sigAuthValues)
+    }
+  );
 }
 
 export function checkTempleTapAirdropConfirmation(accountPkh: string, sigAuthValues: SigAuthValues) {
