@@ -10,3 +10,6 @@ export const useEvmNoCategoryAssetMetadataSelector = (
   tokenSlug: string
 ): NoCategoryAssetMetadata | undefined =>
   useSelector(({ evmNoCategoryAssetMetadata }) => evmNoCategoryAssetMetadata.metadataRecord[chainId]?.[tokenSlug]);
+
+export const useEvmNoCategoryAssetsMetadataLoadingSelector = () =>
+  useSelector(({ evmNoCategoryAssetMetadata }) => evmNoCategoryAssetMetadata.metadataLoading);

@@ -41,7 +41,6 @@ class GetEvmAssetMetadataExecutor extends EvmRpcRequestsExecutor<
   }
 
   protected async getResult(payload: GetEvmAssetMetadataPayload) {
-    console.log('evm fetch', { payload, ts: Date.now() });
     return fetchEvmAssetMetadataFromChain({ chainId: payload.chainId, rpcBaseURL: payload.rpcUrl }, payload.assetSlug);
   }
 }
@@ -80,22 +79,16 @@ const loadNoCategoryAssetsMetadataEpic: Epic = action$ =>
   action$.pipe(
     ofType(loadNoCategoryEvmAssetsMetadataActions.submit),
     toPayload(),
-    mergeMap(({ rpcUrl, chainId, associatedAccountPkh, slugs }) => {
-      console.log('evm load 1', { rpcUrl, chainId, associatedAccountPkh, slugs, ts: Date.now() });
-
-      return getAssetsMetadata$(rpcUrl, chainId, slugs).pipe(
+    mergeMap(({ rpcUrl, chainId, associatedAccountPkh, slugs }) =>
+      getAssetsMetadata$(rpcUrl, chainId, slugs).pipe(
         concatMap(records => forkJoin([of(records), from(getEvmAssetMetadataExecutor.allPoolsAreEmpty())])),
-        concatMap(([records, poolsAreEmpty]) => {
-          if (Object.keys(records).length === 0 && !poolsAreEmpty) {
-            return EMPTY;
-          }
-
-          console.log('evm load 2', { records, associatedAccountPkh, poolsAreEmpty, ts: Date.now() });
-
-          return of(loadNoCategoryEvmAssetsMetadataActions.success({ records, associatedAccountPkh, poolsAreEmpty }));
-        })
-      );
-    })
+        concatMap(([records, poolsAreEmpty]) =>
+          Object.keys(records).length === 0 && !poolsAreEmpty
+            ? EMPTY
+            : of(loadNoCategoryEvmAssetsMetadataActions.success({ records, associatedAccountPkh, poolsAreEmpty }))
+        )
+      )
+    )
   );
 
 const refreshAllAssetsMetadataEpic: Epic<Action, Action, RootState> = (action$, state$) =>
@@ -106,7 +99,6 @@ const refreshAllAssetsMetadataEpic: Epic<Action, Action, RootState> = (action$, 
     exhaustMap(([{ rpcUrls, associatedAccountPkh }, { evmNoCategoryAssetMetadata }]) => {
       const { contractsChainIds, accountToAssetAssociations } = evmNoCategoryAssetMetadata;
       const slugs = accountToAssetAssociations[associatedAccountPkh] || [];
-      console.log('evm refresh 1', { slugs, associatedAccountPkh, ts: Date.now() });
 
       const slugsByChainIds = slugs.reduce<Record<number, string[]>>((acc, slug) => {
         const [address] = fromAssetSlug(slug);
@@ -126,20 +118,16 @@ const refreshAllAssetsMetadataEpic: Epic<Action, Action, RootState> = (action$, 
           );
     }),
     concatMap(results => forkJoin([of(results), from(getEvmAssetMetadataExecutor.allPoolsAreEmpty())])),
-    concatMap(([records, poolsAreEmpty]) => {
-      if (Object.keys(records).length === 0 && !poolsAreEmpty) {
-        return EMPTY;
-      }
-
-      console.log('evm refresh 2', { records, poolsAreEmpty, ts: Date.now() });
-
-      return of(
-        refreshNoCategoryEvmAssetsMetadataActions.success({
-          records,
-          poolsAreEmpty
-        })
-      );
-    })
+    concatMap(([records, poolsAreEmpty]) =>
+      Object.keys(records).length === 0 && !poolsAreEmpty
+        ? EMPTY
+        : of(
+            refreshNoCategoryEvmAssetsMetadataActions.success({
+              records,
+              poolsAreEmpty
+            })
+          )
+    )
   );
 
 export const evmNoCategoryAssetsMetadataEpics = combineEpics(

@@ -2,8 +2,9 @@ import { useMemo } from 'react';
 
 import { dispatch } from 'app/store';
 import { refreshNoCategoryEvmAssetsMetadataActions } from 'app/store/evm/no-category-assets-metadata/actions';
+import { useEvmNoCategoryAssetsMetadataLoadingSelector } from 'app/store/evm/no-category-assets-metadata/selectors';
 import { NO_CATEGORY_ASSETS_METADATA_SYNC_INTERVAL } from 'lib/fixed-times';
-import { useInterval } from 'lib/ui/hooks';
+import { useInterval, useUpdatableRef } from 'lib/ui/hooks';
 import { useAllEvmChains } from 'temple/front';
 
 export const useNoCategoryEvmAssetsLoading = (publicKeyHash: HexString) => {
@@ -12,17 +13,21 @@ export const useNoCategoryEvmAssetsLoading = (publicKeyHash: HexString) => {
     () => Object.fromEntries(Object.entries(allEvmChains).map(([chainId, { rpcBaseURL }]) => [chainId, rpcBaseURL])),
     [allEvmChains]
   );
+  const loading = useEvmNoCategoryAssetsMetadataLoadingSelector();
+  const loadingRef = useUpdatableRef(loading);
 
   useInterval(
     () => {
-      dispatch(
-        refreshNoCategoryEvmAssetsMetadataActions.submit({
-          associatedAccountPkh: publicKeyHash,
-          rpcUrls
-        })
-      );
+      !loadingRef.current &&
+        dispatch(
+          refreshNoCategoryEvmAssetsMetadataActions.submit({
+            associatedAccountPkh: publicKeyHash,
+            rpcUrls
+          })
+        );
     },
-    [publicKeyHash, rpcUrls],
-    NO_CATEGORY_ASSETS_METADATA_SYNC_INTERVAL
+    [publicKeyHash, rpcUrls, loadingRef],
+    NO_CATEGORY_ASSETS_METADATA_SYNC_INTERVAL,
+    false
   );
 };

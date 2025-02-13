@@ -21,18 +21,14 @@ const loadNoCategoryAssetsMetadataEpic: Epic = action$ =>
   action$.pipe(
     ofType(loadNoCategoryTezosAssetsMetadataAction),
     toPayload(),
-    concatMap(({ rpcUrl, chainId, associatedAccountPkh, slugs }) => {
-      console.log('tez load 1', { rpcUrl, chainId, associatedAccountPkh, slugs });
-
-      return from(loadTokensMetadata(rpcUrl, slugs)).pipe(
-        map(records => {
-          console.log('tez load 2', { records, chainId, associatedAccountPkh });
-
-          return putNoCategoryAssetsMetadataAction({ records, chainId, associatedAccountPkh, resetLoading: true });
-        }),
+    concatMap(({ rpcUrl, chainId, associatedAccountPkh, slugs }) =>
+      from(loadTokensMetadata(rpcUrl, slugs)).pipe(
+        map(records =>
+          putNoCategoryAssetsMetadataAction({ records, chainId, associatedAccountPkh, resetLoading: true })
+        ),
         catchError(() => of(setNoCategoryAssetsMetadataLoadingAction(false)))
-      );
-    })
+      )
+    )
   );
 
 const refreshAllAssetsMetadataEpic: Epic<Action, Action, RootState> = (action$, state$) =>
@@ -43,7 +39,6 @@ const refreshAllAssetsMetadataEpic: Epic<Action, Action, RootState> = (action$, 
     exhaustMap(([{ rpcUrls, associatedAccountPkh }, { noCategoryAssetMetadata }]) => {
       const { contractsChainIds, accountToAssetAssociations } = noCategoryAssetMetadata;
       const slugs = accountToAssetAssociations[associatedAccountPkh] || [];
-      console.log('tez refresh 1', { slugs, associatedAccountPkh });
 
       const slugsByRpcUrls = slugs.reduce<StringRecord<string[]>>((acc, slug) => {
         const [address] = fromAssetSlug(slug);
@@ -72,7 +67,6 @@ const refreshAllAssetsMetadataEpic: Epic<Action, Action, RootState> = (action$, 
     }),
     map(results => {
       const flattenedResults = results.flat();
-      console.log('tez refresh 2', { results });
 
       if (flattenedResults.every((r): r is { e: any } => 'e' in r) && flattenedResults.length) {
         return refreshNoCategoryTezosAssetsMetadataActions.fail(flattenedResults[0].e);

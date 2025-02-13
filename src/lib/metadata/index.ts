@@ -358,7 +358,6 @@ export const useEvmGenericAssetsMetadataCheck = (
 
       return !isEvmNativeTokenSlug(slug) && !getMetadata(slug, chainId) && !checkedRef.current.includes(chainSlug);
     });
-    console.log('ebota 1', chainSlugsToCheck, missingSlugs);
 
     if (missingSlugs.length === 0) {
       return;

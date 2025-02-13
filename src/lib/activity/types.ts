@@ -1,3 +1,4 @@
+import { TzktOperation } from 'lib/apis/tzkt';
 import { TempleChainKind } from 'temple/types';
 
 import { TezosActivityOlderThan } from './tezos/types';
@@ -31,6 +32,7 @@ interface OperationBase {
 }
 
 export interface TezosActivity extends ChainActivityBase, TezosActivityOlderThan {
+  oldestTzktOperation: TzktOperation;
   chain: TempleChainKind.Tezos;
   chainId: string;
   operations: TezosOperation[];

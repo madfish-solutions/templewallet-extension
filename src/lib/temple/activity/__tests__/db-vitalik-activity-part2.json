@@ -1,0 +1,448 @@
+[
+  {
+    "chain": "evm",
+    "hash": "0x2a7bad191b5c25b47e78180c2533e1c98ac7b29c7812a6879979d4543fd0f0ac",
+    "addedAt": "2025-02-07T06:27:59.000Z",
+    "operationsCount": 1,
+    "chainId": 1,
+    "blockHeight": 21792842,
+    "operations": [
+      {
+        "kind": 1,
+        "type": 3,
+        "fromAddress": "0xc97dfc795b046653df9d06f022e7676190b5f406",
+        "toAddress": "0xab5801a7d398351b8be11c439e05c5b3259aec9b",
+        "logIndex": 700,
+        "amountSigned": "15000000000000000",
+        "fkAsset": 3
+      }
+    ]
+  },
+  {
+    "chain": "evm",
+    "hash": "0x3db257c4483df988ad23c7ddece151e3c4bab7670763e3242497c4e4cc7b7cc5",
+    "addedAt": "2025-02-07T06:00:11.000Z",
+    "operationsCount": 1,
+    "chainId": 1,
+    "blockHeight": 21792703,
+    "operations": [
+      {
+        "kind": 1,
+        "type": 3,
+        "fromAddress": "0x0000000000000000000000000000000000000000",
+        "toAddress": "0xab5801a7d398351b8be11c439e05c5b3259aec9b",
+        "logIndex": 564,
+        "amountSigned": "7577700000000000000",
+        "fkAsset": 5
+      }
+    ]
+  },
+  {
+    "chain": "evm",
+    "hash": "0x12b7500104bbc52f105fec7e48e51f03d2f4f102004efb31f9cd15f060be0e16",
+    "addedAt": "2025-02-06T06:55:23.000Z",
+    "operationsCount": 1,
+    "chainId": 1,
+    "blockHeight": 21785803,
+    "operations": [
+      {
+        "kind": 1,
+        "type": 3,
+        "fromAddress": "0xc97dfc795b046653df9d06f022e7676190b5f406",
+        "toAddress": "0xab5801a7d398351b8be11c439e05c5b3259aec9b",
+        "logIndex": 567,
+        "amountSigned": "26000000000000000",
+        "fkAsset": 3
+      }
+    ]
+  },
+  {
+    "chain": "evm",
+    "hash": "0x18c3a51bc745471906c491600b4bf2bc0c010946e35d99f638e460b560786f5b",
+    "addedAt": "2025-02-05T22:03:59.000Z",
+    "operationsCount": 1,
+    "chainId": 1,
+    "blockHeight": 21783161,
+    "operations": [
+      {
+        "kind": 1,
+        "type": 3,
+        "fromAddress": "0xc97dfc795b046653df9d06f022e7676190b5f406",
+        "toAddress": "0xab5801a7d398351b8be11c439e05c5b3259aec9b",
+        "logIndex": 697,
+        "amountSigned": "18000000000000000",
+        "fkAsset": 3
+      }
+    ]
+  },
+  {
+    "chain": "evm",
+    "hash": "0x1b060c295b4f6ea9ddfcca76739536e5f1bdb493c2f101389be7b60ef4d33901",
+    "addedAt": "2025-02-05T11:40:14.000Z",
+    "operationsCount": 1,
+    "chainId": 56,
+    "blockHeight": 46391420,
+    "operations": [
+      {
+        "kind": 1,
+        "type": 3,
+        "fromAddress": "0xf977814e90da44bfa03b6295a0616a897441acec",
+        "toAddress": "0xab5801a7d398351b8be11c439e05c5b3259aec9b",
+        "logIndex": 1520,
+        "amountSigned": "1",
+        "fkAsset": 14
+      }
+    ]
+  },
+  {
+    "chain": "evm",
+    "hash": "0xebccd3a6d466cb58387a072205d90fcc783335c63c61b4a6f4d68d0d633f3888",
+    "addedAt": "2025-02-05T10:59:47.000Z",
+    "operationsCount": 1,
+    "chainId": 1,
+    "blockHeight": 21779854,
+    "operations": [
+      {
+        "kind": 1,
+        "type": 3,
+        "fromAddress": "0xc97dfc795b046653df9d06f022e7676190b5f406",
+        "toAddress": "0xab5801a7d398351b8be11c439e05c5b3259aec9b",
+        "logIndex": 517,
+        "amountSigned": "17000000000000000",
+        "fkAsset": 3
+      }
+    ]
+  },
+  {
+    "chain": "evm",
+    "hash": "0x201c362f5dd40e0f747103aebd9e60734e7886762a4bdf1f3da06387f8e7efb9",
+    "addedAt": "2025-02-05T06:04:59.000Z",
+    "operationsCount": 1,
+    "chainId": 1,
+    "blockHeight": 21778389,
+    "operations": [
+      {
+        "kind": 1,
+        "type": 3,
+        "fromAddress": "0x925f82a829b9b67f320d032202390241bab256c9",
+        "toAddress": "0xab5801a7d398351b8be11c439e05c5b3259aec9b",
+        "logIndex": 897,
+        "amountSigned": "9955500000000000000000",
+        "fkAsset": 15
+      }
+    ]
+  },
+  {
+    "chain": "evm",
+    "hash": "0xae2f3e23fcc127b8c18b2e17769783b21a87d3412b572eec1875bfa39a87db2a",
+    "addedAt": "2025-02-04T06:21:59.000Z",
+    "operationsCount": 1,
+    "chainId": 1,
+    "blockHeight": 21771316,
+    "operations": [
+      {
+        "kind": 1,
+        "type": 3,
+        "fromAddress": "0x6844e74262d643a9feccab68e087cad4874b429d",
+        "toAddress": "0xab5801a7d398351b8be11c439e05c5b3259aec9b",
+        "logIndex": 188,
+        "amountSigned": "389925236400000000",
+        "fkAsset": 16
+      }
+    ]
+  },
+  {
+    "chain": "evm",
+    "hash": "0x77ef1118e96e4a8bba860d0692c4adc5d24ab135af59d652555fd0f8b244c559",
+    "addedAt": "2025-02-04T04:45:59.000Z",
+    "operationsCount": 1,
+    "chainId": 1,
+    "blockHeight": 21770842,
+    "operations": [
+      {
+        "kind": 1,
+        "type": 3,
+        "fromAddress": "0x0000000000000000000000000000000000000000",
+        "toAddress": "0xab5801a7d398351b8be11c439e05c5b3259aec9b",
+        "logIndex": 270,
+        "amountSigned": "389925236400000000",
+        "fkAsset": 16
+      }
+    ]
+  },
+  {
+    "chain": "evm",
+    "hash": "0xdc8640ae7d9d562a0a090a5b24a58b10b8f21c61b698455db2d39ab1920ed36c",
+    "addedAt": "2025-02-04T03:35:24.000Z",
+    "operationsCount": 1,
+    "chainId": 56,
+    "blockHeight": 46352926,
+    "operations": [
+      {
+        "kind": 1,
+        "type": 3,
+        "fromAddress": "0xa2dfe4ba95723e3ef8c154106f8269a739146a81",
+        "toAddress": "0xab5801a7d398351b8be11c439e05c5b3259aec9b",
+        "logIndex": 27,
+        "amountSigned": "2000000000000000000",
+        "fkAsset": 17
+      }
+    ]
+  },
+  {
+    "chain": "evm",
+    "hash": "0xe7840590f968b16ba8d96f6c1f6b5b757ba6949467afb1dc41e6c116f3d7728c",
+    "addedAt": "2025-02-04T01:06:59.000Z",
+    "operationsCount": 1,
+    "chainId": 1,
+    "blockHeight": 21769755,
+    "operations": [
+      {
+        "kind": 1,
+        "type": 3,
+        "fromAddress": "0x1ffae8ffe2e0eec9bd44e38c0ce3b5d6c8a5b1b1",
+        "toAddress": "0xab5801a7d398351b8be11c439e05c5b3259aec9b",
+        "logIndex": -1,
+        "amountSigned": "1403964321684417",
+        "fkAsset": 10
+      }
+    ]
+  },
+  {
+    "chain": "evm",
+    "hash": "0x1f5f7e42c4670b00eb94e16e2b91174bfe464562bd86437cd67c48c3928c069e",
+    "addedAt": "2025-02-04T00:46:47.000Z",
+    "operationsCount": 1,
+    "chainId": 1,
+    "blockHeight": 21769655,
+    "operations": [
+      {
+        "kind": 1,
+        "type": 3,
+        "fromAddress": "0x58902fcd5d274fbd92e9ec7f353511014bf17b6a",
+        "toAddress": "0xab5801a7d398351b8be11c439e05c5b3259aec9b",
+        "logIndex": 861,
+        "amountSigned": "99888800000000000000",
+        "fkAsset": 18
+      }
+    ]
+  },
+  {
+    "chain": "evm",
+    "hash": "0xd6cfc70b931b681a8d220179cea86abef425f5d7f0a9d11fd3bbe5b30032ed88",
+    "addedAt": "2025-02-03T21:54:59.000Z",
+    "operationsCount": 1,
+    "chainId": 1,
+    "blockHeight": 21768800,
+    "operations": [
+      {
+        "kind": 1,
+        "type": 3,
+        "fromAddress": "0x7f440521d72f190926672a02012799f560a566ff",
+        "toAddress": "0xab5801a7d398351b8be11c439e05c5b3259aec9b",
+        "logIndex": 666,
+        "amountSigned": "5500000000000000000",
+        "fkAsset": 19
+      }
+    ]
+  },
+  {
+    "chain": "evm",
+    "hash": "0x49f7b00fb878d49632216e96a35bfa59b9a3c246bf0270e5320847e12c971198",
+    "addedAt": "2025-02-02T22:26:47.000Z",
+    "operationsCount": 1,
+    "chainId": 137,
+    "blockHeight": 67465071,
+    "operations": [
+      {
+        "kind": 1,
+        "type": 2,
+        "fromAddress": "0xab5801a7d398351b8be11c439e05c5b3259aec9b",
+        "toAddress": "0x406d2397120c23c0ceb17a9dffdc84cdd9bacdbc",
+        "logIndex": 523,
+        "amountSigned": "-834000000",
+        "fkAsset": 20
+      }
+    ]
+  },
+  {
+    "chain": "evm",
+    "hash": "0x3934841f87ddd3be7351721d7b69e096abed223180f1307135810df583fe3160",
+    "addedAt": "2025-02-02T21:14:30.000Z",
+    "operationsCount": 1,
+    "chainId": 137,
+    "blockHeight": 67463061,
+    "operations": [
+      {
+        "kind": 1,
+        "type": 3,
+        "fromAddress": "0x7ceb23fd6bc0add59e62ac25578270cff1b9f619",
+        "toAddress": "0xab5801a7d398351b8be11c439e05c5b3259aec9b",
+        "logIndex": 358,
+        "amountSigned": "1",
+        "fkAsset": 21
+      }
+    ]
+  },
+  {
+    "chain": "evm",
+    "hash": "0x7598b73ee1f18078f8c0758194af5cadd7c7d5ea48b39b0b8c790dd239543ad5",
+    "addedAt": "2025-02-02T21:13:56.000Z",
+    "operationsCount": 1,
+    "chainId": 137,
+    "blockHeight": 67463045,
+    "operations": [
+      {
+        "kind": 1,
+        "type": 3,
+        "fromAddress": "0xec7be89e9d109e7e3fec59c222cf297125fefda2",
+        "toAddress": "0xab5801a7d398351b8be11c439e05c5b3259aec9b",
+        "logIndex": 173,
+        "amountSigned": "1",
+        "fkAsset": 22
+      }
+    ]
+  },
+  {
+    "chain": "evm",
+    "hash": "0x717859e2f3d91391436b844a39aaba7b27b91e2ae5e6d42c4a7700e5623fd7fc",
+    "addedAt": "2025-02-02T21:13:24.000Z",
+    "operationsCount": 1,
+    "chainId": 137,
+    "blockHeight": 67463030,
+    "operations": [
+      {
+        "kind": 1,
+        "type": 3,
+        "fromAddress": "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
+        "toAddress": "0xab5801a7d398351b8be11c439e05c5b3259aec9b",
+        "logIndex": 246,
+        "amountSigned": "1",
+        "fkAsset": 23
+      }
+    ]
+  },
+  {
+    "chain": "evm",
+    "hash": "0x9df4b522632681acfa16bb022a09fbb971034ee2f8cd4c260ead6393199dfeaa",
+    "addedAt": "2025-02-02T21:12:59.000Z",
+    "operationsCount": 1,
+    "chainId": 1,
+    "blockHeight": 21761433,
+    "operations": [
+      {
+        "kind": 1,
+        "type": 2,
+        "fromAddress": "0xab5801a7d398351b8be11c439e05c5b3259aec9b",
+        "toAddress": "0x406d08142ab2d7580ac49ab7ab8d880208c2cdbc",
+        "logIndex": 532,
+        "amountSigned": "-834000000",
+        "fkAsset": 24
+      }
+    ]
+  },
+  {
+    "chain": "evm",
+    "hash": "0x5cbc765c1f257fce659e84a140f8195e6be82c231ec37e2f0be9bbf863872a68",
+    "addedAt": "2025-02-02T12:59:11.000Z",
+    "operationsCount": 1,
+    "chainId": 1,
+    "blockHeight": 21758980,
+    "operations": [
+      {
+        "kind": 1,
+        "type": 3,
+        "fromAddress": "0x0ee69002600cbbc8e2b47ac33b0318df366e453c",
+        "toAddress": "0xab5801a7d398351b8be11c439e05c5b3259aec9b",
+        "logIndex": 144,
+        "amountSigned": "28006800127823149068054632912",
+        "fkAsset": 25
+      }
+    ]
+  },
+  {
+    "chain": "evm",
+    "hash": "0xf521d36053c5ca14f6a3e3fc0eb27201655c26e27669302d6eea4405c3beff2f",
+    "addedAt": "2025-02-02T12:05:32.000Z",
+    "operationsCount": 1,
+    "chainId": 56,
+    "blockHeight": 46305530,
+    "operations": [
+      {
+        "kind": 1,
+        "type": 3,
+        "fromAddress": "0xc103b8fe1dce347da07cac0e375a7dc9e099fd4d",
+        "toAddress": "0xab5801a7d398351b8be11c439e05c5b3259aec9b",
+        "logIndex": -1,
+        "amountSigned": "62000000000000000",
+        "fkAsset": 26
+      }
+    ]
+  },
+  {
+    "chain": "evm",
+    "hash": "0x33419655aad6b9f81b715746c01cbc116fa79844507347141035a3129399fe0a",
+    "addedAt": "2025-02-02T09:46:59.000Z",
+    "operationsCount": 1,
+    "chainId": 1,
+    "blockHeight": 21758025,
+    "operations": [
+      {
+        "kind": 1,
+        "type": 3,
+        "fromAddress": "0xc97dfc795b046653df9d06f022e7676190b5f406",
+        "toAddress": "0xab5801a7d398351b8be11c439e05c5b3259aec9b",
+        "logIndex": 531,
+        "amountSigned": "3640000000000000",
+        "fkAsset": 3
+      }
+    ]
+  },
+  {
+    "chain": "evm",
+    "hash": "0x0d63a3c98d5fee806166f42b4f6590b25192e44f121e9cf990ed7abc1779624c",
+    "addedAt": "2025-02-02T01:38:47.000Z",
+    "operationsCount": 1,
+    "chainId": 1,
+    "blockHeight": 21755603,
+    "operations": [
+      {
+        "kind": 1,
+        "type": 3,
+        "fromAddress": "0xb35dc45877384ab8006e3707e1698c9ff67cdec1",
+        "toAddress": "0xab5801a7d398351b8be11c439e05c5b3259aec9b",
+        "logIndex": 325,
+        "amountSigned": "30000000000000000000",
+        "fkAsset": 27
+      }
+    ]
+  },
+  {
+    "chain": "evm",
+    "hash": "0xbd01331a382741bd5f166a98ec9b8d55bc1c8bbb987645e1d32f4abbba0817bf",
+    "addedAt": "2025-02-02T01:36:47.000Z",
+    "operationsCount": 2,
+    "chainId": 1,
+    "blockHeight": 21755593,
+    "operations": [
+      {
+        "kind": 1,
+        "type": 3,
+        "fromAddress": "0xb35dc45877384ab8006e3707e1698c9ff67cdec1",
+        "toAddress": "0xab5801a7d398351b8be11c439e05c5b3259aec9b",
+        "logIndex": 390,
+        "amountSigned": "10000000000000000000",
+        "fkAsset": 27
+      },
+      {
+        "kind": 1,
+        "type": 3,
+        "fromAddress": "0xb35dc45877384ab8006e3707e1698c9ff67cdec1",
+        "toAddress": "0xab5801a7d398351b8be11c439e05c5b3259aec9b",
+        "logIndex": 454,
+        "amountSigned": "10000000000000000000",
+        "fkAsset": 27
+      }
+    ]
+  }
+]

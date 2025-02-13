@@ -1,0 +1,10 @@
+[
+  {
+    "contract": "0x94b008aA00579c1307B0EF2c499aD98a8ce58e58",
+    "amountSigned": "-115990000",
+    "symbol": "USDT",
+    "decimals": 6,
+    "iconURL": "https://logos.covalenthq.com/tokens/10/0x94b008aa00579c1307b0ef2c499ad98a8ce58e58.png",
+    "chainId": 10
+  }
+]
