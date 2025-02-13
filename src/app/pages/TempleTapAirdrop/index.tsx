@@ -272,5 +272,5 @@ function validate(value: string) {
   if (value.includes('@'))
     return "Username starts with '@'. You can use a-z, A-Z, 0-9 and '_' in between. Minimum length is 6 characters.";
 
-  return 'Telegram ID should contain only numbers';
+  return 'Telegram ID is an integer number';
 }
