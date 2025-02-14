@@ -9,7 +9,6 @@ import {
 } from '@temple-wallet/dapp/dist/types';
 import browser, { Runtime } from 'webextension-polyfill';
 
-import { TEZ_SIG_AUTH_MSG_PATTERN } from 'lib/apis/temple/sig-auth';
 import { BACKGROUND_IS_WORKER } from 'lib/env';
 import { addLocalOperation } from 'lib/temple/activity';
 import * as Beacon from 'lib/temple/beacon';
@@ -348,14 +347,6 @@ const safeAddLocalOperation = async (networkRpc: string, op: any) => {
   } catch {}
   return undefined;
 };
-
-export function silentSign(sourcePkh: string, bytes: string) {
-  return withUnlocked(({ vault }) => {
-    if (!TEZ_SIG_AUTH_MSG_PATTERN.test(bytes)) throw new Error('Non-recognized payload');
-
-    return vault.sign(sourcePkh, bytes);
-  });
-}
 
 export function sign(port: Runtime.Port, id: string, sourcePkh: string, bytes: string, watermark?: string) {
   return withUnlocked(
