@@ -35,8 +35,8 @@ db.version(1).stores({
     'oldestTs',
     'oldestLevel'
   ),
-  [Table.evmActivities]: indexes('++id', '[chainId+blockHeight]', '&[hash+chainId]'),
-  [Table.evmActivitiesIntervals]: indexes('++id', '[chainId+account+oldestBlockHeight]'),
+  [Table.evmActivities]: indexes('++id', 'account', '[chainId+account+blockHeight]', '&[hash+account+chainId]'),
+  [Table.evmActivitiesIntervals]: indexes('++id', 'account', '[chainId+account+oldestBlockHeight]'),
   [Table.evmActivityAssets]: indexes('++id', '&[chainId+contract+tokenId]')
 });
 
@@ -72,7 +72,7 @@ export type DbEvmActivity = Omit<EvmActivity, 'operations' | 'blockHeight'> &
   EntityWithId & {
     operations: Array<Omit<EvmOperation, 'asset'> & { fkAsset?: number; amountSigned?: string | null }>;
     blockHeight: number;
-    accounts: HexString[];
+    account: HexString;
   };
 
 export type DbEvmActivityAsset = Omit<EvmActivityAsset, 'amountSigned'> &

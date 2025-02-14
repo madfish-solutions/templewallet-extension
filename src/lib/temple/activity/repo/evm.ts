@@ -31,14 +31,13 @@ export const getClosestEvmActivitiesInterval = async (
 
     const { oldestBlockHeight, newestBlockHeight } = interval;
     const rawActivities = await evmActivities
-      .where(['chainId', 'blockHeight'])
+      .where(['chainId', 'account', 'blockHeight'])
       .between(
-        [chainId, oldestBlockHeight],
-        [chainId, Math.min(newestBlockHeight, Number(olderThanBlockHeight ?? Infinity) - 1)],
+        [chainId, account, oldestBlockHeight],
+        [chainId, account, Math.min(newestBlockHeight, Number(olderThanBlockHeight ?? Infinity) - 1)],
         true,
         true
       )
-      .and(({ accounts }) => accounts.includes(account))
       .reverse()
       .sortBy('blockHeight');
     const assetsIds = uniq(
@@ -62,7 +61,7 @@ export const getClosestEvmActivitiesInterval = async (
     );
 
     return {
-      activities: rawActivities.map(({ operations, blockHeight, id, accounts, ...activity }) => ({
+      activities: rawActivities.map(({ operations, blockHeight, id, account, ...activity }) => ({
         ...activity,
         blockHeight: `${blockHeight}`,
         operations: operations.map(({ fkAsset, amountSigned, ...operation }) => ({
@@ -75,7 +74,7 @@ export const getClosestEvmActivitiesInterval = async (
     };
   });
 
-const getAssetKey = (asset: EvmActivityAsset) => `${asset.contract}_${asset.tokenId}`;
+const getAssetKey = (asset: EvmActivityAsset) => `${asset.contract}_${asset.tokenId ?? NO_TOKEN_ID_VALUE}`;
 
 /**
  * Puts EVM activities into DB assuming that `activities` is a continuous history chunk. The function throws an error
@@ -92,10 +91,9 @@ export const putEvmActivities = async (
   if (activities.length === 0 && olderThanBlockHeight) {
     return db.transaction('rw!', evmActivitiesIntervals, evmActivities, evmActivityAssets, async () => {
       const sameBlocksActivitiesCollection = evmActivities
-        .where(['chainId', 'blockHeight'])
-        .between([chainId, 0], [chainId, Number(olderThanBlockHeight)], true, false)
-        .and(({ accounts }) => accounts.includes(account));
-      await deleteEvmActivitiesForAccount(sameBlocksActivitiesCollection, account);
+        .where(['chainId', 'account', 'blockHeight'])
+        .between([chainId, account, 0], [chainId, account, Number(olderThanBlockHeight)], true, false);
+      await deleteEvmActivities(sameBlocksActivitiesCollection);
 
       const supersetInterval = await evmActivitiesIntervals
         .where({ chainId, account })
@@ -108,14 +106,10 @@ export const putEvmActivities = async (
         return;
       }
 
-      const newerIntervalToJoinCollection = olderThanBlockHeight
-        ? evmActivitiesIntervals
-            .where(['chainId', 'account', 'oldestBlockHeight'])
-            .between([chainId, account, 0], [chainId, account, Number(olderThanBlockHeight)], true, true)
-        : undefined;
-      const newerIntervalToJoinId = newerIntervalToJoinCollection
-        ? (await newerIntervalToJoinCollection.primaryKeys())[0]
-        : undefined;
+      const newerIntervalToJoinCollection = evmActivitiesIntervals
+        .where(['chainId', 'account', 'oldestBlockHeight'])
+        .between([chainId, account, 0], [chainId, account, Number(olderThanBlockHeight)], true, true);
+      const newerIntervalToJoinId = (await newerIntervalToJoinCollection.primaryKeys())[0];
       const newerIntervalToJoin = isDefined(newerIntervalToJoinId)
         ? await evmActivitiesIntervals.get(newerIntervalToJoinId)
         : undefined;
@@ -147,16 +141,20 @@ export const putEvmActivities = async (
     throw new Error('There is an activity from a different chain');
   }
 
-  const oldestActivityBlockHeight = Number(activities.at(-1)?.blockHeight);
+  const oldestActivityBlockHeight = Number(activities.at(-1)!.blockHeight);
   const newestActivityBlockHeight = Number(activities[0].blockHeight);
   const separateIntervalNewestBlockHeight = Math.max(newestActivityBlockHeight, Number(olderThanBlockHeight ?? 0) - 1);
 
   return db.transaction('rw!', evmActivities, evmActivitiesIntervals, evmActivityAssets, async () => {
     const sameBlocksActivitiesCollection = evmActivities
-      .where(['chainId', 'blockHeight'])
-      .between([chainId, oldestActivityBlockHeight], [chainId, separateIntervalNewestBlockHeight], true, true)
-      .and(({ accounts }) => accounts.includes(account));
-    await deleteEvmActivitiesForAccount(sameBlocksActivitiesCollection, account);
+      .where(['chainId', 'account', 'blockHeight'])
+      .between(
+        [chainId, account, oldestActivityBlockHeight],
+        [chainId, account, separateIntervalNewestBlockHeight],
+        true,
+        true
+      );
+    await deleteEvmActivities(sameBlocksActivitiesCollection);
 
     const supersetInterval = await evmActivitiesIntervals
       .where({ chainId, account })
@@ -218,8 +216,8 @@ export const putEvmActivities = async (
     const alreadyPresentAssetsCollection = evmActivityAssets
       .where(['chainId', 'contract', 'tokenId'])
       .anyOf(assets.map(asset => [chainId, asset.contract, asset.tokenId ?? NO_TOKEN_ID_VALUE] as const));
-    const alreadyPresentAssets = await alreadyPresentAssetsCollection.toArray();
     const alreadyPresentAssetsIds = await alreadyPresentAssetsCollection.primaryKeys();
+    const alreadyPresentAssets = (await evmActivityAssets.bulkGet(alreadyPresentAssetsIds)).filter(isDefined);
     const alreadyPresentAssetsKeys = Object.fromEntries(alreadyPresentAssets.map(asset => [getAssetKey(asset), true]));
     const newAssets = assets.filter(asset => !alreadyPresentAssetsKeys[getAssetKey(asset)]);
     const newAssetsIds = await evmActivityAssets.bulkPut(
@@ -236,27 +234,10 @@ export const putEvmActivities = async (
       Object.fromEntries(newAssets.map((asset, i) => [getAssetKey(asset), newAssetsIds[i]]))
     );
 
-    // TODO: implement putting and updating activities
-    const alreadyPresentActivitiesCollection = evmActivities
-      .where(['hash', 'chainId'])
-      .anyOf(activities.map(({ hash }) => [hash, chainId]));
-    const alreadyPresentActivitiesIds = await alreadyPresentActivitiesCollection.primaryKeys();
-    const alreadyPresentActivities = await alreadyPresentActivitiesCollection.toArray();
-    const alreadyPresentActivitiesKeys = Object.fromEntries(
-      alreadyPresentActivities.map(({ hash, chainId }) => [`${hash}_${chainId}`, true])
-    );
-    const newActivities = activities.filter(({ hash }) => !alreadyPresentActivitiesKeys[`${hash}_${chainId}`]);
-
-    await evmActivities.bulkUpdate(
-      alreadyPresentActivitiesIds.map((id, i) => ({
-        key: id,
-        changes: { accounts: alreadyPresentActivities[i].accounts.concat(account) }
-      }))
-    );
     await evmActivities.bulkPut(
-      newActivities.map(({ operations, blockHeight, ...activity }) => ({
+      activities.map(({ operations, blockHeight, ...activity }) => ({
         ...activity,
-        accounts: [account],
+        account,
         chainId,
         blockHeight: Number(blockHeight),
         operations: operations.map(({ asset, ...operation }) => ({
@@ -269,41 +250,22 @@ export const putEvmActivities = async (
   });
 };
 
-export const removeEvmActivitiesByAddress = async (account: HexString) =>
+export const deleteEvmActivitiesByAddress = async (account: HexString) =>
   db.transaction('rw!', evmActivities, evmActivitiesIntervals, evmActivityAssets, async () => {
-    const intervalIds = await evmActivitiesIntervals.where('account').equals(account).primaryKeys();
+    account = account.toLowerCase() as HexString;
+    const intervalIds = await evmActivitiesIntervals.where({ account }).primaryKeys();
     await evmActivitiesIntervals.bulkDelete(intervalIds);
-    const activityIdsCollection = evmActivities.filter(({ accounts }) => accounts.includes(account));
-    await deleteEvmActivitiesForAccount(activityIdsCollection, account);
+    const activityIdsCollection = evmActivities.where({ account });
+    await deleteEvmActivities(activityIdsCollection);
   });
 
-const deleteEvmActivitiesForAccount = async (
-  activitiesCollection: Collection<DbEvmActivity, number, DbEvmActivity>,
-  account: HexString
-) => {
+const deleteEvmActivities = async (activitiesCollection: Collection<DbEvmActivity, number, DbEvmActivity>) => {
   const activitiesIds = await activitiesCollection.primaryKeys();
-  const activities = await activitiesCollection.toArray();
-  const activitiesWithIds = activitiesIds.map((id, i) => [id, activities[i]] as const);
-  const activitiesForCompleteRemoval = activitiesWithIds.filter(([, activity]) => {
-    const { accounts } = activity;
-
-    return accounts.length === 1 && accounts[0] === account;
-  });
-  const activitiesForModification = activitiesWithIds.filter(([, activity]) => {
-    const { accounts } = activity;
-
-    return accounts.length > 1 && accounts.includes(account);
-  });
-  await evmActivities.bulkDelete(activitiesForCompleteRemoval.map(([id]) => id));
-  await evmActivities.bulkUpdate(
-    activitiesForModification.map(([id, activity]) => ({
-      key: id,
-      changes: { accounts: activity.accounts.filter(a => a !== account) }
-    }))
-  );
+  const activities = (await evmActivities.bulkGet(activitiesIds)).filter(isDefined);
+  await evmActivities.bulkDelete(activitiesIds);
   const activityAssetsIdsToRemoveCandidates = uniq(
-    activitiesForCompleteRemoval
-      .map(([, { operations }]) => operations.map(({ fkAsset }) => fkAsset))
+    activities
+      .map(({ operations }) => operations.map(({ fkAsset }) => fkAsset))
       .flat()
       .filter(isDefined)
   );

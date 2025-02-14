@@ -5,7 +5,7 @@ import { omit } from 'lodash';
 
 import { EvmActivity, EvmActivityAsset } from 'lib/activity';
 
-import { getClosestEvmActivitiesInterval, putEvmActivities } from '../repo';
+import { deleteEvmActivitiesByAddress, getClosestEvmActivitiesInterval, putEvmActivities } from '../repo';
 import {
   DbEvmActivity,
   DbEvmActivityAsset,
@@ -26,9 +26,9 @@ import rawVitalikActivityPart1 from './vitalik-activity-part1.json';
 import rawVitalikActivityPart2 from './vitalik-activity-part2.json';
 import rawVitalikActivityPartsAssets from './vitalik-activity-parts-assets.json';
 
-const dbInteractorActivity = rawDbInteractorActivity as Omit<DbEvmActivity, 'accounts'>[];
-const dbVitalikActivityPart1 = rawDbVitalikActivityPart1 as Omit<DbEvmActivity, 'accounts'>[];
-const dbVitalikActivityPart2 = rawDbVitalikActivityPart2 as Omit<DbEvmActivity, 'accounts'>[];
+const dbInteractorActivity = rawDbInteractorActivity as Omit<DbEvmActivity, 'account'>[];
+const dbVitalikActivityPart1 = rawDbVitalikActivityPart1 as Omit<DbEvmActivity, 'account'>[];
+const dbVitalikActivityPart2 = rawDbVitalikActivityPart2 as Omit<DbEvmActivity, 'account'>[];
 const interactorActivity = rawInteractorActivity as EvmActivity[];
 const vitalikActivityPart1 = rawVitalikActivityPart1 as EvmActivity[];
 const vitalikActivityPart2 = rawVitalikActivityPart2 as EvmActivity[];
@@ -43,8 +43,6 @@ const vitalikPkh: HexString = '0xAb5801a7D398351b8bE11C439e05C5B3259aeC9B';
 const vitalikPkhLowercased = vitalikPkh.toLowerCase() as HexString;
 const interactorPkh: HexString = '0xbe09893cafe9d2cc02a1ad60853f2c835c3056ae';
 const interactorPkhLowercased = interactorPkh.toLowerCase() as HexString;
-const intersectingActivityChainId = 10;
-const intersectingActivityOpHash = '0xe1ce1a5f880f27f465a32b4ea531d27c75b111f30612659dbde3347b707ecdd7';
 const dbEthVitalikActivityPart1 = dbVitalikActivityPart1.filter(({ chainId }) => chainId === 1);
 const ethVitalikActivityPart1 = vitalikActivityPart1.filter(({ chainId }) => chainId === 1);
 const dbEthVitalikActivityPart2 = dbVitalikActivityPart2.filter(({ chainId }) => chainId === 1);
@@ -67,7 +65,7 @@ describe('Activities DB', () => {
   };
 
   const expectDbState = async (
-    expectedActivities: EvmActivity[],
+    expectedActivities: (EvmActivity & { account: HexString })[],
     expectedIntervals: EvmActivitiesInterval[],
     expectedAssets: Omit<DbEvmActivityAsset, 'id'>[]
   ) => {
@@ -83,7 +81,7 @@ describe('Activities DB', () => {
     );
     const assetsFromDb = await evmActivityAssets.toArray();
     const assetsFromDbIds = await evmActivityAssets.toCollection().primaryKeys();
-    const actualActivities = activitiesFromDb.map(({ operations, accounts, blockHeight, ...activity }) => ({
+    const actualActivities = activitiesFromDb.map(({ operations, blockHeight, ...activity }) => ({
       ...activity,
       blockHeight: String(blockHeight),
       operations: operations.map(({ fkAsset, amountSigned, ...operation }) => ({
@@ -105,6 +103,7 @@ describe('Activities DB', () => {
         })()
       }))
     }));
+    // console.log('oy vey 2', JSON.stringify({ assetsFromDb, intervalsFromDb, activitiesFromDb }));
     expect(intervalsFromDb).toEqual(sortedExpectedIntervals);
     expect(actualActivities).toEqual(sortedExpectedActivities);
     expect(assetsFromDb.map(({ id, ...asset }) => asset).sort(assetsSortPredicate)).toEqual(
@@ -117,44 +116,37 @@ describe('Activities DB', () => {
     await db.open();
   };
 
+  const insertFullDataSet = async () => {
+    await evmActivitiesIntervals.bulkAdd([
+      { chainId: 1, account: vitalikPkhLowercased, oldestBlockHeight: 21792864, newestBlockHeight: 21821418 },
+      { chainId: 10, account: vitalikPkhLowercased, oldestBlockHeight: 131798516, newestBlockHeight: 131798516 },
+      { chainId: 56, account: vitalikPkhLowercased, oldestBlockHeight: 46510527, newestBlockHeight: 46510527 },
+      { chainId: 137, account: vitalikPkhLowercased, oldestBlockHeight: 67722210, newestBlockHeight: 67722210 },
+      { chainId: 1, account: vitalikPkhLowercased, oldestBlockHeight: 21755593, newestBlockHeight: 21792842 },
+      { chainId: 56, account: vitalikPkhLowercased, oldestBlockHeight: 46305530, newestBlockHeight: 46391420 },
+      { chainId: 137, account: vitalikPkhLowercased, oldestBlockHeight: 67463030, newestBlockHeight: 67465071 },
+      { chainId: 10, account: interactorPkhLowercased, oldestBlockHeight: 131281237, newestBlockHeight: 131799688 }
+    ]);
+    await evmActivityAssets.bulkAdd(
+      vitalikActivityPartsAssets
+        .concat(interactorActivityAssets.slice(0, 1))
+        .map(({ tokenId, ...rest }) => ({ ...rest, tokenId: tokenId ?? NO_TOKEN_ID_VALUE }))
+    );
+    await evmActivities.bulkAdd(
+      dbVitalikActivityPart2
+        .concat(dbVitalikActivityPart1)
+        .map(({ hash, chainId, ...activity }) => ({
+          ...activity,
+          hash,
+          chainId,
+          account: vitalikPkhLowercased
+        }))
+        .concat(dbInteractorActivity.map(activity => ({ ...activity, account: interactorPkhLowercased })))
+    );
+  };
+
   describe('getClosestEvmActivitiesInterval', () => {
-    beforeAll(async () => {
-      await evmActivitiesIntervals.bulkAdd([
-        { chainId: 1, account: vitalikPkhLowercased, oldestBlockHeight: 21792864, newestBlockHeight: 21821418 },
-        { chainId: 10, account: vitalikPkhLowercased, oldestBlockHeight: 131798516, newestBlockHeight: 131798516 },
-        { chainId: 56, account: vitalikPkhLowercased, oldestBlockHeight: 46510527, newestBlockHeight: 46510527 },
-        { chainId: 137, account: vitalikPkhLowercased, oldestBlockHeight: 67722210, newestBlockHeight: 67722210 },
-        { chainId: 1, account: vitalikPkhLowercased, oldestBlockHeight: 21755593, newestBlockHeight: 21792842 },
-        { chainId: 56, account: vitalikPkhLowercased, oldestBlockHeight: 46305530, newestBlockHeight: 46391420 },
-        { chainId: 137, account: vitalikPkhLowercased, oldestBlockHeight: 67463030, newestBlockHeight: 67465071 },
-        { chainId: 10, account: interactorPkhLowercased, oldestBlockHeight: 131281237, newestBlockHeight: 131799688 }
-      ]);
-      await evmActivityAssets.bulkAdd(
-        vitalikActivityPartsAssets
-          .concat(interactorActivityAssets)
-          .map(({ tokenId, ...rest }) => ({ ...rest, tokenId: tokenId ?? NO_TOKEN_ID_VALUE }))
-      );
-      await evmActivities.bulkAdd(
-        dbVitalikActivityPart2
-          .concat(dbVitalikActivityPart1)
-          .map(({ hash, chainId, ...activity }) => ({
-            ...activity,
-            hash,
-            chainId,
-            accounts:
-              hash === intersectingActivityOpHash && chainId === intersectingActivityChainId
-                ? [vitalikPkhLowercased, interactorPkhLowercased]
-                : [vitalikPkhLowercased]
-          }))
-          .concat(
-            dbInteractorActivity
-              .filter(
-                ({ chainId, hash }) => chainId !== intersectingActivityChainId || hash !== intersectingActivityOpHash
-              )
-              .map(activity => ({ ...activity, accounts: [interactorPkhLowercased] }))
-          )
-      );
-    });
+    beforeAll(insertFullDataSet);
 
     it('should return an empty array if there is no matching interval', async () => {
       await expect(getClosestEvmActivitiesInterval('131798516', 10, vitalikPkh)).resolves.toEqual({
@@ -228,85 +220,90 @@ describe('Activities DB', () => {
   describe('putEvmActivities', () => {
     afterEach(resetDb);
 
-    it('should do nothing if there are no new activities and no `olderThanBlockHeight`', async () => {
-      await putEvmActivities([], 1, vitalikPkh, undefined);
-      await expectDbState([], [], []);
-    });
-
-    it('should add only an empty interval if there are no activities but `olderThanBlockHeight` is provided', async () => {
-      await putEvmActivities([], 1, vitalikPkh, '21821418');
-      await expectDbState(
-        [],
-        [{ chainId: 1, account: vitalikPkhLowercased, newestBlockHeight: 21821417, oldestBlockHeight: 0 }],
-        []
-      );
-    });
-
-    it('should only remove activities from the appropriate block levels and no longer used assets if there are no new \
-activities, `olderThanBlockHeight` is provided, and there is an interval that embraces the interval [0, `olderThanBlockHeight`)', async () => {
-      await evmActivitiesIntervals.add({
-        chainId: 1,
-        account: vitalikPkhLowercased,
-        oldestBlockHeight: 0,
-        newestBlockHeight: 21792842
+    describe('no new activities', () => {
+      it('should do nothing if `olderThanBlockHeight` is not provided', async () => {
+        await putEvmActivities([], 1, vitalikPkh, undefined);
+        await expectDbState([], [], []);
       });
-      const assetsIds = await evmActivityAssets.bulkAdd(
-        vitalikActivityPartsAssets.map(({ tokenId, ...rest }) => ({ ...rest, tokenId: tokenId ?? NO_TOKEN_ID_VALUE })),
-        { allKeys: true }
-      );
-      const testActivities = dbEthVitalikActivityPart2.map(activity => ({
-        ...activity,
-        accounts: [vitalikPkhLowercased]
-      }));
-      await evmActivityAssets.bulkDelete(
-        assetsIds.filter(
-          id => !testActivities.some(({ operations }) => operations.some(({ fkAsset }) => fkAsset === id))
-        )
-      );
-      await evmActivities.bulkAdd(testActivities);
-      await putEvmActivities([], 1, vitalikPkh, '21783161');
-      await expectDbState(
-        ethVitalikActivityPart2.slice(0, 4),
-        [
-          {
-            chainId: 1,
-            account: vitalikPkhLowercased,
-            oldestBlockHeight: 0,
-            newestBlockHeight: 21792842
-          }
-        ],
-        [vitalikActivityPartsAssets[2], vitalikActivityPartsAssets[4]].map(({ tokenId, ...rest }) => ({
+
+      it('should add only an empty interval if `olderThanBlockHeight` is provided and the DB is empty', async () => {
+        await putEvmActivities([], 1, vitalikPkh, '21821418');
+        await expectDbState(
+          [],
+          [{ chainId: 1, account: vitalikPkhLowercased, newestBlockHeight: 21821417, oldestBlockHeight: 0 }],
+          []
+        );
+      });
+
+      it('should only remove activities from the appropriate block levels and no longer used assets if \
+  `olderThanBlockHeight` is provided and there is an interval that embraces the interval [0, `olderThanBlockHeight`)', async () => {
+        await evmActivitiesIntervals.add({
+          chainId: 1,
+          account: vitalikPkhLowercased,
+          oldestBlockHeight: 0,
+          newestBlockHeight: 21792842
+        });
+        const assetsIds = await evmActivityAssets.bulkAdd(
+          vitalikActivityPartsAssets.map(({ tokenId, ...rest }) => ({
+            ...rest,
+            tokenId: tokenId ?? NO_TOKEN_ID_VALUE
+          })),
+          { allKeys: true }
+        );
+        const testActivities = dbEthVitalikActivityPart2.map(activity => ({
+          ...activity,
+          account: vitalikPkhLowercased
+        }));
+        await evmActivityAssets.bulkDelete(
+          assetsIds.filter(
+            id => !testActivities.some(({ operations }) => operations.some(({ fkAsset }) => fkAsset === id))
+          )
+        );
+        await evmActivities.bulkAdd(testActivities);
+        await putEvmActivities([], 1, vitalikPkh, '21783161');
+        await expectDbState(
+          ethVitalikActivityPart2.slice(0, 4).map(activity => ({ ...activity, account: vitalikPkhLowercased })),
+          [
+            {
+              chainId: 1,
+              account: vitalikPkhLowercased,
+              oldestBlockHeight: 0,
+              newestBlockHeight: 21792842
+            }
+          ],
+          [vitalikActivityPartsAssets[2], vitalikActivityPartsAssets[4]].map(({ tokenId, ...rest }) => ({
+            ...rest,
+            tokenId: tokenId ?? NO_TOKEN_ID_VALUE
+          }))
+        );
+      });
+
+      it('should join the intervals if `olderThanBlockHeight` is provided and there is an interval \
+[`olderThanBlockHeight`, x]', async () => {
+        await evmActivitiesIntervals.add({
+          chainId: 1,
+          account: vitalikPkhLowercased,
+          oldestBlockHeight: 21792864,
+          newestBlockHeight: 21821418
+        });
+        await evmActivities.bulkAdd(
+          dbEthVitalikActivityPart1.map(activity => ({
+            ...activity,
+            account: vitalikPkhLowercased
+          }))
+        );
+        const assets = vitalikActivityPartsAssets.map(({ tokenId, ...rest }) => ({
           ...rest,
           tokenId: tokenId ?? NO_TOKEN_ID_VALUE
-        }))
-      );
-    });
-
-    it('should join the intervals if there are no new activities, `olderThanBlockHeight` is provided, and there is an \
-interval [`olderThanBlockHeight`, x]', async () => {
-      await evmActivitiesIntervals.add({
-        chainId: 1,
-        account: vitalikPkhLowercased,
-        oldestBlockHeight: 21792864,
-        newestBlockHeight: 21821418
+        }));
+        await evmActivityAssets.bulkAdd(assets);
+        await putEvmActivities([], 1, vitalikPkh, '21792864');
+        await expectDbState(
+          ethVitalikActivityPart1.map(activity => ({ ...activity, account: vitalikPkhLowercased })),
+          [{ chainId: 1, account: vitalikPkhLowercased, newestBlockHeight: 21821418, oldestBlockHeight: 0 }],
+          assets
+        );
       });
-      await evmActivities.bulkAdd(
-        dbEthVitalikActivityPart1.map(activity => ({
-          ...activity,
-          accounts: [vitalikPkhLowercased]
-        }))
-      );
-      const assets = vitalikActivityPartsAssets.map(({ tokenId, ...rest }) => ({
-        ...rest,
-        tokenId: tokenId ?? NO_TOKEN_ID_VALUE
-      }));
-      await evmActivityAssets.bulkAdd(assets);
-      await putEvmActivities([], 1, vitalikPkh, '21792864');
-      await expectDbState(
-        ethVitalikActivityPart1,
-        [{ chainId: 1, account: vitalikPkhLowercased, newestBlockHeight: 21821418, oldestBlockHeight: 0 }],
-        assets
-      );
     });
 
     it('should throw an error if there is at least one activity from another chain than the specified one', async () => {
@@ -323,7 +320,7 @@ interval [`olderThanBlockHeight`, x]', async () => {
     it('should put new activities into empty DB with undefined `olderThanBlockHeight`', async () => {
       await putEvmActivities(ethVitalikActivityPart1, 1, vitalikPkh, undefined);
       await expectDbState(
-        ethVitalikActivityPart1,
+        ethVitalikActivityPart1.map(activity => ({ ...activity, account: vitalikPkhLowercased })),
         [{ chainId: 1, account: vitalikPkhLowercased, newestBlockHeight: 21821418, oldestBlockHeight: 21792864 }],
         vitalikActivityPartsAssets
           .map(({ tokenId, ...rest }) => ({
@@ -339,7 +336,7 @@ interval [`olderThanBlockHeight`, x]', async () => {
     it('should put new activities into empty DB with the specified `olderThanBlockHeight`', async () => {
       await putEvmActivities(ethVitalikActivityPart1, 1, vitalikPkh, '21821420');
       await expectDbState(
-        ethVitalikActivityPart1,
+        ethVitalikActivityPart1.map(activity => ({ ...activity, account: vitalikPkhLowercased })),
         [{ chainId: 1, account: vitalikPkhLowercased, newestBlockHeight: 21821419, oldestBlockHeight: 21792864 }],
         vitalikActivityPartsAssets
           .map(({ tokenId, ...rest }) => ({
@@ -354,23 +351,176 @@ interval [`olderThanBlockHeight`, x]', async () => {
 
     it('should overwrite activities with the same chain ID and account address having block height that is in the \
 range of new activities', async () => {
-      // TODO: add test
+      await evmActivitiesIntervals.bulkAdd([
+        { chainId: 10, account: vitalikPkhLowercased, oldestBlockHeight: 131798516, newestBlockHeight: 131798516 },
+        { chainId: 10, account: interactorPkhLowercased, oldestBlockHeight: 131281237, newestBlockHeight: 131799688 }
+      ]);
+      const testActivities = dbVitalikActivityPart1
+        .filter(({ chainId }) => chainId === 10)
+        .map(activity => ({
+          ...activity,
+          account: vitalikPkhLowercased
+        }))
+        .concat(dbInteractorActivity.map(activity => ({ ...activity, account: interactorPkhLowercased })));
+      await evmActivities.bulkAdd(testActivities);
+      const assetsIds = await evmActivityAssets.bulkAdd(
+        vitalikActivityPartsAssets
+          .concat(interactorActivityAssets.slice(0, 1))
+          .map(({ tokenId, ...rest }) => ({ ...rest, tokenId: tokenId ?? NO_TOKEN_ID_VALUE })),
+        { allKeys: true }
+      );
+      await evmActivityAssets.bulkDelete(
+        assetsIds.filter(
+          id => !testActivities.some(({ operations }) => operations.some(({ fkAsset }) => fkAsset === id))
+        )
+      );
+      await putEvmActivities([interactorActivity[3]], 10, interactorPkh, '131799688');
+      await expectDbState(
+        [
+          { ...interactorActivity[0], account: interactorPkhLowercased },
+          { ...vitalikActivityPart1[4], account: vitalikPkhLowercased },
+          { ...interactorActivity[3], account: interactorPkhLowercased },
+          { ...interactorActivity[4], account: interactorPkhLowercased }
+        ],
+        [
+          { chainId: 10, account: vitalikPkhLowercased, oldestBlockHeight: 131798516, newestBlockHeight: 131798516 },
+          { chainId: 10, account: interactorPkhLowercased, oldestBlockHeight: 131281237, newestBlockHeight: 131799688 }
+        ],
+        [
+          {
+            contract: '0xCE677Ef463C413D6348FC7B44c5Cde9Dcee82a1F',
+            tokenId: NO_TOKEN_ID_VALUE,
+            chainId: 10,
+            symbol: 'vs2OCT',
+            decimals: 18,
+            iconURL: 'https://logos.covalenthq.com/tokens/10/0xce677ef463c413d6348fc7b44c5cde9dcee82a1f.png'
+          },
+          {
+            contract: '0x94b008aA00579c1307B0EF2c499aD98a8ce58e58',
+            tokenId: NO_TOKEN_ID_VALUE,
+            chainId: 10,
+            symbol: 'USDT',
+            decimals: 6,
+            iconURL: 'https://logos.covalenthq.com/tokens/10/0x94b008aa00579c1307b0ef2c499ad98a8ce58e58.png'
+          }
+        ]
+      );
     });
 
-    it.todo('should keep the same intervals if there is an interval that embraces all the new activities');
+    describe('intervals management', () => {
+      it('should create an extended interval with older activities if the oldest new activity gets into the interval', async () => {
+        await evmActivitiesIntervals.add({
+          chainId: 1,
+          account: vitalikPkhLowercased,
+          oldestBlockHeight: 21755593,
+          newestBlockHeight: 21792864
+        });
+        const assetsIds = await evmActivityAssets.bulkAdd(
+          vitalikActivityPartsAssets.map(({ tokenId, ...rest }) => ({
+            ...rest,
+            tokenId: tokenId ?? NO_TOKEN_ID_VALUE
+          })),
+          { allKeys: true }
+        );
+        const testActivities = dbEthVitalikActivityPart2.map(activity => ({
+          ...activity,
+          account: vitalikPkhLowercased
+        }));
+        await evmActivityAssets.bulkDelete(
+          assetsIds.filter(
+            id => !testActivities.some(({ operations }) => operations.some(({ fkAsset }) => fkAsset === id))
+          )
+        );
+        await evmActivities.bulkAdd(testActivities);
+        await putEvmActivities(ethVitalikActivityPart1, 1, vitalikPkh, undefined);
+        await expectDbState(
+          ethVitalikActivityPart1
+            .concat(ethVitalikActivityPart2)
+            .map(activity => ({ ...activity, account: vitalikPkhLowercased })),
+          [{ chainId: 1, account: vitalikPkhLowercased, newestBlockHeight: 21821418, oldestBlockHeight: 21755593 }],
+          vitalikActivityPartsAssets
+            .filter(({ chainId }) => chainId === 1)
+            .map(({ tokenId, ...rest }) => ({
+              ...rest,
+              tokenId: tokenId ?? NO_TOKEN_ID_VALUE
+            }))
+        );
+      });
 
-    it.todo('should create an extended interval with older activities if `olderThanBlockHeight` is in the interval');
-
-    it.todo(
-      'should create an extended interval with newer activities if some new activities should be in that interval'
-    );
-
-    it.todo('should create a new interval if there is no overlap with the previous ones');
-
-    it.todo('should create new assets unless they already exist');
+      it('should create an extended interval with newer activities if `olderThanBlockHeight` is the edge of the interval', async () => {
+        await evmActivitiesIntervals.add({
+          chainId: 1,
+          account: vitalikPkhLowercased,
+          oldestBlockHeight: 21820086,
+          newestBlockHeight: 21821418
+        });
+        const assetsIds = await evmActivityAssets.bulkAdd(
+          vitalikActivityPartsAssets.map(({ tokenId, ...rest }) => ({
+            ...rest,
+            tokenId: tokenId ?? NO_TOKEN_ID_VALUE
+          })),
+          { allKeys: true }
+        );
+        const testActivities = dbEthVitalikActivityPart1.slice(0, 2).map(activity => ({
+          ...activity,
+          account: vitalikPkhLowercased
+        }));
+        await evmActivityAssets.bulkDelete(
+          assetsIds.filter(
+            id => !testActivities.some(({ operations }) => operations.some(({ fkAsset }) => fkAsset === id))
+          )
+        );
+        await evmActivities.bulkAdd(testActivities);
+        await putEvmActivities(ethVitalikActivityPart1.slice(2, 4), 1, vitalikPkh, '21820086');
+        await expectDbState(
+          vitalikActivityPart1.slice(0, 4).map(activity => ({ ...activity, account: vitalikPkhLowercased })),
+          [{ chainId: 1, account: vitalikPkhLowercased, newestBlockHeight: 21821418, oldestBlockHeight: 21817611 }],
+          vitalikActivityPartsAssets.slice(0, 3).map(({ tokenId, ...rest }) => ({
+            ...rest,
+            tokenId: tokenId ?? NO_TOKEN_ID_VALUE
+          }))
+        );
+      });
+    });
   });
 
-  describe('removeEvmActivitiesByAddress', () => {
-    // TODO: add tests
+  describe('deleteEvmActivities', () => {
+    afterEach(resetDb);
+
+    it('should remove only the data which is related to Vitalik', async () => {
+      await insertFullDataSet();
+      await deleteEvmActivitiesByAddress(vitalikPkh);
+      await expectDbState(
+        interactorActivity.map(activity => ({ ...activity, account: interactorPkhLowercased })),
+        [{ chainId: 10, account: interactorPkhLowercased, oldestBlockHeight: 131281237, newestBlockHeight: 131799688 }],
+        interactorActivityAssets.map(({ tokenId, ...rest }) => ({
+          ...rest,
+          tokenId: tokenId ?? NO_TOKEN_ID_VALUE
+        }))
+      );
+    });
+
+    it('should remove only the data which is related to the account that interacted with him', async () => {
+      await insertFullDataSet();
+      await deleteEvmActivitiesByAddress(interactorPkh);
+      await expectDbState(
+        vitalikActivityPart1
+          .concat(vitalikActivityPart2)
+          .map(activity => ({ ...activity, account: vitalikPkhLowercased })),
+        [
+          { chainId: 1, account: vitalikPkhLowercased, oldestBlockHeight: 21792864, newestBlockHeight: 21821418 },
+          { chainId: 10, account: vitalikPkhLowercased, oldestBlockHeight: 131798516, newestBlockHeight: 131798516 },
+          { chainId: 56, account: vitalikPkhLowercased, oldestBlockHeight: 46510527, newestBlockHeight: 46510527 },
+          { chainId: 137, account: vitalikPkhLowercased, oldestBlockHeight: 67722210, newestBlockHeight: 67722210 },
+          { chainId: 1, account: vitalikPkhLowercased, oldestBlockHeight: 21755593, newestBlockHeight: 21792842 },
+          { chainId: 56, account: vitalikPkhLowercased, oldestBlockHeight: 46305530, newestBlockHeight: 46391420 },
+          { chainId: 137, account: vitalikPkhLowercased, oldestBlockHeight: 67463030, newestBlockHeight: 67465071 }
+        ],
+        vitalikActivityPartsAssets.map(({ tokenId, ...rest }) => ({
+          ...rest,
+          tokenId: tokenId ?? NO_TOKEN_ID_VALUE
+        }))
+      );
+    });
   });
 });
