@@ -17,12 +17,12 @@ import { t, T } from 'lib/i18n';
 import { useTypedSWR } from 'lib/swr';
 import { useAccountAddressForEvm, useAccountAddressForTezos } from 'temple/front';
 
+import { ModalHeaderConfig } from '../../../../types';
 import { StepLabel } from '../../../components/StepLabel';
 import { Stepper } from '../../../components/Stepper';
 import {
   defaultModalHeaderConfig,
   EXOLIX_DECIMALS,
-  ModalHeaderConfig,
   TEZOS_EXOLIX_NETWORK_CODE,
   VALUE_PLACEHOLDER
 } from '../../../config';
