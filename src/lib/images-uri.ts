@@ -222,40 +222,58 @@ const chainIdsChainNamesRecord: Record<number, string> = {
   66: 'okc',
   2020: 'ronin',
   100009: 'vechain',
-  7000: 'zetachain'
+  7000: 'zetachain',
+  48900: 'zircuit',
+  32769: 'zilliqa',
+  [OTHER_COMMON_MAINNET_CHAIN_IDS.etherlink]: 'etherlink'
 };
 
-const baseUrl = 'https://raw.githubusercontent.com/rainbow-me/assets/master/blockchains/';
+const rainbowBaseUrl = 'https://raw.githubusercontent.com/rainbow-me/assets/master/blockchains/';
+const llamaoBaseUrl = 'https://icons.llamao.fi/icons/chains/';
 
 const getCompressedImageUrl = (imageUrl: string, size: number) =>
   `https://img.templewallet.com/insecure/fill/${size}/${size}/ce/0/plain/${imageUrl}`;
 
-export const getEvmNativeAssetIcon = (chainId: number, size?: number) => {
-  const chainName = chainIdsChainNamesRecord[chainId];
+type NativeIconSource = 'rainbow' | 'llamao';
 
+const getImageUrl = (source: NativeIconSource, chainName: string) => {
+  if (source === 'llamao') return `${llamaoBaseUrl}rsz_${chainName}.jpg`;
+
+  return `${rainbowBaseUrl}${chainName}/info/logo.png`;
+};
+
+export const getEvmNativeAssetIcon = (chainId: number, size?: number, source: NativeIconSource = 'rainbow') => {
+  const chainName = chainIdsChainNamesRecord[chainId];
   if (!chainName) return null;
 
-  const imageUrl = `${baseUrl}${chainName}/info/logo.png`;
+  const imageUrl = getImageUrl(source, chainName);
 
   if (size) return getCompressedImageUrl(imageUrl, size);
 
   return imageUrl;
 };
 
-const getEvmCustomChainIconUrl = (chainId: number, metadata: EvmAssetMetadataBase) => {
+const getEvmCustomChainIconUrl = (
+  chainId: number,
+  metadata: EvmAssetMetadataBase,
+  nativeIconSource: NativeIconSource = 'rainbow'
+) => {
   const chainName = chainIdsChainNamesRecord[chainId];
 
   if (!chainName) return null;
 
   return metadata.standard === EvmAssetStandard.NATIVE
-    ? getEvmNativeAssetIcon(chainId)
-    : `${baseUrl}${chainName}/assets/${metadata.address}/logo.png`;
+    ? getEvmNativeAssetIcon(chainId, undefined, nativeIconSource)
+    : `${rainbowBaseUrl}${chainName}/assets/${metadata.address}/logo.png`;
 };
 
-export const buildEvmTokenIconSources = (metadata: EvmAssetMetadataBase, chainId: number) => {
-  const mainFallback = getEvmCustomChainIconUrl(chainId, metadata);
+export const buildEvmTokenIconSources = (metadata: EvmAssetMetadataBase, chainId: number): string[] => {
+  const fallbacks = [
+    getEvmCustomChainIconUrl(chainId, metadata),
+    metadata.standard === EvmAssetStandard.NATIVE && getEvmCustomChainIconUrl(chainId, metadata, 'llamao')
+  ];
 
-  return mainFallback ? [getCompressedImageUrl(mainFallback, COMPRESSES_TOKEN_ICON_SIZE)] : [];
+  return fallbacks.filter(isTruthy).map(url => getCompressedImageUrl(url, COMPRESSES_TOKEN_ICON_SIZE));
 };
 
 export const buildEvmCollectibleIconSources = (metadata: EvmCollectibleMetadata) => {
