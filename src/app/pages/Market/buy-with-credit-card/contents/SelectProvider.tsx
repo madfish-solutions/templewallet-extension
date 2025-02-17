@@ -12,7 +12,9 @@ import { T, t, TID } from 'lib/i18n';
 import { InfoContainer } from '../../components/InfoBlock';
 import { ModalHeaderConfig } from '../../types';
 import { NewQuoteLabel } from '../components/NewQuoteLabel';
-import { FormData, VALUE_PLACEHOLDER } from '../config';
+import { VALUE_PLACEHOLDER } from '../config';
+import { BuyWithCreditCardFormData } from '../form-data.interface';
+import { usePaymentProviders } from '../hooks/use-payment-providers';
 import { TopUpProviderId } from '../top-up-provider-id.enum';
 import { PaymentProviderInterface } from '../topup.interface';
 
@@ -27,9 +29,15 @@ export const SelectProvider: FC<Props> = ({ setModalHeaderConfig, onGoBack }) =>
     [setModalHeaderConfig, onGoBack]
   );
 
-  const { watch, setValue } = useFormContext<FormData>();
+  const { watch, setValue } = useFormContext<BuyWithCreditCardFormData>();
 
   const activeProvider = watch('provider');
+  const inputCurrency = watch('inputCurrency');
+  const outputToken = watch('outputToken');
+
+  const inputAmount = watch('inputAmount');
+
+  const { paymentProvidersToDisplay } = usePaymentProviders(inputAmount, inputCurrency, outputToken);
 
   const onProviderSelect = useCallback(
     (p: PaymentProviderInterface) => {
@@ -43,8 +51,8 @@ export const SelectProvider: FC<Props> = ({ setModalHeaderConfig, onGoBack }) =>
     <FadeTransition>
       <NewQuoteLabel title="providers" className="m-4" />
       <div className="flex flex-col px-4 pb-4">
-        {providersMock.map(p => (
-          <Provider key={p.id} current={p} activeId={activeProvider.id} onClick={onProviderSelect} />
+        {paymentProvidersToDisplay.map(p => (
+          <Provider key={p.id} current={p} activeId={activeProvider?.id} onClick={onProviderSelect} />
         ))}
       </div>
     </FadeTransition>
@@ -53,7 +61,7 @@ export const SelectProvider: FC<Props> = ({ setModalHeaderConfig, onGoBack }) =>
 
 interface ProviderProps {
   current: PaymentProviderInterface;
-  activeId: TopUpProviderId;
+  activeId?: TopUpProviderId;
   onClick?: SyncFn<PaymentProviderInterface>;
 }
 
@@ -116,42 +124,3 @@ const Tag = memo<TagProps>(({ title, className }) => (
     <T id={title} />
   </div>
 ));
-
-const providersMock: PaymentProviderInterface[] = [
-  {
-    name: 'MoonPay',
-    id: TopUpProviderId.MoonPay,
-    isBestPrice: true,
-    kycRequired: false,
-    minInputAmount: 30,
-    maxInputAmount: 30000,
-    inputSymbol: 'USD',
-    inputDecimals: 2,
-    outputAmount: 1000,
-    outputSymbol: 'TEZ'
-  },
-  {
-    name: 'Alice&Bob',
-    id: TopUpProviderId.AliceBob,
-    isBestPrice: false,
-    kycRequired: false,
-    minInputAmount: 30,
-    maxInputAmount: 30000,
-    inputSymbol: 'USD',
-    inputDecimals: 2,
-    outputAmount: 1000,
-    outputSymbol: 'TEZ'
-  },
-  {
-    name: 'Utorg',
-    id: TopUpProviderId.Utorg,
-    isBestPrice: false,
-    kycRequired: true,
-    minInputAmount: 30,
-    maxInputAmount: 30000,
-    inputSymbol: 'USD',
-    inputDecimals: 2,
-    outputAmount: 1000,
-    outputSymbol: 'TEZ'
-  }
-];

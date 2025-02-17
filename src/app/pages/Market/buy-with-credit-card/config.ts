@@ -3,8 +3,7 @@ import { t } from 'lib/i18n';
 
 import { ModalHeaderConfig } from '../types';
 
-import { TopUpProviderId } from './top-up-provider-id.enum';
-import { PaymentProviderInterface, TopUpInputInterface, TopUpOutputInterface } from './topup.interface';
+import { TopUpInputInterface, TopUpOutputInterface } from './topup.interface';
 
 export const VALUE_PLACEHOLDER = '---';
 
@@ -30,20 +29,6 @@ export const DEFAULT_EVM_OUTPUT_TOKEN: TopUpOutputInterface = {
   precision: 1,
   slug: 'eth'
 };
-
-export const DEFAULT_PROVIDER: PaymentProviderInterface = {
-  name: 'MoonPay',
-  id: TopUpProviderId.MoonPay,
-  kycRequired: false,
-  isBestPrice: false
-};
-
-export interface FormData {
-  inputValue: string;
-  inputCurrency: TopUpInputInterface;
-  outputToken: TopUpOutputInterface;
-  provider: PaymentProviderInterface;
-}
 
 export const defaultModalHeaderConfig: ModalHeaderConfig = {
   title: t('debitCreditCard'),

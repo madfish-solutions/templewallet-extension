@@ -8,10 +8,10 @@ import PageLayout from 'app/layouts/PageLayout';
 import { t } from 'lib/i18n/react';
 import { useBooleanState } from 'lib/ui/hooks';
 
+import { BuyWithCreditCard } from './buy-with-credit-card';
 import { CryptoExchange } from './crypto-exchange';
 import { ExchangeCountdown } from './crypto-exchange/components/ExchangeCountdown';
 import { CryptoExchangeDataProvider, useCryptoExchangeDataState } from './crypto-exchange/context';
-import { DebitCreditCard } from './debit-credit-card';
 
 export const Market = memo(() => {
   const [cryptoExchangeModalOpened, setCryptoExchangeModalOpen, setCryptoExchangeModalClosed] = useBooleanState(false);
@@ -44,7 +44,7 @@ export const Market = memo(() => {
         <CryptoExchange opened={cryptoExchangeModalOpened} onRequestClose={setCryptoExchangeModalClosed} />
       </CryptoExchangeDataProvider>
 
-      <DebitCreditCard opened={debitCreditCardModalOpened} onRequestClose={setDebitCreditCardModalClosed} />
+      <BuyWithCreditCard opened={debitCreditCardModalOpened} onRequestClose={setDebitCreditCardModalClosed} />
     </>
   );
 });
