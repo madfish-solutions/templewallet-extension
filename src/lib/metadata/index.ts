@@ -93,18 +93,13 @@ export const useEvmGenericAssetMetadata = (slug: string, evmChainId: number): Ev
   return categorizedAssetMetadata || noCategoryAssetMetadata;
 };
 
-export const useGetEvmChainAssetMetadata = (chainId: number) => {
+export const useGetEvmChainTokenOrGasMetadata = (chainId: number) => {
   const network = useEvmChainByChainId(chainId);
   const tokensMetadatas = useEvmChainTokensMetadataRecordSelector(chainId);
-  const collectiblesMetadatas = useEvmChainCollectiblesMetadataRecordSelector(chainId);
 
-  return useCallback<EvmAssetMetadataGetter>(
-    (slug: string) => {
-      if (isEvmNativeTokenSlug(slug)) return network?.currency;
-
-      return tokensMetadatas?.[slug] || collectiblesMetadatas?.[slug];
-    },
-    [tokensMetadatas, collectiblesMetadatas, network]
+  return useCallback(
+    (slug: string) => (isEvmNativeTokenSlug(slug) ? network?.currency : tokensMetadatas?.[slug]),
+    [tokensMetadatas, network]
   );
 };
 
@@ -125,6 +120,22 @@ const useGetEvmGenericAssetMetadata = () => {
       );
     },
     [allEvmChains, tokensMetadatas, collectiblesMetadatas, noCategoryMetadatas]
+  );
+};
+
+export const useGetEvmChainCollectibleMetadata = (chainId: number) => {
+  const collectiblesMetadatas = useEvmChainCollectiblesMetadataRecordSelector(chainId);
+
+  return useCallback((slug: string) => collectiblesMetadatas?.[slug], [collectiblesMetadatas]);
+};
+
+export const useGetEvmChainAssetMetadata = (chainId: number) => {
+  const getTokenOrGasMetadata = useGetEvmChainTokenOrGasMetadata(chainId);
+  const getCollectibleMetadata = useGetEvmChainCollectibleMetadata(chainId);
+
+  return useCallback<EvmAssetMetadataGetter>(
+    (slug: string) => getTokenOrGasMetadata(slug) || getCollectibleMetadata(slug),
+    [getTokenOrGasMetadata, getCollectibleMetadata]
   );
 };
 
