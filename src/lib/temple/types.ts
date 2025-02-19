@@ -41,7 +41,8 @@ export const OTHER_COMMON_MAINNET_CHAIN_IDS = {
   avalanche: 43114,
   optimism: 10,
   arbitrum: 42161,
-  base: 8453
+  base: 8453,
+  etherlink: 42793
 };
 export const ETH_SEPOLIA_CHAIN_ID = 11155111;
 

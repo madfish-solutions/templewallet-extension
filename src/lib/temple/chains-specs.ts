@@ -79,6 +79,15 @@ export const DEFAULT_EVM_CHAINS_SPECS: Record<string, EvmChainSpecs & { testnet:
     testnet: false,
     currency: DEFAULT_EVM_CURRENCY
   },
+  [OTHER_COMMON_MAINNET_CHAIN_IDS.etherlink]: {
+    name: 'Etherlink Mainnet',
+    testnet: false,
+    currency: {
+      ...DEFAULT_EVM_CURRENCY,
+      name: 'Tezos',
+      symbol: 'XTZ'
+    }
+  },
   [ETH_SEPOLIA_CHAIN_ID]: {
     name: 'Ethereum Sepolia',
     currency: {
@@ -119,6 +128,15 @@ export const DEFAULT_EVM_CHAINS_SPECS: Record<string, EvmChainSpecs & { testnet:
     currency: {
       ...DEFAULT_EVM_CURRENCY,
       name: 'Sepolia Ether'
+    },
+    testnet: true
+  },
+  '128123': {
+    name: 'Etherlink Testnet',
+    currency: {
+      ...DEFAULT_EVM_CURRENCY,
+      name: 'Ghostnet Tezos',
+      symbol: 'XTZ'
     },
     testnet: true
   }
