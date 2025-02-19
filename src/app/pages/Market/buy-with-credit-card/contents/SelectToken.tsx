@@ -80,7 +80,7 @@ interface TokenProps {
   onClick?: (currency: TopUpOutputInterface) => void;
 }
 
-export const Token: FC<TokenProps> = ({ token, onClick }) => {
+const Token: FC<TokenProps> = ({ token, onClick }) => {
   const handleClick = useCallback(() => onClick?.(token), [token, onClick]);
 
   return (

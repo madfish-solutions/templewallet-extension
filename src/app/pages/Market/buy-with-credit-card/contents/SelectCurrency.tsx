@@ -88,7 +88,7 @@ interface CurrencyProps {
   onClick?: (currency: TopUpInputInterface) => void;
 }
 
-export const Currency: FC<CurrencyProps> = ({ currency, iconSize = 24, onClick }) => {
+const Currency: FC<CurrencyProps> = ({ currency, iconSize = 24, onClick }) => {
   const handleClick = useCallback(() => onClick?.(currency), [currency, onClick]);
 
   return (

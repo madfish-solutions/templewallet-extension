@@ -27,8 +27,3 @@ export interface PaymentProviderInterface {
   outputAmount?: number;
   outputSymbol?: string;
 }
-
-export interface TopUpProviderPairLimits {
-  min: number;
-  max: number;
-}

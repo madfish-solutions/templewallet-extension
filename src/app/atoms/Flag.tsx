@@ -71,8 +71,6 @@ const atlasRowSize = 7;
 const imageWidth = 40;
 const imageHeight = 30;
 
-export const canUseAtlasFlag = (countryCode: string) => atlasCountriesCodes.includes(countryCode);
-
 interface FlagProps {
   alt: string;
   countryCode?: string;
