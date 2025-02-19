@@ -1,8 +1,8 @@
-import React, { FC, useCallback, useEffect, useMemo, useState } from 'react';
+import React, { FC, MutableRefObject, useCallback, useEffect, useMemo } from 'react';
 
 import { isDefined } from '@rnw-community/shared';
 import BigNumber from 'bignumber.js';
-import { isEmpty } from 'lodash';
+import { isEmpty, isEqual } from 'lodash';
 import { Controller, useFormContext } from 'react-hook-form-v7';
 
 import { FadeTransition } from 'app/a11y/FadeTransition';
@@ -13,8 +13,8 @@ import { dispatch } from 'app/store';
 import { updatePairLimitsActions } from 'app/store/buy-with-credit-card/actions';
 import { useCurrenciesLoadingSelector } from 'app/store/buy-with-credit-card/selectors';
 import { getAssetSymbolToDisplay } from 'lib/buy-with-credit-card/get-asset-symbol-to-display';
+import { ProviderErrors } from 'lib/buy-with-credit-card/types';
 import { T, t, toLocalFormat } from 'lib/i18n';
-import { useInterval } from 'lib/ui/hooks';
 
 import { InfoContainer, InfoRaw } from '../../components/InfoBlock';
 import { ErrorType, MinMaxDisplay } from '../../components/MinMaxDisplay';
@@ -23,22 +23,38 @@ import { SelectAssetButton } from '../components/SelectAssetButton';
 import { SelectProviderButton } from '../components/SelectProviderButton';
 import { VALUE_PLACEHOLDER } from '../config';
 import { BuyWithCreditCardFormData } from '../form-data.interface';
+import { useAllCryptoCurrencies } from '../hooks/use-all-crypto-currencies';
+import { useAllFiatCurrencies } from '../hooks/use-all-fiat-currencies';
 import { useBuyWithCreditCardFormSubmit } from '../hooks/use-buy-with-credit-card-form-submit';
-import { useFormInputsCallbacks } from '../hooks/use-form-inputs-callbacks';
 import { usePairLimitsAreLoading } from '../hooks/use-input-limits';
-import { usePaymentProviders } from '../hooks/use-payment-providers';
 import { useUpdateCurrentProvider } from '../hooks/use-update-current-provider';
 import { BuyWithCreditCardSelectors } from '../selectors';
-
-const FORM_REFRESH_INTERVAL = 20000;
+import { TopUpProviderId } from '../top-up-provider-id.enum';
+import { PaymentProviderInterface } from '../topup.interface';
 
 interface Props {
   setModalContent: SyncFn<'send' | 'get' | 'provider'>;
+  formIsLoading: boolean;
+  allPaymentProviders: PaymentProviderInterface[];
+  paymentProvidersToDisplay: PaymentProviderInterface[];
+  providersErrors: Record<TopUpProviderId, ProviderErrors>;
+  lastFormRefreshTimestamp: number;
+  refreshForm: EmptyFn;
+  setPaymentProvider: SyncFn<PaymentProviderInterface | undefined>;
+  manuallySelectedProviderIdRef: MutableRefObject<TopUpProviderId | undefined>;
+  onInputAmountChange: SyncFn<number | undefined>;
 }
 
-export const Form: FC<Props> = ({ setModalContent }) => {
-  const [formIsLoading, setFormIsLoading] = useState(false);
-
+export const Form: FC<Props> = ({
+  setModalContent,
+  formIsLoading,
+  paymentProvidersToDisplay,
+  manuallySelectedProviderIdRef,
+  lastFormRefreshTimestamp,
+  refreshForm,
+  setPaymentProvider,
+  onInputAmountChange
+}) => {
   const { control, watch, handleSubmit, formState, setValue } = useFormContext<BuyWithCreditCardFormData>();
   const { isSubmitting, submitCount, errors } = formState;
 
@@ -53,27 +69,7 @@ export const Form: FC<Props> = ({ setModalContent }) => {
   const currenciesLoading = useCurrenciesLoadingSelector();
   const pairLimitsLoading = usePairLimitsAreLoading(inputCurrency.code, outputToken.code);
 
-  const { onSubmit, purchaseLinkLoading, purchaseLinkError } = useBuyWithCreditCardFormSubmit();
-
-  const { allPaymentProviders, paymentProvidersToDisplay, providersErrors, updateOutputAmounts } = usePaymentProviders(
-    inputAmount,
-    inputCurrency,
-    outputToken
-  );
-
-  const {
-    handleInputAssetChange,
-    handleInputAmountChange,
-    handleOutputTokenChange,
-    handlePaymentProviderChange,
-    setPaymentProvider,
-    manuallySelectedProviderIdRef,
-    refreshForm
-  } = useFormInputsCallbacks(updateOutputAmounts, formIsLoading, setFormIsLoading);
-
-  useEffect(() => {
-    dispatch(updatePairLimitsActions.submit({ fiatSymbol: inputCurrency.code, cryptoSymbol: outputToken.code }));
-  }, [inputCurrency.code, outputToken.code]);
+  const { onSubmit, purchaseLinkLoading } = useBuyWithCreditCardFormSubmit();
 
   const exchangeRate = useMemo(() => {
     if (isDefined(inputAmount) && inputAmount > 0 && isDefined(outputAmount) && outputAmount > 0) {
@@ -103,19 +99,42 @@ export const Form: FC<Props> = ({ setModalContent }) => {
     isLoading
   );
 
-  useInterval(refreshForm, [refreshForm], FORM_REFRESH_INTERVAL, false);
+  const { fiatCurrenciesWithPairLimits: allFiatCurrencies } = useAllFiatCurrencies(
+    inputCurrency.code,
+    outputToken.code
+  );
+  const allCryptoCurrencies = useAllCryptoCurrencies();
 
-  const handleSelectCurrency = useCallback(() => void setModalContent('send'), []);
-  const handleSelectToken = useCallback(() => void setModalContent('get'), []);
-  const handleSelectProvider = useCallback(() => void setModalContent('provider'), []);
+  useEffect(() => {
+    dispatch(updatePairLimitsActions.submit({ fiatSymbol: inputCurrency.code, cryptoSymbol: outputToken.code }));
+  }, [inputCurrency.code, outputToken.code, allFiatCurrencies.length, allCryptoCurrencies.length]);
+
+  useEffect(() => {
+    const newInputAsset = allFiatCurrencies.find(({ code }) => code === inputCurrency.code);
+
+    if (isDefined(newInputAsset) && !isEqual(newInputAsset, inputCurrency)) {
+      setValue('inputCurrency', newInputAsset);
+
+      if (isDefined(newInputAsset.precision) && isDefined(inputAmount)) {
+        setValue('inputAmount', new BigNumber(inputAmount).decimalPlaces(newInputAsset.precision).toNumber(), {
+          shouldValidate: true
+        });
+      }
+    }
+  }, [allFiatCurrencies, inputAmount, inputCurrency, setValue]);
+
+  const handleSelectCurrency = useCallback(() => void setModalContent('send'), [setModalContent]);
+  const handleSelectToken = useCallback(() => void setModalContent('get'), [setModalContent]);
+  const handleSelectProvider = useCallback(() => void setModalContent('provider'), [setModalContent]);
 
   const handleMinClick = useCallback(
-    () => inputCurrency.minAmount && setValue('inputAmount', inputCurrency.minAmount, { shouldValidate: true }),
-    [inputCurrency.minAmount, setValue]
+    () => void onInputAmountChange(inputCurrency.minAmount),
+    [inputCurrency.minAmount, onInputAmountChange]
   );
+
   const handleMaxClick = useCallback(
-    () => inputCurrency.maxAmount && setValue('inputAmount', inputCurrency.maxAmount, { shouldValidate: true }),
-    [inputCurrency.maxAmount, setValue]
+    () => void onInputAmountChange(inputCurrency.maxAmount),
+    [inputCurrency.maxAmount, onInputAmountChange]
   );
 
   const validateInputValue = useCallback(
@@ -139,11 +158,11 @@ export const Form: FC<Props> = ({ setModalContent }) => {
           name="inputAmount"
           control={control}
           rules={{ validate: validateInputValue }}
-          render={({ field: { value, onChange, onBlur }, formState: { errors } }) => (
+          render={({ field: { value, onBlur }, formState: { errors } }) => (
             <AssetField
               value={value}
               onBlur={onBlur}
-              onChange={v => onChange(v ?? '')}
+              onChange={v => onInputAmountChange(v ? Number(v) : undefined)}
               assetDecimals={inputCurrency.precision}
               rightSideComponent={
                 <SelectAssetButton useFlagIcon currency={inputCurrency} onClick={handleSelectCurrency} />
@@ -182,7 +201,12 @@ export const Form: FC<Props> = ({ setModalContent }) => {
           testID={BuyWithCreditCardSelectors.getInput}
         />
 
-        <NewQuoteLabel title="provider" className="mb-1" />
+        <NewQuoteLabel
+          title="provider"
+          lastFormRefreshTimestamp={lastFormRefreshTimestamp}
+          refreshForm={refreshForm}
+          className="mb-1"
+        />
 
         <SelectProviderButton provider={provider} onClick={handleSelectProvider} />
 

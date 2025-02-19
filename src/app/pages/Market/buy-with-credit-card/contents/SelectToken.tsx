@@ -19,10 +19,11 @@ import { TopUpOutputInterface } from '../topup.interface';
 
 interface Props {
   setModalHeaderConfig: SyncFn<ModalHeaderConfig>;
-  onGoBack: EmptyFn;
+  onTokenSelect?: SyncFn<TopUpOutputInterface>;
+  onGoBack?: EmptyFn;
 }
 
-export const SelectToken: FC<Props> = ({ setModalHeaderConfig, onGoBack }) => {
+export const SelectToken: FC<Props> = ({ setModalHeaderConfig, onTokenSelect, onGoBack }) => {
   const [searchValue, setSearchValue] = useState('');
   const [searchValueDebounced] = useDebounce(searchValue, 300);
   const inSearch = isSearchStringApplicable(searchValueDebounced);
@@ -42,12 +43,13 @@ export const SelectToken: FC<Props> = ({ setModalHeaderConfig, onGoBack }) => {
     [allCryptoCurrencies, inSearch, searchValueDebounced]
   );
 
-  const onTokenSelect = useCallback(
+  const handleTokenSelect = useCallback(
     (token: TopUpOutputInterface) => {
       setValue('outputToken', token);
-      onGoBack();
+      onTokenSelect?.(token);
+      onGoBack?.();
     },
-    [setValue, onGoBack]
+    [setValue, onTokenSelect, onGoBack]
   );
 
   return (
@@ -64,7 +66,7 @@ export const SelectToken: FC<Props> = ({ setModalHeaderConfig, onGoBack }) => {
         ) : (
           <>
             {searchedTokens.map(token => (
-              <Token key={token.code} token={token} onClick={onTokenSelect} />
+              <Token key={token.code} token={token} onClick={handleTokenSelect} />
             ))}
           </>
         )}

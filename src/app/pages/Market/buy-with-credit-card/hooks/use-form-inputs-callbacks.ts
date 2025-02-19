@@ -3,7 +3,7 @@ import { useCallback, useMemo, useRef } from 'react';
 import { isDefined } from '@rnw-community/shared';
 import BigNumber from 'bignumber.js';
 import debounce from 'debounce-promise';
-import { useFormContext } from 'react-hook-form-v7';
+import type { UseFormReturn } from 'react-hook-form-v7';
 import { useDispatch } from 'react-redux';
 
 import { loadAllCurrenciesActions, updatePairLimitsActions } from 'app/store/buy-with-credit-card/actions';
@@ -21,11 +21,13 @@ import { BuyWithCreditCardFormData } from '../form-data.interface';
 import { usePaymentProviders } from './use-payment-providers';
 
 export const useFormInputsCallbacks = (
+  form: UseFormReturn<BuyWithCreditCardFormData>,
   updateProvidersOutputs: ReturnType<typeof usePaymentProviders>['updateOutputAmounts'],
   formIsLoading: boolean,
-  setFormIsLoading: (newValue: boolean) => void
+  setFormIsLoading: SyncFn<boolean>,
+  setLastFormRefreshTimestamp: SyncFn<number>
 ) => {
-  const { watch, setValue, trigger } = useFormContext<BuyWithCreditCardFormData>();
+  const { watch, setValue } = form;
 
   const inputAmount = watch('inputAmount');
   const inputCurrency = watch('inputCurrency');
@@ -40,10 +42,9 @@ export const useFormInputsCallbacks = (
   const setPaymentProvider = useCallback(
     (newProvider?: PaymentProviderInterface) => {
       setValue('provider', newProvider);
-      setValue('outputAmount', newProvider?.outputAmount);
-      trigger();
+      setValue('outputAmount', newProvider?.outputAmount, { shouldValidate: Boolean(newProvider?.outputAmount) });
     },
-    [setValue, trigger]
+    [setValue]
   );
 
   const updateOutput = useMemo(
@@ -90,8 +91,11 @@ export const useFormInputsCallbacks = (
   );
 
   const handleInputAmountChange = useCallback(
-    (newValue?: number) => handleInputValueChange(newValue, inputCurrency),
-    [handleInputValueChange, inputCurrency]
+    (newValue?: number) => {
+      setValue('inputAmount', newValue, { shouldValidate: true });
+      handleInputValueChange(newValue, inputCurrency);
+    },
+    [handleInputValueChange, inputCurrency, setValue]
   );
 
   const handleOutputTokenChange = useCallback(
@@ -128,6 +132,7 @@ export const useFormInputsCallbacks = (
       setFormIsLoading(true);
       updateOutput(inputAmount, inputCurrency, outputToken);
     }
+    setLastFormRefreshTimestamp(Date.now());
   }, [inputCurrency, outputToken, updateOutput, formIsLoading, inputAmount]);
 
   return {

@@ -5,14 +5,17 @@ import { SubmitHandler } from 'react-hook-form-v7';
 import browser from 'webextension-polyfill';
 
 import { useUserIdSelector } from 'app/store/settings/selectors';
+import { toastError } from 'app/toaster';
 import { AnalyticsEventCategory, useAnalytics, useFormAnalytics } from 'lib/analytics';
 import { createAliceBobOrder, getMoonpaySign } from 'lib/apis/temple';
 import { createOrder as createUtorgOrder } from 'lib/apis/utorg';
 import { TopUpProviderId } from 'lib/buy-with-credit-card/top-up-provider-id.enum';
+import { t } from 'lib/i18n';
+import { getAxiosQueryErrorMessage } from 'lib/utils/get-axios-query-error-message';
 import { assertUnreachable } from 'lib/utils/switch-cases';
 import { useAccountAddressForEvm, useAccountAddressForTezos } from 'temple/front';
 
-import { FormData } from '../form-data.interface';
+import { BuyWithCreditCardFormData } from '../form-data.interface';
 
 export const useBuyWithCreditCardFormSubmit = () => {
   const { trackEvent } = useAnalytics();
@@ -24,9 +27,8 @@ export const useBuyWithCreditCardFormSubmit = () => {
   const evmAddress = useAccountAddressForEvm();
 
   const [purchaseLinkLoading, setPurchaseLinkLoading] = useState(false);
-  const [purchaseLinkError, setPurchaseLinkError] = useState<Error>();
 
-  const onSubmit = useCallback<SubmitHandler<FormData>>(
+  const onSubmit = useCallback<SubmitHandler<BuyWithCreditCardFormData>>(
     async formValues => {
       const { inputAmount, inputCurrency, outputAmount, outputToken, provider } = formValues;
 
@@ -78,7 +80,7 @@ export const useBuyWithCreditCardFormSubmit = () => {
 
         await browser.tabs.create({ url });
       } catch (error: any) {
-        setPurchaseLinkError(error);
+        toastError(t('errorWhileCreatingOrder', getAxiosQueryErrorMessage(error)));
 
         const analyticsProperties = {
           inputAmount,
@@ -97,7 +99,6 @@ export const useBuyWithCreditCardFormSubmit = () => {
 
   return {
     onSubmit,
-    purchaseLinkError,
     purchaseLinkLoading
   };
 };

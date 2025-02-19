@@ -5,6 +5,8 @@ import { ModalHeaderConfig } from '../types';
 
 import { TopUpInputInterface, TopUpOutputInterface } from './topup.interface';
 
+export const FORM_REFRESH_INTERVAL = 30000;
+
 export const VALUE_PLACEHOLDER = '---';
 
 export const DEFAULT_INPUT_CURRENCY: TopUpInputInterface = {

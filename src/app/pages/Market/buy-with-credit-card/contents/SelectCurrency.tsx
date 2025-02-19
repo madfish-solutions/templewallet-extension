@@ -19,10 +19,11 @@ import { TopUpInputInterface } from '../topup.interface';
 
 interface Props {
   setModalHeaderConfig: SyncFn<ModalHeaderConfig>;
-  onGoBack: EmptyFn;
+  onCurrencySelect?: SyncFn<TopUpInputInterface>;
+  onGoBack?: EmptyFn;
 }
 
-export const SelectCurrency: FC<Props> = ({ setModalHeaderConfig, onGoBack }) => {
+export const SelectCurrency: FC<Props> = ({ setModalHeaderConfig, onCurrencySelect, onGoBack }) => {
   const [searchValue, setSearchValue] = useState('');
   const [searchValueDebounced] = useDebounce(searchValue, 300);
   const inSearch = isSearchStringApplicable(searchValueDebounced);
@@ -49,12 +50,13 @@ export const SelectCurrency: FC<Props> = ({ setModalHeaderConfig, onGoBack }) =>
     [allFiatCurrencies, inSearch, searchValueDebounced]
   );
 
-  const onCurrencySelect = useCallback(
+  const handleCurrencySelect = useCallback(
     (currency: TopUpInputInterface) => {
       setValue('inputCurrency', currency);
-      onGoBack();
+      onCurrencySelect?.(currency);
+      onGoBack?.();
     },
-    [setValue, onGoBack]
+    [setValue, onCurrencySelect, onGoBack]
   );
 
   return (
@@ -71,7 +73,7 @@ export const SelectCurrency: FC<Props> = ({ setModalHeaderConfig, onGoBack }) =>
         ) : (
           <>
             {searchedCurrencies.map(currency => (
-              <Currency key={currency.code} currency={currency} onClick={onCurrencySelect} />
+              <Currency key={currency.code} currency={currency} onClick={handleCurrencySelect} />
             ))}
           </>
         )}

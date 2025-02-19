@@ -4,6 +4,7 @@ import clsx from 'clsx';
 import { useFormContext } from 'react-hook-form-v7';
 
 import { FadeTransition } from 'app/a11y/FadeTransition';
+import { EmptyState } from 'app/atoms/EmptyState';
 import Money from 'app/atoms/Money';
 import { BackButton } from 'app/atoms/PageModal';
 import { TopUpProviderIcon } from 'app/templates/TopUpProviderIcon';
@@ -14,46 +15,62 @@ import { ModalHeaderConfig } from '../../types';
 import { NewQuoteLabel } from '../components/NewQuoteLabel';
 import { VALUE_PLACEHOLDER } from '../config';
 import { BuyWithCreditCardFormData } from '../form-data.interface';
-import { usePaymentProviders } from '../hooks/use-payment-providers';
 import { TopUpProviderId } from '../top-up-provider-id.enum';
 import { PaymentProviderInterface } from '../topup.interface';
 
 interface Props {
   setModalHeaderConfig: SyncFn<ModalHeaderConfig>;
-  onGoBack: EmptyFn;
+  paymentProvidersToDisplay: PaymentProviderInterface[];
+  lastFormRefreshTimestamp: number;
+  refreshForm: EmptyFn;
+  onProviderSelect?: SyncFn<PaymentProviderInterface>;
+  onGoBack?: EmptyFn;
 }
 
-export const SelectProvider: FC<Props> = ({ setModalHeaderConfig, onGoBack }) => {
+export const SelectProvider: FC<Props> = ({
+  setModalHeaderConfig,
+  paymentProvidersToDisplay,
+  lastFormRefreshTimestamp,
+  refreshForm,
+  onProviderSelect,
+  onGoBack
+}) => {
+  const { watch, setValue } = useFormContext<BuyWithCreditCardFormData>();
+
+  const activeProvider = watch('provider');
+
   useLayoutEffect(
     () => void setModalHeaderConfig({ title: t('selectProvider'), titleLeft: <BackButton onClick={onGoBack} /> }),
     [setModalHeaderConfig, onGoBack]
   );
 
-  const { watch, setValue } = useFormContext<BuyWithCreditCardFormData>();
-
-  const activeProvider = watch('provider');
-  const inputCurrency = watch('inputCurrency');
-  const outputToken = watch('outputToken');
-
-  const inputAmount = watch('inputAmount');
-
-  const { paymentProvidersToDisplay } = usePaymentProviders(inputAmount, inputCurrency, outputToken);
-
-  const onProviderSelect = useCallback(
+  const handleProviderSelect = useCallback(
     (p: PaymentProviderInterface) => {
       setValue('provider', p);
-      onGoBack();
+      onProviderSelect?.(p);
+      onGoBack?.();
     },
-    [setValue, onGoBack]
+    [setValue, onProviderSelect, onGoBack]
   );
 
   return (
     <FadeTransition>
-      <NewQuoteLabel title="providers" className="m-4" />
+      <NewQuoteLabel
+        title="providers"
+        lastFormRefreshTimestamp={lastFormRefreshTimestamp}
+        refreshForm={refreshForm}
+        className="m-4"
+      />
       <div className="flex flex-col px-4 pb-4">
-        {paymentProvidersToDisplay.map(p => (
-          <Provider key={p.id} current={p} activeId={activeProvider?.id} onClick={onProviderSelect} />
-        ))}
+        {paymentProvidersToDisplay.length === 0 ? (
+          <EmptyState stretch />
+        ) : (
+          <>
+            {paymentProvidersToDisplay.map(p => (
+              <Provider key={p.id} current={p} activeId={activeProvider?.id} onClick={handleProviderSelect} />
+            ))}
+          </>
+        )}
       </div>
     </FadeTransition>
   );
@@ -65,7 +82,7 @@ interface ProviderProps {
   onClick?: SyncFn<PaymentProviderInterface>;
 }
 
-const Provider = memo<ProviderProps>(({ current, activeId, onClick }) => {
+const Provider: FC<ProviderProps> = ({ current, activeId, onClick }) => {
   const active = current.id === activeId;
 
   const handleClick = useCallback(() => onClick?.(current), [current, onClick]);
@@ -112,7 +129,7 @@ const Provider = memo<ProviderProps>(({ current, activeId, onClick }) => {
       </div>
     </InfoContainer>
   );
-});
+};
 
 interface TagProps {
   title: TID;

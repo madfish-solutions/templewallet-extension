@@ -76,13 +76,10 @@ export const usePaymentProviders = (
     [inputAsset, outputAsset, updateMoonPayOutputAmount, updateUtorgOutputAmount, updateAliceBobOutputAmount]
   );
 
-  const loading = moonPayOutputLoading || utorgOutputLoading || aliceBobOutputLoading;
-
   return {
     allPaymentProviders,
     paymentProvidersToDisplay,
     providersErrors,
-    loading,
     updateOutputAmounts
   };
 };
