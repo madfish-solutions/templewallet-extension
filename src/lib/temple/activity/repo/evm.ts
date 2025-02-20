@@ -1,40 +1,117 @@
 import { isDefined } from '@rnw-community/shared';
 import { Collection } from 'dexie';
-import { omit, uniq, uniqBy } from 'lodash';
+import { omit, uniq } from 'lodash';
+import { getAddress, RequiredBy } from 'viem';
 
 import { EvmActivity, EvmActivityAsset, EvmOperation } from 'lib/activity';
+import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
 
-import { DbEvmActivity, NO_TOKEN_ID_VALUE, db, evmActivities, evmActivitiesIntervals, evmActivityAssets } from './db';
+import {
+  DbEvmActivity,
+  DbEvmActivityAsset,
+  EvmActivitiesInterval,
+  NO_TOKEN_ID_VALUE,
+  db,
+  evmActivities,
+  evmActivitiesIntervals,
+  evmActivityAssets
+} from './db';
 
-export const getClosestEvmActivitiesInterval = async (
-  olderThanBlockHeight: `${number}` | undefined,
-  chainId: number,
-  account: HexString
-): Promise<{ activities: EvmActivity[]; newestBlockHeight: number; oldestBlockHeight: number }> =>
+interface GetEvmActivitiesIntervalParams {
+  olderThanBlockHeight?: `${number}`;
+  chainId: number;
+  account: HexString;
+  contractAddress?: string;
+}
+
+interface GetEvmActivitiesIntervalResult {
+  activities: EvmActivity[];
+  newestBlockHeight: number;
+  oldestBlockHeight: number;
+}
+
+export const toFrontEvmActivity = (
+  { account, contract, operations, blockHeight, id, ...activity }: DbEvmActivity,
+  assets: Partial<Record<number, DbEvmActivityAsset>>
+): EvmActivity => {
+  return {
+    ...activity,
+    operations: operations.map(({ fkAsset, amountSigned, ...operation }) => {
+      const dbAsset = isDefined(fkAsset) ? assets[fkAsset] : undefined;
+
+      const asset: EvmActivityAsset | undefined = dbAsset
+        ? Object.assign(omit(dbAsset, 'tokenId', 'id', 'chainId'), {
+            contract: dbAsset.contract === EVM_TOKEN_SLUG ? dbAsset.contract : getAddress(dbAsset.contract),
+            amountSigned,
+            tokenId: dbAsset.tokenId === NO_TOKEN_ID_VALUE ? undefined : dbAsset.tokenId
+          })
+        : undefined;
+
+      return {
+        ...operation,
+        asset
+      } as EvmOperation;
+    }),
+    blockHeight: `${blockHeight}`
+  };
+};
+
+export const getClosestEvmActivitiesInterval = async ({
+  olderThanBlockHeight,
+  chainId,
+  account,
+  contractAddress = ''
+}: GetEvmActivitiesIntervalParams): Promise<GetEvmActivitiesIntervalResult> =>
   db.transaction('r!', evmActivities, evmActivitiesIntervals, evmActivityAssets, async () => {
     account = account.toLowerCase() as HexString;
+    contractAddress = contractAddress.toLowerCase();
 
-    const intervalCollection = olderThanBlockHeight
-      ? evmActivitiesIntervals
-          .where(['chainId', 'account', 'oldestBlockHeight'])
-          .between([chainId, account, 0], [chainId, account, Number(olderThanBlockHeight)])
-      : evmActivitiesIntervals.where({ chainId, account });
-    const interval = (await intervalCollection.reverse().sortBy('oldestBlockHeight'))[0];
+    let allContractsIntervalsCollection: Collection<EvmActivitiesInterval>;
+    let intervalsByContractCollection: Collection<EvmActivitiesInterval> | undefined;
+    if (olderThanBlockHeight) {
+      allContractsIntervalsCollection = evmActivitiesIntervals
+        .where(['chainId', 'account', 'contract', 'oldestBlockHeight'])
+        .between([chainId, account, '', 0], [chainId, account, '', Number(olderThanBlockHeight)], true, false);
+      intervalsByContractCollection = contractAddress
+        ? evmActivitiesIntervals
+            .where(['chainId', 'account', 'contract', 'oldestBlockHeight'])
+            .between(
+              [chainId, account, contractAddress, 0],
+              [chainId, account, contractAddress, Number(olderThanBlockHeight)]
+            )
+        : undefined;
+    } else {
+      allContractsIntervalsCollection = evmActivitiesIntervals.where({ chainId, account, contract: '' });
+      intervalsByContractCollection = contractAddress
+        ? evmActivitiesIntervals.where({ chainId, account, contract: contractAddress })
+        : undefined;
+    }
+    const allContractsIntervals = await allContractsIntervalsCollection.reverse().sortBy('newestBlockHeight');
+    const intervalsByContract = intervalsByContractCollection
+      ? await intervalsByContractCollection.reverse().sortBy('newestBlockHeight')
+      : [];
+    const interval =
+      intervalsByContract[0] &&
+      (!allContractsIntervals[0] ||
+        intervalsByContract[0].newestBlockHeight > allContractsIntervals[0].newestBlockHeight)
+        ? intervalsByContract[0]
+        : allContractsIntervals[0];
 
     if (!interval) {
       return {
         activities: [],
-        newestBlockHeight: olderThanBlockHeight ? Number(olderThanBlockHeight) : 0,
-        oldestBlockHeight: olderThanBlockHeight ? Number(olderThanBlockHeight) : 0
+        newestBlockHeight: Number(olderThanBlockHeight ?? 0),
+        oldestBlockHeight: Number(olderThanBlockHeight ?? 0)
       };
     }
 
-    const { oldestBlockHeight, newestBlockHeight } = interval;
+    const { oldestBlockHeight, newestBlockHeight, contract: intervalContractAddress } = interval;
+    const searchNewestBlockHeight = Math.min(newestBlockHeight, Number(olderThanBlockHeight ?? Infinity) - 1);
     const rawActivities = await evmActivities
-      .where(['chainId', 'account', 'blockHeight'])
+      .where(['chainId', 'account', 'contract', 'blockHeight'])
       .between(
-        [chainId, account, oldestBlockHeight],
-        [chainId, account, Math.min(newestBlockHeight, Number(olderThanBlockHeight ?? Infinity) - 1)],
+        [chainId, account, intervalContractAddress, oldestBlockHeight],
+        [chainId, account, intervalContractAddress, searchNewestBlockHeight],
         true,
         true
       )
@@ -47,207 +124,510 @@ export const getClosestEvmActivitiesInterval = async (
         .filter(isDefined)
     );
     const assets = await evmActivityAssets.bulkGet(assetsIds);
-    const idsToAssets = Object.fromEntries(
-      assets.map((asset, i) => [
-        assetsIds[i],
-        asset
-          ? Object.assign(
-              {},
-              omit(asset, 'tokenId', 'id', 'chainId'),
-              asset.tokenId === NO_TOKEN_ID_VALUE ? {} : { tokenId: asset.tokenId }
-            )
-          : undefined
-      ])
-    );
+    const idsToAssets = Object.fromEntries(assets.map((asset, i) => [assetsIds[i], asset]));
 
     return {
-      activities: rawActivities.map(({ operations, blockHeight, id, account, ...activity }) => ({
-        ...activity,
-        blockHeight: `${blockHeight}`,
-        operations: operations.map(({ fkAsset, amountSigned, ...operation }) => ({
-          ...operation,
-          asset: isDefined(fkAsset) ? { ...idsToAssets[fkAsset], amountSigned } : undefined
-        })) as EvmOperation[]
-      })),
-      newestBlockHeight: Math.min(newestBlockHeight, Number(olderThanBlockHeight ?? Infinity) - 1),
+      activities: rawActivities
+        .map(activity => {
+          if (!contractAddress) {
+            return toFrontEvmActivity(activity, idsToAssets);
+          }
+
+          const { operations, ...restProps } = toFrontEvmActivity(activity, idsToAssets);
+
+          return {
+            ...restProps,
+            operations: operations.filter(operation => operation.asset?.contract.toLowerCase() === contractAddress)
+          };
+        })
+        .filter(({ operations }) => operations.length > 0),
+      newestBlockHeight: searchNewestBlockHeight,
       oldestBlockHeight
     };
   });
 
-const getAssetKey = (asset: EvmActivityAsset) => `${asset.contract}_${asset.tokenId ?? NO_TOKEN_ID_VALUE}`;
+interface PutEvmActivitiesParams {
+  activities: EvmActivity[];
+  chainId: number;
+  account: HexString;
+  olderThanBlockHeight?: `${number}`;
+  contractAddress?: string;
+}
 
 /**
  * Puts EVM activities into DB assuming that `activities` is a continuous history chunk. The function throws an error
  * if at least one activity is from a different chain than the specified one.
  */
-export const putEvmActivities = async (
-  activities: EvmActivity[],
-  chainId: number,
-  account: HexString,
-  olderThanBlockHeight: `${number}` | undefined
-): Promise<void> => {
+export const putEvmActivities = async ({
+  activities,
+  chainId,
+  account,
+  olderThanBlockHeight,
+  contractAddress = ''
+}: PutEvmActivitiesParams): Promise<void> => {
+  if (activities.some(({ chainId: activityChainId }) => activityChainId !== chainId)) {
+    throw new Error('Activities from different chains are not allowed');
+  }
+
   account = account.toLowerCase() as HexString;
+  contractAddress = contractAddress.toLowerCase();
+  activities = activities.toSorted((a, b) => Number(b.blockHeight) - Number(a.blockHeight));
+
+  if (activities.length === 0 && olderThanBlockHeight && contractAddress) {
+    return overwriteEvmActivitiesByContractAddress({
+      chainId,
+      account,
+      olderThanBlockHeight,
+      contractAddress,
+      activities
+    });
+  }
 
   if (activities.length === 0 && olderThanBlockHeight) {
-    return db.transaction('rw!', evmActivitiesIntervals, evmActivities, evmActivityAssets, async () => {
-      const sameBlocksActivitiesCollection = evmActivities
-        .where(['chainId', 'account', 'blockHeight'])
-        .between([chainId, account, 0], [chainId, account, Number(olderThanBlockHeight)], true, false);
-      await deleteEvmActivities(sameBlocksActivitiesCollection);
-
-      const supersetInterval = await evmActivitiesIntervals
-        .where({ chainId, account })
-        .and(
-          interval => interval.newestBlockHeight >= Number(olderThanBlockHeight) - 1 && interval.oldestBlockHeight === 0
-        )
-        .first();
-
-      if (supersetInterval) {
-        return;
-      }
-
-      const newerIntervalToJoinCollection = evmActivitiesIntervals
-        .where(['chainId', 'account', 'oldestBlockHeight'])
-        .between([chainId, account, 0], [chainId, account, Number(olderThanBlockHeight)], true, true);
-      const newerIntervalToJoinId = (await newerIntervalToJoinCollection.primaryKeys())[0];
-      const newerIntervalToJoin = isDefined(newerIntervalToJoinId)
-        ? await evmActivitiesIntervals.get(newerIntervalToJoinId)
-        : undefined;
-
-      if (isDefined(newerIntervalToJoinId)) {
-        await evmActivitiesIntervals.delete(newerIntervalToJoinId);
-        await evmActivitiesIntervals.add({
-          chainId,
-          account,
-          newestBlockHeight: newerIntervalToJoin!.newestBlockHeight,
-          oldestBlockHeight: 0
-        });
-      } else {
-        await evmActivitiesIntervals.add({
-          chainId,
-          account,
-          newestBlockHeight: Number(olderThanBlockHeight) - 1,
-          oldestBlockHeight: 0
-        });
-      }
-    });
+    return overwriteEvmActivitiesForAllContracts({ chainId, account, olderThanBlockHeight, activities });
   }
 
   if (activities.length === 0) {
     return;
   }
 
-  if (activities.some(({ chainId: activityChainId }) => activityChainId !== chainId)) {
-    throw new Error('There is an activity from a different chain');
+  if (!olderThanBlockHeight) {
+    olderThanBlockHeight = `${Number(activities[0].blockHeight) + 1}`;
+  }
+  const oldestBlockHeight = Number(activities.at(-1)!.blockHeight);
+
+  if (contractAddress) {
+    return overwriteEvmActivitiesByContractAddress({
+      chainId,
+      account,
+      olderThanBlockHeight,
+      oldestBlockHeight,
+      contractAddress,
+      activities
+    });
   }
 
-  const oldestActivityBlockHeight = Number(activities.at(-1)!.blockHeight);
-  const newestActivityBlockHeight = Number(activities[0].blockHeight);
-  const separateIntervalNewestBlockHeight = Math.max(newestActivityBlockHeight, Number(olderThanBlockHeight ?? 0) - 1);
+  return overwriteEvmActivitiesForAllContracts({
+    chainId,
+    account,
+    olderThanBlockHeight,
+    oldestBlockHeight,
+    activities
+  });
+};
 
-  return db.transaction('rw!', evmActivities, evmActivitiesIntervals, evmActivityAssets, async () => {
-    const sameBlocksActivitiesCollection = evmActivities
-      .where(['chainId', 'account', 'blockHeight'])
+interface IntervalsManagementParams {
+  chainId: number;
+  account: HexString;
+  contractAddress: string;
+  olderThanBlockHeight: number;
+  oldestBlockHeight: number;
+}
+
+const getSupersetInterval = async ({
+  chainId,
+  account,
+  contractAddress,
+  olderThanBlockHeight,
+  oldestBlockHeight
+}: IntervalsManagementParams) =>
+  evmActivitiesIntervals
+    .where(['chainId', 'account', 'contract', 'newestBlockHeight'])
+    .between(
+      [chainId, account, contractAddress, olderThanBlockHeight - 1],
+      [chainId, account, contractAddress, Infinity],
+      true,
+      false
+    )
+    .and(({ oldestBlockHeight: intervalOldestBlockHeight }) => intervalOldestBlockHeight <= oldestBlockHeight)
+    .first();
+
+const getSubsetIntervalsIds = async ({
+  chainId,
+  account,
+  contractAddress,
+  olderThanBlockHeight,
+  oldestBlockHeight
+}: IntervalsManagementParams) =>
+  evmActivitiesIntervals
+    .where(['chainId', 'account', 'contract', 'oldestBlockHeight'])
+    .between(
+      [chainId, account, contractAddress, oldestBlockHeight],
+      [chainId, account, contractAddress, olderThanBlockHeight],
+      true,
+      false
+    )
+    .and(interval => interval.newestBlockHeight < olderThanBlockHeight)
+    .primaryKeys();
+
+const handleIntervalsJoins = async ({
+  chainId,
+  account,
+  contractAddress,
+  olderThanBlockHeight,
+  oldestBlockHeight
+}: IntervalsManagementParams) => {
+  const newerIntervalToJoinCollection = evmActivitiesIntervals
+    .where(['chainId', 'account', 'contract', 'oldestBlockHeight'])
+    .between(
+      [chainId, account, contractAddress, oldestBlockHeight],
+      [chainId, account, contractAddress, olderThanBlockHeight],
+      true,
+      true
+    );
+  const newerIntervalToJoinId = (await newerIntervalToJoinCollection.primaryKeys()).at(0);
+  const olderIntervalToJoinCollection = evmActivitiesIntervals
+    .where(['chainId', 'account', 'contract', 'newestBlockHeight'])
+    .between(
+      [chainId, account, contractAddress, oldestBlockHeight - 1],
+      [chainId, account, contractAddress, olderThanBlockHeight],
+      true,
+      false
+    );
+  const olderIntervalToJoinId = (await olderIntervalToJoinCollection.primaryKeys()).at(0);
+  const newerIntervalToJoin = isDefined(newerIntervalToJoinId)
+    ? await evmActivitiesIntervals.get(newerIntervalToJoinId)
+    : undefined;
+  const olderIntervalToJoin = isDefined(olderIntervalToJoinId)
+    ? await evmActivitiesIntervals.get(olderIntervalToJoinId)
+    : undefined;
+  await evmActivitiesIntervals.bulkDelete([newerIntervalToJoinId, olderIntervalToJoinId].filter(isDefined));
+  await evmActivitiesIntervals.add({
+    chainId,
+    account,
+    newestBlockHeight: newerIntervalToJoin ? newerIntervalToJoin.newestBlockHeight : olderThanBlockHeight - 1,
+    oldestBlockHeight: olderIntervalToJoin ? olderIntervalToJoin.oldestBlockHeight : oldestBlockHeight,
+    contract: contractAddress
+  });
+};
+
+const filterRelevantActivities = (activities: EvmActivity[], olderThanBlockHeight: number, oldestBlockHeight: number) =>
+  activities.filter(
+    ({ blockHeight }) => Number(blockHeight) < olderThanBlockHeight && Number(blockHeight) >= oldestBlockHeight
+  );
+
+type OverwriteEvmActivitiesByContractParams = RequiredBy<
+  PutEvmActivitiesParams,
+  'contractAddress' | 'olderThanBlockHeight'
+> & { oldestBlockHeight?: number; createTransaction?: boolean };
+const overwriteEvmActivitiesByContractAddress = ({
+  activities,
+  chainId,
+  account,
+  olderThanBlockHeight,
+  oldestBlockHeight = 0,
+  contractAddress,
+  createTransaction = true
+}: OverwriteEvmActivitiesByContractParams): Promise<void> => {
+  const doOperations = async () => {
+    const parsedOlderThanBlockHeight = Number(olderThanBlockHeight);
+
+    const supersetAllContractsInterval = await getSupersetInterval({
+      chainId,
+      account,
+      contractAddress: '',
+      olderThanBlockHeight: parsedOlderThanBlockHeight,
+      oldestBlockHeight
+    });
+
+    if (supersetAllContractsInterval) {
+      return;
+    }
+
+    const activitiesToDeleteCollection = evmActivities
+      .where(['chainId', 'account', 'contract', 'blockHeight'])
       .between(
-        [chainId, account, oldestActivityBlockHeight],
-        [chainId, account, separateIntervalNewestBlockHeight],
+        [chainId, account, contractAddress, oldestBlockHeight],
+        [chainId, account, contractAddress, parsedOlderThanBlockHeight],
         true,
-        true
+        false
       );
-    await deleteEvmActivities(sameBlocksActivitiesCollection);
+    await deleteEvmActivities(activitiesToDeleteCollection);
 
-    const supersetInterval = await evmActivitiesIntervals
-      .where({ chainId, account })
-      .and(
-        interval =>
-          interval.newestBlockHeight >= separateIntervalNewestBlockHeight &&
-          interval.oldestBlockHeight <= oldestActivityBlockHeight
+    const supersetInterval = await getSupersetInterval({
+      chainId,
+      account,
+      contractAddress,
+      olderThanBlockHeight: parsedOlderThanBlockHeight,
+      oldestBlockHeight
+    });
+
+    if (supersetInterval) {
+      return insertActivities({ activities, account, contractAddress, chainId });
+    }
+
+    const subsetIntervalsIds = await getSubsetIntervalsIds({
+      chainId,
+      account,
+      contractAddress,
+      olderThanBlockHeight: parsedOlderThanBlockHeight,
+      oldestBlockHeight
+    });
+    await evmActivitiesIntervals.bulkDelete(subsetIntervalsIds);
+
+    const allContractsSubsetIntervalsIds = await getSubsetIntervalsIds({
+      chainId,
+      account,
+      contractAddress: '',
+      olderThanBlockHeight: parsedOlderThanBlockHeight,
+      oldestBlockHeight
+    });
+
+    if (allContractsSubsetIntervalsIds.length > 0) {
+      const allContractsSubsetIntervals = await evmActivitiesIntervals.bulkGet(allContractsSubsetIntervalsIds);
+      allContractsSubsetIntervals.sort((a, b) => b!.newestBlockHeight - a!.newestBlockHeight);
+      for (let i = 0; i <= allContractsSubsetIntervalsIds.length; i++) {
+        const newIntervalOlderThanBlockHeight =
+          i === 0 ? parsedOlderThanBlockHeight : allContractsSubsetIntervals[i - 1]!.oldestBlockHeight;
+        const newIntervalOldestBlockHeight =
+          i === allContractsSubsetIntervalsIds.length
+            ? oldestBlockHeight
+            : allContractsSubsetIntervals[i]!.newestBlockHeight + 1;
+        if (newIntervalOlderThanBlockHeight > newIntervalOldestBlockHeight) {
+          await overwriteEvmActivitiesByContractAddress({
+            chainId,
+            account,
+            olderThanBlockHeight: `${newIntervalOlderThanBlockHeight}`,
+            oldestBlockHeight: newIntervalOldestBlockHeight,
+            contractAddress,
+            createTransaction: false,
+            activities: filterRelevantActivities(
+              activities,
+              newIntervalOlderThanBlockHeight,
+              newIntervalOldestBlockHeight
+            )
+          });
+        }
+      }
+
+      return;
+    }
+
+    const newerAllContractsIntersectingInterval = await evmActivitiesIntervals
+      .where(['chainId', 'account', 'contract', 'oldestBlockHeight'])
+      .between(
+        [chainId, account, '', oldestBlockHeight],
+        [chainId, account, '', parsedOlderThanBlockHeight],
+        true,
+        false
       )
       .first();
 
-    if (!supersetInterval) {
-      const newerIntervalToJoinCollection = olderThanBlockHeight
-        ? evmActivitiesIntervals
-            .where({ chainId, account })
-            .and(
-              interval =>
-                interval.oldestBlockHeight <= Number(olderThanBlockHeight) &&
-                interval.newestBlockHeight >= separateIntervalNewestBlockHeight
-            )
-        : undefined;
-      const newerIntervalToJoinId = newerIntervalToJoinCollection
-        ? (await newerIntervalToJoinCollection.primaryKeys())[0]
-        : undefined;
-      const newerIntervalToJoin = isDefined(newerIntervalToJoinId)
-        ? await evmActivitiesIntervals.get(newerIntervalToJoinId)
-        : undefined;
+    if (newerAllContractsIntersectingInterval) {
+      const newOlderThanBlockHeight = newerAllContractsIntersectingInterval!.oldestBlockHeight;
 
-      const olderIntervalToJoinCollection = evmActivitiesIntervals
-        .where({ chainId, account })
-        .and(
-          interval =>
-            interval.newestBlockHeight >= oldestActivityBlockHeight - 1 &&
-            interval.oldestBlockHeight <= oldestActivityBlockHeight
-        );
-      const olderIntervalToJoinId = (await olderIntervalToJoinCollection.primaryKeys())[0];
-      const olderIntervalToJoin = isDefined(olderIntervalToJoinId)
-        ? await evmActivitiesIntervals.get(olderIntervalToJoinId)
-        : undefined;
-
-      await evmActivitiesIntervals.bulkDelete([newerIntervalToJoinId, olderIntervalToJoinId].filter(isDefined));
-      await evmActivitiesIntervals.add({
+      return overwriteEvmActivitiesByContractAddress({
         chainId,
         account,
-        newestBlockHeight: newerIntervalToJoin
-          ? newerIntervalToJoin.newestBlockHeight
-          : separateIntervalNewestBlockHeight,
-        oldestBlockHeight: olderIntervalToJoin ? olderIntervalToJoin.oldestBlockHeight : oldestActivityBlockHeight
+        olderThanBlockHeight: `${newOlderThanBlockHeight}`,
+        oldestBlockHeight,
+        contractAddress,
+        createTransaction: false,
+        activities: filterRelevantActivities(activities, newOlderThanBlockHeight, oldestBlockHeight)
       });
     }
 
-    const assets = uniqBy(
-      activities
-        .map(({ operations }) => operations)
-        .flat()
-        .map(({ asset }) => asset)
-        .filter(isDefined),
-      asset => getAssetKey(asset)
-    );
-    const alreadyPresentAssetsCollection = evmActivityAssets
-      .where(['chainId', 'contract', 'tokenId'])
-      .anyOf(assets.map(asset => [chainId, asset.contract, asset.tokenId ?? NO_TOKEN_ID_VALUE] as const));
-    const alreadyPresentAssetsIds = await alreadyPresentAssetsCollection.primaryKeys();
-    const alreadyPresentAssets = (await evmActivityAssets.bulkGet(alreadyPresentAssetsIds)).filter(isDefined);
-    const alreadyPresentAssetsKeys = Object.fromEntries(alreadyPresentAssets.map(asset => [getAssetKey(asset), true]));
-    const newAssets = assets.filter(asset => !alreadyPresentAssetsKeys[getAssetKey(asset)]);
-    const newAssetsIds = await evmActivityAssets.bulkPut(
-      newAssets.map(({ amountSigned, ...asset }) => ({
-        ...asset,
+    const olderAllContractsIntersectingInterval = await evmActivitiesIntervals
+      .where(['chainId', 'account', 'contract', 'newestBlockHeight'])
+      .between(
+        [chainId, account, '', oldestBlockHeight],
+        [chainId, account, '', parsedOlderThanBlockHeight],
+        true,
+        false
+      )
+      .first();
+
+    if (isDefined(olderAllContractsIntersectingInterval)) {
+      const newOldestBlockHeight = olderAllContractsIntersectingInterval.newestBlockHeight + 1;
+
+      return overwriteEvmActivitiesByContractAddress({
         chainId,
-        tokenId: asset.tokenId ?? NO_TOKEN_ID_VALUE
-      })),
-      { allKeys: true }
-    );
-
-    const assetsKeysToIdsMap = Object.assign(
-      Object.fromEntries(alreadyPresentAssets.map((asset, i) => [getAssetKey(asset), alreadyPresentAssetsIds[i]])),
-      Object.fromEntries(newAssets.map((asset, i) => [getAssetKey(asset), newAssetsIds[i]]))
-    );
-
-    await evmActivities.bulkPut(
-      activities.map(({ operations, blockHeight, ...activity }) => ({
-        ...activity,
         account,
-        chainId,
-        blockHeight: Number(blockHeight),
-        operations: operations.map(({ asset, ...operation }) => ({
-          ...operation,
-          fkAsset: asset && assetsKeysToIdsMap[getAssetKey(omit(asset, 'amountSigned'))],
-          amountSigned: asset?.amountSigned
-        }))
-      }))
-    );
+        olderThanBlockHeight,
+        oldestBlockHeight: olderAllContractsIntersectingInterval.newestBlockHeight + 1,
+        contractAddress,
+        createTransaction: false,
+        activities: filterRelevantActivities(activities, parsedOlderThanBlockHeight, newOldestBlockHeight)
+      });
+    }
+
+    await handleIntervalsJoins({
+      chainId,
+      account,
+      contractAddress,
+      olderThanBlockHeight: parsedOlderThanBlockHeight,
+      oldestBlockHeight
+    });
+    await insertActivities({ activities, account, contractAddress, chainId });
+  };
+
+  return createTransaction
+    ? db.transaction('rw!', evmActivitiesIntervals, evmActivities, evmActivityAssets, doOperations)
+    : doOperations();
+};
+
+type OverwriteEvmActivitiesForAllContractsParams = RequiredBy<
+  Omit<PutEvmActivitiesParams, 'contractAddress'>,
+  'olderThanBlockHeight'
+> & { oldestBlockHeight?: number };
+const overwriteEvmActivitiesForAllContracts = ({
+  activities,
+  chainId,
+  account,
+  olderThanBlockHeight,
+  oldestBlockHeight = 0
+}: OverwriteEvmActivitiesForAllContractsParams) =>
+  db.transaction('rw!', evmActivitiesIntervals, evmActivities, evmActivityAssets, async () => {
+    const parsedOlderThanBlockHeight = Number(olderThanBlockHeight);
+
+    const activitiesToDeleteCollection = evmActivities
+      .where(['chainId', 'account', 'blockHeight'])
+      .between([chainId, account, oldestBlockHeight], [chainId, account, parsedOlderThanBlockHeight], true, false);
+    await deleteEvmActivities(activitiesToDeleteCollection);
+    await insertActivities({ activities, account, contractAddress: '', chainId });
+
+    const supersetAllContractsInterval = await getSupersetInterval({
+      chainId,
+      account,
+      contractAddress: '',
+      olderThanBlockHeight: parsedOlderThanBlockHeight,
+      oldestBlockHeight
+    });
+
+    if (supersetAllContractsInterval) {
+      return;
+    }
+
+    const supersetIntervalsIds = await evmActivitiesIntervals
+      .where(['chainId', 'account', 'oldestBlockHeight'])
+      .between([chainId, account, 0], [chainId, account, oldestBlockHeight], true, true)
+      .and(
+        ({ newestBlockHeight: intervalNewestBlockHeight }) =>
+          intervalNewestBlockHeight >= parsedOlderThanBlockHeight - 1
+      )
+      .primaryKeys();
+
+    if (supersetIntervalsIds.length > 0) {
+      const supersetIntervals = await evmActivitiesIntervals.bulkGet(supersetIntervalsIds);
+      await evmActivitiesIntervals.bulkDelete(supersetIntervalsIds);
+      await evmActivitiesIntervals.bulkAdd(
+        supersetIntervals
+          .map(interval => {
+            const {
+              oldestBlockHeight: supersetOldestBlockHeight,
+              newestBlockHeight: supersetNewestBlockHeight,
+              id,
+              ...restProps
+            } = interval!;
+
+            return [
+              {
+                ...restProps,
+                newestBlockHeight: supersetNewestBlockHeight,
+                oldestBlockHeight: parsedOlderThanBlockHeight
+              },
+              {
+                ...restProps,
+                newestBlockHeight: oldestBlockHeight,
+                oldestBlockHeight: supersetOldestBlockHeight
+              }
+            ];
+          })
+          .flat()
+          .filter(({ newestBlockHeight, oldestBlockHeight }) => newestBlockHeight >= oldestBlockHeight)
+      );
+    }
+
+    const subsetIntervalsIds = await evmActivitiesIntervals
+      .where(['chainId', 'account', 'oldestBlockHeight'])
+      .between([chainId, account, oldestBlockHeight], [chainId, account, parsedOlderThanBlockHeight], true, false)
+      .and(interval => interval.newestBlockHeight < parsedOlderThanBlockHeight)
+      .primaryKeys();
+    await evmActivitiesIntervals.bulkDelete(subsetIntervalsIds);
+
+    await evmActivitiesIntervals
+      .where(['chainId', 'account', 'oldestBlockHeight'])
+      .between([chainId, account, oldestBlockHeight], [chainId, account, parsedOlderThanBlockHeight], true, false)
+      .and(interval => interval.contract !== '')
+      .modify({ oldestBlockHeight: parsedOlderThanBlockHeight });
+
+    await evmActivitiesIntervals
+      .where(['chainId', 'account', 'newestBlockHeight'])
+      .between([chainId, account, oldestBlockHeight], [chainId, account, parsedOlderThanBlockHeight], true, false)
+      .and(interval => interval.contract !== '')
+      .modify({ newestBlockHeight: oldestBlockHeight - 1 });
+
+    await handleIntervalsJoins({
+      chainId,
+      account,
+      contractAddress: '',
+      olderThanBlockHeight: parsedOlderThanBlockHeight,
+      oldestBlockHeight
+    });
   });
+
+interface InsertActivitiesParams {
+  activities: EvmActivity[];
+  account: HexString;
+  contractAddress: string;
+  chainId: number;
+}
+
+const getAssetKey = (asset: EvmActivityAsset) =>
+  `${asset.contract.toLowerCase()}_${asset.tokenId ?? NO_TOKEN_ID_VALUE}`;
+const insertActivities = async ({ activities, account, contractAddress, chainId }: InsertActivitiesParams) => {
+  const assetsBySlug: StringRecord<DbEvmActivityAsset> = {};
+  activities.forEach(({ operations }) =>
+    operations.forEach(({ asset }) => {
+      if (!asset) {
+        return;
+      }
+
+      const key = getAssetKey(asset);
+      if (!assetsBySlug[key]) {
+        assetsBySlug[key] = Object.assign(omit(asset, 'amountSigned', 'tokenId'), {
+          chainId,
+          tokenId: asset.tokenId ?? NO_TOKEN_ID_VALUE,
+          contract: asset.contract.toLowerCase()
+        });
+      }
+    })
+  );
+  const assetsToEnsure = Object.values(assetsBySlug);
+  const alreadyKnownAssetsCollection = evmActivityAssets
+    .where(['chainId', 'contract', 'tokenId'])
+    .anyOf(assetsToEnsure.map(({ chainId, contract, tokenId }) => [chainId, contract, tokenId]));
+  const alreadyKnownAssetsIds = await alreadyKnownAssetsCollection.primaryKeys();
+  const alreadyKnownAssets = await evmActivityAssets.bulkGet(alreadyKnownAssetsIds);
+  const alreadyKnownAssetsIdsByKey = Object.fromEntries(
+    alreadyKnownAssets.map((asset, i) => [getAssetKey(asset!), alreadyKnownAssetsIds[i]])
+  );
+  const newAssets = assetsToEnsure.filter(asset => !alreadyKnownAssetsIdsByKey[getAssetKey(asset)]);
+  const newAssetsIds = await evmActivityAssets.bulkAdd(newAssets, { allKeys: true });
+  const newAssetsIdsByKey = Object.fromEntries(newAssets.map((asset, i) => [getAssetKey(asset), newAssetsIds[i]]));
+
+  await evmActivities.bulkAdd(
+    activities.map(({ operations, blockHeight, ...activity }) => ({
+      ...activity,
+      account,
+      contract: contractAddress,
+      chainId,
+      blockHeight: Number(blockHeight),
+      operations: operations.map(({ asset, ...operation }) => {
+        if (!asset) {
+          return operation;
+        }
+
+        const assetKey = getAssetKey(asset);
+
+        return {
+          ...operation,
+          amountSigned: asset.amountSigned,
+          fkAsset: newAssetsIdsByKey[assetKey] ?? alreadyKnownAssetsIdsByKey[assetKey]
+        };
+      })
+    }))
+  );
 };
 
 export const deleteEvmActivitiesByAddress = async (account: HexString) =>
@@ -255,8 +635,8 @@ export const deleteEvmActivitiesByAddress = async (account: HexString) =>
     account = account.toLowerCase() as HexString;
     const intervalIds = await evmActivitiesIntervals.where({ account }).primaryKeys();
     await evmActivitiesIntervals.bulkDelete(intervalIds);
-    const activityIdsCollection = evmActivities.where({ account });
-    await deleteEvmActivities(activityIdsCollection);
+    const activitiesCollection = evmActivities.where({ account });
+    await deleteEvmActivities(activitiesCollection);
   });
 
 const deleteEvmActivities = async (activitiesCollection: Collection<DbEvmActivity, number, DbEvmActivity>) => {

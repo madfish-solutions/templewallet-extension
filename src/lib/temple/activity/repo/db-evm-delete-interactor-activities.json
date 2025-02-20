@@ -14,7 +14,7 @@
         "toAddress": "0xeff1c5bf09f3d04e132b52d38a27092d700636eb",
         "logIndex": 7,
         "amountSigned": "-115990000",
-        "fkAsset": 28
+        "fkAsset": 1
       },
       {
         "kind": 1,
@@ -23,7 +23,7 @@
         "toAddress": "0xd93caf5ae673dccc2d1ae6c34dac221092ee5ab5",
         "logIndex": 8,
         "amountSigned": "-84970000",
-        "fkAsset": 28
+        "fkAsset": 1
       },
       {
         "kind": 1,
@@ -32,7 +32,7 @@
         "toAddress": "0xf9d081285c3b9c741bb8cd82307b29c3e3619d1c",
         "logIndex": 9,
         "amountSigned": "-69850000",
-        "fkAsset": 28
+        "fkAsset": 1
       },
       {
         "kind": 1,
@@ -41,7 +41,7 @@
         "toAddress": "0x9d673153bf55d8b0e5a83e6c6fd32d507702fc6b",
         "logIndex": 10,
         "amountSigned": "-55160000",
-        "fkAsset": 28
+        "fkAsset": 1
       },
       {
         "kind": 1,
@@ -50,7 +50,7 @@
         "toAddress": "0x572f50cd095c6440140c47bf30e8003d8a0c5e18",
         "logIndex": 11,
         "amountSigned": "-53150000",
-        "fkAsset": 28
+        "fkAsset": 1
       },
       {
         "kind": 1,
@@ -59,7 +59,7 @@
         "toAddress": "0x2b4447ecca9142105223d361fd39394432eb7233",
         "logIndex": 12,
         "amountSigned": "-42860000",
-        "fkAsset": 28
+        "fkAsset": 1
       },
       {
         "kind": 1,
@@ -68,7 +68,7 @@
         "toAddress": "0x723c84a412a0be4b82ab52130ca087e7ef0d76c8",
         "logIndex": 13,
         "amountSigned": "-32480000",
-        "fkAsset": 28
+        "fkAsset": 1
       },
       {
         "kind": 1,
@@ -77,7 +77,7 @@
         "toAddress": "0x42c824229d85190ad18783b08c371d6a8045e4e8",
         "logIndex": 14,
         "amountSigned": "-27160000",
-        "fkAsset": 28
+        "fkAsset": 1
       },
       {
         "kind": 1,
@@ -86,7 +86,7 @@
         "toAddress": "0xef8a0eead495feafb59b91b5419132d95fc0b331",
         "logIndex": 15,
         "amountSigned": "-17100000",
-        "fkAsset": 28
+        "fkAsset": 1
       },
       {
         "kind": 1,
@@ -95,7 +95,7 @@
         "toAddress": "0x5c954b8df35b38cbaf407de2e275896fd031e2a0",
         "logIndex": 16,
         "amountSigned": "-13390000",
-        "fkAsset": 28
+        "fkAsset": 1
       },
       {
         "kind": 1,
@@ -104,7 +104,7 @@
         "toAddress": "0x9bf28b3ee4268baf4eb359a26ab6f455870323a8",
         "logIndex": 17,
         "amountSigned": "-12370000",
-        "fkAsset": 28
+        "fkAsset": 1
       },
       {
         "kind": 1,
@@ -113,7 +113,7 @@
         "toAddress": "0x6ff1632ff31844610abfa647ee4dc16b8df59971",
         "logIndex": 18,
         "amountSigned": "-11710000",
-        "fkAsset": 28
+        "fkAsset": 1
       },
       {
         "kind": 1,
@@ -122,7 +122,7 @@
         "toAddress": "0x6fe27be53c00635147ae76f84aaa65c3a5411e1f",
         "logIndex": 19,
         "amountSigned": "-11320000",
-        "fkAsset": 28
+        "fkAsset": 1
       },
       {
         "kind": 1,
@@ -131,7 +131,7 @@
         "toAddress": "0x15554b68d540ab70a4497b7fafbafc11de3ee5e6",
         "logIndex": 20,
         "amountSigned": "-10220000",
-        "fkAsset": 28
+        "fkAsset": 1
       },
       {
         "kind": 1,
@@ -140,7 +140,7 @@
         "toAddress": "0x85142dbba43fe38c3bea443bc21d25ba26f6058d",
         "logIndex": 21,
         "amountSigned": "-9150000",
-        "fkAsset": 28
+        "fkAsset": 1
       },
       {
         "kind": 1,
@@ -149,7 +149,7 @@
         "toAddress": "0xce315ec6890cf464ebc6cc5bb450ab7b72de95fb",
         "logIndex": 22,
         "amountSigned": "-8670000",
-        "fkAsset": 28
+        "fkAsset": 1
       },
       {
         "kind": 1,
@@ -158,7 +158,7 @@
         "toAddress": "0x11953ccaf87c9e6e2dc0e75f5846898c1f0d4ab1",
         "logIndex": 23,
         "amountSigned": "-7950000",
-        "fkAsset": 28
+        "fkAsset": 1
       },
       {
         "kind": 1,
@@ -167,7 +167,7 @@
         "toAddress": "0x161cf027b6470a20b2d5db6f917e2634b30f783e",
         "logIndex": 24,
         "amountSigned": "-6970000",
-        "fkAsset": 28
+        "fkAsset": 1
       },
       {
         "kind": 1,
@@ -176,7 +176,7 @@
         "toAddress": "0xd66e92705eb77672866ab8f718d908d7b770b98a",
         "logIndex": 25,
         "amountSigned": "-6930000",
-        "fkAsset": 28
+        "fkAsset": 1
       },
       {
         "kind": 1,
@@ -185,7 +185,7 @@
         "toAddress": "0xf7f5c1d30c7d3df32948896ad9aafa31768a396d",
         "logIndex": 26,
         "amountSigned": "-6830000",
-        "fkAsset": 28
+        "fkAsset": 1
       },
       {
         "kind": 1,
@@ -194,7 +194,7 @@
         "toAddress": "0x9566d36bb946864f2e5e94ef8ae06eddda9970b2",
         "logIndex": 27,
         "amountSigned": "-6460000",
-        "fkAsset": 28
+        "fkAsset": 1
       },
       {
         "kind": 1,
@@ -203,7 +203,7 @@
         "toAddress": "0xd85f20d991d8d0e16959122dc25136c3a4ceb7b0",
         "logIndex": 28,
         "amountSigned": "-5140000",
-        "fkAsset": 28
+        "fkAsset": 1
       },
       {
         "kind": 1,
@@ -212,13 +212,13 @@
         "toAddress": "0xff9ecc360aca7d2cd0cbf3508f713e59e8c3b454",
         "logIndex": 29,
         "amountSigned": "-5100000",
-        "fkAsset": 28
+        "fkAsset": 1
       }
     ]
   },
   {
     "chain": "evm",
-    "hash": "0xe1ce1a5f880f27f465a32b4ea531d27c75b111f30612659dbde3347b707ecdd7",
+    "hash": "0xe1ce1a5f880f27f465a32b4ea531d27c75b111f30612659dbde3347b707ecdd7", 
     "addedAt": "2025-02-10T13:56:49.000Z",
     "operationsCount": 27,
     "chainId": 10,
@@ -231,7 +231,7 @@
         "toAddress": "0x87e04434221f9b72e44c1ebd3bd79073ca74ec17",
         "logIndex": 272,
         "amountSigned": "-38742557620000000000000",
-        "fkAsset": 4
+        "fkAsset": 2
       },
       {
         "kind": 1,
@@ -240,7 +240,7 @@
         "toAddress": "0x1b43e9885300fc72754198c39541418eabbc6c2c",
         "logIndex": 273,
         "amountSigned": "-338459931800000000000000",
-        "fkAsset": 4
+        "fkAsset": 2
       },
       {
         "kind": 1,
@@ -249,7 +249,7 @@
         "toAddress": "0x000a00000aa000a000aaaaaa0aaa0000a0aa0000",
         "logIndex": 274,
         "amountSigned": "-107269551500000000000000",
-        "fkAsset": 4
+        "fkAsset": 2
       },
       {
         "kind": 1,
@@ -258,7 +258,7 @@
         "toAddress": "0xd3cb783c38f18bdf0725eb035ec06a4a6b42bc21",
         "logIndex": 275,
         "amountSigned": "-11030400000000000000000",
-        "fkAsset": 4
+        "fkAsset": 2
       },
       {
         "kind": 1,
@@ -267,7 +267,7 @@
         "toAddress": "0xab5801a7d398351b8be11c439e05c5b3259aec9b",
         "logIndex": 276,
         "amountSigned": "-12367120000000000000000",
-        "fkAsset": 4
+        "fkAsset": 2
       },
       {
         "kind": 1,
@@ -276,7 +276,7 @@
         "toAddress": "0x7da6bd0aa23ac7bc64aabee9533c589d716309ce",
         "logIndex": 277,
         "amountSigned": "-826140096000000000000",
-        "fkAsset": 4
+        "fkAsset": 2
       },
       {
         "kind": 1,
@@ -285,7 +285,7 @@
         "toAddress": "0x02aaef8cbf0cabe2d271cbd7888efb9eac33f90c",
         "logIndex": 278,
         "amountSigned": "-21092443520000000000000",
-        "fkAsset": 4
+        "fkAsset": 2
       },
       {
         "kind": 1,
@@ -294,7 +294,7 @@
         "toAddress": "0x4b37c5f7bbf6453724e342744d881d568474bee4",
         "logIndex": 279,
         "amountSigned": "-6782522720000000000000",
-        "fkAsset": 4
+        "fkAsset": 2
       },
       {
         "kind": 1,
@@ -303,7 +303,7 @@
         "toAddress": "0x4b37c5f7bbf6453724e342744d881d568474bee4",
         "logIndex": 280,
         "amountSigned": "-6782522720000000000000",
-        "fkAsset": 4
+        "fkAsset": 2
       },
       {
         "kind": 1,
@@ -312,7 +312,7 @@
         "toAddress": "0x773d8c8ec1f111ead7d3db572b81ecd9eb3a7b95",
         "logIndex": 281,
         "amountSigned": "-86604696560000000000000",
-        "fkAsset": 4
+        "fkAsset": 2
       },
       {
         "kind": 1,
@@ -321,7 +321,7 @@
         "toAddress": "0xa6e1800a828ac3fea1e52a595fa1dd498d7ed429",
         "logIndex": 282,
         "amountSigned": "-3049000000000000000000",
-        "fkAsset": 4
+        "fkAsset": 2
       },
       {
         "kind": 1,
@@ -330,7 +330,7 @@
         "toAddress": "0x259a59449b43d262cf89456e763c1b4eba7ae5d0",
         "logIndex": 283,
         "amountSigned": "-38000000000000000000",
-        "fkAsset": 4
+        "fkAsset": 2
       },
       {
         "kind": 1,
@@ -339,7 +339,7 @@
         "toAddress": "0xe13915680915ea00b6603531a6beb7ad8528cbb8",
         "logIndex": 284,
         "amountSigned": "-2894367600000000000000",
-        "fkAsset": 4
+        "fkAsset": 2
       },
       {
         "kind": 1,
@@ -348,7 +348,7 @@
         "toAddress": "0x43f6d5076ebb0f6fd98db1e30ce121d7c3a2ecfa",
         "logIndex": 285,
         "amountSigned": "-22000000000000000000",
-        "fkAsset": 4
+        "fkAsset": 2
       },
       {
         "kind": 1,
@@ -357,7 +357,7 @@
         "toAddress": "0x0e1c9430ba0a44189beb04718946a720e57904d8",
         "logIndex": 286,
         "amountSigned": "-1034000000000000000000",
-        "fkAsset": 4
+        "fkAsset": 2
       },
       {
         "kind": 1,
@@ -366,7 +366,7 @@
         "toAddress": "0x7f7376801142c9f64d9a34244edea7d92dd757bb",
         "logIndex": 287,
         "amountSigned": "-5000000000000000000",
-        "fkAsset": 4
+        "fkAsset": 2
       },
       {
         "kind": 1,
@@ -375,7 +375,7 @@
         "toAddress": "0xe688596f36f72a2f414fff5792b1fe50a540c6f6",
         "logIndex": 288,
         "amountSigned": "-3471000000000000000000",
-        "fkAsset": 4
+        "fkAsset": 2
       },
       {
         "kind": 1,
@@ -384,7 +384,7 @@
         "toAddress": "0x25139f1a85486de8128bd2a79471b9c9e183a0b1",
         "logIndex": 289,
         "amountSigned": "-191000000000000000000",
-        "fkAsset": 4
+        "fkAsset": 2
       },
       {
         "kind": 1,
@@ -393,7 +393,7 @@
         "toAddress": "0x6d7705194ebc460af9446c0a520d03aca6e08a9a",
         "logIndex": 290,
         "amountSigned": "-729000000000000000000",
-        "fkAsset": 4
+        "fkAsset": 2
       },
       {
         "kind": 1,
@@ -402,7 +402,7 @@
         "toAddress": "0xe41d7abdcad3c53e9b60712b2f73b3aaeaa15bbc",
         "logIndex": 291,
         "amountSigned": "-4423650400000000000000",
-        "fkAsset": 4
+        "fkAsset": 2
       },
       {
         "kind": 1,
@@ -411,7 +411,7 @@
         "toAddress": "0x8231d479687587540d96aabc91a669d6f21f3bf9",
         "logIndex": 292,
         "amountSigned": "-2101000000000000000000",
-        "fkAsset": 4
+        "fkAsset": 2
       },
       {
         "kind": 1,
@@ -420,7 +420,7 @@
         "toAddress": "0x2beab315514d17a659885a52fa1005eb77577592",
         "logIndex": 293,
         "amountSigned": "-278000000000000000000",
-        "fkAsset": 4
+        "fkAsset": 2
       },
       {
         "kind": 1,
@@ -429,7 +429,7 @@
         "toAddress": "0xe8705a2a3d7251d513cb5defbf98391ffdafb0e7",
         "logIndex": 294,
         "amountSigned": "-1364852800000000000000",
-        "fkAsset": 4
+        "fkAsset": 2
       },
       {
         "kind": 1,
@@ -438,7 +438,7 @@
         "toAddress": "0x346549afc0317f8f77cb823cfc2d599892b47f3b",
         "logIndex": 295,
         "amountSigned": "-229000000000000000000",
-        "fkAsset": 4
+        "fkAsset": 2
       },
       {
         "kind": 1,
@@ -447,7 +447,7 @@
         "toAddress": "0xbdf4b6914cdbc4f198975e4c1f4cb35bf9b480ff",
         "logIndex": 296,
         "amountSigned": "-996000000000000000000",
-        "fkAsset": 4
+        "fkAsset": 2
       },
       {
         "kind": 1,
@@ -456,7 +456,7 @@
         "toAddress": "0x1577ab6e01c460899f05cf96e49da5d860e5db75",
         "logIndex": 297,
         "amountSigned": "-10641130200000000000000",
-        "fkAsset": 4
+        "fkAsset": 2
       },
       {
         "kind": 1,
@@ -465,7 +465,7 @@
         "toAddress": "0xe4a1b185a8d4a8954bb5a153c36599b1e212e0fa",
         "logIndex": 298,
         "amountSigned": "-64000000000000000000",
-        "fkAsset": 4
+        "fkAsset": 2
       }
     ]
   },
@@ -484,45 +484,7 @@
         "toAddress": "0xbe09893cafe9d2cc02a1ad60853f2c835c3056ae",
         "logIndex": 13,
         "amountSigned": "99189654",
-        "fkAsset": 28
-      }
-    ]
-  },
-  {
-    "chain": "evm",
-    "hash": "0x3985ab0c7590220989ee828be25506aabb4090ff12237c195d62e9e1aee5dfe8",
-    "addedAt": "2025-02-10T12:05:53.000Z",
-    "operationsCount": 1,
-    "chainId": 10,
-    "blockHeight": 131795188,
-    "operations": [
-      {
-        "kind": 1,
-        "type": 3,
-        "fromAddress": "0xba76c6f8e6d8889b7e3ffb99e502ef27f632f755",
-        "toAddress": "0xbe09893cafe9d2cc02a1ad60853f2c835c3056ae",
-        "logIndex": 29,
-        "amountSigned": "633907264",
-        "fkAsset": 28
-      }
-    ]
-  },
-  {
-    "chain": "evm",
-    "hash": "0x5091d3d1e9ef6d2605e1f02391368b21c464308053c0bc74b1d07dc99e7e9375",
-    "addedAt": "2025-01-29T14:34:11.000Z",
-    "operationsCount": 1,
-    "chainId": 10,
-    "blockHeight": 131281237,
-    "operations": [
-      {
-        "kind": 1,
-        "type": 3,
-        "fromAddress": "0xba76c6f8e6d8889b7e3ffb99e502ef27f632f755",
-        "toAddress": "0xbe09893cafe9d2cc02a1ad60853f2c835c3056ae",
-        "logIndex": 18,
-        "amountSigned": "20000000",
-        "fkAsset": 28
+        "fkAsset": 1
       }
     ]
   }

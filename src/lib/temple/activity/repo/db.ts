@@ -18,25 +18,22 @@ Dexie.debug = true;
 export const NO_TOKEN_ID_VALUE = '-1';
 
 db.version(1).stores({
-  [Table.tezosActivities]: indexes(
+  [Table.tezosActivities]: indexes('++id'),
+  [Table.tezosActivitiesIntervals]: indexes('++id'),
+  [Table.evmActivities]: indexes(
     '++id',
-    'oldestTzktOperation.timestamp',
-    'oldestTzktOperation.level',
-    'chainId',
-    '&[hash+chainId]'
+    'account',
+    '[chainId+account+blockHeight]',
+    '[chainId+account+contract+blockHeight]'
   ),
-  [Table.tezosActivitiesIntervals]: indexes(
+  [Table.evmActivitiesIntervals]: indexes(
     '++id',
-    'chainId',
-    'fkNewestId',
-    'fkOldestId',
-    'newestTs',
-    'newestLevel',
-    'oldestTs',
-    'oldestLevel'
+    'account',
+    '[chainId+account+oldestBlockHeight]',
+    '[chainId+account+newestBlockHeight]',
+    '[chainId+account+contract+oldestBlockHeight]',
+    '[chainId+account+contract+newestBlockHeight]'
   ),
-  [Table.evmActivities]: indexes('++id', 'account', '[chainId+account+blockHeight]', '&[hash+account+chainId]'),
-  [Table.evmActivitiesIntervals]: indexes('++id', 'account', '[chainId+account+oldestBlockHeight]'),
   [Table.evmActivityAssets]: indexes('++id', '&[chainId+contract+tokenId]')
 });
 
@@ -50,16 +47,17 @@ interface TezosActivitiesInterval {
   oldestLevel: number;
 }
 
-export interface EvmActivitiesInterval {
+/** Used to prevent typecasts for removing 'id' property and not specifying it when adding an entity */
+interface EntityWithId {
+  id?: number;
+}
+
+export interface EvmActivitiesInterval extends EntityWithId {
   chainId: number;
   newestBlockHeight: number;
   oldestBlockHeight: number;
   account: HexString;
-}
-
-/** Used to prevent typecasts for removing 'id' property and not specifying it when adding an entity */
-interface EntityWithId {
-  id?: number;
+  contract: string;
 }
 
 /** Use it only for tests */
@@ -73,6 +71,7 @@ export type DbEvmActivity = Omit<EvmActivity, 'operations' | 'blockHeight'> &
     operations: Array<Omit<EvmOperation, 'asset'> & { fkAsset?: number; amountSigned?: string | null }>;
     blockHeight: number;
     account: HexString;
+    contract: string;
   };
 
 export type DbEvmActivityAsset = Omit<EvmActivityAsset, 'amountSigned'> &
