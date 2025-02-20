@@ -8,6 +8,8 @@ import { EmptyState } from 'app/atoms/EmptyState';
 import Money from 'app/atoms/Money';
 import { BackButton } from 'app/atoms/PageModal';
 import { TopUpProviderIcon } from 'app/templates/TopUpProviderIcon';
+import { TopUpProviderId } from 'lib/buy-with-credit-card/top-up-provider-id.enum';
+import { PaymentProviderInterface } from 'lib/buy-with-credit-card/topup.interface';
 import { T, t, TID } from 'lib/i18n';
 
 import { InfoContainer } from '../../components/InfoBlock';
@@ -15,8 +17,6 @@ import { ModalHeaderConfig } from '../../types';
 import { NewQuoteLabel } from '../components/NewQuoteLabel';
 import { VALUE_PLACEHOLDER } from '../config';
 import { BuyWithCreditCardFormData } from '../form-data.interface';
-import { TopUpProviderId } from '../top-up-provider-id.enum';
-import { PaymentProviderInterface } from '../topup.interface';
 
 interface Props {
   setModalHeaderConfig: SyncFn<ModalHeaderConfig>;

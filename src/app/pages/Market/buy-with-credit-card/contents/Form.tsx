@@ -13,6 +13,8 @@ import { dispatch } from 'app/store';
 import { updatePairLimitsActions } from 'app/store/buy-with-credit-card/actions';
 import { useCurrenciesLoadingSelector } from 'app/store/buy-with-credit-card/selectors';
 import { getAssetSymbolToDisplay } from 'lib/buy-with-credit-card/get-asset-symbol-to-display';
+import { TopUpProviderId } from 'lib/buy-with-credit-card/top-up-provider-id.enum';
+import { PaymentProviderInterface } from 'lib/buy-with-credit-card/topup.interface';
 import { ProviderErrors } from 'lib/buy-with-credit-card/types';
 import { T, t, toLocalFormat } from 'lib/i18n';
 
@@ -29,8 +31,6 @@ import { useBuyWithCreditCardFormSubmit } from '../hooks/use-buy-with-credit-car
 import { usePairLimitsAreLoading } from '../hooks/use-input-limits';
 import { useUpdateCurrentProvider } from '../hooks/use-update-current-provider';
 import { BuyWithCreditCardSelectors } from '../selectors';
-import { TopUpProviderId } from '../top-up-provider-id.enum';
-import { PaymentProviderInterface } from '../topup.interface';
 
 interface Props {
   setModalContent: SyncFn<'send' | 'get' | 'provider'>;

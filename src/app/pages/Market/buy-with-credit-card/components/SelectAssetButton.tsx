@@ -2,8 +2,8 @@ import React, { memo } from 'react';
 
 import { Button, IconBase } from 'app/atoms';
 import { ReactComponent as CompactDown } from 'app/icons/base/compact_down.svg';
-
-import { TopUpInputInterface } from '../topup.interface';
+import { getAssetSymbolToDisplay } from 'lib/buy-with-credit-card/get-asset-symbol-to-display';
+import { TopUpInputInterface } from 'lib/buy-with-credit-card/topup.interface';
 
 import { AssetIcon } from './AssetIcon';
 
@@ -21,7 +21,7 @@ export const SelectAssetButton = memo<Props>(({ currency, useFlagIcon, onClick }
     <div className="flex items-center gap-x-2">
       <AssetIcon useFlagIcon={useFlagIcon} src={currency.icon} code={currency.code} />
       <div className="text-start">
-        <p className="text-font-description-bold">{currency.code}</p>
+        <p className="text-font-description-bold">{getAssetSymbolToDisplay(currency)}</p>
         <p className="text-font-num-12 text-grey-1 w-[52px] truncate">{currency.name}</p>
       </div>
     </div>

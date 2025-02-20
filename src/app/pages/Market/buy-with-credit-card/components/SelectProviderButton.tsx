@@ -4,9 +4,8 @@ import { Button, IconBase } from 'app/atoms';
 import { ReactComponent as CompactDown } from 'app/icons/base/compact_down.svg';
 import { TopUpProviderIcon } from 'app/templates/TopUpProviderIcon';
 import { TestIDProperty } from 'lib/analytics';
-
-import { TopUpProviderId } from '../top-up-provider-id.enum';
-import { PaymentProviderInterface } from '../topup.interface';
+import { TopUpProviderId } from 'lib/buy-with-credit-card/top-up-provider-id.enum';
+import { PaymentProviderInterface } from 'lib/buy-with-credit-card/topup.interface';
 
 interface Props extends TestIDProperty {
   provider?: PaymentProviderInterface;

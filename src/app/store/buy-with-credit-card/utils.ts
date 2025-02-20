@@ -3,15 +3,21 @@ import { AxiosResponse } from 'axios';
 import FiatCurrencyInfo from 'currency-codes';
 
 import {
+  CryptoCurrency as MoonPayCryptoCurrency,
   Currency,
   CurrencyType as MoonPayCurrencyType,
-  CryptoCurrency as MoonPayCryptoCurrency,
   FiatCurrency as MoonPayFiatCurrency
 } from 'lib/apis/moonpay';
 import { AliceBobPairInfo } from 'lib/apis/temple';
 import { CurrencyInfoType as UtorgCurrencyInfoType, UtorgCurrencyInfo } from 'lib/apis/utorg';
-import { toTokenSlug } from 'lib/assets';
+import { TEZ_TOKEN_SLUG } from 'lib/assets';
+import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
+import { toChainAssetSlug } from 'lib/assets/utils';
 import { FIAT_ICONS_SRC } from 'lib/icons';
+import { TEZOS_MAINNET_CHAIN_ID } from 'lib/temple/types';
+import { TempleChainKind } from 'temple/types';
+
+import { TopUpProviderCurrencies } from './state';
 
 interface AliceBobFiatCurrency {
   name: string;
@@ -64,12 +70,25 @@ const aliceBobTezos = {
   code: 'XTZ',
   icon: 'https://static.moonpay.com/widget/currencies/xtz.svg',
   precision: 6,
-  slug: 'tez'
+  chainAssetSlug: toChainAssetSlug(TempleChainKind.Tezos, TEZOS_MAINNET_CHAIN_ID, TEZ_TOKEN_SLUG)
 };
 
-export const mapMoonPayProviderCurrencies = (currencies: Currency[]) => ({
+const isTez = (metadata: MoonPayCryptoCurrency['metadata']) => metadata.networkCode.toLowerCase() === 'tezos';
+
+const polygonCodes = ['pol_polygon', 'pol'];
+
+const getMoonpayTokenIconUrl = (tokenCode: string) => {
+  if (polygonCodes.includes(tokenCode)) return 'https://static.moonpay.com/widget/currencies/matic.svg';
+
+  return `https://static.moonpay.com/widget/currencies/${tokenCode}.svg`;
+};
+
+export const mapMoonPayProviderCurrencies = (currencies: Currency[]): TopUpProviderCurrencies => ({
   fiat: currencies
-    .filter((currency): currency is MoonPayFiatCurrency => currency.type === MoonPayCurrencyType.Fiat)
+    .filter(
+      (currency): currency is MoonPayFiatCurrency =>
+        currency.type === MoonPayCurrencyType.Fiat && currency.isSellSupported
+    )
     .map(({ name, code, minBuyAmount, maxBuyAmount, precision }) => ({
       name,
       code: code.toUpperCase(),
@@ -82,23 +101,32 @@ export const mapMoonPayProviderCurrencies = (currencies: Currency[]) => ({
   crypto: currencies
     .filter(
       (currency): currency is MoonPayCryptoCurrency =>
-        currency.type === MoonPayCurrencyType.Crypto && currency.metadata.networkCode.toLowerCase() === 'tezos'
+        currency.type === MoonPayCurrencyType.Crypto &&
+        currency.supportsLiveMode &&
+        !currency.isSuspended &&
+        (isTez(currency.metadata) || isDefined(currency.metadata.chainId))
     )
     .map(({ name, code, precision, minBuyAmount, maxBuyAmount, metadata }) => ({
       name,
       code: code.toUpperCase(),
       codeToDisplay: code.toUpperCase().split('_')[0],
-      icon: `https://static.moonpay.com/widget/currencies/${code}.svg`,
+      icon: getMoonpayTokenIconUrl(code),
       minAmount: minBuyAmount ?? undefined,
       maxAmount: maxBuyAmount ?? undefined,
       precision,
-      slug: isDefined(metadata.contractAddress)
-        ? toTokenSlug(metadata.contractAddress, metadata.coinType ?? undefined)
-        : ''
+      chainAssetSlug: toChainAssetSlug(
+        isTez(metadata) ? TempleChainKind.Tezos : TempleChainKind.EVM,
+        isDefined(metadata.chainId) ? metadata.chainId : TEZOS_MAINNET_CHAIN_ID,
+        isDefined(metadata.contractAddress)
+          ? metadata.contractAddress
+          : isTez(metadata)
+          ? TEZ_TOKEN_SLUG
+          : EVM_TOKEN_SLUG
+      )
     }))
 });
 
-export const mapUtorgProviderCurrencies = (currencies: UtorgCurrencyInfo[]) => ({
+export const mapUtorgProviderCurrencies = (currencies: UtorgCurrencyInfo[]): TopUpProviderCurrencies => ({
   fiat: currencies
     .filter(({ type, depositMax }) => type === UtorgCurrencyInfoType.FIAT && depositMax > 0)
     .map(({ display, symbol: code, depositMin, depositMax, precision }) => ({
@@ -120,11 +148,13 @@ export const mapUtorgProviderCurrencies = (currencies: UtorgCurrencyInfo[]) => (
       codeToDisplay: display,
       icon: `${UTORG_CRYPTO_ICONS_BASE_URL}/${currency}.svg`,
       precision,
-      slug: '' // TODO: implement making correct slug as soon as any Tezos token is supported by Utorg
+      chainAssetSlug: toChainAssetSlug(TempleChainKind.Tezos, TEZOS_MAINNET_CHAIN_ID, TEZ_TOKEN_SLUG)
     }))
 });
 
-export const mapAliceBobProviderCurrencies = (response: AxiosResponse<{ pairsInfo: AliceBobPairInfo[] }>) => ({
+export const mapAliceBobProviderCurrencies = (
+  response: AxiosResponse<{ pairsInfo: AliceBobPairInfo[] }>
+): TopUpProviderCurrencies => ({
   fiat: response.data.pairsInfo.map(pair => {
     const [minAmountString, code] = pair.minamount.split(' ');
     const minAmount = Number(minAmountString);

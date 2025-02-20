@@ -11,7 +11,9 @@ export interface TopUpInputInterface {
 }
 
 export interface TopUpOutputInterface extends TopUpInputInterface {
-  slug: string;
+  chainAssetSlug: string;
+  /** @deprecated */
+  slug?: string;
 }
 
 export interface PaymentProviderInterface {

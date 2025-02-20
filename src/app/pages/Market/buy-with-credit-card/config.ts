@@ -1,9 +1,8 @@
 import { MOONPAY_ASSETS_BASE_URL } from 'lib/apis/moonpay';
+import { TopUpInputInterface, TopUpOutputInterface } from 'lib/buy-with-credit-card/topup.interface';
 import { t } from 'lib/i18n';
 
 import { ModalHeaderConfig } from '../types';
-
-import { TopUpInputInterface, TopUpOutputInterface } from './topup.interface';
 
 export const FORM_REFRESH_INTERVAL = 30000;
 

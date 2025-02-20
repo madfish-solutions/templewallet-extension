@@ -8,6 +8,7 @@ import { PageLoader } from 'app/atoms/Loader';
 import { BackButton } from 'app/atoms/PageModal';
 import { useCurrenciesLoadingSelector } from 'app/store/buy-with-credit-card/selectors';
 import { SearchBarField } from 'app/templates/SearchField';
+import { TopUpInputInterface } from 'lib/buy-with-credit-card/topup.interface';
 import { t } from 'lib/i18n';
 import { isSearchStringApplicable, searchAndFilterItems } from 'lib/utils/search-items';
 
@@ -15,7 +16,6 @@ import { ModalHeaderConfig } from '../../types';
 import { AssetIcon } from '../components/AssetIcon';
 import { BuyWithCreditCardFormData } from '../form-data.interface';
 import { useAllFiatCurrencies } from '../hooks/use-all-fiat-currencies';
-import { TopUpInputInterface } from '../topup.interface';
 
 interface Props {
   setModalHeaderConfig: SyncFn<ModalHeaderConfig>;
