@@ -10,6 +10,7 @@ import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
 import { EvmOperationKind, getOperationKind } from 'lib/evm/on-chain/transactions';
 import { parseEvmTxRequest } from 'lib/evm/on-chain/utils/parse-evm-tx-request';
 import { T } from 'lib/i18n';
+import { useEvmGenericAssetsMetadataLoading } from 'lib/metadata';
 import { EvmTransactionRequestWithSender, TempleEvmDAppTransactionPayload } from 'lib/temple/types';
 import { serializeError } from 'lib/utils/serialize-error';
 import { getAccountAddressForEvm } from 'temple/accounts';
@@ -83,6 +84,7 @@ const EvmTransactionViewBody = memo<EvmTransactionViewProps>(
       getFeesPerGas
     } = useEvmEstimationForm(estimationData, txSerializable, sendingAccount, parsedChainId, true);
     const { formState } = form;
+    const metadataLoading = useEvmGenericAssetsMetadataLoading();
 
     const handleSubmit = useCallback(
       ({ gasPrice, gasLimit, nonce }: EvmTxParamsFormData) => {
@@ -142,7 +144,8 @@ const EvmTransactionViewBody = memo<EvmTransactionViewProps>(
           destinationValue={req.to ? <HashChip hash={req.to} /> : null}
           sendingAccount={sendingAccount}
           balancesChanges={balancesChanges}
-          loading={balancesChangesLoading || approvesLoading}
+          metadataLoading={metadataLoading}
+          otherDataLoading={balancesChangesLoading || approvesLoading}
         />
       </FormProvider>
     );

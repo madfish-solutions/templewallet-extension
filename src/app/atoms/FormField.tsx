@@ -327,7 +327,7 @@ interface ExtraFloatingInnerProps {
 }
 
 // input padding + textWidth + gap between text and innerComponent
-const getLeftIndent = (textWidth: number) => 12 + textWidth + 8;
+const getLeftIndent = (textWidth: number) => Math.min(12 + textWidth + 8, 226);
 
 const ExtraFloatingInner: React.FC<ExtraFloatingInnerProps> = ({ inputValue, innerComponent, onClick }) => {
   const measureTextWidthRef = useRef<HTMLDivElement>(null);
@@ -337,9 +337,7 @@ const ExtraFloatingInner: React.FC<ExtraFloatingInnerProps> = ({ inputValue, inn
 
   useLayoutEffect(() => {
     if (measureTextWidthRef.current) {
-      const width = measureTextWidthRef.current.clientWidth;
-
-      if (getLeftIndent(width) < 226) setTextWidth(width);
+      setTextWidth(measureTextWidthRef.current.clientWidth);
     }
   }, [inputValue]);
 

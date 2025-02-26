@@ -12,13 +12,15 @@ import { TxParamsFormData } from './TransactionTabs/types';
 interface OperationViewLayoutProps<T extends TxParamsFormData> extends TransactionTabsProps<T> {
   sendingAccount: StoredAccount;
   balancesChanges: AssetsAmounts;
-  loading: boolean;
+  otherDataLoading: boolean;
+  metadataLoading: boolean;
 }
 
 export const OperationViewLayout = <T extends TxParamsFormData>({
   sendingAccount,
   balancesChanges,
-  loading,
+  otherDataLoading,
+  metadataLoading,
   network,
   ...restProps
 }: OperationViewLayoutProps<T>) => {
@@ -33,10 +35,10 @@ export const OperationViewLayout = <T extends TxParamsFormData>({
 
   return (
     <>
-      {expensesViewIsVisible ? (
+      {expensesViewIsVisible && !metadataLoading ? (
         <BalancesChangesView balancesChanges={filteredBalancesChanges} chain={network} />
       ) : (
-        loading && (
+        (otherDataLoading || metadataLoading) && (
           <div className="flex justify-center items-center">
             <Loader size="L" trackVariant="dark" className="text-primary" />
           </div>

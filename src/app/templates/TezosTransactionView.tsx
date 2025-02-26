@@ -7,6 +7,7 @@ import { FormProvider } from 'react-hook-form-v7';
 import { toastError } from 'app/toaster';
 import { TEZ_TOKEN_SLUG } from 'lib/assets';
 import { TEZOS_BLOCK_DURATION } from 'lib/fixed-times';
+import { useTezosGenericAssetsMetadataLoading } from 'lib/metadata';
 import { useTypedSWR } from 'lib/swr';
 import { mutezToTz, tzToMutez } from 'lib/temple/helpers';
 import { TempleTezosDAppOperationsPayload } from 'lib/temple/types';
@@ -56,6 +57,7 @@ const TezosTransactionViewBody = memo<TezosTransactionViewProps>(
       () => accounts.find(acc => getAccountAddressForTezos(acc) === sourcePkh)!,
       [accounts, sourcePkh]
     );
+    const metadataLoading = useTezosGenericAssetsMetadataLoading();
 
     const estimationData = useMemo(() => {
       if (!estimates) return undefined;
@@ -186,7 +188,8 @@ const TezosTransactionViewBody = memo<TezosTransactionViewProps>(
           destinationValue={null}
           sendingAccount={sendingAccount}
           balancesChanges={balancesChanges}
-          loading={balancesChangesLoading}
+          metadataLoading={metadataLoading}
+          otherDataLoading={balancesChangesLoading}
         />
       </FormProvider>
     );

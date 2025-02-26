@@ -1,8 +1,9 @@
-import { useMemo } from 'react';
+import { useCallback, useMemo } from 'react';
 
 import BigNumber from 'bignumber.js';
 
 import { OperationConfirmationCardRowVariant } from 'app/templates/operation-confirmation-card';
+import { toChainAssetSlug } from 'lib/assets/utils';
 import {
   AssetMetadataBase,
   EvmCollectibleMetadata,
@@ -25,14 +26,31 @@ export function useOperationConfirmationCardRowsPropsPart<
   assetsAmounts: AssetsAmounts,
   useTokenOrGasMetadataGetter: (chainId: C['chainId']) => (assetSlug: string) => TM | undefined,
   useCollectibleMetadataGetter: (chainId: C['chainId']) => (assetSlug: string) => CM | undefined,
+  useNoCategoryMetadataGetter: (chainId: C['chainId']) => (assetSlug: string) => TM | CM | undefined,
+  useGenericAssetsMetadataCheck: (chainSlugsToCheck: string[]) => void,
   unlimitedAtomicAmountThreshold = DEFAULT_UNLIMITED_THRESHOLD
 ) {
   const getTokenOrGasMetadata = useTokenOrGasMetadataGetter(chain.chainId);
   const getCollectibleMetadata = useCollectibleMetadataGetter(chain.chainId);
+  const getNoCategoryMetadata = useNoCategoryMetadataGetter(chain.chainId);
+
+  const chainAssetsSlugs = useMemo(
+    () => Object.keys(assetsAmounts).map(slug => toChainAssetSlug(chain.kind, chain.chainId, slug)),
+    [assetsAmounts, chain.chainId, chain.kind]
+  );
+  useGenericAssetsMetadataCheck(chainAssetsSlugs);
 
   const allAssetsAreCollectibles = useMemo(
     () => Object.entries(assetsAmounts).every(([slug, { isNft }]) => Boolean(getCollectibleMetadata(slug)) || isNft),
     [assetsAmounts, getCollectibleMetadata]
+  );
+
+  const castVolume = useCallback(
+    (atomicAmount: BigNumber, decimals?: number) =>
+      atomicAmount.abs().lt(unlimitedAtomicAmountThreshold)
+        ? atomsToTokens(atomicAmount, decimals ?? 0)
+        : new BigNumber(atomicAmount.isNegative() ? -Infinity : Infinity),
+    [unlimitedAtomicAmountThreshold]
   );
 
   return useMemo(
@@ -40,21 +58,45 @@ export function useOperationConfirmationCardRowsPropsPart<
       Object.entries(assetsAmounts).map(([assetSlug, { atomicAmount, isNft }]) => {
         const tokenOrGasMetadata = getTokenOrGasMetadata(assetSlug);
         const collectibleMetadata = getCollectibleMetadata(assetSlug);
+        const noCategoryAssetMetadata = getNoCategoryMetadata(assetSlug);
+
+        if (tokenOrGasMetadata || (noCategoryAssetMetadata && !isNft)) {
+          const assetMetadata = (tokenOrGasMetadata ?? noCategoryAssetMetadata)!;
+
+          return {
+            volume: castVolume(atomicAmount, assetMetadata.decimals),
+            symbol: assetMetadata.symbol ?? assetMetadata.name,
+            chain,
+            assetSlug,
+            variant: OperationConfirmationCardRowVariant.Token
+          };
+        }
+
+        if (collectibleMetadata || (noCategoryAssetMetadata && isNft)) {
+          const assetMetadata = (collectibleMetadata ?? noCategoryAssetMetadata)!;
+
+          return {
+            volume: castVolume(atomicAmount, assetMetadata.decimals),
+            symbol:
+              ('collectibleName' in assetMetadata ? assetMetadata.collectibleName : undefined) ??
+              assetMetadata.name ??
+              assetMetadata.symbol,
+            chain,
+            assetSlug,
+            variant: allAssetsAreCollectibles
+              ? OperationConfirmationCardRowVariant.AllCollectibles
+              : OperationConfirmationCardRowVariant.Collectible
+          };
+        }
 
         return {
-          volume: atomicAmount.abs().lt(unlimitedAtomicAmountThreshold)
-            ? atomsToTokens(atomicAmount, (tokenOrGasMetadata ?? collectibleMetadata)?.decimals ?? 0)
-            : new BigNumber(atomicAmount.isNegative() ? -Infinity : Infinity),
-          symbol: collectibleMetadata
-            ? ('collectibleName' in collectibleMetadata ? collectibleMetadata.collectibleName : undefined) ??
-              collectibleMetadata.name ??
-              collectibleMetadata.symbol
-            : tokenOrGasMetadata?.symbol ?? tokenOrGasMetadata?.name,
+          volume: castVolume(atomicAmount),
+          symbol: undefined,
           chain,
           assetSlug,
           variant: allAssetsAreCollectibles
             ? OperationConfirmationCardRowVariant.AllCollectibles
-            : collectibleMetadata || isNft
+            : isNft
             ? OperationConfirmationCardRowVariant.Collectible
             : OperationConfirmationCardRowVariant.Token
         };
@@ -63,9 +105,10 @@ export function useOperationConfirmationCardRowsPropsPart<
       allAssetsAreCollectibles,
       assetsAmounts,
       chain,
+      castVolume,
       getCollectibleMetadata,
       getTokenOrGasMetadata,
-      unlimitedAtomicAmountThreshold
+      getNoCategoryMetadata
     ]
   );
 }

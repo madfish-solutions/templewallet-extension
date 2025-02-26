@@ -16,7 +16,14 @@ import { dataMatchesAbis } from 'lib/evm/on-chain/transactions';
 import { detectEvmTokenStandard } from 'lib/evm/on-chain/utils/common.utils';
 import { EvmAssetStandard } from 'lib/evm/types';
 import { T, t, toLocalFixed } from 'lib/i18n';
-import { useEvmAssetMetadata, useGetEvmChainCollectibleMetadata, useGetEvmChainTokenOrGasMetadata } from 'lib/metadata';
+import {
+  useEvmGenericAssetMetadata,
+  useEvmGenericAssetsMetadataCheck,
+  useEvmGenericAssetsMetadataLoading,
+  useGetEvmChainCollectibleMetadata,
+  useGetEvmChainTokenOrGasMetadata,
+  useGetEvmNoCategoryAssetMetadata
+} from 'lib/metadata';
 import { useTypedSWR } from 'lib/swr';
 import { EvmTransactionRequestWithSender } from 'lib/temple/types';
 import { useBooleanState } from 'lib/ui/hooks';
@@ -40,7 +47,8 @@ export const ApproveLayout = memo<ApproveLayoutProps>(({ chain, req, setFinalEvm
   const txData = req.data!;
   const { from } = req;
 
-  const knownAssetMetadata = useEvmAssetMetadata(toEvmAssetSlug(tokenAddress), chain.chainId);
+  const knownAssetMetadata = useEvmGenericAssetMetadata(toEvmAssetSlug(tokenAddress), chain.chainId);
+  const metadataLoading = useEvmGenericAssetsMetadataLoading();
 
   const isErc20IncreaseAllowance = useMemo(() => dataMatchesAbis(txData, [erc20IncreaseAllowanceAbi]), [txData]);
   const evmToolkit = useMemo(() => getReadOnlyEvmForNetwork(chain), [chain]);
@@ -79,7 +87,7 @@ export const ApproveLayout = memo<ApproveLayoutProps>(({ chain, req, setFinalEvm
 
   useEffect(() => onLoadingState(contextLoading), [contextLoading, onLoadingState]);
 
-  return allowancesAmountsContext ? (
+  return allowancesAmountsContext && !metadataLoading ? (
     <ApproveLayoutContent
       allowancesAmountsContext={allowancesAmountsContext}
       req={req}
@@ -137,6 +145,8 @@ const ApproveLayoutContent = memo<ApproveLayoutContentProps>(
       newSuggestedAllowances,
       useGetEvmChainTokenOrGasMetadata,
       useGetEvmChainCollectibleMetadata,
+      useGetEvmNoCategoryAssetMetadata,
+      useEvmGenericAssetsMetadataCheck,
       unlimitedAtomicAmountThreshold
     );
 
@@ -159,8 +169,9 @@ const ApproveLayoutContent = memo<ApproveLayoutContentProps>(
           });
         }
         setFinalEvmTransaction(prev => ({ ...prev, data }));
+        closeEditModal();
       },
-      [onChainAllowance, isErc20IncreaseAllowance, setFinalEvmTransaction, txData]
+      [isErc20IncreaseAllowance, setFinalEvmTransaction, closeEditModal, txData, onChainAllowance]
     );
 
     const initialAllowance = useMemo(

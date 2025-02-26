@@ -43,4 +43,4 @@ export const kFormatter = (num: number): string => {
 
 export const toBigNumber = (x: bigint) => new BigNumber(x.toString());
 
-export const toBigInt = (x: BigNumber) => BigInt(x.integerValue().toString());
+export const toBigInt = (x: BigNumber) => BigInt(x.integerValue().toFixed());

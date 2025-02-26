@@ -5,10 +5,14 @@ import { T } from 'lib/i18n';
 import {
   AssetMetadataBase,
   TokenMetadata as TezosCollectibleMetadata,
+  useEvmGenericAssetsMetadataCheck,
   useGetEvmChainCollectibleMetadata,
   useGetEvmChainTokenOrGasMetadata,
+  useGetEvmNoCategoryAssetMetadata,
+  useGetNoCategoryAssetMetadata,
   useGetChainTokenOrGasMetadata as useGetTezosChainTokenOrGasMetadata,
-  useGetCollectibleMetadata as useGetTezosCollectibleMetadata
+  useGetCollectibleMetadata as useGetTezosCollectibleMetadata,
+  useTezosGenericAssetsMetadataCheck
 } from 'lib/metadata';
 import { EvmCollectibleMetadata, EvmNativeTokenMetadata, EvmTokenMetadata } from 'lib/metadata/types';
 import { EvmChain, OneOfChains, TezosChain } from 'temple/front';
@@ -23,7 +27,9 @@ function BalancesChangesViewHOC<
   CM extends EvmCollectibleMetadata | TezosCollectibleMetadata
 >(
   useTokenOrGasMetadataGetter: (chainId: C['chainId']) => (assetSlug: string) => TM | undefined,
-  useCollectibleMetadataGetter: (chainId: C['chainId']) => (assetSlug: string) => CM | undefined
+  useCollectibleMetadataGetter: (chainId: C['chainId']) => (assetSlug: string) => CM | undefined,
+  useNoCategoryMetadataGetter: (chainId: C['chainId']) => (assetSlug: string) => TM | CM | undefined,
+  useGenericAssetsMetadataCheck: (chainSlugsToCheck: string[]) => void
 ) {
   return memo<BalancesChangesViewProps<C>>(({ balancesChanges, chain }) => {
     const { chainId } = chain;
@@ -39,7 +45,9 @@ function BalancesChangesViewHOC<
       chain,
       balancesChanges,
       useTokenOrGasMetadataGetter,
-      useCollectibleMetadataGetter
+      useCollectibleMetadataGetter,
+      useNoCategoryMetadataGetter,
+      useGenericAssetsMetadataCheck
     );
 
     return (
@@ -53,13 +61,20 @@ function BalancesChangesViewHOC<
 
 const TezosBalancesChangesView = BalancesChangesViewHOC<TezosChain, AssetMetadataBase, TezosCollectibleMetadata>(
   useGetTezosChainTokenOrGasMetadata,
-  useGetTezosCollectibleMetadata
+  useGetTezosCollectibleMetadata,
+  useGetNoCategoryAssetMetadata,
+  useTezosGenericAssetsMetadataCheck
 );
 const EvmBalancesChangesView = BalancesChangesViewHOC<
   EvmChain,
   EvmTokenMetadata | EvmNativeTokenMetadata,
   EvmCollectibleMetadata
->(useGetEvmChainTokenOrGasMetadata, useGetEvmChainCollectibleMetadata);
+>(
+  useGetEvmChainTokenOrGasMetadata,
+  useGetEvmChainCollectibleMetadata,
+  useGetEvmNoCategoryAssetMetadata,
+  useEvmGenericAssetsMetadataCheck
+);
 
 export const BalancesChangesView = memo<BalancesChangesViewProps>(({ balancesChanges, chain }) => {
   if (chain.kind === TempleChainKind.Tezos) {

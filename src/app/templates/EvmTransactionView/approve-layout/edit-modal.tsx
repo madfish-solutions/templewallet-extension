@@ -5,7 +5,7 @@ import clsx from 'clsx';
 import { Controller, ControllerProps, useForm } from 'react-hook-form-v7';
 import { object as objectSchema, string as stringSchema, boolean as booleanSchema } from 'yup';
 
-import { Button, IconBase } from 'app/atoms';
+import { Button, IconBase, Money } from 'app/atoms';
 import {
   ActionModal,
   ActionModalBodyContainer,
@@ -15,12 +15,11 @@ import {
 import AssetField from 'app/atoms/AssetField';
 import { SettingsCheckbox } from 'app/atoms/SettingsCheckbox';
 import { ReactComponent as LockFillIcon } from 'app/icons/base/lock_fill.svg';
-import { ShortenedTextWithTooltip } from 'app/templates/shortened-text-with-tooltip';
 import { useEvmAssetBalance } from 'lib/balances/hooks';
 import { MAX_EVM_ALLOWANCE } from 'lib/constants';
 import { useYupValidationResolver } from 'lib/form/use-yup-validation-resolver';
-import { T, t, toLocalFixed } from 'lib/i18n';
-import { useEvmAssetMetadata } from 'lib/metadata';
+import { T, t } from 'lib/i18n';
+import { useEvmGenericAssetMetadata } from 'lib/metadata';
 import { atomsToTokens, tokensToAtoms } from 'lib/temple/helpers';
 import { shouldDisableSubmitButton } from 'lib/ui/should-disable-submit-button';
 import { toBigNumber, ZERO } from 'lib/utils/numbers';
@@ -46,9 +45,9 @@ interface FormValues {
 
 export const EditModal = memo<EditModalProps>(
   ({ assetSlug, chain, from, initialAllowance, minAllowance, minInclusive, setAllowance, onClose }) => {
-    const assetMetadata = useEvmAssetMetadata(assetSlug, chain.chainId);
+    const assetMetadata = useEvmGenericAssetMetadata(assetSlug, chain.chainId);
     const displayedSymbol = assetMetadata?.symbol ?? t('unknownTokenAcronym');
-    const { rawValue: atomicAssetBalance, value: balance } = useEvmAssetBalance(assetSlug, from, chain);
+    const { rawValue: atomicAssetBalance, value: balance } = useEvmAssetBalance(assetSlug, from, chain, true);
     const decimals = assetMetadata?.decimals ?? 0;
     const defaultValues = useMemo(
       () =>
@@ -190,7 +189,10 @@ export const EditModal = memo<EditModalProps>(
                 </span>
                 <div className="text-font-num-12 text-grey-1 min-w-0">
                   <T id="balance" />:{' '}
-                  <ShortenedTextWithTooltip>{toLocalFixed(balance ?? ZERO)}</ShortenedTextWithTooltip> {displayedSymbol}
+                  <Money fiat={false} smallFractionFont={false} tooltipPlacement="top">
+                    {balance ?? ZERO}
+                  </Money>{' '}
+                  {displayedSymbol}
                 </div>
               </div>
 

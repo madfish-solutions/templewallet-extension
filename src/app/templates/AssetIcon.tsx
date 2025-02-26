@@ -14,19 +14,18 @@ export const TezosAssetIcon = memo<TezosAssetImageProps>(props => (
   <TezosAssetImage Loader={TezosAssetIconPlaceholder} Fallback={TezosAssetIconPlaceholder} {...props} />
 ));
 
-export const TezosAssetIconPlaceholder: TezosAssetImageProps['Fallback'] = memo(
-  ({ metadata, size, className, style }) =>
-    metadata && isTezosCollectibleMetadata(metadata) ? (
-      <CollectiblePlaceholderSvg className={className} style={style} width={size} height={size} />
-    ) : (
-      <IdenticonInitials
-        value={getAssetSymbol(metadata)}
-        className={className}
-        style={style}
-        width={size}
-        height={size}
-      />
-    )
+const TezosAssetIconPlaceholder: TezosAssetImageProps['Fallback'] = memo(({ metadata, size, className, style }) =>
+  metadata && isTezosCollectibleMetadata(metadata) ? (
+    <CollectiblePlaceholderSvg className={className} style={style} width={size} height={size} />
+  ) : (
+    <IdenticonInitials
+      value={getAssetSymbol(metadata)}
+      className={className}
+      style={style}
+      width={size}
+      height={size}
+    />
+  )
 );
 
 const ICON_DEFAULT_SIZE = 40;
@@ -59,7 +58,7 @@ export const EvmAssetIcon = memo<EvmAssetImageProps>(props => (
   <EvmAssetImage Loader={EvmAssetIconPlaceholder} Fallback={EvmAssetIconPlaceholder} {...props} />
 ));
 
-export const EvmAssetIconPlaceholder: EvmAssetImageProps['Fallback'] = memo(({ metadata, size, className, style }) =>
+const EvmAssetIconPlaceholder: EvmAssetImageProps['Fallback'] = memo(({ metadata, size, className, style }) =>
   metadata && isEvmCollectibleMetadata(metadata) ? (
     <CollectiblePlaceholderSvg className={className} style={style} width={size} height={size} />
   ) : (

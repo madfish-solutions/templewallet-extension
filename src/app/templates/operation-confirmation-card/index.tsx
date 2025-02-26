@@ -7,12 +7,17 @@ import useTippy, { UseTippyOptions } from 'lib/ui/useTippy';
 import { EvmChain, TezosChain } from 'temple/front';
 import { TempleChainKind } from 'temple/types';
 
-import { EvmAssetIcon, EvmAssetIconPlaceholder, TezosAssetIcon, TezosAssetIconPlaceholder } from '../AssetIcon';
+import { EvmAssetIcon, TezosAssetIcon } from '../AssetIcon';
 import { ShortenedTextWithTooltip } from '../shortened-text-with-tooltip';
 
+import { ReactComponent as UnknownCollectible } from './unknown-collectible.svg';
 import { ReactComponent as UnknownToken } from './unknown-token.svg';
 
 const CollectibleIconFallback = memo<{ size?: number }>(({ size = 24 }) => (
+  <UnknownCollectible style={{ width: size, height: size }} />
+));
+
+const TokenIconFallback = memo<{ size?: number }>(({ size = 24 }) => (
   <UnknownToken style={{ width: size, height: size }} />
 ));
 
@@ -58,6 +63,7 @@ export const OperationConfirmationCardRow = memo<OperationConfirmationCardRowPro
     const allCollectibles = variant === OperationConfirmationCardRowVariant.AllCollectibles;
     const isCollectible = allCollectibles || variant === OperationConfirmationCardRowVariant.Collectible;
     const tippyRef = useTippy<HTMLSpanElement>(unknownTokenTippyOptions);
+    const Fallback = isCollectible ? CollectibleIconFallback : TokenIconFallback;
 
     const icon = useMemo(
       () =>
@@ -66,17 +72,19 @@ export const OperationConfirmationCardRow = memo<OperationConfirmationCardRowPro
             evmChainId={chain.chainId}
             assetSlug={assetSlug}
             size={allCollectibles ? 36 : 24}
-            Fallback={isCollectible ? CollectibleIconFallback : EvmAssetIconPlaceholder}
+            Loader={Fallback}
+            Fallback={Fallback}
           />
         ) : (
           <TezosAssetIcon
             tezosChainId={chain.chainId}
             assetSlug={assetSlug}
             size={allCollectibles ? 36 : 24}
-            Fallback={isCollectible ? CollectibleIconFallback : TezosAssetIconPlaceholder}
+            Loader={Fallback}
+            Fallback={Fallback}
           />
         ),
-      [allCollectibles, assetSlug, chain.chainId, chain.kind, isCollectible]
+      [Fallback, allCollectibles, assetSlug, chain.chainId, chain.kind]
     );
 
     return (
