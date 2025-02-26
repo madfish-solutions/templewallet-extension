@@ -8,8 +8,8 @@ import { PageLoader } from 'app/atoms/Loader';
 import { BackButton } from 'app/atoms/PageModal';
 import { useCurrenciesLoadingSelector } from 'app/store/buy-with-credit-card/selectors';
 import { SearchBarField } from 'app/templates/SearchField';
-import { parseChainAssetSlug } from 'lib/assets/utils';
 import { getAssetSymbolToDisplay } from 'lib/buy-with-credit-card/get-asset-symbol-to-display';
+import { fromTopUpTokenSlug } from 'lib/buy-with-credit-card/top-up-token-slug.utils';
 import { TopUpOutputInterface } from 'lib/buy-with-credit-card/topup.interface';
 import { t } from 'lib/i18n';
 import { isSearchStringApplicable, searchAndFilterItems } from 'lib/utils/search-items';
@@ -56,10 +56,10 @@ export const SelectToken: FC<Props> = ({ setModalHeaderConfig, onTokenSelect, on
   const enabledTokens = useMemo(
     () =>
       allTokens.filter(token => {
-        const [chainKind, chainId] = parseChainAssetSlug(token.chainAssetSlug);
+        const [_, chainKind, chainId] = fromTopUpTokenSlug(token.slug);
 
         const isTezosNetwork = Boolean(tezosAddress) && chainKind === TempleChainKind.Tezos;
-        const isEnabledEvmNetwork = Boolean(evmAddress) && evmChains.some(chain => chain.chainId === chainId);
+        const isEnabledEvmNetwork = Boolean(evmAddress) && evmChains.some(chain => chain.chainId === Number(chainId));
 
         return isTezosNetwork || isEnabledEvmNetwork;
       }),
@@ -109,7 +109,7 @@ interface TokenProps {
 }
 
 const Token: FC<TokenProps> = ({ token, onClick }) => {
-  const [chainKind, chainId] = useMemo(() => parseChainAssetSlug(token.chainAssetSlug), [token.chainAssetSlug]);
+  const [_, chainKind, chainId] = useMemo(() => fromTopUpTokenSlug(token.slug), [token.slug]);
 
   const isTez = chainKind === TempleChainKind.Tezos;
 

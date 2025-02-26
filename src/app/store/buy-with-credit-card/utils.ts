@@ -10,9 +10,8 @@ import {
 } from 'lib/apis/moonpay';
 import { AliceBobPairInfo } from 'lib/apis/temple';
 import { CurrencyInfoType as UtorgCurrencyInfoType, UtorgCurrencyInfo } from 'lib/apis/utorg';
-import { TEZ_TOKEN_SLUG } from 'lib/assets';
-import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
-import { toChainAssetSlug } from 'lib/assets/utils';
+import { TopUpProviderId } from 'lib/buy-with-credit-card/top-up-provider-id.enum';
+import { toTopUpTokenSlug } from 'lib/buy-with-credit-card/top-up-token-slug.utils';
 import { FIAT_ICONS_SRC } from 'lib/icons';
 import { TEZOS_MAINNET_CHAIN_ID } from 'lib/temple/types';
 import { TempleChainKind } from 'temple/types';
@@ -68,12 +67,13 @@ const knownAliceBobFiatCurrencies: Record<string, AliceBobFiatCurrency> = {
 const aliceBobTezos = {
   name: 'Tezos',
   code: 'XTZ',
+  providerId: TopUpProviderId.AliceBob,
   icon: 'https://static.moonpay.com/widget/currencies/xtz.svg',
   precision: 6,
-  chainAssetSlug: toChainAssetSlug(TempleChainKind.Tezos, TEZOS_MAINNET_CHAIN_ID, TEZ_TOKEN_SLUG)
+  slug: toTopUpTokenSlug('XTZ', TempleChainKind.Tezos, TEZOS_MAINNET_CHAIN_ID)
 };
 
-const isTez = (metadata: MoonPayCryptoCurrency['metadata']) => metadata.networkCode.toLowerCase() === 'tezos';
+const isMoonpayTez = (metadata: MoonPayCryptoCurrency['metadata']) => metadata.networkCode.toLowerCase() === 'tezos';
 
 const polygonCodes = ['pol_polygon', 'pol'];
 
@@ -104,27 +104,33 @@ export const mapMoonPayProviderCurrencies = (currencies: Currency[]): TopUpProvi
         currency.type === MoonPayCurrencyType.Crypto &&
         currency.supportsLiveMode &&
         !currency.isSuspended &&
-        (isTez(currency.metadata) || isDefined(currency.metadata.chainId))
+        (isMoonpayTez(currency.metadata) || isDefined(currency.metadata.chainId))
     )
     .map(({ name, code, precision, minBuyAmount, maxBuyAmount, metadata }) => ({
       name,
       code: code.toUpperCase(),
-      codeToDisplay: code.toUpperCase().split('_')[0],
       icon: getMoonpayTokenIconUrl(code),
       minAmount: minBuyAmount ?? undefined,
       maxAmount: maxBuyAmount ?? undefined,
       precision,
-      chainAssetSlug: toChainAssetSlug(
-        isTez(metadata) ? TempleChainKind.Tezos : TempleChainKind.EVM,
-        isDefined(metadata.chainId) ? metadata.chainId : TEZOS_MAINNET_CHAIN_ID,
-        isDefined(metadata.contractAddress)
-          ? metadata.contractAddress
-          : isTez(metadata)
-          ? TEZ_TOKEN_SLUG
-          : EVM_TOKEN_SLUG
+      slug: toTopUpTokenSlug(
+        code.toUpperCase().split('_')[0],
+        isMoonpayTez(metadata) ? TempleChainKind.Tezos : TempleChainKind.EVM,
+        isDefined(metadata.chainId) ? metadata.chainId : TEZOS_MAINNET_CHAIN_ID
       )
     }))
 });
+
+const utorgChainChainIdMap: Record<string, string> = {
+  ARBITRUM: '42161',
+  AVALANCHE: '43114',
+  POLYGON: '137',
+  ETHEREUM: '1',
+  BINANCE_SMART_CHAIN: '56',
+  VECHAIN: '100009'
+};
+
+const isUtorgTez = (chain?: string) => chain === 'TEZOS';
 
 export const mapUtorgProviderCurrencies = (currencies: UtorgCurrencyInfo[]): TopUpProviderCurrencies => ({
   fiat: currencies
@@ -140,15 +146,23 @@ export const mapUtorgProviderCurrencies = (currencies: UtorgCurrencyInfo[]): Top
     })),
   crypto: currencies
     .filter(
-      ({ chain, type, depositMax }) => type === UtorgCurrencyInfoType.CRYPTO && depositMax > 0 && chain === 'TEZOS'
+      ({ chain, type, depositMax }) =>
+        type === UtorgCurrencyInfoType.CRYPTO &&
+        depositMax > 0 &&
+        //enabled &&
+        isDefined(chain) &&
+        (isDefined(utorgChainChainIdMap[chain]) || isUtorgTez(chain))
     )
-    .map(({ currency, display, precision }) => ({
-      name: display,
+    .map(({ currency, display, caption, precision, chain }) => ({
+      name: caption,
       code: currency,
-      codeToDisplay: display,
       icon: `${UTORG_CRYPTO_ICONS_BASE_URL}/${currency}.svg`,
       precision,
-      chainAssetSlug: toChainAssetSlug(TempleChainKind.Tezos, TEZOS_MAINNET_CHAIN_ID, TEZ_TOKEN_SLUG)
+      slug: toTopUpTokenSlug(
+        display,
+        isUtorgTez(chain) ? TempleChainKind.Tezos : TempleChainKind.EVM,
+        isUtorgTez(chain) ? TEZOS_MAINNET_CHAIN_ID : utorgChainChainIdMap[chain!]
+      )
     }))
 });
 

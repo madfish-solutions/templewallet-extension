@@ -17,8 +17,8 @@ export const useAllCryptoCurrencies = () => {
         [...moonpayCryptoCurrencies, ...utorgCryptoCurrencies, ...aliceBobCryptoCurrencies].reduce<
           Record<string, TopUpOutputInterface>
         >((acc, currency) => {
-          if (!isDefined(acc[currency.code])) {
-            acc[currency.code] = currency;
+          if (!isDefined(acc[currency.slug])) {
+            acc[currency.slug] = currency;
           }
 
           return acc;

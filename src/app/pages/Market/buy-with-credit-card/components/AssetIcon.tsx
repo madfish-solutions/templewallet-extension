@@ -1,7 +1,5 @@
 import React, { memo, useCallback, useMemo, useState } from 'react';
 
-import clsx from 'clsx';
-
 import { Flag } from 'app/atoms/Flag';
 import { TOKEN_FALLBACK_ICON_SRC, TOKENS_ICONS_SRC } from 'lib/icons';
 
@@ -11,10 +9,9 @@ interface Props {
   useFlagIcon?: boolean;
   size?: number;
   alt?: string;
-  className?: string;
 }
 
-export const AssetIcon = memo<Props>(({ src, code, useFlagIcon, size = 40, alt, className }) => {
+export const AssetIcon = memo<Props>(({ src, code, useFlagIcon, size = 40, alt }) => {
   const [isFailed, setIsFailed] = useState(false);
 
   const countryCode = currencyToLocaleMap[code];
@@ -33,12 +30,9 @@ export const AssetIcon = memo<Props>(({ src, code, useFlagIcon, size = 40, alt, 
       {countryCode && useFlagIcon ? (
         <Flag alt={code} countryCode={countryCode} />
       ) : (
-        <img
-          src={localSrc}
-          alt={alt}
-          className={clsx('rounded-full w-full h-auto p-0.5', className)}
-          onError={handleError}
-        />
+        <div className="flex justify-center items-center rounded-full w-9 h-9 overflow-hidden">
+          <img src={localSrc} alt={alt} className="w-10 h-10 object-cover" onError={handleError} />
+        </div>
       )}
     </div>
   );

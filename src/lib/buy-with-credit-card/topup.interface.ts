@@ -10,10 +10,8 @@ export interface TopUpInputInterface {
   precision: number;
 }
 
-export interface TopUpOutputInterface extends TopUpInputInterface {
-  chainAssetSlug: string;
-  /** @deprecated */
-  slug?: string;
+export interface TopUpOutputInterface extends Omit<TopUpInputInterface, 'codeToDisplay'> {
+  slug: string;
 }
 
 export interface PaymentProviderInterface {
