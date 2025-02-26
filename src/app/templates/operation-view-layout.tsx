@@ -29,13 +29,13 @@ export const OperationViewLayout = <T extends TxParamsFormData>({
     [balancesChanges]
   );
   const expensesViewIsVisible = useMemo(
-    () => Object.keys(filteredBalancesChanges).length > 0,
-    [filteredBalancesChanges]
+    () => Object.keys(filteredBalancesChanges).length > 0 && !metadataLoading,
+    [filteredBalancesChanges, metadataLoading]
   );
 
   return (
     <>
-      {expensesViewIsVisible && !metadataLoading ? (
+      {expensesViewIsVisible ? (
         <BalancesChangesView balancesChanges={filteredBalancesChanges} chain={network} />
       ) : (
         (otherDataLoading || metadataLoading) && (
