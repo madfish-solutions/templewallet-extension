@@ -10,10 +10,12 @@ import { AnalyticsEventCategory, useAnalytics, useFormAnalytics } from 'lib/anal
 import { createAliceBobOrder, getMoonpaySign } from 'lib/apis/temple';
 import { createOrder as createUtorgOrder } from 'lib/apis/utorg';
 import { TopUpProviderId } from 'lib/buy-with-credit-card/top-up-provider-id.enum';
+import { fromTopUpTokenSlug } from 'lib/buy-with-credit-card/top-up-token-slug.utils';
 import { t } from 'lib/i18n';
 import { getAxiosQueryErrorMessage } from 'lib/utils/get-axios-query-error-message';
 import { assertUnreachable } from 'lib/utils/switch-cases';
 import { useAccountAddressForEvm, useAccountAddressForTezos } from 'temple/front';
+import { TempleChainKind } from 'temple/types';
 
 import { BuyWithCreditCardFormData } from '../form-data.interface';
 
@@ -32,8 +34,9 @@ export const useBuyWithCreditCardFormSubmit = () => {
     async formValues => {
       const { inputAmount, inputCurrency, outputAmount, outputToken, provider } = formValues;
 
-      // TODO: Add "network" field and check it here
-      const publicKeyHash = outputToken.slug === 'tez' ? tezosAddress : evmAddress;
+      const [_, chainKind] = fromTopUpTokenSlug(outputToken.slug);
+
+      const publicKeyHash = chainKind === TempleChainKind.Tezos ? tezosAddress : evmAddress;
 
       trackEvent('BUY_WITH_CREDIT_CARD_FORM_SUBMIT', AnalyticsEventCategory.FormSubmit, {
         inputAmount: inputAmount?.toString(),

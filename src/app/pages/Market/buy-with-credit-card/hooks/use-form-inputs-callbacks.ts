@@ -27,7 +27,7 @@ export const useFormInputsCallbacks = (
   setFormIsLoading: SyncFn<boolean>,
   setLastFormRefreshTimestamp: SyncFn<number>
 ) => {
-  const { watch, setValue } = form;
+  const { watch, setValue, trigger } = form;
 
   const inputAmount = watch('inputAmount');
   const inputCurrency = watch('inputCurrency');
@@ -68,6 +68,8 @@ export const useFormInputsCallbacks = (
           if (isDefined(topUpProvider)) setPaymentProvider({ ...topUpProvider, outputAmount: undefined });
 
           await updateProvidersOutputs(correctedNewInputAmount, newInputAsset, newOutputAsset);
+
+          trigger('inputAmount');
 
           setFormIsLoading(false);
         },
