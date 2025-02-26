@@ -126,7 +126,7 @@ export const useFormInputsCallbacks = (
 
   const refreshForm = useCallback(() => {
     dispatch(loadAllCurrenciesActions.submit());
-    dispatch(updatePairLimitsActions.submit({ fiatSymbol: inputCurrency.code, cryptoSymbol: outputToken.code }));
+    dispatch(updatePairLimitsActions.submit({ fiatSymbol: inputCurrency.code, cryptoSlug: outputToken.slug }));
     if (!formIsLoading) {
       outputCalculationDataRef.current = { inputAmount, inputCurrency, outputToken };
       setFormIsLoading(true);

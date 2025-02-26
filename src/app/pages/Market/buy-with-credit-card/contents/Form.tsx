@@ -67,7 +67,7 @@ export const Form: FC<Props> = ({
   const provider = watch('provider');
 
   const currenciesLoading = useCurrenciesLoadingSelector();
-  const pairLimitsLoading = usePairLimitsAreLoading(inputCurrency.code, outputToken.code);
+  const pairLimitsLoading = usePairLimitsAreLoading(inputCurrency.code, outputToken.slug);
 
   const { onSubmit, purchaseLinkLoading } = useBuyWithCreditCardFormSubmit();
 
@@ -101,13 +101,13 @@ export const Form: FC<Props> = ({
 
   const { fiatCurrenciesWithPairLimits: allFiatCurrencies } = useAllFiatCurrencies(
     inputCurrency.code,
-    outputToken.code
+    outputToken.slug
   );
   const allCryptoCurrencies = useAllCryptoCurrencies();
 
   useEffect(() => {
-    dispatch(updatePairLimitsActions.submit({ fiatSymbol: inputCurrency.code, cryptoSymbol: outputToken.code }));
-  }, [inputCurrency.code, outputToken.code, allFiatCurrencies.length, allCryptoCurrencies.length]);
+    dispatch(updatePairLimitsActions.submit({ fiatSymbol: inputCurrency.code, cryptoSlug: outputToken.slug }));
+  }, [inputCurrency.code, outputToken.slug, allFiatCurrencies.length, allCryptoCurrencies.length]);
 
   useEffect(() => {
     const newInputAsset = allFiatCurrencies.find(({ code }) => code === inputCurrency.code);

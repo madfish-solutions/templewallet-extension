@@ -96,8 +96,8 @@ export const usePaymentProvider = (
   const fiatCurrencies = useFiatCurrenciesSelector(providerId);
   const cryptoCurrencies = useCryptoCurrenciesSelector(providerId);
   const currenciesError = useProviderCurrenciesErrorSelector(providerId);
-  const limitsErrors = usePairLimitsErrorsSelector(inputAsset.code, outputAsset.code);
-  const { min: minInputAmount, max: maxInputAmount } = useInputLimits(providerId, inputAsset.code, outputAsset.code);
+  const limitsErrors = usePairLimitsErrorsSelector(inputAsset.code, outputAsset.slug);
+  const { min: minInputAmount, max: maxInputAmount } = useInputLimits(providerId, inputAsset.code, outputAsset.slug);
   const initialData = initialPaymentProvidersData[providerId];
   const getOutputAmount = getOutputAmountFunctions[providerId];
 
@@ -105,11 +105,13 @@ export const usePaymentProvider = (
     async (newInputAmount?: number, newInputAsset = inputAsset, newOutputAsset = outputAsset) => {
       setOutputError(undefined);
       const currentProviderFiatCurrency = fiatCurrencies.find(({ code }) => code === newInputAsset.code);
-      const currentProviderCryptoCurrency = cryptoCurrencies.find(({ code }) => code === newOutputAsset.code);
-      const updatedPairLimits =
-        isDefined(currentProviderFiatCurrency) && isDefined(currentProviderCryptoCurrency)
-          ? (await getUpdatedFiatLimits(currentProviderFiatCurrency, currentProviderCryptoCurrency, providerId)).data
-          : undefined;
+      const currentProviderCryptoCurrency = cryptoCurrencies.find(({ slug }) => slug === newOutputAsset.slug);
+      const currentProviderCurrenciesDefined =
+        isDefined(currentProviderFiatCurrency) && isDefined(currentProviderCryptoCurrency);
+
+      const updatedPairLimits = currentProviderCurrenciesDefined
+        ? (await getUpdatedFiatLimits(currentProviderFiatCurrency, currentProviderCryptoCurrency, providerId)).data
+        : undefined;
 
       if (
         !isTruthy(newInputAmount) ||
@@ -125,8 +127,14 @@ export const usePaymentProvider = (
 
       let newOutputAmount: number | undefined;
       try {
-        setOutputAmountLoading(true);
-        newOutputAmount = await getOutputAmount(newInputAmount, newInputAsset, newOutputAsset);
+        if (currentProviderCurrenciesDefined) {
+          setOutputAmountLoading(true);
+          newOutputAmount = await getOutputAmount(
+            newInputAmount,
+            currentProviderFiatCurrency,
+            currentProviderCryptoCurrency
+          );
+        }
       } catch (error) {
         setOutputError(error as Error);
         newOutputAmount = undefined;

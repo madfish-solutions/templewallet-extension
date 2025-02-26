@@ -9,15 +9,15 @@ import { TopUpProviderPairLimits } from 'lib/buy-with-credit-card/topup.interfac
 export const useInputLimits = (
   topUpProvider: TopUpProviderId,
   fiatCurrencyCode: string,
-  cryptoCurrencyCode: string
+  cryptoCurrencySlug: string
 ): Partial<TopUpProviderPairLimits> => {
-  const pairLimits = useProviderPairLimitsSelector(fiatCurrencyCode, cryptoCurrencyCode, topUpProvider);
+  const pairLimits = useProviderPairLimitsSelector(fiatCurrencyCode, cryptoCurrencySlug, topUpProvider);
 
   return useMemo(() => pairLimits?.data ?? {}, [pairLimits]);
 };
 
-export const usePairLimitsAreLoading = (fiatCurrencyCode: string, cryptoCurrencyCode: string) => {
-  const pairLimits = usePairLimitsSelector(fiatCurrencyCode, cryptoCurrencyCode);
+export const usePairLimitsAreLoading = (fiatCurrencyCode: string, cryptoCurrencySlug: string) => {
+  const pairLimits = usePairLimitsSelector(fiatCurrencyCode, cryptoCurrencySlug);
 
   return useMemo(
     () => isDefined(pairLimits) && Object.values(pairLimits).some(({ isLoading }) => isLoading),

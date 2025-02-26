@@ -7,7 +7,7 @@ import { mergeProvidersLimits } from 'lib/buy-with-credit-card/merge-limits';
 import { TopUpProviderId } from 'lib/buy-with-credit-card/top-up-provider-id.enum';
 import { TopUpInputInterface } from 'lib/buy-with-credit-card/topup.interface';
 
-export const useAllFiatCurrencies = (inputCurrencySymbol: string, outputTokenSymbol: string) => {
+export const useAllFiatCurrencies = (inputCurrencySymbol: string, outputTokenSlug: string) => {
   const moonpayFiatCurrencies = useFiatCurrenciesSelector(TopUpProviderId.MoonPay);
   const utorgFiatCurrencies = useFiatCurrenciesSelector(TopUpProviderId.Utorg);
   const aliceBobFiatCurrencies = useFiatCurrenciesSelector(TopUpProviderId.AliceBob);
@@ -20,8 +20,8 @@ export const useAllFiatCurrencies = (inputCurrencySymbol: string, outputTokenSym
   );
 
   const pairLimits = useMemo(
-    () => mergeProvidersLimits(allPairsLimits[inputCurrencySymbol]?.[outputTokenSymbol]),
-    [allPairsLimits, inputCurrencySymbol, outputTokenSymbol]
+    () => mergeProvidersLimits(allPairsLimits[inputCurrencySymbol]?.[outputTokenSlug]),
+    [allPairsLimits, inputCurrencySymbol, outputTokenSlug]
   );
 
   const noPairLimitsFiatCurrencies = useMemo(

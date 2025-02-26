@@ -22,7 +22,7 @@ export const useErrorAlert = (
   outputToken: TopUpOutputInterface
 ) => {
   const currenciesErrors = useCurrenciesErrorsSelector();
-  const updatePairLimitsErrors = usePairLimitsErrorsSelector(inputCurrency.code, outputToken.code);
+  const updatePairLimitsErrors = usePairLimitsErrorsSelector(inputCurrency.code, outputToken.slug);
 
   const message = useMemo(() => {
     for (const providerId in allProvidersErrors) {

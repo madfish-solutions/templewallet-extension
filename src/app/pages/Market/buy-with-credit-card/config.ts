@@ -1,6 +1,9 @@
 import { MOONPAY_ASSETS_BASE_URL } from 'lib/apis/moonpay';
+import { toTopUpTokenSlug } from 'lib/buy-with-credit-card/top-up-token-slug.utils';
 import { TopUpInputInterface, TopUpOutputInterface } from 'lib/buy-with-credit-card/topup.interface';
 import { t } from 'lib/i18n';
+import { ETHEREUM_MAINNET_CHAIN_ID, TEZOS_MAINNET_CHAIN_ID } from 'lib/temple/types';
+import { TempleChainKind } from 'temple/types';
 
 import { ModalHeaderConfig } from '../types';
 
@@ -20,7 +23,7 @@ export const DEFAULT_TEZOS_OUTPUT_TOKEN: TopUpOutputInterface = {
   name: 'Tezos',
   icon: `${MOONPAY_ASSETS_BASE_URL}/widget/currencies/xtz.svg`,
   precision: 1,
-  slug: 'tez'
+  slug: toTopUpTokenSlug('XTZ', TempleChainKind.Tezos, TEZOS_MAINNET_CHAIN_ID)
 };
 
 export const DEFAULT_EVM_OUTPUT_TOKEN: TopUpOutputInterface = {
@@ -28,7 +31,7 @@ export const DEFAULT_EVM_OUTPUT_TOKEN: TopUpOutputInterface = {
   name: 'Ethereum',
   icon: `${MOONPAY_ASSETS_BASE_URL}/widget/currencies/eth.svg`,
   precision: 1,
-  slug: 'eth'
+  slug: toTopUpTokenSlug('ETH', TempleChainKind.EVM, ETHEREUM_MAINNET_CHAIN_ID.toString())
 };
 
 export const defaultModalHeaderConfig: ModalHeaderConfig = {
