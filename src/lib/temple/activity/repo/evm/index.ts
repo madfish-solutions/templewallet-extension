@@ -15,7 +15,7 @@ import {
   evmActivities,
   evmActivitiesIntervals,
   evmActivityAssets
-} from './db';
+} from '../db';
 
 interface GetEvmActivitiesIntervalParams {
   olderThanBlockHeight?: `${number}`;
@@ -173,28 +173,12 @@ export const putEvmActivities = async ({
   contractAddress = contractAddress.toLowerCase();
   activities = activities.toSorted((a, b) => Number(b.blockHeight) - Number(a.blockHeight));
 
-  if (activities.length === 0 && olderThanBlockHeight && contractAddress) {
-    return overwriteEvmActivitiesByContractAddress({
-      chainId,
-      account,
-      olderThanBlockHeight,
-      contractAddress,
-      activities
-    });
-  }
-
-  if (activities.length === 0 && olderThanBlockHeight) {
-    return overwriteEvmActivitiesForAllContracts({ chainId, account, olderThanBlockHeight, activities });
-  }
-
-  if (activities.length === 0) {
+  if (activities.length === 0 && !olderThanBlockHeight) {
     return;
   }
 
-  if (!olderThanBlockHeight) {
-    olderThanBlockHeight = `${Number(activities[0].blockHeight) + 1}`;
-  }
-  const oldestBlockHeight = Number(activities.at(-1)!.blockHeight);
+  olderThanBlockHeight = olderThanBlockHeight ?? `${Number(activities[0].blockHeight) + 1}`;
+  const oldestBlockHeight = activities.length === 0 ? 0 : Number(activities.at(-1)!.blockHeight);
 
   if (contractAddress) {
     return overwriteEvmActivitiesByContractAddress({
@@ -309,13 +293,13 @@ const filterRelevantActivities = (activities: EvmActivity[], olderThanBlockHeigh
 type OverwriteEvmActivitiesByContractParams = RequiredBy<
   PutEvmActivitiesParams,
   'contractAddress' | 'olderThanBlockHeight'
-> & { oldestBlockHeight?: number; createTransaction?: boolean };
+> & { oldestBlockHeight: number; createTransaction?: boolean };
 const overwriteEvmActivitiesByContractAddress = ({
   activities,
   chainId,
   account,
   olderThanBlockHeight,
-  oldestBlockHeight = 0,
+  oldestBlockHeight,
   contractAddress,
   createTransaction = true
 }: OverwriteEvmActivitiesByContractParams): Promise<void> => {
@@ -374,15 +358,17 @@ const overwriteEvmActivitiesByContractAddress = ({
     });
 
     if (allContractsSubsetIntervalsIds.length > 0) {
-      const allContractsSubsetIntervals = await evmActivitiesIntervals.bulkGet(allContractsSubsetIntervalsIds);
-      allContractsSubsetIntervals.sort((a, b) => b!.newestBlockHeight - a!.newestBlockHeight);
+      const allContractsSubsetIntervals = (await evmActivitiesIntervals.bulkGet(
+        allContractsSubsetIntervalsIds
+      )) as EvmActivitiesInterval[];
+      allContractsSubsetIntervals.sort((a, b) => b.newestBlockHeight - a.newestBlockHeight);
       for (let i = 0; i <= allContractsSubsetIntervalsIds.length; i++) {
         const newIntervalOlderThanBlockHeight =
-          i === 0 ? parsedOlderThanBlockHeight : allContractsSubsetIntervals[i - 1]!.oldestBlockHeight;
+          i === 0 ? parsedOlderThanBlockHeight : allContractsSubsetIntervals[i - 1].oldestBlockHeight;
         const newIntervalOldestBlockHeight =
           i === allContractsSubsetIntervalsIds.length
             ? oldestBlockHeight
-            : allContractsSubsetIntervals[i]!.newestBlockHeight + 1;
+            : allContractsSubsetIntervals[i].newestBlockHeight + 1;
         if (newIntervalOlderThanBlockHeight > newIntervalOldestBlockHeight) {
           await overwriteEvmActivitiesByContractAddress({
             chainId,
@@ -444,7 +430,7 @@ const overwriteEvmActivitiesByContractAddress = ({
         chainId,
         account,
         olderThanBlockHeight,
-        oldestBlockHeight: olderAllContractsIntersectingInterval.newestBlockHeight + 1,
+        oldestBlockHeight: newOldestBlockHeight,
         contractAddress,
         createTransaction: false,
         activities: filterRelevantActivities(activities, parsedOlderThanBlockHeight, newOldestBlockHeight)

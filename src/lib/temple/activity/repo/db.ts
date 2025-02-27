@@ -1,6 +1,7 @@
 import Dexie from 'dexie';
 
 import { EvmActivity, EvmActivityAsset, EvmOperation, TezosActivity } from 'lib/activity';
+import { TezosActivityOlderThan } from 'lib/activity/tezos/types';
 
 enum Table {
   tezosActivities = 'tezosActivities',
@@ -18,8 +19,20 @@ Dexie.debug = true;
 export const NO_TOKEN_ID_VALUE = '-1';
 
 db.version(1).stores({
-  [Table.tezosActivities]: indexes('++id'),
-  [Table.tezosActivitiesIntervals]: indexes('++id'),
+  [Table.tezosActivities]: indexes(
+    '++id',
+    'account',
+    '[chainId+account+oldestTzktOperation.timestamp]',
+    '[chainId+account+assetSlug+oldestTzktOperation.timestamp]'
+  ),
+  [Table.tezosActivitiesIntervals]: indexes(
+    '++id',
+    'account',
+    '[chainId+account+lowerLimit.oldestTzktOperation.timestamp]',
+    '[chainId+account+upperLimit.oldestTzktOperation.timestamp]',
+    '[chainId+account+assetSlug+lowerLimit.oldestTzktOperation.timestamp]',
+    '[chainId+account+assetSlug+upperLimit.oldestTzktOperation.timestamp]'
+  ),
   [Table.evmActivities]: indexes(
     '++id',
     'account',
@@ -37,14 +50,13 @@ db.version(1).stores({
   [Table.evmActivityAssets]: indexes('++id', '&[chainId+contract+tokenId]')
 });
 
-interface TezosActivitiesInterval {
+export interface TezosActivitiesInterval extends EntityWithId {
   chainId: string;
-  fkNewestId: number;
-  fkOldestId: number;
-  newestTs: string;
-  newestLevel: number;
-  oldestTs: string;
-  oldestLevel: number;
+  /** Not inclusive */
+  upperLimit: TezosActivityOlderThan;
+  lowerLimit: TezosActivityOlderThan;
+  account: string;
+  assetSlug: string;
 }
 
 /** Used to prevent typecasts for removing 'id' property and not specifying it when adding an entity */
@@ -60,11 +72,13 @@ export interface EvmActivitiesInterval extends EntityWithId {
   contract: string;
 }
 
-/** Use it only for tests */
-export const tezosActivities = db.table<TezosActivity, number>(Table.tezosActivities);
+export type DbTezosActivity = TezosActivity & EntityWithId & { account: string; assetSlug: string };
 
-/** Use it only for tests */
-export const tezosActivitiesIntervals = db.table<TezosActivitiesInterval, number>(Table.tezosActivitiesIntervals);
+export const tezosActivities = db.table<DbTezosActivity, number>(Table.tezosActivities);
+
+export const tezosActivitiesIntervals = db.table<TezosActivitiesInterval & EntityWithId, number>(
+  Table.tezosActivitiesIntervals
+);
 
 export type DbEvmActivity = Omit<EvmActivity, 'operations' | 'blockHeight'> &
   EntityWithId & {
@@ -77,13 +91,10 @@ export type DbEvmActivity = Omit<EvmActivity, 'operations' | 'blockHeight'> &
 export type DbEvmActivityAsset = Omit<EvmActivityAsset, 'amountSigned'> &
   EntityWithId & { chainId: number; tokenId: string };
 
-/** Use it only for tests */
 export const evmActivities = db.table<DbEvmActivity, number>(Table.evmActivities);
 
-/** Use it only for tests */
 export const evmActivitiesIntervals = db.table<EvmActivitiesInterval, number>(Table.evmActivitiesIntervals);
 
-/** Use it only for tests */
 export const evmActivityAssets = db.table<DbEvmActivityAsset, number>(Table.evmActivityAssets);
 
 function indexes(...items: string[]) {

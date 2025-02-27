@@ -5,10 +5,12 @@ import { pick } from 'lodash';
 import { ActivityOperKindEnum, ActivityOperTransferType } from 'lib/activity';
 import { TempleChainKind } from 'temple/types';
 
+import { DbEvmActivity, NO_TOKEN_ID_VALUE, evmActivities, evmActivitiesIntervals, evmActivityAssets } from '../db';
+import { checkEvmDbState, resetDb, toEvmActivitiesForCertainContract } from '../test-helpers';
+
 import { vitalikPkh, vitalikPkhLowercased } from './common-evm-mocks';
-import { DbEvmActivity, NO_TOKEN_ID_VALUE, evmActivities, evmActivitiesIntervals, evmActivityAssets } from './db';
-import { putEvmActivities, toFrontEvmActivity } from './evm';
-import { checkDbState, resetDb } from './test-helpers';
+
+import { putEvmActivities, toFrontEvmActivity } from '.';
 
 const operation1 = {
   kind: ActivityOperKindEnum.transfer,
@@ -130,10 +132,7 @@ const generateModifiedActivities = (activities: DbEvmActivity[]) =>
   });
 
 const toActivitiesForCertainContract = (activities: DbEvmActivity[]) =>
-  activities.map(activity => ({
-    ...activity,
-    contract: assets[activity.operations[0].fkAsset! as keyof typeof assets].contract
-  }));
+  toEvmActivitiesForCertainContract(activities, assets);
 
 describe('putEvmActivities', () => {
   afterEach(resetDb);
@@ -176,7 +175,7 @@ describe('putEvmActivities', () => {
         olderThanBlockHeight: '21821431',
         contractAddress: '0x7CE31075d7450Aff4A9a82DdDF69D451B1e0C4E9'
       });
-      await checkDbState([interval], [activity], pick(assets, 1));
+      await checkEvmDbState([interval], [activity], pick(assets, 1));
 
       await putEvmActivities({
         activities: [],
@@ -185,7 +184,7 @@ describe('putEvmActivities', () => {
         olderThanBlockHeight: '21821420',
         contractAddress: '0x7CE31075d7450Aff4A9a82DdDF69D451B1e0C4E9'
       });
-      await checkDbState([interval], [activity], pick(assets, 1));
+      await checkEvmDbState([interval], [activity], pick(assets, 1));
     });
 
     it('should only delete activities older than `olderThanBlockHeight` for the specified contract if there is a \
@@ -211,7 +210,7 @@ superset interval for the specified contract', async () => {
         olderThanBlockHeight: '21820077',
         contractAddress: '0x2F375Ce83EE85e505150d24E85A1742fd03cA593'
       });
-      await checkDbState([interval], testActivities, pick(assets, 2));
+      await checkEvmDbState([interval], testActivities, pick(assets, 2));
 
       await putEvmActivities({
         activities: [],
@@ -220,7 +219,17 @@ superset interval for the specified contract', async () => {
         olderThanBlockHeight: '21820078',
         contractAddress: '0x2F375Ce83EE85e505150d24E85A1742fd03cA593'
       });
-      await checkDbState([interval], [testActivities[0]], pick(assets, 2));
+      await checkEvmDbState([interval], [testActivities[0]], pick(assets, 2));
+
+      await putEvmActivities({
+        activities: [],
+        chainId: 1,
+        account: vitalikPkh,
+        olderThanBlockHeight: '21821431',
+        contractAddress: '0x2F375Ce83EE85e505150d24E85A1742fd03cA593'
+      });
+
+      await checkEvmDbState([interval], [], []);
     });
 
     it('should delete subset intervals for the specified contract', async () => {
@@ -260,7 +269,7 @@ superset interval for the specified contract', async () => {
         olderThanBlockHeight: '21821425',
         contractAddress: '0x2F375Ce83EE85e505150d24E85A1742fd03cA593'
       });
-      await checkDbState(
+      await checkEvmDbState(
         [
           intervals[0],
           {
@@ -304,7 +313,7 @@ superset interval for the specified contract', async () => {
         olderThanBlockHeight: '21821423',
         contractAddress: '0x7CE31075d7450Aff4A9a82DdDF69D451B1e0C4E9'
       });
-      await checkDbState(
+      await checkEvmDbState(
         intervals.concat([
           {
             chainId: 1,
@@ -360,7 +369,7 @@ superset interval for the specified contract', async () => {
         olderThanBlockHeight: '21821421',
         contractAddress: '0x7CE31075d7450Aff4A9a82DdDF69D451B1e0C4E9'
       });
-      await checkDbState(
+      await checkEvmDbState(
         intervals2.concat([
           {
             chainId: 1,
@@ -406,7 +415,7 @@ and intersects with a new one, with a joined interval', async () => {
         olderThanBlockHeight: '21820086',
         contractAddress: '0x2F375Ce83EE85e505150d24E85A1742fd03cA593'
       });
-      await checkDbState(
+      await checkEvmDbState(
         [
           testIntervals[0],
           {
@@ -450,7 +459,7 @@ with a new one, with a new joined interval', async () => {
         olderThanBlockHeight: '21820077',
         contractAddress: '0x2F375Ce83EE85e505150d24E85A1742fd03cA593'
       });
-      await checkDbState(
+      await checkEvmDbState(
         [
           testIntervals[0],
           {
@@ -485,7 +494,7 @@ that intersects', async () => {
         olderThanBlockHeight: '21820087',
         contractAddress: '0x7CE31075d7450Aff4A9a82DdDF69D451B1e0C4E9'
       });
-      await checkDbState(
+      await checkEvmDbState(
         [
           interval,
           {
@@ -523,7 +532,7 @@ that is neighboring', async () => {
         olderThanBlockHeight: '21820086',
         contractAddress: '0x7CE31075d7450Aff4A9a82DdDF69D451B1e0C4E9'
       });
-      await checkDbState(
+      await checkEvmDbState(
         [
           interval,
           {
@@ -560,7 +569,7 @@ that is neighboring', async () => {
         olderThanBlockHeight: '21820076',
         contractAddress: '0x2F375Ce83EE85e505150d24E85A1742fd03cA593'
       });
-      await checkDbState(
+      await checkEvmDbState(
         [
           interval,
           {
@@ -595,7 +604,20 @@ superset interval for all contracts', async () => {
         olderThanBlockHeight: '21820086'
       });
 
-      await checkDbState([interval], activities.slice(0, 2), pick(assets, 1, 2));
+      await checkEvmDbState([interval], activities.slice(0, 2), pick(assets, 1, 2));
+
+      await resetDb();
+      await evmActivities.bulkAdd(activities);
+      await evmActivitiesIntervals.add(interval);
+      await evmActivityAssets.bulkAdd(Object.values(assets));
+      await putEvmActivities({
+        activities: [],
+        chainId: 1,
+        account: vitalikPkh,
+        olderThanBlockHeight: '21821419'
+      });
+
+      await checkEvmDbState([interval], [], []);
     });
 
     it('should crop superset intervals for certain contracts', async () => {
@@ -625,7 +647,7 @@ superset interval for all contracts', async () => {
         olderThanBlockHeight: '21820086'
       });
 
-      await checkDbState(
+      await checkEvmDbState(
         [
           {
             chainId: 1,
@@ -651,6 +673,49 @@ superset interval for all contracts', async () => {
         ],
         testActivities.slice(0, 2),
         pick(assets, 1, 2)
+      );
+    });
+
+    it('should remove the same intervals for certain contracts', async () => {
+      const testActivities = toActivitiesForCertainContract(activities.slice(0, 2));
+      await evmActivities.bulkAdd(testActivities);
+      await evmActivitiesIntervals.bulkAdd([
+        {
+          chainId: 1,
+          newestBlockHeight: 21821418,
+          oldestBlockHeight: 0,
+          account: vitalikPkhLowercased,
+          contract: '0xe4e0dc08c6945ade56e8209e3473024abf29a9b4'
+        },
+        {
+          chainId: 1,
+          newestBlockHeight: 21821418,
+          oldestBlockHeight: 0,
+          account: vitalikPkhLowercased,
+          contract: '0x2f375ce83ee85e505150d24e85a1742fd03ca593'
+        }
+      ]);
+
+      await evmActivityAssets.bulkAdd([assets[1], assets[2]]);
+      await putEvmActivities({
+        activities: [],
+        chainId: 1,
+        account: vitalikPkh,
+        olderThanBlockHeight: '21821419'
+      });
+
+      await checkEvmDbState(
+        [
+          {
+            chainId: 1,
+            newestBlockHeight: 21821418,
+            oldestBlockHeight: 0,
+            account: vitalikPkhLowercased,
+            contract: ''
+          }
+        ],
+        [],
+        []
       );
     });
 
@@ -691,7 +756,7 @@ superset interval for all contracts', async () => {
         olderThanBlockHeight: '21820087'
       });
 
-      await checkDbState(
+      await checkEvmDbState(
         [
           {
             chainId: 1,
@@ -732,7 +797,7 @@ superset interval for all contracts', async () => {
         olderThanBlockHeight: '21820086',
         activities: []
       });
-      await checkDbState(
+      await checkEvmDbState(
         [
           {
             chainId: 1,
@@ -780,7 +845,7 @@ with a joined interval', async () => {
         account: vitalikPkh,
         olderThanBlockHeight: '21820090'
       });
-      await checkDbState([{ ...testInterval, oldestBlockHeight: 0 }], testActivities, pick(assets, 1));
+      await checkEvmDbState([{ ...testInterval, oldestBlockHeight: 0 }], testActivities, pick(assets, 1));
     });
 
     it('should replace the interval which is for all contracts, has newer activities, and is neighboring with a new one, \
@@ -802,7 +867,7 @@ with a new joined interval', async () => {
         account: vitalikPkh,
         olderThanBlockHeight: '21820087'
       });
-      await checkDbState([{ ...testInterval, oldestBlockHeight: 0 }], testActivities, pick(assets, 1));
+      await checkEvmDbState([{ ...testInterval, oldestBlockHeight: 0 }], testActivities, pick(assets, 1));
     });
 
     it('should create a separate interval if there is no intersection or neighboring', async () => {
@@ -823,7 +888,7 @@ with a new joined interval', async () => {
         account: vitalikPkh,
         olderThanBlockHeight: '21820086'
       });
-      await checkDbState(
+      await checkEvmDbState(
         [
           testInterval,
           { chainId: 1, account: vitalikPkhLowercased, contract: '', newestBlockHeight: 21820085, oldestBlockHeight: 0 }
@@ -861,13 +926,13 @@ with a new joined interval', async () => {
       account: vitalikPkh,
       contractAddress: '0x2f375ce83ee85e505150d24e85a1742fd03ca593'
     });
-    await checkDbState(testIntervals, testActivities, pick(assets, 1, 2));
+    await checkEvmDbState(testIntervals, testActivities, pick(assets, 1, 2));
     await putEvmActivities({
       activities: [],
       chainId: 1,
       account: vitalikPkh
     });
-    await checkDbState(testIntervals, testActivities, pick(assets, 1, 2));
+    await checkEvmDbState(testIntervals, testActivities, pick(assets, 1, 2));
   });
 
   describe('some new activities, `olderThanBlockHeight` and `contractAddress` are specified', () => {
@@ -893,7 +958,7 @@ with a new joined interval', async () => {
         olderThanBlockHeight: '21821431',
         contractAddress: '0x2F375Ce83EE85e505150d24E85A1742fd03cA593'
       });
-      await checkDbState([prevInterval], [prevActivity], { 1: prevAsset });
+      await checkEvmDbState([prevInterval], [prevActivity], { 1: prevAsset });
 
       await putEvmActivities({
         activities: [toFrontEvmActivity(activities[1], assets)],
@@ -902,7 +967,7 @@ with a new joined interval', async () => {
         olderThanBlockHeight: '21821420',
         contractAddress: '0x2F375Ce83EE85e505150d24E85A1742fd03cA593'
       });
-      await checkDbState([prevInterval], [prevActivity], { 1: prevAsset });
+      await checkEvmDbState([prevInterval], [prevActivity], { 1: prevAsset });
     });
 
     it('should only overwrite activites in the range of new activities for the specified contract if there is a \
@@ -927,7 +992,7 @@ superset interval for the specified contract', async () => {
         olderThanBlockHeight: '21820086',
         contractAddress: '0x2F375Ce83EE85e505150d24E85A1742fd03cA593'
       });
-      await checkDbState(
+      await checkEvmDbState(
         testIntervals,
         [testInitialActivities[0], testInitialActivities[1], testInitialActivities[3], testModifiedActivities[2]],
         assets
@@ -944,7 +1009,7 @@ superset interval for the specified contract', async () => {
         olderThanBlockHeight: '21821419',
         contractAddress: '0x2F375Ce83EE85e505150d24E85A1742fd03cA593'
       });
-      await checkDbState(
+      await checkEvmDbState(
         testIntervals,
         [testInitialActivities[0], testInitialActivities[2], testInitialActivities[3], testModifiedActivities[1]],
         assets
@@ -995,7 +1060,7 @@ superset interval for the specified contract', async () => {
         olderThanBlockHeight: '21820087',
         contractAddress: '0x2F375Ce83EE85e505150d24E85A1742fd03cA593'
       });
-      await checkDbState(
+      await checkEvmDbState(
         [
           testIntervals[0],
           testIntervals[3],
@@ -1047,7 +1112,7 @@ interval for all contracts', async () => {
         olderThanBlockHeight: '21821419',
         contractAddress: '0x2F375Ce83EE85e505150d24E85A1742fd03cA593'
       });
-      await checkDbState(
+      await checkEvmDbState(
         testIntervals.concat([
           {
             chainId: 1,
@@ -1072,7 +1137,7 @@ interval for all contracts', async () => {
         olderThanBlockHeight: '21821430',
         contractAddress: '0x7CE31075d7450Aff4A9a82DdDF69D451B1e0C4E9'
       });
-      await checkDbState(
+      await checkEvmDbState(
         testIntervals.concat([
           {
             chainId: 1,
@@ -1131,7 +1196,7 @@ and intersects with a new one, with a joined interval', async () => {
         activities: [toFrontEvmActivity(activities[2], assets)],
         olderThanBlockHeight: '21820083'
       });
-      await checkDbState(
+      await checkEvmDbState(
         [
           testIntervals[0],
           {
@@ -1174,7 +1239,7 @@ with a new one, with a new joined interval', async () => {
         activities: [toFrontEvmActivity(activities[2], assets)],
         olderThanBlockHeight: '21820080'
       });
-      await checkDbState(
+      await checkEvmDbState(
         [
           testIntervals[0],
           {
@@ -1211,7 +1276,7 @@ and intersects with a new one, with a joined interval', async () => {
         olderThanBlockHeight: '21820099',
         contractAddress: '0x2F375Ce83EE85e505150d24E85A1742fd03cA593'
       });
-      await checkDbState(
+      await checkEvmDbState(
         [
           {
             ...testIntervals[0],
@@ -1247,7 +1312,7 @@ with a new one, with a new joined interval', async () => {
         olderThanBlockHeight: '21820099',
         contractAddress: '0x2F375Ce83EE85e505150d24E85A1742fd03cA593'
       });
-      await checkDbState(
+      await checkEvmDbState(
         [
           {
             ...testIntervals[0],
@@ -1282,7 +1347,7 @@ if there is an interval with newer activities for all contracts that intersects'
         activities: [toFrontEvmActivity(activities[2], assets)],
         olderThanBlockHeight: '21820083'
       });
-      await checkDbState(
+      await checkEvmDbState(
         [
           testIntervals[0],
           {
@@ -1321,7 +1386,7 @@ for all contracts that is neighboring', async () => {
         activities: [toFrontEvmActivity(activities[2], assets)],
         olderThanBlockHeight: '21820080'
       });
-      await checkDbState(
+      await checkEvmDbState(
         [
           testIntervals[0],
           {
@@ -1362,7 +1427,7 @@ if there is an interval with older activities for all contracts that intersects'
         activities: [toFrontEvmActivity(activities[1], assets), toFrontEvmActivity(modifiedActivity, assets)],
         olderThanBlockHeight: '21820087'
       });
-      await checkDbState(
+      await checkEvmDbState(
         [
           testIntervals[0],
           {
@@ -1379,7 +1444,7 @@ if there is an interval with older activities for all contracts that intersects'
     });
 
     it('should create a separate interval for the specified contract if there is an interval with older activities \
-      for all contracts that is neighboring', async () => {
+for all contracts that is neighboring', async () => {
       const testInitialActivities = activities.slice(2, 4);
       await evmActivities.bulkAdd(testInitialActivities);
       const testIntervals = [
@@ -1402,7 +1467,7 @@ if there is an interval with older activities for all contracts that intersects'
         activities: [toFrontEvmActivity(activities[1], assets)],
         olderThanBlockHeight: '21820087'
       });
-      await checkDbState(
+      await checkEvmDbState(
         [
           testIntervals[0],
           {
@@ -1440,7 +1505,7 @@ if there is an interval with older activities for all contracts that intersects'
         activities: [toFrontEvmActivity(activities[2], assets)],
         olderThanBlockHeight: '21820079'
       });
-      await checkDbState(
+      await checkEvmDbState(
         [
           testIntervals[0],
           {
@@ -1457,14 +1522,14 @@ if there is an interval with older activities for all contracts that intersects'
     });
   });
 
-  it('should take the block height of the latest transaction as the `olderThanBlockHeight` by default', async () => {
+  it('should take the block height of the latest transaction plus 1 as the `olderThanBlockHeight` by default', async () => {
     await putEvmActivities({
       activities: activities.map(activity => toFrontEvmActivity(activity, assets)),
       chainId: 1,
       account: vitalikPkh
     });
 
-    await checkDbState(
+    await checkEvmDbState(
       [
         {
           chainId: 1,

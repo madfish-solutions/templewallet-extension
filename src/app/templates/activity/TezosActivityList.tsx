@@ -1,4 +1,4 @@
-import React, { memo, useMemo } from 'react';
+import React, { memo, useEffect, useMemo } from 'react';
 
 import { DeadEndBoundaryError } from 'app/ErrorBoundary';
 import { TezosActivity } from 'lib/activity';
@@ -80,6 +80,10 @@ export const TezosActivityList = memo<Props>(({ tezosChainId, assetSlug, filterK
     undefined,
     isKnownChainId(chainId)
   );
+
+  useEffect(() => {
+    console.log('oy vey 1', activities);
+  }, [activities]);
 
   const displayActivities = useMemo(
     () => (filterKind ? activities.filter(act => getActivityFilterKind(act) === filterKind) : activities),

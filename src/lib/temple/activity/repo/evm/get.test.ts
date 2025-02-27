@@ -3,11 +3,11 @@ import 'core-js/actual/structured-clone';
 import { ActivityOperKindEnum, ActivityOperTransferType } from 'lib/activity';
 import { TempleChainKind } from 'temple/types';
 
-import { interactorPkh, vitalikPkh, vitalikPkhLowercased } from './common-evm-mocks';
-import { DbEvmActivity, NO_TOKEN_ID_VALUE, evmActivities, evmActivitiesIntervals, evmActivityAssets } from './db';
-import { resetDb } from './test-helpers';
+import { getClosestEvmActivitiesInterval, toFrontEvmActivity } from '..';
+import { DbEvmActivity, NO_TOKEN_ID_VALUE, evmActivities, evmActivitiesIntervals, evmActivityAssets } from '../db';
+import { resetDb, toEvmActivitiesForCertainContract } from '../test-helpers';
 
-import { getClosestEvmActivitiesInterval, toFrontEvmActivity } from '.';
+import { interactorPkh, vitalikPkh, vitalikPkhLowercased } from './common-evm-mocks';
 
 describe('getClosestEvmActivitiesInterval', () => {
   afterEach(resetDb);
@@ -380,9 +380,7 @@ describe('getClosestEvmActivitiesInterval', () => {
 and tokens are of the specified contract', async () => {
       await evmActivities.bulkAdd([
         activities[0],
-        { ...activities[1], contract: '0x2f375ce83ee85e505150d24e85a1742fd03ca593' },
-        { ...activities[2], contract: '0x2f375ce83ee85e505150d24e85a1742fd03ca593' },
-        { ...activities[3], contract: '0x7ce31075d7450aff4a9a82dddf69d451b1e0c4e9' }
+        ...toEvmActivitiesForCertainContract(activities.slice(1, 4), assets)
       ]);
       await evmActivitiesIntervals.bulkAdd([
         {
@@ -484,12 +482,7 @@ and tokens are of the specified contract', async () => {
 
     it('should return activities from the newest relevant interval if `olderThanBlockHeight` is not provided', async () => {
       const activitiesIds = await evmActivities.bulkAdd(
-        [
-          activities[0],
-          { ...activities[1], contract: '0x2f375ce83ee85e505150d24e85a1742fd03ca593' },
-          { ...activities[2], contract: '0x2f375ce83ee85e505150d24e85a1742fd03ca593' },
-          { ...activities[3], contract: '0x7ce31075d7450aff4a9a82dddf69d451b1e0c4e9' }
-        ],
+        [activities[0], ...toEvmActivitiesForCertainContract(activities.slice(1, 4), assets)],
         { allKeys: true }
       );
       const activitiesIntervalsIds = await evmActivitiesIntervals.bulkAdd(

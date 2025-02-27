@@ -2,12 +2,14 @@ import 'core-js/actual/structured-clone';
 
 import { pick } from 'lodash';
 
+import { DbEvmActivity, NO_TOKEN_ID_VALUE, evmActivities, evmActivitiesIntervals, evmActivityAssets } from '../db';
+import { checkEvmDbState, resetDb } from '../test-helpers';
+
 import { interactorPkh, interactorPkhLowercased, vitalikPkh, vitalikPkhLowercased } from './common-evm-mocks';
-import { DbEvmActivity, NO_TOKEN_ID_VALUE, evmActivities, evmActivitiesIntervals, evmActivityAssets } from './db';
 import rawDbInteractorActivities from './db-evm-delete-interactor-activities.json';
 import rawDbVitalikActivities from './db-evm-delete-vitalik-activities.json';
-import { deleteEvmActivitiesByAddress } from './evm';
-import { checkDbState, resetDb } from './test-helpers';
+
+import { deleteEvmActivitiesByAddress } from '.';
 
 const dbInteractorActivities = rawDbInteractorActivities as Omit<DbEvmActivity, 'account' | 'contract'>[];
 const dbVitalikActivities = rawDbVitalikActivities as Omit<DbEvmActivity, 'account' | 'contract'>[];
@@ -75,7 +77,7 @@ describe('deleteEvmActivities', () => {
 
   it('should remove only the data which is related only to Vitalik', async () => {
     await deleteEvmActivitiesByAddress(vitalikPkh);
-    await checkDbState(
+    await checkEvmDbState(
       [
         {
           chainId: 10,
@@ -92,7 +94,7 @@ describe('deleteEvmActivities', () => {
 
   it('should remove only the data which is related only to the account that interacted with him', async () => {
     await deleteEvmActivitiesByAddress(interactorPkh);
-    await checkDbState(
+    await checkEvmDbState(
       [
         {
           chainId: 1,

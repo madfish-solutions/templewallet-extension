@@ -32,7 +32,7 @@ interface OperationBase {
 }
 
 export interface TezosActivity extends ChainActivityBase, TezosActivityOlderThan {
-  oldestTzktOperation: TzktOperation;
+  oldestTzktOperation: Pick<TzktOperation, 'timestamp' | 'level' | 'id' | 'hash'>;
   chain: TempleChainKind.Tezos;
   chainId: string;
   operations: TezosOperation[];

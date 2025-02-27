@@ -1,13 +1,18 @@
+import { isDefined } from '@rnw-community/shared';
 import { omit } from 'lodash';
 
 import {
   DbEvmActivity,
   DbEvmActivityAsset,
+  DbTezosActivity,
   EvmActivitiesInterval,
+  TezosActivitiesInterval,
   db,
   evmActivities,
   evmActivitiesIntervals,
-  evmActivityAssets
+  evmActivityAssets,
+  tezosActivities,
+  tezosActivitiesIntervals
 } from './db';
 import { toFrontEvmActivity } from './evm';
 
@@ -19,7 +24,7 @@ export const resetDb = async () => {
 const getKey = (asset: Pick<DbEvmActivityAsset, 'contract' | 'tokenId'>) => `${asset.contract}_${asset.tokenId}`;
 const omitId = <T extends { id?: number }>(obj: T) => omit(obj, 'id');
 
-export const checkDbState = async (
+export const checkEvmDbState = async (
   expectedIntervals: EvmActivitiesInterval[],
   expectedActivitiesWithInitialAssetsIds: DbEvmActivity[],
   expectedAssetsWithInitialIds: Record<number, DbEvmActivityAsset>
@@ -39,4 +44,27 @@ export const checkDbState = async (
   expect(actualIntervals).toEqual(expectedIntervals.map(omitId));
   expect(sortedActualAssets.map(asset => omitId(asset!))).toEqual(expectedAssets.map(asset => omitId(asset!)));
   expect(actualActivities).toEqual(expectedActivities);
+};
+
+export const toEvmActivitiesForCertainContract = (
+  activities: DbEvmActivity[],
+  assets: Record<number, DbEvmActivityAsset>
+) =>
+  activities.map(activity => {
+    const fkAsset = activity.operations[0]?.fkAsset;
+
+    return {
+      ...activity,
+      contract: isDefined(fkAsset) ? assets[fkAsset].contract : ''
+    };
+  });
+
+export const checkTezosDbState = async (
+  expectedIntervals: TezosActivitiesInterval[],
+  expectedActivities: DbTezosActivity[]
+) => {
+  const actualIntervals = (await tezosActivitiesIntervals.toArray()).map(omitId);
+  expect(actualIntervals).toEqual(expectedIntervals.map(omitId));
+  const actualDbActivities = (await tezosActivities.toArray()).map(omitId);
+  expect(actualDbActivities).toEqual(expectedActivities.map(omitId));
 };

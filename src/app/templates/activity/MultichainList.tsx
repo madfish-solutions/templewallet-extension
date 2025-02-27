@@ -1,4 +1,4 @@
-import React, { memo, useMemo } from 'react';
+import React, { memo, useEffect, useMemo } from 'react';
 
 import { Activity, EvmActivity, TezosActivity } from 'lib/activity';
 import { getEvmActivities } from 'lib/activity/evm/fetch';
@@ -112,6 +112,10 @@ export const MultichainActivityList = memo<Props>(({ filterKind }) => {
       },
       [tezosLoaders, evmLoaders]
     );
+
+  useEffect(() => {
+    console.log('oy vey 1', activities.filter(isTezosActivity));
+  }, [activities]);
 
   const displayActivities = useMemo(() => {
     const filtered = filterKind ? activities.filter(act => getActivityFilterKind(act) === filterKind) : activities;
