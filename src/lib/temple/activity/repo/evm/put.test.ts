@@ -6,11 +6,11 @@ import { ActivityOperKindEnum, ActivityOperTransferType } from 'lib/activity';
 import { TempleChainKind } from 'temple/types';
 
 import { DbEvmActivity, NO_TOKEN_ID_VALUE, evmActivities, evmActivitiesIntervals, evmActivityAssets } from '../db';
-import { checkEvmDbState, resetDb, toEvmActivitiesForCertainContract } from '../test-helpers';
+import { resetDb } from '../test-helpers';
 
-import { vitalikPkh, vitalikPkhLowercased } from './common-evm-mocks';
-
-import { putEvmActivities, toFrontEvmActivity } from '.';
+import { putEvmActivities } from './put';
+import { vitalikPkh, vitalikPkhLowercased, toEvmActivitiesForCertainContract, checkEvmDbState } from './test-helpers';
+import { toFrontEvmActivity } from './utils';
 
 const operation1 = {
   kind: ActivityOperKindEnum.transfer,

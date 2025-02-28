@@ -8,16 +8,11 @@ import { TempleTezosChainId } from 'lib/temple/types';
 import { tezosActivities, tezosActivitiesIntervals } from '../db';
 import { resetDb } from '../test-helpers';
 
-import { testAccount2Pkh, testAccountPkh, tkeySlug } from './common-tezos-mocks';
+import { getClosestTezosActivitiesInterval, getSeparateActivities } from './get';
 import rawTestAccountActivitiesGhostnet from './test-account-activities-ghostnet.json';
 import rawTestAccountActivities from './test-account-activities.json';
-
-import {
-  getClosestTezosActivitiesInterval,
-  toDbTezosActivity as genericToDbTezosActivity,
-  getIntervalLimit,
-  getSeparateActivities
-} from '.';
+import { testAccount2Pkh, testAccountPkh, tkeySlug } from './test-helpers';
+import { toDbTezosActivity as genericToDbTezosActivity, getIntervalLimit } from './utils';
 
 const testAccountActivities = rawTestAccountActivities as TezosActivity[];
 const testAccountActivitiesGhostnet = rawTestAccountActivitiesGhostnet as TezosActivity[];

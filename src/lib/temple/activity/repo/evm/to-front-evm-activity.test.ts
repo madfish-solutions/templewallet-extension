@@ -3,9 +3,8 @@ import { TempleChainKind } from 'temple/types';
 
 import { NO_TOKEN_ID_VALUE } from '../db';
 
-import { vitalikPkhLowercased } from './common-evm-mocks';
-
-import { toFrontEvmActivity } from '.';
+import { vitalikPkhLowercased } from './test-helpers';
+import { toFrontEvmActivity } from './utils';
 
 describe('toFrontEvmActivity', () => {
   it('should transform activity without asset correctly', () => {

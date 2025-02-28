@@ -3,13 +3,18 @@ import 'core-js/actual/structured-clone';
 import { pick } from 'lodash';
 
 import { DbEvmActivity, NO_TOKEN_ID_VALUE, evmActivities, evmActivitiesIntervals, evmActivityAssets } from '../db';
-import { checkEvmDbState, resetDb } from '../test-helpers';
+import { resetDb } from '../test-helpers';
 
-import { interactorPkh, interactorPkhLowercased, vitalikPkh, vitalikPkhLowercased } from './common-evm-mocks';
 import rawDbInteractorActivities from './db-evm-delete-interactor-activities.json';
 import rawDbVitalikActivities from './db-evm-delete-vitalik-activities.json';
-
-import { deleteEvmActivitiesByAddress } from '.';
+import { deleteEvmActivitiesByAddress } from './delete';
+import {
+  checkEvmDbState,
+  interactorPkh,
+  interactorPkhLowercased,
+  vitalikPkh,
+  vitalikPkhLowercased
+} from './test-helpers';
 
 const dbInteractorActivities = rawDbInteractorActivities as Omit<DbEvmActivity, 'account' | 'contract'>[];
 const dbVitalikActivities = rawDbVitalikActivities as Omit<DbEvmActivity, 'account' | 'contract'>[];

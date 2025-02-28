@@ -5,11 +5,10 @@ import { TempleChainKind } from 'temple/types';
 
 import { getClosestEvmActivitiesInterval } from '..';
 import { DbEvmActivity, NO_TOKEN_ID_VALUE, evmActivities, evmActivitiesIntervals, evmActivityAssets } from '../db';
-import { resetDb, toEvmActivitiesForCertainContract } from '../test-helpers';
+import { resetDb } from '../test-helpers';
 
-import { interactorPkh, vitalikPkh, vitalikPkhLowercased } from './common-evm-mocks';
-
-import { toFrontEvmActivity } from '.';
+import { toEvmActivitiesForCertainContract, interactorPkh, vitalikPkh, vitalikPkhLowercased } from './test-helpers';
+import { toFrontEvmActivity } from './utils';
 
 describe('getClosestEvmActivitiesInterval', () => {
   const operation1 = {

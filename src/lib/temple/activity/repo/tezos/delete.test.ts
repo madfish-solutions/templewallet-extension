@@ -4,13 +4,13 @@ import { TezosActivity } from 'lib/activity';
 import { TempleTezosChainId } from 'lib/temple/types';
 
 import { tezosActivities, tezosActivitiesIntervals } from '../db';
-import { checkTezosDbState, resetDb } from '../test-helpers';
+import { resetDb } from '../test-helpers';
 
-import { testAccount2Pkh, testAccountPkh } from './common-tezos-mocks';
+import { deleteTezosActivitiesByAddress } from './delete';
 import rawTestAccountActivities from './test-account-activities.json';
 import rawTestAccount2Activities from './test-account2-activities.json';
-
-import { deleteTezosActivitiesByAddress, toDbTezosActivity } from '.';
+import { checkTezosDbState, testAccount2Pkh, testAccountPkh } from './test-helpers';
+import { toDbTezosActivity } from './utils';
 
 const testAccountActivities = (rawTestAccountActivities as TezosActivity[]).map(activity =>
   toDbTezosActivity(activity, '', testAccountPkh)

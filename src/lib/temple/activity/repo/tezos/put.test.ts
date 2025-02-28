@@ -5,13 +5,13 @@ import { TEZ_TOKEN_SLUG } from 'lib/assets';
 import { TempleTezosChainId } from 'lib/temple/types';
 
 import { DbTezosActivity, tezosActivities, tezosActivitiesIntervals } from '../db';
-import { checkTezosDbState, resetDb } from '../test-helpers';
+import { resetDb } from '../test-helpers';
 
-import { testAccountPkh, tkeySlug } from './common-tezos-mocks';
+import { putTezosActivities } from './put';
 import rawTestAccountActivitiesGhostnet from './test-account-activities-ghostnet.json';
 import rawTestAccountActivities from './test-account-activities.json';
-
-import { getIntervalLimit, lowestIntervalLimit, putTezosActivities, toDbTezosActivity } from '.';
+import { checkTezosDbState, testAccountPkh, tkeySlug } from './test-helpers';
+import { getIntervalLimit, lowestIntervalLimit, toDbTezosActivity } from './utils';
 
 const testAccountActivities = rawTestAccountActivities as TezosActivity[];
 const testAccountActivitiesGhostnet = rawTestAccountActivitiesGhostnet as TezosActivity[];

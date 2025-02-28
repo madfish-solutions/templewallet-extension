@@ -12,9 +12,9 @@ import {
   getClosestTezosActivitiesInterval,
   tezosLowestIntervalLimit,
   putEvmActivities,
-  putTezosActivities
+  putTezosActivities,
+  getSeparateActivities
 } from 'lib/temple/activity/repo';
-import { getSeparateActivities } from 'lib/temple/activity/repo/tezos';
 import { TempleTezosChainId } from 'lib/temple/types';
 import { filterUnique } from 'lib/utils';
 
@@ -45,9 +45,7 @@ const fetchActivitiesWithCache = async <P, I, A>({
   let newActivities: A[] | undefined;
 
   if (currentOlderThan) {
-    let i = 0;
     do {
-      i++;
       try {
         const activitiesInterval = await getClosestActivitiesInterval(currentOlderThan);
 
@@ -60,7 +58,7 @@ const fetchActivitiesWithCache = async <P, I, A>({
           newActivities = undefined;
         }
       } catch (e) {
-        console.error('fuflo 1', e);
+        console.error(e);
         newActivities = undefined;
       }
     } while (newActivities?.length === 0 && !isGenesisBlockPointer(currentOlderThan));
@@ -75,7 +73,7 @@ const fetchActivitiesWithCache = async <P, I, A>({
     try {
       await putNewActivities(newActivities, currentOlderThan);
     } catch (e) {
-      console.error('fuflo 2', e);
+      console.error(e);
     }
   }
 
