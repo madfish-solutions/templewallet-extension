@@ -1,5 +1,3 @@
-import { uniq } from 'lodash';
-
 import { EvmActivity, TezosActivity } from 'lib/activity';
 import { getEvmActivities } from 'lib/activity/evm/fetch';
 import { parseTezosOperationsGroup } from 'lib/activity/tezos';
@@ -18,6 +16,7 @@ import {
 } from 'lib/temple/activity/repo';
 import { getSeparateActivities } from 'lib/temple/activity/repo/tezos';
 import { TempleTezosChainId } from 'lib/temple/types';
+import { filterUnique } from 'lib/utils';
 
 interface FetchActivitiesWithCacheConfig<P, I, A> {
   getClosestActivitiesInterval: (olderThan: P) => Promise<I | undefined>;
@@ -165,7 +164,7 @@ export const fetchTezosActivitiesWithCache = async ({
         TEZOS_ACTIVITIES_PSEUDO_LIMIT,
         olderThan
       );
-      const hashes = uniq(operations.map(({ hash }) => hash));
+      const hashes = filterUnique(operations.map(({ hash }) => hash));
       const alreadyKnownActivities = await getSeparateActivities(chainId, accountAddress, hashes);
       const alreadyKnownActivitiesByHashes = Object.fromEntries(
         alreadyKnownActivities.map(activity => [activity.hash, activity])

@@ -1,10 +1,11 @@
 import { isDefined } from '@rnw-community/shared';
 import { Collection } from 'dexie';
-import { omit, uniq } from 'lodash';
+import { omit } from 'lodash';
 import { getAddress, RequiredBy } from 'viem';
 
 import { EvmActivity, EvmActivityAsset, EvmOperation } from 'lib/activity';
 import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
+import { filterUnique } from 'lib/utils';
 
 import {
   DbEvmActivity,
@@ -124,7 +125,7 @@ export const getClosestEvmActivitiesInterval = async ({
     } else {
       rawActivities = await allRawActivitiesCollection.sortBy('blockHeight');
     }
-    const assetsIds = uniq(
+    const assetsIds = filterUnique(
       rawActivities
         .map(({ operations }) => operations.map(({ fkAsset }) => fkAsset))
         .flat()
@@ -644,7 +645,7 @@ const deleteEvmActivities = async (activitiesCollection: Collection<DbEvmActivit
   const activitiesIds = await activitiesCollection.primaryKeys();
   const activities = (await evmActivities.bulkGet(activitiesIds)).filter(isDefined);
   await evmActivities.bulkDelete(activitiesIds);
-  const activityAssetsIdsToRemoveCandidates = uniq(
+  const activityAssetsIdsToRemoveCandidates = filterUnique(
     activities
       .map(({ operations }) => operations.map(({ fkAsset }) => fkAsset))
       .flat()
@@ -654,7 +655,7 @@ const deleteEvmActivities = async (activitiesCollection: Collection<DbEvmActivit
   const usingActivities = await evmActivities
     .filter(({ operations }) => operations.some(({ fkAsset }) => fkAsset && candidatesDictionary[fkAsset]))
     .toArray();
-  const stillUsedAssetsIds = uniq(
+  const stillUsedAssetsIds = filterUnique(
     usingActivities
       .map(({ operations }) => operations.map(({ fkAsset }) => fkAsset))
       .flat()

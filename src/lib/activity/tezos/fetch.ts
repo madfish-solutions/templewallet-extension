@@ -1,9 +1,8 @@
-import { uniq } from 'lodash';
-
 import type { TzktApiChainId, TzktOperation } from 'lib/apis/tzkt';
 import * as TZKT from 'lib/apis/tzkt';
 import { TEZ_TOKEN_SLUG } from 'lib/assets';
 import { detectTokenStandard } from 'lib/assets/standards';
+import { filterUnique } from 'lib/utils';
 import { getReadOnlyTezos } from 'temple/tezos';
 
 import type { TempleTzktOperationsGroup, TezosActivityOlderThan } from './types';
@@ -200,7 +199,7 @@ export async function fetchOperGroupsForOperations(
   hashes: string[],
   olderThan?: TezosActivityOlderThan
 ) {
-  const uniqueHashes = uniq(hashes);
+  const uniqueHashes = filterUnique(hashes);
 
   if (olderThan && uniqueHashes[0] === olderThan.hash) uniqueHashes.splice(1);
 
