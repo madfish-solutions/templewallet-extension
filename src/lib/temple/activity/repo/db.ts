@@ -22,6 +22,7 @@ db.version(1).stores({
   [Table.tezosActivities]: indexes(
     '++id',
     'account',
+    '[chainId+account+hash]',
     '[chainId+account+oldestTzktOperation.timestamp]',
     '[chainId+account+assetSlug+oldestTzktOperation.timestamp]'
   ),

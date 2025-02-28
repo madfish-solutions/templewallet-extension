@@ -312,7 +312,7 @@ const useTezosAssetsMetadataPresenceCheck = (
 ) => {
   const tezosChains = useAllTezosChains();
 
-  const checkedRef = useRef<string[]>([]);
+  const checkedRef = useRef(new Set<string>());
 
   useEffect(() => {
     if (metadataLoading || !chainSlugsToCheck?.length) return;
@@ -325,13 +325,13 @@ const useTezosAssetsMetadataPresenceCheck = (
           !isTezAsset(slug) &&
           !isTruthy(getMetadata(slug)) &&
           // In case fetched metadata is `null` & won't save
-          !checkedRef.current.includes(slug)
+          !checkedRef.current.has(chainSlug)
         );
       })
       .slice(0, METADATA_API_LOAD_CHUNK_SIZE);
 
     if (missingChunk.length > 0) {
-      checkedRef.current = checkedRef.current.concat(missingChunk);
+      missingChunk.forEach(slug => checkedRef.current.add(slug));
 
       handleMissingSlugs(missingChunk, tezosChains, (rpcUrl, chainId, slugs) => {
         if (ofCollectibles === undefined) {
@@ -359,7 +359,7 @@ export const useEvmGenericAssetsMetadataCheck = (
   const metadataLoading = useNoCategoryTezosAssetsMetadataLoadingSelector();
   const getMetadata = useGetEvmGenericAssetMetadata();
 
-  const checkedRef = useRef<string[]>([]);
+  const checkedRef = useRef(new Set<string>());
 
   useEffect(() => {
     if (metadataLoading || !chainSlugsToCheck?.length) return;
@@ -367,14 +367,14 @@ export const useEvmGenericAssetsMetadataCheck = (
     const missingSlugs = chainSlugsToCheck.filter(chainSlug => {
       const [_, chainId, slug] = parseChainAssetSlug(chainSlug, TempleChainKind.EVM);
 
-      return !isEvmNativeTokenSlug(slug) && !getMetadata(slug, chainId) && !checkedRef.current.includes(chainSlug);
+      return !isEvmNativeTokenSlug(slug) && !getMetadata(slug, chainId) && !checkedRef.current.has(chainSlug);
     });
 
     if (missingSlugs.length === 0) {
       return;
     }
 
-    checkedRef.current = checkedRef.current.concat(missingSlugs);
+    missingSlugs.forEach(slug => checkedRef.current.add(slug));
 
     handleMissingSlugs(missingSlugs, evmChains, (rpcUrl, chainId, slugs) => {
       dispatch(

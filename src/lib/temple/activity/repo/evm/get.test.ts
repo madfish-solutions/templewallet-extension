@@ -3,15 +3,15 @@ import 'core-js/actual/structured-clone';
 import { ActivityOperKindEnum, ActivityOperTransferType } from 'lib/activity';
 import { TempleChainKind } from 'temple/types';
 
-import { getClosestEvmActivitiesInterval, toFrontEvmActivity } from '..';
+import { getClosestEvmActivitiesInterval } from '..';
 import { DbEvmActivity, NO_TOKEN_ID_VALUE, evmActivities, evmActivitiesIntervals, evmActivityAssets } from '../db';
 import { resetDb, toEvmActivitiesForCertainContract } from '../test-helpers';
 
 import { interactorPkh, vitalikPkh, vitalikPkhLowercased } from './common-evm-mocks';
 
-describe('getClosestEvmActivitiesInterval', () => {
-  afterEach(resetDb);
+import { toFrontEvmActivity } from '.';
 
+describe('getClosestEvmActivitiesInterval', () => {
   const operation1 = {
     kind: ActivityOperKindEnum.transfer,
     type: ActivityOperTransferType.receiveFromAccount,
@@ -122,7 +122,9 @@ describe('getClosestEvmActivitiesInterval', () => {
   };
 
   describe('history for all contracts', () => {
-    it('should return an empty array if there is no matching interval', async () => {
+    afterEach(resetDb);
+
+    it('should return `undefined` if there is no matching interval', async () => {
       const activityId = await evmActivities.add(activities[0]);
       const intervalId = await evmActivitiesIntervals.add({
         chainId: 1,
@@ -139,11 +141,7 @@ describe('getClosestEvmActivitiesInterval', () => {
           chainId: 1,
           account: vitalikPkh
         })
-      ).resolves.toEqual({
-        activities: [],
-        newestBlockHeight: 21821418,
-        oldestBlockHeight: 21821418
-      });
+      ).resolves.toEqual(undefined);
 
       await expect(
         getClosestEvmActivitiesInterval({
@@ -151,11 +149,7 @@ describe('getClosestEvmActivitiesInterval', () => {
           chainId: 10,
           account: vitalikPkh
         })
-      ).resolves.toEqual({
-        activities: [],
-        newestBlockHeight: 21821419,
-        oldestBlockHeight: 21821419
-      });
+      ).resolves.toEqual(undefined);
 
       await expect(
         getClosestEvmActivitiesInterval({
@@ -163,11 +157,7 @@ describe('getClosestEvmActivitiesInterval', () => {
           chainId: 1,
           account: interactorPkh
         })
-      ).resolves.toEqual({
-        activities: [],
-        newestBlockHeight: 21821419,
-        oldestBlockHeight: 21821419
-      });
+      ).resolves.toEqual(undefined);
 
       await evmActivities.delete(activityId);
       await evmActivitiesIntervals.delete(intervalId);
@@ -189,11 +179,7 @@ describe('getClosestEvmActivitiesInterval', () => {
           chainId: 1,
           account: vitalikPkh
         })
-      ).resolves.toEqual({
-        activities: [],
-        newestBlockHeight: 21821419,
-        oldestBlockHeight: 21821419
-      });
+      ).resolves.toEqual(undefined);
     });
 
     it('should return activities from the closest matching interval that are older than the given block height', async () => {
@@ -312,7 +298,9 @@ describe('getClosestEvmActivitiesInterval', () => {
   });
 
   describe('history for a certain contract', () => {
-    it('should return an empty array if there is no matching interval', async () => {
+    afterEach(resetDb);
+
+    it('should return `undefined` if there is no matching interval', async () => {
       await evmActivities.add(activities[0]);
       await evmActivitiesIntervals.add({
         chainId: 1,
@@ -330,11 +318,7 @@ describe('getClosestEvmActivitiesInterval', () => {
           account: vitalikPkh,
           contractAddress: '0xe4e0dc08c6945ade56e8209e3473024abf29a9b4'
         })
-      ).resolves.toEqual({
-        activities: [],
-        newestBlockHeight: 21821418,
-        oldestBlockHeight: 21821418
-      });
+      ).resolves.toEqual(undefined);
 
       await expect(
         getClosestEvmActivitiesInterval({
@@ -343,11 +327,7 @@ describe('getClosestEvmActivitiesInterval', () => {
           account: vitalikPkh,
           contractAddress: '0xe4e0dc08c6945ade56e8209e3473024abf29a9b4'
         })
-      ).resolves.toEqual({
-        activities: [],
-        newestBlockHeight: 21821419,
-        oldestBlockHeight: 21821419
-      });
+      ).resolves.toEqual(undefined);
 
       await expect(
         getClosestEvmActivitiesInterval({
@@ -356,11 +336,7 @@ describe('getClosestEvmActivitiesInterval', () => {
           account: interactorPkh,
           contractAddress: '0xe4e0dc08c6945ade56e8209e3473024abf29a9b4'
         })
-      ).resolves.toEqual({
-        activities: [],
-        newestBlockHeight: 21821419,
-        oldestBlockHeight: 21821419
-      });
+      ).resolves.toEqual(undefined);
 
       await expect(
         getClosestEvmActivitiesInterval({
@@ -369,11 +345,7 @@ describe('getClosestEvmActivitiesInterval', () => {
           account: interactorPkh,
           contractAddress: '0x2f375ce83ee85e505150d24e85a1742fd03ca593'
         })
-      ).resolves.toEqual({
-        activities: [],
-        newestBlockHeight: 21821419,
-        oldestBlockHeight: 21821419
-      });
+      ).resolves.toEqual(undefined);
     });
 
     it('should return activities from the closest matching interval that are older than the given block height \
@@ -553,11 +525,7 @@ and tokens are of the specified contract', async () => {
           account: vitalikPkh,
           contractAddress: '0xe4e0dc08c6945ade56e8209E3473024ABF29A9b4'
         })
-      ).resolves.toEqual({
-        activities: [],
-        newestBlockHeight: 0,
-        oldestBlockHeight: 0
-      });
+      ).resolves.toEqual(undefined);
 
       await expect(
         getClosestEvmActivitiesInterval({
@@ -581,6 +549,78 @@ and tokens are of the specified contract', async () => {
         activities: [toFrontEvmActivity(activities[3], assets)],
         newestBlockHeight: 21820084,
         oldestBlockHeight: 21817610
+      });
+    });
+  });
+
+  describe('limiting the number of returned activities', () => {
+    const intervalUpperLimit = activities[0].blockHeight;
+    const intervalLowerLimit = activities.at(-1)!.blockHeight;
+    beforeAll(async () => {
+      await evmActivities.bulkAdd(activities);
+      await evmActivitiesIntervals.add({
+        chainId: 1,
+        account: vitalikPkhLowercased,
+        newestBlockHeight: intervalUpperLimit,
+        oldestBlockHeight: intervalLowerLimit,
+        contract: ''
+      });
+      await evmActivityAssets.bulkAdd(Object.values(assets));
+    });
+
+    afterAll(resetDb);
+
+    it('should return all matching activities by default', async () => {
+      await expect(
+        getClosestEvmActivitiesInterval({
+          chainId: 1,
+          account: vitalikPkh
+        })
+      ).resolves.toEqual({
+        activities: activities.map(activity => toFrontEvmActivity(activity, assets)),
+        newestBlockHeight: intervalUpperLimit,
+        oldestBlockHeight: intervalLowerLimit
+      });
+    });
+
+    it.each([Infinity, NaN, -1, 0, 1.5])('should ignore `maxItems` value of %d', async maxItems => {
+      await expect(
+        getClosestEvmActivitiesInterval({
+          chainId: 1,
+          account: vitalikPkh,
+          maxItems
+        })
+      ).resolves.toEqual({
+        activities: activities.map(activity => toFrontEvmActivity(activity, assets)),
+        newestBlockHeight: intervalUpperLimit,
+        oldestBlockHeight: intervalLowerLimit
+      });
+    });
+
+    it('should return not more than `maxItems` activities', async () => {
+      await expect(
+        getClosestEvmActivitiesInterval({
+          chainId: 1,
+          account: vitalikPkh,
+          maxItems: 3
+        })
+      ).resolves.toEqual({
+        activities: activities.slice(0, 3).map(activity => toFrontEvmActivity(activity, assets)),
+        newestBlockHeight: intervalUpperLimit,
+        oldestBlockHeight: activities[2].blockHeight
+      });
+
+      await expect(
+        getClosestEvmActivitiesInterval({
+          chainId: 1,
+          account: vitalikPkh,
+          maxItems: 3,
+          contractAddress: '0x2F375Ce83EE85e505150d24E85A1742fd03cA593'
+        })
+      ).resolves.toEqual({
+        activities: activities.slice(1, 3).map(activity => toFrontEvmActivity(activity, assets)),
+        newestBlockHeight: intervalUpperLimit,
+        oldestBlockHeight: activities[2].blockHeight
       });
     });
   });

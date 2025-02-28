@@ -11,7 +11,7 @@ import { testAccountPkh, tkeySlug } from './common-tezos-mocks';
 import rawTestAccountActivitiesGhostnet from './test-account-activities-ghostnet.json';
 import rawTestAccountActivities from './test-account-activities.json';
 
-import { getIntervalLimit, lowestOlderThanValue, putTezosActivities, toDbTezosActivity } from '.';
+import { getIntervalLimit, lowestIntervalLimit, putTezosActivities, toDbTezosActivity } from '.';
 
 const testAccountActivities = rawTestAccountActivities as TezosActivity[];
 const testAccountActivitiesGhostnet = rawTestAccountActivitiesGhostnet as TezosActivity[];
@@ -73,7 +73,7 @@ describe('putTezosActivities', () => {
       const testInterval = {
         ...mainnetAllAssetsIntervalBase,
         upperLimit: getIntervalLimit(testAccountActivities[0], 1),
-        lowerLimit: lowestOlderThanValue
+        lowerLimit: lowestIntervalLimit
       };
       await tezosActivitiesIntervals.add(testInterval);
 
@@ -103,7 +103,7 @@ for the specified asset', async () => {
       const testInterval = {
         ...mainnetTkeyIntervalBase,
         upperLimit: getIntervalLimit(testAccountActivities[0], 2),
-        lowerLimit: lowestOlderThanValue
+        lowerLimit: lowestIntervalLimit
       };
       await tezosActivitiesIntervals.add(testInterval);
 
@@ -144,7 +144,7 @@ for the specified asset', async () => {
           upperLimit: getIntervalLimit(testAccountActivities[index], 1),
           lowerLimit:
             index === tezosActivitiesIndexes.at(-1)
-              ? lowestOlderThanValue
+              ? lowestIntervalLimit
               : getIntervalLimit(testAccountActivities[1], -1)
         }))
       );
@@ -161,7 +161,7 @@ for the specified asset', async () => {
           {
             ...mainnetTezIntervalBase,
             upperLimit: getIntervalLimit(testAccountActivities[1], 1),
-            lowerLimit: lowestOlderThanValue
+            lowerLimit: lowestIntervalLimit
           }
         ],
         []
@@ -176,7 +176,7 @@ for the specified asset', async () => {
         upperLimit: getIntervalLimit(testAccountActivities[index], 1),
         lowerLimit:
           index === tezosActivitiesIndexes.at(-1)
-            ? lowestOlderThanValue
+            ? lowestIntervalLimit
             : getIntervalLimit(testAccountActivities[index], -1)
       }));
       const initialIntervalsIds = await tezosActivitiesIntervals.bulkAdd(initialIntervals, { allKeys: true });
@@ -238,7 +238,7 @@ for the specified asset', async () => {
           {
             ...mainnetTezIntervalBase,
             upperLimit: getIntervalLimit(testAccountActivities[6], -1),
-            lowerLimit: lowestOlderThanValue
+            lowerLimit: lowestIntervalLimit
           }
         ]),
         tezTokenAsAllAssetsDbActivities
@@ -266,7 +266,7 @@ with a new one, with a joined interval', async () => {
           {
             ...mainnetTezIntervalBase,
             upperLimit: getIntervalLimit(testAccountActivities[1], 1),
-            lowerLimit: lowestOlderThanValue
+            lowerLimit: lowestIntervalLimit
           }
         ],
         tezTokenDbActivities.slice(0, 2)
@@ -294,7 +294,7 @@ with a new one, with a new joined interval', async () => {
           {
             ...mainnetTezIntervalBase,
             upperLimit: getIntervalLimit(testAccountActivities[1], 1),
-            lowerLimit: lowestOlderThanValue
+            lowerLimit: lowestIntervalLimit
           }
         ],
         tezTokenDbActivities
@@ -324,7 +324,7 @@ with newer operations that intersects', async () => {
           {
             ...mainnetTezIntervalBase,
             upperLimit: getIntervalLimit(testAccountActivities[6]),
-            lowerLimit: lowestOlderThanValue
+            lowerLimit: lowestIntervalLimit
           }
         ],
         tezTokenAsAllAssetsDbActivities
@@ -354,7 +354,7 @@ that is neighboring', async () => {
           {
             ...mainnetTezIntervalBase,
             upperLimit: getIntervalLimit(testAccountActivities[6]),
-            lowerLimit: lowestOlderThanValue
+            lowerLimit: lowestIntervalLimit
           }
         ],
         tezTokenAsAllAssetsDbActivities
@@ -384,7 +384,7 @@ that is neighboring', async () => {
           {
             ...mainnetTezIntervalBase,
             upperLimit: getIntervalLimit(testAccountActivities[6]),
-            lowerLimit: lowestOlderThanValue
+            lowerLimit: lowestIntervalLimit
           }
         ],
         testActivities
@@ -399,7 +399,7 @@ for all assets', async () => {
       const testInterval = {
         ...mainnetAllAssetsIntervalBase,
         upperLimit: getIntervalLimit(testAccountActivities[0], 1),
-        lowerLimit: lowestOlderThanValue
+        lowerLimit: lowestIntervalLimit
       };
       await tezosActivitiesIntervals.add(testInterval);
 
@@ -429,12 +429,12 @@ for all assets', async () => {
         {
           ...mainnetTkeyIntervalBase,
           upperLimit: getIntervalLimit(testAccountActivities[0], 1),
-          lowerLimit: lowestOlderThanValue
+          lowerLimit: lowestIntervalLimit
         },
         {
           ...mainnetTezIntervalBase,
           upperLimit: getIntervalLimit(testAccountActivities[1], 1),
-          lowerLimit: lowestOlderThanValue
+          lowerLimit: lowestIntervalLimit
         }
       ];
       await tezosActivities.bulkAdd(testActivities);
@@ -452,7 +452,7 @@ for all assets', async () => {
           .concat({
             ...mainnetAllAssetsIntervalBase,
             upperLimit: getIntervalLimit(testAccountActivities[1]),
-            lowerLimit: lowestOlderThanValue
+            lowerLimit: lowestIntervalLimit
           }),
         testActivities
       );
@@ -468,12 +468,12 @@ for all assets', async () => {
         {
           ...mainnetTkeyIntervalBase,
           upperLimit: getIntervalLimit(firstActivity, 1),
-          lowerLimit: lowestOlderThanValue
+          lowerLimit: lowestIntervalLimit
         },
         {
           ...mainnetTezIntervalBase,
           upperLimit: getIntervalLimit(firstActivity, 1),
-          lowerLimit: lowestOlderThanValue
+          lowerLimit: lowestIntervalLimit
         }
       ];
       await tezosActivities.bulkAdd(testActivities);
@@ -490,7 +490,7 @@ for all assets', async () => {
           {
             ...mainnetAllAssetsIntervalBase,
             upperLimit: getIntervalLimit(firstActivity, 1),
-            lowerLimit: lowestOlderThanValue
+            lowerLimit: lowestIntervalLimit
           }
         ],
         []
@@ -502,7 +502,7 @@ for all assets', async () => {
       const testIntervals = variousAllAssetsDbActivities.map((_, i) => ({
         ...mainnetAllAssetsIntervalBase,
         upperLimit: getIntervalLimit(testAccountActivities[i], 1),
-        lowerLimit: i === 2 ? lowestOlderThanValue : getIntervalLimit(testAccountActivities[i], -1)
+        lowerLimit: i === 2 ? lowestIntervalLimit : getIntervalLimit(testAccountActivities[i], -1)
       }));
       await tezosActivities.bulkAdd(variousAllAssetsDbActivities);
       await tezosActivitiesIntervals.bulkAdd(testIntervals);
@@ -518,7 +518,7 @@ for all assets', async () => {
           {
             ...mainnetAllAssetsIntervalBase,
             upperLimit: getIntervalLimit(firstActivity, 1),
-            lowerLimit: lowestOlderThanValue
+            lowerLimit: lowestIntervalLimit
           }
         ],
         []
@@ -540,7 +540,7 @@ for all assets', async () => {
           {
             ...mainnetAllAssetsIntervalBase,
             upperLimit: getIntervalLimit(firstActivity, 1),
-            lowerLimit: lowestOlderThanValue
+            lowerLimit: lowestIntervalLimit
           }
         ],
         []
@@ -571,7 +571,7 @@ for all assets', async () => {
           .concat({
             ...mainnetAllAssetsIntervalBase,
             upperLimit: getIntervalLimit(testAccountActivities[1]),
-            lowerLimit: lowestOlderThanValue
+            lowerLimit: lowestIntervalLimit
           }),
         variousAssetsDbActivities.slice(0, 2)
       );
@@ -594,7 +594,7 @@ with a joined interval', async () => {
         olderThan: getIntervalLimit(testAccountActivities[1])
       });
       await checkTezosDbState(
-        [{ ...testInterval, lowerLimit: lowestOlderThanValue }],
+        [{ ...testInterval, lowerLimit: lowestIntervalLimit }],
         variousAllAssetsDbActivities.slice(0, 2)
       );
     });
@@ -615,7 +615,7 @@ with a new joined interval', async () => {
         account: testAccountPkh,
         olderThan: getIntervalLimit(testAccountActivities[2])
       });
-      await checkTezosDbState([{ ...testInterval, lowerLimit: lowestOlderThanValue }], variousAllAssetsDbActivities);
+      await checkTezosDbState([{ ...testInterval, lowerLimit: lowestIntervalLimit }], variousAllAssetsDbActivities);
     });
 
     it('should create a separate interval if there is no intersection or neighboring', async () => {
@@ -639,7 +639,7 @@ with a new joined interval', async () => {
           {
             ...mainnetAllAssetsIntervalBase,
             upperLimit: getIntervalLimit(testAccountActivities[2], -1),
-            lowerLimit: lowestOlderThanValue
+            lowerLimit: lowestIntervalLimit
           }
         ],
         variousAllAssetsDbActivities
@@ -661,7 +661,7 @@ with a new joined interval', async () => {
       {
         ...makeMainnetIntervalBase(youTokenSlug),
         upperLimit: getIntervalLimit(testAccountActivities[2], 1),
-        lowerLimit: lowestOlderThanValue
+        lowerLimit: lowestIntervalLimit
       }
     ];
     await tezosActivities.bulkAdd(testActivities);

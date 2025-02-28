@@ -1,10 +1,11 @@
 import { ActivityOperKindEnum, ActivityOperTransferType } from 'lib/activity';
 import { TempleChainKind } from 'temple/types';
 
-import { toFrontEvmActivity } from '..';
 import { NO_TOKEN_ID_VALUE } from '../db';
 
 import { vitalikPkhLowercased } from './common-evm-mocks';
+
+import { toFrontEvmActivity } from '.';
 
 describe('toFrontEvmActivity', () => {
   it('should transform activity without asset correctly', () => {

@@ -1,6 +1,7 @@
 import { APP_INSTALL_IDENTITY_STORAGE_KEY } from 'app/storage/app-install-id';
 import { MISES_INSTALL_ENABLED_ADS_STORAGE_KEY } from 'app/storage/mises-browser';
 import { browser } from 'lib/browser';
+import * as ActivityRepo from 'lib/temple/activity/repo';
 import * as Repo from 'lib/temple/repo';
 
 export async function clearAllStorages() {
@@ -11,6 +12,8 @@ export async function clearAllStorages() {
 export async function clearAsyncStorages() {
   await Repo.db.delete();
   await Repo.db.open();
+  await ActivityRepo.db.delete();
+  await ActivityRepo.db.open();
   const keptRecord = await browser.storage.local.get([
     APP_INSTALL_IDENTITY_STORAGE_KEY,
     MISES_INSTALL_ENABLED_ADS_STORAGE_KEY

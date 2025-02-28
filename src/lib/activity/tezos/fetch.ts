@@ -1,26 +1,14 @@
+import { uniq } from 'lodash';
+
 import type { TzktApiChainId, TzktOperation } from 'lib/apis/tzkt';
 import * as TZKT from 'lib/apis/tzkt';
 import { TEZ_TOKEN_SLUG } from 'lib/assets';
 import { detectTokenStandard } from 'lib/assets/standards';
-import { filterUnique } from 'lib/utils';
 import { getReadOnlyTezos } from 'temple/tezos';
 
 import type { TempleTzktOperationsGroup, TezosActivityOlderThan } from './types';
 
 const LIQUIDITY_BAKING_DEX_ADDRESS = 'KT1TxqZ8QtKvLu3V3JH7Gx58n7Co8pgtpQU5';
-
-export default async function fetchTezosOperationsGroups(
-  chainId: TzktApiChainId,
-  rpcUrl: string,
-  accountAddress: string,
-  assetSlug: string | undefined,
-  olderThan?: TezosActivityOlderThan,
-  pseudoLimit = 30
-) {
-  const operations = await fetchOperations(chainId, rpcUrl, accountAddress, assetSlug, pseudoLimit, olderThan);
-
-  return await fetchOperGroupsForOperations(chainId, operations, olderThan);
-}
 
 /**
  * Returned items are sorted new-to-old.
@@ -28,7 +16,7 @@ export default async function fetchTezosOperationsGroups(
  * @arg pseudoLimit // Is pseudo, because, number of returned activities is not guarantied to equal to it.
  * 	It can also be smaller, even when older items are available (they can be fetched later).
  */
-async function fetchOperations(
+export async function fetchOperations(
   chainId: TzktApiChainId,
   rpcUrl: string,
   accAddress: string,
@@ -207,12 +195,12 @@ function fetchIncomingOperTransactions_Fa_2(
 /**
  * @return groups[number].operations // sorted new-to-old
  */
-async function fetchOperGroupsForOperations(
+export async function fetchOperGroupsForOperations(
   chainId: TzktApiChainId,
-  operations: TzktOperation[],
+  hashes: string[],
   olderThan?: TezosActivityOlderThan
 ) {
-  const uniqueHashes = filterUnique(operations.map(d => d.hash));
+  const uniqueHashes = uniq(hashes);
 
   if (olderThan && uniqueHashes[0] === olderThan.hash) uniqueHashes.splice(1);
 

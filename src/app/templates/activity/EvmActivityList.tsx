@@ -2,13 +2,13 @@ import React, { FC, useMemo } from 'react';
 
 import { DeadEndBoundaryError } from 'app/ErrorBoundary';
 import { EvmActivity } from 'lib/activity';
-import { getEvmActivities } from 'lib/activity/evm/fetch';
 import { useAccountAddressForEvm } from 'temple/front';
 import { useEvmChainByChainId } from 'temple/front/chains';
 import { TempleChainKind } from 'temple/types';
 
 import { EvmActivityComponent } from './ActivityItem';
 import { ActivityListView } from './ActivityListView';
+import { fetchEvmActivitiesWithCache } from './fetch-activities-with-cache';
 import { ActivitiesDateGroup, useGroupingByDate } from './grouping-by-date';
 import { RETRY_AFTER_ERROR_TIMEOUT, useActivitiesLoadingLogic } from './loading-logic';
 import { useAssetsFromActivitiesCheck } from './use-assets-from-activites-check';
@@ -45,9 +45,13 @@ export const EvmActivityList: FC<Props> = ({ chainId, assetSlug, filterKind }) =
       const olderThanBlockHeight = currActivities.at(-1)?.blockHeight;
 
       try {
-        const newActivities = await getEvmActivities(chainId, accountAddress, assetSlug, olderThanBlockHeight, signal);
-
-        if (signal.aborted) return;
+        const newActivities = await fetchEvmActivitiesWithCache({
+          chainId,
+          accountAddress,
+          assetSlug,
+          signal,
+          olderThan: olderThanBlockHeight
+        });
 
         if (newActivities.length) setActivities(currActivities.concat(newActivities));
         else setReachedTheEnd(true);

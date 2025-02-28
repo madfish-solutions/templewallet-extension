@@ -1,9 +1,6 @@
-import React, { memo, useEffect, useMemo } from 'react';
+import React, { memo, useMemo } from 'react';
 
 import { Activity, EvmActivity, TezosActivity } from 'lib/activity';
-import { getEvmActivities } from 'lib/activity/evm/fetch';
-import { parseTezosOperationsGroup } from 'lib/activity/tezos';
-import fetchTezosOperationsGroups from 'lib/activity/tezos/fetch';
 import { TzktApiChainId } from 'lib/apis/tzkt';
 import { isKnownChainId as isKnownTzktChainId } from 'lib/apis/tzkt/api';
 import { isTruthy } from 'lib/utils';
@@ -18,6 +15,7 @@ import {
 
 import { EvmActivityComponent, TezosActivityComponent } from './ActivityItem';
 import { ActivityListView } from './ActivityListView';
+import { fetchEvmActivitiesWithCache, fetchTezosActivitiesWithCache } from './fetch-activities-with-cache';
 import { ActivitiesDateGroup, useGroupingByDate } from './grouping-by-date';
 import { useActivitiesLoadingLogic } from './loading-logic';
 import { useAssetsFromActivitiesCheck } from './use-assets-from-activites-check';
@@ -113,10 +111,6 @@ export const MultichainActivityList = memo<Props>(({ filterKind }) => {
       [tezosLoaders, evmLoaders]
     );
 
-  useEffect(() => {
-    console.log('oy vey 1', activities.filter(isTezosActivity));
-  }, [activities]);
-
   const displayActivities = useMemo(() => {
     const filtered = filterKind ? activities.filter(act => getActivityFilterKind(act) === filterKind) : activities;
 
@@ -172,7 +166,7 @@ class EvmActivityLoader {
   reachedTheEnd = false;
   lastError: unknown;
 
-  constructor(readonly chainId: number, readonly accountAddress: string) {}
+  constructor(readonly chainId: number, readonly accountAddress: HexString) {}
 
   async loadNext(edgeDate: string | undefined, signal: AbortSignal) {
     if (edgeDate) {
@@ -187,7 +181,13 @@ class EvmActivityLoader {
 
       const olderThanBlockHeight = this.activities.at(this.activities.length - 1)?.blockHeight;
 
-      const newActivities = await getEvmActivities(chainId, accountAddress, undefined, olderThanBlockHeight, signal);
+      const newActivities = await fetchEvmActivitiesWithCache({
+        chainId,
+        accountAddress,
+        assetSlug: undefined,
+        olderThan: olderThanBlockHeight,
+        signal
+      });
 
       if (signal.aborted) return;
 
@@ -223,11 +223,14 @@ class TezosActivityLoader {
 
       const lastActivity = this.activities.at(-1);
 
-      const groups = await fetchTezosOperationsGroups(chainId, rpcBaseURL, accountAddress, assetSlug, lastActivity);
-
-      if (signal.aborted) return;
-
-      const newActivities = groups.map(group => parseTezosOperationsGroup(group, chainId, accountAddress));
+      const newActivities = await fetchTezosActivitiesWithCache({
+        chainId,
+        rpcBaseURL,
+        accountAddress,
+        assetSlug,
+        olderThan: lastActivity,
+        signal
+      });
 
       if (newActivities.length) this.activities = this.activities.concat(newActivities);
       else this.reachedTheEnd = true;

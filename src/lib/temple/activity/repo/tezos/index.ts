@@ -13,9 +13,10 @@ interface GetTezosActivitiesIntervalParams {
   chainId: string;
   account: string;
   assetSlug?: string;
+  maxItems?: number;
 }
 
-interface GetTezosActivitiesIntervalResult {
+export interface GetTezosActivitiesIntervalResult {
   activities: TezosActivity[];
   upperLimit: TezosActivityOlderThan;
   lowerLimit: TezosActivityOlderThan;
@@ -34,8 +35,18 @@ export const getIntervalLimit = (baseActivity: TezosActivityOlderThan, shift = 0
   };
 };
 
-export const toFrontTezosActivity = ({ account, assetSlug, id, ...activity }: DbTezosActivity): TezosActivity =>
-  activity;
+export const compareLimits = (a: TezosActivityOlderThan, b: TezosActivityOlderThan) => {
+  const { level: aLevel, timestamp: aTimestamp } = a.oldestTzktOperation;
+  const { level: bLevel, timestamp: bTimestamp } = b.oldestTzktOperation;
+
+  if (isDefined(aLevel) && isDefined(bLevel)) {
+    return aLevel - bLevel;
+  }
+
+  return aTimestamp.localeCompare(bTimestamp);
+};
+
+const toFrontTezosActivity = ({ account, assetSlug, id, ...activity }: DbTezosActivity): TezosActivity => activity;
 
 export const toDbTezosActivity = (activity: TezosActivity, assetSlug: string, account: string) => ({
   ...activity,
@@ -49,7 +60,7 @@ const lowerLimitTsPath = 'lowerLimit.oldestTzktOperation.timestamp' as const;
 const upperLimitTsPath = 'upperLimit.oldestTzktOperation.timestamp' as const;
 const activityTsPath = 'oldestTzktOperation.timestamp' as const;
 
-export const lowestOlderThanValue = Object.freeze({
+export const lowestIntervalLimit = Object.freeze({
   hash: 'BLockGenesisGenesisGenesisGenesisGenesisf79b5d1CoW2',
   oldestTzktOperation: {
     level: 0,
@@ -57,12 +68,21 @@ export const lowestOlderThanValue = Object.freeze({
   }
 });
 
+export const getSeparateActivities = async (chainId: string, account: string, hashes: string[]) =>
+  (
+    await tezosActivities
+      .where(['chainId', 'account', 'hash'])
+      .anyOf(hashes.map(hash => [chainId, account, hash]))
+      .toArray()
+  ).map(toFrontTezosActivity);
+
 export const getClosestTezosActivitiesInterval = async ({
   olderThan,
   chainId,
   account,
-  assetSlug = ''
-}: GetTezosActivitiesIntervalParams): Promise<GetTezosActivitiesIntervalResult> =>
+  assetSlug = '',
+  maxItems = Infinity
+}: GetTezosActivitiesIntervalParams): Promise<GetTezosActivitiesIntervalResult | undefined> =>
   db.transaction('r!', tezosActivities, tezosActivitiesIntervals, async () => {
     let allContractsIntervalsCollection: Collection<TezosActivitiesInterval>;
     let intervalsByContractCollection: Collection<TezosActivitiesInterval> | undefined;
@@ -91,23 +111,18 @@ export const getClosestTezosActivitiesInterval = async ({
     const interval =
       intervalsByContract[0] &&
       (!allContractsIntervals[0] ||
-        getPointerTimestamp(intervalsByContract[0].upperLimit) >
-          getPointerTimestamp(allContractsIntervals[0].upperLimit))
+        compareLimits(intervalsByContract[0].upperLimit, allContractsIntervals[0].upperLimit) > 0)
         ? intervalsByContract[0]
         : allContractsIntervals[0];
 
     if (!interval) {
-      return {
-        activities: [],
-        upperLimit: olderThan ?? lowestOlderThanValue,
-        lowerLimit: olderThan ?? lowestOlderThanValue
-      };
+      return;
     }
 
-    const { lowerLimit, upperLimit, assetSlug: intervalAssetSlug } = interval;
-    const searchUpperLimit =
-      olderThan && getPointerTimestamp(olderThan) < getPointerTimestamp(upperLimit) ? olderThan : upperLimit;
-    const rawActivities = await tezosActivities
+    let lowerLimit = interval.lowerLimit;
+    const { upperLimit, assetSlug: intervalAssetSlug } = interval;
+    const searchUpperLimit = olderThan && compareLimits(olderThan, upperLimit) < 0 ? olderThan : upperLimit;
+    const allRawActivitiesCollection = tezosActivities
       .where(['chainId', 'account', 'assetSlug', activityTsPath])
       .between(
         [chainId, account, intervalAssetSlug, getPointerTimestamp(lowerLimit)],
@@ -115,8 +130,16 @@ export const getClosestTezosActivitiesInterval = async ({
         true,
         false
       )
-      .reverse()
-      .sortBy(activityTsPath);
+      .reverse();
+    let rawActivities: DbTezosActivity[];
+    if (Number.isInteger(maxItems) && maxItems > 0) {
+      rawActivities = await allRawActivitiesCollection.limit(maxItems).sortBy(activityTsPath);
+      if (rawActivities.length > 0) {
+        lowerLimit = getIntervalLimit(rawActivities.at(-1)!);
+      }
+    } else {
+      rawActivities = await allRawActivitiesCollection.sortBy(activityTsPath);
+    }
 
     return {
       activities: rawActivities
@@ -155,14 +178,14 @@ export const putTezosActivities = async ({
     throw new Error('Activities from different chains are not allowed');
   }
 
-  activities = activities.toSorted((a, b) => getPointerTimestamp(b).localeCompare(getPointerTimestamp(a)));
+  activities = activities.toSorted((a, b) => compareLimits(b, a));
 
   if (activities.length === 0 && !olderThan) {
     return;
   }
 
   olderThan = olderThan ?? getIntervalLimit(activities[0], 1);
-  const oldestPointer = activities.length === 0 ? lowestOlderThanValue : toOlderThan(activities.at(-1)!);
+  const oldestPointer = activities.length === 0 ? lowestIntervalLimit : toOlderThan(activities.at(-1)!);
 
   if (assetSlug) {
     return overwriteTezosActivitiesByAssetSlug({
@@ -209,10 +232,7 @@ const getSupersetInterval = async ({
       true,
       false
     )
-    .and(
-      ({ lowerLimit: intervalOldestPointer }) =>
-        getPointerTimestamp(intervalOldestPointer) <= getPointerTimestamp(oldestPointer)
-    )
+    .and(({ lowerLimit: intervalOldestPointer }) => compareLimits(intervalOldestPointer, oldestPointer) <= 0)
     .first();
 
 const getSubsetIntervalsIds = async ({
@@ -230,7 +250,7 @@ const getSubsetIntervalsIds = async ({
       true,
       false
     )
-    .and(interval => getPointerTimestamp(interval.upperLimit) <= getPointerTimestamp(olderThan))
+    .and(interval => compareLimits(interval.upperLimit, olderThan) <= 0)
     .primaryKeys();
 
 const handleIntervalsJoins = async ({
@@ -280,14 +300,12 @@ const filterRelevantActivities = (
   olderThan: TezosActivityOlderThan,
   oldestPointer: TezosActivityOlderThan
 ) =>
-  activities.filter(activity => {
-    const activityTs = getPointerTimestamp(activity);
-    return activityTs < getPointerTimestamp(olderThan) && activityTs >= getPointerTimestamp(oldestPointer);
-  });
+  activities.filter(activity => compareLimits(activity, olderThan) < 0 && compareLimits(activity, oldestPointer) >= 0);
 
 type OverwriteTezosActivitiesByContractParams = RequiredBy<PutTezosActivitiesParams, 'assetSlug' | 'olderThan'> & {
   oldestPointer: TezosActivityOlderThan;
   createTransaction?: boolean;
+  counter?: number;
 };
 const overwriteTezosActivitiesByAssetSlug = async ({
   activities,
@@ -296,8 +314,13 @@ const overwriteTezosActivitiesByAssetSlug = async ({
   olderThan,
   oldestPointer,
   assetSlug,
-  createTransaction = true
+  createTransaction = true,
+  counter = 0
 }: OverwriteTezosActivitiesByContractParams): Promise<void> => {
+  if (counter >= 5) {
+    throw new Error('overwriteTezosActivitiesByAssetSlug counter exceeded');
+  }
+
   const doOperations = async () => {
     const olderThanTs = getPointerTimestamp(olderThan);
     const oldestPointerTs = getPointerTimestamp(oldestPointer);
@@ -351,14 +374,12 @@ const overwriteTezosActivitiesByAssetSlug = async ({
       const allContractsSubsetIntervals = (await tezosActivitiesIntervals.bulkGet(
         allContractsSubsetIntervalsIds
       )) as TezosActivitiesInterval[];
-      allContractsSubsetIntervals.sort((a, b) =>
-        getPointerTimestamp(b.upperLimit).localeCompare(getPointerTimestamp(a.upperLimit))
-      );
+      allContractsSubsetIntervals.sort((a, b) => compareLimits(b.upperLimit, a.upperLimit));
       for (let i = 0; i <= allContractsSubsetIntervalsIds.length; i++) {
         const newIntervalOlderThan = i === 0 ? olderThan : allContractsSubsetIntervals[i - 1].lowerLimit;
         const newIntervalOldestPointer =
           i === allContractsSubsetIntervalsIds.length ? oldestPointer : allContractsSubsetIntervals[i].upperLimit;
-        if (getPointerTimestamp(newIntervalOlderThan) > getPointerTimestamp(newIntervalOldestPointer)) {
+        if (compareLimits(newIntervalOlderThan, newIntervalOldestPointer) > 0) {
           await overwriteTezosActivitiesByAssetSlug({
             chainId,
             account,
@@ -366,7 +387,8 @@ const overwriteTezosActivitiesByAssetSlug = async ({
             oldestPointer: newIntervalOldestPointer,
             assetSlug,
             createTransaction: false,
-            activities: filterRelevantActivities(activities, newIntervalOlderThan, newIntervalOldestPointer)
+            activities: filterRelevantActivities(activities, newIntervalOlderThan, newIntervalOldestPointer),
+            counter: counter + 1
           });
         }
       }
@@ -389,7 +411,8 @@ const overwriteTezosActivitiesByAssetSlug = async ({
         oldestPointer,
         assetSlug,
         createTransaction: false,
-        activities: filterRelevantActivities(activities, newOlderThan, oldestPointer)
+        activities: filterRelevantActivities(activities, newOlderThan, oldestPointer),
+        counter: counter + 1
       });
     }
 
@@ -408,7 +431,8 @@ const overwriteTezosActivitiesByAssetSlug = async ({
         oldestPointer: newOldestPointer,
         assetSlug,
         createTransaction: false,
-        activities: filterRelevantActivities(activities, olderThan, newOldestPointer)
+        activities: filterRelevantActivities(activities, olderThan, newOldestPointer),
+        counter: counter + 1
       });
     }
 
@@ -436,7 +460,7 @@ const overwriteTezosActivitiesForAllContracts = ({
   chainId,
   account,
   olderThan,
-  oldestPointer = lowestOlderThanValue
+  oldestPointer = lowestIntervalLimit
 }: OverwriteTezosActivitiesForAllContractsParams) =>
   db.transaction('rw!', tezosActivitiesIntervals, tezosActivities, async () => {
     const olderThanTs = getPointerTimestamp(olderThan);
@@ -462,7 +486,7 @@ const overwriteTezosActivitiesForAllContracts = ({
     const supersetIntervalsIds = await tezosActivitiesIntervals
       .where(['chainId', 'account', lowerLimitTsPath])
       .between(
-        [chainId, account, getPointerTimestamp(lowestOlderThanValue)],
+        [chainId, account, getPointerTimestamp(lowestIntervalLimit)],
         [chainId, account, olderThanTs],
         true,
         false
@@ -492,7 +516,7 @@ const overwriteTezosActivitiesForAllContracts = ({
             ];
           })
           .flat()
-          .filter(({ upperLimit, lowerLimit }) => getPointerTimestamp(upperLimit) > getPointerTimestamp(lowerLimit))
+          .filter(({ upperLimit, lowerLimit }) => compareLimits(upperLimit, lowerLimit) > 0)
       );
     }
 

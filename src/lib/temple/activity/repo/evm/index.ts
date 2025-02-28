@@ -22,9 +22,10 @@ interface GetEvmActivitiesIntervalParams {
   chainId: number;
   account: HexString;
   contractAddress?: string;
+  maxItems?: number;
 }
 
-interface GetEvmActivitiesIntervalResult {
+export interface GetEvmActivitiesIntervalResult {
   activities: EvmActivity[];
   newestBlockHeight: number;
   oldestBlockHeight: number;
@@ -60,8 +61,9 @@ export const getClosestEvmActivitiesInterval = async ({
   olderThanBlockHeight,
   chainId,
   account,
-  contractAddress = ''
-}: GetEvmActivitiesIntervalParams): Promise<GetEvmActivitiesIntervalResult> =>
+  contractAddress = '',
+  maxItems = Infinity
+}: GetEvmActivitiesIntervalParams): Promise<GetEvmActivitiesIntervalResult | undefined> =>
   db.transaction('r!', evmActivities, evmActivitiesIntervals, evmActivityAssets, async () => {
     account = account.toLowerCase() as HexString;
     contractAddress = contractAddress.toLowerCase();
@@ -98,16 +100,13 @@ export const getClosestEvmActivitiesInterval = async ({
         : allContractsIntervals[0];
 
     if (!interval) {
-      return {
-        activities: [],
-        newestBlockHeight: Number(olderThanBlockHeight ?? 0),
-        oldestBlockHeight: Number(olderThanBlockHeight ?? 0)
-      };
+      return;
     }
 
-    const { oldestBlockHeight, newestBlockHeight, contract: intervalContractAddress } = interval;
+    let oldestBlockHeight = interval.oldestBlockHeight;
+    const { newestBlockHeight, contract: intervalContractAddress } = interval;
     const searchNewestBlockHeight = Math.min(newestBlockHeight, Number(olderThanBlockHeight ?? Infinity) - 1);
-    const rawActivities = await evmActivities
+    const allRawActivitiesCollection = evmActivities
       .where(['chainId', 'account', 'contract', 'blockHeight'])
       .between(
         [chainId, account, intervalContractAddress, oldestBlockHeight],
@@ -115,8 +114,16 @@ export const getClosestEvmActivitiesInterval = async ({
         true,
         true
       )
-      .reverse()
-      .sortBy('blockHeight');
+      .reverse();
+    let rawActivities: DbEvmActivity[];
+    if (Number.isInteger(maxItems) && maxItems > 0) {
+      rawActivities = await allRawActivitiesCollection.limit(maxItems).sortBy('blockHeight');
+      if (rawActivities.length > 0) {
+        oldestBlockHeight = rawActivities.at(-1)!.blockHeight;
+      }
+    } else {
+      rawActivities = await allRawActivitiesCollection.sortBy('blockHeight');
+    }
     const assetsIds = uniq(
       rawActivities
         .map(({ operations }) => operations.map(({ fkAsset }) => fkAsset))
@@ -293,7 +300,7 @@ const filterRelevantActivities = (activities: EvmActivity[], olderThanBlockHeigh
 type OverwriteEvmActivitiesByContractParams = RequiredBy<
   PutEvmActivitiesParams,
   'contractAddress' | 'olderThanBlockHeight'
-> & { oldestBlockHeight: number; createTransaction?: boolean };
+> & { oldestBlockHeight: number; createTransaction?: boolean; counter?: number };
 const overwriteEvmActivitiesByContractAddress = ({
   activities,
   chainId,
@@ -301,8 +308,13 @@ const overwriteEvmActivitiesByContractAddress = ({
   olderThanBlockHeight,
   oldestBlockHeight,
   contractAddress,
-  createTransaction = true
+  createTransaction = true,
+  counter = 0
 }: OverwriteEvmActivitiesByContractParams): Promise<void> => {
+  if (counter >= 5) {
+    throw new Error('overwriteEvmActivitiesByContractAddress counter exceeded');
+  }
+
   const doOperations = async () => {
     const parsedOlderThanBlockHeight = Number(olderThanBlockHeight);
 
@@ -381,7 +393,8 @@ const overwriteEvmActivitiesByContractAddress = ({
               activities,
               newIntervalOlderThanBlockHeight,
               newIntervalOldestBlockHeight
-            )
+            ),
+            counter: counter + 1
           });
         }
       }
@@ -409,7 +422,8 @@ const overwriteEvmActivitiesByContractAddress = ({
         oldestBlockHeight,
         contractAddress,
         createTransaction: false,
-        activities: filterRelevantActivities(activities, newOlderThanBlockHeight, oldestBlockHeight)
+        activities: filterRelevantActivities(activities, newOlderThanBlockHeight, oldestBlockHeight),
+        counter: counter + 1
       });
     }
 
@@ -433,7 +447,8 @@ const overwriteEvmActivitiesByContractAddress = ({
         oldestBlockHeight: newOldestBlockHeight,
         contractAddress,
         createTransaction: false,
-        activities: filterRelevantActivities(activities, parsedOlderThanBlockHeight, newOldestBlockHeight)
+        activities: filterRelevantActivities(activities, parsedOlderThanBlockHeight, newOldestBlockHeight),
+        counter: counter + 1
       });
     }
 
