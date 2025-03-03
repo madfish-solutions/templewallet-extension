@@ -373,7 +373,7 @@ export const useEvmGenericAssetsMetadataCheck = (
   associatedAccountPkh: HexString = '0x'
 ) => {
   const evmChains = useAllEvmChains();
-  const metadataLoading = useNoCategoryTezosAssetsMetadataLoadingSelector();
+  const metadataLoading = useEvmGenericAssetsMetadataLoading();
   const getMetadata = useGetEvmGenericAssetMetadata();
 
   const checkedRef = useRef(new Set<string>());
