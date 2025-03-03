@@ -46,7 +46,7 @@ export const useBuyWithCreditCardFormSubmit = () => {
         inputAmount: inputAmount?.toString(),
         inputAsset: inputCurrency.code,
         outputAmount: outputAmount?.toString(),
-        outputAsset: outputToken.code,
+        outputAsset: outputToken.slug,
         provider: provider?.name
       };
 
