@@ -7,7 +7,7 @@ import { toEvmAssetSlug } from 'lib/assets/utils';
 import { EvmAssetStandard } from 'lib/evm/types';
 import { stripZeroBalancesChanges } from 'lib/utils/balances-changes';
 import { getReadOnlyEvmForNetwork } from 'temple/evm';
-import { BalancesChanges, TempleChainKind } from 'temple/types';
+import { AssetsAmounts, TempleChainKind } from 'temple/types';
 
 import { detectEvmTokenStandard } from './common.utils.mock';
 
@@ -64,7 +64,7 @@ const testErc1155Address = '0xbd176E60DEF79f956E91F97e0cE54E6fC4Ac83aD';
 const getTestErc721TokenSlug = (tokenId: number) => toEvmAssetSlug(testErc721Address, String(tokenId));
 const getTestErc1155TokenSlug = (tokenId: number) => toEvmAssetSlug(testErc1155Address, String(tokenId));
 
-const checkEvmBalancesChanges = async (tx: TransactionSerializable, sender: HexString, expected: BalancesChanges) => {
+const checkEvmBalancesChanges = async (tx: TransactionSerializable, sender: HexString, expected: AssetsAmounts) => {
   const actualValue = stripZeroBalancesChanges(await getEvmBalancesChanges(tx, sender, testClient));
   expect(actualValue).toEqual(expected);
 };

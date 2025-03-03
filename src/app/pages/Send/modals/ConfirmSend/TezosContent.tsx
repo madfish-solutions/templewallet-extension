@@ -12,7 +12,7 @@ import { toastError, toastSuccess } from 'app/toaster';
 import { TEZ_TOKEN_SLUG } from 'lib/assets';
 import { toTransferParams } from 'lib/assets/contract.utils';
 import { useTezosAssetBalance } from 'lib/balances';
-import { useTezosAssetMetadata } from 'lib/metadata';
+import { useCategorizedTezosAssetMetadata } from 'lib/metadata';
 import { transferImplicit, transferToContract } from 'lib/michelson';
 import { useTypedSWR } from 'lib/swr';
 import { loadContract } from 'lib/temple/contract';
@@ -31,7 +31,7 @@ interface TezosContentProps {
 export const TezosContent: FC<TezosContentProps> = ({ data, onClose }) => {
   const { account, network, assetSlug, to, amount, onConfirm } = data;
 
-  const assetMetadata = useTezosAssetMetadata(assetSlug, network.chainId);
+  const assetMetadata = useCategorizedTezosAssetMetadata(assetSlug, network.chainId);
 
   if (!assetMetadata) throw new Error('Metadata not found');
 

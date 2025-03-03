@@ -4,7 +4,7 @@ import BigNumber from 'bignumber.js';
 
 import { toastError } from 'app/toaster';
 import { isNativeTokenAddress } from 'lib/apis/temple/endpoints/evm/api.utils';
-import { useEvmAssetMetadata } from 'lib/metadata';
+import { useEvmCategorizedAssetMetadata } from 'lib/metadata';
 import { useTypedSWR } from 'lib/swr';
 import { checkZeroBalance } from 'lib/utils/check-zero-balance';
 import { estimate as genericEstimate } from 'temple/evm/estimate';
@@ -22,7 +22,7 @@ export const useEvmEstimationData = (
   toFilled?: boolean,
   amount?: string
 ) => {
-  const assetMetadata = useEvmAssetMetadata(assetSlug, network.chainId);
+  const assetMetadata = useEvmCategorizedAssetMetadata(assetSlug, network.chainId);
 
   const estimate = useCallback(async () => {
     try {

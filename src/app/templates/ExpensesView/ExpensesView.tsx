@@ -12,7 +12,7 @@ import InFiat from 'app/templates/InFiat';
 import { setTestID } from 'lib/analytics';
 import { TEZ_TOKEN_SLUG, getTezosGasSymbol } from 'lib/assets';
 import { TProps, T, t } from 'lib/i18n';
-import { useTezosAssetMetadata, getAssetSymbol } from 'lib/metadata';
+import { useCategorizedTezosAssetMetadata, getAssetSymbol } from 'lib/metadata';
 import { RawOperationAssetExpense, RawOperationExpenses } from 'lib/temple/front';
 import { mutezToTz, tzToMutez } from 'lib/temple/helpers';
 import { SerializedEstimate } from 'lib/temple/types';
@@ -458,7 +458,7 @@ interface OperationVolumeDisplayProps {
 }
 
 const OperationVolumeDisplay = memo<OperationVolumeDisplayProps>(({ tezosChainId, expense, volume }) => {
-  const metadata = useTezosAssetMetadata(expense?.assetSlug ?? TEZ_TOKEN_SLUG, tezosChainId);
+  const metadata = useCategorizedTezosAssetMetadata(expense?.assetSlug ?? TEZ_TOKEN_SLUG, tezosChainId);
 
   const finalVolume = expense ? expense.amount.div(10 ** (metadata?.decimals || 0)) : volume;
 

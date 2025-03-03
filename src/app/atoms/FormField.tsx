@@ -87,6 +87,7 @@ export interface FormFieldProps extends TestIDProperty, Omit<FormFieldAttrs, 'ty
   rightSideComponent?: ReactNode;
   underneathComponent?: ReactNode;
   extraFloatingInner?: ReactNode;
+  floatAfterPlaceholder?: boolean;
   rightSideContainerStyle?: CSSProperties;
 }
 
@@ -119,6 +120,7 @@ export const FormField = forwardRef<FormFieldElement, FormFieldProps>(
       extraRightInner = null,
       extraRightInnerWrapper = 'default',
       extraFloatingInner = null,
+      floatAfterPlaceholder,
       id,
       type,
       value,
@@ -143,6 +145,7 @@ export const FormField = forwardRef<FormFieldElement, FormFieldProps>(
       testIDs,
       style,
       rightSideContainerStyle,
+      placeholder,
       ...rest
     },
     ref
@@ -231,7 +234,7 @@ export const FormField = forwardRef<FormFieldElement, FormFieldProps>(
 
         <div className={clsx('relative flex items-stretch', fieldWrapperBottomMargin && 'mb-1')}>
           <ExtraFloatingInner
-            inputValue={value}
+            inputValue={value || (floatAfterPlaceholder ? placeholder : undefined)}
             innerComponent={extraFloatingInner}
             onClick={() => spareRef.current?.focus()}
           />
@@ -260,6 +263,7 @@ export const FormField = forwardRef<FormFieldElement, FormFieldProps>(
             readOnly={readOnly}
             spellCheck={spellCheck}
             autoComplete={autoComplete}
+            placeholder={placeholder}
             onChange={handleChange}
             onFocus={handleFocus}
             onBlur={handleBlur}
@@ -323,7 +327,7 @@ interface ExtraFloatingInnerProps {
 }
 
 // input padding + textWidth + gap between text and innerComponent
-const getLeftIndent = (textWidth: number) => 12 + textWidth + 8;
+const getLeftIndent = (textWidth: number) => Math.min(12 + textWidth + 8, 226);
 
 const ExtraFloatingInner: React.FC<ExtraFloatingInnerProps> = ({ inputValue, innerComponent, onClick }) => {
   const measureTextWidthRef = useRef<HTMLDivElement>(null);
@@ -333,9 +337,7 @@ const ExtraFloatingInner: React.FC<ExtraFloatingInnerProps> = ({ inputValue, inn
 
   useLayoutEffect(() => {
     if (measureTextWidthRef.current) {
-      const width = measureTextWidthRef.current.clientWidth;
-
-      if (getLeftIndent(width) < 226) setTextWidth(width);
+      setTextWidth(measureTextWidthRef.current.clientWidth);
     }
   }, [inputValue]);
 

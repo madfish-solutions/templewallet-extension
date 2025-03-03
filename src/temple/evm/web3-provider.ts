@@ -25,7 +25,7 @@ import {
   RETURNED_ACCOUNTS_CAVEAT_NAME
 } from './constants';
 import type { TypedDataV1 } from './typed-data-v1';
-import { ErrorWithCode } from './types';
+import { makeErrorLikeObject, throwErrorLikeObject } from './utils';
 
 export interface PassToBgEventDetail {
   origin: string;
@@ -211,7 +211,8 @@ export class TempleWeb3Provider extends EventEmitter {
       case 'wallet_sendCalls':
       case 'wallet_showCallsStatus':
       case 'eth_sign':
-        throw new ErrorWithCode(EVMErrorCodes.METHOD_NOT_SUPPORTED, 'Method not supported');
+        throwErrorLikeObject(EVMErrorCodes.METHOD_NOT_SUPPORTED, 'Method not supported');
+      // eslint-disable-next-line no-fallthrough
       default:
         // @ts-expect-error
         return this.handleRpcRequest(params);
@@ -226,14 +227,14 @@ export class TempleWeb3Provider extends EventEmitter {
     const from = args.params[0].from ?? this.accounts.at(0);
 
     if (!from) {
-      throw new ErrorWithCode(EVMErrorCodes.NOT_AUTHORIZED, 'Account is not connected');
+      throwErrorLikeObject(EVMErrorCodes.NOT_AUTHORIZED, 'Account is not connected');
     }
 
     let sanitizedArgs: RequestArgs<'eth_sendTransaction' | 'wallet_sendTransaction'>;
     try {
       sanitizedArgs = { method: args.method, params: [{ ...args.params[0], from }] };
     } catch (e: any) {
-      throw new ErrorWithCode(EVMErrorCodes.INVALID_PARAMS, e.message ?? 'Invalid params');
+      throwErrorLikeObject(EVMErrorCodes.INVALID_PARAMS, e.message ?? 'Invalid params');
     }
 
     return this.handleRequest(sanitizedArgs, noop, identity, from);
@@ -339,7 +340,7 @@ export class TempleWeb3Provider extends EventEmitter {
     requiredAccount: HexString | undefined
   ) {
     if (requiredAccount && !this.accounts.some(acc => acc.toLowerCase() === requiredAccount.toLowerCase())) {
-      throw new ErrorWithCode(EVMErrorCodes.NOT_AUTHORIZED, 'Account is not connected');
+      throwErrorLikeObject(EVMErrorCodes.NOT_AUTHORIZED, 'Account is not connected');
     }
 
     const requestId = uuid();
@@ -368,7 +369,7 @@ export class TempleWeb3Provider extends EventEmitter {
 
         if ('error' in payload) {
           console.error('inpage got error from bg', payload);
-          reject(new ErrorWithCode(payload.error.code, payload.error.message));
+          reject(makeErrorLikeObject(payload.error.code, payload.error.message));
 
           return;
         }
