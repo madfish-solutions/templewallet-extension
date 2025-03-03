@@ -10,6 +10,7 @@ import { SettingsTabProps } from 'lib/ui/settings-tab-props';
 import { searchAndFilterAccounts } from 'temple/front/accounts';
 import { useAccountsGroups } from 'temple/front/groups';
 
+import { ConnectLedgerModal } from '../connect-ledger-modal';
 import { CreateHDWalletModal } from '../CreateHDWalletModal';
 import { ImportAccountModal, ImportOptionSlug } from '../ImportAccountModal';
 import { ManualBackupModal } from '../ManualBackupModal';
@@ -32,7 +33,8 @@ enum AccountsManagementModal {
   CreateHDWalletFlow = 'create-hd-wallet-flow',
   ImportAccount = 'import-account',
   ImportWallet = 'import-wallet',
-  WatchOnly = 'watch-only'
+  WatchOnly = 'watch-only',
+  ConnectLedger = 'connect-ledger'
 }
 
 export const AccountsManagement = memo<SettingsTabProps>(({ setHeaderChildren }) => {
@@ -108,14 +110,25 @@ export const AccountsManagement = memo<SettingsTabProps>(({ setHeaderChildren })
     }
   }, [createAccount, customAlert, handleModalClose, selectedGroup]);
 
-  const goToImportWalletModal = useCallback(() => {
-    setActiveModal(AccountsManagementModal.ImportWallet);
-    setImportOptionSlug(undefined);
-  }, []);
-  const goToImportAccountModal = useCallback(() => {
-    setActiveModal(AccountsManagementModal.ImportAccount);
-    setImportOptionSlug('private-key');
-  }, []);
+  const goToImportOptionFactory = useCallback(
+    (modal: AccountsManagementModal, importOptionSlug?: ImportOptionSlug) => () => {
+      setActiveModal(modal);
+      setImportOptionSlug(importOptionSlug);
+    },
+    []
+  );
+  const goToImportWalletModal = useMemo(
+    () => goToImportOptionFactory(AccountsManagementModal.ImportWallet),
+    [goToImportOptionFactory]
+  );
+  const goToImportAccountModal = useMemo(
+    () => goToImportOptionFactory(AccountsManagementModal.ImportAccount, 'private-key'),
+    [goToImportOptionFactory]
+  );
+  const goToConnectLedgerModal = useMemo(
+    () => goToImportOptionFactory(AccountsManagementModal.ConnectLedger),
+    [goToImportOptionFactory]
+  );
   const goToWatchOnlyModal = useCallback(() => setActiveModal(AccountsManagementModal.WatchOnly), []);
   const handleSeedPhraseImportOptionSelect = useCallback(() => setImportOptionSlug('mnemonic'), []);
   const handlePrivateKeyImportOptionSelect = useCallback(() => setImportOptionSlug('private-key'), []);
@@ -169,6 +182,8 @@ export const AccountsManagement = memo<SettingsTabProps>(({ setHeaderChildren })
         return (
           <ImportAccountModal optionSlug="watch-only" onGoBack={handleModalClose} onRequestClose={handleModalClose} />
         );
+      case AccountsManagementModal.ConnectLedger:
+        return <ConnectLedgerModal onClose={handleModalClose} />;
       default:
         return null;
     }
@@ -199,12 +214,13 @@ export const AccountsManagement = memo<SettingsTabProps>(({ setHeaderChildren })
         <NewWalletActionsPopper
           startWalletCreation={startWalletCreation}
           testID={AccountsManagementSelectors.newWalletActionsButton}
+          goToConnectLedgerModal={goToConnectLedgerModal}
           goToImportModal={goToImportWalletModal}
           goToWatchOnlyModal={goToWatchOnlyModal}
         />
       </div>
     ),
-    [goToImportWalletModal, goToWatchOnlyModal, searchValue, startWalletCreation]
+    [goToConnectLedgerModal, goToImportWalletModal, goToWatchOnlyModal, searchValue, startWalletCreation]
   );
 
   useEffect(() => setHeaderChildren(headerChildren), [headerChildren, setHeaderChildren]);

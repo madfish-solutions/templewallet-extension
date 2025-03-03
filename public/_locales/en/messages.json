@@ -1053,6 +1053,15 @@
   "selectNetworkToReveal": {
     "message": "Select Network to reveal"
   },
+  "selectNetwork": {
+    "message": "Select network"
+  },
+  "evmLedgerTooltip": {
+    "message": "EVM includes the connection of accounts,\ntokens, and NFTs on Ethereum, BNB Smart\nChain, Arbitrum, Optimism and other EVM-\ncompatible networks."
+  },
+  "tezosLedgerTooltip": {
+    "message": "Includes the connection of\naccounts only on Tezos network."
+  },
   "advancedFeatures": {
     "message": "Advanced Features"
   },

@@ -5,15 +5,13 @@ import clsx from 'clsx';
 import { IconBase } from 'app/atoms';
 import { CopyButton } from 'app/atoms/CopyButton';
 import { IconButton } from 'app/atoms/IconButton';
-import { EvmNetworksLogos, TezNetworkLogo } from 'app/atoms/NetworksLogos';
-import { useRichFormatTooltip } from 'app/hooks/use-rich-format-tooltip';
 import { ReactComponent as CopyIcon } from 'app/icons/base/copy.svg';
 import { ReactComponent as QRCodeIcon } from 'app/icons/base/qr_code.svg';
+import { ChainKindLabel } from 'app/templates/chain-kind-label';
 import { setTestID } from 'lib/analytics';
 import { t } from 'lib/i18n';
 import { getStyledButtonColorsClassNames } from 'lib/ui/use-styled-button-or-link-props';
-import { UseTippyOptions } from 'lib/ui/useTippy';
-import { TempleChainKind, TempleChainTitle } from 'temple/types';
+import { TempleChainKind } from 'temple/types';
 
 import { ReceiveSelectors } from './Receive.selectors';
 import { ReceivePayload } from './types';
@@ -26,38 +24,15 @@ export const NetworkCard: FC<NetworkCardProps> = ({ address, chainKind, onQRClic
   const handleQRClick = useCallback(() => onQRClick({ address, chainKind }), [address, chainKind, onQRClick]);
   const isTezos = chainKind === TempleChainKind.Tezos;
 
-  const tooltipContent = t(isTezos ? 'tezosReceiveTooltip' : 'evmReceiveTooltip');
-  const tooltipWrapperFactory = useCallback(() => {
-    const element = document.createElement('div');
-    element.className = clsx('text-center', !isTezos && 'mx-3');
-
-    return element;
-  }, [isTezos]);
-  const basicTooltipProps = useMemo<Omit<UseTippyOptions, 'content'>>(
-    () => ({
-      trigger: 'mouseenter',
-      hideOnClick: true,
-      animation: 'shift-away-subtle',
-      placement: 'bottom-start' as const,
-      offset: [isTezos ? 0 : 10, 15]
-    }),
-    [isTezos]
-  );
-  const tooltipWrapperRef = useRichFormatTooltip<HTMLDivElement>(
-    basicTooltipProps,
-    tooltipWrapperFactory,
-    tooltipContent
-  );
   const testIDProperties = useMemo(() => ({ chainKind }), [chainKind]);
 
   return (
     <div className="p-4 flex flex-col gap-y-2 bg-white rounded-lg shadow-bottom">
-      <div className="flex gap-x-2">
-        <span className="text-font-regular-bold">{TempleChainTitle[chainKind]}</span>
-        <div ref={tooltipWrapperRef}>
-          {chainKind === TempleChainKind.Tezos ? <TezNetworkLogo /> : <EvmNetworksLogos />}
-        </div>
-      </div>
+      <ChainKindLabel
+        chainKind={chainKind}
+        tooltipText={t(isTezos ? 'tezosReceiveTooltip' : 'evmReceiveTooltip')}
+        wrapperClassName={isTezos ? 'mx-3' : undefined}
+      />
 
       <div className="flex gap-x-2 items-center">
         <span
