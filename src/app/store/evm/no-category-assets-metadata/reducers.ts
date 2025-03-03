@@ -1,8 +1,10 @@
 import { createReducer, Draft } from '@reduxjs/toolkit';
 import { omit, pick } from 'lodash';
+import { persistReducer } from 'redux-persist';
 import { getAddress } from 'viem';
 
 import { fromAssetSlug, toTokenSlug } from 'lib/assets';
+import { storageConfig } from 'lib/store';
 import { isPositiveTokenBalance, isProperCollectibleMetadata } from 'lib/utils/evm.utils';
 
 import {
@@ -19,7 +21,7 @@ import {
   noCategoryEvmAssetsMetadataInitialState
 } from './state';
 
-export const noCategoryEvmAssetsMetadataReducer = createReducer<NoCategoryEvmAssetsMetadataState>(
+const noCategoryEvmAssetsMetadataReducer = createReducer<NoCategoryEvmAssetsMetadataState>(
   noCategoryEvmAssetsMetadataInitialState,
   builder => {
     builder.addCase(loadNoCategoryEvmAssetsMetadataActions.submit, state => {
@@ -133,4 +135,13 @@ export const noCategoryEvmAssetsMetadataReducer = createReducer<NoCategoryEvmAss
 
     builder.addCase(putEvmTokensMetadataAction, handlePutCategorizedAssetsMetadataAction);
   }
+);
+
+export const noCategoryEvmAssetsMetadataPersistedReducer = persistReducer(
+  {
+    key: 'root.evmNoCategoryAssetMetadata',
+    blacklist: ['metadataLoading'],
+    ...storageConfig
+  },
+  noCategoryEvmAssetsMetadataReducer
 );

@@ -8,9 +8,15 @@ import {
 } from 'app/store/evm/collectibles-metadata/selectors';
 import { loadNoCategoryEvmAssetsMetadataActions } from 'app/store/evm/no-category-assets-metadata/actions';
 import {
+  useEvmChainNoCategoryAssetsMetadataSelector,
   useEvmNoCategoryAssetMetadataSelector,
+  useEvmNoCategoryAssetsMetadataLoadingSelector,
   useEvmNoCategoryAssetsMetadataRecordSelector
 } from 'app/store/evm/no-category-assets-metadata/selectors';
+import {
+  useEvmCollectiblesMetadataLoadingSelector,
+  useEvmTokensMetadataLoadingSelector
+} from 'app/store/evm/selectors';
 import {
   useEvmTokenMetadataSelector,
   useEvmChainTokensMetadataRecordSelector,
@@ -101,6 +107,12 @@ export const useGetEvmChainTokenOrGasMetadata = (chainId: number) => {
     (slug: string) => (isEvmNativeTokenSlug(slug) ? network?.currency : tokensMetadatas?.[slug]),
     [tokensMetadatas, network]
   );
+};
+
+export const useGetEvmNoCategoryAssetMetadata = (chainId: number) => {
+  const tokensMetadatas = useEvmChainNoCategoryAssetsMetadataSelector(chainId);
+
+  return useCallback((slug: string) => tokensMetadatas?.[slug], [tokensMetadatas]);
 };
 
 const useGetEvmGenericAssetMetadata = () => {
@@ -220,13 +232,16 @@ export const useTezosCollectiblesMetadataPresenceCheck = (chainSlugsToCheck?: st
   useTezosAssetsMetadataPresenceCheck(true, metadataLoading, getMetadata, chainSlugsToCheck);
 };
 
-export const useTezosGenericAssetsMetadataCheck = (
-  chainSlugsToCheck: string[] | undefined,
-  associatedAccountPkh: string | undefined
-) => {
+export const useTezosGenericAssetsMetadataLoading = () => {
   const tokensMetadataLoading = useTokensMetadataLoadingSelector();
   const collectiblesMetadataLoading = useCollectiblesMetadataLoadingSelector();
   const noCategoryAssetsMetadataLoading = useNoCategoryTezosAssetsMetadataLoadingSelector();
+
+  return tokensMetadataLoading || collectiblesMetadataLoading || noCategoryAssetsMetadataLoading;
+};
+
+export const useTezosGenericAssetsMetadataCheck = (chainSlugsToCheck?: string[], associatedAccountPkh?: string) => {
+  const loading = useTezosGenericAssetsMetadataLoading();
   const getCollectibleMetadata = useGetCollectibleMetadata();
   const getTokenMetadata = useGetTokenMetadata();
   const getNoCategoryAssetMetadata = useGetNoCategoryAssetMetadata();
@@ -236,13 +251,7 @@ export const useTezosGenericAssetsMetadataCheck = (
     [getCollectibleMetadata, getNoCategoryAssetMetadata, getTokenMetadata]
   );
 
-  useTezosAssetsMetadataPresenceCheck(
-    undefined,
-    tokensMetadataLoading || collectiblesMetadataLoading || noCategoryAssetsMetadataLoading,
-    getAssetMetadata,
-    chainSlugsToCheck,
-    associatedAccountPkh
-  );
+  useTezosAssetsMetadataPresenceCheck(undefined, loading, getAssetMetadata, chainSlugsToCheck, associatedAccountPkh);
 };
 
 const useTezosChainAssetsMetadataPresenceCheck = (
@@ -349,6 +358,14 @@ const useTezosAssetsMetadataPresenceCheck = (
       });
     }
   }, [ofCollectibles, getMetadata, metadataLoading, chainSlugsToCheck, tezosChains, associatedAccountPkh]);
+};
+
+export const useEvmGenericAssetsMetadataLoading = () => {
+  const tokensMetadataLoading = useEvmTokensMetadataLoadingSelector();
+  const collectiblesMetadataLoading = useEvmCollectiblesMetadataLoadingSelector();
+  const noCategoryAssetsMetadataLoading = useEvmNoCategoryAssetsMetadataLoadingSelector();
+
+  return tokensMetadataLoading || collectiblesMetadataLoading || noCategoryAssetsMetadataLoading;
 };
 
 export const useEvmGenericAssetsMetadataCheck = (

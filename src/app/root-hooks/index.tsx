@@ -35,6 +35,12 @@ export const AppRootHooks = memo(() => {
   return ready ? <AppReadyRootHooks /> : null;
 });
 
+export const ConfirmWindowRootHooks = memo(() => {
+  const { ready } = useTempleClient();
+
+  return ready ? <ConfirmWindowReadyRootHooks /> : null;
+});
+
 const AppReadyRootHooks = memo(() => {
   useAssetsMigrations();
 
@@ -60,6 +66,20 @@ const AppReadyRootHooks = memo(() => {
 
   useChainIDsCheck();
   useUserIdAccountPkhSync();
+
+  const tezosAddress = useAccountAddressForTezos();
+  const evmAddress = useAccountAddressForEvm();
+
+  return (
+    <>
+      {tezosAddress && <TezosAccountHooks publicKeyHash={tezosAddress} />}
+      {evmAddress && <EvmAccountHooks publicKeyHash={evmAddress} />}
+    </>
+  );
+});
+
+const ConfirmWindowReadyRootHooks = memo(() => {
+  useAssetsMigrations();
 
   const tezosAddress = useAccountAddressForTezos();
   const evmAddress = useAccountAddressForEvm();

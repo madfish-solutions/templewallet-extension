@@ -27,6 +27,7 @@ import {
 } from 'lib/abi/erc721';
 import { toEvmAssetSlug } from 'lib/assets/utils';
 import { EvmAssetStandard } from 'lib/evm/types';
+import { toBigNumber } from 'lib/utils/numbers';
 import { ChainPublicClient } from 'temple/evm';
 import { AssetsAmounts } from 'temple/types';
 
@@ -73,8 +74,6 @@ const makeAbiFunctionHandler = <AbiFragment extends TxAbiFragment>(
     }
   };
 };
-
-const toBigNumber = (x: bigint) => new BigNumber(x.toString());
 
 const withOperationSimulation = async <AbiFragment extends TxAbiFragment>(
   simulateOperation: () => Promise<SimulateContractReturnType<[AbiFragment]>['result']>,

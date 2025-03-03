@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo } from 'react';
+import { useCallback, useEffect, useMemo, useRef } from 'react';
 
 import { emptyFn, isDefined } from '@rnw-community/shared';
 import BigNumber from 'bignumber.js';
@@ -26,10 +26,10 @@ import { createEvmTransfersListener } from 'lib/evm/on-chain/evm-transfer-subscr
 import { EvmAssetStandard } from 'lib/evm/types';
 import { EVM_BALANCES_SYNC_INTERVAL } from 'lib/fixed-times';
 import {
+  useGenericTezosAssetMetadata,
   useGetChainTokenOrGasMetadata,
   useGetTokenOrGasMetadata,
-  useEvmGenericAssetMetadata,
-  useGenericTezosAssetMetadata
+  useEvmGenericAssetMetadata
 } from 'lib/metadata';
 import { EvmTokenMetadata } from 'lib/metadata/types';
 import { isEvmCollectible } from 'lib/metadata/utils';
@@ -207,7 +207,8 @@ function useEvmAssetRawBalance(
   assetSlug: string,
   address: HexString,
   network: EvmNetworkEssentials,
-  assetStandard?: EvmAssetStandard
+  assetStandard?: EvmAssetStandard,
+  forceFirstRefreshOnChain = false
 ): {
   value: string | undefined;
   isSyncing: boolean;
@@ -222,6 +223,7 @@ function useEvmAssetRawBalance(
   const storedBalance = useRawEvmAssetBalanceSelector(address, network.chainId, assetSlug);
   const storedLoadingState = useEvmBalancesLoadingStateSelector(chainId);
   const storedError = isDefined(storedLoadingState?.error);
+  const refreshOnChainDoneRef = useRef(false);
 
   const usingOffchainAPI = useMemo(
     () => address === currentAccountAddress && isSupportedChainId(chainId) && !storedError,
@@ -237,17 +239,18 @@ function useEvmAssetRawBalance(
   );
 
   const refreshBalanceOnChain = useCallback(() => {
+    refreshOnChainDoneRef.current = true;
     dispatch(setEvmBalancesLoadingState({ chainId, isLoading: true }));
     dispatch(loadEvmBalanceOnChainActions.submit({ network, assetSlug, account: address, assetStandard }));
   }, [dispatch, chainId, network, assetSlug, address, assetStandard]);
 
   useInterval(
     () => {
-      if (usingOffchainAPI) return;
+      if (usingOffchainAPI && (!forceFirstRefreshOnChain || refreshOnChainDoneRef.current)) return;
 
       refreshBalanceOnChain();
     },
-    [usingOffchainAPI, refreshBalanceOnChain],
+    [usingOffchainAPI, forceFirstRefreshOnChain, refreshBalanceOnChain],
     EVM_BALANCES_SYNC_INTERVAL,
     true
   );
@@ -264,7 +267,12 @@ function useEvmAssetRawBalance(
   };
 }
 
-export function useEvmAssetBalance(assetSlug: string, address: HexString, network: EvmNetworkEssentials) {
+export function useEvmAssetBalance(
+  assetSlug: string,
+  address: HexString,
+  network: EvmNetworkEssentials,
+  forceFirstRefreshOnChain = false
+) {
   const metadata = useEvmGenericAssetMetadata(assetSlug, network.chainId);
 
   const {
@@ -272,7 +280,7 @@ export function useEvmAssetBalance(assetSlug: string, address: HexString, networ
     isSyncing,
     error,
     refresh
-  } = useEvmAssetRawBalance(assetSlug, address, network, metadata?.standard);
+  } = useEvmAssetRawBalance(assetSlug, address, network, metadata?.standard, forceFirstRefreshOnChain);
 
   const value = useMemo(
     () => (rawValue && metadata ? atomsToTokens(new BigNumber(rawValue), metadata.decimals ?? 0) : undefined),

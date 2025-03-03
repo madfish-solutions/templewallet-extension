@@ -34,3 +34,5 @@ export const getEvmBalancesChanges = async (
 
   return basicBalancesChanges;
 };
+
+export * from './get-operation-kind';

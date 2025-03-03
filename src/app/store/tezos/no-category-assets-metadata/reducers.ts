@@ -1,9 +1,11 @@
 import { Draft, createReducer } from '@reduxjs/toolkit';
 import { omit, pick } from 'lodash';
+import { persistReducer } from 'redux-persist';
 
 import { fromAssetSlug } from 'lib/assets';
 import { FetchedMetadataRecord } from 'lib/metadata/fetch';
 import { buildTokenMetadataFromFetched } from 'lib/metadata/utils';
+import { storageConfig } from 'lib/store';
 
 import { putCollectiblesMetadataAction } from '../collectibles-metadata/actions';
 import { putTokensMetadataAction } from '../tokens-metadata/actions';
@@ -16,7 +18,7 @@ import {
 } from './actions';
 import { noCategoryTezosAssetsMetadataInitialState, NoCategoryTezosAssetsMetadataState } from './state';
 
-export const noCategoryTezosAssetsMetadataReducer = createReducer<NoCategoryTezosAssetsMetadataState>(
+const noCategoryTezosAssetsMetadataReducer = createReducer<NoCategoryTezosAssetsMetadataState>(
   noCategoryTezosAssetsMetadataInitialState,
   builder => {
     builder.addCase(
@@ -81,4 +83,13 @@ export const noCategoryTezosAssetsMetadataReducer = createReducer<NoCategoryTezo
     builder.addCase(putTokensMetadataAction, handlePutTokensOrCollectibles);
     builder.addCase(putCollectiblesMetadataAction, handlePutTokensOrCollectibles);
   }
+);
+
+export const noCategoryTezosAssetsMetadataPersistedReducer = persistReducer(
+  {
+    key: 'root.noCategoryTezosAssetsMetadata',
+    blacklist: ['metadataLoading'],
+    ...storageConfig
+  },
+  noCategoryTezosAssetsMetadataReducer
 );

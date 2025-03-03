@@ -1,10 +1,11 @@
 import { tokenToSlug } from 'lib/assets';
+import { mockPersistedState } from 'lib/store';
 
 import { mockFA1_2TokenMetadata, mockFA2TokenMetadata } from '../utils';
 
 import { NoCategoryTezosAssetsMetadataState } from './state';
 
-export const mockNoCategoryTezosAssetsMetadataState: NoCategoryTezosAssetsMetadataState = {
+export const mockNoCategoryTezosAssetsMetadataState = mockPersistedState<NoCategoryTezosAssetsMetadataState>({
   metadataRecord: {
     [tokenToSlug(mockFA1_2TokenMetadata)]: mockFA1_2TokenMetadata,
     [tokenToSlug(mockFA2TokenMetadata)]: mockFA2TokenMetadata
@@ -17,4 +18,4 @@ export const mockNoCategoryTezosAssetsMetadataState: NoCategoryTezosAssetsMetada
     mockAddress: [tokenToSlug(mockFA1_2TokenMetadata), tokenToSlug(mockFA2TokenMetadata)]
   },
   metadataLoading: false
-};
+});
