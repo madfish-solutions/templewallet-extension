@@ -146,10 +146,10 @@ export const mapUtorgProviderCurrencies = (currencies: UtorgCurrencyInfo[]): Top
     })),
   crypto: currencies
     .filter(
-      ({ chain, type, depositMax }) =>
+      ({ chain, type, depositMax, enabled }) =>
         type === UtorgCurrencyInfoType.CRYPTO &&
         depositMax > 0 &&
-        //enabled &&
+        enabled &&
         isDefined(chain) &&
         (isDefined(utorgChainChainIdMap[chain]) || isUtorgTez(chain))
     )

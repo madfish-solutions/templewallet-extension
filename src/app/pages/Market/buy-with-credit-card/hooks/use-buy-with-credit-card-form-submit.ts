@@ -4,13 +4,15 @@ import { isDefined } from '@rnw-community/shared';
 import { SubmitHandler } from 'react-hook-form-v7';
 import browser from 'webextension-polyfill';
 
+import { useCryptoCurrenciesSelector } from 'app/store/buy-with-credit-card/selectors';
 import { useUserIdSelector } from 'app/store/settings/selectors';
 import { toastError } from 'app/toaster';
-import { AnalyticsEventCategory, useAnalytics, useFormAnalytics } from 'lib/analytics';
+import { useFormAnalytics } from 'lib/analytics';
 import { createAliceBobOrder, getMoonpaySign } from 'lib/apis/temple';
 import { createOrder as createUtorgOrder } from 'lib/apis/utorg';
 import { TopUpProviderId } from 'lib/buy-with-credit-card/top-up-provider-id.enum';
 import { fromTopUpTokenSlug } from 'lib/buy-with-credit-card/top-up-token-slug.utils';
+import { TopUpOutputInterface } from 'lib/buy-with-credit-card/topup.interface';
 import { t } from 'lib/i18n';
 import { getAxiosQueryErrorMessage } from 'lib/utils/get-axios-query-error-message';
 import { assertUnreachable } from 'lib/utils/switch-cases';
@@ -20,7 +22,7 @@ import { TempleChainKind } from 'temple/types';
 import { BuyWithCreditCardFormData } from '../form-data.interface';
 
 export const useBuyWithCreditCardFormSubmit = () => {
-  const { trackEvent } = useAnalytics();
+  const [purchaseLinkLoading, setPurchaseLinkLoading] = useState(false);
 
   const formAnalytics = useFormAnalytics('BuyWithCreditCardForm');
   const userId = useUserIdSelector();
@@ -28,7 +30,9 @@ export const useBuyWithCreditCardFormSubmit = () => {
   const tezosAddress = useAccountAddressForTezos();
   const evmAddress = useAccountAddressForEvm();
 
-  const [purchaseLinkLoading, setPurchaseLinkLoading] = useState(false);
+  const moonpayCryptoCurrencies = useCryptoCurrenciesSelector(TopUpProviderId.MoonPay);
+  const utorgCryptoCurrencies = useCryptoCurrenciesSelector(TopUpProviderId.Utorg);
+  const aliceBobCryptoCurrencies = useCryptoCurrenciesSelector(TopUpProviderId.AliceBob);
 
   const onSubmit = useCallback<SubmitHandler<BuyWithCreditCardFormData>>(
     async formValues => {
@@ -38,13 +42,15 @@ export const useBuyWithCreditCardFormSubmit = () => {
 
       const publicKeyHash = chainKind === TempleChainKind.Tezos ? tezosAddress : evmAddress;
 
-      trackEvent('BUY_WITH_CREDIT_CARD_FORM_SUBMIT', AnalyticsEventCategory.FormSubmit, {
+      const analyticsProperties = {
         inputAmount: inputAmount?.toString(),
         inputAsset: inputCurrency.code,
         outputAmount: outputAmount?.toString(),
         outputAsset: outputToken.code,
         provider: provider?.name
-      });
+      };
+
+      formAnalytics.trackSubmit(analyticsProperties);
 
       if (
         !isDefined(provider?.outputAmount) ||
@@ -62,16 +68,27 @@ export const useBuyWithCreditCardFormSubmit = () => {
         let url: string;
         switch (provider.id) {
           case TopUpProviderId.MoonPay:
-            url = await getMoonpaySign(outputToken.code, '#ed8936', publicKeyHash, inputAmount, inputCurrency.code);
+            url = await getMoonpaySign(
+              getProviderTokenCode(moonpayCryptoCurrencies, outputToken.slug),
+              '#ed8936',
+              publicKeyHash,
+              inputAmount,
+              inputCurrency.code
+            );
             break;
           case TopUpProviderId.Utorg:
-            url = await createUtorgOrder(outputAmount, inputCurrency.code, publicKeyHash!, outputToken.code);
+            url = await createUtorgOrder(
+              outputAmount,
+              inputCurrency.code,
+              publicKeyHash!,
+              getProviderTokenCode(utorgCryptoCurrencies, outputToken.slug)
+            );
             break;
           case TopUpProviderId.AliceBob:
             const { data } = await createAliceBobOrder(
               inputAmount.toFixed(),
               inputCurrency.code,
-              outputToken.code,
+              getProviderTokenCode(aliceBobCryptoCurrencies, outputToken.slug),
               userId,
               publicKeyHash
             );
@@ -85,23 +102,31 @@ export const useBuyWithCreditCardFormSubmit = () => {
       } catch (error: any) {
         toastError(t('errorWhileCreatingOrder', getAxiosQueryErrorMessage(error)));
 
-        const analyticsProperties = {
-          inputAmount,
-          inputAsset: inputCurrency.code,
-          outputAmount,
-          outputAsset: outputToken.code,
-          provider: provider.id
-        };
         formAnalytics.trackSubmitFail(analyticsProperties);
       } finally {
         setPurchaseLinkLoading(false);
       }
     },
-    [evmAddress, formAnalytics, tezosAddress, trackEvent, userId]
+    [
+      aliceBobCryptoCurrencies,
+      evmAddress,
+      formAnalytics,
+      moonpayCryptoCurrencies,
+      tezosAddress,
+      userId,
+      utorgCryptoCurrencies
+    ]
   );
 
   return {
     onSubmit,
     purchaseLinkLoading
   };
+};
+
+const getProviderTokenCode = (tokens: TopUpOutputInterface[], tokenSlug: string) => {
+  const providerToken = tokens.find(({ slug }) => slug === tokenSlug);
+  if (!providerToken) throw new Error(t('pairNotFoundError'));
+
+  return providerToken.code;
 };
