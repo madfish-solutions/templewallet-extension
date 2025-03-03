@@ -1,7 +1,5 @@
 import { combineReducers } from '@reduxjs/toolkit';
 
-import { notificationsReducer } from 'lib/notifications';
-
 import { abTestingReducer } from './ab-testing/reducers';
 import { advertisingReducer } from './advertising/reducers';
 import { assetsFilterOptionsReducer } from './assets-filter-options/reducer';
@@ -17,6 +15,7 @@ import { evmLoadingReducer } from './evm/reducer';
 import { evmTokensExchangeRatesPersistedReducer } from './evm/tokens-exchange-rates/reducers';
 import { evmTokensMetadataPersistedReducer } from './evm/tokens-metadata/reducers';
 import { newsletterReducers } from './newsletter/newsletter-reducers';
+import { notificationsReducer } from './notifications/reducers';
 import { partnersPromotionPersistedReducer } from './partners-promotion/reducers';
 import { rewardsReducer } from './rewards/reducers';
 import { settingsPersistedReducer } from './settings/reducers';

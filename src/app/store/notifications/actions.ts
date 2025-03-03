@@ -1,8 +1,7 @@
 import { createAction } from '@reduxjs/toolkit';
 
+import { NotificationInterface } from 'app/pages/Notifications/types';
 import { createActions } from 'lib/store';
-
-import type { NotificationInterface } from '../types';
 
 export const loadNotificationsAction = createActions<void, NotificationInterface[]>('notifications/LOAD_NOTIFICATIONS');
 

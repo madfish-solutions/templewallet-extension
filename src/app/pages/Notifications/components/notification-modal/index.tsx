@@ -2,30 +2,30 @@ import React, { FC, useEffect } from 'react';
 
 import { isDefined } from '@rnw-community/shared';
 import classNames from 'clsx';
-import { useDispatch } from 'react-redux';
 
-import { Button, IconBase } from 'app/atoms';
+import { Button } from 'app/atoms';
+import { PageModal } from 'app/atoms/PageModal';
 import { useAppEnv } from 'app/env';
-import { ReactComponent as BellIcon } from 'app/icons/base/bell.svg';
-import PageLayout from 'app/layouts/PageLayout';
+import { dispatch } from 'app/store';
+import { readNotificationsItemAction } from 'app/store/notifications/actions';
+import { useNotificationsItemSelector } from 'app/store/notifications/selectors';
+import { setTestID } from 'lib/analytics';
 import { T } from 'lib/i18n';
 import { goBack } from 'lib/woozie';
 
-import { setTestID } from '../../../analytics';
-import { readNotificationsItemAction } from '../../store/actions';
-import { useNotificationsItemSelector } from '../../store/selectors';
-import { formatDateOutput } from '../../utils/date.utils';
+import { formatDateOutput } from '../../utils';
 
 import { NotificationsItemContent } from './content';
-import { NotificationsContentSelectors } from './notifications-content.selectors';
+import { NotificationsContentSelectors } from './selectors';
 
 interface Props {
   id: number;
+  opened: boolean;
+  onRequestClose: EmptyFn;
 }
 
-export const NotificationsItem: FC<Props> = ({ id }) => {
+export const NotificationModal: FC<Props> = ({ id, opened, onRequestClose }) => {
   const { popup } = useAppEnv();
-  const dispatch = useDispatch();
   const notification = useNotificationsItemSelector(id);
   useEffect(() => void dispatch(readNotificationsItemAction(notification?.id ?? 0)), [notification?.id]);
 
@@ -34,14 +34,7 @@ export const NotificationsItem: FC<Props> = ({ id }) => {
   }
 
   return (
-    <PageLayout
-      pageTitle={
-        <>
-          <IconBase Icon={BellIcon} size={16} className="mr-1" />
-          <T id="notifications" />
-        </>
-      }
-    >
+    <PageModal title="" opened={opened} onRequestClose={onRequestClose}>
       <div className={classNames(['max-w-sm mx-auto px-4 pb-15', popup ? 'pt-4' : 'pt-6'])}>
         <img
           src={notification.extensionImageUrl}
@@ -99,6 +92,6 @@ export const NotificationsItem: FC<Props> = ({ id }) => {
           <T id="okGotIt" />
         </Button>
       </div>
-    </PageLayout>
+    </PageModal>
   );
 };

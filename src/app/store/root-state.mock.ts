@@ -1,5 +1,3 @@
-import { mockNotificationsState } from 'lib/notifications';
-
 import { mockABTestingState } from './ab-testing/state.mock';
 import { mockAdvertisingState } from './advertising/state.mock';
 import { mockAssetsFilterOptionsState } from './assets-filter-options/state.mock';
@@ -15,6 +13,7 @@ import { mockEvmLoadingState } from './evm/state.mock';
 import { mockEvmTokensExchangeRatesState } from './evm/tokens-exchange-rates/state.mock';
 import { mockEvmTokensMetadataState } from './evm/tokens-metadata/state.mock';
 import { mockNewsletterState } from './newsletter/newsletter-state.mock';
+import { mockNotificationsState } from './notifications/state.mock';
 import { mockPartnersPromotionState } from './partners-promotion/state.mock';
 import { mockRewardsState } from './rewards/state.mock';
 import type { RootState } from './root-state.type';

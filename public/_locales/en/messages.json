@@ -3551,8 +3551,8 @@
   "notificationsSettingsDescription": {
     "message": "Configure the notifications you want to receive. (Platform updates and emergency notifications can’t be disabled)"
   },
-  "notificationsNotFound": {
-    "message": "Notifications not found"
+  "noNotificationsYet": {
+    "message": "No notifications yet"
   },
   "readInOriginal": {
     "message": "Read in original"

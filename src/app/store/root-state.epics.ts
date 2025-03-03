@@ -2,8 +2,6 @@ import type { Action } from 'redux';
 import { combineEpics, createEpicMiddleware } from 'redux-observable';
 import { catchError } from 'rxjs/operators';
 
-import { notificationsEpics } from 'lib/notifications';
-
 import { abTestingEpics } from './ab-testing/epics';
 import { advertisingEpics } from './advertising/epics';
 import { buyWithCreditCardEpics } from './buy-with-credit-card/epics';
@@ -11,6 +9,7 @@ import { cryptoExchangeEpics } from './crypto-exchange/epics';
 import { currencyEpics } from './currency/epics';
 import { evmBalancesEpics } from './evm/balances/epics';
 import { evmNoCategoryAssetsMetadataEpics } from './evm/no-category-assets-metadata/epics';
+import { notificationsEpics } from './notifications/epics';
 import { rewardsEpics } from './rewards/epics';
 import type { RootState } from './root-state.type';
 import { swapEpics } from './swap/epics';

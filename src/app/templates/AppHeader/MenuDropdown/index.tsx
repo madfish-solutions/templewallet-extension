@@ -8,12 +8,12 @@ import { useShortcutAccountSelectModalIsOpened } from 'app/hooks/use-account-sel
 import { ReactComponent as FullViewIcon } from 'app/icons/base/fullview.svg';
 import { ReactComponent as LockIcon } from 'app/icons/base/lock.svg';
 import { ReactComponent as SettingsIcon } from 'app/icons/base/settings.svg';
+import { NotificationsBell } from 'app/pages/Notifications/components/bell';
 import { dispatch } from 'app/store';
 import { setAssetsFilterChain } from 'app/store/assets-filter-options/actions';
 import { setIsTestnetModeEnabledAction } from 'app/store/settings/actions';
 import { useTestnetModeEnabledSelector } from 'app/store/settings/selectors';
 import { T } from 'lib/i18n';
-import { NotificationsBell } from 'lib/notifications/components/bell';
 import { useTempleClient } from 'lib/temple/front';
 import { PopperRenderProps } from 'lib/ui/Popper';
 

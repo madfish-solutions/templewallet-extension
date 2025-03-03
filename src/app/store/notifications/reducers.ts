@@ -1,9 +1,8 @@
 import { createReducer } from '@reduxjs/toolkit';
 import { isDefined } from '@rnw-community/shared';
 
+import { NotificationStatus } from 'app/pages/Notifications/enums/notification-status.enum';
 import { createEntity } from 'lib/store';
-
-import { NotificationStatus } from '../enums/notification-status.enum';
 
 import {
   loadNotificationsAction,

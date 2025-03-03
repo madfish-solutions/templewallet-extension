@@ -16,7 +16,6 @@ import { Swap } from 'app/pages/Swap/Swap';
 import Unlock from 'app/pages/Unlock/Unlock';
 import Welcome from 'app/pages/Welcome/Welcome';
 import { usePageRouterAnalytics } from 'lib/analytics';
-import { Notifications, NotificationsItem } from 'lib/notifications/components';
 import { useTempleClient } from 'lib/temple/front';
 import * as Woozie from 'lib/woozie';
 import { TempleChainKind } from 'temple/types';
@@ -26,6 +25,7 @@ import { ChainSettings } from './pages/ChainSettings';
 import { EarnTezPage } from './pages/EarnTez';
 import { ImportWallet } from './pages/ImportWallet';
 import { Market } from './pages/Market';
+import { Notifications } from './pages/Notifications';
 import { RewardsPage } from './pages/Rewards';
 import { StakingPage } from './pages/Staking';
 import { TokenPage } from './pages/Token';
@@ -105,7 +105,6 @@ const ROUTE_MAP = Woozie.createMap<RouteContext>([
   ['/buy/debit', onlyReady(onlyInFullPage(() => <BuyWithCreditCard />))],
   ['/attention', onlyReady(onlyInFullPage(() => <AttentionPage />))],
   ['/notifications', onlyReady(() => <Notifications />)],
-  ['/notifications/:id', onlyReady(({ id }) => <NotificationsItem id={Number(id) ?? 0} />)],
   ['/account/:id', onlyReady(({ id }) => <AccountSettings id={id!} />)],
   ['/rewards', onlyReady(() => <RewardsPage />)],
   ['*', () => <Woozie.Redirect to="/" />]
