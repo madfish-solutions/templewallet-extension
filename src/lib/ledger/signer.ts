@@ -43,7 +43,6 @@ export class TempleLedgerSigner extends LedgerSigner {
   }
 
   async sign(bytes: string, watermark?: Uint8Array) {
-    // TODO: improve error handling using errors codes
     const result = await super.sign(bytes, watermark).catch(err => {
       throw toLedgerError(err);
     });

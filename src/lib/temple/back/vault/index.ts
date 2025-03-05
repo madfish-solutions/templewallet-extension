@@ -688,15 +688,18 @@ export class Vault {
 
   async getLedgerTezosPk(derivationPath = DEFAULT_TEZOS_DERIVATION_PATH, derivationType?: DerivationType) {
     return withError('Failed to connect get Ledger account public key hash', async () => {
+      let cleanup: EmptyFn | undefined;
       try {
-        const { signer, cleanup } = await createLedgerSigner(derivationPath, derivationType);
+        const { signer, cleanup: cleanSigner } = await createLedgerSigner(derivationPath, derivationType);
+        cleanup = cleanSigner;
 
         const result = await signer.publicKey();
-        cleanup();
 
         return result;
       } catch (e: any) {
         throw new PublicError(e.message);
+      } finally {
+        cleanup?.();
       }
     });
   }

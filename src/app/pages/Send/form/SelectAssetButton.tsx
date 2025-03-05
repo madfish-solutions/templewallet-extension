@@ -20,7 +20,6 @@ interface SelectAssetButtonProps extends TestIDProperty {
   className?: string;
 }
 
-// 'flex justify-between items-center rounded-lg shadow-bottom border-0.5 border-transparent hover:border-lines'
 export const SelectAssetButton = memo<SelectAssetButtonProps>(
   ({ selectedAssetSlug, network, accountPkh, onClick, className, testID }) => (
     <DropdownTriggerButton className={clsx('py-1.5 px-3', className)} onClick={onClick}>
