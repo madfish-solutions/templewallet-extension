@@ -75,11 +75,13 @@ export type StoredAccount =
   | StoredManagedKTAccount
   | StoredWatchOnlyAccount;
 
-interface StoredLedgerAccount extends StoredAccountBase {
+export interface StoredLedgerAccount extends StoredAccountBase {
   type: TempleAccountType.Ledger;
   tezosAddress: string;
   derivationPath: string;
 }
+
+export type SaveLedgerAccountInput = Omit<StoredLedgerAccount, 'id' | 'type'> & { publicKey: string };
 
 interface StoredImportedAccount extends StoredAccountBase {
   type: TempleAccountType.Imported;
@@ -400,6 +402,8 @@ export enum TempleMessageType {
   ImportMnemonicAccountResponse = 'TEMPLE_IMPORT_MNEMONIC_ACCOUNT_RESPONSE',
   ImportWatchOnlyAccountRequest = 'TEMPLE_IMPORT_WATCH_ONLY_ACCOUNT_REQUEST',
   ImportWatchOnlyAccountResponse = 'TEMPLE_IMPORT_WATCH_ONLY_ACCOUNT_RESPONSE',
+  GetLedgerTezosPkRequest = 'TEMPLE_GET_LEDGER_TEZOS_PK_REQUEST',
+  GetLedgerTezosPkResponse = 'TEMPLE_GET_LEDGER_TEZOS_PK_RESPONSE',
   CreateLedgerAccountRequest = 'TEMPLE_CREATE_LEDGER_ACCOUNT_REQUEST',
   CreateLedgerAccountResponse = 'TEMPLE_CREATE_LEDGER_ACCOUNT_RESPONSE',
   UpdateSettingsRequest = 'TEMPLE_UPDATE_SETTINGS_REQUEST',
@@ -471,6 +475,7 @@ export type TempleRequest =
   | TempleImportAccountRequest
   | TempleImportMnemonicAccountRequest
   | TempleImportWatchOnlyAccountRequest
+  | TempleGetLedgerTezosPkRequest
   | TempleCreateLedgerAccountRequest
   | TempleOperationsRequest
   | TempleSignRequest
@@ -512,6 +517,7 @@ export type TempleResponse =
   | TempleImportAccountResponse
   | TempleImportMnemonicAccountResponse
   | TempleImportWatchOnlyAccountResponse
+  | TempleGetLedgerTezosPkResponse
   | TempleCreateLedgerAccountResponse
   | TempleOperationsResponse
   | TempleSignResponse
@@ -747,11 +753,20 @@ interface TempleImportWatchOnlyAccountResponse extends TempleMessageBase {
   type: TempleMessageType.ImportWatchOnlyAccountResponse;
 }
 
-interface TempleCreateLedgerAccountRequest extends TempleMessageBase {
-  type: TempleMessageType.CreateLedgerAccountRequest;
-  name: string;
+interface TempleGetLedgerTezosPkRequest extends TempleMessageBase {
+  type: TempleMessageType.GetLedgerTezosPkRequest;
   derivationPath?: string;
   derivationType?: DerivationType;
+}
+
+interface TempleGetLedgerTezosPkResponse extends TempleMessageBase {
+  type: TempleMessageType.GetLedgerTezosPkResponse;
+  publicKey: string;
+}
+
+interface TempleCreateLedgerAccountRequest extends TempleMessageBase {
+  type: TempleMessageType.CreateLedgerAccountRequest;
+  input: SaveLedgerAccountInput;
 }
 
 interface TempleCreateLedgerAccountResponse extends TempleMessageBase {

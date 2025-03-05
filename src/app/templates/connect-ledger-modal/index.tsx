@@ -7,6 +7,7 @@ import { TempleChainKind } from 'temple/types';
 import { ConnectDeviceStep } from './connect-device-step';
 import { SelectAccountStep } from './select-account-step';
 import { SelectNetworkStep } from './select-network-step';
+import { TezosAccountProps } from './types';
 
 interface ConnectLedgerModalProps {
   animated?: boolean;
@@ -32,7 +33,7 @@ interface ConnectDeviceState {
 
 interface SelectAccountState {
   step: ConnectLedgerModalStep.SelectAccount;
-  // TODO: add properties to support all chains
+  initialAccount: TezosAccountProps;
 }
 
 type State = SelectNetworkState | ConnectDeviceState | SelectAccountState;
@@ -63,7 +64,10 @@ export const ConnectLedgerModal = memo<ConnectLedgerModalProps>(
         setState({ step: ConnectLedgerModalStep.ConnectDevice });
       }
     }, []);
-    const goToSelectAccount = useCallback(() => setState({ step: ConnectLedgerModalStep.SelectAccount }), []);
+    const goToSelectAccount = useCallback(
+      (initialAccount: TezosAccountProps) => setState({ step: ConnectLedgerModalStep.SelectAccount, initialAccount }),
+      []
+    );
 
     return (
       <PageModal
@@ -79,7 +83,9 @@ export const ConnectLedgerModal = memo<ConnectLedgerModalProps>(
       >
         {state.step === ConnectLedgerModalStep.SelectNetwork && <SelectNetworkStep onSelect={goToConnectDevice} />}
         {state.step === ConnectLedgerModalStep.ConnectDevice && <ConnectDeviceStep onSuccess={goToSelectAccount} />}
-        {state.step === ConnectLedgerModalStep.SelectAccount && <SelectAccountStep onSuccess={onClose} />}
+        {state.step === ConnectLedgerModalStep.SelectAccount && (
+          <SelectAccountStep initialAccount={state.initialAccount} onSuccess={onClose} />
+        )}
       </PageModal>
     );
   }

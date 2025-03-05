@@ -1,3 +1,5 @@
+import { PublicKeyHashRetrievalError, PublicKeyRetrievalError } from '@taquito/ledger-signer/dist/types/errors';
+
 import { PublicError } from 'lib/temple/back/PublicError';
 
 import { TransportType } from './transport/types';
@@ -18,3 +20,9 @@ export const toLedgerError = (error: string | { message: string }) => {
   const message = typeof error === 'object' ? error.message : error;
   return new PublicError(`Ledger error. ${message}`);
 };
+
+export const isPkRetrievalError = (error: unknown): error is PublicKeyRetrievalError =>
+  error instanceof Error && error.name === 'PublicKeyRetrievalError';
+
+export const isPkhRetrievalError = (error: unknown): error is PublicKeyHashRetrievalError =>
+  error instanceof Error && error.name === 'PublicKeyHashRetrievalError';

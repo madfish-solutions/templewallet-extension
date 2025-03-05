@@ -53,3 +53,5 @@ export { default as AccountTypeBadge } from './AccountTypeBadge';
 export { QRCode } from './QRCode';
 
 export { CopyButton } from './CopyButton';
+
+export * from './ledger-image';

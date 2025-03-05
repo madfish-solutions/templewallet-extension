@@ -2,9 +2,8 @@ import React, { memo } from 'react';
 
 import clsx from 'clsx';
 
-import { Button, IconBase } from 'app/atoms';
+import { DropdownTriggerButton } from 'app/atoms/dropdown-trigger-button';
 import Money from 'app/atoms/Money';
-import { ReactComponent as CompactDown } from 'app/icons/base/compact_down.svg';
 import { EvmAssetIconWithNetwork, TezosTokenIconWithNetwork } from 'app/templates/AssetIcon';
 import { EvmBalance, TezosBalance } from 'app/templates/Balance';
 import { setAnotherSelector, setTestID, TestIDProperty } from 'lib/analytics';
@@ -21,15 +20,10 @@ interface SelectAssetButtonProps extends TestIDProperty {
   className?: string;
 }
 
+// 'flex justify-between items-center rounded-lg shadow-bottom border-0.5 border-transparent hover:border-lines'
 export const SelectAssetButton = memo<SelectAssetButtonProps>(
   ({ selectedAssetSlug, network, accountPkh, onClick, className, testID }) => (
-    <Button
-      className={clsx(
-        'cursor-pointer flex justify-between items-center py-1.5 px-3 rounded-lg shadow-bottom border-0.5 border-transparent hover:border-lines',
-        className
-      )}
-      onClick={onClick}
-    >
+    <DropdownTriggerButton className={clsx('py-1.5 px-3', className)} onClick={onClick}>
       <div
         className="flex justify-center items-center"
         {...setTestID(testID)}
@@ -41,8 +35,7 @@ export const SelectAssetButton = memo<SelectAssetButtonProps>(
           <EvmContent network={network} accountPkh={accountPkh as HexString} assetSlug={selectedAssetSlug} />
         )}
       </div>
-      <IconBase Icon={CompactDown} className="text-primary" size={16} />
-    </Button>
+    </DropdownTriggerButton>
   )
 );
 

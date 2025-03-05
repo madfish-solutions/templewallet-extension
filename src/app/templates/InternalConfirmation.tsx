@@ -4,10 +4,10 @@ import { localForger } from '@taquito/local-forging';
 import classNames from 'clsx';
 
 import { Alert, FormSubmitButton, FormSecondaryButton } from 'app/atoms';
-import ConfirmLedgerOverlay from 'app/atoms/ConfirmLedgerOverlay';
 import { Logo } from 'app/atoms/Logo';
 import SubTitle from 'app/atoms/SubTitle';
 import { useAppEnv } from 'app/env';
+import { useLedgerApprovalModalState } from 'app/hooks/use-ledger-approval-modal-state';
 import { ReactComponent as CodeAltIcon } from 'app/icons/code-alt.svg';
 import { ReactComponent as EyeIcon } from 'app/icons/eye.svg';
 import { ReactComponent as HashIcon } from 'app/icons/hash.svg';
@@ -25,12 +25,14 @@ import { T, t } from 'lib/i18n';
 import { useRetryableSWR } from 'lib/swr';
 import { tryParseExpenses } from 'lib/temple/front';
 import { TempleAccountType, TempleConfirmationPayload } from 'lib/temple/types';
+import { runConnectedLedgerOperationFlow } from 'lib/ui';
 import { useSafeState } from 'lib/ui/hooks';
 import { isTruthy } from 'lib/utils';
 import { findAccountForTezos } from 'temple/accounts';
 import { useTezosChainIdLoadingValue, useRelevantAccounts } from 'temple/front';
 
 import { InternalConfirmationSelectors } from './InternalConfirmation.selectors';
+import { LedgerApprovalModal } from './ledger-approval-modal';
 
 type InternalConfiramtionProps = {
   payload: TempleConfirmationPayload;
@@ -180,20 +182,39 @@ const InternalConfirmation: FC<InternalConfiramtionProps> = ({ payload, onConfir
     (payload.type === 'operations' && payload.opParams && payload.opParams[0].storageLimit) || 0
   );
 
+  const { ledgerApprovalModalState, setLedgerApprovalModalState, handleLedgerModalClose } =
+    useLedgerApprovalModalState();
+  const isLedgerOperation = account.type === TempleAccountType.Ledger;
+
   const gasFeeError = useMemo(() => modifiedTotalFeeValue <= MIN_GAS_FEE, [modifiedTotalFeeValue]);
 
   const confirm = useCallback(
     async (confirmed: boolean) => {
-      setError(null);
+      const doOperation = async () => {
+        setError(null);
+        await onConfirm(confirmed, modifiedTotalFeeValue - revealFee, modifiedStorageLimitValue);
+      };
 
       try {
-        await onConfirm(confirmed, modifiedTotalFeeValue - revealFee, modifiedStorageLimitValue);
+        if (isLedgerOperation) {
+          await runConnectedLedgerOperationFlow(doOperation, setLedgerApprovalModalState, true);
+        } else {
+          await doOperation();
+        }
       } catch (err) {
         console.error(err);
         setError(err);
       }
     },
-    [onConfirm, setError, modifiedTotalFeeValue, modifiedStorageLimitValue, revealFee]
+    [
+      setError,
+      onConfirm,
+      modifiedTotalFeeValue,
+      revealFee,
+      modifiedStorageLimitValue,
+      isLedgerOperation,
+      setLedgerApprovalModalState
+    ]
   );
 
   const handleConfirmClick = useCallback(async () => {
@@ -353,7 +374,7 @@ const InternalConfirmation: FC<InternalConfiramtionProps> = ({ payload, onConfir
           </div>
         </div>
 
-        <ConfirmLedgerOverlay displayed={confirming && account.type === TempleAccountType.Ledger} />
+        <LedgerApprovalModal state={ledgerApprovalModalState} onClose={handleLedgerModalClose} />
       </div>
     </div>
   );
