@@ -13,7 +13,7 @@ import { setTestID } from 'lib/analytics';
 import { T } from 'lib/i18n';
 import { goBack } from 'lib/woozie';
 
-import { formatDateOutput } from '../../utils';
+import { formatGeneralDate } from '../../utils';
 
 import { NotificationsItemContent } from './content';
 import { NotificationsContentSelectors } from './selectors';
@@ -53,7 +53,7 @@ export const NotificationModal: FC<Props> = ({ id, opened, onRequestClose }) => 
           testID={NotificationsContentSelectors.notificationContentDescription}
         />
         <div className="font-inter mt-4" style={{ fontSize: 10 }}>
-          <p className="text-gray-500 font-normal">{formatDateOutput(notification.createdAt)}</p>
+          <p className="text-gray-500 font-normal">{formatGeneralDate(notification.createdAt)}</p>
           {isDefined(notification.sourceUrl) && (
             <>
               <p className="text-gray-600 font-medium"> • </p>

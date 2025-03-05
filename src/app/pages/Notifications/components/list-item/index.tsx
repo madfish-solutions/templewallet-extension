@@ -11,7 +11,7 @@ import { AnalyticsEventCategory, setAnotherSelector, setTestID, useAnalytics } f
 import { NotificationStatus } from '../../enums/notification-status.enum';
 import { NotificationType } from '../../enums/notification-type.enum';
 import type { NotificationInterface } from '../../types';
-import { formatDateOutput } from '../../utils';
+import { formatGeneralDate, formatWeekdayHourDate } from '../../utils';
 
 import { PreviewItemSelectors } from './selectors';
 
@@ -61,8 +61,8 @@ export const ListItem = memo<Props>(({ notification, onClick }) => {
         </p>
 
         <div className="flex flex-row justify-between text-font-num-12 text-grey-1">
-          <div>{formatDateOutput(notification.createdAt)}</div>
-          <div>Friday</div>
+          <div>{formatGeneralDate(notification.createdAt)}</div>
+          <div>{formatWeekdayHourDate(notification.createdAt)}</div>
         </div>
       </div>
     </div>
