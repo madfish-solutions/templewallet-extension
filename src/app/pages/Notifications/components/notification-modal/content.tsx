@@ -7,11 +7,7 @@ import { NotificationInterface } from '../../types';
 type Props = TestIDProps & Pick<NotificationInterface, 'content'>;
 
 export const NotificationsItemContent: FC<Props> = ({ content, testID }) => (
-  <p
-    className="font-inter text-gray-900 font-normal whitespace-pre-wrap mb-3"
-    style={{ fontSize: 14 }}
-    {...setTestID(testID)}
-  >
+  <p className="text-font-medium whitespace-pre-wrap" {...setTestID(testID)}>
     {content.map((contentItem, index) => {
       if (typeof contentItem === 'string') {
         return contentItem;
@@ -23,7 +19,7 @@ export const NotificationsItemContent: FC<Props> = ({ content, testID }) => (
           href={contentItem.url}
           target="_blank"
           rel="noopener noreferrer"
-          className="text-blue-500"
+          className="text-secondary"
         >
           {contentItem.text}
         </a>

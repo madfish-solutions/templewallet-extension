@@ -61,8 +61,8 @@ export const ListItem = memo<Props>(({ notification, onClick }) => {
         </p>
 
         <div className="flex flex-row justify-between text-font-num-12 text-grey-1">
-          <div>{formatGeneralDate(notification.createdAt)}</div>
-          <div>{formatWeekdayHourDate(notification.createdAt)}</div>
+          <p>{formatGeneralDate(notification.createdAt)}</p>
+          <p>{formatWeekdayHourDate(notification.createdAt)}</p>
         </div>
       </div>
     </div>
