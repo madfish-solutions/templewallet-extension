@@ -75,7 +75,7 @@ const atlasCountriesCodes = [
   'kg',
   'kh',
   'km',
-  'kn',
+  'ke',
   'kp',
   'kr',
   'kw',

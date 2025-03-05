@@ -22,7 +22,6 @@ interface Props {
   setModalHeaderConfig: SyncFn<ModalHeaderConfig>;
   paymentProvidersToDisplay: PaymentProviderInterface[];
   lastFormRefreshTimestamp: number;
-  refreshForm: EmptyFn;
   onProviderSelect?: SyncFn<PaymentProviderInterface>;
   onGoBack?: EmptyFn;
 }
@@ -31,7 +30,6 @@ export const SelectProvider: FC<Props> = ({
   setModalHeaderConfig,
   paymentProvidersToDisplay,
   lastFormRefreshTimestamp,
-  refreshForm,
   onProviderSelect,
   onGoBack
 }) => {
@@ -55,12 +53,8 @@ export const SelectProvider: FC<Props> = ({
 
   return (
     <FadeTransition>
-      <NewQuoteLabel
-        title="providers"
-        lastFormRefreshTimestamp={lastFormRefreshTimestamp}
-        refreshForm={refreshForm}
-        className="m-4"
-      />
+      <NewQuoteLabel title="providers" lastFormRefreshTimestamp={lastFormRefreshTimestamp} className="m-4" />
+
       <div className="flex flex-col px-4 pb-4">
         {paymentProvidersToDisplay.length === 0 ? (
           <EmptyState stretch />

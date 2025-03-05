@@ -1,5 +1,7 @@
 import React, { memo, useCallback, useMemo, useState } from 'react';
 
+import classNames from 'clsx';
+
 import { Flag } from 'app/atoms/Flag';
 import { TOKEN_FALLBACK_ICON_SRC, TOKENS_ICONS_SRC } from 'lib/icons';
 
@@ -7,14 +9,11 @@ interface Props {
   src: string;
   code: string;
   useFlagIcon?: boolean;
-  size?: number;
   alt?: string;
 }
 
-export const AssetIcon = memo<Props>(({ src, code, useFlagIcon, size = 40, alt }) => {
+export const AssetIcon = memo<Props>(({ src, code, useFlagIcon, alt }) => {
   const [isFailed, setIsFailed] = useState(false);
-
-  const countryCode = currencyToLocaleMap[code];
 
   const localSrc = useMemo(() => {
     if (isFailed) return TOKEN_FALLBACK_ICON_SRC;
@@ -26,14 +25,19 @@ export const AssetIcon = memo<Props>(({ src, code, useFlagIcon, size = 40, alt }
   const handleError = useCallback(() => setIsFailed(true), []);
 
   return (
-    <div className="flex justify-center items-center" style={{ width: size, height: size }}>
-      {countryCode && useFlagIcon ? (
-        <Flag alt={code} countryCode={countryCode} />
-      ) : (
-        <div className="flex justify-center items-center rounded-full w-9 h-9 overflow-hidden">
+    <div className="flex justify-center items-center w-10 h-10">
+      <div
+        className={classNames(
+          'flex justify-center items-center rounded-circle w-9 h-9',
+          useFlagIcon ? ' bg-grey-4' : 'overflow-hidden'
+        )}
+      >
+        {useFlagIcon ? (
+          <Flag alt={code} countryCode={currencyToLocaleMap[code]} />
+        ) : (
           <img src={localSrc} alt={alt} className="w-10 h-10 object-cover" onError={handleError} />
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 });

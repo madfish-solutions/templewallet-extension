@@ -4,8 +4,8 @@ import { isDefined } from '@rnw-community/shared';
 import BigNumber from 'bignumber.js';
 import debounce from 'debounce-promise';
 import type { UseFormReturn } from 'react-hook-form-v7';
-import { useDispatch } from 'react-redux';
 
+import { dispatch } from 'app/store';
 import { loadAllCurrenciesActions, updatePairLimitsActions } from 'app/store/buy-with-credit-card/actions';
 import { useAllPairsLimitsSelector } from 'app/store/buy-with-credit-card/selectors';
 import { mergeProvidersLimits } from 'lib/buy-with-credit-card/merge-limits';
@@ -24,8 +24,7 @@ export const useFormInputsCallbacks = (
   form: UseFormReturn<BuyWithCreditCardFormData>,
   updateProvidersOutputs: ReturnType<typeof usePaymentProviders>['updateOutputAmounts'],
   formIsLoading: boolean,
-  setFormIsLoading: SyncFn<boolean>,
-  setLastFormRefreshTimestamp: SyncFn<number>
+  setFormIsLoading: SyncFn<boolean>
 ) => {
   const { watch, setValue, trigger } = form;
 
@@ -36,7 +35,6 @@ export const useFormInputsCallbacks = (
 
   const outputCalculationDataRef = useRef({ inputAmount, inputCurrency, outputToken });
   const manuallySelectedProviderIdRef = useRef<TopUpProviderId>();
-  const dispatch = useDispatch();
   const allPairsLimits = useAllPairsLimitsSelector();
 
   const setPaymentProvider = useCallback(
@@ -75,7 +73,7 @@ export const useFormInputsCallbacks = (
         },
         200
       ),
-    [updateProvidersOutputs, setValue, topUpProvider, setPaymentProvider]
+    [setValue, topUpProvider, setPaymentProvider, updateProvidersOutputs, trigger, setFormIsLoading]
   );
 
   const handleInputValueChange = useCallback(
@@ -84,7 +82,7 @@ export const useFormInputsCallbacks = (
       setFormIsLoading(true);
       void updateOutput(newInputAmount, newInputAsset, outputToken);
     },
-    [updateOutput, outputToken]
+    [outputToken, setFormIsLoading, updateOutput]
   );
 
   const handleInputAssetChange = useCallback(
@@ -115,7 +113,7 @@ export const useFormInputsCallbacks = (
       setFormIsLoading(true);
       updateOutput(inputAmount, patchedInputCurrency, newValue);
     },
-    [inputAmount, inputCurrency, updateOutput, allPairsLimits]
+    [allPairsLimits, inputCurrency, inputAmount, setFormIsLoading, updateOutput]
   );
 
   const handlePaymentProviderChange = useCallback(
@@ -134,8 +132,7 @@ export const useFormInputsCallbacks = (
       setFormIsLoading(true);
       updateOutput(inputAmount, inputCurrency, outputToken);
     }
-    setLastFormRefreshTimestamp(Date.now());
-  }, [inputCurrency, outputToken, updateOutput, formIsLoading, inputAmount]);
+  }, [inputCurrency, outputToken, formIsLoading, inputAmount, setFormIsLoading, updateOutput]);
 
   return {
     handleInputAssetChange,

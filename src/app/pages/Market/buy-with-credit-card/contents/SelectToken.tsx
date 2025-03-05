@@ -3,6 +3,7 @@ import React, { FC, useCallback, useLayoutEffect, useMemo, useState } from 'reac
 import { useFormContext } from 'react-hook-form-v7';
 import { useDebounce } from 'use-debounce';
 
+import { FadeTransition } from 'app/a11y/FadeTransition';
 import { EmptyState } from 'app/atoms/EmptyState';
 import { PageLoader } from 'app/atoms/Loader';
 import { BackButton } from 'app/atoms/PageModal';
@@ -81,7 +82,7 @@ export const SelectToken: FC<Props> = ({ setModalHeaderConfig, onTokenSelect, on
   );
 
   return (
-    <>
+    <FadeTransition>
       <div className="p-4">
         <SearchBarField value={searchValue} defaultRightMargin={false} onValueChange={setSearchValue} className="p-4" />
       </div>
@@ -99,7 +100,7 @@ export const SelectToken: FC<Props> = ({ setModalHeaderConfig, onTokenSelect, on
           </>
         )}
       </div>
-    </>
+    </FadeTransition>
   );
 };
 

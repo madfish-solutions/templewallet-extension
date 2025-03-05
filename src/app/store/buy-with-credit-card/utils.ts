@@ -25,8 +25,10 @@ interface AliceBobFiatCurrency {
   precision: number;
 }
 
+const MOONPAY_ICONS_BASE_URL = 'https://static.moonpay.com/widget/currencies/';
+
 const UTORG_FIAT_ICONS_BASE_URL = 'https://utorg.pro/img/flags2/icon-';
-const UTORG_CRYPTO_ICONS_BASE_URL = 'https://utorg.pro/img/cryptoIcons';
+const UTORG_CRYPTO_ICONS_BASE_URL = 'https://utorg.pro/img/cryptoIcons/';
 
 const getCurrencyNameByCode = (code: string) => {
   const customCurrencyNames: StringRecord = {
@@ -68,7 +70,7 @@ const aliceBobTezos = {
   name: 'Tezos',
   code: 'XTZ',
   providerId: TopUpProviderId.AliceBob,
-  icon: 'https://static.moonpay.com/widget/currencies/xtz.svg',
+  icon: `${MOONPAY_ICONS_BASE_URL}xtz.svg`,
   precision: 6,
   slug: toTopUpTokenSlug('XTZ', TempleChainKind.Tezos, TEZOS_MAINNET_CHAIN_ID)
 };
@@ -78,9 +80,9 @@ const isMoonpayTez = (metadata: MoonPayCryptoCurrency['metadata']) => metadata.n
 const polygonCodes = ['pol_polygon', 'pol'];
 
 const getMoonpayTokenIconUrl = (tokenCode: string) => {
-  if (polygonCodes.includes(tokenCode)) return 'https://static.moonpay.com/widget/currencies/matic.svg';
+  if (polygonCodes.includes(tokenCode)) return `${MOONPAY_ICONS_BASE_URL}matic.svg`;
 
-  return `https://static.moonpay.com/widget/currencies/${tokenCode}.svg`;
+  return `${MOONPAY_ICONS_BASE_URL + tokenCode}.svg`;
 };
 
 export const mapMoonPayProviderCurrencies = (currencies: Currency[]): TopUpProviderCurrencies => ({
@@ -93,7 +95,7 @@ export const mapMoonPayProviderCurrencies = (currencies: Currency[]): TopUpProvi
       name,
       code: code.toUpperCase(),
       codeToDisplay: code.toUpperCase().split('_')[0],
-      icon: `https://static.moonpay.com/widget/currencies/${code}.svg`,
+      icon: `${MOONPAY_ICONS_BASE_URL + code}.svg`,
       minAmount: minBuyAmount,
       maxAmount: maxBuyAmount,
       precision: Math.min(precision, 2) // Currencies like JOD have 3 decimals but Moonpay fails to process input with 3 decimals
@@ -132,6 +134,13 @@ const utorgChainChainIdMap: Record<string, string> = {
 
 const isUtorgTez = (chain?: string) => chain === 'TEZOS';
 
+const getUtorgTokenIconUrl = (code: string, symbol: string) => {
+  if (symbol.startsWith('USDT')) return `${MOONPAY_ICONS_BASE_URL}usdt.svg`;
+  if (symbol.startsWith('USDC')) return `${MOONPAY_ICONS_BASE_URL}usdc.svg`;
+
+  return `${UTORG_CRYPTO_ICONS_BASE_URL + code}.svg`;
+};
+
 export const mapUtorgProviderCurrencies = (currencies: UtorgCurrencyInfo[]): TopUpProviderCurrencies => ({
   fiat: currencies
     .filter(({ type, depositMax }) => type === UtorgCurrencyInfoType.FIAT && depositMax > 0)
@@ -156,7 +165,7 @@ export const mapUtorgProviderCurrencies = (currencies: UtorgCurrencyInfo[]): Top
     .map(({ currency, display, caption, precision, chain }) => ({
       name: caption,
       code: currency,
-      icon: `${UTORG_CRYPTO_ICONS_BASE_URL}/${currency}.svg`,
+      icon: getUtorgTokenIconUrl(currency, display),
       precision,
       slug: toTopUpTokenSlug(
         display,

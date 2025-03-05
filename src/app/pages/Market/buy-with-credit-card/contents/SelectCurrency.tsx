@@ -3,6 +3,7 @@ import React, { FC, useCallback, useLayoutEffect, useMemo, useState } from 'reac
 import { useFormContext } from 'react-hook-form-v7';
 import { useDebounce } from 'use-debounce';
 
+import { FadeTransition } from 'app/a11y/FadeTransition';
 import { EmptyState } from 'app/atoms/EmptyState';
 import { PageLoader } from 'app/atoms/Loader';
 import { BackButton } from 'app/atoms/PageModal';
@@ -60,7 +61,7 @@ export const SelectCurrency: FC<Props> = ({ setModalHeaderConfig, onCurrencySele
   );
 
   return (
-    <>
+    <FadeTransition>
       <div className="p-4">
         <SearchBarField value={searchValue} defaultRightMargin={false} onValueChange={setSearchValue} className="p-4" />
       </div>
@@ -78,17 +79,16 @@ export const SelectCurrency: FC<Props> = ({ setModalHeaderConfig, onCurrencySele
           </>
         )}
       </div>
-    </>
+    </FadeTransition>
   );
 };
 
 interface CurrencyProps {
   currency: TopUpInputInterface;
-  iconSize?: number;
   onClick?: (currency: TopUpInputInterface) => void;
 }
 
-const Currency: FC<CurrencyProps> = ({ currency, iconSize = 24, onClick }) => {
+const Currency: FC<CurrencyProps> = ({ currency, onClick }) => {
   const handleClick = useCallback(() => onClick?.(currency), [currency, onClick]);
 
   return (
@@ -97,9 +97,7 @@ const Currency: FC<CurrencyProps> = ({ currency, iconSize = 24, onClick }) => {
       onClick={handleClick}
     >
       <div className="flex items-center gap-x-2 min-h-10">
-        <div className="w-9 h-9 flex justify-center items-center rounded-full bg-grey-4">
-          <AssetIcon useFlagIcon size={iconSize} src={currency.icon} code={currency.code} />
-        </div>
+        <AssetIcon useFlagIcon src={currency.icon} code={currency.code} />
 
         <div className="flex flex-col">
           <span className="text-font-medium">{currency.code}</span>

@@ -18,7 +18,7 @@ export const SelectAssetButton = memo<Props>(({ currency, useFlagIcon, onClick }
     className="cursor-pointer flex justify-between items-center bg-white py-0.5 px-2 gap-x-1 rounded-8 w-[144px] h-[46px] border-0.5 border-transparent hover:border-lines"
     onClick={onClick}
   >
-    <div className="flex items-center gap-x-2">
+    <div className="flex items-center gap-x-1">
       <AssetIcon useFlagIcon={useFlagIcon} src={currency.icon} code={currency.code} />
       <div className="text-start">
         <p className="text-font-description-bold">{getAssetSymbolToDisplay(currency)}</p>

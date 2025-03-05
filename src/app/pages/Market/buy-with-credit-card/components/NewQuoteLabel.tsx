@@ -10,11 +10,10 @@ import { FORM_REFRESH_INTERVAL } from '../config';
 interface Props {
   title: TID;
   lastFormRefreshTimestamp: number;
-  refreshForm: EmptyFn;
   className?: string;
 }
 
-export const NewQuoteLabel = memo<Props>(({ title, lastFormRefreshTimestamp, refreshForm, className }) => {
+export const NewQuoteLabel = memo<Props>(({ title, lastFormRefreshTimestamp, className }) => {
   const countdownRef = useRef<Countdown>(null);
   const lastTimestampRef = useRef(lastFormRefreshTimestamp);
 
@@ -43,7 +42,6 @@ export const NewQuoteLabel = memo<Props>(({ title, lastFormRefreshTimestamp, ref
             </span>
           )}
           date={lastFormRefreshTimestamp + FORM_REFRESH_INTERVAL}
-          onComplete={refreshForm}
         />
       </span>
     </div>

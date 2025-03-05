@@ -5,13 +5,15 @@ import { FormProvider, useForm } from 'react-hook-form-v7';
 import { PageModal } from 'app/atoms/PageModal';
 import { dispatch } from 'app/store';
 import { loadAllCurrenciesActions } from 'app/store/buy-with-credit-card/actions';
+import { useInterval } from 'lib/ui/hooks';
 import { useAccountAddressForTezos } from 'temple/front';
 
 import {
   DEFAULT_EVM_OUTPUT_TOKEN,
   DEFAULT_INPUT_CURRENCY,
   DEFAULT_TEZOS_OUTPUT_TOKEN,
-  defaultModalHeaderConfig
+  defaultModalHeaderConfig,
+  FORM_REFRESH_INTERVAL
 } from './config';
 import { Form } from './contents/Form';
 import { SelectCurrency } from './contents/SelectCurrency';
@@ -72,11 +74,21 @@ export const BuyWithCreditCard: FC<Props> = ({ opened, onRequestClose }) => {
     setPaymentProvider,
     manuallySelectedProviderIdRef,
     refreshForm
-  } = useFormInputsCallbacks(form, updateOutputAmounts, formIsLoading, setFormIsLoading, setLastFormRefreshTimestamp);
+  } = useFormInputsCallbacks(form, updateOutputAmounts, formIsLoading, setFormIsLoading);
 
   useErrorAlert(allPaymentProviders, providersErrors, inputCurrency, outputToken);
 
   useEffect(() => void dispatch(loadAllCurrenciesActions.submit()), []);
+
+  useInterval(
+    () => {
+      refreshForm();
+      setLastFormRefreshTimestamp(Date.now());
+    },
+    [],
+    FORM_REFRESH_INTERVAL,
+    false
+  );
 
   const onGoBack = useCallback(() => {
     setModalHeaderConfig(defaultModalHeaderConfig);
@@ -110,7 +122,6 @@ export const BuyWithCreditCard: FC<Props> = ({ opened, onRequestClose }) => {
                   setModalHeaderConfig={setModalHeaderConfig}
                   paymentProvidersToDisplay={paymentProvidersToDisplay}
                   lastFormRefreshTimestamp={lastFormRefreshTimestamp}
-                  refreshForm={refreshForm}
                   onProviderSelect={handlePaymentProviderChange}
                   onGoBack={onGoBack}
                 />
@@ -120,7 +131,6 @@ export const BuyWithCreditCard: FC<Props> = ({ opened, onRequestClose }) => {
                 <Form
                   setModalContent={setModalContent}
                   formIsLoading={formIsLoading}
-                  refreshForm={refreshForm}
                   lastFormRefreshTimestamp={lastFormRefreshTimestamp}
                   allPaymentProviders={allPaymentProviders}
                   providersErrors={providersErrors}
