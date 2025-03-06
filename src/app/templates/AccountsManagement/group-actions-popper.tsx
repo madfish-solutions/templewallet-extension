@@ -14,7 +14,6 @@ import { DisplayedGroup, StoredAccount, TempleAccountType } from 'lib/temple/typ
 import { useAlert } from 'lib/ui';
 import Popper, { PopperRenderProps } from 'lib/ui/Popper';
 import { isTruthy } from 'lib/utils';
-import { navigate } from 'lib/woozie';
 import { useHDGroups } from 'temple/front';
 
 import { AccountsAction, AccountsActionsDropdown } from './actions-dropdown';
@@ -28,6 +27,7 @@ export interface GroupActionsPopperProps {
   showAccountAlreadyExistsWarning: (group: DisplayedGroup, oldAccount: StoredAccount) => void;
   goToImportModal: EmptyFn;
   goToWatchOnlyModal: EmptyFn;
+  goToLedgerConnectModal: EmptyFn;
 }
 
 const GroupActionsDropdown = memo<PopperRenderProps & GroupActionsPopperProps>(
@@ -41,6 +41,7 @@ const GroupActionsDropdown = memo<PopperRenderProps & GroupActionsPopperProps>(
     onDeleteClick,
     showAccountAlreadyExistsWarning,
     goToImportModal,
+    goToLedgerConnectModal,
     goToWatchOnlyModal
   }) => {
     const { createAccount, findFreeHdIndex } = useTempleClient();
@@ -138,7 +139,7 @@ const GroupActionsDropdown = memo<PopperRenderProps & GroupActionsPopperProps>(
               Icon: ImportedIcon,
               onClick:
                 group.type === TempleAccountType.Ledger
-                  ? () => navigate('/connect-ledger')
+                  ? goToLedgerConnectModal
                   : group.type === TempleAccountType.Imported
                   ? goToImportModal
                   : goToWatchOnlyModal,
@@ -163,6 +164,7 @@ const GroupActionsDropdown = memo<PopperRenderProps & GroupActionsPopperProps>(
       onRevealSeedPhraseClick,
       onDeleteClick,
       goToImportModal,
+      goToLedgerConnectModal,
       goToWatchOnlyModal
     ]);
 

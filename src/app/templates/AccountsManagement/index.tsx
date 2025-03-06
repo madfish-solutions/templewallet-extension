@@ -247,6 +247,7 @@ export const AccountsManagement = memo<SettingsTabProps>(({ setHeaderChildren })
               onRenameClick={handleRenameClick}
               onRevealSeedPhraseClick={handleRevealSeedPhraseClick}
               goToImportModal={goToImportAccountModal}
+              goToLedgerConnectModal={goToConnectLedgerModal}
               goToWatchOnlyModal={goToWatchOnlyModal}
             />
           ))}
