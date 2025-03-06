@@ -1,13 +1,5 @@
-export const formatGeneralDate = (date: number | string) =>
-  new Date(date).toLocaleString('en-GB', {
-    day: 'numeric',
-    month: 'numeric',
-    year: 'numeric'
-  });
+import { formatDate } from 'lib/i18n';
 
-export const formatWeekdayHourDate = (date: number | string) =>
-  new Date(date).toLocaleString('en-GB', {
-    weekday: 'long',
-    hour: 'numeric',
-    minute: 'numeric'
-  });
+export const formatGeneralDate = (date: string) => formatDate(date, 'dd/MM/yyyy');
+
+export const formatWeekdayHourDate = (date: string) => formatDate(date, 'EEEE HH:mm');
