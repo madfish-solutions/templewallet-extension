@@ -7,6 +7,7 @@ import { Controller, useFormContext } from 'react-hook-form-v7';
 
 import { FadeTransition } from 'app/a11y/FadeTransition';
 import AssetField from 'app/atoms/AssetField';
+import Money from 'app/atoms/Money';
 import { ActionsButtonsBox } from 'app/atoms/PageModal';
 import { StyledButton } from 'app/atoms/StyledButton';
 import { dispatch } from 'app/store';
@@ -16,7 +17,7 @@ import { getAssetSymbolToDisplay } from 'lib/buy-with-credit-card/get-asset-symb
 import { TopUpProviderId } from 'lib/buy-with-credit-card/top-up-provider-id.enum';
 import { PaymentProviderInterface } from 'lib/buy-with-credit-card/topup.interface';
 import { ProviderErrors } from 'lib/buy-with-credit-card/types';
-import { T, t, toLocalFormat } from 'lib/i18n';
+import { T, t } from 'lib/i18n';
 
 import { InfoContainer, InfoRaw } from '../../components/InfoBlock';
 import { ErrorType, MinMaxDisplay } from '../../components/MinMaxDisplay';
@@ -71,21 +72,11 @@ export const Form: FC<Props> = ({
 
   const exchangeRate = useMemo(() => {
     if (isDefined(inputAmount) && inputAmount > 0 && isDefined(outputAmount) && outputAmount > 0) {
-      return new BigNumber(outputAmount).div(inputAmount).decimalPlaces(6);
+      return new BigNumber(outputAmount).div(inputAmount);
     }
 
     return undefined;
   }, [inputAmount, outputAmount]);
-
-  const exchangeRateStr = useMemo(() => {
-    if (isDefined(exchangeRate))
-      return `1 ${getAssetSymbolToDisplay(inputCurrency)} = ${toLocalFormat(
-        exchangeRate,
-        {}
-      )} ${getAssetSymbolToDisplay(outputToken)}`;
-
-    return VALUE_PLACEHOLDER;
-  }, [exchangeRate, inputCurrency, outputToken]);
 
   const isLoading = isSubmitting || formIsLoading || currenciesLoading || pairLimitsLoading || purchaseLinkLoading;
 
@@ -97,10 +88,7 @@ export const Form: FC<Props> = ({
     isLoading
   );
 
-  const { fiatCurrenciesWithPairLimits: allFiatCurrencies } = useAllFiatCurrencies(
-    inputCurrency.code,
-    outputToken.slug
-  );
+  const allFiatCurrencies = useAllFiatCurrencies(inputCurrency.code, outputToken.slug);
   const allCryptoCurrencies = useAllCryptoCurrencies();
 
   useEffect(() => {
@@ -205,7 +193,16 @@ export const Form: FC<Props> = ({
 
         <InfoContainer className="mt-6 mb-8">
           <InfoRaw bottomSeparator title="exchangeRate">
-            <span className="p-1 text-font-description">{exchangeRateStr}</span>
+            <span className="p-1 text-font-description">
+              {exchangeRate ? (
+                <>
+                  {getAssetSymbolToDisplay(inputCurrency) + ' ≈ '}
+                  <Money smallFractionFont={false}>{exchangeRate}</Money> {getAssetSymbolToDisplay(outputToken)}
+                </>
+              ) : (
+                VALUE_PLACEHOLDER
+              )}
+            </span>
           </InfoRaw>
 
           <p className="py-2 px-1 text-font-small text-grey-1">

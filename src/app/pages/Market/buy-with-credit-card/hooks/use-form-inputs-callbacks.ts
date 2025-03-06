@@ -3,10 +3,11 @@ import { useCallback, useMemo, useRef } from 'react';
 import { isDefined } from '@rnw-community/shared';
 import BigNumber from 'bignumber.js';
 import debounce from 'debounce-promise';
+import { intersection } from 'lodash';
 import type { UseFormReturn } from 'react-hook-form-v7';
 
 import { dispatch } from 'app/store';
-import { loadAllCurrenciesActions, updatePairLimitsActions } from 'app/store/buy-with-credit-card/actions';
+import { updatePairLimitsActions } from 'app/store/buy-with-credit-card/actions';
 import { useAllPairsLimitsSelector } from 'app/store/buy-with-credit-card/selectors';
 import { mergeProvidersLimits } from 'lib/buy-with-credit-card/merge-limits';
 import { TopUpProviderId } from 'lib/buy-with-credit-card/top-up-provider-id.enum';
@@ -15,7 +16,9 @@ import {
   TopUpInputInterface,
   TopUpOutputInterface
 } from 'lib/buy-with-credit-card/topup.interface';
+import { useAccountAddressForTezos } from 'temple/front';
 
+import { DEFAULT_EVM_OUTPUT_TOKEN, DEFAULT_TEZOS_OUTPUT_TOKEN } from '../config';
 import { BuyWithCreditCardFormData } from '../form-data.interface';
 
 import { usePaymentProviders } from './use-payment-providers';
@@ -27,6 +30,8 @@ export const useFormInputsCallbacks = (
   setFormIsLoading: SyncFn<boolean>
 ) => {
   const { watch, setValue, trigger } = form;
+
+  const tezosAddress = useAccountAddressForTezos();
 
   const inputAmount = watch('inputAmount');
   const inputCurrency = watch('inputCurrency');
@@ -78,11 +83,21 @@ export const useFormInputsCallbacks = (
 
   const handleInputValueChange = useCallback(
     (newInputAmount: number | undefined, newInputAsset: TopUpInputInterface) => {
-      outputCalculationDataRef.current = { inputAmount: newInputAmount, inputCurrency: newInputAsset, outputToken };
+      let newOutputAsset = outputToken;
+
+      if (intersection(newInputAsset.providers, outputToken.providers).length === 0) {
+        newOutputAsset = tezosAddress ? DEFAULT_TEZOS_OUTPUT_TOKEN : DEFAULT_EVM_OUTPUT_TOKEN;
+      }
+
+      outputCalculationDataRef.current = {
+        inputAmount: newInputAmount,
+        inputCurrency: newInputAsset,
+        outputToken: newOutputAsset
+      };
       setFormIsLoading(true);
-      void updateOutput(newInputAmount, newInputAsset, outputToken);
+      void updateOutput(newInputAmount, newInputAsset, newOutputAsset);
     },
-    [outputToken, setFormIsLoading, updateOutput]
+    [outputToken, setFormIsLoading, tezosAddress, updateOutput]
   );
 
   const handleInputAssetChange = useCallback(
@@ -125,7 +140,6 @@ export const useFormInputsCallbacks = (
   );
 
   const refreshForm = useCallback(() => {
-    dispatch(loadAllCurrenciesActions.submit());
     dispatch(updatePairLimitsActions.submit({ fiatSymbol: inputCurrency.code, cryptoSlug: outputToken.slug }));
     if (!formIsLoading) {
       outputCalculationDataRef.current = { inputAmount, inputCurrency, outputToken };

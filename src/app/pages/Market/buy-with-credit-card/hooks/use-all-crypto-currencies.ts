@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 
 import { isDefined } from '@rnw-community/shared';
+import { union } from 'lodash';
 
 import { useCryptoCurrenciesSelector } from 'app/store/buy-with-credit-card/selectors';
 import { TopUpProviderId } from 'lib/buy-with-credit-card/top-up-provider-id.enum';
@@ -16,9 +17,16 @@ export const useAllCryptoCurrencies = () => {
       Object.values(
         [...moonpayCryptoCurrencies, ...utorgCryptoCurrencies, ...aliceBobCryptoCurrencies].reduce<
           Record<string, TopUpOutputInterface>
-        >((acc, currency) => {
-          if (!isDefined(acc[currency.slug])) {
-            acc[currency.slug] = currency;
+        >((acc, token) => {
+          const accToken = acc[token.slug];
+
+          if (isDefined(accToken)) {
+            acc[token.slug] = {
+              ...accToken,
+              providers: union(accToken.providers, token.providers)
+            };
+          } else {
+            acc[token.slug] = token;
           }
 
           return acc;

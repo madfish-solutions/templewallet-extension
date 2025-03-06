@@ -30,10 +30,7 @@ export const SelectCurrency: FC<Props> = ({ setModalHeaderConfig, onCurrencySele
     [onGoBack, setModalHeaderConfig]
   );
 
-  const { fiatCurrenciesWithPairLimits: allFiatCurrencies } = useAllFiatCurrencies(
-    inputCurrency.code,
-    outputToken.slug
-  );
+  const allFiatCurrencies = useAllFiatCurrencies(inputCurrency.code, outputToken.slug);
 
   const currenciesLoading = useCurrenciesLoadingSelector();
 

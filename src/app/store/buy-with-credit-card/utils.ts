@@ -69,7 +69,7 @@ const knownAliceBobFiatCurrencies: Record<string, AliceBobFiatCurrency> = {
 const aliceBobTezos = {
   name: 'Tezos',
   code: 'XTZ',
-  providerId: TopUpProviderId.AliceBob,
+  providers: [TopUpProviderId.AliceBob],
   icon: `${MOONPAY_ICONS_BASE_URL}xtz.svg`,
   precision: 6,
   slug: toTopUpTokenSlug('XTZ', TempleChainKind.Tezos, TEZOS_MAINNET_CHAIN_ID)
@@ -96,6 +96,7 @@ export const mapMoonPayProviderCurrencies = (currencies: Currency[]): TopUpProvi
       code: code.toUpperCase(),
       codeToDisplay: code.toUpperCase().split('_')[0],
       icon: `${MOONPAY_ICONS_BASE_URL + code}.svg`,
+      providers: [TopUpProviderId.MoonPay],
       minAmount: minBuyAmount,
       maxAmount: maxBuyAmount,
       precision: Math.min(precision, 2) // Currencies like JOD have 3 decimals but Moonpay fails to process input with 3 decimals
@@ -112,6 +113,7 @@ export const mapMoonPayProviderCurrencies = (currencies: Currency[]): TopUpProvi
       name,
       code: code.toUpperCase(),
       icon: getMoonpayTokenIconUrl(code),
+      providers: [TopUpProviderId.MoonPay],
       minAmount: minBuyAmount ?? undefined,
       maxAmount: maxBuyAmount ?? undefined,
       precision,
@@ -149,6 +151,7 @@ export const mapUtorgProviderCurrencies = (currencies: UtorgCurrencyInfo[]): Top
       code,
       codeToDisplay: display,
       icon: `${UTORG_FIAT_ICONS_BASE_URL}${code.slice(0, -1)}.svg`,
+      providers: [TopUpProviderId.Utorg],
       precision,
       minAmount: depositMin,
       maxAmount: depositMax
@@ -166,6 +169,7 @@ export const mapUtorgProviderCurrencies = (currencies: UtorgCurrencyInfo[]): Top
       name: caption,
       code: currency,
       icon: getUtorgTokenIconUrl(currency, display),
+      providers: [TopUpProviderId.Utorg],
       precision,
       slug: toTopUpTokenSlug(
         display,
@@ -186,6 +190,7 @@ export const mapAliceBobProviderCurrencies = (
     if (knownAliceBobFiatCurrencies[code]) {
       return {
         ...knownAliceBobFiatCurrencies[code],
+        providers: [TopUpProviderId.AliceBob],
         minAmount,
         maxAmount
       };
@@ -195,6 +200,7 @@ export const mapAliceBobProviderCurrencies = (
       name: getCurrencyNameByCode(code),
       code,
       icon: `https://static.moonpay.com/widget/currencies/${code.toLowerCase()}.svg`,
+      providers: [TopUpProviderId.AliceBob],
       precision: 2,
       minAmount,
       maxAmount

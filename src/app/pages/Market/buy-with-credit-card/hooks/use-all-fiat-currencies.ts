@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 
 import { isDefined } from '@rnw-community/shared';
+import { union } from 'lodash';
 
 import { useAllPairsLimitsSelector, useFiatCurrenciesSelector } from 'app/store/buy-with-credit-card/selectors';
 import { mergeProvidersLimits } from 'lib/buy-with-credit-card/merge-limits';
@@ -24,21 +25,28 @@ export const useAllFiatCurrencies = (inputCurrencySymbol: string, outputTokenSlu
     [allPairsLimits, inputCurrencySymbol, outputTokenSlug]
   );
 
-  const noPairLimitsFiatCurrencies = useMemo(
+  const noPairLimitsUniqueFiatCurrencies = useMemo(
     () =>
       Object.values(
         allNonUniqueFiatCurrencies.reduce<Record<string, TopUpInputInterface>>((acc, currency) => {
-          if (isDefined(acc[currency.code])) {
-            const newTopUpCurrency = { ...acc[currency.code] };
+          const accCurrency = acc[currency.code];
+
+          if (isDefined(accCurrency)) {
+            const newTopUpCurrency = { ...accCurrency };
+
             if (isDefined(currency.minAmount)) {
               newTopUpCurrency.minAmount = Math.min(newTopUpCurrency.minAmount ?? Infinity, currency.minAmount);
             }
             if (isDefined(currency.maxAmount)) {
               newTopUpCurrency.maxAmount = Math.max(newTopUpCurrency.maxAmount ?? 0, currency.maxAmount);
             }
-            acc[currency.code] = newTopUpCurrency;
+
+            acc[currency.code] = {
+              ...newTopUpCurrency,
+              providers: union(accCurrency.providers, currency.providers)
+            };
           } else {
-            acc[currency.code] = { ...currency };
+            acc[currency.code] = currency;
           }
 
           return acc;
@@ -48,10 +56,10 @@ export const useAllFiatCurrencies = (inputCurrencySymbol: string, outputTokenSlu
   );
 
   const fiatCurrenciesWithPairLimits = useMemo(() => {
-    const inputCurrencyIndex = noPairLimitsFiatCurrencies.findIndex(({ code }) => code === inputCurrencySymbol);
-    if (inputCurrencyIndex === -1) return noPairLimitsFiatCurrencies;
+    const inputCurrencyIndex = noPairLimitsUniqueFiatCurrencies.findIndex(({ code }) => code === inputCurrencySymbol);
+    if (inputCurrencyIndex === -1) return noPairLimitsUniqueFiatCurrencies;
 
-    const fiatCurrenciesWithPairLimits = [...noPairLimitsFiatCurrencies];
+    const fiatCurrenciesWithPairLimits = [...noPairLimitsUniqueFiatCurrencies];
     const inputCurrency = fiatCurrenciesWithPairLimits[inputCurrencyIndex]!;
 
     const { min: minAmount, max: maxAmount } = pairLimits;
@@ -62,10 +70,7 @@ export const useAllFiatCurrencies = (inputCurrencySymbol: string, outputTokenSlu
     };
 
     return fiatCurrenciesWithPairLimits;
-  }, [noPairLimitsFiatCurrencies, pairLimits, inputCurrencySymbol]);
+  }, [noPairLimitsUniqueFiatCurrencies, pairLimits, inputCurrencySymbol]);
 
-  return {
-    noPairLimitsFiatCurrencies,
-    fiatCurrenciesWithPairLimits
-  };
+  return fiatCurrenciesWithPairLimits;
 };

@@ -1,5 +1,6 @@
 import React, { FC, useCallback, useLayoutEffect, useMemo } from 'react';
 
+import { intersection } from 'lodash';
 import { useFormContext } from 'react-hook-form-v7';
 
 import { BackButton } from 'app/atoms/PageModal';
@@ -23,7 +24,9 @@ interface Props {
 }
 
 export const SelectToken: FC<Props> = ({ setModalHeaderConfig, onTokenSelect, onGoBack }) => {
-  const { setValue } = useFormContext<BuyWithCreditCardFormData>();
+  const { watch, setValue } = useFormContext<BuyWithCreditCardFormData>();
+
+  const inputCurrency = watch('inputCurrency');
 
   const evmChains = useEnabledEvmChains();
 
@@ -51,6 +54,11 @@ export const SelectToken: FC<Props> = ({ setModalHeaderConfig, onTokenSelect, on
     [allTokens, evmAddress, evmChains, tezosAddress]
   );
 
+  const tokensForSelectedFiat = useMemo(
+    () => enabledTokens.filter(token => intersection(inputCurrency.providers, token.providers).length > 0),
+    [enabledTokens, inputCurrency]
+  );
+
   const handleTokenSelect = useCallback(
     (token: TopUpOutputInterface) => {
       setValue('outputToken', token);
@@ -62,7 +70,7 @@ export const SelectToken: FC<Props> = ({ setModalHeaderConfig, onTokenSelect, on
 
   return (
     <SelectAssetBase<TopUpOutputInterface>
-      assets={enabledTokens}
+      assets={tokensForSelectedFiat}
       loading={currenciesLoading}
       onCurrencySelect={handleTokenSelect}
     />
