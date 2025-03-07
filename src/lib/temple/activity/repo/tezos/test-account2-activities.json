@@ -1,0 +1,254 @@
+[
+  {
+    "hash": "opVQbwiTzkt6PoiSTSuZzKa2UDUU3cVqTLZurMSFbwWajp7DpSC",
+    "chain": "tezos",
+    "chainId": "NetXdQprcVkpaWU",
+    "operations": [
+      {
+        "kind": 1,
+        "type": 3,
+        "fromAddress": "tz1N7mkPWedKcMPHt9tgiA4SstDHS4L6LKKQ",
+        "toAddress": "tz1L7QjtFG4KJBMZ8tppwMmTjMGwqxPFCSXM",
+        "assetSlug": "KT1VaEsVNiBoA56eToEK6n6BcPgh1tdx9eXi_0",
+        "amountSigned": "1339475907485901204"
+      }
+    ],
+    "operationsCount": 1,
+    "addedAt": "2025-02-20T14:53:48Z",
+    "oldestTzktOperation": {
+      "timestamp": "2025-02-20T14:53:48Z",
+      "level": 8021846,
+      "id": 1625220504879104,
+      "hash": "opVQbwiTzkt6PoiSTSuZzKa2UDUU3cVqTLZurMSFbwWajp7DpSC"
+    },
+    "status": 0
+  },
+  {
+    "hash": "opB4aHuSU2T49KZrkhpzGdDErv7ePuid79kHUnSVMAdaksQbioU",
+    "chain": "tezos",
+    "chainId": "NetXdQprcVkpaWU",
+    "operations": [
+      {
+        "kind": 1,
+        "type": 3,
+        "fromAddress": "tz1W1en9UpMCH4ZJL8wQCh8JDKCZARyVx2co",
+        "toAddress": "tz1L7QjtFG4KJBMZ8tppwMmTjMGwqxPFCSXM",
+        "assetSlug": "tez",
+        "amountSigned": "875"
+      }
+    ],
+    "operationsCount": 1,
+    "addedAt": "2025-02-19T10:26:44Z",
+    "oldestTzktOperation": {
+      "timestamp": "2025-02-19T10:26:44Z",
+      "level": 8009108,
+      "id": 1622532904976384,
+      "hash": "opB4aHuSU2T49KZrkhpzGdDErv7ePuid79kHUnSVMAdaksQbioU"
+    },
+    "status": 0
+  },
+  {
+    "hash": "opQNJSqzvBSQd3R1e4ZRVRCegNZFZiCxPxJN3JyGeKSPWwDjaYu",
+    "chain": "tezos",
+    "chainId": "NetXdQprcVkpaWU",
+    "operations": [
+      {
+        "kind": 0,
+        "withAddress": "tz1gXwZnDuTfD17uA9GTtwTGmEfh4ABCHSmE"
+      }
+    ],
+    "operationsCount": 1,
+    "addedAt": "2025-02-19T08:39:08Z",
+    "oldestTzktOperation": {
+      "timestamp": "2025-02-19T08:39:08Z",
+      "level": 8008304,
+      "id": 1622335173951488,
+      "hash": "opQNJSqzvBSQd3R1e4ZRVRCegNZFZiCxPxJN3JyGeKSPWwDjaYu"
+    },
+    "status": 0
+  },
+  {
+    "hash": "op3hi1BwnP5MYV9vJY9wgD4LvmUxxnWwhi6a2NiWVQPrbdJb6gk",
+    "chain": "tezos",
+    "chainId": "NetXdQprcVkpaWU",
+    "operations": [
+      {
+        "kind": 0,
+        "withAddress": "KT1R7WEtNNim3YgkxPt8wPMczjH3eyhbJMtz"
+      },
+      {
+        "kind": 0,
+        "withAddress": "KT1K8A8DLUTVuHaDBCZiG6AJdvKJbtH8dqmN"
+      },
+      {
+        "kind": 0,
+        "withAddress": "KT19DUSZw7mfeEATrbWVPHRrWNVbNnmfFAE6"
+      },
+      {
+        "kind": 0,
+        "withAddress": "KT19DUSZw7mfeEATrbWVPHRrWNVbNnmfFAE6"
+      },
+      {
+        "kind": 0,
+        "withAddress": "KT1R7WEtNNim3YgkxPt8wPMczjH3eyhbJMtz"
+      },
+      {
+        "kind": 0,
+        "withAddress": "KT1VNEzpf631BLsdPJjt2ZhgUitR392x6cSi"
+      },
+      {
+        "kind": 0,
+        "withAddress": "KT19DUSZw7mfeEATrbWVPHRrWNVbNnmfFAE6"
+      },
+      {
+        "kind": 0,
+        "withAddress": "KT1LN4LPSqTMS7Sd2CJw4bbDGRkMv2t68Fy9"
+      },
+      {
+        "kind": 0,
+        "withAddress": "KT1VNEzpf631BLsdPJjt2ZhgUitR392x6cSi"
+      },
+      {
+        "kind": 0,
+        "withAddress": "KT1LN4LPSqTMS7Sd2CJw4bbDGRkMv2t68Fy9"
+      },
+      {
+        "kind": 0,
+        "withAddress": "KT1R7WEtNNim3YgkxPt8wPMczjH3eyhbJMtz"
+      },
+      {
+        "kind": 0,
+        "withAddress": "KT1KMUVh3Mf9P6yn8tkzku197kcYjoZ3qChi"
+      },
+      {
+        "kind": 0,
+        "withAddress": "KT1LN4LPSqTMS7Sd2CJw4bbDGRkMv2t68Fy9"
+      },
+      {
+        "kind": 0,
+        "withAddress": "KT1K9gCRgaLRFKTErYt1wVxA3Frb9FjasjTV"
+      },
+      {
+        "kind": 0,
+        "withAddress": "KT1K9gCRgaLRFKTErYt1wVxA3Frb9FjasjTV"
+      },
+      {
+        "kind": 0,
+        "withAddress": "KT1R7WEtNNim3YgkxPt8wPMczjH3eyhbJMtz"
+      },
+      {
+        "kind": 0,
+        "withAddress": "KT1X3zxdTzPB9DgVzA3ad6dgZe9JEamoaeRy"
+      },
+      {
+        "kind": 0,
+        "withAddress": "KT193D4vozYnhGJQVtw7CoxxqphqUEEwK6Vb"
+      },
+      {
+        "kind": 0,
+        "withAddress": "KT1R7WEtNNim3YgkxPt8wPMczjH3eyhbJMtz"
+      },
+      {
+        "kind": 0,
+        "withAddress": "KT1VNEzpf631BLsdPJjt2ZhgUitR392x6cSi"
+      },
+      {
+        "kind": 0,
+        "withAddress": "KT1K9gCRgaLRFKTErYt1wVxA3Frb9FjasjTV"
+      },
+      {
+        "kind": 0,
+        "withAddress": "KT1VNEzpf631BLsdPJjt2ZhgUitR392x6cSi"
+      },
+      {
+        "kind": 0,
+        "withAddress": "KT1K9gCRgaLRFKTErYt1wVxA3Frb9FjasjTV"
+      },
+      {
+        "kind": 0,
+        "withAddress": "KT1R7WEtNNim3YgkxPt8wPMczjH3eyhbJMtz"
+      },
+      {
+        "kind": 1,
+        "type": 1,
+        "fromAddress": "KT1R7WEtNNim3YgkxPt8wPMczjH3eyhbJMtz",
+        "toAddress": "tz1L7QjtFG4KJBMZ8tppwMmTjMGwqxPFCSXM",
+        "assetSlug": "KT1K9gCRgaLRFKTErYt1wVxA3Frb9FjasjTV_0",
+        "amountSigned": "246857887214820546"
+      }
+    ],
+    "operationsCount": 25,
+    "addedAt": "2025-02-19T08:38:04Z",
+    "oldestTzktOperation": {
+      "timestamp": "2025-02-19T08:38:04Z",
+      "level": 8008296,
+      "id": 1622333520347136,
+      "hash": "op3hi1BwnP5MYV9vJY9wgD4LvmUxxnWwhi6a2NiWVQPrbdJb6gk"
+    },
+    "status": 0
+  },
+  {
+    "hash": "ooS4SsuTxUt1x7vvoxZuKmpoDDM9un7rwrAeSHbkTBf9VjuyoTJ",
+    "chain": "tezos",
+    "chainId": "NetXdQprcVkpaWU",
+    "operations": [
+      {
+        "kind": 0,
+        "withAddress": "KT1K9gCRgaLRFKTErYt1wVxA3Frb9FjasjTV"
+      },
+      {
+        "kind": 0,
+        "withAddress": "KT1AU17piUnQjovVyS8rQwpUxuWLapXnk9x3"
+      },
+      {
+        "kind": 0,
+        "withAddress": "KT1AU17piUnQjovVyS8rQwpUxuWLapXnk9x3"
+      },
+      {
+        "kind": 1,
+        "type": 0,
+        "fromAddress": "tz1L7QjtFG4KJBMZ8tppwMmTjMGwqxPFCSXM",
+        "toAddress": "KT1AU17piUnQjovVyS8rQwpUxuWLapXnk9x3",
+        "assetSlug": "KT1K9gCRgaLRFKTErYt1wVxA3Frb9FjasjTV_0",
+        "amountSigned": "-100000000000000000"
+      },
+      {
+        "kind": 0,
+        "withAddress": "KT1HHAEMSBtuQb1HBRLdjCby9Fa11st2RZpA"
+      },
+      {
+        "kind": 0,
+        "withAddress": "KT1K9gCRgaLRFKTErYt1wVxA3Frb9FjasjTV"
+      },
+      {
+        "kind": 0,
+        "withAddress": "KT1HHAEMSBtuQb1HBRLdjCby9Fa11st2RZpA"
+      },
+      {
+        "kind": 0,
+        "withAddress": "KT1HHAEMSBtuQb1HBRLdjCby9Fa11st2RZpA"
+      },
+      {
+        "kind": 1,
+        "type": 0,
+        "fromAddress": "tz1L7QjtFG4KJBMZ8tppwMmTjMGwqxPFCSXM",
+        "toAddress": "KT1HHAEMSBtuQb1HBRLdjCby9Fa11st2RZpA",
+        "assetSlug": "KT1AU17piUnQjovVyS8rQwpUxuWLapXnk9x3_0",
+        "amountSigned": "-103165702403093898"
+      },
+      {
+        "kind": 0,
+        "withAddress": "KT1AU17piUnQjovVyS8rQwpUxuWLapXnk9x3"
+      }
+    ],
+    "operationsCount": 10,
+    "addedAt": "2025-02-19T08:37:00Z",
+    "oldestTzktOperation": {
+      "timestamp": "2025-02-19T08:37:00Z",
+      "level": 8008288,
+      "id": 1622331828994048,
+      "hash": "ooS4SsuTxUt1x7vvoxZuKmpoDDM9un7rwrAeSHbkTBf9VjuyoTJ"
+    },
+    "status": 0
+  }
+]

@@ -2,15 +2,17 @@ import React, { memo, useMemo } from 'react';
 
 import { DeadEndBoundaryError } from 'app/ErrorBoundary';
 import { TezosActivity } from 'lib/activity';
-import { parseTezosOperationsGroup } from 'lib/activity/tezos';
-import fetchTezosOperationsGroups from 'lib/activity/tezos/fetch';
+import { TezosActivityOlderThan } from 'lib/activity/tezos/types';
 import { isKnownChainId } from 'lib/apis/tzkt/api';
 import { useAccountAddressForTezos, useTezosChainByChainId } from 'temple/front';
+import { TempleChainKind } from 'temple/types';
 
 import { TezosActivityComponent } from './ActivityItem';
 import { ActivityListView } from './ActivityListView';
+import { fetchTezosActivitiesWithCache } from './fetch-activities-with-cache';
 import { ActivitiesDateGroup, useGroupingByDate } from './grouping-by-date';
 import { RETRY_AFTER_ERROR_TIMEOUT, useActivitiesLoadingLogic } from './loading-logic';
+import { useAssetsFromActivitiesCheck } from './use-assets-from-activites-check';
 import { FilterKind, getActivityFilterKind } from './utils';
 
 interface Props {
@@ -49,14 +51,17 @@ export const TezosActivityList = memo<Props>(({ tezosChainId, assetSlug, filterK
 
       const currActivities = initial ? [] : activities;
 
-      const olderThan = currActivities.at(-1);
+      const olderThan: TezosActivityOlderThan | undefined = currActivities.at(-1);
 
       try {
-        const groups = await fetchTezosOperationsGroups(chainId, rpcBaseURL, accountAddress, assetSlug, olderThan);
-
-        if (signal.aborted) return;
-
-        const newActivities = groups.map(group => parseTezosOperationsGroup(group, chainId, accountAddress));
+        const newActivities = await fetchTezosActivitiesWithCache({
+          chainId,
+          rpcBaseURL,
+          accountAddress,
+          assetSlug,
+          olderThan,
+          signal
+        });
 
         setActivities(currActivities.concat(newActivities));
         if (newActivities.length === 0) setReachedTheEnd(true);
@@ -85,6 +90,16 @@ export const TezosActivityList = memo<Props>(({ tezosChainId, assetSlug, filterK
   );
 
   const groupedActivities = useGroupingByDate(displayActivities);
+
+  const tezosAssetsCheckConfig = useMemo(
+    () => ({
+      activities: displayActivities,
+      tezAccountPkh: accountAddress,
+      mainAsset: assetSlug ? { chainKind: TempleChainKind.Tezos, chainId, slug: assetSlug } : undefined
+    }),
+    [accountAddress, assetSlug, chainId, displayActivities]
+  );
+  useAssetsFromActivitiesCheck(tezosAssetsCheckConfig);
 
   const contentJsx = useMemo(
     () =>

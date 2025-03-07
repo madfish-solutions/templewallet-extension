@@ -37,7 +37,7 @@ export async function getEvmActivities(
     const approvals = allApprovals.filter(a => a.transactionHash === hash).map(approval => parseApprovalLog(approval));
 
     const operations = transfers
-      .map(transfer => parseTransfer(transfer, accAddressLowercased))
+      .map(transfer => parseTransfer(transfer, accAddressLowercased, chainId))
       .concat(approvals)
       .sort((a, b) => a.logIndex - b.logIndex);
 

@@ -4,7 +4,11 @@ import { ActivityOperKindEnum, ActivityOperTransferType, EvmActivityAsset, EvmOp
 import { AssetTransfersCategory, AssetTransfersWithMetadataResult, Log } from 'lib/apis/temple/endpoints/evm/alchemy';
 import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
 
-export function parseTransfer(transfer: AssetTransfersWithMetadataResult, accAddress: string): EvmOperation {
+export function parseTransfer(
+  transfer: AssetTransfersWithMetadataResult,
+  accAddress: string,
+  chainId: number
+): EvmOperation {
   const fromAddress = transfer.from;
   const toAddress = transfer.to;
 
@@ -67,7 +71,7 @@ export function parseTransfer(transfer: AssetTransfersWithMetadataResult, accAdd
   }
 
   let contractAddress = transfer.rawContract.address;
-  const iconURL = contractAddress ? `https://logos.covalenthq.com/tokens/1/${contractAddress}.png` : undefined;
+  const iconURL = contractAddress ? `https://logos.covalenthq.com/tokens/${chainId}/${contractAddress}.png` : undefined;
   contractAddress = contractAddress ? getAddress(contractAddress) : null;
 
   if (transfer.category === AssetTransfersCategory.ERC721) {
