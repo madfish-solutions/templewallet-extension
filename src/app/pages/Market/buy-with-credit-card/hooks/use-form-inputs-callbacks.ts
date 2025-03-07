@@ -45,7 +45,7 @@ export const useFormInputsCallbacks = (
   const setPaymentProvider = useCallback(
     (newProvider?: PaymentProviderInterface) => {
       setValue('provider', newProvider);
-      setValue('outputAmount', newProvider?.outputAmount, { shouldValidate: Boolean(newProvider?.outputAmount) });
+      setValue('outputAmount', newProvider?.outputAmount);
     },
     [setValue]
   );
