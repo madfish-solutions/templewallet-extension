@@ -72,7 +72,7 @@ export const Form: FC<Props> = ({
 
   const exchangeRate = useMemo(() => {
     if (isDefined(inputAmount) && inputAmount > 0 && isDefined(outputAmount) && outputAmount > 0) {
-      return new BigNumber(outputAmount).div(inputAmount);
+      return new BigNumber(outputAmount).div(inputAmount).decimalPlaces(18);
     }
 
     return undefined;
@@ -196,7 +196,7 @@ export const Form: FC<Props> = ({
             <span className="p-1 text-font-description">
               {exchangeRate ? (
                 <>
-                  {getAssetSymbolToDisplay(inputCurrency) + ' ≈ '}
+                  {'1 ' + getAssetSymbolToDisplay(inputCurrency) + ' ≈ '}
                   <Money smallFractionFont={false}>{exchangeRate}</Money> {getAssetSymbolToDisplay(outputToken)}
                 </>
               ) : (
