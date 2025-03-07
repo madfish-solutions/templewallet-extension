@@ -14,7 +14,7 @@ const config = {
     '.+\\.tsx$': 'ts-jest'
   },
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx'],
-  setupFiles: ['dotenv/config', '@temple-wallet/jest-webextension-mock'],
+  setupFiles: ['dotenv/config', '@temple-wallet/jest-webextension-mock', 'fake-indexeddb/auto'],
   setupFilesAfterEnv: ['./jest.setup.js']
 };
 

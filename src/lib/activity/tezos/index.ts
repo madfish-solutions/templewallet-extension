@@ -1,3 +1,5 @@
+import { pick } from 'lodash';
+
 import { TempleTzktOperationsGroup, TezosPreActivityOperation } from 'lib/activity/tezos/types';
 import { toTezosAssetSlug } from 'lib/assets/utils';
 import { isTezosContractAddress } from 'lib/tezos';
@@ -32,7 +34,7 @@ export function parseTezosOperationsGroup(
     operations,
     operationsCount: preOperations.length,
     addedAt,
-    oldestTzktOperation,
+    oldestTzktOperation: pick(oldestTzktOperation, ['timestamp', 'level', 'id', 'hash']),
     status:
       status === 'applied'
         ? ActivityStatus.applied
