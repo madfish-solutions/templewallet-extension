@@ -1195,6 +1195,9 @@
   "selectAccount": {
     "message": "Select account"
   },
+  "selectLedgerLiveAccount": {
+    "message": "Select Ledger Live account"
+  },
   "customPath": {
     "message": "Custom path"
   },

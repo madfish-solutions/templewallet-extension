@@ -7,7 +7,7 @@ import { TempleChainKind } from 'temple/types';
 import { ConnectDeviceStep } from './connect-device-step';
 import { SelectAccountStep } from './select-account-step';
 import { SelectNetworkStep } from './select-network-step';
-import { TezosAccountProps } from './types';
+import { AccountProps } from './types';
 
 interface ConnectLedgerModalProps {
   animated?: boolean;
@@ -28,12 +28,12 @@ interface SelectNetworkState {
 
 interface ConnectDeviceState {
   step: ConnectLedgerModalStep.ConnectDevice;
-  // TODO: add a property for chain kind
+  chainKind: TempleChainKind;
 }
 
 interface SelectAccountState {
   step: ConnectLedgerModalStep.SelectAccount;
-  initialAccount: TezosAccountProps;
+  initialAccount: AccountProps;
 }
 
 type State = SelectNetworkState | ConnectDeviceState | SelectAccountState;
@@ -50,7 +50,7 @@ export const ConnectLedgerModal = memo<ConnectLedgerModalProps>(
             case ConnectLedgerModalStep.ConnectDevice:
               return { step: ConnectLedgerModalStep.SelectNetwork };
             case ConnectLedgerModalStep.SelectAccount:
-              return { step: ConnectLedgerModalStep.ConnectDevice };
+              return { step: ConnectLedgerModalStep.ConnectDevice, chainKind: prevState.initialAccount.chain };
             default:
               return prevState;
           }
@@ -59,13 +59,10 @@ export const ConnectLedgerModal = memo<ConnectLedgerModalProps>(
     );
 
     const goToConnectDevice = useCallback((chainKind: TempleChainKind) => {
-      // TODO: do the same for EVM
-      if (chainKind === TempleChainKind.Tezos) {
-        setState({ step: ConnectLedgerModalStep.ConnectDevice });
-      }
+      setState({ step: ConnectLedgerModalStep.ConnectDevice, chainKind });
     }, []);
     const goToSelectAccount = useCallback(
-      (initialAccount: TezosAccountProps) => setState({ step: ConnectLedgerModalStep.SelectAccount, initialAccount }),
+      (initialAccount: AccountProps) => setState({ step: ConnectLedgerModalStep.SelectAccount, initialAccount }),
       []
     );
 
@@ -82,7 +79,9 @@ export const ConnectLedgerModal = memo<ConnectLedgerModalProps>(
         onRequestClose={onClose}
       >
         {state.step === ConnectLedgerModalStep.SelectNetwork && <SelectNetworkStep onSelect={goToConnectDevice} />}
-        {state.step === ConnectLedgerModalStep.ConnectDevice && <ConnectDeviceStep onSuccess={goToSelectAccount} />}
+        {state.step === ConnectLedgerModalStep.ConnectDevice && (
+          <ConnectDeviceStep chainKind={state.chainKind} onSuccess={goToSelectAccount} />
+        )}
         {state.step === ConnectLedgerModalStep.SelectAccount && (
           <SelectAccountStep initialAccount={state.initialAccount} onSuccess={onClose} />
         )}
