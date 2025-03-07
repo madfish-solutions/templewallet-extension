@@ -17,6 +17,7 @@ import {
   WALLETS_SPECS_STORAGE_KEY
 } from 'lib/constants';
 import { fetchFromStorage as getPlain, putToStorage as savePlain } from 'lib/storage';
+import { deleteEvmActivitiesByAddress, deleteTezosActivitiesByAddress } from 'lib/temple/activity/repo';
 import {
   fetchNewGroupName,
   formatOpParamsBeforeSend,
@@ -316,6 +317,8 @@ export class Vault {
         throw new PublicError(AT_LEAST_ONE_HD_ACCOUNT_ERR_MSG);
       }
 
+      const tezosAddress = getAccountAddressForTezos(acc);
+      const evmAddress = getAccountAddressForEvm(acc);
       const newAccounts = allAccounts.filter(currentAccount => currentAccount.id !== id);
       const allHdWalletsEntries = Object.entries(
         (await getPlain<StringRecord<WalletSpecs>>(WALLETS_SPECS_STORAGE_KEY)) ?? {}
@@ -328,6 +331,12 @@ export class Vault {
       await encryptAndSaveMany([[accountsStrgKey, newAccounts]], passKey);
       await savePlain(WALLETS_SPECS_STORAGE_KEY, newWalletsSpecs);
       await Vault.removeAccountsKeys([acc]);
+      if (tezosAddress) {
+        await deleteTezosActivitiesByAddress(tezosAddress);
+      }
+      if (evmAddress) {
+        await deleteEvmActivitiesByAddress(evmAddress);
+      }
 
       return { newAccounts, newWalletsSpecs };
     });

@@ -11,10 +11,11 @@ export type TezosPreActivityStatus = TzktOperation['status'] | 'pending';
 
 export interface TezosActivityOlderThan {
   hash: string;
-  oldestTzktOperation: TzktOperation;
+  oldestTzktOperation: Pick<TzktOperation, 'timestamp' | 'level'>;
 }
 
 export interface TezosPreActivity extends TezosActivityOlderThan {
+  oldestTzktOperation: TzktOperation;
   /** ISO string */
   addedAt: string;
   status: TezosPreActivityStatus;
