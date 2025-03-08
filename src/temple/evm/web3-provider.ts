@@ -25,7 +25,7 @@ import {
   RETURNED_ACCOUNTS_CAVEAT_NAME
 } from './constants';
 import type { TypedDataV1 } from './typed-data-v1';
-import { ErrorWithCode } from './types';
+import { makeErrorLikeObject, throwErrorLikeObject } from './utils';
 
 export interface PassToBgEventDetail {
   origin: string;
@@ -178,6 +178,10 @@ export class TempleWeb3Provider extends EventEmitter {
         } else {
           return this.accounts;
         }
+      case 'wallet_watchAsset':
+        return this.addNewAsset(params as RequestArgs<'wallet_watchAsset'>);
+      case evmRpcMethodsNames.wallet_addEthereumChain:
+        return this.addNewChain(params as RequestArgs<'wallet_addEthereumChain'>);
       case evmRpcMethodsNames.wallet_switchEthereumChain:
         return this.handleChainChange(params as RequestArgs<'wallet_switchEthereumChain'>);
       case evmRpcMethodsNames.eth_signTypedData:
@@ -192,22 +196,23 @@ export class TempleWeb3Provider extends EventEmitter {
         return this.handleNewPermissionsRequest(params as RequestArgs<'wallet_requestPermissions'>);
       case evmRpcMethodsNames.wallet_revokePermissions:
         return this.handleRevokePermissionsRequest(params as RequestArgs<'wallet_revokePermissions'>);
+      case evmRpcMethodsNames.wallet_sendTransaction:
+      case evmRpcMethodsNames.eth_sendTransaction:
+        return this.handleSendTransactionRequest(
+          params as RequestArgs<'eth_sendTransaction' | 'wallet_sendTransaction'>
+        );
       /* Not going to support eth_sign */
       case 'wallet_grantPermissions':
       case 'eth_sendUserOperation':
-      case 'eth_sendTransaction':
-      case 'eth_sendRawTransaction':
       case 'eth_signTransaction':
       case 'eth_syncing':
-      case 'wallet_addEthereumChain':
       case 'wallet_getCallsStatus':
       case 'wallet_getCapabilities':
       case 'wallet_sendCalls':
-      case 'wallet_sendTransaction':
       case 'wallet_showCallsStatus':
-      case 'wallet_watchAsset':
       case 'eth_sign':
-        throw new ErrorWithCode(EVMErrorCodes.METHOD_NOT_SUPPORTED, 'Method not supported');
+        throwErrorLikeObject(EVMErrorCodes.METHOD_NOT_SUPPORTED, 'Method not supported');
+      // eslint-disable-next-line no-fallthrough
       default:
         // @ts-expect-error
         return this.handleRpcRequest(params);
@@ -216,6 +221,23 @@ export class TempleWeb3Provider extends EventEmitter {
 
   async enable() {
     return this.handleConnect({ method: evmRpcMethodsNames.eth_requestAccounts });
+  }
+
+  private handleSendTransactionRequest(args: RequestArgs<'eth_sendTransaction' | 'wallet_sendTransaction'>) {
+    const from = args.params[0].from ?? this.accounts.at(0);
+
+    if (!from) {
+      throwErrorLikeObject(EVMErrorCodes.NOT_AUTHORIZED, 'Account is not connected');
+    }
+
+    let sanitizedArgs: RequestArgs<'eth_sendTransaction' | 'wallet_sendTransaction'>;
+    try {
+      sanitizedArgs = { method: args.method, params: [{ ...args.params[0], from }] };
+    } catch (e: any) {
+      throwErrorLikeObject(EVMErrorCodes.INVALID_PARAMS, e.message ?? 'Invalid params');
+    }
+
+    return this.handleRequest(sanitizedArgs, noop, identity, from);
   }
 
   // @ts-expect-error
@@ -234,6 +256,14 @@ export class TempleWeb3Provider extends EventEmitter {
       identity,
       args.method === 'eth_signTypedData_v3' || args.method === 'eth_signTypedData_v4' ? args.params[0] : args.params[1]
     );
+  }
+
+  private addNewAsset(args: RequestArgs<'wallet_watchAsset'>) {
+    return this.handleRequest(args, noop, () => true, undefined);
+  }
+
+  private addNewChain(args: RequestArgs<'wallet_addEthereumChain'>) {
+    return this.handleRequest(args, noop, () => null, undefined);
   }
 
   private handleChainChange(args: RequestArgs<'wallet_switchEthereumChain'>) {
@@ -310,7 +340,7 @@ export class TempleWeb3Provider extends EventEmitter {
     requiredAccount: HexString | undefined
   ) {
     if (requiredAccount && !this.accounts.some(acc => acc.toLowerCase() === requiredAccount.toLowerCase())) {
-      throw new ErrorWithCode(EVMErrorCodes.NOT_AUTHORIZED, 'Account is not connected');
+      throwErrorLikeObject(EVMErrorCodes.NOT_AUTHORIZED, 'Account is not connected');
     }
 
     const requestId = uuid();
@@ -339,7 +369,7 @@ export class TempleWeb3Provider extends EventEmitter {
 
         if ('error' in payload) {
           console.error('inpage got error from bg', payload);
-          reject(new ErrorWithCode(payload.error.code, payload.error.message));
+          reject(makeErrorLikeObject(payload.error.code, payload.error.message));
 
           return;
         }

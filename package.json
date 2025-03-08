@@ -114,6 +114,7 @@
     "clsx": "1.1.1",
     "constate": "3.3.2",
     "copy-webpack-plugin": "11.0.0",
+    "core-js": "^3.40.0",
     "create-file-webpack": "^1.0.2",
     "cross-env": "7.0.3",
     "crypto-browserify": "3.12.0",
@@ -123,7 +124,7 @@
     "date-fns": "2.15.0",
     "debounce": "^1.2.1",
     "debounce-promise": "3.1.2",
-    "dexie": "3.1.0-alpha.9",
+    "dexie": "^4.0.11",
     "dotenv": "8.2.0",
     "ed25519-hd-key": "1.1.2",
     "effector": "21.2.0",
@@ -216,6 +217,7 @@
     "zip-a-folder": "^3"
   },
   "devDependencies": {
+    "fake-indexeddb": "^6.0.0",
     "source-map": "^0.7.4",
     "text-decoding": "^1.0.0"
   },
@@ -231,6 +233,7 @@
     "@taquito/contracts-library": "20.1.0",
     "@taquito/tzip16": "20.1.0",
     "bignumber.js": "9.1.2",
+    "elliptic": "6.6.1",
     "graphql-request": "^6.1.0",
     "json5": "^2.2.2",
     "follow-redirects": "^1.15.4"

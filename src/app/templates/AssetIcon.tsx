@@ -54,7 +54,7 @@ export const TezosTokenIconWithNetwork = memo<TezosAssetImageProps>(({ tezosChai
   );
 });
 
-const EvmAssetIcon = memo<EvmAssetImageProps>(props => (
+export const EvmAssetIcon = memo<EvmAssetImageProps>(props => (
   <EvmAssetImage Loader={EvmAssetIconPlaceholder} Fallback={EvmAssetIconPlaceholder} {...props} />
 ));
 

@@ -1,5 +1,5 @@
-import { PreviewItemSelectors } from 'src/lib/notifications/components/notifications/preview-item.selectors';
-import type { NotificationInterface } from 'src/lib/notifications/types';
+import { PreviewItemSelectors } from 'src/app/pages/Notifications/components/list-item/selectors';
+import type { NotificationInterface } from 'src/app/pages/Notifications/types';
 
 import { Page } from '../../classes/page.class';
 import { createPageElement } from '../../utils/search.utils';

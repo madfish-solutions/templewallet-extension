@@ -741,6 +741,31 @@
       }
     }
   },
+  "amountMustBeGte": {
+    "message": "Amount must be greater than or equal to $amount$",
+    "placeholders": {
+      "amount": {
+        "content": "$1"
+      }
+    }
+  },
+  "amountMustBeGt": {
+    "message": "Amount must be greater than $amount$",
+    "placeholders": {
+      "amount": {
+        "content": "$1"
+      }
+    }
+  },
+  "tooLargeAmount": {
+    "message": "Too large amount"
+  },
+  "unlimited": {
+    "message": "Unlimited"
+  },
+  "setToUnlimited": {
+    "message": "Set to unlimited"
+  },
   "maximalAmount": {
     "message": "Max: $amount$",
     "placeholders": {
@@ -1656,6 +1681,15 @@
   "transaction": {
     "message": "Transaction"
   },
+  "transactionInfo": {
+    "message": "Transaction info"
+  },
+  "estimatedTxDetails": {
+    "message": "Est. transaction details"
+  },
+  "noValue": {
+    "message": "No value"
+  },
   "recipient": {
     "message": "Recipient"
   },
@@ -1777,6 +1811,9 @@
   "mustBeValidURL": {
     "message": "Must be a valid URL"
   },
+  "rpcURL": {
+    "message": "RPC URL"
+  },
   "rpcBaseURL": {
     "message": "RPC base URL",
     "description": "RPC = Remote Procedure Call (https://en.wikipedia.org/wiki/Remote_procedure_call)"
@@ -1785,7 +1822,7 @@
     "message": "Must be unique"
   },
   "addNetwork": {
-    "message": "Add network"
+    "message": "Add Network"
   },
   "currentNetworks": {
     "message": "Current networks"
@@ -1900,6 +1937,12 @@
   },
   "transfers": {
     "message": "Transfers"
+  },
+  "unknownToken": {
+    "message": "Unknown Token"
+  },
+  "unknownTokenAcronym": {
+    "message": "UT"
   },
   "someUnknownToken": {
     "message": "unknown token $token$",
@@ -2029,6 +2072,9 @@
   },
   "contract": {
     "message": "Contract"
+  },
+  "contractAddress": {
+    "message": "Contract Address"
   },
   "contractAddressInputDescription": {
     "message": "Address of the contract to connect."
@@ -3523,8 +3569,8 @@
   "notificationsSettingsDescription": {
     "message": "Configure the notifications you want to receive. (Platform updates and emergency notifications can’t be disabled)"
   },
-  "notificationsNotFound": {
-    "message": "Notifications not found"
+  "noNotificationsYet": {
+    "message": "No notifications yet"
   },
   "readInOriginal": {
     "message": "Read in original"
@@ -3941,10 +3987,37 @@
   "disabledInTestnetMode": {
     "message": "Disabled in Testnet Mode"
   },
+  "unknownTransaction": {
+    "message": "Unknown Transaction"
+  },
+  "interactionWith": {
+    "message": "Interaction With"
+  },
   "earn": {
     "message": "Earn"
   },
   "marketPageDisclaimer": {
     "message": "Temple integrated third-party solutions to buy or exchange crypto."
+  },
+  "txCouldNotBeEstimated": {
+    "message": "Transaction could not be estimated"
+  },
+  "txCouldNotBeEstimatedDescription": {
+    "message": "Fee estimation isn't available. Default values are used, but the transaction may fail. Please retry or adjust transaction parameters manually."
+  },
+  "genericTxError": {
+    "message": "Something’s not right. Please review a message."
+  },
+  "deployContract": {
+    "message": "Deploy Contract"
+  },
+  "mint": {
+    "message": "Mint"
+  },
+  "approval": {
+    "message": "Approval"
+  },
+  "approve": {
+    "message": "Approve"
   }
 }

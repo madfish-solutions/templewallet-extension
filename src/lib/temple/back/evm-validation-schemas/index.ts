@@ -10,10 +10,13 @@ import {
 import { evmRpcMethodsNames } from 'temple/evm/constants';
 import { ChangePermissionsPayload } from 'temple/evm/types';
 
+import { rpcTransactionRequestValidationSchema } from './transaction-request';
 import {
   evmAddressValidationSchema,
+  hexByteStringSchema,
   hexStringSchema,
   oldTypedDataValidationSchema,
+  stringArraySchema,
   typedDataValidationSchema
 } from './utils';
 
@@ -27,15 +30,18 @@ export const ethSignTypedDataValidationSchema = tupleSchema([
   typedDataValidationSchema().json().required()
 ]).required();
 
+const ethPersonalSignSchemas = [
+  tupleSchema([
+    hexByteStringSchema().required(),
+    evmAddressValidationSchema().required(),
+    stringSchema().required().nullable()
+  ]),
+  tupleSchema([hexByteStringSchema().required(), evmAddressValidationSchema().required()])
+];
 export const ethPersonalSignPayloadValidationSchema = mixedSchema<
-  [HexString, HexString, string] | [HexString, HexString]
+  [HexString, HexString, string | null] | [HexString, HexString]
 >((value: unknown): value is [HexString, HexString, string] | [HexString, HexString] => {
-  const tuplesSchemas = [
-    tupleSchema([hexStringSchema().required(), evmAddressValidationSchema().required(), stringSchema().required()]),
-    tupleSchema([hexStringSchema().required(), evmAddressValidationSchema().required()])
-  ];
-
-  for (const schema of tuplesSchemas) {
+  for (const schema of ethPersonalSignSchemas) {
     try {
       schema.validateSync(value);
 
@@ -47,6 +53,37 @@ export const ethPersonalSignPayloadValidationSchema = mixedSchema<
 
   return false;
 }).required();
+
+export const addEthAssetPayloadValidationSchema = objectSchema()
+  .shape({
+    type: stringSchema().required(),
+    options: objectSchema()
+      .shape({
+        address: evmAddressValidationSchema().required()
+      })
+      .required()
+  })
+  .required();
+
+export const addEthChainPayloadValidationSchema = tupleSchema([
+  objectSchema()
+    .shape({
+      chainId: stringSchema().required(),
+      chainName: stringSchema().required(),
+      nativeCurrency: objectSchema()
+        .shape({
+          name: stringSchema().required(),
+          symbol: stringSchema().required(),
+          decimals: numberSchema().integer().positive().required()
+        })
+        .required(),
+      rpcUrls: stringArraySchema().required(),
+      blockExplorerUrls: stringArraySchema(),
+      iconUrls: stringArraySchema()
+    })
+    .required(),
+  hexStringSchema()
+]).required();
 
 export const switchEthChainPayloadValidationSchema = tupleSchema([
   objectSchema().shape({
@@ -61,6 +98,10 @@ export const ethChangePermissionsPayloadValidationSchema: TupleSchema<[ChangePer
 ]).required();
 
 export const personalSignRecoverPayloadValidationSchema = tupleSchema([
-  hexStringSchema().required(),
-  hexStringSchema().required()
+  hexByteStringSchema().required(),
+  hexByteStringSchema().required()
+]).required();
+
+export const sendTransactionPayloadValidationSchema = tupleSchema([
+  rpcTransactionRequestValidationSchema().required()
 ]).required();

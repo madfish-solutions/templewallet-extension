@@ -2,10 +2,10 @@ import React, { memo, useCallback } from 'react';
 
 import { useDispatch } from 'react-redux';
 
+import { setIsNewsEnabledAction } from 'app/store/notifications/actions';
+import { useIsNewsEnabledSelector } from 'app/store/notifications/selectors';
 import { EnablingSetting } from 'app/templates/enabling-setting';
 import { T } from 'lib/i18n';
-import { setIsNewsEnabledAction } from 'lib/notifications/store/actions';
-import { useIsNewsEnabledSelector } from 'lib/notifications/store/selectors';
 
 import { SettingsGeneralSelectors } from '../selectors';
 

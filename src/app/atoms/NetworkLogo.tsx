@@ -10,7 +10,9 @@ import PolygonIconSrc from 'app/icons/networks/polygon.svg?url';
 import { t } from 'lib/i18n';
 import { getEvmNativeAssetIcon } from 'lib/images-uri';
 import { TEZOS_MAINNET_CHAIN_ID } from 'lib/temple/types';
+import { ImageStacked } from 'lib/ui/ImageStacked';
 import useTippy, { UseTippyOptions } from 'lib/ui/useTippy';
+import { isTruthy } from 'lib/utils';
 import { useTezosChainByChainId } from 'temple/front';
 import { useEvmChainByChainId } from 'temple/front/chains';
 
@@ -59,6 +61,7 @@ export const TezosNetworkLogo = memo<TezosNetworkLogoProps>(
 interface EvmNetworkLogoProps {
   chainId: number;
   size?: number;
+  chainName?: string;
   className?: string;
   imgClassName?: string;
   withTooltip?: boolean;
@@ -66,24 +69,37 @@ interface EvmNetworkLogoProps {
 }
 
 export const EvmNetworkLogo = memo<EvmNetworkLogoProps>(
-  ({ chainId, size = 24, className, imgClassName, withTooltip, tooltipPlacement }) => {
-    const source = useMemo(() => logosRecord[chainId] || getEvmNativeAssetIcon(chainId, size * 2), [chainId, size]);
+  ({ chainId, size = 24, chainName, className, imgClassName, withTooltip, tooltipPlacement }) => {
+    const sources = useMemo(() => {
+      const doubleSize = size * 2;
+
+      return [
+        logosRecord[chainId],
+        getEvmNativeAssetIcon(chainId, doubleSize, 'llamao'),
+        getEvmNativeAssetIcon(chainId, doubleSize)
+      ].filter(isTruthy);
+    }, [chainId, size]);
 
     const chain = useEvmChainByChainId(chainId);
-    const networkName = useMemo(() => (chain?.nameI18nKey ? t(chain.nameI18nKey) : chain?.name), [chain]);
+    const networkName = useMemo(
+      () => chainName || (chain?.nameI18nKey ? t(chain.nameI18nKey) : chain?.name),
+      [chainName, chain]
+    );
 
     const withoutTooltipClassName = withTooltip ? undefined : className;
 
-    const logoJsx = source ? (
-      <img
-        src={source}
+    const fallback = <NetworkLogoFallback networkName={networkName} size={size} className={withoutTooltipClassName} />;
+
+    const logoJsx = (
+      <ImageStacked
+        sources={sources}
         alt={networkName}
         width={size}
         height={size}
+        loader={fallback}
+        fallback={fallback}
         className={clsx('border border-lines bg-white rounded-full', withoutTooltipClassName, imgClassName)}
       />
-    ) : (
-      <NetworkLogoFallback networkName={networkName} size={size} className={withoutTooltipClassName} />
     );
 
     return withTooltip ? (

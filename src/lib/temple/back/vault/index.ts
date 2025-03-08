@@ -5,7 +5,7 @@ import { CompositeForger, RpcForger, Signer, TezosOperationError, TezosToolkit }
 import * as TaquitoUtils from '@taquito/utils';
 import * as Bip39 from 'bip39';
 import { nanoid } from 'nanoid';
-import { createWalletClient, http, PrivateKeyAccount, TypedDataDefinition } from 'viem';
+import { createWalletClient, http, PrivateKeyAccount, TransactionRequest, TypedDataDefinition } from 'viem';
 import { privateKeyToAccount } from 'viem/accounts';
 import type * as WasmThemisPackageInterface from 'wasm-themis';
 
@@ -16,6 +16,7 @@ import {
   WALLETS_SPECS_STORAGE_KEY
 } from 'lib/constants';
 import { fetchFromStorage as getPlain, putToStorage as savePlain } from 'lib/storage';
+import { deleteEvmActivitiesByAddress, deleteTezosActivitiesByAddress } from 'lib/temple/activity/repo';
 import {
   fetchNewGroupName,
   formatOpParamsBeforeSend,
@@ -30,7 +31,6 @@ import { StoredAccount, TempleAccountType, TempleSettings, WalletSpecs } from 'l
 import { isTruthy } from 'lib/utils';
 import { getAccountAddressForChain, getAccountAddressForEvm, getAccountAddressForTezos } from 'temple/accounts';
 import { TypedDataV1, typedV1SignatureHash } from 'temple/evm/typed-data-v1';
-import { EvmTxParams } from 'temple/evm/types';
 import { EvmChain } from 'temple/front';
 import { michelEncoder, getTezosFastRpcClient } from 'temple/tezos';
 import { TempleChainKind } from 'temple/types';
@@ -311,6 +311,8 @@ export class Vault {
         throw new PublicError(AT_LEAST_ONE_HD_ACCOUNT_ERR_MSG);
       }
 
+      const tezosAddress = getAccountAddressForTezos(acc);
+      const evmAddress = getAccountAddressForEvm(acc);
       const newAccounts = allAccounts.filter(currentAccount => currentAccount.id !== id);
       const allHdWalletsEntries = Object.entries(
         (await getPlain<StringRecord<WalletSpecs>>(WALLETS_SPECS_STORAGE_KEY)) ?? {}
@@ -323,6 +325,12 @@ export class Vault {
       await encryptAndSaveMany([[accountsStrgKey, newAccounts]], passKey);
       await savePlain(WALLETS_SPECS_STORAGE_KEY, newWalletsSpecs);
       await Vault.removeAccountsKeys([acc]);
+      if (tezosAddress) {
+        await deleteTezosActivitiesByAddress(tezosAddress);
+      }
+      if (evmAddress) {
+        await deleteEvmActivitiesByAddress(evmAddress);
+      }
 
       return { newAccounts, newWalletsSpecs };
     });
@@ -901,7 +909,11 @@ export class Vault {
     }
   }
 
-  async sendEvmTransaction(accPublicKeyHash: string, network: EvmChain, txParams: EvmTxParams) {
+  async sendEvmTransaction(
+    accPublicKeyHash: string,
+    network: Pick<EvmChain, 'chainId' | 'name' | 'currency' | 'rpcBaseURL'>,
+    txParams: TransactionRequest
+  ) {
     return this.withSigningEvmAccount(accPublicKeyHash, async account => {
       const client = createWalletClient({
         account,

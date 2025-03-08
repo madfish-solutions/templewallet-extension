@@ -3,7 +3,7 @@ import React, { memo, useMemo } from 'react';
 import clsx from 'clsx';
 
 import { FADABLE_CONTENT_CLASSNAME } from 'app/a11y/content-fader';
-import Spinner from 'app/atoms/Spinner/Spinner';
+import { PageLoader } from 'app/atoms/Loader';
 import { SuspenseContainer } from 'app/atoms/SuspenseContainer';
 import { LAYOUT_CONTAINER_CLASSNAME } from 'app/layouts/containers';
 import Unlock from 'app/pages/Unlock/Unlock';
@@ -14,6 +14,8 @@ import { TempleDAppPayload } from 'lib/temple/types';
 import { useLocation } from 'lib/woozie';
 import { TempleChainKind } from 'temple/types';
 
+import { AddAssetProvider } from './add-asset/context';
+import { AddChainDataProvider } from './add-chain/context';
 import { EvmConfirmDAppForm } from './evm-confirm-dapp-form';
 import { TezosConfirmDAppForm } from './tezos-confirm-dapp-form';
 
@@ -35,10 +37,8 @@ const ConfirmPage = memo(() => {
       <SuspenseContainer
         errorMessage={t('fetchingConfirmationDetails')}
         loader={
-          <div className="flex items-center justify-center h-screen">
-            <div>
-              <Spinner theme="primary" className="w-20" />
-            </div>
+          <div className="h-screen flex flex-col">
+            <PageLoader stretch />
           </div>
         }
       >
@@ -72,7 +72,11 @@ const ConfirmDAppForm = () => {
   const payload = data!;
 
   return payload.chainType === TempleChainKind.EVM ? (
-    <EvmConfirmDAppForm payload={payload} id={id} />
+    <AddChainDataProvider>
+      <AddAssetProvider>
+        <EvmConfirmDAppForm payload={payload} id={id} />
+      </AddAssetProvider>
+    </AddChainDataProvider>
   ) : (
     <TezosConfirmDAppForm payload={payload} id={id} />
   );

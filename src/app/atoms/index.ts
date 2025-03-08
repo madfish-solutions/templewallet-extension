@@ -44,8 +44,6 @@ export { NoSpaceField } from './NoSpaceField';
 
 export { Stepper } from './Stepper/Stepper';
 
-export { DataPlaceholder } from './DataPlaceholder';
-
 export { PageTitle } from './PageTitle';
 
 export { default as AccountTypeBadge } from './AccountTypeBadge';
