@@ -2,8 +2,7 @@ import React, { memo } from 'react';
 
 import { IconBase } from 'app/atoms';
 import { ReactComponent as BellIcon } from 'app/icons/base/bell.svg';
-
-import { useNewNotificationsAmountSelector } from '../store/selectors';
+import { useNewNotificationsAmountSelector } from 'app/store/notifications/selectors';
 
 export const NotificationsBell = memo(() => {
   const newNotificationsAmount = useNewNotificationsAmountSelector();
@@ -17,7 +16,3 @@ export const NotificationsBell = memo(() => {
     </div>
   );
 });
-
-export const NotificationsDot = memo(() => (
-  <div className="absolute top-1 left-0.5 w-1 h-1 rounded-circle bg-primary" />
-));
