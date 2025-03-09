@@ -1,5 +1,6 @@
 import React, { FC, memo, useCallback, useMemo } from 'react';
 
+import { FadeTransition } from 'app/a11y/FadeTransition';
 import { Button, IconBase } from 'app/atoms';
 import DAppLogo from 'app/atoms/DAppLogo';
 import { EmptyState } from 'app/atoms/EmptyState';
@@ -28,7 +29,7 @@ export const DAppsSettings = memo(() => {
   const onRemoveAllClick = useCallback(() => disconnectDApps(dapps.map(([o]) => o)), [disconnectDApps, dapps]);
 
   return (
-    <>
+    <FadeTransition>
       {dapps.length ? (
         <>
           <ScrollView className="gap-y-6 px-4 py-6">
@@ -62,7 +63,7 @@ export const DAppsSettings = memo(() => {
       ) : (
         <EmptyState forSearch={false} text="No connections" stretch />
       )}
-    </>
+    </FadeTransition>
   );
 });
 

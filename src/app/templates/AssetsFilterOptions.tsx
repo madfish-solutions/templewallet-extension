@@ -23,6 +23,8 @@ import { NetworkSelectModal } from 'app/templates/NetworkSelectModal';
 import { T, TID } from 'lib/i18n';
 import { useBooleanState } from 'lib/ui/hooks';
 
+import { FadeTransition } from '../a11y/FadeTransition';
+
 interface AssetsFilterOptionsProps {
   filterButtonRef: RefObject<HTMLButtonElement>;
   onRequestClose: EmptyFn;
@@ -84,72 +86,77 @@ export const AssetsFilterOptions = memo<AssetsFilterOptionsProps>(({ filterButto
   );
 
   return (
-    <ContentContainer ref={containerRef}>
-      <div className="flex justify-between items-center pt-1 pb-2 pl-1">
-        <p className="text-font-description-bold">
-          <T id="filterByNetwork" />
-        </p>
+    <FadeTransition>
+      <ContentContainer ref={containerRef}>
+        <div className="flex justify-between items-center pt-1 pb-2 pl-1">
+          <p className="text-font-description-bold">
+            <T id="filterByNetwork" />
+          </p>
 
-        {isNonDefaultOption && (
-          <button onClick={handleResetAllClick} className="flex items-center text-secondary text-font-description-bold">
-            <T id="resetAll" />
-            <IconBase Icon={CleanIcon} size={12} />
-          </button>
-        )}
-      </div>
-
-      <NetworkSelectButton selectedChain={filterChain} onClick={setNetworksModalOpen} />
-
-      <TogglesContainer labelTitle="tokensList">
-        <div className="flex justify-between items-center p-3">
-          <span className="text-font-medium-bold">
-            <T id="hideZeroBalance" />
-          </span>
-
-          <ToggleSwitch checked={tokensListOptions.hideZeroBalance} onChange={handleTokensHideZeroBalanceChange} />
+          {isNonDefaultOption && (
+            <button
+              onClick={handleResetAllClick}
+              className="flex items-center text-secondary text-font-description-bold"
+            >
+              <T id="resetAll" />
+              <IconBase Icon={CleanIcon} size={12} />
+            </button>
+          )}
         </div>
 
-        <Divider thinest />
+        <NetworkSelectButton selectedChain={filterChain} onClick={setNetworksModalOpen} />
 
-        <div className="flex justify-between items-center p-3">
-          <span className="text-font-medium-bold">
-            <T id="groupByNetwork" />
-          </span>
+        <TogglesContainer labelTitle="tokensList">
+          <div className="flex justify-between items-center p-3">
+            <span className="text-font-medium-bold">
+              <T id="hideZeroBalance" />
+            </span>
 
-          <ToggleSwitch
-            checked={tokensListOptions.groupByNetwork}
-            disabled={Boolean(filterChain)}
-            onChange={handleTokensGroupByNetworkChange}
-          />
-        </div>
-      </TogglesContainer>
+            <ToggleSwitch checked={tokensListOptions.hideZeroBalance} onChange={handleTokensHideZeroBalanceChange} />
+          </div>
 
-      <TogglesContainer labelTitle="collectiblesView">
-        <div className="flex justify-between items-center p-3">
-          <span className="text-font-medium-bold">
-            <T id="blurSensitiveContent" />
-          </span>
+          <Divider thinest />
 
-          <ToggleSwitch checked={collectiblesListOptions.blur} onChange={handleCollectiblesBlurChange} />
-        </div>
+          <div className="flex justify-between items-center p-3">
+            <span className="text-font-medium-bold">
+              <T id="groupByNetwork" />
+            </span>
 
-        <Divider thinest />
+            <ToggleSwitch
+              checked={tokensListOptions.groupByNetwork}
+              disabled={Boolean(filterChain)}
+              onChange={handleTokensGroupByNetworkChange}
+            />
+          </div>
+        </TogglesContainer>
 
-        <div className="flex justify-between items-center p-3">
-          <span className="text-font-medium-bold">
-            <T id="showDetails" />
-          </span>
+        <TogglesContainer labelTitle="collectiblesView">
+          <div className="flex justify-between items-center p-3">
+            <span className="text-font-medium-bold">
+              <T id="blurSensitiveContent" />
+            </span>
 
-          <ToggleSwitch checked={collectiblesListOptions.showInfo} onChange={handleCollectiblesShowInfoChange} />
-        </div>
-      </TogglesContainer>
+            <ToggleSwitch checked={collectiblesListOptions.blur} onChange={handleCollectiblesBlurChange} />
+          </div>
 
-      <NetworkSelectModal
-        opened={networksModalOpened}
-        selectedNetwork={filterChain}
-        onRequestClose={setNetworksModalClosed}
-      />
-    </ContentContainer>
+          <Divider thinest />
+
+          <div className="flex justify-between items-center p-3">
+            <span className="text-font-medium-bold">
+              <T id="showDetails" />
+            </span>
+
+            <ToggleSwitch checked={collectiblesListOptions.showInfo} onChange={handleCollectiblesShowInfoChange} />
+          </div>
+        </TogglesContainer>
+
+        <NetworkSelectModal
+          opened={networksModalOpened}
+          selectedNetwork={filterChain}
+          onRequestClose={setNetworksModalClosed}
+        />
+      </ContentContainer>
+    </FadeTransition>
   );
 });
 

@@ -1,5 +1,6 @@
 import React, { memo, useCallback, useEffect, useMemo, useState } from 'react';
 
+import { FadeTransition } from 'app/a11y/FadeTransition';
 import { EmptyState } from 'app/atoms/EmptyState';
 import { useSearchParamsBoolean } from 'app/hooks/use-search-params-boolean';
 import { MAIN_CHAINS_IDS } from 'lib/constants';
@@ -100,7 +101,7 @@ export const NetworksSettings = memo<SettingsTabProps>(({ setHeaderChildren }) =
   }, []);
 
   return (
-    <>
+    <FadeTransition>
       {chainsGroups.length === 0 ? (
         <div className="w-full h-full flex items-center">
           <EmptyState />
@@ -113,6 +114,6 @@ export const NetworksSettings = memo<SettingsTabProps>(({ setHeaderChildren }) =
         </div>
       )}
       <AddNetworkModal isOpen={isAddNetworkModalOpen} onClose={closeAddNetworkModal} />
-    </>
+    </FadeTransition>
   );
 });
