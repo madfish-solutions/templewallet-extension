@@ -253,7 +253,7 @@ const LedgerAccountCard = memo<LedgerAccountCardProps>(({ account, index, onSele
     <AccountCard
       customLabelTitle={`LEDGER #${account.derivationIndex}`}
       account={fullAccount}
-      AccountName={TezosAccountAddress}
+      AccountName={AccountAddress}
       BalanceValue={BalanceValue}
       balanceLabel={`${t('balance')}:`}
       isCurrent={active}
@@ -263,7 +263,7 @@ const LedgerAccountCard = memo<LedgerAccountCardProps>(({ account, index, onSele
   );
 });
 
-const TezosAccountAddress = memo<{ account: StoredAccount }>(({ account }) => {
+const AccountAddress = memo<{ account: StoredAccount }>(({ account }) => {
   const address = (getAccountAddressForTezos(account) ?? getAccountAddressForEvm(account))!;
   const handleClick = useCallback(() => {
     window.navigator.clipboard.writeText(address);

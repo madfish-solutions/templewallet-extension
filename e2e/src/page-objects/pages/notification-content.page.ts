@@ -1,4 +1,4 @@
-import { NotificationsContentSelectors } from 'src/lib/notifications/components/item/notifications-content.selectors';
+import { NotificationsContentSelectors } from 'src/app/pages/Notifications/components/notification-modal/selectors';
 
 import { Page } from '../../classes/page.class';
 import { createPageElement } from '../../utils/search.utils';

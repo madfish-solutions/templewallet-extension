@@ -115,13 +115,13 @@ export const KnownDelegatorsList = memo<Props>(({ tezosChainId, accountPkh, setV
             id="recommendedBakersDescription"
             substitutions={[
               <a
-                href="https://baking-bad.org/"
+                href="https://tzkt.io/bakers"
                 key="link"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="font-normal underline"
               >
-                Baking Bad
+                TZKT
               </a>
             ]}
           />

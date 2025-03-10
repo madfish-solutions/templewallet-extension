@@ -1,6 +1,7 @@
 import React, { memo } from 'react';
 
-import { ReactComponent as AlertTriangleIcon } from 'app/icons/alert-triangle.svg';
+import { IconBase } from 'app/atoms';
+import { ReactComponent as AttentionIcon } from 'app/icons/base/attention.svg';
 import { T } from 'lib/i18n';
 
 export const ScamTokenAlert = memo(() => (
@@ -8,7 +9,7 @@ export const ScamTokenAlert = memo(() => (
     className="py-3 px-4 rounded-md border border-red-700 mb-4 flex items-center"
     style={{ backgroundColor: '#FFEFEF' }}
   >
-    <AlertTriangleIcon className="h-4 w-4 stroke-current text-red-700" />
+    <IconBase Icon={AttentionIcon} size={12} className="text-error" />
 
     <p className="ml-2 text-red-700 font-normal text-xs">
       <T id="scamTokenAlert" />
