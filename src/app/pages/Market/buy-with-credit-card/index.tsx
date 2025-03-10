@@ -90,13 +90,18 @@ export const BuyWithCreditCard: FC<Props> = ({ opened, onRequestClose }) => {
     false
   );
 
-  const onGoBack = useCallback(() => {
+  const handleGoBack = useCallback(() => {
     setModalHeaderConfig(defaultModalHeaderConfig);
     setModalContent('form');
   }, []);
 
+  const handleClose = useCallback(() => {
+    onRequestClose();
+    setModalContent('form');
+  }, [onRequestClose]);
+
   return (
-    <PageModal opened={opened} onRequestClose={onRequestClose} {...modalHeaderConfig}>
+    <PageModal opened={opened} onRequestClose={handleClose} {...modalHeaderConfig}>
       <FormProvider {...form}>
         {(() => {
           switch (modalContent) {
@@ -105,7 +110,7 @@ export const BuyWithCreditCard: FC<Props> = ({ opened, onRequestClose }) => {
                 <SelectCurrency
                   setModalHeaderConfig={setModalHeaderConfig}
                   onCurrencySelect={handleInputAssetChange}
-                  onGoBack={onGoBack}
+                  onGoBack={handleGoBack}
                 />
               );
             case 'get':
@@ -113,7 +118,7 @@ export const BuyWithCreditCard: FC<Props> = ({ opened, onRequestClose }) => {
                 <SelectToken
                   setModalHeaderConfig={setModalHeaderConfig}
                   onTokenSelect={handleOutputTokenChange}
-                  onGoBack={onGoBack}
+                  onGoBack={handleGoBack}
                 />
               );
             case 'provider':
@@ -123,7 +128,7 @@ export const BuyWithCreditCard: FC<Props> = ({ opened, onRequestClose }) => {
                   paymentProvidersToDisplay={paymentProvidersToDisplay}
                   lastFormRefreshTimestamp={lastFormRefreshTimestamp}
                   onProviderSelect={handlePaymentProviderChange}
-                  onGoBack={onGoBack}
+                  onGoBack={handleGoBack}
                 />
               );
             default:
