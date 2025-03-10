@@ -48,7 +48,6 @@ export const ApproveLayout = memo<ApproveLayoutProps>(({ chain, req, setFinalEvm
   const { from } = req;
 
   const knownAssetMetadata = useEvmGenericAssetMetadata(toEvmAssetSlug(tokenAddress), chain.chainId);
-  const metadataLoading = useEvmGenericAssetsMetadataLoading();
 
   const isErc20IncreaseAllowance = useMemo(() => dataMatchesAbis(txData, [erc20IncreaseAllowanceAbi]), [txData]);
   const evmToolkit = useMemo(() => getReadOnlyEvmForNetwork(chain), [chain]);

@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo } from 'react';
+import React, { useMemo } from 'react';
 
 import { Loader } from 'app/atoms';
 import { StoredAccount } from 'lib/temple/types';
