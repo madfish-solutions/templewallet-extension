@@ -5,7 +5,6 @@ import { Button, IconBase } from 'app/atoms';
 import DAppLogo from 'app/atoms/DAppLogo';
 import { EmptyState } from 'app/atoms/EmptyState';
 import { ActionsButtonsBox } from 'app/atoms/PageModal/actions-buttons-box';
-import { ScrollView } from 'app/atoms/ScrollView';
 import { StyledButton } from 'app/atoms/StyledButton';
 import { ReactComponent as CompactDown } from 'app/icons/base/compact_down.svg';
 import { ReactComponent as UnlinkSvg } from 'app/icons/base/unlink.svg';
@@ -32,7 +31,7 @@ export const DAppsSettings = memo(() => {
     <FadeTransition>
       {dapps.length ? (
         <>
-          <ScrollView className="gap-y-6 px-4 py-6">
+          <div className="flex flex-col flex-grow gap-y-6 px-4 pt-6 pb-2">
             {activeDApp ? (
               <Section title="Current connection">
                 <DAppItem
@@ -53,9 +52,9 @@ export const DAppsSettings = memo(() => {
                 </div>
               </Section>
             ) : null}
-          </ScrollView>
-          <ActionsButtonsBox className="sticky left-0 bottom-0" bgSet={false}>
-            <StyledButton className="flex-1" size="L" color="red-low" onClick={onRemoveAllClick}>
+          </div>
+          <ActionsButtonsBox className="sticky left-0 bottom-0 bg-background" bgSet={false}>
+            <StyledButton size="L" color="red-low" onClick={onRemoveAllClick}>
               Disconnect All
             </StyledButton>
           </ActionsButtonsBox>
