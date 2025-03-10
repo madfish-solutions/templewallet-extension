@@ -73,11 +73,12 @@ export const SelectAccountStep = memo<SelectAccountStepProps>(({ initialAccount,
   const submitSelectedAccount = useCallback(async () => {
     try {
       setIsSubmitting(true);
-      const { derivationIndex, ...restProps } = knownLedgerAccounts[activeAccountIndex];
+      const { derivationIndex, chain, ...restProps } = knownLedgerAccounts[activeAccountIndex];
       await createLedgerAccount({
         ...restProps,
+        chain,
         name: await fetchNewAccountName(accounts, TempleAccountType.Ledger, i => t('defaultLedgerName', String(i))),
-        derivationPath: getDerivationPath(restProps.chain, derivationIndex)
+        derivationPath: getDerivationPath(chain, derivationIndex)
       });
       onSuccess();
     } catch (e: any) {

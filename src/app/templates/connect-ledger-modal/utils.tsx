@@ -23,6 +23,8 @@ import { TempleChainKind } from 'temple/types';
 
 import { EvmAccountProps, TezosAccountProps } from './types';
 
+const DEFAULT_DERIVATION = DerivationType.ED25519;
+
 export const useGetLedgerTezosAccount = () => {
   const mainnetChain = useTezosChainByChainId(TempleTezosChainId.Mainnet);
   const tezos = useMemo(() => getReadOnlyTezos(mainnetChain!.rpcBaseURL), [mainnetChain]);
@@ -30,7 +32,7 @@ export const useGetLedgerTezosAccount = () => {
 
   return useCallback(
     async (
-      derivationType = DerivationType.ED25519,
+      derivationType = DEFAULT_DERIVATION,
       derivationIndex = getDefaultLedgerAccountIndex(accounts, TempleChainKind.Tezos, derivationType)
     ): Promise<TezosAccountProps> => {
       const pk = await getLedgerTezosPk(derivationType, getDerivationPath(TempleChainKind.Tezos, derivationIndex));
@@ -80,7 +82,7 @@ export const useGetLedgerEvmAccount = () => {
 export const TEZOS_BY_INDEX_DERIVATION_REGEX = /^m\/44'\/1729'\/(\d+)'\/0'$/;
 export const EVM_BY_INDEX_DERIVATION_REGEX = /^m\/44'\/60'\/0'\/0\/(\d+)$/;
 
-export const useUsedDerivationIndexes = (chainKind: TempleChainKind, derivationType = DerivationType.ED25519) => {
+export const useUsedDerivationIndexes = (chainKind: TempleChainKind, derivationType = DEFAULT_DERIVATION) => {
   const { accounts } = useTempleClient();
 
   return useMemo(
@@ -92,7 +94,7 @@ export const useUsedDerivationIndexes = (chainKind: TempleChainKind, derivationT
 function getUsedDerivationIndexes(
   accounts: StoredAccount[],
   chainKind: TempleChainKind,
-  derivationType = DerivationType.ED25519
+  derivationType = DEFAULT_DERIVATION
 ) {
   const regex = chainKind === TempleChainKind.Tezos ? TEZOS_BY_INDEX_DERIVATION_REGEX : EVM_BY_INDEX_DERIVATION_REGEX;
 
@@ -101,7 +103,7 @@ function getUsedDerivationIndexes(
       (acc): acc is StoredLedgerAccount =>
         acc.type === TempleAccountType.Ledger &&
         acc.chain === chainKind &&
-        (acc.chain === TempleChainKind.EVM || (acc.derivationType ?? DerivationType.ED25519) === derivationType) &&
+        (acc.chain === TempleChainKind.EVM || (acc.derivationType ?? DEFAULT_DERIVATION) === derivationType) &&
         Boolean(acc.derivationPath.match(regex))
     )
     .map(account => {
@@ -115,12 +117,9 @@ function getUsedDerivationIndexes(
 export function getDefaultLedgerAccountIndex(
   accounts: StoredAccount[],
   chainKind: TempleChainKind,
-  derivationType = DerivationType.ED25519
+  derivationType = DEFAULT_DERIVATION
 ) {
-  const derivationIndexes =
-    chainKind === TempleChainKind.Tezos
-      ? getUsedDerivationIndexes(accounts, chainKind, derivationType)
-      : getUsedDerivationIndexes(accounts, chainKind);
+  const derivationIndexes = getUsedDerivationIndexes(accounts, chainKind, derivationType);
   let result = 0;
   derivationIndexes.forEach(index => {
     if (index === result) {
