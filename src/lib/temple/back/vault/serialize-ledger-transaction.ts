@@ -14,7 +14,7 @@ import {
 } from 'viem';
 import { serializeAuthorizationList } from 'viem/experimental';
 
-export interface LedgerSignature {
+interface LedgerSignature {
   v: number | string;
   s: string;
   r: string;

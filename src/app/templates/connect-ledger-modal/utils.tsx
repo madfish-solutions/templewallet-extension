@@ -79,8 +79,8 @@ export const useGetLedgerEvmAccount = () => {
   );
 };
 
-export const TEZOS_BY_INDEX_DERIVATION_REGEX = /^m\/44'\/1729'\/(\d+)'\/0'$/;
-export const EVM_BY_INDEX_DERIVATION_REGEX = /^m\/44'\/60'\/0'\/0\/(\d+)$/;
+const TEZOS_BY_INDEX_DERIVATION_REGEX = /^m\/44'\/1729'\/(\d+)'\/0'$/;
+const EVM_BY_INDEX_DERIVATION_REGEX = /^m\/44'\/60'\/0'\/0\/(\d+)$/;
 
 export const useUsedDerivationIndexes = (chainKind: TempleChainKind, derivationType = DEFAULT_DERIVATION) => {
   const { accounts } = useTempleClient();
