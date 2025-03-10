@@ -786,14 +786,14 @@ describe('Vault tests', () => {
       type: TempleAccountType.Ledger,
       name: 'mockName',
       derivationPath: 'mockTezosDerivationPath',
-      tezosAddress: address
+      address
     });
     expect(newAccount2).toMatchObject({
       type: TempleAccountType.Ledger,
       name: 'mockName2',
       derivationPath: 'mockTezosDerivationPath2',
       derivationType: DerivationType.BIP32_ED25519,
-      tezosAddress: address2
+      address: address2
     });
   });
 
