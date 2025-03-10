@@ -15,6 +15,7 @@ import { useEvmAssetBalance } from 'lib/balances/hooks';
 import { useEvmCategorizedAssetMetadata } from 'lib/metadata';
 import { useTempleClient } from 'lib/temple/front';
 import { ZERO } from 'lib/utils/numbers';
+import { useGetEvmActiveBlockExplorer } from 'temple/front/ready';
 
 import { buildBasicEvmSendParams } from '../../build-basic-evm-send-params';
 
@@ -35,6 +36,7 @@ export const EvmContent: FC<EvmContentProps> = ({ data, onClose }) => {
   const { value: balance = ZERO } = useEvmAssetBalance(assetSlug, accountPkh, network);
   const { value: ethBalance = ZERO } = useEvmAssetBalance(EVM_TOKEN_SLUG, accountPkh, network);
   const assetMetadata = useEvmCategorizedAssetMetadata(assetSlug, network.chainId);
+  const getActiveBlockExplorer = useGetEvmActiveBlockExplorer();
 
   const [latestSubmitError, setLatestSubmitError] = useState<string | nullish>(null);
 
@@ -92,7 +94,13 @@ export const EvmContent: FC<EvmContentProps> = ({ data, onClose }) => {
         onConfirm();
         onClose();
 
-        setTimeout(() => toastSuccess('Transaction Submitted', true, txHash), CLOSE_ANIMATION_TIMEOUT * 2);
+        const blockExplorer = getActiveBlockExplorer(network.chainId.toString());
+
+        setTimeout(
+          () =>
+            toastSuccess('Transaction Submitted', true, { hash: txHash, explorerBaseUrl: blockExplorer.url + '/tx/' }),
+          CLOSE_ANIMATION_TIMEOUT * 2
+        );
       } catch (err: any) {
         console.error(err);
 
@@ -106,6 +114,7 @@ export const EvmContent: FC<EvmContentProps> = ({ data, onClose }) => {
       assetMetadata,
       estimationData,
       formState.isSubmitting,
+      getActiveBlockExplorer,
       getFeesPerGas,
       network,
       onClose,

@@ -20,6 +20,7 @@ import { tzToMutez } from 'lib/temple/helpers';
 import { isTezosContractAddress } from 'lib/tezos';
 import { ZERO } from 'lib/utils/numbers';
 import { getTezosToolkitWithSigner } from 'temple/front';
+import { useGetTezosActiveBlockExplorer } from 'temple/front/ready';
 
 import { BaseContent } from './BaseContent';
 
@@ -41,6 +42,8 @@ export const TezosContent: FC<TezosContentProps> = ({ data, onClose }) => {
 
   const { value: balance = ZERO } = useTezosAssetBalance(assetSlug, accountPkh, network);
   const { value: tezBalance = ZERO } = useTezosAssetBalance(TEZ_TOKEN_SLUG, accountPkh, network);
+
+  const getActiveBlockExplorer = useGetTezosActiveBlockExplorer();
 
   const tezos = getTezosToolkitWithSigner(network.rpcBaseURL, account.ownerAddress || accountPkh, true);
 
@@ -120,7 +123,12 @@ export const TezosContent: FC<TezosContentProps> = ({ data, onClose }) => {
         // @ts-expect-error
         const txHash = operation?.hash || operation?.opHash;
 
-        setTimeout(() => toastSuccess('Transaction Submitted', true, txHash), CLOSE_ANIMATION_TIMEOUT * 2);
+        const blockExplorer = getActiveBlockExplorer(network.chainId);
+
+        setTimeout(
+          () => toastSuccess('Transaction Submitted', true, { hash: txHash, explorerBaseUrl: blockExplorer.url + '/' }),
+          CLOSE_ANIMATION_TIMEOUT * 2
+        );
       } catch (err: any) {
         console.error(err);
 
@@ -128,7 +136,18 @@ export const TezosContent: FC<TezosContentProps> = ({ data, onClose }) => {
         setTab('error');
       }
     },
-    [displayedFeeOptions, estimationData, formState.isSubmitting, onClose, onConfirm, setTab, submitOperation, tezos]
+    [
+      displayedFeeOptions,
+      estimationData,
+      formState.isSubmitting,
+      getActiveBlockExplorer,
+      network.chainId,
+      onClose,
+      onConfirm,
+      setTab,
+      submitOperation,
+      tezos
+    ]
   );
 
   return (
