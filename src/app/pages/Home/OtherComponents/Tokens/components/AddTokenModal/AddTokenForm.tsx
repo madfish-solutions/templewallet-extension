@@ -107,7 +107,7 @@ export const AddTokenForm = memo<AddTokenPageProps>(
 
     const contractAddress = watch('address') || '';
     const tokenIdWithoutFallback = watch('id');
-    const tokenId = tokenIdWithoutFallback;
+    const tokenId = tokenIdWithoutFallback || '0';
 
     const formValid = useMemo(() => {
       if (!contractAddress) return false;
@@ -250,8 +250,8 @@ export const AddTokenForm = memo<AddTokenPageProps>(
             const tokenMetadata: TokenMetadata = {
               ...tezMetadataRef.current,
               decimals: decimals ? +decimals : 0,
-              address: contractAddress,
-              id: String(tokenId)
+              address,
+              id
             };
 
             assetIsCollectible = isCollectible(tokenMetadata);
@@ -271,7 +271,7 @@ export const AddTokenForm = memo<AddTokenPageProps>(
           } else {
             if (!evmMetadataRef.current) throw new Error('Oops, Something went wrong!');
 
-            tokenSlug = toTokenSlug(getAddress(contractAddress), id);
+            tokenSlug = toTokenSlug(getAddress(address), id);
 
             dispatch(
               (forCollectible ? putNewEvmCollectibleAction : putNewEvmTokenAction)({
@@ -324,8 +324,6 @@ export const AddTokenForm = memo<AddTokenPageProps>(
         formState.isSubmitting,
         formAnalytics,
         isTezosChainSelected,
-        contractAddress,
-        tokenId,
         selectedNetwork.chainId,
         accountTezAddress,
         close,
