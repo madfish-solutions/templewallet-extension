@@ -1053,6 +1053,15 @@
   "selectNetworkToReveal": {
     "message": "Select Network to reveal"
   },
+  "selectNetwork": {
+    "message": "Select network"
+  },
+  "evmLedgerTooltip": {
+    "message": "EVM includes the connection of accounts,\ntokens, and NFTs on Ethereum, BNB Smart\nChain, Arbitrum, Optimism and other EVM-\ncompatible networks."
+  },
+  "tezosLedgerTooltip": {
+    "message": "Includes the connection of\naccounts only on Tezos network."
+  },
   "advancedFeatures": {
     "message": "Advanced Features"
   },
@@ -1118,6 +1127,115 @@
   "connectLedger": {
     "message": "Connect Ledger",
     "description": "Ledger = https://www.ledger.com/"
+  },
+  "connectYourLedger": {
+    "message": "Connect your Ledger"
+  },
+  "connectYourLedgerDescription": {
+    "message": "Plug your Ledger into computer, unlock it and open the $appName$ app on the device.",
+    "placeholders": {
+      "appName": {
+        "content": "$1"
+      }
+    }
+  },
+  "lookingForDevice": {
+    "message": "Looking for device"
+  },
+  "lookingForDeviceDescription": {
+    "message": "Allow Temple to connect to your Ledger, keep it unlocked and open the $appName$ app.",
+    "placeholders": {
+      "appName": {
+        "content": "$1"
+      }
+    }
+  },
+  "someLedgerConnected": {
+    "message": "Ledger $modelName$ connected",
+    "placeholders": {
+      "modelName": {
+        "content": "$1"
+      }
+    }
+  },
+  "ledgerConnectedDescription": {
+    "message": "You have successfully connected your Ledger to Temple Wallet."
+  },
+  "couldNotConnect": {
+    "message": "Couldn’t connect"
+  },
+  "couldNotConnectDescription": {
+    "message": "Please approve relevant browser permissions to connect and ensure that your Ledger is unlocked."
+  },
+  "someAppIsNotReady": {
+    "message": "$appName$ app isn’t ready",
+    "placeholders": {
+      "appName": {
+        "content": "$1"
+      }
+    }
+  },
+  "someAppNotReadyDescription": {
+    "message": "Please make sure the $appName$ application on your Ledger device is open.",
+    "placeholders": {
+      "appName": {
+        "content": "$1"
+      }
+    }
+  },
+  "unableToConnect": {
+    "message": "Unable to connect"
+  },
+  "unableToConnectDescription": {
+    "message": "Please check the connection between your Ledger and computer. Ensure you approved all relevant permissions to connect to your Ledger in browser."
+  },
+  "unableToConnectApproveDescription": {
+    "message": "Please check your USB connection and ensure you approved all relevant permissions."
+  },
+  "selectAccount": {
+    "message": "Select account"
+  },
+  "customPath": {
+    "message": "Custom path"
+  },
+  "waitingForApprove": {
+    "message": "Waiting for approve"
+  },
+  "waitingForLedgerApproveDescription": {
+    "message": "Confirm action on your Ledger to continue."
+  },
+  "approved": {
+    "message": "Approved"
+  },
+  "ledgerApprovedDescription": {
+    "message": "Action has been successfully confirmed."
+  },
+  "rejected": {
+    "message": "Rejected"
+  },
+  "ledgerRejectedSwitchDerivationDescription": {
+    "message": "Сonfirmation has been canceled. To switch derivation type you need to confirm action on your Ledger."
+  },
+  "ledgerRejectedDescription": {
+    "message": "Сonfirmation has been canceled."
+  },
+  "unableToConnectLedgerApproveDescription": {
+    "message": "Please check your USB connection and ensure you approved all relevant permissions."
+  },
+  "accountIndex": {
+    "message": "Account index"
+  },
+  "accountIndexDescription": {
+    "message": "Enter the index of the account you would like to add"
+  },
+  "invalidIndexError": {
+    "message": "Must be an integer non-negative number"
+  },
+  "accountAlreadyImported": {
+    "message": "This account is already imported"
+  },
+  "accountAlreadyListed": {
+    "message": "This account is already in the list"
   },
   "continueWithGoogleDrive": {
     "message": "Continue with Google Drive"

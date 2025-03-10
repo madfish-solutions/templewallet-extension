@@ -8,7 +8,7 @@ import { Vault } from '../vault';
 
 import { getAllDApps, removeDApps, switchChain } from './utils';
 
-export async function init() {
+export function init() {
   browser.storage.local.onChanged.addListener(
     evmRpcUrlsListener as unknown as SyncFn<Storage.StorageAreaOnChangedChangesType>
   );

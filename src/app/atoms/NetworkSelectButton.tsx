@@ -3,11 +3,12 @@ import React, { memo, useMemo } from 'react';
 import { IconBase } from 'app/atoms';
 import { EvmNetworkLogo, TezosNetworkLogo } from 'app/atoms/NetworkLogo';
 import { ReactComponent as Browse } from 'app/icons/base/browse.svg';
-import { ReactComponent as CompactDown } from 'app/icons/base/compact_down.svg';
 import { FilterChain } from 'app/store/assets-filter-options/state';
 import { T } from 'lib/i18n';
 import { useAllEvmChains, useAllTezosChains } from 'temple/front';
 import { TempleChainKind } from 'temple/types';
+
+import { DropdownTriggerButton } from './dropdown-trigger-button';
 
 interface NetworkSelectProps {
   selectedChain: FilterChain;
@@ -52,12 +53,8 @@ export const NetworkSelectButton = memo<NetworkSelectProps>(({ selectedChain, on
   }, [selectedChain, evmChains, tezosChains]);
 
   return (
-    <div
-      className="cursor-pointer flex justify-between items-center p-3 rounded-lg shadow-bottom border-0.5 border-transparent hover:border-lines"
-      onClick={onClick}
-    >
+    <DropdownTriggerButton className="p-3" onClick={onClick}>
       <div className="flex items-center gap-2">{children}</div>
-      <IconBase Icon={CompactDown} className="text-primary" size={16} />
-    </div>
+    </DropdownTriggerButton>
   );
 });

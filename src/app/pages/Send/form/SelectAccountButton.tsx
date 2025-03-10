@@ -1,8 +1,7 @@
 import React, { memo, useMemo } from 'react';
 
-import { Button, IconBase } from 'app/atoms';
 import { AccountAvatar } from 'app/atoms/AccountAvatar';
-import { ReactComponent as CompactDown } from 'app/icons/base/compact_down.svg';
+import { DropdownTriggerButton } from 'app/atoms/dropdown-trigger-button';
 import { TestIDProperty } from 'lib/analytics';
 import { getAccountAddressForEvm, getAccountAddressForTezos } from 'temple/accounts';
 import { useVisibleAccounts } from 'temple/front';
@@ -48,12 +47,7 @@ export const SelectAccountButton = memo<Props>(({ value: selectedAccountAddress,
   }, [allAccounts, contacts, selectedAccountAddress]);
 
   return (
-    <Button
-      id={SELECT_ACCOUNT_BUTTON_ID}
-      className="w-full cursor-pointer flex justify-between items-center p-3 rounded-lg shadow-bottom border-0.5 border-transparent hover:border-lines"
-      testID={testID}
-      onClick={onClick}
-    >
+    <DropdownTriggerButton className="w-full p-3" id={SELECT_ACCOUNT_BUTTON_ID} testID={testID} onClick={onClick}>
       <div className="flex justify-center items-center gap-2">
         {iconHash ? (
           <AccountAvatar seed={iconHash} size={24} borderColor="secondary" />
@@ -65,7 +59,6 @@ export const SelectAccountButton = memo<Props>(({ value: selectedAccountAddress,
 
         <span className="text-font-medium-bold">{title}</span>
       </div>
-      <IconBase Icon={CompactDown} className="text-primary" size={16} />
-    </Button>
+    </DropdownTriggerButton>
   );
 });

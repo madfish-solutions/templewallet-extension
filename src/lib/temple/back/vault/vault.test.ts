@@ -1,3 +1,4 @@
+import { DerivationType } from '@taquito/ledger-signer';
 import { TypedDataDefinition } from 'viem';
 import browser from 'webextension-polyfill';
 
@@ -758,6 +759,39 @@ describe('Vault tests', () => {
       name: 'Translated<defaultWatchOnlyAccountName, "1">',
       chain: TempleChainKind.Tezos,
       address: mockManagedContractAddress
+    });
+  });
+
+  it('should import a Tezos Ledger account with known credentials', async () => {
+    await Vault.spawn(password, defaultMnemonic);
+    const vault = await Vault.setup(password);
+    const { publicKey, address } = hdWallets[0].accounts[1].tezos;
+    const { publicKey: publicKey2, address: address2 } = hdWallets[0].accounts[2].tezos;
+    const [, newAccount] = await vault.createLedgerAccount({
+      derivationPath: 'mockTezosDerivationPath',
+      name: 'mockName',
+      tezosAddress: address,
+      publicKey
+    });
+    const [, , newAccount2] = await vault.createLedgerAccount({
+      derivationPath: 'mockTezosDerivationPath2',
+      name: 'mockName2',
+      tezosAddress: address2,
+      publicKey: publicKey2,
+      derivationType: DerivationType.BIP32_ED25519
+    });
+    expect(newAccount).toMatchObject({
+      type: TempleAccountType.Ledger,
+      name: 'mockName',
+      derivationPath: 'mockTezosDerivationPath',
+      tezosAddress: address
+    });
+    expect(newAccount2).toMatchObject({
+      type: TempleAccountType.Ledger,
+      name: 'mockName2',
+      derivationPath: 'mockTezosDerivationPath2',
+      derivationType: DerivationType.BIP32_ED25519,
+      tezosAddress: address2
     });
   });
 

@@ -7,7 +7,7 @@ import toBuffer from 'typedarray-to-buffer';
 
 import { DEFAULT_TEZOS_DERIVATION_PATH } from 'lib/constants';
 
-import { toLedgerError } from './helpers';
+import { isPkRetrievalError, isPkhRetrievalError, toLedgerError } from './helpers';
 
 export class TempleLedgerSigner extends LedgerSigner {
   constructor(
@@ -22,21 +22,24 @@ export class TempleLedgerSigner extends LedgerSigner {
   }
 
   async publicKey() {
-    return (
-      this.accPublicKey ??
-      super.publicKey().catch(err => {
-        throw toLedgerError(err);
-      })
-    );
+    return this.accPublicKey ?? this.withErrorCauseThrow(() => super.publicKey(), isPkRetrievalError);
   }
 
   async publicKeyHash() {
-    return (
-      this.accPublicKeyHash ??
-      super.publicKeyHash().catch(err => {
-        throw toLedgerError(err);
-      })
-    );
+    return this.accPublicKeyHash ?? this.withErrorCauseThrow(() => super.publicKeyHash(), isPkhRetrievalError);
+  }
+
+  private async withErrorCauseThrow<T extends Error & { cause?: any }, R>(
+    fn: () => Promise<R>,
+    isExpectedError: (error: unknown) => error is T
+  ) {
+    return fn().catch(err => {
+      if (isExpectedError(err) && err.cause instanceof Error) {
+        throw err.cause;
+      }
+
+      throw err;
+    });
   }
 
   async sign(bytes: string, watermark?: Uint8Array) {

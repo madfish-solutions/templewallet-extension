@@ -7,6 +7,7 @@ import { AccountAvatar } from 'app/atoms/AccountAvatar';
 import { EvmNetworksLogos, TezNetworkLogo } from 'app/atoms/NetworksLogos';
 import { ReactComponent as CopyIcon } from 'app/icons/base/copy.svg';
 import { toastSuccess } from 'app/toaster';
+import { t } from 'lib/i18n';
 import { TempleContact } from 'lib/temple/types';
 
 import { isEvmContact } from '../utils';
@@ -48,7 +49,7 @@ const Address = memo<AddressProps>(({ address }) => (
     onClick={e => {
       e.stopPropagation();
       window.navigator.clipboard.writeText(address);
-      toastSuccess('Address Copied');
+      toastSuccess(t('copiedAddress'));
     }}
   >
     <span className="text-font-description text-grey-1 group-hover:text-secondary">

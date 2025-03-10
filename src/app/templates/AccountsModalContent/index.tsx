@@ -20,6 +20,7 @@ import { searchAndFilterAccounts, useAccountsGroups, useCurrentAccountId, useVis
 import { useSetAccountId } from 'temple/front/ready';
 
 import { AccountCard, AccountCardProps } from '../AccountCard';
+import { ConnectLedgerModal } from '../connect-ledger-modal';
 import { CreateHDWalletModal } from '../CreateHDWalletModal';
 import { ImportAccountModal, ImportOptionSlug } from '../ImportAccountModal';
 
@@ -35,7 +36,8 @@ export interface AccountsModalContentProps {
 enum AccountsModalSubmodals {
   CreateHDWallet = 'create-hd-wallet',
   ImportAccount = 'import-account',
-  WatchOnly = 'watch-only'
+  WatchOnly = 'watch-only',
+  ConnectLedger = 'connect-ledger'
 }
 
 export const AccountsModalContent = memo<AccountsModalContentProps>(
@@ -87,6 +89,7 @@ export const AccountsModalContent = memo<AccountsModalContentProps>(
       setImportOptionSlug(undefined);
     }, []);
     const goToWatchOnlyModal = useCallback(() => setActiveSubmodal(AccountsModalSubmodals.WatchOnly), []);
+    const goToConnectLedgerModal = useCallback(() => setActiveSubmodal(AccountsModalSubmodals.ConnectLedger), []);
     const handleSeedPhraseImportOptionSelect = useCallback(() => setImportOptionSlug('mnemonic'), []);
     const handlePrivateKeyImportOptionSelect = useCallback(() => setImportOptionSlug('private-key'), []);
 
@@ -121,6 +124,15 @@ export const AccountsModalContent = memo<AccountsModalContentProps>(
               shouldShowBackButton
               onGoBack={closeSubmodal}
               onRequestClose={totalClose}
+            />
+          );
+        case AccountsModalSubmodals.ConnectLedger:
+          return (
+            <ConnectLedgerModal
+              animated={false}
+              shouldShowBackButton
+              onStartGoBack={closeSubmodal}
+              onClose={totalClose}
             />
           );
         default:
@@ -164,6 +176,7 @@ export const AccountsModalContent = memo<AccountsModalContentProps>(
             testID={AccountsModalSelectors.newWalletActionsButton}
             goToImportModal={goToImportModal}
             goToWatchOnlyModal={goToWatchOnlyModal}
+            goToConnectLedgerModal={goToConnectLedgerModal}
           />
         </div>
 

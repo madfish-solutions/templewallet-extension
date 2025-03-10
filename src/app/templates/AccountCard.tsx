@@ -1,10 +1,10 @@
-import React, { memo } from 'react';
+import React, { ComponentType, FC, memo } from 'react';
 
 import clsx from 'clsx';
 
 import { AccLabel } from 'app/atoms/AccLabel';
 import { AccountAvatar } from 'app/atoms/AccountAvatar';
-import { AccountName } from 'app/atoms/AccountName';
+import { AccountName as DefaultAccountName } from 'app/atoms/AccountName';
 import { RadioButton } from 'app/atoms/RadioButton';
 import { TotalEquity } from 'app/atoms/TotalEquity';
 import { StoredAccount } from 'lib/temple/types';
@@ -12,6 +12,10 @@ import { useScrollIntoViewOnMount } from 'lib/ui/use-scroll-into-view';
 
 export interface AccountCardProps {
   account: StoredAccount;
+  AccountName?: ComponentType<{ account: StoredAccount; searchValue?: string }>;
+  balanceLabel?: string;
+  BalanceValue?: ComponentType<{ account: StoredAccount }>;
+  customLabelTitle?: string;
   isCurrent: boolean;
   showRadioOnHover?: boolean;
   searchValue?: string;
@@ -20,7 +24,18 @@ export interface AccountCardProps {
 }
 
 export const AccountCard = memo<AccountCardProps>(
-  ({ account, isCurrent, attractSelf, showRadioOnHover = true, searchValue, onClick }) => {
+  ({
+    account,
+    customLabelTitle,
+    AccountName = DefaultAccountName,
+    BalanceValue = DefaultBalanceValue,
+    balanceLabel = 'Total Balance:',
+    isCurrent,
+    attractSelf,
+    showRadioOnHover = true,
+    searchValue,
+    onClick
+  }) => {
     const elemRef = useScrollIntoViewOnMount<HTMLDivElement>(isCurrent && attractSelf);
 
     return (
@@ -48,16 +63,20 @@ export const AccountCard = memo<AccountCardProps>(
 
         <div className="flex items-center">
           <div className="flex-1 flex flex-col">
-            <div className="text-font-small text-grey-1">Total Balance:</div>
+            <div className="text-font-small text-grey-1">{balanceLabel}</div>
 
             <div className="text-font-num-14">
-              <TotalEquity account={account} currency="fiat" />
+              <BalanceValue account={account} />
             </div>
           </div>
 
-          <AccLabel type={account.type} />
+          <AccLabel type={account.type} customTitle={customLabelTitle} />
         </div>
       </div>
     );
   }
+);
+
+const DefaultBalanceValue: FC<{ account: StoredAccount }> = ({ account }) => (
+  <TotalEquity account={account} currency="fiat" />
 );

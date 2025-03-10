@@ -5,7 +5,6 @@ import { OpenInFullPage, useAppEnv } from 'app/env';
 import { AccountSettings } from 'app/pages/AccountSettings';
 import { BuyWithCreditCard } from 'app/pages/BuyWithCreditCard/BuyWithCreditCard';
 import CollectiblePage from 'app/pages/Collectibles/CollectiblePage';
-import ConnectLedger from 'app/pages/ConnectLedger/ConnectLedger';
 import Delegate from 'app/pages/Delegate';
 import Home from 'app/pages/Home/Home';
 import AttentionPage from 'app/pages/Onboarding/pages/AttentionPage';
@@ -72,7 +71,6 @@ const ROUTE_MAP = Woozie.createMap<RouteContext>([
   ['/loading', (_p, ctx) => (ctx.ready ? <Woozie.Redirect to={'/'} /> : <RootSuspenseFallback />)],
   ['/', (_p, ctx) => (ctx.ready ? <Home /> : <Welcome />)],
   ['/activity', onlyReady(() => <ActivityPage />)],
-  ['/connect-ledger', onlyReady(onlyInFullPage(() => <ConnectLedger />))],
   ['/receive/:chainKind?', onlyReady(({ chainKind }) => <Receive chainKind={chainKind} />)],
   [
     '/send/:chainKind?/:chainId?/:assetSlug?',
