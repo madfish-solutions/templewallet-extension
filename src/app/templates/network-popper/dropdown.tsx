@@ -4,6 +4,7 @@ import { useDebounce } from 'use-debounce';
 
 import { ActionsDropdownPopup } from 'app/atoms/ActionsDropdown';
 import { EmptyState } from 'app/atoms/EmptyState';
+import { T } from 'lib/i18n';
 import { PopperRenderProps } from 'lib/ui/Popper';
 import { searchAndFilterChains } from 'lib/ui/search-networks';
 import {
@@ -54,7 +55,7 @@ export const NetworkDropdown = memo<NetworkDropdownProps>(
     );
 
     return (
-      <ActionsDropdownPopup title="Select Network" opened={opened} style={{ width: 196, height: 340 }}>
+      <ActionsDropdownPopup title={<T id="selectNetwork" />} opened={opened} style={{ width: 196, height: 340 }}>
         <div className="mb-1">
           <SearchBarField value={searchValue} defaultRightMargin={false} onValueChange={setSearchValue} />
         </div>
