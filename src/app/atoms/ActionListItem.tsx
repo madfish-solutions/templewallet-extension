@@ -4,9 +4,10 @@ import clsx from 'clsx';
 
 import { IconBase } from 'app/atoms';
 import { Button } from 'app/atoms/Button';
+import { TestIDProps } from 'lib/analytics';
 import { Link } from 'lib/woozie';
 
-export interface ActionListItemProps extends PropsWithChildren {
+export interface ActionListItemProps extends PropsWithChildren, TestIDProps {
   Icon?: ImportedSVGComponent;
   linkTo?: string;
   className?: string;
@@ -25,12 +26,14 @@ export const ActionListItem: FC<ActionListItemProps> = ({
   onClick,
   setOpened,
   testID,
+  testIDProperties,
   active,
   danger,
   children
 }) => {
   const baseProps = {
     testID,
+    testIDProperties,
     className: clsx(
       'flex items-center py-1.5 px-2 gap-x-1 rounded-md text-font-description',
       active ? 'bg-grey-4' : danger ? 'hover:bg-error-low' : 'hover:bg-secondary-low',

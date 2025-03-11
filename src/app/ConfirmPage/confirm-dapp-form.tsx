@@ -3,7 +3,6 @@ import React, { ReactNode, memo, useCallback, useMemo, useState } from 'react';
 import clsx from 'clsx';
 
 import { Alert, Anchor, IconBase } from 'app/atoms';
-import ConfirmLedgerOverlay from 'app/atoms/ConfirmLedgerOverlay';
 import DAppLogo from 'app/atoms/DAppLogo';
 import { Logo } from 'app/atoms/Logo';
 import { CloseButton, PageModal } from 'app/atoms/PageModal';
@@ -11,14 +10,17 @@ import { ActionsButtonsBox } from 'app/atoms/PageModal/actions-buttons-box';
 import { ScrollView } from 'app/atoms/PageModal/scroll-view';
 import { ProgressAndNumbers } from 'app/atoms/ProgressAndNumbers';
 import { StyledButton } from 'app/atoms/StyledButton';
+import { useLedgerApprovalModalState } from 'app/hooks/use-ledger-approval-modal-state';
 import { ReactComponent as LinkIcon } from 'app/icons/base/link.svg';
 import { ReactComponent as OutLinkIcon } from 'app/icons/base/outLink.svg';
 import { AccountsModalContent } from 'app/templates/AccountsModalContent';
+import { LedgerApprovalModal } from 'app/templates/ledger-approval-modal';
 import { EvmOperationKind, getOperationKind } from 'lib/evm/on-chain/transactions';
 import { parseEvmTxRequest } from 'lib/evm/on-chain/utils/parse-evm-tx-request';
 import { T, t } from 'lib/i18n';
 import { useTempleClient } from 'lib/temple/front';
 import { StoredAccount, TempleAccountType, TempleDAppPayload } from 'lib/temple/types';
+import { runConnectedLedgerOperationFlow } from 'lib/ui';
 import { useBooleanState, useSafeState } from 'lib/ui/hooks';
 import { delay } from 'lib/utils';
 import { useCurrentAccountId } from 'temple/front';
@@ -59,6 +61,8 @@ export const ConfirmDAppForm = memo<ConfirmDAppFormProps>(({ accounts, payload, 
   const [isConfirming, setIsConfirming] = useSafeState(false);
   const [isDeclining, setIsDeclining] = useSafeState(false);
   const [error, setError] = useSafeState<any>(null);
+  const { ledgerApprovalModalState, setLedgerApprovalModalState, handleLedgerModalClose } =
+    useLedgerApprovalModalState();
 
   const { errorMessage: addAssetErrorMessage } = useAddAsset();
 
@@ -73,6 +77,7 @@ export const ConfirmDAppForm = memo<ConfirmDAppFormProps>(({ accounts, payload, 
   );
   const { dAppQueueCounters } = useTempleClient();
   const { length: requestsLeft, maxLength: totalRequestsCount } = dAppQueueCounters;
+  const isLedgerOperation = selectedAccount.type === TempleAccountType.Ledger;
 
   const shouldShowProgress =
     payload.type !== 'connect' &&
@@ -82,9 +87,17 @@ export const ConfirmDAppForm = memo<ConfirmDAppFormProps>(({ accounts, payload, 
 
   const confirm = useCallback(
     async (confirmed: boolean) => {
-      setError(null);
-      try {
+      const doOperation = async () => {
+        setError(null);
         await onConfirm(confirmed, selectedAccount);
+      };
+
+      try {
+        if (isLedgerOperation) {
+          await runConnectedLedgerOperationFlow(doOperation, setLedgerApprovalModalState, true);
+        } else {
+          await doOperation();
+        }
       } catch (err: any) {
         console.error(err);
 
@@ -93,7 +106,7 @@ export const ConfirmDAppForm = memo<ConfirmDAppFormProps>(({ accounts, payload, 
         setError(err);
       }
     },
-    [onConfirm, selectedAccount, setError]
+    [isLedgerOperation, onConfirm, selectedAccount, setError, setLedgerApprovalModalState]
   );
 
   const handleConfirmClick = useCallback(async () => {
@@ -268,7 +281,7 @@ export const ConfirmDAppForm = memo<ConfirmDAppFormProps>(({ accounts, payload, 
             </StyledButton>
           </ActionsButtonsBox>
 
-          <ConfirmLedgerOverlay displayed={isConfirming && selectedAccount.type === TempleAccountType.Ledger} />
+          <LedgerApprovalModal state={ledgerApprovalModalState} onClose={handleLedgerModalClose} />
         </>
       )}
     </PageModal>

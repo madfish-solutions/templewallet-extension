@@ -16,7 +16,14 @@ import { putToStorage } from 'lib/storage';
 import { addLocalOperation } from 'lib/temple/activity';
 import * as Beacon from 'lib/temple/beacon';
 import { buildFinalTezosOpParams } from 'lib/temple/helpers';
-import { TempleState, TempleMessageType, TempleRequest, TempleSettings, TempleAccountType } from 'lib/temple/types';
+import {
+  TempleState,
+  TempleMessageType,
+  TempleRequest,
+  TempleSettings,
+  TempleAccountType,
+  SaveLedgerAccountInput
+} from 'lib/temple/types';
 import { PromisesQueue, PromisesQueueCounters, delay } from 'lib/utils';
 import { EVMErrorCodes, evmRpcMethodsNames, GET_DEFAULT_WEB3_PARAMS_METHOD_NAME } from 'temple/evm/constants';
 import { ErrorWithCode } from 'temple/evm/types';
@@ -27,6 +34,7 @@ import { TempleChainKind } from 'temple/types';
 
 import {
   getCurrentPermission,
+  init as initTezos,
   requestPermission,
   requestOperation,
   requestSign,
@@ -101,7 +109,8 @@ export async function init() {
     locked();
   }
 
-  await initEvm();
+  initEvm();
+  initTezos();
 }
 
 export async function getFrontState(): Promise<TempleState> {
@@ -250,9 +259,15 @@ export function importWatchOnlyAccount(chain: TempleChainKind, address: string, 
   });
 }
 
-export function createLedgerAccount(name: string, derivationPath?: string, derivationType?: DerivationType) {
+export function getLedgerTezosPk(derivationPath?: string, derivationType?: DerivationType) {
   return withUnlocked(async ({ vault }) => {
-    const updatedAccounts = await vault.createLedgerAccount(name, derivationPath, derivationType);
+    return await vault.getLedgerTezosPk(derivationPath, derivationType);
+  });
+}
+
+export function createLedgerAccount(input: SaveLedgerAccountInput) {
+  return withUnlocked(async ({ vault }) => {
+    const updatedAccounts = await vault.createLedgerAccount(input);
     accountsUpdated(updatedAccounts);
   });
 }

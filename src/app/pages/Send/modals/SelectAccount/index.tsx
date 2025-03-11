@@ -16,7 +16,7 @@ import {
 } from 'app/templates/AccountsGroup';
 import { SearchBarField } from 'app/templates/SearchField';
 import { toastSuccess } from 'app/toaster';
-import { T } from 'lib/i18n';
+import { t, T } from 'lib/i18n';
 import { TempleContact } from 'lib/temple/types';
 import { useScrollIntoViewOnMount } from 'lib/ui/use-scroll-into-view';
 import { searchAndFilterItems } from 'lib/utils/search-items';
@@ -237,7 +237,7 @@ const Address = memo<AddressProps>(({ address }) => (
     onClick={e => {
       e.stopPropagation();
       window.navigator.clipboard.writeText(address);
-      toastSuccess('Address Copied');
+      toastSuccess(t('copiedAddress'));
     }}
   >
     <span className="text-font-description text-grey-1 group-hover:text-secondary">

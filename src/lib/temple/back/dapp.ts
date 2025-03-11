@@ -25,6 +25,7 @@ import {
   TezosDAppSession,
   getDApp as genericGetDApp,
   setDApp as genericSetDApp,
+  getAllDApps as genericGetAllDApps,
   removeDApps as genericRemoveDApps
 } from 'app/storage/dapps';
 import { CUSTOM_TEZOS_NETWORKS_STORAGE_KEY, TEZOS_CHAINS_SPECS_STORAGE_KEY } from 'lib/constants';
@@ -42,6 +43,7 @@ import {
   TempleTezosDAppPayload
 } from 'lib/temple/types';
 import { isValidTezosAddress } from 'lib/tezos';
+import { isTruthy } from 'lib/utils';
 import { StoredTezosNetwork, TEZOS_DEFAULT_NETWORKS } from 'temple/networks';
 import { loadTezosChainId } from 'temple/tezos';
 import { TempleChainKind } from 'temple/types';
@@ -50,6 +52,7 @@ import { intercom } from './defaults';
 import { dryRunOpParams } from './dryrun';
 import { RequestConfirmParams, requestConfirm as genericRequestConfirm } from './request-confirm';
 import { withUnlocked } from './store';
+import { Vault } from './vault';
 
 const HEX_PATTERN = /^[0-9a-fA-F]+$/;
 const TEZ_MSG_SIGN_PATTERN = /^0501[a-f0-9]{8}54657a6f73205369676e6564204d6573736167653a20[a-f0-9]*$/;
@@ -370,6 +373,10 @@ async function getDApp(origin: string) {
   return genericGetDApp(TempleChainKind.Tezos, origin);
 }
 
+async function getAllDApps() {
+  return genericGetAllDApps(TempleChainKind.Tezos);
+}
+
 async function setDApp(origin: string, permissions: TezosDAppSession) {
   return genericSetDApp(TempleChainKind.Tezos, origin, permissions);
 }
@@ -480,4 +487,22 @@ function isNetworkEquals(fNet: TezosDAppNetwork, sNet: TezosDAppNetwork) {
 
 function removeLastSlash(str: string) {
   return str.endsWith('/') ? str.slice(0, -1) : str;
+}
+
+export function init() {
+  Vault.subscribeToRemoveAccounts(async addresses => {
+    const removedAccounts = new Set(addresses.map(({ tezosAddress }) => tezosAddress).filter(isTruthy));
+    const tezosDApps = await getAllDApps();
+    const dAppsToRemoveOrigins: string[] = [];
+
+    for (const [origin, dApp] of Object.entries(tezosDApps)) {
+      if (removedAccounts.has(dApp.pkh)) {
+        dAppsToRemoveOrigins.push(origin);
+      }
+    }
+
+    if (dAppsToRemoveOrigins.length) {
+      await removeDApps(dAppsToRemoveOrigins);
+    }
+  });
 }

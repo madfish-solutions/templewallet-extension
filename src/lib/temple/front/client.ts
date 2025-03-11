@@ -17,7 +17,8 @@ import {
   DerivationType,
   TempleAccountType,
   WalletSpecs,
-  EvmTransactionRequestWithSender
+  EvmTransactionRequestWithSender,
+  SaveLedgerAccountInput
 } from 'lib/temple/types';
 import { useDidMount } from 'lib/ui/hooks';
 import { DEFAULT_PROMISES_QUEUE_COUNTERS } from 'lib/utils';
@@ -257,18 +258,24 @@ export const [TempleClientProvider, useTempleClient] = constate(() => {
     assertResponse(res.type === TempleMessageType.ImportWatchOnlyAccountResponse);
   }, []);
 
-  const createLedgerAccount = useCallback(
-    async (name: string, derivationType?: DerivationType, derivationPath?: string) => {
-      const res = await request({
-        type: TempleMessageType.CreateLedgerAccountRequest,
-        name,
-        derivationPath,
-        derivationType
-      });
-      assertResponse(res.type === TempleMessageType.CreateLedgerAccountResponse);
-    },
-    []
-  );
+  const getLedgerTezosPk = useCallback(async (derivationType?: DerivationType, derivationPath?: string) => {
+    const res = await request({
+      type: TempleMessageType.GetLedgerTezosPkRequest,
+      derivationPath,
+      derivationType
+    });
+    assertResponse(res.type === TempleMessageType.GetLedgerTezosPkResponse);
+
+    return res.publicKey;
+  }, []);
+
+  const createLedgerAccount = useCallback(async (input: SaveLedgerAccountInput) => {
+    const res = await request({
+      type: TempleMessageType.CreateLedgerAccountRequest,
+      input
+    });
+    assertResponse(res.type === TempleMessageType.CreateLedgerAccountResponse);
+  }, []);
 
   const updateSettings = useCallback(async (newSettings: Partial<TempleSettings>) => {
     const res = await request({
@@ -487,6 +494,7 @@ export const [TempleClientProvider, useTempleClient] = constate(() => {
     importMnemonicAccount,
     importWatchOnlyAccount,
     createLedgerAccount,
+    getLedgerTezosPk,
     updateSettings,
     removeHdGroup,
     removeAccountsByType,

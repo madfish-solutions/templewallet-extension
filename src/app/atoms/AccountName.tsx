@@ -8,6 +8,7 @@ import { Button } from 'app/atoms/Button';
 import Name from 'app/atoms/Name';
 import { ReactComponent as CopyIcon } from 'app/icons/base/copy.svg';
 import { toastSuccess } from 'app/toaster';
+import { t } from 'lib/i18n';
 import { StoredAccount } from 'lib/temple/types';
 import Popper from 'lib/ui/Popper';
 import { getAccountAddressForEvm, getAccountAddressForTezos } from 'temple/accounts';
@@ -93,7 +94,7 @@ const CopyAddressButton = memo<CopyAddressButtonProps>(({ chain, address, onCopy
     onClick={() => {
       window.navigator.clipboard.writeText(address);
       onCopy();
-      toastSuccess('Address Copied');
+      toastSuccess(t('copiedAddress'));
     }}
   >
     <div className="flex-1 flex flex-col gap-y-0.5 items-start">

@@ -13,6 +13,7 @@ import {
   ACCOUNT_ALREADY_EXISTS_ERR_MSG,
   ACCOUNT_NAME_COLLISION_ERR_MSG,
   AT_LEAST_ONE_HD_ACCOUNT_ERR_MSG,
+  DEFAULT_TEZOS_DERIVATION_PATH,
   WALLETS_SPECS_STORAGE_KEY
 } from 'lib/constants';
 import { fetchFromStorage as getPlain, putToStorage as savePlain } from 'lib/storage';
@@ -20,14 +21,19 @@ import { deleteEvmActivitiesByAddress, deleteTezosActivitiesByAddress } from 'li
 import {
   fetchNewGroupName,
   formatOpParamsBeforeSend,
-  getDerivationPath,
   getSameGroupAccounts,
   isNameCollision,
   toExcelColumnName
 } from 'lib/temple/helpers';
 import * as Passworder from 'lib/temple/passworder';
 import { clearAsyncStorages } from 'lib/temple/reset';
-import { StoredAccount, TempleAccountType, TempleSettings, WalletSpecs } from 'lib/temple/types';
+import {
+  SaveLedgerAccountInput,
+  StoredAccount,
+  TempleAccountType,
+  TempleSettings,
+  WalletSpecs
+} from 'lib/temple/types';
 import { isTruthy } from 'lib/utils';
 import { getAccountAddressForChain, getAccountAddressForEvm, getAccountAddressForTezos } from 'temple/accounts';
 import { TypedDataV1, typedV1SignatureHash } from 'temple/evm/typed-data-v1';
@@ -689,43 +695,52 @@ export class Vault {
     });
   }
 
-  async createLedgerAccount(name: string, derivationPath?: string, derivationType?: DerivationType) {
-    return withError('Failed to connect Ledger account', async () => {
-      if (!derivationPath) derivationPath = getDerivationPath(TempleChainKind.Tezos, 0);
+  async getLedgerTezosPk(derivationPath = DEFAULT_TEZOS_DERIVATION_PATH, derivationType?: DerivationType) {
+    return withError('Failed to connect get Ledger account public key hash', async () => {
+      let cleanup: EmptyFn | undefined;
+      try {
+        const { signer, cleanup: cleanSigner } = await createLedgerSigner(derivationPath, derivationType);
+        cleanup = cleanSigner;
 
-      const { signer, cleanup } = await createLedgerSigner(derivationPath, derivationType);
+        const result = await signer.publicKey();
 
+        return result;
+      } catch (e: any) {
+        throw new PublicError(e.message);
+      } finally {
+        cleanup?.();
+      }
+    });
+  }
+
+  async createLedgerAccount(input: SaveLedgerAccountInput) {
+    return withError('Failed to create Ledger account', async () => {
       try {
         const allAccounts = await this.fetchAccounts();
 
-        if (isNameCollision(allAccounts, TempleAccountType.Ledger, name)) {
+        if (isNameCollision(allAccounts, TempleAccountType.Ledger, input.name)) {
           throw new PublicError(ACCOUNT_NAME_COLLISION_ERR_MSG);
         }
 
-        const accPublicKey = await signer.publicKey();
-        const accPublicKeyHash = await signer.publicKeyHash();
-
+        const { publicKey, ...storedAccountProps } = input;
         const newAccount: StoredAccount = {
           id: nanoid(),
           type: TempleAccountType.Ledger,
-          name,
-          tezosAddress: accPublicKeyHash,
-          derivationPath,
-          derivationType
+          ...storedAccountProps
         };
         const newAllAccounts = concatAccount(allAccounts, newAccount);
 
         await encryptAndSaveMany(
           [
-            [accPubKeyStrgKey(accPublicKeyHash), accPublicKey],
+            [accPubKeyStrgKey(input.tezosAddress), publicKey],
             [accountsStrgKey, newAllAccounts]
           ],
           this.passKey
         );
 
         return newAllAccounts;
-      } finally {
-        cleanup();
+      } catch (e: any) {
+        throw new PublicError(e.message);
       }
     });
   }

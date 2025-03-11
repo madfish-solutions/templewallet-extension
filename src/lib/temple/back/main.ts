@@ -161,8 +161,14 @@ const processRequest = async (req: TempleRequest, port: Runtime.Port): Promise<T
         type: TempleMessageType.ImportWatchOnlyAccountResponse
       };
 
+    case TempleMessageType.GetLedgerTezosPkRequest:
+      return {
+        type: TempleMessageType.GetLedgerTezosPkResponse,
+        publicKey: await Actions.getLedgerTezosPk(req.derivationPath, req.derivationType)
+      };
+
     case TempleMessageType.CreateLedgerAccountRequest:
-      await Actions.createLedgerAccount(req.name, req.derivationPath, req.derivationType);
+      await Actions.createLedgerAccount(req.input);
       return {
         type: TempleMessageType.CreateLedgerAccountResponse
       };

@@ -16,12 +16,13 @@ import { NewWalletActionsPopperSelectors } from './selectors';
 
 interface NewWalletActionsPopperProps extends TestIDProps {
   startWalletCreation: EmptyFn;
+  goToConnectLedgerModal: EmptyFn;
   goToImportModal: EmptyFn;
   goToWatchOnlyModal: EmptyFn;
 }
 
 const NewWalletActionsDropdown = memo<PopperRenderProps & NewWalletActionsPopperProps>(
-  ({ opened, setOpened, startWalletCreation, goToImportModal, goToWatchOnlyModal }) => (
+  ({ opened, setOpened, startWalletCreation, goToConnectLedgerModal, goToImportModal, goToWatchOnlyModal }) => (
     <ActionsDropdownPopup title="Add New Wallet" opened={opened} style={{ minWidth: 154 }}>
       <ActionListItem
         Icon={AddAccIcon}
@@ -41,7 +42,12 @@ const NewWalletActionsDropdown = memo<PopperRenderProps & NewWalletActionsPopper
         <T id="importWallet" />
       </ActionListItem>
 
-      <ActionListItem Icon={LedgerIcon} linkTo="/connect-ledger" testID={NewWalletActionsPopperSelectors.ledgerConnect}>
+      <ActionListItem
+        Icon={LedgerIcon}
+        onClick={goToConnectLedgerModal}
+        setOpened={setOpened}
+        testID={NewWalletActionsPopperSelectors.ledgerConnect}
+      >
         <T id="ledgerConnect" />
       </ActionListItem>
 
@@ -59,6 +65,7 @@ const NewWalletActionsDropdown = memo<PopperRenderProps & NewWalletActionsPopper
 
 export const NewWalletActionsPopper: FC<NewWalletActionsPopperProps> = ({
   startWalletCreation,
+  goToConnectLedgerModal,
   goToImportModal,
   goToWatchOnlyModal,
   ...testIDProps
@@ -69,6 +76,7 @@ export const NewWalletActionsPopper: FC<NewWalletActionsPopperProps> = ({
     popup={popperProps => (
       <NewWalletActionsDropdown
         {...popperProps}
+        goToConnectLedgerModal={goToConnectLedgerModal}
         goToImportModal={goToImportModal}
         goToWatchOnlyModal={goToWatchOnlyModal}
         startWalletCreation={startWalletCreation}
