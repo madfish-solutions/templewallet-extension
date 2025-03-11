@@ -3,6 +3,7 @@ import React, { FC, memo, RefObject, useCallback, useEffect, useMemo, useRef } f
 import { isEqual } from 'lodash';
 import useOnClickOutside from 'use-onclickoutside';
 
+import { FadeTransition } from 'app/a11y/FadeTransition';
 import { Divider, IconBase, ToggleSwitch } from 'app/atoms';
 import { useAssetsSegmentControlRef } from 'app/atoms/AssetsSegmentControl';
 import { NetworkSelectButton } from 'app/atoms/NetworkSelectButton';
@@ -22,8 +23,6 @@ import { AssetsFilterOptionsInitialState } from 'app/store/assets-filter-options
 import { NetworkSelectModal } from 'app/templates/NetworkSelectModal';
 import { T, TID } from 'lib/i18n';
 import { useBooleanState } from 'lib/ui/hooks';
-
-import { FadeTransition } from '../a11y/FadeTransition';
 
 interface AssetsFilterOptionsProps {
   filterButtonRef: RefObject<HTMLButtonElement>;
