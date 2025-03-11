@@ -49,7 +49,7 @@ export const NetworkSelectModal = memo<Props>(({ opened, selectedNetwork, onRequ
   );
 
   return (
-    <PageModal title="Select Network" opened={opened} onRequestClose={onRequestClose}>
+    <PageModal title={<T id="selectNetwork" />} opened={opened} onRequestClose={onRequestClose}>
       <NetworkSelectModalContent
         opened={opened}
         selectedNetwork={selectedNetwork}

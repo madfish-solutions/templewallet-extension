@@ -2125,6 +2125,9 @@
   "notFound": {
     "message": "Not Found"
   },
+  "selectNetwork": {
+    "message": "Select Network"
+  },
   "addCustomToken": {
     "message": "Add Custom Token"
   },
