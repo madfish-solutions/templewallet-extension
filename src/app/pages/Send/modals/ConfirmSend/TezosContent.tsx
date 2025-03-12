@@ -4,6 +4,7 @@ import { OpKind, TransferParams, WalletParamsWithKind } from '@taquito/taquito';
 import { FormProvider } from 'react-hook-form-v7';
 
 import { CLOSE_ANIMATION_TIMEOUT } from 'app/atoms/PageModal';
+import { useLedgerApprovalModalState } from 'app/hooks/use-ledger-approval-modal-state';
 import { TezosReviewData } from 'app/pages/Send/form/interfaces';
 import { useTezosEstimationData } from 'app/pages/Send/hooks/use-tezos-estimation-data';
 import { TezosTxParamsFormData } from 'app/templates/TransactionTabs/types';
@@ -17,7 +18,9 @@ import { transferImplicit, transferToContract } from 'lib/michelson';
 import { useTypedSWR } from 'lib/swr';
 import { loadContract } from 'lib/temple/contract';
 import { tzToMutez } from 'lib/temple/helpers';
+import { TempleAccountType } from 'lib/temple/types';
 import { isTezosContractAddress } from 'lib/tezos';
+import { runConnectedLedgerOperationFlow } from 'lib/ui';
 import { ZERO } from 'lib/utils/numbers';
 import { getTezosToolkitWithSigner } from 'temple/front';
 
@@ -36,6 +39,7 @@ export const TezosContent: FC<TezosContentProps> = ({ data, onClose }) => {
   if (!assetMetadata) throw new Error('Metadata not found');
 
   const accountPkh = account.address;
+  const isLedgerAccount = account.type === TempleAccountType.Ledger;
 
   const [latestSubmitError, setLatestSubmitError] = useState<string | nullish>(null);
 
@@ -95,6 +99,9 @@ export const TezosContent: FC<TezosContentProps> = ({ data, onClose }) => {
   } = useTezosEstimationForm(estimationData, basicSendParams, account, network.rpcBaseURL, network.chainId);
   const { formState } = form;
 
+  const { ledgerApprovalModalState, setLedgerApprovalModalState, handleLedgerModalClose } =
+    useLedgerApprovalModalState();
+
   const onSubmit = useCallback(
     async ({ gasFee, storageLimit }: TezosTxParamsFormData) => {
       try {
@@ -106,21 +113,29 @@ export const TezosContent: FC<TezosContentProps> = ({ data, onClose }) => {
           return;
         }
 
-        const operation = await submitOperation(
-          tezos,
-          gasFee,
-          storageLimit,
-          estimationData.revealFee,
-          displayedFeeOptions
-        );
+        const doOperation = async () => {
+          const operation = await submitOperation(
+            tezos,
+            gasFee,
+            storageLimit,
+            estimationData.revealFee,
+            displayedFeeOptions
+          );
 
-        onConfirm();
-        onClose();
+          onConfirm();
+          onClose();
 
-        // @ts-expect-error
-        const txHash = operation?.hash || operation?.opHash;
+          // @ts-expect-error
+          const txHash = operation?.hash || operation?.opHash;
 
-        setTimeout(() => toastSuccess('Transaction Submitted', true, txHash), CLOSE_ANIMATION_TIMEOUT * 2);
+          setTimeout(() => toastSuccess('Transaction Submitted', true, txHash), CLOSE_ANIMATION_TIMEOUT * 2);
+        };
+
+        if (isLedgerAccount) {
+          await runConnectedLedgerOperationFlow(doOperation, setLedgerApprovalModalState, true);
+        } else {
+          await doOperation();
+        }
       } catch (err: any) {
         console.error(err);
 
@@ -128,12 +143,25 @@ export const TezosContent: FC<TezosContentProps> = ({ data, onClose }) => {
         setTab('error');
       }
     },
-    [displayedFeeOptions, estimationData, formState.isSubmitting, onClose, onConfirm, setTab, submitOperation, tezos]
+    [
+      displayedFeeOptions,
+      estimationData,
+      formState.isSubmitting,
+      isLedgerAccount,
+      onClose,
+      onConfirm,
+      setLedgerApprovalModalState,
+      setTab,
+      submitOperation,
+      tezos
+    ]
   );
 
   return (
     <FormProvider {...form}>
       <BaseContent<TezosTxParamsFormData>
+        ledgerApprovalModalState={ledgerApprovalModalState}
+        onLedgerModalClose={handleLedgerModalClose}
         network={network}
         assetSlug={assetSlug}
         amount={amount}

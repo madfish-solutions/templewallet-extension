@@ -1,6 +1,7 @@
 import React, { memo, useCallback, useState } from 'react';
 
-import { BackButton, PageModal } from 'app/atoms/PageModal';
+import { BackButton, CLOSE_ANIMATION_TIMEOUT, PageModal } from 'app/atoms/PageModal';
+import { toastSuccess } from 'app/toaster';
 import { t } from 'lib/i18n';
 import { TempleChainKind } from 'temple/types';
 
@@ -65,6 +66,10 @@ export const ConnectLedgerModal = memo<ConnectLedgerModalProps>(
       (initialAccount: AccountProps) => setState({ step: ConnectLedgerModalStep.SelectAccount, initialAccount }),
       []
     );
+    const handleImportSuccess = useCallback(() => {
+      setTimeout(() => toastSuccess(t('ledgerImportSuccessToast')), CLOSE_ANIMATION_TIMEOUT * 2);
+      onClose();
+    }, [onClose]);
 
     return (
       <PageModal
@@ -83,7 +88,7 @@ export const ConnectLedgerModal = memo<ConnectLedgerModalProps>(
           <ConnectDeviceStep chainKind={state.chainKind} onSuccess={goToSelectAccount} />
         )}
         {state.step === ConnectLedgerModalStep.SelectAccount && (
-          <SelectAccountStep initialAccount={state.initialAccount} onSuccess={onClose} />
+          <SelectAccountStep initialAccount={state.initialAccount} onSuccess={handleImportSuccess} />
         )}
       </PageModal>
     );

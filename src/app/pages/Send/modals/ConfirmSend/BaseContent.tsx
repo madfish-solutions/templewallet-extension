@@ -5,15 +5,18 @@ import { SubmitHandler, useFormContext } from 'react-hook-form-v7';
 import { HashChip } from 'app/atoms/HashChip';
 import { ActionsButtonsBox } from 'app/atoms/PageModal/actions-buttons-box';
 import { StyledButton } from 'app/atoms/StyledButton';
+import { LedgerApprovalModal } from 'app/templates/ledger-approval-modal';
 import { TransactionTabs } from 'app/templates/TransactionTabs';
 import { DisplayedFeeOptions, FeeOptionLabel, Tab, TxParamsFormData } from 'app/templates/TransactionTabs/types';
 import { T } from 'lib/i18n';
+import { LedgerOperationState } from 'lib/ui';
 import { OneOfChains } from 'temple/front';
 
 import { CurrentAccount } from './components/CurrentAccount';
 import { Header } from './components/Header';
 
 interface BaseContentProps<T extends TxParamsFormData> {
+  ledgerApprovalModalState: LedgerOperationState;
   network: OneOfChains;
   assetSlug: string;
   amount: string;
@@ -25,12 +28,14 @@ interface BaseContentProps<T extends TxParamsFormData> {
   onFeeOptionSelect: SyncFn<FeeOptionLabel>;
   onSubmit: SubmitHandler<T>;
   onCancel: EmptyFn;
+  onLedgerModalClose: EmptyFn;
   displayedFee?: string;
   displayedStorageFee?: string;
   displayedFeeOptions?: DisplayedFeeOptions;
 }
 
 export const BaseContent = <T extends TxParamsFormData>({
+  ledgerApprovalModalState,
   network,
   assetSlug,
   recipientAddress,
@@ -42,6 +47,7 @@ export const BaseContent = <T extends TxParamsFormData>({
   setSelectedTab,
   onSubmit,
   onCancel,
+  onLedgerModalClose,
   displayedFee,
   displayedStorageFee,
   displayedFeeOptions
@@ -91,6 +97,8 @@ export const BaseContent = <T extends TxParamsFormData>({
           <T id={latestSubmitError ? 'retry' : 'confirm'} />
         </StyledButton>
       </ActionsButtonsBox>
+
+      <LedgerApprovalModal state={ledgerApprovalModalState} onClose={onLedgerModalClose} />
     </>
   );
 };

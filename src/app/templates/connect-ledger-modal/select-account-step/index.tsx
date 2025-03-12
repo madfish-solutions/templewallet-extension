@@ -90,19 +90,26 @@ export const SelectAccountStep = memo<SelectAccountStepProps>(({ initialAccount,
 
   const importLedgerAccount = useCallback(
     (currentDerivationType: DerivationType, derivationIndex?: number) =>
-      runConnectedLedgerOperationFlow(async () => {
-        const newAccount = pickTezosAccounts
-          ? await getLedgerTezosAccount(currentDerivationType, derivationIndex)
-          : await getLedgerEvmAccount(derivationIndex);
-        setKnownAccountsByDerivation(prevAccounts => ({
-          ...prevAccounts,
-          [currentDerivationType]: prevAccounts[currentDerivationType].concat(newAccount)
-        }));
-        setActiveAccountsIndexes(prevIndexes => ({
-          ...prevIndexes,
-          [currentDerivationType]: prevIndexes[currentDerivationType] + 1
-        }));
-      }, setLedgerApprovalModalState),
+      runConnectedLedgerOperationFlow(
+        async () => {
+          const newAccount = pickTezosAccounts
+            ? await getLedgerTezosAccount(currentDerivationType, derivationIndex)
+            : await getLedgerEvmAccount(derivationIndex);
+          setKnownAccountsByDerivation(prevAccounts => ({
+            ...prevAccounts,
+            [currentDerivationType]: prevAccounts[currentDerivationType].concat(newAccount)
+          }));
+          setActiveAccountsIndexes(prevIndexes => ({
+            ...prevIndexes,
+            [currentDerivationType]: prevIndexes[currentDerivationType] + 1
+          }));
+        },
+        pickTezosAccounts ? setLedgerApprovalModalState : undefined,
+        !pickTezosAccounts
+      ).catch(e => {
+        console.error(e);
+        toastError(t('unableToConnectDescription'));
+      }),
     [getLedgerEvmAccount, getLedgerTezosAccount, pickTezosAccounts, setLedgerApprovalModalState]
   );
 
@@ -127,10 +134,15 @@ export const SelectAccountStep = memo<SelectAccountStepProps>(({ initialAccount,
 
   const handleCustomPathModalSubmit = useCallback(
     async ({ index: derivationIndex }: CustomPathFormData) => {
-      closeCustomPathModal();
+      if (pickTezosAccounts) {
+        closeCustomPathModal();
+      }
       await importLedgerAccount(derivationType, Number(derivationIndex));
+      if (!pickTezosAccounts) {
+        closeCustomPathModal();
+      }
     },
-    [closeCustomPathModal, derivationType, importLedgerAccount]
+    [closeCustomPathModal, derivationType, importLedgerAccount, pickTezosAccounts]
   );
 
   const handleAccountSelect = useCallback(

@@ -57,15 +57,17 @@ export const makeStateToUIConfiguration = <T extends LedgerUIConfigurationBase>(
 
 export const runConnectedLedgerOperationFlow = async (
   action: () => Promise<void>,
-  setOperationState: (state: LedgerOperationState) => void,
+  setOperationState?: (state: LedgerOperationState) => void,
   throwError?: boolean
 ) => {
   try {
-    setOperationState(LedgerOperationState.InProgress);
+    setOperationState?.(LedgerOperationState.InProgress);
     await action();
-    setOperationState(LedgerOperationState.Success);
+    setOperationState?.(LedgerOperationState.Success);
   } catch (e: any) {
-    setOperationState(isLedgerRejectionError(e) ? LedgerOperationState.Canceled : LedgerOperationState.UnableToConnect);
+    setOperationState?.(
+      isLedgerRejectionError(e) ? LedgerOperationState.Canceled : LedgerOperationState.UnableToConnect
+    );
 
     if (throwError) {
       throw e;
