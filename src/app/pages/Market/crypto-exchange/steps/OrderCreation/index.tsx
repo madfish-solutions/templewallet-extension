@@ -1,4 +1,4 @@
-import React, { FC, useCallback, useMemo, useState } from 'react';
+import React, { FC, useCallback, useMemo } from 'react';
 
 import { FormProvider, useForm } from 'react-hook-form-v7';
 
@@ -7,32 +7,32 @@ import { loadExolixCurrenciesActions, loadExolixNetworksMapActions } from 'app/s
 import { useDidMount } from 'lib/ui/hooks';
 import { useAccountAddressForTezos } from 'temple/front';
 
+import { ModalHeaderConfig } from '../../../types';
 import {
   INITIAL_EVM_ACC_OUTPUT_CURRENCY,
   INITIAL_INPUT_CURRENCY,
-  INITIAL_TEZOS_ACC_OUTPUT_CURRENCY,
-  ModalHeaderConfig
+  INITIAL_TEZOS_ACC_OUTPUT_CURRENCY
 } from '../../config';
 
 import { FormContent } from './components/FormContent';
 import { SelectCurrencyContent, SelectTokenContent } from './components/SelectCurrencyContent';
 import { CryptoExchangeFormData } from './types';
 
-type ModalContent = 'form' | SelectTokenContent;
+export type OrderCreationContent = 'form' | SelectTokenContent;
 
 interface Props {
   setModalHeaderConfig: SyncFn<ModalHeaderConfig>;
+  orderCreationContent: OrderCreationContent;
+  setOrderCreationContent: SyncFn<OrderCreationContent>;
 }
 
-export const OrderCreation: FC<Props> = ({ setModalHeaderConfig }) => {
-  const [modalContent, setModalContent] = useState<ModalContent>('form');
+export const OrderCreation: FC<Props> = ({ orderCreationContent, setOrderCreationContent, setModalHeaderConfig }) => {
+  const tezosAddress = useAccountAddressForTezos();
 
   useDidMount(() => {
     dispatch(loadExolixNetworksMapActions.submit());
     dispatch(loadExolixCurrenciesActions.submit());
   });
-
-  const tezosAddress = useAccountAddressForTezos();
 
   const defaultFormData = useMemo(
     () => ({
@@ -49,14 +49,18 @@ export const OrderCreation: FC<Props> = ({ setModalHeaderConfig }) => {
     defaultValues: defaultFormData
   });
 
-  const onGoBack = useCallback(() => setModalContent('form'), []);
+  const handleGoBack = useCallback(() => setOrderCreationContent('form'), [setOrderCreationContent]);
 
   return (
     <FormProvider {...form}>
-      {modalContent === 'form' ? (
-        <FormContent setModalHeaderConfig={setModalHeaderConfig} setModalContent={setModalContent} />
+      {orderCreationContent === 'form' ? (
+        <FormContent setModalHeaderConfig={setModalHeaderConfig} setModalContent={setOrderCreationContent} />
       ) : (
-        <SelectCurrencyContent content={modalContent} setModalHeaderConfig={setModalHeaderConfig} onGoBack={onGoBack} />
+        <SelectCurrencyContent
+          content={orderCreationContent}
+          setModalHeaderConfig={setModalHeaderConfig}
+          onGoBack={handleGoBack}
+        />
       )}
     </FormProvider>
   );

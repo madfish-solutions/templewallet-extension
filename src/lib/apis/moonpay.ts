@@ -21,6 +21,7 @@ export interface FiatCurrency extends CurrencyBase {
   type: CurrencyType.Fiat;
   minBuyAmount: number;
   maxBuyAmount: number;
+  isSellSupported: boolean;
   /** @deprecated */
   minAmount: number;
   /** @deprecated */
@@ -31,7 +32,7 @@ export interface CryptoCurrency extends CurrencyBase {
   type: CurrencyType.Crypto;
   metadata: {
     contractAddress: string | null;
-    coinType: string | null;
+    chainId: string | null;
     networkCode: string;
   };
   supportsLiveMode: boolean;

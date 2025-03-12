@@ -3,7 +3,6 @@ import React, { memo, useLayoutEffect, useMemo } from 'react';
 import RootSuspenseFallback from 'app/a11y/RootSuspenseFallback';
 import { OpenInFullPage, useAppEnv } from 'app/env';
 import { AccountSettings } from 'app/pages/AccountSettings';
-import { BuyWithCreditCard } from 'app/pages/BuyWithCreditCard/BuyWithCreditCard';
 import CollectiblePage from 'app/pages/Collectibles/CollectiblePage';
 import Delegate from 'app/pages/Delegate';
 import Home from 'app/pages/Home/Home';
@@ -100,7 +99,6 @@ const ROUTE_MAP = Woozie.createMap<RouteContext>([
   ],
   ['/settings/:tabSlug?', onlyReady(({ tabSlug }) => <Settings tabSlug={tabSlug} />)],
   ['/market', onlyReady(() => <Market />)],
-  ['/buy/debit', onlyReady(onlyInFullPage(() => <BuyWithCreditCard />))],
   ['/attention', onlyReady(onlyInFullPage(() => <AttentionPage />))],
   ['/notifications', onlyReady(() => <Notifications />)],
   ['/account/:id', onlyReady(({ id }) => <AccountSettings id={id!} />)],

@@ -5,12 +5,13 @@ export interface TopUpInputInterface {
   code: string;
   codeToDisplay?: string;
   icon: string;
+  providers: TopUpProviderId[];
   minAmount?: number;
   maxAmount?: number;
   precision: number;
 }
 
-export interface TopUpOutputInterface extends TopUpInputInterface {
+export interface TopUpOutputInterface extends Omit<TopUpInputInterface, 'codeToDisplay'> {
   slug: string;
 }
 
