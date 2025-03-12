@@ -233,8 +233,7 @@
     "elliptic": "6.6.1",
     "graphql-request": "^6.1.0",
     "json5": "^2.2.2",
-    "follow-redirects": "^1.15.4",
-    "solid-js": "^1.9.4"
+    "follow-redirects": "^1.15.4"
   },
   "optionalDependencies": {
     "@temple-wallet/extension-ads": "11.0.1"
