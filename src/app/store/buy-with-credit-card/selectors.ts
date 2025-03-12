@@ -46,25 +46,25 @@ export const useCurrenciesErrorsSelector = () => {
 
 export const useAllPairsLimitsSelector = () => useSelector(({ buyWithCreditCard }) => buyWithCreditCard.pairLimits);
 
-export const usePairLimitsSelector = (fiatSymbol: string, cryptoSymbol: string): PairLimits | undefined =>
-  useSelector(({ buyWithCreditCard }) => buyWithCreditCard.pairLimits[fiatSymbol]?.[cryptoSymbol]);
+export const usePairLimitsSelector = (fiatSymbol: string, cryptoSlug: string): PairLimits | undefined =>
+  useSelector(({ buyWithCreditCard }) => buyWithCreditCard.pairLimits[fiatSymbol]?.[cryptoSlug]);
 
 export const useProviderPairLimitsSelector = (
   fiatSymbol: string,
-  cryptoSymbol: string,
+  cryptoSlug: string,
   topUpProvider: TopUpProviderId
 ): PairLimits[TopUpProviderId] | undefined =>
-  useSelector(({ buyWithCreditCard }) => buyWithCreditCard.pairLimits[fiatSymbol]?.[cryptoSymbol]?.[topUpProvider]);
+  useSelector(({ buyWithCreditCard }) => buyWithCreditCard.pairLimits[fiatSymbol]?.[cryptoSlug]?.[topUpProvider]);
 
-const usePairLimitsErrorSelector = (fiatSymbol: string, cryptoSymbol: string, topUpProvider: TopUpProviderId) =>
+const usePairLimitsErrorSelector = (fiatSymbol: string, cryptoSlug: string, topUpProvider: TopUpProviderId) =>
   useSelector(
-    ({ buyWithCreditCard }) => buyWithCreditCard.pairLimits[fiatSymbol]?.[cryptoSymbol]?.[topUpProvider]?.error
+    ({ buyWithCreditCard }) => buyWithCreditCard.pairLimits[fiatSymbol]?.[cryptoSlug]?.[topUpProvider]?.error
   );
 
-export const usePairLimitsErrorsSelector = (fiatSymbol: string, cryptoSymbol: string) => {
-  const moonPayError = usePairLimitsErrorSelector(fiatSymbol, cryptoSymbol, TopUpProviderId.MoonPay);
-  const utorgError = usePairLimitsErrorSelector(fiatSymbol, cryptoSymbol, TopUpProviderId.Utorg);
-  const aliceBobError = usePairLimitsErrorSelector(fiatSymbol, cryptoSymbol, TopUpProviderId.AliceBob);
+export const usePairLimitsErrorsSelector = (fiatSymbol: string, cryptoSlug: string) => {
+  const moonPayError = usePairLimitsErrorSelector(fiatSymbol, cryptoSlug, TopUpProviderId.MoonPay);
+  const utorgError = usePairLimitsErrorSelector(fiatSymbol, cryptoSlug, TopUpProviderId.Utorg);
+  const aliceBobError = usePairLimitsErrorSelector(fiatSymbol, cryptoSlug, TopUpProviderId.AliceBob);
 
   return useMemo(
     () => ({
