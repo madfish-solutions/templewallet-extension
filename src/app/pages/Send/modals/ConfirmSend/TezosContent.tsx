@@ -23,6 +23,7 @@ import { isTezosContractAddress } from 'lib/tezos';
 import { runConnectedLedgerOperationFlow } from 'lib/ui';
 import { ZERO } from 'lib/utils/numbers';
 import { getTezosToolkitWithSigner } from 'temple/front';
+import { useGetTezosActiveBlockExplorer } from 'temple/front/ready';
 
 import { BaseContent } from './BaseContent';
 
@@ -45,6 +46,8 @@ export const TezosContent: FC<TezosContentProps> = ({ data, onClose }) => {
 
   const { value: balance = ZERO } = useTezosAssetBalance(assetSlug, accountPkh, network);
   const { value: tezBalance = ZERO } = useTezosAssetBalance(TEZ_TOKEN_SLUG, accountPkh, network);
+
+  const getActiveBlockExplorer = useGetTezosActiveBlockExplorer();
 
   const tezos = getTezosToolkitWithSigner(network.rpcBaseURL, account.ownerAddress || accountPkh, true);
 
@@ -128,7 +131,13 @@ export const TezosContent: FC<TezosContentProps> = ({ data, onClose }) => {
           // @ts-expect-error
           const txHash = operation?.hash || operation?.opHash;
 
-          setTimeout(() => toastSuccess('Transaction Submitted', true, txHash), CLOSE_ANIMATION_TIMEOUT * 2);
+          const blockExplorer = getActiveBlockExplorer(network.chainId);
+
+          setTimeout(
+            () =>
+              toastSuccess('Transaction Submitted', true, { hash: txHash, explorerBaseUrl: blockExplorer.url + '/' }),
+            CLOSE_ANIMATION_TIMEOUT * 2
+          );
         };
 
         if (isLedgerAccount) {
@@ -148,9 +157,11 @@ export const TezosContent: FC<TezosContentProps> = ({ data, onClose }) => {
       estimationData,
       formState.isSubmitting,
       isLedgerAccount,
+      setLedgerApprovalModalState,
+      getActiveBlockExplorer,
+      network.chainId,
       onClose,
       onConfirm,
-      setLedgerApprovalModalState,
       setTab,
       submitOperation,
       tezos

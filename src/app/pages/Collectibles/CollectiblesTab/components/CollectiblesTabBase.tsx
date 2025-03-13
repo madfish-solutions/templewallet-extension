@@ -1,5 +1,6 @@
 import React, { FC } from 'react';
 
+import { FadeTransition } from 'app/a11y/FadeTransition';
 import { SyncSpinner } from 'app/atoms';
 import { FilterButton } from 'app/atoms/FilterButton';
 import { IconButton } from 'app/atoms/IconButton';
@@ -60,26 +61,28 @@ export const CollectiblesTabBase: FC<PropsWithChildren<CollectiblesTabBaseProps>
       {filtersOpened ? (
         <AssetsFilterOptions filterButtonRef={filterButtonRef} onRequestClose={setFiltersClosed} />
       ) : (
-        <ContentContainer ref={containerRef} padding={collectiblesCount > 0}>
-          {collectiblesCount === 0 ? (
-            <EmptySection forCollectibles={true} network={network} />
-          ) : (
-            <>
-              {isInSearchMode ? (
-                children
-              ) : (
-                <>
-                  {manageActive && <ManageActiveTip />}
-                  <SimpleInfiniteScroll loadNext={loadNextPage}>{children}</SimpleInfiniteScroll>
-                </>
-              )}
+        <FadeTransition>
+          <ContentContainer ref={containerRef} padding={collectiblesCount > 0}>
+            {collectiblesCount === 0 ? (
+              <EmptySection forCollectibles={true} network={network} />
+            ) : (
+              <>
+                {isInSearchMode ? (
+                  children
+                ) : (
+                  <>
+                    {manageActive && <ManageActiveTip />}
+                    <SimpleInfiniteScroll loadNext={loadNextPage}>{children}</SimpleInfiniteScroll>
+                  </>
+                )}
 
-              <ScrollBackUpButton />
+                <ScrollBackUpButton />
 
-              {isSyncing && <SyncSpinner className="mt-6" />}
-            </>
-          )}
-        </ContentContainer>
+                {isSyncing && <SyncSpinner className="mt-6" />}
+              </>
+            )}
+          </ContentContainer>
+        </FadeTransition>
       )}
     </>
   );

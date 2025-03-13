@@ -2,6 +2,7 @@ import React, { memo, useCallback, useMemo, useState } from 'react';
 
 import { useDebounce } from 'use-debounce';
 
+import { FadeTransition } from 'app/a11y/FadeTransition';
 import { EmptyState } from 'app/atoms/EmptyState';
 import { IconButton } from 'app/atoms/IconButton';
 import { ReactComponent as PlusIcon } from 'app/icons/base/plus.svg';
@@ -47,7 +48,7 @@ export const AddressBook = memo(() => {
   }, [setEditAddContactModalClosed]);
 
   return (
-    <>
+    <FadeTransition>
       {contacts?.length ? (
         <>
           <div className="flex gap-x-2 p-4">
@@ -77,6 +78,6 @@ export const AddressBook = memo(() => {
         opened={editAddContactModalOpened}
         onRequestClose={handleEditAddModalClose}
       />
-    </>
+    </FadeTransition>
   );
 });
