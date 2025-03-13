@@ -108,7 +108,6 @@ const TABS_GROUPS: Tab[][] = [
       titleI18nKey: 'connectedDApps',
       Icon: DefaultSettingsIconHOC(LinkIcon),
       Component: DAppsSettings,
-      noScroll: true,
       noPadding: true,
       testID: SettingsSelectors.dAppsButton
     },

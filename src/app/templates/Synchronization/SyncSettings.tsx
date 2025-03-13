@@ -2,6 +2,7 @@ import React, { FC, useCallback } from 'react';
 
 import { Controller } from 'react-hook-form-v7';
 
+import { FadeTransition } from 'app/a11y/FadeTransition';
 import { CaptionAlert, FormField } from 'app/atoms';
 import { ActionsButtonsBox } from 'app/atoms/PageModal/actions-buttons-box';
 import { StyledButton } from 'app/atoms/StyledButton';
@@ -58,7 +59,7 @@ const SyncSettings: FC = () => {
   const resetPayload = useCallback(() => void setPayload(null), [setPayload]);
 
   return (
-    <>
+    <FadeTransition>
       <div className="flex-1 pt-4 px-4">
         <CaptionAlert type="info" title={t('syncSettingsTitle')} message={t('syncSettingsDescription')} />
 
@@ -99,7 +100,7 @@ const SyncSettings: FC = () => {
       </ActionsButtonsBox>
 
       {payload && <QrCodeModal onClose={resetPayload} payload={payload} />}
-    </>
+    </FadeTransition>
   );
 };
 

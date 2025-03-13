@@ -6,6 +6,7 @@ import { ActionsDropdownPopup } from 'app/atoms/ActionsDropdown';
 import { openInFullPage, useAppEnv } from 'app/env';
 import { useShortcutAccountSelectModalIsOpened } from 'app/hooks/use-account-select-shortcut';
 import { ReactComponent as FullViewIcon } from 'app/icons/base/fullview.svg';
+import { ReactComponent as LinkIcon } from 'app/icons/base/link.svg';
 import { ReactComponent as LockIcon } from 'app/icons/base/lock.svg';
 import { ReactComponent as SettingsIcon } from 'app/icons/base/settings.svg';
 import { NotificationsBell } from 'app/pages/Notifications/components/bell';
@@ -62,6 +63,14 @@ const MenuDropdown = memo<PopperRenderProps>(({ opened, setOpened }) => {
         children: <T id="notifications" />,
         linkTo: '/notifications',
         testID: MenuDropdownSelectors.notificationsButton,
+        onClick: closeDropdown
+      },
+      {
+        key: 'connected-dapps',
+        Icon: LinkIcon,
+        children: <T id="connectedDApps" />,
+        linkTo: '/settings/dapps',
+        testID: MenuDropdownSelectors.connectedDAppsButton,
         onClick: closeDropdown
       },
       {

@@ -1,5 +1,6 @@
 import React, { memo } from 'react';
 
+import { FadeTransition } from 'app/a11y/FadeTransition';
 import { VerticalLines } from 'app/atoms/Lines';
 import { Logo } from 'app/atoms/Logo';
 import { SettingsCellSingle } from 'app/atoms/SettingsCell';
@@ -91,39 +92,41 @@ export const About = memo(() => {
   const version = process.env.VERSION;
 
   return (
-    <div className="flex flex-col gap-4">
-      <SettingsCellGroup>
-        <SettingsCellSingle
-          Component="div"
-          isLast
-          className="p-4 gap-3"
-          cellIcon={<Logo type="icon" />}
-          wrapCellName={false}
-          cellName={
-            <div className="flex flex-col gap-1">
-              <p className="text-font-medium-bold">
-                <T id="appName" />
-              </p>
-              <div className="inline-flex flex-wrap gap-1.5 text-font-description text-grey-1">
-                <span>
-                  <T id="versionLabel" substitutions={version} />
-                </span>
-                {/* `branch` is equal to `version` in releases */}
-                {branch && branch !== version && (
-                  <>
-                    <VerticalLines className="py-0.5" />
-                    <span>
-                      <T id="branchName" substitutions={branch} />
-                    </span>
-                  </>
-                )}
+    <FadeTransition>
+      <div className="flex flex-col gap-4">
+        <SettingsCellGroup>
+          <SettingsCellSingle
+            Component="div"
+            isLast
+            className="p-4 gap-3"
+            cellIcon={<Logo type="icon" />}
+            wrapCellName={false}
+            cellName={
+              <div className="flex flex-col gap-1">
+                <p className="text-font-medium-bold">
+                  <T id="appName" />
+                </p>
+                <div className="inline-flex flex-wrap gap-1.5 text-font-description text-grey-1">
+                  <span>
+                    <T id="versionLabel" substitutions={version} />
+                  </span>
+                  {/* `branch` is equal to `version` in releases */}
+                  {branch && branch !== version && (
+                    <>
+                      <VerticalLines className="py-0.5" />
+                      <span>
+                        <T id="branchName" substitutions={branch} />
+                      </span>
+                    </>
+                  )}
+                </div>
               </div>
-            </div>
-          }
-        />
-      </SettingsCellGroup>
-      <LinksGroupView group={{ title: t('links'), links: LINKS }} />
-      <LinksGroupView group={{ title: t('community'), links: COMMUNITY_LINKS }} />
-    </div>
+            }
+          />
+        </SettingsCellGroup>
+        <LinksGroupView group={{ title: t('links'), links: LINKS }} />
+        <LinksGroupView group={{ title: t('community'), links: COMMUNITY_LINKS }} />
+      </div>
+    </FadeTransition>
   );
 });

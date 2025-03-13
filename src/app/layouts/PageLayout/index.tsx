@@ -4,6 +4,7 @@ import clsx from 'clsx';
 
 import { FADABLE_CONTENT_CLASSNAME } from 'app/a11y/content-fader';
 import DocBg from 'app/a11y/DocBg';
+import { FadeTransition } from 'app/a11y/FadeTransition';
 import Spinner from 'app/atoms/Spinner/Spinner';
 import { SuspenseContainer } from 'app/atoms/SuspenseContainer';
 import { useAppEnv } from 'app/env';
@@ -165,7 +166,7 @@ const ContentPaper: FC<ContentPaperProps> = ({
           className
         )}
       >
-        {children}
+        <FadeTransition>{children}</FadeTransition>
       </ContentPaperNode>
     </ContentPaperRefContext.Provider>
   );

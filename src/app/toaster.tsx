@@ -5,7 +5,7 @@ import toast, { Toaster, Toast, ToastIcon, ToastType } from 'react-hot-toast';
 
 import HashShortView from 'app/atoms/HashShortView';
 import { useAppEnv } from 'app/env';
-import { ReactComponent as CopyIcon } from 'app/icons/base/copy.svg';
+import { ReactComponent as OutLinkIcon } from 'app/icons/base/outLink.svg';
 import { ReactComponent as ErrorIcon } from 'app/icons/typed-msg/error.svg';
 import { ReactComponent as InfoIcon } from 'app/icons/typed-msg/info.svg';
 import { ReactComponent as SuccessIcon } from 'app/icons/typed-msg/success.svg';
@@ -13,23 +13,28 @@ import { ReactComponent as WarningIcon } from 'app/icons/typed-msg/warning.svg';
 import { useToastsContainerBottomShiftSelector } from 'app/store/settings/selectors';
 import PortalToDocumentBody from 'lib/ui/Portal';
 
+interface TxData {
+  hash: string;
+  explorerBaseUrl: string;
+}
+
 const MAX_TOASTS_COUNT = 3;
 const toastsIdsPool: string[] = [];
 
 const withToastsLimit =
-  (toastFn: (title: string, textBold?: boolean, txHash?: string) => string) =>
-  (title: string, textBold?: boolean, txHash?: string) => {
+  (toastFn: (title: string, textBold?: boolean, txData?: TxData) => string) =>
+  (title: string, textBold?: boolean, txData?: TxData) => {
     if (toastsIdsPool.length >= MAX_TOASTS_COUNT) {
       const toastsIdsToDismiss = toastsIdsPool.splice(0, toastsIdsPool.length - MAX_TOASTS_COUNT + 1);
       toastsIdsToDismiss.forEach(toast.remove);
     }
-    const newToastId = toastFn(title, textBold, txHash);
+    const newToastId = toastFn(title, textBold, txData);
     toastsIdsPool.push(newToastId);
   };
 
-export const toastSuccess = withToastsLimit((title: string, textBold?: boolean, txHash?: string) =>
+export const toastSuccess = withToastsLimit((title: string, textBold?: boolean, txData?: TxData) =>
   toast.custom(toast => (
-    <CustomToastBar toast={{ ...toast, message: title }} customType="success" textBold={textBold} txHash={txHash} />
+    <CustomToastBar toast={{ ...toast, message: title }} customType="success" textBold={textBold} txData={txData} />
   ))
 );
 // @ts-prune-ignore-next
@@ -74,10 +79,10 @@ interface CustomToastBarProps {
   toast: Toast;
   customType?: ToastTypeExtended;
   textBold?: boolean;
-  txHash?: string;
+  txData?: TxData;
 }
 
-const CustomToastBar = memo<CustomToastBarProps>(({ toast, customType, textBold = true, txHash }) => {
+const CustomToastBar = memo<CustomToastBarProps>(({ toast, customType, textBold = true, txData }) => {
   const type: ToastTypeExtended = customType || toast.type;
 
   const prevToastVisibleRef = useRef(toast.visible);
@@ -103,17 +108,16 @@ const CustomToastBar = memo<CustomToastBarProps>(({ toast, customType, textBold 
         </span>
       )}
 
-      {txHash && (
-        <button
-          onClick={() => {
-            navigator.clipboard.writeText(txHash);
-            toastSuccess('Copied');
-          }}
+      {txData && (
+        <a
+          href={txData.explorerBaseUrl + txData.hash}
+          target="_blank"
+          rel="noopener noreferrer"
           className="flex flex-row items-center text-font-num-bold-12 text-secondary ml-12"
         >
-          <HashShortView hash={txHash} />
-          <CopyIcon className="h-4 stroke-current fill-current" />
-        </button>
+          <HashShortView hash={txData.hash} />
+          <OutLinkIcon className="h-4 stroke-current fill-current" />
+        </a>
       )}
     </div>
   );

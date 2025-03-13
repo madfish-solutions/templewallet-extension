@@ -1,5 +1,6 @@
 import React, { memo, useCallback, useEffect, useMemo, useState } from 'react';
 
+import { FadeTransition } from 'app/a11y/FadeTransition';
 import { EmptyState } from 'app/atoms/EmptyState';
 import { useAllAccountsReactiveOnAddition, useAllAccountsReactiveOnRemoval } from 'app/hooks/use-all-accounts-reactive';
 import { t } from 'lib/i18n';
@@ -230,7 +231,7 @@ export const AccountsManagement = memo<SettingsTabProps>(({ setHeaderChildren })
   }, []);
 
   return (
-    <>
+    <FadeTransition>
       {filteredGroups.length === 0 ? (
         <div className="flex-grow flex items-center">
           <EmptyState />
@@ -254,6 +255,6 @@ export const AccountsManagement = memo<SettingsTabProps>(({ setHeaderChildren })
         </div>
       )}
       {modal}
-    </>
+    </FadeTransition>
   );
 });

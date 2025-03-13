@@ -1,5 +1,6 @@
 import React, { FC } from 'react';
 
+import { FadeTransition } from 'app/a11y/FadeTransition';
 import { SyncSpinner } from 'app/atoms';
 import { FilterButton } from 'app/atoms/FilterButton';
 import { IconButton } from 'app/atoms/IconButton';
@@ -60,19 +61,21 @@ export const TokensTabBase: FC<PropsWithChildren<TokensTabBaseProps>> = ({
       {filtersOpened ? (
         <AssetsFilterOptions filterButtonRef={filterButtonRef} onRequestClose={setFiltersClosed} />
       ) : (
-        <ContentContainer ref={containerRef}>
-          {manageActive ? null : <Banner stickyBarRef={stickyBarRef} />}
+        <FadeTransition>
+          <ContentContainer ref={containerRef}>
+            {manageActive ? null : <Banner stickyBarRef={stickyBarRef} />}
 
-          {tokensCount === 0 ? (
-            <EmptySection forCollectibles={false} network={network} />
-          ) : (
-            <>
-              {manageActive && <ManageActiveTip />}
-              <SimpleInfiniteScroll loadNext={loadNextPage}>{children}</SimpleInfiniteScroll>
-              {isSyncing && <SyncSpinner className="mt-4" />}
-            </>
-          )}
-        </ContentContainer>
+            {tokensCount === 0 ? (
+              <EmptySection forCollectibles={false} network={network} />
+            ) : (
+              <>
+                {manageActive && <ManageActiveTip />}
+                <SimpleInfiniteScroll loadNext={loadNextPage}>{children}</SimpleInfiniteScroll>
+                {isSyncing && <SyncSpinner className="mt-4" />}
+              </>
+            )}
+          </ContentContainer>
+        </FadeTransition>
       )}
 
       <DAppConnection />
