@@ -1,4 +1,4 @@
-import { AbiFunction, TransactionSerializable, decodeFunctionData } from 'viem';
+import { AbiFunction, TransactionSerializable, decodeFunctionData, getAddress } from 'viem';
 
 import {
   erc1155MintAbi,
@@ -67,8 +67,10 @@ export enum EvmOperationKind {
   Other = 'Other'
 }
 
+const ERC1155SeaDropCloneFactoryContract = '0x00b19A5200A100e5fc4c9800772f4d002f218400';
+
 export const getOperationKind = (tx: TransactionSerializable) => {
-  if (!tx.to) {
+  if (!tx.to || getAddress(tx.to) === ERC1155SeaDropCloneFactoryContract) {
     return EvmOperationKind.DeployContract;
   }
 
