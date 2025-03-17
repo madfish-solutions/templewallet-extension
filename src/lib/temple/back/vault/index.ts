@@ -1,3 +1,4 @@
+import type Eth from '@ledgerhq/hw-app-eth';
 import { HttpResponseError } from '@taquito/http-utils';
 import { DerivationType } from '@taquito/ledger-signer';
 import { localForger } from '@taquito/local-forging';
@@ -5,7 +6,14 @@ import { CompositeForger, RpcForger, Signer, TezosOperationError, TezosToolkit }
 import * as TaquitoUtils from '@taquito/utils';
 import * as Bip39 from 'bip39';
 import { nanoid } from 'nanoid';
-import { createWalletClient, http, PrivateKeyAccount, TransactionRequest, TypedDataDefinition } from 'viem';
+import {
+  createWalletClient,
+  http,
+  LocalAccount,
+  PrivateKeyAccount,
+  TransactionRequest,
+  TypedDataDefinition
+} from 'viem';
 import { privateKeyToAccount } from 'viem/accounts';
 import type * as WasmThemisPackageInterface from 'wasm-themis';
 
@@ -13,6 +21,7 @@ import {
   ACCOUNT_ALREADY_EXISTS_ERR_MSG,
   ACCOUNT_NAME_COLLISION_ERR_MSG,
   AT_LEAST_ONE_HD_ACCOUNT_ERR_MSG,
+  DEFAULT_EVM_DERIVATION_PATH,
   DEFAULT_TEZOS_DERIVATION_PATH,
   WALLETS_SPECS_STORAGE_KEY
 } from 'lib/constants';
@@ -34,7 +43,7 @@ import {
   TempleSettings,
   WalletSpecs
 } from 'lib/temple/types';
-import { isTruthy } from 'lib/utils';
+import { delay, isTruthy } from 'lib/utils';
 import { getAccountAddressForChain, getAccountAddressForEvm, getAccountAddressForTezos } from 'temple/accounts';
 import { TypedDataV1, typedV1SignatureHash } from 'temple/evm/typed-data-v1';
 import { EvmChain } from 'temple/front';
@@ -44,6 +53,7 @@ import { TempleChainKind } from 'temple/types';
 import { createLedgerSigner } from '../ledger';
 import { PublicError } from '../PublicError';
 
+import { makeEvmAccount } from './evm-ledger';
 import { fetchMessage, transformHttpResponseError } from './helpers';
 import { MIGRATIONS } from './migrations';
 import {
@@ -96,6 +106,7 @@ interface RemoveAccountEventPayload {
 
 export class Vault {
   static removeAccountsListeners: SyncFn<RemoveAccountEventPayload[]>[] = [];
+  private static ethApp: Eth | null = null;
 
   static async isExist() {
     const stored = await isStored(checkStrgKey);
@@ -284,6 +295,26 @@ export class Vault {
     return withError('Failed to reveal private key', () =>
       fetchAndDecryptOne<string>(accPrivKeyStrgKey(address), passKey)
     );
+  }
+
+  private static async getEthApp() {
+    if (Vault.ethApp) {
+      return Vault.ethApp;
+    }
+
+    const Eth = await import('@ledgerhq/hw-app-eth').then(m => m.default);
+    const TransportWebHID = await import('@ledgerhq/hw-transport-webhid').then(m => m.default);
+    const transport = await TransportWebHID.create();
+    Vault.ethApp = new Eth(transport);
+
+    return Vault.ethApp;
+  }
+
+  private static async clearEthApp() {
+    if (Vault.ethApp) {
+      await Vault.ethApp.transport.close().catch(e => console.error(e));
+      Vault.ethApp = null;
+    }
   }
 
   private static async removeAccountsKeys(accounts: StoredAccount[]) {
@@ -713,6 +744,20 @@ export class Vault {
     });
   }
 
+  async getLedgerEVMPk(derivationPath = DEFAULT_EVM_DERIVATION_PATH) {
+    return withError('Failed to connect get Ledger account public key hash', async (): Promise<HexString> => {
+      try {
+        const ethApp = await Vault.getEthApp();
+        const { publicKey } = await ethApp.getAddress(derivationPath);
+
+        return `0x${publicKey}`;
+      } catch (e: any) {
+        await Vault.clearEthApp();
+        throw new PublicError(e.message);
+      }
+    });
+  }
+
   async createLedgerAccount(input: SaveLedgerAccountInput) {
     return withError('Failed to create Ledger account', async () => {
       try {
@@ -732,7 +777,7 @@ export class Vault {
 
         await encryptAndSaveMany(
           [
-            [accPubKeyStrgKey(input.tezosAddress), publicKey],
+            [accPubKeyStrgKey(input.address), publicKey],
             [accountsStrgKey, newAllAccounts]
           ],
           this.passKey
@@ -826,13 +871,18 @@ export class Vault {
     );
   }
 
-  // TODO: implement signing typed data V1
   async signEvmTypedData(accPublicKeyHash: string, typedData: TypedDataDefinition | TypedDataV1) {
-    return this.withSigningEvmAccount(accPublicKeyHash, async account =>
-      Array.isArray(typedData)
-        ? account.sign({ hash: `0x${typedV1SignatureHash(typedData).toString('hex')}` })
-        : account.signTypedData(typedData)
-    );
+    return this.withSigningEvmAccount(accPublicKeyHash, async account => {
+      if (Array.isArray(typedData)) {
+        if (!account.sign) {
+          throw new PublicError('Ledger cannot sign V1 typed data');
+        }
+
+        return account.sign({ hash: `0x${typedV1SignatureHash(typedData).toString('hex')}` });
+      }
+
+      return account.signTypedData(typedData);
+    });
   }
 
   async signEvmMessage(accPublicKeyHash: string, message: string) {
@@ -880,8 +930,9 @@ export class Vault {
 
   private async withSigningEvmAccount<T>(
     accPublicKeyHash: string,
-    factory: (account: PrivateKeyAccount) => Promise<T>
-  ) {
+    factory: (account: PrivateKeyAccount | LocalAccount) => Promise<T>,
+    preventLedgerRetry = false
+  ): Promise<T> {
     try {
       const allAccounts = await this.fetchAccounts();
       const acc = allAccounts.find(acc => getAccountAddressForEvm(acc) === accPublicKeyHash);
@@ -893,8 +944,40 @@ export class Vault {
         throw new Error('Cannot sign Watch-only account');
       }
 
-      const privateKey = await fetchAndDecryptOne<string>(accPrivKeyStrgKey(accPublicKeyHash), this.passKey);
-      return factory(privateKeyToAccount(privateKey as HexString));
+      const handleLedgerConnectError = async (e: unknown) => {
+        const { TransportError } = await import('@ledgerhq/errors');
+        await Vault.clearEthApp();
+
+        if (e instanceof TransportError && e.message === 'Invalid channel' && !preventLedgerRetry) {
+          await delay(2000);
+
+          return this.withSigningEvmAccount(accPublicKeyHash, factory, true);
+        }
+
+        throw e;
+      };
+
+      let account: PrivateKeyAccount | LocalAccount;
+      if (acc.type === TempleAccountType.Ledger) {
+        try {
+          account = await makeEvmAccount(await Vault.getEthApp(), acc.derivationPath);
+        } catch (e) {
+          return handleLedgerConnectError(e);
+        }
+      } else {
+        const privateKey = await fetchAndDecryptOne<string>(accPrivKeyStrgKey(accPublicKeyHash), this.passKey);
+        account = privateKeyToAccount(privateKey as HexString);
+      }
+
+      try {
+        return await factory(account);
+      } catch (e) {
+        if (acc.type !== TempleAccountType.Ledger) {
+          throw e;
+        }
+
+        return handleLedgerConnectError(e);
+      }
     } catch (err: any) {
       console.error(err);
 

@@ -10,7 +10,6 @@ export function searchAndFilterAccounts(accounts: StoredAccount[], searchValue: 
   const addressMatchItems = accounts.filter(acc => {
     switch (acc.type) {
       case TempleAccountType.ManagedKT:
-      case TempleAccountType.Ledger:
         return acc.tezosAddress === searchValueTrimmed;
       case TempleAccountType.HD:
         return acc.tezosAddress === searchValueTrimmed || acc.evmAddress === searchValueTrimmed;

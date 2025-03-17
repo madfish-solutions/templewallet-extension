@@ -27,7 +27,7 @@ interface CustomPathModalProps {
 
 export const CustomPathModal = memo<CustomPathModalProps>(
   ({ alreadyInWalletIndexes, alreadyInTmpListIndexes, onClose, onSubmit }) => {
-    const { control, handleSubmit, formState } = useForm<CustomPathFormData>();
+    const { control, handleSubmit, formState } = useForm<CustomPathFormData>({ defaultValues: { index: '' } });
     const { errors } = formState;
 
     const validateIndex = useCallback(
@@ -81,7 +81,8 @@ export const CustomPathModal = memo<CustomPathModalProps>(
           <ActionModalButtonsContainer>
             <ActionModalButton
               color="primary"
-              disabled={shouldDisableSubmitButton({ errors, formState })}
+              disabled={shouldDisableSubmitButton({ errors, formState, disableWhileSubmitting: false })}
+              loading={formState.isSubmitting}
               type="submit"
               testID={ConnectLedgerModalSelectors.addCustomPathButton}
             >

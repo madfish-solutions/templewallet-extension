@@ -259,10 +259,12 @@ export function importWatchOnlyAccount(chain: TempleChainKind, address: string, 
   });
 }
 
+export function getLedgerEVMPk(derivationPath?: string) {
+  return withUnlocked(async ({ vault }) => await vault.getLedgerEVMPk(derivationPath));
+}
+
 export function getLedgerTezosPk(derivationPath?: string, derivationType?: DerivationType) {
-  return withUnlocked(async ({ vault }) => {
-    return await vault.getLedgerTezosPk(derivationPath, derivationType);
-  });
+  return withUnlocked(async ({ vault }) => await vault.getLedgerTezosPk(derivationPath, derivationType));
 }
 
 export function createLedgerAccount(input: SaveLedgerAccountInput) {

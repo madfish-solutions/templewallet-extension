@@ -32,17 +32,14 @@ function getAccountForChain<C extends TempleChainKind>(account: StoredAccount, c
       address = account[`${chain}Address`];
       break;
     case TempleAccountType.Imported:
-      if (account.chain === chain) address = account.address;
-      break;
     case TempleAccountType.WatchOnly:
+    case TempleAccountType.Ledger:
       if (account.chain === chain) address = account.address;
       break;
     case TempleAccountType.ManagedKT:
       address = account.tezosAddress;
       ownerAddress = account.owner;
       break;
-    default:
-      if (chain === 'tezos') address = account.tezosAddress;
   }
 
   if (!address) return null;
@@ -61,12 +58,12 @@ export const getAccountAddressForChain = (account: StoredAccount, chain: TempleC
     case TempleAccountType.HD:
       return account[`${chain}Address`];
     case TempleAccountType.Imported:
-      return account.chain === chain ? account.address : undefined;
     case TempleAccountType.WatchOnly:
+    case TempleAccountType.Ledger:
       return account.chain === chain ? account.address : undefined;
+    default:
+      return account.tezosAddress;
   }
-
-  return account.tezosAddress;
 };
 
 export function findAccountForTezos(accounts: StoredAccount[], address: string) {

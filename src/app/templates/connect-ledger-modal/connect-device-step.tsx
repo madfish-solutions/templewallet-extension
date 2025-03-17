@@ -9,22 +9,17 @@ import { StyledButton } from 'app/atoms/StyledButton';
 import { LEDGER_USB_VENDOR_ID } from 'lib/constants';
 import { T, t } from 'lib/i18n';
 import { useTempleClient } from 'lib/temple/front';
-import { StoredLedgerAccount, TempleAccountType } from 'lib/temple/types';
-import {
-  LedgerOperationState,
-  LedgerUIConfigurationBase,
-  isLedgerRejectionError,
-  makeStateToUIConfiguration
-} from 'lib/ui';
-import { ZERO } from 'lib/utils/numbers';
+import { LedgerOperationState, LedgerUIConfigurationBase, makeStateToUIConfiguration } from 'lib/ui';
+import { isLedgerRejectionError } from 'lib/utils/ledger';
 import { TempleChainKind } from 'temple/types';
 
 import { ConnectLedgerModalSelectors } from './selectors';
-import { TezosAccountProps } from './types';
-import { useGetLedgerTezosAccount } from './utils';
+import { AccountProps } from './types';
+import { getDefaultLedgerAccountIndex, useGetLedgerEvmAccount, useGetLedgerTezosAccount } from './utils';
 
 interface ConnectDeviceStepProps {
-  onSuccess: (account: TezosAccountProps) => void;
+  onSuccess: (account: AccountProps) => void;
+  chainKind: TempleChainKind;
 }
 
 const appsNames = {
@@ -65,17 +60,9 @@ const stateToUIConfiguration: Record<LedgerOperationState, UIConfiguration> =
     }
   });
 
-const TEZOS_BY_INDEX_DERIVATION_REGEX = /^m\/44'\/1729'\/(\d+)'\/0'$/;
-
-export const ConnectDeviceStep = memo<ConnectDeviceStepProps>(({ onSuccess }) => {
+export const ConnectDeviceStep = memo<ConnectDeviceStepProps>(({ chainKind, onSuccess }) => {
   const { accounts } = useTempleClient();
-  const [tezosAccount, setTezosAccount] = useState<TezosAccountProps>({
-    pkh: '',
-    pk: '',
-    balanceTez: ZERO,
-    derivationIndex: 0,
-    derivationType: DerivationType.ED25519
-  });
+  const [account, setAccount] = useState<AccountProps>();
   const [bottomEdgeIsVisible, setBottomEdgeIsVisible] = useState(true);
   const [connectionState, setConnectionState] = useState<LedgerOperationState>(LedgerOperationState.NotStarted);
   const [modelName, setModelName] = useState<string | null>(null);
@@ -84,33 +71,11 @@ export const ConnectDeviceStep = memo<ConnectDeviceStepProps>(({ onSuccess }) =>
   const connectionIsSuccessful = connectionState === LedgerOperationState.Success;
   const connectionFailed = connectionStarted && !connectionIsSuccessful;
   const { imageState, title, description, icon } = stateToUIConfiguration[connectionState];
-  const appName = appsNames[TempleChainKind.Tezos];
+  const appName = appsNames[chainKind];
 
-  // TODO: change the filter when importing EVM accounts is supported
-  const defaultAccountIndex = useMemo(() => {
-    const derivationIndexes = accounts
-      .filter(
-        (acc): acc is StoredLedgerAccount =>
-          acc.type === TempleAccountType.Ledger &&
-          (acc.derivationType ?? DerivationType.ED25519) === DerivationType.ED25519 &&
-          Boolean(acc.derivationPath.match(TEZOS_BY_INDEX_DERIVATION_REGEX))
-      )
-      .map(account => {
-        const match = account.derivationPath.match(TEZOS_BY_INDEX_DERIVATION_REGEX);
-
-        return parseInt(match![1], 10);
-      })
-      .sort();
-    let result = 0;
-    derivationIndexes.forEach(index => {
-      if (index === result) {
-        result++;
-      }
-    });
-
-    return result;
-  }, [accounts]);
   const getLedgerTezosAccount = useGetLedgerTezosAccount();
+  const getLedgerEvmAccount = useGetLedgerEvmAccount();
+  const defaultAccountIndex = useMemo(() => getDefaultLedgerAccountIndex(accounts, chainKind), [accounts, chainKind]);
 
   const connectLedger = useCallback(async () => {
     setConnectionState(LedgerOperationState.InProgress);
@@ -139,7 +104,11 @@ export const ConnectDeviceStep = memo<ConnectDeviceStepProps>(({ onSuccess }) =>
       }
 
       try {
-        setTezosAccount(await getLedgerTezosAccount(DerivationType.ED25519, defaultAccountIndex));
+        setAccount(
+          chainKind === TempleChainKind.Tezos
+            ? await getLedgerTezosAccount(DerivationType.ED25519, defaultAccountIndex)
+            : await getLedgerEvmAccount(defaultAccountIndex)
+        );
         setConnectionState(LedgerOperationState.Success);
         setModelName(webHidDevice.productName);
       } catch (e: any) {
@@ -153,9 +122,9 @@ export const ConnectDeviceStep = memo<ConnectDeviceStepProps>(({ onSuccess }) =>
       setConnectionState(LedgerOperationState.UnableToConnect);
       setModelName(null);
     }
-  }, [defaultAccountIndex, getLedgerTezosAccount]);
+  }, [chainKind, defaultAccountIndex, getLedgerEvmAccount, getLedgerTezosAccount]);
 
-  const handleContinueClick = useCallback(() => onSuccess(tezosAccount), [onSuccess, tezosAccount]);
+  const handleContinueClick = useCallback(() => onSuccess(account!), [onSuccess, account]);
 
   return (
     <>

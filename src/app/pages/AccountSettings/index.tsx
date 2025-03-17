@@ -79,7 +79,7 @@ export const AccountSettings = memo<AccountSettingsProps>(({ id }) => {
           path: getDerivationPath(chainName, account.hdIndex)
         }));
       case TempleAccountType.Ledger:
-        return [{ chainName: TempleChainKind.Tezos, path: account.derivationPath }];
+        return [{ chainName: account.chain, path: account.derivationPath }];
       default:
         return [];
     }
