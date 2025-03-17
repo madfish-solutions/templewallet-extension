@@ -1,4 +1,4 @@
-import { AbiFunction, TransactionSerializable, decodeFunctionData, getAddress } from 'viem';
+import { AbiFunction, TransactionSerializable, decodeFunctionData } from 'viem';
 
 import {
   erc1155MintAbi,
@@ -23,7 +23,19 @@ import {
   erc721SetApprovalForAllAbi,
   erc721TransferFromAbi
 } from 'lib/abi/erc721';
-import { erc1155OpenSeaMultiConfigureAbi } from 'lib/abi/opensea';
+import {
+  erc1155SeaCreateCloneAbi,
+  erc1155SeaMultiConfigureAbi,
+  erc721SeaCreateCloneAbi,
+  erc721SeaMultiConfigureAbi
+} from 'lib/abi/opensea';
+import {
+  erc1155RaribleMintAndTransferAbi,
+  erc721RaribleMintAndTransferAbi,
+  raribleCreateTokenAbi
+} from 'lib/abi/rarible';
+
+const deployContractAbis = [erc721SeaCreateCloneAbi, erc1155SeaCreateCloneAbi, raribleCreateTokenAbi] as const;
 
 // Parsing transaction data with erc20ApproveAbi and erc721ApproveAbi returns the same results
 const approveAbis = [erc20ApproveAbi, erc20IncreaseAllowanceAbi] as const;
@@ -47,7 +59,10 @@ const mintAbis = [
   erc721SafeMintWithDataAbi,
   erc1155MintAbi,
   erc1155MintBatchAbi,
-  erc1155OpenSeaMultiConfigureAbi
+  erc721RaribleMintAndTransferAbi,
+  erc1155RaribleMintAndTransferAbi,
+  erc721SeaMultiConfigureAbi,
+  erc1155SeaMultiConfigureAbi
 ] as const;
 
 export const dataMatchesAbis = (data: HexString, abis: readonly AbiFunction[]) => {
@@ -69,14 +84,8 @@ export enum EvmOperationKind {
   Other = 'Other'
 }
 
-const knownDeployContracts = [
-  '0x00b19A5200A100e5fc4c9800772f4d002f218400', // ERC1155SeaDropCloneFactory
-  '0x18a2553ef1aaE12d9cd158821319e26A62feE90E', // ERC721RaribleFactoryC2
-  '0xc9eB416CDb5cc2aFC09bb75393AEc6dBA4E5C84a' // ERC1155RaribleFactoryC2
-];
-
 export const getOperationKind = (tx: TransactionSerializable) => {
-  if (!tx.to || knownDeployContracts.includes(getAddress(tx.to))) {
+  if (!tx.to) {
     return EvmOperationKind.DeployContract;
   }
 
@@ -86,6 +95,10 @@ export const getOperationKind = (tx: TransactionSerializable) => {
 
   if (dataMatchesAbis(tx.data, transferAbis)) {
     return EvmOperationKind.Send;
+  }
+
+  if (dataMatchesAbis(tx.data, deployContractAbis)) {
+    return EvmOperationKind.DeployContract;
   }
 
   if (dataMatchesAbis(tx.data, mintAbis)) {
