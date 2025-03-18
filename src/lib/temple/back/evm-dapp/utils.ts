@@ -11,11 +11,11 @@ import {
 } from 'app/storage/dapps';
 import { getReadOnlyEvm } from 'temple/evm';
 import { EVMErrorCodes, evmRpcMethodsNames, RETURNED_ACCOUNTS_CAVEAT_NAME } from 'temple/evm/constants';
+import { EvmEstimationData } from 'temple/evm/estimate';
 import { getEvmChainsRpcUrls } from 'temple/evm/evm-chains-rpc-urls';
 import { ErrorWithCode } from 'temple/evm/types';
 import { TempleChainKind } from 'temple/types';
 
-import { EvmEstimationData } from '../../../../temple/evm/estimate';
 import { TempleEvmDAppPayload, TempleEvmDAppSignPayload, TempleMessageType } from '../../types';
 import { intercom } from '../defaults';
 import { requestConfirm as genericRequestConfirm, RequestConfirmParams } from '../request-confirm';
