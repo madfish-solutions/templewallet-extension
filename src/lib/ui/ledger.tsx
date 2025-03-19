@@ -4,6 +4,7 @@ import { IconBase, LedgerImageState, Loader } from 'app/atoms';
 import { ReactComponent as OkFillIcon } from 'app/icons/base/ok_fill.svg';
 import { ReactComponent as XCircleFillIcon } from 'app/icons/base/x_circle_fill.svg';
 import { ReactComponent as WarningIcon } from 'app/icons/typed-msg/warning.svg';
+import { isLedgerRejectionError } from 'lib/utils/ledger';
 
 export interface LedgerUIConfigurationBase {
   imageState: LedgerImageState;
@@ -54,34 +55,19 @@ export const makeStateToUIConfiguration = <T extends LedgerUIConfigurationBase>(
     return acc;
   }, {} as Record<LedgerOperationState, T>);
 
-const LEDGER_ERROR_CODE_REGEX = /\((0x[0-9a-f]+)\)/i;
-const LEDGER_APP_REJECTED_ERROR_CODE = 0x6985;
-const LEDGER_LOCKED_ERROR_CODE = 0x5515;
-const getLedgerErrorCode = (error: Error) => {
-  const match = error.message.match(LEDGER_ERROR_CODE_REGEX);
-
-  return match ? parseInt(match[1], 16) : null;
-};
-
-export const isLedgerRejectionError = (error: Error) => {
-  const errorCode = getLedgerErrorCode(error);
-
-  return [LEDGER_APP_REJECTED_ERROR_CODE, LEDGER_LOCKED_ERROR_CODE].some(
-    couldNotConnectErrorCode => errorCode === couldNotConnectErrorCode
-  );
-};
-
 export const runConnectedLedgerOperationFlow = async (
   action: () => Promise<void>,
-  setOperationState: (state: LedgerOperationState) => void,
+  setOperationState?: (state: LedgerOperationState) => void,
   throwError?: boolean
 ) => {
   try {
-    setOperationState(LedgerOperationState.InProgress);
+    setOperationState?.(LedgerOperationState.InProgress);
     await action();
-    setOperationState(LedgerOperationState.Success);
+    setOperationState?.(LedgerOperationState.Success);
   } catch (e: any) {
-    setOperationState(isLedgerRejectionError(e) ? LedgerOperationState.Canceled : LedgerOperationState.UnableToConnect);
+    setOperationState?.(
+      isLedgerRejectionError(e) ? LedgerOperationState.Canceled : LedgerOperationState.UnableToConnect
+    );
 
     if (throwError) {
       throw e;

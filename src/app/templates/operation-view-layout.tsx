@@ -28,21 +28,20 @@ export const OperationViewLayout = <T extends TxParamsFormData>({
     () => Object.fromEntries(Object.entries(balancesChanges).filter(([, { atomicAmount }]) => !atomicAmount.isZero())),
     [balancesChanges]
   );
-  const expensesViewIsVisible = useMemo(
-    () => Object.keys(filteredBalancesChanges).length > 0 && !metadataLoading,
-    [filteredBalancesChanges, metadataLoading]
-  );
+  const someBalancesChanges = useMemo(() => Object.keys(filteredBalancesChanges).length > 0, [filteredBalancesChanges]);
+  const expensesViewIsVisible = someBalancesChanges && !metadataLoading;
 
   return (
     <>
-      {expensesViewIsVisible ? (
-        <BalancesChangesView balancesChanges={filteredBalancesChanges} chain={network} />
-      ) : (
-        (otherDataLoading || metadataLoading) && (
-          <div className="flex justify-center items-center">
-            <Loader size="L" trackVariant="dark" className="text-primary" />
-          </div>
-        )
+      {someBalancesChanges && (
+        <div className={expensesViewIsVisible ? 'hidden' : undefined}>
+          <BalancesChangesView balancesChanges={filteredBalancesChanges} chain={network} />
+        </div>
+      )}
+      {!expensesViewIsVisible && (otherDataLoading || metadataLoading) && (
+        <div className="flex justify-center items-center">
+          <Loader size="L" trackVariant="dark" className="text-primary" />
+        </div>
       )}
 
       <div className="flex flex-col">

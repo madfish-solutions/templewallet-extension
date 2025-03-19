@@ -42,6 +42,7 @@
     "@hypelab/sdk-react": "^1.0.3",
     "@jitsu/sdk-js": "madfish-solutions/jitsu-js#87c49de334f5747952f7beda573b95ceb5d86903",
     "@ledgerhq/errors": "^6",
+    "@ledgerhq/hw-app-eth": "^6.42.8",
     "@ledgerhq/hw-transport": "^6.30.6",
     "@ledgerhq/hw-transport-http": "^6.30.4",
     "@ledgerhq/hw-transport-u2f": "5.36.0-deprecated",
@@ -222,7 +223,7 @@
     "text-decoding": "^1.0.0"
   },
   "resolutions": {
-    "@ledgerhq/hw-transport-http/axios": "^1.8.2",
+    "axios": "^1.8.2",
     "npm-run-all/cross-spawn": "^7.0.6",
     "react-dev-utils/fork-ts-checker-webpack-plugin": "^9",
     "tslib": "^2.4.0",

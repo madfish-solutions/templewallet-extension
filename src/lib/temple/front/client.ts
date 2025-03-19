@@ -269,6 +269,16 @@ export const [TempleClientProvider, useTempleClient] = constate(() => {
     return res.publicKey;
   }, []);
 
+  const getLedgerEVMPk = useCallback(async (derivationPath?: string) => {
+    const res = await request({
+      type: TempleMessageType.GetLedgerEVMPkRequest,
+      derivationPath
+    });
+    assertResponse(res.type === TempleMessageType.GetLedgerEVMPkResponse);
+
+    return res.publicKey;
+  }, []);
+
   const createLedgerAccount = useCallback(async (input: SaveLedgerAccountInput) => {
     const res = await request({
       type: TempleMessageType.CreateLedgerAccountRequest,
@@ -495,6 +505,7 @@ export const [TempleClientProvider, useTempleClient] = constate(() => {
     importWatchOnlyAccount,
     createLedgerAccount,
     getLedgerTezosPk,
+    getLedgerEVMPk,
     updateSettings,
     removeHdGroup,
     removeAccountsByType,

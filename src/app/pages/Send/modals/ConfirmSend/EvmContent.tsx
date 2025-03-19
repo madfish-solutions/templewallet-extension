@@ -5,6 +5,7 @@ import { FormProvider } from 'react-hook-form-v7';
 import { TransactionRequest } from 'viem';
 
 import { CLOSE_ANIMATION_TIMEOUT } from 'app/atoms/PageModal';
+import { useLedgerApprovalModalState } from 'app/hooks/use-ledger-approval-modal-state';
 import { EvmReviewData } from 'app/pages/Send/form/interfaces';
 import { useEvmEstimationData } from 'app/pages/Send/hooks/use-evm-estimation-data';
 import { EvmTxParamsFormData } from 'app/templates/TransactionTabs/types';
@@ -14,6 +15,8 @@ import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
 import { useEvmAssetBalance } from 'lib/balances/hooks';
 import { useEvmCategorizedAssetMetadata } from 'lib/metadata';
 import { useTempleClient } from 'lib/temple/front';
+import { TempleAccountType } from 'lib/temple/types';
+import { runConnectedLedgerOperationFlow } from 'lib/ui';
 import { ZERO } from 'lib/utils/numbers';
 import { useGetEvmActiveBlockExplorer } from 'temple/front/ready';
 
@@ -30,6 +33,7 @@ export const EvmContent: FC<EvmContentProps> = ({ data, onClose }) => {
   const { account, network, assetSlug, to, amount, onConfirm } = data;
 
   const accountPkh = account.address as HexString;
+  const isLedgerAccount = account.type === TempleAccountType.Ledger;
 
   const { sendEvmTransaction } = useTempleClient();
 
@@ -57,6 +61,8 @@ export const EvmContent: FC<EvmContentProps> = ({ data, onClose }) => {
   const { form, tab, setTab, selectedFeeOption, handleFeeOptionSelect, feeOptions, displayedFee, getFeesPerGas } =
     useEvmEstimationForm(estimationData, basicParams, account, network.chainId);
   const { formState } = form;
+  const { ledgerApprovalModalState, setLedgerApprovalModalState, handleLedgerModalClose } =
+    useLedgerApprovalModalState();
 
   const onSubmit = useCallback(
     async ({ gasPrice, gasLimit, nonce }: EvmTxParamsFormData) => {
@@ -82,25 +88,36 @@ export const EvmContent: FC<EvmContentProps> = ({ data, onClose }) => {
           amount
         );
 
-        const txHash = await sendEvmTransaction(accountPkh, network, {
-          to: txDestination,
-          value,
-          ...omit(estimationData, 'estimatedFee'),
-          ...feesPerGas,
-          ...(gasLimit ? { gas: BigInt(gasLimit) } : {}),
-          ...(nonce ? { nonce: Number(nonce) } : {})
-        } as TransactionRequest);
+        const doOperation = async () => {
+          const txHash = await sendEvmTransaction(accountPkh, network, {
+            to: txDestination,
+            value,
+            ...omit(estimationData, 'estimatedFee'),
+            ...feesPerGas,
+            ...(gasLimit ? { gas: BigInt(gasLimit) } : {}),
+            ...(nonce ? { nonce: Number(nonce) } : {})
+          } as TransactionRequest);
 
-        onConfirm();
-        onClose();
+          onConfirm();
+          onClose();
 
-        const blockExplorer = getActiveBlockExplorer(network.chainId.toString());
+          const blockExplorer = getActiveBlockExplorer(network.chainId.toString());
 
-        setTimeout(
-          () =>
-            toastSuccess('Transaction Submitted', true, { hash: txHash, explorerBaseUrl: blockExplorer.url + '/tx/' }),
-          CLOSE_ANIMATION_TIMEOUT * 2
-        );
+          setTimeout(
+            () =>
+              toastSuccess('Transaction Submitted', true, {
+                hash: txHash,
+                explorerBaseUrl: blockExplorer.url + '/tx/'
+              }),
+            CLOSE_ANIMATION_TIMEOUT * 2
+          );
+        };
+
+        if (isLedgerAccount) {
+          await runConnectedLedgerOperationFlow(doOperation, setLedgerApprovalModalState, true);
+        } else {
+          await doOperation();
+        }
       } catch (err: any) {
         console.error(err);
 
@@ -121,13 +138,17 @@ export const EvmContent: FC<EvmContentProps> = ({ data, onClose }) => {
       onConfirm,
       sendEvmTransaction,
       setTab,
-      to
+      setLedgerApprovalModalState,
+      to,
+      isLedgerAccount
     ]
   );
 
   return (
     <FormProvider {...form}>
       <BaseContent<EvmTxParamsFormData>
+        ledgerApprovalModalState={ledgerApprovalModalState}
+        onLedgerModalClose={handleLedgerModalClose}
         network={network}
         assetSlug={assetSlug}
         amount={amount}

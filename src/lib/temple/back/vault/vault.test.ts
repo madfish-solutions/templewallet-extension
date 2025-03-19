@@ -769,14 +769,16 @@ describe('Vault tests', () => {
     const { publicKey: publicKey2, address: address2 } = hdWallets[0].accounts[2].tezos;
     const [, newAccount] = await vault.createLedgerAccount({
       derivationPath: 'mockTezosDerivationPath',
+      chain: TempleChainKind.EVM,
       name: 'mockName',
-      tezosAddress: address,
+      address,
       publicKey
     });
     const [, , newAccount2] = await vault.createLedgerAccount({
       derivationPath: 'mockTezosDerivationPath2',
+      chain: TempleChainKind.Tezos,
       name: 'mockName2',
-      tezosAddress: address2,
+      address: address2,
       publicKey: publicKey2,
       derivationType: DerivationType.BIP32_ED25519
     });
@@ -784,14 +786,14 @@ describe('Vault tests', () => {
       type: TempleAccountType.Ledger,
       name: 'mockName',
       derivationPath: 'mockTezosDerivationPath',
-      tezosAddress: address
+      address
     });
     expect(newAccount2).toMatchObject({
       type: TempleAccountType.Ledger,
       name: 'mockName2',
       derivationPath: 'mockTezosDerivationPath2',
       derivationType: DerivationType.BIP32_ED25519,
-      tezosAddress: address2
+      address: address2
     });
   });
 

@@ -77,7 +77,8 @@ export type StoredAccount =
 
 export interface StoredLedgerAccount extends StoredAccountBase {
   type: TempleAccountType.Ledger;
-  tezosAddress: string;
+  chain: TempleChainKind;
+  address: string;
   derivationPath: string;
 }
 
@@ -404,6 +405,8 @@ export enum TempleMessageType {
   ImportWatchOnlyAccountResponse = 'TEMPLE_IMPORT_WATCH_ONLY_ACCOUNT_RESPONSE',
   GetLedgerTezosPkRequest = 'TEMPLE_GET_LEDGER_TEZOS_PK_REQUEST',
   GetLedgerTezosPkResponse = 'TEMPLE_GET_LEDGER_TEZOS_PK_RESPONSE',
+  GetLedgerEVMPkRequest = 'TEMPLE_GET_LEDGER_EVM_PK_REQUEST',
+  GetLedgerEVMPkResponse = 'TEMPLE_GET_LEDGER_EVM_PK_RESPONSE',
   CreateLedgerAccountRequest = 'TEMPLE_CREATE_LEDGER_ACCOUNT_REQUEST',
   CreateLedgerAccountResponse = 'TEMPLE_CREATE_LEDGER_ACCOUNT_RESPONSE',
   UpdateSettingsRequest = 'TEMPLE_UPDATE_SETTINGS_REQUEST',
@@ -476,6 +479,7 @@ export type TempleRequest =
   | TempleImportMnemonicAccountRequest
   | TempleImportWatchOnlyAccountRequest
   | TempleGetLedgerTezosPkRequest
+  | TempleGetLedgerEVMPkRequest
   | TempleCreateLedgerAccountRequest
   | TempleOperationsRequest
   | TempleSignRequest
@@ -518,6 +522,7 @@ export type TempleResponse =
   | TempleImportMnemonicAccountResponse
   | TempleImportWatchOnlyAccountResponse
   | TempleGetLedgerTezosPkResponse
+  | TempleGetLedgerEVMPkResponse
   | TempleCreateLedgerAccountResponse
   | TempleOperationsResponse
   | TempleSignResponse
@@ -762,6 +767,16 @@ interface TempleGetLedgerTezosPkRequest extends TempleMessageBase {
 interface TempleGetLedgerTezosPkResponse extends TempleMessageBase {
   type: TempleMessageType.GetLedgerTezosPkResponse;
   publicKey: string;
+}
+
+interface TempleGetLedgerEVMPkRequest extends TempleMessageBase {
+  type: TempleMessageType.GetLedgerEVMPkRequest;
+  derivationPath?: string;
+}
+
+interface TempleGetLedgerEVMPkResponse extends TempleMessageBase {
+  type: TempleMessageType.GetLedgerEVMPkResponse;
+  publicKey: HexString;
 }
 
 interface TempleCreateLedgerAccountRequest extends TempleMessageBase {

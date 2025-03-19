@@ -55,6 +55,13 @@ const evmOperationTitles: Record<EvmOperationKind, ReactNode> = {
   [EvmOperationKind.Transfer]: <T id="confirmAction" substitutions={<T id="transfer" />} />
 };
 
+const ledgerInteractingPayloadTypes: TempleDAppPayload['type'][] = [
+  'confirm_operations',
+  'personal_sign',
+  'sign',
+  'sign_typed'
+];
+
 export const ConfirmDAppForm = memo<ConfirmDAppFormProps>(({ accounts, payload, onConfirm, children }) => {
   const [accountsModalIsOpen, openAccountsModal, closeAccountsModal] = useBooleanState(false);
   const [bottomEdgeIsVisible, setBottomEdgeIsVisible] = useState(true);
@@ -77,7 +84,9 @@ export const ConfirmDAppForm = memo<ConfirmDAppFormProps>(({ accounts, payload, 
   );
   const { dAppQueueCounters } = useTempleClient();
   const { length: requestsLeft, maxLength: totalRequestsCount } = dAppQueueCounters;
-  const isLedgerOperation = selectedAccount.type === TempleAccountType.Ledger;
+  const ledgerConfirmationRequired =
+    ledgerInteractingPayloadTypes.some(payloadType => payload.type === payloadType) &&
+    selectedAccount.type === TempleAccountType.Ledger;
 
   const shouldShowProgress =
     payload.type !== 'connect' &&
@@ -93,7 +102,7 @@ export const ConfirmDAppForm = memo<ConfirmDAppFormProps>(({ accounts, payload, 
       };
 
       try {
-        if (isLedgerOperation) {
+        if (ledgerConfirmationRequired) {
           await runConnectedLedgerOperationFlow(doOperation, setLedgerApprovalModalState, true);
         } else {
           await doOperation();
@@ -106,7 +115,7 @@ export const ConfirmDAppForm = memo<ConfirmDAppFormProps>(({ accounts, payload, 
         setError(err);
       }
     },
-    [isLedgerOperation, onConfirm, selectedAccount, setError, setLedgerApprovalModalState]
+    [ledgerConfirmationRequired, onConfirm, selectedAccount, setError, setLedgerApprovalModalState]
   );
 
   const handleConfirmClick = useCallback(async () => {

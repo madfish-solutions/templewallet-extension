@@ -48,9 +48,9 @@ export function concatAccount(current: StoredAccount[], newOne: StoredAccount) {
     switch (newOne.type) {
       case TempleAccountType.Imported:
       case TempleAccountType.WatchOnly:
+      case TempleAccountType.Ledger:
         return [newOne.chain, newOne.address];
       case TempleAccountType.ManagedKT:
-      case TempleAccountType.Ledger:
         return [TempleChainKind.Tezos, newOne.tezosAddress];
     }
 
@@ -63,9 +63,9 @@ export function concatAccount(current: StoredAccount[], newOne: StoredAccount) {
         return acc[`${chain}Address`] === address;
       case TempleAccountType.Imported:
       case TempleAccountType.WatchOnly:
+      case TempleAccountType.Ledger:
         return acc.chain === chain && acc.address === address;
       case TempleAccountType.ManagedKT:
-      case TempleAccountType.Ledger:
         return acc.tezosAddress === address;
     }
 

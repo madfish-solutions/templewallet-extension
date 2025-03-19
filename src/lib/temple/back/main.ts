@@ -167,6 +167,12 @@ const processRequest = async (req: TempleRequest, port: Runtime.Port): Promise<T
         publicKey: await Actions.getLedgerTezosPk(req.derivationPath, req.derivationType)
       };
 
+    case TempleMessageType.GetLedgerEVMPkRequest:
+      return {
+        type: TempleMessageType.GetLedgerEVMPkResponse,
+        publicKey: await Actions.getLedgerEVMPk(req.derivationPath)
+      };
+
     case TempleMessageType.CreateLedgerAccountRequest:
       await Actions.createLedgerAccount(req.input);
       return {

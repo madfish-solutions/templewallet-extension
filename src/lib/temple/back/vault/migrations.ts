@@ -180,7 +180,7 @@ export const MIGRATIONS = [
         case TempleAccountType.WatchOnly:
           return { ...account, id, address: tezosAddress, chain: TempleChainKind.Tezos };
         case TempleAccountType.Ledger:
-          return { ...account, id, tezosAddress };
+          return { ...account, id, address: tezosAddress, chain: TempleChainKind.Tezos };
         case TempleAccountType.ManagedKT:
           return { ...account, id, tezosAddress };
       }

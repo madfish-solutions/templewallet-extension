@@ -1053,8 +1053,8 @@
   "selectNetworkToReveal": {
     "message": "Select Network to reveal"
   },
-  "selectNetwork": {
-    "message": "Select network"
+  "ledgerImportSuccessToast": {
+    "message": "Ledger account successfully connected"
   },
   "evmLedgerTooltip": {
     "message": "EVM includes the connection of accounts,\ntokens, and NFTs on Ethereum, BNB Smart\nChain, Arbitrum, Optimism and other EVM-\ncompatible networks."
@@ -1194,6 +1194,9 @@
   },
   "selectAccount": {
     "message": "Select account"
+  },
+  "selectLedgerLiveAccount": {
+    "message": "Select Ledger Live account"
   },
   "customPath": {
     "message": "Custom path"

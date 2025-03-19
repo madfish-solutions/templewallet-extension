@@ -48,7 +48,6 @@ export const ApproveLayout = memo<ApproveLayoutProps>(({ chain, req, setFinalEvm
   const { from } = req;
 
   const knownAssetMetadata = useEvmGenericAssetMetadata(toEvmAssetSlug(tokenAddress), chain.chainId);
-  const metadataLoading = useEvmGenericAssetsMetadataLoading();
 
   const isErc20IncreaseAllowance = useMemo(() => dataMatchesAbis(txData, [erc20IncreaseAllowanceAbi]), [txData]);
   const evmToolkit = useMemo(() => getReadOnlyEvmForNetwork(chain), [chain]);
@@ -87,7 +86,7 @@ export const ApproveLayout = memo<ApproveLayoutProps>(({ chain, req, setFinalEvm
 
   useEffect(() => onLoadingState(contextLoading), [contextLoading, onLoadingState]);
 
-  return allowancesAmountsContext && !metadataLoading ? (
+  return allowancesAmountsContext ? (
     <ApproveLayoutContent
       allowancesAmountsContext={allowancesAmountsContext}
       req={req}
@@ -112,6 +111,7 @@ const ApproveLayoutContent = memo<ApproveLayoutContentProps>(
     const { onChainAllowance, isErc20 } = allowancesAmountsContext;
 
     const [editModalIsVisible, openEditModal, closeEditModal] = useBooleanState(false);
+    const metadataLoading = useEvmGenericAssetsMetadataLoading();
 
     const isErc20IncreaseAllowance = useMemo(() => dataMatchesAbis(txData, [erc20IncreaseAllowanceAbi]), [txData]);
     const newSuggestedAllowances = useMemo(() => {
@@ -178,6 +178,10 @@ const ApproveLayoutContent = memo<ApproveLayoutContentProps>(
       () => Object.values(newSuggestedAllowances)[0].atomicAmount,
       [newSuggestedAllowances]
     );
+
+    if (metadataLoading) {
+      return null;
+    }
 
     return (
       <>
