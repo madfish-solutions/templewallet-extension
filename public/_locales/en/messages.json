@@ -851,6 +851,9 @@
   "baking": {
     "message": "Baking"
   },
+  "operation": {
+    "message": "Operation"
+  },
   "operations": {
     "message": "Operations"
   },
