@@ -1,31 +1,18 @@
-import React, { FC, memo, ReactNode, useCallback, useMemo, useState } from 'react';
+import React, { FC, memo, ReactNode, useMemo, useState } from 'react';
 
 import browser from 'webextension-polyfill';
 
 import { FormSubmitButton } from 'app/atoms';
 import { AppUpdateDetails, useStoredAppUpdateDetails } from 'app/storage/app-update/use-value.hook';
-import { useAcceptedTermsVersionSelector } from 'app/store/settings/selectors';
-import { RECENT_TERMS_VERSION } from 'lib/constants';
-import { T } from 'lib/i18n';
 import { EmojiInlineIcon } from 'lib/icons/emoji';
 import { useDidMount } from 'lib/ui/hooks';
 import { useIntersectionObserver } from 'lib/ui/use-intersection-observer';
-
-import { TermsOfUseUpdateOverlay } from './TermsOfUseUpdateOverlay';
 
 interface Props {
   stickyBarRef: React.RefObject<HTMLDivElement>;
 }
 
-export const Banner = memo<Props>(({ stickyBarRef }) => {
-  const acceptedTermsVersion = useAcceptedTermsVersionSelector();
-
-  if (acceptedTermsVersion === RECENT_TERMS_VERSION) return <UpdateAppBanner stickyBarRef={stickyBarRef} />;
-
-  return <TermsOfUseUpdateBanner stickyBarRef={stickyBarRef} />;
-});
-
-const UpdateAppBanner: FC<Props> = ({ stickyBarRef }) => {
+export const UpdateAppBanner: FC<Props> = ({ stickyBarRef }) => {
   const [storedUpdateDetails, setStoredUpdateDetails] = useStoredAppUpdateDetails();
 
   const [checkedUpdateDetails, setCheckedUpdateDetails] = useState<AppUpdateDetails>();
@@ -71,26 +58,6 @@ const UpdateAppBanner: FC<Props> = ({ stickyBarRef }) => {
       stickyBarRef={stickyBarRef}
       onActionClick={onUpdateButtonPress}
     />
-  );
-};
-
-const TermsOfUseUpdateBanner: FC<Props> = ({ stickyBarRef }) => {
-  const [shouldShowTermsOfUseUpdateOverlay, setShouldShowTermsOfUseUpdateOverlay] = useState(false);
-  const showTermsOfUseUpdateOverlay = useCallback(() => void setShouldShowTermsOfUseUpdateOverlay(true), []);
-  const hideTermsOfUseUpdateOverlay = useCallback(() => void setShouldShowTermsOfUseUpdateOverlay(false), []);
-
-  return (
-    <>
-      {shouldShowTermsOfUseUpdateOverlay && <TermsOfUseUpdateOverlay onClose={hideTermsOfUseUpdateOverlay} />}
-
-      <BannerBase
-        title={<T id="templeWalletUpdate" />}
-        description={<T id="templeWalletUpdateDescription" />}
-        actionName={<T id="reviewUpdate" />}
-        stickyBarRef={stickyBarRef}
-        onActionClick={showTermsOfUseUpdateOverlay}
-      />
-    </>
   );
 };
 

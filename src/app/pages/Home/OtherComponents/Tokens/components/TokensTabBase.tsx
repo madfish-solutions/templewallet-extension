@@ -16,8 +16,8 @@ import { DAppConnection } from 'app/templates/DAppConnection';
 import { SearchBarField } from 'app/templates/SearchField';
 import { OneOfChains } from 'temple/front';
 
-import { Banner } from './Banner';
 import { EmptySection } from './EmptySection';
+import { UpdateAppBanner } from './UpdateAppBanner';
 
 interface TokensTabBaseProps {
   tokensCount: number;
@@ -63,7 +63,7 @@ export const TokensTabBase: FC<PropsWithChildren<TokensTabBaseProps>> = ({
       ) : (
         <FadeTransition>
           <ContentContainer ref={containerRef}>
-            {manageActive ? null : <Banner stickyBarRef={stickyBarRef} />}
+            {manageActive ? null : <UpdateAppBanner stickyBarRef={stickyBarRef} />}
 
             {tokensCount === 0 ? (
               <EmptySection forCollectibles={false} network={network} />

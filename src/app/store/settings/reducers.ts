@@ -1,19 +1,15 @@
 import { createReducer } from '@reduxjs/toolkit';
 import { persistReducer } from 'redux-persist';
 
-import { MAX_SHOW_AGREEMENTS_COUNTER } from 'lib/constants';
 import { storageConfig } from 'lib/store';
 
 import {
   setAdsImpressionsLinkedAction,
-  setAcceptedTermsVersionAction,
   setConversionTrackedAction,
   setIsAnalyticsEnabledAction,
   setOnRampPossibilityAction,
   setPendingReactivateAdsAction,
-  setShowAgreementsCounterAction,
   setReferralLinksEnabledAction,
-  setShouldShowTermsOfUseUpdateOverlayAction,
   setToastsContainerBottomShiftAction,
   setIsTestnetModeEnabledAction
 } from './actions';
@@ -36,20 +32,8 @@ const settingsReducer = createReducer<SettingsState>(settingsInitialState, build
     state.pendingReactivateAds = payload;
   });
 
-  builder.addCase(setShowAgreementsCounterAction, state => {
-    state.showAgreementsCounter = MAX_SHOW_AGREEMENTS_COUNTER;
-  });
-
-  builder.addCase(setShouldShowTermsOfUseUpdateOverlayAction, (state, { payload }) => {
-    state.shouldShowTermsOfUseUpdateOverlay = payload;
-  });
-
   builder.addCase(setAdsImpressionsLinkedAction, state => {
     state.adsImpressionsLinked = true;
-  });
-
-  builder.addCase(setAcceptedTermsVersionAction, (state, { payload }) => {
-    state.acceptedTermsVersion = payload;
   });
 
   builder.addCase(setReferralLinksEnabledAction, (state, { payload }) => {

@@ -4,10 +4,10 @@ import clsx from 'clsx';
 
 import { AnalyticsEventCategory, setTestID, useAnalytics } from 'lib/analytics';
 
-import { CheckboxV2, CheckboxV2Props } from './CheckboxV2';
+import { Checkbox, CheckboxProps } from './Checkbox';
 import { Tooltip } from './Tooltip';
 
-interface SettingsCheckboxProps extends CheckboxV2Props {
+interface SettingsCheckboxProps extends CheckboxProps {
   label: ReactNode;
   tooltip?: ReactNode;
 }
@@ -34,7 +34,7 @@ export const SettingsCheckbox = memo(
           )}
         >
           <label className="flex-1 flex items-center gap-2" {...setTestID(testID)}>
-            <CheckboxV2 onChange={handleChange} ref={ref} {...restProps} />
+            <Checkbox onChange={handleChange} ref={ref} {...restProps} />
             <span className="text-font-medium-bold">{label}</span>
           </label>
           {tooltip && <Tooltip content={tooltip} size={16} className="text-grey-3" />}
