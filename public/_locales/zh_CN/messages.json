@@ -144,14 +144,6 @@
       }
     }
   },
-  "minDelegationAmountDescription": {
-    "message": "您的当前余额低于此面包店的最低委托额。这表示当余额低于$minAmount$时，将不会有付款。",
-    "placeholders": {
-      "minAmount": {
-        "content": "$1"
-      }
-    }
-  },
   "recommendedBakersDescription": {
     "message": "此列表由$link$提供技术支持",
     "placeholders": {
@@ -723,9 +715,6 @@
   },
   "bakerInputPlaceholder": {
     "message": "例如：tz1a9w1S7hN5s..."
-  },
-  "minDelegationAmountTitle": {
-    "message": "最小委托额"
   },
   "unknownBakerTitle": {
     "message": "未知面包店"

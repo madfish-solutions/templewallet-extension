@@ -1,12 +1,10 @@
-import React, { memo, useCallback, useContext, useLayoutEffect, useMemo, useState } from 'react';
+import React, { memo, useCallback, useContext, useLayoutEffect, useMemo } from 'react';
 
 import { generateMnemonic } from 'bip39';
 import { Controller, useForm } from 'react-hook-form';
 import { useDispatch } from 'react-redux';
 
 import { FormField, PASSWORD_ERROR_CAPTION } from 'app/atoms';
-import { ActionsButtonsBox } from 'app/atoms/PageModal/actions-buttons-box';
-import { ScrollView } from 'app/atoms/PageModal/scroll-view';
 import { SettingsCheckbox } from 'app/atoms/SettingsCheckbox';
 import { StyledButton } from 'app/atoms/StyledButton';
 import { ValidationLabel } from 'app/atoms/ValidationLabel';
@@ -41,6 +39,8 @@ import { setMnemonicToBackup } from 'lib/temple/front/mnemonic-to-backup-keeper'
 import { SuccessfulInitToastContext } from 'lib/temple/front/successful-init-toast-context';
 import { navigate } from 'lib/woozie';
 
+import { PageModalScrollViewWithActions } from '../page-modal-scroll-view-with-actions';
+
 import { createPasswordSelectors } from './selectors';
 
 interface FormData {
@@ -66,7 +66,6 @@ export const CreatePasswordForm = memo<CreatePasswordFormProps>(({ seedPhrase: s
   const { registerWallet } = useTempleClient();
   const { trackEvent } = useAnalytics();
   const [, setShouldBackupMnemonic] = useStorage(SHOULD_BACKUP_MNEMONIC_STORAGE_KEY);
-  const [bottomEdgeIsVisible, setBottomEdgeIsVisible] = useState(true);
   const { setOnboardingCompleted } = useOnboardingProgress();
   const [, setInitToast] = useContext(SuccessfulInitToastContext);
 
@@ -175,7 +174,17 @@ export const CreatePasswordForm = memo<CreatePasswordFormProps>(({ seedPhrase: s
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="flex-1 flex flex-col max-h-full">
-      <ScrollView className="pt-4 pb-6" bottomEdgeThreshold={24} onBottomEdgeVisibilityChange={setBottomEdgeIsVisible}>
+      <PageModalScrollViewWithActions
+        className="pt-4 pb-6"
+        bottomEdgeThreshold={24}
+        actionsBoxProps={{
+          children: (
+            <StyledButton size="L" color="primary" type="submit" disabled={submitting} testID={submitButtonTestID}>
+              <T id={submitButtonNameI18nKey} />
+            </StyledButton>
+          )
+        }}
+      >
         <div className="flex-1 flex flex-col">
           <FormField
             ref={register({
@@ -275,12 +284,7 @@ export const CreatePasswordForm = memo<CreatePasswordFormProps>(({ seedPhrase: s
             ]}
           />
         </span>
-      </ScrollView>
-      <ActionsButtonsBox shouldCastShadow={!bottomEdgeIsVisible}>
-        <StyledButton size="L" color="primary" type="submit" disabled={submitting} testID={submitButtonTestID}>
-          <T id={submitButtonNameI18nKey} />
-        </StyledButton>
-      </ActionsButtonsBox>
+      </PageModalScrollViewWithActions>
     </form>
   );
 });

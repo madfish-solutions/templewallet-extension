@@ -1,6 +1,6 @@
 import BigNumber from 'bignumber.js';
 
-import { FeeOptionLabel } from './types';
+import { FeeOptionLabel } from 'lib/temple/front/estimation-data-providers';
 
 export const validateNonZero = (value: string, fieldName: string) =>
   value !== '0' || `${fieldName} should be more than 0`;

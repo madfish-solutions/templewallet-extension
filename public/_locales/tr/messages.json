@@ -147,14 +147,6 @@
       }
     }
   },
-  "minDelegationAmountDescription": {
-    "message": "Mevcut bakiyeniz, bu fırıncının minimum delegasyon miktarının altında. Bu durumda, bakiyeniz $minAmount$ tutarının altında olduğunda ödeme yapılmayacaktır.",
-    "placeholders": {
-      "minAmount": {
-        "content": "$1"
-      }
-    }
-  },
   "recommendedBakersDescription": {
     "message": "Bu liste $link$ tarafından desteklenir",
     "placeholders": {
@@ -762,9 +754,6 @@
   },
   "bakerInputPlaceholder": {
     "message": "ör. tz1a9w1S7hN5s..."
-  },
-  "minDelegationAmountTitle": {
-    "message": "En düşük delegasyon miktarı"
   },
   "unknownBakerTitle": {
     "message": "Bilinmeyen fırıncı"

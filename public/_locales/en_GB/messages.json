@@ -158,14 +158,6 @@
       }
     }
   },
-  "minDelegationAmountDescription": {
-    "message": "Your current balance is less than a minimal delegation amount of this baker. That means while the balance is less than $minAmount$ - there will be no payouts.",
-    "placeholders": {
-      "minAmount": {
-        "content": "$1"
-      }
-    }
-  },
   "recommendedBakersDescription": {
     "message": "This list is powered by $link$",
     "placeholders": {
@@ -760,9 +752,6 @@
   },
   "bakerInputPlaceholder": {
     "message": "e.g. tz1a9w1S7hN5s..."
-  },
-  "minDelegationAmountTitle": {
-    "message": "Minimal delegation amount"
   },
   "unknownBakerTitle": {
     "message": "Unknown baker"

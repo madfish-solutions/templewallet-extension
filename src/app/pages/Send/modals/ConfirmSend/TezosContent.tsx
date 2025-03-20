@@ -34,6 +34,7 @@ interface TezosContentProps {
 
 export const TezosContent: FC<TezosContentProps> = ({ data, onClose }) => {
   const { account, network, assetSlug, to, amount, onConfirm } = data;
+  const { rpcBaseURL, chainId } = network;
 
   const assetMetadata = useCategorizedTezosAssetMetadata(assetSlug, network.chainId);
 
@@ -49,12 +50,12 @@ export const TezosContent: FC<TezosContentProps> = ({ data, onClose }) => {
 
   const getActiveBlockExplorer = useGetTezosActiveBlockExplorer();
 
-  const tezos = getTezosToolkitWithSigner(network.rpcBaseURL, account.ownerAddress || accountPkh, true);
+  const tezos = getTezosToolkitWithSigner(rpcBaseURL, account.ownerAddress || accountPkh, true);
 
   const { data: estimationData } = useTezosEstimationData(
     to,
     tezos,
-    network.chainId,
+    chainId,
     account,
     accountPkh,
     assetSlug,
@@ -85,7 +86,7 @@ export const TezosContent: FC<TezosContentProps> = ({ data, onClose }) => {
   }, [accountPkh, amount, assetMetadata, assetSlug, tezos, to]);
 
   const { data: basicSendParams } = useTypedSWR(
-    ['tezos-basic-send-params', accountPkh, amount, assetSlug, to, network.rpcBaseURL, account.ownerAddress],
+    ['tezos-basic-send-params', accountPkh, amount, assetSlug, to, rpcBaseURL, account.ownerAddress],
     getBasicSendParams
   );
 
@@ -99,7 +100,13 @@ export const TezosContent: FC<TezosContentProps> = ({ data, onClose }) => {
     displayedFeeOptions,
     displayedFee,
     displayedStorageFee
-  } = useTezosEstimationForm(estimationData, basicSendParams, account, network.rpcBaseURL, network.chainId);
+  } = useTezosEstimationForm({
+    estimationData,
+    basicParams: basicSendParams,
+    senderAccount: account,
+    rpcBaseURL,
+    chainId
+  });
   const { formState } = form;
 
   const { ledgerApprovalModalState, setLedgerApprovalModalState, handleLedgerModalClose } =

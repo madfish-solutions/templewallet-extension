@@ -5,13 +5,12 @@ import { Controller, useForm } from 'react-hook-form-v7';
 import { FormField, IconBase, ToggleSwitch } from 'app/atoms';
 import { ActionModalBodyContainer, ActionModalButton, ActionModalButtonsContainer } from 'app/atoms/action-modal';
 import { PageModal } from 'app/atoms/PageModal';
-import { ActionsButtonsBox } from 'app/atoms/PageModal/actions-buttons-box';
-import { ScrollView } from 'app/atoms/PageModal/scroll-view';
 import { SettingsCellSingle } from 'app/atoms/SettingsCell';
 import { SettingsCellGroup } from 'app/atoms/SettingsCellGroup';
 import { StyledButton } from 'app/atoms/StyledButton';
 import { ReactComponent as DeleteIcon } from 'app/icons/base/delete.svg';
 import { ReactComponent as LockFillIcon } from 'app/icons/base/lock_fill.svg';
+import { PageModalScrollViewWithActions } from 'app/templates/page-modal-scroll-view-with-actions';
 import { toastError } from 'app/toaster';
 import { T, TID, t } from 'lib/i18n';
 import { useAbortSignal, useBooleanState } from 'lib/ui/hooks';
@@ -76,7 +75,6 @@ export const EditUrlEntityModal = <T extends UrlEntityBase>({
   const { abort, abortAndRenewSignal } = useAbortSignal();
   const [removeModalIsOpen, openRemoveModal, closeRemoveModal] = useBooleanState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
-  const [bottomEdgeIsVisible, setBottomEdgeIsVisible] = useState(true);
   const formReturn = useForm<EditUrlEntityModalFormValues>({
     defaultValues: { name: entity.name, url: entityUrl, isActive },
     mode: 'onChange'
@@ -120,10 +118,24 @@ export const EditUrlEntityModal = <T extends UrlEntityBase>({
         title={<ShortenedEntityNameActionTitle entityName={displayedName} i18nKeyBase={titleI18nKeyBase} />}
       >
         <form onSubmit={handleSubmit(onSubmit)} className="flex-1 flex flex-col max-h-full">
-          <ScrollView
+          <PageModalScrollViewWithActions
             className="pt-4 pb-6"
             bottomEdgeThreshold={24}
-            onBottomEdgeVisibilityChange={setBottomEdgeIsVisible}
+            actionsBoxProps={{
+              children: (
+                <StyledButton
+                  size="L"
+                  color="primary"
+                  type="submit"
+                  loading={isSubmitting}
+                  disabled={shouldDisableSubmitButton({ errors, formState, otherErrors: [submitError] })}
+                  testID={ChainSettingsSelectors.saveButton}
+                >
+                  <T id="save" />
+                </StyledButton>
+              ),
+              shouldChangeBottomShift: false
+            }}
           >
             <SettingsCellGroup className="mb-4">
               <SettingsCellSingle cellName={<T id={activeI18nKey} />} Component="div">
@@ -177,19 +189,7 @@ export const EditUrlEntityModal = <T extends UrlEntityBase>({
                 </StyledButton>
               </div>
             )}
-          </ScrollView>
-          <ActionsButtonsBox shouldCastShadow={!bottomEdgeIsVisible} shouldChangeBottomShift={false}>
-            <StyledButton
-              size="L"
-              color="primary"
-              type="submit"
-              loading={isSubmitting}
-              disabled={shouldDisableSubmitButton({ errors, formState, otherErrors: [submitError] })}
-              testID={ChainSettingsSelectors.saveButton}
-            >
-              <T id="save" />
-            </StyledButton>
-          </ActionsButtonsBox>
+          </PageModalScrollViewWithActions>
         </form>
       </PageModal>
 

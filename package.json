@@ -151,6 +151,7 @@
     "libsodium": "0.7.8",
     "libsodium-wrappers": "0.7.8",
     "lodash": "4.17.21",
+    "lottie-web": "^5.12.2",
     "memoizee": "^0.4.15",
     "mini-css-extract-plugin": "^2",
     "multiformats": "^13.3.1",

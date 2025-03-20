@@ -144,14 +144,6 @@
       }
     }
   },
-  "minDelegationAmountDescription": {
-    "message": "현재 잔액이 이 베이커의 최소 위임 금액보다 적습니다. 잔액이 $minAmount$ 미만으로 지불금이 없다는 뜻입니다.",
-    "placeholders": {
-      "minAmount": {
-        "content": "$1"
-      }
-    }
-  },
   "recommendedBakersDescription": {
     "message": "이 목록은 $link$이(가) 지원합니다",
     "placeholders": {
@@ -720,9 +712,6 @@
   },
   "bakerInputPlaceholder": {
     "message": "예 tz1a9w1S7hN5s..."
-  },
-  "minDelegationAmountTitle": {
-    "message": "최소 위임 계정"
   },
   "unknownBakerTitle": {
     "message": "알 수 없는 베이커"

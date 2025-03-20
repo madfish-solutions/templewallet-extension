@@ -10,8 +10,8 @@ import { CopyButton } from 'app/atoms/CopyButton';
 import { Tooltip } from 'app/atoms/Tooltip';
 import { ReactComponent as CopyIcon } from 'app/icons/base/copy.svg';
 import { t } from 'lib/i18n';
+import { useEvmEstimationDataState } from 'lib/temple/front/estimation-data-providers';
 
-import { useEvmEstimationDataState } from '../context';
 import { EvmTxParamsFormData, TezosTxParamsFormData } from '../types';
 import { validateNonZero } from '../utils';
 

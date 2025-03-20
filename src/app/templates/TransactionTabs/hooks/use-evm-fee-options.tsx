@@ -2,11 +2,10 @@ import { pick, transform } from 'lodash';
 import { FeeValues, formatEther } from 'viem';
 
 import { SEND_ETH_GAS_LIMIT } from 'lib/constants';
+import { EvmFeeOptions, FeeOptionLabel } from 'lib/temple/front/estimation-data-providers';
 import { EvmEstimationDataWithFallback } from 'lib/temple/types';
 import { useMemoWithCompare } from 'lib/ui/hooks';
 import { getGasPriceStep, isEvmEstimationData } from 'temple/evm/utils';
-
-import { EvmFeeOptions, FeeOptionLabel } from '../types';
 
 const generateOptions = <T extends FeeValues, U extends string>(
   type: U,

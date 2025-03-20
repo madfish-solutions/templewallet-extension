@@ -124,3 +124,5 @@ export const SEND_ETH_GAS_LIMIT = BigInt(21000);
 export const MAX_EVM_ALLOWANCE = BigInt(2) ** BigInt(256) - BigInt(1);
 
 export const LEDGER_USB_VENDOR_ID = '0x2c97';
+
+export const TEZOS_APY = 5.6;

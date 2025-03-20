@@ -7,6 +7,12 @@ import { useForm } from 'react-hook-form-v7';
 import { BehaviorSubject, EMPTY, catchError, from, of, switchMap } from 'rxjs';
 import { useDebounce } from 'use-debounce';
 
+import {
+  DisplayedFeeOptions,
+  FeeOptionLabel,
+  TezosEstimationData,
+  useTezosEstimationDataState
+} from 'lib/temple/front/estimation-data-providers';
 import { buildFinalTezosOpParams, mutezToTz, tzToMutez } from 'lib/temple/helpers';
 import { ReadOnlySigner } from 'lib/temple/read-only-signer';
 import { SerializedEstimate, StoredAccount } from 'lib/temple/types';
@@ -20,21 +26,32 @@ import { getTezosFastRpcClient, michelEncoder } from 'temple/tezos';
 import { AssetsAmounts, TempleChainKind } from 'temple/types';
 
 import { DEFAULT_INPUT_DEBOUNCE } from './constants';
-import { useTezosEstimationDataState } from './context';
-import { DisplayedFeeOptions, FeeOptionLabel, Tab, TezosEstimationData, TezosTxParamsFormData } from './types';
+import { Tab, TezosTxParamsFormData } from './types';
 import { getTezosFeeOption } from './utils';
 
 const SEND_TEZ_TO_NON_EMPTY_ESTIMATE = new Estimate(169000, 0, 155, 250, 100);
 
-export const useTezosEstimationForm = (
-  estimationData: TezosEstimationData | undefined,
-  basicParams: WalletParamsWithKind[] | undefined,
-  senderAccount: StoredAccount | AccountForChain<TempleChainKind.Tezos>,
-  rpcBaseURL: string,
-  chainId: string,
-  simulateOperation?: boolean,
-  sourcePkIsRevealed = true
-) => {
+interface TezosEstimationFormHookParams {
+  estimationData: TezosEstimationData | undefined;
+  basicParams: WalletParamsWithKind[] | undefined;
+  senderAccount: StoredAccount | AccountForChain<TempleChainKind.Tezos>;
+  rpcBaseURL: string;
+  chainId: string;
+  simulateOperation?: boolean;
+  sourcePkIsRevealed?: boolean;
+  estimationDataLoading?: boolean;
+}
+
+export const useTezosEstimationForm = ({
+  estimationData,
+  basicParams,
+  senderAccount,
+  rpcBaseURL,
+  chainId,
+  simulateOperation,
+  sourcePkIsRevealed = true,
+  estimationDataLoading = false
+}: TezosEstimationFormHookParams) => {
   const ownerAddress =
     'ownerAddress' in senderAccount
       ? senderAccount.ownerAddress
@@ -155,7 +172,7 @@ export const useTezosEstimationForm = (
   const displayedFeeOptions = useMemo<DisplayedFeeOptions | undefined>(() => {
     const gasFee =
       gasFeeFromEstimation ??
-      (basicParams
+      (basicParams && !estimationDataLoading
         ? mutezToTz(SEND_TEZ_TO_NON_EMPTY_ESTIMATE.suggestedFeeMutez * basicParams.length).plus(revealFee)
         : undefined);
 
@@ -166,7 +183,7 @@ export const useTezosEstimationForm = (
       mid: getTezosFeeOption('mid', gasFee),
       fast: getTezosFeeOption('fast', gasFee)
     };
-  }, [basicParams, gasFeeFromEstimation, revealFee]);
+  }, [basicParams, gasFeeFromEstimation, revealFee, estimationDataLoading]);
 
   const displayedFee = useMemo(() => {
     if (debouncedGasFee) return debouncedGasFee;

@@ -6,6 +6,8 @@ import { EvmEstimationData } from 'temple/evm/estimate';
 
 import { EvmFeeOptions, TezosEstimationData } from './types';
 
+export * from './types';
+
 type ExtendedEvmEstimationData = EvmEstimationData & {
   feeOptions: EvmFeeOptions;
 };

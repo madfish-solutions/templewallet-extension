@@ -147,14 +147,6 @@
       }
     }
   },
-  "minDelegationAmountDescription": {
-    "message": "O seu saldo atual é inferior a uma quantidade mínima de delegação deste baker. Isso significa que enquanto o saldo for inferior a $minAmount$ não haverá pagamentos.",
-    "placeholders": {
-      "minAmount": {
-        "content": "$1"
-      }
-    }
-  },
   "recommendedBakersDescription": {
     "message": "Esta lista é fornecida por $link$",
     "placeholders": {
@@ -762,9 +754,6 @@
   },
   "bakerInputPlaceholder": {
     "message": "por exemplo, tz1a9w1S7hN5s..."
-  },
-  "minDelegationAmountTitle": {
-    "message": "Montante mínimo de delegação"
   },
   "unknownBakerTitle": {
     "message": "Baker desconhecido"

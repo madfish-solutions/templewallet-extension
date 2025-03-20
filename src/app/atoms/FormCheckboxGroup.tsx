@@ -1,11 +1,11 @@
-import React, { Children, FC, Fragment, ReactNode } from 'react';
+import React, { Children, FC, Fragment } from 'react';
 
 import clsx from 'clsx';
 
 import Divider from './Divider';
 
 interface FormCheckboxGroupProps {
-  children: ReactNode | ReactNode[];
+  children: ReactChildren;
   isError?: boolean;
   className?: string;
 }

@@ -7,7 +7,7 @@ import { useContentPaperRef } from 'app/layouts/PageLayout/context';
 
 import { useAssetsViewState } from './use-assets-view-state';
 
-export const useManageAssetsClickOutsideLogic = () => {
+export const useTopFilterBarClickOutsideLogic = () => {
   const { manageActive, setManageInactive } = useAssetsViewState();
 
   const stickyBarRef = useRef<HTMLDivElement>(null);

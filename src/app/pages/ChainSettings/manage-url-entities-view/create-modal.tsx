@@ -4,10 +4,9 @@ import { Controller, useForm } from 'react-hook-form-v7';
 
 import { FormField } from 'app/atoms';
 import { CLOSE_ANIMATION_TIMEOUT, PageModal } from 'app/atoms/PageModal';
-import { ActionsButtonsBox } from 'app/atoms/PageModal/actions-buttons-box';
-import { ScrollView } from 'app/atoms/PageModal/scroll-view';
 import { SettingsCheckbox } from 'app/atoms/SettingsCheckbox';
 import { StyledButton } from 'app/atoms/StyledButton';
+import { PageModalScrollViewWithActions } from 'app/templates/page-modal-scroll-view-with-actions';
 import { toastError, toastSuccess } from 'app/toaster';
 import { T, TID, t } from 'lib/i18n';
 import { useAbortSignal } from 'lib/ui/hooks';
@@ -54,7 +53,6 @@ export const CreateUrlEntityModal = memo(
   }: CreateUrlEntityModalProps) => {
     const { abort, abortAndRenewSignal } = useAbortSignal();
     const [submitError, setSubmitError] = useState<string | null>(null);
-    const [bottomEdgeIsVisible, setBottomEdgeIsVisible] = useState(true);
     const formReturn = useForm<CreateUrlEntityModalFormValues>({
       mode: 'onChange'
     });
@@ -92,10 +90,29 @@ export const CreateUrlEntityModal = memo(
     return (
       <PageModal opened={opened} onRequestClose={closeModal} title={title}>
         <form onSubmit={handleSubmit(onSubmit)} className="flex-1 flex flex-col max-h-full">
-          <ScrollView
+          <PageModalScrollViewWithActions
             className="pt-4 pb-6"
             bottomEdgeThreshold={24}
-            onBottomEdgeVisibilityChange={setBottomEdgeIsVisible}
+            actionsBoxProps={{
+              shouldChangeBottomShift: false,
+              children: (
+                <StyledButton
+                  size="L"
+                  color="primary"
+                  type="submit"
+                  loading={isSubmitting}
+                  disabled={shouldDisableSubmitButton({
+                    errors,
+                    formState,
+                    otherErrors: [submitError],
+                    disableWhileSubmitting: false
+                  })}
+                  testID={ChainSettingsSelectors.saveButton}
+                >
+                  <T id="save" />
+                </StyledButton>
+              )
+            }}
           >
             <div className="flex-1 flex flex-col">
               <FormField
@@ -135,24 +152,7 @@ export const CreateUrlEntityModal = memo(
                 />
               )}
             />
-          </ScrollView>
-          <ActionsButtonsBox shouldCastShadow={!bottomEdgeIsVisible} shouldChangeBottomShift={false}>
-            <StyledButton
-              size="L"
-              color="primary"
-              type="submit"
-              loading={isSubmitting}
-              disabled={shouldDisableSubmitButton({
-                errors,
-                formState,
-                otherErrors: [submitError],
-                disableWhileSubmitting: false
-              })}
-              testID={ChainSettingsSelectors.saveButton}
-            >
-              <T id="save" />
-            </StyledButton>
-          </ActionsButtonsBox>
+          </PageModalScrollViewWithActions>
         </form>
       </PageModal>
     );

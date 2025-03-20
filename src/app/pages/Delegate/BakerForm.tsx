@@ -174,10 +174,10 @@ const BakerBannerComponent = React.memo<BakerBannerComponentProps>(
         {!tzError && baker.delegation.minBalance > balanceNum && (
           <Alert
             type="warning"
-            title={t('minDelegationAmountTitle')}
+            title={t('minDelegationBalanceTitle')}
             description={
               <T
-                id="minDelegationAmountDescription"
+                id="minDelegationBalanceDescription"
                 substitutions={[
                   <span className="font-normal" key="minDelegationsAmount">
                     <Money>{baker.delegation.minBalance}</Money> <span style={{ fontSize: '0.75em' }}>{symbol}</span>

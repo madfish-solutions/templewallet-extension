@@ -1,5 +1,7 @@
 import React, { createContext, memo, RefObject, useCallback, useContext, useEffect, useRef, useState } from 'react';
 
+import { t } from 'lib/i18n';
+
 import SegmentedControl from './SegmentedControl';
 
 interface AssetsSegmentControlProps {
@@ -41,12 +43,12 @@ export const AssetsSegmentControl = memo<AssetsSegmentControlProps>(
         className={className}
         segments={[
           {
-            label: 'Tokens',
+            label: t('tokens'),
             value: 'tokens',
             ref: useRef<HTMLDivElement>(null)
           },
           {
-            label: 'Collectibles',
+            label: t('collectibles'),
             value: 'collectibles',
             ref: useRef<HTMLDivElement>(null)
           }

@@ -8,7 +8,9 @@ import { TestIDProperty, TestIDProps } from 'lib/analytics';
 import { T, t } from 'lib/i18n';
 import { useConfirm } from 'lib/ui/dialog';
 import useTippy from 'lib/ui/useTippy';
-import { Link, navigate } from 'lib/woozie';
+import { Link } from 'lib/woozie';
+
+import { StyledButton } from '../StyledButton';
 
 import ModStyles from './styles.module.css';
 
@@ -40,7 +42,7 @@ export const DelegateButton: FC<PropsWithChildren<DelegateButtonProps>> = ({
     [disabled, small, slim, flashing]
   );
 
-  if (disabled) return <CannotDelegateButton className={className}>{children}</CannotDelegateButton>;
+  if (disabled) return <CannotDelegateButton>{children}</CannotDelegateButton>;
 
   return (
     <Link to={to} className={className} testID={testID}>
@@ -70,66 +72,35 @@ export const StakeButton = memo<StakeButtonProps>(({ type, disabled, loading, te
 });
 
 interface RedelegateButtonProps extends TestIDProperty {
-  chainId: string;
   disabled: boolean;
   staked: boolean;
+  onConfirm?: EmptyFn;
 }
 
-export const RedelegateButton = memo<RedelegateButtonProps>(({ chainId, disabled, staked, testID }) => {
-  const className = useMemo(
-    () =>
-      clsx(
-        COMMON_BUTTON_CLASSNAMES,
-        'whitespace-nowrap text-xs font-medium bg-gray-200 text-gray-600',
-        disabled ? 'opacity-50 pointer-events-none' : 'hover:bg-gray-300'
-      ),
-    [disabled]
-  );
+export const RedelegateButton = memo<RedelegateButtonProps>(({ disabled, staked, onConfirm, testID }) => {
+  const customConfirm = useConfirm();
 
-  if (disabled)
-    return (
-      <CannotDelegateButton className={className}>
-        <T id="reDelegate" />
-      </CannotDelegateButton>
-    );
-
-  if (staked) return <RedelegateButtonWithConfirmation chainId={chainId} className={className} testID={testID} />;
+  const handleClick = useCallback(() => {
+    if (staked) {
+      customConfirm({
+        title: t('importantNotice'),
+        description: t('redelegationNoticeDescription'),
+        confirmButtonText: t('okGotIt'),
+        showCancelButton: false
+      }).then(confirmed => {
+        if (confirmed) onConfirm?.();
+      });
+    } else {
+      onConfirm?.();
+    }
+  }, [customConfirm, onConfirm, staked]);
 
   return (
-    <Link to={`/delegate/${chainId}`} className={className} testID={testID}>
+    <StyledButton disabled={disabled} color="secondary-low" size="S" testID={testID} onClick={handleClick}>
       <T id="reDelegate" />
-    </Link>
+    </StyledButton>
   );
 });
-
-interface RedelegateButtonWithConfirmationProps extends PropsWithClassName<TestIDProperty> {
-  chainId: string;
-}
-
-const RedelegateButtonWithConfirmation = memo<RedelegateButtonWithConfirmationProps>(
-  ({ chainId, className, testID }) => {
-    const customConfirm = useConfirm();
-
-    const onClick = useCallback(
-      () =>
-        customConfirm({
-          title: 'You have active staking',
-          description:
-            'After re-delegation, your active stake with current baker will be requested to unstake. New stake will be available after the unstake cooldown period ends.',
-          confirmButtonText: `${t('reDelegate')} & Unstake`
-        }).then(confirmed => {
-          if (confirmed) navigate(`/delegate/${chainId}`);
-        }),
-      [customConfirm, chainId]
-    );
-
-    return (
-      <Button className={className} testID={testID} onClick={onClick}>
-        <T id="reDelegate" />
-      </Button>
-    );
-  }
-);
 
 const COMMON_BUTTON_CLASSNAMES = clsx(
   'flex items-center justify-center p-2 leading-none rounded-md',
@@ -144,9 +115,7 @@ const getBakingButtonClassName = (disabled?: boolean, loading = false) =>
     (disabled || loading) && 'pointer-events-none'
   );
 
-interface CannotDelegateButtonProps extends TestIDProps, PropsWithChildren {
-  className: string;
-}
+interface CannotDelegateButtonProps extends TestIDProps, PropsWithChildren {}
 
 const CannotDelegateButton: FC<CannotDelegateButtonProps> = props => {
   const ref = useTippy<HTMLButtonElement>({

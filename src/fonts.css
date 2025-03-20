@@ -60,7 +60,7 @@
 }
 
 .text-font-h3 {
-  @apply text-font-h text-xl leading-5;
+  @apply text-font-h text-xl leading-8;
 }
 
 /* NUMBERS */

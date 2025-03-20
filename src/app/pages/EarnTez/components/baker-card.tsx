@@ -1,0 +1,150 @@
+import React, { MouseEventHandler, memo, useCallback, useMemo } from 'react';
+
+import clsx from 'clsx';
+
+import { Anchor, IconBase, Money, Name } from 'app/atoms';
+import { useStakedAmount } from 'app/hooks/use-baking-hooks';
+import { ReactComponent as OutLinkIcon } from 'app/icons/base/outLink.svg';
+import { T, t, toShortened } from 'lib/i18n';
+import { getTezosGasMetadata } from 'lib/metadata';
+import { Baker, useKnownBaker } from 'lib/temple/front';
+import { useBooleanState } from 'lib/ui/hooks';
+import { toPercentage } from 'lib/ui/utils';
+import { useOnTezosBlock } from 'temple/front';
+import { useBlockExplorerHref } from 'temple/front/use-block-explorers';
+import { TezosNetworkEssentials } from 'temple/networks';
+import { TempleChainKind } from 'temple/types';
+
+import { EarnTezSelectors } from '../selectors';
+
+import { StakingCard } from './staking-card';
+import { ReactComponent as UnknownBakerIcon } from './unknown-baker.svg';
+
+interface PropComponentProps {
+  /** Atomic value */
+  staked: number;
+}
+
+interface BakerCardProps {
+  className?: string;
+  network: TezosNetworkEssentials;
+  accountPkh: string;
+  baker: string | Baker;
+  ActionButton?: React.ComponentType<PropComponentProps>;
+  HeaderRight?: React.ComponentType<PropComponentProps>;
+  onClick?: SyncFn<string | Baker>;
+}
+
+export const BakerCard = memo(
+  ({ className, network, accountPkh, ActionButton, HeaderRight, baker: bakerOrAddress, onClick }: BakerCardProps) => {
+    const { rpcBaseURL, chainId } = network;
+
+    const [hovered, setHovered, setUnhovered] = useBooleanState(false);
+    const { data: stakedData, mutate } = useStakedAmount(rpcBaseURL, accountPkh);
+    const bakerPkh = typeof bakerOrAddress === 'string' ? bakerOrAddress : bakerOrAddress.address;
+    const bakerFromProps = typeof bakerOrAddress === 'object' ? bakerOrAddress : undefined;
+    const explorerHref = useBlockExplorerHref(TempleChainKind.Tezos, chainId, 'address', bakerPkh);
+    const { data: baker = bakerFromProps } = useKnownBaker(
+      bakerFromProps ? null : bakerPkh,
+      network.chainId,
+      !bakerFromProps
+    );
+
+    useOnTezosBlock(rpcBaseURL, () => void mutate());
+
+    const { symbol } = getTezosGasMetadata(chainId);
+
+    const stakedAtomic = useMemo(() => stakedData?.toNumber() || 0, [stakedData]);
+
+    const headerRight = useMemo(
+      () => HeaderRight && <HeaderRight staked={stakedAtomic} />,
+      [HeaderRight, stakedAtomic]
+    );
+
+    const bakerAvatar = baker ? (
+      <img src={baker.logo} alt={baker.name} className="flex-shrink-0 w-6 h-6 bg-white rounded mr-2" />
+    ) : (
+      <UnknownBakerIcon className="flex-shrink-0 w-6 h-6 mr-2" />
+    );
+    const bakerName = <BakerName>{baker ? baker.name : <T id="unknownBakerTitle" />}</BakerName>;
+
+    const feePercentage = useMemo(() => (baker ? toPercentage(baker.delegation.fee) : '-'), [baker]);
+
+    const handleClick = useCallback(() => {
+      onClick?.(baker || bakerOrAddress);
+    }, [onClick, baker, bakerOrAddress]);
+
+    const onLinkClick = useCallback<MouseEventHandler<HTMLAnchorElement>>(e => void e.stopPropagation(), []);
+
+    return (
+      <StakingCard
+        className={clsx(onClick && 'cursor-pointer', className)}
+        onClick={handleClick}
+        topInfo={
+          <>
+            {explorerHref ? (
+              <Anchor
+                href={explorerHref}
+                className={clsx('flex items-center', hovered && 'text-secondary')}
+                onClick={onLinkClick}
+                onMouseEnter={setHovered}
+                onMouseLeave={setUnhovered}
+              >
+                {bakerAvatar}
+                {bakerName}
+                <IconBase size={12} Icon={OutLinkIcon} className={clsx('ml-0.5', !hovered && 'invisible')} />
+              </Anchor>
+            ) : (
+              <div className="flex items-center">
+                {bakerAvatar}
+                {bakerName}
+              </div>
+            )}
+            {headerRight}
+          </>
+        }
+        bottomInfo={
+          <>
+            <BakerStatsEntry
+              name={t('delegated')}
+              value={baker ? toShortened(baker.delegation.capacity - baker.delegation.freeSpace) : '-'}
+            />
+            <BakerStatsEntry name={t('space')} value={baker ? toShortened(baker.delegation.freeSpace) : '-'} />
+            <BakerStatsEntry name={t('fee')} value={feePercentage} />
+            <BakerStatsEntry
+              name={t('minBalance')}
+              value={
+                baker ? (
+                  <>
+                    <Money smallFractionFont={false}>{baker.delegation.minBalance}</Money> {symbol}
+                  </>
+                ) : (
+                  '-'
+                )
+              }
+            />
+          </>
+        }
+        actions={ActionButton && <ActionButton staked={stakedAtomic} />}
+      />
+    );
+  }
+);
+
+const BakerName: React.FC<PropsWithChildren> = ({ children }) => (
+  <Name className="text-font-medium-bold" testID={EarnTezSelectors.delegatedBakerName}>
+    {children}
+  </Name>
+);
+
+interface BakerStatsEntryProps {
+  name: string;
+  value: ReactChildren;
+}
+
+export const BakerStatsEntry = memo<BakerStatsEntryProps>(({ name, value }) => (
+  <div className="flex flex-1 flex-col gap-0.5">
+    <span className="text-font-description text-grey-2">{name}:</span>
+    <span className="text-font-num-12">{value}</span>
+  </div>
+));

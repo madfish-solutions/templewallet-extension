@@ -4,6 +4,8 @@ import { SubmitHandler, useFormContext } from 'react-hook-form-v7';
 
 import { Loader } from 'app/atoms';
 import SegmentedControl from 'app/atoms/SegmentedControl';
+import { t } from 'lib/i18n';
+import { DisplayedFeeOptions, FeeOptionLabel } from 'lib/temple/front/estimation-data-providers';
 import { OneOfChains } from 'temple/front';
 import { TempleChainKind } from 'temple/types';
 
@@ -11,7 +13,7 @@ import { AdvancedTab } from './tabs/advanced';
 import { DetailsTab } from './tabs/details';
 import { ErrorTab } from './tabs/error';
 import { FeeTab } from './tabs/fee';
-import { DisplayedFeeOptions, FeeOptionLabel, Tab, TxParamsFormData } from './types';
+import { Tab, TxParamsFormData } from './types';
 
 export interface TransactionTabsProps<T extends TxParamsFormData> {
   network: OneOfChains;
@@ -30,6 +32,7 @@ export interface TransactionTabsProps<T extends TxParamsFormData> {
   tabsName: string;
   destinationName: ReactNode;
   destinationValue: ReactNode;
+  children?: ReactNode;
 }
 
 export const TransactionTabs = <T extends TxParamsFormData>({
@@ -48,7 +51,8 @@ export const TransactionTabs = <T extends TxParamsFormData>({
   formId,
   tabsName,
   destinationName,
-  destinationValue
+  destinationValue,
+  children
 }: TransactionTabsProps<T>) => {
   const { handleSubmit } = useFormContext<T>();
   const errorTabRef = useRef<HTMLDivElement>(null);
@@ -84,15 +88,11 @@ export const TransactionTabs = <T extends TxParamsFormData>({
             value: 'fee',
             ref: useRef<HTMLDivElement>(null)
           },
-          {
-            label: 'Advanced',
-            value: 'advanced',
-            ref: useRef<HTMLDivElement>(null)
-          },
+          { label: 'Advanced', value: 'advanced', ref: useRef<HTMLDivElement>(null) },
           ...(latestSubmitError || estimationError
             ? [
                 {
-                  label: 'Error',
+                  label: t('error'),
                   value: 'error' as const,
                   ref: errorTabRef
                 }
@@ -100,6 +100,8 @@ export const TransactionTabs = <T extends TxParamsFormData>({
             : [])
         ]}
       />
+
+      {children}
 
       <form id={formId} className="flex-1 flex flex-col" onSubmit={handleSubmit(onSubmit)}>
         {!displayedFeeOptions && !estimationError ? (

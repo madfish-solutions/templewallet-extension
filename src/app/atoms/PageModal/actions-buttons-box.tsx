@@ -7,14 +7,14 @@ import { useDispatch } from 'react-redux';
 import { setToastsContainerBottomShiftAction } from 'app/store/settings/actions';
 import { useWillUnmount } from 'lib/ui/hooks/useWillUnmount';
 
-interface Props extends HTMLAttributes<HTMLDivElement> {
+export interface ActionsButtonsBoxProps extends HTMLAttributes<HTMLDivElement> {
   shouldCastShadow?: boolean;
   flexDirection?: 'row' | 'col';
   bgSet?: false;
   shouldChangeBottomShift?: boolean;
 }
 
-export const ActionsButtonsBox = memo<Props>(
+export const ActionsButtonsBox = memo<ActionsButtonsBoxProps>(
   ({
     className,
     flexDirection = 'col',

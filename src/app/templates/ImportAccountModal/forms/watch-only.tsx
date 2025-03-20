@@ -5,11 +5,10 @@ import * as Viem from 'viem';
 import { normalize } from 'viem/ens';
 
 import { FormField } from 'app/atoms';
-import { ActionsButtonsBox } from 'app/atoms/PageModal/actions-buttons-box';
-import { ScrollView } from 'app/atoms/PageModal/scroll-view';
 import { StyledButton } from 'app/atoms/StyledButton';
 import { TextButton } from 'app/atoms/TextButton';
 import { ReactComponent as PasteFillIcon } from 'app/icons/base/paste_fill.svg';
+import { PageModalScrollViewWithActions } from 'app/templates/page-modal-scroll-view-with-actions';
 import { useFormAnalytics } from 'lib/analytics';
 import { dipdupNetworksChainIds, searchForTezosAccount } from 'lib/apis/dipdup-search';
 import { T, t } from 'lib/i18n';
@@ -49,7 +48,6 @@ export const WatchOnlyForm = memo<ImportAccountFormProps>(({ onSuccess }) => {
     mode: 'onChange'
   });
   const [submitError, setSubmitError] = useState<ReactNode>(null);
-  const [bottomEdgeIsVisible, setBottomEdgeIsVisible] = useState(true);
   const resetSubmitError = useCallback(() => setSubmitError(null), []);
 
   const addressValue = watch('address');
@@ -151,7 +149,23 @@ export const WatchOnlyForm = memo<ImportAccountFormProps>(({ onSuccess }) => {
 
   return (
     <form className="flex-1 flex flex-col max-h-full" onSubmit={handleSubmit(onSubmit)}>
-      <ScrollView className="py-4" bottomEdgeThreshold={16} onBottomEdgeVisibilityChange={setBottomEdgeIsVisible}>
+      <PageModalScrollViewWithActions
+        className="py-4"
+        bottomEdgeThreshold={16}
+        actionsBoxProps={{
+          children: (
+            <StyledButton
+              size="L"
+              type="submit"
+              disabled={shouldDisableSubmitButton({ errors, formState, otherErrors: [submitError] })}
+              testID={ImportAccountSelectors.privateKeyImportButton}
+              color="primary"
+            >
+              <T id="watchAddress" />
+            </StyledButton>
+          )
+        }}
+      >
         <FormField
           textarea
           rows={5}
@@ -193,19 +207,7 @@ export const WatchOnlyForm = memo<ImportAccountFormProps>(({ onSuccess }) => {
             <span className="font-normal">{tezAddressFromTzDomainName}</span>
           </div>
         )}
-      </ScrollView>
-
-      <ActionsButtonsBox shouldCastShadow={!bottomEdgeIsVisible}>
-        <StyledButton
-          size="L"
-          type="submit"
-          disabled={shouldDisableSubmitButton({ errors, formState, otherErrors: [submitError] })}
-          testID={ImportAccountSelectors.privateKeyImportButton}
-          color="primary"
-        >
-          <T id="watchAddress" />
-        </StyledButton>
-      </ActionsButtonsBox>
+      </PageModalScrollViewWithActions>
     </form>
   );
 });

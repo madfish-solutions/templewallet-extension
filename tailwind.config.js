@@ -281,12 +281,12 @@ module.exports = {
         45: '45',
         header: 50,
         sticky: 100,
-        'overlay-promo': 300,
         overlay: 400,
         'overlay-confirm': 500,
         'modal-page': 600,
         dropdown: 800,
-        'modal-dialog': 1000
+        'modal-dialog': 1000,
+        'overlay-promo': 1100
       },
 
       space: (theme, { negative }) => ({

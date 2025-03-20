@@ -6,7 +6,7 @@ import { StoredAccount } from 'lib/temple/types';
 export interface AccountsGroupProps<T = StoredAccount> {
   title: ReactNode;
   accounts: T[];
-  children: (account: T) => ReactNode | ReactNode[];
+  children: (account: T) => ReactChildren;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-constraint

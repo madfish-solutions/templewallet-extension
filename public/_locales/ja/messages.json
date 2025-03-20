@@ -144,14 +144,6 @@
       }
     }
   },
-  "minDelegationAmountDescription": {
-    "message": "あなたの現在の残高は、このベーカーの最小委任額よりも少ないです。つまり、残高が$minAmount$未満である間は、支払いはありません。",
-    "placeholders": {
-      "minAmount": {
-        "content": "$1"
-      }
-    }
-  },
   "recommendedBakersDescription": {
     "message": "このリストは$link$によって提供されています",
     "placeholders": {
@@ -720,9 +712,6 @@
   },
   "bakerInputPlaceholder": {
     "message": "例: tz1a9w1S7hN5s..."
-  },
-  "minDelegationAmountTitle": {
-    "message": "最少委任額"
   },
   "unknownBakerTitle": {
     "message": "不明なベーカー"

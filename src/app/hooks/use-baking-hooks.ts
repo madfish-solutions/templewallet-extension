@@ -12,14 +12,14 @@ const COMMON_SWR_OPTIONS = {
   refreshInterval: BAKING_STAKE_SYNC_INTERVAL
 };
 
-export const useStakedAmount = (rpcUrl: string, accountPkh: string) =>
+export const useStakedAmount = (rpcUrl: string, accountPkh: string, suspense?: boolean) =>
   useRetryableSWR(
     [COMMON_SWR_KEY, 'get-staked', rpcUrl, accountPkh],
     () =>
       getTezosFastRpcClient(rpcUrl)
         .getStakedBalance(accountPkh)
         .catch(error => processIsStakingNotSupportedEndpointError(error, null)),
-    COMMON_SWR_OPTIONS
+    { ...COMMON_SWR_OPTIONS, suspense }
   );
 
 export const useUnstakeRequests = (rpcUrl: string, accountPkh: string, suspense?: boolean) =>

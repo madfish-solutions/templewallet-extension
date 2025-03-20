@@ -1,9 +1,9 @@
-import React, { FC, ReactNode } from 'react';
+import React, { FC } from 'react';
 
 import { ActionModalBodyContainer } from 'app/atoms/action-modal';
 
 interface DialogBodyProps {
-  description?: ReactNode | ReactNode[];
+  description?: ReactChildren;
 }
 
 export const DialogBody: FC<PropsWithChildren<DialogBodyProps>> = ({ children, description }) => (

@@ -147,14 +147,6 @@
       }
     }
   },
-  "minDelegationAmountDescription": {
-    "message": "Ihr aktuelles Guthaben beträgt weniger als eine minimale Delegationsmenge dieses Bakers. Das heißt, solange das Guthaben weniger als $minAmount$ beträgt, gibt es keine Auszahlungen.",
-    "placeholders": {
-      "minAmount": {
-        "content": "$1"
-      }
-    }
-  },
   "recommendedBakersDescription": {
     "message": "Diese Liste wird unterstützt von $link$",
     "placeholders": {
@@ -762,9 +754,6 @@
   },
   "bakerInputPlaceholder": {
     "message": "z. B. tz1a9w1S7hN5s..."
-  },
-  "minDelegationAmountTitle": {
-    "message": "Minimaler Delegationsbetrag"
   },
   "unknownBakerTitle": {
     "message": "Unbekannter Baker"

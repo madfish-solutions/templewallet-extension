@@ -144,14 +144,6 @@
       }
     }
   },
-  "minDelegationAmountDescription": {
-    "message": "Votre solde actuel est inférieur au montant minimum de délégation de ce baker. Cela signifie que tant que le solde est inférieur à $minAmount$, il n'y aura pas de dividendes.",
-    "placeholders": {
-      "minAmount": {
-        "content": "$1"
-      }
-    }
-  },
   "recommendedBakersDescription": {
     "message": "Cette liste est alimentée par $link$",
     "placeholders": {
@@ -720,9 +712,6 @@
   },
   "bakerInputPlaceholder": {
     "message": "p. ex. tz1a9w1S7hN5s…"
-  },
-  "minDelegationAmountTitle": {
-    "message": "Montant minimum de délégation"
   },
   "unknownBakerTitle": {
     "message": "Baker inconnu"

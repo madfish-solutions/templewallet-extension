@@ -88,6 +88,11 @@ export type Baker = BakingBadBaker & {
   logo?: string;
 };
 
+const toBakerWithLogo = (baker: BakingBadBaker) => ({
+  ...baker,
+  logo: `https://services.tzkt.io/v1/avatars/${baker.address}`
+});
+
 export function useKnownBaker(address: string | null, chainId: string, suspense = true) {
   const isMainnet = chainId === ChainIds.MAINNET;
 
@@ -96,14 +101,7 @@ export function useKnownBaker(address: string | null, chainId: string, suspense 
     try {
       const bakingBadBaker = await bakingBadGetBaker({ address });
 
-      if (bakingBadBaker) {
-        return {
-          ...bakingBadBaker,
-          logo: `https://services.tzkt.io/v1/avatars/${bakingBadBaker.address}`
-        };
-      }
-
-      return null;
+      return bakingBadBaker ? toBakerWithLogo(bakingBadBaker) : null;
     } catch (_err) {
       return null;
     }
@@ -125,7 +123,7 @@ export function useKnownBakers(chainId: string, suspense = true) {
     suspense
   });
 
-  return useMemo(() => (bakers && bakers.length > 1 ? bakers : null), [bakers]);
+  return useMemo(() => (bakers && bakers.length > 1 ? bakers.map(baker => toBakerWithLogo(baker)) : null), [bakers]);
 }
 
 type RewardsStatsCalculationParams = {

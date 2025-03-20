@@ -144,14 +144,6 @@
       }
     }
   },
-  "minDelegationAmountDescription": {
-    "message": "您目前的餘額低於此烘焙師的最低委託金額。這代表當餘額低於 $minAmount$ 即無法支出。",
-    "placeholders": {
-      "minAmount": {
-        "content": "$1"
-      }
-    }
-  },
   "recommendedBakersDescription": {
     "message": "此清單由 $link$ 提供",
     "placeholders": {
@@ -720,9 +712,6 @@
   },
   "bakerInputPlaceholder": {
     "message": "例如 tz1a9w1S7hN5s…"
-  },
-  "minDelegationAmountTitle": {
-    "message": "最低委託金額"
   },
   "unknownBakerTitle": {
     "message": "未知的烘焙師"

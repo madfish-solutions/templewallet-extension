@@ -120,7 +120,7 @@ export const BakerCard = memo<Props>(
   }
 );
 
-export const BAKER_BANNER_CLASSNAME = 'p-4 rounded-lg border';
+export const BAKER_BANNER_CLASSNAME = 'flex flex-col rounded-lg shadow-bottom bg-white';
 
 interface BakerBannerProps {
   network: TezosNetworkEssentials;
@@ -209,7 +209,7 @@ const BakerHeader: React.FC<BakerHeaderProps> = ({ className, HeaderRight, child
 );
 
 const BakerName: React.FC<PropsWithChildren> = ({ children }) => (
-  <Name className="text-ulg leading-none text-gray-910" testID={BakingSectionSelectors.delegatedBakerName}>
+  <Name className="text-font-medium-bold" testID={BakingSectionSelectors.delegatedBakerName}>
     {children}
   </Name>
 );

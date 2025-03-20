@@ -243,14 +243,6 @@
       }
     }
   },
-  "minDelegationAmountDescription": {
-    "message": "Your current balance is less than a minimal delegation amount of this baker. That means while the balance is less than $minAmount$ - there will be no payouts.",
-    "placeholders": {
-      "minAmount": {
-        "content": "$1"
-      }
-    }
-  },
   "recommendedBakersDescription": {
     "message": "This list is powered by $link$",
     "placeholders": {
@@ -1367,11 +1359,87 @@
   "routingFeeTooltip": {
     "message": "For choosing the most profitable exchange route among Tezos DEXes. \n\nDEXes commissions are not included."
   },
+  "delegated": {
+    "message": "Delegated"
+  },
   "space": {
     "message": "Space"
   },
+  "minBalance": {
+    "message": "Min Balance"
+  },
   "staking": {
     "message": "Staking"
+  },
+  "stakingTooltipText": {
+    "message": "Tezos staking allows TEZ holders support network security by staking with a baker and earning approximately double delegation rewards. At stake TEZ is locked, rewards accrue automatically and any amount can be staked."
+  },
+  "importantNotice": {
+    "message": "Important Notice"
+  },
+  "redelegationNoticeDescription": {
+    "message": "Changing the baker will automatically unstake all the existing staked balance. This balance will be finalizable after 4 cycles."
+  },
+  "unstakeInProgressTooltip": {
+    "message": "Unstake requests will be processed after $cycles$ validation cycles ends. Finalize your unstaked TEZ here after cooldown period ends.",
+    "placeholders": {
+      "cycles": {
+        "content": "$1"
+      }
+    }
+  },
+  "unstakeRequestNumber": {
+    "message": "Unstake request $number$",
+    "placeholders": {
+      "number": {
+        "content": "$1"
+      }
+    }
+  },
+  "finalize": {
+    "message": "Finalize"
+  },
+  "unstakeCycle": {
+    "message": "Unstake cycle"
+  },
+  "tezosStaking": {
+    "message": "Tezos Staking"
+  },
+  "staked": {
+    "message": "Staked"
+  },
+  "unstake": {
+    "message": "Unstake"
+  },
+  "unstakeTez": {
+    "message": "Unstake TEZ"
+  },
+  "estimatedApy": {
+    "message": "Est. APY"
+  },
+  "selectBaker": {
+    "message": "Select Baker"
+  },
+  "successfullyDelegated": {
+    "message": "Successfully Delegated"
+  },
+  "finalizeUnstake": {
+    "message": "Finalize Unstake"
+  },
+  "rewardsActivity": {
+    "message": "Rewards Activity"
+  },
+  "bakersAreLoading": {
+    "message": "Bakers are loading..."
+  },
+  "customBakerNotFoundAlert": {
+    "message": "If you’re looking for a custom baker, just enter the baker’s address in the search field and choose it from the result."
+  },
+  "bakerSearchPlaceholder": {
+    "message": "Search name or tz address"
+  },
+  "bakerIsLoading": {
+    "message": "Baker is loading..."
   },
   "recommended": {
     "message": "Recommended"
@@ -1394,20 +1462,25 @@
   "delegationComunity": {
     "message": "In case you have any questions, write them\nin our communities"
   },
-  "delegationPointsHead1": {
-    "message": "Earn"
+  "delegationPointsHead": {
+    "message": "Earn up to $percentage$% APY on Tezos without token lock-up",
+    "placeholders": {
+      "percentage": {
+        "content": "$1"
+      }
+    }
   },
-  "delegationPointsHead2": {
-    "message": "on your Tezos annually from\nBaking & Stake rewards"
+  "noLockDelegationPoint": {
+    "message": "Free to use your tokens anytime"
   },
-  "delegationPoint1": {
-    "message": "First reward in Tezos will be paid approximately in 36 days."
+  "rewardsDelegationPoint": {
+    "message": "Get rewards in Tezos every 3 days"
   },
-  "delegationPoint2": {
-    "message": "Receive rewards every 3 days."
+  "delayDelegationPoint": {
+    "message": "First payout will be\nin 36 days"
   },
-  "delegationPoint3": {
-    "message": "Earn rate varies over time.\nCheck the current rate in Wallet."
+  "stakeDelegationPoint": {
+    "message": "Stake delegated tokens for more income"
   },
   "customBaker": {
     "message": "Custom Baker"
@@ -1427,14 +1500,17 @@
   "bakerInputPlaceholder": {
     "message": "e.g. tz1a9w1S7hN5s..."
   },
-  "minDelegationAmountTitle": {
-    "message": "Minimal delegation amount"
+  "minDelegationBalanceTitle": {
+    "message": "Minimal delegation balance"
+  },
+  "minDelegationBalanceDescription": {
+    "message": "You will not receive rewards until your TEZ balance meets the minimal required value for this baker."
   },
   "unknownBakerTitle": {
     "message": "Unknown baker"
   },
   "unknownBakerDescription": {
-    "message": "Provided address is not known to us as a baker! Only delegate funds to it at your own risk."
+    "message": "Provided address isn’t known as a baker. Proceed with caution and delegate funds only if you’re sure of the address."
   },
   "recommendedBakers": {
     "message": "Recommended Bakers"
@@ -2636,7 +2712,12 @@
     "message": "No Results"
   },
   "tezosApy": {
-    "message": "APY: 6%"
+    "message": "APY: $percentage$%",
+    "placeholders": {
+      "percentage": {
+        "content": "$1"
+      }
+    }
   },
   "tokenApy": {
     "message": "APY"
@@ -3323,6 +3404,9 @@
   },
   "buyWithCard": {
     "message": "Buy with Debit/Credit Card"
+  },
+  "buyWithCardShort": {
+    "message": "Buy with card"
   },
   "cryptoExchange": {
     "message": "Crypto Exchange"

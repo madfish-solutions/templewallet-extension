@@ -9,6 +9,7 @@ import { TEZ_TOKEN_SLUG } from 'lib/assets';
 import { TEZOS_BLOCK_DURATION } from 'lib/fixed-times';
 import { useTezosGenericAssetsMetadataLoading } from 'lib/metadata';
 import { useTypedSWR } from 'lib/swr';
+import { TezosEstimationDataProvider } from 'lib/temple/front/estimation-data-providers';
 import { mutezToTz, tzToMutez } from 'lib/temple/helpers';
 import { TempleTezosDAppOperationsPayload } from 'lib/temple/types';
 import { tezosManagerKeyHasManager } from 'lib/tezos';
@@ -20,7 +21,6 @@ import { getReadOnlyTezos } from 'temple/tezos';
 import { TempleChainKind } from 'temple/types';
 
 import { OperationViewLayout } from './operation-view-layout';
-import { TezosEstimationDataProvider } from './TransactionTabs/context';
 import { TezosTxParamsFormData } from './TransactionTabs/types';
 import { useTezosEstimationForm } from './TransactionTabs/use-tezos-estimation-form';
 
@@ -53,7 +53,7 @@ const TezosTransactionViewBody = memo<TezosTransactionViewProps>(
     const { networkRpc, opParams, sourcePkh, estimates, error: estimationError } = payload;
     const tezosChains = useAllTezosChains();
     const accounts = useAllAccounts();
-    const sendingAccount = useMemo(
+    const senderAccount = useMemo(
       () => accounts.find(acc => getAccountAddressForTezos(acc) === sourcePkh)!,
       [accounts, sourcePkh]
     );
@@ -137,15 +137,15 @@ const TezosTransactionViewBody = memo<TezosTransactionViewProps>(
       displayedFeeOptions,
       displayedFee,
       displayedStorageFee
-    } = useTezosEstimationForm(
+    } = useTezosEstimationForm({
       estimationData,
-      opParams,
-      sendingAccount,
-      networkRpc,
-      chain!.chainId,
-      true,
+      basicParams: opParams,
+      senderAccount,
+      rpcBaseURL: networkRpc,
+      chainId: chain!.chainId,
+      simulateOperation: true,
       sourcePkIsRevealed
-    );
+    });
 
     const handleSubmit = useCallback(
       ({ gasFee: customGasFee, storageLimit: customStorageLimit }: TezosTxParamsFormData) => {
@@ -186,7 +186,7 @@ const TezosTransactionViewBody = memo<TezosTransactionViewProps>(
           tabsName="confirm-send-tabs"
           destinationName={null}
           destinationValue={null}
-          sendingAccount={sendingAccount}
+          sendingAccount={senderAccount}
           balancesChanges={balancesChanges}
           metadataLoading={metadataLoading}
           otherDataLoading={balancesChangesLoading}

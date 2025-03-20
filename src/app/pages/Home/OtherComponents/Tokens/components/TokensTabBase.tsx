@@ -7,7 +7,7 @@ import { IconButton } from 'app/atoms/IconButton';
 import { ManageActiveTip } from 'app/atoms/ManageActiveTip';
 import { SimpleInfiniteScroll } from 'app/atoms/SimpleInfiniteScroll';
 import { useAssetsViewState } from 'app/hooks/use-assets-view-state';
-import { useManageAssetsClickOutsideLogic } from 'app/hooks/use-manage-assets-click-outside-logic';
+import { useTopFilterBarClickOutsideLogic } from 'app/hooks/use-top-filter-bar-click-outside-logic';
 import { ReactComponent as ManageIcon } from 'app/icons/base/manage.svg';
 import { ContentContainer, StickyBar } from 'app/layouts/containers';
 import { AssetsSelectors } from 'app/pages/Home/OtherComponents/Assets.selectors';
@@ -41,7 +41,7 @@ export const TokensTabBase: FC<PropsWithChildren<TokensTabBaseProps>> = ({
     useAssetsViewState();
 
   const { stickyBarRef, filterButtonRef, manageButtonRef, searchInputContainerRef, containerRef } =
-    useManageAssetsClickOutsideLogic();
+    useTopFilterBarClickOutsideLogic();
 
   return (
     <>

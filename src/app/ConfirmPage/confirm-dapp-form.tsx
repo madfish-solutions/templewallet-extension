@@ -1,4 +1,4 @@
-import React, { ReactNode, memo, useCallback, useMemo, useState } from 'react';
+import React, { ReactNode, memo, useCallback, useMemo } from 'react';
 
 import clsx from 'clsx';
 
@@ -6,8 +6,6 @@ import { Alert, Anchor, IconBase } from 'app/atoms';
 import DAppLogo from 'app/atoms/DAppLogo';
 import { Logo } from 'app/atoms/Logo';
 import { CloseButton, PageModal } from 'app/atoms/PageModal';
-import { ActionsButtonsBox } from 'app/atoms/PageModal/actions-buttons-box';
-import { ScrollView } from 'app/atoms/PageModal/scroll-view';
 import { ProgressAndNumbers } from 'app/atoms/ProgressAndNumbers';
 import { StyledButton } from 'app/atoms/StyledButton';
 import { useLedgerApprovalModalState } from 'app/hooks/use-ledger-approval-modal-state';
@@ -15,6 +13,7 @@ import { ReactComponent as LinkIcon } from 'app/icons/base/link.svg';
 import { ReactComponent as OutLinkIcon } from 'app/icons/base/outLink.svg';
 import { AccountsModalContent } from 'app/templates/AccountsModalContent';
 import { LedgerApprovalModal } from 'app/templates/ledger-approval-modal';
+import { PageModalScrollViewWithActions } from 'app/templates/page-modal-scroll-view-with-actions';
 import { EvmOperationKind, getOperationKind } from 'lib/evm/on-chain/transactions';
 import { parseEvmTxRequest } from 'lib/evm/on-chain/utils/parse-evm-tx-request';
 import { T, t } from 'lib/i18n';
@@ -41,7 +40,7 @@ interface ConfirmDAppFormProps {
   accounts: StoredAccount[];
   payload: TempleDAppPayload;
   onConfirm: (confirmed: boolean, selectedAccount: StoredAccount) => Promise<void>;
-  children: (props: ConfirmDAppFormContentProps) => ReactNode | ReactNode[];
+  children: (props: ConfirmDAppFormContentProps) => ReactChildren;
 }
 
 const CONFIRM_OPERATIONS_FORM_ID = 'confirm-operations-form';
@@ -64,7 +63,6 @@ const ledgerInteractingPayloadTypes: TempleDAppPayload['type'][] = [
 
 export const ConfirmDAppForm = memo<ConfirmDAppFormProps>(({ accounts, payload, onConfirm, children }) => {
   const [accountsModalIsOpen, openAccountsModal, closeAccountsModal] = useBooleanState(false);
-  const [bottomEdgeIsVisible, setBottomEdgeIsVisible] = useState(true);
   const [isConfirming, setIsConfirming] = useSafeState(false);
   const [isDeclining, setIsDeclining] = useSafeState(false);
   const [error, setError] = useSafeState<any>(null);
@@ -216,7 +214,39 @@ export const ConfirmDAppForm = memo<ConfirmDAppFormProps>(({ accounts, payload, 
         />
       ) : (
         <>
-          <ScrollView className="p-4 gap-4" onBottomEdgeVisibilityChange={setBottomEdgeIsVisible}>
+          <PageModalScrollViewWithActions
+            className="p-4 gap-4"
+            actionsBoxProps={{
+              children: [
+                <StyledButton
+                  key="cancel"
+                  size="L"
+                  color="primary-low"
+                  className="w-full"
+                  loading={isDeclining}
+                  testID={declineTestID}
+                  onClick={handleDeclineClick}
+                >
+                  <T id="cancel" />
+                </StyledButton>,
+                <StyledButton
+                  key="confirm"
+                  size="L"
+                  color="primary"
+                  className="w-full"
+                  loading={isConfirming}
+                  testID={confirmTestID}
+                  type={isOperationsConfirm ? 'submit' : 'button'}
+                  onClick={isOperationsConfirm ? undefined : handleConfirmClick}
+                  form={isOperationsConfirm ? CONFIRM_OPERATIONS_FORM_ID : undefined}
+                  disabled={confirmDisabled}
+                >
+                  {confirmButtonName}
+                </StyledButton>
+              ],
+              flexDirection: 'row'
+            }}
+          >
             {payload.type !== 'add_asset' && (
               <div className="mb-2 flex flex-col items-center gap-2">
                 <div className="flex gap-2 relative">
@@ -261,34 +291,7 @@ export const ConfirmDAppForm = memo<ConfirmDAppFormProps>(({ accounts, payload, 
               onSubmit: handleConfirmClick,
               error
             })}
-          </ScrollView>
-
-          <ActionsButtonsBox shouldCastShadow={!bottomEdgeIsVisible} flexDirection="row">
-            <StyledButton
-              size="L"
-              color="primary-low"
-              className="w-full"
-              loading={isDeclining}
-              testID={declineTestID}
-              onClick={handleDeclineClick}
-            >
-              <T id="cancel" />
-            </StyledButton>
-
-            <StyledButton
-              size="L"
-              color="primary"
-              className="w-full"
-              loading={isConfirming}
-              testID={confirmTestID}
-              type={isOperationsConfirm ? 'submit' : 'button'}
-              onClick={isOperationsConfirm ? undefined : handleConfirmClick}
-              form={isOperationsConfirm ? CONFIRM_OPERATIONS_FORM_ID : undefined}
-              disabled={confirmDisabled}
-            >
-              {confirmButtonName}
-            </StyledButton>
-          </ActionsButtonsBox>
+          </PageModalScrollViewWithActions>
 
           <LedgerApprovalModal state={ledgerApprovalModalState} onClose={handleLedgerModalClose} />
         </>

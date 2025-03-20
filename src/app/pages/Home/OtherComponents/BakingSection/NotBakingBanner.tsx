@@ -1,134 +1,77 @@
 import React, { memo } from 'react';
 
-import clsx from 'clsx';
-
-import { Divider } from 'app/atoms';
-import { DelegateButton } from 'app/atoms/BakingButtons';
-import { useAppEnv } from 'app/env';
-import { ReactComponent as DelegateIcon } from 'app/icons/delegate.svg';
-import { ReactComponent as DiscordIcon } from 'app/icons/delegationDis.svg';
-import { ReactComponent as RedditIcon } from 'app/icons/delegationRed.svg';
-import { ReactComponent as TelegramIcon } from 'app/icons/delegationTg.svg';
-import { ReactComponent as TwitterIcon } from 'app/icons/delegationTwi.svg';
-import { ReactComponent as YoutubeIcon } from 'app/icons/delegationYt.svg';
-import { ReactComponent as ClockRepeatIcon } from 'app/icons/history.svg';
-import { ReactComponent as StockUpIcon } from 'app/icons/stock-up.svg';
-import { ReactComponent as ClockIcon } from 'app/icons/time.svg';
+import { IconBase } from 'app/atoms';
+import { Lottie } from 'app/atoms/react-lottie';
+import { StyledButton } from 'app/atoms/StyledButton';
+import { ReactComponent as BarChartIcon } from 'app/icons/base/bar-chart.svg';
+import { ReactComponent as CalendarIcon } from 'app/icons/base/calendar.svg';
+import { ReactComponent as NoLockIcon } from 'app/icons/base/no-lock.svg';
+import { ReactComponent as RewardsIcon } from 'app/icons/base/rewards.svg';
+import { PageModalScrollViewWithActions } from 'app/templates/page-modal-scroll-view-with-actions';
+import { TEZOS_APY } from 'lib/constants';
 import { T } from 'lib/i18n';
-import { isTezosDcpChainId } from 'temple/networks';
 
 import { BakingSectionSelectors } from './selectors';
+import tezCoinAnimation from './tez-coin-animation.json';
 
 interface Props {
-  chainId: string;
   noPreviousHistory: boolean;
   cannotDelegate: boolean;
 }
 
-export const NotBakingBanner = memo<Props>(({ chainId, noPreviousHistory, cannotDelegate }) => {
-  const isDcpNetwork = isTezosDcpChainId(chainId);
-  const { fullPage } = useAppEnv();
+const tezCoinAnimationOptions = {
+  loop: true,
+  autoplay: true,
+  animationData: tezCoinAnimation,
+  rendererSettings: {
+    preserveAspectRatio: 'xMidYMid slice'
+  }
+};
 
-  if (isDcpNetwork)
-    return (
-      <>
-        <DelegateIcon className="self-center w-8 h-8 stroke-current fill-current text-secondary" />
+export const NotBakingBanner = memo<Props>(({ noPreviousHistory, cannotDelegate }) => (
+  <>
+    <PageModalScrollViewWithActions
+      initialBottomEdgeVisible
+      actionsBoxProps={{
+        children: (
+          <StyledButton
+            disabled={cannotDelegate}
+            size="L"
+            className="w-full"
+            color="secondary"
+            testID={BakingSectionSelectors.delegateAndStakeButton}
+          >
+            <T id="delegateAndStake" />
+          </StyledButton>
+        )
+      }}
+    >
+      <div className="flex justify-center">
+        <Lottie isClickToPauseDisabled options={tezCoinAnimationOptions} height={172} width={172} />
+      </div>
 
-        <p className="mt-1 mb-6 text-sm font-light text-center">
-          <T id="dcpDelegatingMotivation" />
-        </p>
-
-        <DelegateButton
-          to={`/delegate/${chainId}`}
-          disabled={cannotDelegate}
-          flashing
-          testID={BakingSectionSelectors.delegateAndStakeButton}
-        >
-          <T id="delegateAndStake" />
-        </DelegateButton>
-      </>
-    );
-
-  return (
-    <>
-      <h3 className="mb-6 font-semibold text-center" style={TITLE_STYLE}>
-        <span className="text-secondary">
-          <T id="delegationPointsHead1" />
-        </span>{' '}
-        <T id="delegationPointsHead2" />
+      <h3 className="mb-4 text-font-h3 text-center">
+        <T id="delegationPointsHead" substitutions={String(TEZOS_APY)} />
       </h3>
 
       {noPreviousHistory && (
-        <ul className="mb-6 p-6 flex flex-col gap-y-4 bg-gray-100 rounded-lg">
-          <DelegateMotivationPoint Icon={ClockIcon} textNode={<T id="delegationPoint1" />} fullPage={fullPage} />
-          <Divider thinest className="mx-4" />
-          <DelegateMotivationPoint Icon={ClockRepeatIcon} textNode={<T id="delegationPoint2" />} fullPage={fullPage} />
-          <Divider thinest className="mx-4" />
-          <DelegateMotivationPoint Icon={StockUpIcon} textNode={<T id="delegationPoint3" />} fullPage={fullPage} />
-        </ul>
+        <div className="grid grid-cols-2 gap-3">
+          <DelegateMotivationPoint Icon={NoLockIcon} textNode={<T id="noLockDelegationPoint" />} />
+          <DelegateMotivationPoint Icon={RewardsIcon} textNode={<T id="rewardsDelegationPoint" />} />
+          <DelegateMotivationPoint Icon={CalendarIcon} textNode={<T id="delayDelegationPoint" />} />
+          <DelegateMotivationPoint Icon={BarChartIcon} textNode={<T id="stakeDelegationPoint" />} />
+        </div>
       )}
-
-      <DelegateButton
-        to={`/delegate/${chainId}`}
-        disabled={cannotDelegate}
-        flashing
-        testID={BakingSectionSelectors.delegateAndStakeButton}
-      >
-        <T id="delegateAndStake" />
-      </DelegateButton>
-
-      <p className="mt-6 mb-2.5 text-xs leading-5 text-center text-gray-600">
-        <T id="delegationComunity" />
-      </p>
-
-      <div className="self-center flex gap-4">
-        {LINKS.map(({ href, Icon }) => (
-          <a key={href} href={href} target="_blank" rel="noopener noreferrer">
-            <Icon className="h-8 w-8" />
-          </a>
-        ))}
-      </div>
-    </>
-  );
-});
-
-const TITLE_STYLE: React.CSSProperties = {
-  fontSize: 19,
-  lineHeight: '1.2em',
-  letterSpacing: '0.029px'
-};
-
-const LINKS = [
-  {
-    href: 'https://t.me/MadFishCommunity',
-    Icon: TelegramIcon
-  },
-  {
-    href: 'https://www.madfish.solutions/discord',
-    Icon: DiscordIcon
-  },
-  {
-    href: 'https://twitter.com/madfishofficial',
-    Icon: TwitterIcon
-  },
-  {
-    href: 'https://www.youtube.com/channel/UCUp80EXfJEigks3xU5hiwyA',
-    Icon: YoutubeIcon
-  },
-  {
-    href: 'https://www.reddit.com/r/MadFishCommunity',
-    Icon: RedditIcon
-  }
-];
+    </PageModalScrollViewWithActions>
+  </>
+));
 
 const DelegateMotivationPoint: React.FC<{
   Icon: React.FC<React.SVGProps<SVGSVGElement>>;
   textNode: React.ReactNode;
-  fullPage: boolean;
-}> = ({ Icon, textNode, fullPage }) => (
-  <li className={clsx('flex items-center gap-x-4', fullPage && 'px-7')}>
-    <Icon className="flex-shrink-0 w-6 h-6 stroke-current fill-current text-secondary" style={{ strokeWidth: 1.5 }} />
-
-    <p className="flex-1 text-sm text-gray-700">{textNode}</p>
-  </li>
+}> = ({ Icon, textNode }) => (
+  <div className="flex flex-col p-3 bg-grey-4 rounded-xl">
+    <IconBase size={16} className="text-secondary" Icon={Icon} />
+    <p className="p-1 text-font-description">{textNode}</p>
+  </div>
 );

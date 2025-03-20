@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { FC } from 'react';
 
 import clsx from 'clsx';
 
@@ -7,6 +7,7 @@ import {
   useStyledButtonClassName,
   useStyledButtonOrLinkProps
 } from 'lib/ui/use-styled-button-or-link-props';
+import { Link, LinkProps } from 'lib/woozie/Link';
 
 import { Anchor, AnchorProps } from './Anchor';
 import { Button, ButtonProps } from './Button';
@@ -26,3 +27,16 @@ export const StyledButtonAnchor = React.forwardRef<HTMLAnchorElement, AnchorProp
     return <Anchor ref={ref} {...props} className={className} treatAsButton />;
   }
 );
+
+export const StyledButtonLink: FC<LinkProps & ButtonLikeStylingProps> = ({
+  size,
+  color,
+  active,
+  disabled,
+  className: classNameProp,
+  ...props
+}) => {
+  const className = useStyledButtonClassName({ size, color, active, disabled }, clsx('text-center', classNameProp));
+
+  return <Link {...props} className={className} />;
+};

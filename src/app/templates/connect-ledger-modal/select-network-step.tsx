@@ -1,5 +1,6 @@
 import React, { ReactNode, memo, useCallback } from 'react';
 
+import { FadeTransition } from 'app/a11y/FadeTransition';
 import { Button } from 'app/atoms';
 import { SettingsCellSingle } from 'app/atoms/SettingsCell';
 import { SettingsCellGroup } from 'app/atoms/SettingsCellGroup';
@@ -15,14 +16,16 @@ interface SelectNetworkStepProps {
 }
 
 export const SelectNetworkStep = memo<SelectNetworkStepProps>(({ onSelect }) => (
-  <div className="flex flex-col gap-1 p-4">
-    <span className="text-font-description-bold m-1">{t('selectNetwork')}</span>
-    <div className="flex flex-col gap-3">
-      <NetworkOption chainKind={TempleChainKind.EVM} tooltipText={t('evmLedgerTooltip')} onSelect={onSelect} />
+  <FadeTransition>
+    <div className="flex flex-col gap-1 p-4">
+      <span className="text-font-description-bold m-1">{t('selectNetwork')}</span>
+      <div className="flex flex-col gap-3">
+        <NetworkOption chainKind={TempleChainKind.EVM} tooltipText={t('evmLedgerTooltip')} onSelect={onSelect} />
 
-      <NetworkOption chainKind={TempleChainKind.Tezos} tooltipText={t('tezosLedgerTooltip')} onSelect={onSelect} />
+        <NetworkOption chainKind={TempleChainKind.Tezos} tooltipText={t('tezosLedgerTooltip')} onSelect={onSelect} />
+      </div>
     </div>
-  </div>
+  </FadeTransition>
 ));
 
 interface NetworkOptionProps {

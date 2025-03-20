@@ -22,7 +22,7 @@ const TokenIconFallback = memo<{ size?: number }>(({ size = 24 }) => (
 ));
 
 interface OperationConfirmationCardProps {
-  title: ReactNode | ReactNode[];
+  title: ReactChildren;
 }
 
 export const OperationConfirmationCard: FC<PropsWithChildren<OperationConfirmationCardProps>> = ({

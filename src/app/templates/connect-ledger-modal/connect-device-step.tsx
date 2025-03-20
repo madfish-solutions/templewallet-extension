@@ -2,9 +2,8 @@ import React, { memo, useCallback, useMemo, useState } from 'react';
 
 import { DerivationType } from '@taquito/ledger-signer';
 
+import { FadeTransition } from 'app/a11y/FadeTransition';
 import { LedgerImage } from 'app/atoms';
-import { ActionsButtonsBox } from 'app/atoms/PageModal';
-import { ScrollView } from 'app/atoms/PageModal/scroll-view';
 import { StyledButton } from 'app/atoms/StyledButton';
 import { LEDGER_USB_VENDOR_ID } from 'lib/constants';
 import { T, t } from 'lib/i18n';
@@ -12,6 +11,8 @@ import { useTempleClient } from 'lib/temple/front';
 import { LedgerOperationState, LedgerUIConfigurationBase, makeStateToUIConfiguration } from 'lib/ui';
 import { isLedgerRejectionError } from 'lib/utils/ledger';
 import { TempleChainKind } from 'temple/types';
+
+import { PageModalScrollViewWithActions } from '../page-modal-scroll-view-with-actions';
 
 import { ConnectLedgerModalSelectors } from './selectors';
 import { AccountProps } from './types';
@@ -63,7 +64,6 @@ const stateToUIConfiguration: Record<LedgerOperationState, UIConfiguration> =
 export const ConnectDeviceStep = memo<ConnectDeviceStepProps>(({ chainKind, onSuccess }) => {
   const { accounts } = useTempleClient();
   const [account, setAccount] = useState<AccountProps>();
-  const [bottomEdgeIsVisible, setBottomEdgeIsVisible] = useState(true);
   const [connectionState, setConnectionState] = useState<LedgerOperationState>(LedgerOperationState.NotStarted);
   const [modelName, setModelName] = useState<string | null>(null);
   const connectionInProgress = connectionState === LedgerOperationState.InProgress;
@@ -127,8 +127,24 @@ export const ConnectDeviceStep = memo<ConnectDeviceStepProps>(({ chainKind, onSu
   const handleContinueClick = useCallback(() => onSuccess(account!), [onSuccess, account]);
 
   return (
-    <>
-      <ScrollView onBottomEdgeVisibilityChange={setBottomEdgeIsVisible}>
+    <FadeTransition>
+      <PageModalScrollViewWithActions
+        actionsBoxProps={{
+          shouldChangeBottomShift: false,
+          children: (
+            <StyledButton
+              size="L"
+              className="w-full"
+              color="primary"
+              disabled={connectionInProgress}
+              onClick={connectionIsSuccessful ? handleContinueClick : connectLedger}
+              testID={ConnectLedgerModalSelectors.connectDeviceButton}
+            >
+              {connectionIsSuccessful ? <T id="continue" /> : connectionFailed ? <T id="retry" /> : <T id="connect" />}
+            </StyledButton>
+          )
+        }}
+      >
         <LedgerImage state={imageState} className="w-full" />
         <div className="flex flex-col px-4 items-center">
           <p className="text-font-regular-bold text-center mb-2">
@@ -139,20 +155,7 @@ export const ConnectDeviceStep = memo<ConnectDeviceStepProps>(({ chainKind, onSu
           </p>
           {icon && <div className="mb-4">{icon}</div>}
         </div>
-      </ScrollView>
-
-      <ActionsButtonsBox shouldChangeBottomShift={false} shouldCastShadow={!bottomEdgeIsVisible}>
-        <StyledButton
-          size="L"
-          className="w-full"
-          color="primary"
-          disabled={connectionInProgress}
-          onClick={connectionIsSuccessful ? handleContinueClick : connectLedger}
-          testID={ConnectLedgerModalSelectors.connectDeviceButton}
-        >
-          {connectionIsSuccessful ? <T id="continue" /> : connectionFailed ? <T id="retry" /> : <T id="connect" />}
-        </StyledButton>
-      </ActionsButtonsBox>
-    </>
+      </PageModalScrollViewWithActions>
+    </FadeTransition>
   );
 });

@@ -51,6 +51,7 @@ export interface PageLayoutProps extends DefaultHeaderProps, ScrollEdgesVisibili
   contentClassName?: string;
   paperClassName?: string;
   headerChildren?: ReactNode;
+  loader?: ReactNode;
 }
 
 const PageLayout: FC<PropsWithChildren<PageLayoutProps>> = ({
@@ -66,6 +67,7 @@ const PageLayout: FC<PropsWithChildren<PageLayoutProps>> = ({
   bottomEdgeThreshold,
   onTopEdgeVisibilityChange,
   topEdgeThreshold,
+  loader,
   ...headerProps
 }) => {
   const { fullPage, confirmWindow } = useAppEnv();
@@ -104,7 +106,9 @@ const PageLayout: FC<PropsWithChildren<PageLayoutProps>> = ({
                 contentClassName
               )}
             >
-              <SuspenseContainer errorMessage="displaying this page">{children}</SuspenseContainer>
+              <SuspenseContainer loader={loader} errorMessage="displaying this page">
+                {children}
+              </SuspenseContainer>
             </div>
           </div>
         </ContentPaper>

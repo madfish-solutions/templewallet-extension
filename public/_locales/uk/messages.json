@@ -159,14 +159,6 @@
       }
     }
   },
-  "minDelegationAmountDescription": {
-    "message": "Ваш поточний баланс менше мінімальної суми делегування, що можна делегувати цьому пекарю. Це означає допоки ваш баланс буде менше ніж $minAmount$ - ви не будете отримувати виплат.",
-    "placeholders": {
-      "minAmount": {
-        "content": "$1"
-      }
-    }
-  },
   "recommendedBakersDescription": {
     "message": "Дякуємо $link$ за цей список.",
     "placeholders": {
@@ -762,9 +754,6 @@
   },
   "bakerInputPlaceholder": {
     "message": "e.g. tz1a9w1S7hN5s..."
-  },
-  "minDelegationAmountTitle": {
-    "message": "Мінімальна сума делегування"
   },
   "unknownBakerTitle": {
     "message": "Невідомий пекар"
