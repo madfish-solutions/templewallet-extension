@@ -703,10 +703,10 @@
     "message": "Klicken Sie auf den Bereich, um einen anderen Vermögenswert oder Token auszuwählen."
   },
   "disable": {
-    "message": "deaktivieren"
+    "message": "Deaktivieren"
   },
   "enable": {
-    "message": "aktivieren"
+    "message": "Aktivieren"
   },
   "dAppsCheckmarkPrompt": {
     "message": "Klicken Sie auf das Häkchen für die $action$ DApps-Interaktionsfunktion",
