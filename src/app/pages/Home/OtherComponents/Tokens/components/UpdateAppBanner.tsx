@@ -12,6 +12,7 @@ interface Props {
   stickyBarRef: React.RefObject<HTMLDivElement>;
 }
 
+// ts-prune-ignore-next
 export const UpdateAppBanner: FC<Props> = ({ stickyBarRef }) => {
   const [storedUpdateDetails, setStoredUpdateDetails] = useStoredAppUpdateDetails();
 

@@ -31,6 +31,7 @@ const validationSchema = object().shape({
   email: string().required('Required field').email('Must be a valid email')
 });
 
+// ts-prune-ignore-next
 export const NewsletterOverlay = memo(() => {
   const dispatch = useDispatch();
   const { popup } = useAppEnv();

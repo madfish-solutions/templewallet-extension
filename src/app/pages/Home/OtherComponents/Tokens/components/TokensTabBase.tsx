@@ -17,7 +17,6 @@ import { SearchBarField } from 'app/templates/SearchField';
 import { OneOfChains } from 'temple/front';
 
 import { EmptySection } from './EmptySection';
-import { UpdateAppBanner } from './UpdateAppBanner';
 
 interface TokensTabBaseProps {
   tokensCount: number;
@@ -63,7 +62,8 @@ export const TokensTabBase: FC<PropsWithChildren<TokensTabBaseProps>> = ({
       ) : (
         <FadeTransition>
           <ContentContainer ref={containerRef}>
-            {manageActive ? null : <UpdateAppBanner stickyBarRef={stickyBarRef} />}
+            {/*TODO: Update banner UI*/}
+            {/*{manageActive ? null : <UpdateAppBanner stickyBarRef={stickyBarRef} />}*/}
 
             {tokensCount === 0 ? (
               <EmptySection forCollectibles={false} network={network} />
