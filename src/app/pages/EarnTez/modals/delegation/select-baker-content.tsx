@@ -32,6 +32,7 @@ import {
 import { TezosNetworkEssentials } from 'temple/networks';
 
 import { BakerCard } from '../../components/baker-card';
+import { getBakerAddress } from '../../utils';
 
 import { getRawDelegationEstimate, isRpcUnregisteredDelegateError } from './estimate-delegation';
 import { DelegationModalSelectors } from './selectors';
@@ -125,7 +126,7 @@ export const SelectBakerContent = memo<SelectBakerContentProps>(({ account, bake
 
     try {
       const tezos = getTezosToolkitWithSigner(network.rpcBaseURL, account.address);
-      await getRawDelegationEstimate(account, resolvedAddress, tezos);
+      await getRawDelegationEstimate(account, tezos, resolvedAddress);
 
       return true;
     } catch (e) {
@@ -172,7 +173,7 @@ export const SelectBakerContent = memo<SelectBakerContentProps>(({ account, bake
             )}
             {sortedBakers.map(baker => (
               <KnownBakerCard
-                key={typeof baker === 'object' ? baker.address : baker}
+                key={getBakerAddress(baker)}
                 network={network}
                 accountPkh={accountPkh}
                 baker={baker}
@@ -205,7 +206,7 @@ interface KnownBakerCardProps {
 }
 
 const KnownBakerCard = memo<KnownBakerCardProps>(({ baker, accountPkh, network, onSelect }) => {
-  const bakerAddress = typeof baker === 'object' ? baker.address : baker;
+  const bakerAddress = getBakerAddress(baker);
 
   const HeaderRight = useCallback(
     () =>

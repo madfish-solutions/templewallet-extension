@@ -1,23 +1,25 @@
 import React, { memo } from 'react';
 
 import BigNumber from 'bignumber.js';
+import clsx from 'clsx';
 
 import { EvmAssetIconWithNetwork, TezosTokenIconWithNetwork } from 'app/templates/AssetIcon';
 import InFiat from 'app/templates/InFiat';
 import { OneOfChains } from 'temple/front';
 import { TempleChainKind } from 'temple/types';
 
-interface HeaderProps {
+interface OneAssetHeaderProps {
+  className?: string;
   network: OneOfChains;
   assetSlug: string;
   amount: string;
 }
 
-export const Header = memo<HeaderProps>(({ network, assetSlug, amount }) => {
+export const OneAssetHeader = memo<OneAssetHeaderProps>(({ network, assetSlug, amount, className }) => {
   const isEvm = network.kind === TempleChainKind.EVM;
 
   return (
-    <div className="flex flex-col justify-center items-center text-center my-4">
+    <div className={clsx('flex flex-col justify-center items-center text-center', className)}>
       {isEvm ? (
         <EvmAssetIconWithNetwork evmChainId={network.chainId} assetSlug={assetSlug} />
       ) : (

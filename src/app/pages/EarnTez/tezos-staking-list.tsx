@@ -1,9 +1,9 @@
-import React, { memo, useMemo } from 'react';
+import React, { memo, useCallback, useMemo } from 'react';
 
 import { LevelInfo } from '@taquito/rpc';
 import BigNumber from 'bignumber.js';
 
-import { Anchor, IconBase, Money } from 'app/atoms';
+import { Alert, Anchor, IconBase, Money } from 'app/atoms';
 import { Lottie } from 'app/atoms/react-lottie';
 import { StyledButton } from 'app/atoms/StyledButton';
 import { Tooltip } from 'app/atoms/Tooltip';
@@ -17,21 +17,28 @@ import {
 import { ReactComponent as OutLinkIcon } from 'app/icons/base/outLink.svg';
 import { BakerStatsEntry } from 'app/templates/baker-card';
 import { StakingCard } from 'app/templates/staking-card';
+import { TEZ_TOKEN_SLUG } from 'lib/assets';
+import { useTezosAssetBalance } from 'lib/balances';
 import { TEZOS_BLOCK_DURATION } from 'lib/fixed-times';
 import { t, T, toShortened } from 'lib/i18n';
 import { getTezosGasMetadata } from 'lib/metadata';
+import { useTypedSWR } from 'lib/swr';
 import { useKnownBaker } from 'lib/temple/front';
 import { mutezToTz } from 'lib/temple/helpers';
 import { toPercentage } from 'lib/ui/utils';
-import { useOnTezosBlock } from 'temple/front';
+import { ZERO } from 'lib/utils/numbers';
+import { AccountForTezos } from 'temple/accounts';
+import { getTezosToolkitWithSigner, useOnTezosBlock } from 'temple/front';
 import { useGetTezosActiveBlockExplorer } from 'temple/front/ready';
 import { TezosNetworkEssentials } from 'temple/networks';
 
+import { stakingForEstimationAmount } from './constants';
+import { estimateStaking, isStakingNotAcceptedError } from './estimate-staking';
 import unstakePendingAnimation from './unstake-pending-animation.json';
 
 interface Props {
   network: TezosNetworkEssentials;
-  accountPkh: string;
+  account: AccountForTezos;
   bakerPkh: string;
   cannotDelegate: boolean;
   openFinalizeModal: EmptyFn;
@@ -49,18 +56,38 @@ const pendingRequestAnimationOptions = {
 };
 
 export const TezosStakingList = memo<Props>(
-  ({ network, accountPkh, bakerPkh, cannotDelegate, openFinalizeModal, openStakeModal, openUnstakeModal }) => {
+  ({ network, account, bakerPkh, cannotDelegate, openFinalizeModal, openStakeModal, openUnstakeModal }) => {
+    const { address: accountPkh } = account;
     const { rpcBaseURL, chainId } = network;
     const { data: baker } = useKnownBaker(bakerPkh, network.chainId, true);
     const { symbol } = getTezosGasMetadata(chainId);
     const { data: stakedData, mutate: updateStakedAmount } = useStakedAmount(rpcBaseURL, accountPkh, true);
     const { data: requests, mutate: updateUnstakeRequests } = useUnstakeRequests(rpcBaseURL, accountPkh, true);
+    const { value: tezBalance = ZERO } = useTezosAssetBalance(TEZ_TOKEN_SLUG, accountPkh, network);
     const { data: cyclesInfo } = useStakingCyclesInfo(rpcBaseURL);
     const blockLevelInfo = useBlockLevelInfo(rpcBaseURL);
     const getBlockExplorer = useGetTezosActiveBlockExplorer();
     const blockExplorer = useMemo(() => getBlockExplorer(network.chainId), [getBlockExplorer, network.chainId]);
     const pendingRequests = requests?.unfinalizable.requests;
     const readyRequests = requests?.finalizable;
+
+    const getCanStake = useCallback(async () => {
+      const tezos = getTezosToolkitWithSigner(rpcBaseURL, account.address);
+
+      try {
+        await estimateStaking(account, tezos, tezBalance, stakingForEstimationAmount);
+
+        return true;
+      } catch (e) {
+        return !isStakingNotAcceptedError(e);
+      }
+    }, [account, rpcBaseURL, tezBalance]);
+    const { data: canStakeFromRpc } = useTypedSWR(
+      baker ? null : ['can-stake', accountPkh, rpcBaseURL, bakerPkh],
+      getCanStake,
+      { suspense: true }
+    );
+    const canStake = baker?.staking.enabled ?? canStakeFromRpc;
 
     const staked = useMemo(() => stakedData && stakedData.gt(0), [stakedData]);
     const feePercentage = useMemo(() => (baker ? toPercentage(baker.staking.fee) : '---'), [baker]);
@@ -80,62 +107,79 @@ export const TezosStakingList = memo<Props>(
 
           <Tooltip content={<T id="stakingTooltipText" />} wrapperClassName="max-w-[242px]" className="text-grey-2" />
         </div>
-        <StakingCard
-          className="mb-4"
-          topInfo={
-            <div className="flex flex-col gap-0.5">
-              <span className="text-font-description text-grey-1">
-                <T id="staked" />
-              </span>
-              <span className="text-font-medium-bold">
-                {stakedData ? (
-                  <>
-                    <Money smallFractionFont={false}>{mutezToTz(stakedData)}</Money> {symbol}
-                  </>
-                ) : (
-                  '---'
-                )}
-              </span>
-            </div>
-          }
-          bottomInfo={
-            baker && (
+        {canStake ? (
+          <StakingCard
+            className="mb-4"
+            topInfo={
+              <div className="flex flex-col gap-0.5">
+                <span className="text-font-description text-grey-1">
+                  <T id="staked" />
+                </span>
+                <span className="text-font-medium-bold">
+                  {stakedData ? (
+                    <>
+                      <Money smallFractionFont={false}>{mutezToTz(stakedData)}</Money> {symbol}
+                    </>
+                  ) : (
+                    '---'
+                  )}
+                </span>
+              </div>
+            }
+            bottomInfo={
+              baker && (
+                <>
+                  <BakerStatsEntry
+                    name={t('staking')}
+                    value={toShortened(baker.staking.capacity - baker.staking.freeSpace)}
+                  />
+                  <BakerStatsEntry name={t('space')} value={toShortened(baker.staking.freeSpace)} />
+                  <BakerStatsEntry name={t('fee')} value={feePercentage} />
+                  <BakerStatsEntry name={t('estimatedApy')} value={estimatedApy} />
+                </>
+              )
+            }
+            actions={
               <>
-                <BakerStatsEntry
-                  name={t('staking')}
-                  value={toShortened(baker.staking.capacity - baker.staking.freeSpace)}
-                />
-                <BakerStatsEntry name={t('space')} value={toShortened(baker.staking.freeSpace)} />
-                <BakerStatsEntry name={t('fee')} value={feePercentage} />
-                <BakerStatsEntry name={t('estimatedApy')} value={estimatedApy} />
-              </>
-            )
-          }
-          actions={
-            <>
-              {staked && (
+                {staked && (
+                  <StyledButton
+                    color="primary-low"
+                    size="M"
+                    className="flex-1"
+                    disabled={cannotDelegate}
+                    onClick={openUnstakeModal}
+                  >
+                    <T id="unstake" />
+                  </StyledButton>
+                )}
                 <StyledButton
-                  color="primary-low"
+                  color="primary"
                   size="M"
                   className="flex-1"
                   disabled={cannotDelegate}
-                  onClick={openUnstakeModal}
+                  onClick={openStakeModal}
                 >
-                  <T id="unstake" />
+                  <T id="stake" />
                 </StyledButton>
-              )}
-              <StyledButton
-                color="primary"
-                size="M"
-                className="flex-1"
-                disabled={cannotDelegate}
-                onClick={openStakeModal}
-              >
-                <T id="stake" />
-              </StyledButton>
-            </>
-          }
-        />
+              </>
+            }
+          />
+        ) : (
+          <Alert
+            className="mb-4"
+            type="warning"
+            description={
+              <div className="flex flex-col gap-0.5">
+                <p className="text-font-description-bold">
+                  <T id="stakeUnavailableTitle" />
+                </p>
+                <p className="text-font-description">
+                  <T id="stakeUnavailableDescription" />
+                </p>
+              </div>
+            }
+          />
+        )}
         <div className="flex flex-col gap-3">
           {readyRequests?.map((req, i) => (
             <UnstakeRequestItem

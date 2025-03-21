@@ -16,6 +16,7 @@ import { TezosNetworkEssentials } from 'temple/networks';
 import { TempleChainKind } from 'temple/types';
 
 import { EarnTezSelectors } from '../selectors';
+import { getBakerAddress } from '../utils';
 
 import { StakingCard } from './staking-card';
 import { ReactComponent as UnknownBakerIcon } from './unknown-baker.svg';
@@ -30,18 +31,28 @@ interface BakerCardProps {
   network: TezosNetworkEssentials;
   accountPkh: string;
   baker: string | Baker;
+  metricsType?: 'delegation' | 'staking';
   ActionButton?: React.ComponentType<PropComponentProps>;
   HeaderRight?: React.ComponentType<PropComponentProps>;
   onClick?: SyncFn<string | Baker>;
 }
 
 export const BakerCard = memo(
-  ({ className, network, accountPkh, ActionButton, HeaderRight, baker: bakerOrAddress, onClick }: BakerCardProps) => {
+  ({
+    className,
+    network,
+    accountPkh,
+    ActionButton,
+    HeaderRight,
+    metricsType = 'delegation',
+    baker: bakerOrAddress,
+    onClick
+  }: BakerCardProps) => {
     const { rpcBaseURL, chainId } = network;
 
     const [hovered, setHovered, setUnhovered] = useBooleanState(false);
     const { data: stakedData, mutate } = useStakedAmount(rpcBaseURL, accountPkh);
-    const bakerPkh = typeof bakerOrAddress === 'string' ? bakerOrAddress : bakerOrAddress.address;
+    const bakerPkh = getBakerAddress(bakerOrAddress);
     const bakerFromProps = typeof bakerOrAddress === 'object' ? bakerOrAddress : undefined;
     const explorerHref = useBlockExplorerHref(TempleChainKind.Tezos, chainId, 'address', bakerPkh);
     const { data: baker = bakerFromProps } = useKnownBaker(
@@ -68,7 +79,9 @@ export const BakerCard = memo(
     );
     const bakerName = <BakerName>{baker ? baker.name : <T id="unknownBakerTitle" />}</BakerName>;
 
-    const feePercentage = useMemo(() => (baker ? toPercentage(baker.delegation.fee) : '-'), [baker]);
+    const delegationFeePercentage = useMemo(() => (baker ? toPercentage(baker.delegation.fee) : '-'), [baker]);
+    const stakingFeePercentage = useMemo(() => (baker ? toPercentage(baker.staking.fee) : '-'), [baker]);
+    const stakingApyPercentage = useMemo(() => (baker ? toPercentage(baker.staking.estimatedApy) : '-'), [baker]);
 
     const handleClick = useCallback(() => {
       onClick?.(baker || bakerOrAddress);
@@ -104,26 +117,38 @@ export const BakerCard = memo(
           </>
         }
         bottomInfo={
-          <>
-            <BakerStatsEntry
-              name={t('delegated')}
-              value={baker ? toShortened(baker.delegation.capacity - baker.delegation.freeSpace) : '-'}
-            />
-            <BakerStatsEntry name={t('space')} value={baker ? toShortened(baker.delegation.freeSpace) : '-'} />
-            <BakerStatsEntry name={t('fee')} value={feePercentage} />
-            <BakerStatsEntry
-              name={t('minBalance')}
-              value={
-                baker ? (
-                  <>
-                    <Money smallFractionFont={false}>{baker.delegation.minBalance}</Money> {symbol}
-                  </>
-                ) : (
-                  '-'
-                )
-              }
-            />
-          </>
+          metricsType === 'delegation' ? (
+            <>
+              <BakerStatsEntry
+                name={t('delegated')}
+                value={baker ? toShortened(baker.delegation.capacity - baker.delegation.freeSpace) : '-'}
+              />
+              <BakerStatsEntry name={t('space')} value={baker ? toShortened(baker.delegation.freeSpace) : '-'} />
+              <BakerStatsEntry name={t('fee')} value={delegationFeePercentage} />
+              <BakerStatsEntry
+                name={t('minBalance')}
+                value={
+                  baker ? (
+                    <>
+                      <Money smallFractionFont={false}>{baker.delegation.minBalance}</Money> {symbol}
+                    </>
+                  ) : (
+                    '-'
+                  )
+                }
+              />
+            </>
+          ) : (
+            <>
+              <BakerStatsEntry
+                name={t('staking')}
+                value={baker ? toShortened(baker.staking.capacity - baker.staking.freeSpace) : '-'}
+              />
+              <BakerStatsEntry name={t('space')} value={baker ? toShortened(baker.staking.freeSpace) : '-'} />
+              <BakerStatsEntry name={t('fee')} value={stakingFeePercentage} />
+              <BakerStatsEntry name={t('estimatedApy')} value={stakingApyPercentage} />
+            </>
+          )
         }
         actions={ActionButton && <ActionButton staked={stakedAtomic} />}
       />

@@ -4,6 +4,7 @@ import clsx from 'clsx';
 
 import { useScrollEdgesVisibility } from 'app/hooks/use-scroll-edges-visibility';
 import { setTestID, TestIDProps } from 'lib/analytics';
+import { combineRefs } from 'lib/ui/utils';
 
 export interface ScrollViewProps extends HTMLAttributes<HTMLDivElement>, TestIDProps {
   onBottomEdgeVisibilityChange?: SyncFn<boolean>;
@@ -14,15 +15,18 @@ export interface ScrollViewProps extends HTMLAttributes<HTMLDivElement>, TestIDP
 
 export const ScrollView = memo(
   forwardRef<HTMLDivElement, ScrollViewProps>(
-    ({
-      className,
-      onBottomEdgeVisibilityChange,
-      bottomEdgeThreshold,
-      onTopEdgeVisibilityChange,
-      topEdgeThreshold,
-      testID,
-      ...restProps
-    }) => {
+    (
+      {
+        className,
+        onBottomEdgeVisibilityChange,
+        bottomEdgeThreshold,
+        onTopEdgeVisibilityChange,
+        topEdgeThreshold,
+        testID,
+        ...restProps
+      },
+      ref
+    ) => {
       const rootRef = useRef<HTMLDivElement>(null);
 
       useScrollEdgesVisibility(
@@ -37,7 +41,7 @@ export const ScrollView = memo(
         <div
           {...setTestID(testID)}
           className={clsx('px-4 flex-1 flex flex-col overflow-y-auto', className)}
-          ref={rootRef}
+          ref={combineRefs(rootRef, ref)}
           {...restProps}
         />
       );

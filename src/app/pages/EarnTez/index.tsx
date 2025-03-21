@@ -6,6 +6,7 @@ import { DeadEndBoundaryError } from 'app/ErrorBoundary';
 import { ReactComponent as ActivityIcon } from 'app/icons/base/activity.svg';
 import PageLayout from 'app/layouts/PageLayout';
 import { isKnownChainId } from 'lib/apis/tzkt';
+import { getTezosGasMetadata } from 'lib/metadata';
 import { useDelegate } from 'lib/temple/front';
 import { TempleAccountType } from 'lib/temple/types';
 import { useBooleanState } from 'lib/ui/hooks';
@@ -27,6 +28,7 @@ interface Props {
 export const EarnTezPage = memo<Props>(({ tezosChainId }) => {
   const [bakerAddress, setBakerAddress] = useState<string | null>();
   const [rewardsModalIsOpen, openRewardsModal, closeRewardsModal] = useBooleanState(false);
+  const { symbol } = getTezosGasMetadata(tezosChainId);
 
   const handleActivityButtonClick = useCallback(
     () => void (bakerAddress && openRewardsModal()),
@@ -36,7 +38,7 @@ export const EarnTezPage = memo<Props>(({ tezosChainId }) => {
   return (
     <>
       <PageLayout
-        pageTitle="Earn TEZ"
+        pageTitle={`Earn ${symbol}`}
         contentPadding={false}
         contentClassName={bakerAddress !== null ? '' : '!bg-white'}
         headerRightElem={
@@ -101,7 +103,7 @@ const EarnTezPageContent = memo<EarnTezPageContentProps>(({ chainId, onBakerAddr
       {myBakerPkh ? (
         <BakerContent
           network={network}
-          accountPkh={accountPkh}
+          account={account}
           bakerPkh={myBakerPkh}
           cannotDelegate={cannotDelegate}
           openDelegationModal={openDelegationModal}

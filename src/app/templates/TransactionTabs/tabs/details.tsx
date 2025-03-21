@@ -10,7 +10,7 @@ import { EvmNetworkLogo, TezosNetworkLogo } from 'app/atoms/NetworkLogo';
 import { ReactComponent as ChevronRightIcon } from 'app/icons/base/chevron_right.svg';
 import InFiat from 'app/templates/InFiat';
 import { T } from 'lib/i18n';
-import { getAssetSymbol, TEZOS_METADATA } from 'lib/metadata';
+import { getAssetSymbol, getTezosGasMetadata } from 'lib/metadata';
 import { OneOfChains } from 'temple/front/chains';
 import { TempleChainKind } from 'temple/types';
 
@@ -93,7 +93,10 @@ interface FeesInfoProps {
 const FeesInfo: FC<FeesInfoProps> = ({ network, assetSlug, amount = '0.00', goToFeeTab }) => {
   const isEvm = network.kind === TempleChainKind.EVM;
 
-  const nativeAssetSymbol = useMemo(() => getAssetSymbol(isEvm ? network.currency : TEZOS_METADATA), [isEvm, network]);
+  const nativeAssetSymbol = useMemo(
+    () => getAssetSymbol(isEvm ? network.currency : getTezosGasMetadata(network.chainId)),
+    [isEvm, network]
+  );
 
   return (
     <>

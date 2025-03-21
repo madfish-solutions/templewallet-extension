@@ -3,7 +3,8 @@ import React, { FC, memo, useCallback } from 'react';
 import { RedelegateButton } from 'app/atoms/BakingButtons';
 import { ScrollView } from 'app/atoms/PageModal/scroll-view';
 import { T } from 'lib/i18n';
-import { TezosNetworkEssentials } from 'temple/networks';
+import { AccountForTezos } from 'temple/accounts';
+import { TezosNetworkEssentials, isTezosDcpChainId } from 'temple/networks';
 
 import { BakerCard } from './components/baker-card';
 import { EarnTezSelectors } from './selectors';
@@ -11,7 +12,7 @@ import { TezosStakingList } from './tezos-staking-list';
 
 interface BakerContentProps {
   network: TezosNetworkEssentials;
-  accountPkh: string;
+  account: AccountForTezos;
   bakerPkh: string;
   cannotDelegate: boolean;
   openDelegationModal: EmptyFn;
@@ -23,7 +24,7 @@ interface BakerContentProps {
 export const BakerContent = memo<BakerContentProps>(
   ({
     network,
-    accountPkh,
+    account,
     bakerPkh,
     cannotDelegate,
     openDelegationModal,
@@ -50,18 +51,25 @@ export const BakerContent = memo<BakerContentProps>(
             <T id="delegation" />
           </span>
 
-          <BakerCard network={network} accountPkh={accountPkh} baker={bakerPkh} HeaderRight={BakerBannerHeaderRight} />
+          <BakerCard
+            network={network}
+            accountPkh={account.address}
+            baker={bakerPkh}
+            HeaderRight={BakerBannerHeaderRight}
+          />
         </div>
 
-        <TezosStakingList
-          network={network}
-          accountPkh={accountPkh}
-          bakerPkh={bakerPkh}
-          cannotDelegate={cannotDelegate}
-          openFinalizeModal={openFinalizeModal}
-          openStakeModal={openStakeModal}
-          openUnstakeModal={openUnstakeModal}
-        />
+        {!isTezosDcpChainId(network.chainId) && (
+          <TezosStakingList
+            network={network}
+            account={account}
+            bakerPkh={bakerPkh}
+            cannotDelegate={cannotDelegate}
+            openFinalizeModal={openFinalizeModal}
+            openStakeModal={openStakeModal}
+            openUnstakeModal={openUnstakeModal}
+          />
+        )}
       </ScrollView>
     );
   }

@@ -6,7 +6,7 @@ import { formatEther } from 'viem';
 
 import AssetField from 'app/atoms/AssetField';
 import { t, T } from 'lib/i18n';
-import { TEZOS_METADATA } from 'lib/metadata';
+import { getTezosGasMetadata } from 'lib/metadata';
 import {
   DisplayedFeeOptions,
   FeeOptionLabel,
@@ -14,6 +14,7 @@ import {
   useTezosEstimationDataState
 } from 'lib/temple/front/estimation-data-providers';
 import { OneOfChains } from 'temple/front';
+import { ChainOfKind } from 'temple/front/chains';
 import { DEFAULT_EVM_CURRENCY } from 'temple/networks';
 import { TempleChainKind } from 'temple/types';
 
@@ -47,16 +48,18 @@ export const FeeTab: FC<FeeTabProps> = ({
       />
     )}
     {network.kind === TempleChainKind.EVM ? (
-      <EvmContent selectedOption={selectedOption} onOptionSelect={onOptionSelect} />
+      <EvmContent selectedOption={selectedOption} network={network} onOptionSelect={onOptionSelect} />
     ) : (
-      <TezosContent selectedOption={selectedOption} onOptionSelect={onOptionSelect} />
+      <TezosContent selectedOption={selectedOption} network={network} onOptionSelect={onOptionSelect} />
     )}
   </>
 );
 
-type ContentProps = Pick<FeeTabProps, 'selectedOption' | 'onOptionSelect'>;
+type ContentProps<T extends TempleChainKind> = Pick<FeeTabProps, 'selectedOption' | 'onOptionSelect'> & {
+  network: ChainOfKind<T>;
+};
 
-const EvmContent: FC<ContentProps> = ({ selectedOption, onOptionSelect }) => {
+const EvmContent: FC<ContentProps<TempleChainKind.EVM>> = ({ selectedOption, onOptionSelect }) => {
   const { control } = useFormContext<EvmTxParamsFormData>();
   const { data } = useEvmEstimationDataState();
 
@@ -100,9 +103,10 @@ const EvmContent: FC<ContentProps> = ({ selectedOption, onOptionSelect }) => {
   );
 };
 
-const TezosContent: FC<ContentProps> = ({ selectedOption, onOptionSelect }) => {
+const TezosContent: FC<ContentProps<TempleChainKind.Tezos>> = ({ network, selectedOption, onOptionSelect }) => {
   const { control, formState } = useFormContext<TezosTxParamsFormData>();
   const { data } = useTezosEstimationDataState();
+  const { decimals: gasDecimals, symbol: gasSymbol } = getTezosGasMetadata(network.chainId);
 
   const gasFeeFallback = useMemo(() => {
     if (!data || !selectedOption) return '';
@@ -130,8 +134,8 @@ const TezosContent: FC<ContentProps> = ({ selectedOption, onOptionSelect }) => {
             value={value || gasFeeFallback}
             placeholder="1.0"
             min={0}
-            assetDecimals={TEZOS_METADATA.decimals}
-            rightSideComponent={<div className="text-font-description-bold text-grey-2">TEZ</div>}
+            assetDecimals={gasDecimals}
+            rightSideComponent={<div className="text-font-description-bold text-grey-2">{gasSymbol}</div>}
             onChange={v => onChange(v ?? '')}
             onBlur={() => {
               if (!value) onOptionSelect('mid');
