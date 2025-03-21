@@ -181,7 +181,7 @@ export const ConfirmDAppForm = memo<ConfirmDAppFormProps>(({ accounts, payload, 
             payload.chainType === TempleChainKind.EVM ? (
               evmOperationTitles[getOperationKind(parseEvmTxRequest(payload).txSerializable)]
             ) : (
-              <T id="confirmAction" substitutions={<T id="transfer" />} />
+              <T id="confirmAction" substitutions={<T id="operation" />} />
             ),
           confirmButtonName: <T id={error ? 'retry' : 'confirm'} />,
           confirmTestID: error
