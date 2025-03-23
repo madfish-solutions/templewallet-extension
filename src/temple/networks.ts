@@ -55,29 +55,6 @@ const TEZOS_DCP_CHAIN_IDS: string[] = [TempleTezosChainId.Dcp, TempleTezosChainI
 
 export const isTezosDcpChainId = (chainId: string) => TEZOS_DCP_CHAIN_IDS.includes(chainId);
 
-const TEZOS_DCP_NETWORKS: StoredTezosNetwork[] = [
-  {
-    id: 't4l3nt-mainnet',
-    name: 'T4L3NT Mainnet',
-    chain: TempleChainKind.Tezos,
-    chainId: TempleTezosChainId.Dcp,
-    rpcBaseURL: 'https://rpc.decentralized.pictures',
-    description: 'Decentralized pictures Betanet',
-    color: '#047857',
-    default: true
-  },
-  {
-    id: 't4l3nt-testnet',
-    name: 'T4L3NT Testnet',
-    chain: TempleChainKind.Tezos,
-    chainId: TempleTezosChainId.DcpTest,
-    rpcBaseURL: 'https://staging-rpc.decentralized.pictures/',
-    description: 'Decentralized pictures testnet',
-    color: '#131380',
-    default: true
-  }
-];
-
 /** (!) Never remove Mainnet */
 export const TEZOS_DEFAULT_NETWORKS: NonEmptyArray<StoredTezosNetwork> = [
   {
@@ -111,7 +88,7 @@ export const TEZOS_DEFAULT_NETWORKS: NonEmptyArray<StoredTezosNetwork> = [
     color: '#047857',
     default: true
   },
-  ...TEZOS_DCP_NETWORKS,
+  //...TEZOS_DCP_NETWORKS,
   {
     id: 'ghostnet',
     name: 'Ghostnet Testnet',
