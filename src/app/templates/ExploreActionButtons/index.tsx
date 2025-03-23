@@ -51,6 +51,8 @@ export const ExploreActionButtonsBar = memo<Props>(({ chainKind, chainId, assetS
     [chainKind, chainId, assetSlug]
   );
 
+  const labelClassName = useMemo(() => (activityBtn ? 'max-w-12' : 'max-w-15'), [activityBtn]);
+
   return (
     <div className={clsx('flex justify-between gap-x-2 h-13.5', className)}>
       <ActionButton
@@ -58,6 +60,7 @@ export const ExploreActionButtonsBar = memo<Props>(({ chainKind, chainId, assetS
         Icon={ReceiveIcon}
         to={chainKind ? `/receive/${chainKind}` : '/receive'}
         testID={ExploreActionButtonsSelectors.receiveButton}
+        labelClassName={labelClassName}
       />
 
       <ActionButton
@@ -67,6 +70,7 @@ export const ExploreActionButtonsBar = memo<Props>(({ chainKind, chainId, assetS
         disabled={!canSend || testnetModeEnabled}
         tippyProps={getDisabledTippyProps(testnetModeEnabled)}
         testID={ExploreActionButtonsSelectors.marketButton}
+        labelClassName={labelClassName}
       />
 
       <ActionButton
@@ -76,6 +80,7 @@ export const ExploreActionButtonsBar = memo<Props>(({ chainKind, chainId, assetS
         disabled={!canSend || testnetModeEnabled}
         tippyProps={getDisabledTippyProps(testnetModeEnabled)}
         testID={ExploreActionButtonsSelectors.swapButton}
+        labelClassName={labelClassName}
       />
 
       {activityBtn === 'earn-tez' ? (
@@ -84,6 +89,7 @@ export const ExploreActionButtonsBar = memo<Props>(({ chainKind, chainId, assetS
           Icon={OutcomeIcon}
           to={`/earn-tez/${chainId}`}
           testID={ExploreActionButtonsSelectors.earnButton}
+          labelClassName={labelClassName}
         />
       ) : (
         activityBtn === 'activity' && (
@@ -92,6 +98,7 @@ export const ExploreActionButtonsBar = memo<Props>(({ chainKind, chainId, assetS
             Icon={ActivityIcon}
             to="/activity"
             testID={ExploreActionButtonsSelectors.activityButton}
+            labelClassName={labelClassName}
           />
         )
       )}
@@ -103,6 +110,7 @@ export const ExploreActionButtonsBar = memo<Props>(({ chainKind, chainId, assetS
         disabled={!canSend}
         tippyProps={getDisabledTippyProps(false)}
         testID={ExploreActionButtonsSelectors.sendButton}
+        labelClassName={labelClassName}
       />
     </div>
   );
@@ -115,10 +123,11 @@ interface ActionButtonProps extends TestIDProps {
   disabled?: boolean;
   isAnchor?: boolean;
   tippyProps?: Partial<TippyProps>;
+  labelClassName?: string;
 }
 
 const ActionButton = memo<ActionButtonProps>(
-  ({ labelI18nKey, Icon, to, disabled, isAnchor, tippyProps = {}, testID, testIDProperties }) => {
+  ({ labelI18nKey, Icon, to, disabled, isAnchor, tippyProps = {}, testID, testIDProperties, labelClassName }) => {
     const buttonRef = useTippy<HTMLButtonElement>({
       ...tippyProps,
       content: disabled && !tippyProps.content ? t('disabled') : tippyProps.content
@@ -137,13 +146,13 @@ const ActionButton = memo<ActionButtonProps>(
           <>
             <IconBase Icon={Icon} size={24} />
 
-            <span className="text-font-small-bold">
+            <span className={clsx('text-font-small-bold truncate', labelClassName)}>
               <T id={labelI18nKey} />
             </span>
           </>
         )
       }),
-      [disabled, Icon, labelI18nKey]
+      [disabled, Icon, labelClassName, labelI18nKey]
     );
 
     if (disabled) {
