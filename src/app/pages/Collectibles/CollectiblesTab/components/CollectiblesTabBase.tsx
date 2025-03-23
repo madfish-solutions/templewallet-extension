@@ -76,9 +76,9 @@ export const CollectiblesTabBase: FC<PropsWithChildren<CollectiblesTabBaseProps>
                   </>
                 )}
 
-                <ScrollBackUpButton />
-
                 {isSyncing && <SyncSpinner className="mt-6" />}
+
+                <ScrollBackUpButton />
               </>
             )}
           </ContentContainer>
