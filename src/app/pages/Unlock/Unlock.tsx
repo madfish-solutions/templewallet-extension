@@ -10,7 +10,6 @@ import { useResizeDependentValue } from 'app/hooks/use-resize-dependent-value';
 import PageLayout from 'app/layouts/PageLayout';
 import { getUserTestingGroupNameActions } from 'app/store/ab-testing/actions';
 import { useUserTestingGroupNameSelector } from 'app/store/ab-testing/selectors';
-import { toastError } from 'app/toaster';
 import { useFormAnalytics } from 'lib/analytics';
 import { ABTestGroup } from 'lib/apis/temple';
 import { DEFAULT_PASSWORD_INPUT_PLACEHOLDER } from 'lib/constants';
@@ -45,9 +44,8 @@ enum PageModalName {
   ResetExtension = 'ResetExtension'
 }
 
-const SUBMIT_ERROR_TYPE = 'submit-error';
 const LOCK_TIME = 2 * USER_ACTION_TIMEOUT;
-const LAST_ATTEMPT = 3;
+const ATTEMPTS_LIMIT = 3;
 
 const checkTime = (i: number) => (i < 10 ? '0' + i : i);
 
@@ -70,9 +68,8 @@ const Unlock: FC<UnlockProps> = ({ canImportNew = true }) => {
   const [pageModalName, setPageModalName] = useState<PageModalName | null>(null);
   const [attempt, setAttempt] = useLocalStorage<number>(TempleSharedStorageKey.PasswordAttempts, 1);
   const [timelock, setTimeLock] = useLocalStorage<number>(TempleSharedStorageKey.TimeLock, 0);
-  const lockLevel = LOCK_TIME * Math.floor(attempt / 3);
 
-  const [timeleft, setTimeleft] = useState(getTimeLeft(timelock, lockLevel));
+  const [timeleft, setTimeleft] = useState(getTimeLeft(timelock, LOCK_TIME));
 
   const testGroupName = useUserTestingGroupNameSelector();
 
@@ -97,6 +94,16 @@ const Unlock: FC<UnlockProps> = ({ canImportNew = true }) => {
   const { register, handleSubmit, errors, setError, clearError, formState } = useForm<FormData>();
   const submitting = formState.isSubmitting;
 
+  const setPasswordErrorMessage = useCallback(
+    async (message: string) => {
+      // Human delay.
+      await delay();
+
+      setError('password', 'submit-error', message);
+    },
+    [setError]
+  );
+
   const onSubmit = useCallback<OnSubmit<FormData>>(
     async ({ password }) => {
       if (submitting) return;
@@ -104,7 +111,7 @@ const Unlock: FC<UnlockProps> = ({ canImportNew = true }) => {
       clearError('password');
       formAnalytics.trackSubmit();
       try {
-        if (attempt > LAST_ATTEMPT) await delay(Math.random() * 2000 + 1000);
+        if (attempt > ATTEMPTS_LIMIT) await delay(Math.random() * 2000 + 1000);
         await unlock(password);
         await loadMnemonicToBackup(password);
 
@@ -112,42 +119,53 @@ const Unlock: FC<UnlockProps> = ({ canImportNew = true }) => {
         setAttempt(1);
       } catch (err: any) {
         formAnalytics.trackSubmitFail();
-        if (attempt >= LAST_ATTEMPT) {
-          setTimeLock(Date.now());
-          toastError(t('walletTemporarilyBlockedError', String(LAST_ATTEMPT)));
-        }
-        setAttempt(attempt + 1);
-        setTimeleft(getTimeLeft(Date.now(), LOCK_TIME * Math.floor((attempt + 1) / 3)));
 
         console.error(err);
 
-        // Human delay.
-        await delay();
-        setError('password', SUBMIT_ERROR_TYPE, err.message);
-        focusPasswordField();
+        if (attempt < ATTEMPTS_LIMIT) {
+          setAttempt(attempt + 1);
+          await setPasswordErrorMessage(
+            t('incorrectPassword', [String(ATTEMPTS_LIMIT - attempt), String(ATTEMPTS_LIMIT)])
+          );
+          focusPasswordField();
+        } else {
+          setTimeLock(Date.now());
+          await setPasswordErrorMessage(t('walletTemporarilyBlockedError'));
+          setAttempt(1);
+        }
       }
     },
-    [submitting, clearError, setError, unlock, focusPasswordField, formAnalytics, attempt, setAttempt, setTimeLock]
+    [
+      submitting,
+      clearError,
+      formAnalytics,
+      attempt,
+      unlock,
+      setAttempt,
+      setTimeLock,
+      setPasswordErrorMessage,
+      focusPasswordField
+    ]
   );
 
   const handleForgotPasswordClick = useCallback(() => setPageModalName(PageModalName.ForgotPassword), []);
   const handleModalClose = useCallback(() => setPageModalName(null), []);
   const handleForgotPasswordContinueClick = useCallback(() => setPageModalName(PageModalName.ResetExtension), []);
 
-  const isDisabled = useMemo(() => Date.now() - timelock <= lockLevel, [timelock, lockLevel]);
+  const isDisabled = useMemo(() => Date.now() - timelock <= LOCK_TIME, [timelock]);
 
   useEffect(() => {
     const interval = setInterval(() => {
-      if (Date.now() - timelock > lockLevel) {
+      if (Date.now() - timelock > LOCK_TIME) {
         setTimeLock(0);
       }
-      setTimeleft(getTimeLeft(timelock, lockLevel));
+      setTimeleft(getTimeLeft(timelock, LOCK_TIME));
     }, 1_000);
 
     return () => {
       clearInterval(interval);
     };
-  }, [timelock, lockLevel, setTimeLock]);
+  }, [timelock, setTimeLock]);
 
   return (
     <PageLayout
