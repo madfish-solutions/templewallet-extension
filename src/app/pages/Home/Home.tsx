@@ -2,11 +2,7 @@ import React, { memo, useCallback, useContext, useEffect } from 'react';
 
 import { useDispatch } from 'react-redux';
 
-import {
-  AssetsSegmentControl,
-  AssetsSegmentControlRefContext,
-  useAssetsSegmentControlRef
-} from 'app/atoms/AssetsSegmentControl';
+import { AssetsSegmentControl } from 'app/atoms/AssetsSegmentControl';
 import { SuspenseContainer } from 'app/atoms/SuspenseContainer';
 import { useLocationSearchParamValue } from 'app/hooks/use-location';
 import PageLayout from 'app/layouts/PageLayout';
@@ -43,8 +39,6 @@ const Home = memo(() => {
     return () => clearTimeout(timeout);
   }, [dispatch, initToastMessage, setInitToastMessage]);
 
-  const assetsSegmentControlRef = useAssetsSegmentControlRef();
-
   const onTokensTabClick = useCallback(() => navigate({ search: 'tab=tokens' }, HistoryAction.Replace), []);
   const onCollectiblesTabClick = useCallback(() => navigate({ search: 'tab=collectibles' }, HistoryAction.Replace), []);
 
@@ -65,11 +59,7 @@ const Home = memo(() => {
         />
       </div>
 
-      <SuspenseContainer>
-        <AssetsSegmentControlRefContext.Provider value={assetsSegmentControlRef}>
-          {tabSlug === 'collectibles' ? <CollectiblesTab /> : <TokensTab />}
-        </AssetsSegmentControlRefContext.Provider>
-      </SuspenseContainer>
+      <SuspenseContainer>{tabSlug === 'collectibles' ? <CollectiblesTab /> : <TokensTab />}</SuspenseContainer>
     </PageLayout>
   );
 });

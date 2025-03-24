@@ -467,9 +467,6 @@
   "tokenInfo": {
     "message": "Token Info"
   },
-  "manageAssetsSearchTip": {
-    "message": "To add an assets, enter the contract address into the search line"
-  },
   "optionalComment": {
     "message": "Optional"
   },

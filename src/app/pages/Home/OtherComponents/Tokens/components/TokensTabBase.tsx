@@ -2,13 +2,10 @@ import React, { FC } from 'react';
 
 import { FadeTransition } from 'app/a11y/FadeTransition';
 import { SyncSpinner } from 'app/atoms';
-import { FilterButton } from 'app/atoms/FilterButton';
-import { IconButton } from 'app/atoms/IconButton';
-import { ManageActiveTip } from 'app/atoms/ManageActiveTip';
+import { AddCustomTokenButton } from 'app/atoms/AddCustomTokenButton';
+import { ManageAssetsViewStateButtons } from 'app/atoms/ManageAssetsViewStateButtons';
 import { SimpleInfiniteScroll } from 'app/atoms/SimpleInfiniteScroll';
 import { useAssetsViewState } from 'app/hooks/use-assets-view-state';
-import { useManageAssetsClickOutsideLogic } from 'app/hooks/use-manage-assets-click-outside-logic';
-import { ReactComponent as ManageIcon } from 'app/icons/base/manage.svg';
 import { ContentContainer, StickyBar } from 'app/layouts/containers';
 import { AssetsSelectors } from 'app/pages/Home/OtherComponents/Assets.selectors';
 import { AssetsFilterOptions } from 'app/templates/AssetsFilterOptions';
@@ -36,32 +33,26 @@ export const TokensTabBase: FC<PropsWithChildren<TokensTabBaseProps>> = ({
   network,
   children
 }) => {
-  const { manageActive, toggleManageActive, filtersOpened, setFiltersClosed, toggleFiltersOpened } =
-    useAssetsViewState();
-
-  const { stickyBarRef, filterButtonRef, manageButtonRef, searchInputContainerRef, containerRef } =
-    useManageAssetsClickOutsideLogic();
+  const { manageActive, filtersOpened } = useAssetsViewState();
 
   return (
     <>
-      <StickyBar ref={stickyBarRef}>
+      <StickyBar>
         <SearchBarField
-          ref={searchInputContainerRef}
           value={searchValue}
+          disabled={filtersOpened}
           onValueChange={onSearchValueChange}
           testID={AssetsSelectors.searchAssetsInputTokens}
         />
 
-        <FilterButton ref={filterButtonRef} active={filtersOpened} onClick={toggleFiltersOpened} />
-
-        <IconButton ref={manageButtonRef} Icon={ManageIcon} active={manageActive} onClick={toggleManageActive} />
+        <ManageAssetsViewStateButtons />
       </StickyBar>
 
       {filtersOpened ? (
-        <AssetsFilterOptions filterButtonRef={filterButtonRef} onRequestClose={setFiltersClosed} />
+        <AssetsFilterOptions />
       ) : (
         <FadeTransition>
-          <ContentContainer ref={containerRef} padding={tokensCount > 0}>
+          <ContentContainer padding={tokensCount > 0}>
             {/*TODO: Update banner UI*/}
             {/*{manageActive ? null : <UpdateAppBanner stickyBarRef={stickyBarRef} />}*/}
 
@@ -69,7 +60,7 @@ export const TokensTabBase: FC<PropsWithChildren<TokensTabBaseProps>> = ({
               <EmptySection forCollectibles={false} textI18n="tokensNotFound" network={network} />
             ) : (
               <>
-                {manageActive && <ManageActiveTip />}
+                {manageActive && <AddCustomTokenButton forCollectibles={false} />}
                 <SimpleInfiniteScroll loadNext={loadNextPage}>{children}</SimpleInfiniteScroll>
                 {isSyncing && <SyncSpinner className="mt-4" />}
               </>

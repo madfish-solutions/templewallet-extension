@@ -1,4 +1,6 @@
-import React, { createContext, memo, RefObject, useCallback, useContext, useEffect, useRef, useState } from 'react';
+import React, { memo, useCallback, useEffect, useRef, useState } from 'react';
+
+import { useAssetsViewState } from '../hooks/use-assets-view-state';
 
 import SegmentedControl from './SegmentedControl';
 
@@ -9,19 +11,21 @@ interface AssetsSegmentControlProps {
   className?: string;
 }
 
-export const AssetsSegmentControlRefContext = createContext<RefObject<HTMLDivElement>>({
-  current: null
-});
-
-export const useAssetsSegmentControlRef = () => useContext(AssetsSegmentControlRefContext);
-
 export const AssetsSegmentControl = memo<AssetsSegmentControlProps>(
   ({ tabSlug, onTokensTabClick, onCollectiblesTabClick, className }) => {
-    const ref = useAssetsSegmentControlRef();
-
     const [tab, setTab] = useState(tabSlug ?? 'tokens');
 
+    const { setFiltersClosed, setManageInactive } = useAssetsViewState();
+
     useEffect(() => void setTab(tabSlug ?? 'tokens'), [tabSlug]);
+
+    useEffect(
+      () => () => {
+        setFiltersClosed();
+        setManageInactive();
+      },
+      [setFiltersClosed, setManageInactive]
+    );
 
     const setActiveSegment = useCallback(
       (val: string) => {
@@ -37,7 +41,6 @@ export const AssetsSegmentControl = memo<AssetsSegmentControlProps>(
         name="assets-segment-control"
         activeSegment={tab}
         setActiveSegment={setActiveSegment}
-        controlRef={ref}
         className={className}
         segments={[
           {
