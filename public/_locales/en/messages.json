@@ -1095,7 +1095,7 @@
   "unlockScreenResetModalDescription": {
     "message": "If you reset the extension without Seed Phrase back up, you'll not be able to recover your funds."
   },
-  "incorrectPassword": {
+  "incorrectPasswordAttemptError": {
     "message": "Incorrect password. $attempt$/$maxAttempts$ attempts remain.",
     "placeholders": {
       "attempt": {
@@ -1105,6 +1105,9 @@
         "content": "$2"
       }
     }
+  },
+  "incorrectPasswordWalletBlockedError": {
+    "message": "Incorrect password. Wallet temporarily blocked."
   },
   "walletTemporarilyBlockedError": {
     "message": "Too many attempts. Wallet temporarily blocked."

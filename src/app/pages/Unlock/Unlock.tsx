@@ -45,7 +45,7 @@ enum PageModalName {
 }
 
 const LOCK_TIME = 2 * USER_ACTION_TIMEOUT;
-const ATTEMPTS_LIMIT = 3;
+const LAST_ATTEMPT = 3;
 
 const checkTime = (i: number) => (i < 10 ? '0' + i : i);
 
@@ -68,8 +68,9 @@ const Unlock: FC<UnlockProps> = ({ canImportNew = true }) => {
   const [pageModalName, setPageModalName] = useState<PageModalName | null>(null);
   const [attempt, setAttempt] = useLocalStorage<number>(TempleSharedStorageKey.PasswordAttempts, 1);
   const [timelock, setTimeLock] = useLocalStorage<number>(TempleSharedStorageKey.TimeLock, 0);
+  const lockLevel = LOCK_TIME * Math.floor(attempt / 3);
 
-  const [timeleft, setTimeleft] = useState(getTimeLeft(timelock, LOCK_TIME));
+  const [timeleft, setTimeleft] = useState(getTimeLeft(timelock, lockLevel));
 
   const testGroupName = useUserTestingGroupNameSelector();
 
@@ -111,7 +112,7 @@ const Unlock: FC<UnlockProps> = ({ canImportNew = true }) => {
       clearError('password');
       formAnalytics.trackSubmit();
       try {
-        if (attempt > ATTEMPTS_LIMIT) await delay(Math.random() * 2000 + 1000);
+        if (attempt > LAST_ATTEMPT) await delay(Math.random() * 2000 + 1000);
         await unlock(password);
         await loadMnemonicToBackup(password);
 
@@ -122,16 +123,21 @@ const Unlock: FC<UnlockProps> = ({ canImportNew = true }) => {
 
         console.error(err);
 
-        if (attempt < ATTEMPTS_LIMIT) {
-          setAttempt(attempt + 1);
+        if (attempt >= LAST_ATTEMPT) {
+          setTimeLock(Date.now());
           await setPasswordErrorMessage(
-            t('incorrectPassword', [String(ATTEMPTS_LIMIT - attempt), String(ATTEMPTS_LIMIT)])
+            t(attempt === LAST_ATTEMPT ? 'walletTemporarilyBlockedError' : 'incorrectPasswordWalletBlockedError')
+          );
+        }
+
+        setAttempt(attempt + 1);
+        setTimeleft(getTimeLeft(Date.now(), LOCK_TIME * Math.floor((attempt + 1) / 3)));
+
+        if (attempt < LAST_ATTEMPT) {
+          await setPasswordErrorMessage(
+            t('incorrectPasswordAttemptError', [String(LAST_ATTEMPT - attempt), String(LAST_ATTEMPT)])
           );
           focusPasswordField();
-        } else {
-          setTimeLock(Date.now());
-          await setPasswordErrorMessage(t('walletTemporarilyBlockedError'));
-          setAttempt(1);
         }
       }
     },
@@ -142,9 +148,9 @@ const Unlock: FC<UnlockProps> = ({ canImportNew = true }) => {
       attempt,
       unlock,
       setAttempt,
-      setTimeLock,
       setPasswordErrorMessage,
-      focusPasswordField
+      focusPasswordField,
+      setTimeLock
     ]
   );
 
@@ -152,20 +158,20 @@ const Unlock: FC<UnlockProps> = ({ canImportNew = true }) => {
   const handleModalClose = useCallback(() => setPageModalName(null), []);
   const handleForgotPasswordContinueClick = useCallback(() => setPageModalName(PageModalName.ResetExtension), []);
 
-  const isDisabled = useMemo(() => Date.now() - timelock <= LOCK_TIME, [timelock]);
+  const isDisabled = useMemo(() => Date.now() - timelock <= lockLevel, [timelock, lockLevel]);
 
   useEffect(() => {
     const interval = setInterval(() => {
-      if (Date.now() - timelock > LOCK_TIME) {
+      if (Date.now() - timelock > lockLevel) {
         setTimeLock(0);
       }
-      setTimeleft(getTimeLeft(timelock, LOCK_TIME));
+      setTimeleft(getTimeLeft(timelock, lockLevel));
     }, 1_000);
 
     return () => {
       clearInterval(interval);
     };
-  }, [timelock, setTimeLock]);
+  }, [timelock, lockLevel, setTimeLock]);
 
   return (
     <PageLayout
