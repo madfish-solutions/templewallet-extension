@@ -704,10 +704,10 @@
     "message": "Click on area to select another asset or token."
   },
   "disable": {
-    "message": "disable"
+    "message": "Disable"
   },
   "enable": {
-    "message": "enable"
+    "message": "Enable"
   },
   "dAppsCheckmarkPrompt": {
     "message": "Click on the checkmark to $action$ DApps interaction feature",

@@ -3,10 +3,7 @@ import React, { FC, useMemo } from 'react';
 import { SuspenseContainer } from 'app/atoms/SuspenseContainer';
 import { useShouldShowPartnersPromoSelector } from 'app/store/partners-promotion/selectors';
 import { PartnersPromotion, PartnersPromotionVariant } from 'app/templates/partners-promotion';
-import { TEMPLE_TOKEN_SLUG } from 'lib/assets';
 import { t } from 'lib/i18n/react';
-
-import { ReactivateAdsBanner } from './ReactivateAdsBanner';
 
 interface Props extends PropsWithChildren {
   chainId?: string | number;
@@ -27,7 +24,9 @@ export const ActivityListContainer: FC<Props> = ({ children, chainId, assetSlug 
         />
       );
 
-    return assetSlug === TEMPLE_TOKEN_SLUG ? <ReactivateAdsBanner /> : null;
+    // TODO: Update banner UI
+    // return assetSlug === TEMPLE_TOKEN_SLUG ? <ReactivateAdsBanner /> : null;
+    return null;
   }, [shouldShowPartnersPromo, chainId, assetSlug]);
 
   return (

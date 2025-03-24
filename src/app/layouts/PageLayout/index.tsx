@@ -29,7 +29,6 @@ import { ChangelogOverlay } from './ChangelogOverlay/ChangelogOverlay';
 import ConfirmationOverlay from './ConfirmationOverlay';
 import { ContentPaperRefContext } from './context';
 import { DefaultHeader, DefaultHeaderProps } from './DefaultHeader';
-import { NewsletterOverlay } from './NewsletterOverlay/NewsletterOverlay';
 import { OnRampOverlay } from './OnRampOverlay/OnRampOverlay';
 import { ReactivateAdsOverlay } from './ReactivateAdsOverlay';
 import { ScrollRestorer } from './ScrollRestorer';
@@ -116,7 +115,8 @@ const PageLayout: FC<PropsWithChildren<PageLayoutProps>> = ({
       {!shouldBackupMnemonic && ready && (
         <>
           <OnRampOverlay />
-          <NewsletterOverlay />
+          {/*TODO: Update overlay UI*/}
+          {/*<NewsletterOverlay />*/}
           <ReactivateAdsOverlay />
         </>
       )}
