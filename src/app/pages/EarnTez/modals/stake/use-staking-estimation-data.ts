@@ -1,27 +1,20 @@
-import { useCallback } from 'react';
-
-import { TezosToolkit } from '@taquito/taquito';
 import BigNumber from 'bignumber.js';
+import { noop } from 'lodash';
 
-import { useTypedSWR } from 'lib/swr';
-import { TezosNetworkEssentials } from 'temple/networks';
-
-import { estimateStaking } from '../../estimate-staking';
+import { makeUseEstimationData } from '../../estimate-earn-operation';
+import { getStakingParams } from '../../estimate-staking';
 
 import { ReviewData } from './types';
 
-export const useStakingEstimationData = (
-  { amount, account, network }: Omit<ReviewData, 'onConfirm' | 'network'> & { network: TezosNetworkEssentials },
-  tezos: TezosToolkit,
-  tezBalance: BigNumber
-) => {
-  const estimate = useCallback(
-    () => estimateStaking(account, tezos, tezBalance, amount),
-    [account, amount, tezBalance, tezos]
-  );
-
-  return useTypedSWR(
-    ['estimate-staking', amount.toFixed(), account.address, tezBalance.toFixed(), network.rpcBaseURL],
-    estimate
-  );
-};
+export const useStakingEstimationData = makeUseEstimationData<[BigNumber], [BigNumber], ReviewData>(
+  getStakingParams,
+  noop,
+  ({ amount }) => [amount],
+  ({ amount, network }, account, tezBalance) => [
+    'estimate-staking',
+    amount.toFixed(),
+    account.address,
+    tezBalance.toFixed(),
+    network.rpcBaseURL
+  ]
+);

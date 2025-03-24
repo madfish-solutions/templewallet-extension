@@ -1,26 +1,43 @@
-import { useCallback } from 'react';
-
-import { TezosToolkit } from '@taquito/taquito';
+import { OpKind } from '@taquito/rpc';
+import { TezosToolkit, WalletParamsWithKind } from '@taquito/taquito';
 import BigNumber from 'bignumber.js';
+import { noop } from 'lodash';
 
-import { useTypedSWR } from 'lib/swr';
-import { TezosNetworkEssentials } from 'temple/networks';
+import { TempleAccountType } from 'lib/temple/types';
+import { AccountForTezos } from 'temple/accounts';
 
-import { estimateUnstaking } from './estimate-unstaking';
+import { makeUseEstimationData } from '../../estimate-earn-operation';
+
 import { ReviewData } from './types';
 
-export const useUnstakingEstimationData = (
-  { amount, account, network }: Omit<ReviewData, 'onConfirm' | 'network'> & { network: TezosNetworkEssentials },
-  tezos: TezosToolkit,
-  tezBalance: BigNumber
-) => {
-  const estimate = useCallback(
-    () => estimateUnstaking(account, tezos, tezBalance, amount),
-    [account, amount, tezBalance, tezos]
-  );
+export const getUnstakingParams = async (
+  account: AccountForTezos,
+  _: TezosToolkit,
+  amount: BigNumber
+): Promise<WalletParamsWithKind[]> => {
+  if (account.type === TempleAccountType.ManagedKT) {
+    throw new Error('Unstaking is not supported for managed accounts');
+  }
 
-  return useTypedSWR(
-    ['estimate-unstaking', amount.toFixed(), account.address, tezBalance.toFixed(), network.rpcBaseURL],
-    estimate
-  );
+  return [
+    {
+      kind: OpKind.TRANSACTION,
+      amount: amount.toNumber(),
+      to: account.address,
+      parameter: { entrypoint: 'unstake', value: { prim: 'Unit' } }
+    }
+  ];
 };
+
+export const useUnstakingEstimationData = makeUseEstimationData<[BigNumber], [BigNumber], ReviewData>(
+  getUnstakingParams,
+  noop,
+  ({ amount }) => [amount],
+  ({ amount, network }, account, tezBalance) => [
+    'estimate-unstaking',
+    amount.toFixed(),
+    account.address,
+    tezBalance.toFixed(),
+    network.rpcBaseURL
+  ]
+);

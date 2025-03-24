@@ -167,7 +167,7 @@ interface BakerStatsEntryProps {
   value: ReactChildren;
 }
 
-export const BakerStatsEntry = memo<BakerStatsEntryProps>(({ name, value }) => (
+const BakerStatsEntry = memo<BakerStatsEntryProps>(({ name, value }) => (
   <div className="flex flex-1 flex-col gap-0.5">
     <span className="text-font-description text-grey-2">{name}:</span>
     <span className="text-font-num-12">{value}</span>

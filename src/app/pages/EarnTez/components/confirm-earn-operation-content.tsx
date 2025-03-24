@@ -1,4 +1,4 @@
-import React, { ComponentType, useCallback, useEffect, useState } from 'react';
+import React, { ComponentType, useCallback, useEffect, useMemo, useState } from 'react';
 
 import { TezosToolkit, WalletParamsWithKind } from '@taquito/taquito';
 import BigNumber from 'bignumber.js';
@@ -19,8 +19,7 @@ import { TEZ_TOKEN_SLUG } from 'lib/assets';
 import { useTezosAssetBalance } from 'lib/balances';
 import { T } from 'lib/i18n';
 import { useTypedSWR } from 'lib/swr';
-import { TezosEstimationDataProvider } from 'lib/temple/front/estimation-data-providers';
-import { TezosEstimationData } from 'lib/temple/front/estimation-data-providers/types';
+import { TezosEstimationData, TezosEstimationDataProvider } from 'lib/temple/front/estimation-data-providers';
 import { TempleAccountType } from 'lib/temple/types';
 import { runConnectedLedgerOperationFlow } from 'lib/ui';
 import { ZERO } from 'lib/utils/numbers';
@@ -38,7 +37,7 @@ export interface ConfirmEarnOperationContentProps<R extends TezosEarnReviewDataB
   getBasicParamsSWRKey: (reviewData: R) => string[];
   formId: string;
   reviewData?: R;
-  topElement: (reviewData: R) => ReactChildren;
+  renderTopElement: (reviewData: R) => ReactChildren;
   cancelTestID: string;
   confirmTestID: string;
   confirmText?: ReactChildren;
@@ -107,10 +106,15 @@ export const ConfirmEarnOperationContent = <R extends TezosEarnReviewDataBase>({
 interface ConfirmEarnOperationContentBodyWrapperProps<R extends TezosEarnReviewDataBase>
   extends Pick<
     ConfirmEarnOperationContentProps<R>,
-    'topElement' | 'getBasicParamsSWRKey' | 'getBasicParams' | 'useEstimationData' | 'TxTabsInnerContent' | 'formId'
+    | 'renderTopElement'
+    | 'getBasicParamsSWRKey'
+    | 'getBasicParams'
+    | 'useEstimationData'
+    | 'TxTabsInnerContent'
+    | 'formId'
   > {
   data: R;
-  topElement: (reviewData: R) => ReactChildren;
+  renderTopElement: (reviewData: R) => ReactChildren;
   setLoading: SyncFn<boolean>;
 }
 
@@ -119,7 +123,7 @@ const ConfirmEarnOperationContentBodyWrapper = <R extends TezosEarnReviewDataBas
   TxTabsInnerContent,
   data,
   formId,
-  topElement,
+  renderTopElement,
   getBasicParams,
   useEstimationData,
   setLoading
@@ -207,10 +211,12 @@ const ConfirmEarnOperationContentBodyWrapper = <R extends TezosEarnReviewDataBas
     ]
   );
 
+  const topElement = useMemo(() => renderTopElement(data), [data, renderTopElement]);
+
   return (
     <FormProvider {...form}>
       <div className="flex flex-col pt-4">
-        <div className="mb-6 flex flex-col">{topElement(data)}</div>
+        {topElement != null && <div className="mb-6 flex flex-col">{topElement}</div>}
 
         <CurrentAccount />
 

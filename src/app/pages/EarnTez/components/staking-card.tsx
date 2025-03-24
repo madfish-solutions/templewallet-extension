@@ -4,7 +4,7 @@ import clsx from 'clsx';
 
 import { Divider } from 'app/atoms';
 
-export interface StakingCardProps extends Omit<HTMLAttributes<HTMLDivElement>, 'children'> {
+interface StakingCardProps extends Omit<HTMLAttributes<HTMLDivElement>, 'children'> {
   topInfo: ReactChildren;
   bottomInfo?: ReactChildren;
   actions?: ReactChildren;

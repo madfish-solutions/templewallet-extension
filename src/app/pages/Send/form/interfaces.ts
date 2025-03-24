@@ -2,7 +2,7 @@ import {
   EvmReviewData as GenericEvmReviewData,
   TezosReviewData as GenericTezosReviewData,
   ReviewData as GenericReviewData
-} from 'lib/temple/front/estimation-data-providers/types';
+} from 'lib/temple/front/estimation-data-providers';
 
 export interface SendFormData {
   amount: string;

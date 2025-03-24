@@ -34,7 +34,7 @@ export const ConfirmDelegationContent = memo<ConfirmDelegationContentProps>(({ r
     getBasicParamsSWRKey={getBasicParamsSWRKey}
     formId="confirm-delegation-form"
     reviewData={reviewData}
-    topElement={renderTopElement}
+    renderTopElement={renderTopElement}
     cancelTestID={DelegationModalSelectors.cancelButton}
     confirmTestID={DelegationModalSelectors.delegateButton}
     confirmText={<T id="delegate" />}

@@ -26,7 +26,7 @@ export const getStakingParams = async (
   ];
 };
 
-export const getRawStakingEstimate = makeGetRawOperationEstimate(getStakingParams);
+const getRawStakingEstimate = makeGetRawOperationEstimate(getStakingParams);
 
 export const isStakingNotAcceptedError = (err: any) =>
   err instanceof Error && err.message.includes('staking_to_delegate_that_refuses_external_staking');

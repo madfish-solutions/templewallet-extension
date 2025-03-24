@@ -2,10 +2,10 @@ import React, { ComponentType, useCallback, useMemo, useState } from 'react';
 
 import { BackButton, CLOSE_ANIMATION_TIMEOUT, PageModal } from 'app/atoms/PageModal';
 import { toastSuccess } from 'app/toaster';
-import { useGetTezosActiveBlockExplorer } from 'temple/front/ready';
 import { TezosNetworkEssentials } from 'temple/networks';
 
 import { TezosEarnReviewDataBase } from '../types';
+import { useBlockExplorerUrl } from '../utils';
 
 export interface EarnOperationModalProps<D, R extends TezosEarnReviewDataBase> {
   inputDataStepTitle: ReactChildren;
@@ -56,9 +56,7 @@ export const EarnOperationModal = <D, R extends TezosEarnReviewDataBase>({
     step: EarnOperationModalStep.InputData
   });
   const isInputDataStep = modalState.step === EarnOperationModalStep.InputData;
-  const getBlockExplorer = useGetTezosActiveBlockExplorer();
-  const blockExplorer = useMemo(() => getBlockExplorer(network.chainId), [getBlockExplorer, network.chainId]);
-  const explorerBaseUrl = blockExplorer?.url;
+  const explorerBaseUrl = useBlockExplorerUrl(network);
 
   const goToInputData = useCallback(() => setModalState({ step: EarnOperationModalStep.InputData }), []);
   const handleDataSubmit = useCallback((data: D) => setModalState({ step: EarnOperationModalStep.Confirm, data }), []);

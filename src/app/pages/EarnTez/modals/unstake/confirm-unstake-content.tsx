@@ -8,10 +8,9 @@ import { toLocalFixed } from 'lib/i18n';
 
 import { ConfirmEarnOperationContent } from '../../components/confirm-earn-operation-content';
 
-import { getUnstakingParams } from './estimate-unstaking';
 import { UnstakeModalSelectors } from './selectors';
 import { ReviewData } from './types';
-import { useUnstakingEstimationData } from './use-unstaking-estimation-data';
+import { getUnstakingParams, useUnstakingEstimationData } from './use-unstaking-estimation-data';
 
 interface ConfirmUnstakeContentProps {
   reviewData?: ReviewData;
@@ -23,7 +22,7 @@ export const ConfirmUnstakeContent = memo<ConfirmUnstakeContentProps>(({ reviewD
     getBasicParamsSWRKey={getBasicParamsSWRKey}
     formId="confirm-unstake-form"
     reviewData={reviewData}
-    topElement={renderTopElement}
+    renderTopElement={renderTopElement}
     cancelTestID={UnstakeModalSelectors.cancelButton}
     confirmTestID={UnstakeModalSelectors.confirmButton}
     getBasicParams={getBasicUnstakingParams}

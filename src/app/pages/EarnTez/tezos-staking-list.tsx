@@ -30,12 +30,12 @@ import { toPercentage } from 'lib/ui/utils';
 import { ZERO } from 'lib/utils/numbers';
 import { AccountForTezos } from 'temple/accounts';
 import { getTezosToolkitWithSigner, useOnTezosBlock } from 'temple/front';
-import { useGetTezosActiveBlockExplorer } from 'temple/front/ready';
 import { TezosNetworkEssentials } from 'temple/networks';
 
 import { stakeChangeForEstimationAmount } from './constants';
 import { estimateStaking, isStakingNotAcceptedError } from './estimate-staking';
 import unstakePendingAnimation from './unstake-pending-animation.json';
+import { useBlockExplorerUrl } from './utils';
 
 interface Props {
   network: TezosNetworkEssentials;
@@ -67,8 +67,7 @@ export const TezosStakingList = memo<Props>(
     const { value: tezBalance = ZERO } = useTezosAssetBalance(TEZ_TOKEN_SLUG, accountPkh, network);
     const { data: cyclesInfo } = useStakingCyclesInfo(rpcBaseURL);
     const blockLevelInfo = useBlockLevelInfo(rpcBaseURL);
-    const getBlockExplorer = useGetTezosActiveBlockExplorer();
-    const blockExplorer = useMemo(() => getBlockExplorer(network.chainId), [getBlockExplorer, network.chainId]);
+    const blockExplorerUrl = useBlockExplorerUrl(network);
     const pendingRequests = requests?.unfinalizable.requests;
     const readyRequests = requests?.finalizable;
 
@@ -190,7 +189,7 @@ export const TezosStakingList = memo<Props>(
               cyclesInfo={cyclesInfo}
               blockLevelInfo={blockLevelInfo}
               gasTokenSymbol={symbol}
-              blockExplorerUrl={blockExplorer?.url}
+              blockExplorerUrl={blockExplorerUrl}
               openFinalizeModal={openFinalizeModal}
             />
           ))}
@@ -202,7 +201,7 @@ export const TezosStakingList = memo<Props>(
               cyclesInfo={cyclesInfo}
               blockLevelInfo={blockLevelInfo}
               gasTokenSymbol={symbol}
-              blockExplorerUrl={blockExplorer?.url}
+              blockExplorerUrl={blockExplorerUrl}
               openFinalizeModal={openFinalizeModal}
             />
           ))}

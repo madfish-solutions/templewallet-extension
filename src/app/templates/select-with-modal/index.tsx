@@ -1,6 +1,7 @@
 import React, { useCallback } from 'react';
 
 import { Button, IconBase } from 'app/atoms';
+import { NullComponent } from 'app/atoms/null-component';
 import { SettingsCellSingle } from 'app/atoms/SettingsCell';
 import { SettingsCellGroup } from 'app/atoms/SettingsCellGroup';
 import { ReactComponent as CompactDownIcon } from 'app/icons/base/compact_down.svg';
@@ -8,8 +9,6 @@ import { InputContainer } from 'app/templates/InputContainer/InputContainer';
 import { useBooleanState } from 'lib/ui/hooks';
 
 import { SelectModal, SelectModalProps } from './select-modal';
-
-export const NullComponent = () => null;
 
 interface SelectWithModalProps<T, P extends null | ((item: T) => any)>
   extends Omit<SelectModalProps<T, P>, 'opened' | 'onRequestClose' | 'CellIcon'> {
