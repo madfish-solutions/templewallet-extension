@@ -20,21 +20,21 @@ import { useTezosAssetBalance } from 'lib/balances';
 import { T } from 'lib/i18n';
 import { useTypedSWR } from 'lib/swr';
 import { TezosEstimationDataProvider } from 'lib/temple/front/estimation-data-providers';
-import { TezosEstimationData, TezosReviewData } from 'lib/temple/front/estimation-data-providers/types';
+import { TezosEstimationData } from 'lib/temple/front/estimation-data-providers/types';
 import { TempleAccountType } from 'lib/temple/types';
 import { runConnectedLedgerOperationFlow } from 'lib/ui';
 import { ZERO } from 'lib/utils/numbers';
 import { getTezosToolkitWithSigner } from 'temple/front';
 
-type TezosReviewDataBase = TezosReviewData<{ onConfirm: EmptyFn }>;
+import { TezosEarnReviewDataBase } from '../types';
 
-interface TxTabsInnerContentProps<R extends TezosReviewDataBase> {
+interface TxTabsInnerContentProps<R extends TezosEarnReviewDataBase> {
   reviewData: R;
   tezBalance: BigNumber;
   estimationData?: TezosEstimationData;
 }
 
-export interface ConfirmEarnOperationContentProps<R extends TezosReviewDataBase> {
+export interface ConfirmEarnOperationContentProps<R extends TezosEarnReviewDataBase> {
   getBasicParamsSWRKey: (reviewData: R) => string[];
   formId: string;
   reviewData?: R;
@@ -48,7 +48,7 @@ export interface ConfirmEarnOperationContentProps<R extends TezosReviewDataBase>
   onCancel: EmptyFn;
 }
 
-export const ConfirmEarnOperationContent = <R extends TezosReviewDataBase>({
+export const ConfirmEarnOperationContent = <R extends TezosEarnReviewDataBase>({
   reviewData,
   cancelTestID,
   confirmTestID,
@@ -104,7 +104,7 @@ export const ConfirmEarnOperationContent = <R extends TezosReviewDataBase>({
   );
 };
 
-interface ConfirmEarnOperationContentBodyWrapperProps<R extends TezosReviewDataBase>
+interface ConfirmEarnOperationContentBodyWrapperProps<R extends TezosEarnReviewDataBase>
   extends Pick<
     ConfirmEarnOperationContentProps<R>,
     'topElement' | 'getBasicParamsSWRKey' | 'getBasicParams' | 'useEstimationData' | 'TxTabsInnerContent' | 'formId'
@@ -114,7 +114,7 @@ interface ConfirmEarnOperationContentBodyWrapperProps<R extends TezosReviewDataB
   setLoading: SyncFn<boolean>;
 }
 
-const ConfirmEarnOperationContentBodyWrapper = <R extends TezosReviewDataBase>({
+const ConfirmEarnOperationContentBodyWrapper = <R extends TezosEarnReviewDataBase>({
   getBasicParamsSWRKey,
   TxTabsInnerContent,
   data,
@@ -177,9 +177,9 @@ const ConfirmEarnOperationContentBodyWrapper = <R extends TezosReviewDataBase>({
         }
 
         const doOperation = async () => {
-          await submitOperation(tezos, gasFee, storageLimit, estimationData.revealFee, displayedFeeOptions);
+          const op = await submitOperation(tezos, gasFee, storageLimit, estimationData.revealFee, displayedFeeOptions);
 
-          onConfirm();
+          onConfirm(op!.opHash);
         };
 
         if (isLedgerAccount) {

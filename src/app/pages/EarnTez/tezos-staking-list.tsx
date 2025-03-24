@@ -14,6 +14,7 @@ import {
   useStakingCyclesInfo,
   useUnstakeRequests
 } from 'app/hooks/use-baking-hooks';
+import { useRichFormatTooltip } from 'app/hooks/use-rich-format-tooltip';
 import { ReactComponent as OutLinkIcon } from 'app/icons/base/outLink.svg';
 import { BakerStatsEntry } from 'app/templates/baker-card';
 import { StakingCard } from 'app/templates/staking-card';
@@ -32,7 +33,7 @@ import { getTezosToolkitWithSigner, useOnTezosBlock } from 'temple/front';
 import { useGetTezosActiveBlockExplorer } from 'temple/front/ready';
 import { TezosNetworkEssentials } from 'temple/networks';
 
-import { stakingForEstimationAmount } from './constants';
+import { stakeChangeForEstimationAmount } from './constants';
 import { estimateStaking, isStakingNotAcceptedError } from './estimate-staking';
 import unstakePendingAnimation from './unstake-pending-animation.json';
 
@@ -75,7 +76,7 @@ export const TezosStakingList = memo<Props>(
       const tezos = getTezosToolkitWithSigner(rpcBaseURL, account.address);
 
       try {
-        await estimateStaking(account, tezos, tezBalance, stakingForEstimationAmount);
+        await estimateStaking(account, tezos, tezBalance, stakeChangeForEstimationAmount);
 
         return true;
       } catch (e) {
@@ -223,6 +224,20 @@ interface UnstakeRequestItemProps {
   openFinalizeModal: EmptyFn;
 }
 
+const unstakeInProgressTooltipProps = {
+  trigger: 'mouseenter',
+  hideOnClick: false,
+  placement: 'bottom-end' as const,
+  animation: 'shift-away-subtle'
+};
+
+const unstakeInProgressTooltipWrapperFactory = () => {
+  const element = document.createElement('div');
+  element.className = 'max-w-48';
+
+  return element;
+};
+
 const UnstakeRequestItem = memo<UnstakeRequestItemProps>(
   ({
     delegate,
@@ -235,6 +250,12 @@ const UnstakeRequestItem = memo<UnstakeRequestItemProps>(
     blockExplorerUrl,
     openFinalizeModal
   }) => {
+    const unstakeInProgressLabelRef = useRichFormatTooltip<HTMLDivElement>(
+      unstakeInProgressTooltipProps,
+      unstakeInProgressTooltipWrapperFactory,
+      <T id="unstakeInProgressTooltip" substitutions={cyclesInfo?.cooldownCyclesNumber ?? 4} />
+    );
+
     const endCycle = useMemo(() => {
       if (!cyclesInfo) return;
 
@@ -271,7 +292,10 @@ const UnstakeRequestItem = memo<UnstakeRequestItemProps>(
                 <T id="finalize" />
               </StyledButton>
             ) : (
-              <div className="bg-warning-low py-0.5 pl-1 pr-2 rounded-md flex items-center">
+              <div
+                className="bg-warning-low py-0.5 pl-1 pr-2 rounded-md flex items-center"
+                ref={unstakeInProgressLabelRef}
+              >
                 <Lottie isClickToPauseDisabled options={pendingRequestAnimationOptions} height={16} width={16} />
                 <span className="text-font-small-bold">{cooldownTimeStr}</span>
               </div>

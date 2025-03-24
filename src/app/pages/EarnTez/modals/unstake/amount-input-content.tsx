@@ -5,27 +5,22 @@ import clsx from 'clsx';
 import { Controller, useForm } from 'react-hook-form-v7';
 
 import { FadeTransition } from 'app/a11y/FadeTransition';
-import { Button, Money } from 'app/atoms';
+import { Alert, Button, Money } from 'app/atoms';
 import AssetField from 'app/atoms/AssetField';
 import { StyledButton } from 'app/atoms/StyledButton';
-import { getTezosMaxAmountToken } from 'app/pages/Send/form/utils';
+import { useStakedAmount } from 'app/hooks/use-baking-hooks';
 import { PageModalScrollViewWithActions } from 'app/templates/page-modal-scroll-view-with-actions';
-import { TEZ_TOKEN_SLUG } from 'lib/assets';
-import { useTezosAssetBalance } from 'lib/balances';
-import { RECOMMENDED_ADD_TEZ_GAS_FEE } from 'lib/constants';
 import { T, t, toLocalFixed } from 'lib/i18n';
 import { getTezosGasMetadata } from 'lib/metadata';
+import { mutezToTz } from 'lib/temple/helpers';
 import { shouldDisableSubmitButton } from 'lib/ui/should-disable-submit-button';
 import { ZERO } from 'lib/utils/numbers';
 import { AccountForTezos } from 'temple/accounts';
-import { getTezosToolkitWithSigner } from 'temple/front';
 import { TezosNetworkEssentials } from 'temple/networks';
 
 import { BakerCard } from '../../components/baker-card';
-import { stakeChangeForEstimationAmount } from '../../constants';
 
-import { StakeModalSelectors } from './selectors';
-import { useStakingEstimationData } from './use-staking-estimation-data';
+import { UnstakeModalSelectors } from './selectors';
 
 interface FormValues {
   amount: string;
@@ -40,26 +35,15 @@ interface AmountInputContentProps {
 
 export const AmountInputContent = memo<AmountInputContentProps>(({ account, bakerPkh, network, onSubmit }) => {
   const { address: accountPkh } = account;
+  const { rpcBaseURL } = network;
   const { control, handleSubmit, formState, trigger, setValue } = useForm<FormValues>({
     defaultValues: { amount: '' }
   });
-  const tezos = getTezosToolkitWithSigner(network.rpcBaseURL, accountPkh);
   const { symbol: tezSymbol, decimals: tezDecimals } = getTezosGasMetadata(network.chainId);
 
-  const { value: tezBalance = ZERO } = useTezosAssetBalance(TEZ_TOKEN_SLUG, accountPkh, network);
-  const { data: estimationData } = useStakingEstimationData(
-    { amount: stakeChangeForEstimationAmount, account, network },
-    tezos,
-    tezBalance
-  );
+  const { data: stakedAtomicAmount } = useStakedAmount(rpcBaseURL, accountPkh, true);
 
-  const maxAmount = useMemo(
-    () =>
-      estimationData
-        ? getTezosMaxAmountToken(account.type, tezBalance, estimationData.baseFee, RECOMMENDED_ADD_TEZ_GAS_FEE)
-        : tezBalance,
-    [account.type, estimationData, tezBalance]
-  );
+  const maxAmount = useMemo(() => mutezToTz(stakedAtomicAmount ?? ZERO), [stakedAtomicAmount]);
 
   const validateAmount = useCallback(
     (amount: string) => {
@@ -91,21 +75,23 @@ export const AmountInputContent = memo<AmountInputContentProps>(({ account, bake
               color="primary"
               size="L"
               type="submit"
-              form="stake-amount-form"
+              form="unstake-amount-form"
               disabled={shouldDisableSubmitButton({
                 errors: formState.errors,
                 formState,
                 disableWhileSubmitting: false
               })}
               loading={formState.isSubmitting}
-              testID={StakeModalSelectors.stakeButton}
+              testID={UnstakeModalSelectors.unstakeButton}
             >
-              <T id="stake" />
+              <T id="unstake" />
             </StyledButton>
           )
         }}
       >
-        <form id="stake-amount-form" onSubmit={handleSubmit(onSubmit)} className="flex flex-col">
+        <form id="unstake-amount-form" onSubmit={handleSubmit(onSubmit)} className="flex flex-col">
+          <Alert className="mb-4" type="info" description={<T id="newUnstakeInfo" />} />
+
           <p className="mt-1 mb-2 text-font-description-bold">
             <T id="bakerInfo" />
           </p>
@@ -123,9 +109,9 @@ export const AmountInputContent = memo<AmountInputContentProps>(({ account, bake
                 <T id="amount" />
               </span>
               <div className="text-font-num-12 text-grey-1 min-w-0">
-                <T id="balance" />:{' '}
+                <T id="available" />:{' '}
                 <Money fiat={false} smallFractionFont={false} tooltipPlacement="top">
-                  {tezBalance}
+                  {maxAmount}
                 </Money>{' '}
                 {tezSymbol}
               </div>
@@ -154,12 +140,12 @@ export const AmountInputContent = memo<AmountInputContentProps>(({ account, bake
                         'text-white bg-primary hover:bg-primary-hover rounded-md py-1'
                       )}
                       style={{ width: '41px' }}
-                      testID={StakeModalSelectors.maxButton}
+                      testID={UnstakeModalSelectors.maxButton}
                     >
                       <T id="max" />
                     </Button>
                   }
-                  testID={StakeModalSelectors.amountInput}
+                  testID={UnstakeModalSelectors.amountInput}
                 />
               )}
             />

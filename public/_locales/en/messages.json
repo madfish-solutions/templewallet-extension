@@ -1380,13 +1380,19 @@
   "redelegationNoticeDescription": {
     "message": "Changing the baker will automatically unstake all the existing staked balance. This balance will be finalizable after 4 cycles."
   },
+  "newUnstakeInfo": {
+    "message": "Your unstake will be finalizable after 4 cycles. After that, you will need to finalize unstaked balances to make them spendable."
+  },
   "unstakeInProgressTooltip": {
-    "message": "Unstake requests will be processed after $cycles$ validation cycles ends. Finalize your unstaked TEZ here after cooldown period ends.",
+    "message": "Unstake requests will be processed after $cycles$ validation cycles end. Finalize your unstaked TEZ here after cooldown period ends.",
     "placeholders": {
       "cycles": {
         "content": "$1"
       }
     }
+  },
+  "transactionSubmitted": {
+    "message": "Transaction Submitted"
   },
   "unstakeRequestNumber": {
     "message": "Unstake request $number$",
@@ -1422,9 +1428,6 @@
   },
   "successfullyDelegated": {
     "message": "Successfully Delegated"
-  },
-  "confirmStake": {
-    "message": "Confirm Stake"
   },
   "bakerInfo": {
     "message": "Baker info"

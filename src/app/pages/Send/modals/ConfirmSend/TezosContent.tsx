@@ -13,6 +13,7 @@ import { toastError, toastSuccess } from 'app/toaster';
 import { TEZ_TOKEN_SLUG } from 'lib/assets';
 import { toTransferParams } from 'lib/assets/contract.utils';
 import { useTezosAssetBalance } from 'lib/balances';
+import { t } from 'lib/i18n';
 import { useCategorizedTezosAssetMetadata } from 'lib/metadata';
 import { transferImplicit, transferToContract } from 'lib/michelson';
 import { useTypedSWR } from 'lib/swr';
@@ -142,7 +143,7 @@ export const TezosContent: FC<TezosContentProps> = ({ data, onClose }) => {
 
           setTimeout(
             () =>
-              toastSuccess('Transaction Submitted', true, { hash: txHash, explorerBaseUrl: blockExplorer.url + '/' }),
+              toastSuccess(t('transactionSubmitted'), true, { hash: txHash, explorerBaseUrl: blockExplorer.url + '/' }),
             CLOSE_ANIMATION_TIMEOUT * 2
           );
         };

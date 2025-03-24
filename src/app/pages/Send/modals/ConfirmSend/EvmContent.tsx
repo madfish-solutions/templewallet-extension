@@ -13,6 +13,7 @@ import { useEvmEstimationForm } from 'app/templates/TransactionTabs/use-evm-esti
 import { toastError, toastSuccess } from 'app/toaster';
 import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
 import { useEvmAssetBalance } from 'lib/balances/hooks';
+import { t } from 'lib/i18n';
 import { useEvmCategorizedAssetMetadata } from 'lib/metadata';
 import { useTempleClient } from 'lib/temple/front';
 import { TempleAccountType } from 'lib/temple/types';
@@ -105,7 +106,7 @@ export const EvmContent: FC<EvmContentProps> = ({ data, onClose }) => {
 
           setTimeout(
             () =>
-              toastSuccess('Transaction Submitted', true, {
+              toastSuccess(t('transactionSubmitted'), true, {
                 hash: txHash,
                 explorerBaseUrl: blockExplorer.url + '/tx/'
               }),

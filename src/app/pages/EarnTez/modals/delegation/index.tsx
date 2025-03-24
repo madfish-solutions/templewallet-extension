@@ -1,13 +1,13 @@
-import React, { memo, useCallback, useMemo, useState } from 'react';
+import React, { memo, useCallback } from 'react';
 
 import { PageLoader } from 'app/atoms/Loader';
-import { BackButton, CLOSE_ANIMATION_TIMEOUT, PageModal } from 'app/atoms/PageModal';
-import { toastSuccess } from 'app/toaster';
 import { T, t } from 'lib/i18n';
 import { Baker } from 'lib/temple/front';
 import { AccountForTezos } from 'temple/accounts';
 import { TezosChain } from 'temple/front';
 import { TempleChainKind } from 'temple/types';
+
+import { EarnOperationModal, EarnOperationModalProps } from '../../components/earn-operation-modal';
 
 import { ConfirmDelegationContent } from './confirm-delegation-content';
 import { SelectBakerContent } from './select-baker-content';
@@ -20,71 +20,42 @@ interface DelegationModalProps {
   onClose: EmptyFn;
 }
 
-enum DelegationModalStep {
-  SelectBaker = 'select-baker',
-  ConfirmDelegation = 'confirm-delegation'
-}
+type GenericModalProps = EarnOperationModalProps<string | Baker, ReviewData>;
 
-interface DelegationModalStateBase {
-  step: DelegationModalStep;
-}
-
-interface SelectBakerState extends DelegationModalStateBase {
-  step: DelegationModalStep.SelectBaker;
-}
-
-interface ConfirmDelegationState extends DelegationModalStateBase {
-  step: DelegationModalStep.ConfirmDelegation;
-  baker: string | Baker;
-}
-
-type DelegationModalState = SelectBakerState | ConfirmDelegationState;
-
-export const DelegationModal = memo<DelegationModalProps>(({ account, bakerPkh, network, onClose }) => {
-  const [delegationModalState, setDelegationModalState] = useState<DelegationModalState>({
-    step: DelegationModalStep.SelectBaker
-  });
-  const isSelectBakerStep = delegationModalState.step === DelegationModalStep.SelectBaker;
-
-  const goToSelectBaker = useCallback(() => setDelegationModalState({ step: DelegationModalStep.SelectBaker }), []);
-  const handleBakerSelect = useCallback(
-    (baker: string | Baker) => setDelegationModalState({ step: DelegationModalStep.ConfirmDelegation, baker }),
-    []
+export const DelegationModal = memo<DelegationModalProps>(({ bakerPkh, account, network, onClose }) => {
+  const LocalSelectBakerContent = useCallback<GenericModalProps['InputDataContent']>(
+    ({ onSubmit }) => (
+      <SelectBakerContent network={network} account={account} bakerPkh={bakerPkh} onSelect={onSubmit} />
+    ),
+    [account, bakerPkh, network]
   );
-  const handleSuccess = useCallback(() => {
-    setTimeout(() => toastSuccess(t('successfullyDelegated')), CLOSE_ANIMATION_TIMEOUT * 2);
-    onClose();
-  }, [onClose]);
 
-  const reviewData = useMemo<ReviewData | undefined>(
-    () =>
-      delegationModalState.step === DelegationModalStep.ConfirmDelegation
-        ? {
-            baker: delegationModalState.baker,
-            onConfirm: handleSuccess,
-            network: { ...network, kind: TempleChainKind.Tezos },
-            account
-          }
-        : undefined,
-    [delegationModalState, handleSuccess, network, account]
+  const makeReviewData = useCallback<GenericModalProps['makeReviewData']>(
+    (data, onSuccess) => ({
+      baker: data,
+      onConfirm: onSuccess,
+      network: { ...network, kind: TempleChainKind.Tezos },
+      account
+    }),
+    [account, network]
   );
 
   return (
-    <PageModal
-      title={
-        isSelectBakerStep ? <T id="selectBaker" /> : <T id="confirmAction" substitutions={<T id="delegation" />} />
-      }
-      opened
-      suspenseLoader={<PageLoader stretch text={isSelectBakerStep ? t('bakersAreLoading') : undefined} />}
-      titleRight={isSelectBakerStep ? undefined : null}
-      titleLeft={isSelectBakerStep ? null : <BackButton onClick={goToSelectBaker} />}
-      onRequestClose={onClose}
-    >
-      {delegationModalState.step === DelegationModalStep.SelectBaker ? (
-        <SelectBakerContent network={network} account={account} bakerPkh={bakerPkh} onSelect={handleBakerSelect} />
-      ) : (
-        <ConfirmDelegationContent reviewData={reviewData} onCancel={goToSelectBaker} />
-      )}
-    </PageModal>
+    <EarnOperationModal
+      inputDataStepTitle={<T id="selectBaker" />}
+      confirmStepTitle={<T id="confirmAction" substitutions={<T id="delegation" />} />}
+      successToastText={t('successfullyDelegated')}
+      showTxHash={false}
+      network={network}
+      SuspenseLoader={SuspenseLoader}
+      InputDataContent={LocalSelectBakerContent}
+      ConfirmContent={ConfirmDelegationContent}
+      makeReviewData={makeReviewData}
+      onClose={onClose}
+    />
   );
 });
+
+const SuspenseLoader: GenericModalProps['SuspenseLoader'] = memo(({ isInputDataStep }) => (
+  <PageLoader stretch text={isInputDataStep ? t('bakersAreLoading') : undefined} />
+));
