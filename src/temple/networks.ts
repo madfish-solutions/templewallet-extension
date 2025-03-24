@@ -88,7 +88,6 @@ export const TEZOS_DEFAULT_NETWORKS: NonEmptyArray<StoredTezosNetwork> = [
     color: '#047857',
     default: true
   },
-  //...TEZOS_DCP_NETWORKS,
   {
     id: 'ghostnet',
     name: 'Ghostnet Testnet',
