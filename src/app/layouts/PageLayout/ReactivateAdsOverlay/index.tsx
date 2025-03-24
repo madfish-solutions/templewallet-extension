@@ -10,13 +10,8 @@ import { dispatch } from 'app/store';
 import { useShouldShowNewsletterModalSelector } from 'app/store/newsletter/newsletter-selectors';
 import { togglePartnersPromotionAction } from 'app/store/partners-promotion/actions';
 import { useShouldShowPartnersPromoSelector } from 'app/store/partners-promotion/selectors';
-import { setPendingReactivateAdsAction, setShowAgreementsCounterAction } from 'app/store/settings/actions';
-import {
-  useIsPendingReactivateAdsSelector,
-  useOnRampPossibilitySelector,
-  useShouldShowTermsOfUseUpdateOverlaySelector
-} from 'app/store/settings/selectors';
-import { MAX_SHOW_AGREEMENTS_COUNTER } from 'lib/constants';
+import { setPendingReactivateAdsAction } from 'app/store/settings/actions';
+import { useIsPendingReactivateAdsSelector, useOnRampPossibilitySelector } from 'app/store/settings/selectors';
 import { EmojiInlineIcon } from 'lib/icons/emoji';
 import { useLocation } from 'lib/woozie';
 import { HOME_PAGE_PATH } from 'lib/woozie/config';
@@ -37,30 +32,23 @@ export const ReactivateAdsOverlay = memo<Props>(({ onClose }) => {
 
   const shouldShowPartnersPromo = useShouldShowPartnersPromoSelector();
   const isPendingReactivateAds = useIsPendingReactivateAdsSelector();
-  const shouldShowTermsOfUseOverlay = useShouldShowTermsOfUseUpdateOverlaySelector();
 
   const { onboardingCompleted } = useOnboardingProgress();
   const shouldShowNewsletterModal = useShouldShowNewsletterModalSelector();
   const isOnRampPossibility = useOnRampPossibilitySelector();
   const { pathname } = useLocation();
 
-  const preventFutureAdsOverlayShow = useCallback(() => {
-    dispatch(setPendingReactivateAdsAction(false));
-    dispatch(setShowAgreementsCounterAction(MAX_SHOW_AGREEMENTS_COUNTER));
-  }, []);
-
-  const close = onClose ?? preventFutureAdsOverlayShow;
+  const close = onClose ?? (() => void dispatch(setPendingReactivateAdsAction(false)));
 
   const reactivate = useCallback(() => {
     dispatch(togglePartnersPromotionAction(true));
-    preventFutureAdsOverlayShow();
     onClose?.();
-  }, [onClose, preventFutureAdsOverlayShow]);
+  }, [onClose]);
 
   const btnTestIDProperties = useMemo(() => ({ forcedModal }), [forcedModal]);
 
   // Never showing if ads are enabled
-  if (shouldShowPartnersPromo || shouldShowTermsOfUseOverlay) return null;
+  if (shouldShowPartnersPromo) return null;
 
   if (
     forcedModal &&

@@ -36,8 +36,6 @@ export { FormSubmitButton } from './FormSubmitButton';
 
 export { FormSecondaryButton } from './FormSecondaryButton';
 
-export { FormCheckbox } from './FormCheckbox';
-
 export { SyncSpinner } from './SyncSpinner';
 
 export { NoSpaceField } from './NoSpaceField';

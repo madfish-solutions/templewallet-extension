@@ -703,10 +703,10 @@
     "message": "Başka bir varlık ya da token seçmek için alana tıklayın."
   },
   "disable": {
-    "message": "devre dışı bırak"
+    "message": "Devre dışı bırak"
   },
   "enable": {
-    "message": "etkinleştir"
+    "message": "Etkinleştir"
   },
   "dAppsCheckmarkPrompt": {
     "message": "DApps etkileşim özelliğine yönelik $action$ için onay işaretine tıklayın",
