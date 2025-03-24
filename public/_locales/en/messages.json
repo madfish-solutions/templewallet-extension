@@ -3039,13 +3039,13 @@
     "message": "Did you know, you can earn TKEY tokens by viewing ads? If ads are turned off, you can easily enable them anytime in the settings and start earning rewards!"
   },
   "enablePartnersPromotionConfirm": {
-    "message": "Support the development team and earn TKEY tokens by viewing ads."
+    "message": "Earn TKEY & Support Temple"
   },
   "thanksForSupportingTemple": {
     "message": "Thanks for supporting Temple"
   },
   "enablePartnersPromotionDescriptionConfirm": {
-    "message": "To enable this feature, we request your permission to trace your Wallet Address and IP address. You can always disable ads in the settings."
+    "message": "Congrats, you've started earning TKEY tokens!\nBy enabling this feature, you agreed to share your Wallet address and IP to receive tokens and view ads. You can turn ads off or on anytime in the settings."
   },
   "ownAccount": {
     "message": "Own"
@@ -3779,10 +3779,10 @@
   "attributes": { "message": "Attributes" },
   "properties": { "message": "Properties" },
   "closePartnersPromotion": {
-    "message": "Are you sure you want to disable all ads?"
+    "message": "Disable advertising?"
   },
   "closePartnersPromoConfirm": {
-    "message": "Pay attention: you can receive rewards in TKEY tokens for viewing ads in our wallet. If you disabled Ads, you can always activate it in the settings."
+    "message": "Did you know, you can earn TKEY tokens by viewing ads? If ads are turned off, you can easily enable them anytime in the settings and start earning rewards!"
   },
   "earnTkeyRewards": {
     "message": "Earn TKEY Rewards"

@@ -43,7 +43,8 @@ export const useReferralLinksSettings = () => {
               ]}
             />
           ),
-          confirmButtonText: t('agreeAndContinue')
+          confirmButtonText: t('agreeAndContinue'),
+          hasCancelButton: false
         });
 
         if (!confirmed) {
