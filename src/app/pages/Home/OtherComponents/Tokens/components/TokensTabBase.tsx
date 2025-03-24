@@ -61,12 +61,12 @@ export const TokensTabBase: FC<PropsWithChildren<TokensTabBaseProps>> = ({
         <AssetsFilterOptions filterButtonRef={filterButtonRef} onRequestClose={setFiltersClosed} />
       ) : (
         <FadeTransition>
-          <ContentContainer ref={containerRef}>
+          <ContentContainer ref={containerRef} padding={tokensCount > 0}>
             {/*TODO: Update banner UI*/}
             {/*{manageActive ? null : <UpdateAppBanner stickyBarRef={stickyBarRef} />}*/}
 
             {tokensCount === 0 ? (
-              <EmptySection forCollectibles={false} network={network} />
+              <EmptySection forCollectibles={false} textI18n="tokensNotFound" network={network} />
             ) : (
               <>
                 {manageActive && <ManageActiveTip />}
