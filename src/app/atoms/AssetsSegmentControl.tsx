@@ -1,6 +1,6 @@
 import React, { memo, useCallback, useEffect, useRef, useState } from 'react';
 
-import { useAssetsViewState } from '../hooks/use-assets-view-state';
+import { useAssetsViewState } from 'app/hooks/use-assets-view-state';
 
 import SegmentedControl from './SegmentedControl';
 
