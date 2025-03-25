@@ -97,7 +97,13 @@ const CustomToastBar = memo<CustomToastBarProps>(({ toast, customType, textBold 
   }, [toast.id, toast.visible]);
 
   return (
-    <div className={clsx('px-3 py-2.5 flex gap-x-1 rounded-md shadow-bottom max-w-88', TOAST_CLASSES[type])}>
+    <div
+      className={clsx(
+        'px-3 py-2.5 flex gap-x-1 rounded-md shadow-bottom max-w-88',
+        toast.visible ? 'animate-toast-enter' : 'animate-toast-leave',
+        TOAST_CLASSES[type]
+      )}
+    >
       <CustomToastIcon toast={toast} type={type} />
 
       {typeof toast.message === 'function' ? (
