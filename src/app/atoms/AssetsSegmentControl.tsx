@@ -1,6 +1,7 @@
 import React, { memo, useCallback, useEffect, useRef, useState } from 'react';
 
 import { useAssetsViewState } from 'app/hooks/use-assets-view-state';
+import { useWillUnmount } from 'lib/ui/hooks/useWillUnmount';
 
 import SegmentedControl from './SegmentedControl';
 
@@ -19,13 +20,10 @@ export const AssetsSegmentControl = memo<AssetsSegmentControlProps>(
 
     useEffect(() => void setTab(tabSlug ?? 'tokens'), [tabSlug]);
 
-    useEffect(
-      () => () => {
-        setFiltersClosed();
-        setManageInactive();
-      },
-      [setFiltersClosed, setManageInactive]
-    );
+    useWillUnmount(() => {
+      setFiltersClosed();
+      setManageInactive();
+    });
 
     const setActiveSegment = useCallback(
       (val: string) => {

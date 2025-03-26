@@ -3,7 +3,6 @@ import React, { FC, useCallback, useLayoutEffect, useMemo } from 'react';
 import { intersection } from 'lodash';
 import { useFormContext } from 'react-hook-form-v7';
 
-import { BackButton } from 'app/atoms/PageModal';
 import { useCurrenciesLoadingSelector } from 'app/store/buy-with-credit-card/selectors';
 import { fromTopUpTokenSlug } from 'lib/buy-with-credit-card/top-up-token-slug.utils';
 import { TopUpOutputInterface } from 'lib/buy-with-credit-card/topup.interface';
@@ -37,7 +36,7 @@ export const SelectToken: FC<Props> = ({ setModalHeaderConfig, onTokenSelect, on
   const currenciesLoading = useCurrenciesLoadingSelector();
 
   useLayoutEffect(
-    () => void setModalHeaderConfig({ title: t('selectToken'), titleLeft: <BackButton onClick={onGoBack} /> }),
+    () => void setModalHeaderConfig({ title: t('selectToken'), onGoBack }),
     [onGoBack, setModalHeaderConfig]
   );
 
