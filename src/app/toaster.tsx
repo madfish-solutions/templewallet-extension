@@ -58,7 +58,7 @@ export const ToasterProvider = memo(() => {
   const { popup, confirmWindow } = useAppEnv();
 
   const toastsContainerStyle = useMemo(
-    () => ({ bottom: popup ? 32 : (confirmWindow ? 32 : 64) + bottomShift }),
+    () => ({ bottom: (popup ? 32 : confirmWindow ? 32 : 64) + bottomShift }),
     [bottomShift, confirmWindow, popup]
   );
 
