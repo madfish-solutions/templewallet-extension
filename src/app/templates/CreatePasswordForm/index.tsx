@@ -12,21 +12,15 @@ import { PASSWORD_PATTERN, PasswordValidation, formatMnemonic, passwordValidatio
 import { useOnboardingProgress } from 'app/pages/Onboarding/hooks/useOnboardingProgress.hook';
 import { togglePartnersPromotionAction } from 'app/store/partners-promotion/actions';
 import {
-  setAcceptedTermsVersionAction,
   setIsAnalyticsEnabledAction,
   setOnRampPossibilityAction,
-  setPendingReactivateAdsAction,
-  setReferralLinksEnabledAction,
-  setShouldShowTermsOfUseUpdateOverlayAction,
-  setShowAgreementsCounterAction
+  setReferralLinksEnabledAction
 } from 'app/store/settings/actions';
 import { toastError } from 'app/toaster';
 import { AnalyticsEventCategory, useAnalytics } from 'lib/analytics';
 import {
   DEFAULT_PASSWORD_INPUT_PLACEHOLDER,
-  MAX_SHOW_AGREEMENTS_COUNTER,
   PRIVACY_POLICY_URL,
-  RECENT_TERMS_VERSION,
   REPLACE_REFERRALS_ENABLED,
   SHOULD_BACKUP_MNEMONIC_STORAGE_KEY,
   TERMS_OF_USE_URL,
@@ -71,8 +65,6 @@ export const CreatePasswordForm = memo<CreatePasswordFormProps>(({ seedPhrase: s
 
   const dispatch = useDispatch();
 
-  const setTermsAccepted = useCallback(() => dispatch(setAcceptedTermsVersionAction(RECENT_TERMS_VERSION)), [dispatch]);
-
   const { control, watch, register, handleSubmit, errors, triggerValidation, formState, setValue } = useForm<FormData>({
     defaultValues: {
       analytics: true,
@@ -116,7 +108,6 @@ export const CreatePasswordForm = memo<CreatePasswordFormProps>(({ seedPhrase: s
         dispatch(togglePartnersPromotionAction(adsViewEnabled));
         dispatch(setIsAnalyticsEnabledAction(analyticsEnabled));
         dispatch(setReferralLinksEnabledAction(adsViewEnabled));
-        setTermsAccepted();
 
         const accountPkh = await registerWallet(data.password!, formatMnemonic(seedPhrase));
 
@@ -139,11 +130,6 @@ export const CreatePasswordForm = memo<CreatePasswordFormProps>(({ seedPhrase: s
         }
         dispatch(setOnRampPossibilityAction(!seedPhraseToImport));
         navigate('/loading');
-
-        // For those that had extension installed, but didn't create wallet
-        dispatch(setPendingReactivateAdsAction(false));
-        dispatch(setShowAgreementsCounterAction(MAX_SHOW_AGREEMENTS_COUNTER));
-        dispatch(setShouldShowTermsOfUseUpdateOverlayAction(false));
       } catch (err: any) {
         console.error(err);
 
@@ -154,7 +140,6 @@ export const CreatePasswordForm = memo<CreatePasswordFormProps>(({ seedPhrase: s
       setOnboardingCompleted,
       submitting,
       dispatch,
-      setTermsAccepted,
       registerWallet,
       seedPhrase,
       seedPhraseToImport,

@@ -656,10 +656,10 @@
     "message": "Cliquez sur une zone pour sélectionner un autre actif ou jeton."
   },
   "disable": {
-    "message": "désactiver"
+    "message": "Désactiver"
   },
   "enable": {
-    "message": "activer"
+    "message": "Activer"
   },
   "dAppsCheckmarkPrompt": {
     "message": "Cliquez sur la coce pour $action$ la fonctionnalité interactions des applications décentralisées",
