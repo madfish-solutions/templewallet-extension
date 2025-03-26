@@ -55,8 +55,12 @@ export const toastWarning = withToastsLimit((title: string, textBold?: boolean) 
 export const ToasterProvider = memo(() => {
   const [bottomShift] = useToastsContainerBottomShift();
 
-  const { popup } = useAppEnv();
-  const toastsContainerStyle = useMemo(() => ({ bottom: (popup ? 32 : 64) + bottomShift }), [bottomShift, popup]);
+  const { popup, confirmWindow } = useAppEnv();
+
+  const toastsContainerStyle = useMemo(
+    () => ({ bottom: popup ? 32 : (confirmWindow ? 32 : 64) + bottomShift }),
+    [bottomShift, confirmWindow, popup]
+  );
 
   return (
     <PortalToDocumentBody>
