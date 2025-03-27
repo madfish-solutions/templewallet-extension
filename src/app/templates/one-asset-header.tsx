@@ -16,6 +16,7 @@ interface OneAssetHeaderProps {
 }
 
 export const OneAssetHeader = memo<OneAssetHeaderProps>(({ network, assetSlug, amount, className }) => {
+  console.log('ebota 1', { network, assetSlug, amount });
   const isEvm = network.kind === TempleChainKind.EVM;
 
   return (

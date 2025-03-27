@@ -2,12 +2,12 @@ import React, { FC, ReactNode, useMemo } from 'react';
 
 import { isDefined } from '@rnw-community/shared';
 import BigNumber from 'bignumber.js';
-import clsx from 'clsx';
 
 import { IconBase } from 'app/atoms';
 import Money from 'app/atoms/Money';
 import { EvmNetworkLogo, TezosNetworkLogo } from 'app/atoms/NetworkLogo';
 import { ReactComponent as ChevronRightIcon } from 'app/icons/base/chevron_right.svg';
+import { ChartListItem } from 'app/templates/chart-list-item';
 import InFiat from 'app/templates/InFiat';
 import { T } from 'lib/i18n';
 import { getAssetSymbol, getTezosGasMetadata } from 'lib/metadata';
@@ -37,10 +37,7 @@ export const DetailsTab: FC<Props> = ({
 
   return (
     <div className="flex flex-col px-4 py-2 mb-6 rounded-lg shadow-bottom border-0.5 border-transparent">
-      <div className="py-2 flex flex-row justify-between items-center border-b-0.5 border-lines">
-        <p className="p-1 text-font-description text-grey-1">
-          <T id="network" />
-        </p>
+      <ChartListItem title={<T id="network" />}>
         <div className="flex flex-row items-center">
           <span className="p-1 text-font-description-bold">{network.name}</span>
           {chainKind === TempleChainKind.EVM ? (
@@ -49,35 +46,24 @@ export const DetailsTab: FC<Props> = ({
             <TezosNetworkLogo chainId={chainId} />
           )}
         </div>
-      </div>
+      </ChartListItem>
 
       {(isDefined(destinationName) || isDefined(destinationValue)) && (
-        <div className="py-2 flex flex-row justify-between items-center border-b-0.5 border-lines">
-          <p className="p-1 text-font-description text-grey-1">{destinationName}</p>
-          {destinationValue}
-        </div>
+        <ChartListItem title={destinationName}>{destinationValue}</ChartListItem>
       )}
 
-      <div
-        className={clsx(
-          'py-2 flex flex-row justify-between items-center',
-          displayedStorageFee && 'border-b-0.5 border-lines'
-        )}
-      >
-        <p className="p-1 text-font-description text-grey-1">
-          <T id="gasFee" />
-        </p>
+      <ChartListItem title={<T id="gasFee" />} bottomSeparator={Boolean(displayedStorageFee)}>
         <div className="flex flex-row items-center">
           <FeesInfo network={network} assetSlug={assetSlug} amount={displayedFee} goToFeeTab={goToFeeTab} />
         </div>
-      </div>
+      </ChartListItem>
+
       {displayedStorageFee && (
-        <div className="py-2 flex flex-row justify-between items-center">
-          <p className="p-1 text-font-description text-grey-1">Storage Fee</p>
+        <ChartListItem title={<T id="storageFee" />} titleClassName="capitalize" bottomSeparator={false}>
           <div className="flex flex-row items-center">
             <FeesInfo network={network} assetSlug={assetSlug} amount={displayedStorageFee} goToFeeTab={goToFeeTab} />
           </div>
-        </div>
+        </ChartListItem>
       )}
     </div>
   );

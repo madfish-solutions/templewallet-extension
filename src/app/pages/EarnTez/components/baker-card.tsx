@@ -2,7 +2,7 @@ import React, { MouseEventHandler, memo, useCallback, useMemo } from 'react';
 
 import clsx from 'clsx';
 
-import { Anchor, IconBase, Money, Name } from 'app/atoms';
+import { Anchor, IconBase, Money } from 'app/atoms';
 import { useStakedAmount } from 'app/hooks/use-baking-hooks';
 import { ReactComponent as OutLinkIcon } from 'app/icons/base/outLink.svg';
 import { T, t, toShortened } from 'lib/i18n';
@@ -15,11 +15,11 @@ import { useBlockExplorerHref } from 'temple/front/use-block-explorers';
 import { TezosNetworkEssentials } from 'temple/networks';
 import { TempleChainKind } from 'temple/types';
 
-import { EarnTezSelectors } from '../selectors';
 import { getBakerAddress } from '../utils';
 
+import { BakerAvatar } from './baker-avatar';
+import { BakerName } from './baker-name';
 import { StakingCard } from './staking-card';
-import { ReactComponent as UnknownBakerIcon } from './unknown-baker.svg';
 
 interface PropComponentProps {
   /** Atomic value */
@@ -72,11 +72,7 @@ export const BakerCard = memo(
       [HeaderRight, stakedAtomic]
     );
 
-    const bakerAvatar = baker ? (
-      <img src={baker.logo} alt={baker.name} className="flex-shrink-0 w-6 h-6 bg-white rounded mr-2" />
-    ) : (
-      <UnknownBakerIcon className="flex-shrink-0 w-6 h-6 mr-2" />
-    );
+    const bakerAvatar = <BakerAvatar className="mr-2" address={baker?.address} bakerName={baker?.name} />;
     const bakerName = <BakerName>{baker ? baker.name : <T id="unknownBakerTitle" />}</BakerName>;
 
     const delegationFeePercentage = useMemo(() => (baker ? toPercentage(baker.delegation.fee) : '-'), [baker]);
@@ -154,12 +150,6 @@ export const BakerCard = memo(
       />
     );
   }
-);
-
-const BakerName: React.FC<PropsWithChildren> = ({ children }) => (
-  <Name className="text-font-medium-bold" testID={EarnTezSelectors.delegatedBakerName}>
-    {children}
-  </Name>
 );
 
 interface BakerStatsEntryProps {

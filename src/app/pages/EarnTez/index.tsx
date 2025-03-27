@@ -11,6 +11,7 @@ import { useDelegate } from 'lib/temple/front';
 import { TempleAccountType } from 'lib/temple/types';
 import { useBooleanState } from 'lib/ui/hooks';
 import { useAccountForTezos, useOnTezosBlock, useTezosChainByChainId } from 'temple/front';
+import { isTezosDcpChainId } from 'temple/networks';
 
 import { BakerContent } from './baker-content';
 import { DelegationModal } from './modals/delegation';
@@ -26,14 +27,12 @@ interface Props {
 }
 
 export const EarnTezPage = memo<Props>(({ tezosChainId }) => {
+  const account = useAccountForTezos();
   const [bakerAddress, setBakerAddress] = useState<string | null>();
   const [rewardsModalIsOpen, openRewardsModal, closeRewardsModal] = useBooleanState(false);
   const { symbol } = getTezosGasMetadata(tezosChainId);
 
-  const handleActivityButtonClick = useCallback(
-    () => void (bakerAddress && openRewardsModal()),
-    [bakerAddress, openRewardsModal]
-  );
+  if (!account) throw new DeadEndBoundaryError();
 
   return (
     <>
@@ -42,8 +41,8 @@ export const EarnTezPage = memo<Props>(({ tezosChainId }) => {
         contentPadding={false}
         contentClassName={bakerAddress !== null ? '' : '!bg-white'}
         headerRightElem={
-          bakerAddress !== null && isKnownChainId(tezosChainId) ? (
-            <Button testID={EarnTezSelectors.activityButton} onClick={handleActivityButtonClick}>
+          bakerAddress && isKnownChainId(tezosChainId) && !isTezosDcpChainId(tezosChainId) ? (
+            <Button testID={EarnTezSelectors.activityButton} onClick={openRewardsModal}>
               <IconBase size={16} Icon={ActivityIcon} className="text-primary" />
             </Button>
           ) : null
@@ -52,7 +51,13 @@ export const EarnTezPage = memo<Props>(({ tezosChainId }) => {
       >
         <EarnTezPageContent chainId={tezosChainId} onBakerAddress={setBakerAddress} />
       </PageLayout>
-      <RewardsModal chainId={tezosChainId} isOpen={rewardsModalIsOpen} onClose={closeRewardsModal} />
+      <RewardsModal
+        account={account}
+        bakerAddress={bakerAddress}
+        chainId={tezosChainId}
+        isOpen={rewardsModalIsOpen}
+        onClose={closeRewardsModal}
+      />
     </>
   );
 });

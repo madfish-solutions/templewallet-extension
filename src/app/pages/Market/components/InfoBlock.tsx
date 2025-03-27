@@ -2,6 +2,7 @@ import React, { FC } from 'react';
 
 import clsx from 'clsx';
 
+import { ChartListItem } from 'app/templates/chart-list-item';
 import { T, TID } from 'lib/i18n';
 
 interface InfoContainerProps extends PropsWithChildren {
@@ -23,17 +24,8 @@ interface InfoRawProps extends Omit<InfoContainerProps, 'onClick'> {
   bottomSeparator?: boolean;
 }
 
-export const InfoRaw: FC<InfoRawProps> = ({ title, bottomSeparator, className, children }) => (
-  <div
-    className={clsx(
-      'py-3 flex flex-row justify-between items-center',
-      bottomSeparator && 'border-b-0.5 border-lines',
-      className
-    )}
-  >
-    <p className="p-1 text-font-description text-grey-1">
-      <T id={title} />
-    </p>
+export const InfoRaw: FC<InfoRawProps> = ({ title, bottomSeparator = false, className, children }) => (
+  <ChartListItem title={<T id={title} />} bottomSeparator={bottomSeparator} className={clsx('py-3', className)}>
     {children}
-  </div>
+  </ChartListItem>
 );

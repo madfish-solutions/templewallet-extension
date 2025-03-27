@@ -15,7 +15,10 @@ import {
   TzktGetRewardsParams,
   TzktGetRewardsResponse,
   TzktAccount,
-  TzktHubConnection
+  TzktHubConnection,
+  TzktCycle,
+  TzktProtocol,
+  TzktSetDelegateParamsOperation
 } from './types';
 import { calcTzktAccountSpendableTezBalance } from './utils';
 
@@ -105,6 +108,9 @@ type GetOperationsTransactionsParams = GetOperationsBaseParams & {
 export const fetchGetOperationsTransactions = (chainId: TzktApiChainId, params: GetOperationsTransactionsParams) =>
   fetchGet<TzktOperation[]>(chainId, `/operations/transactions`, params);
 
+export const fetchSetDelegateParametersOperations = (chainId: TzktApiChainId, params: GetOperationsBaseParams) =>
+  fetchGet<TzktSetDelegateParamsOperation[]>(chainId, '/operations/set_delegate_parameters', params);
+
 export const getDelegatorRewards = (
   chainId: TzktApiChainId,
   { address, cycle = {}, sort, quote, ...restParams }: TzktGetRewardsParams
@@ -123,6 +129,10 @@ export const getDelegatorRewards = (
   });
 
 const TZKT_MAX_QUERY_ITEMS_LIMIT = 10_000;
+
+export const getCycles = (chainId: TzktApiChainId) => fetchGet<TzktCycle[]>(chainId, '/cycles', {});
+
+export const getProtocol = (chainId: TzktApiChainId) => fetchGet<TzktProtocol>(chainId, '/protocols/current');
 
 /**
  * @arg fungible // `null` for unknown fungibility only

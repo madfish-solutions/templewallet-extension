@@ -1536,6 +1536,30 @@
   "sortBy": {
     "message": "Sort by"
   },
+  "cycle": {
+    "message": "Cycle"
+  },
+  "bakerFee": {
+    "message": "Baker fee"
+  },
+  "expectedPayout": {
+    "message": "Expected payout"
+  },
+  "efficiency": {
+    "message": "Efficiency"
+  },
+  "ownBlocks": {
+    "message": "Own blocks"
+  },
+  "missedOwnBlocks": {
+    "message": "Missed own blocks"
+  },
+  "endorsements": {
+    "message": "Endorsements"
+  },
+  "missedEndorsements": {
+    "message": "Missed endorsements"
+  },
   "cycles_one": {
     "message": "$amount$ cycle",
     "description": "For plural forms",
@@ -2885,6 +2909,28 @@
   },
   "viewAll": {
     "message": "View all"
+  },
+  "rewardsForOpportunities": {
+    "message": "$reward$ for $amount$ $opportunityName$",
+    "placeholders": {
+      "reward": {
+        "content": "$1"
+      },
+      "amount": {
+        "content": "$2"
+      },
+      "opportunityName": {
+        "content": "$3"
+      }
+    }
+  },
+  "feesForOpportunities": {
+    "message": "$amount$ (fees)",
+    "placeholders": {
+      "amount": {
+        "content": "$1"
+      }
+    }
   },
   "rewardsForBlocks": {
     "message": "$reward$ for $blocksAmount$ $blocks$ $feesAmount$ fees",

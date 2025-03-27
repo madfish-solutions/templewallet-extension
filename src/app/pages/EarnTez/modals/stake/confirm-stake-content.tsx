@@ -33,7 +33,7 @@ export const ConfirmStakeContent = memo<ConfirmStakeContentProps>(({ reviewData,
 ));
 
 const renderTopElement = ({ network, amount }: ReviewData) => (
-  <OneAssetHeader amount={toLocalFixed(amount)} network={network} assetSlug={TEZ_TOKEN_SLUG} />
+  <OneAssetHeader amount={amount.toFixed()} network={network} assetSlug={TEZ_TOKEN_SLUG} />
 );
 
 const getBasicStakingParams = ({ account, amount }: ReviewData, tezos: TezosToolkit) =>

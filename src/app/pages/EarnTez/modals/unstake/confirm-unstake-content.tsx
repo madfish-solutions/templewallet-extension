@@ -32,7 +32,7 @@ export const ConfirmUnstakeContent = memo<ConfirmUnstakeContentProps>(({ reviewD
 ));
 
 const renderTopElement = ({ network, amount }: ReviewData) => (
-  <OneAssetHeader amount={toLocalFixed(amount)} network={network} assetSlug={TEZ_TOKEN_SLUG} />
+  <OneAssetHeader amount={amount.toFixed()} network={network} assetSlug={TEZ_TOKEN_SLUG} />
 );
 
 const getBasicUnstakingParams = ({ account, amount }: ReviewData, tezos: TezosToolkit) =>
