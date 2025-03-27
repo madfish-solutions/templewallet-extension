@@ -143,7 +143,7 @@ const mainConfig = (() => {
         { url: 'https://api.hypelab.com/v1/scripts/hp-sdk.js?v=0', filepath: 'scripts/hypelab.embed.js', hash: false }
       ]),
 
-      // TODO: Enable, when Index route hops SVGs are used again
+      // TODO: Enable, when Swap route hops SVGs are used again
       // new CheckUnusedFilesPlugin(['src/**/*.svg'], PRODUCTION_ENV),
 
       new CreateFileWebpack({

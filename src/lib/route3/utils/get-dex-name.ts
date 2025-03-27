@@ -22,9 +22,9 @@ export const getDexName = (dexType: Route3DexTypeEnum | undefined) => {
     case Route3DexTypeEnum.PlentyWrappedTokenBridgeSwap:
       return 'Plenty Bridge';
     case Route3DexTypeEnum.PlentyTokenToTokenStable:
-      return 'Plenty Stable Index';
+      return 'Plenty Stable Swap';
     case Route3DexTypeEnum.PlentyTokenToTokenVolatile:
-      return 'Plenty Volatile Index';
+      return 'Plenty Volatile Swap';
     case Route3DexTypeEnum.PlentySwapV3:
       return 'Plenty V3';
     case Route3DexTypeEnum.DexterLb:
@@ -40,7 +40,7 @@ export const getDexName = (dexType: Route3DexTypeEnum | undefined) => {
     case Route3DexTypeEnum.SpicyTokenToToken:
       return 'Spicy';
     case Route3DexTypeEnum.SpicySwapStable:
-      return 'Spicy Stable Index';
+      return 'Spicy Stable Swap';
     case Route3DexTypeEnum.CtezToXtz:
       return 'Ctez';
     case Route3DexTypeEnum.WTZSwap:
