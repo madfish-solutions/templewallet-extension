@@ -1,6 +1,6 @@
 import { useCallback } from 'react';
 
-import { Estimate, OpKind, TezosToolkit, WalletParamsWithKind, getRevealFee } from '@taquito/taquito';
+import { Estimate, TezosToolkit, WalletParamsWithKind, getRevealFee } from '@taquito/taquito';
 import BigNumber from 'bignumber.js';
 
 import { useTypedSWR } from 'lib/swr';
@@ -22,24 +22,12 @@ export const makeGetRawOperationEstimate =
     const [{ address, ownerAddress }, tezos] = args;
     const walletParams = await getParams(...args);
 
-    return {
-      estimations: await tezos.estimate.batch(
-        walletParams.map(params => ({ ...params, source: ownerAddress || address }))
-      ),
-      totalAmountTez: walletParams.reduce(
-        (acc, op) => (op.kind === OpKind.TRANSACTION ? acc.plus(op.mutez ? mutezToTz(op.amount) : op.amount) : acc),
-        ZERO
-      )
-    };
+    return await tezos.estimate.batch(walletParams.map(params => ({ ...params, source: ownerAddress || address })));
   };
 
 export const makeEstimateOperation =
   <T extends unknown[], U extends T>(
-    getRawEstimate: (
-      account: AccountForTezos,
-      tezos: TezosToolkit,
-      ...args: U
-    ) => Promise<{ estimations: Estimate[]; totalAmountTez: BigNumber }>,
+    getRawEstimate: (account: AccountForTezos, tezos: TezosToolkit, ...args: U) => Promise<Estimate[]>,
     assertArgs: (args: T) => asserts args is U,
     handleError: (error: any) => TezosEstimationData
   ) =>
@@ -48,7 +36,7 @@ export const makeEstimateOperation =
 
     try {
       const { ownerAddress, address: accountPkh } = account;
-      const [{ estimations, totalAmountTez }, manager] = await Promise.all([
+      const [estimations, manager] = await Promise.all([
         getRawEstimate(account, tezos, ...args),
         tezos.rpc.getManagerKey(ownerAddress || accountPkh)
       ]);
@@ -59,7 +47,7 @@ export const makeEstimateOperation =
         tezosManagerKeyHasManager(manager) || ownerAddress ? ZERO : mutezToTz(getRevealFee(accountPkh));
       const estimatedBaseFee = mutezToTz(burnFeeMutez + suggestedFeeMutez).plus(revealFeeMutez);
 
-      if (estimatedBaseFee.plus(totalAmountTez).isGreaterThanOrEqualTo(balance)) {
+      if (estimatedBaseFee.isGreaterThanOrEqualTo(balance)) {
         throw new Error('Not enough funds');
       }
 

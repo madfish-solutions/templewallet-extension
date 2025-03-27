@@ -30,11 +30,10 @@ export const ChartListItem: FC<ChartListItemProps> = ({
 
 interface PlainChartListItemProps extends ChartListItemProps {
   children: string | number | nullish;
-  valueClassName?: string;
 }
 
-export const PlainChartListItem = memo<PlainChartListItemProps>(({ children, valueClassName, ...restProps }) => (
+export const PlainChartListItem = memo<PlainChartListItemProps>(({ children, ...restProps }) => (
   <ChartListItem {...restProps}>
-    <p className={clsx('p-1 text-font-description-bold', valueClassName)}>{children}</p>
+    <p className="p-1 text-font-description-bold">{children}</p>
   </ChartListItem>
 ));

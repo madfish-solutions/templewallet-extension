@@ -267,6 +267,7 @@ export function getRewardsStats({
   const futureRewards = futureBlockRewards + futureEndorsementRewards;
   const totalRewards = earnedRewards + extraRewards;
 
+  // TODO: figure out the meaning of variables with obfuscated names here and below
   const k = sumFields(
     rewardsEntry,
     [

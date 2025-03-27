@@ -1,3 +1,4 @@
+// Original: https://github.com/chenqingspring/react-lottie/blob/master/src/index.js
 import React from 'react';
 
 import lottie, { AnimationDirection, AnimationItem, AnimationSegment, RendererType } from 'lottie-web';
@@ -257,12 +258,8 @@ export class Lottie extends React.Component<LottieProps> {
     const onClickHandler = isClickToPauseDisabled ? () => null : this.handleClickToPause;
 
     return (
-      // Bug with eslint rules https://github.com/airbnb/javascript/issues/1374
-      // eslint-disable-next-line jsx-a11y/no-static-element-interactions
       <div
-        ref={c => {
-          this.el = c;
-        }}
+        ref={c => void (this.el = c)}
         style={lottieStyles}
         onClick={onClickHandler}
         title={title}

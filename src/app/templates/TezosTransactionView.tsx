@@ -53,7 +53,7 @@ const TezosTransactionViewBody = memo<TezosTransactionViewProps>(
     const { networkRpc, opParams, sourcePkh, estimates, error: estimationError } = payload;
     const tezosChains = useAllTezosChains();
     const accounts = useAllAccounts();
-    const senderAccount = useMemo(
+    const sendingAccount = useMemo(
       () => accounts.find(acc => getAccountAddressForTezos(acc) === sourcePkh)!,
       [accounts, sourcePkh]
     );
@@ -140,7 +140,7 @@ const TezosTransactionViewBody = memo<TezosTransactionViewProps>(
     } = useTezosEstimationForm({
       estimationData,
       basicParams: opParams,
-      senderAccount,
+      senderAccount: sendingAccount,
       rpcBaseURL: networkRpc,
       chainId: chain!.chainId,
       simulateOperation: true,
@@ -186,7 +186,7 @@ const TezosTransactionViewBody = memo<TezosTransactionViewProps>(
           tabsName="confirm-send-tabs"
           destinationName={null}
           destinationValue={null}
-          sendingAccount={senderAccount}
+          sendingAccount={sendingAccount}
           balancesChanges={balancesChanges}
           metadataLoading={metadataLoading}
           otherDataLoading={balancesChangesLoading}
