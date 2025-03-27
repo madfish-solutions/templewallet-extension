@@ -703,10 +703,10 @@
     "message": "Clique na área para selecionar outro ativo ou token."
   },
   "disable": {
-    "message": "desativar"
+    "message": "Desativar"
   },
   "enable": {
-    "message": "ativar"
+    "message": "Ativar"
   },
   "dAppsCheckmarkPrompt": {
     "message": "Clique na marca de verificação para $action$ da funcionalidade de interação DApps",

@@ -2,10 +2,13 @@ import React, { forwardRef, InputHTMLAttributes, useCallback, useEffect, useMemo
 
 import clsx from 'clsx';
 
-import { ReactComponent as OkIcon } from 'app/icons/checkbox-ok.svg';
+import { ReactComponent as CheckmarkEmptyIcon } from 'app/icons/base/checkmark_empty.svg';
+import { ReactComponent as CheckmarkFilledIcon } from 'app/icons/base/checkmark_fill.svg';
 import { TestIDProps, setTestID, useAnalytics, AnalyticsEventCategory } from 'lib/analytics';
 import { useFocusHandlers } from 'lib/ui/hooks/use-focus-handlers';
 import { checkedHandler } from 'lib/ui/inputHandlers';
+
+import { IconBase } from './IconBase';
 
 export interface CheckboxProps
   extends TestIDProps,
@@ -21,39 +24,23 @@ interface Props extends CheckboxProps {
   overrideClassNames?: string;
 }
 
-const Checkbox = forwardRef<HTMLInputElement, Props>((props, ref) => {
+export const Checkbox = forwardRef<HTMLInputElement, Props>((props, ref) => {
   const { overrideClassNames, errored = false, className, testID, disabled, ...rest } = props;
 
   const { localChecked, localFocused, handleChange, handleFocus, handleBlur } = useCheckboxHooks(props);
 
-  const classNameMemo = useMemo(
+  const containerClassName = useMemo(
     () =>
       clsx(
-        'flex justify-center items-center flex-shrink-0',
-        'text-white border overflow-hidden',
-        'transition ease-in-out duration-200 disable-outline-for-click',
-        localChecked ? 'bg-primary-orange' : 'bg-black-40',
+        'flex justify-center items-center flex-shrink-0 transition ease-in-out duration-200 disable-outline-for-click',
         localFocused && 'shadow-outline',
-        (() => {
-          switch (true) {
-            case localChecked:
-              return 'border-primary-orange';
-            case localFocused:
-              return 'border-primary-orange-focused';
-            case errored:
-              return 'border-red-400';
-            default:
-              return 'border-gray-400';
-          }
-        })(),
-        disabled && 'opacity-75 pointer-events-none',
-        overrideClassNames ?? 'h-6 w-6 rounded'
+        !disabled && 'cursor-pointer'
       ),
-    [localChecked, localFocused, disabled, overrideClassNames, errored]
+    [localFocused, disabled]
   );
 
   return (
-    <div className={classNameMemo} {...setTestID(testID)}>
+    <div className={containerClassName} {...setTestID(testID)}>
       <input
         {...rest}
         disabled={disabled}
@@ -66,12 +53,10 @@ const Checkbox = forwardRef<HTMLInputElement, Props>((props, ref) => {
         onBlur={handleBlur}
       />
 
-      <OkIcon className={clsx('h-4/6 w-4/6 stroke-current pointer-events-none', localChecked ? 'block' : 'hidden')} />
+      <IconBase size={16} Icon={localChecked ? CheckmarkFilledIcon : CheckmarkEmptyIcon} className="text-primary" />
     </div>
   );
 });
-
-export default Checkbox;
 
 export const useCheckboxHooks = ({ checked, onChange, onFocus, onBlur, testID, testIDProperties }: CheckboxProps) => {
   const [localChecked, setLocalChecked] = useState(() => checked ?? false);

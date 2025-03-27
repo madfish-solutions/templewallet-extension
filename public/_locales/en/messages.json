@@ -851,6 +851,9 @@
   "baking": {
     "message": "Baking"
   },
+  "operation": {
+    "message": "Operation"
+  },
   "operations": {
     "message": "Operations"
   },
@@ -1313,10 +1316,10 @@
     "message": "Click on area to select another asset or token."
   },
   "disable": {
-    "message": "disable"
+    "message": "Disable"
   },
   "enable": {
-    "message": "enable"
+    "message": "Enable"
   },
   "payMeForEveryAdISee": {
     "message": "Pay me for every ad I see"
@@ -3282,21 +3285,6 @@
   "agreeAndContinue": {
     "message": "Agree & Continue"
   },
-  "templeUpdate": {
-    "message": "Temple Update"
-  },
-  "templeWalletUpdate": {
-    "message": "Temple Wallet Update"
-  },
-  "templeUpdateDescription": {
-    "message": "Our Terms of Use, Privacy Policy have updated and we’ve added new section in settings for easier advanced features control. Please review and agree to the new terms to continue. "
-  },
-  "templeWalletUpdateDescription": {
-    "message": "Our Terms of Use and Privacy Policy have been updated. Please review the new terms and agree to ensure a smooth experience with your wallet."
-  },
-  "reviewUpdate": {
-    "message": "Review update"
-  },
   "review": {
     "message": "Review"
   },
@@ -3753,9 +3741,6 @@
       }
     }
   },
-  "topupTezosBalance": {
-    "message": "Top up your balance instantly with fiat and remove barriers to using blockchain"
-  },
   "customAmount": {
     "message": "Custom amount"
   },
@@ -3783,18 +3768,10 @@
   "unknownError": {
     "message": "Unknown error"
   },
-  "cannotSellToYourself": {
-    "message": "Cannot sell to yourself"
-  },
-  "selectedAccountCannotSignTx": {
-    "message": "Selected account cannot sign transactions"
-  },
-  "attributes": {
-    "message": "Attributes"
-  },
-  "properties": {
-    "message": "Properties"
-  },
+  "cannotSellToYourself": { "message": "Cannot sell to yourself" },
+  "selectedAccountCannotSignTx": { "message": "Selected account cannot sign transactions" },
+  "attributes": { "message": "Attributes" },
+  "properties": { "message": "Properties" },
   "closePartnersPromotion": {
     "message": "Are you sure you want to disable all ads?"
   },

@@ -2,28 +2,22 @@ import React, { ChangeEvent, useCallback } from 'react';
 
 import { useDispatch } from 'react-redux';
 
-import { setAcceptedTermsVersionAction, setReferralLinksEnabledAction } from 'app/store/settings/actions';
-import { useAcceptedTermsVersionSelector, useReferralLinksEnabledSelector } from 'app/store/settings/selectors';
-import {
-  PRIVACY_POLICY_URL,
-  RECENT_TERMS_VERSION,
-  TERMS_OF_USE_URL,
-  TERMS_WITH_REFERRALS_VERSION
-} from 'lib/constants';
+import { setReferralLinksEnabledAction } from 'app/store/settings/actions';
+import { useReferralLinksEnabledSelector } from 'app/store/settings/selectors';
+import { PRIVACY_POLICY_URL, TERMS_OF_USE_URL } from 'lib/constants';
 import { t, T } from 'lib/i18n';
 import { useConfirm } from 'lib/ui/dialog';
 
 export const useReferralLinksSettings = () => {
   const dispatch = useDispatch();
   const enabled = useReferralLinksEnabledSelector();
-  const acceptedTermsVersion = useAcceptedTermsVersionSelector();
   const confirm = useConfirm();
 
   const setEnabled = useCallback(
     async (toChecked: boolean, event?: ChangeEvent<HTMLInputElement>) => {
       event?.preventDefault();
 
-      if (toChecked && acceptedTermsVersion < TERMS_WITH_REFERRALS_VERSION) {
+      if (toChecked) {
         const confirmed = await confirm({
           title: <T id="confirmEnableReferralLinksTitle" />,
           description: (
@@ -57,10 +51,9 @@ export const useReferralLinksSettings = () => {
         }
       }
 
-      dispatch(setAcceptedTermsVersionAction(RECENT_TERMS_VERSION));
       dispatch(setReferralLinksEnabledAction(toChecked));
     },
-    [acceptedTermsVersion, confirm, dispatch]
+    [confirm, dispatch]
   );
 
   return { isEnabled: enabled, setEnabled };

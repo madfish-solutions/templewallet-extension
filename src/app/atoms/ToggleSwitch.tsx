@@ -4,7 +4,7 @@ import clsx from 'clsx';
 
 import { setTestID } from 'lib/analytics';
 
-import { CheckboxProps, useCheckboxHooks } from './Checkbox';
+import { type CheckboxProps, useCheckboxHooks } from './Checkbox';
 
 interface Props extends CheckboxProps {
   small?: boolean;

@@ -34,7 +34,7 @@ export const OperationViewLayout = <T extends TxParamsFormData>({
   return (
     <>
       {someBalancesChanges && (
-        <div className={expensesViewIsVisible ? 'hidden' : undefined}>
+        <div className={expensesViewIsVisible ? undefined : 'hidden'}>
           <BalancesChangesView balancesChanges={filteredBalancesChanges} chain={network} />
         </div>
       )}
