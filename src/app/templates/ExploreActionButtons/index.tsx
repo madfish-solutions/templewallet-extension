@@ -12,7 +12,7 @@ import { ReactComponent as OutcomeIcon } from 'app/icons/base/outcome.svg';
 import { ReactComponent as SendIcon } from 'app/icons/base/send.svg';
 import { ReactComponent as SwapIcon } from 'app/icons/base/swap.svg';
 import { buildSendPagePath } from 'app/pages/Send/build-url';
-import { buildSwapPageUrlQuery } from 'app/pages/Swap/utils/build-url-query';
+import { buildSwapPageUrlQuery } from 'app/pages/Swap/build-url-query';
 import { useTestnetModeEnabledSelector } from 'app/store/settings/selectors';
 import { TestIDProps } from 'lib/analytics';
 import { TID, T, t } from 'lib/i18n';

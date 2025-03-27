@@ -3297,6 +3297,9 @@
   "reviewUpdate": {
     "message": "Review update"
   },
+  "review": {
+    "message": "Review"
+  },
   "buyWithCrypto": {
     "message": "Buy with Crypto"
   },
@@ -3777,10 +3780,18 @@
   "unknownError": {
     "message": "Unknown error"
   },
-  "cannotSellToYourself": { "message": "Cannot sell to yourself" },
-  "selectedAccountCannotSignTx": { "message": "Selected account cannot sign transactions" },
-  "attributes": { "message": "Attributes" },
-  "properties": { "message": "Properties" },
+  "cannotSellToYourself": {
+    "message": "Cannot sell to yourself"
+  },
+  "selectedAccountCannotSignTx": {
+    "message": "Selected account cannot sign transactions"
+  },
+  "attributes": {
+    "message": "Attributes"
+  },
+  "properties": {
+    "message": "Properties"
+  },
   "closePartnersPromotion": {
     "message": "Are you sure you want to disable all ads?"
   },

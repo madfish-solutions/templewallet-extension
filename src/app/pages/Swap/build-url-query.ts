@@ -1,4 +1,4 @@
-import { EXTERNAL_AD_QUERY } from '../constants';
+const EXTERNAL_AD_QUERY = 'fromExternalAd';
 
 type Param = string | nullish;
 
