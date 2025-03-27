@@ -3753,6 +3753,9 @@
       }
     }
   },
+  "topupTezosBalance": {
+    "message": "Top up your balance instantly with fiat and remove barriers to using blockchain"
+  },
   "customAmount": {
     "message": "Custom amount"
   },
