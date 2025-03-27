@@ -2,9 +2,6 @@
   "appName": {
     "message": "テンプル - テゾスウォレット"
   },
-  "showIncomingTransactions": {
-    "message": "受け取り予定の取引を表示"
-  },
   "appDesc": {
     "message": "🔐💰テゾスブロックチェーン用のクリプトカレンシーウォレットをブラウザ用のWeb拡張機能として提供"
   },
@@ -23,17 +20,6 @@
   "maximiseView": {
     "message": "表示を最大化"
   },
-  "selectFileOfFormat": {
-    "message": "$format$ファイルを選択",
-    "placeholders": {
-      "format": {
-        "content": "$1"
-      }
-    }
-  },
-  "clickIconToResetPermissions": {
-    "message": "Xアイコンをクリックして権限をリセットします。"
-  },
   "versionLabel": {
     "message": "バージョン: $version$",
     "placeholders": {
@@ -46,22 +32,6 @@
     "message": "Branch: $branch$",
     "placeholders": {
       "branch": {
-        "content": "$1"
-      }
-    }
-  },
-  "feeInputDescription": {
-    "message": "このオペレーションの基本手数料: $fee$\n追加 - 確認を高速化します",
-    "placeholders": {
-      "fee": {
-        "content": "$1"
-      }
-    }
-  },
-  "resetPermissionsConfirmation": {
-    "message": "$origin$?\nの権限をリセットしますか？",
-    "placeholders": {
-      "origin": {
         "content": "$1"
       }
     }
@@ -90,79 +60,6 @@
   "networks": {
     "message": "ネットワーク"
   },
-  "back": {
-    "message": "戻る"
-  },
-  "addNewToken": {
-    "message": "新しいトークンを追加"
-  },
-  "hideSomeToken": {
-    "message": "トークン「$tokenName$」を非表示にする",
-    "placeholders": {
-      "tokenName": {
-        "content": "$1"
-      }
-    }
-  },
-  "copySomeTokenAddress": {
-    "message": "「$tokenSymbol$」アドレスをコピー",
-    "placeholders": {
-      "tokenSymbol": {
-        "content": "$1"
-      }
-    }
-  },
-  "copySomeTokenId": {
-    "message": "「$tokenSymbol$」IDをコピー",
-    "placeholders": {
-      "tokenSymbol": {
-        "content": "$1"
-      }
-    }
-  },
-  "originLabel": {
-    "message": "オリジン: $origin$",
-    "placeholders": {
-      "origin": {
-        "content": "$1"
-      }
-    }
-  },
-  "networkLabel": {
-    "message": "ネットワーク: $network$",
-    "placeholders": {
-      "network": {
-        "content": "$1"
-      }
-    }
-  },
-  "pkhLabel": {
-    "message": "アカウント: $pkh$",
-    "placeholders": {
-      "pkh": {
-        "content": "$1"
-      }
-    }
-  },
-  "recommendedBakersDescription": {
-    "message": "このリストは$link$によって提供されています",
-    "placeholders": {
-      "link": {
-        "content": "$1"
-      }
-    }
-  },
-  "highestIsBetter": {
-    "message": "高ければ高いほど良い"
-  },
-  "unlockWalletPrompt": {
-    "message": "既存のウォレットから何かを保存したい場合は、 $link$、アンロックします。",
-    "placeholders": {
-      "link": {
-        "content": "$1"
-      }
-    }
-  },
   "acceptTermsInputDescription": {
     "message": "$termsOfUsageLink$ and $privacyPolicyLink$\nを読んだうえで同意しました",
     "placeholders": {
@@ -174,23 +71,8 @@
       }
     }
   },
-  "copiedTokenAddress": {
-    "message": "コピーしました"
-  },
-  "copiedTokenId": {
-    "message": "コピーしました"
-  },
-  "delegatedTo": {
-    "message": "委任先:"
-  },
-  "delegatingMotivation": {
-    "message": "残高に利息を得るなら、ベーカーへの資金委任が非常にお勧めです"
-  },
   "reDelegate": {
     "message": "再委任"
-  },
-  "delegateNow": {
-    "message": "今すぐ委任"
   },
   "cancel": {
     "message": "キャンセル"
@@ -201,24 +83,8 @@
   "edit": {
     "message": "編集"
   },
-  "useCoinSwitch": {
-    "message": "CoinSwitchを使用",
-    "description": "CoinSwitch = https://coinswitch.co/"
-  },
-  "depositToWallet": {
-    "message": "自分のウォレットに入金"
-  },
-  "depositToWalletDescription": {
-    "message": "ウォレットに入金するための入金方法をクリックしてください。フォーセットを使うと無料のコインが入手できます！"
-  },
   "addToken": {
     "message": "トークンを追加"
-  },
-  "contractNotAvailable": {
-    "message": "このアドレスでのコントラクトは利用できません。このネットワーク上に存在しますか？"
-  },
-  "noTransferMethod": {
-    "message": "送金方法がありません"
   },
   "tokenDoesNotMatchStandard": {
     "message": "提供されたトークンコントラクトは標準、$standard$と一致しません",
@@ -230,9 +96,6 @@
   },
   "error": {
     "message": "エラー"
-  },
-  "tokenType": {
-    "message": "トークンの種類"
   },
   "tokenId": {
     "message": "トークンID"
@@ -501,14 +364,8 @@
   "send": {
     "message": "送る"
   },
-  "baking": {
-    "message": "ベーキング"
-  },
   "operations": {
     "message": "オペレーション"
-  },
-  "delegationInfoWhileMessage": {
-    "message": "委任情報を取得中または処理中"
   },
   "operationHistoryWhileMessage": {
     "message": "オペレーション履歴を取得中または処理中"
@@ -704,23 +561,11 @@
   "delegation": {
     "message": "委任"
   },
-  "customBaker": {
-    "message": "ベーカー"
-  },
-  "bakerInputDescription": {
-    "message": "登録したベーカーのアドレス"
-  },
-  "bakerInputPlaceholder": {
-    "message": "例: tz1a9w1S7hN5s..."
-  },
   "unknownBakerTitle": {
     "message": "不明なベーカー"
   },
   "unknownBakerDescription": {
     "message": "提供されたアドレスは、ベーカーとして知られていません！資金は自己責任でのみ委任してください。"
-  },
-  "recommendedBakers": {
-    "message": "推奨ベーカーに委任"
   },
   "sortBy": {
     "message": "並び替え順"
@@ -757,23 +602,6 @@
   "minimalFeeGreaterThanBalance": {
     "message": "この取引の手数料最小額は残高を上回っています。"
   },
-  "alreadyDelegatedFundsToBaker": {
-    "message": "すでにこのベーカーに資金を委任しました。再委任はできません。"
-  },
-  "bakerNotRegistered": {
-    "message": "指定したベーカーは登録されていません。"
-  },
-  "unableToPerformActionToBaker": {
-    "message": "提供されたベーカーに$action$できません。",
-    "placeholders": {
-      "action": {
-        "content": "$1"
-      }
-    }
-  },
-  "estimateDelegation": {
-    "message": "委任を見積もる"
-  },
   "thisMayHappenBecause": {
     "message": "以下の理由が考えられます:"
   },
@@ -787,9 +615,6 @@
   },
   "networkOrOtherIssue": {
     "message": "ネットワークまたは他の技術的な問題"
-  },
-  "unableToDelegateToKTAddress": {
-    "message": "KTに委任できません...コントラクトアドレス"
   },
   "confirmAction": {
     "message": "$action$を確定",

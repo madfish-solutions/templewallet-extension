@@ -2,9 +2,6 @@
   "appName": {
     "message": "Temple Wallet"
   },
-  "showIncomingTransactions": {
-    "message": "Show Incoming Transactions"
-  },
   "appDesc": {
     "message": "🔐💰Cryptocurrency wallet for Tezos blockchain as Web Extension for your Browser."
   },
@@ -26,17 +23,6 @@
   "maximiseView": {
     "message": "View Full Screen"
   },
-  "selectFileOfFormat": {
-    "message": "Select $format$ file",
-    "placeholders": {
-      "format": {
-        "content": "$1"
-      }
-    }
-  },
-  "clickIconToResetPermissions": {
-    "message": "Click on the X icon to reset permissions."
-  },
   "versionLabel": {
     "message": "Version: $version$",
     "placeholders": {
@@ -53,22 +39,6 @@
       }
     }
   },
-  "feeInputDescription": {
-    "message": "Base Fee for this operation is: $fee$\nAdditional - speeds up its confirmation",
-    "placeholders": {
-      "fee": {
-        "content": "$1"
-      }
-    }
-  },
-  "resetPermissionsConfirmation": {
-    "message": "Are you sure you want to reset permissions for\n$origin$?",
-    "placeholders": {
-      "origin": {
-        "content": "$1"
-      }
-    }
-  },
   "protectedFormField": {
     "message": "Protected"
   },
@@ -80,17 +50,6 @@
   },
   "copyHashToClipboard": {
     "message": "Copy to clipboard"
-  },
-  "showInGasOrFiat": {
-    "message": "Show in $gasToken$/$fiatCurrency$",
-    "placeholders": {
-      "gasToken": {
-        "content": "$1"
-      },
-      "fiatCurrency": {
-        "content": "$2"
-      }
-    }
   },
   "accounts": {
     "message": "Accounts"
@@ -104,79 +63,6 @@
   "networks": {
     "message": "Networks"
   },
-  "back": {
-    "message": "Back"
-  },
-  "addNewToken": {
-    "message": "Add new Token"
-  },
-  "hideSomeToken": {
-    "message": "Hide \"$tokenName$\" token",
-    "placeholders": {
-      "tokenName": {
-        "content": "$1"
-      }
-    }
-  },
-  "copySomeTokenAddress": {
-    "message": "Copy \"$tokenSymbol$\" address",
-    "placeholders": {
-      "tokenSymbol": {
-        "content": "$1"
-      }
-    }
-  },
-  "copySomeTokenId": {
-    "message": "Copy \"$tokenSymbol$\" ID",
-    "placeholders": {
-      "tokenSymbol": {
-        "content": "$1"
-      }
-    }
-  },
-  "originLabel": {
-    "message": "Origin: $origin$",
-    "placeholders": {
-      "origin": {
-        "content": "$1"
-      }
-    }
-  },
-  "networkLabel": {
-    "message": "Network: $network$",
-    "placeholders": {
-      "network": {
-        "content": "$1"
-      }
-    }
-  },
-  "pkhLabel": {
-    "message": "Account: $pkh$",
-    "placeholders": {
-      "pkh": {
-        "content": "$1"
-      }
-    }
-  },
-  "recommendedBakersDescription": {
-    "message": "This list is powered by $link$",
-    "placeholders": {
-      "link": {
-        "content": "$1"
-      }
-    }
-  },
-  "highestIsBetter": {
-    "message": "the higher the better"
-  },
-  "unlockWalletPrompt": {
-    "message": "If you want to save something from already existing wallet - $link$ and unlock it.",
-    "placeholders": {
-      "link": {
-        "content": "$1"
-      }
-    }
-  },
   "acceptTermsInputDescription": {
     "message": "I have read and agree to\nthe $termsOfUsageLink$ and $privacyPolicyLink$",
     "placeholders": {
@@ -188,23 +74,8 @@
       }
     }
   },
-  "copiedTokenAddress": {
-    "message": "Copied"
-  },
-  "copiedTokenId": {
-    "message": "Copied"
-  },
-  "delegatedTo": {
-    "message": "Delegated to:"
-  },
-  "delegatingMotivation": {
-    "message": "Delegating your funds to bakers is a great way of earning interest on your balance"
-  },
   "reDelegate": {
     "message": "Re-delegate"
-  },
-  "delegateNow": {
-    "message": "Delegate now"
   },
   "cancel": {
     "message": "Cancel"
@@ -215,24 +86,8 @@
   "edit": {
     "message": "Edit"
   },
-  "useCoinSwitch": {
-    "message": "Use CoinSwitch",
-    "description": "CoinSwitch = https://coinswitch.co/"
-  },
-  "depositToWallet": {
-    "message": "Deposit to your wallet"
-  },
-  "depositToWalletDescription": {
-    "message": "Click on deposit method to get money on your wallet. Use faucet to get free coins!"
-  },
   "addToken": {
     "message": "Add Asset"
-  },
-  "contractNotAvailable": {
-    "message": "The contract at this address is not available. Does it exist on this network?"
-  },
-  "noTransferMethod": {
-    "message": "No transfer method"
   },
   "tokenDoesNotMatchStandard": {
     "message": "Provided asset contract doesn't match $standard$ standard",
@@ -244,9 +99,6 @@
   },
   "error": {
     "message": "Error"
-  },
-  "tokenType": {
-    "message": "Token type"
   },
   "tokenId": {
     "message": "Token ID"
@@ -529,14 +381,8 @@
   "send": {
     "message": "Send"
   },
-  "baking": {
-    "message": "Baking"
-  },
   "operations": {
     "message": "Operations"
-  },
-  "delegationInfoWhileMessage": {
-    "message": "fetching or processing your delegation info"
   },
   "operationHistoryWhileMessage": {
     "message": "fetching or processing operation history"
@@ -744,23 +590,11 @@
   "delegation": {
     "message": "Delegation"
   },
-  "customBaker": {
-    "message": "Custom Baker"
-  },
-  "bakerInputDescription": {
-    "message": "Address of a registered baker."
-  },
-  "bakerInputPlaceholder": {
-    "message": "e.g. tz1a9w1S7hN5s..."
-  },
   "unknownBakerTitle": {
     "message": "Unknown baker"
   },
   "unknownBakerDescription": {
     "message": "Provided address is not known to us as a baker! Only delegate funds to it at your own risk."
-  },
-  "recommendedBakers": {
-    "message": "Delegate to Recommended Bakers"
   },
   "sortBy": {
     "message": "Sort by"
@@ -806,23 +640,6 @@
   "minimalFeeGreaterThanBalance": {
     "message": "Minimal fee for this transaction is greater than your balance."
   },
-  "alreadyDelegatedFundsToBaker": {
-    "message": "Already delegated funds to this baker. Re-delegation is not possible."
-  },
-  "bakerNotRegistered": {
-    "message": "Specified baker is not registered."
-  },
-  "unableToPerformActionToBaker": {
-    "message": "Unable to $action$ to the provided Baker.",
-    "placeholders": {
-      "action": {
-        "content": "$1"
-      }
-    }
-  },
-  "estimateDelegation": {
-    "message": "Estimate delegation"
-  },
   "thisMayHappenBecause": {
     "message": "This may happen because:"
   },
@@ -836,9 +653,6 @@
   },
   "networkOrOtherIssue": {
     "message": "Network or other technical issue."
-  },
-  "unableToDelegateToKTAddress": {
-    "message": "Unable to delegate to KT... contract address"
   },
   "confirmAction": {
     "message": "Confirm $action$",

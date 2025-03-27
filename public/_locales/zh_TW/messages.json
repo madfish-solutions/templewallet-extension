@@ -2,9 +2,6 @@
   "appName": {
     "message": "Temple - Tezos 錢包"
   },
-  "showIncomingTransactions": {
-    "message": "顯示新進交易"
-  },
   "appDesc": {
     "message": "🔐💰這是 Tezos 區塊鏈加密貨幣錢包，是一項瀏覽器網頁擴充功能。 "
   },
@@ -23,17 +20,6 @@
   "maximiseView": {
     "message": "將畫面最大化"
   },
-  "selectFileOfFormat": {
-    "message": "選取 $format$ 檔案",
-    "placeholders": {
-      "format": {
-        "content": "$1"
-      }
-    }
-  },
-  "clickIconToResetPermissions": {
-    "message": "點擊 X 圖示重新設定權限。"
-  },
   "versionLabel": {
     "message": "版本：$version$",
     "placeholders": {
@@ -46,22 +32,6 @@
     "message": "Branch: $branch$",
     "placeholders": {
       "branch": {
-        "content": "$1"
-      }
-    }
-  },
-  "feeInputDescription": {
-    "message": "此操作的基本費用：$fee$\n其他 - 加速確認",
-    "placeholders": {
-      "fee": {
-        "content": "$1"
-      }
-    }
-  },
-  "resetPermissionsConfirmation": {
-    "message": "是否確定重設 $origin$ 的\n權限？",
-    "placeholders": {
-      "origin": {
         "content": "$1"
       }
     }
@@ -90,79 +60,6 @@
   "networks": {
     "message": "網路"
   },
-  "back": {
-    "message": "返回"
-  },
-  "addNewToken": {
-    "message": "新增新代幣"
-  },
-  "hideSomeToken": {
-    "message": "隱藏「$tokenName$」代幣",
-    "placeholders": {
-      "tokenName": {
-        "content": "$1"
-      }
-    }
-  },
-  "copySomeTokenAddress": {
-    "message": "複製「$tokenSymbol$」地址",
-    "placeholders": {
-      "tokenSymbol": {
-        "content": "$1"
-      }
-    }
-  },
-  "copySomeTokenId": {
-    "message": "複製「$tokenSymbol$」ID",
-    "placeholders": {
-      "tokenSymbol": {
-        "content": "$1"
-      }
-    }
-  },
-  "originLabel": {
-    "message": "來源：$origin$",
-    "placeholders": {
-      "origin": {
-        "content": "$1"
-      }
-    }
-  },
-  "networkLabel": {
-    "message": "網路：$network$",
-    "placeholders": {
-      "network": {
-        "content": "$1"
-      }
-    }
-  },
-  "pkhLabel": {
-    "message": "帳戶：$pkh$",
-    "placeholders": {
-      "pkh": {
-        "content": "$1"
-      }
-    }
-  },
-  "recommendedBakersDescription": {
-    "message": "此清單由 $link$ 提供",
-    "placeholders": {
-      "link": {
-        "content": "$1"
-      }
-    }
-  },
-  "highestIsBetter": {
-    "message": "金額愈高愈好"
-  },
-  "unlockWalletPrompt": {
-    "message": "如果您想從現有的錢包保留東西 - $link$ 並解鎖。",
-    "placeholders": {
-      "link": {
-        "content": "$1"
-      }
-    }
-  },
   "acceptTermsInputDescription": {
     "message": "\n我已閱讀並同意 \n$termsOfUsageLink$ 和 $privacyPolicyLink$",
     "placeholders": {
@@ -174,23 +71,8 @@
       }
     }
   },
-  "copiedTokenAddress": {
-    "message": "已複製"
-  },
-  "copiedTokenId": {
-    "message": "已複製"
-  },
-  "delegatedTo": {
-    "message": "委託予："
-  },
-  "delegatingMotivation": {
-    "message": "將您的基金委託給烘焙師是利用餘額賺取利息的絕佳方法"
-  },
   "reDelegate": {
     "message": "重新委託"
-  },
-  "delegateNow": {
-    "message": "立即委託"
   },
   "cancel": {
     "message": "取消"
@@ -201,24 +83,8 @@
   "edit": {
     "message": "編輯"
   },
-  "useCoinSwitch": {
-    "message": "使用 CoinSwitch",
-    "description": "CoinSwitch = https://coinswitch.co/"
-  },
-  "depositToWallet": {
-    "message": "存款到您的錢包"
-  },
-  "depositToWalletDescription": {
-    "message": "點擊存款方式，將錢存進您的錢包。使用水龍頭獲得免費錢幣！"
-  },
   "addToken": {
     "message": "新增代幣"
-  },
-  "contractNotAvailable": {
-    "message": "無法取得此地址上的合約。您是否確定這個網路上存在此合約？"
-  },
-  "noTransferMethod": {
-    "message": "無轉帳方式"
   },
   "tokenDoesNotMatchStandard": {
     "message": "提供的代幣合約與 $standard$ 標準不相符",
@@ -230,9 +96,6 @@
   },
   "error": {
     "message": "錯誤"
-  },
-  "tokenType": {
-    "message": "代幣類型"
   },
   "tokenId": {
     "message": "代幣 ID"
@@ -501,14 +364,8 @@
   "send": {
     "message": "傳送"
   },
-  "baking": {
-    "message": "烘焙"
-  },
   "operations": {
     "message": "操作"
-  },
-  "delegationInfoWhileMessage": {
-    "message": "正在擷取或處理您的委託資料"
   },
   "operationHistoryWhileMessage": {
     "message": "正在擷取或處理操作記錄"
@@ -704,23 +561,11 @@
   "delegation": {
     "message": "委託"
   },
-  "customBaker": {
-    "message": "烘焙師"
-  },
-  "bakerInputDescription": {
-    "message": "已註冊烘焙師的地址。"
-  },
-  "bakerInputPlaceholder": {
-    "message": "例如 tz1a9w1S7hN5s…"
-  },
   "unknownBakerTitle": {
     "message": "未知的烘焙師"
   },
   "unknownBakerDescription": {
     "message": "所提供的地址並不是我們已知的烘焙師！若向此地址委託資金，您須自行承擔風險。"
-  },
-  "recommendedBakers": {
-    "message": "委託給推薦的烘焙師"
   },
   "sortBy": {
     "message": "排序方式"
@@ -757,23 +602,6 @@
   "minimalFeeGreaterThanBalance": {
     "message": "此交易的最低費用高於您的餘額。"
   },
-  "alreadyDelegatedFundsToBaker": {
-    "message": "已將資金委託給此烘焙師。無法重新委託。"
-  },
-  "bakerNotRegistered": {
-    "message": "指定的烘焙師尚未註冊。"
-  },
-  "unableToPerformActionToBaker": {
-    "message": "無法向所提供的烘焙師進行 $action$。",
-    "placeholders": {
-      "action": {
-        "content": "$1"
-      }
-    }
-  },
-  "estimateDelegation": {
-    "message": "評估委託"
-  },
   "thisMayHappenBecause": {
     "message": "可能發生的原因為："
   },
@@ -787,9 +615,6 @@
   },
   "networkOrOtherIssue": {
     "message": "網路或其他技術問題。"
-  },
-  "unableToDelegateToKTAddress": {
-    "message": "無法委託至 KT... 合約地址"
   },
   "confirmAction": {
     "message": "確認 $action$",

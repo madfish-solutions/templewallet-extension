@@ -2,9 +2,6 @@
   "appName": {
     "message": "Temple - Carteira Tezos"
   },
-  "showIncomingTransactions": {
-    "message": "Mostrar transações recebidas"
-  },
   "appDesc": {
     "message": "Carteira de criptomoedas para blocos em cadeia Tezos como extensão da Web para o seu Browser."
   },
@@ -23,20 +20,6 @@
   "maximiseView": {
     "message": "Maximizar vista"
   },
-  "selectFile": {
-    "message": "Selecionar ficheiro"
-  },
-  "selectFileOfFormat": {
-    "message": "Selecionar ficheiro $format$",
-    "placeholders": {
-      "format": {
-        "content": "$1"
-      }
-    }
-  },
-  "clickIconToResetPermissions": {
-    "message": "Clique no ícone X para repor as permissões."
-  },
   "versionLabel": {
     "message": "Versão: $version$",
     "placeholders": {
@@ -49,22 +32,6 @@
     "message": "Branch: $branch$",
     "placeholders": {
       "branch": {
-        "content": "$1"
-      }
-    }
-  },
-  "feeInputDescription": {
-    "message": "A taxa de base para esta operação é: $fee$\nAdicional - acelera a confirmação",
-    "placeholders": {
-      "fee": {
-        "content": "$1"
-      }
-    }
-  },
-  "resetPermissionsConfirmation": {
-    "message": "Tem a certeza de que pretende repor as permissões de\n$origin$?",
-    "placeholders": {
-      "origin": {
         "content": "$1"
       }
     }
@@ -93,79 +60,6 @@
   "networks": {
     "message": "Redes"
   },
-  "back": {
-    "message": "Retroceder"
-  },
-  "addNewToken": {
-    "message": "Adicionar novo Token"
-  },
-  "hideSomeToken": {
-    "message": "Ocultar token \"$tokenName$\"",
-    "placeholders": {
-      "tokenName": {
-        "content": "$1"
-      }
-    }
-  },
-  "copySomeTokenAddress": {
-    "message": "Copiar endereço \"$tokenSymbol$\"",
-    "placeholders": {
-      "tokenSymbol": {
-        "content": "$1"
-      }
-    }
-  },
-  "copySomeTokenId": {
-    "message": "Copiar ID \"$tokenSymbol$\"",
-    "placeholders": {
-      "tokenSymbol": {
-        "content": "$1"
-      }
-    }
-  },
-  "originLabel": {
-    "message": "Origem: $origin$",
-    "placeholders": {
-      "origin": {
-        "content": "$1"
-      }
-    }
-  },
-  "networkLabel": {
-    "message": "Rede: $network$",
-    "placeholders": {
-      "network": {
-        "content": "$1"
-      }
-    }
-  },
-  "pkhLabel": {
-    "message": "Conta: $pkh$",
-    "placeholders": {
-      "pkh": {
-        "content": "$1"
-      }
-    }
-  },
-  "recommendedBakersDescription": {
-    "message": "Esta lista é fornecida por $link$",
-    "placeholders": {
-      "link": {
-        "content": "$1"
-      }
-    }
-  },
-  "highestIsBetter": {
-    "message": "quanto mais, melhor"
-  },
-  "unlockWalletPrompt": {
-    "message": "Se quiser guardar algo de uma carteira já existente - $link$ e desbloqueá-lo.",
-    "placeholders": {
-      "link": {
-        "content": "$1"
-      }
-    }
-  },
   "acceptTermsInputDescription": {
     "message": "Li e concordo com\nos $termsOfUsageLink$ e a $privacyPolicyLink$",
     "placeholders": {
@@ -177,23 +71,8 @@
       }
     }
   },
-  "copiedTokenAddress": {
-    "message": "Copiado"
-  },
-  "copiedTokenId": {
-    "message": "Copiado"
-  },
-  "delegatedTo": {
-    "message": "Delegado a:"
-  },
-  "delegatingMotivation": {
-    "message": "Delegar os seus fundos a bakers é uma excelente forma de ganhar juros sobre o seu saldo"
-  },
   "reDelegate": {
     "message": "Delegar novamente"
-  },
-  "delegateNow": {
-    "message": "Delegar agora"
   },
   "cancel": {
     "message": "Cancelar"
@@ -204,27 +83,8 @@
   "edit": {
     "message": "Editar"
   },
-  "useCoinSwitch": {
-    "message": "Utilizar CoinSwitch",
-    "description": "CoinSwitch = https://coinswitch.co/"
-  },
-  "depositToWallet": {
-    "message": "Depositar na sua carteira"
-  },
-  "depositToWalletDescription": {
-    "message": "Clique no método de depósito para obter dinheiro na sua carteira. Utilize o faucet para obter moedas grátis!"
-  },
   "addToken": {
     "message": "Adicionar Ativo"
-  },
-  "addAsset": {
-    "message": "Adicionar Ativo"
-  },
-  "contractNotAvailable": {
-    "message": "O contrato neste endereço não está disponível. Existe nesta rede?"
-  },
-  "noTransferMethod": {
-    "message": "Sem método de transferência"
   },
   "tokenDoesNotMatchStandard": {
     "message": "O contrato de ativos fornecido não corresponde ao padrão $standard$",
@@ -236,9 +96,6 @@
   },
   "error": {
     "message": "Erro"
-  },
-  "tokenType": {
-    "message": "Tipo de token"
   },
   "tokenId": {
     "message": "ID de token"
@@ -519,14 +376,8 @@
   "send": {
     "message": "Enviar"
   },
-  "baking": {
-    "message": "Baking"
-  },
   "operations": {
     "message": "Operações"
-  },
-  "delegationInfoWhileMessage": {
-    "message": "a obter ou processar as informações da sua delegação"
   },
   "operationHistoryWhileMessage": {
     "message": "a obter ou processar o histórico da operação"
@@ -743,26 +594,11 @@
   "delegation": {
     "message": "Delegação"
   },
-  "customBaker": {
-    "message": "Baker"
-  },
-  "bakerInputDescription": {
-    "message": "Endereço de um baker registado."
-  },
-  "bakerInputDescriptionWithDomain": {
-    "message": "Endereço ou nome de domínio de um baker registado."
-  },
-  "bakerInputPlaceholder": {
-    "message": "por exemplo, tz1a9w1S7hN5s..."
-  },
   "unknownBakerTitle": {
     "message": "Baker desconhecido"
   },
   "unknownBakerDescription": {
     "message": "O endereço fornecido não é conhecido por nós como um baker! Apenas delegue fundos por sua conta e risco."
-  },
-  "recommendedBakers": {
-    "message": "Delegar a Bakers recomendados"
   },
   "sortBy": {
     "message": "Ordenar por"
@@ -808,23 +644,6 @@
   "minimalFeeGreaterThanBalance": {
     "message": "A taxa mínima para esta transação é superior ao seu saldo."
   },
-  "alreadyDelegatedFundsToBaker": {
-    "message": "Já delegou fundos a este baker. Não é possível delegar novamente."
-  },
-  "bakerNotRegistered": {
-    "message": "O baker especificado não está registado."
-  },
-  "unableToPerformActionToBaker": {
-    "message": "Impossível $action$ ao baker selecionado.",
-    "placeholders": {
-      "action": {
-        "content": "$1"
-      }
-    }
-  },
-  "estimateDelegation": {
-    "message": "Estimativa da delegação"
-  },
   "thisMayHappenBecause": {
     "message": "Isto pode acontecer porque:"
   },
@@ -838,9 +657,6 @@
   },
   "networkOrOtherIssue": {
     "message": "Rede ou outra questão técnica."
-  },
-  "unableToDelegateToKTAddress": {
-    "message": "Incapaz de delegar a KT... endereço contratual"
   },
   "confirmAction": {
     "message": "Confirmar $action$",

@@ -2,9 +2,6 @@
   "appName": {
     "message": "Temple Wallet"
   },
-  "showIncomingTransactions": {
-    "message": "Show Incoming Transactions"
-  },
   "appDesc": {
     "message": "🔐💰Cryptocurrency wallet for Tezos blockchain as Web Extension for your Browser."
   },
@@ -40,23 +37,9 @@
   "maximiseView": {
     "message": "View Full Screen"
   },
-  "selectFile": {
-    "message": "Select file"
-  },
-  "selectFileOfFormat": {
-    "message": "Select $format$ file",
-    "placeholders": {
-      "format": {
-        "content": "$1"
-      }
-    }
-  },
   "connectedDApps": {
     "message": "Connected Dapps",
     "description": "Dapps = Decentralized Applications"
-  },
-  "clickIconToResetPermissions": {
-    "message": "Click on the X icon to reset permissions."
   },
   "versionLabel": {
     "message": "Version: $version$",
@@ -70,22 +53,6 @@
     "message": "Branch: $branch$",
     "placeholders": {
       "branch": {
-        "content": "$1"
-      }
-    }
-  },
-  "feeInputDescription": {
-    "message": "Base Fee for this operation is: $fee$\nAdditional - speeds up its confirmation",
-    "placeholders": {
-      "fee": {
-        "content": "$1"
-      }
-    }
-  },
-  "resetPermissionsConfirmation": {
-    "message": "Are you sure you want to reset permissions for\n$origin$?",
-    "placeholders": {
-      "origin": {
         "content": "$1"
       }
     }
@@ -105,17 +72,6 @@
   "copyHashToClipboard": {
     "message": "Copy to clipboard"
   },
-  "showInGasOrFiat": {
-    "message": "Show in $gasToken$/$fiatCurrency$",
-    "placeholders": {
-      "gasToken": {
-        "content": "$1"
-      },
-      "fiatCurrency": {
-        "content": "$2"
-      }
-    }
-  },
   "accounts": {
     "message": "Accounts"
   },
@@ -128,54 +84,11 @@
   "networks": {
     "message": "Networks"
   },
-  "back": {
-    "message": "Back"
-  },
   "skip": {
     "message": "Skip"
   },
   "skipAd": {
     "message": "SKIP AD"
-  },
-  "checkNow": {
-    "message": "Check now"
-  },
-  "theLendingProtocol": {
-    "message": "The lending protocol on Tezos."
-  },
-  "alreadyLaunched": {
-    "message": "Already Launched!"
-  },
-  "borrowLandEarn": {
-    "message": "Borrow, Land and Earn on your favorite tokens!"
-  },
-  "tokensAreSupported": {
-    "message": "TEZ, cTEZ, kUSD, tzBTC, uUSD, and uBTC are supported."
-  },
-  "independenceDayOfUkraine": {
-    "message": "Independence Day of Ukraine"
-  },
-  "zeroSwapCommissionTitle": {
-    "message": "Zero Swap commissions for two weeks - celebrate the $text$ with us!",
-    "placeholders": {
-      "text": {
-        "content": "$1"
-      }
-    }
-  },
-  "zeroSwapCommissionDescription": {
-    "message": "From $date1$ till $date2$, Temple users may conduct trades via our router in the $text$ section without our dev commissions.\n\nEnjoy the most lucrative exchange rates and trade without fees in one place.",
-    "placeholders": {
-      "date1": {
-        "content": "$1"
-      },
-      "date2": {
-        "content": "$2"
-      },
-      "text": {
-        "content": "$3"
-      }
-    }
   },
   "okGotIt": {
     "message": "Got It"
@@ -183,84 +96,11 @@
   "changelogTitle": {
     "message": "Temple Wallet updated"
   },
-  "changelogDescription": {
-    "message": "In this update"
-  },
   "update": {
     "message": "Update"
   },
-  "addNewToken": {
-    "message": "Add new Token"
-  },
-  "hideSomeToken": {
-    "message": "Hide \"$tokenName$\" token",
-    "placeholders": {
-      "tokenName": {
-        "content": "$1"
-      }
-    }
-  },
-  "copySomeTokenAddress": {
-    "message": "Copy \"$tokenSymbol$\" address",
-    "placeholders": {
-      "tokenSymbol": {
-        "content": "$1"
-      }
-    }
-  },
-  "copySomeTokenId": {
-    "message": "Copy \"$tokenSymbol$\" ID",
-    "placeholders": {
-      "tokenSymbol": {
-        "content": "$1"
-      }
-    }
-  },
-  "originLabel": {
-    "message": "Origin: $origin$",
-    "placeholders": {
-      "origin": {
-        "content": "$1"
-      }
-    }
-  },
-  "networkLabel": {
-    "message": "Network: $network$",
-    "placeholders": {
-      "network": {
-        "content": "$1"
-      }
-    }
-  },
   "networkEnabled": {
     "message": "Network Enabled"
-  },
-  "pkhLabel": {
-    "message": "Account: $pkh$",
-    "placeholders": {
-      "pkh": {
-        "content": "$1"
-      }
-    }
-  },
-  "recommendedBakersDescription": {
-    "message": "This list is powered by $link$",
-    "placeholders": {
-      "link": {
-        "content": "$1"
-      }
-    }
-  },
-  "highestIsBetter": {
-    "message": "the higher the better"
-  },
-  "unlockWalletPrompt": {
-    "message": "If you want to save something from already existing wallet - $link$ and unlock it.",
-    "placeholders": {
-      "link": {
-        "content": "$1"
-      }
-    }
   },
   "acceptTermsInputDescription": {
     "message": "I have read and agree to\nthe $termsOfUsageLink$ and $privacyPolicyLink$",
@@ -272,9 +112,6 @@
         "content": "$2"
       }
     }
-  },
-  "advancedUser": {
-    "message": "I'm an advanced user"
   },
   "usageAnalytics": {
     "message": "Usage Analytics"
@@ -288,26 +125,8 @@
   "analyticsInputDescription": {
     "message": "By enabling this checkbox, you help Temple improve products and services by allowing analytics of usage data."
   },
-  "copiedTokenAddress": {
-    "message": "Copied"
-  },
-  "copiedTokenId": {
-    "message": "Copied"
-  },
-  "delegatedTo": {
-    "message": "Delegated to:"
-  },
-  "dcpDelegatingMotivation": {
-    "message": "Delegating your funds to producers is a great way of\nearning interest on your balance"
-  },
-  "delegatingMotivation": {
-    "message": "Delegating your funds to bakers is a great way of earning interest on your balance"
-  },
   "reDelegate": {
     "message": "Re-delegate"
-  },
-  "delegateNow": {
-    "message": "Delegate now"
   },
   "cancel": {
     "message": "Cancel"
@@ -324,30 +143,11 @@
   "edit": {
     "message": "Edit"
   },
-  "useCoinSwitch": {
-    "message": "Use CoinSwitch",
-    "description": "CoinSwitch = https://coinswitch.co/"
-  },
-  "depositToWallet": {
-    "message": "Deposit to your wallet"
-  },
-  "depositToWalletDescription": {
-    "message": "Click on deposit method to get money on your wallet. Use faucet to get free coins!"
-  },
   "addToken": {
-    "message": "Add Asset"
-  },
-  "addAsset": {
     "message": "Add Asset"
   },
   "available": {
     "message": "Available"
-  },
-  "contractNotAvailable": {
-    "message": "The contract at this address is not available. Does it exist on this network?"
-  },
-  "noTransferMethod": {
-    "message": "No transfer method"
   },
   "tokenDoesNotMatchStandard": {
     "message": "Provided asset contract doesn't match $standard$ standard",
@@ -359,9 +159,6 @@
   },
   "error": {
     "message": "Error"
-  },
-  "tokenType": {
-    "message": "Token type"
   },
   "tokenId": {
     "message": "Token ID"
@@ -840,17 +637,11 @@
       }
     }
   },
-  "baking": {
-    "message": "Baking"
-  },
   "operation": {
     "message": "Operation"
   },
   "operations": {
     "message": "Operations"
-  },
-  "delegationInfoWhileMessage": {
-    "message": "fetching or processing your delegation info"
   },
   "operationHistoryWhileMessage": {
     "message": "fetching or processing operation history"
@@ -1471,15 +1262,6 @@
   "delegation": {
     "message": "Delegation"
   },
-  "delegationGuide": {
-    "message": "Full video guide"
-  },
-  "delegationGuideLink": {
-    "message": "How to Delegate XTZ"
-  },
-  "delegationComunity": {
-    "message": "In case you have any questions, write them\nin our communities"
-  },
   "delegationPointsHead": {
     "message": "Earn up to $percentage$% APY on Tezos without token lock-up",
     "placeholders": {
@@ -1500,23 +1282,11 @@
   "stakeDelegationPoint": {
     "message": "Stake delegated tokens for more income"
   },
-  "customBaker": {
-    "message": "Custom Baker"
-  },
-  "bakerInputDescription": {
-    "message": "Address of a registered baker."
-  },
   "producer": {
     "message": "Producer"
   },
   "producerInputDescription": {
     "message": "Address of a registered producer."
-  },
-  "bakerInputDescriptionWithDomain": {
-    "message": "Address or domain name of a registered baker."
-  },
-  "bakerInputPlaceholder": {
-    "message": "e.g. tz1a9w1S7hN5s..."
   },
   "minDelegationBalanceTitle": {
     "message": "Minimal delegation balance"
@@ -1529,9 +1299,6 @@
   },
   "unknownBakerDescription": {
     "message": "Provided address isn’t known as a baker. Proceed with caution and delegate funds only if you’re sure of the address."
-  },
-  "recommendedBakers": {
-    "message": "Recommended Bakers"
   },
   "sortBy": {
     "message": "Sort by"
@@ -1674,12 +1441,6 @@
   "notEnoughFunds": {
     "message": "Not enough funds"
   },
-  "helpUkraineDisclainerTitle": {
-    "message": "This Baker helps Ukraine \uD83C\uDDFA\uD83C\uDDE6"
-  },
-  "helpUkraineDisclainerDescription": {
-    "message": "By delegating for this Baker, you agree that all of your rewards will go to support Ukraine.\nThank you for your contribution!"
-  },
   "notEnoughCurrencyFunds": {
     "message": "Not enough $currency$ funds",
     "placeholders": {
@@ -1703,23 +1464,6 @@
   "minimalFeeGreaterThanBalance": {
     "message": "Minimal fee for this transaction is greater than your balance."
   },
-  "alreadyDelegatedFundsToBaker": {
-    "message": "Already delegated funds to this baker. Re-delegation is not possible."
-  },
-  "bakerNotRegistered": {
-    "message": "Specified baker is not registered."
-  },
-  "unableToPerformActionToBaker": {
-    "message": "Unable to $action$ to the provided Baker.",
-    "placeholders": {
-      "action": {
-        "content": "$1"
-      }
-    }
-  },
-  "estimateDelegation": {
-    "message": "Estimate delegation"
-  },
   "thisMayHappenBecause": {
     "message": "This may happen because:"
   },
@@ -1736,9 +1480,6 @@
   },
   "networkOrOtherIssue": {
     "message": "Network or other technical issue."
-  },
-  "unableToDelegateToKTAddress": {
-    "message": "Unable to delegate to KT... contract address"
   },
   "confirmAction": {
     "message": "Confirm $action$",

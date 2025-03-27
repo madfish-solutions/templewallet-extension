@@ -2,9 +2,6 @@
   "appName": {
     "message": "Temple Wallet"
   },
-  "showIncomingTransactions": {
-    "message": "Показати вхідні транзакції"
-  },
   "appDesc": {
     "message": "🔐💰Криптовалютний гаманець для блокчейну Тезос як Розширення для твого браузеру"
   },
@@ -23,20 +20,9 @@
   "maximiseView": {
     "message": "Збільшити огляд"
   },
-  "selectFileOfFormat": {
-    "message": "Select $format$ file",
-    "placeholders": {
-      "format": {
-        "content": "$1"
-      }
-    }
-  },
   "connectedDApps": {
     "message": "Підключені Dapp`ки",
     "description": "Dapps = децентралізовані додатки"
-  },
-  "clickIconToResetPermissions": {
-    "message": "Натисни X іконку щоб скинути дозволи."
   },
   "versionLabel": {
     "message": "Версія: $version$",
@@ -54,22 +40,6 @@
       }
     }
   },
-  "feeInputDescription": {
-    "message": "Базова комісія блокчейну за цю операцію становить: $fee$\nДодаткова комісія може пришвидшити обробку транзакції",
-    "placeholders": {
-      "fee": {
-        "content": "$1"
-      }
-    }
-  },
-  "resetPermissionsConfirmation": {
-    "message": "Ви впевнені, що бажаєте скинути дозволи для\n$origin$?",
-    "placeholders": {
-      "origin": {
-        "content": "$1"
-      }
-    }
-  },
   "protectedFormField": {
     "message": "Захищений"
   },
@@ -81,17 +51,6 @@
   },
   "copyHashToClipboard": {
     "message": "Копіювати в буфер обміну"
-  },
-  "showInGasOrFiat": {
-    "message": "Показати в $gasToken$/$fiatCurrency$",
-    "placeholders": {
-      "gasToken": {
-        "content": "$1"
-      },
-      "fiatCurrency": {
-        "content": "$2"
-      }
-    }
   },
   "accounts": {
     "message": "Аккаунти"
@@ -105,79 +64,6 @@
   "networks": {
     "message": "Мережі"
   },
-  "back": {
-    "message": "Назад"
-  },
-  "addNewToken": {
-    "message": "Додати новий Токен"
-  },
-  "hideSomeToken": {
-    "message": "Сховати \"$tokenName$\" токен",
-    "placeholders": {
-      "tokenName": {
-        "content": "$1"
-      }
-    }
-  },
-  "copySomeTokenAddress": {
-    "message": "Скопіювати \"$tokenSymbol$\" адресу",
-    "placeholders": {
-      "tokenSymbol": {
-        "content": "$1"
-      }
-    }
-  },
-  "copySomeTokenId": {
-    "message": "Скопіювати \"$tokenSymbol$\" ID",
-    "placeholders": {
-      "tokenSymbol": {
-        "content": "$1"
-      }
-    }
-  },
-  "originLabel": {
-    "message": "Походження: $origin$",
-    "placeholders": {
-      "origin": {
-        "content": "$1"
-      }
-    }
-  },
-  "networkLabel": {
-    "message": "Мережа: $network$",
-    "placeholders": {
-      "network": {
-        "content": "$1"
-      }
-    }
-  },
-  "pkhLabel": {
-    "message": "Аккаунт: $pkh$",
-    "placeholders": {
-      "pkh": {
-        "content": "$1"
-      }
-    }
-  },
-  "recommendedBakersDescription": {
-    "message": "Дякуємо $link$ за цей список.",
-    "placeholders": {
-      "link": {
-        "content": "$1"
-      }
-    }
-  },
-  "highestIsBetter": {
-    "message": "чим вище тим краще"
-  },
-  "unlockWalletPrompt": {
-    "message": "Якщо ви хочете зберегти щось із уже існуючого гаманця - $link$ та розблокувати це.",
-    "placeholders": {
-      "link": {
-        "content": "$1"
-      }
-    }
-  },
   "acceptTermsInputDescription": {
     "message": "Я прочитав і погоджуюсь з $termsOfUsageLink$ та $privacyPolicyLink$",
     "placeholders": {
@@ -189,23 +75,8 @@
       }
     }
   },
-  "copiedTokenAddress": {
-    "message": "Скопійовано"
-  },
-  "copiedTokenId": {
-    "message": "Скопійовано"
-  },
-  "delegatedTo": {
-    "message": "Делеговано:"
-  },
-  "delegatingMotivation": {
-    "message": "Делегування своїх коштів Пекарям - чудовий спосіб заробити додатковий відсотки до свого балансу"
-  },
   "reDelegate": {
     "message": "Переделегувати"
-  },
-  "delegateNow": {
-    "message": "Делегувати зараз"
   },
   "cancel": {
     "message": "Відмінити"
@@ -216,24 +87,8 @@
   "edit": {
     "message": "Редагувати"
   },
-  "useCoinSwitch": {
-    "message": "Використай CoinSwitch",
-    "description": "CoinSwitch = https://coinswitch.co/"
-  },
-  "depositToWallet": {
-    "message": "Поповнити гаманаць"
-  },
-  "depositToWalletDescription": {
-    "message": "Натисніть на метод депозиту, щоб отримати гроші на свій гаманець. Використовуйте faucet, щоб отримати безкоштовні монети!"
-  },
   "addToken": {
     "message": "Додати Токен"
-  },
-  "contractNotAvailable": {
-    "message": "Смарт-контракт за цією адресою недоступний. Чи існує він у цій мережі?"
-  },
-  "noTransferMethod": {
-    "message": "Немає transfer методу"
   },
   "tokenDoesNotMatchStandard": {
     "message": "Наданий контракт токена не співпадає з $standard$ стандартом",
@@ -245,9 +100,6 @@
   },
   "error": {
     "message": "Помилка"
-  },
-  "tokenType": {
-    "message": "Тип токена"
   },
   "tokenId": {
     "message": "Токен ID"
@@ -522,14 +374,8 @@
   "send": {
     "message": "Відправити"
   },
-  "baking": {
-    "message": "Випікання"
-  },
   "operations": {
     "message": "Операції"
-  },
-  "delegationInfoWhileMessage": {
-    "message": "отримання або обробка інформації про делегування"
   },
   "operationHistoryWhileMessage": {
     "message": "отримання або обробка історії операцій"
@@ -746,23 +592,11 @@
   "delegation": {
     "message": "Делегування"
   },
-  "customBaker": {
-    "message": "Пекар"
-  },
-  "bakerInputDescription": {
-    "message": "Адреса зареєстрованого пекаря."
-  },
-  "bakerInputPlaceholder": {
-    "message": "e.g. tz1a9w1S7hN5s..."
-  },
   "unknownBakerTitle": {
     "message": "Невідомий пекар"
   },
   "unknownBakerDescription": {
     "message": "Надана адреса нам не відома як адреса Пекаря! Делегуйте йому кошти лише на власний ризик."
-  },
-  "recommendedBakers": {
-    "message": "Делегуйте до рекомендованих Пекарів"
   },
   "sortBy": {
     "message": "Сортувати за"
@@ -817,23 +651,6 @@
   "minimalFeeGreaterThanBalance": {
     "message": "Мінімальна комісія за цю транзакцію перевищує ваш баланс."
   },
-  "alreadyDelegatedFundsToBaker": {
-    "message": "Ти вже делегував кошти цьому пекареві. Повторне делегування неможливе."
-  },
-  "bakerNotRegistered": {
-    "message": "Вказаний пекар не зареєстрований."
-  },
-  "unableToPerformActionToBaker": {
-    "message": "Неможливо $action$ цьому Пекарю.",
-    "placeholders": {
-      "action": {
-        "content": "$1"
-      }
-    }
-  },
-  "estimateDelegation": {
-    "message": "Оцініть делегацію"
-  },
   "thisMayHappenBecause": {
     "message": "Це могло статися через:"
   },
@@ -850,9 +667,6 @@
   },
   "networkOrOtherIssue": {
     "message": "Проблеми мережі, або інші технічні проблеми."
-  },
-  "unableToDelegateToKTAddress": {
-    "message": "Неможливо делегувати до KT... адреси контракту"
   },
   "confirmAction": {
     "message": "Підтвердити $action$",
