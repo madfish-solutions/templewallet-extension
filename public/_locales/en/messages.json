@@ -2131,17 +2131,23 @@
   "noAssetsFound": {
     "message": "No assets found"
   },
-  "tokensNotFound": {
-    "message": "Tokens Not Found"
-  },
   "notFound": {
     "message": "Not Found"
+  },
+  "noTokens": {
+    "message": "No tokens"
+  },
+  "noCollectibles": {
+    "message": "No collectibles"
   },
   "selectNetwork": {
     "message": "Select Network"
   },
   "addCustomToken": {
     "message": "Add Custom Token"
+  },
+  "addCustomTokenNonCapitalize": {
+    "message": "Add custom token"
   },
   "tokenAddress": {
     "message": "Token address"
@@ -2511,7 +2517,7 @@
     "message": "Delete"
   },
   "rpcAdded": {
-    "message": "RPC added"
+    "message": "RPC Added"
   },
   "blockExplorerAdded": {
     "message": "Block explorer added"

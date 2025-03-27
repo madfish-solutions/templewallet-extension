@@ -164,6 +164,7 @@ const Unlock: FC<UnlockProps> = ({ canImportNew = true }) => {
     const interval = setInterval(() => {
       if (Date.now() - timelock > lockLevel) {
         setTimeLock(0);
+        clearError('password');
       }
       setTimeleft(getTimeLeft(timelock, lockLevel));
     }, 1_000);
@@ -171,7 +172,7 @@ const Unlock: FC<UnlockProps> = ({ canImportNew = true }) => {
     return () => {
       clearInterval(interval);
     };
-  }, [timelock, lockLevel, setTimeLock]);
+  }, [timelock, lockLevel, setTimeLock, clearError]);
 
   return (
     <PageLayout

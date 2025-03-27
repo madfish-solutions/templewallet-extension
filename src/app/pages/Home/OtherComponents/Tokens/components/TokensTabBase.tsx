@@ -21,6 +21,7 @@ interface TokensTabBaseProps {
   loadNextPage: EmptyFn;
   onSearchValueChange: (value: string) => void;
   isSyncing: boolean;
+  isInSearchMode: boolean;
   network?: OneOfChains;
 }
 
@@ -30,6 +31,7 @@ export const TokensTabBase: FC<PropsWithChildren<TokensTabBaseProps>> = ({
   loadNextPage,
   onSearchValueChange,
   isSyncing,
+  isInSearchMode,
   network,
   children
 }) => {
@@ -57,10 +59,22 @@ export const TokensTabBase: FC<PropsWithChildren<TokensTabBaseProps>> = ({
             {/*{manageActive ? null : <UpdateAppBanner stickyBarRef={stickyBarRef} />}*/}
 
             {tokensCount === 0 ? (
-              <EmptySection forCollectibles={false} textI18n="tokensNotFound" network={network} />
+              <EmptySection
+                forCollectibles={false}
+                manageActive={manageActive}
+                forSearch={isInSearchMode}
+                network={network}
+              />
             ) : (
               <>
-                {manageActive && <AddCustomTokenButton forCollectibles={false} />}
+                {manageActive && (
+                  <AddCustomTokenButton
+                    forCollectibles={false}
+                    manageActive={manageActive}
+                    network={network}
+                    className="mb-4"
+                  />
+                )}
                 <SimpleInfiniteScroll loadNext={loadNextPage}>{children}</SimpleInfiniteScroll>
                 {isSyncing && <SyncSpinner className="mt-4" />}
               </>

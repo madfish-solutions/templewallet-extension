@@ -89,7 +89,7 @@ interface TabContentBaseProps {
 }
 
 const TabContentBase = memo<TabContentBaseProps>(({ publicKeyHash, allSlugsSorted, groupByNetwork, manageActive }) => {
-  const { displayedSlugs, isSyncing, loadNext, searchValue, setSearchValue } =
+  const { displayedSlugs, isSyncing, loadNext, searchValue, isInSearchMode, setSearchValue } =
     useEvmAccountTokensListingLogic(allSlugsSorted);
 
   const groupedSlugs = useChainsSlugsGrouping<number>(displayedSlugs, groupByNetwork);
@@ -152,6 +152,7 @@ const TabContentBase = memo<TabContentBaseProps>(({ publicKeyHash, allSlugsSorte
       loadNextPage={loadNext}
       onSearchValueChange={setSearchValue}
       isSyncing={isSyncing}
+      isInSearchMode={isInSearchMode}
       network={mainnetChain}
     >
       {tokensView}

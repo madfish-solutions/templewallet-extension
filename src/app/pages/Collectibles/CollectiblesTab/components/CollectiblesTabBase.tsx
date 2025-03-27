@@ -20,7 +20,7 @@ interface CollectiblesTabBaseProps {
   loadNextPage: EmptyFn;
   onSearchValueChange: (value: string) => void;
   isSyncing: boolean;
-  isInSearchMode?: boolean;
+  isInSearchMode: boolean;
   network?: OneOfChains;
 }
 
@@ -30,7 +30,7 @@ export const CollectiblesTabBase: FC<PropsWithChildren<CollectiblesTabBaseProps>
   loadNextPage,
   onSearchValueChange,
   isSyncing,
-  isInSearchMode = false,
+  isInSearchMode,
   network,
   children
 }) => {
@@ -55,14 +55,26 @@ export const CollectiblesTabBase: FC<PropsWithChildren<CollectiblesTabBaseProps>
         <FadeTransition>
           <ContentContainer padding={collectiblesCount > 0}>
             {collectiblesCount === 0 ? (
-              <EmptySection forCollectibles={true} network={network} />
+              <EmptySection
+                forCollectibles={true}
+                manageActive={manageActive}
+                forSearch={isInSearchMode}
+                network={network}
+              />
             ) : (
               <>
                 {isInSearchMode ? (
                   children
                 ) : (
                   <>
-                    {manageActive && <AddCustomTokenButton forCollectibles={true} />}
+                    {manageActive && (
+                      <AddCustomTokenButton
+                        forCollectibles={true}
+                        manageActive={manageActive}
+                        network={network}
+                        className="mb-4"
+                      />
+                    )}
                     <SimpleInfiniteScroll loadNext={loadNextPage}>{children}</SimpleInfiniteScroll>
                   </>
                 )}

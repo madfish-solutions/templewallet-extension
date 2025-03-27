@@ -136,7 +136,7 @@ export const CreateUrlEntityModal = memo(
               )}
             />
           </ScrollView>
-          <ActionsButtonsBox shouldCastShadow={!bottomEdgeIsVisible} shouldChangeBottomShift={false}>
+          <ActionsButtonsBox shouldCastShadow={!bottomEdgeIsVisible}>
             <StyledButton
               size="L"
               color="primary"

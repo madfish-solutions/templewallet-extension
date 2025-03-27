@@ -1,43 +1,34 @@
-import React, { memo } from 'react';
+import React, { memo, useMemo } from 'react';
 
-import { Button, IconBase } from 'app/atoms';
+import { AddCustomTokenButton } from 'app/atoms/AddCustomTokenButton';
 import { EmptyState } from 'app/atoms/EmptyState';
-import { ReactComponent as AddIcon } from 'app/icons/base/plus_circle.svg';
-import { T, TID } from 'lib/i18n';
-import { useBooleanState } from 'lib/ui/hooks';
+import { TID } from 'lib/i18n';
 import { OneOfChains } from 'temple/front';
-
-import { AddTokenModal } from './AddTokenModal';
 
 interface Props {
   forCollectibles: boolean;
-  textI18n?: TID;
+  forSearch: boolean;
+  manageActive: boolean;
   network?: OneOfChains;
 }
 
-export const EmptySection = memo<Props>(({ forCollectibles, textI18n, network }) => {
-  const [addTokenModalOpened, setAddTokenModalOpen, setAddTokenModalClosed] = useBooleanState(false);
+export const EmptySection = memo<Props>(({ forCollectibles, forSearch, manageActive, network }) => {
+  const textI18n = useMemo<TID>(
+    () => (forSearch ? 'noAssetsFound' : forCollectibles ? 'noCollectibles' : 'noTokens'),
+    [forCollectibles, forSearch]
+  );
+
+  const commonProps = {
+    forCollectibles,
+    manageActive,
+    network
+  };
 
   return (
-    <>
-      <div className="w-full h-full flex flex-col items-center">
-        <EmptyState textI18n={textI18n} stretch />
-
-        <Button
-          className="w-fit flex flex-row mb-8 px-2 py-1 bg-secondary-low rounded-md text-font-description-bold text-secondary"
-          onClick={setAddTokenModalOpen}
-        >
-          <IconBase Icon={AddIcon} size={12} className="stroke-current" />
-          <T id="addCustomToken" />
-        </Button>
-      </div>
-
-      <AddTokenModal
-        forCollectible={forCollectibles}
-        opened={addTokenModalOpened}
-        onRequestClose={setAddTokenModalClosed}
-        initialNetwork={network}
-      />
-    </>
+    <div className="w-full h-full px-4 flex flex-col items-center">
+      {manageActive && <AddCustomTokenButton {...commonProps} className="w-full mt-4" />}
+      <EmptyState forSearch={forSearch} textI18n={textI18n} stretch />
+      {!manageActive && <AddCustomTokenButton {...commonProps} className="mb-8" />}
+    </div>
   );
 });
