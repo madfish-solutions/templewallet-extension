@@ -16,7 +16,6 @@ import {
 } from 'app/hooks/use-baking-hooks';
 import { useRichFormatTooltip } from 'app/hooks/use-rich-format-tooltip';
 import { ReactComponent as OutLinkIcon } from 'app/icons/base/outLink.svg';
-import { BakerStatsEntry } from 'app/templates/baker-card';
 import { StakingCard } from 'app/templates/staking-card';
 import { TEZ_TOKEN_SLUG } from 'lib/assets';
 import { useTezosAssetBalance } from 'lib/balances';
@@ -330,3 +329,15 @@ const UnstakeRequestItem = memo<UnstakeRequestItemProps>(
     );
   }
 );
+
+interface BakerStatsEntryProps {
+  name: string;
+  value: ReactChildren;
+}
+
+const BakerStatsEntry = memo<BakerStatsEntryProps>(({ name, value }) => (
+  <div className="flex flex-1 flex-col gap-0.5">
+    <span className="text-font-description text-grey-2">{name}:</span>
+    <span className="text-font-num-12">{value}</span>
+  </div>
+));

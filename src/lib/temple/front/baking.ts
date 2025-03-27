@@ -2,7 +2,6 @@ import { useCallback, useMemo } from 'react';
 
 import { ChainIds } from '@taquito/taquito';
 import retry from 'async-retry';
-import BigNumber from 'bignumber.js';
 import useSWR, { unstable_serialize, useSWRConfig } from 'swr';
 
 import { BoundaryError } from 'app/ErrorBoundary';
@@ -131,180 +130,7 @@ export function useKnownBakers(chainId: string, suspense = true) {
   return useMemo(() => (bakers && bakers.length > 1 ? bakers.map(baker => toBakerWithLogo(baker)) : null), [bakers]);
 }
 
-type RewardsStatsCalculationParams = {
-  rewardsEntry: TzktRewardsEntry;
-  bakerDetails: Baker | null | undefined;
-  currentCycle: number | undefined;
-} & Record<
-  | 'fallbackRewardPerOwnBlock'
-  | 'fallbackRewardPerEndorsement'
-  | 'fallbackRewardPerFutureBlock'
-  | 'fallbackRewardPerFutureEndorsement',
-  BigNumber
->;
-
-function getBakingEfficiency({ rewardsEntry }: RewardsStatsCalculationParams) {
-  const {
-    ownBlockRewards,
-    extraBlockRewards,
-    futureBlockRewards,
-    endorsementRewards,
-    futureEndorsementRewards,
-    ownBlocks,
-    futureBlocks,
-    futureEndorsements,
-    endorsements,
-    ownBlockFees,
-    extraBlockFees,
-    revelationRewards,
-    doubleBakingRewards,
-    doubleEndorsingRewards,
-    missedEndorsementRewards,
-    missedExtraBlockRewards,
-    missedExtraBlockFees,
-    missedOwnBlockFees,
-    missedOwnBlockRewards
-  } = rewardsEntry;
-  const totalFutureRewards = new BigNumber(futureEndorsementRewards).plus(futureBlockRewards);
-  const totalCurrentRewards = new BigNumber(extraBlockRewards)
-    .plus(ownBlockRewards)
-    .plus(endorsementRewards)
-    .plus(doubleEndorsingRewards)
-    .plus(ownBlockFees)
-    .plus(extraBlockFees)
-    .plus(revelationRewards)
-    .plus(doubleBakingRewards);
-  const totalRewards = totalFutureRewards.plus(totalCurrentRewards);
-
-  const fullEfficiencyIncome = new BigNumber(4e7)
-    .multipliedBy(new BigNumber(ownBlocks).plus(futureBlocks))
-    .plus(new BigNumber(1.25e6).multipliedBy(new BigNumber(endorsements).plus(futureEndorsements)));
-  const totalLost = new BigNumber(missedEndorsementRewards)
-    .plus(missedExtraBlockFees)
-    .plus(missedExtraBlockRewards)
-    .plus(missedOwnBlockFees)
-    .plus(missedOwnBlockRewards);
-  const totalGain = totalRewards.minus(totalLost).minus(fullEfficiencyIncome);
-  return new BigNumber(1).plus(totalGain.div(fullEfficiencyIncome));
-}
-
-type CycleStatus = 'unlocked' | 'locked' | 'future' | 'inProgress';
-
-export function getRewardsStats(params: RewardsStatsCalculationParams) {
-  const { rewardsEntry, bakerDetails, currentCycle } = params;
-  const {
-    cycle,
-    balance,
-    ownBlockRewards,
-    extraBlockRewards,
-    futureBlockRewards,
-    endorsementRewards,
-    futureEndorsementRewards,
-    stakingBalance,
-    expectedBlocks,
-    expectedEndorsements,
-    ownBlockFees,
-    extraBlockFees,
-    revelationRewards,
-    doubleBakingRewards,
-    doubleEndorsingRewards
-  } = rewardsEntry;
-
-  const totalFutureRewards = new BigNumber(futureEndorsementRewards).plus(futureBlockRewards);
-  const totalCurrentRewards = new BigNumber(extraBlockRewards)
-    .plus(endorsementRewards)
-    .plus(ownBlockRewards)
-    .plus(ownBlockFees)
-    .plus(extraBlockFees)
-    .plus(revelationRewards)
-    .plus(doubleBakingRewards)
-    .plus(doubleEndorsingRewards);
-  const cycleStatus: CycleStatus = (() => {
-    switch (true) {
-      case totalFutureRewards.eq(0) && (currentCycle === undefined || cycle <= currentCycle - 6):
-        return 'unlocked';
-      case totalFutureRewards.eq(0):
-        return 'locked';
-      case totalCurrentRewards.eq(0):
-        return 'future';
-      default:
-        return 'inProgress';
-    }
-  })();
-  const totalRewards = totalFutureRewards.plus(totalCurrentRewards);
-  const rewards = totalRewards.multipliedBy(balance).div(stakingBalance);
-  let luck = expectedBlocks + expectedEndorsements > 0 ? new BigNumber(-1) : new BigNumber(0);
-  if (totalFutureRewards.plus(totalCurrentRewards).gt(0)) {
-    luck = calculateLuck(params, totalRewards);
-  }
-  const bakerFeePart = bakerDetails?.delegation.fee ?? 0;
-  const bakerFee = rewards.multipliedBy(bakerFeePart);
-  return {
-    balance,
-    rewards,
-    luck,
-    bakerFeePart,
-    bakerFee,
-    cycleStatus,
-    efficiency: getBakingEfficiency(params)
-  };
-}
-
-const calculateLuck = (params: RewardsStatsCalculationParams, totalRewards: BigNumber) => {
-  const {
-    rewardsEntry,
-    fallbackRewardPerOwnBlock,
-    fallbackRewardPerEndorsement,
-    fallbackRewardPerFutureBlock,
-    fallbackRewardPerFutureEndorsement
-  } = params;
-  const {
-    ownBlockRewards,
-    futureBlockRewards,
-    endorsementRewards,
-    futureEndorsementRewards,
-    expectedBlocks,
-    expectedEndorsements,
-    ownBlocks,
-    futureBlocks,
-    futureEndorsements,
-    endorsements
-  } = rewardsEntry;
-  const rewardPerOwnBlock = ownBlocks === 0 ? fallbackRewardPerOwnBlock : new BigNumber(ownBlockRewards).div(ownBlocks);
-  const rewardPerEndorsement =
-    endorsements === 0 ? fallbackRewardPerEndorsement : new BigNumber(endorsementRewards).div(endorsements);
-  const asIfNoFutureExpectedBlockRewards = new BigNumber(expectedBlocks).multipliedBy(rewardPerOwnBlock);
-  const asIfNoFutureExpectedEndorsementRewards = new BigNumber(expectedEndorsements).multipliedBy(rewardPerEndorsement);
-  const asIfNoFutureExpectedRewards = asIfNoFutureExpectedBlockRewards.plus(asIfNoFutureExpectedEndorsementRewards);
-
-  const rewardPerFutureBlock =
-    futureBlocks === 0 ? fallbackRewardPerFutureBlock : new BigNumber(futureBlockRewards).div(futureBlocks);
-  const rewardPerFutureEndorsement =
-    futureEndorsements === 0
-      ? fallbackRewardPerFutureEndorsement
-      : new BigNumber(futureEndorsementRewards).div(futureEndorsements);
-  const asIfNoCurrentExpectedBlockRewards = new BigNumber(expectedBlocks).multipliedBy(rewardPerFutureBlock);
-  const asIfNoCurrentExpectedEndorsementRewards = new BigNumber(expectedEndorsements).multipliedBy(
-    rewardPerFutureEndorsement
-  );
-  const asIfNoCurrentExpectedRewards = asIfNoCurrentExpectedBlockRewards.plus(asIfNoCurrentExpectedEndorsementRewards);
-
-  const weights =
-    endorsements + futureEndorsements === 0
-      ? { current: ownBlocks, future: futureBlocks }
-      : { current: endorsements, future: futureEndorsements };
-  const totalExpectedRewards =
-    weights.current + weights.future === 0
-      ? new BigNumber(0)
-      : asIfNoFutureExpectedRewards
-          .multipliedBy(weights.current)
-          .plus(asIfNoCurrentExpectedRewards.multipliedBy(weights.future))
-          .div(new BigNumber(weights.current).plus(weights.future));
-
-  return totalRewards.minus(totalExpectedRewards).div(totalExpectedRewards);
-};
-
-interface RewardsStatsCalculationParamsV2
+interface RewardsStatsCalculationParams
   extends Pick<TzktSetDelegateParamsOperation, 'limitOfStakingOverBaking' | 'edgeOfBakingOverStaking'> {
   rewardsEntry: TzktRewardsEntry;
   cycle: TzktCycle;
@@ -324,7 +150,7 @@ function sumFields<K extends string, T extends Record<K, number>>(
   );
 }
 
-export function getRewardsStatsV2({
+export function getRewardsStats({
   rewardsEntry,
   cycle,
   protocol,
@@ -332,7 +158,7 @@ export function getRewardsStatsV2({
   edgeOfBakingOverStaking,
   delegationFee: delegationFeeRatio,
   minDelegation
-}: RewardsStatsCalculationParamsV2) {
+}: RewardsStatsCalculationParams) {
   limitOfStakingOverBaking /= 1e6;
   edgeOfBakingOverStaking /= 1e9;
   const {

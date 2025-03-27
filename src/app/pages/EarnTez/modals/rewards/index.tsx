@@ -19,7 +19,7 @@ import { TzktProtocol, TzktSetDelegateParamsOperation } from 'lib/apis/tzkt/type
 import { T, getPluralKey, t } from 'lib/i18n';
 import { getTezosGasMetadata } from 'lib/metadata';
 import { useRetryableSWR } from 'lib/swr';
-import { getRewardsStatsV2 } from 'lib/temple/front/baking';
+import { getRewardsStats } from 'lib/temple/front';
 import { toPercentage } from 'lib/ui/utils';
 import { AccountForTezos } from 'temple/accounts';
 
@@ -185,7 +185,7 @@ const PageModalContent = memo<Omit<RewardsModalProps, 'onClose' | 'isOpen'>>(({ 
       );
 
       return {
-        ...getRewardsStatsV2({
+        ...getRewardsStats({
           rewardsEntry: reward,
           cycle,
           protocol,

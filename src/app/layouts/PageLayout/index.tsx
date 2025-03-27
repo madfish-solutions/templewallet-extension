@@ -5,7 +5,6 @@ import clsx from 'clsx';
 import { FADABLE_CONTENT_CLASSNAME } from 'app/a11y/content-fader';
 import DocBg from 'app/a11y/DocBg';
 import { FadeTransition } from 'app/a11y/FadeTransition';
-import Spinner from 'app/atoms/Spinner/Spinner';
 import { SuspenseContainer } from 'app/atoms/SuspenseContainer';
 import { useAppEnv } from 'app/env';
 import { useScrollEdgesVisibility } from 'app/hooks/use-scroll-edges-visibility';
@@ -195,9 +194,3 @@ const TestnetModeIndicator = memo(() => {
     </div>
   );
 });
-
-export const SpinnerSection: FC = () => (
-  <div className="flex justify-center mt-24">
-    <Spinner className="w-20" />
-  </div>
-);

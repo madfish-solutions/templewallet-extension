@@ -7,7 +7,7 @@ import { getBakerLogoUrl } from 'lib/temple/front/baking';
 
 import { ReactComponent as UnknownBakerIcon } from './unknown-baker.svg';
 
-export interface BakerAvatarProps {
+interface BakerAvatarProps {
   address?: string;
   bakerName?: string;
   className?: string;

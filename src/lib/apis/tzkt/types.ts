@@ -3,7 +3,7 @@ import { HubConnection } from '@microsoft/signalr';
 /**
  * Actually, there is a bunch of other types but only these will be used for now
  */
-export type TzktOperationType = 'delegation' | 'transaction' | 'reveal' | 'origination';
+export type TzktOperationType = 'delegation' | 'transaction' | 'reveal' | 'origination' | 'set_delegate_parameters';
 
 export type TzktQuoteCurrency = 'None' | 'Btc' | 'Eur' | 'Usd' | 'Cny' | 'Jpy' | 'Krw';
 
@@ -76,6 +76,7 @@ interface TzktRevealOperation extends TzktOperationBase {
 }
 
 export interface TzktSetDelegateParamsOperation extends TzktOperationBase {
+  type: 'set_delegate_parameters';
   bakerFee: number;
   limitOfStakingOverBaking: number;
   edgeOfBakingOverStaking: number;

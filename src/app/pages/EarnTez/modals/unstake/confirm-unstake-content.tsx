@@ -4,7 +4,6 @@ import { TezosToolkit } from '@taquito/taquito';
 
 import { OneAssetHeader } from 'app/templates/one-asset-header';
 import { TEZ_TOKEN_SLUG } from 'lib/assets';
-import { toLocalFixed } from 'lib/i18n';
 
 import { ConfirmEarnOperationContent } from '../../components/confirm-earn-operation-content';
 
