@@ -1987,6 +1987,9 @@
   "notFound": {
     "message": "Not Found"
   },
+  "noRewardsYet": {
+    "message": "No rewards yet"
+  },
   "selectNetwork": {
     "message": "Select Network"
   },

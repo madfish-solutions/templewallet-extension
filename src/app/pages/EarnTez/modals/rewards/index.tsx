@@ -2,6 +2,7 @@ import React, { memo, useCallback, useMemo, useState } from 'react';
 
 import { identity, uniq } from 'lodash';
 
+import { EmptyState } from 'app/atoms/EmptyState';
 import { PageLoader } from 'app/atoms/Loader';
 import { PageModal } from 'app/atoms/PageModal';
 import { ScrollView } from 'app/atoms/PageModal/scroll-view';
@@ -117,11 +118,12 @@ const PageModalContent = memo<Omit<RewardsModalProps, 'onClose' | 'isOpen'>>(({ 
 
   const bakingHistory = useMemo(() => {
     const { rewards, cycles, protocol, setParamsOperations, stories } = bakingHistoryInput!;
+    console.log('oy vey 1', { rewards, cycles, setParamsOperations, stories });
 
     const lastFutureRewardsEntry = rewards.findLast(
       ({ futureBlockRewards, futureEndorsementRewards }) => futureBlockRewards + futureEndorsementRewards > 0
     );
-    const lastFutureRewardsCycle = lastFutureRewardsEntry?.cycle ?? cycles[0].index + 1;
+    const lastFutureRewardsCycle = lastFutureRewardsEntry?.cycle ?? Infinity;
 
     return rewards.map((reward): BakingHistoryEntry => {
       const { cycle: cycleIndex, baker } = reward;
@@ -177,16 +179,20 @@ const PageModalContent = memo<Omit<RewardsModalProps, 'onClose' | 'isOpen'>>(({ 
 
   return (
     <ScrollView className="p-4 gap-4">
-      {bakingHistory.map((item, index) => (
-        <BakingHistoryItem
-          key={index}
-          item={item}
-          active={activeItemIndex === index}
-          index={index}
-          tezSymbol={tezSymbol}
-          onClick={handleItemClick}
-        />
-      ))}
+      {bakingHistory.length === 0 ? (
+        <EmptyState forSearch={false} textI18n="noRewardsYet" stretch />
+      ) : (
+        bakingHistory.map((item, index) => (
+          <BakingHistoryItem
+            key={index}
+            item={item}
+            active={activeItemIndex === index}
+            index={index}
+            tezSymbol={tezSymbol}
+            onClick={handleItemClick}
+          />
+        ))
+      )}
     </ScrollView>
   );
 });
