@@ -118,12 +118,11 @@ const PageModalContent = memo<Omit<RewardsModalProps, 'onClose' | 'isOpen'>>(({ 
 
   const bakingHistory = useMemo(() => {
     const { rewards, cycles, protocol, setParamsOperations, stories } = bakingHistoryInput!;
-    console.log('oy vey 1', { rewards, cycles, setParamsOperations, stories });
 
-    const lastFutureRewardsEntry = rewards.findLast(
-      ({ futureBlockRewards, futureEndorsementRewards }) => futureBlockRewards + futureEndorsementRewards > 0
-    );
-    const lastFutureRewardsCycle = lastFutureRewardsEntry?.cycle ?? Infinity;
+    const nowDate = new Date().toISOString();
+    const currentCycleIndex = Object.values(cycles).find(
+      ({ startTime, endTime }) => startTime <= nowDate && endTime > nowDate
+    )!.index;
 
     return rewards.map((reward): BakingHistoryEntry => {
       const { cycle: cycleIndex, baker } = reward;
@@ -168,11 +167,7 @@ const PageModalContent = memo<Omit<RewardsModalProps, 'onClose' | 'isOpen'>>(({ 
         bakerAddress,
         bakerName,
         status:
-          cycleIndex > lastFutureRewardsCycle
-            ? 'not_come'
-            : cycleIndex === lastFutureRewardsCycle
-            ? 'in_progress'
-            : 'finished'
+          cycleIndex > currentCycleIndex ? 'not_come' : cycleIndex === currentCycleIndex ? 'in_progress' : 'finished'
       };
     });
   }, [bakingHistoryInput]);
