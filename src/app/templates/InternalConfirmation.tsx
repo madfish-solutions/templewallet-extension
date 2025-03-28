@@ -29,7 +29,7 @@ import { runConnectedLedgerOperationFlow } from 'lib/ui';
 import { useSafeState } from 'lib/ui/hooks';
 import { isTruthy } from 'lib/utils';
 import { findAccountForTezos } from 'temple/accounts';
-import { useTezosChainIdLoadingValue, useRelevantAccounts } from 'temple/front';
+import { useTezosChainIdLoadingValue, useRelevantAccounts, useAccountAddressForTezos } from 'temple/front';
 
 import { InternalConfirmationSelectors } from './InternalConfirmation.selectors';
 import { LedgerApprovalModal } from './ledger-approval-modal';
@@ -44,6 +44,7 @@ const MIN_GAS_FEE = 0;
 
 const InternalConfirmation: FC<InternalConfiramtionProps> = ({ payload, onConfirm, error: payloadError }) => {
   const { popup } = useAppEnv();
+  const publicKeyHash = useAccountAddressForTezos();
 
   const getContentToParse = useCallback(async () => {
     switch (payload.type) {
@@ -93,7 +94,10 @@ const InternalConfirmation: FC<InternalConfiramtionProps> = ({ payload, onConfir
 
   useEffect(() => {
     try {
-      const { errorDetails, errors, name } = payloadError.error[0];
+      const { errorDetails, errors, name, message } = payloadError.error[0];
+      if (message?.includes('empty_implicit_contract') && message?.includes(publicKeyHash)) {
+        dispatch(setOnRampPossibilityAction(true));
+      }
       if (
         payload.type !== 'operations' ||
         !errorDetails.toLowerCase().includes('estimation') ||
@@ -113,7 +117,7 @@ const InternalConfirmation: FC<InternalConfiramtionProps> = ({ payload, onConfir
         dispatch(setOnRampPossibilityAction(true));
       }
     } catch {}
-  }, [payload.sourcePkh, payload.type, payloadError]);
+  }, [payload.sourcePkh, payload.type, payloadError, publicKeyHash]);
 
   const signPayloadFormats: ViewsSwitcherItemProps[] = useMemo(() => {
     if (payload.type === 'operations') {
