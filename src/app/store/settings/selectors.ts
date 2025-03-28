@@ -14,7 +14,4 @@ export const useIsAdsImpressionsLinkedSelector = () => useSelector(({ settings }
 
 export const useReferralLinksEnabledSelector = () => useSelector(({ settings }) => settings.referralLinksEnabled);
 
-export const useToastsContainerBottomShiftSelector = () =>
-  useSelector(({ settings }) => settings.toastsContainerBottomShift);
-
 export const useTestnetModeEnabledSelector = () => useSelector(({ settings }) => settings.isTestnetModeEnabled);

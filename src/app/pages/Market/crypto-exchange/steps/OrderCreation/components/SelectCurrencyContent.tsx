@@ -7,7 +7,6 @@ import { FadeTransition } from 'app/a11y/FadeTransition';
 import { Button } from 'app/atoms';
 import { EmptyState } from 'app/atoms/EmptyState';
 import { PageLoader } from 'app/atoms/Loader';
-import { BackButton } from 'app/atoms/PageModal';
 import { SimpleInfiniteScroll } from 'app/atoms/SimpleInfiniteScroll';
 import { useSimplePaginationLogic } from 'app/hooks/use-simple-pagination-logic';
 import {
@@ -61,8 +60,8 @@ export const SelectCurrencyContent: FC<Props> = ({ content, setModalHeaderConfig
   const outputCurrency = watch('outputCurrency');
 
   useLayoutEffect(
-    () => void setModalHeaderConfig({ title: t('selectToken'), titleLeft: <BackButton onClick={onGoBack} /> }),
-    []
+    () => void setModalHeaderConfig({ title: t('selectToken'), onGoBack }),
+    [onGoBack, setModalHeaderConfig]
   );
 
   const enabledExolixNetworkCodes = useMemo(

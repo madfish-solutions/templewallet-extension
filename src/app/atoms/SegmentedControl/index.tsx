@@ -1,4 +1,4 @@
-import React, { useEffect, RefObject, CSSProperties } from 'react';
+import React, { useEffect, RefObject, CSSProperties, useRef } from 'react';
 
 import clsx from 'clsx';
 
@@ -15,7 +15,6 @@ interface SegmentedControlProps<T extends string> {
   segments: Segment<T>[];
   activeSegment: T;
   setActiveSegment: SyncFn<T>;
-  controlRef: RefObject<HTMLDivElement>;
   className?: string;
   style?: CSSProperties;
 }
@@ -25,10 +24,11 @@ const SegmentedControl = <T extends string>({
   segments,
   activeSegment,
   setActiveSegment,
-  controlRef,
   className,
   style
 }: SegmentedControlProps<T>) => {
+  const controlRef = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
     const activeSegmentRef = segments.find(segment => segment.value === activeSegment)?.ref;
 

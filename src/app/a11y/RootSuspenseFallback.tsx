@@ -2,7 +2,7 @@ import React, { FC, useEffect } from 'react';
 
 import useForceUpdate from 'use-force-update';
 
-import Spinner from 'app/atoms/Spinner/Spinner';
+import { PageLoader } from 'app/atoms/Loader';
 
 const DELAY = 1_000;
 
@@ -25,7 +25,7 @@ const RootSuspenseFallback: FC = () => {
   return (
     <div className="flex items-center justify-center h-screen">
       <div>
-        <Spinner theme="gray" className="w-20" />
+        <PageLoader />
       </div>
     </div>
   );

@@ -15,7 +15,7 @@ interface ConfirmSendModalProps {
 }
 
 export const ConfirmSendModal: FC<ConfirmSendModalProps> = ({ opened, onRequestClose, reviewData }) => (
-  <PageModal title="Confirm Send" titleLeft={null} opened={opened}>
+  <PageModal title="Confirm Send" titleLeft={null} opened={opened} onRequestClose={onRequestClose}>
     {reviewData ? (
       isEvmReviewData(reviewData) ? (
         <EvmEstimationDataProvider>

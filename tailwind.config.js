@@ -321,6 +321,33 @@ module.exports = {
       transitionDuration: {
         400: '400ms',
         10000: '10000ms'
+      },
+
+      animation: {
+        'toast-enter': 'toast-enter .2s ease-out',
+        'toast-leave': 'toast-leave .15s ease-in forwards'
+      },
+      keyframes: {
+        'toast-enter': {
+          '0%': {
+            opacity: '0',
+            transform: 'scale(.9) translateY(132px)'
+          },
+          '100%': {
+            opacity: '1',
+            transform: 'scale(1) translateY(0)'
+          }
+        },
+        'toast-leave': {
+          '0%': {
+            opacity: '1',
+            transform: 'scale(1)'
+          },
+          '100%': {
+            opacity: '0',
+            transform: 'scale(.9)'
+          }
+        }
       }
     }
   }

@@ -103,7 +103,7 @@ interface TabContentBaseProps extends Props {
 
 const TabContentBase = memo<TabContentBaseProps>(
   ({ accountTezAddress, accountEvmAddress, allSlugsSorted, groupByNetwork, manageActive }) => {
-    const { displayedSlugs, isSyncing, loadNext, searchValue, setSearchValue } =
+    const { displayedSlugs, isSyncing, loadNext, searchValue, isInSearchMode, setSearchValue } =
       useAccountTokensListingLogic(allSlugsSorted);
 
     const groupedSlugs = useChainsSlugsGrouping(displayedSlugs, groupByNetwork);
@@ -184,6 +184,7 @@ const TabContentBase = memo<TabContentBaseProps>(
         loadNextPage={loadNext}
         onSearchValueChange={setSearchValue}
         isSyncing={isSyncing}
+        isInSearchMode={isInSearchMode}
       >
         {tokensView}
       </TokensTabBase>

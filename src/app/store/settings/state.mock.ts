@@ -11,6 +11,5 @@ export const mockSettingsState = mockPersistedState<SettingsState>({
   pendingReactivateAds: false,
   adsImpressionsLinked: false,
   referralLinksEnabled: IS_MISES_BROWSER,
-  toastsContainerBottomShift: 0,
   isTestnetModeEnabled: false
 });

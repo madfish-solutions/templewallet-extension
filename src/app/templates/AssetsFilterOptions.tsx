@@ -1,15 +1,12 @@
-import React, { FC, memo, RefObject, useCallback, useEffect, useMemo, useRef } from 'react';
+import React, { FC, memo, useCallback, useEffect, useMemo, useRef } from 'react';
 
 import { isEqual } from 'lodash';
-import useOnClickOutside from 'use-onclickoutside';
 
 import { FadeTransition } from 'app/a11y/FadeTransition';
 import { Divider, IconBase, ToggleSwitch } from 'app/atoms';
-import { useAssetsSegmentControlRef } from 'app/atoms/AssetsSegmentControl';
 import { NetworkSelectButton } from 'app/atoms/NetworkSelectButton';
 import { ReactComponent as CleanIcon } from 'app/icons/base/x_circle_fill.svg';
 import { ContentContainer } from 'app/layouts/containers';
-import { useContentPaperRef } from 'app/layouts/PageLayout/context';
 import { dispatch } from 'app/store';
 import {
   resetTokensFilterOptions,
@@ -24,12 +21,7 @@ import { NetworkSelectModal } from 'app/templates/NetworkSelectModal';
 import { T, TID } from 'lib/i18n';
 import { useBooleanState } from 'lib/ui/hooks';
 
-interface AssetsFilterOptionsProps {
-  filterButtonRef: RefObject<HTMLButtonElement>;
-  onRequestClose: EmptyFn;
-}
-
-export const AssetsFilterOptions = memo<AssetsFilterOptionsProps>(({ filterButtonRef, onRequestClose }) => {
+export const AssetsFilterOptions = memo(() => {
   const options = useAssetsFilterOptionsSelector();
   const { filterChain, tokensListOptions, collectiblesListOptions } = options;
 
@@ -38,27 +30,6 @@ export const AssetsFilterOptions = memo<AssetsFilterOptionsProps>(({ filterButto
   const isNonDefaultOption = useMemo(() => !isEqual(options, AssetsFilterOptionsInitialState), [options]);
 
   const containerRef = useRef(null);
-  const contentPaperRef = useContentPaperRef();
-  const assetsSegmentControlRef = useAssetsSegmentControlRef();
-
-  useOnClickOutside(
-    containerRef,
-    networksModalOpened
-      ? null
-      : evt => {
-          const evtTarget = evt.target as Node;
-
-          const isFilterButtonClick = Boolean(filterButtonRef.current && filterButtonRef.current.contains(evtTarget));
-          const isSegmentControlClick = Boolean(
-            assetsSegmentControlRef.current && assetsSegmentControlRef.current.contains(evtTarget)
-          );
-          const isInsideContentClick = Boolean(contentPaperRef.current && contentPaperRef.current.contains(evtTarget));
-
-          if (!isFilterButtonClick && !isSegmentControlClick && isInsideContentClick) {
-            onRequestClose();
-          }
-        }
-  );
 
   useEffect(() => {
     if (filterChain) dispatch(setTokensGroupByNetworkFilterOption(false));

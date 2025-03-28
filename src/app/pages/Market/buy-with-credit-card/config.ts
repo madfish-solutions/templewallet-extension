@@ -42,5 +42,5 @@ export const DEFAULT_EVM_OUTPUT_TOKEN: TopUpOutputInterface = {
 
 export const defaultModalHeaderConfig: ModalHeaderConfig = {
   title: t('debitCreditCard'),
-  titleLeft: undefined
+  onGoBack: undefined
 };

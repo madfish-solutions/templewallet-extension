@@ -1,20 +1,13 @@
-import React, { memo, useCallback, useContext, useEffect } from 'react';
+import React, { memo, useCallback, useEffect } from 'react';
 
-import { useDispatch } from 'react-redux';
-
-import {
-  AssetsSegmentControl,
-  AssetsSegmentControlRefContext,
-  useAssetsSegmentControlRef
-} from 'app/atoms/AssetsSegmentControl';
+import { AssetsSegmentControl } from 'app/atoms/AssetsSegmentControl';
 import { SuspenseContainer } from 'app/atoms/SuspenseContainer';
 import { useLocationSearchParamValue } from 'app/hooks/use-location';
 import PageLayout from 'app/layouts/PageLayout';
-import { setToastsContainerBottomShiftAction } from 'app/store/settings/actions';
 import { AppHeader } from 'app/templates/AppHeader';
 import { ExploreActionButtonsBar } from 'app/templates/ExploreActionButtons';
 import { toastSuccess } from 'app/toaster';
-import { SuccessfulInitToastContext } from 'lib/temple/front/successful-init-toast-context';
+import { useInitToastMessage } from 'lib/temple/front/toasts-context';
 import { HistoryAction, navigate } from 'lib/woozie';
 
 import { CollectiblesTab } from '../Collectibles/CollectiblesTab';
@@ -27,23 +20,19 @@ import { TotalEquityBanner } from './OtherComponents/TotalEquityBanner';
 const Home = memo(() => {
   const tabSlug = useLocationSearchParamValue('tab');
   const { onboardingCompleted } = useOnboardingProgress();
-  const dispatch = useDispatch();
 
-  const [initToastMessage, setInitToastMessage] = useContext(SuccessfulInitToastContext);
+  const [initToastMessage, setInitToastMessage] = useInitToastMessage();
 
   useEffect(() => {
     if (!initToastMessage) return;
 
     const timeout = setTimeout(() => {
-      dispatch(setToastsContainerBottomShiftAction(0));
       setInitToastMessage(undefined);
       toastSuccess(initToastMessage);
     }, 100);
 
     return () => clearTimeout(timeout);
-  }, [dispatch, initToastMessage, setInitToastMessage]);
-
-  const assetsSegmentControlRef = useAssetsSegmentControlRef();
+  }, [initToastMessage, setInitToastMessage]);
 
   const onTokensTabClick = useCallback(() => navigate({ search: 'tab=tokens' }, HistoryAction.Replace), []);
   const onCollectiblesTabClick = useCallback(() => navigate({ search: 'tab=collectibles' }, HistoryAction.Replace), []);
@@ -65,11 +54,7 @@ const Home = memo(() => {
         />
       </div>
 
-      <SuspenseContainer>
-        <AssetsSegmentControlRefContext.Provider value={assetsSegmentControlRef}>
-          {tabSlug === 'collectibles' ? <CollectiblesTab /> : <TokensTab />}
-        </AssetsSegmentControlRefContext.Provider>
-      </SuspenseContainer>
+      <SuspenseContainer>{tabSlug === 'collectibles' ? <CollectiblesTab /> : <TokensTab />}</SuspenseContainer>
     </PageLayout>
   );
 });

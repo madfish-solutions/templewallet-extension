@@ -12,6 +12,4 @@ export const setAdsImpressionsLinkedAction = createAction('settings/SET_ADS_IMPR
 
 export const setReferralLinksEnabledAction = createAction<boolean>('settings/SET_REFERRAL_LINKS_ENABLED');
 
-export const setToastsContainerBottomShiftAction = createAction<number>('settings/SET_TOASTS_CONTAINER_BOTTOM_SHIFT');
-
 export const setIsTestnetModeEnabledAction = createAction<boolean>('settings/SET_IS_TESTNET_MODE_ENABLED');
