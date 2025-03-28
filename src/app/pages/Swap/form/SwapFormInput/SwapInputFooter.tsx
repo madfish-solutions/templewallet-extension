@@ -10,6 +10,7 @@ import { ZERO } from 'lib/utils/numbers';
 interface SwapFooterProps {
   inputName: string;
   tezosChainId: string;
+  error?: string;
   assetPrice: BigNumber;
   assetDecimals: number;
   assetSlug: string;
@@ -23,6 +24,7 @@ interface SwapFooterProps {
 const SwapFooter: FC<SwapFooterProps> = ({
   inputName,
   tezosChainId,
+  error,
   assetPrice,
   assetDecimals,
   assetSlug,
@@ -41,25 +43,28 @@ const SwapFooter: FC<SwapFooterProps> = ({
   );
 
   return (
-    <div className="flex justify-between mt-1">
-      <div className="max-w-40">
-        <ConvertedInputAssetAmount
-          chainId={tezosChainId}
-          assetSlug={assetSlug}
-          assetSymbol={assetSymbol}
-          amountValue={shouldUseFiat ? toAssetAmount(amount) : amount?.toString() || '0'}
-          toFiat={!shouldUseFiat}
-          evm={false}
-        />
+    <div className="flex flex-col">
+      <div className="flex justify-between mt-1">
+        <div className="max-w-40">
+          <ConvertedInputAssetAmount
+            chainId={tezosChainId}
+            assetSlug={assetSlug}
+            assetSymbol={assetSymbol}
+            amountValue={shouldUseFiat ? toAssetAmount(amount) : amount?.toString() || '0'}
+            toFiat={!shouldUseFiat}
+            evm={false}
+          />
+        </div>
+        {inputName === 'input' && (
+          <Button
+            className="text-font-description-bold text-secondary px-1 py-0.5 max-w-40 truncate"
+            onClick={handleFiatToggle}
+          >
+            Switch to {shouldUseFiat ? assetSymbol : selectedFiatCurrency.name}
+          </Button>
+        )}
       </div>
-      {inputName === 'input' && (
-        <Button
-          className="text-font-description-bold text-secondary px-1 py-0.5 max-w-40 truncate"
-          onClick={handleFiatToggle}
-        >
-          Switch to {shouldUseFiat ? assetSymbol : selectedFiatCurrency.name}
-        </Button>
-      )}
+      {error && <div className="text-red-700 text-xs">{error}</div>}
     </div>
   );
 };

@@ -37,6 +37,7 @@ const SwapFormInput: FC<SwapFormInputProps> = ({
   network,
   publicKeyHash,
   className,
+  error,
   value: { assetSlug, amount },
   label,
   name,
@@ -140,6 +141,7 @@ const SwapFormInput: FC<SwapFormInputProps> = ({
           tezosChainId={network.chainId}
           amount={amount}
           amountInputDisabled={Boolean(amountInputDisabled)}
+          error={error}
           assetPrice={assetPrice}
           assetSlug={assetSlug}
           assetMetadata={assetMetadata}

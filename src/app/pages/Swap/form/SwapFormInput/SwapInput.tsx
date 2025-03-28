@@ -16,6 +16,7 @@ interface SwapInputProps {
   tezosChainId: string;
   amount: BigNumber | undefined;
   amountInputDisabled: boolean;
+  error?: string;
   assetPrice: BigNumber;
   assetSlug: string | undefined;
   assetMetadata: AssetMetadataBase;
@@ -33,6 +34,7 @@ const SwapInput: FC<SwapInputProps> = ({
   tezosChainId,
   amount,
   amountInputDisabled,
+  error,
   assetPrice,
   assetSlug,
   assetMetadata,
@@ -53,7 +55,7 @@ const SwapInput: FC<SwapInputProps> = ({
   );
 
   return (
-    <div className={classNames('flex-1 flex items-center justify-between rounded-r-md h-18')}>
+    <div className={classNames('flex-1 flex items-center justify-between rounded-r-md min-h-18')}>
       <div className="h-full flex-1 flex items-end justify-center flex-col">
         <AssetField
           value={amount?.toString()}
@@ -78,6 +80,7 @@ const SwapInput: FC<SwapInputProps> = ({
             <SwapFooter
               inputName={inputName}
               tezosChainId={tezosChainId}
+              error={error}
               assetPrice={assetPrice}
               assetDecimals={assetMetadata.decimals}
               assetSlug={assetSlug || ''}

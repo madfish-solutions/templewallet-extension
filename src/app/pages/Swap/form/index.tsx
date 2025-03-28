@@ -82,6 +82,7 @@ export const SwapForm = memo<Props>(({ publicKeyHash, slippageTolerance }) => {
   const { handleSubmit, errors, watch, setValue, register, triggerValidation } = useForm<SwapFormValue>({
     defaultValues
   });
+  const isValid = Object.keys(errors).length === 0;
 
   const inputValue = watch('input');
   const outputValue = watch('output');
@@ -623,7 +624,7 @@ export const SwapForm = memo<Props>(({ publicKeyHash, slippageTolerance }) => {
 
         <ActionsButtonsBox className="mt-auto">
           <FormSubmitButton
-            className="rounded-8 w-full"
+            className={`rounded-8 w-full ${isValid ? 'bg-primary' : 'bg-[#c2c2c2] border-[#c2c2c2]'}`}
             style={{
               height: '40px'
             }}

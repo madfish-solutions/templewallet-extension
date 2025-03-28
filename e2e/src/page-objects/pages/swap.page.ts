@@ -2,7 +2,7 @@ import {
   SwapFormFromInputSelectors,
   SwapFormSelectors,
   SwapFormToInputSelectors
-} from 'src/app/templates/SwapForm/SwapForm.selectors';
+} from 'src/app/pages/Swap/form/SwapForm.selectors';
 
 import { Page } from '../../classes/page.class';
 import { createPageElement } from '../../utils/search.utils';
