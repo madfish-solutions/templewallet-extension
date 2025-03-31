@@ -1,9 +1,9 @@
 import React, { memo, useCallback, useMemo } from 'react';
 
-import { NullComponent } from 'app/atoms/null-component';
 import { CLOSE_ANIMATION_TIMEOUT, PageModal } from 'app/atoms/PageModal';
 import { toastSuccess } from 'app/toaster';
 import { t, T } from 'lib/i18n';
+import { NullComponent } from 'lib/ui/null-component';
 import { AccountForTezos } from 'temple/accounts';
 import { TezosChain } from 'temple/front';
 

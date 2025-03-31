@@ -75,9 +75,9 @@ export const BakerCard = memo(
     const bakerAvatar = <BakerAvatar className="mr-2" address={baker?.address} bakerName={baker?.name} />;
     const bakerName = <BakerName>{baker ? baker.name : <T id="unknownBakerTitle" />}</BakerName>;
 
-    const delegationFeePercentage = useMemo(() => (baker ? toPercentage(baker.delegation.fee) : '-'), [baker]);
-    const stakingFeePercentage = useMemo(() => (baker ? toPercentage(baker.staking.fee) : '-'), [baker]);
-    const stakingApyPercentage = useMemo(() => (baker ? toPercentage(baker.staking.estimatedApy) : '-'), [baker]);
+    const delegationFeePercentage = useMemo(() => toPercentage(baker?.delegation.fee), [baker]);
+    const stakingFeePercentage = useMemo(() => toPercentage(baker?.staking.fee), [baker]);
+    const stakingApyPercentage = useMemo(() => toPercentage(baker?.staking.estimatedApy), [baker]);
 
     const handleClick = useCallback(() => {
       onClick?.(baker || bakerOrAddress);
@@ -119,7 +119,7 @@ export const BakerCard = memo(
                 name={t('delegated')}
                 value={baker ? toShortened(baker.delegation.capacity - baker.delegation.freeSpace) : '-'}
               />
-              <BakerStatsEntry name={t('space')} value={baker ? toShortened(baker.delegation.freeSpace) : '-'} />
+              <BakerStatsEntry name={t('space')} value={toShortened(baker?.delegation.freeSpace)} />
               <BakerStatsEntry name={t('fee')} value={delegationFeePercentage} />
               <BakerStatsEntry
                 name={t('minBalance')}
@@ -140,7 +140,7 @@ export const BakerCard = memo(
                 name={t('staking')}
                 value={baker ? toShortened(baker.staking.capacity - baker.staking.freeSpace) : '-'}
               />
-              <BakerStatsEntry name={t('space')} value={baker ? toShortened(baker.staking.freeSpace) : '-'} />
+              <BakerStatsEntry name={t('space')} value={toShortened(baker?.staking.freeSpace)} />
               <BakerStatsEntry name={t('fee')} value={stakingFeePercentage} />
               <BakerStatsEntry name={t('estimatedApy')} value={stakingApyPercentage} />
             </>

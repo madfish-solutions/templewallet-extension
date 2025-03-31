@@ -1,7 +1,6 @@
 import React, { memo } from 'react';
 
 import { IconBase } from 'app/atoms';
-import { Lottie } from 'app/atoms/react-lottie';
 import { StyledButton } from 'app/atoms/StyledButton';
 import { ReactComponent as BarChartIcon } from 'app/icons/base/bar-chart.svg';
 import { ReactComponent as CalendarIcon } from 'app/icons/base/calendar.svg';
@@ -10,9 +9,10 @@ import { ReactComponent as RewardsIcon } from 'app/icons/base/rewards.svg';
 import { PageModalScrollViewWithActions } from 'app/templates/page-modal-scroll-view-with-actions';
 import { TEZOS_APY } from 'lib/constants';
 import { T } from 'lib/i18n';
+import { Lottie } from 'lib/ui/react-lottie';
 
+import tezCoinAnimation from './animations/tez-coin-animation.json';
 import { EarnTezSelectors } from './selectors';
-import tezCoinAnimation from './tez-coin-animation.json';
 
 interface NoBakerContentProps {
   cannotDelegate: boolean;

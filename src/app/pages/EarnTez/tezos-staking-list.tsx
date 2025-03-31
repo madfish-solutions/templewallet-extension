@@ -5,7 +5,6 @@ import BigNumber from 'bignumber.js';
 import clsx from 'clsx';
 
 import { Alert, Anchor, Divider, IconBase, Money } from 'app/atoms';
-import { Lottie } from 'app/atoms/react-lottie';
 import { StyledButton } from 'app/atoms/StyledButton';
 import { Tooltip } from 'app/atoms/Tooltip';
 import {
@@ -25,15 +24,16 @@ import { getTezosGasMetadata } from 'lib/metadata';
 import { useTypedSWR } from 'lib/swr';
 import { useKnownBaker } from 'lib/temple/front';
 import { mutezToTz } from 'lib/temple/helpers';
+import { Lottie } from 'lib/ui/react-lottie';
 import { toPercentage } from 'lib/ui/utils';
 import { ZERO } from 'lib/utils/numbers';
 import { AccountForTezos } from 'temple/accounts';
 import { getTezosToolkitWithSigner, useOnTezosBlock } from 'temple/front';
 import { TezosNetworkEssentials } from 'temple/networks';
 
+import unstakePendingAnimation from './animations/unstake-pending-animation.json';
 import { stakeChangeForEstimationAmount } from './constants';
 import { estimateStaking, isStakingNotAcceptedError } from './estimate-staking';
-import unstakePendingAnimation from './unstake-pending-animation.json';
 import { useBlockExplorerUrl } from './utils';
 
 interface Props {
@@ -89,8 +89,8 @@ export const TezosStakingList = memo<Props>(
     const canStake = baker?.staking.enabled ?? canStakeFromRpc;
 
     const staked = useMemo(() => stakedData && stakedData.gt(0), [stakedData]);
-    const feePercentage = useMemo(() => (baker ? toPercentage(baker.staking.fee) : '---'), [baker]);
-    const estimatedApy = useMemo(() => (baker ? toPercentage(baker.staking.estimatedApy) : '---'), [baker]);
+    const feePercentage = useMemo(() => toPercentage(baker?.staking.fee, '---'), [baker]);
+    const estimatedApy = useMemo(() => toPercentage(baker?.staking.estimatedApy, '---'), [baker]);
 
     useOnTezosBlock(rpcBaseURL, () => {
       updateStakedAmount();

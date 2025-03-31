@@ -3,12 +3,12 @@ import React, { memo, useCallback, useMemo } from 'react';
 import { startCase } from 'lodash';
 
 import { IconBase } from 'app/atoms';
-import { NullComponent } from 'app/atoms/null-component';
 import { ReactComponent as LocktimeIcon } from 'app/icons/base/locktime.svg';
 import { NEVER_AUTOLOCK_VALUE } from 'lib/constants';
 import { t } from 'lib/i18n';
 import { formatDuration } from 'lib/i18n/core';
 import { useLockUpTimeout } from 'lib/lock-up';
+import { NullComponent } from 'lib/ui/null-component';
 import { SearchKey } from 'lib/utils/search-items';
 
 import { CellPartProps, SelectWithModal } from '../select-with-modal';

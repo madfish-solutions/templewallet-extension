@@ -17,11 +17,10 @@ import { CreatePasswordForm } from 'app/templates/CreatePasswordForm';
 import { ImportSeedForm } from 'app/templates/ImportSeedForm';
 import { t, T } from 'lib/i18n';
 import { useBooleanState } from 'lib/ui/hooks';
+import { NullComponent } from 'lib/ui/null-component';
 import { goBack, useLocation } from 'lib/woozie';
 
 import { WelcomeSelectors } from './Welcome.selectors';
-
-const EmptyHeader = () => null;
 
 const Welcome = memo(() => {
   useABTestingLoading();
@@ -57,7 +56,7 @@ const Welcome = memo(() => {
   );
 
   return (
-    <PageLayout Header={EmptyHeader} contentPadding={false}>
+    <PageLayout Header={NullComponent} contentPadding={false}>
       <PageModal
         title={t(shouldShowPasswordForm ? 'createPassword' : 'importExistingWallet')}
         opened={shouldShowPasswordForm || isImport}

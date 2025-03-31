@@ -1,6 +1,7 @@
 // Original: https://github.com/chenqingspring/react-lottie/blob/master/src/index.js
 import React from 'react';
 
+import { noop } from 'lodash';
 import lottie, { AnimationDirection, AnimationItem, AnimationSegment, RendererType } from 'lottie-web';
 
 interface Options {
@@ -255,7 +256,7 @@ export class Lottie extends React.Component<LottieProps> {
       ...this.props.style
     };
 
-    const onClickHandler = isClickToPauseDisabled ? () => null : this.handleClickToPause;
+    const onClickHandler = isClickToPauseDisabled ? noop : this.handleClickToPause;
 
     return (
       <div

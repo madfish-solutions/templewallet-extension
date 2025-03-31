@@ -229,7 +229,7 @@ interface RewardsTezValueProps {
 
 const RewardsTezValue = memo<RewardsTezValueProps>(({ value, symbol }) => (
   <span className={clsx('text-font-num-12', value.isPositive() ? 'text-success' : 'text-text')}>
-    {!value.isPositive() && value.isZero() && '-'}
+    {value.isNegative() && value.isZero() && '-'}
     <Money smallFractionFont={false} withSign>
       {value}
     </Money>{' '}

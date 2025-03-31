@@ -1,5 +1,6 @@
 import { MutableRefObject, ForwardedRef } from 'react';
 
+import { isDefined } from '@rnw-community/shared';
 import BigNumber from 'bignumber.js';
 
 import { browser } from 'lib/browser';
@@ -29,5 +30,5 @@ export const readClipboard = async () => {
   throw new Error('Clipboard read permission denied');
 };
 
-export const toPercentage = (value: BigNumber.Value, decimalPlaces = 2) =>
-  `${toLocalFormat(new BigNumber(value).times(100), { decimalPlaces })}%`;
+export const toPercentage = (value?: BigNumber.Value, fallback = '-', decimalPlaces = 2) =>
+  isDefined(value) ? `${toLocalFormat(new BigNumber(value).times(100), { decimalPlaces })}%` : fallback;

@@ -16,18 +16,20 @@ export const RedelegateButton = memo<RedelegateButtonProps>(({ disabled, staked,
   const customConfirm = useConfirm();
 
   const handleClick = useCallback(() => {
-    if (staked) {
-      customConfirm({
-        title: t('importantNotice'),
-        description: t('redelegationNoticeDescription'),
-        confirmButtonText: t('okGotIt'),
-        showCancelButton: false
-      }).then(confirmed => {
-        if (confirmed) onConfirm?.();
-      });
-    } else {
+    if (!staked) {
       onConfirm?.();
+
+      return;
     }
+
+    customConfirm({
+      title: t('importantNotice'),
+      description: t('redelegationNoticeDescription'),
+      confirmButtonText: t('okGotIt'),
+      showCancelButton: false
+    }).then(confirmed => {
+      if (confirmed) onConfirm?.();
+    });
   }, [customConfirm, onConfirm, staked]);
 
   return (

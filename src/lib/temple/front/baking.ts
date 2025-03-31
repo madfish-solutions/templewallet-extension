@@ -90,6 +90,7 @@ export type Baker = BakingBadBaker & {
   logo?: string;
 };
 
+/** returns cats avatars for unknown baker addresses */
 export const getBakerLogoUrl = (bakerAddress: string) => `https://services.tzkt.io/v1/avatars/${bakerAddress}`;
 
 const toBakerWithLogo = (baker: BakingBadBaker) => ({
