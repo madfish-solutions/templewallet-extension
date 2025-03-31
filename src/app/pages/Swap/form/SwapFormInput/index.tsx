@@ -123,7 +123,7 @@ const SwapFormInput: FC<SwapFormInputProps> = ({
   return (
     <div className={className}>
       <InputContainer
-        className={'px-4 py-5 bg-white rounded-8 shadow-md p-4'}
+        className="px-4 py-5 bg-white rounded-8 shadow-md p-4"
         header={
           <SwapInputHeader
             label={label}

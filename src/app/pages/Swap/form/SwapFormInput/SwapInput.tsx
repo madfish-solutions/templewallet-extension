@@ -2,7 +2,6 @@ import React, { FC, useMemo } from 'react';
 
 import { isDefined } from '@rnw-community/shared';
 import BigNumber from 'bignumber.js';
-import classNames from 'clsx';
 
 import AssetField from 'app/atoms/AssetField';
 import SwapFooter from 'app/pages/Swap/form/SwapFormInput/SwapInputFooter';
@@ -18,7 +17,7 @@ interface SwapInputProps {
   amountInputDisabled: boolean;
   error?: string;
   assetPrice: BigNumber;
-  assetSlug: string | undefined;
+  assetSlug?: string;
   assetMetadata: AssetMetadataBase;
   selectTokenTestId?: string;
   shouldUseFiat: boolean;
@@ -55,7 +54,7 @@ const SwapInput: FC<SwapInputProps> = ({
   );
 
   return (
-    <div className={classNames('flex-1 flex items-center justify-between rounded-r-md min-h-18')}>
+    <div className="flex-1 flex items-center justify-between rounded-r-md min-h-18">
       <div className="h-full flex-1 flex items-end justify-center flex-col">
         <AssetField
           value={amount?.toString()}

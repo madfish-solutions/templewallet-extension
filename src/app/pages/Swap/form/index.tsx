@@ -595,12 +595,12 @@ export const SwapForm = memo<Props>(({ publicKeyHash, slippageTolerance }) => {
 
         <div className="w-full -my-2.5 flex justify-center z-1">
           <button
-            className={'bg-secondary-low p-1 rounded-6'}
+            className="bg-secondary-low p-1 rounded-6"
             onClick={handleToggleIconClick}
             type="button"
             {...setTestID(SwapFormSelectors.swapPlacesButton)}
           >
-            <IconBase Icon={SwapIcon} size={16} className="text-secondary rotate-90" />
+            <IconBase Icon={SwapIcon} className="text-secondary rotate-90" />
           </button>
         </div>
 

@@ -1,5 +1,6 @@
 import React, { memo, useCallback, useState } from 'react';
 
+import clsx from 'clsx';
 import { isEmpty } from 'lodash';
 import { Controller, SubmitHandler, useForm } from 'react-hook-form-v7';
 
@@ -10,7 +11,7 @@ import { StyledButton } from 'app/atoms/StyledButton';
 import { t, T } from 'lib/i18n';
 
 export type Inputs = {
-  slippageTolerance: number | undefined;
+  slippageTolerance?: number;
 };
 
 interface SelectTokenModalProps {
@@ -22,7 +23,9 @@ interface SelectTokenModalProps {
 const SwapSettingsModal = memo<SelectTokenModalProps>(({ onSubmit, opened, onRequestClose }) => {
   const customLabel = t('custom');
   const options: (number | typeof customLabel)[] = [0.5, 1, customLabel];
-  const [selected, setSelected] = useState<number | typeof customLabel>(0.5);
+  const [selectedOption, setSelectedOption] = useState<number | typeof customLabel>(0.5);
+
+  type SlippageOption = (typeof options)[number];
 
   const {
     watch,
@@ -40,18 +43,14 @@ const SwapSettingsModal = memo<SelectTokenModalProps>(({ onSubmit, opened, onReq
     [setValue, formSubmitted]
   );
 
-  const handleOptionChange = (option: (typeof options)[number]) => {
-    setSelected(option);
-    if (option === customLabel) {
-      setValue('slippageTolerance', undefined, { shouldValidate: formSubmitted });
-    } else if (options.includes(option)) {
-      setValue('slippageTolerance', option as number, { shouldValidate: formSubmitted });
-    }
+  const handleOptionChange = (option: SlippageOption) => {
+    setSelectedOption(option);
+    setValue('slippageTolerance', typeof option === 'number' ? option : undefined, { shouldValidate: formSubmitted });
   };
 
   const handleApplyClick = () => {
-    if (selected !== customLabel) {
-      setValue('slippageTolerance', selected as number, { shouldValidate: formSubmitted });
+    if (typeof selectedOption === 'number') {
+      setValue('slippageTolerance', selectedOption, { shouldValidate: formSubmitted });
     }
     handleSubmit(onSubmit)();
   };
@@ -72,15 +71,17 @@ const SwapSettingsModal = memo<SelectTokenModalProps>(({ onSubmit, opened, onReq
                 type="button"
                 key={option}
                 onClick={() => handleOptionChange(option)}
-                className={`flex-1 py-1 rounded-lg transition-all duration-200 text-sm font-semibold
-            ${selected === option ? 'bg-white text-primary shadow-sm' : 'text-text'}`}
+                className={clsx(
+                  'flex-1 py-1 rounded-lg transition-all duration-200 text-sm font-semibold',
+                  selectedOption === option ? 'bg-white text-primary shadow-sm' : 'text-text'
+                )}
               >
                 {option}
                 {option !== customLabel && '%'}
               </button>
             ))}
           </div>
-          {selected === customLabel && (
+          {selectedOption === customLabel && (
             <Controller
               name="slippageTolerance"
               control={control}

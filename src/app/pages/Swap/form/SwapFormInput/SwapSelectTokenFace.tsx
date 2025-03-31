@@ -31,7 +31,7 @@ const SwapSelectTokenFace: FC<SwapFieldProps> = ({
           <TezosTokenIconWithNetwork tezosChainId={tezosChainId} assetSlug={assetSlug} size={32} />
           <span className="text-text text-xs font-semibold overflow-hidden max-w-10 text-ellipsis">{assetSymbol}</span>
         </div>
-        <IconBase Icon={CompactDown} className="text-primary" size={16} />
+        <IconBase Icon={CompactDown} className="text-primary" />
       </Button>
     ) : (
       <Button

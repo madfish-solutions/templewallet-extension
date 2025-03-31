@@ -1,5 +1,6 @@
 import React, { memo, useCallback, useState, MouseEvent, Suspense, useEffect } from 'react';
 
+import { noop } from 'lodash';
 import { useDebounce } from 'use-debounce';
 
 import { Button, IconBase } from 'app/atoms';
@@ -39,12 +40,13 @@ export const SwapSelectAssetModal = memo<SelectTokenModalProps>(({ onAssetSelect
     [onAssetSelect]
   );
 
+  // TODO: pass a function to the FilterNetworkPopper when support for other chains will be added
   return (
     <PageModal title="Select Token" opened={opened} onRequestClose={onRequestClose}>
       <div className="flex flex-col px-4 pt-4 pb-3">
         <div className="flex justify-between items-center mb-1">
           <span className="text-font-description-bold">Filter by network</span>
-          <FilterNetworkPopper selectedOption={network} onOptionSelect={() => {}} />
+          <FilterNetworkPopper selectedOption={network} onOptionSelect={noop} />
         </div>
 
         <SearchBarField
@@ -86,7 +88,7 @@ const FilterNetworkPopper = memo<FilterNetworkPopperProps>(({ selectedOption, on
         onClick={toggleOpened}
       >
         <span>{selectedOptionName}</span>
-        <IconBase Icon={CompactDown} size={12} className={'text-disable'} />
+        <IconBase Icon={CompactDown} size={12} className="text-disable" />
       </Button>
     )}
   </NetworkPopper>

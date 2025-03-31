@@ -1,6 +1,6 @@
 import React, { FC, FunctionComponent, SVGProps } from 'react';
 
-import classNames from 'clsx';
+import clsx from 'clsx';
 
 import { Anchor } from 'app/atoms';
 import { TestIDProps } from 'lib/analytics';
@@ -24,7 +24,7 @@ export const OnRampSmileButton: FC<OnRumpSmileButtonProps> = ({
   return (
     <Anchor
       href={href}
-      className={classNames(
+      className={clsx(
         'flex flex-col py-[18px] flex-1 ',
         'justify-center items-center',
         'rounded-10 shadow-md',
@@ -36,7 +36,7 @@ export const OnRampSmileButton: FC<OnRumpSmileButtonProps> = ({
       testID={testID}
     >
       <SmileIcon className="w-7 h-auto" />
-      <p className={classNames('text-base font-rubik font-medium mt-1', accentColors ? 'text-white' : 'text-primary')}>
+      <p className={clsx('text-base font-rubik font-medium mt-1', accentColors ? 'text-white' : 'text-primary')}>
         {amount}$
       </p>
     </Anchor>

@@ -15,7 +15,7 @@ interface SwapFooterProps {
   assetDecimals: number;
   assetSlug: string;
   assetSymbol: string;
-  amount: BigNumber | undefined;
+  amount?: BigNumber;
   shouldUseFiat: boolean;
   handleFiatToggle: (evt: React.MouseEvent<HTMLButtonElement, MouseEvent>) => void;
   selectedFiatCurrency: FiatCurrencyOptionBase;

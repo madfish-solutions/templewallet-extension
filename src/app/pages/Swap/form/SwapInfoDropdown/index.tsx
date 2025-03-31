@@ -1,4 +1,4 @@
-import React, { forwardRef, ReactNode, useState } from 'react';
+import React, { forwardRef, ReactNode } from 'react';
 
 import BigNumber from 'bignumber.js';
 import clsx from 'clsx';
@@ -12,6 +12,7 @@ import { ReactComponent as ChevronUpIcon } from 'app/icons/chevron-up.svg';
 import { T, TID } from 'lib/i18n';
 import { AssetMetadataBase } from 'lib/metadata';
 import { ROUTING_FEE_RATIO, SWAP_CASHBACK_RATIO } from 'lib/route3/constants';
+import { useBooleanState } from 'lib/ui/hooks';
 import useTippy from 'lib/ui/useTippy';
 
 import RouteImgSrc from '../assets/3route.png';
@@ -23,8 +24,8 @@ import { SwapMinimumReceived } from './SwapMinimumReceived';
 interface ISwapInfoDropdownProps {
   showCashBack: boolean;
   swapRouteSteps: number;
-  inputAmount: BigNumber | undefined;
-  outputAmount: BigNumber | undefined;
+  inputAmount?: BigNumber;
+  outputAmount?: BigNumber;
   inputAssetMetadata: AssetMetadataBase;
   outputAssetMetadata: AssetMetadataBase;
   minimumReceivedAmount?: BigNumber;
@@ -44,11 +45,12 @@ export const SwapInfoDropdown = ({
   const feeInfoIconRef = useTippy<HTMLSpanElement>(feeInfoTippyProps);
   const cashbackInfoIconRef = useTippy<HTMLSpanElement>(cashbackInfoTippyProps);
 
-  const [isOpen, setIsOpen] = useState(false);
+  const [dropdownOpened, , , toggleDropdown] = useBooleanState(false);
+  // const [isOpen, setIsOpen] = useState(false);
 
   return (
     <div className="p-4 bg-white rounded-8 shadow-md">
-      <div onClick={() => setIsOpen(!isOpen)} className="flex justify-between items-center cursor-pointer">
+      <div onClick={toggleDropdown} className="flex justify-between items-center cursor-pointer">
         <div className="flex gap-2 items-center">
           <img src={RouteImgSrc} alt="3Route" className="w-10 h-10 rounded-8" />
 
@@ -56,7 +58,7 @@ export const SwapInfoDropdown = ({
             <div className="flex gap-1 items-center">
               <span className="font-semibold text-sm">3Route</span>
               <span className="px-1 py-0.5 rounded-[4px] bg-[linear-gradient(136deg,#FF5B00_-2.06%,#F4BE38_103.52%)] text-white text-font-small-bold">
-                Cashback
+                <T id={'swapCashback'} />
               </span>
             </div>
             <SwapExchangeRate
@@ -69,18 +71,19 @@ export const SwapInfoDropdown = ({
         </div>
         <div className="p-1.5">
           <ChevronUpIcon
-            className={`w-4 h-4 stroke-grey-1 stroke-2 transform transition-transform duration-200 ${
-              isOpen ? 'rotate-0' : 'rotate-180'
-            }`}
+            className={clsx(
+              'w-4 h-4 stroke-grey-1 stroke-2 transform transition-transform duration-200',
+              dropdownOpened ? 'rotate-0' : 'rotate-180'
+            )}
           />
         </div>
       </div>
 
-      <div className={clsx('mt-2', isOpen ? 'block' : 'hidden')}>
+      <div className={clsx('mt-2', dropdownOpened ? 'block' : 'hidden')}>
         <div className={`${showCashBack ? 'block' : 'hidden'}`}>
           <ListBlockItem
             ref={cashbackInfoIconRef}
-            icon={<IconBase Icon={GiftIcon} size={16} className="text-grey-1" />}
+            icon={<IconBase Icon={GiftIcon} className="text-grey-1" />}
             title="swapCashback"
             rightSideJsx={<span className={LIST_BLOCK_ITEM_DATA_SPAN_CLASSNAME}>{SWAP_CASHBACK_RATIO * 100}%</span>}
             divide={false}
@@ -88,13 +91,13 @@ export const SwapInfoDropdown = ({
         </div>
         <ListBlockItem
           ref={feeInfoIconRef}
-          icon={<IconBase Icon={RouteIcon} size={16} className="text-grey-1" />}
+          icon={<IconBase Icon={RouteIcon} className="text-grey-1" />}
           title="routingFee"
           rightSideJsx={<span className={LIST_BLOCK_ITEM_DATA_SPAN_CLASSNAME}>{ROUTING_FEE_RATIO * 100}%</span>}
           divide={showCashBack}
         />
         <ListBlockItem
-          icon={<IconBase Icon={StackIcon} size={16} className="text-grey-1" />}
+          icon={<IconBase Icon={StackIcon} className="text-grey-1" />}
           title="swapRoute"
           rightSideJsx={
             <span className={LIST_BLOCK_ITEM_DATA_SPAN_CLASSNAME}>
@@ -104,7 +107,7 @@ export const SwapInfoDropdown = ({
           divide={true}
         />
         <ListBlockItem
-          icon={<IconBase Icon={ArrowDownIcon} size={16} className="text-grey-1" />}
+          icon={<IconBase Icon={ArrowDownIcon} className="text-grey-1" />}
           title="minimumReceived"
           rightSideJsx={
             <span className={LIST_BLOCK_ITEM_DATA_SPAN_CLASSNAME}>

@@ -7,8 +7,8 @@ import { AssetMetadataBase } from 'lib/metadata';
 import { ZERO } from 'lib/utils/numbers';
 
 interface Props {
-  inputAmount: BigNumber | undefined;
-  outputAmount: BigNumber | undefined;
+  inputAmount?: BigNumber;
+  outputAmount?: BigNumber;
   inputAssetMetadata: AssetMetadataBase;
   outputAssetMetadata: AssetMetadataBase;
 }

@@ -70,7 +70,7 @@ export const OnRampOverlay = memo(() => {
         </div>
 
         <Anchor
-          href={publicKeyHash ? getWertLink(publicKeyHash, 200) : '#'}
+          href={getWertLink(publicKeyHash, 200)}
           className={classNames(
             'my-0.5 font-inter text-secondary',
             'text-xs font-semibold',
@@ -84,7 +84,7 @@ export const OnRampOverlay = memo(() => {
           <IconBase Icon={OutLinkIcon} size={16} className="text-secondary" />
         </Anchor>
 
-        <p className={'text-xxxs mt-3 mb-2 text-grey-1'}>
+        <p className="text-xxxs mt-3 mb-2 text-grey-1">
           <T id="thirdParty" />
         </p>
 
