@@ -11,7 +11,6 @@ import { ReactComponent as VisaIcon } from 'app/icons/payment-options/visa.svg';
 import { ReactComponent as SmileWithDollarIcon } from 'app/icons/smile-with-dollar.svg';
 import { ReactComponent as SmileWithGlassesIcon } from 'app/icons/smile-with-glasses.svg';
 import { ReactComponent as SmileIcon } from 'app/icons/smile.svg';
-import { useOnboardingProgress } from 'app/pages/Onboarding/hooks/useOnboardingProgress.hook';
 import { dispatch } from 'app/store';
 import { setOnRampPossibilityAction } from 'app/store/settings/actions';
 import { useOnRampPossibilitySelector } from 'app/store/settings/selectors';
@@ -25,11 +24,10 @@ import { getWertLink } from './utils/getWertLink.util';
 export const OnRampOverlay = memo(() => {
   const publicKeyHash = useAccountAddressForTezos();
   const isOnRampPossibility = useOnRampPossibilitySelector();
-  const { onboardingCompleted } = useOnboardingProgress();
 
   const close = () => void dispatch(setOnRampPossibilityAction(false));
 
-  if (!isOnRampPossibility || !onboardingCompleted || !publicKeyHash) return null;
+  if (!isOnRampPossibility || !publicKeyHash) return null;
 
   return (
     <div className="fixed inset-0 z-overlay-promo flex flex-col items-center justify-center bg-black bg-opacity-10 backdrop-blur-xs">
