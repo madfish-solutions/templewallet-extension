@@ -23,7 +23,7 @@ export const SwapExchangeRate: FC<Props> = ({ inputAmount, outputAmount, inputAs
   }, [inputAmount, outputAmount]);
 
   return (
-    <span className="text-grey-1 text-xs text-font-num">
+    <span className="text-grey-1 text-font-num-12">
       {exchangeRate ? (
         <span className="flex items-end justify-end">
           <span>1 {outputAssetMetadata.symbol}</span>

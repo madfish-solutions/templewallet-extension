@@ -12,12 +12,12 @@ export interface SwapFormInputProps extends TestIDProps {
   className?: string;
   error?: string;
   label: React.ReactNode;
-  name: string;
+  name: 'input' | 'output';
   amountInputDisabled?: boolean;
   onChange: (value: SwapInputValue, shouldUseFiat?: boolean) => void;
   testIDs?: SwapFormTestIDs;
   shouldUseFiat?: boolean;
-  setShouldUseFiat?: (value: boolean) => void;
+  setShouldUseFiat?: SyncFn<boolean>;
 }
 
 interface SwapFormTestIDs {

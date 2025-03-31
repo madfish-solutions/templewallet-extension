@@ -8,7 +8,7 @@ import { FiatCurrencyOptionBase } from 'lib/fiat-currency';
 import { ZERO } from 'lib/utils/numbers';
 
 interface SwapFooterProps {
-  inputName: string;
+  inputName: 'input' | 'output';
   tezosChainId: string;
   error?: string;
   assetPrice: BigNumber;

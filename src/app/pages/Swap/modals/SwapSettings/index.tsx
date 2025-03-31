@@ -3,11 +3,11 @@ import React, { memo, useCallback, useState } from 'react';
 import { isEmpty } from 'lodash';
 import { Controller, SubmitHandler, useForm } from 'react-hook-form-v7';
 
+import { CaptionAlert } from 'app/atoms';
 import AssetField from 'app/atoms/AssetField';
 import { ActionsButtonsBox, PageModal } from 'app/atoms/PageModal';
 import { StyledButton } from 'app/atoms/StyledButton';
-import { ReactComponent as InfoIcon } from 'app/icons/info-icon.svg';
-import { T } from 'lib/i18n';
+import { t, T } from 'lib/i18n';
 
 export type Inputs = {
   slippageTolerance: number | undefined;
@@ -20,8 +20,9 @@ interface SelectTokenModalProps {
 }
 
 const SwapSettingsModal = memo<SelectTokenModalProps>(({ onSubmit, opened, onRequestClose }) => {
-  const options = [0.5, 1, 'Custom'] as const;
-  const [selected, setSelected] = useState<(typeof options)[number]>(0.5);
+  const customLabel = t('custom');
+  const options: (number | typeof customLabel)[] = [0.5, 1, customLabel];
+  const [selected, setSelected] = useState<number | typeof customLabel>(0.5);
 
   const {
     watch,
@@ -41,16 +42,16 @@ const SwapSettingsModal = memo<SelectTokenModalProps>(({ onSubmit, opened, onReq
 
   const handleOptionChange = (option: (typeof options)[number]) => {
     setSelected(option);
-    if (option === 'Custom') {
+    if (option === customLabel) {
       setValue('slippageTolerance', undefined, { shouldValidate: formSubmitted });
-    } else if (option === 0.5 || option === 1) {
-      setValue('slippageTolerance', option, { shouldValidate: formSubmitted });
+    } else if (options.includes(option)) {
+      setValue('slippageTolerance', option as number, { shouldValidate: formSubmitted });
     }
   };
 
   const handleApplyClick = () => {
-    if (selected !== 'Custom') {
-      setValue('slippageTolerance', selected, { shouldValidate: formSubmitted });
+    if (selected !== customLabel) {
+      setValue('slippageTolerance', selected as number, { shouldValidate: formSubmitted });
     }
     handleSubmit(onSubmit)();
   };
@@ -62,13 +63,7 @@ const SwapSettingsModal = memo<SelectTokenModalProps>(({ onSubmit, opened, onReq
           <T id="slippageTolerance" />
         </span>
 
-        <div className="bg-secondary-low rounded-6 p-3 flex gap-1 items-start mt-2">
-          <InfoIcon className="min-w-5 min-h-5 mt-0.5" />
-          <span className="text-xs">
-            The swap will fail if the price changes unfavorably by more than this percentage. Too high value may lead to
-            an unfavorable trade.
-          </span>
-        </div>
+        <CaptionAlert className="mt-1" type="info" message={t('slippageDescription')} />
 
         <form id="slippage-form" onSubmit={handleSubmit(onSubmit)}>
           <div className="flex items-center bg-[#E2E2E2] rounded-lg p-0.5 my-4">
@@ -81,11 +76,11 @@ const SwapSettingsModal = memo<SelectTokenModalProps>(({ onSubmit, opened, onReq
             ${selected === option ? 'bg-white text-primary shadow-sm' : 'text-text'}`}
               >
                 {option}
-                {option !== 'Custom' && '%'}
+                {option !== customLabel && '%'}
               </button>
             ))}
           </div>
-          {selected === 'Custom' && (
+          {selected === customLabel && (
             <Controller
               name="slippageTolerance"
               control={control}

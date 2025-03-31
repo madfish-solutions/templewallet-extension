@@ -29,12 +29,12 @@ import { runConnectedLedgerOperationFlow } from 'lib/ui';
 import { useSafeState } from 'lib/ui/hooks';
 import { isTruthy } from 'lib/utils';
 import { findAccountForTezos } from 'temple/accounts';
-import { useTezosChainIdLoadingValue, useRelevantAccounts, useAccountAddressForTezos } from 'temple/front';
+import { useTezosChainIdLoadingValue, useRelevantAccounts } from 'temple/front';
 
 import { InternalConfirmationSelectors } from './InternalConfirmation.selectors';
 import { LedgerApprovalModal } from './ledger-approval-modal';
 
-type InternalConfiramtionProps = {
+type InternalConfirmationProps = {
   payload: TempleConfirmationPayload;
   onConfirm: (confirmed: boolean, modifiedTotalFee?: number, modifiedStorageLimit?: number) => Promise<void>;
   error?: any;
@@ -42,9 +42,8 @@ type InternalConfiramtionProps = {
 
 const MIN_GAS_FEE = 0;
 
-const InternalConfirmation: FC<InternalConfiramtionProps> = ({ payload, onConfirm, error: payloadError }) => {
+const InternalConfirmation: FC<InternalConfirmationProps> = ({ payload, onConfirm, error: payloadError }) => {
   const { popup } = useAppEnv();
-  const publicKeyHash = useAccountAddressForTezos();
 
   const getContentToParse = useCallback(async () => {
     switch (payload.type) {
@@ -95,7 +94,7 @@ const InternalConfirmation: FC<InternalConfiramtionProps> = ({ payload, onConfir
   useEffect(() => {
     try {
       const { errorDetails, errors, name, message } = payloadError.error[0];
-      if (message?.includes('empty_implicit_contract') && message?.includes(publicKeyHash)) {
+      if (message?.includes('empty_implicit_contract') && message?.includes(payload.sourcePkh)) {
         dispatch(setOnRampPossibilityAction(true));
       }
       if (
@@ -117,7 +116,7 @@ const InternalConfirmation: FC<InternalConfiramtionProps> = ({ payload, onConfir
         dispatch(setOnRampPossibilityAction(true));
       }
     } catch {}
-  }, [payload.sourcePkh, payload.type, payloadError, publicKeyHash]);
+  }, [payload.sourcePkh, payload.type, payloadError]);
 
   const signPayloadFormats: ViewsSwitcherItemProps[] = useMemo(() => {
     if (payload.type === 'operations') {

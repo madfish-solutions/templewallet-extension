@@ -32,7 +32,7 @@ export const FormSubmitButton: FC<FormSubmitButtonProps> = ({
     () =>
       clsx(
         'relative gap-x-2',
-        'text-white border-2',
+        'text-primary-orange-lighter border-2',
         buildFormSubmitButtonCommonClassName(disabled, loading),
         rounder ? 'rounded-md' : 'rounded',
         small ? 'px-6 text-sm' : 'px-8 text-base leading-5',
@@ -57,7 +57,7 @@ export const buildFormSubmitButtonCommonClassName = (disabled?: boolean, loading
   clsx(
     'flex items-center justify-center font-semibold',
     'transition duration-200 ease-in-out',
-    disabled ? 'bg-gray-400 border-gray-400' : 'bg-primary border-primary',
+    disabled ? 'bg-gray-400 border-gray-400' : 'bg-primary-orange border-primary-orange',
     loading || disabled
       ? 'opacity-75 pointer-events-none'
       : 'opacity-90 hover:opacity-100 focus:opacity-100 shadow-sm hover:shadow focus:shadow'

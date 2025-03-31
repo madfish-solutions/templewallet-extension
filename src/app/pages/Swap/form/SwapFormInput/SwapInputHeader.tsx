@@ -1,6 +1,6 @@
 import React, { memo, ReactNode } from 'react';
 
-import classNames from 'clsx';
+import clsx from 'clsx';
 
 import { Button } from 'app/atoms';
 import Money from 'app/atoms/Money';
@@ -9,10 +9,10 @@ import useTippy from 'lib/ui/useTippy';
 
 interface SwapInputHeaderProps {
   label: ReactNode;
-  inputName: string;
+  inputName: 'input' | 'output';
   isBalanceError: boolean;
   assetDecimals: number;
-  handleSetMaxAmount: () => void;
+  handleSetMaxAmount: EmptyFn;
   assetBalanceStr?: string;
 }
 
@@ -27,7 +27,7 @@ const SwapInputHeader = memo<SwapInputHeaderProps>(
 
     return (
       <div className="w-full flex items-center justify-between">
-        <span className="text-xs font-semibold text-text">{label}</span>
+        <span className="text-font-description-bold">{label}</span>
         {assetBalanceStr && (
           <span className="text-xs text-grey-1 flex items-baseline">
             <span className="mr-1">
@@ -37,7 +37,7 @@ const SwapInputHeader = memo<SwapInputHeaderProps>(
               <Button
                 ref={assetDecimals > 6 ? fullBalanceStrRef : null}
                 onClick={handleSetMaxAmount}
-                className={classNames(
+                className={clsx(
                   'text-xs mr-1 text-font-num',
                   isBalanceError ? 'text-error underline' : 'text-secondary'
                 )}

@@ -25,7 +25,7 @@ export const OnRampSmileButton: FC<OnRumpSmileButtonProps> = ({
     <Anchor
       href={href}
       className={classNames(
-        'flex flex-col w-[96px] h-[92px]',
+        'flex flex-col py-[18px] flex-1 ',
         'justify-center items-center',
         'rounded-10 shadow-md',
         'transition ease-in-out duration-200',

@@ -12,9 +12,9 @@ import { AssetMetadataBase } from 'lib/metadata';
 import SwapSelectTokenFace from './SwapSelectTokenFace';
 
 interface SwapInputProps {
-  inputName: string;
+  inputName: 'input' | 'output';
   tezosChainId: string;
-  amount: BigNumber | undefined;
+  amount?: BigNumber;
   amountInputDisabled: boolean;
   error?: string;
   assetPrice: BigNumber;

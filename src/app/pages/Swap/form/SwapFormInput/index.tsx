@@ -52,7 +52,6 @@ const SwapFormInput: FC<SwapFormInputProps> = ({
   const isTezosSlug = assetSlug === TEZ_TOKEN_SLUG;
   const assetSlugWithFallback = assetSlug ?? TEZ_TOKEN_SLUG;
 
-  // eslint-disable-next-line no-type-assertion/no-type-assertion
   const assetMetadataWithFallback = useCategorizedTezosAssetMetadata(assetSlugWithFallback, network.chainId)!;
   const assetMetadata = useMemo(
     () => (assetSlug ? assetMetadataWithFallback : DEFAULT_ASSET_METADATA),

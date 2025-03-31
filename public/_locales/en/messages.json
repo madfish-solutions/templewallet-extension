@@ -2671,6 +2671,12 @@
   "slippageTolerance": {
     "message": "Slippage tolerance"
   },
+  "slippageDescription": {
+    "message": "The swap will fail if the price changes unfavorably by more than this percentage. Too high value may lead to an unfavorable trade."
+  },
+  "custom": {
+    "message": "Custom"
+  },
   "minimumReceived": {
     "message": "Minimum received"
   },
@@ -3771,10 +3777,18 @@
   "unknownError": {
     "message": "Unknown error"
   },
-  "cannotSellToYourself": { "message": "Cannot sell to yourself" },
-  "selectedAccountCannotSignTx": { "message": "Selected account cannot sign transactions" },
-  "attributes": { "message": "Attributes" },
-  "properties": { "message": "Properties" },
+  "cannotSellToYourself": {
+    "message": "Cannot sell to yourself"
+  },
+  "selectedAccountCannotSignTx": {
+    "message": "Selected account cannot sign transactions"
+  },
+  "attributes": {
+    "message": "Attributes"
+  },
+  "properties": {
+    "message": "Properties"
+  },
   "closePartnersPromotion": {
     "message": "Are you sure you want to disable all ads?"
   },
