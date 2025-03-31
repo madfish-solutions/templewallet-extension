@@ -1,6 +1,6 @@
 import memoizee from 'memoizee';
 import { nanoid } from 'nanoid';
-import { getAddress, toHex, WalletPermission } from 'viem';
+import { getAddress, toHex, TransactionRequest, WalletPermission } from 'viem';
 
 import {
   EvmDAppSession,
@@ -11,6 +11,7 @@ import {
 } from 'app/storage/dapps';
 import { getReadOnlyEvm } from 'temple/evm';
 import { EVMErrorCodes, evmRpcMethodsNames, RETURNED_ACCOUNTS_CAVEAT_NAME } from 'temple/evm/constants';
+import { EvmEstimationData } from 'temple/evm/estimate';
 import { getEvmChainsRpcUrls } from 'temple/evm/evm-chains-rpc-urls';
 import { ErrorWithCode } from 'temple/evm/types';
 import { TempleChainKind } from 'temple/types';
@@ -202,3 +203,7 @@ export const getGasPrice = memoizee(
   },
   { promise: true, maxAge: 1000 }
 );
+
+export const isReqGasPriceLowerThanEstimated = (req: TransactionRequest, estimation: EvmEstimationData) =>
+  (req.maxFeePerGas && estimation.maxFeePerGas && req.maxFeePerGas < estimation.maxFeePerGas) ||
+  (req.gasPrice && estimation.gasPrice && req.gasPrice < estimation.gasPrice);

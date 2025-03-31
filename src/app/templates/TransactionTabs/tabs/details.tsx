@@ -4,6 +4,7 @@ import { isDefined } from '@rnw-community/shared';
 import BigNumber from 'bignumber.js';
 import clsx from 'clsx';
 
+import { FadeTransition } from 'app/a11y/FadeTransition';
 import { IconBase } from 'app/atoms';
 import Money from 'app/atoms/Money';
 import { EvmNetworkLogo, TezosNetworkLogo } from 'app/atoms/NetworkLogo';
@@ -36,50 +37,52 @@ export const DetailsTab: FC<Props> = ({
   const { kind: chainKind, chainId } = network;
 
   return (
-    <div className="flex flex-col px-4 py-2 mb-6 rounded-lg shadow-bottom border-0.5 border-transparent">
-      <div className="py-2 flex flex-row justify-between items-center border-b-0.5 border-lines">
-        <p className="p-1 text-font-description text-grey-1">
-          <T id="network" />
-        </p>
-        <div className="flex flex-row items-center">
-          <span className="p-1 text-font-description-bold">{network.name}</span>
-          {chainKind === TempleChainKind.EVM ? (
-            <EvmNetworkLogo chainId={chainId} />
-          ) : (
-            <TezosNetworkLogo chainId={chainId} />
-          )}
-        </div>
-      </div>
-
-      {(isDefined(destinationName) || isDefined(destinationValue)) && (
+    <FadeTransition>
+      <div className="flex flex-col px-4 py-2 mb-6 rounded-lg shadow-bottom border-0.5 border-transparent">
         <div className="py-2 flex flex-row justify-between items-center border-b-0.5 border-lines">
-          <p className="p-1 text-font-description text-grey-1">{destinationName}</p>
-          {destinationValue}
-        </div>
-      )}
-
-      <div
-        className={clsx(
-          'py-2 flex flex-row justify-between items-center',
-          displayedStorageFee && 'border-b-0.5 border-lines'
-        )}
-      >
-        <p className="p-1 text-font-description text-grey-1">
-          <T id="gasFee" />
-        </p>
-        <div className="flex flex-row items-center">
-          <FeesInfo network={network} assetSlug={assetSlug} amount={displayedFee} goToFeeTab={goToFeeTab} />
-        </div>
-      </div>
-      {displayedStorageFee && (
-        <div className="py-2 flex flex-row justify-between items-center">
-          <p className="p-1 text-font-description text-grey-1">Storage Fee</p>
+          <p className="p-1 text-font-description text-grey-1">
+            <T id="network" />
+          </p>
           <div className="flex flex-row items-center">
-            <FeesInfo network={network} assetSlug={assetSlug} amount={displayedStorageFee} goToFeeTab={goToFeeTab} />
+            <span className="p-1 text-font-description-bold">{network.name}</span>
+            {chainKind === TempleChainKind.EVM ? (
+              <EvmNetworkLogo chainId={chainId} />
+            ) : (
+              <TezosNetworkLogo chainId={chainId} />
+            )}
           </div>
         </div>
-      )}
-    </div>
+
+        {(isDefined(destinationName) || isDefined(destinationValue)) && (
+          <div className="py-2 flex flex-row justify-between items-center border-b-0.5 border-lines">
+            <p className="p-1 text-font-description text-grey-1">{destinationName}</p>
+            {destinationValue}
+          </div>
+        )}
+
+        <div
+          className={clsx(
+            'py-2 flex flex-row justify-between items-center',
+            displayedStorageFee && 'border-b-0.5 border-lines'
+          )}
+        >
+          <p className="p-1 text-font-description text-grey-1">
+            <T id="gasFee" />
+          </p>
+          <div className="flex flex-row items-center">
+            <FeesInfo network={network} assetSlug={assetSlug} amount={displayedFee} goToFeeTab={goToFeeTab} />
+          </div>
+        </div>
+        {displayedStorageFee && (
+          <div className="py-2 flex flex-row justify-between items-center">
+            <p className="p-1 text-font-description text-grey-1">Storage Fee</p>
+            <div className="flex flex-row items-center">
+              <FeesInfo network={network} assetSlug={assetSlug} amount={displayedStorageFee} goToFeeTab={goToFeeTab} />
+            </div>
+          </div>
+        )}
+      </div>
+    </FadeTransition>
   );
 };
 

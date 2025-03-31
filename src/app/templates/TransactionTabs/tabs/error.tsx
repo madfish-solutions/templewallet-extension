@@ -2,6 +2,7 @@ import React, { memo, useMemo } from 'react';
 
 import ReactJson from 'react-json-view';
 
+import { FadeTransition } from 'app/a11y/FadeTransition';
 import { CaptionAlert, CopyButton, IconBase, NoSpaceField } from 'app/atoms';
 import { ReactComponent as CopyIcon } from 'app/icons/base/copy.svg';
 import { t } from 'lib/i18n';
@@ -28,7 +29,7 @@ export const ErrorTab = memo<ErrorTabProps>(({ isEvm, submitError, estimationErr
   if (!message) return null;
 
   return (
-    <>
+    <FadeTransition>
       <CaptionAlert
         type="error"
         title={showEstimationErrorMessage ? t('txCouldNotBeEstimated') : undefined}
@@ -68,6 +69,6 @@ export const ErrorTab = memo<ErrorTabProps>(({ isEvm, submitError, estimationErr
           containerClassName="mb-2"
         />
       )}
-    </>
+    </FadeTransition>
   );
 });

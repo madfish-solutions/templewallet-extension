@@ -206,7 +206,7 @@
     "use-onclickoutside": "0.4.1",
     "util": "0.11.1",
     "uuid": "^11.0.3",
-    "viem": "^2.21.36",
+    "viem": "^2.23.10",
     "wasm-themis": "0.14.6",
     "webextension-polyfill": "^0.10.0",
     "webpack": "^5",

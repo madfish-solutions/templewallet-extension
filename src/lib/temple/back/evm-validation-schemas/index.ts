@@ -31,11 +31,7 @@ export const ethSignTypedDataValidationSchema = tupleSchema([
 ]).required();
 
 const ethPersonalSignSchemas = [
-  tupleSchema([
-    hexByteStringSchema().required(),
-    evmAddressValidationSchema().required(),
-    stringSchema().required().nullable()
-  ]),
+  tupleSchema([hexByteStringSchema().required(), evmAddressValidationSchema().required(), stringSchema().nullable()]),
   tupleSchema([hexByteStringSchema().required(), evmAddressValidationSchema().required()])
 ];
 export const ethPersonalSignPayloadValidationSchema = mixedSchema<
