@@ -24,6 +24,7 @@ Given(
 
     await Pages.Header.templeLogoButton.click();
     await Pages.Home.isVisible();
+    await Pages.Home.isVisible();
     await Pages.Home.SendButton.click();
     await Pages.Send.isVisible();
     await Pages.Send.recipientInput.click();
