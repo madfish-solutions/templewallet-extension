@@ -46,7 +46,6 @@ export const SwapInfoDropdown = ({
   const cashbackInfoIconRef = useTippy<HTMLSpanElement>(cashbackInfoTippyProps);
 
   const [dropdownOpened, , , toggleDropdown] = useBooleanState(false);
-  // const [isOpen, setIsOpen] = useState(false);
 
   return (
     <div className="p-4 bg-white rounded-8 shadow-md">
