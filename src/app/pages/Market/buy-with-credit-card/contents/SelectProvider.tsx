@@ -6,7 +6,6 @@ import { useFormContext } from 'react-hook-form-v7';
 import { FadeTransition } from 'app/a11y/FadeTransition';
 import { EmptyState } from 'app/atoms/EmptyState';
 import Money from 'app/atoms/Money';
-import { BackButton } from 'app/atoms/PageModal';
 import { TopUpProviderIcon } from 'app/templates/TopUpProviderIcon';
 import { TopUpProviderId } from 'lib/buy-with-credit-card/top-up-provider-id.enum';
 import { PaymentProviderInterface } from 'lib/buy-with-credit-card/topup.interface';
@@ -38,7 +37,7 @@ export const SelectProvider: FC<Props> = ({
   const activeProvider = watch('provider');
 
   useLayoutEffect(
-    () => void setModalHeaderConfig({ title: t('selectProvider'), titleLeft: <BackButton onClick={onGoBack} /> }),
+    () => void setModalHeaderConfig({ title: t('selectProvider'), onGoBack }),
     [setModalHeaderConfig, onGoBack]
   );
 

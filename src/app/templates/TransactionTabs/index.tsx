@@ -75,7 +75,6 @@ export const TransactionTabs = <T extends TxParamsFormData>({
         name={tabsName}
         activeSegment={selectedTab}
         setActiveSegment={setSelectedTab}
-        controlRef={useRef<HTMLDivElement>(null)}
         className="mt-6 mb-4"
         segments={[
           {

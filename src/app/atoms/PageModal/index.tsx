@@ -1,10 +1,11 @@
-import React, { FC, ReactElement, ReactNode, memo, useMemo } from 'react';
+import React, { FC, ReactElement, ReactNode, memo, useMemo, useCallback } from 'react';
 
 import clsx from 'clsx';
 import Modal from 'react-modal';
 
 import { ACTIVATE_CONTENT_FADER_CLASSNAME } from 'app/a11y/content-fader';
 import { useAppEnv } from 'app/env';
+import { useToastBottomShiftModalLogic } from 'app/hooks/use-toast-bottom-shift-modal-logic';
 import { ReactComponent as ChevronLeftIcon } from 'app/icons/base/chevron_left.svg';
 import { ReactComponent as ExIcon } from 'app/icons/base/x.svg';
 import { LAYOUT_CONTAINER_CLASSNAME } from 'app/layouts/containers';
@@ -26,6 +27,7 @@ export interface PageModalProps extends TestIDProps {
   headerClassName?: string;
   titleLeft?: ReactNode;
   titleRight?: ReactNode;
+  onGoBack?: EmptyFn;
   onRequestClose?: EmptyFn;
   animated?: boolean;
   contentPadding?: boolean;
@@ -38,8 +40,9 @@ export const PageModal: FC<PageModalProps> = ({
   opened,
   headerClassName,
   titleLeft,
+  onGoBack,
   onRequestClose,
-  titleRight = <CloseButton onClick={onRequestClose} />,
+  titleRight,
   children,
   testID,
   animated = true,
@@ -48,6 +51,7 @@ export const PageModal: FC<PageModalProps> = ({
 }) => {
   const { fullPage, confirmWindow } = useAppEnv();
   const testnetModeEnabled = useTestnetModeEnabledSelector();
+  const onCloseBottomShiftCallback = useToastBottomShiftModalLogic(opened);
 
   const baseOverlayClassNames = useMemo(() => {
     if (confirmWindow) return 'pt-4';
@@ -56,6 +60,16 @@ export const PageModal: FC<PageModalProps> = ({
 
     return fullPage ? 'pt-13 pb-8' : 'pt-4';
   }, [confirmWindow, fullPage, testnetModeEnabled]);
+
+  const handleClose = useCallback(() => {
+    onCloseBottomShiftCallback();
+    onRequestClose?.();
+  }, [onCloseBottomShiftCallback, onRequestClose]);
+
+  const handleGoBack = useCallback(() => {
+    onCloseBottomShiftCallback();
+    onGoBack?.();
+  }, [onCloseBottomShiftCallback, onGoBack]);
 
   return (
     <Modal
@@ -80,15 +94,15 @@ export const PageModal: FC<PageModalProps> = ({
         beforeClose: ModStyles.closed
       }}
       appElement={document.getElementById('root')!}
-      onRequestClose={onRequestClose}
+      onRequestClose={handleClose}
       testId={testID}
     >
       <div className="flex items-center p-4 border-b-0.5 border-lines">
-        <div className="w-12">{titleLeft}</div>
+        <div className="w-12">{titleLeft ?? onGoBack ? <BackButton onClick={handleGoBack} /> : undefined}</div>
 
         <div className={clsx('flex-1 text-center text-font-regular-bold', headerClassName)}>{title}</div>
 
-        <div className="w-12 flex justify-end">{titleRight}</div>
+        <div className="w-12 flex justify-end">{titleRight ?? <CloseButton onClick={handleClose} />}</div>
       </div>
 
       <div className={clsx('flex-grow flex flex-col overflow-hidden', contentPadding && 'p-4')}>

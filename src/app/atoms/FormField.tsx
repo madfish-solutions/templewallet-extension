@@ -16,6 +16,7 @@ import { noop } from 'lodash';
 
 import CleanButton from 'app/atoms/CleanButton';
 import OldStyleCopyButton from 'app/atoms/OldStyleCopyButton';
+import { ReactComponent as LockFillIcon } from 'app/icons/base/lock_fill.svg';
 import { ReactComponent as PasteFillIcon } from 'app/icons/base/paste_fill.svg';
 import { ReactComponent as CopyIcon } from 'app/icons/monochrome/copy.svg';
 import { setTestID, TestIDProperty } from 'lib/analytics';
@@ -146,6 +147,7 @@ export const FormField = forwardRef<FormFieldElement, FormFieldProps>(
       style,
       rightSideContainerStyle,
       placeholder,
+      disabled,
       ...rest
     },
     ref
@@ -267,6 +269,7 @@ export const FormField = forwardRef<FormFieldElement, FormFieldProps>(
             onChange={handleChange}
             onFocus={handleFocus}
             onBlur={handleBlur}
+            disabled={disabled}
             {...rest}
             {...setTestID(testIDs?.input ?? testID)}
           />
@@ -296,7 +299,8 @@ export const FormField = forwardRef<FormFieldElement, FormFieldProps>(
               </Button>
             )}
             {copyable && <Copyable value={String(value)} copy={copy} isSecret={type === 'password'} />}
-            {hasRevealablePassword && RevealPasswordIcon}
+            {disabled && <IconBase Icon={LockFillIcon} className="text-grey-3" />}
+            {hasRevealablePassword && !disabled && RevealPasswordIcon}
           </div>
 
           {secretCovered && <SecretCover onClick={handleSecretBannerClick} />}

@@ -2,9 +2,8 @@ import React, { HTMLAttributes, memo, useCallback, useMemo } from 'react';
 
 import clsx from 'clsx';
 import { throttle } from 'lodash';
-import { useDispatch } from 'react-redux';
 
-import { setToastsContainerBottomShiftAction } from 'app/store/settings/actions';
+import { useToastsContainerBottomShift } from 'lib/temple/front/toasts-context';
 import { useWillUnmount } from 'lib/ui/hooks/useWillUnmount';
 
 export interface ActionsButtonsBoxProps extends HTMLAttributes<HTMLDivElement> {
@@ -23,10 +22,10 @@ export const ActionsButtonsBox = memo<ActionsButtonsBoxProps>(
     shouldChangeBottomShift = true,
     ...restProps
   }) => {
-    const dispatch = useDispatch();
+    const [_, setToastsContainerBottomShift] = useToastsContainerBottomShift();
 
     useWillUnmount(() => {
-      if (shouldChangeBottomShift) void dispatch(setToastsContainerBottomShiftAction(0));
+      if (shouldChangeBottomShift) void setToastsContainerBottomShift(0);
     });
 
     const resizeObserver = useMemo(
@@ -36,11 +35,11 @@ export const ActionsButtonsBox = memo<ActionsButtonsBoxProps>(
             const borderBoxSize = entries.find(entry => entry.borderBoxSize[0])?.borderBoxSize[0];
 
             if (borderBoxSize && shouldChangeBottomShift) {
-              dispatch(setToastsContainerBottomShiftAction(borderBoxSize.blockSize - 24));
+              setToastsContainerBottomShift(borderBoxSize.blockSize - 24);
             }
           }, 100)
         ),
-      [shouldChangeBottomShift, dispatch]
+      [setToastsContainerBottomShift, shouldChangeBottomShift]
     );
 
     const rootRef = useCallback(
@@ -52,10 +51,10 @@ export const ActionsButtonsBox = memo<ActionsButtonsBoxProps>(
 
           const { height } = node.getBoundingClientRect();
 
-          dispatch(setToastsContainerBottomShiftAction(height));
+          setToastsContainerBottomShift(height - 24);
         }
       },
-      [resizeObserver, shouldChangeBottomShift, dispatch]
+      [resizeObserver, setToastsContainerBottomShift, shouldChangeBottomShift]
     );
 
     return (

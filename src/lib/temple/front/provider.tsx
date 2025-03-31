@@ -1,4 +1,4 @@
-import React, { FC, useMemo, useState } from 'react';
+import React, { FC, useMemo } from 'react';
 
 import { ShortcutAccountSelectStateProvider } from 'app/hooks/use-account-select-shortcut';
 import { AssetsViewStateProvider } from 'app/hooks/use-assets-view-state';
@@ -7,19 +7,18 @@ import { CustomEvmChainIdContext, CustomTezosChainIdContext } from 'lib/analytic
 import { ReadyTempleProvider } from 'temple/front/ready';
 
 import { TempleClientProvider, useTempleClient } from './client';
-import { SuccessfulInitToastContext } from './successful-init-toast-context';
+import { ToastsContextProvider } from './toasts-context';
 
 export const TempleProvider: FC<PropsWithChildren> = ({ children }) => {
   usePushNotifications();
-  const initToastState = useState<string | undefined>();
 
   return (
     <CustomTezosChainIdContext.Provider value={undefined}>
       <CustomEvmChainIdContext.Provider value={undefined}>
         <TempleClientProvider>
-          <SuccessfulInitToastContext.Provider value={initToastState}>
+          <ToastsContextProvider>
             <ConditionalReadyTemple>{children}</ConditionalReadyTemple>
-          </SuccessfulInitToastContext.Provider>
+          </ToastsContextProvider>
         </TempleClientProvider>
       </CustomEvmChainIdContext.Provider>
     </CustomTezosChainIdContext.Provider>

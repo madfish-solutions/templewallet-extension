@@ -3,13 +3,16 @@ import React, { FC, memo, useMemo } from 'react';
 import clsx from 'clsx';
 import type { Placement } from 'tippy.js';
 
+import ArbitrumIconSrc from 'app/icons/networks/arbitrum.svg?url';
+import AvalancheIconSrc from 'app/icons/networks/avalanche.svg?url';
+import BaseIconSrc from 'app/icons/networks/base.svg?url';
 import BinanceSmartChainIconSrc from 'app/icons/networks/bsc.svg?url';
 import EthereumIconSrc from 'app/icons/networks/ethereum.svg?url';
 import OptimismIconSrc from 'app/icons/networks/optimism.svg?url';
 import PolygonIconSrc from 'app/icons/networks/polygon.svg?url';
 import { t } from 'lib/i18n';
 import { getEvmNativeAssetIcon } from 'lib/images-uri';
-import { TEZOS_MAINNET_CHAIN_ID } from 'lib/temple/types';
+import { ETHEREUM_MAINNET_CHAIN_ID, OTHER_COMMON_MAINNET_CHAIN_IDS, TEZOS_MAINNET_CHAIN_ID } from 'lib/temple/types';
 import { ImageStacked } from 'lib/ui/ImageStacked';
 import useTippy, { UseTippyOptions } from 'lib/ui/useTippy';
 import { isTruthy } from 'lib/utils';
@@ -20,10 +23,13 @@ import { IdenticonInitials } from './Identicon';
 import { TezNetworkLogo } from './NetworksLogos';
 
 const logosRecord: Record<number, string> = {
-  1: EthereumIconSrc,
-  56: BinanceSmartChainIconSrc,
-  137: PolygonIconSrc,
-  10: OptimismIconSrc
+  [ETHEREUM_MAINNET_CHAIN_ID]: EthereumIconSrc,
+  [OTHER_COMMON_MAINNET_CHAIN_IDS.bsc]: BinanceSmartChainIconSrc,
+  [OTHER_COMMON_MAINNET_CHAIN_IDS.polygon]: PolygonIconSrc,
+  [OTHER_COMMON_MAINNET_CHAIN_IDS.optimism]: OptimismIconSrc,
+  [OTHER_COMMON_MAINNET_CHAIN_IDS.base]: BaseIconSrc,
+  [OTHER_COMMON_MAINNET_CHAIN_IDS.avalanche]: AvalancheIconSrc,
+  [OTHER_COMMON_MAINNET_CHAIN_IDS.arbitrum]: ArbitrumIconSrc
 };
 
 interface TezosNetworkLogoProps {

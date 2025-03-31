@@ -256,9 +256,6 @@
   "tokenInfo": {
     "message": "Token Info"
   },
-  "manageAssetsSearchTip": {
-    "message": "To add an assets, enter the contract address into the search line"
-  },
   "optionalComment": {
     "message": "Optional"
   },
@@ -878,13 +875,22 @@
   "unlockScreenResetModalDescription": {
     "message": "If you reset the extension without Seed Phrase back up, you'll not be able to recover your funds."
   },
-  "walletTemporarilyBlockedError": {
-    "message": "Incorrect password entered $attempts$ times. Wallet temporarily blocked for safety reason.",
+  "incorrectPasswordAttemptError": {
+    "message": "Incorrect password. $attempt$/$maxAttempts$ attempts remain.",
     "placeholders": {
-      "attempts": {
+      "attempt": {
         "content": "$1"
+      },
+      "maxAttempts": {
+        "content": "$2"
       }
     }
+  },
+  "incorrectPasswordWalletBlockedError": {
+    "message": "Incorrect password. Wallet temporarily blocked."
+  },
+  "walletTemporarilyBlockedError": {
+    "message": "Too many attempts. Wallet temporarily blocked."
   },
   "unlockWallet": {
     "message": "Unlock the Wallet"
@@ -1981,20 +1987,26 @@
   "noAssetsFound": {
     "message": "No assets found"
   },
-  "tokensNotFound": {
-    "message": "Tokens Not Found"
-  },
   "notFound": {
     "message": "Not Found"
   },
   "noRewardsYet": {
     "message": "No rewards yet"
   },
+  "noTokens": {
+    "message": "No tokens"
+  },
+  "noCollectibles": {
+    "message": "No collectibles"
+  },
   "selectNetwork": {
     "message": "Select Network"
   },
   "addCustomToken": {
     "message": "Add Custom Token"
+  },
+  "addCustomTokenNonCapitalize": {
+    "message": "Add custom token"
   },
   "tokenAddress": {
     "message": "Token address"
@@ -2364,7 +2376,7 @@
     "message": "Delete"
   },
   "rpcAdded": {
-    "message": "RPC added"
+    "message": "RPC Added"
   },
   "blockExplorerAdded": {
     "message": "Block explorer added"
@@ -2916,13 +2928,13 @@
     "message": "Did you know, you can earn TKEY tokens by viewing ads? If ads are turned off, you can easily enable them anytime in the settings and start earning rewards!"
   },
   "enablePartnersPromotionConfirm": {
-    "message": "Support the development team and earn TKEY tokens by viewing ads."
+    "message": "Earn TKEY & Support Temple"
   },
   "thanksForSupportingTemple": {
     "message": "Thanks for supporting Temple"
   },
   "enablePartnersPromotionDescriptionConfirm": {
-    "message": "To enable this feature, we request your permission to trace your Wallet Address and IP address. You can always disable ads in the settings."
+    "message": "Congrats, you've started earning TKEY tokens!\nBy enabling this feature, you agreed to share your Wallet address and IP to receive tokens and view ads. You can turn ads off or on anytime in the settings."
   },
   "ownAccount": {
     "message": "Own"
@@ -3659,10 +3671,10 @@
   "attributes": { "message": "Attributes" },
   "properties": { "message": "Properties" },
   "closePartnersPromotion": {
-    "message": "Are you sure you want to disable all ads?"
+    "message": "Disable advertising?"
   },
   "closePartnersPromoConfirm": {
-    "message": "Pay attention: you can receive rewards in TKEY tokens for viewing ads in our wallet. If you disabled Ads, you can always activate it in the settings."
+    "message": "Did you know, you can earn TKEY tokens by viewing ads? If ads are turned off, you can easily enable them anytime in the settings and start earning rewards!"
   },
   "earnTkeyRewards": {
     "message": "Earn TKEY Rewards"

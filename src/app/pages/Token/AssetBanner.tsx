@@ -124,7 +124,7 @@ const NamesComp: FC<{ assetName: string; network: OneOfChains }> = ({ assetName,
 };
 
 const AmountComp: FC<{ balance: BigNumber; assetSymbol: string }> = ({ balance, assetSymbol }) => (
-  <div className="text-2xl leading-9 font-medium">
+  <div className="text-font-num-bold-24 leading-9">
     <Money smallFractionFont={false} fiat>
       {balance}
     </Money>

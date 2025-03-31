@@ -16,8 +16,9 @@ export const usePartnersPromotionSettings = () => {
   const handleHidePromotion = async () => {
     const confirmed = await confirm({
       title: t('closePartnersPromotion'),
-      children: t('closePartnersPromoConfirm'),
-      confirmButtonText: t('disable')
+      description: t('closePartnersPromoConfirm'),
+      confirmButtonText: t('disable'),
+      hasCloseButton: false
     });
 
     if (confirmed) {
@@ -28,8 +29,9 @@ export const usePartnersPromotionSettings = () => {
   const handleShowPromotion = async () => {
     const confirmed = await confirm({
       title: t('enablePartnersPromotionConfirm'),
-      children: t('enablePartnersPromotionDescriptionConfirm'),
-      confirmButtonText: t('enable')
+      description: t('enablePartnersPromotionDescriptionConfirm'),
+      confirmButtonText: t('okGotIt'),
+      hasCancelButton: false
     });
 
     if (confirmed) {

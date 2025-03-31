@@ -15,7 +15,6 @@ import { dispatch } from 'app/store';
 import { putNewEvmCollectibleAction, putNewEvmTokenAction } from 'app/store/evm/assets/actions';
 import { putEvmCollectiblesMetadataAction } from 'app/store/evm/collectibles-metadata/actions';
 import { putEvmTokensMetadataAction } from 'app/store/evm/tokens-metadata/actions';
-import { setToastsContainerBottomShiftAction } from 'app/store/settings/actions';
 import { putCollectiblesAsIsAction, putTokensAsIsAction } from 'app/store/tezos/assets/actions';
 import { putCollectiblesMetadataAction } from 'app/store/tezos/collectibles-metadata/actions';
 import { putTokensMetadataAction } from 'app/store/tezos/tokens-metadata/actions';
@@ -36,6 +35,7 @@ import { fetchOneTokenMetadata } from 'lib/metadata/fetch';
 import { TokenMetadataNotFoundError } from 'lib/metadata/on-chain';
 import { EvmCollectibleMetadata, EvmTokenMetadata } from 'lib/metadata/types';
 import { loadContract } from 'lib/temple/contract';
+import { useToastsContainerBottomShift } from 'lib/temple/front/toasts-context';
 import { useSafeState, useUpdatableRef } from 'lib/ui/hooks';
 import { navigate } from 'lib/woozie';
 import { OneOfChains, useAccountAddressForEvm, useAccountAddressForTezos, useAllTezosChains } from 'temple/front';
@@ -99,6 +99,8 @@ export const AddTokenForm = memo<AddTokenPageProps>(
     const accountEvmAddress = useAccountAddressForEvm();
 
     const tezosChains = useAllTezosChains();
+
+    const [_, setToastsContainerBottomShift] = useToastsContainerBottomShift();
 
     const { formState, register, errors, watch, setValue, triggerValidation, clearError, handleSubmit } =
       useForm<FormData>({
@@ -299,7 +301,7 @@ export const AddTokenForm = memo<AddTokenPageProps>(
               );
           }
 
-          dispatch(setToastsContainerBottomShiftAction(0));
+          setToastsContainerBottomShift(0);
           toastSuccess(assetIsCollectible ? 'NFT Added' : 'Token Added');
 
           formAnalytics.trackSubmitSuccess();
@@ -324,12 +326,13 @@ export const AddTokenForm = memo<AddTokenPageProps>(
         formState.isSubmitting,
         formAnalytics,
         isTezosChainSelected,
-        selectedNetwork.chainId,
-        accountTezAddress,
+        setToastsContainerBottomShift,
         close,
-        accountEvmAddress,
+        selectedNetwork.chainId,
         selectedNetwork.kind,
-        forCollectible
+        accountTezAddress,
+        forCollectible,
+        accountEvmAddress
       ]
     );
 

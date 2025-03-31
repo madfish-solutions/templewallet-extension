@@ -93,10 +93,8 @@ interface TabContentBaseProps {
 }
 
 const TabContentBase = memo<TabContentBaseProps>(({ allSlugsSorted, publicKeyHash, network, manageActive }) => {
-  const { displayedSlugs, isSyncing, loadNext, searchValue, setSearchValue } = useEvmChainAccountTokensListingLogic(
-    allSlugsSorted,
-    network.chainId
-  );
+  const { displayedSlugs, isSyncing, loadNext, searchValue, isInSearchMode, setSearchValue } =
+    useEvmChainAccountTokensListingLogic(allSlugsSorted, network.chainId);
 
   const tokensView = useMemo(() => {
     const tokensJsx = displayedSlugs.map(slug => (
@@ -130,6 +128,7 @@ const TabContentBase = memo<TabContentBaseProps>(({ allSlugsSorted, publicKeyHas
       loadNextPage={loadNext}
       onSearchValueChange={setSearchValue}
       isSyncing={isSyncing}
+      isInSearchMode={isInSearchMode}
       network={network}
     >
       {tokensView}

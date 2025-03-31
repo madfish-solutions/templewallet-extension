@@ -53,7 +53,7 @@ export const NetworkSelectButton = memo<NetworkSelectProps>(({ selectedChain, on
   }, [selectedChain, evmChains, tezosChains]);
 
   return (
-    <DropdownTriggerButton className="p-3 w-full" onClick={onClick}>
+    <DropdownTriggerButton className="w-full p-3" onClick={onClick}>
       <div className="flex items-center gap-2">{children}</div>
     </DropdownTriggerButton>
   );

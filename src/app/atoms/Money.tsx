@@ -1,13 +1,14 @@
-import React, { FC, HTMLAttributes, memo, useCallback, useMemo, useRef } from 'react';
+import React, { FC, HTMLAttributes, memo, useCallback, useMemo } from 'react';
 
 import BigNumber from 'bignumber.js';
 import classNames from 'clsx';
 import { Placement } from 'tippy.js';
 
+import { toastSuccess } from 'app/toaster';
 import { AnalyticsEventCategory, setTestID, TestIDProps, useAnalytics } from 'lib/analytics';
 import { getNumberSymbols, toLocalFixed, toLocalFormat, toShortened, t } from 'lib/i18n';
 import useCopyToClipboard from 'lib/ui/useCopyToClipboard';
-import useTippy, { TippyInstance, UseTippyOptions } from 'lib/ui/useTippy';
+import useTippy, { UseTippyOptions } from 'lib/ui/useTippy';
 
 interface MoneyProps extends TestIDProps {
   children: number | string | BigNumber;
@@ -276,39 +277,17 @@ const FullAmountTippy: FC<FullAmountTippyProps> = ({
   ...rest
 }) => {
   const fullAmountStr = useMemo(() => toLocalFixed(fullAmount), [fullAmount]);
+  const { fieldRef, copy } = useCopyToClipboard();
 
-  const { fieldRef, copy, copied, setCopied } = useCopyToClipboard();
-
-  const tippyContent = useMemo(() => {
-    if (copied) {
-      return t('copiedHash');
-    }
-    return showAmountTooltip ? fullAmountStr : t('copyHashToClipboard');
-  }, [copied, showAmountTooltip, fullAmountStr]);
-
-  const tippyInstanceRef = useRef<TippyInstance>();
   const tippyProps = useMemo<UseTippyOptions>(
     () => ({
       trigger: 'mouseenter',
-      hideOnClick: false,
-      content: tippyContent,
+      hideOnClick: true,
+      content: fullAmountStr,
       animation: 'shift-away-subtle',
-      placement: tooltipPlacement,
-      onCreate(instance) {
-        tippyInstanceRef.current = instance;
-        instance.enable();
-      },
-      onTrigger(instance) {
-        !showAmountTooltip && instance.disable();
-      },
-      onUntrigger(instance) {
-        !showAmountTooltip && instance.disable();
-      },
-      onHidden() {
-        setCopied(false);
-      }
+      placement: tooltipPlacement
     }),
-    [tippyContent, showAmountTooltip, setCopied]
+    [fullAmountStr, tooltipPlacement]
   );
 
   const ref = useTippy<HTMLSpanElement>(tippyProps);
@@ -320,25 +299,21 @@ const FullAmountTippy: FC<FullAmountTippyProps> = ({
       evt.preventDefault();
       evt.stopPropagation();
 
-      if (!showAmountTooltip) {
-        tippyInstanceRef.current?.enable();
-        tippyInstanceRef.current?.show();
-      }
-
       copy();
+      toastSuccess(t('copiedHash'));
 
       testID && trackEvent(testID, AnalyticsEventCategory.ButtonPress, testIDProperties);
 
       onClick?.(evt);
     },
-    [copy, onClick, showAmountTooltip, trackEvent, testID, testIDProperties]
+    [copy, onClick, trackEvent, testID, testIDProperties]
   );
 
   return (
     <div className="contents" {...setTestID(testID)}>
       {enabled ? (
         <>
-          <span ref={ref} onClick={handleClick} {...rest} />
+          <span ref={showAmountTooltip ? ref : undefined} onClick={handleClick} {...rest} />
           <input ref={fieldRef} value={fullAmountStr} readOnly className="sr-only" />
         </>
       ) : (

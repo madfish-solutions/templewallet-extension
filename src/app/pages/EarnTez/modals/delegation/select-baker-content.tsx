@@ -1,4 +1,4 @@
-import React, { ReactNode, RefObject, memo, useCallback, useMemo, useState } from 'react';
+import React, { ReactNode, memo, useCallback, useMemo, useState } from 'react';
 
 import clsx from 'clsx';
 import { useDebounce } from 'use-debounce';
@@ -11,7 +11,6 @@ import { EmptyState } from 'app/atoms/EmptyState';
 import { IconButton } from 'app/atoms/IconButton';
 import { PageLoader } from 'app/atoms/Loader';
 import { ScrollView } from 'app/atoms/PageModal/scroll-view';
-import { useTopFilterBarClickOutsideLogic } from 'app/hooks/use-top-filter-bar-click-outside-logic';
 import { ReactComponent as FilteroffIcon } from 'app/icons/base/filteroff.svg';
 import { SearchBarField } from 'app/templates/SearchField';
 import { T, t } from 'lib/i18n';
@@ -20,7 +19,6 @@ import { useTypedSWR } from 'lib/swr';
 import { Baker, useKnownBakers } from 'lib/temple/front';
 import { isValidTezosImplicitAddress } from 'lib/tezos';
 import Popper, { PopperRenderProps } from 'lib/ui/Popper';
-import { combineRefs } from 'lib/ui/utils';
 import { searchAndFilterItems } from 'lib/utils/search-items';
 import { AccountForTezos } from 'temple/accounts';
 import {
@@ -79,11 +77,6 @@ export const SelectBakerContent = memo<SelectBakerContentProps>(({ account, bake
     [internalSearchValue]
   );
 
-  const {
-    filterButtonRef: sortByTriggerRef,
-    containerRef,
-    searchInputContainerRef
-  } = useTopFilterBarClickOutsideLogic();
   const cleanSearchValue = useCallback(() => setSearchValue(''), []);
 
   const sortedKnownBakers = useMemo(
@@ -152,21 +145,15 @@ export const SelectBakerContent = memo<SelectBakerContentProps>(({ account, bake
         <SearchBarField
           placeholder={t('bakerSearchPlaceholder')}
           value={searchValue}
-          ref={searchInputContainerRef}
           onValueChange={setSearchValue}
           onCleanButtonClick={cleanSearchValue}
           testID={DelegationModalSelectors.searchInput}
         />
 
-        <SortByPopper selectedOption={sortField} onSelect={setSortField} triggerRef={sortByTriggerRef} />
+        <SortByPopper selectedOption={sortField} onSelect={setSortField} />
       </div>
       {sortedBakers.length > 0 && (
-        <ScrollView
-          ref={containerRef}
-          className="pt-1 px-4 pb-15"
-          topEdgeThreshold={4}
-          onTopEdgeVisibilityChange={setTopEdgeVisible}
-        >
+        <ScrollView className="pt-1 px-4 pb-15" topEdgeThreshold={4} onTopEdgeVisibilityChange={setTopEdgeVisible}>
           <div className="flex flex-col gap-3">
             {sortedKnownBakers.length === 0 && (
               <Alert type="warning" description={<T id="unknownBakerDescription" />} closable={false} />
@@ -226,10 +213,9 @@ const KnownBakerCard = memo<KnownBakerCardProps>(({ baker, accountPkh, network, 
 interface SortByPopperProps {
   selectedOption: BakersSortField;
   onSelect: SyncFn<BakersSortField>;
-  triggerRef: RefObject<HTMLButtonElement>;
 }
 
-const SortByPopper = memo<SortByPopperProps>(({ selectedOption, onSelect, triggerRef }) => {
+const SortByPopper = memo<SortByPopperProps>(({ selectedOption, onSelect }) => {
   return (
     <Popper
       placement="bottom-end"
@@ -237,13 +223,7 @@ const SortByPopper = memo<SortByPopperProps>(({ selectedOption, onSelect, trigge
       popup={popperProps => <SortByContent selectedOption={selectedOption} onSelect={onSelect} {...popperProps} />}
     >
       {({ ref, opened, toggleOpened }) => (
-        <IconButton
-          Icon={FilteroffIcon}
-          color="blue"
-          active={opened}
-          ref={combineRefs(triggerRef, ref)}
-          onClick={toggleOpened}
-        />
+        <IconButton Icon={FilteroffIcon} color="blue" active={opened} ref={ref} onClick={toggleOpened} />
       )}
     </Popper>
   );
