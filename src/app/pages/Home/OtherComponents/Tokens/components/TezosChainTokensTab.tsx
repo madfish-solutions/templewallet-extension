@@ -94,10 +94,8 @@ interface TabContentBaseProps {
 const TabContentBase = memo<TabContentBaseProps>(({ allSlugsSorted, network, publicKeyHash, manageActive }) => {
   const { chainId } = network;
 
-  const { displayedSlugs, isSyncing, loadNext, searchValue, setSearchValue } = useTezosChainAccountTokensListingLogic(
-    allSlugsSorted,
-    chainId
-  );
+  const { displayedSlugs, isSyncing, loadNext, searchValue, isInSearchMode, setSearchValue } =
+    useTezosChainAccountTokensListingLogic(allSlugsSorted, chainId);
 
   const mainnetTokensScamSlugsRecord = useMainnetTokensScamlistSelector();
 
@@ -134,6 +132,7 @@ const TabContentBase = memo<TabContentBaseProps>(({ allSlugsSorted, network, pub
       loadNextPage={loadNext}
       onSearchValueChange={setSearchValue}
       isSyncing={isSyncing}
+      isInSearchMode={isInSearchMode}
       network={network}
     >
       {tokensView}

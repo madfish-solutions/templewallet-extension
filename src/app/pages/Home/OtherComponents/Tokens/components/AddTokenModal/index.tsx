@@ -1,9 +1,11 @@
 import React, { memo, useCallback, useState } from 'react';
 
 import { BackButton, PageModal } from 'app/atoms/PageModal';
+import { useTestnetModeEnabledSelector } from 'app/store/settings/selectors';
 import { T } from 'lib/i18n';
 import { useBooleanState } from 'lib/ui/hooks';
 import { OneOfChains, useAccountAddressForTezos, useEthereumMainnetChain, useTezosMainnetChain } from 'temple/front';
+import { useEthereumTestnetChain, useTezosTestnetChain } from 'temple/front/chains';
 
 import { AddTokenForm } from './AddTokenForm';
 import { SelectNetworkPage } from './SelectNetworkPage';
@@ -16,18 +18,23 @@ interface Props {
 }
 
 export const AddTokenModal = memo<Props>(({ forCollectible, opened, onRequestClose, initialNetwork }) => {
+  const testnetModeEnabled = useTestnetModeEnabledSelector();
   const accountTezAddress = useAccountAddressForTezos();
 
   const tezosMainnetChain = useTezosMainnetChain();
+  const tezosTestnetChain = useTezosTestnetChain();
+
   const ethMainnetChain = useEthereumMainnetChain();
+  const ethTestnetChain = useEthereumTestnetChain();
 
   const [isNetworkSelectOpened, setNetworkSelectOpened, setNetworkSelectClosed] = useBooleanState(false);
+
   const [selectedNetwork, setSelectedNetwork] = useState<OneOfChains>(() => {
     if (initialNetwork) return initialNetwork;
 
-    if (accountTezAddress) return tezosMainnetChain;
+    if (accountTezAddress) return testnetModeEnabled ? tezosTestnetChain : tezosMainnetChain;
 
-    return ethMainnetChain;
+    return testnetModeEnabled ? ethTestnetChain : ethMainnetChain;
   });
 
   const totalClose = useCallback(() => {

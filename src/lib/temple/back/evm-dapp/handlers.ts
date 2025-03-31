@@ -39,6 +39,7 @@ import {
   getAppMeta,
   getDApp,
   getGasPrice,
+  isReqGasPriceLowerThanEstimated,
   makeChainIdRequest,
   makeReadAccountPermission,
   makeRequestEvmSignFunction,
@@ -270,21 +271,28 @@ export const sendEvmTransactionAfterConfirm = async (
   let error: string | null | undefined;
 
   try {
-    estimationData = serializeBigints(
-      await estimate(
-        {
-          rpcUrl: rpcBaseURL,
-          chain: {
-            id: parsedChainId,
-            rpcUrls: { default: { http: [rpcBaseURL] } },
-            // The two fields below are just for type compatibility
-            name: '',
-            nativeCurrency: DEFAULT_EVM_CURRENCY
-          }
-        },
-        modifiedReq
-      )
+    const estimation = await estimate(
+      {
+        rpcUrl: rpcBaseURL,
+        chain: {
+          id: parsedChainId,
+          rpcUrls: { default: { http: [rpcBaseURL] } },
+          // The two fields below are just for type compatibility
+          name: '',
+          nativeCurrency: DEFAULT_EVM_CURRENCY
+        }
+      },
+      modifiedReq
     );
+
+    if (isReqGasPriceLowerThanEstimated(modifiedReq, estimation)) {
+      modifiedReq.gasPrice = estimation.gasPrice;
+      modifiedReq.maxFeePerGas = estimation.maxFeePerGas;
+      modifiedReq.maxPriorityFeePerGas = estimation.maxPriorityFeePerGas;
+      modifiedReq.maxFeePerBlobGas = estimation.maxFeePerBlobGas;
+    }
+
+    estimationData = serializeBigints(estimation);
   } catch (e) {
     console.error(e);
     try {

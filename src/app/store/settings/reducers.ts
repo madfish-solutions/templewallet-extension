@@ -10,7 +10,6 @@ import {
   setOnRampPossibilityAction,
   setPendingReactivateAdsAction,
   setReferralLinksEnabledAction,
-  setToastsContainerBottomShiftAction,
   setIsTestnetModeEnabledAction
 } from './actions';
 import { SettingsState, settingsInitialState } from './state';
@@ -38,10 +37,6 @@ const settingsReducer = createReducer<SettingsState>(settingsInitialState, build
 
   builder.addCase(setReferralLinksEnabledAction, (state, { payload }) => {
     state.referralLinksEnabled = payload;
-  });
-
-  builder.addCase(setToastsContainerBottomShiftAction, (state, { payload }) => {
-    state.toastsContainerBottomShift = payload;
   });
 
   builder.addCase(setIsTestnetModeEnabledAction, (state, { payload }) => {

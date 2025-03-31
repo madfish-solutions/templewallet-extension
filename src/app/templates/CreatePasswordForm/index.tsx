@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useContext, useLayoutEffect, useMemo, useState } from 'react';
+import React, { memo, useCallback, useLayoutEffect, useMemo, useState } from 'react';
 
 import { generateMnemonic } from 'bip39';
 import { Controller, useForm } from 'react-hook-form';
@@ -32,7 +32,7 @@ import { T, TID, t } from 'lib/i18n';
 import { putToStorage } from 'lib/storage';
 import { useStorage, useTempleClient } from 'lib/temple/front';
 import { setMnemonicToBackup } from 'lib/temple/front/mnemonic-to-backup-keeper';
-import { SuccessfulInitToastContext } from 'lib/temple/front/successful-init-toast-context';
+import { useInitToastMessage } from 'lib/temple/front/toasts-context';
 import { navigate } from 'lib/woozie';
 
 import { createPasswordSelectors } from './selectors';
@@ -62,7 +62,7 @@ export const CreatePasswordForm = memo<CreatePasswordFormProps>(({ seedPhrase: s
   const [, setShouldBackupMnemonic] = useStorage(SHOULD_BACKUP_MNEMONIC_STORAGE_KEY);
   const [bottomEdgeIsVisible, setBottomEdgeIsVisible] = useState(true);
   const { setOnboardingCompleted } = useOnboardingProgress();
-  const [, setInitToast] = useContext(SuccessfulInitToastContext);
+  const [, setInitToast] = useInitToastMessage();
 
   const dispatch = useDispatch();
 

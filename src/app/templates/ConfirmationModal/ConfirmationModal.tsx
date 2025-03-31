@@ -13,6 +13,7 @@ export interface ConfirmationModalProps extends ActionModalProps {
   isOpen: boolean;
   confirmButtonText?: ReactNode;
   confirmButtonColor?: StyledButtonColor;
+  hasCancelButton?: boolean;
   onConfirm: EmptyFn;
 }
 
@@ -25,6 +26,7 @@ export const ConfirmationModal = memo<ConfirmationModalProps>(
     onConfirm,
     confirmButtonText,
     confirmButtonColor = 'primary',
+    hasCancelButton = true,
     ...restProps
   }) =>
     isOpen ? (
@@ -32,14 +34,16 @@ export const ConfirmationModal = memo<ConfirmationModalProps>(
         <DialogBody description={description}>{children}</DialogBody>
 
         <ActionModalButtonsContainer>
-          <ActionModalButton
-            color="primary-low"
-            onClick={onClose}
-            type="button"
-            testID={ConfirmatonModalSelectors.cancelButton}
-          >
-            <T id="cancel" />
-          </ActionModalButton>
+          {hasCancelButton && (
+            <ActionModalButton
+              color="primary-low"
+              onClick={onClose}
+              type="button"
+              testID={ConfirmatonModalSelectors.cancelButton}
+            >
+              <T id="cancel" />
+            </ActionModalButton>
+          )}
 
           <ActionModalButton
             color={confirmButtonColor}

@@ -28,6 +28,7 @@ const SearchField = forwardRef<HTMLDivElement, Props>(
       containerClassName,
       value,
       placeholder,
+      disabled,
       onValueChange,
       onFocus = emptyFn,
       onBlur = emptyFn,
@@ -76,6 +77,7 @@ const SearchField = forwardRef<HTMLDivElement, Props>(
           spellCheck={false}
           autoComplete="off"
           placeholder={focused ? undefined : placeholder}
+          disabled={disabled}
           onFocus={handleFocus}
           onBlur={handleBlur}
           onChange={handleChange}
@@ -87,7 +89,8 @@ const SearchField = forwardRef<HTMLDivElement, Props>(
           Icon={SearchIcon}
           size={12}
           className={clsx(
-            'group-hover:text-primary absolute left-3 top-2 pointer-events-none',
+            'absolute left-3 top-2 pointer-events-none',
+            !disabled && 'group-hover:text-primary',
             notEmpty ? 'text-primary' : 'text-grey-1'
           )}
         />
@@ -106,13 +109,18 @@ interface SearchBarFieldProps extends Props {
 
 export const SearchBarField = memo(
   forwardRef<HTMLDivElement, SearchBarFieldProps>(
-    ({ className, placeholder = 'Search', defaultRightMargin = true, containerClassName, value, ...rest }, ref) => (
+    (
+      { className, placeholder = 'Search', defaultRightMargin = true, containerClassName, value, disabled, ...rest },
+      ref
+    ) => (
       <SearchField
         ref={ref}
         value={value}
+        disabled={disabled}
         className={clsx(
           'bg-input-low rounded-lg',
-          'placeholder-grey-1 hover:placeholder-text caret-primary',
+          'placeholder-grey-1 caret-primary',
+          !disabled && 'hover:placeholder-text',
           'transition ease-in-out duration-200',
           className
         )}

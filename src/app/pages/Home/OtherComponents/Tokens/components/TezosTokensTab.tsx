@@ -90,7 +90,7 @@ interface TabContentBaseProps {
 }
 
 const TabContentBase = memo<TabContentBaseProps>(({ publicKeyHash, allSlugsSorted, groupByNetwork, manageActive }) => {
-  const { displayedSlugs, isSyncing, loadNext, searchValue, setSearchValue } =
+  const { displayedSlugs, isSyncing, isInSearchMode, loadNext, searchValue, setSearchValue } =
     useTezosAccountTokensListingLogic(allSlugsSorted);
 
   const groupedSlugs = useChainsSlugsGrouping<string>(displayedSlugs, groupByNetwork);
@@ -155,6 +155,7 @@ const TabContentBase = memo<TabContentBaseProps>(({ publicKeyHash, allSlugsSorte
       loadNextPage={loadNext}
       onSearchValueChange={setSearchValue}
       isSyncing={isSyncing}
+      isInSearchMode={isInSearchMode}
       network={mainnetChain}
     >
       {tokensView}

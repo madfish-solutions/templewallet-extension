@@ -4,6 +4,7 @@ import clsx from 'clsx';
 import { Controller, useFormContext } from 'react-hook-form-v7';
 import { formatEther } from 'viem';
 
+import { FadeTransition } from 'app/a11y/FadeTransition';
 import AssetField from 'app/atoms/AssetField';
 import { t, T } from 'lib/i18n';
 import { TEZOS_METADATA } from 'lib/metadata';
@@ -31,7 +32,7 @@ export const FeeTab: FC<FeeTabProps> = ({
   selectedOption,
   onOptionSelect
 }) => (
-  <>
+  <FadeTransition>
     {displayedFeeOptions && (
       <FeeOptions
         network={network}
@@ -46,7 +47,7 @@ export const FeeTab: FC<FeeTabProps> = ({
     ) : (
       <TezosContent selectedOption={selectedOption} onOptionSelect={onOptionSelect} />
     )}
-  </>
+  </FadeTransition>
 );
 
 type ContentProps = Pick<FeeTabProps, 'selectedOption' | 'onOptionSelect'>;

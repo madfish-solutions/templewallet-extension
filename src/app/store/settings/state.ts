@@ -10,7 +10,6 @@ export interface SettingsState {
   pendingReactivateAds: boolean;
   adsImpressionsLinked: boolean;
   referralLinksEnabled: boolean;
-  toastsContainerBottomShift: number;
   isTestnetModeEnabled: boolean;
   /** @deprecated */
   acceptedTermsVersion?: number;
@@ -30,6 +29,5 @@ export const settingsInitialState: SettingsState = {
   pendingReactivateAds: false,
   adsImpressionsLinked: false,
   referralLinksEnabled: IS_MISES_BROWSER,
-  toastsContainerBottomShift: 0,
   isTestnetModeEnabled: false
 };

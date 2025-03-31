@@ -10,7 +10,7 @@ import { ReactComponent as ErrorIcon } from 'app/icons/typed-msg/error.svg';
 import { ReactComponent as InfoIcon } from 'app/icons/typed-msg/info.svg';
 import { ReactComponent as SuccessIcon } from 'app/icons/typed-msg/success.svg';
 import { ReactComponent as WarningIcon } from 'app/icons/typed-msg/warning.svg';
-import { useToastsContainerBottomShiftSelector } from 'app/store/settings/selectors';
+import { useToastsContainerBottomShift } from 'lib/temple/front/toasts-context';
 import PortalToDocumentBody from 'lib/ui/Portal';
 
 interface TxData {
@@ -53,9 +53,14 @@ export const toastWarning = withToastsLimit((title: string, textBold?: boolean) 
 );
 
 export const ToasterProvider = memo(() => {
-  const bottomShift = useToastsContainerBottomShiftSelector();
-  const { popup } = useAppEnv();
-  const toastsContainerStyle = useMemo(() => ({ bottom: (popup ? 32 : 64) + bottomShift }), [bottomShift, popup]);
+  const [bottomShift] = useToastsContainerBottomShift();
+
+  const { popup, confirmWindow } = useAppEnv();
+
+  const toastsContainerStyle = useMemo(
+    () => ({ bottom: (popup ? 32 : confirmWindow ? 32 : 64) + bottomShift }),
+    [bottomShift, confirmWindow, popup]
+  );
 
   return (
     <PortalToDocumentBody>
@@ -97,7 +102,13 @@ const CustomToastBar = memo<CustomToastBarProps>(({ toast, customType, textBold 
   }, [toast.id, toast.visible]);
 
   return (
-    <div className={clsx('px-3 py-2.5 flex gap-x-1 rounded-md shadow-bottom max-w-88', TOAST_CLASSES[type])}>
+    <div
+      className={clsx(
+        'px-3 py-2.5 flex gap-x-1 rounded-md shadow-bottom max-w-88',
+        toast.visible ? 'animate-toast-enter' : 'animate-toast-leave',
+        TOAST_CLASSES[type]
+      )}
+    >
       <CustomToastIcon toast={toast} type={type} />
 
       {typeof toast.message === 'function' ? (

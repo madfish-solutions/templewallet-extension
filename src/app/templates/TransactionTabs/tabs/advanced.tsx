@@ -4,6 +4,7 @@ import clsx from 'clsx';
 import { Controller, useFormContext } from 'react-hook-form-v7';
 import ReactJson from 'react-json-view';
 
+import { FadeTransition } from 'app/a11y/FadeTransition';
 import { IconBase, NoSpaceField } from 'app/atoms';
 import AssetField from 'app/atoms/AssetField';
 import { CopyButton } from 'app/atoms/CopyButton';
@@ -20,7 +21,7 @@ interface AdvancedTabProps {
 }
 
 export const AdvancedTab: FC<AdvancedTabProps> = ({ isEvm = false }) => {
-  return isEvm ? <EvmContent /> : <TezosContent />;
+  return <FadeTransition>{isEvm ? <EvmContent /> : <TezosContent />}</FadeTransition>;
 };
 
 const EvmContent = () => {

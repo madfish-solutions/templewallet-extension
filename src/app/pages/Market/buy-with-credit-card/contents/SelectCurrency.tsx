@@ -2,7 +2,6 @@ import React, { FC, useCallback, useLayoutEffect } from 'react';
 
 import { useFormContext } from 'react-hook-form-v7';
 
-import { BackButton } from 'app/atoms/PageModal';
 import { useCurrenciesLoadingSelector } from 'app/store/buy-with-credit-card/selectors';
 import { TopUpInputInterface } from 'lib/buy-with-credit-card/topup.interface';
 import { t } from 'lib/i18n';
@@ -26,7 +25,7 @@ export const SelectCurrency: FC<Props> = ({ setModalHeaderConfig, onCurrencySele
   const outputToken = watch('outputToken');
 
   useLayoutEffect(
-    () => void setModalHeaderConfig({ title: t('selectCurrency'), titleLeft: <BackButton onClick={onGoBack} /> }),
+    () => void setModalHeaderConfig({ title: t('selectCurrency'), onGoBack }),
     [onGoBack, setModalHeaderConfig]
   );
 

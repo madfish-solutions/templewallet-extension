@@ -10,7 +10,6 @@ import { useResizeDependentValue } from 'app/hooks/use-resize-dependent-value';
 import PageLayout from 'app/layouts/PageLayout';
 import { getUserTestingGroupNameActions } from 'app/store/ab-testing/actions';
 import { useUserTestingGroupNameSelector } from 'app/store/ab-testing/selectors';
-import { toastError } from 'app/toaster';
 import { useFormAnalytics } from 'lib/analytics';
 import { ABTestGroup } from 'lib/apis/temple';
 import { DEFAULT_PASSWORD_INPUT_PLACEHOLDER } from 'lib/constants';
@@ -45,7 +44,6 @@ enum PageModalName {
   ResetExtension = 'ResetExtension'
 }
 
-const SUBMIT_ERROR_TYPE = 'submit-error';
 const LOCK_TIME = 2 * USER_ACTION_TIMEOUT;
 const LAST_ATTEMPT = 3;
 
@@ -97,6 +95,16 @@ const Unlock: FC<UnlockProps> = ({ canImportNew = true }) => {
   const { register, handleSubmit, errors, setError, clearError, formState } = useForm<FormData>();
   const submitting = formState.isSubmitting;
 
+  const setPasswordErrorMessage = useCallback(
+    async (message: string) => {
+      // Human delay.
+      await delay();
+
+      setError('password', 'submit-error', message);
+    },
+    [setError]
+  );
+
   const onSubmit = useCallback<OnSubmit<FormData>>(
     async ({ password }) => {
       if (submitting) return;
@@ -112,22 +120,38 @@ const Unlock: FC<UnlockProps> = ({ canImportNew = true }) => {
         setAttempt(1);
       } catch (err: any) {
         formAnalytics.trackSubmitFail();
-        if (attempt >= LAST_ATTEMPT) {
-          setTimeLock(Date.now());
-          toastError(t('walletTemporarilyBlockedError', String(LAST_ATTEMPT)));
-        }
-        setAttempt(attempt + 1);
-        setTimeleft(getTimeLeft(Date.now(), LOCK_TIME * Math.floor((attempt + 1) / 3)));
 
         console.error(err);
 
-        // Human delay.
-        await delay();
-        setError('password', SUBMIT_ERROR_TYPE, err.message);
-        focusPasswordField();
+        if (attempt >= LAST_ATTEMPT) {
+          setTimeLock(Date.now());
+          await setPasswordErrorMessage(
+            t(attempt === LAST_ATTEMPT ? 'walletTemporarilyBlockedError' : 'incorrectPasswordWalletBlockedError')
+          );
+        }
+
+        setAttempt(attempt + 1);
+        setTimeleft(getTimeLeft(Date.now(), LOCK_TIME * Math.floor((attempt + 1) / 3)));
+
+        if (attempt < LAST_ATTEMPT) {
+          await setPasswordErrorMessage(
+            t('incorrectPasswordAttemptError', [String(LAST_ATTEMPT - attempt), String(LAST_ATTEMPT)])
+          );
+          focusPasswordField();
+        }
       }
     },
-    [submitting, clearError, setError, unlock, focusPasswordField, formAnalytics, attempt, setAttempt, setTimeLock]
+    [
+      submitting,
+      clearError,
+      formAnalytics,
+      attempt,
+      unlock,
+      setAttempt,
+      setPasswordErrorMessage,
+      focusPasswordField,
+      setTimeLock
+    ]
   );
 
   const handleForgotPasswordClick = useCallback(() => setPageModalName(PageModalName.ForgotPassword), []);
@@ -140,6 +164,7 @@ const Unlock: FC<UnlockProps> = ({ canImportNew = true }) => {
     const interval = setInterval(() => {
       if (Date.now() - timelock > lockLevel) {
         setTimeLock(0);
+        clearError('password');
       }
       setTimeleft(getTimeLeft(timelock, lockLevel));
     }, 1_000);
@@ -147,7 +172,7 @@ const Unlock: FC<UnlockProps> = ({ canImportNew = true }) => {
     return () => {
       clearInterval(interval);
     };
-  }, [timelock, lockLevel, setTimeLock]);
+  }, [timelock, lockLevel, setTimeLock, clearError]);
 
   return (
     <PageLayout

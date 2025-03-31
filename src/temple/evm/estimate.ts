@@ -1,11 +1,4 @@
-import {
-  Chain,
-  FeeValues,
-  FeeValuesEIP1559,
-  FeeValuesLegacy,
-  PrepareTransactionRequestRequest,
-  TransactionRequest
-} from 'viem';
+import { Chain, FeeValues, FeeValuesEIP1559, FeeValuesLegacy, TransactionRequest } from 'viem';
 
 import type { EvmChain } from 'temple/front';
 
@@ -54,18 +47,16 @@ function getEstimatedFee(fees: Partial<FeeValues & { gas: bigint }>): bigint | u
   return fees.gas !== undefined && gasPrice !== undefined ? fees.gas * gasPrice : undefined;
 }
 
-type EstimationPayload = PrepareTransactionRequestRequest & { account?: HexString };
-
 export const estimate = async (
   network: EvmChain | { chain: Chain; rpcUrl: string },
-  req: EstimationPayload
+  req: TransactionRequest
 ): Promise<EvmEstimationData> => {
-  const { gasPrice, maxFeePerGas, maxPriorityFeePerGas, ...restReqProps } = req;
+  const { gasPrice, maxFeePerGas, maxPriorityFeePerGas, from, ...restReqProps } = req;
   const publicClient =
     'allRpcs' in network ? getReadOnlyEvmForNetwork(network) : getReadOnlyEvm(network.rpcUrl, network.chain);
 
   // @ts-expect-error: weird 'none of those signatures are compatible with each other' error
-  const transaction = await publicClient.prepareTransactionRequest(restReqProps);
+  const transaction = await publicClient.prepareTransactionRequest({ account: from, ...restReqProps });
 
   const commonProps = {
     estimatedFee: getEstimatedFee(transaction),
