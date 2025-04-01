@@ -201,7 +201,7 @@ export const ConfirmDAppForm = memo<ConfirmDAppFormProps>(({ accounts, payload, 
           <ProgressAndNumbers progress={totalRequestsCount - requestsLeft + 1} total={totalRequestsCount} />
         ) : null
       }
-      titleRight={accountsModalIsOpen ? <CloseButton onClick={closeAccountsModal} /> : null}
+      titleRight={accountsModalIsOpen ? <CloseButton onClick={closeAccountsModal} /> : <div />}
       animated={false}
       onRequestClose={closeAccountsModal}
     >

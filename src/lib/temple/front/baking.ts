@@ -361,7 +361,7 @@ export function getRewardsStats({
   return {
     cycle: cycle.index,
     delegated: mutezToTz(delegatedBalance),
-    bakerFeeRatio,
+    bakerFeeRatio: Number.isFinite(bakerFeeRatio) ? bakerFeeRatio : delegationFeeRatio,
     bakerFee: mutezToTz(bakerFeeMutez),
     expectedPayout: mutezToTz(rewards - bakerFeeMutez),
     efficiency: assignedRewards === 0 ? 1 : totalRewards / assignedRewards,

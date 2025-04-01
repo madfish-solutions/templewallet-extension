@@ -93,7 +93,9 @@ const PageModalContent = memo<Omit<RewardsModalProps, 'onClose' | 'isOpen'>>(({ 
       ]);
       const bakersAddresses = uniq(rewards.map(({ baker }) => baker.address));
       const setParamsOperationsValues = await Promise.all(
-        bakersAddresses.map(address => fetchSetDelegateParametersOperations(chainId, { sender: address }))
+        bakersAddresses.map(address =>
+          fetchSetDelegateParametersOperations(chainId, { sender: address, 'sort.desc': 'level' })
+        )
       );
       const storiesValues = await Promise.all(bakersAddresses.map(address => bakingBadGetBakerStory({ address })));
 

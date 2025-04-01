@@ -16,7 +16,7 @@ import {
 } from 'app/hooks/use-baking-hooks';
 import { useRichFormatTooltip } from 'app/hooks/use-rich-format-tooltip';
 import { ReactComponent as OutLinkIcon } from 'app/icons/base/outLink.svg';
-import { TEZ_TOKEN_SLUG } from 'lib/assets';
+import { TEZ_TOKEN_SLUG, toPenny } from 'lib/assets';
 import { useTezosAssetBalance } from 'lib/balances';
 import { TEZOS_BLOCK_DURATION } from 'lib/fixed-times';
 import { t, T, toShortened } from 'lib/i18n';
@@ -32,7 +32,6 @@ import { getTezosToolkitWithSigner, useOnTezosBlock } from 'temple/front';
 import { TezosNetworkEssentials } from 'temple/networks';
 
 import unstakePendingAnimation from './animations/unstake-pending-animation.json';
-import { stakeChangeForEstimationAmount } from './constants';
 import { estimateStaking, isStakingNotAcceptedError } from './estimate-staking';
 import { useBlockExplorerUrl } from './utils';
 
@@ -60,27 +59,28 @@ export const TezosStakingList = memo<Props>(
     const { address: accountPkh } = account;
     const { rpcBaseURL, chainId } = network;
     const { data: baker } = useKnownBaker(bakerPkh, network.chainId, true);
-    const { symbol } = getTezosGasMetadata(chainId);
+    const gasTokenMetadata = getTezosGasMetadata(chainId);
+    const { symbol } = gasTokenMetadata;
     const { data: stakedData, mutate: updateStakedAmount } = useStakedAmount(rpcBaseURL, accountPkh, true);
     const { data: requests, mutate: updateUnstakeRequests } = useUnstakeRequests(rpcBaseURL, accountPkh, true);
     const { value: tezBalance = ZERO } = useTezosAssetBalance(TEZ_TOKEN_SLUG, accountPkh, network);
     const { data: cyclesInfo } = useStakingCyclesInfo(rpcBaseURL);
     const blockLevelInfo = useBlockLevelInfo(rpcBaseURL);
     const blockExplorerUrl = useBlockExplorerUrl(network);
-    const pendingRequests = requests?.unfinalizable.requests;
+    const unfinalizableRequests = requests?.unfinalizable;
     const readyRequests = requests?.finalizable;
 
     const getCanStake = useCallback(async () => {
       const tezos = getTezosToolkitWithSigner(rpcBaseURL, account.address);
 
       try {
-        await estimateStaking(account, tezos, tezBalance, stakeChangeForEstimationAmount);
+        await estimateStaking(account, tezos, tezBalance, toPenny(gasTokenMetadata));
 
         return true;
       } catch (e) {
         return !isStakingNotAcceptedError(e);
       }
-    }, [account, rpcBaseURL, tezBalance]);
+    }, [account, gasTokenMetadata, rpcBaseURL, tezBalance]);
     const { data: canStakeFromRpc } = useTypedSWR(
       baker ? null : ['can-stake', accountPkh, rpcBaseURL, bakerPkh],
       getCanStake,
@@ -106,9 +106,25 @@ export const TezosStakingList = memo<Props>(
 
           <Tooltip content={<T id="stakingTooltipText" />} wrapperClassName="max-w-[242px]" className="text-grey-2" />
         </div>
+        {unfinalizableRequests?.requests.length && unfinalizableRequests.delegate !== bakerPkh && (
+          <Alert
+            type="info"
+            className="mb-3"
+            description={
+              <div className="flex flex-col gap-0.5">
+                <p className="text-font-description-bold">
+                  <T id="pendingFinalization" />
+                </p>
+                <p className="text-font-description">
+                  <T id="pendingFinalizationDescription" />
+                </p>
+              </div>
+            }
+          />
+        )}
         {canStake ? (
           <StakingCard
-            className="mb-4"
+            className="mb-3"
             topInfo={
               <div className="flex flex-col gap-0.5">
                 <span className="text-font-description text-grey-1">
@@ -165,7 +181,7 @@ export const TezosStakingList = memo<Props>(
           />
         ) : (
           <Alert
-            className="mb-4"
+            className="mb-3"
             type="warning"
             description={
               <div className="flex flex-col gap-0.5">
@@ -192,7 +208,7 @@ export const TezosStakingList = memo<Props>(
               openFinalizeModal={openFinalizeModal}
             />
           ))}
-          {pendingRequests?.map((req, i) => (
+          {unfinalizableRequests?.requests.map((req, i) => (
             <UnstakeRequestItem
               {...req}
               key={i}

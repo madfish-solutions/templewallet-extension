@@ -3,12 +3,13 @@ import React, { memo, useCallback, useMemo } from 'react';
 import BigNumber from 'bignumber.js';
 import clsx from 'clsx';
 
-import { Button, IconBase, Money } from 'app/atoms';
+import { Button, Money } from 'app/atoms';
+import { Tooltip } from 'app/atoms/Tooltip';
 import { ReactComponent as HourglassIcon } from 'app/icons/base/hourglass.svg';
 import { ReactComponent as OkFillIcon } from 'app/icons/base/ok_fill.svg';
 import { ReactComponent as RefreshIcon } from 'app/icons/base/refresh.svg';
 import { ChartListItem, ChartListItemProps } from 'app/templates/chart-list-item';
-import { T, getPluralKey, t } from 'lib/i18n';
+import { T, TID, getPluralKey, t } from 'lib/i18n';
 import { toPercentage } from 'lib/ui/utils';
 
 import { BakerAvatar } from '../../components/baker-avatar';
@@ -48,6 +49,12 @@ const statusesIcons = {
   not_come: HourglassIcon,
   in_progress: RefreshIcon,
   finished: OkFillIcon
+};
+
+const tooltipsTextsI18nKeys: Record<BakingHistoryEntry['status'], TID> = {
+  not_come: 'cycleNotComeYet',
+  in_progress: 'cycleInProgress',
+  finished: 'rewardsReceived'
 };
 
 export const BakingHistoryItem = memo<BakingHistoryItemProps>(({ item, active, index, tezSymbol, onClick }) => {
@@ -138,10 +145,10 @@ export const BakingHistoryItem = memo<BakingHistoryItemProps>(({ item, active, i
           <span className="text-font-num-14">
             <Money smallFractionFont={false}>{expectedPayout}</Money> {tezSymbol}
           </span>
-          <IconBase
-            size={16}
-            className={status === 'finished' ? 'text-success' : 'text-grey-2'}
+          <Tooltip
             Icon={statusesIcons[status]}
+            className={status === 'finished' ? 'text-success' : 'text-grey-2'}
+            content={t(tooltipsTextsI18nKeys[status])}
           />
         </div>
       </div>
@@ -185,7 +192,7 @@ export const BakingHistoryItem = memo<BakingHistoryItemProps>(({ item, active, i
 
 const NumericChartListItem = memo<ChartListItemProps>(({ children, ...restProps }) => (
   <ChartListItem {...restProps}>
-    <p className="p-1 text-font-num-12">{children}</p>
+    <div className="p-1 text-font-num-12">{children}</div>
   </ChartListItem>
 ));
 

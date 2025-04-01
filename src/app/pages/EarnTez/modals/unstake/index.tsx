@@ -10,7 +10,7 @@ import { TempleChainKind } from 'temple/types';
 
 import { EarnOperationModal, EarnOperationModalProps } from '../../components/earn-operation-modal';
 
-import { AmountInputContent } from './amount-input-content';
+import { UnstakeAmountInputContent } from './amount-input-content';
 import { ConfirmUnstakeContent } from './confirm-unstake-content';
 import { ReviewData } from './types';
 
@@ -30,7 +30,7 @@ export const UnstakeModal = memo<UnstakeModalProps>(({ account, network, bakerPk
 
   const LocalAmountInputContent = useCallback<GenericModalProps['InputDataContent']>(
     ({ onSubmit }) => (
-      <AmountInputContent network={network} account={account} bakerPkh={bakerPkh} onSubmit={onSubmit} />
+      <UnstakeAmountInputContent network={network} account={account} bakerPkh={bakerPkh} onSubmit={onSubmit} />
     ),
     [account, bakerPkh, network]
   );

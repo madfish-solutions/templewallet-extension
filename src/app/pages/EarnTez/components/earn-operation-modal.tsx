@@ -1,6 +1,6 @@
 import React, { ComponentType, useCallback, useMemo, useState } from 'react';
 
-import { BackButton, CLOSE_ANIMATION_TIMEOUT, PageModal } from 'app/atoms/PageModal';
+import { CLOSE_ANIMATION_TIMEOUT, PageModal } from 'app/atoms/PageModal';
 import { toastSuccess } from 'app/toaster';
 import { TezosNetworkEssentials } from 'temple/networks';
 
@@ -87,8 +87,8 @@ export const EarnOperationModal = <D, R extends TezosEarnReviewDataBase>({
       title={isInputDataStep ? inputDataStepTitle : confirmStepTitle}
       opened
       suspenseLoader={SuspenseLoader ? <SuspenseLoader isInputDataStep={isInputDataStep} /> : undefined}
-      titleRight={isInputDataStep ? undefined : null}
-      titleLeft={isInputDataStep ? null : <BackButton onClick={goToInputData} />}
+      titleRight={isInputDataStep ? undefined : <div />}
+      onGoBack={isInputDataStep ? undefined : goToInputData}
       onRequestClose={onClose}
     >
       {modalState.step === EarnOperationModalStep.InputData ? (

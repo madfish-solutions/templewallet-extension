@@ -95,21 +95,25 @@ export const fetchGetOperationsByHash = (
   } = {}
 ) => fetchGet<TzktOperation[]>(chainId, `/operations/${hash}`, params);
 
+type OperationSortParams = {
+  [key in `sort${'' | '.desc'}`]?: 'id' | 'level';
+};
+
 type GetOperationsTransactionsParams = GetOperationsBaseParams & {
   [key in `anyof.sender.target${'' | '.initiator'}`]?: string;
 } & {
   [key in `amount${'' | '.ne'}`]?: string;
 } & {
   [key in `parameter.${'to' | 'in' | '[*].in' | '[*].txs.[*].to_'}`]?: string;
-} & {
-  [key in `sort${'' | '.desc'}`]?: 'id' | 'level';
-};
+} & OperationSortParams;
 
 export const fetchGetOperationsTransactions = (chainId: TzktApiChainId, params: GetOperationsTransactionsParams) =>
   fetchGet<TzktOperation[]>(chainId, `/operations/transactions`, params);
 
-export const fetchSetDelegateParametersOperations = (chainId: TzktApiChainId, params: GetOperationsBaseParams) =>
-  fetchGet<TzktSetDelegateParamsOperation[]>(chainId, '/operations/set_delegate_parameters', params);
+export const fetchSetDelegateParametersOperations = (
+  chainId: TzktApiChainId,
+  params: GetOperationsBaseParams & OperationSortParams
+) => fetchGet<TzktSetDelegateParamsOperation[]>(chainId, '/operations/set_delegate_parameters', params);
 
 export const getDelegatorRewards = (
   chainId: TzktApiChainId,

@@ -599,6 +599,15 @@
   "notDelegated": {
     "message": "Not delegated"
   },
+  "cycleNotComeYet": {
+    "message": "Cycle has not come yet"
+  },
+  "cycleInProgress": {
+    "message": "Cycle in progress"
+  },
+  "rewardsReceived": {
+    "message": "Rewards received"
+  },
   "explore": {
     "message": "Explore"
   },
@@ -1237,6 +1246,12 @@
   },
   "stakeUnavailableDescription": {
     "message": "Your current baker doesn’t support Tezos staking. Re-delegate your account to another baker to unlock staking feature."
+  },
+  "pendingFinalization": {
+    "message": "Pending finalization"
+  },
+  "pendingFinalizationDescription": {
+    "message": "You have unstake requests with another baker. Wait for few cycles until it's ready to be finalized."
   },
   "finalizeUnstake": {
     "message": "Finalize Unstake"
