@@ -26,7 +26,7 @@ export const RedelegateButton = memo<RedelegateButtonProps>(({ disabled, staked,
       title: t('importantNotice'),
       description: t('redelegationNoticeDescription'),
       confirmButtonText: t('okGotIt'),
-      showCancelButton: false
+      hasCancelButton: false
     }).then(confirmed => {
       if (confirmed) onConfirm?.();
     });

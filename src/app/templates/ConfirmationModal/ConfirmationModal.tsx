@@ -10,7 +10,6 @@ import { ConfirmatonModalSelectors } from './ConfirmatonModal.selectors';
 
 export interface ConfirmationModalProps extends ActionModalProps {
   description?: ActionModalProps['children'];
-  showCancelButton?: boolean;
   isOpen: boolean;
   confirmButtonText?: ReactNode;
   confirmButtonColor?: StyledButtonColor;
@@ -45,6 +44,7 @@ export const ConfirmationModal = memo<ConfirmationModalProps>(
               <T id="cancel" />
             </ActionModalButton>
           )}
+
           <ActionModalButton
             color={confirmButtonColor}
             type="button"
