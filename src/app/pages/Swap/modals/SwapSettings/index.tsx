@@ -74,7 +74,6 @@ const SwapSettingsModal = memo<SelectTokenModalProps>(({ onSubmit, opened, onReq
   useEffect(() => {
     setSelectedOption(appliedSlippage);
     if (appliedSlippage === customLabel) {
-      console.log('here', customSlippage);
       setValue('slippageTolerance', customSlippage);
     }
   }, [opened]);
@@ -112,8 +111,8 @@ const SwapSettingsModal = memo<SelectTokenModalProps>(({ onSubmit, opened, onReq
               rules={{
                 required: true,
                 validate: {
-                  maxSlippage: value => (value && value > 30 ? 'Max slippage is 30%' : true),
-                  minSlippage: value => (value && value < 0.1 ? 'Min slippage is 0.1%' : true)
+                  maxSlippage: value => (value && value > 30 ? t('maxSlippage', '30') : true),
+                  minSlippage: value => (value && value < 0.1 ? t('minSlippage', '0.1') : true)
                 }
               }}
               render={({ field: { value, onChange, onBlur } }) => (
