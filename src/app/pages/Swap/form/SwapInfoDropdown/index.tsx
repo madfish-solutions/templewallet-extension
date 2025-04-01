@@ -56,9 +56,11 @@ export const SwapInfoDropdown = ({
           <div className="flex flex-col gap-1">
             <div className="flex gap-1 items-center">
               <span className="font-semibold text-sm">3Route</span>
-              <span className="px-1 py-0.5 rounded-[4px] bg-[linear-gradient(136deg,#FF5B00_-2.06%,#F4BE38_103.52%)] text-white text-font-small-bold">
-                <T id={'swapCashback'} />
-              </span>
+              {showCashBack && (
+                <span className="px-1 py-0.5 rounded-[4px] bg-[linear-gradient(136deg,#FF5B00_-2.06%,#F4BE38_103.52%)] text-white text-font-small-bold">
+                  <T id={'swapCashback'} />
+                </span>
+              )}
             </div>
             <SwapExchangeRate
               inputAmount={inputAmount}

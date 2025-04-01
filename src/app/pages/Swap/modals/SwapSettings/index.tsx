@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useState } from 'react';
+import React, { memo, useCallback, useEffect, useState } from 'react';
 
 import clsx from 'clsx';
 import { isEmpty } from 'lodash';
@@ -23,7 +23,10 @@ interface SelectTokenModalProps {
 const SwapSettingsModal = memo<SelectTokenModalProps>(({ onSubmit, opened, onRequestClose }) => {
   const customLabel = t('custom');
   const options: (number | typeof customLabel)[] = [0.5, 1, customLabel];
-  const [selectedOption, setSelectedOption] = useState<number | typeof customLabel>(0.5);
+
+  const [appliedSlippage, setAppliedSlippage] = useState<number | typeof customLabel>(0.5);
+  const [customSlippage, setCustomSlippage] = useState<number | undefined>(undefined);
+  const [selectedOption, setSelectedOption] = useState<number | typeof customLabel>(appliedSlippage);
 
   type SlippageOption = (typeof options)[number];
 
@@ -43,20 +46,41 @@ const SwapSettingsModal = memo<SelectTokenModalProps>(({ onSubmit, opened, onReq
     [setValue, formSubmitted]
   );
 
+  const handleModalClose = () => {
+    setSelectedOption(appliedSlippage);
+    if (appliedSlippage === customLabel) {
+      setValue('slippageTolerance', customSlippage);
+    }
+    onRequestClose();
+  };
+
   const handleOptionChange = (option: SlippageOption) => {
     setSelectedOption(option);
-    setValue('slippageTolerance', typeof option === 'number' ? option : undefined, { shouldValidate: formSubmitted });
+    if (typeof option === 'number') {
+      setValue('slippageTolerance', option, { shouldValidate: formSubmitted });
+    } else {
+      setValue('slippageTolerance', customSlippage, { shouldValidate: formSubmitted });
+    }
   };
 
   const handleApplyClick = () => {
-    if (typeof selectedOption === 'number') {
-      setValue('slippageTolerance', selectedOption, { shouldValidate: formSubmitted });
+    setAppliedSlippage(selectedOption);
+    if (selectedOption === customLabel) {
+      setCustomSlippage(slippageValue || 0.1);
     }
     handleSubmit(onSubmit)();
   };
 
+  useEffect(() => {
+    setSelectedOption(appliedSlippage);
+    if (appliedSlippage === customLabel) {
+      console.log('here', customSlippage);
+      setValue('slippageTolerance', customSlippage);
+    }
+  }, [opened]);
+
   return (
-    <PageModal title="Swap Settings" opened={opened} onRequestClose={onRequestClose}>
+    <PageModal title="Swap Settings" opened={opened} onRequestClose={handleModalClose}>
       <div className="mt-5 px-4">
         <span className="font-semibold text-xs">
           <T id="slippageTolerance" />
@@ -88,18 +112,8 @@ const SwapSettingsModal = memo<SelectTokenModalProps>(({ onSubmit, opened, onReq
               rules={{
                 required: true,
                 validate: {
-                  maxSlippage: value => {
-                    if (value && value > 30) {
-                      return 'Max slippage is 30%';
-                    }
-                    return true;
-                  },
-                  minSlippage: value => {
-                    if (value && value < 0.1) {
-                      return 'Min slippage is 0.1%';
-                    }
-                    return true;
-                  }
+                  maxSlippage: value => (value && value > 30 ? 'Max slippage is 30%' : true),
+                  minSlippage: value => (value && value < 0.1 ? 'Min slippage is 0.1%' : true)
                 }
               }}
               render={({ field: { value, onChange, onBlur } }) => (

@@ -555,7 +555,7 @@ export const SwapForm = memo<Props>(({ publicKeyHash, slippageTolerance }) => {
           <div className="px-4">
             <Alert
               closable
-              className="flex mb-4"
+              className="mb-4 [&>div]:items-center"
               type="error"
               description={<T id="noRoutesFound" />}
               onClose={handleCloseAlert}
@@ -580,7 +580,7 @@ export const SwapForm = memo<Props>(({ publicKeyHash, slippageTolerance }) => {
           network={network}
           publicKeyHash={publicKeyHash}
           className="px-4"
-          name="input"
+          inputName="input"
           value={inputValue}
           error={errors.input?.message}
           label={<T id="from" />}
@@ -608,7 +608,7 @@ export const SwapForm = memo<Props>(({ publicKeyHash, slippageTolerance }) => {
           network={network}
           publicKeyHash={publicKeyHash}
           className="mb-6 px-4"
-          name="output"
+          inputName="output"
           value={outputValue}
           error={errors.output?.message}
           label={<T id="toAsset" />}

@@ -40,7 +40,7 @@ const SwapFormInput: FC<SwapFormInputProps> = ({
   error,
   value: { assetSlug, amount },
   label,
-  name,
+  inputName,
   readOnly,
   testIDs,
   onChange,
@@ -96,9 +96,9 @@ const SwapFormInput: FC<SwapFormInputProps> = ({
         amount: newAmount
       });
       setSelectAssetModalClosed();
-      trackChange({ [name]: assetMetadata.symbol }, { [name]: newAssetMetadata.symbol });
+      trackChange({ [inputName]: assetMetadata.symbol }, { [inputName]: newAssetMetadata.symbol });
     },
-    [amount, assetMetadata?.symbol, getTokenMetadata, name, onChange, setSelectAssetModalClosed, trackChange]
+    [amount, assetMetadata?.symbol, getTokenMetadata, inputName, onChange, setSelectAssetModalClosed, trackChange]
   );
 
   const handleFiatToggle = useCallback(
@@ -127,16 +127,16 @@ const SwapFormInput: FC<SwapFormInputProps> = ({
         header={
           <SwapInputHeader
             label={label}
-            inputName={name}
+            inputName={inputName}
             isBalanceError={Boolean(amount && maxAmount.lt(amount))}
             assetDecimals={assetMetadata.decimals}
             handleSetMaxAmount={handleSetMaxAmount}
-            assetBalanceStr={assetSlug && balance?.toString()}
+            assetBalanceStr={assetSlug ? balance?.toString() ?? '0' : undefined}
           />
         }
       >
         <SwapInput
-          inputName={name}
+          inputName={inputName}
           tezosChainId={network.chainId}
           amount={amount}
           readOnly={Boolean(readOnly)}
@@ -155,6 +155,8 @@ const SwapFormInput: FC<SwapFormInputProps> = ({
       </InputContainer>
 
       <SwapSelectAssetModal
+        route3tokensSlugs={route3tokensSlugs}
+        inputName={inputName}
         onAssetSelect={handleAssetSelect}
         opened={selectAssetModalOpened}
         onRequestClose={setSelectAssetModalClosed}

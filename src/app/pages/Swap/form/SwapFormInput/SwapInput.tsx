@@ -61,7 +61,7 @@ const SwapInput: FC<SwapInputProps> = ({
           onChange={handleAmountChange}
           extraFloatingInner={shouldUseFiat && floatingAssetSymbol}
           assetDecimals={shouldUseFiat ? 2 : assetMetadata.decimals}
-          placeholder={`0.00 ${floatingAssetSymbol}`}
+          placeholder={shouldUseFiat ? `0.00 ${floatingAssetSymbol}` : '0.00'}
           testID={testId}
           autoFocus
           min={0}
