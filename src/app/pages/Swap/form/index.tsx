@@ -612,7 +612,7 @@ export const SwapForm = memo<Props>(({ publicKeyHash, slippageTolerance }) => {
           value={outputValue}
           error={errors.output?.message}
           label={<T id="toAsset" />}
-          amountInputDisabled={true}
+          readOnly={true}
           onChange={handleOutputChange}
           testIDs={{
             input: SwapFormToInputSelectors.assetInput,

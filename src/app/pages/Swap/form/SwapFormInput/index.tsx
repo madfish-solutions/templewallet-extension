@@ -41,7 +41,7 @@ const SwapFormInput: FC<SwapFormInputProps> = ({
   value: { assetSlug, amount },
   label,
   name,
-  amountInputDisabled,
+  readOnly,
   testIDs,
   onChange,
   shouldUseFiat = false,
@@ -131,7 +131,7 @@ const SwapFormInput: FC<SwapFormInputProps> = ({
             isBalanceError={Boolean(amount && maxAmount.lt(amount))}
             assetDecimals={assetMetadata.decimals}
             handleSetMaxAmount={handleSetMaxAmount}
-            assetBalanceStr={balance?.toString()}
+            assetBalanceStr={assetSlug && balance?.toString()}
           />
         }
       >
@@ -139,7 +139,7 @@ const SwapFormInput: FC<SwapFormInputProps> = ({
           inputName={name}
           tezosChainId={network.chainId}
           amount={amount}
-          amountInputDisabled={Boolean(amountInputDisabled)}
+          readOnly={Boolean(readOnly)}
           error={error}
           assetPrice={assetPrice}
           assetSlug={assetSlug}

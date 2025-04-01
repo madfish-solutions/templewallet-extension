@@ -14,7 +14,7 @@ interface SwapInputProps {
   inputName: 'input' | 'output';
   tezosChainId: string;
   amount?: BigNumber;
-  amountInputDisabled: boolean;
+  readOnly: boolean;
   error?: string;
   assetPrice: BigNumber;
   assetSlug?: string;
@@ -32,7 +32,7 @@ const SwapInput: FC<SwapInputProps> = ({
   inputName,
   tezosChainId,
   amount,
-  amountInputDisabled,
+  readOnly,
   error,
   assetPrice,
   assetSlug,
@@ -65,7 +65,7 @@ const SwapInput: FC<SwapInputProps> = ({
           testID={testId}
           autoFocus
           min={0}
-          disabled={amountInputDisabled}
+          readOnly={readOnly}
           rightSideComponent={
             <SwapSelectTokenFace
               tezosChainId={tezosChainId}

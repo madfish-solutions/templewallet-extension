@@ -5,10 +5,10 @@ import clsx from 'clsx';
 
 import { Divider, IconBase } from 'app/atoms';
 import { ReactComponent as ArrowDownIcon } from 'app/icons/base/arrow_down.svg';
+import { ReactComponent as ChevronUpIcon } from 'app/icons/base/chevron_up.svg';
 import { ReactComponent as GiftIcon } from 'app/icons/base/gift.svg';
 import { ReactComponent as RouteIcon } from 'app/icons/base/route.svg';
 import { ReactComponent as StackIcon } from 'app/icons/base/stack.svg';
-import { ReactComponent as ChevronUpIcon } from 'app/icons/chevron-up.svg';
 import { T, TID } from 'lib/i18n';
 import { AssetMetadataBase } from 'lib/metadata';
 import { ROUTING_FEE_RATIO, SWAP_CASHBACK_RATIO } from 'lib/route3/constants';
@@ -68,14 +68,13 @@ export const SwapInfoDropdown = ({
             />
           </div>
         </div>
-        <div className="p-1.5">
-          <ChevronUpIcon
-            className={clsx(
-              'w-4 h-4 stroke-grey-1 stroke-2 transform transition-transform duration-200',
-              dropdownOpened ? 'rotate-0' : 'rotate-180'
-            )}
-          />
-        </div>
+        <IconBase
+          Icon={ChevronUpIcon}
+          className={clsx(
+            'w-4 h-4 stroke-grey-1 stroke-2 transform transition-transform duration-200',
+            dropdownOpened ? 'rotate-0' : 'rotate-180'
+          )}
+        />
       </div>
 
       <div className={clsx('mt-2', dropdownOpened ? 'block' : 'hidden')}>

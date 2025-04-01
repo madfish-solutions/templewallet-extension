@@ -13,7 +13,7 @@ export interface SwapFormInputProps extends TestIDProps {
   error?: string;
   label: React.ReactNode;
   name: 'input' | 'output';
-  amountInputDisabled?: boolean;
+  readOnly?: boolean;
   onChange: (value: SwapInputValue, shouldUseFiat?: boolean) => void;
   testIDs?: SwapFormTestIDs;
   shouldUseFiat?: boolean;
