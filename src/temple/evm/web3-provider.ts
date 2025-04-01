@@ -173,11 +173,7 @@ export class TempleWeb3Provider extends EventEmitter {
       case evmRpcMethodsNames.eth_accounts:
         return this.accounts;
       case evmRpcMethodsNames.eth_requestAccounts:
-        if (this.accounts.length === 0) {
-          return this.handleConnect({ method: evmRpcMethodsNames.eth_requestAccounts });
-        } else {
-          return this.accounts;
-        }
+        return this.enable();
       case 'wallet_watchAsset':
         return this.addNewAsset(params as RequestArgs<'wallet_watchAsset'>);
       case evmRpcMethodsNames.wallet_addEthereumChain:
@@ -220,7 +216,11 @@ export class TempleWeb3Provider extends EventEmitter {
   };
 
   async enable() {
-    return this.handleConnect({ method: evmRpcMethodsNames.eth_requestAccounts });
+    if (this.accounts.length === 0) {
+      return this.handleConnect({ method: evmRpcMethodsNames.eth_requestAccounts });
+    } else {
+      return this.accounts;
+    }
   }
 
   private handleSendTransactionRequest(args: RequestArgs<'eth_sendTransaction' | 'wallet_sendTransaction'>) {

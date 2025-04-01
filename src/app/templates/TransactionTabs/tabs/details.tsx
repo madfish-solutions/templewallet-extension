@@ -3,6 +3,7 @@ import React, { FC, ReactNode, useMemo } from 'react';
 import { isDefined } from '@rnw-community/shared';
 import BigNumber from 'bignumber.js';
 
+import { FadeTransition } from 'app/a11y/FadeTransition';
 import { IconBase } from 'app/atoms';
 import Money from 'app/atoms/Money';
 import { EvmNetworkLogo, TezosNetworkLogo } from 'app/atoms/NetworkLogo';
@@ -36,36 +37,38 @@ export const DetailsTab: FC<Props> = ({
   const { kind: chainKind, chainId } = network;
 
   return (
-    <div className="flex flex-col px-4 py-2 mb-6 rounded-lg shadow-bottom border-0.5 border-transparent">
-      <ChartListItem title={<T id="network" />}>
-        <div className="flex flex-row items-center">
-          <span className="p-1 text-font-description-bold">{network.name}</span>
-          {chainKind === TempleChainKind.EVM ? (
-            <EvmNetworkLogo chainId={chainId} />
-          ) : (
-            <TezosNetworkLogo chainId={chainId} />
-          )}
-        </div>
-      </ChartListItem>
-
-      {(isDefined(destinationName) || isDefined(destinationValue)) && (
-        <ChartListItem title={destinationName}>{destinationValue}</ChartListItem>
-      )}
-
-      <ChartListItem title={<T id="gasFee" />} bottomSeparator={Boolean(displayedStorageFee)}>
-        <div className="flex flex-row items-center">
-          <FeesInfo network={network} assetSlug={assetSlug} amount={displayedFee} goToFeeTab={goToFeeTab} />
-        </div>
-      </ChartListItem>
-
-      {displayedStorageFee && (
-        <ChartListItem title={<T id="storageFee" />} titleClassName="capitalize" bottomSeparator={false}>
+    <FadeTransition>
+      <div className="flex flex-col px-4 py-2 mb-6 rounded-lg shadow-bottom border-0.5 border-transparent">
+        <ChartListItem title={<T id="network" />}>
           <div className="flex flex-row items-center">
-            <FeesInfo network={network} assetSlug={assetSlug} amount={displayedStorageFee} goToFeeTab={goToFeeTab} />
+            <span className="p-1 text-font-description-bold">{network.name}</span>
+            {chainKind === TempleChainKind.EVM ? (
+              <EvmNetworkLogo chainId={chainId} />
+            ) : (
+              <TezosNetworkLogo chainId={chainId} />
+            )}
           </div>
         </ChartListItem>
-      )}
-    </div>
+
+        {(isDefined(destinationName) || isDefined(destinationValue)) && (
+          <ChartListItem title={destinationName}>{destinationValue}</ChartListItem>
+        )}
+
+        <ChartListItem title={<T id="gasFee" />} bottomSeparator={Boolean(displayedStorageFee)}>
+          <div className="flex flex-row items-center">
+            <FeesInfo network={network} assetSlug={assetSlug} amount={displayedFee} goToFeeTab={goToFeeTab} />
+          </div>
+        </ChartListItem>
+
+        {displayedStorageFee && (
+          <ChartListItem title={<T id="storageFee" />} titleClassName="capitalize" bottomSeparator={false}>
+            <div className="flex flex-row items-center">
+              <FeesInfo network={network} assetSlug={assetSlug} amount={displayedFee} goToFeeTab={goToFeeTab} />
+            </div>
+          </ChartListItem>
+        )}
+      </div>
+    </FadeTransition>
   );
 };
 

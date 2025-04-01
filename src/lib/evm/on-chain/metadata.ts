@@ -139,7 +139,7 @@ const getERC1155Metadata = async (publicClient: PublicClient, contractAddress: H
 
   if (!metadataUri) throw new Error();
 
-  const actualMetadataUri = metadataUri.replace('{id}', tokenId.toString().padStart(64, '0'));
+  const actualMetadataUri = metadataUri.replace('{id}', tokenId.toString());
   const collectibleMetadata = await getCollectiblePropertiesFromUri(actualMetadataUri);
 
   const metadata: EvmCollectibleMetadata = {

@@ -1,6 +1,12 @@
 import type { TID } from 'lib/i18n';
 import { EvmNativeTokenMetadata } from 'lib/metadata/types';
-import { BlockExplorer, ETHEREUM_MAINNET_CHAIN_ID, TEZOS_MAINNET_CHAIN_ID } from 'lib/temple/types';
+import {
+  BlockExplorer,
+  ETH_SEPOLIA_CHAIN_ID,
+  ETHEREUM_MAINNET_CHAIN_ID,
+  TEZOS_GHOSTNET_CHAIN_ID,
+  TEZOS_MAINNET_CHAIN_ID
+} from 'lib/temple/types';
 import type { StoredTezosNetwork, StoredEvmNetwork } from 'temple/networks';
 import type { TempleChainKind } from 'temple/types';
 
@@ -53,6 +59,7 @@ export const useTezosChainByChainId = (tezosChainId: string): TezosChain | null 
 };
 
 export const useTezosMainnetChain = () => useTezosChainByChainId(TEZOS_MAINNET_CHAIN_ID)!;
+export const useTezosTestnetChain = () => useTezosChainByChainId(TEZOS_GHOSTNET_CHAIN_ID)!;
 
 export const useEvmChainByChainId = (evmChainId: number): EvmChain | undefined => {
   const allEvmChains = useAllEvmChains();
@@ -61,3 +68,4 @@ export const useEvmChainByChainId = (evmChainId: number): EvmChain | undefined =
 };
 
 export const useEthereumMainnetChain = () => useEvmChainByChainId(ETHEREUM_MAINNET_CHAIN_ID)!;
+export const useEthereumTestnetChain = () => useEvmChainByChainId(ETH_SEPOLIA_CHAIN_ID)!;
