@@ -55,7 +55,6 @@ export const DelegationModal = memo<DelegationModalProps>(({ bakerPkh, account, 
       inputDataStepTitle={<T id="selectBaker" />}
       confirmStepTitle={<T id="confirmAction" substitutions={<T id="delegation" />} />}
       successToastText={t('successfullyDelegated')}
-      showTxHash={false}
       network={network}
       SuspenseLoader={SuspenseLoader}
       InputDataContent={LocalSelectBakerContent}

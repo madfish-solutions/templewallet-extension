@@ -12,7 +12,6 @@ export interface EarnOperationModalProps<D, R extends TezosEarnReviewDataBase> {
   confirmStepTitle: ReactChildren;
   successToastText: string;
   network: TezosNetworkEssentials;
-  showTxHash?: boolean;
   SuspenseLoader?: ComponentType<{ isInputDataStep: boolean }>;
   InputDataContent: ComponentType<{ onSubmit: SyncFn<D> }>;
   ConfirmContent: ComponentType<{ reviewData: R | undefined; onCancel: EmptyFn }>;
@@ -44,7 +43,6 @@ export const EarnOperationModal = <D, R extends TezosEarnReviewDataBase>({
   inputDataStepTitle,
   confirmStepTitle,
   successToastText,
-  showTxHash = true,
   network,
   SuspenseLoader,
   ConfirmContent,
@@ -67,13 +65,13 @@ export const EarnOperationModal = <D, R extends TezosEarnReviewDataBase>({
           toastSuccess(
             successToastText,
             true,
-            explorerBaseUrl && showTxHash ? { hash, explorerBaseUrl: explorerBaseUrl + '/' } : undefined
+            explorerBaseUrl ? { hash, explorerBaseUrl: explorerBaseUrl + '/' } : undefined
           ),
         CLOSE_ANIMATION_TIMEOUT * 2
       );
       onClose();
     },
-    [explorerBaseUrl, onClose, showTxHash, successToastText]
+    [explorerBaseUrl, onClose, successToastText]
   );
 
   const reviewData = useMemo(
