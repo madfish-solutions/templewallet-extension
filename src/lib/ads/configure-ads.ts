@@ -1,6 +1,6 @@
 import browser from 'webextension-polyfill';
 
-import { buildSwapPageUrlQuery } from 'app/pages/Swap/utils/build-url-query';
+import { buildSwapPageUrlQuery } from 'app/pages/Swap/build-url-query';
 import {
   ADS_META_SEARCH_PARAM_NAME,
   AD_CATEGORIES_PARAM_NAME,

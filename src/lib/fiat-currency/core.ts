@@ -16,7 +16,7 @@ import type { CoingeckoFiatInterface, FiatCurrencyOptionBase } from './types';
 
 const FIAT_CURRENCY_STORAGE_KEY = 'fiat_currency';
 
-function useAssetUSDPrice(slug: string, chainId: number | string, evm = false) {
+export function useAssetUSDPrice(slug: string, chainId: number | string, evm = false) {
   const tezosUsdToTokenRates = useTezosUsdToTokenRatesSelector();
   const evmUsdToTokenRates = useEvmUsdToTokenRatesSelector();
 
