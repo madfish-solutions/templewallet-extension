@@ -69,6 +69,7 @@ export const TezosStakingList = memo<Props>(
     const blockExplorerUrl = useBlockExplorerUrl(network);
     const unfinalizableRequests = requests?.unfinalizable;
     const readyRequests = requests?.finalizable;
+    const finalizationIsPending = unfinalizableRequests?.requests.length && unfinalizableRequests.delegate !== bakerPkh;
 
     const getCanStake = useCallback(async () => {
       const tezos = getTezosToolkitWithSigner(rpcBaseURL, account.address);
@@ -81,12 +82,12 @@ export const TezosStakingList = memo<Props>(
         return !isStakingNotAcceptedError(e);
       }
     }, [account, gasTokenMetadata, rpcBaseURL, tezBalance]);
-    const { data: canStakeFromRpc } = useTypedSWR(
+    const { data: stakingEnabledFromRpc } = useTypedSWR(
       baker ? null : ['can-stake', accountPkh, rpcBaseURL, bakerPkh],
       getCanStake,
       { suspense: true }
     );
-    const canStake = baker?.staking.enabled ?? canStakeFromRpc;
+    const stakingEnabled = baker?.staking.enabled ?? stakingEnabledFromRpc;
 
     const staked = useMemo(() => stakedData && stakedData.gt(0), [stakedData]);
     const feePercentage = useMemo(() => toPercentage(baker?.staking.fee, '---'), [baker]);
@@ -98,18 +99,34 @@ export const TezosStakingList = memo<Props>(
     });
 
     return (
-      <div className="flex flex-col gap-1">
-        <div className="flex justify-between items-center">
+      <div className="flex flex-col">
+        <div className="flex justify-between items-center mb-1">
           <span className="text-font-description-bold">
             <T id="tezosStaking" />
           </span>
 
           <Tooltip content={<T id="stakingTooltipText" />} wrapperClassName="max-w-[242px]" className="text-grey-2" />
         </div>
-        {unfinalizableRequests?.requests.length && unfinalizableRequests.delegate !== bakerPkh && (
+        {!stakingEnabled && (
+          <Alert
+            type="warning"
+            className="mb-4"
+            description={
+              <div className="flex flex-col gap-0.5">
+                <p className="text-font-description-bold">
+                  <T id="stakeUnavailableTitle" />
+                </p>
+                <p className="text-font-description">
+                  <T id="stakeUnavailableDescription" />
+                </p>
+              </div>
+            }
+          />
+        )}
+        {finalizationIsPending && stakingEnabled && (
           <Alert
             type="info"
-            className="mb-3"
+            className="mb-4"
             description={
               <div className="flex flex-col gap-0.5">
                 <p className="text-font-description-bold">
@@ -122,9 +139,9 @@ export const TezosStakingList = memo<Props>(
             }
           />
         )}
-        {canStake ? (
+        {!finalizationIsPending && stakingEnabled && (
           <StakingCard
-            className="mb-3"
+            className="mb-4"
             topInfo={
               <div className="flex flex-col gap-0.5">
                 <span className="text-font-description text-grey-1">
@@ -177,21 +194,6 @@ export const TezosStakingList = memo<Props>(
                   <T id="stake" />
                 </StyledButton>
               </>
-            }
-          />
-        ) : (
-          <Alert
-            className="mb-3"
-            type="warning"
-            description={
-              <div className="flex flex-col gap-0.5">
-                <p className="text-font-description-bold">
-                  <T id="stakeUnavailableTitle" />
-                </p>
-                <p className="text-font-description">
-                  <T id="stakeUnavailableDescription" />
-                </p>
-              </div>
             }
           />
         )}
