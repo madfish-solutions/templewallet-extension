@@ -9,7 +9,7 @@ import AttentionPage from 'app/pages/Onboarding/pages/AttentionPage';
 import { Receive } from 'app/pages/Receive/Receive';
 import Send from 'app/pages/Send';
 import Settings from 'app/pages/Settings/Settings';
-import { Swap } from 'app/pages/Swap/Swap';
+import Swap from 'app/pages/Swap';
 import Unlock from 'app/pages/Unlock/Unlock';
 import Welcome from 'app/pages/Welcome/Welcome';
 import { usePageRouterAnalytics } from 'lib/analytics';

@@ -2562,6 +2562,28 @@
   "slippageTolerance": {
     "message": "Slippage tolerance"
   },
+  "slippageDescription": {
+    "message": "The swap will fail if the price changes unfavorably by more than this percentage. Too high value may lead to an unfavorable trade."
+  },
+  "maxSlippage": {
+    "message": "Max slippage is $percent$%",
+    "placeholders": {
+      "percent": {
+        "content": "$1"
+      }
+    }
+  },
+  "minSlippage": {
+    "message": "Min slippage is $percent$%",
+    "placeholders": {
+      "percent": {
+        "content": "$1"
+      }
+    }
+  },
+  "custom": {
+    "message": "Custom"
+  },
   "minimumReceived": {
     "message": "Minimum received"
   },
@@ -3198,6 +3220,9 @@
   "agreeAndContinue": {
     "message": "Agree & Continue"
   },
+  "review": {
+    "message": "Review"
+  },
   "buyWithCrypto": {
     "message": "Buy with Crypto"
   },
@@ -3654,6 +3679,9 @@
       }
     }
   },
+  "topupTezosBalance": {
+    "message": "Top up your balance instantly with fiat and remove barriers to using blockchain"
+  },
   "customAmount": {
     "message": "Custom amount"
   },
@@ -3681,10 +3709,18 @@
   "unknownError": {
     "message": "Unknown error"
   },
-  "cannotSellToYourself": { "message": "Cannot sell to yourself" },
-  "selectedAccountCannotSignTx": { "message": "Selected account cannot sign transactions" },
-  "attributes": { "message": "Attributes" },
-  "properties": { "message": "Properties" },
+  "cannotSellToYourself": {
+    "message": "Cannot sell to yourself"
+  },
+  "selectedAccountCannotSignTx": {
+    "message": "Selected account cannot sign transactions"
+  },
+  "attributes": {
+    "message": "Attributes"
+  },
+  "properties": {
+    "message": "Properties"
+  },
   "closePartnersPromotion": {
     "message": "Disable advertising?"
   },
