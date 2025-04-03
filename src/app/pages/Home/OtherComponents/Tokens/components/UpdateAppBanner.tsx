@@ -64,7 +64,7 @@ export const UpdateAppBanner: FC<Props> = ({ stickyBarRef }) => {
 
 interface BannerBaseProps {
   title: ReactNode;
-  description: ReactNode | ReactNode[];
+  description: ReactChildren;
   actionName: ReactNode;
   stickyBarRef: React.RefObject<HTMLDivElement>;
   onActionClick?: EmptyFn;

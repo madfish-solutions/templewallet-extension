@@ -2,10 +2,10 @@ import React, { memo, useCallback, useMemo, useState } from 'react';
 
 import { isEqual, shuffle } from 'lodash';
 
-import { ActionsButtonsBox } from 'app/atoms/PageModal/actions-buttons-box';
-import { ScrollView } from 'app/atoms/PageModal/scroll-view';
 import { StyledButton } from 'app/atoms/StyledButton';
 import { T, t } from 'lib/i18n';
+
+import { PageModalScrollViewWithActions } from '../page-modal-scroll-view-with-actions';
 
 import { ManualBackupModalSelectors } from './selectors';
 import { VerifySeedPhraseInput } from './verify-seed-phrase-input';
@@ -19,7 +19,6 @@ interface VerifyMnemonicFormProps {
 const WORDS_TO_VERIFY_COUNT = 3;
 
 export const VerifyMnemonicForm = memo<VerifyMnemonicFormProps>(({ mnemonic, onSuccess }) => {
-  const [bottomEdgeIsVisible, setBottomEdgeIsVisible] = useState(true);
   const [isError, setIsError] = useState(false);
   const [inputValue, setInputValue] = useState<WordsBoxItemData[]>([]);
   const { expectedValue, wordsIndices, wordsBox } = useMemo(() => {
@@ -47,7 +46,24 @@ export const VerifyMnemonicForm = memo<VerifyMnemonicFormProps>(({ mnemonic, onS
 
   return (
     <>
-      <ScrollView className="py-4" bottomEdgeThreshold={16} onBottomEdgeVisibilityChange={setBottomEdgeIsVisible}>
+      <PageModalScrollViewWithActions
+        className="py-4"
+        bottomEdgeThreshold={16}
+        actionsBoxProps={{
+          children: (
+            <StyledButton
+              size="L"
+              color="primary"
+              disabled={isError}
+              className="flex-1"
+              onClick={handleSubmit}
+              testID={ManualBackupModalSelectors.confirmButton}
+            >
+              <T id="confirm" />
+            </StyledButton>
+          )
+        }}
+      >
         <VerifySeedPhraseInput
           onChange={handleInputChange}
           value={inputValue}
@@ -55,20 +71,7 @@ export const VerifyMnemonicForm = memo<VerifyMnemonicFormProps>(({ mnemonic, onS
           wordsIndices={wordsIndices}
           error={isError ? t('verifySeedPhraseError') : undefined}
         />
-      </ScrollView>
-
-      <ActionsButtonsBox shouldCastShadow={!bottomEdgeIsVisible}>
-        <StyledButton
-          size="L"
-          color="primary"
-          disabled={isError}
-          className="flex-1"
-          onClick={handleSubmit}
-          testID={ManualBackupModalSelectors.confirmButton}
-        >
-          <T id="confirm" />
-        </StyledButton>
-      </ActionsButtonsBox>
+      </PageModalScrollViewWithActions>
     </>
   );
 });

@@ -19,6 +19,7 @@ import { useTempleClient } from 'lib/temple/front';
 import { loadMnemonicToBackup } from 'lib/temple/front/mnemonic-to-backup-keeper';
 import { TempleSharedStorageKey } from 'lib/temple/types';
 import { useLocalStorage } from 'lib/ui/local-storage';
+import { NullComponent } from 'lib/ui/null-component';
 import { delay } from 'lib/utils';
 
 import { ForgotPasswordModal } from './forgot-password-modal';
@@ -26,8 +27,6 @@ import { PlanetsAnimation } from './planets-animation';
 import { SUN_RADIUS } from './planets-animation/constants';
 import { ResetExtensionModal } from './reset-extension-modal';
 import { UnlockSelectors } from './Unlock.selectors';
-
-const EmptyHeader = () => null;
 
 const MIN_BOTTOM_GAP = 88;
 
@@ -176,7 +175,7 @@ const Unlock: FC<UnlockProps> = ({ canImportNew = true }) => {
 
   return (
     <PageLayout
-      Header={EmptyHeader}
+      Header={NullComponent}
       contentPadding={false}
       contentClassName="relative"
       showTestnetModeIndicator={false}

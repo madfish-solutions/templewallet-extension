@@ -83,7 +83,7 @@ interface ErrorBoundaryContentProps {
   onTryAgainClick: EmptyFn;
 }
 
-export const ErrorBoundaryContent = memo<ErrorBoundaryContentProps>(({ errorMessage, className, onTryAgainClick }) => (
+const ErrorBoundaryContent = memo<ErrorBoundaryContentProps>(({ errorMessage, className, onTryAgainClick }) => (
   <div className={clsx('w-full flex items-center justify-center', className)}>
     <div className="max-w-xs p-4 flex flex-col items-center text-red-600">
       <DangerIcon className="h-16 w-auto stroke-current" />

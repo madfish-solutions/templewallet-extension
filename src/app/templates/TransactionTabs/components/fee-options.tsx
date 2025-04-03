@@ -8,11 +8,10 @@ import FastIconSrc from 'app/icons/fee-options/fast.svg?url';
 import MiddleIconSrc from 'app/icons/fee-options/middle.svg?url';
 import SlowIconSrc from 'app/icons/fee-options/slow.svg?url';
 import InFiat from 'app/templates/InFiat';
-import { getAssetSymbol, TEZOS_METADATA } from 'lib/metadata';
+import { getAssetSymbol, getTezosGasMetadata } from 'lib/metadata';
+import { DisplayedFeeOptions, FeeOptionLabel } from 'lib/temple/front/estimation-data-providers';
 import { OneOfChains } from 'temple/front/chains';
 import { TempleChainKind } from 'temple/types';
-
-import { DisplayedFeeOptions, FeeOptionLabel } from '../types';
 
 interface Option {
   label: FeeOptionLabel;
@@ -64,7 +63,10 @@ interface OptionProps {
 const Option = memo<OptionProps>(({ network, assetSlug, active, option, value, onClick }) => {
   const isEvm = network.kind === TempleChainKind.EVM;
 
-  const nativeAssetSymbol = useMemo(() => getAssetSymbol(isEvm ? network?.currency : TEZOS_METADATA), [isEvm, network]);
+  const nativeAssetSymbol = useMemo(
+    () => getAssetSymbol(isEvm ? network?.currency : getTezosGasMetadata(network.chainId)),
+    [isEvm, network]
+  );
 
   return (
     <div

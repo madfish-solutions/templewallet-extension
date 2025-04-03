@@ -18,9 +18,13 @@ import {
   wtzArbitraging
 } from './mock-data';
 
-import { isValidTezosAddress, isTezosContractAddress, isValidTezosChainId, getBalancesChanges } from './index';
-
-let address: string;
+import {
+  isValidTezosAddress,
+  isTezosContractAddress,
+  isValidTezosChainId,
+  getBalancesChanges,
+  isValidTezosImplicitAddress
+} from './index';
 
 describe('Tezos Helpers', () => {
   it('isValidTezosChainId', () => {
@@ -31,31 +35,24 @@ describe('Tezos Helpers', () => {
   });
 
   it('isValidTezosAddress', async () => {
-    address = 'asdasdasd';
-    expect(isValidTezosAddress(address)).toBeFalsy();
+    expect(isValidTezosAddress('asdasdasd')).toBeFalsy();
+    expect(isValidTezosAddress('tz1asdasd')).toBeFalsy();
 
-    address = 'tz1asdasd';
-    expect(isValidTezosAddress(address)).toBeFalsy();
-
-    address = 'tz1ZfrERcALBwmAqwonRXYVQBDT9BjNjBHJu';
-    expect(isValidTezosAddress(address)).toBeTruthy();
-
-    address = 'tz2Ch1abG7FNiibmV26Uzgdsnfni9XGrk5wD';
-    expect(isValidTezosAddress(address)).toBeTruthy();
-
-    address = 'tz3Lfm6CyfSTZ7EgMckptZZGiPxzs9GK59At';
-    expect(isValidTezosAddress(address)).toBeTruthy();
-
-    address = 'KT1EyH6KR9STvgiet4ahrtBf7WCnmJovvJa1';
-    expect(isValidTezosAddress(address)).toBeTruthy();
+    expect(isValidTezosAddress('tz1ZfrERcALBwmAqwonRXYVQBDT9BjNjBHJu')).toBeTruthy();
+    expect(isValidTezosAddress('tz2Ch1abG7FNiibmV26Uzgdsnfni9XGrk5wD')).toBeTruthy();
+    expect(isValidTezosAddress('tz3Lfm6CyfSTZ7EgMckptZZGiPxzs9GK59At')).toBeTruthy();
+    expect(isValidTezosAddress('KT1EyH6KR9STvgiet4ahrtBf7WCnmJovvJa1')).toBeTruthy();
   });
 
   it('isTezosContractAddress', async () => {
-    address = 'tz3Lfm6CyfSTZ7EgMckptZZGiPxzs9GK59At';
-    expect(isTezosContractAddress(address)).toBeFalsy();
+    expect(isTezosContractAddress('tz3Lfm6CyfSTZ7EgMckptZZGiPxzs9GK59At')).toBeFalsy();
+    expect(isTezosContractAddress('KT1EyH6KR9STvgiet4ahrtBf7WCnmJovvJa1')).toBeTruthy();
+  });
 
-    address = 'KT1EyH6KR9STvgiet4ahrtBf7WCnmJovvJa1';
-    expect(isTezosContractAddress(address)).toBeTruthy();
+  it('isValidTezosImplicitAddress', () => {
+    expect(isValidTezosAddress('tz1asdasd')).toBeFalsy();
+    expect(isValidTezosImplicitAddress('tz3Lfm6CyfSTZ7EgMckptZZGiPxzs9GK59At')).toBeTruthy();
+    expect(isValidTezosImplicitAddress('KT1EyH6KR9STvgiet4ahrtBf7WCnmJovvJa1')).toBeFalsy();
   });
 
   // TODO: add more tests for better code coverage
