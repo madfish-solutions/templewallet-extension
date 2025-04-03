@@ -1,5 +1,6 @@
 import React, { memo } from 'react';
 
+import { PlainChartListItem } from 'app/templates/chart-list-item';
 import { T } from 'lib/i18n';
 
 interface TokenInfoProps {
@@ -14,25 +15,10 @@ export const TokenInfo = memo<TokenInfoProps>(({ name, decimals, symbol }) => (
       <T id="tokenInfo" />
     </p>
 
-    <div className="py-2 flex flex-row justify-between items-center border-b-0.5 border-lines">
-      <p className="p-1 text-font-description text-grey-1">
-        <T id="name" />
-      </p>
-      <p className="p-1 text-font-description-bold">{name}</p>
-    </div>
-
-    <div className="py-2 flex flex-row justify-between items-center border-b-0.5 border-lines">
-      <p className="p-1 text-font-description text-grey-1">
-        <T id="decimals" />
-      </p>
-      <p className="p-1 text-font-description-bold">{decimals}</p>
-    </div>
-
-    <div className="py-2 flex flex-row justify-between items-center">
-      <p className="p-1 text-font-description text-grey-1">
-        <T id="symbol" />
-      </p>
-      <p className="p-1 text-font-description-bold">{symbol}</p>
-    </div>
+    <PlainChartListItem title={<T id="name" />}>{name}</PlainChartListItem>
+    <PlainChartListItem title={<T id="decimals" />}>{decimals}</PlainChartListItem>
+    <PlainChartListItem title={<T id="symbol" />} bottomSeparator={false}>
+      {symbol}
+    </PlainChartListItem>
   </div>
 ));

@@ -1,4 +1,4 @@
-import React, { FC, PropsWithChildren, ReactNode } from 'react';
+import React, { FC, PropsWithChildren } from 'react';
 
 import clsx from 'clsx';
 
@@ -7,7 +7,7 @@ import { ReactComponent as InfoIcon } from 'app/icons/info.svg';
 import { RewardsTooltip } from './tooltip';
 
 interface SectionProps {
-  title: ReactNode | ReactNode[];
+  title: ReactChildren;
   tooltipText?: string;
   tooltipTriggerTestID?: string;
 }

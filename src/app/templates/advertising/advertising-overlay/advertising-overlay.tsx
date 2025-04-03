@@ -32,7 +32,7 @@ export const AdvertisingOverlay: FC = () => {
   return ready && isNewPromotionAvailable && isDefined(activePromotion) ? (
     <>
       <Button
-        className={'fixed inset-0 opacity-20 bg-gray-700 z-overlay-promo'}
+        className="fixed inset-0 opacity-20 bg-gray-700 z-overlay-promo"
         onClick={handleSkipPress}
         testID={`${analyticsEventPrefix}_SKIP`}
       />

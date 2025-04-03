@@ -3,13 +3,13 @@ import { useCallback } from 'react';
 import { getRevealFee, TezosToolkit } from '@taquito/taquito';
 import BigNumber from 'bignumber.js';
 
-import { TezosEstimationData } from 'app/templates/TransactionTabs/types';
 import { toastError } from 'app/toaster';
 import { isTezAsset, toPenny } from 'lib/assets';
 import { toTransferParams } from 'lib/assets/contract.utils';
 import { TEZOS_BLOCK_DURATION } from 'lib/fixed-times';
 import { AssetMetadataBase } from 'lib/metadata';
 import { useTypedSWR } from 'lib/swr';
+import { TezosEstimationData } from 'lib/temple/front/estimation-data-providers';
 import { mutezToTz } from 'lib/temple/helpers';
 import { tezosManagerKeyHasManager } from 'lib/tezos';
 import { checkZeroBalance } from 'lib/utils/check-zero-balance';

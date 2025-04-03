@@ -7,9 +7,9 @@ import { CreatePasswordForm } from 'app/templates/CreatePasswordForm';
 import { ImportSeedForm } from 'app/templates/ImportSeedForm';
 import { t } from 'lib/i18n';
 import { useBooleanState } from 'lib/ui/hooks';
+import { NullComponent } from 'lib/ui/null-component';
 import { navigate } from 'lib/woozie';
 
-const EmptyHeader = () => null;
 const goHome = () => navigate('/');
 
 export const ImportWallet = memo(() => {
@@ -30,7 +30,7 @@ export const ImportWallet = memo(() => {
   );
 
   return (
-    <PageLayout Header={EmptyHeader} contentPadding={false}>
+    <PageLayout Header={NullComponent} contentPadding={false}>
       <PageModal
         title={t(shouldShowPasswordForm ? 'createPassword' : 'importExistingWallet')}
         opened

@@ -5,6 +5,7 @@ import clsx from 'clsx';
 import { Button } from 'app/atoms/Button';
 import { HomeSelectors } from 'app/pages/Home/selectors';
 import { AnalyticsEventCategory, useAnalytics } from 'lib/analytics';
+import { TEZOS_APY } from 'lib/constants';
 import { T } from 'lib/i18n';
 import { useDelegate } from 'lib/temple/front';
 import { navigate } from 'lib/woozie';
@@ -42,7 +43,7 @@ export const DelegateTezosTag = memo<Props>(({ network, pkh }) => {
           className={clsx(COMMON_CLASS_NAMES, 'inline-flex items-center')}
           testID={AssetsSelectors.assetItemApyButton}
         >
-          APY: 5.6%
+          <T id="tezosApy" substitutions={String(TEZOS_APY)} />
         </Button>
       ) : (
         <Button

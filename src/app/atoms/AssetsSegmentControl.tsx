@@ -1,6 +1,7 @@
 import React, { memo, useCallback, useEffect, useRef, useState } from 'react';
 
 import { useAssetsViewState } from 'app/hooks/use-assets-view-state';
+import { t } from 'lib/i18n';
 import { useWillUnmount } from 'lib/ui/hooks/useWillUnmount';
 
 import SegmentedControl from './SegmentedControl';
@@ -42,12 +43,12 @@ export const AssetsSegmentControl = memo<AssetsSegmentControlProps>(
         className={className}
         segments={[
           {
-            label: 'Tokens',
+            label: t('tokens'),
             value: 'tokens',
             ref: useRef<HTMLDivElement>(null)
           },
           {
-            label: 'Collectibles',
+            label: t('collectibles'),
             value: 'collectibles',
             ref: useRef<HTMLDivElement>(null)
           }

@@ -4,13 +4,12 @@ import RootSuspenseFallback from 'app/a11y/RootSuspenseFallback';
 import { OpenInFullPage, useAppEnv } from 'app/env';
 import { AccountSettings } from 'app/pages/AccountSettings';
 import { CollectiblePage } from 'app/pages/Collectibles/CollectiblePage';
-import Delegate from 'app/pages/Delegate';
 import Home from 'app/pages/Home/Home';
 import AttentionPage from 'app/pages/Onboarding/pages/AttentionPage';
 import { Receive } from 'app/pages/Receive/Receive';
 import Send from 'app/pages/Send';
 import Settings from 'app/pages/Settings/Settings';
-import { Swap } from 'app/pages/Swap/Swap';
+import Swap from 'app/pages/Swap';
 import Unlock from 'app/pages/Unlock/Unlock';
 import Welcome from 'app/pages/Welcome/Welcome';
 import { usePageRouterAnalytics } from 'lib/analytics';
@@ -25,7 +24,6 @@ import { ImportWallet } from './pages/ImportWallet';
 import { Market } from './pages/Market';
 import { Notifications } from './pages/Notifications';
 import { RewardsPage } from './pages/Rewards';
-import { StakingPage } from './pages/Staking';
 import { TokenPage } from './pages/Token';
 
 interface RouteContext {
@@ -78,8 +76,6 @@ const ROUTE_MAP = Woozie.createMap<RouteContext>([
     ))
   ],
   ['/swap', onlyReady(() => <Swap />)],
-  ['/delegate/:tezosChainId', onlyReady(({ tezosChainId }) => <Delegate tezosChainId={tezosChainId!} />)],
-  ['/staking/:tezosChainId', onlyReady(({ tezosChainId }) => <StakingPage tezosChainId={tezosChainId!} />)],
   ['/earn-tez/:tezosChainId', onlyReady(({ tezosChainId }) => <EarnTezPage tezosChainId={tezosChainId!} />)],
   [
     '/token/:chainKind?/:chainId?/:assetSlug?',

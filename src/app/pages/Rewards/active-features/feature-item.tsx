@@ -1,4 +1,4 @@
-import React, { memo, ReactNode, useCallback } from 'react';
+import React, { memo, useCallback } from 'react';
 
 import clsx from 'clsx';
 
@@ -15,8 +15,8 @@ interface FeatureItemProps {
   Icon: ImportedSVGComponent;
   enabled: boolean;
   setEnabled: (newValue: boolean) => Promise<void>;
-  name: ReactNode | ReactNode[];
-  description: ReactNode | ReactNode[];
+  name: ReactChildren;
+  description: ReactChildren;
   tooltip: string;
   buttonTestID?: string;
   settingsCheckboxTestID?: string;

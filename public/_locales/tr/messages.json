@@ -2,9 +2,6 @@
   "appName": {
     "message": "Temple Wallet"
   },
-  "showIncomingTransactions": {
-    "message": "Gelen İşlemleri Göster"
-  },
   "appDesc": {
     "message": "Tarayıcınızda Web Uzantısı olarak Tezos blokzinciri için kripto para cüzdanı."
   },
@@ -23,20 +20,6 @@
   "maximiseView": {
     "message": "Görünümü büyüt"
   },
-  "selectFile": {
-    "message": "Dosya seç"
-  },
-  "selectFileOfFormat": {
-    "message": "$format$ dosyası seç",
-    "placeholders": {
-      "format": {
-        "content": "$1"
-      }
-    }
-  },
-  "clickIconToResetPermissions": {
-    "message": "İzinleri sıfırlamak için X simgesine tıklayın."
-  },
   "versionLabel": {
     "message": "Sürüm: $version$",
     "placeholders": {
@@ -49,22 +32,6 @@
     "message": "Branch: $branch$",
     "placeholders": {
       "branch": {
-        "content": "$1"
-      }
-    }
-  },
-  "feeInputDescription": {
-    "message": "Bu işlem için Taban Ücret: $fee$\nEk - konfirmasyonu hızlandırır",
-    "placeholders": {
-      "fee": {
-        "content": "$1"
-      }
-    }
-  },
-  "resetPermissionsConfirmation": {
-    "message": "$origin$ için izinleri sıfırlamak\nistediğinizden emin misiniz?",
-    "placeholders": {
-      "origin": {
         "content": "$1"
       }
     }
@@ -93,87 +60,6 @@
   "networks": {
     "message": "Ağlar"
   },
-  "back": {
-    "message": "Geri"
-  },
-  "addNewToken": {
-    "message": "Yeni Token Ekle"
-  },
-  "hideSomeToken": {
-    "message": "\"$tokenName$\" token'ını gizle",
-    "placeholders": {
-      "tokenName": {
-        "content": "$1"
-      }
-    }
-  },
-  "copySomeTokenAddress": {
-    "message": "\"$tokenSymbol$\" adresini kopyala",
-    "placeholders": {
-      "tokenSymbol": {
-        "content": "$1"
-      }
-    }
-  },
-  "copySomeTokenId": {
-    "message": "\"$tokenSymbol$\" kimliğini kopyala",
-    "placeholders": {
-      "tokenSymbol": {
-        "content": "$1"
-      }
-    }
-  },
-  "originLabel": {
-    "message": "Köken: $origin$",
-    "placeholders": {
-      "origin": {
-        "content": "$1"
-      }
-    }
-  },
-  "networkLabel": {
-    "message": "Ağ: $network$",
-    "placeholders": {
-      "network": {
-        "content": "$1"
-      }
-    }
-  },
-  "pkhLabel": {
-    "message": "Hesap: $pkh$",
-    "placeholders": {
-      "pkh": {
-        "content": "$1"
-      }
-    }
-  },
-  "minDelegationAmountDescription": {
-    "message": "Mevcut bakiyeniz, bu fırıncının minimum delegasyon miktarının altında. Bu durumda, bakiyeniz $minAmount$ tutarının altında olduğunda ödeme yapılmayacaktır.",
-    "placeholders": {
-      "minAmount": {
-        "content": "$1"
-      }
-    }
-  },
-  "recommendedBakersDescription": {
-    "message": "Bu liste $link$ tarafından desteklenir",
-    "placeholders": {
-      "link": {
-        "content": "$1"
-      }
-    }
-  },
-  "highestIsBetter": {
-    "message": "ne kadar yüksek o kadar iyi"
-  },
-  "unlockWalletPrompt": {
-    "message": "Zaten mevcut olan cüzdandan bir şey kaydetmek istiyorsanız - $link$ ve kilidini açın.",
-    "placeholders": {
-      "link": {
-        "content": "$1"
-      }
-    }
-  },
   "acceptTermsInputDescription": {
     "message": "$termsOfUsageLink$ ve $privacyPolicyLink$ belgelerini\nokudum ve kabul ediyorum",
     "placeholders": {
@@ -185,23 +71,8 @@
       }
     }
   },
-  "copiedTokenAddress": {
-    "message": "Kopyalandı"
-  },
-  "copiedTokenId": {
-    "message": "Kopyalandı"
-  },
-  "delegatedTo": {
-    "message": "Gönderilen:"
-  },
-  "delegatingMotivation": {
-    "message": "Fonlarınızı fırıncılara devretmek, bakiyeniz üzerinden faiz getirisi kazanmak için mükemmel bir yoldur."
-  },
   "reDelegate": {
     "message": "Yeniden devret"
-  },
-  "delegateNow": {
-    "message": "Şimdi devret"
   },
   "cancel": {
     "message": "İptal"
@@ -212,27 +83,8 @@
   "edit": {
     "message": "Düzenle"
   },
-  "useCoinSwitch": {
-    "message": "CoinSwitch Kullan",
-    "description": "CoinSwitch = https://coinswitch.co/"
-  },
-  "depositToWallet": {
-    "message": "Cüzdana yükleme yap"
-  },
-  "depositToWalletDescription": {
-    "message": "Cüzdanınıza para yüklemek için yatırma yöntemine tıklayın. Bedava koin almak için musluğu kullanın!"
-  },
   "addToken": {
     "message": "Varlık Ekle"
-  },
-  "addAsset": {
-    "message": "Varlık Ekle"
-  },
-  "contractNotAvailable": {
-    "message": "Bu adresteki sözleşme kullanılabilir değil. Bu ağda var mı?"
-  },
-  "noTransferMethod": {
-    "message": "Transfer yöntemi yok"
   },
   "tokenDoesNotMatchStandard": {
     "message": "Verilen varlık sözleşme $standard$ standardı ile eşleşmiyor",
@@ -244,9 +96,6 @@
   },
   "error": {
     "message": "Hata"
-  },
-  "tokenType": {
-    "message": "Token tipi"
   },
   "tokenId": {
     "message": "Token Kimliği"
@@ -527,14 +376,8 @@
   "send": {
     "message": "Gönder"
   },
-  "baking": {
-    "message": "Fırınlama"
-  },
   "operations": {
     "message": "İşlemler"
-  },
-  "delegationInfoWhileMessage": {
-    "message": "delegasyon bilgileriniz alınıyor ya da işleniyor"
   },
   "operationHistoryWhileMessage": {
     "message": "işlem geçmişi alınıyor ya da işleniyor"
@@ -751,29 +594,11 @@
   "delegation": {
     "message": "Delegasyon"
   },
-  "customBaker": {
-    "message": "Fırıncı"
-  },
-  "bakerInputDescription": {
-    "message": "Kayıtlı bir fırıncının adresi."
-  },
-  "bakerInputDescriptionWithDomain": {
-    "message": "Kayıtlı bir fırıncının adresi ya da etki alanı adı."
-  },
-  "bakerInputPlaceholder": {
-    "message": "ör. tz1a9w1S7hN5s..."
-  },
-  "minDelegationAmountTitle": {
-    "message": "En düşük delegasyon miktarı"
-  },
   "unknownBakerTitle": {
     "message": "Bilinmeyen fırıncı"
   },
   "unknownBakerDescription": {
     "message": "Verilen adres sistemimizde fırıncı olarak görünmüyor! Bu adrese fon devretme riskinin sorumluluğu size aittir."
-  },
-  "recommendedBakers": {
-    "message": "Önerilen Fırıncılara Devret"
   },
   "sortBy": {
     "message": "Sıralama ölçütü"
@@ -819,23 +644,6 @@
   "minimalFeeGreaterThanBalance": {
     "message": "Bu işlem için en düşük ücret bakiyenizin üzerindedir."
   },
-  "alreadyDelegatedFundsToBaker": {
-    "message": "Bu fırıncıya zaten fon devredildi. Yeniden delegasyon mümkün değil."
-  },
-  "bakerNotRegistered": {
-    "message": "Belirtilen fırıncı kayıtlı değil."
-  },
-  "unableToPerformActionToBaker": {
-    "message": "Sağlanan Fırıncı için $action$ işlemi gerçekleştirilemiyor.",
-    "placeholders": {
-      "action": {
-        "content": "$1"
-      }
-    }
-  },
-  "estimateDelegation": {
-    "message": "Delegasyon tahmini"
-  },
   "thisMayHappenBecause": {
     "message": "Bunun nedeni şunlar olabilir:"
   },
@@ -849,9 +657,6 @@
   },
   "networkOrOtherIssue": {
     "message": "Ağ sorunu veya başka bir teknik sorun."
-  },
-  "unableToDelegateToKTAddress": {
-    "message": "KT... sözleşme adresine devredilemiyor"
   },
   "confirmAction": {
     "message": "$action$ işlemini onayla",

@@ -22,7 +22,7 @@ export { ActionsButtonsBox } from './actions-buttons-box';
 export const CLOSE_ANIMATION_TIMEOUT = 300;
 
 export interface PageModalProps extends TestIDProps {
-  title: ReactNode | ReactNode[];
+  title: ReactChildren;
   opened: boolean;
   headerClassName?: string;
   titleLeft?: ReactNode;
@@ -31,6 +31,7 @@ export interface PageModalProps extends TestIDProps {
   onRequestClose?: EmptyFn;
   animated?: boolean;
   contentPadding?: boolean;
+  suspenseLoader?: ReactNode;
   children: ReactNode | (() => ReactElement);
 }
 
@@ -45,7 +46,8 @@ export const PageModal: FC<PageModalProps> = ({
   children,
   testID,
   animated = true,
-  contentPadding = false
+  contentPadding = false,
+  suspenseLoader
 }) => {
   const { fullPage, confirmWindow } = useAppEnv();
   const testnetModeEnabled = useTestnetModeEnabledSelector();
@@ -104,7 +106,7 @@ export const PageModal: FC<PageModalProps> = ({
       </div>
 
       <div className={clsx('flex-grow flex flex-col overflow-hidden', contentPadding && 'p-4')}>
-        <SuspenseContainer>
+        <SuspenseContainer loader={suspenseLoader}>
           {typeof children === 'function' ? (opened ? children() : null) : children}
         </SuspenseContainer>
       </div>

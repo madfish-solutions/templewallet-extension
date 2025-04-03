@@ -26,6 +26,10 @@ export function isTezosContractAddress(address: string) {
   return address.startsWith('KT');
 }
 
+export function isValidTezosImplicitAddress(address: string) {
+  return !isTezosContractAddress(address) && isValidTezosAddress(address);
+}
+
 export function isValidTezosContractAddress(address: string) {
   return isTezosContractAddress(address) && isValidTezosAddress(address);
 }

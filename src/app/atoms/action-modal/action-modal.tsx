@@ -18,7 +18,7 @@ import actionModalStyles from './action-modal.module.css';
 export interface ActionModalProps {
   hasCloseButton?: boolean;
   onClose?: EmptyFn;
-  children?: ReactNode | ReactNode[];
+  children?: ReactChildren;
   title?: ReactNode;
   headerClassName?: string;
   contentClassName?: string;

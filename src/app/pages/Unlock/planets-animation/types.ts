@@ -1,11 +1,9 @@
-import { ReactNode } from 'react';
-
 export interface PlanetProps {
   startAlpha: number;
   /** Must be unique */
   id: string | number;
   radius: number;
-  item: ReactNode | ReactNode[];
+  item: ReactChildren;
 }
 
 export interface OrbitProps {

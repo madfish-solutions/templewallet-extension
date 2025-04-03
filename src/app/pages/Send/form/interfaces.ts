@@ -1,6 +1,8 @@
-import { AccountForChain } from 'temple/accounts';
-import { EvmChain, TezosChain } from 'temple/front';
-import { TempleChainKind } from 'temple/types';
+import {
+  EvmReviewData as GenericEvmReviewData,
+  TezosReviewData as GenericTezosReviewData,
+  ReviewData as GenericReviewData
+} from 'lib/temple/front/estimation-data-providers';
 
 export interface SendFormData {
   amount: string;
@@ -12,14 +14,8 @@ interface BaseReviewData extends SendFormData {
   onConfirm: EmptyFn;
 }
 
-export interface EvmReviewData extends BaseReviewData {
-  account: AccountForChain<TempleChainKind.EVM>;
-  network: EvmChain;
-}
+export type EvmReviewData = GenericEvmReviewData<BaseReviewData>;
 
-export interface TezosReviewData extends BaseReviewData {
-  account: AccountForChain<TempleChainKind.Tezos>;
-  network: TezosChain;
-}
+export type TezosReviewData = GenericTezosReviewData<BaseReviewData>;
 
-export type ReviewData = TezosReviewData | EvmReviewData;
+export type ReviewData = GenericReviewData<BaseReviewData>;

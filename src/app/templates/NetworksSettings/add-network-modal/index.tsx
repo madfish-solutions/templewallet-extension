@@ -5,11 +5,10 @@ import { Controller, FormProvider, useForm } from 'react-hook-form-v7';
 
 import { FormField } from 'app/atoms';
 import { PageModal } from 'app/atoms/PageModal';
-import { ActionsButtonsBox } from 'app/atoms/PageModal/actions-buttons-box';
-import { ScrollView } from 'app/atoms/PageModal/scroll-view';
 import { SettingsCheckbox } from 'app/atoms/SettingsCheckbox';
 import { StyledButton } from 'app/atoms/StyledButton';
 import { Tooltip } from 'app/atoms/Tooltip';
+import { PageModalScrollViewWithActions } from 'app/templates/page-modal-scroll-view-with-actions';
 import { UrlInput } from 'app/templates/UrlInput';
 import { T, t } from 'lib/i18n';
 import { isValidTezosChainId } from 'lib/tezos';
@@ -48,7 +47,6 @@ export const AddNetworkModal = memo<AddNetworkModalProps>(({ isOpen, onClose }) 
     onChange: updateChainIdShowErrorOnChange
   } = useShowErrorIfOnBlur();
   const [submitError, setSubmitError] = useState<string | null>(null);
-  const [bottomEdgeIsVisible, setBottomEdgeIsVisible] = useState(false);
   const [lastSelectedChain, setLastSelectedChain] = useState<ViemChain | null>(null);
 
   const evmChains = useAllEvmChains();
@@ -156,7 +154,32 @@ export const AddNetworkModal = memo<AddNetworkModalProps>(({ isOpen, onClose }) 
     <PageModal opened={isOpen} onRequestClose={closeModal} title={t('addNetwork')}>
       <FormProvider {...formReturn}>
         <form className="flex-1 flex flex-col max-h-full" onSubmit={handleSubmit(onSubmit)}>
-          <ScrollView className="py-4" bottomEdgeThreshold={16} onBottomEdgeVisibilityChange={setBottomEdgeIsVisible}>
+          <PageModalScrollViewWithActions
+            className="py-4"
+            bottomEdgeThreshold={16}
+            actionsBoxProps={{
+              children: (
+                <StyledButton
+                  className="w-full"
+                  size="L"
+                  color="primary"
+                  disabled={shouldDisableSubmitButton({
+                    errors,
+                    formState,
+                    errorsBeforeSubmitFields: ['rpcUrl', 'chainId'],
+                    otherErrors: [submitError],
+                    disableWhileSubmitting: false
+                  })}
+                  loading={suggestedFormValuesLoading || isSubmitting}
+                  type="submit"
+                  testID={NetworkSettingsSelectors.saveButton}
+                >
+                  <T id="save" />
+                </StyledButton>
+              )
+            }}
+            initialBottomEdgeVisible={false}
+          >
             <NameInput namesToExclude={namesToExclude} onChainSelect={handleChainSelect} />
 
             <div className="flex flex-col gap-4">
@@ -254,27 +277,7 @@ export const AddNetworkModal = memo<AddNetworkModalProps>(({ isOpen, onClose }) 
                 )}
               />
             </div>
-          </ScrollView>
-
-          <ActionsButtonsBox shouldCastShadow={!bottomEdgeIsVisible}>
-            <StyledButton
-              className="w-full"
-              size="L"
-              color="primary"
-              disabled={shouldDisableSubmitButton({
-                errors,
-                formState,
-                errorsBeforeSubmitFields: ['rpcUrl', 'chainId'],
-                otherErrors: [submitError],
-                disableWhileSubmitting: false
-              })}
-              loading={suggestedFormValuesLoading || isSubmitting}
-              type="submit"
-              testID={NetworkSettingsSelectors.saveButton}
-            >
-              <T id="save" />
-            </StyledButton>
-          </ActionsButtonsBox>
+          </PageModalScrollViewWithActions>
         </form>
       </FormProvider>
     </PageModal>

@@ -2,9 +2,6 @@
   "appName": {
     "message": "Temple - Tezos钱包"
   },
-  "showIncomingTransactions": {
-    "message": "显示进账交易"
-  },
   "appDesc": {
     "message": "🔐💰浏览器扩展程序，适用于Tezos区块链的数字加密货币钱包。"
   },
@@ -23,17 +20,6 @@
   "maximiseView": {
     "message": "最大化视图"
   },
-  "selectFileOfFormat": {
-    "message": "选择$format$文件",
-    "placeholders": {
-      "format": {
-        "content": "$1"
-      }
-    }
-  },
-  "clickIconToResetPermissions": {
-    "message": "点击X图标来重置权限。"
-  },
   "versionLabel": {
     "message": "版本：$version$",
     "placeholders": {
@@ -46,22 +32,6 @@
     "message": "Branch: $branch$",
     "placeholders": {
       "branch": {
-        "content": "$1"
-      }
-    }
-  },
-  "feeInputDescription": {
-    "message": "此操作的基本费用为：$fee$\n附加 - 加快其确认流程",
-    "placeholders": {
-      "fee": {
-        "content": "$1"
-      }
-    }
-  },
-  "resetPermissionsConfirmation": {
-    "message": "确定要为\n$origin$重置权限吗？",
-    "placeholders": {
-      "origin": {
         "content": "$1"
       }
     }
@@ -90,87 +60,6 @@
   "networks": {
     "message": "网络"
   },
-  "back": {
-    "message": "返回"
-  },
-  "addNewToken": {
-    "message": "添加新代币"
-  },
-  "hideSomeToken": {
-    "message": "隐藏“$tokenName$”代币",
-    "placeholders": {
-      "tokenName": {
-        "content": "$1"
-      }
-    }
-  },
-  "copySomeTokenAddress": {
-    "message": "复制“$tokenSymbol$”地址",
-    "placeholders": {
-      "tokenSymbol": {
-        "content": "$1"
-      }
-    }
-  },
-  "copySomeTokenId": {
-    "message": "复制“$tokenSymbol$”ID",
-    "placeholders": {
-      "tokenSymbol": {
-        "content": "$1"
-      }
-    }
-  },
-  "originLabel": {
-    "message": "原点：$origin$",
-    "placeholders": {
-      "origin": {
-        "content": "$1"
-      }
-    }
-  },
-  "networkLabel": {
-    "message": "网络：$network$",
-    "placeholders": {
-      "network": {
-        "content": "$1"
-      }
-    }
-  },
-  "pkhLabel": {
-    "message": "账户：$pkh$",
-    "placeholders": {
-      "pkh": {
-        "content": "$1"
-      }
-    }
-  },
-  "minDelegationAmountDescription": {
-    "message": "您的当前余额低于此面包店的最低委托额。这表示当余额低于$minAmount$时，将不会有付款。",
-    "placeholders": {
-      "minAmount": {
-        "content": "$1"
-      }
-    }
-  },
-  "recommendedBakersDescription": {
-    "message": "此列表由$link$提供技术支持",
-    "placeholders": {
-      "link": {
-        "content": "$1"
-      }
-    }
-  },
-  "highestIsBetter": {
-    "message": "越高越好"
-  },
-  "unlockWalletPrompt": {
-    "message": "如果您想保存现有钱包中的某些数据——$link$并解锁。",
-    "placeholders": {
-      "link": {
-        "content": "$1"
-      }
-    }
-  },
   "acceptTermsInputDescription": {
     "message": "我已阅读并同意\n$termsOfUsageLink$和$privacyPolicyLink$",
     "placeholders": {
@@ -182,23 +71,8 @@
       }
     }
   },
-  "copiedTokenAddress": {
-    "message": "已复制"
-  },
-  "copiedTokenId": {
-    "message": "已复制"
-  },
-  "delegatedTo": {
-    "message": "已委托给："
-  },
-  "delegatingMotivation": {
-    "message": "将资金委托给面包店是用您的余额赚利息的好办法。"
-  },
   "reDelegate": {
     "message": "重新委托"
-  },
-  "delegateNow": {
-    "message": "立即委托"
   },
   "cancel": {
     "message": "取消"
@@ -209,24 +83,8 @@
   "edit": {
     "message": "编辑"
   },
-  "useCoinSwitch": {
-    "message": "使用CoinSwitch",
-    "description": "CoinSwitch = https://coinswitch.co/"
-  },
-  "depositToWallet": {
-    "message": "存入您的钱包"
-  },
-  "depositToWalletDescription": {
-    "message": "点击存款方式来将钱存入您的钱包。使用Faucet可获取免费代币！"
-  },
   "addToken": {
     "message": "添加代币"
-  },
-  "contractNotAvailable": {
-    "message": "此地址的合约不可用。它在此网络上吗？"
-  },
-  "noTransferMethod": {
-    "message": "无转账方式"
   },
   "tokenDoesNotMatchStandard": {
     "message": "提供的代币合约不符合$standard$标准",
@@ -238,9 +96,6 @@
   },
   "error": {
     "message": "错误"
-  },
-  "tokenType": {
-    "message": "代币类型"
   },
   "tokenId": {
     "message": "代币ID"
@@ -509,14 +364,8 @@
   "send": {
     "message": "发送"
   },
-  "baking": {
-    "message": "烘焙"
-  },
   "operations": {
     "message": "操作"
-  },
-  "delegationInfoWhileMessage": {
-    "message": "正在获取或处理您的委托信息"
   },
   "operationHistoryWhileMessage": {
     "message": "正在获取或处理操作历史记录"
@@ -715,26 +564,11 @@
   "delegation": {
     "message": "委托"
   },
-  "customBaker": {
-    "message": "面包店"
-  },
-  "bakerInputDescription": {
-    "message": "已注册面包店的地址。"
-  },
-  "bakerInputPlaceholder": {
-    "message": "例如：tz1a9w1S7hN5s..."
-  },
-  "minDelegationAmountTitle": {
-    "message": "最小委托额"
-  },
   "unknownBakerTitle": {
     "message": "未知面包店"
   },
   "unknownBakerDescription": {
     "message": "提供的地址对于我们而言不是面包店的地址！如需向其委托资金，请自担风险。"
-  },
-  "recommendedBakers": {
-    "message": "委托给推荐的面包店"
   },
   "sortBy": {
     "message": "排序条件"
@@ -771,23 +605,6 @@
   "minimalFeeGreaterThanBalance": {
     "message": "此交易的最低费用高于您的余额。"
   },
-  "alreadyDelegatedFundsToBaker": {
-    "message": "已委托资金给此面包店。无法再次委托。"
-  },
-  "bakerNotRegistered": {
-    "message": "指定的面包店未注册。"
-  },
-  "unableToPerformActionToBaker": {
-    "message": "无法$action$给提供的面包店。",
-    "placeholders": {
-      "action": {
-        "content": "$1"
-      }
-    }
-  },
-  "estimateDelegation": {
-    "message": "预估委托"
-  },
   "thisMayHappenBecause": {
     "message": "发生这种情况可能是因为："
   },
@@ -801,9 +618,6 @@
   },
   "networkOrOtherIssue": {
     "message": "网络或其他技术问题。"
-  },
-  "unableToDelegateToKTAddress": {
-    "message": "无法委托给KT……合约地址"
   },
   "confirmAction": {
     "message": "确认$action$",
