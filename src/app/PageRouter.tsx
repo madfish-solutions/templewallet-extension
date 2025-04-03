@@ -3,7 +3,7 @@ import React, { memo, useLayoutEffect, useMemo } from 'react';
 import RootSuspenseFallback from 'app/a11y/RootSuspenseFallback';
 import { OpenInFullPage, useAppEnv } from 'app/env';
 import { AccountSettings } from 'app/pages/AccountSettings';
-import CollectiblePage from 'app/pages/Collectibles/CollectiblePage';
+import { CollectiblePage } from 'app/pages/Collectibles/CollectiblePage';
 import Delegate from 'app/pages/Delegate';
 import Home from 'app/pages/Home/Home';
 import AttentionPage from 'app/pages/Onboarding/pages/AttentionPage';

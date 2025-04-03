@@ -58,6 +58,9 @@
   "clickIconToResetPermissions": {
     "message": "Click on the X icon to reset permissions."
   },
+  "description": {
+    "message": "Description"
+  },
   "versionLabel": {
     "message": "Version: $version$",
     "placeholders": {
@@ -2280,6 +2283,27 @@
       }
     }
   },
+  "tokenContract": {
+    "message": "Token contract"
+  },
+  "contractCreator": {
+    "message": "Contract creator"
+  },
+  "metadata": {
+    "message": "Metadata"
+  },
+  "owned": {
+    "message": "Owned"
+  },
+  "editions": {
+    "message": "Editions"
+  },
+  "royalties": {
+    "message": "Royalties"
+  },
+  "minted": {
+    "message": "Minted"
+  },
   "tokenContractNotFound": {
     "message": "The contract was not found."
   },
@@ -3779,6 +3803,9 @@
   },
   "cannotSellToYourself": { "message": "Cannot sell to yourself" },
   "selectedAccountCannotSignTx": { "message": "Selected account cannot sign transactions" },
+  "tokenStandard": { "message": "Token standard" },
+  "chain": { "message": "Chain" },
+  "details": { "message": "Details" },
   "attributes": { "message": "Attributes" },
   "properties": { "message": "Properties" },
   "closePartnersPromotion": {

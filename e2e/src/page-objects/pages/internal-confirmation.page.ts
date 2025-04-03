@@ -1,5 +1,5 @@
+import { OperationsBannerSelectors } from 'src/app/icons/OperationsBanner/OperationsBanner.selectors';
 import { InternalConfirmationSelectors } from 'src/app/templates/InternalConfirmation.selectors';
-import { OperationsBannerSelectors } from 'src/app/templates/OperationsBanner/OperationsBanner.selectors';
 
 import { Page } from '../../classes/page.class';
 import { createPageElement } from '../../utils/search.utils';

@@ -10,11 +10,11 @@ import { TokenMetadata } from 'lib/metadata';
 import { EvmCollectibleMetadata } from 'lib/metadata/types';
 import { ImageStacked } from 'lib/ui/ImageStacked';
 
-import { AudioCollectible } from '../components/AudioCollectible';
-import { CollectibleBlur } from '../components/CollectibleBlur';
-import { CollectibleImageFallback } from '../components/CollectibleImageFallback';
-import { CollectibleImageLoader } from '../components/CollectibleImageLoader';
-import { VideoCollectible } from '../components/VideoCollectible';
+import { AudioCollectible } from '../../components/AudioCollectible';
+import { CollectibleBlur } from '../../components/CollectibleBlur';
+import { CollectibleImageFallback } from '../../components/CollectibleImageFallback';
+import { CollectibleImageLoader } from '../../components/CollectibleImageLoader';
+import { VideoCollectible } from '../../components/VideoCollectible';
 
 interface Props {
   metadata?: TokenMetadata;
