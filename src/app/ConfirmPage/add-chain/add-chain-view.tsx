@@ -1,12 +1,11 @@
 import React, { memo, useCallback, useMemo } from 'react';
 
-import clsx from 'clsx';
-
 import { Anchor, IconBase } from 'app/atoms';
 import { EvmNetworkLogo } from 'app/atoms/NetworkLogo';
 import { SettingsCheckbox } from 'app/atoms/SettingsCheckbox';
 import { ReactComponent as CopyIcon } from 'app/icons/base/copy.svg';
 import { ReactComponent as OutLinkIcon } from 'app/icons/base/outLink.svg';
+import { ChartListItem, PlainChartListItem } from 'app/templates/chart-list-item';
 import { toastSuccess } from 'app/toaster';
 import { t, T } from 'lib/i18n';
 import { EvmChainToAddMetadata } from 'lib/temple/types';
@@ -37,50 +36,28 @@ export const AddChainView = memo<Props>(({ metadata }) => {
   return (
     <div className="flex flex-col gap-4 mb-6">
       <div className="flex flex-col px-4 py-2 rounded-8 shadow-bottom border-0.5 border-transparent">
-        <div className="py-2 flex flex-row justify-between items-center border-b-0.5 border-lines">
-          <p className="p-1 text-font-description text-grey-1">
-            <T id="network" />
-          </p>
+        <ChartListItem title={<T id="network" />}>
           <div className="flex flex-row items-center">
             <span className="p-1 text-font-num-bold-12">{metadata.name}</span>
             <EvmNetworkLogo chainId={chainId} chainName={metadata.name} size={16} />
           </div>
-        </div>
+        </ChartListItem>
 
-        <div className="py-2 flex flex-row justify-between items-center border-b-0.5 border-lines">
-          <p className="p-1 text-font-description text-grey-1">
-            <T id="rpcURL" />
-          </p>
+        <ChartListItem title={<T id="rpcURL" />}>
           <div className="flex flex-row px-1 py-0.5 gap-x-0.5 text-secondary cursor-pointer" onClick={handleCopyRpcUrl}>
             <p className="text-font-description max-w-52 truncate">{displayRpcUrl}</p>
             <IconBase Icon={CopyIcon} size={12} />
           </div>
-        </div>
+        </ChartListItem>
 
-        <div className="py-2 flex flex-row justify-between items-center border-b-0.5 border-lines">
-          <p className="p-1 text-font-description text-grey-1">
-            <T id="chainId" />
-          </p>
-          <p className="p-1 text-font-description-bold">{chainId}</p>
-        </div>
+        <PlainChartListItem title={<T id="chainId" />}>{chainId}</PlainChartListItem>
 
-        <div
-          className={clsx(
-            'py-2 flex flex-row justify-between items-center',
-            metadata.blockExplorerUrl && 'border-b-0.5 border-lines'
-          )}
-        >
-          <p className="p-1 text-font-description text-grey-1">
-            <T id="symbol" />
-          </p>
-          <p className="p-1 text-font-description-bold">{metadata.nativeCurrency.symbol}</p>
-        </div>
+        <PlainChartListItem title={<T id="symbol" />} bottomSeparator={Boolean(metadata.blockExplorerUrl)}>
+          {metadata.nativeCurrency.symbol}
+        </PlainChartListItem>
 
         {metadata.blockExplorerUrl && (
-          <div className="py-2 flex flex-row justify-between items-center">
-            <p className="p-1 text-font-description text-grey-1">
-              <T id="blockExplorer" />
-            </p>
+          <ChartListItem title={<T id="blockExplorer" />} bottomSeparator={false}>
             <Anchor
               href={metadata.blockExplorerUrl}
               className="flex flex-row px-1 py-0.5 gap-x-0.5 text-secondary cursor-pointer"
@@ -88,7 +65,7 @@ export const AddChainView = memo<Props>(({ metadata }) => {
               <p className="text-font-description max-w-48 truncate">{displayBlockExplorerUrl}</p>
               <IconBase Icon={OutLinkIcon} size={12} />
             </Anchor>
-          </div>
+          </ChartListItem>
         )}
       </div>
 

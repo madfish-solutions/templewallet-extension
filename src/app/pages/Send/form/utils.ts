@@ -9,26 +9,8 @@ import { TempleAccountType } from 'lib/temple/types';
 import { isTezosContractAddress, tezosManagerKeyHasManager } from 'lib/tezos';
 import { AccountForTezos } from 'temple/accounts';
 
-const TEZOS_PENNY = 0.000001;
-
 export const getMaxAmountFiat = (assetPrice: number | null, maxAmountAsset: BigNumber) =>
   assetPrice ? maxAmountAsset.times(assetPrice).decimalPlaces(2, BigNumber.ROUND_FLOOR) : new BigNumber(0);
-
-export const getTezosMaxAmountToken = (
-  accountType: TempleAccountType,
-  balance: BigNumber,
-  baseFee: BigNumber,
-  safeFeeValue: number
-) =>
-  BigNumber.max(
-    accountType === TempleAccountType.ManagedKT
-      ? balance
-      : balance
-          .minus(baseFee)
-          .minus(safeFeeValue ?? 0)
-          .minus(TEZOS_PENNY),
-    0
-  );
 
 type TransferParamsInvariant =
   | TransferParams

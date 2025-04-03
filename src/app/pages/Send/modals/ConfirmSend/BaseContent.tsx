@@ -5,15 +5,15 @@ import { SubmitHandler, useFormContext } from 'react-hook-form-v7';
 import { HashChip } from 'app/atoms/HashChip';
 import { ActionsButtonsBox } from 'app/atoms/PageModal/actions-buttons-box';
 import { StyledButton } from 'app/atoms/StyledButton';
+import { CurrentAccount } from 'app/templates/current-account';
 import { LedgerApprovalModal } from 'app/templates/ledger-approval-modal';
+import { OneAssetHeader } from 'app/templates/one-asset-header';
 import { TransactionTabs } from 'app/templates/TransactionTabs';
-import { DisplayedFeeOptions, FeeOptionLabel, Tab, TxParamsFormData } from 'app/templates/TransactionTabs/types';
+import { Tab, TxParamsFormData } from 'app/templates/TransactionTabs/types';
 import { T } from 'lib/i18n';
+import { DisplayedFeeOptions, FeeOptionLabel } from 'lib/temple/front/estimation-data-providers';
 import { LedgerOperationState } from 'lib/ui';
 import { OneOfChains } from 'temple/front';
-
-import { CurrentAccount } from './components/CurrentAccount';
-import { Header } from './components/Header';
 
 interface BaseContentProps<T extends TxParamsFormData> {
   ledgerApprovalModalState: LedgerOperationState;
@@ -57,7 +57,7 @@ export const BaseContent = <T extends TxParamsFormData>({
   return (
     <>
       <div className="px-4 flex flex-col flex-1 overflow-y-scroll">
-        <Header network={network} assetSlug={assetSlug} amount={amount} />
+        <OneAssetHeader network={network} assetSlug={assetSlug} amount={amount} className="my-4" />
 
         <CurrentAccount />
 

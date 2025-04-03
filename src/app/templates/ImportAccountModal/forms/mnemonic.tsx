@@ -4,11 +4,10 @@ import { startCase } from 'lodash';
 import { useForm } from 'react-hook-form';
 
 import { FormField } from 'app/atoms';
-import { ActionsButtonsBox } from 'app/atoms/PageModal/actions-buttons-box';
-import { ScrollView } from 'app/atoms/PageModal/scroll-view';
 import { StyledButton } from 'app/atoms/StyledButton';
 import { formatMnemonic } from 'app/defaults';
 import { AccountsModalSelectors } from 'app/templates/AccountsModalContent/selectors';
+import { PageModalScrollViewWithActions } from 'app/templates/page-modal-scroll-view-with-actions';
 import { isSeedPhraseFilled, SeedPhraseInput } from 'app/templates/SeedPhraseInput';
 import { useFormAnalytics } from 'lib/analytics';
 import { DEFAULT_EVM_DERIVATION_PATH, DEFAULT_SEED_PHRASE_WORDS_AMOUNT } from 'lib/constants';
@@ -36,8 +35,6 @@ export const MnemonicForm = memo<ImportAccountFormProps>(({ onSuccess }) => {
   const [error, setError] = useState<ReactNode>(null);
   const { errors, register, handleSubmit, formState, reset } = useForm<RestMnemonicFormData>({ defaultValues });
   const { isSubmitting, submitCount } = formState;
-
-  const [bottomEdgeIsVisible, setBottomEdgeIsVisible] = useState(false);
 
   const [numberOfWords, setNumberOfWords] = useState(DEFAULT_SEED_PHRASE_WORDS_AMOUNT);
 
@@ -89,7 +86,24 @@ export const MnemonicForm = memo<ImportAccountFormProps>(({ onSuccess }) => {
 
   return (
     <form className="flex-1 flex flex-col max-h-full" onSubmit={handleSubmit(onSubmit)}>
-      <ScrollView className="py-4" bottomEdgeThreshold={16} onBottomEdgeVisibilityChange={setBottomEdgeIsVisible}>
+      <PageModalScrollViewWithActions
+        className="py-4"
+        bottomEdgeThreshold={16}
+        initialBottomEdgeVisible={false}
+        actionsBoxProps={{
+          children: (
+            <StyledButton
+              size="L"
+              color="primary"
+              disabled={shouldDisableSubmitButton({ errors, formState, otherErrors: [seedError] })}
+              type="submit"
+              testID={AccountsModalSelectors.nextButton}
+            >
+              <T id="next" />
+            </StyledButton>
+          )
+        }}
+      >
         <SeedPhraseInput
           submitted={submitCount > 0}
           seedError={seedError || error}
@@ -122,19 +136,7 @@ export const MnemonicForm = memo<ImportAccountFormProps>(({ onSuccess }) => {
           containerClassName="mt-3"
           testID={ImportAccountSelectors.customDerivationPathInput}
         />
-      </ScrollView>
-
-      <ActionsButtonsBox shouldCastShadow={!bottomEdgeIsVisible}>
-        <StyledButton
-          size="L"
-          color="primary"
-          disabled={shouldDisableSubmitButton({ errors, formState, otherErrors: [seedError] })}
-          type="submit"
-          testID={AccountsModalSelectors.nextButton}
-        >
-          <T id="next" />
-        </StyledButton>
-      </ActionsButtonsBox>
+      </PageModalScrollViewWithActions>
     </form>
   );
 });

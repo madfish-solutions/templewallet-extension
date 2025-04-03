@@ -12,14 +12,14 @@ const COMMON_SWR_OPTIONS = {
   refreshInterval: BAKING_STAKE_SYNC_INTERVAL
 };
 
-export const useStakedAmount = (rpcUrl: string, accountPkh: string) =>
+export const useStakedAmount = (rpcUrl: string, accountPkh: string, suspense?: boolean) =>
   useRetryableSWR(
     [COMMON_SWR_KEY, 'get-staked', rpcUrl, accountPkh],
     () =>
       getTezosFastRpcClient(rpcUrl)
         .getStakedBalance(accountPkh)
         .catch(error => processIsStakingNotSupportedEndpointError(error, null)),
-    COMMON_SWR_OPTIONS
+    { ...COMMON_SWR_OPTIONS, suspense }
   );
 
 export const useUnstakeRequests = (rpcUrl: string, accountPkh: string, suspense?: boolean) =>
@@ -31,20 +31,6 @@ export const useUnstakeRequests = (rpcUrl: string, accountPkh: string, suspense?
         .catch(error => processIsStakingNotSupportedEndpointError(error, null)),
     { ...COMMON_SWR_OPTIONS, suspense }
   );
-
-export const useManagableTezosStakeInfo = (rpcURL: string, accountPkh: string) => {
-  const stakedSwr = useStakedAmount(rpcURL, accountPkh);
-  const requestsSwr = useUnstakeRequests(rpcURL, accountPkh);
-
-  const requests = requestsSwr.data;
-  const requestsN = requests ? requests.finalizable.length + requests.unfinalizable.requests.length : 0;
-
-  const mayManage: boolean = stakedSwr.data?.gt(0) || Boolean(requestsN);
-
-  const isLoading = stakedSwr.isLoading || requestsSwr.isLoading;
-
-  return { mayManage, isLoading, requestsN };
-};
 
 export interface StakingCyclesInfo {
   blocks_per_cycle: number;
@@ -84,46 +70,6 @@ export const useBlockLevelInfo = (rpcUrl: string) => {
 
   return data;
 };
-
-export const useIsStakingNotSupported = (rpcUrl: string, bakerPkh: string | nullish) =>
-  useRetryableSWR(
-    [COMMON_SWR_KEY, 'is-staking-not-supported', rpcUrl, bakerPkh ?? 'by-chain'],
-    () =>
-      Promise.all([
-        getIsStakingNotSupportedByChain(rpcUrl),
-        bakerPkh ? getIsStakingNotSupportedByBaker(rpcUrl, bakerPkh) : false
-      ]).then(([res1, res2]) => res1 || res2),
-    COMMON_SWR_OPTIONS
-  );
-
-const getIsStakingNotSupportedByChain = memoizee(
-  async (rpcUrl: string) => {
-    const rpc = getTezosFastRpcClient(rpcUrl);
-
-    let launchCycle: number | null;
-    try {
-      launchCycle = await rpc.getAdaptiveIssuanceLaunchCycle();
-      if (launchCycle == null) return true;
-    } catch (error) {
-      return processIsStakingNotSupportedEndpointError(error, true);
-    }
-
-    const { level_info } = await rpc.getBlockMetadata();
-
-    if (level_info == null) return false;
-
-    return level_info.cycle < launchCycle;
-  },
-  { promise: true }
-);
-
-const getIsStakingNotSupportedByBaker = memoizee(
-  (rpcUrl: string, bakerPkh: string) =>
-    getTezosFastRpcClient(rpcUrl)
-      .getDelegateLimitOfStakingOverBakingIsPositive(bakerPkh)
-      .catch(error => processIsStakingNotSupportedEndpointError(error, true)),
-  { promise: true, normalizer: ([rpcUrl, bakerPkh]) => `${bakerPkh}@${rpcUrl}` }
-);
 
 const processIsStakingNotSupportedEndpointError = <T>(error: unknown, fallbackVal: T): T => {
   if (error instanceof HttpResponseError && error.status === 404) return fallbackVal;

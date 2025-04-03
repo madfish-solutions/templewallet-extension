@@ -15,6 +15,7 @@ import {
 import { SEND_ETH_GAS_LIMIT } from 'lib/constants';
 import { getEvmBalancesChanges } from 'lib/evm/on-chain/transactions';
 import { useTypedSWR } from 'lib/swr';
+import { FeeOptionLabel, useEvmEstimationDataState } from 'lib/temple/front/estimation-data-providers';
 import { EvmEstimationDataWithFallback, StoredAccount } from 'lib/temple/types';
 import { AccountForChain, getAccountAddressForEvm } from 'temple/accounts';
 import { getReadOnlyEvmForNetwork } from 'temple/evm';
@@ -23,9 +24,8 @@ import { useAllEvmChains } from 'temple/front';
 import { AssetsAmounts, TempleChainKind } from 'temple/types';
 
 import { DEFAULT_INPUT_DEBOUNCE } from './constants';
-import { useEvmEstimationDataState } from './context';
 import { useEvmFeeOptions } from './hooks/use-evm-fee-options';
-import { EvmTxParamsFormData, FeeOptionLabel, Tab } from './types';
+import { EvmTxParamsFormData, Tab } from './types';
 
 const serializeBigint = (value: bigint | nullish) => (typeof value === 'bigint' ? value.toString() : undefined);
 

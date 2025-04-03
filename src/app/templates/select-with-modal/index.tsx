@@ -6,10 +6,9 @@ import { SettingsCellGroup } from 'app/atoms/SettingsCellGroup';
 import { ReactComponent as CompactDownIcon } from 'app/icons/base/compact_down.svg';
 import { InputContainer } from 'app/templates/InputContainer/InputContainer';
 import { useBooleanState } from 'lib/ui/hooks';
+import { NullComponent } from 'lib/ui/null-component';
 
 import { SelectModal, SelectModalProps } from './select-modal';
-
-export const NullComponent = () => null;
 
 interface SelectWithModalProps<T, P extends null | ((item: T) => any)>
   extends Omit<SelectModalProps<T, P>, 'opened' | 'onRequestClose' | 'CellIcon'> {

@@ -2,12 +2,11 @@ import React, { memo, useCallback, useState } from 'react';
 
 import { useForm } from 'react-hook-form';
 
-import { ActionsButtonsBox } from 'app/atoms/PageModal/actions-buttons-box';
-import { ScrollView } from 'app/atoms/PageModal/scroll-view';
 import { StyledButton } from 'app/atoms/StyledButton';
 import { DEFAULT_SEED_PHRASE_WORDS_AMOUNT } from 'lib/constants';
 import { t, T } from 'lib/i18n';
 
+import { PageModalScrollViewWithActions } from '../page-modal-scroll-view-with-actions';
 import { SeedPhraseInput } from '../SeedPhraseInput';
 
 import { ImportSeedFormSelectors } from './selectors';
@@ -18,8 +17,6 @@ interface ImportSeedFormProps {
 }
 
 export const ImportSeedForm = memo<ImportSeedFormProps>(({ next }) => {
-  const [bottomEdgeIsVisible, setBottomEdgeIsVisible] = useState(true);
-
   const { handleSubmit, formState, reset } = useForm();
   const wasSubmitted = formState.submitCount !== 0;
   const [seedPhrase, setSeedPhrase] = useState('');
@@ -36,7 +33,23 @@ export const ImportSeedForm = memo<ImportSeedFormProps>(({ next }) => {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="flex-1 flex flex-col max-h-full">
-      <ScrollView className="pt-4 pb-6" bottomEdgeThreshold={24} onBottomEdgeVisibilityChange={setBottomEdgeIsVisible}>
+      <PageModalScrollViewWithActions
+        className="pt-4 pb-6"
+        bottomEdgeThreshold={24}
+        actionsBoxProps={{
+          children: (
+            <StyledButton
+              disabled={Boolean(seedError) && wasSubmitted}
+              type="submit"
+              size="L"
+              color="primary"
+              testID={ImportSeedFormSelectors.nextButton}
+            >
+              <T id="next" />
+            </StyledButton>
+          )
+        }}
+      >
         <SeedPhraseInput
           isFirstAccount
           submitted={wasSubmitted}
@@ -48,18 +61,7 @@ export const ImportSeedForm = memo<ImportSeedFormProps>(({ next }) => {
           numberOfWords={numberOfWords}
           setNumberOfWords={setNumberOfWords}
         />
-      </ScrollView>
-      <ActionsButtonsBox shouldCastShadow={!bottomEdgeIsVisible}>
-        <StyledButton
-          disabled={Boolean(seedError) && wasSubmitted}
-          type="submit"
-          size="L"
-          color="primary"
-          testID={ImportSeedFormSelectors.nextButton}
-        >
-          <T id="next" />
-        </StyledButton>
-      </ActionsButtonsBox>
+      </PageModalScrollViewWithActions>
     </form>
   );
 });

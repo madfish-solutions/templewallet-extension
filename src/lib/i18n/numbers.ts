@@ -1,3 +1,4 @@
+import { isDefined } from '@rnw-community/shared';
 import BigNumber from 'bignumber.js';
 import memoizee from 'memoizee';
 
@@ -74,7 +75,9 @@ export function toLocalFixed(value: BigNumber.Value, decimalPlaces?: number, rou
   return localizeDefaultFormattedNumber(rawResult);
 }
 
-export function toShortened(value: BigNumber.Value) {
+export function toShortened(value?: BigNumber.Value, fallback = '-') {
+  if (!isDefined(value)) return fallback;
+
   let bn = new BigNumber(value);
   const target = bn.abs().decimalPlaces(2);
 

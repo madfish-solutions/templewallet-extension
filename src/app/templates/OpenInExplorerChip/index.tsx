@@ -19,7 +19,7 @@ export const OpenInExplorerChip: FC<Props> = ({ tezosChainId, hash, tooltip, ent
   return href ? <OpenInExplorerChipBase {...props} href={href} tooltip={tooltip} /> : null;
 };
 
-export const OpenInExplorerChipBase = memo<ExternalLinkChipProps>(({ href, tooltip, ...props }) => (
+const OpenInExplorerChipBase = memo<ExternalLinkChipProps>(({ href, tooltip, ...props }) => (
   <ExternalLinkChip
     {...props}
     href={href}

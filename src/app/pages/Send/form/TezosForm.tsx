@@ -7,15 +7,16 @@ import { FormProvider, useForm } from 'react-hook-form-v7';
 import { DeadEndBoundaryError } from 'app/ErrorBoundary';
 import { toastError } from 'app/toaster';
 import { useFormAnalytics } from 'lib/analytics';
-import { isTezAsset, TEZ_TOKEN_SLUG } from 'lib/assets';
+import { isTezAsset, TEZ_TOKEN_SLUG, toPenny } from 'lib/assets';
 import { useTezosAssetBalance } from 'lib/balances';
 import { RECOMMENDED_ADD_TEZ_GAS_FEE } from 'lib/constants';
 import { useAssetFiatCurrencyPrice } from 'lib/fiat-currency';
 import { toLocalFixed, t } from 'lib/i18n';
-import { useCategorizedTezosAssetMetadata, getAssetSymbol } from 'lib/metadata';
+import { useCategorizedTezosAssetMetadata, getAssetSymbol, getTezosGasMetadata } from 'lib/metadata';
 import { validateRecipient as validateAddress } from 'lib/temple/front';
 import { isValidTezosAddress, isTezosContractAddress } from 'lib/tezos';
 import { useSafeState } from 'lib/ui/hooks';
+import { getTezosMaxAmountToken } from 'lib/utils/get-tezos-max-amount-token';
 import { ZERO } from 'lib/utils/numbers';
 import { getAccountAddressForTezos } from 'temple/accounts';
 import { useAccountForTezos, useTezosChainByChainId, useVisibleAccounts } from 'temple/front';
@@ -31,7 +32,7 @@ import { useTezosEstimationData } from '../hooks/use-tezos-estimation-data';
 
 import { BaseForm } from './BaseForm';
 import { ReviewData, SendFormData } from './interfaces';
-import { getBaseFeeError, getFeeError, getMaxAmountFiat, getTezosMaxAmountToken } from './utils';
+import { getBaseFeeError, getFeeError, getMaxAmountFiat } from './utils';
 
 interface Props {
   chainId: string;
@@ -129,11 +130,17 @@ export const TezosForm: FC<Props> = ({ chainId, assetSlug, onSelectAssetClick, o
     }
 
     const maxAmountAsset = isTezAsset(assetSlug)
-      ? getTezosMaxAmountToken(account.type, balance, estimationData.baseFee, RECOMMENDED_ADD_TEZ_GAS_FEE)
+      ? getTezosMaxAmountToken(
+          account.type,
+          balance,
+          estimationData.baseFee,
+          RECOMMENDED_ADD_TEZ_GAS_FEE,
+          toPenny(getTezosGasMetadata(chainId))
+        )
       : balance;
 
     return shouldUseFiat ? getMaxAmountFiat(assetPrice.toNumber(), maxAmountAsset) : maxAmountAsset;
-  }, [estimationData, assetSlug, account.type, balance, shouldUseFiat, assetPrice]);
+  }, [estimationData, assetSlug, account.type, balance, shouldUseFiat, assetPrice, chainId]);
 
   const validateAmount = useCallback(
     (amount: string) => {

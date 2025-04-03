@@ -1,4 +1,4 @@
-import React, { memo, ReactNode } from 'react';
+import React, { memo } from 'react';
 
 import clsx from 'clsx';
 
@@ -12,7 +12,7 @@ import { formatRpAmount } from '../utils';
 import styles from './recent-earnings.module.css';
 
 interface StatsCardProps {
-  periodName: ReactNode | ReactNode[];
+  periodName: ReactChildren;
   data?: RpStatsResponse;
   error?: string;
   background: 'golden' | 'bluish';

@@ -1,9 +1,12 @@
 import React, { FC } from 'react';
 
 import { PageModal } from 'app/atoms/PageModal';
-import { EvmReviewData, ReviewData } from 'app/pages/Send/form/interfaces';
-import { EvmEstimationDataProvider, TezosEstimationDataProvider } from 'app/templates/TransactionTabs/context';
-import { TempleChainKind } from 'temple/types';
+import { ReviewData } from 'app/pages/Send/form/interfaces';
+import {
+  EvmEstimationDataProvider,
+  TezosEstimationDataProvider,
+  isEvmReviewData
+} from 'lib/temple/front/estimation-data-providers';
 
 import { EvmContent } from './EvmContent';
 import { TezosContent } from './TezosContent';
@@ -29,5 +32,3 @@ export const ConfirmSendModal: FC<ConfirmSendModalProps> = ({ opened, onRequestC
     ) : null}
   </PageModal>
 );
-
-const isEvmReviewData = (data: ReviewData): data is EvmReviewData => data.network.kind === TempleChainKind.EVM;

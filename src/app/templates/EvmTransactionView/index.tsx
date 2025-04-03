@@ -11,6 +11,7 @@ import { EvmOperationKind, getOperationKind } from 'lib/evm/on-chain/transaction
 import { parseEvmTxRequest } from 'lib/evm/on-chain/utils/parse-evm-tx-request';
 import { T } from 'lib/i18n';
 import { useEvmGenericAssetsMetadataLoading } from 'lib/metadata';
+import { EvmEstimationDataProvider } from 'lib/temple/front/estimation-data-providers';
 import { EvmTransactionRequestWithSender, TempleEvmDAppTransactionPayload } from 'lib/temple/types';
 import { serializeError } from 'lib/utils/serialize-error';
 import { getAccountAddressForEvm } from 'temple/accounts';
@@ -19,7 +20,6 @@ import { isEvmEstimationData, isSerializedEvmEstimationData } from 'temple/evm/u
 import { useAllAccounts, useAllEvmChains } from 'temple/front';
 
 import { OperationViewLayout } from '../operation-view-layout';
-import { EvmEstimationDataProvider } from '../TransactionTabs/context';
 import { EvmTxParamsFormData } from '../TransactionTabs/types';
 import { useEvmEstimationForm } from '../TransactionTabs/use-evm-estimation-form';
 

@@ -15,7 +15,10 @@ import {
   TzktGetRewardsParams,
   TzktGetRewardsResponse,
   TzktAccount,
-  TzktHubConnection
+  TzktHubConnection,
+  TzktCycle,
+  TzktProtocol,
+  TzktSetDelegateParamsOperation
 } from './types';
 import { calcTzktAccountSpendableTezBalance } from './utils';
 
@@ -92,18 +95,25 @@ export const fetchGetOperationsByHash = (
   } = {}
 ) => fetchGet<TzktOperation[]>(chainId, `/operations/${hash}`, params);
 
+type OperationSortParams = {
+  [key in `sort${'' | '.desc'}`]?: 'id' | 'level';
+};
+
 type GetOperationsTransactionsParams = GetOperationsBaseParams & {
   [key in `anyof.sender.target${'' | '.initiator'}`]?: string;
 } & {
   [key in `amount${'' | '.ne'}`]?: string;
 } & {
   [key in `parameter.${'to' | 'in' | '[*].in' | '[*].txs.[*].to_'}`]?: string;
-} & {
-  [key in `sort${'' | '.desc'}`]?: 'id' | 'level';
-};
+} & OperationSortParams;
 
 export const fetchGetOperationsTransactions = (chainId: TzktApiChainId, params: GetOperationsTransactionsParams) =>
   fetchGet<TzktOperation[]>(chainId, `/operations/transactions`, params);
+
+export const fetchSetDelegateParametersOperations = (
+  chainId: TzktApiChainId,
+  params: GetOperationsBaseParams & OperationSortParams
+) => fetchGet<TzktSetDelegateParamsOperation[]>(chainId, '/operations/set_delegate_parameters', params);
 
 export const getDelegatorRewards = (
   chainId: TzktApiChainId,
@@ -123,6 +133,10 @@ export const getDelegatorRewards = (
   });
 
 const TZKT_MAX_QUERY_ITEMS_LIMIT = 10_000;
+
+export const getCycles = (chainId: TzktApiChainId) => fetchGet<TzktCycle[]>(chainId, '/cycles', {});
+
+export const getProtocol = (chainId: TzktApiChainId) => fetchGet<TzktProtocol>(chainId, '/protocols/current');
 
 /**
  * @arg fungible // `null` for unknown fungibility only

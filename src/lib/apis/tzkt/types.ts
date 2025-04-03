@@ -3,7 +3,7 @@ import { HubConnection } from '@microsoft/signalr';
 /**
  * Actually, there is a bunch of other types but only these will be used for now
  */
-export type TzktOperationType = 'delegation' | 'transaction' | 'reveal' | 'origination';
+export type TzktOperationType = 'delegation' | 'transaction' | 'reveal' | 'origination' | 'set_delegate_parameters';
 
 export type TzktQuoteCurrency = 'None' | 'Btc' | 'Eur' | 'Usd' | 'Cny' | 'Jpy' | 'Krw';
 
@@ -75,11 +75,20 @@ interface TzktRevealOperation extends TzktOperationBase {
   type: 'reveal';
 }
 
+export interface TzktSetDelegateParamsOperation extends TzktOperationBase {
+  type: 'set_delegate_parameters';
+  bakerFee: number;
+  limitOfStakingOverBaking: number;
+  edgeOfBakingOverStaking: number;
+  activationCycle: number;
+}
+
 export type TzktOperation =
   | TzktDelegationOperation
   | TzktTransactionOperation
   | TzktRevealOperation
-  | TzktOriginationOperation;
+  | TzktOriginationOperation
+  | TzktSetDelegateParamsOperation;
 
 export const allInt32ParameterKeys = ['eq', 'ne', 'gt', 'ge', 'lt', 'le', 'in', 'ni'] as const;
 
@@ -108,6 +117,19 @@ export interface TzktRewardsEntry {
   expectedEndorsements: number;
   futureBlocks: number;
   futureBlockRewards: number;
+  blocks: number;
+  blockRewards: number;
+  missedBlocks: number;
+  missedBlockRewards: number;
+  blockFees: number;
+  missedBlockFees: number;
+  activeStake: number;
+  selectedStake: number;
+  doublePreendorsingRewards: number;
+  doubleBakingLosses: number;
+  doubleEndorsingLosses: number;
+  doublePreendorsingLosses: number;
+  revelationLosses: number;
   ownBlocks: number;
   ownBlockRewards: number;
   extraBlocks: number;
@@ -146,9 +168,89 @@ export interface TzktRewardsEntry {
   revelationLostRewards: number;
   revelationLostFees: number;
   quote?: TzktQuote;
+  // The fields below are not available on Talentnet
+  bakerDelegatedBalance: number;
+  bakerStakedBalance: number;
+  bakingPower: number;
+  blockRewardsDelegated: number;
+  blockRewardsLiquid: number;
+  blockRewardsStakedEdge: number;
+  blockRewardsStakedOwn: number;
+  blockRewardsStakedShared: number;
+  delegatedBalance: number;
+  doubleBakingLostExternalStaked: number;
+  doubleBakingLostExternalUnstaked: number;
+  doubleBakingLostStaked: number;
+  doubleBakingLostUnstaked: number;
+  doubleEndorsingLostExternalStaked: number;
+  doubleEndorsingLostExternalUnstaked: number;
+  doubleEndorsingLostStaked: number;
+  doubleEndorsingLostUnstaked: number;
+  doublePreendorsingLostExternalStaked: number;
+  doublePreendorsingLostExternalUnstaked: number;
+  doublePreendorsingLostStaked: number;
+  doublePreendorsingLostUnstaked: number;
+  endorsementRewardsDelegated: number;
+  endorsementRewardsLiquid: number;
+  endorsementRewardsStakedEdge: number;
+  endorsementRewardsStakedOwn: number;
+  endorsementRewardsStakedShared: number;
+  externalDelegatedBalance: number;
+  externalStakedBalance: number;
+  nonceRevelationLosses: number;
+  nonceRevelationRewardsDelegated: number;
+  nonceRevelationRewardsLiquid: number;
+  nonceRevelationRewardsStakedEdge: number;
+  nonceRevelationRewardsStakedOwn: number;
+  nonceRevelationRewardsStakedShared: number;
+  stakedBalance: number;
+  totalBakingPower: number;
+  vdfRevelationRewardsDelegated: number;
+  vdfRevelationRewardsLiquid: number;
+  vdfRevelationRewardsStakedEdge: number;
+  vdfRevelationRewardsStakedOwn: number;
+  vdfRevelationRewardsStakedShared: number;
 }
 
 export type TzktGetRewardsResponse = TzktRewardsEntry[] | undefined;
+
+export interface TzktCycle {
+  index: number;
+  firstLevel: number;
+  startTime: string;
+  lastLevel: number;
+  endTime: string;
+  snapshotIndex: number;
+  snapshotLevel: number;
+  randomSeed: string;
+  totalBakers: number;
+  totalStaking: number;
+  totalDelegators: number;
+  totalDelegated: number;
+  selectedBakers: number;
+  selectedStake: number;
+  totalRolls: number;
+  // The fields below are not available on Talentnet
+  totalBakingPower: number;
+  blockReward: number;
+  blockBonusPerSlot: number;
+  endorsementRewardPerSlot: number;
+  nonceRevelationReward: number;
+  vdfRevelationReward: number;
+  lbSubsidy: number;
+}
+
+/** This interface is not complete */
+export interface TzktProtocol {
+  hash: string;
+  constants: {
+    endorsersPerBlock: number;
+    consensusThreshold: number;
+    blocksPerCycle: number;
+    blockReward: number[];
+    endorsementReward: number[];
+  };
+}
 
 export interface TzktAccountAsset {
   id: number;

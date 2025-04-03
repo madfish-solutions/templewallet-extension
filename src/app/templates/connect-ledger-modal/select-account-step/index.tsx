@@ -3,6 +3,7 @@ import React, { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import { DerivationType } from '@taquito/ledger-signer';
 import { nanoid } from 'nanoid';
 
+import { FadeTransition } from 'app/a11y/FadeTransition';
 import { Button, HashShortView, IconBase, Money } from 'app/atoms';
 import { ActionsButtonsBox } from 'app/atoms/PageModal';
 import { ScrollView } from 'app/atoms/PageModal/scroll-view';
@@ -153,7 +154,7 @@ export const SelectAccountStep = memo<SelectAccountStepProps>(({ initialAccount,
   );
 
   return (
-    <>
+    <FadeTransition>
       <LedgerApprovalModal
         state={ledgerApprovalModalState}
         isSwitchingDerivation={isSwitchingDerivation}
@@ -223,7 +224,7 @@ export const SelectAccountStep = memo<SelectAccountStepProps>(({ initialAccount,
           <T id="connect" />
         </StyledButton>
       </ActionsButtonsBox>
-    </>
+    </FadeTransition>
   );
 });
 

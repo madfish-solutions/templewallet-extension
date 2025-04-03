@@ -5,6 +5,7 @@ import { HashChip } from 'app/atoms/HashChip';
 import { EvmNetworkLogo } from 'app/atoms/NetworkLogo';
 import Spinner from 'app/atoms/Spinner/Spinner';
 import { EvmAssetIconWithNetwork } from 'app/templates/AssetIcon';
+import { ChartListItem } from 'app/templates/chart-list-item';
 import { fetchEvmTokenMetadataFromChain } from 'lib/evm/on-chain/metadata';
 import { EvmAssetStandard } from 'lib/evm/types';
 import { T } from 'lib/i18n';
@@ -83,31 +84,21 @@ export const AddAssetView = memo<Props>(({ metadata }) => {
 
         <div className="flex flex-col px-4 py-2 rounded-8 shadow-bottom border-0.5 border-transparent">
           {network && (
-            <div className="py-2 flex flex-row justify-between items-center border-b-0.5 border-lines">
-              <p className="p-1 text-font-description text-grey-1">
-                <T id="network" />
-              </p>
-
+            <ChartListItem title={<T id="network" />}>
               <div className="flex flex-row items-center">
                 <span className="p-1 text-font-num-bold-12">{network.name}</span>
                 <EvmNetworkLogo chainId={network.chainId} chainName={network.name} size={16} />
               </div>
-            </div>
+            </ChartListItem>
           )}
 
-          <div className="py-2 flex flex-row justify-between items-center border-b-0.5 border-lines">
-            <p className="p-1 text-font-description text-grey-1">
-              <T id="contractAddress" />
-            </p>
+          <ChartListItem title={<T id="contractAddress" />}>
             <HashChip hash={metadata.address} />
-          </div>
+          </ChartListItem>
 
-          <div className="py-2 flex flex-row justify-between items-center">
-            <p className="p-1 text-font-description text-grey-1">
-              <T id="decimals" />
-            </p>
+          <ChartListItem title={<T id="decimals" />} bottomSeparator={false}>
             <p className="p-1 text-font-num-bold-12">{decimals}</p>
-          </div>
+          </ChartListItem>
         </div>
       </div>
     </div>

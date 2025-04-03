@@ -1,7 +1,4 @@
 {
-  "showIncomingTransactions": {
-    "message": "Show Incoming Transactions"
-  },
   "appDesc": {
     "message": "🔐💰Cryptocurrency wallet for Tezos blockchain as Web Extension for your Browser."
   },
@@ -17,9 +14,6 @@
   "maximiseView": {
     "message": "Maximise view"
   },
-  "clickIconToResetPermissions": {
-    "message": "Click on the X icon to reset permissions."
-  },
   "tezosMainnet": {
     "message": "Главная сеть Tezos"
   },
@@ -34,17 +28,6 @@
   },
   "copyHashToClipboard": {
     "message": "Скопировать хэш в буфер обмена"
-  },
-  "showInGasOrFiat": {
-    "message": "Показать в $gasToken$/$fiatCurrency$",
-    "placeholders": {
-      "gasToken": {
-        "content": "$1"
-      },
-      "fiatCurrency": {
-        "content": "$2"
-      }
-    }
   },
   "defaultAccount": {
     "message": "Аккаунт по умолчанию (первый)"

@@ -8,9 +8,10 @@ import { NEVER_AUTOLOCK_VALUE } from 'lib/constants';
 import { t } from 'lib/i18n';
 import { formatDuration } from 'lib/i18n/core';
 import { useLockUpTimeout } from 'lib/lock-up';
+import { NullComponent } from 'lib/ui/null-component';
 import { SearchKey } from 'lib/utils/search-items';
 
-import { CellPartProps, NullComponent, SelectWithModal } from '../select-with-modal';
+import { CellPartProps, SelectWithModal } from '../select-with-modal';
 
 import { SecuritySettingsSelectors } from './selectors';
 
