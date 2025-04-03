@@ -28,7 +28,7 @@ export const MultiChainCollectiblesTab = memo<MultiChainCollectiblesTabProps>(
 
     const contentElement = useMemo(
       () => (
-        <div className={manageActive ? undefined : 'grid grid-cols-3 gap-2'}>
+        <div className={manageActive ? undefined : 'grid grid-cols-3 gap-1'}>
           {paginatedSlugs.map(chainSlug => {
             const [chainKind, chainId, slug] = fromChainAssetSlug(chainSlug);
 

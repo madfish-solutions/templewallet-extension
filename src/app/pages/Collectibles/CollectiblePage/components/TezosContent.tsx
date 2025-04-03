@@ -40,12 +40,12 @@ interface Props {
 export const TezosContent = memo<Props>(({ tezosChainId, assetSlug }) => {
   const network = useTezosChainByChainId(tezosChainId);
   const account = useAccountForTezos();
+  const metadata = useCollectibleMetadataSelector(assetSlug); // Loaded only, if shown in grid for now
 
-  if (!network || !account) throw new DeadEndBoundaryError();
+  if (!metadata || !network || !account) throw new DeadEndBoundaryError();
 
   const [tab, setTab] = useState<'details' | 'attributes'>('details');
 
-  const metadata = useCollectibleMetadataSelector(assetSlug); // Loaded only, if shown in grid for now
   const details = useCollectibleDetailsSelector(assetSlug);
   const areAnyCollectiblesDetailsLoading = useAllCollectiblesDetailsLoadingSelector();
 
@@ -80,14 +80,16 @@ export const TezosContent = memo<Props>(({ tezosChainId, assetSlug }) => {
 
   return (
     <PageLayout headerRightElem={<QuickActionsPopper assetSlug={assetSlug} network={network} />}>
-      <div className="rounded-8 mb-4 overflow-hidden" style={{ aspectRatio: '1/1' }}>
+      <div
+        className="relative flex items-center justify-center rounded-8 mb-4 overflow-hidden bg-grey-4"
+        style={{ aspectRatio: '1/1' }}
+      >
         <TezosCollectiblePageImage
           metadata={metadata}
           areDetailsLoading={areDetailsLoading}
           objktArtifactUri={details?.objktArtifactUri}
           isAdultContent={details?.isAdultContent}
           mime={details?.mime}
-          className="h-full w-full object-contain"
         />
       </div>
 
@@ -99,7 +101,7 @@ export const TezosContent = memo<Props>(({ tezosChainId, assetSlug }) => {
       </div>
 
       {areDetailsLoading ? (
-        <SyncSpinner className="mt-4" />
+        <SyncSpinner className="mt-6" />
       ) : (
         <>
           <CollectionDetails {...collection} />

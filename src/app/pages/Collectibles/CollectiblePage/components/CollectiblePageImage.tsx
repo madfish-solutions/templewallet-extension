@@ -1,5 +1,6 @@
 import React, { memo, useCallback, useEffect, useMemo, useState } from 'react';
 
+import clsx from 'clsx';
 import { isString } from 'lodash';
 
 import { Model3DViewer } from 'app/atoms/Model3DViewer';
@@ -17,7 +18,7 @@ import { CollectibleImageLoader } from '../../components/CollectibleImageLoader'
 import { VideoCollectible } from '../../components/VideoCollectible';
 
 interface Props {
-  metadata?: TokenMetadata;
+  metadata: TokenMetadata;
   areDetailsLoading: boolean;
   mime?: string | null;
   objktArtifactUri?: string;
@@ -45,7 +46,7 @@ export const TezosCollectiblePageImage = memo<Props>(
     }
 
     if (shouldShowBlur) {
-      return <CollectibleBlur onClick={handleBlurClick} />;
+      return <CollectibleBlur metadata={metadata} large onClick={handleBlurClick} />;
     }
 
     if (objktArtifactUri && !isRenderFailedOnce) {
@@ -88,13 +89,20 @@ export const TezosCollectiblePageImage = memo<Props>(
     }
 
     return (
-      <TezosAssetImageStacked
-        metadata={metadata}
-        fullViewCollectible
-        loader={<CollectibleImageLoader large />}
-        fallback={<CollectibleImageFallback large />}
-        className={className}
-      />
+      <>
+        <TezosAssetImageStacked
+          metadata={metadata}
+          fullViewCollectible
+          className="absolute w-full h-full object-cover blur"
+        />
+        <TezosAssetImageStacked
+          metadata={metadata}
+          fullViewCollectible
+          loader={<CollectibleImageLoader large />}
+          fallback={<CollectibleImageFallback large />}
+          className={clsx('w-full h-full object-contain z-1', className)}
+        />
+      </>
     );
   }
 );

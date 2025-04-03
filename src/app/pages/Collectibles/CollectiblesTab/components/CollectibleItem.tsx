@@ -53,12 +53,11 @@ interface TezosCollectibleItemProps {
   tezosChainId: string;
   adultBlur: boolean;
   areDetailsShown: boolean;
-  hideWithoutMeta?: boolean;
   manageActive?: boolean;
 }
 
 export const TezosCollectibleItem = memo<TezosCollectibleItemProps>(
-  ({ assetSlug, accountPkh, tezosChainId, adultBlur, areDetailsShown, hideWithoutMeta, manageActive = false }) => {
+  ({ assetSlug, accountPkh, tezosChainId, adultBlur, areDetailsShown, manageActive = false }) => {
     const metadata = useCollectibleMetadataSelector(assetSlug);
     const wrapperElemRef = useRef<HTMLDivElement>(null);
     const balanceAtomic = useBalanceSelector(accountPkh, tezosChainId, assetSlug);
@@ -129,7 +128,7 @@ export const TezosCollectibleItem = memo<TezosCollectibleItemProps>(
       return { floorPrice: atomsToTokens(floorPrice, currency.decimals).toString(), symbol: currency.symbol };
     }, [details?.listing]);
 
-    if (hideWithoutMeta && !metadata) return null;
+    if (!metadata) return null;
 
     const assetName = getTokenName(metadata);
 
@@ -141,7 +140,7 @@ export const TezosCollectibleItem = memo<TezosCollectibleItemProps>(
               <div
                 ref={wrapperElemRef}
                 style={manageImgStyle}
-                className="relative flex items-center justify-center bg-blue-50 rounded-lg overflow-hidden hover:opacity-70"
+                className="relative flex items-center justify-center rounded-8 overflow-hidden"
               >
                 <CollectibleItemImage
                   assetSlug={assetSlug}
@@ -150,7 +149,6 @@ export const TezosCollectibleItem = memo<TezosCollectibleItemProps>(
                   areDetailsLoading={areDetailsLoading && details === undefined}
                   mime={details?.mime}
                   containerElemRef={wrapperElemRef}
-                  className="object-cover"
                 />
 
                 {network && (
@@ -188,7 +186,7 @@ export const TezosCollectibleItem = memo<TezosCollectibleItemProps>(
     return (
       <Link
         to={toCollectibleLink(TempleChainKind.Tezos, tezosChainId, assetSlug)}
-        className="flex flex-col border border-gray-300 rounded-lg overflow-hidden"
+        className="flex flex-col items-center justify-center rounded-8 overflow-hidden"
         style={imgContainerStyles}
         testID={CollectibleTabSelectors.collectibleItem}
         testIDProperties={{ assetSlug: assetSlug }}
@@ -196,10 +194,7 @@ export const TezosCollectibleItem = memo<TezosCollectibleItemProps>(
         <div
           ref={wrapperElemRef}
           style={ImgStyle}
-          className={clsx(
-            'relative flex items-center justify-center bg-blue-50 rounded-lg overflow-hidden hover:opacity-70',
-            areDetailsShown && 'border-b border-gray-300'
-          )}
+          className="relative flex items-center justify-center rounded-lg overflow-hidden border-2 border-transparent hover:border-secondary"
         >
           <CollectibleItemImage
             assetSlug={assetSlug}
@@ -221,7 +216,7 @@ export const TezosCollectibleItem = memo<TezosCollectibleItemProps>(
             <TezosNetworkLogo
               chainId={network.chainId}
               size={NETWORK_IMAGE_DEFAULT_SIZE}
-              className="absolute bottom-1 right-1"
+              className="absolute bottom-1 right-1 z-10"
               withTooltip
               tooltipPlacement="bottom"
             />
@@ -264,11 +259,10 @@ interface EvmCollectibleItemProps {
   accountPkh: HexString;
   showDetails?: boolean;
   manageActive?: boolean;
-  hideWithoutMeta?: boolean;
 }
 
 export const EvmCollectibleItem = memo<EvmCollectibleItemProps>(
-  ({ assetSlug, evmChainId, accountPkh, showDetails = false, manageActive = false, hideWithoutMeta }) => {
+  ({ assetSlug, evmChainId, accountPkh, showDetails = false, manageActive = false }) => {
     const metadata = useEvmCollectibleMetadataSelector(evmChainId, assetSlug);
     const chain = useEvmChainByChainId(evmChainId);
     const { value: balance = ZERO } = useEvmAssetBalance(assetSlug, accountPkh, chain!);
@@ -318,10 +312,10 @@ export const EvmCollectibleItem = memo<EvmCollectibleItemProps>(
       [showDetails]
     );
 
+    if (!metadata) return null;
+
     const assetName = getCollectibleName(metadata);
     const collectionName = getCollectionName(metadata);
-
-    if (hideWithoutMeta && !metadata) return null;
 
     if (manageActive)
       return (
@@ -370,15 +364,13 @@ export const EvmCollectibleItem = memo<EvmCollectibleItemProps>(
     return (
       <Link
         to={toCollectibleLink(TempleChainKind.EVM, evmChainId, assetSlug)}
-        className="flex flex-col border border-gray-300 rounded-lg overflow-hidden"
+        className="flex flex-col rounded-8 overflow-hidden"
         style={imgContainerStyles}
         testID={CollectibleTabSelectors.collectibleItem}
         testIDProperties={{ assetSlug: assetSlug }}
       >
         <div
-          className={clsx(
-            'relative flex items-center justify-center bg-blue-50 rounded-lg overflow-hidden hover:opacity-70'
-          )}
+          className="relative flex items-center justify-center rounded-lg overflow-hidden border-2 border-transparent hover:border-secondary"
           style={ImgStyle}
         >
           {metadata && <EvmCollectibleItemImage metadata={metadata} className="object-contain" />}
@@ -393,7 +385,7 @@ export const EvmCollectibleItem = memo<EvmCollectibleItemProps>(
             <EvmNetworkLogo
               chainId={network.chainId}
               size={NETWORK_IMAGE_DEFAULT_SIZE}
-              className="absolute bottom-1 right-1"
+              className="absolute bottom-1 right-1 z-10"
               withTooltip
               tooltipPlacement="bottom"
             />

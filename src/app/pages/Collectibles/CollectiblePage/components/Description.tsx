@@ -19,6 +19,7 @@ export const Description = memo<Props>(({ text, className }) => {
 
   const truncatedText = useMemo(() => {
     if (!text) return '';
+    else if (text.length < MAX_COLLAPSED_STATE_TEXT_LENGTH) return text;
     else return text.substring(0, MAX_COLLAPSED_STATE_TEXT_LENGTH) + '…';
   }, [text]);
 
@@ -54,7 +55,7 @@ export const Description = memo<Props>(({ text, className }) => {
         )}
       </div>
 
-      <p className="text-font-description">{dropdownOpened ? text : truncatedText}</p>
+      <p className="text-font-description break-words">{dropdownOpened ? text : truncatedText}</p>
     </div>
   );
 });

@@ -66,7 +66,7 @@ const TabContentBase = memo<TabContentBaseProps>(({ publicKeyHash, allSlugsSorte
 
   const contentElement = useMemo(
     () => (
-      <div className={manageActive ? undefined : 'grid grid-cols-3 gap-2'}>
+      <div className={manageActive ? undefined : 'grid grid-cols-3 gap-1'}>
         {displayedSlugs.map(chainSlug => {
           const [_, chainId, slug] = parseChainAssetSlug(chainSlug, TempleChainKind.Tezos);
 

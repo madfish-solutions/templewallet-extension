@@ -144,7 +144,8 @@ const buildObjktMediaURI = (ipfsInfo: IpfsUriInfo | nullish, tail: ObjktMediaTai
   return result;
 };
 
-const buildObjktMediaUriForItemPath = (itemId: string, tail: ObjktMediaTail) => `${OBJKT_MEDIA_HOST}/${itemId}/${tail}`;
+export const buildObjktMediaUriForItemPath = (itemId: string, tail: ObjktMediaTail) =>
+  `${OBJKT_MEDIA_HOST}/${itemId}/${tail}`;
 
 const buildIpfsMediaUriByInfo = (
   { uri, ipfs: ipfsInfo }: MediaUriInfo,

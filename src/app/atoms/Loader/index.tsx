@@ -6,7 +6,7 @@ import { ReactComponent as LoaderIcon } from 'app/icons/loader.svg';
 
 import LoaderStyles from './loader.module.css';
 
-type Size = 'L' | 'M' | 'S';
+type Size = 'XXL' | 'L' | 'M' | 'S';
 
 interface Props {
   trackVariant: 'dark' | 'light';
@@ -15,6 +15,7 @@ interface Props {
 }
 
 const SIZE_CLASSNAME: Record<Size, string> = {
+  XXL: 'w-10 h-10',
   L: 'w-6 h-6',
   M: 'w-5 h-5',
   S: 'w-4 h-4'

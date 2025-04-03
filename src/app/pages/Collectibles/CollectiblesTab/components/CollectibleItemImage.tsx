@@ -15,7 +15,7 @@ import { CollectibleImageLoader } from '../../components/CollectibleImageLoader'
 
 interface Props {
   assetSlug: string;
-  metadata?: TokenMetadata;
+  metadata: TokenMetadata;
   adultBlur: boolean;
   areDetailsLoading: boolean;
   mime?: string | null;
@@ -38,15 +38,18 @@ export const CollectibleItemImage = memo<Props>(
         {isAdultFlagLoading ? (
           <CollectibleImageLoader />
         ) : shouldShowBlur ? (
-          <CollectibleBlur />
+          <CollectibleBlur metadata={metadata} />
         ) : (
-          <ImageStacked
-            sources={sources}
-            loading="lazy"
-            className={clsx('w-full h-full', className)}
-            loader={<CollectibleImageLoader />}
-            fallback={<CollectibleImageFallback isAudioCollectible={isAudioCollectible} />}
-          />
+          <>
+            <ImageStacked sources={sources} loading="lazy" className="absolute w-full h-full object-cover blur-sm" />
+            <ImageStacked
+              sources={sources}
+              loading="lazy"
+              className={clsx('w-full h-full z-1', className)}
+              loader={<CollectibleImageLoader />}
+              fallback={<CollectibleImageFallback isAudioCollectible={isAudioCollectible} />}
+            />
+          </>
         )}
       </>
     );
