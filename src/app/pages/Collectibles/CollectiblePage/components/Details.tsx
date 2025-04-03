@@ -13,7 +13,6 @@ import { useTezosAssetBalance } from 'lib/balances';
 import { useEvmAssetBalance } from 'lib/balances/hooks';
 import { formatDate, T } from 'lib/i18n';
 import { EvmCollectibleMetadata } from 'lib/metadata/types';
-import { toPercentage } from 'lib/ui/utils';
 import { TezosChain, useEvmChainByChainId } from 'temple/front/chains';
 import { useGetTezosActiveBlockExplorer } from 'temple/front/ready';
 import { makeBlockExplorerHref } from 'temple/front/use-block-explorers';
@@ -61,7 +60,13 @@ export const Details = memo<PropertiesItemsProps>(({ network, assetSlug, account
     return value ? formatDate(value, 'PP') : '-';
   }, [details?.mintedTimestamp]);
 
-  const royaltiesStr = useMemo(() => toPercentage(details?.royalties, '-'), [details]);
+  const royaltiesStr = useMemo(() => {
+    if (!details?.royalties) return '-';
+
+    const royalties = new BigNumber(details.royalties).decimalPlaces(2);
+
+    return `${royalties.toString()}%`;
+  }, [details]);
 
   return (
     <div className="flex flex-col p-4 rounded-8 shadow-bottom bg-white">
@@ -92,7 +97,7 @@ export const Details = memo<PropertiesItemsProps>(({ network, assetSlug, account
       {creatorAddress && (
         <ChartListItem title={<T id="contractCreator" />}>
           <div className="flex flex-row items-center gap-x-0.5">
-            <HashChip hash={contract} className="p-0.5" />
+            <HashChip hash={creatorAddress} className="p-0.5" />
             {exploreContractCreatorUrl && (
               <Anchor href={exploreContractCreatorUrl}>
                 <IconBase Icon={OutLinkIcon} className="text-secondary" />

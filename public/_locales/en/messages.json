@@ -2137,6 +2137,9 @@
       }
     }
   },
+  "quickActions": {
+    "message": "Quick Actions"
+  },
   "popupSettings": {
     "message": "Pop-up Mode"
   },
@@ -2637,8 +2640,14 @@
   "viewOnBlockExplorer": {
     "message": "View on block explorer"
   },
+  "viewInBlockExplorer": {
+    "message": "View in Block Explorer"
+  },
   "specifyTokenId": {
     "message": "Specify token ID"
+  },
+  "copyTokenId": {
+    "message": "Copy Token ID"
   },
   "notWhitelistedTokenWarning": {
     "message": "Attention! One of the tokens you’re trying to exchange is not whitelisted. You can interact with them at your own risk."

@@ -30,6 +30,7 @@ import { TezosCollectiblePageImage } from './CollectiblePageImage';
 import { CollectionDetails } from './CollectionDetails';
 import { Description } from './Description';
 import { Details } from './Details';
+import { QuickActionsPopper } from './QuickActionsPopper';
 
 interface Props {
   tezosChainId: string;
@@ -78,7 +79,7 @@ export const TezosContent = memo<Props>(({ tezosChainId, assetSlug }) => {
   const attributesTabRef = useRef<HTMLDivElement>(null);
 
   return (
-    <PageLayout>
+    <PageLayout headerRightElem={<QuickActionsPopper assetSlug={assetSlug} network={network} />}>
       <div className="rounded-8 mb-4 overflow-hidden" style={{ aspectRatio: '1/1' }}>
         <TezosCollectiblePageImage
           metadata={metadata}
