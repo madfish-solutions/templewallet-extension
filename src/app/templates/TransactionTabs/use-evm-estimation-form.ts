@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
-import { isDefined } from '@rnw-community/shared';
 import { transform } from 'lodash';
 import { useForm } from 'react-hook-form-v7';
 import { useDebounce } from 'use-debounce';
@@ -101,10 +100,12 @@ export const useEvmEstimationForm = (
       return { gasPrice: basicParams.gasPrice };
     }
 
-    if (basicParams.maxFeePerGas && isDefined(basicParams.maxPriorityFeePerGas)) {
+    if (basicParams.maxFeePerGas) {
+      const { maxFeePerGas, maxPriorityFeePerGas } = basicParams;
+
       return {
-        maxFeePerGas: basicParams.maxFeePerGas,
-        maxPriorityFeePerGas: basicParams.maxPriorityFeePerGas
+        maxFeePerGas,
+        maxPriorityFeePerGas: maxPriorityFeePerGas ?? maxFeePerGas
       };
     }
 
