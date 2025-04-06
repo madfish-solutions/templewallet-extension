@@ -37,7 +37,7 @@ import { TempleChainKind } from 'temple/types';
 import { CollectibleTabSelectors } from '../selectors';
 import { toCollectibleLink } from '../utils';
 
-import { CollectibleItemImage, EvmCollectibleItemImage } from './CollectibleItemImage';
+import { TezosCollectibleItemImage, EvmCollectibleItemImage } from './CollectibleItemImage';
 
 // Fixed sizes to improve large grid performance
 const ImgContainerStyle = { width: 112, height: 112 };
@@ -142,7 +142,7 @@ export const TezosCollectibleItem = memo<TezosCollectibleItemProps>(
                 style={manageImgStyle}
                 className="relative flex items-center justify-center rounded-8 overflow-hidden"
               >
-                <CollectibleItemImage
+                <TezosCollectibleItemImage
                   assetSlug={assetSlug}
                   metadata={metadata}
                   adultBlur={adultBlur}
@@ -155,7 +155,7 @@ export const TezosCollectibleItem = memo<TezosCollectibleItemProps>(
                   <TezosNetworkLogo
                     chainId={network.chainId}
                     size={NETWORK_IMAGE_DEFAULT_SIZE}
-                    className="absolute bottom-0.5 right-0.5"
+                    className="absolute bottom-0.5 right-0.5 z-10"
                     withTooltip
                     tooltipPlacement="bottom"
                   />
@@ -196,7 +196,8 @@ export const TezosCollectibleItem = memo<TezosCollectibleItemProps>(
           style={ImgStyle}
           className="relative flex items-center justify-center rounded-lg overflow-hidden border-2 border-transparent hover:border-secondary"
         >
-          <CollectibleItemImage
+          <TezosCollectibleItemImage
+            shouldUseBlurredBg
             assetSlug={assetSlug}
             metadata={metadata}
             adultBlur={adultBlur}
@@ -334,7 +335,7 @@ export const EvmCollectibleItem = memo<EvmCollectibleItemProps>(
                   <EvmNetworkLogo
                     chainId={network.chainId}
                     size={NETWORK_IMAGE_DEFAULT_SIZE}
-                    className="absolute bottom-0.5 right-0.5"
+                    className="absolute bottom-0.5 right-0.5 z-10"
                     withTooltip
                     tooltipPlacement="bottom"
                   />
@@ -373,7 +374,7 @@ export const EvmCollectibleItem = memo<EvmCollectibleItemProps>(
           className="relative flex items-center justify-center rounded-lg overflow-hidden border-2 border-transparent hover:border-secondary"
           style={ImgStyle}
         >
-          {metadata && <EvmCollectibleItemImage metadata={metadata} className="object-contain" />}
+          {metadata && <EvmCollectibleItemImage shouldUseBlurredBg metadata={metadata} className="object-contain" />}
 
           {showDetails && (
             <div className="absolute bottom-1.5 left-1.5 text-xxxs text-white leading-none p-1 bg-black bg-opacity-60 rounded">

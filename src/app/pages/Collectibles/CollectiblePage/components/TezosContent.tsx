@@ -14,6 +14,7 @@ import {
 } from 'app/store/tezos/collectibles/selectors';
 import { useCollectibleMetadataSelector } from 'app/store/tezos/collectibles-metadata/selectors';
 import { setTestID } from 'lib/analytics';
+import { TEZOS_BLOCK_DURATION } from 'lib/fixed-times';
 import { t, T } from 'lib/i18n';
 import { buildTokenImagesStack } from 'lib/images-uri';
 import { getTokenName } from 'lib/metadata';
@@ -22,15 +23,16 @@ import { navigate } from 'lib/woozie';
 import { useTezosChainByChainId, useAccountForTezos } from 'temple/front';
 import { TempleChainKind } from 'temple/types';
 
-import { TEZOS_DETAILS_SYNC_INTERVAL } from '../constants';
 import { CollectiblesSelectors } from '../selectors';
 
-import { Attributes } from './Attributes';
+import { TezosAttributes } from './Attributes';
 import { TezosCollectiblePageImage } from './CollectiblePageImage';
 import { CollectionDetails } from './CollectionDetails';
 import { Description } from './Description';
-import { Details } from './Details';
+import { TezosDetails } from './Details';
 import { QuickActionsPopper } from './QuickActionsPopper';
+
+const TEZOS_DETAILS_SYNC_INTERVAL = 4 * TEZOS_BLOCK_DURATION;
 
 interface Props {
   tezosChainId: string;
@@ -141,9 +143,9 @@ export const TezosContent = memo<Props>(({ tezosChainId, assetSlug }) => {
 
           <div className="w-full">
             {tab === 'attributes' ? (
-              <Attributes details={details} />
+              <TezosAttributes details={details} />
             ) : (
-              <Details network={network} assetSlug={assetSlug} accountPkh={publicKeyHash} details={details} />
+              <TezosDetails network={network} assetSlug={assetSlug} accountPkh={publicKeyHash} details={details} />
             )}
           </div>
         </>

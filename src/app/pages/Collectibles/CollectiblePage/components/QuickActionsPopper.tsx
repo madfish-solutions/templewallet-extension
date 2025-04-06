@@ -12,7 +12,6 @@ import { t } from 'lib/i18n';
 import Popper, { PopperRenderProps } from 'lib/ui/Popper';
 import { OneOfChains } from 'temple/front';
 import { useBlockExplorerHref } from 'temple/front/use-block-explorers';
-import { TempleChainKind } from 'temple/types';
 
 import { CollectiblesSelectors } from '../selectors';
 
@@ -38,7 +37,7 @@ interface Action extends ActionListItemProps {
 const Dropdown = memo<PopperRenderProps & DropdownProps>(({ opened, setOpened, assetSlug, network }) => {
   const { contract, id } = fromFa2TokenSlug(assetSlug);
 
-  const exploreContractUrl = useBlockExplorerHref(TempleChainKind.Tezos, network.chainId, 'address', contract);
+  const exploreContractUrl = useBlockExplorerHref(network.kind, network.chainId, 'address', contract);
 
   const handleCopyTokenId = useCallback(() => {
     window.navigator.clipboard.writeText(id);

@@ -55,12 +55,7 @@ export const CollectiblesTabBase: FC<PropsWithChildren<CollectiblesTabBaseProps>
         <FadeTransition>
           <ContentContainer padding={collectiblesCount > 0}>
             {collectiblesCount === 0 ? (
-              <EmptySection
-                forCollectibles={true}
-                manageActive={manageActive}
-                forSearch={isInSearchMode}
-                network={network}
-              />
+              <EmptySection forCollectibles manageActive={manageActive} forSearch={isInSearchMode} network={network} />
             ) : (
               <>
                 {isInSearchMode ? (
@@ -69,7 +64,7 @@ export const CollectiblesTabBase: FC<PropsWithChildren<CollectiblesTabBaseProps>
                   <>
                     {manageActive && (
                       <AddCustomTokenButton
-                        forCollectibles={true}
+                        forCollectibles
                         manageActive={manageActive}
                         network={network}
                         className="mb-4"

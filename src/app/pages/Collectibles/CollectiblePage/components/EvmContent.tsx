@@ -1,26 +1,27 @@
-import React, { memo, useCallback, useMemo } from 'react';
+import React, { memo, useCallback, useRef, useState } from 'react';
 
-import { FormSubmitButton } from 'app/atoms';
+import SegmentedControl from 'app/atoms/SegmentedControl';
+import { StyledButton } from 'app/atoms/StyledButton';
 import { DeadEndBoundaryError } from 'app/ErrorBoundary';
-import { useLocationSearchParamValue } from 'app/hooks/use-location';
 import PageLayout from 'app/layouts/PageLayout';
 import { buildSendPagePath } from 'app/pages/Send/build-url';
 import { useEvmCollectibleMetadataSelector } from 'app/store/evm/collectibles-metadata/selectors';
-import AddressChip from 'app/templates/AddressChip';
-import { TabsBar } from 'app/templates/TabBar';
 import { setTestID } from 'lib/analytics';
-import { T } from 'lib/i18n';
+import { t, T } from 'lib/i18n';
+import { getCollectibleName, getCollectionName } from 'lib/metadata/utils';
 import { navigate } from 'lib/woozie';
 import { useAccountAddressForEvm } from 'temple/front';
 import { useEvmChainByChainId } from 'temple/front/chains';
 import { TempleChainKind } from 'temple/types';
 
-import { ATTRIBUTES_TAB, PROPERTIES_TAB } from '../constants';
 import { CollectiblesSelectors } from '../selectors';
 
-import { EvmAttributesItems } from './Attributes';
+import { EvmAttributes } from './Attributes';
 import { EvmCollectiblePageImage } from './CollectiblePageImage';
-import { EvmPropertiesItems } from './Details';
+import { CollectionDetails } from './CollectionDetails';
+import { Description } from './Description';
+import { EvmDetails } from './Details';
+import { QuickActionsPopper } from './QuickActionsPopper';
 
 interface Props {
   evmChainId: number;
@@ -34,19 +35,10 @@ export const EvmContent = memo<Props>(({ evmChainId, assetSlug }) => {
 
   if (!publicKeyHash || !network || !metadata) throw new DeadEndBoundaryError();
 
-  const tabNameInUrl = useLocationSearchParamValue('tab');
+  const [tab, setTab] = useState<'details' | 'attributes'>('details');
 
-  const tabs = useMemo(() => {
-    if (!metadata.attributes || metadata.attributes.length === 0) return [PROPERTIES_TAB];
-
-    return [ATTRIBUTES_TAB, PROPERTIES_TAB];
-  }, [metadata]);
-
-  const { name: activeTabName } = useMemo(() => {
-    const tab = tabNameInUrl ? tabs.find(({ name }) => name === tabNameInUrl) : null;
-
-    return tab ?? tabs[0]!;
-  }, [tabs, tabNameInUrl]);
+  const detailsTabRef = useRef<HTMLDivElement>(null);
+  const attributesTabRef = useRef<HTMLDivElement>(null);
 
   const onSendButtonClick = useCallback(
     () => navigate(buildSendPagePath(TempleChainKind.EVM, String(evmChainId), assetSlug)),
@@ -54,65 +46,62 @@ export const EvmContent = memo<Props>(({ evmChainId, assetSlug }) => {
   );
 
   return (
-    <PageLayout
-      pageTitle={
-        <span className="truncate" {...setTestID(CollectiblesSelectors.collectibleTitle)}>
-          {metadata.name}
-        </span>
-      }
-    >
-      <div className="flex flex-col gap-y-3 max-w-sm w-full mx-auto pt-2 pb-4">
-        <div
-          className="rounded-lg mb-2 border border-gray-300 bg-blue-50 overflow-hidden"
-          style={{ aspectRatio: '1/1' }}
-        >
-          <EvmCollectiblePageImage metadata={metadata} className="h-full w-full" />
-        </div>
+    <PageLayout headerRightElem={<QuickActionsPopper assetSlug={assetSlug} network={network} />}>
+      <div
+        className="relative flex items-center justify-center rounded-8 mb-4 overflow-hidden bg-grey-4"
+        style={{ aspectRatio: '1/1' }}
+      >
+        <EvmCollectiblePageImage metadata={metadata} />
+      </div>
 
-        <>
-          {metadata.name && (
-            <div className="flex justify-between items-center">
-              <div className="flex items-center justify-center rounded">
-                <div className="content-center ml-2 text-gray-910 text-sm">{metadata.name}</div>
-              </div>
-            </div>
-          )}
+      <div
+        className="max-w-88 max-h-12 mb-2 text-font-regular-bold leading-6 truncate"
+        {...setTestID(CollectiblesSelectors.collectibleTitle)}
+      >
+        {getCollectibleName(metadata)}
+      </div>
 
-          <div className="text-gray-910 text-2xl truncate">{metadata.name}</div>
+      <CollectionDetails title={getCollectionName(metadata)} />
 
-          <div className="text-xs text-gray-910 break-words">{metadata.description ?? ''}</div>
+      <StyledButton
+        size="L"
+        color="primary"
+        onClick={onSendButtonClick}
+        testID={CollectiblesSelectors.sendButton}
+        className="my-6"
+      >
+        <T id="send" />
+      </StyledButton>
 
-          {metadata.originalOwner && (
-            <div className="flex items-center">
-              <div className="self-start leading-6 text-gray-600 text-xs mr-1">
-                <T id="creator" />
-              </div>
+      <Description text={metadata.description} className="mb-6" />
 
-              <div className="flex flex-wrap gap-1">
-                <AddressChip address={metadata.originalOwner} />
-              </div>
-            </div>
-          )}
+      {metadata.attributes && metadata.attributes.length > 0 && (
+        <SegmentedControl
+          name="collectible-details-attributes"
+          activeSegment={tab}
+          setActiveSegment={setTab}
+          className="mb-4"
+          segments={[
+            {
+              label: t('details'),
+              value: 'details',
+              ref: detailsTabRef
+            },
+            {
+              label: t('attributes'),
+              value: 'attributes',
+              ref: attributesTabRef
+            }
+          ]}
+        />
+      )}
 
-          <FormSubmitButton onClick={onSendButtonClick} testID={CollectiblesSelectors.sendButton}>
-            <T id="send" />
-          </FormSubmitButton>
-
-          <TabsBar tabs={tabs} activeTabName={activeTabName} withOutline />
-
-          <div className="grid grid-cols-2 gap-2 text-gray-910">
-            {activeTabName === 'attributes' ? (
-              <EvmAttributesItems attributes={metadata.attributes ?? []} />
-            ) : (
-              <EvmPropertiesItems
-                accountPkh={publicKeyHash}
-                assetSlug={assetSlug}
-                evmChainId={evmChainId}
-                metadata={metadata}
-              />
-            )}
-          </div>
-        </>
+      <div className="w-full">
+        {tab === 'attributes' ? (
+          <EvmAttributes attributes={metadata.attributes} />
+        ) : (
+          <EvmDetails network={network} assetSlug={assetSlug} accountPkh={publicKeyHash} metadata={metadata} />
+        )}
       </div>
     </PageLayout>
   );

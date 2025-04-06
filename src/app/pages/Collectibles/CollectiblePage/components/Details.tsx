@@ -4,7 +4,7 @@ import BigNumber from 'bignumber.js';
 
 import { Anchor, IconBase } from 'app/atoms';
 import { HashChip } from 'app/atoms/HashChip';
-import { TezosNetworkLogo } from 'app/atoms/NetworkLogo';
+import { EvmNetworkLogo, TezosNetworkLogo } from 'app/atoms/NetworkLogo';
 import { ReactComponent as OutLinkIcon } from 'app/icons/base/outLink.svg';
 import type { CollectibleDetails } from 'app/store/tezos/collectibles/state';
 import { ChartListItem } from 'app/templates/chart-list-item';
@@ -13,23 +13,25 @@ import { useTezosAssetBalance } from 'lib/balances';
 import { useEvmAssetBalance } from 'lib/balances/hooks';
 import { formatDate, T } from 'lib/i18n';
 import { EvmCollectibleMetadata } from 'lib/metadata/types';
-import { TezosChain, useEvmChainByChainId } from 'temple/front/chains';
-import { useGetTezosActiveBlockExplorer } from 'temple/front/ready';
+import { EvmChain, TezosChain } from 'temple/front/chains';
+import { useGetEvmActiveBlockExplorer, useGetTezosActiveBlockExplorer } from 'temple/front/ready';
 import { makeBlockExplorerHref } from 'temple/front/use-block-explorers';
 import { TempleChainKind } from 'temple/types';
+
+import { buildHttpLinkFromUri } from '../../../../../lib/images-uri';
 
 const VALUE_CLASSNAME = 'p-1 text-font-num-bold-12';
 
 const getValueWithFallback = (value?: BigNumber.Value | string | number) => value?.toString() ?? '-';
 
-interface PropertiesItemsProps {
+interface TezosDetailsProps {
   network: TezosChain;
   assetSlug: string;
   accountPkh: string;
   details?: CollectibleDetails | null;
 }
 
-export const Details = memo<PropertiesItemsProps>(({ network, assetSlug, accountPkh, details }) => {
+export const TezosDetails = memo<TezosDetailsProps>(({ network, assetSlug, accountPkh, details }) => {
   const { contract, id } = fromFa2TokenSlug(assetSlug);
 
   const { value: balance } = useTezosAssetBalance(assetSlug, accountPkh, network);
@@ -138,44 +140,95 @@ export const Details = memo<PropertiesItemsProps>(({ network, assetSlug, account
   );
 });
 
-interface EvmPropertiesItemsProps {
-  accountPkh: HexString;
+interface EvmDetailsProps {
+  network: EvmChain;
   assetSlug: string;
-  evmChainId: number;
-  metadata?: EvmCollectibleMetadata;
+  accountPkh: HexString;
+  metadata: EvmCollectibleMetadata;
 }
 
-export const EvmPropertiesItems = memo<EvmPropertiesItemsProps>(({ accountPkh, evmChainId, assetSlug, metadata }) => {
-  const chain = useEvmChainByChainId(evmChainId);
-  const { value: balance } = useEvmAssetBalance(assetSlug, accountPkh, chain!);
+export const EvmDetails = memo<EvmDetailsProps>(({ network, accountPkh, assetSlug, metadata }) => {
+  const { value: balance } = useEvmAssetBalance(assetSlug, accountPkh, network);
 
-  if (!metadata) return null;
+  const getActiveBlockExplorer = useGetEvmActiveBlockExplorer();
+  const activeBlockExplorer = useMemo(
+    () => getActiveBlockExplorer(network.chainId.toString()),
+    [getActiveBlockExplorer, network.chainId]
+  );
+
+  const exploreContractUrl = useMemo(
+    () => makeBlockExplorerHref(activeBlockExplorer.url, metadata.address, 'address', TempleChainKind.EVM),
+    [activeBlockExplorer.url, metadata.address]
+  );
+
+  const exploreContractCreatorUrl = useMemo(
+    () =>
+      metadata.originalOwner &&
+      makeBlockExplorerHref(activeBlockExplorer.url, metadata.originalOwner, 'address', TempleChainKind.EVM),
+    [activeBlockExplorer.url, metadata.originalOwner]
+  );
+
+  const metadataLink = useMemo(() => {
+    if (!metadata.metadataUri?.startsWith('ipfs')) return;
+    return buildHttpLinkFromUri(metadata.metadataUri);
+  }, [metadata.metadataUri]);
+
+  const displayStandard = useMemo(
+    () => (metadata.standard ? metadata.standard.replace('erc', 'ERC ') : '-'),
+    [metadata.standard]
+  );
 
   return (
-    <div />
-    // <>
-    //   <div className={itemClassName}>
-    //     <h6 className={itemTitleClassName}>Owned</h6>
-    //     <span className={itemValueClassName}>{balance?.toFixed() ?? '-'}</span>
-    //   </div>
-    //
-    //   <div className={itemClassName}>
-    //     <h6 className={itemTitleClassName}>Contract</h6>
-    //     <div className="flex gap-x-1.5">
-    //       <OldStyleHashChip
-    //         hash={metadata.address}
-    //         firstCharsCount={5}
-    //         lastCharsCount={5}
-    //         className="tracking-tighter"
-    //         rounded="base"
-    //       />
-    //     </div>
-    //   </div>
-    //
-    //   <div className={itemClassName}>
-    //     <h6 className={itemTitleClassName}>Token id</h6>
-    //     <span className={itemValueClassName}>{metadata.tokenId}</span>
-    //   </div>
-    // </>
+    <div className="flex flex-col p-4 rounded-8 shadow-bottom bg-white">
+      <ChartListItem title={<T id="chain" />}>
+        <div className="flex flex-row items-center">
+          <span className={VALUE_CLASSNAME}>{network.name}</span>
+          <EvmNetworkLogo chainId={network.chainId} size={16} />
+        </div>
+      </ChartListItem>
+
+      <ChartListItem title={<T id="tokenStandard" />}>
+        <p className={VALUE_CLASSNAME}>{displayStandard}</p>
+      </ChartListItem>
+
+      <ChartListItem title={<T id="tokenId" />}>
+        <p className={VALUE_CLASSNAME}>{metadata.tokenId}</p>
+      </ChartListItem>
+
+      <ChartListItem title={<T id="tokenContract" />}>
+        <div className="flex flex-row items-center gap-x-0.5">
+          <HashChip hash={metadata.address} className="p-0.5" />
+          <Anchor href={exploreContractUrl}>
+            <IconBase Icon={OutLinkIcon} className="text-secondary" />
+          </Anchor>
+        </div>
+      </ChartListItem>
+
+      {metadata.originalOwner && (
+        <ChartListItem title={<T id="contractCreator" />}>
+          <div className="flex flex-row items-center gap-x-0.5">
+            <HashChip hash={metadata.originalOwner} className="p-0.5" />
+            {exploreContractCreatorUrl && (
+              <Anchor href={exploreContractCreatorUrl}>
+                <IconBase Icon={OutLinkIcon} className="text-secondary" />
+              </Anchor>
+            )}
+          </div>
+        </ChartListItem>
+      )}
+
+      {metadataLink && (
+        <ChartListItem title={<T id="metadata" />}>
+          <Anchor href={metadataLink} className="flex flex-row items-center gap-x-0.5 text-secondary">
+            <p className="py-0.5 text-font-description">IPFS</p>
+            <IconBase Icon={OutLinkIcon} />
+          </Anchor>
+        </ChartListItem>
+      )}
+
+      <ChartListItem title={<T id="owned" />} bottomSeparator={false}>
+        <p className={VALUE_CLASSNAME}>{getValueWithFallback(balance)}</p>
+      </ChartListItem>
+    </div>
   );
 });

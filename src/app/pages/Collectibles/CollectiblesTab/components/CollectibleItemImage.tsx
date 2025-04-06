@@ -13,7 +13,7 @@ import { CollectibleBlur } from '../../components/CollectibleBlur';
 import { CollectibleImageFallback } from '../../components/CollectibleImageFallback';
 import { CollectibleImageLoader } from '../../components/CollectibleImageLoader';
 
-interface Props {
+interface TezosCollectibleItemImageProps {
   assetSlug: string;
   metadata: TokenMetadata;
   adultBlur: boolean;
@@ -21,10 +21,11 @@ interface Props {
   mime?: string | null;
   containerElemRef: React.RefObject<Element>;
   className?: string;
+  shouldUseBlurredBg?: boolean;
 }
 
-export const CollectibleItemImage = memo<Props>(
-  ({ assetSlug, metadata, adultBlur, areDetailsLoading, mime, className }) => {
+export const TezosCollectibleItemImage = memo<TezosCollectibleItemImageProps>(
+  ({ assetSlug, metadata, adultBlur, areDetailsLoading, mime, className, shouldUseBlurredBg = false }) => {
     const isAdultContent = useCollectibleIsAdultSelector(assetSlug);
     const isAdultFlagLoading = areDetailsLoading && !isDefined(isAdultContent);
     const shouldShowBlur = isAdultContent && adultBlur;
@@ -41,13 +42,15 @@ export const CollectibleItemImage = memo<Props>(
           <CollectibleBlur metadata={metadata} />
         ) : (
           <>
-            <ImageStacked sources={sources} loading="lazy" className="absolute w-full h-full object-cover blur-sm" />
+            {shouldUseBlurredBg && (
+              <ImageStacked sources={sources} loading="lazy" className="absolute w-full h-full object-cover blur-sm" />
+            )}
             <ImageStacked
               sources={sources}
               loading="lazy"
-              className={clsx('w-full h-full z-1', className)}
               loader={<CollectibleImageLoader />}
               fallback={<CollectibleImageFallback isAudioCollectible={isAudioCollectible} />}
+              className={clsx('w-full h-full z-1', className)}
             />
           </>
         )}
@@ -59,18 +62,26 @@ export const CollectibleItemImage = memo<Props>(
 interface EvmCollectibleItemImageProps {
   metadata: EvmCollectibleMetadata;
   className?: string;
+  shouldUseBlurredBg?: boolean;
 }
 
-export const EvmCollectibleItemImage = memo<EvmCollectibleItemImageProps>(({ metadata, className }) => {
-  const sources = useMemo(() => buildEvmCollectibleIconSources(metadata), [metadata]);
+export const EvmCollectibleItemImage = memo<EvmCollectibleItemImageProps>(
+  ({ metadata, className, shouldUseBlurredBg = false }) => {
+    const sources = useMemo(() => buildEvmCollectibleIconSources(metadata), [metadata]);
 
-  return (
-    <ImageStacked
-      sources={sources}
-      loading="lazy"
-      className={clsx('w-full h-full', className)}
-      loader={<CollectibleImageLoader />}
-      fallback={<CollectibleImageFallback />}
-    />
-  );
-});
+    return (
+      <>
+        {shouldUseBlurredBg && (
+          <ImageStacked sources={sources} loading="lazy" className="absolute w-full h-full object-cover blur-sm" />
+        )}
+        <ImageStacked
+          sources={sources}
+          loading="lazy"
+          loader={<CollectibleImageLoader />}
+          fallback={<CollectibleImageFallback />}
+          className={clsx('w-full h-full z-1', className)}
+        />
+      </>
+    );
+  }
+);

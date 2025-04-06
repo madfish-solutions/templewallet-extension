@@ -9,8 +9,8 @@ import { ETHEREUM_MAINNET_CHAIN_ID, ETH_SEPOLIA_CHAIN_ID, OTHER_COMMON_MAINNET_C
 type TcInfraMediaSize = 'small' | 'medium' | 'large' | 'raw';
 type ObjktMediaTail = 'display' | 'artifact' | 'thumb288';
 
-const COMPRESSES_TOKEN_ICON_SIZE = 80;
-const COMPRESSES_COLLECTIBLE_ICON_SIZE = 250;
+const COMPRESSED_TOKEN_ICON_SIZE = 80;
+const COMPRESSED_COLLECTIBLE_ICON_SIZE = 250;
 
 const IPFS_PROTOCOL = 'ipfs://';
 const IPFS_GATE = 'https://ipfs.io';
@@ -276,7 +276,7 @@ export const buildEvmTokenIconSources = (metadata: EvmAssetMetadataBase, chainId
     metadata.standard === EvmAssetStandard.NATIVE && getEvmCustomChainIconUrl(chainId, metadata, 'llamao')
   ];
 
-  return fallbacks.filter(isTruthy).map(url => getCompressedImageUrl(url, COMPRESSES_TOKEN_ICON_SIZE));
+  return fallbacks.filter(isTruthy).map(url => getCompressedImageUrl(url, COMPRESSED_TOKEN_ICON_SIZE));
 };
 
 export const buildEvmCollectibleIconSources = (metadata: EvmCollectibleMetadata) => {
@@ -286,7 +286,7 @@ export const buildEvmCollectibleIconSources = (metadata: EvmCollectibleMetadata)
     ? [
         getCompressedImageUrl(
           buildIpfsMediaUriByInfo({ uri: originalUrl, ipfs: getIpfsItemInfo(originalUrl) }) ?? originalUrl,
-          COMPRESSES_COLLECTIBLE_ICON_SIZE
+          COMPRESSED_COLLECTIBLE_ICON_SIZE
         ),
         originalUrl
       ]

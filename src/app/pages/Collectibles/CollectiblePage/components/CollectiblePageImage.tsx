@@ -6,7 +6,12 @@ import { isString } from 'lodash';
 import { Model3DViewer } from 'app/atoms/Model3DViewer';
 import { useCollectiblesListOptionsSelector } from 'app/store/assets-filter-options/selectors';
 import { TezosAssetImageStacked } from 'app/templates/AssetImage';
-import { isSvgDataUriInUtf8Encoding, buildObjktCollectibleArtifactUri, buildHttpLinkFromUri } from 'lib/images-uri';
+import {
+  isSvgDataUriInUtf8Encoding,
+  buildObjktCollectibleArtifactUri,
+  buildHttpLinkFromUri,
+  buildEvmCollectibleIconSources
+} from 'lib/images-uri';
 import { TokenMetadata } from 'lib/metadata';
 import { EvmCollectibleMetadata } from 'lib/metadata/types';
 import { ImageStacked } from 'lib/ui/ImageStacked';
@@ -17,7 +22,7 @@ import { CollectibleImageFallback } from '../../components/CollectibleImageFallb
 import { CollectibleImageLoader } from '../../components/CollectibleImageLoader';
 import { VideoCollectible } from '../../components/VideoCollectible';
 
-interface Props {
+interface TezosCollectiblePageImageProps {
   metadata: TokenMetadata;
   areDetailsLoading: boolean;
   mime?: string | null;
@@ -26,7 +31,7 @@ interface Props {
   className?: string;
 }
 
-export const TezosCollectiblePageImage = memo<Props>(
+export const TezosCollectiblePageImage = memo<TezosCollectiblePageImageProps>(
   ({ metadata, mime, objktArtifactUri, className, areDetailsLoading, isAdultContent = false }) => {
     const { blur } = useCollectiblesListOptionsSelector();
 
@@ -116,13 +121,17 @@ export const EvmCollectiblePageImage = memo<EvmCollectiblePageImageProps>(({ met
   const { image } = metadata;
 
   const sources = useMemo(() => [buildHttpLinkFromUri(image)].filter(isString), [image]);
+  const sourcesWithCompressedFallback = useMemo(() => buildEvmCollectibleIconSources(metadata), [metadata]);
 
   return (
-    <ImageStacked
-      sources={sources}
-      className={className}
-      loader={<CollectibleImageLoader large />}
-      fallback={<CollectibleImageFallback large />}
-    />
+    <>
+      <ImageStacked sources={sourcesWithCompressedFallback} className="absolute w-full h-full object-cover blur" />
+      <ImageStacked
+        sources={sources}
+        loader={<CollectibleImageLoader large />}
+        fallback={<CollectibleImageFallback large />}
+        className={clsx('w-full h-full object-contain z-1', className)}
+      />
+    </>
   );
 });
