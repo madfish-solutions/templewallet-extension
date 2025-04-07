@@ -12,7 +12,7 @@ import { useTezosAssetBalance } from 'lib/balances';
 import { RECOMMENDED_ADD_TEZ_GAS_FEE } from 'lib/constants';
 import { useAssetFiatCurrencyPrice } from 'lib/fiat-currency';
 import { toLocalFixed, t } from 'lib/i18n';
-import { useCategorizedTezosAssetMetadata, getAssetSymbol, getTezosGasMetadata } from 'lib/metadata';
+import { useCategorizedTezosAssetMetadata, getAssetSymbol, getTezosGasMetadata, isCollectible } from 'lib/metadata';
 import { validateRecipient as validateAddress } from 'lib/temple/front';
 import { isValidTezosAddress, isTezosContractAddress } from 'lib/tezos';
 import { useSafeState } from 'lib/ui/hooks';
@@ -246,6 +246,7 @@ export const TezosForm: FC<Props> = ({ chainId, assetSlug, onSelectAssetClick, o
         validateRecipient={validateRecipient}
         onSelectAssetClick={onSelectAssetClick}
         isToFilledWithFamiliarAddress={isToFilledWithFamiliarAddress}
+        shouldShowConvertedAmountBlock={!isCollectible(assetMetadata)}
         onSubmit={onSubmit}
       />
     </FormProvider>

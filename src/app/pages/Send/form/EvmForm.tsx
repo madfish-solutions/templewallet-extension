@@ -14,6 +14,7 @@ import { useEvmAssetBalance } from 'lib/balances/hooks';
 import { useAssetFiatCurrencyPrice } from 'lib/fiat-currency';
 import { t, toLocalFixed } from 'lib/i18n';
 import { getAssetSymbol } from 'lib/metadata';
+import { isEvmCollectible } from 'lib/metadata/utils';
 import { useSafeState } from 'lib/ui/hooks';
 import { isEvmNativeTokenSlug } from 'lib/utils/evm.utils';
 import { ZERO } from 'lib/utils/numbers';
@@ -198,6 +199,7 @@ export const EvmForm: FC<Props> = ({ chainId, assetSlug, onSelectAssetClick, onR
         validateRecipient={validateRecipient}
         onSelectAssetClick={onSelectAssetClick}
         isToFilledWithFamiliarAddress={isToFilledWithFamiliarAddress}
+        shouldShowConvertedAmountBlock={!isEvmCollectible(assetMetadata)}
         onSubmit={onSubmit}
       />
     </FormProvider>

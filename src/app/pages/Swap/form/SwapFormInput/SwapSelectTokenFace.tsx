@@ -2,7 +2,7 @@ import React, { FC } from 'react';
 
 import { Button, IconBase } from 'app/atoms';
 import { ReactComponent as CompactDown } from 'app/icons/base/compact_down.svg';
-import { TezosTokenIconWithNetwork } from 'app/templates/AssetIcon';
+import { TezosAssetIconWithNetwork } from 'app/templates/AssetIcon';
 import { setTestID } from 'lib/analytics';
 import { T } from 'lib/i18n';
 
@@ -28,7 +28,7 @@ const SwapSelectTokenFace: FC<SwapFieldProps> = ({
         className="bg-white py-[3px] px-2 rounded-8 flex items-center justify-between -mr-2.5 cursor-pointer w-[120px]"
       >
         <div className="flex items-center">
-          <TezosTokenIconWithNetwork tezosChainId={tezosChainId} assetSlug={assetSlug} size={32} />
+          <TezosAssetIconWithNetwork tezosChainId={tezosChainId} assetSlug={assetSlug} size={32} />
           <span className="text-text text-xs font-semibold overflow-hidden max-w-10 text-ellipsis">{assetSymbol}</span>
         </div>
         <IconBase Icon={CompactDown} className="text-primary" />

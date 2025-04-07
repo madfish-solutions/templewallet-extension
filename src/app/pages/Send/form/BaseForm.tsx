@@ -43,6 +43,7 @@ interface Props {
   maxEstimating: boolean;
   maxAmount: BigNumber;
   isToFilledWithFamiliarAddress: boolean;
+  shouldShowConvertedAmountBlock?: boolean;
   evm?: boolean;
 }
 
@@ -63,6 +64,7 @@ export const BaseForm: FC<Props> = ({
   setShouldUseFiat,
   onSubmit,
   isToFilledWithFamiliarAddress,
+  shouldShowConvertedAmountBlock = true,
   evm
 }) => {
   const [selectAccountModalOpened, setSelectAccountModalOpen, setSelectAccountModalClosed] = useBooleanState(false);
@@ -176,7 +178,7 @@ export const BaseForm: FC<Props> = ({
         </div>
 
         <SelectAssetButton
-          selectedAssetSlug={assetSlug}
+          assetSlug={assetSlug}
           network={network}
           accountPkh={accountPkh}
           onClick={onSelectAssetClick}
@@ -209,26 +211,28 @@ export const BaseForm: FC<Props> = ({
                   </Button>
                 }
                 underneathComponent={
-                  <div className="flex justify-between mt-1">
-                    <div className="max-w-40">
-                      <ConvertedInputAssetAmount
-                        chainId={network.chainId}
-                        assetSlug={assetSlug}
-                        assetSymbol={assetSymbol}
-                        amountValue={shouldUseFiat ? toAssetAmount(amountValue) : amountValue || '0'}
-                        toFiat={!shouldUseFiat}
-                        evm={network.kind === TempleChainKind.EVM}
-                      />
+                  shouldShowConvertedAmountBlock ? (
+                    <div className="flex justify-between mt-1">
+                      <div className="max-w-40">
+                        <ConvertedInputAssetAmount
+                          chainId={network.chainId}
+                          assetSlug={assetSlug}
+                          assetSymbol={assetSymbol}
+                          amountValue={shouldUseFiat ? toAssetAmount(amountValue) : amountValue || '0'}
+                          toFiat={!shouldUseFiat}
+                          evm={network.kind === TempleChainKind.EVM}
+                        />
+                      </div>
+                      {canToggleFiat && (
+                        <Button
+                          className="text-font-description-bold text-secondary px-1 py-0.5 max-w-40 truncate"
+                          onClick={handleFiatToggle}
+                        >
+                          Switch to {shouldUseFiat ? assetSymbol : selectedFiatCurrency.name}
+                        </Button>
+                      )}
                     </div>
-                    {canToggleFiat && (
-                      <Button
-                        className="text-font-description-bold text-secondary px-1 py-0.5 max-w-40 truncate"
-                        onClick={handleFiatToggle}
-                      >
-                        Switch to {shouldUseFiat ? assetSymbol : selectedFiatCurrency.name}
-                      </Button>
-                    )}
-                  </div>
+                  ) : undefined
                 }
                 onClean={handleAmountClean}
                 label={t('amount')}

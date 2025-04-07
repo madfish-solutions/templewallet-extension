@@ -138,9 +138,9 @@ export const TezosCollectibleItem = memo<TezosCollectibleItemProps>(
                 )}
               </div>
 
-              <div className="flex flex-col truncate max-w-40">
-                <div className="text-font-medium mb-1">{assetName}</div>
-                <div className="flex text-font-description items-center text-grey-1 flex-1">{collectionName}</div>
+              <div className="flex flex-col max-w-44">
+                <div className="text-font-medium mb-1 truncate">{assetName}</div>
+                <div className="flex text-font-description items-center text-grey-1 truncate">{collectionName}</div>
               </div>
             </div>
 
@@ -170,7 +170,7 @@ export const TezosCollectibleItem = memo<TezosCollectibleItemProps>(
         <div
           ref={wrapperElemRef}
           style={ImgStyle}
-          className="relative flex items-center justify-center rounded-8 overflow-hidden border-2 border-transparent group-hover:border-secondary"
+          className="relative flex items-center justify-center rounded-8 bg-grey-4 overflow-hidden border-2 border-transparent group-hover:border-secondary"
         >
           <TezosCollectibleItemImage
             shouldUseBlurredBg
@@ -290,9 +290,9 @@ export const EvmCollectibleItem = memo<EvmCollectibleItemProps>(
                 )}
               </div>
 
-              <div className="flex flex-col truncate max-w-40">
-                <div className="text-font-medium mb-1">{assetName}</div>
-                <div className="flex text-font-description items-center text-grey-1 flex-1">{collectionName}</div>
+              <div className="flex flex-col max-w-44">
+                <div className="text-font-medium mb-1 truncate">{assetName}</div>
+                <div className="flex text-font-description items-center text-grey-1 truncate">{collectionName}</div>
               </div>
             </div>
 
@@ -319,7 +319,7 @@ export const EvmCollectibleItem = memo<EvmCollectibleItemProps>(
         testIDProperties={{ assetSlug: assetSlug }}
       >
         <div
-          className="relative flex items-center justify-center rounded-8 overflow-hidden border-2 border-transparent group-hover:border-secondary"
+          className="relative flex items-center justify-center rounded-8 bg-grey-4 overflow-hidden border-2 border-transparent group-hover:border-secondary"
           style={ImgStyle}
         >
           {metadata && <EvmCollectibleItemImage shouldUseBlurredBg metadata={metadata} className="object-contain" />}

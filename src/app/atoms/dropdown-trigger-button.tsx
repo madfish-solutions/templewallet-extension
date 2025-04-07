@@ -13,18 +13,21 @@ interface DropdownTriggerButtonProps extends ButtonProps {
 
 export const DropdownTriggerButton = memo(
   forwardRef<HTMLButtonElement, DropdownTriggerButtonProps>(
-    ({ className, iconClassName = 'text-primary', children, ...restProps }, ref) => (
+    ({ className, iconClassName = 'text-primary', children, onClick, style, ...restProps }, ref) => (
       <Button
         className={clsx(
-          'flex justify-between items-center rounded-lg shadow-bottom border-0.5 border-transparent hover:border-lines',
+          'flex items-center rounded-lg shadow-bottom',
+          onClick && 'justify-between border-0.5 border-transparent hover:border-lines',
           className
         )}
+        style={{ cursor: onClick ? 'pointer' : 'auto', ...style }}
         ref={ref}
+        onClick={onClick}
         {...restProps}
       >
         {children}
 
-        <IconBase Icon={CompactDown} className={iconClassName} size={16} />
+        {onClick && <IconBase Icon={CompactDown} className={iconClassName} size={16} />}
       </Button>
     )
   )
