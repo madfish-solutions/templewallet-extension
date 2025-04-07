@@ -13,6 +13,7 @@ export const CollectionDetails = memo<Props>(({ title, logoSources = [] }) =>
     <div className="flex items-center mt-2">
       <ImageStacked
         sources={logoSources}
+        loader={<UnknownCollectible className="w-6 h-6" />}
         fallback={<UnknownCollectible className="w-6 h-6" />}
         className="w-6 h-6 rounded border"
       />
