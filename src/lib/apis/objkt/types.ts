@@ -1,4 +1,3 @@
-import { ContractAbstraction, ContractProvider, ContractMethod } from '@taquito/taquito';
 interface Name {
   name: string;
 }
@@ -83,16 +82,4 @@ export interface ObjktGalleryAttributeCount {
   attribute_id: number;
   gallery_pk: number;
   editions: number;
-}
-
-export interface ObjktContractInterface extends ContractAbstraction<ContractProvider> {
-  methods: {
-    fulfill_offer: (offer_id: number, token_id: number) => ContractMethod<ContractProvider>;
-  };
-}
-
-export interface FxHashContractInterface extends ContractAbstraction<ContractProvider> {
-  methods: {
-    offer_accept: (offer_id: number) => ContractMethod<ContractProvider>;
-  };
 }

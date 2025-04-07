@@ -1,10 +1,8 @@
 import React, { memo, useCallback, useMemo, useRef } from 'react';
 
-import { isDefined } from '@rnw-community/shared';
 import clsx from 'clsx';
 
 import { IconBase, ToggleSwitch } from 'app/atoms';
-import Money from 'app/atoms/Money';
 import { EvmNetworkLogo, TezosNetworkLogo } from 'app/atoms/NetworkLogo';
 import { ReactComponent as DeleteIcon } from 'app/icons/base/delete.svg';
 import { dispatch } from 'app/store';
@@ -21,13 +19,10 @@ import {
 import { useCollectibleMetadataSelector } from 'app/store/tezos/collectibles-metadata/selectors';
 import { DeleteAssetModal } from 'app/templates/remove-asset-modal/delete-asset-modal';
 import { setAnotherSelector, setTestID } from 'lib/analytics';
-import { objktCurrencies } from 'lib/apis/objkt';
 import { getAssetStatus } from 'lib/assets/hooks/utils';
 import { useEvmAssetBalance } from 'lib/balances/hooks';
-import { T } from 'lib/i18n';
 import { getTokenName } from 'lib/metadata';
 import { getCollectibleName, getCollectionName } from 'lib/metadata/utils';
-import { atomsToTokens } from 'lib/temple/helpers';
 import { useBooleanState } from 'lib/ui/hooks';
 import { ZERO } from 'lib/utils/numbers';
 import { Link } from 'lib/woozie';
@@ -41,10 +36,10 @@ import { TezosCollectibleItemImage, EvmCollectibleItemImage } from './Collectibl
 
 // Fixed sizes to improve large grid performance
 const ImgContainerStyle = { width: 112, height: 112 };
-const ImgWithDetailsContainerStyle = { width: 112, height: 152 };
-const ImgStyle = { width: 110, height: 110 };
+const ImgWithDetailsContainerStyle = { width: 112, height: 132 };
+const ImgStyle = { width: 112, height: 112 };
 const manageImgStyle = { width: 42, height: 42 };
-const DetailsStyle = { width: 112, height: 40 };
+const DetailsStyle = { width: 112, height: 20 };
 const NETWORK_IMAGE_DEFAULT_SIZE = 16;
 
 interface TezosCollectibleItemProps {
@@ -96,16 +91,9 @@ export const TezosCollectibleItem = memo<TezosCollectibleItemProps>(
       [checked, assetSlug, tezosChainId, accountPkh]
     );
 
-    const decimals = metadata?.decimals;
-
     const imgContainerStyles = useMemo(
       () => (areDetailsShown ? ImgWithDetailsContainerStyle : ImgContainerStyle),
       [areDetailsShown]
-    );
-
-    const balance = useMemo(
-      () => (isDefined(decimals) && balanceAtomic ? atomsToTokens(balanceAtomic, decimals) : null),
-      [balanceAtomic, decimals]
     );
 
     const areDetailsLoading = useAllCollectiblesDetailsLoadingSelector();
@@ -115,18 +103,6 @@ export const TezosCollectibleItem = memo<TezosCollectibleItemProps>(
       () => details?.galleries[0]?.title ?? details?.fa.name ?? 'Unknown Collection',
       [details]
     );
-
-    const listing = useMemo(() => {
-      if (!details?.listing) return null;
-
-      const { floorPrice, currencyId } = details.listing;
-
-      const currency = objktCurrencies[currencyId];
-
-      if (!isDefined(currency)) return null;
-
-      return { floorPrice: atomsToTokens(floorPrice, currency.decimals).toString(), symbol: currency.symbol };
-    }, [details?.listing]);
 
     if (!metadata) return null;
 
@@ -186,7 +162,7 @@ export const TezosCollectibleItem = memo<TezosCollectibleItemProps>(
     return (
       <Link
         to={toCollectibleLink(TempleChainKind.Tezos, tezosChainId, assetSlug)}
-        className="flex flex-col items-center justify-center rounded-8 overflow-hidden"
+        className="flex flex-col items-center justify-center rounded-8 overflow-hidden group"
         style={imgContainerStyles}
         testID={CollectibleTabSelectors.collectibleItem}
         testIDProperties={{ assetSlug: assetSlug }}
@@ -194,7 +170,7 @@ export const TezosCollectibleItem = memo<TezosCollectibleItemProps>(
         <div
           ref={wrapperElemRef}
           style={ImgStyle}
-          className="relative flex items-center justify-center rounded-lg overflow-hidden border-2 border-transparent hover:border-secondary"
+          className="relative flex items-center justify-center rounded-8 overflow-hidden border-2 border-transparent group-hover:border-secondary"
         >
           <TezosCollectibleItemImage
             shouldUseBlurredBg
@@ -206,12 +182,6 @@ export const TezosCollectibleItem = memo<TezosCollectibleItemProps>(
             containerElemRef={wrapperElemRef}
             className="object-contain"
           />
-
-          {areDetailsShown && balance && (
-            <div className="absolute bottom-1.5 left-1.5 text-xxxs text-white leading-none p-1 bg-black bg-opacity-60 rounded">
-              {balance.toFixed()}×
-            </div>
-          )}
 
           {network && (
             <TezosNetworkLogo
@@ -225,28 +195,13 @@ export const TezosCollectibleItem = memo<TezosCollectibleItemProps>(
         </div>
 
         {areDetailsShown && (
-          <div style={DetailsStyle} className="pt-1 px-1.5">
-            <h5 className="text-sm leading-5 text-gray-910 truncate">{assetName}</h5>
-            <div
-              className="mt-0.5 text-xxxs leading-3 text-gray-600"
-              {...setTestID(CollectibleTabSelectors.collectibleName)}
-              {...setAnotherSelector('name', assetName)}
-            >
-              <span {...setTestID(CollectibleTabSelectors.floorPrice)}>
-                <T id="floorPrice" />:{' '}
-              </span>
-
-              {isDefined(listing) ? (
-                <>
-                  <Money shortened smallFractionFont={false} tooltip={true}>
-                    {listing.floorPrice}
-                  </Money>
-                  <span>{listing.symbol}</span>
-                </>
-              ) : (
-                '-'
-              )}
-            </div>
+          <div
+            style={DetailsStyle}
+            className="pt-1 text-font-description truncate"
+            {...setTestID(CollectibleTabSelectors.collectibleName)}
+            {...setAnotherSelector('name', assetName)}
+          >
+            {assetName}
           </div>
         )}
       </Link>
@@ -301,11 +256,6 @@ export const EvmCollectibleItem = memo<EvmCollectibleItemProps>(
       [checked, assetSlug, evmChainId, accountPkh]
     );
 
-    const truncatedBalance = useMemo(
-      () => (balanceBeforeTruncate.length > 6 ? `${balanceBeforeTruncate.slice(0, 6)}...` : balanceBeforeTruncate),
-      [balanceBeforeTruncate]
-    );
-
     const network = useEvmChainByChainId(evmChainId);
 
     const imgContainerStyles = useMemo(
@@ -324,9 +274,7 @@ export const EvmCollectibleItem = memo<EvmCollectibleItemProps>(
           <div className={MANAGE_ACTIVE_ITEM_CLASSNAME}>
             <div className="flex items-center gap-x-1.5">
               <div
-                className={clsx(
-                  'relative flex items-center justify-center bg-blue-50 rounded-lg overflow-hidden hover:opacity-70'
-                )}
+                className="relative flex items-center justify-center rounded-8 overflow-hidden"
                 style={manageImgStyle}
               >
                 {metadata && <EvmCollectibleItemImage metadata={metadata} className="object-cover" />}
@@ -365,22 +313,16 @@ export const EvmCollectibleItem = memo<EvmCollectibleItemProps>(
     return (
       <Link
         to={toCollectibleLink(TempleChainKind.EVM, evmChainId, assetSlug)}
-        className="flex flex-col rounded-8 overflow-hidden"
+        className="flex flex-col rounded-8 overflow-hidden group"
         style={imgContainerStyles}
         testID={CollectibleTabSelectors.collectibleItem}
         testIDProperties={{ assetSlug: assetSlug }}
       >
         <div
-          className="relative flex items-center justify-center rounded-lg overflow-hidden border-2 border-transparent hover:border-secondary"
+          className="relative flex items-center justify-center rounded-8 overflow-hidden border-2 border-transparent group-hover:border-secondary"
           style={ImgStyle}
         >
           {metadata && <EvmCollectibleItemImage shouldUseBlurredBg metadata={metadata} className="object-contain" />}
-
-          {showDetails && (
-            <div className="absolute bottom-1.5 left-1.5 text-xxxs text-white leading-none p-1 bg-black bg-opacity-60 rounded">
-              {truncatedBalance}×
-            </div>
-          )}
 
           {network && (
             <EvmNetworkLogo
@@ -394,17 +336,13 @@ export const EvmCollectibleItem = memo<EvmCollectibleItemProps>(
         </div>
 
         {showDetails && (
-          <div style={DetailsStyle} className="pt-1 px-1.5">
-            <h5 className="text-sm leading-5 text-gray-910 truncate">{assetName}</h5>
-            <div
-              className="mt-0.5 text-xxxs leading-3 text-gray-600"
-              {...setTestID(CollectibleTabSelectors.collectibleName)}
-              {...setAnotherSelector('name', assetName)}
-            >
-              <span {...setTestID(CollectibleTabSelectors.floorPrice)}>
-                <T id="floorPrice" />:{' -'}
-              </span>
-            </div>
+          <div
+            style={DetailsStyle}
+            className="pt-1 text-font-description truncate"
+            {...setTestID(CollectibleTabSelectors.collectibleName)}
+            {...setAnotherSelector('name', assetName)}
+          >
+            {assetName}
           </div>
         )}
       </Link>
@@ -413,7 +351,7 @@ export const EvmCollectibleItem = memo<EvmCollectibleItemProps>(
 );
 
 const MANAGE_ACTIVE_ITEM_CLASSNAME = clsx(
-  'flex items-center justify-between w-full overflow-hidden p-2 rounded-lg',
+  'flex items-center justify-between w-full overflow-hidden p-2 rounded-8',
   'hover:bg-secondary-low transition ease-in-out duration-200 focus:outline-none',
   'focus:bg-secondary-low'
 );

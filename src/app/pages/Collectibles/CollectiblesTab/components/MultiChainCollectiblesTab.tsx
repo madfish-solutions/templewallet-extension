@@ -6,6 +6,8 @@ import { useCollectiblesListOptionsSelector } from 'app/store/assets-filter-opti
 import { fromChainAssetSlug } from 'lib/assets/utils';
 import { TempleChainKind } from 'temple/types';
 
+import { GRID_CLASSNAMES } from '../constants';
+
 import { EvmCollectibleItem, TezosCollectibleItem } from './CollectibleItem';
 import { CollectiblesTabBase } from './CollectiblesTabBase';
 import { useEvmCollectiblesMetadataLoading } from './evm-meta-loading';
@@ -28,7 +30,7 @@ export const MultiChainCollectiblesTab = memo<MultiChainCollectiblesTabProps>(
 
     const contentElement = useMemo(
       () => (
-        <div className={manageActive ? undefined : 'grid grid-cols-3 gap-1'}>
+        <div className={manageActive ? undefined : GRID_CLASSNAMES}>
           {paginatedSlugs.map(chainSlug => {
             const [chainKind, chainId, slug] = fromChainAssetSlug(chainSlug);
 

@@ -12,6 +12,8 @@ import { useMemoWithCompare } from 'lib/ui/hooks';
 import { useTezosMainnetChain } from 'temple/front';
 import { TempleChainKind } from 'temple/types';
 
+import { GRID_CLASSNAMES } from '../constants';
+
 import { TezosCollectibleItem } from './CollectibleItem';
 import { CollectiblesTabBase } from './CollectiblesTabBase';
 
@@ -66,7 +68,7 @@ const TabContentBase = memo<TabContentBaseProps>(({ publicKeyHash, allSlugsSorte
 
   const contentElement = useMemo(
     () => (
-      <div className={manageActive ? undefined : 'grid grid-cols-3 gap-1'}>
+      <div className={manageActive ? undefined : GRID_CLASSNAMES}>
         {displayedSlugs.map(chainSlug => {
           const [_, chainId, slug] = parseChainAssetSlug(chainSlug, TempleChainKind.Tezos);
 
