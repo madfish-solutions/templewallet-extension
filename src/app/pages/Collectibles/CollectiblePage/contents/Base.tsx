@@ -6,6 +6,8 @@ import { StyledButton } from 'app/atoms/StyledButton';
 import PageLayout from 'app/layouts/PageLayout';
 import { setTestID } from 'lib/analytics';
 import { t, T } from 'lib/i18n';
+import { TempleAccountType } from 'lib/temple/types';
+import { useAccount } from 'temple/front';
 
 import { Description } from '../components/Description';
 import { CollectiblesSelectors } from '../selectors';
@@ -36,6 +38,8 @@ export const BaseContent: FC<CollectiblePageLayoutProps> = ({
   attributesElement,
   isLoading = false
 }) => {
+  const account = useAccount();
+
   const [tab, setTab] = useState<'details' | 'attributes'>('details');
   const detailsTabRef = useRef<HTMLDivElement>(null);
   const attributesTabRef = useRef<HTMLDivElement>(null);
@@ -68,6 +72,7 @@ export const BaseContent: FC<CollectiblePageLayoutProps> = ({
             onClick={onSend}
             testID={CollectiblesSelectors.sendButton}
             className="my-6"
+            disabled={account.type === TempleAccountType.WatchOnly}
           >
             <T id="send" />
           </StyledButton>

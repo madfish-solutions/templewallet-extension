@@ -1,6 +1,7 @@
 import React, { memo, useMemo } from 'react';
 
 import BigNumber from 'bignumber.js';
+import clsx from 'clsx';
 
 import { Anchor, IconBase } from 'app/atoms';
 import { HashChip } from 'app/atoms/HashChip';
@@ -191,7 +192,7 @@ export const EvmDetails = memo<EvmDetailsProps>(({ network, accountPkh, assetSlu
       </ChartListItem>
 
       <ChartListItem title={<T id="tokenId" />}>
-        <p className={VALUE_CLASSNAME}>{metadata.tokenId}</p>
+        <p className={clsx(VALUE_CLASSNAME, 'max-w-48 truncate')}>{metadata.tokenId}</p>
       </ChartListItem>
 
       <ChartListItem title={<T id="tokenContract" />}>
