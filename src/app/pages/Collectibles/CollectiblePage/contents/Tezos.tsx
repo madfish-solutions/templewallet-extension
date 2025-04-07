@@ -56,7 +56,7 @@ export const TezosContent = memo<Props>(({ chainId, assetSlug }) => {
     if (!details) return null;
     return {
       title: details.galleries[0]?.title ?? details.fa.name,
-      logo: buildTokenImagesStack(details.fa.logo)
+      logoSources: buildTokenImagesStack(details.fa.logo)
     };
   }, [details]);
 

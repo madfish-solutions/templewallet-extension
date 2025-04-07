@@ -50,7 +50,7 @@ export const BaseContent: FC<CollectiblePageLayoutProps> = ({
       </div>
 
       <div
-        className="max-w-88 max-h-12 mb-2 text-font-regular-bold leading-6 truncate"
+        className="max-w-88 max-h-12 text-font-regular-bold leading-6 truncate"
         {...setTestID(CollectiblesSelectors.collectibleTitle)}
       >
         {collectibleName}

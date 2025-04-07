@@ -3,22 +3,20 @@ import React, { memo } from 'react';
 import { ReactComponent as UnknownCollectible } from 'app/icons/unknown-collectible.svg';
 import { ImageStacked } from 'lib/ui/ImageStacked';
 
-const LOGO_FALLBACK_STYLES = { width: 24, height: 24 };
-
 interface Props {
   title?: string;
-  logoUrls?: string[];
+  logoSources?: string[];
 }
 
-export const CollectionDetails = memo<Props>(({ title, logoUrls = [] }) =>
+export const CollectionDetails = memo<Props>(({ title, logoSources = [] }) =>
   title ? (
-    <div className="flex items-center gap-x-1">
+    <div className="flex items-center mt-2">
       <ImageStacked
-        sources={logoUrls}
-        fallback={<UnknownCollectible style={LOGO_FALLBACK_STYLES} />}
+        sources={logoSources}
+        fallback={<UnknownCollectible className="w-6 h-6" />}
         className="w-6 h-6 rounded border"
       />
-      <div className="text-font-regular text-grey-1">{title}</div>
+      <div className="text-font-regular text-grey-1 ml-1">{title}</div>
     </div>
   ) : null
 );
