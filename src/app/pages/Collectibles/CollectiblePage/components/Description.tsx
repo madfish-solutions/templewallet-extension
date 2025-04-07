@@ -34,11 +34,9 @@ export const Description = memo<Props>(({ text, className }) => {
         isDropdownAvailable && 'cursor-pointer',
         className
       )}
+      onClick={isDropdownAvailable ? toggleDropdown : undefined}
     >
-      <div
-        onClick={isDropdownAvailable ? toggleDropdown : undefined}
-        className="flex flex-row justify-between items-center py-1"
-      >
+      <div className="flex flex-row justify-between items-center py-1">
         <span className="text-font-description-bold text-grey-1">
           <T id="description" />
         </span>
