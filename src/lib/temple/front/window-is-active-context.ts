@@ -21,17 +21,33 @@ export const [WindowIsActiveProvider, useWindowIsActive] = constate(() => {
   const [visibilityState, setVisibilityState] = useState<DocumentVisibilityState>(() => document.visibilityState);
 
   useEffect(() => {
-    if (!popup || !thisWindowLocation) return;
+    if (!thisWindowLocation?.windowId) {
+      return;
+    }
+
+    if (!browser.extension.getViews({ type: 'popup', windowId: thisWindowLocation.windowId }).length) {
+      setWindowPopupState(thisWindowLocation.windowId, false);
+    }
+  }, [thisWindowLocation, setWindowPopupState]);
+
+  useEffect(() => {
+    if (!thisWindowLocation) return;
 
     const { windowId: thisWindowId } = thisWindowLocation;
 
-    setWindowPopupState(thisWindowId, true);
+    if (popup) {
+      setWindowPopupState(thisWindowId, true);
+    }
 
-    // Will not work properly if a cleanup function is returned
-    window.document.addEventListener('visibilitychange', () => {
+    const visibilityListener = () => {
       setVisibilityState(document.visibilityState);
-      setWindowPopupState(thisWindowId, window.document.visibilityState === 'visible');
-    });
+      if (popup) {
+        setWindowPopupState(thisWindowId, document.visibilityState === 'visible');
+      }
+    };
+    document.addEventListener('visibilitychange', visibilityListener);
+
+    return () => document.removeEventListener('visibilitychange', visibilityListener);
   }, [popup, setWindowPopupState, thisWindowLocation]);
 
   if (thisWindowLocation === undefined) {
