@@ -27,7 +27,7 @@ export interface BalancesResponse {
   /** * The requested quote currency eg: `USD`. */
   quote_currency: string;
   /** * The timestamp when the response was generated. Useful to show data staleness to users. */
-  updated_at: Date;
+  updated_at: string;
   /** * List of response items. */
   items: BalanceItem[];
 }

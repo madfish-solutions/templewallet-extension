@@ -22,6 +22,7 @@ export const evmLoadingReducer = createReducer<EvmLoadingStateInterface>(EvmLoad
   });
 
   builder.addCase(setEvmTokensExchangeRatesLoading, (state, { payload }) => {
-    state.tokensExchangeRatesLoading = payload;
+    const { chainId, isLoading } = payload;
+    state.chainsTokensExchangeRatesLoading[chainId] = isLoading;
   });
 });

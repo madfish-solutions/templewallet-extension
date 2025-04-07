@@ -5,6 +5,7 @@ import { BalancesResponse } from 'lib/apis/temple/endpoints/evm/api.interfaces';
 interface ProcessLoadedEvmExchangeRatesActionPayload {
   chainId: number;
   data: BalancesResponse;
+  timestamp: number;
 }
 
 export const processLoadedEvmExchangeRatesAction = createAction<ProcessLoadedEvmExchangeRatesActionPayload>(

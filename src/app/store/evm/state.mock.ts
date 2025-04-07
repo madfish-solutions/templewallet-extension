@@ -6,5 +6,5 @@ export const mockEvmLoadingState = mockPersistedState<EvmLoadingStateInterface>(
   balances: {},
   tokensMetadataLoading: false,
   collectiblesMetadataLoading: false,
-  tokensExchangeRatesLoading: false
+  chainsTokensExchangeRatesLoading: {}
 });

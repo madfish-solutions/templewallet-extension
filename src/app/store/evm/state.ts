@@ -4,12 +4,12 @@ export interface EvmLoadingStateInterface {
   balances: Record<number, LoadableState>;
   tokensMetadataLoading: boolean;
   collectiblesMetadataLoading: boolean;
-  tokensExchangeRatesLoading: boolean;
+  chainsTokensExchangeRatesLoading: Record<number, boolean>;
 }
 
 export const EvmLoadingInitialState: EvmLoadingStateInterface = {
   balances: {},
   tokensMetadataLoading: false,
   collectiblesMetadataLoading: false,
-  tokensExchangeRatesLoading: false
+  chainsTokensExchangeRatesLoading: {}
 };

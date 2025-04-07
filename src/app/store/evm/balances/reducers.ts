@@ -5,11 +5,13 @@ import { EvmBalancesInitialState, EvmBalancesStateInterface } from './state';
 import { getTokenSlugBalanceRecord } from './utils';
 
 export const evmBalancesReducer = createReducer<EvmBalancesStateInterface>(EvmBalancesInitialState, builder => {
-  builder.addCase(processLoadedEvmAssetsBalancesAction, ({ balancesAtomic }, { payload }) => {
-    const { publicKeyHash, chainId, data } = payload;
+  builder.addCase(processLoadedEvmAssetsBalancesAction, ({ balancesAtomic, dataTimestamps }, { payload }) => {
+    const { publicKeyHash, chainId, data, timestamp } = payload;
     if (!balancesAtomic[publicKeyHash]) balancesAtomic[publicKeyHash] = {};
+    if (!dataTimestamps[publicKeyHash]) dataTimestamps[publicKeyHash] = {};
 
     balancesAtomic[publicKeyHash][chainId] = getTokenSlugBalanceRecord(data.items, chainId);
+    dataTimestamps[publicKeyHash][chainId] = timestamp;
   });
 
   builder.addCase(loadEvmBalanceOnChainActions.success, ({ balancesAtomic }, { payload }) => {

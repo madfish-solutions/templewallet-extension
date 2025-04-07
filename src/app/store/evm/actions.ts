@@ -10,4 +10,6 @@ export const setEvmTokensMetadataLoading = createAction<boolean>('evm/loading/SE
 
 export const setEvmCollectiblesMetadataLoading = createAction<boolean>('evm/loading/SET_COLLECTIBLES_METADATA_LOADING');
 
-export const setEvmTokensExchangeRatesLoading = createAction<boolean>('evm/loading/SET_TOKENS_EXCHANGE_RATES_LOADING');
+export const setEvmTokensExchangeRatesLoading = createAction<{ chainId: number; isLoading: boolean }>(
+  'evm/loading/SET_TOKENS_EXCHANGE_RATES_LOADING'
+);

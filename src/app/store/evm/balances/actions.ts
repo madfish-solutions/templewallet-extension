@@ -6,10 +6,11 @@ import { EvmAssetStandard } from 'lib/evm/types';
 import { createActions } from 'lib/store';
 import { EvmNetworkEssentials } from 'temple/networks';
 
-interface processLoadedEvmTokensBalancesActionPayload {
+interface ProcessLoadedEvmTokensBalancesActionPayload {
   publicKeyHash: HexString;
   chainId: number;
   data: BalancesResponse;
+  timestamp: number;
 }
 
 export interface LoadOnChainBalancePayload {
@@ -23,7 +24,7 @@ interface LoadOnChainBalanceSuccessPayload extends Omit<LoadOnChainBalancePayloa
   balance: BigNumber;
 }
 
-export const processLoadedEvmAssetsBalancesAction = createAction<processLoadedEvmTokensBalancesActionPayload>(
+export const processLoadedEvmAssetsBalancesAction = createAction<ProcessLoadedEvmTokensBalancesActionPayload>(
   'evm/balances/PROCESS_LOADED_ASSETS_BALANCES_ACTION'
 );
 

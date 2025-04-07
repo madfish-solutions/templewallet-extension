@@ -13,9 +13,10 @@ import { evmTokensExchangeRatesInitialState, EvmTokensExchangeRateState } from '
 const evmTokensExchangeRatesReducer = createReducer<EvmTokensExchangeRateState>(
   evmTokensExchangeRatesInitialState,
   builder => {
-    builder.addCase(processLoadedEvmExchangeRatesAction, ({ usdToTokenRates }, { payload }) => {
-      const { chainId, data } = payload;
+    builder.addCase(processLoadedEvmExchangeRatesAction, ({ usdToTokenRates, timestamps }, { payload }) => {
+      const { chainId, data, timestamp } = payload;
 
+      timestamps[chainId] = timestamp;
       if (!usdToTokenRates[chainId]) usdToTokenRates[chainId] = {};
       const records = usdToTokenRates[chainId];
 
