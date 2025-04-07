@@ -23,15 +23,6 @@ interface ObjktListing {
   price: number;
 }
 
-export interface ObjktOffer {
-  buyer_address: string;
-  price: number;
-  currency_id: number;
-  bigmap_key: number;
-  marketplace_contract: string;
-  __typename: 'offer_active';
-}
-
 export interface UserObjktCollectible {
   /** Contract address */
   fa_contract: string;
@@ -72,10 +63,6 @@ export interface UserObjktCollectible {
     amount: number;
   }[];
   __typename: 'token';
-}
-
-export interface ObjktCollectibleExtra {
-  offers_active: ObjktOffer[];
 }
 
 export interface ObjktGalleryAttributeCount {

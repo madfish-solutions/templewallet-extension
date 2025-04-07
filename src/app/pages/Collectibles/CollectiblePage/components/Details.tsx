@@ -12,13 +12,12 @@ import { fromFa2TokenSlug } from 'lib/assets/utils';
 import { useTezosAssetBalance } from 'lib/balances';
 import { useEvmAssetBalance } from 'lib/balances/hooks';
 import { formatDate, T } from 'lib/i18n';
+import { buildHttpLinkFromUri } from 'lib/images-uri';
 import { EvmCollectibleMetadata } from 'lib/metadata/types';
 import { EvmChain, TezosChain } from 'temple/front/chains';
 import { useGetEvmActiveBlockExplorer, useGetTezosActiveBlockExplorer } from 'temple/front/ready';
 import { makeBlockExplorerHref } from 'temple/front/use-block-explorers';
 import { TempleChainKind } from 'temple/types';
-
-import { buildHttpLinkFromUri } from '../../../../../lib/images-uri';
 
 const VALUE_CLASSNAME = 'p-1 text-font-num-bold-12';
 
