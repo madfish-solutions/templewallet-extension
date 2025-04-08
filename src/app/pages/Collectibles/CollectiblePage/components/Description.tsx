@@ -1,4 +1,4 @@
-import React, { memo, useMemo } from 'react';
+import React, { memo, useRef, useEffect, useState } from 'react';
 
 import clsx from 'clsx';
 
@@ -7,8 +7,6 @@ import { ReactComponent as ChevronUpIcon } from 'app/icons/base/chevron_up.svg';
 import { T } from 'lib/i18n';
 import { useBooleanState } from 'lib/ui/hooks';
 
-const MAX_COLLAPSED_STATE_TEXT_LENGTH = 105;
-
 interface Props {
   text?: string | nullish;
   className?: string;
@@ -16,16 +14,17 @@ interface Props {
 
 export const Description = memo<Props>(({ text, className }) => {
   const [dropdownOpened, _, _1, toggleDropdown] = useBooleanState(false);
+  const [isDropdownAvailable, setIsDropdownAvailable] = useState(false);
+  const textRef = useRef<HTMLParagraphElement>(null);
 
-  const truncatedText = useMemo(() => {
-    if (!text) return '';
-    else if (text.length < MAX_COLLAPSED_STATE_TEXT_LENGTH) return text;
-    else return text.substring(0, MAX_COLLAPSED_STATE_TEXT_LENGTH) + '…';
-  }, [text]);
+  useEffect(() => {
+    if (textRef.current && !dropdownOpened) {
+      const el = textRef.current;
+      setIsDropdownAvailable(el.scrollHeight > el.offsetHeight);
+    }
+  }, [text, dropdownOpened]);
 
   if (!text) return null;
-
-  const isDropdownAvailable = text.length > MAX_COLLAPSED_STATE_TEXT_LENGTH;
 
   return (
     <div
@@ -53,7 +52,9 @@ export const Description = memo<Props>(({ text, className }) => {
         )}
       </div>
 
-      <p className="text-font-description break-words">{dropdownOpened ? text : truncatedText}</p>
+      <p ref={textRef} className={clsx('text-font-description break-words', !dropdownOpened && 'line-clamp-2')}>
+        {text}
+      </p>
     </div>
   );
 });

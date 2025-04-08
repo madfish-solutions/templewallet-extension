@@ -35,11 +35,11 @@ import { toCollectibleLink } from '../utils';
 import { TezosCollectibleItemImage, EvmCollectibleItemImage } from './CollectibleItemImage';
 
 // Fixed sizes to improve large grid performance
-const ImgContainerStyle = { width: 112, height: 112 };
-const ImgWithDetailsContainerStyle = { width: 112, height: 132 };
-const ImgStyle = { width: 112, height: 112 };
-const manageImgStyle = { width: 42, height: 42 };
-const DetailsStyle = { width: 112, height: 20 };
+const ImgContainerStyle = { width: '7rem', height: '7rem' };
+const ImgWithDetailsContainerStyle = { width: '7rem', height: '8.25rem' };
+const ImgStyle = { width: '7rem', height: '7rem' };
+const manageImgStyle = { width: '2.625rem', height: '2.625rem' };
+const DetailsStyle = { width: '7rem', height: '1.25rem' };
 const NETWORK_IMAGE_DEFAULT_SIZE = 16;
 
 interface TezosCollectibleItemProps {

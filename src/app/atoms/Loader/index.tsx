@@ -15,7 +15,7 @@ interface Props {
 }
 
 const SIZE_CLASSNAME: Record<Size, string> = {
-  XXL: 'w-10 h-10',
+  XXL: 'w-13.5 h-13.5',
   L: 'w-6 h-6',
   M: 'w-5 h-5',
   S: 'w-4 h-4'

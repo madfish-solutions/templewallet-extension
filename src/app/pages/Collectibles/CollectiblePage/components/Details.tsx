@@ -12,7 +12,7 @@ import { ChartListItem } from 'app/templates/chart-list-item';
 import { fromFa2TokenSlug } from 'lib/assets/utils';
 import { useTezosAssetBalance } from 'lib/balances';
 import { useEvmAssetBalance } from 'lib/balances/hooks';
-import { formatDate, T } from 'lib/i18n';
+import { formatDate, T, toLocalFormat } from 'lib/i18n';
 import { buildHttpLinkFromUri } from 'lib/images-uri';
 import { EvmCollectibleMetadata } from 'lib/metadata/types';
 import { EvmChain, TezosChain } from 'temple/front/chains';
@@ -65,9 +65,7 @@ export const TezosDetails = memo<TezosDetailsProps>(({ network, assetSlug, accou
   const royaltiesStr = useMemo(() => {
     if (!details?.royalties) return '-';
 
-    const royalties = new BigNumber(details.royalties).decimalPlaces(2);
-
-    return `${royalties.toString()}%`;
+    return `${toLocalFormat(details.royalties, { decimalPlaces: 2 })}%`;
   }, [details]);
 
   return (

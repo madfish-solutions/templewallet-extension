@@ -5,10 +5,9 @@ import clsx from 'clsx';
 import { IdenticonInitials } from 'app/atoms/Identicon';
 import { EvmNetworkLogo, TezosNetworkLogo } from 'app/atoms/NetworkLogo';
 import { ReactComponent as CollectiblePlaceholderSvg } from 'app/icons/collectible-placeholder.svg';
+import { useEvmGenericAssetMetadata, useGenericTezosAssetMetadata } from 'lib/metadata';
 import { getAssetSymbol, isCollectible, isEvmCollectible, isEvmCollectibleMetadata } from 'lib/metadata/utils';
 import { useEvmChainByChainId, useTezosChainByChainId } from 'temple/front/chains';
-
-import { useEvmGenericAssetMetadata, useGenericTezosAssetMetadata } from '../../lib/metadata';
 
 import { TezosAssetImage, TezosAssetImageProps, EvmAssetImage, EvmAssetImageProps } from './AssetImage';
 

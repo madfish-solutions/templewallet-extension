@@ -3,6 +3,7 @@ import React, { memo } from 'react';
 import type { CollectibleDetails } from 'app/store/tezos/collectibles/state';
 import { ChartListItem } from 'app/templates/chart-list-item';
 import { NftCollectionAttribute } from 'lib/apis/temple/endpoints/evm/api.interfaces';
+import { toLocalFormat } from 'lib/i18n';
 
 interface TezosAttributesProps {
   details?: CollectibleDetails | null;
@@ -22,7 +23,9 @@ export const TezosAttributes = memo<TezosAttributesProps>(({ details }) => {
           <p>
             <span className="p-1 text-font-description-bold">{attribute.value}</span>
             {!isNaN(attribute.rarity) && (
-              <span className="text-font-description text-grey-1">{attribute.rarity.toFixed(2)}%</span>
+              <span className="text-font-description text-grey-1">
+                {toLocalFormat(attribute.rarity, { decimalPlaces: 2 })}%
+              </span>
             )}
           </p>
         </ChartListItem>
