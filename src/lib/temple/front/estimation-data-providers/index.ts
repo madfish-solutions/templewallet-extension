@@ -15,8 +15,6 @@ type ExtendedEvmEstimationData = EvmEstimationData & {
 export const [EvmEstimationDataProvider, useEvmEstimationDataState] = constate(() => {
   const [data, setData] = useState<ExtendedEvmEstimationData | nullish>(null);
 
-  console.log(data, 'data');
-
   return { data, setData };
 });
 

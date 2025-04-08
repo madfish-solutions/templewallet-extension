@@ -85,10 +85,7 @@ export const useEvmEstimationForm = (
   const { setData } = useEvmEstimationDataState();
 
   useEffect(() => {
-    if (fullEstimationData && feeOptions) {
-      console.log(fullEstimationData, 'CURR EST');
-      setData({ ...fullEstimationData, feeOptions });
-    }
+    if (fullEstimationData && feeOptions) setData({ ...fullEstimationData, feeOptions });
   }, [fullEstimationData, feeOptions, setData]);
 
   useEffect(() => {

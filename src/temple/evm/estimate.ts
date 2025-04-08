@@ -57,7 +57,7 @@ export const estimate = async (
 
   // @ts-expect-error: weird 'none of those signatures are compatible with each other' error
   const transaction = await publicClient.prepareTransactionRequest({ account: from, ...restReqProps });
-  console.log(transaction, 'trans');
+
   const commonProps = {
     estimatedFee: getEstimatedFee(transaction),
     data: transaction.data || '0x',

@@ -34,14 +34,10 @@ export const useEvmEstimationData = (
 
       checkZeroBalance(balance, ethBalance, isNativeToken);
 
-      const e = await genericEstimate(network, {
+      return await genericEstimate(network, {
         ...buildBasicEvmSendParams(accountPkh, to, assetMetadata, amount),
         from: accountPkh
       });
-
-      console.log(e, 'EST');
-
-      return e;
     } catch (err: any) {
       console.warn(err);
       toastError(err.details || err.message);
