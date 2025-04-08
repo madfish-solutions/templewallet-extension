@@ -88,13 +88,12 @@ export const CreateUrlEntityModal = memo(
     );
 
     return (
-      <PageModal opened={opened} onRequestClose={closeModal} title={title}>
+      <PageModal opened={opened} onRequestClose={closeModal} title={title} shouldChangeBottomShift={false}>
         <form onSubmit={handleSubmit(onSubmit)} className="flex-1 flex flex-col max-h-full">
           <PageModalScrollViewWithActions
             className="pt-4 pb-6"
             bottomEdgeThreshold={24}
             actionsBoxProps={{
-              shouldChangeBottomShift: false,
               children: (
                 <StyledButton
                   size="L"
