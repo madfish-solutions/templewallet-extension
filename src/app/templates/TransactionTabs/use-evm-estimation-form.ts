@@ -73,7 +73,6 @@ export const useEvmEstimationForm = (
   );
 
   const feeOptions = useEvmFeeOptions(debouncedGasLimit, estimationData);
-
   const { setData } = useEvmEstimationDataState();
 
   useEffect(() => {
