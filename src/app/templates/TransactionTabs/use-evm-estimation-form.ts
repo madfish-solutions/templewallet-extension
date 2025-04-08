@@ -31,7 +31,7 @@ const serializeBigint = (value: bigint | nullish) => (typeof value === 'bigint' 
 
 export const useEvmEstimationForm = (
   estimationData: EvmEstimationDataWithFallback | undefined,
-  basicParams: TransactionSerializable | undefined,
+  basicParams: TransactionSerializable | nullish,
   senderAccount: StoredAccount | AccountForChain<TempleChainKind.EVM>,
   chainId: number,
   simulateOperation?: boolean
@@ -81,10 +81,14 @@ export const useEvmEstimationForm = (
   );
 
   const feeOptions = useEvmFeeOptions(debouncedGasLimit, estimationData);
+
   const { setData } = useEvmEstimationDataState();
 
   useEffect(() => {
-    if (fullEstimationData && feeOptions) setData({ ...fullEstimationData, feeOptions });
+    if (fullEstimationData && feeOptions) {
+      console.log(fullEstimationData, 'CURR EST');
+      setData({ ...fullEstimationData, feeOptions });
+    }
   }, [fullEstimationData, feeOptions, setData]);
 
   useEffect(() => {
@@ -148,11 +152,9 @@ export const useEvmEstimationForm = (
   );
 
   const rawTransaction = useMemo(() => {
-    if (!basicParams) return null;
-
     const feesPerGas = getFeesPerGas(debouncedGasPrice);
-    const gas = debouncedGasLimit ? BigInt(debouncedGasLimit) : fullEstimationData?.gas ?? basicParams.gas;
-    const nonce = debouncedNonce ? Number(debouncedNonce) : fullEstimationData?.nonce ?? basicParams.nonce;
+    const gas = debouncedGasLimit ? BigInt(debouncedGasLimit) : fullEstimationData?.gas ?? basicParams?.gas;
+    const nonce = debouncedNonce ? Number(debouncedNonce) : fullEstimationData?.nonce ?? basicParams?.nonce;
 
     if (gas === undefined || nonce === undefined || !feesPerGas) return null;
 

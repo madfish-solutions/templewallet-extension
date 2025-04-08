@@ -1,4 +1,4 @@
-import React, { FC, useCallback, useMemo, useState } from 'react';
+import React, { FC, useCallback, useState } from 'react';
 
 import { omit } from 'lodash';
 import { FormProvider } from 'react-hook-form-v7';
@@ -55,12 +55,9 @@ export const EvmContent: FC<EvmContentProps> = ({ data, onClose }) => {
     true,
     amount
   );
-  const basicParams = useMemo(
-    () => assetMetadata && buildBasicEvmSendParams(accountPkh, to as HexString, assetMetadata, amount),
-    [accountPkh, amount, assetMetadata, to]
-  );
+
   const { form, tab, setTab, selectedFeeOption, handleFeeOptionSelect, feeOptions, displayedFee, getFeesPerGas } =
-    useEvmEstimationForm(estimationData, basicParams, account, network.chainId);
+    useEvmEstimationForm(estimationData, null, account, network.chainId);
   const { formState } = form;
   const { ledgerApprovalModalState, setLedgerApprovalModalState, handleLedgerModalClose } =
     useLedgerApprovalModalState();

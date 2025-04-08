@@ -21,7 +21,7 @@ const generateOptions = <T extends FeeValues, U extends string>(
       optionsAcc[key] = transform<T, T>(
         estimatedValues,
         (optionAcc, value, key) => {
-          if (typeof value === 'bigint') {
+          if (typeof value === 'bigint' && value !== BigInt(0)) {
             const step = getGasPriceStep(value);
             optionAcc[key] = (value + step * BigInt(stepsQuotient)) as typeof value;
           }
