@@ -162,7 +162,7 @@ const Unlock: FC<UnlockProps> = ({ canImportNew = true }) => {
 
   useEffect(() => {
     const interval = setInterval(() => {
-      if (Date.now() - timelock > lockLevel) {
+      if (timelock > 0 && Date.now() - timelock > lockLevel) {
         setTimeLock(0);
         clearError('password');
       }
@@ -200,7 +200,7 @@ const Unlock: FC<UnlockProps> = ({ canImportNew = true }) => {
               name="password"
               placeholder={DEFAULT_PASSWORD_INPUT_PLACEHOLDER}
               errorCaption={errors.password && errors.password.message}
-              additonalActionButtons={isDisabled && <IconBase Icon={LockFillIcon} className="text-grey-3" />}
+              additionalActionButtons={isDisabled && <IconBase Icon={LockFillIcon} className="text-grey-3" />}
               revealForbidden={isDisabled}
               containerClassName="mb-3"
               autoFocus

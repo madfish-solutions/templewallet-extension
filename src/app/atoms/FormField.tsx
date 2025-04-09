@@ -67,7 +67,7 @@ export interface FormFieldProps extends TestIDProperty, Omit<FormFieldAttrs, 'ty
    * `type='password'` only
    */
   revealRef?: unknown;
-  additonalActionButtons?: ReactNode;
+  additionalActionButtons?: ReactNode;
   cleanable?: boolean;
   extraLeftInner?: ReactNode;
   extraLeftInnerWrapper?: InnerWrapperType;
@@ -139,7 +139,7 @@ export const FormField = forwardRef<FormFieldElement, FormFieldProps>(
       autoComplete = 'off',
       smallPaddings = false,
       fieldWrapperBottomMargin = true,
-      additonalActionButtons,
+      additionalActionButtons,
       copyable,
       testID,
       testIDs,
@@ -286,7 +286,7 @@ export const FormField = forwardRef<FormFieldElement, FormFieldProps>(
             )}
             style={rightSideContainerStyle}
           >
-            {additonalActionButtons}
+            {additionalActionButtons}
             {cleanable && <CleanButton showText={textarea} size={textarea ? 12 : 16} onClick={onClean} />}
             {rightSideComponent && rightSideComponent}
             {textarea && !cleanable && showPasteButton && (
