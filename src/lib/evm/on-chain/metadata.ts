@@ -238,7 +238,7 @@ const getCollectiblePropertiesFromUri = async (
 
   const { data } = await axios.get<CollectibleMetadata>(uri);
 
-  if (typeof data !== 'object' || !data.image || !data.name || !data.description) throw new Error();
+  if (typeof data !== 'object' || !data.image || !data.name) throw new Error();
 
   const {
     name,
