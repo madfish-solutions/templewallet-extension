@@ -68,7 +68,6 @@ export const [TempleClientProvider, useTempleClient] = constate(() => {
             settings: null,
             dAppQueueCounters: DEFAULT_PROMISES_QUEUE_COUNTERS,
             focusLocation: { tabId: null, windowId: null },
-            activeWindowId: null,
             windowsWithPopups: []
           }
         : res.state,
@@ -113,7 +112,7 @@ export const [TempleClientProvider, useTempleClient] = constate(() => {
    * Aliases
    */
 
-  const { status, accounts, settings, dAppQueueCounters, focusLocation, activeWindowId, windowsWithPopups } = state;
+  const { status, accounts, settings, dAppQueueCounters, focusLocation, windowsWithPopups } = state;
   const idle = status === TempleStatus.Idle;
   const locked = status === TempleStatus.Locked;
   const ready = status === TempleStatus.Ready;
@@ -497,7 +496,6 @@ export const [TempleClientProvider, useTempleClient] = constate(() => {
     ready,
     dAppQueueCounters,
     focusLocation,
-    activeWindowId,
     windowsWithPopups,
 
     // Misc

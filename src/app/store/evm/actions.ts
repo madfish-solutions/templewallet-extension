@@ -2,7 +2,14 @@ import { createAction } from '@reduxjs/toolkit';
 
 import { LoadableState } from 'lib/store/entity.utils';
 
-export const setEvmBalancesLoadingState = createAction<LoadableState & { chainId: number }>(
+import { EvmBalancesSource } from './state';
+
+interface SetEvmBalancesLoadingStateData extends LoadableState {
+  chainId: number;
+  source: EvmBalancesSource;
+}
+
+export const setEvmBalancesLoadingState = createAction<SetEvmBalancesLoadingStateData>(
   'evm/loading/SET_BALANCES_LOADING_STATE'
 );
 

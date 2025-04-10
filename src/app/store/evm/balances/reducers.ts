@@ -1,25 +1,56 @@
 import { createReducer } from '@reduxjs/toolkit';
 
-import { loadEvmBalanceOnChainActions, processLoadedEvmAssetsBalancesAction } from './actions';
+import {
+  loadEvmBalanceOnChainActions,
+  processLoadedEvmAssetsBalancesAction,
+  processLoadedOnchainBalancesAction
+} from './actions';
 import { EvmBalancesInitialState, EvmBalancesStateInterface } from './state';
-import { getTokenSlugBalanceRecord } from './utils';
+import { getTokenSlugBalanceRecords, prepareAssigning } from './utils';
 
 export const evmBalancesReducer = createReducer<EvmBalancesStateInterface>(EvmBalancesInitialState, builder => {
-  builder.addCase(processLoadedEvmAssetsBalancesAction, ({ balancesAtomic, dataTimestamps }, { payload }) => {
-    const { publicKeyHash, chainId, data, timestamp } = payload;
-    if (!balancesAtomic[publicKeyHash]) balancesAtomic[publicKeyHash] = {};
-    if (!dataTimestamps[publicKeyHash]) dataTimestamps[publicKeyHash] = {};
+  builder.addCase(processLoadedEvmAssetsBalancesAction, (state, { payload }) => {
+    const { balancesAtomic, dataTimestamps } = state;
+    const { publicKeyHash, chainId, data } = payload;
+    prepareAssigning(state, publicKeyHash);
 
-    balancesAtomic[publicKeyHash][chainId] = getTokenSlugBalanceRecord(data.items, chainId);
-    dataTimestamps[publicKeyHash][chainId] = timestamp;
+    const { balances: newBalances, timestamps: newTimestamps } = getTokenSlugBalanceRecords(
+      data.items,
+      chainId,
+      new Date(data.updated_at).getTime(),
+      dataTimestamps[publicKeyHash][chainId],
+      balancesAtomic[publicKeyHash][chainId]
+    );
+    balancesAtomic[publicKeyHash][chainId] = newBalances;
+    dataTimestamps[publicKeyHash][chainId] = newTimestamps;
   });
 
-  builder.addCase(loadEvmBalanceOnChainActions.success, ({ balancesAtomic }, { payload }) => {
-    const { network, assetSlug, account, balance } = payload;
+  builder.addCase(loadEvmBalanceOnChainActions.success, (state, { payload }) => {
+    const { balancesAtomic, dataTimestamps } = state;
+    const { network, assetSlug, account, balance, timestamp } = payload;
     const { chainId } = network;
-    if (!balancesAtomic[account]) balancesAtomic[account] = {};
-    const accountBalances = balancesAtomic[account];
+    prepareAssigning(state, account, chainId);
 
-    accountBalances[chainId] = Object.assign({}, accountBalances[chainId] ?? {}, { [assetSlug]: balance.toFixed() });
+    const prevTimestamp = dataTimestamps[account][chainId][assetSlug] ?? 0;
+    if (prevTimestamp <= timestamp) {
+      balancesAtomic[account][chainId][assetSlug] = balance.toFixed();
+      dataTimestamps[account][chainId][assetSlug] = timestamp;
+    }
+  });
+
+  builder.addCase(processLoadedOnchainBalancesAction, (state, { payload }) => {
+    const { balancesAtomic, dataTimestamps } = state;
+    const { balances, timestamp, account, chainId } = payload;
+    prepareAssigning(state, account, chainId);
+
+    const chainBalances = balancesAtomic[account][chainId];
+    const chainTimestamps = dataTimestamps[account][chainId];
+    for (const assetSlug in balances) {
+      const prevTimestamp = chainTimestamps[assetSlug] ?? 0;
+      if (prevTimestamp <= timestamp) {
+        chainBalances[assetSlug] = balances[assetSlug];
+        chainTimestamps[assetSlug] = timestamp;
+      }
+    }
   });
 });

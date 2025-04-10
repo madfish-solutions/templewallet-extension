@@ -8,7 +8,7 @@ type EvmBalancesAtomicRecord = Record<PublicKeyHash, ChainIdTokenSlugsBalancesRe
 
 export interface EvmBalancesStateInterface {
   balancesAtomic: EvmBalancesAtomicRecord;
-  dataTimestamps: Record<PublicKeyHash, Record<number, number>>;
+  dataTimestamps: Record<PublicKeyHash, Record<number, StringRecord<number>>>;
 }
 
 export const EvmBalancesInitialState: EvmBalancesStateInterface = {

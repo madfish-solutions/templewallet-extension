@@ -1,4 +1,4 @@
-import { memo, useCallback } from 'react';
+import { memo, useCallback, useMemo } from 'react';
 
 import { dispatch } from 'app/store';
 import { setEvmTokensExchangeRatesLoading } from 'app/store/evm/actions';
@@ -10,7 +10,7 @@ import { BalancesResponse, ChainID } from 'lib/apis/temple/endpoints/evm/api.int
 import { RATES_SYNC_INTERVAL } from 'lib/fixed-times';
 import { useUpdatableRef } from 'lib/ui/hooks';
 
-import { useRefreshIfActive, SuccessPayload, ErrorPayload } from './use-refresh-if-active';
+import { useRefreshIfActive, SuccessPayload, ErrorPayload, DataLoader } from './use-refresh-if-active';
 
 /** Note: Rates are updated only for the given account's tokens */
 export const AppEvmTokensExchangeRatesLoading = memo<{ publicKeyHash: HexString }>(({ publicKeyHash }) => {
@@ -20,7 +20,7 @@ export const AppEvmTokensExchangeRatesLoading = memo<{ publicKeyHash: HexString 
   const ratesTimestampsRef = useUpdatableRef(ratesTimestamps);
 
   const getDataTimestamp = useCallback(
-    (chainId: ChainID) => ratesTimestampsRef.current[chainId] ?? 0,
+    (chainId: number) => ratesTimestampsRef.current[chainId] ?? 0,
     [ratesTimestampsRef]
   );
   const isLoading = useCallback(
@@ -38,14 +38,32 @@ export const AppEvmTokensExchangeRatesLoading = memo<{ publicKeyHash: HexString 
     dispatch(setEvmTokensExchangeRatesLoading({ chainId, isLoading: false }));
   }, []);
 
+  const getEvmTokensMetadataWrapped = useCallback((walletAddress: string, chainId: ChainID) => {
+    console.log(`Loading EVM tokens metadata for ${walletAddress} on chainId ${chainId}`, new Date().toTimeString());
+
+    return getEvmTokensMetadata(walletAddress, chainId)
+      .then(data => ({ data }))
+      .catch(error => ({ error }));
+  }, []);
+
+  const loaders = useMemo<[DataLoader<BalancesResponse>]>(
+    () => [
+      {
+        type: 'api',
+        isLoading,
+        setLoading,
+        getData: getEvmTokensMetadataWrapped,
+        handleSuccess,
+        handleError
+      }
+    ],
+    [getEvmTokensMetadataWrapped, handleError, handleSuccess, isLoading, setLoading]
+  );
+
   useRefreshIfActive({
+    loaders,
     getDataTimestamp,
-    isLoading,
     publicKeyHash,
-    setLoading,
-    getData: getEvmTokensMetadata,
-    handleSuccess,
-    handleError,
     syncInterval: RATES_SYNC_INTERVAL
   });
 

@@ -3,13 +3,25 @@ import { useMemo } from 'react';
 import { useSelector } from 'app/store/root-state.selector';
 import { LoadableState } from 'lib/store/entity.utils';
 
-export const useAllEvmChainsBalancesLoadingStatesSelector = () => useSelector(state => state.evmLoading.balances);
+import { EvmBalancesSource } from './state';
 
-export const useEvmBalancesLoadingStateSelector = (chainId: number): LoadableState | undefined =>
-  useSelector(state => state.evmLoading.balances[chainId]);
+export const useAllEvmChainsBalancesLoadingStatesSelector = () => useSelector(state => state.evmLoading.balancesStates);
 
-export const useEvmChainBalancesLoadingSelector = (chainId: number) =>
-  useSelector(state => state.evmLoading.balances[chainId]?.isLoading ?? false);
+export const useEvmBalancesLoadingStateSelector = (
+  chainId: number,
+  source: EvmBalancesSource
+): LoadableState | undefined => useSelector(state => state.evmLoading.balancesStates[chainId]?.[source]);
+
+export const useEvmChainBalancesLoadingSelector = (chainId: number, source?: EvmBalancesSource) =>
+  useSelector(state => {
+    const loadingState = state.evmLoading.balancesStates[chainId] ?? {
+      api: { isLoading: false },
+      onchain: { isLoading: false }
+    };
+    const { api: apiLoadingState, onchain: chainLoadingState } = loadingState;
+
+    return source ? loadingState[source].isLoading : apiLoadingState.isLoading || chainLoadingState.isLoading;
+  });
 
 export const useEvmTokensMetadataLoadingSelector = () => useSelector(state => state.evmLoading.tokensMetadataLoading);
 

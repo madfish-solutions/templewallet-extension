@@ -38,11 +38,10 @@ export const settingsUpdated = createEvent<TempleSettings>('Settings updated');
 
 export const dAppQueueCountersUpdated = createEvent<PromisesQueueCounters>('DApp queue counters updated');
 
-export const activeWindowChanged = createEvent<number | null>('Active window changed');
-
 export const focusLocationChanged = createEvent<FocusLocation | null>('Focus location changed');
 
 export const popupOpened = createEvent<number | null>('Popup opened');
+
 export const popupClosed = createEvent<number | null>('Popup closed');
 
 /**
@@ -57,7 +56,6 @@ export const store = createStore<StoreState>({
   settings: null,
   dAppQueueCounters: DEFAULT_PROMISES_QUEUE_COUNTERS,
   focusLocation: null,
-  activeWindowId: null,
   windowsWithPopups: []
 })
   .on(inited, (state, vaultExist) => ({
@@ -65,13 +63,13 @@ export const store = createStore<StoreState>({
     inited: true,
     status: vaultExist ? TempleStatus.Locked : TempleStatus.Idle
   }))
-  .on(locked, ({ focusLocation, activeWindowId, windowsWithPopups }) => ({
+  .on(locked, ({ focusLocation, windowsWithPopups }) => ({
     // Attention!
     // Security stuff!
     // Don't merge new state to existing!
     // Build a new state from scratch
     // Reset all properties!
-    // Exceptions: focusLocation, activeWindowId, windowsWithPopups
+    // Exceptions: focusLocation, windowsWithPopups
     inited: true,
     vault: null,
     status: TempleStatus.Locked,
@@ -79,7 +77,6 @@ export const store = createStore<StoreState>({
     settings: null,
     dAppQueueCounters: DEFAULT_PROMISES_QUEUE_COUNTERS,
     focusLocation,
-    activeWindowId,
     windowsWithPopups
   }))
   .on(unlocked, (state, { vault, accounts, settings }) => ({
@@ -100,10 +97,6 @@ export const store = createStore<StoreState>({
   .on(dAppQueueCountersUpdated, (state, dAppQueueCounters) => ({
     ...state,
     dAppQueueCounters
-  }))
-  .on(activeWindowChanged, (state, activeWindowId) => ({
-    ...state,
-    activeWindowId
   }))
   .on(focusLocationChanged, (state, focusLocation) => ({
     ...state,

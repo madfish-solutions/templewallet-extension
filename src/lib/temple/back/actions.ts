@@ -83,7 +83,6 @@ import {
   withInited,
   withUnlocked,
   dAppQueueCountersUpdated,
-  activeWindowChanged,
   focusLocationChanged,
   popupClosed,
   popupOpened
@@ -129,7 +128,6 @@ export async function init() {
     };
     const onActiveWindowChanged = async (windowId?: number) => {
       const newWindowId = castWindowId(windowId);
-      activeWindowChanged(newWindowId);
       if (newWindowId === null) {
         onActiveTabChanged();
       } else {

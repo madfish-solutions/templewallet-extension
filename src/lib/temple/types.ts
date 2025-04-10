@@ -36,7 +36,6 @@ export interface TempleState {
   accounts: StoredAccount[];
   settings: TempleSettings | null;
   focusLocation: FocusLocation | null;
-  activeWindowId: number | null;
   windowsWithPopups: (number | null)[];
 }
 

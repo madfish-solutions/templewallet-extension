@@ -1,11 +1,10 @@
 import { useCallback, useEffect } from 'react';
 
+import { EvmBalancesSource } from 'app/store/evm/state';
 import { ChainID } from 'lib/apis/temple/endpoints/evm/api.interfaces';
 import { isSupportedChainId } from 'lib/apis/temple/endpoints/evm/api.utils';
 import { t } from 'lib/i18n';
 import { useWindowIsActive } from 'lib/temple/front/window-is-active-context';
-import { useMemoWithCompare } from 'lib/ui/hooks';
-import { isTruthy } from 'lib/utils';
 import { serializeError } from 'lib/utils/serialize-error';
 import { useEnabledEvmChains } from 'temple/front';
 
@@ -18,54 +17,78 @@ export interface SuccessPayload<T> {
 export interface ErrorPayload {
   chainId: number;
   error: string;
-  timestamp: number;
 }
 
-interface RefreshIfActiveConfig<T> {
-  getDataTimestamp: SyncFn<ChainID, number>;
+interface DataLoaderBase<T> {
+  type: EvmBalancesSource;
   isLoading: SyncFn<number, boolean>;
-  publicKeyHash: string;
   /** This function is not triggered on getting new data or error */
   setLoading: (chainId: number, isLoading: boolean) => void;
-  getData: (publicKeyHash: string, chainId: ChainID) => Promise<T>;
-  handleSuccess: SyncFn<SuccessPayload<T>>;
+  /** Return both fields to enable partial data application after an error */
+  getData: (publicKeyHash: string, chainId: ChainID) => Promise<{ data?: NonNullable<T>; error?: unknown }>;
+  handleSuccess: SyncFn<SuccessPayload<NonNullable<T>>>;
   handleError: SyncFn<ErrorPayload>;
+}
+
+interface ApiDataLoader<T> extends DataLoaderBase<T> {
+  type: 'api';
+}
+
+interface OnchainDataLoader<T> extends DataLoaderBase<T> {
+  type: 'onchain';
+  getData: (publicKeyHash: string, chainId: number) => Promise<{ data?: NonNullable<T>; error?: unknown }>;
+}
+
+export type DataLoader<T> = ApiDataLoader<T> | OnchainDataLoader<T>;
+
+interface RefreshIfActiveConfig {
+  getDataTimestamp: SyncFn<number, number>;
+  loaders: [DataLoader<any>, ...DataLoader<any>[]];
+  publicKeyHash: string;
   syncInterval: number;
 }
 
-export const useRefreshIfActive = <T>({
+export const useRefreshIfActive = ({
   getDataTimestamp,
-  isLoading,
+  loaders,
   publicKeyHash,
-  setLoading,
-  getData,
-  handleSuccess,
-  handleError,
   syncInterval
-}: RefreshIfActiveConfig<T>) => {
+}: RefreshIfActiveConfig) => {
   const evmChains = useEnabledEvmChains();
   const windowIsActive = useWindowIsActive();
 
-  const apiSupportedChainIds = useMemoWithCompare(
-    () => evmChains.map(({ chainId }) => (isSupportedChainId(chainId) ? chainId : null)).filter(isTruthy),
-    [evmChains]
-  );
-
   const refreshData = useCallback(
-    async (chainId: ChainID) => {
-      if (isLoading(chainId)) return;
+    async (chainId: number) => {
+      for (const { type, isLoading, setLoading, getData, handleSuccess, handleError } of loaders) {
+        if (type === 'api' && !isSupportedChainId(chainId)) {
+          continue;
+        }
 
-      setLoading(chainId, true);
+        if (type === 'api' && isLoading(chainId)) {
+          return;
+        }
 
-      const startTs = Date.now();
-      getData(publicKeyHash, chainId)
-        .then(data => handleSuccess({ chainId, data, timestamp: startTs }))
-        .catch(error => {
-          console.error(error);
-          handleError({ chainId, error: serializeError(error) ?? t('unknownError'), timestamp: startTs });
-        });
+        setLoading(chainId, true);
+
+        const startTs = Date.now();
+        try {
+          const { data, error } = await getData(publicKeyHash, chainId as ChainID);
+          if (data !== undefined) {
+            handleSuccess({ chainId, data, timestamp: startTs });
+          }
+
+          if (error !== undefined) {
+            throw error;
+          }
+
+          return;
+        } catch (e) {
+          console.error(e);
+          handleError({ chainId, error: serializeError(e) ?? t('unknownError') });
+        }
+      }
     },
-    [isLoading, publicKeyHash, setLoading, getData, handleSuccess, handleError]
+    [publicKeyHash, loaders]
   );
 
   useEffect(() => {
@@ -73,8 +96,8 @@ export const useRefreshIfActive = <T>({
 
     const firstLoadTimeouts: NodeJS.Timeout[] = [];
     const refreshIntervals: NodeJS.Timer[] = [];
-    apiSupportedChainIds.forEach(chainId => {
-      setLoading(chainId, false);
+    evmChains.forEach(({ chainId }) => {
+      loaders.forEach(({ setLoading }) => setLoading(chainId, false));
       firstLoadTimeouts.push(
         setTimeout(() => {
           refreshData(chainId);
@@ -88,5 +111,5 @@ export const useRefreshIfActive = <T>({
       firstLoadTimeouts.forEach(timeout => clearTimeout(timeout));
       refreshIntervals.forEach(interval => clearInterval(interval));
     };
-  }, [apiSupportedChainIds, refreshData, windowIsActive, syncInterval, setLoading, publicKeyHash, getDataTimestamp]);
+  }, [refreshData, windowIsActive, syncInterval, loaders, publicKeyHash, getDataTimestamp, evmChains]);
 };
