@@ -226,18 +226,16 @@ function useEvmAssetRawBalance(
   const storedBalance = useRawEvmAssetBalanceSelector(address, network.chainId, assetSlug);
   const isSyncing = useEvmChainBalancesLoadingSelector(chainId);
   const loadingFromApiState = useEvmBalancesLoadingStateSelector(chainId, 'api');
-  const loadingFromChainState = useEvmBalancesLoadingStateSelector(chainId, 'onchain');
   const refreshOnChainDoneRef = useRef(false);
   const loadingFromApiError = isTruthy(loadingFromApiState?.error);
-  const loadingFromChainError = isTruthy(loadingFromChainState?.error);
 
   const usingOnchainRequests = useMemo(() => {
     if (!isSupportedChainId(chainId) || currentAccountAddress !== address) {
       return true;
     }
 
-    return testnetModeEnabled ? !loadingFromChainError : loadingFromApiError;
-  }, [address, chainId, currentAccountAddress, loadingFromApiError, loadingFromChainError, testnetModeEnabled]);
+    return testnetModeEnabled || loadingFromApiError;
+  }, [address, chainId, currentAccountAddress, loadingFromApiError, testnetModeEnabled]);
 
   const evmTransfersListener = useMemo(
     () =>
