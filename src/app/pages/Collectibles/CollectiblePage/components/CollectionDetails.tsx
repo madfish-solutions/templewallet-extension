@@ -1,23 +1,26 @@
 import React, { memo } from 'react';
 
 import { ReactComponent as UnknownCollectible } from 'app/icons/unknown-collectible.svg';
-import { ImageStacked } from 'lib/ui/ImageStacked';
+import { useBooleanState } from 'lib/ui/hooks';
 
 interface Props {
   title?: string;
-  logoSources?: string[];
+  logoSrc?: string;
 }
 
-export const CollectionDetails = memo<Props>(({ title, logoSources = [] }) =>
-  title ? (
+export const CollectionDetails = memo<Props>(({ title, logoSrc }) => {
+  const [logoLoadingFailed, setLogoLoadingFailed] = useBooleanState(!logoSrc);
+
+  return title ? (
     <div className="flex items-center mt-2">
-      <ImageStacked
-        sources={logoSources}
-        loader={<UnknownCollectible className="w-6 h-6" />}
-        fallback={<UnknownCollectible className="w-6 h-6" />}
-        className="w-6 h-6 rounded border"
-      />
-      <div className="text-font-regular text-grey-1 ml-1">{title}</div>
+      <div className="w-6 h-6 rounded overflow-hidden">
+        {logoLoadingFailed ? (
+          <UnknownCollectible className="w-full h-full" />
+        ) : (
+          <img src={logoSrc} alt="Collection logo" className="w-full h-full" onError={setLogoLoadingFailed} />
+        )}
+      </div>
+      <div className="text-font-regular text-grey-1 ml-1 max-w-80 truncate">{title}</div>
     </div>
-  ) : null
-);
+  ) : null;
+});

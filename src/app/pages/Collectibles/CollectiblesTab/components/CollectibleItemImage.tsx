@@ -15,7 +15,7 @@ import { CollectibleImageLoader } from '../../components/CollectibleImageLoader'
 
 interface TezosCollectibleItemImageProps {
   assetSlug: string;
-  metadata: TokenMetadata;
+  metadata?: TokenMetadata;
   adultBlur: boolean;
   areDetailsLoading: boolean;
   mime?: string | null;
@@ -30,7 +30,7 @@ export const TezosCollectibleItemImage = memo<TezosCollectibleItemImageProps>(
     const isAdultFlagLoading = areDetailsLoading && !isDefined(isAdultContent);
     const shouldShowBlur = isAdultContent && adultBlur;
 
-    const sources = useMemo(() => (metadata ? buildCollectibleImagesStack(metadata) : []), [metadata]);
+    const sources = useMemo(() => (isDefined(metadata) ? buildCollectibleImagesStack(metadata) : []), [metadata]);
 
     const isAudioCollectible = useMemo(() => Boolean(mime && mime.startsWith('audio')), [mime]);
 
@@ -39,7 +39,7 @@ export const TezosCollectibleItemImage = memo<TezosCollectibleItemImageProps>(
         {isAdultFlagLoading ? (
           <CollectibleImageLoader />
         ) : shouldShowBlur ? (
-          <CollectibleBlur metadata={metadata} />
+          <CollectibleBlur assetSlug={assetSlug} />
         ) : (
           <>
             {shouldUseBlurredBg && (
@@ -60,14 +60,14 @@ export const TezosCollectibleItemImage = memo<TezosCollectibleItemImageProps>(
 );
 
 interface EvmCollectibleItemImageProps {
-  metadata: EvmCollectibleMetadata;
+  metadata?: EvmCollectibleMetadata;
   className?: string;
   shouldUseBlurredBg?: boolean;
 }
 
 export const EvmCollectibleItemImage = memo<EvmCollectibleItemImageProps>(
   ({ metadata, className, shouldUseBlurredBg = false }) => {
-    const sources = useMemo(() => buildEvmCollectibleIconSources(metadata), [metadata]);
+    const sources = useMemo(() => (isDefined(metadata) ? buildEvmCollectibleIconSources(metadata) : []), [metadata]);
 
     return (
       <>

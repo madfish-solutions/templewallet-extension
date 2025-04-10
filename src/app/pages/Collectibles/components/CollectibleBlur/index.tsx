@@ -3,26 +3,26 @@ import React, { memo, useMemo } from 'react';
 import clsx from 'clsx';
 
 import { ReactComponent as RevealEyeSvg } from 'app/icons/reveal-eye.svg';
+import { fromAssetSlug } from 'lib/assets';
 import { buildObjktMediaUriForItemPath } from 'lib/images-uri';
-import { TokenMetadata } from 'lib/metadata';
 import { useBooleanState } from 'lib/ui/hooks';
 
 import { CollectibleImageLoader } from '../CollectibleImageLoader';
 
 interface Props {
-  metadata: TokenMetadata;
+  assetSlug: string;
   large?: boolean;
   onClick?: EmptyFn;
 }
 
-export const CollectibleBlur = memo<Props>(({ metadata, large = false, onClick }) => {
+export const CollectibleBlur = memo<Props>(({ assetSlug, large = false, onClick }) => {
   const [isLoading, _, setLoaded] = useBooleanState(true);
 
   const source = useMemo(() => {
-    const { address, id } = metadata;
+    const [address, id] = fromAssetSlug(assetSlug);
 
     return buildObjktMediaUriForItemPath(`${address}/${id}`, 'thumb288');
-  }, [metadata]);
+  }, [assetSlug]);
 
   return (
     <>

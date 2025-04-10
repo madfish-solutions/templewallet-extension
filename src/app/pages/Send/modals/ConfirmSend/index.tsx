@@ -21,6 +21,7 @@ export const ConfirmSendModal: FC<ConfirmSendModalProps> = ({ opened, onRequestC
   <PageModal
     title="Confirm Send"
     titleLeft={null}
+    titleRight={<div />}
     opened={opened}
     onRequestClose={onRequestClose}
     shouldChangeBottomShift={false}

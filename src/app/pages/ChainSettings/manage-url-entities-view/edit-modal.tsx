@@ -154,7 +154,9 @@ export const EditUrlEntityModal = <T extends UrlEntityBase>({
                 validate: (value: string) => (namesToExclude.includes(value) ? t('mustBeUnique') : true)
               })}
               className={isEditable ? '' : 'text-grey-1'}
-              additonalActionButtons={!isEditable && <IconBase size={16} Icon={LockFillIcon} className="text-grey-3" />}
+              additionalActionButtons={
+                !isEditable && <IconBase size={16} Icon={LockFillIcon} className="text-grey-3" />
+              }
               label={t('name')}
               id="editurlentity-name"
               placeholder={namePlaceholder}

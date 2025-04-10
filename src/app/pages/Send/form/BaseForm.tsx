@@ -31,6 +31,7 @@ interface Props {
   assetSymbol: string;
   assetPrice: BigNumber;
   assetDecimals: number;
+  isCollectible: boolean;
   network: OneOfChains;
   accountPkh: string | HexString;
   validateAmount: Validate<string, SendFormData>;
@@ -54,6 +55,7 @@ export const BaseForm: FC<Props> = ({
   assetSymbol,
   assetPrice,
   assetDecimals,
+  isCollectible,
   maxAmount,
   maxEstimating,
   validateAmount,
@@ -196,7 +198,7 @@ export const BaseForm: FC<Props> = ({
                 value={value}
                 onBlur={onBlur}
                 onChange={v => onChange(v ?? '')}
-                extraFloatingInner={floatingAssetSymbol}
+                extraFloatingInner={isCollectible ? undefined : floatingAssetSymbol}
                 assetDecimals={shouldUseFiat ? 2 : assetDecimals}
                 cleanable={Boolean(amountValue)}
                 rightSideComponent={
@@ -236,9 +238,9 @@ export const BaseForm: FC<Props> = ({
                 }
                 onClean={handleAmountClean}
                 label={t('amount')}
-                placeholder={`0.00 ${floatingAssetSymbol}`}
+                placeholder={isCollectible ? '0.00' : `0.00 ${floatingAssetSymbol}`}
                 errorCaption={formSubmitted ? errors.amount?.message : null}
-                containerClassName="pb-8"
+                containerClassName={isCollectible ? 'pb-3' : 'pb-8'}
                 testID={SendFormSelectors.amountInput}
               />
             )}

@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useMemo } from 'react';
+import React, { memo, useCallback, useEffect, useMemo } from 'react';
 
 import { DeadEndBoundaryError } from 'app/ErrorBoundary';
 import { buildSendPagePath } from 'app/pages/Send/build-url';
@@ -9,10 +9,8 @@ import {
   useCollectibleDetailsSelector
 } from 'app/store/tezos/collectibles/selectors';
 import { useCollectibleMetadataSelector } from 'app/store/tezos/collectibles-metadata/selectors';
-import { TEZOS_BLOCK_DURATION } from 'lib/fixed-times';
 import { buildTokenImagesStack } from 'lib/images-uri';
 import { getTokenName } from 'lib/metadata';
-import { useInterval } from 'lib/ui/hooks';
 import { navigate } from 'lib/woozie';
 import { useTezosChainByChainId, useAccountForTezos } from 'temple/front';
 import { TempleChainKind } from 'temple/types';
@@ -24,8 +22,6 @@ import { TezosDetails } from '../components/Details';
 import { QuickActionsPopper } from '../components/QuickActionsPopper';
 
 import { BaseContent } from './Base';
-
-const TEZOS_DETAILS_SYNC_INTERVAL = 4 * TEZOS_BLOCK_DURATION;
 
 interface Props {
   chainId: string;
@@ -44,11 +40,7 @@ export const TezosContent = memo<Props>(({ chainId, assetSlug }) => {
   const publicKeyHash = account.address;
   const areDetailsLoading = areAnyCollectiblesDetailsLoading && details === undefined;
 
-  useInterval(
-    () => void dispatch(loadCollectiblesDetailsActions.submit([assetSlug])),
-    [assetSlug],
-    TEZOS_DETAILS_SYNC_INTERVAL
-  );
+  useEffect(() => void dispatch(loadCollectiblesDetailsActions.submit([assetSlug])), [assetSlug]);
 
   const collectibleName = getTokenName(metadata);
 
@@ -56,7 +48,7 @@ export const TezosContent = memo<Props>(({ chainId, assetSlug }) => {
     if (!details) return null;
     return {
       title: details.galleries[0]?.title ?? details.fa.name,
-      logoSources: buildTokenImagesStack(details.fa.logo)
+      logoSrc: buildTokenImagesStack(details.fa.logo)[0]
     };
   }, [details]);
 
@@ -72,6 +64,7 @@ export const TezosContent = memo<Props>(({ chainId, assetSlug }) => {
       headerRightElement={<QuickActionsPopper assetSlug={assetSlug} network={network} />}
       imageElement={
         <TezosCollectiblePageImage
+          assetSlug={assetSlug}
           metadata={metadata}
           areDetailsLoading={areDetailsLoading}
           objktArtifactUri={details?.objktArtifactUri}

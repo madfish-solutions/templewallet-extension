@@ -104,8 +104,6 @@ export const TezosCollectibleItem = memo<TezosCollectibleItemProps>(
       [details]
     );
 
-    if (!metadata) return null;
-
     const assetName = getTokenName(metadata);
 
     if (manageActive)
@@ -131,7 +129,7 @@ export const TezosCollectibleItem = memo<TezosCollectibleItemProps>(
                   <TezosNetworkLogo
                     chainId={network.chainId}
                     size={NETWORK_IMAGE_DEFAULT_SIZE}
-                    className="absolute bottom-0.5 right-0.5 z-10"
+                    className="absolute bottom-0.5 right-0.5 z-30"
                     withTooltip
                     tooltipPlacement="bottom"
                   />
@@ -145,12 +143,7 @@ export const TezosCollectibleItem = memo<TezosCollectibleItemProps>(
             </div>
 
             <div className="flex gap-x-2">
-              <IconBase
-                Icon={DeleteIcon}
-                size={16}
-                className="cursor-pointer text-error"
-                onClick={setDeleteModalOpened}
-              />
+              <IconBase Icon={DeleteIcon} className="cursor-pointer text-error" onClick={setDeleteModalOpened} />
               <ToggleSwitch checked={checked} onChange={toggleTokenStatus} />
             </div>
           </div>
@@ -263,8 +256,6 @@ export const EvmCollectibleItem = memo<EvmCollectibleItemProps>(
       [showDetails]
     );
 
-    if (!metadata) return null;
-
     const assetName = getCollectibleName(metadata);
     const collectionName = getCollectionName(metadata);
 
@@ -277,13 +268,13 @@ export const EvmCollectibleItem = memo<EvmCollectibleItemProps>(
                 className="relative flex items-center justify-center rounded-8 overflow-hidden"
                 style={manageImgStyle}
               >
-                {metadata && <EvmCollectibleItemImage metadata={metadata} className="object-cover" />}
+                <EvmCollectibleItemImage metadata={metadata} className="object-cover" />
 
                 {network && (
                   <EvmNetworkLogo
                     chainId={network.chainId}
                     size={NETWORK_IMAGE_DEFAULT_SIZE}
-                    className="absolute bottom-0.5 right-0.5 z-10"
+                    className="absolute bottom-0.5 right-0.5 z-30"
                     withTooltip
                     tooltipPlacement="bottom"
                   />
@@ -297,12 +288,7 @@ export const EvmCollectibleItem = memo<EvmCollectibleItemProps>(
             </div>
 
             <div className="flex gap-x-2">
-              <IconBase
-                Icon={DeleteIcon}
-                size={16}
-                className="cursor-pointer text-error"
-                onClick={setDeleteModalOpened}
-              />
+              <IconBase Icon={DeleteIcon} className="cursor-pointer text-error" onClick={setDeleteModalOpened} />
               <ToggleSwitch checked={checked} onChange={toggleTokenStatus} />
             </div>
           </div>
@@ -322,7 +308,7 @@ export const EvmCollectibleItem = memo<EvmCollectibleItemProps>(
           className="relative flex items-center justify-center rounded-8 bg-grey-4 overflow-hidden border-2 border-transparent group-hover:border-secondary"
           style={ImgStyle}
         >
-          {metadata && <EvmCollectibleItemImage shouldUseBlurredBg metadata={metadata} className="object-contain" />}
+          <EvmCollectibleItemImage shouldUseBlurredBg metadata={metadata} className="object-contain" />
 
           {network && (
             <EvmNetworkLogo

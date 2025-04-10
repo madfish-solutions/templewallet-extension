@@ -127,7 +127,7 @@ export const UrlInput = <K extends string, T extends Record<K, string>>({
       cleanable={Boolean(url) && (!textarea || isEditable)}
       onClean={clearUrl}
       onFocus={updateShowErrorOnFocus}
-      additonalActionButtons={additionalActionButtons}
+      additionalActionButtons={additionalActionButtons}
       labelContainerClassName="w-full flex justify-between items-center"
       label={
         required ? (

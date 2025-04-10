@@ -23,7 +23,8 @@ import { CollectibleImageLoader } from '../../components/CollectibleImageLoader'
 import { VideoCollectible } from '../../components/VideoCollectible';
 
 interface TezosCollectiblePageImageProps {
-  metadata: TokenMetadata;
+  assetSlug: string;
+  metadata?: TokenMetadata;
   areDetailsLoading: boolean;
   mime?: string | null;
   objktArtifactUri?: string;
@@ -32,7 +33,7 @@ interface TezosCollectiblePageImageProps {
 }
 
 export const TezosCollectiblePageImage = memo<TezosCollectiblePageImageProps>(
-  ({ metadata, mime, objktArtifactUri, className, areDetailsLoading, isAdultContent = false }) => {
+  ({ assetSlug, metadata, mime, objktArtifactUri, className, areDetailsLoading, isAdultContent = false }) => {
     const { blur } = useCollectiblesListOptionsSelector();
 
     const blurred = isAdultContent && blur;
@@ -51,7 +52,7 @@ export const TezosCollectiblePageImage = memo<TezosCollectiblePageImageProps>(
     }
 
     if (shouldShowBlur) {
-      return <CollectibleBlur metadata={metadata} large onClick={handleBlurClick} />;
+      return <CollectibleBlur assetSlug={assetSlug} large onClick={handleBlurClick} />;
     }
 
     if (objktArtifactUri && !isRenderFailedOnce) {

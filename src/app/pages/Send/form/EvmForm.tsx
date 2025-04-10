@@ -63,6 +63,7 @@ export const EvmForm: FC<Props> = ({ chainId, assetSlug, onSelectAssetClick, onR
 
   const [shouldUseFiat, setShouldUseFiat] = useSafeState(false);
 
+  const isNft = isEvmCollectible(assetMetadata);
   const assetDecimals = assetMetadata.decimals ?? 0;
 
   const assetSymbol = useMemo(() => getAssetSymbol(assetMetadata), [assetMetadata]);
@@ -120,9 +121,12 @@ export const EvmForm: FC<Props> = ({ chainId, assetSlug, onSelectAssetClick, onR
       if (!amount) return t('required');
       if (Number(amount) === 0) return t('amountMustBePositive');
 
-      return new BigNumber(amount).isLessThanOrEqualTo(maxAmount) || t('maximalAmount', toLocalFixed(maxAmount, 6));
+      return (
+        new BigNumber(amount).isLessThanOrEqualTo(maxAmount) ||
+        t('maximalAmount', toLocalFixed(maxAmount, Math.min(assetDecimals, 6)))
+      );
     },
-    [maxAmount]
+    [assetDecimals, maxAmount]
   );
 
   const validateRecipient = useCallback(
@@ -189,6 +193,7 @@ export const EvmForm: FC<Props> = ({ chainId, assetSlug, onSelectAssetClick, onR
         assetSlug={assetSlug}
         assetSymbol={assetSymbol}
         assetPrice={assetPrice}
+        isCollectible={isNft}
         maxAmount={maxAmount}
         maxEstimating={estimating}
         assetDecimals={assetDecimals}
