@@ -78,6 +78,12 @@ export const EvmContent: FC<EvmContentProps> = ({ data, onClose }) => {
         return;
       }
 
+      if (ethBalance.lte(displayedFee ?? 0)) {
+        toastError(t('balanceTooLow'));
+
+        return;
+      }
+
       try {
         const { value, to: txDestination } = buildBasicEvmSendParams(
           accountPkh,
@@ -124,21 +130,23 @@ export const EvmContent: FC<EvmContentProps> = ({ data, onClose }) => {
       }
     },
     [
-      accountPkh,
-      amount,
+      formState.isSubmitting,
+      getFeesPerGas,
       assetMetadata,
       estimationData,
-      formState.isSubmitting,
-      getActiveBlockExplorer,
-      getFeesPerGas,
-      network,
-      onClose,
-      onConfirm,
-      sendEvmTransaction,
-      setTab,
-      setLedgerApprovalModalState,
+      displayedFee,
+      ethBalance,
+      accountPkh,
       to,
-      isLedgerAccount
+      amount,
+      isLedgerAccount,
+      sendEvmTransaction,
+      network,
+      onConfirm,
+      onClose,
+      getActiveBlockExplorer,
+      setLedgerApprovalModalState,
+      setTab
     ]
   );
 
