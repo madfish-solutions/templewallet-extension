@@ -38,13 +38,13 @@ export const AppEvmTokensExchangeRatesLoading = memo<{ publicKeyHash: HexString 
     dispatch(setEvmTokensExchangeRatesLoading({ chainId, isLoading: false }));
   }, []);
 
-  const getEvmTokensMetadataWrapped = useCallback((walletAddress: string, chainId: ChainID) => {
-    console.log(`Loading EVM tokens metadata for ${walletAddress} on chainId ${chainId}`, new Date().toTimeString());
-
-    return getEvmTokensMetadata(walletAddress, chainId)
-      .then(data => ({ data }))
-      .catch(error => ({ error }));
-  }, []);
+  const getEvmTokensMetadataWrapped = useCallback(
+    (walletAddress: string, chainId: ChainID) =>
+      getEvmTokensMetadata(walletAddress, chainId)
+        .then(data => ({ data }))
+        .catch(error => ({ error })),
+    []
+  );
 
   const loaders = useMemo<[DataLoader<BalancesResponse>]>(
     () => [

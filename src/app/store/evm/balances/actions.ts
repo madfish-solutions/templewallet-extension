@@ -27,16 +27,6 @@ interface LoadOnChainBalanceSuccessPayload {
   timestamp: number;
 }
 
-/* interface LoadManyEvmBalancesOnChainPayload extends Omit<LoadOnChainBalancePayload, 'assetSlug' | 'assetStandard'> {
-  assets: Pick<LoadOnChainBalancePayload, 'assetSlug' | 'assetStandard'>[];
-}
-
-interface LoadManyEvmBalancesOnChainSuccessPayload extends Omit<LoadOnChainBalancePayload, 'assetSlug'> {}
-
-interface LoadManyEvmBalancesOnChainErrorPayload extends Omit<LoadOnChainBalancePayload, 'assetSlug'> {
-  error: string;
-} */
-
 export const processLoadedEvmAssetsBalancesAction = createAction<ProcessLoadedEvmTokensBalancesActionPayload>(
   'evm/balances/PROCESS_LOADED_ASSETS_BALANCES_ACTION'
 );
@@ -48,9 +38,3 @@ export const processLoadedOnchainBalancesAction = createAction<ProcessLoadedOnCh
 export const loadEvmBalanceOnChainActions = createActions<LoadOnChainBalancePayload, LoadOnChainBalanceSuccessPayload>(
   'evm/balances/LOAD_BALANCE_ON_CHAIN'
 );
-
-/* export const loadManyEvmBalancesOnChainActions = createActions<
-  LoadManyEvmBalancesOnChainPayload,
-  LoadManyEvmBalancesOnChainSuccessPayload,
-  LoadManyEvmBalancesOnChainErrorPayload
->('evm/balances/LOAD_MANY_BALANCES_ON_CHAIN'); */

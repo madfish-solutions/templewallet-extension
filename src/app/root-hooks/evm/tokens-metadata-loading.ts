@@ -6,7 +6,6 @@ import * as ViemUtils from 'viem/utils';
 import { dispatch } from 'app/store';
 import { setEvmTokensMetadataLoading } from 'app/store/evm/actions';
 import { useEvmStoredTokensRecordSelector } from 'app/store/evm/assets/selectors';
-import { EvmStoredAssetsRecords } from 'app/store/evm/assets/state';
 import { useEvmTokensMetadataLoadingSelector } from 'app/store/evm/selectors';
 import {
   processLoadedEvmTokensMetadataAction,
@@ -18,36 +17,19 @@ import { getEvmTokensMetadata } from 'lib/apis/temple/endpoints/evm';
 import { isSupportedChainId } from 'lib/apis/temple/endpoints/evm/api.utils';
 import { toTokenSlug } from 'lib/assets';
 import { fetchEvmTokensMetadataFromChain } from 'lib/evm/on-chain/metadata';
-import { useUpdatableRef } from 'lib/ui/hooks';
 import { EvmChain, useEnabledEvmChains } from 'temple/front';
 
 export const AppEvmTokensMetadataLoading = memo<{ publicKeyHash: HexString }>(({ publicKeyHash }) => {
-  const prevPkhRef = useRef('');
   const evmChains = useEnabledEvmChains();
-  const prevEvmChainsRef = useRef<EvmChain[]>([]);
   const isLoading = useEvmTokensMetadataLoadingSelector();
-  const isLoadingRef = useUpdatableRef(isLoading);
 
   const storedTokensRecord = useEvmStoredTokensRecordSelector();
-  const prevStoredTokensRef = useRef<EvmStoredAssetsRecords>({});
   const tokensMetadataRecord = useEvmTokensMetadataRecordSelector();
 
   const checkedRef = useRef<Record<number, string[]>>({});
 
   useEffect(() => {
-    if (
-      prevPkhRef.current === publicKeyHash &&
-      prevEvmChainsRef.current === evmChains &&
-      prevStoredTokensRef.current === storedTokensRecord
-    ) {
-      return;
-    }
-
-    prevPkhRef.current = publicKeyHash;
-    prevEvmChainsRef.current = evmChains;
-    prevStoredTokensRef.current = storedTokensRecord;
-
-    if (isLoadingRef.current) return;
+    if (isLoading) return;
 
     const currentAccountTokens = storedTokensRecord[publicKeyHash];
 
@@ -89,7 +71,7 @@ export const AppEvmTokensMetadataLoading = memo<{ publicKeyHash: HexString }>(({
         return loadEvmTokensMetadataFromChain(slugsWithoutMeta, chain);
       })
     ).then(() => void dispatch(setEvmTokensMetadataLoading(false)));
-  }, [evmChains, storedTokensRecord, publicKeyHash, isLoadingRef, tokensMetadataRecord]);
+  }, [evmChains, storedTokensRecord, publicKeyHash]);
 
   return null;
 });

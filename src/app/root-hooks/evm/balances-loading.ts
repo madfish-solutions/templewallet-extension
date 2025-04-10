@@ -110,13 +110,13 @@ export const AppEvmBalancesLoading = memo<{ publicKeyHash: HexString }>(({ publi
   const handleApiError = useMemo(() => handleErrorFactory('api'), [handleErrorFactory]);
   const handleOnchainError = useMemo(() => handleErrorFactory('onchain'), [handleErrorFactory]);
 
-  const getEvmBalancesFromApi = useCallback((walletAddress: string, chainId: ChainID) => {
-    console.log(`Loading EVM balances from API for ${walletAddress} on chain ${chainId}`, new Date().toTimeString());
-
-    return getEvmBalances(walletAddress, chainId)
-      .then(data => ({ data }))
-      .catch(error => ({ error }));
-  }, []);
+  const getEvmBalancesFromApi = useCallback(
+    (walletAddress: string, chainId: ChainID) =>
+      getEvmBalances(walletAddress, chainId)
+        .then(data => ({ data }))
+        .catch(error => ({ error })),
+    []
+  );
   const getEvmBalancesFromChain = useCallback(
     async (walletAddress: string, chainId: number) => {
       console.log(
