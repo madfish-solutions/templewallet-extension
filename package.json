@@ -48,6 +48,7 @@
     "@ledgerhq/hw-transport-u2f": "5.36.0-deprecated",
     "@ledgerhq/hw-transport-webauthn": "5.36.0-deprecated",
     "@ledgerhq/hw-transport-webhid": "^6.28.6",
+    "@lifi/sdk": "^3.6.5",
     "@microsoft/signalr": "^8.0.0",
     "@peculiar/webcrypto": "1.1.6",
     "@personaxyz/ad-sdk": "^0.0.19",
