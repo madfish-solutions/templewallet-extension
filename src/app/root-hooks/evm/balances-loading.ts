@@ -119,11 +119,6 @@ export const AppEvmBalancesLoading = memo<{ publicKeyHash: HexString }>(({ publi
   );
   const getEvmBalancesFromChain = useCallback(
     async (walletAddress: string, chainId: number) => {
-      console.log(
-        `Loading EVM balances from chain for ${walletAddress} on chain ${chainId}`,
-        new Date().toTimeString()
-      );
-
       let assetsSlugs = Object.keys(rawBalancesRef.current[chainId] ?? {});
 
       if (assetsSlugs.length === 0) {
@@ -139,7 +134,7 @@ export const AppEvmBalancesLoading = memo<{ publicKeyHash: HexString }>(({ publi
                 rpcBaseURL: chains.find(chain => chain.chainId === chainId)!.rpcBaseURL
               },
               assetSlug,
-              account: publicKeyHash,
+              account: walletAddress,
               assetStandard:
                 evmTokensMetadataRef.current[chainId]?.[assetSlug]?.standard ??
                 evmCollectiblesMetadataRef.current[chainId]?.[assetSlug]?.standard,
@@ -167,7 +162,7 @@ export const AppEvmBalancesLoading = memo<{ publicKeyHash: HexString }>(({ publi
         error
       };
     },
-    [evmCollectiblesMetadataRef, evmTokensMetadataRef, publicKeyHash, rawBalancesRef, chains]
+    [evmCollectiblesMetadataRef, evmTokensMetadataRef, rawBalancesRef, chains]
   );
 
   const apiLoader = useMemo<DataLoader<BalancesResponse>>(
