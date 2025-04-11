@@ -3,6 +3,7 @@ import React, { FC } from 'react';
 import { FadeTransition } from 'app/a11y/FadeTransition';
 import { SyncSpinner } from 'app/atoms';
 import { AddCustomTokenButton } from 'app/atoms/AddCustomTokenButton';
+import { PageLoader } from 'app/atoms/Loader';
 import { ManageAssetsViewStateButtons } from 'app/atoms/ManageAssetsViewStateButtons';
 import { SimpleInfiniteScroll } from 'app/atoms/SimpleInfiniteScroll';
 import { useAssetsViewState } from 'app/hooks/use-assets-view-state';
@@ -59,12 +60,16 @@ export const TokensTabBase: FC<PropsWithChildren<TokensTabBaseProps>> = ({
             {/*{manageActive ? null : <UpdateAppBanner stickyBarRef={stickyBarRef} />}*/}
 
             {tokensCount === 0 ? (
-              <EmptySection
-                forCollectibles={false}
-                manageActive={manageActive}
-                forSearch={isInSearchMode}
-                network={network}
-              />
+              isSyncing ? (
+                <PageLoader stretch />
+              ) : (
+                <EmptySection
+                  forCollectibles={false}
+                  manageActive={manageActive}
+                  forSearch={isInSearchMode}
+                  network={network}
+                />
+              )
             ) : (
               <>
                 {manageActive && (

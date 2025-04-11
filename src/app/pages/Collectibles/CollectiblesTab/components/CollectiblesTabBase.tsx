@@ -3,6 +3,7 @@ import React, { FC } from 'react';
 import { FadeTransition } from 'app/a11y/FadeTransition';
 import { SyncSpinner } from 'app/atoms';
 import { AddCustomTokenButton } from 'app/atoms/AddCustomTokenButton';
+import { PageLoader } from 'app/atoms/Loader';
 import { ManageAssetsViewStateButtons } from 'app/atoms/ManageAssetsViewStateButtons';
 import { ScrollBackUpButton } from 'app/atoms/ScrollBackUpButton';
 import { SimpleInfiniteScroll } from 'app/atoms/SimpleInfiniteScroll';
@@ -55,7 +56,16 @@ export const CollectiblesTabBase: FC<PropsWithChildren<CollectiblesTabBaseProps>
         <FadeTransition>
           <ContentContainer padding={collectiblesCount > 0}>
             {collectiblesCount === 0 ? (
-              <EmptySection forCollectibles manageActive={manageActive} forSearch={isInSearchMode} network={network} />
+              isSyncing ? (
+                <PageLoader stretch />
+              ) : (
+                <EmptySection
+                  forCollectibles
+                  manageActive={manageActive}
+                  forSearch={isInSearchMode}
+                  network={network}
+                />
+              )
             ) : (
               <>
                 {isInSearchMode ? (
