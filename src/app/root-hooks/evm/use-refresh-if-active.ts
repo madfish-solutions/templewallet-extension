@@ -25,7 +25,7 @@ interface DataLoaderBase<T> {
   /** This function is not triggered on getting new data or error */
   setLoading: (chainId: number, isLoading: boolean) => void;
   /** Return both fields to enable partial data application after an error */
-  getData: (publicKeyHash: string, chainId: ChainID) => Promise<{ data?: NonNullable<T>; error?: unknown }>;
+  getData: (publicKeyHash: HexString, chainId: ChainID) => Promise<{ data?: NonNullable<T>; error?: unknown }>;
   handleSuccess: SyncFn<SuccessPayload<NonNullable<T>>>;
   handleError: SyncFn<ErrorPayload>;
 }
@@ -36,7 +36,7 @@ interface ApiDataLoader<T> extends DataLoaderBase<T> {
 
 interface OnchainDataLoader<T> extends DataLoaderBase<T> {
   type: 'onchain';
-  getData: (publicKeyHash: string, chainId: number) => Promise<{ data?: NonNullable<T>; error?: unknown }>;
+  getData: (publicKeyHash: HexString, chainId: number) => Promise<{ data?: NonNullable<T>; error?: unknown }>;
 }
 
 export type DataLoader<T> = ApiDataLoader<T> | OnchainDataLoader<T>;
@@ -44,7 +44,7 @@ export type DataLoader<T> = ApiDataLoader<T> | OnchainDataLoader<T>;
 interface RefreshIfActiveConfig {
   getDataTimestamp: SyncFn<number, number>;
   loaders: [DataLoader<any>, ...DataLoader<any>[]];
-  publicKeyHash: string;
+  publicKeyHash: HexString;
   syncInterval: number;
 }
 

@@ -118,7 +118,7 @@ export const AppEvmBalancesLoading = memo<{ publicKeyHash: HexString }>(({ publi
     []
   );
   const getEvmBalancesFromChain = useCallback(
-    async (walletAddress: string, chainId: number) => {
+    async (walletAddress: HexString, chainId: number) => {
       let assetsSlugs = Object.keys(rawBalancesRef.current[chainId] ?? {});
 
       if (assetsSlugs.length === 0) {
