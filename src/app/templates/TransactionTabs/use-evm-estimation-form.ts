@@ -27,11 +27,9 @@ import { DEFAULT_INPUT_DEBOUNCE } from './constants';
 import { useEvmFeeOptions } from './hooks/use-evm-fee-options';
 import { EvmTxParamsFormData, Tab } from './types';
 
-const serializeBigint = (value: bigint | nullish) => (typeof value === 'bigint' ? value.toString() : undefined);
-
 export const useEvmEstimationForm = (
   estimationData: EvmEstimationDataWithFallback | undefined,
-  basicParams: TransactionSerializable | undefined,
+  basicParams: TransactionSerializable | nullish,
   senderAccount: StoredAccount | AccountForChain<TempleChainKind.EVM>,
   chainId: number,
   simulateOperation?: boolean
@@ -51,19 +49,13 @@ export const useEvmEstimationForm = (
       basicParams.type === 'legacy' || basicParams.type === 'eip2930' || basicParams.gasPrice
         ? basicParams.gasPrice
         : basicParams.maxFeePerGas;
-    let rawTransaction: string | undefined;
-    try {
-      rawTransaction = serializeTransaction(basicParams);
-    } catch {
-      // Do nothing
-    }
 
     return {
       gasPrice: rawGasPriceFromParams ? formatEther(rawGasPriceFromParams, 'gwei') : undefined,
       gasLimit: serializeBigint(basicParams.gas ?? (fullEstimationData ? undefined : SEND_ETH_GAS_LIMIT)),
       nonce: nonce?.toString(),
       data,
-      rawTransaction
+      rawTransaction: safeSerializeTransaction(basicParams)
     };
   }, [basicParams, fullEstimationData]);
   const form = useForm<EvmTxParamsFormData>({ mode: 'onChange', defaultValues });
@@ -148,15 +140,13 @@ export const useEvmEstimationForm = (
   );
 
   const rawTransaction = useMemo(() => {
-    if (!basicParams) return null;
-
     const feesPerGas = getFeesPerGas(debouncedGasPrice);
-    const gas = debouncedGasLimit ? BigInt(debouncedGasLimit) : fullEstimationData?.gas ?? basicParams.gas;
-    const nonce = debouncedNonce ? Number(debouncedNonce) : fullEstimationData?.nonce ?? basicParams.nonce;
+    const gas = debouncedGasLimit ? BigInt(debouncedGasLimit) : fullEstimationData?.gas ?? basicParams?.gas;
+    const nonce = debouncedNonce ? Number(debouncedNonce) : fullEstimationData?.nonce ?? basicParams?.nonce;
 
     if (gas === undefined || nonce === undefined || !feesPerGas) return null;
 
-    return serializeTransaction({
+    return safeSerializeTransaction({
       ...basicParams,
       chainId,
       gas,
@@ -218,4 +208,17 @@ export const useEvmEstimationForm = (
     displayedFee,
     getFeesPerGas
   };
+};
+
+const serializeBigint = (value: bigint | nullish) => (typeof value === 'bigint' ? value.toString() : undefined);
+
+const safeSerializeTransaction = (tx: TransactionSerializable) => {
+  let rawTransaction: string | undefined;
+  try {
+    rawTransaction = serializeTransaction(tx);
+  } catch {
+    // Do nothing
+  }
+
+  return rawTransaction;
 };

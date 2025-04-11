@@ -100,13 +100,13 @@ function parseNonce(nonce: string | undefined) {
 
 function parseAuthorizationList(authorizationList: RpcAuthorizationList): AuthorizationList<number, boolean> {
   return authorizationList.map(authorization => ({
-    contractAddress: authorization.address,
+    address: authorization.address,
     r: authorization.r,
     s: authorization.s,
     chainId: Number(authorization.chainId),
     nonce: Number(authorization.nonce),
     yParity: authorization.yParity === undefined ? undefined : Number(authorization.yParity),
-    // @ts-expect-error: `formatAuthorizationList` includes `v` in the result although it is not specified in the type
+    // @ts-expect-error: `formatAuthorizationList` includes `v` in the result, although it is not specified in the type
     v: authorization.v === undefined ? undefined : BigInt(authorization.v)
   }));
 }
