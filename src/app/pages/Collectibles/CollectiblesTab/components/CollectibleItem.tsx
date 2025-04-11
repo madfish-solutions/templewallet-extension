@@ -123,6 +123,7 @@ export const TezosCollectibleItem = memo<TezosCollectibleItemProps>(
                   areDetailsLoading={areDetailsLoading && details === undefined}
                   mime={details?.mime}
                   containerElemRef={wrapperElemRef}
+                  manageActive
                 />
 
                 {network && (

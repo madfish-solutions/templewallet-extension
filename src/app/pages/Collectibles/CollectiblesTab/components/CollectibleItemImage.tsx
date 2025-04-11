@@ -22,10 +22,20 @@ interface TezosCollectibleItemImageProps {
   containerElemRef: React.RefObject<Element>;
   className?: string;
   shouldUseBlurredBg?: boolean;
+  manageActive?: boolean;
 }
 
 export const TezosCollectibleItemImage = memo<TezosCollectibleItemImageProps>(
-  ({ assetSlug, metadata, adultBlur, areDetailsLoading, mime, className, shouldUseBlurredBg = false }) => {
+  ({
+    assetSlug,
+    metadata,
+    adultBlur,
+    areDetailsLoading,
+    mime,
+    className,
+    shouldUseBlurredBg = false,
+    manageActive = false
+  }) => {
     const isAdultContent = useCollectibleIsAdultSelector(assetSlug);
     const isAdultFlagLoading = areDetailsLoading && !isDefined(isAdultContent);
     const shouldShowBlur = isAdultContent && adultBlur;
@@ -39,7 +49,7 @@ export const TezosCollectibleItemImage = memo<TezosCollectibleItemImageProps>(
         {isAdultFlagLoading ? (
           <CollectibleImageLoader />
         ) : shouldShowBlur ? (
-          <CollectibleBlur assetSlug={assetSlug} />
+          <CollectibleBlur assetSlug={assetSlug} eyeIconSizeClassName={manageActive ? 'w-6 h-6' : undefined} />
         ) : (
           <>
             {shouldUseBlurredBg && (

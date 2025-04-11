@@ -12,10 +12,11 @@ import { CollectibleImageLoader } from '../CollectibleImageLoader';
 interface Props {
   assetSlug: string;
   large?: boolean;
+  eyeIconSizeClassName?: string;
   onClick?: EmptyFn;
 }
 
-export const CollectibleBlur = memo<Props>(({ assetSlug, large = false, onClick }) => {
+export const CollectibleBlur = memo<Props>(({ assetSlug, large = false, eyeIconSizeClassName, onClick }) => {
   const [isLoading, _, setLoaded] = useBooleanState(true);
 
   const source = useMemo(() => {
@@ -41,7 +42,7 @@ export const CollectibleBlur = memo<Props>(({ assetSlug, large = false, onClick 
           onLoad={setLoaded}
           className={clsx('w-full h-full', large ? 'blur' : 'blur-sm')}
         />
-        <RevealEyeSvg className={clsx('absolute z-20', large ? 'w-23 h-23' : 'w-8 h-8')} />
+        <RevealEyeSvg className={clsx('absolute z-20', eyeIconSizeClassName ?? (large ? 'w-23 h-23' : 'w-8 h-8'))} />
       </div>
     </>
   );
