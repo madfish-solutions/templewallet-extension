@@ -139,12 +139,20 @@ const getERC1155Metadata = async (publicClient: PublicClient, contractAddress: H
 
   if (!metadataUri) throw new Error();
 
-  const actualMetadataUri = metadataUri.replace('{id}', tokenId.toString());
-  const collectibleMetadata = await getCollectiblePropertiesFromUri(actualMetadataUri);
+  const tokenIdStr = tokenId.toString();
+
+  let collectibleMetadata, actualMetadataUri;
+  try {
+    actualMetadataUri = metadataUri.replace('{id}', tokenIdStr.padStart(64, '0'));
+    collectibleMetadata = await getCollectiblePropertiesFromUri(actualMetadataUri);
+  } catch {
+    actualMetadataUri = metadataUri.replace('{id}', tokenIdStr);
+    collectibleMetadata = await getCollectiblePropertiesFromUri(actualMetadataUri);
+  }
 
   const metadata: EvmCollectibleMetadata = {
     address: contractAddress,
-    tokenId: tokenId.toString(),
+    tokenId: tokenIdStr,
     standard: EvmAssetStandard.ERC1155,
     // ERC1155 specification does not include `symbol` or `name` view methods, see
     // https://eips.ethereum.org/EIPS/eip-1155#metadata-choices but let's assign their values if a contract has them

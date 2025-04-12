@@ -1271,6 +1271,12 @@
   "bakerSearchPlaceholder": {
     "message": "Search name or tz address"
   },
+  "metadataLoading": {
+    "message": "Metadata loading..."
+  },
+  "refreshMetadata": {
+    "message": "Refresh metadata"
+  },
   "bakerIsLoading": {
     "message": "Baker is loading..."
   },

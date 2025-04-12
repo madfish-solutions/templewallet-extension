@@ -51,7 +51,7 @@ export const PageLoader: FC<PageLoaderProps> = ({ text, stretch, className }) =>
 
     {text && (
       <div className="p-4">
-        <span className="text-font-description-bold text-grey-2">{text}</span>
+        <span className="text-font-description-bold text-grey-1">{text}</span>
       </div>
     )}
   </div>

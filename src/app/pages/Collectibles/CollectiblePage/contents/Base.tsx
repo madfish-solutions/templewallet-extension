@@ -10,6 +10,7 @@ import { TempleAccountType } from 'lib/temple/types';
 import { useAccount } from 'temple/front';
 
 import { Description } from '../components/Description';
+import { ImageContainer } from '../components/ImageContainer';
 import { CollectiblesSelectors } from '../selectors';
 
 interface CollectiblePageLayoutProps {
@@ -46,12 +47,7 @@ export const BaseContent: FC<CollectiblePageLayoutProps> = ({
 
   return (
     <PageLayout headerRightElem={headerRightElement}>
-      <div
-        className="relative flex items-center justify-center rounded-8 mb-4 overflow-hidden bg-grey-4"
-        style={{ aspectRatio: '1/1' }}
-      >
-        {imageElement}
-      </div>
+      <ImageContainer>{imageElement}</ImageContainer>
 
       <div
         className="max-w-88 max-h-12 text-font-regular-bold leading-6 truncate"

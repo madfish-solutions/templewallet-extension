@@ -203,7 +203,7 @@ export function useTezosAssetBalance(assetSlug: string, address: string, network
   return { rawValue, value, isSyncing, error, refresh, assetMetadata };
 }
 
-function useEvmAssetRawBalance(
+export function useEvmAssetRawBalance(
   assetSlug: string,
   address: HexString,
   network: EvmNetworkEssentials,

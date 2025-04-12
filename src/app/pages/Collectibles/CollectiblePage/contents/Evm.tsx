@@ -16,6 +16,7 @@ import { EvmDetails } from '../components/Details';
 import { QuickActionsPopper } from '../components/QuickActionsPopper';
 
 import { BaseContent } from './Base';
+import { EvmNoMetadataContent } from './NoMetadata';
 
 interface Props {
   chainId: number;
@@ -24,7 +25,7 @@ interface Props {
 
 export const EvmContent = memo<Props>(({ chainId, assetSlug }) => {
   const network = useEvmChainByChainId(chainId);
-  const publicKeyHash = useAccountAddressForEvm();
+  const accountPkh = useAccountAddressForEvm();
   const metadata = useEvmCollectibleMetadataSelector(chainId, assetSlug);
 
   const onSendButtonClick = useCallback(
@@ -32,7 +33,16 @@ export const EvmContent = memo<Props>(({ chainId, assetSlug }) => {
     [chainId, assetSlug]
   );
 
-  if (!publicKeyHash || !network || !metadata) throw new DeadEndBoundaryError();
+  if (!accountPkh || !network) throw new DeadEndBoundaryError();
+  if (!metadata)
+    return (
+      <EvmNoMetadataContent
+        assetSlug={assetSlug}
+        network={network}
+        accountPkh={accountPkh}
+        onSendClick={onSendButtonClick}
+      />
+    );
 
   const collectibleName = getCollectibleName(metadata);
   const collectionName = getCollectionName(metadata);
@@ -49,7 +59,7 @@ export const EvmContent = memo<Props>(({ chainId, assetSlug }) => {
       description={metadata.description}
       showSegmentControl={showSegmentControl}
       detailsElement={
-        <EvmDetails network={network} assetSlug={assetSlug} accountPkh={publicKeyHash} metadata={metadata} />
+        <EvmDetails network={network} assetSlug={assetSlug} accountPkh={accountPkh} metadata={metadata} />
       }
       attributesElement={<EvmAttributes attributes={metadata.attributes} />}
     />

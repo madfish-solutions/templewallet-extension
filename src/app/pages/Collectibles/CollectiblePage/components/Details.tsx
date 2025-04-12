@@ -9,9 +9,9 @@ import { EvmNetworkLogo, TezosNetworkLogo } from 'app/atoms/NetworkLogo';
 import { ReactComponent as OutLinkIcon } from 'app/icons/base/outLink.svg';
 import type { CollectibleDetails } from 'app/store/tezos/collectibles/state';
 import { ChartListItem } from 'app/templates/chart-list-item';
-import { fromFa2TokenSlug } from 'lib/assets/utils';
+import { fromAssetSlug, fromFa2TokenSlug } from 'lib/assets/utils';
 import { useTezosAssetBalance } from 'lib/balances';
-import { useEvmAssetBalance } from 'lib/balances/hooks';
+import { useEvmAssetRawBalance } from 'lib/balances/hooks';
 import { formatDate, T, toLocalFormat } from 'lib/i18n';
 import { buildHttpLinkFromUri } from 'lib/images-uri';
 import { EvmCollectibleMetadata } from 'lib/metadata/types';
@@ -29,124 +29,133 @@ interface TezosDetailsProps {
   assetSlug: string;
   accountPkh: string;
   details?: CollectibleDetails | null;
+  shouldShowEmptyRows?: boolean;
 }
 
-export const TezosDetails = memo<TezosDetailsProps>(({ network, assetSlug, accountPkh, details }) => {
-  const { contract, id } = fromFa2TokenSlug(assetSlug);
+export const TezosDetails = memo<TezosDetailsProps>(
+  ({ network, assetSlug, accountPkh, details, shouldShowEmptyRows = true }) => {
+    const { contract, id } = fromFa2TokenSlug(assetSlug);
 
-  const { value: balance } = useTezosAssetBalance(assetSlug, accountPkh, network);
+    const { value: balance } = useTezosAssetBalance(assetSlug, accountPkh, network);
 
-  const getActiveBlockExplorer = useGetTezosActiveBlockExplorer();
-  const activeBlockExplorer = useMemo(
-    () => getActiveBlockExplorer(network.chainId),
-    [getActiveBlockExplorer, network.chainId]
-  );
+    const getActiveBlockExplorer = useGetTezosActiveBlockExplorer();
+    const activeBlockExplorer = useMemo(
+      () => getActiveBlockExplorer(network.chainId),
+      [getActiveBlockExplorer, network.chainId]
+    );
 
-  const exploreContractUrl = useMemo(
-    () => makeBlockExplorerHref(activeBlockExplorer.url, contract, 'address', TempleChainKind.Tezos),
-    [activeBlockExplorer.url, contract]
-  );
+    const exploreContractUrl = useMemo(
+      () => makeBlockExplorerHref(activeBlockExplorer.url, contract, 'address', TempleChainKind.Tezos),
+      [activeBlockExplorer.url, contract]
+    );
 
-  const creatorAddress = details?.creators?.at(0)?.address;
+    const creatorAddress = details?.creators?.at(0)?.address;
 
-  const exploreContractCreatorUrl = useMemo(
-    () =>
-      creatorAddress &&
-      makeBlockExplorerHref(activeBlockExplorer.url, creatorAddress, 'address', TempleChainKind.Tezos),
-    [activeBlockExplorer.url, creatorAddress]
-  );
+    const exploreContractCreatorUrl = useMemo(
+      () =>
+        creatorAddress &&
+        makeBlockExplorerHref(activeBlockExplorer.url, creatorAddress, 'address', TempleChainKind.Tezos),
+      [activeBlockExplorer.url, creatorAddress]
+    );
 
-  const mintedTimestamp = useMemo(() => {
-    const value = details?.mintedTimestamp;
+    const mintedTimestamp = useMemo(() => {
+      const value = details?.mintedTimestamp;
 
-    return value ? formatDate(value, 'PP') : '-';
-  }, [details?.mintedTimestamp]);
+      return value ? formatDate(value, 'PP') : '-';
+    }, [details?.mintedTimestamp]);
 
-  const royaltiesStr = useMemo(() => {
-    if (!details?.royalties) return '-';
+    const royaltiesStr = useMemo(() => {
+      if (!details?.royalties) return '-';
 
-    return `${toLocalFormat(details.royalties, { decimalPlaces: 2 })}%`;
-  }, [details]);
+      return `${toLocalFormat(details.royalties, { decimalPlaces: 2 })}%`;
+    }, [details]);
 
-  return (
-    <div className="flex flex-col p-4 rounded-8 shadow-bottom bg-white">
-      <ChartListItem title={<T id="chain" />}>
-        <div className="flex flex-row items-center">
-          <span className={VALUE_CLASSNAME}>{network.name}</span>
-          <TezosNetworkLogo chainId={network.chainId} size={16} />
-        </div>
-      </ChartListItem>
-
-      <ChartListItem title={<T id="tokenStandard" />}>
-        <p className={VALUE_CLASSNAME}>FA2</p>
-      </ChartListItem>
-
-      <ChartListItem title={<T id="tokenId" />}>
-        <p className={VALUE_CLASSNAME}>{id}</p>
-      </ChartListItem>
-
-      <ChartListItem title={<T id="tokenContract" />}>
-        <div className="flex flex-row items-center gap-x-0.5">
-          <HashChip hash={contract} className="p-0.5" />
-          <Anchor href={exploreContractUrl}>
-            <IconBase Icon={OutLinkIcon} className="text-secondary" />
-          </Anchor>
-        </div>
-      </ChartListItem>
-
-      {creatorAddress && (
-        <ChartListItem title={<T id="contractCreator" />}>
-          <div className="flex flex-row items-center gap-x-0.5">
-            <HashChip hash={creatorAddress} className="p-0.5" />
-            {exploreContractCreatorUrl && (
-              <Anchor href={exploreContractCreatorUrl}>
-                <IconBase Icon={OutLinkIcon} className="text-secondary" />
-              </Anchor>
-            )}
+    return (
+      <div className="flex flex-col p-4 rounded-8 shadow-bottom bg-white">
+        <ChartListItem title={<T id="chain" />}>
+          <div className="flex flex-row items-center">
+            <span className={VALUE_CLASSNAME}>{network.name}</span>
+            <TezosNetworkLogo chainId={network.chainId} size={16} />
           </div>
         </ChartListItem>
-      )}
 
-      {details?.metadataHash && (
-        <ChartListItem title={<T id="metadata" />}>
-          <Anchor
-            href={`https://ipfs.io/ipfs/${details.metadataHash}`}
-            className="flex flex-row items-center gap-x-0.5 text-secondary"
-          >
-            <p className="py-0.5 text-font-description">IPFS</p>
-            <IconBase Icon={OutLinkIcon} />
-          </Anchor>
+        <ChartListItem title={<T id="tokenStandard" />}>
+          <p className={VALUE_CLASSNAME}>FA2</p>
         </ChartListItem>
-      )}
 
-      <ChartListItem title={<T id="owned" />}>
-        <p className={VALUE_CLASSNAME}>{getValueWithFallback(balance)}</p>
-      </ChartListItem>
+        <ChartListItem title={<T id="tokenId" />}>
+          <p className={VALUE_CLASSNAME}>{id}</p>
+        </ChartListItem>
 
-      <ChartListItem title={<T id="editions" />}>
-        <p className={VALUE_CLASSNAME}>{getValueWithFallback(details?.supply)}</p>
-      </ChartListItem>
+        <ChartListItem title={<T id="tokenContract" />}>
+          <div className="flex flex-row items-center gap-x-0.5">
+            <HashChip hash={contract} className="p-0.5" />
+            <Anchor href={exploreContractUrl}>
+              <IconBase Icon={OutLinkIcon} className="text-secondary" />
+            </Anchor>
+          </div>
+        </ChartListItem>
 
-      <ChartListItem title={<T id="royalties" />}>
-        <p className={VALUE_CLASSNAME}>{royaltiesStr}</p>
-      </ChartListItem>
+        {creatorAddress && (
+          <ChartListItem title={<T id="contractCreator" />}>
+            <div className="flex flex-row items-center gap-x-0.5">
+              <HashChip hash={creatorAddress} className="p-0.5" />
+              {exploreContractCreatorUrl && (
+                <Anchor href={exploreContractCreatorUrl}>
+                  <IconBase Icon={OutLinkIcon} className="text-secondary" />
+                </Anchor>
+              )}
+            </div>
+          </ChartListItem>
+        )}
 
-      <ChartListItem title={<T id="minted" />} bottomSeparator={false}>
-        <p className={VALUE_CLASSNAME}>{mintedTimestamp}</p>
-      </ChartListItem>
-    </div>
-  );
-});
+        {details?.metadataHash && (
+          <ChartListItem title={<T id="metadata" />}>
+            <Anchor
+              href={`https://ipfs.io/ipfs/${details.metadataHash}`}
+              className="flex flex-row items-center gap-x-0.5 text-secondary"
+            >
+              <p className="py-0.5 text-font-description">IPFS</p>
+              <IconBase Icon={OutLinkIcon} />
+            </Anchor>
+          </ChartListItem>
+        )}
+
+        <ChartListItem title={<T id="owned" />} bottomSeparator={shouldShowEmptyRows}>
+          <p className={VALUE_CLASSNAME}>{getValueWithFallback(balance)}</p>
+        </ChartListItem>
+
+        {shouldShowEmptyRows && (
+          <>
+            <ChartListItem title={<T id="editions" />}>
+              <p className={VALUE_CLASSNAME}>{getValueWithFallback(details?.supply)}</p>
+            </ChartListItem>
+
+            <ChartListItem title={<T id="royalties" />}>
+              <p className={VALUE_CLASSNAME}>{royaltiesStr}</p>
+            </ChartListItem>
+
+            <ChartListItem title={<T id="minted" />} bottomSeparator={false}>
+              <p className={VALUE_CLASSNAME}>{mintedTimestamp}</p>
+            </ChartListItem>
+          </>
+        )}
+      </div>
+    );
+  }
+);
 
 interface EvmDetailsProps {
   network: EvmChain;
   assetSlug: string;
   accountPkh: HexString;
-  metadata: EvmCollectibleMetadata;
+  metadata?: EvmCollectibleMetadata;
 }
 
 export const EvmDetails = memo<EvmDetailsProps>(({ network, accountPkh, assetSlug, metadata }) => {
-  const { value: balance } = useEvmAssetBalance(assetSlug, accountPkh, network);
+  const { value: balance } = useEvmAssetRawBalance(assetSlug, accountPkh, network, metadata?.standard, !metadata);
+
+  const [contractAddress, tokenId] = useMemo(() => fromAssetSlug(assetSlug), [assetSlug]);
 
   const getActiveBlockExplorer = useGetEvmActiveBlockExplorer();
   const activeBlockExplorer = useMemo(
@@ -155,25 +164,25 @@ export const EvmDetails = memo<EvmDetailsProps>(({ network, accountPkh, assetSlu
   );
 
   const exploreContractUrl = useMemo(
-    () => makeBlockExplorerHref(activeBlockExplorer.url, metadata.address, 'address', TempleChainKind.EVM),
-    [activeBlockExplorer.url, metadata.address]
+    () => makeBlockExplorerHref(activeBlockExplorer.url, contractAddress, 'address', TempleChainKind.EVM),
+    [activeBlockExplorer.url, contractAddress]
   );
 
   const exploreContractCreatorUrl = useMemo(
     () =>
-      metadata.originalOwner &&
-      makeBlockExplorerHref(activeBlockExplorer.url, metadata.originalOwner, 'address', TempleChainKind.EVM),
-    [activeBlockExplorer.url, metadata.originalOwner]
+      metadata?.originalOwner &&
+      makeBlockExplorerHref(activeBlockExplorer.url, metadata?.originalOwner, 'address', TempleChainKind.EVM),
+    [activeBlockExplorer.url, metadata?.originalOwner]
   );
 
   const metadataLink = useMemo(() => {
-    if (!metadata.metadataUri?.startsWith('ipfs')) return;
+    if (!metadata?.metadataUri?.startsWith('ipfs')) return;
     return buildHttpLinkFromUri(metadata.metadataUri);
-  }, [metadata.metadataUri]);
+  }, [metadata?.metadataUri]);
 
   const displayStandard = useMemo(
-    () => (metadata.standard ? metadata.standard.replace('erc', 'ERC ') : '-'),
-    [metadata.standard]
+    () => metadata?.standard && metadata?.standard.replace('erc', 'ERC '),
+    [metadata?.standard]
   );
 
   return (
@@ -185,24 +194,26 @@ export const EvmDetails = memo<EvmDetailsProps>(({ network, accountPkh, assetSlu
         </div>
       </ChartListItem>
 
-      <ChartListItem title={<T id="tokenStandard" />}>
-        <p className={VALUE_CLASSNAME}>{displayStandard}</p>
-      </ChartListItem>
+      {displayStandard && (
+        <ChartListItem title={<T id="tokenStandard" />}>
+          <p className={VALUE_CLASSNAME}>{displayStandard}</p>
+        </ChartListItem>
+      )}
 
       <ChartListItem title={<T id="tokenId" />}>
-        <p className={clsx(VALUE_CLASSNAME, 'max-w-48 truncate')}>{metadata.tokenId}</p>
+        <p className={clsx(VALUE_CLASSNAME, 'max-w-48 truncate')}>{tokenId}</p>
       </ChartListItem>
 
       <ChartListItem title={<T id="tokenContract" />}>
         <div className="flex flex-row items-center gap-x-0.5">
-          <HashChip hash={metadata.address} className="p-0.5" />
+          <HashChip hash={contractAddress} className="p-0.5" />
           <Anchor href={exploreContractUrl}>
             <IconBase Icon={OutLinkIcon} className="text-secondary" />
           </Anchor>
         </div>
       </ChartListItem>
 
-      {metadata.originalOwner && (
+      {metadata?.originalOwner && (
         <ChartListItem title={<T id="contractCreator" />}>
           <div className="flex flex-row items-center gap-x-0.5">
             <HashChip hash={metadata.originalOwner} className="p-0.5" />

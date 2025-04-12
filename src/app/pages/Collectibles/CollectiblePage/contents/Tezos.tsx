@@ -22,6 +22,7 @@ import { TezosDetails } from '../components/Details';
 import { QuickActionsPopper } from '../components/QuickActionsPopper';
 
 import { BaseContent } from './Base';
+import { TezosNoMetadataContent } from './NoMetadata';
 
 interface Props {
   chainId: string;
@@ -35,9 +36,9 @@ export const TezosContent = memo<Props>(({ chainId, assetSlug }) => {
   const details = useCollectibleDetailsSelector(assetSlug);
   const areAnyCollectiblesDetailsLoading = useAllCollectiblesDetailsLoadingSelector();
 
-  if (!metadata || !network || !account) throw new DeadEndBoundaryError();
+  if (!network || !account) throw new DeadEndBoundaryError();
 
-  const publicKeyHash = account.address;
+  const accountPkh = account.address;
   const areDetailsLoading = areAnyCollectiblesDetailsLoading && details === undefined;
 
   useEffect(() => void dispatch(loadCollectiblesDetailsActions.submit([assetSlug])), [assetSlug]);
@@ -56,6 +57,16 @@ export const TezosContent = memo<Props>(({ chainId, assetSlug }) => {
     () => navigate(buildSendPagePath(TempleChainKind.Tezos, chainId, assetSlug)),
     [chainId, assetSlug]
   );
+
+  if (!metadata)
+    return (
+      <TezosNoMetadataContent
+        assetSlug={assetSlug}
+        network={network}
+        accountPkh={accountPkh}
+        onSendClick={onSendButtonClick}
+      />
+    );
 
   const showSegmentControl = details?.attributes && details?.attributes.length > 0;
 
@@ -79,7 +90,7 @@ export const TezosContent = memo<Props>(({ chainId, assetSlug }) => {
       showSegmentControl={showSegmentControl}
       isLoading={areDetailsLoading}
       detailsElement={
-        <TezosDetails network={network} assetSlug={assetSlug} accountPkh={publicKeyHash} details={details} />
+        <TezosDetails network={network} assetSlug={assetSlug} accountPkh={accountPkh} details={details} />
       }
       attributesElement={<TezosAttributes details={details} />}
     />
