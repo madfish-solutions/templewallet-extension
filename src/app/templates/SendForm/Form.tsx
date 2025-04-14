@@ -12,11 +12,11 @@ import React, {
 
 import { ManagerKeyResponse } from '@taquito/rpc';
 import {
-  DEFAULT_FEE,
   TransferParams,
   Estimate,
   TransactionWalletOperation,
-  TransactionOperation
+  TransactionOperation,
+  getRevealFee
 } from '@taquito/taquito';
 import BigNumber from 'bignumber.js';
 import classNames from 'clsx';
@@ -226,7 +226,7 @@ export const Form: FC<FormProps> = ({ assetSlug, setOperation, onAddContactReque
 
       let estimatedBaseFee = mutezToTz(estmtnMax.burnFeeMutez + estmtnMax.suggestedFeeMutez);
       if (!hasManager(manager)) {
-        estimatedBaseFee = estimatedBaseFee.plus(mutezToTz(DEFAULT_FEE.REVEAL));
+        estimatedBaseFee = estimatedBaseFee.plus(mutezToTz(getRevealFee(acc.publicKeyHash)));
       }
 
       if (tez ? estimatedBaseFee.isGreaterThanOrEqualTo(balance) : estimatedBaseFee.isGreaterThan(tezBalance)) {
@@ -650,7 +650,7 @@ const estimateMaxFee = async (
     const estmtn = await tezos.estimate.transfer(transferParams);
     let amountMax = balanceBN.minus(mutezToTz(estmtn.totalCost));
     if (!hasManager(manager)) {
-      amountMax = amountMax.minus(mutezToTz(DEFAULT_FEE.REVEAL));
+      amountMax = amountMax.minus(mutezToTz(getRevealFee(acc.publicKeyHash)));
     }
     estmtnMax = await tezos.estimate.transfer({
       to,

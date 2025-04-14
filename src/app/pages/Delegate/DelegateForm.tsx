@@ -1,6 +1,6 @@
 import React, { memo, ReactNode, useCallback, useLayoutEffect, useMemo, useRef } from 'react';
 
-import { DEFAULT_FEE, DelegateParams, TransactionOperation, WalletOperation } from '@taquito/taquito';
+import { DelegateParams, getRevealFee, TransactionOperation, WalletOperation } from '@taquito/taquito';
 import BigNumber from 'bignumber.js';
 import { Controller, useForm } from 'react-hook-form';
 
@@ -130,7 +130,7 @@ const DelegateForm = memo<Props>(({ balance }) => {
 
       let baseFee = mutezToTz(estmtn.burnFeeMutez + estmtn.suggestedFeeMutez);
       if (!hasManager(manager) && acc.type !== TempleAccountType.ManagedKT) {
-        baseFee = baseFee.plus(mutezToTz(DEFAULT_FEE.REVEAL));
+        baseFee = baseFee.plus(mutezToTz(getRevealFee(acc.publicKeyHash)));
       }
 
       if (baseFee.isGreaterThanOrEqualTo(balance)) {
