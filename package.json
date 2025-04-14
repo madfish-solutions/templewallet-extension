@@ -202,6 +202,7 @@
     "use-force-update": "1.0.7",
     "use-onclickoutside": "0.4.1",
     "util": "0.11.1",
+    "vm-browserify": "^1.1.2",
     "wasm-themis": "0.14.6",
     "webextension-polyfill": "^0.10.0",
     "webpack": "^5.74.0",

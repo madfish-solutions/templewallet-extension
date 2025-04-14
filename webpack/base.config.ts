@@ -70,6 +70,7 @@ export const buildBaseConfig = (): WebPack.Configuration & Pick<WebPack.WebpackO
       crypto: require.resolve('crypto-browserify'),
       util: require.resolve('util/'),
       assert: require.resolve('assert/'),
+      vm: require.resolve('vm-browserify'),
       /* Current package version has a bug with false import path */
       '@ledgerhq/devices/hid-framing': require.resolve('@ledgerhq/devices/lib-es/hid-framing')
     },
