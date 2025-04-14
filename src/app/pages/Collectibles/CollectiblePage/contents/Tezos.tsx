@@ -58,15 +58,7 @@ export const TezosContent = memo<Props>(({ chainId, assetSlug }) => {
     [chainId, assetSlug]
   );
 
-  if (!metadata)
-    return (
-      <TezosNoMetadataContent
-        assetSlug={assetSlug}
-        network={network}
-        accountPkh={accountPkh}
-        onSendClick={onSendButtonClick}
-      />
-    );
+  if (!metadata) return <TezosNoMetadataContent assetSlug={assetSlug} network={network} accountPkh={accountPkh} />;
 
   const showSegmentControl = details?.attributes && details?.attributes.length > 0;
 

@@ -34,15 +34,7 @@ export const EvmContent = memo<Props>(({ chainId, assetSlug }) => {
   );
 
   if (!accountPkh || !network) throw new DeadEndBoundaryError();
-  if (!metadata)
-    return (
-      <EvmNoMetadataContent
-        assetSlug={assetSlug}
-        network={network}
-        accountPkh={accountPkh}
-        onSendClick={onSendButtonClick}
-      />
-    );
+  if (!metadata) return <EvmNoMetadataContent assetSlug={assetSlug} network={network} accountPkh={accountPkh} />;
 
   const collectibleName = getCollectibleName(metadata);
   const collectionName = getCollectionName(metadata);
