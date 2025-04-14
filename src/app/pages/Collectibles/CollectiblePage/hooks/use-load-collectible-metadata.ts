@@ -57,9 +57,7 @@ const loadTezosMetadata = async (network: TezosChain, slug: string) => {
 const loadEvmMetadata = async (network: EvmChain, slug: string) => {
   const metadata = await fetchEvmCollectibleMetadataFromChain(network, slug);
 
-  if (!metadata) {
-    throw new Error();
-  }
+  if (!metadata) throw new Error();
 
   dispatch(
     putEvmCollectiblesMetadataAction({
