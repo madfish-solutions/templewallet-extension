@@ -1,6 +1,7 @@
 import React, { memo, Suspense, useCallback, useEffect, useState } from 'react';
 
 import { IconBase } from 'app/atoms';
+import { PageLoader } from 'app/atoms/Loader';
 import { PageTitle } from 'app/atoms/PageTitle';
 import { ReactComponent as ManageIcon } from 'app/icons/base/manage.svg';
 import PageLayout from 'app/layouts/PageLayout';
@@ -42,7 +43,7 @@ const Swap = memo(() => {
       }
     >
       <div className="flex-1 flex-grow w-full max-w-sm mx-auto">
-        <Suspense fallback={null}>
+        <Suspense fallback={<PageLoader stretch />}>
           {publicKeyHash ? (
             <>
               <SwapForm publicKeyHash={publicKeyHash} slippageTolerance={slippageTolerance} />
