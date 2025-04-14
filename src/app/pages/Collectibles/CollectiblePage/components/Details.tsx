@@ -8,7 +8,7 @@ import { HashChip } from 'app/atoms/HashChip';
 import { EvmNetworkLogo, TezosNetworkLogo } from 'app/atoms/NetworkLogo';
 import { ReactComponent as OutLinkIcon } from 'app/icons/base/outLink.svg';
 import type { CollectibleDetails } from 'app/store/tezos/collectibles/state';
-import { ChartListItem } from 'app/templates/chart-list-item';
+import { ChartListItem, PlainChartListItemProps } from 'app/templates/chart-list-item';
 import { fromAssetSlug, fromFa2TokenSlug } from 'lib/assets/utils';
 import { useTezosAssetBalance } from 'lib/balances';
 import { useEvmAssetRawBalance } from 'lib/balances/hooks';
@@ -79,13 +79,9 @@ export const TezosDetails = memo<TezosDetailsProps>(
           </div>
         </ChartListItem>
 
-        <ChartListItem title={<T id="tokenStandard" />}>
-          <p className={VALUE_CLASSNAME}>FA2</p>
-        </ChartListItem>
+        <PlainChartListItem title={<T id="tokenStandard" />}>FA2</PlainChartListItem>
 
-        <ChartListItem title={<T id="tokenId" />}>
-          <p className={VALUE_CLASSNAME}>{id}</p>
-        </ChartListItem>
+        <PlainChartListItem title={<T id="tokenId" />}>{id}</PlainChartListItem>
 
         <ChartListItem title={<T id="tokenContract" />}>
           <div className="flex flex-row items-center gap-x-0.5">
@@ -121,23 +117,19 @@ export const TezosDetails = memo<TezosDetailsProps>(
           </ChartListItem>
         )}
 
-        <ChartListItem title={<T id="owned" />} bottomSeparator={shouldShowEmptyRows}>
-          <p className={VALUE_CLASSNAME}>{getValueWithFallback(balance)}</p>
-        </ChartListItem>
+        <PlainChartListItem title={<T id="owned" />} bottomSeparator={shouldShowEmptyRows}>
+          {getValueWithFallback(balance)}
+        </PlainChartListItem>
 
         {shouldShowEmptyRows && (
           <>
-            <ChartListItem title={<T id="editions" />}>
-              <p className={VALUE_CLASSNAME}>{getValueWithFallback(details?.supply)}</p>
-            </ChartListItem>
+            <PlainChartListItem title={<T id="editions" />}>{getValueWithFallback(details?.supply)}</PlainChartListItem>
 
-            <ChartListItem title={<T id="royalties" />}>
-              <p className={VALUE_CLASSNAME}>{royaltiesStr}</p>
-            </ChartListItem>
+            <PlainChartListItem title={<T id="royalties" />}>{royaltiesStr}</PlainChartListItem>
 
-            <ChartListItem title={<T id="minted" />} bottomSeparator={false}>
-              <p className={VALUE_CLASSNAME}>{mintedTimestamp}</p>
-            </ChartListItem>
+            <PlainChartListItem title={<T id="minted" />} bottomSeparator={false}>
+              {mintedTimestamp}
+            </PlainChartListItem>
           </>
         )}
       </div>
@@ -194,15 +186,9 @@ export const EvmDetails = memo<EvmDetailsProps>(({ network, accountPkh, assetSlu
         </div>
       </ChartListItem>
 
-      {displayStandard && (
-        <ChartListItem title={<T id="tokenStandard" />}>
-          <p className={VALUE_CLASSNAME}>{displayStandard}</p>
-        </ChartListItem>
-      )}
+      {displayStandard && <PlainChartListItem title={<T id="tokenStandard" />}>{displayStandard}</PlainChartListItem>}
 
-      <ChartListItem title={<T id="tokenId" />}>
-        <p className={clsx(VALUE_CLASSNAME, 'max-w-48 truncate')}>{tokenId}</p>
-      </ChartListItem>
+      <PlainChartListItem title={<T id="tokenId" />}>{tokenId}</PlainChartListItem>
 
       <ChartListItem title={<T id="tokenContract" />}>
         <div className="flex flex-row items-center gap-x-0.5">
@@ -235,9 +221,15 @@ export const EvmDetails = memo<EvmDetailsProps>(({ network, accountPkh, assetSlu
         </ChartListItem>
       )}
 
-      <ChartListItem title={<T id="owned" />} bottomSeparator={false}>
-        <p className={VALUE_CLASSNAME}>{getValueWithFallback(balance)}</p>
-      </ChartListItem>
+      <PlainChartListItem title={<T id="owned" />} bottomSeparator={false}>
+        {getValueWithFallback(balance)}
+      </PlainChartListItem>
     </div>
   );
 });
+
+const PlainChartListItem = memo<PlainChartListItemProps>(({ children, ...restProps }) => (
+  <ChartListItem {...restProps}>
+    <p className={clsx(VALUE_CLASSNAME, 'max-w-48 truncate')}>{children}</p>
+  </ChartListItem>
+));
