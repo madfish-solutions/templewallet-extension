@@ -23,6 +23,7 @@ import { AccountItem } from './AccountItem';
 
 export const ShortcutAccountSwitchOverlay = memo(() => {
   const accountSwitchRef = useRef<HTMLDivElement>(null);
+  const accountItemsRef = useRef<Array<HTMLButtonElement | null>>([]);
 
   const { opened, setOpened } = useAccountSelectShortcut();
   useModalScrollLock(opened, accountSwitchRef);
@@ -156,23 +157,24 @@ export const ShortcutAccountSwitchOverlay = memo(() => {
                 </div>
               ) : (
                 filteredGroups.map((group, index) => (
-                  <div className={index === 0 ? 'mt-3' : ''}>
-                    <div className={clsx(index === 0 && 'mt-3', 'flex flex-col mb-4 px-3')}>
-                      <div className="flex items-center justify-between">
-                        <Name className="p-1 text-font-description-bold">{group.name}</Name>
-                        <AccLabel type={group.type} />
-                      </div>
-                      <div className="flex flex-col gap-y-3 mt-2">
-                        {group.accounts.map(account => (
-                          <AccountItem
-                            key={account.id}
-                            account={account}
-                            focused={filteredAccounts[focusedAccountItemIndex]?.id === account.id}
-                            selected={account.id === currentAccountId}
-                            onAccountSelect={handleAccountClick}
-                          />
-                        ))}
-                      </div>
+                  <div className={clsx(index === 0 && 'mt-3', 'flex flex-col mb-4 px-3')}>
+                    <div className="flex items-center justify-between">
+                      <Name className="p-1 text-font-description-bold">{group.name}</Name>
+                      <AccLabel type={group.type} />
+                    </div>
+                    <div className="flex flex-col gap-y-3 mt-2">
+                      {group.accounts.map(account => (
+                        <AccountItem
+                          key={account.id}
+                          account={account}
+                          focused={filteredAccounts[focusedAccountItemIndex]?.id === account.id}
+                          selected={account.id === currentAccountId}
+                          onAccountSelect={handleAccountClick}
+                          searchValue={searchValue}
+                          arrayIndex={filteredAccounts.findIndex(a => a.id === account.id)}
+                          itemsArrayRef={accountItemsRef}
+                        />
+                      ))}
                     </div>
                   </div>
                 ))

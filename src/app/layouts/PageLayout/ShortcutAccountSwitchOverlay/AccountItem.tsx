@@ -1,13 +1,16 @@
-import React from 'react';
+import React, { RefObject } from 'react';
 
+import { isDefined } from '@rnw-community/shared';
 import clsx from 'clsx';
 
 import { Name, Button } from 'app/atoms';
 import { AccountAvatar } from 'app/atoms/AccountAvatar';
+import { SearchHighlightText } from 'app/atoms/SearchHighlightText';
 import { TotalEquity } from 'app/atoms/TotalEquity';
 import { T } from 'lib/i18n';
 import { StoredAccount } from 'lib/temple/types';
 import { useScrollIntoView } from 'lib/ui/use-scroll-into-view';
+import { combineRefs } from 'lib/ui/utils';
 
 import { ShortcutAccountSwitchSelectors } from './selectors';
 
@@ -18,6 +21,9 @@ interface AccountItemProps {
   focused: boolean;
   selected: boolean;
   onAccountSelect: (accountId: string) => void;
+  searchValue: string;
+  arrayIndex?: number;
+  itemsArrayRef?: RefObject<Array<HTMLButtonElement | null>>;
 }
 
 const baseRowClasses = clsx(
@@ -34,12 +40,24 @@ const getRowClassName = (selected: boolean, focused: boolean) =>
     selected && focused && 'border-transparent'
   );
 
-export const AccountItem: React.FC<AccountItemProps> = ({ account, focused, selected, onAccountSelect }) => {
+export const AccountItem: React.FC<AccountItemProps> = ({
+  account,
+  focused,
+  selected,
+  onAccountSelect,
+  searchValue,
+  arrayIndex,
+  itemsArrayRef
+}) => {
   const elemRef = useScrollIntoView<HTMLButtonElement>(selected, scrollIntoViewOptions);
 
   return (
     <Button
-      ref={elemRef}
+      ref={combineRefs(elemRef, el => {
+        if (isDefined(arrayIndex) && itemsArrayRef?.current) {
+          itemsArrayRef.current[arrayIndex] = el;
+        }
+      })}
       className={getRowClassName(selected, focused)}
       onClick={() => onAccountSelect(account.id)}
       testID={ShortcutAccountSwitchSelectors.accountItemButton}
@@ -48,7 +66,9 @@ export const AccountItem: React.FC<AccountItemProps> = ({ account, focused, sele
       <div className="flex flex-1 flex-row justify-between items-center">
         <div className="flex items-center flex-row gap-x-2">
           <AccountAvatar seed={account.id} size={32} borderColor="gray" />
-          <Name className="text-font-medium-bold">{account.name}</Name>
+          <Name className="text-font-medium-bold">
+            <SearchHighlightText searchValue={searchValue}>{account.name}</SearchHighlightText>
+          </Name>
         </div>
 
         <div className="flex flex-col justify-end">
