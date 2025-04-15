@@ -2,6 +2,8 @@ import React, { FC, PropsWithChildren, ReactNode, memo, useMemo } from 'react';
 
 import clsx from 'clsx';
 
+import { ReactComponent as UnknownCollectible } from 'app/icons/unknown-collectible.svg';
+import { ReactComponent as UnknownToken } from 'app/icons/unknown-token.svg';
 import { T, t } from 'lib/i18n';
 import useTippy, { UseTippyOptions } from 'lib/ui/useTippy';
 import { EvmChain, TezosChain } from 'temple/front';
@@ -9,9 +11,6 @@ import { TempleChainKind } from 'temple/types';
 
 import { EvmAssetIcon, TezosAssetIcon } from '../AssetIcon';
 import { ShortenedTextWithTooltip } from '../shortened-text-with-tooltip';
-
-import { ReactComponent as UnknownCollectible } from './unknown-collectible.svg';
-import { ReactComponent as UnknownToken } from './unknown-token.svg';
 
 const CollectibleIconFallback = memo<{ size?: number }>(({ size = 24 }) => (
   <UnknownCollectible style={{ width: size, height: size }} />

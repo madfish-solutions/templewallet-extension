@@ -11,7 +11,7 @@ interface Props extends PropsWithChildren {
 }
 
 /** Boundary for components' errors & suspense behaviour */
-export const SuspenseContainer: FC<Props> = ({ errorMessage, loader = <PageLoader />, children }) => (
+export const SuspenseContainer: FC<Props> = ({ errorMessage, loader = <PageLoader stretch />, children }) => (
   <ErrorBoundary whileMessage={errorMessage}>
     <Suspense fallback={loader}>{children}</Suspense>
   </ErrorBoundary>

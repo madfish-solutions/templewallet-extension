@@ -26,8 +26,6 @@ export { Lines } from './Lines';
 
 export { Loader } from './Loader';
 
-export { ExternalLinkChip } from './ExternalLinkChip';
-
 export { PASSWORD_ERROR_CAPTION, FormField } from './FormField';
 
 export { ToggleSwitch } from './ToggleSwitch';

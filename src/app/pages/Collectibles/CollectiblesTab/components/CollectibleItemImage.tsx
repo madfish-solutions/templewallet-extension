@@ -13,7 +13,7 @@ import { CollectibleBlur } from '../../components/CollectibleBlur';
 import { CollectibleImageFallback } from '../../components/CollectibleImageFallback';
 import { CollectibleImageLoader } from '../../components/CollectibleImageLoader';
 
-interface Props {
+interface TezosCollectibleItemImageProps {
   assetSlug: string;
   metadata?: TokenMetadata;
   adultBlur: boolean;
@@ -21,15 +21,26 @@ interface Props {
   mime?: string | null;
   containerElemRef: React.RefObject<Element>;
   className?: string;
+  shouldUseBlurredBg?: boolean;
+  manageActive?: boolean;
 }
 
-export const CollectibleItemImage = memo<Props>(
-  ({ assetSlug, metadata, adultBlur, areDetailsLoading, mime, className }) => {
+export const TezosCollectibleItemImage = memo<TezosCollectibleItemImageProps>(
+  ({
+    assetSlug,
+    metadata,
+    adultBlur,
+    areDetailsLoading,
+    mime,
+    className,
+    shouldUseBlurredBg = false,
+    manageActive = false
+  }) => {
     const isAdultContent = useCollectibleIsAdultSelector(assetSlug);
     const isAdultFlagLoading = areDetailsLoading && !isDefined(isAdultContent);
     const shouldShowBlur = isAdultContent && adultBlur;
 
-    const sources = useMemo(() => (metadata ? buildCollectibleImagesStack(metadata) : []), [metadata]);
+    const sources = useMemo(() => (isDefined(metadata) ? buildCollectibleImagesStack(metadata) : []), [metadata]);
 
     const isAudioCollectible = useMemo(() => Boolean(mime && mime.startsWith('audio')), [mime]);
 
@@ -38,15 +49,20 @@ export const CollectibleItemImage = memo<Props>(
         {isAdultFlagLoading ? (
           <CollectibleImageLoader />
         ) : shouldShowBlur ? (
-          <CollectibleBlur />
+          <CollectibleBlur assetSlug={assetSlug} eyeIconSizeClassName={manageActive ? 'w-6 h-6' : undefined} />
         ) : (
-          <ImageStacked
-            sources={sources}
-            loading="lazy"
-            className={clsx('w-full h-full', className)}
-            loader={<CollectibleImageLoader />}
-            fallback={<CollectibleImageFallback isAudioCollectible={isAudioCollectible} />}
-          />
+          <>
+            {shouldUseBlurredBg && (
+              <ImageStacked sources={sources} loading="lazy" className="absolute w-full h-full object-cover blur-sm" />
+            )}
+            <ImageStacked
+              sources={sources}
+              loading="lazy"
+              loader={<CollectibleImageLoader />}
+              fallback={<CollectibleImageFallback isAudioCollectible={isAudioCollectible} />}
+              className={clsx('w-full h-full z-1', className)}
+            />
+          </>
         )}
       </>
     );
@@ -54,20 +70,28 @@ export const CollectibleItemImage = memo<Props>(
 );
 
 interface EvmCollectibleItemImageProps {
-  metadata: EvmCollectibleMetadata;
+  metadata?: EvmCollectibleMetadata;
   className?: string;
+  shouldUseBlurredBg?: boolean;
 }
 
-export const EvmCollectibleItemImage = memo<EvmCollectibleItemImageProps>(({ metadata, className }) => {
-  const sources = useMemo(() => buildEvmCollectibleIconSources(metadata), [metadata]);
+export const EvmCollectibleItemImage = memo<EvmCollectibleItemImageProps>(
+  ({ metadata, className, shouldUseBlurredBg = false }) => {
+    const sources = useMemo(() => (isDefined(metadata) ? buildEvmCollectibleIconSources(metadata) : []), [metadata]);
 
-  return (
-    <ImageStacked
-      sources={sources}
-      loading="lazy"
-      className={clsx('w-full h-full', className)}
-      loader={<CollectibleImageLoader />}
-      fallback={<CollectibleImageFallback />}
-    />
-  );
-});
+    return (
+      <>
+        {shouldUseBlurredBg && (
+          <ImageStacked sources={sources} loading="lazy" className="absolute w-full h-full object-cover blur-sm" />
+        )}
+        <ImageStacked
+          sources={sources}
+          loading="lazy"
+          loader={<CollectibleImageLoader />}
+          fallback={<CollectibleImageFallback />}
+          className={clsx('w-full h-full z-1', className)}
+        />
+      </>
+    );
+  }
+);

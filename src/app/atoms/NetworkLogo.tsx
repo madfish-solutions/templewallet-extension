@@ -94,7 +94,10 @@ export const EvmNetworkLogo = memo<EvmNetworkLogoProps>(
 
     const withoutTooltipClassName = withTooltip ? undefined : className;
 
-    const fallback = <NetworkLogoFallback networkName={networkName} size={size} className={withoutTooltipClassName} />;
+    const fallback = useMemo(
+      () => <NetworkLogoFallback networkName={networkName} size={size} className={withoutTooltipClassName} />,
+      [networkName, size, withoutTooltipClassName]
+    );
 
     const logoJsx = (
       <ImageStacked

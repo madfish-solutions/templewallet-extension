@@ -139,7 +139,7 @@ const EvmActivityBatchComponent = memo<BatchProps>(({ activity, chain, assetSlug
         onClick={toggleExpanded}
       />
 
-      <PageModal title="Bundle" opened={expanded} onRequestClose={toggleExpanded}>
+      <PageModal title="Bundle" opened={expanded} onRequestClose={toggleExpanded} shouldChangeBottomShift={false}>
         {() => (
           <BundleModalContent addedAt={activity.addedAt} blockExplorerUrl={blockExplorerUrl}>
             {operations.map((operation, j) => (
