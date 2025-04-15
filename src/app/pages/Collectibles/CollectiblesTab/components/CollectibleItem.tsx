@@ -9,6 +9,7 @@ import { dispatch } from 'app/store';
 import { setEvmCollectibleStatusAction } from 'app/store/evm/assets/actions';
 import { useStoredEvmCollectibleSelector } from 'app/store/evm/assets/selectors';
 import { useEvmCollectibleMetadataSelector } from 'app/store/evm/collectibles-metadata/selectors';
+import { useEvmCollectiblesMetadataLoadingSelector } from 'app/store/evm/selectors';
 import { setTezosCollectibleStatusAction } from 'app/store/tezos/assets/actions';
 import { useStoredTezosCollectibleSelector } from 'app/store/tezos/assets/selectors';
 import { useBalanceSelector } from 'app/store/tezos/balances/selectors';
@@ -16,7 +17,10 @@ import {
   useAllCollectiblesDetailsLoadingSelector,
   useCollectibleDetailsSelector
 } from 'app/store/tezos/collectibles/selectors';
-import { useCollectibleMetadataSelector } from 'app/store/tezos/collectibles-metadata/selectors';
+import {
+  useCollectibleMetadataSelector,
+  useCollectiblesMetadataLoadingSelector
+} from 'app/store/tezos/collectibles-metadata/selectors';
 import { DeleteAssetModal } from 'app/templates/remove-asset-modal/delete-asset-modal';
 import { setAnotherSelector, setTestID } from 'lib/analytics';
 import { getAssetStatus } from 'lib/assets/hooks/utils';
@@ -29,6 +33,7 @@ import { Link } from 'lib/woozie';
 import { useEvmChainByChainId, useTezosChainByChainId } from 'temple/front/chains';
 import { TempleChainKind } from 'temple/types';
 
+import { CollectibleImageLoader } from '../../components/CollectibleImageLoader';
 import { CollectibleTabSelectors } from '../selectors';
 import { toCollectibleLink } from '../utils';
 
@@ -60,6 +65,8 @@ export const TezosCollectibleItem = memo<TezosCollectibleItemProps>(
     const network = useTezosChainByChainId(tezosChainId);
 
     const storedToken = useStoredTezosCollectibleSelector(accountPkh, tezosChainId, assetSlug);
+
+    const metadatasLoading = useCollectiblesMetadataLoadingSelector();
 
     const checked = getAssetStatus(balanceAtomic, storedToken?.status) === 'enabled';
 
@@ -114,7 +121,7 @@ export const TezosCollectibleItem = memo<TezosCollectibleItemProps>(
               <div
                 ref={wrapperElemRef}
                 style={manageImgStyle}
-                className="relative flex items-center justify-center rounded-8 overflow-hidden"
+                className="relative flex items-center justify-center rounded-8 overflow-hidden bg-grey-4"
               >
                 <TezosCollectibleItemImage
                   assetSlug={assetSlug}
@@ -166,25 +173,31 @@ export const TezosCollectibleItem = memo<TezosCollectibleItemProps>(
           style={ImgStyle}
           className="relative flex items-center justify-center rounded-8 bg-grey-4 overflow-hidden border-2 border-transparent group-hover:border-secondary"
         >
-          <TezosCollectibleItemImage
-            shouldUseBlurredBg
-            assetSlug={assetSlug}
-            metadata={metadata}
-            adultBlur={adultBlur}
-            areDetailsLoading={areDetailsLoading && details === undefined}
-            mime={details?.mime}
-            containerElemRef={wrapperElemRef}
-            className="object-contain"
-          />
+          {metadatasLoading && !metadata ? (
+            <CollectibleImageLoader />
+          ) : (
+            <>
+              <TezosCollectibleItemImage
+                shouldUseBlurredBg
+                assetSlug={assetSlug}
+                metadata={metadata}
+                adultBlur={adultBlur}
+                areDetailsLoading={areDetailsLoading && details === undefined}
+                mime={details?.mime}
+                containerElemRef={wrapperElemRef}
+                className="object-contain"
+              />
 
-          {network && (
-            <TezosNetworkLogo
-              chainId={network.chainId}
-              size={NETWORK_IMAGE_DEFAULT_SIZE}
-              className="absolute bottom-1 right-1 z-10"
-              withTooltip
-              tooltipPlacement="bottom"
-            />
+              {network && (
+                <TezosNetworkLogo
+                  chainId={network.chainId}
+                  size={NETWORK_IMAGE_DEFAULT_SIZE}
+                  className="absolute bottom-1 right-1 z-10"
+                  withTooltip
+                  tooltipPlacement="bottom"
+                />
+              )}
+            </>
           )}
         </div>
 
@@ -217,6 +230,8 @@ export const EvmCollectibleItem = memo<EvmCollectibleItemProps>(
     const chain = useEvmChainByChainId(evmChainId);
     const { value: balance = ZERO } = useEvmAssetBalance(assetSlug, accountPkh, chain!);
     const balanceBeforeTruncate = balance.toString();
+
+    const metadatasLoading = useEvmCollectiblesMetadataLoadingSelector();
 
     const storedToken = useStoredEvmCollectibleSelector(accountPkh, evmChainId, assetSlug);
 
@@ -266,7 +281,7 @@ export const EvmCollectibleItem = memo<EvmCollectibleItemProps>(
           <div className={MANAGE_ACTIVE_ITEM_CLASSNAME}>
             <div className="flex items-center gap-x-1.5">
               <div
-                className="relative flex items-center justify-center rounded-8 overflow-hidden"
+                className="relative flex items-center justify-center rounded-8 overflow-hidden bg-grey-4"
                 style={manageImgStyle}
               >
                 <EvmCollectibleItemImage metadata={metadata} className="object-cover" />
@@ -309,16 +324,22 @@ export const EvmCollectibleItem = memo<EvmCollectibleItemProps>(
           className="relative flex items-center justify-center rounded-8 bg-grey-4 overflow-hidden border-2 border-transparent group-hover:border-secondary"
           style={ImgStyle}
         >
-          <EvmCollectibleItemImage shouldUseBlurredBg metadata={metadata} className="object-contain" />
+          {metadatasLoading && !metadata ? (
+            <CollectibleImageLoader />
+          ) : (
+            <>
+              <EvmCollectibleItemImage shouldUseBlurredBg metadata={metadata} className="object-contain" />
 
-          {network && (
-            <EvmNetworkLogo
-              chainId={network.chainId}
-              size={NETWORK_IMAGE_DEFAULT_SIZE}
-              className="absolute bottom-1 right-1 z-10"
-              withTooltip
-              tooltipPlacement="bottom"
-            />
+              {network && (
+                <EvmNetworkLogo
+                  chainId={network.chainId}
+                  size={NETWORK_IMAGE_DEFAULT_SIZE}
+                  className="absolute bottom-1 right-1 z-10"
+                  withTooltip
+                  tooltipPlacement="bottom"
+                />
+              )}
+            </>
           )}
         </div>
 
