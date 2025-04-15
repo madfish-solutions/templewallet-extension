@@ -16,7 +16,6 @@ import { noop } from 'lodash';
 
 import CleanButton from 'app/atoms/CleanButton';
 import OldStyleCopyButton from 'app/atoms/OldStyleCopyButton';
-import { ReactComponent as LockFillIcon } from 'app/icons/base/lock_fill.svg';
 import { ReactComponent as PasteFillIcon } from 'app/icons/base/paste_fill.svg';
 import { ReactComponent as CopyIcon } from 'app/icons/monochrome/copy.svg';
 import { setTestID, TestIDProperty } from 'lib/analytics';
@@ -68,7 +67,7 @@ export interface FormFieldProps extends TestIDProperty, Omit<FormFieldAttrs, 'ty
    * `type='password'` only
    */
   revealRef?: unknown;
-  additonalActionButtons?: ReactNode;
+  additionalActionButtons?: ReactNode;
   cleanable?: boolean;
   extraLeftInner?: ReactNode;
   extraLeftInnerWrapper?: InnerWrapperType;
@@ -140,14 +139,13 @@ export const FormField = forwardRef<FormFieldElement, FormFieldProps>(
       autoComplete = 'off',
       smallPaddings = false,
       fieldWrapperBottomMargin = true,
-      additonalActionButtons,
+      additionalActionButtons,
       copyable,
       testID,
       testIDs,
       style,
       rightSideContainerStyle,
       placeholder,
-      disabled,
       ...rest
     },
     ref
@@ -269,7 +267,6 @@ export const FormField = forwardRef<FormFieldElement, FormFieldProps>(
             onChange={handleChange}
             onFocus={handleFocus}
             onBlur={handleBlur}
-            disabled={disabled}
             {...rest}
             {...setTestID(testIDs?.input ?? testID)}
           />
@@ -289,7 +286,7 @@ export const FormField = forwardRef<FormFieldElement, FormFieldProps>(
             )}
             style={rightSideContainerStyle}
           >
-            {additonalActionButtons}
+            {additionalActionButtons}
             {cleanable && <CleanButton showText={textarea} size={textarea ? 12 : 16} onClick={onClean} />}
             {rightSideComponent && rightSideComponent}
             {textarea && !cleanable && showPasteButton && (
@@ -299,8 +296,7 @@ export const FormField = forwardRef<FormFieldElement, FormFieldProps>(
               </Button>
             )}
             {copyable && <Copyable value={String(value)} copy={copy} isSecret={type === 'password'} />}
-            {disabled && <IconBase Icon={LockFillIcon} className="text-grey-3" />}
-            {hasRevealablePassword && !disabled && RevealPasswordIcon}
+            {hasRevealablePassword && RevealPasswordIcon}
           </div>
 
           {secretCovered && <SecretCover onClick={handleSecretBannerClick} />}

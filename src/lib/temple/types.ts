@@ -25,11 +25,18 @@ export interface WalletSpecs {
   createdAt: number;
 }
 
+export interface FocusLocation {
+  windowId: number | null;
+  tabId: number | null;
+}
+
 export interface TempleState {
   dAppQueueCounters: PromisesQueueCounters;
   status: TempleStatus;
   accounts: StoredAccount[];
   settings: TempleSettings | null;
+  focusLocation: FocusLocation | null;
+  windowsWithPopups: (number | null)[];
 }
 
 export const TEZOS_MAINNET_CHAIN_ID = 'NetXdQprcVkpaWU';
@@ -449,7 +456,9 @@ export enum TempleMessageType {
   SendEvmTransactionRequest = 'SEND_EVM_TRANSACTION_REQUEST',
   SendEvmTransactionResponse = 'SEND_EVM_TRANSACTION_RESPONSE',
   ResetExtensionRequest = 'RESET_EXTENSION_REQUEST',
-  ResetExtensionResponse = 'RESET_EXTENSION_RESPONSE'
+  ResetExtensionResponse = 'RESET_EXTENSION_RESPONSE',
+  SetWindowPopupStateRequest = 'SET_WINDOW_POPUP_STATE_REQUEST',
+  SetWindowPopupStateResponse = 'SET_WINDOW_POPUP_STATE_RESPONSE'
 }
 
 export type TempleNotification =
@@ -502,7 +511,8 @@ export type TempleRequest =
   | TempleSendTrackEventRequest
   | TempleSendPageEventRequest
   | TempleSendEvmTransactionRequest
-  | TempleResetExtensionRequest;
+  | TempleResetExtensionRequest
+  | TempleSetWindowPopupStateRequest;
 
 export type TempleResponse =
   | TempleGetStateResponse
@@ -544,7 +554,8 @@ export type TempleResponse =
   | TempleSendTrackEventResponse
   | TempleSendPageEventResponse
   | TempleSendEvmTransactionResponse
-  | TempleResetExtensionResponse;
+  | TempleResetExtensionResponse
+  | TempleSetWindowPopupStateResponse;
 
 export interface TempleMessageBase {
   type: TempleMessageType;
@@ -1017,6 +1028,16 @@ interface TempleResetExtensionRequest extends TempleMessageBase {
 
 interface TempleResetExtensionResponse extends TempleMessageBase {
   type: TempleMessageType.ResetExtensionResponse;
+}
+
+interface TempleSetWindowPopupStateRequest extends TempleMessageBase {
+  type: TempleMessageType.SetWindowPopupStateRequest;
+  windowId: number | null;
+  opened: boolean;
+}
+
+interface TempleSetWindowPopupStateResponse extends TempleMessageBase {
+  type: TempleMessageType.SetWindowPopupStateResponse;
 }
 
 export type EvmTransactionRequestWithSender = RpcTransactionRequest & { from: HexString };

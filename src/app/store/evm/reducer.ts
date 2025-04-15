@@ -9,8 +9,14 @@ import {
 import { EvmLoadingInitialState, EvmLoadingStateInterface } from './state';
 
 export const evmLoadingReducer = createReducer<EvmLoadingStateInterface>(EvmLoadingInitialState, builder => {
-  builder.addCase(setEvmBalancesLoadingState, (state, { payload: { chainId, ...stateForChain } }) => {
-    state.balances[chainId] = stateForChain;
+  builder.addCase(setEvmBalancesLoadingState, (state, { payload: { chainId, source, ...stateForChain } }) => {
+    if (!state.balancesStates[chainId]) {
+      state.balancesStates[chainId] = {
+        onchain: { isLoading: false },
+        api: { isLoading: false }
+      };
+    }
+    state.balancesStates[chainId][source] = stateForChain;
   });
 
   builder.addCase(setEvmTokensMetadataLoading, (state, { payload }) => {
@@ -22,6 +28,7 @@ export const evmLoadingReducer = createReducer<EvmLoadingStateInterface>(EvmLoad
   });
 
   builder.addCase(setEvmTokensExchangeRatesLoading, (state, { payload }) => {
-    state.tokensExchangeRatesLoading = payload;
+    const { chainId, isLoading } = payload;
+    state.chainsTokensExchangeRatesLoading[chainId] = isLoading;
   });
 });

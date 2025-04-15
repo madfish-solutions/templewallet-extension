@@ -5,7 +5,7 @@ import BigNumber from 'bignumber.js';
 import Money from 'app/atoms/Money';
 import { DeadEndBoundaryError } from 'app/ErrorBoundary';
 import { useEvmTokenMetadataSelector } from 'app/store/evm/tokens-metadata/selectors';
-import { EvmAssetIconWithNetwork, TezosTokenIconWithNetwork } from 'app/templates/AssetIcon';
+import { EvmAssetIconWithNetwork, TezosAssetIconWithNetwork } from 'app/templates/AssetIcon';
 import { EvmBalance, TezosBalance } from 'app/templates/Balance';
 import InFiat from 'app/templates/InFiat';
 import { setAnotherSelector, setTestID } from 'lib/analytics';
@@ -36,7 +36,7 @@ export const TezosAssetBanner = memo<TezosAssetBannerProps>(({ tezosChainId, ass
   return (
     <>
       <div className="flex items-center gap-x-1">
-        <TezosTokenIconWithNetwork tezosChainId={tezosChainId} assetSlug={assetSlug} size={40} className="shrink-0" />
+        <TezosAssetIconWithNetwork tezosChainId={tezosChainId} assetSlug={assetSlug} size={40} className="shrink-0" />
 
         <NamesComp assetName={assetName} network={network} />
 

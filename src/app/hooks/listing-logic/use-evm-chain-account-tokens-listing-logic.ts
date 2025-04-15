@@ -5,7 +5,7 @@ import { isDefined } from '@rnw-community/shared';
 import { useRawEvmChainAccountBalancesSelector } from 'app/store/evm/balances/selectors';
 import {
   useEvmChainBalancesLoadingSelector,
-  useEvmTokensExchangeRatesLoadingSelector,
+  useEvmTokensExchangeRatesLoading,
   useEvmTokensMetadataLoadingSelector
 } from 'app/store/evm/selectors';
 import { useEvmTokensMetadataRecordSelector } from 'app/store/evm/tokens-metadata/selectors';
@@ -66,7 +66,7 @@ export const useEvmChainAccountTokensListingLogic = (allSlugsSorted: string[], c
 
   const balancesLoading = useEvmChainBalancesLoadingSelector(chainId);
   const isMetadataLoading = useEvmTokensMetadataLoadingSelector();
-  const exchangeRatesLoading = useEvmTokensExchangeRatesLoadingSelector();
+  const exchangeRatesLoading = useEvmTokensExchangeRatesLoading();
 
   const { searchValue, searchValueDebounced, setSearchValue, isInSearchMode, isSyncing } = useCommonAssetsListingLogic(
     balancesLoading || isMetadataLoading || exchangeRatesLoading

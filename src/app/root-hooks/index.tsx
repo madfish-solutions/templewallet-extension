@@ -14,6 +14,7 @@ import { useStorageAnalytics } from 'app/hooks/use-storage-analytics';
 import { useUserAnalyticsAndAdsSettings } from 'app/hooks/use-user-analytics-and-ads-settings.hook';
 import { useUserIdAccountPkhSync } from 'app/hooks/use-user-id-account-pkh-sync';
 import { dispatch } from 'app/store';
+import { useTestnetModeEnabledSelector } from 'app/store/settings/selectors';
 import { loadSwapDexesAction, loadSwapTokensAction } from 'app/store/swap/actions';
 import { loadTokensWhitelistActions, loadTokensScamlistActions } from 'app/store/tezos/assets/actions';
 import { useTempleClient } from 'lib/temple/front';
@@ -105,10 +106,11 @@ const TezosAccountHooks = memo<{ publicKeyHash: string }>(({ publicKeyHash }) =>
 
 const EvmAccountHooks = memo<{ publicKeyHash: HexString }>(({ publicKeyHash }) => {
   useNoCategoryEvmAssetsLoading(publicKeyHash);
+  const testnetModeEnabled = useTestnetModeEnabledSelector();
 
   return (
     <>
-      <AppEvmTokensExchangeRatesLoading publicKeyHash={publicKeyHash} />
+      {!testnetModeEnabled && <AppEvmTokensExchangeRatesLoading publicKeyHash={publicKeyHash} />}
       <AppEvmTokensMetadataLoading publicKeyHash={publicKeyHash} />
       <AppEvmBalancesLoading publicKeyHash={publicKeyHash} />
     </>

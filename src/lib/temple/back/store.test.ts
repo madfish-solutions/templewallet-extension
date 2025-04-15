@@ -5,7 +5,17 @@ import { TempleChainKind } from 'temple/types';
 
 import { TempleAccountType, TempleStatus } from '../types';
 
-import { accountsUpdated, inited as initEvent, locked, settingsUpdated, store, unlocked } from './store';
+import {
+  accountsUpdated,
+  focusLocationChanged,
+  inited as initEvent,
+  locked,
+  popupClosed,
+  popupOpened,
+  settingsUpdated,
+  store,
+  unlocked
+} from './store';
 import { Vault } from './vault';
 
 describe('Store tests', () => {
@@ -64,5 +74,24 @@ describe('Store tests', () => {
     settingsUpdated({});
     const { settings } = store.getState();
     expect(settings).toEqual({});
+  });
+  it('Focus location changed event', () => {
+    focusLocationChanged({ windowId: 1, tabId: 2 });
+    expect(store.getState().focusLocation).toEqual({ windowId: 1, tabId: 2 });
+    focusLocationChanged(null);
+    expect(store.getState().focusLocation).toBeNull();
+  });
+  it('Popup opened event', () => {
+    popupOpened(1);
+    popupOpened(2);
+    popupOpened(1);
+    expect(store.getState().windowsWithPopups).toEqual([2, 1]);
+  });
+  it('Popup closed event', () => {
+    popupOpened(1);
+    popupOpened(2);
+    popupClosed(3);
+    popupClosed(1);
+    expect(store.getState().windowsWithPopups).toEqual([2]);
   });
 });

@@ -5,6 +5,8 @@ import { useAssetsViewState } from 'app/hooks/use-assets-view-state';
 import { useCollectiblesListOptionsSelector } from 'app/store/assets-filter-options/selectors';
 import { useEvmChainByChainId } from 'temple/front/chains';
 
+import { GRID_CLASSNAMES } from '../constants';
+
 import { EvmCollectibleItem } from './CollectibleItem';
 import { CollectiblesTabBase } from './CollectiblesTabBase';
 import { useEvmCollectiblesMetadataLoading } from './evm-meta-loading';
@@ -27,7 +29,7 @@ export const EvmChainCollectiblesTab = memo<EvmChainCollectiblesTabProps>(({ cha
 
   const contentElement = useMemo(
     () => (
-      <div className={manageActive ? undefined : 'grid grid-cols-3 gap-2'}>
+      <div className={manageActive ? undefined : GRID_CLASSNAMES}>
         {paginatedSlugs.map(slug => (
           <EvmCollectibleItem
             key={slug}

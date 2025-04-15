@@ -48,17 +48,3 @@ export function useTezosAddressByDomainName(domainName: string, network?: TezosN
     }
   );
 }
-
-export function useTezosDomainNameByAddress(address: string, network: TezosNetworkEssentials | nullish) {
-  return useTypedSWR(
-    network ? ['tzdns-reverse-name', address, network.chainId, network.rpcBaseURL] : null,
-    () =>
-      network
-        ? getTezosDomainsClient(network.chainId, network.rpcBaseURL).resolver.resolveAddressToName(address)
-        : null,
-    {
-      shouldRetryOnError: false,
-      revalidateOnFocus: false
-    }
-  );
-}

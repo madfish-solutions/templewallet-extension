@@ -6,6 +6,9 @@ import { AssetSlugBalanceRecord, ChainIdTokenSlugsBalancesRecord } from './state
 export const useRawEvmAccountBalancesSelector = (publicKeyHash: HexString): ChainIdTokenSlugsBalancesRecord =>
   useSelector(state => state.evmBalances.balancesAtomic[publicKeyHash]) ?? EMPTY_FROZEN_OBJ;
 
+export const useEvmAccountBalancesTimestampsSelector = (publicKeyHash: HexString) =>
+  useSelector(state => state.evmBalances.dataTimestamps[publicKeyHash]) ?? EMPTY_FROZEN_OBJ;
+
 export const useRawEvmChainAccountBalancesSelector = (
   accountAddress: HexString,
   chainId: number

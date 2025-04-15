@@ -41,6 +41,9 @@
     "message": "Connected Dapps",
     "description": "Dapps = Decentralized Applications"
   },
+  "description": {
+    "message": "Description"
+  },
   "versionLabel": {
     "message": "Version: $version$",
     "placeholders": {
@@ -1268,6 +1271,12 @@
   "bakerSearchPlaceholder": {
     "message": "Search name or tz address"
   },
+  "metadataLoading": {
+    "message": "Metadata loading..."
+  },
+  "refreshMetadata": {
+    "message": "Refresh metadata"
+  },
   "bakerIsLoading": {
     "message": "Baker is loading..."
   },
@@ -2134,6 +2143,9 @@
       }
     }
   },
+  "quickActions": {
+    "message": "Quick Actions"
+  },
   "popupSettings": {
     "message": "Pop-up Mode"
   },
@@ -2153,6 +2165,27 @@
         "content": "$1"
       }
     }
+  },
+  "tokenContract": {
+    "message": "Token contract"
+  },
+  "contractCreator": {
+    "message": "Contract creator"
+  },
+  "metadata": {
+    "message": "Metadata"
+  },
+  "owned": {
+    "message": "Owned"
+  },
+  "editions": {
+    "message": "Editions"
+  },
+  "royalties": {
+    "message": "Royalties"
+  },
+  "minted": {
+    "message": "Minted"
   },
   "tokenContractNotFound": {
     "message": "The contract was not found."
@@ -2613,8 +2646,14 @@
   "viewOnBlockExplorer": {
     "message": "View on block explorer"
   },
+  "viewInBlockExplorer": {
+    "message": "View in Block Explorer"
+  },
   "specifyTokenId": {
     "message": "Specify token ID"
+  },
+  "copyTokenId": {
+    "message": "Copy Token ID"
   },
   "notWhitelistedTokenWarning": {
     "message": "Attention! One of the tokens you’re trying to exchange is not whitelisted. You can interact with them at your own risk."
@@ -3714,6 +3753,15 @@
   },
   "selectedAccountCannotSignTx": {
     "message": "Selected account cannot sign transactions"
+  },
+  "tokenStandard": {
+    "message": "Token standard"
+  },
+  "chain": {
+    "message": "Chain"
+  },
+  "details": {
+    "message": "Details"
   },
   "attributes": {
     "message": "Attributes"

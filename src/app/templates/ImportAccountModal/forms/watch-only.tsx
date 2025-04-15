@@ -186,7 +186,7 @@ export const WatchOnlyForm = memo<ImportAccountFormProps>(({ onSuccess }) => {
           labelDescription={t('watchOnlyAddressInputDescription')}
           onClean={cleanAddressField}
           onChange={resetSubmitError}
-          additonalActionButtons={
+          additionalActionButtons={
             addressValue ? null : (
               <TextButton
                 color="blue"

@@ -66,17 +66,3 @@ export const buildGetGalleriesAttributesCountsQuery = () => gql`
     }
   }
 `;
-
-export const buildGetCollectibleExtraQuery = () => gql`
-  query CollectiblesExtraQuery($where: token_bool_exp) {
-    token(where: $where) {
-      offers_active(order_by: { price_xtz: desc }) {
-        buyer_address
-        price
-        currency_id
-        bigmap_key
-        marketplace_contract
-      }
-    }
-  }
-`;

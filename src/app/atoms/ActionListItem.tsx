@@ -2,7 +2,7 @@ import React, { FC } from 'react';
 
 import clsx from 'clsx';
 
-import { IconBase } from 'app/atoms';
+import { Anchor, IconBase } from 'app/atoms';
 import { Button } from 'app/atoms/Button';
 import { TestIDProps } from 'lib/analytics';
 import { Link } from 'lib/woozie';
@@ -10,6 +10,7 @@ import { Link } from 'lib/woozie';
 export interface ActionListItemProps extends PropsWithChildren, TestIDProps {
   Icon?: ImportedSVGComponent;
   linkTo?: string;
+  externalLink?: string;
   className?: string;
   onClick?: EmptyFn;
   /** Pass it, if you want it to be called with `false` on click too */
@@ -22,6 +23,7 @@ export interface ActionListItemProps extends PropsWithChildren, TestIDProps {
 export const ActionListItem: FC<ActionListItemProps> = ({
   Icon,
   linkTo,
+  externalLink,
   className,
   onClick,
   setOpened,
@@ -54,5 +56,11 @@ export const ActionListItem: FC<ActionListItemProps> = ({
     )
   };
 
-  return linkTo ? <Link {...baseProps} to={linkTo} /> : <Button {...baseProps} />;
+  return externalLink ? (
+    <Anchor {...baseProps} href={externalLink} />
+  ) : linkTo ? (
+    <Link {...baseProps} to={linkTo} />
+  ) : (
+    <Button {...baseProps} />
+  );
 };
