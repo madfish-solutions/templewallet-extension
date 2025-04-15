@@ -60,7 +60,7 @@ export const TokensTabBase: FC<PropsWithChildren<TokensTabBaseProps>> = ({
             {/*{manageActive ? null : <UpdateAppBanner stickyBarRef={stickyBarRef} />}*/}
 
             {tokensCount === 0 ? (
-              isSyncing ? (
+              isSyncing && !isInSearchMode ? (
                 <PageLoader stretch />
               ) : (
                 <EmptySection
