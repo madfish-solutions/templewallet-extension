@@ -1,14 +1,16 @@
 import React, { useCallback, useMemo, useState, useEffect, useRef, KeyboardEventHandler, memo } from 'react';
 
-import classNames from 'clsx';
+import clsx from 'clsx';
 import CSSTransition from 'react-transition-group/CSSTransition';
 import useOnClickOutside from 'use-onclickoutside';
 
-import { Lines } from 'app/atoms';
+import { Name } from 'app/atoms';
+import { AccLabel } from 'app/atoms/AccLabel';
+import { EmptyState } from 'app/atoms/EmptyState';
 import { useAccountSelectShortcut } from 'app/hooks/use-account-select-shortcut';
 import { useModalScrollLock } from 'app/hooks/use-modal-scroll-lock';
-import { ReactComponent as SadSearchIcon } from 'app/icons/monochrome/sad-search.svg';
-import SearchField from 'app/templates/SearchField';
+import { AccountsManagementSelectors } from 'app/templates/AccountsManagement/selectors';
+import { SearchBarField } from 'app/templates/SearchField';
 import { searchHotkey } from 'lib/constants';
 import { T, t } from 'lib/i18n';
 import Portal from 'lib/ui/Portal';
@@ -21,7 +23,6 @@ import { AccountItem } from './AccountItem';
 
 export const ShortcutAccountSwitchOverlay = memo(() => {
   const accountSwitchRef = useRef<HTMLDivElement>(null);
-  const accountItemsRef = useRef<Array<HTMLButtonElement | null>>([]);
 
   const { opened, setOpened } = useAccountSelectShortcut();
   useModalScrollLock(opened, accountSwitchRef);
@@ -129,64 +130,55 @@ export const ShortcutAccountSwitchOverlay = memo(() => {
         }}
         unmountOnExit
       >
-        <div className="fixed inset-0 z-overlay w-full h-full bg-black bg-opacity-20">
+        <div className="fixed inset-0 z-overlay flex flex-col items-center justify-center bg-black bg-opacity-15 backdrop-blur-xs">
           <div
             ref={accountSwitchRef}
             tabIndex={0}
-            className="absolute top-1/2 left-1/2 border rounded-md bg-gray-910 border-gray-850 p-2 w-64 focus:outline-none"
-            style={{ transform: 'translate(-50%, -50%)' }}
+            className="mx-auto rounded-8 bg-white w-88"
             onKeyDown={handleKeyPress}
           >
-            <SearchField
-              autoFocus
-              value={searchValue}
-              className={classNames(
-                'py-2 pl-8 pr-8',
-                'bg-transparent',
-                'focus:outline-none',
-                'transition ease-in-out duration-200',
-                'rounded-md rounded-b-none',
-                'text-gray-500 placeholder-gray-600 text-font-medium leading-tight'
-              )}
-              placeholder={t('searchAccount', [searchHotkey])}
-              onValueChange={handleSearchValueChange}
-              onCleanButtonClick={handleCleanButtonClick}
-            />
-
-            <Lines className="bg-gray-700 -mx-2" />
-
-            <div className="py-2">
-              <div className="overflow-y-auto overscroll-contain h-63 px-2 -mx-2">
-                <div className="flex flex-col">
-                  {filteredAccounts.length === 0 ? (
-                    <div className="h-63 flex justify-center items-center">
-                      <SadSearchIcon />
-                    </div>
-                  ) : (
-                    filteredGroups.map(({ id, name, accounts }) => (
-                      <React.Fragment key={id}>
-                        <div className="text-font-medium font-medium text-gray-500">{name}</div>
-                        {accounts.map(acc => (
-                          <AccountItem
-                            key={acc.id}
-                            account={acc}
-                            focused={filteredAccounts[focusedAccountItemIndex]?.id === acc.id}
-                            arrayIndex={filteredAccounts.findIndex(a => a.id === acc.id)}
-                            itemsArrayRef={accountItemsRef}
-                            searchValue={searchValue}
-                            onClick={() => handleAccountClick(acc.id)}
-                          />
-                        ))}
-                      </React.Fragment>
-                    ))
-                  )}
-                </div>
-              </div>
+            <div className="p-3 border-b-0.5 border-lines">
+              <SearchBarField
+                autoFocus
+                defaultRightMargin={false}
+                value={searchValue}
+                placeholder={t('searchAccount', [searchHotkey])}
+                onValueChange={handleSearchValueChange}
+                testID={AccountsManagementSelectors.searchField}
+                onCleanButtonClick={handleCleanButtonClick}
+              />
             </div>
 
-            <Lines className="bg-gray-700 mb-2 -mx-2" />
-
-            <p className="text-center text-gray-500 text-xs font-normal font-inter">
+            <div className="overflow-y-auto overscroll-contain h-[22.5rem]">
+              {filteredGroups.length === 0 ? (
+                <div className="flex-1 flex items-center justify-center h-full">
+                  <EmptyState />
+                </div>
+              ) : (
+                filteredGroups.map((group, index) => (
+                  <div className={index === 0 ? 'mt-3' : ''}>
+                    <div className={clsx(index === 0 && 'mt-3', 'flex flex-col mb-4 px-3')}>
+                      <div className="flex items-center justify-between">
+                        <Name className="p-1 text-font-description-bold">{group.name}</Name>
+                        <AccLabel type={group.type} />
+                      </div>
+                      <div className="flex flex-col gap-y-3 mt-2">
+                        {group.accounts.map(account => (
+                          <AccountItem
+                            key={account.id}
+                            account={account}
+                            focused={filteredAccounts[focusedAccountItemIndex]?.id === account.id}
+                            selected={account.id === currentAccountId}
+                            onAccountSelect={handleAccountClick}
+                          />
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+            <p className="text-center text-grey-1 text-xs border-t-0.5 border-lines p-3 ">
               <T id="shortcutSwitchAccountOverlayNavigation" />
             </p>
           </div>
