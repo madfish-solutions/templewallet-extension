@@ -11,7 +11,7 @@ import type { CollectibleDetails } from 'app/store/tezos/collectibles/state';
 import { ChartListItem, PlainChartListItemProps } from 'app/templates/chart-list-item';
 import { fromAssetSlug, fromFa2TokenSlug } from 'lib/assets/utils';
 import { useTezosAssetBalance } from 'lib/balances';
-import { useEvmAssetRawBalance } from 'lib/balances/hooks';
+import { useEvmAssetBalance } from 'lib/balances/hooks';
 import { formatDate, T, toLocalFormat } from 'lib/i18n';
 import { buildHttpLinkFromUri } from 'lib/images-uri';
 import { EvmCollectibleMetadata } from 'lib/metadata/types';
@@ -145,7 +145,7 @@ interface EvmDetailsProps {
 }
 
 export const EvmDetails = memo<EvmDetailsProps>(({ network, accountPkh, assetSlug, metadata }) => {
-  const { value: balance } = useEvmAssetRawBalance(assetSlug, accountPkh, network, metadata?.standard, !metadata);
+  const { value: balance } = useEvmAssetBalance(assetSlug, accountPkh, network);
 
   const [contractAddress, tokenId] = useMemo(() => fromAssetSlug(assetSlug), [assetSlug]);
 
