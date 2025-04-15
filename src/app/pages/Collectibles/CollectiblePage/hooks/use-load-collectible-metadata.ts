@@ -39,7 +39,7 @@ const loadTezosMetadata = async (network: TezosChain, slug: string) => {
   const tokenId = id ?? '0';
 
   const metadata = await fetchOneTokenMetadata(network.rpcBaseURL, address, tokenId);
-  console.log(metadata, 'metadata');
+
   if (!metadata || !metadata?.name || !metadata?.symbol) {
     throw new Error();
   }
