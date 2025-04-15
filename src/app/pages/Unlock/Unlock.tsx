@@ -199,6 +199,7 @@ const Unlock: FC<UnlockProps> = ({ canImportNew = true }) => {
               name="password"
               placeholder={DEFAULT_PASSWORD_INPUT_PLACEHOLDER}
               errorCaption={errors.password && errors.password.message}
+              shakeOnError
               containerClassName="mb-3"
               autoFocus
               disabled={isDisabled}

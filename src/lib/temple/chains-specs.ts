@@ -24,31 +24,31 @@ export interface EvmChainSpecs extends ChainSpecsBase {
 
 export const DEFAULT_TEZOS_CHAINS_SPECS: Record<string, TezosChainSpecs & { testnet: boolean }> = {
   [TempleTezosChainId.Mainnet]: {
-    name: 'Tezos Mainnet',
+    name: 'Tezos',
     testnet: false
   },
   [TempleTezosChainId.Dcp]: {
-    name: 'T4L3NT Mainnet',
+    name: 'T4L3NT',
     testnet: false
   },
   [TempleTezosChainId.DcpTest]: {
-    name: 'T4L3NT Testnet',
+    name: 'T4L3NT',
     testnet: true
   },
   [TempleTezosChainId.Ghostnet]: {
-    name: 'Ghostnet Testnet',
+    name: 'Ghostnet',
     testnet: true
   }
 };
 
 export const DEFAULT_EVM_CHAINS_SPECS: Record<string, EvmChainSpecs & { testnet: boolean }> = {
   [ETHEREUM_MAINNET_CHAIN_ID]: {
-    name: 'Ethereum Mainnet',
+    name: 'Ethereum',
     testnet: false,
     currency: DEFAULT_EVM_CURRENCY
   },
   [OTHER_COMMON_MAINNET_CHAIN_IDS.polygon]: {
-    name: 'Polygon Mainnet',
+    name: 'Polygon',
     testnet: false,
     currency: {
       ...DEFAULT_EVM_CURRENCY,
@@ -57,7 +57,7 @@ export const DEFAULT_EVM_CHAINS_SPECS: Record<string, EvmChainSpecs & { testnet:
     }
   },
   [OTHER_COMMON_MAINNET_CHAIN_IDS.bsc]: {
-    name: 'BSC Mainnet',
+    name: 'BSC',
     testnet: false,
     currency: {
       ...DEFAULT_EVM_CURRENCY,
@@ -66,7 +66,7 @@ export const DEFAULT_EVM_CHAINS_SPECS: Record<string, EvmChainSpecs & { testnet:
     }
   },
   [OTHER_COMMON_MAINNET_CHAIN_IDS.avalanche]: {
-    name: 'Avalanche Mainnet',
+    name: 'Avalanche',
     testnet: false,
     currency: {
       ...DEFAULT_EVM_CURRENCY,
@@ -75,12 +75,12 @@ export const DEFAULT_EVM_CHAINS_SPECS: Record<string, EvmChainSpecs & { testnet:
     }
   },
   [OTHER_COMMON_MAINNET_CHAIN_IDS.optimism]: {
-    name: 'Optimism Mainnet',
+    name: 'Optimism',
     testnet: false,
     currency: DEFAULT_EVM_CURRENCY
   },
   [OTHER_COMMON_MAINNET_CHAIN_IDS.etherlink]: {
-    name: 'Etherlink Mainnet',
+    name: 'Etherlink',
     testnet: false,
     currency: {
       ...DEFAULT_EVM_CURRENCY,
@@ -106,7 +106,7 @@ export const DEFAULT_EVM_CHAINS_SPECS: Record<string, EvmChainSpecs & { testnet:
     testnet: true
   },
   '97': {
-    name: 'BSC Testnet',
+    name: 'BSC',
     currency: {
       ...DEFAULT_EVM_CURRENCY,
       name: 'BNB',
@@ -132,7 +132,7 @@ export const DEFAULT_EVM_CHAINS_SPECS: Record<string, EvmChainSpecs & { testnet:
     testnet: true
   },
   '128123': {
-    name: 'Etherlink Testnet',
+    name: 'Etherlink',
     currency: {
       ...DEFAULT_EVM_CURRENCY,
       name: 'Ghostnet Tezos',

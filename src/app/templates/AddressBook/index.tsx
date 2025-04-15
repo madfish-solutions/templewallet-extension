@@ -51,13 +51,13 @@ export const AddressBook = memo(() => {
     <FadeTransition>
       {contacts?.length ? (
         <>
-          <div className="flex gap-x-2 p-4">
+          <div className="flex gap-x-2 p-4 pb-3">
             <SearchBarField value={searchValue} onValueChange={setSearchValue} />
 
             <IconButton Icon={PlusIcon} color="blue" onClick={setEditAddContactModalOpened} />
           </div>
 
-          <div className="px-4 pb-4 flex-1 flex flex-col overflow-y-auto">
+          <div className="px-4 pt-1 pb-4 flex-1 flex flex-col overflow-y-auto">
             {filteredContacts.length ? (
               <div className="flex flex-col gap-y-3">
                 {filteredContacts.map(contact => (

@@ -48,6 +48,7 @@ export interface FormFieldProps extends TestIDProperty, Omit<FormFieldAttrs, 'ty
   labelDescription?: ReactNode;
   labelWarning?: ReactNode;
   errorCaption?: ReactNode;
+  shakeOnError?: boolean;
   shouldShowErrorCaption?: boolean;
   reserveSpaceForError?: boolean;
   warning?: boolean;
@@ -104,6 +105,7 @@ export const FormField = forwardRef<FormFieldElement, FormFieldProps>(
       labelDescription,
       labelWarning,
       errorCaption,
+      shakeOnError = false,
       shouldShowErrorCaption = true,
       reserveSpaceForError = true,
       warning = false,
@@ -217,7 +219,7 @@ export const FormField = forwardRef<FormFieldElement, FormFieldProps>(
 
     return (
       <div
-        className={clsx('w-full flex flex-col', containerClassName)}
+        className={clsx('w-full flex flex-col', containerClassName, errorCaption && shakeOnError && 'animate-shake')}
         style={containerStyle}
         {...setTestID(testIDs?.inputSection)}
       >

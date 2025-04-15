@@ -114,7 +114,7 @@ export const PageModal: FC<PageModalProps> = ({
   );
 };
 
-export const BackButton = memo<{ onClick?: EmptyFn }>(({ onClick }) => (
+const BackButton = memo<{ onClick?: EmptyFn }>(({ onClick }) => (
   <IconBase Icon={ChevronLeftIcon} size={16} className="text-grey-2 cursor-pointer" onClick={onClick} />
 ));
 

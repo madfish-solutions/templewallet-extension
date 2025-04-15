@@ -297,10 +297,6 @@
   "tryAgain": {
     "message": "Спробуй ще раз"
   },
-  "tezosMainnet": {
-    "message": "Tezos Mainnet",
-    "description": "Mainnet = main network"
-  },
   "templeWalletOptions": {
     "message": "Temple Wallet | Налаштування"
   },
