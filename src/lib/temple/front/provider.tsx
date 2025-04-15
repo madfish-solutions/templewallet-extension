@@ -8,6 +8,7 @@ import { ReadyTempleProvider } from 'temple/front/ready';
 
 import { TempleClientProvider, useTempleClient } from './client';
 import { ToastsContextProvider } from './toasts-context';
+import { WindowIsActiveProvider } from './window-is-active-context';
 
 export const TempleProvider: FC<PropsWithChildren> = ({ children }) => {
   usePushNotifications();
@@ -33,7 +34,9 @@ const ConditionalReadyTemple: FC<PropsWithChildren> = ({ children }) => {
       ready ? (
         <ReadyTempleProvider>
           <AssetsViewStateProvider>
-            <ShortcutAccountSelectStateProvider>{children}</ShortcutAccountSelectStateProvider>
+            <ShortcutAccountSelectStateProvider>
+              <WindowIsActiveProvider>{children}</WindowIsActiveProvider>
+            </ShortcutAccountSelectStateProvider>
           </AssetsViewStateProvider>
         </ReadyTempleProvider>
       ) : (

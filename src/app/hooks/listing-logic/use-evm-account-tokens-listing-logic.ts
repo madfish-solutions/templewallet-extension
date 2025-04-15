@@ -3,7 +3,7 @@ import { useCallback, useMemo } from 'react';
 import { isDefined } from '@rnw-community/shared';
 
 import { useRawEvmAccountBalancesSelector } from 'app/store/evm/balances/selectors';
-import { useEvmTokensExchangeRatesLoadingSelector, useEvmTokensMetadataLoadingSelector } from 'app/store/evm/selectors';
+import { useEvmTokensExchangeRatesLoading, useEvmTokensMetadataLoadingSelector } from 'app/store/evm/selectors';
 import { useEvmTokensMetadataRecordSelector } from 'app/store/evm/tokens-metadata/selectors';
 import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
 import { useEvmAccountTokens } from 'lib/assets/hooks/tokens';
@@ -66,7 +66,7 @@ export const useEvmAccountTokensListingLogic = (allSlugsSorted: string[]) => {
 
   const balancesLoading = useEvmBalancesAreLoading();
   const isMetadataLoading = useEvmTokensMetadataLoadingSelector();
-  const exchangeRatesLoading = useEvmTokensExchangeRatesLoadingSelector();
+  const exchangeRatesLoading = useEvmTokensExchangeRatesLoading();
 
   const { searchValue, searchValueDebounced, setSearchValue, isInSearchMode, isSyncing } = useCommonAssetsListingLogic(
     balancesLoading || isMetadataLoading || exchangeRatesLoading

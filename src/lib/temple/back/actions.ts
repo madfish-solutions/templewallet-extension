@@ -82,7 +82,10 @@ import {
   settingsUpdated,
   withInited,
   withUnlocked,
-  dAppQueueCountersUpdated
+  dAppQueueCountersUpdated,
+  focusLocationChanged,
+  popupClosed,
+  popupOpened
 } from './store';
 import { Vault } from './vault';
 
@@ -100,6 +103,13 @@ dAppQueue.on(PromisesQueue.COUNTERS_CHANGE_EVENT_NAME, (counters: PromisesQueueC
   dAppQueueCountersUpdated(counters);
 });
 
+const castWindowId = (windowId: number | nullish) =>
+  windowId === browser.windows.WINDOW_ID_NONE ? null : windowId ?? null;
+const onFocusLocationError = (error: unknown) => {
+  console.error(error);
+  focusLocationChanged(null);
+};
+
 export async function init() {
   const vaultExist = await Vault.isExist();
   inited(vaultExist);
@@ -107,6 +117,40 @@ export async function init() {
   if (initLocked) {
     initLocked = false;
     locked();
+  }
+
+  try {
+    const onActiveTabChanged = (windowId?: number | null, tabId?: number | null) => {
+      focusLocationChanged({
+        windowId: castWindowId(windowId),
+        tabId: tabId === browser.tabs.TAB_ID_NONE ? null : tabId ?? null
+      });
+    };
+    const onActiveWindowChanged = async (windowId?: number) => {
+      const newWindowId = castWindowId(windowId);
+      if (newWindowId === null) {
+        onActiveTabChanged();
+      } else {
+        try {
+          onActiveTabChanged(
+            newWindowId,
+            (await browser.windows.get(newWindowId, { populate: true })).tabs?.find(tab => tab.active)?.id
+          );
+        } catch (e) {
+          onFocusLocationError(e);
+        }
+      }
+    };
+
+    const initialWindow = await browser.windows.getCurrent({ populate: true });
+    const initialTabId = initialWindow.tabs?.find(tab => tab.active)?.id;
+    onActiveWindowChanged(initialWindow.id);
+    onActiveTabChanged(initialWindow.id, initialTabId);
+
+    browser.tabs.onActivated.addListener(({ windowId, tabId }) => onActiveTabChanged(windowId, tabId));
+    browser.windows.onFocusChanged.addListener(onActiveWindowChanged);
+  } catch (e) {
+    onFocusLocationError(e);
   }
 
   initEvm();
@@ -873,3 +917,11 @@ const close = (
   } catch (_err) {}
   return innerClosing;
 };
+
+export function setWindowPopupOpened(windowId: number | null, opened: boolean) {
+  if (opened) {
+    popupOpened(windowId);
+  } else {
+    popupClosed(windowId);
+  }
+}

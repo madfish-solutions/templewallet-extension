@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef } from 'react';
 
-import { emptyFn, isDefined } from '@rnw-community/shared';
+import { emptyFn } from '@rnw-community/shared';
 import BigNumber from 'bignumber.js';
 import { useDispatch } from 'react-redux';
 
@@ -11,8 +11,9 @@ import {
   useRawEvmChainAccountBalancesSelector,
   useRawEvmAssetBalanceSelector
 } from 'app/store/evm/balances/selectors';
-import { useEvmBalancesLoadingStateSelector } from 'app/store/evm/selectors';
+import { useEvmBalancesLoadingStateSelector, useEvmChainBalancesLoadingSelector } from 'app/store/evm/selectors';
 import { useEvmTokensMetadataRecordSelector } from 'app/store/evm/tokens-metadata/selectors';
+import { useTestnetModeEnabledSelector } from 'app/store/settings/selectors';
 import {
   useAllAccountBalancesSelector,
   useAllAccountBalancesEntitySelector,
@@ -36,6 +37,7 @@ import { isEvmCollectible } from 'lib/metadata/utils';
 import { useTypedSWR } from 'lib/swr';
 import { atomsToTokens } from 'lib/temple/helpers';
 import { useInterval } from 'lib/ui/hooks';
+import { isTruthy } from 'lib/utils';
 import { useAccountAddressForEvm, useAccountAddressForTezos, useAllEvmChains, useOnTezosBlock } from 'temple/front';
 import { EvmNetworkEssentials, TezosNetworkEssentials } from 'temple/networks';
 import { getReadOnlyTezos } from 'temple/tezos';
@@ -215,54 +217,59 @@ function useEvmAssetRawBalance(
   error?: unknown;
   refresh: EmptyFn;
 } {
+  const testnetModeEnabled = useTestnetModeEnabledSelector();
   const dispatch = useDispatch();
   const currentAccountAddress = useAccountAddressForEvm();
 
   const { chainId } = network;
 
   const storedBalance = useRawEvmAssetBalanceSelector(address, network.chainId, assetSlug);
-  const storedLoadingState = useEvmBalancesLoadingStateSelector(chainId);
-  const storedError = isDefined(storedLoadingState?.error);
+  const isSyncing = useEvmChainBalancesLoadingSelector(chainId);
+  const loadingFromApiState = useEvmBalancesLoadingStateSelector(chainId, 'api');
   const refreshOnChainDoneRef = useRef(false);
+  const loadingFromApiError = isTruthy(loadingFromApiState?.error);
 
-  const usingOffchainAPI = useMemo(
-    () => address === currentAccountAddress && isSupportedChainId(chainId) && !storedError,
-    [storedError, address, currentAccountAddress, chainId]
-  );
+  const usingOnchainRequests = useMemo(() => {
+    if (!isSupportedChainId(chainId) || currentAccountAddress !== address) {
+      return true;
+    }
+
+    return testnetModeEnabled || loadingFromApiError;
+  }, [address, chainId, currentAccountAddress, loadingFromApiError, testnetModeEnabled]);
 
   const evmTransfersListener = useMemo(
     () =>
-      assetStandard && !usingOffchainAPI
+      assetStandard && usingOnchainRequests
         ? createEvmTransfersListener(network.rpcBaseURL, address, assetSlug, assetStandard)
         : undefined,
-    [address, assetSlug, assetStandard, network.rpcBaseURL, usingOffchainAPI]
+    [address, assetSlug, assetStandard, network.rpcBaseURL, usingOnchainRequests]
   );
 
   const refreshBalanceOnChain = useCallback(() => {
     refreshOnChainDoneRef.current = true;
-    dispatch(setEvmBalancesLoadingState({ chainId, isLoading: true }));
+    dispatch(setEvmBalancesLoadingState({ chainId, isLoading: true, source: 'onchain' }));
     dispatch(loadEvmBalanceOnChainActions.submit({ network, assetSlug, account: address, assetStandard }));
   }, [dispatch, chainId, network, assetSlug, address, assetStandard]);
 
   useInterval(
     () => {
-      if (usingOffchainAPI && (!forceFirstRefreshOnChain || refreshOnChainDoneRef.current)) return;
-
-      refreshBalanceOnChain();
+      if (usingOnchainRequests || (forceFirstRefreshOnChain && refreshOnChainDoneRef.current)) {
+        refreshBalanceOnChain();
+      }
     },
-    [usingOffchainAPI, forceFirstRefreshOnChain, refreshBalanceOnChain],
+    [usingOnchainRequests, forceFirstRefreshOnChain, refreshBalanceOnChain],
     EVM_BALANCES_SYNC_INTERVAL,
     true
   );
 
   useEffect(
     () => evmTransfersListener?.subscribe(refreshBalanceOnChain),
-    [address, assetSlug, chainId, evmTransfersListener, refreshBalanceOnChain, usingOffchainAPI]
+    [address, assetSlug, chainId, evmTransfersListener, refreshBalanceOnChain, usingOnchainRequests]
   );
 
   return {
     value: storedBalance,
-    isSyncing: storedLoadingState?.isLoading ?? false,
+    isSyncing,
     refresh: refreshBalanceOnChain
   };
 }

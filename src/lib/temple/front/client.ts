@@ -66,7 +66,9 @@ export const [TempleClientProvider, useTempleClient] = constate(() => {
             status: TempleStatus.Locked,
             accounts: [],
             settings: null,
-            dAppQueueCounters: DEFAULT_PROMISES_QUEUE_COUNTERS
+            dAppQueueCounters: DEFAULT_PROMISES_QUEUE_COUNTERS,
+            focusLocation: { tabId: null, windowId: null },
+            windowsWithPopups: []
           }
         : res.state,
       shouldLockOnStartup: isLocked
@@ -110,7 +112,7 @@ export const [TempleClientProvider, useTempleClient] = constate(() => {
    * Aliases
    */
 
-  const { status, accounts, settings, dAppQueueCounters } = state;
+  const { status, accounts, settings, dAppQueueCounters, focusLocation, windowsWithPopups } = state;
   const idle = status === TempleStatus.Idle;
   const locked = status === TempleStatus.Locked;
   const ready = status === TempleStatus.Ready;
@@ -468,6 +470,15 @@ export const [TempleClientProvider, useTempleClient] = constate(() => {
     browser.runtime.reload();
   }, []);
 
+  const setWindowPopupState = useCallback(async (windowId: number | null, opened: boolean) => {
+    const res = await request({
+      type: TempleMessageType.SetWindowPopupStateRequest,
+      windowId,
+      opened
+    });
+    assertResponse(res.type === TempleMessageType.SetWindowPopupStateResponse);
+  }, []);
+
   useEffect(() => void (data?.shouldLockOnStartup && lock()), [data?.shouldLockOnStartup, lock]);
 
   return {
@@ -484,6 +495,8 @@ export const [TempleClientProvider, useTempleClient] = constate(() => {
     locked,
     ready,
     dAppQueueCounters,
+    focusLocation,
+    windowsWithPopups,
 
     // Misc
     confirmation,
@@ -522,6 +535,7 @@ export const [TempleClientProvider, useTempleClient] = constate(() => {
     confirmDAppEvmChainAdding,
     switchDAppEvmChain,
     sendEvmTransaction,
-    resetExtension
+    resetExtension,
+    setWindowPopupState
   };
 });
