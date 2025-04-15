@@ -157,7 +157,7 @@ export const ShortcutAccountSwitchOverlay = memo(() => {
                 </div>
               ) : (
                 filteredGroups.map((group, index) => (
-                  <div className={clsx(index === 0 && 'mt-3', 'flex flex-col mb-4 px-3')}>
+                  <div key={group.id} className={clsx(index === 0 && 'mt-3', 'flex flex-col mb-4 px-3')}>
                     <div className="flex items-center justify-between">
                       <Name className="p-1 text-font-description-bold">{group.name}</Name>
                       <AccLabel type={group.type} />

@@ -49,7 +49,7 @@ export const AccountItem: React.FC<AccountItemProps> = ({
   arrayIndex,
   itemsArrayRef
 }) => {
-  const elemRef = useScrollIntoView<HTMLButtonElement>(selected, scrollIntoViewOptions);
+  const elemRef = useScrollIntoView<HTMLButtonElement>(focused, scrollIntoViewOptions);
 
   return (
     <Button
