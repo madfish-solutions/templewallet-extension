@@ -83,7 +83,7 @@ export const TezosDetails = memo<TezosDetailsProps>(
 
         <PlainChartListItem title={<T id="tokenId" />}>{id}</PlainChartListItem>
 
-        <ChartListItem title={<T id="tokenContract" />}>
+        <ChartListItem title={<T id="tokenContract" />} bottomSeparator={shouldShowEmptyRows}>
           <div className="flex flex-row items-center gap-x-0.5">
             <HashChip hash={contract} className="p-0.5" />
             <Anchor href={exploreContractUrl}>
@@ -117,12 +117,10 @@ export const TezosDetails = memo<TezosDetailsProps>(
           </ChartListItem>
         )}
 
-        <PlainChartListItem title={<T id="owned" />} bottomSeparator={shouldShowEmptyRows}>
-          {getValueWithFallback(balance)}
-        </PlainChartListItem>
-
         {shouldShowEmptyRows && (
           <>
+            <PlainChartListItem title={<T id="owned" />}>{getValueWithFallback(balance)}</PlainChartListItem>
+
             <PlainChartListItem title={<T id="editions" />}>{getValueWithFallback(details?.supply)}</PlainChartListItem>
 
             <PlainChartListItem title={<T id="royalties" />}>{royaltiesStr}</PlainChartListItem>
@@ -142,91 +140,96 @@ interface EvmDetailsProps {
   assetSlug: string;
   accountPkh: HexString;
   metadata?: EvmCollectibleMetadata;
+  shouldShowEmptyRows?: boolean;
 }
 
-export const EvmDetails = memo<EvmDetailsProps>(({ network, accountPkh, assetSlug, metadata }) => {
-  const { value: balance } = useEvmAssetBalance(assetSlug, accountPkh, network);
+export const EvmDetails = memo<EvmDetailsProps>(
+  ({ network, accountPkh, assetSlug, metadata, shouldShowEmptyRows = true }) => {
+    const { value: balance } = useEvmAssetBalance(assetSlug, accountPkh, network);
 
-  const [contractAddress, tokenId] = useMemo(() => fromAssetSlug(assetSlug), [assetSlug]);
+    const [contractAddress, tokenId] = useMemo(() => fromAssetSlug(assetSlug), [assetSlug]);
 
-  const getActiveBlockExplorer = useGetEvmActiveBlockExplorer();
-  const activeBlockExplorer = useMemo(
-    () => getActiveBlockExplorer(network.chainId.toString()),
-    [getActiveBlockExplorer, network.chainId]
-  );
+    const getActiveBlockExplorer = useGetEvmActiveBlockExplorer();
+    const activeBlockExplorer = useMemo(
+      () => getActiveBlockExplorer(network.chainId.toString()),
+      [getActiveBlockExplorer, network.chainId]
+    );
 
-  const exploreContractUrl = useMemo(
-    () => makeBlockExplorerHref(activeBlockExplorer.url, contractAddress, 'address', TempleChainKind.EVM),
-    [activeBlockExplorer.url, contractAddress]
-  );
+    const exploreContractUrl = useMemo(
+      () => makeBlockExplorerHref(activeBlockExplorer.url, contractAddress, 'address', TempleChainKind.EVM),
+      [activeBlockExplorer.url, contractAddress]
+    );
 
-  const exploreContractCreatorUrl = useMemo(
-    () =>
-      metadata?.originalOwner &&
-      makeBlockExplorerHref(activeBlockExplorer.url, metadata?.originalOwner, 'address', TempleChainKind.EVM),
-    [activeBlockExplorer.url, metadata?.originalOwner]
-  );
+    const exploreContractCreatorUrl = useMemo(
+      () =>
+        metadata?.originalOwner &&
+        makeBlockExplorerHref(activeBlockExplorer.url, metadata?.originalOwner, 'address', TempleChainKind.EVM),
+      [activeBlockExplorer.url, metadata?.originalOwner]
+    );
 
-  const metadataLink = useMemo(() => {
-    if (!metadata?.metadataUri?.startsWith('ipfs')) return;
-    return buildHttpLinkFromUri(metadata.metadataUri);
-  }, [metadata?.metadataUri]);
+    const metadataLink = useMemo(() => {
+      if (!metadata?.metadataUri?.startsWith('ipfs')) return;
+      return buildHttpLinkFromUri(metadata.metadataUri);
+    }, [metadata?.metadataUri]);
 
-  const displayStandard = useMemo(
-    () => metadata?.standard && metadata?.standard.replace('erc', 'ERC '),
-    [metadata?.standard]
-  );
+    const displayStandard = useMemo(
+      () => metadata?.standard && metadata?.standard.replace('erc', 'ERC '),
+      [metadata?.standard]
+    );
 
-  return (
-    <div className="flex flex-col p-4 rounded-8 shadow-bottom bg-white">
-      <ChartListItem title={<T id="chain" />}>
-        <div className="flex flex-row items-center">
-          <span className={VALUE_CLASSNAME}>{network.name}</span>
-          <EvmNetworkLogo chainId={network.chainId} size={16} />
-        </div>
-      </ChartListItem>
-
-      {displayStandard && <PlainChartListItem title={<T id="tokenStandard" />}>{displayStandard}</PlainChartListItem>}
-
-      <PlainChartListItem title={<T id="tokenId" />}>{tokenId}</PlainChartListItem>
-
-      <ChartListItem title={<T id="tokenContract" />}>
-        <div className="flex flex-row items-center gap-x-0.5">
-          <HashChip hash={contractAddress} className="p-0.5" />
-          <Anchor href={exploreContractUrl}>
-            <IconBase Icon={OutLinkIcon} className="text-secondary" />
-          </Anchor>
-        </div>
-      </ChartListItem>
-
-      {metadata?.originalOwner && (
-        <ChartListItem title={<T id="contractCreator" />}>
-          <div className="flex flex-row items-center gap-x-0.5">
-            <HashChip hash={metadata.originalOwner} className="p-0.5" />
-            {exploreContractCreatorUrl && (
-              <Anchor href={exploreContractCreatorUrl}>
-                <IconBase Icon={OutLinkIcon} className="text-secondary" />
-              </Anchor>
-            )}
+    return (
+      <div className="flex flex-col p-4 rounded-8 shadow-bottom bg-white">
+        <ChartListItem title={<T id="chain" />}>
+          <div className="flex flex-row items-center">
+            <span className={VALUE_CLASSNAME}>{network.name}</span>
+            <EvmNetworkLogo chainId={network.chainId} size={16} />
           </div>
         </ChartListItem>
-      )}
 
-      {metadataLink && (
-        <ChartListItem title={<T id="metadata" />}>
-          <Anchor href={metadataLink} className="flex flex-row items-center gap-x-0.5 text-secondary">
-            <p className="py-0.5 text-font-description">IPFS</p>
-            <IconBase Icon={OutLinkIcon} />
-          </Anchor>
+        {displayStandard && <PlainChartListItem title={<T id="tokenStandard" />}>{displayStandard}</PlainChartListItem>}
+
+        <PlainChartListItem title={<T id="tokenId" />}>{tokenId}</PlainChartListItem>
+
+        <ChartListItem title={<T id="tokenContract" />} bottomSeparator={shouldShowEmptyRows}>
+          <div className="flex flex-row items-center gap-x-0.5">
+            <HashChip hash={contractAddress} className="p-0.5" />
+            <Anchor href={exploreContractUrl}>
+              <IconBase Icon={OutLinkIcon} className="text-secondary" />
+            </Anchor>
+          </div>
         </ChartListItem>
-      )}
 
-      <PlainChartListItem title={<T id="owned" />} bottomSeparator={false}>
-        {getValueWithFallback(balance)}
-      </PlainChartListItem>
-    </div>
-  );
-});
+        {metadata?.originalOwner && (
+          <ChartListItem title={<T id="contractCreator" />}>
+            <div className="flex flex-row items-center gap-x-0.5">
+              <HashChip hash={metadata.originalOwner} className="p-0.5" />
+              {exploreContractCreatorUrl && (
+                <Anchor href={exploreContractCreatorUrl}>
+                  <IconBase Icon={OutLinkIcon} className="text-secondary" />
+                </Anchor>
+              )}
+            </div>
+          </ChartListItem>
+        )}
+
+        {metadataLink && (
+          <ChartListItem title={<T id="metadata" />}>
+            <Anchor href={metadataLink} className="flex flex-row items-center gap-x-0.5 text-secondary">
+              <p className="py-0.5 text-font-description">IPFS</p>
+              <IconBase Icon={OutLinkIcon} />
+            </Anchor>
+          </ChartListItem>
+        )}
+
+        {shouldShowEmptyRows && (
+          <PlainChartListItem title={<T id="amount" />} bottomSeparator={false}>
+            {getValueWithFallback(balance)}
+          </PlainChartListItem>
+        )}
+      </div>
+    );
+  }
+);
 
 const PlainChartListItem = memo<PlainChartListItemProps>(({ children, ...restProps }) => (
   <ChartListItem {...restProps}>

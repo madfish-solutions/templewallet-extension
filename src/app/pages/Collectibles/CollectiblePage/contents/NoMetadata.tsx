@@ -24,7 +24,14 @@ interface EvmProps {
 export const EvmNoMetadataContent: FC<EvmProps> = props => (
   <NoMetadataContent
     {...props}
-    detailsElement={<EvmDetails network={props.network} assetSlug={props.assetSlug} accountPkh={props.accountPkh} />}
+    detailsElement={
+      <EvmDetails
+        network={props.network}
+        assetSlug={props.assetSlug}
+        accountPkh={props.accountPkh}
+        shouldShowEmptyRows={false}
+      />
+    }
   />
 );
 
@@ -73,7 +80,7 @@ const NoMetadataContent: FC<BaseProps> = ({ assetSlug, network, detailsElement }
 
           {detailsElement}
 
-          <div className="mt-6 flex justify-center">
+          <div className="my-6 flex justify-center">
             <StyledButton
               size="S"
               color="secondary-low"
