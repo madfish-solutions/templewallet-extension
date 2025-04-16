@@ -6,6 +6,7 @@ import { SyncSpinner } from 'app/atoms';
 import { SimpleInfiniteScroll } from 'app/atoms/SimpleInfiniteScroll';
 import { useCollectiblesListingLogic } from 'app/hooks/use-collectibles-listing-logic';
 import { useAccountCollectibles } from 'lib/assets/hooks';
+import { AccountAsset } from 'lib/assets/types';
 import { useCollectiblesSortPredicate } from 'lib/assets/use-sorting';
 import { useGetCollectibleMetadata } from 'lib/metadata';
 import { useAccount, useChainId } from 'lib/temple/front';
@@ -32,7 +33,10 @@ export const ManageCollectibles = memo(() => {
     useCollectiblesListingLogic(allSlugsSorted);
 
   const displayedAssets = useMemo(
-    () => displayedSlugs.map(slug => ({ slug, status: collectibles.find(t => t.slug === slug)!.status })),
+    () =>
+      displayedSlugs
+        .map(slug => ({ slug, status: collectibles.find(t => t.slug === slug)?.status }))
+        .filter((asset): asset is AccountAsset => Boolean(asset.status)),
     [displayedSlugs, collectibles]
   );
 
