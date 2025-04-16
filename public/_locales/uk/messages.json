@@ -1392,6 +1392,60 @@
   "minimumReceived": {
     "message": "Мінімальний вихід"
   },
+  "steps_one": {
+    "message": "$amount$ крок",
+    "description": "For plural forms",
+    "placeholders": {
+      "amount": {
+        "content": "$1"
+      }
+    }
+  },
+  "steps_zero": {
+    "message": "$amount$ кроків",
+    "description": "For plural forms",
+    "placeholders": {
+      "amount": {
+        "content": "$1"
+      }
+    }
+  },
+  "steps_two": {
+    "message": "$amount$ кроки",
+    "description": "For plural forms",
+    "placeholders": {
+      "amount": {
+        "content": "$1"
+      }
+    }
+  },
+  "steps_few": {
+    "message": "$amount$ кроки",
+    "description": "For plural forms",
+    "placeholders": {
+      "amount": {
+        "content": "$1"
+      }
+    }
+  },
+  "steps_many": {
+    "message": "$amount$ кроків",
+    "description": "For plural forms",
+    "placeholders": {
+      "amount": {
+        "content": "$1"
+      }
+    }
+  },
+  "steps_other": {
+    "message": "$amount$ кроків",
+    "description": "For plural forms",
+    "placeholders": {
+      "amount": {
+        "content": "$1"
+      }
+    }
+  },
   "community": {
     "message": "Спільнота"
   },

@@ -16,16 +16,17 @@ import { dispatch, useSelector } from 'app/store';
 import { loadSwapParamsAction, resetSwapParamsAction } from 'app/store/swap/actions';
 import { useSwapParamsSelector, useSwapTokenSelector, useSwapTokensSelector } from 'app/store/swap/selectors';
 import OperationStatus from 'app/templates/OperationStatus';
+import { toastError } from 'app/toaster';
 import { setTestID, useFormAnalytics } from 'lib/analytics';
 import { fetchRoute3SwapParams } from 'lib/apis/route3/fetch-route3-swap-params';
 import { TEZ_TOKEN_SLUG } from 'lib/assets';
 import { KNOWN_TOKENS_SLUGS } from 'lib/assets/known-tokens';
+import { TEZ_BURN_ADDRESS } from 'lib/constants';
 import { useAssetFiatCurrencyPrice } from 'lib/fiat-currency';
 import { useAssetUSDPrice } from 'lib/fiat-currency/core';
 import { T, t } from 'lib/i18n';
 import { useCategorizedTezosAssetMetadata, useGetCategorizedAssetMetadata } from 'lib/metadata';
 import {
-  BURN_ADDREESS,
   ROUTING_FEE_ADDRESS,
   ROUTING_FEE_RATIO,
   ROUTING_FEE_SLIPPAGE_RATIO,
@@ -108,7 +109,6 @@ export const SwapForm = memo<Props>(({ publicKeyHash, slippageTolerance }) => {
     TEZOS_MAINNET_CHAIN_ID
   )!;
 
-  const [error, setError] = useState<Error>();
   const [operation, setOperation] = useState<BatchWalletOperation>();
   const isSubmitButtonPressedRef = useRef(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -383,7 +383,7 @@ export const SwapForm = memo<Props>(({ publicKeyHash, slippageTolerance }) => {
           fromRoute3Token,
           routingFeeFromInputAtomic.minus(cashbackSwapInputFromInAtomic),
           publicKeyHash,
-          BURN_ADDREESS,
+          TEZ_BURN_ADDRESS,
           tezos
         );
         allSwapParams.push(...routingInputFeeOpParams);
@@ -431,7 +431,7 @@ export const SwapForm = memo<Props>(({ publicKeyHash, slippageTolerance }) => {
           TEMPLE_TOKEN,
           templeMinOutputAtomic.times(ROUTING_FEE_RATIO - SWAP_CASHBACK_RATIO).dividedToIntegerBy(ROUTING_FEE_RATIO),
           publicKeyHash,
-          BURN_ADDREESS,
+          TEZ_BURN_ADDRESS,
           tezos
         );
         allSwapParams.push(...routingFeeOpParams);
@@ -440,7 +440,7 @@ export const SwapForm = memo<Props>(({ publicKeyHash, slippageTolerance }) => {
           TEMPLE_TOKEN,
           outputFeeAtomicAmount.times(ROUTING_FEE_RATIO - SWAP_CASHBACK_RATIO).dividedToIntegerBy(ROUTING_FEE_RATIO),
           publicKeyHash,
-          BURN_ADDREESS,
+          TEZ_BURN_ADDRESS,
           tezos
         );
       } else if (!isInputTokenTempleToken && isSwapAmountMoreThreshold) {
@@ -476,7 +476,7 @@ export const SwapForm = memo<Props>(({ publicKeyHash, slippageTolerance }) => {
           TEMPLE_TOKEN,
           templeMinOutputAtomic.times(ROUTING_FEE_RATIO - SWAP_CASHBACK_RATIO).dividedToIntegerBy(ROUTING_FEE_RATIO),
           publicKeyHash,
-          BURN_ADDREESS,
+          TEZ_BURN_ADDRESS,
           tezos
         );
         routingOutputFeeTransferParams = [...swapToTempleTokenOpParams, ...routingFeeOpParams];
@@ -497,13 +497,12 @@ export const SwapForm = memo<Props>(({ publicKeyHash, slippageTolerance }) => {
 
       const batchOperation = await tezos.wallet.batch(opParams).send();
 
-      setError(undefined);
       formAnalytics.trackSubmitSuccess(analyticsProperties);
       setOperation(batchOperation);
     } catch (err: any) {
       console.error(err);
       if (err.message !== 'Declined') {
-        setError(err);
+        toastError(err.message);
       }
       formAnalytics.trackSubmitFail(analyticsProperties);
     } finally {
@@ -511,7 +510,6 @@ export const SwapForm = memo<Props>(({ publicKeyHash, slippageTolerance }) => {
     }
   };
 
-  const handleErrorClose = () => setError(undefined);
   const handleOperationClose = () => setOperation(undefined);
 
   const handleToggleIconClick = () => {
@@ -550,36 +548,31 @@ export const SwapForm = memo<Props>(({ publicKeyHash, slippageTolerance }) => {
 
   return (
     <>
-      <form id="swap-form" className="flex flex-col h-full pt-4 flex-grow flex-1" onSubmit={handleSubmit(onSubmit)}>
+      <form id="swap-form" className="flex-1 pt-4 px-4 flex flex-col overflow-y-auto" onSubmit={handleSubmit(onSubmit)}>
         {isAlertVisible && (
-          <div className="px-4">
-            <Alert
-              closable
-              className="mb-4 [&>div]:items-center"
-              type="error"
-              description={<T id="noRoutesFound" />}
-              onClose={handleCloseAlert}
-            />
-          </div>
+          <Alert
+            closable
+            className="mb-4 [&>div]:items-center"
+            type="error"
+            description={<T id="noRoutesFound" />}
+            onClose={handleCloseAlert}
+          />
         )}
 
         {operation && (
-          <div className="px-4">
-            <OperationStatus
-              network={network}
-              className="mb-8"
-              closable
-              typeTitle={t('swapNoun')}
-              operation={operation}
-              onClose={handleOperationClose}
-            />
-          </div>
+          <OperationStatus
+            network={network}
+            className="mb-8"
+            closable
+            typeTitle={t('swapNoun')}
+            operation={operation}
+            onClose={handleOperationClose}
+          />
         )}
 
         <SwapFormInput
           network={network}
           publicKeyHash={publicKeyHash}
-          className="px-4"
           inputName="input"
           value={inputValue}
           error={errors.input?.message}
@@ -607,7 +600,7 @@ export const SwapForm = memo<Props>(({ publicKeyHash, slippageTolerance }) => {
         <SwapFormInput
           network={network}
           publicKeyHash={publicKeyHash}
-          className="mb-6 px-4"
+          className="mb-6"
           inputName="output"
           value={outputValue}
           error={errors.output?.message}
@@ -620,44 +613,35 @@ export const SwapForm = memo<Props>(({ publicKeyHash, slippageTolerance }) => {
           }}
         />
 
-        <div className="px-4 mb-8">
-          <SwapInfoDropdown
-            showCashBack={outputAmountInUSD.gte(10)}
-            swapRouteSteps={swapRouteSteps}
-            inputAmount={isDefined(swapParams.data.input) ? new BigNumber(swapParams.data.input) : undefined}
-            outputAmount={isDefined(swapParams.data.output) ? new BigNumber(swapParams.data.output) : undefined}
-            inputAssetMetadata={inputAssetMetadata}
-            outputAssetMetadata={outputAssetMetadata}
-            minimumReceivedAmount={minimumReceivedAtomic}
-          />
-        </div>
-
-        <ActionsButtonsBox className="mt-auto">
-          <StyledButton
-            onClick={handleSubmitButtonClick}
-            type="submit"
-            form="swap-form"
-            size="L"
-            color="primary"
-            loading={isSubmitting || swapParams.isLoading}
-            disabled={submitCount > 0 && !isValid}
-            testID={SwapFormSelectors.swapButton}
-          >
-            <T id={swapParams.isLoading ? 'searchingTheBestRoute' : 'review'} />
-          </StyledButton>
-        </ActionsButtonsBox>
-
-        {error && (
-          <Alert
-            className="mb-6"
-            type="error"
-            title={t('error')}
-            description={error.message}
-            closable
-            onClose={handleErrorClose}
-          />
+        {isDefined(swapParams.data.output) && (
+          <div className="mb-6">
+            <SwapInfoDropdown
+              showCashBack={outputAmountInUSD.gte(10)}
+              swapRouteSteps={swapRouteSteps}
+              inputAmount={isDefined(swapParams.data.input) ? new BigNumber(swapParams.data.input) : undefined}
+              outputAmount={new BigNumber(swapParams.data.output)}
+              inputAssetMetadata={inputAssetMetadata}
+              outputAssetMetadata={outputAssetMetadata}
+              minimumReceivedAmount={minimumReceivedAtomic}
+            />
+          </div>
         )}
       </form>
+
+      <ActionsButtonsBox>
+        <StyledButton
+          onClick={handleSubmitButtonClick}
+          type="submit"
+          form="swap-form"
+          size="L"
+          color="primary"
+          loading={isSubmitting || swapParams.isLoading}
+          disabled={submitCount > 0 && !isValid}
+          testID={SwapFormSelectors.swapButton}
+        >
+          <T id={swapParams.isLoading ? 'searchingTheBestRoute' : 'review'} />
+        </StyledButton>
+      </ActionsButtonsBox>
     </>
   );
 });

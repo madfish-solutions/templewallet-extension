@@ -315,7 +315,7 @@ export const FormField = forwardRef<FormFieldElement, FormFieldProps>(
             <ErrorCaption errorCaption={errorCaption} />
           ))}
 
-        {!errorCaption && underneathComponent}
+        {(!errorCaption || !shouldShowErrorCaption) && underneathComponent}
       </div>
     );
   }

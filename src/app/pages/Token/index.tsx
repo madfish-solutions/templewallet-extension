@@ -89,7 +89,7 @@ const TezosTokenPage: FC<TezosTokenPageProps> = ({ chainId, assetSlug }) => {
         {showScamTokenAlert && <ScamTokenAlert />}
 
         <div className="flex flex-col p-4 gap-y-3 bg-white">
-          <TezosAssetBanner tezosChainId={chainId} assetSlug={assetSlug} metadata={assetMetadata} />
+          <TezosAssetBanner chainId={chainId} assetSlug={assetSlug} />
 
           <ExploreActionButtonsBar
             chainKind={TempleChainKind.Tezos}
@@ -142,7 +142,7 @@ const EvmTokenPage: FC<EvmTokenPageProps> = ({ chainId, assetSlug }) => {
 
       <PageLayout {...pageProps} contentPadding={false}>
         <div className="flex flex-col p-4 gap-y-3 bg-white">
-          <EvmAssetBanner evmChainId={chainId} assetSlug={assetSlug} />
+          <EvmAssetBanner chainId={chainId} assetSlug={assetSlug} />
 
           <ExploreActionButtonsBar chainKind={TempleChainKind.EVM} chainId={String(chainId)} assetSlug={assetSlug} />
         </div>
