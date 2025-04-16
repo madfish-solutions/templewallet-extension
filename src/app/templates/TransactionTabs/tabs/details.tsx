@@ -21,8 +21,8 @@ interface Props {
   goToFeeTab: EmptyFn;
   displayedFee?: string;
   displayedStorageFee?: string;
-  destinationName: ReactNode;
-  destinationValue: ReactNode;
+  destinationName?: ReactNode;
+  destinationValue?: ReactNode;
 }
 
 export const DetailsTab: FC<Props> = ({

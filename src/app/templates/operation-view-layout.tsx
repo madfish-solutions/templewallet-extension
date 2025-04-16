@@ -40,7 +40,7 @@ export const OperationViewLayout = <T extends TxParamsFormData>({
       )}
       {!expensesViewIsVisible && (otherDataLoading || metadataLoading) && (
         <div className="flex justify-center items-center">
-          <Loader size="L" trackVariant="dark" className="text-primary" />
+          <Loader size="L" trackVariant="dark" className="text-secondary" />
         </div>
       )}
 

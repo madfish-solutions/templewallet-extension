@@ -10,20 +10,32 @@ import { dispatch } from 'app/store';
 import { resetSwapParamsAction } from 'app/store/swap/actions';
 import { t, T } from 'lib/i18n';
 import { useBooleanState } from 'lib/ui/hooks';
-import { useAccountAddressForTezos } from 'temple/front';
+import { useAccountForTezos } from 'temple/front';
+import { TempleChainKind } from 'temple/types';
 
+import { TezosReviewData } from './form/interfaces';
+import { ConfirmSwapModal } from './modals/ConfirmSwap';
 import SwapSettingsModal, { Inputs } from './modals/SwapSettings';
 
 const Swap = memo(() => {
-  const publicKeyHash = useAccountAddressForTezos();
+  const account = useAccountForTezos();
 
-  const [slippageTolerance, setSlippageTolerance] = useState<number>(0.5);
+  const [slippageTolerance, setSlippageTolerance] = useState(0.5);
 
-  useEffect(() => {
-    dispatch(resetSwapParamsAction());
-  }, []);
+  useEffect(() => void dispatch(resetSwapParamsAction()), []);
 
   const [settingsModalOpened, setSettingsModalOpen, setSettingsModalClosed] = useBooleanState(false);
+  const [confirmSwapModalOpened, setConfirmSwapModalOpen, setConfirmSwapModalClosed] = useBooleanState(false);
+
+  const [reviewData, setReviewData] = useState<TezosReviewData>();
+
+  const handleReview = useCallback(
+    (data: TezosReviewData) => {
+      setReviewData(data);
+      setConfirmSwapModalOpen();
+    },
+    [setConfirmSwapModalOpen]
+  );
 
   const handleConfirmSlippageTolerance = useCallback(
     ({ slippageTolerance }: Inputs) => {
@@ -44,10 +56,8 @@ const Swap = memo(() => {
     >
       <div className="flex-1 flex-grow w-full max-w-sm mx-auto">
         <Suspense fallback={<PageLoader stretch />}>
-          {publicKeyHash ? (
-            <>
-              <SwapForm publicKeyHash={publicKeyHash} slippageTolerance={slippageTolerance} />
-            </>
+          {account?.chain === TempleChainKind.Tezos ? (
+            <SwapForm account={account} slippageTolerance={slippageTolerance} onReview={handleReview} />
           ) : (
             <p className="text-center text-sm">
               <T id="noExchangersAvailable" />
@@ -59,6 +69,11 @@ const Swap = memo(() => {
           onSubmit={handleConfirmSlippageTolerance}
           opened={settingsModalOpened}
           onRequestClose={setSettingsModalClosed}
+        />
+        <ConfirmSwapModal
+          opened={confirmSwapModalOpened}
+          onRequestClose={setConfirmSwapModalClosed}
+          reviewData={reviewData}
         />
       </div>
     </PageLayout>

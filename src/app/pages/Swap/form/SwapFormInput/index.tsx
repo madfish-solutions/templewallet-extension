@@ -19,11 +19,10 @@ import {
 import { useAvailableRoute3TokensSlugs } from 'lib/route3/assets';
 import { useBooleanState } from 'lib/ui/hooks';
 
+import { EXCHANGE_XTZ_RESERVE } from '../../constants';
 import { SwapSelectAssetModal } from '../../modals/SwapSelectAsset';
 
 import { SwapFormInputProps } from './SwapFormInput.props';
-
-const EXCHANGE_XTZ_RESERVE = new BigNumber('0.3');
 
 /** @deprecated // Bad practice */
 const DEFAULT_ASSET_METADATA: AssetMetadataBase = {

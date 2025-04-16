@@ -30,8 +30,8 @@ export interface TransactionTabsProps<T extends TxParamsFormData> {
   estimationError?: string | nullish;
   formId: string;
   tabsName: string;
-  destinationName: ReactNode;
-  destinationValue: ReactNode;
+  destinationName?: ReactNode;
+  destinationValue?: ReactNode;
   children?: ReactNode;
 }
 
@@ -105,7 +105,7 @@ export const TransactionTabs = <T extends TxParamsFormData>({
       <form id={formId} className="flex-1 flex flex-col" onSubmit={handleSubmit(onSubmit)}>
         {!displayedFeeOptions && !estimationError ? (
           <div className="flex justify-center my-10">
-            <Loader size="M" trackVariant="dark" className="text-primary" />
+            <Loader size="M" trackVariant="dark" className="text-secondary" />
           </div>
         ) : (
           (() => {
