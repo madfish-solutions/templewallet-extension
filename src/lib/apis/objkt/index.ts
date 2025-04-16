@@ -3,28 +3,16 @@
  * Explore: https://public-api-v3-20221206.objkt.com/explore
  */
 
-import { TezosToolkit } from '@taquito/taquito';
 import { chunk } from 'lodash';
 import { forkJoin, map, of, switchMap } from 'rxjs';
 
 import { fromFa2TokenSlug } from 'lib/assets/utils';
 
-import { apolloObjktClient, MAX_OBJKT_QUERY_RESPONSE_ITEMS, OBJKT_CONTRACT } from './constants';
-import {
-  buildGetCollectibleExtraQuery,
-  buildGetCollectiblesQuery,
-  buildGetGalleriesAttributesCountsQuery
-} from './queries';
-import type {
-  FxHashContractInterface,
-  UserObjktCollectible,
-  ObjktGalleryAttributeCount,
-  ObjktContractInterface,
-  ObjktCollectibleExtra
-} from './types';
+import { apolloObjktClient, MAX_OBJKT_QUERY_RESPONSE_ITEMS } from './constants';
+import { buildGetCollectiblesQuery, buildGetGalleriesAttributesCountsQuery } from './queries';
+import type { UserObjktCollectible, ObjktGalleryAttributeCount } from './types';
 
 export type { UserObjktCollectible, ObjktGalleryAttributeCount } from './types';
-export { objktCurrencies } from './constants';
 
 export const fetchObjktCollectibles$ = (slugs: string[]) =>
   forkJoin(
@@ -96,13 +84,3 @@ const fetchObjktGalleriesAttributesCountsChunk$ = (attributes: GetAttribute[]) =
       }
     }
   );
-
-export const fetchCollectibleExtraDetails = (contract: string, id: string) =>
-  apolloObjktClient
-    .fetch<{ token: [ObjktCollectibleExtra] | [] }>(buildGetCollectibleExtraQuery(), {
-      where: { fa_contract: { _eq: contract }, token_id: { _eq: id } }
-    })
-    .then(data => data?.token[0] ?? null);
-
-export const getObjktMarketplaceContract = (tezos: TezosToolkit, address?: string) =>
-  tezos.contract.at<ObjktContractInterface | FxHashContractInterface>(address ?? OBJKT_CONTRACT);

@@ -18,8 +18,8 @@ import { mutezToTz, tzToMutez } from 'lib/temple/helpers';
 import { SerializedEstimate } from 'lib/temple/types';
 import { TezosNetworkEssentials } from 'temple/networks';
 
-import OperationsBanner from '../OperationsBanner/OperationsBanner';
-import { OperationsBannerSelectors } from '../OperationsBanner/OperationsBanner.selectors';
+import OperationsBanner from '../../icons/OperationsBanner/OperationsBanner';
+import { OperationsBannerSelectors } from '../../icons/OperationsBanner/OperationsBanner.selectors';
 
 import styles from './ExpensesView.module.css';
 

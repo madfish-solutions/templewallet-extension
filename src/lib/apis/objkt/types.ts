@@ -1,4 +1,3 @@
-import { ContractAbstraction, ContractProvider, ContractMethod } from '@taquito/taquito';
 interface Name {
   name: string;
 }
@@ -22,15 +21,6 @@ export interface ObjktAttribute {
 interface ObjktListing {
   currency_id: number;
   price: number;
-}
-
-export interface ObjktOffer {
-  buyer_address: string;
-  price: number;
-  currency_id: number;
-  bigmap_key: number;
-  marketplace_contract: string;
-  __typename: 'offer_active';
 }
 
 export interface UserObjktCollectible {
@@ -75,24 +65,8 @@ export interface UserObjktCollectible {
   __typename: 'token';
 }
 
-export interface ObjktCollectibleExtra {
-  offers_active: ObjktOffer[];
-}
-
 export interface ObjktGalleryAttributeCount {
   attribute_id: number;
   gallery_pk: number;
   editions: number;
-}
-
-export interface ObjktContractInterface extends ContractAbstraction<ContractProvider> {
-  methods: {
-    fulfill_offer: (offer_id: number, token_id: number) => ContractMethod<ContractProvider>;
-  };
-}
-
-export interface FxHashContractInterface extends ContractAbstraction<ContractProvider> {
-  methods: {
-    offer_accept: (offer_id: number) => ContractMethod<ContractProvider>;
-  };
 }

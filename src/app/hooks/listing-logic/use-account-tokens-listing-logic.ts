@@ -3,7 +3,7 @@ import { useCallback, useMemo } from 'react';
 import { isDefined } from '@rnw-community/shared';
 
 import { useRawEvmAccountBalancesSelector } from 'app/store/evm/balances/selectors';
-import { useEvmTokensExchangeRatesLoadingSelector, useEvmTokensMetadataLoadingSelector } from 'app/store/evm/selectors';
+import { useEvmTokensExchangeRatesLoading, useEvmTokensMetadataLoadingSelector } from 'app/store/evm/selectors';
 import { useEvmTokensMetadataRecordSelector } from 'app/store/evm/tokens-metadata/selectors';
 import { useAreAssetsLoading } from 'app/store/tezos/assets/selectors';
 import { useBalancesAtomicRecordSelector } from 'app/store/tezos/balances/selectors';
@@ -98,7 +98,7 @@ export const useAccountTokensListingLogic = (allSlugsSorted: string[]) => {
 
   const evmBalancesLoading = useEvmBalancesAreLoading();
   const evmMetadatasLoading = useEvmTokensMetadataLoadingSelector();
-  const exchangeRatesLoading = useEvmTokensExchangeRatesLoadingSelector();
+  const exchangeRatesLoading = useEvmTokensExchangeRatesLoading();
 
   const { searchValue, searchValueDebounced, setSearchValue, isInSearchMode, isSyncing } = useCommonAssetsListingLogic(
     tezAssetsAreLoading || tezMetadatasLoading || evmBalancesLoading || evmMetadatasLoading || exchangeRatesLoading

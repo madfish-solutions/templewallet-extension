@@ -31,12 +31,7 @@ import { setPendingConfirmationId } from '../pending-confirm';
 
 export { validateTezosContractAddress } from './helpers';
 export { useOnTezosBlock, useTezosBlockLevel } from './use-block';
-export {
-  isTezosDomainsNameValid,
-  getTezosDomainsClient,
-  useTezosAddressByDomainName,
-  useTezosDomainNameByAddress
-} from './tzdns';
+export { isTezosDomainsNameValid, getTezosDomainsClient, useTezosAddressByDomainName } from './tzdns';
 
 export const getTezosToolkitWithSigner = memoizee(
   (rpcUrl: string, signerPkh: string, straightaway?: boolean) => {

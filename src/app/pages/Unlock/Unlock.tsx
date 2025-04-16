@@ -3,10 +3,11 @@ import React, { FC, useCallback, useEffect, useMemo, useRef, useState } from 're
 import { OnSubmit, useForm } from 'react-hook-form';
 import { useDispatch } from 'react-redux';
 
-import { FormField } from 'app/atoms';
+import { FormField, IconBase } from 'app/atoms';
 import { StyledButton } from 'app/atoms/StyledButton';
 import { TextButton } from 'app/atoms/TextButton';
 import { useResizeDependentValue } from 'app/hooks/use-resize-dependent-value';
+import { ReactComponent as LockFillIcon } from 'app/icons/base/lock_fill.svg';
 import PageLayout from 'app/layouts/PageLayout';
 import { getUserTestingGroupNameActions } from 'app/store/ab-testing/actions';
 import { useUserTestingGroupNameSelector } from 'app/store/ab-testing/selectors';
@@ -161,7 +162,7 @@ const Unlock: FC<UnlockProps> = ({ canImportNew = true }) => {
 
   useEffect(() => {
     const interval = setInterval(() => {
-      if (Date.now() - timelock > lockLevel) {
+      if (timelock > 0 && Date.now() - timelock > lockLevel) {
         setTimeLock(0);
         clearError('password');
       }
@@ -199,6 +200,8 @@ const Unlock: FC<UnlockProps> = ({ canImportNew = true }) => {
               name="password"
               placeholder={DEFAULT_PASSWORD_INPUT_PLACEHOLDER}
               errorCaption={errors.password && errors.password.message}
+              additionalActionButtons={isDisabled && <IconBase Icon={LockFillIcon} className="text-grey-3" />}
+              revealForbidden={isDisabled}
               containerClassName="mb-3"
               autoFocus
               disabled={isDisabled}

@@ -2,7 +2,7 @@ import React, { FC } from 'react';
 
 import clsx from 'clsx';
 
-import Spinner from 'app/atoms/Spinner/Spinner';
+import { Loader } from 'app/atoms';
 
 interface Props {
   large?: boolean;
@@ -11,6 +11,6 @@ interface Props {
 
 export const CollectibleImageLoader: FC<Props> = ({ large = false, className }) => (
   <div className={clsx('w-full aspect-square flex items-center justify-center', className)}>
-    <Spinner theme="dark-gray" className={large ? 'w-10' : 'w-8'} />
+    <Loader size={large ? 'XXL' : 'L'} trackVariant="dark" className="text-secondary" />
   </div>
 );

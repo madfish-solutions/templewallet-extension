@@ -28,7 +28,7 @@ export const ChartListItem: FC<ChartListItemProps> = ({
   </div>
 );
 
-interface PlainChartListItemProps extends ChartListItemProps {
+export interface PlainChartListItemProps extends ChartListItemProps {
   children: string | number | nullish;
 }
 
