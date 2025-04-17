@@ -102,7 +102,7 @@ export const useTezosEstimationForm = ({
             }
 
             setBalancesChangesLoading(false);
-            console.log(response.contents, 'contents');
+
             return of(getBalancesChanges(response.contents, accountPkh));
           }),
           catchError(e => {
