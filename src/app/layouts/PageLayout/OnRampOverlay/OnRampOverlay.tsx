@@ -26,7 +26,13 @@ export const OnRampOverlay = memo(() => {
   const isOnRampPossibility = useOnRampPossibilitySelector();
   const [isVisible, setIsVisible] = useState(isOnRampPossibility);
 
-  useEffect(() => void dispatch(setOnRampPossibilityAction(false)), []);
+  useEffect(() => {
+    if (isVisible) {
+      dispatch(setOnRampPossibilityAction(false));
+    } else if (isOnRampPossibility) {
+      setIsVisible(true);
+    }
+  }, [isVisible, isOnRampPossibility]);
 
   const close = useCallback(() => setIsVisible(false), []);
 
