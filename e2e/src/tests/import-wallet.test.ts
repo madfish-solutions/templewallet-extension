@@ -14,6 +14,7 @@ describeScenario('Import Wallet', () => {
     await Pages.SetWallet.repeatPasswordField.fill(envVars.DEFAULT_PASSWORD);
     await Pages.SetWallet.importButton.click();
 
-    await Pages.NewsletterModal.closeButton.click();
+    // await Pages.NewsletterModal.closeButton.click();
+    await Pages.Home.isVisible();
   });
 });
