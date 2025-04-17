@@ -1437,7 +1437,7 @@
     "message": "Schlupftoleranz"
   },
   "minimumReceived": {
-    "message": "Mindestens Erhalten"
+    "message": "Mindestens erhalten"
   },
   "inputOutputAssetsCannotBeSame": {
     "message": "Eingehende und ausgehende Vermögenswerte können nicht gleich sein"
