@@ -2,19 +2,15 @@ import 'core-js/actual/structured-clone';
 
 import { pick } from 'lodash';
 
+import { VITALIK_ADDRESS } from 'lib/constants';
+
 import { DbEvmActivity, NO_TOKEN_ID_VALUE, evmActivities, evmActivitiesIntervals, evmActivityAssets } from '../db';
 import { resetDb } from '../test-helpers';
 
 import rawDbInteractorActivities from './db-evm-delete-interactor-activities.json';
 import rawDbVitalikActivities from './db-evm-delete-vitalik-activities.json';
 import { deleteEvmActivitiesByAddress } from './delete';
-import {
-  checkEvmDbState,
-  interactorPkh,
-  interactorPkhLowercased,
-  vitalikPkh,
-  vitalikPkhLowercased
-} from './test-helpers';
+import { checkEvmDbState, interactorPkh, interactorPkhLowercased, vitalikPkhLowercased } from './test-helpers';
 
 const dbInteractorActivities = rawDbInteractorActivities as Omit<DbEvmActivity, 'account' | 'contract'>[];
 const dbVitalikActivities = rawDbVitalikActivities as Omit<DbEvmActivity, 'account' | 'contract'>[];
@@ -81,7 +77,7 @@ describe('deleteEvmActivities', () => {
   });
 
   it('should remove only the data which is related only to Vitalik', async () => {
-    await deleteEvmActivitiesByAddress(vitalikPkh);
+    await deleteEvmActivitiesByAddress(VITALIK_ADDRESS);
     await checkEvmDbState(
       [
         {

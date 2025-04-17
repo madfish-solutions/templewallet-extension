@@ -1,4 +1,4 @@
-import React, { memo, useEffect, useState } from 'react';
+import React, { memo, useCallback, useEffect, useState } from 'react';
 
 import classNames from 'clsx';
 
@@ -28,7 +28,7 @@ export const OnRampOverlay = memo(() => {
 
   useEffect(() => void dispatch(setOnRampPossibilityAction(false)), []);
 
-  const close = () => setIsVisible(false);
+  const close = useCallback(() => setIsVisible(false), []);
 
   if (!isVisible || !publicKeyHash) return null;
 

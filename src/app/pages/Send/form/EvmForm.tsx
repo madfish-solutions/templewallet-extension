@@ -11,7 +11,7 @@ import { useEvmTokenMetadataSelector } from 'app/store/evm/tokens-metadata/selec
 import { useFormAnalytics } from 'lib/analytics';
 import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
 import { useEvmAssetBalance } from 'lib/balances/hooks';
-import { EVM_ZERO_ADDRESS } from 'lib/constants';
+import { VITALIK_ADDRESS } from 'lib/constants';
 import { useAssetFiatCurrencyPrice } from 'lib/fiat-currency';
 import { t, toLocalFixed } from 'lib/i18n';
 import { getAssetSymbol } from 'lib/metadata';
@@ -106,8 +106,8 @@ export const EvmForm: FC<Props> = ({ chainId, assetSlug, onSelectAssetClick, onR
     ethBalance,
     toFilled
   });
-  const { data: zeroRecipientEstimationData, isValidating: zeroRecipientEstimating } = useEvmEstimationData({
-    to: EVM_ZERO_ADDRESS,
+  const { data: toVitalikEstimationData, isValidating: toVitalikEstimating } = useEvmEstimationData({
+    to: VITALIK_ADDRESS,
     assetSlug,
     accountPkh,
     network,
@@ -118,7 +118,7 @@ export const EvmForm: FC<Props> = ({ chainId, assetSlug, onSelectAssetClick, onR
   });
 
   const maxAmount = useMemo(() => {
-    const fee = estimationData?.estimatedFee ?? zeroRecipientEstimationData?.estimatedFee;
+    const fee = estimationData?.estimatedFee ?? toVitalikEstimationData?.estimatedFee;
 
     if (!fee) return shouldUseFiat ? getMaxAmountFiat(assetPrice.toNumber(), balance) : balance;
 
@@ -127,7 +127,7 @@ export const EvmForm: FC<Props> = ({ chainId, assetSlug, onSelectAssetClick, onR
       : balance;
 
     return shouldUseFiat ? getMaxAmountFiat(assetPrice.toNumber(), maxAmountAsset) : maxAmountAsset;
-  }, [estimationData, assetSlug, balance, shouldUseFiat, assetPrice, zeroRecipientEstimationData]);
+  }, [estimationData, assetSlug, balance, shouldUseFiat, assetPrice, toVitalikEstimationData]);
 
   const validateAmount = useCallback(
     (amount: string) => {
@@ -208,7 +208,7 @@ export const EvmForm: FC<Props> = ({ chainId, assetSlug, onSelectAssetClick, onR
         assetPrice={assetPrice}
         isCollectible={isNft}
         maxAmount={maxAmount}
-        maxEstimating={toFilled ? estimating : zeroRecipientEstimating}
+        maxEstimating={toFilled ? estimating : toVitalikEstimating}
         assetDecimals={assetDecimals}
         canToggleFiat={canToggleFiat}
         shouldUseFiat={shouldUseFiat}
