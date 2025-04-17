@@ -59,7 +59,6 @@ export const useRefreshIfActive = ({
   const windowIsActive = useWindowIsActive();
   const { pathname } = useLocation();
 
-  console.log('pathname', pathname);
 
   const shouldRefresh = useMemo(() => {
     if (pathname === '/') return true;
@@ -74,7 +73,6 @@ export const useRefreshIfActive = ({
       const parts = pathname.split('/');
       const id = parts[3];
       const maybeNum = Number(id);
-      console.log('restricted chainId', maybeNum);
       return isNaN(maybeNum) ? undefined : maybeNum;
     }
     return undefined;
