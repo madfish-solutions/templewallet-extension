@@ -26,7 +26,7 @@ import { useAssetUSDPrice } from 'lib/fiat-currency/core';
 import { T, t, toLocalFixed } from 'lib/i18n';
 import { useCategorizedTezosAssetMetadata, useGetCategorizedAssetMetadata } from 'lib/metadata';
 import {
-  BURN_ADDREESS,
+  BURN_ADDRESS,
   ROUTING_FEE_ADDRESS,
   ROUTING_FEE_RATIO,
   ROUTING_FEE_SLIPPAGE_RATIO,
@@ -51,6 +51,7 @@ import { HistoryAction, navigate } from 'lib/woozie';
 import { AccountForTezos } from 'temple/accounts';
 import { getTezosToolkitWithSigner, useTezosBlockLevel, useTezosMainnetChain } from 'temple/front';
 
+import { toastError } from '../../../toaster';
 import { EXCHANGE_XTZ_RESERVE } from '../constants';
 
 import { TezosReviewData } from './interfaces';
@@ -123,7 +124,6 @@ export const SwapForm = memo<Props>(({ account, slippageTolerance, onReview }) =
     TEZOS_MAINNET_CHAIN_ID
   )!;
 
-  const [error, setError] = useState<Error>();
   const [operation, setOperation] = useState<BatchWalletOperation>();
   const [isAlertVisible, setIsAlertVisible] = useState(false);
   const [shouldUseFiat, setShouldUseFiat] = useState(false);
@@ -305,9 +305,8 @@ export const SwapForm = memo<Props>(({ account, slippageTolerance, onReview }) =
     toAssetAmount
   ]);
 
-  const validateField = useCallback(({ assetSlug, amount }: SwapInputValue) => {
+  const validateField = useCallback(({ assetSlug }: SwapInputValue) => {
     if (!assetSlug) return t('assetMustBeSelected');
-    if (!amount || amount.isLessThanOrEqualTo(0)) return t('amountMustBePositive');
 
     return true;
   }, []);
@@ -322,6 +321,8 @@ export const SwapForm = memo<Props>(({ account, slippageTolerance, onReview }) =
 
   const validateInputField = useCallback(
     (props: SwapInputValue) => {
+      if (props.amount?.isLessThanOrEqualTo(0)) return t('amountMustBePositive');
+
       if (props.amount?.gt(inputTokenMaxAmount)) {
         return t('maximalAmount', toLocalFixed(inputTokenMaxAmount, Math.min(inputAssetMetadata.decimals, 6)));
       }
@@ -381,12 +382,14 @@ export const SwapForm = memo<Props>(({ account, slippageTolerance, onReview }) =
         outputValue
       );
 
+      let cashback;
+
       if (isInputTokenTempleToken && isSwapAmountMoreThreshold) {
         const routingInputFeeOpParams = await getRoutingFeeTransferParams(
           fromRoute3Token,
           routingFeeFromInputAtomic.minus(cashbackSwapInputFromInAtomic),
           publicKeyHash,
-          BURN_ADDREESS,
+          BURN_ADDRESS,
           tezos
         );
         allSwapParams.push(...routingInputFeeOpParams);
@@ -430,11 +433,17 @@ export const SwapForm = memo<Props>(({ account, slippageTolerance, onReview }) =
 
         allSwapParams.push(...swapToTempleTokenOpParams);
 
+        const burnAmount = templeMinOutputAtomic
+          .times(ROUTING_FEE_RATIO - SWAP_CASHBACK_RATIO)
+          .dividedToIntegerBy(ROUTING_FEE_RATIO);
+
+        cashback = templeExpectedOutputAtomic.minus(burnAmount);
+
         const routingFeeOpParams = await getRoutingFeeTransferParams(
           TEMPLE_TOKEN,
-          templeMinOutputAtomic.times(ROUTING_FEE_RATIO - SWAP_CASHBACK_RATIO).dividedToIntegerBy(ROUTING_FEE_RATIO),
+          burnAmount,
           publicKeyHash,
-          BURN_ADDREESS,
+          BURN_ADDRESS,
           tezos
         );
         allSwapParams.push(...routingFeeOpParams);
@@ -443,7 +452,7 @@ export const SwapForm = memo<Props>(({ account, slippageTolerance, onReview }) =
           TEMPLE_TOKEN,
           outputFeeAtomicAmount.times(ROUTING_FEE_RATIO - SWAP_CASHBACK_RATIO).dividedToIntegerBy(ROUTING_FEE_RATIO),
           publicKeyHash,
-          BURN_ADDREESS,
+          BURN_ADDRESS,
           tezos
         );
       } else if (!isInputTokenTempleToken && isSwapAmountMoreThreshold) {
@@ -475,11 +484,17 @@ export const SwapForm = memo<Props>(({ account, slippageTolerance, onReview }) =
           swapToTempleParams
         );
 
+        const burnAmount = templeMinOutputAtomic
+          .times(ROUTING_FEE_RATIO - SWAP_CASHBACK_RATIO)
+          .dividedToIntegerBy(ROUTING_FEE_RATIO);
+
+        cashback = templeExpectedOutputAtomic.minus(burnAmount);
+
         const routingFeeOpParams = await getRoutingFeeTransferParams(
           TEMPLE_TOKEN,
-          templeMinOutputAtomic.times(ROUTING_FEE_RATIO - SWAP_CASHBACK_RATIO).dividedToIntegerBy(ROUTING_FEE_RATIO),
+          burnAmount,
           publicKeyHash,
-          BURN_ADDREESS,
+          BURN_ADDRESS,
           tezos
         );
         routingOutputFeeTransferParams = [...swapToTempleTokenOpParams, ...routingFeeOpParams];
@@ -502,22 +517,23 @@ export const SwapForm = memo<Props>(({ account, slippageTolerance, onReview }) =
         opParams,
         account,
         network,
+        cashbackInTkey: cashback ? atomsToTokens(new BigNumber(cashback), TEMPLE_TOKEN.decimals).toString() : undefined,
+        minimumReceived: {
+          amount: atomsToTokens(new BigNumber(minimumReceivedAtomic), outputAssetMetadata.decimals).toString(),
+          symbol: outputAssetMetadata.symbol
+        },
         onConfirm: setOperation
       });
 
-      setError(undefined);
       formAnalytics.trackSubmitSuccess(analyticsProperties);
     } catch (err: any) {
       console.error(err);
       if (err.message !== 'Declined') {
-        setError(err);
+        toastError(err.message);
       }
       formAnalytics.trackSubmitFail(analyticsProperties);
     }
   };
-
-  const handleErrorClose = () => setError(undefined);
-  const handleOperationClose = () => setOperation(undefined);
 
   const handleToggleIconClick = () => {
     setValue('input', {
@@ -561,27 +577,10 @@ export const SwapForm = memo<Props>(({ account, slippageTolerance, onReview }) =
         </div>
       )}
 
-      {error && (
-        <Alert
-          className="mb-6"
-          type="error"
-          title={t('error')}
-          description={error.message}
-          closable
-          onClose={handleErrorClose}
-        />
-      )}
-
       {operation && (
-        <div className="px-4">
-          <OperationStatus
-            network={network}
-            className="mb-8"
-            closable
-            typeTitle={t('swapNoun')}
-            operation={operation}
-            onClose={handleOperationClose}
-          />
+        // TODO: Redesign
+        <div className="px-4 hidden">
+          <OperationStatus network={network} typeTitle={t('swapNoun')} operation={operation} />
         </div>
       )}
 

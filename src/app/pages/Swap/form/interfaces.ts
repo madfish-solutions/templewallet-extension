@@ -6,6 +6,11 @@ import { TezosReviewData as GenericTezosReviewData } from 'lib/temple/front/esti
 interface BaseReviewData {
   opParams: WalletParamsWithKind[];
   onConfirm: SyncFn<BatchWalletOperation | undefined>;
+  cashbackInTkey?: string;
+  minimumReceived?: {
+    amount: string;
+    symbol: string;
+  };
 }
 
 export type TezosReviewData = GenericTezosReviewData<BaseReviewData>;

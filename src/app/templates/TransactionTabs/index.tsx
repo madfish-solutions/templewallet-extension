@@ -32,6 +32,11 @@ export interface TransactionTabsProps<T extends TxParamsFormData> {
   tabsName: string;
   destinationName?: ReactNode;
   destinationValue?: ReactNode;
+  cashbackInTkey?: string;
+  minimumReceived?: {
+    amount: string;
+    symbol: string;
+  };
   children?: ReactNode;
 }
 
@@ -52,6 +57,8 @@ export const TransactionTabs = <T extends TxParamsFormData>({
   tabsName,
   destinationName,
   destinationValue,
+  cashbackInTkey,
+  minimumReceived,
   children
 }: TransactionTabsProps<T>) => {
   const { handleSubmit } = useFormContext<T>();
@@ -128,12 +135,14 @@ export const TransactionTabs = <T extends TxParamsFormData>({
                 return (
                   <DetailsTab
                     network={network}
-                    assetSlug={nativeAssetSlug}
+                    nativeAssetSlug={nativeAssetSlug}
                     displayedFee={displayedFee}
                     displayedStorageFee={displayedStorageFee}
                     goToFeeTab={goToFeeTab}
                     destinationName={destinationName}
                     destinationValue={destinationValue}
+                    cashbackInTkey={cashbackInTkey}
+                    minimumReceived={minimumReceived}
                   />
                 );
             }

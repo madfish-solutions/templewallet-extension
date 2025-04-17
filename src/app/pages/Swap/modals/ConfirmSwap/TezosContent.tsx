@@ -36,7 +36,7 @@ interface TezosContentProps {
 }
 
 export const TezosContent: FC<TezosContentProps> = ({ data, onClose }) => {
-  const { opParams, account, network, onConfirm } = data;
+  const { opParams, account, network, cashbackInTkey, minimumReceived, onConfirm } = data;
   const { rpcBaseURL, chainId } = network;
 
   const accountPkh = account.address;
@@ -208,6 +208,8 @@ export const TezosContent: FC<TezosContentProps> = ({ data, onClose }) => {
           displayedFee={displayedFee}
           displayedStorageFee={displayedStorageFee}
           displayedFeeOptions={displayedFeeOptions}
+          cashbackInTkey={cashbackInTkey}
+          minimumReceived={minimumReceived}
           formId="confirm-form"
           tabsName="confirm-send-tabs"
         />

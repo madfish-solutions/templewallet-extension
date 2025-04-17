@@ -57,7 +57,7 @@
     "message": "Максимально допустимое отклонение"
   },
   "minimumReceived": {
-    "message": "Минимальный выход"
+    "message": "Минимальный Выход"
   },
   "cycles_one": {
     "message": "$amount$ цикл",
