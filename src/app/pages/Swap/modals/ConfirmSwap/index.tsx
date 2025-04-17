@@ -14,7 +14,14 @@ interface ConfirmSendModalProps {
 }
 
 export const ConfirmSwapModal: FC<ConfirmSendModalProps> = ({ opened, onRequestClose, reviewData }) => (
-  <PageModal title="Swap Preview" titleLeft={null} opened={opened} onRequestClose={onRequestClose}>
+  <PageModal
+    title="Swap Preview"
+    titleLeft={null}
+    titleRight={<div />}
+    opened={opened}
+    onRequestClose={onRequestClose}
+    shouldChangeBottomShift={false}
+  >
     {reviewData ? (
       isEvmReviewData(reviewData) ? null : (
         <TezosEstimationDataProvider>
